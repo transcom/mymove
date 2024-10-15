@@ -32,12 +32,15 @@ func (suite *PayloadsSuite) TestFetchPPMShipment() {
 	streetAddress1 := "MacDill AFB"
 	streetAddress2, streetAddress3 := "", ""
 	city := "Tampa"
-	state := "FL"
 	postalcode := "33621"
 	county := "HILLSBOROUGH"
 
 	country := models.Country{
 		Country: "US",
+	}
+
+	state := models.State{
+		State: "FL",
 	}
 
 	expectedAddress := models.Address{
@@ -148,11 +151,14 @@ func (suite *PayloadsSuite) TestUpload() {
 func (suite *PayloadsSuite) TestShipmentAddressUpdate() {
 	id, _ := uuid.NewV4()
 	id2, _ := uuid.NewV4()
+	state := models.State{
+		State: "CA",
+	}
 
 	newAddress := models.Address{
 		StreetAddress1: "123 New St",
 		City:           "Beverly Hills",
-		State:          "CA",
+		State:          state,
 		PostalCode:     "89503",
 		County:         *models.StringPointer("WASHOE"),
 	}
@@ -160,7 +166,7 @@ func (suite *PayloadsSuite) TestShipmentAddressUpdate() {
 	oldAddress := models.Address{
 		StreetAddress1: "123 Old St",
 		City:           "Beverly Hills",
-		State:          "CA",
+		State:          state,
 		PostalCode:     "89502",
 		County:         *models.StringPointer("WASHOE"),
 	}
@@ -168,7 +174,7 @@ func (suite *PayloadsSuite) TestShipmentAddressUpdate() {
 	sitOriginalAddress := models.Address{
 		StreetAddress1: "123 SIT St",
 		City:           "Beverly Hills",
-		State:          "CA",
+		State:          state,
 		PostalCode:     "89501",
 		County:         *models.StringPointer("WASHOE"),
 	}
@@ -276,11 +282,14 @@ func (suite *PayloadsSuite) TestProofOfServiceDoc() {
 func (suite *PayloadsSuite) TestCustomer() {
 	id, _ := uuid.NewV4()
 	id2, _ := uuid.NewV4()
+	state := models.State{
+		State: "FL",
+	}
 
 	residentialAddress := models.Address{
 		StreetAddress1: "123 New St",
 		City:           "Beverly Hills",
-		State:          "CA",
+		State:          state,
 		PostalCode:     "89503",
 		County:         *models.StringPointer("WASHOE"),
 	}
@@ -288,7 +297,7 @@ func (suite *PayloadsSuite) TestCustomer() {
 	backupAddress := models.Address{
 		StreetAddress1: "123 Old St",
 		City:           "Beverly Hills",
-		State:          "CA",
+		State:          state,
 		PostalCode:     "89502",
 		County:         *models.StringPointer("WASHOE"),
 	}
@@ -324,6 +333,9 @@ func (suite *PayloadsSuite) TestCreateCustomer() {
 	id, _ := uuid.NewV4()
 	id2, _ := uuid.NewV4()
 	oktaID := "thisIsNotARealID"
+	state := models.State{
+		State: "FL",
+	}
 
 	oktaUser := models.CreatedOktaUser{
 		ID: oktaID,
@@ -342,7 +354,7 @@ func (suite *PayloadsSuite) TestCreateCustomer() {
 	residentialAddress := models.Address{
 		StreetAddress1: "123 New St",
 		City:           "Beverly Hills",
-		State:          "CA",
+		State:          state,
 		PostalCode:     "89503",
 		County:         *models.StringPointer("WASHOE"),
 	}
@@ -350,7 +362,7 @@ func (suite *PayloadsSuite) TestCreateCustomer() {
 	backupAddress := models.Address{
 		StreetAddress1: "123 Old St",
 		City:           "Beverly Hills",
-		State:          "CA",
+		State:          state,
 		PostalCode:     "89502",
 		County:         *models.StringPointer("WASHOE"),
 	}

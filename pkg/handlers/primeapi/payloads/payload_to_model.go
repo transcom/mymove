@@ -13,6 +13,20 @@ import (
 	"github.com/transcom/mymove/pkg/unit"
 )
 
+// StateModel model
+func StateModel(state *string) models.State {
+	// The prime doesn't know the uuids of our states, so for now we are going to just populate the name so we can query that
+	// when creating the address
+	if state == nil {
+		return models.State{}
+	}
+
+	modelState := models.State{
+		State: *state,
+	}
+	return modelState
+}
+
 // CountryModel model
 func CountryModel(country *string) *models.Country {
 	// The prime doesn't know the uuids of our countries, so for now we are going to just populate the name so we can query that
@@ -48,7 +62,7 @@ func AddressModel(address *primemessages.Address) *models.Address {
 		modelAddress.City = *address.City
 	}
 	if address.State != nil {
-		modelAddress.State = *address.State
+		modelAddress.State = StateModel(address.State)
 	}
 	if address.PostalCode != nil {
 		modelAddress.PostalCode = *address.PostalCode
@@ -229,8 +243,10 @@ func PPMShipmentModelFromCreate(ppmShipment *primemessages.CreatePPMShipment) *m
 		StreetAddress2: models.StringPointer("Endpoint no longer supported"),
 		StreetAddress3: models.StringPointer("Update address field to appropriate values"),
 		City:           "DEPV2",
-		State:          "CA",
-		PostalCode:     "90210",
+		State: models.State{
+			State: "CA",
+		},
+		PostalCode: "90210",
 	}
 
 	model.PickupAddress = addressModel

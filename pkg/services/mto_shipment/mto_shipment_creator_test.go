@@ -187,16 +187,16 @@ func (suite *MTOShipmentServiceSuite) TestCreateMTOShipment() {
 				LinkOnly: true,
 			},
 			{
-				Model: models.Address{
+				Model: models.State{
 					State: "AK",
 				},
 				Type: &factory.Addresses.PickupAddress,
 			},
 			{
-				Model: models.Address{
+				Model: models.State{
 					State: "HI",
 				},
-				Type: &factory.Addresses.DeliveryAddress,
+				Type: &factory.Addresses.PickupAddress,
 			},
 		}, nil)
 

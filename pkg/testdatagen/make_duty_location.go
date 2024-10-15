@@ -108,8 +108,12 @@ func fetchOrMakeDefaultNewOrdersDutyLocation(db *pop.Connection) models.DutyLoca
 	}
 	fortEisenhowerAssertions := Assertions{
 		Address: models.Address{
-			City:       "Fort Eisenhower",
-			State:      "GA",
+			City: "Fort Eisenhower",
+			State: models.State{
+				State:     "GA",
+				StateName: "GEORGIA",
+				IsOconus:  *models.BoolPointer(false),
+			},
 			PostalCode: "30813",
 		},
 		DutyLocation: models.DutyLocation{

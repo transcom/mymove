@@ -347,8 +347,12 @@ func (suite *ModelSuite) TestSaveServiceMember() {
 	resAddress := m.Address{
 		StreetAddress1: "987 Other Avenue",
 		City:           "Tulsa",
-		State:          "OK",
-		PostalCode:     "74133",
+		State: models.State{
+			State:     "OK",
+			StateName: "OKLAHOMA",
+			IsOconus:  *models.BoolPointer(false),
+		},
+		PostalCode: "74133",
 	}
 	sm.ResidentialAddress = &resAddress
 	verrs, err := m.SaveServiceMember(appCtx, &sm)
@@ -359,8 +363,12 @@ func (suite *ModelSuite) TestSaveServiceMember() {
 	backupAddress := m.Address{
 		StreetAddress1: "987 Backup Avenue",
 		City:           "Tulsa",
-		State:          "OK",
-		PostalCode:     "74133",
+		State: models.State{
+			State:     "OK",
+			StateName: "OKLAHOMA",
+			IsOconus:  *models.BoolPointer(false),
+		},
+		PostalCode: "74133",
 	}
 	sm.BackupMailingAddress = &backupAddress
 	verrs, err = m.SaveServiceMember(appCtx, &sm)

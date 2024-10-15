@@ -714,12 +714,19 @@ func (suite *PayloadsSuite) TestStorageFacility() {
 	facilityName := "dummy"
 	lotNumber := "dummy"
 	phone := "dummy"
+	state := factory.FetchOrBuildState(suite.DB(), []factory.Customization{
+		{
+			Model: models.State{
+				State: "CA",
+			},
+		},
+	}, nil)
 	storage := &models.StorageFacility{
 		ID: storageFacilityID,
 		Address: models.Address{
 			StreetAddress1: dummy,
 			City:           dummy,
-			State:          dummy,
+			State:          state,
 			PostalCode:     dummy,
 		},
 		Email:        &email,

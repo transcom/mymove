@@ -358,7 +358,13 @@ func (suite *HandlerSuite) TestGetPPMSITEstimatedCostHandler() {
 		streetAddress1 := "10642 N Second Ave"
 		streetAddress2 := "Apt. 308"
 		city := "Atco"
-		state := "NJ"
+		state := factory.FetchOrBuildState(suite.AppContextForTest().DB(), []factory.Customization{
+			{
+				Model: models.State{
+					State: "NJ",
+				},
+			},
+		}, nil)
 		postalCode := "30813"
 		destinationAddress := &models.Address{
 			StreetAddress1: streetAddress1,

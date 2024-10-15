@@ -83,8 +83,10 @@ func (suite *ShipmentAddressUpdateServiceSuite) TestCreateApprovedShipmentAddres
 		newAddress := models.Address{
 			StreetAddress1: "987 Any Avenue",
 			City:           "Fairfield",
-			State:          "CA",
-			PostalCode:     "94535",
+			State: models.State{
+				State: "CA",
+			},
+			PostalCode: "94535",
 		}
 		suite.NotEmpty(move.MTOShipments)
 		update, err := addressUpdateRequester.RequestShipmentDeliveryAddressUpdate(suite.AppContextForTest(), shipment.ID, newAddress, "we really need to change the address", etag.GenerateEtag(shipment.UpdatedAt))
@@ -111,8 +113,10 @@ func (suite *ShipmentAddressUpdateServiceSuite) TestCreateApprovedShipmentAddres
 		newAddress := models.Address{
 			StreetAddress1: "123 Any St",
 			City:           "Beverly Hills",
-			State:          "CA",
-			PostalCode:     shipment.DestinationAddress.PostalCode,
+			State: models.State{
+				State: "CA",
+			},
+			PostalCode: shipment.DestinationAddress.PostalCode,
 		}
 		suite.NotEmpty(move.MTOShipments)
 		update, err := addressUpdateRequester.RequestShipmentDeliveryAddressUpdate(suite.AppContextForTest(), shipment.ID, newAddress, "we really need to change the address", etag.GenerateEtag(shipment.UpdatedAt.Add(-1)))
@@ -138,8 +142,10 @@ func (suite *ShipmentAddressUpdateServiceSuite) TestCreateApprovedShipmentAddres
 		newAddress := models.Address{
 			StreetAddress1: "123 Any St",
 			City:           "Beverly Hills",
-			State:          "CA",
-			PostalCode:     "90210",
+			State: models.State{
+				State: "CA",
+			},
+			PostalCode: "90210",
 		}
 		update, err := addressUpdateRequester.RequestShipmentDeliveryAddressUpdate(suite.AppContextForTest(), shipment.ID, newAddress, "we really need to change the address", etag.GenerateEtag(shipment.UpdatedAt))
 		suite.Error(err)
@@ -151,8 +157,10 @@ func (suite *ShipmentAddressUpdateServiceSuite) TestCreateApprovedShipmentAddres
 		newAddress := models.Address{
 			StreetAddress1: "123 Any St",
 			City:           "Beverly Hills",
-			State:          "CA",
-			PostalCode:     "90210",
+			State: models.State{
+				State: "CA",
+			},
+			PostalCode: "90210",
 		}
 
 		shipment := factory.BuildMTOShipmentWithMove(&move, suite.DB(), nil, nil)
@@ -191,8 +199,10 @@ func (suite *ShipmentAddressUpdateServiceSuite) TestCreateApprovedShipmentAddres
 		newAddress := models.Address{
 			StreetAddress1: "123 Any St",
 			City:           "Beverly Hills",
-			State:          "CA",
-			PostalCode:     "90210",
+			State: models.State{
+				State: "CA",
+			},
+			PostalCode: "90210",
 		}
 		shipment := factory.BuildNTSShipment(suite.DB(), []factory.Customization{
 			{
@@ -210,8 +220,10 @@ func (suite *ShipmentAddressUpdateServiceSuite) TestCreateApprovedShipmentAddres
 		newAddress := models.Address{
 			StreetAddress1: "123 Any St",
 			City:           "Beverly Hills",
-			State:          "CA",
-			PostalCode:     "90210",
+			State: models.State{
+				State: "CA",
+			},
+			PostalCode: "90210",
 		}
 		storageFacility := factory.BuildStorageFacility(suite.DB(), nil, nil)
 		shipment := factory.BuildNTSRShipment(suite.DB(), []factory.Customization{
@@ -235,8 +247,10 @@ func (suite *ShipmentAddressUpdateServiceSuite) TestCreateApprovedShipmentAddres
 		newAddress := models.Address{
 			StreetAddress1: "123 Any St",
 			City:           "Beverly Hills",
-			State:          "CA",
-			PostalCode:     shipment.DestinationAddress.PostalCode,
+			State: models.State{
+				State: "CA",
+			},
+			PostalCode: shipment.DestinationAddress.PostalCode,
 		}
 		mockPlanner.On("ZipTransitDistance",
 			mock.AnythingOfType("*appcontext.appContext"),
@@ -281,8 +295,10 @@ func (suite *ShipmentAddressUpdateServiceSuite) TestCreateApprovedShipmentAddres
 		newAddress := models.Address{
 			StreetAddress1: "123 Any St",
 			City:           "Beverly Hills",
-			State:          "CA",
-			PostalCode:     "90210",
+			State: models.State{
+				State: "CA",
+			},
+			PostalCode: "90210",
 		}
 		move := setupTestData()
 		shipment := factory.BuildMTOShipmentWithMove(&move, suite.DB(), []factory.Customization{
@@ -341,8 +357,10 @@ func (suite *ShipmentAddressUpdateServiceSuite) TestCreateApprovedShipmentAddres
 		newAddress := models.Address{
 			StreetAddress1: "123 Any St",
 			City:           "Beverly Hills",
-			State:          "CA",
-			PostalCode:     "89503",
+			State: models.State{
+				State: "CA",
+			},
+			PostalCode: "89503",
 		}
 
 		update, err := addressUpdateRequester.RequestShipmentDeliveryAddressUpdate(suite.AppContextForTest(), shipment.ID, newAddress, "we really need to change the address", etag.GenerateEtag(shipment.UpdatedAt))
@@ -418,8 +436,10 @@ func (suite *ShipmentAddressUpdateServiceSuite) TestCreateApprovedShipmentAddres
 		newAddress := models.Address{
 			StreetAddress1: "123 Any St",
 			City:           "Beverly Hills",
-			State:          "CA",
-			PostalCode:     "89503",
+			State: models.State{
+				State: "CA",
+			},
+			PostalCode: "89503",
 		}
 		move := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
 		shipment := factory.BuildMTOShipmentWithMove(&move, suite.DB(), []factory.Customization{
@@ -481,8 +501,10 @@ func (suite *ShipmentAddressUpdateServiceSuite) TestCreateApprovedShipmentAddres
 		newAddress := models.Address{
 			StreetAddress1: "123 Any St",
 			City:           "Albuquerque",
-			State:          "NM",
-			PostalCode:     "87053",
+			State: models.State{
+				State: "NM",
+			},
+			PostalCode: "87053",
 		}
 
 		mockPlanner.On("ZipTransitDistance",
@@ -513,8 +535,10 @@ func (suite *ShipmentAddressUpdateServiceSuite) TestCreateApprovedShipmentAddres
 		newAddress := models.Address{
 			StreetAddress1: "123 Any St",
 			City:           "Beverly Hills",
-			State:          "CA",
-			PostalCode:     "90210",
+			State: models.State{
+				State: "CA",
+			},
+			PostalCode: "90210",
 		}
 
 		shipment := factory.BuildMTOShipmentWithMove(&move, suite.DB(), nil, nil)
@@ -662,8 +686,10 @@ func (suite *ShipmentAddressUpdateServiceSuite) TestTOOApprovedShipmentAddressUp
 					StreetAddress2: models.StringPointer("Apt 2"),
 					StreetAddress3: models.StringPointer("Suite 200"),
 					City:           "New York",
-					State:          "NY",
-					PostalCode:     "10001",
+					State: models.State{
+						State: "NY",
+					},
+					PostalCode: "10001",
 				},
 				Type: &factory.Addresses.OriginalAddress,
 			},
@@ -673,8 +699,10 @@ func (suite *ShipmentAddressUpdateServiceSuite) TestTOOApprovedShipmentAddressUp
 					StreetAddress2: models.StringPointer("Apt 2"),
 					StreetAddress3: models.StringPointer("Suite 200"),
 					City:           "New York",
-					State:          "NY",
-					PostalCode:     "10001",
+					State: models.State{
+						State: "NY",
+					},
+					PostalCode: "10001",
 				},
 				Type: &factory.Addresses.NewAddress,
 			},
@@ -730,8 +758,10 @@ func (suite *ShipmentAddressUpdateServiceSuite) TestTOOApprovedShipmentAddressUp
 					StreetAddress2: models.StringPointer("Apt 2"),
 					StreetAddress3: models.StringPointer("Suite 200"),
 					City:           "New York",
-					State:          "NY",
-					PostalCode:     "10001",
+					State: models.State{
+						State: "NY",
+					},
+					PostalCode: "10001",
 				},
 				Type: &factory.Addresses.OriginalAddress,
 			},
@@ -741,9 +771,11 @@ func (suite *ShipmentAddressUpdateServiceSuite) TestTOOApprovedShipmentAddressUp
 					StreetAddress2: models.StringPointer("Apt 5B"),
 					StreetAddress3: models.StringPointer("Suite 300"),
 					City:           "Anchorage",
-					State:          "AK",
-					PostalCode:     "99503",
-					IsOconus:       models.BoolPointer(true),
+					State: models.State{
+						State: "AK",
+					},
+					PostalCode: "99503",
+					IsOconus:   models.BoolPointer(true),
 				},
 				Type: &factory.Addresses.NewAddress,
 			},
@@ -873,8 +905,10 @@ func (suite *ShipmentAddressUpdateServiceSuite) TestTOOApprovedShipmentAddressUp
 		newAddress := models.Address{
 			StreetAddress1: "123 Any St",
 			City:           "Beverly Hills",
-			State:          "CA",
-			PostalCode:     "89503",
+			State: models.State{
+				State: "CA",
+			},
+			PostalCode: "89503",
 		}
 
 		// Trigger the prime address update to get move in correct state for DLH -> DSH
@@ -943,8 +977,10 @@ func (suite *ShipmentAddressUpdateServiceSuite) TestTOOApprovedShipmentAddressUp
 		newAddress := models.Address{
 			StreetAddress1: "123 Any St",
 			City:           "Beverly Hills",
-			State:          "CA",
-			PostalCode:     "89503",
+			State: models.State{
+				State: "CA",
+			},
+			PostalCode: "89503",
 		}
 
 		// Trigger the prime address update to get move in correct state for DLH -> DSH
@@ -979,8 +1015,10 @@ func (suite *ShipmentAddressUpdateServiceSuite) TestTOOApprovedShipmentAddressUp
 		newAddress := models.Address{
 			StreetAddress1: "123 Any St",
 			City:           "Beverly Hills",
-			State:          "CA",
-			PostalCode:     shipment.DestinationAddress.PostalCode,
+			State: models.State{
+				State: "CA",
+			},
+			PostalCode: shipment.DestinationAddress.PostalCode,
 		}
 		mockPlanner.On("ZipTransitDistance",
 			mock.AnythingOfType("*appcontext.appContext"),
@@ -1036,8 +1074,10 @@ func (suite *ShipmentAddressUpdateServiceSuite) TestTOOApprovedShipmentAddressUp
 		newAddress := models.Address{
 			StreetAddress1: "123 Any St",
 			City:           "Beverly Hills",
-			State:          "CA",
-			PostalCode:     "89503",
+			State: models.State{
+				State: "CA",
+			},
+			PostalCode: "89503",
 		}
 
 		// Trigger the prime address update to get move in correct state for DLH -> DSH
@@ -1077,8 +1117,10 @@ func (suite *ShipmentAddressUpdateServiceSuite) TestTOOApprovedShipmentAddressUp
 		newAddress := models.Address{
 			StreetAddress1: "123 Any St",
 			City:           "Beverly Hills",
-			State:          "CA",
-			PostalCode:     "90210",
+			State: models.State{
+				State: "CA",
+			},
+			PostalCode: "90210",
 		}
 		move := setupTestData()
 		shipment := factory.BuildMTOShipmentWithMove(&move, suite.DB(), []factory.Customization{

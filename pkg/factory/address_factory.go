@@ -29,11 +29,26 @@ func BuildAddress(db *pop.Connection, customs []Customization, traits []Trait) m
 		StreetAddress2: models.StringPointer("P.O. Box 12345"),
 		StreetAddress3: models.StringPointer("c/o Some Person"),
 		City:           "Beverly Hills",
-		State:          "CA",
 		PostalCode:     "90210",
 		County:         "LOS ANGELES",
 		IsOconus:       models.BoolPointer(false),
 	}
+
+	// Find/create the State if customization is provided
+	var state models.State
+	if result := findValidCustomization(customs, State); result != nil {
+		state = BuildState(db, customs, nil)
+	} else {
+		state = FetchOrBuildState(db, []Customization{
+			{
+				Model: models.State{
+					State: "CA",
+				},
+			},
+		}, nil)
+	}
+	address.State = state
+	address.StateId = state.ID
 
 	// Find/create the Country if customization is provided
 	var country models.Country
@@ -96,10 +111,27 @@ func BuildMinimalAddress(db *pop.Connection, customs []Customization, traits []T
 	address := models.Address{
 		StreetAddress1: "N/A",
 		City:           "Fort Gorden",
-		State:          "GA",
 		PostalCode:     "30813",
 		County:         "RICHMOND",
 	}
+
+	// Find/create the State if customization is provided
+	var state models.State
+	if result := findValidCustomization(customs, State); result != nil {
+		state = BuildState(db, customs, nil)
+	} else {
+		state = BuildState(db, []Customization{
+			{
+				Model: models.State{
+					State:     "CA",
+					StateName: "California",
+					IsOconus:  *models.BoolPointer(false),
+				},
+			},
+		}, nil)
+	}
+	address.State = state
+	address.StateId = state.ID
 
 	// Find/create the Country if customization is provided
 	var country models.Country
@@ -144,8 +176,12 @@ func GetTraitAddress2() []Customization {
 				StreetAddress2: models.StringPointer("P.O. Box 9876"),
 				StreetAddress3: models.StringPointer("c/o Some Person"),
 				City:           "Fairfield",
-				State:          "CA",
 				PostalCode:     "94535",
+			},
+		},
+		{
+			Model: models.State{
+				State: "CA",
 			},
 		},
 	}
@@ -161,8 +197,12 @@ func GetTraitAddress3() []Customization {
 				StreetAddress2: models.StringPointer("P.O. Box 1234"),
 				StreetAddress3: models.StringPointer("c/o Another Person"),
 				City:           "Des Moines",
-				State:          "IA",
 				PostalCode:     "50309",
+			},
+		},
+		{
+			Model: models.State{
+				State: "IA",
 			},
 		},
 	}
@@ -178,8 +218,12 @@ func GetTraitAddress4() []Customization {
 				StreetAddress2: models.StringPointer("P.O. Box 1234"),
 				StreetAddress3: models.StringPointer("c/o Another Person"),
 				City:           "Houston",
-				State:          "TX",
 				PostalCode:     "77083",
+			},
+		},
+		{
+			Model: models.State{
+				State: "TX",
 			},
 		},
 	}

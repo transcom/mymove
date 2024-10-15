@@ -485,7 +485,7 @@ func (g ghcPaymentRequestInvoiceGenerator) createOriginAndDestinationSegments(ap
 	// destination city/state/postal
 	header.DestinationPostalDetails = edisegment.N4{
 		CityName:            truncateStr(destinationDutyLocation.Address.City, maxCityLength),
-		StateOrProvinceCode: destinationDutyLocation.Address.State,
+		StateOrProvinceCode: destinationDutyLocation.Address.State.State,
 		PostalCode:          destinationDutyLocation.Address.PostalCode,
 	}
 	if destinationDutyLocation.Address.Country != nil {
@@ -546,7 +546,7 @@ func (g ghcPaymentRequestInvoiceGenerator) createOriginAndDestinationSegments(ap
 	// origin city/state/postal
 	header.OriginPostalDetails = edisegment.N4{
 		CityName:            truncateStr(originDutyLocation.Address.City, maxCityLength),
-		StateOrProvinceCode: originDutyLocation.Address.State,
+		StateOrProvinceCode: originDutyLocation.Address.State.State,
 		PostalCode:          originDutyLocation.Address.PostalCode,
 	}
 	if originDutyLocation.Address.Country != nil {

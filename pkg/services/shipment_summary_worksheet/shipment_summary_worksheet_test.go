@@ -1105,8 +1105,10 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestFormatAddress() {
 	validAddress := &models.Address{
 		StreetAddress1: "123 Main St",
 		City:           "Cityville",
-		State:          "ST",
-		PostalCode:     "12345",
+		State: models.State{
+			State: "CA",
+		},
+		PostalCode: "12345",
 	}
 
 	expectedValidResult := "123 Main St,  Cityville ST 12345"
@@ -1120,9 +1122,11 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestFormatAddress() {
 	validAddress2 := &models.Address{
 		StreetAddress1: "123 Main St",
 		City:           "Cityville",
-		State:          "ST",
-		PostalCode:     "12345",
-		Country:        &country,
+		State: models.State{
+			State: "CA",
+		},
+		PostalCode: "12345",
+		Country:    &country,
 	}
 
 	expectedValidResult2 := "123 Main St,  Cityville ST US12345"

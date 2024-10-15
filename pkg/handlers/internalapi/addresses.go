@@ -13,6 +13,15 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 )
 
+func getStateFromString(stateStr string) models.State {
+	var state models.State
+	if stateStr != "" {
+		state = models.State{State: stateStr}
+		return state
+	}
+	return models.State{}
+}
+
 func addressModelFromPayload(rawAddress *internalmessages.Address) *models.Address {
 	if rawAddress == nil {
 		return nil
@@ -25,7 +34,7 @@ func addressModelFromPayload(rawAddress *internalmessages.Address) *models.Addre
 		StreetAddress2: rawAddress.StreetAddress2,
 		StreetAddress3: rawAddress.StreetAddress3,
 		City:           *rawAddress.City,
-		State:          *rawAddress.State,
+		State:          getStateFromString(*rawAddress.State),
 		PostalCode:     *rawAddress.PostalCode,
 		County:         *rawAddress.County,
 	}
@@ -36,7 +45,7 @@ func updateAddressWithPayload(a *models.Address, payload *internalmessages.Addre
 	a.StreetAddress2 = payload.StreetAddress2
 	a.StreetAddress3 = payload.StreetAddress3
 	a.City = *payload.City
-	a.State = *payload.State
+	a.State = getStateFromString(*payload.State)
 	a.PostalCode = *payload.PostalCode
 	if payload.County == nil {
 		a.County = ""

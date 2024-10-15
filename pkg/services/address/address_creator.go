@@ -62,7 +62,7 @@ func (f *addressCreator) CreateAddress(appCtx appcontext.AppContext, address *mo
 	// use the data we have first, if it's not nil
 	if transformedAddress.Country != nil {
 		country := transformedAddress.Country
-		if country.Country != "US" || country.Country == "US" && transformedAddress.State == "AK" || country.Country == "US" && transformedAddress.State == "HI" {
+		if country.Country != "US" || country.Country == "US" && transformedAddress.State.State == "AK" || country.Country == "US" && transformedAddress.State.State == "HI" {
 			boolTrueVal := true
 			transformedAddress.IsOconus = &boolTrueVal
 		} else {
@@ -74,7 +74,7 @@ func (f *addressCreator) CreateAddress(appCtx appcontext.AppContext, address *mo
 		if err != nil {
 			return nil, err
 		}
-		if country.Country != "US" || country.Country == "US" && transformedAddress.State == "AK" || country.Country == "US" && transformedAddress.State == "HI" {
+		if country.Country != "US" || country.Country == "US" && transformedAddress.State.State == "AK" || country.Country == "US" && transformedAddress.State.State == "HI" {
 			boolTrueVal := true
 			transformedAddress.IsOconus = &boolTrueVal
 		} else {

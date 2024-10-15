@@ -48,7 +48,7 @@ func AddressModel(address *primev2messages.Address) *models.Address {
 		modelAddress.City = *address.City
 	}
 	if address.State != nil {
-		modelAddress.State = *address.State
+		modelAddress.State.State = *address.State
 	}
 	if address.PostalCode != nil {
 		modelAddress.PostalCode = *address.PostalCode
@@ -237,8 +237,10 @@ func PPMShipmentModelFromCreate(ppmShipment *primev2messages.CreatePPMShipment) 
 		StreetAddress2: models.StringPointer("Endpoint no longer supported"),
 		StreetAddress3: models.StringPointer("Update address field to appropriate values"),
 		City:           "DEPV1",
-		State:          "CA",
-		PostalCode:     "90210",
+		State: models.State{
+			State: "CA",
+		},
+		PostalCode: "90210",
 	}
 
 	model.PickupAddress = addressModel

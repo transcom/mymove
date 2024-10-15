@@ -134,8 +134,10 @@ func (b *MigrationBuilder) Build(appCtx appcontext.AppContext, dutyStationsFileP
 	for _, s := range stations {
 		city, state := getCityState(appCtx, s.Unit)
 		address := models.Address{
-			City:       city,
-			State:      state,
+			City: city,
+			State: models.State{
+				State: state,
+			},
 			PostalCode: s.Zip,
 		}
 		if state == "HI" || state == "AK" {

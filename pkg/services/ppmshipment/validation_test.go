@@ -44,26 +44,34 @@ func (suite *PPMShipmentSuite) TestMergePPMShipment() {
 		expectedSecondaryPickupAddress = &models.Address{
 			StreetAddress1: "123 Secondary Pickup",
 			City:           "New York",
-			State:          "NY",
-			PostalCode:     "90210",
+			State: models.State{
+				State: "NY",
+			},
+			PostalCode: "90210",
 		}
 		expectedSecondaryDestinationAddress = &models.Address{
 			StreetAddress1: "123 Secondary Pickup",
 			City:           "New York",
-			State:          "NY",
-			PostalCode:     "90210",
+			State: models.State{
+				State: "NY",
+			},
+			PostalCode: "90210",
 		}
 		expectedTertiaryPickupAddress = &models.Address{
 			StreetAddress1: "123 Tertiary Pickup",
 			City:           "New York",
-			State:          "NY",
-			PostalCode:     "90210",
+			State: models.State{
+				State: "NY",
+			},
+			PostalCode: "90210",
 		}
 		expectedTertiaryDestinationAddress = &models.Address{
 			StreetAddress1: "123 Tertiary Pickup",
 			City:           "New York",
-			State:          "NY",
-			PostalCode:     "90210",
+			State: models.State{
+				State: "NY",
+			},
+			PostalCode: "90210",
 		}
 		expectedSecondaryPickupAddressID      = uuid.Must(uuid.NewV4())
 		expectedSecondaryDestinationAddressID = uuid.Must(uuid.NewV4())
@@ -75,6 +83,9 @@ func (suite *PPMShipmentSuite) TestMergePPMShipment() {
 	setupShipmentData := func(ppmState PPMShipmentState, oldFlags flags) (oldShipment models.PPMShipment) {
 		id := uuid.Must(uuid.NewV4())
 		shipmentID := uuid.Must(uuid.NewV4())
+		state := models.State{
+			State: "NY",
+		}
 
 		oldShipment = models.PPMShipment{
 			ID:                    id,
@@ -84,14 +95,14 @@ func (suite *PPMShipmentSuite) TestMergePPMShipment() {
 			PickupAddress: &models.Address{
 				StreetAddress1: "123 Pickup",
 				City:           "New York",
-				State:          "NY",
+				State:          state,
 				PostalCode:     "90210",
 			},
 			PickupAddressID: models.UUIDPointer(uuid.Must(uuid.NewV4())),
 			DestinationAddress: &models.Address{
 				StreetAddress1: "123 Pickup",
 				City:           "New York",
-				State:          "NY",
+				State:          state,
 				PostalCode:     "90210",
 			},
 			DestinationAddressID: models.UUIDPointer(uuid.Must(uuid.NewV4())),
@@ -573,8 +584,10 @@ func (suite *PPMShipmentSuite) TestMergePPMShipment() {
 				W2Address: &models.Address{
 					StreetAddress1: "123 Main",
 					City:           "New York",
-					State:          "NY",
-					PostalCode:     "90210",
+					State: models.State{
+						State: "NY",
+					},
+					PostalCode: "90210",
 				},
 				FinalIncentive: models.CentPointer(unit.Cents(3300)),
 			},
@@ -776,8 +789,10 @@ func (suite *PPMShipmentSuite) TestMergePPMShipment() {
 				SecondaryPickupAddress: &models.Address{
 					StreetAddress1: "updated",
 					City:           "updated",
-					State:          "NY",
-					PostalCode:     "11111",
+					State: models.State{
+						State: "NY",
+					},
+					PostalCode: "11111",
 				},
 			},
 			runChecks: func(mergedShipment models.PPMShipment, oldShipment models.PPMShipment, newShipment models.PPMShipment) {
@@ -806,8 +821,10 @@ func (suite *PPMShipmentSuite) TestMergePPMShipment() {
 				TertiaryPickupAddress: &models.Address{
 					StreetAddress1: "updated",
 					City:           "updated",
-					State:          "NY",
-					PostalCode:     "11111",
+					State: models.State{
+						State: "NY",
+					},
+					PostalCode: "11111",
 				},
 			},
 			runChecks: func(mergedShipment models.PPMShipment, oldShipment models.PPMShipment, newShipment models.PPMShipment) {
@@ -836,8 +853,10 @@ func (suite *PPMShipmentSuite) TestMergePPMShipment() {
 				SecondaryPickupAddress: &models.Address{
 					StreetAddress1: "updated",
 					City:           "updated",
-					State:          "NY",
-					PostalCode:     "11111",
+					State: models.State{
+						State: "NY",
+					},
+					PostalCode: "11111",
 				},
 			},
 			runChecks: func(mergedShipment models.PPMShipment, oldShipment models.PPMShipment, newShipment models.PPMShipment) {
@@ -867,8 +886,10 @@ func (suite *PPMShipmentSuite) TestMergePPMShipment() {
 				SecondaryPickupAddress: &models.Address{
 					StreetAddress1: "updated",
 					City:           "updated",
-					State:          "NY",
-					PostalCode:     "11111",
+					State: models.State{
+						State: "NY",
+					},
+					PostalCode: "11111",
 				},
 			},
 			runChecks: func(mergedShipment models.PPMShipment, oldShipment models.PPMShipment, _ models.PPMShipment) {
@@ -894,8 +915,10 @@ func (suite *PPMShipmentSuite) TestMergePPMShipment() {
 				SecondaryDestinationAddress: &models.Address{
 					StreetAddress1: "updated",
 					City:           "updated",
-					State:          "NY",
-					PostalCode:     "11111",
+					State: models.State{
+						State: "NY",
+					},
+					PostalCode: "11111",
 				},
 			},
 			runChecks: func(mergedShipment models.PPMShipment, oldShipment models.PPMShipment, _ models.PPMShipment) {

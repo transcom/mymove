@@ -76,16 +76,20 @@ func (suite *PPMShipmentSuite) TestPPMShipmentCreator() {
 				StreetAddress2: models.StringPointer("P.O. Box 1234"),
 				StreetAddress3: models.StringPointer("c/o Another Person"),
 				City:           "Des Moines",
-				State:          "IA",
-				PostalCode:     "50308",
+				State: models.State{
+					State: "IA",
+				},
+				PostalCode: "50308",
 			},
 			DestinationAddress: &models.Address{
 				StreetAddress1: "987 Other Avenue",
 				StreetAddress2: models.StringPointer("P.O. Box 12345"),
 				StreetAddress3: models.StringPointer("c/o Another Person"),
 				City:           "Fort Eisenhower",
-				State:          "GA",
-				PostalCode:     "30183",
+				State: models.State{
+					State: "GA",
+				},
+				PostalCode: "30183",
 			},
 		}, nil)
 
@@ -118,16 +122,20 @@ func (suite *PPMShipmentSuite) TestPPMShipmentCreator() {
 				StreetAddress2: models.StringPointer("P.O. Box 1234"),
 				StreetAddress3: models.StringPointer("c/o Another Person"),
 				City:           "Fairbanks",
-				State:          "AK",
-				PostalCode:     "99507",
+				State: models.State{
+					State: "AK",
+				},
+				PostalCode: "99507",
 			},
 			DestinationAddress: &models.Address{
 				StreetAddress1: "987 Other Avenue",
 				StreetAddress2: models.StringPointer("P.O. Box 12345"),
 				StreetAddress3: models.StringPointer("c/o Another Person"),
 				City:           "Fort Hawaiir",
-				State:          "HI",
-				PostalCode:     "96821",
+				State: models.State{
+					State: "HI",
+				},
+				PostalCode: "96821",
 			},
 		}, nil)
 
@@ -225,42 +233,54 @@ func (suite *PPMShipmentSuite) TestPPMShipmentCreator() {
 		pickupAddress := models.Address{
 			StreetAddress1: "123 Any Pickup Street",
 			City:           "SomeCity",
-			State:          "CA",
-			PostalCode:     "90210",
+			State: models.State{
+				State: "CA",
+			},
+			PostalCode: "90210",
 		}
 
 		secondaryPickupAddress := models.Address{
 			StreetAddress1: "123 Any Secondary Pickup Street",
 			City:           "SomeCity",
-			State:          "CA",
-			PostalCode:     "90210",
+			State: models.State{
+				State: "CA",
+			},
+			PostalCode: "90210",
 		}
 
 		tertiaryPickupAddress := models.Address{
 			StreetAddress1: "123 Any Tertiary Pickup Street",
 			City:           "SomeCity",
-			State:          "CA",
-			PostalCode:     "90210",
+			State: models.State{
+				State: "CA",
+			},
+			PostalCode: "90210",
 		}
 
 		destinationAddress := models.Address{
 			StreetAddress1: "123 Any Destination Street",
 			City:           "SomeCity",
-			State:          "CA",
-			PostalCode:     "90210",
+			State: models.State{
+				State: "CA",
+			},
+			PostalCode: "90210",
 		}
 
 		secondaryDestinationAddress := models.Address{
 			StreetAddress1: "123 Any Secondary Destination Street",
 			City:           "SomeCity",
-			State:          "CA",
-			PostalCode:     "90210",
+			State: models.State{
+				State: "CA",
+			},
+			PostalCode: "90210",
 		}
 		tertiaryDestinationAddress := models.Address{
 			StreetAddress1: "123 Any Tertiary Destination Street",
 			City:           "SomeCity",
-			State:          "CA",
-			PostalCode:     "90210",
+			State: models.State{
+				State: "CA",
+			},
+			PostalCode: "90210",
 		}
 
 		subtestData := createSubtestData(models.PPMShipment{

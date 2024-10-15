@@ -233,7 +233,7 @@ func SaveServiceMember(appCtx appcontext.AppContext, serviceMember *ServiceMembe
 
 			if serviceMember.ResidentialAddress.Country != nil {
 				country := serviceMember.ResidentialAddress.Country
-				if country.Country != "US" || country.Country == "US" && serviceMember.ResidentialAddress.State == "AK" || country.Country == "US" && serviceMember.ResidentialAddress.State == "HI" {
+				if country.Country != "US" || country.Country == "US" && serviceMember.ResidentialAddress.State.State == "AK" || country.Country == "US" && serviceMember.ResidentialAddress.State.State == "HI" {
 					boolTrueVal := true
 					serviceMember.ResidentialAddress.IsOconus = &boolTrueVal
 				} else {
@@ -245,7 +245,7 @@ func SaveServiceMember(appCtx appcontext.AppContext, serviceMember *ServiceMembe
 				if err != nil {
 					return err
 				}
-				if country.Country != "US" || country.Country == "US" && serviceMember.ResidentialAddress.State == "AK" || country.Country == "US" && serviceMember.ResidentialAddress.State == "HI" {
+				if country.Country != "US" || country.Country == "US" && serviceMember.ResidentialAddress.State.State == "AK" || country.Country == "US" && serviceMember.ResidentialAddress.State.State == "HI" {
 					boolTrueVal := true
 					serviceMember.ResidentialAddress.IsOconus = &boolTrueVal
 				} else {
@@ -290,7 +290,7 @@ func SaveServiceMember(appCtx appcontext.AppContext, serviceMember *ServiceMembe
 
 			if serviceMember.BackupMailingAddress.Country != nil {
 				country := serviceMember.BackupMailingAddress.Country
-				if country.Country != "US" || country.Country == "US" && serviceMember.BackupMailingAddress.State == "AK" || country.Country == "US" && serviceMember.BackupMailingAddress.State == "HI" {
+				if country.Country != "US" || country.Country == "US" && serviceMember.BackupMailingAddress.State.State == "AK" || country.Country == "US" && serviceMember.BackupMailingAddress.State.State == "HI" {
 					boolTrueVal := true
 					serviceMember.BackupMailingAddress.IsOconus = &boolTrueVal
 				} else {
@@ -302,7 +302,7 @@ func SaveServiceMember(appCtx appcontext.AppContext, serviceMember *ServiceMembe
 				if err != nil {
 					return err
 				}
-				if country.Country != "US" || country.Country == "US" && serviceMember.BackupMailingAddress.State == "AK" || country.Country == "US" && serviceMember.BackupMailingAddress.State == "HI" {
+				if country.Country != "US" || country.Country == "US" && serviceMember.BackupMailingAddress.State.State == "AK" || country.Country == "US" && serviceMember.BackupMailingAddress.State.State == "HI" {
 					boolTrueVal := true
 					serviceMember.BackupMailingAddress.IsOconus = &boolTrueVal
 				} else {

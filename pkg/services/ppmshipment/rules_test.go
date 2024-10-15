@@ -156,16 +156,20 @@ func (suite *PPMShipmentSuite) TestValidationRules() {
 			StreetAddress2: models.StringPointer("P.O. Box 1234"),
 			StreetAddress3: models.StringPointer("c/o Another Person"),
 			City:           "Des Moines",
-			State:          "IA",
-			PostalCode:     "50309",
+			State: models.State{
+				State: "IA",
+			},
+			PostalCode: "50309",
 		}
 		destinationAddress := &models.Address{
 			StreetAddress1: "987 Other Avenue",
 			StreetAddress2: models.StringPointer("P.O. Box 12345"),
 			StreetAddress3: models.StringPointer("c/o Another Person"),
 			City:           "Fort Eisenhower",
-			State:          "GA",
-			PostalCode:     "50309",
+			State: models.State{
+				State: "GA",
+			},
+			PostalCode: "50309",
 		}
 
 		suite.Run("success", func() {

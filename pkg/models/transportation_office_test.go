@@ -28,8 +28,12 @@ func CreateTestShippingOffice(suite *ModelSuite) m.TransportationOffice {
 	newAddress := &m.Address{
 		StreetAddress1: "123 washington Ave",
 		City:           "Springfield",
-		State:          "AK",
-		PostalCode:     "99515"}
+		State: m.State{
+			State:     "AK",
+			StateName: "ALASKA",
+			IsOconus:  *m.BoolPointer(false),
+		},
+		PostalCode: "99515"}
 	newAddress, err := addressCreator.CreateAddress(suite.AppContextForTest(), newAddress)
 	suite.NoError(err)
 
@@ -59,8 +63,12 @@ func (suite *ModelSuite) Test_TransportationOffice() {
 	ppoAddress := &m.Address{
 		StreetAddress1: "456 Lincoln St",
 		City:           "Sitka",
-		State:          "AK",
-		PostalCode:     "99835"}
+		State: m.State{
+			State:     "AK",
+			StateName: "ALASKA",
+			IsOconus:  *m.BoolPointer(false),
+		},
+		PostalCode: "99835"}
 	ppoAddress, err := addressCreator.CreateAddress(suite.AppContextForTest(), ppoAddress)
 	suite.NoError(err)
 	ppo := m.TransportationOffice{

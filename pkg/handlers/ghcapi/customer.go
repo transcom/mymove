@@ -27,16 +27,26 @@ import (
 	"github.com/transcom/mymove/pkg/services"
 )
 
+func getStateFromString(stateStr string) models.State {
+	var state models.State
+	if stateStr != "" {
+		state = models.State{State: stateStr}
+		return state
+	}
+	return models.State{}
+}
+
 func addressModelFromPayload(rawAddress *ghcmessages.Address) *models.Address {
 	if rawAddress == nil {
 		return nil
 	}
+
 	return &models.Address{
 		StreetAddress1: *rawAddress.StreetAddress1,
 		StreetAddress2: rawAddress.StreetAddress2,
 		StreetAddress3: rawAddress.StreetAddress3,
 		City:           *rawAddress.City,
-		State:          *rawAddress.State,
+		State:          getStateFromString(*rawAddress.State),
 		PostalCode:     *rawAddress.PostalCode,
 	}
 }

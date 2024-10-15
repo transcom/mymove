@@ -1186,7 +1186,7 @@ func CalculateRequiredDeliveryDate(appCtx appcontext.AppContext, planner route.P
 	requiredDeliveryDate := pickupDate.AddDate(0, 0, ghcDomesticTransitTime.MaxDaysTransitTime)
 
 	// Let's add some days if we're dealing with an alaska shipment.
-	if destinationAddress.State == "AK" {
+	if destinationAddress.State.State == "AK" {
 		for _, zip := range twentyDayAKZips {
 			if destinationAddress.PostalCode == zip {
 				// Add an extra 10 days here, so that after we add the 10 for being in AK we wind up with a total of 20

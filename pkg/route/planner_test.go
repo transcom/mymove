@@ -23,8 +23,10 @@ var testAddressOne = models.Address{
 	StreetAddress1: "1 & 2 Arcacia Ave",
 	StreetAddress2: models.StringPointer("c/o Truss Works"),
 	City:           "San Francisco",
-	State:          "California",
-	PostalCode:     "94103"}
+	State: models.State{
+		State: "CA",
+	},
+	PostalCode: "94103"}
 
 func (suite *PlannerSuite) TestUrlencodeAddress() {
 
@@ -38,15 +40,19 @@ func (suite *PlannerSuite) TestUrlencodeAddress() {
 var realAddressSource = models.Address{
 	StreetAddress1: "",
 	City:           "Joint Base Lewis-McChord",
-	State:          "WA",
-	PostalCode:     "98438",
+	State: models.State{
+		State: "WA",
+	},
+	PostalCode: "98438",
 }
 
 var realAddressDestination = models.Address{
 	StreetAddress1: "100 Maple St. NW",
 	City:           "Washington",
-	State:          "DC",
-	PostalCode:     "20001",
+	State: models.State{
+		State: "DC",
+	},
+	PostalCode: "20001",
 }
 
 // TestAddressPlanner is an expensive test which calls out to the Bing API.

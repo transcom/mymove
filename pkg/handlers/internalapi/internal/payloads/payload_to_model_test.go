@@ -3,6 +3,7 @@ package payloads
 import (
 	"time"
 
+	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
@@ -12,10 +13,18 @@ func (suite *PayloadsSuite) TestPPMShipmentModelWithOptionalDestinationStreet1Fr
 	time := time.Now()
 	expectedDepartureDate := handlers.FmtDatePtr(&time)
 
+	state := factory.FetchOrBuildState(suite.DB(), []factory.Customization{
+		{
+			Model: models.State{
+				State: "CA",
+			},
+		},
+	}, nil)
+
 	address := models.Address{
 		StreetAddress1: "some address",
 		City:           "city",
-		State:          "state",
+		State:          state,
 		PostalCode:     "12345",
 	}
 
@@ -25,7 +34,7 @@ func (suite *PayloadsSuite) TestPPMShipmentModelWithOptionalDestinationStreet1Fr
 	pickupAddress = internalmessages.Address{
 		City:           &address.City,
 		PostalCode:     &address.PostalCode,
-		State:          &address.State,
+		State:          &address.State.State,
 		StreetAddress1: &address.StreetAddress1,
 		StreetAddress2: address.StreetAddress2,
 		StreetAddress3: address.StreetAddress3,
@@ -33,7 +42,7 @@ func (suite *PayloadsSuite) TestPPMShipmentModelWithOptionalDestinationStreet1Fr
 	destinationAddress = internalmessages.PPMDestinationAddress{
 		City:           &address.City,
 		PostalCode:     &address.PostalCode,
-		State:          &address.State,
+		State:          &address.State.State,
 		StreetAddress1: models.StringPointer(""), // empty string
 		StreetAddress2: address.StreetAddress2,
 		StreetAddress3: address.StreetAddress3,
@@ -77,11 +86,18 @@ func (suite *PayloadsSuite) TestPPMShipmentModelWithOptionalDestinationStreet1Fr
 func (suite *PayloadsSuite) TestPPMShipmentModelWithOptionalDestinationStreet1FromUpdate() {
 	time := time.Now()
 	expectedDepartureDate := handlers.FmtDatePtr(&time)
+	state := factory.FetchOrBuildState(suite.DB(), []factory.Customization{
+		{
+			Model: models.State{
+				State: "CA",
+			},
+		},
+	}, nil)
 
 	address := models.Address{
 		StreetAddress1: "some address",
 		City:           "city",
-		State:          "state",
+		State:          state,
 		PostalCode:     "12345",
 	}
 
@@ -91,7 +107,7 @@ func (suite *PayloadsSuite) TestPPMShipmentModelWithOptionalDestinationStreet1Fr
 	pickupAddress = internalmessages.Address{
 		City:           &address.City,
 		PostalCode:     &address.PostalCode,
-		State:          &address.State,
+		State:          &address.State.State,
 		StreetAddress1: &address.StreetAddress1,
 		StreetAddress2: address.StreetAddress2,
 		StreetAddress3: address.StreetAddress3,
@@ -99,7 +115,7 @@ func (suite *PayloadsSuite) TestPPMShipmentModelWithOptionalDestinationStreet1Fr
 	destinationAddress = internalmessages.PPMDestinationAddress{
 		City:           &address.City,
 		PostalCode:     &address.PostalCode,
-		State:          &address.State,
+		State:          &address.State.State,
 		StreetAddress1: models.StringPointer(""), // empty string
 		StreetAddress2: address.StreetAddress2,
 		StreetAddress3: address.StreetAddress3,

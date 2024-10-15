@@ -563,7 +563,7 @@ func Address(address *models.Address) *pptasmessages.Address {
 		StreetAddress2: address.StreetAddress2,
 		StreetAddress3: address.StreetAddress3,
 		City:           &address.City,
-		State:          &address.State,
+		State:          &address.State.State,
 		PostalCode:     &address.PostalCode,
 		Country:        Country(address.Country),
 		County:         &address.County,

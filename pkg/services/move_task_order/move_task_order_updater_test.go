@@ -177,8 +177,12 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderUpdater_UpdateStatusSer
 				Model: models.Address{
 					StreetAddress1: "1234 Over Here Street",
 					City:           "Houston",
-					State:          "TX",
 					PostalCode:     "77083",
+				},
+			},
+			{
+				Model: models.State{
+					State: "TX",
 				},
 			},
 		}, nil)

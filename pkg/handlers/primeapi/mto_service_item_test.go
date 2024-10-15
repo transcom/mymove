@@ -1507,7 +1507,7 @@ func (suite *HandlerSuite) TestUpdateMTOServiceItemDDDSIT() {
 		addr := primemessages.Address{
 			StreetAddress1: &destinationAddress.StreetAddress1,
 			City:           &destinationAddress.City,
-			State:          &destinationAddress.State,
+			State:          &destinationAddress.State.State,
 			PostalCode:     &destinationAddress.PostalCode,
 		}
 

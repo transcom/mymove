@@ -1406,8 +1406,12 @@ func (suite *HandlerSuite) makeServicesCounselingSubtestData() (subtestData *ser
 			Model: models.Address{
 				StreetAddress1: "Fort Eisenhower",
 				City:           "Fort Eisenhower",
-				State:          "GA",
 				PostalCode:     "77777",
+			},
+		},
+		{
+			Model: models.State{
+				State: "GA",
 			},
 		},
 	}, nil)

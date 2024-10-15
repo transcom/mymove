@@ -96,6 +96,11 @@ func buildPPMShipmentWithBuildType(db *pop.Connection, customs []Customization, 
 				PostalCode:     oldDutyLocationAddress.PostalCode,
 			},
 		},
+		{
+			Model: models.State{
+				State: oldDutyLocationAddress.State.State,
+			},
+		},
 	}, nil)
 	ppmShipment.PickupAddressID = &pickupAddress.ID
 	ppmShipment.PickupAddress = &pickupAddress
@@ -106,8 +111,12 @@ func buildPPMShipmentWithBuildType(db *pop.Connection, customs []Customization, 
 			Model: models.Address{
 				StreetAddress1: "123 New Street",
 				City:           newDutyLocationAddress.City,
-				State:          newDutyLocationAddress.State,
 				PostalCode:     newDutyLocationAddress.PostalCode,
+			},
+		},
+		{
+			Model: models.State{
+				State: newDutyLocationAddress.State.State,
 			},
 		},
 	}, nil)
@@ -120,8 +129,12 @@ func buildPPMShipmentWithBuildType(db *pop.Connection, customs []Customization, 
 				Model: models.Address{
 					StreetAddress1: "123 Main Street",
 					City:           pickupAddress.City,
-					State:          pickupAddress.State,
 					PostalCode:     pickupAddress.PostalCode,
+				},
+			},
+			{
+				Model: models.State{
+					State: pickupAddress.State.State,
 				},
 			},
 		}, nil)
@@ -130,8 +143,12 @@ func buildPPMShipmentWithBuildType(db *pop.Connection, customs []Customization, 
 				Model: models.Address{
 					StreetAddress1: "1234 Main Street",
 					City:           destinationAddress.City,
-					State:          destinationAddress.State,
 					PostalCode:     destinationAddress.PostalCode,
+				},
+			},
+			{
+				Model: models.State{
+					State: destinationAddress.State.State,
 				},
 			},
 		}, nil)
@@ -140,8 +157,12 @@ func buildPPMShipmentWithBuildType(db *pop.Connection, customs []Customization, 
 				Model: models.Address{
 					StreetAddress1: "123 Third Street",
 					City:           pickupAddress.City,
-					State:          pickupAddress.State,
 					PostalCode:     pickupAddress.PostalCode,
+				},
+			},
+			{
+				Model: models.State{
+					State: pickupAddress.State.State,
 				},
 			},
 		}, nil)
@@ -150,8 +171,12 @@ func buildPPMShipmentWithBuildType(db *pop.Connection, customs []Customization, 
 				Model: models.Address{
 					StreetAddress1: "1234 Third Street",
 					City:           destinationAddress.City,
-					State:          destinationAddress.State,
 					PostalCode:     destinationAddress.PostalCode,
+				},
+			},
+			{
+				Model: models.State{
+					State: destinationAddress.State.State,
 				},
 			},
 		}, nil)
@@ -278,8 +303,12 @@ func buildApprovedPPMShipmentWithActualInfo(db *pop.Connection, userUploader *up
 			Model: models.Address{
 				StreetAddress1: "987 New Street",
 				City:           newDutyLocationAddress.City,
-				State:          newDutyLocationAddress.State,
 				PostalCode:     newDutyLocationAddress.PostalCode,
+			},
+		},
+		{
+			Model: models.State{
+				State: newDutyLocationAddress.State.State,
 			},
 		},
 	}, nil)
@@ -917,8 +946,13 @@ func GetTraitApprovedPPMWithActualInfo() []Customization {
 			Model: models.Address{
 				StreetAddress1: "987 New Street",
 				City:           newDutyLocation.Address.City,
-				State:          newDutyLocation.Address.State,
 				PostalCode:     newDutyLocation.Address.PostalCode,
+			},
+			Type: &Addresses.W2Address,
+		},
+		{
+			Model: models.State{
+				State: newDutyLocation.Address.State.State,
 			},
 			Type: &Addresses.W2Address,
 		},

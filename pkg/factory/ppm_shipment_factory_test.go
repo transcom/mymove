@@ -29,26 +29,42 @@ func (suite *FactorySuite) TestBuildPPMShipment() {
 			PickupAddress: &models.Address{
 				StreetAddress1: "987 New Street",
 				City:           "Des Moines",
-				State:          "IA",
-				PostalCode:     "50309",
+				State: models.State{
+					State:     "IA",
+					StateName: "IOWA",
+					IsOconus:  *models.BoolPointer(false),
+				},
+				PostalCode: "50309",
 			},
 			SecondaryPickupAddress: &models.Address{
 				StreetAddress1: "123 Main Street",
 				City:           "Des Moines",
-				State:          "IA",
-				PostalCode:     "50309",
+				State: models.State{
+					State:     "IA",
+					StateName: "IOWA",
+					IsOconus:  *models.BoolPointer(false),
+				},
+				PostalCode: "50309",
 			},
 			DestinationAddress: &models.Address{
 				StreetAddress1: "123 New Street",
 				City:           "Fort Eisenhower",
-				State:          "GA",
-				PostalCode:     "30813",
+				State: models.State{
+					State:     "GA",
+					StateName: "GEORGIA",
+					IsOconus:  *models.BoolPointer(false),
+				},
+				PostalCode: "30813",
 			},
 			SecondaryDestinationAddress: &models.Address{
 				StreetAddress1: "1234 Main Street",
 				City:           "Fort Eisenhower",
-				State:          "GA",
-				PostalCode:     "30813",
+				State: models.State{
+					State:     "GA",
+					StateName: "GEORGIA",
+					IsOconus:  *models.BoolPointer(false),
+				},
+				PostalCode: "30813",
 			},
 		}
 

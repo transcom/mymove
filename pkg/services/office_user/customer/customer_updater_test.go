@@ -45,8 +45,10 @@ func (suite *CustomerServiceSuite) TestCustomerUpdater() {
 			ResidentialAddress: &models.Address{
 				StreetAddress1: "123 New Street",
 				City:           "Newcity",
-				State:          "MA",
-				PostalCode:     "12345",
+				State: models.State{
+					State: "MA",
+				},
+				PostalCode: "12345",
 			},
 			BackupContacts: backupContacts,
 			CacValidated:   true,

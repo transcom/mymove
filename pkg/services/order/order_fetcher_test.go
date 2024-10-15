@@ -1631,8 +1631,12 @@ func (suite *OrderServiceSuite) TestListOrdersNeedingServicesCounselingWithGBLOC
 				Model: models.Address{
 					StreetAddress1: "Anchor 1212",
 					City:           "Fort Eisenhower",
-					State:          "GA",
 					PostalCode:     "89898",
+				},
+			},
+			{
+				Model: models.State{
+					State: "GA",
 				},
 			},
 		}, nil)

@@ -521,14 +521,18 @@ func (suite *PayloadsSuite) TestMTOServiceItem() {
 		SITOriginHHGActualAddress: &models.Address{
 			StreetAddress1: "dummyStreet",
 			City:           "dummyCity",
-			State:          "FL",
-			PostalCode:     "55555",
+			State: models.State{
+				State: "FL",
+			},
+			PostalCode: "55555",
 		},
 		SITOriginHHGOriginalAddress: &models.Address{
 			StreetAddress1: "dummyStreet2",
 			City:           "dummyCity2",
-			State:          "FL",
-			PostalCode:     "55555",
+			State: models.State{
+				State: "FL",
+			},
+			PostalCode: "55555",
 		},
 	}
 
@@ -589,8 +593,10 @@ func (suite *PayloadsSuite) TestMTOServiceItemDestSIT() {
 	finalAddress := models.Address{
 		StreetAddress1: "dummyStreet",
 		City:           "dummyCity",
-		State:          "FL",
-		PostalCode:     "55555",
+		State: models.State{
+			State: "FL",
+		},
+		PostalCode: "55555",
 	}
 	mtoShipmentID := uuid.Must(uuid.NewV4())
 
@@ -772,8 +778,10 @@ func (suite *PayloadsSuite) TestStorageFacility() {
 		Address: models.Address{
 			StreetAddress1: dummy,
 			City:           dummy,
-			State:          dummy,
-			PostalCode:     dummy,
+			State: models.State{
+				State: "CA",
+			},
+			PostalCode: dummy,
 		},
 		Email:        &email,
 		FacilityName: facilityName,

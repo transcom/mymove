@@ -3086,7 +3086,7 @@ func (suite *HandlerSuite) makeCreateMTOShipmentSubtestData() (subtestData *crea
 	subtestData.params.Body.DestinationAddress.Address = ghcmessages.Address{
 		City:           &destinationAddress.City,
 		PostalCode:     &destinationAddress.PostalCode,
-		State:          &destinationAddress.State,
+		State:          &destinationAddress.State.State,
 		StreetAddress1: &destinationAddress.StreetAddress1,
 		StreetAddress2: destinationAddress.StreetAddress2,
 		StreetAddress3: destinationAddress.StreetAddress3,
@@ -3094,7 +3094,7 @@ func (suite *HandlerSuite) makeCreateMTOShipmentSubtestData() (subtestData *crea
 	subtestData.params.Body.PickupAddress.Address = ghcmessages.Address{
 		City:           &pickupAddress.City,
 		PostalCode:     &pickupAddress.PostalCode,
-		State:          &pickupAddress.State,
+		State:          &pickupAddress.State.State,
 		StreetAddress1: &pickupAddress.StreetAddress1,
 		StreetAddress2: pickupAddress.StreetAddress2,
 		StreetAddress3: pickupAddress.StreetAddress3,
@@ -3520,7 +3520,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandlerUsingPPM() {
 		pickupAddress = ghcmessages.Address{
 			City:           &expectedPickupAddress.City,
 			PostalCode:     &expectedPickupAddress.PostalCode,
-			State:          &expectedPickupAddress.State,
+			State:          &expectedPickupAddress.State.State,
 			StreetAddress1: &expectedPickupAddress.StreetAddress1,
 			StreetAddress2: expectedPickupAddress.StreetAddress2,
 			StreetAddress3: expectedPickupAddress.StreetAddress3,
@@ -3536,7 +3536,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandlerUsingPPM() {
 		secondaryPickupAddress = ghcmessages.Address{
 			City:           &expectedSecondaryPickupAddress.City,
 			PostalCode:     &expectedSecondaryPickupAddress.PostalCode,
-			State:          &expectedSecondaryPickupAddress.State,
+			State:          &expectedSecondaryPickupAddress.State.State,
 			StreetAddress1: &expectedSecondaryPickupAddress.StreetAddress1,
 			StreetAddress2: expectedSecondaryPickupAddress.StreetAddress2,
 			StreetAddress3: expectedSecondaryPickupAddress.StreetAddress3,
@@ -3552,7 +3552,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandlerUsingPPM() {
 		destinationAddress = ghcmessages.PPMDestinationAddress{
 			City:           &expectedDestinationAddress.City,
 			PostalCode:     &expectedDestinationAddress.PostalCode,
-			State:          &expectedDestinationAddress.State,
+			State:          &expectedDestinationAddress.State.State,
 			StreetAddress1: &expectedDestinationAddress.StreetAddress1,
 			StreetAddress2: expectedDestinationAddress.StreetAddress2,
 			StreetAddress3: expectedDestinationAddress.StreetAddress3,
@@ -3568,7 +3568,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandlerUsingPPM() {
 		secondaryDestinationAddress = ghcmessages.Address{
 			City:           &expectedSecondaryDestinationAddress.City,
 			PostalCode:     &expectedSecondaryDestinationAddress.PostalCode,
-			State:          &expectedSecondaryDestinationAddress.State,
+			State:          &expectedSecondaryDestinationAddress.State.State,
 			StreetAddress1: &expectedSecondaryDestinationAddress.StreetAddress1,
 			StreetAddress2: expectedSecondaryDestinationAddress.StreetAddress2,
 			StreetAddress3: expectedSecondaryDestinationAddress.StreetAddress3,
@@ -3712,7 +3712,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandlerUsingPPM() {
 		pickupAddress = ghcmessages.Address{
 			City:           &expectedPickupAddress.City,
 			PostalCode:     &expectedPickupAddress.PostalCode,
-			State:          &expectedPickupAddress.State,
+			State:          &expectedPickupAddress.State.State,
 			StreetAddress1: &expectedPickupAddress.StreetAddress1,
 			StreetAddress2: expectedPickupAddress.StreetAddress2,
 			StreetAddress3: expectedPickupAddress.StreetAddress3,
@@ -3728,7 +3728,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandlerUsingPPM() {
 		destinationAddress = ghcmessages.PPMDestinationAddress{
 			City:           &expectedDestinationAddress.City,
 			PostalCode:     &expectedDestinationAddress.PostalCode,
-			State:          &expectedDestinationAddress.State,
+			State:          &expectedDestinationAddress.State.State,
 			StreetAddress1: &expectedDestinationAddress.StreetAddress1,
 			StreetAddress2: expectedDestinationAddress.StreetAddress2,
 			StreetAddress3: expectedDestinationAddress.StreetAddress3,
@@ -3856,7 +3856,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandlerUsingPPM() {
 		pickupAddress = ghcmessages.Address{
 			City:           &expectedPickupAddress.City,
 			PostalCode:     &expectedPickupAddress.PostalCode,
-			State:          &expectedPickupAddress.State,
+			State:          &expectedPickupAddress.State.State,
 			StreetAddress1: &expectedPickupAddress.StreetAddress1,
 			StreetAddress2: expectedPickupAddress.StreetAddress2,
 			StreetAddress3: expectedPickupAddress.StreetAddress3,
@@ -3872,7 +3872,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandlerUsingPPM() {
 		destinationAddress = ghcmessages.PPMDestinationAddress{
 			City:           &expectedDestinationAddress.City,
 			PostalCode:     &expectedDestinationAddress.PostalCode,
-			State:          &expectedDestinationAddress.State,
+			State:          &expectedDestinationAddress.State.State,
 			StreetAddress1: &expectedDestinationAddress.StreetAddress1,
 			StreetAddress2: expectedDestinationAddress.StreetAddress2,
 			StreetAddress3: expectedDestinationAddress.StreetAddress3,
@@ -3989,7 +3989,7 @@ func (suite *HandlerSuite) getUpdateShipmentParams(originalShipment models.MTOSh
 	payload.DestinationAddress.Address = ghcmessages.Address{
 		City:           &destinationAddress.City,
 		PostalCode:     &destinationAddress.PostalCode,
-		State:          &destinationAddress.State,
+		State:          &destinationAddress.State.State,
 		StreetAddress1: &destinationAddress.StreetAddress1,
 		StreetAddress2: destinationAddress.StreetAddress2,
 		StreetAddress3: destinationAddress.StreetAddress3,
@@ -3997,7 +3997,7 @@ func (suite *HandlerSuite) getUpdateShipmentParams(originalShipment models.MTOSh
 	payload.PickupAddress.Address = ghcmessages.Address{
 		City:           &pickupAddress.City,
 		PostalCode:     &pickupAddress.PostalCode,
-		State:          &pickupAddress.State,
+		State:          &pickupAddress.State.State,
 		StreetAddress1: &pickupAddress.StreetAddress1,
 		StreetAddress2: pickupAddress.StreetAddress2,
 		StreetAddress3: pickupAddress.StreetAddress3,
@@ -4147,7 +4147,7 @@ func (suite *HandlerSuite) TestUpdateShipmentHandler() {
 		pickupAddress = ghcmessages.Address{
 			City:           &expectedPickupAddress.City,
 			PostalCode:     &expectedPickupAddress.PostalCode,
-			State:          &expectedPickupAddress.State,
+			State:          &expectedPickupAddress.State.State,
 			StreetAddress1: &expectedPickupAddress.StreetAddress1,
 			StreetAddress2: expectedPickupAddress.StreetAddress2,
 			StreetAddress3: &expectedPickupAddressStreet3,
@@ -4163,7 +4163,7 @@ func (suite *HandlerSuite) TestUpdateShipmentHandler() {
 		secondaryPickupAddress = ghcmessages.Address{
 			City:           &expectedSecondaryPickupAddress.City,
 			PostalCode:     &expectedSecondaryPickupAddress.PostalCode,
-			State:          &expectedSecondaryPickupAddress.State,
+			State:          &expectedSecondaryPickupAddress.State.State,
 			StreetAddress1: &expectedSecondaryPickupAddress.StreetAddress1,
 			StreetAddress2: expectedSecondaryPickupAddress.StreetAddress2,
 			StreetAddress3: &expectedSecondaryPickupAddressStreet3,
@@ -4173,7 +4173,7 @@ func (suite *HandlerSuite) TestUpdateShipmentHandler() {
 		destinationAddress = ghcmessages.PPMDestinationAddress{
 			City:           &expectedDestinationAddress.City,
 			PostalCode:     &expectedDestinationAddress.PostalCode,
-			State:          &expectedDestinationAddress.State,
+			State:          &expectedDestinationAddress.State.State,
 			StreetAddress1: &expectedDestinationAddress.StreetAddress1,
 			StreetAddress2: expectedDestinationAddress.StreetAddress2,
 			StreetAddress3: &expectedDestinationAddressStreet3,
@@ -4189,7 +4189,7 @@ func (suite *HandlerSuite) TestUpdateShipmentHandler() {
 		secondaryDestinationAddress = ghcmessages.Address{
 			City:           &expectedSecondaryDestinationAddress.City,
 			PostalCode:     &expectedSecondaryDestinationAddress.PostalCode,
-			State:          &expectedSecondaryDestinationAddress.State,
+			State:          &expectedSecondaryDestinationAddress.State.State,
 			StreetAddress1: &expectedSecondaryDestinationAddress.StreetAddress1,
 			StreetAddress2: expectedSecondaryDestinationAddress.StreetAddress2,
 			StreetAddress3: &expectedSecondaryDestinationAddressStreet3,

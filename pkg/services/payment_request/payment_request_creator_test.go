@@ -1358,8 +1358,12 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequestCheckOnNTSRelea
 			Model: models.Address{
 				StreetAddress1: "235 Prospect Valley Road SE",
 				City:           "Fort Eisenhower",
-				State:          "GA",
 				PostalCode:     testStorageFacilityZip,
+			},
+		},
+		{
+			Model: models.State{
+				State: "GA",
 			},
 		},
 	}, nil)
@@ -1368,8 +1372,12 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequestCheckOnNTSRelea
 			Model: models.Address{
 				StreetAddress1: "17 8th St",
 				City:           "San Antonio",
-				State:          "TX",
 				PostalCode:     testDestinationZip,
+			},
+		},
+		{
+			Model: models.State{
+				State: "TX",
 			},
 		},
 	}, nil)
@@ -1393,7 +1401,7 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequestCheckOnNTSRelea
 		ReZip3: models.ReZip3{
 			Zip3:          storageFacilityAddress.PostalCode[0:3],
 			BasePointCity: storageFacilityAddress.City,
-			State:         storageFacilityAddress.State,
+			State:         storageFacilityAddress.State.State,
 		},
 	})
 

@@ -275,8 +275,12 @@ func CreateMoveWithHHGAndPPM(appCtx appcontext.AppContext, userUploader *uploade
 				StreetAddress2: models.StringPointer("Apt 2"),
 				StreetAddress3: models.StringPointer("Suite B"),
 				City:           "Columbia",
-				State:          "SC",
 				PostalCode:     "29212",
+			},
+		},
+		{
+			Model: models.State{
+				State: "SC",
 			},
 		},
 	}, nil)
@@ -2575,8 +2579,12 @@ func CreateMoveWithCloseOut(appCtx appcontext.AppContext, userUploader *uploader
 				StreetAddress2: models.StringPointer("Apt 2"),
 				StreetAddress3: models.StringPointer("Suite B"),
 				City:           "Columbia",
-				State:          "SC",
 				PostalCode:     "29212",
+			},
+		},
+		{
+			Model: models.State{
+				State: "SC",
 			},
 		},
 	}, nil)
@@ -3816,8 +3824,12 @@ func createUnsubmittedHHGMoveMultiplePickup(appCtx appcontext.AppContext) {
 				StreetAddress2: models.StringPointer("Apt 1"),
 				StreetAddress3: models.StringPointer("Suite A"),
 				City:           "Columbia",
-				State:          "SC",
 				PostalCode:     "29212",
+			},
+		},
+		{
+			Model: models.State{
+				State: "SC",
 			},
 		},
 	}, nil)
@@ -3830,8 +3842,12 @@ func createUnsubmittedHHGMoveMultiplePickup(appCtx appcontext.AppContext) {
 				StreetAddress2: models.StringPointer("Apt 2"),
 				StreetAddress3: models.StringPointer("Suite B"),
 				City:           "Columbia",
-				State:          "SC",
 				PostalCode:     "29212",
+			},
+		},
+		{
+			Model: models.State{
+				State: "SC",
 			},
 		},
 	}, nil)
@@ -3923,8 +3939,12 @@ func createSubmittedHHGMoveMultiplePickupAmendedOrders(appCtx appcontext.AppCont
 				StreetAddress2: models.StringPointer("Apt 1"),
 				StreetAddress3: models.StringPointer("Suite A"),
 				City:           "Columbia",
-				State:          "SC",
 				PostalCode:     "29212",
+			},
+		},
+		{
+			Model: models.State{
+				State: "SC",
 			},
 		},
 	}, nil)
@@ -3937,8 +3957,12 @@ func createSubmittedHHGMoveMultiplePickupAmendedOrders(appCtx appcontext.AppCont
 				StreetAddress2: models.StringPointer("Apt 2"),
 				StreetAddress3: models.StringPointer("Suite B"),
 				City:           "Columbia",
-				State:          "SC",
 				PostalCode:     "29212",
+			},
+		},
+		{
+			Model: models.State{
+				State: "SC",
 			},
 		},
 	}, nil)
@@ -4166,8 +4190,12 @@ func createHHGWithOriginSITServiceItems(
 				{
 					Model: models.Address{
 						City:       "Harlem",
-						State:      "GA",
 						PostalCode: "30813",
+					},
+				},
+				{
+					Model: models.State{
+						State: "GA",
 					},
 				},
 			}, nil),
@@ -4430,8 +4458,12 @@ func createHHGWithDestinationSITServiceItems(appCtx appcontext.AppContext, prime
 				{
 					Model: models.Address{
 						City:       "Harlem",
-						State:      "GA",
 						PostalCode: "30813",
+					},
+				},
+				{
+					Model: models.State{
+						State: "GA",
 					},
 				},
 			}, nil),
@@ -6411,8 +6443,12 @@ func createMoveWithHHGAndNTSRPaymentRequest(appCtx appcontext.AppContext, userUp
 				StreetAddress2: models.StringPointer("Apt 2"),
 				StreetAddress3: models.StringPointer("Suite B"),
 				City:           "Columbia",
-				State:          "SC",
 				PostalCode:     "29212",
+			},
+		},
+		{
+			Model: models.State{
+				State: "SC",
 			},
 		},
 	}, nil)
@@ -6425,8 +6461,12 @@ func createMoveWithHHGAndNTSRPaymentRequest(appCtx appcontext.AppContext, userUp
 				StreetAddress2: models.StringPointer("Apt 2"),
 				StreetAddress3: models.StringPointer("Suite B"),
 				City:           "Princeton",
-				State:          "NJ",
 				PostalCode:     "08540",
+			},
+		},
+		{
+			Model: models.State{
+				State: "NJ",
 			},
 		},
 	}, nil)
@@ -6467,8 +6507,12 @@ func createMoveWithHHGAndNTSRPaymentRequest(appCtx appcontext.AppContext, userUp
 			Model: models.Address{
 				StreetAddress1: "1234 Over Here Street",
 				City:           "Houston",
-				State:          "TX",
 				PostalCode:     "77083",
+			},
+		},
+		{
+			Model: models.State{
+				State: "TX",
 			},
 		},
 	}, nil)
@@ -7541,8 +7585,12 @@ func createMoveWith2ShipmentsAndPaymentRequest(appCtx appcontext.AppContext, use
 				StreetAddress2: models.StringPointer("Apt 2"),
 				StreetAddress3: models.StringPointer("Suite B"),
 				City:           "Columbia",
-				State:          "SC",
 				PostalCode:     "29212",
+			},
+		},
+		{
+			Model: models.State{
+				State: "SC",
 			},
 		},
 	}, nil)
@@ -7555,8 +7603,12 @@ func createMoveWith2ShipmentsAndPaymentRequest(appCtx appcontext.AppContext, use
 				StreetAddress2: models.StringPointer("Apt 2"),
 				StreetAddress3: models.StringPointer("Suite B"),
 				City:           "Princeton",
-				State:          "NJ",
 				PostalCode:     "08540",
+			},
+		},
+		{
+			Model: models.State{
+				State: "NJ",
 			},
 		},
 	}, nil)
@@ -10141,8 +10193,13 @@ func createMoveWithUniqueDestinationAddress(appCtx appcontext.AppContext) {
 				StreetAddress2: models.StringPointer("Apt 2"),
 				StreetAddress3: models.StringPointer("Suite B"),
 				City:           "Columbia",
-				State:          "SC",
 				PostalCode:     "29212",
+			},
+			Type: &factory.Addresses.DutyLocationAddress,
+		},
+		{
+			Model: models.State{
+				State: "SC",
 			},
 			Type: &factory.Addresses.DutyLocationAddress,
 		},

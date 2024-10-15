@@ -13,8 +13,12 @@ func (suite *ModelSuite) TestFindDutyLocations() {
 	newAddress := models.Address{
 		StreetAddress1: "some address",
 		City:           "city",
-		State:          "state",
-		PostalCode:     "12345",
+		State: models.State{
+			State:     "FL",
+			StateName: "FLORIDA",
+			IsOconus:  *models.BoolPointer(false),
+		},
+		PostalCode: "12345",
 	}
 	createdAddress, err := addressCreator.CreateAddress(suite.AppContextForTest(), &newAddress)
 	suite.NoError(err)
@@ -69,8 +73,12 @@ func (suite *ModelSuite) TestFindDutyLocations() {
 	newAddress2 := models.Address{
 		StreetAddress1: "some address",
 		City:           "city",
-		State:          "state",
-		PostalCode:     "23456",
+		State: models.State{
+			State:     "FL",
+			StateName: "FLORIDA",
+			IsOconus:  *models.BoolPointer(false),
+		},
+		PostalCode: "23456",
 	}
 	createdAddress2, err := addressCreator.CreateAddress(suite.AppContextForTest(), &newAddress2)
 	suite.NoError(err)

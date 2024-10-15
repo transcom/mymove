@@ -105,8 +105,12 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 					StreetAddress2: models.StringPointer("P.O. Box 1234"),
 					StreetAddress3: models.StringPointer("c/o Another Person"),
 					City:           "Des Moines",
-					State:          "IA",
 					PostalCode:     "50309",
+				},
+			},
+			{
+				Model: models.State{
+					State: "IA",
 				},
 			},
 		}, nil)
@@ -118,8 +122,12 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 					StreetAddress2: models.StringPointer("P.O. Box 1234"),
 					StreetAddress3: models.StringPointer("c/o Another Person"),
 					City:           "Houston",
-					State:          "TX",
 					PostalCode:     "77083",
+				},
+			},
+			{
+				Model: models.State{
+					State: "TX",
 				},
 			},
 		}, []factory.Trait{factory.GetTraitAddress4})
@@ -426,8 +434,8 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 		setupTestData()
 
 		previousShipment := factory.BuildMTOShipment(suite.DB(), nil, nil)
-		newDestinationAddress.State = "AK"
-		newPickupAddress.State = "HI"
+		newDestinationAddress.State.State = "AK"
+		newPickupAddress.State.State = "HI"
 		// this should be "d" since it is default
 		suite.Equal(previousShipment.MarketCode, models.MarketCodeDomestic)
 
@@ -861,8 +869,12 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 				Model: models.Address{
 					StreetAddress1: "1234 Over Here Street",
 					City:           "Houston",
-					State:          "TX",
 					PostalCode:     "77083",
+				},
+			},
+			{
+				Model: models.State{
+					State: "TX",
 				},
 			},
 		}, nil)
@@ -882,8 +894,10 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 		newStorageFacilityAddress := models.Address{
 			StreetAddress1: "987 Over There Avenue",
 			City:           "Houston",
-			State:          "TX",
-			PostalCode:     "77083",
+			State: models.State{
+				State: "TX",
+			},
+			PostalCode: "77083",
 		}
 
 		newEmail := "new@email.com"
@@ -2899,8 +2913,12 @@ func (suite *MTOShipmentServiceSuite) TestUpdateStatusServiceItems() {
 				Model: models.Address{
 					StreetAddress1: "7 Q St",
 					City:           "Twentynine Palms",
-					State:          "CA",
 					PostalCode:     "92277",
+				},
+			},
+			{
+				Model: models.State{
+					State: "CA",
 				},
 			},
 		}, nil)
@@ -2910,8 +2928,12 @@ func (suite *MTOShipmentServiceSuite) TestUpdateStatusServiceItems() {
 				Model: models.Address{
 					StreetAddress1: "278 E Maple Drive",
 					City:           "San Diego",
-					State:          "CA",
 					PostalCode:     "92114",
+				},
+			},
+			{
+				Model: models.State{
+					State: "CA",
 				},
 			},
 		}, nil)
@@ -2921,8 +2943,12 @@ func (suite *MTOShipmentServiceSuite) TestUpdateStatusServiceItems() {
 				Model: models.Address{
 					StreetAddress1: "448 Washington Boulevard NE",
 					City:           "Winterhaven",
-					State:          "CA",
 					PostalCode:     "92283",
+				},
+			},
+			{
+				Model: models.State{
+					State: "CA",
 				},
 			},
 		}, nil)

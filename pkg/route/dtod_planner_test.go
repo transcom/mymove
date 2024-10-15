@@ -44,15 +44,19 @@ func (suite *GHCTestSuite) TestDTODTransitDistance() {
 	sourceAddress := models.Address{
 		StreetAddress1: "7 Q St",
 		City:           "Augusta",
-		State:          "GA",
-		PostalCode:     "30907",
+		State: models.State{
+			State: "GA",
+		},
+		PostalCode: "30907",
 	}
 
 	destinationAddress := models.Address{
 		StreetAddress1: "17 8th St",
 		City:           "San Antonio",
-		State:          "TX",
-		PostalCode:     "78234",
+		State: models.State{
+			State: "TX",
+		},
+		PostalCode: "78234",
 	}
 
 	panicFunc := func() {

@@ -111,8 +111,12 @@ func (suite *MTOShipmentServiceSuite) createApproveShipmentSubtestData() (subtes
 			Model: models.Address{
 				StreetAddress1: "7 Q St",
 				City:           "Birmingham",
-				State:          "KY",
 				PostalCode:     "40356",
+			},
+		},
+		{
+			Model: models.State{
+				State: "KY",
 			},
 		},
 	}, nil)
@@ -135,7 +139,7 @@ func (suite *MTOShipmentServiceSuite) createApproveShipmentSubtestData() (subtes
 		ReZip3: models.ReZip3{
 			Zip3:          pickupAddress.PostalCode[0:3],
 			BasePointCity: pickupAddress.City,
-			State:         pickupAddress.State,
+			State:         pickupAddress.State.State,
 		},
 	})
 

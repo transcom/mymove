@@ -422,8 +422,13 @@ func (suite *PPMShipmentSuite) TestUpdatePPMShipment() {
 					StreetAddress2: models.StringPointer("P.O. Box 1234"),
 					StreetAddress3: models.StringPointer("c/o Another Person"),
 					City:           "Des Moines",
-					State:          "IA",
 					PostalCode:     "50309",
+				},
+				Type: &factory.Addresses.PickupAddress,
+			},
+			{
+				Model: models.State{
+					State: "IA",
 				},
 				Type: &factory.Addresses.PickupAddress,
 			},
@@ -433,8 +438,13 @@ func (suite *PPMShipmentSuite) TestUpdatePPMShipment() {
 					StreetAddress2: models.StringPointer("P.O. Box 12345"),
 					StreetAddress3: models.StringPointer("c/o Another Person"),
 					City:           "Fort Eisenhower",
-					State:          "GA",
 					PostalCode:     "50309",
+				},
+				Type: &factory.Addresses.DeliveryAddress,
+			},
+			{
+				Model: models.State{
+					State: "GA",
 				},
 				Type: &factory.Addresses.DeliveryAddress,
 			},
@@ -447,16 +457,20 @@ func (suite *PPMShipmentSuite) TestUpdatePPMShipment() {
 				StreetAddress2: models.StringPointer("P.O. Box 1234"),
 				StreetAddress3: models.StringPointer("c/o Another Person"),
 				City:           "Des Moines",
-				State:          "IA",
-				PostalCode:     "50308",
+				State: models.State{
+					State: "IA",
+				},
+				PostalCode: "50308",
 			},
 			DestinationAddress: &models.Address{
 				StreetAddress1: "987 Other Avenue",
 				StreetAddress2: models.StringPointer("P.O. Box 12345"),
 				StreetAddress3: models.StringPointer("c/o Another Person"),
 				City:           "Fort Eisenhower",
-				State:          "GA",
-				PostalCode:     "30183",
+				State: models.State{
+					State: "GA",
+				},
+				PostalCode: "30183",
 			},
 		}
 
@@ -1125,7 +1139,9 @@ func (suite *PPMShipmentSuite) TestUpdatePPMShipment() {
 		streetAddress1 := "10642 N Second Ave"
 		streetAddress2 := "Apt. 308"
 		city := "Atco"
-		state := "NJ"
+		state := models.State{
+			State: "NJ",
+		}
 		postalCode := "08004"
 
 		newPPM := models.PPMShipment{
@@ -1159,7 +1175,9 @@ func (suite *PPMShipmentSuite) TestUpdatePPMShipment() {
 
 		streetAddress1 := "1819 S Cedar Street"
 		city := "Fayetteville"
-		state := "NC"
+		state := models.State{
+			State: "NC",
+		}
 		postalCode := "28314"
 
 		newPPM := models.PPMShipment{
@@ -1202,7 +1220,9 @@ func (suite *PPMShipmentSuite) TestUpdatePPMShipment() {
 		streetAddress1 := "10642 N Second Ave"
 		streetAddress2 := "Apt. 308"
 		city := "Cookstown"
-		state := "NJ"
+		state := models.State{
+			State: "NJ",
+		}
 		postalCode := "08511"
 
 		newPPM := models.PPMShipment{
@@ -1239,7 +1259,9 @@ func (suite *PPMShipmentSuite) TestUpdatePPMShipment() {
 		streetAddress1 := "10642 N Second Ave"
 		streetAddress2 := "Apt. 308"
 		city := "Atco"
-		state := "NJ"
+		state := models.State{
+			State: "NJ",
+		}
 		postalCode := "08004"
 
 		newPPM := models.PPMShipment{
@@ -1358,7 +1380,9 @@ func (suite *PPMShipmentSuite) TestUpdatePPMShipment() {
 		streetAddress1 := "10642 N Second Ave"
 		streetAddress2 := "Apt. 308"
 		city := "Atco"
-		state := "NJ"
+		state := models.State{
+			State: "NJ",
+		}
 		postalCode := "30813"
 		destinationAddress := &models.Address{
 			StreetAddress1: streetAddress1,
@@ -1407,7 +1431,9 @@ func (suite *PPMShipmentSuite) TestUpdatePPMShipment() {
 		streetAddress1 := "10642 N Second Ave"
 		streetAddress2 := "Apt. 308"
 		city := "Atco"
-		state := "NJ"
+		state := models.State{
+			State: "NJ",
+		}
 		postalCode := "30813"
 		destinationAddress := &models.Address{
 			StreetAddress1: streetAddress1,
@@ -1469,7 +1495,9 @@ func (suite *PPMShipmentSuite) TestUpdatePPMShipment() {
 		streetAddress1 := "10642 N Second Ave"
 		streetAddress2 := "Apt. 308"
 		city := "Atco"
-		state := "NJ"
+		state := models.State{
+			State: "NJ",
+		}
 		postalCode := "30813"
 		destinationAddress := &models.Address{
 			StreetAddress1: streetAddress1,

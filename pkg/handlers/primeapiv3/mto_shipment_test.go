@@ -139,7 +139,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		pickupAddress = primev3messages.Address{
 			City:           &newAddress.City,
 			PostalCode:     &newAddress.PostalCode,
-			State:          &newAddress.State,
+			State:          &newAddress.State.State,
 			StreetAddress1: &newAddress.StreetAddress1,
 			StreetAddress2: newAddress.StreetAddress2,
 			StreetAddress3: newAddress.StreetAddress3,
@@ -148,7 +148,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		destinationAddress = primev3messages.Address{
 			City:           &newAddress.City,
 			PostalCode:     &newAddress.PostalCode,
-			State:          &newAddress.State,
+			State:          &newAddress.State.State,
 			StreetAddress1: &newAddress.StreetAddress1,
 			StreetAddress2: newAddress.StreetAddress2,
 			StreetAddress3: newAddress.StreetAddress3,
@@ -219,21 +219,25 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		address1 := models.Address{
 			StreetAddress1: "some address",
 			City:           "city",
-			State:          "CA",
-			PostalCode:     "90210",
+			State: models.State{
+				State: "CA",
+			},
+			PostalCode: "90210",
 		}
 		address2 := models.Address{
 			StreetAddress1: "some address",
 			City:           "city",
-			State:          "IL",
-			PostalCode:     "62225",
+			State: models.State{
+				State: "IL",
+			},
+			PostalCode: "62225",
 		}
 
 		expectedPickupAddress := address1
 		pickupAddress = primev3messages.Address{
 			City:           &expectedPickupAddress.City,
 			PostalCode:     &expectedPickupAddress.PostalCode,
-			State:          &expectedPickupAddress.State,
+			State:          &expectedPickupAddress.State.State,
 			StreetAddress1: &expectedPickupAddress.StreetAddress1,
 			StreetAddress2: expectedPickupAddress.StreetAddress2,
 			StreetAddress3: expectedPickupAddress.StreetAddress3,
@@ -243,7 +247,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		secondaryPickupAddress = primev3messages.Address{
 			City:           &expectedSecondaryPickupAddress.City,
 			PostalCode:     &expectedSecondaryPickupAddress.PostalCode,
-			State:          &expectedSecondaryPickupAddress.State,
+			State:          &expectedSecondaryPickupAddress.State.State,
 			StreetAddress1: &expectedSecondaryPickupAddress.StreetAddress1,
 			StreetAddress2: expectedSecondaryPickupAddress.StreetAddress2,
 			StreetAddress3: expectedSecondaryPickupAddress.StreetAddress3,
@@ -253,7 +257,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		destinationAddress = primev3messages.Address{
 			City:           &expectedDestinationAddress.City,
 			PostalCode:     &expectedDestinationAddress.PostalCode,
-			State:          &expectedDestinationAddress.State,
+			State:          &expectedDestinationAddress.State.State,
 			StreetAddress1: &expectedDestinationAddress.StreetAddress1,
 			StreetAddress2: expectedDestinationAddress.StreetAddress2,
 			StreetAddress3: expectedDestinationAddress.StreetAddress3,
@@ -261,7 +265,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		ppmDestinationAddress = primev3messages.PPMDestinationAddress{
 			City:           &expectedDestinationAddress.City,
 			PostalCode:     &expectedDestinationAddress.PostalCode,
-			State:          &expectedDestinationAddress.State,
+			State:          &expectedDestinationAddress.State.State,
 			StreetAddress1: &expectedDestinationAddress.StreetAddress1,
 			StreetAddress2: expectedDestinationAddress.StreetAddress2,
 			StreetAddress3: expectedDestinationAddress.StreetAddress3,
@@ -271,7 +275,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		secondaryDestinationAddress = primev3messages.Address{
 			City:           &expectedSecondaryDestinationAddress.City,
 			PostalCode:     &expectedSecondaryDestinationAddress.PostalCode,
-			State:          &expectedSecondaryDestinationAddress.State,
+			State:          &expectedSecondaryDestinationAddress.State.State,
 			StreetAddress1: &expectedSecondaryDestinationAddress.StreetAddress1,
 			StreetAddress2: expectedSecondaryDestinationAddress.StreetAddress2,
 			StreetAddress3: expectedSecondaryDestinationAddress.StreetAddress3,
@@ -462,21 +466,25 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		address1 := models.Address{
 			StreetAddress1: "some address",
 			City:           "city",
-			State:          "CA",
-			PostalCode:     "90210",
+			State: models.State{
+				State: "CA",
+			},
+			PostalCode: "90210",
 		}
 		addressWithEmptyStreet1 := models.Address{
 			StreetAddress1: "",
 			City:           "city",
-			State:          "CA",
-			PostalCode:     "90210",
+			State: models.State{
+				State: "CA",
+			},
+			PostalCode: "90210",
 		}
 
 		expectedPickupAddress := address1
 		pickupAddress = primev3messages.Address{
 			City:           &expectedPickupAddress.City,
 			PostalCode:     &expectedPickupAddress.PostalCode,
-			State:          &expectedPickupAddress.State,
+			State:          &expectedPickupAddress.State.State,
 			StreetAddress1: &expectedPickupAddress.StreetAddress1,
 			StreetAddress2: expectedPickupAddress.StreetAddress2,
 			StreetAddress3: expectedPickupAddress.StreetAddress3,
@@ -486,7 +494,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		destinationAddress = primev3messages.Address{
 			City:           &expectedDestinationAddress.City,
 			PostalCode:     &expectedDestinationAddress.PostalCode,
-			State:          &expectedDestinationAddress.State,
+			State:          &expectedDestinationAddress.State.State,
 			StreetAddress1: &expectedDestinationAddress.StreetAddress1,
 			StreetAddress2: expectedDestinationAddress.StreetAddress2,
 			StreetAddress3: expectedDestinationAddress.StreetAddress3,
@@ -494,7 +502,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		ppmDestinationAddress = primev3messages.PPMDestinationAddress{
 			City:           &addressWithEmptyStreet1.City,
 			PostalCode:     &addressWithEmptyStreet1.PostalCode,
-			State:          &addressWithEmptyStreet1.State,
+			State:          &addressWithEmptyStreet1.State.State,
 			StreetAddress1: &addressWithEmptyStreet1.StreetAddress1,
 			StreetAddress2: addressWithEmptyStreet1.StreetAddress2,
 			StreetAddress3: addressWithEmptyStreet1.StreetAddress3,

@@ -13,8 +13,12 @@ var pickupAddressModel = models.Address{
 	StreetAddress1: "1 First St",
 	StreetAddress2: models.StringPointer("Apt 1"),
 	City:           "Miami Gardens",
-	State:          "FL",
-	PostalCode:     "33169",
+	State: models.State{
+		State:     "FL",
+		StateName: "FLORIDA",
+		IsOconus:  *models.BoolPointer(false),
+	},
+	PostalCode: "33169",
 }
 
 var destinationAddressModel = models.Address{
@@ -22,8 +26,12 @@ var destinationAddressModel = models.Address{
 	StreetAddress1: "2 Second St",
 	StreetAddress2: models.StringPointer("Bldg 2"),
 	City:           "Key West",
-	State:          "FL",
-	PostalCode:     "33040",
+	State: models.State{
+		State:     "FL",
+		StateName: "FLORIDA",
+		IsOconus:  *models.BoolPointer(false),
+	},
+	PostalCode: "33040",
 }
 
 var affiliationDisplayValue = map[models.ServiceMemberAffiliation]string{
@@ -109,10 +117,10 @@ func (suite *NotificationSuite) TestPpmPacketEmailHTMLTemplateRenderForAirAndSpa
 
 	suite.EqualExportedValues(ppmEmailData, PpmPacketEmailData{
 		OriginCity:                        &pickupAddress.City,
-		OriginState:                       &pickupAddress.State,
+		OriginState:                       &pickupAddress.State.State,
 		OriginZIP:                         &pickupAddress.PostalCode,
 		DestinationCity:                   &destinationAddress.City,
-		DestinationState:                  &destinationAddress.State,
+		DestinationState:                  &destinationAddress.State.State,
 		DestinationZIP:                    &destinationAddress.PostalCode,
 		SubmitLocation:                    allOtherSubmitLocation,
 		ServiceBranch:                     affiliationDisplayValue[*serviceMember.Affiliation],
@@ -123,7 +131,7 @@ func (suite *NotificationSuite) TestPpmPacketEmailHTMLTemplateRenderForAirAndSpa
 	})
 
 	expectedHTMLContent := `<p>*** DO NOT REPLY directly to this email ***</p>
-<p>This is a confirmation that your Personally Procured Move (PPM) with the <strong>assigned move code ` + move.Locator + `</strong> from <strong>` + pickupAddress.City + `, ` + pickupAddress.State + `</strong> to <strong>` + destinationAddress.City + `, ` + destinationAddress.State + `</strong> has been processed in MilMove. </p>
+<p>This is a confirmation that your Personally Procured Move (PPM) with the <strong>assigned move code ` + move.Locator + `</strong> from <strong>` + pickupAddress.City + `, ` + pickupAddress.State.State + `</strong> to <strong>` + destinationAddress.City + `, ` + destinationAddress.State.State + `</strong> has been processed in MilMove. </p>
 <h4>Next steps:</h4>
 
 <p>For ` + affiliationDisplayValue[*serviceMember.Affiliation] + ` personnel (FURTHER ACTION REQUIRED):</p>
@@ -199,10 +207,10 @@ func (suite *NotificationSuite) TestPpmPacketEmailHTMLTemplateRenderForArmy() {
 
 	suite.EqualExportedValues(ppmEmailData, PpmPacketEmailData{
 		OriginCity:                        &pickupAddress.City,
-		OriginState:                       &pickupAddress.State,
+		OriginState:                       &pickupAddress.State.State,
 		OriginZIP:                         &pickupAddress.PostalCode,
 		DestinationCity:                   &destinationAddress.City,
-		DestinationState:                  &destinationAddress.State,
+		DestinationState:                  &destinationAddress.State.State,
 		DestinationZIP:                    &destinationAddress.PostalCode,
 		SubmitLocation:                    armySubmitLocation,
 		ServiceBranch:                     affiliationDisplayValue[*serviceMember.Affiliation],
@@ -213,7 +221,7 @@ func (suite *NotificationSuite) TestPpmPacketEmailHTMLTemplateRenderForArmy() {
 	})
 
 	expectedHTMLContent := `<p>*** DO NOT REPLY directly to this email ***</p>
-<p>This is a confirmation that your Personally Procured Move (PPM) with the <strong>assigned move code ` + move.Locator + `</strong> from <strong>` + pickupAddress.City + `, ` + pickupAddress.State + `</strong> to <strong>` + destinationAddress.City + `, ` + destinationAddress.State + `</strong> has been processed in MilMove. </p>
+<p>This is a confirmation that your Personally Procured Move (PPM) with the <strong>assigned move code ` + move.Locator + `</strong> from <strong>` + pickupAddress.City + `, ` + pickupAddress.State.State + `</strong> to <strong>` + destinationAddress.City + `, ` + destinationAddress.State.State + `</strong> has been processed in MilMove. </p>
 <h4>Next steps:</h4>
 
 <p>For ` + affiliationDisplayValue[*serviceMember.Affiliation] + ` personnel (FURTHER ACTION REQUIRED):</p>
@@ -289,10 +297,10 @@ func (suite *NotificationSuite) TestPpmPacketEmailHTMLTemplateRenderForNavalBran
 
 	suite.EqualExportedValues(ppmEmailData, PpmPacketEmailData{
 		OriginCity:                        &pickupAddress.City,
-		OriginState:                       &pickupAddress.State,
+		OriginState:                       &pickupAddress.State.State,
 		OriginZIP:                         &pickupAddress.PostalCode,
 		DestinationCity:                   &destinationAddress.City,
-		DestinationState:                  &destinationAddress.State,
+		DestinationState:                  &destinationAddress.State.State,
 		DestinationZIP:                    &destinationAddress.PostalCode,
 		SubmitLocation:                    allOtherSubmitLocation,
 		ServiceBranch:                     affiliationDisplayValue[*serviceMember.Affiliation],
@@ -303,7 +311,7 @@ func (suite *NotificationSuite) TestPpmPacketEmailHTMLTemplateRenderForNavalBran
 	})
 
 	expectedHTMLContent := `<p>*** DO NOT REPLY directly to this email ***</p>
-<p>This is a confirmation that your Personally Procured Move (PPM) with the <strong>assigned move code ` + move.Locator + `</strong> from <strong>` + pickupAddress.City + `, ` + pickupAddress.State + `</strong> to <strong>` + destinationAddress.City + `, ` + destinationAddress.State + `</strong> has been processed in MilMove. </p>
+<p>This is a confirmation that your Personally Procured Move (PPM) with the <strong>assigned move code ` + move.Locator + `</strong> from <strong>` + pickupAddress.City + `, ` + pickupAddress.State.State + `</strong> to <strong>` + destinationAddress.City + `, ` + destinationAddress.State.State + `</strong> has been processed in MilMove. </p>
 <h4>Next steps:</h4>
 
 <p>For ` + affiliationDisplayValue[*serviceMember.Affiliation] + ` personnel:</p>
@@ -380,7 +388,7 @@ func (suite *NotificationSuite) TestPpmPacketEmailTextTemplateRender() {
 
 	expectedTextContent := `*** DO NOT REPLY directly to this email ***
 
-This is a confirmation that your Personally Procured Move (PPM) with the assigned move code ` + move.Locator + ` from ` + pickupAddress.City + `, ` + pickupAddress.State + ` to ` + destinationAddress.City + `, ` + destinationAddress.State + ` has been processed in MilMove.
+This is a confirmation that your Personally Procured Move (PPM) with the assigned move code ` + move.Locator + ` from ` + pickupAddress.City + `, ` + pickupAddress.State.State + ` to ` + destinationAddress.City + `, ` + destinationAddress.State.State + ` has been processed in MilMove.
 
 Next steps:
 
@@ -447,10 +455,10 @@ func (suite *NotificationSuite) TestPpmPacketEmailZipcodeFallback() {
 	suite.EqualExportedValues(ppmEmailData, PpmPacketEmailData{
 		OriginZIP:                         &ppmShipment.PickupAddress.PostalCode,
 		OriginCity:                        &ppmShipment.PickupAddress.City,
-		OriginState:                       &ppmShipment.PickupAddress.State,
+		OriginState:                       &ppmShipment.PickupAddress.State.State,
 		DestinationZIP:                    &ppmShipment.DestinationAddress.PostalCode,
 		DestinationCity:                   &ppmShipment.DestinationAddress.City,
-		DestinationState:                  &ppmShipment.DestinationAddress.State,
+		DestinationState:                  &ppmShipment.DestinationAddress.State.State,
 		SubmitLocation:                    allOtherSubmitLocation,
 		ServiceBranch:                     affiliationDisplayValue[*serviceMember.Affiliation],
 		Locator:                           move.Locator,

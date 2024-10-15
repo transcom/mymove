@@ -971,8 +971,12 @@ func (suite *HandlerSuite) TestGetMoveTaskOrder() {
 				Model: models.Address{
 					StreetAddress1: "177 Q st",
 					City:           "Solomons",
-					State:          "MD",
 					PostalCode:     "20688",
+				},
+			},
+			{
+				Model: models.State{
+					State: "MD",
 				},
 			},
 		}, nil)

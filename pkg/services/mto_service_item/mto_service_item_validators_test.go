@@ -566,8 +566,10 @@ func (suite *MTOServiceItemServiceSuite) TestUpdateMTOServiceItemData() {
 			StreetAddress2: models.StringPointer("P.O. Box 12345"),
 			StreetAddress3: models.StringPointer("c/o Some Person"),
 			City:           "Beverly Hills",
-			State:          "CA",
-			PostalCode:     "90210",
+			State: models.State{
+				State: "CA",
+			},
+			PostalCode: "90210",
 		}
 
 		// Set the old address and id to the old service item
@@ -604,8 +606,10 @@ func (suite *MTOServiceItemServiceSuite) TestUpdateMTOServiceItemData() {
 			StreetAddress2: models.StringPointer("P.O. Box 12345"),
 			StreetAddress3: models.StringPointer("c/o Some Person"),
 			City:           "Beverly Hills",
-			State:          "CA",
-			PostalCode:     "90210",
+			State: models.State{
+				State: "CA",
+			},
+			PostalCode: "90210",
 		}
 
 		// Set the address to the new service item. We don't need to set the ID here because this replicates when

@@ -386,7 +386,7 @@ func formatSingleLineAddress(address models.Address) string {
 	return strings.Join([]string{
 		address.StreetAddress1,
 		address.City,
-		address.State,
+		address.State.State,
 		address.PostalCode,
 	}, ", ")
 }

@@ -27,10 +27,18 @@ func fakeAddressPayload() *internalmessages.Address {
 func (suite *HandlerSuite) TestShowAddressHandler() {
 
 	suite.Run("successful lookup", func() {
+		state := factory.FetchOrBuildState(suite.DB(), []factory.Customization{
+			{
+				Model: models.State{
+					State: "CA",
+				},
+			},
+		}, nil)
 		address := models.Address{
 			StreetAddress1: "some address",
 			City:           "city",
-			State:          "state",
+			StateId:        state.ID,
+			State:          state,
 			PostalCode:     "12345",
 			County:         "JESSAMINE",
 		}

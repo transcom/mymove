@@ -191,6 +191,14 @@ func Document(document *models.Document) *supportmessages.Document {
 	return &payload
 }
 
+// State payload
+func State(state *models.State) *string {
+	if state == nil {
+		return nil
+	}
+	return &state.State
+}
+
 // Country payload
 func Country(country *models.Country) *string {
 	if country == nil {
@@ -210,7 +218,7 @@ func Address(address *models.Address) *supportmessages.Address {
 		StreetAddress2: address.StreetAddress2,
 		StreetAddress3: address.StreetAddress3,
 		City:           &address.City,
-		State:          &address.State,
+		State:          State(&address.State),
 		PostalCode:     &address.PostalCode,
 		Country:        Country(address.Country),
 		County:         &address.County,

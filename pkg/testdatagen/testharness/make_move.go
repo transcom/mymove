@@ -850,8 +850,14 @@ func MakePrimeSimulatorMoveSameBasePointCity(appCtx appcontext.AppContext) model
 				StreetAddress1: "1 First St",
 				StreetAddress2: models.StringPointer("Apt 1"),
 				City:           "Miami Gardens",
-				State:          "FL",
 				PostalCode:     "33169",
+			},
+		},
+		{
+			Model: models.State{
+				State:     "FL",
+				StateName: "FLORIDA",
+				IsOconus:  *models.BoolPointer(false),
 			},
 		},
 	}, nil)
@@ -862,8 +868,14 @@ func MakePrimeSimulatorMoveSameBasePointCity(appCtx appcontext.AppContext) model
 				StreetAddress1: "2 Second St",
 				StreetAddress2: models.StringPointer("Bldg 2"),
 				City:           "Key West",
-				State:          "FL",
 				PostalCode:     "33040",
+			},
+		},
+		{
+			Model: models.State{
+				State:     "FL",
+				StateName: "FLORIDA",
+				IsOconus:  *models.BoolPointer(false),
 			},
 		},
 	}, nil)
@@ -3945,8 +3957,14 @@ func MakeMoveWithPPMShipmentReadyForFinalCloseout(appCtx appcontext.AppContext) 
 				StreetAddress1: "1 First St",
 				StreetAddress2: models.StringPointer("Apt 1"),
 				City:           "Miami Gardens",
-				State:          "FL",
 				PostalCode:     "33169",
+			},
+		},
+		{
+			Model: models.State{
+				State:     "FL",
+				StateName: "FLORIDA",
+				IsOconus:  *models.BoolPointer(false),
 			},
 		},
 	}, nil)
@@ -3957,8 +3975,14 @@ func MakeMoveWithPPMShipmentReadyForFinalCloseout(appCtx appcontext.AppContext) 
 				StreetAddress1: "2 Second St",
 				StreetAddress2: models.StringPointer("Bldg 2"),
 				City:           "Key West",
-				State:          "FL",
 				PostalCode:     "33040",
+			},
+		},
+		{
+			Model: models.State{
+				State:     "FL",
+				StateName: "FLORIDA",
+				IsOconus:  *models.BoolPointer(false),
 			},
 		},
 	}, nil)
@@ -6673,8 +6697,14 @@ func MakeHHGMoveWithAddressChangeRequest(appCtx appcontext.AppContext) models.Sh
 				StreetAddress1: "7 Q st",
 				StreetAddress2: models.StringPointer("Apt 1"),
 				City:           "Fort Eisenhower",
-				State:          "GA",
 				PostalCode:     "30813",
+			},
+		},
+		{
+			Model: models.State{
+				State:     "GA",
+				StateName: "GEORGIA",
+				IsOconus:  *models.BoolPointer(false),
 			},
 		},
 	}, nil)
@@ -6856,8 +6886,14 @@ func MakeHHGMoveWithAddressChangeRequestAndSecondDeliveryLocation(appCtx appcont
 				StreetAddress1: "7 Q st",
 				StreetAddress2: models.StringPointer("Apt 1"),
 				City:           "Fort Eisenhower",
-				State:          "GA",
 				PostalCode:     "30813",
+			},
+		},
+		{
+			Model: models.State{
+				State:     "GA",
+				StateName: "GEORGIA",
+				IsOconus:  *models.BoolPointer(false),
 			},
 		},
 	}, nil)
@@ -6950,8 +6986,14 @@ func MakeNTSRMoveWithAddressChangeRequest(appCtx appcontext.AppContext) models.S
 				StreetAddress1: "7 Q st",
 				StreetAddress2: models.StringPointer("Apt 1"),
 				City:           "Fort Eisenhower",
-				State:          "GA",
 				PostalCode:     "30813",
+			},
+		},
+		{
+			Model: models.State{
+				State:     "GA",
+				StateName: "GEORGIA",
+				IsOconus:  *models.BoolPointer(false),
 			},
 		},
 	}, nil)

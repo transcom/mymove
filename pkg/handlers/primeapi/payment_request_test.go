@@ -612,8 +612,12 @@ func (suite *HandlerSuite) setupDomesticLinehaulData() (models.Move, models.MTOS
 			Model: models.Address{
 				StreetAddress1: "7 Q St",
 				City:           "Birmingham",
-				State:          "AL",
 				PostalCode:     "90210",
+			},
+		},
+		{
+			Model: models.State{
+				State: "AL",
 			},
 		},
 	}, nil)
@@ -622,8 +626,12 @@ func (suite *HandlerSuite) setupDomesticLinehaulData() (models.Move, models.MTOS
 			Model: models.Address{
 				StreetAddress1: "148 S East St",
 				City:           "Miami",
-				State:          "FL",
 				PostalCode:     "94535",
+			},
+		},
+		{
+			Model: models.State{
+				State: "FL",
 			},
 		},
 	}, nil)
@@ -644,7 +652,7 @@ func (suite *HandlerSuite) setupDomesticLinehaulData() (models.Move, models.MTOS
 		ReZip3: models.ReZip3{
 			Zip3:          pickupAddress.PostalCode[0:3],
 			BasePointCity: pickupAddress.City,
-			State:         pickupAddress.State,
+			State:         pickupAddress.State.State,
 		},
 	})
 

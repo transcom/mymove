@@ -18,7 +18,13 @@ func (suite *AddressSuite) TestAddressUpdater() {
 
 	streetAddress1 := "288 SW Sunset Way"
 	city := "Elizabethtown"
-	state := "KY"
+	state := factory.FetchOrBuildState(suite.DB(), []factory.Customization{
+		{
+			Model: models.State{
+				State: "KY",
+			},
+		},
+	}, nil)
 	postalCode := "42701"
 	county := "HARDIN"
 
@@ -76,7 +82,7 @@ func (suite *AddressSuite) TestAddressUpdater() {
 			ID:             originalAddress.ID,
 			StreetAddress1: " ",
 			City:           " ",
-			State:          " ",
+			State:          state,
 			PostalCode:     postalCode, // Provide postal code here because it is not explicitly input error
 		}
 		updatedAddress, err := addressUpdater.UpdateAddress(suite.AppContextForTest(), desiredAddress, etag.GenerateEtag(originalAddress.UpdatedAt))

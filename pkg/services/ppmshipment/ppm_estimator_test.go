@@ -1450,8 +1450,13 @@ func (suite *PPMShipmentSuite) TestPPMEstimator() {
 						StreetAddress2: models.StringPointer("P.O. Box 1234"),
 						StreetAddress3: models.StringPointer("c/o Another Person"),
 						City:           "Des Moines",
-						State:          "IA",
 						PostalCode:     "50309",
+					},
+					Type: &factory.Addresses.PickupAddress,
+				},
+				{
+					Model: &models.State{
+						State: "IA",
 					},
 					Type: &factory.Addresses.PickupAddress,
 				},
@@ -1461,10 +1466,15 @@ func (suite *PPMShipmentSuite) TestPPMEstimator() {
 						StreetAddress2: models.StringPointer("P.O. Box 12345"),
 						StreetAddress3: models.StringPointer("c/o Another Person"),
 						City:           "Fort Eisenhower",
-						State:          "GA",
 						PostalCode:     "30813",
 					},
 					Type: &factory.Addresses.DeliveryAddress,
+				},
+				{
+					Model: &models.State{
+						State: "GA",
+					},
+					Type: &factory.Addresses.PickupAddress,
 				},
 				{
 					Model:    mtoShipment,
@@ -1511,8 +1521,13 @@ func (suite *PPMShipmentSuite) TestPPMEstimator() {
 						StreetAddress2: models.StringPointer("P.O. Box 1234"),
 						StreetAddress3: models.StringPointer("c/o Another Person"),
 						City:           "Des Moines",
-						State:          "IA",
 						PostalCode:     "50309",
+					},
+					Type: &factory.Addresses.PickupAddress,
+				},
+				{
+					Model: &models.State{
+						State: "IA",
 					},
 					Type: &factory.Addresses.PickupAddress,
 				},
@@ -1522,8 +1537,13 @@ func (suite *PPMShipmentSuite) TestPPMEstimator() {
 						StreetAddress2: models.StringPointer("P.O. Box 12345"),
 						StreetAddress3: models.StringPointer("c/o Another Person"),
 						City:           "Fort Eisenhower",
-						State:          "GA",
 						PostalCode:     "50309",
+					},
+					Type: &factory.Addresses.DeliveryAddress,
+				},
+				{
+					Model: &models.State{
+						State: "GA",
 					},
 					Type: &factory.Addresses.DeliveryAddress,
 				},

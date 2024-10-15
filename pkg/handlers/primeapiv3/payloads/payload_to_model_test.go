@@ -374,28 +374,32 @@ func (suite *PayloadsSuite) TestMTOShipmentModelFromCreate() {
 	pickupAddress := models.Address{
 		StreetAddress1: "some address",
 		City:           "city",
-		State:          "CA",
-		PostalCode:     "90210",
+		State: models.State{
+			State: "CA",
+		},
+		PostalCode: "90210",
 	}
 
 	pickupAddressMessage := primev3messages.Address{
 		StreetAddress1: &pickupAddress.StreetAddress1,
 		City:           &pickupAddress.City,
-		State:          &pickupAddress.State,
+		State:          &pickupAddress.State.State,
 		PostalCode:     &pickupAddress.PostalCode,
 	}
 
 	destinationAddress := models.Address{
 		StreetAddress1: "some address",
 		City:           "city",
-		State:          "IL",
-		PostalCode:     "62225",
+		State: models.State{
+			State: "IL",
+		},
+		PostalCode: "62225",
 	}
 
 	destinationAddressMessage := primev3messages.Address{
 		StreetAddress1: &destinationAddress.StreetAddress1,
 		City:           &destinationAddress.City,
-		State:          &destinationAddress.State,
+		State:          &destinationAddress.State.State,
 		PostalCode:     &destinationAddress.PostalCode,
 	}
 
@@ -544,23 +548,26 @@ func (suite *PayloadsSuite) TestPPMShipmentModelFromCreate() {
 	hasProGear := true
 	proGearWeight := int64(500)
 	spouseProGearWeight := int64(50)
+	state := models.State{
+		State: "CA",
+	}
 
 	address := models.Address{
 		StreetAddress1: "some address",
 		City:           "city",
-		State:          "state",
+		State:          state,
 		PostalCode:     "12345",
 	}
 	address2 := models.Address{
 		StreetAddress1: "some address",
 		City:           "city",
-		State:          "state",
+		State:          state,
 		PostalCode:     "11111",
 	}
 	address3 := models.Address{
 		StreetAddress1: "some address",
 		City:           "city",
-		State:          "state",
+		State:          state,
 		PostalCode:     "54321",
 	}
 
@@ -574,7 +581,7 @@ func (suite *PayloadsSuite) TestPPMShipmentModelFromCreate() {
 	pickupAddress = primev3messages.Address{
 		City:           &address.City,
 		PostalCode:     &address.PostalCode,
-		State:          &address.State,
+		State:          &address.State.State,
 		StreetAddress1: &address.StreetAddress1,
 		StreetAddress2: address.StreetAddress2,
 		StreetAddress3: address.StreetAddress3,
@@ -582,7 +589,7 @@ func (suite *PayloadsSuite) TestPPMShipmentModelFromCreate() {
 	destinationAddress = primev3messages.PPMDestinationAddress{
 		City:           &address.City,
 		PostalCode:     &address.PostalCode,
-		State:          &address.State,
+		State:          &address.State.State,
 		StreetAddress1: &address.StreetAddress1,
 		StreetAddress2: address.StreetAddress2,
 		StreetAddress3: address.StreetAddress3,
@@ -590,7 +597,7 @@ func (suite *PayloadsSuite) TestPPMShipmentModelFromCreate() {
 	secondaryPickupAddress = primev3messages.Address{
 		City:           &address2.City,
 		PostalCode:     &address2.PostalCode,
-		State:          &address2.State,
+		State:          &address2.State.State,
 		StreetAddress1: &address2.StreetAddress1,
 		StreetAddress2: address2.StreetAddress2,
 		StreetAddress3: address2.StreetAddress3,
@@ -598,7 +605,7 @@ func (suite *PayloadsSuite) TestPPMShipmentModelFromCreate() {
 	secondaryDestinationAddress = primev3messages.Address{
 		City:           &address2.City,
 		PostalCode:     &address2.PostalCode,
-		State:          &address2.State,
+		State:          &address2.State.State,
 		StreetAddress1: &address2.StreetAddress1,
 		StreetAddress2: address2.StreetAddress2,
 		StreetAddress3: address2.StreetAddress3,
@@ -606,7 +613,7 @@ func (suite *PayloadsSuite) TestPPMShipmentModelFromCreate() {
 	tertiaryPickupAddress = primev3messages.Address{
 		City:           &address3.City,
 		PostalCode:     &address3.PostalCode,
-		State:          &address3.State,
+		State:          &address3.State.State,
 		StreetAddress1: &address3.StreetAddress1,
 		StreetAddress2: address3.StreetAddress2,
 		StreetAddress3: address3.StreetAddress3,
@@ -614,7 +621,7 @@ func (suite *PayloadsSuite) TestPPMShipmentModelFromCreate() {
 	tertiaryDestinationAddress = primev3messages.Address{
 		City:           &address3.City,
 		PostalCode:     &address3.PostalCode,
-		State:          &address3.State,
+		State:          &address3.State.State,
 		StreetAddress1: &address3.StreetAddress1,
 		StreetAddress2: address3.StreetAddress2,
 		StreetAddress3: address3.StreetAddress3,
@@ -656,11 +663,14 @@ func (suite *PayloadsSuite) TestPPMShipmentModelFromCreate() {
 func (suite *PayloadsSuite) TestPPMShipmentModelWithOptionalDestinationStreet1FromCreate() {
 	time := time.Now()
 	expectedDepartureDate := handlers.FmtDatePtr(&time)
+	state := models.State{
+		State: "CA",
+	}
 
 	address := models.Address{
 		StreetAddress1: "some address",
 		City:           "city",
-		State:          "state",
+		State:          state,
 		PostalCode:     "12345",
 	}
 
@@ -670,7 +680,7 @@ func (suite *PayloadsSuite) TestPPMShipmentModelWithOptionalDestinationStreet1Fr
 	pickupAddress = primev3messages.Address{
 		City:           &address.City,
 		PostalCode:     &address.PostalCode,
-		State:          &address.State,
+		State:          &address.State.State,
 		StreetAddress1: &address.StreetAddress1,
 		StreetAddress2: address.StreetAddress2,
 		StreetAddress3: address.StreetAddress3,
@@ -678,7 +688,7 @@ func (suite *PayloadsSuite) TestPPMShipmentModelWithOptionalDestinationStreet1Fr
 	destinationAddress = primev3messages.PPMDestinationAddress{
 		City:           &address.City,
 		PostalCode:     &address.PostalCode,
-		State:          &address.State,
+		State:          &address.State.State,
 		StreetAddress1: models.StringPointer(""), // empty string
 		StreetAddress2: address.StreetAddress2,
 		StreetAddress3: address.StreetAddress3,
@@ -729,11 +739,14 @@ func (suite *PayloadsSuite) TestPPMShipmentModelWithOptionalDestinationStreet1Fr
 func (suite *PayloadsSuite) TestPPMShipmentModelWithOptionalDestinationStreet1FromUpdate() {
 	time := time.Now()
 	expectedDepartureDate := handlers.FmtDatePtr(&time)
+	state := models.State{
+		State: "CA",
+	}
 
 	address := models.Address{
 		StreetAddress1: "some address",
 		City:           "city",
-		State:          "state",
+		State:          state,
 		PostalCode:     "12345",
 	}
 
@@ -743,7 +756,7 @@ func (suite *PayloadsSuite) TestPPMShipmentModelWithOptionalDestinationStreet1Fr
 	pickupAddress = primev3messages.Address{
 		City:           &address.City,
 		PostalCode:     &address.PostalCode,
-		State:          &address.State,
+		State:          &address.State.State,
 		StreetAddress1: &address.StreetAddress1,
 		StreetAddress2: address.StreetAddress2,
 		StreetAddress3: address.StreetAddress3,
@@ -751,7 +764,7 @@ func (suite *PayloadsSuite) TestPPMShipmentModelWithOptionalDestinationStreet1Fr
 	destinationAddress = primev3messages.PPMDestinationAddress{
 		City:           &address.City,
 		PostalCode:     &address.PostalCode,
-		State:          &address.State,
+		State:          &address.State.State,
 		StreetAddress1: models.StringPointer(""), // empty string
 		StreetAddress2: address.StreetAddress2,
 		StreetAddress3: address.StreetAddress3,

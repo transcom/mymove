@@ -61,9 +61,11 @@ func (suite *PayloadsSuite) TestMoveTaskOrder() {
 					StreetAddress2: &streetAddress2,
 					StreetAddress3: &streetAddress3,
 					City:           "Washington",
-					State:          "DC",
-					PostalCode:     "20001",
-					County:         "my county",
+					State: models.State{
+						State: "DC",
+					},
+					PostalCode: "20001",
+					County:     "my county",
 				},
 			},
 		},
@@ -536,10 +538,12 @@ func (suite *PayloadsSuite) TestPPMShipmentContainingOptionalDestinationStreet1(
 			StreetAddress2: models.StringPointer("1"),
 			StreetAddress3: models.StringPointer("2"),
 			City:           "SomeCity",
-			State:          "CA",
-			PostalCode:     "90210",
-			County:         "SomeCounty",
-			UpdatedAt:      now,
+			State: models.State{
+				State: "CA",
+			},
+			PostalCode: "90210",
+			County:     "SomeCounty",
+			UpdatedAt:  now,
 		},
 	}
 
@@ -570,14 +574,18 @@ func (suite *PayloadsSuite) TestMTOServiceItem() {
 		SITOriginHHGActualAddress: &models.Address{
 			StreetAddress1: "dummyStreet",
 			City:           "dummyCity",
-			State:          "FL",
-			PostalCode:     "55555",
+			State: models.State{
+				State: "FL",
+			},
+			PostalCode: "55555",
 		},
 		SITOriginHHGOriginalAddress: &models.Address{
 			StreetAddress1: "dummyStreet2",
 			City:           "dummyCity2",
-			State:          "FL",
-			PostalCode:     "55555",
+			State: models.State{
+				State: "FL",
+			},
+			PostalCode: "55555",
 		},
 	}
 
@@ -639,8 +647,10 @@ func (suite *PayloadsSuite) TestMTOServiceItemDestSIT() {
 	finalAddress := models.Address{
 		StreetAddress1: "dummyStreet",
 		City:           "dummyCity",
-		State:          "FL",
-		PostalCode:     "55555",
+		State: models.State{
+			State: "FL",
+		},
+		PostalCode: "55555",
 	}
 	mtoShipmentID := uuid.Must(uuid.NewV4())
 
@@ -822,8 +832,10 @@ func (suite *PayloadsSuite) TestStorageFacility() {
 		Address: models.Address{
 			StreetAddress1: dummy,
 			City:           dummy,
-			State:          dummy,
-			PostalCode:     dummy,
+			State: models.State{
+				State: "CA",
+			},
+			PostalCode: dummy,
 		},
 		Email:        &email,
 		FacilityName: facilityName,

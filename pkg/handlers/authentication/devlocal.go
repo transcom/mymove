@@ -15,6 +15,7 @@ import (
 	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/auth"
+	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/models/roles"
@@ -501,10 +502,18 @@ func createUser(h devlocalAuthHandler, w http.ResponseWriter, r *http.Request) (
 		}
 	case TOOOfficeUserType:
 		// Now create the Truss JPPSO
+		state := factory.FetchOrBuildState(appCtx.DB(), []factory.Customization{
+			{
+				Model: models.State{
+					State: "CA",
+				},
+			},
+		}, nil)
 		address := models.Address{
 			StreetAddress1: "1333 Minna St",
 			City:           "San Francisco",
-			State:          "CA",
+			StateId:        state.ID,
+			State:          state,
 			PostalCode:     "94115",
 			County:         "SAINT CLAIR",
 		}
@@ -574,10 +583,18 @@ func createUser(h devlocalAuthHandler, w http.ResponseWriter, r *http.Request) (
 		}
 	case TIOOfficeUserType:
 		// Now create the Truss JPPSO
+		state := factory.FetchOrBuildState(appCtx.DB(), []factory.Customization{
+			{
+				Model: models.State{
+					State: "CA",
+				},
+			},
+		}, nil)
 		address := models.Address{
 			StreetAddress1: "1333 Minna St",
 			City:           "San Francisco",
-			State:          "CA",
+			StateId:        state.ID,
+			State:          state,
 			PostalCode:     "94115",
 			County:         "SAINT CLAIR",
 		}
@@ -646,10 +663,18 @@ func createUser(h devlocalAuthHandler, w http.ResponseWriter, r *http.Request) (
 		}
 	case ServicesCounselorOfficeUserType:
 		// Now create the Truss JPPSO
+		state := factory.FetchOrBuildState(appCtx.DB(), []factory.Customization{
+			{
+				Model: models.State{
+					State: "CA",
+				},
+			},
+		}, nil)
 		address := models.Address{
 			StreetAddress1: "1333 Minna St",
 			City:           "San Francisco",
-			State:          "CA",
+			StateId:        state.ID,
+			State:          state,
 			PostalCode:     "94115",
 			County:         "SAINT CLAIR",
 		}
@@ -718,10 +743,18 @@ func createUser(h devlocalAuthHandler, w http.ResponseWriter, r *http.Request) (
 		}
 	case PrimeSimulatorOfficeUserType:
 		// Now create the Truss JPPSO
+		state := factory.FetchOrBuildState(appCtx.DB(), []factory.Customization{
+			{
+				Model: models.State{
+					State: "CA",
+				},
+			},
+		}, nil)
 		address := models.Address{
 			StreetAddress1: "1333 Minna St",
 			City:           "San Francisco",
-			State:          "CA",
+			StateId:        state.ID,
+			State:          state,
 			PostalCode:     "94115",
 			County:         "SAINT CLAIR",
 		}
@@ -790,10 +823,18 @@ func createUser(h devlocalAuthHandler, w http.ResponseWriter, r *http.Request) (
 		}
 	case QaeOfficeUserType:
 		// Now create the Truss JPPSO
+		state := factory.FetchOrBuildState(appCtx.DB(), []factory.Customization{
+			{
+				Model: models.State{
+					State: "CA",
+				},
+			},
+		}, nil)
 		address := models.Address{
 			StreetAddress1: "1333 Minna St",
 			City:           "San Francisco",
-			State:          "CA",
+			StateId:        state.ID,
+			State:          state,
 			PostalCode:     "94115",
 			County:         "SAINT CLAIR",
 		}
@@ -862,10 +903,18 @@ func createUser(h devlocalAuthHandler, w http.ResponseWriter, r *http.Request) (
 			appCtx.Logger().Error("validation errors creating office user", zap.Stringer("errors", verrs))
 		}
 	case CustomerServiceRepresentativeOfficeUserType:
+		state := factory.FetchOrBuildState(appCtx.DB(), []factory.Customization{
+			{
+				Model: models.State{
+					State: "CA",
+				},
+			},
+		}, nil)
 		address := models.Address{
 			StreetAddress1: "1333 Minna St",
 			City:           "San Francisco",
-			State:          "CA",
+			StateId:        state.ID,
+			State:          state,
 			PostalCode:     "94115",
 			County:         "SAINT CLAIR",
 		}
@@ -934,10 +983,18 @@ func createUser(h devlocalAuthHandler, w http.ResponseWriter, r *http.Request) (
 			appCtx.Logger().Error("validation errors creating office user", zap.Stringer("errors", verrs))
 		}
 	case HQOfficeUserType:
+		state := factory.FetchOrBuildState(appCtx.DB(), []factory.Customization{
+			{
+				Model: models.State{
+					State: "CA",
+				},
+			},
+		}, nil)
 		address := models.Address{
 			StreetAddress1: "1333 Minna St",
 			City:           "San Francisco",
-			State:          "CA",
+			StateId:        state.ID,
+			State:          state,
 			PostalCode:     "94115",
 			County:         "SAINT CLAIR",
 		}
@@ -1006,10 +1063,18 @@ func createUser(h devlocalAuthHandler, w http.ResponseWriter, r *http.Request) (
 			appCtx.Logger().Error("validation errors creating office user", zap.Stringer("errors", verrs))
 		}
 	case GSROfficeUserType:
+		state := factory.FetchOrBuildState(appCtx.DB(), []factory.Customization{
+			{
+				Model: models.State{
+					State: "CA",
+				},
+			},
+		}, nil)
 		address := models.Address{
 			StreetAddress1: "1333 Minna St",
 			City:           "San Francisco",
-			State:          "CA",
+			StateId:        state.ID,
+			State:          state,
 			PostalCode:     "94115",
 			County:         "SAINT CLAIR",
 		}
@@ -1079,10 +1144,18 @@ func createUser(h devlocalAuthHandler, w http.ResponseWriter, r *http.Request) (
 		}
 	case MultiRoleOfficeUserType:
 		// Now create the Truss JPPSO
+		state := factory.FetchOrBuildState(appCtx.DB(), []factory.Customization{
+			{
+				Model: models.State{
+					State: "CA",
+				},
+			},
+		}, nil)
 		address := models.Address{
 			StreetAddress1: "1333 Minna St",
 			City:           "San Francisco",
-			State:          "CA",
+			StateId:        state.ID,
+			State:          state,
 			PostalCode:     "94115",
 			County:         "SAINT CLAIR",
 		}

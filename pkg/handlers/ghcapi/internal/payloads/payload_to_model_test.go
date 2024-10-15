@@ -11,11 +11,14 @@ import (
 func (suite *PayloadsSuite) TestPPMShipmentModelWithOptionalDestinationStreet1FromCreate() {
 	time := time.Now()
 	expectedDepartureDate := handlers.FmtDatePtr(&time)
+	state := models.State{
+		State: "FL",
+	}
 
 	address := models.Address{
 		StreetAddress1: "some address",
 		City:           "city",
-		State:          "state",
+		State:          state,
 		PostalCode:     "12345",
 	}
 
@@ -25,7 +28,7 @@ func (suite *PayloadsSuite) TestPPMShipmentModelWithOptionalDestinationStreet1Fr
 	pickupAddress = ghcmessages.Address{
 		City:           &address.City,
 		PostalCode:     &address.PostalCode,
-		State:          &address.State,
+		State:          &address.State.State,
 		StreetAddress1: &address.StreetAddress1,
 		StreetAddress2: address.StreetAddress2,
 		StreetAddress3: address.StreetAddress3,
@@ -33,7 +36,7 @@ func (suite *PayloadsSuite) TestPPMShipmentModelWithOptionalDestinationStreet1Fr
 	destinationAddress = ghcmessages.PPMDestinationAddress{
 		City:           &address.City,
 		PostalCode:     &address.PostalCode,
-		State:          &address.State,
+		State:          &address.State.State,
 		StreetAddress1: models.StringPointer(""), // empty string
 		StreetAddress2: address.StreetAddress2,
 		StreetAddress3: address.StreetAddress3,
@@ -85,11 +88,14 @@ func (suite *PayloadsSuite) TestPPMShipmentModelWithOptionalDestinationStreet1Fr
 func (suite *PayloadsSuite) TestPPMShipmentModelWithOptionalDestinationStreet1FromUpdate() {
 	time := time.Now()
 	expectedDepartureDate := handlers.FmtDatePtr(&time)
+	state := models.State{
+		State: "FL",
+	}
 
 	address := models.Address{
 		StreetAddress1: "some address",
 		City:           "city",
-		State:          "state",
+		State:          state,
 		PostalCode:     "12345",
 	}
 
@@ -99,7 +105,7 @@ func (suite *PayloadsSuite) TestPPMShipmentModelWithOptionalDestinationStreet1Fr
 	pickupAddress = ghcmessages.Address{
 		City:           &address.City,
 		PostalCode:     &address.PostalCode,
-		State:          &address.State,
+		State:          &address.State.State,
 		StreetAddress1: &address.StreetAddress1,
 		StreetAddress2: address.StreetAddress2,
 		StreetAddress3: address.StreetAddress3,
@@ -107,7 +113,7 @@ func (suite *PayloadsSuite) TestPPMShipmentModelWithOptionalDestinationStreet1Fr
 	destinationAddress = ghcmessages.PPMDestinationAddress{
 		City:           &address.City,
 		PostalCode:     &address.PostalCode,
-		State:          &address.State,
+		State:          &address.State.State,
 		StreetAddress1: models.StringPointer(""), // empty string
 		StreetAddress2: address.StreetAddress2,
 		StreetAddress3: address.StreetAddress3,

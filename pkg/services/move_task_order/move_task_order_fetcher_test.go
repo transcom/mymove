@@ -96,10 +96,14 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderFetcher() {
 					StreetAddress2: models.StringPointer("Apt 2"),
 					StreetAddress3: models.StringPointer("Suite 200"),
 					City:           "New York",
-					State:          "NY",
 					PostalCode:     "10001",
 				},
 				Type: &factory.Addresses.OriginalAddress,
+			},
+			{
+				Model: models.State{
+					State: "NY",
+				},
 			},
 		}, traits)
 
@@ -137,10 +141,14 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderFetcher() {
 					StreetAddress2: models.StringPointer("Apt 2"),
 					StreetAddress3: models.StringPointer("Suite 200"),
 					City:           "New York",
-					State:          "NY",
 					PostalCode:     "10001",
 				},
 				Type: &factory.Addresses.OriginalAddress,
+			},
+			{
+				Model: models.State{
+					State: "NY",
+				},
 			},
 		}, traits)
 

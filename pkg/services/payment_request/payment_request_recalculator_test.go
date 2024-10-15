@@ -376,8 +376,12 @@ func (suite *PaymentRequestServiceSuite) setupRecalculateData1() (models.Move, m
 			Model: models.Address{
 				StreetAddress1: "235 Prospect Valley Road SE",
 				City:           "Fort Eisenhower",
-				State:          "GA",
 				PostalCode:     recalculateTestPickupZip,
+			},
+		},
+		{
+			Model: models.State{
+				State: "GA",
 			},
 		},
 	}, nil)
@@ -386,8 +390,12 @@ func (suite *PaymentRequestServiceSuite) setupRecalculateData1() (models.Move, m
 			Model: models.Address{
 				StreetAddress1: "17 8th St",
 				City:           "San Antonio",
-				State:          "TX",
 				PostalCode:     recalculateTestDestinationZip,
+			},
+		},
+		{
+			Model: models.State{
+				State: "TX",
 			},
 		},
 	}, nil)
@@ -403,7 +411,7 @@ func (suite *PaymentRequestServiceSuite) setupRecalculateData1() (models.Move, m
 		ReZip3: models.ReZip3{
 			Zip3:          pickupAddress.PostalCode[0:3],
 			BasePointCity: pickupAddress.City,
-			State:         pickupAddress.State,
+			State:         pickupAddress.State.State,
 		},
 	})
 

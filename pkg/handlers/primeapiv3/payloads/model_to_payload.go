@@ -184,6 +184,14 @@ func DutyLocation(dutyLocation *models.DutyLocation) *primev3messages.DutyLocati
 	return &payload
 }
 
+// State payload
+func State(state *models.State) *string {
+	if state == nil {
+		return nil
+	}
+	return &state.State
+}
+
 // Country payload
 func Country(country *models.Country) *string {
 	if country == nil {
@@ -203,7 +211,7 @@ func Address(address *models.Address) *primev3messages.Address {
 		StreetAddress2: address.StreetAddress2,
 		StreetAddress3: address.StreetAddress3,
 		City:           &address.City,
-		State:          &address.State,
+		State:          State(&address.State),
 		PostalCode:     &address.PostalCode,
 		Country:        Country(address.Country),
 		ETag:           etag.GenerateEtag(address.UpdatedAt),
@@ -222,7 +230,7 @@ func PPMDestinationAddress(address *models.Address) *primev3messages.PPMDestinat
 		StreetAddress2: address.StreetAddress2,
 		StreetAddress3: address.StreetAddress3,
 		City:           &address.City,
-		State:          &address.State,
+		State:          State(&address.State),
 		PostalCode:     &address.PostalCode,
 		Country:        Country(address.Country),
 		ETag:           etag.GenerateEtag(address.UpdatedAt),

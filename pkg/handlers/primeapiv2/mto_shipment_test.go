@@ -110,7 +110,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		pickupAddress = primev2messages.Address{
 			City:           &newAddress.City,
 			PostalCode:     &newAddress.PostalCode,
-			State:          &newAddress.State,
+			State:          &newAddress.State.State,
 			StreetAddress1: &newAddress.StreetAddress1,
 			StreetAddress2: newAddress.StreetAddress2,
 			StreetAddress3: newAddress.StreetAddress3,
@@ -119,7 +119,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		destinationAddress = primev2messages.Address{
 			City:           &newAddress.City,
 			PostalCode:     &newAddress.PostalCode,
-			State:          &newAddress.State,
+			State:          &newAddress.State.State,
 			StreetAddress1: &newAddress.StreetAddress1,
 			StreetAddress2: newAddress.StreetAddress2,
 			StreetAddress3: newAddress.StreetAddress3,

@@ -41,7 +41,7 @@ func urlencodeAddress(address *models.Address) string {
 	if address.StreetAddress3 != nil {
 		s = append(s, *address.StreetAddress3)
 	}
-	s = append(s, address.City, address.State, address.PostalCode)
+	s = append(s, address.City, address.State.State, address.PostalCode)
 	if address.Country != nil {
 		s = append(s, address.Country.Country)
 	}

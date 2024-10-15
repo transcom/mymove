@@ -24,7 +24,8 @@ type Address struct {
 	StreetAddress2 *string    `json:"street_address_2" db:"street_address_2"`
 	StreetAddress3 *string    `json:"street_address_3" db:"street_address_3"`
 	City           string     `json:"city" db:"city"`
-	State          string     `json:"state" db:"state"`
+	StateId        uuid.UUID  `json:"state_id" db:"state_id"`
+	State          State      `belongs_to:"re_states" fk_id:"state_id"`
 	PostalCode     string     `json:"postal_code" db:"postal_code"`
 	CountryId      *uuid.UUID `json:"country_id" db:"country_id"`
 	Country        *Country   `belongs_to:"re_countries" fk_id:"country_id"`
@@ -70,7 +71,7 @@ func (a *Address) Validate(_ *pop.Connection) (*validate.Errors, error) {
 	return validate.Validate(
 		&validators.StringIsPresent{Field: a.StreetAddress1, Name: "StreetAddress1"},
 		&validators.StringIsPresent{Field: a.City, Name: "City"},
-		&validators.StringIsPresent{Field: a.State, Name: "State"},
+		&validators.StringIsPresent{Field: a.State.State, Name: "State"},
 		&validators.StringIsPresent{Field: a.PostalCode, Name: "PostalCode"},
 		&validators.StringIsPresent{Field: a.County, Name: "County"},
 	), nil
@@ -86,7 +87,7 @@ func (a *Address) MarshalLogObject(encoder zapcore.ObjectEncoder) error {
 		encoder.AddString("street3", *a.StreetAddress3)
 	}
 	encoder.AddString("city", a.City)
-	encoder.AddString("state", a.State)
+	encoder.AddString("state", a.State.State)
 	encoder.AddString("code", a.PostalCode)
 	encoder.AddString("countryId", a.CountryId.String())
 	return nil
@@ -124,8 +125,8 @@ func (a *Address) LineFormat() string {
 	if len(a.City) > 0 {
 		parts = append(parts, a.City)
 	}
-	if len(a.State) > 0 {
-		parts = append(parts, a.State)
+	if len(a.State.State) > 0 {
+		parts = append(parts, a.State.State)
 	}
 	if len(a.PostalCode) > 0 {
 		parts = append(parts, a.PostalCode)

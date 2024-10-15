@@ -127,10 +127,18 @@ func (suite *HandlerSuite) TestShowCounselingOfficesHandler() {
 
 	fetcher := transportationofficeservice.NewTransportationOfficesFetcher()
 
+	state := factory.FetchOrBuildState(suite.DB(), []factory.Customization{
+		{
+			Model: models.State{
+				State: "CA",
+			},
+		},
+	}, nil)
+
 	newAddress := models.Address{
 		StreetAddress1: "some address",
 		City:           "city",
-		State:          "CA",
+		State:          state,
 		PostalCode:     "59801",
 		County:         "County",
 	}

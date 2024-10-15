@@ -11,9 +11,13 @@ func (suite *ModelSuite) TestBasicAddressInstantiation() {
 		StreetAddress2: m.StringPointer("street 2"),
 		StreetAddress3: m.StringPointer("street 3"),
 		City:           "city",
-		State:          "state",
-		PostalCode:     "90210",
-		County:         "County",
+		State: m.State{
+			State:     "FL",
+			StateName: "FLORIDA",
+			IsOconus:  *m.BoolPointer(false),
+		},
+		PostalCode: "90210",
+		County:     "County",
 	}
 
 	verrs, err := newAddress.Validate(nil)
@@ -41,9 +45,13 @@ func (suite *ModelSuite) TestAddressCountryCode() {
 		StreetAddress2: m.StringPointer("street 2"),
 		StreetAddress3: m.StringPointer("street 3"),
 		City:           "city",
-		State:          "state",
-		PostalCode:     "90210",
-		County:         "county",
+		State: m.State{
+			State:     "FL",
+			StateName: "FLORIDA",
+			IsOconus:  *m.BoolPointer(false),
+		},
+		PostalCode: "90210",
+		County:     "county",
 	}
 
 	var expected *string
@@ -57,9 +65,13 @@ func (suite *ModelSuite) TestAddressCountryCode() {
 		StreetAddress2: m.StringPointer("street 2"),
 		StreetAddress3: m.StringPointer("street 3"),
 		City:           "city",
-		State:          "state",
-		PostalCode:     "90210",
-		Country:        &country,
+		State: m.State{
+			State:     "FL",
+			StateName: "FLORIDA",
+			IsOconus:  *m.BoolPointer(false),
+		},
+		PostalCode: "90210",
+		Country:    &country,
 	}
 	countryCode, err = usCountry.CountryCode()
 	suite.NoError(err)

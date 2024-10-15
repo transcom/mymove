@@ -74,7 +74,7 @@ func (f *addressUpdater) UpdateAddress(appCtx appcontext.AppContext, address *mo
 	// use the data we have first, if it's not nil
 	if mergedAddress.State != originalAddress.State && mergedAddress.Country != nil {
 		country := mergedAddress.Country
-		if country.Country != "US" || country.Country == "US" && mergedAddress.State == "AK" || country.Country == "US" && mergedAddress.State == "HI" {
+		if country.Country != "US" || country.Country == "US" && mergedAddress.State.State == "AK" || country.Country == "US" && mergedAddress.State.State == "HI" {
 			boolTrueVal := true
 			mergedAddress.IsOconus = &boolTrueVal
 		} else {
@@ -86,7 +86,7 @@ func (f *addressUpdater) UpdateAddress(appCtx appcontext.AppContext, address *mo
 		if err != nil {
 			return nil, err
 		}
-		if country.Country != "US" || country.Country == "US" && mergedAddress.State == "AK" || country.Country == "US" && mergedAddress.State == "HI" {
+		if country.Country != "US" || country.Country == "US" && mergedAddress.State.State == "AK" || country.Country == "US" && mergedAddress.State.State == "HI" {
 			boolTrueVal := true
 			mergedAddress.IsOconus = &boolTrueVal
 		} else {
@@ -119,8 +119,8 @@ func mergeAddress(address, originalAddress models.Address) models.Address {
 	if address.City != "" {
 		mergedAddress.City = address.City
 	}
-	if address.State != "" {
-		mergedAddress.State = address.State
+	if address.State.State != "" {
+		mergedAddress.State.State = address.State.State
 	}
 	if address.PostalCode != "" {
 		mergedAddress.PostalCode = address.PostalCode

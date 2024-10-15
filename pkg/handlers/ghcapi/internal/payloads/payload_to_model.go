@@ -104,7 +104,7 @@ func AddressModel(address *ghcmessages.Address) *models.Address {
 		modelAddress.City = *address.City
 	}
 	if address.State != nil {
-		modelAddress.State = *address.State
+		modelAddress.State.State = *address.State
 	}
 	if address.PostalCode != nil {
 		modelAddress.PostalCode = *address.PostalCode
@@ -141,7 +141,7 @@ func PPMDestinationAddressModel(address *ghcmessages.PPMDestinationAddress) *mod
 		modelAddress.City = *address.City
 	}
 	if address.State != nil {
-		modelAddress.State = *address.State
+		modelAddress.State.State = *address.State
 	}
 	if address.PostalCode != nil {
 		modelAddress.PostalCode = *address.PostalCode

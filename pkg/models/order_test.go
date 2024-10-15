@@ -397,8 +397,12 @@ func (suite *ModelSuite) TestSaveOrder() {
 	newAddress := &m.Address{
 		StreetAddress1: "some address",
 		City:           "city",
-		State:          "state",
-		PostalCode:     newPostalCode,
+		State: models.State{
+			State:     "CA",
+			StateName: "CALIFORNIA",
+			IsOconus:  *models.BoolPointer(false),
+		},
+		PostalCode: newPostalCode,
 	}
 	newAddress, err := addressCreator.CreateAddress(suite.AppContextForTest(), newAddress)
 	suite.NoError(err)
@@ -457,8 +461,12 @@ func (suite *ModelSuite) TestSaveOrderWithoutPPM() {
 	newAddress := &m.Address{
 		StreetAddress1: "some address",
 		City:           "city",
-		State:          "state",
-		PostalCode:     newPostalCode,
+		State: models.State{
+			State:     "CA",
+			StateName: "CALIFORNIA",
+			IsOconus:  *models.BoolPointer(false),
+		},
+		PostalCode: newPostalCode,
 	}
 	newAddress, err := addressCreator.CreateAddress(suite.AppContextForTest(), newAddress)
 	suite.NoError(err)

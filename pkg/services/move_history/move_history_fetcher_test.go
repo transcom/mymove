@@ -81,7 +81,7 @@ func (suite *MoveHistoryServiceSuite) TestMoveHistoryFetcherFunctionality() {
 		oldAddress := *approvedShipment.PickupAddress
 		updateAddress := approvedShipment.PickupAddress
 		updateAddress.City = "Norfolk"
-		updateAddress.State = "VA"
+		updateAddress.State.State = "VA"
 		updateAddress.PostalCode = "23503"
 		suite.MustSave(updateAddress)
 
@@ -89,7 +89,7 @@ func (suite *MoveHistoryServiceSuite) TestMoveHistoryFetcherFunctionality() {
 		oldSecondaryPickupAddress := *approvedShipment.SecondaryPickupAddress
 		updateSecondaryPickupAddress := approvedShipment.SecondaryPickupAddress
 		updateSecondaryPickupAddress.City = "Hampton"
-		updateSecondaryPickupAddress.State = "VA"
+		updateSecondaryPickupAddress.State.State = "VA"
 		updateSecondaryPickupAddress.PostalCode = "23661"
 		suite.MustSave(updateSecondaryPickupAddress)
 

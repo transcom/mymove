@@ -26,9 +26,11 @@ func AddressModel(address *internalmessages.Address) *models.Address {
 		StreetAddress2: address.StreetAddress2,
 		StreetAddress3: address.StreetAddress3,
 		City:           *address.City,
-		State:          *address.State,
-		PostalCode:     *address.PostalCode,
-		County:         *address.County,
+		State: models.State{
+			State: *address.State,
+		},
+		PostalCode: *address.PostalCode,
+		County:     *address.County,
 	}
 }
 
@@ -44,9 +46,11 @@ func PPMDestinationAddressModel(address *internalmessages.PPMDestinationAddress)
 		StreetAddress2: address.StreetAddress2,
 		StreetAddress3: address.StreetAddress3,
 		City:           *address.City,
-		State:          *address.State,
-		PostalCode:     *address.PostalCode,
-		County:         *address.County,
+		State: models.State{
+			State: *address.State,
+		},
+		PostalCode: *address.PostalCode,
+		County:     *address.County,
 	}
 	if address.StreetAddress1 != nil && len(strings.Trim(*address.StreetAddress1, " ")) > 0 {
 		addressModel.StreetAddress1 = *address.StreetAddress1

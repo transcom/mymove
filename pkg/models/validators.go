@@ -18,6 +18,19 @@ import (
 	"github.com/transcom/mymove/pkg/unit"
 )
 
+// BooleanMustBeSet checks if the boolean field is explicitly set.
+type BooleanMustBeSet struct {
+	Name  string
+	Field *bool
+}
+
+// IsValid adds an error if the boolean field is nil.
+func (v *BooleanMustBeSet) IsValid(errors *validate.Errors) {
+	if v.Field == nil {
+		errors.Add(validators.GenerateKey(v.Name), fmt.Sprintf("%s must be explicitly set to true or false.", v.Name))
+	}
+}
+
 // StringIsNilOrNotBlank validates OptionalString fields, which we represent as *string.
 type StringIsNilOrNotBlank struct {
 	Name  string

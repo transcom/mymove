@@ -4,15 +4,28 @@ import (
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/apperror"
+	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
 )
 
 func (suite *AddressSuite) TestAddressCreator() {
 	streetAddress1 := "288 SW Sunset Way"
 	city := "Elizabethtown"
-	state := "KY"
+	state := factory.FetchOrBuildState(suite.DB(), []factory.Customization{
+		{
+			Model: models.State{
+				State: "KY",
+			},
+		},
+	}, nil)
 	postalCode := "42701"
-	oConusState := "AK"
+	oConusState := factory.FetchOrBuildState(suite.DB(), []factory.Customization{
+		{
+			Model: models.State{
+				State: "AK",
+			},
+		},
+	}, nil)
 
 	suite.Run("Successfully creates a CONUS address", func() {
 		addressCreator := NewAddressCreator()
@@ -61,7 +74,7 @@ func (suite *AddressSuite) TestAddressCreator() {
 		address, err := addressCreator.CreateAddress(suite.AppContextForTest(), &models.Address{
 			StreetAddress1: streetAddress1,
 			City:           city,
-			State:          oConusState,
+			State:          state,
 			PostalCode:     postalCode,
 			Country:        &models.Country{Country: "GB"},
 		})

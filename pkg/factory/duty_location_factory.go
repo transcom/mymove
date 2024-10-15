@@ -56,7 +56,7 @@ func buildDutyLocationWithBuildType(db *pop.Connection, customs []Customization,
 
 	location := models.DutyLocation{
 		// Make test duty location name consistent with how TRDM duty location is formatted
-		Name:        fmt.Sprintf("%s, %s %s", MakeRandomString(10), dlAddress.State, dlAddress.PostalCode),
+		Name:        fmt.Sprintf("%s, %s %s", MakeRandomString(10), dlAddress.State.State, dlAddress.PostalCode),
 		Affiliation: &affiliation,
 		AddressID:   dlAddress.ID,
 		Address:     dlAddress,
@@ -164,8 +164,12 @@ func FetchOrBuildOrdersDutyLocation(db *pop.Connection) models.DutyLocation {
 			},
 			{
 				Model: models.Address{
-					City:       "Fort Eisenhower",
-					State:      "GA",
+					City: "Fort Eisenhower",
+					State: models.State{
+						State:     "GA",
+						StateName: "GEORGIA",
+						IsOconus:  *models.BoolPointer(false),
+					},
 					PostalCode: "30813",
 				},
 				Type: &Addresses.DutyLocationAddress,
@@ -193,8 +197,12 @@ func GetTraitDefaultOrdersDutyLocation() []Customization {
 			// Update the DutyLocationAddress (but not TO address) to Fort Eisenhower, Georgia
 			Type: &Addresses.DutyLocationAddress,
 			Model: models.Address{
-				City:       "Fort Eisenhower",
-				State:      "GA",
+				City: "Fort Eisenhower",
+				State: models.State{
+					State:     "GA",
+					StateName: "GEORGIA",
+					IsOconus:  *models.BoolPointer(false),
+				},
 				PostalCode: "30813",
 			},
 		},

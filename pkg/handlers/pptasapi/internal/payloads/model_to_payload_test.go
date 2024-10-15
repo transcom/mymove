@@ -40,9 +40,11 @@ func (suite *PayloadsSuite) TestReport() {
 		Address: &models.Address{
 			StreetAddress1: "123 Main St",
 			City:           "Some City",
-			State:          "NY",
-			PostalCode:     "10001",
-			County:         "Some County",
+			State: models.State{
+				State: "NY",
+			},
+			PostalCode: "10001",
+			County:     "Some County",
 		},
 		OrdersDate:   &now,
 		TAC:          models.StringPointer("CACI"),

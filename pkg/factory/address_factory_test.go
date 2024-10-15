@@ -9,7 +9,9 @@ import (
 func (suite *FactorySuite) TestBuildAddress() {
 	defaultAddress1 := "123 Any Street"
 	defaultCity := "Beverly Hills"
-	defaultState := "CA"
+	defaultState := models.State{
+		State: "CA",
+	}
 	defaultPostalCode := "90210"
 	defaultCounty := "LOS ANGELES"
 
@@ -17,7 +19,9 @@ func (suite *FactorySuite) TestBuildAddress() {
 	customAddress2 := models.StringPointer("Unit 2525")
 	customAddress3 := models.StringPointer("c/o Another Person")
 	customCity := "Modesto"
-	customState := "ID"
+	customState := models.State{
+		State: "ID",
+	}
 	customPostalCode := "83725"
 	customCounty := "ADA"
 	suite.Run("Successful creation of default address", func() {
@@ -28,6 +32,8 @@ func (suite *FactorySuite) TestBuildAddress() {
 
 		address := BuildAddress(suite.DB(), nil, nil)
 
+		state, err := models.FetchStateByID(suite.DB(), address.StateId)
+		suite.NoError(err)
 		country, err := models.FetchCountryByID(suite.DB(), *address.CountryId)
 		suite.NoError(err)
 
@@ -36,7 +42,8 @@ func (suite *FactorySuite) TestBuildAddress() {
 		suite.Equal("P.O. Box 12345", *address.StreetAddress2)
 		suite.Equal("c/o Some Person", *address.StreetAddress3)
 		suite.Equal(defaultCity, address.City)
-		suite.Equal(defaultState, address.State)
+		suite.Equal(state.ID, address.StateId)
+		suite.Equal(defaultState.State, address.State.State)
 		suite.Equal(defaultPostalCode, address.PostalCode)
 		suite.Equal(country.ID, *address.CountryId)
 		suite.Equal(defaultCounty, address.County)
@@ -53,8 +60,12 @@ func (suite *FactorySuite) TestBuildAddress() {
 					StreetAddress2: customAddress2,
 					StreetAddress3: customAddress3,
 					City:           customCity,
-					State:          customState,
 					PostalCode:     customPostalCode,
+				},
+			},
+			{
+				Model: models.State{
+					State: "ID",
 				},
 			},
 			{
@@ -67,13 +78,16 @@ func (suite *FactorySuite) TestBuildAddress() {
 
 		country, err := models.FetchCountryByID(suite.DB(), *address.CountryId)
 		suite.NoError(err)
+		state, err := models.FetchStateByID(suite.DB(), address.StateId)
+		suite.NoError(err)
 
 		// VALIDATE RESULTS
 		suite.Equal(customAddress1, address.StreetAddress1)
 		suite.Equal(customAddress2, address.StreetAddress2)
 		suite.Equal(customAddress3, address.StreetAddress3)
 		suite.Equal(customCity, address.City)
-		suite.Equal(customState, address.State)
+		suite.Equal(state.ID, address.StateId)
+		suite.Equal(customState.State, address.State.State)
 		suite.Equal(customPostalCode, address.PostalCode)
 		suite.Equal(country.ID, *address.CountryId)
 		suite.Equal(customCounty, address.County)
