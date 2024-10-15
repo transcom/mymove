@@ -2,7 +2,6 @@ package ghcrateengine
 
 import (
 	"fmt"
-	"strconv"
 	"time"
 
 	"github.com/transcom/mymove/pkg/factory"
@@ -13,77 +12,77 @@ import (
 )
 
 const (
-	ddshutTestServiceSchedule      = 2
-	ddshutTestBasePriceCents       = unit.Cents(353)
-	ddshutTestEscalationCompounded = 1.125
-	ddshutTestWeight               = unit.Pound(4000)
-	ddshutTestPriceCents           = unit.Cents(15880)
+	idshutTestServiceSchedule      = 2
+	idshutTestBasePriceCents       = unit.Cents(353)
+	idshutTestEscalationCompounded = 1.125
+	idshutTestWeight               = unit.Pound(4000)
+	idshutTestPriceCents           = unit.Cents(15880)
 )
 
-var ddshutTestRequestedPickupDate = time.Date(testdatagen.TestYear, time.June, 5, 7, 33, 11, 456, time.UTC)
+var idshutTestRequestedPickupDate = time.Date(testdatagen.TestYear, time.June, 5, 7, 33, 11, 456, time.UTC)
 
-func (suite *GHCRateEngineServiceSuite) TestDomesticDestinationShuttlingPricer() {
-	pricer := NewDomesticDestinationShuttlingPricer()
+func (suite *GHCRateEngineServiceSuite) TestInternationalDestinationShuttlingPricer() {
+	pricer := NewInternationalDestinationShuttlingPricer()
 
 	suite.Run("success using PaymentServiceItemParams", func() {
-		suite.setupDomesticAccessorialPrice(models.ReServiceCodeDDSHUT, ddshutTestServiceSchedule, ddshutTestBasePriceCents, testdatagen.DefaultContractCode, ddshutTestEscalationCompounded)
+		suite.setupInternationalAccessorialPrice(models.ReServiceCodeIDSHUT, idshutTestServiceSchedule, idshutTestBasePriceCents, testdatagen.DefaultContractCode, idshutTestEscalationCompounded)
 
-		paymentServiceItem := suite.setupDomesticDestinationShuttlingServiceItem()
+		paymentServiceItem := suite.setupInternationalDestinationShuttlingServiceItem()
 		priceCents, displayParams, err := pricer.PriceUsingParams(suite.AppContextForTest(), paymentServiceItem.PaymentServiceItemParams)
 		suite.NoError(err)
-		suite.Equal(ddshutTestPriceCents, priceCents)
+		suite.Equal(idshutTestPriceCents, priceCents)
 
 		expectedParams := services.PricingDisplayParams{
 			{Key: models.ServiceItemParamNameContractYearName, Value: testdatagen.DefaultContractCode},
-			{Key: models.ServiceItemParamNameEscalationCompounded, Value: FormatEscalation(ddshutTestEscalationCompounded)},
-			{Key: models.ServiceItemParamNamePriceRateOrFactor, Value: FormatCents(ddshutTestBasePriceCents)},
+			{Key: models.ServiceItemParamNameEscalationCompounded, Value: FormatEscalation(idshutTestEscalationCompounded)},
+			{Key: models.ServiceItemParamNamePriceRateOrFactor, Value: FormatCents(idshutTestBasePriceCents)},
 		}
 		suite.validatePricerCreatedParams(expectedParams, displayParams)
 	})
 
 	suite.Run("success without PaymentServiceItemParams", func() {
-		suite.setupDomesticAccessorialPrice(models.ReServiceCodeDDSHUT, ddshutTestServiceSchedule, ddshutTestBasePriceCents, testdatagen.DefaultContractCode, ddshutTestEscalationCompounded)
+		suite.setupInternationalAccessorialPrice(models.ReServiceCodeIDSHUT, idshutTestServiceSchedule, idshutTestBasePriceCents, testdatagen.DefaultContractCode, idshutTestEscalationCompounded)
 
-		priceCents, _, err := pricer.Price(suite.AppContextForTest(), testdatagen.DefaultContractCode, ddshutTestRequestedPickupDate, ddshutTestWeight, ddshutTestServiceSchedule)
+		priceCents, _, err := pricer.Price(suite.AppContextForTest(), testdatagen.DefaultContractCode, idshutTestRequestedPickupDate, idshutTestWeight, idshutTestServiceSchedule)
 		suite.NoError(err)
-		suite.Equal(ddshutTestPriceCents, priceCents)
+		suite.Equal(idshutTestPriceCents, priceCents)
 	})
 
 	suite.Run("PriceUsingParams but sending empty params", func() {
-		suite.setupDomesticAccessorialPrice(models.ReServiceCodeDDSHUT, ddshutTestServiceSchedule, ddshutTestBasePriceCents, testdatagen.DefaultContractCode, ddshutTestEscalationCompounded)
+		suite.setupInternationalAccessorialPrice(models.ReServiceCodeIDSHUT, idshutTestServiceSchedule, idshutTestBasePriceCents, testdatagen.DefaultContractCode, idshutTestEscalationCompounded)
 		_, _, err := pricer.PriceUsingParams(suite.AppContextForTest(), models.PaymentServiceItemParams{})
 		suite.Error(err)
 	})
 
 	suite.Run("invalid weight", func() {
-		suite.setupDomesticAccessorialPrice(models.ReServiceCodeDDSHUT, ddshutTestServiceSchedule, ddshutTestBasePriceCents, testdatagen.DefaultContractCode, ddshutTestEscalationCompounded)
+		suite.setupInternationalAccessorialPrice(models.ReServiceCodeIDSHUT, idshutTestServiceSchedule, idshutTestBasePriceCents, testdatagen.DefaultContractCode, idshutTestEscalationCompounded)
 		badWeight := unit.Pound(250)
-		_, _, err := pricer.Price(suite.AppContextForTest(), testdatagen.DefaultContractCode, ddshutTestRequestedPickupDate, badWeight, ddshutTestServiceSchedule)
+		_, _, err := pricer.Price(suite.AppContextForTest(), testdatagen.DefaultContractCode, idshutTestRequestedPickupDate, badWeight, idshutTestServiceSchedule)
 		suite.Error(err)
 		suite.Contains(err.Error(), "Weight must be a minimum of 500")
 	})
 
 	suite.Run("not finding a rate record", func() {
-		suite.setupDomesticAccessorialPrice(models.ReServiceCodeDDSHUT, ddshutTestServiceSchedule, ddshutTestBasePriceCents, testdatagen.DefaultContractCode, ddshutTestEscalationCompounded)
-		_, _, err := pricer.Price(suite.AppContextForTest(), "BOGUS", ddshutTestRequestedPickupDate, ddshutTestWeight, ddshutTestServiceSchedule)
+		suite.setupInternationalAccessorialPrice(models.ReServiceCodeIDSHUT, idshutTestServiceSchedule, idshutTestBasePriceCents, testdatagen.DefaultContractCode, idshutTestEscalationCompounded)
+		_, _, err := pricer.Price(suite.AppContextForTest(), "BOGUS", idshutTestRequestedPickupDate, idshutTestWeight, idshutTestServiceSchedule)
 		suite.Error(err)
-		suite.Contains(err.Error(), "could not lookup Domestic Accessorial Area Price")
+		suite.Contains(err.Error(), "could not lookup International Accessorial Area Price")
 	})
 
 	suite.Run("not finding a contract year record", func() {
-		suite.setupDomesticAccessorialPrice(models.ReServiceCodeDDSHUT, ddshutTestServiceSchedule, ddshutTestBasePriceCents, testdatagen.DefaultContractCode, ddshutTestEscalationCompounded)
-		twoYearsLaterPickupDate := ddshutTestRequestedPickupDate.AddDate(2, 0, 0)
-		_, _, err := pricer.Price(suite.AppContextForTest(), testdatagen.DefaultContractCode, twoYearsLaterPickupDate, ddshutTestWeight, ddshutTestServiceSchedule)
+		suite.setupInternationalAccessorialPrice(models.ReServiceCodeIDSHUT, idshutTestServiceSchedule, idshutTestBasePriceCents, testdatagen.DefaultContractCode, idshutTestEscalationCompounded)
+		twoYearsLaterPickupDate := idshutTestRequestedPickupDate.AddDate(2, 0, 0)
+		_, _, err := pricer.Price(suite.AppContextForTest(), testdatagen.DefaultContractCode, twoYearsLaterPickupDate, idshutTestWeight, idshutTestServiceSchedule)
 		suite.Error(err)
 
 		suite.Contains(err.Error(), "could not calculate escalated price")
 	})
 }
 
-func (suite *GHCRateEngineServiceSuite) setupDomesticDestinationShuttlingServiceItem() models.PaymentServiceItem {
+func (suite *GHCRateEngineServiceSuite) setupInternationalDestinationShuttlingServiceItem() models.PaymentServiceItem {
 	return factory.BuildPaymentServiceItemWithParams(
 		suite.DB(),
-		models.ReServiceCodeDDSHUT,
+		models.ReServiceCodeIDSHUT,
 		[]factory.CreatePaymentServiceItemParams{
 			{
 				Key:     models.ServiceItemParamNameContractCode,
@@ -93,17 +92,12 @@ func (suite *GHCRateEngineServiceSuite) setupDomesticDestinationShuttlingService
 			{
 				Key:     models.ServiceItemParamNameReferenceDate,
 				KeyType: models.ServiceItemParamTypeDate,
-				Value:   ddshutTestRequestedPickupDate.Format(DateParamFormat),
-			},
-			{
-				Key:     models.ServiceItemParamNameServicesScheduleDest,
-				KeyType: models.ServiceItemParamTypeInteger,
-				Value:   strconv.Itoa(ddshutTestServiceSchedule),
+				Value:   idshutTestRequestedPickupDate.Format(DateParamFormat),
 			},
 			{
 				Key:     models.ServiceItemParamNameWeightBilled,
 				KeyType: models.ServiceItemParamTypeInteger,
-				Value:   fmt.Sprintf("%d", int(ddshutTestWeight)),
+				Value:   fmt.Sprintf("%d", int(idshutTestWeight)),
 			},
 		}, nil, nil,
 	)

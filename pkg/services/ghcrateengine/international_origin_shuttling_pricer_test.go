@@ -2,7 +2,6 @@ package ghcrateengine
 
 import (
 	"fmt"
-	"strconv"
 	"time"
 
 	"github.com/transcom/mymove/pkg/factory"
@@ -13,67 +12,67 @@ import (
 )
 
 const (
-	doshutTestServiceSchedule      = 2
-	doshutTestBasePriceCents       = unit.Cents(353)
-	doshutTestEscalationCompounded = 1.125
-	doshutTestWeight               = unit.Pound(4000)
-	doshutTestPriceCents           = unit.Cents(15880)
+	ioshutTestServiceSchedule      = 2
+	ioshutTestBasePriceCents       = unit.Cents(353)
+	ioshutTestEscalationCompounded = 1.125
+	ioshutTestWeight               = unit.Pound(4000)
+	ioshutTestPriceCents           = unit.Cents(15880)
 )
 
-var doshutTestRequestedPickupDate = time.Date(testdatagen.TestYear, time.June, 5, 7, 33, 11, 456, time.UTC)
+var ioshutTestRequestedPickupDate = time.Date(testdatagen.TestYear, time.June, 5, 7, 33, 11, 456, time.UTC)
 
-func (suite *GHCRateEngineServiceSuite) TestDomesticOriginShuttlingPricer() {
-	pricer := NewDomesticOriginShuttlingPricer()
+func (suite *GHCRateEngineServiceSuite) TestInternationalOriginShuttlingPricer() {
+	pricer := NewInternationalOriginShuttlingPricer()
 
 	suite.Run("success using PaymentServiceItemParams", func() {
-		suite.setupDomesticAccessorialPrice(models.ReServiceCodeDOSHUT, doshutTestServiceSchedule, doshutTestBasePriceCents, testdatagen.DefaultContractCode, doshutTestEscalationCompounded)
+		suite.setupInternationalAccessorialPrice(models.ReServiceCodeIOSHUT, ioshutTestServiceSchedule, ioshutTestBasePriceCents, testdatagen.DefaultContractCode, ioshutTestEscalationCompounded)
 
-		paymentServiceItem := suite.setupDomesticOriginShuttlingServiceItem()
+		paymentServiceItem := suite.setupInternationalOriginShuttlingServiceItem()
 		priceCents, displayParams, err := pricer.PriceUsingParams(suite.AppContextForTest(), paymentServiceItem.PaymentServiceItemParams)
 		suite.NoError(err)
-		suite.Equal(doshutTestPriceCents, priceCents)
+		suite.Equal(ioshutTestPriceCents, priceCents)
 
 		expectedParams := services.PricingDisplayParams{
 			{Key: models.ServiceItemParamNameContractYearName, Value: testdatagen.DefaultContractCode},
-			{Key: models.ServiceItemParamNameEscalationCompounded, Value: FormatEscalation(doshutTestEscalationCompounded)},
-			{Key: models.ServiceItemParamNamePriceRateOrFactor, Value: FormatCents(doshutTestBasePriceCents)},
+			{Key: models.ServiceItemParamNameEscalationCompounded, Value: FormatEscalation(ioshutTestEscalationCompounded)},
+			{Key: models.ServiceItemParamNamePriceRateOrFactor, Value: FormatCents(ioshutTestBasePriceCents)},
 		}
 		suite.validatePricerCreatedParams(expectedParams, displayParams)
 	})
 
 	suite.Run("success without PaymentServiceItemParams", func() {
-		suite.setupDomesticAccessorialPrice(models.ReServiceCodeDOSHUT, doshutTestServiceSchedule, doshutTestBasePriceCents, testdatagen.DefaultContractCode, doshutTestEscalationCompounded)
+		suite.setupInternationalAccessorialPrice(models.ReServiceCodeIOSHUT, ioshutTestServiceSchedule, ioshutTestBasePriceCents, testdatagen.DefaultContractCode, ioshutTestEscalationCompounded)
 
-		priceCents, _, err := pricer.Price(suite.AppContextForTest(), testdatagen.DefaultContractCode, doshutTestRequestedPickupDate, doshutTestWeight, doshutTestServiceSchedule)
+		priceCents, _, err := pricer.Price(suite.AppContextForTest(), testdatagen.DefaultContractCode, ioshutTestRequestedPickupDate, ioshutTestWeight, ioshutTestServiceSchedule)
 		suite.NoError(err)
-		suite.Equal(doshutTestPriceCents, priceCents)
+		suite.Equal(ioshutTestPriceCents, priceCents)
 	})
 
 	suite.Run("PriceUsingParams but sending empty params", func() {
-		suite.setupDomesticAccessorialPrice(models.ReServiceCodeDOSHUT, doshutTestServiceSchedule, doshutTestBasePriceCents, testdatagen.DefaultContractCode, doshutTestEscalationCompounded)
+		suite.setupInternationalAccessorialPrice(models.ReServiceCodeIOSHUT, ioshutTestServiceSchedule, ioshutTestBasePriceCents, testdatagen.DefaultContractCode, ioshutTestEscalationCompounded)
 		_, _, err := pricer.PriceUsingParams(suite.AppContextForTest(), models.PaymentServiceItemParams{})
 		suite.Error(err)
 	})
 
 	suite.Run("invalid weight", func() {
-		suite.setupDomesticAccessorialPrice(models.ReServiceCodeDOSHUT, doshutTestServiceSchedule, doshutTestBasePriceCents, testdatagen.DefaultContractCode, doshutTestEscalationCompounded)
+		suite.setupInternationalAccessorialPrice(models.ReServiceCodeIOSHUT, ioshutTestServiceSchedule, ioshutTestBasePriceCents, testdatagen.DefaultContractCode, ioshutTestEscalationCompounded)
 		badWeight := unit.Pound(250)
-		_, _, err := pricer.Price(suite.AppContextForTest(), testdatagen.DefaultContractCode, doshutTestRequestedPickupDate, badWeight, doshutTestServiceSchedule)
+		_, _, err := pricer.Price(suite.AppContextForTest(), testdatagen.DefaultContractCode, ioshutTestRequestedPickupDate, badWeight, ioshutTestServiceSchedule)
 		suite.Error(err)
 		suite.Contains(err.Error(), "Weight must be a minimum of 500")
 	})
 
 	suite.Run("not finding a rate record", func() {
-		suite.setupDomesticAccessorialPrice(models.ReServiceCodeDOSHUT, doshutTestServiceSchedule, doshutTestBasePriceCents, testdatagen.DefaultContractCode, doshutTestEscalationCompounded)
-		_, _, err := pricer.Price(suite.AppContextForTest(), "BOGUS", doshutTestRequestedPickupDate, doshutTestWeight, doshutTestServiceSchedule)
+		suite.setupInternationalAccessorialPrice(models.ReServiceCodeIOSHUT, ioshutTestServiceSchedule, ioshutTestBasePriceCents, testdatagen.DefaultContractCode, ioshutTestEscalationCompounded)
+		_, _, err := pricer.Price(suite.AppContextForTest(), "BOGUS", ioshutTestRequestedPickupDate, ioshutTestWeight, ioshutTestServiceSchedule)
 		suite.Error(err)
-		suite.Contains(err.Error(), "could not lookup Domestic Accessorial Area Price")
+		suite.Contains(err.Error(), "could not lookup International Accessorial Area Price")
 	})
 
 	suite.Run("not finding a contract year record", func() {
-		suite.setupDomesticAccessorialPrice(models.ReServiceCodeDOSHUT, doshutTestServiceSchedule, doshutTestBasePriceCents, testdatagen.DefaultContractCode, doshutTestEscalationCompounded)
-		twoYearsLaterPickupDate := doshutTestRequestedPickupDate.AddDate(2, 0, 0)
-		_, _, err := pricer.Price(suite.AppContextForTest(), testdatagen.DefaultContractCode, twoYearsLaterPickupDate, doshutTestWeight, doshutTestServiceSchedule)
+		suite.setupInternationalAccessorialPrice(models.ReServiceCodeIOSHUT, ioshutTestServiceSchedule, ioshutTestBasePriceCents, testdatagen.DefaultContractCode, ioshutTestEscalationCompounded)
+		twoYearsLaterPickupDate := ioshutTestRequestedPickupDate.AddDate(2, 0, 0)
+		_, _, err := pricer.Price(suite.AppContextForTest(), testdatagen.DefaultContractCode, twoYearsLaterPickupDate, ioshutTestWeight, ioshutTestServiceSchedule)
 		suite.Error(err)
 
 		suite.Contains(err.Error(), "could not calculate escalated price")
@@ -81,10 +80,10 @@ func (suite *GHCRateEngineServiceSuite) TestDomesticOriginShuttlingPricer() {
 	})
 }
 
-func (suite *GHCRateEngineServiceSuite) setupDomesticOriginShuttlingServiceItem() models.PaymentServiceItem {
+func (suite *GHCRateEngineServiceSuite) setupInternationalOriginShuttlingServiceItem() models.PaymentServiceItem {
 	return factory.BuildPaymentServiceItemWithParams(
 		suite.DB(),
-		models.ReServiceCodeDOSHUT,
+		models.ReServiceCodeIOSHUT,
 		[]factory.CreatePaymentServiceItemParams{
 			{
 				Key:     models.ServiceItemParamNameContractCode,
@@ -94,17 +93,12 @@ func (suite *GHCRateEngineServiceSuite) setupDomesticOriginShuttlingServiceItem(
 			{
 				Key:     models.ServiceItemParamNameReferenceDate,
 				KeyType: models.ServiceItemParamTypeDate,
-				Value:   doshutTestRequestedPickupDate.Format(DateParamFormat),
-			},
-			{
-				Key:     models.ServiceItemParamNameServicesScheduleOrigin,
-				KeyType: models.ServiceItemParamTypeInteger,
-				Value:   strconv.Itoa(doshutTestServiceSchedule),
+				Value:   ioshutTestRequestedPickupDate.Format(DateParamFormat),
 			},
 			{
 				Key:     models.ServiceItemParamNameWeightBilled,
 				KeyType: models.ServiceItemParamTypeInteger,
-				Value:   fmt.Sprintf("%d", int(doshutTestWeight)),
+				Value:   fmt.Sprintf("%d", int(ioshutTestWeight)),
 			},
 		}, nil, nil,
 	)
