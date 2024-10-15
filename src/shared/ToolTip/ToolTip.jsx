@@ -52,6 +52,7 @@ const ToolTip = ({ text, position, icon, color, closeOnLeave, title, textAreaSiz
   return (
     <div
       className={styles.tooltipContainer}
+      data-testid="tooltip-container"
       onMouseEnter={() => setIsVisible(true)}
       onMouseLeave={() => closeOnMouseLeave()}
       onClick={() => determineIsVisible()}

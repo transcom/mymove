@@ -7083,11 +7083,17 @@ definitions:
       counselingOffice:
         type: string
         x-nullable: true
+      counselingOfficeID:
+        type: string
+        format: uuid
+        x-nullable: true
       assignedTo:
         $ref: '#/definitions/AssignedOfficeUser'
         x-nullable: true
       availableOfficeUsers:
         $ref: '#/definitions/AvailableOfficeUsers'
+      assignable:
+        type: boolean
   QueueMovesResult:
     type: object
     properties:
@@ -10132,6 +10138,15 @@ definitions:
       destinationSitAuthEndDate:
         format: date-time
         type: string
+      marketCode:
+        type: string
+        enum:
+          - d
+          - i
+        example: d
+        description: >-
+          Single-letter designator for domestic (d) or international (i)
+          shipments
   LOATypeNullable:
     description: The Line of accounting (TAC/SAC) type that will be used for the shipment
     type: string
