@@ -28,6 +28,11 @@ jest.mock('services/primeApi', () => ({
   createPrimeMTOShipmentV3: jest.fn().mockImplementation(() => Promise.resolve()),
 }));
 
+jest.mock('utils/featureFlags', () => ({
+  ...jest.requireActual('utils/featureFlags'),
+  isBooleanFlagEnabled: jest.fn().mockImplementation(() => Promise.resolve(false)),
+}));
+
 const moveDetailsURL = generatePath(primeSimulatorRoutes.VIEW_MOVE_PATH, { moveCodeOrID: moveId });
 
 const mockedComponent = (
