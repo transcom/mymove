@@ -28,11 +28,11 @@ describe('DodInfoForm component', () => {
     const { getByLabelText } = render(<DodInfoForm {...testProps} />);
 
     await waitFor(() => {
-      expect(getByLabelText('Branch of service')).toBeInstanceOf(HTMLSelectElement);
-      expect(getByLabelText('Branch of service')).toBeRequired();
+      expect(getByLabelText(/Branch of service/)).toBeInstanceOf(HTMLSelectElement);
+      expect(getByLabelText(/Branch of service/)).toBeRequired();
 
-      expect(getByLabelText('DOD ID number')).toBeInstanceOf(HTMLInputElement);
-      expect(getByLabelText('DOD ID number')).toBeDisabled();
+      expect(getByLabelText(/DOD ID number/)).toBeInstanceOf(HTMLInputElement);
+      expect(getByLabelText(/DOD ID number/)).toBeDisabled();
     });
   });
 
@@ -41,24 +41,24 @@ describe('DodInfoForm component', () => {
     const { getByLabelText } = render(<DodInfoForm {...testProps} />);
 
     await waitFor(() => {
-      expect(getByLabelText('Branch of service')).toBeInstanceOf(HTMLSelectElement);
-      expect(getByLabelText('Branch of service')).toBeRequired();
+      expect(getByLabelText(/Branch of service/)).toBeInstanceOf(HTMLSelectElement);
+      expect(getByLabelText(/Branch of service/)).toBeRequired();
 
-      expect(getByLabelText('DOD ID number')).toBeInstanceOf(HTMLInputElement);
-      expect(getByLabelText('DOD ID number')).toBeEnabled();
+      expect(getByLabelText(/DOD ID number/)).toBeInstanceOf(HTMLInputElement);
+      expect(getByLabelText(/DOD ID number/)).toBeEnabled();
     });
   });
 
   it('shows an error message if trying to submit an invalid form', async () => {
-    const { getByRole, getAllByText, getByLabelText } = render(<DodInfoForm {...testProps} />);
-    await userEvent.click(getByLabelText('Branch of service'));
-    await userEvent.click(getByLabelText('DOD ID number'));
+    const { getByRole, getAllByTestId, getByLabelText } = render(<DodInfoForm {...testProps} />);
+    await userEvent.click(getByLabelText(/Branch of service/));
+    await userEvent.click(getByLabelText(/DOD ID number/));
 
     const submitBtn = getByRole('button', { name: 'Next' });
     await userEvent.click(submitBtn);
 
     await waitFor(() => {
-      expect(getAllByText('Required').length).toBe(1);
+      expect(getAllByTestId('errorMessage').length).toBe(1);
       expect(submitBtn).toBeDisabled();
     });
     expect(testProps.onSubmit).not.toHaveBeenCalled();
@@ -68,8 +68,8 @@ describe('DodInfoForm component', () => {
     const { getByRole, getByLabelText } = render(<DodInfoForm {...testProps} />);
     const submitBtn = getByRole('button', { name: 'Next' });
 
-    await userEvent.selectOptions(getByLabelText('Branch of service'), ['NAVY']);
-    await userEvent.type(getByLabelText('DOD ID number'), '1234567890');
+    await userEvent.selectOptions(getByLabelText(/Branch of service/), ['NAVY']);
+    await userEvent.type(getByLabelText(/DOD ID number/), '1234567890');
 
     await userEvent.click(submitBtn);
 
@@ -83,16 +83,16 @@ describe('DodInfoForm component', () => {
 
   describe('Coast Guard Customers', () => {
     it('shows an error message if EMPLID not present ', async () => {
-      const { getByRole, getAllByText, getByLabelText } = render(<DodInfoForm {...coastGuardTestProps} />);
-      await userEvent.click(getByLabelText('Branch of service'));
-      await userEvent.click(getByLabelText('DOD ID number'));
-      await userEvent.click(getByLabelText('EMPLID'));
+      const { getByRole, getAllByTestId, getByLabelText } = render(<DodInfoForm {...coastGuardTestProps} />);
+      await userEvent.click(getByLabelText(/Branch of service/));
+      await userEvent.click(getByLabelText(/DOD ID number/));
+      await userEvent.click(getByLabelText(/EMPLID/));
 
       const submitBtn = getByRole('button', { name: 'Next' });
       await userEvent.click(submitBtn);
 
       await waitFor(() => {
-        expect(getAllByText('Required').length).toBe(1);
+        expect(getAllByTestId('errorMessage').length).toBe(1);
         expect(submitBtn).toBeDisabled();
       });
       expect(testProps.onSubmit).not.toHaveBeenCalled();
@@ -102,9 +102,9 @@ describe('DodInfoForm component', () => {
       const { getByRole, getByLabelText } = render(<DodInfoForm {...testProps} />);
       const submitBtn = getByRole('button', { name: 'Next' });
 
-      await userEvent.selectOptions(getByLabelText('Branch of service'), ['COAST_GUARD']);
-      await userEvent.type(getByLabelText('DOD ID number'), '1234567890');
-      await userEvent.type(getByLabelText('EMPLID'), '1234567');
+      await userEvent.selectOptions(getByLabelText(/Branch of service/), ['COAST_GUARD']);
+      await userEvent.type(getByLabelText(/DOD ID number/), '1234567890');
+      await userEvent.type(getByLabelText(/EMPLID/), '1234567');
 
       await userEvent.click(submitBtn);
 
