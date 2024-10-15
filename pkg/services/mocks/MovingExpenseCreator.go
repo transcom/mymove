@@ -20,6 +20,10 @@ type MovingExpenseCreator struct {
 func (_m *MovingExpenseCreator) CreateMovingExpense(appCtx appcontext.AppContext, ppmShipmentID uuid.UUID) (*models.MovingExpense, error) {
 	ret := _m.Called(appCtx, ppmShipmentID)
 
+	if len(ret) == 0 {
+		panic("no return value specified for CreateMovingExpense")
+	}
+
 	var r0 *models.MovingExpense
 	var r1 error
 	if rf, ok := ret.Get(0).(func(appcontext.AppContext, uuid.UUID) (*models.MovingExpense, error)); ok {

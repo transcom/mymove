@@ -18,6 +18,10 @@ type NotificationSender struct {
 func (_m *NotificationSender) SendNotification(appCtx appcontext.AppContext, notification notifications.Notification) error {
 	ret := _m.Called(appCtx, notification)
 
+	if len(ret) == 0 {
+		panic("no return value specified for SendNotification")
+	}
+
 	var r0 error
 	if rf, ok := ret.Get(0).(func(appcontext.AppContext, notifications.Notification) error); ok {
 		r0 = rf(appCtx, notification)
