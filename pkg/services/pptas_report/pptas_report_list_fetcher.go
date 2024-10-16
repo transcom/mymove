@@ -84,7 +84,7 @@ func (f *pptasReportListFetcher) BuildPPTASReportsFromMoves(appCtx appcontext.Ap
 		financialRemarks := move.FinancialReviewRemarks
 		report.FinancialReviewRemarks = financialRemarks
 
-		addressLoad := appCtx.DB().Load(&orders.ServiceMember, "ResidentialAddress")
+		addressLoad := appCtx.DB().Load(&orders.ServiceMember, "ResidentialAddress.State")
 		if addressLoad != nil {
 			return nil, apperror.NewQueryError("failed to load residential address", addressLoad, ".")
 		}

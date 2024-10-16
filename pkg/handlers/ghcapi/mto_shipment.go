@@ -149,12 +149,17 @@ func (h GetMTOShipmentHandler) Handle(params mtoshipmentops.GetShipmentParams) m
 			}
 
 			eagerAssociations := []string{"MoveTaskOrder",
-				"PickupAddress",
-				"DestinationAddress",
-				"SecondaryPickupAddress",
-				"SecondaryDeliveryAddress",
+				"PickupAddress.State",
+				"PickupAddress.Country",
+				"DestinationAddress.State",
+				"DestinationAddress.Country",
+				"SecondaryPickupAddress.State",
+				"SecondaryPickupAddress.Country",
+				"SecondaryDeliveryAddress.State",
+				"SecondaryDeliveryAddress.Country",
 				"MTOServiceItems.CustomerContacts",
-				"StorageFacility.Address",
+				"StorageFacility.Address.State",
+				"StorageFacility.Address.Country",
 				"PPMShipment",
 				"BoatShipment",
 				"MobileHome",
@@ -168,10 +173,14 @@ func (h GetMTOShipmentHandler) Handle(params mtoshipmentops.GetShipmentParams) m
 			}
 
 			if mtoShipment.ShipmentType == models.MTOShipmentTypePPM {
-				ppmEagerAssociations := []string{"PickupAddress",
-					"DestinationAddress",
-					"SecondaryPickupAddress",
-					"SecondaryDestinationAddress",
+				ppmEagerAssociations := []string{"PickupAddress.State",
+					"PickupAddress.Country",
+					"DestinationAddress.State",
+					"DestinationAddress.Country",
+					"SecondaryPickupAddress.State",
+					"SecondaryPickupAddress.Country",
+					"SecondaryDestinationAddress.State",
+					"SecondaryDestinationAddress.Country",
 				}
 
 				ppmShipmentFetcher := ppmshipment.NewPPMShipmentFetcher()

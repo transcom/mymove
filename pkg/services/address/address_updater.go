@@ -3,6 +3,7 @@ package address
 import (
 	"fmt"
 
+	"github.com/gofrs/uuid"
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/apperror"
 	"github.com/transcom/mymove/pkg/etag"
@@ -47,6 +48,24 @@ func (f *addressUpdater) UpdateAddress(appCtx appcontext.AppContext, address *mo
 	err := validateAddress(appCtx, &mergedAddress, originalAddress, f.checks...)
 	if err != nil {
 		return nil, err
+	}
+
+	if address.State.State != "" {
+		state, err := models.FetchStateByCode(appCtx.DB(), address.State.State)
+		if err != nil {
+			return nil, err
+		}
+		mergedAddress.State = state
+		mergedAddress.StateId = state.ID
+	} else if address.StateId != uuid.Nil {
+		state, err := models.FetchStateByID(appCtx.DB(), address.StateId)
+		if err != nil {
+			return nil, err
+		}
+		mergedAddress.State = state
+		mergedAddress.StateId = state.ID
+	} else {
+		return nil, fmt.Errorf("- the state for address ID: %s must be provided when updating", mergedAddress.ID)
 	}
 
 	// until international moves are supported, we will default the country for created addresses to "US"

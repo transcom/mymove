@@ -38,6 +38,7 @@ const validatePostalCode = async (value) => {
 export const ResidentialAddress = ({ serviceMember, updateServiceMember }) => {
   const navigate = useNavigate();
   const [serverError, setServerError] = useState(null);
+  console.log(serviceMember);
 
   const formFieldsName = 'current_residence';
 

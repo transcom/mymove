@@ -11,6 +11,7 @@ import (
 	"github.com/pkg/errors"
 
 	"github.com/transcom/mymove/pkg/appcontext"
+	"github.com/transcom/mymove/pkg/apperror"
 	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/db/utilities"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
@@ -147,13 +148,15 @@ func FetchServiceMemberForUser(db *pop.Connection, session *auth.Session, id uui
 
 	var serviceMember ServiceMember
 	err := db.Q().Eager("User",
-		"BackupMailingAddress",
+		"BackupMailingAddress.State",
+		"BackupMailingAddress.Country",
 		"BackupContacts",
 		"Orders.NewDutyLocation.TransportationOffice",
 		"Orders.OriginDutyLocation",
 		"Orders.UploadedOrders.UserUploads.Upload",
 		"Orders.Moves",
-		"ResidentialAddress").Find(&serviceMember, id)
+		"ResidentialAddress.State",
+		"ResidentialAddress.Country").Find(&serviceMember, id)
 
 	if err != nil {
 		if errors.Cause(err).Error() == RecordNotFoundErrorString {
@@ -207,6 +210,18 @@ func SaveServiceMember(appCtx appcontext.AppContext, serviceMember *ServiceMembe
 		transactionError := errors.New("Rollback The transaction")
 
 		if serviceMember.ResidentialAddress != nil {
+			if serviceMember.ResidentialAddress.State.State != "" {
+				state, err := FetchStateByCode(appCtx.DB(), serviceMember.ResidentialAddress.State.State)
+				if err != nil {
+					return err
+				}
+				serviceMember.ResidentialAddress.State = state
+				serviceMember.ResidentialAddress.StateId = state.ID
+			} else {
+				err := apperror.NewNotFoundError(serviceMember.ID, "state value not found in residential address")
+				return err
+			}
+
 			county, err := FindCountyByZipCode(appCtx.DB(), serviceMember.ResidentialAddress.PostalCode)
 			if err != nil {
 				responseError = err
@@ -265,6 +280,18 @@ func SaveServiceMember(appCtx appcontext.AppContext, serviceMember *ServiceMembe
 		}
 
 		if serviceMember.BackupMailingAddress != nil {
+			if serviceMember.BackupMailingAddress.State.State != "" {
+				state, err := FetchStateByCode(appCtx.DB(), serviceMember.BackupMailingAddress.State.State)
+				if err != nil {
+					return err
+				}
+				serviceMember.BackupMailingAddress.State = state
+				serviceMember.BackupMailingAddress.StateId = state.ID
+			} else {
+				err := apperror.NewNotFoundError(serviceMember.ID, "state value not found in backup address")
+				return err
+			}
+
 			county, err := FindCountyByZipCode(appCtx.DB(), serviceMember.BackupMailingAddress.PostalCode)
 			if err != nil {
 				responseError = err
@@ -331,7 +358,7 @@ func SaveServiceMember(appCtx appcontext.AppContext, serviceMember *ServiceMembe
 	})
 
 	if transactionErr != nil {
-		return responseVErrors, responseError
+		return responseVErrors, transactionErr
 	}
 
 	return responseVErrors, responseError

@@ -97,12 +97,18 @@ func assembleMTOShipmentPayload(appCtx appcontext.AppContext, updatedObjectID uu
 
 	// Now load any additional required relationships since we now know we intend to send this notification.
 	err = appCtx.DB().Load(&mtoShipment,
-		"PickupAddress",
-		"DestinationAddress",
-		"SecondaryPickupAddress",
-		"SecondaryDeliveryAddress",
-		"TertiaryPickupAddress",
-		"TertiaryDeliveryAddress",
+		"PickupAddress.State",
+		"PickupAddress.Country",
+		"DestinationAddress.State",
+		"DestinationAddress.Country",
+		"SecondaryPickupAddress.State",
+		"SecondaryPickupAddress.Country",
+		"SecondaryDeliveryAddress.State",
+		"SecondaryDeliveryAddress.Country",
+		"TertiaryPickupAddress.State",
+		"TertiaryPickupAddress.Country",
+		"TertiaryDeliveryAddress.State",
+		"TertiaryDeliveryAddress.Country",
 		"MTOAgents",
 		"StorageFacility")
 	if err != nil {

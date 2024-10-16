@@ -82,6 +82,20 @@ func CustomerToServiceMember(payload ghcmessages.UpdateCustomerPayload) models.S
 	}
 }
 
+// StateModel model
+func StateModel(state *string) models.State {
+	// The prime doesn't know the uuids of our states, so for now we are going to just populate the name so we can query that
+	// when creating the address
+	if state == nil {
+		return models.State{}
+	}
+
+	modelState := models.State{
+		State: *state,
+	}
+	return modelState
+}
+
 // AddressModel model
 func AddressModel(address *ghcmessages.Address) *models.Address {
 	// To check if the model is intended to be blank, we'll look at both ID and StreetAddress1
@@ -104,7 +118,7 @@ func AddressModel(address *ghcmessages.Address) *models.Address {
 		modelAddress.City = *address.City
 	}
 	if address.State != nil {
-		modelAddress.State.State = *address.State
+		modelAddress.State = StateModel(address.State)
 	}
 	if address.PostalCode != nil {
 		modelAddress.PostalCode = *address.PostalCode

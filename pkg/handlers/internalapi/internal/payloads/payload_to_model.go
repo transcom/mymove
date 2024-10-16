@@ -12,6 +12,20 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 )
 
+// StateModel model
+func StateModel(state *string) models.State {
+	// The prime doesn't know the uuids of our states, so for now we are going to just populate the name so we can query that
+	// when creating the address
+	if state == nil {
+		return models.State{}
+	}
+
+	modelState := models.State{
+		State: *state,
+	}
+	return modelState
+}
+
 // AddressModel model
 func AddressModel(address *internalmessages.Address) *models.Address {
 	if address == nil {
@@ -26,11 +40,9 @@ func AddressModel(address *internalmessages.Address) *models.Address {
 		StreetAddress2: address.StreetAddress2,
 		StreetAddress3: address.StreetAddress3,
 		City:           *address.City,
-		State: models.State{
-			State: *address.State,
-		},
-		PostalCode: *address.PostalCode,
-		County:     *address.County,
+		State:          StateModel(address.State),
+		PostalCode:     *address.PostalCode,
+		County:         *address.County,
 	}
 }
 

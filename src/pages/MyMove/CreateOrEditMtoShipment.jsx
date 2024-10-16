@@ -50,6 +50,7 @@ export class CreateOrEditMtoShipment extends Component {
 
     const move = selectCurrentMoveFromAllMoves(serviceMemberMoves, moveId);
     let mtoShipment = selectCurrentShipmentFromMove(move, mtoShipmentId);
+    console.log('mtoShipment', mtoShipment);
     const { orders } = move ?? {};
     const oldMtoShipment = location.state?.mtoShipment;
 
