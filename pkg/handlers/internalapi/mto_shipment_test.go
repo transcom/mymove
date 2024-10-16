@@ -204,7 +204,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandlerV1() {
 			},
 		}
 
-		if (checkForFF) {
+		if checkForFF {
 			ubFF := services.FeatureFlag{
 				Key:       "unaccompanied_baggage",
 				Match:     false,
