@@ -321,6 +321,34 @@ func (h ListMTOShipmentsHandler) Handle(params mtoshipmentops.ListMTOShipmentsPa
 			}
 			/** End of Feature Flag **/
 
+			/** Feature Flag - UB Shipment **/
+			featureFlagNameUB := "unaccompanied_baggage"
+			isUBFeatureOn := false
+			flagUB, err := h.FeatureFlagFetcher().GetBooleanFlagForUser(params.HTTPRequest.Context(), appCtx, featureFlagNameUB, map[string]string{})
+			if err != nil {
+				appCtx.Logger().Error("Error fetching feature flag", zap.String("featureFlagKey", featureFlagNameUB), zap.Error(err))
+				isUBFeatureOn = false
+			} else {
+				isUBFeatureOn = flagUB.Match
+			}
+
+			// Remove UB shipments if UB FF is off
+			if !isUBFeatureOn {
+				var filteredShipments models.MTOShipments
+				if shipments != nil {
+					filteredShipments = models.MTOShipments{}
+				}
+				for i, shipment := range shipments {
+					if shipment.ShipmentType == models.MTOShipmentTypeUnaccompaniedBaggage {
+						continue
+					}
+
+					filteredShipments = append(filteredShipments, shipments[i])
+				}
+				shipments = filteredShipments
+			}
+			/** End of Feature Flag **/
+
 			payload := payloads.MTOShipments(h.FileStorer(), (*models.MTOShipments)(&shipments))
 			return mtoshipmentops.NewListMTOShipmentsOK().WithPayload(*payload), nil
 		})
