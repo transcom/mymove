@@ -16,7 +16,7 @@
     "bytes": "^3.1.2",
     "classnames": "^2.5.1",
     "connected-react-router": "^6.9.3",
-    "core-js": "^3.37.1",
+    "core-js": "^3.38.1",
     "customize-cra": "^1.0.0",
     "deep-object-diff": "^1.1.9",
     "dotenv": "^16.3.1",
