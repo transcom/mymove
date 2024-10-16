@@ -10,7 +10,12 @@ import 'styles/office.scss';
 import TabNav from 'components/TabNav';
 import { isBooleanFlagEnabled } from 'utils/featureFlags';
 
-const ServicesCounselingTabNav = ({ unapprovedShipmentCount = 0, moveCode }) => {
+const ServicesCounselingTabNav = ({
+  shipmentWarnConcernCount = 0,
+  shipmentErrorConcernCount,
+  missingOrdersInfoCount,
+  moveCode,
+}) => {
   const [supportingDocsFF, setSupportingDocsFF] = React.useState(false);
   React.useEffect(() => {
     const fetchData = async () => {
@@ -18,6 +23,17 @@ const ServicesCounselingTabNav = ({ unapprovedShipmentCount = 0, moveCode }) => 
     };
     fetchData();
   }, []);
+
+  let moveDetailsTagCount = 0;
+  if (shipmentWarnConcernCount > 0) {
+    moveDetailsTagCount += shipmentWarnConcernCount;
+  }
+  if (shipmentErrorConcernCount > 0) {
+    moveDetailsTagCount += shipmentErrorConcernCount;
+  }
+  if (missingOrdersInfoCount > 0) {
+    moveDetailsTagCount += missingOrdersInfoCount;
+  }
 
   const items = [
     <NavLink
@@ -27,7 +43,7 @@ const ServicesCounselingTabNav = ({ unapprovedShipmentCount = 0, moveCode }) => 
       data-testid="MoveDetails-Tab"
     >
       <span className="tab-title">Move details</span>
-      {unapprovedShipmentCount > 0 && <Tag>{unapprovedShipmentCount}</Tag>}
+      {moveDetailsTagCount > 0 && <Tag>{moveDetailsTagCount}</Tag>}
     </NavLink>,
     <NavLink
       end
@@ -79,12 +95,9 @@ const ServicesCounselingTabNav = ({ unapprovedShipmentCount = 0, moveCode }) => 
   );
 };
 
-ServicesCounselingTabNav.defaultProps = {
-  unapprovedShipmentCount: 0,
-};
+ServicesCounselingTabNav.defaultProps = {};
 
 ServicesCounselingTabNav.propTypes = {
-  unapprovedShipmentCount: PropTypes.number,
   moveCode: PropTypes.string.isRequired,
 };
 

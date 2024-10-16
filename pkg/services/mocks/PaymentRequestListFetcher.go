@@ -22,6 +22,10 @@ type PaymentRequestListFetcher struct {
 func (_m *PaymentRequestListFetcher) FetchPaymentRequestList(appCtx appcontext.AppContext, officeUserID uuid.UUID, params *services.FetchPaymentRequestListParams) (*models.PaymentRequests, int, error) {
 	ret := _m.Called(appCtx, officeUserID, params)
 
+	if len(ret) == 0 {
+		panic("no return value specified for FetchPaymentRequestList")
+	}
+
 	var r0 *models.PaymentRequests
 	var r1 int
 	var r2 error
@@ -54,6 +58,10 @@ func (_m *PaymentRequestListFetcher) FetchPaymentRequestList(appCtx appcontext.A
 // FetchPaymentRequestListByMove provides a mock function with given fields: appCtx, locator
 func (_m *PaymentRequestListFetcher) FetchPaymentRequestListByMove(appCtx appcontext.AppContext, locator string) (*models.PaymentRequests, error) {
 	ret := _m.Called(appCtx, locator)
+
+	if len(ret) == 0 {
+		panic("no return value specified for FetchPaymentRequestListByMove")
+	}
 
 	var r0 *models.PaymentRequests
 	var r1 error

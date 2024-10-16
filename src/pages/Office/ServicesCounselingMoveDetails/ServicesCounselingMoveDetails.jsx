@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { Link, useParams, useNavigate, generatePath } from 'react-router-dom';
 import { useQueryClient, useMutation } from '@tanstack/react-query';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { func } from 'prop-types';
 import classnames from 'classnames';
 import 'styles/office.scss';
@@ -41,8 +40,18 @@ import NotificationScrollToTop from 'components/NotificationScrollToTop';
 import { objectIsMissingFieldWithCondition } from 'utils/displayFlags';
 import { ReviewButton } from 'components/form/IconButtons';
 import { calculateWeightRequested } from 'hooks/custom';
+import { ADVANCE_STATUSES } from 'constants/ppms';
 
-const ServicesCounselingMoveDetails = ({ infoSavedAlert, setUnapprovedShipmentCount, isMoveLocked }) => {
+const ServicesCounselingMoveDetails = ({
+  infoSavedAlert,
+  shipmentWarnConcernCount,
+  setShipmentWarnConcernCount,
+  shipmentErrorConcernCount,
+  setShipmentErrorConcernCount,
+  missingOrdersInfoCount,
+  setMissingOrdersInfoCount,
+  isMoveLocked,
+}) => {
   const { moveCode } = useParams();
   const navigate = useNavigate();
   const [alertMessage, setAlertMessage] = useState(null);
@@ -50,7 +59,6 @@ const ServicesCounselingMoveDetails = ({ infoSavedAlert, setUnapprovedShipmentCo
   const [moveHasExcessWeight, setMoveHasExcessWeight] = useState(false);
   const [isSubmitModalVisible, setIsSubmitModalVisible] = useState(false);
   const [isFinancialModalVisible, setIsFinancialModalVisible] = useState(false);
-  const [shipmentConcernCount, setShipmentConcernCount] = useState(0);
   const { upload, amendedUpload } = useOrdersDocumentQueries(moveCode);
   const documentsForViewer = Object.values(upload || {})
     .concat(Object.values(amendedUpload || {}))
@@ -85,23 +93,22 @@ const ServicesCounselingMoveDetails = ({ infoSavedAlert, setUnapprovedShipmentCo
     HHG_OUTOF_NTS_DOMESTIC: ['requestedPickupDate'],
   };
   const warnIfMissing = {
-    HHG: [{ fieldName: 'counselorRemarks' }],
-    HHG_INTO_NTS_DOMESTIC: [{ fieldName: 'counselorRemarks' }, { fieldName: 'tacType' }, { fieldName: 'sacType' }],
+    HHG_INTO_NTS_DOMESTIC: [{ fieldName: 'tacType' }, { fieldName: 'sacType' }],
     HHG_OUTOF_NTS_DOMESTIC: [
       { fieldName: 'ntsRecordedWeight' },
       { fieldName: 'serviceOrderNumber' },
-      { fieldName: 'counselorRemarks' },
       { fieldName: 'tacType' },
       { fieldName: 'sacType' },
     ],
-    PPM: [{ fieldName: 'counselorRemarks' }],
   };
   const errorIfMissing = {
     HHG_OUTOF_NTS_DOMESTIC: [{ fieldName: 'storageFacility' }],
     PPM: [
       {
         fieldName: 'advanceStatus',
-        condition: (shipment) => shipment?.ppmShipment?.hasRequestedAdvance === true,
+        condition: (shipment) =>
+          shipment?.ppmShipment?.hasRequestedAdvance === true &&
+          shipment?.ppmShipment?.advanceStatus !== ADVANCE_STATUSES.APPROVED.apiValue,
       },
     ],
   };
@@ -345,6 +352,20 @@ const ServicesCounselingMoveDetails = ({ infoSavedAlert, setUnapprovedShipmentCo
     ntsSac: order.ntsSac,
   };
 
+  // using useMemo here due to this being used in a useEffect
+  // using useMemo prevents the useEffect from being rendered on ever render by memoizing the object
+  // so that it only recognizes the change when the orders object changes
+  const requiredOrdersInfo = useMemo(
+    () => ({
+      ordersNumber: order?.order_number || '',
+      ordersType: order?.order_type || '',
+      ordersTypeDetail: order?.order_type_detail || '',
+      tacMDC: order?.tac || '',
+      departmentIndicator: order?.department_indicator || '',
+    }),
+    [order],
+  );
+
   const handleButtonDropdownChange = (e) => {
     const selectedOption = e.target.value;
 
@@ -397,20 +418,31 @@ const ServicesCounselingMoveDetails = ({ infoSavedAlert, setUnapprovedShipmentCo
     setMoveHasExcessWeight(moveWeightTotal > order.entitlement.totalWeight);
   }, [moveWeightTotal, order.entitlement.totalWeight]);
 
-  // Keep unapproved shipment count in sync
+  // Keep unapproved shipments, warn & error counts in sync
   useEffect(() => {
-    let shipmentConcerns = numberOfErrorIfMissingForAllShipments + numberOfWarnIfMissingForAllShipments;
+    let shipmentWarnConcerns = numberOfWarnIfMissingForAllShipments;
+    const shipmentErrorConcerns = numberOfErrorIfMissingForAllShipments;
     if (moveHasExcessWeight) {
-      shipmentConcerns += 1;
+      shipmentWarnConcerns += 1;
     }
-    setShipmentConcernCount(shipmentConcerns);
-    setUnapprovedShipmentCount(shipmentConcerns);
+    setShipmentWarnConcernCount(shipmentWarnConcerns);
+    setShipmentErrorConcernCount(shipmentErrorConcerns);
   }, [
     moveHasExcessWeight,
+    mtoShipments,
     numberOfErrorIfMissingForAllShipments,
     numberOfWarnIfMissingForAllShipments,
-    setUnapprovedShipmentCount,
+    setShipmentErrorConcernCount,
+    setShipmentWarnConcernCount,
   ]);
+
+  // Keep num of missing orders info synced up
+  useEffect(() => {
+    const ordersInfoCount = Object.values(requiredOrdersInfo).reduce((count, value) => {
+      return !value ? count + 1 : count;
+    }, 0);
+    setMissingOrdersInfoCount(ordersInfoCount);
+  }, [order, requiredOrdersInfo, setMissingOrdersInfoCount]);
 
   if (isLoading) return <LoadingPlaceholder />;
   if (isError) return <SomethingWentWrong />;
@@ -454,13 +486,6 @@ const ServicesCounselingMoveDetails = ({ infoSavedAlert, setUnapprovedShipmentCo
     return false;
   };
 
-  const requiredOrdersInfo = {
-    ordersNumber: order.order_number,
-    ordersType: order.order_type,
-    ordersTypeDetail: order.order_type_detail,
-    tacMDC: order.tac,
-  };
-
   const allShipmentsDeleted = mtoShipments.every((shipment) => !!shipment.deletedAt);
   const hasMissingOrdersRequiredInfo = Object.values(requiredOrdersInfo).some((value) => !value || value === '');
   const hasAmendedOrders = ordersInfo.uploadedAmendedOrderID && !ordersInfo.amendedOrdersAcknowledgedAt;
@@ -471,18 +496,26 @@ const ServicesCounselingMoveDetails = ({ infoSavedAlert, setUnapprovedShipmentCo
         <LeftNav sections={sections}>
           <LeftNavTag
             associatedSectionName="shipments"
-            showTag={shipmentConcernCount !== 0}
+            showTag={shipmentWarnConcernCount !== 0}
             testID="requestedShipmentsTag"
           >
-            {shipmentConcernCount}
+            {shipmentWarnConcernCount}
           </LeftNavTag>
           <LeftNavTag
-            className="usa-tag usa-tag--alert"
+            background="#e34b11"
+            associatedSectionName="shipments"
+            showTag={shipmentErrorConcernCount !== 0}
+            testID="shipment-missing-info-alert"
+          >
+            {shipmentErrorConcernCount}
+          </LeftNavTag>
+          <LeftNavTag
+            background="#e34b11"
             associatedSectionName="orders"
-            showTag={hasMissingOrdersRequiredInfo}
+            showTag={missingOrdersInfoCount !== 0}
             testID="tag"
           >
-            <FontAwesomeIcon icon="exclamation" />
+            {missingOrdersInfoCount}
           </LeftNavTag>
           <LeftNavTag
             associatedSectionName="orders"
@@ -686,7 +719,7 @@ const ServicesCounselingMoveDetails = ({ infoSavedAlert, setUnapprovedShipmentCo
               }
               ppmShipmentInfoNeedsApproval={ppmShipmentsInfoNeedsApproval}
             >
-              <AllowancesList info={allowancesInfo} showVisualCues />
+              <AllowancesList info={allowancesInfo} />
             </DetailsPanel>
           </div>
           <div className={styles.section} id="customer-info">
@@ -718,7 +751,8 @@ const ServicesCounselingMoveDetails = ({ infoSavedAlert, setUnapprovedShipmentCo
 
 ServicesCounselingMoveDetails.propTypes = {
   infoSavedAlert: AlertStateShape,
-  setUnapprovedShipmentCount: func.isRequired,
+  setShipmentWarnConcernCount: func.isRequired,
+  setShipmentErrorConcernCount: func.isRequired,
 };
 
 ServicesCounselingMoveDetails.defaultProps = {

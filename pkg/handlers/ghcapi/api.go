@@ -103,6 +103,7 @@ func NewGhcAPIHandler(handlerConfig handlers.HandlerConfig) *ghcops.MymoveAPI {
 
 	transportationOfficeFetcher := transportationoffice.NewTransportationOfficesFetcher()
 	closeoutOfficeUpdater := move.NewCloseoutOfficeUpdater(move.NewMoveFetcher(), transportationOfficeFetcher)
+	assignedOfficeUserUpdater := move.NewAssignedOfficeUserUpdater(move.NewMoveFetcher())
 
 	shipmentSITStatus := sitstatus.NewShipmentSITStatus()
 
@@ -671,8 +672,24 @@ func NewGhcAPIHandler(handlerConfig handlers.HandlerConfig) *ghcops.MymoveAPI {
 		move.NewMoveCanceler(),
 	}
 
+	paymentRequestBulkDownloadCreator := paymentrequest.NewPaymentRequestBulkDownloadCreator(pdfGenerator)
+	ghcAPI.PaymentRequestsBulkDownloadHandler = PaymentRequestBulkDownloadHandler{
+		handlerConfig,
+		paymentRequestBulkDownloadCreator,
+	}
+
 	dateSelectionChecker := dateservice.NewDateSelectionChecker()
 	ghcAPI.CalendarIsDateWeekendHolidayHandler = IsDateWeekendHolidayHandler{handlerConfig, dateSelectionChecker}
+
+	ghcAPI.MoveUpdateAssignedOfficeUserHandler = UpdateAssignedOfficeUserHandler{
+		handlerConfig,
+		assignedOfficeUserUpdater,
+		officeusercreator.NewOfficeUserFetcherPop(),
+	}
+	ghcAPI.MoveDeleteAssignedOfficeUserHandler = DeleteAssignedOfficeUserHandler{
+		handlerConfig,
+		assignedOfficeUserUpdater,
+	}
 
 	return ghcAPI
 }

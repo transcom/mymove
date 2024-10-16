@@ -12,9 +12,10 @@ import Menu from './Menu/Menu';
 
 import { milmoveLogger } from 'utils/milmoveLog';
 import { UPLOADS } from 'constants/queryKeys';
-import { updateUpload } from 'services/ghcApi';
+import { bulkDownloadPaymentRequest, updateUpload } from 'services/ghcApi';
 import { formatDate } from 'shared/dates';
 import { filenameFromPath } from 'utils/formatters';
+import AsyncPacketDownloadLink from 'shared/AsyncPacketDownloadLink/AsyncPacketDownloadLink';
 
 /**
  * TODO
@@ -23,7 +24,7 @@ import { filenameFromPath } from 'utils/formatters';
  * - handle fetch doc errors
  */
 
-const DocumentViewer = ({ files, allowDownload }) => {
+const DocumentViewer = ({ files, allowDownload, paymentRequestId }) => {
   const [selectedFileIndex, selectFile] = useState(0);
   const [disableSaveButton, setDisableSaveButton] = useState(false);
   const [menuIsOpen, setMenuOpen] = useState(false);
@@ -117,6 +118,20 @@ const DocumentViewer = ({ files, allowDownload }) => {
     }
   };
 
+  const paymentPacketDownload = (
+    <div>
+      <dd data-testid="bulkPacketDownload">
+        <p className={styles.bulkDownload}>
+          <AsyncPacketDownloadLink
+            id={paymentRequestId}
+            label="Download All Files (PDF)"
+            asyncRetrieval={bulkDownloadPaymentRequest}
+          />
+        </p>
+      </dd>
+    </div>
+  );
+
   return (
     <div className={styles.DocumentViewer}>
       <div className={styles.titleBar}>
@@ -133,6 +148,7 @@ const DocumentViewer = ({ files, allowDownload }) => {
             </a>
           </p>
         )}
+        {paymentRequestId !== undefined ? paymentPacketDownload : null}
       </div>
       <Content
         fileType={fileType.current}
