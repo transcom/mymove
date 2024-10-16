@@ -6,6 +6,7 @@ import { Radio, FormGroup, Label, Link as USWDSLink } from '@trussworks/react-us
 
 import styles from './OrdersInfoForm.module.scss';
 
+import ToolTip from 'shared/ToolTip/ToolTip';
 import { ORDERS_PAY_GRADE_OPTIONS } from 'constants/orders';
 import { DropdownInput, DatePickerInput, DutyLocationInput } from 'components/form/fields';
 import Hint from 'components/Hint/index';
@@ -25,6 +26,8 @@ const OrdersInfoForm = ({ ordersTypeOptions, initialValues, onSubmit, onBack }) 
   const payGradeOptions = dropdownInputOptions(ORDERS_PAY_GRADE_OPTIONS);
   const [dutyLocation, setDutyLocation] = useState('');
   const [counselingOfficeOptions, setCounselingOfficeOptions] = useState(null);
+  const [showAccompaniedTourField, setShowAccompaniedTourField] = useState(false);
+  const [showDependentAgeFields, setShowDependentAgeFields] = useState(false);
   const validationSchema = Yup.object().shape({
     orders_type: Yup.mixed()
       .oneOf(ordersTypeOptions.map((i) => i.key))
@@ -42,6 +45,11 @@ const OrdersInfoForm = ({ ordersTypeOptions, initialValues, onSubmit, onBack }) 
     counseling_office_id: dutyLocation.provides_services_counseling
       ? Yup.string().required('Required')
       : Yup.string().notRequired(),
+    is_accompanied_tour: showAccompaniedTourField
+      ? Yup.mixed().oneOf(['yes', 'no']).required('Required')
+      : Yup.string().notRequired(),
+    dependents_under_12: showDependentAgeFields ? Yup.number().min(0).required('Required') : Yup.number().notRequired(),
+    dependents_over_12: showDependentAgeFields ? Yup.number().min(0).required('Required') : Yup.number().notRequired(),
   });
   useEffect(() => {
     showCounselingOffices(dutyLocation.id).then((fetchedData) => {
@@ -56,8 +64,15 @@ const OrdersInfoForm = ({ ordersTypeOptions, initialValues, onSubmit, onBack }) 
   }, [dutyLocation]);
 
   return (
-    <Formik initialValues={initialValues} validateOnMount validationSchema={validationSchema} onSubmit={onSubmit}>
-      {({ isValid, isSubmitting, handleSubmit, values, touched }) => {
+    <Formik
+      initialValues={initialValues}
+      validateOnMount
+      validationSchema={validationSchema}
+      onSubmit={onSubmit}
+      setShowAccompaniedTourField={setShowAccompaniedTourField}
+      setShowDependentAgeFields={setShowDependentAgeFields}
+    >
+      {({ isValid, isSubmitting, handleSubmit, values, touched, setFieldValue }) => {
         const isRetirementOrSeparation = ['RETIREMENT', 'SEPARATION'].includes(values.orders_type);
 
         if (!values.origin_duty_location && touched.origin_duty_location) originMeta = 'Required';
@@ -65,6 +80,20 @@ const OrdersInfoForm = ({ ordersTypeOptions, initialValues, onSubmit, onBack }) 
 
         if (!values.new_duty_location && touched.new_duty_location) newDutyMeta = 'Required';
         else newDutyMeta = null;
+
+        const handleHasDependentsChange = (e) => {
+          const hasDependents = e.target.value === 'yes';
+          setFieldValue('has_dependents', hasDependents ? 'yes' : 'no');
+          if (hasDependents) {
+            // Has dependents
+            setShowAccompaniedTourField(true);
+            setShowDependentAgeFields(true);
+          } else {
+            // Does not have dependents
+            setShowAccompaniedTourField(false);
+            setShowDependentAgeFields(false);
+          }
+        };
 
         return (
           <Form className={`${formStyles.form} ${styles.OrdersInfoForm}`}>
@@ -105,22 +134,105 @@ const OrdersInfoForm = ({ ordersTypeOptions, initialValues, onSubmit, onBack }) 
                     as={Radio}
                     label="Yes"
                     id="hasDependentsYes"
+                    data-testid="hasDependentsYes"
                     name="has_dependents"
                     value="yes"
                     title="Yes, dependents are included in my orders"
                     type="radio"
+                    onChange={(e) => {
+                      handleHasDependentsChange(e);
+                    }}
                   />
                   <Field
                     as={Radio}
                     label="No"
                     id="hasDependentsNo"
+                    data-testid="hasDependentsNo"
                     name="has_dependents"
                     value="no"
                     title="No, dependents are not included in my orders"
                     type="radio"
+                    onChange={(e) => {
+                      handleHasDependentsChange(e);
+                    }}
                   />
                 </div>
               </FormGroup>
+
+              {showAccompaniedTourField && (
+                <FormGroup>
+                  <Label hint="Required">Is this an accompanied tour?</Label>
+                  <div>
+                    <div className={styles.radioWithToolTip}>
+                      <Field
+                        as={Radio}
+                        label="Yes"
+                        id="isAnAccompaniedTourYes"
+                        data-testid="isAnAccompaniedTourYes"
+                        name="is_accompanied_tour"
+                        value="yes"
+                        type="radio"
+                      />
+                      <ToolTip
+                        text="Accompanied Tour: An authorized order (assignment or tour) that allows dependents to travel to the new Permanent Duty Station (PDS)"
+                        position="right"
+                        icon="info-circle"
+                        color="blue"
+                        data-testid="isAnAccompaniedTourYesToolTip"
+                        closeOnLeave
+                      />
+                    </div>
+                    <div className={styles.radioWithToolTip}>
+                      <Field
+                        as={Radio}
+                        label="No"
+                        id="isAnAccompaniedTourNo"
+                        data-testid="isAnAccompaniedTourNo"
+                        name="is_accompanied_tour"
+                        value="no"
+                        type="radio"
+                      />
+                      <ToolTip
+                        text="Unaccompanied Tour: An authorized order (assignment or tour) that DOES NOT allow dependents to travel to the new Permanent Duty Station (PDS)"
+                        position="right"
+                        icon="info-circle"
+                        color="blue"
+                        data-testid="isAnAccompaniedTourNoToolTip"
+                        closeOnLeave
+                      />
+                    </div>
+                  </div>
+                </FormGroup>
+              )}
+
+              {showDependentAgeFields && (
+                <>
+                  <FormGroup>
+                    <Label htmlFor="dependentsUnderTwelve" hint="Required">
+                      Number of dependents under the age of 12
+                    </Label>
+                    <Field
+                      type="number"
+                      id="dependentsUnderTwelve"
+                      name="dependents_under_twelve"
+                      data-testid="dependentsUnderTwelve"
+                      min="0"
+                    />
+                  </FormGroup>
+                  <FormGroup>
+                    <Label htmlFor="dependentsOverTwelve" hint="Required">
+                      Number of dependents over the age of 12
+                    </Label>
+                    <Field
+                      type="number"
+                      id="dependentsOverTwelve"
+                      name="dependents_over_twelve"
+                      data-testid="dependentsOverTwelve"
+                      min="0"
+                    />
+                  </FormGroup>
+                </>
+              )}
 
               <DutyLocationInput
                 label="Current duty location"
