@@ -87,33 +87,35 @@ const ApprovedRequestedShipments = ({
 
   return (
     <div className={styles.RequestedShipments} data-testid="requested-shipments">
-      <h2>Approved Shipments</h2>
-      <div className={styles.dropdownButton}>
-        {!isMoveLocked && (
-          <Restricted to={permissionTypes.createTxoShipment}>
-            <ButtonDropdown
-              ariaLabel="Add a new shipment"
-              data-testid="addShipmentButton"
-              onChange={handleButtonDropdownChange}
-            >
-              <option value="" label="Add a new shipment">
-                Add a new shipment
-              </option>
-              <option data-testid="hhgOption" value={SHIPMENT_OPTIONS_URL.HHG}>
-                HHG
-              </option>
-              <option value={SHIPMENT_OPTIONS_URL.PPM}>PPM</option>
-              <option value={SHIPMENT_OPTIONS_URL.NTS}>NTS</option>
-              <option value={SHIPMENT_OPTIONS_URL.NTSrelease}>NTS-release</option>
-              <option data-testid="boatOption" value={SHIPMENT_OPTIONS_URL.BOAT}>
-                Boat
-              </option>
-              <option data-testid="mobileHomeOption" value={SHIPMENT_OPTIONS_URL.MOBILE_HOME}>
-                Mobile Home
-              </option>
-            </ButtonDropdown>
-          </Restricted>
-        )}
+      <div className={styles.sectionHeader}>
+        <h2>Approved Shipments</h2>
+        <div className={styles.buttonDropdown}>
+          {!isMoveLocked && (
+            <Restricted to={permissionTypes.createTxoShipment}>
+              <ButtonDropdown
+                ariaLabel="Add a new shipment"
+                data-testid="addShipmentButton"
+                onChange={handleButtonDropdownChange}
+              >
+                <option value="" label="Add a new shipment">
+                  Add a new shipment
+                </option>
+                <option data-testid="hhgOption" value={SHIPMENT_OPTIONS_URL.HHG}>
+                  HHG
+                </option>
+                <option value={SHIPMENT_OPTIONS_URL.PPM}>PPM</option>
+                <option value={SHIPMENT_OPTIONS_URL.NTS}>NTS</option>
+                <option value={SHIPMENT_OPTIONS_URL.NTSrelease}>NTS-release</option>
+                <option data-testid="boatOption" value={SHIPMENT_OPTIONS_URL.BOAT}>
+                  Boat
+                </option>
+                <option data-testid="mobileHomeOption" value={SHIPMENT_OPTIONS_URL.MOBILE_HOME}>
+                  Mobile Home
+                </option>
+              </ButtonDropdown>
+            </Restricted>
+          )}
+        </div>
       </div>
 
       <div className={shipmentCardsStyles.shipmentCards}>
