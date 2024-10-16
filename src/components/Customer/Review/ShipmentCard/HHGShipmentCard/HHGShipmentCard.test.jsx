@@ -18,6 +18,7 @@ const defaultProps = {
   shipmentId: '#ABC123K',
   shipmentLocator: '#ABC123K-01',
   shipmentType: 'HHG',
+  marketCode: 'd',
   showEditAndDeleteBtn: false,
   requestedPickupDate: new Date('01/01/2020').toISOString(),
   pickupLocation: {
@@ -58,6 +59,7 @@ const incompleteProps = {
   showEditAndDeleteBtn: false,
   requestedPickupDate: new Date('01/01/2020').toISOString(),
   status: shipmentStatuses.DRAFT,
+  marketCode: 'd',
 };
 
 const completeProps = {
@@ -72,6 +74,7 @@ const completeProps = {
   showEditAndDeleteBtn: false,
   requestedPickupDate: new Date('01/01/2020').toISOString(),
   status: shipmentStatuses.SUBMITTED,
+  marketCode: 'd',
 };
 
 const secondaryDeliveryAddress = {
@@ -135,6 +138,11 @@ describe('HHGShipmentCard component', () => {
     expect(wrapper.find('.remarksCell').text()).toBe(defaultProps.remarks);
   });
 
+  it('renders HHGShipmentCard with a heading that as a market code and shipment type', async () => {
+    render(<HHGShipmentCard {...defaultProps} />);
+    expect(screen.getByRole('heading', { level: 3 })).toHaveTextContent(`${defaultProps.marketCode}HHG 1`);
+  });
+
   it('should render without releasing/receiving agents and remarks', () => {
     const wrapper = mountHHGShipmentCard({ ...defaultProps, releasingAgent: null, receivingAgent: null, remarks: '' });
     const tableHeaders = ['Requested pickup date', 'Pickup location', 'Requested delivery date', 'Destination'];
@@ -191,6 +199,11 @@ describe('HHGShipmentCard component', () => {
     expect(screen.queryByText('Incomplete')).toBeNull();
   });
 
+  it('renders complete HHGShipmentCard with a heading that as a market code and shipment type', async () => {
+    render(<HHGShipmentCard {...completeProps} />);
+    expect(screen.getByRole('heading', { level: 3 })).toHaveTextContent(`${completeProps.marketCode}HHG 1`);
+  });
+
   it('renders incomplete label and tooltip icon for incomplete HHG shipment with DRAFT status', async () => {
     render(<HHGShipmentCard {...incompleteProps} />);
 
@@ -209,6 +222,7 @@ describe('HHGShipmentCard component', () => {
 
 const ubProps = {
   moveId: 'testMove123',
+  marketCode: 'd',
   editPath: '',
   onEditClick: jest.fn(),
   onDeleteClick: jest.fn(),
@@ -269,6 +283,7 @@ const completeUBProps = {
   showEditAndDeleteBtn: false,
   requestedPickupDate: new Date('01/01/2020').toISOString(),
   status: shipmentStatuses.SUBMITTED,
+  marketCode: 'd',
 };
 
 function mountHHGShipmentCardForUBShipment(props) {
@@ -312,6 +327,11 @@ describe('HHGShipmentCard component can be reused for UB shipment card', () => {
     tableHeaders.forEach((label, index) => expect(wrapper.find('dt').at(index).text()).toBe(label));
     tableData.forEach((label, index) => expect(wrapper.find('dd').at(index).text()).toBe(label));
     expect(wrapper.find('.remarksCell').text()).toBe(ubProps.remarks);
+  });
+
+  it('renders complete UB ShipmentCard with a heading that as a market code and shipment type', async () => {
+    render(<HHGShipmentCard {...ubProps} />);
+    expect(screen.getByRole('heading', { level: 3 })).toHaveTextContent(`${ubProps.marketCode}UB 1`);
   });
 
   it('should render UB shipment card without releasing/receiving agents and remarks', () => {
