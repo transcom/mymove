@@ -332,8 +332,8 @@ func priceDomesticPickupDeliverySIT(appCtx appcontext.AppContext, pickupDelivery
 }
 
 func priceInternationalShuttling(appCtx appcontext.AppContext, shuttlingCode models.ReServiceCode, contractCode string, referenceDate time.Time, weight unit.Pound, serviceSchedule int) (unit.Cents, services.PricingDisplayParams, error) {
-	if shuttlingCode != models.ReServiceCodeDOSHUT && shuttlingCode != models.ReServiceCodeDDSHUT {
-		return 0, nil, fmt.Errorf("unsupported domestic shuttling code of %s", shuttlingCode)
+	if shuttlingCode != models.ReServiceCodeIOSHUT && shuttlingCode != models.ReServiceCodeIDSHUT {
+		return 0, nil, fmt.Errorf("unsupported interntional shuttling code of %s", shuttlingCode)
 	}
 	// Validate parameters
 	if len(contractCode) == 0 {
@@ -342,21 +342,21 @@ func priceInternationalShuttling(appCtx appcontext.AppContext, shuttlingCode mod
 	if referenceDate.IsZero() {
 		return 0, nil, errors.New("ReferenceDate is required")
 	}
-	if weight < minDomesticWeight {
-		return 0, nil, fmt.Errorf("Weight must be a minimum of %d", minDomesticWeight)
+	if weight < minInternationalWeight {
+		return 0, nil, fmt.Errorf("Weight must be a minimum of %d", minInternationalWeight)
 	}
 	if serviceSchedule == 0 {
 		return 0, nil, errors.New("Service schedule is required")
 	}
 
-	// look up rate for domestic accessorial price
-	domAccessorialPrice, err := fetchAccessorialPrice(appCtx, contractCode, shuttlingCode, serviceSchedule)
+	// look up rate for international accessorial price
+	intlAccessorialPrice, err := fetchInternationalAccessorialPrice(appCtx, contractCode, shuttlingCode, serviceSchedule)
 	if err != nil {
-		return 0, nil, fmt.Errorf("could not lookup Domestic Accessorial Area Price: %w", err)
+		return 0, nil, fmt.Errorf("could not lookup International Accessorial Area Price: %w", err)
 	}
 
-	basePrice := domAccessorialPrice.PerUnitCents.Float64()
-	escalatedPrice, contractYear, err := escalatePriceForContractYear(appCtx, domAccessorialPrice.ContractID, referenceDate, false, basePrice)
+	basePrice := intlAccessorialPrice.PerUnitCents.Float64()
+	escalatedPrice, contractYear, err := escalatePriceForContractYear(appCtx, intlAccessorialPrice.ContractID, referenceDate, false, basePrice)
 	if err != nil {
 		return 0, nil, fmt.Errorf("could not calculate escalated price: %w", err)
 	}
@@ -367,7 +367,7 @@ func priceInternationalShuttling(appCtx appcontext.AppContext, shuttlingCode mod
 	params := services.PricingDisplayParams{
 		{
 			Key:   models.ServiceItemParamNamePriceRateOrFactor,
-			Value: FormatCents(domAccessorialPrice.PerUnitCents),
+			Value: FormatCents(intlAccessorialPrice.PerUnitCents),
 		},
 		{
 			Key:   models.ServiceItemParamNameContractYearName,

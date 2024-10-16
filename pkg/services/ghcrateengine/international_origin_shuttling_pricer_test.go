@@ -93,7 +93,12 @@ func (suite *GHCRateEngineServiceSuite) setupInternationalOriginShuttlingService
 			{
 				Key:     models.ServiceItemParamNameReferenceDate,
 				KeyType: models.ServiceItemParamTypeDate,
-				Value:   ioshutTestRequestedPickupDate.Format(DateParamFormat),
+				Value:   doshutTestRequestedPickupDate.Format(DateParamFormat),
+			},
+			{
+				Key:     models.ServiceItemParamNameServicesScheduleOrigin,
+				KeyType: models.ServiceItemParamTypeInteger,
+				Value:   strconv.Itoa(ioshutTestServiceSchedule),
 			},
 			{
 				Key:     models.ServiceItemParamNameWeightBilled,

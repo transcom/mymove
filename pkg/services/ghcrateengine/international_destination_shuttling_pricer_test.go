@@ -92,7 +92,12 @@ func (suite *GHCRateEngineServiceSuite) setupInternationalDestinationShuttlingSe
 			{
 				Key:     models.ServiceItemParamNameReferenceDate,
 				KeyType: models.ServiceItemParamTypeDate,
-				Value:   idshutTestRequestedPickupDate.Format(DateParamFormat),
+				Value:   ddshutTestRequestedPickupDate.Format(DateParamFormat),
+			},
+			{
+				Key:     models.ServiceItemParamNameServicesScheduleDest,
+				KeyType: models.ServiceItemParamTypeInteger,
+				Value:   strconv.Itoa(idshutTestServiceSchedule),
 			},
 			{
 				Key:     models.ServiceItemParamNameWeightBilled,
