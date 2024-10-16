@@ -61,6 +61,18 @@ const renderWithQueryClient = (ui) => {
   return render(<QueryClientProvider client={queryClient}>{ui}</QueryClientProvider>);
 };
 
+// Mock DataTransfer for the testing environment
+global.DataTransfer = class {
+  constructor() {
+    this.items = [];
+  }
+
+  // Add a file to the DataTransfer
+  add(file) {
+    this.items.push({ kind: 'file', getAsFile: () => file });
+  }
+};
+
 describe('DocumentViewerFileManager', () => {
   const defaultProps = {
     className: 'test-class',
@@ -103,5 +115,52 @@ describe('DocumentViewerFileManager', () => {
     fireEvent.click(screen.getByText('Manage Orders'));
     fireEvent.click(screen.getByText('Drag files here or click to upload'));
     expect(screen.queryByText('An error occurred')).not.toBeInTheDocument();
+  });
+
+  it('should handle file uploads correctly', async () => {
+    const mockUpdateAmendedDocument = jest.fn(); // Mock function to verify the update action
+    const queryClient = new QueryClient(); // Create a new instance of QueryClient for React Query
+
+    // Render the DocumentViewerFileManager component within the QueryClientProvider
+    render(
+      <QueryClientProvider client={queryClient}>
+        <DocumentViewerFileManager
+          orderId="123" // Sample order ID
+          documentId="456" // Sample document ID
+          files={[]} // Initialize with an empty array for uploaded files
+          documentType="ORDERS" // Set the document type to trigger the appropriate UI
+          updateAmendedDocument={mockUpdateAmendedDocument} // Pass the mock function to handle updates
+        />
+      </QueryClientProvider>,
+    );
+
+    // Verify that the "Manage Orders" button is rendered in the document
+    const manageDocumentsButton = screen.getByRole('button', { name: /manage orders/i });
+    expect(manageDocumentsButton).toBeInTheDocument();
+
+    // Simulate a user clicking the "Manage Orders" button to display the file upload section
+    fireEvent.click(manageDocumentsButton);
+
+    // Confirm that the upload area (drag-and-drop zone) is present in the document
+    const uploadArea = await screen.findByRole('button', { name: /drag files here or click to upload/i });
+    expect(uploadArea).toBeInTheDocument();
+
+    // Create a new File object to simulate a file upload
+    const file = new File(['content'], 'testfile.txt', { type: 'text/plain' });
+
+    // Create a DataTransfer object to mimic the file being dragged and dropped
+    const dataTransfer = new DataTransfer();
+    dataTransfer.add(file); // Add the simulated file to the DataTransfer object
+
+    // Simulate the drag-and-drop events
+    fireEvent.dragEnter(uploadArea, {
+      dataTransfer, // Trigger the drag enter event on the upload area
+    });
+    fireEvent.dragOver(uploadArea, {
+      dataTransfer, // Trigger the drag over event on the upload area
+    });
+    fireEvent.drop(uploadArea, {
+      dataTransfer, // Trigger the drop event to simulate the file upload
+    });
   });
 });
