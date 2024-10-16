@@ -3373,7 +3373,7 @@ paths:
           name: sort
           type: string
           enum:
-            - lastName
+            - customerName
             - dodID
             - emplid
             - branch
@@ -3406,7 +3406,7 @@ paths:
           type: string
           description: filters to match the unique move code locator
         - in: query
-          name: lastName
+          name: customerName
           type: string
           description: filters using a prefix match on the service member's last name
         - in: query
@@ -3725,7 +3725,7 @@ paths:
           name: sort
           type: string
           enum:
-            - lastName
+            - customerName
             - locator
             - submittedAt
             - branch
@@ -3764,7 +3764,7 @@ paths:
           name: locator
           type: string
         - in: query
-          name: lastName
+          name: customerName
           type: string
         - in: query
           name: dodID
