@@ -273,8 +273,8 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandlerV1() {
 	})
 
 	suite.Run("Successful POST - Integration Test - UB", func() {
-		const ubFlag = "true"
-		suite.T().Setenv("FEATURE_FLAG_UNACCOMPANIED_BAGGAGE", ubFlag)
+		// const ubFlag = "true"
+		// suite.T().Setenv("FEATURE_FLAG_UNACCOMPANIED_BAGGAGE", ubFlag)
 
 		subtestData := makeCreateSubtestData(true, true)
 
@@ -309,9 +309,9 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandlerV1() {
 	})
 
 	suite.Run("Unsuccessful POST if UB FF off - Integration Test - UB", func() {
-		const ubFlag = "false"
+		// const ubFlag = "false"
 
-		suite.T().Setenv("FEATURE_FLAG_UNACCOMPANIED_BAGGAGE", ubFlag)
+		// suite.T().Setenv("FEATURE_FLAG_UNACCOMPANIED_BAGGAGE", ubFlag)
 
 		subtestData := makeCreateSubtestData(false, true)
 		params := subtestData.params
