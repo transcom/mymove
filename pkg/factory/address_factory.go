@@ -32,7 +32,12 @@ func BuildAddress(db *pop.Connection, customs []Customization, traits []Trait) m
 		State:          "CA",
 		PostalCode:     "90210",
 		County:         "LOS ANGELES",
+		IsOconus:       models.BoolPointer(false),
 	}
+
+	var usprc = BuildUsPostRegionCity(db, customs, nil)
+	address.UsPostRegionCityId = &usprc.ID
+	address.UsPostRegionCity = &usprc
 
 	// Find/create the Country if customization is provided
 	var country models.Country

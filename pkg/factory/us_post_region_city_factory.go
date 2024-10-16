@@ -2,12 +2,13 @@ package factory
 
 import (
 	"github.com/gobuffalo/pop/v6"
+	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
-// Creates a UsPostRegionCity for MacDill AFB, Florida
+// Creates a UsPostRegionCity for Beverly Hills, California 90210
 func BuildUsPostRegionCity(db *pop.Connection, customs []Customization, traits []Trait) models.UsPostRegionCity {
 	customs = setupCustomizations(customs, traits)
 
@@ -19,11 +20,18 @@ func BuildUsPostRegionCity(db *pop.Connection, customs []Customization, traits [
 		}
 	}
 
+	city := BuildCity(db, customs, nil)
+	usPostRegion := BuildUsPostRegion(db, customs, nil)
+
 	usPostRegionCity := models.UsPostRegionCity{
-		UsprZipID:          "33608",
-		USPostRegionCityNm: "MacDill AFB",
-		UsprcCountyNm:      "Hillsborough",
+		ID:                 uuid.Must(uuid.NewV4()),
+		UsprZipID:          "90210",
+		USPostRegionCityNm: "Beverly Hills",
+		UsprcCountyNm:      "LOS ANGELES",
 		CtryGencDgphCd:     "US",
+		City:               city,
+		UsPostRegion:       usPostRegion,
+		UsPostRegionId:     usPostRegion.ID,
 	}
 
 	testdatagen.MergeModels(&usPostRegionCity, cUsPostRegionCity)
@@ -35,7 +43,7 @@ func BuildUsPostRegionCity(db *pop.Connection, customs []Customization, traits [
 	return usPostRegionCity
 }
 
-// Creates a default UsPostRegionCity for MacDill AFB, Florida
+// Creates a default UsPostRegionCity for Beverly Hills, California 90210
 func BuildDefaultUsPostRegionCity(db *pop.Connection) models.UsPostRegionCity {
 	return BuildUsPostRegionCity(db, nil, nil)
 }

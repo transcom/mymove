@@ -15,19 +15,21 @@ import (
 
 // Address is an address
 type Address struct {
-	ID             uuid.UUID  `json:"id" db:"id"`
-	CreatedAt      time.Time  `json:"created_at" db:"created_at"`
-	UpdatedAt      time.Time  `json:"updated_at" db:"updated_at"`
-	StreetAddress1 string     `json:"street_address_1" db:"street_address_1"`
-	StreetAddress2 *string    `json:"street_address_2" db:"street_address_2"`
-	StreetAddress3 *string    `json:"street_address_3" db:"street_address_3"`
-	City           string     `json:"city" db:"city"`
-	State          string     `json:"state" db:"state"`
-	PostalCode     string     `json:"postal_code" db:"postal_code"`
-	CountryId      *uuid.UUID `json:"country_id" db:"country_id"`
-	Country        *Country   `belongs_to:"re_countries" fk_id:"country_id"`
-	County         string     `json:"county" db:"county"`
-	IsOconus       *bool      `json:"is_oconus" db:"is_oconus"`
+	ID                 uuid.UUID         `json:"id" db:"id"`
+	CreatedAt          time.Time         `json:"created_at" db:"created_at"`
+	UpdatedAt          time.Time         `json:"updated_at" db:"updated_at"`
+	StreetAddress1     string            `json:"street_address_1" db:"street_address_1"`
+	StreetAddress2     *string           `json:"street_address_2" db:"street_address_2"`
+	StreetAddress3     *string           `json:"street_address_3" db:"street_address_3"`
+	City               string            `json:"city" db:"city"`
+	State              string            `json:"state" db:"state"`
+	PostalCode         string            `json:"postal_code" db:"postal_code"`
+	CountryId          *uuid.UUID        `json:"country_id" db:"country_id"`
+	Country            *Country          `belongs_to:"re_countries" fk_id:"country_id"`
+	County             string            `json:"county" db:"county"`
+	IsOconus           *bool             `json:"is_oconus" db:"is_oconus"`
+	UsPostRegionCityId *uuid.UUID        `json:"us_post_region_cities_id" db:"us_post_region_cities_id"`
+	UsPostRegionCity   *UsPostRegionCity `belongs_to:"us_post_region_cities" fk_id:"us_post_region_cities_id"`
 }
 
 // TableName overrides the table name used by Pop.
