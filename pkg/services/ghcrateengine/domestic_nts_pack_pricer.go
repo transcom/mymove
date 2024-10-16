@@ -19,7 +19,7 @@ func NewDomesticNTSPackPricer() services.DomesticNTSPackPricer {
 
 // Price determines the price for a domestic NTS pack service
 func (p domesticNTSPackPricer) Price(appCtx appcontext.AppContext, contractCode string, referenceDate time.Time, weight unit.Pound, servicesScheduleOrigin int, isPPM bool) (unit.Cents, services.PricingDisplayParams, error) {
-	return priceDomesticPackUnpack(appCtx, models.ReServiceCodeDNPK, contractCode, referenceDate, weight, servicesScheduleOrigin, isPPM, false)
+	return priceDomesticPackUnpack(appCtx, models.ReServiceCodeDNPK, contractCode, referenceDate, weight, servicesScheduleOrigin, isPPM, false, nil)
 }
 
 // PriceUsingParams determines the price for a domestic NTS pack service given PaymentServiceItemParams

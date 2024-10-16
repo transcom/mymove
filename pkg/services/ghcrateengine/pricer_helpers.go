@@ -16,9 +16,10 @@ import (
 	"github.com/transcom/mymove/pkg/unit"
 )
 
-func priceDomesticPackUnpack(appCtx appcontext.AppContext, packUnpackCode models.ReServiceCode, contractCode string, referenceDate time.Time, weight unit.Pound, servicesSchedule int, isPPM bool, isMobileHome bool) (unit.Cents, services.PricingDisplayParams, error) {
+func priceDomesticPackUnpack(appCtx appcontext.AppContext, packUnpackCode models.ReServiceCode, contractCode string, referenceDate time.Time, weight unit.Pound, servicesSchedule int, isPPM bool, isMobileHome bool, featureFlagFetcher services.FeatureFlagFetcher) (unit.Cents, services.PricingDisplayParams, error) {
 	// Validate parameters
 	var domOtherPriceCode models.ReServiceCode
+	var displayParams services.PricingDisplayParams
 	switch packUnpackCode {
 	case models.ReServiceCodeDPK, models.ReServiceCodeDNPK:
 		domOtherPriceCode = models.ReServiceCodeDPK
@@ -58,25 +59,48 @@ func priceDomesticPackUnpack(appCtx appcontext.AppContext, packUnpackCode models
 		return 0, nil, fmt.Errorf("could not calculate escalated price: %w", err)
 	}
 
-	escalatedPrice = escalatedPrice * finalWeight.ToCWTFloat64()
+	isFactorToggleOn := false // Track whether DMHF Factor FF toggle is on for this Pack or Unpack item
+	if domOtherPriceCode == models.ReServiceCodeDPK {
+		isOn, err := getFeatureFlagValue(appCtx, featureFlagFetcher, "domestic_mobile_home_packing_enabled")
+		if err != nil {
+			return 0, nil, fmt.Errorf("could not fetch feature flag to determine pack pricing formula: %w", err)
+		}
+		if isOn {
+			isFactorToggleOn = true
+		}
+	} else if domOtherPriceCode == models.ReServiceCodeDUPK {
+		isOn, err := getFeatureFlagValue(appCtx, featureFlagFetcher, "domestic_mobile_home_unpacking_enabled")
+		if err != nil {
+			return 0, nil, fmt.Errorf("could not fetch feature flag to determine unpack pricing formula: %w", err)
+		}
+		if isOn {
+			isFactorToggleOn = true
+		}
+	}
 
-	displayParams := services.PricingDisplayParams{
-		{
-			Key:   models.ServiceItemParamNameContractYearName,
-			Value: contractYear.Name,
-		},
-		{
-			Key:   models.ServiceItemParamNamePriceRateOrFactor,
-			Value: FormatCents(domOtherPrice.PriceCents),
-		},
-		{
-			Key:   models.ServiceItemParamNameIsPeak,
-			Value: FormatBool(isPeakPeriod),
-		},
-		{
-			Key:   models.ServiceItemParamNameEscalationCompounded,
-			Value: FormatEscalation(contractYear.EscalationCompounded),
-		},
+	if isMobileHome && isFactorToggleOn {
+		mobileHomeFactorRow, err := fetchShipmentTypePrice(appCtx, contractCode, models.ReServiceCodeDMHF, models.MarketConus)
+		if err != nil {
+			return 0, nil, fmt.Errorf("could not fetch mobile home factor from database: %w", err)
+		}
+
+		escalatedPrice = roundToPrecision(escalatedPrice*mobileHomeFactorRow.Factor*finalWeight.ToCWTFloat64(), 2)
+		displayParams = services.PricingDisplayParams{
+			{Key: models.ServiceItemParamNameContractYearName, Value: contractYear.Name},
+			{Key: models.ServiceItemParamNamePriceRateOrFactor, Value: FormatCents(domOtherPrice.PriceCents)},
+			{Key: models.ServiceItemParamNameIsPeak, Value: FormatBool(isPeakPeriod)},
+			{Key: models.ServiceItemParamNameEscalationCompounded, Value: FormatEscalation(contractYear.EscalationCompounded)},
+			{Key: models.ServiceItemParamNameMobileHomeFactor, Value: FormatFloat(mobileHomeFactorRow.Factor, 2)},
+		}
+	} else {
+		escalatedPrice = escalatedPrice * finalWeight.ToCWTFloat64()
+
+		displayParams = services.PricingDisplayParams{
+			{Key: models.ServiceItemParamNameContractYearName, Value: contractYear.Name},
+			{Key: models.ServiceItemParamNamePriceRateOrFactor, Value: FormatCents(domOtherPrice.PriceCents)},
+			{Key: models.ServiceItemParamNameIsPeak, Value: FormatBool(isPeakPeriod)},
+			{Key: models.ServiceItemParamNameEscalationCompounded, Value: FormatEscalation(contractYear.EscalationCompounded)},
+		}
 	}
 
 	// Adjust for NTS packing factor if needed.

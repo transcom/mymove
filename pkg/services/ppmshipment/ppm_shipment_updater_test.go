@@ -64,6 +64,13 @@ func (suite *PPMShipmentSuite) TestUpdatePPMShipment() {
 			).
 			Return(estimatedIncentiveAmount, sitEstimatedCost, estimatedIncentiveError)
 
+		ppmEstimator.On(
+			"CalculateSITCost",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.AnythingOfType("*models.PPMShipment"),
+			mock.AnythingOfType("models.ReContract"),
+		).Return(sitEstimatedCost, nil)
+
 		addressCreator := address.NewAddressCreator()
 		addressUpdater := address.NewAddressUpdater()
 		subtestData.ppmShipmentUpdater = NewPPMShipmentUpdater(&ppmEstimator, addressCreator, addressUpdater)
