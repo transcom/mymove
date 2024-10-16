@@ -33,7 +33,7 @@ const defaultProps = {
   },
   tripNumber: 1,
   showAllFields: false,
-  ppmNumber: 1,
+  ppmNumber: '1',
   setCurrentMtoShipments: mockCallback,
 };
 

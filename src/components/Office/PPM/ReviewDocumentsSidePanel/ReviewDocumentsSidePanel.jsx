@@ -275,7 +275,7 @@ ReviewDocumentsSidePanel.propTypes = {
 
 ReviewDocumentsSidePanel.defaultProps = {
   ppmShipment: undefined,
-  ppmNumber: 1,
+  ppmNumber: '1',
   formRef: null,
   onSuccess: () => {},
   onError: () => {},
