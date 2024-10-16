@@ -80,3 +80,41 @@ describe('successful submission of form', () => {
     });
   });
 });
+
+describe('Error when submitting', () => {
+  it('Correctly displays the unexpected server error window when an unusuable api error response is returned', async () => {
+    createPrimeMTOShipmentV3.mockRejectedValue('malformed api error response');
+    render(mockedComponent);
+
+    waitFor(async () => {
+      await userEvent.selectOptions(screen.getByLabelText('Shipment type'), 'HHG');
+
+      const saveButton = await screen.getByRole('button', { name: 'Save' });
+
+      expect(saveButton).not.toBeDisabled();
+      await userEvent.click(saveButton);
+      expect(screen.getByText('Unexpected error')).toBeInTheDocument();
+      expect(
+        screen.getByText('An unknown error has occurred, please check the address values used'),
+      ).toBeInTheDocument();
+    });
+  });
+
+  it('Correctly displays the invalid fields in the error window when an api error response is returned', async () => {
+    createPrimeMTOShipmentV3.mockRejectedValue({ body: { title: 'Error', invalidFields: { someField: true } } });
+    render(mockedComponent);
+
+    waitFor(async () => {
+      await userEvent.selectOptions(screen.getByLabelText('Shipment type'), 'HHG');
+
+      const saveButton = await screen.getByRole('button', { name: 'Save' });
+
+      expect(saveButton).not.toBeDisabled();
+      await userEvent.click(saveButton);
+      expect(screen.getByText('Prime API: Error')).toBeInTheDocument();
+      expect(
+        screen.getByText('An unknown error has occurred, please check the address values used'),
+      ).toBeInTheDocument();
+    });
+  });
+});
