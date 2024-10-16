@@ -4,6 +4,26 @@ import userEvent from '@testing-library/user-event';
 
 import OrdersInfoForm from './OrdersInfoForm';
 
+import { showCounselingOffices } from 'services/internalApi';
+
+jest.mock('services/internalApi', () => ({
+  ...jest.requireActual('services/internalApi'),
+  showCounselingOffices: jest.fn().mockImplementation(() =>
+    Promise.resolve({
+      body: [
+        {
+          id: '3e937c1f-5539-4919-954d-017989130584',
+          name: 'Albuquerque AFB',
+        },
+        {
+          id: 'fa51dab0-4553-4732-b843-1f33407f77bc',
+          name: 'Glendale Luke AFB',
+        },
+      ],
+    }),
+  ),
+}));
+
 jest.mock('components/LocationSearchBox/api', () => ({
   ShowAddress: jest.fn().mockImplementation(() =>
     Promise.resolve({
@@ -167,6 +187,7 @@ describe('OrdersInfoForm component', () => {
   });
 
   it('renders each option for orders type', async () => {
+    showCounselingOffices.mockImplementation(() => Promise.resolve({}));
     const { getByLabelText } = render(<OrdersInfoForm {...testProps} />);
 
     const ordersTypeDropdown = getByLabelText(/Orders type/);
@@ -230,6 +251,102 @@ describe('OrdersInfoForm component', () => {
       expect(getAllByTestId('errorMessage').length).toBe(4);
     });
     expect(testProps.onSubmit).not.toHaveBeenCalled();
+  });
+
+  it('submits the form when its valid and has a counseling office selected', async () => {
+    const testPropsWithCounselingOffice = {
+      onSubmit: jest.fn().mockImplementation(() => Promise.resolve()),
+      initialValues: {
+        orders_type: '',
+        issue_date: '',
+        report_by_date: '',
+        has_dependents: '',
+        new_duty_location: {},
+        grade: '',
+        origin_duty_location: {},
+        counseling_office_id: '3be2381f-f9ed-4902-bbdc-69c69e43eb86',
+      },
+      onBack: jest.fn(),
+      ordersTypeOptions: [
+        { key: 'PERMANENT_CHANGE_OF_STATION', value: 'Permanent Change Of Station (PCS)' },
+        { key: 'LOCAL_MOVE', value: 'Local Move' },
+        { key: 'RETIREMENT', value: 'Retirement' },
+        { key: 'SEPARATION', value: 'Separation' },
+      ],
+    };
+
+    render(<OrdersInfoForm {...testPropsWithCounselingOffice} />);
+
+    await userEvent.selectOptions(screen.getByLabelText(/Orders type/), 'PERMANENT_CHANGE_OF_STATION');
+    await userEvent.type(screen.getByLabelText(/Orders date/), '08 Nov 2020');
+    await userEvent.type(screen.getByLabelText(/Report by date/), '26 Nov 2020');
+    await userEvent.click(screen.getByLabelText('No'));
+    await userEvent.selectOptions(screen.getByLabelText(/Pay grade/), ['E_5']);
+
+    // Test Current Duty Location Search Box interaction
+    await userEvent.type(screen.getByLabelText(/Current duty location/), 'AFB', { delay: 100 });
+    const selectedOptionCurrent = await screen.findByText(/Altus/);
+    await userEvent.click(selectedOptionCurrent);
+
+    // Test New Duty Location Search Box interaction
+    await userEvent.type(screen.getByLabelText(/New duty location/), 'AFB', { delay: 100 });
+    const selectedOptionNew = await screen.findByText(/Luke/);
+    await userEvent.click(selectedOptionNew);
+
+    await waitFor(() => {
+      expect(screen.getByRole('form')).toHaveFormValues({
+        new_duty_location: 'Luke AFB',
+        origin_duty_location: 'Altus AFB',
+      });
+    });
+
+    const submitBtn = screen.getByRole('button', { name: 'Next' });
+    await userEvent.click(submitBtn);
+
+    await waitFor(() => {
+      expect(testPropsWithCounselingOffice.onSubmit).toHaveBeenCalledWith(
+        expect.objectContaining({
+          orders_type: 'PERMANENT_CHANGE_OF_STATION',
+          counseling_office_id: '3be2381f-f9ed-4902-bbdc-69c69e43eb86',
+          has_dependents: 'no',
+          issue_date: '08 Nov 2020',
+          report_by_date: '26 Nov 2020',
+          new_duty_location: {
+            address: {
+              city: 'Glendale Luke AFB',
+              country: 'United States',
+              id: 'fa51dab0-4553-4732-b843-1f33407f77bc',
+              postalCode: '85309',
+              state: 'AZ',
+              streetAddress1: 'n/a',
+            },
+            address_id: '25be4d12-fe93-47f1-bbec-1db386dfa67f',
+            affiliation: 'AIR_FORCE',
+            created_at: '2021-02-11T16:48:04.117Z',
+            id: 'a8d6b33c-8370-4e92-8df2-356b8c9d0c1a',
+            name: 'Luke AFB',
+            updated_at: '2021-02-11T16:48:04.117Z',
+          },
+          grade: 'E_5',
+          origin_duty_location: {
+            address: {
+              city: '',
+              id: '00000000-0000-0000-0000-000000000000',
+              postalCode: '',
+              state: '',
+              streetAddress1: '',
+            },
+            address_id: '46c4640b-c35e-4293-a2f1-36c7b629f903',
+            affiliation: 'AIR_FORCE',
+            created_at: '2021-02-11T16:48:04.117Z',
+            id: '93f0755f-6f35-478b-9a75-35a69211da1c',
+            name: 'Altus AFB',
+            updated_at: '2021-02-11T16:48:04.117Z',
+          },
+        }),
+        expect.anything(),
+      );
+    });
   });
 
   it('submits the form when its valid', async () => {

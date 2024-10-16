@@ -109,7 +109,7 @@ func (h UpdateUploadHandler) Handle(params uploadop.UpdateUploadParams) middlewa
 				return nil, apperror.NewBadDataError("unable to update upload")
 			}
 
-			url, err := h.FileStorer().PresignedURL(newUpload.StorageKey, newUpload.ContentType)
+			url, err := h.FileStorer().PresignedURL(newUpload.StorageKey, newUpload.ContentType, newUpload.Filename)
 			if err != nil {
 				return nil, err
 			}

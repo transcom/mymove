@@ -470,7 +470,6 @@ test.describe('Services counselor user', () => {
 
       await scPage.waitForPage.reviewWeightTicket();
       // Edit Actual Move Start Date
-      await page.getByTestId('shipmentInfo').getByTestId('shipmentInfo-showRequestDetailsButton').click();
       await page.getByTestId('actualMoveDate').getByTestId('editTextButton').click();
       await page.waitForSelector('text="Edit Shipment Info"');
       await page.getByRole('button', { name: 'Save' }).click();
@@ -487,7 +486,6 @@ test.describe('Services counselor user', () => {
 
       await scPage.waitForPage.reviewWeightTicket();
       // Edit Starting Address
-      await page.getByTestId('shipmentInfo').getByTestId('shipmentInfo-showRequestDetailsButton').click();
       await page.getByTestId('pickupAddress').getByTestId('editTextButton').click();
       await page.waitForSelector('text="Edit Shipment Info"');
       await page.getByRole('button', { name: 'Save' }).click();
@@ -504,7 +502,6 @@ test.describe('Services counselor user', () => {
 
       await scPage.waitForPage.reviewWeightTicket();
       // Edit Ending Address
-      await page.getByTestId('shipmentInfo').getByTestId('shipmentInfo-showRequestDetailsButton').click();
       await page.getByTestId('destinationAddress').getByTestId('editTextButton').click();
       await page.waitForSelector('text="Edit Shipment Info"');
       await page.getByRole('button', { name: 'Save' }).click();

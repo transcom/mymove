@@ -24,7 +24,6 @@ import (
 	"github.com/transcom/mymove/pkg/services/ghcrateengine"
 	mobilehomeshipment "github.com/transcom/mymove/pkg/services/mobile_home_shipment"
 	"github.com/transcom/mymove/pkg/services/mocks"
-	moverouter "github.com/transcom/mymove/pkg/services/move"
 	moveservices "github.com/transcom/mymove/pkg/services/move"
 	mtoserviceitem "github.com/transcom/mymove/pkg/services/mto_service_item"
 	mtoshipment "github.com/transcom/mymove/pkg/services/mto_shipment"
@@ -555,7 +554,7 @@ func (suite *HandlerSuite) TestUpdateMTOServiceItemStatusHandler() {
 		}
 
 		fetcher := fetch.NewFetcher(queryBuilder)
-		moveRouter := moverouter.NewMoveRouter()
+		moveRouter := moveservices.NewMoveRouter()
 		shipmentFetcher := mtoshipment.NewMTOShipmentFetcher()
 		addressCreator := address.NewAddressCreator()
 		planner := &routemocks.Planner{}
@@ -594,7 +593,7 @@ func (suite *HandlerSuite) TestUpdateMTOServiceItemStatusHandler() {
 	// by the handler is working as expected.
 	suite.Run("Successful status update of MTO service item and event trigger", func() {
 		queryBuilder := query.NewQueryBuilder()
-		moveRouter := moverouter.NewMoveRouter()
+		moveRouter := moveservices.NewMoveRouter()
 		shipmentFetcher := mtoshipment.NewMTOShipmentFetcher()
 		mtoServiceItem, availableMove := suite.createServiceItem()
 		requestUser := factory.BuildUser(nil, nil, nil)

@@ -121,6 +121,22 @@ func (f moveTaskOrderFetcher) FetchMoveTaskOrder(appCtx appcontext.AppContext, s
 		isBoatFeatureOn = flag.Match
 	}
 
+	/** Feature Flag - Mobile Home Shipment **/
+	isMobileHomeFeatureOn := false
+	featureFlagMH := "mobile_home"
+	configMH := cli.GetFliptFetcherConfig(viper.GetViper())
+	flagFetcherMH, err := featureflag.NewFeatureFlagFetcher(configMH)
+	if err != nil {
+		appCtx.Logger().Error("Error initializing FeatureFlagFetcherMH", zap.String("featureFlagKey", featureFlagMH), zap.Error(err))
+	}
+
+	flagMH, err := flagFetcherMH.GetBooleanFlagForUser(context.TODO(), appCtx, featureFlagMH, map[string]string{})
+	if err != nil {
+		appCtx.Logger().Error("Error fetching feature flag", zap.String("featureFlagKey", featureFlagMH), zap.Error(err))
+	} else {
+		isMobileHomeFeatureOn = flagMH.Match
+	}
+
 	query := appCtx.DB().EagerPreload(
 		"Contractor",
 		"PaymentRequests.PaymentServiceItems.PaymentServiceItemParams.ServiceItemParamKey",
@@ -131,24 +147,24 @@ func (f moveTaskOrderFetcher) FetchMoveTaskOrder(appCtx appcontext.AppContext, s
 		"MTOServiceItems.SITOriginHHGOriginalAddress",
 		"MTOServiceItems.SITOriginHHGActualAddress",
 		"MTOServiceItems.ServiceRequestDocuments.ServiceRequestDocumentUploads",
-		"MTOShipments.DestinationAddress",
-		"MTOShipments.PickupAddress",
-		"MTOShipments.SecondaryDeliveryAddress",
-		"MTOShipments.SecondaryPickupAddress",
-		"MTOShipments.TertiaryDeliveryAddress",
-		"MTOShipments.TertiaryPickupAddress",
+		"MTOShipments.DestinationAddress.Country",
+		"MTOShipments.PickupAddress.Country",
+		"MTOShipments.SecondaryDeliveryAddress.Country",
+		"MTOShipments.SecondaryPickupAddress.Country",
+		"MTOShipments.TertiaryDeliveryAddress.Country",
+		"MTOShipments.TertiaryPickupAddress.Country",
 		"MTOShipments.MTOAgents",
 		"MTOShipments.SITDurationUpdates",
 		"MTOShipments.StorageFacility",
 		"MTOShipments.StorageFacility.Address",
 		"MTOShipments.DeliveryAddressUpdate",
-		"MTOShipments.DeliveryAddressUpdate.OriginalAddress",
+		"MTOShipments.DeliveryAddressUpdate.OriginalAddress.Country",
 		"Orders.ServiceMember",
-		"Orders.ServiceMember.ResidentialAddress",
+		"Orders.ServiceMember.ResidentialAddress.Country",
 		"Orders.Entitlement",
 		"Orders.DestinationGBLOC",
-		"Orders.NewDutyLocation.Address",
-		"Orders.OriginDutyLocation.Address", // this line breaks Eager, but works with EagerPreload
+		"Orders.NewDutyLocation.Address.Country",
+		"Orders.OriginDutyLocation.Address.Country", // this line breaks Eager, but works with EagerPreload
 		"ShipmentGBLOC",
 	)
 
@@ -217,12 +233,12 @@ func (f moveTaskOrderFetcher) FetchMoveTaskOrder(appCtx appcontext.AppContext, s
 		if mto.MTOShipments[i].ShipmentType == models.MTOShipmentTypePPM {
 			loadErr := appCtx.DB().Load(&mto.MTOShipments[i],
 				"PPMShipment",
-				"PPMShipment.PickupAddress",
-				"PPMShipment.DestinationAddress",
-				"PPMShipment.SecondaryPickupAddress",
-				"PPMShipment.SecondaryDestinationAddress",
-				"PPMShipment.TertiaryPickupAddress",
-				"PPMShipment.TertiaryDestinationAddress",
+				"PPMShipment.PickupAddress.Country",
+				"PPMShipment.DestinationAddress.Country",
+				"PPMShipment.SecondaryPickupAddress.Country",
+				"PPMShipment.SecondaryDestinationAddress.Country",
+				"PPMShipment.TertiaryPickupAddress.Country",
+				"PPMShipment.TertiaryDestinationAddress.Country",
 			)
 			if loadErr != nil {
 				return &models.Move{}, apperror.NewQueryError("PPMShipment", loadErr, "")
@@ -234,8 +250,14 @@ func (f moveTaskOrderFetcher) FetchMoveTaskOrder(appCtx appcontext.AppContext, s
 			if loadErr != nil {
 				return &models.Move{}, apperror.NewQueryError("BoatShipment", loadErr, "")
 			}
+		} else if isMobileHomeFeatureOn && (mto.MTOShipments[i].ShipmentType == models.MTOShipmentTypeMobileHome) {
+			loadErrMH := appCtx.DB().Load(&mto.MTOShipments[i],
+				"MobileHome",
+			)
+			if loadErrMH != nil {
+				return &models.Move{}, apperror.NewQueryError("MobileHomeShipment", loadErrMH, "")
+			}
 		}
-
 		filteredShipments = append(filteredShipments, mto.MTOShipments[i])
 	}
 	mto.MTOShipments = filteredShipments

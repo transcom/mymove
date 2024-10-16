@@ -119,6 +119,7 @@ Shipments.args = {
             weightTickets: [],
           },
         },
+        { id: '0004', shipmentType: SHIPMENT_OPTIONS.UNACCOMPANIED_BAGGAGE },
       ]}
       onShipmentClick={action('shipment edit icon clicked')}
       moveSubmitted={false}

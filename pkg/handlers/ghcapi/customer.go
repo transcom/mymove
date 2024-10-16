@@ -38,7 +38,6 @@ func addressModelFromPayload(rawAddress *ghcmessages.Address) *models.Address {
 		City:           *rawAddress.City,
 		State:          *rawAddress.State,
 		PostalCode:     *rawAddress.PostalCode,
-		Country:        rawAddress.Country,
 	}
 }
 

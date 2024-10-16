@@ -116,9 +116,9 @@ func (suite *PrimeAPISuite) TestTelemetry() {
 		suite.False(sumAgg.DataPoints[0].Attributes.HasValue(semconv.HTTPTargetKey))
 
 		expectedOtelMetrics := map[string]bool{
-			"http.server.duration":                true,
-			"http.server.request_content_length":  true,
-			"http.server.response_content_length": true,
+			"http.server.duration":      true,
+			"http.server.request.size":  true,
+			"http.server.response.size": true,
 		}
 		otelHTTPMetricNames := make(map[string]bool)
 		for i := range otelHTTPScope.Metrics {

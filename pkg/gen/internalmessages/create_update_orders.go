@@ -19,6 +19,11 @@ import (
 // swagger:model CreateUpdateOrders
 type CreateUpdateOrders struct {
 
+	// counseling office id
+	// Example: cf1addea-a4f9-4173-8506-2bb82a064cb7
+	// Format: uuid
+	CounselingOfficeID *strfmt.UUID `json:"counseling_office_id,omitempty"`
+
 	// department indicator
 	DepartmentIndicator *DeptIndicator `json:"department_indicator,omitempty"`
 
@@ -36,6 +41,11 @@ type CreateUpdateOrders struct {
 	// Required: true
 	// Format: date
 	IssueDate *strfmt.Date `json:"issue_date"`
+
+	// move id
+	// Example: cf1addea-a4f9-4173-8506-2bb82a064cb7
+	// Format: uuid
+	MoveID strfmt.UUID `json:"move_id,omitempty"`
 
 	// new duty location id
 	// Example: c56a4180-65aa-42ec-a945-5fd21dec0538
@@ -90,6 +100,10 @@ type CreateUpdateOrders struct {
 func (m *CreateUpdateOrders) Validate(formats strfmt.Registry) error {
 	var res []error
 
+	if err := m.validateCounselingOfficeID(formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.validateDepartmentIndicator(formats); err != nil {
 		res = append(res, err)
 	}
@@ -103,6 +117,10 @@ func (m *CreateUpdateOrders) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validateIssueDate(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateMoveID(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -137,6 +155,18 @@ func (m *CreateUpdateOrders) Validate(formats strfmt.Registry) error {
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
+	return nil
+}
+
+func (m *CreateUpdateOrders) validateCounselingOfficeID(formats strfmt.Registry) error {
+	if swag.IsZero(m.CounselingOfficeID) { // not required
+		return nil
+	}
+
+	if err := validate.FormatOf("counseling_office_id", "body", "uuid", m.CounselingOfficeID.String(), formats); err != nil {
+		return err
+	}
+
 	return nil
 }
 
@@ -194,6 +224,18 @@ func (m *CreateUpdateOrders) validateIssueDate(formats strfmt.Registry) error {
 	}
 
 	if err := validate.FormatOf("issue_date", "body", "date", m.IssueDate.String(), formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *CreateUpdateOrders) validateMoveID(formats strfmt.Registry) error {
+	if swag.IsZero(m.MoveID) { // not required
+		return nil
+	}
+
+	if err := validate.FormatOf("move_id", "body", "uuid", m.MoveID.String(), formats); err != nil {
 		return err
 	}
 

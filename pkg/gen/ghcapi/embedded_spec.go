@@ -4145,7 +4145,8 @@ func init() {
               "closeoutInitiated",
               "closeoutLocation",
               "ppmStatus",
-              "counselingOffice"
+              "counselingOffice",
+              "assignedTo"
             ],
             "type": "string",
             "description": "field that results should be sorted by",
@@ -4298,6 +4299,12 @@ func init() {
             "description": "Used to return a queue for a GBLOC other than the default of the current user. Requires the HQ role. The parameter is ignored if the requesting user does not have the necessary role.\n",
             "name": "viewAsGBLOC",
             "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "Used to illustrate which user is assigned to this payment request.\n",
+            "name": "assignedTo",
+            "in": "query"
           }
         ],
         "responses": {
@@ -4386,7 +4393,8 @@ func init() {
               "originDutyLocation",
               "destinationDutyLocation",
               "requestedMoveDate",
-              "appearedInTooAt"
+              "appearedInTooAt",
+              "assignedTo"
             ],
             "type": "string",
             "description": "field that results should be sorted by",
@@ -4480,6 +4488,12 @@ func init() {
             "type": "string",
             "description": "Used to return a queue for a GBLOC other than the default of the current user. Requires the HQ role. The parameter is ignored if the requesting user does not have the necessary role.\n",
             "name": "viewAsGBLOC",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "Used to illustrate which user is assigned to this move.\n",
+            "name": "assignedTo",
             "in": "query"
           }
         ],
@@ -6107,11 +6121,13 @@ func init() {
           "example": "Anytown"
         },
         "country": {
+          "description": "Two-letter country code",
           "type": "string",
           "title": "Country",
-          "default": "USA",
+          "default": "US",
+          "pattern": "^[A-Z]{2}$",
           "x-nullable": true,
-          "example": "USA"
+          "example": "US"
         },
         "county": {
           "type": "string",
@@ -6369,13 +6385,13 @@ func init() {
         "firstName": {
           "type": "string"
         },
-        "id": {
+        "lastName": {
+          "type": "string"
+        },
+        "officeUserId": {
           "type": "string",
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
-        },
-        "lastName": {
-          "type": "string"
         }
       }
     },
@@ -7200,7 +7216,7 @@ func init() {
         "destinationAddress": {
           "allOf": [
             {
-              "$ref": "#/definitions/Address"
+              "$ref": "#/definitions/PPMDestinationAddress"
             }
           ]
         },
@@ -9189,6 +9205,15 @@ func init() {
           "format": "uuid",
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
         },
+        "marketCode": {
+          "description": "Single-letter designator for domestic (d) or international (i) shipments",
+          "type": "string",
+          "enum": [
+            "d",
+            "i"
+          ],
+          "example": "d"
+        },
         "mobileHomeShipment": {
           "$ref": "#/definitions/MobileHome"
         },
@@ -9362,12 +9387,11 @@ func init() {
         "HHG",
         "HHG_INTO_NTS_DOMESTIC",
         "HHG_OUTOF_NTS_DOMESTIC",
-        "INTERNATIONAL_HHG",
-        "INTERNATIONAL_UB",
         "PPM",
         "BOAT_HAUL_AWAY",
         "BOAT_TOW_AWAY",
-        "MOBILE_HOME"
+        "MOBILE_HOME",
+        "UNACCOMPANIED_BAGGAGE"
       ],
       "x-display-value": {
         "BOAT_HAUL_AWAY": "Boat Haul-Away",
@@ -9375,10 +9399,9 @@ func init() {
         "HHG": "HHG",
         "HHG_INTO_NTS_DOMESTIC": "NTS",
         "HHG_OUTOF_NTS_DOMESTIC": "NTS Release",
-        "INTERNATIONAL_HHG": "International HHG",
-        "INTERNATIONAL_UB": "International UB",
         "MOBILE_HOME": "Mobile Home",
-        "PPM": "PPM"
+        "PPM": "PPM",
+        "UNACCOMPANIED_BAGGAGE": "Unaccompanied Baggage"
       },
       "example": "HHG"
     },
@@ -10751,6 +10774,179 @@ func init() {
         }
       }
     },
+    "PPMDestinationAddress": {
+      "description": "A postal address",
+      "type": "object",
+      "required": [
+        "city",
+        "state",
+        "postalCode"
+      ],
+      "properties": {
+        "city": {
+          "type": "string",
+          "title": "City",
+          "example": "Anytown"
+        },
+        "country": {
+          "type": "string",
+          "title": "Country",
+          "default": "USA",
+          "x-nullable": true,
+          "example": "USA"
+        },
+        "county": {
+          "type": "string",
+          "title": "County",
+          "x-nullable": true,
+          "example": "LOS ANGELES"
+        },
+        "eTag": {
+          "type": "string",
+          "readOnly": true
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "postalCode": {
+          "type": "string",
+          "format": "zip",
+          "title": "ZIP",
+          "pattern": "^(\\d{5}([\\-]\\d{4})?)$",
+          "example": "90210"
+        },
+        "state": {
+          "type": "string",
+          "title": "State",
+          "enum": [
+            "AL",
+            "AK",
+            "AR",
+            "AZ",
+            "CA",
+            "CO",
+            "CT",
+            "DC",
+            "DE",
+            "FL",
+            "GA",
+            "HI",
+            "IA",
+            "ID",
+            "IL",
+            "IN",
+            "KS",
+            "KY",
+            "LA",
+            "MA",
+            "MD",
+            "ME",
+            "MI",
+            "MN",
+            "MO",
+            "MS",
+            "MT",
+            "NC",
+            "ND",
+            "NE",
+            "NH",
+            "NJ",
+            "NM",
+            "NV",
+            "NY",
+            "OH",
+            "OK",
+            "OR",
+            "PA",
+            "RI",
+            "SC",
+            "SD",
+            "TN",
+            "TX",
+            "UT",
+            "VA",
+            "VT",
+            "WA",
+            "WI",
+            "WV",
+            "WY"
+          ],
+          "x-display-value": {
+            "AK": "AK",
+            "AL": "AL",
+            "AR": "AR",
+            "AZ": "AZ",
+            "CA": "CA",
+            "CO": "CO",
+            "CT": "CT",
+            "DC": "DC",
+            "DE": "DE",
+            "FL": "FL",
+            "GA": "GA",
+            "HI": "HI",
+            "IA": "IA",
+            "ID": "ID",
+            "IL": "IL",
+            "IN": "IN",
+            "KS": "KS",
+            "KY": "KY",
+            "LA": "LA",
+            "MA": "MA",
+            "MD": "MD",
+            "ME": "ME",
+            "MI": "MI",
+            "MN": "MN",
+            "MO": "MO",
+            "MS": "MS",
+            "MT": "MT",
+            "NC": "NC",
+            "ND": "ND",
+            "NE": "NE",
+            "NH": "NH",
+            "NJ": "NJ",
+            "NM": "NM",
+            "NV": "NV",
+            "NY": "NY",
+            "OH": "OH",
+            "OK": "OK",
+            "OR": "OR",
+            "PA": "PA",
+            "RI": "RI",
+            "SC": "SC",
+            "SD": "SD",
+            "TN": "TN",
+            "TX": "TX",
+            "UT": "UT",
+            "VA": "VA",
+            "VT": "VT",
+            "WA": "WA",
+            "WI": "WI",
+            "WV": "WV",
+            "WY": "WY"
+          }
+        },
+        "streetAddress1": {
+          "type": "string",
+          "title": "Street address 1",
+          "x-nullable": true,
+          "example": "123 Main Ave"
+        },
+        "streetAddress2": {
+          "type": "string",
+          "title": "Street address 2",
+          "x-nullable": true,
+          "example": "Apartment 9000"
+        },
+        "streetAddress3": {
+          "type": "string",
+          "title": "Address Line 3",
+          "x-nullable": true,
+          "example": "Montmârtre"
+        }
+      }
+    },
     "PPMDocumentStatus": {
       "description": "Status of the PPM document.",
       "type": "string",
@@ -10941,6 +11137,13 @@ func init() {
         },
         "advanceStatus": {
           "$ref": "#/definitions/PPMAdvanceStatus"
+        },
+        "allowableWeight": {
+          "description": "The allowable weight of the PPM shipment goods being moved.",
+          "type": "integer",
+          "x-nullable": true,
+          "x-omitempty": false,
+          "example": 4300
         },
         "approvedAt": {
           "description": "The timestamp of when the shipment was approved and the service member can begin their move.",
@@ -11732,9 +11935,15 @@ func init() {
           "format": "date-time",
           "x-nullable": true
         },
+        "assignable": {
+          "type": "boolean"
+        },
         "assignedTo": {
           "x-nullable": true,
           "$ref": "#/definitions/AssignedOfficeUser"
+        },
+        "availableOfficeUsers": {
+          "$ref": "#/definitions/AvailableOfficeUsers"
         },
         "closeoutInitiated": {
           "type": "string",
@@ -11747,6 +11956,11 @@ func init() {
         },
         "counselingOffice": {
           "type": "string",
+          "x-nullable": true
+        },
+        "counselingOfficeID": {
+          "type": "string",
+          "format": "uuid",
           "x-nullable": true
         },
         "customer": {
@@ -11828,9 +12042,6 @@ func init() {
     "QueueMovesResult": {
       "type": "object",
       "properties": {
-        "availableOfficeUsers": {
-          "$ref": "#/definitions/AvailableOfficeUsers"
-        },
         "page": {
           "type": "integer"
         },
@@ -11852,6 +12063,9 @@ func init() {
           "description": "Days since the payment request has been requested.  Decimal representation will allow more accurate sorting.",
           "type": "number",
           "format": "double"
+        },
+        "availableOfficeUsers": {
+          "$ref": "#/definitions/AvailableOfficeUsers"
         },
         "customer": {
           "$ref": "#/definitions/Customer"
@@ -11918,9 +12132,6 @@ func init() {
     "QueuePaymentRequestsResult": {
       "type": "object",
       "properties": {
-        "availableOfficeUsers": {
-          "$ref": "#/definitions/AvailableOfficeUsers"
-        },
         "page": {
           "type": "integer"
         },
@@ -13397,10 +13608,16 @@ func init() {
           "x-nullable": true,
           "$ref": "#/definitions/PPMAdvanceStatus"
         },
+        "allowableWeight": {
+          "description": "The allowable weight of the PPM shipment goods being moved.",
+          "type": "integer",
+          "x-nullable": true,
+          "example": 4300
+        },
         "destinationAddress": {
           "allOf": [
             {
-              "$ref": "#/definitions/Address"
+              "$ref": "#/definitions/PPMDestinationAddress"
             }
           ]
         },
@@ -13746,10 +13963,6 @@ func init() {
           "description": "Indicates the adjusted net weight of the vehicle",
           "type": "integer"
         },
-        "allowableWeight": {
-          "description": "Indicates the maximum reimbursable weight of the shipment",
-          "type": "integer"
-        },
         "emptyWeight": {
           "description": "Weight of the vehicle when empty.",
           "type": "integer"
@@ -13901,12 +14114,6 @@ func init() {
       "properties": {
         "adjustedNetWeight": {
           "description": "Indicates the adjusted net weight of the vehicle",
-          "type": "integer",
-          "x-nullable": true,
-          "x-omitempty": false
-        },
-        "allowableWeight": {
-          "description": "Maximum reimbursable weight.",
           "type": "integer",
           "x-nullable": true,
           "x-omitempty": false
@@ -19439,7 +19646,8 @@ func init() {
               "closeoutInitiated",
               "closeoutLocation",
               "ppmStatus",
-              "counselingOffice"
+              "counselingOffice",
+              "assignedTo"
             ],
             "type": "string",
             "description": "field that results should be sorted by",
@@ -19592,6 +19800,12 @@ func init() {
             "description": "Used to return a queue for a GBLOC other than the default of the current user. Requires the HQ role. The parameter is ignored if the requesting user does not have the necessary role.\n",
             "name": "viewAsGBLOC",
             "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "Used to illustrate which user is assigned to this payment request.\n",
+            "name": "assignedTo",
+            "in": "query"
           }
         ],
         "responses": {
@@ -19692,7 +19906,8 @@ func init() {
               "originDutyLocation",
               "destinationDutyLocation",
               "requestedMoveDate",
-              "appearedInTooAt"
+              "appearedInTooAt",
+              "assignedTo"
             ],
             "type": "string",
             "description": "field that results should be sorted by",
@@ -19786,6 +20001,12 @@ func init() {
             "type": "string",
             "description": "Used to return a queue for a GBLOC other than the default of the current user. Requires the HQ role. The parameter is ignored if the requesting user does not have the necessary role.\n",
             "name": "viewAsGBLOC",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "Used to illustrate which user is assigned to this move.\n",
+            "name": "assignedTo",
             "in": "query"
           }
         ],
@@ -21783,11 +22004,13 @@ func init() {
           "example": "Anytown"
         },
         "country": {
+          "description": "Two-letter country code",
           "type": "string",
           "title": "Country",
-          "default": "USA",
+          "default": "US",
+          "pattern": "^[A-Z]{2}$",
           "x-nullable": true,
-          "example": "USA"
+          "example": "US"
         },
         "county": {
           "type": "string",
@@ -22045,13 +22268,13 @@ func init() {
         "firstName": {
           "type": "string"
         },
-        "id": {
+        "lastName": {
+          "type": "string"
+        },
+        "officeUserId": {
           "type": "string",
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
-        },
-        "lastName": {
-          "type": "string"
         }
       }
     },
@@ -22880,7 +23103,7 @@ func init() {
         "destinationAddress": {
           "allOf": [
             {
-              "$ref": "#/definitions/Address"
+              "$ref": "#/definitions/PPMDestinationAddress"
             }
           ]
         },
@@ -24869,6 +25092,15 @@ func init() {
           "format": "uuid",
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
         },
+        "marketCode": {
+          "description": "Single-letter designator for domestic (d) or international (i) shipments",
+          "type": "string",
+          "enum": [
+            "d",
+            "i"
+          ],
+          "example": "d"
+        },
         "mobileHomeShipment": {
           "$ref": "#/definitions/MobileHome"
         },
@@ -25042,12 +25274,11 @@ func init() {
         "HHG",
         "HHG_INTO_NTS_DOMESTIC",
         "HHG_OUTOF_NTS_DOMESTIC",
-        "INTERNATIONAL_HHG",
-        "INTERNATIONAL_UB",
         "PPM",
         "BOAT_HAUL_AWAY",
         "BOAT_TOW_AWAY",
-        "MOBILE_HOME"
+        "MOBILE_HOME",
+        "UNACCOMPANIED_BAGGAGE"
       ],
       "x-display-value": {
         "BOAT_HAUL_AWAY": "Boat Haul-Away",
@@ -25055,10 +25286,9 @@ func init() {
         "HHG": "HHG",
         "HHG_INTO_NTS_DOMESTIC": "NTS",
         "HHG_OUTOF_NTS_DOMESTIC": "NTS Release",
-        "INTERNATIONAL_HHG": "International HHG",
-        "INTERNATIONAL_UB": "International UB",
         "MOBILE_HOME": "Mobile Home",
-        "PPM": "PPM"
+        "PPM": "PPM",
+        "UNACCOMPANIED_BAGGAGE": "Unaccompanied Baggage"
       },
       "example": "HHG"
     },
@@ -26432,6 +26662,179 @@ func init() {
         }
       }
     },
+    "PPMDestinationAddress": {
+      "description": "A postal address",
+      "type": "object",
+      "required": [
+        "city",
+        "state",
+        "postalCode"
+      ],
+      "properties": {
+        "city": {
+          "type": "string",
+          "title": "City",
+          "example": "Anytown"
+        },
+        "country": {
+          "type": "string",
+          "title": "Country",
+          "default": "USA",
+          "x-nullable": true,
+          "example": "USA"
+        },
+        "county": {
+          "type": "string",
+          "title": "County",
+          "x-nullable": true,
+          "example": "LOS ANGELES"
+        },
+        "eTag": {
+          "type": "string",
+          "readOnly": true
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "postalCode": {
+          "type": "string",
+          "format": "zip",
+          "title": "ZIP",
+          "pattern": "^(\\d{5}([\\-]\\d{4})?)$",
+          "example": "90210"
+        },
+        "state": {
+          "type": "string",
+          "title": "State",
+          "enum": [
+            "AL",
+            "AK",
+            "AR",
+            "AZ",
+            "CA",
+            "CO",
+            "CT",
+            "DC",
+            "DE",
+            "FL",
+            "GA",
+            "HI",
+            "IA",
+            "ID",
+            "IL",
+            "IN",
+            "KS",
+            "KY",
+            "LA",
+            "MA",
+            "MD",
+            "ME",
+            "MI",
+            "MN",
+            "MO",
+            "MS",
+            "MT",
+            "NC",
+            "ND",
+            "NE",
+            "NH",
+            "NJ",
+            "NM",
+            "NV",
+            "NY",
+            "OH",
+            "OK",
+            "OR",
+            "PA",
+            "RI",
+            "SC",
+            "SD",
+            "TN",
+            "TX",
+            "UT",
+            "VA",
+            "VT",
+            "WA",
+            "WI",
+            "WV",
+            "WY"
+          ],
+          "x-display-value": {
+            "AK": "AK",
+            "AL": "AL",
+            "AR": "AR",
+            "AZ": "AZ",
+            "CA": "CA",
+            "CO": "CO",
+            "CT": "CT",
+            "DC": "DC",
+            "DE": "DE",
+            "FL": "FL",
+            "GA": "GA",
+            "HI": "HI",
+            "IA": "IA",
+            "ID": "ID",
+            "IL": "IL",
+            "IN": "IN",
+            "KS": "KS",
+            "KY": "KY",
+            "LA": "LA",
+            "MA": "MA",
+            "MD": "MD",
+            "ME": "ME",
+            "MI": "MI",
+            "MN": "MN",
+            "MO": "MO",
+            "MS": "MS",
+            "MT": "MT",
+            "NC": "NC",
+            "ND": "ND",
+            "NE": "NE",
+            "NH": "NH",
+            "NJ": "NJ",
+            "NM": "NM",
+            "NV": "NV",
+            "NY": "NY",
+            "OH": "OH",
+            "OK": "OK",
+            "OR": "OR",
+            "PA": "PA",
+            "RI": "RI",
+            "SC": "SC",
+            "SD": "SD",
+            "TN": "TN",
+            "TX": "TX",
+            "UT": "UT",
+            "VA": "VA",
+            "VT": "VT",
+            "WA": "WA",
+            "WI": "WI",
+            "WV": "WV",
+            "WY": "WY"
+          }
+        },
+        "streetAddress1": {
+          "type": "string",
+          "title": "Street address 1",
+          "x-nullable": true,
+          "example": "123 Main Ave"
+        },
+        "streetAddress2": {
+          "type": "string",
+          "title": "Street address 2",
+          "x-nullable": true,
+          "example": "Apartment 9000"
+        },
+        "streetAddress3": {
+          "type": "string",
+          "title": "Address Line 3",
+          "x-nullable": true,
+          "example": "Montmârtre"
+        }
+      }
+    },
     "PPMDocumentStatus": {
       "description": "Status of the PPM document.",
       "type": "string",
@@ -26694,6 +27097,14 @@ func init() {
         },
         "advanceStatus": {
           "$ref": "#/definitions/PPMAdvanceStatus"
+        },
+        "allowableWeight": {
+          "description": "The allowable weight of the PPM shipment goods being moved.",
+          "type": "integer",
+          "minimum": 0,
+          "x-nullable": true,
+          "x-omitempty": false,
+          "example": 4300
         },
         "approvedAt": {
           "description": "The timestamp of when the shipment was approved and the service member can begin their move.",
@@ -27487,9 +27898,15 @@ func init() {
           "format": "date-time",
           "x-nullable": true
         },
+        "assignable": {
+          "type": "boolean"
+        },
         "assignedTo": {
           "x-nullable": true,
           "$ref": "#/definitions/AssignedOfficeUser"
+        },
+        "availableOfficeUsers": {
+          "$ref": "#/definitions/AvailableOfficeUsers"
         },
         "closeoutInitiated": {
           "type": "string",
@@ -27502,6 +27919,11 @@ func init() {
         },
         "counselingOffice": {
           "type": "string",
+          "x-nullable": true
+        },
+        "counselingOfficeID": {
+          "type": "string",
+          "format": "uuid",
           "x-nullable": true
         },
         "customer": {
@@ -27583,9 +28005,6 @@ func init() {
     "QueueMovesResult": {
       "type": "object",
       "properties": {
-        "availableOfficeUsers": {
-          "$ref": "#/definitions/AvailableOfficeUsers"
-        },
         "page": {
           "type": "integer"
         },
@@ -27607,6 +28026,9 @@ func init() {
           "description": "Days since the payment request has been requested.  Decimal representation will allow more accurate sorting.",
           "type": "number",
           "format": "double"
+        },
+        "availableOfficeUsers": {
+          "$ref": "#/definitions/AvailableOfficeUsers"
         },
         "customer": {
           "$ref": "#/definitions/Customer"
@@ -27673,9 +28095,6 @@ func init() {
     "QueuePaymentRequestsResult": {
       "type": "object",
       "properties": {
-        "availableOfficeUsers": {
-          "$ref": "#/definitions/AvailableOfficeUsers"
-        },
         "page": {
           "type": "integer"
         },
@@ -29208,10 +29627,17 @@ func init() {
           "x-nullable": true,
           "$ref": "#/definitions/PPMAdvanceStatus"
         },
+        "allowableWeight": {
+          "description": "The allowable weight of the PPM shipment goods being moved.",
+          "type": "integer",
+          "minimum": 0,
+          "x-nullable": true,
+          "example": 4300
+        },
         "destinationAddress": {
           "allOf": [
             {
-              "$ref": "#/definitions/Address"
+              "$ref": "#/definitions/PPMDestinationAddress"
             }
           ]
         },
@@ -29559,11 +29985,6 @@ func init() {
           "type": "integer",
           "minimum": 0
         },
-        "allowableWeight": {
-          "description": "Indicates the maximum reimbursable weight of the shipment",
-          "type": "integer",
-          "minimum": 0
-        },
         "emptyWeight": {
           "description": "Weight of the vehicle when empty.",
           "type": "integer",
@@ -29720,13 +30141,6 @@ func init() {
       "properties": {
         "adjustedNetWeight": {
           "description": "Indicates the adjusted net weight of the vehicle",
-          "type": "integer",
-          "minimum": 0,
-          "x-nullable": true,
-          "x-omitempty": false
-        },
-        "allowableWeight": {
-          "description": "Maximum reimbursable weight.",
           "type": "integer",
           "minimum": 0,
           "x-nullable": true,

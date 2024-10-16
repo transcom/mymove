@@ -1509,7 +1509,6 @@ func (suite *HandlerSuite) TestUpdateMTOServiceItemDDDSIT() {
 			City:           &destinationAddress.City,
 			State:          &destinationAddress.State,
 			PostalCode:     &destinationAddress.PostalCode,
-			Country:        destinationAddress.Country,
 		}
 
 		milTime := "1400Z"
@@ -1593,7 +1592,6 @@ func (suite *HandlerSuite) TestUpdateMTOServiceItemDDDSIT() {
 		suite.Equal(subtestData.reqPayload.SitDestinationFinalAddress.City, respPayload.SitDestinationFinalAddress.City)
 		suite.Equal(subtestData.reqPayload.SitDestinationFinalAddress.PostalCode, respPayload.SitDestinationFinalAddress.PostalCode)
 		suite.Equal(subtestData.reqPayload.SitDestinationFinalAddress.State, respPayload.SitDestinationFinalAddress.State)
-		suite.Equal(subtestData.reqPayload.SitDestinationFinalAddress.Country, respPayload.SitDestinationFinalAddress.Country)
 		suite.Equal(subtestData.reqPayload.DateOfContact1, respPayload.DateOfContact1)
 		suite.Equal(subtestData.reqPayload.TimeMilitary1, respPayload.TimeMilitary1)
 		suite.Equal(subtestData.reqPayload.FirstAvailableDeliveryDate1, respPayload.FirstAvailableDeliveryDate1)

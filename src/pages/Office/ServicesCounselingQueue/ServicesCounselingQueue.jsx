@@ -31,7 +31,7 @@ import {
   getServicesCounselingQueue,
   getServicesCounselingPPMQueue,
 } from 'services/ghcApi';
-import { DATE_FORMAT_STRING, MOVE_STATUSES } from 'shared/constants';
+import { DATE_FORMAT_STRING, DEFAULT_EMPTY_VALUE, MOVE_STATUSES } from 'shared/constants';
 import { formatDateFromIso, serviceMemberAgencyLabel } from 'utils/formatters';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
@@ -48,7 +48,7 @@ import ConnectedFlashMessage from 'containers/FlashMessage/FlashMessage';
 import { isNullUndefinedOrWhitespace } from 'shared/utils';
 import CustomerSearchForm from 'components/CustomerSearchForm/CustomerSearchForm';
 import MultiSelectTypeAheadCheckBoxFilter from 'components/Table/Filters/MutliSelectTypeAheadCheckboxFilter';
-import { formatAvailableOfficeUsersForRow } from 'utils/queues';
+import handleQueueAssignment from 'utils/queues';
 
 export const counselingColumns = (moveLockFlag, originLocationList, supervisor, isQueueManagementEnabled) => {
   const cols = [
@@ -196,17 +196,28 @@ export const counselingColumns = (moveLockFlag, originLocationList, supervisor, 
       createHeader(
         'Assigned',
         (row) => {
-          const { formattedAvailableOfficeUsers, assignedToUser } = formatAvailableOfficeUsersForRow(row);
-          return (
+          return !row?.assignable ? (
+            <div>{`${row.assignedTo?.lastName}, ${row.assignedTo?.firstName}`}</div>
+          ) : (
             <div data-label="assignedSelect" className={styles.assignedToCol}>
-              <Dropdown defaultValue={assignedToUser?.value} title="Assigned dropdown">
-                {formattedAvailableOfficeUsers}
+              <Dropdown
+                defaultValue={row.assignedTo?.officeUserId}
+                onChange={(e) => handleQueueAssignment(row.id, e.target.value, roleTypes.SERVICES_COUNSELOR)}
+                title="Assigned dropdown"
+              >
+                <option value={null}>{DEFAULT_EMPTY_VALUE}</option>
+                {row.availableOfficeUsers.map(({ lastName, firstName, officeUserId }) => (
+                  <option value={officeUserId} key={`filterOption_${officeUserId}`}>
+                    {`${lastName}, ${firstName}`}
+                  </option>
+                ))}
               </Dropdown>
             </div>
           );
         },
         {
           id: 'assignedTo',
+          isFilterable: true,
         },
       ),
     );
@@ -364,7 +375,7 @@ export const closeoutColumns = (moveLockFlag, ppmCloseoutGBLOC, ppmCloseoutOrigi
   }),
 ];
 
-const ServicesCounselingQueue = ({ userPrivileges, currentUserId }) => {
+const ServicesCounselingQueue = ({ userPrivileges, isQueueManagementFFEnabled }) => {
   const { queueType } = useParams();
   const { data, isLoading, isError } = useUserQueries();
 
@@ -372,7 +383,6 @@ const ServicesCounselingQueue = ({ userPrivileges, currentUserId }) => {
 
   const [isCounselorMoveCreateFFEnabled, setisCounselorMoveCreateFFEnabled] = useState(false);
   const [moveLockFlag, setMoveLockFlag] = useState(false);
-  const [isQueueManagementEnabled, setIsQueueManagementEnabled] = useState(false);
   const [setErrorState] = useState({ hasError: false, error: undefined, info: undefined });
   const [originLocationList, setOriginLocationList] = useState([]);
   const [ppmCloseoutOriginLocationList, setPpmCloseoutOriginLocationList] = useState([]);
@@ -403,8 +413,6 @@ const ServicesCounselingQueue = ({ userPrivileges, currentUserId }) => {
         setisCounselorMoveCreateFFEnabled(isEnabled);
         const lockedMoveFlag = await isBooleanFlagEnabled('move_lock');
         setMoveLockFlag(lockedMoveFlag);
-        const assignedColFlag = await isBooleanFlagEnabled('queue_management');
-        setIsQueueManagementEnabled(assignedColFlag);
       } catch (error) {
         const { message } = error;
         milmoveLogger.error({ message, info: null });
@@ -607,7 +615,7 @@ const ServicesCounselingQueue = ({ userPrivileges, currentUserId }) => {
           defaultSortedColumns={[{ id: 'submittedAt', desc: false }]}
           disableMultiSort
           disableSortBy={false}
-          columns={counselingColumns(moveLockFlag, originLocationList, supervisor, isQueueManagementEnabled)}
+          columns={counselingColumns(moveLockFlag, originLocationList, supervisor, isQueueManagementFFEnabled)}
           title="Moves"
           handleClick={handleClick}
           useQueries={useServicesCounselingQueueQueries}
@@ -617,8 +625,6 @@ const ServicesCounselingQueue = ({ userPrivileges, currentUserId }) => {
           csvExportQueueFetcherKey="queueMoves"
           sessionStorageKey={queueType}
           key={queueType}
-          isSupervisor={!!supervisor}
-          currentUserId={currentUserId}
         />
       </div>
     );

@@ -34,10 +34,6 @@ const (
 const (
 	// MTOShipmentTypeHHG is an HHG Shipment Type default
 	MTOShipmentTypeHHG MTOShipmentType = "HHG"
-	// MTOShipmentTypeInternationalHHG is a Shipment Type for International HHG
-	MTOShipmentTypeInternationalHHG MTOShipmentType = "INTERNATIONAL_HHG"
-	// MTOShipmentTypeInternationalUB is a Shipment Type for International UB
-	MTOShipmentTypeInternationalUB MTOShipmentType = "INTERNATIONAL_UB"
 	// MTOShipmentTypeHHGIntoNTSDom is an HHG Shipment Type for going into NTS Domestic
 	MTOShipmentTypeHHGIntoNTSDom MTOShipmentType = NTSRaw
 	// MTOShipmentTypeHHGOutOfNTSDom is an HHG Shipment Type for going out of NTS Domestic
@@ -50,6 +46,8 @@ const (
 	MTOShipmentTypeBoatTowAway MTOShipmentType = "BOAT_TOW_AWAY"
 	// MTOShipmentTypePPM is a Shipment Type for Personally Procured Move shipments
 	MTOShipmentTypePPM MTOShipmentType = "PPM"
+	// MTOShipmentTypeUB is a Shipment Type for Unaccompanied Baggage shipments
+	MTOShipmentTypeUnaccompaniedBaggage MTOShipmentType = "UNACCOMPANIED_BAGGAGE"
 )
 
 // These are meant to be the default number of SIT days that a customer is allowed to have. They should be used when
@@ -168,7 +166,7 @@ type MTOShipment struct {
 	OriginSITAuthEndDate             *time.Time             `db:"origin_sit_auth_end_date"`
 	DestinationSITAuthEndDate        *time.Time             `db:"dest_sit_auth_end_date"`
 	MobileHome                       *MobileHome            `has_one:"mobile_home" fk_id:"shipment_id"`
-	MarketCode                       *MarketCode            `db:"market_code"`
+	MarketCode                       MarketCode             `db:"market_code"`
 }
 
 // TableName overrides the table name used by Pop.
@@ -248,12 +246,15 @@ func (m *MTOShipment) Validate(_ *pop.Connection) (*validate.Errors, error) {
 		string(DestinationTypeOtherThanAuthorized),
 	}})
 
-	// Validate MarketCode if exists
-	if m.MarketCode != nil {
-		vs = append(vs, &validators.StringInclusion{Field: string(*m.MarketCode), Name: "MarketCode", List: []string{
-			string(MarketCodeDomestic),
-			string(MarketCodeInternational),
-		}})
+	if m.MarketCode != "" {
+		vs = append(vs, &validators.StringInclusion{
+			Field: string(m.MarketCode),
+			Name:  "MarketCode",
+			List: []string{
+				string(MarketCodeDomestic),
+				string(MarketCodeInternational),
+			},
+		})
 	}
 
 	return validate.Validate(vs...), nil

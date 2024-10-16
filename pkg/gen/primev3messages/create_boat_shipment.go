@@ -14,7 +14,7 @@ import (
 	"github.com/go-openapi/validate"
 )
 
-// CreateBoatShipment Creation object containing the `PPM` shipmentType specific data, not used for other shipment types.
+// CreateBoatShipment Creation object containing the `Boat` shipmentType specific data, not used for other shipment types.
 //
 // swagger:model CreateBoatShipment
 type CreateBoatShipment struct {

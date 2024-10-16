@@ -145,7 +145,7 @@ export class SelectShipmentType extends Component {
 
     const boatCardText = 'Provide information about your boat and we will determine how it will ship.';
 
-    const mobileHomeCardText = 'Please provide information about your mobile home.';
+    const mobileHomeCardText = 'Provide information about your mobile home.';
 
     const selectableCardDefaultProps = {
       onChange: (e) => this.setShipmentType(e),

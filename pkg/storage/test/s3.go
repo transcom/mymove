@@ -3,9 +3,11 @@ package test
 import (
 	"fmt"
 	"io"
+	"net/url"
 
 	"github.com/pkg/errors"
 	"github.com/spf13/afero"
+	"golang.org/x/text/encoding/charmap"
 
 	"github.com/transcom/mymove/pkg/storage"
 )
@@ -54,8 +56,24 @@ func (fake *FakeS3Storage) Fetch(key string) (io.ReadCloser, error) {
 }
 
 // PresignedURL returns a URL that can be used to retrieve a file.
-func (fake *FakeS3Storage) PresignedURL(key string, contentType string) (string, error) {
-	url := fmt.Sprintf("https://example.com/dir/%s?contentType=%s&signed=test", key, contentType)
+func (fake *FakeS3Storage) PresignedURL(key string, contentType string, filename string) (string, error) {
+	filenameBuffer := make([]byte, 0)
+	for _, r := range filename {
+		if encodedRune, ok := charmap.ISO8859_1.EncodeRune(r); ok {
+			filenameBuffer = append(filenameBuffer, encodedRune)
+		}
+	}
+
+	contentDisposition := "attachment"
+	if len(filenameBuffer) > 0 {
+		contentDisposition += "; filename=" + string(filenameBuffer)
+	}
+
+	values := url.Values{}
+	values.Add("response-content-type", contentType)
+	values.Add("response-content-disposition", contentDisposition)
+	values.Add("signed", "test")
+	url := fmt.Sprintf("https://example.com/dir/%s?", key) + values.Encode()
 	return url, nil
 }
 

@@ -21,3 +21,19 @@ func fetchDomesticServiceArea(appCtx appcontext.AppContext, contractCode string,
 
 	return domesticServiceArea, nil
 }
+
+// Currently looking up a rate area by zip5 is the only supported method
+func fetchInternationalRateArea(appCtx appcontext.AppContext, contractCode string, zip5 string) (models.ReRateArea, error) {
+	var internationalRateArea models.ReRateArea
+	err := appCtx.DB().Q().
+		Join("re_zip5_rate_areas", "re_zip5_rate_areas.rate_area_id = re_rate_areas.id").
+		Join("re_contracts", "re_contracts.id = re_rate_areas.contract_id").
+		Where("re_zip5_rate_areas.zip5 = ?", zip5).
+		Where("re_contracts.code = ?", contractCode).
+		First(&internationalRateArea)
+	if err != nil {
+		return internationalRateArea, fmt.Errorf("unable to find international rate area for %s under contract code %s", zip5, contractCode)
+	}
+
+	return internationalRateArea, nil
+}

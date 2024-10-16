@@ -21,7 +21,7 @@ type CreatePPMShipment struct {
 
 	// destination address
 	// Required: true
-	DestinationAddress *Address `json:"destinationAddress"`
+	DestinationAddress *PPMDestinationAddress `json:"destinationAddress"`
 
 	// Date the customer expects to move.
 	//

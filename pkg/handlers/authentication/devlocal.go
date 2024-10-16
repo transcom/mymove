@@ -488,6 +488,22 @@ func createUser(h devlocalAuthHandler, w http.ResponseWriter, r *http.Request) (
 		return nil, userType
 	}
 
+	address := models.Address{
+		StreetAddress1: "1333 Minna St",
+		City:           "San Francisco",
+		State:          "CA",
+		PostalCode:     "94115",
+		County:         "SAINT CLAIR",
+		IsOconus:       models.BoolPointer(false),
+	}
+
+	// Evaluate address and populate addresses isOconus value
+	isOconus, err := models.IsAddressOconus(appCtx.DB(), address)
+	if err != nil {
+		return nil, userType
+	}
+	address.IsOconus = &isOconus
+
 	switch userType {
 	case MilMoveUserType:
 		newServiceMember := models.ServiceMember{
@@ -501,14 +517,6 @@ func createUser(h devlocalAuthHandler, w http.ResponseWriter, r *http.Request) (
 		}
 	case TOOOfficeUserType:
 		// Now create the Truss JPPSO
-		address := models.Address{
-			StreetAddress1: "1333 Minna St",
-			City:           "San Francisco",
-			State:          "CA",
-			PostalCode:     "94115",
-			County:         "SAINT CLAIR",
-		}
-
 		verrs, err := appCtx.DB().ValidateAndSave(&address)
 		if err != nil {
 			appCtx.Logger().Error("could not create address", zap.Error(err))
@@ -574,14 +582,6 @@ func createUser(h devlocalAuthHandler, w http.ResponseWriter, r *http.Request) (
 		}
 	case TIOOfficeUserType:
 		// Now create the Truss JPPSO
-		address := models.Address{
-			StreetAddress1: "1333 Minna St",
-			City:           "San Francisco",
-			State:          "CA",
-			PostalCode:     "94115",
-			County:         "SAINT CLAIR",
-		}
-
 		verrs, err := appCtx.DB().ValidateAndSave(&address)
 		if err != nil {
 			appCtx.Logger().Error("could not create address", zap.Error(err))
@@ -646,14 +646,6 @@ func createUser(h devlocalAuthHandler, w http.ResponseWriter, r *http.Request) (
 		}
 	case ServicesCounselorOfficeUserType:
 		// Now create the Truss JPPSO
-		address := models.Address{
-			StreetAddress1: "1333 Minna St",
-			City:           "San Francisco",
-			State:          "CA",
-			PostalCode:     "94115",
-			County:         "SAINT CLAIR",
-		}
-
 		verrs, err := appCtx.DB().ValidateAndSave(&address)
 		if err != nil {
 			appCtx.Logger().Error("could not create address", zap.Error(err))
@@ -718,14 +710,6 @@ func createUser(h devlocalAuthHandler, w http.ResponseWriter, r *http.Request) (
 		}
 	case PrimeSimulatorOfficeUserType:
 		// Now create the Truss JPPSO
-		address := models.Address{
-			StreetAddress1: "1333 Minna St",
-			City:           "San Francisco",
-			State:          "CA",
-			PostalCode:     "94115",
-			County:         "SAINT CLAIR",
-		}
-
 		verrs, err := appCtx.DB().ValidateAndSave(&address)
 		if err != nil {
 			appCtx.Logger().Error("could not create address", zap.Error(err))
@@ -790,14 +774,6 @@ func createUser(h devlocalAuthHandler, w http.ResponseWriter, r *http.Request) (
 		}
 	case QaeOfficeUserType:
 		// Now create the Truss JPPSO
-		address := models.Address{
-			StreetAddress1: "1333 Minna St",
-			City:           "San Francisco",
-			State:          "CA",
-			PostalCode:     "94115",
-			County:         "SAINT CLAIR",
-		}
-
 		verrs, err := appCtx.DB().ValidateAndSave(&address)
 		if err != nil {
 			appCtx.Logger().Error("could not create address", zap.Error(err))
@@ -862,14 +838,6 @@ func createUser(h devlocalAuthHandler, w http.ResponseWriter, r *http.Request) (
 			appCtx.Logger().Error("validation errors creating office user", zap.Stringer("errors", verrs))
 		}
 	case CustomerServiceRepresentativeOfficeUserType:
-		address := models.Address{
-			StreetAddress1: "1333 Minna St",
-			City:           "San Francisco",
-			State:          "CA",
-			PostalCode:     "94115",
-			County:         "SAINT CLAIR",
-		}
-
 		verrs, err := appCtx.DB().ValidateAndSave(&address)
 		if err != nil {
 			appCtx.Logger().Error("could not create address", zap.Error(err))
@@ -934,14 +902,6 @@ func createUser(h devlocalAuthHandler, w http.ResponseWriter, r *http.Request) (
 			appCtx.Logger().Error("validation errors creating office user", zap.Stringer("errors", verrs))
 		}
 	case HQOfficeUserType:
-		address := models.Address{
-			StreetAddress1: "1333 Minna St",
-			City:           "San Francisco",
-			State:          "CA",
-			PostalCode:     "94115",
-			County:         "SAINT CLAIR",
-		}
-
 		verrs, err := appCtx.DB().ValidateAndSave(&address)
 		if err != nil {
 			appCtx.Logger().Error("could not create address", zap.Error(err))
@@ -1006,14 +966,6 @@ func createUser(h devlocalAuthHandler, w http.ResponseWriter, r *http.Request) (
 			appCtx.Logger().Error("validation errors creating office user", zap.Stringer("errors", verrs))
 		}
 	case GSROfficeUserType:
-		address := models.Address{
-			StreetAddress1: "1333 Minna St",
-			City:           "San Francisco",
-			State:          "CA",
-			PostalCode:     "94115",
-			County:         "SAINT CLAIR",
-		}
-
 		verrs, err := appCtx.DB().ValidateAndSave(&address)
 		if err != nil {
 			appCtx.Logger().Error("could not create address", zap.Error(err))
@@ -1079,14 +1031,6 @@ func createUser(h devlocalAuthHandler, w http.ResponseWriter, r *http.Request) (
 		}
 	case MultiRoleOfficeUserType:
 		// Now create the Truss JPPSO
-		address := models.Address{
-			StreetAddress1: "1333 Minna St",
-			City:           "San Francisco",
-			State:          "CA",
-			PostalCode:     "94115",
-			County:         "SAINT CLAIR",
-		}
-
 		verrs, err := appCtx.DB().ValidateAndSave(&address)
 		if err != nil {
 			appCtx.Logger().Error("could not create address", zap.Error(err))
