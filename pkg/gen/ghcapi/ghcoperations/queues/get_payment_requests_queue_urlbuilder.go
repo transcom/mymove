@@ -17,10 +17,10 @@ import (
 // GetPaymentRequestsQueueURL generates an URL for the get payment requests queue operation
 type GetPaymentRequestsQueueURL struct {
 	Branch                  *string
+	CustomerName            *string
 	DestinationDutyLocation *string
 	DodID                   *string
 	Emplid                  *string
-	LastName                *string
 	Locator                 *string
 	Order                   *string
 	OrderType               *string
@@ -74,6 +74,14 @@ func (o *GetPaymentRequestsQueueURL) Build() (*url.URL, error) {
 		qs.Set("branch", branchQ)
 	}
 
+	var customerNameQ string
+	if o.CustomerName != nil {
+		customerNameQ = *o.CustomerName
+	}
+	if customerNameQ != "" {
+		qs.Set("customerName", customerNameQ)
+	}
+
 	var destinationDutyLocationQ string
 	if o.DestinationDutyLocation != nil {
 		destinationDutyLocationQ = *o.DestinationDutyLocation
@@ -96,14 +104,6 @@ func (o *GetPaymentRequestsQueueURL) Build() (*url.URL, error) {
 	}
 	if emplidQ != "" {
 		qs.Set("emplid", emplidQ)
-	}
-
-	var lastNameQ string
-	if o.LastName != nil {
-		lastNameQ = *o.LastName
-	}
-	if lastNameQ != "" {
-		qs.Set("lastName", lastNameQ)
 	}
 
 	var locatorQ string

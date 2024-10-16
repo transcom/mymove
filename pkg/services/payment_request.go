@@ -82,7 +82,7 @@ type FetchPaymentRequestListParams struct {
 	Locator                 *string
 	DodID                   *string
 	Emplid                  *string
-	LastName                *string
+	CustomerName            *string
 	DestinationDutyLocation *string
 	Status                  []string
 	Page                    *int64
