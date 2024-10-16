@@ -8,6 +8,7 @@ import (
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/apperror"
 	mtoshipmentops "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/mto_shipment"
+	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/handlers/internalapi/internal/payloads"
 	"github.com/transcom/mymove/pkg/models"
@@ -29,6 +30,23 @@ func (h CreateMTOShipmentHandler) Handle(params mtoshipmentops.CreateMTOShipment
 	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
 		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
 
+			/** Feature Flag - UB Shipment **/
+			featureFlagNameUB := "unaccompanied_baggage"
+			isUBFeatureOn := false
+			UBflag, err := h.FeatureFlagFetcher().GetBooleanFlagForUser(params.HTTPRequest.Context(), appCtx, featureFlagNameUB, map[string]string{})
+			if err != nil {
+				appCtx.Logger().Error("Error fetching feature flag", zap.String("featureFlagKey", featureFlagNameUB), zap.Error(err))
+				isUBFeatureOn = false
+			} else {
+				isUBFeatureOn = UBflag.Match
+			}
+
+			// Return an error if UB shipment is sent while the feature flag is turned off.
+			if !isUBFeatureOn && (*params.Body.ShipmentType == internalmessages.MTOShipmentTypeUNACCOMPANIEDBAGGAGE) {
+				return mtoshipmentops.NewCreateMTOShipmentUnprocessableEntity().WithPayload(payloads.ValidationError(
+					"Unaccompanied baggage shipments can't be created unless the unaccompanied_baggage feature flag is enabled.", h.GetTraceIDFromRequest(params.HTTPRequest), nil)), nil
+			}
+
 			if appCtx.Session() == nil || (!appCtx.Session().IsMilApp() && appCtx.Session().ServiceMemberID == uuid.Nil) {
 				noSessionErr := apperror.NewSessionError("No service member ID")
 				return mtoshipmentops.NewCreateMTOShipmentUnauthorized(), noSessionErr
@@ -42,7 +60,6 @@ func (h CreateMTOShipmentHandler) Handle(params mtoshipmentops.CreateMTOShipment
 					"The MTO Shipment request body cannot be empty.", h.GetTraceIDFromRequest(params.HTTPRequest))), noBodyErr
 			}
 			mtoShipment := payloads.MTOShipmentModelFromCreate(payload)
-			var err error
 
 			mtoShipment, err = h.shipmentCreator.CreateShipment(appCtx, mtoShipment)
 
