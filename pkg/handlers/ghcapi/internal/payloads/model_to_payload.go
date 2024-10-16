@@ -2308,7 +2308,7 @@ func QueuePaymentRequests(paymentRequests *models.PaymentRequests, officeUsers [
 		// it is only assignable if the user is a supervisor
 		// and if the move's counseling office is the supervisor's transportation office
 
-		if queuePaymentRequests[i].AssignedTo != nil && isSupervisor && paymentRequest.MoveTaskOrder.CounselingOfficeID != nil && *paymentRequest.MoveTaskOrder.CounselingOfficeID == officeUser.TransportationOfficeID {
+		if queuePaymentRequests[i].AssignedTo != nil && isSupervisor && paymentRequest.MoveTaskOrder.TIOAssignedUser.TransportationOfficeID == officeUser.TransportationOfficeID {
 			isAssignable = true
 		}
 
@@ -2324,14 +2324,10 @@ func QueuePaymentRequests(paymentRequests *models.PaymentRequests, officeUsers [
 				availableOfficeUsers = models.OfficeUsers{officeUser}
 			}
 
-			// // if the office user currently assigned to move works outside of the logged in users counseling office
-			// // add them to the set
-			// if role == roles.RoleTypeServicesCounselor && move.SCAssignedUser != nil && move.SCAssignedUser.TransportationOfficeID != officeUser.TransportationOfficeID {
-			// 	availableOfficeUsers = append(availableOfficeUsers, *move.SCAssignedUser)
-			// }
-			// if role == roles.RoleTypeTOO && move.TOOAssignedUser != nil && move.TOOAssignedUser.TransportationOfficeID != officeUser.TransportationOfficeID {
-			// 	availableOfficeUsers = append(availableOfficeUsers, *move.TOOAssignedUser)
-			// }
+			// if the office user currently assigned to move works outside of the logged in users counseling office
+			if paymentRequest.MoveTaskOrder.TOOAssignedUser != nil && paymentRequest.MoveTaskOrder.TOOAssignedUser.TransportationOfficeID != officeUser.TransportationOfficeID {
+				availableOfficeUsers = append(availableOfficeUsers, *paymentRequest.MoveTaskOrder.TOOAssignedUser)
+			}
 
 			queuePaymentRequests[i].AvailableOfficeUsers = *QueueAvailableOfficeUsers(availableOfficeUsers)
 		}
