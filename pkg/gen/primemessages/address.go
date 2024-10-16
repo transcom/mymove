@@ -26,7 +26,10 @@ type Address struct {
 	City *string `json:"city"`
 
 	// Country
-	// Example: USA
+	//
+	// Two-letter country code
+	// Example: US
+	// Pattern: ^[A-Z]{2}$
 	Country *string `json:"country,omitempty"`
 
 	// County
@@ -41,6 +44,10 @@ type Address struct {
 	// Example: c56a4180-65aa-42ec-a945-5fd21dec0538
 	// Format: uuid
 	ID strfmt.UUID `json:"id,omitempty"`
+
+	// isOconus
+	// Example: false
+	IsOconus *bool `json:"isOconus,omitempty"`
 
 	// ZIP
 	// Example: 90210
@@ -75,6 +82,10 @@ func (m *Address) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
+	if err := m.validateCountry(formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.validateID(formats); err != nil {
 		res = append(res, err)
 	}
@@ -100,6 +111,18 @@ func (m *Address) Validate(formats strfmt.Registry) error {
 func (m *Address) validateCity(formats strfmt.Registry) error {
 
 	if err := validate.Required("city", "body", m.City); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *Address) validateCountry(formats strfmt.Registry) error {
+	if swag.IsZero(m.Country) { // not required
+		return nil
+	}
+
+	if err := validate.Pattern("country", "body", *m.Country, `^[A-Z]{2}$`); err != nil {
 		return err
 	}
 

@@ -20,6 +20,10 @@ type PPMEstimator struct {
 func (_m *PPMEstimator) CalculatePPMSITEstimatedCost(appCtx appcontext.AppContext, ppmShipment *models.PPMShipment) (*unit.Cents, error) {
 	ret := _m.Called(appCtx, ppmShipment)
 
+	if len(ret) == 0 {
+		panic("no return value specified for CalculatePPMSITEstimatedCost")
+	}
+
 	var r0 *unit.Cents
 	var r1 error
 	if rf, ok := ret.Get(0).(func(appcontext.AppContext, *models.PPMShipment) (*unit.Cents, error)); ok {
@@ -45,6 +49,10 @@ func (_m *PPMEstimator) CalculatePPMSITEstimatedCost(appCtx appcontext.AppContex
 // CalculatePPMSITEstimatedCostBreakdown provides a mock function with given fields: appCtx, ppmShipment
 func (_m *PPMEstimator) CalculatePPMSITEstimatedCostBreakdown(appCtx appcontext.AppContext, ppmShipment *models.PPMShipment) (*models.PPMSITEstimatedCostInfo, error) {
 	ret := _m.Called(appCtx, ppmShipment)
+
+	if len(ret) == 0 {
+		panic("no return value specified for CalculatePPMSITEstimatedCostBreakdown")
+	}
 
 	var r0 *models.PPMSITEstimatedCostInfo
 	var r1 error
@@ -98,6 +106,10 @@ func (_m *PPMEstimator) CalculateSITCost(appCtx appcontext.AppContext, ppmShipme
 func (_m *PPMEstimator) EstimateIncentiveWithDefaultChecks(appCtx appcontext.AppContext, oldPPMShipment models.PPMShipment, newPPMShipment *models.PPMShipment) (*unit.Cents, *unit.Cents, error) {
 	ret := _m.Called(appCtx, oldPPMShipment, newPPMShipment)
 
+	if len(ret) == 0 {
+		panic("no return value specified for EstimateIncentiveWithDefaultChecks")
+	}
+
 	var r0 *unit.Cents
 	var r1 *unit.Cents
 	var r2 error
@@ -133,6 +145,10 @@ func (_m *PPMEstimator) EstimateIncentiveWithDefaultChecks(appCtx appcontext.App
 func (_m *PPMEstimator) FinalIncentiveWithDefaultChecks(appCtx appcontext.AppContext, oldPPMShipment models.PPMShipment, newPPMShipment *models.PPMShipment) (*unit.Cents, error) {
 	ret := _m.Called(appCtx, oldPPMShipment, newPPMShipment)
 
+	if len(ret) == 0 {
+		panic("no return value specified for FinalIncentiveWithDefaultChecks")
+	}
+
 	var r0 *unit.Cents
 	var r1 error
 	if rf, ok := ret.Get(0).(func(appcontext.AppContext, models.PPMShipment, *models.PPMShipment) (*unit.Cents, error)); ok {
@@ -158,6 +174,10 @@ func (_m *PPMEstimator) FinalIncentiveWithDefaultChecks(appCtx appcontext.AppCon
 // PriceBreakdown provides a mock function with given fields: appCtx, ppmShipment
 func (_m *PPMEstimator) PriceBreakdown(appCtx appcontext.AppContext, ppmShipment *models.PPMShipment) (unit.Cents, unit.Cents, unit.Cents, unit.Cents, unit.Cents, unit.Cents, unit.Cents, error) {
 	ret := _m.Called(appCtx, ppmShipment)
+
+	if len(ret) == 0 {
+		panic("no return value specified for PriceBreakdown")
+	}
 
 	var r0 unit.Cents
 	var r1 unit.Cents

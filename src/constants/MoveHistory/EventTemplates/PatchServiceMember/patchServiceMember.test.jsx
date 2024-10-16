@@ -13,8 +13,8 @@ const PROFILE = {
     telephone: '555-444-5555',
     secondary_telephone: '555-555-5555',
     personal_email: 'leslieknope@example.com',
-    phone_is_preferred: 'true',
-    email_is_preferred: 'false',
+    phone_is_preferred: true,
+    email_is_preferred: false,
   },
   backupContact: {
     name: 'Ben Wyatt',
@@ -61,8 +61,8 @@ describe('When a service members updates their profile', () => {
       ['Telephone', ': 555-444-5555'],
       ['Secondary telephone', ': 555-555-5555'],
       ['Personal email', ': leslieknope@example.com'],
-      ['Phone preferred', ': true'],
-      ['Email preferred', ': false'],
+      ['Phone preferred', ': Yes'],
+      ['Email preferred', ': No'],
     ])('displays the correct details value for %s', async (label, value) => {
       const historyRecord = { changedValues: PROFILE.contact };
       const result = getTemplate(template);

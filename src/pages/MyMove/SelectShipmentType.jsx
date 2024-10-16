@@ -10,7 +10,7 @@ import { FEATURE_FLAG_KEYS, SHIPMENT_OPTIONS } from '../../shared/constants';
 
 import ConnectedMoveInfoModal from 'components/Customer/modals/MoveInfoModal/MoveInfoModal';
 import ConnectedStorageInfoModal from 'components/Customer/modals/StorageInfoModal/StorageInfoModal';
-import ConnectedBoatInfoModal from 'components/Customer/modals/BoatInfoModal/BoatInfoModal';
+import ConnectedBoatAndMobileInfoModal from 'components/Customer/modals/BoatAndMobileInfoModal/BoatAndMobileInfoModal';
 import SelectableCard from 'components/Customer/SelectableCard';
 import WizardNavigation from 'components/Customer/WizardNavigation/WizardNavigation';
 import NotificationScrollToTop from 'components/NotificationScrollToTop';
@@ -33,12 +33,13 @@ export class SelectShipmentType extends Component {
     this.state = {
       showStorageInfoModal: false,
       showMoveInfoModal: false,
-      showBoatInfoModal: false,
+      showBoatAndMobileInfoModal: false,
       errorMessage: null,
       enablePPM: false,
       enableNTS: false,
       enableNTSR: false,
       enableBoat: false,
+      enableMobileHome: false,
     };
   }
 
@@ -65,6 +66,11 @@ export class SelectShipmentType extends Component {
         enableBoat: enabled,
       });
     });
+    isBooleanFlagEnabled(FEATURE_FLAG_KEYS.MOBILE_HOME).then((enabled) => {
+      this.setState({
+        enableMobileHome: enabled,
+      });
+    });
   }
 
   setShipmentType = (e) => {
@@ -83,9 +89,9 @@ export class SelectShipmentType extends Component {
     }));
   };
 
-  toggleBoatInfoModal = () => {
+  toggleBoatAndMobileInfoModal = () => {
     this.setState((state) => ({
-      showBoatInfoModal: !state.showBoatInfoModal,
+      showBoatAndMobileInfoModal: !state.showBoatAndMobileInfoModal,
     }));
   };
 
@@ -110,11 +116,12 @@ export class SelectShipmentType extends Component {
       shipmentType,
       showStorageInfoModal,
       showMoveInfoModal,
-      showBoatInfoModal,
+      showBoatAndMobileInfoModal,
       enablePPM,
       enableNTS,
       enableNTSR,
       enableBoat,
+      enableMobileHome,
       errorMessage,
     } = this.state;
 
@@ -137,6 +144,8 @@ export class SelectShipmentType extends Component {
       : 'You’ve already asked to have things taken out of storage for this move. Talk to your movers to change or add to your request.';
 
     const boatCardText = 'Provide information about your boat and we will determine how it will ship.';
+
+    const mobileHomeCardText = 'Provide information about your mobile home.';
 
     const selectableCardDefaultProps = {
       onChange: (e) => this.setShipmentType(e),
@@ -262,9 +271,21 @@ export class SelectShipmentType extends Component {
                     cardText={boatCardText}
                     checked={shipmentType === SHIPMENT_OPTIONS.BOAT && shipmentInfo.isBoatSelectable}
                     disabled={!shipmentInfo.isBoatSelectable}
-                    onHelpClick={this.toggleBoatInfoModal}
+                    onHelpClick={this.toggleBoatAndMobileInfoModal}
                   />
                 </>
+              )}
+              {enableMobileHome && (
+                <SelectableCard
+                  {...selectableCardDefaultProps}
+                  label="Move a mobile home"
+                  value={SHIPMENT_OPTIONS.MOBILE_HOME}
+                  id={SHIPMENT_OPTIONS.MOBILE_HOME}
+                  cardText={mobileHomeCardText}
+                  checked={shipmentType === SHIPMENT_OPTIONS.MOBILE_HOME && shipmentInfo.isMobileHomeSelectable}
+                  disabled={!shipmentInfo.isMobileHomeSelectable}
+                  onHelpClick={this.toggleBoatAndMobileInfoModal}
+                />
               )}
 
               {!shipmentInfo.hasShipment && (
@@ -297,10 +318,11 @@ export class SelectShipmentType extends Component {
           enableNTSR={enableNTSR}
           closeModal={this.toggleStorageModal}
         />
-        <ConnectedBoatInfoModal
-          isOpen={showBoatInfoModal}
-          enablePPM={enableBoat}
-          closeModal={this.toggleBoatInfoModal}
+        <ConnectedBoatAndMobileInfoModal
+          isOpen={showBoatAndMobileInfoModal}
+          enableBoat={enableBoat}
+          enableMobileHome={enableMobileHome}
+          closeModal={this.toggleBoatAndMobileInfoModal}
         />
       </>
     );

@@ -44,6 +44,23 @@ const moveData = [
     appearedInTooAt: '2023-02-10T00:00:00.000Z',
     lockExpiresAt: '2099-02-10T00:00:00.000Z',
     lockedByOfficeUserID: '2744435d-7ba8-4cc5-bae5-f302c72c966e',
+    assignedTo: {
+      officeUserId: 'exampleId2',
+      firstName: 'John',
+      lastName: 'Denver',
+    },
+    availableOfficeUsers: [
+      {
+        officeUserId: 'exampleId1',
+        firstName: 'Jimmy',
+        lastName: 'John',
+      },
+      {
+        officeUserId: 'exampleId2',
+        firstName: 'John',
+        lastName: 'Denver',
+      },
+    ],
   },
   {
     id: 'move2',
@@ -64,6 +81,23 @@ const moveData = [
     originGBLOC: 'EEEE',
     requestedMoveDate: '2023-02-12',
     appearedInTooAt: '2023-02-12T00:00:00.000Z',
+    assignedTo: {
+      officeUserId: 'exampleId2',
+      firstName: 'John',
+      lastName: 'Denver',
+    },
+    availableOfficeUsers: [
+      {
+        officeUserId: 'exampleId1',
+        firstName: 'Jimmy',
+        lastName: 'John',
+      },
+      {
+        officeUserId: 'exampleId2',
+        firstName: 'John',
+        lastName: 'Denver',
+      },
+    ],
   },
   {
     id: 'move3',
@@ -85,6 +119,23 @@ const moveData = [
     appearedInTooAt: '2023-03-12T00:00:00.000Z',
     lockExpiresAt: '2099-03-12T00:00:00.000Z',
     lockedByOfficeUserID: '2744435d-7ba8-4cc5-bae5-f302c72c966e',
+    assignedTo: {
+      officeUserId: 'exampleId1',
+      firstName: 'Jimmy',
+      lastName: 'John',
+    },
+    availableOfficeUsers: [
+      {
+        officeUserId: 'exampleId1',
+        firstName: 'Jimmy',
+        lastName: 'John',
+      },
+      {
+        officeUserId: 'exampleId2',
+        firstName: 'John',
+        lastName: 'Denver',
+      },
+    ],
   },
 ];
 
@@ -114,7 +165,7 @@ const GetMountedComponent = (queueTypeToMount) => {
   reactRouterDom.useParams.mockReturnValue({ queueType: queueTypeToMount });
   const wrapper = mount(
     <MockProviders>
-      <MoveQueue />
+      <MoveQueue isQueueManagementFFEnabled />
     </MockProviders>,
   );
   return wrapper;
@@ -217,6 +268,7 @@ describe('MoveQueue', () => {
     );
     expect(currentMove.find({ 'data-testid': `requestedMoveDate-${currentIndex}` }).text()).toBe('12 Mar 2023');
     expect(currentMove.find({ 'data-testid': `appearedInTooAt-${currentIndex}` }).text()).toBe('12 Mar 2023');
+    expect(currentMove.find({ 'data-testid': `assignedTo-${currentIndex}` }).text()).toBe('John, Jimmy');
   });
 
   it('should render the pagination component', () => {
@@ -344,6 +396,30 @@ describe('MoveQueue', () => {
     await await waitFor(() => {
       const lockIcon = screen.queryByTestId('lock-icon');
       expect(lockIcon).not.toBeInTheDocument();
+    });
+  });
+  it('renders an assigned column when the queue management flag is on', async () => {
+    reactRouterDom.useParams.mockReturnValue({ queueType: tooRoutes.MOVE_QUEUE });
+    render(
+      <reactRouterDom.BrowserRouter>
+        <MoveQueue isQueueManagementFFEnabled />
+      </reactRouterDom.BrowserRouter>,
+    );
+    await waitFor(() => {
+      const assignedSelect = screen.queryAllByTestId('assigned-col')[0];
+      expect(assignedSelect).toBeInTheDocument();
+    });
+  });
+  it('renders an assigned column when the queue management flag is off', async () => {
+    reactRouterDom.useParams.mockReturnValue({ queueType: tooRoutes.MOVE_QUEUE });
+    render(
+      <reactRouterDom.BrowserRouter>
+        <MoveQueue isQueueManagementFFEnabled={false} />
+      </reactRouterDom.BrowserRouter>,
+    );
+    await waitFor(() => {
+      const assignedSelect = screen.queryByTestId('assigned-col');
+      expect(assignedSelect).not.toBeInTheDocument();
     });
   });
 });

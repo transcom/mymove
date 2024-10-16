@@ -338,4 +338,22 @@ describe('EstimatedWeightsProGear page', () => {
 
     expect(await screen.findByText(mockErrorMsg)).toBeInTheDocument();
   });
+
+  it('displays the technical help desk link on 400/500 errors', async () => {
+    const mockErrorMsg = 'Invalid shipment ID';
+    const technicalHeldDeskText = 'Technical Help Desk';
+
+    patchMTOShipment.mockRejectedValue({ response: { status: 400 } });
+    getResponseError.mockReturnValue(mockErrorMsg);
+
+    renderEstimatedWeightsProGear();
+
+    const estimatedWeightInput = screen.getByLabelText(/estimated weight of this ppm shipment/i);
+    await userEvent.type(estimatedWeightInput, '4000');
+
+    const saveButton = screen.getByRole('button', { name: /save & continue/i });
+    await userEvent.click(saveButton);
+
+    expect(await screen.findByText(technicalHeldDeskText)).toBeInTheDocument();
+  });
 });

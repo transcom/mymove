@@ -17,6 +17,8 @@ import { DropdownInput } from 'components/form/fields/DropdownInput';
  * @param formikFunctionsToValidatePostalCodeOnChange If you are intending to validate the postal code on change, you
  * will need to pass the handleChange and setFieldTouched Formik functions through in an object here.
  * See ResidentialAddressForm for an example.
+ * @param address1LabelHint string to override display labelHint if street 1 is Optional/Required per context.
+ * This is specifically designed to handle unique display between customer and office/prime sim for address 1.
  * @return {JSX.Element}
  * @constructor
  */
@@ -27,6 +29,8 @@ export const AddressFields = ({
   render,
   validators,
   formikFunctionsToValidatePostalCodeOnChange,
+  labelHint: labelHintProp,
+  address1LabelHint,
 }) => {
   const addressFieldsUUID = useRef(uuidv4());
 
@@ -39,6 +43,7 @@ export const AddressFields = ({
         id={`zip_${addressFieldsUUID.current}`}
         name={`${name}.postalCode`}
         maxLength={10}
+        labelHint={labelHintProp}
         validate={validators?.postalCode}
         onChange={async (e) => {
           // If we are validating on change we need to also set the field to touched when it is changed.
@@ -58,10 +63,24 @@ export const AddressFields = ({
         id={`zip_${addressFieldsUUID.current}`}
         name={`${name}.postalCode`}
         maxLength={10}
+        labelHint={labelHintProp}
         validate={validators?.postalCode}
       />
     );
   }
+
+  const getAddress1LabelHintText = (labelHint, address1Label) => {
+    if (address1Label === null) {
+      return labelHint;
+    }
+
+    // Override default and use what is passed in.
+    if (address1Label && address1Label.trim().length > 0) {
+      return address1Label;
+    }
+
+    return null;
+  };
 
   return (
     <Fieldset legend={legend} className={className}>
@@ -71,18 +90,19 @@ export const AddressFields = ({
             label="Address 1"
             id={`mailingAddress1_${addressFieldsUUID.current}`}
             name={`${name}.streetAddress1`}
+            labelHint={getAddress1LabelHintText(labelHintProp, address1LabelHint)}
             validate={validators?.streetAddress1}
           />
           <TextField
             label="Address 2"
-            labelHint="Optional"
+            labelHint={labelHintProp ? null : 'Optional'}
             id={`mailingAddress2_${addressFieldsUUID.current}`}
             name={`${name}.streetAddress2`}
             validate={validators?.streetAddress2}
           />
           <TextField
             label="Address 3"
-            labelHint="Optional"
+            labelHint={labelHintProp ? null : 'Optional'}
             id={`mailingAddress3_${addressFieldsUUID.current}`}
             name={`${name}.streetAddress3`}
             validate={validators?.streetAddress3}
@@ -91,6 +111,7 @@ export const AddressFields = ({
             label="City"
             id={`city_${addressFieldsUUID.current}`}
             name={`${name}.city`}
+            labelHint={labelHintProp}
             validate={validators?.city}
           />
 
@@ -100,6 +121,7 @@ export const AddressFields = ({
                 name={`${name}.state`}
                 id={`state_${addressFieldsUUID.current}`}
                 label="State"
+                labelHint={labelHintProp}
                 options={statesList}
                 validate={validators?.state}
               />
@@ -128,6 +150,7 @@ AddressFields.propTypes = {
     handleChange: PropTypes.func,
     setFieldTouched: PropTypes.func,
   }),
+  address1LabelHint: PropTypes.string,
 };
 
 AddressFields.defaultProps = {
@@ -136,6 +159,7 @@ AddressFields.defaultProps = {
   render: (fields) => fields,
   validators: {},
   formikFunctionsToValidatePostalCodeOnChange: null,
+  address1LabelHint: null,
 };
 
 export default AddressFields;

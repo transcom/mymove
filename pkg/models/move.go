@@ -141,6 +141,7 @@ func FetchMove(db *pop.Connection, session *auth.Session, id uuid.UUID) (*Move, 
 		"LockedByOfficeUser",
 		"AdditionalDocuments",
 		"AdditionalDocuments.UserUploads",
+		"CounselingOffice",
 	).Where("show = TRUE").Find(&move, id)
 
 	if err != nil {
@@ -153,12 +154,12 @@ func FetchMove(db *pop.Connection, session *auth.Session, id uuid.UUID) (*Move, 
 
 	var shipments MTOShipments
 	err = db.Q().Scope(utilities.ExcludeDeletedScope()).Eager(
-		"PickupAddress",
-		"SecondaryPickupAddress",
-		"TertiaryPickupAddress",
-		"DestinationAddress",
-		"SecondaryDeliveryAddress",
-		"TertiaryDeliveryAddress",
+		"PickupAddress.Country",
+		"SecondaryPickupAddress.Country",
+		"TertiaryPickupAddress.Country",
+		"DestinationAddress.Country",
+		"SecondaryDeliveryAddress.Country",
+		"TertiaryDeliveryAddress.Country",
 		"PPMShipment").Where("mto_shipments.move_id = ?", move.ID).All(&shipments)
 
 	if err != nil {
@@ -418,8 +419,8 @@ func FetchMoveForMoveDates(db *pop.Connection, moveID uuid.UUID) (Move, error) {
 	var move Move
 	err := db.
 		Eager(
-			"Orders.OriginDutyLocation.Address",
-			"Orders.NewDutyLocation.Address",
+			"Orders.OriginDutyLocation.Address.Country",
+			"Orders.NewDutyLocation.Address.Country",
 			"Orders.ServiceMember",
 		).
 		Find(&move, moveID)
@@ -449,7 +450,7 @@ func FetchMovesByOrderID(db *pop.Connection, orderID uuid.UUID) (Moves, error) {
 		"MTOShipments",
 		"MTOShipments.MTOAgents",
 		"MTOShipments.PPMShipment",
-		"MTOShipments.PPMShipment.W2Address",
+		"MTOShipments.PPMShipment.W2Address.Country",
 		"MTOShipments.PPMShipment.WeightTickets",
 		"MTOShipments.PPMShipment.WeightTickets.EmptyDocument.UserUploads.Upload",
 		"MTOShipments.PPMShipment.WeightTickets.FullDocument.UserUploads.Upload",
@@ -458,18 +459,18 @@ func FetchMovesByOrderID(db *pop.Connection, orderID uuid.UUID) (Moves, error) {
 		"MTOShipments.PPMShipment.MovingExpenses.Document.UserUploads.Upload",
 		"MTOShipments.PPMShipment.ProgearWeightTickets",
 		"MTOShipments.PPMShipment.ProgearWeightTickets.Document.UserUploads.Upload",
-		"MTOShipments.DestinationAddress",
-		"MTOShipments.SecondaryDeliveryAddress",
-		"MTOShipments.TertiaryDeliveryAddress",
-		"MTOShipments.PickupAddress",
-		"MTOShipments.SecondaryPickupAddress",
-		"MTOShipments.TertiaryPickupAddress",
-		"MTOShipments.PPMShipment.PickupAddress",
-		"MTOShipments.PPMShipment.DestinationAddress",
-		"MTOShipments.PPMShipment.SecondaryPickupAddress",
-		"MTOShipments.PPMShipment.SecondaryDestinationAddress",
-		"MTOShipments.PPMShipment.TertiaryPickupAddress",
-		"MTOShipments.PPMShipment.TertiaryDestinationAddress",
+		"MTOShipments.DestinationAddress.Country",
+		"MTOShipments.SecondaryDeliveryAddress.Country",
+		"MTOShipments.TertiaryDeliveryAddress.Country",
+		"MTOShipments.PickupAddress.Country",
+		"MTOShipments.SecondaryPickupAddress.Country",
+		"MTOShipments.TertiaryPickupAddress.Country",
+		"MTOShipments.PPMShipment.PickupAddress.Country",
+		"MTOShipments.PPMShipment.DestinationAddress.Country",
+		"MTOShipments.PPMShipment.SecondaryPickupAddress.Country",
+		"MTOShipments.PPMShipment.SecondaryDestinationAddress.Country",
+		"MTOShipments.PPMShipment.TertiaryPickupAddress.Country",
+		"MTOShipments.PPMShipment.TertiaryDestinationAddress.Country",
 		"MTOShipments.BoatShipment",
 		"MTOShipments.MobileHome",
 		"Orders",
@@ -479,14 +480,15 @@ func FetchMovesByOrderID(db *pop.Connection, orderID uuid.UUID) (Moves, error) {
 		"Orders.Entitlement",
 		"Orders.ServiceMember",
 		"Orders.ServiceMember.User",
-		"Orders.OriginDutyLocation.Address",
+		"Orders.OriginDutyLocation.Address.Country",
 		"Orders.OriginDutyLocation.TransportationOffice",
-		"Orders.OriginDutyLocation.TransportationOffice.Address",
-		"Orders.NewDutyLocation.Address",
+		"Orders.OriginDutyLocation.TransportationOffice.Address.Country",
+		"Orders.NewDutyLocation.Address.Country",
 		"Orders.NewDutyLocation.TransportationOffice",
-		"Orders.NewDutyLocation.TransportationOffice.Address",
+		"Orders.NewDutyLocation.TransportationOffice.Address.Country",
 		"CloseoutOffice",
-		"CloseoutOffice.Address",
+		"CloseoutOffice.Address.Country",
+		"CounselingOffice",
 	).All(&moves)
 	if err != nil {
 		return moves, err
@@ -537,12 +539,12 @@ func FetchMovesByOrderID(db *pop.Connection, orderID uuid.UUID) (Moves, error) {
 				moves[0].MTOShipments[0].PPMShipment.WeightTickets = filteredWeightTickets
 			}
 			// We do not need to consider deleted moving expenses
-			if moves[0].MTOShipments[0].PPMShipment.MovingExpenses != nil && len(moves[0].MTOShipments[0].PPMShipment.MovingExpenses) > 0 {
+			if len(moves[0].MTOShipments[0].PPMShipment.MovingExpenses) > 0 {
 				nonDeletedMovingExpenses := moves[0].MTOShipments[0].PPMShipment.MovingExpenses.FilterDeleted()
 				moves[0].MTOShipments[0].PPMShipment.MovingExpenses = nonDeletedMovingExpenses
 			}
 			// We do not need to consider deleted progear weight tickets
-			if moves[0].MTOShipments[0].PPMShipment.ProgearWeightTickets != nil && len(moves[0].MTOShipments[0].PPMShipment.ProgearWeightTickets) > 0 {
+			if len(moves[0].MTOShipments[0].PPMShipment.ProgearWeightTickets) > 0 {
 				nonDeletedProgearTickets := moves[0].MTOShipments[0].PPMShipment.ProgearWeightTickets.FilterDeleted()
 				moves[0].MTOShipments[0].PPMShipment.ProgearWeightTickets = nonDeletedProgearTickets
 			}

@@ -1,6 +1,6 @@
 *** DO NOT REPLY directly to this email ***
 
-This is a confirmation that you have submitted the details for your move {{if .OriginDutyLocation}}from {{.OriginDutyLocation}} {{ end }}to {{.DestinationDutyLocation}}.
+This is a confirmation that you have submitted the details for your move {{if .OriginDutyLocation}}from {{.OriginDutyLocation}} {{ end }}to {{.DestinationLocation}}.
 
 We have assigned you a move code: {{.Locator}}. You can use this code when talking to any representative about your move.
 

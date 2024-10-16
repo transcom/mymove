@@ -3319,11 +3319,13 @@ func init() {
           "example": "Anytown"
         },
         "country": {
+          "description": "Two-letter country code",
           "type": "string",
           "title": "Country",
-          "default": "USA",
+          "default": "US",
+          "pattern": "^[A-Z]{2}$",
           "x-nullable": true,
-          "example": "USA"
+          "example": "US"
         },
         "county": {
           "type": "string",
@@ -3339,6 +3341,12 @@ func init() {
           "type": "string",
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "isOconus": {
+          "type": "boolean",
+          "title": "isOconus",
+          "x-nullable": true,
+          "example": false
         },
         "postalCode": {
           "type": "string",
@@ -3487,8 +3495,6 @@ func init() {
         "AIR_FORCE",
         "COAST_GUARD",
         "SPACE_FORCE",
-        "NAVY_AND_MARINES",
-        "AIR_AND_SPACE_FORCE",
         "OTHER"
       ],
       "x-display-value": {
@@ -3844,7 +3850,7 @@ func init() {
       ],
       "properties": {
         "destinationAddress": {
-          "$ref": "#/definitions/Address"
+          "$ref": "#/definitions/PPMDestinationAddress"
         },
         "expectedDepartureDate": {
           "description": "Date the customer expects to move.\n",
@@ -4117,6 +4123,12 @@ func init() {
         "new_duty_location_id"
       ],
       "properties": {
+        "counseling_office_id": {
+          "type": "string",
+          "format": "uuid",
+          "x-nullable": true,
+          "example": "cf1addea-a4f9-4173-8506-2bb82a064cb7"
+        },
         "department_indicator": {
           "$ref": "#/definitions/DeptIndicator"
         },
@@ -4133,6 +4145,11 @@ func init() {
           "format": "date",
           "title": "Orders date",
           "example": "2018-04-26"
+        },
+        "move_id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "cf1addea-a4f9-4173-8506-2bb82a064cb7"
         },
         "new_duty_location_id": {
           "type": "string",
@@ -4338,6 +4355,10 @@ func init() {
           "type": "string",
           "example": "Fort Bragg North Station"
         },
+        "provides_services_counseling": {
+          "type": "boolean",
+          "x-nullable": false
+        },
         "transportation_office": {
           "$ref": "#/definitions/TransportationOffice"
         },
@@ -4478,6 +4499,9 @@ func init() {
       "type": "object",
       "properties": {
         "closeoutOffice": {
+          "$ref": "#/definitions/TransportationOffice"
+        },
+        "counselingOffice": {
           "$ref": "#/definitions/TransportationOffice"
         },
         "createdAt": {
@@ -4750,6 +4774,15 @@ func init() {
           "readOnly": true,
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
         },
+        "marketCode": {
+          "description": "Single-letter designator for domestic (d) or international (i) shipments",
+          "type": "string",
+          "enum": [
+            "d",
+            "i"
+          ],
+          "example": "d"
+        },
         "mobileHomeShipment": {
           "$ref": "#/definitions/MobileHome"
         },
@@ -4828,16 +4861,18 @@ func init() {
         "PPM",
         "BOAT_HAUL_AWAY",
         "BOAT_TOW_AWAY",
-        "MOBILE_HOME"
+        "MOBILE_HOME",
+        "UNACCOMPANIED_BAGGAGE"
       ],
       "x-display-value": {
         "BOAT_HAUL_AWAY": "Boat Haul-Away",
         "BOAT_TOW_AWAY": "Boat Tow-Away",
         "HHG": "HHG",
-        "INTERNATIONAL_HHG": "International HHG",
-        "INTERNATIONAL_UB": "International UB",
+        "HHG_INTO_NTS_DOMESTIC": "NTS",
+        "HHG_OUTOF_NTS_DOMESTIC": "NTS Release",
         "MOBILE_HOME": "Mobile Home",
-        "PPM": "PPM"
+        "PPM": "PPM",
+        "UNACCOMPANIED_BAGGAGE": "Unaccompanied Baggage"
       },
       "example": "HHG"
     },
@@ -5125,6 +5160,9 @@ func init() {
           "example": "Change of orders"
         },
         "closeout_office": {
+          "$ref": "#/definitions/TransportationOffice"
+        },
+        "counseling_office": {
           "$ref": "#/definitions/TransportationOffice"
         },
         "created_at": {
@@ -5985,6 +6023,179 @@ func init() {
       ],
       "x-nullable": true
     },
+    "PPMDestinationAddress": {
+      "description": "A postal address",
+      "type": "object",
+      "required": [
+        "city",
+        "state",
+        "postalCode"
+      ],
+      "properties": {
+        "city": {
+          "type": "string",
+          "title": "City",
+          "example": "Anytown"
+        },
+        "country": {
+          "type": "string",
+          "title": "Country",
+          "default": "USA",
+          "x-nullable": true,
+          "example": "USA"
+        },
+        "county": {
+          "type": "string",
+          "title": "County",
+          "x-nullable": true,
+          "example": "LOS ANGELES"
+        },
+        "eTag": {
+          "type": "string",
+          "readOnly": true
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "postalCode": {
+          "type": "string",
+          "format": "zip",
+          "title": "ZIP",
+          "pattern": "^(\\d{5}([\\-]\\d{4})?)$",
+          "example": "90210"
+        },
+        "state": {
+          "type": "string",
+          "title": "State",
+          "enum": [
+            "AL",
+            "AK",
+            "AR",
+            "AZ",
+            "CA",
+            "CO",
+            "CT",
+            "DC",
+            "DE",
+            "FL",
+            "GA",
+            "HI",
+            "IA",
+            "ID",
+            "IL",
+            "IN",
+            "KS",
+            "KY",
+            "LA",
+            "MA",
+            "MD",
+            "ME",
+            "MI",
+            "MN",
+            "MO",
+            "MS",
+            "MT",
+            "NC",
+            "ND",
+            "NE",
+            "NH",
+            "NJ",
+            "NM",
+            "NV",
+            "NY",
+            "OH",
+            "OK",
+            "OR",
+            "PA",
+            "RI",
+            "SC",
+            "SD",
+            "TN",
+            "TX",
+            "UT",
+            "VA",
+            "VT",
+            "WA",
+            "WI",
+            "WV",
+            "WY"
+          ],
+          "x-display-value": {
+            "AK": "AK",
+            "AL": "AL",
+            "AR": "AR",
+            "AZ": "AZ",
+            "CA": "CA",
+            "CO": "CO",
+            "CT": "CT",
+            "DC": "DC",
+            "DE": "DE",
+            "FL": "FL",
+            "GA": "GA",
+            "HI": "HI",
+            "IA": "IA",
+            "ID": "ID",
+            "IL": "IL",
+            "IN": "IN",
+            "KS": "KS",
+            "KY": "KY",
+            "LA": "LA",
+            "MA": "MA",
+            "MD": "MD",
+            "ME": "ME",
+            "MI": "MI",
+            "MN": "MN",
+            "MO": "MO",
+            "MS": "MS",
+            "MT": "MT",
+            "NC": "NC",
+            "ND": "ND",
+            "NE": "NE",
+            "NH": "NH",
+            "NJ": "NJ",
+            "NM": "NM",
+            "NV": "NV",
+            "NY": "NY",
+            "OH": "OH",
+            "OK": "OK",
+            "OR": "OR",
+            "PA": "PA",
+            "RI": "RI",
+            "SC": "SC",
+            "SD": "SD",
+            "TN": "TN",
+            "TX": "TX",
+            "UT": "UT",
+            "VA": "VA",
+            "VT": "VT",
+            "WA": "WA",
+            "WI": "WI",
+            "WV": "WV",
+            "WY": "WY"
+          }
+        },
+        "streetAddress1": {
+          "type": "string",
+          "title": "Street address 1",
+          "x-nullable": true,
+          "example": "123 Main Ave"
+        },
+        "streetAddress2": {
+          "type": "string",
+          "title": "Street address 2",
+          "x-nullable": true,
+          "example": "Apartment 9000"
+        },
+        "streetAddress3": {
+          "type": "string",
+          "title": "Address Line 3",
+          "x-nullable": true,
+          "example": "Montmârtre"
+        }
+      }
+    },
     "PPMDocumentStatusReason": {
       "description": "The reason the services counselor has excluded or rejected the item.",
       "type": "string",
@@ -6063,6 +6274,13 @@ func init() {
         },
         "advanceStatus": {
           "$ref": "#/definitions/PPMAdvanceStatus"
+        },
+        "allowableWeight": {
+          "description": "The allowable weight of the PPM shipment goods being moved.",
+          "type": "integer",
+          "x-nullable": true,
+          "x-omitempty": false,
+          "example": 4300
         },
         "approvedAt": {
           "description": "The timestamp of when the shipment was approved and the service member can begin their move.",
@@ -7390,7 +7608,7 @@ func init() {
           "x-nullable": true
         },
         "destinationAddress": {
-          "$ref": "#/definitions/Address"
+          "$ref": "#/definitions/PPMDestinationAddress"
         },
         "estimatedWeight": {
           "type": "integer",
@@ -7626,10 +7844,6 @@ func init() {
           "description": "Indicates the adjusted net weight of the vehicle",
           "type": "integer"
         },
-        "allowableWeight": {
-          "description": "Indicates the maximum reimbursable weight of the shipment",
-          "type": "integer"
-        },
         "emptyWeight": {
           "description": "Weight of the vehicle when empty.",
           "type": "integer"
@@ -7817,12 +8031,6 @@ func init() {
       "properties": {
         "adjustedNetWeight": {
           "description": "Indicates the adjusted net weight of the vehicle",
-          "type": "integer",
-          "x-nullable": true,
-          "x-omitempty": false
-        },
-        "allowableWeight": {
-          "description": "Maximum reimbursable weight.",
           "type": "integer",
           "x-nullable": true,
           "x-omitempty": false
@@ -11921,11 +12129,13 @@ func init() {
           "example": "Anytown"
         },
         "country": {
+          "description": "Two-letter country code",
           "type": "string",
           "title": "Country",
-          "default": "USA",
+          "default": "US",
+          "pattern": "^[A-Z]{2}$",
           "x-nullable": true,
-          "example": "USA"
+          "example": "US"
         },
         "county": {
           "type": "string",
@@ -11941,6 +12151,12 @@ func init() {
           "type": "string",
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "isOconus": {
+          "type": "boolean",
+          "title": "isOconus",
+          "x-nullable": true,
+          "example": false
         },
         "postalCode": {
           "type": "string",
@@ -12089,8 +12305,6 @@ func init() {
         "AIR_FORCE",
         "COAST_GUARD",
         "SPACE_FORCE",
-        "NAVY_AND_MARINES",
-        "AIR_AND_SPACE_FORCE",
         "OTHER"
       ],
       "x-display-value": {
@@ -12446,7 +12660,7 @@ func init() {
       ],
       "properties": {
         "destinationAddress": {
-          "$ref": "#/definitions/Address"
+          "$ref": "#/definitions/PPMDestinationAddress"
         },
         "expectedDepartureDate": {
           "description": "Date the customer expects to move.\n",
@@ -12719,6 +12933,12 @@ func init() {
         "new_duty_location_id"
       ],
       "properties": {
+        "counseling_office_id": {
+          "type": "string",
+          "format": "uuid",
+          "x-nullable": true,
+          "example": "cf1addea-a4f9-4173-8506-2bb82a064cb7"
+        },
         "department_indicator": {
           "$ref": "#/definitions/DeptIndicator"
         },
@@ -12735,6 +12955,11 @@ func init() {
           "format": "date",
           "title": "Orders date",
           "example": "2018-04-26"
+        },
+        "move_id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "cf1addea-a4f9-4173-8506-2bb82a064cb7"
         },
         "new_duty_location_id": {
           "type": "string",
@@ -12942,6 +13167,10 @@ func init() {
           "type": "string",
           "example": "Fort Bragg North Station"
         },
+        "provides_services_counseling": {
+          "type": "boolean",
+          "x-nullable": false
+        },
         "transportation_office": {
           "$ref": "#/definitions/TransportationOffice"
         },
@@ -13082,6 +13311,9 @@ func init() {
       "type": "object",
       "properties": {
         "closeoutOffice": {
+          "$ref": "#/definitions/TransportationOffice"
+        },
+        "counselingOffice": {
           "$ref": "#/definitions/TransportationOffice"
         },
         "createdAt": {
@@ -13354,6 +13586,15 @@ func init() {
           "readOnly": true,
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
         },
+        "marketCode": {
+          "description": "Single-letter designator for domestic (d) or international (i) shipments",
+          "type": "string",
+          "enum": [
+            "d",
+            "i"
+          ],
+          "example": "d"
+        },
         "mobileHomeShipment": {
           "$ref": "#/definitions/MobileHome"
         },
@@ -13432,16 +13673,18 @@ func init() {
         "PPM",
         "BOAT_HAUL_AWAY",
         "BOAT_TOW_AWAY",
-        "MOBILE_HOME"
+        "MOBILE_HOME",
+        "UNACCOMPANIED_BAGGAGE"
       ],
       "x-display-value": {
         "BOAT_HAUL_AWAY": "Boat Haul-Away",
         "BOAT_TOW_AWAY": "Boat Tow-Away",
         "HHG": "HHG",
-        "INTERNATIONAL_HHG": "International HHG",
-        "INTERNATIONAL_UB": "International UB",
+        "HHG_INTO_NTS_DOMESTIC": "NTS",
+        "HHG_OUTOF_NTS_DOMESTIC": "NTS Release",
         "MOBILE_HOME": "Mobile Home",
-        "PPM": "PPM"
+        "PPM": "PPM",
+        "UNACCOMPANIED_BAGGAGE": "Unaccompanied Baggage"
       },
       "example": "HHG"
     },
@@ -13731,6 +13974,9 @@ func init() {
           "example": "Change of orders"
         },
         "closeout_office": {
+          "$ref": "#/definitions/TransportationOffice"
+        },
+        "counseling_office": {
           "$ref": "#/definitions/TransportationOffice"
         },
         "created_at": {
@@ -14591,6 +14837,179 @@ func init() {
       ],
       "x-nullable": true
     },
+    "PPMDestinationAddress": {
+      "description": "A postal address",
+      "type": "object",
+      "required": [
+        "city",
+        "state",
+        "postalCode"
+      ],
+      "properties": {
+        "city": {
+          "type": "string",
+          "title": "City",
+          "example": "Anytown"
+        },
+        "country": {
+          "type": "string",
+          "title": "Country",
+          "default": "USA",
+          "x-nullable": true,
+          "example": "USA"
+        },
+        "county": {
+          "type": "string",
+          "title": "County",
+          "x-nullable": true,
+          "example": "LOS ANGELES"
+        },
+        "eTag": {
+          "type": "string",
+          "readOnly": true
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "postalCode": {
+          "type": "string",
+          "format": "zip",
+          "title": "ZIP",
+          "pattern": "^(\\d{5}([\\-]\\d{4})?)$",
+          "example": "90210"
+        },
+        "state": {
+          "type": "string",
+          "title": "State",
+          "enum": [
+            "AL",
+            "AK",
+            "AR",
+            "AZ",
+            "CA",
+            "CO",
+            "CT",
+            "DC",
+            "DE",
+            "FL",
+            "GA",
+            "HI",
+            "IA",
+            "ID",
+            "IL",
+            "IN",
+            "KS",
+            "KY",
+            "LA",
+            "MA",
+            "MD",
+            "ME",
+            "MI",
+            "MN",
+            "MO",
+            "MS",
+            "MT",
+            "NC",
+            "ND",
+            "NE",
+            "NH",
+            "NJ",
+            "NM",
+            "NV",
+            "NY",
+            "OH",
+            "OK",
+            "OR",
+            "PA",
+            "RI",
+            "SC",
+            "SD",
+            "TN",
+            "TX",
+            "UT",
+            "VA",
+            "VT",
+            "WA",
+            "WI",
+            "WV",
+            "WY"
+          ],
+          "x-display-value": {
+            "AK": "AK",
+            "AL": "AL",
+            "AR": "AR",
+            "AZ": "AZ",
+            "CA": "CA",
+            "CO": "CO",
+            "CT": "CT",
+            "DC": "DC",
+            "DE": "DE",
+            "FL": "FL",
+            "GA": "GA",
+            "HI": "HI",
+            "IA": "IA",
+            "ID": "ID",
+            "IL": "IL",
+            "IN": "IN",
+            "KS": "KS",
+            "KY": "KY",
+            "LA": "LA",
+            "MA": "MA",
+            "MD": "MD",
+            "ME": "ME",
+            "MI": "MI",
+            "MN": "MN",
+            "MO": "MO",
+            "MS": "MS",
+            "MT": "MT",
+            "NC": "NC",
+            "ND": "ND",
+            "NE": "NE",
+            "NH": "NH",
+            "NJ": "NJ",
+            "NM": "NM",
+            "NV": "NV",
+            "NY": "NY",
+            "OH": "OH",
+            "OK": "OK",
+            "OR": "OR",
+            "PA": "PA",
+            "RI": "RI",
+            "SC": "SC",
+            "SD": "SD",
+            "TN": "TN",
+            "TX": "TX",
+            "UT": "UT",
+            "VA": "VA",
+            "VT": "VT",
+            "WA": "WA",
+            "WI": "WI",
+            "WV": "WV",
+            "WY": "WY"
+          }
+        },
+        "streetAddress1": {
+          "type": "string",
+          "title": "Street address 1",
+          "x-nullable": true,
+          "example": "123 Main Ave"
+        },
+        "streetAddress2": {
+          "type": "string",
+          "title": "Street address 2",
+          "x-nullable": true,
+          "example": "Apartment 9000"
+        },
+        "streetAddress3": {
+          "type": "string",
+          "title": "Address Line 3",
+          "x-nullable": true,
+          "example": "Montmârtre"
+        }
+      }
+    },
     "PPMDocumentStatusReason": {
       "description": "The reason the services counselor has excluded or rejected the item.",
       "type": "string",
@@ -14669,6 +15088,14 @@ func init() {
         },
         "advanceStatus": {
           "$ref": "#/definitions/PPMAdvanceStatus"
+        },
+        "allowableWeight": {
+          "description": "The allowable weight of the PPM shipment goods being moved.",
+          "type": "integer",
+          "minimum": 0,
+          "x-nullable": true,
+          "x-omitempty": false,
+          "example": 4300
         },
         "approvedAt": {
           "description": "The timestamp of when the shipment was approved and the service member can begin their move.",
@@ -15998,7 +16425,7 @@ func init() {
           "x-nullable": true
         },
         "destinationAddress": {
-          "$ref": "#/definitions/Address"
+          "$ref": "#/definitions/PPMDestinationAddress"
         },
         "estimatedWeight": {
           "type": "integer",
@@ -16236,11 +16663,6 @@ func init() {
           "type": "integer",
           "minimum": 0
         },
-        "allowableWeight": {
-          "description": "Indicates the maximum reimbursable weight of the shipment",
-          "type": "integer",
-          "minimum": 0
-        },
         "emptyWeight": {
           "description": "Weight of the vehicle when empty.",
           "type": "integer",
@@ -16433,13 +16855,6 @@ func init() {
       "properties": {
         "adjustedNetWeight": {
           "description": "Indicates the adjusted net weight of the vehicle",
-          "type": "integer",
-          "minimum": 0,
-          "x-nullable": true,
-          "x-omitempty": false
-        },
-        "allowableWeight": {
-          "description": "Maximum reimbursable weight.",
           "type": "integer",
           "minimum": 0,
           "x-nullable": true,

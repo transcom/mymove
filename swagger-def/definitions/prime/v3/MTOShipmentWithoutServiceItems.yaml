@@ -205,6 +205,10 @@ properties:
       - DIVERSION_REQUESTED
   ppmShipment:
     $ref: 'PPMShipment.yaml'
+  boatShipment:
+    $ref: '../../BoatShipment.yaml'
+  mobileHomeShipment:
+    $ref: '../../MobileHome.yaml'
   deliveryAddressUpdate:
     $ref: '../../ShipmentAddressUpdate.yaml'
   eTag:
@@ -234,3 +238,10 @@ properties:
     type: string
     description: The SIT authorized end date for destination SIT.
     x-nullable: true
+  marketCode:
+    type: string
+    enum:
+      - 'd'
+      - 'i'
+    example: 'd'
+    description: 'Single-letter designator for domestic (d) or international (i) shipments'

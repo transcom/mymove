@@ -16,6 +16,10 @@ type TableFromSliceCreator struct {
 func (_m *TableFromSliceCreator) CreateTableFromSlice(appCtx appcontext.AppContext, slice interface{}) error {
 	ret := _m.Called(appCtx, slice)
 
+	if len(ret) == 0 {
+		panic("no return value specified for CreateTableFromSlice")
+	}
+
 	var r0 error
 	if rf, ok := ret.Get(0).(func(appcontext.AppContext, interface{}) error); ok {
 		r0 = rf(appCtx, slice)

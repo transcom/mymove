@@ -855,7 +855,6 @@ func MakePrimeSimulatorMoveSameBasePointCity(appCtx appcontext.AppContext) model
 				City:           "Miami Gardens",
 				State:          "FL",
 				PostalCode:     "33169",
-				Country:        models.StringPointer("US"),
 			},
 		},
 	}, nil)
@@ -868,7 +867,6 @@ func MakePrimeSimulatorMoveSameBasePointCity(appCtx appcontext.AppContext) model
 				City:           "Key West",
 				State:          "FL",
 				PostalCode:     "33040",
-				Country:        models.StringPointer("US"),
 			},
 		},
 	}, nil)
@@ -3611,7 +3609,7 @@ func MakeHHGMoveWithApprovedNTSShipmentsForTOO(appCtx appcontext.AppContext) mod
 	v := viper.New()
 	featureFlagFetcher, err := featureflag.NewFeatureFlagFetcher(cli.GetFliptFetcherConfig(v))
 	if err != nil {
-		log.Panicf(fmt.Sprintf("Error setting up feature flag fetcher: %s", err))
+		log.Panic(fmt.Errorf("Error setting up feature flag fetcher: %s", err))
 	}
 	serviceItemCreator := mtoserviceitem.NewMTOServiceItemCreator(planner, queryBuilder, moveRouter, ghcrateengine.NewDomesticUnpackPricer(featureFlagFetcher), ghcrateengine.NewDomesticPackPricer(featureFlagFetcher), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(featureFlagFetcher), ghcrateengine.NewDomesticDestinationPricer(featureFlagFetcher), ghcrateengine.NewFuelSurchargePricer(), featureFlagFetcher)
 	shipmentUpdater := mtoshipment.NewMTOShipmentStatusUpdater(queryBuilder, serviceItemCreator, planner, featureFlagFetcher)
@@ -3719,7 +3717,7 @@ func MakeHHGMoveWithApprovedNTSRShipmentsForTOO(appCtx appcontext.AppContext) mo
 	v := viper.New()
 	featureFlagFetcher, err := featureflag.NewFeatureFlagFetcher(cli.GetFliptFetcherConfig(v))
 	if err != nil {
-		log.Panicf(fmt.Sprintf("Error setting up feature flag fetcher: %s", err))
+		log.Panic(fmt.Errorf("Error setting up feature flag fetcher: %s", err))
 	}
 	serviceItemCreator := mtoserviceitem.NewMTOServiceItemCreator(planner, queryBuilder, moveRouter, ghcrateengine.NewDomesticUnpackPricer(featureFlagFetcher), ghcrateengine.NewDomesticPackPricer(featureFlagFetcher), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(featureFlagFetcher), ghcrateengine.NewDomesticDestinationPricer(featureFlagFetcher), ghcrateengine.NewFuelSurchargePricer(), featureFlagFetcher)
 	shipmentUpdater := mtoshipment.NewMTOShipmentStatusUpdater(queryBuilder, serviceItemCreator, planner, featureFlagFetcher)
@@ -3801,6 +3799,64 @@ func MakeHHGMoveNeedsSC(appCtx appcontext.AppContext) models.Move {
 	if err != nil {
 		log.Panic(fmt.Errorf("failed to fetch move: %w", err))
 	}
+	return *newmove
+}
+
+// MakeBoatHaulAwayMoveNeedsSC creates an fully ready move with a boat haul-away shipment needing SC approval
+func MakeBoatHaulAwayMoveNeedsSC(appCtx appcontext.AppContext) models.Move {
+	userUploader := newUserUploader(appCtx)
+
+	userInfo := newUserInfo("customer")
+	moveInfo := scenario.MoveCreatorInfo{
+		UserID:      uuid.Must(uuid.NewV4()),
+		Email:       userInfo.email,
+		SmID:        uuid.Must(uuid.NewV4()),
+		FirstName:   userInfo.firstName,
+		LastName:    userInfo.lastName,
+		MoveID:      uuid.Must(uuid.NewV4()),
+		MoveLocator: models.GenerateLocator(),
+	}
+
+	moveRouter := moverouter.NewMoveRouter()
+
+	move := scenario.CreateBoatHaulAwayMoveForSC(appCtx, userUploader, moveRouter, moveInfo)
+
+	// re-fetch the move so that we ensure we have exactly what is in
+	// the db
+	newmove, err := models.FetchMove(appCtx.DB(), &auth.Session{}, move.ID)
+	if err != nil {
+		log.Panic(fmt.Errorf("failed to fetch move: %w", err))
+	}
+
+	return *newmove
+}
+
+// MakeBoatHaulAwayMoveNeedsTOOApproval creates an fully ready move with a boat haul-away shipment needing SC approval
+func MakeBoatHaulAwayMoveNeedsTOOApproval(appCtx appcontext.AppContext) models.Move {
+	userUploader := newUserUploader(appCtx)
+
+	userInfo := newUserInfo("customer")
+	moveInfo := scenario.MoveCreatorInfo{
+		UserID:      uuid.Must(uuid.NewV4()),
+		Email:       userInfo.email,
+		SmID:        uuid.Must(uuid.NewV4()),
+		FirstName:   userInfo.firstName,
+		LastName:    userInfo.lastName,
+		MoveID:      uuid.Must(uuid.NewV4()),
+		MoveLocator: models.GenerateLocator(),
+	}
+
+	moveRouter := moverouter.NewMoveRouter()
+
+	move := scenario.CreateBoatHaulAwayMoveForTOO(appCtx, userUploader, moveRouter, moveInfo)
+
+	// re-fetch the move so that we ensure we have exactly what is in
+	// the db
+	newmove, err := models.FetchMove(appCtx.DB(), &auth.Session{}, move.ID)
+	if err != nil {
+		log.Panic(fmt.Errorf("failed to fetch move: %w", err))
+	}
+
 	return *newmove
 }
 
@@ -3903,7 +3959,6 @@ func MakeMoveWithPPMShipmentReadyForFinalCloseout(appCtx appcontext.AppContext) 
 				City:           "Miami Gardens",
 				State:          "FL",
 				PostalCode:     "33169",
-				Country:        models.StringPointer("US"),
 			},
 		},
 	}, nil)
@@ -3916,7 +3971,6 @@ func MakeMoveWithPPMShipmentReadyForFinalCloseout(appCtx appcontext.AppContext) 
 				City:           "Key West",
 				State:          "FL",
 				PostalCode:     "33040",
-				Country:        models.StringPointer("US"),
 			},
 		},
 	}, nil)
@@ -5325,8 +5379,8 @@ func MakeHHGMoveInSIT(appCtx appcontext.AppContext) models.Move {
 		},
 	}, nil)
 
-	twoMonthsAgo := now.AddDate(0, 0, -60)
-	oneMonthAgo := now.AddDate(0, 0, -30)
+	twoMonthsAgo := now.AddDate(0, -2, 0)
+	oneMonthAgo := now.AddDate(0, -1, 0)
 	factory.BuildOriginSITServiceItems(appCtx.DB(), move, shipment, &twoMonthsAgo, &oneMonthAgo)
 	factory.BuildDestSITServiceItems(appCtx.DB(), move, shipment, &oneMonthAgo, nil)
 
@@ -5440,10 +5494,10 @@ func HHGMoveWithPastSITs(appCtx appcontext.AppContext) models.Move {
 		},
 	}, nil)
 
-	fourMonthsAgo := now.AddDate(0, 0, -120)
-	threeMonthsAgo := now.AddDate(0, 0, -90)
-	twoMonthsAgo := now.AddDate(0, 0, -60)
-	oneMonthAgo := now.AddDate(0, 0, -30)
+	fourMonthsAgo := now.AddDate(0, -4, 0)
+	threeMonthsAgo := now.AddDate(0, -3, 0)
+	twoMonthsAgo := now.AddDate(0, -2, 0)
+	oneMonthAgo := now.AddDate(0, -1, 0)
 	factory.BuildOriginSITServiceItems(appCtx.DB(), move, shipment, &fourMonthsAgo, &threeMonthsAgo)
 	factory.BuildDestSITServiceItems(appCtx.DB(), move, shipment, &twoMonthsAgo, &oneMonthAgo)
 

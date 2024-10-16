@@ -54,6 +54,7 @@ import {
   faUndoAlt,
   faWeightHanging,
   faDownload,
+  faInfoCircle,
 } from '@fortawesome/free-solid-svg-icons';
 
 library.add(
@@ -109,4 +110,5 @@ library.add(
   faFilePdf,
   faFileImage,
   faFileExcel,
+  faInfoCircle,
 );

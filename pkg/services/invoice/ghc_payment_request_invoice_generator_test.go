@@ -874,16 +874,31 @@ func (suite *GHCInvoiceSuite) TestAllGenerateEdi() {
 
 	suite.Run("adds buyer and seller organization name", func() {
 		setupTestData(nil, nil, nil, nil)
+		mtoShipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model:    mto,
+				LinkOnly: true,
+			},
+			{
+				Model: models.MTOShipment{
+					RequestedPickupDate: &requestedPickupDate,
+					ScheduledPickupDate: &scheduledPickupDate,
+					ActualPickupDate:    &actualPickupDate,
+				},
+			},
+		}, nil)
 		// buyer name
+		pickupGbloc, err1 := models.FetchGBLOCForPostalCode(suite.DB(), mtoShipment.PickupAddress.PostalCode)
+
+		suite.FatalNoError(err1)
 		originDutyLocation := paymentRequest.MoveTaskOrder.Orders.OriginDutyLocation
 		buyerOrg := result.Header.BuyerOrganizationName
-		originDutyLocationGbloc := paymentRequest.MoveTaskOrder.Orders.OriginDutyLocationGBLOC
 		suite.IsType(edisegment.N1{}, buyerOrg)
 		suite.Equal("BY", buyerOrg.EntityIdentifierCode)
 		truncatedOriginDutyLocationName := truncateStr(*models.StringPointer(originDutyLocation.Name), 60)
 		suite.Equal(truncatedOriginDutyLocationName, buyerOrg.Name)
 		suite.Equal("92", buyerOrg.IdentificationCodeQualifier)
-		suite.Equal(*originDutyLocationGbloc, buyerOrg.IdentificationCode)
+		suite.Equal(pickupGbloc.GBLOC, buyerOrg.IdentificationCode)
 
 		sellerOrg := result.Header.SellerOrganizationName
 		suite.IsType(edisegment.N1{}, sellerOrg)
@@ -921,6 +936,9 @@ func (suite *GHCInvoiceSuite) TestAllGenerateEdi() {
 		}
 		// city state info
 		n4 := result.Header.DestinationPostalDetails
+		country, err := models.FetchCountryByID(suite.DB(), *address.CountryId)
+		address.Country = &country
+		suite.NoError(err)
 		suite.IsType(edisegment.N4{}, n4)
 		suite.Equal(address.City, n4.CityName)
 		suite.Equal(address.State, n4.StateOrProvinceCode)
@@ -975,6 +993,9 @@ func (suite *GHCInvoiceSuite) TestAllGenerateEdi() {
 		}
 		suite.Equal(address.State, n4.StateOrProvinceCode)
 		suite.Equal(address.PostalCode, n4.PostalCode)
+		country, err := models.FetchCountryByID(suite.DB(), *address.CountryId)
+		address.Country = &country
+		suite.NoError(err)
 		countryCode, err := address.CountryCode()
 		suite.NoError(err)
 		suite.Equal(*countryCode, n4.CountryCode)
@@ -2751,10 +2772,10 @@ func (suite *GHCInvoiceSuite) TestUseTacToFindLoa() {
 			},
 		}, nil)
 
-		// Update service member affiliation to Coast Guard
-		testCaseAffiliation := models.AffiliationCOASTGUARD
-		move.Orders.ServiceMember.Affiliation = &testCaseAffiliation
-		paymentRequest.MoveTaskOrder.Orders.ServiceMember.Affiliation = &testCaseAffiliation
+		// Update Department Indicator to Coast Guard
+		testCaseDepartmentIndicator := string(models.DepartmentIndicatorCOASTGUARD)
+		move.Orders.DepartmentIndicator = &testCaseDepartmentIndicator
+		paymentRequest.MoveTaskOrder.Orders.DepartmentIndicator = &testCaseDepartmentIndicator
 		paymentRequest.MoveTaskOrder.Orders.ServiceMember.Emplid = models.StringPointer("1234567")
 		err := suite.DB().Save(&move.Orders.ServiceMember)
 		suite.NoError(err)
@@ -2797,10 +2818,10 @@ func (suite *GHCInvoiceSuite) TestUseTacToFindLoa() {
 			},
 		}, nil)
 
-		// Update service member affiliation to Army
-		testCaseAffiliation := models.AffiliationARMY
-		move.Orders.ServiceMember.Affiliation = &testCaseAffiliation
-		paymentRequest.MoveTaskOrder.Orders.ServiceMember.Affiliation = &testCaseAffiliation
+		// Update Department Indicator to Army
+		testCaseDepartmentIndicator := string(models.DepartmentIndicatorARMY)
+		move.Orders.DepartmentIndicator = &testCaseDepartmentIndicator
+		paymentRequest.MoveTaskOrder.Orders.DepartmentIndicator = &testCaseDepartmentIndicator
 		err := suite.DB().Save(&move.Orders.ServiceMember)
 		suite.NoError(err)
 

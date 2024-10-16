@@ -18,8 +18,9 @@ import { searchTransportationOffices } from 'services/internalApi';
 import SERVICE_MEMBER_AGENCIES from 'content/serviceMemberAgencies';
 import { AddressFields } from 'components/form/AddressFields/AddressFields';
 import { OptionalAddressSchema } from 'components/Customer/MtoShipmentForm/validationSchemas';
-import { requiredAddressSchema } from 'utils/validation';
+import { requiredAddressSchema, partialRequiredAddressSchema } from 'utils/validation';
 import { isBooleanFlagEnabled } from 'utils/featureFlags';
+import RequiredTag from 'components/form/RequiredTag';
 
 let meta = '';
 
@@ -36,7 +37,7 @@ let validationShape = {
     address: requiredAddressSchema,
   }),
   destinationAddress: Yup.object().shape({
-    address: requiredAddressSchema,
+    address: partialRequiredAddressSchema,
   }),
   secondaryPickupAddress: Yup.object().shape({
     address: OptionalAddressSchema,
@@ -199,6 +200,7 @@ const DateAndLocationForm = ({ mtoShipment, destinationDutyLocation, serviceMemb
                 <h2>Origin</h2>
                 <AddressFields
                   name="pickupAddress.address"
+                  labelHint="Required"
                   render={(fields) => (
                     <>
                       <p>What address are you moving from?</p>
@@ -213,6 +215,7 @@ const DateAndLocationForm = ({ mtoShipment, destinationDutyLocation, serviceMemb
                       <FormGroup>
                         <Fieldset>
                           <legend className="usa-label">Will you add items to your PPM from a second address?</legend>
+                          <RequiredTag />
                           <Field
                             as={Radio}
                             data-testid="yes-secondary-pickup-address"
@@ -236,7 +239,7 @@ const DateAndLocationForm = ({ mtoShipment, destinationDutyLocation, serviceMemb
                       {values.hasSecondaryPickupAddress === 'true' && (
                         <>
                           <h3>Second pickup location</h3>
-                          <AddressFields name="secondaryPickupAddress.address" />
+                          <AddressFields labelHint="Required" name="secondaryPickupAddress.address" />
                           <Hint className={ppmStyles.hint}>
                             <p>
                               A second origin address could mean that your final incentive is lower than your estimate.
@@ -253,6 +256,7 @@ const DateAndLocationForm = ({ mtoShipment, destinationDutyLocation, serviceMemb
                         <div>
                           <FormGroup>
                             <legend className="usa-label">Will you add items to your PPM from a third address?</legend>
+                            <RequiredTag />
                             <Fieldset>
                               <Field
                                 as={Radio}
@@ -283,7 +287,7 @@ const DateAndLocationForm = ({ mtoShipment, destinationDutyLocation, serviceMemb
                         values.hasTertiaryPickupAddress === 'true' && (
                           <>
                             <h3>Third pickup location</h3>
-                            <AddressFields name="tertiaryPickupAddress.address" />
+                            <AddressFields labelHint="Required" name="tertiaryPickupAddress.address" />
                           </>
                         )}
                     </>
@@ -294,6 +298,10 @@ const DateAndLocationForm = ({ mtoShipment, destinationDutyLocation, serviceMemb
                 <h2>Destination</h2>
                 <AddressFields
                   name="destinationAddress.address"
+                  labelHint="Required"
+                  // White spaces are used specifically to override incoming labelHint prop
+                  // not to display anything.
+                  address1LabelHint=" "
                   render={(fields) => (
                     <>
                       <p>Please input your destination address.</p>
@@ -308,6 +316,7 @@ const DateAndLocationForm = ({ mtoShipment, destinationDutyLocation, serviceMemb
                       <FormGroup>
                         <Fieldset>
                           <legend className="usa-label">Will you deliver part of your PPM to a second address?</legend>
+                          <RequiredTag />
                           <Field
                             as={Radio}
                             data-testid="yes-secondary-destination-address"
@@ -331,7 +340,7 @@ const DateAndLocationForm = ({ mtoShipment, destinationDutyLocation, serviceMemb
                       {values.hasSecondaryDestinationAddress === 'true' && (
                         <>
                           <h3>Second delivery location</h3>
-                          <AddressFields name="secondaryDestinationAddress.address" />
+                          <AddressFields name="secondaryDestinationAddress.address" labelHint="Required" />
                           <Hint className={ppmStyles.hint}>
                             <p>
                               A second destination address could mean that your final incentive is lower than your
@@ -349,6 +358,7 @@ const DateAndLocationForm = ({ mtoShipment, destinationDutyLocation, serviceMemb
                         <div>
                           <FormGroup>
                             <legend className="usa-label">Will you deliver part of your PPM to a third address?</legend>
+                            <RequiredTag />
                             <Fieldset>
                               <Field
                                 as={Radio}
@@ -379,7 +389,7 @@ const DateAndLocationForm = ({ mtoShipment, destinationDutyLocation, serviceMemb
                         values.hasTertiaryDestinationAddress === 'true' && (
                           <>
                             <h3>Third delivery location</h3>
-                            <AddressFields name="tertiaryDestinationAddress.address" />
+                            <AddressFields name="tertiaryDestinationAddress.address" labelHint="Required" />
                           </>
                         )}
                     </>
@@ -401,6 +411,7 @@ const DateAndLocationForm = ({ mtoShipment, destinationDutyLocation, serviceMemb
                     <DutyLocationInput
                       name="closeoutOffice"
                       label="Which closeout office should review your PPM?"
+                      hint="Required"
                       placeholder="Start typing a closeout office..."
                       searchLocations={searchTransportationOffices}
                       metaOverride={meta}
@@ -416,6 +427,7 @@ const DateAndLocationForm = ({ mtoShipment, destinationDutyLocation, serviceMemb
                 <h2>Storage</h2>
                 <Fieldset>
                   <legend className="usa-label">Do you plan to store items from your PPM?</legend>
+                  <RequiredTag />
                   <Field
                     as={Radio}
                     id="sitExpectedYes"
@@ -456,7 +468,11 @@ const DateAndLocationForm = ({ mtoShipment, destinationDutyLocation, serviceMemb
               </SectionWrapper>
               <SectionWrapper className={classnames(ppmStyles.sectionWrapper, formStyles.formSection)}>
                 <h2>Departure date</h2>
-                <DatePickerInput name="expectedDepartureDate" label="When do you plan to start moving your PPM?" />
+                <DatePickerInput
+                  hint="Required"
+                  name="expectedDepartureDate"
+                  label="When do you plan to start moving your PPM?"
+                />
                 <Hint className={ppmStyles.hint}>
                   Enter the first day you expect to move things. It&apos;s OK if the actual date is different. We will
                   ask for your actual departure date when you document and complete your PPM.

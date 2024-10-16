@@ -17,6 +17,12 @@ jest.mock('react-router-dom', () => ({
   ...jest.requireActual('react-router-dom'),
   useNavigate: () => mockNavigate,
 }));
+
+jest.mock('utils/featureFlags', () => ({
+  ...jest.requireActual('utils/featureFlags'),
+  isBooleanFlagEnabled: jest.fn().mockImplementation(() => Promise.resolve(false)),
+}));
+
 const mockRoutingParams = { moveCode: 'move123', shipmentId: 'shipment123' };
 const mockRoutingConfig = { path: servicesCounselingRoutes.BASE_SHIPMENT_EDIT_PATH, params: mockRoutingParams };
 const mockTransportationOffice = [
@@ -390,7 +396,7 @@ describe('ServicesCounselingEditShipmentDetails component', () => {
         ppmShipment.ppmShipment.secondaryPickupAddress.postalCode,
       );
 
-      expect(await screen.getAllByLabelText('Address 1')[2]).toHaveValue(
+      expect(await screen.getAllByLabelText(/Address 1/)[2]).toHaveValue(
         ppmShipment.ppmShipment.destinationAddress.streetAddress1,
       );
       expect(await screen.getAllByLabelText(/Address 2/)[2]).toHaveValue(
@@ -398,23 +404,23 @@ describe('ServicesCounselingEditShipmentDetails component', () => {
       );
       expect(await screen.getAllByLabelText('City')[2]).toHaveValue(ppmShipment.ppmShipment.destinationAddress.city);
       expect(await screen.getAllByLabelText('State')[2]).toHaveValue(ppmShipment.ppmShipment.destinationAddress.state);
-      expect(await screen.getAllByLabelText('ZIP')[2]).toHaveValue(
+      expect(await screen.getAllByLabelText(/ZIP/)[2]).toHaveValue(
         ppmShipment.ppmShipment.destinationAddress.postalCode,
       );
 
-      expect(await screen.getAllByLabelText('Address 1')[3]).toHaveValue(
+      expect(await screen.getAllByLabelText(/Address 1/)[3]).toHaveValue(
         ppmShipment.ppmShipment.secondaryDestinationAddress.streetAddress1,
       );
       expect(await screen.getAllByLabelText(/Address 2/)[3]).toHaveValue(
         ppmShipment.ppmShipment.secondaryDestinationAddress.streetAddress2,
       );
-      expect(await screen.getAllByLabelText('City')[3]).toHaveValue(
+      expect(await screen.getAllByLabelText(/City/)[3]).toHaveValue(
         ppmShipment.ppmShipment.secondaryDestinationAddress.city,
       );
       expect(await screen.getAllByLabelText('State')[3]).toHaveValue(
         ppmShipment.ppmShipment.secondaryDestinationAddress.state,
       );
-      expect(await screen.getAllByLabelText('ZIP')[3]).toHaveValue(
+      expect(await screen.getAllByLabelText(/ZIP/)[3]).toHaveValue(
         ppmShipment.ppmShipment.secondaryDestinationAddress.postalCode,
       );
 
@@ -574,7 +580,7 @@ describe('ServicesCounselingEditShipmentDetails component', () => {
       await userEvent.type(screen.getByLabelText('Estimated storage start'), '15 Jun 2022');
       await userEvent.type(screen.getByLabelText('Estimated storage end'), '25 Jun 2022');
       await userEvent.tab();
-      await userEvent.type(screen.getByLabelText('Closeout location'), 'Altus');
+      await userEvent.type(screen.getByLabelText(/Closeout location/), 'Altus');
       await userEvent.click(await screen.findByText('Altus'));
 
       await waitFor(() => {
@@ -661,7 +667,7 @@ describe('ServicesCounselingEditShipmentDetails component', () => {
       await waitFor(() => {
         expect(screen.getByLabelText('Estimated PPM weight')).toHaveValue('1,111');
       });
-      await userEvent.type(screen.getByLabelText('Closeout location'), 'Altus');
+      await userEvent.type(screen.getByLabelText(/Closeout location/), 'Altus');
       await userEvent.click(await screen.findByText('Altus'));
 
       const saveButton = screen.getByRole('button', { name: 'Save and Continue' });
@@ -692,7 +698,7 @@ describe('ServicesCounselingEditShipmentDetails component', () => {
       await waitFor(() => {
         expect(screen.getByLabelText('Estimated PPM weight')).toHaveValue('1,111');
       });
-      await userEvent.type(screen.getByLabelText('Closeout location'), 'Altus');
+      await userEvent.type(screen.getByLabelText(/Closeout location/), 'Altus');
       await userEvent.click(await screen.findByText('Altus'));
 
       const saveButton = screen.getByRole('button', { name: 'Save and Continue' });

@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { connect } from 'react-redux';
 import { GridContainer, Grid, Alert } from '@trussworks/react-uswds';
-import { useNavigate } from 'react-router';
+import { generatePath, useNavigate } from 'react-router-dom';
 
 import NotificationScrollToTop from 'components/NotificationScrollToTop';
 import OrdersInfoForm from 'components/Customer/OrdersInfoForm/OrdersInfoForm';
@@ -14,19 +14,46 @@ import { withContext } from 'shared/AppContext';
 import { formatDateForSwagger } from 'shared/dates';
 import { formatYesNoAPIValue, dropdownInputOptions } from 'utils/formatters';
 import { ORDERS_TYPE_OPTIONS } from 'constants/orders';
-import { selectServiceMemberFromLoggedInUser } from 'store/entities/selectors';
-import { generalRoutes } from 'constants/routes';
+import { selectCanAddOrders, selectMoveId, selectServiceMemberFromLoggedInUser } from 'store/entities/selectors';
+import { customerRoutes, generalRoutes } from 'constants/routes';
 import withRouter from 'utils/routing';
+import { setCanAddOrders as setCanAddOrdersAction, setMoveId as setMoveIdAction } from 'store/general/actions';
+import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 
-const AddOrders = ({ context, serviceMemberId, updateServiceMember, updateOrders }) => {
+const AddOrders = ({
+  context,
+  serviceMemberId,
+  updateServiceMember,
+  updateOrders,
+  canAddOrders,
+  setCanAddOrders,
+  moveId,
+  setMoveId,
+}) => {
   const [serverError, setServerError] = useState('');
+  const [isLoading, setIsLoading] = useState(true);
+  const [hasSubmitted, setHasSubmitted] = useState(false);
   const navigate = useNavigate();
+
+  // if the user did NOT come from the create a move button, we want to redirect them to their current move
+  // this is an effort to override clicking the browser back button from the upload route
+  useEffect(() => {
+    const redirectUser = async () => {
+      if (!canAddOrders && !hasSubmitted) {
+        const path = moveId ? generatePath(customerRoutes.MOVE_HOME_PATH, { moveId }) : generalRoutes.HOME_PATH;
+        navigate(path);
+      }
+      setIsLoading(false);
+    };
+    redirectUser();
+  }, [canAddOrders, navigate, hasSubmitted, moveId]);
 
   const handleBack = () => {
     navigate(generalRoutes.HOME_PATH);
   };
 
   const submitOrders = async (values) => {
+    setHasSubmitted(true);
     const pendingValues = {
       ...values,
       service_member_id: serviceMemberId,
@@ -38,13 +65,20 @@ const AddOrders = ({ context, serviceMemberId, updateServiceMember, updateOrders
       origin_duty_location_id: values.origin_duty_location.id,
       spouse_has_pro_gear: false,
     };
+    if (!values.origin_duty_location.provides_services_counseling) {
+      pendingValues.counseling_office_id = null;
+    }
 
     try {
       const createdOrders = await createOrders(pendingValues);
+      setMoveId(createdOrders?.moves[0]?.id);
+      setCanAddOrders(false);
       const newOrderId = createdOrders.id;
       updateOrders(createdOrders);
       const updatedServiceMember = await getServiceMember(serviceMemberId);
       updateServiceMember(updatedServiceMember);
+      setMoveId(createdOrders?.moves[0].id);
+      setCanAddOrders(false);
       navigate(`/orders/upload/${newOrderId}`);
     } catch (error) {
       const { response } = error;
@@ -70,6 +104,10 @@ const AddOrders = ({ context, serviceMemberId, updateServiceMember, updateOrders
     : { PERMANENT_CHANGE_OF_STATION: ORDERS_TYPE_OPTIONS.PERMANENT_CHANGE_OF_STATION };
 
   const ordersTypeOptions = dropdownInputOptions(allowedOrdersTypes);
+
+  if (isLoading) {
+    return <LoadingPlaceholder />;
+  }
 
   return (
     <GridContainer data-testid="main-container">
@@ -101,15 +139,21 @@ const AddOrders = ({ context, serviceMemberId, updateServiceMember, updateOrders
 
 const mapStateToProps = (state) => {
   const serviceMember = selectServiceMemberFromLoggedInUser(state);
+  const canAddOrders = selectCanAddOrders(state);
+  const moveId = selectMoveId(state);
 
   return {
     serviceMemberId: serviceMember?.id,
+    canAddOrders,
+    moveId,
   };
 };
 
 const mapDispatchToProps = {
   updateOrders: updateOrdersAction,
   updateServiceMember: updateServiceMemberAction,
+  setCanAddOrders: setCanAddOrdersAction,
+  setMoveId: setMoveIdAction,
 };
 
 export default withContext(withRouter(connect(mapStateToProps, mapDispatchToProps)(AddOrders)));

@@ -1,6 +1,7 @@
 package models_test
 
 import (
+	"github.com/transcom/mymove/pkg/factory"
 	m "github.com/transcom/mymove/pkg/models"
 )
 
@@ -50,19 +51,7 @@ func (suite *ModelSuite) TestAddressCountryCode() {
 	suite.NoError(err)
 	suite.Equal(expected, countryCode)
 
-	usaCountry := m.Address{
-		StreetAddress1: "street 1",
-		StreetAddress2: m.StringPointer("street 2"),
-		StreetAddress3: m.StringPointer("street 3"),
-		City:           "city",
-		State:          "state",
-		PostalCode:     "90210",
-		Country:        m.StringPointer("United States"),
-	}
-	countryCode, err = usaCountry.CountryCode()
-	suite.NoError(err)
-	suite.Equal("USA", *countryCode)
-
+	country := factory.FetchOrBuildCountry(suite.DB(), nil, nil)
 	usCountry := m.Address{
 		StreetAddress1: "street 1",
 		StreetAddress2: m.StringPointer("street 2"),
@@ -70,27 +59,44 @@ func (suite *ModelSuite) TestAddressCountryCode() {
 		City:           "city",
 		State:          "state",
 		PostalCode:     "90210",
-		Country:        m.StringPointer("US"),
-		County:         "county",
+		Country:        &country,
 	}
 	countryCode, err = usCountry.CountryCode()
 	suite.NoError(err)
-	suite.Equal("USA", *countryCode)
+	suite.Equal("US", *countryCode)
+}
 
-	notUsaCountry := m.Address{
+func (suite *ModelSuite) TestIsAddressOconusNoCountry() {
+	address := m.Address{
 		StreetAddress1: "street 1",
 		StreetAddress2: m.StringPointer("street 2"),
 		StreetAddress3: m.StringPointer("street 3"),
 		City:           "city",
-		State:          "state",
-		PostalCode:     "90210",
+		State:          "SC",
+		PostalCode:     "29229",
 		County:         "county",
-		Country:        m.StringPointer("Ireland"),
 	}
 
-	countryCode, err = notUsaCountry.CountryCode()
-	suite.Nil(countryCode)
-	suite.Error(err)
-	suite.Equal("NotImplementedCountryCode: Country 'Ireland'", err.Error())
+	result, err := m.IsAddressOconus(suite.DB(), address)
+	suite.NoError(err)
 
+	suite.Equal(false, result)
+}
+
+// Test IsOconus logic for an address with no country and a state of AK
+func (suite *ModelSuite) TestIsAddressOconusForAKState() {
+	address := m.Address{
+		StreetAddress1: "street 1",
+		StreetAddress2: m.StringPointer("street 2"),
+		StreetAddress3: m.StringPointer("street 3"),
+		City:           "Anchorage",
+		State:          "AK",
+		PostalCode:     "99502",
+		County:         "county",
+	}
+
+	result, err := m.IsAddressOconus(suite.DB(), address)
+	suite.NoError(err)
+
+	suite.Equal(true, result)
 }

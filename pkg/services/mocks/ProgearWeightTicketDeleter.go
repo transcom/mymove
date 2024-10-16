@@ -18,6 +18,10 @@ type ProgearWeightTicketDeleter struct {
 func (_m *ProgearWeightTicketDeleter) DeleteProgearWeightTicket(appCtx appcontext.AppContext, ppmID uuid.UUID, progearWeightTicketID uuid.UUID) error {
 	ret := _m.Called(appCtx, ppmID, progearWeightTicketID)
 
+	if len(ret) == 0 {
+		panic("no return value specified for DeleteProgearWeightTicket")
+	}
+
 	var r0 error
 	if rf, ok := ret.Get(0).(func(appcontext.AppContext, uuid.UUID, uuid.UUID) error); ok {
 		r0 = rf(appCtx, ppmID, progearWeightTicketID)

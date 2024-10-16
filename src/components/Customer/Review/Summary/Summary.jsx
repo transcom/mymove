@@ -21,6 +21,7 @@ import NTSRShipmentCard from 'components/Customer/Review/ShipmentCard/NTSRShipme
 import NTSShipmentCard from 'components/Customer/Review/ShipmentCard/NTSShipmentCard/NTSShipmentCard';
 import PPMShipmentCard from 'components/Customer/Review/ShipmentCard/PPMShipmentCard/PPMShipmentCard';
 import BoatShipmentCard from 'components/Customer/Review/ShipmentCard/BoatShipmentCard/BoatShipmentCard';
+import MobileHomeShipmentCard from 'components/Customer/Review/ShipmentCard/MobileHomeShipmentCard/MobileHomeShipmentCard';
 import SectionWrapper from 'components/Customer/SectionWrapper';
 import { ORDERS_BRANCH_OPTIONS, ORDERS_PAY_GRADE_OPTIONS } from 'constants/orders';
 import { customerRoutes } from 'constants/routes';
@@ -56,6 +57,8 @@ export class Summary extends Component {
       enableNTS: true,
       enableNTSR: true,
       enableBoat: true,
+      enableMobileHome: true,
+      enableUB: true,
     };
   }
 
@@ -88,6 +91,16 @@ export class Summary extends Component {
     isBooleanFlagEnabled(FEATURE_FLAG_KEYS.BOAT).then((enabled) => {
       this.setState({
         enableBoat: enabled,
+      });
+    });
+    isBooleanFlagEnabled(FEATURE_FLAG_KEYS.MOBILE_HOME).then((enabled) => {
+      this.setState({
+        enableMobileHome: enabled,
+      });
+    });
+    isBooleanFlagEnabled(FEATURE_FLAG_KEYS.UNACCOMPANIED_BAGGAGE).then((enabled) => {
+      this.setState({
+        enableUB: enabled,
       });
     });
   }
@@ -164,6 +177,8 @@ export class Summary extends Component {
     let hhgShipmentNumber = 0;
     let ppmShipmentNumber = 0;
     let boatShipmentNumber = 0;
+    let mobileHomeShipmentNumber = 0;
+    let ubShipmentNumber = 0;
     return sortedShipments.map((shipment) => {
       let receivingAgent;
       let releasingAgent;
@@ -265,6 +280,65 @@ export class Summary extends Component {
           />
         );
       }
+      if (shipment.shipmentType === SHIPMENT_TYPES.MOBILE_HOME) {
+        mobileHomeShipmentNumber += 1;
+        return (
+          <MobileHomeShipmentCard
+            key={shipment.id}
+            shipment={shipment}
+            destinationZIP={currentOrders.new_duty_location.address.postalCode}
+            secondaryDeliveryAddress={shipment?.secondaryDeliveryAddress}
+            tertiaryDeliveryAddress={shipment?.tertiaryDeliveryAddress}
+            secondaryPickupAddress={shipment?.secondaryPickupAddress}
+            tertiaryPickupAddress={shipment?.tertiaryPickupAddress}
+            destinationLocation={shipment?.destinationAddress}
+            moveId={moveId}
+            onEditClick={this.handleEditClick}
+            onDeleteClick={this.handleDeleteClick}
+            pickupLocation={shipment.pickupAddress}
+            receivingAgent={receivingAgent}
+            releasingAgent={releasingAgent}
+            remarks={shipment.customerRemarks}
+            requestedDeliveryDate={shipment.requestedDeliveryDate}
+            requestedPickupDate={shipment.requestedPickupDate}
+            shipmentId={shipment.id}
+            shipmentNumber={mobileHomeShipmentNumber}
+            showEditAndDeleteBtn={showEditAndDeleteBtn}
+            status={shipment.status}
+            onIncompleteClick={this.toggleIncompleteShipmentModal}
+          />
+        );
+      }
+      if (shipment.shipmentType === SHIPMENT_TYPES.UNACCOMPANIED_BAGGAGE) {
+        ubShipmentNumber += 1;
+        return (
+          <HHGShipmentCard
+            key={shipment.id}
+            destinationZIP={currentOrders.new_duty_location.address.postalCode}
+            secondaryDeliveryAddress={shipment?.secondaryDeliveryAddress}
+            tertiaryDeliveryAddress={shipment?.tertiaryDeliveryAddress}
+            secondaryPickupAddress={shipment?.secondaryPickupAddress}
+            tertiaryPickupAddress={shipment?.tertiaryPickupAddress}
+            destinationLocation={shipment?.destinationAddress}
+            moveId={moveId}
+            onEditClick={this.handleEditClick}
+            onDeleteClick={this.handleDeleteClick}
+            pickupLocation={shipment.pickupAddress}
+            receivingAgent={receivingAgent}
+            releasingAgent={releasingAgent}
+            remarks={shipment.customerRemarks}
+            requestedDeliveryDate={shipment.requestedDeliveryDate}
+            requestedPickupDate={shipment.requestedPickupDate}
+            shipmentId={shipment.id}
+            shipmentLocator={shipment.shipmentLocator}
+            shipmentNumber={ubShipmentNumber}
+            shipmentType={shipment.shipmentType}
+            showEditAndDeleteBtn={showEditAndDeleteBtn}
+            status={shipment.status}
+            onIncompleteClick={this.toggleIncompleteShipmentModal}
+          />
+        );
+      }
       hhgShipmentNumber += 1;
       return (
         <HHGShipmentCard
@@ -325,6 +399,7 @@ export class Summary extends Component {
       enableNTS,
       enableNTSR,
       enableBoat,
+      enableMobileHome,
     } = this.state;
 
     const { pathname } = router.location;
@@ -418,6 +493,7 @@ export class Summary extends Component {
             payGrade={ORDERS_PAY_GRADE_OPTIONS[currentOrders?.grade] || ''}
             originDutyLocationName={currentOrders.origin_duty_location.name}
             orderId={currentOrders.id}
+            counselingOfficeName={currentMove.counselingOffice?.name || ''}
           />
         </SectionWrapper>
         {thirdSectionHasContent && (
@@ -462,6 +538,7 @@ export class Summary extends Component {
           enableNTS={enableNTS}
           enableNTSR={enableNTSR}
           enableBoat={enableBoat}
+          enableMobileHome={enableMobileHome}
         />
       </>
     );

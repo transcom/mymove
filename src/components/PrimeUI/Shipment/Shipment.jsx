@@ -444,6 +444,66 @@ const Shipment = ({ shipment, moveId, onDelete, mtoServiceItems }) => {
           </div>
         </>
       )}
+      {shipment.boatShipment && (
+        <>
+          <h4>Boat-Shipment Specific Fields</h4>
+          <div className={descriptionListStyles.row}>
+            <dt>Shipment Type:</dt>
+            <dd>{shipment.boatShipment.type}</dd>
+          </div>
+          <div className={descriptionListStyles.row}>
+            <dt>Boat Year:</dt>
+            <dd>{shipment.boatShipment.year}</dd>
+          </div>
+          <div className={descriptionListStyles.row}>
+            <dt>Boat Make:</dt>
+            <dd>{shipment.boatShipment.make}</dd>
+          </div>
+          <div className={descriptionListStyles.row}>
+            <dt>Boat Model:</dt>
+            <dd>{shipment.boatShipment.model}</dd>
+          </div>
+          <div className={descriptionListStyles.row}>
+            <dt>Boat Dimensions (Inches):</dt>
+            <dd>Length: {shipment.boatShipment.lengthInInches}</dd>
+            <dd>Width: {shipment.boatShipment.widthInInches}</dd>
+            <dd>Height: {shipment.boatShipment.heightInInches}</dd>
+          </div>
+          <div className={descriptionListStyles.row}>
+            <dt>Has Trailer:</dt>
+            <dd>{shipment.boatShipment.hasTrailer ? 'Yes' : 'No'}</dd>
+          </div>
+          {shipment.boatShipment.hasTrailer && (
+            <div className={descriptionListStyles.row}>
+              <dt>Trailer is Roadworthy:</dt>
+              <dd>{shipment.boatShipment.isRoadworthy ? 'Yes' : 'No'}</dd>
+            </div>
+          )}
+        </>
+      )}
+      {shipment.mobileHomeShipment && (
+        <>
+          <h4>Mobile-Home-Shipment Specific Fields</h4>
+          <div className={descriptionListStyles.row}>
+            <dt>Mobile Home Year:</dt>
+            <dd>{shipment.mobileHomeShipment.year}</dd>
+          </div>
+          <div className={descriptionListStyles.row}>
+            <dt>Mobile Home Make:</dt>
+            <dd>{shipment.mobileHomeShipment.make}</dd>
+          </div>
+          <div className={descriptionListStyles.row}>
+            <dt>Mobile Home Model:</dt>
+            <dd>{shipment.mobileHomeShipment.model}</dd>
+          </div>
+          <div className={descriptionListStyles.row}>
+            <dt>Mobile Home Dimensions (Inches):</dt>
+            <dd>Length: {shipment.mobileHomeShipment.lengthInInches}</dd>
+            <dd>Width: {shipment.mobileHomeShipment.widthInInches}</dd>
+            <dd>Height: {shipment.mobileHomeShipment.heightInInches}</dd>
+          </div>
+        </>
+      )}
     </dl>
   );
 };

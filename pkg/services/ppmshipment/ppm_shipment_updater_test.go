@@ -443,7 +443,6 @@ func (suite *PPMShipmentSuite) TestUpdatePPMShipment() {
 					City:           "Des Moines",
 					State:          "IA",
 					PostalCode:     "50309",
-					Country:        models.StringPointer("US"),
 				},
 				Type: &factory.Addresses.PickupAddress,
 			},
@@ -455,7 +454,6 @@ func (suite *PPMShipmentSuite) TestUpdatePPMShipment() {
 					City:           "Fort Eisenhower",
 					State:          "GA",
 					PostalCode:     "50309",
-					Country:        models.StringPointer("US"),
 				},
 				Type: &factory.Addresses.DeliveryAddress,
 			},
@@ -470,7 +468,6 @@ func (suite *PPMShipmentSuite) TestUpdatePPMShipment() {
 				City:           "Des Moines",
 				State:          "IA",
 				PostalCode:     "50308",
-				Country:        models.StringPointer("US"),
 			},
 			DestinationAddress: &models.Address{
 				StreetAddress1: "987 Other Avenue",
@@ -479,7 +476,6 @@ func (suite *PPMShipmentSuite) TestUpdatePPMShipment() {
 				City:           "Fort Eisenhower",
 				State:          "GA",
 				PostalCode:     "30183",
-				Country:        models.StringPointer("US"),
 			},
 		}
 
@@ -676,6 +672,35 @@ func (suite *PPMShipmentSuite) TestUpdatePPMShipment() {
 		suite.Nil(updatedPPM.ProGearWeight)
 		suite.Nil(updatedPPM.SpouseProGearWeight)
 		suite.Equal(*newFakeEstimatedIncentive, *updatedPPM.EstimatedIncentive)
+	})
+
+	suite.Run("Can successfully update a PPMShipment - edit just allowable weight", func() {
+		appCtx := suite.AppContextWithSessionForTest(&auth.Session{})
+
+		subtestData := setUpForTests(nil, nil, nil)
+
+		originalPPM := factory.BuildMinimalPPMShipment(appCtx.DB(), []factory.Customization{
+			{
+				Model: models.PPMShipment{
+					EstimatedWeight: models.PoundPointer(4000),
+					AllowableWeight: models.PoundPointer(3000),
+				},
+			},
+		}, nil)
+
+		newPPM := models.PPMShipment{
+			AllowableWeight: models.PoundPointer(4545),
+		}
+
+		updatedPPM, err := subtestData.ppmShipmentUpdater.UpdatePPMShipmentWithDefaultCheck(appCtx, &newPPM, originalPPM.ShipmentID)
+
+		suite.NilOrNoVerrs(err)
+
+		// Fields that shouldn't have changed
+		suite.Equal(originalPPM.EstimatedWeight, updatedPPM.EstimatedWeight)
+
+		// Fields that should now be updated
+		suite.Equal(*newPPM.AllowableWeight, *updatedPPM.AllowableWeight)
 	})
 
 	suite.Run("Can successfully update a PPMShipment - add advance info - no advance", func() {
@@ -1193,7 +1218,6 @@ func (suite *PPMShipmentSuite) TestUpdatePPMShipment() {
 				City:           city,
 				State:          state,
 				PostalCode:     postalCode,
-				Country:        models.StringPointer(""),
 			},
 		}
 		updatedPPM, err := subtestData.ppmShipmentUpdater.UpdatePPMShipmentWithDefaultCheck(appCtx, &newPPM, originalPPM.ShipmentID)
@@ -1207,7 +1231,7 @@ func (suite *PPMShipmentSuite) TestUpdatePPMShipment() {
 		suite.Equal(postalCode, updatedPPM.W2Address.PostalCode)
 		suite.Nil(updatedPPM.W2Address.StreetAddress2)
 		suite.Nil(updatedPPM.W2Address.StreetAddress3)
-		suite.Nil(updatedPPM.W2Address.Country)
+		suite.NotNil(updatedPPM.W2Address.Country)
 	})
 
 	suite.Run("Can successfully update a PPMShipment - modify W-2 address", func() {
@@ -1250,7 +1274,7 @@ func (suite *PPMShipmentSuite) TestUpdatePPMShipment() {
 		suite.Equal(state, updatedPPM.W2Address.State)
 		suite.Equal(postalCode, updatedPPM.W2Address.PostalCode)
 		suite.Equal(*address.StreetAddress3, *updatedPPM.W2Address.StreetAddress3)
-		suite.Equal(*address.Country, *updatedPPM.W2Address.Country)
+		suite.Equal(address.CountryId, updatedPPM.W2Address.CountryId)
 	})
 
 	suite.Run("Can successfully update a PPMShipment - add Pickup and Destination address", func() {
