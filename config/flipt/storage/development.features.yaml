@@ -65,6 +65,14 @@ flags:
       - segment:
           key: mil-app
           value: true
+  - key: enable_alaska
+    name: Enable Alaska feature flag
+    type: BOOLEAN_FLAG_TYPE
+    enabled: false
+    rollouts:
+      - segment:
+          key: mil-app
+          value: false
   - key: okta_dodid_input
     name: Customer DODID input being pulled from Okta and disabling text input
     type: BOOLEAN_FLAG_TYPE

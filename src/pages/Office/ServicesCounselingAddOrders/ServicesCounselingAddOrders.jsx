@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useQueryClient, useMutation } from '@tanstack/react-query';
 import { GridContainer, Grid } from '@trussworks/react-uswds';
 import { generatePath, useLocation, useNavigate, useParams } from 'react-router-dom';
+import { connect } from 'react-redux';
 
 import styles from './ServicesCounselingAddOrders.module.scss';
 
@@ -15,24 +16,34 @@ import { servicesCounselingRoutes } from 'constants/routes';
 import { milmoveLogger } from 'utils/milmoveLog';
 import { isBooleanFlagEnabled } from 'utils/featureFlags';
 import { elevatedPrivilegeTypes } from 'constants/userPrivileges';
+import withRouter from 'utils/routing';
+import { withContext } from 'shared/AppContext';
+import { setCanAddOrders as setCanAddOrdersAction } from 'store/general/actions';
+import { selectCanAddOrders } from 'store/entities/selectors';
 
-const ServicesCounselingAddOrders = ({ userPrivileges }) => {
+const ServicesCounselingAddOrders = ({ userPrivileges, canAddOrders, setCanAddOrders }) => {
   const { customerId } = useParams();
   const { state } = useLocation();
   const isSafetyMoveSelected = state?.isSafetyMoveSelected;
   const navigate = useNavigate();
+  const [isSafetyMoveFF, setSafetyMoveFF] = useState(false);
+  const [hasSubmitted, setHasSubmitted] = useState(false);
+
   const handleBack = () => {
     navigate(-1);
   };
+
   const handleClose = (moveCode) => {
     const path = generatePath(servicesCounselingRoutes.BASE_MOVE_VIEW_PATH, {
       moveCode,
     });
     navigate(path);
   };
+
   const queryClient = useQueryClient();
   const { mutate: mutateOrders } = useMutation(counselingCreateOrder, {
     onSuccess: (data) => {
+      setCanAddOrders(false);
       const orderID = Object.keys(data.orders)[0];
       const updatedOrder = data.orders[orderID];
       queryClient.setQueryData([ORDERS, orderID], {
@@ -50,7 +61,15 @@ const ServicesCounselingAddOrders = ({ userPrivileges }) => {
     },
   });
 
-  const [isSafetyMoveFF, setSafetyMoveFF] = useState(false);
+  useEffect(() => {
+    const redirectUser = async () => {
+      if (!canAddOrders && !hasSubmitted) {
+        const path = generatePath(servicesCounselingRoutes.BASE_QUEUE_VIEW_PATH);
+        navigate(path);
+      }
+    };
+    redirectUser();
+  }, [canAddOrders, hasSubmitted, navigate]);
 
   useEffect(() => {
     isBooleanFlagEnabled('safety_move').then((enabled) => {
@@ -79,6 +98,7 @@ const ServicesCounselingAddOrders = ({ userPrivileges }) => {
   };
 
   const handleSubmit = (values) => {
+    setHasSubmitted(true);
     const body = {
       ...values,
       serviceMemberId: customerId,
@@ -110,4 +130,12 @@ const ServicesCounselingAddOrders = ({ userPrivileges }) => {
   );
 };
 
-export default ServicesCounselingAddOrders;
+const mapStateToProps = (state) => {
+  const canAddOrders = selectCanAddOrders(state);
+
+  return { canAddOrders };
+};
+
+const mapDispatchToProps = { setCanAddOrders: setCanAddOrdersAction };
+
+export default withContext(withRouter(connect(mapStateToProps, mapDispatchToProps)(ServicesCounselingAddOrders)));
