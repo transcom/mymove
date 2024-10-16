@@ -5,7 +5,6 @@ import (
 	"log"
 
 	"github.com/gobuffalo/pop/v6"
-	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
@@ -16,15 +15,23 @@ func BuildState(db *pop.Connection, customs []Customization, traits []Trait) mod
 	customs = setupCustomizations(customs, traits)
 
 	var cState models.State
-	if result := findValidCustomization(customs, UsPostRegionCity); result != nil {
+	if result := findValidCustomization(customs, State); result != nil {
 		cState = result.Model.(models.State)
 		if result.LinkOnly {
 			return cState
 		}
 	}
 
+	// Check if the state provided already exists in the database
+	if db != nil {
+		var existingState models.State
+		err := db.Where("state = ?", cState.State).First(&existingState)
+		if err == nil {
+			return existingState
+		}
+	}
+
 	state := models.State{
-		ID:        uuid.Must(uuid.NewV4()),
 		State:     "CA",
 		StateName: "CALIFORNIA",
 		IsOconus:  false,

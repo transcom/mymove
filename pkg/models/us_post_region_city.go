@@ -29,6 +29,7 @@ type UsPostRegionCity struct {
 	UpdatedAt          time.Time    `db:"updated_at" json:"updated_at"`
 	UsPostRegionId     uuid.UUID    `db:"us_post_regions_id" json:"us_post_regions_id"`
 	UsPostRegion       UsPostRegion `belongs_to:"re_us_post_regions" fk_id:"us_post_regions_id"`
+	CityId             uuid.UUID    `db:"cities_id" json:"cities_id"`
 	City               City         `belongs_to:"re_cities" fk_id:"cities_id"`
 }
 

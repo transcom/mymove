@@ -2,7 +2,6 @@ package factory
 
 import (
 	"github.com/gobuffalo/pop/v6"
-	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
@@ -21,7 +20,6 @@ func BuildUsPostRegion(db *pop.Connection, customs []Customization, traits []Tra
 	}
 
 	usPostRegion := models.UsPostRegion{
-		ID:        uuid.Must(uuid.NewV4()),
 		UsprZipID: "90210",
 		Zip3:      "902",
 	}

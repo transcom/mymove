@@ -30,6 +30,7 @@ func BuildUsPostRegionCity(db *pop.Connection, customs []Customization, traits [
 		UsprcCountyNm:      "LOS ANGELES",
 		CtryGencDgphCd:     "US",
 		City:               city,
+		CityId:             city.ID,
 		UsPostRegion:       usPostRegion,
 		UsPostRegionId:     usPostRegion.ID,
 	}

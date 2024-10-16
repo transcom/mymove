@@ -2,7 +2,6 @@ package factory
 
 import (
 	"github.com/gobuffalo/pop/v6"
-	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
@@ -20,8 +19,16 @@ func BuildCity(db *pop.Connection, customs []Customization, traits []Trait) mode
 		}
 	}
 
+	// Check if the state provided already exists in the database
+	if db != nil {
+		var existingCity models.City
+		err := db.Where("city_id = ?", cCity.ID).First(&existingCity)
+		if err == nil {
+			return existingCity
+		}
+	}
+
 	city := models.City{
-		ID:       uuid.Must(uuid.NewV4()),
 		CityName: "Beverly Hills",
 		IsOconus: false,
 	}
