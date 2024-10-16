@@ -507,15 +507,11 @@ func nameFilter(name *string) QueryOption {
 		}
 
 		// Remove "," that user may enter between names (displayed on frontend column)
-		nameSearch := *name
+		nameQueryParam := *name
 		removeCharsRegex := regexp.MustCompile("[,]+")
-		nameSearch = removeCharsRegex.ReplaceAllString(nameSearch, "")
-
-		// Regex to avoid SQL Injections
-		approvedCharsRegex := regexp.MustCompile("^[A-Za-z ]+$")
-		if approvedCharsRegex.MatchString(nameSearch) {
-			query.Where("(service_members.last_name || ' ' || service_members.first_name) ILIKE '%" + nameSearch + "%'")
-		}
+		nameQueryParam = removeCharsRegex.ReplaceAllString(nameQueryParam, "")
+		nameQueryParam = fmt.Sprintf("%%%s%%", nameQueryParam)
+		query.Where("(service_members.last_name || ' ' || service_members.first_name) ILIKE ?", nameQueryParam)
 	}
 }
 
