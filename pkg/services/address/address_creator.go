@@ -36,6 +36,13 @@ func (f *addressCreator) CreateAddress(appCtx appcontext.AppContext, address *mo
 		transformedAddress.County = county
 	}
 
+	// Evaluate address and populate addresses isOconus value
+	isOconus, err := models.IsAddressOconus(appCtx.DB(), transformedAddress)
+	if err != nil {
+		return nil, err
+	}
+	transformedAddress.IsOconus = &isOconus
+
 	txnErr := appCtx.NewTransaction(func(txnCtx appcontext.AppContext) error {
 		verrs, err := txnCtx.DB().Eager().ValidateAndCreate(&transformedAddress)
 		if verrs != nil && verrs.HasAny() {

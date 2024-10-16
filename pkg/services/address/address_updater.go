@@ -47,6 +47,13 @@ func (f *addressUpdater) UpdateAddress(appCtx appcontext.AppContext, address *mo
 		return nil, err
 	}
 
+	// Evaluate address and populate addresses isOconus value
+	isOconus, err := models.IsAddressOconus(appCtx.DB(), mergedAddress)
+	if err != nil {
+		return nil, err
+	}
+	mergedAddress.IsOconus = &isOconus
+
 	txnErr := appCtx.NewTransaction(func(txnCtx appcontext.AppContext) error {
 		verrs, err := txnCtx.DB().ValidateAndUpdate(&mergedAddress)
 		if verrs != nil && verrs.HasAny() {

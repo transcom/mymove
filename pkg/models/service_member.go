@@ -212,6 +212,15 @@ func SaveServiceMember(appCtx appcontext.AppContext, serviceMember *ServiceMembe
 				responseError = err
 				return err
 			}
+
+			// Evaluate address and populate addresses isOconus value
+			isOconus, err := IsAddressOconus(appCtx.DB(), *serviceMember.ResidentialAddress)
+			if err != nil {
+				responseError = err
+				return err
+			}
+			serviceMember.ResidentialAddress.IsOconus = &isOconus
+
 			serviceMember.ResidentialAddress.County = county
 			if verrs, err := txnAppCtx.DB().ValidateAndSave(serviceMember.ResidentialAddress); verrs.HasAny() || err != nil {
 				responseVErrors.Append(verrs)
@@ -235,6 +244,14 @@ func SaveServiceMember(appCtx appcontext.AppContext, serviceMember *ServiceMembe
 			}
 			serviceMember.BackupMailingAddressID = &serviceMember.BackupMailingAddress.ID
 		}
+
+		// Evaluate address and populate addresses isOconus value
+		isOconus, err := IsAddressOconus(appCtx.DB(), *serviceMember.BackupMailingAddress)
+		if err != nil {
+			responseError = err
+			return err
+		}
+		serviceMember.BackupMailingAddress.IsOconus = &isOconus
 
 		if verrs, err := txnAppCtx.DB().ValidateAndSave(serviceMember); verrs.HasAny() || err != nil {
 			responseVErrors.Append(verrs)

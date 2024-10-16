@@ -52,6 +52,7 @@ func (suite *FactorySuite) TestBuildAddress() {
 					City:           customCity,
 					State:          customState,
 					PostalCode:     customPostalCode,
+					IsOconus:       models.BoolPointer(false),
 				},
 			},
 		}, nil)
@@ -96,6 +97,7 @@ func (suite *FactorySuite) TestBuildAddress() {
 				Model: models.Address{
 					StreetAddress1: customAddress1,
 					StreetAddress2: customAddress2,
+					IsOconus:       models.BoolPointer(false),
 				},
 			},
 		}, []Trait{
@@ -125,6 +127,7 @@ func (suite *FactorySuite) TestBuildAddress() {
 			{
 				Model: models.Address{
 					StreetAddress1: customAddress1,
+					IsOconus:       models.BoolPointer(false),
 				},
 			},
 		}, []Trait{
@@ -168,6 +171,7 @@ func (suite *FactorySuite) TestBuildAddress() {
 					PostalCode:     customPostalCode,
 					Country:        models.StringPointer("Canada"),
 					County:         "County",
+					IsOconus:       models.BoolPointer(false),
 				},
 				LinkOnly: true,
 			},

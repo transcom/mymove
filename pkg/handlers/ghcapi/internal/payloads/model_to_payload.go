@@ -724,6 +724,7 @@ func Address(address *models.Address) *ghcmessages.Address {
 		Country:        address.Country,
 		County:         &address.County,
 		ETag:           etag.GenerateEtag(address.UpdatedAt),
+		IsOconus:       address.IsOconus,
 	}
 }
 

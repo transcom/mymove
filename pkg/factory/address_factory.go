@@ -81,6 +81,7 @@ func BuildMinimalAddress(db *pop.Connection, customs []Customization, traits []T
 		State:          "GA",
 		PostalCode:     "30813",
 		Country:        models.StringPointer("US"),
+		IsOconus:       models.BoolPointer(false),
 	}
 
 	// Overwrite values with those from customizations
