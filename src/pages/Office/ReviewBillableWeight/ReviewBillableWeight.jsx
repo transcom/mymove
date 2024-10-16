@@ -139,7 +139,7 @@ export default function ReviewBillableWeight() {
   }, [filteredShipments, selectedShipmentIndex]);
 
   useEffect(() => {
-    if (selectedShipment.shipmentType === 'PPM') {
+    if (!isLoading && selectedShipment.shipmentType === 'PPM') {
       let currentTotalWeight = 0;
       selectedShipment.ppmShipment.weightTickets.forEach((weight) => {
         currentTotalWeight += weight.fullWeight - weight.emptyWeight;
@@ -151,7 +151,7 @@ export default function ReviewBillableWeight() {
       };
       setPpmShipmentInfo(updatedPpmShipmentInfo);
     }
-  }, [selectedShipment]);
+  }, [isLoading, selectedShipment]);
 
   const queryClient = useQueryClient();
   const { mutate: mutateMTOShipment } = useMutation(updateMTOShipment, {
