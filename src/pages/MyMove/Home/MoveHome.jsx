@@ -112,7 +112,8 @@ const MoveHome = ({ serviceMemberMoves, isProfileComplete, serviceMember, signed
         setShowCancelSuccessAlert(false);
       })
       .finally(() => {
-        setShowCancelMoveModal(false);
+        const path = generatePath('/');
+        navigate(path);
       });
   };
 
