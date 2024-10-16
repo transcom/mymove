@@ -37,12 +37,6 @@
   }
 }
 
-.shipment-btns {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
 :global(.usa-button).edit-btn {
   background-color: transparent;
   color: $primary;
