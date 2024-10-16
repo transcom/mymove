@@ -118,6 +118,23 @@ jest.mock('components/LocationSearchBox/api', () => ({
       },
       {
         address: {
+          city: 'Elmendorf AFB',
+          country: 'United States',
+          id: 'fa51dab0-4553-4732-b843-1f33407f11bc',
+          postalCode: '78112',
+          state: 'AK',
+          streetAddress1: 'n/a',
+          isOconus: true,
+        },
+        address_id: '25ae4d12-fe93-47f1-bbec-1db386dfa32f',
+        affiliation: 'AIR_FORCE',
+        created_at: '2021-02-11T16:48:04.117Z',
+        id: 'a8d6b33c-8370-4e92-8df2-356b8c9d0c1a',
+        name: 'Elmendorf AFB',
+        updated_at: '2021-02-11T16:48:04.117Z',
+      },
+      {
+        address: {
           city: '',
           id: '00000000-0000-0000-0000-000000000000',
           postalCode: '',
@@ -245,6 +262,86 @@ describe('Add Orders page', () => {
     const nextBtn = await screen.findByRole('button', { name: 'Next' });
     expect(nextBtn).toBeInTheDocument();
     expect(nextBtn).toBeDisabled();
+  });
+
+  it('does not render conditional dependent fields on load', async () => {
+    selectServiceMemberFromLoggedInUser.mockImplementation(() => serviceMember);
+    renderWithProviders(<AddOrders {...testProps} />, {
+      path: customerRoutes.ORDERS_ADD_PATH,
+    });
+
+    await screen.findByRole('heading', { level: 1, name: 'Tell us about your move orders' });
+    expect(screen.queryByText('Is this an accompanied tour?')).not.toBeInTheDocument();
+    expect(screen.queryByLabelText(/Number of dependents under the age of 12/)).not.toBeInTheDocument();
+    expect(screen.queryByLabelText(/Number of dependents over the age of 12/)).not.toBeInTheDocument();
+    expect(
+      screen.queryByText(
+        'Unaccompanied Tour: An authorized order (assignment or tour) that DOES NOT allow dependents to travel to the new Permanent Duty Station (PDS)',
+      ),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.queryByText(
+        'Accompanied Tour: An authorized order (assignment or tour) that allows dependents to travel to the new Permanent Duty Station (PDS)',
+      ),
+    ).not.toBeInTheDocument();
+  });
+
+  it('does not render the input boxes for number of dependents over or under 12 if both locations are CONUS', async () => {
+    selectServiceMemberFromLoggedInUser.mockImplementation(() => serviceMember);
+    renderWithProviders(<AddOrders {...testProps} />, {
+      path: customerRoutes.ORDERS_ADD_PATH,
+    });
+
+    await screen.findByRole('heading', { level: 1, name: 'Tell us about your move orders' });
+    // Select a CONUS current duty location and new duty location
+    await userEvent.type(screen.getByLabelText(/Current duty location/), 'AFB', { delay: 100 });
+    const selectedOptionCurrent = await screen.findByText(/Altus/);
+    await userEvent.click(selectedOptionCurrent);
+    await userEvent.type(screen.getByLabelText(/New duty location/), 'AFB', { delay: 100 });
+    const selectedOptionNew = await screen.findByText(/Luke/);
+    await userEvent.click(selectedOptionNew);
+
+    // Select that dependents are present
+    await userEvent.click(screen.getByTestId('hasDependentsYes'));
+
+    // With both addresses being CONUS, the number of dependents input boxes should be missing
+    expect(screen.queryByLabelText(/Number of dependents under the age of 12/)).not.toBeInTheDocument();
+    expect(screen.queryByLabelText(/Number of dependents over the age of 12/)).not.toBeInTheDocument();
+  });
+
+  it('does render the input boxes for number of dependents over or under 12 if one of the locations are OCONUS', async () => {
+    selectServiceMemberFromLoggedInUser.mockImplementation(() => serviceMember);
+    renderWithProviders(<AddOrders {...testProps} />, {
+      path: customerRoutes.ORDERS_ADD_PATH,
+    });
+
+    await screen.findByRole('heading', { level: 1, name: 'Tell us about your move orders' });
+    // Select a CONUS current duty location
+    await userEvent.type(screen.getByLabelText(/Current duty location/), 'AFB', { delay: 100 });
+    const selectedOptionCurrent = await screen.findByText(/Altus/);
+    await userEvent.click(selectedOptionCurrent);
+    // Select an OCONUS new duty location
+    await userEvent.type(screen.getByLabelText(/New duty location/), 'AFB', { delay: 100 });
+    const selectedOptionNew = await screen.findByText(/Elmendorf/);
+    await userEvent.click(selectedOptionNew);
+    // Select that dependents are present
+    await userEvent.click(screen.getByTestId('hasDependentsYes'));
+    // With one of the duty locations being OCONUS, the number of dependents input boxes should be present
+    expect(screen.getByLabelText(/Number of dependents under the age of 12/)).toBeInTheDocument();
+    expect(screen.getByLabelText(/Number of dependents over the age of 12/)).toBeInTheDocument();
+  });
+
+  it('only renders dependents age groupings if dependents are present but locations are not', async () => {
+    selectServiceMemberFromLoggedInUser.mockImplementation(() => serviceMember);
+    renderWithProviders(<AddOrders {...testProps} />, {
+      path: customerRoutes.ORDERS_ADD_PATH,
+    });
+
+    await screen.findByRole('heading', { level: 1, name: 'Tell us about your move orders' });
+    await userEvent.click(screen.getByTestId('hasDependentsYes'));
+    expect(screen.getByText('Is this an accompanied tour?')).toBeInTheDocument();
+    expect(screen.getByLabelText(/Number of dependents under the age of 12/)).toBeInTheDocument();
+    expect(screen.getByLabelText(/Number of dependents over the age of 12/)).toBeInTheDocument();
   });
 
   it('next button creates the orders and updates state', async () => {
