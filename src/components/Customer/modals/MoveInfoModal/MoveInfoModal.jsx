@@ -4,7 +4,7 @@ import { Button } from '@trussworks/react-uswds';
 
 import Modal, { ModalTitle, ModalClose, ModalActions, connectModal } from 'components/Modal/Modal';
 
-export const MoveInfoModal = ({ closeModal, enablePPM }) => (
+export const MoveInfoModal = ({ closeModal, enablePPM, enableUB, hasOconusDutyLocation }) => (
   <Modal>
     <ModalClose handleClick={closeModal} />
     <ModalTitle>
@@ -44,6 +44,31 @@ export const MoveInfoModal = ({ closeModal, enablePPM }) => (
           <li>You pack and move everything</li>
           <li>You’re responsible if your things get damaged — no compensation</li>
           <li>The more you own, the more you have to do</li>
+        </ul>
+      </>
+    )}
+    {enableUB && hasOconusDutyLocation && (
+      <>
+        <h4>
+          <strong>
+            UB: Professional movers pack and ship your more essential personal property, the government pays
+          </strong>
+        </h4>
+        <p>The moving company works out details with you, but handles everything.</p>
+        <h5>Pros</h5>
+        <ul>
+          <li>Everything is packed and moved for you</li>
+          <li>Expert movers care for your things</li>
+          <li>Anything damaged in professional shipments will be replaced</li>
+          <li>Essential items are packed as a separate shipment</li>
+          <li>Shorter allowable transit time than a standard HHG shipment; should arrive sooner at your destination</li>
+        </ul>
+        <h5>Cons</h5>
+        <ul>
+          <li>Can only move on weekdays</li>
+          <li>May have to work around availability of movers</li>
+          <li>Your UB shipment has its own weight limitation</li>
+          <li>Only certain kinds of personal property are allowed in a UB shipment (check with your counselor)</li>
         </ul>
       </>
     )}

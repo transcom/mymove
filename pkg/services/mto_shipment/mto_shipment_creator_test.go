@@ -683,14 +683,13 @@ func (suite *MTOShipmentServiceSuite) TestCreateMTOShipment() {
 			shipmentType models.MTOShipmentType
 		}{
 			{"HHG", models.MTOShipmentTypeHHG},
-			{"INTERNATIONAL_HHG", models.MTOShipmentTypeInternationalHHG},
-			{"INTERNATIONAL_UB", models.MTOShipmentTypeInternationalUB},
 			{"HHG_INTO_NTS_DOMESTIC", models.MTOShipmentTypeHHGIntoNTSDom},
 			{"HHG_OUTOF_NTS_DOMESTIC", models.MTOShipmentTypeHHGOutOfNTSDom},
 			{"MOBILE_HOME", models.MTOShipmentTypeMobileHome},
 			{"BOAT_HAUL_AWAY", models.MTOShipmentTypeBoatHaulAway},
 			{"BOAT_TOW_AWAY", models.MTOShipmentTypeBoatTowAway},
 			{"PPM", models.MTOShipmentTypePPM},
+			{"UNACCOMPANIED_BAGGAGE", models.MTOShipmentTypeUnaccompaniedBaggage},
 		}
 
 		for _, tt := range testCases {
@@ -726,14 +725,13 @@ func (suite *MTOShipmentServiceSuite) TestCreateMTOShipment() {
 			shipmentType models.MTOShipmentType
 		}{
 			{"HHG", models.MTOShipmentTypeHHG},
-			{"INTERNATIONAL_HHG", models.MTOShipmentTypeInternationalHHG},
-			{"INTERNATIONAL_UB", models.MTOShipmentTypeInternationalUB},
 			{"HHG_INTO_NTS_DOMESTIC", models.MTOShipmentTypeHHGIntoNTSDom},
 			{"HHG_OUTOF_NTS_DOMESTIC", models.MTOShipmentTypeHHGOutOfNTSDom},
 			{"MOBILE_HOME", models.MTOShipmentTypeMobileHome},
 			{"BOAT_HAUL_AWAY", models.MTOShipmentTypeBoatHaulAway},
 			{"BOAT_TOW_AWAY", models.MTOShipmentTypeBoatTowAway},
 			{"PPM", models.MTOShipmentTypePPM},
+			{"UNACCOMPANIED_BAGGAGE", models.MTOShipmentTypeUnaccompaniedBaggage},
 		}
 
 		for _, tt := range testCases {
@@ -788,14 +786,13 @@ func (suite *MTOShipmentServiceSuite) TestCreateMTOShipment() {
 			shipmentType models.MTOShipmentType
 		}{
 			{"HHG", models.MTOShipmentTypeHHG},
-			{"INTERNATIONAL_HHG", models.MTOShipmentTypeInternationalHHG},
-			{"INTERNATIONAL_UB", models.MTOShipmentTypeInternationalUB},
 			{"HHG_INTO_NTS_DOMESTIC", models.MTOShipmentTypeHHGIntoNTSDom},
 			{"HHG_OUTOF_NTS_DOMESTIC", models.MTOShipmentTypeHHGOutOfNTSDom},
 			{"MOBILE_HOME", models.MTOShipmentTypeMobileHome},
 			{"BOAT_HAUL_AWAY", models.MTOShipmentTypeBoatHaulAway},
 			{"BOAT_TOW_AWAY", models.MTOShipmentTypeBoatTowAway},
 			{"PPM", models.MTOShipmentTypePPM},
+			{"UNACCOMPANIED_BAGGAGE", models.MTOShipmentTypeUnaccompaniedBaggage},
 		}
 
 		for _, tt := range testCases {
@@ -870,14 +867,13 @@ func (suite *MTOShipmentServiceSuite) TestCreateMTOShipment() {
 			shipmentType models.MTOShipmentType
 		}{
 			{"HHG", models.MTOShipmentTypeHHG},
-			{"INTERNATIONAL_HHG", models.MTOShipmentTypeInternationalHHG},
-			{"INTERNATIONAL_UB", models.MTOShipmentTypeInternationalUB},
 			{"HHG_INTO_NTS_DOMESTIC", models.MTOShipmentTypeHHGIntoNTSDom},
 			{"HHG_OUTOF_NTS_DOMESTIC", models.MTOShipmentTypeHHGOutOfNTSDom},
 			{"MOBILE_HOME", models.MTOShipmentTypeMobileHome},
 			{"BOAT_HAUL_AWAY", models.MTOShipmentTypeBoatHaulAway},
 			{"BOAT_TOW_AWAY", models.MTOShipmentTypeBoatTowAway},
 			{"PPM", models.MTOShipmentTypePPM},
+			{"UNACCOMPANIED_BAGGAGE", models.MTOShipmentTypeUnaccompaniedBaggage},
 		}
 
 		for _, tt := range testCases {
@@ -913,14 +909,13 @@ func (suite *MTOShipmentServiceSuite) TestCreateMTOShipment() {
 			shipmentType models.MTOShipmentType
 		}{
 			{"HHG", models.MTOShipmentTypeHHG},
-			{"INTERNATIONAL_HHG", models.MTOShipmentTypeInternationalHHG},
-			{"INTERNATIONAL_UB", models.MTOShipmentTypeInternationalUB},
 			{"HHG_INTO_NTS_DOMESTIC", models.MTOShipmentTypeHHGIntoNTSDom},
 			{"HHG_OUTOF_NTS_DOMESTIC", models.MTOShipmentTypeHHGOutOfNTSDom},
 			{"MOBILE_HOME", models.MTOShipmentTypeMobileHome},
 			{"BOAT_HAUL_AWAY", models.MTOShipmentTypeBoatHaulAway},
 			{"BOAT_TOW_AWAY", models.MTOShipmentTypeBoatTowAway},
 			{"PPM", models.MTOShipmentTypePPM},
+			{"UNACCOMPANIED_BAGGAGE", models.MTOShipmentTypeUnaccompaniedBaggage},
 		}
 
 		for _, tt := range testCases {
@@ -956,14 +951,13 @@ func (suite *MTOShipmentServiceSuite) TestCreateMTOShipment() {
 			shipmentType models.MTOShipmentType
 		}{
 			{"HHG", models.MTOShipmentTypeHHG},
-			{"INTERNATIONAL_HHG", models.MTOShipmentTypeInternationalHHG},
-			{"INTERNATIONAL_UB", models.MTOShipmentTypeInternationalUB},
 			{"HHG_INTO_NTS_DOMESTIC", models.MTOShipmentTypeHHGIntoNTSDom},
 			{"HHG_OUTOF_NTS_DOMESTIC", models.MTOShipmentTypeHHGOutOfNTSDom},
 			{"MOBILE_HOME", models.MTOShipmentTypeMobileHome},
 			{"BOAT_HAUL_AWAY", models.MTOShipmentTypeBoatHaulAway},
 			{"BOAT_TOW_AWAY", models.MTOShipmentTypeBoatTowAway},
 			{"PPM", models.MTOShipmentTypePPM},
+			{"UNACCOMPANIED_BAGGAGE", models.MTOShipmentTypeUnaccompaniedBaggage},
 		}
 
 		for _, tt := range testCases {

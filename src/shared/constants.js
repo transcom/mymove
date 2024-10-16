@@ -79,6 +79,7 @@ export const SHIPMENT_OPTIONS = {
   NTSR: 'HHG_OUTOF_NTS_DOMESTIC',
   BOAT: 'BOAT',
   MOBILE_HOME: 'MOBILE_HOME',
+  UNACCOMPANIED_BAGGAGE: 'UNACCOMPANIED_BAGGAGE',
 };
 
 export const SHIPMENT_TYPES = {
@@ -89,6 +90,7 @@ export const SHIPMENT_TYPES = {
   BOAT_HAUL_AWAY: 'BOAT_HAUL_AWAY',
   BOAT_TOW_AWAY: 'BOAT_TOW_AWAY',
   MOBILE_HOME: 'MOBILE_HOME',
+  UNACCOMPANIED_BAGGAGE: 'UNACCOMPANIED_BAGGAGE',
 };
 
 // These constants are used for forming URLs that have the shipment type in
@@ -100,6 +102,7 @@ export const SHIPMENT_OPTIONS_URL = {
   NTSrelease: 'NTSrelease',
   BOAT: 'Boat',
   MOBILE_HOME: 'Mobilehome',
+  UNACCOMPANIED_BAGGAGE: 'UB',
 };
 
 export const LOA_TYPE = {
@@ -121,6 +124,7 @@ export const shipmentOptionLabels = [
   { key: SHIPMENT_OPTIONS.MOBILE_HOME, label: 'MobileHome' },
   { key: SHIPMENT_TYPES.BOAT_HAUL_AWAY, label: 'Boat' },
   { key: SHIPMENT_TYPES.BOAT_TOW_AWAY, label: 'Boat' },
+  { key: SHIPMENT_TYPES.UNACCOMPANIED_BAGGAGE, label: 'UB' },
 ];
 
 export const SERVICE_ITEM_STATUS = {
@@ -194,6 +198,7 @@ export const FEATURE_FLAG_KEYS = {
   NTSR: 'ntsr',
   BOAT: 'boat',
   MOBILE_HOME: 'mobile_home',
+  UNACCOMPANIED_BAGGAGE: 'unaccompanied_baggage',
 };
 
 export const MOVE_DOCUMENT_TYPE = {
