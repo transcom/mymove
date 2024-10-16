@@ -237,7 +237,7 @@ test.describe('Services counselor user', () => {
 
     await expect(shipmentContainer.getByTestId('RELEASING_AGENT')).toHaveText(agentToString(releasingAgent));
 
-    await expect(shipmentContainer.getByTestId('requestedDeliveryDate').first()).toHaveText(formatDate(deliveryDate));
+    await expect(shipmentContainer.getByTestId('requestedDeliveryDate')).toHaveText(formatDate(deliveryDate));
     await expect(shipmentContainer.getByTestId('destinationAddress')).toHaveText(addressToString(deliveryAddress));
     await expect(shipmentContainer.getByTestId('secondaryDeliveryAddress')).toHaveText(
       addressToString(secondaryDeliveryAddress),
