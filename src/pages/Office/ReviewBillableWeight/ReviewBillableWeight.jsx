@@ -267,7 +267,7 @@ export default function ReviewBillableWeight() {
         {selectedShipment.shipmentType !== 'PPM' ? (
           <DocumentViewer files={fileList} />
         ) : (
-          <DocumentViewer files={ppmFileList} allowDownload />
+          <DocumentViewer files={ppmFileList} />
         )}
       </div>
       <div className={reviewBillableWeightStyles.reviewWeightSideBar}>
