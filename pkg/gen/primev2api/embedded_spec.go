@@ -117,6 +117,27 @@ func init() {
                     "shipmentType": "HAUL_AWAY"
                   }
                 },
+                "boat": {
+                  "summary": "Boat Shipment",
+                  "value": {
+                    "boatShipment": {
+                      "hasTrailer": true,
+                      "heightFeet": 2,
+                      "heightInches": 2,
+                      "isRoadworthy": false,
+                      "lengthFeet": 2,
+                      "lengthInches": 0,
+                      "make": "make",
+                      "model": "model",
+                      "widthFeet": 2,
+                      "widthInches": 2,
+                      "year": 1999
+                    },
+                    "counselorRemarks": "test",
+                    "moveTaskOrderID": "d4d95b22-2d9d-428b-9a11-284455aa87ba",
+                    "shipmentType": "HAUL_AWAY"
+                  }
+                },
                 "hhg": {
                   "summary": "HHG",
                   "value": {
