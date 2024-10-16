@@ -20,6 +20,10 @@ type ShipmentSITStatus struct {
 func (_m *ShipmentSITStatus) CalculateShipmentSITAllowance(appCtx appcontext.AppContext, shipment models.MTOShipment) (int, error) {
 	ret := _m.Called(appCtx, shipment)
 
+	if len(ret) == 0 {
+		panic("no return value specified for CalculateShipmentSITAllowance")
+	}
+
 	var r0 int
 	var r1 error
 	if rf, ok := ret.Get(0).(func(appcontext.AppContext, models.MTOShipment) (int, error)); ok {
@@ -43,6 +47,10 @@ func (_m *ShipmentSITStatus) CalculateShipmentSITAllowance(appCtx appcontext.App
 // CalculateShipmentSITStatus provides a mock function with given fields: appCtx, shipment
 func (_m *ShipmentSITStatus) CalculateShipmentSITStatus(appCtx appcontext.AppContext, shipment models.MTOShipment) (*services.SITStatus, models.MTOShipment, error) {
 	ret := _m.Called(appCtx, shipment)
+
+	if len(ret) == 0 {
+		panic("no return value specified for CalculateShipmentSITStatus")
+	}
 
 	var r0 *services.SITStatus
 	var r1 models.MTOShipment
@@ -77,6 +85,10 @@ func (_m *ShipmentSITStatus) CalculateShipmentSITStatus(appCtx appcontext.AppCon
 func (_m *ShipmentSITStatus) CalculateShipmentsSITStatuses(appCtx appcontext.AppContext, shipments []models.MTOShipment) map[string]services.SITStatus {
 	ret := _m.Called(appCtx, shipments)
 
+	if len(ret) == 0 {
+		panic("no return value specified for CalculateShipmentsSITStatuses")
+	}
+
 	var r0 map[string]services.SITStatus
 	if rf, ok := ret.Get(0).(func(appcontext.AppContext, []models.MTOShipment) map[string]services.SITStatus); ok {
 		r0 = rf(appCtx, shipments)
@@ -92,6 +104,10 @@ func (_m *ShipmentSITStatus) CalculateShipmentsSITStatuses(appCtx appcontext.App
 // RetrieveShipmentSIT provides a mock function with given fields: appCtx, shipment
 func (_m *ShipmentSITStatus) RetrieveShipmentSIT(appCtx appcontext.AppContext, shipment models.MTOShipment) (models.SITServiceItemGroupings, error) {
 	ret := _m.Called(appCtx, shipment)
+
+	if len(ret) == 0 {
+		panic("no return value specified for RetrieveShipmentSIT")
+	}
 
 	var r0 models.SITServiceItemGroupings
 	var r1 error

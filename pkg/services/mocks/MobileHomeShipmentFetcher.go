@@ -20,6 +20,10 @@ type MobileHomeShipmentFetcher struct {
 func (_m *MobileHomeShipmentFetcher) GetMobileHomeShipment(appCtx appcontext.AppContext, mobileHomeShipmentID uuid.UUID, eagerPreloadAssociations []string, postloadAssociations []string) (*models.MobileHome, error) {
 	ret := _m.Called(appCtx, mobileHomeShipmentID, eagerPreloadAssociations, postloadAssociations)
 
+	if len(ret) == 0 {
+		panic("no return value specified for GetMobileHomeShipment")
+	}
+
 	var r0 *models.MobileHome
 	var r1 error
 	if rf, ok := ret.Get(0).(func(appcontext.AppContext, uuid.UUID, []string, []string) (*models.MobileHome, error)); ok {
@@ -45,6 +49,10 @@ func (_m *MobileHomeShipmentFetcher) GetMobileHomeShipment(appCtx appcontext.App
 // PostloadAssociations provides a mock function with given fields: appCtx, mobileHomeShipment, postloadAssociations
 func (_m *MobileHomeShipmentFetcher) PostloadAssociations(appCtx appcontext.AppContext, mobileHomeShipment *models.MobileHome, postloadAssociations []string) error {
 	ret := _m.Called(appCtx, mobileHomeShipment, postloadAssociations)
+
+	if len(ret) == 0 {
+		panic("no return value specified for PostloadAssociations")
+	}
 
 	var r0 error
 	if rf, ok := ret.Get(0).(func(appcontext.AppContext, *models.MobileHome, []string) error); ok {
