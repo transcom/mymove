@@ -15,6 +15,7 @@ import (
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/services/mocks"
 	"github.com/transcom/mymove/pkg/testdatagen"
+	"github.com/transcom/mymove/pkg/unit"
 )
 
 func (suite *PPMShipmentSuite) TestSubmitNewCustomerCloseOut() {
@@ -26,14 +27,14 @@ func (suite *PPMShipmentSuite) TestSubmitNewCustomerCloseOut() {
 
 		var ppmShipment models.PPMShipment
 
-		err := suite.DB().EagerPreload(EagerPreloadAssociationShipment).Find(&ppmShipment, ppmShipmentID)
+		err := suite.DB().EagerPreload(EagerPreloadAssociationShipment, EagerPreloadAssociationWeightTickets).Find(&ppmShipment, ppmShipmentID)
 
 		suite.FatalNoError(err)
 
 		return &ppmShipment
 	}
 
-	setUpPPMShipmentFetcherMock := func(returnValue ...interface{}) services.PPMShipmentFetcher {
+	setUpPPMShipmentFetcherMock := func(returnValue interface{}, err error) services.PPMShipmentFetcher {
 		mockFetcher := &mocks.PPMShipmentFetcher{}
 
 		mockFetcher.On(
@@ -42,7 +43,7 @@ func (suite *PPMShipmentSuite) TestSubmitNewCustomerCloseOut() {
 			mock.AnythingOfType("uuid.UUID"),
 			mock.AnythingOfType("[]string"),
 			mock.AnythingOfType("[]string"),
-		).Return(returnValue...)
+		).Return(returnValue, err)
 
 		return mockFetcher
 	}
@@ -182,7 +183,7 @@ func (suite *PPMShipmentSuite) TestSubmitNewCustomerCloseOut() {
 		}
 	})
 
-	suite.Run("Can create a signed certification and route the PPMShipment properly", func() {
+	suite.Run("Can create a signed certification, route the PPMShipment, and calculate allowable weight properly", func() {
 		existingPPMShipment := factory.BuildPPMShipmentReadyForFinalCustomerCloseOut(suite.DB(), nil, nil)
 
 		appCtx := suite.AppContextWithSessionForTest(&auth.Session{
@@ -258,6 +259,16 @@ func (suite *PPMShipmentSuite) TestSubmitNewCustomerCloseOut() {
 					txAppCtx,
 					mock.AnythingOfType("*models.PPMShipment"),
 				)
+
+				var expectedAllowableWeight = unit.Pound(0)
+				if len(existingPPMShipment.WeightTickets) >= 1 {
+					for _, weightTicket := range existingPPMShipment.WeightTickets {
+						expectedAllowableWeight += *weightTicket.FullWeight - *weightTicket.EmptyWeight
+					}
+				}
+				if suite.NotNil(updatedPPMShipment.AllowableWeight) {
+					suite.Equal(*updatedPPMShipment.AllowableWeight, expectedAllowableWeight)
+				}
 
 				return nil
 			}
