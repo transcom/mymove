@@ -273,8 +273,8 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandlerV1() {
 	})
 
 	suite.Run("Successful POST - Integration Test - UB", func() {
-		const envVariantEnabled = "true"
-		suite.T().Setenv("FEATURE_FLAG_UNACCOMPANIED_BAGGAGE", envVariantEnabled)
+		const ubFlag = "true"
+		suite.T().Setenv("FEATURE_FLAG_UNACCOMPANIED_BAGGAGE", ubFlag)
 
 		subtestData := makeCreateSubtestData(true, true)
 
@@ -308,46 +308,10 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandlerV1() {
 		suite.NotEmpty(createdShipment.Agents[0].ID)
 	})
 
-	// suite.Run("POST failure - Error when feature flag fetcher fails and a boat shipment is passed in.", func() {
-	// 	// Under Test: CreateMTOShipmentHandler
-	// 	// Mocked:     CreateMTOShipment creator
-	// 	// Setup:   If underlying CreateMTOShipment returns error, handler should return 500 response
-	// 	// Expected:   500 Response returned
-	// 	suite.T().Setenv("FEATURE_FLAG_BOAT", "true") // Set to true in order to test that it will default to "false" if flag fetcher errors out.
-
-	// 	handler, move := setupTestData(false)
-
-	// 	req := httptest.NewRequest("POST", "/mto-shipments", nil)
-
-	// 	params := mtoshipmentops.CreateMTOShipmentParams{
-	// 		HTTPRequest: req,
-	// 		Body: &primev3messages.CreateMTOShipment{
-	// 			MoveTaskOrderID:      handlers.FmtUUID(move.ID),
-	// 			Agents:               nil,
-	// 			CustomerRemarks:      nil,
-	// 			PointOfContact:       "John Doe",
-	// 			PrimeEstimatedWeight: handlers.FmtInt64(1200),
-	// 			RequestedPickupDate:  handlers.FmtDatePtr(models.TimePointer(time.Now())),
-	// 			ShipmentType:         primev3messages.NewMTOShipmentType(primev3messages.MTOShipmentTypeBOATHAULAWAY),
-	// 			PickupAddress:        struct{ primev3messages.Address }{pickupAddress},
-	// 			DestinationAddress:   struct{ primev3messages.Address }{destinationAddress},
-	// 		},
-	// 	}
-
-	// 	// Validate incoming payload
-	// 	suite.NoError(params.Body.Validate(strfmt.Default))
-
-	// 	response := handler.Handle(params)
-	// 	suite.IsType(&mtoshipmentops.CreateMTOShipmentUnprocessableEntity{}, response)
-	// 	errResponse := response.(*mtoshipmentops.CreateMTOShipmentUnprocessableEntity)
-
-	// 	suite.Contains(*errResponse.Payload.Detail, "Boat shipment type was used but the feature flag is not enabled.")
-	// })
-
 	suite.Run("Unsuccessful POST if UB FF off - Integration Test - UB", func() {
-		const envVariantEnabled = "false"
+		const ubFlag = "false"
 
-		suite.T().Setenv("FEATURE_FLAG_UNACCOMPANIED_BAGGAGE", envVariantEnabled)
+		suite.T().Setenv("FEATURE_FLAG_UNACCOMPANIED_BAGGAGE", ubFlag)
 
 		subtestData := makeCreateSubtestData(false, true)
 		params := subtestData.params
