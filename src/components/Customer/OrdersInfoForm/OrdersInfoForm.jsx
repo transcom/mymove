@@ -24,7 +24,7 @@ let newDutyMeta = '';
 const OrdersInfoForm = ({ ordersTypeOptions, initialValues, onSubmit, onBack }) => {
   const payGradeOptions = dropdownInputOptions(ORDERS_PAY_GRADE_OPTIONS);
   const [dutyLocation, setDutyLocation] = useState('');
-  const [officeOptions, setOfficeOptions] = useState(null);
+  const [counselingOfficeOptions, setCounselingOfficeOptions] = useState(null);
   const validationSchema = Yup.object().shape({
     orders_type: Yup.mixed()
       .oneOf(ordersTypeOptions.map((i) => i.key))
@@ -50,7 +50,7 @@ const OrdersInfoForm = ({ ordersTypeOptions, initialValues, onSubmit, onBack }) 
           key: item.id,
           value: item.name,
         }));
-        setOfficeOptions(counselingOffices);
+        setCounselingOfficeOptions(counselingOffices);
       }
     });
   }, [dutyLocation]);
@@ -138,7 +138,7 @@ const OrdersInfoForm = ({ ordersTypeOptions, initialValues, onSubmit, onBack }) 
                   <Label>
                     Select an origin duty location that most closely represents your current physical location, not
                     where your shipment will originate, if different. This will allow a nearby transportation office to
-                    assist
+                    assist you.
                   </Label>
                   <DropdownInput
                     label="Counseling Office"
@@ -146,7 +146,7 @@ const OrdersInfoForm = ({ ordersTypeOptions, initialValues, onSubmit, onBack }) 
                     id="counseling_office_id"
                     hint="Required"
                     required
-                    options={officeOptions}
+                    options={counselingOfficeOptions}
                   />
                 </div>
               )}
