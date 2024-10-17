@@ -35,6 +35,9 @@ const serviceMemberMoves = {
       id: mtoUuid,
       moveCode: mtoLocator,
       mtoShipments: [],
+      counselingOffice: {
+        name: 'PPPO McAlester',
+      },
       orders: {
         authorizedWeight: 11000,
         created_at: '2024-03-12T13:36:14.940Z',
@@ -97,9 +100,6 @@ const serviceMemberMoves = {
           },
           transportation_office_id: 'd1359c20-c762-4b04-9ed6-fd2b9060615b',
           updated_at: '2024-02-27T20:40:47.436Z',
-        },
-        counseling_office: {
-          name: 'PPPO McAlester',
         },
         report_by_date: '2024-03-28',
         service_member_id: 'ab65bff1-4da3-4a51-a36f-2bdb2c4edc4d',
