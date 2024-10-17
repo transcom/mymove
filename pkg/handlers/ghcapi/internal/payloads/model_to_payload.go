@@ -2139,26 +2139,32 @@ func QueueMoves(moves []models.Move, officeUsers []models.OfficeUser, role roles
 			isAssignable = true
 		}
 
+		if role == roles.RoleTypeTOO && isSupervisor {
+			isAssignable = true
+		}
+
 		queueMoves[i].Assignable = isAssignable
 
 		// only need to attach available office users if move is assignable
 		if queueMoves[i].Assignable {
 			availableOfficeUsers := officeUsers
-			// if there is no counseling office
-			// OR if our current user doesn't work at the move's counseling office
-			// only available user should be themself
-			if (move.CounselingOfficeID == nil) || (move.CounselingOfficeID != nil && *move.CounselingOfficeID != officeUser.TransportationOfficeID) {
-				availableOfficeUsers = models.OfficeUsers{officeUser}
-			}
+			if role == roles.RoleTypeServicesCounselor {
+				// if there is no counseling office
+				// OR if our current user doesn't work at the move's counseling office
+				// only available user should be themself
+				if (move.CounselingOfficeID == nil) || (move.CounselingOfficeID != nil && *move.CounselingOfficeID != officeUser.TransportationOfficeID) {
+					availableOfficeUsers = models.OfficeUsers{officeUser}
+				}
 
-			// if the office user currently assigned to move works outside of the logged in users counseling office
-			// add them to the set
-			if role == roles.RoleTypeServicesCounselor && move.SCAssignedUser != nil && move.SCAssignedUser.TransportationOfficeID != officeUser.TransportationOfficeID {
-				availableOfficeUsers = append(availableOfficeUsers, *move.SCAssignedUser)
+				// if the office user currently assigned to move works outside of the logged in users counseling office
+				// add them to the set
+				if move.SCAssignedUser != nil && move.SCAssignedUser.TransportationOfficeID != officeUser.TransportationOfficeID {
+					availableOfficeUsers = append(availableOfficeUsers, *move.SCAssignedUser)
+				}
 			}
-			if role == roles.RoleTypeTOO && move.TOOAssignedUser != nil && move.TOOAssignedUser.TransportationOfficeID != officeUser.TransportationOfficeID {
-				availableOfficeUsers = append(availableOfficeUsers, *move.TOOAssignedUser)
-			}
+			// if role == roles.RoleTypeTOO && move.TOOAssignedUser != nil && move.TOOAssignedUser.TransportationOfficeID != officeUser.TransportationOfficeID {
+			// 	availableOfficeUsers = append(availableOfficeUsers, *move.TOOAssignedUser)
+			// }
 
 			queueMoves[i].AvailableOfficeUsers = *QueueAvailableOfficeUsers(availableOfficeUsers)
 		}
