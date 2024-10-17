@@ -62,6 +62,7 @@ import {
   formatPpmShipmentForDisplay,
   formatMobileHomeShipmentForDisplay,
   formatMobileHomeShipmentForAPI,
+  formatBoatShipmentForDisplay,
   formatBoatShipmentForAPI,
 } from 'utils/formatMtoShipment';
 import { formatWeight, dropdownInputOptions } from 'utils/formatters';
@@ -560,7 +561,7 @@ const ShipmentForm = (props) => {
         ...mobileHomeShipmentBody,
       };
     }
-    
+
     // Boat Shipment
     if (isBoat) {
       const boatShipmentBody = formatBoatShipmentForAPI(formValues);
