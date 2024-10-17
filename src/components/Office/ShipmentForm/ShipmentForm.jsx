@@ -14,6 +14,8 @@ import ppmShipmentSchema from './ppmShipmentSchema';
 import styles from './ShipmentForm.module.scss';
 import MobileHomeShipmentForm from './MobileHomeShipmentForm/MobileHomeShipmentForm';
 import mobileHomeShipmentSchema from './MobileHomeShipmentForm/mobileHomeShipmentSchema';
+import BoatShipmentForm from './BoatShipmentForm/BoatShipmentForm';
+import boatShipmentSchema from './BoatShipmentForm/boatShipmentSchema';
 
 import ppmStyles from 'components/Customer/PPM/PPM.module.scss';
 import SERVICE_MEMBER_AGENCIES from 'content/serviceMemberAgencies';
@@ -60,7 +62,7 @@ import {
   formatPpmShipmentForDisplay,
   formatMobileHomeShipmentForDisplay,
   formatMobileHomeShipmentForAPI,
-  formatBoatShipmentForDisplay,
+  formatBoatShipmentForAPI,
 } from 'utils/formatMtoShipment';
 import { formatWeight, dropdownInputOptions } from 'utils/formatters';
 import { validateDate } from 'utils/validation';
@@ -315,6 +317,8 @@ const ShipmentForm = (props) => {
     });
   } else if (isMobileHome) {
     schema = mobileHomeShipmentSchema();
+  } else if (isBoat) {
+    schema = boatShipmentSchema();
     showDeliveryFields = true;
     showPickupFields = true;
   } else {
@@ -556,6 +560,15 @@ const ShipmentForm = (props) => {
         ...mobileHomeShipmentBody,
       };
     }
+    
+    // Boat Shipment
+    if (isBoat) {
+      const boatShipmentBody = formatBoatShipmentForAPI(formValues);
+      pendingMtoShipment = {
+        ...pendingMtoShipment,
+        ...boatShipmentBody,
+      };
+    }
 
     const updateMTOShipmentPayload = {
       moveTaskOrderID,
@@ -611,6 +624,7 @@ const ShipmentForm = (props) => {
       initialValues={initialValues}
       validateOnMount
       validateOnBlur
+      validateOnChange
       validationSchema={schema}
       onSubmit={submitMTOShipment}
     >
@@ -841,6 +855,19 @@ const ShipmentForm = (props) => {
 
                 {isMobileHome && (
                   <MobileHomeShipmentForm
+                    lengthHasError={lengthHasError}
+                    widthHasError={widthHasError}
+                    heightHasError={heightHasError}
+                    values={values}
+                    setFieldTouched={setFieldTouched}
+                    setFieldError={setFieldError}
+                    validateForm={validateForm}
+                    dimensionError={dimensionError}
+                  />
+                )}
+
+                {isBoat && (
+                  <BoatShipmentForm
                     lengthHasError={lengthHasError}
                     widthHasError={widthHasError}
                     heightHasError={heightHasError}
@@ -1289,7 +1316,7 @@ const ShipmentForm = (props) => {
                         legend="Pickup Address"
                         render={(fields) => (
                           <>
-                            <p>What address are the movers picking up from?</p>
+                            <p>What address are you moving from?</p>
                             <Checkbox
                               data-testid="useCurrentResidence"
                               label="Use Current Address"
@@ -1298,11 +1325,11 @@ const ShipmentForm = (props) => {
                               id="useCurrentResidenceCheckbox"
                             />
                             {fields}
-                            <h4>Second pickup location</h4>
+                            <h4>Second pickup address</h4>
                             <FormGroup>
                               <p>
-                                Will the movers pick up any belongings from a second address? (Must be near the pickup
-                                address. Subject to approval.)
+                                Will you move any belongings from a second address? (Must be near the pickup address.
+                                Subject to approval.)
                               </p>
                               <div className={formStyles.radioGroup}>
                                 <Field
@@ -1332,11 +1359,11 @@ const ShipmentForm = (props) => {
                                 <AddressFields name="secondaryPickup.address" />
                                 {isTertiaryAddressEnabled && (
                                   <>
-                                    <h4>Third pickup location</h4>
+                                    <h4>Third pickup address</h4>
                                     <FormGroup>
                                       <p>
-                                        Will the movers pick up any belongings from a third address? (Must be near the
-                                        pickup address. Subject to approval.)
+                                        Will you move any belongings from a third address? (Must be near the pickup
+                                        address. Subject to approval.)
                                       </p>
                                       <div className={formStyles.radioGroup}>
                                         <Field
@@ -1371,15 +1398,15 @@ const ShipmentForm = (props) => {
                       />
                       <AddressFields
                         name="destination.address"
-                        legend="Destination Address"
+                        legend="Delivery Address"
                         render={(fields) => (
                           <>
                             {fields}
-                            <h4>Second destination address</h4>
+                            <h4>Second delivery address</h4>
                             <FormGroup>
                               <p>
-                                Will the movers deliver any belongings to a second address? (Must be near the
-                                destination address. Subject to approval.)
+                                Will you move any belongings to a second address? (Must be near the delivery address.
+                                Subject to approval.)
                               </p>
                               <div className={formStyles.radioGroup}>
                                 <Field
@@ -1409,11 +1436,11 @@ const ShipmentForm = (props) => {
                                 <AddressFields name="secondaryDestination.address" />
                                 {isTertiaryAddressEnabled && (
                                   <>
-                                    <h4>Third destination address</h4>
+                                    <h4>Third delivery address</h4>
                                     <FormGroup>
                                       <p>
-                                        Will the movers deliver any belongings to a third address? (Must be near the
-                                        destination address. Subject to approval.)
+                                        Will you move any belongings to a third address? (Must be near the delivery
+                                        address. Subject to approval.)
                                       </p>
                                       <div className={formStyles.radioGroup}>
                                         <Field
