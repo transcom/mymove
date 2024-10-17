@@ -41,7 +41,6 @@ type WeightTicket struct {
 	Reason                            *string            `json:"reason" db:"reason"`
 	AdjustedNetWeight                 *unit.Pound        `json:"adjusted_net_weight" db:"adjusted_net_weight"`
 	NetWeightRemarks                  *string            `json:"net_weight_remarks" db:"net_weight_remarks"`
-	AllowableWeight                   *unit.Pound        `json:"allowable_weight" db:"allowable_weight"`
 }
 
 // TableName overrides the table name used by Pop.
@@ -82,7 +81,6 @@ func (w *WeightTicket) Validate(_ *pop.Connection) (*validate.Errors, error) {
 		&StringIsNilOrNotBlank{Name: "Reason", Field: w.Reason},
 		&OptionalPoundIsNonNegative{Name: "AdjustedNetWeight", Field: w.AdjustedNetWeight},
 		&StringIsNilOrNotBlank{Name: "NetWeightRemarks", Field: w.NetWeightRemarks},
-		&OptionalPoundIsNonNegative{Name: "AllowableWeight", Field: w.AllowableWeight},
 	), nil
 }
 func GetWeightTicketNetWeight(w WeightTicket) unit.Pound {
