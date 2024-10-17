@@ -58,13 +58,14 @@ const defaultProps = {
       isRoadworthy: true,
     },
   },
+  marketCode: 'd',
 };
 
 describe('BoatShipmentCard component', () => {
   it('renders component with all fields', () => {
     render(<BoatShipmentCard {...defaultProps} />);
 
-    expect(screen.getByRole('heading', { level: 3 })).toHaveTextContent('Boat 1');
+    expect(screen.getByRole('heading', { level: 3 })).toHaveTextContent(`${defaultProps.marketCode}Boat 1`);
     expect(screen.getByText(/^#testMove123-01$/, { selector: 'p' })).toBeInTheDocument();
 
     expect(screen.getByRole('button', { name: 'Edit' })).toBeInTheDocument();
