@@ -1,13 +1,13 @@
 CREATE TABLE IF NOT EXISTS port (
     id          uuid             NOT NULL,
-    port_code   varchar(4)       NOT NULL,
+    port_code   varchar(4)       UNIQUE NOT NULL,
     port_type   varchar(1)       NOT NULL,
     port_name   varchar(100)     NOT NULL,
     created_at  timestamp        NOT NULL default now(),
     updated_at  timestamp        NOT NULL default now(),
     CONSTRAINT  port_pkey        PRIMARY KEY(id),
     CONSTRAINT  unique_port_code UNIQUE (port_code),
-    CONSTRAINT  chk_port_type    CHECK (port_type)
+    CONSTRAINT  chk_port_type    CHECK (port_type IN ('A', 'S', 'P'))
 );
 
 COMMENT ON TABLE port IS 'Stores ports identification data';

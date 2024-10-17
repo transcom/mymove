@@ -1,6 +1,7 @@
 CREATE TABLE IF NOT EXISTS port_location (
     id              uuid                NOT NULL,
-    port_id         uuid                NOT NULL,
+    port_id         uuid                NOT NULL
+        CONSTRAINT fk_port_id_port REFERENCES port (id),
     city            varchar(100)        NOT NULL,
     county          varchar(100)        NOT NULL,
     state           varchar(100)        NOT NULL,
@@ -9,8 +10,7 @@ CREATE TABLE IF NOT EXISTS port_location (
     inactive_flag   varchar(1)          NOT NULL default 'N',
     created_at      timestamp           NOT NULL default now(),
     updated_at      timestamp           NOT NULL default now(),
-    CONSTRAINT      port_loc_pkey       PRIMARY KEY(id),
-    CONSTRAINT      port_id_fkey        FOREIGN KEY (port_id)
+    CONSTRAINT      port_loc_pkey       PRIMARY KEY(id)
 );
 
 COMMENT ON TABLE port_location IS 'Stores the port location information';
