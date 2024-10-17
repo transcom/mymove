@@ -20,6 +20,7 @@ A description of the certificates in this directory will helpful:
 | `devlocal-https.(key/pem)` | a self-signed TLS cert/key pair |
 | `devlocal-mtls.(cer/key)` | Certs signed by Devlocal CA for mTLS testing |
 | `dod-sw-ca-75.pem` | DoD SW CA-75 package |
+| `dod-sw-ca-75.pem` | DoD SW CA-75 package |
 | `dod-wcf-intermediate-ca-1-.pem` | DoD WCF Intermediate CA 1 for allowing TLS connectivity to AWS services in the BCAP |
 | `dod-wcf-root-ca-1-.pem` | DoD WCF Root CA 1 for allowing TLS connectivity to AWS services in the BCAP |
 | `ECA_Root_CA_4.cer` | ECA Root CA4. Issuer of IdenTrust ECA Component S23 |
