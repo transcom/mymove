@@ -1199,7 +1199,7 @@ const ShipmentForm = (props) => {
                         legend="Pickup Address"
                         render={(fields) => (
                           <>
-                            <p>What address are the movers picking up from?</p>
+                            <p>What address are you moving from?</p>
                             <Checkbox
                               data-testid="useCurrentResidence"
                               label="Use Current Address"
@@ -1208,11 +1208,11 @@ const ShipmentForm = (props) => {
                               id="useCurrentResidenceCheckbox"
                             />
                             {fields}
-                            <h4>Second pickup location</h4>
+                            <h4>Second pickup address</h4>
                             <FormGroup>
                               <p>
-                                Will the movers pick up any belongings from a second address? (Must be near the pickup
-                                address. Subject to approval.)
+                                Will you move any belongings from a second address? (Must be near the pickup address.
+                                Subject to approval.)
                               </p>
                               <div className={formStyles.radioGroup}>
                                 <Field
@@ -1242,11 +1242,11 @@ const ShipmentForm = (props) => {
                                 <AddressFields name="secondaryPickup.address" />
                                 {isTertiaryAddressEnabled && (
                                   <>
-                                    <h4>Third pickup location</h4>
+                                    <h4>Third pickup address</h4>
                                     <FormGroup>
                                       <p>
-                                        Will the movers pick up any belongings from a third address? (Must be near the
-                                        pickup address. Subject to approval.)
+                                        Will you move any belongings from a third address? (Must be near the pickup
+                                        address. Subject to approval.)
                                       </p>
                                       <div className={formStyles.radioGroup}>
                                         <Field
@@ -1281,15 +1281,15 @@ const ShipmentForm = (props) => {
                       />
                       <AddressFields
                         name="destination.address"
-                        legend="Destination Address"
+                        legend="Delivery Address"
                         render={(fields) => (
                           <>
                             {fields}
-                            <h4>Second destination address</h4>
+                            <h4>Second delivery address</h4>
                             <FormGroup>
                               <p>
-                                Will the movers deliver any belongings to a second address? (Must be near the
-                                destination address. Subject to approval.)
+                                Will you move any belongings to a second address? (Must be near the delivery address.
+                                Subject to approval.)
                               </p>
                               <div className={formStyles.radioGroup}>
                                 <Field
@@ -1319,11 +1319,11 @@ const ShipmentForm = (props) => {
                                 <AddressFields name="secondaryDestination.address" />
                                 {isTertiaryAddressEnabled && (
                                   <>
-                                    <h4>Third destination address</h4>
+                                    <h4>Third delivery address</h4>
                                     <FormGroup>
                                       <p>
-                                        Will the movers deliver any belongings to a third address? (Must be near the
-                                        destination address. Subject to approval.)
+                                        Will you move any belongings to a third address? (Must be near the delivery
+                                        address. Subject to approval.)
                                       </p>
                                       <div className={formStyles.radioGroup}>
                                         <Field
