@@ -422,17 +422,28 @@ const MoveDetails = ({
         </LeftNav>
 
         <GridContainer className={styles.gridContainer} data-testid="too-move-details">
-          <div className={styles.tooMoveDetailsHeadingFlexbox}>
-            <h1 className={styles.tooMoveDetailsH1}>Move details</h1>
-            <Restricted to={permissionTypes.updateFinancialReviewFlag}>
-              <div className={styles.tooFinancialReviewContainer}>
-                <FinancialReviewButton
-                  onClick={handleShowFinancialReviewModal}
-                  reviewRequested={move.financialReviewFlag}
-                  isMoveLocked={isMoveLocked}
-                />
-              </div>
-            </Restricted>
+          <div>
+            <Grid row className={styles.pageHeader}>
+              {alertMessage && (
+                <Grid col={12} className={styles.alertContainer}>
+                  <Alert headingLevel="h4" slim type={alertType}>
+                    {alertMessage}
+                  </Alert>
+                </Grid>
+              )}
+            </Grid>
+            <Grid col={12} className={styles.tooMoveDetailsHeadingFlexbox}>
+              <h1 className={styles.tooMoveDetailsH1}>Move details</h1>
+              <Restricted to={permissionTypes.updateFinancialReviewFlag}>
+                <div>
+                  <FinancialReviewButton
+                    onClick={handleShowFinancialReviewModal}
+                    reviewRequested={move.financialReviewFlag}
+                    isMoveLocked={isMoveLocked}
+                  />
+                </div>
+              </Restricted>
+            </Grid>
           </div>
           {isFinancialModalVisible && (
             <FinancialReviewModal
@@ -442,15 +453,6 @@ const MoveDetails = ({
               initialSelection={move?.financialReviewFlag}
             />
           )}
-          <Grid row className={styles.pageHeader}>
-            {alertMessage && (
-              <Grid col={12} className={styles.alertContainer}>
-                <Alert headingLevel="h4" slim type={alertType}>
-                  {alertMessage}
-                </Alert>
-              </Grid>
-            )}
-          </Grid>
           <Grid row col={12}>
             <Restricted to={permissionTypes.cancelMoveFlag}>
               <div className={styles.tooCancelMoveContainer}>
