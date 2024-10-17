@@ -2016,13 +2016,20 @@ func (suite *OrderServiceSuite) TestOriginDutyLocationFilter() {
 		}
 		officeUser, expectedMove, session = setupTestData()
 	})
-
-    suite.Run("Returns orders matching the originDutyLocation filter", func() {
-		locationName := expectedMove.Orders.OriginDutyLocation.Name
-		params := &services.ListOrderParams{OriginDutyLocation: strings.Split(locationName, " ")}
-        expectedMoves, _, err := orderFetcher.ListOrders(suite.AppContextWithSessionForTest(&session), officeUser.ID, roles.RoleTypeTOO, params)
+	locationName := expectedMove.Orders.OriginDutyLocation.Name
+    suite.Run("Returns orders matching full originDutyLocation name filter", func() {
+        expectedMoves, _, err := orderFetcher.ListOrders(suite.AppContextWithSessionForTest(&session), officeUser.ID, roles.RoleTypeTOO, &services.ListOrderParams{OriginDutyLocation: strings.Split(locationName, " ")})
         suite.NoError(err)
-		suite.Equal(1, len(expectedMoves))
-        suite.Contains(locationName, string(expectedMoves[0].Orders.OriginDutyLocation.Name))
+        suite.Equal(1, len(expectedMoves))
+        suite.Equal(locationName, string(expectedMoves[0].Orders.OriginDutyLocation.Name))
+    })
+
+    suite.Run("Returns orders matching partial originDutyLocation name filter", func() {
+        //Split the location name and retrieve a substring (first string) for the search param
+        partialParamSearch := strings.Split(locationName, " ")[0]
+        expectedMoves, _, err := orderFetcher.ListOrders(suite.AppContextWithSessionForTest(&session), officeUser.ID, roles.RoleTypeTOO, &services.ListOrderParams{OriginDutyLocation: strings.Split(partialParamSearch, " ")})
+        suite.NoError(err)
+        suite.Equal(1, len(expectedMoves))
+        suite.Equal(locationName, string(expectedMoves[0].Orders.OriginDutyLocation.Name))
     })
 }
