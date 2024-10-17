@@ -519,9 +519,6 @@ export function convertInchesToFeetAndInches(totalInches) {
   return { feet, inches };
 }
 
-// Initial values for mobile home shipment
-export function formatMobileHomeShipmentForDisplay(mobileHomeShipment, initialValues) {
-  const { year, make, model, lengthInInches, widthInInches, heightInInches } = mobileHomeShipment || {};
 // Initial values for boat shipment
 export function formatBoatShipmentForDisplay(boatShipment, initialValues) {
   const { year, make, model, lengthInInches, widthInInches, heightInInches, hasTrailer, isRoadworthy } =
@@ -577,8 +574,7 @@ export function formatBoatShipmentForAPI(values) {
 }
 
 export function formatMobileHomeShipmentForDisplay(mobileHomeShipment, initialValues) {
-  const { year, make, model, lengthInInches, widthInInches, heightInInches } =
-    mobileHomeShipment || {};
+  const { year, make, model, lengthInInches, widthInInches, heightInInches } = mobileHomeShipment || {};
 
   const length = convertInchesToFeetAndInches(lengthInInches);
   const width = convertInchesToFeetAndInches(widthInInches);
