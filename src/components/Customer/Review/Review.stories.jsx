@@ -98,6 +98,9 @@ const serviceMemberMoves = {
           transportation_office_id: 'd1359c20-c762-4b04-9ed6-fd2b9060615b',
           updated_at: '2024-02-27T20:40:47.436Z',
         },
+        counseling_office: {
+          name: 'PPPO McAlester',
+        },
         report_by_date: '2024-03-28',
         service_member_id: 'ab65bff1-4da3-4a51-a36f-2bdb2c4edc4d',
         spouse_has_pro_gear: false,
@@ -134,6 +137,9 @@ const defaultProps = {
     locator: mtoLocator,
     service_member_id: customerUuid,
     status: MOVE_STATUSES.DRAFT,
+    counseling_office: {
+      name: 'PPPO McAlester',
+    },
   },
   currentOrders: {
     orders_type: 'PERMANENT_CHANGE_OF_STATION',
