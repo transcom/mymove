@@ -11,8 +11,8 @@ import (
 
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/assets"
-	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
+	"github.com/transcom/mymove/pkg/models"
 )
 
 var (
@@ -69,8 +69,8 @@ func (m MoveCounseled) emails(appCtx appcontext.AppContext) ([]emailContent, err
 
 	destinationAddress := orders.NewDutyLocation.Name
 	isSeparateeOrRetireeOrder := orders.OrdersType == internalmessages.OrdersTypeRETIREMENT || orders.OrdersType == internalmessages.OrdersTypeSEPARATION
-	if  isSeparateeOrRetireeOrder && len(move.MTOShipments) > 0 && move.MTOShipments[0].DestinationAddress != nil {
-		streetAddr1, streetAddr2, streetAddr3 := *move.MTOShipments[0].DestinationAddress,"",""
+	if isSeparateeOrRetireeOrder && len(move.MTOShipments) > 0 && move.MTOShipments[0].DestinationAddress != nil {
+		streetAddr1, streetAddr2, streetAddr3 := *move.MTOShipments[0].DestinationAddress, "", ""
 		if streetAddr1.StreetAddress2 != nil {
 			streetAddr2 = " " + *streetAddr1.StreetAddress2
 		}
@@ -85,10 +85,10 @@ func (m MoveCounseled) emails(appCtx appcontext.AppContext) ([]emailContent, err
 	}
 
 	htmlBody, textBody, err := m.renderTemplates(appCtx, MoveCounseledEmailData{
-		OriginDutyLocation:      originDutyLocationName,
-		DestinationLocation:     destinationAddress,
-		Locator:                 move.Locator,
-		MyMoveLink:              MyMoveLink,
+		OriginDutyLocation:  originDutyLocationName,
+		DestinationLocation: destinationAddress,
+		Locator:             move.Locator,
+		MyMoveLink:          MyMoveLink,
 	})
 
 	if err != nil {
@@ -122,10 +122,10 @@ func (m MoveCounseled) renderTemplates(appCtx appcontext.AppContext, data MoveCo
 }
 
 type MoveCounseledEmailData struct {
-	OriginDutyLocation      *string
-	DestinationLocation     string
-	Locator                 string
-	MyMoveLink              string
+	OriginDutyLocation  *string
+	DestinationLocation string
+	Locator             string
+	MyMoveLink          string
 }
 
 // RenderHTML renders the html for the email
