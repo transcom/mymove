@@ -6370,6 +6370,13 @@ definitions:
       advanceStatus:
         $ref: '#/definitions/PPMAdvanceStatus'
         x-nullable: true
+      isActualExpenseReimbursement:
+        description: >-
+          Used for PPM shipments only. Denotes if this shipment uses the Actual
+          Expense Reimbursement method.
+        type: boolean
+        example: false
+        x-omitempty: false
   UpdateBoatShipment:
     type: object
     properties:
@@ -6759,6 +6766,13 @@ definitions:
       spouseProGearWeight:
         type: integer
         x-nullable: true
+      isActualExpenseReimbursement:
+        description: >-
+          Used for PPM shipments only. Denotes if this shipment uses the Actual
+          Expense Reimbursement method.
+        type: boolean
+        example: false
+        x-omitempty: false
     required:
       - expectedDepartureDate
       - pickupAddress
@@ -9530,6 +9544,13 @@ definitions:
         type: array
         items:
           $ref: '#/definitions/ProGearWeightTicket'
+      isActualExpenseReimbursement:
+        description: >-
+          Used for PPM shipments only. Denotes if this shipment uses the Actual
+          Expense Reimbursement method.
+        type: boolean
+        example: false
+        x-omitempty: false
       signedCertification:
         $ref: '#/definitions/SignedCertification'
       eTag:

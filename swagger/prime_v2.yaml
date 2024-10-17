@@ -756,6 +756,13 @@ definitions:
           in pounds.
         type: integer
         x-nullable: true
+      isActualExpenseReimbursement:
+        description: >-
+          Used for PPM shipments only. Denotes if this shipment uses the Actual
+          Expense Reimbursement method.
+        type: boolean
+        example: false
+        x-omitempty: false
     required:
       - expectedDepartureDate
       - sitExpected
@@ -912,6 +919,13 @@ definitions:
           spouse.
         type: integer
         x-nullable: true
+      isActualExpenseReimbursement:
+        description: >-
+          Used for PPM shipments only. Denotes if this shipment uses the Actual
+          Expense Reimbursement method.
+        type: boolean
+        example: false
+        x-omitempty: false
   UpdateMTOShipment:
     properties:
       scheduledPickupDate:
@@ -2405,6 +2419,13 @@ definitions:
         type: integer
         format: cents
         x-nullable: true
+        x-omitempty: false
+      isActualExpenseReimbursement:
+        description: >-
+          Used for PPM shipments only. Denotes if this shipment uses the Actual
+          Expense Reimbursement method.
+        type: boolean
+        example: false
         x-omitempty: false
       eTag:
         description: >-
