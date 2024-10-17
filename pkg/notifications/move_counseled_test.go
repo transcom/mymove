@@ -40,7 +40,7 @@ func (suite *NotificationSuite) TestMoveCounseledHTMLTemplateRender() {
 
 	s := MoveCounseledEmailData{
 		OriginDutyLocation:  &originDutyLocation,
-		DestinationLocation: "destinationLocation",
+		DestinationLocation: "destDutyLocation",
 		Locator:             "abc123",
 		MyMoveLink:          MyMoveLink,
 	}
@@ -66,7 +66,7 @@ func (suite *NotificationSuite) TestMoveCounseledTextTemplateRender() {
 
 	s := MoveCounseledEmailData{
 		OriginDutyLocation:  &originDutyLocation,
-		DestinationLocation: "destinationLocation",
+		DestinationLocation: "destDutyLocation",
 		Locator:             "abc123",
 		MyMoveLink:          MyMoveLink,
 	}
