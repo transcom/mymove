@@ -62,6 +62,10 @@
   .errorMessage {
     padding: 5em;
   }
+
+  .errorMessage ~ div :global(.pdf-loading) {
+    display: none;
+  }
 }
 
 .overlay {
