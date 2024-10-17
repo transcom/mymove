@@ -10,6 +10,7 @@ import { renderWithProviders } from 'testUtils';
 import { customerRoutes, generalRoutes } from 'constants/routes';
 import { selectCanAddOrders, selectServiceMemberFromLoggedInUser } from 'store/entities/selectors';
 import { setCanAddOrders, setMoveId } from 'store/general/actions';
+import { isBooleanFlagEnabled } from 'utils/featureFlags';
 
 jest.mock('services/internalApi', () => ({
   ...jest.requireActual('services/internalApi'),
@@ -201,6 +202,11 @@ const serviceMember = {
   id: 'id123',
 };
 
+jest.mock('utils/featureFlags', () => ({
+  ...jest.requireActual('utils/featureFlags'),
+  isBooleanFlagEnabled: jest.fn().mockImplementation(() => Promise.resolve(false)),
+}));
+
 describe('Add Orders page', () => {
   const testProps = {
     serviceMemberId: 'id123',
@@ -310,6 +316,7 @@ describe('Add Orders page', () => {
   });
 
   it('does render the input boxes for number of dependents over or under 12 if one of the locations are OCONUS', async () => {
+    isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(true));
     selectServiceMemberFromLoggedInUser.mockImplementation(() => serviceMember);
     renderWithProviders(<AddOrders {...testProps} />, {
       path: customerRoutes.ORDERS_ADD_PATH,
@@ -331,17 +338,28 @@ describe('Add Orders page', () => {
     expect(screen.getByLabelText(/Number of dependents over the age of 12/)).toBeInTheDocument();
   });
 
-  it('only renders dependents age groupings if dependents are present but locations are not', async () => {
+  it('only renders dependents age groupings and accompanied tour if dependents are present', async () => {
+    isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(true));
     selectServiceMemberFromLoggedInUser.mockImplementation(() => serviceMember);
     renderWithProviders(<AddOrders {...testProps} />, {
       path: customerRoutes.ORDERS_ADD_PATH,
     });
 
     await screen.findByRole('heading', { level: 1, name: 'Tell us about your move orders' });
-    await userEvent.click(screen.getByTestId('hasDependentsYes'));
-    expect(screen.getByText('Is this an accompanied tour?')).toBeInTheDocument();
-    expect(screen.getByLabelText(/Number of dependents under the age of 12/)).toBeInTheDocument();
-    expect(screen.getByLabelText(/Number of dependents over the age of 12/)).toBeInTheDocument();
+    // Select a CONUS current duty location
+    await userEvent.type(screen.getByLabelText(/Current duty location/), 'AFB', { delay: 100 });
+    const selectedOptionCurrent = await screen.findByText(/Altus/);
+    await userEvent.click(selectedOptionCurrent);
+    // Select an OCONUS new duty location
+    await userEvent.type(screen.getByLabelText(/New duty location/), 'AFB', { delay: 100 });
+    const selectedOptionNew = await screen.findByText(/Elmendorf/);
+    await userEvent.click(selectedOptionNew);
+    // Select that dependents are present
+    await userEvent.click(screen.getByTestId('hasDependentsNo'));
+    // With one of the duty locations being OCONUS, the number of dependents input boxes should be present
+    expect(screen.queryByLabelText(/Number of dependents under the age of 12/)).not.toBeInTheDocument();
+    expect(screen.queryByLabelText(/Number of dependents over the age of 12/)).not.toBeInTheDocument();
+    expect(screen.queryByLabelText(/Is this an accompanied tour?/)).not.toBeInTheDocument();
   });
 
   it('next button creates the orders and updates state', async () => {
