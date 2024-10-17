@@ -107,6 +107,7 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 					City:           "Des Moines",
 					State:          "IA",
 					PostalCode:     "50309",
+					County:         "POLK",
 				},
 			},
 		}, nil)
