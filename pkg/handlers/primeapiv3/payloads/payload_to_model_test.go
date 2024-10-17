@@ -605,7 +605,6 @@ func (suite *PayloadsSuite) TestPPMShipmentModelFromCreate() {
 	}
 	tertiaryPickupAddress = primev3messages.Address{
 		City:           &address3.City,
-		Country:        address3.Country,
 		PostalCode:     &address3.PostalCode,
 		State:          &address3.State,
 		StreetAddress1: &address3.StreetAddress1,
@@ -614,7 +613,6 @@ func (suite *PayloadsSuite) TestPPMShipmentModelFromCreate() {
 	}
 	tertiaryDestinationAddress = primev3messages.Address{
 		City:           &address3.City,
-		Country:        address3.Country,
 		PostalCode:     &address3.PostalCode,
 		State:          &address3.State,
 		StreetAddress1: &address3.StreetAddress1,
@@ -669,7 +667,9 @@ func (suite *PayloadsSuite) TestCountryModel_WithNilCountry() {
 }
 
 func (suite *PayloadsSuite) TestMTOShipmentModelFromCreate_WithNilInput() {
-	result := MTOShipmentModelFromCreate(nil)
+	result, err := MTOShipmentModelFromCreate(nil)
+
+	suite.Nil(err)
 	suite.Nil(result)
 }
 
@@ -679,8 +679,9 @@ func (suite *PayloadsSuite) TestMTOShipmentModelFromCreate_WithValidInput() {
 		MoveTaskOrderID: &moveTaskOrderID,
 	}
 
-	result := MTOShipmentModelFromCreate(&mtoShipment)
+	result, err := MTOShipmentModelFromCreate(&mtoShipment)
 
+	suite.Nil(err)
 	suite.NotNil(result)
 	suite.Equal(mtoShipment.MoveTaskOrderID.String(), result.MoveTaskOrderID.String())
 	suite.Nil(result.PrimeEstimatedWeight)
@@ -723,8 +724,9 @@ func (suite *PayloadsSuite) TestMTOShipmentModelFromCreate_WithOptionalFields() 
 		DestinationAddress:     struct{ primev3messages.Address }{destinationAddress},
 	}
 
-	result := MTOShipmentModelFromCreate(mtoShipment)
+	result, err := MTOShipmentModelFromCreate(mtoShipment)
 
+	suite.Nil(err)
 	suite.NotNil(result)
 	suite.Equal(mtoShipment.MoveTaskOrderID.String(), result.MoveTaskOrderID.String())
 	suite.Equal(*mtoShipment.CustomerRemarks, *result.CustomerRemarks)
