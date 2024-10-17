@@ -4,6 +4,9 @@ import { Formik, Field } from 'formik';
 import * as Yup from 'yup';
 import { Radio, FormGroup, Label, Link as USWDSLink } from '@trussworks/react-uswds';
 
+import { isBooleanFlagEnabled } from '../../../utils/featureFlags';
+import { FEATURE_FLAG_KEYS } from '../../../shared/constants';
+
 import styles from './OrdersInfoForm.module.scss';
 
 import ToolTip from 'shared/ToolTip/ToolTip';
@@ -24,10 +27,14 @@ let originMeta;
 let newDutyMeta = '';
 const OrdersInfoForm = ({ ordersTypeOptions, initialValues, onSubmit, onBack }) => {
   const payGradeOptions = dropdownInputOptions(ORDERS_PAY_GRADE_OPTIONS);
-  const [dutyLocation, setDutyLocation] = useState('');
+  const [currentDutyLocation, setCurrentDutyLocation] = useState('');
+  const [newDutyLocation, setNewDutyLocation] = useState('');
   const [counselingOfficeOptions, setCounselingOfficeOptions] = useState(null);
   const [showAccompaniedTourField, setShowAccompaniedTourField] = useState(false);
   const [showDependentAgeFields, setShowDependentAgeFields] = useState(false);
+  const [hasDependents, setHasDependents] = useState(false);
+  const [isOconusMove, setIsOconusMove] = useState(false);
+  const [enableUB, setEnableUB] = useState(false);
   const validationSchema = Yup.object().shape({
     orders_type: Yup.mixed()
       .oneOf(ordersTypeOptions.map((i) => i.key))
@@ -42,7 +49,7 @@ const OrdersInfoForm = ({ ordersTypeOptions, initialValues, onSubmit, onBack }) 
     new_duty_location: Yup.object().nullable().required('Required'),
     grade: Yup.mixed().oneOf(Object.keys(ORDERS_PAY_GRADE_OPTIONS)).required('Required'),
     origin_duty_location: Yup.object().nullable().required('Required'),
-    counseling_office_id: dutyLocation.provides_services_counseling
+    counseling_office_id: currentDutyLocation.provides_services_counseling
       ? Yup.string().required('Required')
       : Yup.string().notRequired(),
     is_accompanied_tour: showAccompaniedTourField
@@ -52,16 +59,43 @@ const OrdersInfoForm = ({ ordersTypeOptions, initialValues, onSubmit, onBack }) 
     dependents_over_12: showDependentAgeFields ? Yup.number().min(0).required('Required') : Yup.number().notRequired(),
   });
   useEffect(() => {
-    showCounselingOffices(dutyLocation.id).then((fetchedData) => {
-      if (fetchedData.body) {
-        const counselingOffices = fetchedData.body.map((item) => ({
-          key: item.id,
-          value: item.name,
-        }));
-        setCounselingOfficeOptions(counselingOffices);
-      }
+    // Functional component version of "componentDidMount"
+    // By leaving the dependency array empty this will only run once
+    isBooleanFlagEnabled(FEATURE_FLAG_KEYS.UNACCOMPANIED_BAGGAGE).then((enabled) => {
+      if (enabled) setEnableUB(true);
     });
-  }, [dutyLocation]);
+  });
+  useEffect(() => {
+    // If current duty location is defined, show the counseling offices
+    if (currentDutyLocation?.id) {
+      showCounselingOffices(currentDutyLocation.id).then((fetchedData) => {
+        if (fetchedData.body) {
+          const counselingOffices = fetchedData.body.map((item) => ({
+            key: item.id,
+            value: item.name,
+          }));
+          setCounselingOfficeOptions(counselingOffices);
+        }
+      });
+    }
+    // Check if either currentDutyLocation or newDutyLocation is OCONUS
+    if (currentDutyLocation?.address?.isOconus || newDutyLocation?.address?.isOconus) {
+      setIsOconusMove(true);
+    } else {
+      setIsOconusMove(false);
+    }
+    if (currentDutyLocation?.address && newDutyLocation?.address && enableUB) {
+      // Only if one of the duty locations is OCONUS should accompanied tour and dependent
+      // age fields display
+      if (isOconusMove && hasDependents) {
+        setShowAccompaniedTourField(true);
+        setShowDependentAgeFields(true);
+      } else {
+        setShowAccompaniedTourField(false);
+        setShowDependentAgeFields(false);
+      }
+    }
+  }, [currentDutyLocation, newDutyLocation, isOconusMove, hasDependents, enableUB]);
 
   return (
     <Formik
@@ -82,14 +116,15 @@ const OrdersInfoForm = ({ ordersTypeOptions, initialValues, onSubmit, onBack }) 
         else newDutyMeta = null;
 
         const handleHasDependentsChange = (e) => {
-          const hasDependents = e.target.value === 'yes';
-          setFieldValue('has_dependents', hasDependents ? 'yes' : 'no');
-          if (hasDependents) {
-            // Has dependents
+          // Declare a duplicate local scope of the field value
+          // for the form to prevent state race conditions
+          const fieldValueHasDependents = e.target.value === 'yes';
+          setHasDependents(e.target.value === 'yes');
+          setFieldValue('has_dependents', fieldValueHasDependents ? 'yes' : 'no');
+          if (fieldValueHasDependents && isOconusMove && enableUB) {
             setShowAccompaniedTourField(true);
             setShowDependentAgeFields(true);
           } else {
-            // Does not have dependents
             setShowAccompaniedTourField(false);
             setShowDependentAgeFields(false);
           }
@@ -127,6 +162,83 @@ const OrdersInfoForm = ({ ordersTypeOptions, initialValues, onSubmit, onBack }) 
                 label={formatLabelReportByDate(values.orders_type)}
                 required
               />
+
+              <DutyLocationInput
+                label="Current duty location"
+                hint="Required"
+                name="origin_duty_location"
+                id="origin_duty_location"
+                onDutyLocationChange={(e) => {
+                  setCurrentDutyLocation(e);
+                }}
+                required
+                metaOverride={originMeta}
+              />
+              {currentDutyLocation.provides_services_counseling && (
+                <div>
+                  <Label>
+                    Select an origin duty location that most closely represents your current physical location, not
+                    where your shipment will originate, if different. This will allow a nearby transportation office to
+                    assist you.
+                  </Label>
+                  <DropdownInput
+                    label="Counseling Office"
+                    name="counseling_office_id"
+                    id="counseling_office_id"
+                    hint="Required"
+                    required
+                    options={counselingOfficeOptions}
+                  />
+                </div>
+              )}
+              {isRetirementOrSeparation ? (
+                <>
+                  <h3 className={styles.calloutLabel}>Where are you entitled to move?</h3>
+                  <Callout>
+                    <span>The government will pay for your move to:</span>
+                    <ul>
+                      <li>Home of record (HOR)</li>
+                      <li>Place entered active duty (PLEAD)</li>
+                    </ul>
+                    <p>
+                      It might pay for a move to your Home of selection (HOS), anywhere in CONUS. Check your orders.
+                    </p>
+                    <p>
+                      Read more about where you are entitled to move when leaving the military on{' '}
+                      <USWDSLink
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        href="https://www.militaryonesource.mil/military-life-cycle/separation-transition/military-separation-retirement/deciding-where-to-live-when-you-leave-the-military/"
+                      >
+                        Military OneSource.
+                      </USWDSLink>
+                    </p>
+                  </Callout>
+                  <DutyLocationInput
+                    name="new_duty_location"
+                    label="HOR, PLEAD or HOS"
+                    displayAddress={false}
+                    hint="Enter the option closest to your destination. Your move counselor will identify if there might be a cost to you. (Required)"
+                    metaOverride={newDutyMeta}
+                    placeholder="Enter a city or ZIP"
+                    onDutyLocationChange={(e) => {
+                      setNewDutyLocation(e);
+                    }}
+                  />
+                </>
+              ) : (
+                <DutyLocationInput
+                  name="new_duty_location"
+                  label="New duty location"
+                  displayAddress={false}
+                  hint="Required"
+                  metaOverride={newDutyMeta}
+                  onDutyLocationChange={(e) => {
+                    setNewDutyLocation(e);
+                  }}
+                />
+              )}
+
               <FormGroup>
                 <Label hint="Required">Are dependents included in your orders?</Label>
                 <div>
@@ -232,76 +344,6 @@ const OrdersInfoForm = ({ ordersTypeOptions, initialValues, onSubmit, onBack }) 
                     />
                   </FormGroup>
                 </>
-              )}
-
-              <DutyLocationInput
-                label="Current duty location"
-                hint="Required"
-                name="origin_duty_location"
-                id="origin_duty_location"
-                onDutyLocationChange={(e) => {
-                  setDutyLocation(e);
-                }}
-                required
-                metaOverride={originMeta}
-              />
-              {dutyLocation.provides_services_counseling && (
-                <div>
-                  <Label>
-                    Select an origin duty location that most closely represents your current physical location, not
-                    where your shipment will originate, if different. This will allow a nearby transportation office to
-                    assist you.
-                  </Label>
-                  <DropdownInput
-                    label="Counseling Office"
-                    name="counseling_office_id"
-                    id="counseling_office_id"
-                    hint="Required"
-                    required
-                    options={counselingOfficeOptions}
-                  />
-                </div>
-              )}
-              {isRetirementOrSeparation ? (
-                <>
-                  <h3 className={styles.calloutLabel}>Where are you entitled to move?</h3>
-                  <Callout>
-                    <span>The government will pay for your move to:</span>
-                    <ul>
-                      <li>Home of record (HOR)</li>
-                      <li>Place entered active duty (PLEAD)</li>
-                    </ul>
-                    <p>
-                      It might pay for a move to your Home of selection (HOS), anywhere in CONUS. Check your orders.
-                    </p>
-                    <p>
-                      Read more about where you are entitled to move when leaving the military on{' '}
-                      <USWDSLink
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        href="https://www.militaryonesource.mil/military-life-cycle/separation-transition/military-separation-retirement/deciding-where-to-live-when-you-leave-the-military/"
-                      >
-                        Military OneSource.
-                      </USWDSLink>
-                    </p>
-                  </Callout>
-                  <DutyLocationInput
-                    name="new_duty_location"
-                    label="HOR, PLEAD or HOS"
-                    displayAddress={false}
-                    hint="Enter the option closest to your destination. Your move counselor will identify if there might be a cost to you. (Required)"
-                    metaOverride={newDutyMeta}
-                    placeholder="Enter a city or ZIP"
-                  />
-                </>
-              ) : (
-                <DutyLocationInput
-                  name="new_duty_location"
-                  label="New duty location"
-                  displayAddress={false}
-                  hint="Required"
-                  metaOverride={newDutyMeta}
-                />
               )}
 
               <DropdownInput
