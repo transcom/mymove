@@ -557,11 +557,19 @@ func (suite *PayloadsSuite) TestPPMShipmentModelFromCreate() {
 		State:          "state",
 		PostalCode:     "11111",
 	}
+	address3 := models.Address{
+		StreetAddress1: "some address",
+		City:           "city",
+		State:          "state",
+		PostalCode:     "54321",
+	}
 
 	var pickupAddress primev3messages.Address
 	var secondaryPickupAddress primev3messages.Address
+	var tertiaryPickupAddress primev3messages.Address
 	var destinationAddress primev3messages.Address
 	var secondaryDestinationAddress primev3messages.Address
+	var tertiaryDestinationAddress primev3messages.Address
 
 	pickupAddress = primev3messages.Address{
 		City:           &address.City,
@@ -599,13 +607,33 @@ func (suite *PayloadsSuite) TestPPMShipmentModelFromCreate() {
 		StreetAddress2: address2.StreetAddress2,
 		StreetAddress3: address2.StreetAddress3,
 	}
+	tertiaryPickupAddress = primev3messages.Address{
+		City:           &address3.City,
+		Country:        address3.Country,
+		PostalCode:     &address3.PostalCode,
+		State:          &address3.State,
+		StreetAddress1: &address3.StreetAddress1,
+		StreetAddress2: address3.StreetAddress2,
+		StreetAddress3: address3.StreetAddress3,
+	}
+	tertiaryDestinationAddress = primev3messages.Address{
+		City:           &address3.City,
+		Country:        address3.Country,
+		PostalCode:     &address3.PostalCode,
+		State:          &address3.State,
+		StreetAddress1: &address3.StreetAddress1,
+		StreetAddress2: address3.StreetAddress2,
+		StreetAddress3: address3.StreetAddress3,
+	}
 
 	ppmShipment := primev3messages.CreatePPMShipment{
 		ExpectedDepartureDate:       expectedDepartureDate,
 		PickupAddress:               struct{ primev3messages.Address }{pickupAddress},
 		SecondaryPickupAddress:      struct{ primev3messages.Address }{secondaryPickupAddress},
+		TertiaryPickupAddress:       struct{ primev3messages.Address }{tertiaryPickupAddress},
 		DestinationAddress:          struct{ primev3messages.Address }{destinationAddress},
 		SecondaryDestinationAddress: struct{ primev3messages.Address }{secondaryDestinationAddress},
+		TertiaryDestinationAddress:  struct{ primev3messages.Address }{tertiaryDestinationAddress},
 		SitExpected:                 &sitExpected,
 		EstimatedWeight:             &estimatedWeight,
 		HasProGear:                  &hasProGear,
@@ -624,5 +652,7 @@ func (suite *PayloadsSuite) TestPPMShipmentModelFromCreate() {
 	suite.Equal(unit.Pound(spouseProGearWeight), *model.SpouseProGearWeight)
 	suite.True(*model.HasSecondaryPickupAddress)
 	suite.True(*model.HasSecondaryDestinationAddress)
+	suite.True(*model.HasTertiaryPickupAddress)
+	suite.True(*model.HasTertiaryDestinationAddress)
 	suite.NotNil(model)
 }
