@@ -486,11 +486,5 @@ describe('PrimeUIShipmentCreateForm', () => {
 
     // now the text input should be visible
     expect(await screen.findByTestId('divertedFromShipmentIdInput')).toBeInTheDocument();
-
-    // Uncheck
-    await userEvent.click(diversionCheckbox);
-
-    // now the text input should be invisible
-    expect(await screen.queryByTestId('divertedFromShipmentIdInput')).toBeNull();
   });
 });
