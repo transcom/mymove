@@ -6,6 +6,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 
 import EvaluationReportList from '../DefinitionLists/EvaluationReportList';
 import PreviewRow from '../EvaluationReportPreview/PreviewRow/PreviewRow';
+import ViolationAppealModal from '../ViolationAppealModal/ViolationAppealModal';
 
 import styles from './EvaluationReportView.module.scss';
 
@@ -29,7 +30,25 @@ const EvaluationReportView = ({ customerInfo, grade, destinationDutyLocationPost
 
   // this is currently set to false to hide the "add appeal" button for future GSR work
   // TODO implement permissions check in order to render this button
-  const [canLeaveAppeal] = useState(false);
+  const [canLeaveAppeal] = useState(true);
+  const [isViolationAppealModalVisible, setIsViolationAppealModalVisible] = useState(false);
+  console.log('isViolationAppealModalVisible', isViolationAppealModalVisible);
+
+  const handleShowViolationAppealModal = () => {
+    setIsViolationAppealModalVisible(true);
+  };
+
+  const handleCancelViolationAppealModal = () => {
+    setIsViolationAppealModalVisible(false);
+  };
+
+  const handleSubmitViolationAppeal = (values) => {
+    const body = {
+      remarks: values.remarks,
+      appealStatus: values.appealStatus,
+    };
+    setIsViolationAppealModalVisible(false);
+  };
 
   const isShipment = evaluationReport.type === EVALUATION_REPORT_TYPE.SHIPMENT;
 
@@ -51,10 +70,18 @@ const EvaluationReportView = ({ customerInfo, grade, destinationDutyLocationPost
   };
 
   const hasViolations = reportViolations && reportViolations.length > 0;
+  console.log('reportViolations', reportViolations);
   const showIncidentDescription = evaluationReport?.seriousIncident;
 
   return (
     <div className={styles.tabContent} data-testid="EvaluationReportPreview">
+      {isViolationAppealModalVisible && (
+        <ViolationAppealModal
+          onClose={handleCancelViolationAppealModal}
+          onSubmit={handleSubmitViolationAppeal}
+          isOpen={isViolationAppealModalVisible}
+        />
+      )}
       <GridContainer className={styles.container}>
         <QaeReportHeader report={evaluationReport} />
         {mtoShipmentsToShow?.length > 0 && (
@@ -142,7 +169,7 @@ const EvaluationReportView = ({ customerInfo, grade, destinationDutyLocationPost
                         <div className={styles.violationHeader}>
                           <h5>{`${reportViolation?.violation?.paragraphNumber} ${reportViolation?.violation?.title}`}</h5>
                           {canLeaveAppeal && (
-                            <Button unstyled className={styles.addAppealBtn}>
+                            <Button unstyled className={styles.addAppealBtn} onClick={handleShowViolationAppealModal}>
                               Add appeal
                             </Button>
                           )}
