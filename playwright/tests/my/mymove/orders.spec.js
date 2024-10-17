@@ -174,7 +174,7 @@ test.describe('Download Amended Orders', () => {
     await customerPage.waitForPage.home();
 
     // Go to the Upload Amended Documents page
-    await page.getByRole('button', { name: 'Upload documents' }).click();
+    await page.getByRole('button', { name: 'Upload/Manage Orders Documentation' }).click();
 
     // Upload amended orders
     const filepondContainer = page.locator('.filepond--wrapper');
