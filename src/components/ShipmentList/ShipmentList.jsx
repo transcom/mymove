@@ -60,11 +60,11 @@ export const ShipmentListItem = ({
       }`}
       data-testid="shipment-list-item-container"
     >
-      <div>
+      <div className={styles['shipment-info']}>
         <strong>
           {getShipmentTypeLabel(shipment.shipmentType)}
           {showNumber && ` ${shipmentNumber}`}
-        </strong>{' '}
+        </strong>
         <br />
         {showShipmentTooltip &&
           (shipment.shipmentType === SHIPMENT_OPTIONS.HHG ||
@@ -85,7 +85,9 @@ export const ShipmentListItem = ({
       </div>
       {/* use substring of the UUID until actual shipment code is available */}
       {!showShipmentWeight && !showIncomplete && (
-        <span className={styles['shipment-code']}>#{shipment.shipmentLocator}</span>
+        <div className={styles['shipment-locator']}>
+          <span>#{shipment.shipmentLocator}</span>
+        </div>
       )}
       {showIncomplete && <Tag>Incomplete</Tag>}
       {showShipmentWeight && (
@@ -116,7 +118,7 @@ export const ShipmentListItem = ({
         </div>
       )}
       {canEditOrDelete ? (
-        <div className={styles['shipment-btns']}>
+        <div className={styles['shipment-buttons']}>
           <Button className={styles['edit-btn']} onClick={onDeleteClick} type="button">
             Delete
           </Button>
