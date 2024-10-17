@@ -2093,4 +2093,12 @@ func (suite *OrderServiceSuite) TestListOrdersFilteredByCustomerName() {
 		suite.Equal("Spacemen, Leo", *moves[0].Orders.ServiceMember.LastName+", "+*moves[0].Orders.ServiceMember.FirstName)
 		suite.Equal("Starlight, Leo", *moves[1].Orders.ServiceMember.LastName+", "+*moves[1].Orders.ServiceMember.FirstName)
 	})
+
+	suite.Run("list moves by customer name - empty", func() {
+		// Search "johnny"
+		params := services.ListOrderParams{CustomerName: models.StringPointer("johnny"), Sort: models.StringPointer("customerName"), Order: models.StringPointer("asc")}
+		moves, _, err := orderFetcher.ListOrders(suite.AppContextWithSessionForTest(&session), officeUser.ID, &params)
+		suite.NoError(err)
+		suite.Equal(0, len(moves))
+	})
 }

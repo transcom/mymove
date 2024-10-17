@@ -1002,9 +1002,6 @@
 20240927145659_update_mobile_home_factor.up.sql
 20240930171315_updatePostalCodeToGbloc233BGNC.up.sql
 20241001174400_add_is_oconus_column.up.sql
-<<<<<<< HEAD
 20241001193619_market-code-enum.up.sql
 20241002151527_add_transportation_offices_AK_HI.up.sql
-=======
 20241014184238_add_index_for_service_member_full_name_search.up.sql
->>>>>>> a9497ae890 (B-21071 - swap from ILIKE to tsquery approach, add index.)
