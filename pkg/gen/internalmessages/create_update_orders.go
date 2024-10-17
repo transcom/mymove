@@ -19,6 +19,11 @@ import (
 // swagger:model CreateUpdateOrders
 type CreateUpdateOrders struct {
 
+	// counseling office id
+	// Example: cf1addea-a4f9-4173-8506-2bb82a064cb7
+	// Format: uuid
+	CounselingOfficeID *strfmt.UUID `json:"counseling_office_id,omitempty"`
+
 	// department indicator
 	DepartmentIndicator *DeptIndicator `json:"department_indicator,omitempty"`
 
@@ -90,6 +95,10 @@ type CreateUpdateOrders struct {
 func (m *CreateUpdateOrders) Validate(formats strfmt.Registry) error {
 	var res []error
 
+	if err := m.validateCounselingOfficeID(formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.validateDepartmentIndicator(formats); err != nil {
 		res = append(res, err)
 	}
@@ -137,6 +146,18 @@ func (m *CreateUpdateOrders) Validate(formats strfmt.Registry) error {
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
+	return nil
+}
+
+func (m *CreateUpdateOrders) validateCounselingOfficeID(formats strfmt.Registry) error {
+	if swag.IsZero(m.CounselingOfficeID) { // not required
+		return nil
+	}
+
+	if err := validate.FormatOf("counseling_office_id", "body", "uuid", m.CounselingOfficeID.String(), formats); err != nil {
+		return err
+	}
+
 	return nil
 }
 
