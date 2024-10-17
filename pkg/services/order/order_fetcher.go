@@ -693,7 +693,7 @@ func gblocFilterForPPMCloseoutForNavyMarineAndCG(gbloc *string) QueryOption {
 
 func sortOrder(sort *string, order *string, ppmCloseoutGblocs bool) QueryOption {
 	parameters := map[string]string{
-		"lastName":                "service_members.last_name",
+		"customerName":            "(service_members.last_name || ' ' || service_members.first_name)",
 		"dodID":                   "service_members.edipi",
 		"emplid":                  "service_members.emplid",
 		"branch":                  "service_members.affiliation",
@@ -721,7 +721,7 @@ func sortOrder(sort *string, order *string, ppmCloseoutGblocs bool) QueryOption 
 				return
 			}
 			if sortTerm, ok := parameters[*sort]; ok {
-				if *sort == "lastName" {
+				if *sort == "customerName" {
 					query.Order(fmt.Sprintf("service_members.last_name %s, service_members.first_name %s", *order, *order))
 				} else {
 					query.Order(fmt.Sprintf("%s %s", sortTerm, *order))
