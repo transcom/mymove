@@ -70,11 +70,11 @@ const DocumentViewer = ({ files, allowDownload, paymentRequestId }) => {
   }, []);
 
   useEffect(() => {
-    setShowContentError(false);
     selectFile(0);
   }, [files.length]);
 
   useEffect(() => {
+    setShowContentError(false);
     setRotationValue(selectedFile?.rotation || 0);
   }, [selectedFile]);
 
@@ -92,10 +92,6 @@ const DocumentViewer = ({ files, allowDownload, paymentRequestId }) => {
   };
 
   const handleSelectFile = (index) => {
-    milmoveLogger.info('Selected index: %s', index);
-    if (selectedFileIndex !== index) {
-      setShowContentError(false);
-    }
     selectFile(index);
     closeMenu();
   };
