@@ -22,6 +22,6 @@ func (suite *ModelSuite) TestCreatePaymentRequestEdiFile() {
 			EdiString:            "Sample EDI content",
 			PaymentRequestNumber: "1111-2222-1",
 		}
-		suite.Error(models.CreatePaymentRequestEdiFile(suite.DB(), fileRecord.Filename, fileRecord.EdiString, fileRecord.PaymentRequestNumber))
+		suite.Nil(models.CreatePaymentRequestEdiFile(suite.DB(), fileRecord.Filename, fileRecord.EdiString, fileRecord.PaymentRequestNumber))
 	})
 }
