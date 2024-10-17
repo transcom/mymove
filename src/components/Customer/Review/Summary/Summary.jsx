@@ -189,6 +189,7 @@ export class Summary extends Component {
             onEditClick={this.handleEditClick}
             onDeleteClick={this.handleDeleteClick}
             onIncompleteClick={this.toggleIncompleteShipmentModal}
+            marketCode={shipment.marketCode}
           />
         );
       }
@@ -215,6 +216,7 @@ export class Summary extends Component {
             status={shipment.status}
             onIncompleteClick={this.toggleIncompleteShipmentModal}
             shipmentLocator={shipment.shipmentLocator}
+            marketCode={shipment.marketCode}
           />
         );
       }
@@ -238,6 +240,7 @@ export class Summary extends Component {
             status={shipment.status}
             onIncompleteClick={this.toggleIncompleteShipmentModal}
             shipmentLocator={shipment.shipmentLocator}
+            marketCode={shipment.marketCode}
           />
         );
       }
@@ -270,6 +273,7 @@ export class Summary extends Component {
             showEditAndDeleteBtn={showEditAndDeleteBtn}
             status={shipment.status}
             onIncompleteClick={this.toggleIncompleteShipmentModal}
+            marketCode={shipment.marketCode}
           />
         );
       }
@@ -299,6 +303,7 @@ export class Summary extends Component {
             showEditAndDeleteBtn={showEditAndDeleteBtn}
             status={shipment.status}
             onIncompleteClick={this.toggleIncompleteShipmentModal}
+            marketCode={shipment.marketCode}
           />
         );
       }
@@ -328,6 +333,7 @@ export class Summary extends Component {
           showEditAndDeleteBtn={showEditAndDeleteBtn}
           status={shipment.status}
           onIncompleteClick={this.toggleIncompleteShipmentModal}
+          marketCode={shipment.marketCode}
         />
       );
     });

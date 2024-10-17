@@ -59,6 +59,7 @@ export const ShipmentListItem = ({
     >
       <div>
         <strong>
+          <span className={styles.marketCodeIndicator}>{shipment.marketCode}</span>
           {shipmentTypes[shipment.shipmentType]}
           {showNumber && ` ${shipmentNumber}`}
         </strong>{' '}
