@@ -88,6 +88,16 @@ type CreatePPMShipment struct {
 
 	// The estimated weight of the pro-gear being moved belonging to a spouse in pounds.
 	SpouseProGearWeight *int64 `json:"spouseProGearWeight,omitempty"`
+
+	// An optional tertiary address near the destination where goods will be dropped off.
+	TertiaryDestinationAddress struct {
+		Address
+	} `json:"tertiaryDestinationAddress,omitempty"`
+
+	// An optional tertiary pickup location address near the origin where additional goods exist.
+	TertiaryPickupAddress struct {
+		Address
+	} `json:"tertiaryPickupAddress,omitempty"`
 }
 
 // Validate validates this create p p m shipment
@@ -135,6 +145,14 @@ func (m *CreatePPMShipment) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validateSitLocation(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateTertiaryDestinationAddress(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateTertiaryPickupAddress(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -253,6 +271,22 @@ func (m *CreatePPMShipment) validateSitLocation(formats strfmt.Registry) error {
 	return nil
 }
 
+func (m *CreatePPMShipment) validateTertiaryDestinationAddress(formats strfmt.Registry) error {
+	if swag.IsZero(m.TertiaryDestinationAddress) { // not required
+		return nil
+	}
+
+	return nil
+}
+
+func (m *CreatePPMShipment) validateTertiaryPickupAddress(formats strfmt.Registry) error {
+	if swag.IsZero(m.TertiaryPickupAddress) { // not required
+		return nil
+	}
+
+	return nil
+}
+
 // ContextValidate validate this create p p m shipment based on the context it is used
 func (m *CreatePPMShipment) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	var res []error
@@ -274,6 +308,14 @@ func (m *CreatePPMShipment) ContextValidate(ctx context.Context, formats strfmt.
 	}
 
 	if err := m.contextValidateSitLocation(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidateTertiaryDestinationAddress(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidateTertiaryPickupAddress(ctx, formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -320,6 +362,16 @@ func (m *CreatePPMShipment) contextValidateSitLocation(ctx context.Context, form
 			return err
 		}
 	}
+
+	return nil
+}
+
+func (m *CreatePPMShipment) contextValidateTertiaryDestinationAddress(ctx context.Context, formats strfmt.Registry) error {
+
+	return nil
+}
+
+func (m *CreatePPMShipment) contextValidateTertiaryPickupAddress(ctx context.Context, formats strfmt.Registry) error {
 
 	return nil
 }
