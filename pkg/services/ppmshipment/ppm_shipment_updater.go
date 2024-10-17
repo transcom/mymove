@@ -24,6 +24,7 @@ var PPMShipmentUpdaterChecks = []ppmShipmentValidator{
 	checkPPMShipmentID(),
 	checkRequiredFields(),
 	checkAdvanceAmountRequested(),
+	checkThatPPMShipmentHasTertiaryAddressWithNoSecondaryAddress(),
 }
 
 func NewPPMShipmentUpdater(ppmEstimator services.PPMEstimator, addressCreator services.AddressCreator, addressUpdater services.AddressUpdater) services.PPMShipmentUpdater {

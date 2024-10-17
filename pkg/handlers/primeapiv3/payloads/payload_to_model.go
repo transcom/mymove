@@ -165,10 +165,28 @@ func MTOShipmentModelFromCreate(mtoShipment *primev3messages.CreateMTOShipment) 
 	if addressModel != nil {
 		model.PickupAddress = addressModel
 	}
+	addressModel = AddressModel(&mtoShipment.SecondaryPickupAddress.Address)
+	if addressModel != nil {
+		model.SecondaryPickupAddress = addressModel
+	}
+	addressModel = AddressModel(&mtoShipment.TertiaryPickupAddress.Address)
+	if addressModel != nil {
+		model.TertiaryPickupAddress = addressModel
+	}
 
 	addressModel = AddressModel(&mtoShipment.DestinationAddress.Address)
 	if addressModel != nil {
 		model.DestinationAddress = addressModel
+	}
+
+	addressModel = AddressModel(&mtoShipment.SecondaryDestinationAddress.Address)
+	if addressModel != nil {
+		model.SecondaryDeliveryAddress = addressModel
+	}
+
+	addressModel = AddressModel(&mtoShipment.TertiaryDestinationAddress.Address)
+	if addressModel != nil {
+		model.TertiaryDeliveryAddress = addressModel
 	}
 
 	if mtoShipment.Agents != nil {
@@ -235,6 +253,12 @@ func PPMShipmentModelFromCreate(ppmShipment *primev3messages.CreatePPMShipment) 
 		model.HasSecondaryPickupAddress = handlers.FmtBool(true)
 	}
 
+	addressModel = AddressModel(&ppmShipment.TertiaryPickupAddress.Address)
+	if addressModel != nil {
+		model.TertiaryPickupAddress = addressModel
+		model.HasTertiaryPickupAddress = handlers.FmtBool(true)
+	}
+
 	addressModel = AddressModel(&ppmShipment.DestinationAddress.Address)
 	if addressModel != nil {
 		model.DestinationAddress = addressModel
@@ -244,6 +268,11 @@ func PPMShipmentModelFromCreate(ppmShipment *primev3messages.CreatePPMShipment) 
 	if addressModel != nil {
 		model.SecondaryDestinationAddress = addressModel
 		model.HasSecondaryDestinationAddress = handlers.FmtBool(true)
+	}
+	addressModel = AddressModel(&ppmShipment.TertiaryDestinationAddress.Address)
+	if addressModel != nil {
+		model.TertiaryDestinationAddress = addressModel
+		model.HasTertiaryDestinationAddress = handlers.FmtBool(true)
 	}
 
 	if model.SITExpected != nil && *model.SITExpected {
