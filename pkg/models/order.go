@@ -37,6 +37,29 @@ const (
 	OrderStatusCANCELED OrderStatus = "CANCELED"
 )
 
+// DepartmentIndicator represents an order's department indicator
+type DepartmentIndicator string
+
+// String is a string representation of a DepartmentIndicator
+func (d DepartmentIndicator) String() string {
+	return string(d)
+}
+
+const (
+	// DepartmentIndicatorARMY captures enum value "ARMY"
+	DepartmentIndicatorARMY DepartmentIndicator = "ARMY"
+	// DepartmentIndicatorARMYCORPSOFENGINEERS captures enum value "ARMY_CORPS_OF_ENGINEERS"
+	DepartmentIndicatorARMYCORPSOFENGINEERS DepartmentIndicator = "ARMY_CORPS_OF_ENGINEERS"
+	// DepartmentIndicatorCOASTGUARD captures enum value "COAST_GUARD"
+	DepartmentIndicatorCOASTGUARD DepartmentIndicator = "COAST_GUARD"
+	// DepartmentIndicatorNAVYANDMARINES captures enum value "NAVY_AND_MARINES"
+	DepartmentIndicatorNAVYANDMARINES DepartmentIndicator = "NAVY_AND_MARINES"
+	// DepartmentIndicatorAIRANDSPACEFORCE captures enum value "AIR_AND_SPACE_FORCE"
+	DepartmentIndicatorAIRANDSPACEFORCE DepartmentIndicator = "AIR_AND_SPACE_FORCE"
+	// DepartmentIndicatorOFFICEOFSECRETARYOFDEFENSE captures enum value "OFFICE_OF_SECRETARY_OF_DEFENSE"
+	DepartmentIndicatorOFFICEOFSECRETARYOFDEFENSE DepartmentIndicator = "OFFICE_OF_SECRETARY_OF_DEFENSE"
+)
+
 // Order is a set of orders received by a service member
 type Order struct {
 	ID                             uuid.UUID                          `json:"id" db:"id"`

@@ -16,25 +16,29 @@ type TransportationAccountingCodeFetcher struct {
 	mock.Mock
 }
 
-// FetchOrderTransportationAccountingCodes provides a mock function with given fields: serviceMemberAffiliation, ordersIssueDate, tacCode, appCtx
-func (_m *TransportationAccountingCodeFetcher) FetchOrderTransportationAccountingCodes(serviceMemberAffiliation models.ServiceMemberAffiliation, ordersIssueDate time.Time, tacCode string, appCtx appcontext.AppContext) ([]models.TransportationAccountingCode, error) {
-	ret := _m.Called(serviceMemberAffiliation, ordersIssueDate, tacCode, appCtx)
+// FetchOrderTransportationAccountingCodes provides a mock function with given fields: departmentIndicator, ordersIssueDate, tacCode, appCtx
+func (_m *TransportationAccountingCodeFetcher) FetchOrderTransportationAccountingCodes(departmentIndicator models.DepartmentIndicator, ordersIssueDate time.Time, tacCode string, appCtx appcontext.AppContext) ([]models.TransportationAccountingCode, error) {
+	ret := _m.Called(departmentIndicator, ordersIssueDate, tacCode, appCtx)
+
+	if len(ret) == 0 {
+		panic("no return value specified for FetchOrderTransportationAccountingCodes")
+	}
 
 	var r0 []models.TransportationAccountingCode
 	var r1 error
-	if rf, ok := ret.Get(0).(func(models.ServiceMemberAffiliation, time.Time, string, appcontext.AppContext) ([]models.TransportationAccountingCode, error)); ok {
-		return rf(serviceMemberAffiliation, ordersIssueDate, tacCode, appCtx)
+	if rf, ok := ret.Get(0).(func(models.DepartmentIndicator, time.Time, string, appcontext.AppContext) ([]models.TransportationAccountingCode, error)); ok {
+		return rf(departmentIndicator, ordersIssueDate, tacCode, appCtx)
 	}
-	if rf, ok := ret.Get(0).(func(models.ServiceMemberAffiliation, time.Time, string, appcontext.AppContext) []models.TransportationAccountingCode); ok {
-		r0 = rf(serviceMemberAffiliation, ordersIssueDate, tacCode, appCtx)
+	if rf, ok := ret.Get(0).(func(models.DepartmentIndicator, time.Time, string, appcontext.AppContext) []models.TransportationAccountingCode); ok {
+		r0 = rf(departmentIndicator, ordersIssueDate, tacCode, appCtx)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).([]models.TransportationAccountingCode)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(models.ServiceMemberAffiliation, time.Time, string, appcontext.AppContext) error); ok {
-		r1 = rf(serviceMemberAffiliation, ordersIssueDate, tacCode, appCtx)
+	if rf, ok := ret.Get(1).(func(models.DepartmentIndicator, time.Time, string, appcontext.AppContext) error); ok {
+		r1 = rf(departmentIndicator, ordersIssueDate, tacCode, appCtx)
 	} else {
 		r1 = ret.Error(1)
 	}

@@ -108,7 +108,7 @@ describe('BoatShipmentForm component', () => {
         });
       });
 
-      expect(screen.getAllByText('Required').length).toBe(requiredFields.length);
+      expect(screen.getAllByTestId('errorMessage').length).toBe(requiredFields.length);
     });
   });
 

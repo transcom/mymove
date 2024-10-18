@@ -17,6 +17,10 @@ type SFTPFiler struct {
 func (_m *SFTPFiler) Close() error {
 	ret := _m.Called()
 
+	if len(ret) == 0 {
+		panic("no return value specified for Close")
+	}
+
 	var r0 error
 	if rf, ok := ret.Get(0).(func() error); ok {
 		r0 = rf()
@@ -30,6 +34,10 @@ func (_m *SFTPFiler) Close() error {
 // WriteTo provides a mock function with given fields: w
 func (_m *SFTPFiler) WriteTo(w io.Writer) (int64, error) {
 	ret := _m.Called(w)
+
+	if len(ret) == 0 {
+		panic("no return value specified for WriteTo")
+	}
 
 	var r0 int64
 	var r1 error
