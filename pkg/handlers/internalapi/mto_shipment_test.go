@@ -120,7 +120,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandlerV1() {
 		handler       CreateMTOShipmentHandler
 	}
 
-	makeCreateSubtestData := func() (subtestData mtoCreateSubtestData) {
+	makeCreateSubtestData := func(ubFeatureFlag bool, checkForFF bool) (subtestData mtoCreateSubtestData) {
 		subtestData.serviceMember = factory.BuildServiceMember(suite.DB(), nil, nil)
 
 		mto := factory.BuildMove(suite.DB(), []factory.Customization{
@@ -204,16 +204,40 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandlerV1() {
 			},
 		}
 
-		subtestData.handler = CreateMTOShipmentHandler{
-			suite.HandlerConfig(),
-			shipmentCreator,
+		if checkForFF {
+			ubFF := services.FeatureFlag{
+				Key:   "unaccompanied_baggage",
+				Match: false,
+			}
+
+			handlerConfig := suite.HandlerConfig()
+			if !ubFeatureFlag {
+				mockFeatureFlagFetcher := &mocks.FeatureFlagFetcher{}
+				mockFeatureFlagFetcher.On("GetBooleanFlagForUser",
+					mock.Anything,
+					mock.AnythingOfType("*appcontext.appContext"),
+					mock.AnythingOfType("string"),
+					mock.Anything,
+				).Return(ubFF, nil)
+				handlerConfig.SetFeatureFlagFetcher(mockFeatureFlagFetcher)
+			}
+
+			subtestData.handler = CreateMTOShipmentHandler{
+				handlerConfig,
+				shipmentCreator,
+			}
+		} else {
+			subtestData.handler = CreateMTOShipmentHandler{
+				suite.HandlerConfig(),
+				shipmentCreator,
+			}
 		}
 
 		return subtestData
 	}
 
 	suite.Run("Successful POST - Integration Test - HHG", func() {
-		subtestData := makeCreateSubtestData()
+		subtestData := makeCreateSubtestData(false, false)
 
 		params := subtestData.params
 
@@ -244,8 +268,60 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandlerV1() {
 		suite.NotEmpty(createdShipment.Agents[0].ID)
 	})
 
+	suite.Run("Successful POST - Integration Test - UB", func() {
+		// const ubFlag = "true"
+		// suite.T().Setenv("FEATURE_FLAG_UNACCOMPANIED_BAGGAGE", ubFlag)
+
+		subtestData := makeCreateSubtestData(true, true)
+
+		params := subtestData.params
+		params.Body.ShipmentType = internalmessages.MTOShipmentTypeUNACCOMPANIEDBAGGAGE.Pointer()
+
+		response := subtestData.handler.Handle(subtestData.params)
+
+		suite.IsType(&mtoshipmentops.CreateMTOShipmentOK{}, response)
+
+		createdShipment := response.(*mtoshipmentops.CreateMTOShipmentOK).Payload
+
+		suite.NotEmpty(createdShipment.ID.String())
+
+		suite.Equal(internalmessages.MTOShipmentTypeUNACCOMPANIEDBAGGAGE, createdShipment.ShipmentType)
+		suite.Equal(models.MTOShipmentStatusSubmitted, models.MTOShipmentStatus(createdShipment.Status))
+		suite.Equal(*params.Body.CustomerRemarks, *createdShipment.CustomerRemarks)
+		suite.Equal(*params.Body.PickupAddress.StreetAddress1, *createdShipment.PickupAddress.StreetAddress1)
+		suite.Equal(*params.Body.SecondaryPickupAddress.StreetAddress1, *createdShipment.SecondaryPickupAddress.StreetAddress1)
+		suite.Equal(*params.Body.DestinationAddress.StreetAddress1, *createdShipment.DestinationAddress.StreetAddress1)
+		suite.Equal(*params.Body.SecondaryDeliveryAddress.StreetAddress1, *createdShipment.SecondaryDeliveryAddress.StreetAddress1)
+		suite.Equal(params.Body.RequestedPickupDate.String(), createdShipment.RequestedPickupDate.String())
+		suite.Equal(params.Body.RequestedDeliveryDate.String(), createdShipment.RequestedDeliveryDate.String())
+
+		suite.Equal(params.Body.Agents[0].FirstName, createdShipment.Agents[0].FirstName)
+		suite.Equal(params.Body.Agents[0].LastName, createdShipment.Agents[0].LastName)
+		suite.Equal(params.Body.Agents[0].Email, createdShipment.Agents[0].Email)
+		suite.Equal(params.Body.Agents[0].Phone, createdShipment.Agents[0].Phone)
+		suite.Equal(params.Body.Agents[0].AgentType, createdShipment.Agents[0].AgentType)
+		suite.Equal(createdShipment.ID.String(), string(createdShipment.Agents[0].MtoShipmentID))
+		suite.NotEmpty(createdShipment.Agents[0].ID)
+	})
+
+	suite.Run("Unsuccessful POST if UB FF off - Integration Test - UB", func() {
+		// const ubFlag = "false"
+
+		// suite.T().Setenv("FEATURE_FLAG_UNACCOMPANIED_BAGGAGE", ubFlag)
+
+		subtestData := makeCreateSubtestData(false, true)
+		params := subtestData.params
+		params.Body.ShipmentType = internalmessages.MTOShipmentTypeUNACCOMPANIEDBAGGAGE.Pointer()
+
+		response := subtestData.handler.Handle(subtestData.params)
+		suite.IsType(&mtoshipmentops.CreateMTOShipmentUnprocessableEntity{}, response)
+		errResponse := response.(*mtoshipmentops.CreateMTOShipmentUnprocessableEntity)
+
+		suite.Contains(*errResponse.Payload.Detail, "Unaccompanied baggage shipments can't be created unless the unaccompanied_baggage feature flag is enabled.")
+	})
+
 	suite.Run("Successful POST - Integration Test - PPM required fields", func() {
-		subtestData := makeCreateSubtestData()
+		subtestData := makeCreateSubtestData(false, false)
 
 		params := subtestData.params
 		ppmShipmentType := internalmessages.MTOShipmentTypePPM
@@ -310,7 +386,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandlerV1() {
 	})
 
 	suite.Run("Successful POST - Integration Test - PPM optional fields", func() {
-		subtestData := makeCreateSubtestData()
+		subtestData := makeCreateSubtestData(false, false)
 
 		params := subtestData.params
 		ppmShipmentType := internalmessages.MTOShipmentTypePPM
@@ -395,7 +471,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandlerV1() {
 	})
 
 	suite.Run("Successful POST - Integration Test - NTS-Release", func() {
-		subtestData := makeCreateSubtestData()
+		subtestData := makeCreateSubtestData(false, false)
 
 		params := subtestData.params
 
@@ -432,7 +508,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandlerV1() {
 	})
 
 	suite.Run("Successful POST - Integration Test - Boat", func() {
-		subtestData := makeCreateSubtestData()
+		subtestData := makeCreateSubtestData(false, false)
 
 		params := subtestData.params
 
@@ -485,7 +561,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandlerV1() {
 	})
 
 	suite.Run("POST failure - 400 - invalid input, missing pickup address", func() {
-		subtestData := makeCreateSubtestData()
+		subtestData := makeCreateSubtestData(false, false)
 
 		badParams := subtestData.params
 		badParams.Body.PickupAddress = nil
@@ -496,7 +572,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandlerV1() {
 	})
 
 	suite.Run("POST failure - 401- permission denied - not authenticated", func() {
-		subtestData := makeCreateSubtestData()
+		subtestData := makeCreateSubtestData(false, false)
 
 		unauthorizedReq := httptest.NewRequest("POST", "/mto_shipments", nil)
 		shipmentType := internalmessages.MTOShipmentTypeHHG
@@ -526,7 +602,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandlerV1() {
 	})
 
 	suite.Run("POST failure - 403 - unauthorized - wrong application", func() {
-		subtestData := makeCreateSubtestData()
+		subtestData := makeCreateSubtestData(false, false)
 
 		officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
 
@@ -541,7 +617,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandlerV1() {
 	})
 
 	suite.Run("POST failure - 404 - not found - wrong SM does not match move", func() {
-		subtestData := makeCreateSubtestData()
+		subtestData := makeCreateSubtestData(false, false)
 
 		sm := factory.BuildServiceMember(suite.DB(), nil, nil)
 
@@ -556,7 +632,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandlerV1() {
 	})
 
 	suite.Run("POST failure - 404 -- not found", func() {
-		subtestData := makeCreateSubtestData()
+		subtestData := makeCreateSubtestData(false, false)
 
 		uuidString := "d874d002-5582-4a91-97d3-786e8f66c763"
 		badParams := subtestData.params
@@ -568,7 +644,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandlerV1() {
 	})
 
 	suite.Run("POST failure - 400 -- nil body", func() {
-		subtestData := makeCreateSubtestData()
+		subtestData := makeCreateSubtestData(false, false)
 
 		otherParams := mtoshipmentops.CreateMTOShipmentParams{
 			HTTPRequest: subtestData.params.HTTPRequest,
@@ -579,7 +655,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandlerV1() {
 	})
 
 	suite.Run("POST failure - 400 -- missing required field to Create PPM", func() {
-		subtestData := makeCreateSubtestData()
+		subtestData := makeCreateSubtestData(false, false)
 
 		params := subtestData.params
 		ppmShipmentType := internalmessages.MTOShipmentTypePPM
@@ -609,7 +685,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandlerV1() {
 	})
 
 	suite.Run("POST failure - 500", func() {
-		subtestData := makeCreateSubtestData()
+		subtestData := makeCreateSubtestData(false, false)
 
 		mockShipmentCreator := mocks.ShipmentCreator{}
 
