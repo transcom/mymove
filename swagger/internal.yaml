@@ -1984,6 +1984,13 @@ definitions:
         x-omitempty: false
       sitExpected:
         type: boolean
+      isActualExpenseReimbursement:
+        description: >-
+          Denotes if this PPM shipment uses the Actual Expense Reimbursement
+          method.
+        type: boolean
+        example: false
+        x-omitempty: false
     required:
       - expectedDepartureDate
       - pickupAddress
@@ -2103,6 +2110,13 @@ definitions:
         type: integer
         format: cents
         x-nullable: true
+      isActualExpenseReimbursement:
+        description: >-
+          Used for PPM shipments only. Denotes if this shipment uses the Actual
+          Expense Reimbursement method.
+        type: boolean
+        example: false
+        x-omitempty: false
   CreateBoatShipment:
     description: Boat shipment information for the move.
     properties:
@@ -3745,6 +3759,14 @@ definitions:
         type: array
         items:
           $ref: '#/definitions/ProGearWeightTicket'
+      isActualExpenseReimbursement:
+        description: >-
+          Used for PPM shipments only. Denotes if this shipment uses the Actual
+          Expense Reimbursement method.
+        type: boolean
+        example: false
+        x-omitempty: false
+        x-nullable: true
       signedCertification:
         $ref: '#/definitions/SignedCertification'
       eTag:
