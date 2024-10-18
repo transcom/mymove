@@ -1,8 +1,11 @@
 package paymentrequest
 
 import (
+	"reflect"
+
 	"github.com/gofrs/uuid"
 
+	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/services/query"
@@ -14,7 +17,6 @@ func (suite *PaymentRequestSyncadaFileFetcherSuite) TestFetchPaymentRequestSynca
 	fetcher := NewPaymentRequestSyncadaFileFetcher(builder)
 
 	suite.Run("Fetch Syncada files", func() {
-		// Set up test data
 		paymentRequestEdiFile := BuildPaymentRequestEdiRecord("858.rec1", "someStringedi", "1234-7654-1")
 		err := suite.DB().Create(&paymentRequestEdiFile)
 		suite.NoError(err)
@@ -22,8 +24,49 @@ func (suite *PaymentRequestSyncadaFileFetcherSuite) TestFetchPaymentRequestSynca
 		result, err := fetcher.FetchPaymentRequestSyncadaFile(suite.AppContextForTest(), []services.QueryFilter{})
 		suite.NoError(err)
 		suite.NotNil(result)
-		// Add more assertions here to verify the content of the result
 	})
+	type fields struct {
+		builder paymentReqeustSyncadaFileQueryBuilder
+	}
+	type args struct {
+		appCtx  appcontext.AppContext
+		filters []services.QueryFilter
+	}
+	tests := []struct {
+		name    string
+		fields  fields
+		args    args
+		want    models.PaymentRequestEdiFile
+		wantErr bool
+	}{
+		{
+			name: "Successful fetch",
+			fields: fields{
+				builder: query.NewQueryBuilder(),
+			},
+			args: args{
+				appCtx:  suite.AppContextForTest(),
+				filters: []services.QueryFilter{},
+			},
+			want:    BuildPaymentRequestEdiRecord("858.rec1", "someStringedi", "1234-7654-1"),
+			wantErr: false,
+		},
+	}
+	for _, tt := range tests {
+		suite.Run(tt.name, func() {
+			p := &paymentRequestSyncadaFileFetcher{
+				builder: tt.fields.builder,
+			}
+			got, err := p.FetchPaymentRequestSyncadaFile(tt.args.appCtx, tt.args.filters)
+			if (err != nil) != tt.wantErr {
+				suite.Equal("paymentRequestSyncadaFileFetcher.FetchPaymentRequestSyncadaFile() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+			if !reflect.DeepEqual(got, tt.want) {
+				suite.Equal("paymentRequestSyncadaFileFetcher.FetchPaymentRequestSyncadaFile() = %v, want %v", got, tt.want)
+			}
+		})
+	}
 }
 
 type PaymentRequestSyncadaFileFetcherSuite struct {
