@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { generatePath, useNavigate, useParams } from 'react-router-dom';
+import { generatePath, useNavigate, useParams, Link } from 'react-router-dom';
 import { GridContainer, Grid, Alert } from '@trussworks/react-uswds';
 
 import ppmPageStyles from 'pages/MyMove/PPM/PPM.module.scss';
@@ -17,9 +17,11 @@ import {
 } from 'store/entities/selectors';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import NotificationScrollToTop from 'components/NotificationScrollToTop';
+import { technicalHelpDeskURL } from 'shared/constants';
 
 const EstimatedWeightsProGear = () => {
   const [errorMessage, setErrorMessage] = useState(null);
+  const [errorCode, setErrorCode] = useState(null);
   const navigate = useNavigate();
   const { moveId, mtoShipmentId, shipmentNumber } = useParams();
   const dispatch = useDispatch();
@@ -56,6 +58,7 @@ const EstimatedWeightsProGear = () => {
       })
       .catch((err) => {
         setSubmitting(false);
+        setErrorCode(err?.response?.status);
         setErrorMessage(getResponseError(err.response, 'Failed to update MTO shipment due to server error.'));
       });
   };
@@ -74,7 +77,17 @@ const EstimatedWeightsProGear = () => {
             <h1>Estimated weight</h1>
             {errorMessage && (
               <Alert headingLevel="h4" slim type="error">
-                {errorMessage}
+                {errorCode === 400 ? (
+                  <p>
+                    {errorMessage} If the error persists, please try again later, or contact the&nbsp;
+                    <Link to={technicalHelpDeskURL} target="_blank" rel="noreferrer">
+                      Technical Help Desk
+                    </Link>
+                    .
+                  </p>
+                ) : (
+                  <p>{errorMessage}</p>
+                )}
               </Alert>
             )}
             <EstimatedWeightsProGearForm
