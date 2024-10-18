@@ -1385,6 +1385,7 @@ definitions:
         type: boolean
         example: false
         x-omitempty: false
+        x-nullable: true
     required:
       - expectedDepartureDate
       - sitExpected
@@ -1886,6 +1887,7 @@ definitions:
         type: boolean
         example: false
         x-omitempty: false
+        x-nullable: true
   UpdateMTOShipmentStatus:
     description: Contains the statuses available to the Prime when updating the state of a shipment.
     type: object

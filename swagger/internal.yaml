@@ -1991,6 +1991,7 @@ definitions:
         type: boolean
         example: false
         x-omitempty: false
+        x-nullable: true
     required:
       - expectedDepartureDate
       - pickupAddress
@@ -2117,6 +2118,7 @@ definitions:
         type: boolean
         example: false
         x-omitempty: false
+        x-nullable: true
   CreateBoatShipment:
     description: Boat shipment information for the move.
     properties:

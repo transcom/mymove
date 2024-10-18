@@ -55,7 +55,7 @@ type CreatePPMShipment struct {
 
 	// Used for PPM shipments only. Denotes if this shipment uses the Actual Expense Reimbursement method.
 	// Example: false
-	IsActualExpenseReimbursement bool `json:"isActualExpenseReimbursement"`
+	IsActualExpenseReimbursement *bool `json:"isActualExpenseReimbursement"`
 
 	// pickup address
 	// Required: true

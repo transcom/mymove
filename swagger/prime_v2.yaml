@@ -781,6 +781,7 @@ definitions:
         type: boolean
         example: false
         x-omitempty: false
+        x-nullable: true
     required:
       - expectedDepartureDate
       - sitExpected
@@ -983,6 +984,7 @@ definitions:
         type: boolean
         example: false
         x-omitempty: false
+        x-nullable: true
   UpdateMTOShipment:
     properties:
       scheduledPickupDate:

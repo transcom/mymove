@@ -639,7 +639,7 @@ func (suite *PayloadsSuite) TestPPMShipmentModelFromCreate() {
 		HasProGear:                   &hasProGear,
 		ProGearWeight:                &proGearWeight,
 		SpouseProGearWeight:          &spouseProGearWeight,
-		IsActualExpenseReimbursement: true,
+		IsActualExpenseReimbursement: models.BoolPointer(true),
 	}
 
 	model := PPMShipmentModelFromCreate(&ppmShipment)
@@ -662,9 +662,7 @@ func (suite *PayloadsSuite) TestPPMShipmentModelFromCreate() {
 func (suite *PayloadsSuite) TestPPMShipmentModelFromUpdate() {
 	time := time.Now()
 	expectedDepartureDate := handlers.FmtDatePtr(&time)
-	sitExpected := true
 	estimatedWeight := int64(5000)
-	hasProGear := true
 	proGearWeight := int64(500)
 	spouseProGearWeight := int64(50)
 
@@ -757,12 +755,12 @@ func (suite *PayloadsSuite) TestPPMShipmentModelFromUpdate() {
 		DestinationAddress:           struct{ primev3messages.Address }{destinationAddress},
 		SecondaryDestinationAddress:  struct{ primev3messages.Address }{secondaryDestinationAddress},
 		TertiaryDestinationAddress:   struct{ primev3messages.Address }{tertiaryDestinationAddress},
-		SitExpected:                  &sitExpected,
+		SitExpected:                  models.BoolPointer(true),
 		EstimatedWeight:              &estimatedWeight,
-		HasProGear:                   &hasProGear,
+		HasProGear:                   models.BoolPointer(true),
 		ProGearWeight:                &proGearWeight,
 		SpouseProGearWeight:          &spouseProGearWeight,
-		IsActualExpenseReimbursement: true,
+		IsActualExpenseReimbursement: models.BoolPointer(true),
 	}
 
 	model := PPMShipmentModelFromUpdate(&ppmShipment)

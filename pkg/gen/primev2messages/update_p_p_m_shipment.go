@@ -34,7 +34,7 @@ type UpdatePPMShipment struct {
 
 	// Used for PPM shipments only. Denotes if this shipment uses the Actual Expense Reimbursement method.
 	// Example: false
-	IsActualExpenseReimbursement bool `json:"isActualExpenseReimbursement"`
+	IsActualExpenseReimbursement *bool `json:"isActualExpenseReimbursement"`
 
 	// The estimated weight of the pro-gear being moved belonging to the service member.
 	ProGearWeight *int64 `json:"proGearWeight,omitempty"`

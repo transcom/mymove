@@ -6377,6 +6377,7 @@ definitions:
         type: boolean
         example: false
         x-omitempty: false
+        x-nullable: true
   UpdateBoatShipment:
     type: object
     properties:
@@ -6773,6 +6774,7 @@ definitions:
         type: boolean
         example: false
         x-omitempty: false
+        x-nullable: true
     required:
       - expectedDepartureDate
       - pickupAddress
