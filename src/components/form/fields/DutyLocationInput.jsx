@@ -1,4 +1,4 @@
-import { useField } from 'formik';
+import { useField, useFormikContext } from 'formik';
 import React from 'react';
 import PropTypes from 'prop-types';
 
@@ -7,8 +7,25 @@ import './DropdownInput.module.scss';
 
 // TODO: refactor component when we can to make it more user friendly with Formik
 export const DutyLocationInput = (props) => {
-  const { label, name, displayAddress, hint, placeholder, isDisabled, searchLocations, metaOverride } = props;
+  const {
+    label,
+    name,
+    displayAddress,
+    hint,
+    placeholder,
+    isDisabled,
+    searchLocations,
+    metaOverride,
+    onDutyLocationChange,
+  } = props;
   const [field, meta, helpers] = useField(props);
+
+  const { touched } = useFormikContext();
+  const handleDutyLocationChange = (event) => {
+    if (onDutyLocationChange) {
+      onDutyLocationChange(event);
+    }
+  };
 
   let errorString = '';
   if (metaOverride && metaOverride !== '') {
@@ -17,13 +34,19 @@ export const DutyLocationInput = (props) => {
     errorString = meta.value?.name ? meta.error?.name || meta.error : '';
   }
 
+  const handleChange = (value) => {
+    touched[name] = true;
+    helpers.setValue(value);
+  };
+
   return (
     <LocationSearchBox
       title={label}
       name={name}
       input={{
         value: field.value,
-        onChange: helpers.setValue,
+        onChange: handleChange,
+        locationState: handleDutyLocationChange,
         name,
       }}
       errorMsg={errorString}
@@ -47,6 +70,7 @@ DutyLocationInput.propTypes = {
   isDisabled: PropTypes.bool,
   searchLocations: PropTypes.func,
   metaOverride: PropTypes.string,
+  onDutyLocationChange: PropTypes.func,
 };
 
 DutyLocationInput.defaultProps = {
@@ -56,6 +80,7 @@ DutyLocationInput.defaultProps = {
   isDisabled: false,
   searchLocations: undefined,
   metaOverride: '',
+  onDutyLocationChange: undefined,
 };
 
 export default DutyLocationInput;
