@@ -58,7 +58,7 @@ const OrdersInfoForm = ({ ordersTypeOptions, initialValues, onSubmit, onBack }) 
     dependents_under_twelve: showDependentAgeFields
       ? Yup.number().min(0).required('Required')
       : Yup.number().notRequired(),
-    dependents_over_twelve: showDependentAgeFields
+    dependents_twelve_and_over: showDependentAgeFields
       ? Yup.number().min(0).required('Required')
       : Yup.number().notRequired(),
   });
@@ -336,14 +336,14 @@ const OrdersInfoForm = ({ ordersTypeOptions, initialValues, onSubmit, onBack }) 
                     />
                   </FormGroup>
                   <FormGroup>
-                    <Label htmlFor="dependentsOverTwelve" hint="Required">
-                      Number of dependents over the age of 12
+                    <Label htmlFor="dependentsTwelveAndOver" hint="Required">
+                      Number of dependents of the age 12 or over
                     </Label>
                     <Field
                       type="number"
-                      id="dependentsOverTwelve"
-                      name="dependents_over_twelve"
-                      data-testid="dependentsOverTwelve"
+                      id="dependentsTwelveAndOver"
+                      name="dependents_twelve_and_over"
+                      data-testid="dependentsTwelveAndOver"
                       min="0"
                     />
                   </FormGroup>
@@ -385,7 +385,7 @@ OrdersInfoForm.propTypes = {
     grade: PropTypes.string,
     origin_duty_location: DutyLocationShape,
     dependents_under_twelve: PropTypes.number,
-    dependents_over_twelve: PropTypes.number,
+    dependents_twelve_and_over: PropTypes.number,
     is_accompanied_tour: PropTypes.string,
   }).isRequired,
   onSubmit: PropTypes.func.isRequired,
