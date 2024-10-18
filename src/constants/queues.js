@@ -20,6 +20,7 @@ export const MOVE_STATUS_LABELS = {
   [MOVE_STATUSES.NEEDS_SERVICE_COUNSELING]: 'Needs Service Counseling',
   [MOVE_STATUSES.APPROVALS_REQUESTED]: 'Approvals requested',
   [MOVE_STATUSES.APPROVED]: 'Move approved',
+  [MOVE_STATUSES.CANCELED]: 'Canceled',
 };
 
 export const SEARCH_QUEUE_STATUS_FILTER_OPTIONS = [
@@ -28,6 +29,7 @@ export const SEARCH_QUEUE_STATUS_FILTER_OPTIONS = [
   { value: MOVE_STATUSES.NEEDS_SERVICE_COUNSELING, label: 'Needs counseling' },
   { value: MOVE_STATUSES.SERVICE_COUNSELING_COMPLETED, label: 'Service counseling completed' },
   { value: MOVE_STATUSES.APPROVED, label: 'Move Approved' },
+  { value: MOVE_STATUSES.CANCELED, label: 'Canceled' },
 ];
 
 export const SERVICE_COUNSELING_MOVE_STATUS_LABELS = {
@@ -61,7 +63,7 @@ export const SERVICE_COUNSELING_PPM_STATUS_OPTIONS = [
 ];
 
 export const SERVICE_COUNSELING_PPM_STATUS_LABELS = {
-  CANCELLED: 'Cancelled',
+  CANCELED: 'Canceled',
   DRAFT: 'Draft',
   SUBMITTED: 'Submitted',
   WAITING_ON_CUSTOMER: 'Waiting on customer',

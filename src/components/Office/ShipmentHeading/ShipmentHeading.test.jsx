@@ -41,7 +41,7 @@ describe('Shipment Heading with diversion requested shipment', () => {
   });
 });
 
-describe('Shipment Heading with cancelled shipment', () => {
+describe('Shipment Heading with canceled shipment', () => {
   const wrapper = mount(
     <MockProviders permissions={[permissionTypes.createShipmentCancellation, permissionTypes.updateMTOPage]}>
       <ShipmentHeading
@@ -52,8 +52,8 @@ describe('Shipment Heading with cancelled shipment', () => {
     </MockProviders>,
   );
 
-  it('renders the cancelled tag next to the shipment type', () => {
-    expect(wrapper.find({ 'data-testid': 'tag' }).text()).toEqual('cancelled');
+  it('renders the canceled tag next to the shipment type', () => {
+    expect(wrapper.find({ 'data-testid': 'tag' }).text()).toEqual('canceled');
   });
 
   it('hides the request cancellation button', () => {
