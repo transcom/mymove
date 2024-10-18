@@ -16,6 +16,7 @@ import {
   HelperPPMCloseoutSubmitted,
 } from './HomeHelpers';
 
+import CancelMoveConfirmationModal from 'components/ConfirmationModals/CancelMoveConfirmationModal';
 import AsyncPacketDownloadLink from 'shared/AsyncPacketDownloadLink/AsyncPacketDownloadLink';
 import ErrorModal from 'shared/ErrorModal/ErrorModal';
 import ConnectedDestructiveShipmentConfirmationModal from 'components/ConfirmationModals/DestructiveShipmentConfirmationModal';
@@ -61,7 +62,6 @@ import { isPPMAboutInfoComplete, isPPMShipmentComplete, isWeightTicketComplete }
 import withRouter from 'utils/routing';
 import { ADVANCE_STATUSES } from 'constants/ppms';
 import { isBooleanFlagEnabled } from 'utils/featureFlags';
-import CancelMoveConfirmationModal from 'components/ConfirmationModals/CancelMoveConfirmationModal';
 
 const Description = ({ className, children, dataTestId }) => (
   <p className={`${styles.description} ${className}`} data-testid={dataTestId}>

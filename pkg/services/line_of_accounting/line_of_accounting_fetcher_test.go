@@ -69,13 +69,13 @@ func (suite *LineOfAccountingServiceSuite) TestFetchOrderLineOfAccountings() {
 		}, nil)
 
 		// Get the TACs that we will extract LOAs from
-		tacs, err := suite.tacFetcher.FetchOrderTransportationAccountingCodes(models.AffiliationARMY, ordersIssueDate, tacCode, appCtx)
+		tacs, err := suite.tacFetcher.FetchOrderTransportationAccountingCodes(models.DepartmentIndicatorARMY, ordersIssueDate, tacCode, appCtx)
 		suite.NoError(err)
 		suite.NotEmpty(tacs)
 		// Ensure LOA isn't nil
 		suite.NotNil(tacs[0].LineOfAccounting)
 		// Extract LOAs
-		loas, err := suite.loaFetcher.FetchLongLinesOfAccounting(models.AffiliationARMY, ordersIssueDate, tacCode, appCtx)
+		loas, err := suite.loaFetcher.FetchLongLinesOfAccounting(models.DepartmentIndicatorARMY, ordersIssueDate, tacCode, appCtx)
 		suite.NoError(err)
 		suite.Equal(loa.ID, loas[0].ID)
 	})
@@ -121,7 +121,7 @@ func (suite *LineOfAccountingServiceSuite) TestFetchOrderLineOfAccountings() {
 		}
 
 		// Get the TACs that we will extract LOAs from
-		tacs, err := suite.tacFetcher.FetchOrderTransportationAccountingCodes(models.AffiliationARMY, ordersIssueDate, tacCode, appCtx)
+		tacs, err := suite.tacFetcher.FetchOrderTransportationAccountingCodes(models.DepartmentIndicatorARMY, ordersIssueDate, tacCode, appCtx)
 		suite.NoError(err)
 		suite.NotEmpty(tacs)
 		// Ensure we got 4 tacs
@@ -134,7 +134,7 @@ func (suite *LineOfAccountingServiceSuite) TestFetchOrderLineOfAccountings() {
 
 		// Now that we have our 4 tacs and loas, let's fetch and see if they're in order
 		// Extract LOAs
-		loas, err := suite.loaFetcher.FetchLongLinesOfAccounting(models.AffiliationARMY, ordersIssueDate, tacCode, appCtx)
+		loas, err := suite.loaFetcher.FetchLongLinesOfAccounting(models.DepartmentIndicatorARMY, ordersIssueDate, tacCode, appCtx)
 		suite.NoError(err)
 
 		// Check the order of LOAs
@@ -182,7 +182,7 @@ func (suite *LineOfAccountingServiceSuite) TestFetchOrderLineOfAccountings() {
 		}
 
 		// Get the TACs that we will extract LOAs from
-		tacs, err := suite.tacFetcher.FetchOrderTransportationAccountingCodes(models.AffiliationARMY, ordersIssueDate, tacCode, appCtx)
+		tacs, err := suite.tacFetcher.FetchOrderTransportationAccountingCodes(models.DepartmentIndicatorARMY, ordersIssueDate, tacCode, appCtx)
 		suite.NoError(err)
 		suite.NotEmpty(tacs)
 		// Ensure we got 1 tac, FMBC P should've been filtered out
@@ -193,7 +193,7 @@ func (suite *LineOfAccountingServiceSuite) TestFetchOrderLineOfAccountings() {
 			suite.NotNil(tac.LineOfAccounting)
 		}
 		// Extract LOAs
-		loas, err := suite.loaFetcher.FetchLongLinesOfAccounting(models.AffiliationARMY, ordersIssueDate, tacCode, appCtx)
+		loas, err := suite.loaFetcher.FetchLongLinesOfAccounting(models.DepartmentIndicatorARMY, ordersIssueDate, tacCode, appCtx)
 		suite.NoError(err)
 		// Ensure we got 1 loa, FBMC P should've been filtered out
 		suite.Len(loas, 1)
@@ -254,13 +254,13 @@ func (suite *LineOfAccountingServiceSuite) TestFetchOrderLineOfAccountings() {
 		}, nil)
 
 		// Get the TACs that we will extract LOAs from
-		tacs, err := suite.tacFetcher.FetchOrderTransportationAccountingCodes(models.AffiliationARMY, ordersIssueDate, tacCode, appCtx)
+		tacs, err := suite.tacFetcher.FetchOrderTransportationAccountingCodes(models.DepartmentIndicatorARMY, ordersIssueDate, tacCode, appCtx)
 		suite.NoError(err)
 		suite.NotEmpty(tacs)
 		// Ensure LOA isn't nil
 		suite.NotNil(tacs[0].LineOfAccounting)
 		// Extract LOAs
-		loas, err := suite.loaFetcher.FetchLongLinesOfAccounting(models.AffiliationARMY, ordersIssueDate, tacCode, appCtx)
+		loas, err := suite.loaFetcher.FetchLongLinesOfAccounting(models.DepartmentIndicatorARMY, ordersIssueDate, tacCode, appCtx)
 		suite.NoError(err)
 		suite.Equal(loa.ID, loas[0].ID)
 
@@ -321,14 +321,14 @@ func (suite *LineOfAccountingServiceSuite) TestFetchOrderLineOfAccountings() {
 		}, nil)
 
 		// Get the TACs that we will extract LOAs from
-		tacs, err := suite.tacFetcher.FetchOrderTransportationAccountingCodes(models.AffiliationARMY, ordersIssueDate, tacCode, appCtx)
+		tacs, err := suite.tacFetcher.FetchOrderTransportationAccountingCodes(models.DepartmentIndicatorARMY, ordersIssueDate, tacCode, appCtx)
 		suite.NoError(err)
 		suite.NotEmpty(tacs)
 		// Ensure LOA isn't nil
 		suite.NotNil(tacs[0].LineOfAccounting)
 
 		// Extract LOAs
-		loas, err := suite.loaFetcher.FetchLongLinesOfAccounting(models.AffiliationARMY, ordersIssueDate, tacCode, appCtx)
+		loas, err := suite.loaFetcher.FetchLongLinesOfAccounting(models.DepartmentIndicatorARMY, ordersIssueDate, tacCode, appCtx)
 		suite.NoError(err)
 		suite.Equal(loa.ID, loas[0].ID)
 

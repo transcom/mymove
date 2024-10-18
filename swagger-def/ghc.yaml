@@ -384,7 +384,7 @@ paths:
       parameters: []
       responses:
         '200':
-          description: Successfully cancelled move
+          description: Successfully canceled move
           schema:
             $ref: '#/definitions/Move'
         '403':
@@ -404,6 +404,8 @@ paths:
       description: cancels a move
       operationId: moveCanceler
       summary: Cancels a move
+      x-permissions:
+        - update.cancelMoveFlag
   '/counseling/orders/{orderID}':
     parameters:
       - description: ID of order to update
@@ -3704,6 +3706,7 @@ paths:
                     - APPROVED
                     - NEEDS SERVICE COUNSELING
                     - SERVICE COUNSELING COMPLETED
+                    - CANCELED
               originPostalCode:
                 type: string
                 x-nullable: true
@@ -4666,8 +4669,8 @@ definitions:
   FetchLineOfAccountingPayload:
     type: object
     properties:
-      serviceMemberAffiliation:
-        $ref: 'definitions/Affiliation.yaml'
+      departmentIndicator:
+        $ref: 'definitions/DepartmentIndicator.yaml'
       effectiveDate:
         description: >
           The effective date for the Line Of Accounting (LOA) being fetched. Eg, the orders issue date or the Non-Temporary Storage (NTS) Move Task Order (MTO) approval date.
@@ -5136,7 +5139,7 @@ definitions:
   PPMStatus:
     type: string
     enum:
-      - CANCELLED
+      - CANCELED
       - DRAFT
       - SUBMITTED
       - WAITING_ON_CUSTOMER

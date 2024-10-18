@@ -337,13 +337,9 @@ export async function getTacValid({ tac }) {
 
 // Retrieves the line of accounting based on a given TAC,
 // effective date, and service member affiliation
-export async function getLoa({ tacCode, effectiveDate, serviceMemberAffiliation }) {
+export async function getLoa({ tacCode, effectiveDate, departmentIndicator }) {
   const operationPath = 'linesOfAccounting.requestLineOfAccounting';
-  return makeGHCRequest(
-    operationPath,
-    { body: { tacCode, effectiveDate, serviceMemberAffiliation } },
-    { normalize: false },
-  );
+  return makeGHCRequest(operationPath, { body: { tacCode, effectiveDate, departmentIndicator } }, { normalize: false });
 }
 
 export async function updateOrder({ orderID, ifMatchETag, body }) {
@@ -430,6 +426,18 @@ export function updateMoveStatusServiceCounselingCompleted({ moveTaskOrderID, if
     operationPath,
     {
       moveTaskOrderID,
+      'If-Match': ifMatchETag,
+    },
+    { normalize },
+  );
+}
+
+export function cancelMove({ moveID, ifMatchETag, normalize = false }) {
+  const operationPath = 'move.moveCanceler';
+  return makeGHCRequest(
+    operationPath,
+    {
+      moveID,
       'If-Match': ifMatchETag,
     },
     { normalize },

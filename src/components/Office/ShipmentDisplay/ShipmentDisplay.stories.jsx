@@ -9,7 +9,7 @@ import {
   ntsReleaseMissingInfo,
   postalOnlyInfo,
   diversionInfo,
-  cancelledInfo,
+  canceledInfo,
   ppmInfo,
   ppmInfoApprovedOrExcluded,
   ppmInfoRejected,
@@ -250,11 +250,11 @@ export const DivertedShipment = () => (
   </div>
 );
 
-export const CancelledShipment = () => (
+export const CanceledShipment = () => (
   <div style={{ padding: '20px' }}>
     <ShipmentDisplay
       shipmentId="1"
-      displayInfo={cancelledInfo}
+      displayInfo={canceledInfo}
       ordersLOA={ordersLOA}
       shipmentType={SHIPMENT_OPTIONS.HHG}
       isSubmitted
@@ -533,11 +533,11 @@ export const DivertedShipmentReadOnly = () => (
   </div>
 );
 
-export const CancelledShipmentReadOnly = () => (
+export const CanceledShipmentReadOnly = () => (
   <div style={{ padding: '20px' }}>
     <ShipmentDisplay
       shipmentId="1"
-      displayInfo={cancelledInfo}
+      displayInfo={canceledInfo}
       ordersLOA={ordersLOA}
       shipmentType={SHIPMENT_OPTIONS.HHG}
       isSubmitted

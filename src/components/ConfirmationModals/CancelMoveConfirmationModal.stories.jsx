@@ -1,12 +1,12 @@
 import React from 'react';
 
-import DeleteMoveConfirmationModal from 'components/ConfirmationModals/CancelMoveConfirmationModal';
+import CancelMoveConfirmationModal from './CancelMoveConfirmationModal';
 
 export default {
-  title: 'Components/DeleteMoveConfirmationModal',
-  component: DeleteMoveConfirmationModal,
+  title: 'Components/CancelMoveConfirmationModal',
+  component: CancelMoveConfirmationModal,
   args: {
-    customerSupportRemarkID: '111',
+    moveID: '111',
   },
   argTypes: {
     onClose: { action: 'close button clicked' },
@@ -14,7 +14,7 @@ export default {
   },
 };
 
-const Template = (args) => <DeleteMoveConfirmationModal {...args} />;
+const Template = (args) => <CancelMoveConfirmationModal {...args} />;
 
 export const Basic = Template.bind({});
 
@@ -26,7 +26,7 @@ WithOverrides.args = {
   closeText: 'NO',
 };
 
-const ConnectedTemplate = (args) => <DeleteMoveConfirmationModal {...args} />;
+const ConnectedTemplate = (args) => <CancelMoveConfirmationModal {...args} />;
 export const ConnectedModal = ConnectedTemplate.bind({});
 ConnectedModal.args = {
   isOpen: true,

@@ -30,8 +30,8 @@ func (m PPMStatus) Pointer() *PPMStatus {
 
 const (
 
-	// PPMStatusCANCELLED captures enum value "CANCELLED"
-	PPMStatusCANCELLED PPMStatus = "CANCELLED"
+	// PPMStatusCANCELED captures enum value "CANCELED"
+	PPMStatusCANCELED PPMStatus = "CANCELED"
 
 	// PPMStatusDRAFT captures enum value "DRAFT"
 	PPMStatusDRAFT PPMStatus = "DRAFT"
@@ -60,7 +60,7 @@ var pPMStatusEnum []interface{}
 
 func init() {
 	var res []PPMStatus
-	if err := json.Unmarshal([]byte(`["CANCELLED","DRAFT","SUBMITTED","WAITING_ON_CUSTOMER","NEEDS_ADVANCE_APPROVAL","NEEDS_CLOSEOUT","CLOSEOUT_COMPLETE","COMPLETED"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["CANCELED","DRAFT","SUBMITTED","WAITING_ON_CUSTOMER","NEEDS_ADVANCE_APPROVAL","NEEDS_CLOSEOUT","CLOSEOUT_COMPLETE","COMPLETED"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
