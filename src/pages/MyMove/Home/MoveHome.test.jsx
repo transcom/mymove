@@ -1194,7 +1194,7 @@ describe('Home component', () => {
       const profileStep = wrapper.find('Step[step="1"]');
       expect(profileStep.prop('editBtnLabel')).toEqual('Edit');
       const orderStep = wrapper.find('Step[step="2"]');
-      expect(orderStep.prop('editBtnLabel')).toEqual('Upload documents');
+      expect(orderStep.prop('editBtnLabel')).toEqual('Upload/Manage Orders Documentation');
     });
 
     it('has appropriate step headers for orders with shipments', () => {
@@ -1233,7 +1233,7 @@ describe('Home component', () => {
       const profileStep = wrapper.find('Step[step="1"]');
       expect(profileStep.prop('editBtnLabel')).toEqual('Edit');
       const orderStep = wrapper.find('Step[step="2"]');
-      expect(orderStep.prop('editBtnLabel')).toEqual('Upload documents');
+      expect(orderStep.prop('editBtnLabel')).toEqual('Upload/Manage Orders Documentation');
     });
 
     it('has appropriate step headers for orders with shipments', () => {
@@ -1277,7 +1277,7 @@ describe('Home component', () => {
       const profileStep = wrapper.find('Step[step="1"]');
       expect(profileStep.prop('editBtnLabel')).toEqual('Edit');
       const orderStep = wrapper.find('Step[step="2"]');
-      expect(orderStep.prop('editBtnLabel')).toEqual('Upload documents');
+      expect(orderStep.prop('editBtnLabel')).toEqual('Upload/Manage Orders Documentation');
       const advanceStep = wrapper.find('Step[step="5"]');
       expect(advanceStep.prop('completedHeaderText')).toEqual('Advance request reviewed');
     });
@@ -1560,7 +1560,7 @@ describe('Home component', () => {
       const profileStep = wrapper.find('Step[step="1"]');
       expect(profileStep.prop('editBtnLabel')).toEqual('Edit');
       const orderStep = wrapper.find('Step[step="2"]');
-      expect(orderStep.prop('editBtnLabel')).toEqual('Upload documents');
+      expect(orderStep.prop('editBtnLabel')).toEqual('Upload/Manage Orders Documentation');
       const advanceStep = wrapper.find('Step[step="5"]');
       expect(advanceStep.prop('completedHeaderText')).toEqual('Advance request reviewed');
     });

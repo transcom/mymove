@@ -271,8 +271,8 @@ const MobileHomeShipmentForm = ({ mtoShipment, onBack, onSubmit }) => {
                     Example
                     <ul>
                       <li>
-                        Dimensions of the mobile home on the trailer are significantly different than one would expect
-                        given their individual dimensions
+                        Is there additional information you feel is pertinent to the processing of your mobile home
+                        shipment?(e.g., &lsquo;wrecker service requested&rsquo; and &lsquo;crane service needed&rsquo;).
                       </li>
                     </ul>
                   </Callout>
