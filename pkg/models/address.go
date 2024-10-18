@@ -122,7 +122,7 @@ func (a *Address) LineFormat() string {
 		parts = append(parts, a.PostalCode)
 	}
 	if len(*a.CountryId) > 0 {
-		parts = append(parts, a.CountryId.String())
+		parts = append(parts, a.Country.CountryName)
 	}
 
 	return strings.Join(parts, ", ")

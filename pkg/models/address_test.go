@@ -67,6 +67,7 @@ func (suite *ModelSuite) TestAddressCountryCode() {
 }
 
 func (suite *ModelSuite) TestAddressFormat() {
+	country := factory.FetchOrBuildCountry(suite.DB(), nil, nil)
 	newAddress := &m.Address{
 		StreetAddress1: "street 1",
 		StreetAddress2: m.StringPointer("street 2"),
@@ -75,6 +76,8 @@ func (suite *ModelSuite) TestAddressFormat() {
 		State:          "state",
 		PostalCode:     "90210",
 		County:         "County",
+		Country:        &country,
+		CountryId:      &country.ID,
 	}
 
 	verrs, err := newAddress.Validate(nil)
@@ -85,4 +88,8 @@ func (suite *ModelSuite) TestAddressFormat() {
 	formattedAddress := newAddress.Format()
 
 	suite.Equal("street 1\nstreet 2\nstreet 3\ncity, state 90210", formattedAddress)
+
+	formattedAddress = newAddress.LineFormat()
+
+	suite.Equal("street 1, street 2, street 3, city, state, 90210, UNITED STATES", formattedAddress)
 }
