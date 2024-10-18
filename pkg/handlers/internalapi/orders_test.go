@@ -443,8 +443,13 @@ func (suite *HandlerSuite) TestUploadAmendedOrdersHandlerIntegration() {
 }
 
 func (suite *HandlerSuite) TestUpdateOrdersHandler() {
-	dutyLocation := factory.BuildDutyLocation(suite.DB(), nil, nil)
-
+	dutyLocation := factory.BuildDutyLocation(suite.DB(), []factory.Customization{
+		{
+			Model: models.DutyLocation{
+				ProvidesServicesCounseling: false,
+			},
+		},
+	}, nil)
 	order := factory.BuildOrder(suite.DB(), []factory.Customization{
 		{
 			Model:    dutyLocation,
@@ -452,6 +457,11 @@ func (suite *HandlerSuite) TestUpdateOrdersHandler() {
 			Type:     &factory.DutyLocations.OriginDutyLocation,
 		},
 	}, nil)
+	move := factory.BuildMove(suite.DB(), []factory.Customization{
+		{
+			Model:    order,
+			LinkOnly: true,
+		}}, nil)
 
 	newDutyLocation := factory.BuildDutyLocation(suite.DB(), nil, nil)
 	newTransportationOffice := factory.BuildTransportationOffice(suite.DB(), nil, nil)
@@ -474,6 +484,8 @@ func (suite *HandlerSuite) TestUpdateOrdersHandler() {
 		HasDependents:        handlers.FmtBool(false),
 		SpouseHasProGear:     handlers.FmtBool(false),
 		Grade:                models.ServiceMemberGradeE4.Pointer(),
+		MoveID:               *handlers.FmtUUID(move.ID),
+		CounselingOfficeID:   handlers.FmtUUID(*newDutyLocation.TransportationOfficeID),
 	}
 
 	path := fmt.Sprintf("/orders/%v", order.ID.String())
@@ -520,4 +532,77 @@ func (suite *HandlerSuite) TestUpdateOrdersHandler() {
 	suite.Equal(expectedUpdatedOrderAuthorizedWeight, 7000)  // Ensure that when GetWeightAllotment is recalculated that it also returns 7000. This ensures that the database stored the correct information
 	suite.Equal(expectedOriginalOrderAuthorizedWeight, 5000) // The order was created as an E1. Ensure that the E1 authorized weight is 5000.
 	suite.Equal(string(newOrdersType), string(updatedOrder.OrdersType))
+}
+
+func (suite *HandlerSuite) TestUpdateOrdersHandlerWithCounselingOffice() {
+	originDutyLocation := factory.BuildDutyLocation(suite.DB(), []factory.Customization{
+		{
+			Model: models.DutyLocation{
+				ProvidesServicesCounseling: true,
+			},
+		},
+	}, nil)
+
+	order := factory.BuildOrder(suite.DB(), []factory.Customization{
+		{
+			Model:    originDutyLocation,
+			LinkOnly: true,
+			Type:     &factory.DutyLocations.OriginDutyLocation,
+		},
+	}, nil)
+
+	newDutyLocation := factory.BuildDutyLocation(suite.DB(), nil, nil)
+	newTransportationOffice := factory.BuildTransportationOffice(suite.DB(), nil, nil)
+	newDutyLocation.TransportationOffice = newTransportationOffice
+
+	newOrdersType := internalmessages.OrdersTypePERMANENTCHANGEOFSTATION
+	newOrdersNumber := "123456"
+	issueDate := time.Date(2018, time.March, 10, 0, 0, 0, 0, time.UTC)
+	reportByDate := time.Date(2018, time.August, 1, 0, 0, 0, 0, time.UTC)
+	deptIndicator := internalmessages.DeptIndicatorAIRANDSPACEFORCE
+	move := factory.BuildMove(suite.DB(), []factory.Customization{
+		{
+			Model:    order,
+			LinkOnly: true,
+		}}, nil)
+	payload := &internalmessages.CreateUpdateOrders{
+		OrdersNumber:         handlers.FmtString(newOrdersNumber),
+		OrdersType:           &newOrdersType,
+		NewDutyLocationID:    handlers.FmtUUID(newDutyLocation.ID),
+		OriginDutyLocationID: *handlers.FmtUUID(*order.OriginDutyLocationID),
+		IssueDate:            handlers.FmtDate(issueDate),
+		ReportByDate:         handlers.FmtDate(reportByDate),
+		DepartmentIndicator:  &deptIndicator,
+		HasDependents:        handlers.FmtBool(false),
+		SpouseHasProGear:     handlers.FmtBool(false),
+		Grade:                models.ServiceMemberGradeE4.Pointer(),
+		MoveID:               *handlers.FmtUUID(move.ID),
+		CounselingOfficeID:   handlers.FmtUUID(*newDutyLocation.TransportationOfficeID),
+	}
+
+	path := fmt.Sprintf("/orders/%v", order.ID.String())
+	req := httptest.NewRequest("PUT", path, nil)
+	req = suite.AuthenticateRequest(req, order.ServiceMember)
+
+	params := ordersop.UpdateOrdersParams{
+		HTTPRequest:  req,
+		OrdersID:     *handlers.FmtUUID(order.ID),
+		UpdateOrders: payload,
+	}
+
+	fakeS3 := storageTest.NewFakeS3Storage(true)
+	handlerConfig := suite.HandlerConfig()
+	handlerConfig.SetFileStorer(fakeS3)
+
+	handler := UpdateOrdersHandler{handlerConfig}
+
+	response := handler.Handle(params)
+
+	suite.IsType(&ordersop.UpdateOrdersOK{}, response)
+	okResponse := response.(*ordersop.UpdateOrdersOK)
+
+	suite.NoError(okResponse.Payload.Validate(strfmt.Default))
+	suite.Equal(string(newOrdersType), string(*okResponse.Payload.OrdersType))
+	suite.Equal(newOrdersNumber, *okResponse.Payload.OrdersNumber)
+
 }
