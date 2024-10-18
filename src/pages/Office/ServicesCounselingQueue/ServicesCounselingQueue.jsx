@@ -635,6 +635,7 @@ const ServicesCounselingQueue = ({ userPrivileges, currentUserId, isQueueManagem
           csvExportQueueFetcherKey="queueMoves"
           sessionStorageKey={queueType}
           key={queueType}
+          isSupervisor={!!supervisor}
         />
       </div>
     );
