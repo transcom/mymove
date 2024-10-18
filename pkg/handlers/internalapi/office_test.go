@@ -138,103 +138,67 @@ func (suite *HandlerSuite) TestApproveMoveHandlerForbidden() {
 }
 
 func (suite *HandlerSuite) TestCancelMoveHandler() {
-	// Given: a set of orders, a move, and office user
-	// Orders has service member with transportation office and phone nums
-	orders := factory.BuildOrder(suite.DB(), nil, nil)
-	factory.FetchOrBuildDefaultContractor(suite.DB(), nil, nil)
-	moveRouter := moverouter.NewMoveRouter()
-	office := factory.BuildTransportationOffice(suite.DB(), nil, nil)
+	suite.Run("Successfully cancels move", func() {
+		// Given: a set of orders, a move, and office user
+		// Orders has service member with transportation office and phone nums
+		moveRouter := moverouter.NewMoveRouter()
 
-	moveOptions := models.MoveOptions{
-		Show:               models.BoolPointer(true),
-		CounselingOfficeID: &office.ID,
-	}
-	move, verrs, err := orders.CreateNewMove(suite.DB(), moveOptions)
-	suite.NoError(err)
-	suite.False(verrs.HasAny(), "failed to validate move")
-	officeUser := factory.BuildOfficeUser(suite.DB(), nil, []factory.Trait{
-		factory.GetTraitOfficeUserWithID,
+		// Given: a set of orders, a move, user and servicemember
+		move := factory.BuildMove(suite.DB(), nil, nil)
+
+		// And: the context contains the auth values
+		req := httptest.NewRequest("POST", "/moves/some_id/cancel", nil)
+		req = suite.AuthenticateRequest(req, move.Orders.ServiceMember)
+
+		params := officeop.CancelMoveParams{
+			HTTPRequest: req,
+			MoveID:      strfmt.UUID(move.ID.String()),
+		}
+
+		// And: a move is canceled
+		handlerConfig := suite.HandlerConfig()
+		handler := CancelMoveHandler{handlerConfig, moveRouter}
+		response := handler.Handle(params)
+
+		// Then: expect a 200 status code
+		suite.Assertions.IsType(&officeop.CancelMoveOK{}, response)
+		okResponse := response.(*officeop.CancelMoveOK)
+
+		// And: Returned query to have an canceled status
+		suite.Equal(internalmessages.MoveStatusCANCELED, okResponse.Payload.Status)
 	})
-	suite.NoError(err)
 
-	// Move is submitted
-	newSignedCertification := factory.BuildSignedCertification(nil, []factory.Customization{
-		{
-			Model:    *move,
-			LinkOnly: true,
-		},
-	}, nil)
-	err = moveRouter.Submit(suite.AppContextForTest(), move, &newSignedCertification)
-	suite.NoError(err)
-	suite.Equal(models.MoveStatusSUBMITTED, move.Status, "expected Submitted")
+	suite.Run("Fails to cancel submitted move", func() {
+		// Given: a set of orders, a move, and office user
+		// Orders has service member with transportation office and phone nums
+		moveRouter := moverouter.NewMoveRouter()
 
-	// And: Orders are submitted and saved on move
-	err = orders.Submit()
-	suite.NoError(err)
-	suite.Equal(models.OrderStatusSUBMITTED, orders.Status, "expected Submitted")
-	suite.MustSave(&orders)
-	move.Orders = orders
-	suite.MustSave(move)
+		// Given: a set of orders, a move, user and servicemember
+		move := factory.BuildMove(suite.DB(), []factory.Customization{
+			{
+				Model: models.Move{
+					Status: models.MoveStatusSUBMITTED,
+				},
+			},
+		}, nil)
 
-	// And: the context contains the auth values
-	req := httptest.NewRequest("POST", "/moves/some_id/cancel", nil)
-	req = suite.AuthenticateOfficeRequest(req, officeUser)
+		// And: the context contains the auth values
+		req := httptest.NewRequest("POST", "/moves/some_id/cancel", nil)
+		req = suite.AuthenticateRequest(req, move.Orders.ServiceMember)
 
-	// And params include the cancel reason
-	reason := "Orders revoked."
-	reasonPayload := &internalmessages.CancelMove{
-		CancelReason: &reason,
-	}
-	params := officeop.CancelMoveParams{
-		HTTPRequest: req,
-		MoveID:      strfmt.UUID(move.ID.String()),
-		CancelMove:  reasonPayload,
-	}
+		params := officeop.CancelMoveParams{
+			HTTPRequest: req,
+			MoveID:      strfmt.UUID(move.ID.String()),
+		}
 
-	// And: a move is canceled
-	handlerConfig := suite.HandlerConfig()
-	handlerConfig.SetNotificationSender(suite.TestNotificationSender())
-	handler := CancelMoveHandler{handlerConfig, moveRouter}
-	response := handler.Handle(params)
+		// And: a move is canceled
+		handlerConfig := suite.HandlerConfig()
+		handler := CancelMoveHandler{handlerConfig, moveRouter}
+		response := handler.Handle(params)
 
-	// Then: expect a 200 status code
-	suite.Assertions.IsType(&officeop.CancelMoveOK{}, response)
-	okResponse := response.(*officeop.CancelMoveOK)
-
-	// And: Returned query to have an canceled status
-	suite.Equal(internalmessages.MoveStatusCANCELED, okResponse.Payload.Status)
-}
-
-func (suite *HandlerSuite) TestCancelMoveHandlerForbidden() {
-	// Given: a set of orders, a move, office user and servicemember user
-	move := factory.BuildMove(suite.DB(), nil, nil)
-	// Given: an non-office User
-	user := factory.BuildServiceMember(suite.DB(), nil, nil)
-
-	moveRouter := moverouter.NewMoveRouter()
-
-	// And: the context contains the auth values
-	req := httptest.NewRequest("POST", "/moves/some_id/cancel", nil)
-	req = suite.AuthenticateRequest(req, user)
-
-	// And params include the cancel reason
-	reason := "Orders revoked."
-	reasonPayload := &internalmessages.CancelMove{
-		CancelReason: &reason,
-	}
-	params := officeop.CancelMoveParams{
-		HTTPRequest: req,
-		MoveID:      strfmt.UUID(move.ID.String()),
-		CancelMove:  reasonPayload,
-	}
-	// And: a move is canceled
-	handlerConfig := suite.HandlerConfig()
-	handlerConfig.SetNotificationSender(suite.TestNotificationSender())
-	handler := CancelMoveHandler{handlerConfig, moveRouter}
-	response := handler.Handle(params)
-
-	// Then: response is Forbidden
-	suite.Assertions.IsType(&officeop.CancelMoveForbidden{}, response)
+		// Then: expect a 200 status code
+		suite.Assertions.IsType(&officeop.ApproveMoveConflict{}, response)
+	})
 }
 
 // TODO: Determine whether we need to complete remove reimbursements handler from Office handlers
