@@ -26,73 +26,115 @@ import (
 
 func (suite *HandlerSuite) TestCreateOrder() {
 	sm := factory.BuildExtendedServiceMember(suite.DB(), nil, nil)
+	suite.Run("can create conus and oconus orders", func() {
+		testCases := []struct {
+			test     string
+			isOconus bool
+		}{
+			{test: "Can create OCONUS order", isOconus: true},
+			{test: "Can create CONUS order", isOconus: false},
+		}
+		for _, tc := range testCases {
+			address := factory.BuildAddress(suite.DB(), []factory.Customization{
+				{
+					Model: models.Address{
+						IsOconus: &tc.isOconus,
+					},
+				},
+			}, nil)
 
-	originDutyLocation := factory.BuildDutyLocation(suite.DB(), []factory.Customization{
-		{
-			Model: models.DutyLocation{
-				Name: "Not Yuma AFB",
-			},
-		},
-	}, nil)
-	dutyLocation := factory.FetchOrBuildCurrentDutyLocation(suite.DB())
-	factory.FetchOrBuildPostalCodeToGBLOC(suite.DB(), dutyLocation.Address.PostalCode, "KKFA")
-	factory.FetchOrBuildDefaultContractor(suite.DB(), nil, nil)
+			originDutyLocation := factory.BuildDutyLocation(suite.DB(), []factory.Customization{
+				{
+					Model: models.DutyLocation{
+						Name: factory.MakeRandomString(8),
+					},
+				},
+				{
+					Model:    address,
+					LinkOnly: true,
+				},
+			}, nil)
 
-	req := httptest.NewRequest("POST", "/orders", nil)
-	req = suite.AuthenticateRequest(req, sm)
+			dutyLocation := factory.FetchOrBuildCurrentDutyLocation(suite.DB())
+			factory.FetchOrBuildPostalCodeToGBLOC(suite.DB(), dutyLocation.Address.PostalCode, "KKFA")
+			factory.FetchOrBuildDefaultContractor(suite.DB(), nil, nil)
 
-	hasDependents := true
-	spouseHasProGear := true
-	issueDate := time.Date(2018, time.March, 10, 0, 0, 0, 0, time.UTC)
-	reportByDate := time.Date(2018, time.August, 1, 0, 0, 0, 0, time.UTC)
-	ordersType := internalmessages.OrdersTypePERMANENTCHANGEOFSTATION
-	deptIndicator := internalmessages.DeptIndicatorAIRANDSPACEFORCE
-	payload := &internalmessages.CreateUpdateOrders{
-		HasDependents:        handlers.FmtBool(hasDependents),
-		SpouseHasProGear:     handlers.FmtBool(spouseHasProGear),
-		IssueDate:            handlers.FmtDate(issueDate),
-		ReportByDate:         handlers.FmtDate(reportByDate),
-		OrdersType:           internalmessages.NewOrdersType(ordersType),
-		OriginDutyLocationID: *handlers.FmtUUIDPtr(&originDutyLocation.ID),
-		NewDutyLocationID:    handlers.FmtUUID(dutyLocation.ID),
-		ServiceMemberID:      handlers.FmtUUID(sm.ID),
-		OrdersNumber:         handlers.FmtString("123456"),
-		Tac:                  handlers.FmtString("E19A"),
-		Sac:                  handlers.FmtString("SacNumber"),
-		DepartmentIndicator:  internalmessages.NewDeptIndicator(deptIndicator),
-		Grade:                models.ServiceMemberGradeE1.Pointer(),
-	}
+			req := httptest.NewRequest("POST", "/orders", nil)
+			req = suite.AuthenticateRequest(req, sm)
 
-	params := ordersop.CreateOrdersParams{
-		HTTPRequest:  req,
-		CreateOrders: payload,
-	}
+			hasDependents := true
+			spouseHasProGear := true
+			issueDate := time.Date(2018, time.March, 10, 0, 0, 0, 0, time.UTC)
+			reportByDate := time.Date(2018, time.August, 1, 0, 0, 0, 0, time.UTC)
+			ordersType := internalmessages.OrdersTypePERMANENTCHANGEOFSTATION
+			deptIndicator := internalmessages.DeptIndicatorAIRANDSPACEFORCE
+			payload := &internalmessages.CreateUpdateOrders{
+				HasDependents:        handlers.FmtBool(hasDependents),
+				SpouseHasProGear:     handlers.FmtBool(spouseHasProGear),
+				IssueDate:            handlers.FmtDate(issueDate),
+				ReportByDate:         handlers.FmtDate(reportByDate),
+				OrdersType:           internalmessages.NewOrdersType(ordersType),
+				OriginDutyLocationID: *handlers.FmtUUIDPtr(&originDutyLocation.ID),
+				NewDutyLocationID:    handlers.FmtUUID(dutyLocation.ID),
+				ServiceMemberID:      handlers.FmtUUID(sm.ID),
+				OrdersNumber:         handlers.FmtString("123456"),
+				Tac:                  handlers.FmtString("E19A"),
+				Sac:                  handlers.FmtString("SacNumber"),
+				DepartmentIndicator:  internalmessages.NewDeptIndicator(deptIndicator),
+				Grade:                models.ServiceMemberGradeE1.Pointer(),
+			}
+			if tc.isOconus {
+				payload.AccompaniedTour = models.BoolPointer(true)
+				payload.DependentsTwelveAndOver = models.Int64Pointer(5)
+				payload.DependentsUnderTwelve = models.Int64Pointer(5)
+			}
 
-	fakeS3 := storageTest.NewFakeS3Storage(true)
-	handlerConfig := suite.HandlerConfig()
-	handlerConfig.SetFileStorer(fakeS3)
-	createHandler := CreateOrdersHandler{handlerConfig}
+			params := ordersop.CreateOrdersParams{
+				HTTPRequest:  req,
+				CreateOrders: payload,
+			}
 
-	response := createHandler.Handle(params)
+			fakeS3 := storageTest.NewFakeS3Storage(true)
+			handlerConfig := suite.HandlerConfig()
+			handlerConfig.SetFileStorer(fakeS3)
+			createHandler := CreateOrdersHandler{handlerConfig}
 
-	suite.Assertions.IsType(&ordersop.CreateOrdersCreated{}, response)
-	okResponse := response.(*ordersop.CreateOrdersCreated)
-	orderID := okResponse.Payload.ID.String()
-	createdOrder, _ := models.FetchOrder(suite.DB(), uuid.FromStringOrNil(orderID))
+			response := createHandler.Handle(params)
 
-	suite.Assertions.Equal(sm.ID.String(), okResponse.Payload.ServiceMemberID.String())
-	suite.Assertions.Len(okResponse.Payload.Moves, 1)
-	suite.Assertions.Equal(ordersType, *okResponse.Payload.OrdersType)
-	suite.Assertions.Equal(handlers.FmtString("123456"), okResponse.Payload.OrdersNumber)
-	suite.Assertions.Equal(handlers.FmtString("E19A"), okResponse.Payload.Tac)
-	suite.Assertions.Equal(handlers.FmtString("SacNumber"), okResponse.Payload.Sac)
-	suite.Assertions.Equal(&deptIndicator, okResponse.Payload.DepartmentIndicator)
-	suite.Assertions.Equal(*models.Int64Pointer(8000), *okResponse.Payload.AuthorizedWeight)
-	suite.NotNil(&createdOrder.Entitlement)
-	suite.NotEmpty(createdOrder.SupplyAndServicesCostEstimate)
-	suite.NotEmpty(createdOrder.PackingAndShippingInstructions)
-	suite.NotEmpty(createdOrder.MethodOfPayment)
-	suite.NotEmpty(createdOrder.NAICS)
+			suite.Assertions.IsType(&ordersop.CreateOrdersCreated{}, response)
+			okResponse := response.(*ordersop.CreateOrdersCreated)
+			orderID := okResponse.Payload.ID.String()
+			createdOrder, _ := models.FetchOrder(suite.DB(), uuid.FromStringOrNil(orderID))
+			var createdEntitlement models.Entitlement
+			err := suite.DB().Find(&createdEntitlement, createdOrder.EntitlementID)
+			suite.NoError(err)
+			suite.NotEmpty(createdEntitlement)
+			suite.Assertions.Equal(sm.ID.String(), okResponse.Payload.ServiceMemberID.String())
+			suite.Assertions.Len(okResponse.Payload.Moves, 1)
+			suite.Assertions.Equal(ordersType, *okResponse.Payload.OrdersType)
+			suite.Assertions.Equal(handlers.FmtString("123456"), okResponse.Payload.OrdersNumber)
+			suite.Assertions.Equal(handlers.FmtString("E19A"), okResponse.Payload.Tac)
+			suite.Assertions.Equal(handlers.FmtString("SacNumber"), okResponse.Payload.Sac)
+			suite.Assertions.Equal(&deptIndicator, okResponse.Payload.DepartmentIndicator)
+			suite.Assertions.Equal(*models.Int64Pointer(8000), *okResponse.Payload.AuthorizedWeight)
+			suite.NotNil(&createdOrder.Entitlement)
+			suite.NotEmpty(createdOrder.SupplyAndServicesCostEstimate)
+			suite.NotEmpty(createdOrder.PackingAndShippingInstructions)
+			suite.NotEmpty(createdOrder.MethodOfPayment)
+			suite.NotEmpty(createdOrder.NAICS)
+			if tc.isOconus {
+				suite.NotNil(createdEntitlement.AccompaniedTour)
+				suite.NotNil(createdEntitlement.DependentsTwelveAndOver)
+				suite.NotNil(createdEntitlement.DependentsUnderTwelve)
+			} else {
+				suite.Nil(createdEntitlement.AccompaniedTour)
+				suite.Nil(createdEntitlement.DependentsTwelveAndOver)
+				suite.Nil(createdEntitlement.DependentsUnderTwelve)
+			}
+
+		}
+	})
+
 }
 
 func (suite *HandlerSuite) TestShowOrder() {
