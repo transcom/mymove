@@ -32,7 +32,6 @@ func (suite *PayloadsSuite) TestMoveTaskOrder() {
 
 	streetAddress2 := "Apt 1"
 	streetAddress3 := "Apt 1"
-	country := "USA"
 
 	basicMove := models.Move{
 		ID:                 moveTaskOrderID,
@@ -64,7 +63,6 @@ func (suite *PayloadsSuite) TestMoveTaskOrder() {
 					City:           "Washington",
 					State:          "DC",
 					PostalCode:     "20001",
-					Country:        &country,
 					County:         "my county",
 				},
 			},
@@ -793,7 +791,6 @@ func (suite *PayloadsSuite) TestStorageFacility() {
 			City:           dummy,
 			State:          dummy,
 			PostalCode:     dummy,
-			Country:        &dummy,
 		},
 		Email:        &email,
 		FacilityName: facilityName,
