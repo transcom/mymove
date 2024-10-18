@@ -1509,7 +1509,7 @@ func (suite *HandlerSuite) TestUpdateMTOServiceItemDDDSIT() {
 			City:           &destinationAddress.City,
 			State:          &destinationAddress.State,
 			PostalCode:     &destinationAddress.PostalCode,
-			Country:        destinationAddress.Country,
+			Country:        models.StringPointer("US"),
 		}
 
 		milTime := "1400Z"

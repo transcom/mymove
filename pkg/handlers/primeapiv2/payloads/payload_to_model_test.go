@@ -481,3 +481,92 @@ func (suite *PayloadsSuite) TestPPMShipmentModelFromCreate() {
 	suite.Equal(unit.Pound(proGearWeight), *model.ProGearWeight)
 	suite.Equal(unit.Pound(spouseProGearWeight), *model.SpouseProGearWeight)
 }
+
+func (suite *PayloadsSuite) TestCountryModel_WithValidCountry() {
+	countryName := "US"
+	result := CountryModel(&countryName)
+
+	suite.NotNil(result)
+	suite.Equal(countryName, result.Country)
+}
+
+func (suite *PayloadsSuite) TestCountryModel_WithNilCountry() {
+	var countryName *string = nil
+	result := CountryModel(countryName)
+
+	suite.Nil(result)
+}
+
+func (suite *PayloadsSuite) TestMTOShipmentModelFromCreate_WithNilInput() {
+	result := MTOShipmentModelFromCreate(nil)
+	suite.Nil(result)
+}
+
+func (suite *PayloadsSuite) TestMTOShipmentModelFromCreate_WithValidInput() {
+	moveTaskOrderID := strfmt.UUID(uuid.Must(uuid.NewV4()).String())
+	mtoShipment := primev2messages.CreateMTOShipment{
+		MoveTaskOrderID: &moveTaskOrderID,
+	}
+
+	result := MTOShipmentModelFromCreate(&mtoShipment)
+
+	suite.NotNil(result)
+	suite.Equal(mtoShipment.MoveTaskOrderID.String(), result.MoveTaskOrderID.String())
+	suite.Nil(result.PrimeEstimatedWeight)
+	suite.Nil(result.PickupAddress)
+	suite.Nil(result.DestinationAddress)
+	suite.Empty(result.MTOAgents)
+}
+
+func (suite *PayloadsSuite) TestMTOShipmentModelFromCreate_WithOptionalFields() {
+	moveTaskOrderID := strfmt.UUID(uuid.Must(uuid.NewV4()).String())
+	divertedFromShipmentID := strfmt.UUID(uuid.Must(uuid.NewV4()).String())
+	primeEstimatedWeight := int64(3000)
+	requestedPickupDate := strfmt.Date(time.Now())
+
+	var pickupAddress primev2messages.Address
+	var destinationAddress primev2messages.Address
+
+	pickupAddress = primev2messages.Address{
+		City:           handlers.FmtString("Tulsa"),
+		PostalCode:     handlers.FmtString("90210"),
+		State:          handlers.FmtString("OK"),
+		StreetAddress1: handlers.FmtString("123 Main St"),
+	}
+	destinationAddress = primev2messages.Address{
+		City:           handlers.FmtString("Tulsa"),
+		PostalCode:     handlers.FmtString("90210"),
+		State:          handlers.FmtString("OK"),
+		StreetAddress1: handlers.FmtString("456 Main St"),
+	}
+
+	remarks := "customer wants fast delivery"
+	mtoShipment := &primev2messages.CreateMTOShipment{
+		MoveTaskOrderID:        &moveTaskOrderID,
+		CustomerRemarks:        &remarks,
+		DivertedFromShipmentID: divertedFromShipmentID,
+		CounselorRemarks:       handlers.FmtString("Approved for special handling"),
+		PrimeEstimatedWeight:   &primeEstimatedWeight,
+		RequestedPickupDate:    &requestedPickupDate,
+		PickupAddress:          struct{ primev2messages.Address }{pickupAddress},
+		DestinationAddress:     struct{ primev2messages.Address }{destinationAddress},
+	}
+
+	result := MTOShipmentModelFromCreate(mtoShipment)
+
+	suite.NotNil(result)
+	suite.Equal(mtoShipment.MoveTaskOrderID.String(), result.MoveTaskOrderID.String())
+	suite.Equal(*mtoShipment.CustomerRemarks, *result.CustomerRemarks)
+	suite.NotNil(result.DivertedFromShipmentID)
+	suite.Equal(mtoShipment.DivertedFromShipmentID.String(), result.DivertedFromShipmentID.String())
+
+	suite.NotNil(result.PrimeEstimatedWeight)
+	suite.Equal(unit.Pound(primeEstimatedWeight), *result.PrimeEstimatedWeight)
+	suite.NotNil(result.PrimeEstimatedWeightRecordedDate)
+	suite.WithinDuration(time.Now(), *result.PrimeEstimatedWeightRecordedDate, time.Second)
+
+	suite.NotNil(result.PickupAddress)
+	suite.Equal("123 Main St", result.PickupAddress.StreetAddress1)
+	suite.NotNil(result.DestinationAddress)
+	suite.Equal("456 Main St", result.DestinationAddress.StreetAddress1)
+}
