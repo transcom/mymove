@@ -6,6 +6,7 @@ import (
 
 	"github.com/gofrs/uuid"
 
+	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/gen/ghcmessages"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
@@ -348,5 +349,26 @@ func (suite *PayloadsSuite) TestCreateCustomer() {
 		returnedShipmentAddressUpdate := CreatedCustomer(&sm, &oktaUser, &backupContact)
 
 		suite.IsType(returnedShipmentAddressUpdate, &ghcmessages.CreatedCustomer{})
+	})
+}
+
+func (suite *PayloadsSuite) TestSearchMoves() {
+	appCtx := suite.AppContextForTest()
+
+	marines := models.AffiliationMARINES
+	moveUSMC := factory.BuildMove(suite.DB(), []factory.Customization{
+		{
+			Model: models.ServiceMember{
+				Affiliation: &marines,
+			},
+		},
+	}, nil)
+
+	moves := models.Moves{moveUSMC}
+	suite.Run("Success - Returns a ghcmessages Upload payload from Upload Struct", func() {
+		payload := SearchMoves(appCtx, moves)
+
+		suite.IsType(payload, &ghcmessages.SearchMoves{})
+		suite.NotNil(payload)
 	})
 }
