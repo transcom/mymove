@@ -20,6 +20,31 @@ const defaultProps = {
     status: 'DRAFT',
   },
   mtoShipments: [],
+  orders: [],
+};
+
+const oconusOriginDutyLocationProps = {
+  router: { navigate: noop },
+  updateMove: noop,
+  loadMTOShipments: noop,
+  move: {
+    status: 'DRAFT',
+  },
+  mtoShipments: [],
+  orders: [
+    {
+      origin_duty_location: {
+        address: {
+          isOconus: true,
+        },
+      },
+      new_duty_location: {
+        address: {
+          isOconus: false,
+        },
+      },
+    },
+  ],
 };
 
 export const Submitted = () => {
@@ -105,6 +130,23 @@ export const WithNTSAndNTSRComplete = () => {
       },
       {
         shipmentType: SHIPMENT_OPTIONS.NTSR,
+      },
+    ],
+  };
+
+  return (
+    <MockProviders>
+      <SelectShipmentType {...props} />
+    </MockProviders>
+  );
+};
+
+export const WithUBComplete = () => {
+  const props = {
+    ...oconusOriginDutyLocationProps,
+    mtoShipments: [
+      {
+        shipmentType: SHIPMENT_OPTIONS.UNACCOMPANIED_BAGGAGE,
       },
     ],
   };
