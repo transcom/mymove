@@ -1,12 +1,12 @@
 import { render, screen } from '@testing-library/react';
 
 import getTemplate from 'constants/MoveHistory/TemplateManager';
-import e from 'constants/MoveHistory/EventTemplates/CreateOrders/createMoves';
+import e from 'constants/MoveHistory/EventTemplates/CreateOrder/createOrderCreateMoves';
 
-describe('When given a created orders event for the moves table', () => {
+describe('When given a create order event for the moves table from the office side', () => {
   const item = {
     action: 'INSERT',
-    eventName: 'createOrders',
+    eventName: 'createOrder',
     tableName: 'moves',
     eventNameDisplay: 'Created move',
     changedValues: {
@@ -22,7 +22,7 @@ describe('When given a created orders event for the moves table', () => {
     const result = getTemplate(item);
     expect(result).toMatchObject(e);
   });
-  describe('When given a specific set of details for created moves', () => {
+  describe('When given a specific set of details for created move', () => {
     it.each([
       ['Status', ': DRAFT'],
       ['Counseling office', ': Scott AFB'],
