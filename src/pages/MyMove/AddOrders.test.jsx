@@ -120,14 +120,14 @@ jest.mock('components/LocationSearchBox/api', () => ({
       {
         address: {
           city: 'Elmendorf AFB',
-          country: 'United States',
+          country: 'US',
           id: 'fa51dab0-4553-4732-b843-1f33407f11bc',
           postalCode: '78112',
           state: 'AK',
           streetAddress1: 'n/a',
           isOconus: true,
         },
-        address_id: '25ae4d12-fe93-47f1-bbec-1db386dfa32f',
+        address_id: 'fa51dab0-4553-4732-b843-1f33407f11bc',
         affiliation: 'AIR_FORCE',
         created_at: '2021-02-11T16:48:04.117Z',
         id: 'a8d6b33c-8370-4e92-8df2-356b8c9d0c1a',
@@ -440,6 +440,199 @@ describe('Add Orders page', () => {
       expect(setMoveId).toHaveBeenCalled();
       expect(setCanAddOrders).toHaveBeenCalled();
       expect(getServiceMember).toHaveBeenCalledWith(testProps.serviceMemberId);
+    });
+  });
+
+  it('submits OCONUS fields correctly on form submit', async () => {
+    const testOrdersValues = {
+      orders_type: 'PERMANENT_CHANGE_OF_STATION',
+      issue_date: '2020-11-08',
+      report_by_date: '2020-11-26',
+      has_dependents: true,
+      is_accompanied_tour: true,
+      dependents_under_twelve: 1,
+      dependents_over_twelve: 2,
+      counseling_office_id: null,
+      origin_duty_location: {
+        address: {
+          city: '',
+          id: '00000000-0000-0000-0000-000000000000',
+          postalCode: '',
+          state: '',
+          streetAddress1: '',
+        },
+        address_id: '46c4640b-c35e-4293-a2f1-36c7b629f903',
+        affiliation: 'AIR_FORCE',
+        created_at: '2021-02-11T16:48:04.117Z',
+        id: '93f0755f-6f35-478b-9a75-35a69211da1c',
+        name: 'Altus AFB',
+        updated_at: '2021-02-11T16:48:04.117Z',
+      },
+      new_duty_location_id: 'a8d6b33c-8370-4e92-8df2-356b8c9d0c1a',
+      new_duty_location: {
+        address: {
+          city: 'Elmendorf AFB',
+          country: 'US',
+          isOconus: true,
+          id: 'fa51dab0-4553-4732-b843-1f33407f11bc',
+          postalCode: '78112',
+          state: 'AK',
+          streetAddress1: 'n/a',
+        },
+        affiliation: 'AIR_FORCE',
+        created_at: '2021-02-11T16:48:04.117Z',
+        id: 'a8d6b33c-8370-4e92-8df2-356b8c9d0c1a',
+        name: 'Elmendorf AFB',
+        updated_at: '2021-02-11T16:48:04.117Z',
+        address_id: 'fa51dab0-4553-4732-b843-1f33407f11bc',
+      },
+      grade: 'E_5',
+      origin_duty_location_id: '93f0755f-6f35-478b-9a75-35a69211da1c',
+      service_member_id: 'id123',
+      spouse_has_pro_gear: false,
+    };
+    isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(true));
+    selectServiceMemberFromLoggedInUser.mockImplementation(() => serviceMember);
+    renderWithProviders(<AddOrders {...testProps} />, {
+      path: customerRoutes.ORDERS_ADD_PATH,
+    });
+    await screen.findByRole('heading', { level: 1, name: 'Tell us about your move orders' });
+
+    const nextBtn = await screen.findByRole('button', { name: 'Next' });
+    expect(nextBtn).toBeInTheDocument();
+
+    // Set standard form fields
+    await act(async () => {
+      await userEvent.selectOptions(screen.getByLabelText(/Orders type/), 'PERMANENT_CHANGE_OF_STATION');
+      await userEvent.type(screen.getByLabelText(/Orders date/), '08 Nov 2020');
+      await userEvent.type(screen.getByLabelText(/Report by date/), '26 Nov 2020');
+      await userEvent.click(screen.getByLabelText('No'));
+      await userEvent.selectOptions(screen.getByLabelText(/Pay grade/), ['E_5']);
+
+      // Select a CONUS current duty location
+      await userEvent.type(screen.getByLabelText(/Current duty location/), 'AFB', { delay: 100 });
+      const selectedOptionCurrent = await screen.findByText(/Altus/);
+      await userEvent.click(selectedOptionCurrent);
+      // Select an OCONUS new duty location
+      await userEvent.type(screen.getByLabelText(/New duty location/), 'AFB', { delay: 100 });
+      const selectedOptionNew = await screen.findByText(/Elmendorf/);
+      await userEvent.click(selectedOptionNew);
+    });
+
+    await waitFor(() => {
+      expect(screen.getByRole('form')).toHaveFormValues({
+        new_duty_location: 'Elmendorf AFB',
+        origin_duty_location: 'Altus AFB',
+      });
+    });
+
+    // Set dependents and accompanied tour
+    await userEvent.click(screen.getByTestId('hasDependentsYes'));
+    await userEvent.click(screen.getByTestId('isAnAccompaniedTourYes'));
+    await userEvent.type(screen.getByTestId('dependentsUnderTwelve'), '1');
+    await userEvent.type(screen.getByTestId('dependentsOverTwelve'), '2');
+
+    await waitFor(() => expect(nextBtn).toBeEnabled());
+
+    await act(async () => {
+      await userEvent.click(nextBtn);
+    });
+
+    await waitFor(() => {
+      expect(createOrders).toHaveBeenCalledWith(testOrdersValues);
+    });
+  });
+
+  it('properly does not pass in OCONUS fields when is a CONUS move', async () => {
+    const testOrdersValues = {
+      orders_type: 'PERMANENT_CHANGE_OF_STATION',
+      issue_date: '2020-11-08',
+      report_by_date: '2020-11-26',
+      has_dependents: false,
+      counseling_office_id: null,
+      dependents_over_twelve: null,
+      dependents_under_twelve: null,
+      is_accompanied_tour: null,
+      origin_duty_location: {
+        address: {
+          city: '',
+          id: '00000000-0000-0000-0000-000000000000',
+          postalCode: '',
+          state: '',
+          streetAddress1: '',
+        },
+        address_id: '46c4640b-c35e-4293-a2f1-36c7b629f903',
+        affiliation: 'AIR_FORCE',
+        created_at: '2021-02-11T16:48:04.117Z',
+        id: '93f0755f-6f35-478b-9a75-35a69211da1c',
+        name: 'Altus AFB',
+        updated_at: '2021-02-11T16:48:04.117Z',
+      },
+      new_duty_location_id: 'a8d6b33c-8370-4e92-8df2-356b8c9d0c1a',
+      new_duty_location: {
+        address: {
+          city: 'Glendale Luke AFB',
+          country: 'United States',
+          id: 'fa51dab0-4553-4732-b843-1f33407f77bc',
+          postalCode: '85309',
+          state: 'AZ',
+          streetAddress1: 'n/a',
+        },
+        affiliation: 'AIR_FORCE',
+        created_at: '2021-02-11T16:48:04.117Z',
+        id: 'a8d6b33c-8370-4e92-8df2-356b8c9d0c1a',
+        name: 'Luke AFB',
+        updated_at: '2021-02-11T16:48:04.117Z',
+        address_id: '25be4d12-fe93-47f1-bbec-1db386dfa67f',
+      },
+      grade: 'E_5',
+      origin_duty_location_id: '93f0755f-6f35-478b-9a75-35a69211da1c',
+      service_member_id: 'id123',
+      spouse_has_pro_gear: false,
+    };
+    isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(true));
+    selectServiceMemberFromLoggedInUser.mockImplementation(() => serviceMember);
+    renderWithProviders(<AddOrders {...testProps} />, {
+      path: customerRoutes.ORDERS_ADD_PATH,
+    });
+    await screen.findByRole('heading', { level: 1, name: 'Tell us about your move orders' });
+
+    const nextBtn = await screen.findByRole('button', { name: 'Next' });
+    expect(nextBtn).toBeInTheDocument();
+
+    // Set standard form fields
+    await act(async () => {
+      await userEvent.selectOptions(screen.getByLabelText(/Orders type/), 'PERMANENT_CHANGE_OF_STATION');
+      await userEvent.type(screen.getByLabelText(/Orders date/), '08 Nov 2020');
+      await userEvent.type(screen.getByLabelText(/Report by date/), '26 Nov 2020');
+      await userEvent.click(screen.getByLabelText('No'));
+      await userEvent.selectOptions(screen.getByLabelText(/Pay grade/), ['E_5']);
+
+      // Select a CONUS current duty location
+      await userEvent.type(screen.getByLabelText(/Current duty location/), 'AFB', { delay: 100 });
+      const selectedOptionCurrent = await screen.findByText(/Altus/);
+      await userEvent.click(selectedOptionCurrent);
+      // Select an CONUS new duty location
+      await userEvent.type(screen.getByLabelText(/New duty location/), 'AFB', { delay: 100 });
+      const selectedOptionNew = await screen.findByText(/Luke/);
+      await userEvent.click(selectedOptionNew);
+    });
+
+    await waitFor(() => {
+      expect(screen.getByRole('form')).toHaveFormValues({
+        new_duty_location: 'Luke AFB',
+        origin_duty_location: 'Altus AFB',
+      });
+    });
+
+    await waitFor(() => expect(nextBtn).toBeEnabled());
+
+    await act(async () => {
+      await userEvent.click(nextBtn);
+    });
+
+    await waitFor(() => {
+      expect(createOrders).toHaveBeenCalledWith(testOrdersValues);
     });
   });
 
