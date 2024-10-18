@@ -85,6 +85,7 @@ test('A services counselor can edit allowable weight', async ({ page, scPage }) 
 
   await page.getByRole('link', { name: 'Review Documents' }).click();
   await scPage.waitForPage.reviewWeightTicket();
+  await page.getByTestId('shipmentInfo-showRequestDetailsButton').click();
 
   await page.getByTestId('editAllowableWeightButton').click();
   await page.getByText('Cancel').click();
