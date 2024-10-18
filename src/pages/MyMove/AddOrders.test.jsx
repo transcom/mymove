@@ -451,7 +451,7 @@ describe('Add Orders page', () => {
       has_dependents: true,
       is_accompanied_tour: true,
       dependents_under_twelve: 1,
-      dependents_over_twelve: 2,
+      dependents_twelve_and_over: 2,
       counseling_office_id: null,
       origin_duty_location: {
         address: {
@@ -530,7 +530,7 @@ describe('Add Orders page', () => {
     await userEvent.click(screen.getByTestId('hasDependentsYes'));
     await userEvent.click(screen.getByTestId('isAnAccompaniedTourYes'));
     await userEvent.type(screen.getByTestId('dependentsUnderTwelve'), '1');
-    await userEvent.type(screen.getByTestId('dependentsOverTwelve'), '2');
+    await userEvent.type(screen.getByTestId('dependentsTwelveAndOver'), '2');
 
     await waitFor(() => expect(nextBtn).toBeEnabled());
 
@@ -550,7 +550,7 @@ describe('Add Orders page', () => {
       report_by_date: '2020-11-26',
       has_dependents: false,
       counseling_office_id: null,
-      dependents_over_twelve: null,
+      dependents_twelve_and_over: null,
       dependents_under_twelve: null,
       is_accompanied_tour: null,
       origin_duty_location: {
