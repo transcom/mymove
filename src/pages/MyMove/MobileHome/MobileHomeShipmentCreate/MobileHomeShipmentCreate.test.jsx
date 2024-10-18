@@ -85,11 +85,11 @@ const renderMobileHomeShipmentCreate = async (props) => {
 };
 
 describe('MobileHomeShipmentCreate component', () => {
-  describe('creating a new mobile home shipment', () => {
+  describe('creating a new Mobile Home shipment', () => {
     it('renders the heading and empty form', async () => {
       await renderMobileHomeShipmentCreate();
 
-      expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent('Mobile home details and measurements');
+      expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent('Mobile Home details and measurements');
     });
 
     it('routes back to the new shipment type screen when back is clicked', async () => {
@@ -122,7 +122,7 @@ describe('MobileHomeShipmentCreate component', () => {
         await userEvent.click(screen.getByRole('button', { name: 'Continue' }));
       });
 
-      expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent('Mobile home details and measurements');
+      expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent('Mobile Home details and measurements');
 
       await waitFor(() => {
         expect(createMTOShipment).toHaveBeenCalledWith({
@@ -167,7 +167,7 @@ describe('MobileHomeShipmentCreate component', () => {
         await userEvent.click(screen.getByRole('button', { name: 'Continue' }));
       });
 
-      expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent('Mobile home details and measurements');
+      expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent('Mobile Home details and measurements');
 
       await waitFor(() => {
         expect(createMTOShipment).toHaveBeenCalledWith({
@@ -189,7 +189,7 @@ describe('MobileHomeShipmentCreate component', () => {
     });
   });
 
-  describe('editing an existing Mobile home shipment', () => {
+  describe('editing an existing Mobile Home shipment', () => {
     const existingShipment = {
       id: 'existingShipment123',
       eTag: 'someETag',
@@ -225,7 +225,7 @@ describe('MobileHomeShipmentCreate component', () => {
         await userEvent.click(screen.getByRole('button', { name: 'Continue' }));
       });
 
-      expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent('Mobile home details and measurements');
+      expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent('Mobile Home details and measurements');
 
       await waitFor(() => {
         expect(patchMTOShipment).toHaveBeenCalledWith(

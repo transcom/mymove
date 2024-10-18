@@ -157,7 +157,7 @@ func (f mtoShipmentCreator) CreateMTOShipment(appCtx appcontext.AppContext, ship
 
 	// Populate the destination address fields with the new duty location's address when
 	// we have an HHG or Boat with no destination address, but don't copy over any street fields.
-	if (shipment.ShipmentType == models.MTOShipmentTypeHHG || isBoatShipment) && shipment.DestinationAddress == nil {
+	if (shipment.ShipmentType == models.MTOShipmentTypeHHG || isBoatShipment || isMobileHomeShipment) && shipment.DestinationAddress == nil {
 		err = appCtx.DB().Load(&move, "Orders.NewDutyLocation.Address")
 		if err != nil {
 			return nil, apperror.NewQueryError("Orders", err, "")
