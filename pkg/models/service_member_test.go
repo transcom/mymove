@@ -328,3 +328,42 @@ func (suite *ModelSuite) TestFetchLatestOrders() {
 		suite.Equal(actualOrder.UploadedAmendedOrders.UserUploads[0].ID, nonDeletedAmendedUpload.ID)
 	})
 }
+
+func (suite *ModelSuite) TestSaveServiceMember() {
+	user1 := factory.BuildDefaultUser(suite.DB())
+
+	firstName := "Billy"
+	lastName := "Bob"
+	sm := m.ServiceMember{
+		User:      user1,
+		UserID:    user1.ID,
+		FirstName: &firstName,
+		LastName:  &lastName,
+	}
+	suite.MustSave(&sm)
+	appCtx := suite.AppContextForTest()
+
+	// updating residential address
+	resAddress := m.Address{
+		StreetAddress1: "987 Other Avenue",
+		City:           "Tulsa",
+		State:          "OK",
+		PostalCode:     "74133",
+	}
+	sm.ResidentialAddress = &resAddress
+	verrs, err := m.SaveServiceMember(appCtx, &sm)
+	suite.NoError(err)
+	suite.False(verrs.HasAny())
+
+	// updating backup address
+	backupAddress := m.Address{
+		StreetAddress1: "987 Backup Avenue",
+		City:           "Tulsa",
+		State:          "OK",
+		PostalCode:     "74133",
+	}
+	sm.BackupMailingAddress = &backupAddress
+	verrs, err = m.SaveServiceMember(appCtx, &sm)
+	suite.NoError(err)
+	suite.False(verrs.HasAny())
+}

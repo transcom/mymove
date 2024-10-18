@@ -852,7 +852,6 @@ func MakePrimeSimulatorMoveSameBasePointCity(appCtx appcontext.AppContext) model
 				City:           "Miami Gardens",
 				State:          "FL",
 				PostalCode:     "33169",
-				Country:        models.StringPointer("US"),
 			},
 		},
 	}, nil)
@@ -865,7 +864,6 @@ func MakePrimeSimulatorMoveSameBasePointCity(appCtx appcontext.AppContext) model
 				City:           "Key West",
 				State:          "FL",
 				PostalCode:     "33040",
-				Country:        models.StringPointer("US"),
 			},
 		},
 	}, nil)
@@ -3891,7 +3889,6 @@ func MakeMoveWithPPMShipmentReadyForFinalCloseout(appCtx appcontext.AppContext) 
 				City:           "Miami Gardens",
 				State:          "FL",
 				PostalCode:     "33169",
-				Country:        models.StringPointer("US"),
 			},
 		},
 	}, nil)
@@ -3904,7 +3901,6 @@ func MakeMoveWithPPMShipmentReadyForFinalCloseout(appCtx appcontext.AppContext) 
 				City:           "Key West",
 				State:          "FL",
 				PostalCode:     "33040",
-				Country:        models.StringPointer("US"),
 			},
 		},
 	}, nil)

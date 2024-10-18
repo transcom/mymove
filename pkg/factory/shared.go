@@ -47,6 +47,7 @@ var BackupContact CustomType = "BackupContact"
 var BoatShipment CustomType = "BoatShipment"
 var ClientCert CustomType = "ClientCert"
 var Contractor CustomType = "Contractor"
+var Country CustomType = "Country"
 var CustomerSupportRemark CustomType = "CustomerSupportRemark"
 var Document CustomType = "Document"
 var DutyLocation CustomType = "DutyLocation"
@@ -106,6 +107,7 @@ var defaultTypesMap = map[string]CustomType{
 	"models.BoatShipment":                             BoatShipment,
 	"models.ClientCert":                               ClientCert,
 	"models.Contractor":                               Contractor,
+	"models.Country":                                  Country,
 	"models.CustomerSupportRemark":                    CustomerSupportRemark,
 	"models.Document":                                 Document,
 	"models.DutyLocation":                             DutyLocation,

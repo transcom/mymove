@@ -15,7 +15,6 @@ var pickupAddressModel = models.Address{
 	City:           "Miami Gardens",
 	State:          "FL",
 	PostalCode:     "33169",
-	Country:        models.StringPointer("US"),
 }
 
 var destinationAddressModel = models.Address{
@@ -25,7 +24,6 @@ var destinationAddressModel = models.Address{
 	City:           "Key West",
 	State:          "FL",
 	PostalCode:     "33040",
-	Country:        models.StringPointer("US"),
 }
 
 var affiliationDisplayValue = map[models.ServiceMemberAffiliation]string{

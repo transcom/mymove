@@ -77,9 +77,9 @@ func (f moveFetcher) FetchMovesForPPTASReports(appCtx appcontext.AppContext, par
 		"Orders.ServiceMember.BackupContacts",
 		"Orders.Entitlement",
 		"Orders.Entitlement.WeightAllotted",
-		"Orders.NewDutyLocation.Address",
+		"Orders.NewDutyLocation.Address.Country",
 		"Orders.NewDutyLocation.TransportationOffice.Gbloc",
-		"Orders.OriginDutyLocation.Address",
+		"Orders.OriginDutyLocation.Address.Country",
 		"Orders.TAC",
 	).
 		InnerJoin("orders", "orders.id = moves.orders_id").
