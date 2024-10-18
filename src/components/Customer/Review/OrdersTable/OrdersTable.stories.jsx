@@ -34,6 +34,7 @@ const defaultProps = {
   uploads: [{ id: 1 }, { id: 2 }, { id: 3 }],
   payGrade: 'E-5',
   originDutyLocationName: 'Buckley AFB',
+  counselingOfficeName: 'PPPO Buckley AFB',
 };
 
 const OrdersTableTemplate = (args) => <OrdersTable {...args} />;
