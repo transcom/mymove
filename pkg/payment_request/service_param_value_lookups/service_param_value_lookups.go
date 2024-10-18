@@ -186,7 +186,7 @@ func ServiceParamLookupInitialize(
 		// Due to a bug in pop (https://github.com/gobuffalo/pop/issues/578), we cannot eager load the storage
 		// facility's address as "StorageFacility.Address" because StorageFacility is a pointer.
 		if mtoShipment.StorageFacility != nil {
-			err = appCtx.DB().Load(mtoShipment.StorageFacility, "Address")
+			err = appCtx.DB().Load(mtoShipment.StorageFacility, "Address", "Address.Country")
 			if err != nil {
 				return nil, apperror.NewQueryError("Address", err, "")
 			}

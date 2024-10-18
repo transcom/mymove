@@ -15,18 +15,19 @@ import (
 
 // Address is an address
 type Address struct {
-	ID             uuid.UUID `json:"id" db:"id"`
-	CreatedAt      time.Time `json:"created_at" db:"created_at"`
-	UpdatedAt      time.Time `json:"updated_at" db:"updated_at"`
-	StreetAddress1 string    `json:"street_address_1" db:"street_address_1"`
-	StreetAddress2 *string   `json:"street_address_2" db:"street_address_2"`
-	StreetAddress3 *string   `json:"street_address_3" db:"street_address_3"`
-	City           string    `json:"city" db:"city"`
-	State          string    `json:"state" db:"state"`
-	PostalCode     string    `json:"postal_code" db:"postal_code"`
-	Country        *string   `json:"country" db:"country"`
-	County         string    `json:"county" db:"county"`
-	IsOconus       *bool     `json:"is_oconus" db:"is_oconus"`
+	ID             uuid.UUID  `json:"id" db:"id"`
+	CreatedAt      time.Time  `json:"created_at" db:"created_at"`
+	UpdatedAt      time.Time  `json:"updated_at" db:"updated_at"`
+	StreetAddress1 string     `json:"street_address_1" db:"street_address_1"`
+	StreetAddress2 *string    `json:"street_address_2" db:"street_address_2"`
+	StreetAddress3 *string    `json:"street_address_3" db:"street_address_3"`
+	City           string     `json:"city" db:"city"`
+	State          string     `json:"state" db:"state"`
+	PostalCode     string     `json:"postal_code" db:"postal_code"`
+	CountryId      *uuid.UUID `json:"country_id" db:"country_id"`
+	Country        *Country   `belongs_to:"re_countries" fk_id:"country_id"`
+	County         string     `json:"county" db:"county"`
+	IsOconus       *bool      `json:"is_oconus" db:"is_oconus"`
 }
 
 // TableName overrides the table name used by Pop.
@@ -50,7 +51,7 @@ func FetchAddressByID(dbConnection *pop.Connection, id *uuid.UUID) *Address {
 	}
 	address := Address{}
 	var response *Address
-	if err := dbConnection.Find(&address, id); err != nil {
+	if err := dbConnection.Q().Eager("Country").Find(&address, id); err != nil {
 		response = nil
 		if err.Error() != RecordNotFoundErrorString {
 			// This is an unknown error from the db
@@ -85,9 +86,7 @@ func (a *Address) MarshalLogObject(encoder zapcore.ObjectEncoder) error {
 	encoder.AddString("city", a.City)
 	encoder.AddString("state", a.State)
 	encoder.AddString("code", a.PostalCode)
-	if a.Country != nil {
-		encoder.AddString("country", *a.Country)
-	}
+	encoder.AddString("countryId", a.CountryId.String())
 	return nil
 }
 
@@ -129,8 +128,8 @@ func (a *Address) LineFormat() string {
 	if len(a.PostalCode) > 0 {
 		parts = append(parts, a.PostalCode)
 	}
-	if a.Country != nil && len(*a.Country) > 0 {
-		parts = append(parts, *a.Country)
+	if len(*a.CountryId) > 0 {
+		parts = append(parts, a.CountryId.String())
 	}
 
 	return strings.Join(parts, ", ")
@@ -146,17 +145,9 @@ func (e NotImplementedCountryCode) Error() string {
 }
 
 // CountryCode returns 2-3 character code for country, returns nil if no Country
-// TODO: since we only support CONUS at this time this just returns USA and otherwise throws a NotImplementedCountryCode
 func (a *Address) CountryCode() (*string, error) {
-	if a.Country != nil && len(*a.Country) > 0 {
-		result := ""
-		switch *a.Country {
-		case "United States", "US":
-			result = "USA"
-		default:
-			return nil, NotImplementedCountryCode{message: fmt.Sprintf("Country '%s'", *a.Country)}
-		}
-		return &result, nil
+	if a.Country != nil {
+		return &a.Country.Country, nil
 	}
 	return nil, nil
 }
