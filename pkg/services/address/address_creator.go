@@ -55,6 +55,7 @@ func (f *addressCreator) CreateAddress(appCtx appcontext.AppContext, address *mo
 			return nil, err
 		}
 		transformedAddress.CountryId = &country.ID
+		transformedAddress.Country = &country
 	}
 
 	txnErr := appCtx.NewTransaction(func(txnCtx appcontext.AppContext) error {
