@@ -31,24 +31,28 @@ func (suite *FactorySuite) TestBuildPPMShipment() {
 				City:           "Des Moines",
 				State:          "IA",
 				PostalCode:     "50309",
+				County:         "POLK",
 			},
 			SecondaryPickupAddress: &models.Address{
 				StreetAddress1: "123 Main Street",
 				City:           "Des Moines",
 				State:          "IA",
 				PostalCode:     "50309",
+				County:         "POLK",
 			},
 			DestinationAddress: &models.Address{
 				StreetAddress1: "123 New Street",
 				City:           "Fort Eisenhower",
 				State:          "GA",
 				PostalCode:     "30813",
+				County:         "COLUMBIA",
 			},
 			SecondaryDestinationAddress: &models.Address{
 				StreetAddress1: "1234 Main Street",
 				City:           "Fort Eisenhower",
 				State:          "GA",
 				PostalCode:     "30813",
+				County:         "COLUMBIA",
 			},
 		}
 

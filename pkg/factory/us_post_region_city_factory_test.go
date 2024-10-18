@@ -6,10 +6,11 @@ import (
 
 func (suite *FactorySuite) TestBuildUsPostRegionCity() {
 	var defaultUsprc = models.UsPostRegionCity{
-		UsprZipID:          "33608",
-		USPostRegionCityNm: "MacDill AFB",
-		UsprcCountyNm:      "Hillsborough",
-		CtryGencDgphCd:     "US",
+		UsprZipID:               "33608",
+		USPostRegionCityNm:      "MacDill AFB",
+		UsprcPrfdLstLineCtystNm: "MacDill",
+		UsprcCountyNm:           "Hillsborough",
+		CtryGencDgphCd:          "US",
 	}
 
 	suite.Run("Successful creation of default UsPostRegionCity", func() {

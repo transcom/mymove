@@ -6,7 +6,7 @@ import (
 	"github.com/gofrs/uuid"
 )
 
-type ReStates struct {
+type State struct {
 	ID        uuid.UUID `json:"id" db:"id"`
 	State     string    `json:"state" db:"state"`
 	StateName string    `json:"state_name" db:"state_name"`
@@ -16,6 +16,6 @@ type ReStates struct {
 }
 
 // TableName overrides the table name used by Pop.
-func (s ReStates) TableName() string {
+func (s State) TableName() string {
 	return "re_states"
 }

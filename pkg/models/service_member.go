@@ -305,6 +305,31 @@ func SaveServiceMember(appCtx appcontext.AppContext, serviceMember *ServiceMembe
 			}
 			serviceMember.BackupMailingAddress.IsOconus = &isOconus
 
+			if serviceMember.BackupMailingAddress.Country != nil {
+				country := serviceMember.BackupMailingAddress.Country
+				if country.Country != "US" || country.Country == "US" && serviceMember.BackupMailingAddress.State == "AK" || country.Country == "US" && serviceMember.BackupMailingAddress.State == "HI" {
+					boolTrueVal := true
+					serviceMember.BackupMailingAddress.IsOconus = &boolTrueVal
+				} else {
+					boolFalseVal := false
+					serviceMember.BackupMailingAddress.IsOconus = &boolFalseVal
+				}
+			} else if serviceMember.BackupMailingAddress.CountryId != nil {
+				country, err := FetchCountryByID(appCtx.DB(), *serviceMember.BackupMailingAddress.CountryId)
+				if err != nil {
+					return err
+				}
+				if country.Country != "US" || country.Country == "US" && serviceMember.BackupMailingAddress.State == "AK" || country.Country == "US" && serviceMember.BackupMailingAddress.State == "HI" {
+					boolTrueVal := true
+					serviceMember.BackupMailingAddress.IsOconus = &boolTrueVal
+				} else {
+					boolFalseVal := false
+					serviceMember.BackupMailingAddress.IsOconus = &boolFalseVal
+				}
+			} else {
+				boolFalseVal := false
+				serviceMember.BackupMailingAddress.IsOconus = &boolFalseVal
+			}
 			if verrs, err := txnAppCtx.DB().ValidateAndSave(serviceMember.BackupMailingAddress); verrs.HasAny() || err != nil {
 				responseVErrors.Append(verrs)
 				responseError = err
