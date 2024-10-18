@@ -11,6 +11,8 @@ export const createServiceItemModelTypes = {
 export const shuttleServiceItemCodeOptions = [
   { value: serviceItemCodes.DOSHUT, key: SERVICE_ITEM_CODES.DOSHUT },
   { value: serviceItemCodes.DDSHUT, key: SERVICE_ITEM_CODES.DDSHUT },
+  { value: serviceItemCodes.IOSHUT, key: SERVICE_ITEM_CODES.IOSHUT },
+  { value: serviceItemCodes.IDSHUT, key: SERVICE_ITEM_CODES.IDSHUT },
 ];
 
 export const domesticCratingServiceItemCodeOptions = [
