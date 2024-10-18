@@ -8,7 +8,7 @@ import {
   ntsMissingInfo,
   postalOnlyInfo,
   diversionInfo,
-  cancelledInfo,
+  canceledInfo,
   ntsReleaseInfo,
   ntsReleaseMissingInfo,
   ordersLOA,
@@ -79,7 +79,7 @@ describe('Shipment Container', () => {
       expect(screen.getByText('diversion')).toBeInTheDocument();
     });
     it('renders with canceled tag', () => {
-      render(<ShipmentDisplay shipmentId="1" displayInfo={cancelledInfo} onChange={jest.fn()} isSubmitted={false} />);
+      render(<ShipmentDisplay shipmentId="1" displayInfo={canceledInfo} onChange={jest.fn()} isSubmitted={false} />);
       expect(screen.getByText('canceled')).toBeInTheDocument();
     });
     it('renders a disabled button when move is locked', () => {
