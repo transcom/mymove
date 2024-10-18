@@ -55,8 +55,12 @@ const OrdersInfoForm = ({ ordersTypeOptions, initialValues, onSubmit, onBack }) 
     is_accompanied_tour: showAccompaniedTourField
       ? Yup.mixed().oneOf(['yes', 'no']).required('Required')
       : Yup.string().notRequired(),
-    dependents_under_12: showDependentAgeFields ? Yup.number().min(0).required('Required') : Yup.number().notRequired(),
-    dependents_over_12: showDependentAgeFields ? Yup.number().min(0).required('Required') : Yup.number().notRequired(),
+    dependents_under_twelve: showDependentAgeFields
+      ? Yup.number().min(0).required('Required')
+      : Yup.number().notRequired(),
+    dependents_over_twelve: showDependentAgeFields
+      ? Yup.number().min(0).required('Required')
+      : Yup.number().notRequired(),
   });
   useEffect(() => {
     // Functional component version of "componentDidMount"
@@ -380,6 +384,9 @@ OrdersInfoForm.propTypes = {
     new_duty_location: PropTypes.shape({}),
     grade: PropTypes.string,
     origin_duty_location: DutyLocationShape,
+    dependents_under_twelve: PropTypes.number,
+    dependents_over_twelve: PropTypes.number,
+    is_accompanied_tour: PropTypes.string,
   }).isRequired,
   onSubmit: PropTypes.func.isRequired,
   onBack: PropTypes.func.isRequired,
