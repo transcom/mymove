@@ -212,6 +212,15 @@ func SaveServiceMember(appCtx appcontext.AppContext, serviceMember *ServiceMembe
 				responseError = err
 				return err
 			}
+
+			// Evaluate address and populate addresses isOconus value
+			isOconus, err := IsAddressOconus(appCtx.DB(), *serviceMember.ResidentialAddress)
+			if err != nil {
+				responseError = err
+				return err
+			}
+			serviceMember.ResidentialAddress.IsOconus = &isOconus
+
 			serviceMember.ResidentialAddress.County = county
 
 			// until international moves are supported, we will default the country for created addresses to "US"
@@ -288,31 +297,14 @@ func SaveServiceMember(appCtx appcontext.AppContext, serviceMember *ServiceMembe
 				serviceMember.BackupMailingAddress.CountryId = &country.ID
 			}
 
-			if serviceMember.BackupMailingAddress.Country != nil {
-				country := serviceMember.BackupMailingAddress.Country
-				if country.Country != "US" || country.Country == "US" && serviceMember.BackupMailingAddress.State == "AK" || country.Country == "US" && serviceMember.BackupMailingAddress.State == "HI" {
-					boolTrueVal := true
-					serviceMember.BackupMailingAddress.IsOconus = &boolTrueVal
-				} else {
-					boolFalseVal := false
-					serviceMember.BackupMailingAddress.IsOconus = &boolFalseVal
-				}
-			} else if serviceMember.BackupMailingAddress.CountryId != nil {
-				country, err := FetchCountryByID(appCtx.DB(), *serviceMember.BackupMailingAddress.CountryId)
-				if err != nil {
-					return err
-				}
-				if country.Country != "US" || country.Country == "US" && serviceMember.BackupMailingAddress.State == "AK" || country.Country == "US" && serviceMember.BackupMailingAddress.State == "HI" {
-					boolTrueVal := true
-					serviceMember.BackupMailingAddress.IsOconus = &boolTrueVal
-				} else {
-					boolFalseVal := false
-					serviceMember.BackupMailingAddress.IsOconus = &boolFalseVal
-				}
-			} else {
-				boolFalseVal := false
-				serviceMember.BackupMailingAddress.IsOconus = &boolFalseVal
+			// Evaluate address and populate addresses isOconus value
+			isOconus, err := IsAddressOconus(appCtx.DB(), *serviceMember.BackupMailingAddress)
+			if err != nil {
+				responseError = err
+				return err
 			}
+			serviceMember.BackupMailingAddress.IsOconus = &isOconus
+
 			if verrs, err := txnAppCtx.DB().ValidateAndSave(serviceMember.BackupMailingAddress); verrs.HasAny() || err != nil {
 				responseVErrors.Append(verrs)
 				responseError = err

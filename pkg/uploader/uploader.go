@@ -258,7 +258,7 @@ func (u *Uploader) CreateUpload(appCtx appcontext.AppContext, file File, allowed
 
 // PresignedURL returns a URL that can be used to access an Upload's file.
 func (u *Uploader) PresignedURL(appCtx appcontext.AppContext, upload *models.Upload) (string, error) {
-	url, err := u.Storer.PresignedURL(upload.StorageKey, upload.ContentType)
+	url, err := u.Storer.PresignedURL(upload.StorageKey, upload.ContentType, upload.Filename)
 	if err != nil {
 		appCtx.Logger().Error("failed to get presigned url", zap.Error(err))
 		return "", err
