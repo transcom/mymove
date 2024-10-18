@@ -27,6 +27,9 @@ type QueueMove struct {
 	// assigned to
 	AssignedTo *AssignedOfficeUser `json:"assignedTo,omitempty"`
 
+	// available office users
+	AvailableOfficeUsers AvailableOfficeUsers `json:"availableOfficeUsers,omitempty"`
+
 	// closeout initiated
 	// Format: date-time
 	CloseoutInitiated *strfmt.DateTime `json:"closeoutInitiated,omitempty"`
@@ -104,6 +107,10 @@ func (m *QueueMove) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validateAssignedTo(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateAvailableOfficeUsers(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -199,6 +206,23 @@ func (m *QueueMove) validateAssignedTo(formats strfmt.Registry) error {
 			}
 			return err
 		}
+	}
+
+	return nil
+}
+
+func (m *QueueMove) validateAvailableOfficeUsers(formats strfmt.Registry) error {
+	if swag.IsZero(m.AvailableOfficeUsers) { // not required
+		return nil
+	}
+
+	if err := m.AvailableOfficeUsers.Validate(formats); err != nil {
+		if ve, ok := err.(*errors.Validation); ok {
+			return ve.ValidateName("availableOfficeUsers")
+		} else if ce, ok := err.(*errors.CompositeError); ok {
+			return ce.ValidateName("availableOfficeUsers")
+		}
+		return err
 	}
 
 	return nil
@@ -472,6 +496,10 @@ func (m *QueueMove) ContextValidate(ctx context.Context, formats strfmt.Registry
 		res = append(res, err)
 	}
 
+	if err := m.contextValidateAvailableOfficeUsers(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.contextValidateCustomer(ctx, formats); err != nil {
 		res = append(res, err)
 	}
@@ -526,6 +554,20 @@ func (m *QueueMove) contextValidateAssignedTo(ctx context.Context, formats strfm
 			}
 			return err
 		}
+	}
+
+	return nil
+}
+
+func (m *QueueMove) contextValidateAvailableOfficeUsers(ctx context.Context, formats strfmt.Registry) error {
+
+	if err := m.AvailableOfficeUsers.ContextValidate(ctx, formats); err != nil {
+		if ve, ok := err.(*errors.Validation); ok {
+			return ve.ValidateName("availableOfficeUsers")
+		} else if ce, ok := err.(*errors.CompositeError); ok {
+			return ce.ValidateName("availableOfficeUsers")
+		}
+		return err
 	}
 
 	return nil
