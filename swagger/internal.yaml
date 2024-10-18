@@ -1489,6 +1489,11 @@ definitions:
         type: string
         format: uuid
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      counseling_office_id:
+        type: string
+        format: uuid
+        example: cf1addea-a4f9-4173-8506-2bb82a064cb7
+        x-nullable: true
       orders_number:
         type: string
         title: Orders Number
@@ -2757,6 +2762,9 @@ definitions:
       updated_at:
         type: string
         format: date-time
+      provides_services_counseling:
+        type: boolean
+        x-nullable: false
     required:
       - id
       - name
