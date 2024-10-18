@@ -830,6 +830,7 @@ func (suite *PayloadsSuite) TestMTOShipmentModelFromCreate_WithValidInput() {
 
 	result, _ := MTOShipmentModelFromCreate(&mtoShipment)
 
+	suite.Nil(err)
 	suite.NotNil(result)
 	suite.Equal(mtoShipment.MoveTaskOrderID.String(), result.MoveTaskOrderID.String())
 	suite.Nil(result.PrimeEstimatedWeight)
