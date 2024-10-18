@@ -3766,6 +3766,7 @@ definitions:
         type: boolean
         example: false
         x-omitempty: false
+        x-nullable: true
       signedCertification:
         $ref: '#/definitions/SignedCertification'
       eTag:

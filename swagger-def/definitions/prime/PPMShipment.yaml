@@ -168,6 +168,7 @@ properties:
     type: boolean
     example: false
     x-omitempty: false
+    x-nullable: true
   eTag:
     description: A hash unique to this shipment that should be used as the "If-Match" header for any updates.
     type: string

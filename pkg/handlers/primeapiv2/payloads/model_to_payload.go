@@ -433,7 +433,7 @@ func PPMShipment(ppmShipment *models.PPMShipment) *primev2messages.PPMShipment {
 		AdvanceAmountRequested:       handlers.FmtCost(ppmShipment.AdvanceAmountRequested),
 		HasReceivedAdvance:           ppmShipment.HasReceivedAdvance,
 		AdvanceAmountReceived:        handlers.FmtCost(ppmShipment.AdvanceAmountReceived),
-		IsActualExpenseReimbursement: *ppmShipment.IsActualExpenseReimbursement,
+		IsActualExpenseReimbursement: ppmShipment.IsActualExpenseReimbursement,
 		ETag:                         etag.GenerateEtag(ppmShipment.UpdatedAt),
 	}
 
@@ -443,7 +443,7 @@ func PPMShipment(ppmShipment *models.PPMShipment) *primev2messages.PPMShipment {
 	}
 
 	if ppmShipment.IsActualExpenseReimbursement != nil {
-		payloadPPMShipment.IsActualExpenseReimbursement = *ppmShipment.IsActualExpenseReimbursement
+		payloadPPMShipment.IsActualExpenseReimbursement = ppmShipment.IsActualExpenseReimbursement
 	}
 
 	return payloadPPMShipment

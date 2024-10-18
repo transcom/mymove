@@ -900,7 +900,7 @@ func PPMShipment(_ storage.FileStorer, ppmShipment *models.PPMShipment) *ghcmess
 		SitEstimatedEntryDate:          handlers.FmtDatePtr(ppmShipment.SITEstimatedEntryDate),
 		SitEstimatedDepartureDate:      handlers.FmtDatePtr(ppmShipment.SITEstimatedDepartureDate),
 		SitEstimatedCost:               handlers.FmtCost(ppmShipment.SITEstimatedCost),
-		IsActualExpenseReimbursement:   *ppmShipment.IsActualExpenseReimbursement,
+		IsActualExpenseReimbursement:   ppmShipment.IsActualExpenseReimbursement,
 		ETag:                           etag.GenerateEtag(ppmShipment.UpdatedAt),
 	}
 
@@ -935,7 +935,7 @@ func PPMShipment(_ storage.FileStorer, ppmShipment *models.PPMShipment) *ghcmess
 	}
 
 	if ppmShipment.IsActualExpenseReimbursement != nil {
-		payloadPPMShipment.IsActualExpenseReimbursement = *ppmShipment.IsActualExpenseReimbursement
+		payloadPPMShipment.IsActualExpenseReimbursement = ppmShipment.IsActualExpenseReimbursement
 	}
 
 	return payloadPPMShipment

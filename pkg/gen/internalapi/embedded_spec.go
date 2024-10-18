@@ -6180,6 +6180,7 @@ func init() {
         "isActualExpenseReimbursement": {
           "description": "Used for PPM shipments only. Denotes if this shipment uses the Actual Expense Reimbursement method.",
           "type": "boolean",
+          "x-nullable": true,
           "x-omitempty": false,
           "example": false
         },
@@ -14818,6 +14819,7 @@ func init() {
         "isActualExpenseReimbursement": {
           "description": "Used for PPM shipments only. Denotes if this shipment uses the Actual Expense Reimbursement method.",
           "type": "boolean",
+          "x-nullable": true,
           "x-omitempty": false,
           "example": false
         },
