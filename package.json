@@ -20,7 +20,7 @@
     "customize-cra": "^1.0.0",
     "deep-object-diff": "^1.1.9",
     "dotenv": "^16.3.1",
-    "eslint-plugin-react": "^7.34",
+    "eslint-plugin-react": "^7.37",
     "filepond": "^4.31.1",
     "filepond-plugin-file-validate-size": "^2.2.8",
     "filepond-plugin-file-validate-type": "^1.2.9",
