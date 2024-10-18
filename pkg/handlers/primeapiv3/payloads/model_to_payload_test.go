@@ -802,3 +802,30 @@ func (suite *PayloadsSuite) TestStorageFacility() {
 	result := StorageFacility(storage)
 	suite.NotNil(result)
 }
+
+func (suite *PayloadsSuite) TestBoatShipment() {
+	id, _ := uuid.NewV4()
+	year := 2000
+	make := "Test Make"
+	model := "Test Model"
+	lengthInInches := 400
+	widthInInches := 320
+	heightInInches := 300
+	hasTrailer := true
+	IsRoadworthy := false
+	boatShipment := &models.BoatShipment{
+		ID:             id,
+		Type:           models.BoatShipmentTypeHaulAway,
+		Year:           &year,
+		Make:           &make,
+		Model:          &model,
+		LengthInInches: &lengthInInches,
+		WidthInInches:  &widthInInches,
+		HeightInInches: &heightInInches,
+		HasTrailer:     &hasTrailer,
+		IsRoadworthy:   &IsRoadworthy,
+	}
+
+	result := BoatShipment(boatShipment)
+	suite.NotNil(result)
+}
