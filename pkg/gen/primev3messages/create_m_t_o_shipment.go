@@ -45,7 +45,7 @@ type CreateMTOShipment struct {
 	// Example: handle with care
 	CustomerRemarks *string `json:"customerRemarks,omitempty"`
 
-	// Where the movers should deliver this shipment.
+	// primary location the movers should deliver this shipment.
 	DestinationAddress struct {
 		Address
 	} `json:"destinationAddress,omitempty"`
@@ -71,7 +71,7 @@ type CreateMTOShipment struct {
 
 	mtoServiceItemsField []MTOServiceItem
 
-	// The address where the movers should pick up this shipment.
+	// The primary address where the movers should pick up this shipment.
 	PickupAddress struct {
 		Address
 	} `json:"pickupAddress,omitempty"`
@@ -94,7 +94,7 @@ type CreateMTOShipment struct {
 	// Format: date
 	RequestedPickupDate *strfmt.Date `json:"requestedPickupDate,omitempty"`
 
-	// The second address where the movers should deliver this shipment.
+	// second location where the movers should deliver this shipment.
 	SecondaryDestinationAddress struct {
 		Address
 	} `json:"secondaryDestinationAddress,omitempty"`
@@ -108,7 +108,7 @@ type CreateMTOShipment struct {
 	// Required: true
 	ShipmentType *MTOShipmentType `json:"shipmentType"`
 
-	// The third address where the movers should deliver this shipment.
+	// third location where the movers should deliver this shipment.
 	TertiaryDestinationAddress struct {
 		Address
 	} `json:"tertiaryDestinationAddress,omitempty"`
