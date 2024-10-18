@@ -259,16 +259,12 @@ export default function ReviewBillableWeight() {
   if (isLoading) return <LoadingPlaceholder />;
   if (isError) return <SomethingWentWrong />;
 
-  const fileList = getAllFiles();
-  const ppmFileList = getAllPPMShipmentFiles(selectedShipment.ppmShipment);
+  const fileList =
+    selectedShipment.shipmentType !== 'PPM' ? getAllFiles() : getAllPPMShipmentFiles(selectedShipment.ppmShipment);
   return (
     <div className={styles.DocumentWrapper}>
       <div className={styles.embed}>
-        {selectedShipment.shipmentType !== 'PPM' ? (
-          <DocumentViewer files={fileList} />
-        ) : (
-          <DocumentViewer files={ppmFileList} />
-        )}
+        <DocumentViewer files={fileList} />
       </div>
       <div className={reviewBillableWeightStyles.reviewWeightSideBar}>
         {sidebarType === 'MAX' ? (
