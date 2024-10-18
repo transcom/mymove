@@ -22,9 +22,9 @@ const formatChangedValues = (historyRecord) => {
 
 export default {
   action: a.INSERT,
-  eventName: o.createOrders,
-  tableName: t.moves,
-  getEventNameDisplay: () => 'Created move',
+  eventName: o.createOrder,
+  tableName: t.orders,
+  getEventNameDisplay: () => 'Created orders',
   getDetails: (historyRecord) => {
     return <LabeledDetails historyRecord={formatChangedValues(historyRecord)} />;
   },
