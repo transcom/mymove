@@ -17,7 +17,7 @@ import (
 const MoveCancelerOKCode int = 200
 
 /*
-MoveCancelerOK Successfully cancelled move
+MoveCancelerOK Successfully canceled move
 
 swagger:response moveCancelerOK
 */

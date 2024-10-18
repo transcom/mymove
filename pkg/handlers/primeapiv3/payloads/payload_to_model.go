@@ -343,6 +343,12 @@ func PPMShipmentModelFromCreate(ppmShipment *primev3messages.CreatePPMShipment) 
 		model.HasTertiaryPickupAddress = handlers.FmtBool(true)
 	}
 
+	addressModel = AddressModel(&ppmShipment.TertiaryPickupAddress.Address)
+	if addressModel != nil {
+		model.TertiaryPickupAddress = addressModel
+		model.HasTertiaryPickupAddress = handlers.FmtBool(true)
+	}
+
 	addressModel = PPMDestinationAddressModel(&ppmShipment.DestinationAddress.PPMDestinationAddress)
 	if addressModel != nil {
 		model.DestinationAddress = addressModel
@@ -352,6 +358,12 @@ func PPMShipmentModelFromCreate(ppmShipment *primev3messages.CreatePPMShipment) 
 	if addressModel != nil {
 		model.SecondaryDestinationAddress = addressModel
 		model.HasSecondaryDestinationAddress = handlers.FmtBool(true)
+	}
+
+	addressModel = AddressModel(&ppmShipment.TertiaryDestinationAddress.Address)
+	if addressModel != nil {
+		model.TertiaryDestinationAddress = addressModel
+		model.HasTertiaryDestinationAddress = handlers.FmtBool(true)
 	}
 
 	addressModel = AddressModel(&ppmShipment.TertiaryDestinationAddress.Address)

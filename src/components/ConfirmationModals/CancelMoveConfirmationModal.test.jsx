@@ -11,17 +11,17 @@ beforeEach(() => {
   onSubmit = jest.fn();
 });
 
-describe('DeleteCustomerSupportRemarkConfirmationModal', () => {
-  const moveId = '123456';
+describe('CancelMoveConfirmationModal', () => {
+  const moveID = '123456';
 
   it('renders the component', async () => {
-    render(<CancelMoveConfirmationModal onSubmit={onSubmit} onClose={onClose} moveId={moveId} />);
+    render(<CancelMoveConfirmationModal onSubmit={onSubmit} onClose={onClose} moveID={moveID} />);
 
-    expect(await screen.findByRole('heading', { level: 3, name: 'Cancel this move?' })).toBeInTheDocument();
+    expect(await screen.findByRole('heading', { level: 3, name: 'Are you sure?' })).toBeInTheDocument();
   });
 
   it('closes the modal when close icon is clicked', async () => {
-    render(<CancelMoveConfirmationModal onSubmit={onSubmit} onClose={onClose} moveId={moveId} />);
+    render(<CancelMoveConfirmationModal onSubmit={onSubmit} onClose={onClose} shipmentID={moveID} />);
 
     const closeButton = await screen.findByTestId('modalCloseButton');
 
@@ -31,23 +31,23 @@ describe('DeleteCustomerSupportRemarkConfirmationModal', () => {
   });
 
   it('closes the modal when the keep button is clicked', async () => {
-    render(<CancelMoveConfirmationModal onSubmit={onSubmit} onClose={onClose} moveId={moveId} />);
+    render(<CancelMoveConfirmationModal onSubmit={onSubmit} onClose={onClose} moveID={moveID} />);
 
-    const keepButton = await screen.findByRole('button', { name: 'No, Keep it' });
+    const keepButton = await screen.findByRole('button', { name: 'Keep move' });
 
     await userEvent.click(keepButton);
 
     expect(onClose).toHaveBeenCalledTimes(1);
   });
 
-  it('calls the submit function when delete button is clicked', async () => {
-    render(<CancelMoveConfirmationModal onSubmit={onSubmit} onClose={onClose} moveId={moveId} />);
+  it('calls the submit function when cancel button is clicked', async () => {
+    render(<CancelMoveConfirmationModal onSubmit={onSubmit} onClose={onClose} moveID={moveID} />);
 
-    const deleteButton = await screen.findByRole('button', { name: 'Yes, Cancel' });
+    const cancelButton = await screen.findByRole('button', { name: 'Cancel move' });
 
-    await userEvent.click(deleteButton);
+    await userEvent.click(cancelButton);
 
-    expect(onSubmit).toHaveBeenCalledWith(moveId);
+    expect(onSubmit).toHaveBeenCalledWith(moveID);
     expect(onSubmit).toHaveBeenCalledTimes(1);
   });
 });
