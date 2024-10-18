@@ -148,6 +148,21 @@ func checkPrimeDeleteAllowed() validator {
 		return nil
 	})
 }
+func isTertiaryAddressPresentWithoutSecondaryMTO(mtoShipmentToCheck models.MTOShipment) bool {
+	return (models.IsAddressEmpty(mtoShipmentToCheck.SecondaryPickupAddress) && !models.IsAddressEmpty(mtoShipmentToCheck.TertiaryPickupAddress)) || (models.IsAddressEmpty(mtoShipmentToCheck.SecondaryDeliveryAddress) && !models.IsAddressEmpty(mtoShipmentToCheck.TertiaryDeliveryAddress))
+}
+
+func checkThatMTOShipmentHasTertiaryAddressWithNoSecondaryAddress() validator {
+	return validatorFunc(func(appCtx appcontext.AppContext, newer *models.MTOShipment, older *models.MTOShipment) error {
+		verrs := validate.NewErrors()
+		check := isTertiaryAddressPresentWithoutSecondaryMTO(*newer)
+		if check {
+			verrs.Add("missing secondary address for pickup/destination address", "tertiary address cannot be added to an MTO shipment without a second address")
+			return verrs
+		}
+		return nil
+	})
+}
 
 // This function checks Prime specific validations on the model
 // It expects older to represent what's in the db and mtoShipment to represent the requested update
