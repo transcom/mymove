@@ -19,7 +19,6 @@ export const CloseoutOfficeInput = (props) => {
         value: field.value,
         onChange: helpers.setValue,
         name,
-        locationState: () => {},
       }}
       errorMsg={errorString}
       displayAddress={displayAddress}

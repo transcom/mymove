@@ -6,8 +6,7 @@ import ShipmentInfoList from 'components/Office/DefinitionLists/ShipmentInfoList
 import PPMShipmentInfoList from 'components/Office/DefinitionLists/PPMShipmentInfoList';
 import NTSRShipmentInfoList from 'components/Office/DefinitionLists/NTSRShipmentInfoList';
 import NTSShipmentInfoList from 'components/Office/DefinitionLists/NTSShipmentInfoList';
-import BoatShipmentInfoList from 'components/Office/DefinitionLists/BoatShipmentInfoList';
-import { SHIPMENT_OPTIONS, SHIPMENT_TYPES } from 'shared/constants';
+import { SHIPMENT_OPTIONS } from 'shared/constants';
 import { fieldValidationShape } from 'utils/displayFlags';
 
 const ShipmentInfoListSelector = ({
@@ -77,22 +76,6 @@ const ShipmentInfoListSelector = ({
           showWhenCollapsed={showWhenCollapsed}
           neverShow={neverShow}
           isForEvaluationReport={isForEvaluationReport}
-        />
-      );
-    case SHIPMENT_OPTIONS.BOAT:
-    case SHIPMENT_TYPES.BOAT_HAUL_AWAY:
-    case SHIPMENT_TYPES.BOAT_TOW_AWAY:
-      return (
-        <BoatShipmentInfoList
-          className={className}
-          shipment={shipment}
-          isExpanded={isExpanded}
-          warnIfMissing={warnIfMissing}
-          errorIfMissing={errorIfMissing}
-          shipmentType={shipmentType}
-          showWhenCollapsed={showWhenCollapsed}
-          isForEvaluationReport={isForEvaluationReport}
-          destinationDutyLocationPostalCode={destinationDutyLocationPostalCode}
         />
       );
     default:

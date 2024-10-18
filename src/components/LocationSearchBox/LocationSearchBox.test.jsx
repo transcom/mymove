@@ -202,10 +202,9 @@ describe('LocationSearchBoxContainer', () => {
   describe('selecting options', () => {
     it('selects an option, calls the onChange callback prop', async () => {
       const onChange = jest.fn();
-      const locationState = jest.fn();
       render(
         <LocationSearchBox
-          input={{ name: 'test_component', onChange, locationState }}
+          input={{ name: 'test_component', onChange }}
           title="Test Component"
           name="test_component"
           searchLocations={mockLocationSearch}

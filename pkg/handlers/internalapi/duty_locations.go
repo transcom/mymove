@@ -21,15 +21,14 @@ func payloadForDutyLocationModel(location models.DutyLocation) *internalmessages
 		return nil
 	}
 	payload := internalmessages.DutyLocationPayload{
-		ID:                         handlers.FmtUUID(location.ID),
-		CreatedAt:                  handlers.FmtDateTime(location.CreatedAt),
-		UpdatedAt:                  handlers.FmtDateTime(location.UpdatedAt),
-		Name:                       models.StringPointer(location.Name),
-		Affiliation:                location.Affiliation,
-		AddressID:                  handlers.FmtUUID(location.AddressID),
-		Address:                    payloads.Address(&location.Address),
-		TransportationOfficeID:     handlers.FmtUUIDPtr(location.TransportationOfficeID),
-		ProvidesServicesCounseling: location.ProvidesServicesCounseling,
+		ID:                     handlers.FmtUUID(location.ID),
+		CreatedAt:              handlers.FmtDateTime(location.CreatedAt),
+		UpdatedAt:              handlers.FmtDateTime(location.UpdatedAt),
+		Name:                   models.StringPointer(location.Name),
+		Affiliation:            location.Affiliation,
+		AddressID:              handlers.FmtUUID(location.AddressID),
+		Address:                payloads.Address(&location.Address),
+		TransportationOfficeID: handlers.FmtUUIDPtr(location.TransportationOfficeID),
 	}
 	payload.TransportationOffice = payloads.TransportationOffice(location.TransportationOffice)
 

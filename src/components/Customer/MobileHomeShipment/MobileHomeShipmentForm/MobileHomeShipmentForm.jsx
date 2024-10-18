@@ -271,7 +271,7 @@ const MobileHomeShipmentForm = ({ mtoShipment, onBack, onSubmit }) => {
                     Examples
                     <ul>
                       <li>
-                        Dimensions of the mobile home on the trailer are significantly different than one would expect
+                        Dimensions of the mobile home on the trailer are signigicantly different than one would expect
                         given their individual dimensions
                       </li>
 

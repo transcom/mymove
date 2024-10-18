@@ -243,15 +243,6 @@ func (h CreateOrdersHandler) Handle(params ordersop.CreateOrdersParams) middlewa
 			moveOptions := models.MoveOptions{
 				Show: models.BoolPointer(true),
 			}
-
-			if payload.CounselingOfficeID != nil {
-				counselingOffice, err := uuid.FromString(payload.CounselingOfficeID.String())
-				if err != nil {
-					return handlers.ResponseForError(appCtx.Logger(), err), err
-				}
-				moveOptions.CounselingOfficeID = &counselingOffice
-			}
-
 			newMove, verrs, err := newOrder.CreateNewMove(appCtx.DB(), moveOptions)
 			if err != nil || verrs.HasAny() {
 				return handlers.ResponseForVErrors(appCtx.Logger(), verrs, err), err

@@ -61,7 +61,7 @@ func (suite *HandlerSuite) TestLinesOfAccountingRequestLineOfAccountingHandler()
 	testCases := []struct {
 		name                         string
 		shouldGenerateGoodTacAndLoa  bool
-		departmentIndicator          *string
+		serviceMemberAffiliation     *string
 		effectiveDate                *strfmt.Date
 		tacCode                      *string
 		expectedResponse             middleware.Responder
@@ -71,7 +71,7 @@ func (suite *HandlerSuite) TestLinesOfAccountingRequestLineOfAccountingHandler()
 		{
 			name:                         "Returns a 200 on fetching a good TAC and LOA",
 			shouldGenerateGoodTacAndLoa:  true,
-			departmentIndicator:          models.StringPointer(models.DepartmentIndicatorARMY.String()),
+			serviceMemberAffiliation:     models.StringPointer(models.AffiliationARMY.String()),
 			effectiveDate:                (*strfmt.Date)(models.TimePointer(time.Now())),
 			tacCode:                      models.StringPointer("GOOD"),
 			shouldTheBodyBeCompletelyNil: false,
@@ -80,16 +80,16 @@ func (suite *HandlerSuite) TestLinesOfAccountingRequestLineOfAccountingHandler()
 		{
 			name:                         "Returns a 400 on nil body",
 			shouldGenerateGoodTacAndLoa:  false,
-			departmentIndicator:          nil,
+			serviceMemberAffiliation:     nil,
 			effectiveDate:                nil,
 			tacCode:                      nil,
 			shouldTheBodyBeCompletelyNil: true,
 			expectedResponse:             &linesofaccountingop.RequestLineOfAccountingBadRequest{},
 		},
 		{
-			name:                         "Returns a 400 on nil department indicator",
+			name:                         "Returns a 400 on nil affiliation",
 			shouldGenerateGoodTacAndLoa:  false,
-			departmentIndicator:          nil,
+			serviceMemberAffiliation:     nil,
 			effectiveDate:                nil,
 			tacCode:                      nil,
 			shouldTheBodyBeCompletelyNil: false,
@@ -98,7 +98,7 @@ func (suite *HandlerSuite) TestLinesOfAccountingRequestLineOfAccountingHandler()
 		{
 			name:                         "Return 200 if TAC cannot be found",
 			shouldGenerateGoodTacAndLoa:  false,
-			departmentIndicator:          models.StringPointer(models.DepartmentIndicatorARMY.String()),
+			serviceMemberAffiliation:     models.StringPointer(models.AffiliationARMY.String()),
 			effectiveDate:                (*strfmt.Date)(models.TimePointer(time.Now())),
 			tacCode:                      models.StringPointer("BAD"), // This may break in the future if TAC codes are enforced to be a minimum of 4 characters
 			shouldTheBodyBeCompletelyNil: false,
@@ -120,10 +120,10 @@ func (suite *HandlerSuite) TestLinesOfAccountingRequestLineOfAccountingHandler()
 			}
 
 			// Handle nil body
-			var departmentIndicator *ghcmessages.DepartmentIndicator
-			if tc.departmentIndicator != nil {
-				deptIndicator := ghcmessages.DepartmentIndicator(*tc.departmentIndicator)
-				departmentIndicator = &deptIndicator
+			var serviceMemberAffiliation *ghcmessages.Affiliation
+			if tc.serviceMemberAffiliation != nil {
+				affiliation := ghcmessages.Affiliation(*tc.serviceMemberAffiliation)
+				serviceMemberAffiliation = &affiliation
 			}
 
 			var effectiveDate strfmt.Date
@@ -139,9 +139,9 @@ func (suite *HandlerSuite) TestLinesOfAccountingRequestLineOfAccountingHandler()
 			var body *ghcmessages.FetchLineOfAccountingPayload
 			if !tc.shouldTheBodyBeCompletelyNil {
 				body = &ghcmessages.FetchLineOfAccountingPayload{
-					DepartmentIndicator: departmentIndicator,
-					EffectiveDate:       effectiveDate,
-					TacCode:             tacCode,
+					ServiceMemberAffiliation: serviceMemberAffiliation,
+					EffectiveDate:            effectiveDate,
+					TacCode:                  tacCode,
 				}
 			}
 
@@ -164,13 +164,13 @@ func (suite *HandlerSuite) TestLinesOfAccountingRequestLineOfAccountingHandler()
 			LineOfAccountingFetcher: mockLoaFetcher,
 		}
 		req := httptest.NewRequest("POST", "/lines-of-accounting", nil)
-		departmentIndicator := ghcmessages.DepartmentIndicator(models.DepartmentIndicatorARMY)
+		affiliation := ghcmessages.Affiliation(models.AffiliationARMY)
 		params := linesofaccountingop.RequestLineOfAccountingParams{
 			HTTPRequest: req,
 			Body: &ghcmessages.FetchLineOfAccountingPayload{
-				DepartmentIndicator: &departmentIndicator,
-				EffectiveDate:       strfmt.Date(time.Now()),
-				TacCode:             "MOCK",
+				ServiceMemberAffiliation: &affiliation,
+				EffectiveDate:            strfmt.Date(time.Now()),
+				TacCode:                  "MOCK",
 			},
 		}
 
@@ -187,13 +187,13 @@ func (suite *HandlerSuite) TestLinesOfAccountingRequestLineOfAccountingHandler()
 			LineOfAccountingFetcher: mockLoaFetcher,
 		}
 		req := httptest.NewRequest("POST", "/lines-of-accounting", nil)
-		departmentIndicator := ghcmessages.DepartmentIndicator(models.DepartmentIndicatorARMY)
+		affiliation := ghcmessages.Affiliation(models.AffiliationARMY)
 		params := linesofaccountingop.RequestLineOfAccountingParams{
 			HTTPRequest: req,
 			Body: &ghcmessages.FetchLineOfAccountingPayload{
-				DepartmentIndicator: &departmentIndicator,
-				EffectiveDate:       strfmt.Date(time.Now()),
-				TacCode:             "MOCK",
+				ServiceMemberAffiliation: &affiliation,
+				EffectiveDate:            strfmt.Date(time.Now()),
+				TacCode:                  "MOCK",
 			},
 		}
 

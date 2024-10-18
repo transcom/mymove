@@ -50,10 +50,10 @@ export default function BillableWeightCard({
           <Button
             onClick={onReviewWeights}
             secondary={secondaryReviewWeightsBtn}
-            style={{ maxWidth: '240px' }}
+            style={{ maxWidth: '160px' }}
             disabled={!shipments.length > 0 || isMoveLocked}
           >
-            Review shipment weights
+            Review weights
           </Button>
         </Restricted>
       </div>

@@ -165,9 +165,6 @@ describe('ServiceItemDetails Domestic Destination SIT', () => {
 
     expect(screen.queryByText('SIT departure date:')).not.toBeInTheDocument();
     expect(screen.queryByText('16 Mar 2024')).not.toBeInTheDocument();
-    expect(screen.getByText('Download service item documentation:')).toBeInTheDocument();
-    const downloadLink = screen.getByText('receipt.pdf');
-    expect(downloadLink).toBeInstanceOf(HTMLAnchorElement);
   });
 
   it('renders DDDSIT details', () => {
@@ -189,9 +186,6 @@ describe('ServiceItemDetails Domestic Destination SIT', () => {
 
     expect(screen.getByText('SIT departure date:')).toBeInTheDocument();
     expect(screen.getByText('16 Mar 2024')).toBeInTheDocument();
-    expect(screen.getByText('Download service item documentation:')).toBeInTheDocument();
-    const downloadLink = screen.getByText('receipt.pdf');
-    expect(downloadLink).toBeInstanceOf(HTMLAnchorElement);
   });
   it('renders DDDSIT details with - for the final delivery address is service item is in submitted state', () => {
     render(

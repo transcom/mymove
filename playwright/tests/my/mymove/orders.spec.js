@@ -33,20 +33,17 @@ test.describe('Orders', () => {
     //
     await page.locator('div:has(label:has-text("Are dependents")) >> div.usa-radio').getByText('No').click();
 
-    await customerPage.selectDutyLocation('Marine Corps AS Yuma, AZ 85369', 'new_duty_location');
+    await customerPage.selectDutyLocation('Yuma AFB', 'new_duty_location');
     await page.keyboard.press('Backspace'); // tests if backspace clears the duty location field
     await expect(page.getByLabel('New duty location')).toBeEmpty();
-    await customerPage.selectDutyLocation('Marine Corps AS Yuma, AZ 85369', 'new_duty_location');
+    await customerPage.selectDutyLocation('Yuma AFB', 'new_duty_location');
 
-    await customerPage.selectDutyLocation('Marine Corps AS Yuma, AZ 85369', 'origin_duty_location');
+    await customerPage.selectDutyLocation('Yuma AFB', 'origin_duty_location');
     await page.keyboard.press('Backspace'); // tests if backspace clears the duty location field
     await expect(page.getByLabel('Current duty location')).toBeEmpty();
-    await customerPage.selectDutyLocation('Marine Corps AS Yuma, AZ 85369', 'origin_duty_location');
+    await customerPage.selectDutyLocation('Yuma AFB', 'origin_duty_location');
 
     await page.getByRole('combobox', { name: 'Pay grade' }).selectOption({ label: 'E-7' });
-    await page
-      .getByRole('combobox', { name: 'Counseling Office' })
-      .selectOption({ label: 'PPPO DMO Camp Pendleton - USMC' });
 
     await customerPage.navigateForward();
     await customerPage.waitForPage.ordersUpload();
@@ -97,20 +94,17 @@ test.describe('(MultiMove) Orders', () => {
     //
     await page.locator('div:has(label:has-text("Are dependents")) >> div.usa-radio').getByText('No').click();
 
-    await customerPage.selectDutyLocation('Marine Corps AS Yuma, AZ 85369', 'new_duty_location');
+    await customerPage.selectDutyLocation('Yuma AFB', 'new_duty_location');
     await page.keyboard.press('Backspace'); // tests if backspace clears the duty location field
     await expect(page.getByLabel('New duty location')).toBeEmpty();
-    await customerPage.selectDutyLocation('Marine Corps AS Yuma, AZ 85369', 'new_duty_location');
+    await customerPage.selectDutyLocation('Yuma AFB', 'new_duty_location');
 
-    await customerPage.selectDutyLocation('Marine Corps AS Yuma, AZ 85369', 'origin_duty_location');
+    await customerPage.selectDutyLocation('Yuma AFB', 'origin_duty_location');
     await page.keyboard.press('Backspace'); // tests if backspace clears the duty location field
     await expect(page.getByLabel('Current duty location')).toBeEmpty();
-    await customerPage.selectDutyLocation('Marine Corps AS Yuma, AZ 85369', 'origin_duty_location');
+    await customerPage.selectDutyLocation('Yuma AFB', 'origin_duty_location');
 
     await page.getByRole('combobox', { name: 'Pay grade' }).selectOption({ label: 'E-7' });
-    await page
-      .getByRole('combobox', { name: 'Counseling Office' })
-      .selectOption({ label: 'PPPO DMO Camp Pendleton - USMC' });
 
     await customerPage.navigateForward();
     await customerPage.waitForPage.ordersUpload();
