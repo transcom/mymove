@@ -18,6 +18,10 @@ type ShipmentBillableWeightCalculator struct {
 func (_m *ShipmentBillableWeightCalculator) CalculateShipmentBillableWeight(shipment *models.MTOShipment) services.BillableWeightInputs {
 	ret := _m.Called(shipment)
 
+	if len(ret) == 0 {
+		panic("no return value specified for CalculateShipmentBillableWeight")
+	}
+
 	var r0 services.BillableWeightInputs
 	if rf, ok := ret.Get(0).(func(*models.MTOShipment) services.BillableWeightInputs); ok {
 		r0 = rf(shipment)

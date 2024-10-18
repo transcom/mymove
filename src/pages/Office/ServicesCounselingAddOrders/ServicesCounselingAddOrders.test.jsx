@@ -6,6 +6,7 @@ import ServicesCounselingAddOrders from './ServicesCounselingAddOrders';
 
 import { MockProviders } from 'testUtils';
 import { counselingCreateOrder } from 'services/ghcApi';
+import { setCanAddOrders } from 'store/general/actions';
 
 const mockNavigate = jest.fn();
 jest.mock('react-router-dom', () => ({
@@ -20,6 +21,14 @@ jest.mock('services/ghcApi', () => ({
 
 jest.mock('services/internalApi', () => ({
   ...jest.requireActual('services/internalApi'),
+}));
+
+jest.mock('store/general/actions', () => ({
+  ...jest.requireActual('store/general/actions'),
+  setCanAddOrders: jest.fn().mockImplementation(() => ({
+    type: '',
+    payload: '',
+  })),
 }));
 
 jest.mock('components/LocationSearchBox/api', () => ({
@@ -286,9 +295,10 @@ const fakeResponse = {
 };
 
 const renderWithMocks = () => {
+  const testProps = { customer, setCanAddOrders: jest.fn() };
   render(
     <MockProviders>
-      <ServicesCounselingAddOrders customer={customer} />
+      <ServicesCounselingAddOrders {...testProps} />
     </MockProviders>,
   );
 };
@@ -333,6 +343,7 @@ describe('ServicesCounselingAddOrders component', () => {
     await userEvent.click(nextBtn);
 
     await waitFor(() => {
+      expect(setCanAddOrders).toHaveBeenCalledWith(false);
       expect(mockNavigate).toHaveBeenCalledWith('/counseling/moves/MM8CXJ/details');
     });
   });
