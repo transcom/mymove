@@ -45,7 +45,7 @@
     "query-string": "7",
     "ra-language-english": "^4.16.15",
     "react": "^17.0.1",
-    "react-admin": "^4.12.3",
+    "react-admin": "^4.16.20",
     "react-admin-import-csv": "^4.0.0",
     "react-app-polyfill": "^3.0.0",
     "react-csv": "^2.2.2",
