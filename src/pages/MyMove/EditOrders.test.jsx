@@ -4,7 +4,7 @@ import userEvent from '@testing-library/user-event';
 
 import EditOrders from './EditOrders';
 
-import { getOrders, patchOrders } from 'services/internalApi';
+import { getOrders, patchOrders, showCounselingOffices } from 'services/internalApi';
 import { renderWithProviders } from 'testUtils';
 import { customerRoutes } from 'constants/routes';
 import {
@@ -31,6 +31,20 @@ jest.mock('services/internalApi', () => ({
   getOrders: jest.fn().mockImplementation(() => Promise.resolve()),
   patchOrders: jest.fn().mockImplementation(() => Promise.resolve()),
   getAllMoves: jest.fn().mockImplementation(() => Promise.resolve()),
+  showCounselingOffices: jest.fn().mockImplementation(() =>
+    Promise.resolve({
+      body: [
+        {
+          id: '3e937c1f-5539-4919-954d-017989130584',
+          name: 'Albuquerque AFB',
+        },
+        {
+          id: 'fa51dab0-4553-4732-b843-1f33407f77bc',
+          name: 'Glendale Luke AFB',
+        },
+      ],
+    }),
+  ),
 }));
 
 describe('EditOrders Page', () => {
@@ -312,6 +326,7 @@ describe('EditOrders Page', () => {
   });
 
   it('goes back to the previous page when the cancel button is clicked', async () => {
+    showCounselingOffices.mockImplementation(() => Promise.resolve({}));
     renderWithProviders(<EditOrders {...testProps} />, {
       path: customerRoutes.ORDERS_EDIT_PATH,
       params: { moveId: 'testMoveId', orderId: 'testOrders1' },
