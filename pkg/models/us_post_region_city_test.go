@@ -7,11 +7,10 @@ import (
 
 func (suite *ModelSuite) TestCanSaveValidUsPostRegionCity() {
 	usPostRegionCity := models.UsPostRegionCity{
-		UsprZipID:               "12345",
-		USPostRegionCityNm:      "USPRC City",
-		UsprcPrfdLstLineCtystNm: "USPRC Preferred City Name",
-		UsprcCountyNm:           "USPRC County",
-		CtryGencDgphCd:          "US",
+		UsprZipID:          "12345",
+		USPostRegionCityNm: "USPRC City",
+		UsprcCountyNm:      "USPRC County",
+		CtryGencDgphCd:     "US",
 	}
 
 	suite.MustCreate(&usPostRegionCity)
@@ -21,11 +20,10 @@ func (suite *ModelSuite) TestInvalidUsPostRegionCity() {
 	usPostRegionCity := models.UsPostRegionCity{}
 
 	expErrors := map[string][]string{
-		"uspr_zip_id":                  {"UsprZipID not in range(5, 5)"},
-		"ctry_genc_dgph_cd":            {"CtryGencDgphCd not in range(2, 2)"},
-		"uspost_region_city_nm":        {"USPostRegionCityNm can not be blank."},
-		"usprc_prfd_lst_line_ctyst_nm": {"UsprcPrfdLstLineCtystNm can not be blank."},
-		"usprc_county_nm":              {"UsprcCountyNm can not be blank."},
+		"uspr_zip_id":           {"UsprZipID not in range(5, 5)"},
+		"ctry_genc_dgph_cd":     {"CtryGencDgphCd not in range(2, 2)"},
+		"uspost_region_city_nm": {"USPostRegionCityNm can not be blank."},
+		"usprc_county_nm":       {"UsprcCountyNm can not be blank."},
 	}
 
 	suite.verifyValidationErrors(&usPostRegionCity, expErrors)
@@ -47,11 +45,10 @@ func (suite *ModelSuite) TestCanSaveAndFetchUsPostRegionCity() {
 func (suite *ModelSuite) TestFindCountyByZipCode() {
 	// Create a dummy USPRC
 	usPostRegionCity := models.UsPostRegionCity{
-		UsprZipID:               "00000",
-		USPostRegionCityNm:      "00000 City Name",
-		UsprcPrfdLstLineCtystNm: "00000 Preferred City Name",
-		UsprcCountyNm:           "00000's County",
-		CtryGencDgphCd:          "US",
+		UsprZipID:          "00000",
+		USPostRegionCityNm: "00000 City Name",
+		UsprcCountyNm:      "00000's County",
+		CtryGencDgphCd:     "US",
 	}
 
 	suite.MustCreate(&usPostRegionCity)
