@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { useMutation } from '@tanstack/react-query';
-import { func, number, object, PropTypes } from 'prop-types';
+import { func, number, string, object, PropTypes } from 'prop-types';
 import { Field, Formik } from 'formik';
 import classnames from 'classnames';
 import { Alert, FormGroup, Label, Radio, Textarea } from '@trussworks/react-uswds';
@@ -433,7 +433,7 @@ ReviewWeightTicket.propTypes = {
   weightTicket: WeightTicketShape,
   mtoShipment: ShipmentShape,
   tripNumber: number.isRequired,
-  ppmNumber: number.isRequired,
+  ppmNumber: string.isRequired,
   onSuccess: func,
   formRef: object,
   currentMtoShipments: PropTypes.arrayOf(ShipmentShape),

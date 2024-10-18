@@ -335,7 +335,6 @@ describe('ReviewDocuments', () => {
       });
       expect(await screen.findByRole('heading', { name: 'Send to customer?', level: 3 })).toBeInTheDocument();
 
-      await userEvent.click(screen.getByTestId('shipmentInfo-showRequestDetailsButton'));
       await waitFor(() => {
         expect(screen.getByText('Show Details', { exact: false })).toBeInTheDocument();
       });

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useMutation } from '@tanstack/react-query';
-import { func, number, object } from 'prop-types';
+import { func, number, string, object } from 'prop-types';
 import { Field, Formik } from 'formik';
 import classnames from 'classnames';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -292,7 +292,7 @@ export default function ReviewProGear({
 ReviewProGear.propTypes = {
   proGear: ProGearTicketShape,
   tripNumber: number.isRequired,
-  ppmNumber: number.isRequired,
+  ppmNumber: string.isRequired,
   onSuccess: func,
   formRef: object,
 };
