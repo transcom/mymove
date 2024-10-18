@@ -5,7 +5,7 @@ import { act } from 'react-dom/test-utils';
 
 import AddOrders from './AddOrders';
 
-import { createOrders, getServiceMember } from 'services/internalApi';
+import { createOrders, getServiceMember, showCounselingOffices } from 'services/internalApi';
 import { renderWithProviders } from 'testUtils';
 import { customerRoutes, generalRoutes } from 'constants/routes';
 import { selectCanAddOrders, selectServiceMemberFromLoggedInUser } from 'store/entities/selectors';
@@ -16,6 +16,20 @@ jest.mock('services/internalApi', () => ({
   getServiceMember: jest.fn().mockImplementation(() => Promise.resolve()),
   getResponseError: jest.fn().mockImplementation(() => Promise.resolve()),
   createOrders: jest.fn().mockImplementation(() => Promise.resolve()),
+  showCounselingOffices: jest.fn().mockImplementation(() =>
+    Promise.resolve({
+      body: [
+        {
+          id: '3e937c1f-5539-4919-954d-017989130584',
+          name: 'Albuquerque AFB',
+        },
+        {
+          id: 'fa51dab0-4553-4732-b843-1f33407f77bc',
+          name: 'Glendale Luke AFB',
+        },
+      ],
+    }),
+  ),
 }));
 
 jest.mock('store/entities/selectors', () => ({
@@ -194,6 +208,7 @@ describe('Add Orders page', () => {
   };
 
   it('renders all content of Orders component', async () => {
+    showCounselingOffices.mockImplementation(() => Promise.resolve({}));
     selectServiceMemberFromLoggedInUser.mockImplementation(() => serviceMember);
     renderWithProviders(<AddOrders {...testProps} />, {
       path: customerRoutes.ORDERS_ADD_PATH,
