@@ -636,6 +636,7 @@ const ServicesCounselingQueue = ({ userPrivileges, currentUserId, isQueueManagem
           sessionStorageKey={queueType}
           key={queueType}
           isSupervisor={!!supervisor}
+          currentUserId={currentUserId}
         />
       </div>
     );
