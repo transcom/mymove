@@ -339,9 +339,9 @@ describe('PrimeUI MoveDetails page', () => {
 
       renderWithProviders(<MoveDetails />);
 
-      // Check for Edit buttons - there should be 2 since there are DDASIT & DDDSIT service items in the mtoServiceItems array
+      // Check for Edit buttons
       const editButtons = screen.getAllByRole('link', { name: 'Edit' });
-      expect(editButtons).toHaveLength(2);
+      expect(editButtons).toHaveLength(3);
     });
   });
 });
