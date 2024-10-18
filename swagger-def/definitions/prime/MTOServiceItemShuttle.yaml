@@ -6,11 +6,13 @@ allOf:
       reServiceCode:
         type: string
         description: >
-          A unique code for the service item. Indicates if shuttling is requested for the shipment origin (`DOSHUT`)
-          or destination (`DDSHUT`).
+          A unique code for the service item. Indicates if shuttling is requested for the shipment origin (`DOSHUT`, `IOSHUT`)
+          or destination (`DDSHUT`, `IDSHUT`).
         enum:
           - DOSHUT # Domestic Origin Shuttle Service
           - DDSHUT # Domestic Destination Shuttle Service
+          - IOSHUT # International Destination Shuttle Service
+          - IDSHUT # Domestic Destination Shuttle Service
       reason:
         type: string
         example: Storage items need to be picked up.

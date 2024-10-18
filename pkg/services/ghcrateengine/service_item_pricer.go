@@ -66,6 +66,10 @@ func PricerForServiceItem(serviceCode models.ReServiceCode) (services.ParamsPric
 		return NewDomesticDestinationShuttlingPricer(), nil
 	case models.ReServiceCodeDOSHUT:
 		return NewDomesticOriginShuttlingPricer(), nil
+	case models.ReServiceCodeIDSHUT:
+		return NewInternationalDestinationShuttlingPricer(), nil
+	case models.ReServiceCodeIOSHUT:
+		return NewInternationalOriginShuttlingPricer(), nil
 	case models.ReServiceCodeDCRT:
 		return NewDomesticCratingPricer(), nil
 	case models.ReServiceCodeDUCRT:

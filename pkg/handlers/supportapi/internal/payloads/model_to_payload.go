@@ -339,7 +339,7 @@ func MTOServiceItem(mtoServiceItem *models.MTOServiceItem) supportmessages.MTOSe
 			Description:     mtoServiceItem.Description,
 			StandaloneCrate: mtoServiceItem.StandaloneCrate,
 		}
-	case models.ReServiceCodeDDSHUT, models.ReServiceCodeDOSHUT:
+	case models.ReServiceCodeDDSHUT, models.ReServiceCodeDOSHUT, models.ReServiceCodeIDSHUT, models.ReServiceCodeIOSHUT:
 		payload = &supportmessages.MTOServiceItemShuttle{
 			ReServiceCode:   handlers.FmtString(string(mtoServiceItem.ReService.Code)),
 			Reason:          mtoServiceItem.Reason,

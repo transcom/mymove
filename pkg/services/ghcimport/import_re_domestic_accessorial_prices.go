@@ -25,6 +25,8 @@ func (gre *GHCRateEngineImporter) importREDomesticAccessorialPrices(appCtx appco
 		{models.ReServiceCodeDUCRT, "Uncrating (per cubic ft.)"},
 		{models.ReServiceCodeDDSHUT, "Shuttle Service (per cwt)"},
 		{models.ReServiceCodeDOSHUT, "Shuttle Service (per cwt)"},
+		{models.ReServiceCodeIDSHUT, "Shuttle Service (per cwt)"},
+		{models.ReServiceCodeIOSHUT, "Shuttle Service (per cwt)"},
 	}
 
 	//loop through the domestic accessorial price data and store in db
