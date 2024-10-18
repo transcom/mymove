@@ -109,6 +109,21 @@ func (v *OptionalCentIsPositive) IsValid(errors *validate.Errors) {
 	}
 }
 
+// OptionalCentIsNotNegative adds an error if the Field is less than or equal to zero
+type OptionalCentIsNotNegative struct {
+	Name  string
+	Field *unit.Cents
+}
+
+// IsValid adds an error if the Field is less than or equal to zero
+func (v *OptionalCentIsNotNegative) IsValid(errors *validate.Errors) {
+	if v.Field != nil {
+		if *v.Field < 0 {
+			errors.Add(validators.GenerateKey(v.Name), fmt.Sprintf("%s cannot be negative, got: %d.", v.Name, *v.Field))
+		}
+	}
+}
+
 // OptionalPoundIsNonNegative adds an error if the Field is less than zero
 type OptionalPoundIsNonNegative struct {
 	Name  string

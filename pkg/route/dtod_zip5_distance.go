@@ -122,6 +122,10 @@ func (d *dtodZip5DistanceInfo) DTODZip5Distance(appCtx appcontext.AppContext, pi
 	// It looks like sending a bad zip just returns a distance of -1, so test for that
 	distanceFloat := r.ProcessRequestResult.Distance
 	if distanceFloat <= 0 {
+		dtodAvailable, _ := validateDTODServiceAvailable(*d)
+		if !dtodAvailable && appCtx.Session().IsServiceMember() {
+			return 0, nil
+		}
 		return distance, apperror.NewEventError(notifications.DtodErrorMessage, nil)
 	}
 
@@ -131,4 +135,51 @@ func (d *dtodZip5DistanceInfo) DTODZip5Distance(appCtx appcontext.AppContext, pi
 	appCtx.Logger().Debug("dtod result", zap.Any("processRequestResponse", r), zap.Int("distance", distance))
 
 	return distance, nil
+}
+
+// DTODZip5Distance returns the distance in miles between the pickup and destination zips
+func validateDTODServiceAvailable(d dtodZip5DistanceInfo) (bool, error) {
+	// set custom envelope
+	gosoap.SetCustomEnvelope("soapenv", map[string]string{
+		"xmlns:soapenv": "http://schemas.xmlsoap.org/soap/envelope/",
+		"xmlns:ser":     "https://dtod.sddc.army.mil/service/",
+	})
+
+	params := gosoap.Params{
+		"DtodRequest": map[string]interface{}{
+			"AuthToken": map[string]interface{}{
+				"Username": d.username,
+				"Password": d.password,
+			},
+			"UserRequest": map[string]interface{}{
+				"Function":  "Distance",
+				"RouteType": "CommercialPersonalProperty",
+				"Origin": map[string]interface{}{
+					"ZipCode": "20001",
+				},
+				"Destination": map[string]interface{}{
+					"ZipCode": "20301",
+				},
+			},
+		},
+	}
+
+	res, err := d.soapClient.Call("ProcessRequest", params)
+	if err != nil {
+		return false, fmt.Errorf("call error: %s", err.Error())
+	}
+
+	var r processRequestResponse
+	err = res.Unmarshal(&r)
+	if err != nil {
+		return false, fmt.Errorf("unmarshal error: %s", err.Error())
+	}
+
+	distanceFloat := r.ProcessRequestResult.Distance
+
+	if distanceFloat > 0 {
+		return true, nil
+	} else {
+		return false, nil
+	}
 }

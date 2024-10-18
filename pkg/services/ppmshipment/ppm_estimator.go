@@ -420,6 +420,11 @@ func (f estimatePPM) calculatePrice(appCtx appcontext.AppContext, ppmShipment *m
 		logger.Debug(fmt.Sprintf("Payment service item params %+v", paymentParams))
 
 		if err != nil {
+			if appCtx.Session().IsServiceMember() && ppmShipment.Shipment.Distance != nil && *ppmShipment.Shipment.Distance == unit.Miles(0) {
+				totalPrice = unit.Cents(0)
+				return &totalPrice, nil
+			}
+
 			logger.Error("unable to calculate service item price", zap.Error(err))
 			return nil, err
 		}
