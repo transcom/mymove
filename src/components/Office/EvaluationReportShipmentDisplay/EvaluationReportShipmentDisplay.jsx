@@ -54,7 +54,7 @@ const EvaluationReportShipmentDisplay = ({
               <label id={`shipment-display-label-${shipmentId}`}>{displayInfo.heading}</label>
             </h5>
             {displayInfo.isDiversion && <Tag>diversion</Tag>}
-            {displayInfo.shipmentStatus === shipmentStatuses.CANCELED && <Tag className="usa-tag--red">cancelled</Tag>}
+            {displayInfo.shipmentStatus === shipmentStatuses.CANCELED && <Tag className="usa-tag--red">canceled</Tag>}
             {displayInfo.shipmentStatus === shipmentStatuses.DIVERSION_REQUESTED && <Tag>diversion requested</Tag>}
             {displayInfo.shipmentStatus === shipmentStatuses.CANCELLATION_REQUESTED && (
               <Tag>cancellation requested</Tag>
