@@ -104,11 +104,15 @@ func (suite *ModelSuite) TestIsAddressOconusForAKState() {
 func (suite *ModelSuite) TestAddressFormat() {
 	country := factory.FetchOrBuildCountry(suite.DB(), nil, nil)
 	newAddress := &m.Address{
-		State:      "state",
-		PostalCode: "90210",
-		County:     "County",
-		Country:    &country,
-		CountryId:  &country.ID,
+		StreetAddress1: "street 1",
+		StreetAddress2: m.StringPointer("street 2"),
+		StreetAddress3: m.StringPointer("street 3"),
+		City:           "city",
+		State:          "state",
+		PostalCode:     "90210",
+		County:         "County",
+		Country:        &country,
+		CountryId:      &country.ID,
 	}
 
 	verrs, err := newAddress.Validate(nil)
