@@ -424,6 +424,7 @@ func (suite *PPMShipmentSuite) TestUpdatePPMShipment() {
 					City:           "Des Moines",
 					State:          "IA",
 					PostalCode:     "50309",
+					County:         "POLK",
 				},
 				Type: &factory.Addresses.PickupAddress,
 			},
@@ -435,6 +436,7 @@ func (suite *PPMShipmentSuite) TestUpdatePPMShipment() {
 					City:           "Fort Eisenhower",
 					State:          "GA",
 					PostalCode:     "50309",
+					County:         "COLUMBIA",
 				},
 				Type: &factory.Addresses.DeliveryAddress,
 			},
@@ -449,6 +451,7 @@ func (suite *PPMShipmentSuite) TestUpdatePPMShipment() {
 				City:           "Des Moines",
 				State:          "IA",
 				PostalCode:     "50308",
+				County:         "POLK",
 			},
 			DestinationAddress: &models.Address{
 				StreetAddress1: "987 Other Avenue",
@@ -457,6 +460,7 @@ func (suite *PPMShipmentSuite) TestUpdatePPMShipment() {
 				City:           "Fort Eisenhower",
 				State:          "GA",
 				PostalCode:     "30183",
+				County:         "COLUMBIA",
 			},
 		}
 
@@ -1183,7 +1187,7 @@ func (suite *PPMShipmentSuite) TestUpdatePPMShipment() {
 		suite.Equal(postalCode, updatedPPM.W2Address.PostalCode)
 		suite.Nil(updatedPPM.W2Address.StreetAddress2)
 		suite.Nil(updatedPPM.W2Address.StreetAddress3)
-		suite.Nil(updatedPPM.W2Address.Country)
+		suite.NotNil(updatedPPM.W2Address.Country)
 	})
 
 	suite.Run("Can successfully update a PPMShipment - modify W-2 address", func() {

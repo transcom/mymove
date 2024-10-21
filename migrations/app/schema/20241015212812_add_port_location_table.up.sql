@@ -2,7 +2,7 @@ CREATE TABLE IF NOT EXISTS port_location (
     id              uuid                NOT NULL,
     port_id         uuid                NOT NULL
         CONSTRAINT fk_port_id_port REFERENCES port (id),
-    city            varchar(100)        NOT NULL,
+    cities_id       varchar(100)        NOT NULL,
     county          varchar(100)        NOT NULL,
     state           varchar(100)        NOT NULL,
     zip5            varchar(5)          NOT NULL,
