@@ -4,7 +4,7 @@ import { render, screen } from '@testing-library/react';
 
 import {
   unapprovedMTOQuery,
-  approvedMTOWithCancelledShipmentQuery,
+  approvedMTOWithCanceledShipmentQuery,
   missingWeightQuery,
   someShipmentsApprovedMTOQuery,
   someWeightNotReturned,
@@ -685,8 +685,8 @@ describe('MoveTaskOrder', () => {
     });
   });
 
-  describe('approved mto with cancelled shipment', () => {
-    useMoveTaskOrderQueries.mockReturnValue(approvedMTOWithCancelledShipmentQuery);
+  describe('approved mto with canceled shipment', () => {
+    useMoveTaskOrderQueries.mockReturnValue(approvedMTOWithCanceledShipmentQuery);
     const wrapper = mount(
       <MockProviders>
         <MoveTaskOrder
@@ -720,7 +720,7 @@ describe('MoveTaskOrder', () => {
     it('renders the ShipmentHeading', () => {
       expect(wrapper.find('ShipmentHeading').exists()).toBe(true);
       expect(wrapper.find('h2').at(0).text()).toEqual('Household goods');
-      expect(wrapper.find('span[data-testid="tag"]').at(0).text()).toEqual('cancelled');
+      expect(wrapper.find('span[data-testid="tag"]').at(0).text()).toEqual('canceled');
     });
 
     it('renders the ImportantShipmentDates', () => {
