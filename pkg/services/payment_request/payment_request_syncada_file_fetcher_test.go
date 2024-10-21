@@ -139,3 +139,53 @@ func (suite *PaymentRequestSyncadaFileFetcherSuite) TestFetchPaymentRequestSynca
 		suite.Equal(models.PaymentRequestEdiFile{}, result)
 	})
 }
+
+func (suite *PaymentRequestSyncadaFileFetcherSuite) TestFetchPaymentRequestSyncadaFile_justOne() {
+	builder := query.NewQueryBuilder()
+	fetcher := NewPaymentRequestSyncadaFileFetcher(builder)
+
+	testCases := []struct {
+		name    string
+		filters []services.QueryFilter
+		want    models.PaymentRequestEdiFile
+		wantErr bool
+	}{
+		{
+			name:    "Fetch Syncada files",
+			filters: []services.QueryFilter{},
+			want:    BuildPaymentRequestEdiRecord("858.rec1", "someStringedi", "1234-7654-1"),
+			wantErr: false,
+		},
+		{
+			name: "Successful fetch with specific filters",
+			filters: []services.QueryFilter{
+				query.NewQueryFilter("filename", "=", "858.rec3"),
+				query.NewQueryFilter("payment_request_number", "=", "1111-1111-1"),
+			},
+			want:    BuildPaymentRequestEdiRecord("858.rec3", "testEdiString1", "1111-1111-1"),
+			wantErr: false,
+		},
+	}
+
+	for _, tc := range testCases {
+		suite.Run(tc.name, func() {
+			if tc.name == "Fetch Syncada files" {
+				paymentRequestEdiFile := tc.want
+				err := suite.DB().Create(&paymentRequestEdiFile)
+				suite.NoError(err)
+			}
+
+			result, err := fetcher.FetchPaymentRequestSyncadaFile(suite.AppContextForTest(), tc.filters)
+
+			if tc.wantErr {
+				suite.Error(err)
+			} else {
+				suite.NoError(err)
+				suite.NotNil(result)
+				suite.Equal(tc.want.Filename, result.Filename)
+				suite.Equal(tc.want.EdiString, result.EdiString)
+				suite.Equal(tc.want.PaymentRequestNumber, result.PaymentRequestNumber)
+			}
+		})
+	}
+}
