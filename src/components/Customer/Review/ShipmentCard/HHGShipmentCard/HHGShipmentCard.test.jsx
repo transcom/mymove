@@ -16,7 +16,7 @@ const defaultProps = {
   shipmentNumber: 1,
   shipmentId: '#ABC123K',
   shipmentLocator: '#ABC123K-01',
-  marketCode: 'd',
+  marketCode: 'i',
   shipmentType: 'HHG',
   showEditAndDeleteBtn: false,
   requestedPickupDate: new Date('01/01/2020').toISOString(),
@@ -184,7 +184,7 @@ describe('HHGShipmentCard component', () => {
     expect(secondDesintationInformation).toBeInTheDocument();
   });
 
-  it('renders HHGShipmentCard with a heading that as a market code and shipment type', async () => {
+  it('renders HHGShipmentCard with a heading that has a market code and shipment type', async () => {
     render(<HHGShipmentCard {...defaultProps} />);
     expect(screen.getByRole('heading', { level: 3 })).toHaveTextContent(`${defaultProps.marketCode}HHG 1`);
   });
@@ -198,7 +198,7 @@ describe('HHGShipmentCard component', () => {
     expect(screen.queryByText('Incomplete')).toBeNull();
   });
 
-  it('renders complete HHGShipmentCard with a heading that as a market code and shipment type', async () => {
+  it('renders complete HHGShipmentCard with a heading that has a market code and shipment type', async () => {
     render(<HHGShipmentCard {...completeProps} />);
     expect(screen.getByRole('heading', { level: 3 })).toHaveTextContent(`${completeProps.marketCode}HHG 1`);
   });
@@ -218,7 +218,7 @@ describe('HHGShipmentCard component', () => {
     expect(mockedOnIncompleteClickFunction).toHaveBeenCalledWith('HHG 1', 'ABC123K-01', 'HHG');
   });
 
-  it('renders incomplete HHGShipmentCard with a heading that as a market code and shipment type', async () => {
+  it('renders incomplete HHGShipmentCard with a heading that has a market code and shipment type', async () => {
     render(<HHGShipmentCard {...incompleteProps} />);
     expect(screen.getByRole('heading', { level: 3 })).toHaveTextContent(`${incompleteProps.marketCode}HHG 1`);
   });

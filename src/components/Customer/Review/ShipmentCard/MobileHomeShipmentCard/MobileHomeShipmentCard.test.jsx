@@ -96,7 +96,7 @@ describe('MobileHomeShipmentCard component', () => {
     });
   });
 
-  it('renders MobileHomeShipmentCard with a heading that as a market code and shipment type', async () => {
+  it('renders MobileHomeShipmentCard with a heading that has a market code and shipment type', async () => {
     render(<MobileHomeShipmentCard {...defaultProps} />);
     expect(screen.getByRole('heading', { level: 3 })).toHaveTextContent(`${defaultProps.marketCode}MobileHome 1`);
   });
