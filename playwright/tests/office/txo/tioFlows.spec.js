@@ -892,7 +892,6 @@ test.describe('TIO user', () => {
       await expect(page.getByText(locator)).toBeVisible();
       await expect(page.getByText('Shipment Info')).toBeVisible();
 
-      await page.getByTestId('shipmentInfo-showRequestDetailsButton').click();
       await expect(page.getByText('Planned Move Start Date')).toBeVisible();
       await expect(page.getByText('Actual Move Start Date')).toBeVisible();
       await expect(page.getByText('Starting Address')).toBeVisible();
