@@ -969,6 +969,7 @@ func (g ghcPaymentRequestInvoiceGenerator) generatePaymentServiceItemSegments(ap
 			models.ReServiceCodeDDFSIT, models.ReServiceCodeDDASIT,
 			models.ReServiceCodeDOFSIT, models.ReServiceCodeDOASIT,
 			models.ReServiceCodeDOSHUT, models.ReServiceCodeDDSHUT,
+			models.ReServiceCodeIOSHUT, models.ReServiceCodeIDSHUT,
 			models.ReServiceCodeDNPK:
 			var err error
 			weight, err := g.getWeightParams(appCtx, serviceItem)
