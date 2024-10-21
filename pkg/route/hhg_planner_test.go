@@ -131,7 +131,7 @@ func (suite *GHCTestSuite) TestHHGZipTransitDistance() {
 			},
 		})
 
-		plannerMileage := NewDTODZip5Distance(fakeUsername, fakePassword, testSoapClient)
+		plannerMileage := NewDTODZip5Distance(fakeUsername, fakePassword, testSoapClient, false)
 		planner := NewHHGPlanner(plannerMileage)
 
 		// Get distance between two zips in the same base point city
@@ -149,7 +149,7 @@ func (suite *GHCTestSuite) TestHHGZipTransitDistance() {
 			mock.Anything,
 		).Return(soapResponseForDistance("150.33"), errors.New("some error"))
 
-		plannerMileage := NewDTODZip5Distance(fakeUsername, fakePassword, testSoapClient)
+		plannerMileage := NewDTODZip5Distance(fakeUsername, fakePassword, testSoapClient, false)
 		planner := NewHHGPlanner(plannerMileage)
 		distance, err := planner.ZipTransitDistance(suite.AppContextForTest(), "30907", "30901")
 		suite.Error(err)
