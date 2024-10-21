@@ -695,7 +695,7 @@ test.describe('TIO user', () => {
       await expect(page.getByTestId('serviceItemAmount')).toContainText('$324.00');
 
       // Review Weights
-      await page.locator(weightSection).getByText('Review weights').click();
+      await page.locator(weightSection).getByText('Review shipment weights').click();
       await officePage.waitForLoading();
       await expect(page.getByText('Edit max billable weight')).toBeVisible();
       await page.locator('[data-testid="closeSidebar"]').click();
@@ -739,7 +739,7 @@ test.describe('TIO user', () => {
       await expect(page.locator(prSection)).not.toContainText('Rejected');
 
       // Review Weights
-      const reviewWeightsBtn = page.locator('#billable-weights').getByText('Review weights');
+      const reviewWeightsBtn = page.locator('#billable-weights').getByText('Review shipment weights');
       await tioFlowPage.waitForLoading();
       await reviewWeightsBtn.click();
 
@@ -790,7 +790,7 @@ test.describe('TIO user', () => {
       await expect(page.getByTestId('MovePaymentRequests')).toBeVisible();
 
       // Review Weights
-      await page.locator('#billable-weights').getByText('Review weights').click();
+      await page.locator('#billable-weights').getByText('Review shipment weights').click();
       await tioFlowPage.waitForLoading();
       await page.locator('[data-testid="closeSidebar"]').click();
 
