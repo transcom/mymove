@@ -99,7 +99,7 @@ describe('NTSRShipmentCard component', () => {
     expect(wrapper.find('.remarksCell').at(0).text()).toBe('—');
   });
 
-  it('renders NTSRShipmentCard with a heading that as a market code and shipment type', async () => {
+  it('renders NTSRShipmentCard with a heading that has a market code and shipment type', async () => {
     render(<NTSRShipmentCard {...defaultProps} />);
     expect(screen.getByRole('heading', { level: 3 })).toHaveTextContent(`${defaultProps.marketCode}NTS-release`);
   });
@@ -129,7 +129,7 @@ describe('NTSRShipmentCard component', () => {
     expect(screen.queryByText('Incomplete')).toBeNull();
   });
 
-  it('renders a complete NTSRShipmentCard with a heading that as a market code and shipment type', async () => {
+  it('renders a complete NTSRShipmentCard with a heading that has a market code and shipment type', async () => {
     render(<NTSRShipmentCard {...completeProps} />);
     expect(screen.getByRole('heading', { level: 3 })).toHaveTextContent(`${completeProps.marketCode}NTS-release`);
   });
@@ -149,7 +149,7 @@ describe('NTSRShipmentCard component', () => {
     expect(mockedOnIncompleteClickFunction).toHaveBeenCalledWith('NTS-release', 'ABC123K-01', 'NTS-release');
   });
 
-  it('renders a incomplete NTSRShipmentCard with a heading that as a market code and shipment type', async () => {
+  it('renders a incomplete NTSRShipmentCard with a heading that has a market code and shipment type', async () => {
     render(<NTSRShipmentCard {...incompleteProps} />);
     expect(screen.getByRole('heading', { level: 3 })).toHaveTextContent(`${incompleteProps.marketCode}NTS-release`);
   });

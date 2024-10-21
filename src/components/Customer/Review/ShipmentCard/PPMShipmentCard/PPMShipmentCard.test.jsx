@@ -173,7 +173,7 @@ describe('PPMShipmentCard component', () => {
     expect();
   });
 
-  it('renders complete PPMShipmentCard with a heading that as a market code and shipment type', async () => {
+  it('renders complete PPMShipmentCard with a heading that has a market code and shipment type', async () => {
     render(<PPMShipmentCard {...completeProps} />);
     expect(screen.getByRole('heading', { level: 3 })).toHaveTextContent(`${completeProps.marketCode}PPM`);
   });
@@ -211,7 +211,7 @@ describe('PPMShipmentCard component', () => {
     });
   });
 
-  it('renders PPMShipmentCard with a heading that as a market code and shipment type', async () => {
+  it('renders PPMShipmentCard with a heading that has a market code and shipment type', async () => {
     render(<PPMShipmentCard {...defaultProps} />);
     expect(screen.getByRole('heading', { level: 3 })).toHaveTextContent(`${defaultProps.marketCode}PPM`);
   });
@@ -329,7 +329,7 @@ describe('PPMShipmentCard component', () => {
     expect(mockedOnIncompleteClickFunction).toHaveBeenCalledWith('PPM 1', 'testMove123-01', 'PPM');
   });
 
-  it('renders incomplete PPMShipmentCard with a heading that as a market code and shipment type', async () => {
+  it('renders incomplete PPMShipmentCard with a heading that has a market code and shipment type', async () => {
     render(<PPMShipmentCard {...incompleteProps} />);
     expect(screen.getByRole('heading', { level: 3 })).toHaveTextContent(`${incompleteProps.marketCode}PPM`);
   });

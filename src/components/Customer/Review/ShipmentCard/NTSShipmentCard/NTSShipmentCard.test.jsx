@@ -17,7 +17,7 @@ const defaultProps = {
   shipmentType: 'HHG_INTO_NTS_DOMESTIC',
   showEditAndDeleteBtn: false,
   requestedPickupDate: new Date('01/01/2020').toISOString(),
-  marketCode: 'd',
+  marketCode: 'i',
   pickupLocation: {
     streetAddress1: '17 8th St',
     city: 'New York',
@@ -97,7 +97,7 @@ describe('NTSShipmentCard component', () => {
     expect(wrapper.find('.remarksCell').text()).toBe(defaultProps.remarks);
   });
 
-  it('renders NTSShipmentCard with a heading that as a market code and shipment type', async () => {
+  it('renders NTSShipmentCard with a heading that has a market code and shipment type', async () => {
     render(<NTSShipmentCard {...defaultProps} />);
     expect(screen.getByRole('heading', { level: 3 })).toHaveTextContent(`${defaultProps.marketCode}NTS`);
   });
@@ -140,7 +140,7 @@ describe('NTSShipmentCard component', () => {
     expect(screen.queryByText('Incomplete')).toBeNull();
   });
 
-  it('renders complete NTSShipmentCard with a heading that as a market code and shipment type', async () => {
+  it('renders complete NTSShipmentCard with a heading that has a market code and shipment type', async () => {
     render(<NTSShipmentCard {...completeProps} />);
     expect(screen.getByRole('heading', { level: 3 })).toHaveTextContent(`${completeProps.marketCode}NTS`);
   });
@@ -160,7 +160,7 @@ describe('NTSShipmentCard component', () => {
     expect(mockedOnIncompleteClickFunction).toHaveBeenCalledWith('NTS', 'ABC123K-01', 'NTS');
   });
 
-  it('renders incomplete NTSShipmentCard with a heading that as a market code and shipment type', async () => {
+  it('renders incomplete NTSShipmentCard with a heading that has a market code and shipment type', async () => {
     render(<NTSShipmentCard {...incompleteProps} />);
     expect(screen.getByRole('heading', { level: 3 })).toHaveTextContent(`${completeProps.marketCode}NTS`);
   });
