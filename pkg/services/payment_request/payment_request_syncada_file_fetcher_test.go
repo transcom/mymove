@@ -82,3 +82,60 @@ func BuildPaymentRequestEdiRecord(fileName string, ediString string, prNumber st
 
 	return paymentRequestEdiFile
 }
+func (suite *PaymentRequestSyncadaFileFetcherSuite) TestFetchPaymentRequestSyncadaFileEdgeCases() {
+	builder := query.NewQueryBuilder()
+	fetcher := NewPaymentRequestSyncadaFileFetcher(builder)
+
+	suite.Run("Fetch non-existent Syncada file", func() {
+		result, err := fetcher.FetchPaymentRequestSyncadaFile(suite.AppContextForTest(), []services.QueryFilter{
+			query.NewQueryFilter("id", "=", uuid.Must(uuid.NewV4())),
+		})
+
+		suite.Error(err)
+		suite.Equal(models.PaymentRequestEdiFile{}, result)
+	})
+
+	suite.Run("Fetch Syncada file with specific filters", func() {
+		paymentRequestEdiFile := BuildPaymentRequestEdiRecord("858.rec2", "testEdiString", "9876-5432-1")
+		err := suite.DB().Create(&paymentRequestEdiFile)
+		suite.NoError(err)
+
+		result, err := fetcher.FetchPaymentRequestSyncadaFile(suite.AppContextForTest(), []services.QueryFilter{
+			query.NewQueryFilter("filename", "=", "858.rec2"),
+			query.NewQueryFilter("payment_request_number", "=", "9876-5432-1"),
+		})
+
+		suite.NoError(err)
+		suite.NotNil(result)
+		suite.Equal(paymentRequestEdiFile.ID, result.ID)
+		suite.Equal("858.rec2", result.Filename)
+		suite.Equal("testEdiString", result.EdiString)
+		suite.Equal("9876-5432-1", result.PaymentRequestNumber)
+	})
+
+	suite.Run("Fetch Syncada file with invalid filter", func() {
+		result, err := fetcher.FetchPaymentRequestSyncadaFile(suite.AppContextForTest(), []services.QueryFilter{
+			query.NewQueryFilter("invalid_column", "=", "some_value"),
+		})
+
+		suite.Error(err)
+		suite.Equal(models.PaymentRequestEdiFile{}, result)
+	})
+
+	suite.Run("Fetch Syncada file with multiple matching records", func() {
+		paymentRequestEdiFile1 := BuildPaymentRequestEdiRecord("858.rec3", "testEdiString1", "1111-1111-1")
+		paymentRequestEdiFile2 := BuildPaymentRequestEdiRecord("858.rec3", "testEdiString2", "1111-1111-1")
+		err := suite.DB().Create(&paymentRequestEdiFile1)
+		suite.NoError(err)
+		err = suite.DB().Create(&paymentRequestEdiFile2)
+		suite.NoError(err)
+
+		result, err := fetcher.FetchPaymentRequestSyncadaFile(suite.AppContextForTest(), []services.QueryFilter{
+			query.NewQueryFilter("filename", "=", "858.rec3"),
+			query.NewQueryFilter("payment_request_number", "=", "1111-1111-1"),
+		})
+
+		suite.Error(err)
+		suite.Equal(models.PaymentRequestEdiFile{}, result)
+	})
+}
