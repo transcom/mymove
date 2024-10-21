@@ -178,7 +178,7 @@ func (suite *TransportationOfficeServiceSuite) Test_FindCounselingOffices() {
 	offices, err := findCounselingOffice(suite.AppContextForTest(), origDutyLocation.ID)
 
 	suite.NoError(err)
-	suite.Len(offices, 2)
+	suite.Len(offices, 3)
 	suite.Equal(offices[0].Name, "PPPO Hill AFB - USAF")
 	suite.Equal(offices[1].Name, "PPPO Holloman AFB - USAF")
 }
