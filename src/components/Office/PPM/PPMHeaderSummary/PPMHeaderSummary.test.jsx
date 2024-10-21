@@ -1,6 +1,5 @@
 import React from 'react';
 import { waitFor, screen, fireEvent } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
 
 import PPMHeaderSummary from './PPMHeaderSummary';
 
@@ -175,7 +174,6 @@ describe('PPMHeaderSummary component', () => {
       await waitFor(() => {
         expect(screen.getByRole('heading', { level: 3, name: 'PPM 1' })).toBeInTheDocument();
       });
-      await userEvent.click(screen.getByTestId('shipmentInfo-showRequestDetailsButton'));
 
       expect(screen.getByText('Planned Move Start Date')).toBeInTheDocument();
       expect(screen.getByText('02-Dec-2022')).toBeInTheDocument();
