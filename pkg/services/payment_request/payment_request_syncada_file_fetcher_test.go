@@ -268,3 +268,59 @@ func (suite *PaymentRequestSyncadaFileFetcherSuite) TestFetchPaymentRequestSynca
 		suite.Equal(models.PaymentRequestEdiFile{}, result)
 	})
 }
+
+func (suite *PaymentRequestSyncadaFileFetcherSuite) Test_paymentRequestSyncadaFileFetcher_FetchPaymentRequestSyncadaFile() {
+
+	type fields struct {
+		builder query.Builder
+	}
+	type args struct {
+		appCtx  appcontext.AppContext
+		filters []services.QueryFilter
+	}
+	tests := []struct {
+		name    string
+		fields  fields
+		args    args
+		want    models.PaymentRequestEdiFile
+		wantErr bool
+	}{
+		{
+			name: "Fetch Syncada files",
+			fields: fields{
+				builder: <-suite.AppContextForTest().DB().Context().Done(),
+			},
+			args: args{
+				appCtx: suite.AppContextForTest(),
+				filters: []services.QueryFilter{
+					query.NewQueryFilter("filename", "=", "858.rec3"),
+					query.NewQueryFilter("payment_request_number", "=", "1111-1111-1"),
+				},
+			},
+			want:    BuildPaymentRequestEdiRecord("858.rec3", "testEdiString1", "1111-1111-1"),
+			wantErr: false,
+		},
+		{
+			name: "Fetch Syncada files with partial match filter",
+			fields: fields{
+				builder: <-suite.AppContextForTest().DB().Context().Done(),
+			},
+			args: args{
+				appCtx: suite.AppContextForTest(),
+			},
+		},
+	}
+	for _, tt := range tests {
+		suite.Run(tt.name, func() {
+			p := &paymentRequestSyncadaFileFetcher{
+				builder: &tt.fields.builder,
+			}
+			got, err := p.FetchPaymentRequestSyncadaFile(tt.args.appCtx, tt.args.filters)
+			if (err != nil) != tt.wantErr {
+				suite.Equal("paymentRequestSyncadaFileFetcher.FetchPaymentRequestSyncadaFile() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+			suite.ElementsMatch(got, tt.want)
+		})
+	}
+}
