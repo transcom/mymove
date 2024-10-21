@@ -35,6 +35,10 @@ type CreatePPMShipment struct {
 	// has tertiary pickup address
 	HasTertiaryPickupAddress *bool `json:"hasTertiaryPickupAddress"`
 
+	// Denotes if this PPM shipment uses the Actual Expense Reimbursement method.
+	// Example: false
+	IsActualExpenseReimbursement *bool `json:"isActualExpenseReimbursement"`
+
 	// pickup address
 	// Required: true
 	PickupAddress *Address `json:"pickupAddress"`
