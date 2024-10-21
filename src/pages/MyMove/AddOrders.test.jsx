@@ -449,7 +449,7 @@ describe('Add Orders page', () => {
       issue_date: '2020-11-08',
       report_by_date: '2020-11-26',
       has_dependents: true,
-      is_accompanied_tour: true,
+      accompanied_tour: true,
       dependents_under_twelve: 1,
       dependents_twelve_and_over: 2,
       counseling_office_id: null,
@@ -552,7 +552,7 @@ describe('Add Orders page', () => {
       counseling_office_id: null,
       dependents_twelve_and_over: null,
       dependents_under_twelve: null,
-      is_accompanied_tour: null,
+      accompanied_tour: null,
       origin_duty_location: {
         address: {
           city: '',
