@@ -141,6 +141,7 @@ func FetchMove(db *pop.Connection, session *auth.Session, id uuid.UUID) (*Move, 
 		"LockedByOfficeUser",
 		"AdditionalDocuments",
 		"AdditionalDocuments.UserUploads",
+		"CounselingOffice",
 	).Where("show = TRUE").Find(&move, id)
 
 	if err != nil {
@@ -487,6 +488,8 @@ func FetchMovesByOrderID(db *pop.Connection, orderID uuid.UUID) (Moves, error) {
 		"Orders.NewDutyLocation.TransportationOffice.Address.Country",
 		"CloseoutOffice",
 		"CloseoutOffice.Address.Country",
+		"CloseoutOffice.Address",
+		"CounselingOffice",
 	).All(&moves)
 	if err != nil {
 		return moves, err
