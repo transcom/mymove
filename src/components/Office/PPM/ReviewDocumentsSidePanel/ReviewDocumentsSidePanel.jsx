@@ -68,11 +68,19 @@ export default function ReviewDocumentsSidePanel({
         </div>
       );
       showReason = true;
-    } else {
+    } else if (ticket.status === PPMDocumentsStatus.REJECTED) {
       status = (
         <div className={styles.iconRow}>
           <FontAwesomeIcon icon="times" />
           <span>Reject</span>
+        </div>
+      );
+      showReason = true;
+    } else {
+      status = (
+        <div className={styles.iconRow}>
+          <FontAwesomeIcon icon="rotate-right" />
+          <span>Pending</span>
         </div>
       );
       showReason = true;
