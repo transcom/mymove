@@ -48,9 +48,15 @@ import ConnectedFlashMessage from 'containers/FlashMessage/FlashMessage';
 import { isNullUndefinedOrWhitespace } from 'shared/utils';
 import CustomerSearchForm from 'components/CustomerSearchForm/CustomerSearchForm';
 import MultiSelectTypeAheadCheckBoxFilter from 'components/Table/Filters/MutliSelectTypeAheadCheckboxFilter';
-import { formatAvailableOfficeUsersForRow } from 'utils/queues';
+import { formatAvailableOfficeUsersForRow, handleQueueAssignment } from 'utils/queues';
 
-export const counselingColumns = (moveLockFlag, originLocationList, supervisor, isQueueManagementEnabled) => {
+export const counselingColumns = (
+  moveLockFlag,
+  originLocationList,
+  supervisor,
+  isQueueManagementEnabled,
+  currentUserId,
+) => {
   const cols = [
     createHeader(
       ' ',
@@ -196,10 +202,18 @@ export const counselingColumns = (moveLockFlag, originLocationList, supervisor, 
       createHeader(
         'Assigned',
         (row) => {
-          const { formattedAvailableOfficeUsers, assignedToUser } = formatAvailableOfficeUsersForRow(row);
+          const { formattedAvailableOfficeUsers, assignedToUser } = formatAvailableOfficeUsersForRow(
+            row,
+            supervisor,
+            currentUserId,
+          );
           return (
             <div data-label="assignedSelect" className={styles.assignedToCol}>
-              <Dropdown defaultValue={assignedToUser?.value} title="Assigned dropdown">
+              <Dropdown
+                defaultValue={assignedToUser?.value}
+                onChange={(e) => handleQueueAssignment(row.id, e.target.value, roleTypes.SERVICES_COUNSELOR)}
+                title="Assigned dropdown"
+              >
                 {formattedAvailableOfficeUsers}
               </Dropdown>
             </div>
@@ -207,6 +221,7 @@ export const counselingColumns = (moveLockFlag, originLocationList, supervisor, 
         },
         {
           id: 'assignedTo',
+          isFilterable: true,
         },
       ),
     );
@@ -364,7 +379,7 @@ export const closeoutColumns = (moveLockFlag, ppmCloseoutGBLOC, ppmCloseoutOrigi
   }),
 ];
 
-const ServicesCounselingQueue = ({ userPrivileges, currentUserId }) => {
+const ServicesCounselingQueue = ({ userPrivileges, currentUserId, isQueueManagementFFEnabled }) => {
   const { queueType } = useParams();
   const { data, isLoading, isError } = useUserQueries();
 
@@ -372,7 +387,6 @@ const ServicesCounselingQueue = ({ userPrivileges, currentUserId }) => {
 
   const [isCounselorMoveCreateFFEnabled, setisCounselorMoveCreateFFEnabled] = useState(false);
   const [moveLockFlag, setMoveLockFlag] = useState(false);
-  const [isQueueManagementEnabled, setIsQueueManagementEnabled] = useState(false);
   const [setErrorState] = useState({ hasError: false, error: undefined, info: undefined });
   const [originLocationList, setOriginLocationList] = useState([]);
   const [ppmCloseoutOriginLocationList, setPpmCloseoutOriginLocationList] = useState([]);
@@ -403,8 +417,6 @@ const ServicesCounselingQueue = ({ userPrivileges, currentUserId }) => {
         setisCounselorMoveCreateFFEnabled(isEnabled);
         const lockedMoveFlag = await isBooleanFlagEnabled('move_lock');
         setMoveLockFlag(lockedMoveFlag);
-        const assignedColFlag = await isBooleanFlagEnabled('queue_management');
-        setIsQueueManagementEnabled(assignedColFlag);
       } catch (error) {
         const { message } = error;
         milmoveLogger.error({ message, info: null });
@@ -607,7 +619,13 @@ const ServicesCounselingQueue = ({ userPrivileges, currentUserId }) => {
           defaultSortedColumns={[{ id: 'submittedAt', desc: false }]}
           disableMultiSort
           disableSortBy={false}
-          columns={counselingColumns(moveLockFlag, originLocationList, supervisor, isQueueManagementEnabled)}
+          columns={counselingColumns(
+            moveLockFlag,
+            originLocationList,
+            supervisor,
+            isQueueManagementFFEnabled,
+            currentUserId,
+          )}
           title="Moves"
           handleClick={handleClick}
           useQueries={useServicesCounselingQueueQueries}
