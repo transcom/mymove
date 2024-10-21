@@ -805,7 +805,7 @@ func (suite *HandlerSuite) TestUpdateAssignedOfficeUserHandler() {
 		payload := response.(*moveops.UpdateAssignedOfficeUserOK).Payload
 		suite.NoError(payload.Validate(strfmt.Default))
 
-		suite.Equal(officeUserID, payload.SCAssignedUser.ID)
+		suite.Equal(officeUserID, payload.SCAssignedUser.OfficeUserID)
 	})
 	suite.Run("Successful update of a move's TOO", func() {
 		req, handler, move, officeUser := setupTestData()
@@ -828,7 +828,7 @@ func (suite *HandlerSuite) TestUpdateAssignedOfficeUserHandler() {
 		payload := response.(*moveops.UpdateAssignedOfficeUserOK).Payload
 		suite.NoError(payload.Validate(strfmt.Default))
 
-		suite.Equal(officeUserID, payload.TOOAssignedUser.ID)
+		suite.Equal(officeUserID, payload.TOOAssignedUser.OfficeUserID)
 	})
 	suite.Run("Successful update of a move's TIO", func() {
 		req, handler, move, officeUser := setupTestData()
@@ -851,7 +851,7 @@ func (suite *HandlerSuite) TestUpdateAssignedOfficeUserHandler() {
 		payload := response.(*moveops.UpdateAssignedOfficeUserOK).Payload
 		suite.NoError(payload.Validate(strfmt.Default))
 
-		suite.Equal(officeUserID, payload.TIOAssignedUser.ID)
+		suite.Equal(officeUserID, payload.TIOAssignedUser.OfficeUserID)
 	})
 	suite.Run("Successful unassign of an office user", func() {
 		move = factory.BuildMove(suite.DB(), nil, nil)
