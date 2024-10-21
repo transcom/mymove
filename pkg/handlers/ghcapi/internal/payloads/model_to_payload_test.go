@@ -48,10 +48,13 @@ func (suite *PayloadsSuite) TestFetchPPMShipment() {
 		County:         county,
 	}
 
+	isActualExpenseReimbursement := true
+
 	expectedPPMShipment := models.PPMShipment{
-		ID:                 ppmShipmentID,
-		PickupAddress:      &expectedAddress,
-		DestinationAddress: &expectedAddress,
+		ID:                           ppmShipmentID,
+		PickupAddress:                &expectedAddress,
+		DestinationAddress:           &expectedAddress,
+		IsActualExpenseReimbursement: &isActualExpenseReimbursement,
 	}
 
 	suite.Run("Success -", func() {
@@ -75,6 +78,8 @@ func (suite *PayloadsSuite) TestFetchPPMShipment() {
 		suite.Equal(&state, returnedPPMShipment.DestinationAddress.State)
 		suite.Equal(&country, returnedPPMShipment.DestinationAddress.Country)
 		suite.Equal(&county, returnedPPMShipment.DestinationAddress.County)
+
+		suite.True(*returnedPPMShipment.IsActualExpenseReimbursement)
 
 	})
 }
