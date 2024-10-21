@@ -638,7 +638,8 @@ func ppmStatusFilter(ppmStatus *string) QueryOption {
 func SCAssignedUserFilter(scAssigned *string) QueryOption {
 	return func(query *pop.Query) {
 		if scAssigned != nil {
-			query.Where("f_unaccent(lower(?)) % searchable_full_name(assigned_user.first_name, assigned_user.last_name)", *scAssigned)
+			nameSearch := fmt.Sprintf("%s%%", *scAssigned)
+			query.Where("assigned_user.last_name ILIKE ?", nameSearch)
 		}
 	}
 }
@@ -646,7 +647,8 @@ func SCAssignedUserFilter(scAssigned *string) QueryOption {
 func TOOAssignedUserFilter(tooAssigned *string) QueryOption {
 	return func(query *pop.Query) {
 		if tooAssigned != nil {
-			query.Where("f_unaccent(lower(?)) % searchable_full_name(assigned_user.first_name, assigned_user.last_name)", *tooAssigned)
+			nameSearch := fmt.Sprintf("%s%%", *tooAssigned)
+			query.Where("assigned_user.last_name ILIKE ?", nameSearch)
 		}
 	}
 }
