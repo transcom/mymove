@@ -147,6 +147,11 @@ func (d *dtodZip5DistanceInfo) DTODZip5Distance(appCtx appcontext.AppContext, pi
 
 // DTODZip5Distance returns the distance in miles between the pickup and destination zips
 func validateDTODServiceAvailable(d dtodZip5DistanceInfo) (bool, error) {
+
+	if d.simulateOutage {
+		return false, nil
+	}
+
 	// set custom envelope
 	gosoap.SetCustomEnvelope("soapenv", map[string]string{
 		"xmlns:soapenv": "http://schemas.xmlsoap.org/soap/envelope/",
