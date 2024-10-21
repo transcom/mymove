@@ -189,3 +189,82 @@ func (suite *PaymentRequestSyncadaFileFetcherSuite) TestFetchPaymentRequestSynca
 		})
 	}
 }
+
+func (suite *PaymentRequestSyncadaFileFetcherSuite) TestFetchPaymentRequestSyncadaFile_NewCases() {
+	builder := query.NewQueryBuilder()
+	fetcher := NewPaymentRequestSyncadaFileFetcher(builder)
+
+	suite.Run("Fetch Syncada file with partial match filter", func() {
+		paymentRequestEdiFile := BuildPaymentRequestEdiRecord("858.rec4", "partialMatchTest", "2222-3333-4")
+		err := suite.DB().Create(&paymentRequestEdiFile)
+		suite.NoError(err)
+
+		result, err := fetcher.FetchPaymentRequestSyncadaFile(suite.AppContextForTest(), []services.QueryFilter{
+			query.NewQueryFilter("filename", "LIKE", "%rec4%"),
+		})
+
+		suite.NoError(err)
+		suite.NotNil(result)
+		suite.Equal(paymentRequestEdiFile.ID, result.ID)
+		suite.Equal("858.rec4", result.Filename)
+		suite.Equal("partialMatchTest", result.EdiString)
+		suite.Equal("2222-3333-4", result.PaymentRequestNumber)
+	})
+
+	suite.Run("Fetch Syncada file with case-insensitive filter", func() {
+		paymentRequestEdiFile := BuildPaymentRequestEdiRecord("UPPERCASE.REC", "caseInsensitiveTest", "5555-6666-7")
+		err := suite.DB().Create(&paymentRequestEdiFile)
+		suite.NoError(err)
+
+		result, err := fetcher.FetchPaymentRequestSyncadaFile(suite.AppContextForTest(), []services.QueryFilter{
+			query.NewQueryFilter("filename", "ILIKE", "uppercase.rec"),
+		})
+
+		suite.NoError(err)
+		suite.NotNil(result)
+		suite.Equal(paymentRequestEdiFile.ID, result.ID)
+		suite.Equal("UPPERCASE.REC", result.Filename)
+		suite.Equal("caseInsensitiveTest", result.EdiString)
+		suite.Equal("5555-6666-7", result.PaymentRequestNumber)
+	})
+
+	suite.Run("Fetch Syncada file with multiple filters", func() {
+		paymentRequestEdiFile := BuildPaymentRequestEdiRecord("multi.filter.rec", "multiFilterTest", "7777-8888-9")
+		err := suite.DB().Create(&paymentRequestEdiFile)
+		suite.NoError(err)
+
+		result, err := fetcher.FetchPaymentRequestSyncadaFile(suite.AppContextForTest(), []services.QueryFilter{
+			query.NewQueryFilter("filename", "=", "multi.filter.rec"),
+			query.NewQueryFilter("payment_request_number", "=", "7777-8888-9"),
+			query.NewQueryFilter("edi_string", "=", "multiFilterTest"),
+		})
+
+		suite.NoError(err)
+		suite.NotNil(result)
+		suite.Equal(paymentRequestEdiFile.ID, result.ID)
+		suite.Equal("multi.filter.rec", result.Filename)
+		suite.Equal("multiFilterTest", result.EdiString)
+		suite.Equal("7777-8888-9", result.PaymentRequestNumber)
+	})
+
+	suite.Run("Fetch Syncada file with empty filters", func() {
+		paymentRequestEdiFile := BuildPaymentRequestEdiRecord("empty.filter.rec", "emptyFilterTest", "9999-0000-1")
+		err := suite.DB().Create(&paymentRequestEdiFile)
+		suite.NoError(err)
+
+		result, err := fetcher.FetchPaymentRequestSyncadaFile(suite.AppContextForTest(), []services.QueryFilter{})
+
+		suite.NoError(err)
+		suite.NotNil(result)
+		suite.NotEqual(uuid.Nil, result.ID)
+	})
+
+	suite.Run("Fetch Syncada file with invalid operator in filter", func() {
+		result, err := fetcher.FetchPaymentRequestSyncadaFile(suite.AppContextForTest(), []services.QueryFilter{
+			query.NewQueryFilter("filename", "INVALID_OPERATOR", "some_value"),
+		})
+
+		suite.Error(err)
+		suite.Equal(models.PaymentRequestEdiFile{}, result)
+	})
+}
