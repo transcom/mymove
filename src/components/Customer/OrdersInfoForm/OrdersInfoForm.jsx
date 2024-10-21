@@ -52,7 +52,7 @@ const OrdersInfoForm = ({ ordersTypeOptions, initialValues, onSubmit, onBack }) 
     counseling_office_id: currentDutyLocation.provides_services_counseling
       ? Yup.string().required('Required')
       : Yup.string().notRequired(),
-    is_accompanied_tour: showAccompaniedTourField
+    accompanied_tour: showAccompaniedTourField
       ? Yup.mixed().oneOf(['yes', 'no']).required('Required')
       : Yup.string().notRequired(),
     dependents_under_twelve: showDependentAgeFields
@@ -285,7 +285,7 @@ const OrdersInfoForm = ({ ordersTypeOptions, initialValues, onSubmit, onBack }) 
                         label="Yes"
                         id="isAnAccompaniedTourYes"
                         data-testid="isAnAccompaniedTourYes"
-                        name="is_accompanied_tour"
+                        name="accompanied_tour"
                         value="yes"
                         type="radio"
                       />
@@ -304,7 +304,7 @@ const OrdersInfoForm = ({ ordersTypeOptions, initialValues, onSubmit, onBack }) 
                         label="No"
                         id="isAnAccompaniedTourNo"
                         data-testid="isAnAccompaniedTourNo"
-                        name="is_accompanied_tour"
+                        name="accompanied_tour"
                         value="no"
                         type="radio"
                       />
@@ -386,7 +386,7 @@ OrdersInfoForm.propTypes = {
     origin_duty_location: DutyLocationShape,
     dependents_under_twelve: PropTypes.number,
     dependents_twelve_and_over: PropTypes.number,
-    is_accompanied_tour: PropTypes.string,
+    accompanied_tour: PropTypes.string,
   }).isRequired,
   onSubmit: PropTypes.func.isRequired,
   onBack: PropTypes.func.isRequired,

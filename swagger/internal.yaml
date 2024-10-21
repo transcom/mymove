@@ -1456,7 +1456,7 @@ definitions:
         description: >
           Spouse's pro-gear weight limit as set by an Office user, distinct from
           the service member's default weight allotment determined by pay grade
-      accompaniedTour:
+      accompanied_tour:
         type: boolean
         example: true
         x-nullable: true
@@ -1464,14 +1464,14 @@ definitions:
           Indicates if the move entitlement allows dependents to travel to the
           new Permanent Duty Station (PDS). This is only present on OCONUS
           moves.
-      dependentsUnderTwelve:
+      dependents_under_twelve:
         type: integer
         example: 5
         x-nullable: true
         description: >-
           Indicates the number of dependents under the age of twelve for a move.
           This is only present on OCONUS moves.
-      dependentsTwelveAndOver:
+      dependents_twelve_and_over:
         type: integer
         example: 3
         x-nullable: true
@@ -1545,7 +1545,7 @@ definitions:
         type: string
         format: uuid
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
-      accompaniedTour:
+      accompanied_tour:
         type: boolean
         example: true
         x-nullable: true
@@ -1553,14 +1553,14 @@ definitions:
           Indicates if the move entitlement allows dependents to travel to the
           new Permanent Duty Station (PDS). This is only present on OCONUS
           moves.
-      dependentsUnderTwelve:
+      dependents_under_twelve:
         type: integer
         example: 5
         x-nullable: true
         description: >-
           Indicates the number of dependents under the age of twelve for a move.
           This is only present on OCONUS moves.
-      dependentsTwelveAndOver:
+      dependents_twelve_and_over:
         type: integer
         example: 3
         x-nullable: true
