@@ -70,6 +70,9 @@ func payloadForMoveModel(storer storage.FileStorer, order models.Order, move mod
 	if move.PrimeCounselingCompletedAt != nil {
 		movePayload.PrimeCounselingCompletedAt = *handlers.FmtDateTime(*move.PrimeCounselingCompletedAt)
 	}
+	if move.CounselingOffice != nil {
+		movePayload.CounselingOffice = payloads.TransportationOffice(*move.CounselingOffice)
+	}
 	return movePayload, nil
 }
 
@@ -116,6 +119,10 @@ func payloadForInternalMove(storer storage.FileStorer, list models.Moves) []*int
 
 		if move.PrimeCounselingCompletedAt != nil {
 			currentMove.PrimeCounselingCompletedAt = *handlers.FmtDateTime(*move.PrimeCounselingCompletedAt)
+		}
+
+		if move.CounselingOffice != nil {
+			currentMove.CounselingOffice = payloads.TransportationOffice(*move.CounselingOffice)
 		}
 
 		convertedCurrentMovesList = append(convertedCurrentMovesList, currentMove)
