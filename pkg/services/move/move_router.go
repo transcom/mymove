@@ -219,6 +219,16 @@ func (router moveRouter) sendToServiceCounselor(appCtx appcontext.AppContext, mo
 				return apperror.NewInvalidInputError(move.MTOShipments[i].ID, err, verrs, msg)
 			}
 		}
+		// update status for mobile home shipment
+		if move.MTOShipments[i].ShipmentType == models.MTOShipmentTypeMobileHome {
+			move.MTOShipments[i].Status = models.MTOShipmentStatusSubmitted
+
+			if verrs, err := appCtx.DB().ValidateAndUpdate(&move.MTOShipments[i]); verrs.HasAny() || err != nil {
+				msg := "failure saving shipment when routing move submission"
+				appCtx.Logger().Error(msg, zap.Error(err))
+				return apperror.NewInvalidInputError(move.MTOShipments[i].ID, err, verrs, msg)
+			}
+		}
 	}
 
 	if verrs, err := appCtx.DB().ValidateAndSave(move); verrs.HasAny() || err != nil {
