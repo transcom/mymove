@@ -98,7 +98,6 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderFetcher() {
 					City:           "New York",
 					State:          "NY",
 					PostalCode:     "10001",
-					Country:        models.StringPointer("US"),
 				},
 				Type: &factory.Addresses.OriginalAddress,
 			},
@@ -125,7 +124,7 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderFetcher() {
 		suite.Equal(expectedAddressUpdate.OriginalAddress.City, actualAddressUpdate.OriginalAddress.City)
 		suite.Equal(expectedAddressUpdate.OriginalAddress.State, actualAddressUpdate.OriginalAddress.State)
 		suite.Equal(expectedAddressUpdate.OriginalAddress.PostalCode, actualAddressUpdate.OriginalAddress.PostalCode)
-		suite.Equal(expectedAddressUpdate.OriginalAddress.Country, actualAddressUpdate.OriginalAddress.Country)
+		suite.Equal(expectedAddressUpdate.OriginalAddress.CountryId, actualAddressUpdate.OriginalAddress.CountryId)
 	})
 
 	suite.Run("Success with fetching a MTO with a Shipment Address Update that has a customized Original Address and three addresses", func() {
@@ -140,7 +139,6 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderFetcher() {
 					City:           "New York",
 					State:          "NY",
 					PostalCode:     "10001",
-					Country:        models.StringPointer("US"),
 				},
 				Type: &factory.Addresses.OriginalAddress,
 			},
@@ -167,7 +165,7 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderFetcher() {
 		suite.Equal(expectedAddressUpdate.OriginalAddress.City, actualAddressUpdate.OriginalAddress.City)
 		suite.Equal(expectedAddressUpdate.OriginalAddress.State, actualAddressUpdate.OriginalAddress.State)
 		suite.Equal(expectedAddressUpdate.OriginalAddress.PostalCode, actualAddressUpdate.OriginalAddress.PostalCode)
-		suite.Equal(expectedAddressUpdate.OriginalAddress.Country, actualAddressUpdate.OriginalAddress.Country)
+		suite.Equal(expectedAddressUpdate.OriginalAddress.CountryId, actualAddressUpdate.OriginalAddress.CountryId)
 	})
 
 	suite.Run("Success with Prime-available move by ID, fetch all non-deleted shipments", func() {

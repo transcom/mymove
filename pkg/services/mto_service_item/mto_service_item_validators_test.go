@@ -568,7 +568,6 @@ func (suite *MTOServiceItemServiceSuite) TestUpdateMTOServiceItemData() {
 			City:           "Beverly Hills",
 			State:          "CA",
 			PostalCode:     "90210",
-			Country:        models.StringPointer("US"),
 		}
 
 		// Set the old address and id to the old service item
@@ -607,7 +606,6 @@ func (suite *MTOServiceItemServiceSuite) TestUpdateMTOServiceItemData() {
 			City:           "Beverly Hills",
 			State:          "CA",
 			PostalCode:     "90210",
-			Country:        models.StringPointer("US"),
 		}
 
 		// Set the address to the new service item. We don't need to set the ID here because this replicates when
