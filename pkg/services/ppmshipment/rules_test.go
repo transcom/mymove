@@ -388,7 +388,7 @@ func (suite *PPMShipmentSuite) TestValidationRules() {
 			estimatedIncentive := unit.Cents(17000)
 			falsePointer := models.BoolPointer(false)
 			truePointer := models.BoolPointer(true)
-			zeroAdvance := unit.Cents(0)
+			negativeAdvance := unit.Cents(-1)
 			lessThanOneAdvance := unit.Cents(-1) // amount less than $1
 			normalAdvance := unit.Cents(10000)   // below 60%
 			highAdvance := unit.Cents(12000)     // above 60%
@@ -416,7 +416,7 @@ func (suite *PPMShipmentSuite) TestValidationRules() {
 						ShipmentID:             id,
 						EstimatedIncentive:     &estimatedIncentive,
 						HasRequestedAdvance:    truePointer,
-						AdvanceAmountRequested: &zeroAdvance,
+						AdvanceAmountRequested: &negativeAdvance,
 					},
 					expectedErrorMsg: "Advance amount requested cannot be negative.",
 				},

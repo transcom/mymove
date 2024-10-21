@@ -72,7 +72,7 @@ func (suite *ModelSuite) TestPPMShipmentValidation() {
 				SpouseProGearWeight:         models.PoundPointer(unit.Pound(-1)),
 				EstimatedIncentive:          models.CentPointer(unit.Cents(-1)),
 				FinalIncentive:              models.CentPointer(unit.Cents(0)),
-				AdvanceAmountRequested:      models.CentPointer(unit.Cents(0)),
+				AdvanceAmountRequested:      models.CentPointer(unit.Cents(-1)),
 				AdvanceStatus:               &blankAdvanceStatus,
 				AdvanceAmountReceived:       models.CentPointer(unit.Cents(0)),
 				SITLocation:                 &blankSITLocation,
