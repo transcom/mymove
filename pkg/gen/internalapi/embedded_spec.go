@@ -4146,6 +4146,11 @@ func init() {
           "title": "Orders date",
           "example": "2018-04-26"
         },
+        "move_id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "cf1addea-a4f9-4173-8506-2bb82a064cb7"
+        },
         "new_duty_location_id": {
           "type": "string",
           "format": "uuid",
@@ -4494,6 +4499,9 @@ func init() {
       "type": "object",
       "properties": {
         "closeoutOffice": {
+          "$ref": "#/definitions/TransportationOffice"
+        },
+        "counselingOffice": {
           "$ref": "#/definitions/TransportationOffice"
         },
         "createdAt": {
@@ -5141,6 +5149,9 @@ func init() {
           "example": "Change of orders"
         },
         "closeout_office": {
+          "$ref": "#/definitions/TransportationOffice"
+        },
+        "counseling_office": {
           "$ref": "#/definitions/TransportationOffice"
         },
         "created_at": {
@@ -12764,6 +12775,11 @@ func init() {
           "title": "Orders date",
           "example": "2018-04-26"
         },
+        "move_id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "cf1addea-a4f9-4173-8506-2bb82a064cb7"
+        },
         "new_duty_location_id": {
           "type": "string",
           "format": "uuid",
@@ -13114,6 +13130,9 @@ func init() {
       "type": "object",
       "properties": {
         "closeoutOffice": {
+          "$ref": "#/definitions/TransportationOffice"
+        },
+        "counselingOffice": {
           "$ref": "#/definitions/TransportationOffice"
         },
         "createdAt": {
@@ -13763,6 +13782,9 @@ func init() {
           "example": "Change of orders"
         },
         "closeout_office": {
+          "$ref": "#/definitions/TransportationOffice"
+        },
+        "counseling_office": {
           "$ref": "#/definitions/TransportationOffice"
         },
         "created_at": {
