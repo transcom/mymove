@@ -54,9 +54,10 @@ type DTODPlannerMileage interface {
 }
 
 type dtodZip5DistanceInfo struct {
-	username   string
-	password   string
-	soapClient SoapCaller
+	username       string
+	password       string
+	soapClient     SoapCaller
+	simulateOutage bool
 }
 
 // Response XML structs
@@ -70,11 +71,12 @@ type processRequestResult struct {
 }
 
 // NewDTODZip5Distance returns a new DTOD Planner Mileage interface
-func NewDTODZip5Distance(username string, password string, soapClient SoapCaller) DTODPlannerMileage {
+func NewDTODZip5Distance(username string, password string, soapClient SoapCaller, simulateOutage bool) DTODPlannerMileage {
 	return &dtodZip5DistanceInfo{
-		username:   username,
-		password:   password,
-		soapClient: soapClient,
+		username:       username,
+		password:       password,
+		soapClient:     soapClient,
+		simulateOutage: simulateOutage,
 	}
 }
 
@@ -121,12 +123,18 @@ func (d *dtodZip5DistanceInfo) DTODZip5Distance(appCtx appcontext.AppContext, pi
 
 	// It looks like sending a bad zip just returns a distance of -1, so test for that
 	distanceFloat := r.ProcessRequestResult.Distance
+
+	if d.simulateOutage {
+		distanceFloat = -1
+	}
+
 	if distanceFloat <= 0 {
 		dtodAvailable, _ := validateDTODServiceAvailable(*d)
 		if !dtodAvailable && appCtx.Session().IsServiceMember() {
 			return 0, nil
 		}
-		return distance, apperror.NewEventError(notifications.DtodErrorMessage, nil)
+
+		return int(distanceFloat), apperror.NewEventError(notifications.DtodErrorMessage, nil)
 	}
 
 	// TODO: DTOD gives us a float back. Should we round, floor, or ceiling? Just going to round for now.
