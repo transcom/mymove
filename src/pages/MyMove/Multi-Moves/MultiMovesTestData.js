@@ -258,6 +258,92 @@ export const mockMovesPCS = {
       ],
     },
   ],
+  canceledMove: [
+    {
+      id: 'testMoveID2',
+      moveCode: 'SAMPLE',
+      orderID: 'testOrderID2',
+      status: 'CANCELED',
+      orders: {
+        id: 'testOrder2',
+        new_duty_location: {
+          id: 'testDDL2',
+          name: 'Fort Bragg South Station',
+          address: {
+            streetAddress1: '456 Oak St',
+            streetAddress2: 'Apartment 8000',
+            streetAddress3: '',
+            city: 'Anytown',
+            state: 'AL',
+            postalCode: '90211',
+            country: 'USA',
+          },
+        },
+        origin_duty_location: {
+          id: 'testODL2',
+          name: 'Fort Bragg South Station',
+          address: {
+            streetAddress1: '456 Oak St',
+            streetAddress2: 'Apartment 8000',
+            streetAddress3: '',
+            city: 'Anytown',
+            state: 'AL',
+            postalCode: '90211',
+            country: 'USA',
+          },
+        },
+        rank: 'E_7',
+        reportByDate: '2024-01-24',
+        ordersType: 'PERMANENT_CHANGE_OF_STATION',
+        orderNumber: 'ORDER4',
+        date_issued: '2021-01-01',
+      },
+      mtoShipments: [
+        {
+          id: 'shipment1',
+          shipmentType: 'HHG',
+          status: 'APPROVED',
+          created_at: '2024-01-03 15:28:28.468 -0600',
+        },
+        {
+          id: 'shipment2',
+          shipmentType: 'PPM',
+          status: 'APPROVED',
+          created_at: '2024-01-05 15:28:28.468 -0600',
+        },
+        {
+          id: 'shipment3',
+          shipmentType: 'HHG_INTO_NTS_DOMESTIC',
+          status: 'APPROVED',
+          created_at: '2024-01-05 15:28:28.468 -0600',
+        },
+        {
+          id: 'shipment4',
+          shipmentType: 'HHG_OUTOF_NTS_DOMESTIC',
+          status: 'APPROVED',
+          created_at: '2024-01-05 15:28:28.468 -0600',
+        },
+        {
+          id: 'shipment5',
+          shipmentType: 'MOBILE_HOME',
+          status: 'APPROVED',
+          created_at: '2024-01-05 15:28:28.468 -0600',
+        },
+        {
+          id: 'shipment6',
+          shipmentType: 'BOAT_HAUL_AWAY',
+          status: 'APPROVED',
+          created_at: '2024-01-05 15:28:28.468 -0600',
+        },
+        {
+          id: 'shipment6',
+          shipmentType: 'BOAT_TOW_AWAY',
+          status: 'APPROVED',
+          created_at: '2024-01-05 15:28:28.468 -0600',
+        },
+      ],
+    },
+  ],
 };
 
 export const mockMovesRetirement = {

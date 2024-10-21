@@ -130,4 +130,14 @@ describe('MultiMovesMoveContainer', () => {
     expect(screen.queryByText('AOA Packet')).not.toBeInTheDocument();
     expect(screen.queryByText('PPM Packet')).not.toBeInTheDocument();
   });
+
+  it('renders Canceled move label', () => {
+    render(
+      <MockProviders>
+        <MultiMovesMoveContainer moves={mockMovesPCS.canceledMove} />
+      </MockProviders>,
+    );
+
+    expect(screen.getByText('Canceled')).toBeInTheDocument();
+  });
 });
