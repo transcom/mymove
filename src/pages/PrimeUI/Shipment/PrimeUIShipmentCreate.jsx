@@ -31,6 +31,21 @@ const PrimeUIShipmentCreate = ({ setFlashMessage }) => {
   const handleClose = () => {
     navigate(generatePath(primeSimulatorRoutes.VIEW_MOVE_PATH, { moveCodeOrID }));
   };
+
+  const handleSetError = (error, invalidFieldsStr) => {
+    if (error?.response?.body?.detail !== null && error?.response?.body?.detail !== undefined) {
+      setErrorMessage({
+        title: `Prime API: ${error?.response?.body.title} `,
+        detail: `${error?.response?.body.detail}\n\nPlease cancel and Update Shipment again`,
+      });
+    } else {
+      setErrorMessage({
+        title: `Prime API: ${error?.response?.body.title} `,
+        detail: `${error?.response?.body.detail}${invalidFieldsStr}\n\nPlease cancel and Update Shipment again`,
+      });
+    }
+  };
+
   const { mutateAsync: mutateCreateMTOShipment } = useMutation(createPrimeMTOShipmentV3, {
     onSuccess: (createdMTOShipment) => {
       setFlashMessage(
@@ -53,10 +68,7 @@ const PrimeUIShipmentCreate = ({ setFlashMessage }) => {
             invalidFieldsStr += `\n${key} - ${value && value.length > 0 ? value[0] : ''} ;`;
           });
         }
-        setErrorMessage({
-          title: `Prime API: ${body.title} `,
-          detail: `${body.detail}${invalidFieldsStr}\n\nPlease try again`,
-        });
+        handleSetError(error, invalidFieldsStr);
       } else {
         setErrorMessage({
           title: 'Unexpected error',
