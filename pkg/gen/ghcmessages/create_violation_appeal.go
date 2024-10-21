@@ -25,19 +25,9 @@ type CreateViolationAppeal struct {
 	// Enum: [sustained rejected]
 	AppealStatus string `json:"appealStatus,omitempty"`
 
-	// The evaluation report ID that the violation is under
-	// Example: 01b9671e-b268-4906-967b-ba661a1d3933
-	// Format: uuid
-	EvaluationReportID strfmt.UUID `json:"evaluationReportID,omitempty"`
-
 	// Remarks left by the GSR user
 	// Example: These are my violation appeal remarks
 	Remarks string `json:"remarks,omitempty"`
-
-	// The report violation ID that the violation appeal is under
-	// Example: 01b9671e-b268-4906-967b-ba661a1d3933
-	// Format: uuid
-	ReportViolationid strfmt.UUID `json:"reportViolationid,omitempty"`
 }
 
 // Validate validates this create violation appeal
@@ -45,14 +35,6 @@ func (m *CreateViolationAppeal) Validate(formats strfmt.Registry) error {
 	var res []error
 
 	if err := m.validateAppealStatus(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if err := m.validateEvaluationReportID(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if err := m.validateReportViolationid(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -98,30 +80,6 @@ func (m *CreateViolationAppeal) validateAppealStatus(formats strfmt.Registry) er
 
 	// value enum
 	if err := m.validateAppealStatusEnum("appealStatus", "body", m.AppealStatus); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (m *CreateViolationAppeal) validateEvaluationReportID(formats strfmt.Registry) error {
-	if swag.IsZero(m.EvaluationReportID) { // not required
-		return nil
-	}
-
-	if err := validate.FormatOf("evaluationReportID", "body", "uuid", m.EvaluationReportID.String(), formats); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (m *CreateViolationAppeal) validateReportViolationid(formats strfmt.Registry) error {
-	if swag.IsZero(m.ReportViolationid) { // not required
-		return nil
-	}
-
-	if err := validate.FormatOf("reportViolationid", "body", "uuid", m.ReportViolationid.String(), formats); err != nil {
 		return err
 	}
 

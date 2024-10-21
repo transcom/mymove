@@ -13,29 +13,49 @@ import (
 	"github.com/transcom/mymove/pkg/gen/ghcmessages"
 )
 
-// AddAppealToViolationNoContentCode is the HTTP code returned for type AddAppealToViolationNoContent
-const AddAppealToViolationNoContentCode int = 204
+// AddAppealToViolationOKCode is the HTTP code returned for type AddAppealToViolationOK
+const AddAppealToViolationOKCode int = 200
 
 /*
-AddAppealToViolationNoContent Successfully submitted an appeal to a violation
+AddAppealToViolationOK Successfully got the report
 
-swagger:response addAppealToViolationNoContent
+swagger:response addAppealToViolationOK
 */
-type AddAppealToViolationNoContent struct {
+type AddAppealToViolationOK struct {
+
+	/*
+	  In: Body
+	*/
+	Payload *ghcmessages.EvaluationReport `json:"body,omitempty"`
 }
 
-// NewAddAppealToViolationNoContent creates AddAppealToViolationNoContent with default headers values
-func NewAddAppealToViolationNoContent() *AddAppealToViolationNoContent {
+// NewAddAppealToViolationOK creates AddAppealToViolationOK with default headers values
+func NewAddAppealToViolationOK() *AddAppealToViolationOK {
 
-	return &AddAppealToViolationNoContent{}
+	return &AddAppealToViolationOK{}
+}
+
+// WithPayload adds the payload to the add appeal to violation o k response
+func (o *AddAppealToViolationOK) WithPayload(payload *ghcmessages.EvaluationReport) *AddAppealToViolationOK {
+	o.Payload = payload
+	return o
+}
+
+// SetPayload sets the payload to the add appeal to violation o k response
+func (o *AddAppealToViolationOK) SetPayload(payload *ghcmessages.EvaluationReport) {
+	o.Payload = payload
 }
 
 // WriteResponse to the client
-func (o *AddAppealToViolationNoContent) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
+func (o *AddAppealToViolationOK) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
 
-	rw.Header().Del(runtime.HeaderContentType) //Remove Content-Type on empty responses
-
-	rw.WriteHeader(204)
+	rw.WriteHeader(200)
+	if o.Payload != nil {
+		payload := o.Payload
+		if err := producer.Produce(rw, payload); err != nil {
+			panic(err) // let the recovery middleware deal with this
+		}
+	}
 }
 
 // AddAppealToViolationForbiddenCode is the HTTP code returned for type AddAppealToViolationForbidden

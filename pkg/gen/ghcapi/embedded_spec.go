@@ -959,8 +959,11 @@ func init() {
           }
         ],
         "responses": {
-          "204": {
-            "description": "Successfully submitted an appeal to a violation"
+          "200": {
+            "description": "Successfully got the report",
+            "schema": {
+              "$ref": "#/definitions/EvaluationReport"
+            }
           },
           "403": {
             "$ref": "#/responses/PermissionDenied"
@@ -7389,22 +7392,10 @@ func init() {
           ],
           "example": "These are my violation appeal remarks"
         },
-        "evaluationReportID": {
-          "description": "The evaluation report ID that the violation is under",
-          "type": "string",
-          "format": "uuid",
-          "example": "01b9671e-b268-4906-967b-ba661a1d3933"
-        },
         "remarks": {
           "description": "Remarks left by the GSR user",
           "type": "string",
           "example": "These are my violation appeal remarks"
-        },
-        "reportViolationid": {
-          "description": "The report violation ID that the violation appeal is under",
-          "type": "string",
-          "format": "uuid",
-          "example": "01b9671e-b268-4906-967b-ba661a1d3933"
         }
       }
     },
@@ -15493,8 +15484,11 @@ func init() {
           }
         ],
         "responses": {
-          "204": {
-            "description": "Successfully submitted an appeal to a violation"
+          "200": {
+            "description": "Successfully got the report",
+            "schema": {
+              "$ref": "#/definitions/EvaluationReport"
+            }
           },
           "403": {
             "description": "The request was denied",
@@ -23182,22 +23176,10 @@ func init() {
           ],
           "example": "These are my violation appeal remarks"
         },
-        "evaluationReportID": {
-          "description": "The evaluation report ID that the violation is under",
-          "type": "string",
-          "format": "uuid",
-          "example": "01b9671e-b268-4906-967b-ba661a1d3933"
-        },
         "remarks": {
           "description": "Remarks left by the GSR user",
           "type": "string",
           "example": "These are my violation appeal remarks"
-        },
-        "reportViolationid": {
-          "description": "The report violation ID that the violation appeal is under",
-          "type": "string",
-          "format": "uuid",
-          "example": "01b9671e-b268-4906-967b-ba661a1d3933"
         }
       }
     },

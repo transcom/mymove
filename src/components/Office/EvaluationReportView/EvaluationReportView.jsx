@@ -21,17 +21,20 @@ import DataTable from 'components/DataTable';
 import { formatDate } from 'shared/dates';
 import { formatDateFromIso } from 'utils/formatters';
 import EVALUATION_REPORT_TYPE from 'constants/evaluationReports';
+import { addViolationAppeal } from 'services/ghcApi';
 
 const EvaluationReportView = ({ customerInfo, grade, destinationDutyLocationPostalCode }) => {
   const navigate = useNavigate();
   const { moveCode, reportId } = useParams();
   const { evaluationReport, reportViolations, mtoShipments, isLoading, isError } =
     useEvaluationReportShipmentListQueries(reportId);
+  console.log(evaluationReport);
 
   // this is currently set to false to hide the "add appeal" button for future GSR work
   // TODO implement permissions check in order to render this button
   const [canLeaveAppeal] = useState(true);
   const [isViolationAppealModalVisible, setIsViolationAppealModalVisible] = useState(false);
+  const [selectedReportViolation, setSelectedReportViolation] = useState(null);
   console.log('isViolationAppealModalVisible', isViolationAppealModalVisible);
 
   const handleShowViolationAppealModal = () => {
@@ -42,12 +45,22 @@ const EvaluationReportView = ({ customerInfo, grade, destinationDutyLocationPost
     setIsViolationAppealModalVisible(false);
   };
 
-  const handleSubmitViolationAppeal = (values) => {
+  const handleSubmitViolationAppeal = async (values) => {
+    const reportID = evaluationReport.id;
+    const reportViolationID = selectedReportViolation.id;
     const body = {
       remarks: values.remarks,
       appealStatus: values.appealStatus,
     };
-    setIsViolationAppealModalVisible(false);
+
+    return addViolationAppeal({ reportID, reportViolationID, body })
+      .then((res) => {
+        console.log('res', res);
+        setIsViolationAppealModalVisible(false);
+      })
+      .catch((e) => {
+        console.log('e', e);
+      });
   };
 
   const isShipment = evaluationReport.type === EVALUATION_REPORT_TYPE.SHIPMENT;
@@ -169,7 +182,14 @@ const EvaluationReportView = ({ customerInfo, grade, destinationDutyLocationPost
                         <div className={styles.violationHeader}>
                           <h5>{`${reportViolation?.violation?.paragraphNumber} ${reportViolation?.violation?.title}`}</h5>
                           {canLeaveAppeal && (
-                            <Button unstyled className={styles.addAppealBtn} onClick={handleShowViolationAppealModal}>
+                            <Button
+                              unstyled
+                              className={styles.addAppealBtn}
+                              onClick={() => {
+                                setSelectedReportViolation(reportViolation);
+                                handleShowViolationAppealModal();
+                              }}
+                            >
                               Add appeal
                             </Button>
                           )}

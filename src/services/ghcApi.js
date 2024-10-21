@@ -192,6 +192,17 @@ export async function submitEvaluationReport({ reportID, ifMatchETag }) {
   );
 }
 
+export async function addViolationAppeal({ reportID, reportViolationID, body }) {
+  console.log('reportID', reportID);
+  console.log('reportViolationID', reportViolationID);
+  console.log('body', body);
+  return makeGHCRequest(
+    'evaluationReports.addAppealToViolation',
+    { reportID, reportViolationID, body },
+    { normalize: false },
+  );
+}
+
 export async function associateReportViolations({ reportID, body }) {
   return makeGHCRequest('reportViolations.associateReportViolations', { reportID, body }, { normalize: false });
 }
