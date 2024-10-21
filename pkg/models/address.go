@@ -37,15 +37,6 @@ func (a Address) TableName() string {
 	return "addresses"
 }
 
-// GetAddressID facilitates grabbing the ID from an address that may be nil
-func GetAddressID(address *Address) *uuid.UUID {
-	var response *uuid.UUID
-	if address != nil {
-		response = &address.ID
-	}
-	return response
-}
-
 // FetchAddressByID returns an address model by ID
 func FetchAddressByID(dbConnection *pop.Connection, id *uuid.UUID) *Address {
 	if id == nil {
@@ -131,7 +122,7 @@ func (a *Address) LineFormat() string {
 		parts = append(parts, a.PostalCode)
 	}
 	if len(*a.CountryId) > 0 {
-		parts = append(parts, a.CountryId.String())
+		parts = append(parts, a.Country.CountryName)
 	}
 
 	return strings.Join(parts, ", ")

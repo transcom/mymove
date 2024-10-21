@@ -55,11 +55,12 @@ func (suite *FactorySuite) TestBuildAddress() {
 					City:           customCity,
 					State:          customState,
 					PostalCode:     customPostalCode,
+					County:         customCounty,
 				},
 			},
 			{
 				Model: models.Country{
-					Country:     "AL",
+					Country:     "US",
 					CountryName: "UNITED STATES",
 				},
 			},

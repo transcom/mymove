@@ -2757,10 +2757,10 @@ func (suite *GHCInvoiceSuite) TestUseTacToFindLoa() {
 			},
 		}, nil)
 
-		// Update service member affiliation to Coast Guard
-		testCaseAffiliation := models.AffiliationCOASTGUARD
-		move.Orders.ServiceMember.Affiliation = &testCaseAffiliation
-		paymentRequest.MoveTaskOrder.Orders.ServiceMember.Affiliation = &testCaseAffiliation
+		// Update Department Indicator to Coast Guard
+		testCaseDepartmentIndicator := string(models.DepartmentIndicatorCOASTGUARD)
+		move.Orders.DepartmentIndicator = &testCaseDepartmentIndicator
+		paymentRequest.MoveTaskOrder.Orders.DepartmentIndicator = &testCaseDepartmentIndicator
 		paymentRequest.MoveTaskOrder.Orders.ServiceMember.Emplid = models.StringPointer("1234567")
 		err := suite.DB().Save(&move.Orders.ServiceMember)
 		suite.NoError(err)
@@ -2803,10 +2803,10 @@ func (suite *GHCInvoiceSuite) TestUseTacToFindLoa() {
 			},
 		}, nil)
 
-		// Update service member affiliation to Army
-		testCaseAffiliation := models.AffiliationARMY
-		move.Orders.ServiceMember.Affiliation = &testCaseAffiliation
-		paymentRequest.MoveTaskOrder.Orders.ServiceMember.Affiliation = &testCaseAffiliation
+		// Update Department Indicator to Army
+		testCaseDepartmentIndicator := string(models.DepartmentIndicatorARMY)
+		move.Orders.DepartmentIndicator = &testCaseDepartmentIndicator
+		paymentRequest.MoveTaskOrder.Orders.DepartmentIndicator = &testCaseDepartmentIndicator
 		err := suite.DB().Save(&move.Orders.ServiceMember)
 		suite.NoError(err)
 

@@ -157,7 +157,7 @@ func (f mtoShipmentCreator) CreateMTOShipment(appCtx appcontext.AppContext, ship
 
 	// Populate the destination address fields with the new duty location's address when
 	// we have an HHG or Boat with no destination address, but don't copy over any street fields.
-	if (shipment.ShipmentType == models.MTOShipmentTypeHHG || isBoatShipment) && shipment.DestinationAddress == nil {
+	if (shipment.ShipmentType == models.MTOShipmentTypeHHG || isBoatShipment || isMobileHomeShipment) && shipment.DestinationAddress == nil {
 		err = appCtx.DB().Load(&move, "Orders.NewDutyLocation.Address")
 		if err != nil {
 			return nil, apperror.NewQueryError("Orders", err, "")
@@ -199,7 +199,7 @@ func (f mtoShipmentCreator) CreateMTOShipment(appCtx appcontext.AppContext, ship
 		if shipment.PickupAddress != nil && shipment.ShipmentType != models.MTOShipmentTypeHHGOutOfNTSDom {
 			pickupAddress, errAddress := f.addressCreator.CreateAddress(txnAppCtx, shipment.PickupAddress)
 			if errAddress != nil {
-				return fmt.Errorf("failed to create pickup address %#v %e", verrs, err)
+				return apperror.NewInvalidInputError(uuid.Nil, nil, nil, "failed to create pickup address "+errAddress.Error())
 			}
 			shipment.PickupAddress = pickupAddress
 			shipment.PickupAddressID = &shipment.PickupAddress.ID
@@ -216,7 +216,7 @@ func (f mtoShipmentCreator) CreateMTOShipment(appCtx appcontext.AppContext, ship
 		if shipment.SecondaryPickupAddress != nil {
 			secondaryPickupAddress, errAddress := f.addressCreator.CreateAddress(txnAppCtx, shipment.SecondaryPickupAddress)
 			if errAddress != nil {
-				return fmt.Errorf("failed to create secondary pickup address %#v %e", verrs, err)
+				return apperror.NewInvalidInputError(uuid.Nil, nil, nil, "failed to create secondary pickup address "+errAddress.Error())
 			}
 			shipment.SecondaryPickupAddress = secondaryPickupAddress
 			shipment.SecondaryPickupAddressID = &shipment.SecondaryPickupAddress.ID
@@ -230,7 +230,7 @@ func (f mtoShipmentCreator) CreateMTOShipment(appCtx appcontext.AppContext, ship
 		if shipment.TertiaryPickupAddress != nil {
 			tertiaryPickupAddress, errAddress := f.addressCreator.CreateAddress(txnAppCtx, shipment.TertiaryPickupAddress)
 			if errAddress != nil {
-				return fmt.Errorf("failed to create tertiary pickup address %#v %e", verrs, err)
+				return apperror.NewInvalidInputError(uuid.Nil, nil, nil, "failed to create tertiary pickup address "+errAddress.Error())
 			}
 			shipment.TertiaryPickupAddress = tertiaryPickupAddress
 			shipment.TertiaryPickupAddressID = &shipment.TertiaryPickupAddress.ID
@@ -244,7 +244,7 @@ func (f mtoShipmentCreator) CreateMTOShipment(appCtx appcontext.AppContext, ship
 		if shipment.DestinationAddress != nil && shipment.ShipmentType != models.MTOShipmentTypeHHGIntoNTSDom {
 			destinationAddress, errAddress := f.addressCreator.CreateAddress(txnAppCtx, shipment.DestinationAddress)
 			if errAddress != nil {
-				return fmt.Errorf("failed to create destination address %#v %e", verrs, err)
+				return apperror.NewInvalidInputError(uuid.Nil, nil, nil, "failed to create destination address "+errAddress.Error())
 			}
 			shipment.DestinationAddress = destinationAddress
 			shipment.DestinationAddressID = &shipment.DestinationAddress.ID
@@ -258,7 +258,7 @@ func (f mtoShipmentCreator) CreateMTOShipment(appCtx appcontext.AppContext, ship
 		if shipment.SecondaryDeliveryAddress != nil {
 			secondaryDeliveryAddress, errAddress := f.addressCreator.CreateAddress(txnAppCtx, shipment.SecondaryDeliveryAddress)
 			if errAddress != nil {
-				return fmt.Errorf("failed to create secondary delivery address %#v %e", verrs, err)
+				return apperror.NewInvalidInputError(uuid.Nil, nil, nil, "failed to create secondary delivery address "+errAddress.Error())
 			}
 			shipment.SecondaryDeliveryAddress = secondaryDeliveryAddress
 			shipment.SecondaryDeliveryAddressID = &shipment.SecondaryDeliveryAddress.ID
@@ -272,7 +272,7 @@ func (f mtoShipmentCreator) CreateMTOShipment(appCtx appcontext.AppContext, ship
 		if shipment.TertiaryDeliveryAddress != nil {
 			tertiaryDeliveryAddress, errAddress := f.addressCreator.CreateAddress(txnAppCtx, shipment.TertiaryDeliveryAddress)
 			if errAddress != nil {
-				return fmt.Errorf("failed to create tertiary pickup address %#v %e", verrs, err)
+				return apperror.NewInvalidInputError(uuid.Nil, nil, nil, "failed to create tertiary delivery address "+errAddress.Error())
 			}
 			shipment.TertiaryDeliveryAddress = tertiaryDeliveryAddress
 			shipment.TertiaryDeliveryAddressID = &shipment.TertiaryDeliveryAddress.ID
@@ -286,7 +286,7 @@ func (f mtoShipmentCreator) CreateMTOShipment(appCtx appcontext.AppContext, ship
 		if shipment.StorageFacility != nil {
 			storageFacility, errAddress := f.addressCreator.CreateAddress(txnAppCtx, &shipment.StorageFacility.Address)
 			if errAddress != nil {
-				return fmt.Errorf("failed to create storage facility address %#v %e", verrs, err)
+				return apperror.NewInvalidInputError(uuid.Nil, nil, nil, "failed to create storage facility address "+errAddress.Error())
 			}
 			shipment.StorageFacility.Address = *storageFacility
 			shipment.StorageFacility.AddressID = shipment.StorageFacility.Address.ID
