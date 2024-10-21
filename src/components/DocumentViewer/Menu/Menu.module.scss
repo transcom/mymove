@@ -49,6 +49,12 @@
   overflow-x: auto;
 }
 
+.menuItem {
+  white-space: normal;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+}
+
 .menuItemBtn {
   justify-content: flex-start;
   width: 100%;
@@ -107,11 +113,17 @@
 // Limit the max width of the filename when a tag is present
 .fileNameWithTag {
   max-width: 55%;
+  white-space: normal;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
 }
 
 // This allows the filename to take up the full width when no tag is present
 .fileNameFullWidth {
   max-width: 100%;
+  white-space: normal;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
 }
 
 // TODO
