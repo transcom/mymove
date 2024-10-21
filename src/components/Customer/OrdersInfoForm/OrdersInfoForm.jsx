@@ -68,7 +68,7 @@ const OrdersInfoForm = ({ ordersTypeOptions, initialValues, onSubmit, onBack }) 
     isBooleanFlagEnabled(FEATURE_FLAG_KEYS.UNACCOMPANIED_BAGGAGE).then((enabled) => {
       if (enabled) setEnableUB(true);
     });
-  });
+  }, []);
   useEffect(() => {
     // If current duty location is defined, show the counseling offices
     if (currentDutyLocation?.id) {
