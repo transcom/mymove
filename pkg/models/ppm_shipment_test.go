@@ -97,7 +97,7 @@ func (suite *ModelSuite) TestPPMShipmentValidation() {
 				"estimated_weight":               {"-1 is less than zero."},
 				"pro_gear_weight":                {"-1 is less than zero."},
 				"spouse_pro_gear_weight":         {"-1 is less than zero."},
-				"estimated_incentive":            {"EstimatedIncentive cannot be negative, got: 0."},
+				"estimated_incentive":            {"EstimatedIncentive cannot be negative, got: -1."},
 				"final_incentive":                {"FinalIncentive must be greater than zero, got: 0."},
 				"advance_amount_requested":       {"AdvanceAmountRequested must be greater than zero, got: 0."},
 				"advance_status":                 {fmt.Sprintf("AdvanceStatus is not in the list [%s].", validPPMShipmentAdvanceStatuses)},
