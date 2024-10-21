@@ -158,6 +158,7 @@ func (suite *PPMShipmentSuite) TestValidationRules() {
 			City:           "Des Moines",
 			State:          "IA",
 			PostalCode:     "50309",
+			County:         "POLK",
 		}
 		destinationAddress := &models.Address{
 			StreetAddress1: "987 Other Avenue",
@@ -166,6 +167,7 @@ func (suite *PPMShipmentSuite) TestValidationRules() {
 			City:           "Fort Eisenhower",
 			State:          "GA",
 			PostalCode:     "50309",
+			County:         "COLUMBIA",
 		}
 
 		suite.Run("success", func() {
