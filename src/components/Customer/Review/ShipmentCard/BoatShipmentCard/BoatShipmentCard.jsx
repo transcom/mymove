@@ -36,6 +36,7 @@ const BoatShipmentCard = ({
   requestedDeliveryDate,
   requestedPickupDate,
   shipmentId,
+  marketCode,
 }) => {
   const { moveTaskOrderID, id, shipmentType, shipmentLocator } = shipment;
   const { type, year, make, model, lengthInInches, widthInInches, heightInInches, hasTrailer, isRoadworthy } =
@@ -73,7 +74,10 @@ const BoatShipmentCard = ({
         )}
         <div className={styles.ShipmentCardHeader}>
           <div className={styles.shipmentTypeNumber}>
-            <h3 data-testid="ShipmentCardNumber">{shipmentLabel}</h3>
+            <h3 data-testid="ShipmentCardNumber">
+              <span className={styles.marketCodeIndicator}>{marketCode}</span>
+              {shipmentLabel}
+            </h3>
             <p>#{moveCodeLabel}</p>
           </div>
           {showEditAndDeleteBtn && (
