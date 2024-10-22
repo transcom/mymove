@@ -1,9 +1,11 @@
 import React from 'react';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { Provider } from 'react-redux';
 
 import { MockProviders } from 'testUtils';
 import ConnectedResidentialAddress, { ResidentialAddress } from 'pages/MyMove/Profile/ResidentialAddress';
+import { configureStore } from 'shared/store';
 import { customerRoutes } from 'constants/routes';
 import { patchServiceMember } from 'services/internalApi';
 import { ValidateZipRateData } from 'shared/api';
@@ -35,6 +37,7 @@ describe('ResidentialAddress page', () => {
     city: 'El Paso',
     state: 'TX',
     postalCode: '79912',
+    county: 'El Paso',
   };
 
   const blankAddress = Object.fromEntries(Object.keys(fakeAddress).map((k) => [k, '']));
@@ -50,8 +53,13 @@ describe('ResidentialAddress page', () => {
 
   it('renders the ResidentialAddressForm', async () => {
     const testProps = generateTestProps(blankAddress);
+    const mockStore = configureStore({});
 
-    render(<ResidentialAddress {...testProps} />);
+    render(
+      <Provider store={mockStore.store}>
+        <ResidentialAddress {...testProps} />
+      </Provider>,
+    );
 
     await waitFor(() => {
       expect(screen.getByRole('heading', { name: 'Current address', level: 1 })).toBeInTheDocument();
@@ -81,8 +89,13 @@ describe('ResidentialAddress page', () => {
 
   it('back button goes to the contact info step', async () => {
     const testProps = generateTestProps(blankAddress);
+    const mockStore = configureStore({});
 
-    render(<ResidentialAddress {...testProps} />);
+    render(
+      <Provider store={mockStore.store}>
+        <ResidentialAddress {...testProps} />
+      </Provider>,
+    );
 
     const backButton = await screen.findByRole('button', { name: 'Back' });
     expect(backButton).toBeInTheDocument();
@@ -91,42 +104,9 @@ describe('ResidentialAddress page', () => {
     expect(mockNavigate).toHaveBeenCalledWith(customerRoutes.CONTACT_INFO_PATH);
   });
 
-  it('Selecting an unsupported state should display an unsupported state message', async () => {
-    const testProps = generateTestProps(blankAddress);
-
-    const expectedServiceMemberPayload = { ...testProps.serviceMember, residential_address: fakeAddress };
-
-    ValidateZipRateData.mockImplementation(() => ({
-      valid: true,
-    }));
-    patchServiceMember.mockImplementation(() => Promise.resolve(expectedServiceMemberPayload));
-
-    const { getByLabelText, getByText } = render(<ResidentialAddress {...testProps} />);
-
-    await userEvent.type(screen.getByLabelText(/Address 1/), fakeAddress.streetAddress1);
-    await userEvent.type(screen.getByLabelText(/Address 2/), fakeAddress.streetAddress2);
-    await userEvent.type(screen.getByLabelText(/City/), fakeAddress.city);
-    await userEvent.selectOptions(screen.getByLabelText(/State/), 'HI');
-    await userEvent.type(screen.getByLabelText(/ZIP/), fakeAddress.postalCode);
-    await userEvent.tab();
-
-    let msg = getByText('Moves to this state are not supported at this time.');
-    expect(msg).toBeVisible();
-
-    await userEvent.selectOptions(getByLabelText(/State/), 'AL');
-    await userEvent.type(getByLabelText(/ZIP/), fakeAddress.postalCode);
-    await userEvent.tab();
-    expect(msg).not.toBeVisible();
-
-    await userEvent.selectOptions(getByLabelText(/State/), 'HI');
-    await userEvent.type(getByLabelText(/ZIP/), fakeAddress.postalCode);
-    await userEvent.tab();
-    msg = getByText('Moves to this state are not supported at this time.');
-    expect(msg).toBeVisible();
-  });
-
   it('next button submits the form and goes to the Backup address step', async () => {
-    const testProps = generateTestProps(blankAddress);
+    const testProps = generateTestProps(fakeAddress);
+    const mockStore = configureStore({});
 
     const expectedServiceMemberPayload = { ...testProps.serviceMember, residential_address: fakeAddress };
 
@@ -135,13 +115,14 @@ describe('ResidentialAddress page', () => {
     }));
     patchServiceMember.mockImplementation(() => Promise.resolve(expectedServiceMemberPayload));
 
-    render(<ResidentialAddress {...testProps} />);
+    render(
+      <Provider store={mockStore.store}>
+        <ResidentialAddress {...testProps} />
+      </Provider>,
+    );
 
     await userEvent.type(screen.getByLabelText(/Address 1/), fakeAddress.streetAddress1);
     await userEvent.type(screen.getByLabelText(/Address 2/), fakeAddress.streetAddress2);
-    await userEvent.type(screen.getByLabelText(/City/), fakeAddress.city);
-    await userEvent.selectOptions(screen.getByLabelText(/State/), [fakeAddress.state]);
-    await userEvent.type(screen.getByLabelText(/ZIP/), fakeAddress.postalCode);
     await userEvent.tab();
 
     const submitButton = screen.getByRole('button', { name: 'Next' });
@@ -185,6 +166,7 @@ describe('ResidentialAddress page', () => {
 
   it('shows an error if the patchServiceMember API returns an error', async () => {
     const testProps = generateTestProps(fakeAddress);
+    const mockStore = configureStore({});
 
     ValidateZipRateData.mockImplementation(() => ({
       valid: true,
@@ -202,7 +184,11 @@ describe('ResidentialAddress page', () => {
       }),
     );
 
-    render(<ResidentialAddress {...testProps} />);
+    render(
+      <Provider store={mockStore.store}>
+        <ResidentialAddress {...testProps} />
+      </Provider>,
+    );
 
     const submitButton = screen.getByRole('button', { name: 'Next' });
     expect(submitButton).toBeInTheDocument();

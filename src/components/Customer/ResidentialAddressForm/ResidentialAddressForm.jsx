@@ -1,4 +1,4 @@
-import React from 'react';
+import { React, useState } from 'react';
 import PropTypes from 'prop-types';
 import { Formik } from 'formik';
 import classnames from 'classnames';
@@ -18,6 +18,7 @@ const ResidentialAddressForm = ({ formFieldsName, initialValues, onSubmit, onBac
   const validationSchema = Yup.object().shape({
     [formFieldsName]: requiredAddressSchema.required(),
   });
+  const [isLookupErrorVisible, setIsLookupErrorVisible] = useState(false);
 
   return (
     <Formik
@@ -27,7 +28,29 @@ const ResidentialAddressForm = ({ formFieldsName, initialValues, onSubmit, onBac
       validateOnMount
       validationSchema={validationSchema}
     >
-      {({ isValid, isSubmitting, handleChange, handleSubmit, setFieldTouched }) => {
+      {({ isValid, isSubmitting, handleSubmit, values, setValues }) => {
+        const handleZipCityChange = (value) => {
+          setValues(
+            {
+              ...values,
+              current_residence: {
+                ...values.current_residence,
+                city: value.city ? value.city : '',
+                state: value.state ? value.state : '',
+                county: value.county ? value.county : '',
+                postalCode: value.postalCode ? value.postalCode : '',
+              },
+            },
+            { shouldValidate: true },
+          );
+
+          if (!value.city || !value.state || !value.county || !value.postalCode) {
+            setIsLookupErrorVisible(true);
+          } else {
+            setIsLookupErrorVisible(false);
+          }
+        };
+
         return (
           <Form className={formStyles.form}>
             <h1>Current address</h1>
@@ -37,7 +60,9 @@ const ResidentialAddressForm = ({ formFieldsName, initialValues, onSubmit, onBac
                 labelHint="Required"
                 name={formFieldsName}
                 validators={validators}
-                formikFunctionsToValidatePostalCodeOnChange={{ handleChange, setFieldTouched }}
+                zipCityEnabled
+                zipCityError={isLookupErrorVisible}
+                handleZipCityChange={handleZipCityChange}
               />
             </SectionWrapper>
 
@@ -66,6 +91,7 @@ ResidentialAddressForm.propTypes = {
     city: PropTypes.func,
     state: PropTypes.func,
     postalCode: PropTypes.func,
+    county: PropTypes.func,
   }),
 };
 

@@ -2,8 +2,13 @@ import React from 'react';
 import { render, fireEvent } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { Formik } from 'formik';
+import { Provider } from 'react-redux';
 
 import { AddressFields } from './AddressFields';
+
+import { configureStore } from 'shared/store';
+
+const handleZipCityChange = {};
 
 describe('AddressFields component', () => {
   it('renders a legend and all address inputs', () => {
@@ -118,6 +123,74 @@ describe('AddressFields component', () => {
       const postalCodeError = await findByRole('alert');
 
       expect(postalCodeError).toHaveTextContent(postalCodeErrorText);
+    });
+  });
+
+  describe('zip city enabled with pre-filled values', () => {
+    it('renders zip city lookup with info', () => {
+      const initialValues = {
+        address: {
+          streetAddress1: '123 Main St',
+          streetAddress2: 'Apt 3A',
+          city: 'New York',
+          state: 'NY',
+          postalCode: '10002',
+          county: 'NEW YORK',
+        },
+      };
+      const mockStore = configureStore({});
+
+      const { getByLabelText, getByTestId } = render(
+        <Provider store={mockStore.store}>
+          <Formik initialValues={initialValues}>
+            <AddressFields
+              legend="Address Form"
+              name="address"
+              zipCityEnabled
+              handleZipCityChange={handleZipCityChange}
+            />
+          </Formik>
+        </Provider>,
+      );
+      expect(getByLabelText('Address 1')).toHaveValue(initialValues.address.streetAddress1);
+      expect(getByLabelText(/Address 2/)).toHaveValue(initialValues.address.streetAddress2);
+      expect(getByLabelText('City')).toHaveValue(initialValues.address.city);
+      expect(getByLabelText('State')).toHaveValue(initialValues.address.state);
+      expect(getByLabelText('ZIP')).toHaveValue(initialValues.address.postalCode);
+      expect(getByTestId('zipCityInfo')).toBeInTheDocument();
+    });
+    it('renders zip city lookup with error', () => {
+      const initialValues = {
+        address: {
+          streetAddress1: '123 Main St',
+          streetAddress2: 'Apt 3A',
+          city: 'New York',
+          state: 'NY',
+          postalCode: '10002',
+          county: 'NEW YORK',
+        },
+      };
+      const mockStore = configureStore({});
+
+      const { getByLabelText, getByTestId } = render(
+        <Provider store={mockStore.store}>
+          <Formik initialValues={initialValues}>
+            <AddressFields
+              legend="Address Form"
+              name="address"
+              zipCityEnabled
+              zipCityError
+              handleZipCityChange={handleZipCityChange}
+            />
+          </Formik>
+        </Provider>,
+      );
+      expect(getByLabelText('Address 1')).toHaveValue(initialValues.address.streetAddress1);
+      expect(getByLabelText(/Address 2/)).toHaveValue(initialValues.address.streetAddress2);
+      expect(getByLabelText('City')).toHaveValue(initialValues.address.city);
+      expect(getByLabelText('State')).toHaveValue(initialValues.address.state);
+      expect(getByLabelText('ZIP')).toHaveValue(initialValues.address.postalCode);
+      expect(getByTestId('zipCityError')).toBeInTheDocument();
     });
   });
 });

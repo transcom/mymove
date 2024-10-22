@@ -1,4 +1,4 @@
-import React from 'react';
+import { React, useState } from 'react';
 import { Formik } from 'formik';
 import PropTypes from 'prop-types';
 import * as Yup from 'yup';
@@ -53,6 +53,7 @@ const EditPPMHeaderSummaryModal = ({ sectionType, sectionInfo, onClose, onSubmit
       otherwise: (schema) => schema,
     }),
   });
+  const [isLookupErrorVisible, setIsLookupErrorVisible] = useState(false);
 
   return (
     <div>
@@ -64,7 +65,49 @@ const EditPPMHeaderSummaryModal = ({ sectionType, sectionInfo, onClose, onSubmit
             <h3>{title}</h3>
           </ModalTitle>
           <Formik validationSchema={validationSchema} initialValues={initialValues} onSubmit={onSubmit}>
-            {({ isValid, handleChange, setFieldTouched }) => {
+            {({ isValid, handleChange, setFieldTouched, values, setValues }) => {
+              const handlePickupZipCityChange = (value) => {
+                setValues(
+                  {
+                    ...values,
+                    pickupAddress: {
+                      ...values.pickupAddress,
+                      city: value.city,
+                      state: value.state ? value.state : '',
+                      county: value.county,
+                      postalCode: value.postalCode,
+                    },
+                  },
+                  { shouldValidate: true },
+                );
+
+                if (!value.city || !value.state || !value.county || !value.postalCode) {
+                  setIsLookupErrorVisible(true);
+                } else {
+                  setIsLookupErrorVisible(false);
+                }
+              };
+              const handleDestinationZipCityChange = (value) => {
+                setValues(
+                  {
+                    ...values,
+                    destinationAddress: {
+                      ...values.destinationAddress,
+                      city: value.city,
+                      state: value.state ? value.state : '',
+                      county: value.county,
+                      postalCode: value.postalCode,
+                    },
+                  },
+                  { shouldValidate: true },
+                );
+
+                if (!value.city || !value.state || !value.county || !value.postalCode) {
+                  setIsLookupErrorVisible(true);
+                } else {
+                  setIsLookupErrorVisible(false);
+                }
+              };
               return (
                 <Form>
                   <div>
@@ -96,6 +139,8 @@ const EditPPMHeaderSummaryModal = ({ sectionType, sectionInfo, onClose, onSubmit
                         legend="Pickup Address"
                         className={styles.AddressFieldSet}
                         formikFunctionsToValidatePostalCodeOnChange={{ handleChange, setFieldTouched }}
+                        zipCityError={isLookupErrorVisible}
+                        handleZipCityChange={handlePickupZipCityChange}
                       />
                     )}
                     {editItemName === 'destinationAddress' && (
@@ -104,6 +149,8 @@ const EditPPMHeaderSummaryModal = ({ sectionType, sectionInfo, onClose, onSubmit
                         legend="Destination Address"
                         className={styles.AddressFieldSet}
                         formikFunctionsToValidatePostalCodeOnChange={{ handleChange, setFieldTouched }}
+                        zipCityError={isLookupErrorVisible}
+                        handleZipCityChange={handleDestinationZipCityChange}
                       />
                     )}
                   </div>

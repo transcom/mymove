@@ -33,6 +33,7 @@ const mockTransportationOffice = [
       postalCode: '',
       state: '',
       streetAddress1: '',
+      county: '',
     },
     address_id: '46c4640b-c35e-4293-a2f1-36c7b629f903',
     affiliation: 'AIR_FORCE',
@@ -69,6 +70,7 @@ jest.mock('components/LocationSearchBox/api', () => ({
       postalCode: '85309',
       state: 'AZ',
       streetAddress1: 'n/a',
+      county: 'MARICOPA',
     }),
   ),
 }));
@@ -87,6 +89,7 @@ const useEditShipmentQueriesReturnValue = {
         city: 'Fort Knox',
         state: 'KY',
         postalCode: '40121',
+        county: 'HARDIN',
       },
     },
     destinationDutyLocation: {
@@ -95,6 +98,7 @@ const useEditShipmentQueriesReturnValue = {
         city: 'Fort Irwin',
         state: 'CA',
         postalCode: '92310',
+        county: 'SAN BERNARDINO',
       },
     },
     customer: {
@@ -114,6 +118,7 @@ const useEditShipmentQueriesReturnValue = {
         streetAddress1: '123 Any Street',
         streetAddress2: 'P.O. Box 12345',
         streetAddress3: 'c/o Some Person',
+        county: 'LOS ANGELES',
       },
       dodID: '6833908165',
       eTag: 'MjAyMS0wMS0yMVQxNTo0MTozNS41NjAzNTJa',
@@ -153,6 +158,7 @@ const useEditShipmentQueriesReturnValue = {
         streetAddress1: '987 Any Avenue',
         streetAddress2: 'P.O. Box 9876',
         streetAddress3: 'c/o Some Person',
+        county: 'SOLANO',
       },
       eTag: 'MjAyMC0wNi0xMFQxNTo1ODowMi40MDQwMzFa',
       id: 'shipment123',
@@ -167,6 +173,7 @@ const useEditShipmentQueriesReturnValue = {
         streetAddress1: '123 Any Street',
         streetAddress2: 'P.O. Box 12345',
         streetAddress3: 'c/o Some Person',
+        county: 'LOS ANGELES',
       },
       requestedPickupDate: '2018-03-15',
       scheduledPickupDate: '2018-03-16',
@@ -199,6 +206,7 @@ const ppmShipment = {
       city: 'Test City',
       state: 'KY',
       postalCode: '42701',
+      county: 'HARDIN',
     },
     secondaryPickupAddress: {
       streetAddress1: '777 Test Street',
@@ -207,6 +215,7 @@ const ppmShipment = {
       city: 'Test City',
       state: 'KY',
       postalCode: '42702',
+      county: 'HARDIN',
     },
     destinationAddress: {
       streetAddress1: '222 Test Street',
@@ -215,6 +224,7 @@ const ppmShipment = {
       city: 'Test City',
       state: 'KY',
       postalCode: '42703',
+      county: 'HARDIN',
     },
     secondaryDestinationAddress: {
       streetAddress1: '444 Test Street',
@@ -223,6 +233,7 @@ const ppmShipment = {
       city: 'Test City',
       state: 'KY',
       postalCode: '42701',
+      county: 'HARDIN',
     },
     sitExpected: false,
     estimatedWeight: 1111,

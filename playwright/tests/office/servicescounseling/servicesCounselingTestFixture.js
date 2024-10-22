@@ -173,9 +173,10 @@ export class ServiceCounselorPage extends OfficePage {
     const deliveryLocation = await this.page.getByRole('group', { name: 'Delivery location' });
     await deliveryLocation.getByLabel('Address 1').fill('448 Washington Blvd NE');
     await deliveryLocation.getByLabel('Address 2').fill('Apt D3');
-    await deliveryLocation.getByLabel('City').fill('Another City');
+    await deliveryLocation.getByTestId('delivery.address.city').fill('Another City');
     await deliveryLocation.getByLabel('State').selectOption({ label: 'AL' });
-    await deliveryLocation.getByLabel('ZIP').fill('36101');
+    await deliveryLocation.getByLabel('ZIP', { exact: true }).fill('36101');
+    await deliveryLocation.getByLabel('County').fill('MONTGOMERY');
 
     // Remarks
     await this.page.getByLabel('Counselor remarks').fill('NTS-release counselor remarks');

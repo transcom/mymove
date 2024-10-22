@@ -1,8 +1,11 @@
 import React from 'react';
 import { render, screen, waitFor, act } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { Provider } from 'react-redux';
 
 import EditPPMHeaderSummaryModal from './EditPPMHeaderSummaryModal';
+
+import { configureStore } from 'shared/store';
 
 let onClose;
 let onSubmit;
@@ -28,6 +31,7 @@ describe('EditPPMHeaderSummaryModal', () => {
       streetAddress1: '987 Any Avenue',
       streetAddress2: 'P.O. Box 9876',
       streetAddress3: 'c/o Some Person',
+      county: 'SOLANO',
     },
     pickupAddressObj: {
       city: 'Beverly Hills',
@@ -39,6 +43,7 @@ describe('EditPPMHeaderSummaryModal', () => {
       streetAddress1: '123 Any Street',
       streetAddress2: 'P.O. Box 12345',
       streetAddress3: 'c/o Some Person',
+      county: 'LOS ANGELES',
     },
   };
 
@@ -63,15 +68,19 @@ describe('EditPPMHeaderSummaryModal', () => {
   });
 
   it('renders pickup address', async () => {
+    const mockStore = configureStore({});
+
     await act(async () => {
       render(
-        <EditPPMHeaderSummaryModal
-          sectionType="shipmentInfo"
-          sectionInfo={sectionInfo}
-          onClose={onClose}
-          onSubmit={onSubmit}
-          editItemName="pickupAddress"
-        />,
+        <Provider store={mockStore.store}>
+          <EditPPMHeaderSummaryModal
+            sectionType="shipmentInfo"
+            sectionInfo={sectionInfo}
+            onClose={onClose}
+            onSubmit={onSubmit}
+            editItemName="pickupAddress"
+          />
+        </Provider>,
       );
     });
 
@@ -83,15 +92,19 @@ describe('EditPPMHeaderSummaryModal', () => {
   });
 
   it('renders destination address', async () => {
+    const mockStore = configureStore({});
+
     await act(async () => {
       render(
-        <EditPPMHeaderSummaryModal
-          sectionType="shipmentInfo"
-          sectionInfo={sectionInfo}
-          onClose={onClose}
-          onSubmit={onSubmit}
-          editItemName="destinationAddress"
-        />,
+        <Provider store={mockStore.store}>
+          <EditPPMHeaderSummaryModal
+            sectionType="shipmentInfo"
+            sectionInfo={sectionInfo}
+            onClose={onClose}
+            onSubmit={onSubmit}
+            editItemName="destinationAddress"
+          />
+        </Provider>,
       );
     });
 

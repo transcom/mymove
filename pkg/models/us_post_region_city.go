@@ -29,7 +29,10 @@ type UsPostRegionCity struct {
 	CtryGencDgphCd          string    `db:"ctry_genc_dgph_cd" json:"ctry_genc_dgph_cd"`
 	CreatedAt               time.Time `db:"created_at" json:"created_at"`
 	UpdatedAt               time.Time `db:"updated_at" json:"updated_at"`
+	State                   string    `db:"state" json:"state"`
 }
+
+type UsPostRegionCities []UsPostRegionCity
 
 // Validate gets run every time you call a "pop.Validate*" (pop.ValidateAndSave, pop.ValidateAndCreate, pop.ValidateAndUpdate) method.
 func (usprc *UsPostRegionCity) Validate(_ *pop.Connection) (*validate.Errors, error) {
@@ -39,6 +42,7 @@ func (usprc *UsPostRegionCity) Validate(_ *pop.Connection) (*validate.Errors, er
 		&validators.StringIsPresent{Field: usprc.USPostRegionCityNm, Name: "USPostRegionCityNm"},
 		&validators.StringIsPresent{Field: usprc.UsprcPrfdLstLineCtystNm, Name: "UsprcPrfdLstLineCtystNm"},
 		&validators.StringIsPresent{Field: usprc.UsprcCountyNm, Name: "UsprcCountyNm"},
+		&validators.StringIsPresent{Field: usprc.State, Name: "State"},
 	), nil
 }
 

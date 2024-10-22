@@ -19,6 +19,7 @@ import (
 	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
 
+	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/addresses"
 	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/application_parameters"
 	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/calendar"
 	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/customer"
@@ -161,6 +162,9 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		}),
 		EvaluationReportsGetEvaluationReportHandler: evaluation_reports.GetEvaluationReportHandlerFunc(func(params evaluation_reports.GetEvaluationReportParams) middleware.Responder {
 			return middleware.NotImplemented("operation evaluation_reports.GetEvaluationReport has not yet been implemented")
+		}),
+		AddressesGetLocationByZipCityHandler: addresses.GetLocationByZipCityHandlerFunc(func(params addresses.GetLocationByZipCityParams) middleware.Responder {
+			return middleware.NotImplemented("operation addresses.GetLocationByZipCity has not yet been implemented")
 		}),
 		MtoServiceItemGetMTOServiceItemHandler: mto_service_item.GetMTOServiceItemHandlerFunc(func(params mto_service_item.GetMTOServiceItemParams) middleware.Responder {
 			return middleware.NotImplemented("operation mto_service_item.GetMTOServiceItem has not yet been implemented")
@@ -480,6 +484,8 @@ type MymoveAPI struct {
 	MoveTaskOrderGetEntitlementsHandler move_task_order.GetEntitlementsHandler
 	// EvaluationReportsGetEvaluationReportHandler sets the operation handler for the get evaluation report operation
 	EvaluationReportsGetEvaluationReportHandler evaluation_reports.GetEvaluationReportHandler
+	// AddressesGetLocationByZipCityHandler sets the operation handler for the get location by zip city operation
+	AddressesGetLocationByZipCityHandler addresses.GetLocationByZipCityHandler
 	// MtoServiceItemGetMTOServiceItemHandler sets the operation handler for the get m t o service item operation
 	MtoServiceItemGetMTOServiceItemHandler mto_service_item.GetMTOServiceItemHandler
 	// MoveGetMoveHandler sets the operation handler for the get move operation
@@ -795,6 +801,9 @@ func (o *MymoveAPI) Validate() error {
 	}
 	if o.EvaluationReportsGetEvaluationReportHandler == nil {
 		unregistered = append(unregistered, "evaluation_reports.GetEvaluationReportHandler")
+	}
+	if o.AddressesGetLocationByZipCityHandler == nil {
+		unregistered = append(unregistered, "addresses.GetLocationByZipCityHandler")
 	}
 	if o.MtoServiceItemGetMTOServiceItemHandler == nil {
 		unregistered = append(unregistered, "mto_service_item.GetMTOServiceItemHandler")
@@ -1222,6 +1231,10 @@ func (o *MymoveAPI) initHandlerCache() {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
 	o.handlers["GET"]["/evaluation-reports/{reportID}"] = evaluation_reports.NewGetEvaluationReport(o.context, o.EvaluationReportsGetEvaluationReportHandler)
+	if o.handlers["GET"] == nil {
+		o.handlers["GET"] = make(map[string]http.Handler)
+	}
+	o.handlers["GET"]["/addresses/zip_city_lookup/{search}"] = addresses.NewGetLocationByZipCity(o.context, o.AddressesGetLocationByZipCityHandler)
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}

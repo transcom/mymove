@@ -90,6 +90,7 @@ export class PpmPage extends ServiceCounselorPage {
     await this.page.locator('input[name="pickup.address.city"]').fill('SomeCity - Secondary');
     await this.page.locator('select[name="pickup.address.state"]').selectOption({ label: 'CA' });
     await this.page.locator('input[name="pickup.address.postalCode"]').fill('90210');
+    await this.page.locator('input[name="pickup.address.county"]').fill('LOS ANGELES');
   }
 
   /**
@@ -104,6 +105,7 @@ export class PpmPage extends ServiceCounselorPage {
     await this.page.locator('input[name="destination.address.streetAddress1"]').fill('123 Street');
     await this.page.locator('input[name="destination.address.city"]').fill('SomeCity');
     await this.page.locator('select[name="destination.address.state"]').selectOption({ label: 'TX' });
+    await this.page.locator('input[name="destination.address.county"]').fill('TARRANT');
   }
 
   /**

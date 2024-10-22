@@ -12,6 +12,7 @@ func (suite *ModelSuite) TestCanSaveValidUsPostRegionCity() {
 		UsprcPrfdLstLineCtystNm: "USPRC Preferred City Name",
 		UsprcCountyNm:           "USPRC County",
 		CtryGencDgphCd:          "US",
+		State:                   "CA",
 	}
 
 	suite.MustCreate(&usPostRegionCity)
@@ -26,6 +27,7 @@ func (suite *ModelSuite) TestInvalidUsPostRegionCity() {
 		"uspost_region_city_nm":        {"USPostRegionCityNm can not be blank."},
 		"usprc_prfd_lst_line_ctyst_nm": {"UsprcPrfdLstLineCtystNm can not be blank."},
 		"usprc_county_nm":              {"UsprcCountyNm can not be blank."},
+		"state":                        {"State can not be blank."},
 	}
 
 	suite.verifyValidationErrors(&usPostRegionCity, expErrors)
@@ -52,6 +54,7 @@ func (suite *ModelSuite) TestFindCountyByZipCode() {
 		UsprcPrfdLstLineCtystNm: "00000 Preferred City Name",
 		UsprcCountyNm:           "00000's County",
 		CtryGencDgphCd:          "US",
+		State:                   "CA",
 	}
 
 	suite.MustCreate(&usPostRegionCity)

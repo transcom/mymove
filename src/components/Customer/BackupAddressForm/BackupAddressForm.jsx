@@ -1,4 +1,4 @@
-import React from 'react';
+import { React, useState } from 'react';
 import PropTypes from 'prop-types';
 import { Formik } from 'formik';
 import * as Yup from 'yup';
@@ -15,6 +15,7 @@ const BackupAddressForm = ({ formFieldsName, initialValues, onSubmit, onBack }) 
   const validationSchema = Yup.object().shape({
     [formFieldsName]: requiredAddressSchema.required(),
   });
+  const [isLookupErrorVisible, setIsLookupErrorVisible] = useState(false);
 
   return (
     <Formik
@@ -24,7 +25,29 @@ const BackupAddressForm = ({ formFieldsName, initialValues, onSubmit, onBack }) 
       validateOnMount
       validationSchema={validationSchema}
     >
-      {({ isValid, isSubmitting, handleChange, handleSubmit, setFieldTouched }) => {
+      {({ isValid, isSubmitting, handleSubmit, values, setValues }) => {
+        const handleZipCityChange = (value) => {
+          setValues(
+            {
+              ...values,
+              backup_mailing_address: {
+                ...values.backup_mailing_address,
+                city: value.city,
+                state: value.state ? value.state : '',
+                county: value.county,
+                postalCode: value.postalCode,
+              },
+            },
+            { shouldValidate: true },
+          );
+
+          if (!value.city || !value.state || !value.county || !value.postalCode) {
+            setIsLookupErrorVisible(true);
+          } else {
+            setIsLookupErrorVisible(false);
+          }
+        };
+
         return (
           <Form className={formStyles.form}>
             <h1>Backup address</h1>
@@ -38,7 +61,9 @@ const BackupAddressForm = ({ formFieldsName, initialValues, onSubmit, onBack }) 
               <AddressFields
                 labelHint="Required"
                 name={formFieldsName}
-                formikFunctionsToValidatePostalCodeOnChange={{ setFieldTouched, handleChange }}
+                zipCityEnabled
+                zipCityError={isLookupErrorVisible}
+                handleZipCityChange={handleZipCityChange}
               />
             </SectionWrapper>
 

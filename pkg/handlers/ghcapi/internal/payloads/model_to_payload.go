@@ -2376,3 +2376,30 @@ func SearchCustomers(customers models.ServiceMemberSearchResults) *ghcmessages.S
 	}
 	return &searchCustomers
 }
+
+// UsPostRegionCity payload
+func UsPostRegionCity(usPostRegionCity *models.UsPostRegionCity) *ghcmessages.UsPostRegionCity {
+	if usPostRegionCity == nil {
+		return nil
+	}
+	if *usPostRegionCity == (models.UsPostRegionCity{}) {
+		return nil
+	}
+
+	return &ghcmessages.UsPostRegionCity{
+		City:       usPostRegionCity.USPostRegionCityNm,
+		State:      usPostRegionCity.State,
+		PostalCode: usPostRegionCity.UsprZipID,
+		County:     &usPostRegionCity.UsprcCountyNm,
+	}
+}
+
+// UsPostRegionCities payload
+func UsPostRegionCities(usPostRegionCities models.UsPostRegionCities) ghcmessages.UsPostRegionCities {
+	payload := make(ghcmessages.UsPostRegionCities, len(usPostRegionCities))
+	for i, usPostRegionCity := range usPostRegionCities {
+		copyOfUsPostRegionCity := usPostRegionCity
+		payload[i] = UsPostRegionCity(&copyOfUsPostRegionCity)
+	}
+	return payload
+}

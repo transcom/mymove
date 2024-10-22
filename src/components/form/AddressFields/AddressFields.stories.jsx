@@ -125,3 +125,24 @@ export const InsideSectionWrapper = () => (
     )}
   </Formik>
 );
+
+export const ZipCityAddress = () => (
+  <Formik
+    initialValues={{
+      residential_address: {
+        streetAddress1: '',
+        streetAddress2: '',
+        city: '',
+        state: '',
+        postalCode: '',
+      },
+    }}
+    validationSchema={Yup.object().shape({ residential_address: requiredAddressSchema.required() })}
+  >
+    {() => (
+      <Form className={formStyles.form}>
+        <AddressFields legend="Zip city address" name="residentialAddress" zipCityEnabled />
+      </Form>
+    )}
+  </Formik>
+);
