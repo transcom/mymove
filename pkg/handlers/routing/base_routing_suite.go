@@ -89,10 +89,11 @@ func (suite *BaseRoutingSuite) RoutingConfig() *Config {
 	handlerConfig.SetFileStorer(fakeS3)
 	mockFeatureFlagFetcher := &mocks.FeatureFlagFetcher{}
 	mockFeatureFlagFetcher.On("GetBooleanFlagForUser",
-		mock.Anything,
-		mock.AnythingOfType("*appcontext.appContext"),
+		mock.AnythingOfType("context.Context"),
+		mock.AnythingOfType("*zap.Logger"),
 		mock.AnythingOfType("string"),
-		mock.Anything,
+		mock.AnythingOfType("string"),
+		mock.AnythingOfType("map[string]string"),
 	).Return(services.FeatureFlag{}, nil)
 	handlerConfig.SetFeatureFlagFetcher(mockFeatureFlagFetcher)
 
