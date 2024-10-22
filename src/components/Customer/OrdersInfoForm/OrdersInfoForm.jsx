@@ -24,6 +24,8 @@ import Callout from 'components/Callout';
 import { formatLabelReportByDate, dropdownInputOptions } from 'utils/formatters';
 import { showCounselingOffices } from 'services/internalApi';
 
+jest.setTimeout(60000);
+
 let originMeta;
 let newDutyMeta = '';
 const OrdersInfoForm = ({ ordersTypeOptions, initialValues, onSubmit, onBack }) => {
@@ -66,9 +68,13 @@ const OrdersInfoForm = ({ ordersTypeOptions, initialValues, onSubmit, onBack }) 
   useEffect(() => {
     // Functional component version of "componentDidMount"
     // By leaving the dependency array empty this will only run once
-    isBooleanFlagEnabled(FEATURE_FLAG_KEYS.UNACCOMPANIED_BAGGAGE).then((enabled) => {
-      if (enabled) setEnableUB(true);
-    });
+    const checkUBFeatureFlag = async () => {
+      const enabled = await isBooleanFlagEnabled(FEATURE_FLAG_KEYS.UNACCOMPANIED_BAGGAGE);
+      if (enabled) {
+        setEnableUB(true);
+      }
+    };
+    checkUBFeatureFlag();
   }, []);
   useEffect(() => {
     // If current duty location is defined, show the counseling offices

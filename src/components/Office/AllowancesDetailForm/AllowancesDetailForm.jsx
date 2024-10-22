@@ -23,9 +23,13 @@ const AllowancesDetailForm = ({ header, entitlements, branchOptions, formIsDisab
   useEffect(() => {
     // Functional component version of "componentDidMount"
     // By leaving the dependency array empty this will only run once
-    isBooleanFlagEnabled(FEATURE_FLAG_KEYS.UNACCOMPANIED_BAGGAGE).then((enabled) => {
-      if (enabled) setEnableUB(true);
-    });
+    const checkUBFeatureFlag = async () => {
+      const enabled = await isBooleanFlagEnabled(FEATURE_FLAG_KEYS.UNACCOMPANIED_BAGGAGE);
+      if (enabled) {
+        setEnableUB(true);
+      }
+    };
+    checkUBFeatureFlag();
   }, []);
 
   return (
