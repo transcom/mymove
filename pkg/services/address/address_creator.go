@@ -48,12 +48,14 @@ func (f *addressCreator) CreateAddress(appCtx appcontext.AppContext, address *mo
 		if err != nil {
 			return nil, err
 		}
+		transformedAddress.Country = &country
 		transformedAddress.CountryId = &country.ID
 	} else {
 		country, err := models.FetchCountryByCode(appCtx.DB(), "US")
 		if err != nil {
 			return nil, err
 		}
+		transformedAddress.Country = &country
 		transformedAddress.CountryId = &country.ID
 	}
 

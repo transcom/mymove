@@ -605,7 +605,6 @@ func (suite *PayloadsSuite) TestPPMShipmentModelFromCreate() {
 	}
 	tertiaryPickupAddress = primev3messages.Address{
 		City:           &address3.City,
-		Country:        &address3.Country.Country,
 		PostalCode:     &address3.PostalCode,
 		State:          &address3.State,
 		StreetAddress1: &address3.StreetAddress1,
@@ -614,7 +613,6 @@ func (suite *PayloadsSuite) TestPPMShipmentModelFromCreate() {
 	}
 	tertiaryDestinationAddress = primev3messages.Address{
 		City:           &address3.City,
-		Country:        &address3.Country.Country,
 		PostalCode:     &address3.PostalCode,
 		State:          &address3.State,
 		StreetAddress1: &address3.StreetAddress1,
