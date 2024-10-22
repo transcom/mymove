@@ -36,7 +36,7 @@ func (f *reportViolationAddAppeal) AddAppealToViolation(appCtx appcontext.AppCon
 
 	violationAppeal := models.GsrAppeal{
 		EvaluationReportID:      reportID,
-		ReportViolationID:       reportViolationID,
+		ReportViolationID:       &reportViolationID,
 		OfficeUserID:            officeUserID,
 		IsSeriousIncidentAppeal: models.BoolPointer(false),
 		AppealStatus:            appealDecision,

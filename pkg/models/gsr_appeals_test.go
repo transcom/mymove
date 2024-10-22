@@ -14,7 +14,7 @@ func (suite *ModelSuite) TestGsrAppealValidation() {
 		validGsrAppeal := models.GsrAppeal{
 			ID:                      uuid.Must(uuid.NewV4()),
 			EvaluationReportID:      uuid.Must(uuid.NewV4()),
-			ReportViolationID:       uuid.Must(uuid.NewV4()),
+			ReportViolationID:       models.UUIDPointer(uuid.Must(uuid.NewV4())),
 			OfficeUserID:            uuid.Must(uuid.NewV4()),
 			IsSeriousIncidentAppeal: models.BoolPointer(true),
 			AppealStatus:            rejected,

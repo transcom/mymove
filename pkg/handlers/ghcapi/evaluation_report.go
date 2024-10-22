@@ -412,6 +412,6 @@ func (h AddAppealToViolationHandler) Handle(params evaluationReportop.AddAppealT
 				}
 			}
 
-			return evaluationReportop.NewAddAppealToViolationOK(), nil
+			return evaluationReportop.NewAddAppealToViolationNoContent(), nil
 		})
 }

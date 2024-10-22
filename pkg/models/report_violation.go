@@ -12,6 +12,7 @@ type ReportViolation struct {
 	Report      EvaluationReport `belongs_to:"evaluation_report" fk_id:"report_id"`
 	Violation   PWSViolation     `belongs_to:"pws_violations" fk_id:"violation_id"`
 	ViolationID uuid.UUID        `json:"violation_id" db:"violation_id"`
+	GsrAppeals  GsrAppeals       `json:"gsr_appeal,omitempty" fk_id:"report_violation_id" has_many:"gsr_appeal"`
 }
 
 // TableName overrides the table name used by Pop.

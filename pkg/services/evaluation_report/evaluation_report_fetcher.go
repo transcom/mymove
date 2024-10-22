@@ -27,7 +27,7 @@ func (f *evaluationReportFetcher) FetchEvaluationReports(appCtx appcontext.AppCo
 	}
 
 	err := appCtx.DB().
-		EagerPreload("Move", "OfficeUser", "ReportViolations", "ReportViolations.Violation").
+		EagerPreload("Move", "OfficeUser", "GsrAppeals.OfficeUser", "ReportViolations", "ReportViolations.Violation", "ReportViolations.GsrAppeals.OfficeUser").
 		Where("move_id = ?", moveID).
 		Where("type = ?", reportType).
 		Where("(submitted_at IS NOT NULL OR office_user_id = ?)", officeUserID).
@@ -43,7 +43,7 @@ func (f *evaluationReportFetcher) FetchEvaluationReports(appCtx appcontext.AppCo
 func (f *evaluationReportFetcher) FetchEvaluationReportByID(appCtx appcontext.AppContext, reportID uuid.UUID, officeUserID uuid.UUID) (*models.EvaluationReport, error) {
 	var report models.EvaluationReport
 	// Get the report by its ID
-	err := appCtx.DB().EagerPreload("Move", "OfficeUser").Find(&report, reportID)
+	err := appCtx.DB().EagerPreload("Move", "OfficeUser", "GsrAppeals.OfficeUser", "ReportViolations", "ReportViolations.Violation", "ReportViolations.GsrAppeals.OfficeUser").Find(&report, reportID)
 	if err != nil {
 		switch err {
 		case sql.ErrNoRows:

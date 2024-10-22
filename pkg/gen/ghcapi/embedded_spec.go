@@ -959,11 +959,8 @@ func init() {
           }
         ],
         "responses": {
-          "200": {
-            "description": "Successfully got the report",
-            "schema": {
-              "$ref": "#/definitions/EvaluationReport"
-            }
+          "204": {
+            "description": "Successfully added an appeal to a violation"
           },
           "403": {
             "$ref": "#/responses/PermissionDenied"
@@ -7879,6 +7876,10 @@ func init() {
           "x-nullable": true,
           "example": "15:00"
         },
+        "gsrAppeals": {
+          "x-nullable": true,
+          "$ref": "#/definitions/GSRAppeals"
+        },
         "id": {
           "type": "string",
           "format": "uuid",
@@ -8106,6 +8107,64 @@ func init() {
       "type": "array",
       "items": {
         "type": "string"
+      }
+    },
+    "GSRAppeal": {
+      "description": "An object associating appeals on violations and serious incidents",
+      "type": "object",
+      "properties": {
+        "appealStatus": {
+          "$ref": "#/definitions/GSRAppealStatusType"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "isSeriousIncident": {
+          "type": "boolean",
+          "example": false
+        },
+        "officeUser": {
+          "$ref": "#/definitions/EvaluationReportOfficeUser"
+        },
+        "officeUserID": {
+          "type": "string",
+          "format": "uuid",
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "remarks": {
+          "type": "string",
+          "example": "Office user remarks"
+        },
+        "reportID": {
+          "type": "string",
+          "format": "uuid",
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "violationID": {
+          "type": "string",
+          "format": "uuid",
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        }
+      }
+    },
+    "GSRAppealStatusType": {
+      "type": "string",
+      "enum": [
+        "SUSTAINED",
+        "REJECTED"
+      ]
+    },
+    "GSRAppeals": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/GSRAppeal"
       }
     },
     "Grade": {
@@ -12039,6 +12098,10 @@ func init() {
       "description": "An object associating violations to evaluation reports",
       "type": "object",
       "properties": {
+        "gsrAppeals": {
+          "x-nullable": true,
+          "$ref": "#/definitions/GSRAppeals"
+        },
         "id": {
           "type": "string",
           "format": "uuid",
@@ -15484,11 +15547,8 @@ func init() {
           }
         ],
         "responses": {
-          "200": {
-            "description": "Successfully got the report",
-            "schema": {
-              "$ref": "#/definitions/EvaluationReport"
-            }
+          "204": {
+            "description": "Successfully added an appeal to a violation"
           },
           "403": {
             "description": "The request was denied",
@@ -23663,6 +23723,10 @@ func init() {
           "x-nullable": true,
           "example": "15:00"
         },
+        "gsrAppeals": {
+          "x-nullable": true,
+          "$ref": "#/definitions/GSRAppeals"
+        },
         "id": {
           "type": "string",
           "format": "uuid",
@@ -23890,6 +23954,64 @@ func init() {
       "type": "array",
       "items": {
         "type": "string"
+      }
+    },
+    "GSRAppeal": {
+      "description": "An object associating appeals on violations and serious incidents",
+      "type": "object",
+      "properties": {
+        "appealStatus": {
+          "$ref": "#/definitions/GSRAppealStatusType"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "isSeriousIncident": {
+          "type": "boolean",
+          "example": false
+        },
+        "officeUser": {
+          "$ref": "#/definitions/EvaluationReportOfficeUser"
+        },
+        "officeUserID": {
+          "type": "string",
+          "format": "uuid",
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "remarks": {
+          "type": "string",
+          "example": "Office user remarks"
+        },
+        "reportID": {
+          "type": "string",
+          "format": "uuid",
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "violationID": {
+          "type": "string",
+          "format": "uuid",
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        }
+      }
+    },
+    "GSRAppealStatusType": {
+      "type": "string",
+      "enum": [
+        "SUSTAINED",
+        "REJECTED"
+      ]
+    },
+    "GSRAppeals": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/GSRAppeal"
       }
     },
     "Grade": {
@@ -27898,6 +28020,10 @@ func init() {
       "description": "An object associating violations to evaluation reports",
       "type": "object",
       "properties": {
+        "gsrAppeals": {
+          "x-nullable": true,
+          "$ref": "#/definitions/GSRAppeals"
+        },
         "id": {
           "type": "string",
           "format": "uuid",

@@ -22,7 +22,7 @@ func (f *reportViolationFetcher) FetchReportViolationsByReportID(appCtx appconte
 	}
 
 	err := appCtx.DB().
-		EagerPreload("Violation").
+		EagerPreload("Violation", "GsrAppeals.OfficeUser").
 		Where("report_id = ?", reportID).
 		All(&reportViolations)
 
