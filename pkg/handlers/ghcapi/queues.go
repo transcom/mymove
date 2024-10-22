@@ -248,6 +248,7 @@ func (h GetPaymentRequestsQueueHandler) Handle(
 				Order:                   params.Order,
 				OriginDutyLocation:      params.OriginDutyLocation,
 				OrderType:               params.OrderType,
+				TIOAssignedUser:         params.AssignedTo,
 			}
 
 			listPaymentRequestParams.Status = []string{string(models.QueuePaymentRequestPaymentRequested)}
