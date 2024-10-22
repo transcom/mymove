@@ -22,7 +22,7 @@ const defaultProps = {
     actualWeight: 3500,
   },
   tripNumber: 1,
-  ppmNumber: 1,
+  ppmNumber: '1',
   showAllFields: false,
 };
 
