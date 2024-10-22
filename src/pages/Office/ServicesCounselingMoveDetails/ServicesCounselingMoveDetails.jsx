@@ -524,7 +524,6 @@ const ServicesCounselingMoveDetails = ({
   const handleCancelMove = () => {
     mutateCancelMove({
       moveID: move.id,
-      ifMatchETag: move.eTag,
     });
     setIsCancelMoveModalVisible(false);
   };
