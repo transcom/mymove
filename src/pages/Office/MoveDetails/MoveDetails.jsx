@@ -1,12 +1,11 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { generatePath, Link, useNavigate, useParams } from 'react-router-dom';
+import { Link, useNavigate, useParams } from 'react-router-dom';
 import { Alert, Grid, GridContainer } from '@trussworks/react-uswds';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { useQueryClient, useMutation } from '@tanstack/react-query';
 import { func } from 'prop-types';
 
 import styles from '../TXOMoveInfo/TXOTab.module.scss';
-import 'styles/office.scss';
 
 import hasRiskOfExcess from 'utils/hasRiskOfExcess';
 import { MOVES, MTO_SERVICE_ITEMS, MTO_SHIPMENTS } from 'constants/queryKeys';
@@ -15,7 +14,6 @@ import SERVICE_ITEM_STATUSES from 'constants/serviceItems';
 import { ADDRESS_UPDATE_STATUS, shipmentStatuses } from 'constants/shipments';
 import AllowancesList from 'components/Office/DefinitionLists/AllowancesList';
 import CustomerInfoList from 'components/Office/DefinitionLists/CustomerInfoList';
-import ButtonDropdown from 'components/ButtonDropdown/ButtonDropdown';
 import OrdersList from 'components/Office/DefinitionLists/OrdersList';
 import DetailsPanel from 'components/Office/DetailsPanel/DetailsPanel';
 import FinancialReviewButton from 'components/Office/FinancialReviewButton/FinancialReviewButton';
@@ -29,7 +27,6 @@ import LeftNavTag from 'components/LeftNavTag/LeftNavTag';
 import Restricted from 'components/Restricted/Restricted';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
-import { SHIPMENT_OPTIONS_URL } from 'shared/constants';
 import { SIT_EXTENSION_STATUS } from 'constants/sitExtensions';
 import { ORDERS_TYPE } from 'constants/orders';
 import { permissionTypes } from 'constants/permissions';
@@ -175,17 +172,6 @@ const MoveDetails = ({
   const shipmentWithDestinationAddressChangeRequest = mtoShipments?.filter(
     (shipment) => shipment?.deliveryAddressUpdate?.status === ADDRESS_UPDATE_STATUS.REQUESTED && !shipment.deletedAt,
   );
-
-  const handleButtonDropdownChange = (e) => {
-    const selectedOption = e.target.value;
-
-    const addShipmentPath = `${generatePath(tooRoutes.SHIPMENT_ADD_PATH, {
-      moveCode,
-      shipmentType: selectedOption,
-    })}`;
-
-    navigate(addShipmentPath);
-  };
 
   useEffect(() => {
     const shipmentCount = shipmentWithDestinationAddressChangeRequest?.length || 0;
@@ -408,35 +394,12 @@ const MoveDetails = ({
               initialSelection={move?.financialReviewFlag}
             />
           )}
-          <Grid row className={styles.pageHeader}>
-            {alertMessage && (
-              <Grid col={12} className={styles.alertContainer}>
-                <Alert headingLevel="h4" slim type={alertType}>
-                  {alertMessage}
-                </Alert>
-              </Grid>
-            )}
-          </Grid>
-          {!isMoveLocked && (
-            <Restricted to={permissionTypes.createTxoShipment}>
-              <ButtonDropdown
-                ariaLabel="Add a new shipment"
-                data-testid="addShipmentButton"
-                onChange={handleButtonDropdownChange}
-              >
-                <option value="" label="Add a new shipment">
-                  Add a new shipment
-                </option>
-                <option data-testid="hhgOption" value={SHIPMENT_OPTIONS_URL.HHG}>
-                  HHG
-                </option>
-                <option value={SHIPMENT_OPTIONS_URL.PPM}>PPM</option>
-                <option value={SHIPMENT_OPTIONS_URL.NTS}>NTS</option>
-                <option value={SHIPMENT_OPTIONS_URL.NTSrelease}>NTS-release</option>
-                <option value={SHIPMENT_OPTIONS_URL.BOAT}>Boat</option>
-                <option value={SHIPMENT_OPTIONS_URL.MOBILE_HOME}>Mobile Home</option>
-              </ButtonDropdown>
-            </Restricted>
+          {alertMessage && (
+            <Grid col={12} className={styles.alertContainer}>
+              <Alert headingLevel="h4" slim type={alertType}>
+                {alertMessage}
+              </Alert>
+            </Grid>
           )}
           {submittedShipments?.length > 0 && (
             <div className={styles.section} id="requested-shipments">
