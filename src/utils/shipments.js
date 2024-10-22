@@ -118,3 +118,7 @@ export function isPPMOnly(mtoShipments) {
 export function isBoatShipmentComplete(mtoShipment) {
   return mtoShipment?.requestedPickupDate;
 }
+
+export function isMobileHomeShipmentComplete(mtoShipment) {
+  return mtoShipment?.requestedPickupDate;
+}

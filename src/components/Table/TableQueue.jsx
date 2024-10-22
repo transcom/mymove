@@ -23,7 +23,6 @@ import {
   getTableQueueSortParamSessionStorageValue,
   getSelectionOptionLabel,
 } from 'components/Table/utils';
-import { formatAvailableOfficeUsers } from 'utils/queues';
 
 const defaultPageSize = 20;
 const defaultPage = 1;
@@ -50,8 +49,6 @@ const TableQueue = ({
   csvExportQueueFetcherKey,
   sessionStorageKey,
   isHeadquartersUser,
-  isSupervisor,
-  currentUserId,
 }) => {
   const [isPageReload, setIsPageReload] = useState(true);
   useEffect(() => {
@@ -99,7 +96,6 @@ const TableQueue = ({
     queueResult: {
       totalCount = 0,
       data = [],
-      availableOfficeUsers = [],
       page = getTableQueuePageSessionStorageValue(sessionStorageKey) || defaultPage,
       perPage = getTableQueuePageSizeSessionStorageValue(sessionStorageKey) || defaultPageSize,
     },
@@ -123,13 +119,6 @@ const TableQueue = ({
     [],
   );
   const tableData = useMemo(() => data, [data]);
-  const formattedAvailableOfficeUsers = formatAvailableOfficeUsers(availableOfficeUsers, isSupervisor, currentUserId);
-  // attach the available office users to the moves/row
-  const tableDataWithAvailableUsers = tableData?.map((ele) => {
-    const newEle = { ...ele };
-    newEle.availableOfficeUsers = formattedAvailableOfficeUsers;
-    return newEle;
-  });
 
   const tableColumns = useMemo(() => columns, [columns]);
   const {
@@ -150,7 +139,7 @@ const TableQueue = ({
   } = useTable(
     {
       columns: tableColumns,
-      data: tableDataWithAvailableUsers,
+      data: tableData,
       initialState: {
         hiddenColumns: defaultHiddenColumns,
         pageSize: perPage,
