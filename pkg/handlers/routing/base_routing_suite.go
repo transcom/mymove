@@ -17,6 +17,7 @@ import (
 
 	"github.com/gorilla/csrf"
 	"github.com/spf13/afero"
+	"github.com/stretchr/testify/mock"
 
 	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/factory"
@@ -26,6 +27,8 @@ import (
 	"github.com/transcom/mymove/pkg/logging"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/notifications"
+	"github.com/transcom/mymove/pkg/services"
+	"github.com/transcom/mymove/pkg/services/mocks"
 	storageTest "github.com/transcom/mymove/pkg/storage/test"
 	"github.com/transcom/mymove/pkg/telemetry"
 	"github.com/transcom/mymove/pkg/testingsuite"
@@ -84,6 +87,14 @@ func (suite *BaseRoutingSuite) RoutingConfig() *Config {
 	// Need this for any requests that will either retrieve or save files or their info.
 	fakeS3 := storageTest.NewFakeS3Storage(true)
 	handlerConfig.SetFileStorer(fakeS3)
+	mockFeatureFlagFetcher := &mocks.FeatureFlagFetcher{}
+	mockFeatureFlagFetcher.On("GetBooleanFlagForUser",
+		mock.Anything,
+		mock.AnythingOfType("*appcontext.appContext"),
+		mock.AnythingOfType("string"),
+		mock.Anything,
+	).Return(services.FeatureFlag{}, nil)
+	handlerConfig.SetFeatureFlagFetcher(mockFeatureFlagFetcher)
 
 	fakeOktaProvider := okta.NewOktaProvider(suite.Logger())
 	authContext := authentication.NewAuthContext(suite.Logger(), *fakeOktaProvider, "http", suite.port)
@@ -124,6 +135,7 @@ func (suite *BaseRoutingSuite) RoutingConfig() *Config {
 		// note that enabling devlocal auth also enables accessing the
 		// Prime API without requiring mTLS. See
 		// authentication.DevLocalClientCertMiddleware
+
 	}
 
 	return suite.routingConfig
