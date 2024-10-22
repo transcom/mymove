@@ -86,7 +86,7 @@ export { default as submitPPMShipmentDocumentation } from './SubmitPPMShipmentDo
 export { default as finishDocumentReview } from './FinishDocumentReview/finishDocumentReview';
 export { default as approveShipmentApproveMove } from './ApproveShipment/approveShipmentApproveMove';
 export { default as createPaymentRequestUpdateShipment } from './CreatePaymentRequest/createPaymentRequestUpdateShipment';
-export { default as updateOrderUpdateMove } from './UpdateOrders/updateOrderUpdateMove';
+export { default as updateOrdersUpdateMove } from './UpdateOrders/updateOrdersUpdateMove';
 export { default as updateMTOShipmentByServiceItemStatus } from './UpdateMTOShipment/updateMTOShipmentByServiceItemStatus';
 export { default as updateServiceItemStatusUpdateMove } from './UpdateServiceItemStatus/updateServiceItemStatusUpdateMove';
 export { default as approveShipmentUpdateMove } from './ApproveShipment/approveShipmentUpdateMove';
@@ -97,3 +97,7 @@ export { default as approveShipmentUpdateAllowances } from './ApproveShipment/ap
 export { default as updateOrderUpdateAllowances } from './UpdateOrders/updateOrderUpdateAllowances';
 export { default as patchMTOShipment } from './UpdateMTOShipment/patchMTOShipment';
 export { default as uploadAdditionalDocuments } from './UploadAdditionalDocuments/uploadAdditionalDocuments';
+export { default as createOrder } from './CreateOrder/createOrder';
+export { default as createOrderCreateEntitlements } from './CreateOrder/createOrderCreateEntitlements';
+export { default as createOrderCreateMoves } from './CreateOrder/createOrderCreateMoves';
+export { default as updateOrderUpdateMove } from './UpdateOrder/updateOrderUpdateMove';

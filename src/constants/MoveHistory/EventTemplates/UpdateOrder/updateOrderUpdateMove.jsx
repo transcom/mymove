@@ -1,8 +1,8 @@
 import React from 'react';
 
-import t from 'constants/MoveHistory/Database/Tables';
-import a from 'constants/MoveHistory/Database/Actions';
 import o from 'constants/MoveHistory/UIDisplay/Operations';
+import a from 'constants/MoveHistory/Database/Actions';
+import t from 'constants/MoveHistory/Database/Tables';
 import LabeledDetails from 'pages/Office/MoveHistory/LabeledDetails';
 
 const formatChangedValues = (historyRecord) => {
@@ -10,6 +10,9 @@ const formatChangedValues = (historyRecord) => {
     ...historyRecord.changedValues,
   };
 
+  if (newChangedValues.counseling_transportation_office_id === null) {
+    newChangedValues.counseling_office_name = ' - ';
+  }
   if (historyRecord.context) {
     newChangedValues = {
       ...newChangedValues,
@@ -21,10 +24,10 @@ const formatChangedValues = (historyRecord) => {
 };
 
 export default {
-  action: a.INSERT,
-  eventName: o.createOrders,
+  action: a.UPDATE,
+  eventName: o.updateOrder,
   tableName: t.moves,
-  getEventNameDisplay: () => 'Created move',
+  getEventNameDisplay: () => 'Updated move',
   getDetails: (historyRecord) => {
     return <LabeledDetails historyRecord={formatChangedValues(historyRecord)} />;
   },

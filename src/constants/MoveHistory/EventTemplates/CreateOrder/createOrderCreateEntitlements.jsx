@@ -7,7 +7,7 @@ import LabeledDetails from 'pages/Office/MoveHistory/LabeledDetails';
 
 export default {
   action: a.INSERT,
-  eventName: o.createOrders,
+  eventName: o.createOrder,
   tableName: t.entitlements,
   getEventNameDisplay: () => 'Created allowances',
   getDetails: (historyRecord) => {

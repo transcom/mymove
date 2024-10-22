@@ -19,13 +19,16 @@ class TioFlowPage extends OfficePage {
   /**
    * @param {OfficePage} officePage
    * @param {Object} move
+   * @param {Boolean} usePaymentRequest
    * @override
    */
-  constructor(officePage, move) {
+  constructor(officePage, move, usePaymentRequest) {
     super(officePage.page, officePage.request);
     this.move = move;
     this.moveLocator = move.locator;
-    this.paymentRequest = this.findPaymentRequestBySequenceNumber(1);
+    if (usePaymentRequest !== false) {
+      this.paymentRequest = this.findPaymentRequestBySequenceNumber(1);
+    }
   }
 
   /**
@@ -182,7 +185,7 @@ test.describe('TIO user', () => {
       testMove = await officePage.testHarness.buildHHGMoveWithServiceItemsandPaymentRequestsForTIO();
       await officePage.signInAsNewTIOUser();
 
-      tioFlowPage = new TioFlowPage(officePage, testMove);
+      tioFlowPage = new TioFlowPage(officePage, testMove, true);
 
       const searchTab = officePage.page.getByTitle(TIOTabsTitles[1]);
       await searchTab.click();
@@ -330,7 +333,7 @@ test.describe('TIO user', () => {
       const move = await officePage.testHarness.buildHHGMoveWithServiceItemsandPaymentRequestsForTIO();
       await officePage.signInAsNewTIOUser();
 
-      tioFlowPage = new TioFlowPage(officePage, move);
+      tioFlowPage = new TioFlowPage(officePage, move, true);
       await tioFlowPage.waitForLoading();
       await officePage.tioNavigateToMove(tioFlowPage.moveLocator);
       await officePage.page.getByRole('heading', { name: 'Payment Requests', exact: true }).waitFor();
@@ -646,7 +649,7 @@ test.describe('TIO user', () => {
       const move = await officePage.testHarness.buildNTSRMoveWithPaymentRequest();
       await officePage.signInAsNewTIOUser();
 
-      tioFlowPage = new TioFlowPage(officePage, move);
+      tioFlowPage = new TioFlowPage(officePage, move, true);
       await tioFlowPage.waitForLoading();
       await officePage.tioNavigateToMove(tioFlowPage.moveLocator);
       await officePage.page.getByRole('heading', { name: 'Payment Requests', exact: true }).waitFor();
@@ -778,7 +781,7 @@ test.describe('TIO user', () => {
       const move = await officePage.testHarness.buildNTSRMoveWithServiceItemsAndPaymentRequest();
       await officePage.signInAsNewTIOUser();
 
-      tioFlowPage = new TioFlowPage(officePage, move);
+      tioFlowPage = new TioFlowPage(officePage, move, true);
       await tioFlowPage.waitForLoading();
       await officePage.tioNavigateToMove(tioFlowPage.moveLocator);
       await officePage.page.getByRole('heading', { name: 'Payment Requests', exact: true }).waitFor();
@@ -862,6 +865,47 @@ test.describe('TIO user', () => {
       // calcs are good, go home
       await page.locator('a[title="Home"]').click();
       await expect(page.getByRole('heading', { name: 'Payment requests' })).toBeVisible();
+    });
+  });
+
+  test.describe('with PPM moves with weight tickets and documents', () => {
+    test.beforeEach(async ({ officePage }) => {
+      testMove = await officePage.testHarness.buildApprovedMoveWithPPMMovingExpenseOffice();
+      await officePage.signInAsNewTIOUser();
+      tioFlowPage = new TioFlowPage(officePage, testMove, false);
+      const searchTab = officePage.page.getByTitle(TIOTabsTitles[1]);
+      await searchTab.click();
+    });
+
+    test('can view PPM review documents', async ({ page }) => {
+      const locator = `PPM ${testMove.locator}`;
+      const selectedRadio = page.getByRole('group').locator(`label:text("${SearchRBSelection[0]}")`);
+      await selectedRadio.click();
+      await page.getByTestId('searchText').fill(testMove.locator);
+      await page.getByTestId('searchTextSubmit').click();
+
+      await expect(page.getByText('Results')).toBeVisible();
+      await expect(page.getByTestId('locator-0')).toContainText(testMove.locator);
+      await page.getByTestId('locator-0').click();
+      await page.getByRole('button', { name: 'Review shipment weights' }).click();
+      await page.getByRole('button', { name: 'Review shipment weights' }).click();
+      await expect(page.getByText(locator)).toBeVisible();
+      await expect(page.getByText('Shipment Info')).toBeVisible();
+
+      await expect(page.getByText('Planned Move Start Date')).toBeVisible();
+      await expect(page.getByText('Actual Move Start Date')).toBeVisible();
+      await expect(page.getByText('Starting Address')).toBeVisible();
+      await expect(page.getByText('Ending Address')).toBeVisible();
+      await expect(page.getByText('Miles')).toBeVisible();
+      await expect(page.getByText('Estimated Net Weight')).toBeVisible();
+      await expect(page.getByText('Actual Net Weight')).toBeVisible();
+      await expect(page.getByText('Allowable Weight')).toBeVisible();
+      await expect(page.getByText('SENT TO CUSTOMER')).toBeVisible();
+      await expect(page.getByText('TRIP 1')).toBeVisible();
+      await expect(page.getByText('RECEIPT 1')).toBeVisible();
+      await expect(page.getByText('RECEIPT 2')).toBeVisible();
+
+      await page.getByRole('button', { name: 'Done' }).click();
     });
   });
 });

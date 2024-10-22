@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Button, Alert } from '@trussworks/react-uswds';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useQueryClient, useMutation } from '@tanstack/react-query';
@@ -7,6 +7,7 @@ import DocumentViewerSidebar from '../DocumentViewerSidebar/DocumentViewerSideba
 
 import reviewBillableWeightStyles from './ReviewBillableWeight.module.scss';
 
+import ReviewDocumentsSidePanel from 'components/Office/PPM/ReviewDocumentsSidePanel/ReviewDocumentsSidePanel';
 import ShipmentModificationTag from 'components/ShipmentModificationTag/ShipmentModificationTag';
 import { WEIGHT_ADJUSTMENT, shipmentModificationTypes } from 'constants/shipments';
 import { MOVES, MTO_SHIPMENTS, ORDERS } from 'constants/queryKeys';
@@ -32,7 +33,9 @@ import { SHIPMENT_OPTIONS } from 'shared/constants';
 
 export default function ReviewBillableWeight() {
   const [selectedShipmentIndex, setSelectedShipmentIndex] = React.useState(0);
+  const [selectedShipment, setSelectedShipment] = React.useState({});
   const [sidebarType, setSidebarType] = React.useState('MAX');
+  const [ppmShipmentInfo, setPpmShipmentInfo] = React.useState({});
 
   const { moveCode } = useParams();
   const handleClickNextButton = () => {
@@ -67,12 +70,47 @@ export default function ReviewBillableWeight() {
     return uploads;
   };
 
-  // filter out PPMs, as they're not including in TIO review
-  const excludePPMShipments = mtoShipments?.filter((shipment) => shipment.shipmentType !== 'PPM');
+  const getAllPPMShipmentFiles = (ppmShipment) => {
+    const weightTicketDocs = [];
+    if (ppmShipment !== undefined) {
+      if (ppmShipment.weightTickets !== undefined) {
+        weightTicketDocs.push(
+          ppmShipment.weightTickets.map((weightTicket) => {
+            return weightTicket.emptyDocument ?? [];
+          }),
+          ppmShipment.weightTickets.map((weightTicket) => {
+            return weightTicket.fullDocument ?? [];
+          }),
+        );
+      }
+      if (ppmShipment.proGearWeightTickets !== undefined) {
+        weightTicketDocs.push(
+          ppmShipment.proGearWeightTickets.map((proGearWeightTicket) => {
+            return proGearWeightTicket.document ?? [];
+          }),
+        );
+      }
+      if (ppmShipment.movingExpenses !== undefined) {
+        weightTicketDocs.push(
+          ppmShipment.movingExpenses.map((movingExpense) => {
+            return movingExpense.document ?? [];
+          }),
+        );
+      }
+    }
+    const uploadedWeightDocs = weightTicketDocs.flat();
+    const uploadedWeightFiles = uploadedWeightDocs.flatMap((doc) => {
+      return doc.uploads;
+    });
+
+    let uploads = [];
+    uploads = uploads.concat(uploadedWeightFiles);
+    return uploads;
+  };
+
   /* Only show shipments in statuses of approved, diversion requested, or cancellation requested */
-  const filteredShipments = excludePPMShipments?.filter((shipment) =>
-    includedStatusesForCalculatingWeights(shipment.status),
-  );
+  const filteredShipments = mtoShipments?.filter((shipment) => includedStatusesForCalculatingWeights(shipment.status));
+  const readOnly = true;
   const isLastShipment = filteredShipments && selectedShipmentIndex === filteredShipments.length - 1;
 
   const totalBillableWeight = useCalculatedTotalBillableWeight(filteredShipments, WEIGHT_ADJUSTMENT);
@@ -94,8 +132,26 @@ export default function ReviewBillableWeight() {
     });
   };
 
-  const selectedShipment =
-    filteredShipments && filteredShipments.length > 0 ? filteredShipments[selectedShipmentIndex] : {};
+  useEffect(() => {
+    setSelectedShipment(
+      filteredShipments && filteredShipments.length > 0 ? filteredShipments[selectedShipmentIndex] : {},
+    );
+  }, [filteredShipments, selectedShipmentIndex]);
+
+  useEffect(() => {
+    if (!isLoading && selectedShipment.shipmentType === 'PPM') {
+      let currentTotalWeight = 0;
+      selectedShipment.ppmShipment.weightTickets.forEach((weight) => {
+        currentTotalWeight += weight.fullWeight - weight.emptyWeight;
+      });
+      const updatedPpmShipmentInfo = {
+        ...selectedShipment.ppmShipment,
+        miles: selectedShipment.distance,
+        actualWeight: currentTotalWeight,
+      };
+      setPpmShipmentInfo(updatedPpmShipmentInfo);
+    }
+  }, [isLoading, selectedShipment]);
 
   const queryClient = useQueryClient();
   const { mutate: mutateMTOShipment } = useMutation(updateMTOShipment, {
@@ -203,12 +259,12 @@ export default function ReviewBillableWeight() {
   if (isLoading) return <LoadingPlaceholder />;
   if (isError) return <SomethingWentWrong />;
 
-  const fileList = getAllFiles();
-
+  const fileList =
+    selectedShipment.shipmentType !== 'PPM' ? getAllFiles() : getAllPPMShipmentFiles(selectedShipment.ppmShipment);
   return (
     <div className={styles.DocumentWrapper}>
       <div className={styles.embed}>
-        {fileList.length > 0 ? <DocumentViewer files={fileList} /> : <h2>No documents provided</h2>}
+        <DocumentViewer files={fileList} />
       </div>
       <div className={reviewBillableWeightStyles.reviewWeightSideBar}>
         {sidebarType === 'MAX' ? (
@@ -243,14 +299,16 @@ export default function ReviewBillableWeight() {
                   shipments={filteredShipments}
                 />
               </div>
-              <EditBillableWeight
-                title="Max billable weight"
-                estimatedWeight={totalEstimatedWeight}
-                maxBillableWeight={maxBillableWeight}
-                editEntity={editEntity}
-                billableWeightJustification={move.tioRemarks}
-                isNTSRShipment={selectedShipment.shipmentType === SHIPMENT_OPTIONS.NTSR}
-              />
+              {selectedShipment.shipmentType !== 'PPM' && (
+                <EditBillableWeight
+                  title="Max billable weight"
+                  estimatedWeight={totalEstimatedWeight}
+                  maxBillableWeight={maxBillableWeight}
+                  editEntity={editEntity}
+                  billableWeightJustification={move.tioRemarks}
+                  isNTSRShipment={selectedShipment.shipmentType === SHIPMENT_OPTIONS.NTSR}
+                />
+              )}
             </DocumentViewerSidebar.Content>
             <DocumentViewerSidebar.Footer>
               <Button
@@ -311,31 +369,44 @@ export default function ReviewBillableWeight() {
                   />
                 </div>
               </div>
-              <div className={reviewBillableWeightStyles.contentContainer}>
-                <ShipmentCard
-                  billableWeight={selectedShipment.calculatedBillableWeight}
-                  editEntity={editEntity}
-                  billableWeightJustification={selectedShipment.billableWeightJustification}
-                  dateReweighRequested={selectedShipment?.reweigh?.requestedAt}
-                  departedDate={selectedShipment.actualPickupDate}
-                  pickupAddress={selectedShipment.pickupAddress}
-                  destinationAddress={selectedShipment.destinationAddress}
-                  estimatedWeight={getEstimatedWeight()}
-                  primeActualWeight={
-                    selectedShipment.shipmentType !== SHIPMENT_OPTIONS.PPM
-                      ? selectedShipment.primeActualWeight
-                      : weightRequested
-                  }
-                  originalWeight={getOriginalWeight()}
-                  adjustedWeight={selectedShipment.billableWeightCap}
-                  reweighRemarks={selectedShipment?.reweigh?.verificationReason}
-                  reweighWeight={selectedShipment?.reweigh?.weight}
-                  maxBillableWeight={maxBillableWeight}
-                  totalBillableWeight={totalBillableWeight}
-                  shipmentType={selectedShipment.shipmentType}
-                  storageFacilityAddress={selectedShipment.storageFacility?.address}
+              {selectedShipment.shipmentType !== 'PPM' ? (
+                <div className={reviewBillableWeightStyles.contentContainer}>
+                  <ShipmentCard
+                    billableWeight={selectedShipment.calculatedBillableWeight}
+                    editEntity={editEntity}
+                    billableWeightJustification={selectedShipment.billableWeightJustification}
+                    dateReweighRequested={selectedShipment?.reweigh?.requestedAt}
+                    departedDate={selectedShipment.actualPickupDate}
+                    pickupAddress={selectedShipment.pickupAddress}
+                    destinationAddress={selectedShipment.destinationAddress}
+                    estimatedWeight={getEstimatedWeight()}
+                    primeActualWeight={
+                      selectedShipment.shipmentType !== SHIPMENT_OPTIONS.PPM
+                        ? selectedShipment.primeActualWeight
+                        : weightRequested
+                    }
+                    originalWeight={getOriginalWeight()}
+                    adjustedWeight={selectedShipment.billableWeightCap}
+                    reweighRemarks={selectedShipment?.reweigh?.verificationReason}
+                    reweighWeight={selectedShipment?.reweigh?.weight}
+                    maxBillableWeight={maxBillableWeight}
+                    totalBillableWeight={totalBillableWeight}
+                    shipmentType={selectedShipment.shipmentType}
+                    storageFacilityAddress={selectedShipment.storageFacility?.address}
+                  />
+                </div>
+              ) : (
+                <ReviewDocumentsSidePanel
+                  ppmShipment={selectedShipment.ppmShipment}
+                  ppmShipmentInfo={ppmShipmentInfo}
+                  ppmNumber={selectedShipment.shipmentLocator}
+                  weightTickets={selectedShipment.ppmShipment.weightTickets}
+                  proGearTickets={selectedShipment.ppmShipment.proGearWeightTickets}
+                  expenseTickets={selectedShipment.ppmShipment.movingExpenses}
+                  readOnly={readOnly}
+                  showAllFields={false}
                 />
-              </div>
+              )}
             </DocumentViewerSidebar.Content>
             <DocumentViewerSidebar.Footer className={reviewBillableWeightStyles.footer}>
               <div className={reviewBillableWeightStyles.flex}>
