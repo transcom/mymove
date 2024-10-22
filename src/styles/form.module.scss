@@ -163,6 +163,10 @@ p + .radioGroup {
   }
 }
 
+.customerPreferredContact > div{
+  margin-top: 0;
+}
+
 .formActions {
   @include u-margin-top(3);
   @include u-margin-bottom(6);
