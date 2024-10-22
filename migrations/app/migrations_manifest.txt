@@ -1001,6 +1001,7 @@
 20240917165710_update_duty_locations_provides_services_counseling.up.sql
 20240927145659_update_mobile_home_factor.up.sql
 20240930171315_updatePostalCodeToGbloc233BGNC.up.sql
+20241001144741_update_boat_factor.up.sql
 20241001174400_add_is_oconus_column.up.sql
 20241001193619_market-code-enum.up.sql
 20241002151527_add_transportation_offices_AK_HI.up.sql
