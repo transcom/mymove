@@ -31,6 +31,7 @@ func (suite *HandlerSuite) TestIndexOfficeUsersHandler() {
 		return models.OfficeUsers{
 			factory.BuildOfficeUserWithRoles(suite.DB(), factory.GetTraitApprovedOfficeUser(), []roles.RoleType{roles.RoleTypeQae}),
 			factory.BuildOfficeUserWithRoles(suite.DB(), factory.GetTraitApprovedOfficeUser(), []roles.RoleType{roles.RoleTypeQae}),
+			factory.BuildOfficeUserWithRoles(suite.DB(), factory.GetTraitApprovedOfficeUser(), []roles.RoleType{roles.RoleTypeQae, roles.RoleTypeQae, roles.RoleTypeCustomer, roles.RoleTypeContractingOfficer, roles.RoleTypeContractingOfficer}),
 		}
 	}
 
@@ -53,9 +54,35 @@ func (suite *HandlerSuite) TestIndexOfficeUsersHandler() {
 
 		suite.IsType(&officeuserop.IndexOfficeUsersOK{}, response)
 		okResponse := response.(*officeuserop.IndexOfficeUsersOK)
-		suite.Len(okResponse.Payload, 2)
+		suite.Len(okResponse.Payload, 3)
 		suite.Equal(officeUsers[0].ID.String(), okResponse.Payload[0].ID.String())
 		suite.Equal(string(officeUsers[0].User.Roles[0].RoleType), *okResponse.Payload[0].Roles[0].RoleType)
+	})
+
+	// Test that user roles list is not returning duplicate roles
+	suite.Run("roles list has no duplicate roles", func() {
+		officeUsers := setupTestData()
+
+		params := officeuserop.IndexOfficeUsersParams{
+			HTTPRequest: suite.setupAuthenticatedRequest("GET", "/office_users"),
+		}
+
+		queryBuilder := query.NewQueryBuilder()
+		handler := IndexOfficeUsersHandler{
+			HandlerConfig:  suite.HandlerConfig(),
+			NewQueryFilter: query.NewQueryFilter,
+			ListFetcher:    fetch.NewListFetcher(queryBuilder),
+			NewPagination:  pagination.NewPagination,
+		}
+
+		response := handler.Handle(params)
+
+		suite.IsType(&officeuserop.IndexOfficeUsersOK{}, response)
+		okResponse := response.(*officeuserop.IndexOfficeUsersOK)
+		suite.Len(okResponse.Payload, 3)
+		suite.Len(officeUsers[0].User.Roles, 1)
+		suite.Len(officeUsers[1].User.Roles, 1)
+		suite.Len(officeUsers[2].User.Roles, 3)
 	})
 
 	suite.Run("fetch return an empty list", func() {
