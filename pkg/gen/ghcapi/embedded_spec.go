@@ -4145,7 +4145,8 @@ func init() {
               "closeoutInitiated",
               "closeoutLocation",
               "ppmStatus",
-              "counselingOffice"
+              "counselingOffice",
+              "assignedTo"
             ],
             "type": "string",
             "description": "field that results should be sorted by",
@@ -4298,6 +4299,12 @@ func init() {
             "description": "Used to return a queue for a GBLOC other than the default of the current user. Requires the HQ role. The parameter is ignored if the requesting user does not have the necessary role.\n",
             "name": "viewAsGBLOC",
             "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "Used to illustrate which user is assigned to this payment request.\n",
+            "name": "assignedTo",
+            "in": "query"
           }
         ],
         "responses": {
@@ -4386,7 +4393,8 @@ func init() {
               "originDutyLocation",
               "destinationDutyLocation",
               "requestedMoveDate",
-              "appearedInTooAt"
+              "appearedInTooAt",
+              "assignedTo"
             ],
             "type": "string",
             "description": "field that results should be sorted by",
@@ -6283,8 +6291,6 @@ func init() {
         "AIR_FORCE",
         "COAST_GUARD",
         "SPACE_FORCE",
-        "NAVY_AND_MARINES",
-        "AIR_AND_SPACE_FORCE",
         "OTHER"
       ],
       "x-display-value": {
@@ -6373,13 +6379,13 @@ func init() {
         "firstName": {
           "type": "string"
         },
-        "id": {
+        "lastName": {
+          "type": "string"
+        },
+        "officeUserId": {
           "type": "string",
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
-        },
-        "lastName": {
-          "type": "string"
         }
       }
     },
@@ -7570,6 +7576,28 @@ func init() {
         }
       }
     },
+    "DepartmentIndicator": {
+      "description": "Military branch of service indicator for orders",
+      "type": "string",
+      "title": "Department indicator",
+      "enum": [
+        "ARMY",
+        "ARMY_CORPS_OF_ENGINEERS",
+        "COAST_GUARD",
+        "NAVY_AND_MARINES",
+        "AIR_AND_SPACE_FORCE",
+        "OFFICE_OF_SECRETARY_OF_DEFENSE"
+      ],
+      "x-display-value": {
+        "AIR_AND_SPACE_FORCE": "57 Air Force and Space Force",
+        "ARMY": "21 Army",
+        "ARMY_CORPS_OF_ENGINEERS": "96 Army Corps of Engineers",
+        "COAST_GUARD": "70 Coast Guard",
+        "NAVY_AND_MARINES": "17 Navy and Marine Corps",
+        "OFFICE_OF_SECRETARY_OF_DEFENSE": "97 Office of Secretary of Defense"
+      },
+      "x-nullable": true
+    },
     "DeptIndicator": {
       "type": "string",
       "title": "Dept. indicator",
@@ -7951,14 +7979,14 @@ func init() {
     "FetchLineOfAccountingPayload": {
       "type": "object",
       "properties": {
+        "departmentIndicator": {
+          "$ref": "#/definitions/DepartmentIndicator"
+        },
         "effectiveDate": {
           "description": "The effective date for the Line Of Accounting (LOA) being fetched. Eg, the orders issue date or the Non-Temporary Storage (NTS) Move Task Order (MTO) approval date. Effective date is used to find \"Active\" TGET data by searching for the TACs and LOAs with begin and end dates containing this date. The 'Effective Date' is the date that can be either the orders issued date (For HHG shipments), MTO approval date (For NTS shipments), or even the current date for NTS shipments with no approval yet (Just providing a preview to the office users per customer request).\n",
           "type": "string",
           "format": "date",
           "example": "2023-01-01"
-        },
-        "serviceMemberAffiliation": {
-          "$ref": "#/definitions/Affiliation"
         },
         "tacCode": {
           "type": "string",
@@ -11718,6 +11746,9 @@ func init() {
           "x-nullable": true,
           "$ref": "#/definitions/AssignedOfficeUser"
         },
+        "availableOfficeUsers": {
+          "$ref": "#/definitions/AvailableOfficeUsers"
+        },
         "closeoutInitiated": {
           "type": "string",
           "format": "date-time",
@@ -11810,9 +11841,6 @@ func init() {
     "QueueMovesResult": {
       "type": "object",
       "properties": {
-        "availableOfficeUsers": {
-          "$ref": "#/definitions/AvailableOfficeUsers"
-        },
         "page": {
           "type": "integer"
         },
@@ -11834,6 +11862,9 @@ func init() {
           "description": "Days since the payment request has been requested.  Decimal representation will allow more accurate sorting.",
           "type": "number",
           "format": "double"
+        },
+        "availableOfficeUsers": {
+          "$ref": "#/definitions/AvailableOfficeUsers"
         },
         "customer": {
           "$ref": "#/definitions/Customer"
@@ -11900,9 +11931,6 @@ func init() {
     "QueuePaymentRequestsResult": {
       "type": "object",
       "properties": {
-        "availableOfficeUsers": {
-          "$ref": "#/definitions/AvailableOfficeUsers"
-        },
         "page": {
           "type": "integer"
         },
@@ -19421,7 +19449,8 @@ func init() {
               "closeoutInitiated",
               "closeoutLocation",
               "ppmStatus",
-              "counselingOffice"
+              "counselingOffice",
+              "assignedTo"
             ],
             "type": "string",
             "description": "field that results should be sorted by",
@@ -19574,6 +19603,12 @@ func init() {
             "description": "Used to return a queue for a GBLOC other than the default of the current user. Requires the HQ role. The parameter is ignored if the requesting user does not have the necessary role.\n",
             "name": "viewAsGBLOC",
             "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "Used to illustrate which user is assigned to this payment request.\n",
+            "name": "assignedTo",
+            "in": "query"
           }
         ],
         "responses": {
@@ -19674,7 +19709,8 @@ func init() {
               "originDutyLocation",
               "destinationDutyLocation",
               "requestedMoveDate",
-              "appearedInTooAt"
+              "appearedInTooAt",
+              "assignedTo"
             ],
             "type": "string",
             "description": "field that results should be sorted by",
@@ -21941,8 +21977,6 @@ func init() {
         "AIR_FORCE",
         "COAST_GUARD",
         "SPACE_FORCE",
-        "NAVY_AND_MARINES",
-        "AIR_AND_SPACE_FORCE",
         "OTHER"
       ],
       "x-display-value": {
@@ -22031,13 +22065,13 @@ func init() {
         "firstName": {
           "type": "string"
         },
-        "id": {
+        "lastName": {
+          "type": "string"
+        },
+        "officeUserId": {
           "type": "string",
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
-        },
-        "lastName": {
-          "type": "string"
         }
       }
     },
@@ -23232,6 +23266,28 @@ func init() {
         }
       }
     },
+    "DepartmentIndicator": {
+      "description": "Military branch of service indicator for orders",
+      "type": "string",
+      "title": "Department indicator",
+      "enum": [
+        "ARMY",
+        "ARMY_CORPS_OF_ENGINEERS",
+        "COAST_GUARD",
+        "NAVY_AND_MARINES",
+        "AIR_AND_SPACE_FORCE",
+        "OFFICE_OF_SECRETARY_OF_DEFENSE"
+      ],
+      "x-display-value": {
+        "AIR_AND_SPACE_FORCE": "57 Air Force and Space Force",
+        "ARMY": "21 Army",
+        "ARMY_CORPS_OF_ENGINEERS": "96 Army Corps of Engineers",
+        "COAST_GUARD": "70 Coast Guard",
+        "NAVY_AND_MARINES": "17 Navy and Marine Corps",
+        "OFFICE_OF_SECRETARY_OF_DEFENSE": "97 Office of Secretary of Defense"
+      },
+      "x-nullable": true
+    },
     "DeptIndicator": {
       "type": "string",
       "title": "Dept. indicator",
@@ -23613,14 +23669,14 @@ func init() {
     "FetchLineOfAccountingPayload": {
       "type": "object",
       "properties": {
+        "departmentIndicator": {
+          "$ref": "#/definitions/DepartmentIndicator"
+        },
         "effectiveDate": {
           "description": "The effective date for the Line Of Accounting (LOA) being fetched. Eg, the orders issue date or the Non-Temporary Storage (NTS) Move Task Order (MTO) approval date. Effective date is used to find \"Active\" TGET data by searching for the TACs and LOAs with begin and end dates containing this date. The 'Effective Date' is the date that can be either the orders issued date (For HHG shipments), MTO approval date (For NTS shipments), or even the current date for NTS shipments with no approval yet (Just providing a preview to the office users per customer request).\n",
           "type": "string",
           "format": "date",
           "example": "2023-01-01"
-        },
-        "serviceMemberAffiliation": {
-          "$ref": "#/definitions/Affiliation"
         },
         "tacCode": {
           "type": "string",
@@ -27455,6 +27511,9 @@ func init() {
           "x-nullable": true,
           "$ref": "#/definitions/AssignedOfficeUser"
         },
+        "availableOfficeUsers": {
+          "$ref": "#/definitions/AvailableOfficeUsers"
+        },
         "closeoutInitiated": {
           "type": "string",
           "format": "date-time",
@@ -27547,9 +27606,6 @@ func init() {
     "QueueMovesResult": {
       "type": "object",
       "properties": {
-        "availableOfficeUsers": {
-          "$ref": "#/definitions/AvailableOfficeUsers"
-        },
         "page": {
           "type": "integer"
         },
@@ -27571,6 +27627,9 @@ func init() {
           "description": "Days since the payment request has been requested.  Decimal representation will allow more accurate sorting.",
           "type": "number",
           "format": "double"
+        },
+        "availableOfficeUsers": {
+          "$ref": "#/definitions/AvailableOfficeUsers"
         },
         "customer": {
           "$ref": "#/definitions/Customer"
@@ -27637,9 +27696,6 @@ func init() {
     "QueuePaymentRequestsResult": {
       "type": "object",
       "properties": {
-        "availableOfficeUsers": {
-          "$ref": "#/definitions/AvailableOfficeUsers"
-        },
         "page": {
           "type": "integer"
         },
