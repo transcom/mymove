@@ -99,40 +99,41 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 				Key:   "unaccompanied_baggage",
 				Match: true,
 			}
+
 			mockFeatureFlagFetcher := &mocks.FeatureFlagFetcher{}
 
 			mockFeatureFlagFetcher.On("GetBooleanFlag",
-				mock.Anything,                     // context.Context
-				mock.Anything,                     // *zap.Logger
-				mock.AnythingOfType("string"),     // entityID (userID)
-				mock.AnythingOfType("string"),     // key
-				mock.Anything,                     // flagContext (map[string]string)
+				mock.Anything,                 // context.Context
+				mock.Anything,                 // *zap.Logger
+				mock.AnythingOfType("string"), // entityID (userID)
+				mock.AnythingOfType("string"), // key
+				mock.Anything,                 // flagContext (map[string]string)
 			).Return(expectedFeatureFlag, nil)
 			handlerConfig.SetFeatureFlagFetcher(mockFeatureFlagFetcher)
 
 			mockFeatureFlagFetcher.On("GetBooleanFlagForUser",
-			mock.Anything,
-			mock.AnythingOfType("*appcontext.appContext"),
-			mock.AnythingOfType("string"),
-			mock.Anything,
+				mock.Anything,
+				mock.AnythingOfType("*appcontext.appContext"),
+				mock.AnythingOfType("string"),
+				mock.Anything,
 			).Return(expectedFeatureFlag, nil)
 			handlerConfig.SetFeatureFlagFetcher(mockFeatureFlagFetcher)
 		} else {
 			mockFeatureFlagFetcher := &mocks.FeatureFlagFetcher{}
 			mockFeatureFlagFetcher.On("GetBooleanFlag",
-				mock.Anything,                     // context.Context
-				mock.Anything,                     // *zap.Logger
-				mock.AnythingOfType("string"),     // entityID (userID)
-				mock.AnythingOfType("string"),     // key
-				mock.Anything,                     // flagContext (map[string]string)
+				mock.Anything,                 // context.Context
+				mock.Anything,                 // *zap.Logger
+				mock.AnythingOfType("string"), // entityID (userID)
+				mock.AnythingOfType("string"), // key
+				mock.Anything,                 // flagContext (map[string]string)
 			).Return(services.FeatureFlag{}, errors.New("Some error"))
 			handlerConfig.SetFeatureFlagFetcher(mockFeatureFlagFetcher)
 
 			mockFeatureFlagFetcher.On("GetBooleanFlagForUser",
-			mock.Anything,
-			mock.AnythingOfType("*appcontext.appContext"),
-			mock.AnythingOfType("string"),
-			mock.Anything,
+				mock.Anything,
+				mock.AnythingOfType("*appcontext.appContext"),
+				mock.AnythingOfType("string"),
+				mock.Anything,
 			).Return(services.FeatureFlag{}, errors.New("Some error"))
 			handlerConfig.SetFeatureFlagFetcher(mockFeatureFlagFetcher)
 		}
