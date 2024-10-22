@@ -540,6 +540,35 @@ definitions:
       - widthInInches
       - heightInInches
       - hasTrailer
+  CreateMobileHomeShipment:
+    description: Creation object containing the `MobileHome` shipmentType specific data, not used for other shipment types.
+    type: object
+    properties:
+      year:
+        type: integer
+        description: Year of the Mobile Home
+      make:
+        type: string
+        description: Make of the Mobile Home
+      model:
+        type: string
+        description: Model of the Mobile Home
+      lengthInInches:
+        type: integer
+        description: Length of the Mobile Home in inches
+      widthInInches:
+        type: integer
+        description: Width of the Mobile Home in inches
+      heightInInches:
+        type: integer
+        description: Height of the Mobile Home in inches
+    required:
+      - year
+      - make
+      - model
+      - lengthInInches
+      - widthInInches
+      - heightInInches
   MTOShipment:
     type: object
     properties:
