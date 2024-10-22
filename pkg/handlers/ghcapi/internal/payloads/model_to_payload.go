@@ -2170,18 +2170,23 @@ func QueueMoves(moves []models.Move, officeUsers []models.OfficeUser, requestedP
 			queueMoves[i].AssignedTo = AssignedOfficeUser(move.TOOAssignedUser)
 		}
 
+		// scenarios where a move is assinable:
+
+		// if it is unassigned, it is always assignable
 		isAssignable := false
 		if queueMoves[i].AssignedTo == nil {
 			isAssignable = true
 		}
-		// if it is assigned
-		// it is only assignable if the user is a supervisor
-		// and if the move's counseling office is the supervisor's transportation office
-		if queueMoves[i].AssignedTo != nil && isSupervisor && move.CounselingOfficeID != nil && *move.CounselingOfficeID == officeUser.TransportationOfficeID {
+
+		// in TOO queues, all moves are assignable for supervisor users
+		if role == roles.RoleTypeTOO && isSupervisor {
 			isAssignable = true
 		}
 
-		if role == roles.RoleTypeTOO && isSupervisor {
+		// if it is assigned in the SCs queue
+		// it is only assignable if the user is a supervisor
+		// and if the move's counseling office is the supervisor's transportation office
+		if role == roles.RoleTypeServicesCounselor && isSupervisor && move.CounselingOfficeID != nil && *move.CounselingOfficeID == officeUser.TransportationOfficeID {
 			isAssignable = true
 		}
 
@@ -2204,10 +2209,6 @@ func QueueMoves(moves []models.Move, officeUsers []models.OfficeUser, requestedP
 					availableOfficeUsers = append(availableOfficeUsers, *move.SCAssignedUser)
 				}
 			}
-			// if role == roles.RoleTypeTOO && move.TOOAssignedUser != nil && move.TOOAssignedUser.TransportationOfficeID != officeUser.TransportationOfficeID {
-			// 	availableOfficeUsers = append(availableOfficeUsers, *move.TOOAssignedUser)
-			// }
-
 			queueMoves[i].AvailableOfficeUsers = *QueueAvailableOfficeUsers(availableOfficeUsers)
 		}
 	}
