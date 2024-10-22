@@ -189,15 +189,15 @@ class MtoShipmentForm extends Component {
     const isNTS = shipmentType === SHIPMENT_OPTIONS.NTS;
     const isNTSR = shipmentType === SHIPMENT_OPTIONS.NTSR;
     const isBoat = shipmentType === SHIPMENT_TYPES.BOAT_HAUL_AWAY || shipmentType === SHIPMENT_TYPES.BOAT_TOW_AWAY;
-    const shipmentNumber = shipmentType === SHIPMENT_OPTIONS.HHG || isBoat ? this.getShipmentNumber() : null;
+    const isMobileHome = shipmentType === SHIPMENT_TYPES.MOBILE_HOME;
+    const shipmentNumber =
+      shipmentType === SHIPMENT_OPTIONS.HHG || isBoat || isMobileHome ? this.getShipmentNumber() : null;
     const isRetireeSeparatee =
       orders.orders_type === ORDERS_TYPE.RETIREMENT || orders.orders_type === ORDERS_TYPE.SEPARATION;
 
     const initialValues = formatMtoShipmentForDisplay(
       isCreatePage && !mtoShipment?.requestedPickupDate ? {} : mtoShipment, // check if data carried over from boat shipment
     );
-
-    const optionalLabel = <span className={formStyles.optional}>Optional</span>;
 
     return (
       <Formik
@@ -339,6 +339,7 @@ class MtoShipmentForm extends Component {
                               name="pickup.requestedDate"
                               label="Preferred pickup date"
                               id="requestedPickupDate"
+                              hint="Required"
                               validate={validateDate}
                             />
                           </Fieldset>
@@ -346,6 +347,7 @@ class MtoShipmentForm extends Component {
                           <AddressFields
                             name="pickup.address"
                             legend="Pickup location"
+                            labelHint="Required"
                             render={(fields) => (
                               <>
                                 <p>What address are the movers picking up from?</p>
@@ -386,7 +388,9 @@ class MtoShipmentForm extends Component {
                                     />
                                   </div>
                                 </FormGroup>
-                                {hasSecondaryPickup === 'yes' && <AddressFields name="secondaryPickup.address" />}
+                                {hasSecondaryPickup === 'yes' && (
+                                  <AddressFields name="secondaryPickup.address" labelHint="Required" />
+                                )}
                                 {isTertiaryAddressEnabled && hasSecondaryPickup === 'yes' && (
                                   <div>
                                     <FormGroup>
@@ -421,7 +425,7 @@ class MtoShipmentForm extends Component {
                                   hasSecondaryPickup === 'yes' && (
                                     <>
                                       <h3>Third pickup location</h3>
-                                      <AddressFields name="tertiaryPickup.address" />
+                                      <AddressFields name="tertiaryPickup.address" labelHint="Required" />
                                     </>
                                   )}
                               </>
@@ -430,7 +434,7 @@ class MtoShipmentForm extends Component {
 
                           <ContactInfoFields
                             name="pickup.agent"
-                            legend={<div className={formStyles.legendContent}>Releasing agent {optionalLabel}</div>}
+                            legend={<div className={formStyles.legendContent}>Releasing agent</div>}
                             render={(fields) => (
                               <>
                                 <p>Who can let the movers pick up your personal property if you are not there?</p>
@@ -459,13 +463,16 @@ class MtoShipmentForm extends Component {
                               label="Preferred delivery date"
                               id="requestedDeliveryDate"
                               validate={validateDate}
+                              hint="Required"
                             />
                           </Fieldset>
 
                           <Fieldset legend="Delivery location">
                             {!isNTSR && (
                               <FormGroup>
-                                <p>Do you know your delivery address yet?</p>
+                                <Label hint="Required" htmlFor="hasDeliveryAddress">
+                                  Do you know your delivery address yet?
+                                </Label>
                                 <div className={formStyles.radioGroup}>
                                   <Field
                                     as={Radio}
@@ -491,6 +498,7 @@ class MtoShipmentForm extends Component {
                             {(hasDeliveryAddress === 'yes' || isNTSR) && (
                               <AddressFields
                                 name="delivery.address"
+                                labelHint="Required"
                                 render={(fields) => (
                                   <>
                                     {fields}
@@ -524,7 +532,7 @@ class MtoShipmentForm extends Component {
                                       </div>
                                     </FormGroup>
                                     {hasSecondaryDelivery === 'yes' && (
-                                      <AddressFields name="secondaryDelivery.address" />
+                                      <AddressFields name="secondaryDelivery.address" labelHint="Required" />
                                     )}
                                     {isTertiaryAddressEnabled && hasSecondaryDelivery === 'yes' && (
                                       <div>
@@ -560,7 +568,7 @@ class MtoShipmentForm extends Component {
                                       hasSecondaryDelivery === 'yes' && (
                                         <>
                                           <h4>Third delivery location</h4>
-                                          <AddressFields name="tertiaryDelivery.address" />
+                                          <AddressFields name="tertiaryDelivery.address" labelHint="Required" />
                                         </>
                                       )}
                                   </>
@@ -594,7 +602,7 @@ class MtoShipmentForm extends Component {
 
                           <ContactInfoFields
                             name="delivery.agent"
-                            legend={<div className={formStyles.legendContent}>Receiving agent {optionalLabel}</div>}
+                            legend={<div className={formStyles.legendContent}>Receiving agent</div>}
                             render={(fields) => (
                               <>
                                 <p>Who can take delivery for you if the movers arrive and you are not there?</p>
@@ -620,9 +628,9 @@ class MtoShipmentForm extends Component {
                         </SectionWrapper>
                       )}
 
-                      {!isBoat && (
+                      {!isBoat && !isMobileHome && (
                         <SectionWrapper className={formStyles.formSection}>
-                          <Fieldset legend={<div className={formStyles.legendContent}>Remarks {optionalLabel}</div>}>
+                          <Fieldset legend={<div className={formStyles.legendContent}>Remarks</div>}>
                             <Label htmlFor="customerRemarks">
                               Are there things about this shipment that your counselor or movers should discuss with
                               you?
@@ -662,7 +670,7 @@ class MtoShipmentForm extends Component {
                         <p>You can change details about your move by talking with your counselor or your movers</p>
                       </Hint>
 
-                      {isBoat ? (
+                      {isBoat || isMobileHome ? (
                         <div className={boatShipmentstyles.buttonContainer}>
                           <Button
                             className={boatShipmentstyles.backButton}

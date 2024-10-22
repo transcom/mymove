@@ -18,6 +18,10 @@ type ShipmentCreator struct {
 func (_m *ShipmentCreator) CreateShipment(appCtx appcontext.AppContext, shipment *models.MTOShipment) (*models.MTOShipment, error) {
 	ret := _m.Called(appCtx, shipment)
 
+	if len(ret) == 0 {
+		panic("no return value specified for CreateShipment")
+	}
+
 	var r0 *models.MTOShipment
 	var r1 error
 	if rf, ok := ret.Get(0).(func(appcontext.AppContext, *models.MTOShipment) (*models.MTOShipment, error)); ok {

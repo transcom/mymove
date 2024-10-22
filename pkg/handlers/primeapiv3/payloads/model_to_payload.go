@@ -258,7 +258,7 @@ func MTOAgents(mtoAgents *models.MTOAgents) *primev3messages.MTOAgents {
 
 func ProofOfServiceDoc(proofOfServiceDoc models.ProofOfServiceDoc) *primev3messages.ProofOfServiceDoc {
 	uploads := make([]*primev3messages.UploadWithOmissions, len(proofOfServiceDoc.PrimeUploads))
-	if proofOfServiceDoc.PrimeUploads != nil && len(proofOfServiceDoc.PrimeUploads) > 0 {
+	if len(proofOfServiceDoc.PrimeUploads) > 0 {
 		for i, primeUpload := range proofOfServiceDoc.PrimeUploads { //#nosec G601
 			uploads[i] = basicUpload(&primeUpload.Upload) //#nosec G601
 		}
@@ -277,7 +277,7 @@ func PaymentRequest(paymentRequest *models.PaymentRequest) *primev3messages.Paym
 
 	serviceDocs := make(primev3messages.ProofOfServiceDocs, len(paymentRequest.ProofOfServiceDocs))
 
-	if paymentRequest.ProofOfServiceDocs != nil && len(paymentRequest.ProofOfServiceDocs) > 0 {
+	if len(paymentRequest.ProofOfServiceDocs) > 0 {
 		for i, proofOfService := range paymentRequest.ProofOfServiceDocs {
 			serviceDocs[i] = ProofOfServiceDoc(proofOfService)
 		}
@@ -388,7 +388,7 @@ func PaymentServiceItemParams(paymentServiceItemParams *models.PaymentServiceIte
 
 func ServiceRequestDocument(serviceRequestDocument models.ServiceRequestDocument) *primev3messages.ServiceRequestDocument {
 	uploads := make([]*primev3messages.UploadWithOmissions, len(serviceRequestDocument.ServiceRequestDocumentUploads))
-	if serviceRequestDocument.ServiceRequestDocumentUploads != nil && len(serviceRequestDocument.ServiceRequestDocumentUploads) > 0 {
+	if len(serviceRequestDocument.ServiceRequestDocumentUploads) > 0 {
 		for i, proofOfServiceDocumentUpload := range serviceRequestDocument.ServiceRequestDocumentUploads {
 			uploads[i] = basicUpload(&proofOfServiceDocumentUpload.Upload) //#nosec G601
 		}
@@ -459,6 +459,33 @@ func PPMShipment(ppmShipment *models.PPMShipment) *primev3messages.PPMShipment {
 	return payloadPPMShipment
 }
 
+// BoatShipment payload
+func BoatShipment(boatShipment *models.BoatShipment) *primev3messages.BoatShipment {
+	if boatShipment == nil || boatShipment.ID.IsNil() {
+		return nil
+	}
+
+	boatShipmentType := string(boatShipment.Type)
+	payloadPPMShipment := &primev3messages.BoatShipment{
+		ID:             *handlers.FmtUUID(boatShipment.ID),
+		ShipmentID:     *handlers.FmtUUID(boatShipment.ShipmentID),
+		CreatedAt:      strfmt.DateTime(boatShipment.CreatedAt),
+		UpdatedAt:      strfmt.DateTime(boatShipment.UpdatedAt),
+		Type:           &boatShipmentType,
+		Year:           handlers.FmtIntPtrToInt64(boatShipment.Year),
+		Make:           boatShipment.Make,
+		Model:          boatShipment.Model,
+		LengthInInches: handlers.FmtIntPtrToInt64(boatShipment.LengthInInches),
+		WidthInInches:  handlers.FmtIntPtrToInt64(boatShipment.WidthInInches),
+		HeightInInches: handlers.FmtIntPtrToInt64(boatShipment.HeightInInches),
+		HasTrailer:     boatShipment.HasTrailer,
+		IsRoadworthy:   boatShipment.IsRoadworthy,
+		ETag:           etag.GenerateEtag(boatShipment.UpdatedAt),
+	}
+
+	return payloadPPMShipment
+}
+
 func MTOShipmentWithoutServiceItems(mtoShipment *models.MTOShipment) *primev3messages.MTOShipmentWithoutServiceItems {
 	payload := &primev3messages.MTOShipmentWithoutServiceItems{
 		ID:                               strfmt.UUID(mtoShipment.ID.String()),
@@ -488,6 +515,7 @@ func MTOShipmentWithoutServiceItems(mtoShipment *models.MTOShipment) *primev3mes
 		CreatedAt:                        strfmt.DateTime(mtoShipment.CreatedAt),
 		UpdatedAt:                        strfmt.DateTime(mtoShipment.UpdatedAt),
 		PpmShipment:                      PPMShipment(mtoShipment.PPMShipment),
+		BoatShipment:                     BoatShipment(mtoShipment.BoatShipment),
 		ETag:                             etag.GenerateEtag(mtoShipment.UpdatedAt),
 		OriginSitAuthEndDate:             (*strfmt.Date)(mtoShipment.OriginSITAuthEndDate),
 		DestinationSitAuthEndDate:        (*strfmt.Date)(mtoShipment.DestinationSITAuthEndDate),
@@ -671,7 +699,7 @@ func MTOServiceItem(mtoServiceItem *models.MTOServiceItem) primev3messages.MTOSe
 
 	serviceRequestDocuments := make(primev3messages.ServiceRequestDocuments, len(mtoServiceItem.ServiceRequestDocuments))
 
-	if mtoServiceItem.ServiceRequestDocuments != nil && len(mtoServiceItem.ServiceRequestDocuments) > 0 {
+	if len(mtoServiceItem.ServiceRequestDocuments) > 0 {
 		for i, serviceRequestDocument := range mtoServiceItem.ServiceRequestDocuments {
 			serviceRequestDocuments[i] = ServiceRequestDocument(serviceRequestDocument)
 		}

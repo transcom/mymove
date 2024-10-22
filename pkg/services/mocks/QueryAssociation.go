@@ -13,6 +13,10 @@ type QueryAssociation struct {
 func (_m *QueryAssociation) Field() string {
 	ret := _m.Called()
 
+	if len(ret) == 0 {
+		panic("no return value specified for Field")
+	}
+
 	var r0 string
 	if rf, ok := ret.Get(0).(func() string); ok {
 		r0 = rf()

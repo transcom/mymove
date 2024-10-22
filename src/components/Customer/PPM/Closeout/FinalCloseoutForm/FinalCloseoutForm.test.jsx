@@ -131,14 +131,14 @@ describe('FinalCloseoutForm component', () => {
     await userEvent.click(saveButton);
 
     // Save should be disabled after invalid input
-    expect(await screen.findByText('Required')).toBeInTheDocument();
+    expect(await screen.getByTestId('errorMessage')).toBeInTheDocument();
     expect(saveButton).toBeDisabled();
 
     // Save should be re-enabled after valid input
     const signatureField = screen.getByRole('textbox', { name: 'Signature' });
     await userEvent.type(signatureField, 'Grace Griffin');
     await waitFor(() => expect(saveButton).toBeEnabled());
-    expect(screen.queryByText('Required')).not.toBeInTheDocument();
+    expect(screen.queryByTestId('errorMessage')).not.toBeInTheDocument();
   });
 
   it('calls onSubmit func when "Submit PPM Documentation" button is clicked', async () => {

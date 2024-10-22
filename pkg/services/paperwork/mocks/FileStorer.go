@@ -16,6 +16,10 @@ type FileStorer struct {
 func (_m *FileStorer) Create(_a0 string) (afero.File, error) {
 	ret := _m.Called(_a0)
 
+	if len(ret) == 0 {
+		panic("no return value specified for Create")
+	}
+
 	var r0 afero.File
 	var r1 error
 	if rf, ok := ret.Get(0).(func(string) (afero.File, error)); ok {

@@ -18,6 +18,10 @@ type GexSender struct {
 func (_m *GexSender) SendToGex(channel services.GEXChannel, edi string, filename string) (*http.Response, error) {
 	ret := _m.Called(channel, edi, filename)
 
+	if len(ret) == 0 {
+		panic("no return value specified for SendToGex")
+	}
+
 	var r0 *http.Response
 	var r1 error
 	if rf, ok := ret.Get(0).(func(services.GEXChannel, string, string) (*http.Response, error)); ok {

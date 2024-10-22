@@ -20,6 +20,10 @@ type SyncadaSFTPReader struct {
 func (_m *SyncadaSFTPReader) FetchAndProcessSyncadaFiles(appCtx appcontext.AppContext, pickupPath string, lastRead time.Time, processor services.SyncadaFileProcessor) (time.Time, error) {
 	ret := _m.Called(appCtx, pickupPath, lastRead, processor)
 
+	if len(ret) == 0 {
+		panic("no return value specified for FetchAndProcessSyncadaFiles")
+	}
+
 	var r0 time.Time
 	var r1 error
 	if rf, ok := ret.Get(0).(func(appcontext.AppContext, string, time.Time, services.SyncadaFileProcessor) (time.Time, error)); ok {

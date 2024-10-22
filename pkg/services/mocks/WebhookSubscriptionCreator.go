@@ -20,6 +20,10 @@ type WebhookSubscriptionCreator struct {
 func (_m *WebhookSubscriptionCreator) CreateWebhookSubscription(appCtx appcontext.AppContext, subscription *models.WebhookSubscription) (*models.WebhookSubscription, *validate.Errors, error) {
 	ret := _m.Called(appCtx, subscription)
 
+	if len(ret) == 0 {
+		panic("no return value specified for CreateWebhookSubscription")
+	}
+
 	var r0 *models.WebhookSubscription
 	var r1 *validate.Errors
 	var r2 error

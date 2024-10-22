@@ -8,7 +8,6 @@ import { NULL_UUID } from 'shared/constants';
 import BackupContact from 'pages/MyMove/Profile/BackupContact';
 import ProfileReview from 'scenes/Review/ProfileReview';
 import Home from 'pages/MyMove/Home';
-import ConusOrNot from 'pages/MyMove/ConusOrNot';
 import DodInfo from 'pages/MyMove/Profile/DodInfo';
 import SMName from 'pages/MyMove/Profile/Name';
 import ContactInfo from 'pages/MyMove/Profile/ContactInfo';
@@ -42,11 +41,6 @@ const pages = {
     isInFlow: myFirstRodeo,
     isComplete: ({ sm }) => sm.is_profile_complete || every([sm.edipi, sm.affiliation]),
     render: () => <ValidationCode />,
-  },
-  [customerRoutes.CONUS_OCONUS_PATH]: {
-    isInFlow: inGhcFlow,
-    isComplete: ({ sm }) => sm.is_profile_complete || every([sm.edipi, sm.affiliation]),
-    render: () => <ConusOrNot />,
   },
   [customerRoutes.DOD_INFO_PATH]: {
     isInFlow: myFirstRodeo,

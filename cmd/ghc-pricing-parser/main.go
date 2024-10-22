@@ -324,7 +324,7 @@ func summarizeModel(appCtx appcontext.AppContext, header string, modelInstance i
 	if err != nil {
 		return err
 	}
-	pterm.Printf(pterm.Gray("(representative rows above; " + pterm.Green(length) + " rows total)\n\n"))
+	pterm.Printf(pterm.Gray("(representative rows above; %s rows total)\n\n"), pterm.Green(length))
 
 	return nil
 }

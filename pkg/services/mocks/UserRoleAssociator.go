@@ -24,6 +24,10 @@ type UserRoleAssociator struct {
 func (_m *UserRoleAssociator) UpdateUserRoles(appCtx appcontext.AppContext, userID uuid.UUID, _a2 []roles.RoleType) ([]models.UsersRoles, *validate.Errors, error) {
 	ret := _m.Called(appCtx, userID, _a2)
 
+	if len(ret) == 0 {
+		panic("no return value specified for UpdateUserRoles")
+	}
+
 	var r0 []models.UsersRoles
 	var r1 *validate.Errors
 	var r2 error
