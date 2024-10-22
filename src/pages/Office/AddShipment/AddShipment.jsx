@@ -23,6 +23,8 @@ const AddShipment = () => {
 
   if (shipmentType === SHIPMENT_OPTIONS_URL.NTSrelease) {
     shipmentType = SHIPMENT_OPTIONS.NTSR;
+  } else if (shipmentType === SHIPMENT_OPTIONS_URL.BOAT) {
+    shipmentType = SHIPMENT_OPTIONS.BOAT;
   } else {
     shipmentType = SHIPMENT_OPTIONS[shipmentType];
   }

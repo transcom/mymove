@@ -8,6 +8,7 @@ import styles from './ShipmentList.module.scss';
 
 import { shipmentTypes, WEIGHT_ADJUSTMENT } from 'constants/shipments';
 import { SHIPMENT_OPTIONS, SHIPMENT_TYPES } from 'shared/constants';
+import { getShipmentTypeLabel } from 'utils/shipmentDisplay';
 import { ShipmentShape } from 'types/shipment';
 import { formatWeight } from 'utils/formatters';
 import { isPPMShipmentComplete, isBoatShipmentComplete, isMobileHomeShipmentComplete } from 'utils/shipments';
@@ -59,7 +60,7 @@ export const ShipmentListItem = ({
     >
       <div>
         <strong>
-          {shipmentTypes[shipment.shipmentType]}
+          {getShipmentTypeLabel(shipment.shipmentType)}
           {showNumber && ` ${shipmentNumber}`}
         </strong>{' '}
         <br />
