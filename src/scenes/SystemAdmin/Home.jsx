@@ -42,6 +42,8 @@ import WebhookSubscriptionCreate from 'pages/Admin/WebhookSubscriptions/WebhookS
 import RequestedOfficeUserList from 'pages/Admin/RequestedOfficeUsers/RequestedOfficeUserList';
 import RequestedOfficeUserShow from 'pages/Admin/RequestedOfficeUsers/RequestedOfficeUserShow';
 import RequestedOfficeUserEdit from 'pages/Admin/RequestedOfficeUsers/RequestedOfficeUserEdit';
+import PaymentRequest858List from 'pages/Admin/PaymentRequests/PaymentRequest858List';
+import PaymentRequest858Show from 'pages/Admin/PaymentRequests/PaymentRequest858Show';
 
 const httpClient = (url, options = {}) => {
   if (!options.headers) {
@@ -96,6 +98,12 @@ const Home = () => (
       />
       <Resource name="users" options={{ label: 'Users' }} list={UserList} show={UserShow} edit={UserEdit} />
       <Resource name="moves" options={{ label: 'Moves' }} list={MoveList} show={MoveShow} edit={MoveEdit} />
+      <Resource
+        name="payment-request-syncada-files"
+        options={{ label: 'Payment Request Syncada Files' }}
+        list={PaymentRequest858List}
+        show={PaymentRequest858Show}
+      />
       <Resource name="electronic-orders" options={{ label: 'Electronic orders' }} list={ElectronicOrderList} />
       <Resource name="uploads" options={{ label: 'Search Upload by ID' }} show={UploadShow} />
       <Resource name="organizations" />
