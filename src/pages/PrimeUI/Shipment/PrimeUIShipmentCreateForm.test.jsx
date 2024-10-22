@@ -82,6 +82,19 @@ const initialValues = {
     heightInInches: 1,
   },
 
+  // Mobile Home Shipment
+  mobileHomeShipment: {
+    make: 'mobile make',
+    model: 'mobile model',
+    year: 1999,
+    lengthInFeet: 16,
+    lengthInInches: 0,
+    widthInFeet: 1,
+    widthInInches: 1,
+    heightInFeet: 1,
+    heightInInches: 1,
+  },
+
   // Other shipment types
   requestedPickupDate: '',
   estimatedWeight: '',
@@ -186,13 +199,16 @@ describe('PrimeUIShipmentCreateForm', () => {
     isBooleanFlagEnabled.mockResolvedValue(false);
     expect(await screen.queryByText('BOAT_HAUL_AWAY')).not.toBeInTheDocument();
     expect(await screen.queryByText('BOAT_TOW_AWAY')).not.toBeInTheDocument();
+    expect(await screen.queryByText('MOBILE_HOME')).not.toBeInTheDocument();
     expect(await screen.findByLabelText('Shipment type')).toBeInTheDocument();
+    expect(await screen.queryByText('MOBILE_HOME')).not.toBeInTheDocument();
   });
 
   it('renders the initial form, selecting PPM and checkboxes', async () => {
     isBooleanFlagEnabled.mockResolvedValue(false);
     expect(await screen.queryByText('BOAT_HAUL_AWAY')).not.toBeInTheDocument();
     expect(await screen.queryByText('BOAT_TOW_AWAY')).not.toBeInTheDocument();
+    expect(await screen.queryByText('MOBILE_HOME')).not.toBeInTheDocument();
     const shipmentTypeInput = await screen.findByLabelText('Shipment type');
     expect(shipmentTypeInput).toBeInTheDocument();
 
@@ -267,14 +283,14 @@ describe('PrimeUIShipmentCreateForm', () => {
   });
 
   it.each(
-    ['BOAT_HAUL_AWAY', 'BOAT_TOW_AWAY'],
-    'renders the initial form, selects a Boat shipment type, and shows correct fields',
+    ['BOAT_HAUL_AWAY', 'BOAT_TOW_AWAY', 'MOBILE_HOME'],
+    'renders the initial form, selects a Boat or Mobile Home shipment type, and shows correct fields',
     async (shipmentType) => {
       isBooleanFlagEnabled.mockResolvedValue(true); // Allow for testing of boats and mobile homes
       const shipmentTypeInput = await screen.findByLabelText('Shipment type');
       expect(shipmentTypeInput).toBeInTheDocument();
 
-      // Select the boat shipment type
+      // Select the boat or mobile home shipment type
       await userEvent.selectOptions(shipmentTypeInput, [shipmentType]);
 
       // Make sure that a PPM-specific field is not visible.
@@ -294,7 +310,7 @@ describe('PrimeUIShipmentCreateForm', () => {
       // now the text input should be visible
       expect(await screen.findByTestId('divertedFromShipmentIdInput')).toBeInTheDocument();
 
-      // Now check for a boat shipment specific field
+      // Now check for a boat and mobile home shipment specific field
       expect(await screen.findByLabelText('Length (Feet)')).toBeVisible();
     },
   );
