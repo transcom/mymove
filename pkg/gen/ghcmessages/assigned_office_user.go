@@ -22,20 +22,20 @@ type AssignedOfficeUser struct {
 	// first name
 	FirstName string `json:"firstName,omitempty"`
 
-	// id
-	// Example: c56a4180-65aa-42ec-a945-5fd21dec0538
-	// Format: uuid
-	ID strfmt.UUID `json:"id,omitempty"`
-
 	// last name
 	LastName string `json:"lastName,omitempty"`
+
+	// office user Id
+	// Example: c56a4180-65aa-42ec-a945-5fd21dec0538
+	// Format: uuid
+	OfficeUserID strfmt.UUID `json:"officeUserId,omitempty"`
 }
 
 // Validate validates this assigned office user
 func (m *AssignedOfficeUser) Validate(formats strfmt.Registry) error {
 	var res []error
 
-	if err := m.validateID(formats); err != nil {
+	if err := m.validateOfficeUserID(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -45,12 +45,12 @@ func (m *AssignedOfficeUser) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
-func (m *AssignedOfficeUser) validateID(formats strfmt.Registry) error {
-	if swag.IsZero(m.ID) { // not required
+func (m *AssignedOfficeUser) validateOfficeUserID(formats strfmt.Registry) error {
+	if swag.IsZero(m.OfficeUserID) { // not required
 		return nil
 	}
 
-	if err := validate.FormatOf("id", "body", "uuid", m.ID.String(), formats); err != nil {
+	if err := validate.FormatOf("officeUserId", "body", "uuid", m.OfficeUserID.String(), formats); err != nil {
 		return err
 	}
 

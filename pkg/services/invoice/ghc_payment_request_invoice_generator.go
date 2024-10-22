@@ -673,14 +673,14 @@ func (g ghcPaymentRequestInvoiceGenerator) createLongLoaSegments(appCtx appconte
 	var loas []models.LineOfAccounting
 	var loa models.LineOfAccounting
 
-	// Nil check on service member affiliation
-	if orders.ServiceMember.Affiliation == nil {
-		return nil, apperror.NewQueryError("orders", fmt.Errorf("could not identify service member affiliation for Order ID %s", orders.ID), "Unexpected error")
+	// Nil check on orders department indicator
+	if orders.DepartmentIndicator == nil {
+		return nil, apperror.NewQueryError("orders", fmt.Errorf("could not identify department indicator for Order ID %s", orders.ID), "Unexpected error")
 	}
 
-	// Fetch the long lines of accounting for an invoice based off a service member, tacCode, and the orders issue date.
-	// There is special logic for whether or not the service member affiliation is for the US Coast Guard.
-	loas, err := g.LineOfAccountingFetcher.FetchLongLinesOfAccounting(*orders.ServiceMember.Affiliation, orders.IssueDate, tac, appCtx)
+	// Fetch the long lines of accounting for an invoice based off an order's department indicator, tacCode, and the orders issue date.
+	// There is special logic for whether or not the department indicator is for the US Coast Guard.
+	loas, err := g.LineOfAccountingFetcher.FetchLongLinesOfAccounting(models.DepartmentIndicator(*orders.DepartmentIndicator), orders.IssueDate, tac, appCtx)
 	if err != nil {
 		return nil, apperror.NewQueryError("lineOfAccounting", err, "Unexpected error")
 	}
@@ -690,7 +690,7 @@ func (g ghcPaymentRequestInvoiceGenerator) createLongLoaSegments(appCtx appconte
 	// pick first one (sorted by FBMC, loa_bgn_dt, tac_fy_txt) inside the service object
 	loa = loas[0]
 
-	if *orders.ServiceMember.Affiliation != models.AffiliationCOASTGUARD {
+	if models.DepartmentIndicator(*orders.DepartmentIndicator) != models.DepartmentIndicatorCOASTGUARD {
 
 		//"HE" - E-1 through E-9 and Special Enlisted
 		//"HO" - O-1 Academy graduate through O-10, W1 - W5, Aviation Cadet, Academy Cadet, and Midshipman
