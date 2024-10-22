@@ -6,7 +6,7 @@ import EvaluationReportView from './EvaluationReportView';
 
 import { useEvaluationReportShipmentListQueries } from 'hooks/queries';
 import { qaeCSRRoutes } from 'constants/routes';
-import { renderWithProviders } from 'testUtils';
+import { MockProviders, renderWithProviders } from 'testUtils';
 
 const mockReportId = 'db30c135-1d6d-4a0d-a6d5-f408474f6ee2';
 const mockMoveId = '551dd01f-90cf-44d6-addb-ff919433dd61';
@@ -174,7 +174,11 @@ describe('EvaluationReportView', () => {
       mtoShipments: [],
     });
 
-    render(<EvaluationReportView customerInfo={{}} grade="E-5" destinationDutyLocationPostalCode="12345" />);
+    render(
+      <MockProviders>
+        <EvaluationReportView customerInfo={{}} grade="E-5" destinationDutyLocationPostalCode="12345" />
+      </MockProviders>,
+    );
 
     expect(screen.getByText('Loading, please wait...')).toBeInTheDocument();
   });
@@ -189,7 +193,11 @@ describe('EvaluationReportView', () => {
       mtoShipments: [],
     });
 
-    render(<EvaluationReportView customerInfo={{}} grade="E-5" destinationDutyLocationPostalCode="12345" />);
+    render(
+      <MockProviders>
+        <EvaluationReportView customerInfo={{}} grade="E-5" destinationDutyLocationPostalCode="12345" />
+      </MockProviders>,
+    );
 
     const errorMessage = screen.getByText(/Something went wrong./);
     expect(errorMessage).toBeInTheDocument();
@@ -240,7 +248,11 @@ describe('EvaluationReportView', () => {
       mtoShipments: [],
     });
 
-    render(<EvaluationReportView customerInfo={{}} grade="E-5" destinationDutyLocationPostalCode="12345" />);
+    render(
+      <MockProviders>
+        <EvaluationReportView customerInfo={{}} grade="E-5" destinationDutyLocationPostalCode="12345" />
+      </MockProviders>,
+    );
 
     expect(screen.getByTestId('noViolationsObserved')).toHaveTextContent('No');
   });
@@ -257,7 +269,11 @@ describe('EvaluationReportView', () => {
       mtoShipments: [],
     });
 
-    render(<EvaluationReportView customerInfo={{}} grade="E-5" destinationDutyLocationPostalCode="12345" />);
+    render(
+      <MockProviders>
+        <EvaluationReportView customerInfo={{}} grade="E-5" destinationDutyLocationPostalCode="12345" />
+      </MockProviders>,
+    );
 
     expect(screen.getByTestId('seriousIncidentYesNo')).toHaveTextContent('No');
   });
