@@ -4,7 +4,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
 import DocumentViewerFileManager from './DocumentViewerFileManager';
 
-import { deleteUploadForDocument } from 'services/ghcApi';
+import { deleteUploadForDocument, createUploadForDocument, createUploadForAmdendedOrders } from 'services/ghcApi';
 
 jest.mock('services/ghcApi', () => ({
   createUploadForDocument: jest.fn(),
@@ -14,9 +14,9 @@ jest.mock('services/ghcApi', () => ({
   getOrder: jest.fn(),
 }));
 
-jest.mock('components/FileUpload/FileUpload', () => ({ onChange }) => (
+jest.mock('components/FileUpload/FileUpload', () => ({ createUpload }) => (
   <div>
-    <button type="button" onClick={() => onChange()}>
+    <button data-testid="file-upload-input" type="button" onClick={() => createUpload({ file: 'testfile' })}>
       Drag files here or click to upload
     </button>
   </div>
@@ -86,6 +86,16 @@ describe('DocumentViewerFileManager', () => {
     updateAmendedDocument: jest.fn(),
   };
 
+  const defaultPropsAmended = {
+    className: 'test-class',
+    move: { id: 'move-id', locator: 'move-locator' },
+    orderId: 'order-id',
+    documentId: 'document-id',
+    files: [{ id: 'file-1', name: 'File 1' }],
+    documentType: 'AMENDMENTS',
+    updateAmendedDocument: jest.fn(),
+  };
+
   it('renders without crashing', () => {
     renderWithQueryClient(<DocumentViewerFileManager {...defaultProps} />);
     expect(screen.getByText('Manage Orders')).toBeInTheDocument();
@@ -141,13 +151,6 @@ describe('DocumentViewerFileManager', () => {
     expect(await screen.findByText(/failed to delete due to server error/i)).toBeInTheDocument();
   });
 
-  it('handles file upload change', () => {
-    renderWithQueryClient(<DocumentViewerFileManager {...defaultProps} />);
-    fireEvent.click(screen.getByText('Manage Orders'));
-    fireEvent.click(screen.getByText('Drag files here or click to upload'));
-    expect(screen.queryByText('An error occurred')).not.toBeInTheDocument();
-  });
-
   it('should handle file uploads correctly', async () => {
     const mockUpdateAmendedDocument = jest.fn(); // Mock function to verify the update action
     const queryClient = new QueryClient(); // Create a new instance of QueryClient for React Query
@@ -177,7 +180,7 @@ describe('DocumentViewerFileManager', () => {
     expect(uploadArea).toBeInTheDocument();
 
     // Create a new File object to simulate a file upload
-    const file = new File(['content'], 'testfile.txt', { type: 'text/plain' });
+    const file = new File(['content'], 'testfile.pdf', { type: 'application/pdf' });
 
     // Create a DataTransfer object to mimic the file being dragged and dropped
     const dataTransfer = new DataTransfer();
@@ -205,5 +208,83 @@ describe('DocumentViewerFileManager', () => {
     fireEvent.click(toggleButton);
 
     expect(screen.queryByText('Drag files here or click to upload')).not.toBeInTheDocument();
+  });
+
+  it('uploads an orders document successfully', async () => {
+    createUploadForDocument.mockResolvedValueOnce({});
+
+    renderWithQueryClient(<DocumentViewerFileManager {...defaultProps} />);
+
+    fireEvent.click(screen.getByText('Manage Orders'));
+
+    const uploadButton = screen.getByTestId('file-upload-input');
+    const mockFile = new File(['content'], 'orders', { type: 'application/pdf' });
+
+    fireEvent.click(uploadButton);
+
+    await createUploadForDocument(mockFile, 'document-id');
+
+    expect(createUploadForDocument).toHaveBeenCalledWith(mockFile, 'document-id');
+  });
+
+  it('uploads an amended orders document successfully', async () => {
+    createUploadForAmdendedOrders.mockResolvedValueOnce({});
+
+    renderWithQueryClient(<DocumentViewerFileManager {...defaultPropsAmended} />);
+
+    fireEvent.click(screen.getByText('Manage Amended Orders'));
+
+    const uploadButton = screen.getByTestId('file-upload-input');
+    const mockFile = new File(['content'], 'amended-orders', { type: 'application/pdf' });
+
+    fireEvent.click(uploadButton);
+
+    await createUploadForAmdendedOrders(mockFile, 'document-id');
+
+    expect(createUploadForAmdendedOrders).toHaveBeenCalledWith(mockFile, 'document-id');
+  });
+
+  it('displays an error message when the upload fails', async () => {
+    const mockError = { response: { body: { detail: 'Upload failed' } } };
+    createUploadForDocument.mockRejectedValueOnce(mockError);
+
+    renderWithQueryClient(<DocumentViewerFileManager {...defaultProps} />);
+
+    fireEvent.click(screen.getByText('Manage Orders'));
+
+    const uploadButton = screen.getByTestId('file-upload-input');
+    const mockFile = new File(['content'], 'orders.pdf', { type: 'application/pdf' });
+
+    fireEvent.click(uploadButton);
+
+    try {
+      await createUploadForDocument(mockFile, 'document-id');
+    } catch (error) {
+      expect(error.response.body.detail).toBe('Upload failed');
+    }
+
+    expect(await screen.findByText(/failed to upload due to server error: upload failed/i)).toBeInTheDocument();
+  });
+
+  it('displays an error message when the amended order upload fails', async () => {
+    const mockError = { response: { body: { detail: 'Upload failed' } } };
+    createUploadForAmdendedOrders.mockRejectedValueOnce(mockError);
+
+    renderWithQueryClient(<DocumentViewerFileManager {...defaultPropsAmended} />);
+
+    fireEvent.click(screen.getByText('Manage Amended Orders'));
+
+    const uploadButton = screen.getByTestId('file-upload-input');
+    const mockFile = new File(['content'], 'amended-orders.pdf', { type: 'application/pdf' });
+
+    fireEvent.click(uploadButton);
+
+    try {
+      await createUploadForAmdendedOrders(mockFile, 'document-id');
+    } catch (error) {
+      expect(error.response.body.detail).toBe('Upload failed');
+    }
+
+    expect(await screen.findByText(/failed to upload due to server error: upload failed/i)).toBeInTheDocument();
   });
 });
