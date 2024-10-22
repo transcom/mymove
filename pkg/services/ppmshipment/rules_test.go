@@ -386,10 +386,10 @@ func (suite *PPMShipmentSuite) TestValidationRules() {
 			estimatedIncentive := unit.Cents(17000)
 			falsePointer := models.BoolPointer(false)
 			truePointer := models.BoolPointer(true)
-			zeroAdvance := unit.Cents(0)
-			lessThanOneAdvance := unit.Cents(1) // amount less than $1
-			normalAdvance := unit.Cents(10000)  // below 60%
-			highAdvance := unit.Cents(12000)    // above 60%
+			negativeAdvance := unit.Cents(-1)
+			lessThanOneAdvance := unit.Cents(-1) // amount less than $1
+			normalAdvance := unit.Cents(10000)   // below 60%
+			highAdvance := unit.Cents(12000)     // above 60%
 
 			defaultOldShipmentValues := models.PPMShipment{
 				ShipmentID:             id,
@@ -414,9 +414,9 @@ func (suite *PPMShipmentSuite) TestValidationRules() {
 						ShipmentID:             id,
 						EstimatedIncentive:     &estimatedIncentive,
 						HasRequestedAdvance:    truePointer,
-						AdvanceAmountRequested: &zeroAdvance,
+						AdvanceAmountRequested: &negativeAdvance,
 					},
-					expectedErrorMsg: "Advance amount requested cannot be a value less than $1",
+					expectedErrorMsg: "Advance amount requested cannot be negative.",
 				},
 				"advance wasn't requested but amount isn't nil": {
 					oldPPMShipment: defaultOldShipmentValues,
@@ -446,7 +446,7 @@ func (suite *PPMShipmentSuite) TestValidationRules() {
 						HasRequestedAdvance:    truePointer,
 						AdvanceAmountRequested: &lessThanOneAdvance,
 					},
-					expectedErrorMsg: "Advance amount requested cannot be a value less than $1",
+					expectedErrorMsg: "Advance amount requested cannot be negative.",
 				},
 				"advance requested is nil but amount is not nil": {
 					oldPPMShipment: defaultOldShipmentValues,
