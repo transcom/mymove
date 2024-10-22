@@ -279,7 +279,7 @@ describe('Add Orders page', () => {
     await screen.findByRole('heading', { level: 1, name: 'Tell us about your move orders' });
     expect(screen.queryByText('Is this an accompanied tour?')).not.toBeInTheDocument();
     expect(screen.queryByLabelText(/Number of dependents under the age of 12/)).not.toBeInTheDocument();
-    expect(screen.queryByLabelText(/Number of dependents over the age of 12/)).not.toBeInTheDocument();
+    expect(screen.queryByLabelText(/Number of dependents of the age 12 or over/)).not.toBeInTheDocument();
     expect(
       screen.queryByText(
         'Unaccompanied Tour: An authorized order (assignment or tour) that DOES NOT allow dependents to travel to the new Permanent Duty Station (PDS)',
@@ -312,7 +312,7 @@ describe('Add Orders page', () => {
 
     // With both addresses being CONUS, the number of dependents input boxes should be missing
     expect(screen.queryByLabelText(/Number of dependents under the age of 12/)).not.toBeInTheDocument();
-    expect(screen.queryByLabelText(/Number of dependents over the age of 12/)).not.toBeInTheDocument();
+    expect(screen.queryByLabelText(/Number of dependents of the age 12 or over/)).not.toBeInTheDocument();
   });
 
   it('does render the input boxes for number of dependents over or under 12 if one of the locations are OCONUS', async () => {
@@ -335,7 +335,7 @@ describe('Add Orders page', () => {
     await userEvent.click(screen.getByTestId('hasDependentsYes'));
     // With one of the duty locations being OCONUS, the number of dependents input boxes should be present
     expect(screen.getByLabelText(/Number of dependents under the age of 12/)).toBeInTheDocument();
-    expect(screen.getByLabelText(/Number of dependents over the age of 12/)).toBeInTheDocument();
+    expect(screen.getByLabelText(/Number of dependents of the age 12 or over/)).toBeInTheDocument();
   });
 
   it('only renders dependents age groupings and accompanied tour if dependents are present', async () => {
@@ -358,7 +358,7 @@ describe('Add Orders page', () => {
     await userEvent.click(screen.getByTestId('hasDependentsNo'));
     // With one of the duty locations being OCONUS, the number of dependents input boxes should be present
     expect(screen.queryByLabelText(/Number of dependents under the age of 12/)).not.toBeInTheDocument();
-    expect(screen.queryByLabelText(/Number of dependents over the age of 12/)).not.toBeInTheDocument();
+    expect(screen.queryByLabelText(/Number of dependents of the age 12 or over/)).not.toBeInTheDocument();
     expect(screen.queryByLabelText(/Is this an accompanied tour?/)).not.toBeInTheDocument();
   });
 
