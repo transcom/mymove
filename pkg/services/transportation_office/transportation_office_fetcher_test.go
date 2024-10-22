@@ -98,7 +98,7 @@ func (suite *TransportationOfficeServiceSuite) Test_FindCounselingOffices() {
 	// duty location in KKFA with provies services counseling false
 	customAddress1 := models.Address{
 		ID:         uuid.Must(uuid.NewV4()),
-		PostalCode: "59901",
+		PostalCode: "59801",
 	}
 	factory.BuildDutyLocation(suite.DB(), []factory.Customization{
 		{Model: customAddress1, Type: &factory.Addresses.DutyLocationAddress},
@@ -136,7 +136,7 @@ func (suite *TransportationOfficeServiceSuite) Test_FindCounselingOffices() {
 	// duty location in KKFA with provides services counseling true
 	customAddress3 := models.Address{
 		ID:         uuid.Must(uuid.NewV4()),
-		PostalCode: "59701",
+		PostalCode: "59801",
 	}
 	origDutyLocation := factory.BuildDutyLocation(suite.DB(), []factory.Customization{
 		{Model: customAddress3, Type: &factory.Addresses.DutyLocationAddress},
