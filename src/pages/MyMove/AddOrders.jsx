@@ -76,14 +76,14 @@ const AddOrders = ({
           isOconus && hasDependents
             ? // If OCONUS and dependents are present
               // then provide the number of dependents under 12. Default to 0 if not present
-              values.dependents_under_twelve ?? 0
+              Number(values.dependents_under_twelve) ?? 0
             : // If CONUS, omit ths field altogether
               null,
         dependents_twelve_and_over:
           isOconus && hasDependents
             ? // If OCONUS and dependents are present
               // then provide the number of dependents over 12. Default to 0 if not present
-              values.dependents_twelve_and_over ?? 0
+              Number(values.dependents_twelve_and_over) ?? 0
             : // If CONUS, omit this field altogether
               null,
       };
@@ -133,8 +133,8 @@ const AddOrders = ({
     grade: '',
     origin_duty_location: '',
     accompanied_tour: '',
-    dependents_under_twelve: 0,
-    dependents_twelve_and_over: 0,
+    dependents_under_twelve: '',
+    dependents_twelve_and_over: '',
   };
 
   // Only allow PCS unless feature flag is on

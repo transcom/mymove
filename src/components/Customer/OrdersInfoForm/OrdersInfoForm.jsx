@@ -9,6 +9,7 @@ import { FEATURE_FLAG_KEYS } from '../../../shared/constants';
 
 import styles from './OrdersInfoForm.module.scss';
 
+import MaskedTextField from 'components/form/fields/MaskedTextField/MaskedTextField';
 import ToolTip from 'shared/ToolTip/ToolTip';
 import { ORDERS_PAY_GRADE_OPTIONS } from 'constants/orders';
 import { DropdownInput, DatePickerInput, DutyLocationInput } from 'components/form/fields';
@@ -322,32 +323,33 @@ const OrdersInfoForm = ({ ordersTypeOptions, initialValues, onSubmit, onBack }) 
               )}
 
               {showDependentAgeFields && (
-                <>
-                  <FormGroup>
-                    <Label htmlFor="dependentsUnderTwelve" hint="Required">
-                      Number of dependents under the age of 12
-                    </Label>
-                    <Field
-                      type="number"
-                      id="dependentsUnderTwelve"
-                      name="dependents_under_twelve"
-                      data-testid="dependentsUnderTwelve"
-                      min="0"
-                    />
-                  </FormGroup>
-                  <FormGroup>
-                    <Label htmlFor="dependentsTwelveAndOver" hint="Required">
-                      Number of dependents of the age 12 or over
-                    </Label>
-                    <Field
-                      type="number"
-                      id="dependentsTwelveAndOver"
-                      name="dependents_twelve_and_over"
-                      data-testid="dependentsTwelveAndOver"
-                      min="0"
-                    />
-                  </FormGroup>
-                </>
+                <FormGroup>
+                  <MaskedTextField
+                    data-testid="dependentsUnderTwelve"
+                    defaultValue="0"
+                    name="dependents_under_twelve"
+                    label="Number of dependents under the age of 12"
+                    id="dependentsUnderTwelve"
+                    mask={Number}
+                    scale={0}
+                    signed={false}
+                    thousandsSeparator=","
+                    lazy={false}
+                  />
+
+                  <MaskedTextField
+                    data-testid="dependentsTwelveAndOver"
+                    defaultValue="0"
+                    name="dependents_twelve_and_over"
+                    label="Number of dependents of the age 12 or over"
+                    id="dependentsTwelveAndOver"
+                    mask={Number}
+                    scale={0}
+                    signed={false}
+                    thousandsSeparator=","
+                    lazy={false}
+                  />
+                </FormGroup>
               )}
 
               <DropdownInput
@@ -384,8 +386,8 @@ OrdersInfoForm.propTypes = {
     new_duty_location: PropTypes.shape({}),
     grade: PropTypes.string,
     origin_duty_location: DutyLocationShape,
-    dependents_under_twelve: PropTypes.number,
-    dependents_twelve_and_over: PropTypes.number,
+    dependents_under_twelve: PropTypes.string,
+    dependents_twelve_and_over: PropTypes.string,
     accompanied_tour: PropTypes.string,
   }).isRequired,
   onSubmit: PropTypes.func.isRequired,
