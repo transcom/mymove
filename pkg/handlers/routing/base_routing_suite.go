@@ -88,12 +88,12 @@ func (suite *BaseRoutingSuite) RoutingConfig() *Config {
 	fakeS3 := storageTest.NewFakeS3Storage(true)
 	handlerConfig.SetFileStorer(fakeS3)
 	mockFeatureFlagFetcher := &mocks.FeatureFlagFetcher{}
-	mockFeatureFlagFetcher.On("GetBooleanFlagForUser",
-		mock.AnythingOfType("context.Context"),
-		mock.AnythingOfType("*zap.Logger"),
+	mockFeatureFlagFetcher.On("GetBooleanFlag",
+		mock.Anything,
+		mock.Anything,
 		mock.AnythingOfType("string"),
 		mock.AnythingOfType("string"),
-		mock.AnythingOfType("map[string]string"),
+		mock.AnythingOfType("map[string]string{}"),
 	).Return(services.FeatureFlag{}, nil)
 	handlerConfig.SetFeatureFlagFetcher(mockFeatureFlagFetcher)
 
