@@ -121,11 +121,11 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 			mockFeatureFlagFetcher := &mocks.FeatureFlagFetcher{}
 
 			mockFeatureFlagFetcher.On("GetBooleanFlag",
-				mock.Anything,                 // context.Context
-				mock.Anything,                 // *zap.Logger
-				mock.AnythingOfType("string"), // entityID (userID)
-				mock.AnythingOfType("string"), // key
-				mock.Anything,                 // flagContext (map[string]string)
+				mock.Anything,
+				mock.Anything,
+				mock.AnythingOfType("string"),
+				mock.AnythingOfType("string"),
+				mock.Anything,
 			).Return(expectedFeatureFlag, nil)
 			handlerConfig.SetFeatureFlagFetcher(mockFeatureFlagFetcher)
 
