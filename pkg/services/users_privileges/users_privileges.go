@@ -51,8 +51,8 @@ func (u usersPrivilegesCreator) addUserPrivileges(appCtx appcontext.AppContext, 
 	//	AND ur.user_id ISNULL;
 	var userPrivilegesToAdd []models.UsersPrivileges
 	if len(rs) > 0 {
-		err := appCtx.DB().Select("r.id as privilege_id, ? as user_id").
-			RightJoin("privileges r", "r.id=users_privileges.privilege_id AND users_privileges.user_id = ? AND users_privileges.deleted_at IS NULL", userID, userID).
+		err := appCtx.DB().Select("p.id as privilege_id, ? as user_id").
+			RightJoin("privileges p", "r.id=users_privileges.privilege_id AND users_privileges.user_id = ? AND users_privileges.deleted_at IS NULL", userID, userID).
 			Where("privilege_type IN (?) AND (users_privileges.user_id IS NULL)", rs).
 			All(&userPrivilegesToAdd)
 		if err != nil {
@@ -83,8 +83,8 @@ func (u usersPrivilegesCreator) removeUserPrivileges(appCtx appcontext.AppContex
 	//	AND ur.user_id IS NOT NULL;
 	var userPrivilegesToDelete []models.UsersPrivileges
 	if len(rs) > 0 {
-		err := appCtx.DB().Select("users_privileges.id, r.id as privilege_id, ? as user_id, users_privileges.deleted_at").
-			RightJoin("privileges r", "r.id=users_privileges.privilege_id AND users_privileges.user_id = ? AND users_privileges.deleted_at IS NULL", userID, userID).
+		err := appCtx.DB().Select("users_privileges.id, p.id as privilege_id, ? as user_id, users_privileges.deleted_at").
+			RightJoin("privileges p", "p.id=users_privileges.privilege_id AND users_privileges.user_id = ? AND users_privileges.deleted_at IS NULL", userID, userID).
 			Where("privilege_type NOT IN (?) AND users_privileges.id IS NOT NULL", rs).
 			All(&userPrivilegesToDelete)
 		if err != nil {
