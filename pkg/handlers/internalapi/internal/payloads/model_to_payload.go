@@ -41,6 +41,7 @@ func Address(address *models.Address) *internalmessages.Address {
 		Country:        Country(address.Country),
 		PostalCode:     &address.PostalCode,
 		County:         &address.County,
+		IsOconus:       address.IsOconus,
 	}
 }
 
@@ -380,7 +381,7 @@ func PayloadForDocumentModel(storer storage.FileStorer, document models.Document
 		if userUpload.Upload.ID == uuid.Nil {
 			return nil, errors.New("no uploads for user")
 		}
-		url, err := storer.PresignedURL(userUpload.Upload.StorageKey, userUpload.Upload.ContentType)
+		url, err := storer.PresignedURL(userUpload.Upload.StorageKey, userUpload.Upload.ContentType, userUpload.Upload.Filename)
 		if err != nil {
 			return nil, err
 		}

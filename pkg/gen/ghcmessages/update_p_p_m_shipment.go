@@ -50,6 +50,11 @@ type UpdatePPMShipment struct {
 	// advance status
 	AdvanceStatus *PPMAdvanceStatus `json:"advanceStatus,omitempty"`
 
+	// The allowable weight of the PPM shipment goods being moved.
+	// Example: 4300
+	// Minimum: 0
+	AllowableWeight *int64 `json:"allowableWeight,omitempty"`
+
 	// destination address
 	DestinationAddress struct {
 		PPMDestinationAddress
@@ -161,6 +166,10 @@ func (m *UpdatePPMShipment) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
+	if err := m.validateAllowableWeight(formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.validateDestinationAddress(formats); err != nil {
 		res = append(res, err)
 	}
@@ -261,6 +270,18 @@ func (m *UpdatePPMShipment) validateAdvanceStatus(formats strfmt.Registry) error
 			}
 			return err
 		}
+	}
+
+	return nil
+}
+
+func (m *UpdatePPMShipment) validateAllowableWeight(formats strfmt.Registry) error {
+	if swag.IsZero(m.AllowableWeight) { // not required
+		return nil
+	}
+
+	if err := validate.MinimumInt("allowableWeight", "body", *m.AllowableWeight, 0, false); err != nil {
+		return err
 	}
 
 	return nil

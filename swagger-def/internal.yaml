@@ -583,10 +583,6 @@ definitions:
       netWeightRemarks:
         description: Remarks explaining any edits made to the net weight
         type: string
-      allowableWeight:
-        description: Indicates the maximum reimbursable weight of the shipment
-        type: integer
-        minimum: 0
   TransportationOffices:
     type: array
     items:

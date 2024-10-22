@@ -416,7 +416,7 @@ func (g ghcPaymentRequestInvoiceGenerator) createG62Segments(appCtx appcontext.A
 	return nil
 }
 
-func (g ghcPaymentRequestInvoiceGenerator) createBuyerAndSellerOrganizationNamesSegments(appCtx appcontext.AppContext, _ uuid.UUID, orders models.Order, header *ediinvoice.InvoiceHeader) error {
+func (g ghcPaymentRequestInvoiceGenerator) createBuyerAndSellerOrganizationNamesSegments(appCtx appcontext.AppContext, paymentRequestID uuid.UUID, orders models.Order, header *ediinvoice.InvoiceHeader) error {
 	var err error
 	var originDutyLocation models.DutyLocation
 	if orders.OriginDutyLocationID != nil && *orders.OriginDutyLocationID != uuid.Nil {
@@ -428,11 +428,35 @@ func (g ghcPaymentRequestInvoiceGenerator) createBuyerAndSellerOrganizationNames
 		return apperror.NewConflictError(orders.ID, "Invalid Order, must have OriginDutyLocation")
 	}
 
+	var address models.Address
+	err = appCtx.DB().Q().
+		Select("addresses.*").
+		Join("mto_shipments", "addresses.id = mto_shipments.pickup_address_id").
+		Join("moves", "mto_shipments.move_id = moves.id").
+		Join("mto_service_items", "mto_service_items.move_id = moves.id").
+		Join("payment_service_items", "payment_service_items.mto_service_item_id = mto_service_items.id").
+		Where("payment_service_items.payment_request_id = ?", paymentRequestID).
+		Order("mto_shipments.created_at").
+		First(&address)
+
+	if err != nil {
+		switch err {
+		case sql.ErrNoRows:
+			return apperror.NewNotFoundError(paymentRequestID, "for mto shipments associated with PaymentRequest")
+		default:
+			return apperror.NewQueryError("MTOShipments", err, fmt.Sprintf("error querying for shipments pickup address gbloc to use in N1*BY segments in PaymentRequest %s: %s", paymentRequestID, err))
+		}
+	}
+	pickupPostalCodeToGbloc, gblocErr := models.FetchGBLOCForPostalCode(appCtx.DB(), address.PostalCode)
+	if gblocErr != nil {
+		return apperror.NewInvalidInputError(pickupPostalCodeToGbloc.ID, gblocErr, nil, "unable to determine GBLOC for pickup postal code")
+	}
+
 	header.BuyerOrganizationName = edisegment.N1{
 		EntityIdentifierCode:        "BY",
 		Name:                        truncateStr(originDutyLocation.Name, maxLocationlength),
 		IdentificationCodeQualifier: "92",
-		IdentificationCode:          modifyGblocIfMarines(*orders.ServiceMember.Affiliation, *orders.OriginDutyLocationGBLOC),
+		IdentificationCode:          modifyGblocIfMarines(*orders.ServiceMember.Affiliation, pickupPostalCodeToGbloc.GBLOC),
 	}
 
 	// seller organization name
