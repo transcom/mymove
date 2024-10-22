@@ -195,6 +195,14 @@ flags:
       - segment:
           key: mil-app
           value: true
+  - key: unaccompanied_baggage
+    name: Unaccompanied baggage shipment feature flag
+    type: BOOLEAN_FLAG_TYPE
+    enabled: false
+    rollouts:
+      - segment:
+          key: mil-app
+          value: false
 segments:
   - key: mil-app
     name: Mil App
