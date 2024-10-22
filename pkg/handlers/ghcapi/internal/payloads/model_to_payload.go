@@ -2263,11 +2263,8 @@ func QueuePaymentRequests(paymentRequests *models.PaymentRequests, officeUsers [
 		if queuePaymentRequests[i].AssignedTo == nil {
 			isAssignable = true
 		}
-		// if it is assigned
-		// it is only assignable if the user is a supervisor
-		// and if the move's counseling office is the supervisor's transportation office
 
-		if queuePaymentRequests[i].AssignedTo != nil && isSupervisor && paymentRequest.MoveTaskOrder.TIOAssignedUser.TransportationOfficeID == officeUser.TransportationOfficeID {
+		if isSupervisor {
 			isAssignable = true
 		}
 
@@ -2276,16 +2273,8 @@ func QueuePaymentRequests(paymentRequests *models.PaymentRequests, officeUsers [
 		// only need to attach available office users if move is assignable
 		if queuePaymentRequests[i].Assignable {
 			availableOfficeUsers := officeUsers
-			// if there is no counseling office
-			// OR if our current user doesn't work at the move's counseling office
-			// only available user should be themself
-			if (paymentRequest.MoveTaskOrder.CounselingOfficeID == nil) || (paymentRequest.MoveTaskOrder.CounselingOfficeID != nil && *paymentRequest.MoveTaskOrder.CounselingOfficeID != officeUser.TransportationOfficeID) {
+			if !isSupervisor {
 				availableOfficeUsers = models.OfficeUsers{officeUser}
-			}
-
-			// if the office user currently assigned to move works outside of the logged in users counseling office
-			if paymentRequest.MoveTaskOrder.TOOAssignedUser != nil && paymentRequest.MoveTaskOrder.TOOAssignedUser.TransportationOfficeID != officeUser.TransportationOfficeID {
-				availableOfficeUsers = append(availableOfficeUsers, *paymentRequest.MoveTaskOrder.TOOAssignedUser)
 			}
 
 			queuePaymentRequests[i].AvailableOfficeUsers = *QueueAvailableOfficeUsers(availableOfficeUsers)
