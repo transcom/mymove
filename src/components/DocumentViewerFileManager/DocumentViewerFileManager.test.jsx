@@ -4,6 +4,8 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
 import DocumentViewerFileManager from './DocumentViewerFileManager';
 
+import { deleteUploadForDocument } from 'services/ghcApi';
+
 jest.mock('services/ghcApi', () => ({
   createUploadForDocument: jest.fn(),
   createUploadForAmdendedOrders: jest.fn(),
@@ -162,5 +164,18 @@ describe('DocumentViewerFileManager', () => {
     fireEvent.drop(uploadArea, {
       dataTransfer, // Trigger the drop event to simulate the file upload
     });
+  });
+
+  it('calls deleteUploadForDocument when handleDeleteSubmit is triggered', async () => {
+    deleteUploadForDocument.mockResolvedValueOnce({});
+
+    renderWithQueryClient(<DocumentViewerFileManager {...defaultProps} />);
+
+    fireEvent.click(screen.getByText('Manage Orders'));
+    fireEvent.click(screen.getByText('Delete'));
+
+    fireEvent.click(screen.getByText('Yes, delete'));
+
+    expect(deleteUploadForDocument).toHaveBeenCalledWith('file-1', 'order-id');
   });
 });
