@@ -3493,8 +3493,6 @@ func init() {
         "AIR_FORCE",
         "COAST_GUARD",
         "SPACE_FORCE",
-        "NAVY_AND_MARINES",
-        "AIR_AND_SPACE_FORCE",
         "OTHER"
       ],
       "x-display-value": {
@@ -4123,6 +4121,12 @@ func init() {
         "new_duty_location_id"
       ],
       "properties": {
+        "counseling_office_id": {
+          "type": "string",
+          "format": "uuid",
+          "x-nullable": true,
+          "example": "cf1addea-a4f9-4173-8506-2bb82a064cb7"
+        },
         "department_indicator": {
           "$ref": "#/definitions/DeptIndicator"
         },
@@ -4139,6 +4143,11 @@ func init() {
           "format": "date",
           "title": "Orders date",
           "example": "2018-04-26"
+        },
+        "move_id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "cf1addea-a4f9-4173-8506-2bb82a064cb7"
         },
         "new_duty_location_id": {
           "type": "string",
@@ -4344,6 +4353,10 @@ func init() {
           "type": "string",
           "example": "Fort Bragg North Station"
         },
+        "provides_services_counseling": {
+          "type": "boolean",
+          "x-nullable": false
+        },
         "transportation_office": {
           "$ref": "#/definitions/TransportationOffice"
         },
@@ -4484,6 +4497,9 @@ func init() {
       "type": "object",
       "properties": {
         "closeoutOffice": {
+          "$ref": "#/definitions/TransportationOffice"
+        },
+        "counselingOffice": {
           "$ref": "#/definitions/TransportationOffice"
         },
         "createdAt": {
@@ -5131,6 +5147,9 @@ func init() {
           "example": "Change of orders"
         },
         "closeout_office": {
+          "$ref": "#/definitions/TransportationOffice"
+        },
+        "counseling_office": {
           "$ref": "#/definitions/TransportationOffice"
         },
         "created_at": {
@@ -12101,8 +12120,6 @@ func init() {
         "AIR_FORCE",
         "COAST_GUARD",
         "SPACE_FORCE",
-        "NAVY_AND_MARINES",
-        "AIR_AND_SPACE_FORCE",
         "OTHER"
       ],
       "x-display-value": {
@@ -12731,6 +12748,12 @@ func init() {
         "new_duty_location_id"
       ],
       "properties": {
+        "counseling_office_id": {
+          "type": "string",
+          "format": "uuid",
+          "x-nullable": true,
+          "example": "cf1addea-a4f9-4173-8506-2bb82a064cb7"
+        },
         "department_indicator": {
           "$ref": "#/definitions/DeptIndicator"
         },
@@ -12747,6 +12770,11 @@ func init() {
           "format": "date",
           "title": "Orders date",
           "example": "2018-04-26"
+        },
+        "move_id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "cf1addea-a4f9-4173-8506-2bb82a064cb7"
         },
         "new_duty_location_id": {
           "type": "string",
@@ -12954,6 +12982,10 @@ func init() {
           "type": "string",
           "example": "Fort Bragg North Station"
         },
+        "provides_services_counseling": {
+          "type": "boolean",
+          "x-nullable": false
+        },
         "transportation_office": {
           "$ref": "#/definitions/TransportationOffice"
         },
@@ -13094,6 +13126,9 @@ func init() {
       "type": "object",
       "properties": {
         "closeoutOffice": {
+          "$ref": "#/definitions/TransportationOffice"
+        },
+        "counselingOffice": {
           "$ref": "#/definitions/TransportationOffice"
         },
         "createdAt": {
@@ -13743,6 +13778,9 @@ func init() {
           "example": "Change of orders"
         },
         "closeout_office": {
+          "$ref": "#/definitions/TransportationOffice"
+        },
+        "counseling_office": {
           "$ref": "#/definitions/TransportationOffice"
         },
         "created_at": {

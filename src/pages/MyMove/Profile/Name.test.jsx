@@ -155,7 +155,7 @@ describe('requireCustomerState Name', () => {
 
     expect(await screen.findByRole('heading', { name: 'Name', level: 1 })).toBeInTheDocument();
 
-    expect(mockNavigate).toHaveBeenCalledWith('/service-member/conus-oconus');
+    expect(mockNavigate).toHaveBeenCalledWith('/service-member/dod-info');
   });
 
   it('does not redirect if the current state equals the "DOD INFO COMPLETE" state', async () => {
