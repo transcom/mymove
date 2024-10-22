@@ -22,6 +22,7 @@ export const ZipCityInput = (props) => {
       input={{
         value: field.value,
         onChange: helpers.setValue,
+        locationState: () => {},
         name,
       }}
       errorMsg={errorString}
