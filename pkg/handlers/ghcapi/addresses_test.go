@@ -13,22 +13,20 @@ import (
 
 func (suite *HandlerSuite) TestGetLocationByZipCityHandler() {
 	suite.Run("successful zip city lookup", func() {
-		usPostRegionCity := factory.BuildDefaultUsPostRegionCity(suite.DB())
-		suite.MustSave(&usPostRegionCity)
-
+		zip := "90210"
 		var fetchedUsPostRegionCity models.UsPostRegionCity
-		err := suite.DB().Where("uspr_zip_id = $1", usPostRegionCity.UsprZipID).First(&fetchedUsPostRegionCity)
+		err := suite.DB().Where("uspr_zip_id = $1", zip).First(&fetchedUsPostRegionCity)
 
 		suite.NoError(err)
-		suite.Equal(usPostRegionCity.UsprZipID, fetchedUsPostRegionCity.UsprZipID)
+		suite.Equal(zip, fetchedUsPostRegionCity.UsprZipID)
 
 		usPostRegionCityService := address.NewUsPostRegionCity()
 		officeUser := factory.BuildOfficeUser(nil, nil, nil)
-		req := httptest.NewRequest("GET", "/addresses/zip_city_lookup/"+usPostRegionCity.UsprZipID, nil)
+		req := httptest.NewRequest("GET", "/addresses/zip_city_lookup/"+zip, nil)
 		req = suite.AuthenticateOfficeRequest(req, officeUser)
 		params := addressop.GetLocationByZipCityParams{
 			HTTPRequest: req,
-			Search:      usPostRegionCity.UsprZipID,
+			Search:      zip,
 		}
 
 		handler := GetLocationByZipCityHandler{
@@ -39,6 +37,6 @@ func (suite *HandlerSuite) TestGetLocationByZipCityHandler() {
 		suite.Assertions.IsType(&addressop.GetLocationByZipCityOK{}, response)
 		responsePayload := response.(*addressop.GetLocationByZipCityOK)
 		suite.NoError(responsePayload.Payload.Validate(strfmt.Default))
-		suite.Equal(usPostRegionCity.UsprZipID, responsePayload.Payload[0].PostalCode)
+		suite.Equal(zip, responsePayload.Payload[0].PostalCode)
 	})
 }

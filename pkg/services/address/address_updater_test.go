@@ -47,7 +47,34 @@ func (suite *AddressSuite) TestAddressUpdater() {
 		suite.NotNil(updatedAddress.StreetAddress3)
 		suite.Equal(originalAddress.StreetAddress3, updatedAddress.StreetAddress3)
 		suite.NotNil(updatedAddress.Country)
-		suite.Equal(originalAddress.Country, updatedAddress.Country)
+		suite.Equal(county, desiredAddress.County)
+	})
+
+	suite.Run("Successfully merges state for an address", func() {
+		originalAddress := createOriginalAddress()
+
+		addressUpdater := NewAddressUpdater()
+		desiredAddress := &models.Address{
+			ID:             originalAddress.ID,
+			StreetAddress1: streetAddress1,
+			City:           city,
+			State:          "IL",
+			PostalCode:     postalCode,
+		}
+		updatedAddress, err := addressUpdater.UpdateAddress(suite.AppContextForTest(), desiredAddress, etag.GenerateEtag(originalAddress.UpdatedAt))
+
+		suite.NotNil(updatedAddress)
+		suite.Nil(err)
+		suite.Equal(originalAddress.ID, updatedAddress.ID)
+		suite.Equal(desiredAddress.StreetAddress1, updatedAddress.StreetAddress1)
+		suite.Equal(desiredAddress.City, updatedAddress.City)
+		suite.Equal(desiredAddress.State, updatedAddress.State)
+		suite.Equal(desiredAddress.PostalCode, updatedAddress.PostalCode)
+		suite.NotNil(updatedAddress.StreetAddress2)
+		suite.Equal(originalAddress.StreetAddress2, updatedAddress.StreetAddress2)
+		suite.NotNil(updatedAddress.StreetAddress3)
+		suite.Equal(originalAddress.StreetAddress3, updatedAddress.StreetAddress3)
+		suite.NotNil(updatedAddress.Country)
 		suite.Equal(county, desiredAddress.County)
 	})
 
@@ -129,5 +156,43 @@ func (suite *AddressSuite) TestAddressUpdater() {
 		suite.IsType(&apperror.BadDataError{}, err)
 		expectedError := fmt.Sprintf("Data received from requester is bad: %s: invalid ID used for address", apperror.BadDataCode)
 		suite.Equal(expectedError, err.Error())
+	})
+
+	suite.Run("Able to update when providing US country value in updated address", func() {
+		originalAddress := createOriginalAddress()
+		addressUpdater := NewAddressUpdater()
+
+		desiredAddress := &models.Address{
+			ID:             originalAddress.ID,
+			StreetAddress1: streetAddress1,
+			City:           city,
+			State:          state,
+			PostalCode:     postalCode,
+			Country:        &models.Country{Country: "US"},
+		}
+		updatedAddress, err := addressUpdater.UpdateAddress(suite.AppContextForTest(), desiredAddress, etag.GenerateEtag(originalAddress.UpdatedAt))
+
+		suite.NoError(err)
+		suite.NotNil(updatedAddress)
+		suite.Equal(updatedAddress.Country.Country, "US")
+	})
+
+	suite.Run("Receives an error when trying to update to an international address", func() {
+		originalAddress := createOriginalAddress()
+		addressUpdater := NewAddressUpdater()
+
+		desiredAddress := &models.Address{
+			ID:             originalAddress.ID,
+			StreetAddress1: streetAddress1,
+			City:           city,
+			State:          state,
+			PostalCode:     postalCode,
+			Country:        &models.Country{Country: "GB"},
+		}
+		updatedAddress, err := addressUpdater.UpdateAddress(suite.AppContextForTest(), desiredAddress, etag.GenerateEtag(originalAddress.UpdatedAt))
+
+		suite.Error(err)
+		suite.Nil(updatedAddress)
+		suite.Equal("- the country GB is not supported at this time - only US is allowed", err.Error())
 	})
 }
