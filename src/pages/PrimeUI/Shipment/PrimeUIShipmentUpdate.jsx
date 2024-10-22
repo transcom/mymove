@@ -45,17 +45,14 @@ const PrimeUIShipmentUpdate = ({ setFlashMessage }) => {
   };
 
   const handleSetError = (error, invalidFieldsStr) => {
+    let detailedMessage = `${error?.response?.body.detail}${invalidFieldsStr}\n\nPlease cancel and Update Shipment again`;
     if (error?.response?.body?.detail !== null && error?.response?.body?.detail !== undefined) {
-      setErrorMessage({
-        title: `Prime API: ${error?.response?.body.title} `,
-        detail: `${error?.response?.body.detail}\n\nPlease cancel and Update Shipment again`,
-      });
-    } else {
-      setErrorMessage({
-        title: `Prime API: ${error?.response?.body.title} `,
-        detail: `${error?.response?.body.detail}${invalidFieldsStr}\n\nPlease cancel and Update Shipment again`,
-      });
+      detailedMessage = `${error?.response?.body.detail}\n\nPlease refresh and Update Shipment again`;
     }
+    setErrorMessage({
+      title: `Prime API: ${error?.response?.body.title} `,
+      detail: detailedMessage,
+    });
   };
 
   const { mutateAsync: mutateMTOShipmentStatus } = useMutation(updatePrimeMTOShipmentStatus, {
