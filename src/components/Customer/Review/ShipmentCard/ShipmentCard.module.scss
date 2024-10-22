@@ -51,6 +51,12 @@
     }
   }
 
+  .marketCodeIndicator {
+    font-weight: 100;
+    font-size: 20px;
+    margin-right: 2px;
+  }
+
   .shipmentCardSubsection {
     @include u-margin-y(0);
     @include u-padding-x('05');

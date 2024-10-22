@@ -301,6 +301,10 @@ const ServicesCounselingMoveDetails = ({
         });
       }
 
+      if (shipment.marketCode) {
+        displayInfo.marketCode = shipment.marketCode;
+      }
+
       disableSubmit = numberOfErrorIfMissingForAllShipments !== 0;
 
       return {
