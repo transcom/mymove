@@ -43,7 +43,7 @@ func (h CreateMTOShipmentHandler) Handle(params mtoshipmentops.CreateMTOShipment
 			/** Feature Flag - Boat Shipment **/
 			featureFlagName := "boat"
 			isBoatFeatureOn := false
-			flag, err := h.FeatureFlagFetcher().GetBooleanFlagForUser(params.HTTPRequest.Context(), appCtx, featureFlagName, map[string]string{})
+			flag, err := h.FeatureFlagFetcher().GetBooleanFlag(params.HTTPRequest.Context(), appCtx.Logger(), "", featureFlagName, map[string]string{})
 			if err != nil {
 				appCtx.Logger().Error("Error fetching feature flag", zap.String("featureFlagKey", featureFlagName), zap.Error(err))
 				isBoatFeatureOn = false
@@ -55,6 +55,22 @@ func (h CreateMTOShipmentHandler) Handle(params mtoshipmentops.CreateMTOShipment
 			if !isBoatFeatureOn && (*params.Body.ShipmentType == primev3messages.MTOShipmentTypeBOATHAULAWAY || *params.Body.ShipmentType == primev3messages.MTOShipmentTypeBOATTOWAWAY) {
 				return mtoshipmentops.NewCreateMTOShipmentUnprocessableEntity().WithPayload(payloads.ValidationError(
 					"Boat shipment type was used but the feature flag is not enabled.", h.GetTraceIDFromRequest(params.HTTPRequest), nil)), nil
+			}
+
+			/** Feature Flag - Mobile Home Shipment **/
+			const featureFlagMobileHome = "mobile_home"
+			isMobileHomeFeatureOn := false
+			flagMH, err := h.FeatureFlagFetcher().GetBooleanFlag(params.HTTPRequest.Context(), appCtx.Logger(), "", featureFlagMobileHome, map[string]string{})
+			if err != nil {
+				appCtx.Logger().Error("Error fetching feature flagMH", zap.String("featureFlagKey", featureFlagMobileHome), zap.Error(err))
+			} else {
+				isMobileHomeFeatureOn = flagMH.Match
+			}
+
+			// Return an error if mobile home shipment is sent while the feature flag is turned off.
+			if !isMobileHomeFeatureOn && (*params.Body.ShipmentType == primev3messages.MTOShipmentTypeMOBILEHOME) {
+				return mtoshipmentops.NewCreateMTOShipmentUnprocessableEntity().WithPayload(payloads.ValidationError(
+					"Mobile Home shipment type was used but the feature flag is not enabled.", h.GetTraceIDFromRequest(params.HTTPRequest), nil)), nil
 			}
 
 			for _, mtoServiceItem := range params.Body.MtoServiceItems() {
