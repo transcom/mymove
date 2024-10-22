@@ -1976,4 +1976,81 @@ describe('ShipmentForm component', () => {
       ).not.toBeInTheDocument();
     });
   });
+
+  describe('creating a new Mobile Home shipment', () => {
+    it('renders the Mobile Home shipment form correctly', async () => {
+      renderWithRouter(<ShipmentForm {...defaultProps} shipmentType={SHIPMENT_OPTIONS.MOBILE_HOME} isCreatePage />);
+
+      expect(screen.getByLabelText('Year')).toBeInTheDocument();
+      expect(screen.getByLabelText('Make')).toBeInTheDocument();
+      expect(screen.getByLabelText('Model')).toBeInTheDocument();
+      expect(await screen.findByText('Length')).toBeInTheDocument();
+      expect(await screen.findByText('Width')).toBeInTheDocument();
+      expect(await screen.findByText('Height')).toBeInTheDocument();
+      expect(await screen.findByText('Remarks')).toBeInTheDocument();
+    });
+
+    it('validates length and width input fields to ensure they accept only numeric values', async () => {
+      renderWithRouter(<ShipmentForm {...defaultProps} shipmentType={SHIPMENT_OPTIONS.MOBILE_HOME} />);
+
+      const lengthInput = await screen.findByTestId('lengthFeet');
+      const heightInput = await screen.findByTestId('heightFeet');
+      const widthInput = await screen.findByTestId('widthFeet');
+
+      await act(async () => {
+        userEvent.type(lengthInput, 'abc');
+        userEvent.type(heightInput, 'xyz');
+        userEvent.type(widthInput, 'zyz');
+      });
+
+      await waitFor(() => {
+        expect(lengthInput).toHaveValue('');
+        expect(heightInput).toHaveValue('');
+        expect(widthInput).toHaveValue('');
+      });
+    });
+
+    it('validates required fields for Mobile Home shipment', async () => {
+      renderWithRouter(<ShipmentForm {...defaultProps} shipmentType={SHIPMENT_OPTIONS.MOBILE_HOME} />);
+
+      const submitButton = screen.getByRole('button', { name: 'Save' });
+
+      await act(async () => {
+        userEvent.click(submitButton);
+      });
+
+      expect(submitButton).toBeDisabled();
+    });
+
+    it('validates the year field is within the valid range', async () => {
+      renderWithRouter(<ShipmentForm {...defaultProps} shipmentType={SHIPMENT_OPTIONS.MOBILE_HOME} />);
+
+      await act(async () => {
+        await userEvent.click(screen.getByTestId('year'));
+        await userEvent.type(screen.getByTestId('year'), '1600');
+        const submitButton = screen.getByRole('button', { name: 'Save' });
+        userEvent.click(submitButton);
+      });
+
+      expect(await screen.findByText('Invalid year')).toBeInTheDocument();
+    });
+
+    it('validates dimensions - pass', async () => {
+      renderWithRouter(<ShipmentForm {...defaultProps} shipmentType={SHIPMENT_OPTIONS.MOBILE_HOME} />);
+
+      // Enter dimensions below the required minimums
+      await act(async () => {
+        await userEvent.click(screen.getByTestId('lengthFeet'));
+        await userEvent.type(screen.getByTestId('lengthFeet'), '15');
+        await userEvent.click(screen.getByTestId('widthFeet'));
+        await userEvent.type(screen.getByTestId('widthFeet'), '5');
+        await userEvent.click(screen.getByTestId('heightFeet'));
+        await userEvent.type(screen.getByTestId('heightFeet'), '6');
+        const submitButton = screen.getByRole('button', { name: 'Save' });
+        userEvent.click(submitButton);
+      });
+
+      expect(screen.queryByText('Where and when should the movers deliver your mobile home?')).not.toBeInTheDocument();
+    });
+  });
 });
