@@ -2,7 +2,7 @@ import React, { useCallback, useState } from 'react';
 import { useFormik } from 'formik';
 import * as PropTypes from 'prop-types';
 import { Button, Checkbox, Fieldset } from '@trussworks/react-uswds';
-import { generatePath } from 'react-router-dom';
+import { generatePath, useParams, useNavigate } from 'react-router-dom';
 import { debounce } from 'lodash';
 
 import styles from './RequestedShipments.module.scss';
@@ -21,6 +21,8 @@ import shipmentCardsStyles from 'styles/shipmentCards.module.scss';
 import { MoveTaskOrderShape, MTOServiceItemShape, OrdersInfoShape } from 'types/order';
 import { ShipmentShape } from 'types/shipment';
 import { fieldValidationShape } from 'utils/displayFlags';
+import ButtonDropdown from 'components/ButtonDropdown/ButtonDropdown';
+import { SHIPMENT_OPTIONS_URL } from 'shared/constants';
 
 // nts defaults show preferred pickup date and pickup address, flagged items when collapsed
 // ntsr defaults shows preferred delivery date, storage facility address, destination address, flagged items when collapsed
@@ -65,6 +67,19 @@ const SubmittedRequestedShipments = ({
     sac: ordersInfo.sacSDN,
     ntsTac: ordersInfo.NTStac,
     ntsSac: ordersInfo.NTSsac,
+  };
+
+  const { moveCode } = useParams();
+  const navigate = useNavigate();
+  const handleButtonDropdownChange = (e) => {
+    const selectedOption = e.target.value;
+
+    const addShipmentPath = `${generatePath(tooRoutes.SHIPMENT_ADD_PATH, {
+      moveCode,
+      shipmentType: selectedOption,
+    })}`;
+
+    navigate(addShipmentPath);
   };
 
   const shipmentDisplayInfo = (shipment, dutyLocationPostal) => {
@@ -203,7 +218,36 @@ const SubmittedRequestedShipments = ({
       </div>
 
       <form onSubmit={formik.handleSubmit}>
-        <h2>Requested shipments</h2>
+        <div className={styles.sectionHeader}>
+          <h2>Requested shipments</h2>
+          <div className={styles.buttonDropdown}>
+            {!isMoveLocked && (
+              <Restricted to={permissionTypes.createTxoShipment}>
+                <ButtonDropdown
+                  ariaLabel="Add a new shipment"
+                  data-testid="addShipmentButton"
+                  onChange={handleButtonDropdownChange}
+                >
+                  <option value="" label="Add a new shipment">
+                    Add a new shipment
+                  </option>
+                  <option data-testid="hhgOption" value={SHIPMENT_OPTIONS_URL.HHG}>
+                    HHG
+                  </option>
+                  <option value={SHIPMENT_OPTIONS_URL.PPM}>PPM</option>
+                  <option value={SHIPMENT_OPTIONS_URL.NTS}>NTS</option>
+                  <option value={SHIPMENT_OPTIONS_URL.NTSrelease}>NTS-release</option>
+                  <option data-testid="boatOption" value={SHIPMENT_OPTIONS_URL.BOAT}>
+                    Boat
+                  </option>
+                  <option data-testid="mobileHomeOption" value={SHIPMENT_OPTIONS_URL.MOBILE_HOME}>
+                    Mobile Home
+                  </option>
+                </ButtonDropdown>
+              </Restricted>
+            )}
+          </div>
+        </div>
         <div className={shipmentCardsStyles.shipmentCards}>
           {mtoShipments &&
             mtoShipments.map((shipment) => {
