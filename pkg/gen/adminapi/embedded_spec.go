@@ -1184,6 +1184,145 @@ func init() {
         }
       }
     },
+    "/payment-request-syncada-files": {
+      "get": {
+        "description": "Returns a list of Payment Request EDI files",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "Payment Request Syncada Files"
+        ],
+        "summary": "List Payment Request EDI Files",
+        "operationId": "indexPaymentRequestSyncadaFiles",
+        "parameters": [
+          {
+            "type": "string",
+            "name": "filter",
+            "in": "query"
+          },
+          {
+            "type": "integer",
+            "name": "page",
+            "in": "query"
+          },
+          {
+            "type": "integer",
+            "name": "perPage",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "name": "sort",
+            "in": "query"
+          },
+          {
+            "type": "boolean",
+            "name": "order",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "success",
+            "schema": {
+              "$ref": "#/definitions/PaymentRequestSyncadaFiles"
+            },
+            "headers": {
+              "Content-Range": {
+                "type": "string",
+                "description": "Used for pagination"
+              }
+            }
+          },
+          "400": {
+            "description": "invalid request"
+          },
+          "401": {
+            "description": "request requires user authentication"
+          },
+          "404": {
+            "description": "Payment Request EDI Files not found"
+          },
+          "500": {
+            "description": "server error"
+          }
+        }
+      }
+    },
+    "/payment-request-syncada-files/{paymentRequestSyncadaFileId}": {
+      "get": {
+        "description": "Returns a Payment Request EDI858 file",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "Payment Request Syncada File"
+        ],
+        "summary": "Payment Request EDI File",
+        "operationId": "paymentRequestSyncadaFile",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "name": "paymentRequestSyncadaFileId",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "name": "filter",
+            "in": "query"
+          },
+          {
+            "type": "integer",
+            "name": "page",
+            "in": "query"
+          },
+          {
+            "type": "integer",
+            "name": "perPage",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "name": "sort",
+            "in": "query"
+          },
+          {
+            "type": "boolean",
+            "name": "order",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "success",
+            "schema": {
+              "$ref": "#/definitions/PaymentRequestSyncadaFile"
+            },
+            "headers": {
+              "Content-Range": {
+                "type": "string",
+                "description": "Used for pagination"
+              }
+            }
+          },
+          "400": {
+            "description": "invalid request"
+          },
+          "401": {
+            "description": "request requires user authentication"
+          },
+          "404": {
+            "description": "Payment Request EDI Files not found"
+          },
+          "500": {
+            "description": "server error"
+          }
+        }
+      }
+    },
     "/requested-office-users": {
       "get": {
         "description": "This endpoint returns a list of Office Users. Do not use this endpoint directly\nas it is meant to be used with the Admin UI exclusively.\n",
@@ -2866,6 +3005,36 @@ func init() {
       "type": "array",
       "items": {
         "$ref": "#/definitions/Organization"
+      }
+    },
+    "PaymentRequestSyncadaFile": {
+      "type": "object",
+      "properties": {
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        },
+        "ediString": {
+          "type": "string"
+        },
+        "fileName": {
+          "type": "string"
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "paymentRequestNumber": {
+          "type": "string"
+        }
+      }
+    },
+    "PaymentRequestSyncadaFiles": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/PaymentRequestSyncadaFile"
       }
     },
     "Privilege": {
@@ -4630,6 +4799,145 @@ func init() {
         }
       }
     },
+    "/payment-request-syncada-files": {
+      "get": {
+        "description": "Returns a list of Payment Request EDI files",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "Payment Request Syncada Files"
+        ],
+        "summary": "List Payment Request EDI Files",
+        "operationId": "indexPaymentRequestSyncadaFiles",
+        "parameters": [
+          {
+            "type": "string",
+            "name": "filter",
+            "in": "query"
+          },
+          {
+            "type": "integer",
+            "name": "page",
+            "in": "query"
+          },
+          {
+            "type": "integer",
+            "name": "perPage",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "name": "sort",
+            "in": "query"
+          },
+          {
+            "type": "boolean",
+            "name": "order",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "success",
+            "schema": {
+              "$ref": "#/definitions/PaymentRequestSyncadaFiles"
+            },
+            "headers": {
+              "Content-Range": {
+                "type": "string",
+                "description": "Used for pagination"
+              }
+            }
+          },
+          "400": {
+            "description": "invalid request"
+          },
+          "401": {
+            "description": "request requires user authentication"
+          },
+          "404": {
+            "description": "Payment Request EDI Files not found"
+          },
+          "500": {
+            "description": "server error"
+          }
+        }
+      }
+    },
+    "/payment-request-syncada-files/{paymentRequestSyncadaFileId}": {
+      "get": {
+        "description": "Returns a Payment Request EDI858 file",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "Payment Request Syncada File"
+        ],
+        "summary": "Payment Request EDI File",
+        "operationId": "paymentRequestSyncadaFile",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "name": "paymentRequestSyncadaFileId",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "name": "filter",
+            "in": "query"
+          },
+          {
+            "type": "integer",
+            "name": "page",
+            "in": "query"
+          },
+          {
+            "type": "integer",
+            "name": "perPage",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "name": "sort",
+            "in": "query"
+          },
+          {
+            "type": "boolean",
+            "name": "order",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "success",
+            "schema": {
+              "$ref": "#/definitions/PaymentRequestSyncadaFile"
+            },
+            "headers": {
+              "Content-Range": {
+                "type": "string",
+                "description": "Used for pagination"
+              }
+            }
+          },
+          "400": {
+            "description": "invalid request"
+          },
+          "401": {
+            "description": "request requires user authentication"
+          },
+          "404": {
+            "description": "Payment Request EDI Files not found"
+          },
+          "500": {
+            "description": "server error"
+          }
+        }
+      }
+    },
     "/requested-office-users": {
       "get": {
         "description": "This endpoint returns a list of Office Users. Do not use this endpoint directly\nas it is meant to be used with the Admin UI exclusively.\n",
@@ -6313,6 +6621,36 @@ func init() {
       "type": "array",
       "items": {
         "$ref": "#/definitions/Organization"
+      }
+    },
+    "PaymentRequestSyncadaFile": {
+      "type": "object",
+      "properties": {
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        },
+        "ediString": {
+          "type": "string"
+        },
+        "fileName": {
+          "type": "string"
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "paymentRequestNumber": {
+          "type": "string"
+        }
+      }
+    },
+    "PaymentRequestSyncadaFiles": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/PaymentRequestSyncadaFile"
       }
     },
     "Privilege": {

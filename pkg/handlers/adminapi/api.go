@@ -20,6 +20,7 @@ import (
 	officeuser "github.com/transcom/mymove/pkg/services/office_user"
 	"github.com/transcom/mymove/pkg/services/organization"
 	"github.com/transcom/mymove/pkg/services/pagination"
+	prsff "github.com/transcom/mymove/pkg/services/payment_request"
 	"github.com/transcom/mymove/pkg/services/query"
 	requestedofficeusers "github.com/transcom/mymove/pkg/services/requested_office_users"
 	"github.com/transcom/mymove/pkg/services/roles"
@@ -275,5 +276,17 @@ func NewAdminAPI(handlerConfig handlers.HandlerConfig) *adminops.MymoveAPI {
 		query.NewQueryFilter,
 	}
 
+	adminAPI.PaymentRequestSyncadaFilesIndexPaymentRequestSyncadaFilesHandler = IndexPaymentRequestSyncadaFilesHandler{
+		handlerConfig,
+		fetch.NewListFetcher(queryBuilder),
+		query.NewQueryFilter,
+		pagination.NewPagination,
+	}
+
+	adminAPI.PaymentRequestSyncadaFilePaymentRequestSyncadaFileHandler = GetPaymentRequestSyncadaFileHandler{
+		handlerConfig,
+		prsff.NewPaymentRequestSyncadaFileFetcher(queryBuilder),
+		query.NewQueryFilter,
+	}
 	return adminAPI
 }

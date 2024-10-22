@@ -1277,6 +1277,27 @@ definitions:
       ACTIVE: Active
       FAILING: Failing
       DISABLED: Disabled
+  PaymentRequestSyncadaFiles:
+    type: array
+    items:
+      $ref: '#/definitions/PaymentRequestSyncadaFile'
+  PaymentRequestSyncadaFile:
+    type: object
+    properties:
+      id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      ediString:
+        type: string
+      paymentRequestNumber:
+        type: string
+      fileName:
+        type: string
+      createdAt:
+        type: string
+        format: date-time
+        readOnly: true
 paths:
   /user:
     get:
@@ -2597,3 +2618,92 @@ paths:
             $ref: '#/definitions/ValidationError'
         '500':
           description: Server error
+  /payment-request-syncada-files:
+    get:
+      produces:
+        - application/json
+      summary: List Payment Request EDI Files
+      description: Returns a list of Payment Request EDI files
+      operationId: indexPaymentRequestSyncadaFiles
+      tags:
+        - Payment Request Syncada Files
+      parameters:
+        - in: query
+          name: filter
+          type: string
+        - in: query
+          name: page
+          type: integer
+        - in: query
+          name: perPage
+          type: integer
+        - in: query
+          name: sort
+          type: string
+        - in: query
+          name: order
+          type: boolean
+      responses:
+        '200':
+          description: success
+          headers:
+            Content-Range:
+              type: string
+              description: Used for pagination
+          schema:
+            $ref: '#/definitions/PaymentRequestSyncadaFiles'
+        '400':
+          description: invalid request
+        '401':
+          description: request requires user authentication
+        '404':
+          description: Payment Request EDI Files not found
+        '500':
+          description: server error
+  /payment-request-syncada-files/{paymentRequestSyncadaFileId}:
+    get:
+      produces:
+        - application/json
+      summary: Payment Request EDI File
+      description: Returns a Payment Request EDI858 file
+      operationId: paymentRequestSyncadaFile
+      tags:
+        - Payment Request Syncada File
+      parameters:
+        - in: path
+          name: paymentRequestSyncadaFileId
+          type: string
+          format: uuid
+          required: true
+        - in: query
+          name: filter
+          type: string
+        - in: query
+          name: page
+          type: integer
+        - in: query
+          name: perPage
+          type: integer
+        - in: query
+          name: sort
+          type: string
+        - in: query
+          name: order
+          type: boolean
+      responses:
+        '200':
+          description: success
+          headers:
+            Content-Range:
+              type: string
+              description: Used for pagination
+          schema:
+            $ref: '#/definitions/PaymentRequestSyncadaFile'
+        '400':
+          description: invalid request
+        '401':
+          description: request requires user authentication
+        '404':
+          description: Payment Request EDI Files not found
+        '500':
+          description: server error
