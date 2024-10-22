@@ -159,7 +159,7 @@ func findCounselingOffice(appCtx appcontext.AppContext, dutyLocationID uuid.UUID
             AND counseling_offices.origin_zip = zip3_distances.to_zip3)
     	)
     	group by counseling_offices.id, counseling_offices.name, zip3_distances.distance_miles
-		ORDER BY coalesce(zip3_distances.distance_miles,0) asc;`
+		ORDER BY coalesce(zip3_distances.distance_miles,0), counseling_offices.name asc`
 
 	query := appCtx.DB().Q().RawQuery(sqlQuery, dutyLocationID)
 	if err := query.All(&officeList); err != nil {
