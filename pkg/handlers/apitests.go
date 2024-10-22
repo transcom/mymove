@@ -106,7 +106,13 @@ func (suite *BaseHandlerTestSuite) HandlerConfig() *Config {
 		mock.AnythingOfType("string"),
 		mock.Anything,
 	).Return(func(ctx context.Context, appCtx appcontext.AppContext, key string, flagContext map[string]string) (services.FeatureFlag, error) {
-		return mockGetFlagFunc(ctx, appCtx.Logger(), "user@example.com", key, flagContext, "")
+		return services.FeatureFlag{
+			Entity:    "user@example.com",
+			Key:       key,
+			Match:     true,
+			Variant:   "",
+			Namespace: "test",
+		}, nil
 	})
 	return &Config{
 		db:                 suite.DB(),
