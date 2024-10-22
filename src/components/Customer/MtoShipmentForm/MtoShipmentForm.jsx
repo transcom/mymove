@@ -629,7 +629,7 @@ class MtoShipmentForm extends Component {
                         </SectionWrapper>
                       )}
 
-                      {!isBoat && (
+                      {!isBoat && !isMobileHome && (
                         <SectionWrapper className={formStyles.formSection}>
                           <Fieldset legend={<div className={formStyles.legendContent}>Remarks</div>}>
                             <Label htmlFor="customerRemarks">

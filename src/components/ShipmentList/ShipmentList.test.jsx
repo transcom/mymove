@@ -4,7 +4,7 @@ import userEvent from '@testing-library/user-event';
 
 import ShipmentList from './ShipmentList';
 
-import { SHIPMENT_OPTIONS } from 'shared/constants';
+import { SHIPMENT_OPTIONS, SHIPMENT_TYPES } from 'shared/constants';
 import { formatWeight } from 'utils/formatters';
 
 beforeEach(() => {
@@ -94,6 +94,52 @@ describe('ShipmentList component', () => {
     await userEvent.click(deleteBtn);
     expect(onDeleteClick).toHaveBeenCalledWith(`ID-${id}`);
     expect(onDeleteClick).toHaveBeenCalledTimes(1);
+  });
+});
+
+describe('ShipmentList shipment weight tooltip', () => {
+  const defaultProps = {
+    moveSubmitted: false,
+  };
+
+  it.each([
+    [SHIPMENT_OPTIONS.HHG, 'ID-2', '110% Prime Estimated Weight'],
+    [SHIPMENT_OPTIONS.NTS, 'ID-3', '110% Prime Estimated Weight'],
+    [SHIPMENT_OPTIONS.NTSR, 'ID-4', '110% Previously Recorded Weight'],
+    [SHIPMENT_TYPES.BOAT_HAUL_AWAY, 'ID-5', '110% Prime Estimated Weight'],
+    [SHIPMENT_TYPES.BOAT_TOW_AWAY, 'ID-6', '110% Prime Estimated Weight'],
+    [SHIPMENT_OPTIONS.MOBILE_HOME, 'ID-7', '110% Prime Estimated Weight'],
+  ])('shipment weight tooltip, show is true. %s', async (type, id, expectedTooltipText) => {
+    // Render component
+    const props = { ...defaultProps, showShipmentTooltip: true, shipments: [{ id, shipmentType: type }] };
+    render(<ShipmentList {...props} />);
+
+    // Verify tooltip exists
+    const tooltipIcon = screen.getByTestId('tooltip-container');
+    expect(tooltipIcon).toBeInTheDocument();
+
+    // Click the tooltip
+    await userEvent.hover(tooltipIcon);
+
+    // Verify tooltip text
+    const tooltipText = await screen.findByText(expectedTooltipText);
+    expect(tooltipText).toBeInTheDocument();
+  });
+
+  it.each([
+    [SHIPMENT_OPTIONS.HHG, 'ID-2'],
+    [SHIPMENT_OPTIONS.NTS, 'ID-3'],
+    [SHIPMENT_OPTIONS.NTSR, 'ID-4'],
+    [SHIPMENT_TYPES.BOAT_HAUL_AWAY, 'ID-5'],
+    [SHIPMENT_TYPES.BOAT_TOW_AWAY, 'ID-6'],
+    [SHIPMENT_OPTIONS.MOBILE_HOME, 'ID-7'],
+  ])('shipment weight tooltip, show is false. %s', async (type, id) => {
+    // Render component
+    const props = { ...defaultProps, showShipmentTooltip: false, shipments: [{ id, shipmentType: type }] };
+    render(<ShipmentList {...props} />);
+
+    // Verify tooltip doesn't exist
+    expect(screen.queryByTestId('tooltip-container')).not.toBeInTheDocument();
   });
 });
 

@@ -40,6 +40,7 @@ const TXOMoveInfo = () => {
   const [pendingPaymentRequestCount, setPendingPaymentRequestCount] = React.useState(0);
   const [unapprovedSITExtensionCount, setUnApprovedSITExtensionCount] = React.useState(0);
   const [missingOrdersInfoCount, setMissingOrdersInfoCount] = useState(0);
+  const [shipmentErrorConcernCount, setShipmentErrorConcernCount] = useState(0);
   const [moveLockFlag, setMoveLockFlag] = useState(false);
   const [isMoveLocked, setIsMoveLocked] = useState(false);
 
@@ -152,6 +153,7 @@ const TXOMoveInfo = () => {
           pendingPaymentRequestCount={pendingPaymentRequestCount}
           unapprovedSITExtensionCount={unapprovedSITExtensionCount}
           missingOrdersInfoCount={missingOrdersInfoCount}
+          shipmentErrorConcernCount={shipmentErrorConcernCount}
           moveCode={moveCode}
           reportId={reportId}
           order={order}
@@ -181,6 +183,8 @@ const TXOMoveInfo = () => {
                 setUnapprovedSITExtensionCount={setUnApprovedSITExtensionCount}
                 missingOrdersInfoCount={missingOrdersInfoCount}
                 setMissingOrdersInfoCount={setMissingOrdersInfoCount}
+                setShipmentErrorConcernCount={setShipmentErrorConcernCount}
+                shipmentErrorConcernCount={shipmentErrorConcernCount}
                 isMoveLocked={isMoveLocked}
               />
             }

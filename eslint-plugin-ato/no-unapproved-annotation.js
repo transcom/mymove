@@ -3,7 +3,7 @@ const NO_ANNOTATION_MESSAGE_ID = 'no-annotation';
 const NO_INLINE_DISABLE = 'no-inline-disable';
 const messages = {
   [REQUIRES_APPROVAL_MESSAGE_ID]:
-    'Please add the truss-is3 team as reviewers for this PR and ping the ISSO in #static-code-review Slack. Add label ‘needs-is3-review’ to this PR. For more information, please visit https://dp3.atlassian.net/wiki/spaces/MT/pages/1920991340/Guide+to+Static+Analysis+Security+Workflow',
+    'Due to an added annotation, this PR requires approval from a codeowner. Once a codeowner has reviewed/approved your PR, you will need to change the RA Validator Status to CODEOWNER ACCEPTED. For more information, please visit https://dp3.atlassian.net/wiki/spaces/MT/pages/1920991340/Guide+to+Static+Analysis+Security+Workflow',
   [NO_ANNOTATION_MESSAGE_ID]:
     'Disabling of this rule requires an annotation. Please visit https://dp3.atlassian.net/wiki/spaces/MT/pages/1921122376/Guide+to+Static+Analysis+Annotations+for+Disabled+Linters',
   [NO_INLINE_DISABLE]: 'Please use eslint-disable-next-line instead of eslint-disable-line',
@@ -13,7 +13,8 @@ const messages = {
 const disableRegex = /^eslint-disable(?:-next-line|-line)?(?<ruleId>$|(?:\s+(?:@(?:[\w-]+\/){1,2})?[\w-]+)?)/;
 
 const validatorStatusOptions = new Set([
-  'RA ACCEPTED',
+  'CODEOWNER ACCEPTED',
+  'RA ACCEPTED', // THIS LINE IS DEPRECATED AS OF 9/30/2024 - leaving d/t previous implementation
   'RETURN TO DEVELOPER',
   'KNOWN ISSUE',
   'MITIGATED',

@@ -35,7 +35,7 @@ const (
 	AffiliationAIRFORCE ServiceMemberAffiliation = "AIR_FORCE"
 	// AffiliationCOASTGUARD captures enum value "COAST_GUARD"
 	AffiliationCOASTGUARD ServiceMemberAffiliation = "COAST_GUARD"
-	// AffiliationCOASTGUARD captures enum value "SPACE_FORCE"
+	// AffiliationSPACEFORCE captures enum value "SPACE_FORCE"
 	AffiliationSPACEFORCE ServiceMemberAffiliation = "SPACE_FORCE"
 )
 

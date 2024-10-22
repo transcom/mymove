@@ -17,6 +17,7 @@ import {
 import { SHIPMENT_OPTIONS } from 'shared/constants';
 import { renderWithRouter } from 'testUtils';
 import { ORDERS_TYPE } from 'constants/orders';
+import { isBooleanFlagEnabled } from 'utils/featureFlags';
 
 const mockNavigate = jest.fn();
 jest.mock('react-router-dom', () => ({
@@ -30,6 +31,11 @@ jest.mock('services/internalApi', () => ({
   getResponseError: jest.fn(),
   patchMTOShipment: jest.fn(),
   dateSelectionIsWeekendHoliday: jest.fn().mockImplementation(() => Promise.resolve()),
+}));
+
+jest.mock('utils/featureFlags', () => ({
+  ...jest.requireActual('utils/featureFlags'),
+  isBooleanFlagEnabled: jest.fn().mockImplementation(() => Promise.resolve(false)),
 }));
 
 const moveId = uuidv4();
@@ -91,7 +97,13 @@ const ubProps = {
 
 const reviewPath = generatePath(customerRoutes.MOVE_REVIEW_PATH, { moveId });
 
-beforeEach(jest.resetAllMocks);
+beforeEach(() => {
+  isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(true));
+});
+
+afterEach(() => {
+  jest.clearAllMocks();
+});
 
 const renderMtoShipmentForm = (props) => {
   return renderWithRouter(<MtoShipmentForm {...defaultProps} {...props} />, {
