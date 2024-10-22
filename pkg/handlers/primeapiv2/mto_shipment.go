@@ -87,7 +87,14 @@ func (h CreateMTOShipmentHandler) Handle(params mtoshipmentops.CreateMTOShipment
 				}
 			}
 
-			mtoShipment := payloads.MTOShipmentModelFromCreate(payload)
+			mtoShipment, verrs := payloads.MTOShipmentModelFromCreate(payload)
+			if verrs != nil && verrs.HasAny() {
+				appCtx.Logger().Error("Error validating mto shipment object: ", zap.Error(verrs))
+
+				return mtoshipmentops.NewCreateMTOShipmentUnprocessableEntity().WithPayload(payloads.ValidationError(
+					"The MTO shipment object is invalid.", h.GetTraceIDFromRequest(params.HTTPRequest), nil)), verrs
+			}
+
 			mtoShipment.Status = models.MTOShipmentStatusSubmitted
 			mtoServiceItemsList, verrs := payloads.MTOServiceItemModelListFromCreate(payload)
 

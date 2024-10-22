@@ -498,7 +498,9 @@ func (suite *PayloadsSuite) TestCountryModel_WithNilCountry() {
 }
 
 func (suite *PayloadsSuite) TestMTOShipmentModelFromCreate_WithNilInput() {
-	result := MTOShipmentModelFromCreate(nil)
+	result, verrs := MTOShipmentModelFromCreate(nil)
+
+	suite.NotNil(verrs)
 	suite.Nil(result)
 }
 
@@ -508,8 +510,9 @@ func (suite *PayloadsSuite) TestMTOShipmentModelFromCreate_WithValidInput() {
 		MoveTaskOrderID: &moveTaskOrderID,
 	}
 
-	result := MTOShipmentModelFromCreate(&mtoShipment)
+	result, verrs := MTOShipmentModelFromCreate(&mtoShipment)
 
+	suite.Nil(verrs)
 	suite.NotNil(result)
 	suite.Equal(mtoShipment.MoveTaskOrderID.String(), result.MoveTaskOrderID.String())
 	suite.Nil(result.PrimeEstimatedWeight)
@@ -552,8 +555,9 @@ func (suite *PayloadsSuite) TestMTOShipmentModelFromCreate_WithOptionalFields() 
 		DestinationAddress:     struct{ primev2messages.Address }{destinationAddress},
 	}
 
-	result := MTOShipmentModelFromCreate(mtoShipment)
+	result, verrs := MTOShipmentModelFromCreate(mtoShipment)
 
+	suite.Nil(verrs)
 	suite.NotNil(result)
 	suite.Equal(mtoShipment.MoveTaskOrderID.String(), result.MoveTaskOrderID.String())
 	suite.Equal(*mtoShipment.CustomerRemarks, *result.CustomerRemarks)
