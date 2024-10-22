@@ -521,6 +521,42 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		suite.Contains(*typedResponse.Payload.Detail, unavailableMove.ID.String())
 	})
 
+	suite.Run("POST failure - 500 - App Event Internal DTOD Server Error", func() {
+		// Under Test: CreateMTOShipmentHandler
+		// Setup:      Create a shipment with DTOD outage simulated or bad zip
+		// Expected:   500 Internal Server Error returned
+
+		handler, move := setupTestData()
+		req := httptest.NewRequest("POST", "/mto-shipments", nil)
+		handler.ShipmentCreator = &mockCreator
+
+		err := apperror.EventError{}
+
+		mockCreator.On("CreateShipment",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.Anything,
+		).Return(nil, nil, err)
+
+		params := mtoshipmentops.CreateMTOShipmentParams{
+			HTTPRequest: req,
+			Body: &primev2messages.CreateMTOShipment{
+				MoveTaskOrderID:     handlers.FmtUUID(move.ID),
+				Agents:              nil,
+				CustomerRemarks:     nil,
+				PointOfContact:      "John Doe",
+				RequestedPickupDate: handlers.FmtDatePtr(models.TimePointer(time.Now())),
+				ShipmentType:        primev2messages.NewMTOShipmentType(primev2messages.MTOShipmentTypeHHG),
+				PickupAddress:       struct{ primev2messages.Address }{pickupAddress},
+				DestinationAddress:  struct{ primev2messages.Address }{destinationAddress},
+			},
+		}
+
+		response := handler.Handle(params)
+		suite.IsType(&mtoshipmentops.CreateMTOShipmentInternalServerError{}, response)
+		typedResponse := response.(*mtoshipmentops.CreateMTOShipmentInternalServerError)
+		suite.Contains(*typedResponse.Payload.Detail, "An internal server error has occurred")
+	})
+
 	suite.Run("POST failure - 422 - modelType() not supported", func() {
 		// Under Test: CreateMTOShipmentHandler
 		// Setup:      Create a shipment with service items that don't match the modeltype
