@@ -12,6 +12,8 @@ import { CloseoutOfficeInput } from '../../form/fields/CloseoutOfficeInput';
 
 import ppmShipmentSchema from './ppmShipmentSchema';
 import styles from './ShipmentForm.module.scss';
+import MobileHomeShipmentForm from './MobileHomeShipmentForm/MobileHomeShipmentForm';
+import mobileHomeShipmentSchema from './MobileHomeShipmentForm/mobileHomeShipmentSchema';
 import BoatShipmentForm from './BoatShipmentForm/BoatShipmentForm';
 import boatShipmentSchema from './BoatShipmentForm/boatShipmentSchema';
 
@@ -58,6 +60,8 @@ import {
   formatMtoShipmentForDisplay,
   formatPpmShipmentForAPI,
   formatPpmShipmentForDisplay,
+  formatMobileHomeShipmentForDisplay,
+  formatMobileHomeShipmentForAPI,
   formatBoatShipmentForDisplay,
   formatBoatShipmentForAPI,
 } from 'utils/formatMtoShipment';
@@ -261,6 +265,7 @@ const ShipmentForm = (props) => {
   const isNTS = shipmentType === SHIPMENT_OPTIONS.NTS;
   const isNTSR = shipmentType === SHIPMENT_OPTIONS.NTSR;
   const isPPM = shipmentType === SHIPMENT_OPTIONS.PPM;
+  const isMobileHome = shipmentType === SHIPMENT_OPTIONS.MOBILE_HOME;
   const isBoat =
     shipmentType === SHIPMENT_OPTIONS.BOAT ||
     shipmentType === SHIPMENT_OPTIONS.BOAT_HAUL_AWAY ||
@@ -291,6 +296,11 @@ const ShipmentForm = (props) => {
             closeoutOffice: move.closeoutOffice,
           },
     );
+  } else if (isMobileHome) {
+    const hhgInitialValues = formatMtoShipmentForDisplay(
+      isCreatePage ? { userRole } : { userRole, shipmentType, agents: mtoShipment.mtoAgents, ...mtoShipment },
+    );
+    initialValues = formatMobileHomeShipmentForDisplay(mtoShipment?.mobileHomeShipment, hhgInitialValues);
   } else if (isBoat) {
     const hhgInitialValues = formatMtoShipmentForDisplay(
       isCreatePage ? { userRole } : { userRole, shipmentType, agents: mtoShipment.mtoAgents, ...mtoShipment },
@@ -318,6 +328,10 @@ const ShipmentForm = (props) => {
       showCloseoutOffice,
       sitEstimatedWeightMax: estimatedWeightValue || 0,
     });
+  } else if (isMobileHome) {
+    schema = mobileHomeShipmentSchema();
+    showDeliveryFields = true;
+    showPickupFields = true;
   } else if (isBoat) {
     schema = boatShipmentSchema();
     showDeliveryFields = true;
@@ -553,6 +567,15 @@ const ShipmentForm = (props) => {
       tertiaryDelivery: hasTertiaryDelivery === 'yes' ? tertiaryDelivery : {},
     });
 
+    // Mobile Home Shipment
+    if (isMobileHome) {
+      const mobileHomeShipmentBody = formatMobileHomeShipmentForAPI(formValues);
+      pendingMtoShipment = {
+        ...pendingMtoShipment,
+        ...mobileHomeShipmentBody,
+      };
+    }
+
     // Boat Shipment
     if (isBoat) {
       const boatShipmentBody = formatBoatShipmentForAPI(formValues);
@@ -624,13 +647,13 @@ const ShipmentForm = (props) => {
         values,
         isValid,
         isSubmitting,
-        touched,
         setValues,
         handleSubmit,
+        errors,
+        touched,
         setFieldTouched,
         setFieldError,
         validateForm,
-        errors,
       }) => {
         const {
           hasSecondaryDestination,
@@ -851,9 +874,22 @@ const ShipmentForm = (props) => {
               </SectionWrapper>
 
               <Form className={formStyles.form}>
-                {isTOO && !isHHG && !isPPM && !isBoat && <ShipmentVendor />}
+                {isTOO && !isHHG && !isPPM && !isBoat && !isMobileHome && <ShipmentVendor />}
 
                 {isNTSR && <ShipmentWeightInput userRole={userRole} />}
+
+                {isMobileHome && (
+                  <MobileHomeShipmentForm
+                    lengthHasError={lengthHasError}
+                    widthHasError={widthHasError}
+                    heightHasError={heightHasError}
+                    values={values}
+                    setFieldTouched={setFieldTouched}
+                    setFieldError={setFieldError}
+                    validateForm={validateForm}
+                    dimensionError={dimensionError}
+                  />
+                )}
 
                 {isBoat && (
                   <BoatShipmentForm
