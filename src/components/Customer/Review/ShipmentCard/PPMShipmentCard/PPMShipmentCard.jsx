@@ -30,6 +30,7 @@ const PPMShipmentCard = ({
   onEditClick,
   onDeleteClick,
   onIncompleteClick,
+  marketCode,
 }) => {
   const { moveTaskOrderID, id, shipmentType, shipmentLocator } = shipment;
   const {
@@ -88,7 +89,10 @@ const PPMShipmentCard = ({
         )}
         <div className={styles.ShipmentCardHeader}>
           <div className={styles.shipmentTypeNumber}>
-            <h3 data-testid="ShipmentCardNumber">{shipmentLabel}</h3>
+            <h3 data-testid="ShipmentCardNumber">
+              <span className={styles.marketCodeIndicator}>{marketCode}</span>
+              {shipmentLabel}
+            </h3>
             <p>#{moveCodeLabel}</p>
           </div>
           {showEditAndDeleteBtn && (
