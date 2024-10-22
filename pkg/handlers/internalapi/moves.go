@@ -455,7 +455,7 @@ func (h GetAllMovesHandler) Handle(params moveop.GetAllMovesParams) middleware.R
 					move.MTOShipments = filteredShipments
 				}
 				/** End of Feature Flag Block **/
-				
+
 				if latestMove.CreatedAt == nilTime {
 					latestMove = move
 					break
