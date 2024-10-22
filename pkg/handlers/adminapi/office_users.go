@@ -32,13 +32,23 @@ func payloadForRole(r roles.Role) *adminmessages.Role {
 	}
 }
 
-func payloadForPrivilege(r models.Privilege) *adminmessages.Privilege {
+func payloadForPrivilege(p models.Privilege) *adminmessages.Privilege {
 	return &adminmessages.Privilege{
-		ID:            *handlers.FmtUUID(r.ID),
-		PrivilegeType: *handlers.FmtString(string(r.PrivilegeType)),
-		PrivilegeName: *handlers.FmtString(string(r.PrivilegeName)),
-		CreatedAt:     *handlers.FmtDateTime(r.CreatedAt),
-		UpdatedAt:     *handlers.FmtDateTime(r.UpdatedAt),
+		ID:            *handlers.FmtUUID(p.ID),
+		PrivilegeType: *handlers.FmtString(string(p.PrivilegeType)),
+		PrivilegeName: *handlers.FmtString(string(p.PrivilegeName)),
+		CreatedAt:     *handlers.FmtDateTime(p.CreatedAt),
+		UpdatedAt:     *handlers.FmtDateTime(p.UpdatedAt),
+	}
+}
+
+func payloadForTransportationOfficeAssignment(toa models.TransportationOfficeAssignment) *adminmessages.TransportationOfficeAssignment {
+	return &adminmessages.TransportationOfficeAssignment{
+		OfficeUserID:           *handlers.FmtUUID(toa.ID),
+		TransportationOfficeID: *handlers.FmtUUID(toa.TransportationOfficeID),
+		PrimaryOffice:          *handlers.FmtBool(toa.PrimaryOffice),
+		CreatedAt:              *handlers.FmtDateTime(toa.CreatedAt),
+		UpdatedAt:              *handlers.FmtDateTime(toa.UpdatedAt),
 	}
 }
 
@@ -71,6 +81,9 @@ func payloadForOfficeUserModel(o models.OfficeUser) *adminmessages.OfficeUser {
 	}
 	for _, privilege := range user.Privileges {
 		payload.Privileges = append(payload.Privileges, payloadForPrivilege(privilege))
+	}
+	for _, transportationAssignment := range o.TransportationOfficeAssignments {
+		payload.TransportationOfficeAssignments = append(payload.TransportationOfficeAssignments, payloadForTransportationOfficeAssignment(transportationAssignment))
 	}
 	return payload
 }
@@ -138,7 +151,7 @@ func (h IndexOfficeUsersHandler) Handle(params officeuserop.IndexOfficeUsersPara
 // GetOfficeUserHandler retrieves office user handler
 type GetOfficeUserHandler struct {
 	handlers.HandlerConfig
-	services.OfficeUserFetcher
+	services.OfficeUserFetcherPop
 	services.NewQueryFilter
 }
 
@@ -147,18 +160,17 @@ func (h GetOfficeUserHandler) Handle(params officeuserop.GetOfficeUserParams) mi
 	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
 		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
 
-			officeUserID := params.OfficeUserID
-
-			queryFilters := []services.QueryFilter{query.NewQueryFilter("id", "=", officeUserID)}
-
-			officeUser, err := h.OfficeUserFetcher.FetchOfficeUser(appCtx, queryFilters)
+			officeUserID := uuid.FromStringOrNil(params.OfficeUserID.String())
+			officeUser, err := h.OfficeUserFetcherPop.FetchOfficeUserByID(appCtx, officeUserID)
 			if err != nil {
 				return handlers.ResponseForError(appCtx.Logger(), err), err
 			}
+
 			userError := appCtx.DB().Load(&officeUser, "User")
 			if userError != nil {
 				return handlers.ResponseForError(appCtx.Logger(), userError), userError
 			}
+
 			//todo: we want to move this query out of the handler and into querybuilder, if possible
 			roleError := appCtx.DB().Q().Join("users_roles", "users_roles.role_id = roles.id").
 				Where("users_roles.deleted_at IS NULL AND users_roles.user_id = ?", (officeUser.User.ID)).
@@ -166,12 +178,22 @@ func (h GetOfficeUserHandler) Handle(params officeuserop.GetOfficeUserParams) mi
 			if roleError != nil {
 				return handlers.ResponseForError(appCtx.Logger(), roleError), roleError
 			}
+
 			privilegeError := appCtx.DB().Q().Join("users_privileges", "users_privileges.privilege_id = privileges.id").
 				Where("users_privileges.deleted_at IS NULL AND users_privileges.user_id = ?", (officeUser.User.ID)).
 				All(&officeUser.User.Privileges)
 			if privilegeError != nil {
 				return handlers.ResponseForError(appCtx.Logger(), privilegeError), privilegeError
 			}
+
+			transportationOfficeAssignmentError := appCtx.DB().Q().EagerPreload("TransportationOffice").
+				Join("transportation_offices", "transportation_office_assignments.transportation_office_id = transportation_offices.id").
+				Where("transportation_office_assignments.id = ?", (officeUser.ID)).
+				All(&officeUser.TransportationOfficeAssignments)
+			if transportationOfficeAssignmentError != nil {
+				return handlers.ResponseForError(appCtx.Logger(), transportationOfficeAssignmentError), transportationOfficeAssignmentError
+			}
+
 			payload := payloadForOfficeUserModel(officeUser)
 
 			return officeuserop.NewGetOfficeUserOK().WithPayload(payload), nil
@@ -186,6 +208,7 @@ type CreateOfficeUserHandler struct {
 	services.UserRoleAssociator
 	services.RoleAssociater
 	services.UserPrivilegeAssociator
+	services.TransportaionOfficeAssignmentUpdater
 }
 
 // Handle creates an office user
@@ -194,9 +217,17 @@ func (h CreateOfficeUserHandler) Handle(params officeuserop.CreateOfficeUserPara
 	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
 		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
 
-			transportationOfficeID, err := uuid.FromString(payload.TransportationOfficeID.String())
+			if len(payload.TransportationOfficeAssignments) == 0 {
+				err := apperror.NewBadDataError("At least one transportation office is required")
+				appCtx.Logger().Error(err.Error())
+				return officeuserop.NewCreateOfficeUserUnprocessableEntity(), err
+			}
+
+			primaryTransportationOfficeID, err := getPrimaryTransportationOfficeIDFromPayload(payload.TransportationOfficeAssignments)
+
 			if err != nil {
-				appCtx.Logger().Error(fmt.Sprintf("UUID Parsing for %s", payload.TransportationOfficeID.String()), zap.Error(err))
+				appCtx.Logger().Error("Error identifying primary transportation office", zap.Error(err))
+				appCtx.Logger().Error(err.Error())
 				return officeuserop.NewCreateOfficeUserUnprocessableEntity(), err
 			}
 
@@ -221,16 +252,16 @@ func (h CreateOfficeUserHandler) Handle(params officeuserop.CreateOfficeUserPara
 				FirstName:              payload.FirstName,
 				Telephone:              payload.Telephone,
 				Email:                  payload.Email,
-				TransportationOfficeID: transportationOfficeID,
+				TransportationOfficeID: primaryTransportationOfficeID,
 				Active:                 true,
 				Status:                 &officeUserStatus,
 			}
 
-			transportationIDFilter := []services.QueryFilter{
-				h.NewQueryFilter("id", "=", transportationOfficeID),
+			primaryTransportationIDFilter := []services.QueryFilter{
+				h.NewQueryFilter("id", "=", primaryTransportationOfficeID),
 			}
 
-			createdOfficeUser, verrs, err := h.OfficeUserCreator.CreateOfficeUser(appCtx, &officeUser, transportationIDFilter)
+			createdOfficeUser, verrs, err := h.OfficeUserCreator.CreateOfficeUser(appCtx, &officeUser, primaryTransportationIDFilter)
 			if verrs != nil {
 				validationError := &adminmessages.ValidationError{
 					InvalidFields: handlers.NewValidationErrorsResponse(verrs).Errors,
@@ -280,6 +311,21 @@ func (h CreateOfficeUserHandler) Handle(params officeuserop.CreateOfficeUserPara
 				return officeuserop.NewUpdateOfficeUserInternalServerError(), err
 			}
 
+			updatedTransportationOfficeAssignments, err := transportationOfficeAssignmentsPayloadToModel(payload.TransportationOfficeAssignments)
+			if err != nil {
+				appCtx.Logger().Error("UUID parsing error for transportation office assignments", zap.Error(err))
+				return officeuserop.NewCreateOfficeUserUnprocessableEntity(), err
+			}
+
+			transportationOfficeAssignments, err :=
+				h.TransportaionOfficeAssignmentUpdater.UpdateTransportaionOfficeAssignments(appCtx, createdOfficeUser.ID, updatedTransportationOfficeAssignments)
+			if err != nil {
+				appCtx.Logger().Error("Error updating office user's transportation office assignments", zap.Error(err))
+				return officeuserop.NewCreateOfficeUserUnprocessableEntity(), err
+			}
+
+			createdOfficeUser.TransportationOfficeAssignments = transportationOfficeAssignments
+
 			_, err = audit.Capture(appCtx, createdOfficeUser, nil, params.HTTPRequest)
 			if err != nil {
 				appCtx.Logger().Error("Error capturing audit record", zap.Error(err))
@@ -298,6 +344,7 @@ type UpdateOfficeUserHandler struct {
 	services.UserRoleAssociator
 	services.UserPrivilegeAssociator
 	services.UserSessionRevocation
+	services.TransportaionOfficeAssignmentUpdater
 }
 
 // Handle updates an office user
@@ -310,12 +357,23 @@ func (h UpdateOfficeUserHandler) Handle(params officeuserop.UpdateOfficeUserPara
 				appCtx.Logger().Error(fmt.Sprintf("UUID Parsing for %s", params.OfficeUserID.String()), zap.Error(err))
 			}
 
-			updatedOfficeUser, verrs, err := h.OfficeUserUpdater.UpdateOfficeUser(appCtx, officeUserID, payload)
+			var primaryTransportationOfficeID uuid.UUID
+			if len(payload.TransportationOfficeAssignments) > 0 {
+				primaryTransportationOfficeID, err = getPrimaryTransportationOfficeIDFromPayload(payload.TransportationOfficeAssignments)
+
+				if err != nil {
+					appCtx.Logger().Error("Error identifying primary transportation office", zap.Error(err))
+					return officeuserop.NewCreateOfficeUserUnprocessableEntity(), err
+				}
+			}
+
+			updatedOfficeUser, verrs, err := h.OfficeUserUpdater.UpdateOfficeUser(appCtx, officeUserID, payload, primaryTransportationOfficeID)
 
 			if err != nil || verrs != nil {
 				appCtx.Logger().Error("Error saving user", zap.Error(err), zap.Error(verrs))
 				return officeuserop.NewUpdateOfficeUserInternalServerError(), err
 			}
+
 			if updatedOfficeUser.UserID != nil && payload.Roles != nil {
 				updatedRoles := rolesPayloadToModel(payload.Roles)
 				_, verrs, err = h.UserRoleAssociator.UpdateUserRoles(appCtx, *updatedOfficeUser.UserID, updatedRoles)
@@ -393,6 +451,48 @@ func (h UpdateOfficeUserHandler) Handle(params officeuserop.UpdateOfficeUserPara
 				}
 			}
 
+			if len(payload.TransportationOfficeAssignments) > 0 {
+
+				transportationOfficeAssignmentsFromPayload, err := transportationOfficeAssignmentsPayloadToModel(payload.TransportationOfficeAssignments)
+				if err != nil {
+					appCtx.Logger().Error("UUID parsing error for transportation office assignments", zap.Error(err))
+					return officeuserop.NewCreateOfficeUserUnprocessableEntity(), err
+				}
+
+				updatedTransportationOfficeAssignments, err :=
+					h.TransportaionOfficeAssignmentUpdater.UpdateTransportaionOfficeAssignments(appCtx, updatedOfficeUser.ID, transportationOfficeAssignmentsFromPayload)
+				if err != nil {
+					appCtx.Logger().Error("Error updating office user's transportation office assignments", zap.Error(err))
+					return officeuserop.NewCreateOfficeUserUnprocessableEntity(), err
+				}
+
+				updatedOfficeUser.TransportationOfficeAssignments = updatedTransportationOfficeAssignments
+
+				boolean := true
+				revokeOfficeSessionPayload := adminmessages.UserUpdate{
+					RevokeOfficeSession: &boolean,
+				}
+
+				_, validationErrors, revokeErr := h.UserSessionRevocation.RevokeUserSession(
+					appCtx,
+					*updatedOfficeUser.UserID,
+					&revokeOfficeSessionPayload,
+					h.SessionManagers(),
+				)
+
+				if revokeErr != nil {
+					err = apperror.NewInternalServerError("Error revoking user session")
+					appCtx.Logger().Error(err.Error(), zap.Error(revokeErr))
+					return userop.NewUpdateUserInternalServerError(), revokeErr
+				}
+
+				if validationErrors != nil {
+					err = apperror.NewInternalServerError("Error revoking user session")
+					appCtx.Logger().Error(err.Error(), zap.Error(verrs))
+					return userop.NewUpdateUserInternalServerError(), validationErrors
+				}
+			}
+
 			// Log if the account was enabled or disabled (POAM requirement)
 			if payload.Active != nil {
 				_, err = audit.CaptureAccountStatus(appCtx, updatedOfficeUser, *payload.Active, params.HTTPRequest)
@@ -430,4 +530,42 @@ func privilegesPayloadToModel(payload []*adminmessages.OfficeUserPrivilege) []mo
 		}
 	}
 	return rt
+}
+
+func transportationOfficeAssignmentsPayloadToModel(payload []*adminmessages.OfficeUserTransportationOfficeAssignment) (models.TransportationOfficeAssignments, error) {
+	var toas models.TransportationOfficeAssignments
+	for _, toa := range payload {
+		transportationOfficeID, err := uuid.FromString(toa.TransportationOfficeID.String())
+
+		if err != nil {
+			return models.TransportationOfficeAssignments{}, err
+		}
+
+		model := &models.TransportationOfficeAssignment{
+			TransportationOfficeID: transportationOfficeID,
+			PrimaryOffice:          *toa.PrimaryOffice,
+		}
+
+		toas = append(toas, *model)
+	}
+	return toas, nil
+}
+
+func getPrimaryTransportationOfficeIDFromPayload(payload []*adminmessages.OfficeUserTransportationOfficeAssignment) (uuid.UUID, error) {
+	var transportationOfficeID uuid.UUID
+	var err error
+
+	if len(payload) == 1 {
+		transportationOfficeID, err = uuid.FromString(payload[0].TransportationOfficeID.String())
+		return transportationOfficeID, err
+	}
+
+	for _, toa := range payload {
+		if toa.PrimaryOffice != nil && *toa.PrimaryOffice {
+			transportationOfficeID, err = uuid.FromString(toa.TransportationOfficeID.String())
+			return transportationOfficeID, err
+		}
+	}
+
+	return transportationOfficeID, apperror.NewBadDataError("Could not identify primary transportaion office from list of assignments")
 }

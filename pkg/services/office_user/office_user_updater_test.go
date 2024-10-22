@@ -24,14 +24,20 @@ func (suite *OfficeUserServiceSuite) TestUpdateOfficeUser() {
 	suite.Run("If the user is updated successfully it should be returned", func() {
 		officeUser := setupTestData()
 		transportationOffice := factory.BuildDefaultTransportationOffice(suite.DB())
+		primaryOffice := true
 
 		firstName := "Lea"
 		payload := &adminmessages.OfficeUserUpdate{
-			FirstName:              &firstName,
-			TransportationOfficeID: strfmt.UUID(transportationOffice.ID.String()),
+			FirstName: &firstName,
+			TransportationOfficeAssignments: []*adminmessages.OfficeUserTransportationOfficeAssignment{
+				{
+					TransportationOfficeID: strfmt.UUID(transportationOffice.ID.String()),
+					PrimaryOffice:          &primaryOffice,
+				},
+			},
 		}
 
-		updatedOfficeUser, verrs, err := updater.UpdateOfficeUser(suite.AppContextForTest(), officeUser.ID, payload)
+		updatedOfficeUser, verrs, err := updater.UpdateOfficeUser(suite.AppContextForTest(), officeUser.ID, payload, uuid.FromStringOrNil(transportationOffice.ID.String()))
 		suite.NoError(err)
 		suite.Nil(verrs)
 		suite.Equal(updatedOfficeUser.ID.String(), officeUser.ID.String())
@@ -45,7 +51,7 @@ func (suite *OfficeUserServiceSuite) TestUpdateOfficeUser() {
 	suite.Run("If we are provided an office user that doesn't exist, the create should fail", func() {
 		payload := &adminmessages.OfficeUserUpdate{}
 
-		_, _, err := updater.UpdateOfficeUser(suite.AppContextForTest(), uuid.FromStringOrNil("00000000-0000-0000-0000-000000000001"), payload)
+		_, _, err := updater.UpdateOfficeUser(suite.AppContextForTest(), uuid.FromStringOrNil("00000000-0000-0000-0000-000000000001"), payload, uuid.Nil)
 		suite.Error(err)
 		suite.Equal(sql.ErrNoRows.Error(), err.Error())
 	})
@@ -53,11 +59,18 @@ func (suite *OfficeUserServiceSuite) TestUpdateOfficeUser() {
 	// Bad transportation office ID
 	suite.Run("If we are provided a transportation office that doesn't exist, the create should fail", func() {
 		officeUser := setupTestData()
+		primaryOffice := true
+
 		payload := &adminmessages.OfficeUserUpdate{
-			TransportationOfficeID: strfmt.UUID("00000000-0000-0000-0000-000000000001"),
+			TransportationOfficeAssignments: []*adminmessages.OfficeUserTransportationOfficeAssignment{
+				{
+					TransportationOfficeID: strfmt.UUID("00000000-0000-0000-0000-000000000001"),
+					PrimaryOffice:          &primaryOffice,
+				},
+			},
 		}
 
-		_, _, err := updater.UpdateOfficeUser(suite.AppContextForTest(), officeUser.ID, payload)
+		_, _, err := updater.UpdateOfficeUser(suite.AppContextForTest(), officeUser.ID, payload, uuid.FromStringOrNil("00000000-0000-0000-0000-000000000001"))
 		suite.Error(err)
 		suite.Equal(sql.ErrNoRows.Error(), err.Error())
 	})
