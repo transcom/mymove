@@ -105,7 +105,7 @@ func (suite *BaseHandlerTestSuite) HandlerConfig() *Config {
 		mock.AnythingOfType("string"),
 		mock.AnythingOfType("string"),
 		mock.Anything,
-	).Return(func(ctx context.Context, appCtx appcontext.AppContext, key string, flagContext map[string]string) (services.FeatureFlag, error) {
+	).Return(func(_ context.Context, _ *zap.Logger, _ string, key string, flagContext map[string]string) (services.FeatureFlag, error) {
 		return services.FeatureFlag{
 			Entity:    "user@example.com",
 			Key:       key,

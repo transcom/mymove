@@ -18,6 +18,7 @@ import (
 	"github.com/gorilla/csrf"
 	"github.com/spf13/afero"
 	"github.com/stretchr/testify/mock"
+	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/factory"
@@ -94,7 +95,9 @@ func (suite *BaseRoutingSuite) RoutingConfig() *Config {
 		mock.AnythingOfType("string"),
 		mock.AnythingOfType("string"),
 		mock.Anything,
-	).Return(services.FeatureFlag{}, nil)
+	).Return(func(_ context.Context, _ *zap.Logger, _ string, key string, flagContext map[string]string) (services.FeatureFlag, error) {
+		return services.FeatureFlag{}, nil
+	})
 	handlerConfig.SetFeatureFlagFetcher(mockFeatureFlagFetcher)
 
 	fakeOktaProvider := okta.NewOktaProvider(suite.Logger())
