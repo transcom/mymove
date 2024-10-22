@@ -106,33 +106,6 @@ func (h GetMoveTaskOrderHandler) Handle(params movetaskorderops.GetMoveTaskOrder
 			}
 			/** End of Feature Flag **/
 
-			/** Feature Flag - UB Shipment **/
-			isUBFeatureOn := false
-			const featureFlagNameUB = "unaccompanied_baggage"
-			flagUB, err := h.FeatureFlagFetcher().GetBooleanFlag(params.HTTPRequest.Context(), appCtx.Logger(), "", featureFlagNameUB, map[string]string{})
-			if err != nil {
-				appCtx.Logger().Error("Error fetching feature flagUB", zap.String("featureFlagKey", featureFlagNameUB), zap.Error(err))
-			} else {
-				isUBFeatureOn = flagUB.Match
-			}
-
-			// Remove UB shipments if UB FF is off
-			if !isUBFeatureOn {
-				var filteredShipments models.MTOShipments
-				if mto.MTOShipments != nil {
-					filteredShipments = models.MTOShipments{}
-				}
-				for i, shipment := range mto.MTOShipments {
-					if shipment.ShipmentType == models.MTOShipmentTypeUnaccompaniedBaggage {
-						continue
-					}
-
-					filteredShipments = append(filteredShipments, mto.MTOShipments[i])
-				}
-				mto.MTOShipments = filteredShipments
-			}
-			/** End of Feature Flag **/
-
 			moveTaskOrderPayload := payloads.MoveTaskOrder(mto)
 
 			return movetaskorderops.NewGetMoveTaskOrderOK().WithPayload(moveTaskOrderPayload), nil
