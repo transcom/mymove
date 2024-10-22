@@ -99,6 +99,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 				Key:   "unaccompanied_baggage",
 				Match: true,
 			}
+
 			mockFeatureFlagFetcher := &mocks.FeatureFlagFetcher{}
 
 			mockFeatureFlagFetcher.On("GetBooleanFlag",
