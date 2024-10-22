@@ -249,22 +249,24 @@ const SubmittedRequestedShipments = ({
       </div>
 
       <form onSubmit={formik.handleSubmit}>
-        <h2>Requested shipments</h2>
-        <div className={styles.dropdownButton}>
-          {!isMoveLocked && (
-            <Restricted to={permissionTypes.createTxoShipment}>
-              <ButtonDropdown
-                ariaLabel="Add a new shipment"
-                data-testid="addShipmentButton"
-                onChange={handleButtonDropdownChange}
-              >
-                <option value="" label="Add a new shipment">
-                  Add a new shipment
-                </option>
-                {allowedShipmentOptions()}
-              </ButtonDropdown>
-            </Restricted>
-          )}
+        <div className={styles.sectionHeader}>
+          <h2>Requested shipments</h2>
+          <div className={styles.buttonDropdown}>
+            {!isMoveLocked && (
+              <Restricted to={permissionTypes.createTxoShipment}>
+                <ButtonDropdown
+                  ariaLabel="Add a new shipment"
+                  data-testid="addShipmentButton"
+                  onChange={handleButtonDropdownChange}
+                >
+                  <option value="" label="Add a new shipment">
+                    Add a new shipment
+                  </option>
+                  {allowedShipmentOptions()}
+                </ButtonDropdown>
+              </Restricted>
+            )}
+          </div>
         </div>
         <div className={shipmentCardsStyles.shipmentCards}>
           {mtoShipments &&
