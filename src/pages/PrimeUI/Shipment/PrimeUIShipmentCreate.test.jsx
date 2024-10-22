@@ -117,6 +117,22 @@ describe('Error when submitting', () => {
       ).toBeInTheDocument();
     });
   });
+
+  it('Correctly displays a specific error message when an error response is returned', async () => {
+    createPrimeMTOShipmentV3.mockRejectedValue({ body: { title: 'Error', detail: 'The data entered no good.' } });
+    render(mockedComponent);
+
+    waitFor(async () => {
+      await userEvent.selectOptions(screen.getByLabelText('Shipment type'), 'HHG');
+
+      const saveButton = await screen.getByRole('button', { name: 'Save' });
+
+      expect(saveButton).not.toBeDisabled();
+      await userEvent.click(saveButton);
+      expect(screen.getByText('Prime API: Error')).toBeInTheDocument();
+      expect(screen.getByText('The data entered no good.')).toBeInTheDocument();
+    });
+  });
 });
 
 describe('Error when submitting', () => {
