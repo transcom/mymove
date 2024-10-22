@@ -18,7 +18,17 @@ const EstimatedIncentiveDetails = ({ shipment }) => {
     estimatedIncentive,
   } = shipment?.ppmShipment || {};
 
-  return (
+  return estimatedIncentive === 0 ? (
+    <div className={styles.EstimatedIncentiveDetails}>
+      <div className="container">
+        <p>
+          The Defense Table of Distances (DTOD) was unavailable during your PPM creation, so we are currently unable to
+          provide your estimated incentive. Your estimated incentive information will be updated and provided to you
+          during your counseling session.
+        </p>
+      </div>
+    </div>
+  ) : (
     <div className={styles.EstimatedIncentiveDetails}>
       <div className="container">
         <h2>${formatCentsTruncateWhole(estimatedIncentive)} is your estimated incentive</h2>
