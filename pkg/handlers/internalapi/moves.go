@@ -399,6 +399,18 @@ func (h GetAllMovesHandler) Handle(params moveop.GetAllMovesParams) middleware.R
 			}
 			/** End of Feature Flag Block **/
 
+			/** Feature Flag - Unaccompanied Baggage Shipment **/
+			featureFlagNameUB := "unaccompanied_baggage"
+			isUBFeatureOn := false
+			flagUB, err := h.FeatureFlagFetcher().GetBooleanFlagForUser(params.HTTPRequest.Context(), appCtx, featureFlagNameUB, map[string]string{})
+			if err != nil {
+				appCtx.Logger().Error("Error fetching feature flag", zap.String("featureFlagKey", featureFlagNameUB), zap.Error(err))
+				isUBFeatureOn = false
+			} else {
+				isUBFeatureOn = flagUB.Match
+			}
+			/** End of Feature Flag Block **/
+
 			for _, move := range movesList {
 
 				/** Feature Flag - Boat Shipment **/
