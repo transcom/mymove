@@ -55,6 +55,7 @@ func BuildMove(db *pop.Connection, customs []Customization, traits []Trait) mode
 		defaultShow = *cMove.Show
 	}
 	defaultLocator := models.GenerateLocator()
+
 	move := models.Move{
 		Orders:       order,
 		OrdersID:     order.ID,

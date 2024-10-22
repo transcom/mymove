@@ -33,7 +33,7 @@ export const Blank = Template.bind({});
 Blank.args = {
   ppmShipmentInfo: PPMShipmentInfo,
   tripNumber: 1,
-  ppmNumber: 1,
+  ppmNumber: '1',
   weightTicket: {
     vehicleDescription: 'Kia Forte',
     emptyWeight: 600,
@@ -65,7 +65,7 @@ export const FilledIn = Template.bind({});
 FilledIn.args = {
   ppmShipmentInfo: PPMShipmentInfo,
   tripNumber: 1,
-  ppmNumber: 1,
+  ppmNumber: '1',
   weightTicket: {
     vehicleDescription: 'Kia Forte',
     emptyWeight: 600,
@@ -97,7 +97,7 @@ export const MissingWeightTickets = Template.bind({});
 MissingWeightTickets.args = {
   ppmShipmentInfo: PPMShipmentInfo,
   tripNumber: 1,
-  ppmNumber: 1,
+  ppmNumber: '1',
   weightTicket: {
     vehicleDescription: 'Kia Forte',
     emptyWeight: 6000,

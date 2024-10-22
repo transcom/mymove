@@ -39,6 +39,7 @@ const defaultProps = {
       expectedDepartureDate: new Date('01/01/2020').toISOString(),
     },
   },
+  marketCode: 'd',
 };
 
 const completeProps = {
@@ -94,6 +95,7 @@ const completeProps = {
       advanceAmountRequested: 600000,
     },
   },
+  marketCode: 'd',
 };
 
 const mockedOnIncompleteClickFunction = jest.fn();
@@ -130,6 +132,7 @@ const incompleteProps = {
       hasRequestedAdvance: null,
     },
   },
+  marketCode: 'd',
 };
 
 describe('PPMShipmentCard component', () => {
@@ -170,6 +173,11 @@ describe('PPMShipmentCard component', () => {
     expect();
   });
 
+  it('renders complete PPMShipmentCard with a heading that has a market code and shipment type', async () => {
+    render(<PPMShipmentCard {...completeProps} />);
+    expect(screen.getByRole('heading', { level: 3 })).toHaveTextContent(`${completeProps.marketCode}PPM`);
+  });
+
   it('renders component with incomplete fields', () => {
     render(<PPMShipmentCard {...defaultProps} />);
 
@@ -201,6 +209,11 @@ describe('PPMShipmentCard component', () => {
       expect(descriptionDefinitions[index].previousElementSibling).toHaveTextContent(expectedRow[0]);
       expect(descriptionDefinitions[index]).toHaveTextContent(expectedRow[1]);
     });
+  });
+
+  it('renders PPMShipmentCard with a heading that has a market code and shipment type', async () => {
+    render(<PPMShipmentCard {...defaultProps} />);
+    expect(screen.getByRole('heading', { level: 3 })).toHaveTextContent(`${defaultProps.marketCode}PPM`);
   });
 
   it('omits the edit button when showEditAndDeleteBtn prop is false', () => {
@@ -314,5 +327,10 @@ describe('PPMShipmentCard component', () => {
 
     // verify onclick is getting json string as parameter
     expect(mockedOnIncompleteClickFunction).toHaveBeenCalledWith('PPM 1', 'testMove123-01', 'PPM');
+  });
+
+  it('renders incomplete PPMShipmentCard with a heading that has a market code and shipment type', async () => {
+    render(<PPMShipmentCard {...incompleteProps} />);
+    expect(screen.getByRole('heading', { level: 3 })).toHaveTextContent(`${incompleteProps.marketCode}PPM`);
   });
 });
