@@ -104,7 +104,7 @@ func (suite *BaseHandlerTestSuite) HandlerConfig() *Config {
 		mock.Anything,
 		mock.AnythingOfType("string"),
 		mock.AnythingOfType("string"),
-		mock.AnythingOfType("map[string]string{}"),
+		mock.Anything,
 	).Return(func(ctx context.Context, appCtx appcontext.AppContext, key string, flagContext map[string]string) (services.FeatureFlag, error) {
 		return mockGetFlagFunc(ctx, appCtx.Logger(), "user@example.com", key, flagContext, "")
 	})

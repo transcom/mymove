@@ -93,7 +93,7 @@ func (suite *BaseRoutingSuite) RoutingConfig() *Config {
 		mock.Anything,
 		mock.AnythingOfType("string"),
 		mock.AnythingOfType("string"),
-		mock.AnythingOfType("map[string]string{}"),
+		mock.Anything,
 	).Return(services.FeatureFlag{}, nil)
 	handlerConfig.SetFeatureFlagFetcher(mockFeatureFlagFetcher)
 
