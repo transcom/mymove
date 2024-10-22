@@ -181,5 +181,4 @@ func (suite *TransportationOfficeServiceSuite) Test_FindCounselingOffices() {
 	suite.Len(offices, 2)
 	suite.Equal(offices[0].Name, "PPPO Hill AFB - USAF")
 	suite.Equal(offices[1].Name, "PPPO Travis AFB - USAF")
-
 }
