@@ -894,7 +894,6 @@ func (suite *PayloadsSuite) TestMTOShipmentModelFromCreate_WithOptionalFields() 
 
 	result, _ := MTOShipmentModelFromCreate(mtoShipment)
 
-	// Check the main fields
 	suite.NotNil(result)
 	suite.Equal(mtoShipment.MoveTaskOrderID.String(), result.MoveTaskOrderID.String())
 	suite.Equal(*mtoShipment.CustomerRemarks, *result.CustomerRemarks)

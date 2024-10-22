@@ -100,3 +100,20 @@ func (suite *ModelSuite) TestIsAddressOconusForAKState() {
 
 	suite.Equal(true, result)
 }
+
+func (suite *ModelSuite) TestAddressFormat() {
+	newAddress := &m.Address{
+		StreetAddress1: "street 1",
+		StreetAddress2: m.StringPointer("street 2"),
+		StreetAddress3: m.StringPointer("street 3"),
+		City:           "city",
+		State:          "state",
+		PostalCode:     "90210",
+		County:         "County",
+	}
+	verrs, err := newAddress.Validate(nil)
+	suite.NoError(err)
+	suite.False(verrs.HasAny(), "Error validating model")
+	formattedAddress := newAddress.Format()
+	suite.Equal("street 1\nstreet 2\nstreet 3\ncity, state 90210", formattedAddress)
+}
