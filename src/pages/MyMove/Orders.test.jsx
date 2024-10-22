@@ -4,7 +4,7 @@ import userEvent from '@testing-library/user-event';
 
 import Orders from './Orders';
 
-import { getOrders, patchOrders } from 'services/internalApi';
+import { getOrders, patchOrders, showCounselingOffices } from 'services/internalApi';
 import { renderWithProviders } from 'testUtils';
 import { customerRoutes } from 'constants/routes';
 import {
@@ -17,6 +17,20 @@ jest.mock('services/internalApi', () => ({
   ...jest.requireActual('services/internalApi'),
   patchOrders: jest.fn().mockImplementation(() => Promise.resolve()),
   getOrders: jest.fn().mockImplementation(() => Promise.resolve()),
+  showCounselingOffices: jest.fn().mockImplementation(() =>
+    Promise.resolve({
+      body: [
+        {
+          id: '3e937c1f-5539-4919-954d-017989130584',
+          name: 'Albuquerque AFB',
+        },
+        {
+          id: 'fa51dab0-4553-4732-b843-1f33407f77bc',
+          name: 'Glendale Luke AFB',
+        },
+      ],
+    }),
+  ),
 }));
 
 jest.mock('components/LocationSearchBox/api', () => ({
@@ -415,6 +429,7 @@ describe('Orders page', () => {
   });
 
   it('renders appropriate order data on load', async () => {
+    showCounselingOffices.mockImplementation(() => Promise.resolve({}));
     selectServiceMemberFromLoggedInUser.mockImplementation(() => serviceMember);
     selectOrdersForLoggedInUser.mockImplementation(() => testProps.orders);
     selectAllMoves.mockImplementation(() => testProps.serviceMemberMoves);
@@ -435,6 +450,7 @@ describe('Orders page', () => {
   });
 
   it('next button patches the orders updates state', async () => {
+    showCounselingOffices.mockImplementation(() => Promise.resolve({}));
     selectServiceMemberFromLoggedInUser.mockImplementation(() => serviceMember);
     selectOrdersForLoggedInUser.mockImplementation(() => testProps.orders);
     selectAllMoves.mockImplementation(() => testProps.serviceMemberMoves);
@@ -484,6 +500,7 @@ describe('Orders page', () => {
   });
 
   it('shows an error if the API returns an error', async () => {
+    showCounselingOffices.mockImplementation(() => Promise.resolve({}));
     selectServiceMemberFromLoggedInUser.mockImplementation(() => serviceMember);
     selectOrdersForLoggedInUser.mockImplementation(() => testProps.orders);
     selectAllMoves.mockImplementation(() => testProps.serviceMemberMoves);

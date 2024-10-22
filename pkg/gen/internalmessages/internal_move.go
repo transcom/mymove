@@ -22,6 +22,9 @@ type InternalMove struct {
 	// closeout office
 	CloseoutOffice *TransportationOffice `json:"closeoutOffice,omitempty"`
 
+	// counseling office
+	CounselingOffice *TransportationOffice `json:"counselingOffice,omitempty"`
+
 	// created at
 	// Read Only: true
 	// Format: date-time
@@ -80,6 +83,10 @@ func (m *InternalMove) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
+	if err := m.validateCounselingOffice(formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.validateCreatedAt(formats); err != nil {
 		res = append(res, err)
 	}
@@ -125,6 +132,25 @@ func (m *InternalMove) validateCloseoutOffice(formats strfmt.Registry) error {
 				return ve.ValidateName("closeoutOffice")
 			} else if ce, ok := err.(*errors.CompositeError); ok {
 				return ce.ValidateName("closeoutOffice")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (m *InternalMove) validateCounselingOffice(formats strfmt.Registry) error {
+	if swag.IsZero(m.CounselingOffice) { // not required
+		return nil
+	}
+
+	if m.CounselingOffice != nil {
+		if err := m.CounselingOffice.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("counselingOffice")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("counselingOffice")
 			}
 			return err
 		}
@@ -230,6 +256,10 @@ func (m *InternalMove) ContextValidate(ctx context.Context, formats strfmt.Regis
 		res = append(res, err)
 	}
 
+	if err := m.contextValidateCounselingOffice(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.contextValidateCreatedAt(ctx, formats); err != nil {
 		res = append(res, err)
 	}
@@ -281,6 +311,27 @@ func (m *InternalMove) contextValidateCloseoutOffice(ctx context.Context, format
 				return ve.ValidateName("closeoutOffice")
 			} else if ce, ok := err.(*errors.CompositeError); ok {
 				return ce.ValidateName("closeoutOffice")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (m *InternalMove) contextValidateCounselingOffice(ctx context.Context, formats strfmt.Registry) error {
+
+	if m.CounselingOffice != nil {
+
+		if swag.IsZero(m.CounselingOffice) { // not required
+			return nil
+		}
+
+		if err := m.CounselingOffice.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("counselingOffice")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("counselingOffice")
 			}
 			return err
 		}

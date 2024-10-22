@@ -174,9 +174,33 @@ func MTOShipmentModelFromCreate(mtoShipment *primev3messages.CreateMTOShipment) 
 		model.PickupAddress = addressModel
 	}
 
+	addressModel = AddressModel(&mtoShipment.SecondaryPickupAddress.Address)
+	if addressModel != nil {
+		model.SecondaryPickupAddress = addressModel
+		model.HasSecondaryPickupAddress = handlers.FmtBool(true)
+	}
+
+	addressModel = AddressModel(&mtoShipment.TertiaryPickupAddress.Address)
+	if addressModel != nil {
+		model.TertiaryPickupAddress = addressModel
+		model.HasTertiaryPickupAddress = handlers.FmtBool(true)
+	}
+
 	addressModel = AddressModel(&mtoShipment.DestinationAddress.Address)
 	if addressModel != nil {
 		model.DestinationAddress = addressModel
+	}
+
+	addressModel = AddressModel(&mtoShipment.SecondaryDestinationAddress.Address)
+	if addressModel != nil {
+		model.SecondaryDeliveryAddress = addressModel
+		model.HasSecondaryDeliveryAddress = handlers.FmtBool(true)
+	}
+
+	addressModel = AddressModel(&mtoShipment.TertiaryDestinationAddress.Address)
+	if addressModel != nil {
+		model.TertiaryDeliveryAddress = addressModel
+		model.HasTertiaryDeliveryAddress = handlers.FmtBool(true)
 	}
 
 	if mtoShipment.Agents != nil {
@@ -194,6 +218,14 @@ func MTOShipmentModelFromCreate(mtoShipment *primev3messages.CreateMTOShipment) 
 			return nil, verrs
 		}
 		model.BoatShipment.Shipment = *model
+	}
+
+	if mtoShipment.MobileHomeShipment != nil {
+		model.MobileHome, verrs = MobileHomeShipmentModelFromCreate(mtoShipment)
+		if verrs != nil && verrs.HasAny() {
+			return nil, verrs
+		}
+		model.MobileHome.Shipment = *model
 	}
 
 	return model, nil
@@ -251,6 +283,12 @@ func PPMShipmentModelFromCreate(ppmShipment *primev3messages.CreatePPMShipment) 
 		model.HasSecondaryPickupAddress = handlers.FmtBool(true)
 	}
 
+	addressModel = AddressModel(&ppmShipment.TertiaryPickupAddress.Address)
+	if addressModel != nil {
+		model.TertiaryPickupAddress = addressModel
+		model.HasTertiaryPickupAddress = handlers.FmtBool(true)
+	}
+
 	addressModel = AddressModel(&ppmShipment.DestinationAddress.Address)
 	if addressModel != nil {
 		model.DestinationAddress = addressModel
@@ -260,6 +298,12 @@ func PPMShipmentModelFromCreate(ppmShipment *primev3messages.CreatePPMShipment) 
 	if addressModel != nil {
 		model.SecondaryDestinationAddress = addressModel
 		model.HasSecondaryDestinationAddress = handlers.FmtBool(true)
+	}
+
+	addressModel = AddressModel(&ppmShipment.TertiaryDestinationAddress.Address)
+	if addressModel != nil {
+		model.TertiaryDestinationAddress = addressModel
+		model.HasTertiaryDestinationAddress = handlers.FmtBool(true)
 	}
 
 	if model.SITExpected != nil && *model.SITExpected {
@@ -317,6 +361,24 @@ func BoatShipmentModelFromCreate(mtoShipment *primev3messages.CreateMTOShipment)
 		HeightInInches: &heightInInches,
 		HasTrailer:     mtoShipment.BoatShipment.HasTrailer,
 		IsRoadworthy:   mtoShipment.BoatShipment.IsRoadworthy,
+	}
+
+	return model, nil
+}
+
+// MobileHomeShipmentModelFromCreate model
+func MobileHomeShipmentModelFromCreate(mtoShipment *primev3messages.CreateMTOShipment) (*models.MobileHome, *validate.Errors) {
+	year := int(*mtoShipment.MobileHomeShipment.Year)
+	lengthInInches := int(*mtoShipment.MobileHomeShipment.LengthInInches)
+	widthInInches := int(*mtoShipment.MobileHomeShipment.WidthInInches)
+	heightInInches := int(*mtoShipment.MobileHomeShipment.HeightInInches)
+	model := &models.MobileHome{
+		Year:           &year,
+		Make:           mtoShipment.MobileHomeShipment.Make,
+		Model:          mtoShipment.MobileHomeShipment.Model,
+		LengthInInches: &lengthInInches,
+		WidthInInches:  &widthInInches,
+		HeightInInches: &heightInInches,
 	}
 
 	return model, nil

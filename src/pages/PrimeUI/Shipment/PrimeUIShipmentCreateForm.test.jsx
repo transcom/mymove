@@ -49,8 +49,22 @@ const initialValues = {
       state: '',
       streetAddress1: '',
     },
+    tertiaryDeliveryAddress: {
+      city: '',
+      postalCode: '',
+      state: '',
+      streetAddress1: '',
+    },
+    tertiaryPickupAddress: {
+      city: '',
+      postalCode: '',
+      state: '',
+      streetAddress1: '',
+    },
     hasSecondaryPickupAddress: 'false',
     hasSecondaryDestinationAddress: 'false',
+    hasTertiaryPickupAddress: 'false',
+    hasTertiaryDestinationAddress: 'false',
   },
 
   // Boat Shipment
@@ -68,11 +82,52 @@ const initialValues = {
     heightInInches: 1,
   },
 
+  // Mobile Home Shipment
+  mobileHomeShipment: {
+    make: 'mobile make',
+    model: 'mobile model',
+    year: 1999,
+    lengthInFeet: 16,
+    lengthInInches: 0,
+    widthInFeet: 1,
+    widthInInches: 1,
+    heightInFeet: 1,
+    heightInInches: 1,
+  },
+
   // Other shipment types
   requestedPickupDate: '',
   estimatedWeight: '',
   pickupAddress: {},
   destinationAddress: {},
+  secondaryDeliveryAddress: {
+    city: '',
+    postalCode: '',
+    state: '',
+    streetAddress1: '',
+  },
+  secondaryPickupAddress: {
+    city: '',
+    postalCode: '',
+    state: '',
+    streetAddress1: '',
+  },
+  tertiaryDeliveryAddress: {
+    city: '',
+    postalCode: '',
+    state: '',
+    streetAddress1: '',
+  },
+  tertiaryPickupAddress: {
+    city: '',
+    postalCode: '',
+    state: '',
+    streetAddress1: '',
+  },
+  hasSecondaryPickupAddress: 'false',
+  hasSecondaryDestinationAddress: 'false',
+  hasTertiaryPickupAddress: 'false',
+  hasTertiaryDestinationAddress: 'false',
   diversion: '',
   divertedFromShipmentId: '',
 };
@@ -144,13 +199,16 @@ describe('PrimeUIShipmentCreateForm', () => {
     isBooleanFlagEnabled.mockResolvedValue(false);
     expect(await screen.queryByText('BOAT_HAUL_AWAY')).not.toBeInTheDocument();
     expect(await screen.queryByText('BOAT_TOW_AWAY')).not.toBeInTheDocument();
+    expect(await screen.queryByText('MOBILE_HOME')).not.toBeInTheDocument();
     expect(await screen.findByLabelText('Shipment type')).toBeInTheDocument();
+    expect(await screen.queryByText('MOBILE_HOME')).not.toBeInTheDocument();
   });
 
   it('renders the initial form, selecting PPM and checkboxes', async () => {
     isBooleanFlagEnabled.mockResolvedValue(false);
     expect(await screen.queryByText('BOAT_HAUL_AWAY')).not.toBeInTheDocument();
     expect(await screen.queryByText('BOAT_TOW_AWAY')).not.toBeInTheDocument();
+    expect(await screen.queryByText('MOBILE_HOME')).not.toBeInTheDocument();
     const shipmentTypeInput = await screen.findByLabelText('Shipment type');
     expect(shipmentTypeInput).toBeInTheDocument();
 
@@ -225,14 +283,14 @@ describe('PrimeUIShipmentCreateForm', () => {
   });
 
   it.each(
-    ['BOAT_HAUL_AWAY', 'BOAT_TOW_AWAY'],
-    'renders the initial form, selects a Boat shipment type, and shows correct fields',
+    ['BOAT_HAUL_AWAY', 'BOAT_TOW_AWAY', 'MOBILE_HOME'],
+    'renders the initial form, selects a Boat or Mobile Home shipment type, and shows correct fields',
     async (shipmentType) => {
       isBooleanFlagEnabled.mockResolvedValue(true); // Allow for testing of boats and mobile homes
       const shipmentTypeInput = await screen.findByLabelText('Shipment type');
       expect(shipmentTypeInput).toBeInTheDocument();
 
-      // Select the boat shipment type
+      // Select the boat or mobile home shipment type
       await userEvent.selectOptions(shipmentTypeInput, [shipmentType]);
 
       // Make sure that a PPM-specific field is not visible.
@@ -252,7 +310,7 @@ describe('PrimeUIShipmentCreateForm', () => {
       // now the text input should be visible
       expect(await screen.findByTestId('divertedFromShipmentIdInput')).toBeInTheDocument();
 
-      // Now check for a boat shipment specific field
+      // Now check for a boat and mobile home shipment specific field
       expect(await screen.findByLabelText('Length (Feet)')).toBeVisible();
     },
   );
@@ -360,6 +418,51 @@ describe('PrimeUIShipmentCreateForm', () => {
       expect(screen.getAllByLabelText('Address 1')[1]).toHaveValue('');
     },
   );
+
+  it('renders secondary/tertiary address', async () => {
+    renderShipmentCreateForm();
+
+    const shipmentTypeInput = await screen.findByLabelText('Shipment type');
+    expect(shipmentTypeInput).toBeInTheDocument();
+
+    // Select the shipment type
+    await userEvent.selectOptions(shipmentTypeInput, 'HHG');
+
+    // Make sure than a PPM-specific field is not visible.
+    expect(await screen.queryByLabelText('Expected Departure Date')).not.toBeInTheDocument();
+
+    expect(await screen.findByText('Shipment Dates')).toBeInTheDocument();
+    expect(await screen.findByLabelText('Requested pickup')).toHaveValue(initialValues.requestedPickupDate);
+
+    expect(await screen.findByRole('heading', { name: 'Diversion', level: 2 })).toBeInTheDocument();
+    expect(await screen.findByLabelText('Diversion')).not.toBeChecked();
+
+    expect(await screen.findByText('Shipment Weights')).toBeInTheDocument();
+    expect(await screen.findByLabelText('Estimated weight (lbs)')).toHaveValue(initialValues.estimatedWeight);
+
+    expect(await screen.findByText('Shipment Addresses')).toBeInTheDocument();
+    expect(await screen.findByText('Pickup Address')).toBeInTheDocument();
+    expect(screen.getAllByLabelText('Address 1')[0]).toHaveValue('');
+
+    const hasSecondaryPickup = await screen.findByTestId('has-secondary-pickup');
+    await userEvent.click(hasSecondaryPickup);
+    expect(screen.getAllByLabelText('Address 1')[1]).toHaveValue('');
+
+    const hasTertiaryPickup = await screen.findByTestId('has-tertiary-pickup');
+    await userEvent.click(hasTertiaryPickup);
+    expect(screen.getAllByLabelText('Address 1')[2]).toHaveValue('');
+
+    expect(await screen.findByText('Destination Address')).toBeInTheDocument();
+    expect(screen.getAllByLabelText('Address 1')[3]).toHaveValue('');
+
+    const hasSecondaryDestination = await screen.findByTestId('has-secondary-destination');
+    await userEvent.click(hasSecondaryDestination);
+    expect(screen.getAllByLabelText('Address 1')[4]).toHaveValue('');
+
+    const hasTertiaryDestination = await screen.findByTestId('has-tertiary-destination');
+    await userEvent.click(hasTertiaryDestination);
+    expect(screen.getAllByLabelText('Address 1')[5]).toHaveValue('');
+  });
 
   it('renders the HHG form and displays the shipment id text input when diversion box is checked', async () => {
     isBooleanFlagEnabled.mockResolvedValue(false);

@@ -1,24 +1,21 @@
 import React from 'react';
 
+import { deleteAssignedOfficeUserForMove, updateAssignedOfficeUserForMove } from 'services/ghcApi';
 import { DEFAULT_EMPTY_VALUE } from 'shared/constants';
-
-const addAssignedOfficeUser = (users, assignedTo) => {
-  const newAvailableOfficeUsers = users.slice();
-  const { lastName, firstName, id } = assignedTo;
-  newAvailableOfficeUsers.push({
-    label: `${lastName}, ${firstName}`,
-    value: id,
-  });
-  return newAvailableOfficeUsers;
-};
 
 export const formatOfficeUser = (user) => {
   const fullName = `${user?.lastName}, ${user?.firstName}`;
   return { label: fullName, value: user.officeUserId };
 };
 
+const addAssignedOfficeUser = (users, assignedTo) => {
+  const newAvailableOfficeUsers = users.slice();
+  newAvailableOfficeUsers.push(formatOfficeUser(assignedTo));
+  return newAvailableOfficeUsers;
+};
+
 export const formatAvailableOfficeUsers = (users, isSupervisor, currentUserId) => {
-  if (!users.length || isSupervisor === undefined || currentUserId === undefined) return [];
+  if (!users?.length || isSupervisor === undefined || currentUserId === undefined) return [];
 
   // instantiate array with empty value for unassign purposes down the road
   const newAvailableOfficeUsers = [{ label: DEFAULT_EMPTY_VALUE, value: null }];
@@ -40,19 +37,23 @@ export const formatAvailableOfficeUsers = (users, isSupervisor, currentUserId) =
   return newAvailableOfficeUsers;
 };
 
-export const formatAvailableOfficeUsersForRow = (row) => {
+export const formatAvailableOfficeUsersForRow = (originalRow, supervisor, currentUserId) => {
   // dupe the row to avoid issues with passing office user array by reference
-  const updatedRow = { ...row };
+  const row = { ...originalRow };
 
+  row.availableOfficeUsers = formatAvailableOfficeUsers(row.availableOfficeUsers, supervisor, currentUserId);
   // if the move is assigned to a user not present in availableOfficeUsers
   // lets push them onto the end
-  if (row.assignedTo !== undefined && !row.availableOfficeUsers?.some((user) => user.value === row.assignedTo.id)) {
-    updatedRow.availableOfficeUsers = addAssignedOfficeUser(row.availableOfficeUsers, row.assignedTo);
+  if (
+    row.assignedTo !== undefined &&
+    !row.availableOfficeUsers?.some((user) => user.value === row.assignedTo.officeUserId)
+  ) {
+    row.availableOfficeUsers = addAssignedOfficeUser(row.availableOfficeUsers, row.assignedTo);
   }
-  const { assignedTo, availableOfficeUsers } = updatedRow;
+  const { assignedTo, availableOfficeUsers } = row;
 
   // if there is an assigned user, assign to a variable so we can set a default value below
-  const assignedToUser = availableOfficeUsers.find((user) => user.value === assignedTo?.id);
+  const assignedToUser = availableOfficeUsers.find((user) => user.value === assignedTo?.officeUserId);
 
   const formattedAvailableOfficeUsers = availableOfficeUsers.map(({ value, label }) => (
     <option value={value} key={`filterOption_${value}`}>
@@ -61,4 +62,9 @@ export const formatAvailableOfficeUsersForRow = (row) => {
   ));
 
   return { formattedAvailableOfficeUsers, assignedToUser };
+};
+
+export const handleQueueAssignment = (moveID, officeUserId, roleType) => {
+  if (officeUserId === DEFAULT_EMPTY_VALUE) deleteAssignedOfficeUserForMove({ moveID, roleType });
+  else updateAssignedOfficeUserForMove({ moveID, officeUserId, roleType });
 };
