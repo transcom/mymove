@@ -376,6 +376,22 @@ definitions:
         description: Where the movers should deliver this shipment.
         allOf:
           - $ref: 'definitions/Address.yaml'
+      secondaryPickupAddress:
+        description: The second address where the movers should pick up this shipment.
+        allOf:
+          - $ref: 'definitions/Address.yaml'
+      tertiaryPickupAddress:
+        description: The third address where the movers should pick up this shipment.
+        allOf:
+          - $ref: 'definitions/Address.yaml'
+      secondaryDestinationAddress:
+        description: The second address where the movers should deliver this shipment.
+        allOf:
+          - $ref: 'definitions/Address.yaml'
+      tertiaryDestinationAddress:
+        description: The third address where the movers should deliver this shipment.
+        allOf:
+          - $ref: 'definitions/Address.yaml'
       shipmentType:
         $ref: 'definitions/prime/v3/MTOShipmentType.yaml'
       diversion:
@@ -425,12 +441,20 @@ definitions:
         description: An optional secondary pickup location address near the origin where additional goods exist.
         allOf:
           - $ref: 'definitions/Address.yaml'
+      tertiaryPickupAddress:
+        description: An optional tertiary pickup location address near the origin where additional goods exist.
+        allOf:
+          - $ref: 'definitions/Address.yaml'
       destinationAddress:
         description: The address of the destination location where goods are being delivered to.
         allOf:
           - $ref: 'definitions/Address.yaml'
       secondaryDestinationAddress:
         description: An optional secondary address near the destination where goods will be dropped off.
+        allOf:
+          - $ref: 'definitions/Address.yaml'
+      tertiaryDestinationAddress:
+        description: An optional tertiary address near the destination where goods will be dropped off.
         allOf:
           - $ref: 'definitions/Address.yaml'
       sitExpected:
