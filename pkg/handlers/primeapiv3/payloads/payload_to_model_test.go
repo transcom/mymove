@@ -666,23 +666,31 @@ func (suite *PayloadsSuite) TestPPMShipmentModelFromUpdate() {
 	proGearWeight := int64(500)
 	spouseProGearWeight := int64(50)
 
+	country := models.Country{
+		Country:     "US",
+		CountryName: "United States",
+	}
+
 	address := models.Address{
 		StreetAddress1: "some address",
 		City:           "city",
 		State:          "state",
 		PostalCode:     "12345",
+		Country:        &country,
 	}
 	address2 := models.Address{
 		StreetAddress1: "some address",
 		City:           "city",
 		State:          "state",
 		PostalCode:     "11111",
+		Country:        &country,
 	}
 	address3 := models.Address{
 		StreetAddress1: "some address",
 		City:           "city",
 		State:          "state",
 		PostalCode:     "54321",
+		Country:        &country,
 	}
 
 	var pickupAddress primev3messages.Address
