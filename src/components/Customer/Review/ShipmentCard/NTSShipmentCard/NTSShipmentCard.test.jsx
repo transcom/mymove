@@ -17,6 +17,7 @@ const defaultProps = {
   shipmentType: 'HHG_INTO_NTS_DOMESTIC',
   showEditAndDeleteBtn: false,
   requestedPickupDate: new Date('01/01/2020').toISOString(),
+  marketCode: 'i',
   pickupLocation: {
     streetAddress1: '17 8th St',
     city: 'New York',
@@ -45,6 +46,7 @@ const incompleteProps = {
   showEditAndDeleteBtn: false,
   requestedPickupDate: new Date('01/01/2020').toISOString(),
   status: shipmentStatuses.DRAFT,
+  marketCode: 'd',
 };
 
 const completeProps = {
@@ -57,6 +59,7 @@ const completeProps = {
   showEditAndDeleteBtn: false,
   requestedPickupDate: new Date('01/01/2020').toISOString(),
   status: shipmentStatuses.SUBMITTED,
+  marketCode: 'd',
 };
 
 function mountNTSShipmentCard(props) {
@@ -92,6 +95,11 @@ describe('NTSShipmentCard component', () => {
     tableHeaders.forEach((label, index) => expect(wrapper.find('dt').at(index).text()).toBe(label));
     tableData.forEach((label, index) => expect(wrapper.find('dd').at(index).text()).toBe(label));
     expect(wrapper.find('.remarksCell').text()).toBe(defaultProps.remarks);
+  });
+
+  it('renders NTSShipmentCard with a heading that has a market code and shipment type', async () => {
+    render(<NTSShipmentCard {...defaultProps} />);
+    expect(screen.getByRole('heading', { level: 3 })).toHaveTextContent(`${defaultProps.marketCode}NTS`);
   });
 
   it('should render without releasing/receiving agents and remarks', () => {
@@ -132,6 +140,11 @@ describe('NTSShipmentCard component', () => {
     expect(screen.queryByText('Incomplete')).toBeNull();
   });
 
+  it('renders complete NTSShipmentCard with a heading that has a market code and shipment type', async () => {
+    render(<NTSShipmentCard {...completeProps} />);
+    expect(screen.getByRole('heading', { level: 3 })).toHaveTextContent(`${completeProps.marketCode}NTS`);
+  });
+
   it('renders incomplete label and tooltip icon for incomplete HHG shipment with DRAFT status', async () => {
     render(<NTSShipmentCard {...incompleteProps} />);
 
@@ -145,5 +158,10 @@ describe('NTSShipmentCard component', () => {
 
     // verify onclick is getting json string as parameter
     expect(mockedOnIncompleteClickFunction).toHaveBeenCalledWith('NTS', 'ABC123K-01', 'NTS');
+  });
+
+  it('renders incomplete NTSShipmentCard with a heading that has a market code and shipment type', async () => {
+    render(<NTSShipmentCard {...incompleteProps} />);
+    expect(screen.getByRole('heading', { level: 3 })).toHaveTextContent(`${completeProps.marketCode}NTS`);
   });
 });

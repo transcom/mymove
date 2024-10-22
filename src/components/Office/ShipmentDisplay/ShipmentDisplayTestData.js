@@ -30,6 +30,7 @@ export const hhgInfo = {
   pickupAddress,
   destinationAddress,
   shipmentLocator: 'EVLRPT-01',
+  marketCode: 'd',
 };
 
 export const ntsInfo = {
