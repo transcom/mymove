@@ -39,6 +39,7 @@ describe('CreateMoveCustomerInfo Component', () => {
       expect(screen.getByLabelText('Orders type')).toBeInTheDocument();
       expect(screen.getByLabelText('Orders date')).toBeInTheDocument();
       expect(screen.getByLabelText('Report by date')).toBeInTheDocument();
+      expect(screen.getByText('Are dependents included in the orders?')).toBeInTheDocument();
       expect(screen.getByTestId('hasDependentsYes')).toBeInTheDocument();
       expect(screen.getByTestId('hasDependentsNo')).toBeInTheDocument();
       expect(screen.getByLabelText('Current duty location')).toBeInTheDocument();

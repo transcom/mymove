@@ -517,7 +517,7 @@ func buildServiceItemCrate(serviceItem models.MTOServiceItem) pptasmessages.Crat
 
 // inputs all TAC related fields and builds full line of accounting string
 func inputReportTAC(pptasShipment *pptasmessages.PPTASShipment, orders models.Order, appCtx appcontext.AppContext, tacFetcher services.TransportationAccountingCodeFetcher, loa services.LineOfAccountingFetcher) error {
-	tac, err := tacFetcher.FetchOrderTransportationAccountingCodes(*orders.ServiceMember.Affiliation, orders.IssueDate, *orders.TAC, appCtx)
+	tac, err := tacFetcher.FetchOrderTransportationAccountingCodes(models.DepartmentIndicator(*orders.DepartmentIndicator), orders.IssueDate, *orders.TAC, appCtx)
 	if err != nil {
 		return err
 	} else if len(tac) < 1 {

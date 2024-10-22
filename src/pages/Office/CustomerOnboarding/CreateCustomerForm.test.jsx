@@ -564,7 +564,7 @@ describe('CreateCustomerForm', () => {
       expect(saveBtn).toBeEnabled();
     });
 
-    await userEvent.selectOptions(getByTestId('backup-add-state'), 'AK');
+    await userEvent.selectOptions(getByTestId('backup-add-state'), 'HI');
     await userEvent.tab();
 
     const msg = getByText('Moves to this state are not supported at this time.');

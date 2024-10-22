@@ -189,7 +189,7 @@ describe('ServiceInfoForm', () => {
     await userEvent.click(submitBtn);
 
     await waitFor(() => {
-      expect(screen.getAllByText('Required').length).toBe(3);
+      expect(screen.getAllByTestId('errorMessage').length).toBe(3);
     });
     expect(testPropsWithEdipi.onSubmit).not.toHaveBeenCalled();
   });
@@ -290,7 +290,7 @@ describe('ServiceInfoForm', () => {
       await userEvent.click(submitBtn);
 
       await waitFor(() => {
-        expect(screen.getAllByText('Required').length).toBe(3);
+        expect(screen.getAllByTestId('errorMessage').length).toBe(3);
       });
     });
   });
