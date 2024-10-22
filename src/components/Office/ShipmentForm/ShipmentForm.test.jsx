@@ -2238,6 +2238,7 @@ describe('ShipmentForm component', () => {
       ).not.toBeInTheDocument();
     });
   });
+
   describe('creating a new Mobile Home shipment', () => {
     it('renders the Mobile Home shipment form correctly', async () => {
       renderWithRouter(<ShipmentForm {...defaultProps} shipmentType={SHIPMENT_OPTIONS.MOBILE_HOME} isCreatePage />);

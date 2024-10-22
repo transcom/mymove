@@ -318,6 +318,8 @@ const ShipmentForm = (props) => {
     });
   } else if (isMobileHome) {
     schema = mobileHomeShipmentSchema();
+    showDeliveryFields = true;
+    showPickupFields = true;
   } else if (isBoat) {
     schema = boatShipmentSchema();
     showDeliveryFields = true;
