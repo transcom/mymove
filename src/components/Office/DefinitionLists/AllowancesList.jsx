@@ -19,9 +19,13 @@ const AllowancesList = ({ info, showVisualCues }) => {
   });
 
   useEffect(() => {
-    isBooleanFlagEnabled(FEATURE_FLAG_KEYS.UNACCOMPANIED_BAGGAGE).then((enabled) => {
-      if (enabled) setEnableUB(true);
-    });
+    const checkUBFeatureFlag = async () => {
+      const enabled = await isBooleanFlagEnabled(FEATURE_FLAG_KEYS.UNACCOMPANIED_BAGGAGE);
+      if (enabled) {
+        setEnableUB(true);
+      }
+    };
+    checkUBFeatureFlag();
   }, []);
 
   return (
