@@ -158,6 +158,7 @@ func findCounselingOffice(appCtx appcontext.AppContext, dutyLocationID uuid.UUID
         	(substring(addresses.postal_code,1 ,3) = zip3_distances.from_zip3
             AND counseling_offices.origin_zip = zip3_distances.to_zip3)
     	)
+		WHERE duty_locations2.provides_services_counseling = true
     	group by counseling_offices.id, counseling_offices.name, zip3_distances.distance_miles
 		ORDER BY coalesce(zip3_distances.distance_miles,0), counseling_offices.name asc`
 
