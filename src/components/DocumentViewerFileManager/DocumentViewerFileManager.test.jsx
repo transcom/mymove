@@ -112,6 +112,35 @@ describe('DocumentViewerFileManager', () => {
     expect(screen.queryByText('Yes, delete')).not.toBeInTheDocument();
   });
 
+  it('calls deleteUploadForDocument when handleDeleteSubmit is triggered', async () => {
+    deleteUploadForDocument.mockResolvedValueOnce({});
+
+    renderWithQueryClient(<DocumentViewerFileManager {...defaultProps} />);
+
+    fireEvent.click(screen.getByText('Manage Orders'));
+    fireEvent.click(screen.getByText('Delete'));
+
+    fireEvent.click(screen.getByText('Yes, delete'));
+
+    expect(deleteUploadForDocument).toHaveBeenCalledWith('file-1', 'order-id');
+  });
+
+  it('displays an error message when deletion fails', async () => {
+    const mockError = { response: { body: { detail: 'Deletion failed' } } };
+    deleteUploadForDocument.mockRejectedValueOnce(mockError); // Simulate failure
+
+    renderWithQueryClient(<DocumentViewerFileManager {...defaultProps} />);
+
+    // Open the delete confirmation modal
+    fireEvent.click(screen.getByText('Manage Orders'));
+    fireEvent.click(screen.getByText('Delete'));
+
+    // Confirm deletion
+    fireEvent.click(screen.getByText('Yes, delete'));
+
+    expect(await screen.findByText(/failed to delete due to server error/i)).toBeInTheDocument();
+  });
+
   it('handles file upload change', () => {
     renderWithQueryClient(<DocumentViewerFileManager {...defaultProps} />);
     fireEvent.click(screen.getByText('Manage Orders'));
@@ -166,16 +195,15 @@ describe('DocumentViewerFileManager', () => {
     });
   });
 
-  it('calls deleteUploadForDocument when handleDeleteSubmit is triggered', async () => {
-    deleteUploadForDocument.mockResolvedValueOnce({});
-
+  it('toggles upload visibility', () => {
     renderWithQueryClient(<DocumentViewerFileManager {...defaultProps} />);
 
-    fireEvent.click(screen.getByText('Manage Orders'));
-    fireEvent.click(screen.getByText('Delete'));
+    const toggleButton = screen.getByText('Manage Orders');
+    fireEvent.click(toggleButton);
 
-    fireEvent.click(screen.getByText('Yes, delete'));
+    expect(screen.getByText('Drag files here or click to upload')).toBeInTheDocument();
+    fireEvent.click(toggleButton);
 
-    expect(deleteUploadForDocument).toHaveBeenCalledWith('file-1', 'order-id');
+    expect(screen.queryByText('Drag files here or click to upload')).not.toBeInTheDocument();
   });
 });
