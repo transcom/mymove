@@ -4145,7 +4145,8 @@ func init() {
               "closeoutInitiated",
               "closeoutLocation",
               "ppmStatus",
-              "counselingOffice"
+              "counselingOffice",
+              "assignedTo"
             ],
             "type": "string",
             "description": "field that results should be sorted by",
@@ -4298,6 +4299,12 @@ func init() {
             "description": "Used to return a queue for a GBLOC other than the default of the current user. Requires the HQ role. The parameter is ignored if the requesting user does not have the necessary role.\n",
             "name": "viewAsGBLOC",
             "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "Used to illustrate which user is assigned to this payment request.\n",
+            "name": "assignedTo",
+            "in": "query"
           }
         ],
         "responses": {
@@ -4386,7 +4393,8 @@ func init() {
               "originDutyLocation",
               "destinationDutyLocation",
               "requestedMoveDate",
-              "appearedInTooAt"
+              "appearedInTooAt",
+              "assignedTo"
             ],
             "type": "string",
             "description": "field that results should be sorted by",
@@ -6369,13 +6377,13 @@ func init() {
         "firstName": {
           "type": "string"
         },
-        "id": {
+        "lastName": {
+          "type": "string"
+        },
+        "officeUserId": {
           "type": "string",
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
-        },
-        "lastName": {
-          "type": "string"
         }
       }
     },
@@ -11736,6 +11744,9 @@ func init() {
           "x-nullable": true,
           "$ref": "#/definitions/AssignedOfficeUser"
         },
+        "availableOfficeUsers": {
+          "$ref": "#/definitions/AvailableOfficeUsers"
+        },
         "closeoutInitiated": {
           "type": "string",
           "format": "date-time",
@@ -11828,9 +11839,6 @@ func init() {
     "QueueMovesResult": {
       "type": "object",
       "properties": {
-        "availableOfficeUsers": {
-          "$ref": "#/definitions/AvailableOfficeUsers"
-        },
         "page": {
           "type": "integer"
         },
@@ -11852,6 +11860,9 @@ func init() {
           "description": "Days since the payment request has been requested.  Decimal representation will allow more accurate sorting.",
           "type": "number",
           "format": "double"
+        },
+        "availableOfficeUsers": {
+          "$ref": "#/definitions/AvailableOfficeUsers"
         },
         "customer": {
           "$ref": "#/definitions/Customer"
@@ -11918,9 +11929,6 @@ func init() {
     "QueuePaymentRequestsResult": {
       "type": "object",
       "properties": {
-        "availableOfficeUsers": {
-          "$ref": "#/definitions/AvailableOfficeUsers"
-        },
         "page": {
           "type": "integer"
         },
@@ -19439,7 +19447,8 @@ func init() {
               "closeoutInitiated",
               "closeoutLocation",
               "ppmStatus",
-              "counselingOffice"
+              "counselingOffice",
+              "assignedTo"
             ],
             "type": "string",
             "description": "field that results should be sorted by",
@@ -19592,6 +19601,12 @@ func init() {
             "description": "Used to return a queue for a GBLOC other than the default of the current user. Requires the HQ role. The parameter is ignored if the requesting user does not have the necessary role.\n",
             "name": "viewAsGBLOC",
             "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "Used to illustrate which user is assigned to this payment request.\n",
+            "name": "assignedTo",
+            "in": "query"
           }
         ],
         "responses": {
@@ -19692,7 +19707,8 @@ func init() {
               "originDutyLocation",
               "destinationDutyLocation",
               "requestedMoveDate",
-              "appearedInTooAt"
+              "appearedInTooAt",
+              "assignedTo"
             ],
             "type": "string",
             "description": "field that results should be sorted by",
@@ -22045,13 +22061,13 @@ func init() {
         "firstName": {
           "type": "string"
         },
-        "id": {
+        "lastName": {
+          "type": "string"
+        },
+        "officeUserId": {
           "type": "string",
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
-        },
-        "lastName": {
-          "type": "string"
         }
       }
     },
@@ -27491,6 +27507,9 @@ func init() {
           "x-nullable": true,
           "$ref": "#/definitions/AssignedOfficeUser"
         },
+        "availableOfficeUsers": {
+          "$ref": "#/definitions/AvailableOfficeUsers"
+        },
         "closeoutInitiated": {
           "type": "string",
           "format": "date-time",
@@ -27583,9 +27602,6 @@ func init() {
     "QueueMovesResult": {
       "type": "object",
       "properties": {
-        "availableOfficeUsers": {
-          "$ref": "#/definitions/AvailableOfficeUsers"
-        },
         "page": {
           "type": "integer"
         },
@@ -27607,6 +27623,9 @@ func init() {
           "description": "Days since the payment request has been requested.  Decimal representation will allow more accurate sorting.",
           "type": "number",
           "format": "double"
+        },
+        "availableOfficeUsers": {
+          "$ref": "#/definitions/AvailableOfficeUsers"
         },
         "customer": {
           "$ref": "#/definitions/Customer"
@@ -27673,9 +27692,6 @@ func init() {
     "QueuePaymentRequestsResult": {
       "type": "object",
       "properties": {
-        "availableOfficeUsers": {
-          "$ref": "#/definitions/AvailableOfficeUsers"
-        },
         "page": {
           "type": "integer"
         },
