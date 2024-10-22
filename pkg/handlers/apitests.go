@@ -100,11 +100,11 @@ func (suite *BaseHandlerTestSuite) HandlerConfig() *Config {
 		return mockGetFlagFunc(ctx, appCtx.Logger(), "user@example.com", key, flagContext, "mockVariant")
 	})
 	mockFeatureFlagFetcher.On("GetBooleanFlag",
-		mock.AnythingOfType("context.Context"),
-		mock.AnythingOfType("*zap.Logger"),
+		mock.Anything,
+		mock.Anything,
 		mock.AnythingOfType("string"),
 		mock.AnythingOfType("string"),
-		mock.AnythingOfType("map[string]string"),
+		mock.AnythingOfType("map[string]string{}"),
 	).Return(func(ctx context.Context, appCtx appcontext.AppContext, key string, flagContext map[string]string) (services.FeatureFlag, error) {
 		return mockGetFlagFunc(ctx, appCtx.Logger(), "user@example.com", key, flagContext, "")
 	})
