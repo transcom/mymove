@@ -137,7 +137,9 @@ describe('EstimatedIncentiveDetails component', () => {
     render(<EstimatedIncentiveDetails {...zeroIncentiveProps} />);
 
     expect(
-      screen.getByText('The Defense Table of Distances (DTOD) was unavailable during your PPM creation, so we are currently unable to provide your estimated incentive. Your estimated incentive information will be updated and provided to you during your counseling session.'),
+      screen.getByText(
+        'The Defense Table of Distances (DTOD) was unavailable during your PPM creation, so we are currently unable to provide your estimated incentive. Your estimated incentive information will be updated and provided to you during your counseling session.',
+      ),
     ).toBeInTheDocument();
   });
 
