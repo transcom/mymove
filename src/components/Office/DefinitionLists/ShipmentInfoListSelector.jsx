@@ -6,6 +6,7 @@ import ShipmentInfoList from 'components/Office/DefinitionLists/ShipmentInfoList
 import PPMShipmentInfoList from 'components/Office/DefinitionLists/PPMShipmentInfoList';
 import NTSRShipmentInfoList from 'components/Office/DefinitionLists/NTSRShipmentInfoList';
 import NTSShipmentInfoList from 'components/Office/DefinitionLists/NTSShipmentInfoList';
+import MobileHomeShipmentInfoList from 'components/Office/DefinitionLists/MobileHomeShipmentInfoList';
 import BoatShipmentInfoList from 'components/Office/DefinitionLists/BoatShipmentInfoList';
 import MobileHomeShipmentInfoList from 'components/Office/DefinitionLists/MobileHomeShipmentInfoList';
 import { SHIPMENT_OPTIONS, SHIPMENT_TYPES } from 'shared/constants';

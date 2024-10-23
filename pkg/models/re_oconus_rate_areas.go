@@ -6,7 +6,7 @@ import (
 	"github.com/gofrs/uuid"
 )
 
-type ReOconusRateArea struct {
+type ReOconusRateAreas struct {
 	ID                 uuid.UUID `json:"id" db:"id" rw:"r"`
 	RateAreaId         uuid.UUID `json:"rate_area_id" db:"rate_area_id" rw:"r"`
 	CountryId          uuid.UUID `json:"country_id" db:"country_id" rw:"r"`
@@ -16,6 +16,6 @@ type ReOconusRateArea struct {
 	UpdatedAt          time.Time `json:"updated_at" db:"updated_at" rw:"r"`
 }
 
-func (o ReOconusRateArea) TableName() string {
+func (o ReOconusRateAreas) TableName() string {
 	return "re_oconus_rate_areas"
 }
