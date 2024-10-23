@@ -1714,7 +1714,7 @@ definitions:
         description: zip code, international allowed
         format: zip
         title: ZIP
-        example: "'90210' or 'N15 3NL'"
+        example: '''90210'' or ''N15 3NL'''
       postal_code_type:
         type: string
         enum:
@@ -2660,8 +2660,10 @@ definitions:
         type: string
         title: Country
         x-nullable: true
-        example: USA
-        default: USA
+        example: US
+        default: US
+        pattern: ^[A-Z]{2}$
+        description: Two-letter country code
       county:
         type: string
         title: County
