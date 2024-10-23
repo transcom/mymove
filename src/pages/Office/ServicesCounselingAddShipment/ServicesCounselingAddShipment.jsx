@@ -25,6 +25,8 @@ const ServicesCounselingAddShipment = () => {
     shipmentType = SHIPMENT_OPTIONS.NTSR;
   } else if (shipmentType === SHIPMENT_OPTIONS_URL.BOAT) {
     shipmentType = SHIPMENT_OPTIONS.BOAT;
+  } else if (shipmentType === SHIPMENT_OPTIONS_URL.MOBILE_HOME) {
+    shipmentType = SHIPMENT_OPTIONS.MOBILE_HOME;
   } else {
     shipmentType = SHIPMENT_OPTIONS[shipmentType];
   }

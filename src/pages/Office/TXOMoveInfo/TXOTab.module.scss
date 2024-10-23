@@ -27,11 +27,22 @@
     @include u-margin-bottom(4);
   }
 
+  .div {
+    justify-content: flex-end;
+    float: right;
+    padding-right: 15px;
+  }
+
+  .buttonDropdown {
+    margin-left: auto;
+  }
+
   .tooMoveDetailsHeadingFlexbox {
     display: flex;
     flex-direction: row;
     justify-content: space-between;
     align-items: baseline;
+    padding-bottom: 30px;
   }
 
   .tooMoveDetailsH1 {
@@ -120,6 +131,12 @@
   background: $bg-white;
   border-radius: 3px;
   border: 1px solid #dfe1e2;
+}
+
+.buttonDropdown {
+  display: flex;
+  justify-content: flex-end;
+  padding: 0;
 }
 
 .section + .section,
