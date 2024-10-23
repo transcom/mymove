@@ -1,12 +1,10 @@
 package payloads
 
 import (
-	"testing"
 	"time"
 
 	"github.com/go-openapi/strfmt"
 	"github.com/gofrs/uuid"
-	"github.com/stretchr/testify/assert"
 
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/handlers"
@@ -112,82 +110,91 @@ func (suite *PayloadsSuite) TestAddressModel() {
 	})
 }
 
-func TestMobileHomeShipmentModelFromCreate(t *testing.T) {
-	tests := []struct {
-		name     string
-		input    *internalmessages.CreateMobileHomeShipment
-		expected *models.MobileHome
-	}{
-		{
-			name:     "Nil input",
-			input:    nil,
-			expected: nil,
-		},
-		{
-			name: "Complete input",
-			input: &internalmessages.CreateMobileHomeShipment{
-				Make:           models.StringPointer("BrandA"),
-				Model:          models.StringPointer("ModelX"),
-				Year:           models.Int64Pointer(2024),
-				LengthInInches: models.Int64Pointer(60),
-				HeightInInches: models.Int64Pointer(13),
-				WidthInInches:  models.Int64Pointer(10),
-			},
-			expected: &models.MobileHome{
-				Make:           models.StringPointer("BrandA"),
-				Model:          models.StringPointer("ModelX"),
-				Year:           models.IntPointer(2024),
-				LengthInInches: models.IntPointer(60),
-				HeightInInches: models.IntPointer(13),
-				WidthInInches:  models.IntPointer(10),
-			},
-		},
-		{
-			name: "Partial input with nil values",
-			input: &internalmessages.CreateMobileHomeShipment{
-				Make:           models.StringPointer("BrandA"),
-				Model:          models.StringPointer("ModelX"),
-				Year:           nil,
-				LengthInInches: models.Int64Pointer(60),
-				HeightInInches: nil,
-				WidthInInches:  models.Int64Pointer(10),
-			},
-			expected: &models.MobileHome{
-				Make:           models.StringPointer("BrandA"),
-				Model:          models.StringPointer("ModelX"),
-				Year:           nil,
-				LengthInInches: models.IntPointer(60),
-				HeightInInches: nil,
-				WidthInInches:  models.IntPointer(10),
-			},
-		},
-		{
-			name: "All fields are nil",
-			input: &internalmessages.CreateMobileHomeShipment{
-				Make:           models.StringPointer(""),
-				Model:          models.StringPointer(""),
-				Year:           nil,
-				LengthInInches: nil,
-				HeightInInches: nil,
-				WidthInInches:  nil,
-			},
-			expected: &models.MobileHome{
-				Make:           models.StringPointer(""),
-				Model:          models.StringPointer(""),
-				Year:           nil,
-				LengthInInches: nil,
-				HeightInInches: nil,
-				WidthInInches:  nil,
-			},
-		},
+func (suite *PayloadsSuite) TestMobileHomeShipmentModelFromCreate() {
+	make := "BrandA"
+	model := "ModelX"
+	year := int64(2024)
+	lengthInInches := int64(60)
+	heightInInches := int64(13)
+	widthInInches := int64(10)
+
+	expectedMobileHome := models.MobileHome{
+		Make:           models.StringPointer(make),
+		Model:          models.StringPointer(model),
+		Year:           models.IntPointer(int(year)),
+		LengthInInches: models.IntPointer(int(lengthInInches)),
+		HeightInInches: models.IntPointer(int(heightInInches)),
+		WidthInInches:  models.IntPointer(int(widthInInches)),
 	}
 
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			result := MobileHomeShipmentModelFromCreate(tt.input)
-			assert.Equal(t, tt.expected, result)
-		})
-	}
+	suite.Run("Success - Complete input", func() {
+		input := &internalmessages.CreateMobileHomeShipment{
+			Make:           models.StringPointer(make),
+			Model:          models.StringPointer(model),
+			Year:           &year,
+			LengthInInches: &lengthInInches,
+			HeightInInches: &heightInInches,
+			WidthInInches:  &widthInInches,
+		}
+
+		returnedMobileHome := MobileHomeShipmentModelFromCreate(input)
+
+		suite.IsType(&models.MobileHome{}, returnedMobileHome)
+		suite.Equal(expectedMobileHome.Make, returnedMobileHome.Make)
+		suite.Equal(expectedMobileHome.Model, returnedMobileHome.Model)
+		suite.Equal(expectedMobileHome.Year, returnedMobileHome.Year)
+		suite.Equal(expectedMobileHome.LengthInInches, returnedMobileHome.LengthInInches)
+		suite.Equal(expectedMobileHome.HeightInInches, returnedMobileHome.HeightInInches)
+		suite.Equal(expectedMobileHome.WidthInInches, returnedMobileHome.WidthInInches)
+	})
+
+	suite.Run("Success - Partial input", func() {
+		input := &internalmessages.CreateMobileHomeShipment{
+			Make:           models.StringPointer(make),
+			Model:          models.StringPointer(model),
+			Year:           nil,
+			LengthInInches: &lengthInInches,
+			HeightInInches: nil,
+			WidthInInches:  &widthInInches,
+		}
+
+		returnedMobileHome := MobileHomeShipmentModelFromCreate(input)
+
+		suite.IsType(&models.MobileHome{}, returnedMobileHome)
+		suite.Equal(make, *returnedMobileHome.Make)
+		suite.Equal(model, *returnedMobileHome.Model)
+		suite.Nil(returnedMobileHome.Year)
+		suite.Equal(int(lengthInInches), *returnedMobileHome.LengthInInches)
+		suite.Nil(returnedMobileHome.HeightInInches)
+		suite.Equal(int(widthInInches), *returnedMobileHome.WidthInInches)
+	})
+
+	suite.Run("Nil input - returns nil", func() {
+		returnedMobileHome := MobileHomeShipmentModelFromCreate(nil)
+
+		suite.Nil(returnedMobileHome)
+	})
+
+	suite.Run("All fields are nil - returns empty MobileHome", func() {
+		input := &internalmessages.CreateMobileHomeShipment{
+			Make:           models.StringPointer(""),
+			Model:          models.StringPointer(""),
+			Year:           nil,
+			LengthInInches: nil,
+			HeightInInches: nil,
+			WidthInInches:  nil,
+		}
+
+		returnedMobileHome := MobileHomeShipmentModelFromCreate(input)
+
+		suite.IsType(&models.MobileHome{}, returnedMobileHome)
+		suite.Equal("", *returnedMobileHome.Make)
+		suite.Equal("", *returnedMobileHome.Model)
+		suite.Nil(returnedMobileHome.Year)
+		suite.Nil(returnedMobileHome.LengthInInches)
+		suite.Nil(returnedMobileHome.HeightInInches)
+		suite.Nil(returnedMobileHome.WidthInInches)
+	})
 }
 
 func (suite *PayloadsSuite) TestPPMShipmentModelWithOptionalDestinationStreet1FromCreate() {
