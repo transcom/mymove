@@ -9,6 +9,9 @@ import {
   SaveButton,
   AutocompleteInput,
   ReferenceInput,
+  ArrayInput,
+  SimpleFormIterator,
+  BooleanInput,
 } from 'react-admin';
 import { connect } from 'react-redux';
 
@@ -52,8 +55,34 @@ const validateForm = (values) => {
       'You cannot select both Task Ordering Officer and Task Invoicing Officer. This is a policy managed by USTRANSCOM.';
   }
 
-  if (!values.transportationOfficeId) {
-    errors.transportationOfficeId = 'You must select a transportation office.';
+  if (!values.transportationOfficeAssignments?.length) {
+    errors.transportationOfficeAssignments = 'You must select at least one transportation office.';
+  } else if (values.transportationOfficeAssignments?.length > 2) {
+    errors.transportationOfficeAssignments = 'You cannot select more than two transportation offices.';
+  }
+
+  if (values.transportationOfficeAssignments?.filter((toa) => toa.primaryOffice)?.length > 1) {
+    errors.transportationOfficeAssignments = values.transportationOfficeAssignments.map((office, index) => {
+      const officeErrors = {};
+
+      if (office.primaryOffice) {
+        officeErrors.primaryOffice = `You cannot designate more than one primary transportation office. ${index}`;
+      }
+
+      return officeErrors;
+    });
+  }
+
+  if (values.transportationOfficeAssignments?.filter((toa) => toa.primaryOffice)?.length < 1) {
+    errors.transportationOfficeAssignments = values.transportationOfficeAssignments.map((office, index) => {
+      const officeErrors = {};
+
+      if (!office.primaryOffice) {
+        officeErrors.primaryOffice = `You must designate a primary transportation office. ${index}`;
+      }
+
+      return officeErrors;
+    });
   }
 
   return errors;
@@ -84,15 +113,20 @@ const OfficeUserEdit = ({ adminUser }) => (
         sx={{ width: 256 }}
       />
       <RolesPrivilegesCheckboxInput source="roles" validate={required()} adminUser={adminUser} />
-      <ReferenceInput
-        label="Transportation Office"
-        reference="offices"
-        source="transportationOfficeId"
-        perPage={500}
-        validate={required()}
-      >
-        <AutocompleteInput optionText="name" sx={{ width: 256 }} />
-      </ReferenceInput>
+      <ArrayInput source="transportationOfficeAssignments" label="Transportation Offices (Maximum: 2)">
+        <SimpleFormIterator inline key={1} disableReordering>
+          <ReferenceInput
+            label="Transportation Office"
+            reference="offices"
+            source="transportationOfficeId"
+            perPage={500}
+            validate={required()}
+          >
+            <AutocompleteInput optionText="name" validate={required()} sx={{ width: 325 }} />
+          </ReferenceInput>
+          <BooleanInput source="primaryOffice" label="Primary Office" defaultValue={false} />
+        </SimpleFormIterator>
+      </ArrayInput>
       <TextInput source="createdAt" disabled />
       <TextInput source="updatedAt" disabled />
     </SimpleForm>

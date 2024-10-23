@@ -22,6 +22,7 @@ import (
 	"github.com/transcom/mymove/pkg/services/pagination"
 	"github.com/transcom/mymove/pkg/services/query"
 	rolesservice "github.com/transcom/mymove/pkg/services/roles"
+	transportaionofficeassignments "github.com/transcom/mymove/pkg/services/transportation_office_assignments"
 	usersprivileges "github.com/transcom/mymove/pkg/services/users_privileges"
 	usersroles "github.com/transcom/mymove/pkg/services/users_roles"
 )
@@ -97,10 +98,10 @@ func (suite *HandlerSuite) TestGetOfficeUserHandler() {
 			OfficeUserID: strfmt.UUID(officeUser.ID.String()),
 		}
 
-		queryBuilder := query.NewQueryBuilder()
+		// queryBuilder := query.NewQueryBuilder()
 		handler := GetOfficeUserHandler{
 			suite.HandlerConfig(),
-			officeuser.NewOfficeUserFetcher(queryBuilder),
+			officeuser.NewOfficeUserFetcherPop(),
 			query.NewQueryFilter,
 		}
 
@@ -121,10 +122,10 @@ func (suite *HandlerSuite) TestGetOfficeUserHandler() {
 			OfficeUserID: strfmt.UUID(fakeID),
 		}
 
-		queryBuilder := query.NewQueryBuilder()
+		// queryBuilder := query.NewQueryBuilder()
 		handler := GetOfficeUserHandler{
 			suite.HandlerConfig(),
-			officeuser.NewOfficeUserFetcher(queryBuilder),
+			officeuser.NewOfficeUserFetcherPop(),
 			query.NewQueryFilter,
 		}
 
@@ -140,8 +141,8 @@ func (suite *HandlerSuite) TestCreateOfficeUserHandler() {
 	tooRoleName := "Task Ordering Officer"
 	tooRoleType := string(roles.RoleTypeTOO)
 
-	tioRoleName := "Task Invoicing Officer"
-	tioRoleType := string(roles.RoleTypeTIO)
+	scRoleName := "Services Counselor"
+	scRoleType := string(roles.RoleTypeServicesCounselor)
 
 	supervisorPrivilegeName := "Supervisor"
 	supervisorPrivilegeType := string(models.PrivilegeTypeSupervisor)
@@ -151,6 +152,7 @@ func (suite *HandlerSuite) TestCreateOfficeUserHandler() {
 		// Set up:				Create a new Office User, save new user to the DB
 		// Expected Outcome:	The office user is created and we get a 200 OK.
 		transportationOfficeID := factory.BuildDefaultTransportationOffice(suite.DB()).ID
+		primaryOffice := true
 
 		params := officeuserop.CreateOfficeUserParams{
 			HTTPRequest: suite.setupAuthenticatedRequest("POST", "/office_users"),
@@ -165,8 +167,8 @@ func (suite *HandlerSuite) TestCreateOfficeUserHandler() {
 						RoleType: &tooRoleType,
 					},
 					{
-						Name:     &tioRoleName,
-						RoleType: &tioRoleType,
+						Name:     &scRoleName,
+						RoleType: &scRoleType,
 					},
 				},
 				Privileges: []*adminmessages.OfficeUserPrivilege{
@@ -175,7 +177,12 @@ func (suite *HandlerSuite) TestCreateOfficeUserHandler() {
 						PrivilegeType: &supervisorPrivilegeType,
 					},
 				},
-				TransportationOfficeID: strfmt.UUID(transportationOfficeID.String()),
+				TransportationOfficeAssignments: []*adminmessages.OfficeUserTransportationOfficeAssignment{
+					{
+						TransportationOfficeID: strfmt.UUID(transportationOfficeID.String()),
+						PrimaryOffice:          &primaryOffice,
+					},
+				},
 			},
 		}
 		queryBuilder := query.NewQueryBuilder()
@@ -186,6 +193,7 @@ func (suite *HandlerSuite) TestCreateOfficeUserHandler() {
 			usersroles.NewUsersRolesCreator(),
 			rolesservice.NewRolesFetcher(),
 			usersprivileges.NewUsersPrivilegesCreator(),
+			transportaionofficeassignments.NewTransportaionOfficeAssignmentUpdater(),
 		}
 		suite.NoError(params.OfficeUser.Validate(strfmt.Default))
 		response := handler.Handle(params)
@@ -197,6 +205,7 @@ func (suite *HandlerSuite) TestCreateOfficeUserHandler() {
 		// Set up:				Add new Office User to the DB
 		// Expected Outcome:	The office user is not created and we get a 500 internal server error.
 		fakeTransportationOfficeID := "3b9c2975-4e54-40ea-a781-bab7d6e4a502"
+		primaryOffice := true
 		officeUser := factory.BuildOfficeUser(suite.DB(), nil, []factory.Trait{
 			factory.GetTraitOfficeUserWithID,
 		})
@@ -213,8 +222,8 @@ func (suite *HandlerSuite) TestCreateOfficeUserHandler() {
 						RoleType: &tooRoleType,
 					},
 					{
-						Name:     &tioRoleName,
-						RoleType: &tioRoleType,
+						Name:     &scRoleName,
+						RoleType: &scRoleName,
 					},
 				},
 				Privileges: []*adminmessages.OfficeUserPrivilege{
@@ -223,7 +232,12 @@ func (suite *HandlerSuite) TestCreateOfficeUserHandler() {
 						PrivilegeType: &supervisorPrivilegeType,
 					},
 				},
-				TransportationOfficeID: strfmt.UUID(fakeTransportationOfficeID),
+				TransportationOfficeAssignments: []*adminmessages.OfficeUserTransportationOfficeAssignment{
+					{
+						TransportationOfficeID: strfmt.UUID(fakeTransportationOfficeID),
+						PrimaryOffice:          &primaryOffice,
+					},
+				},
 			},
 		}
 
@@ -235,6 +249,7 @@ func (suite *HandlerSuite) TestCreateOfficeUserHandler() {
 			usersroles.NewUsersRolesCreator(),
 			rolesservice.NewRolesFetcher(),
 			usersprivileges.NewUsersPrivilegesCreator(),
+			transportaionofficeassignments.NewTransportaionOfficeAssignmentUpdater(),
 		}
 
 		response := handler.Handle(params)
@@ -252,6 +267,7 @@ func (suite *HandlerSuite) TestUpdateOfficeUserHandler() {
 			usersroles.NewUsersRolesCreator(), // a special can of worms, TODO mocked tests
 			usersprivileges.NewUsersPrivilegesCreator(),
 			revoker,
+			transportaionofficeassignments.NewTransportaionOfficeAssignmentUpdater(),
 		}
 	}
 
@@ -268,15 +284,21 @@ func (suite *HandlerSuite) TestUpdateOfficeUserHandler() {
 	suite.Run("Office user is successfully updated", func() {
 		officeUser := setupTestData()
 		transportationOffice := factory.BuildTransportationOffice(nil, nil, nil)
+		primaryOffice := true
 		firstName := "Riley"
 		middleInitials := "RB"
 		telephone := "865-555-5309"
 
 		officeUserUpdates := &adminmessages.OfficeUserUpdate{
-			FirstName:              &firstName,
-			MiddleInitials:         &middleInitials,
-			Telephone:              &telephone,
-			TransportationOfficeID: strfmt.UUID(transportationOffice.ID.String()),
+			FirstName:      &firstName,
+			MiddleInitials: &middleInitials,
+			Telephone:      &telephone,
+			TransportationOfficeAssignments: []*adminmessages.OfficeUserTransportationOfficeAssignment{
+				{
+					TransportationOfficeID: strfmt.UUID(transportationOffice.ID.String()),
+					PrimaryOffice:          &primaryOffice,
+				},
+			},
 		}
 
 		params := officeuserop.UpdateOfficeUserParams{
@@ -295,9 +317,18 @@ func (suite *HandlerSuite) TestUpdateOfficeUserHandler() {
 		expectedOfficeUser.TransportationOfficeID = transportationOffice.ID
 
 		mockUpdater := mocks.OfficeUserUpdater{}
-		mockUpdater.On("UpdateOfficeUser", mock.AnythingOfType("*appcontext.appContext"), officeUser.ID, &expectedInput).Return(&expectedOfficeUser, nil, nil)
+		mockUpdater.On("UpdateOfficeUser", mock.AnythingOfType("*appcontext.appContext"), officeUser.ID, &expectedInput, transportationOffice.ID).Return(&expectedOfficeUser, nil, nil)
 
-		response := setupHandler(&mockUpdater, &mocks.UserSessionRevocation{}).Handle(params)
+		expectedSessionUpdate := &adminmessages.UserUpdate{
+			RevokeOfficeSession: models.BoolPointer(true),
+		}
+		mockRevoker := mocks.UserSessionRevocation{}
+		mockRevoker.
+			On("RevokeUserSession", mock.AnythingOfType("*appcontext.appContext"), *officeUser.UserID, expectedSessionUpdate, mock.Anything).
+			Return(nil, nil, nil).
+			Once()
+
+		response := setupHandler(&mockUpdater, &mockRevoker).Handle(params)
 		suite.IsType(&officeuserop.UpdateOfficeUserOK{}, response)
 
 		okResponse := response.(*officeuserop.UpdateOfficeUserOK)
@@ -306,14 +337,21 @@ func (suite *HandlerSuite) TestUpdateOfficeUserHandler() {
 		suite.Equal(middleInitials, *okResponse.Payload.MiddleInitials)
 		suite.Equal(telephone, *okResponse.Payload.Telephone)
 		suite.Equal(transportationOffice.ID.String(), okResponse.Payload.TransportationOfficeID.String())
+		suite.Equal(transportationOffice.ID.String(), okResponse.Payload.TransportationOfficeAssignments[0].TransportationOfficeID.String())
 		suite.Equal(officeUser.LastName, *okResponse.Payload.LastName) // should not have been updated
 		suite.Equal(officeUser.Email, *okResponse.Payload.Email)       // should not have been updated
 	})
 
 	suite.Run("Update fails due to bad Transportation Office", func() {
 		officeUser := setupTestData()
+		primaryOffice := true
 		officeUserUpdates := &adminmessages.OfficeUserUpdate{
-			TransportationOfficeID: strfmt.UUID(uuid.Must(uuid.NewV4()).String()),
+			TransportationOfficeAssignments: []*adminmessages.OfficeUserTransportationOfficeAssignment{
+				{
+					TransportationOfficeID: strfmt.UUID(uuid.Must(uuid.NewV4()).String()),
+					PrimaryOffice:          &primaryOffice,
+				},
+			},
 		}
 
 		params := officeuserop.UpdateOfficeUserParams{
@@ -325,9 +363,23 @@ func (suite *HandlerSuite) TestUpdateOfficeUserHandler() {
 
 		expectedInput := *officeUserUpdates
 		mockUpdater := mocks.OfficeUserUpdater{}
-		mockUpdater.On("UpdateOfficeUser", mock.AnythingOfType("*appcontext.appContext"), officeUser.ID, &expectedInput).Return(nil, nil, sql.ErrNoRows)
+		mockUpdater.On("UpdateOfficeUser",
+			mock.AnythingOfType("*appcontext.appContext"),
+			officeUser.ID,
+			&expectedInput,
+			uuid.FromStringOrNil(officeUserUpdates.TransportationOfficeAssignments[0].TransportationOfficeID.String()),
+		).Return(nil, nil, sql.ErrNoRows)
 
-		response := setupHandler(&mockUpdater, &mocks.UserSessionRevocation{}).Handle(params)
+		expectedSessionUpdate := &adminmessages.UserUpdate{
+			RevokeOfficeSession: models.BoolPointer(true),
+		}
+		mockRevoker := mocks.UserSessionRevocation{}
+		mockRevoker.
+			On("RevokeUserSession", mock.AnythingOfType("*appcontext.appContext"), *officeUser.UserID, expectedSessionUpdate, mock.Anything).
+			Return(nil, nil, nil).
+			Once()
+
+		response := setupHandler(&mockUpdater, &mockRevoker).Handle(params)
 		suite.IsType(&officeuserop.UpdateOfficeUserInternalServerError{}, response)
 	})
 
@@ -348,7 +400,7 @@ func (suite *HandlerSuite) TestUpdateOfficeUserHandler() {
 
 		mockUpdater := mocks.OfficeUserUpdater{}
 		mockUpdater.
-			On("UpdateOfficeUser", mock.AnythingOfType("*appcontext.appContext"), officeUser.ID, officeUserUpdates).
+			On("UpdateOfficeUser", mock.AnythingOfType("*appcontext.appContext"), officeUser.ID, officeUserUpdates, uuid.Nil).
 			Return(&officeUser, nil, nil)
 
 		expectedSessionUpdate := &adminmessages.UserUpdate{

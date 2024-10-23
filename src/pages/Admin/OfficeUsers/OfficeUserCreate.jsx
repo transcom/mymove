@@ -1,5 +1,15 @@
 import React from 'react';
-import { Create, SimpleForm, TextInput, ReferenceInput, AutocompleteInput, required } from 'react-admin';
+import {
+  Create,
+  SimpleForm,
+  TextInput,
+  ReferenceInput,
+  AutocompleteInput,
+  required,
+  ArrayInput,
+  SimpleFormIterator,
+  BooleanInput,
+} from 'react-admin';
 
 import { RolesPrivilegesCheckboxInput } from 'scenes/SystemAdmin/shared/RolesPrivilegesCheckboxes';
 import { roleTypes } from 'constants/userRoles';
@@ -33,8 +43,36 @@ const OfficeUserCreate = () => {
         'You cannot select both Task Ordering Officer and Task Invoicing Officer. This is a policy managed by USTRANSCOM.';
     }
 
-    if (!values.transportationOfficeId) {
-      errors.transportationOfficeId = 'You must select a transportation office.';
+    if (!values.transportationOfficeAssignments?.length) {
+      errors.transportationOfficeAssignments = 'You must select at least one transportation office.';
+    }
+
+    if (values.transportationOfficeAssignments?.length > 2) {
+      errors.transportationOfficeAssignments = 'You cannot select more than two transportation offices.';
+    }
+
+    if (values.transportationOfficeAssignments?.filter((toa) => toa.primaryOffice)?.length > 1) {
+      errors.transportationOfficeAssignments = values.transportationOfficeAssignments.map((office) => {
+        const officeErrors = {};
+
+        if (office.primaryOffice) {
+          officeErrors.primaryOffice = 'You cannot designate more than one primary transportation office.';
+        }
+
+        return officeErrors;
+      });
+    }
+
+    if (values.transportationOfficeAssignments?.filter((toa) => toa.primaryOffice)?.length < 1) {
+      errors.transportationOfficeAssignments = values.transportationOfficeAssignments.map((office) => {
+        const officeErrors = {};
+
+        if (!office.primaryOffice) {
+          officeErrors.primaryOffice = 'You must designate a primary transportation office.';
+        }
+
+        return officeErrors;
+      });
     }
 
     return errors;
@@ -52,17 +90,22 @@ const OfficeUserCreate = () => {
         <TextInput source="middleInitials" />
         <TextInput source="lastName" validate={required()} />
         <TextInput source="email" validate={required()} />
-        <TextInput source="telephone" validate={required()} />
+        <TextInput source="telephone" mask="999-999-9999" validate={required()} />
         <RolesPrivilegesCheckboxInput source="roles" validate={required()} />
-        <ReferenceInput
-          label="Transportation Office"
-          reference="offices"
-          source="transportationOfficeId"
-          perPage={500}
-          validate={required()}
-        >
-          <AutocompleteInput optionText="name" validate={required()} sx={{ width: 256 }} />
-        </ReferenceInput>
+        <ArrayInput source="transportationOfficeAssignments" label="Transportation Offices (Maximum: 2)">
+          <SimpleFormIterator inline>
+            <ReferenceInput
+              label="Transportation Office"
+              reference="offices"
+              source="transportationOfficeId"
+              perPage={500}
+              validate={required()}
+            >
+              <AutocompleteInput optionText="name" validate={required()} sx={{ width: 256 }} />
+            </ReferenceInput>
+            <BooleanInput source="primaryOffice" label="Primary Office" defaultValue={false} />
+          </SimpleFormIterator>
+        </ArrayInput>
       </SimpleForm>
     </Create>
   );
