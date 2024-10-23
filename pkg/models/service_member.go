@@ -303,7 +303,6 @@ func SaveServiceMember(appCtx appcontext.AppContext, serviceMember *ServiceMembe
 				responseError = err
 				return err
 			}
-
 			serviceMember.BackupMailingAddress.IsOconus = &isOconus
 
 			if verrs, err := txnAppCtx.DB().ValidateAndSave(serviceMember.BackupMailingAddress); verrs.HasAny() || err != nil {
@@ -313,14 +312,6 @@ func SaveServiceMember(appCtx appcontext.AppContext, serviceMember *ServiceMembe
 			}
 			serviceMember.BackupMailingAddressID = &serviceMember.BackupMailingAddress.ID
 		}
-
-		// Evaluate address and populate addresses isOconus value
-		isOconus, err := IsAddressOconus(appCtx.DB(), *serviceMember.BackupMailingAddress)
-		if err != nil {
-			responseError = err
-			return err
-		}
-		serviceMember.BackupMailingAddress.IsOconus = &isOconus
 
 		if verrs, err := txnAppCtx.DB().ValidateAndSave(serviceMember); verrs.HasAny() || err != nil {
 			responseVErrors.Append(verrs)
