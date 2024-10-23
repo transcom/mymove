@@ -412,14 +412,6 @@ export class TestHarness {
   }
 
   /**
-   * Use testharness to build hhg move with nts
-   * @returns {Promise<Move>}
-   */
-  async buildHHGMoveWithEvaluationReportWithViolations() {
-    return this.buildDefault('HHGMoveWithEvaluationReportWithViolations');
-  }
-
-  /**
    * Use testharness to build a good TAC and LOA combination, return the TAC
    * so that office users can input the TAC, and preview the LOA (If the
    * form params are good for the lookup. Eg, service member branch,
