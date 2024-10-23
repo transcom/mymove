@@ -71,7 +71,7 @@ func (suite *AddressSuite) TestAddressCreator() {
 		suite.Equal("- the country GB is not supported at this time - only US is allowed", err.Error())
 	})
 
-	suite.Run("Transforms Country to nil when no country name is specified", func() {
+	suite.Run("Shows error when country is not supported", func() {
 		addressCreator := NewAddressCreator()
 		address, err := addressCreator.CreateAddress(suite.AppContextForTest(), &models.Address{
 			StreetAddress1: streetAddress1,

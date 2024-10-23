@@ -71,30 +71,6 @@ func (f *addressUpdater) UpdateAddress(appCtx appcontext.AppContext, address *mo
 		mergedAddress.CountryId = &country.ID
 	}
 
-	// use the data we have first, if it's not nil
-	if mergedAddress.State != originalAddress.State && mergedAddress.Country != nil {
-		country := mergedAddress.Country
-		if country.Country != "US" || country.Country == "US" && mergedAddress.State == "AK" || country.Country == "US" && mergedAddress.State == "HI" {
-			boolTrueVal := true
-			mergedAddress.IsOconus = &boolTrueVal
-		} else {
-			boolFalseVal := false
-			mergedAddress.IsOconus = &boolFalseVal
-		}
-	} else if mergedAddress.State != originalAddress.State && mergedAddress.CountryId != nil {
-		country, err := models.FetchCountryByID(appCtx.DB(), *mergedAddress.CountryId)
-		if err != nil {
-			return nil, err
-		}
-		if country.Country != "US" || country.Country == "US" && mergedAddress.State == "AK" || country.Country == "US" && mergedAddress.State == "HI" {
-			boolTrueVal := true
-			mergedAddress.IsOconus = &boolTrueVal
-		} else {
-			boolFalseVal := false
-			mergedAddress.IsOconus = &boolFalseVal
-		}
-	}
-
 	txnErr := appCtx.NewTransaction(func(txnCtx appcontext.AppContext) error {
 		verrs, err := txnCtx.DB().ValidateAndUpdate(&mergedAddress)
 		if verrs != nil && verrs.HasAny() {
