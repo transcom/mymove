@@ -44,7 +44,13 @@ export const ViolationAppealModal = ({ onClose, onSubmit }) => {
                   <Fieldset>
                     <Grid row>
                       <Grid col={12}>
-                        <TextField label="Remarks" id="remarks" name="remarks" display="textarea" />
+                        <TextField
+                          label="Remarks"
+                          id="remarks"
+                          name="remarks"
+                          display="textarea"
+                          data-testid="addAppealRemarks"
+                        />
                       </Grid>
                     </Grid>
                   </Fieldset>
