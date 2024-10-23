@@ -1007,3 +1007,6 @@
 20241002151527_add_transportation_offices_AK_HI.up.sql
 20241002164836_add_re_country_table_and_refactor.up.sql
 20241007162933_addPaymentRequestEdiFiles.up.sql
+20241023184337_create_ports_table.up.sql
+20241023184350_create_port_location_table.up.sql
+20241023184437_insert_ports.up.sql
