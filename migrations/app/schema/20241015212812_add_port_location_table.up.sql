@@ -1,5 +1,4 @@
 CREATE TABLE IF NOT EXISTS port_location (
-<<<<<<< HEAD
     id                          uuid                NOT NULL,
     port_id                     uuid                NOT NULL
         CONSTRAINT fk_port_id_port REFERENCES ports (id),
@@ -13,20 +12,6 @@ CREATE TABLE IF NOT EXISTS port_location (
     created_at                  timestamp           NOT NULL DEFAULT NOW(),
     updated_at                  timestamp           NOT NULL DEFAULT NOW(),
     CONSTRAINT                  port_location_pkey       PRIMARY KEY(id)
-=======
-    id              uuid                NOT NULL,
-    port_id         uuid                NOT NULL
-        CONSTRAINT fk_port_id_port REFERENCES port (id),
-    city            varchar(100)        NOT NULL,
-    county          varchar(100)        NOT NULL,
-    state           varchar(100)        NOT NULL,
-    zip5            varchar(5)          NOT NULL,
-    country         varchar(2)          NOT NULL,
-    inactive_flag   varchar(1)          NOT NULL default 'N',
-    created_at      timestamp           NOT NULL default now(),
-    updated_at      timestamp           NOT NULL default now(),
-    CONSTRAINT      port_loc_pkey       PRIMARY KEY(id)
->>>>>>> parent of 7edd4143d9 (Merge branch B-21442 into MAIN-B-21509)
 );
 
 COMMENT ON TABLE port_location IS 'Stores the port location information';
