@@ -1,5 +1,15 @@
 <p>*** DO NOT REPLY directly to this email ***</p>
 <p>This is a confirmation that your Personally Procured Move (PPM) with the <strong>assigned move code {{.Locator}}</strong> from <strong>{{if and .OriginCity .OriginState .DestinationCity .DestinationState}}{{.OriginCity}}, {{.OriginState}}</strong> to <strong>{{.DestinationCity}}, {{.DestinationState}}</strong> {{else}}{{.OriginZIP}}</strong> to <strong>{{.DestinationZIP}}</strong> {{end}}has been processed in MilMove. </p>
+
+{{if .ActualExpenseReimbursement}}
+<p>Please Note: Your PPM has been
+designated as Actual Expense Reimbursement. This is the standard entitlement for Civilian
+employees. For uniformed Service Members, your PPM may have been designated as Actual
+Expense Reimbursement due to failure to receive authorization prior to movement or failure to
+obtain certified weight tickets. Actual Expense Reimbursement means reimbursement for expenses
+not to exceed the Government Constructed Cost (GCC).</p>
+{{end}}
+
 <h4>Next steps:</h4>
 {{if eq .ServiceBranch "Marine Corps, Navy, and Coast Guard"}}
 <p>For Marine Corps, Navy, and Coast Guard personnel:</p>
@@ -11,11 +21,9 @@
 <p>You can now log into MilMove <a href="{{.MyMoveLink}}">{{.MyMoveLink}}</a> and view your payment packet; however, you do
   not need to forward your payment packet to finance as your closeout location is associated with
   your finance office and they will handle this step for you.</p>
-
 {{else if eq .ServiceBranch "Air Force and Space Force"}}
 <p>You can now log into MilMove <a href="{{.MyMoveLink}}">{{.MyMoveLink}}</a> and download your payment packet to submit
   to {{.SubmitLocation}}. <strong>You must complete this step to receive final settlement of your PPM.</strong></p>
-
 {{else if eq .ServiceBranch "Army"}}
 <p>Log in to SmartVoucher at <a href="{{.SmartVoucherLink}}">{{.SmartVoucherLink}}</a> using your CAC or myPay username
   and password.</p>

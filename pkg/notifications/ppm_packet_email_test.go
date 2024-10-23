@@ -120,6 +120,7 @@ func (suite *NotificationSuite) TestPpmPacketEmailHTMLTemplateRenderForAirAndSpa
 		OneSourceTransportationOfficeLink: OneSourceTransportationOfficeLink,
 		WashingtonHQServicesLink:          WashingtonHQServicesLink,
 		MyMoveLink:                        MyMoveLink,
+		SmartVoucherLink:                  SmartVoucherLink,
 	})
 
 	expectedHTMLContent := `<p>*** DO NOT REPLY directly to this email ***</p>
@@ -210,6 +211,7 @@ func (suite *NotificationSuite) TestPpmPacketEmailHTMLTemplateRenderForArmy() {
 		OneSourceTransportationOfficeLink: OneSourceTransportationOfficeLink,
 		WashingtonHQServicesLink:          WashingtonHQServicesLink,
 		MyMoveLink:                        MyMoveLink,
+		SmartVoucherLink:                  SmartVoucherLink,
 	})
 
 	expectedHTMLContent := `<p>*** DO NOT REPLY directly to this email ***</p>
@@ -300,6 +302,7 @@ func (suite *NotificationSuite) TestPpmPacketEmailHTMLTemplateRenderForNavalBran
 		OneSourceTransportationOfficeLink: OneSourceTransportationOfficeLink,
 		WashingtonHQServicesLink:          WashingtonHQServicesLink,
 		MyMoveLink:                        MyMoveLink,
+		SmartVoucherLink:                  SmartVoucherLink,
 	})
 
 	expectedHTMLContent := `<p>*** DO NOT REPLY directly to this email ***</p>
@@ -457,6 +460,7 @@ func (suite *NotificationSuite) TestPpmPacketEmailZipcodeFallback() {
 		OneSourceTransportationOfficeLink: OneSourceTransportationOfficeLink,
 		WashingtonHQServicesLink:          WashingtonHQServicesLink,
 		MyMoveLink:                        MyMoveLink,
+		SmartVoucherLink:                  SmartVoucherLink,
 	})
 	// <strong>Des Moines, IA</strong> to <strong>Fort Eisenhower, GA</strong>
 	expectedHTMLContent := `<p>*** DO NOT REPLY directly to this email ***</p>

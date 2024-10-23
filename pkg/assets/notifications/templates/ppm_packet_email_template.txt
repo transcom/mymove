@@ -2,6 +2,15 @@
 
 This is a confirmation that your Personally Procured Move (PPM) with the assigned move code {{.Locator}} from{{if and .OriginCity .OriginState .DestinationCity .DestinationState}} {{.OriginCity}}, {{.OriginState}} to {{.DestinationCity}}, {{.DestinationState}} {{else}} {{.OriginZIP}} to {{.DestinationZIP}} {{end}}has been processed in MilMove.
 
+{{if .ActualExpenseReimbursement}}
+Please Note: Your PPM has been
+designated as Actual Expense Reimbursement. This is the standard entitlement for Civilian
+employees. For uniformed Service Members, your PPM may have been designated as Actual
+Expense Reimbursement due to failure to receive authorization prior to movement or failure to
+obtain certified weight tickets. Actual Expense Reimbursement means reimbursement for expenses
+not to exceed the Government Constructed Cost (GCC).
+{{end}}
+
 Next steps:
 {{if eq .ServiceBranch "Marine Corps, Navy, and Coast Guard"}}
 For Marine Corps, Navy, and Coast Guard personnel:
@@ -13,11 +22,9 @@ For {{.ServiceBranch}} personnel (FURTHER ACTION REQUIRED):
 You can now log into MilMove <{{.MyMoveLink}}> and view your payment packet; however, you do
   not need to forward your payment packet to finance as your closeout location is associated with
   your finance office and they will handle this step for you.
-
 {{else if eq .ServiceBranch "Air Force and Space Force"}}
 You can now log into MilMove <{{.MyMoveLink}}> and download your payment packet to submit
   to {{.SubmitLocation}}. You must complete this step to receive final settlement of your PPM.
-
 {{else if eq .ServiceBranch "Army"}}
 Log in to SmartVoucher at <{{.SmartVoucherLink}}> using your CAC or myPay username
   and password.

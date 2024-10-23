@@ -44,6 +44,7 @@ type PpmPacketEmailData struct {
 	WashingtonHQServicesLink          string
 	MyMoveLink                        string
 	SmartVoucherLink                  string
+	ActualExpenseReimbursement        bool
 }
 
 // Used to get logging data from GetEmailData
@@ -169,6 +170,7 @@ func (p PpmPacketEmail) GetEmailData(appCtx appcontext.AppContext) (PpmPacketEma
 				SubmitLocation:                    submitLocation,
 				ServiceBranch:                     affiliationDisplayValue[*serviceMember.Affiliation],
 				Locator:                           move.Locator,
+				ActualExpenseReimbursement:        true, //TODO: replace when code is done
 				OneSourceTransportationOfficeLink: OneSourceTransportationOfficeLink,
 				WashingtonHQServicesLink:          WashingtonHQServicesLink,
 				MyMoveLink:                        MyMoveLink,
@@ -188,6 +190,7 @@ func (p PpmPacketEmail) GetEmailData(appCtx appcontext.AppContext) (PpmPacketEma
 			SubmitLocation:                    submitLocation,
 			ServiceBranch:                     affiliationDisplayValue[*serviceMember.Affiliation],
 			Locator:                           move.Locator,
+			ActualExpenseReimbursement:        true, //TODO: replace when code is done
 			OneSourceTransportationOfficeLink: OneSourceTransportationOfficeLink,
 			WashingtonHQServicesLink:          WashingtonHQServicesLink,
 			MyMoveLink:                        MyMoveLink,
