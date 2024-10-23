@@ -333,7 +333,7 @@ const BoatShipmentForm = ({ mtoShipment, onBack, onSubmit }) => {
                     Examples
                     <ul>
                       <li>
-                        Dimensions of the boat on the trailer are signigicantly different than one would expect given
+                        Dimensions of the boat on the trailer are significantly different than one would expect given
                         their individual dimensions
                       </li>
 

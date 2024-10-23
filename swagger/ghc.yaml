@@ -4884,8 +4884,8 @@ definitions:
   FetchLineOfAccountingPayload:
     type: object
     properties:
-      serviceMemberAffiliation:
-        $ref: '#/definitions/Affiliation'
+      departmentIndicator:
+        $ref: '#/definitions/DepartmentIndicator'
       effectiveDate:
         description: >
           The effective date for the Line Of Accounting (LOA) being fetched. Eg,
@@ -7740,8 +7740,6 @@ definitions:
       - AIR_FORCE
       - COAST_GUARD
       - SPACE_FORCE
-      - NAVY_AND_MARINES
-      - AIR_AND_SPACE_FORCE
       - OTHER
     x-display-value:
       ARMY: Army
@@ -10550,6 +10548,25 @@ definitions:
     type: array
     items:
       $ref: '#/definitions/CustomerSupportRemark'
+  DepartmentIndicator:
+    type: string
+    x-nullable: true
+    title: Department indicator
+    description: Military branch of service indicator for orders
+    enum:
+      - ARMY
+      - ARMY_CORPS_OF_ENGINEERS
+      - COAST_GUARD
+      - NAVY_AND_MARINES
+      - AIR_AND_SPACE_FORCE
+      - OFFICE_OF_SECRETARY_OF_DEFENSE
+    x-display-value:
+      ARMY: 21 Army
+      ARMY_CORPS_OF_ENGINEERS: 96 Army Corps of Engineers
+      COAST_GUARD: 70 Coast Guard
+      NAVY_AND_MARINES: 17 Navy and Marine Corps
+      AIR_AND_SPACE_FORCE: 57 Air Force and Space Force
+      OFFICE_OF_SECRETARY_OF_DEFENSE: 97 Office of Secretary of Defense
   LineOfAccounting:
     type: object
     properties:

@@ -2362,6 +2362,8 @@ func SearchMoves(appCtx appcontext.AppContext, moves models.Moves) *ghcmessages.
 
 		if err != nil {
 			destinationGBLOC = *ghcmessages.NewGBLOC("")
+		} else if customer.Affiliation.String() == "MARINES" {
+			destinationGBLOC = ghcmessages.GBLOC("USMC/" + PostalCodeToGBLOC.GBLOC)
 		} else {
 			destinationGBLOC = ghcmessages.GBLOC(PostalCodeToGBLOC.GBLOC)
 		}
