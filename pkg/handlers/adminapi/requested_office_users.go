@@ -212,7 +212,7 @@ func (h IndexRequestedOfficeUsersHandler) Handle(params requested_office_users.I
 // GetRequestedOfficeUserHandler returns a list of office users via GET /requested_office_users/{officeUserId}
 type GetRequestedOfficeUserHandler struct {
 	handlers.HandlerConfig
-	services.RequestedOfficeUserFetcher
+	services.RequestedOfficeUserFetcherPop
 	services.RoleAssociater
 	services.NewQueryFilter
 }
@@ -222,11 +222,9 @@ func (h GetRequestedOfficeUserHandler) Handle(params requested_office_users.GetR
 	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
 		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
 
-			requestedOfficeUserID := params.OfficeUserID
+			requestedOfficeUserID := uuid.FromStringOrNil(params.OfficeUserID.String())
 
-			queryFilters := []services.QueryFilter{query.NewQueryFilter("id", "=", requestedOfficeUserID)}
-
-			requestedOfficeUser, err := h.RequestedOfficeUserFetcher.FetchRequestedOfficeUser(appCtx, queryFilters)
+			requestedOfficeUser, err := h.RequestedOfficeUserFetcherPop.FetchRequestedOfficeUserByID(appCtx, requestedOfficeUserID)
 			if err != nil {
 				return handlers.ResponseForError(appCtx.Logger(), err), err
 			}

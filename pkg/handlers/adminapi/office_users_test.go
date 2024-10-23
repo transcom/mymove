@@ -141,8 +141,8 @@ func (suite *HandlerSuite) TestCreateOfficeUserHandler() {
 	tooRoleName := "Task Ordering Officer"
 	tooRoleType := string(roles.RoleTypeTOO)
 
-	tioRoleName := "Task Invoicing Officer"
-	tioRoleType := string(roles.RoleTypeTIO)
+	scRoleName := "Services Counselor"
+	scRoleType := string(roles.RoleTypeServicesCounselor)
 
 	supervisorPrivilegeName := "Supervisor"
 	supervisorPrivilegeType := string(models.PrivilegeTypeSupervisor)
@@ -167,8 +167,8 @@ func (suite *HandlerSuite) TestCreateOfficeUserHandler() {
 						RoleType: &tooRoleType,
 					},
 					{
-						Name:     &tioRoleName,
-						RoleType: &tioRoleType,
+						Name:     &scRoleName,
+						RoleType: &scRoleType,
 					},
 				},
 				Privileges: []*adminmessages.OfficeUserPrivilege{
@@ -222,8 +222,8 @@ func (suite *HandlerSuite) TestCreateOfficeUserHandler() {
 						RoleType: &tooRoleType,
 					},
 					{
-						Name:     &tioRoleName,
-						RoleType: &tioRoleType,
+						Name:     &scRoleName,
+						RoleType: &scRoleName,
 					},
 				},
 				Privileges: []*adminmessages.OfficeUserPrivilege{
@@ -317,9 +317,18 @@ func (suite *HandlerSuite) TestUpdateOfficeUserHandler() {
 		expectedOfficeUser.TransportationOfficeID = transportationOffice.ID
 
 		mockUpdater := mocks.OfficeUserUpdater{}
-		mockUpdater.On("UpdateOfficeUser", mock.AnythingOfType("*appcontext.appContext"), officeUser.ID, &expectedInput).Return(&expectedOfficeUser, nil, nil)
+		mockUpdater.On("UpdateOfficeUser", mock.AnythingOfType("*appcontext.appContext"), officeUser.ID, &expectedInput, transportationOffice.ID).Return(&expectedOfficeUser, nil, nil)
 
-		response := setupHandler(&mockUpdater, &mocks.UserSessionRevocation{}).Handle(params)
+		expectedSessionUpdate := &adminmessages.UserUpdate{
+			RevokeOfficeSession: models.BoolPointer(true),
+		}
+		mockRevoker := mocks.UserSessionRevocation{}
+		mockRevoker.
+			On("RevokeUserSession", mock.AnythingOfType("*appcontext.appContext"), *officeUser.UserID, expectedSessionUpdate, mock.Anything).
+			Return(nil, nil, nil).
+			Once()
+
+		response := setupHandler(&mockUpdater, &mockRevoker).Handle(params)
 		suite.IsType(&officeuserop.UpdateOfficeUserOK{}, response)
 
 		okResponse := response.(*officeuserop.UpdateOfficeUserOK)
@@ -328,6 +337,7 @@ func (suite *HandlerSuite) TestUpdateOfficeUserHandler() {
 		suite.Equal(middleInitials, *okResponse.Payload.MiddleInitials)
 		suite.Equal(telephone, *okResponse.Payload.Telephone)
 		suite.Equal(transportationOffice.ID.String(), okResponse.Payload.TransportationOfficeID.String())
+		suite.Equal(transportationOffice.ID.String(), okResponse.Payload.TransportationOfficeAssignments[0].TransportationOfficeID.String())
 		suite.Equal(officeUser.LastName, *okResponse.Payload.LastName) // should not have been updated
 		suite.Equal(officeUser.Email, *okResponse.Payload.Email)       // should not have been updated
 	})
@@ -353,9 +363,23 @@ func (suite *HandlerSuite) TestUpdateOfficeUserHandler() {
 
 		expectedInput := *officeUserUpdates
 		mockUpdater := mocks.OfficeUserUpdater{}
-		mockUpdater.On("UpdateOfficeUser", mock.AnythingOfType("*appcontext.appContext"), officeUser.ID, &expectedInput).Return(nil, nil, sql.ErrNoRows)
+		mockUpdater.On("UpdateOfficeUser",
+			mock.AnythingOfType("*appcontext.appContext"),
+			officeUser.ID,
+			&expectedInput,
+			uuid.FromStringOrNil(officeUserUpdates.TransportationOfficeAssignments[0].TransportationOfficeID.String()),
+		).Return(nil, nil, sql.ErrNoRows)
 
-		response := setupHandler(&mockUpdater, &mocks.UserSessionRevocation{}).Handle(params)
+		expectedSessionUpdate := &adminmessages.UserUpdate{
+			RevokeOfficeSession: models.BoolPointer(true),
+		}
+		mockRevoker := mocks.UserSessionRevocation{}
+		mockRevoker.
+			On("RevokeUserSession", mock.AnythingOfType("*appcontext.appContext"), *officeUser.UserID, expectedSessionUpdate, mock.Anything).
+			Return(nil, nil, nil).
+			Once()
+
+		response := setupHandler(&mockUpdater, &mockRevoker).Handle(params)
 		suite.IsType(&officeuserop.UpdateOfficeUserInternalServerError{}, response)
 	})
 
@@ -376,7 +400,7 @@ func (suite *HandlerSuite) TestUpdateOfficeUserHandler() {
 
 		mockUpdater := mocks.OfficeUserUpdater{}
 		mockUpdater.
-			On("UpdateOfficeUser", mock.AnythingOfType("*appcontext.appContext"), officeUser.ID, officeUserUpdates).
+			On("UpdateOfficeUser", mock.AnythingOfType("*appcontext.appContext"), officeUser.ID, officeUserUpdates, uuid.Nil).
 			Return(&officeUser, nil, nil)
 
 		expectedSessionUpdate := &adminmessages.UserUpdate{
