@@ -10442,6 +10442,30 @@ func CreateNeedsServicesCounseling(appCtx appcontext.AppContext, ordersType inte
 			},
 		},
 	}, nil)
+
+	if shipmentType == models.MTOShipmentTypeMobileHome {
+		factory.BuildMobileHomeShipment(appCtx.DB(), []factory.Customization{
+			{
+				Model: models.MobileHome{
+					Year:           models.IntPointer(2000),
+					Make:           models.StringPointer("Boat Make"),
+					Model:          models.StringPointer("Boat Model"),
+					LengthInInches: models.IntPointer(300),
+					WidthInInches:  models.IntPointer(108),
+					HeightInInches: models.IntPointer(72),
+				},
+			},
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+			{
+				Model:    regularMTOShipment,
+				LinkOnly: true,
+			},
+		}, nil)
+	}
+
 	officeUser := factory.BuildOfficeUserWithRoles(db, nil, []roles.RoleType{roles.RoleTypeTOO})
 	factory.BuildCustomerSupportRemark(db, []factory.Customization{
 		{
