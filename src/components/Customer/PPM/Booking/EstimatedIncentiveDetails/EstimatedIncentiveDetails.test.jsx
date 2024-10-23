@@ -37,7 +37,7 @@ const zeroIncentiveProps = {
       estimatedIncentive: 876543,
     },
   },
-}
+};
 
 const optionalSecondaryProps = {
   shipment: {
@@ -119,9 +119,7 @@ describe('EstimatedIncentiveDetails component', () => {
     render(<EstimatedIncentiveDetails {...zeroIncentiveProps} />);
 
     expect(
-      screen.getByText(
-        'The Defense Table of Distances (DTOD) was unavailable during your PPM creation',
-      ),
+      screen.getByText('The Defense Table of Distances (DTOD) was unavailable during your PPM creation'),
     ).toBeInTheDocument();
   });
 
