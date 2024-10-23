@@ -20,6 +20,10 @@ type BoatShipmentFetcher struct {
 func (_m *BoatShipmentFetcher) GetBoatShipment(appCtx appcontext.AppContext, boatShipmentID uuid.UUID, eagerPreloadAssociations []string, postloadAssociations []string) (*models.BoatShipment, error) {
 	ret := _m.Called(appCtx, boatShipmentID, eagerPreloadAssociations, postloadAssociations)
 
+	if len(ret) == 0 {
+		panic("no return value specified for GetBoatShipment")
+	}
+
 	var r0 *models.BoatShipment
 	var r1 error
 	if rf, ok := ret.Get(0).(func(appcontext.AppContext, uuid.UUID, []string, []string) (*models.BoatShipment, error)); ok {
@@ -45,6 +49,10 @@ func (_m *BoatShipmentFetcher) GetBoatShipment(appCtx appcontext.AppContext, boa
 // PostloadAssociations provides a mock function with given fields: appCtx, boatShipment, postloadAssociations
 func (_m *BoatShipmentFetcher) PostloadAssociations(appCtx appcontext.AppContext, boatShipment *models.BoatShipment, postloadAssociations []string) error {
 	ret := _m.Called(appCtx, boatShipment, postloadAssociations)
+
+	if len(ret) == 0 {
+		panic("no return value specified for PostloadAssociations")
+	}
 
 	var r0 error
 	if rf, ok := ret.Get(0).(func(appcontext.AppContext, *models.BoatShipment, []string) error); ok {

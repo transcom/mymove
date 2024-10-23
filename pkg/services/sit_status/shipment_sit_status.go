@@ -264,7 +264,7 @@ func (f shipmentSITStatus) generateSITSummary(sit models.SITServiceItemGrouping,
 // CalculateShipmentSITStatus creates a SIT Status for payload to be used in
 // multiple handlers in the `ghcapi` package for the MTOShipment handlers.
 func (f shipmentSITStatus) CalculateShipmentSITStatus(appCtx appcontext.AppContext, shipment models.MTOShipment) (*services.SITStatus, models.MTOShipment, error) {
-	if shipment.MTOServiceItems == nil || len(shipment.MTOServiceItems) == 0 {
+	if len(shipment.MTOServiceItems) == 0 {
 		return nil, shipment, nil
 	}
 

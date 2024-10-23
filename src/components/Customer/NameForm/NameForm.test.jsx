@@ -14,13 +14,13 @@ describe('NameForm component', () => {
       />,
     );
     await waitFor(() => {
-      expect(getByLabelText('First name')).toBeInstanceOf(HTMLInputElement);
-      expect(getByLabelText('First name')).toBeRequired();
+      expect(getByLabelText(/First name/)).toBeInstanceOf(HTMLInputElement);
+      expect(getByLabelText(/First name/)).toBeRequired();
 
       expect(getByLabelText(/Middle name/)).toBeInstanceOf(HTMLInputElement);
 
-      expect(getByLabelText('Last name')).toBeInstanceOf(HTMLInputElement);
-      expect(getByLabelText('Last name')).toBeRequired();
+      expect(getByLabelText(/Last name/)).toBeInstanceOf(HTMLInputElement);
+      expect(getByLabelText(/Last name/)).toBeRequired();
 
       expect(getByLabelText(/Suffix/)).toBeInstanceOf(HTMLInputElement);
     });
@@ -28,15 +28,15 @@ describe('NameForm component', () => {
 
   it('shows an error message and disables submit when fields are invalid', async () => {
     const onSubmit = jest.fn();
-    const { getByRole, getAllByText, getByLabelText } = render(
+    const { getByRole, getAllByTestId, getByLabelText } = render(
       <NameForm
         onSubmit={onSubmit}
         onBack={jest.fn()}
         initialValues={{ first_name: '', middle_name: '', last_name: '', suffix: 'Mrs.' }}
       />,
     );
-    await userEvent.clear(getByLabelText('First name'));
-    await userEvent.clear(getByLabelText('Last name'));
+    await userEvent.clear(getByLabelText(/First name/));
+    await userEvent.clear(getByLabelText(/Last name/));
     await userEvent.tab();
 
     const submitBtn = getByRole('button', { name: 'Next' });
@@ -45,7 +45,7 @@ describe('NameForm component', () => {
     });
 
     await waitFor(() => {
-      expect(getAllByText('Required').length).toBe(2);
+      expect(getAllByTestId('errorMessage').length).toBe(2);
     });
     expect(onSubmit).not.toHaveBeenCalled();
   });
@@ -61,8 +61,8 @@ describe('NameForm component', () => {
     );
     const submitBtn = getByRole('button', { name: 'Next' });
 
-    await userEvent.type(getByLabelText('First name'), 'Leo');
-    await userEvent.type(getByLabelText('Last name'), 'Spaceman');
+    await userEvent.type(getByLabelText(/First name/), 'Leo');
+    await userEvent.type(getByLabelText(/Last name/), 'Spaceman');
 
     await userEvent.click(submitBtn);
 

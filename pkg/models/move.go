@@ -141,6 +141,7 @@ func FetchMove(db *pop.Connection, session *auth.Session, id uuid.UUID) (*Move, 
 		"LockedByOfficeUser",
 		"AdditionalDocuments",
 		"AdditionalDocuments.UserUploads",
+		"CounselingOffice",
 	).Where("show = TRUE").Find(&move, id)
 
 	if err != nil {
@@ -487,6 +488,7 @@ func FetchMovesByOrderID(db *pop.Connection, orderID uuid.UUID) (Moves, error) {
 		"Orders.NewDutyLocation.TransportationOffice.Address",
 		"CloseoutOffice",
 		"CloseoutOffice.Address",
+		"CounselingOffice",
 	).All(&moves)
 	if err != nil {
 		return moves, err
@@ -537,12 +539,12 @@ func FetchMovesByOrderID(db *pop.Connection, orderID uuid.UUID) (Moves, error) {
 				moves[0].MTOShipments[0].PPMShipment.WeightTickets = filteredWeightTickets
 			}
 			// We do not need to consider deleted moving expenses
-			if moves[0].MTOShipments[0].PPMShipment.MovingExpenses != nil && len(moves[0].MTOShipments[0].PPMShipment.MovingExpenses) > 0 {
+			if len(moves[0].MTOShipments[0].PPMShipment.MovingExpenses) > 0 {
 				nonDeletedMovingExpenses := moves[0].MTOShipments[0].PPMShipment.MovingExpenses.FilterDeleted()
 				moves[0].MTOShipments[0].PPMShipment.MovingExpenses = nonDeletedMovingExpenses
 			}
 			// We do not need to consider deleted progear weight tickets
-			if moves[0].MTOShipments[0].PPMShipment.ProgearWeightTickets != nil && len(moves[0].MTOShipments[0].PPMShipment.ProgearWeightTickets) > 0 {
+			if len(moves[0].MTOShipments[0].PPMShipment.ProgearWeightTickets) > 0 {
 				nonDeletedProgearTickets := moves[0].MTOShipments[0].PPMShipment.ProgearWeightTickets.FilterDeleted()
 				moves[0].MTOShipments[0].PPMShipment.ProgearWeightTickets = nonDeletedProgearTickets
 			}

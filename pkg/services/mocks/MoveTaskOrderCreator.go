@@ -20,6 +20,10 @@ type MoveTaskOrderCreator struct {
 func (_m *MoveTaskOrderCreator) CreateMoveTaskOrder(appCtx appcontext.AppContext, moveTaskOrder *models.Move) (*models.Move, *validate.Errors, error) {
 	ret := _m.Called(appCtx, moveTaskOrder)
 
+	if len(ret) == 0 {
+		panic("no return value specified for CreateMoveTaskOrder")
+	}
+
 	var r0 *models.Move
 	var r1 *validate.Errors
 	var r2 error

@@ -196,6 +196,40 @@ paths:
                     estimatedWeight: 4999
                     hasProGear: false
                     sitExpected: false
+              boat:
+                summary: Boat Shipment
+                value:
+                  boatShipment:
+                    hasTrailer: true
+                    heightFeet: 2
+                    heightInches: 2
+                    isRoadworthy: false
+                    lengthFeet: 2
+                    lengthInches: 0
+                    make: make
+                    model: model
+                    widthFeet: 2
+                    widthInches: 2
+                    year: 1999
+                  counselorRemarks: test
+                  moveTaskOrderID: d4d95b22-2d9d-428b-9a11-284455aa87ba
+                  shipmentType: HAUL_AWAY
+              mobileHome:
+                summary: Mobile Home Shipment
+                value:
+                  mobileHomeShipment:
+                    heightFeet: 2
+                    heightInches: 2
+                    lengthFeet: 2
+                    lengthInches: 0
+                    make: make
+                    model: model
+                    widthFeet: 2
+                    widthInches: 2
+                    year: 1999
+                  counselorRemarks: test
+                  moveTaskOrderID: d4d95b22-2d9d-428b-9a11-284455aa87ba
+                  shipmentType: MOBILE_HOME
       responses:
         '200':
           description: Successfully created a MTO shipment.
@@ -627,6 +661,22 @@ definitions:
         description: Where the movers should deliver this shipment.
         allOf:
           - $ref: '#/definitions/Address'
+      secondaryPickupAddress:
+        description: The second address where the movers should pick up this shipment.
+        allOf:
+          - $ref: '#/definitions/Address'
+      tertiaryPickupAddress:
+        description: The third address where the movers should pick up this shipment.
+        allOf:
+          - $ref: '#/definitions/Address'
+      secondaryDestinationAddress:
+        description: The second address where the movers should deliver this shipment.
+        allOf:
+          - $ref: '#/definitions/Address'
+      tertiaryDestinationAddress:
+        description: The third address where the movers should deliver this shipment.
+        allOf:
+          - $ref: '#/definitions/Address'
       shipmentType:
         $ref: '#/definitions/MTOShipmentType'
       diversion:
@@ -658,6 +708,10 @@ definitions:
         x-nullable: true
       ppmShipment:
         $ref: '#/definitions/CreatePPMShipment'
+      boatShipment:
+        $ref: '#/definitions/CreateBoatShipment'
+      mobileHomeShipment:
+        $ref: '#/definitions/CreateMobileHomeShipment'
     required:
       - moveTaskOrderID
       - shipmentType
@@ -682,6 +736,12 @@ definitions:
           additional goods exist.
         allOf:
           - $ref: '#/definitions/Address'
+      tertiaryPickupAddress:
+        description: >-
+          An optional tertiary pickup location address near the origin where
+          additional goods exist.
+        allOf:
+          - $ref: '#/definitions/Address'
       destinationAddress:
         description: >-
           The address of the destination location where goods are being
@@ -691,6 +751,12 @@ definitions:
       secondaryDestinationAddress:
         description: >-
           An optional secondary address near the destination where goods will be
+          dropped off.
+        allOf:
+          - $ref: '#/definitions/Address'
+      tertiaryDestinationAddress:
+        description: >-
+          An optional tertiary address near the destination where goods will be
           dropped off.
         allOf:
           - $ref: '#/definitions/Address'
@@ -752,6 +818,76 @@ definitions:
       - sitExpected
       - estimatedWeight
       - hasProGear
+  CreateBoatShipment:
+    description: >-
+      Creation object containing the `Boat` shipmentType specific data, not used
+      for other shipment types.
+    type: object
+    properties:
+      year:
+        type: integer
+        description: Year of the Boat
+      make:
+        type: string
+        description: Make of the Boat
+      model:
+        type: string
+        description: Model of the Boat
+      lengthInInches:
+        type: integer
+        description: Length of the Boat in inches
+      widthInInches:
+        type: integer
+        description: Width of the Boat in inches
+      heightInInches:
+        type: integer
+        description: Height of the Boat in inches
+      hasTrailer:
+        type: boolean
+        description: Does the boat have a trailer
+      isRoadworthy:
+        type: boolean
+        description: Is the trailer roadworthy
+        x-nullable: true
+    required:
+      - year
+      - make
+      - model
+      - lengthInInches
+      - widthInInches
+      - heightInInches
+      - hasTrailer
+  CreateMobileHomeShipment:
+    description: >-
+      Creation object containing the `MobileHome` shipmentType specific data,
+      not used for other shipment types.
+    type: object
+    properties:
+      year:
+        type: integer
+        description: Year of the Mobile Home
+      make:
+        type: string
+        description: Make of the Mobile Home
+      model:
+        type: string
+        description: Model of the Mobile Home
+      lengthInInches:
+        type: integer
+        description: Length of the Mobile Home in inches
+      widthInInches:
+        type: integer
+        description: Width of the Mobile Home in inches
+      heightInInches:
+        type: integer
+        description: Height of the Mobile Home in inches
+    required:
+      - year
+      - make
+      - model
+      - lengthInInches
+      - widthInInches
+      - heightInInches
   MTOShipment:
     type: object
     properties:
@@ -1430,6 +1566,11 @@ definitions:
         title: County
         x-nullable: true
         example: LOS ANGELES
+      isOconus:
+        type: boolean
+        title: isOconus
+        x-nullable: true
+        example: false
     required:
       - streetAddress1
       - city
@@ -2501,6 +2642,129 @@ definitions:
       - destinationAddress
       - sitExpected
       - eTag
+  BoatShipment:
+    x-nullable: true
+    properties:
+      id:
+        description: Primary auto-generated unique identifier of the Boat shipment object
+        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
+        format: uuid
+        type: string
+        readOnly: true
+      shipmentId:
+        description: The id of the parent MTOShipment object
+        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
+        format: uuid
+        type: string
+        readOnly: true
+      createdAt:
+        description: Timestamp of when the Boat Shipment was initially created (UTC)
+        format: date-time
+        type: string
+        readOnly: true
+      updatedAt:
+        description: Timestamp of when a property of this object was last updated (UTC)
+        format: date-time
+        type: string
+        readOnly: true
+      type:
+        type: string
+        enum:
+          - HAUL_AWAY
+          - TOW_AWAY
+      year:
+        type: integer
+        description: Year of the Boat
+      make:
+        type: string
+        description: Make of the Boat
+      model:
+        type: string
+        description: Model of the Boat
+      lengthInInches:
+        type: integer
+        description: Length of the Boat in inches
+      widthInInches:
+        type: integer
+        description: Width of the Boat in inches
+      heightInInches:
+        type: integer
+        description: Height of the Boat in inches
+      hasTrailer:
+        type: boolean
+        description: Does the boat have a trailer
+      isRoadworthy:
+        type: boolean
+        description: Is the trailer roadworthy
+        x-nullable: true
+      eTag:
+        description: >-
+          A hash unique to this shipment that should be used as the "If-Match"
+          header for any updates.
+        type: string
+        readOnly: true
+    required:
+      - id
+      - shipmentId
+      - createdAt
+      - type
+      - year
+      - make
+      - model
+      - lengthInInches
+      - widthInInches
+      - heightInInches
+      - hasTrailer
+      - eTag
+  MobileHome:
+    description: >-
+      A mobile home is a type of shipment that a service member moves a mobile
+      home.
+    x-nullable: true
+    properties:
+      id:
+        description: Primary auto-generated unique identifier of the Mobile Home object
+        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
+        format: uuid
+        type: string
+        readOnly: true
+      shipmentId:
+        description: The id of the parent MTOShipment object
+        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
+        format: uuid
+        type: string
+        readOnly: true
+      make:
+        description: The make of the mobile home
+        type: string
+      model:
+        description: The model of the mobile home.
+        type: string
+      year:
+        description: The year the mobile home was made.
+        type: integer
+      lengthInInches:
+        type: integer
+      widthInInches:
+        type: integer
+      heightInInches:
+        type: integer
+      updatedAt:
+        description: Timestamp of when a property of this object was last updated (UTC)
+        format: date-time
+        type: string
+        readOnly: true
+      createdAt:
+        description: Timestamp of when a property of this object was created (UTC)
+        format: date-time
+        type: string
+        readOnly: true
+      eTag:
+        description: >-
+          A hash unique to this shipment that should be used as the "If-Match"
+          header for any updates.
+        type: string
+        readOnly: true
   ShipmentAddressUpdateStatus:
     type: string
     title: Status
@@ -2813,6 +3077,10 @@ definitions:
           - DIVERSION_REQUESTED
       ppmShipment:
         $ref: '#/definitions/PPMShipment'
+      boatShipment:
+        $ref: '#/definitions/BoatShipment'
+      mobileHomeShipment:
+        $ref: '#/definitions/MobileHome'
       deliveryAddressUpdate:
         $ref: '#/definitions/ShipmentAddressUpdate'
       eTag:

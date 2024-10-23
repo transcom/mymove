@@ -18,6 +18,10 @@ type PaymentRequestReviewedFetcher struct {
 func (_m *PaymentRequestReviewedFetcher) FetchReviewedPaymentRequest(appCtx appcontext.AppContext) (models.PaymentRequests, error) {
 	ret := _m.Called(appCtx)
 
+	if len(ret) == 0 {
+		panic("no return value specified for FetchReviewedPaymentRequest")
+	}
+
 	var r0 models.PaymentRequests
 	var r1 error
 	if rf, ok := ret.Get(0).(func(appcontext.AppContext) (models.PaymentRequests, error)); ok {

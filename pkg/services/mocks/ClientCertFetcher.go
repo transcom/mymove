@@ -20,6 +20,10 @@ type ClientCertFetcher struct {
 func (_m *ClientCertFetcher) FetchClientCert(appCtx appcontext.AppContext, filters []services.QueryFilter) (models.ClientCert, error) {
 	ret := _m.Called(appCtx, filters)
 
+	if len(ret) == 0 {
+		panic("no return value specified for FetchClientCert")
+	}
+
 	var r0 models.ClientCert
 	var r1 error
 	if rf, ok := ret.Get(0).(func(appcontext.AppContext, []services.QueryFilter) (models.ClientCert, error)); ok {

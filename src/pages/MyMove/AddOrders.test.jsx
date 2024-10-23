@@ -1,24 +1,54 @@
 import React from 'react';
 import { screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { act } from 'react-dom/test-utils';
 
 import AddOrders from './AddOrders';
 
-import { createOrders, getServiceMember } from 'services/internalApi';
+import { createOrders, getServiceMember, showCounselingOffices } from 'services/internalApi';
 import { renderWithProviders } from 'testUtils';
-import { customerRoutes } from 'constants/routes';
-import { selectServiceMemberFromLoggedInUser } from 'store/entities/selectors';
+import { customerRoutes, generalRoutes } from 'constants/routes';
+import { selectCanAddOrders, selectServiceMemberFromLoggedInUser } from 'store/entities/selectors';
+import { setCanAddOrders, setMoveId } from 'store/general/actions';
 
 jest.mock('services/internalApi', () => ({
   ...jest.requireActual('services/internalApi'),
   getServiceMember: jest.fn().mockImplementation(() => Promise.resolve()),
   getResponseError: jest.fn().mockImplementation(() => Promise.resolve()),
   createOrders: jest.fn().mockImplementation(() => Promise.resolve()),
+  showCounselingOffices: jest.fn().mockImplementation(() =>
+    Promise.resolve({
+      body: [
+        {
+          id: '3e937c1f-5539-4919-954d-017989130584',
+          name: 'Albuquerque AFB',
+        },
+        {
+          id: 'fa51dab0-4553-4732-b843-1f33407f77bc',
+          name: 'Glendale Luke AFB',
+        },
+      ],
+    }),
+  ),
 }));
 
 jest.mock('store/entities/selectors', () => ({
   ...jest.requireActual('store/entities/selectors'),
   selectServiceMemberFromLoggedInUser: jest.fn(),
+  selectCanAddOrders: jest.fn(),
+  selectMoveId: jest.fn(),
+}));
+
+jest.mock('store/general/actions', () => ({
+  ...jest.requireActual('store/general/actions'),
+  setCanAddOrders: jest.fn().mockImplementation(() => ({
+    type: '',
+    payload: '',
+  })),
+  setMoveId: jest.fn().mockImplementation(() => ({
+    type: '',
+    payload: '',
+  })),
 }));
 
 const mockNavigate = jest.fn();
@@ -158,11 +188,27 @@ describe('Add Orders page', () => {
   const testProps = {
     serviceMemberId: 'id123',
     context: { flags: { allOrdersTypes: true } },
+    canAddOrders: true,
+    moveId: '',
     updateOrders: jest.fn(),
     updateServiceMember: jest.fn(),
+    setCanAddOrders: jest.fn(),
+    setMoveId: jest.fn(),
+  };
+
+  const testPropsRedirect = {
+    serviceMemberId: 'id123',
+    context: { flags: { allOrdersTypes: true } },
+    canAddOrders: false,
+    moveId: '',
+    updateOrders: jest.fn(),
+    updateServiceMember: jest.fn(),
+    setCanAddOrders: jest.fn(),
+    setMoveId: jest.fn(),
   };
 
   it('renders all content of Orders component', async () => {
+    showCounselingOffices.mockImplementation(() => Promise.resolve({}));
     selectServiceMemberFromLoggedInUser.mockImplementation(() => serviceMember);
     renderWithProviders(<AddOrders {...testProps} />, {
       path: customerRoutes.ORDERS_ADD_PATH,
@@ -184,13 +230,13 @@ describe('Add Orders page', () => {
     });
 
     await screen.findByRole('heading', { level: 1, name: 'Tell us about your move orders' });
-    expect(screen.getByLabelText('Orders type')).toBeInTheDocument();
-    expect(screen.getByLabelText('Orders date')).toBeInTheDocument();
-    expect(screen.getByLabelText('Report by date')).toBeInTheDocument();
+    expect(screen.getByLabelText(/Orders type/)).toBeInTheDocument();
+    expect(screen.getByLabelText(/Orders date/)).toBeInTheDocument();
+    expect(screen.getByLabelText(/Report by date/)).toBeInTheDocument();
     expect(screen.getByText('Are dependents included in your orders?')).toBeInTheDocument();
-    expect(screen.getByLabelText('Current duty location')).toBeInTheDocument();
-    expect(screen.getByLabelText('New duty location')).toBeInTheDocument();
-    expect(screen.getByLabelText('Pay grade')).toBeInTheDocument();
+    expect(screen.getByLabelText(/Current duty location/)).toBeInTheDocument();
+    expect(screen.getByLabelText(/New duty location/)).toBeInTheDocument();
+    expect(screen.getByLabelText(/Pay grade/)).toBeInTheDocument();
 
     const backBtn = await screen.findByRole('button', { name: 'Back' });
     expect(backBtn).toBeInTheDocument();
@@ -208,6 +254,7 @@ describe('Add Orders page', () => {
       issue_date: '2020-11-08',
       report_by_date: '2020-11-26',
       has_dependents: false,
+      moves: ['testMovId'],
       new_duty_location: {
         address: {
           city: 'Des Moines',
@@ -228,32 +275,37 @@ describe('Add Orders page', () => {
       },
       grade: 'E_1',
     };
+
     selectServiceMemberFromLoggedInUser.mockImplementation(() => serviceMember);
     createOrders.mockImplementation(() => Promise.resolve(testOrdersValues));
     getServiceMember.mockImplementation(() => Promise.resolve());
 
-    renderWithProviders(<AddOrders {...testProps} />, {
-      path: customerRoutes.ORDERS_ADD_PATH,
+    await act(async () => {
+      renderWithProviders(<AddOrders {...testProps} />, {
+        path: customerRoutes.ORDERS_ADD_PATH,
+      });
     });
 
     const nextBtn = await screen.findByRole('button', { name: 'Next' });
     expect(nextBtn).toBeInTheDocument();
 
-    await userEvent.selectOptions(screen.getByLabelText('Orders type'), 'PERMANENT_CHANGE_OF_STATION');
-    await userEvent.type(screen.getByLabelText('Orders date'), '08 Nov 2020');
-    await userEvent.type(screen.getByLabelText('Report by date'), '26 Nov 2020');
-    await userEvent.click(screen.getByLabelText('No'));
-    await userEvent.selectOptions(screen.getByLabelText('Pay grade'), ['E_5']);
+    await act(async () => {
+      await userEvent.selectOptions(screen.getByLabelText(/Orders type/), 'PERMANENT_CHANGE_OF_STATION');
+      await userEvent.type(screen.getByLabelText(/Orders date/), '08 Nov 2020');
+      await userEvent.type(screen.getByLabelText(/Report by date/), '26 Nov 2020');
+      await userEvent.click(screen.getByLabelText('No'));
+      await userEvent.selectOptions(screen.getByLabelText(/Pay grade/), ['E_5']);
 
-    // Test Current Duty Location Search Box interaction
-    await userEvent.type(screen.getByLabelText('Current duty location'), 'AFB', { delay: 100 });
-    const selectedOptionCurrent = await screen.findByText(/Altus/);
-    await userEvent.click(selectedOptionCurrent);
+      // Test Current Duty Location Search Box interaction
+      await userEvent.type(screen.getByLabelText(/Current duty location/), 'AFB', { delay: 100 });
+      const selectedOptionCurrent = await screen.findByText(/Altus/);
+      await userEvent.click(selectedOptionCurrent);
 
-    // Test New Duty Location Search Box interaction
-    await userEvent.type(screen.getByLabelText('New duty location'), 'AFB', { delay: 100 });
-    const selectedOptionNew = await screen.findByText(/Luke/);
-    await userEvent.click(selectedOptionNew);
+      // Test New Duty Location Search Box interaction
+      await userEvent.type(screen.getByLabelText(/New duty location/), 'AFB', { delay: 100 });
+      const selectedOptionNew = await screen.findByText(/Luke/);
+      await userEvent.click(selectedOptionNew);
+    });
 
     await waitFor(() => {
       expect(screen.getByRole('form')).toHaveFormValues({
@@ -262,12 +314,27 @@ describe('Add Orders page', () => {
       });
     });
 
-    await userEvent.click(nextBtn);
+    await waitFor(() => expect(nextBtn).toBeEnabled());
+
+    await act(async () => {
+      await userEvent.click(nextBtn);
+    });
 
     await waitFor(() => {
       expect(createOrders).toHaveBeenCalled();
+      expect(setMoveId).toHaveBeenCalled();
+      expect(setCanAddOrders).toHaveBeenCalled();
       expect(getServiceMember).toHaveBeenCalledWith(testProps.serviceMemberId);
     });
   });
-  afterEach(jest.restoreAllMocks);
+
+  it('redirects the user if canAddOrders is false', async () => {
+    selectServiceMemberFromLoggedInUser.mockImplementation(() => serviceMember);
+    selectCanAddOrders.mockImplementation(() => false);
+    renderWithProviders(<AddOrders {...testPropsRedirect} />, {
+      path: customerRoutes.ORDERS_ADD_PATH,
+    });
+
+    expect(mockNavigate).toHaveBeenCalledWith(generalRoutes.HOME_PATH);
+  });
 });

@@ -26,6 +26,10 @@ type SSWPPMComputer struct {
 func (_m *SSWPPMComputer) ComputeObligations(_a0 appcontext.AppContext, _a1 models.ShipmentSummaryFormData, _a2 route.Planner) (models.Obligations, error) {
 	ret := _m.Called(_a0, _a1, _a2)
 
+	if len(ret) == 0 {
+		panic("no return value specified for ComputeObligations")
+	}
+
 	var r0 models.Obligations
 	var r1 error
 	if rf, ok := ret.Get(0).(func(appcontext.AppContext, models.ShipmentSummaryFormData, route.Planner) (models.Obligations, error)); ok {
@@ -49,6 +53,10 @@ func (_m *SSWPPMComputer) ComputeObligations(_a0 appcontext.AppContext, _a1 mode
 // FetchDataShipmentSummaryWorksheetFormData provides a mock function with given fields: appCtx, _a1, ppmShipmentID
 func (_m *SSWPPMComputer) FetchDataShipmentSummaryWorksheetFormData(appCtx appcontext.AppContext, _a1 *auth.Session, ppmShipmentID uuid.UUID) (*models.ShipmentSummaryFormData, error) {
 	ret := _m.Called(appCtx, _a1, ppmShipmentID)
+
+	if len(ret) == 0 {
+		panic("no return value specified for FetchDataShipmentSummaryWorksheetFormData")
+	}
 
 	var r0 *models.ShipmentSummaryFormData
 	var r1 error
@@ -76,6 +84,10 @@ func (_m *SSWPPMComputer) FetchDataShipmentSummaryWorksheetFormData(appCtx appco
 func (_m *SSWPPMComputer) FormatShipment(ppm models.PPMShipment, weightAllotment models.SSWMaxWeightEntitlement, isPaymentPacket bool) models.WorkSheetShipment {
 	ret := _m.Called(ppm, weightAllotment, isPaymentPacket)
 
+	if len(ret) == 0 {
+		panic("no return value specified for FormatShipment")
+	}
+
 	var r0 models.WorkSheetShipment
 	if rf, ok := ret.Get(0).(func(models.PPMShipment, models.SSWMaxWeightEntitlement, bool) models.WorkSheetShipment); ok {
 		r0 = rf(ppm, weightAllotment, isPaymentPacket)
@@ -89,6 +101,10 @@ func (_m *SSWPPMComputer) FormatShipment(ppm models.PPMShipment, weightAllotment
 // FormatValuesShipmentSummaryWorksheet provides a mock function with given fields: shipmentSummaryFormData, isPaymentPacket
 func (_m *SSWPPMComputer) FormatValuesShipmentSummaryWorksheet(shipmentSummaryFormData models.ShipmentSummaryFormData, isPaymentPacket bool) (services.Page1Values, services.Page2Values, services.Page3Values, error) {
 	ret := _m.Called(shipmentSummaryFormData, isPaymentPacket)
+
+	if len(ret) == 0 {
+		panic("no return value specified for FormatValuesShipmentSummaryWorksheet")
+	}
 
 	var r0 services.Page1Values
 	var r1 services.Page2Values
@@ -128,6 +144,10 @@ func (_m *SSWPPMComputer) FormatValuesShipmentSummaryWorksheet(shipmentSummaryFo
 func (_m *SSWPPMComputer) FormatValuesShipmentSummaryWorksheetFormPage1(data models.ShipmentSummaryFormData, isPaymentPacket bool) (services.Page1Values, error) {
 	ret := _m.Called(data, isPaymentPacket)
 
+	if len(ret) == 0 {
+		panic("no return value specified for FormatValuesShipmentSummaryWorksheetFormPage1")
+	}
+
 	var r0 services.Page1Values
 	var r1 error
 	if rf, ok := ret.Get(0).(func(models.ShipmentSummaryFormData, bool) (services.Page1Values, error)); ok {
@@ -152,6 +172,10 @@ func (_m *SSWPPMComputer) FormatValuesShipmentSummaryWorksheetFormPage1(data mod
 func (_m *SSWPPMComputer) FormatValuesShipmentSummaryWorksheetFormPage2(data models.ShipmentSummaryFormData, isPaymentPacket bool) (services.Page2Values, error) {
 	ret := _m.Called(data, isPaymentPacket)
 
+	if len(ret) == 0 {
+		panic("no return value specified for FormatValuesShipmentSummaryWorksheetFormPage2")
+	}
+
 	var r0 services.Page2Values
 	var r1 error
 	if rf, ok := ret.Get(0).(func(models.ShipmentSummaryFormData, bool) (services.Page2Values, error)); ok {
@@ -175,6 +199,10 @@ func (_m *SSWPPMComputer) FormatValuesShipmentSummaryWorksheetFormPage2(data mod
 // FormatValuesShipmentSummaryWorksheetFormPage3 provides a mock function with given fields: data, isPaymentPacket
 func (_m *SSWPPMComputer) FormatValuesShipmentSummaryWorksheetFormPage3(data models.ShipmentSummaryFormData, isPaymentPacket bool) (services.Page3Values, error) {
 	ret := _m.Called(data, isPaymentPacket)
+
+	if len(ret) == 0 {
+		panic("no return value specified for FormatValuesShipmentSummaryWorksheetFormPage3")
+	}
 
 	var r0 services.Page3Values
 	var r1 error

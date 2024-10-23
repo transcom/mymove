@@ -121,6 +121,12 @@ func init() {
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
+        "isOconus": {
+          "type": "boolean",
+          "title": "isOconus",
+          "x-nullable": true,
+          "example": false
+        },
         "postalCode": {
           "type": "string",
           "format": "zip",
@@ -268,8 +274,6 @@ func init() {
         "AIR_FORCE",
         "COAST_GUARD",
         "SPACE_FORCE",
-        "NAVY_AND_MARINES",
-        "AIR_AND_SPACE_FORCE",
         "OTHER"
       ],
       "x-display-value": {
@@ -1004,6 +1008,12 @@ func init() {
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
+        "isOconus": {
+          "type": "boolean",
+          "title": "isOconus",
+          "x-nullable": true,
+          "example": false
+        },
         "postalCode": {
           "type": "string",
           "format": "zip",
@@ -1151,8 +1161,6 @@ func init() {
         "AIR_FORCE",
         "COAST_GUARD",
         "SPACE_FORCE",
-        "NAVY_AND_MARINES",
-        "AIR_AND_SPACE_FORCE",
         "OTHER"
       ],
       "x-display-value": {
