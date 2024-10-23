@@ -288,7 +288,10 @@ func (suite *PayloadsSuite) TestMTOAgentsModel() {
 
 func (suite *PayloadsSuite) TestMTOServiceItemModelListFromCreate() {
 	suite.Run("successful", func() {
-		mtoShipment := &primev2messages.CreateMTOShipment{}
+		mtoID, _ := uuid.NewV4()
+		mtoShipment := &primev2messages.CreateMTOShipment{
+			MoveTaskOrderID: handlers.FmtUUID(mtoID),
+		}
 
 		serviceItemsList, verrs := MTOServiceItemModelListFromCreate(mtoShipment)
 
@@ -298,7 +301,10 @@ func (suite *PayloadsSuite) TestMTOServiceItemModelListFromCreate() {
 	})
 
 	suite.Run("successful multiple items", func() {
-		mtoShipment := &primev2messages.CreateMTOShipment{}
+		mtoID, _ := uuid.NewV4()
+		mtoShipment := &primev2messages.CreateMTOShipment{
+			MoveTaskOrderID: handlers.FmtUUID(mtoID),
+		}
 
 		serviceItemsList, verrs := MTOServiceItemModelListFromCreate(mtoShipment)
 
@@ -309,7 +315,7 @@ func (suite *PayloadsSuite) TestMTOServiceItemModelListFromCreate() {
 
 	suite.Run("unsuccessful", func() {
 		serviceItemsList, verrs := MTOServiceItemModelListFromCreate(nil)
-		suite.Nil(verrs)
+		suite.NotNil(verrs)
 		suite.Nil(serviceItemsList)
 	})
 }

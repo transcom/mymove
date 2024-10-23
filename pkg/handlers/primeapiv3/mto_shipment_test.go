@@ -1,6 +1,7 @@
 package primeapiv3
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"net/http/httptest"
@@ -9,6 +10,7 @@ import (
 	"github.com/go-openapi/strfmt"
 	"github.com/gofrs/uuid"
 	"github.com/stretchr/testify/mock"
+	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/apperror"
 	"github.com/transcom/mymove/pkg/etag"
@@ -120,6 +122,16 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 				mock.AnythingOfType("string"),
 				mock.Anything,
 			).Return(services.FeatureFlag{}, errors.New("Some error"))
+
+			mockFeatureFlagFetcher.On("GetBooleanFlag",
+				mock.Anything,
+				mock.Anything,
+				mock.AnythingOfType("string"),
+				mock.AnythingOfType("string"),
+				mock.Anything,
+			).Return(func(_ context.Context, _ *zap.Logger, _ string, key string, flagContext map[string]string) (services.FeatureFlag, error) {
+				return services.FeatureFlag{}, errors.New("Some error")
+			})
 			handlerConfig.SetFeatureFlagFetcher(mockFeatureFlagFetcher)
 		}
 		handler := CreateMTOShipmentHandler{
