@@ -222,7 +222,7 @@ const EvaluationReportView = ({ customerInfo, grade, destinationDutyLocationPost
                                   }}
                                   data-testid="addAppealBtn"
                                 >
-                                  Add appeal
+                                  Leave Appeal Decision
                                 </Button>
                               ) : null}
                             </div>

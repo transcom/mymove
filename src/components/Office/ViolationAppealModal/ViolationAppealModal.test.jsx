@@ -18,7 +18,7 @@ describe('ViolationAppealModal', () => {
   });
 
   test('renders correctly with all fields and buttons', () => {
-    expect(screen.getByText('Add Violation Appeal')).toBeInTheDocument();
+    expect(screen.getByText('Leave Appeal Decision')).toBeInTheDocument();
     expect(screen.getByLabelText('Remarks')).toBeInTheDocument();
     expect(screen.getByLabelText('Sustained')).toBeInTheDocument();
     expect(screen.getByLabelText('Rejected')).toBeInTheDocument();

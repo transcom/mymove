@@ -111,14 +111,14 @@ test.describe('GSR User Flow', () => {
     await gsrFlowPage.searchForAndNavigateToMoveQATab();
   });
 
-  test.describe('Happy Paths', () => {
+  test.describe('Leave Appeal Decision', () => {
     test.skip(gsrEnabled === 'false', 'Skip if the GSR flag is off.');
     test('QAE creates an evaluation report and a GSR user can leave remarks', async ({ page }) => {
       await page.getByTestId('viewReport').click();
       const addAppealBtn = page.getByTestId('addAppealBtn');
       await expect(addAppealBtn).toBeVisible();
       await addAppealBtn.click();
-      await expect(page.getByRole('heading', { name: 'Add Violation Appeal' })).toBeVisible();
+      await expect(page.getByRole('heading', { name: 'Leave Appeal Decision' })).toBeVisible();
       const remarksInput = page.getByTestId('addAppealRemarks');
       await expect(remarksInput).toBeVisible();
       await page.locator('textarea[name="remarks"]').fill('These are some appeal remarks');

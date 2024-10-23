@@ -30,7 +30,9 @@ export const ViolationAppealModal = ({ onClose, onSubmit }) => {
         <Modal className={styles.ViolationAppealModal}>
           <ModalClose handleClick={onClose} />
           <ModalTitle>
-            <h2 className={styles.ModalTitle}>Add Violation Appeal</h2>
+            <h2 className={styles.ModalTitle} data-testid="appealModalTitle">
+              Leave Appeal Decision
+            </h2>
           </ModalTitle>
           <Formik
             validationSchema={violationAppealSchema}

@@ -370,6 +370,7 @@ describe('EvaluationReportView', () => {
     await userEvent.click(addAppealBtn);
 
     // modal heading should appear
-    expect(screen.getByText('Add Violation Appeal')).toBeInTheDocument();
+    const addAppealModalTitle = await screen.findByTestId('appealModalTitle');
+    expect(addAppealModalTitle).toBeInTheDocument();
   });
 });
