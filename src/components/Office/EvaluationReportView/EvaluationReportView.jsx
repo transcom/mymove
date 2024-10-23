@@ -220,6 +220,7 @@ const EvaluationReportView = ({ customerInfo, grade, destinationDutyLocationPost
                                     setSelectedReportViolation(reportViolation);
                                     handleShowViolationAppealModal();
                                   }}
+                                  data-testid="addAppealBtn"
                                 >
                                   Add appeal
                                 </Button>
@@ -236,6 +237,7 @@ const EvaluationReportView = ({ customerInfo, grade, destinationDutyLocationPost
                                 unstyled
                                 className={styles.addAppealBtn}
                                 onClick={() => toggleAppealsVisibility(reportViolation.id)}
+                                data-testid="showAppealBtn"
                               >
                                 {showAppeals ? 'Hide appeals' : 'Show appeals'}
                                 <FontAwesomeIcon

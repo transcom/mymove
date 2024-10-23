@@ -52,9 +52,24 @@ func (f *evaluationReportFetcher) FetchEvaluationReportByID(appCtx appcontext.Ap
 			return nil, apperror.NewQueryError("EvaluationReport", err, "")
 		}
 	}
+
+	// Filter GsrAppeals to only include serious incident appeals since those belong on the report and NOT a violation
+	report.GsrAppeals = FilterSeriousIncidentAppeals(report.GsrAppeals)
+
 	// We shouldn't return the data if it's a draft (nil submitted_at) and the requester doesn't own it.
 	if report.SubmittedAt == nil && report.OfficeUserID != officeUserID {
 		return nil, apperror.NewForbiddenError("Draft evaluation reports are viewable only by their owner/creator.")
 	}
 	return &report, nil
+}
+
+// FilterSeriousIncidentAppeals filters GsrAppeals and returns only those where IsSeriousIncidentAppeal is true
+func FilterSeriousIncidentAppeals(appeals []models.GsrAppeal) []models.GsrAppeal {
+	var filteredAppeals []models.GsrAppeal
+	for _, appeal := range appeals {
+		if appeal.IsSeriousIncidentAppeal != nil && *appeal.IsSeriousIncidentAppeal {
+			filteredAppeals = append(filteredAppeals, appeal)
+		}
+	}
+	return filteredAppeals
 }

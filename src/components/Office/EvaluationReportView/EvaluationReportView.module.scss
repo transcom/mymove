@@ -141,7 +141,7 @@
   @include u-padding-x(2);
   border: 1px solid $base-light;
   border-radius: 2px;
-  max-width: 648px;
+  width: 648px;
 
   .violationHeader {
     display: flex;
@@ -186,6 +186,7 @@
 .appealsTable {
   @include u-margin-bottom(2);
   border: 1px solid $base-lighter;
+  width: 620px;
 
   .appealsTableHeader {
     display: flex;
