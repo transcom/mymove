@@ -12,6 +12,19 @@ const ordersInfo = {
   ordersNumber: '999999999',
   ordersType: 'PERMANENT_CHANGE_OF_STATION',
   ordersTypeDetail: 'HHG_PERMITTED',
+  ordersDocuments: {
+    'c0a22a98-a806-47a2-ab54-2dac938667b3': {
+      bytes: 2202009,
+      contentType: 'application/pdf',
+      createdAt: '2024-10-23T16:31:21.085Z',
+      filename: 'testFile.pdf',
+      id: 'c0a22a98-a806-47a2-ab54-2dac938667b3',
+      status: 'PROCESSING',
+      updatedAt: '2024-10-23T16:31:21.085Z',
+      uploadType: 'USER',
+      url: '/storage/USER/uploads/c0a22a98-a806-47a2-ab54-2dac938667b3?contentType=application%2Fpdf',
+    },
+  },
   tacMDC: '9999',
   sacSDN: '999 999999 999',
   payGrade: 'E_7',
@@ -27,6 +40,7 @@ const expectedRenderedOrdersInfo = {
   ordersNumber: '999999999',
   ordersType: 'Permanent Change Of Station (PCS)',
   ordersTypeDetail: 'Shipment of HHG Permitted',
+  ordersDocuments: 'File(s) Uploaded',
   tacMDC: '9999',
   sacSDN: '999 999999 999',
   payGrade: 'E-7',
@@ -41,6 +55,7 @@ const ordersInfoMissing = {
   ordersNumber: '',
   ordersType: '',
   ordersTypeDetail: '',
+  ordersDocuments: null,
   tacMDC: '',
   sacSDN: '999 999999 999',
   payGrade: '',
@@ -60,6 +75,7 @@ describe('OrdersList', () => {
     expect(screen.getByTestId('ordersNumber').textContent).toEqual('Missing');
     expect(screen.getByTestId('ordersType').textContent).toEqual('Missing');
     expect(screen.getByTestId('ordersTypeDetail').textContent).toEqual('Missing');
+    expect(screen.getByTestId('ordersDocuments').textContent).toEqual('Missing');
     expect(screen.getByTestId('tacMDC').textContent).toEqual('Missing');
     expect(screen.getByTestId('payGrade').textContent).toEqual('Missing');
   });
@@ -70,6 +86,7 @@ describe('OrdersList', () => {
     expect(screen.getByTestId('ordersNumber').textContent).toEqual('—');
     expect(screen.getByTestId('ordersType').textContent).toEqual('—');
     expect(screen.getByTestId('ordersTypeDetail').textContent).toEqual('—');
+    expect(screen.getByTestId('ordersDocuments').textContent).toEqual('—');
     expect(screen.getByTestId('tacMDC').textContent).toEqual('—');
     expect(screen.getByTestId('payGrade').textContent).toEqual('—');
   });
