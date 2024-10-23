@@ -243,6 +243,7 @@ func (suite *FactorySuite) TestBuildMinimalAddress() {
 				Model: models.Address{
 					StreetAddress1: customStreet,
 					PostalCode:     customPostalCode,
+					IsOconus:       models.BoolPointer(false),
 				},
 			},
 		}, nil)
@@ -289,6 +290,7 @@ func (suite *FactorySuite) TestBuildMinimalAddress() {
 				Model: models.Address{
 					StreetAddress1: customStreet,
 					PostalCode:     customPostalCode,
+					IsOconus:       models.BoolPointer(false),
 				},
 			},
 		}, nil)
@@ -316,6 +318,7 @@ func (suite *FactorySuite) TestBuildMinimalAddress() {
 					ID:             uuid.Must(uuid.NewV4()),
 					StreetAddress1: customStreet,
 					PostalCode:     customPostalCode,
+					IsOconus:       models.BoolPointer(false),
 				},
 				LinkOnly: true,
 			},
