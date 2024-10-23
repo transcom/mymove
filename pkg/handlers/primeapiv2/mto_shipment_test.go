@@ -90,11 +90,55 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 	var pickupAddress primev2messages.Address
 	var destinationAddress primev2messages.Address
 
-	setupTestData := func() (CreateMTOShipmentHandler, models.Move) {
+	setupTestData := func(ubFeatureFlag bool) (CreateMTOShipmentHandler, models.Move) {
 
 		move := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
+		handlerConfig := suite.HandlerConfig()
+		if ubFeatureFlag {
+			expectedFeatureFlag := services.FeatureFlag{
+				Key:   "unaccompanied_baggage",
+				Match: true,
+			}
+
+			mockFeatureFlagFetcher := &mocks.FeatureFlagFetcher{}
+
+			mockFeatureFlagFetcher.On("GetBooleanFlag",
+				mock.Anything,
+				mock.Anything,
+				mock.AnythingOfType("string"),
+				mock.AnythingOfType("string"),
+				mock.Anything,
+			).Return(expectedFeatureFlag, nil)
+			handlerConfig.SetFeatureFlagFetcher(mockFeatureFlagFetcher)
+
+			mockFeatureFlagFetcher.On("GetBooleanFlagForUser",
+				mock.Anything,
+				mock.AnythingOfType("*appcontext.appContext"),
+				mock.AnythingOfType("string"),
+				mock.Anything,
+			).Return(expectedFeatureFlag, nil)
+			handlerConfig.SetFeatureFlagFetcher(mockFeatureFlagFetcher)
+		} else {
+			mockFeatureFlagFetcher := &mocks.FeatureFlagFetcher{}
+			mockFeatureFlagFetcher.On("GetBooleanFlag",
+				mock.Anything,                 // context.Context
+				mock.Anything,                 // *zap.Logger
+				mock.AnythingOfType("string"), // entityID (userID)
+				mock.AnythingOfType("string"), // key
+				mock.Anything,                 // flagContext (map[string]string)
+			).Return(services.FeatureFlag{}, errors.New("Some error"))
+			handlerConfig.SetFeatureFlagFetcher(mockFeatureFlagFetcher)
+
+			mockFeatureFlagFetcher.On("GetBooleanFlagForUser",
+				mock.Anything,
+				mock.AnythingOfType("*appcontext.appContext"),
+				mock.AnythingOfType("string"),
+				mock.Anything,
+			).Return(services.FeatureFlag{}, errors.New("Some error"))
+			handlerConfig.SetFeatureFlagFetcher(mockFeatureFlagFetcher)
+		}
 		handler := CreateMTOShipmentHandler{
-			suite.HandlerConfig(),
+			handlerConfig,
 			shipmentCreator,
 			mtoChecker,
 		}
@@ -132,7 +176,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		// Under Test: CreateMTOShipment handler code
 		// Setup:   Create an mto shipment on an available move
 		// Expected:   Successful submission, status should be SUBMITTED
-		handler, move := setupTestData()
+		handler, move := setupTestData(false)
 		req := httptest.NewRequest("POST", "/mto-shipments", nil)
 
 		params := mtoshipmentops.CreateMTOShipmentParams{
@@ -166,11 +210,53 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		suite.Require().Equal(createMTOShipmentPayload.PrimeEstimatedWeight, params.Body.PrimeEstimatedWeight)
 	})
 
+	suite.Run("Successful POST - Integration Test - Unaccompanied Baggage", func() {
+		// Under Test: CreateMTOShipment handler code
+		// Setup:   Create an mto shipment on an available move
+		// Expected:   Successful submission, status should be SUBMITTED
+
+		suite.T().Setenv("FEATURE_FLAG_UNACCOMPANIED_BAGGAGE", "true") // Set to true in order to test UB shipments can be created with UB flag on
+
+		handler, move := setupTestData(true)
+		req := httptest.NewRequest("POST", "/mto-shipments", nil)
+
+		params := mtoshipmentops.CreateMTOShipmentParams{
+			HTTPRequest: req,
+			Body: &primev2messages.CreateMTOShipment{
+				MoveTaskOrderID:      handlers.FmtUUID(move.ID),
+				Agents:               nil,
+				CustomerRemarks:      nil,
+				PointOfContact:       "John Doe",
+				PrimeEstimatedWeight: handlers.FmtInt64(1200),
+				RequestedPickupDate:  handlers.FmtDatePtr(models.TimePointer(time.Now())),
+				ShipmentType:         primev2messages.NewMTOShipmentType(primev2messages.MTOShipmentTypeUNACCOMPANIEDBAGGAGE),
+				PickupAddress:        struct{ primev2messages.Address }{pickupAddress},
+				DestinationAddress:   struct{ primev2messages.Address }{destinationAddress},
+			},
+		}
+
+		// Validate incoming payload
+		suite.NoError(params.Body.Validate(strfmt.Default))
+
+		response := handler.Handle(params)
+		suite.IsType(&mtoshipmentops.CreateMTOShipmentOK{}, response)
+		okResponse := response.(*mtoshipmentops.CreateMTOShipmentOK)
+		createMTOShipmentPayload := okResponse.Payload
+
+		// Validate outgoing payload
+		suite.NoError(createMTOShipmentPayload.Validate(strfmt.Default))
+
+		// check that the mto shipment status is Submitted
+		suite.Require().Equal(createMTOShipmentPayload.ShipmentType, primev2messages.MTOShipmentTypeUNACCOMPANIEDBAGGAGE, "MTO Shipment should have been submitted")
+		suite.Require().Equal(createMTOShipmentPayload.Status, primev2messages.MTOShipmentWithoutServiceItemsStatusSUBMITTED, "MTO Shipment should have been submitted")
+		suite.Require().Equal(createMTOShipmentPayload.PrimeEstimatedWeight, params.Body.PrimeEstimatedWeight)
+	})
+
 	suite.Run("Successful POST - Integration Test (PPM)", func() {
 		// Under Test: CreateMTOShipment handler code
 		// Setup:      Create a PPM shipment on an available move
 		// Expected:   Successful submission, status should be SUBMITTED
-		handler, move := setupTestData()
+		handler, move := setupTestData(false)
 		req := httptest.NewRequest("POST", "/mto-shipments", nil)
 
 		counselorRemarks := "Some counselor remarks"
@@ -252,7 +338,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		// Under Test: CreateMTOShipment handler code
 		// Setup:   Create an mto shipment on an available move
 		// Expected:   Successful submission, status should be SUBMITTED
-		handler, move := setupTestData()
+		handler, move := setupTestData(false)
 		req := httptest.NewRequest("POST", "/mto-shipments", nil)
 
 		serviceItem := factory.BuildMTOServiceItemBasic(suite.DB(), []factory.Customization{
@@ -310,7 +396,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		// Mocked:     CreateMTOShipment creator
 		// Setup:   If underlying CreateMTOShipment returns error, handler should return 500 response
 		// Expected:   500 Response returned
-		handler, move := setupTestData()
+		handler, move := setupTestData(false)
 		req := httptest.NewRequest("POST", "/mto-shipments", nil)
 
 		// Create a handler with the mocked creator
@@ -354,7 +440,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		// Setup:      Create a shipment with an agent that doesn't really exist, handler should return unprocessable entity
 		// Expected:   422 Unprocessable Entity Response returned
 
-		handler, move := setupTestData()
+		handler, move := setupTestData(false)
 		req := httptest.NewRequest("POST", "/mto-shipments", nil)
 
 		badID := strfmt.UUID(uuid.Must(uuid.NewV4()).String())
@@ -397,7 +483,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		// Setup:      Create a shipment with missing pickup address, handler should return unprocessable entity
 		// Expected:   422 Unprocessable Entity Response returned
 
-		handler, move := setupTestData()
+		handler, move := setupTestData(false)
 		req := httptest.NewRequest("POST", "/mto-shipments", nil)
 
 		params := mtoshipmentops.CreateMTOShipmentParams{
@@ -435,7 +521,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		// Under Test: CreateMTOShipmentHandler
 		// Setup:      Create a shipment on a non-existent move
 		// Expected:   404 Not Found returned
-		handler, _ := setupTestData()
+		handler, _ := setupTestData(false)
 		req := httptest.NewRequest("POST", "/mto-shipments", nil)
 
 		// Generate a unique id
@@ -469,7 +555,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		// Setup:      Create a request with no data in the body
 		// Expected:   422 Unprocessable Entity Response returned
 
-		handler, _ := setupTestData()
+		handler, _ := setupTestData(false)
 		req := httptest.NewRequest("POST", "/mto-shipments", nil)
 
 		paramsNilBody := mtoshipmentops.CreateMTOShipmentParams{
@@ -491,7 +577,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		// Setup:      Create a shipment on an unavailable move, prime cannot update these
 		// Expected:   404 Not found returned
 
-		handler, _ := setupTestData()
+		handler, _ := setupTestData(false)
 		req := httptest.NewRequest("POST", "/mto-shipments", nil)
 
 		unavailableMove := factory.BuildMove(suite.DB(), nil, nil)
@@ -562,7 +648,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		// Setup:      Create a shipment with service items that don't match the modeltype
 		// Expected:   422 Unprocessable Entity returned
 
-		handler, move := setupTestData()
+		handler, move := setupTestData(false)
 		req := httptest.NewRequest("POST", "/mto-shipments", nil)
 		handler.ShipmentCreator = &mockCreator
 
@@ -609,5 +695,41 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		suite.NoError(typedResponse.Payload.Validate(strfmt.Default))
 
 		suite.Contains(*typedResponse.Payload.Detail, "MTOServiceItem modelType() not allowed")
+	})
+
+	suite.Run("POST failure - Error when UB FF is off and UB shipment is passed in.", func() {
+		// Under Test: CreateMTOShipmentHandler
+		// Mocked:     CreateMTOShipment creator
+		// Setup:   If underlying CreateMTOShipment returns error, handler should return 500 response
+		// Expected:   500 Response returned
+		suite.T().Setenv("FEATURE_FLAG_UNACCOMPANIED_BAGGAGE", "false") // Set to true in order to test that it will default to "false" if flag fetcher errors out.
+
+		handler, move := setupTestData(false)
+
+		req := httptest.NewRequest("POST", "/mto-shipments", nil)
+
+		params := mtoshipmentops.CreateMTOShipmentParams{
+			HTTPRequest: req,
+			Body: &primev2messages.CreateMTOShipment{
+				MoveTaskOrderID:      handlers.FmtUUID(move.ID),
+				Agents:               nil,
+				CustomerRemarks:      nil,
+				PointOfContact:       "John Doe",
+				PrimeEstimatedWeight: handlers.FmtInt64(1200),
+				RequestedPickupDate:  handlers.FmtDatePtr(models.TimePointer(time.Now())),
+				ShipmentType:         primev2messages.NewMTOShipmentType(primev2messages.MTOShipmentTypeUNACCOMPANIEDBAGGAGE),
+				PickupAddress:        struct{ primev2messages.Address }{pickupAddress},
+				DestinationAddress:   struct{ primev2messages.Address }{destinationAddress},
+			},
+		}
+
+		// Validate incoming payload
+		suite.NoError(params.Body.Validate(strfmt.Default))
+
+		response := handler.Handle(params)
+		suite.IsType(&mtoshipmentops.CreateMTOShipmentUnprocessableEntity{}, response)
+		errResponse := response.(*mtoshipmentops.CreateMTOShipmentUnprocessableEntity)
+
+		suite.Contains(*errResponse.Payload.Detail, "Unaccompanied baggage shipments can't be created unless the unaccompanied_baggage feature flag is enabled.")
 	})
 }
