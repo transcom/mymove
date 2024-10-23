@@ -1017,6 +1017,6 @@
 20241007184259_insertReIntlTransTime.up.sql
 20241007224427_update_addresses_us_post_region_cities_id.up.sql
 20241009210749_create_view_v_locations.up.sql
-20241015211231_add_ports_table.up.sql
+20241015211231_add_port_table.up.sql
 20241015212812_add_port_location_table.up.sql
 20241021192343_insert_ports.up.sql

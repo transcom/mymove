@@ -1,7 +1,7 @@
 CREATE TABLE IF NOT EXISTS port_location (
     id                          uuid                NOT NULL,
     port_id                     uuid                NOT NULL
-        CONSTRAINT fk_port_id_port REFERENCES ports (id),
+        CONSTRAINT fk_port_id_port REFERENCES port (id),
     cities_id                   uuid                NOT NULL
         CONSTRAINT fk_cities_id_re_cities REFERENCES re_cities (id),
     us_post_region_cities_id    uuid                NOT NULL
