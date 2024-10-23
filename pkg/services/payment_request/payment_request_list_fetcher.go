@@ -28,6 +28,7 @@ var parameters = map[string]string{
 	"status":             "payment_requests.status",
 	"age":                "payment_requests.created_at",
 	"originDutyLocation": "duty_locations.name",
+	"assignedTo":         "assigned_user.last_name,assigned_user.first_name",
 }
 
 // NewPaymentRequestListFetcher returns a new payment request list fetcher
@@ -118,7 +119,7 @@ func (f *paymentRequestListFetcher) FetchPaymentRequestList(appCtx appcontext.Ap
 		params.PerPage = models.Int64Pointer(20)
 	}
 
-	err = query.GroupBy("payment_requests.id, service_members.id, moves.id, duty_locations.id, duty_locations.name").Paginate(int(*params.Page), int(*params.PerPage)).All(&paymentRequests)
+	err = query.GroupBy("payment_requests.id, service_members.id, moves.id, duty_locations.id, duty_locations.name, assigned_user.last_name, assigned_user.first_name").Paginate(int(*params.Page), int(*params.PerPage)).All(&paymentRequests)
 	if err != nil {
 		return nil, 0, err
 	}
@@ -272,6 +273,11 @@ func orderName(query *pop.Query, order *string) *pop.Query {
 	return query
 }
 
+func orderAssignedName(query *pop.Query, order *string) *pop.Query {
+	query.Order(fmt.Sprintf("assigned_user.last_name %s, assigned_user.first_name %s", *order, *order))
+	return query
+}
+
 func reverseOrder(order *string) string {
 	if *order == "asc" {
 		return "desc"
@@ -287,6 +293,8 @@ func sortOrder(sort *string, order *string) QueryOption {
 				orderName(query, order)
 			} else if *sort == "age" {
 				query.Order(fmt.Sprintf("%s %s", sortTerm, reverseOrder(order)))
+			} else if *sort == "assignedTo" {
+				orderAssignedName(query, order)
 			} else {
 				query.Order(fmt.Sprintf("%s %s", sortTerm, *order))
 			}
