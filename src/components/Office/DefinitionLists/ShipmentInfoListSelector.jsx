@@ -8,7 +8,6 @@ import NTSRShipmentInfoList from 'components/Office/DefinitionLists/NTSRShipment
 import NTSShipmentInfoList from 'components/Office/DefinitionLists/NTSShipmentInfoList';
 import MobileHomeShipmentInfoList from 'components/Office/DefinitionLists/MobileHomeShipmentInfoList';
 import BoatShipmentInfoList from 'components/Office/DefinitionLists/BoatShipmentInfoList';
-import MobileHomeShipmentInfoList from 'components/Office/DefinitionLists/MobileHomeShipmentInfoList';
 import { SHIPMENT_OPTIONS, SHIPMENT_TYPES } from 'shared/constants';
 import { fieldValidationShape } from 'utils/displayFlags';
 
@@ -140,6 +139,7 @@ ShipmentInfoListSelector.propTypes = {
     SHIPMENT_OPTIONS.PPM,
     SHIPMENT_TYPES.BOAT_HAUL_AWAY,
     SHIPMENT_TYPES.BOAT_TOW_AWAY,
+    SHIPMENT_OPTIONS.MOBILE_HOME,
   ]),
   isForEvaluationReport: PropTypes.bool,
   destinationDutyLocationPostalCode: PropTypes.string,
