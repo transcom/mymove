@@ -90,7 +90,7 @@ func (suite *AddressSuite) TestAddressCreator() {
 		suite.Equal(postalCode, address.PostalCode)
 		suite.Nil(address.StreetAddress2)
 		suite.Nil(address.StreetAddress3)
-		suite.Nil(address.Country)
+		suite.NotNil(address.Country)
 	})
 
 	suite.Run("Fails to add an address because an ID is passed (fails to pass rules check)", func() {

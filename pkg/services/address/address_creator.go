@@ -59,6 +59,33 @@ func (f *addressCreator) CreateAddress(appCtx appcontext.AppContext, address *mo
 		transformedAddress.CountryId = &country.ID
 	}
 
+	// use the data we have first, if it's not nil
+	if transformedAddress.Country != nil {
+		country := transformedAddress.Country
+		if country.Country != "US" || country.Country == "US" && transformedAddress.State == "AK" || country.Country == "US" && transformedAddress.State == "HI" {
+			boolTrueVal := true
+			transformedAddress.IsOconus = &boolTrueVal
+		} else {
+			boolFalseVal := false
+			transformedAddress.IsOconus = &boolFalseVal
+		}
+	} else if transformedAddress.CountryId != nil {
+		country, err := models.FetchCountryByID(appCtx.DB(), *transformedAddress.CountryId)
+		if err != nil {
+			return nil, err
+		}
+		if country.Country != "US" || country.Country == "US" && transformedAddress.State == "AK" || country.Country == "US" && transformedAddress.State == "HI" {
+			boolTrueVal := true
+			transformedAddress.IsOconus = &boolTrueVal
+		} else {
+			boolFalseVal := false
+			transformedAddress.IsOconus = &boolFalseVal
+		}
+	} else {
+		boolFalseVal := false
+		transformedAddress.IsOconus = &boolFalseVal
+	}
+
 	txnErr := appCtx.NewTransaction(func(txnCtx appcontext.AppContext) error {
 		verrs, err := txnCtx.DB().Eager().ValidateAndCreate(&transformedAddress)
 		if verrs != nil && verrs.HasAny() {
