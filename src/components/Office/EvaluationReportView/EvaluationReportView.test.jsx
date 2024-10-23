@@ -7,8 +7,9 @@ import EvaluationReportView from './EvaluationReportView';
 
 import { useEvaluationReportShipmentListQueries } from 'hooks/queries';
 import { qaeCSRRoutes } from 'constants/routes';
-import { MockProviders, renderWithProviders } from 'testUtils';
+import { MockProviders } from 'testUtils';
 import { isBooleanFlagEnabled } from 'utils/featureFlags';
+import { roleTypes } from 'constants/userRoles';
 
 jest.mock('utils/featureFlags', () => ({
   ...jest.requireActual('utils/featureFlags'),
@@ -211,24 +212,66 @@ jest.mock('hooks/queries', () => ({
 
 const renderForm = (props) => {
   useEvaluationReportShipmentListQueries.mockReturnValue(mockReturnData);
+  const testState = {
+    auth: {
+      activeRole: roleTypes.QAE,
+    },
+  };
   const defaultProps = {
     customerInfo,
     grade: 'E_4',
     destinationDutyLocationPostalCode: '90210',
+    activeRole: roleTypes.QAE,
   };
 
-  return renderWithProviders(<EvaluationReportView {...defaultProps} {...props} />, mockRoutingConfig);
+  return render(
+    <MockProviders initialState={testState}>
+      <EvaluationReportView {...defaultProps} {...props} />
+    </MockProviders>,
+    mockRoutingConfig,
+  );
 };
 
 const renderFormWithAppeals = (props) => {
   useEvaluationReportShipmentListQueries.mockReturnValue(mockReturnDataWithAppeals);
+  const testState = {
+    auth: {
+      activeRole: roleTypes.GSR,
+    },
+  };
   const defaultProps = {
     customerInfo,
     grade: 'E_4',
     destinationDutyLocationPostalCode: '90210',
   };
 
-  return renderWithProviders(<EvaluationReportView {...defaultProps} {...props} />, mockRoutingConfig);
+  return render(
+    <MockProviders initialState={testState}>
+      <EvaluationReportView {...defaultProps} {...props} />
+    </MockProviders>,
+    mockRoutingConfig,
+  );
+};
+
+const renderFormWithAppealsNonGSRUser = (props) => {
+  useEvaluationReportShipmentListQueries.mockReturnValue(mockReturnDataWithAppeals);
+  const testState = {
+    auth: {
+      activeRole: roleTypes.QAE,
+    },
+  };
+  const defaultProps = {
+    customerInfo,
+    grade: 'E_4',
+    destinationDutyLocationPostalCode: '90210',
+  };
+
+  return render(
+    <MockProviders initialState={testState}>
+      <EvaluationReportView {...defaultProps} {...props} />
+    </MockProviders>,
+    mockRoutingConfig,
+  );
 };
 
 describe('EvaluationReportView', () => {
@@ -372,5 +415,12 @@ describe('EvaluationReportView', () => {
     // modal heading should appear
     const addAppealModalTitle = await screen.findByTestId('appealModalTitle');
     expect(addAppealModalTitle).toBeInTheDocument();
+  });
+
+  it('non GSR users do not see the leave appeal decision button even with flag on', async () => {
+    isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(true));
+    renderFormWithAppealsNonGSRUser();
+
+    expect(screen.queryByText('Leave Appeal Decision')).not.toBeInTheDocument();
   });
 });
