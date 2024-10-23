@@ -47,7 +47,7 @@ func (suite *MTOShipmentServiceSuite) TestUpdateValidations() {
 		mtoShipment_ThNScndP_address_Move := factory.BuildMoveWithShipment(suite.DB(), nil, nil)
 		mtoShipment_ThNScndP_address_Move.MTOShipments[0].TertiaryPickupAddress = &tertiaryPickupAddress
 
-		checker := checkThatMTOShipmentHasTertiaryAddressWithNoSecondaryAddress()
+		checker := checkIfMTOShipmentHasTertiaryAddressWithNoSecondaryAddress()
 		err := checker.Validate(suite.AppContextForTest(), &mtoShipment_ThNScndP_address_Move.MTOShipments[0], nil)
 		suite.Error(err)
 	})
@@ -58,7 +58,7 @@ func (suite *MTOShipmentServiceSuite) TestUpdateValidations() {
 		mtoShipment_ThNScndD_address_Move := factory.BuildMoveWithShipment(suite.DB(), nil, nil)
 		mtoShipment_ThNScndD_address_Move.MTOShipments[0].TertiaryDeliveryAddress = &TertiaryDestinationAddress
 
-		checker := checkThatMTOShipmentHasTertiaryAddressWithNoSecondaryAddress()
+		checker := checkIfMTOShipmentHasTertiaryAddressWithNoSecondaryAddress()
 		err := checker.Validate(suite.AppContextForTest(), &mtoShipment_ThNScndD_address_Move.MTOShipments[0], nil)
 		suite.Error(err)
 	})
@@ -75,7 +75,7 @@ func (suite *MTOShipmentServiceSuite) TestUpdateValidations() {
 		mtoShipment_Valid_address.MTOShipments[0].TertiaryPickupAddress = &tertiaryPickupAddress
 		mtoShipment_Valid_address.MTOShipments[0].TertiaryDeliveryAddress = &TertiaryDestinationAddress
 
-		checker := checkThatMTOShipmentHasTertiaryAddressWithNoSecondaryAddress()
+		checker := checkIfMTOShipmentHasTertiaryAddressWithNoSecondaryAddress()
 		err := checker.Validate(suite.AppContextForTest(), &mtoShipment_Valid_address.MTOShipments[0], nil)
 		suite.NoError(err)
 	})
