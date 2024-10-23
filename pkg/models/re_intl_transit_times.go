@@ -18,5 +18,5 @@ type InternationalTransitTime struct {
 }
 
 func (InternationalTransitTime) TableName() string {
-	return "re_international_transit_times"
+	return "re_intl_transit_times"
 }
