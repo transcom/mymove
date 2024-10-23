@@ -98,7 +98,7 @@ func (suite *GHCTestSuite) TestDTODZip5DistanceFake() {
 				suite.Error(err)
 				switch err.(type) {
 				case apperror.EventError:
-					suite.Equal(err.Error(), notifications.DTODFailureErrorMessage)
+					suite.Equal(err.Error(), notifications.DTODDownErrorMessage)
 				}
 			} else {
 				suite.NoError(err)
