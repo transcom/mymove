@@ -1006,6 +1006,7 @@
 20241001193619_market-code-enum.up.sql
 20241002151527_add_transportation_offices_AK_HI.up.sql
 20241002164836_add_re_country_table_and_refactor.up.sql
+20241002170242_add_ub_shipment_type.up.sql
 20241004150358_create_re_states_re_us_post_regions_re_cities.up.sql
 20241004150559_insert_re_states.up.sql
 20241004151509_insert_re_cities.up.sql
