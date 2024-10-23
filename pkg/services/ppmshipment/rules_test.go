@@ -98,7 +98,7 @@ func (suite *PPMShipmentSuite) TestValidationRules() {
 		ppmShipmentFromMove.SecondaryDestinationAddress = &secondaryDestinationAddress
 		ppmShipmentFromMove.TertiaryPickupAddress = &tertiaryPickupAddress
 		ppmShipmentFromMove.TertiaryDestinationAddress = &tertiaryDestinationAddress
-		checker := checkThatPPMShipmentHasTertiaryAddressWithNoSecondaryAddress()
+		checker := checkIfPPMShipmentHasTertiaryAddressWithNoSecondaryAddress()
 		err := checker.Validate(suite.AppContextForTest(), *ppmShipmentFromMove, nil, &shipmentWithPPM.MTOShipments[0])
 		suite.Error(err)
 	})
@@ -115,7 +115,7 @@ func (suite *PPMShipmentSuite) TestValidationRules() {
 		ppmShipmentFromMove.SecondaryDestinationAddress = nil
 		ppmShipmentFromMove.TertiaryDestinationAddress = &TertiaryDestinationAddress
 
-		checker := checkThatPPMShipmentHasTertiaryAddressWithNoSecondaryAddress()
+		checker := checkIfPPMShipmentHasTertiaryAddressWithNoSecondaryAddress()
 		err := checker.Validate(suite.AppContextForTest(), *ppmShipmentFromMove, nil, &shipmentWithPPM.MTOShipments[0])
 		suite.Error(err)
 	})
@@ -133,7 +133,7 @@ func (suite *PPMShipmentSuite) TestValidationRules() {
 		ppmShipmentFromMove.TertiaryPickupAddress = &tertiaryPickupAddress
 		ppmShipmentFromMove.TertiaryDestinationAddress = &TertiaryDestinationAddress
 
-		checker := checkThatPPMShipmentHasTertiaryAddressWithNoSecondaryAddress()
+		checker := checkIfPPMShipmentHasTertiaryAddressWithNoSecondaryAddress()
 		err := checker.Validate(suite.AppContextForTest(), *ppmShipmentFromMove, nil, &shipmentWithPPM.MTOShipments[0])
 		suite.NoError(err)
 	})

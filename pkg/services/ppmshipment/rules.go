@@ -58,7 +58,7 @@ func isTertiaryAddressPresentWithoutSecondaryPPM(mtoShipmentToCheck models.PPMSh
 	return (models.IsAddressEmpty(mtoShipmentToCheck.SecondaryPickupAddress) && !models.IsAddressEmpty(mtoShipmentToCheck.TertiaryPickupAddress)) || (models.IsAddressEmpty(mtoShipmentToCheck.SecondaryDestinationAddress) && !models.IsAddressEmpty(mtoShipmentToCheck.TertiaryDestinationAddress))
 }
 
-func checkThatPPMShipmentHasTertiaryAddressWithNoSecondaryAddress() ppmShipmentValidator {
+func checkIfPPMShipmentHasTertiaryAddressWithNoSecondaryAddress() ppmShipmentValidator {
 	return ppmShipmentValidatorFunc(func(appCtx appcontext.AppContext, newer models.PPMShipment, _ *models.PPMShipment, _ *models.MTOShipment) error {
 		verrs := validate.NewErrors()
 		if isTertiaryAddressPresentWithoutSecondaryPPM(newer) {

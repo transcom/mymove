@@ -152,7 +152,7 @@ func isTertiaryAddressPresentWithoutSecondaryMTO(mtoShipmentToCheck models.MTOSh
 	return (models.IsAddressEmpty(mtoShipmentToCheck.SecondaryPickupAddress) && !models.IsAddressEmpty(mtoShipmentToCheck.TertiaryPickupAddress)) || (models.IsAddressEmpty(mtoShipmentToCheck.SecondaryDeliveryAddress) && !models.IsAddressEmpty(mtoShipmentToCheck.TertiaryDeliveryAddress))
 }
 
-func checkThatMTOShipmentHasTertiaryAddressWithNoSecondaryAddress() validator {
+func checkIfMTOShipmentHasTertiaryAddressWithNoSecondaryAddress() validator {
 	return validatorFunc(func(appCtx appcontext.AppContext, newer *models.MTOShipment, older *models.MTOShipment) error {
 		verrs := validate.NewErrors()
 		check := isTertiaryAddressPresentWithoutSecondaryMTO(*newer)
