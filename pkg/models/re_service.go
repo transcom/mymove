@@ -191,6 +191,33 @@ var ValidInternationalDestinationSITReServiceCodes = []ReServiceCode{
 	ReServiceCodeIDSHUT,
 }
 
+// Slice of all ReServiceCodes that are categorized as "Domestic"
+var AllDomesticReServiceCodes = []ReServiceCode{
+	ReServiceCodeDBHF,   // Domestic haul away boat factor
+	ReServiceCodeDBTF,   // Domestic tow away boat factor
+	ReServiceCodeDCRT,   // Domestic crating
+	ReServiceCodeDCRTSA, // Domestic crating - standalone
+	ReServiceCodeDDASIT, // Domestic destination add'l SIT
+	ReServiceCodeDDDSIT, // Domestic destination SIT delivery
+	ReServiceCodeDDSFSC, // Domestic destination SIT FSC
+	ReServiceCodeDDFSIT, // Domestic destination 1st day SIT
+	ReServiceCodeDDP,    // Domestic destination price
+	ReServiceCodeDDSHUT, // Domestic destination shuttle service
+	ReServiceCodeDLH,    // Domestic linehaul
+	ReServiceCodeDMHF,   // Domestic mobile home factor
+	ReServiceCodeDNPK,   // Domestic NTS packing
+	ReServiceCodeDOASIT, // Domestic origin add'l SIT
+	ReServiceCodeDOFSIT, // Domestic origin 1st day SIT
+	ReServiceCodeDOP,    // Domestic origin price
+	ReServiceCodeDOPSIT, // Domestic origin SIT pickup
+	ReServiceCodeDOSFSC, // Domestic origin SIT FSC
+	ReServiceCodeDOSHUT, // Domestic origin shuttle service
+	ReServiceCodeDPK,    // Domestic packing
+	ReServiceCodeDSH,    // Domestic shorthaul
+	ReServiceCodeDUCRT,  // Domestic uncrating
+	ReServiceCodeDUPK,   // Domestic unpacking
+}
+
 // TableName overrides the table name used by Pop.
 func (r ReService) TableName() string {
 	return "re_services"
@@ -204,4 +231,19 @@ func (r *ReService) Validate(_ *pop.Connection) (*validate.Errors, error) {
 		&validators.StringIsPresent{Field: string(r.Code), Name: "Code"},
 		&validators.StringIsPresent{Field: r.Name, Name: "Name"},
 	), nil
+}
+
+// Helper function to check if a ReServiceCode is domestic
+func IsDomesticReServiceCode(code ReServiceCode) bool {
+	for _, domesticCode := range AllDomesticReServiceCodes {
+		if code == domesticCode {
+			return true
+		}
+	}
+	return false
+}
+
+// Helper function to check if a ReServiceCode is international
+func IsInternationalReServiceCode(code ReServiceCode) bool {
+	return !IsDomesticReServiceCode(code)
 }

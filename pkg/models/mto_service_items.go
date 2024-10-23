@@ -110,7 +110,7 @@ func (m MTOServiceItem) TableName() string {
 type MTOServiceItems []MTOServiceItem
 
 // Validate gets run every time you call a "pop.Validate*" (pop.ValidateAndSave, pop.ValidateAndCreate, pop.ValidateAndUpdate) method.
-func (m *MTOServiceItem) Validate(_ *pop.Connection) (*validate.Errors, error) {
+func (m *MTOServiceItem) Validate(db *pop.Connection) (*validate.Errors, error) {
 	var vs []validate.Validator
 	vs = append(vs, &validators.StringInclusion{Field: string(m.Status), Name: "Status", List: []string{
 		string(MTOServiceItemStatusSubmitted),
@@ -124,7 +124,27 @@ func (m *MTOServiceItem) Validate(_ *pop.Connection) (*validate.Errors, error) {
 	vs = append(vs, &StringIsNilOrNotBlank{Field: m.PickupPostalCode, Name: "PickupPostalCode"})
 	vs = append(vs, &StringIsNilOrNotBlank{Field: m.Description, Name: "Description"})
 
-	return validate.Validate(vs...), nil
+	verrs := validate.Validate(vs...)
+	// Validate that this service item does not hold a CONUS reServiceCode on a shipment
+	// that is OCONUS. A shipment that is OCONUS must only hold OCONUS reServiceCodes
+	// This validation only applies if a shipment already exists.
+	if db != nil && m.MTOShipmentID != nil {
+		var shipment MTOShipment
+		err := db.Eager("PickupAddress", "PickupAddress.Country", "DestinationAddress", "DestinationAddress.Country").Find(&shipment, *m.MTOShipmentID)
+		if err != nil {
+			return nil, err
+		}
+
+		isPickupAddressOconus := shipment.PickupAddress != nil && shipment.PickupAddress.IsOconus != nil && *shipment.PickupAddress.IsOconus
+		isDestinationAddressOconus := shipment.DestinationAddress != nil && shipment.DestinationAddress.IsOconus != nil && *shipment.DestinationAddress.IsOconus
+
+		// Now that we have the shipment, check if either address is OCONUS
+		if (isPickupAddressOconus || isDestinationAddressOconus) && IsDomesticReServiceCode(m.ReService.Code) {
+			verrs.Add("ReService", "A domestic ReService Code cannot be applied to an OCONUS shipment")
+		}
+	}
+
+	return verrs, nil
 }
 
 // FetchRelatedDestinationSITServiceItems returns all service items with destination SIT ReService codes
