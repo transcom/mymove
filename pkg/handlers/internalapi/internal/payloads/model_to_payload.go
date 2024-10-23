@@ -40,6 +40,7 @@ func Address(address *models.Address) *internalmessages.Address {
 		Country:        Country(address.Country),
 		PostalCode:     &address.PostalCode,
 		County:         &address.County,
+		IsOconus:       address.IsOconus,
 	}
 }
 
