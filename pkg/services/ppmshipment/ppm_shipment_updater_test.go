@@ -1183,7 +1183,7 @@ func (suite *PPMShipmentSuite) TestUpdatePPMShipment() {
 		suite.Equal(postalCode, updatedPPM.W2Address.PostalCode)
 		suite.Nil(updatedPPM.W2Address.StreetAddress2)
 		suite.Nil(updatedPPM.W2Address.StreetAddress3)
-		suite.Nil(updatedPPM.W2Address.Country)
+		suite.NotNil(updatedPPM.W2Address.Country)
 	})
 
 	suite.Run("Can successfully update a PPMShipment - modify W-2 address", func() {
