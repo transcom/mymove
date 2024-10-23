@@ -2,7 +2,7 @@ import React from 'react';
 import { func } from 'prop-types';
 import * as Yup from 'yup';
 import { Field, Formik } from 'formik';
-import { Button, Form, Radio } from '@trussworks/react-uswds';
+import { Button, Form, Radio, Alert } from '@trussworks/react-uswds';
 import classnames from 'classnames';
 
 import ppmStyles from 'components/Customer/PPM/PPM.module.scss';
@@ -36,6 +36,10 @@ const validationSchema = (maxAdvance, formattedMaxAdvance, estimatedIncentive) =
   if (estimatedIncentive === 0) {
     returnSchema = Yup.object().shape({
       hasRequestedAdvance: Yup.boolean().required('Required'),
+      agreeToTerms: Yup.boolean().when('hasRequestedAdvance', {
+        is: true,
+        then: (schema) => schema.oneOf([true], 'Required'),
+      }),
     });
   }
 
@@ -65,11 +69,11 @@ const AdvanceForm = ({ mtoShipment, onSubmit, onBack }) => {
             <Form className={(formStyles.form, ppmStyles.form)}>
               <SectionWrapper className={classnames(ppmStyles.sectionWrapper, formStyles.formSection)}>
                 {estimatedIncentive === 0 && (
-                  <p>
+                  <Alert type="warning" aria-live="polite" headingLevel="h4">
                     The Defense Table of Distances (DTOD) was unavailable during your PPM creation, so we are currently
                     unable to provide information regarding any advances. This information will be updated and provided
                     to you during your counseling session.
-                  </p>
+                  </Alert>
                 )}
                 {estimatedIncentive !== 0 && (
                   <>
