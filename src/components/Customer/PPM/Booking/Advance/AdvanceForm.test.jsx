@@ -55,13 +55,13 @@ describe('AdvanceForm component', () => {
         HTMLLegendElement,
       );
     });
-  });
 
-  describe('displays DTOD unavailable message when incentive is zero', () => {
-    it('renders blank form on load', async () => {
+    it('renders DTOD unavailable message when incentive is zero', async () => {
       render(<AdvanceForm {...zeroIncentiveProps} />);
       expect(
-        screen.getByText('The Defense Table of Distances (DTOD) was unavailable during your PPM creation'),
+        screen.getByText(
+          'The Defense Table of Distances (DTOD) was unavailable during your PPM creation, so we are currently unable to provide information regarding any advances. This information will be updated and provided to you during your counseling session.',
+        ),
       ).toBeInTheDocument();
       expect(screen.getByLabelText('Yes')).toBeInstanceOf(HTMLInputElement);
       expect(screen.getByLabelText('No')).toBeInstanceOf(HTMLInputElement);
