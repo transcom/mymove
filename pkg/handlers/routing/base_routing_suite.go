@@ -20,6 +20,7 @@ import (
 	"github.com/stretchr/testify/mock"
 	"go.uber.org/zap"
 
+	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/handlers"
@@ -88,7 +89,26 @@ func (suite *BaseRoutingSuite) RoutingConfig() *Config {
 	// Need this for any requests that will either retrieve or save files or their info.
 	fakeS3 := storageTest.NewFakeS3Storage(true)
 	handlerConfig.SetFileStorer(fakeS3)
+
 	mockFeatureFlagFetcher := &mocks.FeatureFlagFetcher{}
+	mockGetFlagFunc := func(_ context.Context, _ *zap.Logger, entityID string, key string, _ map[string]string, mockVariant string) (services.FeatureFlag, error) {
+		return services.FeatureFlag{
+			Entity:    entityID,
+			Key:       key,
+			Match:     true,
+			Variant:   mockVariant,
+			Namespace: "test",
+		}, nil
+	}
+	mockFeatureFlagFetcher.On("GetBooleanFlagForUser",
+		mock.Anything,
+		mock.AnythingOfType("*appcontext.appContext"),
+		mock.AnythingOfType("string"),
+		mock.Anything,
+	).Return(func(ctx context.Context, appCtx appcontext.AppContext, key string, flagContext map[string]string) (services.FeatureFlag, error) {
+		return mockGetFlagFunc(ctx, appCtx.Logger(), "user@example.com", key, flagContext, "")
+	})
+
 	mockFeatureFlagFetcher.On("GetBooleanFlag",
 		mock.Anything,
 		mock.Anything,
