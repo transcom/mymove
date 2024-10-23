@@ -24,7 +24,6 @@ func BuildTransportationOffice(db *pop.Connection, customs []Customization, trai
 			return cTransportationOffice
 		}
 	}
-
 	// Create the associated address model
 	address := BuildAddress(db, customs, traits)
 

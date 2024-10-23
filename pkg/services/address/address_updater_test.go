@@ -47,7 +47,6 @@ func (suite *AddressSuite) TestAddressUpdater() {
 		suite.NotNil(updatedAddress.StreetAddress3)
 		suite.Equal(originalAddress.StreetAddress3, updatedAddress.StreetAddress3)
 		suite.NotNil(updatedAddress.Country)
-		suite.Equal(originalAddress.Country, updatedAddress.Country)
 		suite.Equal(county, desiredAddress.County)
 	})
 
@@ -131,6 +130,25 @@ func (suite *AddressSuite) TestAddressUpdater() {
 		suite.Equal(expectedError, err.Error())
 	})
 
+	suite.Run("Able to update when providing US country value in updated address", func() {
+		originalAddress := createOriginalAddress()
+		addressUpdater := NewAddressUpdater()
+
+		desiredAddress := &models.Address{
+			ID:             originalAddress.ID,
+			StreetAddress1: streetAddress1,
+			City:           city,
+			State:          state,
+			PostalCode:     postalCode,
+			Country:        &models.Country{Country: "US"},
+		}
+		updatedAddress, err := addressUpdater.UpdateAddress(suite.AppContextForTest(), desiredAddress, etag.GenerateEtag(originalAddress.UpdatedAt))
+
+		suite.NoError(err)
+		suite.NotNil(updatedAddress)
+		suite.Equal(updatedAddress.Country.Country, "US")
+	})
+
 	suite.Run("Successfully updates a conus address and its IsOconus value", func() {
 		originalAddress := createOriginalAddress()
 
@@ -147,5 +165,24 @@ func (suite *AddressSuite) TestAddressUpdater() {
 		suite.NotNil(updatedAddress)
 		suite.Nil(err)
 		suite.Equal(false, *updatedAddress.IsOconus)
+	})
+
+	suite.Run("Receives an error when trying to update to an international address", func() {
+		originalAddress := createOriginalAddress()
+		addressUpdater := NewAddressUpdater()
+
+		desiredAddress := &models.Address{
+			ID:             originalAddress.ID,
+			StreetAddress1: streetAddress1,
+			City:           city,
+			State:          state,
+			PostalCode:     postalCode,
+			Country:        &models.Country{Country: "GB"},
+		}
+		updatedAddress, err := addressUpdater.UpdateAddress(suite.AppContextForTest(), desiredAddress, etag.GenerateEtag(originalAddress.UpdatedAt))
+
+		suite.Error(err)
+		suite.Nil(updatedAddress)
+		suite.Equal("- the country GB is not supported at this time - only US is allowed", err.Error())
 	})
 }
