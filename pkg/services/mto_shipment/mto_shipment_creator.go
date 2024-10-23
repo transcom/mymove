@@ -324,22 +324,52 @@ func (f mtoShipmentCreator) CreateMTOShipment(appCtx appcontext.AppContext, ship
 		defaultSITDays := int(models.DefaultServiceMemberSITDaysAllowance)
 		shipment.SITDaysAllowance = &defaultSITDays
 
-		// when populating the market_code column, it is considered domestic if both pickup & dest are CONUS addresses
-		if shipment.PickupAddress != nil && shipment.DestinationAddress != nil &&
-			shipment.PickupAddress.IsOconus != nil && shipment.DestinationAddress.IsOconus != nil {
-			pickupAddress := shipment.PickupAddress
-			destAddress := shipment.DestinationAddress
-			if !*pickupAddress.IsOconus && !*destAddress.IsOconus {
+		// Handle populating marketCode on NTS shipments differently than the other shipment types based on address conditions unique to NTS shipments
+		if shipment.ShipmentType == models.MTOShipmentTypeHHGIntoNTSDom || shipment.ShipmentType == models.MTOShipmentTypeHHGOutOfNTSDom {
+			if shipment.PickupAddress == nil && shipment.DestinationAddress == nil {
 				marketCodeDomestic := models.MarketCodeDomestic
 				shipment.MarketCode = marketCodeDomestic
+			} else if shipment.PickupAddress != nil && shipment.DestinationAddress == nil {
+				if shipment.PickupAddress.IsOconus != nil && *shipment.PickupAddress.IsOconus {
+					marketCodeInternational := models.MarketCodeInternational
+					shipment.MarketCode = marketCodeInternational
+				} else {
+					marketCodeDomestic := models.MarketCodeDomestic
+					shipment.MarketCode = marketCodeDomestic
+				}
+			} else if shipment.PickupAddress != nil && shipment.DestinationAddress != nil &&
+				shipment.PickupAddress.IsOconus != nil && shipment.DestinationAddress.IsOconus != nil {
+				pickupAddress := shipment.PickupAddress
+				destAddress := shipment.DestinationAddress
+				if !*pickupAddress.IsOconus && !*destAddress.IsOconus {
+					marketCodeDomestic := models.MarketCodeDomestic
+					shipment.MarketCode = marketCodeDomestic
+				} else {
+					marketCodeInternational := models.MarketCodeInternational
+					shipment.MarketCode = marketCodeInternational
+				}
 			} else {
-				marketCodeInternational := models.MarketCodeInternational
-				shipment.MarketCode = marketCodeInternational
+				// If none of the conditions above are met then default NTS shipments marketCode to domestic
+				shipment.MarketCode = models.MarketCodeDomestic
 			}
 		} else {
-			// if the conditions aren't met then it is a PPM and this logic will be changed after PPM creation
-			// market code can't be null so we will set it here
-			shipment.MarketCode = models.MarketCodeDomestic
+			// when populating the market_code column, it is considered domestic if both pickup & dest are CONUS addresses
+			if shipment.PickupAddress != nil && shipment.DestinationAddress != nil &&
+				shipment.PickupAddress.IsOconus != nil && shipment.DestinationAddress.IsOconus != nil {
+				pickupAddress := shipment.PickupAddress
+				destAddress := shipment.DestinationAddress
+				if !*pickupAddress.IsOconus && !*destAddress.IsOconus {
+					marketCodeDomestic := models.MarketCodeDomestic
+					shipment.MarketCode = marketCodeDomestic
+				} else {
+					marketCodeInternational := models.MarketCodeInternational
+					shipment.MarketCode = marketCodeInternational
+				}
+			} else {
+				// if the conditions aren't met then it is a PPM and this logic will be changed after PPM creation
+				// market code can't be null so we will set it here
+				shipment.MarketCode = models.MarketCodeDomestic
+			}
 		}
 
 		// create a shipment
