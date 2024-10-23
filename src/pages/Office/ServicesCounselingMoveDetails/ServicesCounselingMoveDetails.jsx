@@ -62,9 +62,9 @@ const ServicesCounselingMoveDetails = ({
   const [isSubmitModalVisible, setIsSubmitModalVisible] = useState(false);
   const [isFinancialModalVisible, setIsFinancialModalVisible] = useState(false);
   const [isCancelMoveModalVisible, setIsCancelMoveModalVisible] = useState(false);
-  const { upload, amendedUpload } = useOrdersDocumentQueries(moveCode);
   const [enableBoat, setEnableBoat] = useState(false);
   const [enableMobileHome, setEnableMobileHome] = useState(false);
+  const { upload, amendedUpload } = useOrdersDocumentQueries(moveCode);
   const documentsForViewer = Object.values(upload || {})
     .concat(Object.values(amendedUpload || {}))
     ?.filter((file) => {
