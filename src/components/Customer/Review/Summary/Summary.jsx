@@ -462,6 +462,7 @@ export class Summary extends Component {
             payGrade={ORDERS_PAY_GRADE_OPTIONS[currentOrders?.grade] || ''}
             originDutyLocationName={currentOrders.origin_duty_location.name}
             orderId={currentOrders.id}
+            counselingOfficeName={currentMove.counselingOffice?.name || ''}
           />
         </SectionWrapper>
         {thirdSectionHasContent && (

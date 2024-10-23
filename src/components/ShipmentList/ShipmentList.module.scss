@@ -8,24 +8,20 @@
   align-items: center;
   border-radius: 0 5px 5px 0;
   border: 1px solid $base-lighter;
-  padding-left: 6px;
-  padding-right: 13px;
-  padding-top: 12px;
-  padding-bottom: 12px;
+  padding: 12px 12px;
   height: 52px;
   @include u-margin-bottom(1);
 
-  strong {
-    white-space: nowrap;
-    @media (min-width: $tablet) {
-      @include u-minw(15);
-    }
-    @include u-minw(7);
-    text-align: left;
+  .shipment-info {
+    flex: 1;
   }
 
-  &:last-child {
-    margin-bottom: 0px;
+  .shipment-buttons {
+    flex: 1;
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    margin: 0;
   }
 
   &.shipment-display {
@@ -40,10 +36,12 @@
   }
 }
 
-.shipment-btns {
-  display: flex;
-  justify-content: center;
-  align-items: center;
+  @media (max-width: 768px) {
+    .shipment-buttons {
+      margin-left: 3vw;
+      margin-right: -3vw;
+    }
+  }
 }
 
 :global(.usa-button).edit-btn {
