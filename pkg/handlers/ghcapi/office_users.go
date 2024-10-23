@@ -60,19 +60,20 @@ func payloadForOfficeUserModel(o models.OfficeUser) *ghcmessages.OfficeUser {
 		user = o.User
 	}
 	payload := &ghcmessages.OfficeUser{
-		ID:                     handlers.FmtUUID(o.ID),
-		FirstName:              handlers.FmtString(o.FirstName),
-		MiddleInitials:         handlers.FmtStringPtr(o.MiddleInitials),
-		LastName:               handlers.FmtString(o.LastName),
-		Telephone:              handlers.FmtString(o.Telephone),
-		Email:                  handlers.FmtString(o.Email),
-		Edipi:                  handlers.FmtStringPtr(o.EDIPI),
-		OtherUniqueID:          handlers.FmtStringPtr(o.OtherUniqueID),
-		TransportationOfficeID: handlers.FmtUUID(o.TransportationOfficeID),
-		Active:                 handlers.FmtBool(o.Active),
-		Status:                 (*string)(o.Status),
-		CreatedAt:              *handlers.FmtDateTime(o.CreatedAt),
-		UpdatedAt:              *handlers.FmtDateTime(o.UpdatedAt),
+		ID:                              handlers.FmtUUID(o.ID),
+		FirstName:                       handlers.FmtString(o.FirstName),
+		MiddleInitials:                  handlers.FmtStringPtr(o.MiddleInitials),
+		LastName:                        handlers.FmtString(o.LastName),
+		Telephone:                       handlers.FmtString(o.Telephone),
+		Email:                           handlers.FmtString(o.Email),
+		Edipi:                           handlers.FmtStringPtr(o.EDIPI),
+		OtherUniqueID:                   handlers.FmtStringPtr(o.OtherUniqueID),
+		TransportationOfficeID:          handlers.FmtUUID(o.TransportationOfficeID),
+		TransportationOfficeAssignments: payloadForTransportationOfficeAssignments(o.TransportationOfficeAssignments),
+		Active:                          handlers.FmtBool(o.Active),
+		Status:                          (*string)(o.Status),
+		CreatedAt:                       *handlers.FmtDateTime(o.CreatedAt),
+		UpdatedAt:                       *handlers.FmtDateTime(o.UpdatedAt),
 	}
 	if o.UserID != nil {
 		userIDFmt := handlers.FmtUUID(*o.UserID)
@@ -82,6 +83,18 @@ func payloadForOfficeUserModel(o models.OfficeUser) *ghcmessages.OfficeUser {
 	}
 	for _, role := range user.Roles {
 		payload.Roles = append(payload.Roles, payloadForRole(role))
+	}
+	return payload
+}
+
+func payloadForTransportationOfficeAssignments(toas models.TransportationOfficeAssignments) []*ghcmessages.TransportationOfficeAssignment {
+	var payload []*ghcmessages.TransportationOfficeAssignment
+	for _, toa := range toas {
+		payload = append(payload, &ghcmessages.TransportationOfficeAssignment{
+			OfficeUserID:           handlers.FmtUUID(toa.ID),
+			TransportationOfficeID: handlers.FmtUUID(toa.TransportationOfficeID),
+			PrimaryOffice:          handlers.FmtBool(toa.PrimaryOffice),
+		})
 	}
 	return payload
 }
