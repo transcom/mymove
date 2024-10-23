@@ -1018,3 +1018,4 @@
 20241007184259_insertReIntlTransTime.up.sql
 20241007224427_update_addresses_us_post_region_cities_id.up.sql
 20241009210749_create_view_v_locations.up.sql
+20241023130404_create_re_service_items.up.sql
