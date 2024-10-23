@@ -55,7 +55,6 @@ func (suite *FactorySuite) TestBuildAddress() {
 					City:           customCity,
 					State:          customState,
 					PostalCode:     customPostalCode,
-					County:         customCounty,
 				},
 			},
 			{
