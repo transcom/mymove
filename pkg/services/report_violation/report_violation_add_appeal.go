@@ -15,16 +15,16 @@ func NewReportViolationsAddAppeal() services.ReportViolationsAddAppeal {
 	return &reportViolationAddAppeal{}
 }
 
-func (f *reportViolationAddAppeal) AddAppealToViolation(appCtx appcontext.AppContext, reportID uuid.UUID, reportViolationID uuid.UUID, officeUserID uuid.UUID, remarks string, appealStatus string) (models.EvaluationReport, error) {
-	reportViolations := models.EvaluationReport{}
+func (f *reportViolationAddAppeal) AddAppealToViolation(appCtx appcontext.AppContext, reportID uuid.UUID, reportViolationID uuid.UUID, officeUserID uuid.UUID, remarks string, appealStatus string) (models.GsrAppeal, error) {
+	appeal := models.GsrAppeal{}
 	if reportID == uuid.Nil {
-		return models.EvaluationReport{}, apperror.NewBadDataError("reportID must be provided")
+		return models.GsrAppeal{}, apperror.NewBadDataError("reportID must be provided")
 	}
 	if reportViolationID == uuid.Nil {
-		return models.EvaluationReport{}, apperror.NewBadDataError("reportViolationID must be provided")
+		return models.GsrAppeal{}, apperror.NewBadDataError("reportViolationID must be provided")
 	}
 	if officeUserID == uuid.Nil {
-		return models.EvaluationReport{}, apperror.NewBadDataError("officeUserID must be provided")
+		return models.GsrAppeal{}, apperror.NewBadDataError("officeUserID must be provided")
 	}
 
 	var appealDecision models.AppealStatus
@@ -34,7 +34,7 @@ func (f *reportViolationAddAppeal) AddAppealToViolation(appCtx appcontext.AppCon
 		appealDecision = models.AppealStatusRejected
 	}
 
-	violationAppeal := models.GsrAppeal{
+	gsrAppeal := models.GsrAppeal{
 		EvaluationReportID:      reportID,
 		ReportViolationID:       &reportViolationID,
 		OfficeUserID:            officeUserID,
@@ -43,12 +43,12 @@ func (f *reportViolationAddAppeal) AddAppealToViolation(appCtx appcontext.AppCon
 		Remarks:                 remarks,
 	}
 
-	verrs, err := appCtx.DB().ValidateAndCreate(&violationAppeal)
+	verrs, err := appCtx.DB().ValidateAndCreate(&gsrAppeal)
 	if verrs != nil && verrs.HasAny() {
-		return models.EvaluationReport{}, apperror.NewInvalidInputError(uuid.Nil, err, verrs, "Invalid input found while associating report violations.")
+		return models.GsrAppeal{}, apperror.NewInvalidInputError(uuid.Nil, err, verrs, "Invalid input found while creating a GSR appeal")
 	} else if err != nil {
-		return models.EvaluationReport{}, apperror.NewQueryError("reportViolations", err, "")
+		return models.GsrAppeal{}, apperror.NewQueryError("gsrAppeal", err, "")
 	}
 
-	return reportViolations, nil
+	return appeal, nil
 }
