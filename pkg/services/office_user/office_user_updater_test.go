@@ -15,14 +15,10 @@ import (
 func (suite *OfficeUserServiceSuite) TestUpdateOfficeUser() {
 	queryBuilder := query.NewQueryBuilder()
 	updater := NewOfficeUserUpdater(queryBuilder)
-	setupTestData := func() models.OfficeUser {
-		officeUser := factory.BuildOfficeUser(suite.DB(), nil, nil)
-		return officeUser
-	}
 
 	// Happy path
 	suite.Run("If the user is updated successfully it should be returned", func() {
-		officeUser := setupTestData()
+		officeUser := factory.BuildOfficeUser(suite.DB(), nil, nil)
 		transportationOffice := factory.BuildDefaultTransportationOffice(suite.DB())
 		primaryOffice := true
 
@@ -58,7 +54,14 @@ func (suite *OfficeUserServiceSuite) TestUpdateOfficeUser() {
 
 	// Bad transportation office ID
 	suite.Run("If we are provided a transportation office that doesn't exist, the create should fail", func() {
-		officeUser := setupTestData()
+		officeUser := factory.BuildOfficeUser(suite.DB(), []factory.Customization{
+			{
+				Model: models.Country{
+					Country:     "US",
+					CountryName: "UNITED STATES",
+				},
+			},
+		}, nil)
 		primaryOffice := true
 
 		payload := &adminmessages.OfficeUserUpdate{
