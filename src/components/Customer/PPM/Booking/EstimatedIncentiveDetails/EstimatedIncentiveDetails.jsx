@@ -1,4 +1,5 @@
 import React from 'react';
+import { Alert } from '@trussworks/react-uswds';
 
 import styles from 'components/Customer/PPM/Booking/EstimatedIncentiveDetails/EstimatedIncentiveDetails.module.scss';
 import { ShipmentShape } from 'types/shipment';
@@ -21,11 +22,11 @@ const EstimatedIncentiveDetails = ({ shipment }) => {
   return estimatedIncentive === 0 ? (
     <div className={styles.EstimatedIncentiveDetails}>
       <div className="container">
-        <p>
+        <Alert type="warning" aria-live="polite" headingLevel="h4">
           The Defense Table of Distances (DTOD) was unavailable during your PPM creation, so we are currently unable to
           provide your estimated incentive. Your estimated incentive information will be updated and provided to you
           during your counseling session.
-        </p>
+        </Alert>
       </div>
     </div>
   ) : (
