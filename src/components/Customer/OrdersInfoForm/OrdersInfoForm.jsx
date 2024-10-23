@@ -24,8 +24,6 @@ import Callout from 'components/Callout';
 import { formatLabelReportByDate, dropdownInputOptions } from 'utils/formatters';
 import { showCounselingOffices } from 'services/internalApi';
 
-jest.setTimeout(60000);
-
 let originMeta;
 let newDutyMeta = '';
 const OrdersInfoForm = ({ ordersTypeOptions, initialValues, onSubmit, onBack }) => {
