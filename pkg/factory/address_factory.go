@@ -31,9 +31,26 @@ func BuildAddress(db *pop.Connection, customs []Customization, traits []Trait) m
 		City:           "Beverly Hills",
 		State:          "CA",
 		PostalCode:     "90210",
-		Country:        models.StringPointer("US"),
 		County:         "LOS ANGELES",
 	}
+
+	// Find/create the Country if customization is provided
+	var country models.Country
+	if result := findValidCustomization(customs, Country); result != nil {
+		country = BuildCountry(db, customs, nil)
+	} else {
+		country = FetchOrBuildCountry(db, []Customization{
+			{
+				Model: models.Country{
+					Country:     "US",
+					CountryName: "UNITED STATES",
+				},
+			},
+		}, nil)
+	}
+
+	address.Country = &country
+	address.CountryId = &country.ID
 
 	// Overwrite values with those from customizations
 	testdatagen.MergeModels(&address, cAddress)
@@ -80,8 +97,26 @@ func BuildMinimalAddress(db *pop.Connection, customs []Customization, traits []T
 		City:           "Fort Gorden",
 		State:          "GA",
 		PostalCode:     "30813",
-		Country:        models.StringPointer("US"),
+		County:         "RICHMOND",
 	}
+
+	// Find/create the Country if customization is provided
+	var country models.Country
+	if result := findValidCustomization(customs, Country); result != nil {
+		country = BuildCountry(db, customs, nil)
+	} else {
+		country = BuildCountry(db, []Customization{
+			{
+				Model: models.Country{
+					Country:     "US",
+					CountryName: "UNITED STATES",
+				},
+			},
+		}, nil)
+	}
+
+	address.Country = &country
+	address.CountryId = &country.ID
 
 	// Overwrite values with those from customizations
 	testdatagen.MergeModels(&address, cAddress)
@@ -110,7 +145,6 @@ func GetTraitAddress2() []Customization {
 				City:           "Fairfield",
 				State:          "CA",
 				PostalCode:     "94535",
-				Country:        models.StringPointer("US"),
 			},
 		},
 	}
@@ -118,6 +152,7 @@ func GetTraitAddress2() []Customization {
 
 // GetTraitAddress3 is a sample GetTraitFunc
 func GetTraitAddress3() []Customization {
+
 	return []Customization{
 		{
 			Model: models.Address{
@@ -127,7 +162,6 @@ func GetTraitAddress3() []Customization {
 				City:           "Des Moines",
 				State:          "IA",
 				PostalCode:     "50309",
-				Country:        models.StringPointer("US"),
 			},
 		},
 	}
@@ -135,6 +169,7 @@ func GetTraitAddress3() []Customization {
 
 // GetTraitAddress4 is a sample GetTraitFunc
 func GetTraitAddress4() []Customization {
+
 	return []Customization{
 		{
 			Model: models.Address{
@@ -144,7 +179,6 @@ func GetTraitAddress4() []Customization {
 				City:           "Houston",
 				State:          "TX",
 				PostalCode:     "77083",
-				Country:        models.StringPointer("US"),
 			},
 		},
 	}
