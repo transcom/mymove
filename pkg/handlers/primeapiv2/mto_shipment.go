@@ -59,7 +59,7 @@ func (h CreateMTOShipmentHandler) Handle(params mtoshipmentops.CreateMTOShipment
 			/** Feature Flag - Mobile Home Shipment **/
 			const featureFlagMobileHome = "mobile_home"
 			isMobileHomeFeatureOn := false
-			flagMH, err := h.FeatureFlagFetcher().GetBooleanFlag(params.HTTPRequest.Context(), appCtx.Logger(), "", featureFlagMobileHome, map[string]string{})
+			flagMH, err := h.FeatureFlagFetcher().GetBooleanFlagForUser(params.HTTPRequest.Context(), appCtx, featureFlagMobileHome, map[string]string{})
 			if err != nil {
 				appCtx.Logger().Error("Error fetching feature flagMH", zap.String("featureFlagKey", featureFlagMobileHome), zap.Error(err))
 			} else {
@@ -70,23 +70,6 @@ func (h CreateMTOShipmentHandler) Handle(params mtoshipmentops.CreateMTOShipment
 			if !isMobileHomeFeatureOn && (*params.Body.ShipmentType == primev2messages.MTOShipmentTypeMOBILEHOME) {
 				return mtoshipmentops.NewCreateMTOShipmentUnprocessableEntity().WithPayload(payloads.ValidationError(
 					"Mobile Home shipment type was used but the feature flagMH is not enabled.", h.GetTraceIDFromRequest(params.HTTPRequest), nil)), nil
-			}
-
-			/** Feature Flag - UB Shipment **/
-			const featureFlagNameUB = "unaccompanied_baggage"
-			isUBFeatureOn := false
-			flag, err = h.FeatureFlagFetcher().GetBooleanFlag(params.HTTPRequest.Context(), appCtx.Logger(), "", featureFlagNameUB, map[string]string{})
-
-			if err != nil {
-				appCtx.Logger().Error("Error fetching feature flag", zap.String("featureFlagKey", featureFlagNameUB), zap.Error(err))
-			} else {
-				isUBFeatureOn = flag.Match
-			}
-
-			// Return an error if UB shipment is sent while the feature flag is turned off.
-			if !isUBFeatureOn && (*params.Body.ShipmentType == primev2messages.MTOShipmentTypeUNACCOMPANIEDBAGGAGE) {
-				return mtoshipmentops.NewCreateMTOShipmentUnprocessableEntity().WithPayload(payloads.ValidationError(
-					"Unaccompanied baggage shipments can't be created unless the unaccompanied_baggage feature flag is enabled.", h.GetTraceIDFromRequest(params.HTTPRequest), nil)), nil
 			}
 
 			for _, mtoServiceItem := range params.Body.MtoServiceItems() {
