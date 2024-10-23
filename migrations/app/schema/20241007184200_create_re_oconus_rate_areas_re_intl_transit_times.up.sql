@@ -8,7 +8,7 @@ us_post_region_cities_id	uuid	NOT NULL
 	CONSTRAINT fk_re_oconus_rate_areas_usprc_id REFERENCES us_post_region_cities (id),
 created_at		timestamp	NOT NULL DEFAULT NOW(),
 updated_at		timestamp	NOT NULL DEFAULT NOW(),
-active			bool  		DEFAULT TRUE,
+active			bool  		NOT NULL DEFAULT TRUE,
 CONSTRAINT re_oconus_rate_areas_pkey PRIMARY KEY (id),
 CONSTRAINT unique_re_oconus_rate_areas UNIQUE (rate_area_id, country_id, us_post_region_cities_id));
 
@@ -28,7 +28,7 @@ hhg_transit_time			int,
 ub_transit_time				int,
 created_at		timestamp	NOT NULL DEFAULT NOW(),
 updated_at		timestamp	NOT NULL DEFAULT NOW(),
-active			bool  		DEFAULT TRUE,
+active			bool  		NOT NULL DEFAULT TRUE,
 CONSTRAINT re_intl_transit_times_pkey PRIMARY KEY (id),
 CONSTRAINT unique_re_intl_transit_times UNIQUE (origin_rate_area_id, destination_rate_area_id));
 
