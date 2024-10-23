@@ -30,6 +30,15 @@ const defaultProps = {
   },
 };
 
+const zeroIncentiveProps = {
+  ...defaultProps,
+  shipment: {
+    ppmShipment: {
+      estimatedIncentive: 876543,
+    },
+  },
+}
+
 const optionalSecondaryProps = {
   shipment: {
     id: '1234',
@@ -104,6 +113,16 @@ describe('EstimatedIncentiveDetails component', () => {
         'You must get certified weight tickets to document the weight you move. You are responsible for uploading them to MilMove.',
       ),
     );
+  });
+
+  it('renders the DTOD unavailable when estimated incentive is', async () => {
+    render(<EstimatedIncentiveDetails {...zeroIncentiveProps} />);
+
+    expect(
+      screen.getByText(
+        'The Defense Table of Distances (DTOD) was unavailable during your PPM creation',
+      ),
+    ).toBeInTheDocument();
   });
 
   it('conditionally renders secondary postal codes', () => {
