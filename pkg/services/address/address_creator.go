@@ -48,14 +48,43 @@ func (f *addressCreator) CreateAddress(appCtx appcontext.AppContext, address *mo
 		if err != nil {
 			return nil, err
 		}
+		transformedAddress.Country = &country
 		transformedAddress.CountryId = &country.ID
 	} else {
 		country, err := models.FetchCountryByCode(appCtx.DB(), "US")
 		if err != nil {
 			return nil, err
 		}
+		transformedAddress.Country = &country
 		transformedAddress.CountryId = &country.ID
 		transformedAddress.Country = &country
+	}
+
+	// use the data we have first, if it's not nil
+	if transformedAddress.Country != nil {
+		country := transformedAddress.Country
+		if country.Country != "US" || country.Country == "US" && transformedAddress.State == "AK" || country.Country == "US" && transformedAddress.State == "HI" {
+			boolTrueVal := true
+			transformedAddress.IsOconus = &boolTrueVal
+		} else {
+			boolFalseVal := false
+			transformedAddress.IsOconus = &boolFalseVal
+		}
+	} else if transformedAddress.CountryId != nil {
+		country, err := models.FetchCountryByID(appCtx.DB(), *transformedAddress.CountryId)
+		if err != nil {
+			return nil, err
+		}
+		if country.Country != "US" || country.Country == "US" && transformedAddress.State == "AK" || country.Country == "US" && transformedAddress.State == "HI" {
+			boolTrueVal := true
+			transformedAddress.IsOconus = &boolTrueVal
+		} else {
+			boolFalseVal := false
+			transformedAddress.IsOconus = &boolFalseVal
+		}
+	} else {
+		boolFalseVal := false
+		transformedAddress.IsOconus = &boolFalseVal
 	}
 
 	txnErr := appCtx.NewTransaction(func(txnCtx appcontext.AppContext) error {
