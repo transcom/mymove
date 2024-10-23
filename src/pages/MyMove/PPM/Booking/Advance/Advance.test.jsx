@@ -56,6 +56,25 @@ const mockMTOShipment = {
   eTag: mockShipmentETag,
 };
 
+const zeroAllowanceMockMTOShipment = {
+  id: mockMTOShipmentId,
+  moveTaskOrderID: mockMoveId,
+  shipmentType: SHIPMENT_OPTIONS.PPM,
+  ppmShipment: {
+    id: uuidv4(),
+    sitExpected: false,
+    expectedDepartureDate: '2022-12-31',
+    eTag: mockPPMShipmentETag,
+    estimatedIncentive: 0,
+    estimatedWeight: 4000,
+    hasProGear: false,
+    proGearWeight: null,
+    spouseProGearWeight: null,
+    hasRequestedAdvance: true,
+  },
+  eTag: mockShipmentETag,
+};
+
 const mockOrders = {
   orders_type: ORDERS_TYPE.PERMANENT_CHANGE_OF_STATION,
 };
@@ -161,6 +180,21 @@ describe('Advance page', () => {
         expect(hasRequestedAdvanceNoInput.checked).toBe(true);
         expect(screen.queryByLabelText(/Amount requested/)).not.toBeInTheDocument();
       }
+    },
+  );
+
+  it.each([[zeroAllowanceMockMTOShipment]])(
+    'renders the form when estimated incentive is zero',
+    async (preExistingShipment) => {
+      selectMTOShipmentById.mockImplementationOnce(() => preExistingShipment);
+
+      render(<Advance />, { wrapper: MockProviders });
+
+      const hasRequestedAdvanceYesInput = screen.getByRole('radio', { name: /yes/i });
+      const hasRequestedAdvanceNoInput = screen.getByRole('radio', { name: /no/i });
+
+      expect(hasRequestedAdvanceYesInput.checked).toBe(true);
+      expect(hasRequestedAdvanceNoInput.checked).toBe(false);
     },
   );
 
