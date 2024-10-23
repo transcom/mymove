@@ -16,6 +16,7 @@ import (
 	"github.com/transcom/mymove/pkg/gen/ghcmessages"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/models/roles"
 	"github.com/transcom/mymove/pkg/services"
 	mtoshipment "github.com/transcom/mymove/pkg/services/mto_shipment"
 	"github.com/transcom/mymove/pkg/storage"
@@ -2034,14 +2035,16 @@ func QueueAvailableOfficeUsers(officeUsers []models.OfficeUser) *ghcmessages.Ava
 }
 
 // QueueMoves payload
-func QueueMoves(moves []models.Move, officeUsers []models.OfficeUser) *ghcmessages.QueueMoves {
+func QueueMoves(moves []models.Move, officeUsers []models.OfficeUser, role roles.RoleType, officeUser models.OfficeUser, isSupervisor bool) *ghcmessages.QueueMoves {
 	queueMoves := make(ghcmessages.QueueMoves, len(moves))
 	for i, move := range moves {
 		customer := move.Orders.ServiceMember
 
 		var transportationOffice string
+		var transportationOfficeId uuid.UUID
 		if move.CounselingOffice != nil {
 			transportationOffice = move.CounselingOffice.Name
+			transportationOfficeId = move.CounselingOffice.ID
 		}
 		var validMTOShipments []models.MTOShipment
 		var earliestRequestedPickup *time.Time
@@ -2115,8 +2118,49 @@ func QueueMoves(moves []models.Move, officeUsers []models.OfficeUser) *ghcmessag
 			LockExpiresAt:           handlers.FmtDateTimePtr(move.LockExpiresAt),
 			PpmStatus:               ghcmessages.PPMStatus(ppmStatus),
 			CounselingOffice:        &transportationOffice,
-			AssignedTo:              AssignedOfficeUser(move.SCAssignedUser),
-			AvailableOfficeUsers:    *QueueAvailableOfficeUsers(officeUsers),
+			CounselingOfficeID:      handlers.FmtUUID(transportationOfficeId),
+		}
+
+		if role == roles.RoleTypeServicesCounselor && move.SCAssignedUser != nil {
+			queueMoves[i].AssignedTo = AssignedOfficeUser(move.SCAssignedUser)
+		}
+		if role == roles.RoleTypeTOO && move.TOOAssignedUser != nil {
+			queueMoves[i].AssignedTo = AssignedOfficeUser(move.TOOAssignedUser)
+		}
+
+		isAssignable := false
+		if queueMoves[i].AssignedTo == nil {
+			isAssignable = true
+		}
+		// if it is assigned
+		// it is only assignable if the user is a supervisor
+		// and if the move's counseling office is the supervisor's transportation office
+		if queueMoves[i].AssignedTo != nil && isSupervisor && move.CounselingOfficeID != nil && *move.CounselingOfficeID == officeUser.TransportationOfficeID {
+			isAssignable = true
+		}
+
+		queueMoves[i].Assignable = isAssignable
+
+		// only need to attach available office users if move is assignable
+		if queueMoves[i].Assignable {
+			availableOfficeUsers := officeUsers
+			// if there is no counseling office
+			// OR if our current user doesn't work at the move's counseling office
+			// only available user should be themself
+			if (move.CounselingOfficeID == nil) || (move.CounselingOfficeID != nil && *move.CounselingOfficeID != officeUser.TransportationOfficeID) {
+				availableOfficeUsers = models.OfficeUsers{officeUser}
+			}
+
+			// if the office user currently assigned to move works outside of the logged in users counseling office
+			// add them to the set
+			if role == roles.RoleTypeServicesCounselor && move.SCAssignedUser != nil && move.SCAssignedUser.TransportationOfficeID != officeUser.TransportationOfficeID {
+				availableOfficeUsers = append(availableOfficeUsers, *move.SCAssignedUser)
+			}
+			if role == roles.RoleTypeTOO && move.TOOAssignedUser != nil && move.TOOAssignedUser.TransportationOfficeID != officeUser.TransportationOfficeID {
+				availableOfficeUsers = append(availableOfficeUsers, *move.TOOAssignedUser)
+			}
+
+			queueMoves[i].AvailableOfficeUsers = *QueueAvailableOfficeUsers(availableOfficeUsers)
 		}
 	}
 	return &queueMoves
@@ -2185,7 +2229,7 @@ func queuePaymentRequestStatus(paymentRequest models.PaymentRequest) string {
 }
 
 // QueuePaymentRequests payload
-func QueuePaymentRequests(paymentRequests *models.PaymentRequests, officeUsers []models.OfficeUser) *ghcmessages.QueuePaymentRequests {
+func QueuePaymentRequests(paymentRequests *models.PaymentRequests, officeUsers []models.OfficeUser, officeUser models.OfficeUser, isSupervisor bool) *ghcmessages.QueuePaymentRequests {
 	queuePaymentRequests := make(ghcmessages.QueuePaymentRequests, len(*paymentRequests))
 
 	for i, paymentRequest := range *paymentRequests {
@@ -2209,7 +2253,31 @@ func QueuePaymentRequests(paymentRequests *models.PaymentRequests, officeUsers [
 			OrderType:            (*string)(orders.OrdersType.Pointer()),
 			LockedByOfficeUserID: handlers.FmtUUIDPtr(moveTaskOrder.LockedByOfficeUserID),
 			LockExpiresAt:        handlers.FmtDateTimePtr(moveTaskOrder.LockExpiresAt),
-			AvailableOfficeUsers: *QueueAvailableOfficeUsers(officeUsers),
+		}
+
+		if paymentRequest.MoveTaskOrder.TIOAssignedUser != nil {
+			queuePaymentRequests[i].AssignedTo = AssignedOfficeUser(paymentRequest.MoveTaskOrder.TIOAssignedUser)
+		}
+
+		isAssignable := false
+		if queuePaymentRequests[i].AssignedTo == nil {
+			isAssignable = true
+		}
+
+		if isSupervisor {
+			isAssignable = true
+		}
+
+		queuePaymentRequests[i].Assignable = isAssignable
+
+		// only need to attach available office users if move is assignable
+		if queuePaymentRequests[i].Assignable {
+			availableOfficeUsers := officeUsers
+			if !isSupervisor {
+				availableOfficeUsers = models.OfficeUsers{officeUser}
+			}
+
+			queuePaymentRequests[i].AvailableOfficeUsers = *QueueAvailableOfficeUsers(availableOfficeUsers)
 		}
 
 		if orders.DepartmentIndicator != nil {

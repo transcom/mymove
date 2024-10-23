@@ -4489,6 +4489,12 @@ func init() {
             "description": "Used to return a queue for a GBLOC other than the default of the current user. Requires the HQ role. The parameter is ignored if the requesting user does not have the necessary role.\n",
             "name": "viewAsGBLOC",
             "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "Used to illustrate which user is assigned to this move.\n",
+            "name": "assignedTo",
+            "in": "query"
           }
         ],
         "responses": {
@@ -4529,7 +4535,8 @@ func init() {
               "dodID",
               "emplid",
               "age",
-              "originDutyLocation"
+              "originDutyLocation",
+              "assignedTo"
             ],
             "type": "string",
             "description": "field that results should be sorted by",
@@ -4598,6 +4605,12 @@ func init() {
           {
             "type": "string",
             "name": "originDutyLocation",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "Used to illustrate which user is assigned to this payment request.\n",
+            "name": "assignedTo",
             "in": "query"
           },
           {
@@ -11740,6 +11753,9 @@ func init() {
           "format": "date-time",
           "x-nullable": true
         },
+        "assignable": {
+          "type": "boolean"
+        },
         "assignedTo": {
           "x-nullable": true,
           "$ref": "#/definitions/AssignedOfficeUser"
@@ -11758,6 +11774,11 @@ func init() {
         },
         "counselingOffice": {
           "type": "string",
+          "x-nullable": true
+        },
+        "counselingOfficeID": {
+          "type": "string",
+          "format": "uuid",
           "x-nullable": true
         },
         "customer": {
@@ -11860,6 +11881,13 @@ func init() {
           "description": "Days since the payment request has been requested.  Decimal representation will allow more accurate sorting.",
           "type": "number",
           "format": "double"
+        },
+        "assignable": {
+          "type": "boolean"
+        },
+        "assignedTo": {
+          "x-nullable": true,
+          "$ref": "#/definitions/AssignedOfficeUser"
         },
         "availableOfficeUsers": {
           "$ref": "#/definitions/AvailableOfficeUsers"
@@ -19803,6 +19831,12 @@ func init() {
             "description": "Used to return a queue for a GBLOC other than the default of the current user. Requires the HQ role. The parameter is ignored if the requesting user does not have the necessary role.\n",
             "name": "viewAsGBLOC",
             "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "Used to illustrate which user is assigned to this move.\n",
+            "name": "assignedTo",
+            "in": "query"
           }
         ],
         "responses": {
@@ -19849,7 +19883,8 @@ func init() {
               "dodID",
               "emplid",
               "age",
-              "originDutyLocation"
+              "originDutyLocation",
+              "assignedTo"
             ],
             "type": "string",
             "description": "field that results should be sorted by",
@@ -19918,6 +19953,12 @@ func init() {
           {
             "type": "string",
             "name": "originDutyLocation",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "Used to illustrate which user is assigned to this payment request.\n",
+            "name": "assignedTo",
             "in": "query"
           },
           {
@@ -27503,6 +27544,9 @@ func init() {
           "format": "date-time",
           "x-nullable": true
         },
+        "assignable": {
+          "type": "boolean"
+        },
         "assignedTo": {
           "x-nullable": true,
           "$ref": "#/definitions/AssignedOfficeUser"
@@ -27521,6 +27565,11 @@ func init() {
         },
         "counselingOffice": {
           "type": "string",
+          "x-nullable": true
+        },
+        "counselingOfficeID": {
+          "type": "string",
+          "format": "uuid",
           "x-nullable": true
         },
         "customer": {
@@ -27623,6 +27672,13 @@ func init() {
           "description": "Days since the payment request has been requested.  Decimal representation will allow more accurate sorting.",
           "type": "number",
           "format": "double"
+        },
+        "assignable": {
+          "type": "boolean"
+        },
+        "assignedTo": {
+          "x-nullable": true,
+          "$ref": "#/definitions/AssignedOfficeUser"
         },
         "availableOfficeUsers": {
           "$ref": "#/definitions/AvailableOfficeUsers"

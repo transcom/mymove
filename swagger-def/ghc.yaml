@@ -3553,6 +3553,11 @@ paths:
           type: string
           description: |
             Used to return a queue for a GBLOC other than the default of the current user. Requires the HQ role. The parameter is ignored if the requesting user does not have the necessary role.
+        - in: query
+          name: assignedTo
+          type: string
+          description: |
+            Used to illustrate which user is assigned to this move.
       responses:
         '200':
           description: Successfully returned all moves matching the criteria
@@ -3576,7 +3581,7 @@ paths:
         - in: query
           name: sort
           type: string
-          enum: [lastName, locator, submittedAt, branch, status, dodID, emplid, age, originDutyLocation]
+          enum: [lastName, locator, submittedAt, branch, status, dodID, emplid, age, originDutyLocation, assignedTo]
           description: field that results should be sorted by
         - in: query
           name: order
@@ -3617,6 +3622,11 @@ paths:
         - in: query
           name: originDutyLocation
           type: string
+        - in: query
+          name: assignedTo
+          type: string
+          description: |
+            Used to illustrate which user is assigned to this payment request.
         - in: query
           name: status
           type: array
@@ -6786,11 +6796,17 @@ definitions:
       counselingOffice:
         type: string
         x-nullable: true
+      counselingOfficeID:
+        type: string
+        format: uuid
+        x-nullable: true
       assignedTo:
         $ref: '#/definitions/AssignedOfficeUser'
         x-nullable: true
       availableOfficeUsers:
         $ref: '#/definitions/AvailableOfficeUsers'
+      assignable:
+        type: boolean
   QueueMovesResult:
     type: object
     properties:
@@ -6905,8 +6921,13 @@ definitions:
         type: string
         format: date-time
         x-nullable: true
+      assignedTo:
+        $ref: '#/definitions/AssignedOfficeUser'
+        x-nullable: true
       availableOfficeUsers:
         $ref: '#/definitions/AvailableOfficeUsers'
+      assignable:
+        type: boolean
   QueuePaymentRequests:
     type: array
     items:
