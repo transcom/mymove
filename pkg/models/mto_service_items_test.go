@@ -22,6 +22,110 @@ func (suite *ModelSuite) TestMTOServiceItemValidation() {
 		expErrors := map[string][]string{}
 		suite.verifyValidationErrors(&validMTOServiceItem, expErrors)
 	})
+	suite.Run("can add an OCONUS ReService to an OCONUS shipment", func() {
+		moveTaskOrderID := uuid.Must(uuid.NewV4())
+		reServiceID := uuid.Must(uuid.NewV4())
+
+		gb := factory.BuildCountry(suite.DB(), []factory.Customization{
+			{
+				Model: models.Country{
+					Country:     "GB",
+					CountryName: "Great Britain",
+				},
+			},
+		}, nil)
+
+		oconusAddress := factory.BuildAddress(suite.DB(), []factory.Customization{
+			{
+				Model: models.Address{
+					IsOconus: models.BoolPointer(true),
+				},
+			},
+			{
+				Model:    gb,
+				LinkOnly: true,
+			},
+		}, nil)
+
+		shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					ID:                   uuid.Must(uuid.NewV4()),
+					PickupAddressID:      &oconusAddress.ID,
+					DestinationAddressID: &oconusAddress.ID,
+				},
+			},
+		}, nil)
+
+		oconusReService := models.ReService{
+			Code: models.ReServiceCodeIOFSIT,
+		}
+
+		oconusMTOServiceItem := models.MTOServiceItem{
+			MoveTaskOrderID: moveTaskOrderID,
+			MTOShipmentID:   &shipment.ID,
+			ReServiceID:     reServiceID,
+			ReService:       oconusReService,
+			Status:          models.MTOServiceItemStatusSubmitted,
+		}
+
+		verrs, err := models.ValidateableModel.Validate(&oconusMTOServiceItem, suite.DB())
+		suite.False(verrs.HasAny())
+		suite.Nil(err)
+	})
+
+	suite.Run("cannot add a CONUS ReService to an OCONUS shipment", func() {
+		moveTaskOrderID := uuid.Must(uuid.NewV4())
+		reServiceID := uuid.Must(uuid.NewV4())
+
+		gb := factory.BuildCountry(suite.DB(), []factory.Customization{
+			{
+				Model: models.Country{
+					Country:     "GB",
+					CountryName: "Great Britain",
+				},
+			},
+		}, nil)
+		oconusAddress := factory.BuildAddress(suite.DB(), []factory.Customization{
+			{
+				Model: models.Address{
+					IsOconus: models.BoolPointer(true),
+				},
+			},
+			{
+				Model:    gb,
+				LinkOnly: true,
+			},
+		}, nil)
+
+		// Create shipment with OCONUS destination address
+		shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					ID:              uuid.Must(uuid.NewV4()),
+					PickupAddressID: &oconusAddress.ID,
+				},
+			},
+		}, nil)
+
+		// CONUS ReService Code
+		domesticReService := models.ReService{
+			Code: models.ReServiceCodeDOFSIT,
+		}
+
+		conusMTOServiceItem := models.MTOServiceItem{
+			MoveTaskOrderID: moveTaskOrderID,
+			MTOShipmentID:   &shipment.ID,
+			ReServiceID:     reServiceID,
+			ReService:       domesticReService,
+			Status:          models.MTOServiceItemStatusSubmitted,
+		}
+
+		verrs, err := models.ValidateableModel.Validate(&conusMTOServiceItem, suite.DB())
+		suite.True(verrs.HasAny())
+		suite.Contains(verrs.Get("ReService"), "A domestic ReService Code cannot be applied to an OCONUS shipment")
+		suite.Nil(err)
+	})
 }
 
 func (suite *ModelSuite) TestFetchRelatedDestinationSITServiceItems() {
