@@ -1010,7 +1010,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		// Setup:      Create a shipment with DTOD outage simulated or bad zip
 		// Expected:   500 Internal Server Error returned
 
-		handler, move := setupTestData(true)
+		handler, move := setupTestData(true, false)
 		req := httptest.NewRequest("POST", "/mto-shipments", nil)
 		handler.ShipmentCreator = &mockCreator
 
