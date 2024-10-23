@@ -5,6 +5,7 @@ import classnames from 'classnames';
 import { useNavigate, useParams } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { connect } from 'react-redux';
 
 import EvaluationReportList from '../DefinitionLists/EvaluationReportList';
 import PreviewRow from '../EvaluationReportPreview/PreviewRow/PreviewRow';
@@ -27,8 +28,9 @@ import { addViolationAppeal } from 'services/ghcApi';
 import { milmoveLogger } from 'utils/milmoveLog';
 import { REPORT_VIOLATIONS } from 'constants/queryKeys';
 import { isBooleanFlagEnabled } from 'utils/featureFlags';
+import { roleTypes } from 'constants/userRoles';
 
-const EvaluationReportView = ({ customerInfo, grade, destinationDutyLocationPostalCode }) => {
+const EvaluationReportView = ({ customerInfo, grade, destinationDutyLocationPostalCode, activeRole }) => {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const { moveCode, reportId } = useParams();
@@ -212,7 +214,7 @@ const EvaluationReportView = ({ customerInfo, grade, destinationDutyLocationPost
                           <div className={styles.violation}>
                             <div className={styles.violationHeader}>
                               <h5>{`${reportViolation?.violation?.paragraphNumber} ${reportViolation?.violation?.title}`}</h5>
-                              {gsrFlag && !reportViolation.gsrAppeals ? (
+                              {gsrFlag && activeRole === roleTypes.GSR && !reportViolation.gsrAppeals ? (
                                 <Button
                                   unstyled
                                   className={styles.addAppealBtn}
@@ -350,4 +352,10 @@ const EvaluationReportView = ({ customerInfo, grade, destinationDutyLocationPost
   );
 };
 
-export default EvaluationReportView;
+const mapStateToProps = (state) => {
+  return {
+    activeRole: state.auth.activeRole,
+  };
+};
+
+export default connect(mapStateToProps)(EvaluationReportView);
