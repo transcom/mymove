@@ -52,6 +52,16 @@ const mockFiles = [
   },
 ];
 
+const mockErrorFiles = [
+  {
+    id: 1,
+    filename: 'Test File.pdf',
+    contentType: 'application/pdf',
+    url: '404',
+    createdAt: '2021-06-14T15:09:26.979879Z',
+  },
+];
+
 jest.mock('services/ghcApi', () => ({
   ...jest.requireActual('services/ghcApi'),
   bulkDownloadPaymentRequest: jest.fn(),
@@ -59,39 +69,45 @@ jest.mock('services/ghcApi', () => ({
 
 jest.mock('./Content/Content', () => ({
   __esModule: true,
-  default: ({ id, filename, contentType, url, createdAt, rotation }) => (
-    <div>
-      <div data-testid="documentTitle">
-        {filename} Uploaded on {createdAt}
+  default: ({ id, filename, contentType, url, createdAt, rotation, filePath, onError }) => {
+    if (filePath === '404') {
+      onError('content error happening');
+      return <div>nothing to see here</div>;
+    }
+    return (
+      <div>
+        <div data-testid="documentTitle">
+          {filename} Uploaded on {createdAt}
+        </div>
+        <div>id: {id || 'undefined'}</div>
+        <div>fileName: {filename || 'undefined'}</div>
+        <div>contentType: {contentType || 'undefined'}</div>
+        <div>url: {url || 'undefined'}</div>
+        <div>createdAt: {createdAt || 'undefined'}</div>
+        <div>rotation: {rotation || 'undefined'}</div>
+        <div data-testid="listOfFiles">
+          <ul>
+            {mockFiles.map((file) => (
+              <li key={file.id}>
+                {file.filename} - Added on {file.createdAt}
+              </li>
+            ))}
+          </ul>
+        </div>
+        <div data-testid="menuButtonContainer" className="closed">
+          <button
+            data-testid="menuButton"
+            onClick={() => {
+              toggleMenuClass();
+            }}
+            type="button"
+          >
+            Toggle
+          </button>
+        </div>
       </div>
-      <div>id: {id || 'undefined'}</div>
-      <div>fileName: {filename || 'undefined'}</div>
-      <div>contentType: {contentType || 'undefined'}</div>
-      <div>url: {url || 'undefined'}</div>
-      <div>createdAt: {createdAt || 'undefined'}</div>
-      <div>rotation: {rotation || 'undefined'}</div>
-      <div data-testid="listOfFiles">
-        <ul>
-          {mockFiles.map((file) => (
-            <li key={file.id}>
-              {file.filename} - Added on {file.createdAt}
-            </li>
-          ))}
-        </ul>
-      </div>
-      <div data-testid="menuButtonContainer" className="closed">
-        <button
-          data-testid="menuButton"
-          onClick={() => {
-            toggleMenuClass();
-          }}
-          type="button"
-        >
-          Toggle
-        </button>
-      </div>
-    </div>
-  ),
+    );
+  },
 }));
 
 describe('DocumentViewer component', () => {
@@ -178,6 +194,46 @@ describe('DocumentViewer component', () => {
     );
 
     expect(screen.getByText('id: undefined')).toBeInTheDocument();
+  });
+
+  describe('regarding content errors', () => {
+    const errorMessageText = 'The document is not yet available for viewing. Please try again in a moment.';
+    const downloadLinkText = 'Download file';
+    it('no error message normally', async () => {
+      render(
+        <QueryClientProvider client={new QueryClient()}>
+          <DocumentViewer files={mockFiles} />
+        </QueryClientProvider>,
+      );
+      expect(screen.queryByText(errorMessageText)).toBeNull();
+    });
+
+    it('download link normally', async () => {
+      render(
+        <QueryClientProvider client={new QueryClient()}>
+          <DocumentViewer files={mockFiles} allowDownload />
+        </QueryClientProvider>,
+      );
+      expect(screen.getByText(downloadLinkText)).toBeVisible();
+    });
+
+    it('show message on content error', async () => {
+      render(
+        <QueryClientProvider client={new QueryClient()}>
+          <DocumentViewer files={mockErrorFiles} />
+        </QueryClientProvider>,
+      );
+      expect(screen.getByText(errorMessageText)).toBeVisible();
+    });
+
+    it('no download link on content error', async () => {
+      render(
+        <QueryClientProvider client={new QueryClient()}>
+          <DocumentViewer files={mockErrorFiles} allowDownload />
+        </QueryClientProvider>,
+      );
+      expect(screen.queryByText(downloadLinkText)).toBeNull();
+    });
   });
 
   describe('when clicking download Download All Files button', () => {
