@@ -6,7 +6,7 @@ import (
 	"github.com/gofrs/uuid"
 )
 
-type ReInternationalTransitTimes struct {
+type InternationalTransitTime struct {
 	ID                    uuid.UUID `json:"id" db:"id" rw:"r"`
 	OriginRateAreaId      uuid.UUID `json:"origin_rate_area_id" db:"origin_rate_area_id" rw:"r"`
 	DestinationRateAreaId uuid.UUID `json:"destination_rate_area_id" db:"destination_rate_area_id" rw:"r"`
@@ -17,6 +17,6 @@ type ReInternationalTransitTimes struct {
 	UpdatedAt             time.Time `json:"updated_at" db:"updated_at" rw:"r"`
 }
 
-func (ReInternationalTransitTimes) TableName() string {
+func (InternationalTransitTime) TableName() string {
 	return "re_international_transit_times"
 }
