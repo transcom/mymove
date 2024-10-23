@@ -7,6 +7,7 @@ import (
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/auth"
+	"github.com/transcom/mymove/pkg/factory"
 	locationop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/duty_locations"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/models"
@@ -31,6 +32,7 @@ func (suite *HandlerSuite) TestSearchDutyLocationHandler() {
 		PostalCode:     "12345",
 		County:         "County",
 	}
+	factory.FetchOrBuildCountry(suite.AppContextForTest().DB(), nil, nil)
 	addressCreator := address.NewAddressCreator()
 	createdAddress, err := addressCreator.CreateAddress(suite.AppContextForTest(), &newAddress)
 	suite.NoError(err)

@@ -192,7 +192,6 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		}, nil)
 		pickupAddress = primev3messages.Address{
 			City:           &newAddress.City,
-			Country:        newAddress.Country,
 			PostalCode:     &newAddress.PostalCode,
 			State:          &newAddress.State,
 			StreetAddress1: &newAddress.StreetAddress1,
@@ -202,7 +201,6 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		newAddress = factory.BuildAddress(nil, nil, []factory.Trait{factory.GetTraitAddress2})
 		destinationAddress = primev3messages.Address{
 			City:           &newAddress.City,
-			Country:        newAddress.Country,
 			PostalCode:     &newAddress.PostalCode,
 			State:          &newAddress.State,
 			StreetAddress1: &newAddress.StreetAddress1,
@@ -330,7 +328,6 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		expectedPickupAddress := address1
 		pickupAddress = primev3messages.Address{
 			City:           &expectedPickupAddress.City,
-			Country:        expectedPickupAddress.Country,
 			PostalCode:     &expectedPickupAddress.PostalCode,
 			State:          &expectedPickupAddress.State,
 			StreetAddress1: &expectedPickupAddress.StreetAddress1,
@@ -341,7 +338,6 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		expectedSecondaryPickupAddress := address2
 		secondaryPickupAddress = primev3messages.Address{
 			City:           &expectedSecondaryPickupAddress.City,
-			Country:        expectedSecondaryPickupAddress.Country,
 			PostalCode:     &expectedSecondaryPickupAddress.PostalCode,
 			State:          &expectedSecondaryPickupAddress.State,
 			StreetAddress1: &expectedSecondaryPickupAddress.StreetAddress1,
@@ -352,7 +348,6 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		expectedDestinationAddress := address1
 		destinationAddress = primev3messages.Address{
 			City:           &expectedDestinationAddress.City,
-			Country:        expectedDestinationAddress.Country,
 			PostalCode:     &expectedDestinationAddress.PostalCode,
 			State:          &expectedDestinationAddress.State,
 			StreetAddress1: &expectedDestinationAddress.StreetAddress1,
@@ -363,7 +358,6 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		expectedSecondaryDestinationAddress := address2
 		secondaryDestinationAddress = primev3messages.Address{
 			City:           &expectedSecondaryDestinationAddress.City,
-			Country:        expectedSecondaryDestinationAddress.Country,
 			PostalCode:     &expectedSecondaryDestinationAddress.PostalCode,
 			State:          &expectedSecondaryDestinationAddress.State,
 			StreetAddress1: &expectedSecondaryDestinationAddress.StreetAddress1,

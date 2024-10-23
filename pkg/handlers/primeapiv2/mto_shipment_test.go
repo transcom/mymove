@@ -153,7 +153,6 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		}, nil)
 		pickupAddress = primev2messages.Address{
 			City:           &newAddress.City,
-			Country:        newAddress.Country,
 			PostalCode:     &newAddress.PostalCode,
 			State:          &newAddress.State,
 			StreetAddress1: &newAddress.StreetAddress1,
@@ -163,7 +162,6 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		newAddress = factory.BuildAddress(nil, nil, []factory.Trait{factory.GetTraitAddress2})
 		destinationAddress = primev2messages.Address{
 			City:           &newAddress.City,
-			Country:        newAddress.Country,
 			PostalCode:     &newAddress.PostalCode,
 			State:          &newAddress.State,
 			StreetAddress1: &newAddress.StreetAddress1,
