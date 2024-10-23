@@ -18,7 +18,6 @@ func (suite *PayloadsSuite) TestAddressModel() {
 	city := "New York"
 	state := "NY"
 	postalCode := "10001"
-	country := "USA"
 
 	expectedAddress := models.Address{
 		StreetAddress1: streetAddress1,
@@ -27,7 +26,6 @@ func (suite *PayloadsSuite) TestAddressModel() {
 		City:           city,
 		State:          state,
 		PostalCode:     postalCode,
-		Country:        &country,
 	}
 
 	suite.Run("Success - Complete input", func() {
@@ -39,7 +37,6 @@ func (suite *PayloadsSuite) TestAddressModel() {
 			City:           &city,
 			State:          &state,
 			PostalCode:     &postalCode,
-			Country:        &country,
 		}
 
 		returnedAddress := AddressModel(inputAddress)
@@ -51,7 +48,6 @@ func (suite *PayloadsSuite) TestAddressModel() {
 		suite.Equal(expectedAddress.City, returnedAddress.City)
 		suite.Equal(expectedAddress.State, returnedAddress.State)
 		suite.Equal(expectedAddress.PostalCode, returnedAddress.PostalCode)
-		suite.Equal(expectedAddress.Country, returnedAddress.Country)
 	})
 
 	suite.Run("Success - Partial input", func() {
@@ -61,7 +57,6 @@ func (suite *PayloadsSuite) TestAddressModel() {
 			City:           &city,
 			State:          &state,
 			PostalCode:     nil,
-			Country:        nil,
 		}
 
 		returnedAddress := AddressModel(inputAddress)
@@ -73,7 +68,6 @@ func (suite *PayloadsSuite) TestAddressModel() {
 		suite.Equal(city, returnedAddress.City)
 		suite.Equal(state, returnedAddress.State)
 		suite.Equal("", returnedAddress.PostalCode)
-		suite.Nil(returnedAddress.Country)
 	})
 
 	suite.Run("Nil input - returns nil", func() {
@@ -102,7 +96,6 @@ func (suite *PayloadsSuite) TestAddressModel() {
 			City:           &city,
 			State:          &state,
 			PostalCode:     &postalCode,
-			Country:        &country,
 		}
 
 		returnedAddress := AddressModel(inputAddress)
@@ -112,7 +105,6 @@ func (suite *PayloadsSuite) TestAddressModel() {
 		suite.Equal(city, returnedAddress.City)
 		suite.Equal(state, returnedAddress.State)
 		suite.Equal(postalCode, returnedAddress.PostalCode)
-		suite.Equal(country, *returnedAddress.Country)
 	})
 }
 
