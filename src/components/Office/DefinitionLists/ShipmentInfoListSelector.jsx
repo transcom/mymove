@@ -6,6 +6,7 @@ import ShipmentInfoList from 'components/Office/DefinitionLists/ShipmentInfoList
 import PPMShipmentInfoList from 'components/Office/DefinitionLists/PPMShipmentInfoList';
 import NTSRShipmentInfoList from 'components/Office/DefinitionLists/NTSRShipmentInfoList';
 import NTSShipmentInfoList from 'components/Office/DefinitionLists/NTSShipmentInfoList';
+import MobileHomeShipmentInfoList from 'components/Office/DefinitionLists/MobileHomeShipmentInfoList';
 import BoatShipmentInfoList from 'components/Office/DefinitionLists/BoatShipmentInfoList';
 import { SHIPMENT_OPTIONS, SHIPMENT_TYPES } from 'shared/constants';
 import { fieldValidationShape } from 'utils/displayFlags';
@@ -77,6 +78,20 @@ const ShipmentInfoListSelector = ({
           showWhenCollapsed={showWhenCollapsed}
           neverShow={neverShow}
           isForEvaluationReport={isForEvaluationReport}
+        />
+      );
+    case SHIPMENT_OPTIONS.MOBILE_HOME:
+      return (
+        <MobileHomeShipmentInfoList
+          className={className}
+          shipment={shipment}
+          isExpanded={isExpanded}
+          warnIfMissing={warnIfMissing}
+          errorIfMissing={errorIfMissing}
+          shipmentType={shipmentType}
+          showWhenCollapsed={showWhenCollapsed}
+          isForEvaluationReport={isForEvaluationReport}
+          destinationDutyLocationPostalCode={destinationDutyLocationPostalCode}
         />
       );
     case SHIPMENT_OPTIONS.BOAT:
