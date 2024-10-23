@@ -1,16 +1,24 @@
 import React from 'react';
 import { render, screen } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
+import userEvent from '@testing-library/user-event';
 
 import EvaluationReportView from './EvaluationReportView';
 
 import { useEvaluationReportShipmentListQueries } from 'hooks/queries';
 import { qaeCSRRoutes } from 'constants/routes';
-import { renderWithProviders } from 'testUtils';
+import { MockProviders, renderWithProviders } from 'testUtils';
+import { isBooleanFlagEnabled } from 'utils/featureFlags';
+
+jest.mock('utils/featureFlags', () => ({
+  ...jest.requireActual('utils/featureFlags'),
+  isBooleanFlagEnabled: jest.fn().mockImplementation(() => Promise.resolve(false)),
+}));
 
 const mockReportId = 'db30c135-1d6d-4a0d-a6d5-f408474f6ee2';
 const mockMoveId = '551dd01f-90cf-44d6-addb-ff919433dd61';
 const mockViolationID = '9cdc8dc3-6cf4-46fb-b272-1468ef40796f';
+const mockViolationID2 = '9cdc8dc3-6cf4-46fb-b272-1468ef40796g';
 const mockShipmentID = '319e0751-1337-4ed9-b4b5-a15d4e6d272c';
 
 const customerInfo = {
@@ -77,6 +85,17 @@ const mockViolation = {
   title: 'Title for violation 1',
 };
 
+const mockViolation2 = {
+  category: 'Category 1',
+  displayOrder: 2,
+  id: mockViolationID2,
+  paragraphNumber: '1.2.4',
+  requirementStatement: 'Test requirement statement for violation 2',
+  requirementSummary: 'Test requirement summary for violation 2',
+  subCategory: 'SubCategory 2',
+  title: 'Title for violation 2',
+};
+
 const mockReportViolations = [
   {
     id: 'f3e2c135-336d-440d-a6d5-f404474f6ef3',
@@ -130,6 +149,44 @@ const mockShipmentData = [
   },
 ];
 
+const mockReportViolationsWithAppeals = [
+  {
+    id: 'superUniqueID',
+    reportId: mockReportId,
+    violationId: mockViolationID,
+    violation: mockViolation,
+    gsrAppeals: [
+      {
+        appealStatus: 'SUSTAINED',
+        createdAt: '2024-10-23T16:41:20.514Z',
+        id: '5b3fdda8-feb3-4b78-adb2-d164800aa1dc',
+        officeUser: {
+          firstName: 'Billy',
+          lastName: 'Bob',
+        },
+        remarks: 'remarkable remarks',
+        reportID: mockReportId,
+        violationID: mockViolationID,
+      },
+    ],
+  },
+  {
+    id: 'superUniqueID2',
+    reportId: mockReportId,
+    violationId: mockViolationID2,
+    violation: mockViolation2,
+  },
+];
+
+const mockReturnDataWithAppeals = {
+  evaluationReport: mockEvaluationReport,
+  isError: false,
+  isLoading: false,
+  isSuccess: true,
+  mtoShipments: mockShipmentData,
+  reportViolations: mockReportViolationsWithAppeals,
+};
+
 const mockReturnData = {
   evaluationReport: mockEvaluationReport,
   isError: false,
@@ -163,6 +220,17 @@ const renderForm = (props) => {
   return renderWithProviders(<EvaluationReportView {...defaultProps} {...props} />, mockRoutingConfig);
 };
 
+const renderFormWithAppeals = (props) => {
+  useEvaluationReportShipmentListQueries.mockReturnValue(mockReturnDataWithAppeals);
+  const defaultProps = {
+    customerInfo,
+    grade: 'E_4',
+    destinationDutyLocationPostalCode: '90210',
+  };
+
+  return renderWithProviders(<EvaluationReportView {...defaultProps} {...props} />, mockRoutingConfig);
+};
+
 describe('EvaluationReportView', () => {
   it('renders loading placeholder', () => {
     useEvaluationReportShipmentListQueries.mockReturnValue({
@@ -174,7 +242,11 @@ describe('EvaluationReportView', () => {
       mtoShipments: [],
     });
 
-    render(<EvaluationReportView customerInfo={{}} grade="E-5" destinationDutyLocationPostalCode="12345" />);
+    render(
+      <MockProviders>
+        <EvaluationReportView customerInfo={{}} grade="E-5" destinationDutyLocationPostalCode="12345" />
+      </MockProviders>,
+    );
 
     expect(screen.getByText('Loading, please wait...')).toBeInTheDocument();
   });
@@ -189,7 +261,11 @@ describe('EvaluationReportView', () => {
       mtoShipments: [],
     });
 
-    render(<EvaluationReportView customerInfo={{}} grade="E-5" destinationDutyLocationPostalCode="12345" />);
+    render(
+      <MockProviders>
+        <EvaluationReportView customerInfo={{}} grade="E-5" destinationDutyLocationPostalCode="12345" />
+      </MockProviders>,
+    );
 
     const errorMessage = screen.getByText(/Something went wrong./);
     expect(errorMessage).toBeInTheDocument();
@@ -240,7 +316,11 @@ describe('EvaluationReportView', () => {
       mtoShipments: [],
     });
 
-    render(<EvaluationReportView customerInfo={{}} grade="E-5" destinationDutyLocationPostalCode="12345" />);
+    render(
+      <MockProviders>
+        <EvaluationReportView customerInfo={{}} grade="E-5" destinationDutyLocationPostalCode="12345" />
+      </MockProviders>,
+    );
 
     expect(screen.getByTestId('noViolationsObserved')).toHaveTextContent('No');
   });
@@ -257,8 +337,40 @@ describe('EvaluationReportView', () => {
       mtoShipments: [],
     });
 
-    render(<EvaluationReportView customerInfo={{}} grade="E-5" destinationDutyLocationPostalCode="12345" />);
+    render(
+      <MockProviders>
+        <EvaluationReportView customerInfo={{}} grade="E-5" destinationDutyLocationPostalCode="12345" />
+      </MockProviders>,
+    );
 
     expect(screen.getByTestId('seriousIncidentYesNo')).toHaveTextContent('No');
+  });
+
+  it('allows a GSR user to see appeals attached to a violation', async () => {
+    isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(true));
+    renderFormWithAppeals();
+
+    expect(screen.queryByText('Billy Bob')).not.toBeInTheDocument();
+    expect(screen.queryByText('remarkable remarks')).not.toBeInTheDocument();
+
+    expect(screen.getByText('Show appeals')).toBeInTheDocument();
+    const expandBtn = await screen.findByTestId('showAppealBtn');
+    await userEvent.click(expandBtn);
+
+    expect(screen.queryByText('Billy Bob')).toBeInTheDocument();
+    expect(screen.queryByText('remarkable remarks')).toBeInTheDocument();
+  });
+
+  it('allows a GSR user to add an appeal to a violation', async () => {
+    isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(true));
+    renderFormWithAppeals();
+
+    const addAppealBtn = await screen.findByTestId('addAppealBtn');
+    expect(addAppealBtn).toBeInTheDocument();
+    await userEvent.click(addAppealBtn);
+
+    // modal heading should appear
+    const addAppealModalTitle = await screen.findByTestId('appealModalTitle');
+    expect(addAppealModalTitle).toBeInTheDocument();
   });
 });

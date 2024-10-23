@@ -1,11 +1,14 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import 'styles/office.scss';
 import { Button, GridContainer } from '@trussworks/react-uswds';
 import classnames from 'classnames';
 import { useNavigate, useParams } from 'react-router-dom';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 
 import EvaluationReportList from '../DefinitionLists/EvaluationReportList';
 import PreviewRow from '../EvaluationReportPreview/PreviewRow/PreviewRow';
+import ViolationAppealModal from '../ViolationAppealModal/ViolationAppealModal';
 
 import styles from './EvaluationReportView.module.scss';
 
@@ -20,16 +23,65 @@ import DataTable from 'components/DataTable';
 import { formatDate } from 'shared/dates';
 import { formatDateFromIso } from 'utils/formatters';
 import EVALUATION_REPORT_TYPE from 'constants/evaluationReports';
+import { addViolationAppeal } from 'services/ghcApi';
+import { milmoveLogger } from 'utils/milmoveLog';
+import { REPORT_VIOLATIONS } from 'constants/queryKeys';
+import { isBooleanFlagEnabled } from 'utils/featureFlags';
 
 const EvaluationReportView = ({ customerInfo, grade, destinationDutyLocationPostalCode }) => {
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const { moveCode, reportId } = useParams();
   const { evaluationReport, reportViolations, mtoShipments, isLoading, isError } =
     useEvaluationReportShipmentListQueries(reportId);
 
-  // this is currently set to false to hide the "add appeal" button for future GSR work
-  // TODO implement permissions check in order to render this button
-  const [canLeaveAppeal] = useState(false);
+  const [isViolationAppealModalVisible, setIsViolationAppealModalVisible] = useState(false);
+  const [selectedReportViolation, setSelectedReportViolation] = useState(null);
+  const [visibleAppeals, setVisibleAppeals] = useState({});
+  const [gsrFlag, setGsrFlag] = useState(false);
+
+  useEffect(() => {
+    isBooleanFlagEnabled('gsr_role').then((enabled) => {
+      setGsrFlag(enabled);
+    });
+  }, []);
+
+  const toggleAppealsVisibility = (id) => {
+    setVisibleAppeals((prevState) => ({
+      ...prevState,
+      [id]: !prevState[id],
+    }));
+  };
+
+  const handleShowViolationAppealModal = () => {
+    setIsViolationAppealModalVisible(true);
+  };
+
+  const handleCancelViolationAppealModal = () => {
+    setIsViolationAppealModalVisible(false);
+  };
+
+  const { mutate: mutateReportViolations } = useMutation(addViolationAppeal, {
+    onError: (error) => {
+      const errorMsg = error?.response?.body;
+      milmoveLogger.error(errorMsg);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries([REPORT_VIOLATIONS, reportId]);
+      setIsViolationAppealModalVisible(false);
+    },
+  });
+
+  const handleSubmitViolationAppeal = async (values) => {
+    const reportID = evaluationReport.id;
+    const reportViolationID = selectedReportViolation.id;
+    const body = {
+      remarks: values.remarks,
+      appealStatus: values.appealStatus,
+    };
+
+    mutateReportViolations({ reportID, reportViolationID, body });
+  };
 
   const isShipment = evaluationReport.type === EVALUATION_REPORT_TYPE.SHIPMENT;
 
@@ -53,8 +105,23 @@ const EvaluationReportView = ({ customerInfo, grade, destinationDutyLocationPost
   const hasViolations = reportViolations && reportViolations.length > 0;
   const showIncidentDescription = evaluationReport?.seriousIncident;
 
+  const formatOfficeUser = (officeUser) => {
+    return (
+      <span>
+        {officeUser?.firstName} {officeUser?.lastName}
+      </span>
+    );
+  };
+
   return (
     <div className={styles.tabContent} data-testid="EvaluationReportPreview">
+      {isViolationAppealModalVisible && (
+        <ViolationAppealModal
+          onClose={handleCancelViolationAppealModal}
+          onSubmit={handleSubmitViolationAppeal}
+          isOpen={isViolationAppealModalVisible}
+        />
+      )}
       <GridContainer className={styles.container}>
         <QaeReportHeader report={evaluationReport} />
         {mtoShipmentsToShow?.length > 0 && (
@@ -137,21 +204,80 @@ const EvaluationReportView = ({ customerInfo, grade, destinationDutyLocationPost
                 </dt>
                 {hasViolations ? (
                   <dd className={styles.violationsRemarks}>
-                    {reportViolations.map((reportViolation) => (
-                      <div className={styles.violation} key={`${reportViolation.id}-violation`}>
-                        <div className={styles.violationHeader}>
-                          <h5>{`${reportViolation?.violation?.paragraphNumber} ${reportViolation?.violation?.title}`}</h5>
-                          {canLeaveAppeal && (
-                            <Button unstyled className={styles.addAppealBtn}>
-                              Add appeal
-                            </Button>
+                    {reportViolations.map((reportViolation) => {
+                      const showAppeals = visibleAppeals[reportViolation.id] || false;
+
+                      return (
+                        <div key={`${reportViolation.id}-violation`}>
+                          <div className={styles.violation}>
+                            <div className={styles.violationHeader}>
+                              <h5>{`${reportViolation?.violation?.paragraphNumber} ${reportViolation?.violation?.title}`}</h5>
+                              {gsrFlag && !reportViolation.gsrAppeals ? (
+                                <Button
+                                  unstyled
+                                  className={styles.addAppealBtn}
+                                  onClick={() => {
+                                    setSelectedReportViolation(reportViolation);
+                                    handleShowViolationAppealModal();
+                                  }}
+                                  data-testid="addAppealBtn"
+                                >
+                                  Leave Appeal Decision
+                                </Button>
+                              ) : null}
+                            </div>
+                            <p>
+                              <small>{reportViolation?.violation?.requirementSummary}</small>
+                            </p>
+                          </div>
+                          {reportViolation.gsrAppeals && (
+                            <div className={styles.appealsSection}>
+                              <div className={styles.appealsHeader}>Appeals</div>
+                              <Button
+                                unstyled
+                                className={styles.addAppealBtn}
+                                onClick={() => toggleAppealsVisibility(reportViolation.id)}
+                                data-testid="showAppealBtn"
+                              >
+                                {showAppeals ? 'Hide appeals' : 'Show appeals'}
+                                <FontAwesomeIcon
+                                  icon={showAppeals ? 'chevron-up' : 'chevron-down'}
+                                  className={styles.appealShowIcon}
+                                />
+                              </Button>
+                            </div>
                           )}
+                          {reportViolation?.gsrAppeals && reportViolation.gsrAppeals.length > 0 && showAppeals
+                            ? reportViolation.gsrAppeals.map((appeal) => (
+                                <div className={styles.appealsTable} key={appeal?.id}>
+                                  <div className={styles.appealsTableHeader}>
+                                    <h5>
+                                      {appeal?.officeUser ? formatOfficeUser(appeal.officeUser) : 'No Office User'}
+                                    </h5>
+                                    <div
+                                      className={`${
+                                        appeal?.appealStatus === 'SUSTAINED' ? styles.sustained : styles.rejected
+                                      }`}
+                                    >
+                                      {appeal?.appealStatus || 'No Status'}
+                                    </div>
+                                  </div>
+                                  <div className={descriptionListStyles.row} key={`${appeal.id}-remarks`}>
+                                    <dt className={styles.appealsTableLeft}>Remarks</dt>
+                                    <dd className={styles.appealsTableRight}>{appeal?.remarks || 'No Remarks'}</dd>
+                                  </div>
+                                  <div className={descriptionListStyles.row} key={`${appeal.id}-createdAt`}>
+                                    <dt className={styles.appealsTableLeft}>Created at</dt>
+                                    <dd className={styles.appealsTableRight}>
+                                      {appeal?.createdAt ? formatDate(appeal.createdAt) : 'No Date'}
+                                    </dd>
+                                  </div>
+                                </div>
+                              ))
+                            : null}
                         </div>
-                        <p>
-                          <small>{reportViolation?.violation?.requirementSummary}</small>
-                        </p>
-                      </div>
-                    ))}
+                      );
+                    })}
                   </dd>
                 ) : (
                   <dd className={styles.violationsRemarks} data-testid="noViolationsObserved">
@@ -190,11 +316,6 @@ const EvaluationReportView = ({ customerInfo, grade, destinationDutyLocationPost
           <div className={styles.section}>
             <div className={styles.seriousIncidentHeader}>
               <h3>Serious Incident</h3>
-              {canLeaveAppeal && (
-                <Button unstyled className={styles.addAppealBtn}>
-                  Add appeal
-                </Button>
-              )}
             </div>
             <dl className={descriptionListStyles.descriptionList} data-testid="seriousIncidentSection">
               <div className={descriptionListStyles.row}>
