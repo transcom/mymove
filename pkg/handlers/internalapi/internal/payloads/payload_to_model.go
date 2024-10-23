@@ -13,7 +13,8 @@ import (
 
 // AddressModel model
 func AddressModel(address *internalmessages.Address) *models.Address {
-	if address == nil {
+	var blankSwaggerID strfmt.UUID
+	if address == nil || (address.ID == blankSwaggerID && address.StreetAddress1 == nil) {
 		return nil
 	}
 	if address.County == nil {
