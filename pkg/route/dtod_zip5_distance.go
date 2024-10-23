@@ -84,31 +84,7 @@ func NewDTODZip5Distance(username string, password string, soapClient SoapCaller
 func (d *dtodZip5DistanceInfo) DTODZip5Distance(appCtx appcontext.AppContext, pickupZip string, destinationZip string) (int, error) {
 	distance := 0
 
-	// set custom envelope
-	gosoap.SetCustomEnvelope("soapenv", map[string]string{
-		"xmlns:soapenv": "http://schemas.xmlsoap.org/soap/envelope/",
-		"xmlns:ser":     "https://dtod.sddc.army.mil/service/",
-	})
-
-	params := gosoap.Params{
-		"DtodRequest": map[string]interface{}{
-			"AuthToken": map[string]interface{}{
-				"Username": d.username,
-				"Password": d.password,
-			},
-			"UserRequest": map[string]interface{}{
-				"Function": "Distance",
-				// TODO: Default RouteType is PcsTdyTravel, but CommercialPersonalProperty seems better. Verify.
-				"RouteType": "CommercialPersonalProperty",
-				"Origin": map[string]interface{}{
-					"ZipCode": pickupZip,
-				},
-				"Destination": map[string]interface{}{
-					"ZipCode": destinationZip,
-				},
-			},
-		},
-	}
+	params := createDTODParams(d.username, d.password, pickupZip, destinationZip)
 
 	res, err := d.soapClient.Call("ProcessRequest", params)
 	if err != nil {
@@ -152,30 +128,7 @@ func validateDTODServiceAvailable(d dtodZip5DistanceInfo) (bool, error) {
 		return false, nil
 	}
 
-	// set custom envelope
-	gosoap.SetCustomEnvelope("soapenv", map[string]string{
-		"xmlns:soapenv": "http://schemas.xmlsoap.org/soap/envelope/",
-		"xmlns:ser":     "https://dtod.sddc.army.mil/service/",
-	})
-
-	params := gosoap.Params{
-		"DtodRequest": map[string]interface{}{
-			"AuthToken": map[string]interface{}{
-				"Username": d.username,
-				"Password": d.password,
-			},
-			"UserRequest": map[string]interface{}{
-				"Function":  "Distance",
-				"RouteType": "CommercialPersonalProperty",
-				"Origin": map[string]interface{}{
-					"ZipCode": "20001",
-				},
-				"Destination": map[string]interface{}{
-					"ZipCode": "20301",
-				},
-			},
-		},
-	}
+	params := createDTODParams(d.username, d.password, "20001", "20301")
 
 	res, err := d.soapClient.Call("ProcessRequest", params)
 	if err != nil {
@@ -195,4 +148,33 @@ func validateDTODServiceAvailable(d dtodZip5DistanceInfo) (bool, error) {
 	} else {
 		return false, nil
 	}
+}
+
+func createDTODParams(username string, password string, pickupZip string, destinationZip string) gosoap.Params {
+	// set custom envelope
+	gosoap.SetCustomEnvelope("soapenv", map[string]string{
+		"xmlns:soapenv": "http://schemas.xmlsoap.org/soap/envelope/",
+		"xmlns:ser":     "https://dtod.sddc.army.mil/service/",
+	})
+
+	params := gosoap.Params{
+		"DtodRequest": map[string]interface{}{
+			"AuthToken": map[string]interface{}{
+				"Username": username,
+				"Password": password,
+			},
+			"UserRequest": map[string]interface{}{
+				"Function":  "Distance",
+				"RouteType": "CommercialPersonalProperty",
+				"Origin": map[string]interface{}{
+					"ZipCode": pickupZip,
+				},
+				"Destination": map[string]interface{}{
+					"ZipCode": destinationZip,
+				},
+			},
+		},
+	}
+
+	return params
 }
