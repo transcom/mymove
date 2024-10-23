@@ -416,7 +416,7 @@ func (g ghcPaymentRequestInvoiceGenerator) createG62Segments(appCtx appcontext.A
 	return nil
 }
 
-func (g ghcPaymentRequestInvoiceGenerator) createBuyerAndSellerOrganizationNamesSegments(appCtx appcontext.AppContext, _ uuid.UUID, orders models.Order, header *ediinvoice.InvoiceHeader) error {
+func (g ghcPaymentRequestInvoiceGenerator) createBuyerAndSellerOrganizationNamesSegments(appCtx appcontext.AppContext, paymentRequestID uuid.UUID, orders models.Order, header *ediinvoice.InvoiceHeader) error {
 	var err error
 	var originDutyLocation models.DutyLocation
 	if orders.OriginDutyLocationID != nil && *orders.OriginDutyLocationID != uuid.Nil {
@@ -428,11 +428,35 @@ func (g ghcPaymentRequestInvoiceGenerator) createBuyerAndSellerOrganizationNames
 		return apperror.NewConflictError(orders.ID, "Invalid Order, must have OriginDutyLocation")
 	}
 
+	var address models.Address
+	err = appCtx.DB().Q().
+		Select("addresses.*").
+		Join("mto_shipments", "addresses.id = mto_shipments.pickup_address_id").
+		Join("moves", "mto_shipments.move_id = moves.id").
+		Join("mto_service_items", "mto_service_items.move_id = moves.id").
+		Join("payment_service_items", "payment_service_items.mto_service_item_id = mto_service_items.id").
+		Where("payment_service_items.payment_request_id = ?", paymentRequestID).
+		Order("mto_shipments.created_at").
+		First(&address)
+
+	if err != nil {
+		switch err {
+		case sql.ErrNoRows:
+			return apperror.NewNotFoundError(paymentRequestID, "for mto shipments associated with PaymentRequest")
+		default:
+			return apperror.NewQueryError("MTOShipments", err, fmt.Sprintf("error querying for shipments pickup address gbloc to use in N1*BY segments in PaymentRequest %s: %s", paymentRequestID, err))
+		}
+	}
+	pickupPostalCodeToGbloc, gblocErr := models.FetchGBLOCForPostalCode(appCtx.DB(), address.PostalCode)
+	if gblocErr != nil {
+		return apperror.NewInvalidInputError(pickupPostalCodeToGbloc.ID, gblocErr, nil, "unable to determine GBLOC for pickup postal code")
+	}
+
 	header.BuyerOrganizationName = edisegment.N1{
 		EntityIdentifierCode:        "BY",
 		Name:                        truncateStr(originDutyLocation.Name, maxLocationlength),
 		IdentificationCodeQualifier: "92",
-		IdentificationCode:          modifyGblocIfMarines(*orders.ServiceMember.Affiliation, *orders.OriginDutyLocationGBLOC),
+		IdentificationCode:          modifyGblocIfMarines(*orders.ServiceMember.Affiliation, pickupPostalCodeToGbloc.GBLOC),
 	}
 
 	// seller organization name
@@ -673,14 +697,14 @@ func (g ghcPaymentRequestInvoiceGenerator) createLongLoaSegments(appCtx appconte
 	var loas []models.LineOfAccounting
 	var loa models.LineOfAccounting
 
-	// Nil check on service member affiliation
-	if orders.ServiceMember.Affiliation == nil {
-		return nil, apperror.NewQueryError("orders", fmt.Errorf("could not identify service member affiliation for Order ID %s", orders.ID), "Unexpected error")
+	// Nil check on orders department indicator
+	if orders.DepartmentIndicator == nil {
+		return nil, apperror.NewQueryError("orders", fmt.Errorf("could not identify department indicator for Order ID %s", orders.ID), "Unexpected error")
 	}
 
-	// Fetch the long lines of accounting for an invoice based off a service member, tacCode, and the orders issue date.
-	// There is special logic for whether or not the service member affiliation is for the US Coast Guard.
-	loas, err := g.LineOfAccountingFetcher.FetchLongLinesOfAccounting(*orders.ServiceMember.Affiliation, orders.IssueDate, tac, appCtx)
+	// Fetch the long lines of accounting for an invoice based off an order's department indicator, tacCode, and the orders issue date.
+	// There is special logic for whether or not the department indicator is for the US Coast Guard.
+	loas, err := g.LineOfAccountingFetcher.FetchLongLinesOfAccounting(models.DepartmentIndicator(*orders.DepartmentIndicator), orders.IssueDate, tac, appCtx)
 	if err != nil {
 		return nil, apperror.NewQueryError("lineOfAccounting", err, "Unexpected error")
 	}
@@ -690,7 +714,7 @@ func (g ghcPaymentRequestInvoiceGenerator) createLongLoaSegments(appCtx appconte
 	// pick first one (sorted by FBMC, loa_bgn_dt, tac_fy_txt) inside the service object
 	loa = loas[0]
 
-	if *orders.ServiceMember.Affiliation != models.AffiliationCOASTGUARD {
+	if models.DepartmentIndicator(*orders.DepartmentIndicator) != models.DepartmentIndicatorCOASTGUARD {
 
 		//"HE" - E-1 through E-9 and Special Enlisted
 		//"HO" - O-1 Academy graduate through O-10, W1 - W5, Aviation Cadet, Academy Cadet, and Midshipman

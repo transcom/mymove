@@ -479,4 +479,35 @@ describe('Update Shipment Page for PPM', () => {
     expect(await screen.findByText('Weights')).toBeInTheDocument();
     expect(await screen.findByText('Remarks')).toBeInTheDocument();
   });
+
+  it('test destination address street 1 is OPTIONAL', async () => {
+    usePrimeSimulatorGetMove.mockReturnValue(readyReturnValue);
+
+    render(ppmMockedComponent);
+
+    // Start controlled test case to verify everything is working.
+    let input = await document.querySelector('input[name="ppmShipment.pickupAddress.streetAddress1"]');
+    expect(input).toBeInTheDocument();
+    // enter required street 1 for pickup
+    await userEvent.type(input, '123 Street');
+    // clear
+    await userEvent.clear(input);
+    await userEvent.tab();
+    // verify Required alert is displayed
+    // const requiredAlerts = await screen.getByRole('alert');
+    // await expect(requiredAlerts).toHaveTextContent('Required');
+    // make valid again to clear alert
+    await userEvent.type(input, '123 Street');
+
+    // Verify destination address street 1 is OPTIONAL.
+    input = await document.querySelector('input[name="ppmShipment.destinationAddress.streetAddress1"]');
+    expect(input).toBeInTheDocument();
+    // enter something
+    await userEvent.type(input, '123 Street');
+    // clear
+    await userEvent.clear(input);
+    await userEvent.tab();
+    // verify no validation is displayed after clearing destination address street 1 because it's OPTIONAL
+    expect(screen.queryByRole('alert')).not.toBeInTheDocument();
+  });
 });

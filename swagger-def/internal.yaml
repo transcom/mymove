@@ -200,7 +200,9 @@ definitions:
       mto_shipments:
         $ref: '#/definitions/MTOShipments'
       closeout_office:
-        $ref: 'definitions/TransportationOffice.yaml'
+        $ref: "definitions/TransportationOffice.yaml"
+      counseling_office:
+        $ref: "definitions/TransportationOffice.yaml"
       cancel_reason:
         type: string
         example: 'Change of orders'
@@ -581,10 +583,6 @@ definitions:
       netWeightRemarks:
         description: Remarks explaining any edits made to the net weight
         type: string
-      allowableWeight:
-        description: Indicates the maximum reimbursable weight of the shipment
-        type: integer
-        minimum: 0
   TransportationOffices:
     type: array
     items:
@@ -1467,6 +1465,10 @@ definitions:
         format: uuid
         example: cf1addea-a4f9-4173-8506-2bb82a064cb7
         x-nullable: true
+      move_id:
+        type: string
+        format: uuid
+        example: cf1addea-a4f9-4173-8506-2bb82a064cb7
       orders_number:
         type: string
         title: Orders Number
@@ -1873,6 +1875,13 @@ definitions:
         x-nullable: true
         readOnly: true
         example: '1K43AR-01'
+      marketCode:
+        type: string
+        enum:
+          - 'd'
+          - 'i'
+        example: 'd'
+        description: 'Single-letter designator for domestic (d) or international (i) shipments'
   MTOShipments:
     items:
       $ref: '#/definitions/MTOShipment'
@@ -1940,7 +1949,7 @@ definitions:
       secondaryPickupAddress:
         $ref: 'definitions/Address.yaml'
       destinationAddress:
-        $ref: 'definitions/Address.yaml'
+        $ref: "definitions/PPMDestinationAddress.yaml"
       secondaryDestinationAddress:
         $ref: 'definitions/Address.yaml'
       tertiaryDestinationAddress:
@@ -1999,7 +2008,7 @@ definitions:
         pattern: ^(\d{5})$
         x-nullable: true
       destinationAddress:
-        $ref: 'definitions/Address.yaml'
+        $ref: "definitions/PPMDestinationAddress.yaml"
       secondaryDestinationAddress:
         $ref: 'definitions/Address.yaml'
       hasSecondaryDestinationAddress:
@@ -2360,6 +2369,8 @@ definitions:
       mtoShipments:
         $ref: '#/definitions/MTOShipments'
       closeoutOffice:
+        $ref: 'definitions/TransportationOffice.yaml'
+      counselingOffice:
         $ref: 'definitions/TransportationOffice.yaml'
       eTag:
         type: string

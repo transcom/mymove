@@ -77,7 +77,7 @@ const EstimatedWeightsProGear = () => {
             <h1>Estimated weight</h1>
             {errorMessage && (
               <Alert headingLevel="h4" slim type="error">
-                {errorCode === 400 || errorCode === 500 ? (
+                {errorCode === 400 ? (
                   <p>
                     {errorMessage} If the error persists, please try again later, or contact the&nbsp;
                     <Link to={technicalHelpDeskURL} target="_blank" rel="noreferrer">

@@ -108,7 +108,7 @@ func (suite *AddressSuite) TestAddressUpdater() {
 
 		suite.Nil(updatedAddress)
 		suite.NotNil(err)
-		suite.Equal("No county found for provided zip code  ", err.Error())
+		suite.Equal("No county found for provided zip code  .", err.Error())
 	})
 
 	suite.Run("Fails to update an address because of invalid ID", func() {
@@ -128,5 +128,61 @@ func (suite *AddressSuite) TestAddressUpdater() {
 		suite.IsType(&apperror.BadDataError{}, err)
 		expectedError := fmt.Sprintf("Data received from requester is bad: %s: invalid ID used for address", apperror.BadDataCode)
 		suite.Equal(expectedError, err.Error())
+	})
+
+	suite.Run("Able to update when providing US country value in updated address", func() {
+		originalAddress := createOriginalAddress()
+		addressUpdater := NewAddressUpdater()
+
+		desiredAddress := &models.Address{
+			ID:             originalAddress.ID,
+			StreetAddress1: streetAddress1,
+			City:           city,
+			State:          state,
+			PostalCode:     postalCode,
+			Country:        &models.Country{Country: "US"},
+		}
+		updatedAddress, err := addressUpdater.UpdateAddress(suite.AppContextForTest(), desiredAddress, etag.GenerateEtag(originalAddress.UpdatedAt))
+
+		suite.NoError(err)
+		suite.NotNil(updatedAddress)
+		suite.Equal(updatedAddress.Country.Country, "US")
+	})
+
+	suite.Run("Receives an error when trying to update to an international address", func() {
+		originalAddress := createOriginalAddress()
+		addressUpdater := NewAddressUpdater()
+
+		desiredAddress := &models.Address{
+			ID:             originalAddress.ID,
+			StreetAddress1: streetAddress1,
+			City:           city,
+			State:          state,
+			PostalCode:     postalCode,
+			Country:        &models.Country{Country: "GB"},
+		}
+		updatedAddress, err := addressUpdater.UpdateAddress(suite.AppContextForTest(), desiredAddress, etag.GenerateEtag(originalAddress.UpdatedAt))
+
+		suite.Error(err)
+		suite.Nil(updatedAddress)
+		suite.Equal("- the country GB is not supported at this time - only US is allowed", err.Error())
+	})
+
+	suite.Run("Successfully updates a conus address and its IsOconus value", func() {
+		originalAddress := createOriginalAddress()
+
+		addressUpdater := NewAddressUpdater()
+		desiredAddress := &models.Address{
+			ID:             originalAddress.ID,
+			StreetAddress1: streetAddress1,
+			City:           city,
+			State:          state,
+			PostalCode:     postalCode,
+		}
+		updatedAddress, err := addressUpdater.UpdateAddress(suite.AppContextForTest(), desiredAddress, etag.GenerateEtag(originalAddress.UpdatedAt))
+
+		suite.NotNil(updatedAddress)
+		suite.Nil(err)
+		suite.Equal(false, *updatedAddress.IsOconus)
 	})
 }

@@ -199,7 +199,7 @@ func (f mtoShipmentCreator) CreateMTOShipment(appCtx appcontext.AppContext, ship
 		if shipment.PickupAddress != nil && shipment.ShipmentType != models.MTOShipmentTypeHHGOutOfNTSDom {
 			pickupAddress, errAddress := f.addressCreator.CreateAddress(txnAppCtx, shipment.PickupAddress)
 			if errAddress != nil {
-				return fmt.Errorf("failed to create pickup address %#v %e", verrs, err)
+				return apperror.NewInvalidInputError(uuid.Nil, nil, nil, "failed to create pickup address "+errAddress.Error())
 			}
 			shipment.PickupAddress = pickupAddress
 			shipment.PickupAddressID = &shipment.PickupAddress.ID
@@ -216,7 +216,7 @@ func (f mtoShipmentCreator) CreateMTOShipment(appCtx appcontext.AppContext, ship
 		if shipment.SecondaryPickupAddress != nil {
 			secondaryPickupAddress, errAddress := f.addressCreator.CreateAddress(txnAppCtx, shipment.SecondaryPickupAddress)
 			if errAddress != nil {
-				return fmt.Errorf("failed to create secondary pickup address %#v %e", verrs, err)
+				return apperror.NewInvalidInputError(uuid.Nil, nil, nil, "failed to create secondary pickup address "+errAddress.Error())
 			}
 			shipment.SecondaryPickupAddress = secondaryPickupAddress
 			shipment.SecondaryPickupAddressID = &shipment.SecondaryPickupAddress.ID
@@ -230,7 +230,7 @@ func (f mtoShipmentCreator) CreateMTOShipment(appCtx appcontext.AppContext, ship
 		if shipment.TertiaryPickupAddress != nil {
 			tertiaryPickupAddress, errAddress := f.addressCreator.CreateAddress(txnAppCtx, shipment.TertiaryPickupAddress)
 			if errAddress != nil {
-				return fmt.Errorf("failed to create tertiary pickup address %#v %e", verrs, err)
+				return apperror.NewInvalidInputError(uuid.Nil, nil, nil, "failed to create tertiary pickup address "+errAddress.Error())
 			}
 			shipment.TertiaryPickupAddress = tertiaryPickupAddress
 			shipment.TertiaryPickupAddressID = &shipment.TertiaryPickupAddress.ID
@@ -244,7 +244,7 @@ func (f mtoShipmentCreator) CreateMTOShipment(appCtx appcontext.AppContext, ship
 		if shipment.DestinationAddress != nil && shipment.ShipmentType != models.MTOShipmentTypeHHGIntoNTSDom {
 			destinationAddress, errAddress := f.addressCreator.CreateAddress(txnAppCtx, shipment.DestinationAddress)
 			if errAddress != nil {
-				return fmt.Errorf("failed to create destination address %#v %e", verrs, err)
+				return apperror.NewInvalidInputError(uuid.Nil, nil, nil, "failed to create destination address "+errAddress.Error())
 			}
 			shipment.DestinationAddress = destinationAddress
 			shipment.DestinationAddressID = &shipment.DestinationAddress.ID
@@ -258,7 +258,7 @@ func (f mtoShipmentCreator) CreateMTOShipment(appCtx appcontext.AppContext, ship
 		if shipment.SecondaryDeliveryAddress != nil {
 			secondaryDeliveryAddress, errAddress := f.addressCreator.CreateAddress(txnAppCtx, shipment.SecondaryDeliveryAddress)
 			if errAddress != nil {
-				return fmt.Errorf("failed to create secondary delivery address %#v %e", verrs, err)
+				return apperror.NewInvalidInputError(uuid.Nil, nil, nil, "failed to create secondary delivery address "+errAddress.Error())
 			}
 			shipment.SecondaryDeliveryAddress = secondaryDeliveryAddress
 			shipment.SecondaryDeliveryAddressID = &shipment.SecondaryDeliveryAddress.ID
@@ -272,7 +272,7 @@ func (f mtoShipmentCreator) CreateMTOShipment(appCtx appcontext.AppContext, ship
 		if shipment.TertiaryDeliveryAddress != nil {
 			tertiaryDeliveryAddress, errAddress := f.addressCreator.CreateAddress(txnAppCtx, shipment.TertiaryDeliveryAddress)
 			if errAddress != nil {
-				return fmt.Errorf("failed to create tertiary pickup address %#v %e", verrs, err)
+				return apperror.NewInvalidInputError(uuid.Nil, nil, nil, "failed to create tertiary delivery address "+errAddress.Error())
 			}
 			shipment.TertiaryDeliveryAddress = tertiaryDeliveryAddress
 			shipment.TertiaryDeliveryAddressID = &shipment.TertiaryDeliveryAddress.ID
@@ -286,7 +286,7 @@ func (f mtoShipmentCreator) CreateMTOShipment(appCtx appcontext.AppContext, ship
 		if shipment.StorageFacility != nil {
 			storageFacility, errAddress := f.addressCreator.CreateAddress(txnAppCtx, &shipment.StorageFacility.Address)
 			if errAddress != nil {
-				return fmt.Errorf("failed to create storage facility address %#v %e", verrs, err)
+				return apperror.NewInvalidInputError(uuid.Nil, nil, nil, "failed to create storage facility address "+errAddress.Error())
 			}
 			shipment.StorageFacility.Address = *storageFacility
 			shipment.StorageFacility.AddressID = shipment.StorageFacility.Address.ID
@@ -305,10 +305,12 @@ func (f mtoShipmentCreator) CreateMTOShipment(appCtx appcontext.AppContext, ship
 			// For NTS-Release set the pick up address to the storage facility
 			if shipment.ShipmentType == models.MTOShipmentTypeHHGOutOfNTSDom {
 				shipment.PickupAddressID = &shipment.StorageFacility.AddressID
+				shipment.PickupAddress = &shipment.StorageFacility.Address
 			}
 			// For NTS set the destination address to the storage facility
 			if shipment.ShipmentType == models.MTOShipmentTypeHHGIntoNTSDom {
 				shipment.DestinationAddressID = &shipment.StorageFacility.AddressID
+				shipment.DestinationAddress = &shipment.StorageFacility.Address
 			}
 		}
 
@@ -321,6 +323,24 @@ func (f mtoShipmentCreator) CreateMTOShipment(appCtx appcontext.AppContext, ship
 		// Once we introduce more, this logic will have to change.
 		defaultSITDays := int(models.DefaultServiceMemberSITDaysAllowance)
 		shipment.SITDaysAllowance = &defaultSITDays
+
+		// when populating the market_code column, it is considered domestic if both pickup & dest are CONUS addresses
+		if shipment.PickupAddress != nil && shipment.DestinationAddress != nil &&
+			shipment.PickupAddress.IsOconus != nil && shipment.DestinationAddress.IsOconus != nil {
+			pickupAddress := shipment.PickupAddress
+			destAddress := shipment.DestinationAddress
+			if !*pickupAddress.IsOconus && !*destAddress.IsOconus {
+				marketCodeDomestic := models.MarketCodeDomestic
+				shipment.MarketCode = marketCodeDomestic
+			} else {
+				marketCodeInternational := models.MarketCodeInternational
+				shipment.MarketCode = marketCodeInternational
+			}
+		} else {
+			// if the conditions aren't met then it is a PPM and this logic will be changed after PPM creation
+			// market code can't be null so we will set it here
+			shipment.MarketCode = models.MarketCodeDomestic
+		}
 
 		// create a shipment
 		verrs, err = f.builder.CreateOne(txnAppCtx, shipment)

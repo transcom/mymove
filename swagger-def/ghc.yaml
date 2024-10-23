@@ -4678,8 +4678,8 @@ definitions:
   FetchLineOfAccountingPayload:
     type: object
     properties:
-      serviceMemberAffiliation:
-        $ref: 'definitions/Affiliation.yaml'
+      departmentIndicator:
+        $ref: 'definitions/DepartmentIndicator.yaml'
       effectiveDate:
         description: >
           The effective date for the Line Of Accounting (LOA) being fetched. Eg, the orders issue date or the Non-Temporary Storage (NTS) Move Task Order (MTO) approval date.
@@ -6031,7 +6031,7 @@ definitions:
           - $ref: 'definitions/Address.yaml'
       destinationAddress:
         allOf:
-          - $ref: 'definitions/Address.yaml'
+          - $ref: 'definitions/PPMDestinationAddress.yaml'
       actualDestinationPostalCode:
         description: >
           The actual postal code where the PPM shipment ended. To be filled once the customer has moved the shipment.
@@ -6091,6 +6091,12 @@ definitions:
       estimatedWeight:
         type: integer
         example: 4200
+        x-nullable: true
+      allowableWeight:
+        description: The allowable weight of the PPM shipment goods being moved.
+        type: integer
+        minimum: 0
+        example: 4300
         x-nullable: true
       hasProGear:
         description: >
@@ -6225,10 +6231,6 @@ definitions:
       netWeightRemarks:
         description: Remarks explaining any edits made to the net weight
         type: string
-      allowableWeight:
-        description: Indicates the maximum reimbursable weight of the shipment
-        type: integer
-        minimum: 0
   UpdateMovingExpense:
     type: object
     properties:
@@ -6439,7 +6441,7 @@ definitions:
           - $ref: 'definitions/Address.yaml'
       destinationAddress:
         allOf:
-          - $ref: 'definitions/Address.yaml'
+          - $ref: 'definitions/PPMDestinationAddress.yaml'
       secondaryDestinationAddress:
         allOf:
           - $ref: 'definitions/Address.yaml'
@@ -6791,11 +6793,17 @@ definitions:
       counselingOffice:
         type: string
         x-nullable: true
+      counselingOfficeID:
+        type: string
+        format: uuid
+        x-nullable: true
       assignedTo:
         $ref: '#/definitions/AssignedOfficeUser'
         x-nullable: true
       availableOfficeUsers:
         $ref: '#/definitions/AvailableOfficeUsers'
+      assignable:
+        type: boolean
   QueueMovesResult:
     type: object
     properties:

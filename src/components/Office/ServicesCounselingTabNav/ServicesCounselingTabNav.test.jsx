@@ -35,6 +35,19 @@ describe('Move details tag rendering', () => {
     const moveDetailsTab = screen.getByTestId('MoveDetails-Tab');
     expect(within(moveDetailsTab).getByTestId('tag')).toHaveTextContent('4');
   });
+
+  it('should render the move details tab container with a tag that shows the count of an warn and error count', () => {
+    const moveDetailsShipmentAndAmendedOrders = {
+      ...basicNavProps,
+      missingOrdersInfoCount: 4,
+      shipmentWarnConcernCount: 2,
+      shipmentErrorConcernCount: 1,
+    };
+    render(<ServicesCounselingTabNav {...moveDetailsShipmentAndAmendedOrders} />, { wrapper: MemoryRouter });
+
+    const moveDetailsTab = screen.getByTestId('MoveDetails-Tab');
+    expect(within(moveDetailsTab).getByTestId('tag')).toHaveTextContent('7');
+  });
 });
 
 describe('MTO tag rendering', () => {
