@@ -38,18 +38,6 @@ describe('DodInfo page', () => {
     });
   });
 
-  it('back button goes to the CONUS/OCONUS step', async () => {
-    const { queryByText } = render(<DodInfo {...testProps} />);
-
-    const backButton = queryByText('Back');
-    await waitFor(() => {
-      expect(backButton).toBeInTheDocument();
-    });
-
-    await userEvent.click(backButton);
-    expect(mockNavigate).toHaveBeenCalledWith('/service-member/conus-oconus');
-  });
-
   it('next button submits the form and goes to the Name step', async () => {
     const testServiceMemberValues = {
       id: 'testServiceMemberId',

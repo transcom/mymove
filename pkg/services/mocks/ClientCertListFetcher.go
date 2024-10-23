@@ -20,6 +20,10 @@ type ClientCertListFetcher struct {
 func (_m *ClientCertListFetcher) FetchClientCertCount(appCtx appcontext.AppContext, filters []services.QueryFilter) (int, error) {
 	ret := _m.Called(appCtx, filters)
 
+	if len(ret) == 0 {
+		panic("no return value specified for FetchClientCertCount")
+	}
+
 	var r0 int
 	var r1 error
 	if rf, ok := ret.Get(0).(func(appcontext.AppContext, []services.QueryFilter) (int, error)); ok {
@@ -43,6 +47,10 @@ func (_m *ClientCertListFetcher) FetchClientCertCount(appCtx appcontext.AppConte
 // FetchClientCertList provides a mock function with given fields: appCtx, filters, associations, pagination, ordering
 func (_m *ClientCertListFetcher) FetchClientCertList(appCtx appcontext.AppContext, filters []services.QueryFilter, associations services.QueryAssociations, pagination services.Pagination, ordering services.QueryOrder) (models.ClientCerts, error) {
 	ret := _m.Called(appCtx, filters, associations, pagination, ordering)
+
+	if len(ret) == 0 {
+		panic("no return value specified for FetchClientCertList")
+	}
 
 	var r0 models.ClientCerts
 	var r1 error

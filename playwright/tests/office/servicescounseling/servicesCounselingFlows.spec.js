@@ -325,8 +325,8 @@ test.describe('Services counselor user', () => {
       await expect(page.locator('a[href*="#orders"]')).toContainText('Orders');
       await expect(page.locator('a[href*="#allowances"]')).toContainText('Allowances');
       await expect(page.locator('a[href*="#customer-info"]')).toContainText('Customer info');
-
-      await expect(page.locator('[data-testid="requestedShipmentsTag"]')).toContainText('3');
+      // one warning in red for the missing destinationType
+      await expect(page.locator('[data-testid="shipment-missing-info-alert"]')).toContainText('1');
 
       // Assert that the window has scrolled after clicking a left nav item
       const origScrollY = await page.evaluate(() => window.scrollY);
@@ -385,7 +385,7 @@ test.describe('Services counselor user', () => {
 
     test('is able to see that the tag next to shipment is updated', async ({ page, scPage }) => {
       // Verify that there's a tag on the left nav that flags missing information
-      await expect(page.locator('[data-testid="requestedShipmentsTag"]')).toContainText('3');
+      await expect(page.locator('[data-testid="shipment-missing-info-alert"]')).toContainText('1');
 
       // Edit the shipment so that the tag disappears
       await page.locator('[data-testid="ShipmentContainer"] .usa-button').last().click();
@@ -395,8 +395,8 @@ test.describe('Services counselor user', () => {
 
       await expect(page.locator('.usa-alert__text')).toContainText('Your changes were saved.');
 
-      // Verify that the tag after the update is a 2 since missing information was filled
-      await expect(page.locator('[data-testid="requestedShipmentsTag"]')).toContainText('2');
+      // Verify that the tag after the update is blank since missing information was filled
+      await expect(page.locator('[data-testid="shipment-missing-info-alert"]')).toHaveCount(0);
     });
   });
 

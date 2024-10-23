@@ -78,9 +78,9 @@ const EditOrders = ({
     move_status: move?.status,
     grade: currentOrder?.grade || null,
     origin_duty_location: currentOrder?.origin_duty_location || {},
+    counseling_office_id: move?.counselingOffice?.id || undefined,
   };
 
-  // Only allow PCS unless feature flag is on
   const showAllOrdersTypes = context.flags?.allOrdersTypes;
   const allowedOrdersTypes = showAllOrdersTypes
     ? ORDERS_TYPE_OPTIONS
@@ -119,7 +119,7 @@ const EditOrders = ({
     const newPayGrade = fieldValues.grade;
     const newOriginDutyLocationId = fieldValues.origin_duty_location.id;
 
-    return patchOrders({
+    const pendingValues = {
       ...fieldValues,
       id: currentOrder.id,
       service_member_id: serviceMemberId,
@@ -132,7 +132,12 @@ const EditOrders = ({
       // spouse_has_pro_gear is not updated by this form but is a required value because the endpoint is shared with the
       // ppm office edit orders
       spouse_has_pro_gear: currentOrder.spouse_has_pro_gear,
-    })
+      move_id: move.id,
+    };
+    if (fieldValues.counseling_office_id === '') {
+      pendingValues.counseling_office_id = null;
+    }
+    return patchOrders(pendingValues)
       .then((response) => {
         updateOrders(response);
         if (entitlementCouldChange) {

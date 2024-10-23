@@ -70,6 +70,9 @@ func payloadForMoveModel(storer storage.FileStorer, order models.Order, move mod
 	if move.PrimeCounselingCompletedAt != nil {
 		movePayload.PrimeCounselingCompletedAt = *handlers.FmtDateTime(*move.PrimeCounselingCompletedAt)
 	}
+	if move.CounselingOffice != nil {
+		movePayload.CounselingOffice = payloads.TransportationOffice(*move.CounselingOffice)
+	}
 	return movePayload, nil
 }
 
@@ -116,6 +119,10 @@ func payloadForInternalMove(storer storage.FileStorer, list models.Moves) []*int
 
 		if move.PrimeCounselingCompletedAt != nil {
 			currentMove.PrimeCounselingCompletedAt = *handlers.FmtDateTime(*move.PrimeCounselingCompletedAt)
+		}
+
+		if move.CounselingOffice != nil {
+			currentMove.CounselingOffice = payloads.TransportationOffice(*move.CounselingOffice)
 		}
 
 		convertedCurrentMovesList = append(convertedCurrentMovesList, currentMove)
@@ -368,6 +375,18 @@ func (h GetAllMovesHandler) Handle(params moveop.GetAllMovesParams) middleware.R
 			}
 			/** End of Feature Flag Block **/
 
+			/** Feature Flag - Mobile Home Shipment **/
+			featureFlagNameMH := "mobileHome"
+			isMobileHomeFeatureOn := false
+			flagMH, err := h.FeatureFlagFetcher().GetBooleanFlagForUser(params.HTTPRequest.Context(), appCtx, featureFlagNameMH, map[string]string{})
+			if err != nil {
+				appCtx.Logger().Error("Error fetching feature flag", zap.String("featureFlagKey", featureFlagName), zap.Error(err))
+				isMobileHomeFeatureOn = false
+			} else {
+				isMobileHomeFeatureOn = flagMH.Match
+			}
+			/** End of Feature Flag Block **/
+
 			for _, move := range movesList {
 
 				/** Feature Flag - Boat Shipment **/
@@ -439,6 +458,23 @@ func (h GetAllMovesHandler) Handle(params moveop.GetAllMovesParams) middleware.R
 						}
 						for i, shipment := range move.MTOShipments {
 							if shipment.ShipmentType == models.MTOShipmentTypeBoatHaulAway || shipment.ShipmentType == models.MTOShipmentTypeBoatTowAway {
+								continue
+							}
+
+							filteredShipments = append(filteredShipments, move.MTOShipments[i])
+						}
+						move.MTOShipments = filteredShipments
+					}
+					/** End of Feature Flag Block **/
+
+					/** Feature Flag - Mobile Home Shipment **/
+					if !isMobileHomeFeatureOn {
+						var filteredShipments models.MTOShipments
+						if move.MTOShipments != nil {
+							filteredShipments = models.MTOShipments{}
+						}
+						for i, shipment := range move.MTOShipments {
+							if shipment.ShipmentType == models.MTOShipmentTypeMobileHome {
 								continue
 							}
 

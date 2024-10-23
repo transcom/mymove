@@ -1,9 +1,10 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { useTable, useFilters, usePagination, useSortBy } from 'react-table';
-import { generatePath, useNavigate } from 'react-router';
+import { generatePath, useNavigate } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import { Button } from '@trussworks/react-uswds';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { connect } from 'react-redux';
 
 import styles from './SearchResultsTable.module.scss';
 import { createHeader } from './utils';
@@ -21,6 +22,9 @@ import SelectFilter from 'components/Table/Filters/SelectFilter';
 import { servicesCounselingRoutes } from 'constants/routes';
 import { CHECK_SPECIAL_ORDERS_TYPES, SPECIAL_ORDERS_TYPES } from 'constants/orders';
 import { isBooleanFlagEnabled } from 'utils/featureFlags';
+import { withContext } from 'shared/AppContext';
+import withRouter from 'utils/routing';
+import { setCanAddOrders as setCanAddOrdersAction } from 'store/general/actions';
 
 const moveSearchColumns = (moveLockFlag, handleEditProfileClick) => [
   createHeader(' ', (row) => {
@@ -181,15 +185,16 @@ const moveSearchColumns = (moveLockFlag, handleEditProfileClick) => [
   ),
 ];
 
-const customerSearchColumns = () => [
+const customerSearchColumns = ({ setCanAddOrders }) => [
   createHeader(
     'Create Move',
     (row) => {
       return (
         <Button
-          onClick={() =>
-            useNavigate(generatePath(servicesCounselingRoutes.BASE_MOVE_VIEW_PATH, { moveCode: row.locator }))
-          }
+          onClick={() => {
+            setCanAddOrders(true);
+            useNavigate(generatePath(servicesCounselingRoutes.BASE_MOVE_VIEW_PATH, { moveCode: row.locator }));
+          }}
           type="button"
           className={styles.createNewMove}
           data-testid="searchCreateMoveButton"
@@ -274,6 +279,7 @@ const SearchResultsTable = (props) => {
     customerName,
     paymentRequestCode,
     searchType,
+    setCanAddOrders,
   } = props;
   const [paramSort, setParamSort] = useState(defaultSortedColumns);
   const [paramFilters, setParamFilters] = useState([]);
@@ -313,9 +319,9 @@ const SearchResultsTable = (props) => {
   const tableData = useMemo(() => data, [data]);
   const tableColumns = useMemo(() => {
     return searchType === 'customer'
-      ? customerSearchColumns()
+      ? customerSearchColumns({ setCanAddOrders })
       : moveSearchColumns(moveLockFlag, handleEditProfileClick);
-  }, [searchType, moveLockFlag, handleEditProfileClick]);
+  }, [searchType, setCanAddOrders, moveLockFlag, handleEditProfileClick]);
 
   const {
     getTableProps,
@@ -478,4 +484,10 @@ SearchResultsTable.defaultProps = {
   searchType: 'move',
 };
 
-export default SearchResultsTable;
+const mapStateToProps = () => {
+  return {};
+};
+
+const mapDispatchToProps = { setCanAddOrders: setCanAddOrdersAction };
+
+export default withContext(withRouter(connect(mapStateToProps, mapDispatchToProps)(SearchResultsTable)));

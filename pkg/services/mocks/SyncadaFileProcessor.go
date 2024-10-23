@@ -18,6 +18,10 @@ type SyncadaFileProcessor struct {
 func (_m *SyncadaFileProcessor) EDIType() models.EDIType {
 	ret := _m.Called()
 
+	if len(ret) == 0 {
+		panic("no return value specified for EDIType")
+	}
+
 	var r0 models.EDIType
 	if rf, ok := ret.Get(0).(func() models.EDIType); ok {
 		r0 = rf()
@@ -31,6 +35,10 @@ func (_m *SyncadaFileProcessor) EDIType() models.EDIType {
 // ProcessFile provides a mock function with given fields: appCtx, syncadaPath, text
 func (_m *SyncadaFileProcessor) ProcessFile(appCtx appcontext.AppContext, syncadaPath string, text string) error {
 	ret := _m.Called(appCtx, syncadaPath, text)
+
+	if len(ret) == 0 {
+		panic("no return value specified for ProcessFile")
+	}
 
 	var r0 error
 	if rf, ok := ret.Get(0).(func(appcontext.AppContext, string, string) error); ok {

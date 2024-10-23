@@ -9,6 +9,7 @@ export const shipmentTypeLabels = {
   [SHIPMENT_OPTIONS.BOAT]: 'Boat',
   [SHIPMENT_TYPES.BOAT_HAUL_AWAY]: 'Boat',
   [SHIPMENT_TYPES.BOAT_TOW_AWAY]: 'Boat',
+  [SHIPMENT_TYPES.MOBILE_HOME]: 'Mobile Home',
 };
 
 export const shipmentForm = {
@@ -21,6 +22,7 @@ export const shipmentForm = {
 
 export const shipmentSectionLabels = {
   HHG: 'HHG shipment',
+  MOBILE_HOME: 'Mobile Home shipment',
   HHG_INTO_NTS_DOMESTIC: 'NTS shipment',
   HHG_OUTOF_NTS_DOMESTIC: 'NTS-release shipment',
 };

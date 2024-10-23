@@ -1,7 +1,7 @@
 /* eslint-disable react/jsx-props-no-spreading */
 import React, { useState } from 'react';
 import PropTypes from 'prop-types';
-import { FormGroup, Label } from '@trussworks/react-uswds';
+import { ErrorMessage, FormGroup, Label } from '@trussworks/react-uswds';
 import AsyncSelect from 'react-select/async';
 import classNames from 'classnames';
 import { debounce } from 'lodash';
@@ -9,7 +9,6 @@ import { debounce } from 'lodash';
 import styles from './LocationSearchBox.module.scss';
 import { SearchDutyLocations, ShowAddress } from './api';
 
-import Hint from 'components/Hint';
 import { DutyLocationShape } from 'types';
 
 const getOptionName = (option) => option.name;
@@ -88,7 +87,7 @@ export const LocationSearchBoxComponent = ({
   placeholder,
   isDisabled,
 }) => {
-  const { value, onChange, name: inputName } = input;
+  const { value, onChange, locationState, name: inputName } = input;
 
   const [inputValue, setInputValue] = useState('');
   let disabledStyles = {};
@@ -144,11 +143,12 @@ export const LocationSearchBoxComponent = ({
         ...selectedValue,
         address,
       };
-
+      locationState(newValue);
       onChange(newValue);
       return newValue;
     }
 
+    locationState(selectedValue);
     onChange(selectedValue);
     return selectedValue;
   };
@@ -181,14 +181,14 @@ export const LocationSearchBoxComponent = ({
 
   const noOptionsMessage = () => (inputValue.length ? 'No Options' : '');
   const hasLocation = !!value && !!value.address;
+
   return (
     <FormGroup>
       <div className="labelWrapper">
-        <Label htmlFor={inputId} className={labelClasses}>
+        <Label hint={hint} htmlFor={inputId} className={labelClasses}>
           {title}
         </Label>
       </div>
-      {hint && <Hint className={styles.hint}>{hint}</Hint>}
       <div className={inputContainerClasses}>
         <AsyncSelect
           name={name}
@@ -214,13 +214,14 @@ export const LocationSearchBoxComponent = ({
           {value.address.city}, {value.address.state} {value.address.postalCode}
         </p>
       )}
-      {errorMsg && <span className="usa-error-message">{errorMsg}</span>}
+      {errorMsg && <ErrorMessage>{errorMsg}</ErrorMessage>}
     </FormGroup>
   );
 };
 
 export const LocationSearchBoxContainer = (props) => {
   const { searchLocations } = props;
+
   return <LocationSearchBoxComponent {...props} searchLocations={searchLocations} showAddress={ShowAddress} />;
 };
 
@@ -233,6 +234,7 @@ LocationSearchBoxContainer.propTypes = {
     name: PropTypes.string,
     onChange: PropTypes.func,
     value: DutyLocationShape,
+    locationState: PropTypes.func,
   }),
   hint: PropTypes.node,
   placeholder: PropTypes.string,
@@ -248,6 +250,7 @@ LocationSearchBoxContainer.defaultProps = {
     name: '',
     onChange: () => {},
     value: undefined,
+    locationState: () => {},
   },
   hint: '',
   placeholder: 'Start typing a duty location...',

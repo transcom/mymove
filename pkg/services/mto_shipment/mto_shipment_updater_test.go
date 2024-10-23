@@ -107,7 +107,6 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 					City:           "Des Moines",
 					State:          "IA",
 					PostalCode:     "50309",
-					Country:        models.StringPointer("US"),
 				},
 			},
 		}, nil)
@@ -121,7 +120,6 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 					City:           "Houston",
 					State:          "TX",
 					PostalCode:     "77083",
-					Country:        models.StringPointer("US"),
 				},
 			},
 		}, []factory.Trait{factory.GetTraitAddress4})
@@ -836,7 +834,6 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 					City:           "Houston",
 					State:          "TX",
 					PostalCode:     "77083",
-					Country:        models.StringPointer("US"),
 				},
 			},
 		}, nil)
@@ -858,7 +855,6 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 			City:           "Houston",
 			State:          "TX",
 			PostalCode:     "77083",
-			Country:        models.StringPointer("US"),
 		}
 
 		newEmail := "new@email.com"

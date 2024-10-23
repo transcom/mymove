@@ -22,6 +22,10 @@ type MoveWeights struct {
 func (_m *MoveWeights) CheckAutoReweigh(appCtx appcontext.AppContext, moveID uuid.UUID, updatedShipment *models.MTOShipment) (models.MTOShipments, error) {
 	ret := _m.Called(appCtx, moveID, updatedShipment)
 
+	if len(ret) == 0 {
+		panic("no return value specified for CheckAutoReweigh")
+	}
+
 	var r0 models.MTOShipments
 	var r1 error
 	if rf, ok := ret.Get(0).(func(appcontext.AppContext, uuid.UUID, *models.MTOShipment) (models.MTOShipments, error)); ok {
@@ -47,6 +51,10 @@ func (_m *MoveWeights) CheckAutoReweigh(appCtx appcontext.AppContext, moveID uui
 // CheckExcessWeight provides a mock function with given fields: appCtx, moveID, updatedShipment
 func (_m *MoveWeights) CheckExcessWeight(appCtx appcontext.AppContext, moveID uuid.UUID, updatedShipment models.MTOShipment) (*models.Move, *validate.Errors, error) {
 	ret := _m.Called(appCtx, moveID, updatedShipment)
+
+	if len(ret) == 0 {
+		panic("no return value specified for CheckExcessWeight")
+	}
 
 	var r0 *models.Move
 	var r1 *validate.Errors

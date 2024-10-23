@@ -18,6 +18,10 @@ type PaymentRequestReviewedProcessor struct {
 func (_m *PaymentRequestReviewedProcessor) ProcessAndLockReviewedPR(appCtx appcontext.AppContext, pr models.PaymentRequest) error {
 	ret := _m.Called(appCtx, pr)
 
+	if len(ret) == 0 {
+		panic("no return value specified for ProcessAndLockReviewedPR")
+	}
+
 	var r0 error
 	if rf, ok := ret.Get(0).(func(appcontext.AppContext, models.PaymentRequest) error); ok {
 		r0 = rf(appCtx, pr)

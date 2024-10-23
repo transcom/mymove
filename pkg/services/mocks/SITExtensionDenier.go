@@ -20,6 +20,10 @@ type SITExtensionDenier struct {
 func (_m *SITExtensionDenier) DenySITExtension(appCtx appcontext.AppContext, shipmentID uuid.UUID, sitExtensionID uuid.UUID, officeRemarks *string, convertToCustomerExpense *bool, eTag string) (*models.MTOShipment, error) {
 	ret := _m.Called(appCtx, shipmentID, sitExtensionID, officeRemarks, convertToCustomerExpense, eTag)
 
+	if len(ret) == 0 {
+		panic("no return value specified for DenySITExtension")
+	}
+
 	var r0 *models.MTOShipment
 	var r1 error
 	if rf, ok := ret.Get(0).(func(appcontext.AppContext, uuid.UUID, uuid.UUID, *string, *bool, string) (*models.MTOShipment, error)); ok {
