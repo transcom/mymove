@@ -63,7 +63,7 @@ export const columns = (moveLockFlag, showBranchFilter = true) => [
       );
     },
     {
-      id: 'lastName',
+      id: 'customerName',
       isFilterable: true,
       exportValue: (row) => {
         return `${row.customer.last_name}, ${row.customer.first_name}`;
