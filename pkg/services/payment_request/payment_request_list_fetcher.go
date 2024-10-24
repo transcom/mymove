@@ -101,9 +101,9 @@ func (f *paymentRequestListFetcher) FetchPaymentRequestList(appCtx appcontext.Ap
 	submittedAtQuery := submittedAtFilter(params.SubmittedAt)
 	originDutyLocationQuery := dutyLocationFilter(params.OriginDutyLocation)
 	orderQuery := sortOrder(params.Sort, params.Order)
-	TIOAssignedUserQuery := TIOAssignedUserFilter(params.TIOAssignedUser)
+	tioAssignedUserQuery := tioAssignedUserFilter(params.TIOAssignedUser)
 
-	options := [12]QueryOption{branchQuery, locatorQuery, dodIDQuery, lastNameQuery, dutyLocationQuery, statusQuery, originDutyLocationQuery, submittedAtQuery, gblocQuery, orderQuery, emplidQuery, TIOAssignedUserQuery}
+	options := [12]QueryOption{branchQuery, locatorQuery, dodIDQuery, lastNameQuery, dutyLocationQuery, statusQuery, originDutyLocationQuery, submittedAtQuery, gblocQuery, orderQuery, emplidQuery, tioAssignedUserQuery}
 
 	for _, option := range options {
 		if option != nil {
@@ -412,7 +412,7 @@ func paymentRequestsStatusFilter(statuses []string) QueryOption {
 
 }
 
-func TIOAssignedUserFilter(tioAssigned *string) QueryOption {
+func tioAssignedUserFilter(tioAssigned *string) QueryOption {
 	return func(query *pop.Query) {
 		if tioAssigned != nil {
 			nameSearch := fmt.Sprintf("%s%%", *tioAssigned)
