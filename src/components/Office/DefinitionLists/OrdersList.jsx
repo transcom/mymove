@@ -98,6 +98,14 @@ const OrdersList = ({ ordersInfo, showMissingWarnings }) => {
         </div>
         <div
           className={classnames(descriptionListStyles.row, {
+            [styles.missingInfoError]: showMissingWarnings && !ordersInfo.ordersDocuments,
+          })}
+        >
+          <dt>Orders Document(s)</dt>
+          <dd data-testid="ordersDocuments">{!ordersInfo.ordersDocuments ? missingText : 'File(s) Uploaded'}</dd>
+        </div>
+        <div
+          className={classnames(descriptionListStyles.row, {
             [styles.missingInfoError]: showMissingWarnings && !ordersInfo.tacMDC,
           })}
         >
