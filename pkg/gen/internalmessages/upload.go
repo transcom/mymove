@@ -58,6 +58,10 @@ type Upload struct {
 	// is weight ticket
 	IsWeightTicket bool `json:"isWeightTicket,omitempty"`
 
+	// rotation
+	// Example: 2
+	Rotation int64 `json:"rotation,omitempty"`
+
 	// status
 	// Read Only: true
 	// Enum: [INFECTED CLEAN PROCESSING]

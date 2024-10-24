@@ -80,12 +80,7 @@ func (f mtoShipmentCreator) CreateMTOShipment(appCtx appcontext.AppContext, ship
 	isMobileHomeShipment := shipment.ShipmentType == models.MTOShipmentTypeMobileHome
 
 	// Check shipment fields that should be there or not based on shipment type.
-	if shipment.ShipmentType == models.MTOShipmentTypeHHGOutOfNTSDom {
-		if shipment.RequestedPickupDate != nil {
-			return nil, apperror.NewInvalidInputError(uuid.Nil, nil, verrs,
-				fmt.Sprintf("RequestedPickupDate should not be set when creating a %s shipment", shipment.ShipmentType))
-		}
-	} else if shipment.ShipmentType != models.MTOShipmentTypePPM && !isBoatShipment && !isMobileHomeShipment {
+	if shipment.ShipmentType != models.MTOShipmentTypePPM && shipment.ShipmentType != models.MTOShipmentTypeHHGOutOfNTSDom && !isBoatShipment && !isMobileHomeShipment {
 		// No need for a PPM to have a RequestedPickupDate
 		if shipment.RequestedPickupDate == nil || shipment.RequestedPickupDate.IsZero() {
 			return nil, apperror.NewInvalidInputError(uuid.Nil, nil, verrs,
@@ -162,7 +157,7 @@ func (f mtoShipmentCreator) CreateMTOShipment(appCtx appcontext.AppContext, ship
 
 	// Populate the destination address fields with the new duty location's address when
 	// we have an HHG or Boat with no destination address, but don't copy over any street fields.
-	if (shipment.ShipmentType == models.MTOShipmentTypeHHG || isBoatShipment) && shipment.DestinationAddress == nil {
+	if (shipment.ShipmentType == models.MTOShipmentTypeHHG || isBoatShipment || isMobileHomeShipment) && shipment.DestinationAddress == nil {
 		err = appCtx.DB().Load(&move, "Orders.NewDutyLocation.Address")
 		if err != nil {
 			return nil, apperror.NewQueryError("Orders", err, "")
@@ -201,7 +196,7 @@ func (f mtoShipmentCreator) CreateMTOShipment(appCtx appcontext.AppContext, ship
 
 	transactionError := appCtx.NewTransaction(func(txnAppCtx appcontext.AppContext) error {
 		// create pickup and destination addresses
-		if shipment.PickupAddress != nil {
+		if shipment.PickupAddress != nil && shipment.ShipmentType != models.MTOShipmentTypeHHGOutOfNTSDom {
 			pickupAddress, pickupAddressCreateErr := f.addressCreator.CreateAddress(txnAppCtx, shipment.PickupAddress)
 			if pickupAddressCreateErr != nil {
 				return fmt.Errorf("failed to create pickup address %#v %e", verrs, pickupAddressCreateErr)
@@ -246,7 +241,7 @@ func (f mtoShipmentCreator) CreateMTOShipment(appCtx appcontext.AppContext, ship
 			shipment.TertiaryPickupAddress.County = county
 		}
 
-		if shipment.DestinationAddress != nil {
+		if shipment.DestinationAddress != nil && shipment.ShipmentType != models.MTOShipmentTypeHHGIntoNTSDom {
 			destinationAddress, destinationAddressCreateErr := f.addressCreator.CreateAddress(txnAppCtx, shipment.DestinationAddress)
 			if destinationAddressCreateErr != nil {
 				return fmt.Errorf("failed to create destination address %#v %e", verrs, destinationAddressCreateErr)
@@ -306,6 +301,15 @@ func (f mtoShipmentCreator) CreateMTOShipment(appCtx appcontext.AppContext, ship
 				return fmt.Errorf("failed to create storage facility %#v %e", verrs, storageFacilityCreateErr)
 			}
 			shipment.StorageFacilityID = &shipment.StorageFacility.ID
+
+			// For NTS-Release set the pick up address to the storage facility
+			if shipment.ShipmentType == models.MTOShipmentTypeHHGOutOfNTSDom {
+				shipment.PickupAddressID = &shipment.StorageFacility.AddressID
+			}
+			// For NTS set the destination address to the storage facility
+			if shipment.ShipmentType == models.MTOShipmentTypeHHGIntoNTSDom {
+				shipment.DestinationAddressID = &shipment.StorageFacility.AddressID
+			}
 		}
 
 		//assign status to shipment draft by default
@@ -442,7 +446,7 @@ func (f mtoShipmentCreator) CreateMTOShipment(appCtx appcontext.AppContext, ship
 func checkShipmentIDFields(shipment *models.MTOShipment, serviceItems models.MTOServiceItems) error {
 	verrs := validate.NewErrors()
 
-	if shipment.MTOAgents != nil && len(shipment.MTOAgents) > 0 {
+	if len(shipment.MTOAgents) > 0 {
 		for _, agent := range shipment.MTOAgents {
 			if agent.ID != uuid.Nil {
 				verrs.Add("agents:id", "cannot be set for new agents")

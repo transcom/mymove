@@ -314,7 +314,7 @@ func MTOAgents(mtoAgents *models.MTOAgents) *primemessages.MTOAgents {
 
 func ProofOfServiceDoc(proofOfServiceDoc models.ProofOfServiceDoc) *primemessages.ProofOfServiceDoc {
 	uploads := make([]*primemessages.UploadWithOmissions, len(proofOfServiceDoc.PrimeUploads))
-	if proofOfServiceDoc.PrimeUploads != nil && len(proofOfServiceDoc.PrimeUploads) > 0 {
+	if len(proofOfServiceDoc.PrimeUploads) > 0 {
 		for i, primeUpload := range proofOfServiceDoc.PrimeUploads {
 			uploads[i] = basicUpload(&primeUpload.Upload) //#nosec G601
 		}
@@ -333,7 +333,7 @@ func PaymentRequest(paymentRequest *models.PaymentRequest) *primemessages.Paymen
 
 	serviceDocs := make(primemessages.ProofOfServiceDocs, len(paymentRequest.ProofOfServiceDocs))
 
-	if paymentRequest.ProofOfServiceDocs != nil && len(paymentRequest.ProofOfServiceDocs) > 0 {
+	if len(paymentRequest.ProofOfServiceDocs) > 0 {
 		for i, proofOfService := range paymentRequest.ProofOfServiceDocs {
 			serviceDocs[i] = ProofOfServiceDoc(proofOfService)
 		}
@@ -445,7 +445,7 @@ func PaymentServiceItemParams(paymentServiceItemParams *models.PaymentServiceIte
 //nolint:gosec //G601
 func ServiceRequestDocument(serviceRequestDocument models.ServiceRequestDocument) *primemessages.ServiceRequestDocument {
 	uploads := make([]*primemessages.UploadWithOmissions, len(serviceRequestDocument.ServiceRequestDocumentUploads))
-	if serviceRequestDocument.ServiceRequestDocumentUploads != nil && len(serviceRequestDocument.ServiceRequestDocumentUploads) > 0 {
+	if len(serviceRequestDocument.ServiceRequestDocumentUploads) > 0 {
 		for i, proofOfServiceDocumentUpload := range serviceRequestDocument.ServiceRequestDocumentUploads {
 			uploads[i] = basicUpload(&proofOfServiceDocumentUpload.Upload)
 		}
@@ -705,7 +705,7 @@ func MTOServiceItem(mtoServiceItem *models.MTOServiceItem) primemessages.MTOServ
 
 	serviceRequestDocuments := make(primemessages.ServiceRequestDocuments, len(mtoServiceItem.ServiceRequestDocuments))
 
-	if mtoServiceItem.ServiceRequestDocuments != nil && len(mtoServiceItem.ServiceRequestDocuments) > 0 {
+	if len(mtoServiceItem.ServiceRequestDocuments) > 0 {
 		for i, serviceRequestDocument := range mtoServiceItem.ServiceRequestDocuments {
 			serviceRequestDocuments[i] = ServiceRequestDocument(serviceRequestDocument)
 		}

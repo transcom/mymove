@@ -36,6 +36,8 @@ func isAddressOnShipment(address *models.Address, mtoShipment *models.MTOShipmen
 		mtoShipment.DestinationAddressID,
 		mtoShipment.SecondaryDeliveryAddressID,
 		mtoShipment.SecondaryPickupAddressID,
+		mtoShipment.TertiaryDeliveryAddressID,
+		mtoShipment.TertiaryPickupAddressID,
 	}
 
 	for _, id := range addressIDs {

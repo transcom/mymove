@@ -80,14 +80,17 @@ func (a *aoaPacketCreator) CreateAOAPacket(appCtx appcontext.AppContext, ppmShip
 		return nil, fmt.Errorf("%s: %w", errMsgPrefix, err)
 	}
 
-	page1Data, page2Data := a.SSWPPMComputer.FormatValuesShipmentSummaryWorksheet(*ssfd, isPaymentPacket)
+	page1Data, page2Data, page3Data, err := a.SSWPPMComputer.FormatValuesShipmentSummaryWorksheet(*ssfd, isPaymentPacket)
+	if err != nil {
+		return nil, fmt.Errorf("%s: %w", errMsgPrefix, err)
+	}
 
-	SSWPPMWorksheet, SSWPDFInfo, err := a.SSWPPMGenerator.FillSSWPDFForm(page1Data, page2Data)
+	SSWPPMWorksheet, SSWPDFInfo, err := a.SSWPPMGenerator.FillSSWPDFForm(page1Data, page2Data, page3Data)
 	if err != nil {
 		return nil, fmt.Errorf("%s: %w", errMsgPrefix, err)
 	}
 	// Ensure SSW PDF is not corrupted
-	if SSWPDFInfo.PageCount != 2 {
+	if SSWPDFInfo.PageCount != 3 {
 		return nil, fmt.Errorf("%s: %w", errMsgPrefix, err)
 	}
 

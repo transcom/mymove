@@ -62,6 +62,12 @@ properties:
     type: boolean
     x-omitempty: false
     x-nullable: true
+  tertiaryPickupAddress:
+    $ref: '../../Address.yaml'
+  hasTertiaryPickupAddress:
+    type: boolean
+    x-omitempty: false
+    x-nullable: true
   actualPickupPostalCode:
     description: >
       The actual postal code where the PPM shipment started. To be filled once the customer has moved the shipment.
@@ -77,6 +83,12 @@ properties:
   secondaryDestinationAddress:
     $ref: '../../Address.yaml'
   hasSecondaryDestinationAddress:
+    type: boolean
+    x-omitempty: false
+    x-nullable: true
+  tertiaryDestinationAddress:
+    $ref: '../../Address.yaml'
+  hasTertiaryDestinationAddress:
     type: boolean
     x-omitempty: false
     x-nullable: true

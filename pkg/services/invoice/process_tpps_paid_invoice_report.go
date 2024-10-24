@@ -70,10 +70,54 @@ func (t *tppsPaidInvoiceReportProcessor) ProcessFile(appCtx appcontext.AppContex
 		verrs, errs := t.StoreTPPSPaidInvoiceReportInDatabase(appCtx, tppsData)
 		if err != nil {
 			return errs
-		}
-		if verrs.HasAny() {
+		} else if verrs.HasAny() {
 			return verrs
+		} else {
+			appCtx.Logger().Info("Successfully stored TPPS Paid Invoice Report information in the database")
 		}
+
+		transactionError := appCtx.NewTransaction(func(txnAppCtx appcontext.AppContext) error {
+			var paymentRequestWithStatusUpdatedToPaid = map[string]string{}
+
+			// For the data in the TPPS Paid Invoice Report, find the payment requests that match the
+			// invoice numbers of the rows in the report and update the payment request status to PAID
+			for _, tppsDataForOnePaymentRequest := range tppsData {
+				var paymentRequest models.PaymentRequest
+
+				err = txnAppCtx.DB().Q().
+					Where("payment_requests.payment_request_number = ?", tppsDataForOnePaymentRequest.InvoiceNumber).
+					First(&paymentRequest)
+
+				if err != nil {
+					return err
+				}
+
+				// Since there can be many rows in a TPPS report that reference the same payment request, we want
+				// to keep track of which payment requests we've already updated the status to PAID for and
+				// only update it's status once, using a map to keep track of already updated payment requests
+				_, paymentRequestExistsInUpdatedStatusMap := paymentRequestWithStatusUpdatedToPaid[paymentRequest.ID.String()]
+				if !paymentRequestExistsInUpdatedStatusMap {
+					paymentRequest.Status = models.PaymentRequestStatusPaid
+					err = txnAppCtx.DB().Update(&paymentRequest)
+					if err != nil {
+						txnAppCtx.Logger().Error("failure updating payment request to PAID", zap.Error(err))
+						return fmt.Errorf("failure updating payment request status to PAID: %w", err)
+					}
+
+					txnAppCtx.Logger().Info("SUCCESS: TPPS Paid Invoice Report Processor updated Payment Request to PAID status")
+					t.logTPPSInvoiceReportWithPaymentRequest(txnAppCtx, tppsDataForOnePaymentRequest, paymentRequest)
+
+					paymentRequestWithStatusUpdatedToPaid[paymentRequest.ID.String()] = paymentRequest.PaymentRequestNumber
+				}
+			}
+			return nil
+		})
+
+		if transactionError != nil {
+			appCtx.Logger().Error(transactionError.Error())
+			return transactionError
+		}
+		return nil
 	}
 
 	return nil
@@ -83,27 +127,37 @@ func (t *tppsPaidInvoiceReportProcessor) EDIType() models.EDIType {
 	return models.TPPSPaidInvoiceReport
 }
 
+func (t *tppsPaidInvoiceReportProcessor) logTPPSInvoiceReportWithPaymentRequest(appCtx appcontext.AppContext, tppsResponse tppsReponse.TPPSData, paymentRequest models.PaymentRequest) {
+	appCtx.Logger().Info("TPPS Paid Invoice Report log",
+		zap.String("TPPSPaidInvoiceReportEntry.InvoiceNumber", tppsResponse.InvoiceNumber),
+		zap.String("PaymentRequestNumber", paymentRequest.PaymentRequestNumber),
+		zap.String("PaymentRequest.Status", string(paymentRequest.Status)),
+		zap.String("PaymentRequest.ID", paymentRequest.ID.String()),
+	)
+}
+
 func getPriceParts(rawPrice string) (int, int, int, error) {
 	// Get rid of a dollar sign if there is one.
 	basePrice := strings.Replace(rawPrice, "$", "", -1)
 
 	// Split the string on the decimal point.
 	priceParts := strings.Split(basePrice, ".")
-	if len(priceParts) != 2 {
-		return 0, 0, 0, fmt.Errorf("expected 2 price parts but found %d for price [%s]", len(priceParts), rawPrice)
-	}
 
 	integerPart, err := strconv.Atoi(priceParts[0])
 	if err != nil {
 		return 0, 0, 0, fmt.Errorf("could not convert integer part of price [%s]", rawPrice)
 	}
 
+	decimalsExistOnDollarAmount := len(priceParts) == 2
 	expectedDecimalPlaces := 0
-	if len(priceParts[1]) > 0 {
+	if decimalsExistOnDollarAmount && len(priceParts[1]) > 0 {
 		expectedDecimalPlaces = len(priceParts[1])
 	}
 
-	fractionalPart, err := strconv.Atoi(priceParts[1])
+	fractionalPart := 0
+	if decimalsExistOnDollarAmount {
+		fractionalPart, err = strconv.Atoi(priceParts[1])
+	}
 	if err != nil {
 		return 0, 0, 0, fmt.Errorf("could not convert fractional part of price [%s]", rawPrice)
 	}

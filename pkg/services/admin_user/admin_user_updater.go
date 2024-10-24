@@ -36,10 +36,6 @@ func (o *adminUserUpdater) UpdateAdminUser(appCtx appcontext.AppContext, id uuid
 		foundUser.Active = *payload.Active
 	}
 
-	if payload.Super != nil {
-		foundUser.Super = *payload.Super
-	}
-
 	verrs, err := o.builder.UpdateOne(appCtx, &foundUser, nil)
 	if verrs != nil || err != nil {
 		return nil, verrs, err

@@ -2,7 +2,6 @@ package ghcrateengine
 
 import (
 	"fmt"
-	"time"
 
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/models"
@@ -19,32 +18,30 @@ func NewCounselingServicesPricer() services.CounselingServicesPricer {
 }
 
 // Price determines the price for a counseling service
-func (p counselingServicesPricer) Price(appCtx appcontext.AppContext, contractCode string, mtoAvailableToPrimeAt time.Time) (unit.Cents, services.PricingDisplayParams, error) {
-	taskOrderFee, err := fetchTaskOrderFee(appCtx, contractCode, models.ReServiceCodeCS, mtoAvailableToPrimeAt)
-	if err != nil {
-		return unit.Cents(0), nil, fmt.Errorf("could not fetch task order fee: %w", err)
+func (p counselingServicesPricer) Price(appCtx appcontext.AppContext, lockedPriceCents *unit.Cents) (unit.Cents, services.PricingDisplayParams, error) {
+
+	if lockedPriceCents == nil {
+		return 0, nil, fmt.Errorf("invalid value for locked_price_cents")
 	}
 
-	displayPriceParams := services.PricingDisplayParams{
+	params := services.PricingDisplayParams{
 		{
 			Key:   models.ServiceItemParamNamePriceRateOrFactor,
-			Value: FormatCents(taskOrderFee.PriceCents),
+			Value: FormatCents(*lockedPriceCents),
 		},
 	}
-	return taskOrderFee.PriceCents, displayPriceParams, nil
+
+	return *lockedPriceCents, params, nil
 }
 
 // PriceUsingParams determines the price for a counseling service given PaymentServiceItemParams
 func (p counselingServicesPricer) PriceUsingParams(appCtx appcontext.AppContext, params models.PaymentServiceItemParams) (unit.Cents, services.PricingDisplayParams, error) {
-	contractCode, err := getParamString(params, models.ServiceItemParamNameContractCode)
+
+	lockedPriceCents, err := getParamInt(params, models.ServiceItemParamNameLockedPriceCents)
 	if err != nil {
 		return unit.Cents(0), nil, err
 	}
 
-	mtoAvailableToPrimeAt, err := getParamTime(params, models.ServiceItemParamNameMTOAvailableToPrimeAt)
-	if err != nil {
-		return unit.Cents(0), nil, err
-	}
-
-	return p.Price(appCtx, contractCode, mtoAvailableToPrimeAt)
+	lockedPrice := unit.Cents(lockedPriceCents)
+	return p.Price(appCtx, &lockedPrice)
 }

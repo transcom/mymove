@@ -83,6 +83,11 @@ func checkRequiredFields() boatShipmentValidator {
 				verrs.Add("lengthInInches", "One of these criteria must be met for it to be a boat shipment: lengthInInches > 168, widthInInches > 82, or heightInInches > 77.")
 			}
 		}
+		if newBoatShipment.HasTrailer != nil && *newBoatShipment.HasTrailer {
+			if newBoatShipment.IsRoadworthy == nil {
+				verrs.Add("isRoadworthy", "isRoadworthy is required if hasTrailer is true")
+			}
+		}
 		return verrs
 	})
 }

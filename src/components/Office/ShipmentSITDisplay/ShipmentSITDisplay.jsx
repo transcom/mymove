@@ -105,19 +105,23 @@ const SitStatusTables = ({ shipment, sitExtensions, sitStatus, openModalButton, 
   sitEntryDate = moment(sitEntryDate, swaggerDateFormat);
   const sitStartDateElement = <p>{formatDate(sitEntryDate, swaggerDateFormat, 'DD MMM YYYY')}</p>;
   const sitEndDate =
-    formatDateForDatePicker(
-      moment(sitStatus.currentSIT?.sitAuthorizedEndDate, swaggerDateFormat).subtract(1, 'days'),
-    ) || '\u2014';
+    formatDateForDatePicker(moment(sitStatus.currentSIT?.sitAuthorizedEndDate, swaggerDateFormat)) || '\u2014';
 
   // Previous SIT calculations and date ranges
   const previousDaysUsed = sitStatus.pastSITServiceItemGroupings?.map((sitGroup) => {
     // Build the past SIT text based off the past sit group summary rather than individual service items
-    const sitDaysUsed = moment(sitGroup.summary.sitDepartureDate).diff(sitGroup.summary.sitEntryDate, 'days');
+    // The server provides sitDaysUsed
+    const sitDaysUsed = sitGroup.summary.daysInSIT || DEFAULT_EMPTY_VALUE;
     const location = sitGroup.summary.location === LOCATION_TYPES.ORIGIN ? 'origin' : 'destination';
 
+    // Display the dates the server used to calculate sitDaysUsed
     const start = formatDate(sitGroup.summary.sitEntryDate, swaggerDateFormat, 'DD MMM YYYY');
     const end = formatDate(sitGroup.summary.sitDepartureDate, swaggerDateFormat, 'DD MMM YYYY');
-    const text = `${sitDaysUsed} days at ${location} (${start} - ${end})`;
+    const authorizedEndDate = sitGroup.summary.sitAuthorizedEndDate
+      ? formatDate(sitGroup.summary.sitAuthorizedEndDate, swaggerDateFormat, 'DD MMM YYYY')
+      : DEFAULT_EMPTY_VALUE;
+
+    const text = `${sitDaysUsed} days at ${location} (${start} - ${end}),\nAuthorized End Date: ${authorizedEndDate}`;
 
     return <p key={sitGroup.summary.firstDaySITServiceItemID}>{text}</p>;
   });
@@ -179,20 +183,20 @@ const SitStatusTables = ({ shipment, sitExtensions, sitStatus, openModalButton, 
       {sitStatus.currentSIT && (
         <>
           <div className={styles.tableContainer} data-testid="sitStartAndEndTable">
-            {/* Sit Start and End table */}
+            {/* Sit Start and End table with total days at current location */}
             {currentDaysInSIT > 0 && <p className={styles.sitHeader}>Current location: {currentLocation}</p>}
             <DataTable
-              columnHeaders={[`SIT start date`, 'SIT authorized end date', 'Calculated total SIT days']}
-              dataRow={[sitStartDateElement, sitEndDate, sitStatus.calculatedTotalDaysInSIT]}
+              columnHeaders={[`SIT start date`, 'SIT authorized end date', `Total days in ${currentLocation}`]}
+              dataRow={[sitStartDateElement, sitEndDate, currentDaysInSITElement]}
               custClass={styles.currentLocation}
             />
           </div>
-          <div className={styles.tableContainer} data-testid="sitDaysAtCurrentLocation">
-            {/* Total days at current location */}
+          <div className={styles.tableContainer} data-testid="currentSitDepartureDate">
+            {/* Current SIT departure date */}
             <DataTable
-              testID="currentSITDateData"
-              columnHeaders={[`Total days in ${currentLocation}`, `SIT departure date`]}
-              dataRow={[currentDaysInSITElement, sitDepartureDate]}
+              testID="currentSITDepartureDate"
+              columnHeaders={[`SIT departure date`]}
+              dataRow={[sitDepartureDate]}
             />
           </div>
         </>
@@ -201,7 +205,7 @@ const SitStatusTables = ({ shipment, sitExtensions, sitStatus, openModalButton, 
       {/* Past SIT Service Items Info Section */}
       {sitStatus.pastSITServiceItemGroupings && (
         <>
-          <div className={styles.tableContainer}>
+          <div className={styles.tableContainer} data-testid="previouslyUsedSitTable">
             <DataTable columnHeaders={['Previously used SIT']} dataRow={[previousDaysUsed]} />
           </div>
           {!sitStatus.currentSIT && (

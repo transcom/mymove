@@ -47,7 +47,7 @@ func (suite *RequestedOfficeUsersServiceSuite) TestFetchRequestedOfficeUserList(
 		suite.NoError(err)
 		fakeFetchMany := func(_ appcontext.AppContext, model interface{}) error {
 			value := reflect.ValueOf(model).Elem()
-			requestedStatus := "REQUESTED"
+			requestedStatus := models.OfficeUserStatusREQUESTED
 			value.Set(reflect.Append(value, reflect.ValueOf(models.OfficeUser{ID: id, Status: &requestedStatus})))
 			return nil
 		}

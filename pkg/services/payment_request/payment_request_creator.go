@@ -142,6 +142,19 @@ func (p *paymentRequestCreator) CreatePaymentRequest(appCtx appcontext.AppContex
 					return fmt.Errorf("failed to create payment service item param [%s]: %w for %s", paymentServiceItemParam.ServiceItemParamKeyID, err, errMessageString)
 				}
 
+				// check if service item param is for SIT Payment start/end
+				if param.IncomingKey == "SITPaymentRequestStart" || param.IncomingKey == "SITPaymentRequestEnd" {
+					paymentDate, err := time.Parse("2006-01-02", param.Value)
+					if err != nil {
+						errStr := "failed to parse " + param.IncomingKey
+						return apperror.NewBadDataError(errStr)
+					}
+
+					if paymentServiceItem.MTOServiceItem.SITEntryDate != nil && !paymentDate.After(*paymentServiceItem.MTOServiceItem.SITEntryDate) {
+						return apperror.NewConflictError(paymentRequestArg.ID, "cannot have payment start date for additional days SIT earlier than or equal to SIT entry date")
+					}
+				}
+
 				if param.ID != uuid.Nil && key != nil && value != nil {
 					incomingMTOServiceItemParams[*key] = *value
 					newPaymentServiceItemParams = append(newPaymentServiceItemParams, param)

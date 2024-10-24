@@ -24,12 +24,18 @@ type QueueMove struct {
 	// Format: date-time
 	AppearedInTooAt *strfmt.DateTime `json:"appearedInTooAt,omitempty"`
 
+	// assigned to
+	AssignedTo *AssignedOfficeUser `json:"assignedTo,omitempty"`
+
 	// closeout initiated
 	// Format: date-time
 	CloseoutInitiated *strfmt.DateTime `json:"closeoutInitiated,omitempty"`
 
 	// closeout location
 	CloseoutLocation *string `json:"closeoutLocation,omitempty"`
+
+	// counseling office
+	CounselingOffice *string `json:"counselingOffice,omitempty"`
 
 	// customer
 	Customer *Customer `json:"customer,omitempty"`
@@ -94,6 +100,10 @@ func (m *QueueMove) Validate(formats strfmt.Registry) error {
 	var res []error
 
 	if err := m.validateAppearedInTooAt(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateAssignedTo(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -170,6 +180,25 @@ func (m *QueueMove) validateAppearedInTooAt(formats strfmt.Registry) error {
 
 	if err := validate.FormatOf("appearedInTooAt", "body", "date-time", m.AppearedInTooAt.String(), formats); err != nil {
 		return err
+	}
+
+	return nil
+}
+
+func (m *QueueMove) validateAssignedTo(formats strfmt.Registry) error {
+	if swag.IsZero(m.AssignedTo) { // not required
+		return nil
+	}
+
+	if m.AssignedTo != nil {
+		if err := m.AssignedTo.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("assignedTo")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("assignedTo")
+			}
+			return err
+		}
 	}
 
 	return nil
@@ -439,6 +468,10 @@ func (m *QueueMove) validateSubmittedAt(formats strfmt.Registry) error {
 func (m *QueueMove) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	var res []error
 
+	if err := m.contextValidateAssignedTo(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.contextValidateCustomer(ctx, formats); err != nil {
 		res = append(res, err)
 	}
@@ -474,6 +507,27 @@ func (m *QueueMove) ContextValidate(ctx context.Context, formats strfmt.Registry
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
+	return nil
+}
+
+func (m *QueueMove) contextValidateAssignedTo(ctx context.Context, formats strfmt.Registry) error {
+
+	if m.AssignedTo != nil {
+
+		if swag.IsZero(m.AssignedTo) { // not required
+			return nil
+		}
+
+		if err := m.AssignedTo.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("assignedTo")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("assignedTo")
+			}
+			return err
+		}
+	}
+
 	return nil
 }
 

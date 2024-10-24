@@ -134,10 +134,10 @@ const MovePaymentRequests = ({
     setUnapprovedServiceItemCount(serviceItemCount);
   }, [mtoShipments, setUnapprovedServiceItemCount]);
 
+  const pendingCount = paymentRequests?.filter((pr) => pr.status === paymentRequestStatus.PENDING).length;
   useEffect(() => {
-    const pendingCount = paymentRequests?.filter((pr) => pr.status === paymentRequestStatus.PENDING).length;
     setPendingPaymentRequestCount(pendingCount);
-  }, [paymentRequests, setPendingPaymentRequestCount]);
+  }, [pendingCount, setPendingPaymentRequestCount]);
 
   const excludePPMShipments = mtoShipments?.filter((shipment) => shipment.shipmentType !== 'PPM');
 
@@ -221,11 +221,12 @@ const MovePaymentRequests = ({
       <div className={txoStyles.container} data-testid="MovePaymentRequests">
         <LeftNav sections={sections}>
           <LeftNavTag
+            background="#e34b11"
             associatedSectionName="payment-requests"
-            showTag={paymentRequests?.length > 0}
-            testID="numOfPaymentRequestsTag"
+            showTag={pendingCount > 0}
+            testID="numOfPendingPaymentRequestsTag"
           >
-            {paymentRequests.length}
+            {pendingCount}
           </LeftNavTag>
           <LeftNavTag
             className={classnames('usa-tag usa-tag--alert', styles.errorTag)}

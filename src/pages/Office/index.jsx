@@ -307,7 +307,7 @@ export class OfficeApp extends Component {
                           end
                           element={
                             <PrivateRoute requiredRoles={[roleTypes.SERVICES_COUNSELOR]}>
-                              <ServicesCounselingQueue userPrivileges={userPrivileges} />
+                              <ServicesCounselingQueue userPrivileges={userPrivileges} currentUserId={officeUserId} />
                             </PrivateRoute>
                           }
                         />

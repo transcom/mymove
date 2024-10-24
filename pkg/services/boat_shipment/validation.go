@@ -83,10 +83,13 @@ func mergeBoatShipment(newBoatShipment models.BoatShipment, oldBoatShipment *mod
 	if newBoatShipment.HeightInInches != nil {
 		boatShipment.HeightInInches = newBoatShipment.HeightInInches
 	}
+	boatShipment.IsRoadworthy = newBoatShipment.IsRoadworthy
 	if newBoatShipment.HasTrailer != nil {
 		boatShipment.HasTrailer = newBoatShipment.HasTrailer
+		if !*boatShipment.HasTrailer {
+			boatShipment.IsRoadworthy = nil
+		}
 	}
-	boatShipment.IsRoadworthy = newBoatShipment.IsRoadworthy
 
 	return &boatShipment, err
 }

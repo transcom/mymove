@@ -162,7 +162,8 @@ func (suite *PPMShipmentSuite) TestCreateAOAPacketFull() {
 		suite.FatalNil(err)
 	}
 
-	SSWPPMComputer := shipmentsummaryworksheet.NewSSWPPMComputer()
+	mockPPMCloseoutFetcher := &mocks.PPMCloseoutFetcher{}
+	SSWPPMComputer := shipmentsummaryworksheet.NewSSWPPMComputer(mockPPMCloseoutFetcher)
 	ppmGenerator, err := shipmentsummaryworksheet.NewSSWPPMGenerator(generator)
 	suite.FatalNoError(err)
 

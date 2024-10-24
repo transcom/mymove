@@ -1,7 +1,9 @@
 package lineofaccounting
 
 import (
+	"fmt"
 	"sort"
+	"strings"
 	"time"
 
 	"go.uber.org/zap"
@@ -217,4 +219,133 @@ func checkForValidHhgProgramCodeForLoaAndValidLoaForTac(linesOfAccounting []mode
 	}
 
 	return linesOfAccounting, err
+}
+
+func (f linesOfAccountingFetcher) BuildFullLineOfAccountingString(loa models.LineOfAccounting) string {
+	emptyString := ""
+	var loaFyTx string
+	if fmt.Sprint(*loa.LoaBgFyTx) != "" && fmt.Sprint(*loa.LoaEndFyTx) != "" {
+		loaFyTx = fmt.Sprint(*loa.LoaBgFyTx) + fmt.Sprint(*loa.LoaEndFyTx)
+	} else {
+		loaFyTx = ""
+	}
+
+	if loa.LoaDptID == nil {
+		loa.LoaDptID = &emptyString
+	}
+	if loa.LoaTnsfrDptNm == nil {
+		loa.LoaTnsfrDptNm = &emptyString
+	}
+	if loa.LoaBafID == nil {
+		loa.LoaBafID = &emptyString
+	}
+	if loa.LoaTrsySfxTx == nil {
+		loa.LoaTrsySfxTx = &emptyString
+	}
+	if loa.LoaMajClmNm == nil {
+		loa.LoaMajClmNm = &emptyString
+	}
+	if loa.LoaOpAgncyID == nil {
+		loa.LoaOpAgncyID = &emptyString
+	}
+	if loa.LoaAlltSnID == nil {
+		loa.LoaAlltSnID = &emptyString
+	}
+	if loa.LoaUic == nil {
+		loa.LoaUic = &emptyString
+	}
+	if loa.LoaPgmElmntID == nil {
+		loa.LoaPgmElmntID = &emptyString
+	}
+	if loa.LoaTskBdgtSblnTx == nil {
+		loa.LoaTskBdgtSblnTx = &emptyString
+	}
+	if loa.LoaDfAgncyAlctnRcpntID == nil {
+		loa.LoaDfAgncyAlctnRcpntID = &emptyString
+	}
+	if loa.LoaJbOrdNm == nil {
+		loa.LoaJbOrdNm = &emptyString
+	}
+	if loa.LoaSbaltmtRcpntID == nil {
+		loa.LoaSbaltmtRcpntID = &emptyString
+	}
+	if loa.LoaWkCntrRcpntNm == nil {
+		loa.LoaWkCntrRcpntNm = &emptyString
+	}
+	if loa.LoaMajRmbsmtSrcID == nil {
+		loa.LoaMajRmbsmtSrcID = &emptyString
+	}
+	if loa.LoaDtlRmbsmtSrcID == nil {
+		loa.LoaDtlRmbsmtSrcID = &emptyString
+	}
+	if loa.LoaCustNm == nil {
+		loa.LoaCustNm = &emptyString
+	}
+	if loa.LoaObjClsID == nil {
+		loa.LoaObjClsID = &emptyString
+	}
+	if loa.LoaSrvSrcID == nil {
+		loa.LoaSrvSrcID = &emptyString
+	}
+	if loa.LoaSpclIntrID == nil {
+		loa.LoaSpclIntrID = &emptyString
+	}
+	if loa.LoaBdgtAcntClsNm == nil {
+		loa.LoaBdgtAcntClsNm = &emptyString
+	}
+	if loa.LoaDocID == nil {
+		loa.LoaDocID = &emptyString
+	}
+	if loa.LoaClsRefID == nil {
+		loa.LoaClsRefID = &emptyString
+	}
+	if loa.LoaInstlAcntgActID == nil {
+		loa.LoaInstlAcntgActID = &emptyString
+	}
+	if loa.LoaLclInstlID == nil {
+		loa.LoaLclInstlID = &emptyString
+	}
+	if loa.LoaTrnsnID == nil {
+		loa.LoaTrnsnID = &emptyString
+	}
+	if loa.LoaFmsTrnsactnID == nil {
+		loa.LoaFmsTrnsactnID = &emptyString
+	}
+
+	// commented names are Navy PPTAS equivalents
+	LineOfAccountingDfasElementOrder := []string{
+		*loa.LoaDptID,               // "LoaDptID"
+		*loa.LoaTnsfrDptNm,          // "LoaTnsfrDptNm",
+		loaFyTx,                     // "LoaEndFyTx",
+		*loa.LoaBafID,               // "LoaBafID",
+		*loa.LoaTrsySfxTx,           // "LoaTrsySfxTx",
+		*loa.LoaMajClmNm,            // "LoaMajClmNm",
+		*loa.LoaOpAgncyID,           // "LoaOpAgncyID",
+		*loa.LoaAlltSnID,            // "LoaAlltSnID",
+		*loa.LoaUic,                 // "LoaUic",
+		*loa.LoaPgmElmntID,          // "LoaPgmElmntID",
+		*loa.LoaTskBdgtSblnTx,       // "LoaTskBdgtSblnTx",
+		*loa.LoaDfAgncyAlctnRcpntID, // "LoaDfAgncyAlctnRcpntID",
+		*loa.LoaJbOrdNm,             // "LoaJbOrdNm",
+		*loa.LoaSbaltmtRcpntID,      // "LoaSbaltmtRcpntID",
+		*loa.LoaWkCntrRcpntNm,       // "LoaWkCntrRcpntNm",
+		*loa.LoaMajRmbsmtSrcID,      // "LoaMajRmbsmtSrcID",
+		*loa.LoaDtlRmbsmtSrcID,      // "LoaDtlRmbsmtSrcID",
+		*loa.LoaCustNm,              // "LoaCustNm",
+		*loa.LoaObjClsID,            // "LoaObjClsID",
+		*loa.LoaSrvSrcID,            // "LoaSrvSrcID",
+		*loa.LoaSpclIntrID,          // "LoaSpcLIntrID",
+		*loa.LoaBdgtAcntClsNm,       // "LoaBdgtAcntCLsNm",
+		*loa.LoaDocID,               // "LoaDocID",
+		*loa.LoaClsRefID,            // "LoaCLsRefID",
+		*loa.LoaInstlAcntgActID,     // "LoaInstLAcntgActID",
+		*loa.LoaLclInstlID,          // "LoaLcLInstLID",
+		*loa.LoaTrnsnID,             // "LoaTrnsnID",
+		*loa.LoaFmsTrnsactnID,       // "LoaFmsTrnsactnID",
+	}
+
+	longLoa := strings.Join(LineOfAccountingDfasElementOrder, "*")
+	longLoa = strings.ReplaceAll(longLoa, " *", "*")
+
+	return longLoa
 }

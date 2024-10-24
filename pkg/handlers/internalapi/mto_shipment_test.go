@@ -413,6 +413,8 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandlerV1() {
 		ntsrShipmentType := internalmessages.MTOShipmentTypeHHGOUTOFNTSDOMESTIC
 		params.Body.ShipmentType = &ntsrShipmentType
 		params.Body.RequestedPickupDate = strfmt.Date(time.Time{})
+		params.Body.PickupAddress = nil
+		params.Body.SecondaryPickupAddress = nil
 
 		response := subtestData.handler.Handle(subtestData.params)
 
@@ -425,8 +427,6 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandlerV1() {
 		suite.Equal(ntsrShipmentType, createdShipment.ShipmentType)
 		suite.Equal(models.MTOShipmentStatusSubmitted, models.MTOShipmentStatus(createdShipment.Status))
 		suite.Equal(*params.Body.CustomerRemarks, *createdShipment.CustomerRemarks)
-		suite.Equal(*params.Body.PickupAddress.StreetAddress1, *createdShipment.PickupAddress.StreetAddress1)
-		suite.Equal(*params.Body.SecondaryPickupAddress.StreetAddress1, *createdShipment.SecondaryPickupAddress.StreetAddress1)
 		suite.Equal(*params.Body.DestinationAddress.StreetAddress1, *createdShipment.DestinationAddress.StreetAddress1)
 		suite.Equal(*params.Body.SecondaryDeliveryAddress.StreetAddress1, *createdShipment.SecondaryDeliveryAddress.StreetAddress1)
 		suite.Nil(createdShipment.RequestedPickupDate)

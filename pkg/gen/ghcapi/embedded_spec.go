@@ -2286,6 +2286,55 @@ func init() {
         }
       ]
     },
+    "/moves/{moveID}/assignOfficeUser": {
+      "patch": {
+        "description": "assigns either a services counselor, task ordering officer, or task invoicing officer to the move",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "move"
+        ],
+        "operationId": "updateAssignedOfficeUser",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/AssignOfficeUserBody"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully assigned office user to the move",
+            "schema": {
+              "$ref": "#/definitions/Move"
+            }
+          },
+          "404": {
+            "$ref": "#/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/responses/ServerError"
+          }
+        }
+      },
+      "parameters": [
+        {
+          "type": "string",
+          "format": "uuid",
+          "description": "ID of the move",
+          "name": "moveID",
+          "in": "path",
+          "required": true
+        }
+      ]
+    },
     "/moves/{moveID}/cancel": {
       "post": {
         "description": "cancels a move",
@@ -2508,6 +2557,56 @@ func init() {
           "name": "moveID",
           "in": "path",
           "required": true
+        }
+      ]
+    },
+    "/moves/{moveID}/unassignOfficeUser": {
+      "patch": {
+        "description": "unassigns either a services counselor, task ordering officer, or task invoicing officer from the move",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "move"
+        ],
+        "operationId": "deleteAssignedOfficeUser",
+        "responses": {
+          "200": {
+            "description": "Successfully unassigned office user from the move",
+            "schema": {
+              "$ref": "#/definitions/Move"
+            }
+          },
+          "500": {
+            "$ref": "#/responses/ServerError"
+          }
+        }
+      },
+      "parameters": [
+        {
+          "type": "string",
+          "format": "uuid",
+          "description": "ID of the move",
+          "name": "moveID",
+          "in": "path",
+          "required": true
+        },
+        {
+          "name": "body",
+          "in": "body",
+          "schema": {
+            "required": [
+              "roleType"
+            ],
+            "properties": {
+              "roleType": {
+                "type": "string"
+              }
+            }
+          }
         }
       ]
     },
@@ -3220,6 +3319,49 @@ func init() {
           "type": "string",
           "format": "uuid",
           "description": "UUID of payment request",
+          "name": "paymentRequestID",
+          "in": "path",
+          "required": true
+        }
+      ]
+    },
+    "/payment-requests/{paymentRequestID}/bulkDownload": {
+      "get": {
+        "description": "This endpoint downloads all uploaded payment request documentation combined into a single PDF.\n",
+        "produces": [
+          "application/pdf"
+        ],
+        "tags": [
+          "paymentRequests"
+        ],
+        "summary": "Downloads all Payment Request documents as a PDF",
+        "operationId": "bulkDownload",
+        "responses": {
+          "200": {
+            "description": "Payment Request Files PDF",
+            "schema": {
+              "type": "file",
+              "format": "binary"
+            },
+            "headers": {
+              "Content-Disposition": {
+                "type": "string",
+                "description": "File name to download"
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/responses/InvalidRequest"
+          },
+          "500": {
+            "$ref": "#/responses/ServerError"
+          }
+        }
+      },
+      "parameters": [
+        {
+          "type": "string",
+          "description": "the id for the payment-request with files to be downloaded",
           "name": "paymentRequestID",
           "in": "path",
           "required": true
@@ -4002,7 +4144,8 @@ func init() {
               "ppmType",
               "closeoutInitiated",
               "closeoutLocation",
-              "ppmStatus"
+              "ppmStatus",
+              "counselingOffice"
             ],
             "type": "string",
             "description": "field that results should be sorted by",
@@ -4035,6 +4178,12 @@ func init() {
             "type": "string",
             "description": "filters using a prefix match on the service member's last name",
             "name": "lastName",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "filters using a counselingOffice name of the move",
+            "name": "counselingOffice",
             "in": "query"
           },
           {
@@ -5659,14 +5808,14 @@ func init() {
     },
     "/transportation-offices": {
       "get": {
-        "description": "Returns the transportation offices matching the search query",
+        "description": "Returns the transportation offices matching the search query that is enabled for PPM closeout",
         "produces": [
           "application/json"
         ],
         "tags": [
           "transportationOffice"
         ],
-        "summary": "Returns the transportation offices matching the search query",
+        "summary": "Returns the transportation offices matching the search query that is enabled for PPM closeout",
         "operationId": "getTransportationOffices",
         "parameters": [
           {
@@ -5794,6 +5943,42 @@ func init() {
         }
       }
     },
+    "/uploads/get/": {
+      "get": {
+        "description": "Gets an upload",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "uploads"
+        ],
+        "summary": "Gets an upload by ID",
+        "operationId": "getUpload",
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved upload",
+            "schema": {
+              "$ref": "#/definitions/Upload"
+            }
+          },
+          "400": {
+            "$ref": "#/responses/InvalidRequest"
+          },
+          "401": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "403": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "404": {
+            "$ref": "#/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/responses/ServerError"
+          }
+        }
+      }
+    },
     "/uploads/{uploadID}": {
       "delete": {
         "description": "Uploads represent a single digital file, such as a JPEG or PDF.",
@@ -5834,6 +6019,69 @@ func init() {
           },
           "404": {
             "description": "not found"
+          },
+          "500": {
+            "description": "server error"
+          }
+        }
+      }
+    },
+    "/uploads/{uploadID}/update": {
+      "patch": {
+        "description": "Uploads represent a single digital file, such as a JPEG or PDF. The rotation is relevant to how it is displayed on the page.",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "uploads"
+        ],
+        "summary": "Update an existing upload. This is only needed currently for updating the image rotation.",
+        "operationId": "updateUpload",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "UUID of the upload to be updated",
+            "name": "uploadID",
+            "in": "path",
+            "required": true
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "properties": {
+                "rotation": {
+                  "description": "The rotation of the image",
+                  "type": "integer",
+                  "maximum": 3
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "updated upload",
+            "schema": {
+              "$ref": "#/definitions/Upload"
+            }
+          },
+          "400": {
+            "description": "invalid request"
+          },
+          "403": {
+            "description": "not authorized"
+          },
+          "404": {
+            "description": "not found"
+          },
+          "413": {
+            "description": "payload is too large"
           },
           "500": {
             "description": "server error"
@@ -6092,6 +6340,38 @@ func init() {
             "OTHER"
           ],
           "example": "AWAITING_COMPLETION_OF_RESIDENCE"
+        }
+      }
+    },
+    "AssignOfficeUserBody": {
+      "type": "object",
+      "required": [
+        "officeUserId",
+        "roleType"
+      ],
+      "properties": {
+        "officeUserId": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "roleType": {
+          "type": "string"
+        }
+      }
+    },
+    "AssignedOfficeUser": {
+      "type": "object",
+      "properties": {
+        "firstName": {
+          "type": "string"
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "lastName": {
+          "type": "string"
         }
       }
     },
@@ -6447,6 +6727,61 @@ func init() {
         }
       }
     },
+    "CreateBoatShipment": {
+      "description": "Boat shipment information for the move.",
+      "required": [
+        "type",
+        "year",
+        "make",
+        "model",
+        "lengthInInches",
+        "widthInInches",
+        "heightInInches",
+        "hasTrailer"
+      ],
+      "properties": {
+        "hasTrailer": {
+          "description": "Does the boat have a trailer",
+          "type": "boolean"
+        },
+        "heightInInches": {
+          "description": "Height of the Boat in inches",
+          "type": "integer"
+        },
+        "isRoadworthy": {
+          "description": "Is the trailer roadworthy",
+          "type": "boolean",
+          "x-nullable": true
+        },
+        "lengthInInches": {
+          "description": "Length of the Boat in inches",
+          "type": "integer"
+        },
+        "make": {
+          "description": "Make of the Boat",
+          "type": "string"
+        },
+        "model": {
+          "description": "Model of the Boat",
+          "type": "string"
+        },
+        "type": {
+          "type": "string",
+          "enum": [
+            "HAUL_AWAY",
+            "TOW_AWAY"
+          ]
+        },
+        "widthInInches": {
+          "description": "Width of the Boat in inches",
+          "type": "integer"
+        },
+        "year": {
+          "description": "Year of the Boat",
+          "type": "integer"
+        }
+      }
+    },
     "CreateCustomerPayload": {
       "type": "object",
       "properties": {
@@ -6471,8 +6806,9 @@ func init() {
         },
         "edipi": {
           "type": "string",
-          "x-nullable": true,
-          "example": "John"
+          "maxLength": 10,
+          "x-nullable": false,
+          "example": "1234567890"
         },
         "emailIsPreferred": {
           "type": "boolean"
@@ -6572,6 +6908,9 @@ func init() {
         "agents": {
           "$ref": "#/definitions/MTOAgents"
         },
+        "boatShipment": {
+          "$ref": "#/definitions/CreateBoatShipment"
+        },
         "counselorRemarks": {
           "description": "The counselor can use the counselor remarks field to inform the movers about any\nspecial circumstances for this shipment. Typical examples:\n  * bulky or fragile items,\n  * weapons,\n  * access info for their address.\nCounselors enters this information when creating or editing an MTO Shipment. Optional field.\n",
           "type": "string",
@@ -6615,8 +6954,8 @@ func init() {
           "x-nullable": true,
           "x-omitempty": false
         },
-        "mobileHome": {
-          "$ref": "#/definitions/MobileHome"
+        "mobileHomeShipment": {
+          "$ref": "#/definitions/CreateMobileHomeShipment"
         },
         "moveTaskOrderID": {
           "description": "The ID of the move this new shipment is for.",
@@ -6727,9 +7066,42 @@ func init() {
         }
       }
     },
-    "CreateMobileHome": {
+    "CreateMobileHomeShipment": {
       "description": "A mobile home shipment that the prime moves for a service member.",
-      "$ref": "#/definitions/MobileHome"
+      "required": [
+        "make",
+        "model",
+        "year",
+        "lengthInInches",
+        "heightInInches",
+        "widthInInches"
+      ],
+      "properties": {
+        "heightInInches": {
+          "description": "Height of the Mobile Home in inches",
+          "type": "integer"
+        },
+        "lengthInInches": {
+          "description": "Length of the Mobile Home in inches",
+          "type": "integer"
+        },
+        "make": {
+          "description": "Make of the Mobile Home",
+          "type": "string"
+        },
+        "model": {
+          "description": "Model of the Mobile Home",
+          "type": "string"
+        },
+        "widthInInches": {
+          "description": "Width of the Mobile Home in inches",
+          "type": "integer"
+        },
+        "year": {
+          "description": "Year of the Mobile Home",
+          "type": "integer"
+        }
+      }
     },
     "CreateOrders": {
       "type": "object",
@@ -7036,10 +7408,10 @@ func init() {
         "current_address": {
           "$ref": "#/definitions/Address"
         },
-        "dodID": {
+        "eTag": {
           "type": "string"
         },
-        "eTag": {
+        "edipi": {
           "type": "string"
         },
         "email": {
@@ -9050,6 +9422,15 @@ func init() {
     },
     "Move": {
       "properties": {
+        "SCAssignedUser": {
+          "$ref": "#/definitions/AssignedOfficeUser"
+        },
+        "TIOAssignedUser": {
+          "$ref": "#/definitions/AssignedOfficeUser"
+        },
+        "TOOAssignedUser": {
+          "$ref": "#/definitions/AssignedOfficeUser"
+        },
         "additionalDocuments": {
           "$ref": "#/definitions/Document"
         },
@@ -11325,12 +11706,20 @@ func init() {
           "format": "date-time",
           "x-nullable": true
         },
+        "assignedTo": {
+          "x-nullable": true,
+          "$ref": "#/definitions/AssignedOfficeUser"
+        },
         "closeoutInitiated": {
           "type": "string",
           "format": "date-time",
           "x-nullable": true
         },
         "closeoutLocation": {
+          "type": "string",
+          "x-nullable": true
+        },
+        "counselingOffice": {
           "type": "string",
           "x-nullable": true
         },
@@ -12117,7 +12506,8 @@ func init() {
         "ZipSITOriginHHGOriginalAddress",
         "StandaloneCrate",
         "StandaloneCrateCap",
-        "UncappedRequestTotal"
+        "UncappedRequestTotal",
+        "LockedPriceCents"
       ]
     },
     "ServiceItemParamOrigin": {
@@ -12600,6 +12990,59 @@ func init() {
         }
       }
     },
+    "UpdateBoatShipment": {
+      "type": "object",
+      "properties": {
+        "hasTrailer": {
+          "description": "Does the boat have a trailer",
+          "type": "boolean",
+          "x-nullable": true
+        },
+        "heightInInches": {
+          "description": "Height of the Boat in inches",
+          "type": "integer",
+          "x-nullable": true
+        },
+        "isRoadworthy": {
+          "description": "Is the trailer roadworthy",
+          "type": "boolean",
+          "x-nullable": true
+        },
+        "lengthInInches": {
+          "description": "Length of the Boat in inches",
+          "type": "integer",
+          "x-nullable": true
+        },
+        "make": {
+          "description": "Make of the Boat",
+          "type": "string",
+          "x-nullable": true
+        },
+        "model": {
+          "description": "Model of the Boat",
+          "type": "string",
+          "x-nullable": true
+        },
+        "type": {
+          "type": "string",
+          "enum": [
+            "HAUL_AWAY",
+            "TOW_AWAY"
+          ],
+          "x-nullable": true
+        },
+        "widthInInches": {
+          "description": "Width of the Boat in inches",
+          "type": "integer",
+          "x-nullable": true
+        },
+        "year": {
+          "description": "Year of the Boat",
+          "type": "integer",
+          "x-nullable": true
+        }
+      }
+    },
     "UpdateCustomerPayload": {
       "type": "object",
       "properties": {
@@ -12701,6 +13144,41 @@ func init() {
           "minLength": 1,
           "x-nullable": true,
           "example": "Increasing max billable weight"
+        }
+      }
+    },
+    "UpdateMobileHomeShipment": {
+      "type": "object",
+      "properties": {
+        "heightInInches": {
+          "description": "Height of the Boat in inches",
+          "type": "integer",
+          "x-nullable": true
+        },
+        "lengthInInches": {
+          "description": "Length of the Boat in inches",
+          "type": "integer",
+          "x-nullable": true
+        },
+        "make": {
+          "description": "Make of the Boat",
+          "type": "string",
+          "x-nullable": true
+        },
+        "model": {
+          "description": "Model of the Boat",
+          "type": "string",
+          "x-nullable": true
+        },
+        "widthInInches": {
+          "description": "Width of the Boat in inches",
+          "type": "integer",
+          "x-nullable": true
+        },
+        "year": {
+          "description": "Year of the Boat",
+          "type": "integer",
+          "x-nullable": true
         }
       }
     },
@@ -13111,6 +13589,9 @@ func init() {
           "x-nullable": true,
           "example": "more weight than expected"
         },
+        "boatShipment": {
+          "$ref": "#/definitions/UpdateBoatShipment"
+        },
         "counselorRemarks": {
           "type": "string",
           "x-nullable": true,
@@ -13150,6 +13631,9 @@ func init() {
           "type": "boolean",
           "x-nullable": true,
           "x-omitempty": false
+        },
+        "mobileHomeShipment": {
+          "$ref": "#/definitions/UpdateMobileHomeShipment"
         },
         "ntsRecordedWeight": {
           "description": "The previously recorded weight for the NTS Shipment. Used for NTS Release to know what the previous primeActualWeight or billable weight was.",
@@ -13317,6 +13801,10 @@ func init() {
         },
         "isWeightTicket": {
           "type": "boolean"
+        },
+        "rotation": {
+          "type": "integer",
+          "example": 2
         },
         "status": {
           "type": "string",
@@ -16566,6 +17054,61 @@ func init() {
         }
       ]
     },
+    "/moves/{moveID}/assignOfficeUser": {
+      "patch": {
+        "description": "assigns either a services counselor, task ordering officer, or task invoicing officer to the move",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "move"
+        ],
+        "operationId": "updateAssignedOfficeUser",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/AssignOfficeUserBody"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully assigned office user to the move",
+            "schema": {
+              "$ref": "#/definitions/Move"
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "500": {
+            "description": "A server error occurred",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      },
+      "parameters": [
+        {
+          "type": "string",
+          "format": "uuid",
+          "description": "ID of the move",
+          "name": "moveID",
+          "in": "path",
+          "required": true
+        }
+      ]
+    },
     "/moves/{moveID}/cancel": {
       "post": {
         "description": "cancels a move",
@@ -16851,6 +17394,59 @@ func init() {
           "name": "moveID",
           "in": "path",
           "required": true
+        }
+      ]
+    },
+    "/moves/{moveID}/unassignOfficeUser": {
+      "patch": {
+        "description": "unassigns either a services counselor, task ordering officer, or task invoicing officer from the move",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "move"
+        ],
+        "operationId": "deleteAssignedOfficeUser",
+        "responses": {
+          "200": {
+            "description": "Successfully unassigned office user from the move",
+            "schema": {
+              "$ref": "#/definitions/Move"
+            }
+          },
+          "500": {
+            "description": "A server error occurred",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      },
+      "parameters": [
+        {
+          "type": "string",
+          "format": "uuid",
+          "description": "ID of the move",
+          "name": "moveID",
+          "in": "path",
+          "required": true
+        },
+        {
+          "name": "body",
+          "in": "body",
+          "schema": {
+            "required": [
+              "roleType"
+            ],
+            "properties": {
+              "roleType": {
+                "type": "string"
+              }
+            }
+          }
         }
       ]
     },
@@ -17708,6 +18304,55 @@ func init() {
           "type": "string",
           "format": "uuid",
           "description": "UUID of payment request",
+          "name": "paymentRequestID",
+          "in": "path",
+          "required": true
+        }
+      ]
+    },
+    "/payment-requests/{paymentRequestID}/bulkDownload": {
+      "get": {
+        "description": "This endpoint downloads all uploaded payment request documentation combined into a single PDF.\n",
+        "produces": [
+          "application/pdf"
+        ],
+        "tags": [
+          "paymentRequests"
+        ],
+        "summary": "Downloads all Payment Request documents as a PDF",
+        "operationId": "bulkDownload",
+        "responses": {
+          "200": {
+            "description": "Payment Request Files PDF",
+            "schema": {
+              "type": "file",
+              "format": "binary"
+            },
+            "headers": {
+              "Content-Disposition": {
+                "type": "string",
+                "description": "File name to download"
+              }
+            }
+          },
+          "400": {
+            "description": "The request payload is invalid",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "500": {
+            "description": "A server error occurred",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      },
+      "parameters": [
+        {
+          "type": "string",
+          "description": "the id for the payment-request with files to be downloaded",
           "name": "paymentRequestID",
           "in": "path",
           "required": true
@@ -18768,7 +19413,8 @@ func init() {
               "ppmType",
               "closeoutInitiated",
               "closeoutLocation",
-              "ppmStatus"
+              "ppmStatus",
+              "counselingOffice"
             ],
             "type": "string",
             "description": "field that results should be sorted by",
@@ -18801,6 +19447,12 @@ func init() {
             "type": "string",
             "description": "filters using a prefix match on the service member's last name",
             "name": "lastName",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "filters using a counselingOffice name of the move",
+            "name": "counselingOffice",
             "in": "query"
           },
           {
@@ -20761,14 +21413,14 @@ func init() {
     },
     "/transportation-offices": {
       "get": {
-        "description": "Returns the transportation offices matching the search query",
+        "description": "Returns the transportation offices matching the search query that is enabled for PPM closeout",
         "produces": [
           "application/json"
         ],
         "tags": [
           "transportationOffice"
         ],
-        "summary": "Returns the transportation offices matching the search query",
+        "summary": "Returns the transportation offices matching the search query that is enabled for PPM closeout",
         "operationId": "getTransportationOffices",
         "parameters": [
           {
@@ -20926,6 +21578,57 @@ func init() {
         }
       }
     },
+    "/uploads/get/": {
+      "get": {
+        "description": "Gets an upload",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "uploads"
+        ],
+        "summary": "Gets an upload by ID",
+        "operationId": "getUpload",
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved upload",
+            "schema": {
+              "$ref": "#/definitions/Upload"
+            }
+          },
+          "400": {
+            "description": "The request payload is invalid",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "401": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "403": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "500": {
+            "description": "A server error occurred",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      }
+    },
     "/uploads/{uploadID}": {
       "delete": {
         "description": "Uploads represent a single digital file, such as a JPEG or PDF.",
@@ -20966,6 +21669,70 @@ func init() {
           },
           "404": {
             "description": "not found"
+          },
+          "500": {
+            "description": "server error"
+          }
+        }
+      }
+    },
+    "/uploads/{uploadID}/update": {
+      "patch": {
+        "description": "Uploads represent a single digital file, such as a JPEG or PDF. The rotation is relevant to how it is displayed on the page.",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "uploads"
+        ],
+        "summary": "Update an existing upload. This is only needed currently for updating the image rotation.",
+        "operationId": "updateUpload",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "UUID of the upload to be updated",
+            "name": "uploadID",
+            "in": "path",
+            "required": true
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "properties": {
+                "rotation": {
+                  "description": "The rotation of the image",
+                  "type": "integer",
+                  "maximum": 3,
+                  "minimum": 0
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "updated upload",
+            "schema": {
+              "$ref": "#/definitions/Upload"
+            }
+          },
+          "400": {
+            "description": "invalid request"
+          },
+          "403": {
+            "description": "not authorized"
+          },
+          "404": {
+            "description": "not found"
+          },
+          "413": {
+            "description": "payload is too large"
           },
           "500": {
             "description": "server error"
@@ -21224,6 +21991,38 @@ func init() {
             "OTHER"
           ],
           "example": "AWAITING_COMPLETION_OF_RESIDENCE"
+        }
+      }
+    },
+    "AssignOfficeUserBody": {
+      "type": "object",
+      "required": [
+        "officeUserId",
+        "roleType"
+      ],
+      "properties": {
+        "officeUserId": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "roleType": {
+          "type": "string"
+        }
+      }
+    },
+    "AssignedOfficeUser": {
+      "type": "object",
+      "properties": {
+        "firstName": {
+          "type": "string"
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "lastName": {
+          "type": "string"
         }
       }
     },
@@ -21583,6 +22382,61 @@ func init() {
         }
       }
     },
+    "CreateBoatShipment": {
+      "description": "Boat shipment information for the move.",
+      "required": [
+        "type",
+        "year",
+        "make",
+        "model",
+        "lengthInInches",
+        "widthInInches",
+        "heightInInches",
+        "hasTrailer"
+      ],
+      "properties": {
+        "hasTrailer": {
+          "description": "Does the boat have a trailer",
+          "type": "boolean"
+        },
+        "heightInInches": {
+          "description": "Height of the Boat in inches",
+          "type": "integer"
+        },
+        "isRoadworthy": {
+          "description": "Is the trailer roadworthy",
+          "type": "boolean",
+          "x-nullable": true
+        },
+        "lengthInInches": {
+          "description": "Length of the Boat in inches",
+          "type": "integer"
+        },
+        "make": {
+          "description": "Make of the Boat",
+          "type": "string"
+        },
+        "model": {
+          "description": "Model of the Boat",
+          "type": "string"
+        },
+        "type": {
+          "type": "string",
+          "enum": [
+            "HAUL_AWAY",
+            "TOW_AWAY"
+          ]
+        },
+        "widthInInches": {
+          "description": "Width of the Boat in inches",
+          "type": "integer"
+        },
+        "year": {
+          "description": "Year of the Boat",
+          "type": "integer"
+        }
+      }
+    },
     "CreateCustomerPayload": {
       "type": "object",
       "properties": {
@@ -21607,8 +22461,9 @@ func init() {
         },
         "edipi": {
           "type": "string",
-          "x-nullable": true,
-          "example": "John"
+          "maxLength": 10,
+          "x-nullable": false,
+          "example": "1234567890"
         },
         "emailIsPreferred": {
           "type": "boolean"
@@ -21708,6 +22563,9 @@ func init() {
         "agents": {
           "$ref": "#/definitions/MTOAgents"
         },
+        "boatShipment": {
+          "$ref": "#/definitions/CreateBoatShipment"
+        },
         "counselorRemarks": {
           "description": "The counselor can use the counselor remarks field to inform the movers about any\nspecial circumstances for this shipment. Typical examples:\n  * bulky or fragile items,\n  * weapons,\n  * access info for their address.\nCounselors enters this information when creating or editing an MTO Shipment. Optional field.\n",
           "type": "string",
@@ -21751,8 +22609,8 @@ func init() {
           "x-nullable": true,
           "x-omitempty": false
         },
-        "mobileHome": {
-          "$ref": "#/definitions/MobileHome"
+        "mobileHomeShipment": {
+          "$ref": "#/definitions/CreateMobileHomeShipment"
         },
         "moveTaskOrderID": {
           "description": "The ID of the move this new shipment is for.",
@@ -21863,9 +22721,42 @@ func init() {
         }
       }
     },
-    "CreateMobileHome": {
+    "CreateMobileHomeShipment": {
       "description": "A mobile home shipment that the prime moves for a service member.",
-      "$ref": "#/definitions/MobileHome"
+      "required": [
+        "make",
+        "model",
+        "year",
+        "lengthInInches",
+        "heightInInches",
+        "widthInInches"
+      ],
+      "properties": {
+        "heightInInches": {
+          "description": "Height of the Mobile Home in inches",
+          "type": "integer"
+        },
+        "lengthInInches": {
+          "description": "Length of the Mobile Home in inches",
+          "type": "integer"
+        },
+        "make": {
+          "description": "Make of the Mobile Home",
+          "type": "string"
+        },
+        "model": {
+          "description": "Model of the Mobile Home",
+          "type": "string"
+        },
+        "widthInInches": {
+          "description": "Width of the Mobile Home in inches",
+          "type": "integer"
+        },
+        "year": {
+          "description": "Year of the Mobile Home",
+          "type": "integer"
+        }
+      }
     },
     "CreateOrders": {
       "type": "object",
@@ -22172,10 +23063,10 @@ func init() {
         "current_address": {
           "$ref": "#/definitions/Address"
         },
-        "dodID": {
+        "eTag": {
           "type": "string"
         },
-        "eTag": {
+        "edipi": {
           "type": "string"
         },
         "email": {
@@ -24186,6 +25077,15 @@ func init() {
     },
     "Move": {
       "properties": {
+        "SCAssignedUser": {
+          "$ref": "#/definitions/AssignedOfficeUser"
+        },
+        "TIOAssignedUser": {
+          "$ref": "#/definitions/AssignedOfficeUser"
+        },
+        "TOOAssignedUser": {
+          "$ref": "#/definitions/AssignedOfficeUser"
+        },
         "additionalDocuments": {
           "$ref": "#/definitions/Document"
         },
@@ -26536,12 +27436,20 @@ func init() {
           "format": "date-time",
           "x-nullable": true
         },
+        "assignedTo": {
+          "x-nullable": true,
+          "$ref": "#/definitions/AssignedOfficeUser"
+        },
         "closeoutInitiated": {
           "type": "string",
           "format": "date-time",
           "x-nullable": true
         },
         "closeoutLocation": {
+          "type": "string",
+          "x-nullable": true
+        },
+        "counselingOffice": {
           "type": "string",
           "x-nullable": true
         },
@@ -27378,7 +28286,8 @@ func init() {
         "ZipSITOriginHHGOriginalAddress",
         "StandaloneCrate",
         "StandaloneCrateCap",
-        "UncappedRequestTotal"
+        "UncappedRequestTotal",
+        "LockedPriceCents"
       ]
     },
     "ServiceItemParamOrigin": {
@@ -27867,6 +28776,59 @@ func init() {
         }
       }
     },
+    "UpdateBoatShipment": {
+      "type": "object",
+      "properties": {
+        "hasTrailer": {
+          "description": "Does the boat have a trailer",
+          "type": "boolean",
+          "x-nullable": true
+        },
+        "heightInInches": {
+          "description": "Height of the Boat in inches",
+          "type": "integer",
+          "x-nullable": true
+        },
+        "isRoadworthy": {
+          "description": "Is the trailer roadworthy",
+          "type": "boolean",
+          "x-nullable": true
+        },
+        "lengthInInches": {
+          "description": "Length of the Boat in inches",
+          "type": "integer",
+          "x-nullable": true
+        },
+        "make": {
+          "description": "Make of the Boat",
+          "type": "string",
+          "x-nullable": true
+        },
+        "model": {
+          "description": "Model of the Boat",
+          "type": "string",
+          "x-nullable": true
+        },
+        "type": {
+          "type": "string",
+          "enum": [
+            "HAUL_AWAY",
+            "TOW_AWAY"
+          ],
+          "x-nullable": true
+        },
+        "widthInInches": {
+          "description": "Width of the Boat in inches",
+          "type": "integer",
+          "x-nullable": true
+        },
+        "year": {
+          "description": "Year of the Boat",
+          "type": "integer",
+          "x-nullable": true
+        }
+      }
+    },
     "UpdateCustomerPayload": {
       "type": "object",
       "properties": {
@@ -27968,6 +28930,41 @@ func init() {
           "minLength": 1,
           "x-nullable": true,
           "example": "Increasing max billable weight"
+        }
+      }
+    },
+    "UpdateMobileHomeShipment": {
+      "type": "object",
+      "properties": {
+        "heightInInches": {
+          "description": "Height of the Boat in inches",
+          "type": "integer",
+          "x-nullable": true
+        },
+        "lengthInInches": {
+          "description": "Length of the Boat in inches",
+          "type": "integer",
+          "x-nullable": true
+        },
+        "make": {
+          "description": "Make of the Boat",
+          "type": "string",
+          "x-nullable": true
+        },
+        "model": {
+          "description": "Model of the Boat",
+          "type": "string",
+          "x-nullable": true
+        },
+        "widthInInches": {
+          "description": "Width of the Boat in inches",
+          "type": "integer",
+          "x-nullable": true
+        },
+        "year": {
+          "description": "Year of the Boat",
+          "type": "integer",
+          "x-nullable": true
         }
       }
     },
@@ -28379,6 +29376,9 @@ func init() {
           "x-nullable": true,
           "example": "more weight than expected"
         },
+        "boatShipment": {
+          "$ref": "#/definitions/UpdateBoatShipment"
+        },
         "counselorRemarks": {
           "type": "string",
           "x-nullable": true,
@@ -28418,6 +29418,9 @@ func init() {
           "type": "boolean",
           "x-nullable": true,
           "x-omitempty": false
+        },
+        "mobileHomeShipment": {
+          "$ref": "#/definitions/UpdateMobileHomeShipment"
         },
         "ntsRecordedWeight": {
           "description": "The previously recorded weight for the NTS Shipment. Used for NTS Release to know what the previous primeActualWeight or billable weight was.",
@@ -28589,6 +29592,10 @@ func init() {
         },
         "isWeightTicket": {
           "type": "boolean"
+        },
+        "rotation": {
+          "type": "integer",
+          "example": 2
         },
         "status": {
           "type": "string",

@@ -2,6 +2,7 @@ package invoice
 
 import (
 	"fmt"
+	"time"
 
 	"github.com/gofrs/uuid"
 	"go.uber.org/zap"
@@ -105,6 +106,8 @@ func (e *edi997Processor) ProcessFile(appCtx appcontext.AppContext, _ string, st
 		}
 
 		paymentRequest.Status = models.PaymentRequestStatusTppsReceived
+		ReceivedByGexAt := time.Now()
+		paymentRequest.ReceivedByGexAt = &ReceivedByGexAt
 		err = txnAppCtx.DB().Update(&paymentRequest)
 		if err != nil {
 			txnAppCtx.Logger().Error("failure updating payment request", zap.Error(err))

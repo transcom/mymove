@@ -20,7 +20,10 @@ func (h GetTransportationOfficesHandler) Handle(params transportationofficeop.Ge
 	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
 		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
 
-			transportationOffices, err := h.TransportationOfficesFetcher.GetTransportationOffices(appCtx, params.Search, false)
+			// B-21022: forPpm param is set true. This is used by PPM closeout widget. Need to ensure certain offices are included/excluded
+			// if location has ppm closedout enabled.
+			transportationOffices, err := h.TransportationOfficesFetcher.GetTransportationOffices(appCtx, params.Search, true)
+
 			if err != nil {
 				appCtx.Logger().Error("Error searching for Transportation Offices: ", zap.Error(err))
 				return transportationofficeop.NewGetTransportationOfficesInternalServerError(), err

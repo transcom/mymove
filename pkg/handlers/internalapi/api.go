@@ -31,6 +31,7 @@ import (
 	"github.com/transcom/mymove/pkg/services/paperwork"
 	paymentrequest "github.com/transcom/mymove/pkg/services/payment_request"
 	postalcodeservice "github.com/transcom/mymove/pkg/services/postal_codes"
+	ppmcloseout "github.com/transcom/mymove/pkg/services/ppm_closeout"
 	"github.com/transcom/mymove/pkg/services/ppmshipment"
 	progear "github.com/transcom/mymove/pkg/services/progear_weight_ticket"
 	"github.com/transcom/mymove/pkg/services/query"
@@ -57,7 +58,9 @@ func NewInternalAPI(handlerConfig handlers.HandlerConfig) *internalops.MymoveAPI
 	fetcher := fetch.NewFetcher(builder)
 	moveRouter := move.NewMoveRouter()
 	uploadCreator := upload.NewUploadCreator(handlerConfig.FileStorer())
-	SSWPPMComputer := shipmentsummaryworksheet.NewSSWPPMComputer()
+	ppmEstimator := ppmshipment.NewEstimatePPM(handlerConfig.DTODPlanner(), &paymentrequesthelper.RequestPaymentHelper{})
+	ppmCloseoutFetcher := ppmcloseout.NewPPMCloseoutFetcher(handlerConfig.DTODPlanner(), &paymentrequesthelper.RequestPaymentHelper{}, ppmEstimator)
+	SSWPPMComputer := shipmentsummaryworksheet.NewSSWPPMComputer(ppmCloseoutFetcher)
 
 	userUploader, err := uploader.NewUserUploader(handlerConfig.FileStorer(), uploader.MaxCustomerUserUploadFileSizeLimit)
 	if err != nil {
@@ -81,7 +84,6 @@ func NewInternalAPI(handlerConfig handlers.HandlerConfig) *internalops.MymoveAPI
 		log.Fatalln(err)
 	}
 
-	ppmEstimator := ppmshipment.NewEstimatePPM(handlerConfig.DTODPlanner(), &paymentrequesthelper.RequestPaymentHelper{})
 	signedCertificationCreator := signedcertification.NewSignedCertificationCreator()
 	signedCertificationUpdater := signedcertification.NewSignedCertificationUpdater()
 	mtoShipmentRouter := mtoshipment.NewShipmentRouter()
@@ -90,6 +92,7 @@ func NewInternalAPI(handlerConfig handlers.HandlerConfig) *internalops.MymoveAPI
 	closeoutOfficeUpdater := move.NewCloseoutOfficeUpdater(move.NewMoveFetcher(), transportationOfficeFetcher)
 	addressCreator := address.NewAddressCreator()
 	addressUpdater := address.NewAddressUpdater()
+	usPostRegionCity := address.NewUsPostRegionCity()
 
 	ppmShipmentUpdater := ppmshipment.NewPPMShipmentUpdater(ppmEstimator, addressCreator, addressUpdater)
 	boatShipmentUpdater := boatshipment.NewBoatShipmentUpdater()
@@ -273,6 +276,11 @@ func NewInternalAPI(handlerConfig handlers.HandlerConfig) *internalops.MymoveAPI
 	internalAPI.TransportationOfficesGetTransportationOfficesHandler = GetTransportationOfficesHandler{
 		handlerConfig,
 		transportationOfficeFetcher,
+	}
+
+	internalAPI.AddressesGetLocationByZipCityHandler = GetLocationByZipCityHandler{
+		handlerConfig,
+		usPostRegionCity,
 	}
 
 	paymentPacketCreator := ppmshipment.NewPaymentPacketCreator(ppmShipmentFetcher, pdfGenerator, AOAPacketCreator)

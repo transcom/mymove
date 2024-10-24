@@ -53,7 +53,7 @@ func payloadForRequestedOfficeUserModel(o models.OfficeUser) *adminmessages.Offi
 		Email:                  handlers.FmtString(o.Email),
 		TransportationOfficeID: handlers.FmtUUID(o.TransportationOfficeID),
 		Active:                 handlers.FmtBool(o.Active),
-		Status:                 handlers.FmtStringPtr(o.Status),
+		Status:                 (*string)(o.Status),
 		Edipi:                  handlers.FmtStringPtr(o.EDIPI),
 		OtherUniqueID:          handlers.FmtStringPtr(o.OtherUniqueID),
 		RejectionReason:        handlers.FmtStringPtr(o.RejectionReason),

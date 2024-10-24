@@ -14,7 +14,7 @@ version: 2.1
 
 # References for variables shared across the file
 references:
-  circleci-docker: &circleci-docker milmove/circleci-docker:milmove-app-ab729849a08a773ea2557b19b67f378551d1ad3d
+  circleci-docker: &circleci-docker milmove/circleci-docker:milmove-app-3d9acdaa37c81a87b5fc1c6193a8e528dd56e4ed
 
   # the playwright image to use
   playwright: &playwright cimg/node:18.13.0-browsers
@@ -280,13 +280,13 @@ commands:
       - create_dot_go_version
       - restore_cache:
           keys:
-            - go-mod-sources-v7-{{ checksum "go.sum" }}-{{ checksum ".go-version" }}
+            - go-mod-sources-v8-{{ checksum "go.sum" }}-{{ checksum ".go-version" }}
 
   save_cache_for_go:
     steps:
       - create_dot_go_version
       - save_cache:
-          key: go-mod-sources-v7-{{ checksum "go.sum" }}-{{ checksum ".go-version" }}
+          key: go-mod-sources-v8-{{ checksum "go.sum" }}-{{ checksum ".go-version" }}
           paths:
             - '~/go'
             - '~/transcom/mymove/bin/swagger'
@@ -1497,7 +1497,7 @@ jobs:
             #
             # The trailing hyphen in restore_cache seems important
             # according to the page linked above
-            - v8-server-tests-coverage-
+            - v9-server-tests-coverage-
       - run:
           name: Ensure Test Coverage Increasing
           command: |
@@ -1553,7 +1553,7 @@ jobs:
             # Use the BuildNum to update the cache key so that the
             # coverage cache is always updated
             - save_cache:
-                key: v7-server-tests-coverage-{{ .BuildNum }}
+                key: v9-server-tests-coverage-{{ .BuildNum }}
                 paths:
                   - ~/transcom/mymove/tmp/baseline-go-coverage
                 when: always
@@ -1631,7 +1631,7 @@ jobs:
           # The trailing hyphen in restore_cache seems important
           # according to the page linked above
           keys:
-            - v6-client-tests-coverage-
+            - v7-client-tests-coverage-
       - run:
           name: Ensure Test Coverage Increasing
           command: |
@@ -1683,7 +1683,7 @@ jobs:
             # Use the BuildNum to update the cache key so that the
             # coverage cache is always updated
             - save_cache:
-                key: v5-client-tests-coverage-{{ .BuildNum }}
+                key: v7-client-tests-coverage-{{ .BuildNum }}
                 paths:
                   - ~/transcom/mymove/tmp/baseline-jest-coverage
                 when: always

@@ -56,8 +56,8 @@ const CustomerHeader = ({ customer, order, moveCode, move, userRole }) => {
               {ORDERS_BRANCH_OPTIONS[`${order.agency}`]} {ORDERS_PAY_GRADE_OPTIONS[`${order.grade}`]}
             </span>
             <span className={styles.verticalBar}>|</span>
-            <span data-testid="dodId" className={styles.details}>
-              DoD ID {customer.dodID}
+            <span data-testid="edipi" className={styles.details}>
+              DoD ID {customer.edipi}
             </span>
             {isCoastGuard && (
               <>

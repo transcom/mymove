@@ -53,7 +53,7 @@ func (suite *HandlerSuite) TestGetCustomerHandlerIntegration() {
 	suite.NoError(getCustomerPayload.Validate(strfmt.Default))
 
 	suite.Equal(strfmt.UUID(customer.ID.String()), getCustomerPayload.ID)
-	suite.Equal(*customer.Edipi, getCustomerPayload.DodID)
+	suite.Equal(*customer.Edipi, getCustomerPayload.Edipi)
 	suite.Equal(strfmt.UUID(customer.UserID.String()), getCustomerPayload.UserID)
 	suite.Equal(customer.Affiliation.String(), getCustomerPayload.Agency)
 	suite.Equal(customer.PersonalEmail, getCustomerPayload.Email)
@@ -162,7 +162,7 @@ func (suite *HandlerSuite) TestCreateCustomerWithOktaOptionHandler() {
 			FirstName:     "First",
 			Telephone:     handlers.FmtString("223-455-3399"),
 			Affiliation:   &affiliation,
-			Edipi:         handlers.FmtString(""),
+			Edipi:         "",
 			Emplid:        handlers.FmtString(""),
 			PersonalEmail: *handlers.FmtString("email@email.com"),
 			BackupContact: &ghcmessages.BackupContact{
@@ -260,7 +260,7 @@ func (suite *HandlerSuite) TestCreateCustomerWithOktaOptionHandler() {
 			FirstName:     "First",
 			Telephone:     handlers.FmtString("223-455-3399"),
 			Affiliation:   &affiliation,
-			Edipi:         customer.Edipi,
+			Edipi:         *customer.Edipi,
 			Emplid:        handlers.FmtString(""),
 			PersonalEmail: *handlers.FmtString("email@email.com"),
 			BackupContact: &ghcmessages.BackupContact{
@@ -298,6 +298,81 @@ func (suite *HandlerSuite) TestCreateCustomerWithOktaOptionHandler() {
 		}
 		response := handler.Handle(params)
 		suite.Assertions.IsType(&customerops.CreateCustomerWithOktaOptionUnprocessableEntity{}, response)
+	})
+
+	suite.Run("Unable to create customer of affiliation Coast Guard with no EMPLID", func() {
+		// in order to call the endpoint, we need to be an authenticated office user that's a SC
+		officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
+		officeUser.User.Roles = append(officeUser.User.Roles, roles.Role{
+			RoleType: roles.RoleTypeServicesCounselor,
+		})
+
+		// Build provider
+		provider, err := factory.BuildOktaProvider(officeProviderName)
+		suite.NoError(err)
+
+		mockAndActivateOktaEndpoints(provider)
+
+		residentialAddress := ghcmessages.Address{
+			StreetAddress1: handlers.FmtString("123 New Street"),
+			City:           handlers.FmtString("Newcity"),
+			State:          handlers.FmtString("MA"),
+			PostalCode:     handlers.FmtString("02110"),
+		}
+
+		backupAddress := ghcmessages.Address{
+			StreetAddress1: handlers.FmtString("123 Backup Street"),
+			City:           handlers.FmtString("Backupcity"),
+			State:          handlers.FmtString("MA"),
+			PostalCode:     handlers.FmtString("02115"),
+		}
+
+		affiliation := ghcmessages.AffiliationCOASTGUARD
+
+		body := &ghcmessages.CreateCustomerPayload{
+			LastName:      "Last",
+			FirstName:     "First",
+			Telephone:     handlers.FmtString("223-455-3399"),
+			Affiliation:   &affiliation,
+			Edipi:         "1234567890",
+			PersonalEmail: *handlers.FmtString("email@email.com"),
+			BackupContact: &ghcmessages.BackupContact{
+				Name:  handlers.FmtString("New Backup Contact"),
+				Phone: handlers.FmtString("445-345-1212"),
+				Email: handlers.FmtString("newbackup@mail.com"),
+			},
+			ResidentialAddress: struct {
+				ghcmessages.Address
+			}{
+				Address: residentialAddress,
+			},
+			BackupMailingAddress: struct {
+				ghcmessages.Address
+			}{
+				Address: backupAddress,
+			},
+			CreateOktaAccount: true,
+			// when CacUser is false, this indicates a non-CAC user so CacValidated is set to true
+			CacUser: false,
+		}
+
+		defer goth.ClearProviders()
+		goth.UseProviders(provider)
+
+		request := httptest.NewRequest("POST", "/customer", nil)
+		request = suite.AuthenticateOfficeRequest(request, officeUser)
+		params := customerops.CreateCustomerWithOktaOptionParams{
+			HTTPRequest: request,
+			Body:        body,
+		}
+		handlerConfig := suite.HandlerConfig()
+		handler := CreateCustomerWithOktaOptionHandler{
+			handlerConfig,
+		}
+		response := handler.Handle(params)
+		suite.Assertions.IsType(&customerops.CreateCustomerWithOktaOptionUnprocessableEntity{}, response)
+		failedToCreateCustomerPayload := response.(*customerops.CreateCustomerWithOktaOptionUnprocessableEntity).Payload.ClientError.Detail
+		suite.Equal("ID: 00000000-0000-0000-0000-000000000000 is in a conflicting state Service members from the Coast Guard require an EMPLID for creation.", *failedToCreateCustomerPayload)
 	})
 }
 

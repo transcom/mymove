@@ -2,7 +2,7 @@
 # BUILDER #
 ###########
 
-FROM milmove/circleci-docker:milmove-app-ab729849a08a773ea2557b19b67f378551d1ad3d as builder
+FROM milmove/circleci-docker:milmove-app-3d9acdaa37c81a87b5fc1c6193a8e528dd56e4ed as builder
 
 ENV CIRCLECI=true
 
@@ -21,7 +21,7 @@ RUN rm -f bin/milmove && make bin/milmove
 FROM alpine:3.20.2
 
 # hadolint ignore=DL3017
-RUN apk upgrade --no-cache busybox
+RUN apk upgrade --no-cache busybox --force-missing-repositories
 
 COPY --from=builder --chown=root:root /home/circleci/project/bin/rds-ca-2019-root.pem /bin/rds-ca-2019-root.pem
 COPY --from=builder --chown=root:root /home/circleci/project/bin/milmove /bin/milmove

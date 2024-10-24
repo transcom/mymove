@@ -18,6 +18,7 @@ import (
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/handlers/ghcapi/internal/payloads"
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/models/roles"
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/storage"
 	"github.com/transcom/mymove/pkg/uploader"
@@ -315,6 +316,69 @@ func (h MoveCancelerHandler) Handle(params moveop.MoveCancelerParams) middleware
 		})
 }
 
+type DeleteAssignedOfficeUserHandler struct {
+	handlers.HandlerConfig
+	services.MoveAssignedOfficeUserUpdater
+}
+
+func (h DeleteAssignedOfficeUserHandler) Handle(params moveop.DeleteAssignedOfficeUserParams) middleware.Responder {
+	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
+		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
+			moveID := uuid.FromStringOrNil(params.MoveID.String())
+
+			role := getRole(*params.Body.RoleType)
+
+			move, err := h.MoveAssignedOfficeUserUpdater.DeleteAssignedOfficeUser(appCtx, moveID, role)
+			if err != nil {
+				appCtx.Logger().Error("Error updating move", zap.Error(err))
+				return moveop.NewDeleteAssignedOfficeUserInternalServerError(), err
+			}
+
+			payload, err := payloads.Move(move, h.FileStorer())
+			if err != nil {
+				return nil, err
+			}
+
+			return moveop.NewDeleteAssignedOfficeUserOK().WithPayload(payload), nil
+		})
+}
+
+type UpdateAssignedOfficeUserHandler struct {
+	handlers.HandlerConfig
+	services.MoveAssignedOfficeUserUpdater
+	officeUserFetcherPop services.OfficeUserFetcherPop
+}
+
+func (h UpdateAssignedOfficeUserHandler) Handle(params moveop.UpdateAssignedOfficeUserParams) middleware.Responder {
+	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
+		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
+			moveID := uuid.FromStringOrNil(params.MoveID.String())
+
+			role := getRole(*params.Body.RoleType)
+
+			officeUserID := uuid.FromStringOrNil(params.Body.OfficeUserID.String())
+
+			officeUser, err := h.officeUserFetcherPop.FetchOfficeUserByID(appCtx, officeUserID)
+			if err != nil {
+				appCtx.Logger().Error("Error fetching office user", zap.Error(err))
+				return moveop.NewUpdateAssignedOfficeUserNotFound(), err
+			}
+
+			move, err := h.MoveAssignedOfficeUserUpdater.UpdateAssignedOfficeUser(appCtx, moveID, &officeUser, role)
+			if err != nil {
+				appCtx.Logger().Error("Error updating move with an assigned office user", zap.Error(err))
+				return moveop.NewUpdateAssignedOfficeUserInternalServerError(), err
+			}
+
+			payload, err := payloads.Move(move, h.FileStorer())
+			if err != nil {
+				return nil, err
+			}
+
+			return moveop.NewUpdateAssignedOfficeUserOK().WithPayload(payload), nil
+		})
+}
+
 func payloadForUploadModelFromAdditionalDocumentsUpload(storer storage.FileStorer, upload models.Upload, url string) (*ghcmessages.Upload, error) {
 	uploadPayload := &ghcmessages.Upload{
 		ID:          handlers.FmtUUIDValue(upload.ID),
@@ -332,4 +396,18 @@ func payloadForUploadModelFromAdditionalDocumentsUpload(storer storage.FileStore
 		uploadPayload.Status = tags["av-status"]
 	}
 	return uploadPayload, nil
+}
+
+func getRole(role string) roles.RoleType {
+	var roleType roles.RoleType
+	switch role {
+	case "services_counselor":
+		roleType = roles.RoleTypeServicesCounselor
+	case "task_ordering_officer":
+		roleType = roles.RoleTypeTOO
+	case "task_invoicing_officer":
+		roleType = roles.RoleTypeTIO
+	}
+
+	return roleType
 }

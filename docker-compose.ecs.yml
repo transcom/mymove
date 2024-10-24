@@ -2,7 +2,7 @@ version: '3'
 
 services:
   database:
-    image: public.ecr.aws/docker/library/postgres:12.7
+    image: public.ecr.aws/docker/library/postgres:16.4
     environment:
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=mysecretpassword

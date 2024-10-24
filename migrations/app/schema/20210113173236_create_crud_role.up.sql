@@ -1,6 +1,6 @@
 -- Assume the master role, which has the ability to create roles and grant
 -- group membership to the rds_iam role.
-SET ROLE master;
+-- SET ROLE master;  --commented out because it's not needed for postgres16
 
 -- Create a new role named "crud" (CREATE READ UPDATE DELETE).
 -- Use NOINHERIT so that this low privileged user cannot assume the privileges

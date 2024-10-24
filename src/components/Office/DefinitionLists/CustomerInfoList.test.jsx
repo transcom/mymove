@@ -6,7 +6,7 @@ import CustomerInfoList from './CustomerInfoList';
 const info = {
   name: 'Smith, Kerry',
   agency: 'COAST_GUARD',
-  dodId: '9999999999',
+  edipi: '9999999999',
   emplid: '7777777',
   phone: '999-999-9999',
   altPhone: '888-888-8888',

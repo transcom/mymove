@@ -148,7 +148,7 @@ test.describe('Prime simulator user', () => {
     await page.locator('input[name="destinationAddress.city"]').fill('Joshua Tree');
     await page.locator('select[name="destinationAddress.state"]').selectOption({ label: 'CA' });
     await page.locator('input[name="destinationAddress.postalCode"]').fill('92252');
-    await page.getByTestId('dropdown').nth(1).selectOption('Home of record (HOR)');
+    await page.getByTestId('dropdown').nth(5).selectOption('Home of record (HOR)');
 
     await page.getByText('Save').click();
     await expect(page.getByText('Successfully updated shipment')).toHaveCount(1);

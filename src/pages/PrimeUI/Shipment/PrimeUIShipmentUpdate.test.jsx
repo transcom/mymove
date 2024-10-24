@@ -28,7 +28,6 @@ const routingParams = {
 
 jest.mock('services/primeApi', () => ({
   ...jest.requireActual('services/primeApi'),
-  updatePrimeMTOShipment: jest.fn().mockImplementation(() => Promise.resolve()),
   updatePrimeMTOShipmentV2: jest.fn().mockImplementation(() => Promise.resolve()),
   updatePrimeMTOShipmentV3: jest.fn().mockImplementation(() => Promise.resolve()),
 }));
@@ -453,31 +452,6 @@ describe('successful submission of form', () => {
       expect(mockNavigate).toHaveBeenCalledWith(moveDetailsURL);
     });
   });
-
-  /*
-  it('update shipment', async () => {
-    usePrimeSimulatorGetMove.mockReturnValue(missingPrimeUpdates);
-    updatePrimeMTOShipment.mockReturnValue({});
-
-    render(<PrimeUIShipmentUpdate />);
-
-    const actualPickupDateInput = await screen.findByLabelText('Actual pickup');
-    await userEvent.type(actualPickupDateInput, '2021-10-20');
-
-    const actualWeightInput = screen.getByLabelText(/Actual weight/);
-    await userEvent.type(actualWeightInput, "10000")
-
-    //const saveButton = await expect(screen.getByRole('button', { name: 'Save' })).toBeEnabled();
-    const saveButton = await screen.getByRole('button', { name: 'Save' });
-
-    expect(saveButton).not.toBeDisabled();
-    await userEvent.click(saveButton);
-
-    await waitFor(() => {
-      expect(mockPush).toHaveBeenCalledWith(moveDetailsURL);
-    });
-  });
-   */
 });
 
 const ppmMockedComponent = (

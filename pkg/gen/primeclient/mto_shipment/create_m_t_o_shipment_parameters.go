@@ -14,8 +14,6 @@ import (
 	"github.com/go-openapi/runtime"
 	cr "github.com/go-openapi/runtime/client"
 	"github.com/go-openapi/strfmt"
-
-	"github.com/transcom/mymove/pkg/gen/primemessages"
 )
 
 // NewCreateMTOShipmentParams creates a new CreateMTOShipmentParams object,
@@ -62,10 +60,6 @@ CreateMTOShipmentParams contains all the parameters to send to the API endpoint
 	Typically these are written to a http.Request.
 */
 type CreateMTOShipmentParams struct {
-
-	// Body.
-	Body *primemessages.CreateMTOShipment
-
 	timeout    time.Duration
 	Context    context.Context
 	HTTPClient *http.Client
@@ -119,17 +113,6 @@ func (o *CreateMTOShipmentParams) SetHTTPClient(client *http.Client) {
 	o.HTTPClient = client
 }
 
-// WithBody adds the body to the create m t o shipment params
-func (o *CreateMTOShipmentParams) WithBody(body *primemessages.CreateMTOShipment) *CreateMTOShipmentParams {
-	o.SetBody(body)
-	return o
-}
-
-// SetBody adds the body to the create m t o shipment params
-func (o *CreateMTOShipmentParams) SetBody(body *primemessages.CreateMTOShipment) {
-	o.Body = body
-}
-
 // WriteToRequest writes these params to a swagger request
 func (o *CreateMTOShipmentParams) WriteToRequest(r runtime.ClientRequest, reg strfmt.Registry) error {
 
@@ -137,11 +120,6 @@ func (o *CreateMTOShipmentParams) WriteToRequest(r runtime.ClientRequest, reg st
 		return err
 	}
 	var res []error
-	if o.Body != nil {
-		if err := r.SetBodyParam(o.Body); err != nil {
-			return err
-		}
-	}
 
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)

@@ -116,9 +116,9 @@ func (suite *SITStatusServiceSuite) TestShipmentSITStatus() {
 		suite.NotNil(sitStatus)
 		suite.Len(sitStatus.PastSITs, 1)
 		suite.Equal(dofsit.ID.String(), sitStatus.PastSITs[0].ServiceItems[0].ID.String())
-		suite.Equal(15, sitStatus.TotalSITDaysUsed)
-		suite.Equal(15, sitStatus.CalculatedTotalDaysInSIT)
-		suite.Equal(75, sitStatus.TotalDaysRemaining)
+		suite.Equal(16, sitStatus.TotalSITDaysUsed)
+		suite.Equal(16, sitStatus.CalculatedTotalDaysInSIT)
+		suite.Equal(74, sitStatus.TotalDaysRemaining)
 		suite.Nil(sitStatus.CurrentSIT) // No current SIT since all SIT items have departed status
 		// check that shipment values impacted by current SIT do not get updated since current SIT is nil
 		suite.Nil(shipment.DestinationSITAuthEndDate)
@@ -238,9 +238,9 @@ func (suite *SITStatusServiceSuite) TestShipmentSITStatus() {
 		suite.NotNil(sitStatus)
 
 		suite.Equal(OriginSITLocation, sitStatus.CurrentSIT.Location)
-		suite.Equal(23, sitStatus.TotalSITDaysUsed) // 15 days from previous SIT, 7 days from the current
-		suite.Equal(23, sitStatus.CalculatedTotalDaysInSIT)
-		suite.Equal(67, sitStatus.TotalDaysRemaining)
+		suite.Equal(24, sitStatus.TotalSITDaysUsed) // 15 days from previous SIT, 7 days from the current
+		suite.Equal(24, sitStatus.CalculatedTotalDaysInSIT)
+		suite.Equal(66, sitStatus.TotalDaysRemaining)
 		suite.Equal(8, sitStatus.CurrentSIT.DaysInSIT)
 		suite.Equal(aWeekAgo.String(), sitStatus.CurrentSIT.SITEntryDate.String())
 		suite.Nil(sitStatus.CurrentSIT.SITDepartureDate)
@@ -315,9 +315,9 @@ func (suite *SITStatusServiceSuite) TestShipmentSITStatus() {
 		suite.NotNil(sitStatus)
 
 		suite.Equal(DestinationSITLocation, sitStatus.CurrentSIT.Location)
-		suite.Equal(23, sitStatus.TotalSITDaysUsed) // 15 days from previous SIT, 7 days from the current
-		suite.Equal(23, sitStatus.CalculatedTotalDaysInSIT)
-		suite.Equal(67, sitStatus.TotalDaysRemaining)
+		suite.Equal(24, sitStatus.TotalSITDaysUsed) // 15 days from previous SIT, 7 days from the current
+		suite.Equal(24, sitStatus.CalculatedTotalDaysInSIT)
+		suite.Equal(66, sitStatus.TotalDaysRemaining)
 		suite.Equal(8, sitStatus.CurrentSIT.DaysInSIT)
 		suite.Equal(aWeekAgo.String(), sitStatus.CurrentSIT.SITEntryDate.String())
 		suite.Nil(sitStatus.CurrentSIT.SITDepartureDate)
@@ -328,6 +328,184 @@ func (suite *SITStatusServiceSuite) TestShipmentSITStatus() {
 		// check that shipment values impacted by current SIT get updated
 		suite.Equal(&sitStatus.CurrentSIT.SITAuthorizedEndDate, shipment.DestinationSITAuthEndDate)
 		suite.Nil(shipment.OriginSITAuthEndDate)
+	})
+
+	suite.Run("When a SIT is created and there are no more remaining authorized days, the new SIT created in violation defaults to the past SITs authorized end date", func() {
+		shipmentSITAllowance := int(90)
+		approvedShipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					Status:           models.MTOShipmentStatusApproved,
+					SITDaysAllowance: &shipmentSITAllowance,
+				},
+			},
+		}, nil)
+
+		ninetyOneDaysAgo := time.Now().AddDate(0, 0, -91).UTC().Truncate(24 * time.Hour)
+		yesterday := time.Now().AddDate(0, 0, -1).UTC().Truncate(24 * time.Hour)
+
+		// Create origin SIT that used all the allowance
+		pastDOFSIT := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model:    approvedShipment,
+				LinkOnly: true,
+			},
+			{
+				Model: models.MTOServiceItem{
+					SITEntryDate:     &ninetyOneDaysAgo,
+					SITDepartureDate: &yesterday,
+					Status:           models.MTOServiceItemStatusApproved,
+				},
+			},
+			{
+				Model: models.ReService{
+					Code: models.ReServiceCodeDOFSIT,
+				},
+			},
+		}, nil)
+
+		today := time.Now().UTC().Truncate(24 * time.Hour)
+		currentDDFSIT := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model:    approvedShipment,
+				LinkOnly: true,
+			},
+			{
+				Model: models.MTOServiceItem{
+					SITEntryDate: &today,
+					Status:       models.MTOServiceItemStatusApproved,
+				},
+			},
+			{
+				Model: models.ReService{
+					Code: models.ReServiceCodeDDFSIT,
+				},
+			},
+		}, nil)
+
+		approvedShipment.MTOServiceItems = models.MTOServiceItems{pastDOFSIT, currentDDFSIT}
+
+		sitStatus, _, err := sitStatusService.CalculateShipmentSITStatus(suite.AppContextForTest(), approvedShipment)
+		suite.NoError(err)
+		suite.NotNil(sitStatus)
+		suite.Equal(ninetyOneDaysAgo.AddDate(0, 0, shipmentSITAllowance-1).UTC().Truncate(24*time.Hour), sitStatus.CurrentSIT.SITAuthorizedEndDate)
+	})
+
+	suite.Run("current sit calculates all used allowance properly", func() {
+		// ensure that in the scenario that the SIT hasn't departed yet
+		// and it has used all its allowance, that it still presents an accurate
+		// authorized end date
+		shipmentSITAllowance := int(90)
+		approvedShipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					Status:           models.MTOShipmentStatusApproved,
+					SITDaysAllowance: &shipmentSITAllowance,
+				},
+			},
+		}, nil)
+
+		eightyNineDaysAgo := time.Now().AddDate(0, 0, -89).UTC().Truncate(24 * time.Hour)
+
+		// Create origin SIT that used all the allowance but has not yet departed
+		currentDOFSIT := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model:    approvedShipment,
+				LinkOnly: true,
+			},
+			{
+				Model: models.MTOServiceItem{
+					SITEntryDate: &eightyNineDaysAgo,
+					Status:       models.MTOServiceItemStatusApproved,
+				},
+			},
+			{
+				Model: models.ReService{
+					Code: models.ReServiceCodeDOFSIT,
+				},
+			},
+		}, nil)
+
+		today := time.Now().UTC().Truncate(24 * time.Hour)
+
+		approvedShipment.MTOServiceItems = models.MTOServiceItems{currentDOFSIT}
+
+		sitStatus, _, err := sitStatusService.CalculateShipmentSITStatus(suite.AppContextForTest(), approvedShipment)
+		suite.NoError(err)
+		suite.NotNil(sitStatus)
+		// Enforce that the authorized end date is today because it is the 90th day
+		suite.Equal(today, sitStatus.CurrentSIT.SITAuthorizedEndDate)
+	})
+
+	suite.Run("if the authorized end date is calculated with a remaining allowance of zero it will default to the entry date", func() {
+		// In the scenario that an authorized end date is calculated
+		// with zero remaining authorized allowance, when we go to subtract
+		// the last day to be inclusive, it will attempt to set
+		// the authorized end date to before the entry date.
+		// This ensures that this calculation will default to the entry date
+		// rather than going backwards.
+		shipmentSITAllowance := int(90)
+		approvedShipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					Status:           models.MTOShipmentStatusApproved,
+					SITDaysAllowance: &shipmentSITAllowance,
+				},
+			},
+		}, nil)
+
+		// Set past SIT date to fully use up the allowance
+		ninetyDaysAgo := time.Now().AddDate(0, 0, -90).UTC().Truncate(24 * time.Hour)
+		yesterday := time.Now().AddDate(0, 0, -1).UTC().Truncate(24 * time.Hour)
+
+		// Create origin SIT that used all the allowance
+		pastDOFSIT := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model:    approvedShipment,
+				LinkOnly: true,
+			},
+			{
+				Model: models.MTOServiceItem{
+					SITEntryDate:     &ninetyDaysAgo,
+					SITDepartureDate: &yesterday, // Count yesterday to equal 90 days used
+					Status:           models.MTOServiceItemStatusApproved,
+				},
+			},
+			{
+				Model: models.ReService{
+					Code: models.ReServiceCodeDOFSIT,
+				},
+			},
+		}, nil)
+
+		// Create a new SIT with no remaining allowance
+		today := time.Now().UTC().Truncate(24 * time.Hour)
+		currentDDFSIT := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model:    approvedShipment,
+				LinkOnly: true,
+			},
+			{
+				Model: models.MTOServiceItem{
+					SITEntryDate: &today,
+					Status:       models.MTOServiceItemStatusApproved,
+				},
+			},
+			{
+				Model: models.ReService{
+					Code: models.ReServiceCodeDDFSIT,
+				},
+			},
+		}, nil)
+
+		approvedShipment.MTOServiceItems = models.MTOServiceItems{pastDOFSIT, currentDDFSIT}
+
+		// Calculate SIT status
+		sitStatus, _, err := sitStatusService.CalculateShipmentSITStatus(suite.AppContextForTest(), approvedShipment)
+		suite.NoError(err)
+		suite.NotNil(sitStatus)
+
+		suite.Equal(sitStatus.CurrentSIT.SITEntryDate, sitStatus.CurrentSIT.SITAuthorizedEndDate)
 	})
 
 	suite.Run("excludes SIT service items that have not been approved by the TOO", func() {

@@ -291,6 +291,22 @@ func (suite *BoatShipmentSuite) TestValidationRules() {
 					},
 					"heightInInches",
 					"One of these criteria must be met for it to be a boat shipment: lengthInInches > 168, widthInInches > 82, or heightInInches > 77."},
+				{
+
+					"Invalid isRoadworthy Expected value",
+					models.BoatShipment{
+						ShipmentID:     shipmentID,
+						Year:           models.IntPointer(2000),
+						Make:           models.StringPointer("Boat Make"),
+						Model:          models.StringPointer("Boat Model"),
+						LengthInInches: models.IntPointer(1000),
+						WidthInInches:  models.IntPointer(10),
+						HeightInInches: models.IntPointer(10),
+						HasTrailer:     models.BoolPointer(true),
+						IsRoadworthy:   nil,
+					},
+					"isRoadworthy",
+					"isRoadworthy is required if hasTrailer is true"},
 			}
 
 			for _, tc := range testCases {

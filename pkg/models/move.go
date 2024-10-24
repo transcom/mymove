@@ -110,8 +110,9 @@ func (m Move) TableName() string {
 
 // MoveOptions is used when creating new moves based on parameters
 type MoveOptions struct {
-	Show   *bool
-	Status *MoveStatus
+	Show               *bool
+	Status             *MoveStatus
+	CounselingOfficeID *uuid.UUID
 }
 
 type Moves []Move
@@ -296,6 +297,9 @@ func createNewMove(db *pop.Connection,
 				ContractorID: &contractor.ID,
 				ReferenceID:  &referenceID,
 			}
+			if moveOptions.CounselingOfficeID != nil {
+				move.CounselingOfficeID = moveOptions.CounselingOfficeID
+			}
 			// only want safety moves move locators to start with SM, so try again
 			if strings.HasPrefix(move.Locator, "SM") {
 				continue
@@ -325,7 +329,9 @@ func createNewMove(db *pop.Connection,
 				ContractorID: &contractor.ID,
 				ReferenceID:  &referenceID,
 			}
-
+			if moveOptions.CounselingOfficeID != nil {
+				move.CounselingOfficeID = moveOptions.CounselingOfficeID
+			}
 			verrs, err := db.ValidateAndCreate(&move)
 			if verrs.HasAny() {
 				return nil, verrs, nil
@@ -531,12 +537,12 @@ func FetchMovesByOrderID(db *pop.Connection, orderID uuid.UUID) (Moves, error) {
 				moves[0].MTOShipments[0].PPMShipment.WeightTickets = filteredWeightTickets
 			}
 			// We do not need to consider deleted moving expenses
-			if moves[0].MTOShipments[0].PPMShipment.MovingExpenses != nil && len(moves[0].MTOShipments[0].PPMShipment.MovingExpenses) > 0 {
+			if len(moves[0].MTOShipments[0].PPMShipment.MovingExpenses) > 0 {
 				nonDeletedMovingExpenses := moves[0].MTOShipments[0].PPMShipment.MovingExpenses.FilterDeleted()
 				moves[0].MTOShipments[0].PPMShipment.MovingExpenses = nonDeletedMovingExpenses
 			}
 			// We do not need to consider deleted progear weight tickets
-			if moves[0].MTOShipments[0].PPMShipment.ProgearWeightTickets != nil && len(moves[0].MTOShipments[0].PPMShipment.ProgearWeightTickets) > 0 {
+			if len(moves[0].MTOShipments[0].PPMShipment.ProgearWeightTickets) > 0 {
 				nonDeletedProgearTickets := moves[0].MTOShipments[0].PPMShipment.ProgearWeightTickets.FilterDeleted()
 				moves[0].MTOShipments[0].PPMShipment.ProgearWeightTickets = nonDeletedProgearTickets
 			}
@@ -606,6 +612,18 @@ func GetTotalNetWeightForMove(m Move) unit.Pound {
 	}
 	return totalNetWeight
 
+}
+
+// gets total weight from all ppm and hhg shipments within a move
+func GetTotalNetWeightForMTOShipment(s MTOShipment) unit.Pound {
+	totalNetWeight := unit.Pound(0)
+	if s.ShipmentType == MTOShipmentTypePPM && s.PPMShipment != nil {
+		totalNetWeight += GetPPMNetWeight(*s.PPMShipment)
+	} else if s.PrimeActualWeight != nil {
+		totalNetWeight += *s.PrimeActualWeight
+	}
+
+	return totalNetWeight
 }
 
 // HasPPM returns true if at least one shipment type is "PPM" associated with the move, false otherwise

@@ -112,7 +112,66 @@ func (suite *PaperworkSuite) TestPDFFromImages() {
 	suite.FatalNil(err)
 	f, err := os.CreateTemp(tmpDir, "")
 	suite.FatalNil(err)
-	err = os.WriteFile(f.Name(), file, os.ModePerm)
+	err = os.WriteFile(f.Name(), file, 0600)
+	suite.FatalNil(err)
+	err = api.ExtractImagesFile(f.Name(), tmpDir, []string{"-2"}, generator.pdfConfig)
+	suite.FatalNil(err)
+	err = os.Remove(f.Name())
+	suite.FatalNil(err)
+
+	checksums := make([]string, 2)
+	files, err := os.ReadDir(tmpDir)
+	suite.FatalNil(err)
+
+	suite.Equal(4, len(files), "did not find 2 images")
+
+	for _, file := range files {
+		checksum, sha256ForPathErr := suite.sha256ForPath(path.Join(tmpDir, file.Name()), nil)
+		suite.FatalNil(sha256ForPathErr, "error calculating hash")
+		if sha256ForPathErr != nil {
+			suite.FailNow(sha256ForPathErr.Error())
+		}
+		checksums = append(checksums, checksum)
+	}
+
+	orders1Checksum, err := suite.sha256ForPath("testdata/orders1.jpg", generator.fs)
+	suite.Nil(err, "error calculating hash")
+	suite.Contains(checksums, orders1Checksum, "did not find hash for orders1.jpg")
+
+	orders2Checksum, err := suite.sha256ForPath("testdata/orders2.jpg", generator.fs)
+	suite.Nil(err, "error calculating hash")
+	suite.Contains(checksums, orders2Checksum, "did not find hash for orders2.jpg")
+}
+
+func (suite *PaperworkSuite) TestPDFFromImagesNoRotation() {
+	generator, newGeneratorErr := NewGenerator(suite.userUploader.Uploader())
+	suite.FatalNil(newGeneratorErr)
+
+	images := []inputFile{
+		{Path: "testdata/orders1.jpg", ContentType: uploader.FileTypeJPEG},
+		{Path: "testdata/orders2.jpg", ContentType: uploader.FileTypeJPEG},
+	}
+	for _, image := range images {
+		_, err := suite.openLocalFile(image.Path, generator.fs)
+		suite.FatalNil(err)
+	}
+
+	generatedPath, err := generator.PDFFromImagesNoRotation(suite.AppContextForTest(), images)
+	suite.FatalNil(err, "failed to generate pdf")
+	aferoFile, err := generator.fs.Open(generatedPath)
+	suite.FatalNil(err, "afero failed to open pdf")
+
+	suite.NotEmpty(generatedPath, "got an empty path to the generated file")
+	suite.FatalNil(err)
+
+	// verify that the images are in the pdf by extracting them and checking their checksums
+	file, err := afero.ReadAll(aferoFile)
+	suite.FatalNil(err)
+	tmpDir, err := os.MkdirTemp("", "images")
+	suite.FatalNil(err)
+	f, err := os.CreateTemp(tmpDir, "")
+	suite.FatalNil(err)
+	err = os.WriteFile(f.Name(), file, 0600)
 	suite.FatalNil(err)
 	err = api.ExtractImagesFile(f.Name(), tmpDir, []string{"-2"}, generator.pdfConfig)
 	suite.FatalNil(err)
@@ -187,7 +246,7 @@ func (suite *PaperworkSuite) TestGenerateUploadsPDF() {
 
 	uploads, err := models.UploadsFromUserUploads(suite.DB(), order.UploadedOrders.UserUploads)
 	suite.FatalNil(err)
-	paths, err := generator.ConvertUploadsToPDF(suite.AppContextForTest(), uploads)
+	paths, err := generator.ConvertUploadsToPDF(suite.AppContextForTest(), uploads, true)
 	suite.FatalNil(err)
 
 	suite.Equal(3, len(paths), "wrong number of paths returned")

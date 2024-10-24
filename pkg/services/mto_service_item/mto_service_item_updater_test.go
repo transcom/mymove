@@ -40,9 +40,9 @@ func (suite *MTOServiceItemServiceSuite) TestMTOServiceItemUpdater() {
 	moveRouter := moverouter.NewMoveRouter()
 	shipmentFetcher := mtoshipment.NewMTOShipmentFetcher()
 	addressCreator := address.NewAddressCreator()
-	planner := &mocks.Planner{}
 	sitStatusService := sitstatus.NewShipmentSITStatus()
 
+	planner := &mocks.Planner{}
 	planner.On("ZipTransitDistance",
 		mock.AnythingOfType("*appcontext.appContext"),
 		mock.Anything,
@@ -477,8 +477,8 @@ func (suite *MTOServiceItemServiceSuite) TestMTOServiceItemUpdater() {
 		var postUpdatedServiceItemShipment models.MTOShipment
 		suite.DB().Q().Find(&postUpdatedServiceItemShipment, shipment.ID)
 		suite.NotNil(postUpdatedServiceItemShipment)
-		// Verify the departure date is before the original shipment authorized end date
-		suite.True(updatedServiceItem.SITDepartureDate.Before(*shipmentWithCalculatedStatus.DestinationSITAuthEndDate))
+		// Verify the departure date is equal to the shipment SIT status departure date (Previously shipment SIT status would have an improper end date due to calc issues. This was fixed in B-20967)
+		suite.True(updatedServiceItem.SITDepartureDate.Equal(*shipmentWithCalculatedStatus.DestinationSITAuthEndDate))
 		// Verify the updated shipment authorized end date is equal to the departure date
 		// Truncate to the nearest day. This is because the shipment only inherits the day, month, year from the service item, not the hour, minute, or second
 		suite.True(updatedServiceItem.SITDepartureDate.Truncate(24 * time.Hour).Equal(postUpdatedServiceItemShipment.DestinationSITAuthEndDate.Truncate(24 * time.Hour)))
@@ -604,8 +604,8 @@ func (suite *MTOServiceItemServiceSuite) TestMTOServiceItemUpdater() {
 		var postUpdatedServiceItemShipment models.MTOShipment
 		suite.DB().Q().Find(&postUpdatedServiceItemShipment, shipment.ID)
 		suite.NotNil(postUpdatedServiceItemShipment)
-		// Verify the departure date is before the original shipment authorized end date
-		suite.True(updatedServiceItem.SITDepartureDate.Before(*shipmentWithCalculatedStatus.OriginSITAuthEndDate))
+		// Verify the departure date is equal to the shipment SIT status departure date (Previously shipment SIT status would have an improper end date due to calc issues. This was fixed in B-20967)
+		suite.True(updatedServiceItem.SITDepartureDate.Equal(*shipmentWithCalculatedStatus.OriginSITAuthEndDate))
 		// Verify the updated shipment authorized end date is equal to the departure date
 		// Truncate to the nearest day. This is because the shipment only inherits the day, month, year from the service item, not the hour, minute, or second
 		suite.True(updatedServiceItem.SITDepartureDate.Truncate(24 * time.Hour).Equal(postUpdatedServiceItemShipment.OriginSITAuthEndDate.Truncate(24 * time.Hour)))

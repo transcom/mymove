@@ -8,9 +8,10 @@ import styles from './ShipmentList.module.scss';
 
 import { shipmentTypes, WEIGHT_ADJUSTMENT } from 'constants/shipments';
 import { SHIPMENT_OPTIONS, SHIPMENT_TYPES } from 'shared/constants';
+import { getShipmentTypeLabel } from 'utils/shipmentDisplay';
 import { ShipmentShape } from 'types/shipment';
 import { formatWeight } from 'utils/formatters';
-import { isPPMShipmentComplete, isBoatShipmentComplete } from 'utils/shipments';
+import { isPPMShipmentComplete, isBoatShipmentComplete, isMobileHomeShipmentComplete } from 'utils/shipments';
 import { shipmentIsOverweight } from 'utils/shipmentWeights';
 import ToolTip from 'shared/ToolTip/ToolTip';
 
@@ -26,6 +27,7 @@ export const ShipmentListItem = ({
   isOverweight,
   isMissingWeight,
 }) => {
+  const isMobileHome = shipment.shipmentType === SHIPMENT_OPTIONS.MOBILE_HOME;
   const isPPM = shipment.shipmentType === SHIPMENT_OPTIONS.PPM;
   const isBoat =
     shipment.shipmentType === SHIPMENT_TYPES.BOAT_TOW_AWAY || shipment.shipmentType === SHIPMENT_TYPES.BOAT_HAUL_AWAY;
@@ -36,6 +38,7 @@ export const ShipmentListItem = ({
     [styles[`shipment-list-item-HHG`]]: shipment.shipmentType === SHIPMENT_OPTIONS.HHG,
     [styles[`shipment-list-item-PPM`]]: isPPM,
     [styles[`shipment-list-item-Boat`]]: isBoat,
+    [styles[`shipment-list-item-MobileHome`]]: isMobileHome,
   });
   const estimated = 'Estimated';
   const actual = 'Actual';
@@ -57,7 +60,7 @@ export const ShipmentListItem = ({
     >
       <div>
         <strong>
-          {shipmentTypes[shipment.shipmentType]}
+          {getShipmentTypeLabel(shipment.shipmentType)}
           {showNumber && ` ${shipmentNumber}`}
         </strong>{' '}
         <br />
@@ -189,6 +192,10 @@ const ShipmentList = ({ shipments, onShipmentClick, onDeleteClick, moveSubmitted
 
           case SHIPMENT_OPTIONS.BOAT:
             isIncomplete = !isBoatShipmentComplete(shipment);
+            break;
+
+          case SHIPMENT_OPTIONS.MOBILE_HOME.replace('_', ''):
+            isIncomplete = !isMobileHomeShipmentComplete(shipment);
             break;
 
           default:

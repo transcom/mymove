@@ -10,6 +10,18 @@ import (
 	"github.com/gofrs/uuid"
 )
 
+// OfficeUserStatus represents the status of an office user
+type OfficeUserStatus string
+
+const (
+	// OfficeUserStatusAPPROVED captures enum value "APPROVED"
+	OfficeUserStatusAPPROVED OfficeUserStatus = "APPROVED"
+	// OfficeUserStatusREJECTED captures enum value "REJECTED"
+	OfficeUserStatusREJECTED OfficeUserStatus = "REJECTED"
+	// OfficeUserStatusREQUESTED captures enum value "REQUESTED"
+	OfficeUserStatusREQUESTED OfficeUserStatus = "REQUESTED"
+)
+
 // OfficeUser is someone who works in one of the TransportationOffices
 type OfficeUser struct {
 	ID                     uuid.UUID            `json:"id" db:"id"`
@@ -25,7 +37,7 @@ type OfficeUser struct {
 	CreatedAt              time.Time            `json:"created_at" db:"created_at"`
 	UpdatedAt              time.Time            `json:"updated_at" db:"updated_at"`
 	Active                 bool                 `json:"active" db:"active"`
-	Status                 *string              `json:"status" db:"status"`
+	Status                 *OfficeUserStatus    `json:"status" db:"status"`
 	EDIPI                  *string              `json:"edipi" db:"edipi"`
 	OtherUniqueID          *string              `json:"other_unique_id" db:"other_unique_id"`
 	RejectionReason        *string              `json:"rejection_reason" db:"rejection_reason"`

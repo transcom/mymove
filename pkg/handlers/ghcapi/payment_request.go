@@ -2,6 +2,7 @@ package ghcapi
 
 import (
 	"fmt"
+	"io"
 	"reflect"
 	"time"
 
@@ -259,5 +260,41 @@ func (h ShipmentsSITBalanceHandler) Handle(
 			payload := payloads.ShipmentsPaymentSITBalance(shipmentSITBalances)
 
 			return paymentrequestop.NewGetShipmentsPaymentSITBalanceOK().WithPayload(payload), nil
+		})
+}
+
+type PaymentRequestBulkDownloadHandler struct {
+	handlers.HandlerConfig
+	services.PaymentRequestBulkDownloadCreator
+}
+
+func (h PaymentRequestBulkDownloadHandler) Handle(params paymentrequestop.BulkDownloadParams) middleware.Responder {
+	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
+		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
+			logger := appCtx.Logger()
+
+			paymentRequestID, err := uuid.FromString(params.PaymentRequestID)
+			if err != nil {
+				errInstance := fmt.Sprintf("Instance: %s", h.GetTraceIDFromRequest(params.HTTPRequest))
+
+				errPayload := &ghcmessages.Error{Message: &errInstance}
+
+				appCtx.Logger().Error(err.Error())
+				return paymentrequestop.NewBulkDownloadBadRequest().WithPayload(errPayload), err
+			}
+
+			paymentRequestPacket, err := h.PaymentRequestBulkDownloadCreator.CreatePaymentRequestBulkDownload(appCtx, paymentRequestID)
+			if err != nil {
+				logger.Error("Error creating Payment Request Downloads Packet", zap.Error(err))
+				errInstance := fmt.Sprintf("Instance: %s", h.GetTraceIDFromRequest(params.HTTPRequest))
+				errPayload := &ghcmessages.Error{Message: &errInstance}
+				return paymentrequestop.NewBulkDownloadInternalServerError().
+					WithPayload(errPayload), err
+			}
+
+			payload := io.NopCloser(paymentRequestPacket)
+			filename := fmt.Sprintf("inline; filename=\"PaymentRequestBulkPacket-%s.pdf\"", time.Now().Format("01-02-2006_15-04-05"))
+
+			return paymentrequestop.NewBulkDownloadOK().WithContentDisposition(filename).WithPayload(payload), nil
 		})
 }

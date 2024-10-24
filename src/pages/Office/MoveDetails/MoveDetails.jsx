@@ -29,13 +29,15 @@ import LeftNavTag from 'components/LeftNavTag/LeftNavTag';
 import Restricted from 'components/Restricted/Restricted';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
-import { SHIPMENT_OPTIONS_URL } from 'shared/constants';
+import { SHIPMENT_OPTIONS_URL, FEATURE_FLAG_KEYS } from 'shared/constants';
 import { SIT_EXTENSION_STATUS } from 'constants/sitExtensions';
 import { ORDERS_TYPE } from 'constants/orders';
 import { permissionTypes } from 'constants/permissions';
 import { objectIsMissingFieldWithCondition } from 'utils/displayFlags';
+import { isBooleanFlagEnabled } from 'utils/featureFlags';
 import formattedCustomerName from 'utils/formattedCustomerName';
 import { calculateEstimatedWeight } from 'hooks/custom';
+import { ADVANCE_STATUSES } from 'constants/ppms';
 
 const errorIfMissing = {
   HHG_INTO_NTS_DOMESTIC: [
@@ -49,6 +51,14 @@ const errorIfMissing = {
     { fieldName: 'serviceOrderNumber' },
     { fieldName: 'tacType' },
   ],
+  PPM: [
+    {
+      fieldName: 'advanceStatus',
+      condition: (mtoShipment) =>
+        mtoShipment?.ppmShipment?.hasRequestedAdvance === true &&
+        mtoShipment?.ppmShipment?.advanceStatus !== ADVANCE_STATUSES.APPROVED.apiValue,
+    },
+  ],
 };
 
 const MoveDetails = ({
@@ -56,14 +66,19 @@ const MoveDetails = ({
   setUnapprovedServiceItemCount,
   setExcessWeightRiskCount,
   setUnapprovedSITExtensionCount,
+  setShipmentErrorConcernCount,
+  shipmentErrorConcernCount,
   setShipmentsWithDeliveryAddressUpdateRequestedCount,
+  missingOrdersInfoCount,
+  setMissingOrdersInfoCount,
   isMoveLocked,
 }) => {
   const { moveCode } = useParams();
   const [isFinancialModalVisible, setIsFinancialModalVisible] = useState(false);
-  const [shipmentMissingRequiredInformation, setShipmentMissingRequiredInformation] = useState(false);
   const [alertMessage, setAlertMessage] = useState(null);
   const [alertType, setAlertType] = useState('success');
+  const [enableBoat, setEnableBoat] = useState(false);
+  const [enableMobileHome, setEnableMobileHome] = useState(false);
 
   const navigate = useNavigate();
 
@@ -169,6 +184,14 @@ const MoveDetails = ({
   };
 
   useEffect(() => {
+    const fetchData = async () => {
+      setEnableBoat(await isBooleanFlagEnabled(FEATURE_FLAG_KEYS.BOAT));
+      setEnableMobileHome(await isBooleanFlagEnabled(FEATURE_FLAG_KEYS.MOBILE_HOME));
+    };
+    fetchData();
+  }, []);
+
+  useEffect(() => {
     const shipmentCount = shipmentWithDestinationAddressChangeRequest?.length || 0;
     if (setShipmentsWithDeliveryAddressUpdateRequestedCount)
       setShipmentsWithDeliveryAddressUpdateRequestedCount(shipmentCount);
@@ -222,21 +245,43 @@ const MoveDetails = ({
   }, [mtoShipments, setUnapprovedSITExtensionCount]);
 
   useEffect(() => {
-    let shipmentIsMissingInformation = false;
+    let numberOfErrorIfMissingForAllShipments = 0;
 
     mtoShipments?.forEach((mtoShipment) => {
-      const fieldsToCheckForShipment = errorIfMissing[mtoShipment.shipmentType];
-      const existsMissingFieldsOnShipment = fieldsToCheckForShipment?.some((field) =>
-        objectIsMissingFieldWithCondition(mtoShipment, field),
-      );
+      const errorIfMissingList = errorIfMissing[mtoShipment.shipmentType];
 
-      // If there were no fields to check, then nothing was required.
-      if (fieldsToCheckForShipment && existsMissingFieldsOnShipment) {
-        shipmentIsMissingInformation = true;
+      if (errorIfMissingList) {
+        errorIfMissingList.forEach((fieldToCheck) => {
+          if (objectIsMissingFieldWithCondition(mtoShipment, fieldToCheck)) {
+            numberOfErrorIfMissingForAllShipments += 1;
+          }
+        });
       }
     });
-    setShipmentMissingRequiredInformation(shipmentIsMissingInformation);
-  }, [mtoShipments]);
+    setShipmentErrorConcernCount(numberOfErrorIfMissingForAllShipments);
+  }, [mtoShipments, setShipmentErrorConcernCount]);
+
+  // using useMemo here due to this being used in a useEffect
+  // using useMemo prevents the useEffect from being rendered on ever render by memoizing the object
+  // so that it only recognizes the change when the orders object changes
+  const requiredOrdersInfo = useMemo(
+    () => ({
+      ordersNumber: order?.order_number || '',
+      ordersType: order?.order_type || '',
+      ordersTypeDetail: order?.order_type_detail || '',
+      tacMDC: order?.tac || '',
+      departmentIndicator: order?.department_indicator || '',
+    }),
+    [order],
+  );
+
+  // Keep num of missing orders info synced up
+  useEffect(() => {
+    const ordersInfoCount = Object.values(requiredOrdersInfo).reduce((count, value) => {
+      return !value ? count + 1 : count;
+    }, 0);
+    setMissingOrdersInfoCount(ordersInfoCount);
+  }, [order, requiredOrdersInfo, setMissingOrdersInfoCount]);
 
   if (isLoading) return <LoadingPlaceholder />;
   if (isError) return <SomethingWentWrong />;
@@ -284,7 +329,7 @@ const MoveDetails = ({
   const customerInfo = {
     name: formattedCustomerName(customer.last_name, customer.first_name, customer.suffix, customer.middle_name),
     agency: customer.agency,
-    dodId: customer.dodID,
+    edipi: customer.edipi,
     emplid: customer.emplid,
     phone: customer.phone,
     altPhone: customer.secondaryTelephone,
@@ -294,29 +339,37 @@ const MoveDetails = ({
     backupContact: customer.backup_contact,
   };
 
-  const requiredOrdersInfo = {
-    ordersNumber: order.order_number,
-    ordersType: order.order_type,
-    ordersTypeDetail: order.order_type_detail,
-    tacMDC: order.tac,
-  };
-
   const hasMissingOrdersRequiredInfo = Object.values(requiredOrdersInfo).some((value) => !value || value === '');
   const hasAmendedOrders = ordersInfo.uploadedAmendedOrderID && !ordersInfo.amendedOrdersAcknowledgedAt;
   const hasDestinationAddressUpdate =
     shipmentWithDestinationAddressChangeRequest && shipmentWithDestinationAddressChangeRequest.length > 0;
+
+  const allowedShipmentOptions = () => {
+    return (
+      <>
+        <option data-testid="hhgOption" value={SHIPMENT_OPTIONS_URL.HHG}>
+          HHG
+        </option>
+        <option value={SHIPMENT_OPTIONS_URL.PPM}>PPM</option>
+        <option value={SHIPMENT_OPTIONS_URL.NTS}>NTS</option>
+        <option value={SHIPMENT_OPTIONS_URL.NTSrelease}>NTS-release</option>
+        {enableBoat && <option value={SHIPMENT_OPTIONS_URL.BOAT}>Boat</option>}
+        {enableMobileHome && <option value={SHIPMENT_OPTIONS_URL.MOBILE_HOME}>Mobile Home</option>}
+      </>
+    );
+  };
 
   return (
     <div className={styles.tabContent}>
       <div className={styles.container}>
         <LeftNav sections={sections}>
           <LeftNavTag
-            className="usa-tag usa-tag--alert"
+            background="#e34b11"
             associatedSectionName="orders"
-            showTag={hasMissingOrdersRequiredInfo}
+            showTag={missingOrdersInfoCount !== 0}
             testID="tag"
           >
-            <FontAwesomeIcon icon="exclamation" />
+            {missingOrdersInfoCount}
           </LeftNavTag>
           <LeftNavTag
             associatedSectionName="orders"
@@ -327,18 +380,18 @@ const MoveDetails = ({
           </LeftNavTag>
           <LeftNavTag
             associatedSectionName="requested-shipments"
-            showTag={!shipmentMissingRequiredInformation}
+            showTag={submittedShipments?.length > 0}
             testID="requestedShipmentsTag"
           >
             {submittedShipments?.length || 0}
           </LeftNavTag>
           <LeftNavTag
-            className="usa-tag usa-tag--alert"
+            background="#e34b11"
             associatedSectionName="requested-shipments"
-            showTag={shipmentMissingRequiredInformation}
+            showTag={shipmentErrorConcernCount !== 0}
             testID="shipment-missing-info-alert"
           >
-            <FontAwesomeIcon icon="exclamation" />
+            {shipmentErrorConcernCount}
           </LeftNavTag>
           <LeftNavTag
             associatedSectionName="approved-shipments"
@@ -389,12 +442,7 @@ const MoveDetails = ({
                 <option value="" label="Add a new shipment">
                   Add a new shipment
                 </option>
-                <option data-testid="hhgOption" value={SHIPMENT_OPTIONS_URL.HHG}>
-                  HHG
-                </option>
-                <option value={SHIPMENT_OPTIONS_URL.PPM}>PPM</option>
-                <option value={SHIPMENT_OPTIONS_URL.NTS}>NTS</option>
-                <option value={SHIPMENT_OPTIONS_URL.NTSrelease}>NTS-release</option>
+                {allowedShipmentOptions()}
               </ButtonDropdown>
             </Restricted>
           )}
@@ -512,6 +560,7 @@ MoveDetails.propTypes = {
   setUnapprovedServiceItemCount: func.isRequired,
   setExcessWeightRiskCount: func.isRequired,
   setUnapprovedSITExtensionCount: func.isRequired,
+  setShipmentErrorConcernCount: func.isRequired,
   setShipmentsWithDeliveryAddressUpdateRequestedCount: func,
 };
 

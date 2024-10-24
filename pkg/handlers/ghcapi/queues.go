@@ -367,6 +367,7 @@ func (h GetServicesCounselingQueueHandler) Handle(
 				CloseoutLocation:        params.CloseoutLocation,
 				OrderType:               params.OrderType,
 				PPMStatus:               params.PpmStatus,
+				CounselingOffice:        params.CounselingOffice,
 			}
 
 			if params.NeedsPPMCloseout != nil && *params.NeedsPPMCloseout {

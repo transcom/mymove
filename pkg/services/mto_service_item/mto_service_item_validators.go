@@ -27,6 +27,13 @@ var UpdateMTOServiceItemValidators = map[string]updateMTOServiceItemValidator{
 	UpdateMTOServiceItemPrimeValidator: new(primeUpdateMTOServiceItemValidator),
 }
 
+// Manual updates to SIT Departure dates are allowed for these service items
+var (
+	OriginReServiceCodesAllowedForSITDepartureDateUpdate      = []models.ReServiceCode{models.ReServiceCodeDOPSIT, models.ReServiceCodeDOFSIT, models.ReServiceCodeDOASIT}
+	DestinationReServiceCodesAllowedForSITDepartureDateUpdate = []models.ReServiceCode{models.ReServiceCodeDDDSIT, models.ReServiceCodeDDASIT}
+	ReServiceCodesAllowedForSITDepartureDateUpdate            = append(DestinationReServiceCodesAllowedForSITDepartureDateUpdate, OriginReServiceCodesAllowedForSITDepartureDateUpdate...)
+)
+
 var allSITServiceItemsToCheck = []models.ReServiceCode{
 	models.ReServiceCodeDDDSIT,
 	models.ReServiceCodeDDASIT,
@@ -44,13 +51,6 @@ var destSITServiceItems = []models.ReServiceCode{
 	models.ReServiceCodeDDFSIT,
 	models.ReServiceCodeDDSFSC,
 }
-
-// Manual updates to SIT Departure dates are allowed for these service items
-var (
-	OriginReServiceCodesAllowedForSITDepartureDateUpdate      = []models.ReServiceCode{models.ReServiceCodeDOPSIT, models.ReServiceCodeDOFSIT, models.ReServiceCodeDOASIT}
-	DestinationReServiceCodesAllowedForSITDepartureDateUpdate = []models.ReServiceCode{models.ReServiceCodeDDDSIT, models.ReServiceCodeDDASIT}
-	ReServiceCodesAllowedForSITDepartureDateUpdate            = append(DestinationReServiceCodesAllowedForSITDepartureDateUpdate, OriginReServiceCodesAllowedForSITDepartureDateUpdate...)
-)
 
 type updateMTOServiceItemValidator interface {
 	validate(appCtx appcontext.AppContext, serviceItemData *updateMTOServiceItemData) error
@@ -124,15 +124,21 @@ func (v *primeUpdateMTOServiceItemValidator) validate(appCtx appcontext.AppConte
 		return err
 	}
 
+	// Checks that the SITDepartureDate
+	// - is not later than the authorized end date
+	err = serviceItemData.checkSITDepartureDate(appCtx)
+	if err != nil {
+		return err
+	}
+
 	// Checks that only SIT Entry Date occurs AFTER the FADD
 	err = serviceItemData.checkSITEntryDateAndFADD(appCtx)
 	if err != nil {
 		return err
 	}
 
-	// Checks that the SITDepartureDate
-	// - is not before the current entry date
-	err = serviceItemData.checkSITDepartureDate(appCtx)
+	// Checks that only SIT Entry Date occurs AFTER the FADD
+	err = serviceItemData.checkSITEntryDateAndFADD(appCtx)
 	if err != nil {
 		return err
 	}
@@ -393,7 +399,6 @@ func (v *updateMTOServiceItemData) checkNonPrimeFields(_ appcontext.AppContext) 
 // checkSITDeparture checks that the service item is a DDDSIT or DOPSIT if the user is trying to update the
 // SITDepartureDate
 func (v *updateMTOServiceItemData) checkSITDeparture(_ appcontext.AppContext) error {
-
 	if v.updatedServiceItem.SITDepartureDate == nil || v.updatedServiceItem.SITDepartureDate == v.oldServiceItem.SITDepartureDate {
 		return nil // the SITDepartureDate isn't being updated, so we're fine here
 	}

@@ -147,20 +147,20 @@ describe('Pickup info page', () => {
 
       renderBoatShipmentLocationInfo();
 
-      expect(await screen.findByLabelText('Preferred pickup date')).toHaveValue('01 Aug 2021');
+      expect(await screen.findByLabelText(/Preferred pickup date/)).toHaveValue('01 Aug 2021');
       expect(screen.getByLabelText('Use my current address')).not.toBeChecked();
-      expect(screen.getAllByLabelText('Address 1')[0]).toHaveValue('812 S 129th St');
+      expect(screen.getAllByLabelText(/Address 1/)[0]).toHaveValue('812 S 129th St');
       expect(screen.getAllByLabelText(/Address 2/)[0]).toHaveValue('');
-      expect(screen.getAllByLabelText('City')[0]).toHaveValue('San Antonio');
-      expect(screen.getAllByLabelText('State')[0]).toHaveValue('TX');
-      expect(screen.getAllByLabelText('ZIP')[0]).toHaveValue('78234');
-      expect(screen.getByLabelText('Preferred delivery date')).toHaveValue('11 Aug 2021');
+      expect(screen.getAllByLabelText(/City/)[0]).toHaveValue('San Antonio');
+      expect(screen.getAllByLabelText(/State/)[0]).toHaveValue('TX');
+      expect(screen.getAllByLabelText(/ZIP/)[0]).toHaveValue('78234');
+      expect(screen.getByLabelText(/Preferred delivery date/)).toHaveValue('11 Aug 2021');
       expect(screen.getByTitle('Yes, I know my delivery address')).toBeChecked();
-      expect(screen.getAllByLabelText('Address 1')[1]).toHaveValue('441 SW Rio de la Plata Drive');
+      expect(screen.getAllByLabelText(/Address 1/)[1]).toHaveValue('441 SW Rio de la Plata Drive');
       expect(screen.getAllByLabelText(/Address 2/)[1]).toHaveValue('');
-      expect(screen.getAllByLabelText('City')[1]).toHaveValue('Tacoma');
-      expect(screen.getAllByLabelText('State')[1]).toHaveValue('WA');
-      expect(screen.getAllByLabelText('ZIP')[1]).toHaveValue('98421');
+      expect(screen.getAllByLabelText(/City/)[1]).toHaveValue('Tacoma');
+      expect(screen.getAllByLabelText(/State/)[1]).toHaveValue('WA');
+      expect(screen.getAllByLabelText(/ZIP/)[1]).toHaveValue('98421');
     },
   );
 
@@ -222,7 +222,7 @@ describe('Pickup info page', () => {
 
     renderBoatShipmentLocationInfo({ isCreatePage: false, mtoShipment: mockMTOShipment });
 
-    const pickupAddress1Input = screen.getAllByLabelText('Address 1')[0];
+    const pickupAddress1Input = screen.getAllByLabelText(/Address 1/)[0];
     await userEvent.clear(pickupAddress1Input);
     await userEvent.type(pickupAddress1Input, shipmentInfo.pickupAddress.streetAddress1);
 
@@ -230,14 +230,14 @@ describe('Pickup info page', () => {
     await userEvent.clear(pickupAddress2Input);
     await userEvent.type(pickupAddress2Input, shipmentInfo.pickupAddress.streetAddress2);
 
-    const pickupCityInput = screen.getAllByLabelText('City')[0];
+    const pickupCityInput = screen.getAllByLabelText(/City/)[0];
     await userEvent.clear(pickupCityInput);
     await userEvent.type(pickupCityInput, shipmentInfo.pickupAddress.city);
 
-    const pickupStateInput = screen.getAllByLabelText('State')[0];
+    const pickupStateInput = screen.getAllByLabelText(/State/)[0];
     await userEvent.selectOptions(pickupStateInput, shipmentInfo.pickupAddress.state);
 
-    const pickupPostalCodeInput = screen.getAllByLabelText('ZIP')[0];
+    const pickupPostalCodeInput = screen.getAllByLabelText(/ZIP/)[0];
     await userEvent.clear(pickupPostalCodeInput);
     await userEvent.type(pickupPostalCodeInput, shipmentInfo.pickupAddress.postalCode);
 

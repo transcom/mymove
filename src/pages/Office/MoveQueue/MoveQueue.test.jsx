@@ -7,7 +7,7 @@ import { render, screen, waitFor } from '@testing-library/react';
 import MoveQueue from './MoveQueue';
 
 import { MockProviders } from 'testUtils';
-import { MOVE_STATUS_OPTIONS } from 'constants/queues';
+import { MOVE_STATUS_OPTIONS, BRANCH_OPTIONS } from 'constants/queues';
 import { generalRoutes, tooRoutes } from 'constants/routes';
 import { isBooleanFlagEnabled } from 'utils/featureFlags';
 
@@ -22,6 +22,71 @@ jest.mock('utils/featureFlags', () => ({
   ...jest.requireActual('utils/featureFlags'),
   isBooleanFlagEnabled: jest.fn().mockImplementation(() => Promise.resolve()),
 }));
+
+const moveData = [
+  {
+    id: 'move1',
+    customer: {
+      agency: 'AIR_FORCE',
+      first_name: 'test first',
+      last_name: 'test last',
+      dodID: '555555555',
+    },
+    locator: 'AB5P',
+    departmentIndicator: 'ARMY',
+    shipmentsCount: 2,
+    status: 'SUBMITTED',
+    originDutyLocation: {
+      name: 'Area 51',
+    },
+    originGBLOC: 'EEEE',
+    requestedMoveDate: '2023-02-10',
+    appearedInTooAt: '2023-02-10T00:00:00.000Z',
+    lockExpiresAt: '2099-02-10T00:00:00.000Z',
+    lockedByOfficeUserID: '2744435d-7ba8-4cc5-bae5-f302c72c966e',
+  },
+  {
+    id: 'move2',
+    customer: {
+      agency: 'COAST_GUARD',
+      first_name: 'test another first',
+      last_name: 'test another last',
+      dodID: '4444444444',
+      emplid: '4589652',
+    },
+    locator: 'T12A',
+    departmentIndicator: 'COAST_GUARD',
+    shipmentsCount: 1,
+    status: 'APPROVED',
+    originDutyLocation: {
+      name: 'Los Alamos',
+    },
+    originGBLOC: 'EEEE',
+    requestedMoveDate: '2023-02-12',
+    appearedInTooAt: '2023-02-12T00:00:00.000Z',
+  },
+  {
+    id: 'move3',
+    customer: {
+      agency: 'Marine Corps',
+      first_name: 'will',
+      last_name: 'robinson',
+      dodID: '6666666666',
+    },
+    locator: 'PREP',
+    departmentIndicator: 'MARINES',
+    shipmentsCount: 1,
+    status: 'SUBMITTED',
+    originDutyLocation: {
+      name: 'Area 52',
+    },
+    originGBLOC: 'EEEE',
+    requestedMoveDate: '2023-03-12',
+    appearedInTooAt: '2023-03-12T00:00:00.000Z',
+    lockExpiresAt: '2099-03-12T00:00:00.000Z',
+    lockedByOfficeUserID: '2744435d-7ba8-4cc5-bae5-f302c72c966e',
+  },
+];
 
 jest.mock('hooks/queries', () => ({
   useUserQueries: () => {
@@ -38,50 +103,8 @@ jest.mock('hooks/queries', () => ({
       isLoading: false,
       isError: false,
       queueResult: {
-        totalCount: 2,
-        data: [
-          {
-            id: 'move1',
-            customer: {
-              agency: 'AIR_FORCE',
-              first_name: 'test first',
-              last_name: 'test last',
-              dodID: '555555555',
-            },
-            locator: 'AB5P',
-            departmentIndicator: 'ARMY',
-            shipmentsCount: 2,
-            status: 'SUBMITTED',
-            originDutyLocation: {
-              name: 'Area 51',
-            },
-            originGBLOC: 'EEEE',
-            requestedMoveDate: '2023-02-10',
-            appearedInTooAt: '2023-02-10T00:00:00.000Z',
-            lockExpiresAt: '2099-02-10T00:00:00.000Z',
-            lockedByOfficeUserID: '2744435d-7ba8-4cc5-bae5-f302c72c966e',
-          },
-          {
-            id: 'move2',
-            customer: {
-              agency: 'COAST_GUARD',
-              first_name: 'test another first',
-              last_name: 'test another last',
-              dodID: '4444444444',
-              emplid: '4589652',
-            },
-            locator: 'T12A',
-            departmentIndicator: 'COAST_GUARD',
-            shipmentsCount: 1,
-            status: 'APPROVED',
-            originDutyLocation: {
-              name: 'Los Alamos',
-            },
-            originGBLOC: 'EEEE',
-            requestedMoveDate: '2023-02-12',
-            appearedInTooAt: '2023-02-12T00:00:00.000Z',
-          },
-        ],
+        totalCount: 3,
+        data: moveData,
       },
     };
   },
@@ -103,7 +126,7 @@ describe('MoveQueue', () => {
   });
 
   it('should render the h1', () => {
-    expect(GetMountedComponent(tooRoutes.MOVE_QUEUE).find('h1').text()).toBe('All moves (2)');
+    expect(GetMountedComponent(tooRoutes.MOVE_QUEUE).find('h1').text()).toBe('All moves (3)');
   });
 
   it('should render the table', () => {
@@ -111,32 +134,89 @@ describe('MoveQueue', () => {
   });
 
   it('should format the column data', () => {
+    let currentIndex = 0;
+    let currentMove;
     const moves = GetMountedComponent(tooRoutes.MOVE_QUEUE).find('tbody tr');
 
-    const firstMove = moves.at(0);
-    expect(firstMove.find({ 'data-testid': 'lastName-0' }).text()).toBe('test last, test first');
-    expect(firstMove.find({ 'data-testid': 'dodID-0' }).text()).toBe('555555555');
-    expect(firstMove.find({ 'data-testid': 'status-0' }).text()).toBe('New move');
-    expect(firstMove.find({ 'data-testid': 'locator-0' }).text()).toBe('AB5P');
-    expect(firstMove.find({ 'data-testid': 'branch-0' }).text()).toBe('Air Force');
-    expect(firstMove.find({ 'data-testid': 'shipmentsCount-0' }).text()).toBe('2');
-    expect(firstMove.find({ 'data-testid': 'originDutyLocation-0' }).text()).toBe('Area 51');
-    expect(firstMove.find({ 'data-testid': 'originGBLOC-0' }).text()).toBe('EEEE');
-    expect(firstMove.find({ 'data-testid': 'requestedMoveDate-0' }).text()).toBe('10 Feb 2023');
-    expect(firstMove.find({ 'data-testid': 'appearedInTooAt-0' }).text()).toBe('10 Feb 2023');
+    currentMove = moves.at(currentIndex);
+    expect(currentMove.find({ 'data-testid': `lastName-${currentIndex}` }).text()).toBe(
+      `${moveData[currentIndex].customer.last_name}, ${moveData[currentIndex].customer.first_name}`,
+    );
+    expect(currentMove.find({ 'data-testid': `dodID-${currentIndex}` }).text()).toBe(
+      moveData[currentIndex].customer.dodID,
+    );
+    expect(currentMove.find({ 'data-testid': `status-${currentIndex}` }).text()).toBe('New move');
+    expect(currentMove.find({ 'data-testid': `locator-${currentIndex}` }).text()).toBe(moveData[currentIndex].locator);
+    expect(currentMove.find({ 'data-testid': `branch-${currentIndex}` }).text()).toBe(
+      BRANCH_OPTIONS.find((value) => value.value === moveData[currentIndex].customer.agency).label,
+    );
+    expect(currentMove.find({ 'data-testid': `shipmentsCount-${currentIndex}` }).text()).toBe(
+      moveData[currentIndex].shipmentsCount.toString(),
+    );
+    expect(currentMove.find({ 'data-testid': `originDutyLocation-${currentIndex}` }).text()).toBe(
+      moveData[currentIndex].originDutyLocation.name,
+    );
+    expect(currentMove.find({ 'data-testid': `originGBLOC-${currentIndex}` }).text()).toBe(
+      moveData[currentIndex].originGBLOC,
+    );
+    expect(currentMove.find({ 'data-testid': `requestedMoveDate-${currentIndex}` }).text()).toBe('10 Feb 2023');
+    expect(currentMove.find({ 'data-testid': `appearedInTooAt-${currentIndex}` }).text()).toBe('10 Feb 2023');
 
-    const secondMove = moves.at(1);
-    expect(secondMove.find({ 'data-testid': 'lastName-1' }).text()).toBe('test another last, test another first');
-    expect(secondMove.find({ 'data-testid': 'dodID-1' }).text()).toBe('4444444444');
-    expect(secondMove.find({ 'data-testid': 'emplid-1' }).text()).toBe('4589652');
-    expect(secondMove.find({ 'data-testid': 'status-1' }).text()).toBe('Move approved');
-    expect(secondMove.find({ 'data-testid': 'locator-1' }).text()).toBe('T12A');
-    expect(secondMove.find({ 'data-testid': 'branch-1' }).text()).toBe('Coast Guard');
-    expect(secondMove.find({ 'data-testid': 'shipmentsCount-1' }).text()).toBe('1');
-    expect(secondMove.find({ 'data-testid': 'originDutyLocation-1' }).text()).toBe('Los Alamos');
-    expect(secondMove.find({ 'data-testid': 'originGBLOC-1' }).text()).toBe('EEEE');
-    expect(secondMove.find({ 'data-testid': 'requestedMoveDate-1' }).text()).toBe('12 Feb 2023');
-    expect(secondMove.find({ 'data-testid': 'appearedInTooAt-1' }).text()).toBe('12 Feb 2023');
+    currentIndex += 1;
+    currentMove = moves.at(currentIndex);
+    expect(currentMove.find({ 'data-testid': `lastName-${currentIndex}` }).text()).toBe(
+      'test another last, test another first',
+    );
+    expect(currentMove.find({ 'data-testid': `lastName-${currentIndex}` }).text()).toBe(
+      `${moveData[currentIndex].customer.last_name}, ${moveData[currentIndex].customer.first_name}`,
+    );
+    expect(currentMove.find({ 'data-testid': `dodID-${currentIndex}` }).text()).toBe(
+      moveData[currentIndex].customer.dodID,
+    );
+    expect(currentMove.find({ 'data-testid': `emplid-${currentIndex}` }).text()).toBe(
+      moveData[currentIndex].customer.emplid,
+    );
+    expect(currentMove.find({ 'data-testid': `status-${currentIndex}` }).text()).toBe('Move approved');
+    expect(currentMove.find({ 'data-testid': `locator-${currentIndex}` }).text()).toBe(moveData[currentIndex].locator);
+    expect(currentMove.find({ 'data-testid': `branch-${currentIndex}` }).text()).toBe(
+      BRANCH_OPTIONS.find((value) => value.value === moveData[currentIndex].customer.agency).label,
+    );
+    expect(currentMove.find({ 'data-testid': `shipmentsCount-${currentIndex}` }).text()).toBe(
+      moveData[currentIndex].shipmentsCount.toString(),
+    );
+    expect(currentMove.find({ 'data-testid': `originDutyLocation-${currentIndex}` }).text()).toBe(
+      moveData[currentIndex].originDutyLocation.name,
+    );
+    expect(currentMove.find({ 'data-testid': `originGBLOC-${currentIndex}` }).text()).toBe(
+      moveData[currentIndex].originGBLOC,
+    );
+    expect(currentMove.find({ 'data-testid': `requestedMoveDate-${currentIndex}` }).text()).toBe('12 Feb 2023');
+    expect(currentMove.find({ 'data-testid': `appearedInTooAt-${currentIndex}` }).text()).toBe('12 Feb 2023');
+
+    currentIndex += 1;
+    currentMove = moves.at(currentIndex);
+    expect(currentMove.find({ 'data-testid': `lastName-${currentIndex}` }).text()).toBe(
+      `${moveData[currentIndex].customer.last_name}, ${moveData[currentIndex].customer.first_name}`,
+    );
+    expect(currentMove.find({ 'data-testid': `dodID-${currentIndex}` }).text()).toBe(
+      moveData[currentIndex].customer.dodID,
+    );
+    expect(currentMove.find({ 'data-testid': `status-${currentIndex}` }).text()).toBe('New move');
+    expect(currentMove.find({ 'data-testid': `locator-${currentIndex}` }).text()).toBe(moveData[currentIndex].locator);
+    expect(currentMove.find({ 'data-testid': `branch-${currentIndex}` }).text()).toBe(
+      moveData[currentIndex].customer.agency.toString(),
+    );
+    expect(currentMove.find({ 'data-testid': `shipmentsCount-${currentIndex}` }).text()).toBe(
+      moveData[currentIndex].shipmentsCount.toString(),
+    );
+    expect(currentMove.find({ 'data-testid': `originDutyLocation-${currentIndex}` }).text()).toBe(
+      moveData[currentIndex].originDutyLocation.name,
+    );
+    expect(currentMove.find({ 'data-testid': `originGBLOC-${currentIndex}` }).text()).toBe(
+      moveData[currentIndex].originGBLOC,
+    );
+    expect(currentMove.find({ 'data-testid': `requestedMoveDate-${currentIndex}` }).text()).toBe('12 Mar 2023');
+    expect(currentMove.find({ 'data-testid': `appearedInTooAt-${currentIndex}` }).text()).toBe('12 Mar 2023');
   });
 
   it('should render the pagination component', () => {
@@ -249,7 +329,7 @@ describe('MoveQueue', () => {
       </reactRouterDom.BrowserRouter>,
     );
     await waitFor(() => {
-      const lockIcon = screen.queryByTestId('lock-icon');
+      const lockIcon = screen.queryAllByTestId('lock-icon')[0];
       expect(lockIcon).toBeInTheDocument();
     });
   });

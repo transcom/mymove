@@ -18,6 +18,10 @@ type MovingExpenseDeleter struct {
 func (_m *MovingExpenseDeleter) DeleteMovingExpense(appCtx appcontext.AppContext, ppmID uuid.UUID, movingExpenseID uuid.UUID) error {
 	ret := _m.Called(appCtx, ppmID, movingExpenseID)
 
+	if len(ret) == 0 {
+		panic("no return value specified for DeleteMovingExpense")
+	}
+
 	var r0 error
 	if rf, ok := ret.Get(0).(func(appcontext.AppContext, uuid.UUID, uuid.UUID) error); ok {
 		r0 = rf(appCtx, ppmID, movingExpenseID)

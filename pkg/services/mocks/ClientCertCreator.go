@@ -20,6 +20,10 @@ type ClientCertCreator struct {
 func (_m *ClientCertCreator) CreateClientCert(appCtx appcontext.AppContext, email string, user *models.ClientCert) (*models.ClientCert, *validate.Errors, error) {
 	ret := _m.Called(appCtx, email, user)
 
+	if len(ret) == 0 {
+		panic("no return value specified for CreateClientCert")
+	}
+
 	var r0 *models.ClientCert
 	var r1 *validate.Errors
 	var r2 error

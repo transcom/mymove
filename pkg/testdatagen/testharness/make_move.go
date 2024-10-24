@@ -3792,6 +3792,107 @@ func MakeHHGMoveNeedsSC(appCtx appcontext.AppContext) models.Move {
 	return *newmove
 }
 
+// MakeBoatHaulAwayMoveNeedsSC creates an fully ready move with a boat haul-away shipment needing SC approval
+func MakeBoatHaulAwayMoveNeedsSC(appCtx appcontext.AppContext) models.Move {
+	userUploader := newUserUploader(appCtx)
+
+	userInfo := newUserInfo("customer")
+	moveInfo := scenario.MoveCreatorInfo{
+		UserID:      uuid.Must(uuid.NewV4()),
+		Email:       userInfo.email,
+		SmID:        uuid.Must(uuid.NewV4()),
+		FirstName:   userInfo.firstName,
+		LastName:    userInfo.lastName,
+		MoveID:      uuid.Must(uuid.NewV4()),
+		MoveLocator: models.GenerateLocator(),
+	}
+
+	moveRouter := moverouter.NewMoveRouter()
+
+	move := scenario.CreateBoatHaulAwayMoveForSC(appCtx, userUploader, moveRouter, moveInfo)
+
+	// re-fetch the move so that we ensure we have exactly what is in
+	// the db
+	newmove, err := models.FetchMove(appCtx.DB(), &auth.Session{}, move.ID)
+	if err != nil {
+		log.Panic(fmt.Errorf("failed to fetch move: %w", err))
+	}
+
+	return *newmove
+}
+
+// MakeBoatHaulAwayMoveNeedsTOOApproval creates an fully ready move with a boat haul-away shipment needing SC approval
+func MakeBoatHaulAwayMoveNeedsTOOApproval(appCtx appcontext.AppContext) models.Move {
+	userUploader := newUserUploader(appCtx)
+
+	userInfo := newUserInfo("customer")
+	moveInfo := scenario.MoveCreatorInfo{
+		UserID:      uuid.Must(uuid.NewV4()),
+		Email:       userInfo.email,
+		SmID:        uuid.Must(uuid.NewV4()),
+		FirstName:   userInfo.firstName,
+		LastName:    userInfo.lastName,
+		MoveID:      uuid.Must(uuid.NewV4()),
+		MoveLocator: models.GenerateLocator(),
+	}
+
+	moveRouter := moverouter.NewMoveRouter()
+
+	move := scenario.CreateBoatHaulAwayMoveForTOO(appCtx, userUploader, moveRouter, moveInfo)
+
+	// re-fetch the move so that we ensure we have exactly what is in
+	// the db
+	newmove, err := models.FetchMove(appCtx.DB(), &auth.Session{}, move.ID)
+	if err != nil {
+		log.Panic(fmt.Errorf("failed to fetch move: %w", err))
+	}
+
+	return *newmove
+}
+
+// MakeHHGMoveNeedsSC creates an fully ready move needing SC approval
+func MakeMobileHomeMoveNeedsSC(appCtx appcontext.AppContext) models.Move {
+	locator := models.GenerateLocator()
+	move := scenario.CreateMoveWithMTOShipment(appCtx, internalmessages.OrdersTypePERMANENTCHANGEOFSTATION, models.MTOShipmentTypeMobileHome, nil, locator, models.MoveStatusNeedsServiceCounseling)
+
+	// re-fetch the move so that we ensure we have exactly what is in
+	// the db
+	newmove, err := models.FetchMove(appCtx.DB(), &auth.Session{}, move.ID)
+	if err != nil {
+		log.Panic(fmt.Errorf("failed to fetch move: %w", err))
+	}
+	return *newmove
+}
+
+func MakeMobileHomeMoveForTOO(appCtx appcontext.AppContext) models.Move {
+	hhg := models.MTOShipmentTypeHHG
+	hor := models.DestinationTypeHomeOfRecord
+	originDutyLocation := factory.FetchOrBuildCurrentDutyLocation(appCtx.DB())
+	move := scenario.CreateMoveWithOptions(appCtx, testdatagen.Assertions{
+		Order: models.Order{
+			OriginDutyLocation: &originDutyLocation,
+		},
+		MTOShipment: models.MTOShipment{
+			ShipmentType:    hhg,
+			DestinationType: &hor,
+		},
+		Move: models.Move{
+			Status: models.MoveStatusSUBMITTED,
+		},
+		DutyLocation: models.DutyLocation{
+			ProvidesServicesCounseling: false,
+		},
+	})
+
+	// re-fetch the move so that we ensure we have exactly what is in
+	// the db
+	newmove, err := models.FetchMove(appCtx.DB(), &auth.Session{}, move.ID)
+	if err != nil {
+		log.Panic(fmt.Errorf("failed to fetch move: %w", err))
+	}
+	return *newmove
+}
+
 // MakeHHGMoveNeedsServicesCounselingUSMC creates an fully ready move as USMC needing SC approval
 func MakeHHGMoveNeedsServicesCounselingUSMC(appCtx appcontext.AppContext) models.Move {
 	userUploader := newUserUploader(appCtx)
@@ -5317,6 +5418,123 @@ func MakeHHGMoveInSIT(appCtx appcontext.AppContext) models.Move {
 	oneMonthAgo := now.AddDate(0, 0, -30)
 	factory.BuildOriginSITServiceItems(appCtx.DB(), move, shipment, &twoMonthsAgo, &oneMonthAgo)
 	factory.BuildDestSITServiceItems(appCtx.DB(), move, shipment, &oneMonthAgo, nil)
+
+	return move
+}
+
+// Creates an HHG move with a past Origin and Destination SIT
+func HHGMoveWithPastSITs(appCtx appcontext.AppContext) models.Move {
+	userUploader := newUserUploader(appCtx)
+	userInfo := newUserInfo("customer")
+
+	user := factory.BuildUser(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.User{
+				OktaEmail: userInfo.email,
+				Active:    true,
+			},
+		},
+	}, nil)
+	customer := factory.BuildExtendedServiceMember(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.ServiceMember{
+				PersonalEmail: &userInfo.email,
+				FirstName:     &userInfo.firstName,
+				LastName:      &userInfo.lastName,
+				CacValidated:  true,
+			},
+		},
+		{
+			Model:    user,
+			LinkOnly: true,
+		},
+	}, nil)
+	dependentsAuthorized := true
+	sitDaysAllowance := 90
+	entitlements := factory.BuildEntitlement(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.Entitlement{
+				DependentsAuthorized: &dependentsAuthorized,
+				StorageInTransit:     &sitDaysAllowance,
+			},
+		},
+	}, nil)
+	orders := factory.BuildOrder(appCtx.DB(), []factory.Customization{
+		{
+			Model:    customer,
+			LinkOnly: true,
+		},
+		{
+			Model:    entitlements,
+			LinkOnly: true,
+		},
+		{
+			Model: models.UserUpload{},
+			ExtendedParams: &factory.UserUploadExtendedParams{
+				UserUploader: userUploader,
+				AppContext:   appCtx,
+			},
+		},
+	}, nil)
+	now := time.Now()
+	move := factory.BuildMove(appCtx.DB(), []factory.Customization{
+		{
+			Model:    orders,
+			LinkOnly: true,
+		},
+		{
+			Model: models.Move{
+				Status:             models.MoveStatusAPPROVALSREQUESTED,
+				AvailableToPrimeAt: &now,
+			},
+		},
+	}, nil)
+	estimatedWeight := unit.Pound(1400)
+	actualWeight := unit.Pound(2000)
+
+	requestedPickupDate := now.AddDate(0, 3, 0)
+	requestedDeliveryDate := requestedPickupDate.AddDate(0, 1, 0)
+	// pickupAddress := factory.BuildAddress(appCtx.DB(), nil, nil)
+
+	shipment := factory.BuildMTOShipment(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.MTOShipment{
+				PrimeEstimatedWeight:  &estimatedWeight,
+				PrimeActualWeight:     &actualWeight,
+				ShipmentType:          models.MTOShipmentTypeHHG,
+				Status:                models.MTOShipmentStatusApproved,
+				RequestedPickupDate:   &requestedPickupDate,
+				RequestedDeliveryDate: &requestedDeliveryDate,
+				SITDaysAllowance:      &sitDaysAllowance,
+			},
+		},
+		{
+			Model:    move,
+			LinkOnly: true,
+		},
+	}, nil)
+
+	agentUserInfo := newUserInfo("agent")
+	factory.BuildMTOAgent(appCtx.DB(), []factory.Customization{
+		{
+			Model:    shipment,
+			LinkOnly: true,
+		},
+		{Model: models.MTOAgent{
+			FirstName:    &agentUserInfo.firstName,
+			LastName:     &agentUserInfo.lastName,
+			Email:        &agentUserInfo.email,
+			MTOAgentType: models.MTOAgentReleasing,
+		},
+		},
+	}, nil)
+
+	fourMonthsAgo := now.AddDate(0, 0, -120)
+	threeMonthsAgo := now.AddDate(0, 0, -90)
+	twoMonthsAgo := now.AddDate(0, 0, -60)
+	oneMonthAgo := now.AddDate(0, 0, -30)
+	factory.BuildOriginSITServiceItems(appCtx.DB(), move, shipment, &fourMonthsAgo, &threeMonthsAgo)
+	factory.BuildDestSITServiceItems(appCtx.DB(), move, shipment, &twoMonthsAgo, &oneMonthAgo)
 
 	return move
 }

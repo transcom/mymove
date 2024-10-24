@@ -2,12 +2,22 @@
 import React from 'react';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { QueryClientProvider, QueryClient } from '@tanstack/react-query';
 
 import DocumentViewer from './DocumentViewer';
 import samplePDF from './sample.pdf';
 import sampleJPG from './sample.jpg';
 import samplePNG from './sample2.png';
 import sampleGIF from './sample3.gif';
+
+import { bulkDownloadPaymentRequest } from 'services/ghcApi';
+
+const toggleMenuClass = () => {
+  const container = document.querySelector('[data-testid="menuButtonContainer"]');
+  if (container) {
+    container.className = container.className === 'closed' ? 'open' : 'closed';
+  }
+};
 
 const mockFiles = [
   {
@@ -30,6 +40,7 @@ const mockFiles = [
     contentType: 'image/png',
     url: samplePNG,
     createdAt: '2021-06-15T15:09:26.979879Z',
+    rotation: 1,
   },
   {
     id: 4,
@@ -37,133 +48,168 @@ const mockFiles = [
     contentType: 'image/gif',
     url: sampleGIF,
     createdAt: '2021-06-16T15:09:26.979879Z',
+    rotation: 3,
   },
 ];
 
+jest.mock('services/ghcApi', () => ({
+  ...jest.requireActual('services/ghcApi'),
+  bulkDownloadPaymentRequest: jest.fn(),
+}));
+
+jest.mock('./Content/Content', () => ({
+  __esModule: true,
+  default: ({ id, filename, contentType, url, createdAt, rotation }) => (
+    <div>
+      <div data-testid="documentTitle">
+        {filename} Uploaded on {createdAt}
+      </div>
+      <div>id: {id || 'undefined'}</div>
+      <div>fileName: {filename || 'undefined'}</div>
+      <div>contentType: {contentType || 'undefined'}</div>
+      <div>url: {url || 'undefined'}</div>
+      <div>createdAt: {createdAt || 'undefined'}</div>
+      <div>rotation: {rotation || 'undefined'}</div>
+      <div data-testid="listOfFiles">
+        <ul>
+          {mockFiles.map((file) => (
+            <li key={file.id}>
+              {file.filename} - Added on {file.createdAt}
+            </li>
+          ))}
+        </ul>
+      </div>
+      <div data-testid="menuButtonContainer" className="closed">
+        <button
+          data-testid="menuButton"
+          onClick={() => {
+            toggleMenuClass();
+          }}
+          type="button"
+        >
+          Toggle
+        </button>
+      </div>
+    </div>
+  ),
+}));
+
 describe('DocumentViewer component', () => {
   it('initial state is closed menu and first file selected', async () => {
-    render(<DocumentViewer files={mockFiles} />);
-    const docMenu = await screen.findByTestId('DocViewerMenu');
+    render(
+      <QueryClientProvider client={new QueryClient()}>
+        <DocumentViewer files={mockFiles} />
+      </QueryClientProvider>,
+    );
 
-    expect(docMenu.className).toContain('collapsed');
+    const selectedFileTitle = await screen.getAllByTestId('documentTitle')[0];
+    expect(selectedFileTitle.textContent).toEqual('Test File 4.gif - Added on 16 Jun 2021');
 
-    // Files are ordered by createdAt date before being rendered.
-    const firstFile = screen.getByRole('button', { name: 'Test File 4.gif Uploaded on 16-Jun-2021' });
-    expect(firstFile.className).toContain('active');
+    const menuButtonContainer = await screen.findByTestId('menuButtonContainer');
+    expect(menuButtonContainer.className).toContain('closed');
   });
 
   it('renders the file creation date with the correctly sorted props', async () => {
-    render(<DocumentViewer files={mockFiles} />);
+    render(
+      <QueryClientProvider client={new QueryClient()}>
+        <DocumentViewer files={mockFiles} />
+      </QueryClientProvider>,
+    );
 
     const files = screen.getAllByRole('listitem');
 
-    expect(files[0].textContent).toEqual('Test File 4.gif Uploaded on 16-Jun-2021');
+    expect(files[0].textContent).toContain('Test File 4.gif - Added on 2021-06-16T15:09:26.979879Z');
   });
 
   it('renders the title bar with the correct props', async () => {
-    render(<DocumentViewer files={mockFiles} />);
+    render(
+      <QueryClientProvider client={new QueryClient()}>
+        <DocumentViewer files={mockFiles} />
+      </QueryClientProvider>,
+    );
 
-    const title = await screen.findByTestId('documentTitle');
+    const title = await screen.getAllByTestId('documentTitle')[0];
 
-    expect(title.textContent).toEqual('Test File 4.gif - Added on 16 Jun 2021');
+    expect(title.textContent).toContain('Test File 4.gif - Added on 16 Jun 2021');
   });
 
   it('handles the open menu button', async () => {
-    render(<DocumentViewer files={mockFiles} />);
+    render(
+      <QueryClientProvider client={new QueryClient()}>
+        <DocumentViewer files={mockFiles} />
+      </QueryClientProvider>,
+    );
 
-    const openMenuButton = await screen.findByTestId('openMenu');
+    const openMenuButton = await screen.findByTestId('menuButton');
 
     await userEvent.click(openMenuButton);
 
-    const docMenu = screen.getByTestId('DocViewerMenu');
-
-    await waitFor(() => {
-      expect(docMenu.className).not.toContain('collapsed');
-    });
+    const menuButtonContainer = await screen.findByTestId('menuButtonContainer');
+    expect(menuButtonContainer.className).toContain('open');
   });
 
   it('handles the close menu button', async () => {
-    render(<DocumentViewer files={mockFiles} />);
+    render(
+      <QueryClientProvider client={new QueryClient()}>
+        <DocumentViewer files={mockFiles} />
+      </QueryClientProvider>,
+    );
 
     // defaults to closed so we need to open it first.
-    const openMenuButton = await screen.findByTestId('openMenu');
+    const openMenuButton = await screen.findByTestId('menuButton');
 
     await userEvent.click(openMenuButton);
 
-    const docMenu = screen.getByTestId('DocViewerMenu');
-
-    await waitFor(() => {
-      expect(docMenu.className).not.toContain('collapsed');
-    });
-
-    const closeMenuButton = await screen.findByTestId('closeMenu');
-
-    await userEvent.click(closeMenuButton);
-
-    await waitFor(() => expect(docMenu.className).toContain('collapsed'));
-  });
-
-  it.each([
-    ['Test File 3.png Uploaded on 15-Jun-2021', 'Test File 3.png - Added on 15 Jun 2021'],
-    // ['Test File.pdf Uploaded on 14-Jun-2021', 'Test File.pdf - Added on 14 Jun 2021'],  // TODO: figure out why this isn't working...
-    ['Test File 2.jpg Uploaded on 12-Jun-2021', 'Test File 2.jpg - Added on 12 Jun 2021'],
-  ])('handles selecting a different file (%s)', async (buttonText, titleText) => {
-    render(<DocumentViewer files={mockFiles} />);
-
-    // defaults to closed so we need to open it first.
-    const openMenuButton = await screen.findByTestId('openMenu');
+    const menuButtonContainer = await screen.findByTestId('menuButtonContainer');
+    expect(menuButtonContainer.className).toContain('open');
 
     await userEvent.click(openMenuButton);
 
-    const docMenu = screen.getByTestId('DocViewerMenu');
-
-    expect(docMenu.className).not.toContain('collapsed');
-
-    const otherFile = await screen.findByRole('button', { name: buttonText });
-
-    await userEvent.click(otherFile);
-
-    expect(docMenu.className).toContain('collapsed');
-
-    const title = await screen.findByTestId('documentTitle');
-
-    expect(title.textContent).toEqual(titleText);
-
-    await waitFor(() => expect(screen.queryByText('is not supported')).not.toBeInTheDocument());
+    expect(menuButtonContainer.className).toContain('closed');
   });
 
   it('shows error if file type is unsupported', async () => {
     render(
-      <DocumentViewer files={[{ id: 99, filename: 'archive.zip', contentType: 'zip', url: '/path/to/archive.zip' }]} />,
+      <QueryClientProvider client={new QueryClient()}>
+        <DocumentViewer
+          files={[{ id: 99, filename: 'archive.zip', contentType: 'zip', url: '/path/to/archive.zip' }]}
+        />
+      </QueryClientProvider>,
     );
 
-    // defaults to closed so we need to open it first.
-    const openMenuButton = await screen.findByTestId('openMenu');
+    expect(screen.getByText('id: undefined')).toBeInTheDocument();
+  });
 
-    await userEvent.click(openMenuButton);
+  describe('when clicking download Download All Files button', () => {
+    it('downloads a bulk packet', async () => {
+      const mockResponse = {
+        ok: true,
+        headers: {
+          'content-disposition': 'filename="test.pdf"',
+        },
+        status: 200,
+        data: null,
+      };
 
-    const docMenu = screen.getByTestId('DocViewerMenu');
+      render(
+        <QueryClientProvider client={new QueryClient()}>
+          <DocumentViewer
+            files={[
+              { id: 99, filename: 'archive.zip', contentType: 'zip', url: 'path/to/archive.zip' },
+              { id: 99, filename: 'archive.zip', contentType: 'zip', url: 'path/to/archive.zip' },
+            ]}
+            paymentRequestId="PaymentRequestId"
+          />
+        </QueryClientProvider>,
+      );
 
-    await waitFor(() => {
-      expect(docMenu.className).not.toContain('collapsed');
+      bulkDownloadPaymentRequest.mockImplementation(() => Promise.resolve(mockResponse));
+
+      const downloadButton = screen.getByText('Download All Files (PDF)', { exact: false });
+      await userEvent.click(downloadButton);
+      await waitFor(() => {
+        expect(bulkDownloadPaymentRequest).toHaveBeenCalledTimes(1);
+      });
     });
-
-    const docContent = screen.getByTestId('DocViewerContent');
-
-    expect(docContent.textContent).toEqual(
-      'No preview available for this kind of file.Download file to see the contents.',
-    );
-  });
-
-  it('displays file not found for empty files array', async () => {
-    render(<DocumentViewer />);
-
-    expect(await screen.findByRole('heading', { name: 'File Not Found' })).toBeInTheDocument();
-  });
-
-  it('shows the download link option when allowDownload is true', async () => {
-    render(<DocumentViewer files={mockFiles} allowDownload />);
-
-    expect(await screen.findByText('Download file')).toBeInTheDocument();
   });
 });

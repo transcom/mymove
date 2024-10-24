@@ -18,6 +18,10 @@ type MoveTaskOrderChecker struct {
 func (_m *MoveTaskOrderChecker) MTOAvailableToPrime(appCtx appcontext.AppContext, moveTaskOrderID uuid.UUID) (bool, error) {
 	ret := _m.Called(appCtx, moveTaskOrderID)
 
+	if len(ret) == 0 {
+		panic("no return value specified for MTOAvailableToPrime")
+	}
+
 	var r0 bool
 	var r1 error
 	if rf, ok := ret.Get(0).(func(appcontext.AppContext, uuid.UUID) (bool, error)); ok {

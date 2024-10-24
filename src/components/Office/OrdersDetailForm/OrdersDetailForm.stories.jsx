@@ -272,6 +272,7 @@ export const Separatee = () => (
               ordersType="SEPARATION"
               setFieldValue={formik.setFieldValue}
               payGradeOptions={payGradeOptions}
+              touched={formik.touched}
             />
           </form>
         );

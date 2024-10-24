@@ -1,5 +1,5 @@
 import classnames from 'classnames';
-import React from 'react';
+import { React, useState } from 'react';
 import PropTypes from 'prop-types';
 import { Formik } from 'formik';
 import * as Yup from 'yup';
@@ -37,6 +37,8 @@ const EditContactInfoForm = ({ initialValues, onSubmit, onCancel }) => {
     .test('contactMethodRequired', 'Please select a preferred method of contact.', preferredContactMethodValidation);
 
   const sectionStyles = classnames(formStyles.formSection, editContactInfoFormStyle.formSection);
+  const [isCurrentLookupErrorVisible, setIsCurrentLookupErrorVisible] = useState(false);
+  const [isBackupLookupErrorVisible, setIsBackupLookupErrorVisible] = useState(false);
 
   return (
     <Formik
@@ -46,7 +48,49 @@ const EditContactInfoForm = ({ initialValues, onSubmit, onCancel }) => {
       validationSchema={validationSchema}
       initialTouched={{ telephone: true }}
     >
-      {({ isValid, isSubmitting, handleSubmit }) => {
+      {({ isValid, isSubmitting, handleSubmit, values, setValues }) => {
+        const handleCurrentZipCityChange = (value) => {
+          setValues(
+            {
+              ...values,
+              residential_address: {
+                ...values.residential_address,
+                city: value.city ? value.city : '',
+                state: value.state ? value.state : '',
+                county: value.county ? value.county : '',
+                postalCode: value.postalCode ? value.postalCode : '',
+              },
+            },
+            { shouldValidate: true },
+          );
+
+          if (!value.city || !value.state || !value.county || !value.postalCode) {
+            setIsCurrentLookupErrorVisible(true);
+          } else {
+            setIsCurrentLookupErrorVisible(false);
+          }
+        };
+        const handleBackupZipCityChange = (value) => {
+          setValues(
+            {
+              ...values,
+              backup_mailing_address: {
+                ...values.backup_mailing_address,
+                city: value.city ? value.city : '',
+                state: value.state ? value.state : '',
+                county: value.county ? value.county : '',
+                postalCode: value.postalCode ? value.postalCode : '',
+              },
+            },
+            { shouldValidate: true },
+          );
+
+          if (!value.city || !value.state || !value.county || !value.postalCode) {
+            setIsBackupLookupErrorVisible(true);
+          } else {
+            setIsBackupLookupErrorVisible(false);
+          }
+        };
         return (
           <Form className={classnames(formStyles.form, editContactInfoFormStyle.form)}>
             <h1>Edit contact info</h1>
@@ -54,13 +98,19 @@ const EditContactInfoForm = ({ initialValues, onSubmit, onCancel }) => {
             <SectionWrapper className={sectionStyles}>
               <h2>Your contact info</h2>
 
-              <CustomerContactInfoFields />
+              <CustomerContactInfoFields labelHint="Required" />
             </SectionWrapper>
 
             <SectionWrapper className={sectionStyles}>
               <h2>Current address</h2>
 
-              <AddressFields name={residentialAddressName} />
+              <AddressFields
+                name={residentialAddressName}
+                zipCityEnabled
+                zipCityError={isCurrentLookupErrorVisible}
+                handleZipCityChange={handleCurrentZipCityChange}
+                labelHint="Required"
+              />
             </SectionWrapper>
 
             <SectionWrapper className={sectionStyles}>
@@ -70,7 +120,13 @@ const EditContactInfoForm = ({ initialValues, onSubmit, onCancel }) => {
                 transit during your move.
               </p>
 
-              <AddressFields name={backupAddressName} />
+              <AddressFields
+                name={backupAddressName}
+                zipCityEnabled
+                zipCityError={isBackupLookupErrorVisible}
+                handleZipCityChange={handleBackupZipCityChange}
+                labelHint="Required"
+              />
             </SectionWrapper>
 
             <SectionWrapper className={sectionStyles}>
@@ -80,7 +136,7 @@ const EditContactInfoForm = ({ initialValues, onSubmit, onCancel }) => {
                 years of age or older.
               </p>
 
-              <BackupContactInfoFields name={backupContactName} />
+              <BackupContactInfoFields name={backupContactName} labelHint="Required" />
             </SectionWrapper>
 
             <div className={formStyles.formActions}>

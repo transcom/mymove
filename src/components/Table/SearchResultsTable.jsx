@@ -13,12 +13,7 @@ import DateSelectFilter from 'components/Table/Filters/DateSelectFilter';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
 import TextBoxFilter from 'components/Table/Filters/TextBoxFilter';
-import {
-  BRANCH_OPTIONS_WITH_MARINE_CORPS,
-  MOVE_STATUS_LABELS,
-  SEARCH_QUEUE_STATUS_FILTER_OPTIONS,
-  SortShape,
-} from 'constants/queues';
+import { BRANCH_OPTIONS, MOVE_STATUS_LABELS, SEARCH_QUEUE_STATUS_FILTER_OPTIONS, SortShape } from 'constants/queues';
 import { DATE_FORMAT_STRING } from 'shared/constants';
 import { formatDateFromIso, serviceMemberAgencyLabel } from 'utils/formatters';
 import MultiSelectCheckBoxFilter from 'components/Table/Filters/MultiSelectCheckBoxFilter';
@@ -107,7 +102,7 @@ const moveSearchColumns = (moveLockFlag, handleEditProfileClick) => [
       isFilterable: true,
       Filter: (props) => (
         // eslint-disable-next-line react/jsx-props-no-spreading
-        <SelectFilter options={BRANCH_OPTIONS_WITH_MARINE_CORPS} {...props} />
+        <SelectFilter options={BRANCH_OPTIONS} {...props} />
       ),
     },
   ),

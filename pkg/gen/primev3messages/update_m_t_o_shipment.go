@@ -112,6 +112,16 @@ type UpdateMTOShipment struct {
 
 	// storage facility
 	StorageFacility *StorageFacility `json:"storageFacility,omitempty"`
+
+	// A third delivery address for this shipment, if the customer entered one. An optional field.
+	TertiaryDeliveryAddress struct {
+		Address
+	} `json:"tertiaryDeliveryAddress,omitempty"`
+
+	// A third pickup address for this shipment, if the customer entered one. An optional field.
+	TertiaryPickupAddress struct {
+		Address
+	} `json:"tertiaryPickupAddress,omitempty"`
 }
 
 // Validate validates this update m t o shipment
@@ -175,6 +185,14 @@ func (m *UpdateMTOShipment) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validateStorageFacility(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateTertiaryDeliveryAddress(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateTertiaryPickupAddress(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -374,6 +392,22 @@ func (m *UpdateMTOShipment) validateStorageFacility(formats strfmt.Registry) err
 	return nil
 }
 
+func (m *UpdateMTOShipment) validateTertiaryDeliveryAddress(formats strfmt.Registry) error {
+	if swag.IsZero(m.TertiaryDeliveryAddress) { // not required
+		return nil
+	}
+
+	return nil
+}
+
+func (m *UpdateMTOShipment) validateTertiaryPickupAddress(formats strfmt.Registry) error {
+	if swag.IsZero(m.TertiaryPickupAddress) { // not required
+		return nil
+	}
+
+	return nil
+}
+
 // ContextValidate validate this update m t o shipment based on the context it is used
 func (m *UpdateMTOShipment) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	var res []error
@@ -407,6 +441,14 @@ func (m *UpdateMTOShipment) ContextValidate(ctx context.Context, formats strfmt.
 	}
 
 	if err := m.contextValidateStorageFacility(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidateTertiaryDeliveryAddress(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidateTertiaryPickupAddress(ctx, formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -513,6 +555,16 @@ func (m *UpdateMTOShipment) contextValidateStorageFacility(ctx context.Context, 
 			return err
 		}
 	}
+
+	return nil
+}
+
+func (m *UpdateMTOShipment) contextValidateTertiaryDeliveryAddress(ctx context.Context, formats strfmt.Registry) error {
+
+	return nil
+}
+
+func (m *UpdateMTOShipment) contextValidateTertiaryPickupAddress(ctx context.Context, formats strfmt.Registry) error {
 
 	return nil
 }

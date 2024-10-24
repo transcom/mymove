@@ -37,13 +37,13 @@ export const ContactInfo = ({ serviceMember, updateServiceMember, userEmail }) =
     const payload = {
       id: serviceMember.id,
       telephone: values?.telephone,
-      secondary_telephone: values?.secondary_telephone,
+      secondary_telephone: values?.secondary_telephone || '',
       personal_email: values?.personal_email,
       phone_is_preferred: values?.phone_is_preferred,
       email_is_preferred: values?.email_is_preferred,
     };
-    if (!payload.secondary_telephone) {
-      delete payload.secondary_telephone;
+    if (!payload.secondary_telephone || payload.secondary_telephone === '') {
+      payload.secondary_telephone = '';
     }
 
     return patchServiceMember(payload)

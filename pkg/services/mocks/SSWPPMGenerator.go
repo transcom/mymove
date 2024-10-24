@@ -16,34 +16,38 @@ type SSWPPMGenerator struct {
 	mock.Mock
 }
 
-// FillSSWPDFForm provides a mock function with given fields: _a0, _a1
-func (_m *SSWPPMGenerator) FillSSWPDFForm(_a0 services.Page1Values, _a1 services.Page2Values) (afero.File, *pdfcpu.PDFInfo, error) {
-	ret := _m.Called(_a0, _a1)
+// FillSSWPDFForm provides a mock function with given fields: _a0, _a1, _a2
+func (_m *SSWPPMGenerator) FillSSWPDFForm(_a0 services.Page1Values, _a1 services.Page2Values, _a2 services.Page3Values) (afero.File, *pdfcpu.PDFInfo, error) {
+	ret := _m.Called(_a0, _a1, _a2)
+
+	if len(ret) == 0 {
+		panic("no return value specified for FillSSWPDFForm")
+	}
 
 	var r0 afero.File
 	var r1 *pdfcpu.PDFInfo
 	var r2 error
-	if rf, ok := ret.Get(0).(func(services.Page1Values, services.Page2Values) (afero.File, *pdfcpu.PDFInfo, error)); ok {
-		return rf(_a0, _a1)
+	if rf, ok := ret.Get(0).(func(services.Page1Values, services.Page2Values, services.Page3Values) (afero.File, *pdfcpu.PDFInfo, error)); ok {
+		return rf(_a0, _a1, _a2)
 	}
-	if rf, ok := ret.Get(0).(func(services.Page1Values, services.Page2Values) afero.File); ok {
-		r0 = rf(_a0, _a1)
+	if rf, ok := ret.Get(0).(func(services.Page1Values, services.Page2Values, services.Page3Values) afero.File); ok {
+		r0 = rf(_a0, _a1, _a2)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(afero.File)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(services.Page1Values, services.Page2Values) *pdfcpu.PDFInfo); ok {
-		r1 = rf(_a0, _a1)
+	if rf, ok := ret.Get(1).(func(services.Page1Values, services.Page2Values, services.Page3Values) *pdfcpu.PDFInfo); ok {
+		r1 = rf(_a0, _a1, _a2)
 	} else {
 		if ret.Get(1) != nil {
 			r1 = ret.Get(1).(*pdfcpu.PDFInfo)
 		}
 	}
 
-	if rf, ok := ret.Get(2).(func(services.Page1Values, services.Page2Values) error); ok {
-		r2 = rf(_a0, _a1)
+	if rf, ok := ret.Get(2).(func(services.Page1Values, services.Page2Values, services.Page3Values) error); ok {
+		r2 = rf(_a0, _a1, _a2)
 	} else {
 		r2 = ret.Error(2)
 	}

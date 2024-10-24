@@ -68,6 +68,7 @@ func ParseTPPSReportEntryForOneRow(row []string, columnIndexes map[string]int, h
 				}
 			}
 			processedEntry = strings.TrimSpace(processedEntry)
+			processedEntry = strings.TrimLeft(processedEntry, "�")
 			// After we have fully processed an entry and have built a string, store it
 			processedTPPSReportEntryForOnePaymentRequest = append(processedTPPSReportEntryForOnePaymentRequest, processedEntry)
 		}

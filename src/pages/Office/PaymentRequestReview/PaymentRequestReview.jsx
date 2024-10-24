@@ -175,7 +175,11 @@ export const PaymentRequestReview = ({ order }) => {
   return (
     <div data-testid="PaymentRequestReview" className={styles.PaymentRequestReview}>
       <div className={styles.embed}>
-        {uploads.length > 0 ? <DocumentViewer files={uploads} /> : <h2>No documents provided</h2>}
+        {uploads.length > 0 ? (
+          <DocumentViewer files={uploads} paymentRequestId={paymentRequestId} />
+        ) : (
+          <h2>No documents provided</h2>
+        )}
       </div>
       <div className={styles.sidebar}>
         <ReviewServiceItems

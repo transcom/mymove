@@ -43,7 +43,5 @@ describe('components/Office/ShipmentWeightInput', () => {
         <ShipmentWeightInput userRole={roleTypes.SERVICES_COUNSELOR} />
       </Formik>,
     );
-
-    expect(screen.queryByText(/Optional/)).toBeInTheDocument();
   });
 });

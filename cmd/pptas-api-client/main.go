@@ -34,15 +34,15 @@ func main() {
 	}
 	initRootFlags(root.PersistentFlags())
 
-	listMovesCommand := &cobra.Command{
+	PPTASReportsCommand := &cobra.Command{
 		Use:          "list-moves",
 		Short:        "An optimized fetch for all moves available to Prime",
 		Long:         "Fetches moves that are available to Prime quickly, without all the data for nested objects.",
-		RunE:         pptas.ListMoves,
+		RunE:         pptas.PPTASReports,
 		SilenceUsage: true,
 	}
-	pptas.InitListMovesFlags(listMovesCommand.Flags())
-	root.AddCommand(listMovesCommand)
+	pptas.InitPPTASReportsFlags(PPTASReportsCommand.Flags())
+	root.AddCommand(PPTASReportsCommand)
 
 	if err := root.Execute(); err != nil {
 		panic(err)

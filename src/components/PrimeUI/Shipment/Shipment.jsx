@@ -13,7 +13,7 @@ import { ShipmentShape } from 'types/shipment';
 import { primeSimulatorRoutes } from 'constants/routes';
 import { ppmShipmentStatuses, shipmentDestinationTypes } from 'constants/shipments';
 import styles from 'pages/PrimeUI/MoveTaskOrder/MoveDetails.module.scss';
-import { SHIPMENT_OPTIONS } from 'shared/constants';
+import { ADDRESS_TYPES, SHIPMENT_OPTIONS } from 'shared/constants';
 
 const Shipment = ({ shipment, moveId, onDelete, mtoServiceItems }) => {
   const [isDeleteModalVisible, setIsDeleteModalVisible] = useState(false);
@@ -188,12 +188,68 @@ const Shipment = ({ shipment, moveId, onDelete, mtoServiceItems }) => {
       <div className={descriptionListStyles.row}>
         <dt>Pickup Address:</dt>
         <dd>{formatPrimeAPIShipmentAddress(shipment.pickupAddress)}</dd>
-        <dd>{shipment.pickupAddress?.id && moveId && <Link to={editShipmentAddressUrl}>Edit</Link>}</dd>
+        <dd>
+          {shipment.pickupAddress?.id && moveId && (
+            <Link to={editShipmentAddressUrl} state={{ addressType: ADDRESS_TYPES.PICKUP }}>
+              Edit
+            </Link>
+          )}
+        </dd>
+      </div>
+      <div className={descriptionListStyles.row}>
+        <dt>Second Pickup Address:</dt>
+        <dd>{formatPrimeAPIShipmentAddress(shipment.secondaryPickupAddress)}</dd>
+        <dd>
+          {shipment.secondaryPickupAddress?.id && moveId && (
+            <Link to={editShipmentAddressUrl} state={{ addressType: ADDRESS_TYPES.SECOND_PICKUP }}>
+              Edit
+            </Link>
+          )}
+        </dd>
+      </div>
+      <div className={descriptionListStyles.row}>
+        <dt>Third Pickup Address:</dt>
+        <dd>{formatPrimeAPIShipmentAddress(shipment.tertiaryPickupAddress)}</dd>
+        <dd>
+          {shipment.tertiaryPickupAddress?.id && moveId && (
+            <Link to={editShipmentAddressUrl} state={{ addressType: ADDRESS_TYPES.THIRD_PICKUP }}>
+              Edit
+            </Link>
+          )}
+        </dd>
       </div>
       <div className={descriptionListStyles.row}>
         <dt>Destination Address:</dt>
         <dd>{formatPrimeAPIShipmentAddress(shipment.destinationAddress)}</dd>
-        <dd>{shipment.destinationAddress?.id && moveId && <Link to={editShipmentAddressUrl}>Edit</Link>}</dd>
+        <dd>
+          {shipment.destinationAddress?.id && moveId && (
+            <Link to={editShipmentAddressUrl} state={{ addressType: ADDRESS_TYPES.DESTINATION }}>
+              Edit
+            </Link>
+          )}
+        </dd>
+      </div>
+      <div className={descriptionListStyles.row}>
+        <dt>Second Destination Address:</dt>
+        <dd>{formatPrimeAPIShipmentAddress(shipment.secondaryDeliveryAddress)}</dd>
+        <dd>
+          {shipment.secondaryDeliveryAddress?.id && moveId && (
+            <Link to={editShipmentAddressUrl} state={{ addressType: ADDRESS_TYPES.SECOND_DESTINATION }}>
+              Edit
+            </Link>
+          )}
+        </dd>
+      </div>
+      <div className={descriptionListStyles.row}>
+        <dt>Third Destination Address:</dt>
+        <dd>{formatPrimeAPIShipmentAddress(shipment.tertiaryDeliveryAddress)}</dd>
+        <dd>
+          {shipment.tertiaryDeliveryAddress?.id && moveId && (
+            <Link to={editShipmentAddressUrl} state={{ addressType: ADDRESS_TYPES.THIRD_DESTINATION }}>
+              Edit
+            </Link>
+          )}
+        </dd>
       </div>
       <div className={descriptionListStyles.row}>
         <dt>Destination type:</dt>
@@ -271,16 +327,24 @@ const Shipment = ({ shipment, moveId, onDelete, mtoServiceItems }) => {
             <dd>{formatPrimeAPIShipmentAddress(shipment.ppmShipment.pickupAddress)}</dd>
           </div>
           <div className={descriptionListStyles.row}>
-            <dt>Secondary Pickup Address:</dt>
+            <dt>Second Pickup Address:</dt>
             <dd>{formatPrimeAPIShipmentAddress(shipment.ppmShipment.secondaryPickupAddress)}</dd>
+          </div>
+          <div className={descriptionListStyles.row}>
+            <dt>Third Pickup Address:</dt>
+            <dd>{formatPrimeAPIShipmentAddress(shipment.ppmShipment.tertiaryPickupAddress)}</dd>
           </div>
           <div className={descriptionListStyles.row}>
             <dt>Destination Address:</dt>
             <dd>{formatPrimeAPIShipmentAddress(shipment.ppmShipment.destinationAddress)}</dd>
           </div>
           <div className={descriptionListStyles.row}>
-            <dt>Secondary Destination Address:</dt>
+            <dt>Second Destination Address:</dt>
             <dd>{formatPrimeAPIShipmentAddress(shipment.ppmShipment.secondaryDestinationAddress)}</dd>
+          </div>
+          <div className={descriptionListStyles.row}>
+            <dt>Third Destination Address:</dt>
+            <dd>{formatPrimeAPIShipmentAddress(shipment.ppmShipment.tertiaryDestinationAddress)}</dd>
           </div>
           <div className={descriptionListStyles.row}>
             <dt>PPM SIT Expected:</dt>
@@ -377,6 +441,66 @@ const Shipment = ({ shipment, moveId, onDelete, mtoServiceItems }) => {
                 ? ''
                 : toDollarString(formatCents(shipment.ppmShipment.advanceAmountReceived))}
             </dd>
+          </div>
+        </>
+      )}
+      {shipment.boatShipment && (
+        <>
+          <h4>Boat-Shipment Specific Fields</h4>
+          <div className={descriptionListStyles.row}>
+            <dt>Shipment Type:</dt>
+            <dd>{shipment.boatShipment.type}</dd>
+          </div>
+          <div className={descriptionListStyles.row}>
+            <dt>Boat Year:</dt>
+            <dd>{shipment.boatShipment.year}</dd>
+          </div>
+          <div className={descriptionListStyles.row}>
+            <dt>Boat Make:</dt>
+            <dd>{shipment.boatShipment.make}</dd>
+          </div>
+          <div className={descriptionListStyles.row}>
+            <dt>Boat Model:</dt>
+            <dd>{shipment.boatShipment.model}</dd>
+          </div>
+          <div className={descriptionListStyles.row}>
+            <dt>Boat Dimensions (Inches):</dt>
+            <dd>Length: {shipment.boatShipment.lengthInInches}</dd>
+            <dd>Width: {shipment.boatShipment.widthInInches}</dd>
+            <dd>Height: {shipment.boatShipment.heightInInches}</dd>
+          </div>
+          <div className={descriptionListStyles.row}>
+            <dt>Has Trailer:</dt>
+            <dd>{shipment.boatShipment.hasTrailer ? 'Yes' : 'No'}</dd>
+          </div>
+          {shipment.boatShipment.hasTrailer && (
+            <div className={descriptionListStyles.row}>
+              <dt>Trailer is Roadworthy:</dt>
+              <dd>{shipment.boatShipment.isRoadworthy ? 'Yes' : 'No'}</dd>
+            </div>
+          )}
+        </>
+      )}
+      {shipment.mobileHomeShipment && (
+        <>
+          <h4>Mobile-Home-Shipment Specific Fields</h4>
+          <div className={descriptionListStyles.row}>
+            <dt>Mobile Home Year:</dt>
+            <dd>{shipment.mobileHomeShipment.year}</dd>
+          </div>
+          <div className={descriptionListStyles.row}>
+            <dt>Mobile Home Make:</dt>
+            <dd>{shipment.mobileHomeShipment.make}</dd>
+          </div>
+          <div className={descriptionListStyles.row}>
+            <dt>Mobile Home Model:</dt>
+            <dd>{shipment.mobileHomeShipment.model}</dd>
+          </div>
+          <div className={descriptionListStyles.row}>
+            <dt>Mobile Home Dimensions (Inches):</dt>
+            <dd>Length: {shipment.mobileHomeShipment.lengthInInches}</dd>
+            <dd>Width: {shipment.mobileHomeShipment.widthInInches}</dd>
+            <dd>Height: {shipment.mobileHomeShipment.heightInInches}</dd>
           </div>
         </>
       )}

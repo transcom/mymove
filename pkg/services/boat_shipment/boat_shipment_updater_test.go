@@ -29,7 +29,6 @@ func (suite *BoatShipmentSuite) TestUpdateBoatShipment() {
 			WidthInInches:  models.IntPointer(11),
 			HeightInInches: models.IntPointer(1),
 			HasTrailer:     models.BoolPointer(false),
-			IsRoadworthy:   models.BoolPointer(false),
 		}
 
 		updatedBoat, err := boatShipmentUpdater.UpdateBoatShipmentWithDefaultCheck(appCtx, &newBoat, originalBoat.ShipmentID)
@@ -43,7 +42,7 @@ func (suite *BoatShipmentSuite) TestUpdateBoatShipment() {
 		suite.Equal(newBoat.WidthInInches, updatedBoat.WidthInInches)
 		suite.Equal(newBoat.HeightInInches, updatedBoat.HeightInInches)
 		suite.Equal(newBoat.HasTrailer, updatedBoat.HasTrailer)
-		suite.Equal(newBoat.IsRoadworthy, updatedBoat.IsRoadworthy)
+		suite.Nil(updatedBoat.IsRoadworthy)
 	})
 
 	suite.Run("Can't update if Shipment can't be found", func() {

@@ -303,8 +303,23 @@ func (suite *MoveServiceSuite) TestMoveSubmission() {
 						},
 					},
 				}, nil)
+
+				boatShipment := factory.BuildBoatShipmentHaulAway(suite.DB(), []factory.Customization{
+					{
+						Model: models.BoatShipment{},
+					},
+				}, nil)
+
+				mobileHomeShipment := factory.BuildMobileHomeShipment(suite.DB(), []factory.Customization{
+					{
+						Model: models.MobileHome{},
+					},
+				}, nil)
+
 				move.MTOShipments = models.MTOShipments{shipment}
 				move.MTOShipments[0].PPMShipment = &ppmShipment
+				move.MTOShipments[0].BoatShipment = &boatShipment
+				move.MTOShipments[0].MobileHome = &mobileHomeShipment
 
 				newSignedCertification := factory.BuildSignedCertification(nil, []factory.Customization{
 					{
@@ -397,6 +412,204 @@ func (suite *MoveServiceSuite) TestMoveSubmission() {
 		suite.Equal(models.MTOShipmentStatusSubmitted, move.MTOShipments[0].Status, "expected Submitted")
 		suite.Equal(models.PPMShipmentStatusSubmitted, move.MTOShipments[0].PPMShipment.Status, "expected Submitted")
 	})
+
+	suite.Run("returns an error when a Mobile Home Shipment is not formatted correctly", func() {
+		// Under test: MoveRouter.Submit
+		// Set up: Submit a move without a mobile home shipment that has a field that will not pass validation
+		// Expected outcome: Error on DB().ValidateAndUpdate
+		move := factory.BuildMove(suite.DB(), []factory.Customization{
+			{
+				Model: models.DutyLocation{
+					ProvidesServicesCounseling: true,
+				},
+				Type: &factory.DutyLocations.OriginDutyLocation,
+			},
+		}, nil)
+		hhgShipment := factory.BuildMTOShipmentMinimal(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					Status:       models.MTOShipmentStatusDraft,
+					ShipmentType: models.MTOShipmentTypeMobileHome,
+				},
+			},
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+		}, nil)
+
+		year := -10000
+		mobileHomeShipment := factory.BuildMobileHomeShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.MobileHome{},
+			},
+		}, nil)
+		mobileHomeShipment.Year = &year
+		move.MTOShipments = models.MTOShipments{hhgShipment}
+		move.MTOShipments[0].MobileHome = &mobileHomeShipment
+		newSignedCertification := factory.BuildSignedCertification(nil, []factory.Customization{
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+		}, nil)
+		err := moveRouter.Submit(suite.AppContextForTest(), &move, &newSignedCertification)
+
+		suite.Error(err)
+		suite.Contains(err.Error(), "failure saving mobile home shipment when routing move submission")
+		suite.Equal(models.MoveStatusNeedsServiceCounseling, move.Status, "expected move to still be in NEEDS_SERVICE_COUNSELING status when routing has failed")
+	})
+
+	suite.Run("returns an error when a Mobile Home Shipment is not formatted correctly", func() {
+		// Under test: MoveRouter.Submit
+		// Set up: Submit a move without a mobile home shipment that has a field that will not pass validation
+		// Expected outcome: Error on DB().ValidateAndUpdate
+		move := factory.BuildMove(suite.DB(), []factory.Customization{
+			{
+				Model: models.DutyLocation{
+					ProvidesServicesCounseling: true,
+				},
+				Type: &factory.DutyLocations.OriginDutyLocation,
+			},
+		}, nil)
+		hhgShipment := factory.BuildMTOShipmentMinimal(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					Status:       models.MTOShipmentStatusDraft,
+					ShipmentType: models.MTOShipmentTypeBoatHaulAway,
+				},
+			},
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+		}, nil)
+
+		year := -10000
+		boatShipment := factory.BuildBoatShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.BoatShipment{},
+			},
+		}, nil)
+		boatShipment.Year = &year
+		move.MTOShipments = models.MTOShipments{hhgShipment}
+		move.MTOShipments[0].BoatShipment = &boatShipment
+		newSignedCertification := factory.BuildSignedCertification(nil, []factory.Customization{
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+		}, nil)
+		err := moveRouter.Submit(suite.AppContextForTest(), &move, &newSignedCertification)
+
+		suite.Error(err)
+		suite.Contains(err.Error(), "failure saving boat shipment when routing move submission")
+		suite.Equal(models.MoveStatusNeedsServiceCounseling, move.Status, "expected move to still be in NEEDS_SERVICE_COUNSELING status when routing has failed")
+	})
+
+	suite.Run("returns validation errors when a the parent MTO Shipment object for a Mobile Home Shipment is not formatted correctly", func() {
+		// Under test: MoveRouter.Submit
+		// Set up: Submit a move without a mobile home shipment that has a field that will not pass validation
+		// Expected outcome: Error on DB().ValidateAndUpdate
+
+		sitDaysAllowance := -1 // Invalid value that should cause a validation error on MTOShipment
+
+		expError := "failure saving parent MTO shipment object for boat/mobile home shipment when routing move submission"
+
+		move := factory.BuildMove(suite.DB(), []factory.Customization{
+			{
+				Model: models.DutyLocation{
+					ProvidesServicesCounseling: true,
+				},
+				Type: &factory.DutyLocations.OriginDutyLocation,
+			},
+		}, nil)
+		hhgShipment := factory.BuildMTOShipmentMinimal(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					Status:       models.MTOShipmentStatusDraft,
+					ShipmentType: models.MTOShipmentTypeMobileHome,
+				},
+			},
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+		}, nil)
+
+		hhgShipment.SITDaysAllowance = &sitDaysAllowance
+
+		mobileHomeShipment := factory.BuildMobileHomeShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.MobileHome{},
+			},
+		}, nil)
+		move.MTOShipments = models.MTOShipments{hhgShipment}
+		move.MTOShipments[0].MobileHome = &mobileHomeShipment
+		newSignedCertification := factory.BuildSignedCertification(nil, []factory.Customization{
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+		}, nil)
+		err := moveRouter.Submit(suite.AppContextForTest(), &move, &newSignedCertification)
+
+		suite.Error(err)
+		suite.Contains(err.Error(), expError)
+		suite.Equal(models.MoveStatusNeedsServiceCounseling, move.Status, "expected move to still be in NEEDS_SERVICE_COUNSELING status when routing has failed")
+	})
+
+	suite.Run("returns validation errors when a the parent MTO Shipment object for a Boat Shipment is not formatted correctly", func() {
+		// Under test: MoveRouter.Submit
+		// Set up: Submit a move without a mobile home shipment that has a field that will not pass validation
+		// Expected outcome: Error on DB().ValidateAndUpdate
+
+		sitDaysAllowance := -1 // Invalid value that should cause a validation error on MTOShipment
+
+		expError := "failure saving parent MTO shipment object for boat/mobile home shipment when routing move submission"
+
+		move := factory.BuildMove(suite.DB(), []factory.Customization{
+			{
+				Model: models.DutyLocation{
+					ProvidesServicesCounseling: true,
+				},
+				Type: &factory.DutyLocations.OriginDutyLocation,
+			},
+		}, nil)
+		hhgShipment := factory.BuildMTOShipmentMinimal(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					Status:       models.MTOShipmentStatusDraft,
+					ShipmentType: models.MTOShipmentTypeBoatHaulAway,
+				},
+			},
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+		}, nil)
+
+		hhgShipment.SITDaysAllowance = &sitDaysAllowance
+
+		boatShipment := factory.BuildBoatShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.BoatShipment{},
+			},
+		}, nil)
+		move.MTOShipments = models.MTOShipments{hhgShipment}
+		move.MTOShipments[0].BoatShipment = &boatShipment
+		newSignedCertification := factory.BuildSignedCertification(nil, []factory.Customization{
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+		}, nil)
+		err := moveRouter.Submit(suite.AppContextForTest(), &move, &newSignedCertification)
+
+		suite.Error(err)
+		suite.Contains(err.Error(), expError)
+		suite.Equal(models.MoveStatusNeedsServiceCounseling, move.Status, "expected move to still be in NEEDS_SERVICE_COUNSELING status when routing has failed")
+	})
 }
 
 func (suite *MoveServiceSuite) TestMoveCancellation() {
@@ -433,7 +646,7 @@ func (suite *MoveServiceSuite) TestMoveCancellation() {
 
 		suite.NoError(err)
 		suite.Equal(models.MoveStatusCANCELED, move.Status, "expected Canceled")
-		suite.Equal(models.PPMShipmentStatusCancelled, move.MTOShipments[0].PPMShipment.Status, "expected Canceled")
+		suite.Equal(models.PPMShipmentStatusCanceled, move.MTOShipments[0].PPMShipment.Status, "expected Canceled")
 		suite.Equal(models.OrderStatusCANCELED, move.Orders.Status, "expected Canceled")
 	})
 
@@ -744,6 +957,28 @@ func (suite *MoveServiceSuite) TestCompleteServiceCounseling() {
 		suite.Error(err)
 		suite.IsType(apperror.ConflictError{}, err)
 		suite.Contains(err.Error(), "NTS-release shipment must include facility info")
+	})
+
+	suite.Run("Boat Shipment - status changed to 'SERVICE_COUNSELING_COMPLETED'", func() {
+		move := factory.BuildStubbedMoveWithStatus(models.MoveStatusNeedsServiceCounseling)
+		boatShipment := factory.BuildBoatShipment(nil, nil, nil)
+		move.MTOShipments = models.MTOShipments{boatShipment.Shipment}
+
+		err := moveRouter.CompleteServiceCounseling(suite.AppContextForTest(), &move)
+
+		suite.NoError(err)
+		suite.Equal(models.MoveStatusServiceCounselingCompleted, move.Status)
+	})
+
+	suite.Run("Mobile Home Shipment - status changed to 'SERVICE_COUNSELING_COMPLETED'", func() {
+		move := factory.BuildStubbedMoveWithStatus(models.MoveStatusNeedsServiceCounseling)
+		mobileHomeShipment := factory.BuildMobileHomeShipment(nil, nil, nil)
+		move.MTOShipments = models.MTOShipments{mobileHomeShipment.Shipment}
+
+		err := moveRouter.CompleteServiceCounseling(suite.AppContextForTest(), &move)
+
+		suite.NoError(err)
+		suite.Equal(models.MoveStatusServiceCounselingCompleted, move.Status)
 	})
 }
 

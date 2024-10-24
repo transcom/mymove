@@ -14,8 +14,6 @@ import (
 	"github.com/go-openapi/runtime"
 	cr "github.com/go-openapi/runtime/client"
 	"github.com/go-openapi/strfmt"
-
-	"github.com/transcom/mymove/pkg/gen/primemessages"
 )
 
 // NewUpdateMTOShipmentParams creates a new UpdateMTOShipmentParams object,
@@ -62,16 +60,6 @@ UpdateMTOShipmentParams contains all the parameters to send to the API endpoint
 	Typically these are written to a http.Request.
 */
 type UpdateMTOShipmentParams struct {
-
-	/* IfMatch.
-
-	   Optimistic locking is implemented via the `If-Match` header. If the ETag header does not match the value of the resource on the server, the server rejects the change with a `412 Precondition Failed` error.
-
-	*/
-	IfMatch string
-
-	// Body.
-	Body *primemessages.UpdateMTOShipment
 
 	/* MtoShipmentID.
 
@@ -134,28 +122,6 @@ func (o *UpdateMTOShipmentParams) SetHTTPClient(client *http.Client) {
 	o.HTTPClient = client
 }
 
-// WithIfMatch adds the ifMatch to the update m t o shipment params
-func (o *UpdateMTOShipmentParams) WithIfMatch(ifMatch string) *UpdateMTOShipmentParams {
-	o.SetIfMatch(ifMatch)
-	return o
-}
-
-// SetIfMatch adds the ifMatch to the update m t o shipment params
-func (o *UpdateMTOShipmentParams) SetIfMatch(ifMatch string) {
-	o.IfMatch = ifMatch
-}
-
-// WithBody adds the body to the update m t o shipment params
-func (o *UpdateMTOShipmentParams) WithBody(body *primemessages.UpdateMTOShipment) *UpdateMTOShipmentParams {
-	o.SetBody(body)
-	return o
-}
-
-// SetBody adds the body to the update m t o shipment params
-func (o *UpdateMTOShipmentParams) SetBody(body *primemessages.UpdateMTOShipment) {
-	o.Body = body
-}
-
 // WithMtoShipmentID adds the mtoShipmentID to the update m t o shipment params
 func (o *UpdateMTOShipmentParams) WithMtoShipmentID(mtoShipmentID strfmt.UUID) *UpdateMTOShipmentParams {
 	o.SetMtoShipmentID(mtoShipmentID)
@@ -174,16 +140,6 @@ func (o *UpdateMTOShipmentParams) WriteToRequest(r runtime.ClientRequest, reg st
 		return err
 	}
 	var res []error
-
-	// header param If-Match
-	if err := r.SetHeaderParam("If-Match", o.IfMatch); err != nil {
-		return err
-	}
-	if o.Body != nil {
-		if err := r.SetBodyParam(o.Body); err != nil {
-			return err
-		}
-	}
 
 	// path param mtoShipmentID
 	if err := r.SetPathParam("mtoShipmentID", o.MtoShipmentID.String()); err != nil {

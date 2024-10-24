@@ -9,6 +9,7 @@ import (
 
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
+	"github.com/transcom/mymove/pkg/unit"
 )
 
 type mtoServiceItemBuildType byte
@@ -56,6 +57,8 @@ func buildMTOServiceItemWithBuildType(db *pop.Connection, customs []Customizatio
 
 	requestedApprovalsRequestedStatus := false
 
+	var lockedPriceCents = unit.Cents(12303)
+
 	// Create default MTOServiceItem
 	mtoServiceItem := models.MTOServiceItem{
 		MoveTaskOrder:                     move,
@@ -67,6 +70,7 @@ func buildMTOServiceItemWithBuildType(db *pop.Connection, customs []Customizatio
 		Status:                            models.MTOServiceItemStatusSubmitted,
 		RequestedApprovalsRequestedStatus: &requestedApprovalsRequestedStatus,
 		CustomerExpense:                   isCustomerExpense,
+		LockedPriceCents:                  &lockedPriceCents,
 	}
 
 	// only set SITOriginHHGOriginalAddress if a customization is provided
@@ -341,15 +345,23 @@ var (
 		Type:        models.ServiceItemParamTypeString,
 		Origin:      models.ServiceItemParamOriginPrime,
 	}
+	paramLockedPriceCents = models.ServiceItemParamKey{
+		Key:         models.ServiceItemParamNameLockedPriceCents,
+		Description: "locked price cents",
+		Type:        models.ServiceItemParamTypeInteger,
+		Origin:      models.ServiceItemParamOriginSystem,
+	}
 	fixtureServiceItemParamsMap = map[models.ReServiceCode]models.ServiceItemParamKeys{
 		models.ReServiceCodeCS: {
-			paramContractCode,
 			paramMTOAvailableAToPrimeAt,
+			paramContractCode,
+			paramLockedPriceCents,
 			paramPriceRateOrFactor,
 		},
 		models.ReServiceCodeMS: {
-			paramContractCode,
 			paramMTOAvailableAToPrimeAt,
+			paramContractCode,
+			paramLockedPriceCents,
 			paramPriceRateOrFactor,
 		},
 		models.ReServiceCodeDLH: {

@@ -589,6 +589,10 @@ definitions:
     type: array
     items:
       $ref: "definitions/TransportationOffice.yaml"
+  UsPostRegionCities:
+    type: array
+    items:
+      $ref: "definitions/UsPostRegionCity.yaml"
   OfficeUser:
     type: object
     properties:
@@ -705,7 +709,7 @@ definitions:
       secondary_telephone:
         type: string
         format: telephone
-        pattern: '^[2-9]\d{2}-\d{3}-\d{4}$'
+        pattern: '^([2-9]\d{2}-\d{3}-\d{4})?$'
         example: 212-555-5555
         x-nullable: true
         title: Secondary Phone
@@ -799,7 +803,7 @@ definitions:
       secondary_telephone:
         type: string
         format: telephone
-        pattern: '^[2-9]\d{2}-\d{3}-\d{4}$'
+        pattern: '^([2-9]\d{2}-\d{3}-\d{4})?$'
         example: 212-555-5555
         x-nullable: true
         title: Alternate phone
@@ -883,7 +887,7 @@ definitions:
       secondary_telephone:
         type: string
         format: telephone
-        pattern: '^[2-9]\d{2}-\d{3}-\d{4}$'
+        pattern: '^([2-9]\d{2}-\d{3}-\d{4})?$'
         example: 212-555-5555
         x-nullable: true
         title: Alternate Phone
@@ -4358,6 +4362,31 @@ paths:
           description: the requested address
           schema:
             $ref: "definitions/Address.yaml"
+        "400":
+          description: invalid request
+        "403":
+          description: not authorized
+        "404":
+          description: not found
+        "500":
+          description: server error
+  /addresses/zip_city_lookup/{search}:
+    get:
+      summary: Returns City, State, Postal Code, and County associated with the specified full/partial Postal Code or City string
+      description: Find by API using full/partial Postal Code or City name that returns an us_post_region_cities json object containing city, state, county and postal code.
+      operationId: getLocationByZipCity
+      tags:
+        - addresses
+      parameters:
+      - in: path
+        name: search
+        type: string
+        required: true
+      responses:
+        "200":
+          description: the requested list of city, state, county, and postal code matches
+          schema:
+            $ref: "#/definitions/UsPostRegionCities"
         "400":
           description: invalid request
         "403":

@@ -163,7 +163,7 @@ func (e *edi824Processor) ProcessFile(appCtx appcontext.AppContext, _ string, st
 			paymentRequest.Status = models.PaymentRequestStatusEDIError
 			err = txnAppCtx.DB().Update(&paymentRequest)
 			if err != nil {
-				txnAppCtx.Logger().Error("failure updating payment request status:", zap.Error(err))
+				txnAppCtx.Logger().Error(fmt.Sprintf("failure updating payment request status : %v", paymentRequest.ID), zap.Error(err))
 				return fmt.Errorf("failure updating payment request status: %w", err)
 			}
 			txnAppCtx.Logger().Info("SUCCESS: 824 Processor updated Payment Request to new status")

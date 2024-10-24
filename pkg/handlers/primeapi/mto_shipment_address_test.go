@@ -304,4 +304,52 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentAddressHandler() {
 		response := handler.Handle(params)
 		suite.IsType(&mtoshipmentops.UpdateMTOShipmentAddressUnprocessableEntity{}, response)
 	})
+
+	suite.Run("Fail - Unprocessable due to updating pickup address on NTS-Release shipment", func() {
+		// Testcase:   destination address is updated on a shipment, but shipment is approved
+		// Expected:   UnprocessableEntity error is returned
+		// Under Test: UpdateMTOShipmentAddress handler
+		handler, availableMove := setupTestData()
+		pickupAddress := factory.BuildAddress(suite.DB(), nil, []factory.Trait{factory.GetTraitAddress2})
+		address := models.Address{
+			ID:             pickupAddress.ID,
+			StreetAddress1: "7 Q St",
+			City:           "Framington",
+			State:          "MA",
+			PostalCode:     "35004",
+		}
+		shipment := factory.BuildNTSRShipment(suite.DB(), []factory.Customization{
+			{
+				Model:    availableMove,
+				LinkOnly: true,
+			},
+			{
+				Model: models.MTOShipment{
+					Status: models.MTOShipmentStatusSubmitted,
+				},
+			},
+			{
+				Model:    pickupAddress,
+				LinkOnly: true,
+				Type:     &factory.Addresses.PickupAddress,
+			},
+		}, nil)
+		// Try to update destination address for approved shipment
+		payload := payloads.Address(&address)
+		req := httptest.NewRequest("PUT", fmt.Sprintf("/mto-shipments/%s/addresses/%s", shipment.ID.String(), shipment.ID.String()), nil)
+		params := mtoshipmentops.UpdateMTOShipmentAddressParams{
+			HTTPRequest:   req,
+			AddressID:     *handlers.FmtUUID(pickupAddress.ID),
+			MtoShipmentID: *handlers.FmtUUID(shipment.ID),
+			Body:          payload,
+			IfMatch:       etag.GenerateEtag(shipment.DestinationAddress.UpdatedAt),
+		}
+
+		// Validate incoming payload
+		suite.NoError(params.Body.Validate(strfmt.Default))
+
+		// Run handler and check response
+		response := handler.Handle(params)
+		suite.IsType(&mtoshipmentops.UpdateMTOShipmentAddressUnprocessableEntity{}, response)
+	})
 }

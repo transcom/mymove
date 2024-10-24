@@ -549,6 +549,10 @@ export async function dateSelectionIsWeekendHoliday(countryCode, date) {
   );
 }
 
+export async function searchLocationByZipCity(search) {
+  return makeInternalRequest('addresses.getLocationByZipCity', { search }, { normalize: false });
+}
+
 export async function showCounselingOffices(dutyLocationId) {
   return makeInternalRequestRaw('transportation_offices.showCounselingOffices', { dutyLocationId });
 }

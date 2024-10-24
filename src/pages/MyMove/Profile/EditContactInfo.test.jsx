@@ -48,6 +48,7 @@ describe('EditContactInfo page', () => {
         city: 'Fake City',
         state: 'TX',
         postalCode: '79936',
+        county: 'EL PASO',
       },
       backup_mailing_address: {
         streetAddress1: '10642 N Second Ave',
@@ -55,6 +56,7 @@ describe('EditContactInfo page', () => {
         city: 'Fake City',
         state: 'TX',
         postalCode: '79936',
+        county: 'EL PASO',
       },
     },
     setFlashMessage: jest.fn(),
@@ -120,7 +122,7 @@ describe('EditContactInfo page', () => {
       </MockProviders>,
     );
 
-    const backupNameInput = await screen.findByLabelText('Name');
+    const backupNameInput = await screen.findByLabelText(/Name/);
 
     await userEvent.clear(backupNameInput);
 
@@ -157,7 +159,7 @@ describe('EditContactInfo page', () => {
       </MockProviders>,
     );
 
-    const backupNameInput = await screen.findByLabelText('Name');
+    const backupNameInput = await screen.findByLabelText(/Name/);
 
     await userEvent.clear(backupNameInput);
 

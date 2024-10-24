@@ -32,9 +32,9 @@ func NewGetTransportationOffices(ctx *middleware.Context, handler GetTransportat
 /*
 	GetTransportationOffices swagger:route GET /transportation-offices transportationOffice getTransportationOffices
 
-# Returns the transportation offices matching the search query
+# Returns the transportation offices matching the search query that is enabled for PPM closeout
 
-Returns the transportation offices matching the search query
+Returns the transportation offices matching the search query that is enabled for PPM closeout
 */
 type GetTransportationOffices struct {
 	Context *middleware.Context

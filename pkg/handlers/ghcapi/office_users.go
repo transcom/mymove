@@ -69,7 +69,7 @@ func payloadForOfficeUserModel(o models.OfficeUser) *ghcmessages.OfficeUser {
 		OtherUniqueID:          handlers.FmtStringPtr(o.OtherUniqueID),
 		TransportationOfficeID: handlers.FmtUUID(o.TransportationOfficeID),
 		Active:                 handlers.FmtBool(o.Active),
-		Status:                 handlers.FmtStringPtr(o.Status),
+		Status:                 (*string)(o.Status),
 		CreatedAt:              *handlers.FmtDateTime(o.CreatedAt),
 		UpdatedAt:              *handlers.FmtDateTime(o.UpdatedAt),
 	}
@@ -122,17 +122,19 @@ func (h RequestOfficeUserHandler) Handle(params officeuserop.CreateRequestedOffi
 				return officeuserop.NewCreateRequestedOfficeUserUnprocessableEntity().WithPayload(payload), err
 			}
 
+			status := models.OfficeUserStatusREQUESTED
 			// By default set status to "REQUESTED", as is the purpose of this endpoint
 			officeUser := models.OfficeUser{
 				LastName:               payload.LastName,
 				FirstName:              payload.FirstName,
+				MiddleInitials:         payload.MiddleInitials,
 				Telephone:              payload.Telephone,
 				Email:                  payload.Email,
 				EDIPI:                  payload.Edipi,
 				OtherUniqueID:          payload.OtherUniqueID,
 				TransportationOfficeID: transportationOfficeID,
 				Active:                 false,
-				Status:                 models.StringPointer("REQUESTED"),
+				Status:                 &status,
 			}
 
 			transportationIDFilter := []services.QueryFilter{

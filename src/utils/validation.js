@@ -86,11 +86,11 @@ export const requiredW2AddressSchema = Yup.object().shape({
 });
 
 export const addressSchema = Yup.object().shape({
-  streetAddress1: Yup.string(),
+  streetAddress1: Yup.string().required('Required'),
   streetAddress2: Yup.string(),
-  city: Yup.string(),
-  state: Yup.string().length(2, 'Must use state abbreviation'),
-  postalCode: Yup.string().matches(ZIP_CODE_REGEX, 'Must be valid zip code'),
+  city: Yup.string().required('Required'),
+  state: Yup.string().length(2, 'Must use state abbreviation').required('Required'),
+  postalCode: Yup.string().matches(ZIP_CODE_REGEX, 'Must be valid zip code').required('Required'),
 });
 
 export const phoneSchema = Yup.string().matches(
@@ -185,6 +185,7 @@ const validateRoleRequestedMethod = (value, testContext) => {
     testContext.parent.transportationContractingOfficerCheckBox ||
     testContext.parent.headquartersCheckBox ||
     testContext.parent.qualityAssuranceEvaluatorCheckBox ||
+    testContext.parent.headquartersCheckBox ||
     testContext.parent.customerSupportRepresentativeCheckBox ||
     testContext.parent.governmentSurveillanceRepresentativeCheckbox
   );

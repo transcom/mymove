@@ -186,7 +186,7 @@ describe('EditPPMHeaderSummaryModal', () => {
       await userEvent.click(await screen.getByRole('button', { name: 'Save' }));
     });
 
-    expect(await screen.findByText('Required')).toBeInTheDocument();
+    expect(await screen.getByTestId('errorMessage')).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Save' })).toHaveAttribute('disabled');
   });
 
@@ -208,7 +208,7 @@ describe('EditPPMHeaderSummaryModal', () => {
       await userEvent.click(await screen.getByRole('button', { name: 'Save' }));
     });
 
-    expect(await screen.findByText('Required')).toBeInTheDocument();
+    expect(await screen.getByTestId('errorMessage')).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Save' })).toHaveAttribute('disabled');
   });
 });

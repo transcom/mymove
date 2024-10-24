@@ -26,6 +26,30 @@ func (suite *NotificationSuite) TestMoveSubmitted() {
 	suite.NotEmpty(email.textBody)
 }
 
+func (suite *NotificationSuite) TestMoveSubmittedoriginDSTransportInfoIsNil() {
+	move := factory.BuildMove(suite.DB(), nil, nil)
+	notification := NewMoveSubmitted(move.ID)
+
+	move.Orders.OriginDutyLocationID = nil
+
+	emails, err := notification.emails(suite.AppContextWithSessionForTest(&auth.Session{
+		ServiceMemberID: move.Orders.ServiceMember.ID,
+		ApplicationName: auth.MilApp,
+	}))
+	subject := "Thank you for submitting your move details"
+
+	suite.NoError(err)
+	suite.Equal(len(emails), 1)
+
+	email := emails[0]
+	sm := move.Orders.ServiceMember
+	suite.Equal(email.recipientEmail, *sm.PersonalEmail)
+	suite.Equal(email.subject, subject)
+	suite.NotEmpty(email.htmlBody)
+	suite.NotEmpty(email.textBody)
+	suite.Contains(email.textBody, move.Orders.OriginDutyLocation.Name)
+}
+
 func (suite *NotificationSuite) TestMoveSubmittedHTMLTemplateRenderWithGovCounseling() {
 	approver := factory.BuildUser(nil, nil, nil)
 	move := factory.BuildMove(suite.DB(), nil, nil)

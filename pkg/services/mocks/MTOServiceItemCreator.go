@@ -20,6 +20,10 @@ type MTOServiceItemCreator struct {
 func (_m *MTOServiceItemCreator) CreateMTOServiceItem(appCtx appcontext.AppContext, serviceItem *models.MTOServiceItem) (*models.MTOServiceItems, *validate.Errors, error) {
 	ret := _m.Called(appCtx, serviceItem)
 
+	if len(ret) == 0 {
+		panic("no return value specified for CreateMTOServiceItem")
+	}
+
 	var r0 *models.MTOServiceItems
 	var r1 *validate.Errors
 	var r2 error

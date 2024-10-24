@@ -17,7 +17,6 @@ import (
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/handlers/ghcapi/internal/payloads"
 	"github.com/transcom/mymove/pkg/models"
-	serviceparamlookups "github.com/transcom/mymove/pkg/payment_request/service_param_value_lookups"
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/services/audit"
 	"github.com/transcom/mymove/pkg/services/event"
@@ -384,7 +383,6 @@ func (h ListMTOServiceItemsHandler) Handle(params mtoserviceitemop.ListMTOServic
 			}
 
 			if len(indices) > 0 {
-				contract, err := serviceparamlookups.FetchContract(appCtx, *moveTaskOrder.AvailableToPrimeAt)
 				if err != nil {
 					return mtoserviceitemop.NewListMTOServiceItemsInternalServerError(), err
 				}
@@ -394,9 +392,9 @@ func (h ListMTOServiceItemsHandler) Handle(params mtoserviceitemop.ListMTOServic
 					var displayParams services.PricingDisplayParams
 					var err error
 					if serviceItems[index].ReService.Code == "CS" {
-						price, displayParams, err = h.counselingPricer.Price(appCtx, contract.Code, *moveTaskOrder.AvailableToPrimeAt)
+						price, displayParams, err = h.counselingPricer.Price(appCtx, serviceItems[index].LockedPriceCents)
 					} else if serviceItems[index].ReService.Code == "MS" {
-						price, displayParams, err = h.moveManagementPricer.Price(appCtx, contract.Code, *moveTaskOrder.AvailableToPrimeAt)
+						price, displayParams, err = h.moveManagementPricer.Price(appCtx, serviceItems[index].LockedPriceCents)
 					}
 
 					for _, param := range displayParams {

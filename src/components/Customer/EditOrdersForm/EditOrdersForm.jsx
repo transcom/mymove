@@ -13,7 +13,6 @@ import UploadsTable from 'components/UploadsTable/UploadsTable';
 import SectionWrapper from 'components/Customer/SectionWrapper';
 import { documentSizeLimitMsg } from 'shared/constants';
 import profileImage from 'scenes/Review/images/profile.png';
-import Hint from 'components/Hint/index';
 import { DropdownArrayOf } from 'types';
 import { ExistingUploadsShape } from 'types/uploads';
 import { DropdownInput, DatePickerInput, DutyLocationInput } from 'components/form/fields';
@@ -101,23 +100,22 @@ const EditOrdersForm = ({
             </h1>
             <SectionWrapper className={formStyles.formSection}>
               <h2>Edit Orders:</h2>
-              <DropdownInput label="Orders type" name="orders_type" options={ordersTypeOptions} required />
-              <DatePickerInput
-                name="issue_date"
-                label="Orders date"
+              <DropdownInput
+                label="Orders type"
+                name="orders_type"
+                options={ordersTypeOptions}
                 required
-                renderInput={(input) => (
-                  <>
-                    {input}
-                    <Hint>
-                      <p>Date your orders were issued.</p>
-                    </Hint>
-                  </>
-                )}
+                hint="Required"
               />
-              <DatePickerInput name="report_by_date" label={formatLabelReportByDate(values.orders_type)} required />
+              <DatePickerInput name="issue_date" label="Orders date" hint="Required" required />
+              <DatePickerInput
+                name="report_by_date"
+                label={formatLabelReportByDate(values.orders_type)}
+                required
+                hint="Required"
+              />
               <FormGroup>
-                <Label>Are dependents included in your orders?</Label>
+                <Label hint="Required">Are dependents included in your orders?</Label>
                 <div>
                   <Field
                     as={Radio}
@@ -144,6 +142,7 @@ const EditOrdersForm = ({
                 label="Current duty location"
                 name="origin_duty_location"
                 id="origin_duty_location"
+                hint="Required"
                 required
                 metaOverride={originMeta}
               />
@@ -188,7 +187,14 @@ const EditOrdersForm = ({
                   metaOverride={newDutyMeta}
                 />
               )}
-              <DropdownInput label="Pay grade" name="grade" id="grade" required options={payGradeOptions} />
+              <DropdownInput
+                label="Pay grade"
+                name="grade"
+                id="grade"
+                required
+                options={payGradeOptions}
+                hint="Required"
+              />
 
               <p>Uploads:</p>
               <UploadsTable

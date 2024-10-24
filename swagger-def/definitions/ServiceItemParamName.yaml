@@ -69,3 +69,4 @@ enum:
   - StandaloneCrate
   - StandaloneCrateCap
   - UncappedRequestTotal
+  - LockedPriceCents

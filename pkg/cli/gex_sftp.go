@@ -41,11 +41,14 @@ const (
 	GEXSFTP824PickupDirectory string = "gex-sftp-824-pickup-directory"
 )
 
+// Pending completion of B-20560, uncomment the code below
+/*
 // Set of flags used for SFTPTPPSPaid
 const (
 	// SFTPTPPSPaidInvoiceReportPickupDirectory is the ENV var for the directory where TPPS delivers the TPPS paid invoice report
 	SFTPTPPSPaidInvoiceReportPickupDirectory string = "pending" // pending completion of B-20560
 )
+*/
 
 // InitGEXSFTPFlags initializes GEX SFTP command line flags
 func InitGEXSFTPFlags(flag *pflag.FlagSet) {

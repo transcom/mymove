@@ -10,8 +10,6 @@ import (
 
 	services "github.com/transcom/mymove/pkg/services"
 
-	time "time"
-
 	unit "github.com/transcom/mymove/pkg/unit"
 )
 
@@ -20,32 +18,36 @@ type CounselingServicesPricer struct {
 	mock.Mock
 }
 
-// Price provides a mock function with given fields: appCtx, contractCode, mtoAvailableToPrimeAt
-func (_m *CounselingServicesPricer) Price(appCtx appcontext.AppContext, contractCode string, mtoAvailableToPrimeAt time.Time) (unit.Cents, services.PricingDisplayParams, error) {
-	ret := _m.Called(appCtx, contractCode, mtoAvailableToPrimeAt)
+// Price provides a mock function with given fields: appCtx, lockedPriceCents
+func (_m *CounselingServicesPricer) Price(appCtx appcontext.AppContext, lockedPriceCents *unit.Cents) (unit.Cents, services.PricingDisplayParams, error) {
+	ret := _m.Called(appCtx, lockedPriceCents)
+
+	if len(ret) == 0 {
+		panic("no return value specified for Price")
+	}
 
 	var r0 unit.Cents
 	var r1 services.PricingDisplayParams
 	var r2 error
-	if rf, ok := ret.Get(0).(func(appcontext.AppContext, string, time.Time) (unit.Cents, services.PricingDisplayParams, error)); ok {
-		return rf(appCtx, contractCode, mtoAvailableToPrimeAt)
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, *unit.Cents) (unit.Cents, services.PricingDisplayParams, error)); ok {
+		return rf(appCtx, lockedPriceCents)
 	}
-	if rf, ok := ret.Get(0).(func(appcontext.AppContext, string, time.Time) unit.Cents); ok {
-		r0 = rf(appCtx, contractCode, mtoAvailableToPrimeAt)
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, *unit.Cents) unit.Cents); ok {
+		r0 = rf(appCtx, lockedPriceCents)
 	} else {
 		r0 = ret.Get(0).(unit.Cents)
 	}
 
-	if rf, ok := ret.Get(1).(func(appcontext.AppContext, string, time.Time) services.PricingDisplayParams); ok {
-		r1 = rf(appCtx, contractCode, mtoAvailableToPrimeAt)
+	if rf, ok := ret.Get(1).(func(appcontext.AppContext, *unit.Cents) services.PricingDisplayParams); ok {
+		r1 = rf(appCtx, lockedPriceCents)
 	} else {
 		if ret.Get(1) != nil {
 			r1 = ret.Get(1).(services.PricingDisplayParams)
 		}
 	}
 
-	if rf, ok := ret.Get(2).(func(appcontext.AppContext, string, time.Time) error); ok {
-		r2 = rf(appCtx, contractCode, mtoAvailableToPrimeAt)
+	if rf, ok := ret.Get(2).(func(appcontext.AppContext, *unit.Cents) error); ok {
+		r2 = rf(appCtx, lockedPriceCents)
 	} else {
 		r2 = ret.Error(2)
 	}
@@ -56,6 +58,10 @@ func (_m *CounselingServicesPricer) Price(appCtx appcontext.AppContext, contract
 // PriceUsingParams provides a mock function with given fields: appCtx, params
 func (_m *CounselingServicesPricer) PriceUsingParams(appCtx appcontext.AppContext, params models.PaymentServiceItemParams) (unit.Cents, services.PricingDisplayParams, error) {
 	ret := _m.Called(appCtx, params)
+
+	if len(ret) == 0 {
+		panic("no return value specified for PriceUsingParams")
+	}
 
 	var r0 unit.Cents
 	var r1 services.PricingDisplayParams

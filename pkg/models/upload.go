@@ -8,6 +8,7 @@ import (
 	"github.com/gobuffalo/validate/v3"
 	"github.com/gobuffalo/validate/v3/validators"
 	"github.com/gofrs/uuid"
+	"github.com/pkg/errors"
 
 	"github.com/transcom/mymove/pkg/db/utilities"
 )
@@ -22,6 +23,8 @@ const (
 	UploadTypePRIME UploadType = "PRIME"
 	// UploadTypePRIME string OFFICE
 	UploadTypeOFFICE UploadType = "OFFICE"
+	// UploadTypeAPP string APP
+	UploadTypeAPP UploadType = "APP"
 )
 
 // An Upload represents an uploaded file, such as an image or PDF.
@@ -29,6 +32,7 @@ type Upload struct {
 	ID          uuid.UUID  `db:"id"`
 	Filename    string     `db:"filename"`
 	Bytes       int64      `db:"bytes"`
+	Rotation    *int64     `db:"rotation"`
 	ContentType string     `db:"content_type"`
 	Checksum    string     `db:"checksum"`
 	StorageKey  string     `db:"storage_key"`
@@ -52,6 +56,7 @@ func (u *Upload) Validate(_ *pop.Connection) (*validate.Errors, error) {
 		string(UploadTypeUSER),
 		string(UploadTypePRIME),
 		string(UploadTypeOFFICE),
+		string(UploadTypeAPP),
 	}})
 	vs = append(vs,
 		&validators.StringIsPresent{Field: u.Filename, Name: "Filename"},
@@ -74,6 +79,20 @@ func (u *Upload) BeforeCreate(_ *pop.Connection) error {
 	}
 
 	return nil
+}
+
+func FetchUpload(dbConn *pop.Connection, uploadID uuid.UUID) (*Upload, error) {
+	var upload Upload
+	err := dbConn.Q().Find(&upload, uploadID)
+	if err != nil {
+		if errors.Cause(err).Error() == RecordNotFoundErrorString {
+			return &Upload{}, ErrFetchNotFound
+		}
+		// Otherwise, it's an unexpected err so we return that.
+		return &Upload{}, err
+	}
+
+	return &upload, nil
 }
 
 // DeleteUpload deletes an upload from the database
@@ -101,6 +120,7 @@ func (ut UploadType) Valid() bool {
 		string(UploadTypeUSER),
 		string(UploadTypePRIME),
 		string(UploadTypeOFFICE),
+		string(UploadTypeAPP),
 	} {
 		if string(ut) == value {
 			return true

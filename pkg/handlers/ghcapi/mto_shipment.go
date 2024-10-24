@@ -156,6 +156,8 @@ func (h GetMTOShipmentHandler) Handle(params mtoshipmentops.GetShipmentParams) m
 				"MTOServiceItems.CustomerContacts",
 				"StorageFacility.Address",
 				"PPMShipment",
+				"BoatShipment",
+				"MobileHome",
 				"Distance"}
 
 			shipmentID := uuid.FromStringOrNil(params.ShipmentID.String())
@@ -318,7 +320,10 @@ func (h UpdateShipmentHandler) Handle(params mtoshipmentops.UpdateMTOShipmentPar
 
 			mtoShipment := payloads.MTOShipmentModelFromUpdate(payload)
 			mtoShipment.ID = shipmentID
-			mtoShipment.ShipmentType = oldShipment.ShipmentType
+			isBoatShipment := mtoShipment.ShipmentType == models.MTOShipmentTypeBoatHaulAway || mtoShipment.ShipmentType == models.MTOShipmentTypeBoatTowAway
+			if !isBoatShipment {
+				mtoShipment.ShipmentType = oldShipment.ShipmentType
+			}
 
 			//MTOShipmentModelFromUpdate defaults UsesExternalVendor to false if it's nil in the payload
 			if payload.UsesExternalVendor == nil {

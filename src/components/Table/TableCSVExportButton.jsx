@@ -1,9 +1,11 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useContext } from 'react';
 import { CSVLink } from 'react-csv';
-import { Link } from '@trussworks/react-uswds';
+import { Button } from '@trussworks/react-uswds';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import moment from 'moment';
 import PropTypes from 'prop-types';
+
+import SelectedGblocContext from 'components/Office/GblocSwitcher/SelectedGblocContext';
 
 const TableCSVExportButton = ({
   labelText,
@@ -16,11 +18,15 @@ const TableCSVExportButton = ({
   paramSort,
   paramFilters,
   className,
+  isHeadquartersUser,
 }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [csvRows, setCsvRows] = useState([]);
   const csvLinkRef = useRef(null);
   const { id: sortColumn, desc: sortOrder } = paramSort.length ? paramSort[0] : {};
+
+  const gblocContext = useContext(SelectedGblocContext);
+  const { selectedGbloc } = isHeadquartersUser && gblocContext ? gblocContext : { selectedGbloc: undefined };
 
   const formatDataForExport = (data, columns = tableColumns) => {
     const formattedData = [];
@@ -50,6 +56,7 @@ const TableCSVExportButton = ({
       order: sortOrder ? 'desc' : 'asc',
       filters: paramFilters,
       currentPageSize: totalCount,
+      viewAsGBLOC: selectedGbloc,
     });
 
     const formattedData = formatDataForExport(response[queueFetcherKey]);
@@ -61,15 +68,23 @@ const TableCSVExportButton = ({
 
   return (
     <p>
-      <Link className={className} onClick={handleCsvExport} data-test-id="csv-export-btn-visible">
+      <Button
+        className={className}
+        onClick={handleCsvExport}
+        data-test-id="csv-export-btn-visible"
+        disabled={!totalCount}
+        aria-disabled={!totalCount}
+        tabIndex={0}
+      >
         <span data-test-id="csv-export-btn-text">{labelText}</span>{' '}
         <FontAwesomeIcon icon={isLoading ? 'spinner' : 'download'} spin={isLoading} />
-      </Link>
+      </Button>
       <CSVLink
         data-test-id="csv-export-btn-hidden"
         filename={`${filePrefix}-${moment().toISOString()}.csv`}
         data={csvRows}
         className="hidden"
+        tabIndex={-1}
       >
         <span ref={csvLinkRef} />
       </CSVLink>
@@ -96,6 +111,8 @@ TableCSVExportButton.propTypes = {
   paramSort: PropTypes.array,
   // paramSort is the filter columns and values currently applied to the queue
   paramFilters: PropTypes.array,
+  // isHeadquartersUser identifies if the active role is a headquarters user to allow switching GBLOCs
+  isHeadquartersUser: PropTypes.bool,
 };
 
 TableCSVExportButton.defaultProps = {
@@ -104,6 +121,7 @@ TableCSVExportButton.defaultProps = {
   hiddenColumns: [],
   paramSort: [],
   paramFilters: [],
+  isHeadquartersUser: false,
 };
 
 export default TableCSVExportButton;

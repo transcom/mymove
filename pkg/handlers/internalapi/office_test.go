@@ -143,9 +143,11 @@ func (suite *HandlerSuite) TestCancelMoveHandler() {
 	orders := factory.BuildOrder(suite.DB(), nil, nil)
 	factory.FetchOrBuildDefaultContractor(suite.DB(), nil, nil)
 	moveRouter := moverouter.NewMoveRouter()
+	office := factory.BuildTransportationOffice(suite.DB(), nil, nil)
 
 	moveOptions := models.MoveOptions{
-		Show: models.BoolPointer(true),
+		Show:               models.BoolPointer(true),
+		CounselingOfficeID: &office.ID,
 	}
 	move, verrs, err := orders.CreateNewMove(suite.DB(), moveOptions)
 	suite.NoError(err)

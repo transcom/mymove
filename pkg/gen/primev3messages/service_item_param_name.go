@@ -236,6 +236,9 @@ const (
 
 	// ServiceItemParamNameUncappedRequestTotal captures enum value "UncappedRequestTotal"
 	ServiceItemParamNameUncappedRequestTotal ServiceItemParamName = "UncappedRequestTotal"
+
+	// ServiceItemParamNameLockedPriceCents captures enum value "LockedPriceCents"
+	ServiceItemParamNameLockedPriceCents ServiceItemParamName = "LockedPriceCents"
 )
 
 // for schema
@@ -243,7 +246,7 @@ var serviceItemParamNameEnum []interface{}
 
 func init() {
 	var res []ServiceItemParamName
-	if err := json.Unmarshal([]byte(`["ActualPickupDate","ContractCode","ContractYearName","CubicFeetBilled","CubicFeetCrating","DimensionHeight","DimensionLength","DimensionWidth","DistanceZip","DistanceZipSITDest","DistanceZipSITOrigin","EIAFuelPrice","EscalationCompounded","FSCMultiplier","FSCPriceDifferenceInCents","FSCWeightBasedDistanceMultiplier","IsPeak","MarketDest","MarketOrigin","MTOAvailableToPrimeAt","NTSPackingFactor","NumberDaysSIT","PriceAreaDest","PriceAreaIntlDest","PriceAreaIntlOrigin","PriceAreaOrigin","PriceRateOrFactor","PSI_LinehaulDom","PSI_LinehaulDomPrice","PSI_LinehaulShort","PSI_LinehaulShortPrice","PSI_PriceDomDest","PSI_PriceDomDestPrice","PSI_PriceDomOrigin","PSI_PriceDomOriginPrice","PSI_ShippingLinehaulIntlCO","PSI_ShippingLinehaulIntlCOPrice","PSI_ShippingLinehaulIntlOC","PSI_ShippingLinehaulIntlOCPrice","PSI_ShippingLinehaulIntlOO","PSI_ShippingLinehaulIntlOOPrice","RateAreaNonStdDest","RateAreaNonStdOrigin","ReferenceDate","RequestedPickupDate","ServiceAreaDest","ServiceAreaOrigin","ServicesScheduleDest","ServicesScheduleOrigin","SITPaymentRequestEnd","SITPaymentRequestStart","SITScheduleDest","SITScheduleOrigin","SITServiceAreaDest","SITServiceAreaOrigin","WeightAdjusted","WeightBilled","WeightEstimated","WeightOriginal","WeightReweigh","ZipDestAddress","ZipPickupAddress","ZipSITDestHHGFinalAddress","ZipSITDestHHGOriginalAddress","ZipSITOriginHHGActualAddress","ZipSITOriginHHGOriginalAddress","StandaloneCrate","StandaloneCrateCap","UncappedRequestTotal"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["ActualPickupDate","ContractCode","ContractYearName","CubicFeetBilled","CubicFeetCrating","DimensionHeight","DimensionLength","DimensionWidth","DistanceZip","DistanceZipSITDest","DistanceZipSITOrigin","EIAFuelPrice","EscalationCompounded","FSCMultiplier","FSCPriceDifferenceInCents","FSCWeightBasedDistanceMultiplier","IsPeak","MarketDest","MarketOrigin","MTOAvailableToPrimeAt","NTSPackingFactor","NumberDaysSIT","PriceAreaDest","PriceAreaIntlDest","PriceAreaIntlOrigin","PriceAreaOrigin","PriceRateOrFactor","PSI_LinehaulDom","PSI_LinehaulDomPrice","PSI_LinehaulShort","PSI_LinehaulShortPrice","PSI_PriceDomDest","PSI_PriceDomDestPrice","PSI_PriceDomOrigin","PSI_PriceDomOriginPrice","PSI_ShippingLinehaulIntlCO","PSI_ShippingLinehaulIntlCOPrice","PSI_ShippingLinehaulIntlOC","PSI_ShippingLinehaulIntlOCPrice","PSI_ShippingLinehaulIntlOO","PSI_ShippingLinehaulIntlOOPrice","RateAreaNonStdDest","RateAreaNonStdOrigin","ReferenceDate","RequestedPickupDate","ServiceAreaDest","ServiceAreaOrigin","ServicesScheduleDest","ServicesScheduleOrigin","SITPaymentRequestEnd","SITPaymentRequestStart","SITScheduleDest","SITScheduleOrigin","SITServiceAreaDest","SITServiceAreaOrigin","WeightAdjusted","WeightBilled","WeightEstimated","WeightOriginal","WeightReweigh","ZipDestAddress","ZipPickupAddress","ZipSITDestHHGFinalAddress","ZipSITDestHHGOriginalAddress","ZipSITOriginHHGActualAddress","ZipSITOriginHHGOriginalAddress","StandaloneCrate","StandaloneCrateCap","UncappedRequestTotal","LockedPriceCents"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {

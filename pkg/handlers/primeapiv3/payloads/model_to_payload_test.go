@@ -30,6 +30,10 @@ func (suite *PayloadsSuite) TestMoveTaskOrder() {
 	shipmentGBLOC := "AGFM"
 	packingInstructions := models.InstructionsBeforeContractNumber + factory.DefaultContractNumber + models.InstructionsAfterContractNumber
 
+	streetAddress2 := "Apt 1"
+	streetAddress3 := "Apt 1"
+	country := "USA"
+
 	basicMove := models.Move{
 		ID:                 moveTaskOrderID,
 		Locator:            "TESTTEST",
@@ -44,14 +48,27 @@ func (suite *PayloadsSuite) TestMoveTaskOrder() {
 			NAICS:                          models.NAICS,
 			PackingAndShippingInstructions: packingInstructions,
 		},
-		ReferenceID:                &referenceID,
-		PaymentRequests:            models.PaymentRequests{},
-		SubmittedAt:                &submittedAt,
-		UpdatedAt:                  time.Now(),
-		Status:                     models.MoveStatusAPPROVED,
-		SignedCertifications:       models.SignedCertifications{},
-		MTOServiceItems:            models.MTOServiceItems{},
-		MTOShipments:               models.MTOShipments{},
+		ReferenceID:          &referenceID,
+		PaymentRequests:      models.PaymentRequests{},
+		SubmittedAt:          &submittedAt,
+		UpdatedAt:            time.Now(),
+		Status:               models.MoveStatusAPPROVED,
+		SignedCertifications: models.SignedCertifications{},
+		MTOServiceItems:      models.MTOServiceItems{},
+		MTOShipments: models.MTOShipments{
+			models.MTOShipment{
+				PickupAddress: &models.Address{
+					StreetAddress1: "123 Main St",
+					StreetAddress2: &streetAddress2,
+					StreetAddress3: &streetAddress3,
+					City:           "Washington",
+					State:          "DC",
+					PostalCode:     "20001",
+					Country:        &country,
+					County:         "my county",
+				},
+			},
+		},
 		ExcessWeightQualifiedAt:    &excessWeightQualifiedAt,
 		ExcessWeightAcknowledgedAt: &excessWeightAcknowledgedAt,
 		ExcessWeightUploadID:       &excessWeightUploadID,
@@ -86,9 +103,10 @@ func (suite *PayloadsSuite) TestMoveTaskOrder() {
 		suite.Equal(models.MethodOfPayment, returnedModel.Order.MethodOfPayment)
 		suite.Equal(models.NAICS, returnedModel.Order.Naics)
 		suite.Equal(packingInstructions, returnedModel.Order.PackingAndShippingInstructions)
+		suite.Require().NotEmpty(returnedModel.MtoShipments)
+		suite.Equal(basicMove.MTOShipments[0].PickupAddress.County, *returnedModel.MtoShipments[0].PickupAddress.County)
 	})
 }
-
 func (suite *PayloadsSuite) TestReweigh() {
 	id, _ := uuid.NewV4()
 	shipmentID, _ := uuid.NewV4()

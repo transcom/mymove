@@ -37,21 +37,22 @@ import (
 )
 
 func (suite *HandlerSuite) TestCreateOrder() {
-	sm := factory.BuildExtendedServiceMember(suite.DB(), nil, nil)
+	sm := factory.BuildExtendedServiceMember(suite.AppContextForTest().DB(), nil, nil)
+	officeUser := factory.BuildOfficeUserWithRoles(suite.AppContextForTest().DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
 
-	originDutyLocation := factory.BuildDutyLocation(suite.DB(), []factory.Customization{
+	originDutyLocation := factory.BuildDutyLocation(suite.AppContextForTest().DB(), []factory.Customization{
 		{
 			Model: models.DutyLocation{
 				Name: "Not Yuma AFB",
 			},
 		},
 	}, nil)
-	dutyLocation := factory.FetchOrBuildCurrentDutyLocation(suite.DB())
-	factory.FetchOrBuildPostalCodeToGBLOC(suite.DB(), dutyLocation.Address.PostalCode, "KKFA")
-	factory.FetchOrBuildDefaultContractor(suite.DB(), nil, nil)
+	dutyLocation := factory.FetchOrBuildCurrentDutyLocation(suite.AppContextForTest().DB())
+	factory.FetchOrBuildPostalCodeToGBLOC(suite.AppContextForTest().DB(), dutyLocation.Address.PostalCode, "KKFA")
+	factory.FetchOrBuildDefaultContractor(suite.AppContextForTest().DB(), nil, nil)
 
 	req := httptest.NewRequest("POST", "/orders", nil)
-	req = suite.AuthenticateRequest(req, sm)
+	req = suite.AuthenticateOfficeRequest(req, officeUser)
 
 	hasDependents := true
 	spouseHasProGear := true

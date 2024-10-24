@@ -56,7 +56,7 @@ func payloadForOfficeUserModel(o models.OfficeUser) *adminmessages.OfficeUser {
 		Email:                  handlers.FmtString(o.Email),
 		TransportationOfficeID: handlers.FmtUUID(o.TransportationOfficeID),
 		Active:                 handlers.FmtBool(o.Active),
-		Status:                 handlers.FmtStringPtr(o.Status),
+		Status:                 (*string)(o.Status),
 		CreatedAt:              *handlers.FmtDateTime(o.CreatedAt),
 		UpdatedAt:              *handlers.FmtDateTime(o.UpdatedAt),
 	}
@@ -214,7 +214,7 @@ func (h CreateOfficeUserHandler) Handle(params officeuserop.CreateOfficeUserPara
 			}
 
 			// if the user is being manually created, then we know they will already be approved
-			officeUserStatus := "APPROVED"
+			officeUserStatus := models.OfficeUserStatusAPPROVED
 
 			officeUser := models.OfficeUser{
 				LastName:               payload.LastName,

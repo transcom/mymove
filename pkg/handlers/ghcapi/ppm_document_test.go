@@ -573,7 +573,7 @@ func (suite *HandlerSuite) TestResubmitPPMShipmentDocumentationHandlerIntegratio
 		}
 	})
 
-	suite.Run("Sets PPM to await customer if there are rejected documents", func() {
+	suite.Run("Sets PPM to CLOSEOUT COMPLETE if there are rejected documents", func() {
 		ppmShipment := factory.BuildPPMShipmentThatNeedsToBeResubmitted(suite.DB(), nil, nil)
 		ppmShipment.Status = models.PPMShipmentStatusNeedsCloseout
 		suite.NoError(suite.DB().Save(&ppmShipment))
@@ -589,7 +589,7 @@ func (suite *HandlerSuite) TestResubmitPPMShipmentDocumentationHandlerIntegratio
 			suite.NoError(returnedPPMShipment.Validate(strfmt.Default))
 
 			suite.EqualUUID(ppmShipment.ID, returnedPPMShipment.ID)
-			suite.Equal(string(models.PPMShipmentStatusWaitingOnCustomer), string(returnedPPMShipment.Status))
+			suite.Equal(string(models.PPMShipmentStatusCloseoutComplete), string(returnedPPMShipment.Status))
 		}
 	})
 }

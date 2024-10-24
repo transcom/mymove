@@ -1,5 +1,5 @@
 import React from 'react';
-import { Edit, SimpleForm, TextInput, SelectInput, required, Toolbar, SaveButton, useRecordContext } from 'react-admin';
+import { Edit, SimpleForm, TextInput, SelectInput, required, Toolbar, SaveButton } from 'react-admin';
 import { connect } from 'react-redux';
 
 import { selectAdminUser } from 'store/entities/selectors';
@@ -10,12 +10,7 @@ const AdminUserEditToolbar = (props) => (
   </Toolbar>
 );
 
-const AdminUserSuperAttribute = ({ adminUser }) => {
-  const record = useRecordContext();
-  // Hide the input so the super admin can't un-super themselves
-  if (record.id === adminUser.id) {
-    return null;
-  }
+const AdminUserSuperAttribute = () => {
   return (
     <SelectInput
       source="super"
@@ -24,6 +19,7 @@ const AdminUserSuperAttribute = ({ adminUser }) => {
         { id: false, name: 'No' },
       ]}
       sx={{ width: 256 }}
+      disabled
     />
   );
 };
@@ -49,7 +45,7 @@ const AdminUserEdit = ({ adminUser }) => (
         ]}
         sx={{ width: 256 }}
       />
-      {adminUser?.super && <AdminUserSuperAttribute adminUser={adminUser} />}
+      {adminUser?.super && <AdminUserSuperAttribute />}
       <TextInput source="createdAt" disabled />
       <TextInput source="updatedAt" disabled />
     </SimpleForm>

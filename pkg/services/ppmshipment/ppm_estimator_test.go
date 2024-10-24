@@ -480,6 +480,39 @@ func (suite *PPMShipmentSuite) TestPPMEstimator() {
 		})
 	}
 
+	suite.Run("Price Breakdown", func() {
+		ppmShipment := factory.BuildPPMShipmentWithApprovedDocuments(suite.DB())
+
+		setupPricerData()
+
+		mockedPaymentRequestHelper.On(
+			"FetchServiceParamsForServiceItems",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.AnythingOfType("[]models.MTOServiceItem")).Return(serviceParams, nil)
+
+		// DTOD distance is going to be less than the HHG Rand McNally distance of 2361 miles
+		mockedPlanner.On("ZipTransitDistance", mock.AnythingOfType("*appcontext.appContext"),
+			"50309", "30813").Return(2294, nil)
+
+		linehaul, fuel, origin, dest, packing, unpacking, _, err := ppmEstimator.PriceBreakdown(suite.AppContextForTest(), &ppmShipment)
+		suite.NilOrNoVerrs(err)
+
+		mockedPlanner.AssertCalled(suite.T(), "ZipTransitDistance", mock.AnythingOfType("*appcontext.appContext"),
+			"50309", "30813")
+		mockedPaymentRequestHelper.AssertCalled(suite.T(), "FetchServiceParamsForServiceItems", mock.AnythingOfType("*appcontext.appContext"), mock.AnythingOfType("[]models.MTOServiceItem"))
+
+		suite.Equal(unit.Pound(4000), *ppmShipment.EstimatedWeight)
+		suite.Equal(unit.Cents(37841824), linehaul)
+		suite.Equal(unit.Cents(3004), fuel)
+		suite.Equal(unit.Cents(16160), origin)
+		suite.Equal(unit.Cents(33280), dest)
+		suite.Equal(unit.Cents(295800), packing)
+		suite.Equal(unit.Cents(23880), unpacking)
+
+		total := linehaul + fuel + origin + dest + packing + unpacking
+		suite.Equal(unit.Cents(38213948), total)
+	})
+
 	suite.Run("Estimated Incentive", func() {
 		suite.Run("Estimated Incentive - Success", func() {
 			oldPPMShipment := factory.BuildMinimalPPMShipment(suite.DB(), nil, nil)
@@ -509,7 +542,7 @@ func (suite *PPMShipmentSuite) TestPPMEstimator() {
 
 			suite.Equal(oldPPMShipment.PickupAddress.PostalCode, newPPM.PickupAddress.PostalCode)
 			suite.Equal(unit.Pound(5000), *newPPM.EstimatedWeight)
-			suite.Equal(unit.Cents(70064364), *ppmEstimate)
+			suite.Equal(unit.Cents(112102682), *ppmEstimate)
 		})
 
 		suite.Run("Estimated Incentive - Success - clears advance and advance requested values", func() {
@@ -540,7 +573,7 @@ func (suite *PPMShipmentSuite) TestPPMEstimator() {
 			suite.NilOrNoVerrs(err)
 			suite.Nil(newPPM.HasRequestedAdvance)
 			suite.Nil(newPPM.AdvanceAmountRequested)
-			suite.Equal(unit.Cents(38213948), *ppmEstimate)
+			suite.Equal(unit.Cents(112102682), *ppmEstimate)
 		})
 
 		suite.Run("Estimated Incentive - does not change when required fields are the same", func() {
@@ -1637,7 +1670,24 @@ func (suite *PPMShipmentSuite) TestPPMEstimator() {
 			setupPricerData()
 
 			destinationLocation := models.SITLocationTypeDestination
+			move := factory.BuildMove(suite.DB(), []factory.Customization{
+				{
+					Model: models.Order{
+						ID: uuid.Must(uuid.NewV4()),
+					},
+				},
+				{
+					Model: models.Entitlement{
+						ID:                 uuid.Must(uuid.NewV4()),
+						DBAuthorizedWeight: models.IntPointer(2000),
+					},
+				},
+			}, nil)
 			originalShipment := factory.BuildPPMShipment(suite.DB(), []factory.Customization{
+				{
+					Model:    move,
+					LinkOnly: true,
+				},
 				{
 					Model: models.PPMShipment{
 						SITExpected:               models.BoolPointer(true),

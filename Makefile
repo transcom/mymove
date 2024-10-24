@@ -4,7 +4,7 @@ DB_NAME_TEST = test_db
 DB_DOCKER_CONTAINER_DEV = milmove-db-dev
 DB_DOCKER_CONTAINER_DEPLOYED_MIGRATIONS = milmove-db-deployed-migrations
 DB_DOCKER_CONTAINER_TEST = milmove-db-test
-DB_DOCKER_CONTAINER_IMAGE = postgres:12.11
+DB_DOCKER_CONTAINER_IMAGE = postgres:16.4
 REDIS_DOCKER_CONTAINER_IMAGE = redis:5.0.6
 REDIS_DOCKER_CONTAINER = milmove-redis
 TASKS_DOCKER_CONTAINER = tasks
@@ -312,6 +312,9 @@ bin/tls-checker: $(shell find cmd/tls-checker -name '*.go') $(PKG_GOSRC) .check_
 bin/generate-payment-request-edi: $(shell find cmd/generate-payment-request-edi -name '*.go') $(PKG_GOSRC) .check_go_version.stamp .check_gopath.stamp
 	go build -ldflags "$(LDFLAGS)" -o bin/generate-payment-request-edi ./cmd/generate-payment-request-edi
 
+bin/simulate-process-tpps: $(shell find cmd/simulate-process-tpps -name '*.go') $(PKG_GOSRC) .check_go_version.stamp .check_gopath.stamp
+	go build -ldflags "$(LDFLAGS)" -o bin/simulate-process-tpps ./cmd/simulate-process-tpps
+
 #
 # ----- END BIN TARGETS -----
 #
@@ -404,13 +407,14 @@ build_tools: bin/gin \
 	bin/webhook-client \
 	bin/read-alb-logs \
 	bin/send-to-gex \
+	bin/simulate-process-tpps \
 	bin/tls-checker ## Build all tools
 
 .PHONY: build
 build: server_build build_tools client_build ## Build the server, tools, and client
 
 .PHONY: mocks_generate
-mocks_generate: bin/mockery ## Generate mockery mocks for tests
+mocks_generate: bin/mockery ## Generate mockery mocks for tests.
 	go generate $$(go list ./... | grep -v \\/pkg\\/gen\\/ | grep -v \\/cmd\\/)
 
 .PHONY: server_test_setup
@@ -1053,7 +1057,7 @@ pretty: gofmt ## Run code through JS and Golang formatters
 
 .PHONY: docker_circleci
 docker_circleci: ## Run CircleCI container locally with project mounted
-	docker run -it --pull=always --rm=true -v $(PWD):$(PWD) -w $(PWD) -e CIRCLECI=1 milmove/circleci-docker:milmove-app-ab729849a08a773ea2557b19b67f378551d1ad3d bash
+	docker run -it --pull=always --rm=true -v $(PWD):$(PWD) -w $(PWD) -e CIRCLECI=1 milmove/circleci-docker:milmove-app-3d9acdaa37c81a87b5fc1c6193a8e528dd56e4ed bash
 
 .PHONY: docker_local_ssh_server_with_password
 docker_local_ssh_server_with_password:

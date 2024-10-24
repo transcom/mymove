@@ -39,7 +39,7 @@ describe('EditContactInfoForm component', () => {
   it('renders the form inputs', async () => {
     render(<EditContactInfoForm {...testProps} />);
 
-    const telephoneInput = await screen.findByLabelText('Best contact phone');
+    const telephoneInput = await screen.findByLabelText(/Best contact phone/);
 
     expect(telephoneInput).toBeInstanceOf(HTMLInputElement);
 
@@ -51,20 +51,20 @@ describe('EditContactInfoForm component', () => {
 
     expect(secondaryPhoneInput).toHaveValue(testProps.initialValues.secondary_telephone);
 
-    const personalEmailInput = await screen.findByLabelText('Personal email');
+    const personalEmailInput = await screen.findByLabelText(/Personal email/);
 
     expect(personalEmailInput).toBeInstanceOf(HTMLInputElement);
 
     expect(personalEmailInput).toHaveValue(testProps.initialValues.personal_email);
 
-    const nameInput = await screen.findByLabelText('Name');
+    const nameInput = await screen.findByLabelText(/Name/);
 
     expect(nameInput).toBeInstanceOf(HTMLInputElement);
 
     expect(nameInput).toHaveValue(testProps.initialValues.backup_contact.name);
 
     // We have two sets of addresses and the labels are the same across both
-    const address1Inputs = await screen.findAllByLabelText('Address 1');
+    const address1Inputs = await screen.findAllByLabelText(/Address 1/);
 
     expect(address1Inputs.length).toBe(2);
 
@@ -100,19 +100,19 @@ describe('EditContactInfoForm component', () => {
     expect(backupCity).toBeInstanceOf(HTMLInputElement);
     expect(backupCity).toHaveValue(testProps.initialValues.backup_mailing_address.city);
 
-    const stateInputs = await screen.findAllByLabelText('State');
+    const stateInputs = await screen.findAllByLabelText(/State/);
 
     expect(stateInputs.length).toBe(2);
 
     const [residentialState, backupState] = stateInputs;
 
-    expect(residentialState).toBeInstanceOf(HTMLSelectElement);
+    expect(residentialState).toBeInstanceOf(HTMLInputElement);
     expect(residentialState).toHaveValue(testProps.initialValues.residential_address.state);
 
-    expect(backupState).toBeInstanceOf(HTMLSelectElement);
+    expect(backupState).toBeInstanceOf(HTMLInputElement);
     expect(backupState).toHaveValue(testProps.initialValues.backup_mailing_address.state);
 
-    const zipInputs = await screen.findAllByLabelText('ZIP');
+    const zipInputs = await screen.findAllByLabelText(/ZIP/);
 
     expect(zipInputs.length).toBe(2);
 
@@ -125,7 +125,7 @@ describe('EditContactInfoForm component', () => {
     expect(backupZIP).toHaveValue(testProps.initialValues.backup_mailing_address.postalCode);
 
     // These next few have the same label for different field types
-    const phoneInputs = await screen.findAllByLabelText('Phone');
+    const phoneInputs = await screen.findAllByLabelText(/Phone/);
 
     expect(phoneInputs.length).toBe(2);
 
@@ -141,7 +141,7 @@ describe('EditContactInfoForm component', () => {
     expect(phoneTextField).toBeInstanceOf(HTMLInputElement);
     expect(phoneTextField).toHaveValue(testProps.initialValues.backup_contact.telephone);
 
-    const emailInputs = await screen.findAllByLabelText('Email');
+    const emailInputs = await screen.findAllByLabelText(/Email/);
 
     expect(emailInputs.length).toBe(2);
 
@@ -165,7 +165,7 @@ describe('EditContactInfoForm component', () => {
 
     expect(saveButton).toBeEnabled();
 
-    const emailInput = await screen.findByLabelText('Personal email');
+    const emailInput = await screen.findByLabelText(/Personal email/);
 
     await userEvent.clear(emailInput);
     await userEvent.tab();

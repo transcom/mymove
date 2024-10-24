@@ -102,17 +102,6 @@ export async function createServiceRequestDocumentUpload({ mtoServiceItemID, fil
   );
 }
 
-export function createPrimeMTOShipment({ normalize = false, schemaKey = 'mtoShipment', body }) {
-  const operationPath = 'mtoShipment.createMTOShipment';
-  return makePrimeSimulatorRequest(
-    operationPath,
-    {
-      body,
-    },
-    { schemaKey, normalize },
-  );
-}
-
 export function createPrimeMTOShipmentV2({ normalize = false, schemaKey = 'mtoShipment', body }) {
   const operationPath = 'mtoShipment.createMTOShipment';
   return makePrimeSimulatorRequestV2(
@@ -129,25 +118,6 @@ export function createPrimeMTOShipmentV3({ normalize = false, schemaKey = 'mtoSh
   return makePrimeSimulatorRequestV3(
     operationPath,
     {
-      body,
-    },
-    { schemaKey, normalize },
-  );
-}
-
-export function updatePrimeMTOShipment({
-  mtoShipmentID,
-  ifMatchETag,
-  normalize = true,
-  schemaKey = 'mtoShipment',
-  body,
-}) {
-  const operationPath = 'mtoShipment.updateMTOShipment';
-  return makePrimeSimulatorRequest(
-    operationPath,
-    {
-      mtoShipmentID,
-      'If-Match': ifMatchETag,
       body,
     },
     { schemaKey, normalize },

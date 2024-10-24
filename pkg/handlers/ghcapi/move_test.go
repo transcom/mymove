@@ -22,6 +22,7 @@ import (
 	"github.com/transcom/mymove/pkg/services/mocks"
 	move "github.com/transcom/mymove/pkg/services/move"
 	moveservice "github.com/transcom/mymove/pkg/services/move"
+	officeuser "github.com/transcom/mymove/pkg/services/office_user"
 	transportationoffice "github.com/transcom/mymove/pkg/services/transportation_office"
 	"github.com/transcom/mymove/pkg/services/upload"
 	storageTest "github.com/transcom/mymove/pkg/storage/test"
@@ -758,5 +759,127 @@ func (suite *HandlerSuite) TestUploadAdditionalDocumentsHander() {
 
 		suite.IsType(&moveops.UploadAdditionalDocumentsInternalServerError{}, response)
 
+	})
+}
+
+func (suite *HandlerSuite) TestUpdateAssignedOfficeUserHandler() {
+	var move models.Move
+	var assignedUser models.OfficeUser
+
+	assignedOfficeUserUpdater := moveservice.NewAssignedOfficeUserUpdater(moveservice.NewMoveFetcher())
+	officeUserFetcher := officeuser.NewOfficeUserFetcherPop()
+
+	setupTestData := func() (*http.Request, UpdateAssignedOfficeUserHandler, models.Move, models.OfficeUser) {
+		move = factory.BuildMove(suite.DB(), nil, nil)
+		assignedUser = factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeServicesCounselor})
+
+		req := httptest.NewRequest("GET", "/moves/{moveID}/assignOfficeUser", nil)
+		req = suite.AuthenticateOfficeRequest(req, assignedUser)
+
+		handler := UpdateAssignedOfficeUserHandler{
+			HandlerConfig:                 suite.HandlerConfig(),
+			MoveAssignedOfficeUserUpdater: assignedOfficeUserUpdater,
+			officeUserFetcherPop:          officeUserFetcher,
+		}
+		return req, handler, move, assignedUser
+	}
+
+	suite.Run("Successful update of a move's SC", func() {
+		req, handler, move, officeUser := setupTestData()
+
+		officeUserID := strfmt.UUID(officeUser.ID.String())
+		moveID := strfmt.UUID(move.ID.String())
+		roleType := string(roles.RoleTypeServicesCounselor)
+		params := moveops.UpdateAssignedOfficeUserParams{
+			HTTPRequest: req,
+			Body: &ghcmessages.AssignOfficeUserBody{
+				OfficeUserID: &officeUserID,
+				RoleType:     &roleType,
+			},
+			MoveID: moveID,
+		}
+
+		suite.NoError(params.Body.Validate(strfmt.Default))
+		response := handler.Handle(params)
+		suite.IsType(&moveops.UpdateAssignedOfficeUserOK{}, response)
+		payload := response.(*moveops.UpdateAssignedOfficeUserOK).Payload
+		suite.NoError(payload.Validate(strfmt.Default))
+
+		suite.Equal(officeUserID, payload.SCAssignedUser.ID)
+	})
+	suite.Run("Successful update of a move's TOO", func() {
+		req, handler, move, officeUser := setupTestData()
+
+		officeUserID := strfmt.UUID(officeUser.ID.String())
+		moveID := strfmt.UUID(move.ID.String())
+		roleType := string(roles.RoleTypeTOO)
+		params := moveops.UpdateAssignedOfficeUserParams{
+			HTTPRequest: req,
+			Body: &ghcmessages.AssignOfficeUserBody{
+				OfficeUserID: &officeUserID,
+				RoleType:     &roleType,
+			},
+			MoveID: moveID,
+		}
+
+		suite.NoError(params.Body.Validate(strfmt.Default))
+		response := handler.Handle(params)
+		suite.IsType(&moveops.UpdateAssignedOfficeUserOK{}, response)
+		payload := response.(*moveops.UpdateAssignedOfficeUserOK).Payload
+		suite.NoError(payload.Validate(strfmt.Default))
+
+		suite.Equal(officeUserID, payload.TOOAssignedUser.ID)
+	})
+	suite.Run("Successful update of a move's TIO", func() {
+		req, handler, move, officeUser := setupTestData()
+
+		officeUserID := strfmt.UUID(officeUser.ID.String())
+		moveID := strfmt.UUID(move.ID.String())
+		roleType := string(roles.RoleTypeTIO)
+		params := moveops.UpdateAssignedOfficeUserParams{
+			HTTPRequest: req,
+			Body: &ghcmessages.AssignOfficeUserBody{
+				OfficeUserID: &officeUserID,
+				RoleType:     &roleType,
+			},
+			MoveID: moveID,
+		}
+
+		suite.NoError(params.Body.Validate(strfmt.Default))
+		response := handler.Handle(params)
+		suite.IsType(&moveops.UpdateAssignedOfficeUserOK{}, response)
+		payload := response.(*moveops.UpdateAssignedOfficeUserOK).Payload
+		suite.NoError(payload.Validate(strfmt.Default))
+
+		suite.Equal(officeUserID, payload.TIOAssignedUser.ID)
+	})
+	suite.Run("Successful unassign of an office user", func() {
+		move = factory.BuildMove(suite.DB(), nil, nil)
+
+		req := httptest.NewRequest("GET", "/moves/{moveID}/unassignOfficeUser", nil)
+		req = suite.AuthenticateOfficeRequest(req, assignedUser)
+
+		handler := DeleteAssignedOfficeUserHandler{
+			HandlerConfig:                 suite.HandlerConfig(),
+			MoveAssignedOfficeUserUpdater: assignedOfficeUserUpdater,
+		}
+
+		moveID := strfmt.UUID(move.ID.String())
+		roleType := string(roles.RoleTypeTIO)
+		params := moveops.DeleteAssignedOfficeUserParams{
+			HTTPRequest: req,
+			Body: moveops.DeleteAssignedOfficeUserBody{
+				RoleType: &roleType,
+			},
+			MoveID: moveID,
+		}
+
+		suite.NoError(params.Body.Validate(strfmt.Default))
+		response := handler.Handle(params)
+		suite.IsType(&moveops.DeleteAssignedOfficeUserOK{}, response)
+		payload := response.(*moveops.DeleteAssignedOfficeUserOK).Payload
+		suite.NoError(payload.Validate(strfmt.Default))
+
+		suite.Nil(payload.TIOAssignedUser)
 	})
 }

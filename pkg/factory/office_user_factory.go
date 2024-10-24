@@ -215,7 +215,7 @@ func GetTraitActiveOfficeUser() []Customization {
 
 // GetTraitApprovedOfficeUser sets the OfficeUser in an APPROVED status
 func GetTraitApprovedOfficeUser() []Customization {
-	approvedStatus := "APPROVED"
+	approvedStatus := models.OfficeUserStatusAPPROVED
 	return []Customization{
 		{
 			Model: models.OfficeUser{
@@ -227,7 +227,7 @@ func GetTraitApprovedOfficeUser() []Customization {
 
 // GetTraitRequestedOfficeUser sets the OfficeUser in an REQUESTED status
 func GetTraitRequestedOfficeUser() []Customization {
-	requestedStatus := "REQUESTED"
+	requestedStatus := models.OfficeUserStatusREQUESTED
 	return []Customization{
 		{
 			Model: models.OfficeUser{

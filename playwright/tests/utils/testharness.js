@@ -178,6 +178,14 @@ export class TestHarness {
   }
 
   /**
+   * Use testharness to build a move with an hhg shipment with a past origin and destination SIT
+   * @returns {Promise<Move>}
+   */
+  async buildHHGMoveWithPastSITs() {
+    return this.buildDefault('HHGMoveWithPastSITs');
+  }
+
+  /**
    *    * Use testharness to build a move with an hhg shipment in SIT without destination address
    * @returns {Promise<Move>}
    */
@@ -404,6 +412,14 @@ export class TestHarness {
   }
 
   /**
+   * Use testharness to build Mobile move
+   * @returns {Promise<Move>}
+   */
+  async buildMobileHomeMoveNeedsSC() {
+    return this.buildDefault('MobileHomeMoveNeedsSC');
+  }
+
+  /**
    * Use testharness to build a good TAC and LOA combination, return the TAC
    * so that office users can input the TAC, and preview the LOA (If the
    * form params are good for the lookup. Eg, service member branch,
@@ -571,6 +587,24 @@ export class TestHarness {
 
   async buildNTSRMoveWithAddressChangeRequest() {
     return this.buildDefault('NTSRMoveWithAddressChangeRequest');
+  }
+
+  /**
+   * Use testharness to build boat move needing SC
+   * @returns {Promise<Move>}
+   */
+
+  async buildBoatHaulAwayMoveNeedsSC() {
+    return this.buildDefault('BoatHaulAwayMoveNeedsSC');
+  }
+
+  /**
+   * Use testharness to build boat move needing TOO approval
+   * @returns {Promise<Move>}
+   */
+
+  async buildBoatHaulAwayMoveNeedsTOOApproval() {
+    return this.buildDefault('BoatHaulAwayMoveNeedsTOOApproval');
   }
 }
 export default TestHarness;

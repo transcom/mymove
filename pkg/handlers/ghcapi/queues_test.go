@@ -833,7 +833,7 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandlerCustomerInfoFilters() {
 		result := payload.QueueMoves[0]
 
 		suite.Len(payload.QueueMoves, 1)
-		suite.Equal("11111", result.Customer.DodID)
+		suite.Equal("11111", result.Customer.Edipi)
 	})
 
 	suite.Run("returns results matching Move ID search term", func() {
@@ -1525,7 +1525,7 @@ func (suite *HandlerSuite) TestGetServicesCounselingQueueHandler() {
 
 		suite.Len(payload.QueueMoves, 2)
 		suite.Equal(order.ServiceMember.ID.String(), result1.Customer.ID.String())
-		suite.Equal(*order.ServiceMember.Edipi, result1.Customer.DodID)
+		suite.Equal(*order.ServiceMember.Edipi, result1.Customer.Edipi)
 		suite.Equal(subtestData.needsCounselingMove.Locator, result1.Locator)
 		suite.EqualValues(subtestData.needsCounselingMove.Status, result1.Status)
 		suite.Equal(subtestData.needsCounselingEarliestShipment.RequestedPickupDate.Format(time.RFC3339Nano), (time.Time)(*result1.RequestedMoveDate).Format(time.RFC3339Nano))

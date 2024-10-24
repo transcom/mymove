@@ -84,6 +84,7 @@ var ServiceItemParamsWithLookups = []models.ServiceItemParamName{
 	models.ServiceItemParamNameDimensionWidth,
 	models.ServiceItemParamNameStandaloneCrate,
 	models.ServiceItemParamNameStandaloneCrateCap,
+	models.ServiceItemParamNameLockedPriceCents,
 }
 
 // ServiceParamLookupInitialize initializes service parameter lookup
@@ -425,6 +426,10 @@ func InitializeLookups(appCtx appcontext.AppContext, shipment models.MTOShipment
 		ServiceItem: serviceItem,
 	}
 
+	lookups[models.ServiceItemParamNameLockedPriceCents] = LockedPriceCentsLookup{
+		ServiceItem: serviceItem,
+	}
+
 	return lookups
 }
 
@@ -437,7 +442,7 @@ func GetDestinationForDistanceLookup(appCtx appcontext.AppContext, mtoShipment m
 	if err != nil {
 		return models.Address{}, apperror.NewNotFoundError(shipmentCopy.ID, "MTOShipment not found in Destination For Distance Lookup")
 	}
-	if shipmentCopy.MTOServiceItems == nil || len(shipmentCopy.MTOServiceItems) == 0 {
+	if len(shipmentCopy.MTOServiceItems) == 0 {
 		return *mtoShipment.DestinationAddress, nil
 	}
 

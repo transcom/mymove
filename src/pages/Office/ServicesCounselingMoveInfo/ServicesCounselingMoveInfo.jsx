@@ -42,6 +42,9 @@ const ServicesCounselingMoveInfo = () => {
   const [unapprovedServiceItemCount, setUnapprovedServiceItemCount] = React.useState(0);
   const [excessWeightRiskCount, setExcessWeightRiskCount] = React.useState(0);
   const [unapprovedSITExtensionCount, setUnApprovedSITExtensionCount] = React.useState(0);
+  const [shipmentWarnConcernCount, setShipmentWarnConcernCount] = useState(0);
+  const [shipmentErrorConcernCount, setShipmentErrorConcernCount] = useState(0);
+  const [missingOrdersInfoCount, setMissingOrdersInfoCount] = useState(0);
   const [infoSavedAlert, setInfoSavedAlert] = useState(null);
   const { hasRecentError, traceId } = useSelector((state) => state.interceptor);
   const [moveLockFlag, setMoveLockFlag] = useState(false);
@@ -195,6 +198,9 @@ const ServicesCounselingMoveInfo = () => {
           unapprovedServiceItemCount={unapprovedServiceItemCount}
           excessWeightRiskCount={excessWeightRiskCount}
           unapprovedSITExtensionCount={unapprovedSITExtensionCount}
+          shipmentWarnConcernCount={shipmentWarnConcernCount}
+          shipmentErrorConcernCount={shipmentErrorConcernCount}
+          missingOrdersInfoCount={missingOrdersInfoCount}
         />
       )}
 
@@ -214,6 +220,12 @@ const ServicesCounselingMoveInfo = () => {
               <ServicesCounselingMoveDetails
                 infoSavedAlert={infoSavedAlert}
                 setUnapprovedShipmentCount={setUnapprovedShipmentCount}
+                setShipmentWarnConcernCount={setShipmentWarnConcernCount}
+                setShipmentErrorConcernCount={setShipmentErrorConcernCount}
+                shipmentWarnConcernCount={shipmentWarnConcernCount}
+                shipmentErrorConcernCount={shipmentErrorConcernCount}
+                missingOrdersInfoCount={missingOrdersInfoCount}
+                setMissingOrdersInfoCount={setMissingOrdersInfoCount}
                 isMoveLocked={isMoveLocked}
               />
             }

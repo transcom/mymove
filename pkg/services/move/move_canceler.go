@@ -47,7 +47,7 @@ func (f *moveCanceler) CancelMove(appCtx appcontext.AppContext, moveID uuid.UUID
 					return apperror.NewNotFoundError(ppmshipment.ID, "while looking for ppm shipment")
 				}
 
-				ppmshipment.Status = models.PPMShipmentStatusCancelled
+				ppmshipment.Status = models.PPMShipmentStatusCanceled
 
 				verrs, err := txnAppCtx.DB().ValidateAndUpdate(&ppmshipment)
 				if verrs != nil && verrs.HasAny() {
