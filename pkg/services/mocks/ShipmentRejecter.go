@@ -20,6 +20,10 @@ type ShipmentRejecter struct {
 func (_m *ShipmentRejecter) RejectShipment(appCtx appcontext.AppContext, shipmentID uuid.UUID, eTag string, reason *string) (*models.MTOShipment, error) {
 	ret := _m.Called(appCtx, shipmentID, eTag, reason)
 
+	if len(ret) == 0 {
+		panic("no return value specified for RejectShipment")
+	}
+
 	var r0 *models.MTOShipment
 	var r1 error
 	if rf, ok := ret.Get(0).(func(appcontext.AppContext, uuid.UUID, string, *string) (*models.MTOShipment, error)); ok {

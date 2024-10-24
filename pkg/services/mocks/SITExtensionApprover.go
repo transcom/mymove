@@ -20,6 +20,10 @@ type SITExtensionApprover struct {
 func (_m *SITExtensionApprover) ApproveSITExtension(appCtx appcontext.AppContext, shipmentID uuid.UUID, sitExtensionID uuid.UUID, approvedDays int, requestReason models.SITDurationUpdateRequestReason, officeRemarks *string, eTag string) (*models.MTOShipment, error) {
 	ret := _m.Called(appCtx, shipmentID, sitExtensionID, approvedDays, requestReason, officeRemarks, eTag)
 
+	if len(ret) == 0 {
+		panic("no return value specified for ApproveSITExtension")
+	}
+
 	var r0 *models.MTOShipment
 	var r1 error
 	if rf, ok := ret.Get(0).(func(appcontext.AppContext, uuid.UUID, uuid.UUID, int, models.SITDurationUpdateRequestReason, *string, string) (*models.MTOShipment, error)); ok {

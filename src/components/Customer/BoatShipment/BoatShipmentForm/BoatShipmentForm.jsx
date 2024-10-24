@@ -7,6 +7,7 @@ import classnames from 'classnames';
 
 import styles from './BoatShipmentForm.module.scss';
 
+import RequiredTag from 'components/form/RequiredTag';
 import SectionWrapper from 'components/Customer/SectionWrapper';
 import Hint from 'components/Hint';
 import Fieldset from 'shared/Fieldset';
@@ -125,6 +126,7 @@ const BoatShipmentForm = ({ mtoShipment, onBack, onSubmit }) => {
                       name="year"
                       label="Year"
                       id="year"
+                      labelHint="Required"
                       maxLength={4}
                       mask={Number}
                       scale={0}
@@ -143,8 +145,8 @@ const BoatShipmentForm = ({ mtoShipment, onBack, onSubmit }) => {
                   </div>
                 </div>
                 <div className={classnames(styles.formFieldContainer, 'mobile-lg:grid-col-7')}>
-                  <TextField data-testid="make" name="make" label="Make" id="make" required />
-                  <TextField data-testid="model" name="model" label="Model" id="model" required />
+                  <TextField data-testid="make" name="make" label="Make" id="make" required labelHint="Required" />
+                  <TextField data-testid="model" name="model" label="Model" id="model" required labelHint="Required" />
                 </div>
               </SectionWrapper>
               <SectionWrapper className={classnames(styles.sectionWrapper, formStyles.formSection, 'origin')}>
@@ -158,6 +160,7 @@ const BoatShipmentForm = ({ mtoShipment, onBack, onSubmit }) => {
                   <Fieldset className={styles.formFieldContainer}>
                     <div className="labelWrapper">
                       <legend className="usa-label">Length</legend>
+                      <RequiredTag />
                       <ErrorMessage display={lengthHasError}>Required</ErrorMessage>
                     </div>
                     <div className={classnames(styles.formTextFieldWrapper, 'grid-row grid-gap')}>
@@ -195,6 +198,7 @@ const BoatShipmentForm = ({ mtoShipment, onBack, onSubmit }) => {
                   <Fieldset className={styles.formFieldContainer}>
                     <div className="labelWrapper">
                       <legend className="usa-label">Width</legend>
+                      <RequiredTag />
                       <ErrorMessage display={widthHasError}>Required</ErrorMessage>
                     </div>
                     <div className={classnames(styles.formTextFieldWrapper, 'grid-row grid-gap')}>
@@ -232,6 +236,7 @@ const BoatShipmentForm = ({ mtoShipment, onBack, onSubmit }) => {
                   <Fieldset className={styles.formFieldContainer}>
                     <div className="labelWrapper">
                       <legend className="usa-label">Height</legend>
+                      <RequiredTag />
                       <ErrorMessage display={heightHasError}>Required</ErrorMessage>
                     </div>
                     <div className={classnames(styles.formTextFieldWrapper, 'grid-row grid-gap')}>
@@ -272,6 +277,7 @@ const BoatShipmentForm = ({ mtoShipment, onBack, onSubmit }) => {
                 <h2>Trailer Status</h2>
                 <Fieldset>
                   <legend className="usa-label">Does the boat have a trailer?</legend>
+                  <RequiredTag />
                   <Field
                     as={Radio}
                     id="hasTrailerYes"
@@ -293,6 +299,7 @@ const BoatShipmentForm = ({ mtoShipment, onBack, onSubmit }) => {
                   {values.hasTrailer === 'true' && (
                     <Fieldset className={styles.formFieldContainer}>
                       <legend className="usa-label">Is the trailer roadworthy?</legend>
+                      <RequiredTag />
                       <Field
                         as={Radio}
                         id="isRoadworthyYes"
@@ -316,13 +323,7 @@ const BoatShipmentForm = ({ mtoShipment, onBack, onSubmit }) => {
                 </Fieldset>
               </SectionWrapper>
               <SectionWrapper className={formStyles.formSection}>
-                <Fieldset
-                  legend={
-                    <div className={formStyles.legendContent}>
-                      Remarks <span className={formStyles.optional}>Optional</span>
-                    </div>
-                  }
-                >
+                <Fieldset legend={<div className={formStyles.legendContent}>Remarks</div>}>
                   <Label htmlFor="customerRemarks">
                     Are there things about this boat shipment that your counselor or movers should know or discuss with
                     you?
@@ -332,7 +333,7 @@ const BoatShipmentForm = ({ mtoShipment, onBack, onSubmit }) => {
                     Examples
                     <ul>
                       <li>
-                        Dimensions of the boat on the trailer are signigicantly different than one would expect given
+                        Dimensions of the boat on the trailer are significantly different than one would expect given
                         their individual dimensions
                       </li>
 

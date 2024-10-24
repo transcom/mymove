@@ -22,6 +22,10 @@ type OfficeUserCreator struct {
 func (_m *OfficeUserCreator) CreateOfficeUser(appCtx appcontext.AppContext, user *models.OfficeUser, transportationIDFilter []services.QueryFilter) (*models.OfficeUser, *validate.Errors, error) {
 	ret := _m.Called(appCtx, user, transportationIDFilter)
 
+	if len(ret) == 0 {
+		panic("no return value specified for CreateOfficeUser")
+	}
+
 	var r0 *models.OfficeUser
 	var r1 *validate.Errors
 	var r2 error

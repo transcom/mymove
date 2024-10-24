@@ -15,6 +15,7 @@ import retryPageLoading from 'utils/retryPageLoading';
 import { loadInternalSchema } from 'shared/Swagger/ducks';
 import { loadUser } from 'store/auth/actions';
 import { initOnboarding } from 'store/onboarding/actions';
+import { setCanAddOrders as setCanAddOrdersAction } from 'store/general/actions';
 import Helper from 'components/Customer/Home/Helper';
 import { customerRoutes } from 'constants/routes';
 import { withContext } from 'shared/AppContext';
@@ -26,7 +27,7 @@ import { updateAllMoves as updateAllMovesAction } from 'store/entities/actions';
 import { profileStates } from 'constants/customerStates';
 import { getAllMoves } from 'services/internalApi';
 
-const MultiMovesLandingPage = ({ serviceMember, serviceMemberMoves, updateAllMoves }) => {
+const MultiMovesLandingPage = ({ serviceMember, serviceMemberMoves, updateAllMoves, setCanAddOrders }) => {
   const [setErrorState] = useState({ hasError: false, error: undefined, info: undefined });
   const navigate = useNavigate();
 
@@ -59,8 +60,9 @@ const MultiMovesLandingPage = ({ serviceMember, serviceMemberMoves, updateAllMov
 
   // handles logic when user clicks "Create a Move" button
   // if they have previous moves, they'll need to validate their profile
-  // if they do not have previous moves, then they don't need to validate
+  // also allowing the user to add orders only if they come from the flow of this button
   const handleCreateMoveBtnClick = () => {
+    setCanAddOrders(true);
     if (
       (serviceMemberMoves && serviceMemberMoves.previousMoves && serviceMemberMoves.previousMoves.length !== 0) ||
       (serviceMemberMoves && serviceMemberMoves.currentMove && serviceMemberMoves.currentMove.length !== 0)
@@ -189,6 +191,7 @@ const mapStateToProps = (state) => {
 
 const mapDispatchToProps = {
   updateAllMoves: updateAllMovesAction,
+  setCanAddOrders: setCanAddOrdersAction,
 };
 
 // in order to avoid setting up proxy server only for storybook, pass in stub function so API requests don't fail

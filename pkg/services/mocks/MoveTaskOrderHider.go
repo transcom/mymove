@@ -18,6 +18,10 @@ type MoveTaskOrderHider struct {
 func (_m *MoveTaskOrderHider) Hide(appCtx appcontext.AppContext) (services.HiddenMoves, error) {
 	ret := _m.Called(appCtx)
 
+	if len(ret) == 0 {
+		panic("no return value specified for Hide")
+	}
+
 	var r0 services.HiddenMoves
 	var r1 error
 	if rf, ok := ret.Get(0).(func(appcontext.AppContext) (services.HiddenMoves, error)); ok {

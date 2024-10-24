@@ -18,6 +18,10 @@ type PaymentRequestCreator struct {
 func (_m *PaymentRequestCreator) CreatePaymentRequestCheck(appCtx appcontext.AppContext, paymentRequest *models.PaymentRequest) (*models.PaymentRequest, error) {
 	ret := _m.Called(appCtx, paymentRequest)
 
+	if len(ret) == 0 {
+		panic("no return value specified for CreatePaymentRequestCheck")
+	}
+
 	var r0 *models.PaymentRequest
 	var r1 error
 	if rf, ok := ret.Get(0).(func(appcontext.AppContext, *models.PaymentRequest) (*models.PaymentRequest, error)); ok {

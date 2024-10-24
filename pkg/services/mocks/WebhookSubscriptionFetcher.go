@@ -20,6 +20,10 @@ type WebhookSubscriptionFetcher struct {
 func (_m *WebhookSubscriptionFetcher) FetchWebhookSubscription(appCtx appcontext.AppContext, filters []services.QueryFilter) (models.WebhookSubscription, error) {
 	ret := _m.Called(appCtx, filters)
 
+	if len(ret) == 0 {
+		panic("no return value specified for FetchWebhookSubscription")
+	}
+
 	var r0 models.WebhookSubscription
 	var r1 error
 	if rf, ok := ret.Get(0).(func(appcontext.AppContext, []services.QueryFilter) (models.WebhookSubscription, error)); ok {

@@ -20,6 +20,10 @@ type MTOServiceItemFetcher struct {
 func (_m *MTOServiceItemFetcher) GetServiceItem(appCtx appcontext.AppContext, serviceItemID uuid.UUID) (*models.MTOServiceItem, error) {
 	ret := _m.Called(appCtx, serviceItemID)
 
+	if len(ret) == 0 {
+		panic("no return value specified for GetServiceItem")
+	}
+
 	var r0 *models.MTOServiceItem
 	var r1 error
 	if rf, ok := ret.Get(0).(func(appcontext.AppContext, uuid.UUID) (*models.MTOServiceItem, error)); ok {

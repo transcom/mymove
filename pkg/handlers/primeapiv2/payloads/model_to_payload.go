@@ -185,6 +185,14 @@ func DutyLocation(dutyLocation *models.DutyLocation) *primev2messages.DutyLocati
 	return &payload
 }
 
+// Country payload
+func Country(country *models.Country) *string {
+	if country == nil {
+		return nil
+	}
+	return &country.Country
+}
+
 // Address payload
 func Address(address *models.Address) *primev2messages.Address {
 	if address == nil {
@@ -198,7 +206,7 @@ func Address(address *models.Address) *primev2messages.Address {
 		City:           &address.City,
 		State:          &address.State,
 		PostalCode:     &address.PostalCode,
-		Country:        address.Country,
+		Country:        Country(address.Country),
 		County:         &address.County,
 		ETag:           etag.GenerateEtag(address.UpdatedAt),
 	}
@@ -259,7 +267,7 @@ func MTOAgents(mtoAgents *models.MTOAgents) *primev2messages.MTOAgents {
 
 func ProofOfServiceDoc(proofOfServiceDoc models.ProofOfServiceDoc) *primev2messages.ProofOfServiceDoc {
 	uploads := make([]*primev2messages.UploadWithOmissions, len(proofOfServiceDoc.PrimeUploads))
-	if proofOfServiceDoc.PrimeUploads != nil && len(proofOfServiceDoc.PrimeUploads) > 0 {
+	if len(proofOfServiceDoc.PrimeUploads) > 0 {
 		for i, primeUpload := range proofOfServiceDoc.PrimeUploads { //#nosec G601 new in 1.22.2
 			uploads[i] = basicUpload(&primeUpload.Upload)
 		}
@@ -278,7 +286,7 @@ func PaymentRequest(paymentRequest *models.PaymentRequest) *primev2messages.Paym
 
 	serviceDocs := make(primev2messages.ProofOfServiceDocs, len(paymentRequest.ProofOfServiceDocs))
 
-	if paymentRequest.ProofOfServiceDocs != nil && len(paymentRequest.ProofOfServiceDocs) > 0 {
+	if len(paymentRequest.ProofOfServiceDocs) > 0 {
 		for i, proofOfService := range paymentRequest.ProofOfServiceDocs {
 			serviceDocs[i] = ProofOfServiceDoc(proofOfService)
 		}
@@ -389,7 +397,7 @@ func PaymentServiceItemParams(paymentServiceItemParams *models.PaymentServiceIte
 
 func ServiceRequestDocument(serviceRequestDocument models.ServiceRequestDocument) *primev2messages.ServiceRequestDocument {
 	uploads := make([]*primev2messages.UploadWithOmissions, len(serviceRequestDocument.ServiceRequestDocumentUploads))
-	if serviceRequestDocument.ServiceRequestDocumentUploads != nil && len(serviceRequestDocument.ServiceRequestDocumentUploads) > 0 {
+	if len(serviceRequestDocument.ServiceRequestDocumentUploads) > 0 {
 		for i, proofOfServiceDocumentUpload := range serviceRequestDocument.ServiceRequestDocumentUploads { //#nosec G601 new in 1.22.2
 			uploads[i] = basicUpload(&proofOfServiceDocumentUpload.Upload)
 		}
@@ -633,7 +641,7 @@ func MTOServiceItem(mtoServiceItem *models.MTOServiceItem) primev2messages.MTOSe
 
 	serviceRequestDocuments := make(primev2messages.ServiceRequestDocuments, len(mtoServiceItem.ServiceRequestDocuments))
 
-	if mtoServiceItem.ServiceRequestDocuments != nil && len(mtoServiceItem.ServiceRequestDocuments) > 0 {
+	if len(mtoServiceItem.ServiceRequestDocuments) > 0 {
 		for i, serviceRequestDocument := range mtoServiceItem.ServiceRequestDocuments {
 			serviceRequestDocuments[i] = ServiceRequestDocument(serviceRequestDocument)
 		}

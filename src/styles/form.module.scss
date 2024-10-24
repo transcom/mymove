@@ -11,6 +11,9 @@
     @include u-margin-y(4);
   }
 
+  .hide {
+    display: none;
+  }
   legend {
     width: 100%;
     max-width: none;
@@ -161,6 +164,10 @@ p + .radioGroup {
     padding-bottom: 10px;
     @include u-margin-y(0);
   }
+}
+
+.customerPreferredContact > div {
+  margin-top: 0;
 }
 
 .formActions {

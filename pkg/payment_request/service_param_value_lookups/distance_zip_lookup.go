@@ -52,10 +52,10 @@ func (r DistanceZipLookup) lookup(appCtx appcontext.AppContext, keyData *Service
 	errorMsgForPickupZip := fmt.Sprintf("Shipment must have valid pickup zipcode. Received: %s", pickupZip)
 	errorMsgForDestinationZip := fmt.Sprintf("Shipment must have valid destination zipcode. Received: %s", destinationZip)
 	if len(pickupZip) < 5 {
-		return "", apperror.NewInvalidInputError(*mtoShipmentID, fmt.Errorf(errorMsgForPickupZip), nil, errorMsgForPickupZip)
+		return "", apperror.NewInvalidInputError(*mtoShipmentID, fmt.Errorf("%s", errorMsgForPickupZip), nil, errorMsgForPickupZip)
 	}
 	if len(destinationZip) < 5 {
-		return "", apperror.NewInvalidInputError(*mtoShipmentID, fmt.Errorf(errorMsgForDestinationZip), nil, errorMsgForDestinationZip)
+		return "", apperror.NewInvalidInputError(*mtoShipmentID, fmt.Errorf("%s", errorMsgForDestinationZip), nil, errorMsgForDestinationZip)
 	}
 
 	serviceCode := keyData.MTOServiceItem.ReService.Code
