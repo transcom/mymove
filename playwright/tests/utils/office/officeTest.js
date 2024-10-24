@@ -126,7 +126,7 @@ export class OfficePage extends BaseTestPage {
   }
 
   /**
-   * Use devlocal auth to sign in as new Multi-role User
+   * Use devlocal auth to sign in as new government surveillance representative role
    */
   async signInAsNewGSRUser() {
     await this.signInAsNewUser(GSROfficeUserType);
