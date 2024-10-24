@@ -140,4 +140,5 @@ export default {
   dest_sit_auth_end_date: 'Destination SIT authorized date',
   approvals_requested_at: 'Approvals requested at',
   approved_at: 'Approved at',
+  counseling_office_name: 'Counseling office',
 };
