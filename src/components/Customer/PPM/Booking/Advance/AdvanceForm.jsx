@@ -2,7 +2,7 @@ import React from 'react';
 import { func } from 'prop-types';
 import * as Yup from 'yup';
 import { Field, Formik } from 'formik';
-import { Button, Form, Radio } from '@trussworks/react-uswds';
+import { Button, Form, Radio, Alert } from '@trussworks/react-uswds';
 import classnames from 'classnames';
 
 import ppmStyles from 'components/Customer/PPM/PPM.module.scss';
@@ -16,8 +16,8 @@ import { ShipmentShape } from 'types/shipment';
 import { formatCentsTruncateWhole } from 'utils/formatters';
 import { calculateMaxAdvanceAndFormatAdvanceAndIncentive, getFormattedMaxAdvancePercentage } from 'utils/incentives';
 
-const validationSchema = (maxAdvance, formattedMaxAdvance) => {
-  return Yup.object().shape({
+const validationSchema = (maxAdvance, formattedMaxAdvance, estimatedIncentive) => {
+  let returnSchema = Yup.object().shape({
     hasRequestedAdvance: Yup.boolean().required('Required'),
     advanceAmountRequested: Yup.number().when('hasRequestedAdvance', {
       is: true,
@@ -32,6 +32,18 @@ const validationSchema = (maxAdvance, formattedMaxAdvance) => {
       then: (schema) => schema.oneOf([true], 'Required'),
     }),
   });
+
+  if (estimatedIncentive === 0) {
+    returnSchema = Yup.object().shape({
+      hasRequestedAdvance: Yup.boolean().required('Required'),
+      agreeToTerms: Yup.boolean().when('hasRequestedAdvance', {
+        is: true,
+        then: (schema) => schema.oneOf([true], 'Required'),
+      }),
+    });
+  }
+
+  return returnSchema;
 };
 
 const AdvanceForm = ({ mtoShipment, onSubmit, onBack }) => {
@@ -48,7 +60,7 @@ const AdvanceForm = ({ mtoShipment, onSubmit, onBack }) => {
   return (
     <Formik
       initialValues={initialValues}
-      validationSchema={() => validationSchema(maxAdvance, formattedMaxAdvance)}
+      validationSchema={() => validationSchema(maxAdvance, formattedMaxAdvance, estimatedIncentive)}
       onSubmit={onSubmit}
     >
       {({ isValid, isSubmitting, handleSubmit, values }) => {
@@ -56,26 +68,37 @@ const AdvanceForm = ({ mtoShipment, onSubmit, onBack }) => {
           <div className={ppmStyles.formContainer}>
             <Form className={(formStyles.form, ppmStyles.form)}>
               <SectionWrapper className={classnames(ppmStyles.sectionWrapper, formStyles.formSection)}>
-                <h2>{`You can ask for up to $${formattedMaxAdvance} as an advance`}</h2>
-                <p>{`That is ${getFormattedMaxAdvancePercentage()} of $${formattedIncentive}, the estimated incentive for your PPM.`}</p>
-                <p>
-                  You can request an Advance Operating Allowance (AOA, or “Advance”) to help cover some of your up-front
-                  moving expenses.
-                </p>
-                <p>
-                  Your service’s policy will determine if you are authorized to receive one. You will not receive an
-                  advance if your service requires you to use your Government Travel Charge Card (GTCC) for PPM
-                  expenses.
-                </p>
-                <p>
-                  Your service may have other policies that mean you will not receive an advance. One example: Your
-                  service might not authorize any advances for moves associated with retirement or separation.
-                </p>
-                <p>
-                  If your service authorizes an advance, the amount you receive will be deducted from your final PPM
-                  incentive payment. If your incentive ends up being less than your advance, you will be required to pay
-                  back the difference.
-                </p>
+                {estimatedIncentive === 0 && (
+                  <Alert type="warning" aria-live="polite" headingLevel="h4">
+                    The Defense Table of Distances (DTOD) was unavailable during your PPM creation, so we are currently
+                    unable to provide information regarding any advances. This information will be updated and provided
+                    to you during your counseling session.
+                  </Alert>
+                )}
+                {estimatedIncentive !== 0 && (
+                  <>
+                    <h2>{`You can ask for up to $${formattedMaxAdvance} as an advance`}</h2>
+                    <p>{`That is ${getFormattedMaxAdvancePercentage()} of $${formattedIncentive}, the estimated incentive for your PPM.`}</p>
+                    <p>
+                      You can request an Advance Operating Allowance (AOA, or “Advance”) to help cover some of your
+                      up-front moving expenses.
+                    </p>
+                    <p>
+                      Your service’s policy will determine if you are authorized to receive one. You will not receive an
+                      advance if your service requires you to use your Government Travel Charge Card (GTCC) for PPM
+                      expenses.
+                    </p>
+                    <p>
+                      Your service may have other policies that mean you will not receive an advance. One example: Your
+                      service might not authorize any advances for moves associated with retirement or separation.
+                    </p>
+                    <p>
+                      If your service authorizes an advance, the amount you receive will be deducted from your final PPM
+                      incentive payment. If your incentive ends up being less than your advance, you will be required to
+                      pay back the difference.
+                    </p>
+                  </>
+                )}
                 <Fieldset>
                   <legend className="usa-label">Would you like to request an advance on your incentive?</legend>
                   <Field
@@ -97,20 +120,23 @@ const AdvanceForm = ({ mtoShipment, onSubmit, onBack }) => {
                 </Fieldset>
                 {values.hasRequestedAdvance === 'true' && (
                   <>
-                    <MaskedTextField
-                      defaultValue="0"
-                      name="advanceAmountRequested"
-                      label="Amount requested"
-                      labelHint="Required"
-                      id="advanceAmountRequested"
-                      mask={Number}
-                      scale={0} // digits after point, 0 for integers
-                      signed={false} // disallow negative
-                      thousandsSeparator=","
-                      lazy={false} // immediate masking evaluation
-                      prefix="$"
-                      hintClassName={ppmStyles.innerHint}
-                    />
+                    {estimatedIncentive !== 0 && (
+                      <MaskedTextField
+                        isDisabled={estimatedIncentive === 0}
+                        defaultValue="0"
+                        name="advanceAmountRequested"
+                        label="Amount requested"
+                        labelHint="Required"
+                        id="advanceAmountRequested"
+                        mask={Number}
+                        scale={0} // digits after point, 0 for integers
+                        signed={false} // disallow negative
+                        thousandsSeparator=","
+                        lazy={false} // immediate masking evaluation
+                        prefix="$"
+                        hintClassName={ppmStyles.innerHint}
+                      />
+                    )}
                     <Hint>
                       Your move counselor will discuss next steps with you and let you know how you&apos;ll receive your
                       advance.
