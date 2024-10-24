@@ -18,6 +18,9 @@ export const EntitlementShape = PropTypes.shape({
   storageInTransit: PropTypes.number,
   totalWeight: PropTypes.number,
   totalDependents: PropTypes.number,
+  dependentsUnderTwelve: PropTypes.number,
+  dependentsTwelveAndOver: PropTypes.number,
+  accompaniedTour: PropTypes.bool,
 });
 
 export const OrderShape = PropTypes.shape({

@@ -455,6 +455,18 @@ func allowanceFromTOOPayload(existingOrder models.Order, payload ghcmessages.Upd
 		order.Entitlement.GunSafe = *payload.GunSafe
 	}
 
+	if payload.AccompaniedTour != nil {
+		order.Entitlement.AccompaniedTour = payload.AccompaniedTour
+	}
+
+	if payload.DependentsUnderTwelve != nil {
+		order.Entitlement.DependentsUnderTwelve = models.IntPointer(int(*payload.DependentsUnderTwelve))
+	}
+
+	if payload.DependentsTwelveAndOver != nil {
+		order.Entitlement.DependentsTwelveAndOver = models.IntPointer(int(*payload.DependentsTwelveAndOver))
+	}
+
 	return order
 }
 

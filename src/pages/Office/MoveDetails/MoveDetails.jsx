@@ -310,6 +310,9 @@ const MoveDetails = ({
     requiredMedicalEquipmentWeight: allowances.requiredMedicalEquipmentWeight,
     organizationalClothingAndIndividualEquipment: allowances.organizationalClothingAndIndividualEquipment,
     gunSafe: allowances.gunSafe,
+    dependentsUnderTwelve: allowances.dependentsUnderTwelve,
+    dependentsTwelveAndOver: allowances.dependentsTwelveAndOver,
+    accompaniedTour: allowances.accompaniedTour,
   };
 
   const customerInfo = {

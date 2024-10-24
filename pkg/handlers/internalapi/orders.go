@@ -160,6 +160,17 @@ func (h CreateOrdersHandler) Handle(params ordersop.CreateOrdersParams) middlewa
 				return handlers.ResponseForError(appCtx.Logger(), err), err
 			}
 
+			var dependentsTwelveAndOver *int
+			var dependentsUnderTwelve *int
+			if payload.DependentsTwelveAndOver != nil {
+				// Convert from int64 to int
+				dependentsTwelveAndOver = models.IntPointer(int(*payload.DependentsTwelveAndOver))
+			}
+			if payload.DependentsUnderTwelve != nil {
+				// Convert from int64 to int
+				dependentsUnderTwelve = models.IntPointer(int(*payload.DependentsUnderTwelve))
+			}
+
 			originDutyLocationGBLOC, err := models.FetchGBLOCForPostalCode(appCtx.DB(), originDutyLocation.Address.PostalCode)
 			if err != nil {
 				switch err {
@@ -183,11 +194,14 @@ func (h CreateOrdersHandler) Handle(params ordersop.CreateOrdersParams) middlewa
 			sitDaysAllowance := models.DefaultServiceMemberSITDaysAllowance
 
 			entitlement := models.Entitlement{
-				DependentsAuthorized: payload.HasDependents,
-				DBAuthorizedWeight:   models.IntPointer(weight),
-				StorageInTransit:     models.IntPointer(sitDaysAllowance),
-				ProGearWeight:        weightAllotment.ProGearWeight,
-				ProGearWeightSpouse:  weightAllotment.ProGearWeightSpouse,
+				DependentsAuthorized:    payload.HasDependents,
+				AccompaniedTour:         payload.AccompaniedTour,
+				DependentsUnderTwelve:   dependentsUnderTwelve,
+				DependentsTwelveAndOver: dependentsTwelveAndOver,
+				DBAuthorizedWeight:      models.IntPointer(weight),
+				StorageInTransit:        models.IntPointer(sitDaysAllowance),
+				ProGearWeight:           weightAllotment.ProGearWeight,
+				ProGearWeightSpouse:     weightAllotment.ProGearWeightSpouse,
 			}
 
 			/*

@@ -578,6 +578,51 @@ func (suite *OrderServiceSuite) TestUpdateAllowanceAsTOO() {
 		suite.Equal(*updatedOrder.Entitlement.DBAuthorizedWeight, 16000)
 	})
 
+	suite.Run("Updates the allowance when all OCONUS fields are valid with dependents", func() {
+		moveRouter := move.NewMoveRouter()
+		orderUpdater := NewOrderUpdater(moveRouter)
+		order := factory.BuildServiceCounselingCompletedMove(suite.DB(), nil, nil).Orders
+
+		grade := ghcmessages.GradeO5
+		affiliation := ghcmessages.AffiliationAIRFORCE
+		ocie := false
+		proGearWeight := models.Int64Pointer(100)
+		proGearWeightSpouse := models.Int64Pointer(10)
+		rmeWeight := models.Int64Pointer(10000)
+		eTag := etag.GenerateEtag(order.UpdatedAt)
+
+		payload := ghcmessages.UpdateAllowancePayload{
+			Agency:               &affiliation,
+			DependentsAuthorized: models.BoolPointer(true),
+			Grade:                &grade,
+			OrganizationalClothingAndIndividualEquipment: &ocie,
+			ProGearWeight:                  proGearWeight,
+			ProGearWeightSpouse:            proGearWeightSpouse,
+			RequiredMedicalEquipmentWeight: rmeWeight,
+			AccompaniedTour:                models.BoolPointer(true),
+			DependentsTwelveAndOver:        models.Int64Pointer(2),
+			DependentsUnderTwelve:          models.Int64Pointer(4),
+		}
+
+		updatedOrder, _, err := orderUpdater.UpdateAllowanceAsTOO(suite.AppContextForTest(), order.ID, payload, eTag)
+		suite.NoError(err)
+
+		var orderInDB models.Order
+		err = suite.DB().Find(&orderInDB, order.ID)
+
+		suite.NoError(err)
+		suite.Equal(order.ID.String(), updatedOrder.ID.String())
+		suite.Equal(payload.DependentsAuthorized, updatedOrder.Entitlement.DependentsAuthorized)
+		suite.Equal(*payload.ProGearWeight, int64(updatedOrder.Entitlement.ProGearWeight))
+		suite.Equal(*payload.ProGearWeightSpouse, int64(updatedOrder.Entitlement.ProGearWeightSpouse))
+		suite.Equal(*payload.RequiredMedicalEquipmentWeight, int64(updatedOrder.Entitlement.RequiredMedicalEquipmentWeight))
+		suite.Equal(*payload.OrganizationalClothingAndIndividualEquipment, updatedOrder.Entitlement.OrganizationalClothingAndIndividualEquipment)
+		suite.Equal(*updatedOrder.Entitlement.DBAuthorizedWeight, 16000)
+		suite.Equal(*payload.DependentsTwelveAndOver, int64(*updatedOrder.Entitlement.DependentsTwelveAndOver))
+		suite.Equal(*payload.AccompaniedTour, *updatedOrder.Entitlement.AccompaniedTour)
+		suite.Equal(*payload.DependentsUnderTwelve, int64(*updatedOrder.Entitlement.DependentsUnderTwelve))
+	})
+
 	suite.Run("Updates the allowance when all fields are valid with dependents", func() {
 		moveRouter := move.NewMoveRouter()
 		orderUpdater := NewOrderUpdater(moveRouter)

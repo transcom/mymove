@@ -62,3 +62,28 @@ func (suite *ModelSuite) TestProGearAndProGearSpouseWeight() {
 		suite.NotNil(verrs.Get("pro_gear_weight_spouse"))
 	})
 }
+
+func (suite *ModelSuite) TestOconusFields() {
+	suite.Run("no validation errors for valid DependentsUnderTwelve, DependentsTwelveAndOver, and UBAllowance", func() {
+		entitlement := models.Entitlement{
+			ProGearWeight:           2000,
+			ProGearWeightSpouse:     500,
+			DependentsUnderTwelve:   models.IntPointer(1),
+			DependentsTwelveAndOver: models.IntPointer(2),
+			UBAllowance:             models.IntPointer(100),
+		}
+		verrs, _ := entitlement.Validate(suite.DB())
+		suite.False(verrs.HasAny())
+	})
+
+	suite.Run("validation errors for DependentsUnderTwelve and DependentsTwelveAndOver less than 0", func() {
+		entitlement := models.Entitlement{
+			DependentsTwelveAndOver: models.IntPointer(-1),
+			DependentsUnderTwelve:   models.IntPointer(-1),
+		}
+		verrs, _ := entitlement.Validate(suite.DB())
+		suite.True(verrs.HasAny())
+		suite.NotNil(verrs.Get("dependents_under_twelve"))
+		suite.NotNil(verrs.Get("dependents_twelve_and_over"))
+	})
+}
