@@ -930,6 +930,152 @@ func (suite *PayloadsSuite) TestPPMShipmentModelWithOptionalDestinationStreet1Fr
 	suite.Equal(model3.DestinationAddress.StreetAddress1, streetAddress1)
 }
 
+func (suite *PayloadsSuite) TestMobileHomeShipmentModelFromCreate() {
+	make := "BrandA"
+	model := "ModelX"
+	year := int64(2024)
+	lengthInInches := int64(60)
+	heightInInches := int64(13)
+	widthInInches := int64(10)
+
+	expectedMobileHome := models.MobileHome{
+		Make:           models.StringPointer(make),
+		Model:          models.StringPointer(model),
+		Year:           models.IntPointer(int(year)),
+		LengthInInches: models.IntPointer(int(lengthInInches)),
+		HeightInInches: models.IntPointer(int(heightInInches)),
+		WidthInInches:  models.IntPointer(int(widthInInches)),
+	}
+
+	suite.Run("Success - Complete input", func() {
+		mobileHomeShipment := &primev3messages.CreateMobileHomeShipment{
+			Make:           models.StringPointer(make),
+			Model:          models.StringPointer(model),
+			Year:           &year,
+			LengthInInches: &lengthInInches,
+			HeightInInches: &heightInInches,
+			WidthInInches:  &widthInInches,
+		}
+
+		moveTaskOrderID := strfmt.UUID(uuid.Must(uuid.NewV4()).String())
+		mtoShipment := primev3messages.CreateMTOShipment{
+			MoveTaskOrderID:    &moveTaskOrderID,
+			ShipmentType:       primev3messages.NewMTOShipmentType(primev3messages.MTOShipmentTypeMOBILEHOME),
+			MobileHomeShipment: mobileHomeShipment,
+		}
+
+		returnedMobileHome, _ := MobileHomeShipmentModelFromCreate(&mtoShipment)
+
+		suite.IsType(&models.MobileHome{}, returnedMobileHome)
+		suite.Equal(expectedMobileHome.Make, returnedMobileHome.Make)
+		suite.Equal(expectedMobileHome.Model, returnedMobileHome.Model)
+		suite.Equal(expectedMobileHome.Year, returnedMobileHome.Year)
+		suite.Equal(expectedMobileHome.LengthInInches, returnedMobileHome.LengthInInches)
+		suite.Equal(expectedMobileHome.HeightInInches, returnedMobileHome.HeightInInches)
+		suite.Equal(expectedMobileHome.WidthInInches, returnedMobileHome.WidthInInches)
+	})
+}
+
+func (suite *PayloadsSuite) TestBoatShipmentModelFromCreate() {
+	make := "BrandA"
+	model := "ModelX"
+	year := int64(2024)
+	lengthInInches := int64(60)
+	heightInInches := int64(13)
+	widthInInches := int64(10)
+	hasTrailer := true
+	isRoadworthy := true
+
+	expectedBoatHaulAway := models.BoatShipment{
+		Make:           models.StringPointer(make),
+		Model:          models.StringPointer(model),
+		Year:           models.IntPointer(int(year)),
+		LengthInInches: models.IntPointer(int(lengthInInches)),
+		HeightInInches: models.IntPointer(int(heightInInches)),
+		WidthInInches:  models.IntPointer(int(widthInInches)),
+		HasTrailer:     &hasTrailer,
+		IsRoadworthy:   &isRoadworthy,
+	}
+
+	boatShipment := &primev3messages.CreateBoatShipment{
+		Make:           models.StringPointer(make),
+		Model:          models.StringPointer(model),
+		Year:           &year,
+		LengthInInches: &lengthInInches,
+		HeightInInches: &heightInInches,
+		WidthInInches:  &widthInInches,
+		HasTrailer:     &hasTrailer,
+		IsRoadworthy:   &isRoadworthy,
+	}
+	suite.Run("Success - Complete input for MTOShipmentTypeBOATHAULAWAY", func() {
+		moveTaskOrderID := strfmt.UUID(uuid.Must(uuid.NewV4()).String())
+		mtoShipment := primev3messages.CreateMTOShipment{
+			MoveTaskOrderID: &moveTaskOrderID,
+			ShipmentType:    primev3messages.NewMTOShipmentType(primev3messages.MTOShipmentTypeBOATHAULAWAY),
+			BoatShipment:    boatShipment,
+		}
+
+		returnedBoatHaulAway, _ := BoatShipmentModelFromCreate(&mtoShipment)
+
+		suite.IsType(&models.BoatShipment{}, returnedBoatHaulAway)
+
+		suite.Equal(expectedBoatHaulAway.Make, returnedBoatHaulAway.Make)
+		suite.Equal(expectedBoatHaulAway.Model, returnedBoatHaulAway.Model)
+		suite.Equal(expectedBoatHaulAway.Year, returnedBoatHaulAway.Year)
+		suite.Equal(expectedBoatHaulAway.LengthInInches, returnedBoatHaulAway.LengthInInches)
+		suite.Equal(expectedBoatHaulAway.HeightInInches, returnedBoatHaulAway.HeightInInches)
+		suite.Equal(expectedBoatHaulAway.WidthInInches, returnedBoatHaulAway.WidthInInches)
+		suite.Equal(expectedBoatHaulAway.HasTrailer, returnedBoatHaulAway.HasTrailer)
+		suite.Equal(expectedBoatHaulAway.IsRoadworthy, returnedBoatHaulAway.IsRoadworthy)
+	})
+
+	suite.Run("Success - Complete input for MTOShipmentTypeBOATTOWAWAY", func() {
+		hasTrailer = false
+		isRoadworthy = false
+
+		expectedBoatTowAway := models.BoatShipment{
+			Make:           models.StringPointer(make),
+			Model:          models.StringPointer(model),
+			Year:           models.IntPointer(int(year)),
+			LengthInInches: models.IntPointer(int(lengthInInches)),
+			HeightInInches: models.IntPointer(int(heightInInches)),
+			WidthInInches:  models.IntPointer(int(widthInInches)),
+			HasTrailer:     &hasTrailer,
+			IsRoadworthy:   &isRoadworthy,
+		}
+
+		boatShipment := &primev3messages.CreateBoatShipment{
+			Make:           models.StringPointer(make),
+			Model:          models.StringPointer(model),
+			Year:           &year,
+			LengthInInches: &lengthInInches,
+			HeightInInches: &heightInInches,
+			WidthInInches:  &widthInInches,
+			HasTrailer:     &hasTrailer,
+			IsRoadworthy:   &isRoadworthy,
+		}
+		moveTaskOrderID := strfmt.UUID(uuid.Must(uuid.NewV4()).String())
+		mtoShipment := primev3messages.CreateMTOShipment{
+			MoveTaskOrderID: &moveTaskOrderID,
+			ShipmentType:    primev3messages.NewMTOShipmentType(primev3messages.MTOShipmentTypeBOATTOWAWAY),
+			BoatShipment:    boatShipment,
+		}
+
+		returnedBoatTowAway, _ := BoatShipmentModelFromCreate(&mtoShipment)
+
+		suite.IsType(&models.BoatShipment{}, returnedBoatTowAway)
+
+		suite.Equal(expectedBoatTowAway.Make, returnedBoatTowAway.Make)
+		suite.Equal(expectedBoatTowAway.Model, returnedBoatTowAway.Model)
+		suite.Equal(expectedBoatTowAway.Year, returnedBoatTowAway.Year)
+		suite.Equal(expectedBoatTowAway.LengthInInches, returnedBoatTowAway.LengthInInches)
+		suite.Equal(expectedBoatTowAway.HeightInInches, returnedBoatTowAway.HeightInInches)
+		suite.Equal(expectedBoatTowAway.WidthInInches, returnedBoatTowAway.WidthInInches)
+		suite.Equal(expectedBoatTowAway.HasTrailer, returnedBoatTowAway.HasTrailer)
+		suite.Equal(expectedBoatTowAway.IsRoadworthy, returnedBoatTowAway.IsRoadworthy)
+	})
+}
+
 func (suite *PayloadsSuite) TestCountryModel_WithValidCountry() {
 	countryName := "US"
 	result := CountryModel(&countryName)
