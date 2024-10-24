@@ -1,6 +1,6 @@
 
 ALTER TABLE entitlements
-ADD COLUMN accompanied_tour BOOLEAN NULL,
+	ADD COLUMN IF NOT EXISTS accompanied_tour BOOLEAN NULL,
     ADD COLUMN IF NOT EXISTS dependents_under_twelve INTEGER NULL,
     ADD COLUMN IF NOT EXISTS dependents_twelve_and_over INTEGER NULL,
     ADD COLUMN IF NOT EXISTS ub_allowance INTEGER NULL;
