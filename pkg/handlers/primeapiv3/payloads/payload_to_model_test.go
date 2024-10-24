@@ -886,7 +886,6 @@ func (suite *PayloadsSuite) TestBoatShipmentModelFromCreate() {
 		returnedBoatHaulAway, _ := BoatShipmentModelFromCreate(&mtoShipment)
 
 		suite.IsType(&models.BoatShipment{}, returnedBoatHaulAway)
-		// suite.IsType(&models.BoatShipmentType{}, returnedBoatHaulAway.Shipment.ShipmentType)
 
 		suite.Equal(expectedBoatHaulAway.Make, returnedBoatHaulAway.Make)
 		suite.Equal(expectedBoatHaulAway.Model, returnedBoatHaulAway.Model)
@@ -933,7 +932,6 @@ func (suite *PayloadsSuite) TestBoatShipmentModelFromCreate() {
 		returnedBoatHaulAway, _ := BoatShipmentModelFromCreate(&mtoShipment)
 
 		suite.IsType(&models.BoatShipment{}, returnedBoatHaulAway)
-		// suite.IsType(&models.BoatShipmentType{}, returnedBoatHaulAway.Shipment.ShipmentType)
 
 		suite.Equal(expectedBoatTowAway.Make, returnedBoatHaulAway.Make)
 		suite.Equal(expectedBoatTowAway.Model, returnedBoatHaulAway.Model)
