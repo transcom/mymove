@@ -3,9 +3,9 @@ import { string } from 'prop-types';
 
 import styles from './Review.module.scss';
 
-const TableDivider = ({ className }) => (
+export const TableDivider = ({ className }) => (
   <tr>
-    <td className={`${styles['table-divider']} ${className}`} colSpan="100%" />
+    <td className={`${styles['table-divider']} ${className}`} data-testid="tableDivider" colSpan="100%" />
   </tr>
 );
 

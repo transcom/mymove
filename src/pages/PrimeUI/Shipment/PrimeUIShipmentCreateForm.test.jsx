@@ -284,7 +284,7 @@ describe('PrimeUIShipmentCreateForm', () => {
 
   it.each(
     ['BOAT_HAUL_AWAY', 'BOAT_TOW_AWAY', 'MOBILE_HOME'],
-    'renders the initial form, selects a Boat or Mobile Home  shipment type, and shows correct fields',
+    'renders the initial form, selects a Boat or Mobile Home shipment type, and shows correct fields',
     async (shipmentType) => {
       isBooleanFlagEnabled.mockResolvedValue(true); // Allow for testing of boats and mobile homes
       const shipmentTypeInput = await screen.findByLabelText('Shipment type');
