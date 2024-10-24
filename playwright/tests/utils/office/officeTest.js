@@ -20,6 +20,7 @@ export const TIOOfficeUserType = 'TIO office';
 export const QAEOfficeUserType = 'QAE office';
 export const CustomerServiceRepresentativeOfficeUserType = 'CSR office';
 export const ServicesCounselorOfficeUserType = 'Services Counselor office';
+export const GSROfficeUserType = 'GSR office';
 export const PrimeSimulatorUserType = 'Prime Simulator office';
 export const MultiRoleOfficeUserType = 'Multi role office';
 
@@ -121,6 +122,14 @@ export class OfficePage extends BaseTestPage {
    */
   async signInAsNewQAEUser() {
     await this.signInAsNewUser(QAEOfficeUserType);
+    await this.page.getByRole('heading', { name: 'Search for a move' }).waitFor();
+  }
+
+  /**
+   * Use devlocal auth to sign in as new government surveillance representative role
+   */
+  async signInAsNewGSRUser() {
+    await this.signInAsNewUser(GSROfficeUserType);
     await this.page.getByRole('heading', { name: 'Search for a move' }).waitFor();
   }
 

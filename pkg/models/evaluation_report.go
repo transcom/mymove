@@ -63,6 +63,7 @@ type EvaluationReport struct {
 	CreatedAt                          time.Time                       `json:"created_at" db:"created_at"`
 	UpdatedAt                          time.Time                       `json:"updated_at" db:"updated_at"`
 	ReportViolations                   ReportViolations                `json:"report_violation,omitempty" fk_id:"report_id" has_many:"report_violation"`
+	GsrAppeals                         GsrAppeals                      `json:"gsr_appeal,omitempty" fk_id:"evaluation_report_id" has_many:"gsr_appeal"`
 }
 
 // TableName overrides the table name used by Pop.

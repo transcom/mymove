@@ -75,6 +75,11 @@ func configureAPI(api *ghcoperations.MymoveAPI) http.Handler {
 			return middleware.NotImplemented("operation order.AcknowledgeExcessWeightRisk has not yet been implemented")
 		})
 	}
+	if api.EvaluationReportsAddAppealToViolationHandler == nil {
+		api.EvaluationReportsAddAppealToViolationHandler = evaluation_reports.AddAppealToViolationHandlerFunc(func(params evaluation_reports.AddAppealToViolationParams) middleware.Responder {
+			return middleware.NotImplemented("operation evaluation_reports.AddAppealToViolation has not yet been implemented")
+		})
+	}
 	if api.ShipmentApproveSITExtensionHandler == nil {
 		api.ShipmentApproveSITExtensionHandler = shipment.ApproveSITExtensionHandlerFunc(func(params shipment.ApproveSITExtensionParams) middleware.Responder {
 			return middleware.NotImplemented("operation shipment.ApproveSITExtension has not yet been implemented")
