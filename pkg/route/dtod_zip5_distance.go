@@ -121,7 +121,8 @@ func (d *dtodZip5DistanceInfo) DTODZip5Distance(appCtx appcontext.AppContext, pi
 	return distance, nil
 }
 
-// DTODZip5Distance returns the distance in miles between the pickup and destination zips
+// validateDTODServiceAvailable pings the DTOD service with zips that are known to be accepted.
+// This is used to verify that the DTOD service is live.
 func validateDTODServiceAvailable(d dtodZip5DistanceInfo) (bool, error) {
 
 	if d.simulateOutage {
