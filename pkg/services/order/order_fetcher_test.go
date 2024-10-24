@@ -1,7 +1,6 @@
 package order
 
 import (
-	"fmt"
 	"strings"
 	"time"
 
@@ -601,9 +600,8 @@ func (suite *OrderServiceSuite) TestListOrderWithAssignedUserSingle() {
 	createdMove.SCAssignedUser = &scUser
 	_, updateError := assignedOfficeUserUpdater.UpdateAssignedOfficeUser(appCtx, createdMove.ID, &scUser, roles.RoleTypeServicesCounselor)
 
-	searchString := fmt.Sprintf("%s, %s", scUser.LastName, scUser.FirstName)
 	moves, _, err := orderFetcherTest.ListOrders(suite.AppContextWithSessionForTest(&session), scUser.ID, roles.RoleTypeServicesCounselor, &services.ListOrderParams{
-		SCAssignedUser: &searchString,
+		SCAssignedUser: &scUser.LastName,
 	})
 
 	suite.FatalNoError(err)

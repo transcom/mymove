@@ -22,4 +22,5 @@ export const permissionTypes = {
   updateCustomer: 'update.customer',
   createTxoShipment: 'create.TXOShipment',
   createSupportingDocuments: 'create.supportingDocuments',
+  cancelMoveFlag: 'update.cancelMoveFlag',
 };
