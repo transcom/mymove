@@ -177,6 +177,24 @@ func (suite *AddressSuite) TestAddressUpdater() {
 		suite.Equal(updatedAddress.Country.Country, "US")
 	})
 
+	suite.Run("Successfully updates a conus address and its IsOconus value", func() {
+		originalAddress := createOriginalAddress()
+
+		addressUpdater := NewAddressUpdater()
+		desiredAddress := &models.Address{
+			ID:             originalAddress.ID,
+			StreetAddress1: streetAddress1,
+			City:           city,
+			State:          state,
+			PostalCode:     postalCode,
+		}
+		updatedAddress, err := addressUpdater.UpdateAddress(suite.AppContextForTest(), desiredAddress, etag.GenerateEtag(originalAddress.UpdatedAt))
+
+		suite.NotNil(updatedAddress)
+		suite.Nil(err)
+		suite.Equal(false, *updatedAddress.IsOconus)
+	})
+
 	suite.Run("Receives an error when trying to update to an international address", func() {
 		originalAddress := createOriginalAddress()
 		addressUpdater := NewAddressUpdater()

@@ -24,6 +24,7 @@ describe('ShipmentList component', () => {
     { id: 'ID-2', shipmentType: SHIPMENT_OPTIONS.HHG },
     { id: 'ID-3', shipmentType: SHIPMENT_OPTIONS.NTS },
     { id: 'ID-4', shipmentType: SHIPMENT_OPTIONS.NTSR },
+    { id: 'ID-5', shipmentType: SHIPMENT_OPTIONS.UNACCOMPANIED_BAGGAGE },
   ];
   const onShipmentClick = jest.fn();
   const onDeleteClick = jest.fn();
@@ -36,11 +37,12 @@ describe('ShipmentList component', () => {
   it('renders ShipmentList with shipments', async () => {
     render(<ShipmentList {...defaultProps} />);
 
-    expect(screen.getAllByTestId('shipment-list-item-container').length).toBe(4);
+    expect(screen.getAllByTestId('shipment-list-item-container').length).toBe(5);
     expect(screen.getAllByTestId('shipment-list-item-container')[0]).toHaveTextContent(/^ppm/i);
     expect(screen.getAllByTestId('shipment-list-item-container')[1]).toHaveTextContent(/^hhg/i);
     expect(screen.getAllByTestId('shipment-list-item-container')[2]).toHaveTextContent(/^nts/i);
     expect(screen.getAllByTestId('shipment-list-item-container')[3]).toHaveTextContent(/^nts-release/i);
+    expect(screen.getAllByTestId('shipment-list-item-container')[4]).toHaveTextContent(/^UB/i);
   });
 
   it.each([
@@ -72,6 +74,9 @@ describe('ShipmentList component', () => {
 
     editBtn = queryByRole(screen.getAllByTestId('shipment-list-item-container')[3], 'button', { name: 'Edit' });
     await checkShipmentClick('ID-4', 1, SHIPMENT_OPTIONS.NTSR);
+
+    editBtn = queryByRole(screen.getAllByTestId('shipment-list-item-container')[4], 'button', { name: 'Edit' });
+    await checkShipmentClick('ID-5', 1, SHIPMENT_OPTIONS.UNACCOMPANIED_BAGGAGE);
   });
 
   it.each([
@@ -79,6 +84,7 @@ describe('ShipmentList component', () => {
     [SHIPMENT_OPTIONS.HHG, 2],
     [SHIPMENT_OPTIONS.NTS, 3],
     [SHIPMENT_OPTIONS.NTSR, 4],
+    [SHIPMENT_OPTIONS.UNACCOMPANIED_BAGGAGE, 5],
   ])('calls onDeleteClick for shipment type %s when delete is clicked', async (_, id) => {
     render(<ShipmentList {...defaultProps} />);
     const deleteBtn = getByRole(screen.getAllByTestId('shipment-list-item-container')[id - 1], 'button', {
