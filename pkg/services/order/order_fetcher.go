@@ -116,12 +116,12 @@ func (f orderFetcher) ListOrders(appCtx appcontext.AppContext, officeUserID uuid
 	closeoutLocationQuery := closeoutLocationFilter(params.CloseoutLocation, ppmCloseoutGblocs)
 	ppmTypeQuery := ppmTypeFilter(params.PPMType)
 	ppmStatusQuery := ppmStatusFilter(params.PPMStatus)
-	SCAssignedUserQuery := SCAssignedUserFilter(params.SCAssignedUser)
-	TOOAssignedUserQuery := TOOAssignedUserFilter(params.TOOAssignedUser)
+	scAssignedUserQuery := scAssignedUserFilter(params.SCAssignedUser)
+	tooAssignedUserQuery := tooAssignedUserFilter(params.TOOAssignedUser)
 	sortOrderQuery := sortOrder(params.Sort, params.Order, ppmCloseoutGblocs)
 	counselingQuery := counselingOfficeFilter(params.CounselingOffice)
 	// Adding to an array so we can iterate over them and apply the filters after the query structure is set below
-	options := [20]QueryOption{branchQuery, locatorQuery, dodIDQuery, emplidQuery, lastNameQuery, originDutyLocationQuery, destinationDutyLocationQuery, moveStatusQuery, gblocQuery, submittedAtQuery, appearedInTOOAtQuery, requestedMoveDateQuery, ppmTypeQuery, closeoutInitiatedQuery, closeoutLocationQuery, ppmStatusQuery, sortOrderQuery, SCAssignedUserQuery, TOOAssignedUserQuery, counselingQuery}
+	options := [20]QueryOption{branchQuery, locatorQuery, dodIDQuery, emplidQuery, lastNameQuery, originDutyLocationQuery, destinationDutyLocationQuery, moveStatusQuery, gblocQuery, submittedAtQuery, appearedInTOOAtQuery, requestedMoveDateQuery, ppmTypeQuery, closeoutInitiatedQuery, closeoutLocationQuery, ppmStatusQuery, sortOrderQuery, scAssignedUserQuery, tooAssignedUserQuery, counselingQuery}
 
 	var query *pop.Query
 	if ppmCloseoutGblocs {
@@ -635,7 +635,7 @@ func ppmStatusFilter(ppmStatus *string) QueryOption {
 	}
 }
 
-func SCAssignedUserFilter(scAssigned *string) QueryOption {
+func scAssignedUserFilter(scAssigned *string) QueryOption {
 	return func(query *pop.Query) {
 		if scAssigned != nil {
 			nameSearch := fmt.Sprintf("%s%%", *scAssigned)
@@ -644,7 +644,7 @@ func SCAssignedUserFilter(scAssigned *string) QueryOption {
 	}
 }
 
-func TOOAssignedUserFilter(tooAssigned *string) QueryOption {
+func tooAssignedUserFilter(tooAssigned *string) QueryOption {
 	return func(query *pop.Query) {
 		if tooAssigned != nil {
 			nameSearch := fmt.Sprintf("%s%%", *tooAssigned)

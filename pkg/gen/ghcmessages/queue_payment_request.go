@@ -22,6 +22,12 @@ type QueuePaymentRequest struct {
 	// Days since the payment request has been requested.  Decimal representation will allow more accurate sorting.
 	Age float64 `json:"age,omitempty"`
 
+	// assignable
+	Assignable bool `json:"assignable,omitempty"`
+
+	// assigned to
+	AssignedTo *AssignedOfficeUser `json:"assignedTo,omitempty"`
+
 	// available office users
 	AvailableOfficeUsers AvailableOfficeUsers `json:"availableOfficeUsers,omitempty"`
 
@@ -71,6 +77,10 @@ type QueuePaymentRequest struct {
 func (m *QueuePaymentRequest) Validate(formats strfmt.Registry) error {
 	var res []error
 
+	if err := m.validateAssignedTo(formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.validateAvailableOfficeUsers(formats); err != nil {
 		res = append(res, err)
 	}
@@ -118,6 +128,25 @@ func (m *QueuePaymentRequest) Validate(formats strfmt.Registry) error {
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
+	return nil
+}
+
+func (m *QueuePaymentRequest) validateAssignedTo(formats strfmt.Registry) error {
+	if swag.IsZero(m.AssignedTo) { // not required
+		return nil
+	}
+
+	if m.AssignedTo != nil {
+		if err := m.AssignedTo.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("assignedTo")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("assignedTo")
+			}
+			return err
+		}
+	}
+
 	return nil
 }
 
@@ -293,6 +322,10 @@ func (m *QueuePaymentRequest) validateSubmittedAt(formats strfmt.Registry) error
 func (m *QueuePaymentRequest) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	var res []error
 
+	if err := m.contextValidateAssignedTo(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.contextValidateAvailableOfficeUsers(ctx, formats); err != nil {
 		res = append(res, err)
 	}
@@ -320,6 +353,27 @@ func (m *QueuePaymentRequest) ContextValidate(ctx context.Context, formats strfm
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
+	return nil
+}
+
+func (m *QueuePaymentRequest) contextValidateAssignedTo(ctx context.Context, formats strfmt.Registry) error {
+
+	if m.AssignedTo != nil {
+
+		if swag.IsZero(m.AssignedTo) { // not required
+			return nil
+		}
+
+		if err := m.AssignedTo.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("assignedTo")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("assignedTo")
+			}
+			return err
+		}
+	}
+
 	return nil
 }
 
