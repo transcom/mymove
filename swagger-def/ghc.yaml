@@ -384,7 +384,7 @@ paths:
       parameters: []
       responses:
         '200':
-          description: Successfully cancelled move
+          description: Successfully canceled move
           schema:
             $ref: '#/definitions/Move'
         '403':
@@ -404,6 +404,8 @@ paths:
       description: cancels a move
       operationId: moveCanceler
       summary: Cancels a move
+      x-permissions:
+        - update.cancelMoveFlag
   '/counseling/orders/{orderID}':
     parameters:
       - description: ID of order to update
@@ -3716,6 +3718,7 @@ paths:
                     - APPROVED
                     - NEEDS SERVICE COUNSELING
                     - SERVICE COUNSELING COMPLETED
+                    - CANCELED
               originPostalCode:
                 type: string
                 x-nullable: true
@@ -5152,7 +5155,7 @@ definitions:
   PPMStatus:
     type: string
     enum:
-      - CANCELLED
+      - CANCELED
       - DRAFT
       - SUBMITTED
       - WAITING_ON_CUSTOMER
