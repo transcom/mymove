@@ -236,6 +236,7 @@ type PPMShipment struct {
 	AOAPacket                      *Document            `belongs_to:"documents" fk_id:"aoa_packet_id"`
 	PaymentPacketID                *uuid.UUID           `json:"payment_packet_id" db:"payment_packet_id"`
 	PaymentPacket                  *Document            `belongs_to:"documents" fk_id:"payment_packet_id"`
+	IsActualExpenseReimbursement   *bool                `json:"is_actual_expense_reimbursement" db:"is_actual_expense_reimbursement"`
 }
 
 // TableName overrides the table name used by Pop.
@@ -276,9 +277,9 @@ func (p PPMShipment) Validate(_ *pop.Connection) (*validate.Errors, error) {
 		&OptionalPoundIsNonNegative{Name: "AllowableWeight", Field: p.AllowableWeight},
 		&OptionalPoundIsNonNegative{Name: "ProGearWeight", Field: p.ProGearWeight},
 		&OptionalPoundIsNonNegative{Name: "SpouseProGearWeight", Field: p.SpouseProGearWeight},
-		&OptionalCentIsPositive{Name: "EstimatedIncentive", Field: p.EstimatedIncentive},
+		&OptionalCentIsNotNegative{Name: "EstimatedIncentive", Field: p.EstimatedIncentive},
 		&OptionalCentIsPositive{Name: "FinalIncentive", Field: p.FinalIncentive},
-		&OptionalCentIsPositive{Name: "AdvanceAmountRequested", Field: p.AdvanceAmountRequested},
+		&OptionalCentIsNotNegative{Name: "AdvanceAmountRequested", Field: p.AdvanceAmountRequested},
 		&OptionalStringInclusion{Name: "AdvanceStatus", List: AllowedPPMAdvanceStatuses, Field: (*string)(p.AdvanceStatus)},
 		&OptionalCentIsPositive{Name: "AdvanceAmountReceived", Field: p.AdvanceAmountReceived},
 		&OptionalStringInclusion{Name: "SITLocation", List: AllowedSITLocationTypes, Field: (*string)(p.SITLocation)},

@@ -42,6 +42,23 @@ func payloadForPrivilege(r models.Privilege) *adminmessages.Privilege {
 	}
 }
 
+// Ensures the payload does not have duplicate roles in the roles array. That would cause the Admin UI to show duplicate roles for a user.
+func nonDuplicateRolesList(roles roles.Roles) []*adminmessages.Role {
+	var rolesList []*adminmessages.Role
+	seenRoles := make(map[string]bool)
+
+	for _, role := range roles {
+		roleName := string(role.RoleName)
+
+		if !seenRoles[roleName] {
+			rolesList = append(rolesList, payloadForRole(role))
+			seenRoles[roleName] = true
+		}
+	}
+
+	return rolesList
+}
+
 func payloadForOfficeUserModel(o models.OfficeUser) *adminmessages.OfficeUser {
 	var user models.User
 	if o.UserID != nil {
@@ -66,9 +83,9 @@ func payloadForOfficeUserModel(o models.OfficeUser) *adminmessages.OfficeUser {
 			payload.UserID = *userIDFmt
 		}
 	}
-	for _, role := range user.Roles {
-		payload.Roles = append(payload.Roles, payloadForRole(role))
-	}
+
+	payload.Roles = nonDuplicateRolesList(user.Roles)
+
 	for _, privilege := range user.Privileges {
 		payload.Privileges = append(payload.Privileges, payloadForPrivilege(privilege))
 	}

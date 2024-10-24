@@ -16,6 +16,18 @@ const defaultProps = {
   },
 };
 
+const zeroIncentiveProps = {
+  onSubmit: jest.fn(),
+  onBack: jest.fn(),
+  mtoShipment: {
+    id: '123',
+    ppmShipment: {
+      id: '123',
+      estimatedIncentive: 0,
+    },
+  },
+};
+
 const mtoShipmentProps = {
   onSubmit: jest.fn(),
   onBack: jest.fn(),
@@ -36,6 +48,20 @@ describe('AdvanceForm component', () => {
       render(<AdvanceForm {...defaultProps} />);
       expect(
         screen.getByRole('heading', { level: 2, name: 'You can ask for up to $6,000 as an advance' }),
+      ).toBeInTheDocument();
+      expect(screen.getByLabelText('Yes')).toBeInstanceOf(HTMLInputElement);
+      expect(screen.getByLabelText('No')).toBeInstanceOf(HTMLInputElement);
+      expect(screen.getByText('Would you like to request an advance on your incentive?')).toBeInstanceOf(
+        HTMLLegendElement,
+      );
+    });
+
+    it('renders DTOD unavailable message when incentive is zero', async () => {
+      render(<AdvanceForm {...zeroIncentiveProps} />);
+      expect(
+        screen.getByText(
+          'The Defense Table of Distances (DTOD) was unavailable during your PPM creation, so we are currently unable to provide information regarding any advances. This information will be updated and provided to you during your counseling session.',
+        ),
       ).toBeInTheDocument();
       expect(screen.getByLabelText('Yes')).toBeInstanceOf(HTMLInputElement);
       expect(screen.getByLabelText('No')).toBeInstanceOf(HTMLInputElement);

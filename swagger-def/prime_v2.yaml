@@ -498,6 +498,12 @@ definitions:
         description: The estimated weight of the pro-gear being moved belonging to a spouse in pounds.
         type: integer
         x-nullable: true
+      isActualExpenseReimbursement:
+        description: Used for PPM shipments only. Denotes if this shipment uses the Actual Expense Reimbursement method.
+        type: boolean
+        example: false
+        x-omitempty: false
+        x-nullable: true
     required:
       - expectedDepartureDate
       - sitExpected
@@ -701,6 +707,12 @@ definitions:
       spouseProGearWeight:
         description: The estimated weight of the pro-gear being moved belonging to a spouse.
         type: integer
+        x-nullable: true
+      isActualExpenseReimbursement:
+        description: Used for PPM shipments only. Denotes if this shipment uses the Actual Expense Reimbursement method.
+        type: boolean
+        example: false
+        x-omitempty: false
         x-nullable: true
   UpdateMTOShipment:
     properties:

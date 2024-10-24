@@ -25,7 +25,7 @@ function ShipmentHeading({ shipmentInfo, handleShowCancellationModal, isMoveLock
           <span className={styles.marketCodeIndicator}>{shipmentInfo.marketCode}</span>
           {shipmentInfo.shipmentType}
         </h2>
-        {shipmentStatus === shipmentStatuses.CANCELED && <Tag className="usa-tag--red">cancelled</Tag>}
+        {shipmentStatus === shipmentStatuses.CANCELED && <Tag className="usa-tag--red">canceled</Tag>}
         {shipmentInfo.isDiversion && <Tag>diversion</Tag>}
         {!shipmentInfo.isDiversion && shipmentStatus === shipmentStatuses.DIVERSION_REQUESTED && (
           <Tag>diversion requested</Tag>

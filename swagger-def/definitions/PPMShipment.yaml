@@ -235,6 +235,12 @@ properties:
     type: array
     items:
       $ref: 'ProGearWeightTicket.yaml'
+  isActualExpenseReimbursement:
+    description: Used for PPM shipments only. Denotes if this shipment uses the Actual Expense Reimbursement method.
+    type: boolean
+    example: false
+    x-omitempty: false
+    x-nullable: true
   signedCertification:
     $ref: 'SignedCertification.yaml'
   eTag:
