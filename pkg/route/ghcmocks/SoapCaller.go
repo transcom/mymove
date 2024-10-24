@@ -16,6 +16,10 @@ type SoapCaller struct {
 func (_m *SoapCaller) Call(m string, p gosoap.SoapParams) (*gosoap.Response, error) {
 	ret := _m.Called(m, p)
 
+	if len(ret) == 0 {
+		panic("no return value specified for Call")
+	}
+
 	var r0 *gosoap.Response
 	var r1 error
 	if rf, ok := ret.Get(0).(func(string, gosoap.SoapParams) (*gosoap.Response, error)); ok {

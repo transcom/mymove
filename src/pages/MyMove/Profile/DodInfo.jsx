@@ -24,10 +24,6 @@ export const DodInfo = ({ updateServiceMember, serviceMember, oktaUser }) => {
     emplid: serviceMember?.emplid || '',
   };
 
-  const handleBack = () => {
-    navigate(customerRoutes.CONUS_OCONUS_PATH);
-  };
-
   const handleNext = () => {
     navigate(customerRoutes.NAME_PATH);
   };
@@ -73,7 +69,7 @@ export const DodInfo = ({ updateServiceMember, serviceMember, oktaUser }) => {
 
       <Grid row>
         <Grid col desktop={{ col: 8, offset: 2 }}>
-          <DodInfoForm initialValues={initialValues} onSubmit={handleSubmit} onBack={handleBack} />
+          <DodInfoForm initialValues={initialValues} onSubmit={handleSubmit} />
         </Grid>
       </Grid>
     </GridContainer>

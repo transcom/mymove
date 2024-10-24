@@ -24,6 +24,10 @@ type DomesticUnpackPricer struct {
 func (_m *DomesticUnpackPricer) Price(appCtx appcontext.AppContext, contractCode string, requestedPickupDate time.Time, weight unit.Pound, servicesScheduleDest int, isPPM bool) (unit.Cents, services.PricingDisplayParams, error) {
 	ret := _m.Called(appCtx, contractCode, requestedPickupDate, weight, servicesScheduleDest, isPPM)
 
+	if len(ret) == 0 {
+		panic("no return value specified for Price")
+	}
+
 	var r0 unit.Cents
 	var r1 services.PricingDisplayParams
 	var r2 error
@@ -56,6 +60,10 @@ func (_m *DomesticUnpackPricer) Price(appCtx appcontext.AppContext, contractCode
 // PriceUsingParams provides a mock function with given fields: appCtx, params
 func (_m *DomesticUnpackPricer) PriceUsingParams(appCtx appcontext.AppContext, params models.PaymentServiceItemParams) (unit.Cents, services.PricingDisplayParams, error) {
 	ret := _m.Called(appCtx, params)
+
+	if len(ret) == 0 {
+		panic("no return value specified for PriceUsingParams")
+	}
 
 	var r0 unit.Cents
 	var r1 services.PricingDisplayParams

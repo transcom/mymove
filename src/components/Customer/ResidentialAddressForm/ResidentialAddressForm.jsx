@@ -34,6 +34,7 @@ const ResidentialAddressForm = ({ formFieldsName, initialValues, onSubmit, onBac
             <p className={styles.noBottomMargin}>Must be a physical address.</p>
             <SectionWrapper className={classnames(styles.noTopMargin, formStyles.formSection)}>
               <AddressFields
+                labelHint="Required"
                 name={formFieldsName}
                 validators={validators}
                 formikFunctionsToValidatePostalCodeOnChange={{ handleChange, setFieldTouched }}

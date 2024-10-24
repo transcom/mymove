@@ -20,6 +20,10 @@ type ShipmentReweighRequester struct {
 func (_m *ShipmentReweighRequester) RequestShipmentReweigh(appCtx appcontext.AppContext, shipmentID uuid.UUID, requestor models.ReweighRequester) (*models.Reweigh, error) {
 	ret := _m.Called(appCtx, shipmentID, requestor)
 
+	if len(ret) == 0 {
+		panic("no return value specified for RequestShipmentReweigh")
+	}
+
 	var r0 *models.Reweigh
 	var r1 error
 	if rf, ok := ret.Get(0).(func(appcontext.AppContext, uuid.UUID, models.ReweighRequester) (*models.Reweigh, error)); ok {

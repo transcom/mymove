@@ -22,6 +22,10 @@ type MTOServiceItemUpdater struct {
 func (_m *MTOServiceItemUpdater) ApproveOrRejectServiceItem(appCtx appcontext.AppContext, mtoServiceItemID uuid.UUID, status models.MTOServiceItemStatus, rejectionReason *string, eTag string) (*models.MTOServiceItem, error) {
 	ret := _m.Called(appCtx, mtoServiceItemID, status, rejectionReason, eTag)
 
+	if len(ret) == 0 {
+		panic("no return value specified for ApproveOrRejectServiceItem")
+	}
+
 	var r0 *models.MTOServiceItem
 	var r1 error
 	if rf, ok := ret.Get(0).(func(appcontext.AppContext, uuid.UUID, models.MTOServiceItemStatus, *string, string) (*models.MTOServiceItem, error)); ok {
@@ -47,6 +51,10 @@ func (_m *MTOServiceItemUpdater) ApproveOrRejectServiceItem(appCtx appcontext.Ap
 // ConvertItemToCustomerExpense provides a mock function with given fields: appCtx, shipment, customerExpenseReason, convertToCustomerExpense
 func (_m *MTOServiceItemUpdater) ConvertItemToCustomerExpense(appCtx appcontext.AppContext, shipment *models.MTOShipment, customerExpenseReason *string, convertToCustomerExpense bool) (*models.MTOServiceItem, error) {
 	ret := _m.Called(appCtx, shipment, customerExpenseReason, convertToCustomerExpense)
+
+	if len(ret) == 0 {
+		panic("no return value specified for ConvertItemToCustomerExpense")
+	}
 
 	var r0 *models.MTOServiceItem
 	var r1 error
@@ -74,6 +82,10 @@ func (_m *MTOServiceItemUpdater) ConvertItemToCustomerExpense(appCtx appcontext.
 func (_m *MTOServiceItemUpdater) UpdateMTOServiceItem(appCtx appcontext.AppContext, serviceItem *models.MTOServiceItem, eTag string, validator string) (*models.MTOServiceItem, error) {
 	ret := _m.Called(appCtx, serviceItem, eTag, validator)
 
+	if len(ret) == 0 {
+		panic("no return value specified for UpdateMTOServiceItem")
+	}
+
 	var r0 *models.MTOServiceItem
 	var r1 error
 	if rf, ok := ret.Get(0).(func(appcontext.AppContext, *models.MTOServiceItem, string, string) (*models.MTOServiceItem, error)); ok {
@@ -100,6 +112,10 @@ func (_m *MTOServiceItemUpdater) UpdateMTOServiceItem(appCtx appcontext.AppConte
 func (_m *MTOServiceItemUpdater) UpdateMTOServiceItemBasic(appCtx appcontext.AppContext, serviceItem *models.MTOServiceItem, eTag string) (*models.MTOServiceItem, error) {
 	ret := _m.Called(appCtx, serviceItem, eTag)
 
+	if len(ret) == 0 {
+		panic("no return value specified for UpdateMTOServiceItemBasic")
+	}
+
 	var r0 *models.MTOServiceItem
 	var r1 error
 	if rf, ok := ret.Get(0).(func(appcontext.AppContext, *models.MTOServiceItem, string) (*models.MTOServiceItem, error)); ok {
@@ -125,6 +141,10 @@ func (_m *MTOServiceItemUpdater) UpdateMTOServiceItemBasic(appCtx appcontext.App
 // UpdateMTOServiceItemPrime provides a mock function with given fields: appCtx, serviceItem, planner, shipment, eTag
 func (_m *MTOServiceItemUpdater) UpdateMTOServiceItemPrime(appCtx appcontext.AppContext, serviceItem *models.MTOServiceItem, planner route.Planner, shipment models.MTOShipment, eTag string) (*models.MTOServiceItem, error) {
 	ret := _m.Called(appCtx, serviceItem, planner, shipment, eTag)
+
+	if len(ret) == 0 {
+		panic("no return value specified for UpdateMTOServiceItemPrime")
+	}
 
 	var r0 *models.MTOServiceItem
 	var r1 error

@@ -21,6 +21,10 @@ type UploadCreator struct {
 func (_m *UploadCreator) CreateUpload(appCtx appcontext.AppContext, file io.ReadCloser, uploadFilename string, uploadType models.UploadType) (*models.Upload, error) {
 	ret := _m.Called(appCtx, file, uploadFilename, uploadType)
 
+	if len(ret) == 0 {
+		panic("no return value specified for CreateUpload")
+	}
+
 	var r0 *models.Upload
 	var r1 error
 	if rf, ok := ret.Get(0).(func(appcontext.AppContext, io.ReadCloser, string, models.UploadType) (*models.Upload, error)); ok {

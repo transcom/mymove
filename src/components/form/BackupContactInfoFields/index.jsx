@@ -6,7 +6,7 @@ import { Fieldset } from '@trussworks/react-uswds';
 import TextField from 'components/form/fields/TextField/TextField';
 import MaskedTextField from 'components/form/fields/MaskedTextField/MaskedTextField';
 
-export const BackupContactInfoFields = ({ name, legend, className, render }) => {
+export const BackupContactInfoFields = ({ name, legend, className, render, labelHint: labelHintProp }) => {
   const backupContactInfoFieldsUUID = useRef(uuidv4());
 
   let nameFieldName = 'name';
@@ -23,7 +23,13 @@ export const BackupContactInfoFields = ({ name, legend, className, render }) => 
     <Fieldset legend={legend} className={className}>
       {render(
         <>
-          <TextField label="Name" id={`name_${backupContactInfoFieldsUUID.current}`} name={nameFieldName} required />
+          <TextField
+            label="Name"
+            id={`name_${backupContactInfoFieldsUUID.current}`}
+            name={nameFieldName}
+            required
+            labelHint={labelHintProp}
+          />
           <div className="grid-row grid-gap">
             <div className="mobile-lg:grid-col-7">
               <TextField
@@ -31,6 +37,7 @@ export const BackupContactInfoFields = ({ name, legend, className, render }) => 
                 id={`email_${backupContactInfoFieldsUUID.current}`}
                 name={emailFieldName}
                 required
+                labelHint={labelHintProp}
               />
             </div>
           </div>
@@ -44,6 +51,7 @@ export const BackupContactInfoFields = ({ name, legend, className, render }) => 
                 minimum="12"
                 mask="000{-}000{-}0000"
                 required
+                labelHint={labelHintProp}
               />
             </div>
           </div>

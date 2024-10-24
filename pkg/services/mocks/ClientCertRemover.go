@@ -22,6 +22,10 @@ type ClientCertRemover struct {
 func (_m *ClientCertRemover) RemoveClientCert(appCtx appcontext.AppContext, id uuid.UUID) (*models.ClientCert, *validate.Errors, error) {
 	ret := _m.Called(appCtx, id)
 
+	if len(ret) == 0 {
+		panic("no return value specified for RemoveClientCert")
+	}
+
 	var r0 *models.ClientCert
 	var r1 *validate.Errors
 	var r2 error

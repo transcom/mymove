@@ -91,8 +91,8 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandler() {
 	// Validate outgoing payload
 	suite.NoError(payload.Validate(strfmt.Default))
 
-	suite.Len(payload.AvailableOfficeUsers, 1)
-	suite.Equal(payload.AvailableOfficeUsers[0].OfficeUserID.String(), officeUser.ID.String())
+	suite.Len(payload.QueueMoves[0].AvailableOfficeUsers, 1)
+	suite.Equal(payload.QueueMoves[0].AvailableOfficeUsers[0].OfficeUserID.String(), officeUser.ID.String())
 
 	order := hhgMove.Orders
 	result := payload.QueueMoves[0]
@@ -1066,8 +1066,8 @@ func (suite *HandlerSuite) TestGetPaymentRequestsQueueHandler() {
 	suite.NoError(payload.Validate(strfmt.Default))
 
 	suite.Len(payload.QueuePaymentRequests, 1)
-	suite.Len(payload.AvailableOfficeUsers, 1)
-	suite.Equal(payload.AvailableOfficeUsers[0].OfficeUserID.String(), officeUser.ID.String())
+	suite.Len(payload.QueuePaymentRequests[0].AvailableOfficeUsers, 1)
+	suite.Equal(payload.QueuePaymentRequests[0].AvailableOfficeUsers[0].OfficeUserID.String(), officeUser.ID.String())
 
 	paymentRequest := *payload.QueuePaymentRequests[0]
 
@@ -1408,7 +1408,6 @@ func (suite *HandlerSuite) makeServicesCounselingSubtestData() (subtestData *ser
 				City:           "Fort Eisenhower",
 				State:          "GA",
 				PostalCode:     "77777",
-				Country:        models.StringPointer("United States"),
 			},
 		},
 	}, nil)
@@ -1544,8 +1543,8 @@ func (suite *HandlerSuite) TestGetServicesCounselingQueueHandler() {
 		result1 := payload.QueueMoves[0]
 		result2 := payload.QueueMoves[1]
 
-		suite.Len(payload.AvailableOfficeUsers, 1)
-		suite.Equal(subtestData.officeUser.ID.String(), payload.AvailableOfficeUsers[0].OfficeUserID.String())
+		suite.Len(payload.QueueMoves[0].AvailableOfficeUsers, 1)
+		suite.Equal(subtestData.officeUser.ID.String(), payload.QueueMoves[0].AvailableOfficeUsers[0].OfficeUserID.String())
 
 		suite.Len(payload.QueueMoves, 2)
 		suite.Equal(order.ServiceMember.ID.String(), result1.Customer.ID.String())

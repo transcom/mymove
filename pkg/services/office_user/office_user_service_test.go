@@ -12,10 +12,13 @@ type OfficeUserServiceSuite struct {
 	*testingsuite.PopTestSuite
 }
 
-func TestUserSuite(t *testing.T) {
+func TestOfficeUserSuite(t *testing.T) {
 
 	hs := &OfficeUserServiceSuite{
-		PopTestSuite: testingsuite.NewPopTestSuite(testingsuite.CurrentPackage(), testingsuite.WithPerTestTransaction()),
+		PopTestSuite: testingsuite.NewPopTestSuite(
+			testingsuite.CurrentPackage(),
+			testingsuite.WithPerTestTransaction(),
+		),
 	}
 	suite.Run(t, hs)
 	hs.PopTestSuite.TearDown()

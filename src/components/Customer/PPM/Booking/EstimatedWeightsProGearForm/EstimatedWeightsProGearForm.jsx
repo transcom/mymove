@@ -16,6 +16,7 @@ import formStyles from 'styles/form.module.scss';
 import { OrdersShape } from 'types/customerShapes';
 import { ShipmentShape } from 'types/shipment';
 import { formatWeight } from 'utils/formatters';
+import RequiredTag from 'components/form/RequiredTag';
 
 const validationSchema = Yup.object().shape({
   estimatedWeight: Yup.number().min(1, 'Enter a weight greater than 0 lbs').required('Required'),
@@ -69,6 +70,7 @@ const EstimatedWeightsProGearForm = ({ orders, mtoShipment, onSubmit, onBack }) 
                   defaultValue="0"
                   name="estimatedWeight"
                   label="Estimated weight of this PPM shipment"
+                  labelHint="Required"
                   id="estimatedWeight"
                   mask={Number}
                   scale={0} // digits after point, 0 for integers
@@ -122,6 +124,7 @@ const EstimatedWeightsProGearForm = ({ orders, mtoShipment, onSubmit, onBack }) 
                   <legend className="usa-label">
                     Do you or your spouse have pro-gear that you&apos;ll move in this PPM?
                   </legend>
+                  <RequiredTag />
                   <Field
                     as={Radio}
                     id="hasProGearYes"
@@ -148,6 +151,7 @@ const EstimatedWeightsProGearForm = ({ orders, mtoShipment, onSubmit, onBack }) 
                       defaultValue="0"
                       name="proGearWeight"
                       label="Estimated weight of your pro-gear"
+                      labelHint="Required"
                       id="proGearWeight"
                       mask={Number}
                       scale={0} // digits after point, 0 for integers
@@ -160,6 +164,7 @@ const EstimatedWeightsProGearForm = ({ orders, mtoShipment, onSubmit, onBack }) 
                       defaultValue="0"
                       name="spouseProGearWeight"
                       label="Estimated weight of your spouse’s pro-gear"
+                      labelHint="Required"
                       id="spouseProGearWeight"
                       mask={Number}
                       scale={0} // digits after point, 0 for integers
