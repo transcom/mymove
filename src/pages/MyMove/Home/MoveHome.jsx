@@ -34,7 +34,7 @@ import { ppmShipmentStatuses, shipmentTypes } from 'constants/shipments';
 import ConnectedFlashMessage from 'containers/FlashMessage/FlashMessage';
 import { deleteMTOShipment, getAllMoves, getMTOShipmentsForMove, downloadPPMAOAPacket } from 'services/internalApi';
 import { withContext } from 'shared/AppContext';
-import { SHIPMENT_OPTIONS } from 'shared/constants';
+import { SHIPMENT_OPTIONS, SHIPMENT_TYPES } from 'shared/constants';
 import {
   getSignedCertification as getSignedCertificationAction,
   selectSignedCertification,
@@ -51,7 +51,13 @@ import {
   selectUploadsForCurrentOrders,
 } from 'store/entities/selectors';
 import { formatCustomerDate, formatWeight } from 'utils/formatters';
-import { isPPMAboutInfoComplete, isPPMShipmentComplete, isWeightTicketComplete } from 'utils/shipments';
+import {
+  isPPMAboutInfoComplete,
+  isPPMShipmentComplete,
+  isBoatShipmentComplete,
+  isMobileHomeShipmentComplete,
+  isWeightTicketComplete,
+} from 'utils/shipments';
 import withRouter from 'utils/routing';
 import { ADVANCE_STATUSES } from 'constants/ppms';
 import { isBooleanFlagEnabled } from 'utils/featureFlags';
@@ -153,11 +159,6 @@ const MoveHome = ({ serviceMemberMoves, isProfileComplete, serviceMember, signed
     return !!Object.keys(move).length && move.status !== 'DRAFT';
   };
 
-  // checking if the move contains ppm shipments
-  const hasPPMShipments = () => {
-    return mtoShipments?.some((shipment) => shipment.ppmShipment);
-  };
-
   // checking if a PPM shipment is waiting on payment approval
   const hasSubmittedPPMCloseout = () => {
     const finishedCloseout = mtoShipments.filter(
@@ -166,9 +167,20 @@ const MoveHome = ({ serviceMemberMoves, isProfileComplete, serviceMember, signed
     return !!finishedCloseout.length;
   };
 
-  // checking every PPM shipment to see if they are all complete
-  const hasAllCompletedPPMShipments = () => {
-    return mtoShipments?.filter((s) => s.shipmentType === SHIPMENT_OPTIONS.PPM)?.every((s) => isPPMShipmentComplete(s));
+  // checking if there are any incomplete shipment
+  const hasIncompleteShipment = () => {
+    if (!mtoShipments) return false;
+    const shipmentValidators = {
+      [SHIPMENT_TYPES.PPM]: isPPMShipmentComplete,
+      [SHIPMENT_TYPES.BOAT_HAUL_AWAY]: isBoatShipmentComplete,
+      [SHIPMENT_TYPES.BOAT_TOW_AWAY]: isBoatShipmentComplete,
+      [SHIPMENT_TYPES.MOBILE_HOME]: isMobileHomeShipmentComplete,
+    };
+
+    return mtoShipments.some((shipment) => {
+      const validateShipment = shipmentValidators[shipment.shipmentType];
+      return validateShipment && !validateShipment(shipment);
+    });
   };
 
   // determine if at least one advance was APPROVED (advance_status in ppm_shipments table is not nil)
@@ -503,7 +515,9 @@ const MoveHome = ({ serviceMemberMoves, isProfileComplete, serviceMember, signed
                   headerText="Profile complete"
                   step="1"
                   onEditBtnClick={() => handleNewPathClick(profileEditPath)}
-                  actionBtnLabel={isAdditionalDocumentsButtonAvailable() ? 'Upload Additional Documents' : null}
+                  actionBtnLabel={
+                    isAdditionalDocumentsButtonAvailable() ? 'Upload/Manage Non-Orders Documentation' : null
+                  }
                   onActionBtnClick={() => additionalDocumentsClick()}
                 >
                   <Description>Make sure to keep your personal information up to date during your move.</Description>
@@ -530,7 +544,7 @@ const MoveHome = ({ serviceMemberMoves, isProfileComplete, serviceMember, signed
                   <Step
                     complete={hasOrdersAndUpload() && hasSubmittedMove()}
                     completedHeaderText="Orders"
-                    editBtnLabel="Upload documents"
+                    editBtnLabel="Upload/Manage Orders Documentation"
                     onEditBtnClick={() => handleNewPathClick(ordersAmendPath)}
                     headerText="Orders"
                     step="2"
@@ -550,7 +564,7 @@ const MoveHome = ({ serviceMemberMoves, isProfileComplete, serviceMember, signed
                   actionBtnDisabled={!hasOrdersAndUpload()}
                   actionBtnId="shipment-selection-btn"
                   onActionBtnClick={() => handleNewPathClick(shipmentSelectionPath)}
-                  complete={hasPPMShipments() ? hasAllCompletedPPMShipments() : hasAnyShipments()}
+                  complete={!hasIncompleteShipment() && hasAnyShipments()}
                   completedHeaderText="Shipments"
                   headerText="Set up shipments"
                   secondaryBtn={hasAnyShipments()}
@@ -581,7 +595,7 @@ const MoveHome = ({ serviceMemberMoves, isProfileComplete, serviceMember, signed
                   )}
                 </Step>
                 <Step
-                  actionBtnDisabled={hasPPMShipments() ? !hasAllCompletedPPMShipments() : !hasAnyShipments()}
+                  actionBtnDisabled={hasIncompleteShipment() || !hasAnyShipments()}
                   actionBtnId="review-and-submit-btn"
                   actionBtnLabel={!hasSubmittedMove() ? 'Review and submit' : 'Review your request'}
                   complete={hasSubmittedMove()}

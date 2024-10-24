@@ -56,7 +56,7 @@ const Shipment = ({ shipment, moveId, onDelete, mtoServiceItems }) => {
 
   return (
     <dl className={descriptionListStyles.descriptionList}>
-      <h3>{`${shipmentTypeLabels[shipment.shipmentType]} shipment`}</h3>
+      <h3>{`${shipment.marketCode}${shipmentTypeLabels[shipment.shipmentType]} shipment`}</h3>
       <div className={classnames(descriptionListStyles.row, styles.shipmentHeader)}>
         {moveId && (
           <>
@@ -479,6 +479,29 @@ const Shipment = ({ shipment, moveId, onDelete, mtoServiceItems }) => {
               <dd>{shipment.boatShipment.isRoadworthy ? 'Yes' : 'No'}</dd>
             </div>
           )}
+        </>
+      )}
+      {shipment.mobileHomeShipment && (
+        <>
+          <h4>Mobile-Home-Shipment Specific Fields</h4>
+          <div className={descriptionListStyles.row}>
+            <dt>Mobile Home Year:</dt>
+            <dd>{shipment.mobileHomeShipment.year}</dd>
+          </div>
+          <div className={descriptionListStyles.row}>
+            <dt>Mobile Home Make:</dt>
+            <dd>{shipment.mobileHomeShipment.make}</dd>
+          </div>
+          <div className={descriptionListStyles.row}>
+            <dt>Mobile Home Model:</dt>
+            <dd>{shipment.mobileHomeShipment.model}</dd>
+          </div>
+          <div className={descriptionListStyles.row}>
+            <dt>Mobile Home Dimensions (Inches):</dt>
+            <dd>Length: {shipment.mobileHomeShipment.lengthInInches}</dd>
+            <dd>Width: {shipment.mobileHomeShipment.widthInInches}</dd>
+            <dd>Height: {shipment.mobileHomeShipment.heightInInches}</dd>
+          </div>
         </>
       )}
     </dl>

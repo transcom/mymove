@@ -41,12 +41,11 @@ func (h CreateMTOShipmentHandler) Handle(params mtoshipmentops.CreateMTOShipment
 			}
 
 			/** Feature Flag - Boat Shipment **/
-			featureFlagName := "boat"
+			const featureFlagName = "boat"
 			isBoatFeatureOn := false
-			flag, err := h.FeatureFlagFetcher().GetBooleanFlagForUser(params.HTTPRequest.Context(), appCtx, featureFlagName, map[string]string{})
+			flag, err := h.FeatureFlagFetcher().GetBooleanFlag(params.HTTPRequest.Context(), appCtx.Logger(), "", featureFlagName, map[string]string{})
 			if err != nil {
 				appCtx.Logger().Error("Error fetching feature flag", zap.String("featureFlagKey", featureFlagName), zap.Error(err))
-				isBoatFeatureOn = false
 			} else {
 				isBoatFeatureOn = flag.Match
 			}
@@ -55,6 +54,39 @@ func (h CreateMTOShipmentHandler) Handle(params mtoshipmentops.CreateMTOShipment
 			if !isBoatFeatureOn && (*params.Body.ShipmentType == primev3messages.MTOShipmentTypeBOATHAULAWAY || *params.Body.ShipmentType == primev3messages.MTOShipmentTypeBOATTOWAWAY) {
 				return mtoshipmentops.NewCreateMTOShipmentUnprocessableEntity().WithPayload(payloads.ValidationError(
 					"Boat shipment type was used but the feature flag is not enabled.", h.GetTraceIDFromRequest(params.HTTPRequest), nil)), nil
+			}
+
+			/** Feature Flag - Mobile Home Shipment **/
+			const featureFlagMobileHome = "mobile_home"
+			isMobileHomeFeatureOn := false
+			flagMH, err := h.FeatureFlagFetcher().GetBooleanFlag(params.HTTPRequest.Context(), appCtx.Logger(), "", featureFlagMobileHome, map[string]string{})
+			if err != nil {
+				appCtx.Logger().Error("Error fetching feature flagMH", zap.String("featureFlagKey", featureFlagMobileHome), zap.Error(err))
+			} else {
+				isMobileHomeFeatureOn = flagMH.Match
+			}
+
+			// Return an error if mobile home shipment is sent while the feature flag is turned off.
+			if !isMobileHomeFeatureOn && (*params.Body.ShipmentType == primev3messages.MTOShipmentTypeMOBILEHOME) {
+				return mtoshipmentops.NewCreateMTOShipmentUnprocessableEntity().WithPayload(payloads.ValidationError(
+					"Mobile Home shipment type was used but the feature flag is not enabled.", h.GetTraceIDFromRequest(params.HTTPRequest), nil)), nil
+			}
+
+			/** Feature Flag - UB Shipment **/
+			const featureFlagNameUB = "unaccompanied_baggage"
+			isUBFeatureOn := false
+			flag, err = h.FeatureFlagFetcher().GetBooleanFlag(params.HTTPRequest.Context(), appCtx.Logger(), "", featureFlagNameUB, map[string]string{})
+
+			if err != nil {
+				appCtx.Logger().Error("Error fetching feature flag", zap.String("featureFlagKey", featureFlagNameUB), zap.Error(err))
+			} else {
+				isUBFeatureOn = flag.Match
+			}
+
+			// Return an error if UB shipment is sent while the feature flag is turned off.
+			if !isUBFeatureOn && (*params.Body.ShipmentType == primev3messages.MTOShipmentTypeUNACCOMPANIEDBAGGAGE) {
+				return mtoshipmentops.NewCreateMTOShipmentUnprocessableEntity().WithPayload(payloads.ValidationError(
+					"Unaccompanied baggage shipments can't be created unless the unaccompanied_baggage feature flag is enabled.", h.GetTraceIDFromRequest(params.HTTPRequest), nil)), nil
 			}
 
 			for _, mtoServiceItem := range params.Body.MtoServiceItems() {
@@ -110,6 +142,9 @@ func (h CreateMTOShipmentHandler) Handle(params mtoshipmentops.CreateMTOShipment
 				case apperror.NotFoundError:
 					return mtoshipmentops.NewCreateMTOShipmentNotFound().WithPayload(
 						payloads.ClientError(handlers.NotFoundMessage, err.Error(), h.GetTraceIDFromRequest(params.HTTPRequest))), err
+				case apperror.EventError:
+					return mtoshipmentops.NewUpdateMTOShipmentBadRequest().WithPayload(
+						payloads.ClientError(handlers.InternalServerErrMessage, err.Error(), h.GetTraceIDFromRequest(params.HTTPRequest))), err
 				case apperror.InvalidInputError:
 					return mtoshipmentops.NewCreateMTOShipmentUnprocessableEntity().WithPayload(
 						payloads.ValidationError(err.Error(), h.GetTraceIDFromRequest(params.HTTPRequest), e.ValidationErrors)), err
@@ -174,6 +209,9 @@ func (h UpdateMTOShipmentHandler) Handle(params mtoshipmentops.UpdateMTOShipment
 				case apperror.NotFoundError:
 					return mtoshipmentops.NewUpdateMTOShipmentNotFound().WithPayload(
 						payloads.ClientError(handlers.NotFoundMessage, err.Error(), h.GetTraceIDFromRequest(params.HTTPRequest))), err
+				case apperror.EventError:
+					return mtoshipmentops.NewUpdateMTOShipmentBadRequest().WithPayload(
+						payloads.ClientError(handlers.InternalServerErrMessage, err.Error(), h.GetTraceIDFromRequest(params.HTTPRequest))), err
 				case apperror.InvalidInputError:
 					payload := payloads.ValidationError(err.Error(), h.GetTraceIDFromRequest(params.HTTPRequest), e.ValidationErrors)
 					return mtoshipmentops.NewUpdateMTOShipmentUnprocessableEntity().WithPayload(payload), err

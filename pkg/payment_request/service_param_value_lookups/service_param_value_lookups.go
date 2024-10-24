@@ -60,6 +60,8 @@ var ServiceItemParamsWithLookups = []models.ServiceItemParamName{
 	models.ServiceItemParamNameMTOAvailableToPrimeAt,
 	models.ServiceItemParamNameServiceAreaOrigin,
 	models.ServiceItemParamNameServiceAreaDest,
+	models.ServiceItemParamNameInternationalRateAreaOrigin,
+	models.ServiceItemParamNameInternationalRateAreaDest,
 	models.ServiceItemParamNameContractCode,
 	models.ServiceItemParamNameCubicFeetBilled,
 	models.ServiceItemParamNamePSILinehaulDom,
@@ -186,7 +188,7 @@ func ServiceParamLookupInitialize(
 		// Due to a bug in pop (https://github.com/gobuffalo/pop/issues/578), we cannot eager load the storage
 		// facility's address as "StorageFacility.Address" because StorageFacility is a pointer.
 		if mtoShipment.StorageFacility != nil {
-			err = appCtx.DB().Load(mtoShipment.StorageFacility, "Address")
+			err = appCtx.DB().Load(mtoShipment.StorageFacility, "Address", "Address.Country")
 			if err != nil {
 				return nil, apperror.NewQueryError("Address", err, "")
 			}
@@ -328,6 +330,14 @@ func InitializeLookups(appCtx appcontext.AppContext, shipment models.MTOShipment
 	}
 
 	lookups[models.ServiceItemParamNameServiceAreaDest] = ServiceAreaLookup{
+		Address: *shipment.DestinationAddress,
+	}
+
+	lookups[models.ServiceItemParamNameInternationalRateAreaOrigin] = InternationalRateAreaLookup{
+		Address: *shipment.PickupAddress,
+	}
+
+	lookups[models.ServiceItemParamNameInternationalRateAreaDest] = InternationalRateAreaLookup{
 		Address: *shipment.DestinationAddress,
 	}
 

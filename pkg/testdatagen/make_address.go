@@ -15,8 +15,8 @@ func MakeAddress(db *pop.Connection, assertions Assertions) models.Address {
 		City:           "Beverly Hills",
 		State:          "CA",
 		PostalCode:     "90210",
-		Country:        models.StringPointer("US"),
 		County:         "LOS ANGELES",
+		IsOconus:       models.BoolPointer(false),
 	}
 
 	mergeModels(&address, assertions.Address)
@@ -35,8 +35,8 @@ func MakeAddress2(db *pop.Connection, assertions Assertions) models.Address {
 		City:           "Fairfield",
 		State:          "CA",
 		PostalCode:     "94535",
-		Country:        models.StringPointer("US"),
 		County:         "SOLANO",
+		IsOconus:       models.BoolPointer(false),
 	}
 
 	mergeModels(&address, assertions.Address)
@@ -55,8 +55,8 @@ func MakeAddress3(db *pop.Connection, assertions Assertions) models.Address {
 		City:           "Des Moines",
 		State:          "IA",
 		PostalCode:     "50309",
-		Country:        models.StringPointer("US"),
 		County:         "POLK",
+		IsOconus:       models.BoolPointer(false),
 	}
 
 	mergeModels(&address, assertions.Address)
