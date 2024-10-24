@@ -10,7 +10,7 @@ import styles from '../ServicesCounselingMoveInfo/ServicesCounselingTab.module.s
 
 import scMoveDetailsStyles from './ServicesCounselingMoveDetails.module.scss';
 
-import { MOVES } from 'constants/queryKeys';
+import { MOVES, MTO_SHIPMENTS } from 'constants/queryKeys';
 import { ORDERS_TYPE } from 'constants/orders';
 import { servicesCounselingRoutes } from 'constants/routes';
 import AllowancesList from 'components/Office/DefinitionLists/AllowancesList';
@@ -19,12 +19,13 @@ import OrdersList from 'components/Office/DefinitionLists/OrdersList';
 import DetailsPanel from 'components/Office/DetailsPanel/DetailsPanel';
 import FinancialReviewButton from 'components/Office/FinancialReviewButton/FinancialReviewButton';
 import FinancialReviewModal from 'components/Office/FinancialReviewModal/FinancialReviewModal';
+import CancelMoveConfirmationModal from 'components/ConfirmationModals/CancelMoveConfirmationModal';
 import ShipmentDisplay from 'components/Office/ShipmentDisplay/ShipmentDisplay';
 import { SubmitMoveConfirmationModal } from 'components/Office/SubmitMoveConfirmationModal/SubmitMoveConfirmationModal';
 import { useMoveDetailsQueries, useOrdersDocumentQueries } from 'hooks/queries';
-import { updateMoveStatusServiceCounselingCompleted, updateFinancialFlag } from 'services/ghcApi';
+import { updateMoveStatusServiceCounselingCompleted, cancelMove, updateFinancialFlag } from 'services/ghcApi';
 import { MOVE_STATUSES, SHIPMENT_OPTIONS_URL, SHIPMENT_OPTIONS, FEATURE_FLAG_KEYS } from 'shared/constants';
-import { ppmShipmentStatuses } from 'constants/shipments';
+import { ppmShipmentStatuses, shipmentStatuses } from 'constants/shipments';
 import shipmentCardsStyles from 'styles/shipmentCards.module.scss';
 import LeftNav from 'components/LeftNav/LeftNav';
 import LeftNavTag from 'components/LeftNavTag/LeftNavTag';
@@ -60,6 +61,7 @@ const ServicesCounselingMoveDetails = ({
   const [moveHasExcessWeight, setMoveHasExcessWeight] = useState(false);
   const [isSubmitModalVisible, setIsSubmitModalVisible] = useState(false);
   const [isFinancialModalVisible, setIsFinancialModalVisible] = useState(false);
+  const [isCancelMoveModalVisible, setIsCancelMoveModalVisible] = useState(false);
   const [enableBoat, setEnableBoat] = useState(false);
   const [enableMobileHome, setEnableMobileHome] = useState(false);
   const { upload, amendedUpload } = useOrdersDocumentQueries(moveCode);
@@ -79,6 +81,7 @@ const ServicesCounselingMoveDetails = ({
   let counselorCanReview;
   let reviewWeightsURL;
   let counselorCanEdit;
+  let counselorCanCancelMove;
   let counselorCanEditNonPPM;
 
   const sections = useMemo(() => {
@@ -119,6 +122,7 @@ const ServicesCounselingMoveDetails = ({
   let shipmentsInfo = [];
   let ppmShipmentsInfoNeedsApproval = [];
   let ppmShipmentsOtherStatuses = [];
+  let numberOfShipmentsNotAllowedForCancel = 0;
   let disableSubmit = false;
   let disableSubmitDueToMissingOrderInfo = false;
   let numberOfErrorIfMissingForAllShipments = 0;
@@ -178,6 +182,15 @@ const ServicesCounselingMoveDetails = ({
     ppmShipmentsOtherStatuses = onlyPpmShipments.filter(
       (shipment) => shipment.ppmShipment?.status !== ppmShipmentStatuses.NEEDS_CLOSEOUT,
     );
+
+    const nonPpmShipments = submittedShipments.filter((shipment) => shipment.shipmentType !== 'PPM');
+    const nonPpmApprovedShipments = nonPpmShipments.filter(
+      (shipment) => shipment?.status === shipmentStatuses.APPROVED,
+    );
+    const ppmCloseoutCompleteShipments = onlyPpmShipments.filter(
+      (shipment) => shipment.ppmShipment?.status === ppmShipmentStatuses.CLOSEOUT_COMPLETE,
+    );
+    numberOfShipmentsNotAllowedForCancel = nonPpmApprovedShipments.length + ppmCloseoutCompleteShipments.length;
 
     ppmShipmentsInfoNeedsApproval = ppmNeedsApprovalShipments.map((shipment) => {
       const reviewURL = `../${generatePath(servicesCounselingRoutes.SHIPMENT_REVIEW_PATH, {
@@ -240,6 +253,7 @@ const ServicesCounselingMoveDetails = ({
     counselorCanReview = ppmShipmentsInfoNeedsApproval.length > 0;
     reviewWeightsURL = generatePath(servicesCounselingRoutes.BASE_REVIEW_SHIPMENT_WEIGHTS_PATH, { moveCode });
     counselorCanEdit = move.status === MOVE_STATUSES.NEEDS_SERVICE_COUNSELING && ppmShipmentsOtherStatuses.length > 0;
+    counselorCanCancelMove = move.status !== MOVE_STATUSES.CANCELED && numberOfShipmentsNotAllowedForCancel === 0;
     counselorCanEditNonPPM =
       move.status === MOVE_STATUSES.NEEDS_SERVICE_COUNSELING && shipmentsInfo.shipmentType !== 'PPM';
 
@@ -410,6 +424,20 @@ const ServicesCounselingMoveDetails = ({
     },
   });
 
+  const { mutate: mutateCancelMove } = useMutation(cancelMove, {
+    onSuccess: (data) => {
+      queryClient.setQueryData([MOVES, data.locator], data);
+      queryClient.invalidateQueries([MOVES, data.locator]);
+      queryClient.invalidateQueries({ queryKey: [MTO_SHIPMENTS] });
+      setAlertMessage('Move canceled.');
+      setAlertType('success');
+    },
+    onError: () => {
+      setAlertMessage('There was a problem cancelling the move. Please try again later.');
+      setAlertType('error');
+    },
+  });
+
   const { mutate: mutateFinancialReview } = useMutation(updateFinancialFlag, {
     onSuccess: (data) => {
       queryClient.setQueryData([MOVES, data.locator], data);
@@ -462,7 +490,7 @@ const ServicesCounselingMoveDetails = ({
   if (isLoading) return <LoadingPlaceholder />;
   if (isError) return <SomethingWentWrong />;
 
-  const handleShowCancellationModal = () => {
+  const handleShowSubmitMoveModal = () => {
     setIsSubmitModalVisible(true);
   };
 
@@ -487,6 +515,21 @@ const ServicesCounselingMoveDetails = ({
 
   const handleCancelFinancialReviewModal = () => {
     setIsFinancialModalVisible(false);
+  };
+
+  const handleShowCancelMoveModal = () => {
+    setIsCancelMoveModalVisible(true);
+  };
+
+  const handleCancelMove = () => {
+    mutateCancelMove({
+      moveID: move.id,
+    });
+    setIsCancelMoveModalVisible(false);
+  };
+
+  const handleCloseCancelMoveModal = () => {
+    setIsCancelMoveModalVisible(false);
   };
 
   const counselorCanEditOrdersAndAllowances = () => {
@@ -568,6 +611,11 @@ const ServicesCounselingMoveDetails = ({
             initialSelection={move?.financialReviewFlag}
           />
         )}
+        <CancelMoveConfirmationModal
+          isOpen={isCancelMoveModalVisible}
+          onClose={handleCloseCancelMoveModal}
+          onSubmit={handleCancelMove}
+        />
         <GridContainer className={classnames(styles.gridContainer, scMoveDetailsStyles.ServicesCounselingMoveDetails)}>
           <NotificationScrollToTop dependency={alertMessage || infoSavedAlert} />
           <Grid row className={scMoveDetailsStyles.pageHeader}>
@@ -607,13 +655,24 @@ const ServicesCounselingMoveDetails = ({
                         isMoveLocked
                       }
                       type="button"
-                      onClick={handleShowCancellationModal}
+                      onClick={handleShowSubmitMoveModal}
                     >
                       Submit move details
                     </Button>
                   )}
                 </div>
               )}
+            </Grid>
+            <Grid col={12}>
+              <Restricted to={permissionTypes.cancelMoveFlag}>
+                <div className={scMoveDetailsStyles.scCancelMoveContainer}>
+                  {counselorCanCancelMove && !isMoveLocked && (
+                    <Button type="button" unstyled onClick={handleShowCancelMoveModal}>
+                      Cancel move
+                    </Button>
+                  )}
+                </div>
+              </Restricted>
             </Grid>
           </Grid>
 
