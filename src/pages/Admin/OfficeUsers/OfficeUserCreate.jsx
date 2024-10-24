@@ -54,11 +54,9 @@ const OfficeUserCreate = () => {
     if (values.transportationOfficeAssignments?.filter((toa) => toa.primaryOffice)?.length > 1) {
       errors.transportationOfficeAssignments = values.transportationOfficeAssignments.map((office) => {
         const officeErrors = {};
-
         if (office.primaryOffice) {
           officeErrors.primaryOffice = 'You cannot designate more than one primary transportation office.';
         }
-
         return officeErrors;
       });
     }
@@ -66,11 +64,9 @@ const OfficeUserCreate = () => {
     if (values.transportationOfficeAssignments?.filter((toa) => toa.primaryOffice)?.length < 1) {
       errors.transportationOfficeAssignments = values.transportationOfficeAssignments.map((office) => {
         const officeErrors = {};
-
         if (!office.primaryOffice) {
           officeErrors.primaryOffice = 'You must designate a primary transportation office.';
         }
-
         return officeErrors;
       });
     }
