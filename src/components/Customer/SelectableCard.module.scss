@@ -3,11 +3,11 @@
 @import '../../shared/styles/colors';
 @import '../../shared/styles/_variables';
 
-p+.cardContainer {
+p + .cardContainer {
   margin-top: 0px;
 }
 
-.cardContainer+.cardContainer {
+.cardContainer + .cardContainer {
   @include u-margin-top('105');
 }
 
@@ -90,6 +90,7 @@ p+.cardContainer {
     box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0);
     @include u-padding-bottom('205');
     padding-left: 50px;
+    padding-right: 40px;
   }
 
   @media (max-width: $tablet) {

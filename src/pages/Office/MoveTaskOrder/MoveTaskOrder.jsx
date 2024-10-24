@@ -1219,10 +1219,11 @@ export const MoveTaskOrder = (props) => {
                     originPostalCode: pickupAddress?.postalCode || '',
                     destinationAddress: destinationAddress || dutyLocationPostal,
                     scheduledPickupDate: formattedScheduledPickup,
-                    shipmentStatus: mtoShipment.status,
+                    shipmentStatus: mtoShipment.ppmShipment?.status || mtoShipment.status,
                     ifMatchEtag: mtoShipment.eTag,
                     moveTaskOrderID: mtoShipment.moveTaskOrderID,
                     shipmentLocator: mtoShipment.shipmentLocator,
+                    marketCode: mtoShipment.marketCode,
                   }}
                   handleShowCancellationModal={handleShowCancellationModal}
                   isMoveLocked={isMoveLocked}

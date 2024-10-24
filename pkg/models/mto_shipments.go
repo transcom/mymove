@@ -166,7 +166,7 @@ type MTOShipment struct {
 	OriginSITAuthEndDate             *time.Time             `db:"origin_sit_auth_end_date"`
 	DestinationSITAuthEndDate        *time.Time             `db:"dest_sit_auth_end_date"`
 	MobileHome                       *MobileHome            `has_one:"mobile_home" fk_id:"shipment_id"`
-	MarketCode                       *MarketCode            `db:"market_code"`
+	MarketCode                       MarketCode             `db:"market_code"`
 }
 
 // TableName overrides the table name used by Pop.
@@ -246,12 +246,15 @@ func (m *MTOShipment) Validate(_ *pop.Connection) (*validate.Errors, error) {
 		string(DestinationTypeOtherThanAuthorized),
 	}})
 
-	// Validate MarketCode if exists
-	if m.MarketCode != nil {
-		vs = append(vs, &validators.StringInclusion{Field: string(*m.MarketCode), Name: "MarketCode", List: []string{
-			string(MarketCodeDomestic),
-			string(MarketCodeInternational),
-		}})
+	if m.MarketCode != "" {
+		vs = append(vs, &validators.StringInclusion{
+			Field: string(m.MarketCode),
+			Name:  "MarketCode",
+			List: []string{
+				string(MarketCodeDomestic),
+				string(MarketCodeInternational),
+			},
+		})
 	}
 
 	return validate.Validate(vs...), nil

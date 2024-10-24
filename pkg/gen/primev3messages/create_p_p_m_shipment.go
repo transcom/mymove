@@ -22,7 +22,7 @@ type CreatePPMShipment struct {
 	// The address of the destination location where goods are being delivered to.
 	// Required: true
 	DestinationAddress struct {
-		Address
+		PPMDestinationAddress
 	} `json:"destinationAddress"`
 
 	// The estimated weight of the PPM shipment goods being moved in pounds.
@@ -40,6 +40,10 @@ type CreatePPMShipment struct {
 	//
 	// Required: true
 	HasProGear *bool `json:"hasProGear"`
+
+	// Used for PPM shipments only. Denotes if this shipment uses the Actual Expense Reimbursement method.
+	// Example: false
+	IsActualExpenseReimbursement *bool `json:"isActualExpenseReimbursement"`
 
 	// The address of the origin location where goods are being moved from.
 	// Required: true

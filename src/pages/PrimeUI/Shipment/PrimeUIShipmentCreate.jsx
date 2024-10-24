@@ -18,7 +18,7 @@ import WizardNavigation from 'components/Customer/WizardNavigation/WizardNavigat
 import { isEmpty, isValidWeight } from 'shared/utils';
 import { formatAddressForPrimeAPI, formatSwaggerDate } from 'utils/formatters';
 import { setFlashMessage as setFlashMessageAction } from 'store/flash/actions';
-import { requiredAddressSchema } from 'utils/validation';
+import { requiredAddressSchema, partialRequiredAddressSchema } from 'utils/validation';
 import PrimeUIShipmentCreateForm from 'pages/PrimeUI/Shipment/PrimeUIShipmentCreateForm';
 import { OptionalAddressSchema } from 'components/Customer/MtoShipmentForm/validationSchemas';
 import { SHIPMENT_OPTIONS, SHIPMENT_TYPES } from 'shared/constants';
@@ -31,6 +31,18 @@ const PrimeUIShipmentCreate = ({ setFlashMessage }) => {
   const handleClose = () => {
     navigate(generatePath(primeSimulatorRoutes.VIEW_MOVE_PATH, { moveCodeOrID }));
   };
+
+  const handleSetError = (error, invalidFieldsStr) => {
+    let detailedMessage = `${error?.response?.body.detail}${invalidFieldsStr}\n\nPlease refresh and Update Shipment again`;
+    if (error?.response?.body?.detail !== null && error?.response?.body?.detail !== undefined) {
+      detailedMessage = `${error?.response?.body.detail}\n\nPlease refresh and Update Shipment again`;
+    }
+    setErrorMessage({
+      title: `Prime API: ${error?.response?.body.title} `,
+      detail: detailedMessage,
+    });
+  };
+
   const { mutateAsync: mutateCreateMTOShipment } = useMutation(createPrimeMTOShipmentV3, {
     onSuccess: (createdMTOShipment) => {
       setFlashMessage(
@@ -53,10 +65,7 @@ const PrimeUIShipmentCreate = ({ setFlashMessage }) => {
             invalidFieldsStr += `\n${key} - ${value && value.length > 0 ? value[0] : ''} ;`;
           });
         }
-        setErrorMessage({
-          title: `Prime API: ${body.title} `,
-          detail: `${body.detail}${invalidFieldsStr}\n\nPlease try again`,
-        });
+        handleSetError(error, invalidFieldsStr);
       } else {
         setErrorMessage({
           title: 'Unexpected error',
@@ -465,7 +474,7 @@ const PrimeUIShipmentCreate = ({ setFlashMessage }) => {
           pickupAddress: requiredAddressSchema.required('Required'),
           secondaryPickupAddress: OptionalAddressSchema,
           tertiaryPickupAddress: OptionalAddressSchema,
-          destinationAddress: requiredAddressSchema.required('Required'),
+          destinationAddress: partialRequiredAddressSchema.required('Required'),
           secondaryDestinationAddress: OptionalAddressSchema,
           tertiaryDestinationAddress: OptionalAddressSchema,
           sitExpected: Yup.boolean().required('Required'),

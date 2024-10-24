@@ -315,7 +315,6 @@ const ShipmentInfoList = ({
       {secondaryPickupAddressElement}
       {isTertiaryAddressEnabled ? tertiaryPickupAddressElement : null}
       {showElement(agentsElementFlags) && releasingAgentElement}
-      {showElement(requestedDeliveryDateElementFlags) && requestedDeliveryDateElement}
       {requestedDeliveryDateElement}
       {destinationAddressElement}
       {showElement(destinationTypeFlags) && displayDestinationType && destinationTypeElement}

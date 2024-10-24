@@ -283,29 +283,29 @@ func SessionFromContext(ctx context.Context) *Session {
 
 // IsServiceMember checks whether the authenticated user is a ServiceMember
 func (s *Session) IsServiceMember() bool {
-	return s.ServiceMemberID != uuid.Nil
+	return s != nil && s.ServiceMemberID != uuid.Nil
 }
 
 // IsOfficeUser checks whether the authenticated user is an OfficeUser
 func (s *Session) IsOfficeUser() bool {
-	return s.OfficeUserID != uuid.Nil
+	return s != nil && s.OfficeUserID != uuid.Nil
 }
 
 // IsAdminUser checks whether the authenticated user is an AdminUser
 func (s *Session) IsAdminUser() bool {
-	return s.AdminUserID != uuid.Nil
+	return s != nil && s.AdminUserID != uuid.Nil
 }
 
 // IsSystemAdmin checks whether the authenticated admin user is a system admin
 func (s *Session) IsSystemAdmin() bool {
 	role := "SYSTEM_ADMIN"
-	return s.IsAdminUser() && s.AdminUserRole == role
+	return s != nil && s.IsAdminUser() && s.AdminUserRole == role
 }
 
 // IsProgramAdmin checks whether the authenticated admin user is a program admin
 func (s *Session) IsProgramAdmin() bool {
 	role := "PROGRAM_ADMIN"
-	return s.IsAdminUser() && s.AdminUserRole == role
+	return s != nil && s.IsAdminUser() && s.AdminUserRole == role
 }
 
 func SessionIDMiddleware(appnames ApplicationServername, sessionManagers AppSessionManagers) func(next http.Handler) http.Handler {

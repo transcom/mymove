@@ -11,6 +11,7 @@ export default {
   max_billable_weight: 'max_billable_weight',
   actual_weight: 'actual_weight',
   estimated_weight: 'estimated_weight',
+  allowable_weight: 'allowable_weight',
   sit_estimated_weight: 'sit_estimated_weight',
   adjusted_net_weight: 'adjusted_net_weight',
   empty_weight: 'empty_weight',

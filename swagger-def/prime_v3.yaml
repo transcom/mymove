@@ -167,22 +167,23 @@ paths:
                 summary: Boat Shipment
                 value:
                   {
-                    "boatShipment": {
-                      "hasTrailer": true,
-                      "heightFeet": 2,
-                      "heightInches": 2,
-                      "isRoadworthy": false,
-                      "lengthFeet": 2,
-                      "lengthInches": 0,
-                      "make": "make",
-                      "model": "model",
-                      "widthFeet": 2,
-                      "widthInches": 2,
-                      "year": 1999
-                    },
-                    "counselorRemarks": "test",
-                    "moveTaskOrderID": "d4d95b22-2d9d-428b-9a11-284455aa87ba",
-                    "shipmentType": "HAUL_AWAY"
+                    'boatShipment':
+                      {
+                        'hasTrailer': true,
+                        'heightFeet': 2,
+                        'heightInches': 2,
+                        'isRoadworthy': false,
+                        'lengthFeet': 2,
+                        'lengthInches': 0,
+                        'make': 'make',
+                        'model': 'model',
+                        'widthFeet': 2,
+                        'widthInches': 2,
+                        'year': 1999,
+                      },
+                    'counselorRemarks': 'test',
+                    'moveTaskOrderID': 'd4d95b22-2d9d-428b-9a11-284455aa87ba',
+                    'shipmentType': 'HAUL_AWAY',
                   }
               mobileHome:
                 summary: Mobile Home Shipment
@@ -469,7 +470,7 @@ definitions:
       destinationAddress:
         description: The address of the destination location where goods are being delivered to.
         allOf:
-          - $ref: 'definitions/Address.yaml'
+          - $ref: 'definitions/PPMDestinationAddress.yaml'
       secondaryDestinationAddress:
         description: An optional secondary address near the destination where goods will be dropped off.
         allOf:
@@ -518,6 +519,12 @@ definitions:
       spouseProGearWeight:
         description: The estimated weight of the pro-gear being moved belonging to a spouse in pounds.
         type: integer
+        x-nullable: true
+      isActualExpenseReimbursement:
+        description: Used for PPM shipments only. Denotes if this shipment uses the Actual Expense Reimbursement method.
+        type: boolean
+        example: false
+        x-omitempty: false
         x-nullable: true
     required:
       - expectedDepartureDate
@@ -708,7 +715,7 @@ definitions:
         description: >
           The address of the destination location where goods are being delivered to.
         allOf:
-          - $ref: 'definitions/Address.yaml'
+          - $ref: 'definitions/PPMDestinationAddress.yaml'
       hasSecondaryDestinationAddress:
         type: boolean
         x-omitempty: false
@@ -770,6 +777,12 @@ definitions:
       spouseProGearWeight:
         description: The estimated weight of the pro-gear being moved belonging to a spouse.
         type: integer
+        x-nullable: true
+      isActualExpenseReimbursement:
+        description: Used for PPM shipments only. Denotes if this shipment uses the Actual Expense Reimbursement method.
+        type: boolean
+        example: false
+        x-omitempty: false
         x-nullable: true
   UpdateMTOShipment:
     properties:

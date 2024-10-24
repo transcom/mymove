@@ -60,6 +60,8 @@ var ServiceItemParamsWithLookups = []models.ServiceItemParamName{
 	models.ServiceItemParamNameMTOAvailableToPrimeAt,
 	models.ServiceItemParamNameServiceAreaOrigin,
 	models.ServiceItemParamNameServiceAreaDest,
+	models.ServiceItemParamNameInternationalRateAreaOrigin,
+	models.ServiceItemParamNameInternationalRateAreaDest,
 	models.ServiceItemParamNameContractCode,
 	models.ServiceItemParamNameCubicFeetBilled,
 	models.ServiceItemParamNamePSILinehaulDom,
@@ -331,6 +333,14 @@ func InitializeLookups(appCtx appcontext.AppContext, shipment models.MTOShipment
 		Address: *shipment.DestinationAddress,
 	}
 
+	lookups[models.ServiceItemParamNameInternationalRateAreaOrigin] = InternationalRateAreaLookup{
+		Address: *shipment.PickupAddress,
+	}
+
+	lookups[models.ServiceItemParamNameInternationalRateAreaDest] = InternationalRateAreaLookup{
+		Address: *shipment.DestinationAddress,
+	}
+
 	lookups[models.ServiceItemParamNameContractCode] = ContractCodeLookup{}
 
 	lookups[models.ServiceItemParamNameCubicFeetBilled] = CubicFeetBilledLookup{
@@ -510,6 +520,10 @@ func (s *ServiceItemParamKeyData) ServiceParamValue(appCtx appcontext.AppContext
 	if lookup, ok := s.lookups[key]; ok {
 		value, err := lookup.lookup(appCtx, s)
 		if err != nil {
+			switch err.(type) {
+			case apperror.EventError:
+				return "", err
+			}
 			return "", fmt.Errorf(" failed ServiceParamValue %sLookup with error %w", key, err)
 		}
 		// Save param value to cache

@@ -415,33 +415,34 @@ func PPMShipment(ppmShipment *models.PPMShipment) *primev2messages.PPMShipment {
 	}
 
 	payloadPPMShipment := &primev2messages.PPMShipment{
-		ID:                          *handlers.FmtUUID(ppmShipment.ID),
-		ShipmentID:                  *handlers.FmtUUID(ppmShipment.ShipmentID),
-		CreatedAt:                   strfmt.DateTime(ppmShipment.CreatedAt),
-		UpdatedAt:                   strfmt.DateTime(ppmShipment.UpdatedAt),
-		Status:                      primev2messages.PPMShipmentStatus(ppmShipment.Status),
-		ExpectedDepartureDate:       handlers.FmtDate(ppmShipment.ExpectedDepartureDate),
-		ActualMoveDate:              handlers.FmtDatePtr(ppmShipment.ActualMoveDate),
-		SubmittedAt:                 handlers.FmtDateTimePtr(ppmShipment.SubmittedAt),
-		ReviewedAt:                  handlers.FmtDateTimePtr(ppmShipment.ReviewedAt),
-		ApprovedAt:                  handlers.FmtDateTimePtr(ppmShipment.ApprovedAt),
-		ActualPickupPostalCode:      ppmShipment.ActualPickupPostalCode,
-		ActualDestinationPostalCode: ppmShipment.ActualDestinationPostalCode,
-		SitExpected:                 ppmShipment.SITExpected,
-		SitEstimatedWeight:          handlers.FmtPoundPtr(ppmShipment.SITEstimatedWeight),
-		SitEstimatedEntryDate:       handlers.FmtDatePtr(ppmShipment.SITEstimatedEntryDate),
-		SitEstimatedDepartureDate:   handlers.FmtDatePtr(ppmShipment.SITEstimatedDepartureDate),
-		SitEstimatedCost:            handlers.FmtCost(ppmShipment.SITEstimatedCost),
-		EstimatedWeight:             handlers.FmtPoundPtr(ppmShipment.EstimatedWeight),
-		EstimatedIncentive:          handlers.FmtCost(ppmShipment.EstimatedIncentive),
-		HasProGear:                  ppmShipment.HasProGear,
-		ProGearWeight:               handlers.FmtPoundPtr(ppmShipment.ProGearWeight),
-		SpouseProGearWeight:         handlers.FmtPoundPtr(ppmShipment.SpouseProGearWeight),
-		HasRequestedAdvance:         ppmShipment.HasRequestedAdvance,
-		AdvanceAmountRequested:      handlers.FmtCost(ppmShipment.AdvanceAmountRequested),
-		HasReceivedAdvance:          ppmShipment.HasReceivedAdvance,
-		AdvanceAmountReceived:       handlers.FmtCost(ppmShipment.AdvanceAmountReceived),
-		ETag:                        etag.GenerateEtag(ppmShipment.UpdatedAt),
+		ID:                           *handlers.FmtUUID(ppmShipment.ID),
+		ShipmentID:                   *handlers.FmtUUID(ppmShipment.ShipmentID),
+		CreatedAt:                    strfmt.DateTime(ppmShipment.CreatedAt),
+		UpdatedAt:                    strfmt.DateTime(ppmShipment.UpdatedAt),
+		Status:                       primev2messages.PPMShipmentStatus(ppmShipment.Status),
+		ExpectedDepartureDate:        handlers.FmtDate(ppmShipment.ExpectedDepartureDate),
+		ActualMoveDate:               handlers.FmtDatePtr(ppmShipment.ActualMoveDate),
+		SubmittedAt:                  handlers.FmtDateTimePtr(ppmShipment.SubmittedAt),
+		ReviewedAt:                   handlers.FmtDateTimePtr(ppmShipment.ReviewedAt),
+		ApprovedAt:                   handlers.FmtDateTimePtr(ppmShipment.ApprovedAt),
+		ActualPickupPostalCode:       ppmShipment.ActualPickupPostalCode,
+		ActualDestinationPostalCode:  ppmShipment.ActualDestinationPostalCode,
+		SitExpected:                  ppmShipment.SITExpected,
+		SitEstimatedWeight:           handlers.FmtPoundPtr(ppmShipment.SITEstimatedWeight),
+		SitEstimatedEntryDate:        handlers.FmtDatePtr(ppmShipment.SITEstimatedEntryDate),
+		SitEstimatedDepartureDate:    handlers.FmtDatePtr(ppmShipment.SITEstimatedDepartureDate),
+		SitEstimatedCost:             handlers.FmtCost(ppmShipment.SITEstimatedCost),
+		EstimatedWeight:              handlers.FmtPoundPtr(ppmShipment.EstimatedWeight),
+		EstimatedIncentive:           handlers.FmtCost(ppmShipment.EstimatedIncentive),
+		HasProGear:                   ppmShipment.HasProGear,
+		ProGearWeight:                handlers.FmtPoundPtr(ppmShipment.ProGearWeight),
+		SpouseProGearWeight:          handlers.FmtPoundPtr(ppmShipment.SpouseProGearWeight),
+		HasRequestedAdvance:          ppmShipment.HasRequestedAdvance,
+		AdvanceAmountRequested:       handlers.FmtCost(ppmShipment.AdvanceAmountRequested),
+		HasReceivedAdvance:           ppmShipment.HasReceivedAdvance,
+		AdvanceAmountReceived:        handlers.FmtCost(ppmShipment.AdvanceAmountReceived),
+		IsActualExpenseReimbursement: ppmShipment.IsActualExpenseReimbursement,
+		ETag:                         etag.GenerateEtag(ppmShipment.UpdatedAt),
 	}
 
 	if ppmShipment.SITLocation != nil {
@@ -449,7 +450,19 @@ func PPMShipment(ppmShipment *models.PPMShipment) *primev2messages.PPMShipment {
 		payloadPPMShipment.SitLocation = &sitLocation
 	}
 
+	if ppmShipment.IsActualExpenseReimbursement != nil {
+		payloadPPMShipment.IsActualExpenseReimbursement = ppmShipment.IsActualExpenseReimbursement
+	}
+
 	return payloadPPMShipment
+}
+
+// MarketCode payload
+func MarketCode(marketCode *models.MarketCode) string {
+	if marketCode == nil {
+		return "" // Or a default string value
+	}
+	return string(*marketCode)
 }
 
 func MTOShipmentWithoutServiceItems(mtoShipment *models.MTOShipment) *primev2messages.MTOShipmentWithoutServiceItems {
@@ -484,6 +497,7 @@ func MTOShipmentWithoutServiceItems(mtoShipment *models.MTOShipment) *primev2mes
 		ETag:                             etag.GenerateEtag(mtoShipment.UpdatedAt),
 		OriginSitAuthEndDate:             (*strfmt.Date)(mtoShipment.OriginSITAuthEndDate),
 		DestinationSitAuthEndDate:        (*strfmt.Date)(mtoShipment.DestinationSITAuthEndDate),
+		MarketCode:                       MarketCode(&mtoShipment.MarketCode),
 	}
 
 	// Set up address payloads

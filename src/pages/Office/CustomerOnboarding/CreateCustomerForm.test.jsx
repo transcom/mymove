@@ -23,13 +23,16 @@ jest.mock('services/ghcApi', () => ({
 }));
 
 jest.mock('store/flash/actions', () => ({
-  ...jest.requireActual('store/flash/actions'),
   setFlashMessage: jest.fn(),
 }));
 
 jest.mock('utils/featureFlags', () => ({
   ...jest.requireActual('utils/featureFlags'),
   isBooleanFlagEnabled: jest.fn().mockImplementation(() => Promise.resolve(false)),
+}));
+
+jest.mock('store/general/actions', () => ({
+  setCanAddOrders: jest.fn(),
 }));
 
 beforeEach(jest.resetAllMocks);
@@ -169,6 +172,7 @@ const mockUserPrivileges = [
 
 const testProps = {
   setFlashMessage: jest.fn(),
+  setCanAddOrders: jest.fn(),
   userPrivileges: mockUserPrivileges,
 };
 
@@ -337,6 +341,7 @@ describe('CreateCustomerForm', () => {
 
     await waitFor(() => {
       expect(createCustomerWithOktaOption).toHaveBeenCalled();
+      expect(testProps.setCanAddOrders).toHaveBeenCalledWith(true);
       expect(mockNavigate).toHaveBeenCalledWith(ordersPath, {
         state: {
           isSafetyMoveSelected: false,

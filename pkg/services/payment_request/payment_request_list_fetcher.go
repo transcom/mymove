@@ -316,8 +316,7 @@ func lastNameFilter(lastName *string) QueryOption {
 func dutyLocationFilter(dutyLocation *string) QueryOption {
 	return func(query *pop.Query) {
 		if dutyLocation != nil {
-			locationSearch := fmt.Sprintf("%s%%", *dutyLocation)
-			query.Where("duty_locations.name ILIKE ?", locationSearch)
+			query.Where("duty_locations.name ILIKE ?", "%"+*dutyLocation+"%")
 		}
 	}
 }

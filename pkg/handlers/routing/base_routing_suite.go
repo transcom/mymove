@@ -17,7 +17,10 @@ import (
 
 	"github.com/gorilla/csrf"
 	"github.com/spf13/afero"
+	"github.com/stretchr/testify/mock"
+	"go.uber.org/zap"
 
+	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/handlers"
@@ -26,6 +29,8 @@ import (
 	"github.com/transcom/mymove/pkg/logging"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/notifications"
+	"github.com/transcom/mymove/pkg/services"
+	"github.com/transcom/mymove/pkg/services/mocks"
 	storageTest "github.com/transcom/mymove/pkg/storage/test"
 	"github.com/transcom/mymove/pkg/telemetry"
 	"github.com/transcom/mymove/pkg/testingsuite"
@@ -85,6 +90,36 @@ func (suite *BaseRoutingSuite) RoutingConfig() *Config {
 	fakeS3 := storageTest.NewFakeS3Storage(true)
 	handlerConfig.SetFileStorer(fakeS3)
 
+	mockFeatureFlagFetcher := &mocks.FeatureFlagFetcher{}
+	mockGetFlagFunc := func(_ context.Context, _ *zap.Logger, entityID string, key string, _ map[string]string, mockVariant string) (services.FeatureFlag, error) {
+		return services.FeatureFlag{
+			Entity:    entityID,
+			Key:       key,
+			Match:     true,
+			Variant:   mockVariant,
+			Namespace: "test",
+		}, nil
+	}
+	mockFeatureFlagFetcher.On("GetBooleanFlagForUser",
+		mock.Anything,
+		mock.AnythingOfType("*appcontext.appContext"),
+		mock.AnythingOfType("string"),
+		mock.Anything,
+	).Return(func(ctx context.Context, appCtx appcontext.AppContext, key string, flagContext map[string]string) (services.FeatureFlag, error) {
+		return mockGetFlagFunc(ctx, appCtx.Logger(), "user@example.com", key, flagContext, "")
+	})
+
+	mockFeatureFlagFetcher.On("GetBooleanFlag",
+		mock.Anything,
+		mock.Anything,
+		mock.AnythingOfType("string"),
+		mock.AnythingOfType("string"),
+		mock.Anything,
+	).Return(func(_ context.Context, _ *zap.Logger, _ string, key string, flagContext map[string]string) (services.FeatureFlag, error) {
+		return services.FeatureFlag{}, nil
+	})
+	handlerConfig.SetFeatureFlagFetcher(mockFeatureFlagFetcher)
+
 	fakeOktaProvider := okta.NewOktaProvider(suite.Logger())
 	authContext := authentication.NewAuthContext(suite.Logger(), *fakeOktaProvider, "http", suite.port)
 
@@ -124,6 +159,7 @@ func (suite *BaseRoutingSuite) RoutingConfig() *Config {
 		// note that enabling devlocal auth also enables accessing the
 		// Prime API without requiring mTLS. See
 		// authentication.DevLocalClientCertMiddleware
+
 	}
 
 	return suite.routingConfig

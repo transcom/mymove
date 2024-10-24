@@ -1,7 +1,7 @@
 import React from 'react';
 import { Fieldset, Radio } from '@trussworks/react-uswds';
 import { Field } from 'formik';
-import { func } from 'prop-types';
+import { bool, func } from 'prop-types';
 import classnames from 'classnames';
 
 import styles from './BoatShipmentForm.module.scss';
@@ -64,10 +64,8 @@ const BoatShipmentForm = ({
         </p>
         <div>
           <ErrorMessage display={dimensionError}>
-            <p>
-              The dimensions do not meet the requirements for a boat shipment. Please cancel and select a different
-              shipment type.
-            </p>
+            The dimensions do not meet the requirements for a boat shipment. Please cancel and select a different
+            shipment type.
           </ErrorMessage>
           <Fieldset className={styles.formFieldContainer}>
             <div className="labelWrapper">
@@ -275,9 +273,9 @@ const BoatShipmentForm = ({
 export default BoatShipmentForm;
 
 BoatShipmentForm.propTypes = {
-  lengthHasError: func.isRequired,
-  widthHasError: func.isRequired,
-  heightHasError: func.isRequired,
+  lengthHasError: bool.isRequired,
+  widthHasError: bool.isRequired,
+  heightHasError: bool.isRequired,
   setFieldTouched: func.isRequired,
   setFieldError: func.isRequired,
   validateForm: func.isRequired,

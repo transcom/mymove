@@ -59,7 +59,7 @@ type PPMShipment struct {
 
 	// destination address
 	// Required: true
-	DestinationAddress *Address `json:"destinationAddress"`
+	DestinationAddress *PPMDestinationAddress `json:"destinationAddress"`
 
 	// A hash unique to this shipment that should be used as the "If-Match" header for any updates.
 	// Required: true
@@ -109,6 +109,10 @@ type PPMShipment struct {
 	// Read Only: true
 	// Format: uuid
 	ID strfmt.UUID `json:"id"`
+
+	// Used for PPM shipments only. Denotes if this shipment uses the Actual Expense Reimbursement method.
+	// Example: false
+	IsActualExpenseReimbursement *bool `json:"isActualExpenseReimbursement"`
 
 	// pickup address
 	// Required: true

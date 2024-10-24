@@ -14,7 +14,7 @@ type boatBuildType byte
 const (
 	boatBuildStandard boatBuildType = iota
 	boatBuildStandardTowAway
-	boatBuildStandardHualAway
+	boatBuildStandardHaulAway
 )
 
 // buildBoatShipmentWithBuildType does the actual work
@@ -56,7 +56,7 @@ func buildBoatShipmentWithBuildType(db *pop.Connection, customs []Customization,
 		shipment.ShipmentType = models.MTOShipmentTypeBoatTowAway
 	}
 
-	if buildType == boatBuildStandardHualAway {
+	if buildType == boatBuildStandardHaulAway {
 		shipment.ShipmentType = models.MTOShipmentTypeBoatHaulAway
 	}
 
@@ -80,7 +80,7 @@ func buildBoatShipmentWithBuildType(db *pop.Connection, customs []Customization,
 		boatShipment.IsRoadworthy = models.BoolPointer(true)
 	}
 
-	if buildType == boatBuildStandardHualAway {
+	if buildType == boatBuildStandardHaulAway {
 		boatShipment.Type = models.BoatShipmentTypeHaulAway
 		boatShipment.HasTrailer = models.BoolPointer(false)
 		boatShipment.IsRoadworthy = models.BoolPointer(false)
@@ -106,7 +106,7 @@ func BuildBoatShipmentTowAway(db *pop.Connection, customs []Customization, trait
 	return buildBoatShipmentWithBuildType(db, customs, traits, boatBuildStandardTowAway)
 }
 func BuildBoatShipmentHaulAway(db *pop.Connection, customs []Customization, traits []Trait) models.BoatShipment {
-	return buildBoatShipmentWithBuildType(db, customs, traits, boatBuildStandardHualAway)
+	return buildBoatShipmentWithBuildType(db, customs, traits, boatBuildStandardHaulAway)
 }
 
 // ------------------------

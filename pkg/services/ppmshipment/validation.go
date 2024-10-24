@@ -77,6 +77,7 @@ func mergePPMShipment(newPPMShipment models.PPMShipment, oldPPMShipment *models.
 	ppmShipment.ActualDestinationPostalCode = services.SetOptionalStringField(newPPMShipment.ActualDestinationPostalCode, ppmShipment.ActualDestinationPostalCode)
 	ppmShipment.HasProGear = services.SetNoNilOptionalBoolField(newPPMShipment.HasProGear, ppmShipment.HasProGear)
 	ppmShipment.EstimatedWeight = services.SetNoNilOptionalPoundField(newPPMShipment.EstimatedWeight, ppmShipment.EstimatedWeight)
+	ppmShipment.AllowableWeight = services.SetOptionalPoundField(newPPMShipment.AllowableWeight, ppmShipment.AllowableWeight)
 	ppmShipment.ProGearWeight = services.SetNoNilOptionalPoundField(newPPMShipment.ProGearWeight, ppmShipment.ProGearWeight)
 	ppmShipment.SpouseProGearWeight = services.SetNoNilOptionalPoundField(newPPMShipment.SpouseProGearWeight, ppmShipment.SpouseProGearWeight)
 	ppmShipment.EstimatedIncentive = services.SetNoNilOptionalCentField(newPPMShipment.EstimatedIncentive, ppmShipment.EstimatedIncentive)
@@ -85,6 +86,7 @@ func mergePPMShipment(newPPMShipment models.PPMShipment, oldPPMShipment *models.
 	ppmShipment.FinalIncentive = services.SetNoNilOptionalCentField(newPPMShipment.FinalIncentive, ppmShipment.FinalIncentive)
 	ppmShipment.HasReceivedAdvance = services.SetNoNilOptionalBoolField(newPPMShipment.HasReceivedAdvance, ppmShipment.HasReceivedAdvance)
 	ppmShipment.AdvanceAmountReceived = services.SetNoNilOptionalCentField(newPPMShipment.AdvanceAmountReceived, ppmShipment.AdvanceAmountReceived)
+	ppmShipment.IsActualExpenseReimbursement = services.SetNoNilOptionalBoolField(newPPMShipment.IsActualExpenseReimbursement, ppmShipment.IsActualExpenseReimbursement)
 
 	ppmShipment.SITExpected = services.SetNoNilOptionalBoolField(newPPMShipment.SITExpected, ppmShipment.SITExpected)
 	ppmShipment.SITEstimatedWeight = services.SetNoNilOptionalPoundField(newPPMShipment.SITEstimatedWeight, ppmShipment.SITEstimatedWeight)

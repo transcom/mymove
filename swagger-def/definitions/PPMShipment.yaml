@@ -131,6 +131,13 @@ properties:
     example: 4200
     x-nullable: true
     x-omitempty: false
+  allowableWeight:
+    description: The allowable weight of the PPM shipment goods being moved.
+    type: integer
+    example: 4300
+    minimum: 0
+    x-nullable: true
+    x-omitempty: false
   hasProGear:
     description: >
       Indicates whether PPM shipment has pro gear for themselves or their spouse.
@@ -228,6 +235,12 @@ properties:
     type: array
     items:
       $ref: 'ProGearWeightTicket.yaml'
+  isActualExpenseReimbursement:
+    description: Used for PPM shipments only. Denotes if this shipment uses the Actual Expense Reimbursement method.
+    type: boolean
+    example: false
+    x-omitempty: false
+    x-nullable: true
   signedCertification:
     $ref: 'SignedCertification.yaml'
   eTag:

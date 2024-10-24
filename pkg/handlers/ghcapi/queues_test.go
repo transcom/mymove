@@ -193,7 +193,7 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandlerMoveInfo() {
 
 		orderFetcher := mocks.OrderFetcher{}
 		orderFetcher.On("ListOrders", mock.AnythingOfType("*appcontext.appContext"),
-			officeUser.ID, mock.Anything).Return(expectedMoves, 4, nil)
+			officeUser.ID, roles.RoleTypeTOO, mock.Anything).Return(expectedMoves, 4, nil)
 
 		request := httptest.NewRequest("GET", "/queues/moves", nil)
 		request = suite.AuthenticateOfficeRequest(request, officeUser)
@@ -1304,6 +1304,7 @@ type servicesCounselingSubtestData struct {
 	needsCounselingMove             models.Move
 	counselingCompletedMove         models.Move
 	marineCorpsMove                 models.Move
+	ppmNeedsCloseoutMove            models.Move
 	officeUser                      models.OfficeUser
 	needsCounselingEarliestShipment models.MTOShipment
 	counselingCompletedShipment     models.MTOShipment
@@ -1336,6 +1337,29 @@ func (suite *HandlerSuite) makeServicesCounselingSubtestData() (subtestData *ser
 				RequestedPickupDate:   &requestedPickupDate,
 				RequestedDeliveryDate: &requestedPickupDate,
 				Status:                models.MTOShipmentStatusSubmitted,
+			},
+		},
+	}, nil)
+
+	transportationOffice := factory.BuildTransportationOffice(suite.DB(), nil, nil)
+	subtestData.ppmNeedsCloseoutMove = factory.BuildMoveWithPPMShipment(suite.DB(), []factory.Customization{
+		{
+			Model: models.Move{
+				SubmittedAt:      &submittedAt,
+				Status:           models.MoveStatusServiceCounselingCompleted,
+				CloseoutOfficeID: &transportationOffice.ID,
+			},
+		},
+		{
+			Model: models.MTOShipment{
+				RequestedPickupDate:   &requestedPickupDate,
+				RequestedDeliveryDate: &requestedPickupDate,
+				Status:                models.MTOShipmentStatusSubmitted,
+			},
+		},
+		{
+			Model: models.PPMShipment{
+				Status: models.PPMShipmentStatusNeedsCloseout,
 			},
 		},
 	}, nil)
@@ -1553,7 +1577,7 @@ func (suite *HandlerSuite) TestGetServicesCounselingQueueHandler() {
 		// Validate outgoing payload
 		suite.NoError(payload.Validate(strfmt.Default))
 
-		suite.Len(payload.QueueMoves, 3)
+		suite.Len(payload.QueueMoves, 5)
 
 		for _, move := range payload.QueueMoves {
 			// Test that only moves with postal code in the officer user gbloc are returned
@@ -1562,6 +1586,34 @@ func (suite *HandlerSuite) TestGetServicesCounselingQueueHandler() {
 			// Fail if a move has a status other than the two target ones
 			if models.MoveStatus(move.Status) != models.MoveStatusNeedsServiceCounseling && models.MoveStatus(move.Status) != models.MoveStatusServiceCounselingCompleted {
 				suite.Fail("Test does not return moves with the correct statuses.")
+			}
+		}
+	})
+
+	suite.Run("returns moves in the needs closeout status when NeedsPPMCloseout is true", func() {
+		subtestData := suite.makeServicesCounselingSubtestData()
+
+		needsPpmCloseout := true
+		params := queues.GetServicesCounselingQueueParams{
+			HTTPRequest:      subtestData.request,
+			NeedsPPMCloseout: &needsPpmCloseout,
+		}
+
+		// Validate incoming payload: no body to validate
+		response := subtestData.handler.Handle(params)
+		suite.IsNotErrResponse(response)
+		suite.IsType(&queues.GetServicesCounselingQueueOK{}, response)
+		payload := response.(*queues.GetServicesCounselingQueueOK).Payload
+
+		// Validate outgoing payload
+		suite.NoError(payload.Validate(strfmt.Default))
+
+		suite.Len(payload.QueueMoves, 1)
+
+		for _, move := range payload.QueueMoves {
+			// Fail if a ppm has a status other than needs closeout
+			if models.MoveStatus(move.PpmStatus) != models.MoveStatus(models.PPMShipmentStatusNeedsCloseout) {
+				suite.Fail("Test does not return moves with the correct status.")
 			}
 		}
 	})

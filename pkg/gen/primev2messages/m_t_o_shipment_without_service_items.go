@@ -117,6 +117,11 @@ type MTOShipmentWithoutServiceItems struct {
 	// Format: uuid
 	ID strfmt.UUID `json:"id,omitempty"`
 
+	// Single-letter designator for domestic (d) or international (i) shipments
+	// Example: d
+	// Enum: [d i]
+	MarketCode string `json:"marketCode,omitempty"`
+
 	// The ID of the move for this shipment.
 	// Example: 1f2270c7-7166-40ae-981e-b200ebdf3054
 	// Read Only: true
@@ -264,6 +269,10 @@ func (m *MTOShipmentWithoutServiceItems) Validate(formats strfmt.Registry) error
 	}
 
 	if err := m.validateID(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateMarketCode(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -494,6 +503,48 @@ func (m *MTOShipmentWithoutServiceItems) validateID(formats strfmt.Registry) err
 	}
 
 	if err := validate.FormatOf("id", "body", "uuid", m.ID.String(), formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+var mTOShipmentWithoutServiceItemsTypeMarketCodePropEnum []interface{}
+
+func init() {
+	var res []string
+	if err := json.Unmarshal([]byte(`["d","i"]`), &res); err != nil {
+		panic(err)
+	}
+	for _, v := range res {
+		mTOShipmentWithoutServiceItemsTypeMarketCodePropEnum = append(mTOShipmentWithoutServiceItemsTypeMarketCodePropEnum, v)
+	}
+}
+
+const (
+
+	// MTOShipmentWithoutServiceItemsMarketCodeD captures enum value "d"
+	MTOShipmentWithoutServiceItemsMarketCodeD string = "d"
+
+	// MTOShipmentWithoutServiceItemsMarketCodeI captures enum value "i"
+	MTOShipmentWithoutServiceItemsMarketCodeI string = "i"
+)
+
+// prop value enum
+func (m *MTOShipmentWithoutServiceItems) validateMarketCodeEnum(path, location string, value string) error {
+	if err := validate.EnumCase(path, location, value, mTOShipmentWithoutServiceItemsTypeMarketCodePropEnum, true); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (m *MTOShipmentWithoutServiceItems) validateMarketCode(formats strfmt.Registry) error {
+	if swag.IsZero(m.MarketCode) { // not required
+		return nil
+	}
+
+	// value enum
+	if err := m.validateMarketCodeEnum("marketCode", "body", m.MarketCode); err != nil {
 		return err
 	}
 

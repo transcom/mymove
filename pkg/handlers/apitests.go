@@ -99,6 +99,21 @@ func (suite *BaseHandlerTestSuite) HandlerConfig() *Config {
 	).Return(func(ctx context.Context, appCtx appcontext.AppContext, key string, flagContext map[string]string) (services.FeatureFlag, error) {
 		return mockGetFlagFunc(ctx, appCtx.Logger(), "user@example.com", key, flagContext, "mockVariant")
 	})
+	mockFeatureFlagFetcher.On("GetBooleanFlag",
+		mock.Anything,
+		mock.Anything,
+		mock.AnythingOfType("string"),
+		mock.AnythingOfType("string"),
+		mock.Anything,
+	).Return(func(_ context.Context, _ *zap.Logger, _ string, key string, flagContext map[string]string) (services.FeatureFlag, error) {
+		return services.FeatureFlag{
+			Entity:    "user@example.com",
+			Key:       key,
+			Match:     true,
+			Variant:   "",
+			Namespace: "test",
+		}, nil
+	})
 	return &Config{
 		db:                 suite.DB(),
 		logger:             suite.Logger(),

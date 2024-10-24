@@ -564,7 +564,7 @@ export function formatMobileHomeShipmentForAPI(values) {
 
 // Initial values for boat shipment
 export function formatBoatShipmentForDisplay(boatShipment, initialValues) {
-  const { year, make, model, lengthInInches, widthInInches, heightInInches, hasTrailer, isRoadworthy } =
+  const { type, year, make, model, lengthInInches, widthInInches, heightInInches, hasTrailer, isRoadworthy } =
     boatShipment || {};
 
   const length = convertInchesToFeetAndInches(lengthInInches);
@@ -572,6 +572,7 @@ export function formatBoatShipmentForDisplay(boatShipment, initialValues) {
   const height = convertInchesToFeetAndInches(heightInInches);
 
   const displayValues = {
+    type,
     year: year?.toString() || null,
     make: make || '',
     model: model || '',
@@ -581,7 +582,7 @@ export function formatBoatShipmentForDisplay(boatShipment, initialValues) {
     widthInches: width.inches,
     heightFeet: height.feet,
     heightInches: height.inches,
-    hasTrailer: hasTrailer ? 'true' : 'false',
+    hasTrailer: hasTrailer === null ? '' : hasTrailer?.toString(),
     isRoadworthy: isRoadworthy === null ? '' : isRoadworthy?.toString(),
     ...initialValues,
   };

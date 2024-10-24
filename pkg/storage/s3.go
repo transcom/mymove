@@ -11,8 +11,7 @@ import (
 	"github.com/aws/aws-sdk-go-v2/service/s3/types"
 	"github.com/pkg/errors"
 	"github.com/spf13/afero"
-
-	"github.com/transcom/mymove/pkg/models"
+	"golang.org/x/text/encoding/charmap"
 )
 
 // S3 implements the file storage API using S3.
@@ -114,16 +113,28 @@ func (s *S3) TempFileSystem() *afero.Afero {
 }
 
 // PresignedURL returns a URL that provides access to a file for 15 minutes.
-func (s *S3) PresignedURL(key string, contentType string) (string, error) {
+func (s *S3) PresignedURL(key string, contentType string, filename string) (string, error) {
 	namespacedKey := path.Join(s.keyNamespace, key)
 	presignClient := s3.NewPresignClient(s.client)
+
+	filenameBuffer := make([]byte, 0)
+	for _, r := range filename {
+		if encodedRune, ok := charmap.ISO8859_1.EncodeRune(r); ok {
+			filenameBuffer = append(filenameBuffer, encodedRune)
+		}
+	}
+
+	contentDisposition := "attachment"
+	if len(filenameBuffer) > 0 {
+		contentDisposition += "; filename=" + string(filenameBuffer)
+	}
 
 	req, err := presignClient.PresignGetObject(context.Background(),
 		&s3.GetObjectInput{
 			Bucket:                     &s.bucket,
 			Key:                        &namespacedKey,
 			ResponseContentType:        &contentType,
-			ResponseContentDisposition: models.StringPointer("attachment"),
+			ResponseContentDisposition: &contentDisposition,
 		},
 		func(opts *s3.PresignOptions) {
 			opts.Expires = 15 * time.Minute

@@ -24,7 +24,7 @@ func (suite *ModelSuite) TestMTOShipmentValidation() {
 			SITDaysAllowance:     &sitDaysAllowance,
 			TACType:              &tacType,
 			SACType:              &sacType,
-			MarketCode:           &marketCode,
+			MarketCode:           marketCode,
 		}
 		expErrors := map[string][]string{}
 		suite.verifyValidationErrors(&validMTOShipment, expErrors)
@@ -45,7 +45,7 @@ func (suite *ModelSuite) TestMTOShipmentValidation() {
 		rejectedMTOShipment := models.MTOShipment{
 			MoveTaskOrderID: uuid.Must(uuid.NewV4()),
 			Status:          models.MTOShipmentStatusRejected,
-			MarketCode:      &marketCode,
+			MarketCode:      marketCode,
 			RejectionReason: &rejectionReason,
 		}
 		expErrors := map[string][]string{}
@@ -74,7 +74,7 @@ func (suite *ModelSuite) TestMTOShipmentValidation() {
 			StorageFacilityID:           &uuid.Nil,
 			TACType:                     &tacType,
 			SACType:                     &tacType,
-			MarketCode:                  &marketCode,
+			MarketCode:                  marketCode,
 		}
 		expErrors := map[string][]string{
 			"prime_estimated_weight":        {"-1000 is not greater than 0."},

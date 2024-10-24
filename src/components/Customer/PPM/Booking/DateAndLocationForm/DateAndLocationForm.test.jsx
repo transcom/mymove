@@ -265,6 +265,43 @@ describe('validates form fields and displays error messages', () => {
       });
     });
   });
+
+  it('destination address 1 is empty passes validation schema - destination street 1 is OPTIONAL', async () => {
+    await act(async () => {
+      render(<DateAndLocationForm {...defaultProps} />);
+
+      // type something in for destination address 1
+      await userEvent.type(
+        document.querySelector('input[name="destinationAddress.address.streetAddress1"]'),
+        '1234 Street',
+      );
+      // now clear out text, should not raise required alert because street is OPTIONAL in DateAndLocationForm context.
+      await userEvent.clear(document.querySelector('input[name="destinationAddress.address.streetAddress1"]'));
+
+      // must fail validation
+      await userEvent.type(document.querySelector('input[name="pickupAddress.address.postalCode"]'), '1111');
+
+      await userEvent.click(screen.getByRole('button', { name: 'Save & Continue' }));
+
+      await waitFor(() => {
+        expect(screen.getByRole('button', { name: 'Save & Continue' })).toBeDisabled();
+        const requiredAlerts = screen.getAllByRole('alert');
+        // only expecting postalCode alert
+        expect(requiredAlerts.length).toBe(1);
+
+        // 'Required' labelHint on address display. expecting a total of 7(2 for pickup address and 3 destination address with 2 misc).
+        // This is to verify Required labelHints are displayed correctly for PPM onboarding/edit for the destination address
+        // street 1 is now OPTIONAL. If this fails it means addtional labelHints have been introduced elsewhere within the control.
+        const hints = document.getElementsByClassName('usa-hint');
+        expect(hints.length).toBe(7);
+        // verify labelHints are actually 'Optional'
+        for (let i = 0; i < hints.length; i += 1) {
+          expect(hints[i]).toHaveTextContent('Required');
+        }
+      });
+    });
+  });
+
   it('displays tertiary pickup Address input when hasTertiaryPickupAddress is true', async () => {
     await act(async () => {
       render(<DateAndLocationForm {...defaultProps} />);

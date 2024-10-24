@@ -12,13 +12,21 @@ describe('When given a created orders event for the moves table', () => {
     changedValues: {
       status: 'DRAFT',
     },
+    context: [
+      {
+        counseling_office_name: 'Scott AFB',
+      },
+    ],
   };
   it('correctly matches to the proper template', () => {
     const result = getTemplate(item);
     expect(result).toMatchObject(e);
   });
   describe('When given a specific set of details for created moves', () => {
-    it.each([['Status', ': DRAFT']])('displays the proper details value for %s', async (label, value) => {
+    it.each([
+      ['Status', ': DRAFT'],
+      ['Counseling office', ': Scott AFB'],
+    ])('displays the proper details value for %s', async (label, value) => {
       const result = getTemplate(item);
       render(result.getDetails(item));
       expect(screen.getByText(label)).toBeInTheDocument();

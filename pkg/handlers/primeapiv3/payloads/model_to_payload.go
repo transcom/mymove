@@ -211,6 +211,32 @@ func Address(address *models.Address) *primev3messages.Address {
 	}
 }
 
+// PPM Destination payload
+func PPMDestinationAddress(address *models.Address) *primev3messages.PPMDestinationAddress {
+	if address == nil {
+		return nil
+	}
+	payload := &primev3messages.PPMDestinationAddress{
+		ID:             strfmt.UUID(address.ID.String()),
+		StreetAddress1: &address.StreetAddress1,
+		StreetAddress2: address.StreetAddress2,
+		StreetAddress3: address.StreetAddress3,
+		City:           &address.City,
+		State:          &address.State,
+		PostalCode:     &address.PostalCode,
+		Country:        Country(address.Country),
+		ETag:           etag.GenerateEtag(address.UpdatedAt),
+		County:         &address.County,
+	}
+	// Street address 1 is optional per business rule but not nullable on the database level.
+	// Check if streetAddress 1 is using place holder value to represent 'NULL'.
+	// If so return empty string.
+	if strings.EqualFold(*payload.StreetAddress1, models.STREET_ADDRESS_1_NOT_PROVIDED) {
+		payload.StreetAddress1 = models.StringPointer("")
+	}
+	return payload
+}
+
 // StorageFacility payload
 func StorageFacility(storage *models.StorageFacility) *primev3messages.StorageFacility {
 	if storage == nil {
@@ -442,6 +468,7 @@ func PPMShipment(ppmShipment *models.PPMShipment) *primev3messages.PPMShipment {
 		AdvanceAmountRequested:         handlers.FmtCost(ppmShipment.AdvanceAmountRequested),
 		HasReceivedAdvance:             ppmShipment.HasReceivedAdvance,
 		AdvanceAmountReceived:          handlers.FmtCost(ppmShipment.AdvanceAmountReceived),
+		IsActualExpenseReimbursement:   ppmShipment.IsActualExpenseReimbursement,
 		ETag:                           etag.GenerateEtag(ppmShipment.UpdatedAt),
 	}
 
@@ -455,13 +482,17 @@ func PPMShipment(ppmShipment *models.PPMShipment) *primev3messages.PPMShipment {
 		payloadPPMShipment.PickupAddress = Address(ppmShipment.PickupAddress)
 	}
 	if ppmShipment.DestinationAddress != nil {
-		payloadPPMShipment.DestinationAddress = Address(ppmShipment.DestinationAddress)
+		payloadPPMShipment.DestinationAddress = PPMDestinationAddress(ppmShipment.DestinationAddress)
 	}
 	if ppmShipment.SecondaryPickupAddress != nil {
 		payloadPPMShipment.SecondaryPickupAddress = Address(ppmShipment.SecondaryPickupAddress)
 	}
 	if ppmShipment.SecondaryDestinationAddress != nil {
 		payloadPPMShipment.SecondaryDestinationAddress = Address(ppmShipment.SecondaryDestinationAddress)
+	}
+
+	if ppmShipment.IsActualExpenseReimbursement != nil {
+		payloadPPMShipment.IsActualExpenseReimbursement = ppmShipment.IsActualExpenseReimbursement
 	}
 
 	return payloadPPMShipment
@@ -517,6 +548,14 @@ func MobileHomeShipment(mobileHomeShipment *models.MobileHome) *primev3messages.
 	return payloadMobileHomeShipment
 }
 
+// MarketCode payload
+func MarketCode(marketCode *models.MarketCode) string {
+	if marketCode == nil {
+		return "" // Or a default string value
+	}
+	return string(*marketCode)
+}
+
 func MTOShipmentWithoutServiceItems(mtoShipment *models.MTOShipment) *primev3messages.MTOShipmentWithoutServiceItems {
 	payload := &primev3messages.MTOShipmentWithoutServiceItems{
 		ID:                               strfmt.UUID(mtoShipment.ID.String()),
@@ -555,6 +594,7 @@ func MTOShipmentWithoutServiceItems(mtoShipment *models.MTOShipment) *primev3mes
 		SecondaryPickupAddress:           Address(mtoShipment.SecondaryPickupAddress),
 		TertiaryDeliveryAddress:          Address(mtoShipment.TertiaryDeliveryAddress),
 		TertiaryPickupAddress:            Address(mtoShipment.TertiaryPickupAddress),
+		MarketCode:                       MarketCode(&mtoShipment.MarketCode),
 	}
 
 	// Set up address payloads
@@ -596,7 +636,7 @@ func MTOShipmentWithoutServiceItems(mtoShipment *models.MTOShipment) *primev3mes
 			payload.PpmShipment.TertiaryPickupAddress = Address(mtoShipment.PPMShipment.TertiaryPickupAddress)
 		}
 		if mtoShipment.PPMShipment.DestinationAddress != nil {
-			payload.PpmShipment.DestinationAddress = Address(mtoShipment.PPMShipment.DestinationAddress)
+			payload.PpmShipment.DestinationAddress = PPMDestinationAddress(mtoShipment.PPMShipment.DestinationAddress)
 		}
 		if mtoShipment.PPMShipment.SecondaryDestinationAddress != nil {
 			payload.PpmShipment.SecondaryDestinationAddress = Address(mtoShipment.PPMShipment.SecondaryDestinationAddress)

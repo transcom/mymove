@@ -18,7 +18,7 @@ import styles from 'components/Office/CustomerContactInfoForm/CustomerContactInf
 import { Form } from 'components/form/Form';
 import formStyles from 'styles/form.module.scss';
 import WizardNavigation from 'components/Customer/WizardNavigation/WizardNavigation';
-import { requiredAddressSchema, addressSchema } from 'utils/validation';
+import { requiredAddressSchema, addressSchema, partialRequiredAddressSchema } from 'utils/validation';
 import { isEmpty, isValidWeight } from 'shared/utils';
 import {
   formatAddressForPrimeAPI,
@@ -44,6 +44,17 @@ const PrimeUIShipmentUpdate = ({ setFlashMessage }) => {
     navigate(generatePath(primeSimulatorRoutes.VIEW_MOVE_PATH, { moveCodeOrID }));
   };
 
+  const handleSetError = (error, invalidFieldsStr) => {
+    let detailedMessage = `${error?.response?.body.detail}${invalidFieldsStr}\n\nPlease refresh and Update Shipment again`;
+    if (error?.response?.body?.detail !== null && error?.response?.body?.detail !== undefined) {
+      detailedMessage = `${error?.response?.body.detail}\n\nPlease refresh and Update Shipment again`;
+    }
+    setErrorMessage({
+      title: `Prime API: ${error?.response?.body.title} `,
+      detail: detailedMessage,
+    });
+  };
+
   const { mutateAsync: mutateMTOShipmentStatus } = useMutation(updatePrimeMTOShipmentStatus, {
     onSuccess: (updatedMTOShipment) => {
       mtoShipments[mtoShipments.findIndex((mtoShipment) => mtoShipment.id === updatedMTOShipment.id)] =
@@ -62,10 +73,7 @@ const PrimeUIShipmentUpdate = ({ setFlashMessage }) => {
             invalidFieldsStr += `\n${key} - ${value && value.length > 0 ? value[0] : ''} ;`;
           });
         }
-        setErrorMessage({
-          title: `Prime API: ${body.title} `,
-          detail: `${body.detail}${invalidFieldsStr}\n\nPlease cancel and Update Shipment again`,
-        });
+        handleSetError(error, invalidFieldsStr);
       } else {
         setErrorMessage({
           title: 'Unexpected error',
@@ -93,10 +101,7 @@ const PrimeUIShipmentUpdate = ({ setFlashMessage }) => {
             invalidFieldsStr += `\n${key} - ${value && value.length > 0 ? value[0] : ''} ;`;
           });
         }
-        setErrorMessage({
-          title: `Prime API: ${body.title} `,
-          detail: `${body.detail}${invalidFieldsStr}\n\nPlease cancel and Update Shipment again`,
-        });
+        handleSetError(error, invalidFieldsStr);
       } else {
         setErrorMessage({
           title: 'Unexpected error',
@@ -303,6 +308,7 @@ const PrimeUIShipmentUpdate = ({ setFlashMessage }) => {
       },
       counselorRemarks: shipment.counselorRemarks || '',
     };
+
     validationSchema = Yup.object().shape({
       ppmShipment: Yup.object().shape({
         expectedDepartureDate: Yup.date()
@@ -311,7 +317,7 @@ const PrimeUIShipmentUpdate = ({ setFlashMessage }) => {
         pickupAddress: requiredAddressSchema.required('Required'),
         secondaryPickupAddress: OptionalAddressSchema,
         tertiaryPickupAddress: OptionalAddressSchema,
-        destinationAddress: requiredAddressSchema.required('Required'),
+        destinationAddress: partialRequiredAddressSchema.required('Required'),
         secondaryDestinationAddress: OptionalAddressSchema,
         tertiaryDestinationAddress: OptionalAddressSchema,
         sitExpected: Yup.boolean().required('Required'),
