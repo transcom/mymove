@@ -83,6 +83,9 @@ type OfficeUser struct {
 	// transportation office
 	TransportationOffice *TransportationOffice `json:"transportationOffice,omitempty"`
 
+	// transportation office assignments
+	TransportationOfficeAssignments []*TransportationOfficeAssignment `json:"transportationOfficeAssignments"`
+
 	// transportation office Id
 	// Required: true
 	// Format: uuid
@@ -156,6 +159,10 @@ func (m *OfficeUser) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validateTransportationOffice(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateTransportationOfficeAssignments(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -384,6 +391,32 @@ func (m *OfficeUser) validateTransportationOffice(formats strfmt.Registry) error
 	return nil
 }
 
+func (m *OfficeUser) validateTransportationOfficeAssignments(formats strfmt.Registry) error {
+	if swag.IsZero(m.TransportationOfficeAssignments) { // not required
+		return nil
+	}
+
+	for i := 0; i < len(m.TransportationOfficeAssignments); i++ {
+		if swag.IsZero(m.TransportationOfficeAssignments[i]) { // not required
+			continue
+		}
+
+		if m.TransportationOfficeAssignments[i] != nil {
+			if err := m.TransportationOfficeAssignments[i].Validate(formats); err != nil {
+				if ve, ok := err.(*errors.Validation); ok {
+					return ve.ValidateName("transportationOfficeAssignments" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("transportationOfficeAssignments" + "." + strconv.Itoa(i))
+				}
+				return err
+			}
+		}
+
+	}
+
+	return nil
+}
+
 func (m *OfficeUser) validateTransportationOfficeID(formats strfmt.Registry) error {
 
 	if err := validate.Required("transportationOfficeId", "body", m.TransportationOfficeID); err != nil {
@@ -435,6 +468,10 @@ func (m *OfficeUser) ContextValidate(ctx context.Context, formats strfmt.Registr
 	}
 
 	if err := m.contextValidateTransportationOffice(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidateTransportationOfficeAssignments(ctx, formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -498,6 +535,31 @@ func (m *OfficeUser) contextValidateTransportationOffice(ctx context.Context, fo
 			}
 			return err
 		}
+	}
+
+	return nil
+}
+
+func (m *OfficeUser) contextValidateTransportationOfficeAssignments(ctx context.Context, formats strfmt.Registry) error {
+
+	for i := 0; i < len(m.TransportationOfficeAssignments); i++ {
+
+		if m.TransportationOfficeAssignments[i] != nil {
+
+			if swag.IsZero(m.TransportationOfficeAssignments[i]) { // not required
+				return nil
+			}
+
+			if err := m.TransportationOfficeAssignments[i].ContextValidate(ctx, formats); err != nil {
+				if ve, ok := err.(*errors.Validation); ok {
+					return ve.ValidateName("transportationOfficeAssignments" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("transportationOfficeAssignments" + "." + strconv.Itoa(i))
+				}
+				return err
+			}
+		}
+
 	}
 
 	return nil

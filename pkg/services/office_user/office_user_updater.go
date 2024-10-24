@@ -16,10 +16,10 @@ type officeUserUpdater struct {
 }
 
 // UpdateOfficeUser updates an office user
-func (o *officeUserUpdater) UpdateOfficeUser(appCtx appcontext.AppContext, id uuid.UUID, payload *adminmessages.OfficeUserUpdate) (*models.OfficeUser, *validate.Errors, error) {
+func (o *officeUserUpdater) UpdateOfficeUser(appCtx appcontext.AppContext, id uuid.UUID, payload *adminmessages.OfficeUserUpdate, primaryTransportationOfficeID uuid.UUID) (*models.OfficeUser, *validate.Errors, error) {
 	var foundUser models.OfficeUser
-	filters := []services.QueryFilter{query.NewQueryFilter("id", "=", id.String())}
-	err := o.builder.FetchOne(appCtx, &foundUser, filters)
+	officeUserFetcher := NewOfficeUserFetcherPop()
+	foundUser, err := officeUserFetcher.FetchOfficeUserByID(appCtx, id)
 
 	if err != nil {
 		return nil, nil, err
@@ -46,8 +46,8 @@ func (o *officeUserUpdater) UpdateOfficeUser(appCtx appcontext.AppContext, id uu
 		foundUser.Active = *payload.Active
 	}
 
-	transportationOfficeID := payload.TransportationOfficeID.String()
-	if transportationOfficeID != uuid.Nil.String() && transportationOfficeID != "" {
+	transportationOfficeID := primaryTransportationOfficeID.String()
+	if primaryTransportationOfficeID != uuid.Nil && transportationOfficeID != uuid.Nil.String() && transportationOfficeID != "" {
 		transportationIDFilter := []services.QueryFilter{
 			query.NewQueryFilter("id", "=", transportationOfficeID),
 		}

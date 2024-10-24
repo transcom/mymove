@@ -4327,6 +4327,10 @@ definitions:
         format: uuid
       transportationOffice:
         $ref: 'definitions/TransportationOffice.yaml'
+      transportationOfficeAssignments:
+        type: array
+        items:
+          $ref: 'definitions/TransportationOfficeAssignment.yaml'
       active:
         type: boolean
       roles:

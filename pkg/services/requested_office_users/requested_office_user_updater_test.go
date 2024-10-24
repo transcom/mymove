@@ -52,7 +52,7 @@ func (suite *RequestedOfficeUsersServiceSuite) TestUpdateRequestedOfficeUser() {
 
 		_, _, err := updater.UpdateRequestedOfficeUser(suite.AppContextForTest(), uuid.FromStringOrNil("00000000-0000-0000-0000-000000000001"), payload)
 		suite.Error(err)
-		suite.Equal(sql.ErrNoRows.Error(), err.Error())
+		suite.Equal("ID: 00000000-0000-0000-0000-000000000001 not found looking for OfficeUser", err.Error())
 	})
 
 	// Bad transportation office ID

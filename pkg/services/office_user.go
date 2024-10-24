@@ -40,9 +40,9 @@ type OfficeUserCreator interface {
 	CreateOfficeUser(appCtx appcontext.AppContext, user *models.OfficeUser, transportationIDFilter []QueryFilter) (*models.OfficeUser, *validate.Errors, error)
 }
 
-// OfficeUserUpdater is the exported interface for creating an office user
+// OfficeUserUpdater is the exported interface for updating an office user
 //
 //go:generate mockery --name OfficeUserUpdater
 type OfficeUserUpdater interface {
-	UpdateOfficeUser(appCtx appcontext.AppContext, id uuid.UUID, payload *adminmessages.OfficeUserUpdate) (*models.OfficeUser, *validate.Errors, error)
+	UpdateOfficeUser(appCtx appcontext.AppContext, id uuid.UUID, payload *adminmessages.OfficeUserUpdate, primaryTransportationOfficeId uuid.UUID) (*models.OfficeUser, *validate.Errors, error)
 }
