@@ -1007,5 +1007,6 @@
 20241001193619_market-code-enum.up.sql
 20241002151527_add_transportation_offices_AK_HI.up.sql
 20241002164836_add_re_country_table_and_refactor.up.sql
+20241002170242_add_ub_shipment_type.up.sql
 20241004203140_update_addresses_is_oconus.up.sql
 20241007162933_addPaymentRequestEdiFiles.up.sql
