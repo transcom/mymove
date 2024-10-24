@@ -31,7 +31,6 @@ func (suite *PPMShipmentSuite) TestPPMShipmentCreator() {
 	createSubtestData := func(ppmShipmentTemplate models.PPMShipment, mtoShipmentTemplate *models.MTOShipment) (subtestData *createShipmentSubtestData) {
 		subtestData = &createShipmentSubtestData{}
 
-		// TODO: pass customs through once we refactor this function to take in []factory.Customization instead of assertions
 		subtestData.move = factory.BuildMove(suite.DB(), nil, nil)
 
 		customMTOShipment := models.MTOShipment{
