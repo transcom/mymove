@@ -90,13 +90,38 @@ describe('ServiceItemsTable', () => {
 
     const toolTip = wrapper.find('ToolTip').at(0);
     expect(toolTip.exists()).toBe(true);
-    let resultString = 'Reason\nNew: New reason in test code \nPrevious: Old reason in test code\n\n';
-    resultString += 'Status\nNew: SUBMITTED \nPrevious: REJECTED\n\n';
-    resultString += 'ID\nNew: abc12345 \nPrevious: def67890\n\n';
-    resultString += 'Pickup Postal Code\nNew: 54321 \nPrevious: 12345\n\n';
-    resultString += 'SIT Entry Date\nNew: 2023-01-01 \nPrevious: 2022-12-12\n\n';
-    resultString += 'SIT Postal Code\nNew: 09876 \nPrevious: 67890\n\n';
-    expect(toolTip.props().text).toBe(resultString);
+
+    toolTip.find('.tooltipContainer').simulate('click');
+
+    let toolTipText = toolTip.text();
+
+    // Remove spaces
+    toolTipText = toolTipText.replace(/\s+/g, '');
+
+    // Adjust the expected string, removing all spaces
+    const expectedString = `
+    Domestic Origin 1st Day SIT
+    REASON
+    New: New reason in test code
+    Previous: Old reason in test code
+    STATUS
+    New: SUBMITTED
+    Previous: REJECTED
+    ID
+    New: abc12345
+    Previous: def67890
+    PICKUP POSTAL CODE
+    New: 54321
+    Previous: 12345
+    SIT ENTRY DATE
+    New: 2023-01-01
+    Previous: 2022-12-12
+    SIT POSTAL CODE
+    New: 09876
+    Previous: 67890
+  `.replace(/\s+/g, '');
+
+    expect(toolTipText).toBe(expectedString);
   });
 
   it('does not render a tooltip for a service item that has not been resubmitted', () => {

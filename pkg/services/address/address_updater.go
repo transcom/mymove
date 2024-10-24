@@ -1,6 +1,8 @@
 package address
 
 import (
+	"fmt"
+
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/apperror"
 	"github.com/transcom/mymove/pkg/etag"
@@ -47,6 +49,35 @@ func (f *addressUpdater) UpdateAddress(appCtx appcontext.AppContext, address *mo
 		return nil, err
 	}
 
+	// until international moves are supported, we will default the country for created addresses to "US"
+	if mergedAddress.Country != nil && mergedAddress.Country.Country != "US" {
+		return nil, fmt.Errorf("- the country %s is not supported at this time - only US is allowed", mergedAddress.Country.Country)
+	}
+	// first we will check to see if the country values have changed at all
+	// until international moves are supported, we will default the country for created addresses to "US"
+	if mergedAddress.Country != nil && mergedAddress.Country.Country != "" && mergedAddress.Country != originalAddress.Country {
+		country, err := models.FetchCountryByCode(appCtx.DB(), address.Country.Country)
+		if err != nil {
+			return nil, err
+		}
+		mergedAddress.Country = &country
+		mergedAddress.CountryId = &country.ID
+	} else if mergedAddress.Country == nil {
+		country, err := models.FetchCountryByCode(appCtx.DB(), "US")
+		if err != nil {
+			return nil, err
+		}
+		mergedAddress.Country = &country
+		mergedAddress.CountryId = &country.ID
+	}
+
+	// Evaluate address and populate addresses isOconus value
+	isOconus, err := models.IsAddressOconus(appCtx.DB(), mergedAddress)
+	if err != nil {
+		return nil, err
+	}
+	mergedAddress.IsOconus = &isOconus
+
 	txnErr := appCtx.NewTransaction(func(txnCtx appcontext.AppContext) error {
 		verrs, err := txnCtx.DB().ValidateAndUpdate(&mergedAddress)
 		if verrs != nil && verrs.HasAny() {
@@ -83,7 +114,8 @@ func mergeAddress(address, originalAddress models.Address) models.Address {
 
 	mergedAddress.StreetAddress2 = services.SetOptionalStringField(address.StreetAddress2, mergedAddress.StreetAddress2)
 	mergedAddress.StreetAddress3 = services.SetOptionalStringField(address.StreetAddress3, mergedAddress.StreetAddress3)
-	mergedAddress.Country = services.SetOptionalStringField(address.Country, mergedAddress.Country)
-
+	if address.Country != nil {
+		mergedAddress.Country.Country = *services.SetOptionalStringField(&address.Country.Country, &mergedAddress.Country.Country)
+	}
 	return mergedAddress
 }

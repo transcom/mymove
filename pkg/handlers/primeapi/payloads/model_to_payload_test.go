@@ -721,7 +721,6 @@ func (suite *PayloadsSuite) TestStorageFacility() {
 			City:           dummy,
 			State:          dummy,
 			PostalCode:     dummy,
-			Country:        &dummy,
 		},
 		Email:        &email,
 		FacilityName: facilityName,

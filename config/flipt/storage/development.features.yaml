@@ -1,209 +1,217 @@
-version: "1.2"
+version: '1.2'
 namespace: development
 flags:
-- key: headquarters_role
-  name: Headquarters Role feature flag
-  type: BOOLEAN_FLAG_TYPE
-  enabled: true
-  rollouts:
-  - segment:
-      key: mil-app
-      value: true
-- key: gsr_role
-  name: Government Surveillance Representative Role feature flag
-  type: BOOLEAN_FLAG_TYPE
-  enabled: false
-  rollouts:
-  - segment:
-      key: mil-app
-      value: false
-- key: safety_move
-  name: Safety Move feature flag
-  type: BOOLEAN_FLAG_TYPE
-  enabled: true
-  rollouts:
-  - segment:
-      key: mil-app
-      value: true
-- key: counselor_move_create
-  name: Counselor Move Creation feature flag
-  type: BOOLEAN_FLAG_TYPE
-  enabled: true
-  rollouts:
-  - segment:
-      key: mil-app
-      value: true
-- key: multi_move
-  name: Multi move feature flag
-  type: BOOLEAN_FLAG_TYPE
-  enabled: true
-  rollouts:
-  - segment:
-      key: mil-app
-      value: true
-- key: validation_code_required
-  name: Customer validation code feature flag to access the application
-  type: BOOLEAN_FLAG_TYPE
-  enabled: false
-  rollouts:
-  - segment:
-      key: mil-app
-      value: false
-- key: cac_validated_login
-  name: CAC validated feature flag
-  type: BOOLEAN_FLAG_TYPE
-  enabled: true
-  rollouts:
-  - segment:
-      key: mil-app
-      value: true
-- key: move_lock
-  name: Move lock feature flag
-  type: BOOLEAN_FLAG_TYPE
-  enabled: true
-  rollouts:
-  - segment:
-      key: mil-app
-      value: true
-- key: enable_alaska
-  name: Enable Alaska feature flag
-  type: BOOLEAN_FLAG_TYPE
-  enabled: false
-  rollouts:
-  - segment:
-      key: mil-app
-      value: false
-- key: okta_dodid_input
-  name: Customer DODID input being pulled from Okta and disabling text input
-  type: BOOLEAN_FLAG_TYPE
-  enabled: false
-  rollouts:
-  - segment:
-      key: mil-app
-      value: false
-- key: ppm
-  name: PPM feature flag
-  type: BOOLEAN_FLAG_TYPE
-  enabled: true
-  rollouts:
-  - segment:
-      key: mil-app
-      value: true
-- key: nts
-  name: NTS feature flag
-  type: BOOLEAN_FLAG_TYPE
-  enabled: true
-  rollouts:
-  - segment:
-      key: mil-app
-      value: true
-- key: ntsr
-  name: NTSR feature flag
-  type: BOOLEAN_FLAG_TYPE
-  enabled: true
-  rollouts:
-  - segment:
-      key: mil-app
-      value: true
-- key: boat
-  name: Boat feature flag
-  type: BOOLEAN_FLAG_TYPE
-  enabled: true
-  rollouts:
-  - segment:
-      key: mil-app
-      value: true
-- key: mobile_home
-  name: Mobile Home feature flag
-  type: BOOLEAN_FLAG_TYPE
-  enabled: true
-  rollouts:
-  - segment:
-      key: mil-app
-      value: true
-- key: manage_supporting_docs
-  name: Additional doc upload feature flag
-  type: BOOLEAN_FLAG_TYPE
-  enabled: false
-  rollouts:
-  - segment:
-      key: mil-app
-      value: false
-- key: queue_management
-  name: Office user queue management feature flag
-  type: BOOLEAN_FLAG_TYPE
-  enabled: true
-  rollouts:
-  - segment:
-      key: mil-app
-      value: true
-- key: dodid_unique
-  name: DODID validation feature flag that ensures unique DODIDs
-  type: BOOLEAN_FLAG_TYPE
-  enabled: false
-  rollouts:
-  - segment:
-      key: mil-app
-      value: false
-- key: boolean_flag
-  name: Boolean Flag
-  type: BOOLEAN_FLAG_TYPE
-  enabled: true
-  rollouts:
-  - segment:
-      key: mil-app
-      value: true
-- key: multi_variant
-  name: Multi Variant
-  type: VARIANT_FLAG_TYPE
-  enabled: true
-  variants:
-  - key: one
-    name: One
-  - key: two
-    name: Two
-  - key: three
-    name: Three
-  rules:
-  - segment: mil-app
-    distributions:
-    - variant: one
-      rollout: 100
-  - segment: all-entities
-    distributions:
-    - variant: two
-      rollout: 100
-- key: disabled_variant
-  name: Disabled Variant
-  type: VARIANT_FLAG_TYPE
-  enabled: false
-  variants:
-  - key: one
-    name: One
-  - key: Two
-    name: Two
-  rules:
-  - segment: mil-app
-    distributions:
-    - variant: one
-      rollout: 100
-- key: third_address_available
-  name: Third Address Available
-  type: BOOLEAN_FLAG_TYPE
-  enabled: true
-  rollouts:
-  - segment:
-      key: mil-app
-      value: true
+  - key: headquarters_role
+    name: Headquarters Role feature flag
+    type: BOOLEAN_FLAG_TYPE
+    enabled: true
+    rollouts:
+      - segment:
+          key: mil-app
+          value: true
+  - key: gsr_role
+    name: Government Surveillance Representative Role feature flag
+    type: BOOLEAN_FLAG_TYPE
+    enabled: false
+    rollouts:
+      - segment:
+          key: mil-app
+          value: false
+  - key: safety_move
+    name: Safety Move feature flag
+    type: BOOLEAN_FLAG_TYPE
+    enabled: true
+    rollouts:
+      - segment:
+          key: mil-app
+          value: true
+  - key: counselor_move_create
+    name: Counselor Move Creation feature flag
+    type: BOOLEAN_FLAG_TYPE
+    enabled: true
+    rollouts:
+      - segment:
+          key: mil-app
+          value: true
+  - key: multi_move
+    name: Multi move feature flag
+    type: BOOLEAN_FLAG_TYPE
+    enabled: true
+    rollouts:
+      - segment:
+          key: mil-app
+          value: true
+  - key: validation_code_required
+    name: Customer validation code feature flag to access the application
+    type: BOOLEAN_FLAG_TYPE
+    enabled: false
+    rollouts:
+      - segment:
+          key: mil-app
+          value: false
+  - key: cac_validated_login
+    name: CAC validated feature flag
+    type: BOOLEAN_FLAG_TYPE
+    enabled: true
+    rollouts:
+      - segment:
+          key: mil-app
+          value: true
+  - key: move_lock
+    name: Move lock feature flag
+    type: BOOLEAN_FLAG_TYPE
+    enabled: true
+    rollouts:
+      - segment:
+          key: mil-app
+          value: true
+  - key: enable_alaska
+    name: Enable Alaska feature flag
+    type: BOOLEAN_FLAG_TYPE
+    enabled: false
+    rollouts:
+      - segment:
+          key: mil-app
+          value: false
+  - key: okta_dodid_input
+    name: Customer DODID input being pulled from Okta and disabling text input
+    type: BOOLEAN_FLAG_TYPE
+    enabled: false
+    rollouts:
+      - segment:
+          key: mil-app
+          value: false
+  - key: ppm
+    name: PPM feature flag
+    type: BOOLEAN_FLAG_TYPE
+    enabled: true
+    rollouts:
+      - segment:
+          key: mil-app
+          value: true
+  - key: nts
+    name: NTS feature flag
+    type: BOOLEAN_FLAG_TYPE
+    enabled: true
+    rollouts:
+      - segment:
+          key: mil-app
+          value: true
+  - key: ntsr
+    name: NTSR feature flag
+    type: BOOLEAN_FLAG_TYPE
+    enabled: true
+    rollouts:
+      - segment:
+          key: mil-app
+          value: true
+  - key: boat
+    name: Boat feature flag
+    type: BOOLEAN_FLAG_TYPE
+    enabled: true
+    rollouts:
+      - segment:
+          key: mil-app
+          value: true
+  - key: mobile_home
+    name: Mobile Home feature flag
+    type: BOOLEAN_FLAG_TYPE
+    enabled: true
+    rollouts:
+      - segment:
+          key: mil-app
+          value: true
+  - key: manage_supporting_docs
+    name: Additional doc upload feature flag
+    type: BOOLEAN_FLAG_TYPE
+    enabled: false
+    rollouts:
+      - segment:
+          key: mil-app
+          value: false
+  - key: queue_management
+    name: Office user queue management feature flag
+    type: BOOLEAN_FLAG_TYPE
+    enabled: true
+    rollouts:
+      - segment:
+          key: mil-app
+          value: true
+  - key: dodid_unique
+    name: DODID validation feature flag that ensures unique DODIDs
+    type: BOOLEAN_FLAG_TYPE
+    enabled: false
+    rollouts:
+      - segment:
+          key: mil-app
+          value: false
+  - key: boolean_flag
+    name: Boolean Flag
+    type: BOOLEAN_FLAG_TYPE
+    enabled: true
+    rollouts:
+      - segment:
+          key: mil-app
+          value: true
+  - key: multi_variant
+    name: Multi Variant
+    type: VARIANT_FLAG_TYPE
+    enabled: true
+    variants:
+      - key: one
+        name: One
+      - key: two
+        name: Two
+      - key: three
+        name: Three
+    rules:
+      - segment: mil-app
+        distributions:
+          - variant: one
+            rollout: 100
+      - segment: all-entities
+        distributions:
+          - variant: two
+            rollout: 100
+  - key: disabled_variant
+    name: Disabled Variant
+    type: VARIANT_FLAG_TYPE
+    enabled: false
+    variants:
+      - key: one
+        name: One
+      - key: Two
+        name: Two
+    rules:
+      - segment: mil-app
+        distributions:
+          - variant: one
+            rollout: 100
+  - key: third_address_available
+    name: Third Address Available
+    type: BOOLEAN_FLAG_TYPE
+    enabled: true
+    rollouts:
+      - segment:
+          key: mil-app
+          value: true
+  - key: unaccompanied_baggage
+    name: Unaccompanied baggage shipment feature flag
+    type: BOOLEAN_FLAG_TYPE
+    enabled: false
+    rollouts:
+      - segment:
+          key: mil-app
+          value: false
 segments:
-- key: mil-app
-  name: Mil App
-  constraints:
-  - type: STRING_COMPARISON_TYPE
-    property: applicationName
-    operator: eq
-    value: mil
-  match_type: ALL_MATCH_TYPE
-- key: all-entities
-  name: All Entities
-  match_type: ALL_MATCH_TYPE
+  - key: mil-app
+    name: Mil App
+    constraints:
+      - type: STRING_COMPARISON_TYPE
+        property: applicationName
+        operator: eq
+        value: mil
+    match_type: ALL_MATCH_TYPE
+  - key: all-entities
+    name: All Entities
+    match_type: ALL_MATCH_TYPE

@@ -243,6 +243,15 @@ func (h CreateOrdersHandler) Handle(params ordersop.CreateOrdersParams) middlewa
 			moveOptions := models.MoveOptions{
 				Show: models.BoolPointer(true),
 			}
+
+			if payload.CounselingOfficeID != nil {
+				counselingOffice, err := uuid.FromString(payload.CounselingOfficeID.String())
+				if err != nil {
+					return handlers.ResponseForError(appCtx.Logger(), err), err
+				}
+				moveOptions.CounselingOfficeID = &counselingOffice
+			}
+
 			newMove, verrs, err := newOrder.CreateNewMove(appCtx.DB(), moveOptions)
 			if err != nil || verrs.HasAny() {
 				return handlers.ResponseForVErrors(appCtx.Logger(), verrs, err), err
@@ -331,6 +340,31 @@ func (h UpdateOrdersHandler) Handle(params ordersop.UpdateOrdersParams) middlewa
 				}
 				order.OriginDutyLocation = &originDutyLocation
 				order.OriginDutyLocationID = &originDutyLocationID
+
+				if payload.MoveID != "" {
+
+					moveID, err := uuid.FromString(payload.MoveID.String())
+					if err != nil {
+						return handlers.ResponseForError(appCtx.Logger(), err), err
+					}
+					move, err := models.FetchMove(appCtx.DB(), appCtx.Session(), moveID)
+					if err != nil {
+						return handlers.ResponseForError(appCtx.Logger(), err), err
+					}
+					if originDutyLocation.ProvidesServicesCounseling {
+						counselingOfficeID, err := uuid.FromString(payload.CounselingOfficeID.String())
+						if err != nil {
+							return handlers.ResponseForError(appCtx.Logger(), err), err
+						}
+						move.CounselingOfficeID = &counselingOfficeID
+					} else {
+						move.CounselingOfficeID = nil
+					}
+					verrs, err := models.SaveMoveDependencies(appCtx.DB(), move)
+					if err != nil || verrs.HasAny() {
+						return handlers.ResponseForError(appCtx.Logger(), err), err
+					}
+				}
 			}
 
 			if payload.OrdersType == nil {

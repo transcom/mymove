@@ -878,6 +878,7 @@ commands:
             export FEATURE_FLAG_THIRD_ADDRESS_AVAILABLE=false
             export FEATURE_FLAG_QUEUE_MANAGEMENT=false
             export FEATURE_FLAG_ENABLE_ALASKA=false
+            export FEATURE_FLAG_UNACCOMPANIED_BAGGAGE=false
 
             # disable for speed, playwright tests can fail otherwise
             export DB_DEBUG=false
@@ -918,6 +919,7 @@ commands:
             FEATURE_FLAG_MANAGE_SUPPORTING_DOCS: 'false'
             FEATURE_FLAG_THIRD_ADDRESS_AVAILABLE: 'false'
             FEATURE_FLAG_QUEUE_MANAGEMENT: 'false'
+            FEATURE_FLAG_UNACCOMPANIED_BAGGAGE: 'false'
             FEATURE_FLAG_ENABLE_ALASKA: 'false'
           command: |
             SHARD=$((${CIRCLE_NODE_INDEX}+1))
@@ -1500,7 +1502,7 @@ jobs:
             #
             # The trailing hyphen in restore_cache seems important
             # according to the page linked above
-            - v9-server-tests-coverage-
+            - v10-server-tests-coverage-
       - run:
           name: Ensure Test Coverage Increasing
           command: |
@@ -1556,7 +1558,7 @@ jobs:
             # Use the BuildNum to update the cache key so that the
             # coverage cache is always updated
             - save_cache:
-                key: v9-server-tests-coverage-{{ .BuildNum }}
+                key: v10-server-tests-coverage-{{ .BuildNum }}
                 paths:
                   - ~/transcom/mymove/tmp/baseline-go-coverage
                 when: always
@@ -1634,7 +1636,7 @@ jobs:
           # The trailing hyphen in restore_cache seems important
           # according to the page linked above
           keys:
-            - v7-client-tests-coverage-
+            - v8-client-tests-coverage-
       - run:
           name: Ensure Test Coverage Increasing
           command: |
@@ -1686,7 +1688,7 @@ jobs:
             # Use the BuildNum to update the cache key so that the
             # coverage cache is always updated
             - save_cache:
-                key: v7-client-tests-coverage-{{ .BuildNum }}
+                key: v8-client-tests-coverage-{{ .BuildNum }}
                 paths:
                   - ~/transcom/mymove/tmp/baseline-jest-coverage
                 when: always

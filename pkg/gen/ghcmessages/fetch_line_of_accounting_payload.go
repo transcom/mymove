@@ -19,14 +19,14 @@ import (
 // swagger:model FetchLineOfAccountingPayload
 type FetchLineOfAccountingPayload struct {
 
+	// department indicator
+	DepartmentIndicator *DepartmentIndicator `json:"departmentIndicator,omitempty"`
+
 	// The effective date for the Line Of Accounting (LOA) being fetched. Eg, the orders issue date or the Non-Temporary Storage (NTS) Move Task Order (MTO) approval date. Effective date is used to find "Active" TGET data by searching for the TACs and LOAs with begin and end dates containing this date. The 'Effective Date' is the date that can be either the orders issued date (For HHG shipments), MTO approval date (For NTS shipments), or even the current date for NTS shipments with no approval yet (Just providing a preview to the office users per customer request).
 	//
 	// Example: 2023-01-01
 	// Format: date
 	EffectiveDate strfmt.Date `json:"effectiveDate,omitempty"`
-
-	// service member affiliation
-	ServiceMemberAffiliation *Affiliation `json:"serviceMemberAffiliation,omitempty"`
 
 	// tac code
 	// Example: F8J1
@@ -39,11 +39,11 @@ type FetchLineOfAccountingPayload struct {
 func (m *FetchLineOfAccountingPayload) Validate(formats strfmt.Registry) error {
 	var res []error
 
-	if err := m.validateEffectiveDate(formats); err != nil {
+	if err := m.validateDepartmentIndicator(formats); err != nil {
 		res = append(res, err)
 	}
 
-	if err := m.validateServiceMemberAffiliation(formats); err != nil {
+	if err := m.validateEffectiveDate(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -57,6 +57,25 @@ func (m *FetchLineOfAccountingPayload) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
+func (m *FetchLineOfAccountingPayload) validateDepartmentIndicator(formats strfmt.Registry) error {
+	if swag.IsZero(m.DepartmentIndicator) { // not required
+		return nil
+	}
+
+	if m.DepartmentIndicator != nil {
+		if err := m.DepartmentIndicator.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("departmentIndicator")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("departmentIndicator")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
 func (m *FetchLineOfAccountingPayload) validateEffectiveDate(formats strfmt.Registry) error {
 	if swag.IsZero(m.EffectiveDate) { // not required
 		return nil
@@ -64,25 +83,6 @@ func (m *FetchLineOfAccountingPayload) validateEffectiveDate(formats strfmt.Regi
 
 	if err := validate.FormatOf("effectiveDate", "body", "date", m.EffectiveDate.String(), formats); err != nil {
 		return err
-	}
-
-	return nil
-}
-
-func (m *FetchLineOfAccountingPayload) validateServiceMemberAffiliation(formats strfmt.Registry) error {
-	if swag.IsZero(m.ServiceMemberAffiliation) { // not required
-		return nil
-	}
-
-	if m.ServiceMemberAffiliation != nil {
-		if err := m.ServiceMemberAffiliation.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("serviceMemberAffiliation")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
-				return ce.ValidateName("serviceMemberAffiliation")
-			}
-			return err
-		}
 	}
 
 	return nil
@@ -108,7 +108,7 @@ func (m *FetchLineOfAccountingPayload) validateTacCode(formats strfmt.Registry) 
 func (m *FetchLineOfAccountingPayload) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	var res []error
 
-	if err := m.contextValidateServiceMemberAffiliation(ctx, formats); err != nil {
+	if err := m.contextValidateDepartmentIndicator(ctx, formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -118,19 +118,19 @@ func (m *FetchLineOfAccountingPayload) ContextValidate(ctx context.Context, form
 	return nil
 }
 
-func (m *FetchLineOfAccountingPayload) contextValidateServiceMemberAffiliation(ctx context.Context, formats strfmt.Registry) error {
+func (m *FetchLineOfAccountingPayload) contextValidateDepartmentIndicator(ctx context.Context, formats strfmt.Registry) error {
 
-	if m.ServiceMemberAffiliation != nil {
+	if m.DepartmentIndicator != nil {
 
-		if swag.IsZero(m.ServiceMemberAffiliation) { // not required
+		if swag.IsZero(m.DepartmentIndicator) { // not required
 			return nil
 		}
 
-		if err := m.ServiceMemberAffiliation.ContextValidate(ctx, formats); err != nil {
+		if err := m.DepartmentIndicator.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("serviceMemberAffiliation")
+				return ve.ValidateName("departmentIndicator")
 			} else if ce, ok := err.(*errors.CompositeError); ok {
-				return ce.ValidateName("serviceMemberAffiliation")
+				return ce.ValidateName("departmentIndicator")
 			}
 			return err
 		}

@@ -10,7 +10,6 @@ import (
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/apperror"
 	linesofaccountingop "github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/lines_of_accounting"
-	"github.com/transcom/mymove/pkg/gen/ghcmessages"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/handlers/ghcapi/internal/payloads"
 	"github.com/transcom/mymove/pkg/models"
@@ -18,7 +17,7 @@ import (
 )
 
 // Handler to handle requests for a line of accounting based on orders issue date,
-// service member affiliation, and Transportation Accounting Code (TAC)
+// order's department indicator, and Transportation Accounting Code (TAC)
 type LinesOfAccountingRequestLineOfAccountingHandler struct {
 	handlers.HandlerConfig
 	services.LineOfAccountingFetcher
@@ -27,7 +26,7 @@ type LinesOfAccountingRequestLineOfAccountingHandler struct {
 // Handle requesting (Fetching) a line of accounting from a request payload
 // It takes in the parameters of:
 // - TAC
-// - Service member affiliation
+// - Order's department indicator
 // - EffectiveDate
 // And uses these parameters to filter the correct Line of Accounting for the provided TAC. It does this by filtering
 // through both TAC and LOAs based on the provided code and effective date. The 'Effective Date' is the date
@@ -46,19 +45,13 @@ func (h LinesOfAccountingRequestLineOfAccountingHandler) Handle(params linesofac
 				return linesofaccountingop.NewRequestLineOfAccountingBadRequest(), err
 			}
 
-			if payload.ServiceMemberAffiliation == nil {
-				err := apperror.NewBadDataError("Invalid request for lines of accounting: service member affiliation is nil")
+			if payload.DepartmentIndicator == nil {
+				err := apperror.NewBadDataError("Invalid request for lines of accounting: department indicator is nil")
 				appCtx.Logger().Error(err.Error())
 				return linesofaccountingop.NewRequestLineOfAccountingBadRequest(), err
-			} else if *payload.ServiceMemberAffiliation == ghcmessages.AffiliationNAVYANDMARINES {
-				// translate the combined affiliation from the frontend into one affiliation to fetch LOA
-				*payload.ServiceMemberAffiliation = ghcmessages.AffiliationNAVY
-			} else if *payload.ServiceMemberAffiliation == ghcmessages.AffiliationAIRANDSPACEFORCE {
-				// translate the combined affiliation from the frontend into one affiliation to fetch LOA
-				*payload.ServiceMemberAffiliation = ghcmessages.AffiliationAIRFORCE
 			}
 
-			loas, err := h.LineOfAccountingFetcher.FetchLongLinesOfAccounting(models.ServiceMemberAffiliation(*payload.ServiceMemberAffiliation), time.Time(payload.EffectiveDate), payload.TacCode, appCtx)
+			loas, err := h.LineOfAccountingFetcher.FetchLongLinesOfAccounting(models.DepartmentIndicator(*payload.DepartmentIndicator), time.Time(payload.EffectiveDate), payload.TacCode, appCtx)
 			if err != nil {
 				if err == sql.ErrNoRows {
 					// Either TAC or LOA service objects triggered a sql err for now rows
@@ -66,7 +59,7 @@ func (h LinesOfAccountingRequestLineOfAccountingHandler) Handle(params linesofac
 					// of the service object being updated in the future, this will catch it and keep the API giving good errors
 					// instead of defaulting to an internal server error
 
-					errMsg := fmt.Sprintf("Unable to find any lines of accounting based on the provided parameters: serviceMemberAffiliation=%s, ordersIssueDate=%s, tacCode=%s", *payload.ServiceMemberAffiliation, time.Time(payload.EffectiveDate), payload.TacCode)
+					errMsg := fmt.Sprintf("Unable to find any lines of accounting based on the provided parameters: departmentIndicator=%s, ordersIssueDate=%s, tacCode=%s", *payload.DepartmentIndicator, time.Time(payload.EffectiveDate), payload.TacCode)
 					appCtx.Logger().Info(errMsg)
 					// Do not return any payload here as no LOA was found
 					return linesofaccountingop.NewRequestLineOfAccountingOK(), nil
@@ -76,7 +69,7 @@ func (h LinesOfAccountingRequestLineOfAccountingHandler) Handle(params linesofac
 			if len(loas) == 0 {
 				// No LOAs were identified with the provided parameters
 				// Return an empty 200 and log the error
-				errMsg := fmt.Sprintf("Unable to find any lines of accounting based on the provided parameters: serviceMemberAffiliation=%s, ordersIssueDate=%s, tacCode=%s", *payload.ServiceMemberAffiliation, time.Time(payload.EffectiveDate), payload.TacCode)
+				errMsg := fmt.Sprintf("Unable to find any lines of accounting based on the provided parameters: departmentIndicator=%s, ordersIssueDate=%s, tacCode=%s", *payload.DepartmentIndicator, time.Time(payload.EffectiveDate), payload.TacCode)
 				appCtx.Logger().Info(errMsg)
 				return linesofaccountingop.NewRequestLineOfAccountingOK(), nil
 			}

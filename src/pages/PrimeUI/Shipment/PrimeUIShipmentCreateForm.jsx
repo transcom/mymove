@@ -20,16 +20,41 @@ const sitLocationOptions = dropdownInputOptions(LOCATION_TYPES);
 const PrimeUIShipmentCreateForm = () => {
   const { values } = useFormikContext();
   const { shipmentType } = values;
-  const { sitExpected, hasProGear, hasSecondaryDestinationAddress, hasSecondaryPickupAddress } = values.ppmShipment;
+  const { sitExpected, hasProGear } = values.ppmShipment;
   const { hasTrailer } = values.boatShipment;
   const [, , checkBoxHelperProps] = useField('diversion');
   const [, , divertedFromIdHelperProps] = useField('divertedFromShipmentId');
   const [isChecked, setIsChecked] = useState(false);
   const [enableBoat, setEnableBoat] = useState(false);
+  const [enableMobileHome, setEnableMobileHome] = useState(false);
 
   const hasShipmentType = !!shipmentType;
   const isPPM = shipmentType === SHIPMENT_OPTIONS.PPM;
   const isBoat = shipmentType === SHIPMENT_TYPES.BOAT_HAUL_AWAY || shipmentType === SHIPMENT_TYPES.BOAT_TOW_AWAY;
+  const isMobileHome = shipmentType === SHIPMENT_TYPES.MOBILE_HOME;
+
+  let {
+    hasSecondaryPickupAddress,
+    hasSecondaryDestinationAddress,
+    hasTertiaryPickupAddress,
+    hasTertiaryDestinationAddress,
+  } = '';
+
+  if (isPPM) {
+    ({
+      hasSecondaryPickupAddress,
+      hasSecondaryDestinationAddress,
+      hasTertiaryPickupAddress,
+      hasTertiaryDestinationAddress,
+    } = values.ppmShipment);
+  } else {
+    ({
+      hasSecondaryPickupAddress,
+      hasSecondaryDestinationAddress,
+      hasTertiaryPickupAddress,
+      hasTertiaryDestinationAddress,
+    } = values);
+  }
 
   // if a shipment is a diversion, then the parent shipment id will be required for input
   const toggleParentShipmentIdTextBox = (checkboxValue) => {
@@ -58,6 +83,7 @@ const PrimeUIShipmentCreateForm = () => {
   useEffect(() => {
     const fetchData = async () => {
       setEnableBoat(await isBooleanFlagEnabled(FEATURE_FLAG_KEYS.BOAT));
+      setEnableMobileHome(await isBooleanFlagEnabled(FEATURE_FLAG_KEYS.MOBILE_HOME));
     };
     fetchData();
   }, []);
@@ -68,6 +94,10 @@ const PrimeUIShipmentCreateForm = () => {
     shipmentTypeOptions = shipmentTypeOptions.filter(
       (e) => e.key !== SHIPMENT_TYPES.BOAT_HAUL_AWAY && e.key !== SHIPMENT_TYPES.BOAT_TOW_AWAY,
     );
+  }
+  if (!enableMobileHome) {
+    // Disallow the Prime from choosing Mobile Home shipments if the feature flag is not enabled
+    shipmentTypeOptions = shipmentTypeOptions.filter((e) => e.key !== SHIPMENT_TYPES.MOBILE_HOME);
   }
 
   return (
@@ -116,11 +146,52 @@ const PrimeUIShipmentCreateForm = () => {
                       name="ppmShipment.hasSecondaryPickupAddress"
                       value="false"
                       title="No, there is not a second pickup location"
-                      checked={hasSecondaryPickupAddress !== 'true'}
+                      checked={hasSecondaryPickupAddress !== 'true' && hasTertiaryPickupAddress !== 'true'}
                     />
                   </div>
                 </FormGroup>
-                {hasSecondaryPickupAddress === 'true' && <AddressFields name="ppmShipment.secondaryPickupAddress" />}
+                {hasSecondaryPickupAddress === 'true' && (
+                  <>
+                    <h5 className={styles.sectionHeader}>Second Pickup Address</h5>
+                    <AddressFields name="ppmShipment.secondaryPickupAddress" />
+
+                    <h4>Third pickup location</h4>
+                    <FormGroup>
+                      <p>
+                        Will the movers pick up any belongings from a third address? (Must be near the pickup address.
+                        Subject to approval.)
+                      </p>
+                      <div className={formStyles.radioGroup}>
+                        <Field
+                          as={Radio}
+                          id="has-tertiary-pickup"
+                          data-testid="has-tertiary-pickup"
+                          label="Yes"
+                          name="ppmShipment.hasTertiaryPickupAddress"
+                          value="true"
+                          title="Yes, there is a tertiary pickup location"
+                          checked={hasTertiaryPickupAddress === 'true'}
+                        />
+                        <Field
+                          as={Radio}
+                          id="no-tertiary-pickup"
+                          data-testid="no-tertiary-pickup"
+                          label="No"
+                          name="ppmShipment.hasTertiaryPickupAddress"
+                          value="false"
+                          title="No, there is not a tertiary pickup location"
+                          checked={hasTertiaryPickupAddress !== 'true'}
+                        />
+                      </div>
+                    </FormGroup>
+                  </>
+                )}
+                {hasTertiaryPickupAddress === 'true' && hasSecondaryPickupAddress === 'true' && (
+                  <>
+                    <h5 className={styles.sectionHeader}>Third Pickup Address</h5>
+                    <AddressFields name="ppmShipment.tertiaryPickupAddress" />
+                  </>
+                )}
               </>
             )}
           />
@@ -156,12 +227,51 @@ const PrimeUIShipmentCreateForm = () => {
                       name="ppmShipment.hasSecondaryDestinationAddress"
                       value="false"
                       title="No, there is not a second destination location"
-                      checked={hasSecondaryDestinationAddress !== 'true'}
+                      checked={hasSecondaryDestinationAddress !== 'true' && hasTertiaryDestinationAddress !== 'true'}
                     />
                   </div>
                 </FormGroup>
                 {hasSecondaryDestinationAddress === 'true' && (
-                  <AddressFields name="ppmShipment.secondaryDestinationAddress" />
+                  <>
+                    <h5 className={styles.sectionHeader}>Second Destination Address</h5>
+                    <AddressFields name="ppmShipment.secondaryDestinationAddress" />
+
+                    <h4>Third delivery location</h4>
+                    <FormGroup>
+                      <p>
+                        Will the movers pick up any belongings from a third address? (Must be near the pickup address.
+                        Subject to approval.)
+                      </p>
+                      <div className={formStyles.radioGroup}>
+                        <Field
+                          as={Radio}
+                          id="has-tertiary-destination"
+                          data-testid="has-tertiary-destination"
+                          label="Yes"
+                          name="ppmShipment.hasTertiaryDestinationAddress"
+                          value="true"
+                          title="Yes, there is a third delivery location"
+                          checked={hasTertiaryDestinationAddress === 'true'}
+                        />
+                        <Field
+                          as={Radio}
+                          id="no-tertiary-destination"
+                          data-testid="no-tertiary-destination"
+                          label="No"
+                          name="ppmShipment.hasTertiaryDestinationAddress"
+                          value="false"
+                          title="No, there is not a third delivery location"
+                          checked={hasTertiaryDestinationAddress !== 'true'}
+                        />
+                      </div>
+                    </FormGroup>
+                  </>
+                )}
+                {hasTertiaryDestinationAddress === 'true' && hasSecondaryDestinationAddress === 'true' && (
+                  <>
+                    <h5 className={styles.sectionHeader}>Third Destination Address</h5>
+                    <AddressFields name="ppmShipment.tertiaryDestinationAddress" />
+                  </>
                 )}
               </>
             )}
@@ -279,15 +389,180 @@ const PrimeUIShipmentCreateForm = () => {
 
           <h2 className={styles.sectionHeader}>Shipment Addresses</h2>
           <h5 className={styles.sectionHeader}>Pickup Address</h5>
-          <AddressFields name="pickupAddress" />
-          <h5 className={styles.sectionHeader}>Destination Address</h5>
-          <AddressFields name="destinationAddress" />
+          <AddressFields
+            name="pickupAddress"
+            render={(fields) => (
+              <>
+                {fields}
+                <h4>Second pickup location</h4>
+                <FormGroup>
+                  <p>
+                    Will the movers pick up any belongings from a second address? (Must be near the pickup address.
+                    Subject to approval.)
+                  </p>
+                  <div className={formStyles.radioGroup}>
+                    <Field
+                      as={Radio}
+                      id="has-secondary-pickup"
+                      data-testid="has-secondary-pickup"
+                      label="Yes"
+                      name="hasSecondaryPickupAddress"
+                      value="true"
+                      title="Yes, there is a second pickup location"
+                      checked={hasSecondaryPickupAddress === 'true'}
+                    />
+                    <Field
+                      as={Radio}
+                      id="no-secondary-pickup"
+                      data-testid="no-secondary-pickup"
+                      label="No"
+                      name="hasSecondaryPickupAddress"
+                      value="false"
+                      title="No, there is not a second pickup location"
+                      checked={hasSecondaryPickupAddress !== 'true'}
+                    />
+                  </div>
+                </FormGroup>
+                {hasSecondaryPickupAddress === 'true' && (
+                  <>
+                    <h5 className={styles.sectionHeader}>Second Pickup Address</h5>
+                    <AddressFields name="secondaryPickupAddress" />
+
+                    <h4>Third pickup location</h4>
+                    <FormGroup>
+                      <p>
+                        Will the movers pick up any belongings from a third address? (Must be near the pickup address.
+                        Subject to approval.)
+                      </p>
+                      <div className={formStyles.radioGroup}>
+                        <Field
+                          as={Radio}
+                          id="has-tertiary-pickup"
+                          data-testid="has-tertiary-pickup"
+                          label="Yes"
+                          name="hasTertiaryPickupAddress"
+                          value="true"
+                          title="Yes, there is a tertiary pickup location"
+                          checked={hasTertiaryPickupAddress === 'true'}
+                        />
+                        <Field
+                          as={Radio}
+                          id="no-tertiary-pickup"
+                          data-testid="no-tertiary-pickup"
+                          label="No"
+                          name="hasTertiaryPickupAddress"
+                          value="false"
+                          title="No, there is not a tertiary pickup location"
+                          checked={hasTertiaryPickupAddress !== 'true'}
+                        />
+                      </div>
+                    </FormGroup>
+                  </>
+                )}
+                {hasTertiaryPickupAddress === 'true' && hasSecondaryPickupAddress === 'true' && (
+                  <>
+                    <h5 className={styles.sectionHeader}>Third Pickup Address</h5>
+                    <AddressFields name="tertiaryPickupAddress" />
+                  </>
+                )}
+              </>
+            )}
+          />
+
+          <h3 className={styles.sectionHeader}>Destination Info</h3>
+          <AddressFields
+            name="destinationAddress"
+            legend="Destination Address"
+            render={(fields) => (
+              <>
+                {fields}
+
+                <h4>Second delivery location</h4>
+                <FormGroup>
+                  <p>
+                    Will the movers pick up any belongings from a second address? (Must be near the pickup address.
+                    Subject to approval.)
+                  </p>
+                  <div className={formStyles.radioGroup}>
+                    <Field
+                      as={Radio}
+                      id="has-secondary-destination"
+                      data-testid="has-secondary-destination"
+                      label="Yes"
+                      name="hasSecondaryDestinationAddress"
+                      value="true"
+                      title="Yes, there is a second delivery location"
+                      checked={hasSecondaryDestinationAddress === 'true'}
+                    />
+                    <Field
+                      as={Radio}
+                      id="no-secondary-destination"
+                      data-testid="no-secondary-destination"
+                      label="No"
+                      name="hasSecondaryDestinationAddress"
+                      value="false"
+                      title="No, there is not a second delivery location"
+                      checked={hasSecondaryDestinationAddress !== 'true'}
+                    />
+                  </div>
+                </FormGroup>
+                {hasSecondaryDestinationAddress === 'true' && (
+                  <>
+                    <h5 className={styles.sectionHeader}>Second Destination Address</h5>
+                    <AddressFields name="secondaryDestinationAddress" />
+
+                    <h4>Third delivery location</h4>
+                    <FormGroup>
+                      <p>
+                        Will the movers pick up any belongings from a third address? (Must be near the pickup address.
+                        Subject to approval.)
+                      </p>
+                      <div className={formStyles.radioGroup}>
+                        <Field
+                          as={Radio}
+                          id="has-tertiary-destination"
+                          data-testid="has-tertiary-destination"
+                          label="Yes"
+                          name="hasTertiaryDestinationAddress"
+                          value="true"
+                          title="Yes, there is a third delivery location"
+                          checked={hasTertiaryDestinationAddress === 'true'}
+                        />
+                        <Field
+                          as={Radio}
+                          id="no-tertiary-destination"
+                          data-testid="no-tertiary-destination"
+                          label="No"
+                          name="hasTertiaryDestinationAddress"
+                          value="false"
+                          title="No, there is not a third delivery location"
+                          checked={hasTertiaryDestinationAddress !== 'true'}
+                        />
+                      </div>
+                    </FormGroup>
+                  </>
+                )}
+                {hasTertiaryDestinationAddress === 'true' && hasSecondaryDestinationAddress === 'true' && (
+                  <>
+                    <h5 className={styles.sectionHeader}>Third Destination Address</h5>
+                    <AddressFields name="tertiaryDestinationAddress" />
+                  </>
+                )}
+              </>
+            )}
+          />
         </>
       )}
       {isBoat && (
         <>
           <h2 className={styles.sectionHeader}>Boat Model Info</h2>
-          <MaskedTextField label="Year" id="boatShipment.yearInput" name="boatShipment.year" mask={Number} />
+          <MaskedTextField
+            label="Year"
+            id="boatShipment.yearInput"
+            name="boatShipment.year"
+            mask={Number}
+            maxLength={4}
+          />
           <TextField label="Make" id="boatShipment.makeInput" name="boatShipment.make" />
           <TextField label="Model" id="boatShipment.modelInput" name="boatShipment.model" />
           <h2 className={styles.sectionHeader}>Boat Dimensions</h2>
@@ -306,6 +581,8 @@ const PrimeUIShipmentCreateForm = () => {
             id="boatShipment.lengthInFeetInput"
             name="boatShipment.lengthInFeet"
             mask={Number}
+            min={Number.MIN_SAFE_INTEGER}
+            max={Number.MAX_SAFE_INTEGER}
           />
           <MaskedTextField
             label="Length (Inches)"
@@ -318,6 +595,8 @@ const PrimeUIShipmentCreateForm = () => {
             id="boatShipment.widthInFeetInput"
             name="boatShipment.widthInFeet"
             mask={Number}
+            min={Number.MIN_SAFE_INTEGER}
+            max={Number.MAX_SAFE_INTEGER}
           />
           <MaskedTextField
             label="Width (Inches)"
@@ -330,6 +609,8 @@ const PrimeUIShipmentCreateForm = () => {
             id="boatShipment.heightInFeetInput"
             name="boatShipment.heightInFeet"
             mask={Number}
+            min={Number.MIN_SAFE_INTEGER}
+            max={Number.MAX_SAFE_INTEGER}
           />
           <MaskedTextField
             label="Height (Inches)"
@@ -346,6 +627,67 @@ const PrimeUIShipmentCreateForm = () => {
               name="boatShipment.isRoadworthy"
             />
           )}
+          <h2 className={styles.sectionHeader}>Remarks</h2>
+          <Label htmlFor="counselorRemarksInput">Counselor Remarks</Label>
+          <Field id="counselorRemarksInput" name="counselorRemarks" as={Textarea} className={`${formStyles.remarks}`} />
+        </>
+      )}
+      {isMobileHome && (
+        <>
+          <h2 className={styles.sectionHeader}>Mobile Home Model Info</h2>
+          <MaskedTextField
+            label="Year"
+            id="mobileHomeShipment.yearInput"
+            name="mobileHomeShipment.year"
+            mask={Number}
+            maxLength={4}
+          />
+          <TextField label="Make" id="mobileHomeShipment.makeInput" name="mobileHomeShipment.make" />
+          <TextField label="Model" id="mobileHomeShipment.modelInput" name="mobileHomeShipment.model" />
+          <h2 className={styles.sectionHeader}>Mobile Home Dimensions</h2>
+          <MaskedTextField
+            label="Length (Feet)"
+            id="mobileHomeShipment.lengthInFeetInput"
+            name="mobileHomeShipment.lengthInFeet"
+            mask={Number}
+            min={Number.MIN_SAFE_INTEGER}
+            max={Number.MAX_SAFE_INTEGER}
+          />
+          <MaskedTextField
+            label="Length (Inches)"
+            id="mobileHomeShipment.lengthInInchesInput"
+            name="mobileHomeShipment.lengthInInches"
+            mask={Number}
+          />
+          <MaskedTextField
+            label="Width (Feet)"
+            id="mobileHomeShipment.widthInFeetInput"
+            name="mobileHomeShipment.widthInFeet"
+            mask={Number}
+            min={Number.MIN_SAFE_INTEGER}
+            max={Number.MAX_SAFE_INTEGER}
+          />
+          <MaskedTextField
+            label="Width (Inches)"
+            id="mobileHomeShipment.widthInInchesInput"
+            name="mobileHomeShipment.widthInInches"
+            mask={Number}
+          />
+          <MaskedTextField
+            label="Height (Feet)"
+            id="mobileHomeShipment.heightInFeetInput"
+            name="mobileHomeShipment.heightInFeet"
+            mask={Number}
+            min={Number.MIN_SAFE_INTEGER}
+            max={Number.MAX_SAFE_INTEGER}
+          />
+          <MaskedTextField
+            label="Height (Inches)"
+            id="heightInches"
+            name="mobileHomeShipment.heightInInches"
+            mask={Number}
+            max={11}
+          />
           <h2 className={styles.sectionHeader}>Remarks</h2>
           <Label htmlFor="counselorRemarksInput">Counselor Remarks</Label>
           <Field id="counselorRemarksInput" name="counselorRemarks" as={Textarea} className={`${formStyles.remarks}`} />

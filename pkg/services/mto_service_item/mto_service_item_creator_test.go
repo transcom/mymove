@@ -745,8 +745,11 @@ func (suite *MTOServiceItemServiceSuite) TestCreateOriginSITServiceItem() {
 		// Do not create Address in the database (Assertions.Stub = true) because if the information is coming from the Prime
 		// via the Prime API, the address will not have a valid database ID. And tests need to ensure
 		// that we properly create the address coming in from the API.
+		country := factory.FetchOrBuildCountry(suite.DB(), nil, nil)
 		actualPickupAddress := factory.BuildAddress(nil, nil, []factory.Trait{factory.GetTraitAddress2})
 		actualPickupAddress.ID = uuid.Nil
+		actualPickupAddress.CountryId = &country.ID
+		actualPickupAddress.Country = &country
 
 		serviceItemDOFSIT := models.MTOServiceItem{
 			MoveTaskOrder:             shipment.MoveTaskOrder,
@@ -816,8 +819,11 @@ func (suite *MTOServiceItemServiceSuite) TestCreateOriginSITServiceItem() {
 
 	setupDOFSIT := func(shipment models.MTOShipment) services.MTOServiceItemCreator {
 		// Create DOFSIT
+		country := factory.FetchOrBuildCountry(suite.DB(), nil, nil)
 		actualPickupAddress := factory.BuildAddress(nil, nil, []factory.Trait{factory.GetTraitAddress2})
 		actualPickupAddress.ID = uuid.Nil
+		actualPickupAddress.CountryId = &country.ID
+		actualPickupAddress.Country = &country
 
 		serviceItemDOFSIT := models.MTOServiceItem{
 			MoveTaskOrder:             shipment.MoveTaskOrder,

@@ -517,7 +517,7 @@ func buildServiceItemCrate(serviceItem models.MTOServiceItem) pptasmessages.Crat
 
 // inputs all TAC related fields and builds full line of accounting string
 func inputReportTAC(pptasShipment *pptasmessages.PPTASShipment, orders models.Order, appCtx appcontext.AppContext, tacFetcher services.TransportationAccountingCodeFetcher, loa services.LineOfAccountingFetcher) error {
-	tac, err := tacFetcher.FetchOrderTransportationAccountingCodes(*orders.ServiceMember.Affiliation, orders.IssueDate, *orders.TAC, appCtx)
+	tac, err := tacFetcher.FetchOrderTransportationAccountingCodes(models.DepartmentIndicator(*orders.DepartmentIndicator), orders.IssueDate, *orders.TAC, appCtx)
 	if err != nil {
 		return err
 	} else if len(tac) < 1 {
@@ -544,6 +544,14 @@ func inputReportTAC(pptasShipment *pptasmessages.PPTASShipment, orders models.Or
 	return nil
 }
 
+// Country payload
+func Country(country *models.Country) *string {
+	if country == nil {
+		return nil
+	}
+	return &country.Country
+}
+
 // converts models.Address into payload address
 func Address(address *models.Address) *pptasmessages.Address {
 	if address == nil {
@@ -557,7 +565,7 @@ func Address(address *models.Address) *pptasmessages.Address {
 		City:           &address.City,
 		State:          &address.State,
 		PostalCode:     &address.PostalCode,
-		Country:        address.Country,
+		Country:        Country(address.Country),
 		County:         &address.County,
 		ETag:           etag.GenerateEtag(address.UpdatedAt),
 	}

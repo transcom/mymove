@@ -14,6 +14,14 @@ import (
 	"github.com/transcom/mymove/pkg/storage"
 )
 
+// Country payload
+func Country(country *models.Country) *string {
+	if country == nil {
+		return nil
+	}
+	return &country.Country
+}
+
 // Address payload
 func Address(address *models.Address) *internalmessages.Address {
 	if address == nil {
@@ -29,9 +37,10 @@ func Address(address *models.Address) *internalmessages.Address {
 		StreetAddress3: address.StreetAddress3,
 		City:           &address.City,
 		State:          &address.State,
+		Country:        Country(address.Country),
 		PostalCode:     &address.PostalCode,
-		Country:        address.Country,
 		County:         &address.County,
+		IsOconus:       address.IsOconus,
 	}
 }
 
