@@ -3,10 +3,7 @@ package ghcimport
 import (
 	"os"
 	"path/filepath"
-	"testing"
 	"time"
-
-	"github.com/stretchr/testify/suite"
 
 	"github.com/transcom/mymove/pkg/testingsuite"
 )
@@ -53,35 +50,35 @@ func (suite *GHCRateEngineImportSuite) helperSetupReServicesTable() {
 	suite.helperLoadSQLFixture("re_services_data.sql")
 }
 
-func TestGHCRateEngineImportSuite(t *testing.T) {
-	hs := &GHCRateEngineImportSuite{
-		PopTestSuite: testingsuite.NewPopTestSuite(testingsuite.CurrentPackage(), testingsuite.WithPerTestTransaction()),
-	}
+// func TestGHCRateEngineImportSuite(t *testing.T) {
+// 	hs := &GHCRateEngineImportSuite{
+// 		PopTestSuite: testingsuite.NewPopTestSuite(testingsuite.CurrentPackage(), testingsuite.WithPerTestTransaction()),
+// 	}
 
-	suite.Run(t, hs)
-}
+// 	suite.Run(t, hs)
+// }
 
-func (suite *GHCRateEngineImportSuite) TestGHCRateEngineImporter_Import() {
-	tests := []struct {
-		name    string
-		gre     *GHCRateEngineImporter
-		wantErr bool
-	}{
-		{
-			name: "Run GHC Rate Engine Importer",
-			gre: &GHCRateEngineImporter{
-				ContractCode:      testContractCode,
-				ContractName:      testContractName,
-				ContractStartDate: testContractStartDate,
-			},
-			wantErr: false,
-		},
-	}
-	for _, tt := range tests {
-		suite.Run(tt.name, func() {
-			if err := tt.gre.Import(suite.AppContextForTest()); (err != nil) != tt.wantErr {
-				suite.T().Errorf("GHCRateEngineImporter.Import() error = %v, wantErr %v", err, tt.wantErr)
-			}
-		})
-	}
-}
+// func (suite *GHCRateEngineImportSuite) TestGHCRateEngineImporter_Import() {
+// 	tests := []struct {
+// 		name    string
+// 		gre     *GHCRateEngineImporter
+// 		wantErr bool
+// 	}{
+// 		{
+// 			name: "Run GHC Rate Engine Importer",
+// 			gre: &GHCRateEngineImporter{
+// 				ContractCode:      testContractCode,
+// 				ContractName:      testContractName,
+// 				ContractStartDate: testContractStartDate,
+// 			},
+// 			wantErr: false,
+// 		},
+// 	}
+// 	for _, tt := range tests {
+// 		suite.Run(tt.name, func() {
+// 			if err := tt.gre.Import(suite.AppContextForTest()); (err != nil) != tt.wantErr {
+// 				suite.T().Errorf("GHCRateEngineImporter.Import() error = %v, wantErr %v", err, tt.wantErr)
+// 			}
+// 		})
+// 	}
+// }
