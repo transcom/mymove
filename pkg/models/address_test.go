@@ -114,17 +114,11 @@ func (suite *ModelSuite) TestAddressFormat() {
 		Country:        &country,
 		CountryId:      &country.ID,
 	}
-
 	verrs, err := newAddress.Validate(nil)
-
 	suite.NoError(err)
 	suite.False(verrs.HasAny(), "Error validating model")
-
 	formattedAddress := newAddress.Format()
-
 	suite.Equal("street 1\nstreet 2\nstreet 3\ncity, state 90210", formattedAddress)
-
 	formattedAddress = newAddress.LineFormat()
-
 	suite.Equal("street 1, street 2, street 3, city, state, 90210, UNITED STATES", formattedAddress)
 }
