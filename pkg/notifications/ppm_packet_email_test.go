@@ -384,15 +384,15 @@ This is a confirmation that your Personally Procured Move (PPM) with the assigne
 
 Next steps:
 
-For ` + affiliationDisplayValue[*serviceMember.Affiliation] + ` personnel (FURTHER ACTION REQUIRED):
+For Army personnel (FURTHER ACTION REQUIRED):
 
-You can now log into MilMove <` + MyMoveLink + `> and download your payment packet to submit to ` + armySubmitLocation + `. You must complete this step to receive final settlement of your PPM.
+Log in to SmartVoucher at https://smartvoucher.dfas.mil/ using your CAC or myPay username and password. This will allow you to edit your voucher, and complete and sign DD Form 1351-2.
 
 Note: Not all claimed expenses may have been accepted during PPM closeout if they did not meet the definition of a valid expense.
 
-Please be advised, your local finance office may require a DD Form 1351-2 to process payment. You can obtain a copy of this form by utilizing the search feature at ` + WashingtonHQServicesLink + `.
+Please be advised, your local finance office may require a DD Form 1351-2 to process payment. You can obtain a copy of this form by utilizing the search feature at https://www.esd.whs.mil.
 
-If you have any questions, contact a government transportation office. You can see a listing of transportation offices on Military One Source here: ` + OneSourceTransportationOfficeLink + `
+If you have any questions, contact a government transportation office. You can see a listing of transportation offices on Military One Source here: https://installations.militaryonesource.mil/search?program-service=2/view-by=ALL
 
 Thank you,
 
@@ -401,6 +401,92 @@ USTRANSCOM MilMove Team
 
 The information contained in this email may contain Privacy Act information and is therefore protected under the
 Privacy Act of 1974.  Failure to protect Privacy Act information could result in a $5,000 fine.
+
+`
+
+	textContent, err := notification.RenderText(suite.AppContextForTest(), ppmEmailData)
+
+	suite.NoError(err)
+	suite.Equal(expectedTextContent, textContent)
+}
+
+func (suite *NotificationSuite) TestPpmPacketWithActualExpenseReimbursementEmailTextTemplateRender() {
+
+	var pickupAddress = factory.BuildAddress(suite.DB(), []factory.Customization{
+		{
+			Model: pickupAddressModel,
+		},
+	}, nil)
+	var destinationAddress = factory.BuildAddress(suite.DB(), []factory.Customization{
+		{
+			Model: destinationAddressModel,
+		},
+	}, nil)
+
+	customAffiliation := models.AffiliationARMY
+	serviceMember := factory.BuildServiceMember(suite.DB(), []factory.Customization{
+		{Model: models.ServiceMember{
+			Affiliation: &customAffiliation,
+		}},
+	}, nil)
+	move := factory.BuildMove(suite.DB(), []factory.Customization{
+		{
+			Model:    serviceMember,
+			LinkOnly: true,
+		},
+	}, nil)
+	shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+		{
+			Model:    move,
+			LinkOnly: true,
+		},
+	}, nil)
+
+	isActualExpenseReimbursement := true
+	customPPM := models.PPMShipment{
+		ID:                           uuid.Must(uuid.NewV4()),
+		ShipmentID:                   shipment.ID,
+		Status:                       models.PPMShipmentStatusWaitingOnCustomer,
+		PickupAddressID:              &pickupAddress.ID,
+		DestinationAddressID:         &destinationAddress.ID,
+		IsActualExpenseReimbursement: &isActualExpenseReimbursement,
+	}
+
+	ppmShipment := factory.BuildPPMShipmentReadyForFinalCustomerCloseOut(suite.DB(), nil, []factory.Customization{
+		{Model: customPPM},
+	})
+
+	notification := NewPpmPacketEmail(ppmShipment.ID)
+
+	ppmEmailData, _, err := notification.GetEmailData(suite.AppContextForTest())
+	suite.NoError(err)
+
+	expectedTextContent := `*** DO NOT REPLY directly to this email ***
+
+This is a confirmation that your Personally Procured Move (PPM) with the assigned move code ` + move.Locator + ` from ` + pickupAddress.City + `, ` + pickupAddress.State + ` to ` + destinationAddress.City + `, ` + destinationAddress.State + ` has been processed in MilMove.
+
+Next steps:
+
+For Army personnel (FURTHER ACTION REQUIRED):
+
+Log in to SmartVoucher at https://smartvoucher.dfas.mil/ using your CAC or myPay username and password. This will allow you to edit your voucher, and complete and sign DD Form 1351-2.
+
+Note: Not all claimed expenses may have been accepted during PPM closeout if they did not meet the definition of a valid expense.
+
+Please be advised, your local finance office may require a DD Form 1351-2 to process payment. You can obtain a copy of this form by utilizing the search feature at https://www.esd.whs.mil.
+
+Please Note: Your PPM has been designated as Actual Expense Reimbursement. This is the standard entitlement for Civilian employees. For uniformed Service Members, your PPM may have been designated as Actual Expense Reimbursement due to failure to receive authorization prior to movement or failure to obtain certified weight tickets. Actual Expense Reimbursement means reimbursement for expenses not to exceed the Government Constructed Cost (GCC).
+
+If you have any questions, contact a government transportation office. You can see a listing of transportation offices on Military One Source here: https://installations.militaryonesource.mil/search?program-service=2/view-by=ALL
+
+Thank you,
+
+USTRANSCOM MilMove Team
+
+
+The information contained in this email may contain Privacy Act information and is therefore protected under the
+Privacy Act of 1974.  Failure to protect Privacy Act information could result in a $5,000 fine.
+
 `
 
 	textContent, err := notification.RenderText(suite.AppContextForTest(), ppmEmailData)
@@ -460,15 +546,19 @@ func (suite *NotificationSuite) TestPpmPacketEmailZipcodeFallback() {
 	})
 	// <strong>Des Moines, IA</strong> to <strong>Fort Eisenhower, GA</strong>
 	expectedHTMLContent := `<p>*** DO NOT REPLY directly to this email ***</p>
-<p>This is a confirmation that your Personally Procured Move (PPM) with the <strong>assigned move code ` + move.Locator + `</strong> from <strong>` + *ppmEmailData.OriginCity + `, ` + *ppmEmailData.OriginState + `</strong> to <strong>` + *ppmEmailData.DestinationCity + `, ` + *ppmEmailData.DestinationState + `</strong> has been processed in MilMove. </p>
+<p>This is a confirmation that your Personally Procured Move (PPM) with the <strong>assigned move code ` + move.Locator + `</strong> from <strong>` + ppmShipment.PickupAddress.City + `, ` + ppmShipment.PickupAddress.State + `</strong> to <strong>` + ppmShipment.DestinationAddress.City + `, ` + ppmShipment.DestinationAddress.State + `</strong> has been processed in MilMove.
 <h4>Next steps:</h4>
 
-<p>For ` + affiliationDisplayValue[*serviceMember.Affiliation] + ` personnel (FURTHER ACTION REQUIRED):</p>
-<p>You can now log into MilMove <a href="` + MyMoveLink + `">` + MyMoveLink + `</a> and download your payment packet to submit to ` + allOtherSubmitLocation + `. <strong>You must complete this step to receive final settlement of your PPM.</strong></p>
+<p>For "Air Force and Space Force" personnel (FURTHER ACTION REQUIRED):</p>
+<p>Log in to SmartVoucher at <a href="https://smartvoucher.dfas.mil/">https://smartvoucher.dfas.mil/</a> using your CAC or myPay username and password. This will allow you to edit your voucher, and complete and sign DD Form 1351-2.</p>
+
+<p>You can now log into MilMove <a href="https://my.move.mil/">https://my.move.mil/</a> and download your payment packet to submit to your local finance office. <strong>You must complete this step to receive final settlement of your PPM.</strong></p>
+
 <p>Note: The Transportation Office does not determine claimable expenses. Claimable expenses will be determined by finance.</p>
 
-<p>Please be advised, your local finance office may require a DD Form 1351-2 to process payment. You can obtain a copy of this form by utilizing the search feature at <a href="` + WashingtonHQServicesLink + `">` + WashingtonHQServicesLink + `</a>.</p>
-<p>If you have any questions, contact a government transportation office. You can see a listing of transportation offices on Military One Source here: <a href="` + OneSourceTransportationOfficeLink + `">` + OneSourceTransportationOfficeLink + `</a></p>
+<p>Please be advised, your local finance office may require a DD Form 1351-2 to process payment. You can obtain a copy of this form by utilizing the search feature at <a href="https://www.esd.whs.mil">https://www.esd.whs.mil</a>.</p>
+
+<p>If you have any questions, contact a government transportation office. You can see a listing of transportation offices on Military One Source here: <a href="https://installations.militaryonesource.mil/search?program-service=2/view-by=ALL">https://installations.militaryonesource.mil/search?program-service=2/view-by=ALL</a></p>
 
 <p>Thank you,</p>
 
