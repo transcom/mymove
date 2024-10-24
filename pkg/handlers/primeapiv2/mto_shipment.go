@@ -43,10 +43,9 @@ func (h CreateMTOShipmentHandler) Handle(params mtoshipmentops.CreateMTOShipment
 			/** Feature Flag - Boat Shipment **/
 			const featureFlagName = "boat"
 			isBoatFeatureOn := false
-			appCtxLogger := appCtx.Logger()
-			flag, err := h.FeatureFlagFetcher().GetBooleanFlag(params.HTTPRequest.Context(), appCtxLogger, "", featureFlagName, map[string]string{})
+			flag, err := h.FeatureFlagFetcher().GetBooleanFlagForUser(params.HTTPRequest.Context(), appCtx, featureFlagName, map[string]string{})
 			if err != nil {
-				appCtxLogger.Error("Error fetching feature flag", zap.String("featureFlagKey", featureFlagName), zap.Error(err))
+				appCtx.Logger().Error("Error fetching feature flag", zap.String("featureFlagKey", featureFlagName), zap.Error(err))
 			} else {
 				isBoatFeatureOn = flag.Match
 			}
@@ -60,7 +59,7 @@ func (h CreateMTOShipmentHandler) Handle(params mtoshipmentops.CreateMTOShipment
 			/** Feature Flag - Mobile Home Shipment **/
 			const featureFlagMobileHome = "mobile_home"
 			isMobileHomeFeatureOn := false
-			flagMH, err := h.FeatureFlagFetcher().GetBooleanFlag(params.HTTPRequest.Context(), appCtx.Logger(), "", featureFlagMobileHome, map[string]string{})
+			flagMH, err := h.FeatureFlagFetcher().GetBooleanFlagForUser(params.HTTPRequest.Context(), appCtx, featureFlagMobileHome, map[string]string{})
 			if err != nil {
 				appCtx.Logger().Error("Error fetching feature flagMH", zap.String("featureFlagKey", featureFlagMobileHome), zap.Error(err))
 			} else {

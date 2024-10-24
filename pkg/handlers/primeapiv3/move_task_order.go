@@ -51,15 +51,13 @@ func (h GetMoveTaskOrderHandler) Handle(params movetaskorderops.GetMoveTaskOrder
 			}
 
 			/** Feature Flag - Boat Shipment **/
-			const featureFlagNameBoat = "boat"
+			const featureFlagName = "boat"
 			isBoatFeatureOn := false
-			ppCtxLogger := appCtx.Logger()
-			entityIDForBoatFlag := "primeApi-Boat: " + params.MoveID
-			flagBoat, err := h.FeatureFlagFetcher().GetBooleanFlag(params.HTTPRequest.Context(), ppCtxLogger, entityIDForBoatFlag, featureFlagNameBoat, map[string]string{})
+			flag, err := h.FeatureFlagFetcher().GetBooleanFlagForUser(params.HTTPRequest.Context(), appCtx, featureFlagName, map[string]string{})
 			if err != nil {
-				appCtx.Logger().Error("Error fetching feature flag", zap.String("featureFlagKey", featureFlagNameBoat), zap.Error(err))
+				appCtx.Logger().Error("Error fetching feature flag", zap.String("featureFlagKey", featureFlagName), zap.Error(err))
 			} else {
-				isBoatFeatureOn = flagBoat.Match
+				isBoatFeatureOn = flag.Match
 			}
 
 			// Remove Boat shipments if Boat FF is off
@@ -82,11 +80,9 @@ func (h GetMoveTaskOrderHandler) Handle(params movetaskorderops.GetMoveTaskOrder
 			/** Feature Flag - Mobile Home Shipment **/
 			isMobileHomeFeatureOn := false
 			const featureFlagNameMH = "mobile_home"
-			apCtxLogger := appCtx.Logger()
-			entityIDForMHFlag := "primeApi-MH: " + params.MoveID
-			flagMH, err := h.FeatureFlagFetcher().GetBooleanFlag(params.HTTPRequest.Context(), apCtxLogger, entityIDForMHFlag, featureFlagNameMH, map[string]string{})
+			flagMH, err := h.FeatureFlagFetcher().GetBooleanFlagForUser(params.HTTPRequest.Context(), appCtx, featureFlagNameMH, map[string]string{})
 			if err != nil {
-				apCtxLogger.Error("Error fetching feature flagMH", zap.String("featureFlagKey", featureFlagNameMH), zap.Error(err))
+				appCtx.Logger().Error("Error fetching feature flagMH", zap.String("featureFlagKey", featureFlagNameMH), zap.Error(err))
 			} else {
 				isMobileHomeFeatureOn = flagMH.Match
 			}
