@@ -101,7 +101,7 @@ describe('ResidentialAddress page', () => {
     }));
     patchServiceMember.mockImplementation(() => Promise.resolve(expectedServiceMemberPayload));
 
-    const { getByLabelText, getByText } = render(<ResidentialAddress {...testProps} />);
+    const { getByLabelText } = render(<ResidentialAddress {...testProps} />);
 
     await userEvent.type(screen.getByLabelText(/Address 1/), fakeAddress.streetAddress1);
     await userEvent.type(screen.getByLabelText(/Address 2/), fakeAddress.streetAddress2);
@@ -110,7 +110,7 @@ describe('ResidentialAddress page', () => {
     await userEvent.type(screen.getByLabelText(/ZIP/), fakeAddress.postalCode);
     await userEvent.tab();
 
-    let msg = getByText('Moves to this state are not supported at this time.');
+    let msg = screen.getByText('Moves to this state are not supported at this time.');
     expect(msg).toBeVisible();
 
     await userEvent.selectOptions(getByLabelText(/State/), 'AL');
@@ -121,7 +121,7 @@ describe('ResidentialAddress page', () => {
     await userEvent.selectOptions(getByLabelText(/State/), 'HI');
     await userEvent.type(getByLabelText(/ZIP/), fakeAddress.postalCode);
     await userEvent.tab();
-    msg = getByText('Moves to this state are not supported at this time.');
+    msg = screen.getByText('Moves to this state are not supported at this time.');
     expect(msg).toBeVisible();
   });
 

@@ -715,6 +715,10 @@ definitions:
         x-nullable: true
       ppmShipment:
         $ref: '#/definitions/CreatePPMShipment'
+      boatShipment:
+        $ref: '#/definitions/CreateBoatShipment'
+      mobileHomeShipment:
+        $ref: '#/definitions/CreateMobileHomeShipment'
     required:
       - moveTaskOrderID
       - shipmentType
