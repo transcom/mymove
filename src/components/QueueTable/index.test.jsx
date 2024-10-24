@@ -1,12 +1,10 @@
-// Helper to render with React Query
-const renderWithQueryClient = (ui) => {
-  const queryClient = new QueryClient();
-  return render(<QueryClientProvider client={queryClient}>{ui}</QueryClientProvider>);
-};
+import React from 'react';
+import { render, screen, } from '@testing-library/react';
+import QueueTable from '.';
 
 describe('QueueTable', () => {
   it('renders without crashing', () => {
-    renderWithQueryClient(<QueueTable />);
+    render(<QueueTable />);
     expect(screen.getByText('Payment requested')).toBeInTheDocument();
   });
 });
