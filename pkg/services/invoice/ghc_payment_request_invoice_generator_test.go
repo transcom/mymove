@@ -936,6 +936,9 @@ func (suite *GHCInvoiceSuite) TestAllGenerateEdi() {
 		}
 		// city state info
 		n4 := result.Header.DestinationPostalDetails
+		country, err := models.FetchCountryByID(suite.DB(), *address.CountryId)
+		address.Country = &country
+		suite.NoError(err)
 		suite.IsType(edisegment.N4{}, n4)
 		suite.Equal(address.City, n4.CityName)
 		suite.Equal(address.State, n4.StateOrProvinceCode)
@@ -990,6 +993,9 @@ func (suite *GHCInvoiceSuite) TestAllGenerateEdi() {
 		}
 		suite.Equal(address.State, n4.StateOrProvinceCode)
 		suite.Equal(address.PostalCode, n4.PostalCode)
+		country, err := models.FetchCountryByID(suite.DB(), *address.CountryId)
+		address.Country = &country
+		suite.NoError(err)
 		countryCode, err := address.CountryCode()
 		suite.NoError(err)
 		suite.Equal(*countryCode, n4.CountryCode)
