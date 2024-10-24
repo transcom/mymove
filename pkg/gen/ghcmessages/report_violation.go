@@ -19,6 +19,9 @@ import (
 // swagger:model ReportViolation
 type ReportViolation struct {
 
+	// gsr appeals
+	GsrAppeals GSRAppeals `json:"gsrAppeals,omitempty"`
+
 	// id
 	// Example: 1f2270c7-7166-40ae-981e-b200ebdf3054
 	// Format: uuid
@@ -42,6 +45,10 @@ type ReportViolation struct {
 func (m *ReportViolation) Validate(formats strfmt.Registry) error {
 	var res []error
 
+	if err := m.validateGsrAppeals(formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.validateID(formats); err != nil {
 		res = append(res, err)
 	}
@@ -61,6 +68,23 @@ func (m *ReportViolation) Validate(formats strfmt.Registry) error {
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
+	return nil
+}
+
+func (m *ReportViolation) validateGsrAppeals(formats strfmt.Registry) error {
+	if swag.IsZero(m.GsrAppeals) { // not required
+		return nil
+	}
+
+	if err := m.GsrAppeals.Validate(formats); err != nil {
+		if ve, ok := err.(*errors.Validation); ok {
+			return ve.ValidateName("gsrAppeals")
+		} else if ce, ok := err.(*errors.CompositeError); ok {
+			return ce.ValidateName("gsrAppeals")
+		}
+		return err
+	}
+
 	return nil
 }
 
@@ -123,6 +147,10 @@ func (m *ReportViolation) validateViolationID(formats strfmt.Registry) error {
 func (m *ReportViolation) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	var res []error
 
+	if err := m.contextValidateGsrAppeals(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.contextValidateViolation(ctx, formats); err != nil {
 		res = append(res, err)
 	}
@@ -130,6 +158,20 @@ func (m *ReportViolation) ContextValidate(ctx context.Context, formats strfmt.Re
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
+	return nil
+}
+
+func (m *ReportViolation) contextValidateGsrAppeals(ctx context.Context, formats strfmt.Registry) error {
+
+	if err := m.GsrAppeals.ContextValidate(ctx, formats); err != nil {
+		if ve, ok := err.(*errors.Validation); ok {
+			return ve.ValidateName("gsrAppeals")
+		} else if ce, ok := err.(*errors.CompositeError); ok {
+			return ce.ValidateName("gsrAppeals")
+		}
+		return err
+	}
+
 	return nil
 }
 

@@ -16,3 +16,8 @@ type ReportViolationFetcher interface {
 type ReportViolationsCreator interface {
 	AssociateReportViolations(appCtx appcontext.AppContext, reportViolations *models.ReportViolations, reportID uuid.UUID) error
 }
+
+//go:generate mockery --name ReportViolationsAddAppeal
+type ReportViolationsAddAppeal interface {
+	AddAppealToViolation(appCtx appcontext.AppContext, reportID uuid.UUID, reportViolationID uuid.UUID, officeUserID uuid.UUID, remarks string, appealStatus string) (models.GsrAppeal, error)
+}

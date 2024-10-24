@@ -214,6 +214,15 @@ func ReportViolations(reportViolations models.ReportViolations) ghcmessages.Repo
 	return payload
 }
 
+func GsrAppeals(gsrAppeals models.GsrAppeals) ghcmessages.GSRAppeals {
+	payload := make(ghcmessages.GSRAppeals, len(gsrAppeals))
+	for i, v := range gsrAppeals {
+		gsrAppeal := v
+		payload[i] = GsrAppeal(&gsrAppeal)
+	}
+	return payload
+}
+
 func EvaluationReportOfficeUser(officeUser models.OfficeUser) ghcmessages.EvaluationReportOfficeUser {
 	payload := ghcmessages.EvaluationReportOfficeUser{
 		Email:     officeUser.Email,
@@ -296,6 +305,7 @@ func EvaluationReport(evaluationReport *models.EvaluationReport) *ghcmessages.Ev
 		ETag:                               etag.GenerateEtag(evaluationReport.UpdatedAt),
 		UpdatedAt:                          strfmt.DateTime(evaluationReport.UpdatedAt),
 		ReportViolations:                   ReportViolations(evaluationReport.ReportViolations),
+		GsrAppeals:                         GsrAppeals(evaluationReport.GsrAppeals),
 	}
 	return payload
 }
@@ -346,6 +356,31 @@ func ReportViolation(reportViolation *models.ReportViolation) *ghcmessages.Repor
 		ViolationID: violationID,
 		ReportID:    reportID,
 		Violation:   PWSViolationItem(&reportViolation.Violation),
+		GsrAppeals:  GsrAppeals(reportViolation.GsrAppeals),
+	}
+	return payload
+}
+
+func GsrAppeal(gsrAppeal *models.GsrAppeal) *ghcmessages.GSRAppeal {
+	if gsrAppeal == nil {
+		return nil
+	}
+	id := *handlers.FmtUUID(gsrAppeal.ID)
+	violationID := *handlers.FmtUUID(*gsrAppeal.ReportViolationID)
+	reportID := *handlers.FmtUUID(gsrAppeal.EvaluationReportID)
+	officeUserID := *handlers.FmtUUID(gsrAppeal.OfficeUserID)
+	officeUser := EvaluationReportOfficeUser(*gsrAppeal.OfficeUser)
+
+	payload := &ghcmessages.GSRAppeal{
+		ID:                id,
+		ViolationID:       violationID,
+		ReportID:          reportID,
+		OfficeUserID:      officeUserID,
+		OfficeUser:        &officeUser,
+		IsSeriousIncident: *gsrAppeal.IsSeriousIncidentAppeal,
+		AppealStatus:      ghcmessages.GSRAppealStatusType(gsrAppeal.AppealStatus),
+		Remarks:           gsrAppeal.Remarks,
+		CreatedAt:         strfmt.DateTime(gsrAppeal.CreatedAt),
 	}
 	return payload
 }
