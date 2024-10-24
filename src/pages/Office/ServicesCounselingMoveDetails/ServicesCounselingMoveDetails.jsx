@@ -23,7 +23,7 @@ import ShipmentDisplay from 'components/Office/ShipmentDisplay/ShipmentDisplay';
 import { SubmitMoveConfirmationModal } from 'components/Office/SubmitMoveConfirmationModal/SubmitMoveConfirmationModal';
 import { useMoveDetailsQueries, useOrdersDocumentQueries } from 'hooks/queries';
 import { updateMoveStatusServiceCounselingCompleted, updateFinancialFlag } from 'services/ghcApi';
-import { MOVE_STATUSES, SHIPMENT_OPTIONS_URL, SHIPMENT_OPTIONS } from 'shared/constants';
+import { MOVE_STATUSES, SHIPMENT_OPTIONS_URL, SHIPMENT_OPTIONS, FEATURE_FLAG_KEYS } from 'shared/constants';
 import { ppmShipmentStatuses } from 'constants/shipments';
 import shipmentCardsStyles from 'styles/shipmentCards.module.scss';
 import LeftNav from 'components/LeftNav/LeftNav';
@@ -40,6 +40,7 @@ import NotificationScrollToTop from 'components/NotificationScrollToTop';
 import { objectIsMissingFieldWithCondition } from 'utils/displayFlags';
 import { ReviewButton } from 'components/form/IconButtons';
 import { calculateWeightRequested } from 'hooks/custom';
+import { isBooleanFlagEnabled } from 'utils/featureFlags';
 import { ADVANCE_STATUSES } from 'constants/ppms';
 
 const ServicesCounselingMoveDetails = ({
@@ -59,6 +60,8 @@ const ServicesCounselingMoveDetails = ({
   const [moveHasExcessWeight, setMoveHasExcessWeight] = useState(false);
   const [isSubmitModalVisible, setIsSubmitModalVisible] = useState(false);
   const [isFinancialModalVisible, setIsFinancialModalVisible] = useState(false);
+  const [enableBoat, setEnableBoat] = useState(false);
+  const [enableMobileHome, setEnableMobileHome] = useState(false);
   const { upload, amendedUpload } = useOrdersDocumentQueries(moveCode);
   const documentsForViewer = Object.values(upload || {})
     .concat(Object.values(amendedUpload || {}))
@@ -141,6 +144,14 @@ const ServicesCounselingMoveDetails = ({
   useEffect(() => {
     checkProGearAllowances();
   });
+
+  useEffect(() => {
+    const fetchData = async () => {
+      setEnableBoat(await isBooleanFlagEnabled(FEATURE_FLAG_KEYS.BOAT));
+      setEnableMobileHome(await isBooleanFlagEnabled(FEATURE_FLAG_KEYS.MOBILE_HOME));
+    };
+    fetchData();
+  }, []);
 
   // for now we are only showing dest type on retiree and separatee orders
   const isRetirementOrSeparation =
@@ -288,6 +299,10 @@ const ServicesCounselingMoveDetails = ({
             numberOfWarnIfMissingForAllShipments += 1;
           }
         });
+      }
+
+      if (shipment.marketCode) {
+        displayInfo.marketCode = shipment.marketCode;
       }
 
       disableSubmit = numberOfErrorIfMissingForAllShipments !== 0;
@@ -490,6 +505,21 @@ const ServicesCounselingMoveDetails = ({
   const hasMissingOrdersRequiredInfo = Object.values(requiredOrdersInfo).some((value) => !value || value === '');
   const hasAmendedOrders = ordersInfo.uploadedAmendedOrderID && !ordersInfo.amendedOrdersAcknowledgedAt;
 
+  const allowedShipmentOptions = () => {
+    return (
+      <>
+        <option data-testid="hhgOption" value={SHIPMENT_OPTIONS_URL.HHG}>
+          HHG
+        </option>
+        <option value={SHIPMENT_OPTIONS_URL.PPM}>PPM</option>
+        <option value={SHIPMENT_OPTIONS_URL.NTS}>NTS</option>
+        <option value={SHIPMENT_OPTIONS_URL.NTSrelease}>NTS-release</option>
+        {enableBoat && <option value={SHIPMENT_OPTIONS_URL.BOAT}>Boat</option>}
+        {enableMobileHome && <option value={SHIPMENT_OPTIONS_URL.MOBILE_HOME}>Mobile Home</option>}
+      </>
+    );
+  };
+
   return (
     <div className={styles.tabContent}>
       <div className={styles.container}>
@@ -607,18 +637,7 @@ const ServicesCounselingMoveDetails = ({
                     <option value="" label="Add a new shipment">
                       Add a new shipment
                     </option>
-                    <option data-testid="hhgOption" value={SHIPMENT_OPTIONS_URL.HHG}>
-                      HHG
-                    </option>
-                    <option value={SHIPMENT_OPTIONS_URL.PPM}>PPM</option>
-                    <option value={SHIPMENT_OPTIONS_URL.NTS}>NTS</option>
-                    <option value={SHIPMENT_OPTIONS_URL.NTSrelease}>NTS-release</option>
-                    <option data-testid="boatOption" value={SHIPMENT_OPTIONS_URL.BOAT}>
-                      Boat
-                    </option>
-                    <option data-testid="mobileHomeOption" value={SHIPMENT_OPTIONS_URL.MOBILE_HOME}>
-                      Mobile Home
-                    </option>
+                    {allowedShipmentOptions()}
                   </ButtonDropdown>
                 )
               }

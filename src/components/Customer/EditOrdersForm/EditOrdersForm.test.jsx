@@ -181,7 +181,6 @@ const initialValues = {
   report_by_date: '2020-11-26',
   has_dependents: 'No',
   origin_duty_location: {
-    provides_services_counseling: true,
     address: {
       city: 'Des Moines',
       country: 'US',
@@ -198,6 +197,7 @@ const initialValues = {
     id: 'f9299768-16d2-4a13-ae39-7087a58b1f62',
     name: 'Yuma AFB',
     updated_at: '2020-10-19T17:01:16.114Z',
+    provides_services_counseling: true,
   },
   new_duty_location: {
     address: {

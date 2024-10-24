@@ -1,6 +1,7 @@
 package payloads
 
 import (
+	"strings"
 	"time"
 
 	"github.com/go-openapi/strfmt"
@@ -12,6 +13,20 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/unit"
 )
+
+// CountryModel model
+func CountryModel(country *string) *models.Country {
+	// The prime doesn't know the uuids of our countries, so for now we are going to just populate the name so we can query that
+	// when creating the address IF it is provided - else this will be nil and a US country will be created
+	if country == nil {
+		return nil
+	}
+
+	modelCountry := &models.Country{
+		Country: *country,
+	}
+	return modelCountry
+}
 
 // AddressModel model
 func AddressModel(address *primev3messages.Address) *models.Address {
@@ -26,7 +41,6 @@ func AddressModel(address *primev3messages.Address) *models.Address {
 		ID:             uuid.FromStringOrNil(address.ID.String()),
 		StreetAddress2: address.StreetAddress2,
 		StreetAddress3: address.StreetAddress3,
-		Country:        address.Country,
 	}
 	if address.StreetAddress1 != nil {
 		modelAddress.StreetAddress1 = *address.StreetAddress1
@@ -39,6 +53,46 @@ func AddressModel(address *primev3messages.Address) *models.Address {
 	}
 	if address.PostalCode != nil {
 		modelAddress.PostalCode = *address.PostalCode
+	}
+	if address.Country != nil {
+		modelAddress.Country = CountryModel(address.Country)
+	}
+	return modelAddress
+}
+
+func PPMDestinationAddressModel(address *primev3messages.PPMDestinationAddress) *models.Address {
+	// To check if the model is intended to be blank, we'll look at ID and City, State, PostalCode
+	// We should always have ID if the user intends to update an Address,
+	// and City, State, PostalCode is a required field on creation. If both are blank, it should be treated as nil.
+	var blankSwaggerID strfmt.UUID
+	// unlike other addresses PPM destination address can be created without StreetAddress1
+	if address == nil || (address.ID == blankSwaggerID && address.City == nil && address.State == nil && address.PostalCode == nil) {
+		return nil
+	}
+	modelAddress := &models.Address{
+		ID:             uuid.FromStringOrNil(address.ID.String()),
+		StreetAddress2: address.StreetAddress2,
+		StreetAddress3: address.StreetAddress3,
+	}
+
+	if address.StreetAddress1 != nil && len(strings.Trim(*address.StreetAddress1, " ")) > 0 {
+		modelAddress.StreetAddress1 = *address.StreetAddress1
+	} else {
+		// Street address 1 is optional for certain business context but not nullable on the database level.
+		// Use place holder text to represent NULL.
+		modelAddress.StreetAddress1 = models.STREET_ADDRESS_1_NOT_PROVIDED
+	}
+	if address.City != nil {
+		modelAddress.City = *address.City
+	}
+	if address.State != nil {
+		modelAddress.State = *address.State
+	}
+	if address.PostalCode != nil {
+		modelAddress.PostalCode = *address.PostalCode
+	}
+	if address.Country != nil {
+		modelAddress.Country = CountryModel(address.Country)
 	}
 	return modelAddress
 }
@@ -289,7 +343,7 @@ func PPMShipmentModelFromCreate(ppmShipment *primev3messages.CreatePPMShipment) 
 		model.HasTertiaryPickupAddress = handlers.FmtBool(true)
 	}
 
-	addressModel = AddressModel(&ppmShipment.DestinationAddress.Address)
+	addressModel = PPMDestinationAddressModel(&ppmShipment.DestinationAddress.PPMDestinationAddress)
 	if addressModel != nil {
 		model.DestinationAddress = addressModel
 	}
@@ -528,7 +582,7 @@ func PPMShipmentModelFromUpdate(ppmShipment *primev3messages.UpdatePPMShipment) 
 		}
 	}
 
-	addressModel = AddressModel(&ppmShipment.DestinationAddress.Address)
+	addressModel = PPMDestinationAddressModel(&ppmShipment.DestinationAddress.PPMDestinationAddress)
 	if addressModel != nil {
 		model.DestinationAddress = addressModel
 	}

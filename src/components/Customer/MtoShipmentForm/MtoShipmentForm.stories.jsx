@@ -95,6 +95,7 @@ export const HHGShipmentRetiree = () =>
   renderStory({ shipmentType: SHIPMENT_OPTIONS.HHG, orders: { orders_type: 'RETIREMENT', authorizedWeight: 5000 } });
 export const NTSReleaseShipment = () => renderStory({ shipmentType: SHIPMENT_OPTIONS.NTSR });
 export const NTSShipment = () => renderStory({ shipmentType: SHIPMENT_OPTIONS.NTS });
+export const UBShipment = () => renderStory({ shipmentType: SHIPMENT_OPTIONS.UNACCOMPANIED_BAGGAGE });
 
 // edit shipment stories (form should prefill)
 export const EditHHGShipment = () =>
@@ -112,6 +113,12 @@ export const EditNTSReleaseShipment = () =>
 export const EditNTSShipment = () =>
   renderStory({
     shipmentType: SHIPMENT_OPTIONS.NTS,
+    isCreatePage: false,
+    mtoShipment: mockMtoShipment,
+  });
+export const EditUBShipment = () =>
+  renderStory({
+    shipmentType: SHIPMENT_OPTIONS.UNACCOMPANIED_BAGGAGE,
     isCreatePage: false,
     mtoShipment: mockMtoShipment,
   });
