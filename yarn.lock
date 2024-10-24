@@ -4583,9 +4583,9 @@
   resolved "https://registry.yarnpkg.com/@tootallnate/once/-/once-2.0.0.tgz#f544a148d3ab35801c1f633a7441fd87c2e484bf"
   integrity sha512-XCuKFP5PS55gnMVu3dty8KPatLqUoy/ZYzDzAGCQ8JNFCkLXzmI7vNHCR+XpbZaMWQK/vQubr7PkYq8g470J/A==
 
-"@transcom/react-file-viewer@git+https://github.com/transcom/react-file-viewer#v1.2.4":
-  version "1.2.4"
-  resolved "git+https://github.com/transcom/react-file-viewer#d4396dc8bf0acdd646e93ea82d23acf3bc0d5b0f"
+"@transcom/react-file-viewer@git+https://github.com/transcom/react-file-viewer#v1.2.5":
+  version "1.2.5"
+  resolved "git+https://github.com/transcom/react-file-viewer#4d9924ae58a6acdfcfb353235e034ff98fde5458"
   dependencies:
     pdfjs-dist "1.8.357"
     prop-types "^15.5.10"
