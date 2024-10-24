@@ -13,7 +13,3 @@ COMMENT ON TABLE ports IS 'Stores ports identification data';
 COMMENT ON COLUMN ports.port_code IS 'The 4 digit port code';
 COMMENT ON COLUMN ports.port_type IS 'The 1 char port type A, S, or B';
 COMMENT ON COLUMN ports.port_name IS 'The name of the port';
-ALTER TABLE mto_service_items ADD COLUMN IF NOT EXISTS poe_loc_id uuid;
-ALTER TABLE mto_service_items ADD CONSTRAINT fk_poe_loc_id FOREIGN KEY (poe_loc_id) REFERENCES ports (id);
-ALTER TABLE mto_service_items ADD COLUMN IF NOT EXISTS pod_loc_id uuid;
-ALTER TABLE mto_service_items ADD CONSTRAINT fk_pod_loc_id FOREIGN KEY (pod_loc_id) REFERENCES ports (id);
