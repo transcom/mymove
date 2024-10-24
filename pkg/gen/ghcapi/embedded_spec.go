@@ -1993,7 +1993,8 @@ func init() {
                       "APPROVALS REQUESTED",
                       "APPROVED",
                       "NEEDS SERVICE COUNSELING",
-                      "SERVICE COUNSELING COMPLETED"
+                      "SERVICE COUNSELING COMPLETED",
+                      "CANCELED"
                     ]
                   }
                 }
@@ -2351,7 +2352,7 @@ func init() {
         "operationId": "moveCanceler",
         "responses": {
           "200": {
-            "description": "Successfully cancelled move",
+            "description": "Successfully canceled move",
             "schema": {
               "$ref": "#/definitions/Move"
             }
@@ -2374,7 +2375,10 @@ func init() {
           "500": {
             "$ref": "#/responses/ServerError"
           }
-        }
+        },
+        "x-permissions": [
+          "update.cancelMoveFlag"
+        ]
       },
       "parameters": [
         {
@@ -11459,7 +11463,7 @@ func init() {
     "PPMStatus": {
       "type": "string",
       "enum": [
-        "CANCELLED",
+        "CANCELED",
         "DRAFT",
         "SUBMITTED",
         "WAITING_ON_CUSTOMER",
@@ -16932,7 +16936,8 @@ func init() {
                       "APPROVALS REQUESTED",
                       "APPROVED",
                       "NEEDS SERVICE COUNSELING",
-                      "SERVICE COUNSELING COMPLETED"
+                      "SERVICE COUNSELING COMPLETED",
+                      "CANCELED"
                     ]
                   }
                 }
@@ -17371,7 +17376,7 @@ func init() {
         "operationId": "moveCanceler",
         "responses": {
           "200": {
-            "description": "Successfully cancelled move",
+            "description": "Successfully canceled move",
             "schema": {
               "$ref": "#/definitions/Move"
             }
@@ -17412,7 +17417,10 @@ func init() {
               "$ref": "#/definitions/Error"
             }
           }
-        }
+        },
+        "x-permissions": [
+          "update.cancelMoveFlag"
+        ]
       },
       "parameters": [
         {
@@ -27434,7 +27442,7 @@ func init() {
     "PPMStatus": {
       "type": "string",
       "enum": [
-        "CANCELLED",
+        "CANCELED",
         "DRAFT",
         "SUBMITTED",
         "WAITING_ON_CUSTOMER",
