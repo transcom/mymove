@@ -54,9 +54,9 @@ func OfficeUser(officeUser *models.OfficeUser) *ghcmessages.LockedOfficeUser {
 func AssignedOfficeUser(officeUser *models.OfficeUser) *ghcmessages.AssignedOfficeUser {
 	if officeUser != nil {
 		payload := ghcmessages.AssignedOfficeUser{
-			ID:        strfmt.UUID(officeUser.ID.String()),
-			FirstName: officeUser.FirstName,
-			LastName:  officeUser.LastName,
+			OfficeUserID: strfmt.UUID(officeUser.ID.String()),
+			FirstName:    officeUser.FirstName,
+			LastName:     officeUser.LastName,
 		}
 		return &payload
 	}
@@ -708,6 +708,14 @@ func DutyLocation(dutyLocation *models.DutyLocation) *ghcmessages.DutyLocation {
 	return &payload
 }
 
+// Country payload
+func Country(country *models.Country) *string {
+	if country == nil {
+		return nil
+	}
+	return &country.Country
+}
+
 // Address payload
 func Address(address *models.Address) *ghcmessages.Address {
 	if address == nil {
@@ -721,9 +729,10 @@ func Address(address *models.Address) *ghcmessages.Address {
 		City:           &address.City,
 		State:          &address.State,
 		PostalCode:     &address.PostalCode,
-		Country:        address.Country,
+		Country:        Country(address.Country),
 		County:         &address.County,
 		ETag:           etag.GenerateEtag(address.UpdatedAt),
+		IsOconus:       address.IsOconus,
 	}
 }
 
@@ -2034,7 +2043,7 @@ func QueueAvailableOfficeUsers(officeUsers []models.OfficeUser) *ghcmessages.Ava
 }
 
 // QueueMoves payload
-func QueueMoves(moves []models.Move) *ghcmessages.QueueMoves {
+func QueueMoves(moves []models.Move, officeUsers []models.OfficeUser) *ghcmessages.QueueMoves {
 	queueMoves := make(ghcmessages.QueueMoves, len(moves))
 	for i, move := range moves {
 		customer := move.Orders.ServiceMember
@@ -2116,6 +2125,7 @@ func QueueMoves(moves []models.Move) *ghcmessages.QueueMoves {
 			PpmStatus:               ghcmessages.PPMStatus(ppmStatus),
 			CounselingOffice:        &transportationOffice,
 			AssignedTo:              AssignedOfficeUser(move.SCAssignedUser),
+			AvailableOfficeUsers:    *QueueAvailableOfficeUsers(officeUsers),
 		}
 	}
 	return &queueMoves
@@ -2184,7 +2194,7 @@ func queuePaymentRequestStatus(paymentRequest models.PaymentRequest) string {
 }
 
 // QueuePaymentRequests payload
-func QueuePaymentRequests(paymentRequests *models.PaymentRequests) *ghcmessages.QueuePaymentRequests {
+func QueuePaymentRequests(paymentRequests *models.PaymentRequests, officeUsers []models.OfficeUser) *ghcmessages.QueuePaymentRequests {
 	queuePaymentRequests := make(ghcmessages.QueuePaymentRequests, len(*paymentRequests))
 
 	for i, paymentRequest := range *paymentRequests {
@@ -2208,6 +2218,7 @@ func QueuePaymentRequests(paymentRequests *models.PaymentRequests) *ghcmessages.
 			OrderType:            (*string)(orders.OrdersType.Pointer()),
 			LockedByOfficeUserID: handlers.FmtUUIDPtr(moveTaskOrder.LockedByOfficeUserID),
 			LockExpiresAt:        handlers.FmtDateTimePtr(moveTaskOrder.LockExpiresAt),
+			AvailableOfficeUsers: *QueueAvailableOfficeUsers(officeUsers),
 		}
 
 		if orders.DepartmentIndicator != nil {
@@ -2292,6 +2303,8 @@ func SearchMoves(appCtx appcontext.AppContext, moves models.Moves) *ghcmessages.
 
 		if err != nil {
 			destinationGBLOC = *ghcmessages.NewGBLOC("")
+		} else if customer.Affiliation.String() == "MARINES" {
+			destinationGBLOC = ghcmessages.GBLOC("USMC/" + PostalCodeToGBLOC.GBLOC)
 		} else {
 			destinationGBLOC = ghcmessages.GBLOC(PostalCodeToGBLOC.GBLOC)
 		}

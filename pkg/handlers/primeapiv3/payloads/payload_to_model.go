@@ -13,6 +13,20 @@ import (
 	"github.com/transcom/mymove/pkg/unit"
 )
 
+// CountryModel model
+func CountryModel(country *string) *models.Country {
+	// The prime doesn't know the uuids of our countries, so for now we are going to just populate the name so we can query that
+	// when creating the address IF it is provided - else this will be nil and a US country will be created
+	if country == nil {
+		return nil
+	}
+
+	modelCountry := &models.Country{
+		Country: *country,
+	}
+	return modelCountry
+}
+
 // AddressModel model
 func AddressModel(address *primev3messages.Address) *models.Address {
 	// To check if the model is intended to be blank, we'll look at both ID and StreetAddress1
@@ -26,7 +40,6 @@ func AddressModel(address *primev3messages.Address) *models.Address {
 		ID:             uuid.FromStringOrNil(address.ID.String()),
 		StreetAddress2: address.StreetAddress2,
 		StreetAddress3: address.StreetAddress3,
-		Country:        address.Country,
 	}
 	if address.StreetAddress1 != nil {
 		modelAddress.StreetAddress1 = *address.StreetAddress1
@@ -39,6 +52,9 @@ func AddressModel(address *primev3messages.Address) *models.Address {
 	}
 	if address.PostalCode != nil {
 		modelAddress.PostalCode = *address.PostalCode
+	}
+	if address.Country != nil {
+		modelAddress.Country = CountryModel(address.Country)
 	}
 	return modelAddress
 }
@@ -220,6 +236,14 @@ func MTOShipmentModelFromCreate(mtoShipment *primev3messages.CreateMTOShipment) 
 		model.BoatShipment.Shipment = *model
 	}
 
+	if mtoShipment.MobileHomeShipment != nil {
+		model.MobileHome, verrs = MobileHomeShipmentModelFromCreate(mtoShipment)
+		if verrs != nil && verrs.HasAny() {
+			return nil, verrs
+		}
+		model.MobileHome.Shipment = *model
+	}
+
 	return model, nil
 }
 
@@ -353,6 +377,24 @@ func BoatShipmentModelFromCreate(mtoShipment *primev3messages.CreateMTOShipment)
 		HeightInInches: &heightInInches,
 		HasTrailer:     mtoShipment.BoatShipment.HasTrailer,
 		IsRoadworthy:   mtoShipment.BoatShipment.IsRoadworthy,
+	}
+
+	return model, nil
+}
+
+// MobileHomeShipmentModelFromCreate model
+func MobileHomeShipmentModelFromCreate(mtoShipment *primev3messages.CreateMTOShipment) (*models.MobileHome, *validate.Errors) {
+	year := int(*mtoShipment.MobileHomeShipment.Year)
+	lengthInInches := int(*mtoShipment.MobileHomeShipment.LengthInInches)
+	widthInInches := int(*mtoShipment.MobileHomeShipment.WidthInInches)
+	heightInInches := int(*mtoShipment.MobileHomeShipment.HeightInInches)
+	model := &models.MobileHome{
+		Year:           &year,
+		Make:           mtoShipment.MobileHomeShipment.Make,
+		Model:          mtoShipment.MobileHomeShipment.Model,
+		LengthInInches: &lengthInInches,
+		WidthInInches:  &widthInInches,
+		HeightInInches: &heightInInches,
 	}
 
 	return model, nil
