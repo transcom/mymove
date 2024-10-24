@@ -41,6 +41,10 @@ type CreatePPMShipment struct {
 	// Required: true
 	HasProGear *bool `json:"hasProGear"`
 
+	// Used for PPM shipments only. Denotes if this shipment uses the Actual Expense Reimbursement method.
+	// Example: false
+	IsActualExpenseReimbursement *bool `json:"isActualExpenseReimbursement"`
+
 	// The address of the origin location where goods are being moved from.
 	// Required: true
 	PickupAddress struct {

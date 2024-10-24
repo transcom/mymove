@@ -463,12 +463,13 @@ func (suite *PayloadsSuite) TestPPMShipmentModelFromCreate() {
 	spouseProGearWeight := int64(50)
 
 	ppmShipment := primev2messages.CreatePPMShipment{
-		ExpectedDepartureDate: expectedDepartureDate,
-		SitExpected:           &sitExpected,
-		EstimatedWeight:       &estimatedWeight,
-		HasProGear:            &hasProGear,
-		ProGearWeight:         &proGearWeight,
-		SpouseProGearWeight:   &spouseProGearWeight,
+		ExpectedDepartureDate:        expectedDepartureDate,
+		SitExpected:                  &sitExpected,
+		EstimatedWeight:              &estimatedWeight,
+		HasProGear:                   &hasProGear,
+		ProGearWeight:                &proGearWeight,
+		SpouseProGearWeight:          &spouseProGearWeight,
+		IsActualExpenseReimbursement: models.BoolPointer(true),
 	}
 
 	model := PPMShipmentModelFromCreate(&ppmShipment)
@@ -480,6 +481,36 @@ func (suite *PayloadsSuite) TestPPMShipmentModelFromCreate() {
 	suite.True(*model.HasProGear)
 	suite.Equal(unit.Pound(proGearWeight), *model.ProGearWeight)
 	suite.Equal(unit.Pound(spouseProGearWeight), *model.SpouseProGearWeight)
+	suite.True(*model.IsActualExpenseReimbursement)
+}
+
+func (suite *PayloadsSuite) TestPPMShipmentModelFromUpdate() {
+	time := time.Now()
+	expectedDepartureDate := handlers.FmtDatePtr(&time)
+	estimatedWeight := int64(5000)
+	proGearWeight := int64(500)
+	spouseProGearWeight := int64(50)
+
+	ppmShipment := primev2messages.UpdatePPMShipment{
+		ExpectedDepartureDate:        expectedDepartureDate,
+		SitExpected:                  models.BoolPointer(true),
+		EstimatedWeight:              &estimatedWeight,
+		HasProGear:                   models.BoolPointer(true),
+		ProGearWeight:                &proGearWeight,
+		SpouseProGearWeight:          &spouseProGearWeight,
+		IsActualExpenseReimbursement: models.BoolPointer(true),
+	}
+
+	model := PPMShipmentModelFromUpdate(&ppmShipment)
+
+	suite.NotNil(model)
+	suite.True(*model.SITExpected)
+	suite.Equal(unit.Pound(estimatedWeight), *model.EstimatedWeight)
+	suite.True(*model.HasProGear)
+	suite.Equal(unit.Pound(proGearWeight), *model.ProGearWeight)
+	suite.Equal(unit.Pound(spouseProGearWeight), *model.SpouseProGearWeight)
+	suite.True(*model.IsActualExpenseReimbursement)
+	suite.NotNil(model)
 }
 
 func (suite *PayloadsSuite) TestCountryModel_WithValidCountry() {
