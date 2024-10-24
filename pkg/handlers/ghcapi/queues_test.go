@@ -193,7 +193,7 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandlerMoveInfo() {
 
 		orderFetcher := mocks.OrderFetcher{}
 		orderFetcher.On("ListOrders", mock.AnythingOfType("*appcontext.appContext"),
-			officeUser.ID, mock.Anything).Return(expectedMoves, 4, nil)
+			officeUser.ID, roles.RoleTypeTOO, mock.Anything).Return(expectedMoves, 4, nil)
 
 		request := httptest.NewRequest("GET", "/queues/moves", nil)
 		request = suite.AuthenticateOfficeRequest(request, officeUser)
