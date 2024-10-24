@@ -56,7 +56,26 @@ const mockMTOShipment = {
   eTag: mockShipmentETag,
 };
 
-const zeroAllowanceMockMTOShipment = {
+const zeroAllowanceWithoutRequestedAdvanceMockMTOShipment = {
+  id: mockMTOShipmentId,
+  moveTaskOrderID: mockMoveId,
+  shipmentType: SHIPMENT_OPTIONS.PPM,
+  ppmShipment: {
+    id: uuidv4(),
+    sitExpected: false,
+    expectedDepartureDate: '2022-12-31',
+    eTag: mockPPMShipmentETag,
+    estimatedIncentive: 0,
+    estimatedWeight: 4000,
+    hasProGear: false,
+    proGearWeight: null,
+    spouseProGearWeight: null,
+    hasRequestedAdvance: false,
+  },
+  eTag: mockShipmentETag,
+};
+
+const zeroAllowanceWithRequestedAdvanceMockMTOShipment = {
   id: mockMTOShipmentId,
   moveTaskOrderID: mockMoveId,
   shipmentType: SHIPMENT_OPTIONS.PPM,
@@ -183,7 +202,7 @@ describe('Advance page', () => {
     },
   );
 
-  it.each([[zeroAllowanceMockMTOShipment]])(
+  it.each([[zeroAllowanceWithoutRequestedAdvanceMockMTOShipment], [zeroAllowanceWithRequestedAdvanceMockMTOShipment]])(
     'renders the form when estimated incentive is zero',
     async (preExistingShipment) => {
       selectMTOShipmentById.mockImplementationOnce(() => preExistingShipment);
@@ -193,8 +212,13 @@ describe('Advance page', () => {
       const hasRequestedAdvanceYesInput = screen.getByRole('radio', { name: /yes/i });
       const hasRequestedAdvanceNoInput = screen.getByRole('radio', { name: /no/i });
 
-      expect(hasRequestedAdvanceYesInput.checked).toBe(true);
-      expect(hasRequestedAdvanceNoInput.checked).toBe(false);
+      if (preExistingShipment.ppmShipment.hasRequestedAdvance) {
+        expect(hasRequestedAdvanceYesInput.checked).toBe(true);
+        expect(hasRequestedAdvanceNoInput.checked).toBe(false);
+      } else {
+        expect(hasRequestedAdvanceYesInput.checked).toBe(false);
+        expect(hasRequestedAdvanceNoInput.checked).toBe(true);
+      }
     },
   );
 
