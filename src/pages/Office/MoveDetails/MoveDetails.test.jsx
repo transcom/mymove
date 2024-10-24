@@ -48,6 +48,19 @@ const requestedMoveDetailsQuery = {
       postalCode: '78234',
     },
   },
+  uploads: {
+    'c0a22a98-a806-47a2-ab54-2dac938667b3': {
+      bytes: 2202009,
+      contentType: 'application/pdf',
+      createdAt: '2024-10-23T16:31:21.085Z',
+      filename: 'testFile.pdf',
+      id: 'c0a22a98-a806-47a2-ab54-2dac938667b3',
+      status: 'PROCESSING',
+      updatedAt: '2024-10-23T16:31:21.085Z',
+      uploadType: 'USER',
+      url: '/storage/USER/uploads/c0a22a98-a806-47a2-ab54-2dac938667b3?contentType=application%2Fpdf',
+    },
+  },
   order: {
     id: '1',
     originDutyLocation: {
@@ -202,6 +215,19 @@ const requestedMoveDetailsQueryRetiree = {
       city: 'San Antonio',
       state: 'TX',
       postalCode: '78234',
+    },
+  },
+  uploads: {
+    'c0a22a98-a806-47a2-ab54-2dac938667b3': {
+      bytes: 2202009,
+      contentType: 'application/pdf',
+      createdAt: '2024-10-23T16:31:21.085Z',
+      filename: 'testFile.pdf',
+      id: 'c0a22a98-a806-47a2-ab54-2dac938667b3',
+      status: 'PROCESSING',
+      updatedAt: '2024-10-23T16:31:21.085Z',
+      uploadType: 'USER',
+      url: '/storage/USER/uploads/c0a22a98-a806-47a2-ab54-2dac938667b3?contentType=application%2Fpdf',
     },
   },
   order: {
@@ -362,6 +388,19 @@ const requestedMoveDetailsAmendedOrdersQuery = {
       postalCode: '78234',
     },
   },
+  uploads: {
+    'c0a22a98-a806-47a2-ab54-2dac938667b3': {
+      bytes: 2202009,
+      contentType: 'application/pdf',
+      createdAt: '2024-10-23T16:31:21.085Z',
+      filename: 'testFile.pdf',
+      id: 'c0a22a98-a806-47a2-ab54-2dac938667b3',
+      status: 'PROCESSING',
+      updatedAt: '2024-10-23T16:31:21.085Z',
+      uploadType: 'USER',
+      url: '/storage/USER/uploads/c0a22a98-a806-47a2-ab54-2dac938667b3?contentType=application%2Fpdf',
+    },
+  },
   order: {
     id: '1',
     department_indicator: 'ARMY',
@@ -518,6 +557,7 @@ const requestedMoveDetailsMissingInfoQuery = {
       postalCode: '78234',
     },
   },
+  uploads: null,
   order: {
     id: '1',
     originDutyLocation: {

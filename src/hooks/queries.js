@@ -845,7 +845,7 @@ export const useMoveDetailsQueries = (moveCode) => {
 
   const order = Object.values(orders || {})?.[0];
 
-  const { data: uploads = {}, ...documentQuery } = useGetDocumentQuery(order.uploaded_order_id);
+  const { data: uploads, ...documentQuery } = useGetDocumentQuery(order.uploaded_order_id);
 
   const { data: mtoShipments, ...mtoShipmentQuery } = useQuery({
     queryKey: [MTO_SHIPMENTS, moveId, false],
