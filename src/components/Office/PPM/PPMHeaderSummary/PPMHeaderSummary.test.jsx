@@ -159,8 +159,9 @@ const defaultProps = {
     estimatedWeight: 3000,
     actualWeight: 3500,
   },
-  ppmNumber: 1,
+  ppmNumber: '1',
   showAllFields: false,
+  readOnly: false,
 };
 
 describe('PPMHeaderSummary component', () => {

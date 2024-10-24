@@ -1,6 +1,11 @@
 -- This migration adds new UNACCOMPANIED_BAGGAGE shipment type
 -- Also removes unused types of INTERNATIONAL_HHG and INTERNATIONAL_UB
 
+-- Update any existing shipments with INTERNATIONAL_HHG to instead have HHG
+UPDATE mto_shipments
+SET shipment_type = 'HHG'
+WHERE shipment_type = 'INTERNATIONAL_HHG';
+
 -- Create new enum type for mto_shipments so we can drop unused values INTERNATIONAL_HHG and INTERNATIONAL_UB
 CREATE TYPE mto_shipment_type_2 AS ENUM (
     'HHG',
@@ -12,6 +17,7 @@ CREATE TYPE mto_shipment_type_2 AS ENUM (
     'BOAT_TOW_AWAY',
     'UNACCOMPANIED_BAGGAGE'
     );
+
 -- Remove the old default value because it won't cast to our new type automatically
 ALTER TABLE mto_shipments
 	ALTER COLUMN shipment_type

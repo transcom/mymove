@@ -18,6 +18,7 @@ const defaultProps = {
   shipmentId: '#ABC123K',
   requestedDeliveryDate: new Date('03/01/2020').toISOString(),
   destinationZIP: '73523',
+  marketCode: 'd',
   receivingAgent: {
     firstName: 'Dorothy',
     lastName: 'Lagomarsino',
@@ -38,6 +39,7 @@ const completeProps = {
   shipmentId: 'ABC123K',
   shipmentLocator: 'ABC123K-01',
   status: shipmentStatuses.SUBMITTED,
+  marketCode: 'd',
 };
 
 const mockedOnIncompleteClickFunction = jest.fn();
@@ -51,6 +53,7 @@ const incompleteProps = {
   shipmentId: 'ABC123K',
   shipmentLocator: 'ABC123K-01',
   status: shipmentStatuses.DRAFT,
+  marketCode: 'd',
 };
 
 const secondaryDeliveryAddress = {
@@ -96,6 +99,11 @@ describe('NTSRShipmentCard component', () => {
     expect(wrapper.find('.remarksCell').at(0).text()).toBe('—');
   });
 
+  it('renders NTSRShipmentCard with a heading that has a market code and shipment type', async () => {
+    render(<NTSRShipmentCard {...defaultProps} />);
+    expect(screen.getByRole('heading', { level: 3 })).toHaveTextContent(`${defaultProps.marketCode}NTS-release`);
+  });
+
   it('should not render a secondary destination location if not provided one', async () => {
     render(<NTSRShipmentCard {...defaultProps} />);
 
@@ -121,6 +129,11 @@ describe('NTSRShipmentCard component', () => {
     expect(screen.queryByText('Incomplete')).toBeNull();
   });
 
+  it('renders a complete NTSRShipmentCard with a heading that has a market code and shipment type', async () => {
+    render(<NTSRShipmentCard {...completeProps} />);
+    expect(screen.getByRole('heading', { level: 3 })).toHaveTextContent(`${completeProps.marketCode}NTS-release`);
+  });
+
   it('renders incomplete label and tooltip icon for incomplete HHG shipment with DRAFT status', async () => {
     render(<NTSRShipmentCard {...incompleteProps} />);
 
@@ -134,5 +147,10 @@ describe('NTSRShipmentCard component', () => {
 
     // verify onclick is getting json string as parameter
     expect(mockedOnIncompleteClickFunction).toHaveBeenCalledWith('NTS-release', 'ABC123K-01', 'NTS-release');
+  });
+
+  it('renders a incomplete NTSRShipmentCard with a heading that has a market code and shipment type', async () => {
+    render(<NTSRShipmentCard {...incompleteProps} />);
+    expect(screen.getByRole('heading', { level: 3 })).toHaveTextContent(`${incompleteProps.marketCode}NTS-release`);
   });
 });

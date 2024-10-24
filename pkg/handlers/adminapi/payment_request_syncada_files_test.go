@@ -9,6 +9,8 @@
 package adminapi
 
 import (
+	"time"
+
 	"github.com/gofrs/uuid"
 
 	pre "github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/payment_request_syncada_files"
@@ -61,4 +63,25 @@ func (suite *HandlerSuite) TestIndexPaymentRequestSyncadaFilesHandler() {
 		suite.Equal(prsf[0].PaymentRequestNumber, okResponse.Payload[0].PaymentRequestNumber)
 	})
 
+}
+
+func (suite *HandlerSuite) TestPayloadForPaymentRequestEdiFile() {
+	testID := uuid.Must(uuid.NewV4())
+	testTime := time.Now()
+
+	paymentRequestEdiFile := models.PaymentRequestEdiFile{
+		ID:                   testID,
+		PaymentRequestNumber: "TEST123",
+		Filename:             "test_file.edi",
+		EdiString:            "EDI content",
+		CreatedAt:            testTime,
+	}
+
+	payload := payloadForPaymentRequestEdiFile(paymentRequestEdiFile)
+
+	suite.Equal(testID.String(), payload.ID.String())
+	suite.Equal("TEST123", payload.PaymentRequestNumber)
+	suite.Equal("test_file.edi", payload.FileName)
+	suite.Equal("EDI content", payload.EdiString)
+	suite.Equal(testTime.UTC().Format("2006-01-02T15:04:05.000Z"), payload.CreatedAt.String())
 }

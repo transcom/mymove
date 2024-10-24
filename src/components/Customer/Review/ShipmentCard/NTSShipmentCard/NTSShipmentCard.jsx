@@ -30,6 +30,7 @@ const NTSShipmentCard = ({
   showEditAndDeleteBtn,
   status,
   onIncompleteClick,
+  marketCode,
 }) => {
   const editPath = generatePath(customerRoutes.SHIPMENT_EDIT_PATH, {
     moveId,
@@ -53,7 +54,10 @@ const NTSShipmentCard = ({
         )}
         <div className={styles.ShipmentCardHeader}>
           <div className={styles.shipmentTypeNumber}>
-            <h3>{getShipmentTypeLabel(shipmentType)}</h3>
+            <h3>
+              <span className={styles.marketCodeIndicator}>{marketCode}</span>
+              {getShipmentTypeLabel(shipmentType)}
+            </h3>
             <p>#{shipmentLocator}</p>
           </div>
           {showEditAndDeleteBtn && (
