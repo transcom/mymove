@@ -567,7 +567,9 @@ const MoveHome = ({ serviceMemberMoves, isProfileComplete, serviceMember, signed
                   headerText="Profile complete"
                   step="1"
                   onEditBtnClick={() => handleNewPathClick(profileEditPath)}
-                  actionBtnLabel={isAdditionalDocumentsButtonAvailable() ? 'Upload Additional Documents' : null}
+                  actionBtnLabel={
+                    isAdditionalDocumentsButtonAvailable() ? 'Upload/Manage Non-Orders Documentation' : null
+                  }
                   onActionBtnClick={() => additionalDocumentsClick()}
                 >
                   <Description>Make sure to keep your personal information up to date during your move.</Description>
@@ -594,7 +596,7 @@ const MoveHome = ({ serviceMemberMoves, isProfileComplete, serviceMember, signed
                   <Step
                     complete={hasOrdersAndUpload() && hasSubmittedMove()}
                     completedHeaderText="Orders"
-                    editBtnLabel="Upload documents"
+                    editBtnLabel="Upload/Manage Orders Documentation"
                     onEditBtnClick={() => handleNewPathClick(ordersAmendPath)}
                     headerText="Orders"
                     step="2"

@@ -59,7 +59,7 @@ const EditOrdersForm = ({
       .min(1),
     grade: Yup.mixed().oneOf(Object.keys(ORDERS_PAY_GRADE_OPTIONS)).required('Required'),
     origin_duty_location: Yup.object().nullable().required('Required'),
-    counseling_office_id: dutyLocation.provides_services_counseling
+    counseling_office_id: dutyLocation?.provides_services_counseling
       ? Yup.string().required('Required')
       : Yup.string().notRequired(),
   });
@@ -75,7 +75,7 @@ const EditOrdersForm = ({
   let newDutyMeta = '';
 
   useEffect(() => {
-    showCounselingOffices(dutyLocation.id).then((fetchedData) => {
+    showCounselingOffices(dutyLocation?.id).then((fetchedData) => {
       if (fetchedData.body) {
         const counselingOffices = fetchedData.body.map((item) => ({
           key: item.id,
@@ -167,7 +167,7 @@ const EditOrdersForm = ({
                 required
                 metaOverride={originMeta}
               />
-              {dutyLocation.provides_services_counseling && (
+              {dutyLocation?.provides_services_counseling && (
                 <div>
                   <Label>
                     Select an origin duty location that most closely represents your current physical location, not

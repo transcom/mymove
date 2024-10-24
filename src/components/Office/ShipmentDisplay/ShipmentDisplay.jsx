@@ -90,7 +90,10 @@ const ShipmentDisplay = ({
           <div className={styles.headerContainer}>
             <div className={styles.shipmentTypeHeader}>
               <h3>
-                <label id={`shipment-display-label-${shipmentId}`}>{displayInfo.heading}</label>
+                <label id={`shipment-display-label-${shipmentId}`}>
+                  <span className={styles.marketCodeIndicator}>{displayInfo.marketCode}</span>
+                  {displayInfo.heading}
+                </label>
               </h3>
               <div>
                 {displayInfo.isDiversion && <Tag>diversion</Tag>}
@@ -183,6 +186,7 @@ ShipmentDisplay.propTypes = {
     SHIPMENT_OPTIONS.PPM,
     SHIPMENT_TYPES.BOAT_HAUL_AWAY,
     SHIPMENT_TYPES.BOAT_TOW_AWAY,
+    SHIPMENT_OPTIONS.MOBILE_HOME,
   ]),
   displayInfo: PropTypes.oneOfType([
     PropTypes.shape({

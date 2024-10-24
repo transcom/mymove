@@ -432,13 +432,12 @@ export function updateMoveStatusServiceCounselingCompleted({ moveTaskOrderID, if
   );
 }
 
-export function cancelMove({ moveID, ifMatchETag, normalize = false }) {
+export function cancelMove({ moveID, normalize = false }) {
   const operationPath = 'move.moveCanceler';
   return makeGHCRequest(
     operationPath,
     {
       moveID,
-      'If-Match': ifMatchETag,
     },
     { normalize },
   );
