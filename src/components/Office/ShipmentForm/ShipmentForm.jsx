@@ -904,19 +904,6 @@ const ShipmentForm = (props) => {
                   />
                 )}
 
-                {isMobileHome && (
-                  <MobileHomeShipmentForm
-                    lengthHasError={lengthHasError}
-                    widthHasError={widthHasError}
-                    heightHasError={heightHasError}
-                    values={values}
-                    setFieldTouched={setFieldTouched}
-                    setFieldError={setFieldError}
-                    validateForm={validateForm}
-                    dimensionError={dimensionError}
-                  />
-                )}
-
                 {showPickupFields && (
                   <SectionWrapper className={formStyles.formSection}>
                     <h2 className={styles.SectionHeaderExtraSpacing}>Pickup details</h2>
