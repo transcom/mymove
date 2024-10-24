@@ -509,7 +509,6 @@ const ServicesCounselingMoveDetails = ({
   const handleCancelMove = () => {
     mutateCancelMove({
       moveID: move.id,
-      ifMatchETag: move.eTag,
     });
     setIsCancelMoveModalVisible(false);
   };
@@ -675,6 +674,9 @@ const ServicesCounselingMoveDetails = ({
                     <option value={SHIPMENT_OPTIONS_URL.NTSrelease}>NTS-release</option>
                     <option data-testid="boatOption" value={SHIPMENT_OPTIONS_URL.BOAT}>
                       Boat
+                    </option>
+                    <option data-testid="mobileHomeOption" value={SHIPMENT_OPTIONS_URL.MOBILE_HOME}>
+                      Mobile Home
                     </option>
                   </ButtonDropdown>
                 )

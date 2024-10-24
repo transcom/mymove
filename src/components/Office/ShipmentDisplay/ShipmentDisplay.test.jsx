@@ -140,6 +140,10 @@ describe('Shipment Container', () => {
       );
       expect(screen.getByTestId('shipment-display-checkbox')).toBeDisabled();
     });
+    it('renders with canceled tag', () => {
+      render(<ShipmentDisplay shipmentId="1" displayInfo={canceledInfo} onChange={jest.fn()} isSubmitted={false} />);
+      expect(screen.getByText('canceled')).toBeInTheDocument();
+    });
   });
 
   describe('NTS-release shipment', () => {
@@ -177,6 +181,10 @@ describe('Shipment Container', () => {
       expect(screen.getByText('external vendor')).toBeInTheDocument();
     });
 
+    it('renders with canceled tag', () => {
+      render(<ShipmentDisplay shipmentId="1" displayInfo={canceledInfo} onChange={jest.fn()} isSubmitted={false} />);
+      expect(screen.getByText('canceled')).toBeInTheDocument();
+    });
     it('renders with external vendor tag', () => {
       render(
         <ShipmentDisplay
@@ -276,6 +284,10 @@ describe('Shipment Container', () => {
           </MockProviders>,
         );
         expect(screen.getByTestId('tag', { name: 'packet ready for download' })).toBeInTheDocument();
+      });
+      it('renders with canceled tag', () => {
+        render(<ShipmentDisplay shipmentId="1" displayInfo={canceledInfo} onChange={jest.fn()} isSubmitted={false} />);
+        expect(screen.getByText('canceled')).toBeInTheDocument();
       });
       it('excluded', () => {
         render(

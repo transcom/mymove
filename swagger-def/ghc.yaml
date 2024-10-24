@@ -3270,6 +3270,7 @@ paths:
               closeoutLocation,
               ppmStatus,
               counselingOffice,
+              assignedTo,
             ]
           description: field that results should be sorted by
         - in: query
@@ -3372,6 +3373,11 @@ paths:
           type: string
           description: |
             Used to return a queue for a GBLOC other than the default of the current user. Requires the HQ role. The parameter is ignored if the requesting user does not have the necessary role.
+        - in: query
+          name: assignedTo
+          type: string
+          description: |
+            Used to illustrate which user is assigned to this payment request.
       responses:
         '200':
           description: Successfully returned all moves matching the criteria
@@ -3488,6 +3494,7 @@ paths:
               destinationDutyLocation,
               requestedMoveDate,
               appearedInTooAt,
+              assignedTo,
             ]
           description: field that results should be sorted by
         - in: query
@@ -6785,6 +6792,8 @@ definitions:
       assignedTo:
         $ref: '#/definitions/AssignedOfficeUser'
         x-nullable: true
+      availableOfficeUsers:
+        $ref: '#/definitions/AvailableOfficeUsers'
   QueueMovesResult:
     type: object
     properties:
@@ -6796,8 +6805,6 @@ definitions:
         type: integer
       queueMoves:
         $ref: '#/definitions/QueueMoves'
-      availableOfficeUsers:
-        $ref: '#/definitions/AvailableOfficeUsers'
   ListPrimeMove:
     description: >
       An abbreviated definition for a move, without all the nested information (shipments, service items, etc). Used to
@@ -6901,6 +6908,8 @@ definitions:
         type: string
         format: date-time
         x-nullable: true
+      availableOfficeUsers:
+        $ref: '#/definitions/AvailableOfficeUsers'
   QueuePaymentRequests:
     type: array
     items:
@@ -6916,8 +6925,6 @@ definitions:
         type: integer
       queuePaymentRequests:
         $ref: '#/definitions/QueuePaymentRequests'
-      availableOfficeUsers:
-        $ref: '#/definitions/AvailableOfficeUsers'
   QueuePaymentRequestStatus:
     enum:
       - Payment requested
@@ -7398,7 +7405,7 @@ definitions:
   AssignedOfficeUser:
     type: object
     properties:
-      id:
+      officeUserId:
         type: string
         format: uuid
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
