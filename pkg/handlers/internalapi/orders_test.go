@@ -485,95 +485,199 @@ func (suite *HandlerSuite) TestUploadAmendedOrdersHandlerIntegration() {
 }
 
 func (suite *HandlerSuite) TestUpdateOrdersHandler() {
-	dutyLocation := factory.BuildDutyLocation(suite.DB(), []factory.Customization{
-		{
-			Model: models.DutyLocation{
-				ProvidesServicesCounseling: false,
+
+	suite.Run("Can update CONUS and OCONUS orders", func() {
+		testCases := []struct {
+			isOconus bool
+		}{
+			{isOconus: true},
+			{isOconus: false},
+		}
+
+		for _, tc := range testCases {
+			address := factory.BuildAddress(suite.DB(), []factory.Customization{
+				{
+					Model: models.Address{
+						IsOconus: &tc.isOconus,
+					},
+				},
+			}, nil)
+
+			// Set duty location to either CONUS or OCONUS
+			dutyLocation := factory.BuildDutyLocation(suite.DB(), []factory.Customization{
+				{
+					Model: models.DutyLocation{
+						ProvidesServicesCounseling: false,
+					},
+				},
+				{
+					Model:    address,
+					LinkOnly: true,
+				},
+			}, nil)
+			order := factory.BuildOrder(suite.DB(), []factory.Customization{
+				{
+					Model:    dutyLocation,
+					LinkOnly: true,
+					Type:     &factory.DutyLocations.OriginDutyLocation,
+				},
+			}, nil)
+			move := factory.BuildMove(suite.DB(), []factory.Customization{
+				{
+					Model:    order,
+					LinkOnly: true,
+				}}, nil)
+
+			newDutyLocation := factory.BuildDutyLocation(suite.DB(), nil, nil)
+			newTransportationOffice := factory.BuildTransportationOffice(suite.DB(), nil, nil)
+			newDutyLocation.TransportationOffice = newTransportationOffice
+
+			newOrdersType := internalmessages.OrdersTypePERMANENTCHANGEOFSTATION
+			newOrdersNumber := "123456"
+			issueDate := time.Date(2018, time.March, 10, 0, 0, 0, 0, time.UTC)
+			reportByDate := time.Date(2018, time.August, 1, 0, 0, 0, 0, time.UTC)
+			deptIndicator := internalmessages.DeptIndicatorAIRANDSPACEFORCE
+
+			payload := &internalmessages.CreateUpdateOrders{
+				OrdersNumber:         handlers.FmtString(newOrdersNumber),
+				OrdersType:           &newOrdersType,
+				NewDutyLocationID:    handlers.FmtUUID(newDutyLocation.ID),
+				OriginDutyLocationID: *handlers.FmtUUID(*order.OriginDutyLocationID),
+				IssueDate:            handlers.FmtDate(issueDate),
+				ReportByDate:         handlers.FmtDate(reportByDate),
+				DepartmentIndicator:  &deptIndicator,
+				HasDependents:        handlers.FmtBool(false),
+				SpouseHasProGear:     handlers.FmtBool(false),
+				Grade:                models.ServiceMemberGradeE4.Pointer(),
+				MoveID:               *handlers.FmtUUID(move.ID),
+				CounselingOfficeID:   handlers.FmtUUID(*newDutyLocation.TransportationOfficeID),
+			}
+			// The default move factory does not include OCONUS fields, set these
+			// new fields conditionally for the update
+			if tc.isOconus {
+				payload.AccompaniedTour = models.BoolPointer(true)
+				payload.DependentsTwelveAndOver = models.Int64Pointer(5)
+				payload.DependentsUnderTwelve = models.Int64Pointer(5)
+			}
+
+			path := fmt.Sprintf("/orders/%v", order.ID.String())
+			req := httptest.NewRequest("PUT", path, nil)
+			req = suite.AuthenticateRequest(req, order.ServiceMember)
+
+			params := ordersop.UpdateOrdersParams{
+				HTTPRequest:  req,
+				OrdersID:     *handlers.FmtUUID(order.ID),
+				UpdateOrders: payload,
+			}
+
+			fakeS3 := storageTest.NewFakeS3Storage(true)
+			handlerConfig := suite.HandlerConfig()
+			handlerConfig.SetFileStorer(fakeS3)
+
+			handler := UpdateOrdersHandler{handlerConfig}
+
+			response := handler.Handle(params)
+
+			suite.IsType(&ordersop.UpdateOrdersOK{}, response)
+			okResponse := response.(*ordersop.UpdateOrdersOK)
+
+			suite.NoError(okResponse.Payload.Validate(strfmt.Default))
+			suite.Equal(string(newOrdersType), string(*okResponse.Payload.OrdersType))
+			suite.Equal(newOrdersNumber, *okResponse.Payload.OrdersNumber)
+
+			updatedOrder, err := models.FetchOrder(suite.DB(), order.ID)
+			suite.NoError(err)
+			suite.Equal(payload.Grade, updatedOrder.Grade)
+			suite.Equal(*okResponse.Payload.AuthorizedWeight, int64(7000)) // E4 authorized weight is 7000, make sure we return that in the response
+			expectedUpdatedOrderWeightAllotment := models.GetWeightAllotment(*updatedOrder.Grade)
+			expectedUpdatedOrderAuthorizedWeight := expectedUpdatedOrderWeightAllotment.TotalWeightSelf
+			if *payload.HasDependents {
+				expectedUpdatedOrderAuthorizedWeight = expectedUpdatedOrderWeightAllotment.TotalWeightSelfPlusDependents
+			}
+
+			expectedOriginalOrderWeightAllotment := models.GetWeightAllotment(*order.Grade)
+			expectedOriginalOrderAuthorizedWeight := expectedOriginalOrderWeightAllotment.TotalWeightSelf
+			if *payload.HasDependents {
+				expectedUpdatedOrderAuthorizedWeight = expectedOriginalOrderWeightAllotment.TotalWeightSelfPlusDependents
+			}
+
+			suite.Equal(expectedUpdatedOrderAuthorizedWeight, 7000)  // Ensure that when GetWeightAllotment is recalculated that it also returns 7000. This ensures that the database stored the correct information
+			suite.Equal(expectedOriginalOrderAuthorizedWeight, 5000) // The order was created as an E1. Ensure that the E1 authorized weight is 5000.
+			suite.Equal(string(newOrdersType), string(updatedOrder.OrdersType))
+			// Check updated entitlement
+			var updatedEntitlement models.Entitlement
+			err = suite.DB().Find(&updatedEntitlement, updatedOrder.EntitlementID)
+			suite.NoError(err)
+			suite.NotEmpty(updatedEntitlement)
+
+			if tc.isOconus {
+				suite.NotNil(updatedEntitlement.AccompaniedTour)
+				suite.NotNil(updatedEntitlement.DependentsTwelveAndOver)
+				suite.NotNil(updatedEntitlement.DependentsUnderTwelve)
+			} else {
+				suite.Nil(updatedEntitlement.AccompaniedTour)
+				suite.Nil(updatedEntitlement.DependentsTwelveAndOver)
+				suite.Nil(updatedEntitlement.DependentsUnderTwelve)
+			}
+		}
+	})
+}
+
+func (suite *HandlerSuite) TestEntitlementHelperFunc() {
+	orderGrade := internalmessages.OrderPayGrade("O-3")
+	int64Dependents := int64(2)
+	intDependents := int(int64Dependents)
+	suite.Run("Can fully cover the hasEntitlementChangedFunc", func() {
+		testCases := []struct {
+			order                          models.Order
+			payloadPayGrade                *internalmessages.OrderPayGrade
+			payloadDependentsUnderTwelve   *int64
+			payloadDependentsTwelveAndOver *int64
+			payloadAccompaniedTour         *bool
+			shouldReturnFalse              *bool
+		}{
+			{
+				order: models.Order{
+					Grade: &orderGrade,
+				},
 			},
-		},
-	}, nil)
-	order := factory.BuildOrder(suite.DB(), []factory.Customization{
-		{
-			Model:    dutyLocation,
-			LinkOnly: true,
-			Type:     &factory.DutyLocations.OriginDutyLocation,
-		},
-	}, nil)
-	move := factory.BuildMove(suite.DB(), []factory.Customization{
-		{
-			Model:    order,
-			LinkOnly: true,
-		}}, nil)
+			{
+				order: models.Order{
+					Entitlement: &models.Entitlement{
+						DependentsUnderTwelve: &intDependents,
+					},
+				},
+			},
+			{
+				order: models.Order{
+					Entitlement: &models.Entitlement{
+						DependentsTwelveAndOver: &intDependents,
+					},
+				},
+			},
+			{
+				order: models.Order{
+					Entitlement: &models.Entitlement{
+						AccompaniedTour: models.BoolPointer(true),
+					},
+				},
+			},
+			{
+				order:             models.Order{},
+				shouldReturnFalse: models.BoolPointer(true),
+			},
+		}
+		for _, tc := range testCases {
+			if tc.shouldReturnFalse != nil && *tc.shouldReturnFalse {
+				// Test should return false
+				suite.False(hasEntitlementChanged(tc.order, tc.payloadPayGrade, tc.payloadDependentsUnderTwelve, tc.payloadDependentsTwelveAndOver, tc.payloadAccompaniedTour))
+			} else {
+				// Test defaults to returning true
+				suite.True(hasEntitlementChanged(tc.order, tc.payloadPayGrade, tc.payloadDependentsUnderTwelve, tc.payloadDependentsTwelveAndOver, tc.payloadAccompaniedTour))
+			}
 
-	newDutyLocation := factory.BuildDutyLocation(suite.DB(), nil, nil)
-	newTransportationOffice := factory.BuildTransportationOffice(suite.DB(), nil, nil)
-	newDutyLocation.TransportationOffice = newTransportationOffice
-
-	newOrdersType := internalmessages.OrdersTypePERMANENTCHANGEOFSTATION
-	newOrdersNumber := "123456"
-	issueDate := time.Date(2018, time.March, 10, 0, 0, 0, 0, time.UTC)
-	reportByDate := time.Date(2018, time.August, 1, 0, 0, 0, 0, time.UTC)
-	deptIndicator := internalmessages.DeptIndicatorAIRANDSPACEFORCE
-
-	payload := &internalmessages.CreateUpdateOrders{
-		OrdersNumber:         handlers.FmtString(newOrdersNumber),
-		OrdersType:           &newOrdersType,
-		NewDutyLocationID:    handlers.FmtUUID(newDutyLocation.ID),
-		OriginDutyLocationID: *handlers.FmtUUID(*order.OriginDutyLocationID),
-		IssueDate:            handlers.FmtDate(issueDate),
-		ReportByDate:         handlers.FmtDate(reportByDate),
-		DepartmentIndicator:  &deptIndicator,
-		HasDependents:        handlers.FmtBool(false),
-		SpouseHasProGear:     handlers.FmtBool(false),
-		Grade:                models.ServiceMemberGradeE4.Pointer(),
-		MoveID:               *handlers.FmtUUID(move.ID),
-		CounselingOfficeID:   handlers.FmtUUID(*newDutyLocation.TransportationOfficeID),
-	}
-
-	path := fmt.Sprintf("/orders/%v", order.ID.String())
-	req := httptest.NewRequest("PUT", path, nil)
-	req = suite.AuthenticateRequest(req, order.ServiceMember)
-
-	params := ordersop.UpdateOrdersParams{
-		HTTPRequest:  req,
-		OrdersID:     *handlers.FmtUUID(order.ID),
-		UpdateOrders: payload,
-	}
-
-	fakeS3 := storageTest.NewFakeS3Storage(true)
-	handlerConfig := suite.HandlerConfig()
-	handlerConfig.SetFileStorer(fakeS3)
-
-	handler := UpdateOrdersHandler{handlerConfig}
-
-	response := handler.Handle(params)
-
-	suite.IsType(&ordersop.UpdateOrdersOK{}, response)
-	okResponse := response.(*ordersop.UpdateOrdersOK)
-
-	suite.NoError(okResponse.Payload.Validate(strfmt.Default))
-	suite.Equal(string(newOrdersType), string(*okResponse.Payload.OrdersType))
-	suite.Equal(newOrdersNumber, *okResponse.Payload.OrdersNumber)
-
-	updatedOrder, err := models.FetchOrder(suite.DB(), order.ID)
-	suite.NoError(err)
-	suite.Equal(payload.Grade, updatedOrder.Grade)
-	suite.Equal(*okResponse.Payload.AuthorizedWeight, int64(7000)) // E4 authorized weight is 7000, make sure we return that in the response
-	expectedUpdatedOrderWeightAllotment := models.GetWeightAllotment(*updatedOrder.Grade)
-	expectedUpdatedOrderAuthorizedWeight := expectedUpdatedOrderWeightAllotment.TotalWeightSelf
-	if *payload.HasDependents {
-		expectedUpdatedOrderAuthorizedWeight = expectedUpdatedOrderWeightAllotment.TotalWeightSelfPlusDependents
-	}
-
-	expectedOriginalOrderWeightAllotment := models.GetWeightAllotment(*order.Grade)
-	expectedOriginalOrderAuthorizedWeight := expectedOriginalOrderWeightAllotment.TotalWeightSelf
-	if *payload.HasDependents {
-		expectedUpdatedOrderAuthorizedWeight = expectedOriginalOrderWeightAllotment.TotalWeightSelfPlusDependents
-	}
-
-	suite.Equal(expectedUpdatedOrderAuthorizedWeight, 7000)  // Ensure that when GetWeightAllotment is recalculated that it also returns 7000. This ensures that the database stored the correct information
-	suite.Equal(expectedOriginalOrderAuthorizedWeight, 5000) // The order was created as an E1. Ensure that the E1 authorized weight is 5000.
-	suite.Equal(string(newOrdersType), string(updatedOrder.OrdersType))
+		}
+	})
 }
 
 func (suite *HandlerSuite) TestUpdateOrdersHandlerWithCounselingOffice() {
