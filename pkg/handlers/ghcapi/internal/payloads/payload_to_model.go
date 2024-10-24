@@ -363,6 +363,10 @@ func PPMShipmentModelFromCreate(ppmShipment *ghcmessages.CreatePPMShipment) *mod
 		model.HasTertiaryDestinationAddress = handlers.FmtBool(true)
 	}
 
+	if ppmShipment.IsActualExpenseReimbursement != nil {
+		model.IsActualExpenseReimbursement = ppmShipment.IsActualExpenseReimbursement
+	}
+
 	if model.SITExpected != nil && *model.SITExpected {
 		if ppmShipment.SitLocation != nil {
 			sitLocation := models.SITLocationType(*ppmShipment.SitLocation)
@@ -622,6 +626,7 @@ func PPMShipmentModelFromUpdate(ppmShipment *ghcmessages.UpdatePPMShipment) *mod
 		EstimatedWeight:                handlers.PoundPtrFromInt64Ptr(ppmShipment.EstimatedWeight),
 		AllowableWeight:                handlers.PoundPtrFromInt64Ptr(ppmShipment.AllowableWeight),
 		HasProGear:                     ppmShipment.HasProGear,
+		IsActualExpenseReimbursement:   ppmShipment.IsActualExpenseReimbursement,
 		ProGearWeight:                  handlers.PoundPtrFromInt64Ptr(ppmShipment.ProGearWeight),
 		SpouseProGearWeight:            handlers.PoundPtrFromInt64Ptr(ppmShipment.SpouseProGearWeight),
 		HasRequestedAdvance:            ppmShipment.HasRequestedAdvance,
