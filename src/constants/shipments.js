@@ -47,6 +47,7 @@ export const ppmShipmentStatuses = {
   NEEDS_ADVANCE_APPROVAL: 'NEEDS_ADVANCE_APPROVAL',
   NEEDS_CLOSEOUT: 'NEEDS_CLOSEOUT',
   CLOSEOUT_COMPLETE: 'CLOSEOUT_COMPLETE',
+  CANCELED: 'CANCELED',
 };
 
 export const boatShipmentTypes = {
