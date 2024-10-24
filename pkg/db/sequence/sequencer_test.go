@@ -1,6 +1,10 @@
 package sequence
 
 import (
+	"testing"
+
+	"github.com/stretchr/testify/suite"
+
 	"github.com/transcom/mymove/pkg/testingsuite"
 )
 
@@ -15,11 +19,11 @@ func (suite *SequenceSuite) SetupTest() {
 	suite.NoError(err, "Error resetting sequence")
 }
 
-// func TestSequenceSuite(t *testing.T) {
+func TestSequenceSuite(t *testing.T) {
 
-// 	hs := &SequenceSuite{
-// 		PopTestSuite: testingsuite.NewPopTestSuite(testingsuite.CurrentPackage(), testingsuite.WithPerTestTransaction()),
-// 	}
-// 	suite.Run(t, hs)
-// 	hs.PopTestSuite.TearDown()
-// }
+	hs := &SequenceSuite{
+		PopTestSuite: testingsuite.NewPopTestSuite(testingsuite.CurrentPackage(), testingsuite.WithPerTestTransaction()),
+	}
+	suite.Run(t, hs)
+	hs.PopTestSuite.TearDown()
+}
