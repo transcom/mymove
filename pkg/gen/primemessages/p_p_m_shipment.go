@@ -94,6 +94,10 @@ type PPMShipment struct {
 	// Format: uuid
 	ID strfmt.UUID `json:"id"`
 
+	// Used for PPM shipments only. Denotes if this shipment uses the Actual Expense Reimbursement method.
+	// Example: false
+	IsActualExpenseReimbursement *bool `json:"isActualExpenseReimbursement"`
+
 	// The estimated weight of the pro-gear being moved belonging to the service member in pounds.
 	ProGearWeight *int64 `json:"proGearWeight"`
 

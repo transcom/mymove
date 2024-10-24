@@ -1963,6 +1963,12 @@ definitions:
         x-omitempty: false
       sitExpected:
         type: boolean
+      isActualExpenseReimbursement:
+        description: Denotes if this PPM shipment uses the Actual Expense Reimbursement method.
+        type: boolean
+        example: false
+        x-omitempty: false
+        x-nullable: true
     required:
       - expectedDepartureDate
       - pickupAddress
@@ -2077,6 +2083,12 @@ definitions:
           The amount received for an advance, or null if no advance is received.
         type: integer
         format: cents
+        x-nullable: true
+      isActualExpenseReimbursement:
+        description: Used for PPM shipments only. Denotes if this shipment uses the Actual Expense Reimbursement method.
+        type: boolean
+        example: false
+        x-omitempty: false
         x-nullable: true
   CreateBoatShipment:
     description: Boat shipment information for the move.
