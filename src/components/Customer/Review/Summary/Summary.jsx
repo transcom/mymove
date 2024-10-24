@@ -345,6 +345,36 @@ export class Summary extends Component {
           />
         );
       }
+      if (shipment.shipmentType === SHIPMENT_TYPES.UNACCOMPANIED_BAGGAGE) {
+        ubShipmentNumber += 1;
+        return (
+          <HHGShipmentCard
+            key={shipment.id}
+            destinationZIP={currentOrders.new_duty_location.address.postalCode}
+            secondaryDeliveryAddress={shipment?.secondaryDeliveryAddress}
+            tertiaryDeliveryAddress={shipment?.tertiaryDeliveryAddress}
+            secondaryPickupAddress={shipment?.secondaryPickupAddress}
+            tertiaryPickupAddress={shipment?.tertiaryPickupAddress}
+            destinationLocation={shipment?.destinationAddress}
+            moveId={moveId}
+            onEditClick={this.handleEditClick}
+            onDeleteClick={this.handleDeleteClick}
+            pickupLocation={shipment.pickupAddress}
+            receivingAgent={receivingAgent}
+            releasingAgent={releasingAgent}
+            remarks={shipment.customerRemarks}
+            requestedDeliveryDate={shipment.requestedDeliveryDate}
+            requestedPickupDate={shipment.requestedPickupDate}
+            shipmentId={shipment.id}
+            shipmentLocator={shipment.shipmentLocator}
+            shipmentNumber={ubShipmentNumber}
+            shipmentType={shipment.shipmentType}
+            showEditAndDeleteBtn={showEditAndDeleteBtn}
+            status={shipment.status}
+            onIncompleteClick={this.toggleIncompleteShipmentModal}
+          />
+        );
+      }
       hhgShipmentNumber += 1;
       return (
         <HHGShipmentCard
