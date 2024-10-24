@@ -20,6 +20,10 @@ type UserUploadToPDFConverter struct {
 func (_m *UserUploadToPDFConverter) ConvertUserUploadsToPDF(appCtx appcontext.AppContext, userUploads models.UserUploads) ([]*services.FileInfo, error) {
 	ret := _m.Called(appCtx, userUploads)
 
+	if len(ret) == 0 {
+		panic("no return value specified for ConvertUserUploadsToPDF")
+	}
+
 	var r0 []*services.FileInfo
 	var r1 error
 	if rf, ok := ret.Get(0).(func(appcontext.AppContext, models.UserUploads) ([]*services.FileInfo, error)); ok {

@@ -4,7 +4,7 @@ import userEvent from '@testing-library/user-event';
 
 import Orders from './Orders';
 
-import { getOrders, patchOrders } from 'services/internalApi';
+import { getOrders, patchOrders, showCounselingOffices } from 'services/internalApi';
 import { renderWithProviders } from 'testUtils';
 import { customerRoutes } from 'constants/routes';
 import {
@@ -17,6 +17,20 @@ jest.mock('services/internalApi', () => ({
   ...jest.requireActual('services/internalApi'),
   patchOrders: jest.fn().mockImplementation(() => Promise.resolve()),
   getOrders: jest.fn().mockImplementation(() => Promise.resolve()),
+  showCounselingOffices: jest.fn().mockImplementation(() =>
+    Promise.resolve({
+      body: [
+        {
+          id: '3e937c1f-5539-4919-954d-017989130584',
+          name: 'Albuquerque AFB',
+        },
+        {
+          id: 'fa51dab0-4553-4732-b843-1f33407f77bc',
+          name: 'Glendale Luke AFB',
+        },
+      ],
+    }),
+  ),
 }));
 
 jest.mock('components/LocationSearchBox/api', () => ({
@@ -415,6 +429,7 @@ describe('Orders page', () => {
   });
 
   it('renders appropriate order data on load', async () => {
+    showCounselingOffices.mockImplementation(() => Promise.resolve({}));
     selectServiceMemberFromLoggedInUser.mockImplementation(() => serviceMember);
     selectOrdersForLoggedInUser.mockImplementation(() => testProps.orders);
     selectAllMoves.mockImplementation(() => testProps.serviceMemberMoves);
@@ -424,17 +439,18 @@ describe('Orders page', () => {
     });
 
     await screen.findByRole('heading', { level: 1, name: 'Tell us about your move orders' });
-    expect(screen.getByLabelText('Orders type')).toHaveValue('PERMANENT_CHANGE_OF_STATION');
-    expect(screen.getByLabelText('Orders date')).toHaveValue('08 Nov 2020');
-    expect(screen.getByLabelText('Report by date')).toHaveValue('26 Nov 2020');
+    expect(screen.getByLabelText(/Orders type/)).toHaveValue('PERMANENT_CHANGE_OF_STATION');
+    expect(screen.getByLabelText(/Orders date/)).toHaveValue('08 Nov 2020');
+    expect(screen.getByLabelText(/Report by date/)).toHaveValue('26 Nov 2020');
     expect(screen.getByLabelText('Yes')).not.toBeChecked();
     expect(screen.getByLabelText('No')).toBeChecked();
     expect(screen.queryByText('Yuma AFB')).toBeInTheDocument();
-    expect(screen.getByLabelText('Pay grade')).toHaveValue('E_8');
+    expect(screen.getByLabelText(/Pay grade/)).toHaveValue('E_8');
     expect(screen.queryByText('Altus AFB')).toBeInTheDocument();
   });
 
   it('next button patches the orders updates state', async () => {
+    showCounselingOffices.mockImplementation(() => Promise.resolve({}));
     selectServiceMemberFromLoggedInUser.mockImplementation(() => serviceMember);
     selectOrdersForLoggedInUser.mockImplementation(() => testProps.orders);
     selectAllMoves.mockImplementation(() => testProps.serviceMemberMoves);
@@ -484,6 +500,7 @@ describe('Orders page', () => {
   });
 
   it('shows an error if the API returns an error', async () => {
+    showCounselingOffices.mockImplementation(() => Promise.resolve({}));
     selectServiceMemberFromLoggedInUser.mockImplementation(() => serviceMember);
     selectOrdersForLoggedInUser.mockImplementation(() => testProps.orders);
     selectAllMoves.mockImplementation(() => testProps.serviceMemberMoves);

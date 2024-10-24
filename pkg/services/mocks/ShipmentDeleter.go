@@ -18,6 +18,10 @@ type ShipmentDeleter struct {
 func (_m *ShipmentDeleter) DeleteShipment(appCtx appcontext.AppContext, shipmentID uuid.UUID) (uuid.UUID, error) {
 	ret := _m.Called(appCtx, shipmentID)
 
+	if len(ret) == 0 {
+		panic("no return value specified for DeleteShipment")
+	}
+
 	var r0 uuid.UUID
 	var r1 error
 	if rf, ok := ret.Get(0).(func(appcontext.AppContext, uuid.UUID) (uuid.UUID, error)); ok {

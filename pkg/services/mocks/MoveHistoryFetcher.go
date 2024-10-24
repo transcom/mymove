@@ -20,6 +20,10 @@ type MoveHistoryFetcher struct {
 func (_m *MoveHistoryFetcher) FetchMoveHistory(appCtx appcontext.AppContext, params *services.FetchMoveHistoryParams) (*models.MoveHistory, int64, error) {
 	ret := _m.Called(appCtx, params)
 
+	if len(ret) == 0 {
+		panic("no return value specified for FetchMoveHistory")
+	}
+
 	var r0 *models.MoveHistory
 	var r1 int64
 	var r2 error

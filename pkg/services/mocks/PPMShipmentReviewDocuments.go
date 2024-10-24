@@ -20,6 +20,10 @@ type PPMShipmentReviewDocuments struct {
 func (_m *PPMShipmentReviewDocuments) SubmitReviewedDocuments(appCtx appcontext.AppContext, ppmShipmentID uuid.UUID) (*models.PPMShipment, error) {
 	ret := _m.Called(appCtx, ppmShipmentID)
 
+	if len(ret) == 0 {
+		panic("no return value specified for SubmitReviewedDocuments")
+	}
+
 	var r0 *models.PPMShipment
 	var r1 error
 	if rf, ok := ret.Get(0).(func(appcontext.AppContext, uuid.UUID) (*models.PPMShipment, error)); ok {

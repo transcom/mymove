@@ -8,7 +8,7 @@ export const findNextServiceMemberStep = (profileState) => {
     case profileStates.VALIDATION_REQUIRED:
       return customerRoutes.VALIDATION_CODE_PATH;
     case profileStates.EMPTY_PROFILE:
-      return customerRoutes.CONUS_OCONUS_PATH;
+      return customerRoutes.DOD_INFO_PATH;
     case profileStates.DOD_INFO_COMPLETE:
       return customerRoutes.NAME_PATH;
     case profileStates.NAME_COMPLETE:

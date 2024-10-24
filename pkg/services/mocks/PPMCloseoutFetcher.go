@@ -22,6 +22,10 @@ type PPMCloseoutFetcher struct {
 func (_m *PPMCloseoutFetcher) GetActualWeight(ppmShipment *models.PPMShipment) (unit.Pound, error) {
 	ret := _m.Called(ppmShipment)
 
+	if len(ret) == 0 {
+		panic("no return value specified for GetActualWeight")
+	}
+
 	var r0 unit.Pound
 	var r1 error
 	if rf, ok := ret.Get(0).(func(*models.PPMShipment) (unit.Pound, error)); ok {
@@ -45,6 +49,10 @@ func (_m *PPMCloseoutFetcher) GetActualWeight(ppmShipment *models.PPMShipment) (
 // GetPPMCloseout provides a mock function with given fields: appCtx, ppmShipmentID
 func (_m *PPMCloseoutFetcher) GetPPMCloseout(appCtx appcontext.AppContext, ppmShipmentID uuid.UUID) (*models.PPMCloseout, error) {
 	ret := _m.Called(appCtx, ppmShipmentID)
+
+	if len(ret) == 0 {
+		panic("no return value specified for GetPPMCloseout")
+	}
 
 	var r0 *models.PPMCloseout
 	var r1 error

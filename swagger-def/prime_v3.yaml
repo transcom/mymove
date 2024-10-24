@@ -163,6 +163,46 @@ paths:
                         'sitExpected': false,
                       },
                   }
+              boat:
+                summary: Boat Shipment
+                value:
+                  {
+                    "boatShipment": {
+                      "hasTrailer": true,
+                      "heightFeet": 2,
+                      "heightInches": 2,
+                      "isRoadworthy": false,
+                      "lengthFeet": 2,
+                      "lengthInches": 0,
+                      "make": "make",
+                      "model": "model",
+                      "widthFeet": 2,
+                      "widthInches": 2,
+                      "year": 1999
+                    },
+                    "counselorRemarks": "test",
+                    "moveTaskOrderID": "d4d95b22-2d9d-428b-9a11-284455aa87ba",
+                    "shipmentType": "HAUL_AWAY"
+                  }
+              mobileHome:
+                summary: Mobile Home Shipment
+                value:
+                  {
+                    "mobileHomeShipment": {
+                      "heightFeet": 2,
+                      "heightInches": 2,
+                      "lengthFeet": 2,
+                      "lengthInches": 0,
+                      "make": "make",
+                      "model": "model",
+                      "widthFeet": 2,
+                      "widthInches": 2,
+                      "year": 1999
+                    },
+                    "counselorRemarks": "test",
+                    "moveTaskOrderID": "d4d95b22-2d9d-428b-9a11-284455aa87ba",
+                    "shipmentType": "MOBILE_HOME"
+                  }
       responses:
         '200':
           description: Successfully created a MTO shipment.
@@ -355,8 +395,24 @@ definitions:
         description: Where the movers should deliver this shipment.
         allOf:
           - $ref: 'definitions/Address.yaml'
+      secondaryPickupAddress:
+        description: The second address where the movers should pick up this shipment.
+        allOf:
+          - $ref: 'definitions/Address.yaml'
+      tertiaryPickupAddress:
+        description: The third address where the movers should pick up this shipment.
+        allOf:
+          - $ref: 'definitions/Address.yaml'
+      secondaryDestinationAddress:
+        description: The second address where the movers should deliver this shipment.
+        allOf:
+          - $ref: 'definitions/Address.yaml'
+      tertiaryDestinationAddress:
+        description: The third address where the movers should deliver this shipment.
+        allOf:
+          - $ref: 'definitions/Address.yaml'
       shipmentType:
-        $ref: 'definitions/prime/MTOShipmentType.yaml'
+        $ref: 'definitions/prime/v3/MTOShipmentType.yaml'
       diversion:
         description: >
           This value indicates whether or not this shipment is part of a diversion.
@@ -382,6 +438,10 @@ definitions:
         x-nullable: true
       ppmShipment:
         $ref: '#/definitions/CreatePPMShipment'
+      boatShipment:
+        $ref: '#/definitions/CreateBoatShipment'
+      mobileHomeShipment:
+        $ref: '#/definitions/CreateMobileHomeShipment'
     required:
       - moveTaskOrderID
       - shipmentType
@@ -402,12 +462,20 @@ definitions:
         description: An optional secondary pickup location address near the origin where additional goods exist.
         allOf:
           - $ref: 'definitions/Address.yaml'
+      tertiaryPickupAddress:
+        description: An optional tertiary pickup location address near the origin where additional goods exist.
+        allOf:
+          - $ref: 'definitions/Address.yaml'
       destinationAddress:
         description: The address of the destination location where goods are being delivered to.
         allOf:
           - $ref: 'definitions/Address.yaml'
       secondaryDestinationAddress:
         description: An optional secondary address near the destination where goods will be dropped off.
+        allOf:
+          - $ref: 'definitions/Address.yaml'
+      tertiaryDestinationAddress:
+        description: An optional tertiary address near the destination where goods will be dropped off.
         allOf:
           - $ref: 'definitions/Address.yaml'
       sitExpected:
@@ -458,6 +526,72 @@ definitions:
       - sitExpected
       - estimatedWeight
       - hasProGear
+  CreateBoatShipment:
+    description: Creation object containing the `Boat` shipmentType specific data, not used for other shipment types.
+    type: object
+    properties:
+      year:
+        type: integer
+        description: Year of the Boat
+      make:
+        type: string
+        description: Make of the Boat
+      model:
+        type: string
+        description: Model of the Boat
+      lengthInInches:
+        type: integer
+        description: Length of the Boat in inches
+      widthInInches:
+        type: integer
+        description: Width of the Boat in inches
+      heightInInches:
+        type: integer
+        description: Height of the Boat in inches
+      hasTrailer:
+        type: boolean
+        description: Does the boat have a trailer
+      isRoadworthy:
+        type: boolean
+        description: Is the trailer roadworthy
+        x-nullable: true
+    required:
+      - year
+      - make
+      - model
+      - lengthInInches
+      - widthInInches
+      - heightInInches
+      - hasTrailer
+  CreateMobileHomeShipment:
+    description: Creation object containing the `MobileHome` shipmentType specific data, not used for other shipment types.
+    type: object
+    properties:
+      year:
+        type: integer
+        description: Year of the Mobile Home
+      make:
+        type: string
+        description: Make of the Mobile Home
+      model:
+        type: string
+        description: Model of the Mobile Home
+      lengthInInches:
+        type: integer
+        description: Length of the Mobile Home in inches
+      widthInInches:
+        type: integer
+        description: Width of the Mobile Home in inches
+      heightInInches:
+        type: integer
+        description: Height of the Mobile Home in inches
+    required:
+      - year
+      - make
+      - model
+      - lengthInInches
+      - widthInInches
+      - heightInInches
   MTOShipment:
     type: object
     properties:

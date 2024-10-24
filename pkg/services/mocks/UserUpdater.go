@@ -22,6 +22,10 @@ type UserUpdater struct {
 func (_m *UserUpdater) UpdateUser(appCtx appcontext.AppContext, id uuid.UUID, user *models.User) (*models.User, *validate.Errors, error) {
 	ret := _m.Called(appCtx, id, user)
 
+	if len(ret) == 0 {
+		panic("no return value specified for UpdateUser")
+	}
+
 	var r0 *models.User
 	var r1 *validate.Errors
 	var r2 error
