@@ -1009,3 +1009,4 @@
 20241002170242_add_ub_shipment_type.up.sql
 20241004203140_update_addresses_is_oconus.up.sql
 20241007162933_addPaymentRequestEdiFiles.up.sql
+20241008212243_populate_market_code_on_shipments_table.up.sql

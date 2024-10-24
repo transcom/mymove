@@ -66,6 +66,11 @@ type MTOShipment struct {
 	// Format: uuid
 	ID strfmt.UUID `json:"id,omitempty"`
 
+	// Single-letter designator for domestic (d) or international (i) shipments
+	// Example: d
+	// Enum: [d i]
+	MarketCode string `json:"marketCode,omitempty"`
+
 	// move task order ID
 	// Example: 1f2270c7-7166-40ae-981e-b200ebdf3054
 	// Read Only: true
@@ -171,6 +176,8 @@ func (m *MTOShipment) UnmarshalJSON(raw []byte) error {
 
 		ID strfmt.UUID `json:"id,omitempty"`
 
+		MarketCode string `json:"marketCode,omitempty"`
+
 		MoveTaskOrderID strfmt.UUID `json:"moveTaskOrderID,omitempty"`
 
 		MtoServiceItems json.RawMessage `json:"mtoServiceItems"`
@@ -256,6 +263,9 @@ func (m *MTOShipment) UnmarshalJSON(raw []byte) error {
 	// id
 	result.ID = data.ID
 
+	// marketCode
+	result.MarketCode = data.MarketCode
+
 	// moveTaskOrderID
 	result.MoveTaskOrderID = data.MoveTaskOrderID
 
@@ -340,6 +350,8 @@ func (m MTOShipment) MarshalJSON() ([]byte, error) {
 
 		ID strfmt.UUID `json:"id,omitempty"`
 
+		MarketCode string `json:"marketCode,omitempty"`
+
 		MoveTaskOrderID strfmt.UUID `json:"moveTaskOrderID,omitempty"`
 
 		PickupAddress *Address `json:"pickupAddress,omitempty"`
@@ -394,6 +406,8 @@ func (m MTOShipment) MarshalJSON() ([]byte, error) {
 		FirstAvailableDeliveryDate: m.FirstAvailableDeliveryDate,
 
 		ID: m.ID,
+
+		MarketCode: m.MarketCode,
 
 		MoveTaskOrderID: m.MoveTaskOrderID,
 
@@ -474,6 +488,10 @@ func (m *MTOShipment) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validateID(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateMarketCode(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -629,6 +647,48 @@ func (m *MTOShipment) validateID(formats strfmt.Registry) error {
 	}
 
 	if err := validate.FormatOf("id", "body", "uuid", m.ID.String(), formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+var mTOShipmentTypeMarketCodePropEnum []interface{}
+
+func init() {
+	var res []string
+	if err := json.Unmarshal([]byte(`["d","i"]`), &res); err != nil {
+		panic(err)
+	}
+	for _, v := range res {
+		mTOShipmentTypeMarketCodePropEnum = append(mTOShipmentTypeMarketCodePropEnum, v)
+	}
+}
+
+const (
+
+	// MTOShipmentMarketCodeD captures enum value "d"
+	MTOShipmentMarketCodeD string = "d"
+
+	// MTOShipmentMarketCodeI captures enum value "i"
+	MTOShipmentMarketCodeI string = "i"
+)
+
+// prop value enum
+func (m *MTOShipment) validateMarketCodeEnum(path, location string, value string) error {
+	if err := validate.EnumCase(path, location, value, mTOShipmentTypeMarketCodePropEnum, true); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (m *MTOShipment) validateMarketCode(formats strfmt.Registry) error {
+	if swag.IsZero(m.MarketCode) { // not required
+		return nil
+	}
+
+	// value enum
+	if err := m.validateMarketCodeEnum("marketCode", "body", m.MarketCode); err != nil {
 		return err
 	}
 
