@@ -360,12 +360,6 @@ func PPMShipmentModelFromCreate(ppmShipment *primev3messages.CreatePPMShipment) 
 		model.HasTertiaryDestinationAddress = handlers.FmtBool(true)
 	}
 
-	addressModel = AddressModel(&ppmShipment.TertiaryDestinationAddress.Address)
-	if addressModel != nil {
-		model.TertiaryDestinationAddress = addressModel
-		model.HasTertiaryDestinationAddress = handlers.FmtBool(true)
-	}
-
 	if model.SITExpected != nil && *model.SITExpected {
 		if ppmShipment.SitLocation != nil {
 			sitLocation := models.SITLocationType(*ppmShipment.SitLocation)
