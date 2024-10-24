@@ -42,11 +42,16 @@
     flex-direction: row;
     justify-content: space-between;
     align-items: baseline;
-    padding-bottom: 30px;
   }
 
   .tooMoveDetailsH1 {
     @include u-margin-bottom(0);
+    align-self: center;
+  }
+
+  .tooCancelMoveContainer {
+    @include u-margin-bottom(3);
+    padding-left: 810px;
   }
 
   .gridContainer {

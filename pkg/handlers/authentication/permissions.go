@@ -40,6 +40,7 @@ var TOO = RolePermissions{
 		"update.closeoutOffice",
 		"update.MTOPage",
 		"create.TXOShipment",
+		"update.cancelMoveFlag",
 	},
 }
 
@@ -86,6 +87,7 @@ var ServicesCounselor = RolePermissions{
 		"update.customer",
 		"update.closeoutOffice",
 		"view.closeoutOffice",
+		"update.cancelMoveFlag",
 	},
 }
 
