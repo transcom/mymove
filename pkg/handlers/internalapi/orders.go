@@ -72,6 +72,15 @@ func payloadForOrdersModel(storer storage.FileStorer, order models.Order) (*inte
 		dBAuthorizedWeight = models.Int64Pointer(int64(*order.Entitlement.AuthorizedWeight()))
 		entitlement.ProGear = models.Int64Pointer(int64(order.Entitlement.ProGearWeight))
 		entitlement.ProGearSpouse = models.Int64Pointer(int64(order.Entitlement.ProGearWeightSpouse))
+		if order.Entitlement.AccompaniedTour != nil {
+			entitlement.AccompaniedTour = models.BoolPointer(*order.Entitlement.AccompaniedTour)
+		}
+		if order.Entitlement.DependentsUnderTwelve != nil {
+			entitlement.DependentsUnderTwelve = models.Int64Pointer(int64(*order.Entitlement.DependentsUnderTwelve))
+		}
+		if order.Entitlement.DependentsTwelveAndOver != nil {
+			entitlement.DependentsTwelveAndOver = models.Int64Pointer(int64(*order.Entitlement.DependentsTwelveAndOver))
+		}
 	}
 	var originDutyLocation models.DutyLocation
 	originDutyLocation = models.DutyLocation{}
@@ -398,8 +407,8 @@ func (h UpdateOrdersHandler) Handle(params ordersop.UpdateOrdersParams) middlewa
 			order.TAC = payload.Tac
 			order.SAC = payload.Sac
 
-			// Check if the grade is receiving an update
-			if order.Grade != payload.Grade {
+			// Check if the grade or dependents are receiving an update
+			if hasEntitlementChanged(order, payload.Grade, payload.DependentsUnderTwelve, payload.DependentsTwelveAndOver, payload.AccompaniedTour) {
 				weightAllotment := models.GetWeightAllotment(*payload.Grade)
 				weight := weightAllotment.TotalWeightSelf
 				if *payload.HasDependents {
@@ -409,13 +418,26 @@ func (h UpdateOrdersHandler) Handle(params ordersop.UpdateOrdersParams) middlewa
 				// Assign default SIT allowance based on customer type.
 				// We only have service members right now, but once we introduce more, this logic will have to change.
 				sitDaysAllowance := models.DefaultServiceMemberSITDaysAllowance
+				var dependentsTwelveAndOver *int
+				var dependentsUnderTwelve *int
+				if payload.DependentsTwelveAndOver != nil {
+					// Convert from int64 to int
+					dependentsTwelveAndOver = models.IntPointer(int(*payload.DependentsTwelveAndOver))
+				}
+				if payload.DependentsUnderTwelve != nil {
+					// Convert from int64 to int
+					dependentsUnderTwelve = models.IntPointer(int(*payload.DependentsUnderTwelve))
+				}
 
 				entitlement := models.Entitlement{
-					DependentsAuthorized: payload.HasDependents,
-					DBAuthorizedWeight:   models.IntPointer(weight),
-					StorageInTransit:     models.IntPointer(sitDaysAllowance),
-					ProGearWeight:        weightAllotment.ProGearWeight,
-					ProGearWeightSpouse:  weightAllotment.ProGearWeightSpouse,
+					DependentsAuthorized:    payload.HasDependents,
+					DBAuthorizedWeight:      models.IntPointer(weight),
+					StorageInTransit:        models.IntPointer(sitDaysAllowance),
+					ProGearWeight:           weightAllotment.ProGearWeight,
+					ProGearWeightSpouse:     weightAllotment.ProGearWeightSpouse,
+					DependentsUnderTwelve:   dependentsUnderTwelve,
+					DependentsTwelveAndOver: dependentsTwelveAndOver,
+					AccompaniedTour:         payload.AccompaniedTour,
 				}
 
 				/*
@@ -448,6 +470,42 @@ func (h UpdateOrdersHandler) Handle(params ordersop.UpdateOrdersParams) middlewa
 			}
 			return ordersop.NewUpdateOrdersOK().WithPayload(orderPayload), nil
 		})
+}
+
+// Helper func for the UpdateOrdersHandler to check if the entitlement has changed from the new payload
+// This handles the nil checks and value comparisons outside of the handler func for organization
+func hasEntitlementChanged(order models.Order, payloadPayGrade *internalmessages.OrderPayGrade, payloadDependentsUnderTwelve *int64, payloadDependentsTwelveAndOver *int64, payloadAccompaniedTour *bool) bool {
+	// Check pay grade
+	if (order.Grade == nil && payloadPayGrade != nil) || (order.Grade != nil && payloadPayGrade == nil) || (order.Grade != nil && payloadPayGrade != nil && *order.Grade != *payloadPayGrade) {
+		return true
+	}
+
+	// Check entitlement
+	if order.Entitlement != nil {
+		// Check dependents under twelve
+		if (order.Entitlement.DependentsUnderTwelve == nil && payloadDependentsUnderTwelve != nil) ||
+			(order.Entitlement.DependentsUnderTwelve != nil && payloadDependentsUnderTwelve == nil) ||
+			(order.Entitlement.DependentsUnderTwelve != nil && payloadDependentsUnderTwelve != nil && *order.Entitlement.DependentsUnderTwelve != int(*payloadDependentsUnderTwelve)) {
+			return true
+		}
+
+		// Check dependents twelve and over
+		if (order.Entitlement.DependentsTwelveAndOver == nil && payloadDependentsTwelveAndOver != nil) ||
+			(order.Entitlement.DependentsTwelveAndOver != nil && payloadDependentsTwelveAndOver == nil) ||
+			(order.Entitlement.DependentsTwelveAndOver != nil && payloadDependentsTwelveAndOver != nil && *order.Entitlement.DependentsTwelveAndOver != int(*payloadDependentsTwelveAndOver)) {
+			return true
+		}
+
+		// Check accompanied tour
+		if (order.Entitlement.AccompaniedTour == nil && payloadAccompaniedTour != nil) ||
+			(order.Entitlement.AccompaniedTour != nil && payloadAccompaniedTour == nil) ||
+			(order.Entitlement.AccompaniedTour != nil && payloadAccompaniedTour != nil && *order.Entitlement.AccompaniedTour != *payloadAccompaniedTour) {
+			return true
+		}
+
+	}
+
+	return false
 }
 
 // UploadAmendedOrdersHandler uploads amended orders to an order via PATCH /orders/{orderId}/upload_amended_orders
