@@ -1559,8 +1559,10 @@ definitions:
         type: string
         title: Country
         x-nullable: true
-        example: USA
-        default: USA
+        example: US
+        default: US
+        pattern: ^[A-Z]{2}$
+        description: Two-letter country code
       county:
         type: string
         title: County
@@ -2367,10 +2369,9 @@ definitions:
       - HHG
       - HHG_INTO_NTS_DOMESTIC
       - HHG_OUTOF_NTS_DOMESTIC
-      - INTERNATIONAL_HHG
-      - INTERNATIONAL_UB
       - MOBILE_HOME
       - PPM
+      - UNACCOMPANIED_BAGGAGE
     x-display-value:
       HHG: Household goods move (HHG)
       HHG_INTO_NTS_DOMESTIC: HHG into Non-temporary storage (NTS)
@@ -2380,6 +2381,7 @@ definitions:
         Boat shipment that requires additional equipment to haul it to it's
         destination
       BOAT_TOW_AWAY: Boat shipment that has a road-worthy trailer
+      UNACCOMPANIED_BAGGAGE: Unaccompanied Baggage
   PPMShipmentStatus:
     description: |
       Status of the PPM Shipment:
