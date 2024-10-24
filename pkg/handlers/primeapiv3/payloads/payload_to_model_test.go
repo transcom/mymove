@@ -929,18 +929,18 @@ func (suite *PayloadsSuite) TestBoatShipmentModelFromCreate() {
 			BoatShipment:    boatShipment,
 		}
 
-		returnedBoatHaulAway, _ := BoatShipmentModelFromCreate(&mtoShipment)
+		returnedBoatTowAway, _ := BoatShipmentModelFromCreate(&mtoShipment)
 
-		suite.IsType(&models.BoatShipment{}, returnedBoatHaulAway)
+		suite.IsType(&models.BoatShipment{}, returnedBoatTowAway)
 
-		suite.Equal(expectedBoatTowAway.Make, returnedBoatHaulAway.Make)
-		suite.Equal(expectedBoatTowAway.Model, returnedBoatHaulAway.Model)
-		suite.Equal(expectedBoatTowAway.Year, returnedBoatHaulAway.Year)
-		suite.Equal(expectedBoatTowAway.LengthInInches, returnedBoatHaulAway.LengthInInches)
-		suite.Equal(expectedBoatTowAway.HeightInInches, returnedBoatHaulAway.HeightInInches)
-		suite.Equal(expectedBoatTowAway.WidthInInches, returnedBoatHaulAway.WidthInInches)
-		suite.Equal(expectedBoatTowAway.HasTrailer, returnedBoatHaulAway.HasTrailer)
-		suite.Equal(expectedBoatTowAway.IsRoadworthy, returnedBoatHaulAway.IsRoadworthy)
+		suite.Equal(expectedBoatTowAway.Make, returnedBoatTowAway.Make)
+		suite.Equal(expectedBoatTowAway.Model, returnedBoatTowAway.Model)
+		suite.Equal(expectedBoatTowAway.Year, returnedBoatTowAway.Year)
+		suite.Equal(expectedBoatTowAway.LengthInInches, returnedBoatTowAway.LengthInInches)
+		suite.Equal(expectedBoatTowAway.HeightInInches, returnedBoatTowAway.HeightInInches)
+		suite.Equal(expectedBoatTowAway.WidthInInches, returnedBoatTowAway.WidthInInches)
+		suite.Equal(expectedBoatTowAway.HasTrailer, returnedBoatTowAway.HasTrailer)
+		suite.Equal(expectedBoatTowAway.IsRoadworthy, returnedBoatTowAway.IsRoadworthy)
 	})
 }
 
