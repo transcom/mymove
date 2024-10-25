@@ -80,6 +80,14 @@ func (m MoveCounseled) emails(appCtx appcontext.AppContext) ([]emailContent, err
 		destinationAddress = fmt.Sprintf("%s%s%s, %s, %s %s", mtoShipDestinationAddress.StreetAddress1, streetAddr2, streetAddr3, mtoShipDestinationAddress.City, mtoShipDestinationAddress.State, mtoShipDestinationAddress.PostalCode)
 	}
 
+	var actualExpenseReimbursement bool
+	for i := 0; i <= len(move.MTOShipments); i++ {
+		if move.MTOShipments[i].PPMShipment.IsActualExpenseReimbursement == &actualExpenseReimbursement {
+			actualExpenseReimbursement = true
+		}
+		actualExpenseReimbursement = false
+	}
+
 	if serviceMember.PersonalEmail == nil {
 		return emails, fmt.Errorf("no email found for service member")
 	}
@@ -89,7 +97,7 @@ func (m MoveCounseled) emails(appCtx appcontext.AppContext) ([]emailContent, err
 		DestinationLocation:        destinationAddress,
 		Locator:                    move.Locator,
 		MyMoveLink:                 MyMoveLink,
-		ActualExpenseReimbursement: true,
+		ActualExpenseReimbursement: actualExpenseReimbursement,
 	})
 
 	if err != nil {
