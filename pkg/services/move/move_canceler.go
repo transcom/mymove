@@ -39,7 +39,7 @@ func (f *moveCanceler) CancelMove(appCtx appcontext.AppContext, moveID uuid.UUID
 
 			if shipment.PPMShipment != nil {
 				if shipment.PPMShipment.Status == models.PPMShipmentStatusCloseoutComplete {
-					return apperror.NewConflictError(move.ID, " cannot cancel move with approved shipment.")
+					return apperror.NewConflictError(move.ID, " cannot cancel move with a closeout complete shipment.")
 				}
 				var ppmshipment models.PPMShipment
 				qerr := appCtx.DB().Where("id = ?", shipment.PPMShipment.ID).First(&ppmshipment)
@@ -55,9 +55,7 @@ func (f *moveCanceler) CancelMove(appCtx appcontext.AppContext, moveID uuid.UUID
 				} else if err != nil {
 					return apperror.NewQueryError("PPM Shipment", err, "Failed to update status for ppm shipment")
 				}
-			}
-
-			if shipment.Status != models.MTOShipmentStatusApproved {
+			} else if shipment.Status != models.MTOShipmentStatusApproved {
 				verrs, err := txnAppCtx.DB().ValidateAndUpdate(&shipmentDelta)
 				if verrs != nil && verrs.HasAny() {
 					return apperror.NewInvalidInputError(shipment.ID, err, verrs, "Validation errors found while setting shipment status")

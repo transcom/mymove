@@ -356,3 +356,62 @@ func (h SubmitEvaluationReportHandler) Handle(params evaluationReportop.SubmitEv
 			return evaluationReportop.NewSubmitEvaluationReportNoContent(), nil
 		})
 }
+
+type AddAppealToViolationHandler struct {
+	handlers.HandlerConfig
+	services.ReportViolationsAddAppeal
+}
+
+func (h AddAppealToViolationHandler) Handle(params evaluationReportop.AddAppealToViolationParams) middleware.Responder {
+	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
+		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
+			payload := params.Body
+			if payload.AppealStatus == "" || payload.Remarks == "" {
+				err := apperror.NewBadDataError("appeal status and remarks are required to add an appeal")
+				appCtx.Logger().Error(err.Error())
+				return evaluationReportop.NewAddAppealToViolationForbidden(), err
+			}
+
+			if !appCtx.Session().IsOfficeUser() {
+				err := apperror.NewForbiddenError("not an office user")
+				appCtx.Logger().Error(err.Error())
+				return evaluationReportop.NewAddAppealToViolationForbidden(), err
+			}
+
+			reportID, err := uuid.FromString(params.ReportID.String())
+			if err != nil {
+				return evaluationReportop.NewAddAppealToViolationUnprocessableEntity(), err
+			}
+			fmt.Print(reportID)
+			reportViolationID, err := uuid.FromString(params.ReportViolationID.String())
+			if err != nil {
+				return evaluationReportop.NewAddAppealToViolationUnprocessableEntity(), err
+			}
+			fmt.Print(reportViolationID)
+			var officeUserID uuid.UUID
+			if appCtx.Session() != nil {
+				officeUserID = appCtx.Session().OfficeUserID
+			}
+			fmt.Print(officeUserID)
+
+			_, err = h.AddAppealToViolation(appCtx, reportID, reportViolationID, officeUserID, payload.Remarks, payload.AppealStatus)
+			if err != nil {
+				appCtx.Logger().Error("Error adding appeal to violation: ", zap.Error(err))
+
+				switch err.(type) {
+				case apperror.NotFoundError:
+					return evaluationReportop.NewAddAppealToViolationNotFound(), err
+				case apperror.PreconditionFailedError:
+					return evaluationReportop.NewAddAppealToViolationPreconditionFailed(), err
+				case apperror.ForbiddenError:
+					return evaluationReportop.NewAddAppealToViolationForbidden(), err
+				case apperror.InvalidInputError:
+					return evaluationReportop.NewAddAppealToViolationUnprocessableEntity(), err
+				default:
+					return evaluationReportop.NewAddAppealToViolationInternalServerError(), err
+				}
+			}
+
+			return evaluationReportop.NewAddAppealToViolationNoContent(), nil
+		})
+}

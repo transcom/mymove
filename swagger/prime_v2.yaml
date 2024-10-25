@@ -715,6 +715,10 @@ definitions:
         x-nullable: true
       ppmShipment:
         $ref: '#/definitions/CreatePPMShipment'
+      boatShipment:
+        $ref: '#/definitions/CreateBoatShipment'
+      mobileHomeShipment:
+        $ref: '#/definitions/CreateMobileHomeShipment'
     required:
       - moveTaskOrderID
       - shipmentType
@@ -789,6 +793,14 @@ definitions:
           The estimated weight of the pro-gear being moved belonging to a spouse
           in pounds.
         type: integer
+        x-nullable: true
+      isActualExpenseReimbursement:
+        description: >-
+          Used for PPM shipments only. Denotes if this shipment uses the Actual
+          Expense Reimbursement method.
+        type: boolean
+        example: false
+        x-omitempty: false
         x-nullable: true
     required:
       - expectedDepartureDate
@@ -1015,6 +1027,14 @@ definitions:
           The estimated weight of the pro-gear being moved belonging to a
           spouse.
         type: integer
+        x-nullable: true
+      isActualExpenseReimbursement:
+        description: >-
+          Used for PPM shipments only. Denotes if this shipment uses the Actual
+          Expense Reimbursement method.
+        type: boolean
+        example: false
+        x-omitempty: false
         x-nullable: true
   UpdateMTOShipment:
     properties:
@@ -2512,6 +2532,14 @@ definitions:
         format: cents
         x-nullable: true
         x-omitempty: false
+      isActualExpenseReimbursement:
+        description: >-
+          Used for PPM shipments only. Denotes if this shipment uses the Actual
+          Expense Reimbursement method.
+        type: boolean
+        example: false
+        x-omitempty: false
+        x-nullable: true
       eTag:
         description: >-
           A hash unique to this shipment that should be used as the "If-Match"
