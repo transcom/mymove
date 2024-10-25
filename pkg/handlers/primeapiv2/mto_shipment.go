@@ -72,6 +72,23 @@ func (h CreateMTOShipmentHandler) Handle(params mtoshipmentops.CreateMTOShipment
 					"Mobile Home shipment type was used but the feature flagMH is not enabled.", h.GetTraceIDFromRequest(params.HTTPRequest), nil)), nil
 			}
 
+			/** Feature Flag - UB Shipment **/
+			const featureFlagNameUB = "unaccompanied_baggage"
+			isUBFeatureOn := false
+			flag, err = h.FeatureFlagFetcher().GetBooleanFlag(params.HTTPRequest.Context(), appCtx.Logger(), "", featureFlagNameUB, map[string]string{})
+
+			if err != nil {
+				appCtx.Logger().Error("Error fetching feature flag", zap.String("featureFlagKey", featureFlagNameUB), zap.Error(err))
+			} else {
+				isUBFeatureOn = flag.Match
+			}
+
+			// Return an error if UB shipment is sent while the feature flag is turned off.
+			if !isUBFeatureOn && (*params.Body.ShipmentType == primev2messages.MTOShipmentTypeUNACCOMPANIEDBAGGAGE) {
+				return mtoshipmentops.NewCreateMTOShipmentUnprocessableEntity().WithPayload(payloads.ValidationError(
+					"Unaccompanied baggage shipments can't be created unless the unaccompanied_baggage feature flag is enabled.", h.GetTraceIDFromRequest(params.HTTPRequest), nil)), nil
+			}
+
 			for _, mtoServiceItem := range params.Body.MtoServiceItems() {
 				// restrict creation to a list
 				if _, ok := CreateableServiceItemMap[mtoServiceItem.ModelType()]; !ok {

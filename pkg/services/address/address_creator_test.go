@@ -161,4 +161,22 @@ func (suite *AddressSuite) TestAddressCreator() {
 		suite.Nil(err)
 		suite.NotNil(address.Country)
 	})
+
+	suite.Run("Successfully creates a CONUS address", func() {
+		country := &models.Country{}
+		country.Country = "US"
+		addressCreator := NewAddressCreator()
+		address, err := addressCreator.CreateAddress(suite.AppContextForTest(), &models.Address{
+			StreetAddress1: "7645 Ballinshire N",
+			City:           "Indianapolis",
+			State:          "IN",
+			PostalCode:     "46254",
+			Country:        country,
+		})
+
+		suite.False(*address.IsOconus)
+		suite.NotNil(address.ID)
+		suite.Nil(err)
+		suite.NotNil(address.Country)
+	})
 }
