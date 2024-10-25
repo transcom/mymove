@@ -4200,7 +4200,7 @@ func init() {
           },
           {
             "enum": [
-              "lastName",
+              "customerName",
               "dodID",
               "emplid",
               "branch",
@@ -4248,7 +4248,7 @@ func init() {
           {
             "type": "string",
             "description": "filters using a prefix match on the service member's last name",
-            "name": "lastName",
+            "name": "customerName",
             "in": "query"
           },
           {
@@ -4454,7 +4454,7 @@ func init() {
           },
           {
             "enum": [
-              "lastName",
+              "customerName",
               "dodID",
               "emplid",
               "branch",
@@ -4493,7 +4493,7 @@ func init() {
           },
           {
             "type": "string",
-            "name": "lastName",
+            "name": "customerName",
             "in": "query"
           },
           {
@@ -4597,7 +4597,7 @@ func init() {
         "parameters": [
           {
             "enum": [
-              "lastName",
+              "customerName",
               "locator",
               "submittedAt",
               "branch",
@@ -4605,8 +4605,7 @@ func init() {
               "dodID",
               "emplid",
               "age",
-              "originDutyLocation",
-              "assignedTo"
+              "originDutyLocation"
             ],
             "type": "string",
             "description": "field that results should be sorted by",
@@ -4654,7 +4653,7 @@ func init() {
           },
           {
             "type": "string",
-            "name": "lastName",
+            "name": "customerName",
             "in": "query"
           },
           {
@@ -19907,7 +19906,7 @@ func init() {
           },
           {
             "enum": [
-              "lastName",
+              "customerName",
               "dodID",
               "emplid",
               "branch",
@@ -19955,7 +19954,7 @@ func init() {
           {
             "type": "string",
             "description": "filters using a prefix match on the service member's last name",
-            "name": "lastName",
+            "name": "customerName",
             "in": "query"
           },
           {
@@ -20173,7 +20172,7 @@ func init() {
           },
           {
             "enum": [
-              "lastName",
+              "customerName",
               "dodID",
               "emplid",
               "branch",
@@ -20212,7 +20211,7 @@ func init() {
           },
           {
             "type": "string",
-            "name": "lastName",
+            "name": "customerName",
             "in": "query"
           },
           {
@@ -20322,7 +20321,7 @@ func init() {
         "parameters": [
           {
             "enum": [
-              "lastName",
+              "customerName",
               "locator",
               "submittedAt",
               "branch",
@@ -20330,8 +20329,7 @@ func init() {
               "dodID",
               "emplid",
               "age",
-              "originDutyLocation",
-              "assignedTo"
+              "originDutyLocation"
             ],
             "type": "string",
             "description": "field that results should be sorted by",
@@ -20379,7 +20377,7 @@ func init() {
           },
           {
             "type": "string",
-            "name": "lastName",
+            "name": "customerName",
             "in": "query"
           },
           {

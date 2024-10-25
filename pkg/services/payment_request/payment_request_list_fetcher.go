@@ -2,6 +2,7 @@ package paymentrequest
 
 import (
 	"fmt"
+	"regexp"
 	"strings"
 	"time"
 
@@ -19,7 +20,7 @@ type paymentRequestListFetcher struct {
 }
 
 var parameters = map[string]string{
-	"lastName":           "service_members.last_name",
+	"customerName":       "(service_members.last_name || ' ' || service_members.first_name)",
 	"dodID":              "service_members.edipi",
 	"emplid":             "service_members.emplid",
 	"submittedAt":        "payment_requests.created_at",
@@ -95,7 +96,7 @@ func (f *paymentRequestListFetcher) FetchPaymentRequestList(appCtx appcontext.Ap
 	locatorQuery := locatorFilter(params.Locator)
 	dodIDQuery := dodIDFilter(params.DodID)
 	emplidQuery := emplidFilter(params.Emplid)
-	lastNameQuery := lastNameFilter(params.LastName)
+	nameQuery := nameFilter(params.CustomerName)
 	dutyLocationQuery := destinationDutyLocationFilter(params.DestinationDutyLocation)
 	statusQuery := paymentRequestsStatusFilter(params.Status)
 	submittedAtQuery := submittedAtFilter(params.SubmittedAt)
@@ -103,7 +104,7 @@ func (f *paymentRequestListFetcher) FetchPaymentRequestList(appCtx appcontext.Ap
 	orderQuery := sortOrder(params.Sort, params.Order)
 	tioAssignedUserQuery := tioAssignedUserFilter(params.TIOAssignedUser)
 
-	options := [12]QueryOption{branchQuery, locatorQuery, dodIDQuery, lastNameQuery, dutyLocationQuery, statusQuery, originDutyLocationQuery, submittedAtQuery, gblocQuery, orderQuery, emplidQuery, tioAssignedUserQuery}
+	options := [12]QueryOption{branchQuery, locatorQuery, dodIDQuery, nameQuery, dutyLocationQuery, statusQuery, originDutyLocationQuery, submittedAtQuery, gblocQuery, orderQuery, emplidQuery, tioAssignedUserQuery}
 
 	for _, option := range options {
 		if option != nil {
@@ -315,12 +316,17 @@ func branchFilter(branch *string) QueryOption {
 	}
 }
 
-func lastNameFilter(lastName *string) QueryOption {
+func nameFilter(name *string) QueryOption {
 	return func(query *pop.Query) {
-		if lastName != nil {
-			nameSearch := fmt.Sprintf("%s%%", *lastName)
-			query.Where("service_members.last_name ILIKE ?", nameSearch)
+		if name == nil {
+			return
 		}
+		// Remove "," that user may enter between names (displayed on frontend column)
+		nameQueryParam := *name
+		removeCharsRegex := regexp.MustCompile("[,]+")
+		nameQueryParam = removeCharsRegex.ReplaceAllString(nameQueryParam, "")
+		nameQueryParam = fmt.Sprintf("%%%s%%", nameQueryParam)
+		query.Where("(service_members.last_name || ' ' || service_members.first_name) ILIKE ?", nameQueryParam)
 	}
 }
 

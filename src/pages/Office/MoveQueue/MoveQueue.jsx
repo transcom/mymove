@@ -62,20 +62,13 @@ export const columns = (moveLockFlag, isQueueManagementEnabled, showBranchFilter
         );
       },
       {
-        id: 'lastName',
+        id: 'customerName',
         isFilterable: true,
         exportValue: (row) => {
-          return `${row.customer.last_name}, ${row.customer.first_name}`;
+          return row.customer.dodID;
         },
       },
     ),
-    createHeader('DoD ID', 'customer.dodID', {
-      id: 'dodID',
-      isFilterable: true,
-      exportValue: (row) => {
-        return row.customer.dodID;
-      },
-    }),
     createHeader('EMPLID', 'customer.emplid', {
       id: 'emplid',
       isFilterable: true,

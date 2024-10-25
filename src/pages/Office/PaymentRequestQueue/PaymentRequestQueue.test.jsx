@@ -254,11 +254,11 @@ describe('PaymentRequestQueue', () => {
 
     expect(wrapper.find({ 'data-testid': 'age' }).at(0).hasClass('sortAscending')).toBe(true);
 
-    const nameHeading = wrapper.find({ 'data-testid': 'lastName' }).at(0);
+    const nameHeading = wrapper.find({ 'data-testid': 'customerName' }).at(0);
     nameHeading.simulate('click');
     wrapper.update();
 
-    expect(wrapper.find({ 'data-testid': 'lastName' }).at(0).hasClass('sortAscending')).toBe(true);
+    expect(wrapper.find({ 'data-testid': 'customerName' }).at(0).hasClass('sortAscending')).toBe(true);
   });
 
   it('displays the payment request ', async () => {
