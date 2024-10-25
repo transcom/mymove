@@ -101,6 +101,34 @@ func (suite *ModelSuite) TestIsAddressOconusForAKState() {
 	suite.Equal(true, result)
 }
 
+func (suite *ModelSuite) TestAddressFormat() {
+	country := factory.FetchOrBuildCountry(suite.DB(), nil, nil)
+	newAddress := &m.Address{
+		StreetAddress1: "street 1",
+		StreetAddress2: m.StringPointer("street 2"),
+		StreetAddress3: m.StringPointer("street 3"),
+		City:           "city",
+		State:          "state",
+		PostalCode:     "90210",
+		County:         "County",
+		Country:        &country,
+		CountryId:      &country.ID,
+	}
+
+	verrs, err := newAddress.Validate(nil)
+
+	suite.NoError(err)
+	suite.False(verrs.HasAny(), "Error validating model")
+
+	formattedAddress := newAddress.Format()
+
+	suite.Equal("street 1\nstreet 2\nstreet 3\ncity, state 90210", formattedAddress)
+
+	formattedAddress = newAddress.LineFormat()
+
+	suite.Equal("street 1, street 2, street 3, city, state, 90210, UNITED STATES", formattedAddress)
+}
+
 func (suite *ModelSuite) TestAddressIsEmpty() {
 	suite.Run("empty whitespace address", func() {
 		testAddress := m.Address{

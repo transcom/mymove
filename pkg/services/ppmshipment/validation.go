@@ -86,6 +86,7 @@ func mergePPMShipment(newPPMShipment models.PPMShipment, oldPPMShipment *models.
 	ppmShipment.FinalIncentive = services.SetNoNilOptionalCentField(newPPMShipment.FinalIncentive, ppmShipment.FinalIncentive)
 	ppmShipment.HasReceivedAdvance = services.SetNoNilOptionalBoolField(newPPMShipment.HasReceivedAdvance, ppmShipment.HasReceivedAdvance)
 	ppmShipment.AdvanceAmountReceived = services.SetNoNilOptionalCentField(newPPMShipment.AdvanceAmountReceived, ppmShipment.AdvanceAmountReceived)
+	ppmShipment.IsActualExpenseReimbursement = services.SetNoNilOptionalBoolField(newPPMShipment.IsActualExpenseReimbursement, ppmShipment.IsActualExpenseReimbursement)
 
 	ppmShipment.SITExpected = services.SetNoNilOptionalBoolField(newPPMShipment.SITExpected, ppmShipment.SITExpected)
 	ppmShipment.SITEstimatedWeight = services.SetNoNilOptionalPoundField(newPPMShipment.SITEstimatedWeight, ppmShipment.SITEstimatedWeight)

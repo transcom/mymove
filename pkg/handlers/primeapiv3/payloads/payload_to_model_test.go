@@ -628,13 +628,14 @@ func (suite *PayloadsSuite) TestPPMShipmentModelFromCreate() {
 		DestinationAddress: struct {
 			primev3messages.PPMDestinationAddress
 		}{destinationAddress},
-		SecondaryDestinationAddress: struct{ primev3messages.Address }{secondaryDestinationAddress},
-		TertiaryDestinationAddress:  struct{ primev3messages.Address }{tertiaryDestinationAddress},
-		SitExpected:                 &sitExpected,
-		EstimatedWeight:             &estimatedWeight,
-		HasProGear:                  &hasProGear,
-		ProGearWeight:               &proGearWeight,
-		SpouseProGearWeight:         &spouseProGearWeight,
+		SecondaryDestinationAddress:  struct{ primev3messages.Address }{secondaryDestinationAddress},
+		TertiaryDestinationAddress:   struct{ primev3messages.Address }{tertiaryDestinationAddress},
+		SitExpected:                  &sitExpected,
+		EstimatedWeight:              &estimatedWeight,
+		HasProGear:                   &hasProGear,
+		ProGearWeight:                &proGearWeight,
+		SpouseProGearWeight:          &spouseProGearWeight,
+		IsActualExpenseReimbursement: models.BoolPointer(true),
 	}
 
 	model := PPMShipmentModelFromCreate(&ppmShipment)
@@ -650,6 +651,7 @@ func (suite *PayloadsSuite) TestPPMShipmentModelFromCreate() {
 	suite.True(*model.HasSecondaryDestinationAddress)
 	suite.True(*model.HasTertiaryPickupAddress)
 	suite.True(*model.HasTertiaryDestinationAddress)
+	suite.True(*model.IsActualExpenseReimbursement)
 	suite.NotNil(model)
 }
 
