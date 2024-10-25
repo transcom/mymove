@@ -8502,7 +8502,7 @@ func createTOO(appCtx appcontext.AppContext) {
 				Roles:     []roles.Role{tooRole},
 			}},
 	}, nil)
-	factory.BuildOfficeUser(db, []factory.Customization{
+	factory.BuildOfficeUserWithTransportationOfficeAssignment(db, []factory.Customization{
 		{
 			Model: models.OfficeUser{
 				ID:     uuid.FromStringOrNil("144503a6-485c-463e-b943-d3c3bad11b09"),
@@ -8546,7 +8546,7 @@ func createTIO(appCtx appcontext.AppContext) {
 				Roles:     []roles.Role{tioRole},
 			}},
 	}, nil)
-	factory.BuildOfficeUser(db, []factory.Customization{
+	factory.BuildOfficeUserWithTransportationOfficeAssignment(db, []factory.Customization{
 		{
 			Model: models.OfficeUser{
 				ID:     uuid.FromStringOrNil("f1828a35-43fd-42be-8b23-af4d9d51f0f3"),
@@ -8590,7 +8590,7 @@ func createServicesCounselor(appCtx appcontext.AppContext) {
 				Roles:     []roles.Role{servicesCounselorRole},
 			}},
 	}, nil)
-	factory.BuildOfficeUser(db, []factory.Customization{
+	factory.BuildOfficeUserWithTransportationOfficeAssignment(db, []factory.Customization{
 		{
 			Model: models.OfficeUser{
 				ID:     uuid.FromStringOrNil("c70d9a38-4bff-4d37-8dcc-456f317d7935"),
@@ -8634,7 +8634,7 @@ func createQae(appCtx appcontext.AppContext) {
 				Roles:     []roles.Role{qaeRole},
 			}},
 	}, nil)
-	factory.BuildOfficeUser(db, []factory.Customization{
+	factory.BuildOfficeUserWithTransportationOfficeAssignment(db, []factory.Customization{
 		{
 			Model: models.OfficeUser{
 				ID:     uuid.FromStringOrNil("ef4f6d1f-4ac3-4159-a364-5403e7d958ff"),
@@ -8678,7 +8678,7 @@ func createCustomerServiceRepresentative(appCtx appcontext.AppContext) {
 				Roles:     []roles.Role{customerServiceRepresentativeRole},
 			}},
 	}, nil)
-	factory.BuildOfficeUser(db, []factory.Customization{
+	factory.BuildOfficeUserWithTransportationOfficeAssignment(db, []factory.Customization{
 		{
 			Model: models.OfficeUser{
 				ID:     uuid.FromStringOrNil("4B8C0AD8-337A-407A-9E49-074D466F837A"),
@@ -8728,7 +8728,7 @@ func createTXO(appCtx appcontext.AppContext) {
 				Roles:     []roles.Role{tooRole, tioRole},
 			}},
 	}, nil)
-	factory.BuildOfficeUser(db, []factory.Customization{
+	factory.BuildOfficeUserWithTransportationOfficeAssignment(db, []factory.Customization{
 		{
 			Model: models.OfficeUser{
 				ID:     uuid.FromStringOrNil("dce86235-53d3-43dd-8ee8-54212ae3078f"),
@@ -8792,7 +8792,7 @@ func createTXOUSMC(appCtx appcontext.AppContext) {
 				Roles:     []roles.Role{tooRole, tioRole},
 			}},
 	}, nil)
-	factory.BuildOfficeUser(db, []factory.Customization{
+	factory.BuildOfficeUserWithTransportationOfficeAssignment(db, []factory.Customization{
 		{
 			Model: models.OfficeUser{
 				ID:     uuid.FromStringOrNil("dce86235-53d3-43dd-8ee8-bbbbbbbbbbbb"),
@@ -8845,7 +8845,7 @@ func createTXOServicesCounselor(appCtx appcontext.AppContext) {
 	}, nil)
 
 	// Make an office user associated with the previously created user
-	factory.BuildOfficeUser(db, []factory.Customization{
+	factory.BuildOfficeUserWithTransportationOfficeAssignment(db, []factory.Customization{
 		{
 			Model: models.OfficeUser{
 				ID:     uuid.FromStringOrNil("f3503012-e17a-4136-aa3c-508ee3b1962f"),
@@ -8900,7 +8900,7 @@ func createTXOServicesUSMCCounselor(appCtx appcontext.AppContext) {
 	}, nil)
 
 	// Makes an office user with the previously created user
-	factory.BuildOfficeUser(db, []factory.Customization{
+	factory.BuildOfficeUserWithTransportationOfficeAssignment(db, []factory.Customization{
 		{
 			Model: models.OfficeUser{
 				ID:     uuid.FromStringOrNil("b23005d6-60ea-469f-91ab-a7daf4c686f5"),
