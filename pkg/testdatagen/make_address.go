@@ -35,8 +35,8 @@ func MakeAddress2(db *pop.Connection, assertions Assertions) models.Address {
 		City:           "Fairfield",
 		State:          "CA",
 		PostalCode:     "94535",
-		County:         "SOLANO",
 		IsOconus:       models.BoolPointer(false),
+		County:         "SOLANO",
 	}
 
 	mergeModels(&address, assertions.Address)
