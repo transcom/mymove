@@ -214,6 +214,22 @@ paths:
                   counselorRemarks: test
                   moveTaskOrderID: d4d95b22-2d9d-428b-9a11-284455aa87ba
                   shipmentType: HAUL_AWAY
+              mobileHome:
+                summary: Mobile Home Shipment
+                value:
+                  mobileHomeShipment:
+                    heightFeet: 2
+                    heightInches: 2
+                    lengthFeet: 2
+                    lengthInches: 0
+                    make: make
+                    model: model
+                    widthFeet: 2
+                    widthInches: 2
+                    year: 1999
+                  counselorRemarks: test
+                  moveTaskOrderID: d4d95b22-2d9d-428b-9a11-284455aa87ba
+                  shipmentType: MOBILE_HOME
       responses:
         '200':
           description: Successfully created a MTO shipment.
@@ -694,6 +710,8 @@ definitions:
         $ref: '#/definitions/CreatePPMShipment'
       boatShipment:
         $ref: '#/definitions/CreateBoatShipment'
+      mobileHomeShipment:
+        $ref: '#/definitions/CreateMobileHomeShipment'
     required:
       - moveTaskOrderID
       - shipmentType
@@ -802,7 +820,7 @@ definitions:
       - hasProGear
   CreateBoatShipment:
     description: >-
-      Creation object containing the `PPM` shipmentType specific data, not used
+      Creation object containing the `Boat` shipmentType specific data, not used
       for other shipment types.
     type: object
     properties:
@@ -839,6 +857,37 @@ definitions:
       - widthInInches
       - heightInInches
       - hasTrailer
+  CreateMobileHomeShipment:
+    description: >-
+      Creation object containing the `MobileHome` shipmentType specific data,
+      not used for other shipment types.
+    type: object
+    properties:
+      year:
+        type: integer
+        description: Year of the Mobile Home
+      make:
+        type: string
+        description: Make of the Mobile Home
+      model:
+        type: string
+        description: Model of the Mobile Home
+      lengthInInches:
+        type: integer
+        description: Length of the Mobile Home in inches
+      widthInInches:
+        type: integer
+        description: Width of the Mobile Home in inches
+      heightInInches:
+        type: integer
+        description: Height of the Mobile Home in inches
+    required:
+      - year
+      - make
+      - model
+      - lengthInInches
+      - widthInInches
+      - heightInInches
   MTOShipment:
     type: object
     properties:
@@ -1510,8 +1559,10 @@ definitions:
         type: string
         title: Country
         x-nullable: true
-        example: USA
-        default: USA
+        example: US
+        default: US
+        pattern: ^[A-Z]{2}$
+        description: Two-letter country code
       county:
         type: string
         title: County
@@ -2318,10 +2369,9 @@ definitions:
       - HHG
       - HHG_INTO_NTS_DOMESTIC
       - HHG_OUTOF_NTS_DOMESTIC
-      - INTERNATIONAL_HHG
-      - INTERNATIONAL_UB
       - MOBILE_HOME
       - PPM
+      - UNACCOMPANIED_BAGGAGE
     x-display-value:
       HHG: Household goods move (HHG)
       HHG_INTO_NTS_DOMESTIC: HHG into Non-temporary storage (NTS)
@@ -2331,6 +2381,7 @@ definitions:
         Boat shipment that requires additional equipment to haul it to it's
         destination
       BOAT_TOW_AWAY: Boat shipment that has a road-worthy trailer
+      UNACCOMPANIED_BAGGAGE: Unaccompanied Baggage
   PPMShipmentStatus:
     description: |
       Status of the PPM Shipment:
@@ -2667,6 +2718,55 @@ definitions:
       - heightInInches
       - hasTrailer
       - eTag
+  MobileHome:
+    description: >-
+      A mobile home is a type of shipment that a service member moves a mobile
+      home.
+    x-nullable: true
+    properties:
+      id:
+        description: Primary auto-generated unique identifier of the Mobile Home object
+        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
+        format: uuid
+        type: string
+        readOnly: true
+      shipmentId:
+        description: The id of the parent MTOShipment object
+        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
+        format: uuid
+        type: string
+        readOnly: true
+      make:
+        description: The make of the mobile home
+        type: string
+      model:
+        description: The model of the mobile home.
+        type: string
+      year:
+        description: The year the mobile home was made.
+        type: integer
+      lengthInInches:
+        type: integer
+      widthInInches:
+        type: integer
+      heightInInches:
+        type: integer
+      updatedAt:
+        description: Timestamp of when a property of this object was last updated (UTC)
+        format: date-time
+        type: string
+        readOnly: true
+      createdAt:
+        description: Timestamp of when a property of this object was created (UTC)
+        format: date-time
+        type: string
+        readOnly: true
+      eTag:
+        description: >-
+          A hash unique to this shipment that should be used as the "If-Match"
+          header for any updates.
+        type: string
+        readOnly: true
   ShipmentAddressUpdateStatus:
     type: string
     title: Status
@@ -2981,6 +3081,8 @@ definitions:
         $ref: '#/definitions/PPMShipment'
       boatShipment:
         $ref: '#/definitions/BoatShipment'
+      mobileHomeShipment:
+        $ref: '#/definitions/MobileHome'
       deliveryAddressUpdate:
         $ref: '#/definitions/ShipmentAddressUpdate'
       eTag:

@@ -5,7 +5,25 @@ import userEvent from '@testing-library/user-event';
 import EditOrdersForm from './EditOrdersForm';
 
 import { documentSizeLimitMsg } from 'shared/constants';
+import { showCounselingOffices } from 'services/internalApi';
 
+jest.mock('services/internalApi', () => ({
+  ...jest.requireActual('services/internalApi'),
+  showCounselingOffices: jest.fn().mockImplementation(() =>
+    Promise.resolve({
+      body: [
+        {
+          id: '3e937c1f-5539-4919-954d-017989130584',
+          name: 'Albuquerque AFB',
+        },
+        {
+          id: 'fa51dab0-4553-4732-b843-1f33407f77bc',
+          name: 'Glendale Luke AFB',
+        },
+      ],
+    }),
+  ),
+}));
 jest.mock('components/LocationSearchBox/api', () => ({
   ShowAddress: jest.fn().mockImplementation(() =>
     Promise.resolve({
@@ -138,6 +156,9 @@ const testProps = {
     has_dependents: '',
     new_duty_location: {},
     uploaded_orders: [],
+    origin_duty_location: {
+      provides_services_counseling: true,
+    },
   },
   onCancel: jest.fn(),
   onUploadComplete: jest.fn(),
@@ -160,6 +181,7 @@ const initialValues = {
   report_by_date: '2020-11-26',
   has_dependents: 'No',
   origin_duty_location: {
+    provides_services_counseling: true,
     address: {
       city: 'Des Moines',
       country: 'US',
@@ -229,6 +251,8 @@ describe('EditOrdersForm component', () => {
     });
 
     it('rendering the upload area', async () => {
+      showCounselingOffices.mockImplementation(() => Promise.resolve({}));
+
       render(<EditOrdersForm {...testProps} />);
 
       expect(await screen.findByText(documentSizeLimitMsg)).toBeInTheDocument();
@@ -261,6 +285,9 @@ describe('EditOrdersForm component', () => {
         {...testProps}
         currentDutyLocation={{ name: 'Luke AFB' }}
         initialValues={{
+          origin_duty_location: {
+            provides_services_counseling: true,
+          },
           uploaded_orders: [
             {
               id: '123',
@@ -332,6 +359,9 @@ describe('EditOrdersForm component', () => {
       <EditOrdersForm
         {...testProps}
         initialValues={{
+          origin_duty_location: {
+            provides_services_counseling: true,
+          },
           uploaded_orders: [
             {
               id: '123',
@@ -526,6 +556,9 @@ describe('EditOrdersForm component', () => {
             id: 'f9299768-16d2-4a13-ae39-7087a58b1f62',
             name: 'Yuma AFB',
             updated_at: '2020-10-19T17:01:16.114Z',
+          },
+          origin_duty_location: {
+            provides_services_counseling: true,
           },
           uploaded_orders: [
             {
