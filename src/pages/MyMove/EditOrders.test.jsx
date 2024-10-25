@@ -1,6 +1,7 @@
 import React from 'react';
 import { screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { act } from 'react-dom/test-utils';
 
 import EditOrders from './EditOrders';
 
@@ -12,6 +13,7 @@ import {
   selectOrdersForLoggedInUser,
   selectServiceMemberFromLoggedInUser,
 } from 'store/entities/selectors';
+import { isBooleanFlagEnabled } from 'utils/featureFlags';
 
 const mockNavigate = jest.fn();
 jest.mock('react-router-dom', () => ({
@@ -45,6 +47,11 @@ jest.mock('services/internalApi', () => ({
       ],
     }),
   ),
+}));
+
+jest.mock('utils/featureFlags', () => ({
+  ...jest.requireActual('utils/featureFlags'),
+  isBooleanFlagEnabled: jest.fn().mockImplementation(() => Promise.resolve(false)),
 }));
 
 describe('EditOrders Page', () => {
@@ -390,6 +397,46 @@ describe('EditOrders Page', () => {
 
     expect(mockNavigate).toHaveBeenCalledTimes(1);
     expect(mockNavigate).toHaveBeenCalledWith(-1);
+  });
+
+  it('submits OCONUS fields correctly on form submit', async () => {
+    isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(true));
+    testProps.orders[0].origin_duty_location.address = {
+      ...testProps.orders[0].origin_duty_location.address,
+      isOconus: true,
+    };
+
+    renderWithProviders(<EditOrders {...testProps} />, {
+      path: customerRoutes.ORDERS_EDIT_PATH,
+      params: { moveId: 'testMoveId', orderId: 'testOrders1' },
+    });
+    await waitFor(() => {
+      expect(screen.getByRole('form')).toHaveFormValues({
+        new_duty_location: 'Fort Irwin, CA 92310',
+        origin_duty_location: 'Fort Gregg-Adams, VA 23801',
+      });
+    });
+    await userEvent.click(screen.getByTestId('hasDependentsYes'));
+    await userEvent.click(screen.getByTestId('isAnAccompaniedTourYes'));
+    await userEvent.type(screen.getByTestId('dependentsUnderTwelve'), '1');
+    await userEvent.type(screen.getByTestId('dependentsTwelveAndOver'), '2');
+
+    const submitButton = await screen.findByRole('button', { name: 'Save' });
+    expect(submitButton).not.toBeDisabled();
+
+    await act(async () => {
+      userEvent.click(submitButton);
+    });
+
+    await waitFor(() => {
+      expect(patchOrders).toHaveBeenCalledWith(
+        expect.objectContaining({
+          accompanied_tour: true,
+          dependents_under_twelve: 1,
+          dependents_twelve_and_over: 2,
+        }),
+      );
+    });
   });
 
   afterEach(jest.clearAllMocks);

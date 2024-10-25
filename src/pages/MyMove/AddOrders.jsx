@@ -64,27 +64,28 @@ const AddOrders = ({
       /* eslint-disable no-nested-ternary */
       return {
         // Nested ternary
-        accompanied_tour: isOconus
-          ? // If OCONUS and dependents are present, fetch the value from the form.
-            // Otherwise, default to false if OCONUS and dependents are not present
-            hasDependents
-            ? formatYesNoAPIValue(values.accompanied_tour) // Dependents are present
-            : false // Dependents are not present
-          : // If CONUS, omit this field altogether
-            null,
+        accompanied_tour:
+          isOconus && hasDependents
+            ? // If OCONUS and dependents are present, fetch the value from the form.
+              // Otherwise, default to false if OCONUS and dependents are not present
+              hasDependents
+              ? formatYesNoAPIValue(values.accompanied_tour) // Dependents are present
+              : false // Dependents are not present
+            : // If CONUS or no dependents, omit this field altogether
+              null,
         dependents_under_twelve:
           isOconus && hasDependents
             ? // If OCONUS and dependents are present
               // then provide the number of dependents under 12. Default to 0 if not present
               Number(values.dependents_under_twelve) ?? 0
-            : // If CONUS, omit ths field altogether
+            : // If CONUS or no dependents, omit ths field altogether
               null,
         dependents_twelve_and_over:
           isOconus && hasDependents
             ? // If OCONUS and dependents are present
               // then provide the number of dependents over 12. Default to 0 if not present
               Number(values.dependents_twelve_and_over) ?? 0
-            : // If CONUS, omit this field altogether
+            : // If CONUS or no dependents, omit this field altogether
               null,
       };
       /* eslint-enable no-nested-ternary */
