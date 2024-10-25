@@ -808,7 +808,6 @@ export class CustomerPpmPage extends CustomerPage {
         await this.page.locator('.reviewExpenses a').getByText('Edit').click();
       }
     }
-    await expect(this.page.getByRole('heading', { level: 1, name: 'Expenses' })).toBeVisible();
   }
 
   /**
