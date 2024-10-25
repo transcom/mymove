@@ -367,7 +367,7 @@ func (h AddAppealToViolationHandler) Handle(params evaluationReportop.AddAppealT
 		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
 			payload := params.Body
 			if payload.AppealStatus == "" || payload.Remarks == "" {
-				err := apperror.NewBadDataError("appeal status and remarks are required to add an appealr")
+				err := apperror.NewBadDataError("appeal status and remarks are required to add an appeal")
 				appCtx.Logger().Error(err.Error())
 				return evaluationReportop.NewAddAppealToViolationForbidden(), err
 			}
@@ -380,12 +380,12 @@ func (h AddAppealToViolationHandler) Handle(params evaluationReportop.AddAppealT
 
 			reportID, err := uuid.FromString(params.ReportID.String())
 			if err != nil {
-				return evaluationReportop.NewSubmitEvaluationReportUnprocessableEntity(), err
+				return evaluationReportop.NewAddAppealToViolationUnprocessableEntity(), err
 			}
 			fmt.Print(reportID)
 			reportViolationID, err := uuid.FromString(params.ReportViolationID.String())
 			if err != nil {
-				return evaluationReportop.NewSubmitEvaluationReportUnprocessableEntity(), err
+				return evaluationReportop.NewAddAppealToViolationUnprocessableEntity(), err
 			}
 			fmt.Print(reportViolationID)
 			var officeUserID uuid.UUID
@@ -396,19 +396,19 @@ func (h AddAppealToViolationHandler) Handle(params evaluationReportop.AddAppealT
 
 			_, err = h.AddAppealToViolation(appCtx, reportID, reportViolationID, officeUserID, payload.Remarks, payload.AppealStatus)
 			if err != nil {
-				appCtx.Logger().Error("Error saving evaluation report: ", zap.Error(err))
+				appCtx.Logger().Error("Error adding appeal to violation: ", zap.Error(err))
 
 				switch err.(type) {
 				case apperror.NotFoundError:
-					return evaluationReportop.NewSubmitEvaluationReportNotFound(), err
+					return evaluationReportop.NewAddAppealToViolationNotFound(), err
 				case apperror.PreconditionFailedError:
-					return evaluationReportop.NewSubmitEvaluationReportPreconditionFailed(), err
+					return evaluationReportop.NewAddAppealToViolationPreconditionFailed(), err
 				case apperror.ForbiddenError:
-					return evaluationReportop.NewSubmitEvaluationReportForbidden(), err
+					return evaluationReportop.NewAddAppealToViolationForbidden(), err
 				case apperror.InvalidInputError:
-					return evaluationReportop.NewSubmitEvaluationReportUnprocessableEntity(), err
+					return evaluationReportop.NewAddAppealToViolationUnprocessableEntity(), err
 				default:
-					return evaluationReportop.NewSubmitEvaluationReportInternalServerError(), err
+					return evaluationReportop.NewAddAppealToViolationInternalServerError(), err
 				}
 			}
 

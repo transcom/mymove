@@ -366,21 +366,27 @@ func GsrAppeal(gsrAppeal *models.GsrAppeal) *ghcmessages.GSRAppeal {
 		return nil
 	}
 	id := *handlers.FmtUUID(gsrAppeal.ID)
-	violationID := *handlers.FmtUUID(*gsrAppeal.ReportViolationID)
 	reportID := *handlers.FmtUUID(gsrAppeal.EvaluationReportID)
 	officeUserID := *handlers.FmtUUID(gsrAppeal.OfficeUserID)
 	officeUser := EvaluationReportOfficeUser(*gsrAppeal.OfficeUser)
+	isSeriousIncident := false
+	if gsrAppeal.IsSeriousIncidentAppeal != nil {
+		isSeriousIncident = *gsrAppeal.IsSeriousIncidentAppeal
+	}
 
 	payload := &ghcmessages.GSRAppeal{
 		ID:                id,
-		ViolationID:       violationID,
 		ReportID:          reportID,
 		OfficeUserID:      officeUserID,
 		OfficeUser:        &officeUser,
-		IsSeriousIncident: *gsrAppeal.IsSeriousIncidentAppeal,
+		IsSeriousIncident: isSeriousIncident,
 		AppealStatus:      ghcmessages.GSRAppealStatusType(gsrAppeal.AppealStatus),
 		Remarks:           gsrAppeal.Remarks,
 		CreatedAt:         strfmt.DateTime(gsrAppeal.CreatedAt),
+	}
+
+	if gsrAppeal.ReportViolationID != nil {
+		payload.ViolationID = *handlers.FmtUUID(*gsrAppeal.ReportViolationID)
 	}
 	return payload
 }

@@ -43,23 +43,4 @@ func (suite *ModelSuite) TestGsrAppealValidation() {
 
 		suite.verifyValidationErrors(&invalidGsrAppeal, expErrors)
 	})
-
-	// suite.Run("test invalid appeal status", func() {
-	// 	invalid := models.AppealStatus
-	// 	invalidGsrAppeal := models.GsrAppeal{
-	// 		ID:                      uuid.Must(uuid.NewV4()),
-	// 		EvaluationReportID:      uuid.Must(uuid.NewV4()),
-	// 		ReportViolationID:       uuid.Must(uuid.NewV4()),
-	// 		OfficeUserID:            uuid.Must(uuid.NewV4()),
-	// 		IsSeriousIncidentAppeal: models.BoolPointer(true),
-	// 		AppealStatus:            &invalid, // Invalid status
-	// 		Remarks:                 "Invalid appeal status",
-	// 		CreatedAt:               time.Now(),
-	// 		UpdatedAt:               time.Now(),
-	// 	}
-	// 	expErrors := map[string][]string{
-	// 		"appeal_status": {"AppealStatus is not in the list [SUSTAINED, REJECTED]."},
-	// 	}
-	// 	suite.verifyValidationErrors(&invalidGsrAppeal, expErrors)
-	// })
 }
