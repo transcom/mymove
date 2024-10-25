@@ -49,7 +49,7 @@ export const shipmentHeadingDiversion = () => (
   </MockProviders>
 );
 
-export const shipmentHeadingCancelled = () => (
+export const shipmentHeadingCanceled = () => (
   <MockProviders permissions={[permissionTypes.createShipmentCancellation]}>
     <ShipmentHeading
       shipmentInfo={{
