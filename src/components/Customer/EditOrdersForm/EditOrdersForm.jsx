@@ -14,6 +14,7 @@ import { ORDERS_PAY_GRADE_OPTIONS } from 'constants/orders';
 import { Form } from 'components/form/Form';
 import FileUpload from 'components/FileUpload/FileUpload';
 import UploadsTable from 'components/UploadsTable/UploadsTable';
+import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import SectionWrapper from 'components/Customer/SectionWrapper';
 import { FEATURE_FLAG_KEYS, documentSizeLimitMsg } from 'shared/constants';
 import profileImage from 'scenes/Review/images/profile.png';
@@ -22,7 +23,7 @@ import { ExistingUploadsShape } from 'types/uploads';
 import { DropdownInput, DatePickerInput, DutyLocationInput } from 'components/form/fields';
 import WizardNavigation from 'components/Customer/WizardNavigation/WizardNavigation';
 import Callout from 'components/Callout';
-import { formatLabelReportByDate, dropdownInputOptions } from 'utils/formatters';
+import { formatLabelReportByDate, dropdownInputOptions, formatYesNoAPIValue } from 'utils/formatters';
 import formStyles from 'styles/form.module.scss';
 import { showCounselingOffices } from 'services/internalApi';
 
@@ -41,9 +42,11 @@ const EditOrdersForm = ({
   const [newDutyLocation, setNewDutyLocation] = useState(initialValues.new_duty_location);
   const [showAccompaniedTourField, setShowAccompaniedTourField] = useState(false);
   const [showDependentAgeFields, setShowDependentAgeFields] = useState(false);
-  const [hasDependents, setHasDependents] = useState(false);
+  const [hasDependents, setHasDependents] = useState(formatYesNoAPIValue(initialValues.has_dependents));
   const [isOconusMove, setIsOconusMove] = useState(false);
   const [enableUB, setEnableUB] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  const [finishedFetchingFF, setFinishedFetchingFF] = useState(false);
 
   const validationSchema = Yup.object().shape({
     orders_type: Yup.mixed()
@@ -101,11 +104,11 @@ const EditOrdersForm = ({
       if (enabled) {
         setEnableUB(true);
       }
+      setFinishedFetchingFF(true);
     };
     checkUBFeatureFlag();
   }, []);
   useEffect(() => {
-    // setHasDependents(initialValues.has_dependents === 'yes');
     showCounselingOffices(currentDutyLocation.id).then((fetchedData) => {
       if (fetchedData.body) {
         const counselingOffices = fetchedData.body.map((item) => ({
@@ -132,7 +135,16 @@ const EditOrdersForm = ({
         setShowDependentAgeFields(false);
       }
     }
-  }, [currentDutyLocation, newDutyLocation, isOconusMove, hasDependents, enableUB]);
+    if (isLoading && finishedFetchingFF) {
+      // If the form is still loading and the FF has finished fetching,
+      // then the form is done loading
+      setIsLoading(false);
+    }
+  }, [currentDutyLocation, newDutyLocation, isOconusMove, hasDependents, enableUB, finishedFetchingFF, isLoading]);
+
+  if (isLoading) {
+    return <LoadingPlaceholder />;
+  }
 
   return (
     <Formik
@@ -166,7 +178,7 @@ const EditOrdersForm = ({
           // Declare a duplicate local scope of the field value
           // for the form to prevent state race conditions
           const fieldValueHasDependents = e.target.value === 'yes';
-          setHasDependents(e.target.value === 'yes');
+          setHasDependents(fieldValueHasDependents);
           setFieldValue('has_dependents', fieldValueHasDependents ? 'yes' : 'no');
           if (fieldValueHasDependents && isOconusMove && enableUB) {
             setShowAccompaniedTourField(true);
