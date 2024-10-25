@@ -280,7 +280,7 @@ jest.mock('hooks/queries', () => ({
                 shipment_type: 'PPM',
               },
             ],
-            eventName: 'deleteShipment',
+            eventName: 'deleteMTOShipment',
             id: 'b9ffb64f-e2fb-4ba2-b009-97765fb1019d',
             objectId: 'a9dbfb10-cc86-4a02-8839-c57161da77d0',
             oldValues: {
