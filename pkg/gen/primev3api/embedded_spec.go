@@ -131,6 +131,25 @@ func init() {
                     "shipmentType": "HHG"
                   }
                 },
+                "mobileHome": {
+                  "summary": "Mobile Home Shipment",
+                  "value": {
+                    "counselorRemarks": "test",
+                    "mobileHomeShipment": {
+                      "heightFeet": 2,
+                      "heightInches": 2,
+                      "lengthFeet": 2,
+                      "lengthInches": 0,
+                      "make": "make",
+                      "model": "model",
+                      "widthFeet": 2,
+                      "widthInches": 2,
+                      "year": 1999
+                    },
+                    "moveTaskOrderID": "d4d95b22-2d9d-428b-9a11-284455aa87ba",
+                    "shipmentType": "MOBILE_HOME"
+                  }
+                },
                 "nts": {
                   "summary": "NTS",
                   "value": {
@@ -648,7 +667,7 @@ func init() {
       }
     },
     "CreateBoatShipment": {
-      "description": "Creation object containing the ` + "`" + `PPM` + "`" + ` shipmentType specific data, not used for other shipment types.",
+      "description": "Creation object containing the ` + "`" + `Boat` + "`" + ` shipmentType specific data, not used for other shipment types.",
       "type": "object",
       "required": [
         "year",
@@ -737,6 +756,9 @@ func init() {
           "format": "uuid",
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
         },
+        "mobileHomeShipment": {
+          "$ref": "#/definitions/CreateMobileHomeShipment"
+        },
         "moveTaskOrderID": {
           "description": "The ID of the move this new shipment is for.",
           "type": "string",
@@ -812,6 +834,44 @@ func init() {
               "$ref": "#/definitions/Address"
             }
           ]
+        }
+      }
+    },
+    "CreateMobileHomeShipment": {
+      "description": "Creation object containing the ` + "`" + `MobileHome` + "`" + ` shipmentType specific data, not used for other shipment types.",
+      "type": "object",
+      "required": [
+        "year",
+        "make",
+        "model",
+        "lengthInInches",
+        "widthInInches",
+        "heightInInches"
+      ],
+      "properties": {
+        "heightInInches": {
+          "description": "Height of the Mobile Home in inches",
+          "type": "integer"
+        },
+        "lengthInInches": {
+          "description": "Length of the Mobile Home in inches",
+          "type": "integer"
+        },
+        "make": {
+          "description": "Make of the Mobile Home",
+          "type": "string"
+        },
+        "model": {
+          "description": "Model of the Mobile Home",
+          "type": "string"
+        },
+        "widthInInches": {
+          "description": "Width of the Mobile Home in inches",
+          "type": "integer"
+        },
+        "year": {
+          "description": "Year of the Mobile Home",
+          "type": "integer"
         }
       }
     },
@@ -1649,10 +1709,9 @@ func init() {
         "HHG",
         "HHG_INTO_NTS_DOMESTIC",
         "HHG_OUTOF_NTS_DOMESTIC",
-        "INTERNATIONAL_HHG",
-        "INTERNATIONAL_UB",
         "MOBILE_HOME",
-        "PPM"
+        "PPM",
+        "UNACCOMPANIED_BAGGAGE"
       ],
       "x-display-value": {
         "BOAT_HAUL_AWAY": "Boat shipment that requires additional equipment to haul it to it's destination",
@@ -1660,7 +1719,8 @@ func init() {
         "HHG": "Household goods move (HHG)",
         "HHG_INTO_NTS_DOMESTIC": "HHG into Non-temporary storage (NTS)",
         "HHG_OUTOF_NTS_DOMESTIC": "HHG out of Non-temporary storage (NTS Release)",
-        "PPM": "Personally Procured Move also known as Do It Yourself (DITY)"
+        "PPM": "Personally Procured Move also known as Do It Yourself (DITY)",
+        "UNACCOMPANIED_BAGGAGE": "Unaccompanied Baggage"
       },
       "example": "HHG"
     },
@@ -1774,6 +1834,9 @@ func init() {
           "format": "uuid",
           "readOnly": true,
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "mobileHomeShipment": {
+          "$ref": "#/definitions/MobileHome"
         },
         "moveTaskOrderID": {
           "description": "The ID of the move for this shipment.",
@@ -1927,6 +1990,64 @@ func init() {
       "items": {
         "$ref": "#/definitions/MTOShipmentWithoutServiceItems"
       }
+    },
+    "MobileHome": {
+      "description": "A mobile home is a type of shipment that a service member moves a mobile home.",
+      "properties": {
+        "createdAt": {
+          "description": "Timestamp of when a property of this object was created (UTC)",
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        },
+        "eTag": {
+          "description": "A hash unique to this shipment that should be used as the \"If-Match\" header for any updates.",
+          "type": "string",
+          "readOnly": true
+        },
+        "heightInInches": {
+          "type": "integer"
+        },
+        "id": {
+          "description": "Primary auto-generated unique identifier of the Mobile Home object",
+          "type": "string",
+          "format": "uuid",
+          "readOnly": true,
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "lengthInInches": {
+          "type": "integer"
+        },
+        "make": {
+          "description": "The make of the mobile home",
+          "type": "string"
+        },
+        "model": {
+          "description": "The model of the mobile home.",
+          "type": "string"
+        },
+        "shipmentId": {
+          "description": "The id of the parent MTOShipment object",
+          "type": "string",
+          "format": "uuid",
+          "readOnly": true,
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "updatedAt": {
+          "description": "Timestamp of when a property of this object was last updated (UTC)",
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        },
+        "widthInInches": {
+          "type": "integer"
+        },
+        "year": {
+          "description": "The year the mobile home was made.",
+          "type": "integer"
+        }
+      },
+      "x-nullable": true
     },
     "MoveTaskOrder": {
       "type": "object",
@@ -3801,6 +3922,25 @@ func init() {
                     "shipmentType": "HHG"
                   }
                 },
+                "mobileHome": {
+                  "summary": "Mobile Home Shipment",
+                  "value": {
+                    "counselorRemarks": "test",
+                    "mobileHomeShipment": {
+                      "heightFeet": 2,
+                      "heightInches": 2,
+                      "lengthFeet": 2,
+                      "lengthInches": 0,
+                      "make": "make",
+                      "model": "model",
+                      "widthFeet": 2,
+                      "widthInches": 2,
+                      "year": 1999
+                    },
+                    "moveTaskOrderID": "d4d95b22-2d9d-428b-9a11-284455aa87ba",
+                    "shipmentType": "MOBILE_HOME"
+                  }
+                },
                 "nts": {
                   "summary": "NTS",
                   "value": {
@@ -4355,7 +4495,7 @@ func init() {
       }
     },
     "CreateBoatShipment": {
-      "description": "Creation object containing the ` + "`" + `PPM` + "`" + ` shipmentType specific data, not used for other shipment types.",
+      "description": "Creation object containing the ` + "`" + `Boat` + "`" + ` shipmentType specific data, not used for other shipment types.",
       "type": "object",
       "required": [
         "year",
@@ -4444,6 +4584,9 @@ func init() {
           "format": "uuid",
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
         },
+        "mobileHomeShipment": {
+          "$ref": "#/definitions/CreateMobileHomeShipment"
+        },
         "moveTaskOrderID": {
           "description": "The ID of the move this new shipment is for.",
           "type": "string",
@@ -4519,6 +4662,44 @@ func init() {
               "$ref": "#/definitions/Address"
             }
           ]
+        }
+      }
+    },
+    "CreateMobileHomeShipment": {
+      "description": "Creation object containing the ` + "`" + `MobileHome` + "`" + ` shipmentType specific data, not used for other shipment types.",
+      "type": "object",
+      "required": [
+        "year",
+        "make",
+        "model",
+        "lengthInInches",
+        "widthInInches",
+        "heightInInches"
+      ],
+      "properties": {
+        "heightInInches": {
+          "description": "Height of the Mobile Home in inches",
+          "type": "integer"
+        },
+        "lengthInInches": {
+          "description": "Length of the Mobile Home in inches",
+          "type": "integer"
+        },
+        "make": {
+          "description": "Make of the Mobile Home",
+          "type": "string"
+        },
+        "model": {
+          "description": "Model of the Mobile Home",
+          "type": "string"
+        },
+        "widthInInches": {
+          "description": "Width of the Mobile Home in inches",
+          "type": "integer"
+        },
+        "year": {
+          "description": "Year of the Mobile Home",
+          "type": "integer"
         }
       }
     },
@@ -5356,10 +5537,9 @@ func init() {
         "HHG",
         "HHG_INTO_NTS_DOMESTIC",
         "HHG_OUTOF_NTS_DOMESTIC",
-        "INTERNATIONAL_HHG",
-        "INTERNATIONAL_UB",
         "MOBILE_HOME",
-        "PPM"
+        "PPM",
+        "UNACCOMPANIED_BAGGAGE"
       ],
       "x-display-value": {
         "BOAT_HAUL_AWAY": "Boat shipment that requires additional equipment to haul it to it's destination",
@@ -5367,7 +5547,8 @@ func init() {
         "HHG": "Household goods move (HHG)",
         "HHG_INTO_NTS_DOMESTIC": "HHG into Non-temporary storage (NTS)",
         "HHG_OUTOF_NTS_DOMESTIC": "HHG out of Non-temporary storage (NTS Release)",
-        "PPM": "Personally Procured Move also known as Do It Yourself (DITY)"
+        "PPM": "Personally Procured Move also known as Do It Yourself (DITY)",
+        "UNACCOMPANIED_BAGGAGE": "Unaccompanied Baggage"
       },
       "example": "HHG"
     },
@@ -5481,6 +5662,9 @@ func init() {
           "format": "uuid",
           "readOnly": true,
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "mobileHomeShipment": {
+          "$ref": "#/definitions/MobileHome"
         },
         "moveTaskOrderID": {
           "description": "The ID of the move for this shipment.",
@@ -5634,6 +5818,64 @@ func init() {
       "items": {
         "$ref": "#/definitions/MTOShipmentWithoutServiceItems"
       }
+    },
+    "MobileHome": {
+      "description": "A mobile home is a type of shipment that a service member moves a mobile home.",
+      "properties": {
+        "createdAt": {
+          "description": "Timestamp of when a property of this object was created (UTC)",
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        },
+        "eTag": {
+          "description": "A hash unique to this shipment that should be used as the \"If-Match\" header for any updates.",
+          "type": "string",
+          "readOnly": true
+        },
+        "heightInInches": {
+          "type": "integer"
+        },
+        "id": {
+          "description": "Primary auto-generated unique identifier of the Mobile Home object",
+          "type": "string",
+          "format": "uuid",
+          "readOnly": true,
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "lengthInInches": {
+          "type": "integer"
+        },
+        "make": {
+          "description": "The make of the mobile home",
+          "type": "string"
+        },
+        "model": {
+          "description": "The model of the mobile home.",
+          "type": "string"
+        },
+        "shipmentId": {
+          "description": "The id of the parent MTOShipment object",
+          "type": "string",
+          "format": "uuid",
+          "readOnly": true,
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "updatedAt": {
+          "description": "Timestamp of when a property of this object was last updated (UTC)",
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        },
+        "widthInInches": {
+          "type": "integer"
+        },
+        "year": {
+          "description": "The year the mobile home was made.",
+          "type": "integer"
+        }
+      },
+      "x-nullable": true
     },
     "MoveTaskOrder": {
       "type": "object",

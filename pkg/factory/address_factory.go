@@ -99,6 +99,7 @@ func BuildMinimalAddress(db *pop.Connection, customs []Customization, traits []T
 		State:          "GA",
 		PostalCode:     "30813",
 		County:         "RICHMOND",
+		IsOconus:       models.BoolPointer(false),
 	}
 
 	// Find/create the Country if customization is provided

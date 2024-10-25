@@ -23,6 +23,7 @@ func fakeAddressPayload() *internalmessages.Address {
 		State:          models.StringPointer("AL"),
 		PostalCode:     models.StringPointer("40356"),
 		County:         models.StringPointer("JESSAMINE"),
+		IsOconus:       models.BoolPointer(false),
 	}
 }
 
@@ -35,6 +36,7 @@ func (suite *HandlerSuite) TestShowAddressHandler() {
 			State:          "state",
 			PostalCode:     "12345",
 			County:         "JESSAMINE",
+			IsOconus:       models.BoolPointer(false),
 		}
 		suite.MustSave(&address)
 

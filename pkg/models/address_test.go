@@ -66,18 +66,49 @@ func (suite *ModelSuite) TestAddressCountryCode() {
 	suite.Equal("US", *countryCode)
 }
 
-func (suite *ModelSuite) TestAddressFormat() {
-	country := factory.FetchOrBuildCountry(suite.DB(), nil, nil)
-	newAddress := &m.Address{
+func (suite *ModelSuite) TestIsAddressOconusNoCountry() {
+	address := m.Address{
 		StreetAddress1: "street 1",
 		StreetAddress2: m.StringPointer("street 2"),
 		StreetAddress3: m.StringPointer("street 3"),
 		City:           "city",
-		State:          "state",
-		PostalCode:     "90210",
-		County:         "County",
-		Country:        &country,
-		CountryId:      &country.ID,
+		State:          "SC",
+		PostalCode:     "29229",
+		County:         "county",
+	}
+
+	result, err := m.IsAddressOconus(suite.DB(), address)
+	suite.NoError(err)
+
+	suite.Equal(false, result)
+}
+
+// Test IsOconus logic for an address with no country and a state of AK
+func (suite *ModelSuite) TestIsAddressOconusForAKState() {
+	address := m.Address{
+		StreetAddress1: "street 1",
+		StreetAddress2: m.StringPointer("street 2"),
+		StreetAddress3: m.StringPointer("street 3"),
+		City:           "Anchorage",
+		State:          "AK",
+		PostalCode:     "99502",
+		County:         "county",
+	}
+
+	result, err := m.IsAddressOconus(suite.DB(), address)
+	suite.NoError(err)
+
+	suite.Equal(true, result)
+}
+
+func (suite *ModelSuite) TestAddressFormat() {
+	country := factory.FetchOrBuildCountry(suite.DB(), nil, nil)
+	newAddress := &m.Address{
+		State:      "state",
+		PostalCode: "90210",
+		County:     "County",
+		Country:    &country,
+		CountryId:  &country.ID,
 	}
 
 	verrs, err := newAddress.Validate(nil)
