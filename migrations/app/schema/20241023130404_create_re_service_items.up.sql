@@ -18,7 +18,7 @@ COMMENT ON COLUMN re_service_items.market_code IS 'Market code indicator. i for 
 COMMENT ON COLUMN re_service_items.auto_approved IS 'Set to true if the service item is automatically approved when assigned to the shipment.';
 
 --Create enum type for service_location
-CREATE TYPE IF NOT EXISTS service_location_enum AS ENUM (
+CREATE TYPE service_location_enum AS ENUM (
     'O', --Origin
     'D', --Destination
     'B'); --Both
