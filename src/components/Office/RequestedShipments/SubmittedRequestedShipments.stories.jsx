@@ -69,7 +69,7 @@ export const withOneExternalVendorShipment = () => (
 
 export const withCompletedServicesCounseling = () => (
   <div className="officeApp">
-    <MockProviders permissions={[permissionTypes.updateShipment]}>
+    <MockProviders>
       <SubmittedRequestedShipments
         mtoShipments={[shipments[0]]}
         ordersInfo={ordersInfo}
@@ -123,14 +123,6 @@ export const withOneExternalVendorShipmentReadOnly = () => (
         moveCode="TE5TC0DE"
       />
     </MockProviders>
-    <SubmittedRequestedShipments
-      mtoShipments={[ntsExternalVendorShipments[0]]}
-      ordersInfo={ordersInfo}
-      allowancesInfo={allowancesInfo}
-      customerInfo={customerInfo}
-      moveTaskOrder={moveTaskOrders[0]}
-      moveCode="TE5TC0DE"
-    />
   </div>
 );
 
