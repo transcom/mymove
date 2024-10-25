@@ -85,10 +85,11 @@ func (m MoveCounseled) emails(appCtx appcontext.AppContext) ([]emailContent, err
 	}
 
 	htmlBody, textBody, err := m.renderTemplates(appCtx, MoveCounseledEmailData{
-		OriginDutyLocation:  originDutyLocationName,
-		DestinationLocation: destinationAddress,
-		Locator:             move.Locator,
-		MyMoveLink:          MyMoveLink,
+		OriginDutyLocation:         originDutyLocationName,
+		DestinationLocation:        destinationAddress,
+		Locator:                    move.Locator,
+		MyMoveLink:                 MyMoveLink,
+		ActualExpenseReimbursement: true,
 	})
 
 	if err != nil {
@@ -122,10 +123,11 @@ func (m MoveCounseled) renderTemplates(appCtx appcontext.AppContext, data MoveCo
 }
 
 type MoveCounseledEmailData struct {
-	OriginDutyLocation  *string
-	DestinationLocation string
-	Locator             string
-	MyMoveLink          string
+	OriginDutyLocation         *string
+	DestinationLocation        string
+	Locator                    string
+	MyMoveLink                 string
+	ActualExpenseReimbursement bool
 }
 
 // RenderHTML renders the html for the email
