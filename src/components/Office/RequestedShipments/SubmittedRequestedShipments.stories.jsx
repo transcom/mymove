@@ -39,70 +39,90 @@ export default {
 
 export const withOneShipment = () => (
   <div className="officeApp">
-    <SubmittedRequestedShipments
-      allowancesInfo={allowancesInfo}
-      moveCode="TE5TC0DE"
-      mtoShipments={[shipments[0]]}
-      ordersInfo={ordersInfo}
-      customerInfo={customerInfo}
-      moveTaskOrder={moveTaskOrders[0]}
-    />
+    <MockProviders permissions={[permissionTypes.updateShipment]}>
+      <SubmittedRequestedShipments
+        allowancesInfo={allowancesInfo}
+        moveCode="TE5TC0DE"
+        mtoShipments={[shipments[0]]}
+        ordersInfo={ordersInfo}
+        customerInfo={customerInfo}
+        moveTaskOrder={moveTaskOrders[0]}
+      />
+    </MockProviders>
   </div>
 );
 
 export const withOneExternalVendorShipment = () => (
   <div className="officeApp">
-    <SubmittedRequestedShipments
-      allowancesInfo={allowancesInfo}
-      moveCode="TE5TC0DE"
-      mtoShipments={[ntsExternalVendorShipments[0]]}
-      ordersInfo={ordersInfo}
-      moveTaskOrder={moveTaskOrders[0]}
-      customerInfo={customerInfo}
-    />
+    <MockProviders permissions={[permissionTypes.updateShipment]}>
+      <SubmittedRequestedShipments
+        allowancesInfo={allowancesInfo}
+        moveCode="TE5TC0DE"
+        mtoShipments={[ntsExternalVendorShipments[0]]}
+        ordersInfo={ordersInfo}
+        moveTaskOrder={moveTaskOrders[0]}
+        customerInfo={customerInfo}
+      />
+    </MockProviders>
   </div>
 );
 
 export const withCompletedServicesCounseling = () => (
   <div className="officeApp">
-    <SubmittedRequestedShipments
-      mtoShipments={[shipments[0]]}
-      ordersInfo={ordersInfo}
-      allowancesInfo={allowancesInfo}
-      customerInfo={customerInfo}
-      moveTaskOrder={moveTaskOrders[1]}
-      moveCode="TE5TC0DE"
-    />
+    <MockProviders permissions={[permissionTypes.updateShipment]}>
+      <SubmittedRequestedShipments
+        mtoShipments={[shipments[0]]}
+        ordersInfo={ordersInfo}
+        allowancesInfo={allowancesInfo}
+        customerInfo={customerInfo}
+        moveTaskOrder={moveTaskOrders[1]}
+        moveCode="TE5TC0DE"
+      />
+    </MockProviders>
   </div>
 );
 
 export const withMultipleShipments = () => (
   <div className="officeApp">
-    <SubmittedRequestedShipments
-      mtoShipments={shipments}
-      ordersInfo={ordersInfo}
-      allowancesInfo={allowancesInfo}
-      customerInfo={customerInfo}
-      moveTaskOrder={moveTaskOrders[0]}
-      moveCode="TE5TC0DE"
-    />
+    <MockProviders permissions={[permissionTypes.updateShipment]}>
+      <SubmittedRequestedShipments
+        mtoShipments={shipments}
+        ordersInfo={ordersInfo}
+        allowancesInfo={allowancesInfo}
+        customerInfo={customerInfo}
+        moveTaskOrder={moveTaskOrders[0]}
+        moveCode="TE5TC0DE"
+      />
+    </MockProviders>
   </div>
 );
 
 export const withOneShipmentReadOnly = () => (
   <div className="officeApp">
-    <SubmittedRequestedShipments
-      mtoShipments={[shipments[0]]}
-      ordersInfo={ordersInfo}
-      allowancesInfo={allowancesInfo}
-      customerInfo={customerInfo}
-      moveTaskOrder={moveTaskOrders[0]}
-      moveCode="TE5TC0DE"
-    />
+    <MockProviders>
+      <SubmittedRequestedShipments
+        mtoShipments={[shipments[0]]}
+        ordersInfo={ordersInfo}
+        allowancesInfo={allowancesInfo}
+        customerInfo={customerInfo}
+        moveTaskOrder={moveTaskOrders[0]}
+        moveCode="TE5TC0DE"
+      />
+    </MockProviders>
   </div>
 );
 export const withOneExternalVendorShipmentReadOnly = () => (
   <div className="officeApp">
+    <MockProviders>
+      <SubmittedRequestedShipments
+        mtoShipments={[ntsExternalVendorShipments[0]]}
+        ordersInfo={ordersInfo}
+        allowancesInfo={allowancesInfo}
+        customerInfo={customerInfo}
+        moveTaskOrder={moveTaskOrders[0]}
+        moveCode="TE5TC0DE"
+      />
+    </MockProviders>
     <SubmittedRequestedShipments
       mtoShipments={[ntsExternalVendorShipments[0]]}
       ordersInfo={ordersInfo}
@@ -116,26 +136,30 @@ export const withOneExternalVendorShipmentReadOnly = () => (
 
 export const withCompletedServicesCounselingReadOnly = () => (
   <div className="officeApp">
-    <SubmittedRequestedShipments
-      mtoShipments={[shipments[0]]}
-      ordersInfo={ordersInfo}
-      allowancesInfo={allowancesInfo}
-      customerInfo={customerInfo}
-      moveTaskOrder={moveTaskOrders[1]}
-      moveCode="TE5TC0DE"
-    />
+    <MockProviders>
+      <SubmittedRequestedShipments
+        mtoShipments={[shipments[0]]}
+        ordersInfo={ordersInfo}
+        allowancesInfo={allowancesInfo}
+        customerInfo={customerInfo}
+        moveTaskOrder={moveTaskOrders[1]}
+        moveCode="TE5TC0DE"
+      />
+    </MockProviders>
   </div>
 );
 
 export const withMultipleShipmentsReadOnly = () => (
   <div className="officeApp">
-    <SubmittedRequestedShipments
-      mtoShipments={shipments}
-      ordersInfo={ordersInfo}
-      allowancesInfo={allowancesInfo}
-      customerInfo={customerInfo}
-      moveTaskOrder={moveTaskOrders[0]}
-      moveCode="TE5TC0DE"
-    />
+    <MockProviders>
+      <SubmittedRequestedShipments
+        mtoShipments={shipments}
+        ordersInfo={ordersInfo}
+        allowancesInfo={allowancesInfo}
+        customerInfo={customerInfo}
+        moveTaskOrder={moveTaskOrders[0]}
+        moveCode="TE5TC0DE"
+      />
+    </MockProviders>
   </div>
 );
