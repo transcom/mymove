@@ -12,7 +12,7 @@ import (
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
-// BuildOfficeUser creates an OfficeUser, and a transportation office and transportation office assignment if either doesn't exist
+// BuildOfficeUser creates an OfficeUser and it's required sub-models if any is not supplied in the customizations
 // Params:
 // - customs is a slice that will be modified by the factory
 // - db can be set to nil to create a stubbed model that is not stored in DB.
@@ -59,25 +59,10 @@ func BuildOfficeUser(db *pop.Connection, customs []Customization, traits []Trait
 		mustCreate(db, &officeUser)
 	}
 
-	BuildPrimaryTransportationOfficeAssignment(db, []Customization{
-		{
-			Model: models.OfficeUser{
-				ID: officeUser.ID,
-			},
-			LinkOnly: true,
-		},
-		{
-			Model: models.TransportationOffice{
-				ID: transportationOffice.ID,
-			},
-			LinkOnly: true,
-		},
-	}, nil)
-
 	return officeUser
 }
 
-// BuildOfficeUserWithoutTransportationAssignment creates an OfficeUser
+// BuildOfficeUserWithTransportationAssignment creates an OfficeUser
 // Params:
 // - customs is a slice that will be modified by the factory
 // - db can be set to nil to create a stubbed model that is not stored in DB.
@@ -85,43 +70,26 @@ func BuildOfficeUser(db *pop.Connection, customs []Customization, traits []Trait
 //   - To build an office user with one or more roles use BuildOfficeUserWithRoles
 //   - There's a uniqueness constraint on office user emails so use the GetTraitOfficeUserEmail trait
 //     when creating a test with multiple office users
-//   - The OfficeUser returned won't have an ID if the db is nil. If an ID is needed for a stubbed user,
-//     use trait GetTraitOfficeUserWithID
-func BuildOfficeUserWithoutTransportationOfficeAssignment(db *pop.Connection, customs []Customization, traits []Trait) models.OfficeUser {
-	customs = setupCustomizations(customs, traits)
-
-	// Find officeuser assertion and convert to models officeuser
-	var cOfficeUser models.OfficeUser
-	if result := findValidCustomization(customs, OfficeUser); result != nil {
-		cOfficeUser = result.Model.(models.OfficeUser)
-		if result.LinkOnly {
-			return cOfficeUser
-		}
-	}
-
-	// Find/create the user model
-	user := BuildUserAndUsersRoles(db, customs, nil)
-
-	// Find/create the TransportationOffice model
-	transportationOffice := BuildTransportationOffice(db, customs, nil)
-
+//   - The OfficeUser returned won't have an ID if the db is nil. This will cause the transportation office
+//     assignment creation to fail as LinkOnly customizations models need an ID.
+//   - If an ID is needed for a stubbed user, use trait GetTraitOfficeUserWithID
+func BuildOfficeUserWithTransportationOfficeAssignment(db *pop.Connection, customs []Customization, traits []Trait) models.OfficeUser {
 	// create officeuser
-	officeUser := models.OfficeUser{
-		UserID:                 &user.ID,
-		User:                   user,
-		FirstName:              "Leo",
-		LastName:               "Spaceman",
-		Email:                  "leo_spaceman_office@example.com",
-		Telephone:              "415-555-1212",
-		TransportationOffice:   transportationOffice,
-		TransportationOfficeID: transportationOffice.ID,
-	}
-	// Overwrite values with those from assertions
-	testdatagen.MergeModels(&officeUser, cOfficeUser)
+	officeUser := BuildOfficeUser(db, customs, traits)
 
-	// If db is false, it's a stub. No need to create in database
 	if db != nil {
-		mustCreate(db, &officeUser)
+		createdTransportationAssignment := BuildPrimaryTransportationOfficeAssignment(db, []Customization{
+			{
+				Model:    officeUser.TransportationOffice,
+				LinkOnly: true,
+			},
+			{
+				Model:    officeUser,
+				LinkOnly: true,
+			},
+		}, nil)
+
+		officeUser.TransportationOfficeAssignments = models.TransportationOfficeAssignments{createdTransportationAssignment}
 	}
 
 	return officeUser
