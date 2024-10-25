@@ -63,11 +63,8 @@ INSERT INTO re_service_items (id,service_id,shipment_type,market_code,is_auto_ap
 	 ('567f3d6d-c1a4-46fe-9424-4b60f1dba939'::uuid,'9f3d551a-0725-430e-897e-80ee9add3ae9'::uuid,'HHG'::public."mto_shipment_type",'i'::public."market_code_enum",false,now(),now()),
 	 ('2008074d-e447-4619-b2bd-fe2a38a2759e'::uuid,'67ba1eaf-6ffd-49de-9a69-497be7789877'::uuid,'HHG'::public."mto_shipment_type",'i'::public."market_code_enum",false,now(),now()),
 	 ('daf7b541-f9d1-4b1a-998b-d530ca48da3e'::uuid,'56e91c2d-015d-4243-9657-3ed34867abaa'::uuid,'HHG'::public."mto_shipment_type",'i'::public."market_code_enum",false,now(),now()),
-	 ('07e8dca2-163c-459d-aa88-a6799b9158ab'::uuid,'387b9654-5685-4ac9-b213-81962be9c145'::uuid,'HHG'::public."mto_shipment_type",'i'::public."market_code_enum",true,now(),now()),
-	 ('1b4826ca-1354-407f-8660-3ef7dff6cfff'::uuid,'20998cfd-bfc7-410b-a3c5-d709ead4f94e'::uuid,'HHG'::public."mto_shipment_type",'i'::public."market_code_enum",true,now(),now()),
 	 ('32be29e1-5269-4fd0-85b4-03270cbe6a65'::uuid,'86203d72-7f7c-49ff-82f0-5b95e4958f60'::uuid,'HHG'::public."mto_shipment_type",'i'::public."market_code_enum",true,now(),now());
 INSERT INTO re_service_items (id,service_id,shipment_type,market_code,is_auto_approved,created_at,updated_at) VALUES
-	 ('7e54ce24-bd47-490b-9618-04943df57bca'::uuid,'021791b8-26ca-4494-a3d1-6945e4dde387'::uuid,'HHG'::public."mto_shipment_type",'i'::public."market_code_enum",true,now(),now()),
 	 ('0ee7f930-6421-44b0-8820-48bffc2b2605'::uuid,'806c6d59-57ff-4a3f-9518-ebf29ba9cb10'::uuid,'HHG'::public."mto_shipment_type",'i'::public."market_code_enum",true,now(),now()),
 	 ('e555e8a5-23bf-40ea-9ee8-01479c971716'::uuid,'28389ee1-56cf-400c-aa52-1501ecdd7c69'::uuid,'HHG'::public."mto_shipment_type",'i'::public."market_code_enum",true,now(),now()),
 	 ('2705b054-3a05-492d-9262-3a6d4125c268'::uuid,'bd6064ca-e780-4ab4-a37b-0ae98eebb244'::uuid,'HHG'::public."mto_shipment_type",'i'::public."market_code_enum",true,now(),now()),
@@ -78,10 +75,7 @@ INSERT INTO re_service_items (id,service_id,shipment_type,market_code,is_auto_ap
 	 ('ab8981ca-b3f0-4421-8753-95860ca40cfb'::uuid,'624a97c5-dfbf-4da9-a6e9-526b4f95af8d'::uuid,'HHG'::public."mto_shipment_type",'i'::public."market_code_enum",true,now(),now()),
 	 ('4d09972f-5fb3-44a2-bd0e-4b21f716e222'::uuid,'4132416b-b1aa-42e7-98f2-0ac0a03e8a31'::uuid,'HHG'::public."mto_shipment_type",'i'::public."market_code_enum",true,now(),now());
 INSERT INTO re_service_items (id,service_id,shipment_type,market_code,is_auto_approved,created_at,updated_at) VALUES
-	 ('b6542135-21b9-460a-b1c8-c3338fc02d3f'::uuid,'387b9654-5685-4ac9-b213-81962be9c145'::uuid,'UNACCOMPANIED_BAGGAGE'::public."mto_shipment_type",'i'::public."market_code_enum",true,now(),now()),
-	 ('2d706682-fdc1-4996-8d2a-1a1e7420c438'::uuid,'20998cfd-bfc7-410b-a3c5-d709ead4f94e'::uuid,'UNACCOMPANIED_BAGGAGE'::public."mto_shipment_type",'i'::public."market_code_enum",true,now(),now()),
 	 ('28487c9e-a91b-4870-b2e3-fbefb6a324e6'::uuid,'86203d72-7f7c-49ff-82f0-5b95e4958f60'::uuid,'UNACCOMPANIED_BAGGAGE'::public."mto_shipment_type",'i'::public."market_code_enum",true,now(),now()),
-	 ('c414420c-e4ef-4b86-a9fd-062f85fd50d2'::uuid,'021791b8-26ca-4494-a3d1-6945e4dde387'::uuid,'UNACCOMPANIED_BAGGAGE'::public."mto_shipment_type",'i'::public."market_code_enum",true,now(),now()),
 	 ('6bfeb792-7f08-4b33-904d-f837dc69c097'::uuid,'806c6d59-57ff-4a3f-9518-ebf29ba9cb10'::uuid,'UNACCOMPANIED_BAGGAGE'::public."mto_shipment_type",'i'::public."market_code_enum",true,now(),now()),
 	 ('f896c537-14e8-4612-833c-794d0ada17b8'::uuid,'28389ee1-56cf-400c-aa52-1501ecdd7c69'::uuid,'UNACCOMPANIED_BAGGAGE'::public."mto_shipment_type",'i'::public."market_code_enum",true,now(),now()),
 	 ('3d5cc86e-bd3a-49e0-a041-63e0625e690f'::uuid,'bd6064ca-e780-4ab4-a37b-0ae98eebb244'::uuid,'UNACCOMPANIED_BAGGAGE'::public."mto_shipment_type",'i'::public."market_code_enum",true,now(),now()),
@@ -92,3 +86,20 @@ INSERT INTO re_service_items (id,service_id,shipment_type,market_code,is_auto_ap
 	 ('d6c8ce58-bc00-499f-9cad-9047210b8746'::uuid,'6f4f6e31-0675-4051-b659-89832259f390'::uuid,'UNACCOMPANIED_BAGGAGE'::public."mto_shipment_type",'i'::public."market_code_enum",true,now(),now()),
 	 ('6799f4b5-c4ba-48e4-a4bd-c6adb71b7041'::uuid,'624a97c5-dfbf-4da9-a6e9-526b4f95af8d'::uuid,'UNACCOMPANIED_BAGGAGE'::public."mto_shipment_type",'i'::public."market_code_enum",true,now(),now()),
 	 ('faa6dc9d-e120-4d26-a54b-b84a2b2f6d7c'::uuid,'4132416b-b1aa-42e7-98f2-0ac0a03e8a31'::uuid,'UNACCOMPANIED_BAGGAGE'::public."mto_shipment_type",'i'::public."market_code_enum",true,now(),now());
+
+--Point existing UB service pricing to new UBP service
+update re_intl_prices
+set service_id = (select id from re_services where code = 'UBP')
+where service_id in (select id from re_services where code in ('IOCUB','ICOUB','IOOUB','NSTUB'));
+
+update re_intl_prices
+set service_id = (select id from re_services where code = 'ISLH')
+where service_id in (select id from re_services where code in ('IOCLH','ICOLH','IOOLH','NSTH'));
+
+--Remove UB stuff from service_params as we don't need it.
+delete from service_params sp
+where service_id in (select id from re_services where code in ('IOCUB','ICOUB','IOOUB','NSTUB','IOCLH','ICOLH','IOOLH','NSTH'));
+
+--Remove obsolete UB service itmes from re_services
+delete from re_services rs
+where code in ('IOCUB','ICOUB','IOOUB','NSTUB','IOCLH','ICOLH','IOOLH','NSTH');

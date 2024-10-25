@@ -144,13 +144,13 @@ const (
 
 // ReService model struct
 type ReService struct {
-	ID              uuid.UUID           `json:"id" db:"id"`
-	Code            ReServiceCode       `json:"code" db:"code"`
-	Priority        int                 `db:"priority"`
-	Name            string              `json:"name" db:"name"`
-	CreatedAt       time.Time           `json:"created_at" db:"created_at"`
-	UpdatedAt       time.Time           `json:"updated_at" db:"updated_at"`
-	ServiceLocation ServiceLocationType `json:"service_location" db:"service_location"`
+	ID              uuid.UUID            `json:"id" db:"id"`
+	Code            ReServiceCode        `json:"code" db:"code"`
+	Priority        int                  `db:"priority"`
+	Name            string               `json:"name" db:"name"`
+	CreatedAt       time.Time            `json:"created_at" db:"created_at"`
+	UpdatedAt       time.Time            `json:"updated_at" db:"updated_at"`
+	ServiceLocation *ServiceLocationType `db:"service_location"`
 }
 
 // Hold groupings of SIT for the shipment
