@@ -844,7 +844,18 @@ func (f *mtoShipmentUpdater) updateShipmentRecord(appCtx appcontext.AppContext, 
 		}
 
 		// when populating the market_code column, it is considered domestic if both pickup & dest are CONUS addresses
-		newShipment = models.DetermineShipmentMarketCode(newShipment)
+		if newShipment.PickupAddress != nil && newShipment.DestinationAddress != nil &&
+			newShipment.PickupAddress.IsOconus != nil && newShipment.DestinationAddress.IsOconus != nil {
+			pickupAddress := newShipment.PickupAddress
+			destAddress := newShipment.DestinationAddress
+			if !*pickupAddress.IsOconus && !*destAddress.IsOconus {
+				marketCodeDomestic := models.MarketCodeDomestic
+				newShipment.MarketCode = marketCodeDomestic
+			} else {
+				marketCodeInternational := models.MarketCodeInternational
+				newShipment.MarketCode = marketCodeInternational
+			}
+		}
 
 		if err := txnAppCtx.DB().Update(newShipment); err != nil {
 			return err
