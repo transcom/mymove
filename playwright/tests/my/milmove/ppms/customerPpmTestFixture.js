@@ -250,7 +250,10 @@ export class CustomerPpmPage extends CustomerPage {
 
       // wait for the file to be visible in the uploads
       await expect(
-        filepond.locator('../..').locator('p').getByText('sampleWeightTicket.jpg', { exact: true }),
+        filepond
+          .locator('../..')
+          .locator('p')
+          .getByText(/sampleWeightTicket\.jpg-\d{14}/, { exact: false }),
       ).toBeVisible();
 
       await this.page.getByLabel('Full weight').clear();
@@ -271,7 +274,7 @@ export class CustomerPpmPage extends CustomerPage {
       await this.uploadFileViaFilepond(filepond, 'constructedWeight.xlsx');
 
       // weight estimator file should be converted to .pdf so we verify it was
-      const re = /constructedWeight.+\.pdf$/;
+      const re = /constructedWeight.+\.pdf-\d{14}$/;
 
       // wait for the file to be visible in the uploads
       await expect(filepond.locator('../..').locator('p').getByText(re, { exact: false })).toBeVisible();
@@ -287,7 +290,10 @@ export class CustomerPpmPage extends CustomerPage {
 
       // wait for the file to be visible in the uploads
       await expect(
-        emptyFilepond.locator('../..').locator('p').getByText('sampleWeightTicket.jpg', { exact: true }),
+        emptyFilepond
+          .locator('../..')
+          .locator('p')
+          .getByText(/sampleWeightTicket\.jpg-\d{14}/, { exact: false }),
       ).toBeVisible();
 
       await this.page.getByLabel('Full Weight').clear();
@@ -303,7 +309,10 @@ export class CustomerPpmPage extends CustomerPage {
       await this.uploadFileViaFilepond(fullFilepond, 'sampleWeightTicket.jpg');
       // wait for the file to be visible in the uploads
       await expect(
-        fullFilepond.locator('../..').locator('p').getByText('sampleWeightTicket.jpg', { exact: true }),
+        fullFilepond
+          .locator('../..')
+          .locator('p')
+          .getByText(/sampleWeightTicket\.jpg-\d{14}/, { exact: false }),
       ).toBeVisible();
     }
 
@@ -327,7 +336,10 @@ export class CustomerPpmPage extends CustomerPage {
 
         // wait for the file to be visible in the uploads
         await expect(
-          ownershipFilepond.locator('../..').locator('p').getByText('trailerOwnership.pdf', { exact: true }),
+          ownershipFilepond
+            .locator('../..')
+            .locator('p')
+            .getByText(/trailerOwnership\.pdf-\d{14}/, { exact: false }),
         ).toBeVisible();
       } else {
         // the page design makes it hard to click without using a css locator
@@ -892,7 +904,10 @@ export class CustomerPpmPage extends CustomerPage {
     await this.uploadFileViaFilepond(filepond, uploadFilename);
 
     // wait for the file to be visible in the uploads
-    await expect(filepond.locator('../..').locator('p').getByText(uploadFilename, { exact: true })).toBeVisible();
+    const element = await filepond.locator('../..').locator('p').getByText(`${uploadFilename}-`, { exact: false });
+    const textContent = await element.textContent();
+    const matches = textContent.includes(`${uploadFilename}-`) && /\d{14}/.test(textContent);
+    await expect(matches).toBeTruthy();
   }
 
   /**
@@ -950,7 +965,10 @@ export class CustomerPpmPage extends CustomerPage {
     await this.uploadFileViaFilepond(fullFilepond, 'sampleWeightTicket.jpg');
     // wait for the file to be visible in the uploads
     await expect(
-      fullFilepond.locator('../..').locator('p').getByText('sampleWeightTicket.jpg', { exact: true }),
+      fullFilepond
+        .locator('../..')
+        .locator('p')
+        .getByText(/sampleWeightTicket\.jpg-\d{14}/, { exact: false }),
     ).toBeVisible();
 
     await this.page.locator('input[name="sitStartDate"]').fill('14 Aug 2022');
