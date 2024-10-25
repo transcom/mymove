@@ -39,6 +39,7 @@ const ResidentialAddressForm = ({ formFieldsName, initialValues, onSubmit, onBac
                 state: value.state ? value.state : '',
                 county: value.county ? value.county : '',
                 postalCode: value.postalCode ? value.postalCode : '',
+                usprcId: value.usPostRegionCitiesId ? value.usPostRegionCitiesId : '',
               },
             },
             { shouldValidate: true },

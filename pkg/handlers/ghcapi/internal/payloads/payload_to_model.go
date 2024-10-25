@@ -91,7 +91,7 @@ func AddressModel(address *ghcmessages.Address) *models.Address {
 		return nil
 	}
 
-	usprcID := uuid.FromStringOrNil(address.UsPostRegionCitiesID.String())
+	usprcID := uuid.FromStringOrNil(address.UsprcID.String())
 
 	modelAddress := &models.Address{
 		ID:                 uuid.FromStringOrNil(address.ID.String()),
