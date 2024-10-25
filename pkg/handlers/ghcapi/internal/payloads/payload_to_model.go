@@ -909,16 +909,15 @@ func EvaluationReportFromUpdate(evaluationReport *ghcmessages.EvaluationReport) 
 	return &model, nil
 }
 
-// UsPostRegionCityModel model
-func UsPostRegionCityModel(usPostRegionCity *ghcmessages.UsPostRegionCity) *models.UsPostRegionCity {
-	if usPostRegionCity == nil {
+func VLocationModel(vLocation *ghcmessages.VLocation) *models.VLocation {
+	if vLocation == nil {
 		return nil
 	}
 
-	return &models.UsPostRegionCity{
-		USPostRegionCityNm: usPostRegionCity.City,
-		State:              usPostRegionCity.State,
-		UsprZipID:          usPostRegionCity.PostalCode,
-		UsprcCountyNm:      *usPostRegionCity.County,
+	return &models.VLocation{
+		CityName:      vLocation.City,
+		StateName:     vLocation.State,
+		UsprZipID:     vLocation.PostalCode,
+		UsprcCountyNm: *vLocation.County,
 	}
 }

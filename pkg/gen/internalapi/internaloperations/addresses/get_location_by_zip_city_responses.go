@@ -26,7 +26,7 @@ type GetLocationByZipCityOK struct {
 	/*
 	  In: Body
 	*/
-	Payload internalmessages.UsPostRegionCities `json:"body,omitempty"`
+	Payload internalmessages.VLocations `json:"body,omitempty"`
 }
 
 // NewGetLocationByZipCityOK creates GetLocationByZipCityOK with default headers values
@@ -36,13 +36,13 @@ func NewGetLocationByZipCityOK() *GetLocationByZipCityOK {
 }
 
 // WithPayload adds the payload to the get location by zip city o k response
-func (o *GetLocationByZipCityOK) WithPayload(payload internalmessages.UsPostRegionCities) *GetLocationByZipCityOK {
+func (o *GetLocationByZipCityOK) WithPayload(payload internalmessages.VLocations) *GetLocationByZipCityOK {
 	o.Payload = payload
 	return o
 }
 
 // SetPayload sets the payload to the get location by zip city o k response
-func (o *GetLocationByZipCityOK) SetPayload(payload internalmessages.UsPostRegionCities) {
+func (o *GetLocationByZipCityOK) SetPayload(payload internalmessages.VLocations) {
 	o.Payload = payload
 }
 
@@ -53,7 +53,7 @@ func (o *GetLocationByZipCityOK) WriteResponse(rw http.ResponseWriter, producer 
 	payload := o.Payload
 	if payload == nil {
 		// return empty array
-		payload = internalmessages.UsPostRegionCities{}
+		payload = internalmessages.VLocations{}
 	}
 
 	if err := producer.Produce(rw, payload); err != nil {

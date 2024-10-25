@@ -612,10 +612,10 @@ definitions:
     type: array
     items:
       $ref: '#/definitions/TransportationOffice'
-  UsPostRegionCities:
+  VLocations:
     type: array
     items:
-      $ref: '#/definitions/UsPostRegionCity'
+      $ref: '#/definitions/VLocation'
   OfficeUser:
     type: object
     properties:
@@ -3930,8 +3930,8 @@ definitions:
       RENTAL_EQUIPMENT: Rental equipment
       TOLLS: Tolls
       WEIGHING_FEE: Weighing fee
-  UsPostRegionCity:
-    description: A postal code and city lookup
+  VLocation:
+    description: A postal code, city, and state lookup
     type: object
     properties:
       city:
@@ -4050,7 +4050,7 @@ definitions:
         format: zip
         title: ZIP
         example: '90210'
-        pattern: ^(\d{5}([\-]\d{4})?)$
+        pattern: ^(\d{5}?)$
       county:
         type: string
         title: County
@@ -6110,7 +6110,7 @@ paths:
         '200':
           description: the requested list of city, state, county, and postal code matches
           schema:
-            $ref: '#/definitions/UsPostRegionCities'
+            $ref: '#/definitions/VLocations'
         '400':
           description: invalid request
         '403':

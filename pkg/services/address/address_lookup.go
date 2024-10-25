@@ -15,14 +15,14 @@ import (
 	"github.com/transcom/mymove/pkg/services"
 )
 
-type usPostRegionCity struct {
+type vLocation struct {
 }
 
-func NewUsPostRegionCity() services.UsPostRegionCity {
-	return &usPostRegionCity{}
+func NewVLocation() services.VLocation {
+	return &vLocation{}
 }
 
-func (o usPostRegionCity) GetLocationsByZipCity(appCtx appcontext.AppContext, search string) (*models.UsPostRegionCities, error) {
+func (o vLocation) GetLocationsByZipCity(appCtx appcontext.AppContext, search string) (*models.VLocations, error) {
 	locationList, err := FindLocationsByZipCity(appCtx, search)
 
 	if err != nil {
@@ -37,8 +37,8 @@ func (o usPostRegionCity) GetLocationsByZipCity(appCtx appcontext.AppContext, se
 	return &locationList, nil
 }
 
-func FindLocationsByZipCity(appCtx appcontext.AppContext, search string) (models.UsPostRegionCities, error) {
-	var locationList []models.UsPostRegionCity
+func FindLocationsByZipCity(appCtx appcontext.AppContext, search string) (models.VLocations, error) {
+	var locationList []models.VLocation
 	search = strings.ReplaceAll(search, ",", "") //remove any commas so they are not used in the search
 	searchSlice := strings.Split(search, " ")
 	city := ""

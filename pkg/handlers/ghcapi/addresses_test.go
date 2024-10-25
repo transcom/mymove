@@ -14,13 +14,13 @@ import (
 func (suite *HandlerSuite) TestGetLocationByZipCityHandler() {
 	suite.Run("successful zip city lookup", func() {
 		zip := "90210"
-		var fetchedUsPostRegionCity models.UsPostRegionCity
-		err := suite.DB().Where("uspr_zip_id = $1", zip).First(&fetchedUsPostRegionCity)
+		var fetchedVLocation models.VLocation
+		err := suite.DB().Where("uspr_zip_id = $1", zip).First(&fetchedVLocation)
 
 		suite.NoError(err)
-		suite.Equal(zip, fetchedUsPostRegionCity.UsprZipID)
+		suite.Equal(zip, fetchedVLocation.UsprZipID)
 
-		usPostRegionCityService := address.NewUsPostRegionCity()
+		vLocationService := address.NewVLocation()
 		officeUser := factory.BuildOfficeUser(nil, nil, nil)
 		req := httptest.NewRequest("GET", "/addresses/zip_city_lookup/"+zip, nil)
 		req = suite.AuthenticateOfficeRequest(req, officeUser)
@@ -30,8 +30,8 @@ func (suite *HandlerSuite) TestGetLocationByZipCityHandler() {
 		}
 
 		handler := GetLocationByZipCityHandler{
-			HandlerConfig:    suite.HandlerConfig(),
-			UsPostRegionCity: usPostRegionCityService}
+			HandlerConfig: suite.HandlerConfig(),
+			VLocation:     vLocationService}
 
 		response := handler.Handle(params)
 		suite.Assertions.IsType(&addressop.GetLocationByZipCityOK{}, response)

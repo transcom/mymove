@@ -14,6 +14,6 @@ type AddressUpdater interface {
 }
 
 //go:generate mockery --name UsPostRegionCity
-type UsPostRegionCity interface {
-	GetLocationsByZipCity(appCtx appcontext.AppContext, search string) (*models.UsPostRegionCities, error)
+type VLocation interface {
+	GetLocationsByZipCity(appCtx appcontext.AppContext, search string) (*models.VLocations, error)
 }

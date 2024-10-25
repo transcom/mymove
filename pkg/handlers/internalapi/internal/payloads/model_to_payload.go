@@ -626,26 +626,26 @@ func SignedCertification(signedCertification *models.SignedCertification) *inter
 	return model
 }
 
-// UsPostRegionCity payload
-func UsPostRegionCity(usPostRegionCity *models.UsPostRegionCity) *internalmessages.UsPostRegionCity {
-	if usPostRegionCity == nil || *usPostRegionCity == (models.UsPostRegionCity{}) {
+// VLocation payload
+func VLocation(vLocation *models.VLocation) *internalmessages.VLocation {
+	if vLocation == nil || *vLocation == (models.VLocation{}) {
 		return nil
 	}
 
-	return &internalmessages.UsPostRegionCity{
-		City:       usPostRegionCity.USPostRegionCityNm,
-		State:      usPostRegionCity.State,
-		PostalCode: usPostRegionCity.UsprZipID,
-		County:     &usPostRegionCity.UsprcCountyNm,
+	return &internalmessages.VLocation{
+		City:       vLocation.CityName,
+		State:      vLocation.StateName,
+		PostalCode: vLocation.UsprZipID,
+		County:     &vLocation.UsprcCountyNm,
 	}
 }
 
 // UsPostRegionCities payload
-func UsPostRegionCities(usPostRegionCities models.UsPostRegionCities) internalmessages.UsPostRegionCities {
-	payload := make(internalmessages.UsPostRegionCities, len(usPostRegionCities))
-	for i, usPostRegionCity := range usPostRegionCities {
-		copyOfUsPostRegionCity := usPostRegionCity
-		payload[i] = UsPostRegionCity(&copyOfUsPostRegionCity)
+func VLocations(vLocations models.VLocations) internalmessages.VLocations {
+	payload := make(internalmessages.VLocations, len(vLocations))
+	for i, vLocation := range vLocations {
+		copyOfVLocation := vLocation
+		payload[i] = VLocation(&copyOfVLocation)
 	}
 	return payload
 }

@@ -3933,7 +3933,7 @@ paths:
         "200":
           description: the requested list of city, state, county, and postal code matches
           schema:
-            $ref: "#/definitions/UsPostRegionCities"
+            $ref: "#/definitions/VLocations"
         "400":
           description: invalid request
         "403":
@@ -7333,10 +7333,10 @@ definitions:
     type: array
     items:
       $ref: 'definitions/TransportationOffice.yaml'
-  UsPostRegionCities:
+  VLocations:
     type: array
     items:
-      $ref: "definitions/UsPostRegionCity.yaml"
+      $ref: "definitions/VLocation.yaml"
   GBLOCs:
     type: array
     items:

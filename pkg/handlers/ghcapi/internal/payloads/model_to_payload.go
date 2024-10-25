@@ -2386,29 +2386,29 @@ func SearchCustomers(customers models.ServiceMemberSearchResults) *ghcmessages.S
 	return &searchCustomers
 }
 
-// UsPostRegionCity payload
-func UsPostRegionCity(usPostRegionCity *models.UsPostRegionCity) *ghcmessages.UsPostRegionCity {
-	if usPostRegionCity == nil {
+// VLocation payload
+func VLocation(vLocation *models.VLocation) *ghcmessages.VLocation {
+	if vLocation == nil {
 		return nil
 	}
-	if *usPostRegionCity == (models.UsPostRegionCity{}) {
+	if *vLocation == (models.VLocation{}) {
 		return nil
 	}
 
-	return &ghcmessages.UsPostRegionCity{
-		City:       usPostRegionCity.USPostRegionCityNm,
-		State:      usPostRegionCity.State,
-		PostalCode: usPostRegionCity.UsprZipID,
-		County:     &usPostRegionCity.UsprcCountyNm,
+	return &ghcmessages.VLocation{
+		City:       vLocation.CityName,
+		State:      vLocation.StateName,
+		PostalCode: vLocation.UsprZipID,
+		County:     &vLocation.UsprcCountyNm,
 	}
 }
 
-// UsPostRegionCities payload
-func UsPostRegionCities(usPostRegionCities models.UsPostRegionCities) ghcmessages.UsPostRegionCities {
-	payload := make(ghcmessages.UsPostRegionCities, len(usPostRegionCities))
-	for i, usPostRegionCity := range usPostRegionCities {
-		copyOfUsPostRegionCity := usPostRegionCity
-		payload[i] = UsPostRegionCity(&copyOfUsPostRegionCity)
+// VLocations payload
+func VLocations(vLocations models.VLocations) ghcmessages.VLocations {
+	payload := make(ghcmessages.VLocations, len(vLocations))
+	for i, vLocation := range vLocations {
+		copyOfVLocation := vLocation
+		payload[i] = VLocation(&copyOfVLocation)
 	}
 	return payload
 }

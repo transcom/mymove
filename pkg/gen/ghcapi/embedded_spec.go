@@ -56,7 +56,7 @@ func init() {
           "200": {
             "description": "the requested list of city, state, county, and postal code matches",
             "schema": {
-              "$ref": "#/definitions/UsPostRegionCities"
+              "$ref": "#/definitions/VLocations"
             }
           },
           "400": {
@@ -13909,14 +13909,8 @@ func init() {
         }
       }
     },
-    "UsPostRegionCities": {
-      "type": "array",
-      "items": {
-        "$ref": "#/definitions/UsPostRegionCity"
-      }
-    },
-    "UsPostRegionCity": {
-      "description": "A postal code and city lookup",
+    "VLocation": {
+      "description": "A postal code, city, and state lookup",
       "type": "object",
       "properties": {
         "city": {
@@ -13934,7 +13928,7 @@ func init() {
           "type": "string",
           "format": "zip",
           "title": "ZIP",
-          "pattern": "^(\\d{5}([\\-]\\d{4})?)$",
+          "pattern": "^(\\d{5}?)$",
           "example": "90210"
         },
         "state": {
@@ -14047,6 +14041,12 @@ func init() {
             "WY": "WY"
           }
         }
+      }
+    },
+    "VLocations": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/VLocation"
       }
     },
     "ValidationError": {
@@ -14441,7 +14441,7 @@ func init() {
           "200": {
             "description": "the requested list of city, state, county, and postal code matches",
             "schema": {
-              "$ref": "#/definitions/UsPostRegionCities"
+              "$ref": "#/definitions/VLocations"
             }
           },
           "400": {
@@ -29914,14 +29914,8 @@ func init() {
         }
       }
     },
-    "UsPostRegionCities": {
-      "type": "array",
-      "items": {
-        "$ref": "#/definitions/UsPostRegionCity"
-      }
-    },
-    "UsPostRegionCity": {
-      "description": "A postal code and city lookup",
+    "VLocation": {
+      "description": "A postal code, city, and state lookup",
       "type": "object",
       "properties": {
         "city": {
@@ -29939,7 +29933,7 @@ func init() {
           "type": "string",
           "format": "zip",
           "title": "ZIP",
-          "pattern": "^(\\d{5}([\\-]\\d{4})?)$",
+          "pattern": "^(\\d{5}?)$",
           "example": "90210"
         },
         "state": {
@@ -30052,6 +30046,12 @@ func init() {
             "WY": "WY"
           }
         }
+      }
+    },
+    "VLocations": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/VLocation"
       }
     },
     "ValidationError": {

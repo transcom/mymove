@@ -15,7 +15,7 @@ import (
 
 type GetLocationByZipCityHandler struct {
 	handlers.HandlerConfig
-	services.UsPostRegionCity
+	services.VLocation
 }
 
 func (h GetLocationByZipCityHandler) Handle(params addressop.GetLocationByZipCityParams) middleware.Responder {
@@ -28,11 +28,11 @@ func (h GetLocationByZipCityHandler) Handle(params addressop.GetLocationByZipCit
 
 			locationList, err := h.GetLocationsByZipCity(appCtx, params.Search)
 			if err != nil {
-				appCtx.Logger().Error("Error searching for Zip/City: ", zap.Error(err))
+				appCtx.Logger().Error("Error searching for Zip/City/State: ", zap.Error(err))
 				return addressop.NewGetLocationByZipCityInternalServerError(), err
 			}
 
-			returnPayload := payloads.UsPostRegionCities(*locationList)
+			returnPayload := payloads.VLocations(*locationList)
 			return addressop.NewGetLocationByZipCityOK().WithPayload(returnPayload), nil
 		})
 }
