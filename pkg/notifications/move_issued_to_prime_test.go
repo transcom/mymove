@@ -495,7 +495,7 @@ under the Privacy Act of 1974. Failure to protect Privacy Act information could 
 	})
 }
 
-func (suite *NotificationSuite) TestCounselorApprovedMoveForSeparatee() {
+func (suite *NotificationSuite) TestTOOApprovedMoveDetailsForSeparatee() {
 	move := factory.BuildMoveWithShipment(suite.DB(), []factory.Customization{
 		{
 			Model: models.Order{
@@ -528,7 +528,7 @@ func (suite *NotificationSuite) TestCounselorApprovedMoveForSeparatee() {
 	suite.Contains(email.textBody, move.MTOShipments[0].DestinationAddress.PostalCode)
 }
 
-func (suite *NotificationSuite) TestCounselorApprovedMoveForRetiree() {
+func (suite *NotificationSuite) TestTOOApprovedMoveDetailsForRetiree() {
 	move := factory.BuildMoveWithShipment(suite.DB(), []factory.Customization{
 		{
 			Model: models.Order{
