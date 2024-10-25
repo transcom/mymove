@@ -633,14 +633,15 @@ func VLocation(vLocation *models.VLocation) *internalmessages.VLocation {
 	}
 
 	return &internalmessages.VLocation{
-		City:       vLocation.CityName,
-		State:      vLocation.StateName,
-		PostalCode: vLocation.UsprZipID,
-		County:     &vLocation.UsprcCountyNm,
+		City:                 vLocation.CityName,
+		State:                vLocation.StateName,
+		PostalCode:           vLocation.UsprZipID,
+		County:               &vLocation.UsprcCountyNm,
+		UsPostRegionCitiesID: *handlers.FmtUUID(*vLocation.UprcId),
 	}
 }
 
-// UsPostRegionCities payload
+// VLocations payload
 func VLocations(vLocations models.VLocations) internalmessages.VLocations {
 	payload := make(internalmessages.VLocations, len(vLocations))
 	for i, vLocation := range vLocations {

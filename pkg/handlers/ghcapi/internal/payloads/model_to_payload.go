@@ -2396,10 +2396,11 @@ func VLocation(vLocation *models.VLocation) *ghcmessages.VLocation {
 	}
 
 	return &ghcmessages.VLocation{
-		City:       vLocation.CityName,
-		State:      vLocation.StateName,
-		PostalCode: vLocation.UsprZipID,
-		County:     &vLocation.UsprcCountyNm,
+		City:                 vLocation.CityName,
+		State:                vLocation.StateName,
+		PostalCode:           vLocation.UsprZipID,
+		County:               &vLocation.UsprcCountyNm,
+		UsPostRegionCitiesID: *handlers.FmtUUID(*vLocation.UprcId),
 	}
 }
 

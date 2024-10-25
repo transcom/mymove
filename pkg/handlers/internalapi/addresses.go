@@ -22,14 +22,18 @@ func addressModelFromPayload(rawAddress *internalmessages.Address) *models.Addre
 	if rawAddress.County == nil {
 		rawAddress.County = models.StringPointer("")
 	}
+
+	usprcID := uuid.FromStringOrNil(rawAddress.UsPostRegionCitiesID.String())
+
 	return &models.Address{
-		StreetAddress1: *rawAddress.StreetAddress1,
-		StreetAddress2: rawAddress.StreetAddress2,
-		StreetAddress3: rawAddress.StreetAddress3,
-		City:           *rawAddress.City,
-		State:          *rawAddress.State,
-		PostalCode:     *rawAddress.PostalCode,
-		County:         *rawAddress.County,
+		StreetAddress1:     *rawAddress.StreetAddress1,
+		StreetAddress2:     rawAddress.StreetAddress2,
+		StreetAddress3:     rawAddress.StreetAddress3,
+		City:               *rawAddress.City,
+		State:              *rawAddress.State,
+		PostalCode:         *rawAddress.PostalCode,
+		County:             *rawAddress.County,
+		UsPostRegionCityId: &usprcID,
 	}
 }
 
@@ -40,6 +44,8 @@ func updateAddressWithPayload(a *models.Address, payload *internalmessages.Addre
 	a.City = *payload.City
 	a.State = *payload.State
 	a.PostalCode = *payload.PostalCode
+	usprcID := uuid.FromStringOrNil(payload.UsPostRegionCitiesID.String())
+	a.UsPostRegionCityId = &usprcID
 	if payload.County == nil {
 		a.County = ""
 	} else {

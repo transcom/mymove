@@ -91,10 +91,13 @@ func AddressModel(address *ghcmessages.Address) *models.Address {
 		return nil
 	}
 
+	usprcID := uuid.FromStringOrNil(address.UsPostRegionCitiesID.String())
+
 	modelAddress := &models.Address{
-		ID:             uuid.FromStringOrNil(address.ID.String()),
-		StreetAddress2: address.StreetAddress2,
-		StreetAddress3: address.StreetAddress3,
+		ID:                 uuid.FromStringOrNil(address.ID.String()),
+		StreetAddress2:     address.StreetAddress2,
+		StreetAddress3:     address.StreetAddress3,
+		UsPostRegionCityId: &usprcID,
 	}
 	if address.StreetAddress1 != nil {
 		modelAddress.StreetAddress1 = *address.StreetAddress1
@@ -914,10 +917,13 @@ func VLocationModel(vLocation *ghcmessages.VLocation) *models.VLocation {
 		return nil
 	}
 
+	usprcID := uuid.FromStringOrNil(vLocation.UsPostRegionCitiesID.String())
+
 	return &models.VLocation{
 		CityName:      vLocation.City,
 		StateName:     vLocation.State,
 		UsprZipID:     vLocation.PostalCode,
 		UsprcCountyNm: *vLocation.County,
+		UprcId:        &usprcID,
 	}
 }
