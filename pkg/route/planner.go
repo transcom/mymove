@@ -179,7 +179,7 @@ func initDTODPlannerMileage(appCtx appcontext.AppContext, v *viper.Viper, tlsCon
 		}
 		soapClient.URL = dtodURL
 
-		dtodPlannerMileage = NewDTODZip5Distance(dtodAPIUsername, dtodAPIPassword, soapClient)
+		dtodPlannerMileage = NewDTODZip5Distance(dtodAPIUsername, dtodAPIPassword, soapClient, v.GetBool(cli.DTODSimulateOutageFlag))
 	}
 
 	return dtodPlannerMileage, nil

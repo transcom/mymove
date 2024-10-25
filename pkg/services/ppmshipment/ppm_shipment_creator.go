@@ -59,7 +59,12 @@ func (f *ppmShipmentCreator) createPPMShipment(appCtx appcontext.AppContext, ppm
 		if ppmShipment.PickupAddress != nil {
 			address, err = f.addressCreator.CreateAddress(txnAppCtx, ppmShipment.PickupAddress)
 			if err != nil {
-				return fmt.Errorf("failed to create pickup address %e", err)
+				switch err := err.(type) {
+				case apperror.EventError:
+					return err
+				default:
+					return fmt.Errorf("failed to create pickup address %e", err)
+				}
 			}
 			ppmShipment.PickupAddressID = &address.ID
 		}
@@ -67,7 +72,12 @@ func (f *ppmShipmentCreator) createPPMShipment(appCtx appcontext.AppContext, ppm
 		if ppmShipment.SecondaryPickupAddress != nil {
 			address, err = f.addressCreator.CreateAddress(txnAppCtx, ppmShipment.SecondaryPickupAddress)
 			if err != nil {
-				return fmt.Errorf("failed to create secondary pickup address %e", err)
+				switch err := err.(type) {
+				case apperror.EventError:
+					return err
+				default:
+					return fmt.Errorf("failed to create secondary pickup address %e", err)
+				}
 			}
 			ppmShipment.SecondaryPickupAddressID = &address.ID
 			// ensure HasSecondaryPickupAddress property is set true on create
@@ -87,7 +97,12 @@ func (f *ppmShipmentCreator) createPPMShipment(appCtx appcontext.AppContext, ppm
 		if ppmShipment.DestinationAddress != nil {
 			address, err = f.addressCreator.CreateAddress(txnAppCtx, ppmShipment.DestinationAddress)
 			if err != nil {
-				return fmt.Errorf("failed to create destination address %e", err)
+				switch err := err.(type) {
+				case apperror.EventError:
+					return err
+				default:
+					return fmt.Errorf("failed to create destination address %e", err)
+				}
 			}
 			ppmShipment.DestinationAddressID = &address.ID
 		}
@@ -95,7 +110,12 @@ func (f *ppmShipmentCreator) createPPMShipment(appCtx appcontext.AppContext, ppm
 		if ppmShipment.SecondaryDestinationAddress != nil {
 			address, err = f.addressCreator.CreateAddress(txnAppCtx, ppmShipment.SecondaryDestinationAddress)
 			if err != nil {
-				return fmt.Errorf("failed to create secondary delivery address %e", err)
+				switch err := err.(type) {
+				case apperror.EventError:
+					return err
+				default:
+					return fmt.Errorf("failed to create secondary destination address %e", err)
+				}
 			}
 			ppmShipment.SecondaryDestinationAddressID = &address.ID
 			// ensure HasSecondaryDestinationAddress property is set true on create
