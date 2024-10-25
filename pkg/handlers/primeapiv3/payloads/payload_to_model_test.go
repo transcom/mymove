@@ -628,13 +628,14 @@ func (suite *PayloadsSuite) TestPPMShipmentModelFromCreate() {
 		DestinationAddress: struct {
 			primev3messages.PPMDestinationAddress
 		}{destinationAddress},
-		SecondaryDestinationAddress: struct{ primev3messages.Address }{secondaryDestinationAddress},
-		TertiaryDestinationAddress:  struct{ primev3messages.Address }{tertiaryDestinationAddress},
-		SitExpected:                 &sitExpected,
-		EstimatedWeight:             &estimatedWeight,
-		HasProGear:                  &hasProGear,
-		ProGearWeight:               &proGearWeight,
-		SpouseProGearWeight:         &spouseProGearWeight,
+		SecondaryDestinationAddress:  struct{ primev3messages.Address }{secondaryDestinationAddress},
+		TertiaryDestinationAddress:   struct{ primev3messages.Address }{tertiaryDestinationAddress},
+		SitExpected:                  &sitExpected,
+		EstimatedWeight:              &estimatedWeight,
+		HasProGear:                   &hasProGear,
+		ProGearWeight:                &proGearWeight,
+		SpouseProGearWeight:          &spouseProGearWeight,
+		IsActualExpenseReimbursement: models.BoolPointer(true),
 	}
 
 	model := PPMShipmentModelFromCreate(&ppmShipment)
@@ -650,152 +651,154 @@ func (suite *PayloadsSuite) TestPPMShipmentModelFromCreate() {
 	suite.True(*model.HasSecondaryDestinationAddress)
 	suite.True(*model.HasTertiaryPickupAddress)
 	suite.True(*model.HasTertiaryDestinationAddress)
+	suite.True(*model.IsActualExpenseReimbursement)
 	suite.NotNil(model)
 }
 
-func (suite *PayloadsSuite) TestPPMShipmentModelWithOptionalDestinationStreet1FromCreate() {
-	time := time.Now()
-	expectedDepartureDate := handlers.FmtDatePtr(&time)
+func (suite *PayloadsSuite) TestMobileHomeShipmentModelFromCreate() {
+	make := "BrandA"
+	model := "ModelX"
+	year := int64(2024)
+	lengthInInches := int64(60)
+	heightInInches := int64(13)
+	widthInInches := int64(10)
 
-	address := models.Address{
-		StreetAddress1: "some address",
-		City:           "city",
-		State:          "state",
-		PostalCode:     "12345",
+	expectedMobileHome := models.MobileHome{
+		Make:           models.StringPointer(make),
+		Model:          models.StringPointer(model),
+		Year:           models.IntPointer(int(year)),
+		LengthInInches: models.IntPointer(int(lengthInInches)),
+		HeightInInches: models.IntPointer(int(heightInInches)),
+		WidthInInches:  models.IntPointer(int(widthInInches)),
 	}
 
-	var pickupAddress primev3messages.Address
-	var destinationAddress primev3messages.PPMDestinationAddress
+	suite.Run("Success - Complete input", func() {
+		mobileHomeShipment := &primev3messages.CreateMobileHomeShipment{
+			Make:           models.StringPointer(make),
+			Model:          models.StringPointer(model),
+			Year:           &year,
+			LengthInInches: &lengthInInches,
+			HeightInInches: &heightInInches,
+			WidthInInches:  &widthInInches,
+		}
 
-	pickupAddress = primev3messages.Address{
-		City:           &address.City,
-		PostalCode:     &address.PostalCode,
-		State:          &address.State,
-		StreetAddress1: &address.StreetAddress1,
-		StreetAddress2: address.StreetAddress2,
-		StreetAddress3: address.StreetAddress3,
-	}
-	destinationAddress = primev3messages.PPMDestinationAddress{
-		City:           &address.City,
-		PostalCode:     &address.PostalCode,
-		State:          &address.State,
-		StreetAddress1: models.StringPointer(""), // empty string
-		StreetAddress2: address.StreetAddress2,
-		StreetAddress3: address.StreetAddress3,
-	}
+		moveTaskOrderID := strfmt.UUID(uuid.Must(uuid.NewV4()).String())
+		mtoShipment := primev3messages.CreateMTOShipment{
+			MoveTaskOrderID:    &moveTaskOrderID,
+			ShipmentType:       primev3messages.NewMTOShipmentType(primev3messages.MTOShipmentTypeMOBILEHOME),
+			MobileHomeShipment: mobileHomeShipment,
+		}
 
-	ppmShipment := primev3messages.CreatePPMShipment{
-		ExpectedDepartureDate: expectedDepartureDate,
-		PickupAddress:         struct{ primev3messages.Address }{pickupAddress},
-		DestinationAddress: struct {
-			primev3messages.PPMDestinationAddress
-		}{destinationAddress},
-	}
+		returnedMobileHome, _ := MobileHomeShipmentModelFromCreate(&mtoShipment)
 
-	model := PPMShipmentModelFromCreate(&ppmShipment)
-
-	suite.NotNil(model)
-	suite.Equal(models.PPMShipmentStatusSubmitted, model.Status)
-	suite.Equal(model.DestinationAddress.StreetAddress1, models.STREET_ADDRESS_1_NOT_PROVIDED)
-
-	// test when street address 1 contains white spaces
-	destinationAddress.StreetAddress1 = models.StringPointer("  ")
-	ppmShipmentWhiteSpaces := primev3messages.CreatePPMShipment{
-		ExpectedDepartureDate: expectedDepartureDate,
-		PickupAddress:         struct{ primev3messages.Address }{pickupAddress},
-		DestinationAddress: struct {
-			primev3messages.PPMDestinationAddress
-		}{destinationAddress},
-	}
-
-	model2 := PPMShipmentModelFromCreate(&ppmShipmentWhiteSpaces)
-	suite.Equal(model2.DestinationAddress.StreetAddress1, models.STREET_ADDRESS_1_NOT_PROVIDED)
-
-	// test with valid street address 2
-	streetAddress1 := "1234 Street"
-	destinationAddress.StreetAddress1 = &streetAddress1
-	ppmShipmentValidDestinatonStreet1 := primev3messages.CreatePPMShipment{
-		ExpectedDepartureDate: expectedDepartureDate,
-		PickupAddress:         struct{ primev3messages.Address }{pickupAddress},
-		DestinationAddress: struct {
-			primev3messages.PPMDestinationAddress
-		}{destinationAddress},
-	}
-
-	model3 := PPMShipmentModelFromCreate(&ppmShipmentValidDestinatonStreet1)
-	suite.Equal(model3.DestinationAddress.StreetAddress1, streetAddress1)
+		suite.IsType(&models.MobileHome{}, returnedMobileHome)
+		suite.Equal(expectedMobileHome.Make, returnedMobileHome.Make)
+		suite.Equal(expectedMobileHome.Model, returnedMobileHome.Model)
+		suite.Equal(expectedMobileHome.Year, returnedMobileHome.Year)
+		suite.Equal(expectedMobileHome.LengthInInches, returnedMobileHome.LengthInInches)
+		suite.Equal(expectedMobileHome.HeightInInches, returnedMobileHome.HeightInInches)
+		suite.Equal(expectedMobileHome.WidthInInches, returnedMobileHome.WidthInInches)
+	})
 }
 
-func (suite *PayloadsSuite) TestPPMShipmentModelWithOptionalDestinationStreet1FromUpdate() {
-	time := time.Now()
-	expectedDepartureDate := handlers.FmtDatePtr(&time)
+func (suite *PayloadsSuite) TestBoatShipmentModelFromCreate() {
+	make := "BrandA"
+	model := "ModelX"
+	year := int64(2024)
+	lengthInInches := int64(60)
+	heightInInches := int64(13)
+	widthInInches := int64(10)
+	hasTrailer := true
+	isRoadworthy := true
 
-	address := models.Address{
-		StreetAddress1: "some address",
-		City:           "city",
-		State:          "state",
-		PostalCode:     "12345",
+	expectedBoatHaulAway := models.BoatShipment{
+		Make:           models.StringPointer(make),
+		Model:          models.StringPointer(model),
+		Year:           models.IntPointer(int(year)),
+		LengthInInches: models.IntPointer(int(lengthInInches)),
+		HeightInInches: models.IntPointer(int(heightInInches)),
+		WidthInInches:  models.IntPointer(int(widthInInches)),
+		HasTrailer:     &hasTrailer,
+		IsRoadworthy:   &isRoadworthy,
 	}
 
-	var pickupAddress primev3messages.Address
-	var destinationAddress primev3messages.PPMDestinationAddress
-
-	pickupAddress = primev3messages.Address{
-		City:           &address.City,
-		PostalCode:     &address.PostalCode,
-		State:          &address.State,
-		StreetAddress1: &address.StreetAddress1,
-		StreetAddress2: address.StreetAddress2,
-		StreetAddress3: address.StreetAddress3,
+	boatShipment := &primev3messages.CreateBoatShipment{
+		Make:           models.StringPointer(make),
+		Model:          models.StringPointer(model),
+		Year:           &year,
+		LengthInInches: &lengthInInches,
+		HeightInInches: &heightInInches,
+		WidthInInches:  &widthInInches,
+		HasTrailer:     &hasTrailer,
+		IsRoadworthy:   &isRoadworthy,
 	}
-	destinationAddress = primev3messages.PPMDestinationAddress{
-		City:           &address.City,
-		PostalCode:     &address.PostalCode,
-		State:          &address.State,
-		StreetAddress1: models.StringPointer(""), // empty string
-		StreetAddress2: address.StreetAddress2,
-		StreetAddress3: address.StreetAddress3,
-	}
+	suite.Run("Success - Complete input for MTOShipmentTypeBOATHAULAWAY", func() {
+		moveTaskOrderID := strfmt.UUID(uuid.Must(uuid.NewV4()).String())
+		mtoShipment := primev3messages.CreateMTOShipment{
+			MoveTaskOrderID: &moveTaskOrderID,
+			ShipmentType:    primev3messages.NewMTOShipmentType(primev3messages.MTOShipmentTypeBOATHAULAWAY),
+			BoatShipment:    boatShipment,
+		}
 
-	ppmShipment := primev3messages.UpdatePPMShipment{
-		ExpectedDepartureDate: expectedDepartureDate,
-		PickupAddress:         struct{ primev3messages.Address }{pickupAddress},
-		DestinationAddress: struct {
-			primev3messages.PPMDestinationAddress
-		}{destinationAddress},
-	}
+		returnedBoatHaulAway, _ := BoatShipmentModelFromCreate(&mtoShipment)
 
-	model := PPMShipmentModelFromUpdate(&ppmShipment)
+		suite.IsType(&models.BoatShipment{}, returnedBoatHaulAway)
 
-	suite.NotNil(model)
-	suite.Equal(model.DestinationAddress.StreetAddress1, models.STREET_ADDRESS_1_NOT_PROVIDED)
+		suite.Equal(expectedBoatHaulAway.Make, returnedBoatHaulAway.Make)
+		suite.Equal(expectedBoatHaulAway.Model, returnedBoatHaulAway.Model)
+		suite.Equal(expectedBoatHaulAway.Year, returnedBoatHaulAway.Year)
+		suite.Equal(expectedBoatHaulAway.LengthInInches, returnedBoatHaulAway.LengthInInches)
+		suite.Equal(expectedBoatHaulAway.HeightInInches, returnedBoatHaulAway.HeightInInches)
+		suite.Equal(expectedBoatHaulAway.WidthInInches, returnedBoatHaulAway.WidthInInches)
+		suite.Equal(expectedBoatHaulAway.HasTrailer, returnedBoatHaulAway.HasTrailer)
+		suite.Equal(expectedBoatHaulAway.IsRoadworthy, returnedBoatHaulAway.IsRoadworthy)
+	})
 
-	// test when street address 1 contains white spaces
-	destinationAddress.StreetAddress1 = models.StringPointer("  ")
-	ppmShipmentWhiteSpaces := primev3messages.UpdatePPMShipment{
-		ExpectedDepartureDate: expectedDepartureDate,
-		PickupAddress:         struct{ primev3messages.Address }{pickupAddress},
-		DestinationAddress: struct {
-			primev3messages.PPMDestinationAddress
-		}{destinationAddress},
-	}
+	suite.Run("Success - Complete input for MTOShipmentTypeBOATTOWAWAY", func() {
+		hasTrailer = false
+		isRoadworthy = false
 
-	model2 := PPMShipmentModelFromUpdate(&ppmShipmentWhiteSpaces)
-	suite.Equal(model2.DestinationAddress.StreetAddress1, models.STREET_ADDRESS_1_NOT_PROVIDED)
+		expectedBoatTowAway := models.BoatShipment{
+			Make:           models.StringPointer(make),
+			Model:          models.StringPointer(model),
+			Year:           models.IntPointer(int(year)),
+			LengthInInches: models.IntPointer(int(lengthInInches)),
+			HeightInInches: models.IntPointer(int(heightInInches)),
+			WidthInInches:  models.IntPointer(int(widthInInches)),
+			HasTrailer:     &hasTrailer,
+			IsRoadworthy:   &isRoadworthy,
+		}
 
-	// test with valid street address 2
-	streetAddress1 := "1234 Street"
-	destinationAddress.StreetAddress1 = &streetAddress1
-	ppmShipmentValidDestinatonStreet1 := primev3messages.UpdatePPMShipment{
-		ExpectedDepartureDate: expectedDepartureDate,
-		PickupAddress:         struct{ primev3messages.Address }{pickupAddress},
-		DestinationAddress: struct {
-			primev3messages.PPMDestinationAddress
-		}{destinationAddress},
-	}
+		boatShipment := &primev3messages.CreateBoatShipment{
+			Make:           models.StringPointer(make),
+			Model:          models.StringPointer(model),
+			Year:           &year,
+			LengthInInches: &lengthInInches,
+			HeightInInches: &heightInInches,
+			WidthInInches:  &widthInInches,
+			HasTrailer:     &hasTrailer,
+			IsRoadworthy:   &isRoadworthy,
+		}
+		moveTaskOrderID := strfmt.UUID(uuid.Must(uuid.NewV4()).String())
+		mtoShipment := primev3messages.CreateMTOShipment{
+			MoveTaskOrderID: &moveTaskOrderID,
+			ShipmentType:    primev3messages.NewMTOShipmentType(primev3messages.MTOShipmentTypeBOATTOWAWAY),
+			BoatShipment:    boatShipment,
+		}
 
-	model3 := PPMShipmentModelFromUpdate(&ppmShipmentValidDestinatonStreet1)
-	suite.Equal(model3.DestinationAddress.StreetAddress1, streetAddress1)
+		returnedBoatTowAway, _ := BoatShipmentModelFromCreate(&mtoShipment)
+
+		suite.IsType(&models.BoatShipment{}, returnedBoatTowAway)
+
+		suite.Equal(expectedBoatTowAway.Make, returnedBoatTowAway.Make)
+		suite.Equal(expectedBoatTowAway.Model, returnedBoatTowAway.Model)
+		suite.Equal(expectedBoatTowAway.Year, returnedBoatTowAway.Year)
+		suite.Equal(expectedBoatTowAway.LengthInInches, returnedBoatTowAway.LengthInInches)
+		suite.Equal(expectedBoatTowAway.HeightInInches, returnedBoatTowAway.HeightInInches)
+		suite.Equal(expectedBoatTowAway.WidthInInches, returnedBoatTowAway.WidthInInches)
+		suite.Equal(expectedBoatTowAway.HasTrailer, returnedBoatTowAway.HasTrailer)
+		suite.Equal(expectedBoatTowAway.IsRoadworthy, returnedBoatTowAway.IsRoadworthy)
+	})
 }
 
 func (suite *PayloadsSuite) TestCountryModel_WithValidCountry() {
