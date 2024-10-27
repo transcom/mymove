@@ -3,6 +3,7 @@ import { act } from 'react-dom/test-utils';
 import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { generatePath } from 'react-router-dom';
+import { Provider } from 'react-redux';
 
 import {
   shipments,
@@ -24,6 +25,7 @@ import { SHIPMENT_OPTIONS_URL } from 'shared/constants';
 import { tooRoutes } from 'constants/routes';
 import { MockProviders } from 'testUtils';
 import { permissionTypes } from 'constants/permissions';
+import { configureStore } from 'shared/store';
 
 const mockNavigate = jest.fn();
 jest.mock('react-router-dom', () => ({
@@ -49,9 +51,10 @@ const moveTaskOrderServicesCounselingCompleted = {
 };
 
 const approveMTO = jest.fn().mockResolvedValue({ response: { status: 200 } });
+const mockStore = configureStore({});
 
 const submittedRequestedShipmentsComponent = (
-  <MockProviders permissions={[permissionTypes.updateShipment]}>
+  <Provider store={mockStore.store}>
     <SubmittedRequestedShipments
       allowancesInfo={allowancesInfo}
       moveCode="TE5TC0DE"
@@ -61,7 +64,7 @@ const submittedRequestedShipmentsComponent = (
       ordersInfo={ordersInfo}
       approveMTO={approveMTO}
     />
-  </MockProviders>
+  </Provider>
 );
 
 const submittedRequestedShipmentsComponentWithPermission = (
@@ -108,7 +111,7 @@ const submittedRequestedShipmentsComponentAvailableToPrimeAt = (
 );
 
 const submittedRequestedShipmentsComponentServicesCounselingCompleted = (
-  <MockProviders>
+  <Provider store={mockStore.store}>
     <SubmittedRequestedShipments
       ordersInfo={ordersInfo}
       allowancesInfo={allowancesInfo}
@@ -119,7 +122,7 @@ const submittedRequestedShipmentsComponentServicesCounselingCompleted = (
       moveTaskOrder={moveTaskOrderServicesCounselingCompleted}
       moveCode="TE5TC0DE"
     />
-  </MockProviders>
+  </Provider>
 );
 
 const submittedRequestedShipmentsComponentMissingRequiredInfo = (
@@ -434,9 +437,9 @@ describe('RequestedShipments', () => {
         const Component = statusComponents[status];
 
         render(
-          <MockProviders>
+          <Provider store={mockStore.store}>
             <Component {...statusTestProps[status]} />
-          </MockProviders>,
+          </Provider>,
         );
 
         const customerRemarks = screen.getAllByTestId('customerRemarks');
