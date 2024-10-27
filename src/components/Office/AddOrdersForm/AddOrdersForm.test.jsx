@@ -1,14 +1,16 @@
 import React from 'react';
 import { render, waitFor, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { Provider } from 'react-redux';
 
 import AddOrdersForm from './AddOrdersForm';
 
 import { dropdownInputOptions } from 'utils/formatters';
 import { ORDERS_PAY_GRADE_OPTIONS } from 'constants/orders';
-import { MockProviders } from 'testUtils';
+import { configureStore } from 'shared/store';
 
 describe('CreateMoveCustomerInfo Component', () => {
+  const mockStore = configureStore({});
   const initialValues = {
     ordersType: '',
     issueDate: '',
@@ -27,9 +29,9 @@ describe('CreateMoveCustomerInfo Component', () => {
 
   it('renders the form inputs', async () => {
     render(
-      <MockProviders>
+      <Provider store={mockStore.store}>
         <AddOrdersForm {...testProps} />
-      </MockProviders>,
+      </Provider>,
     );
 
     await waitFor(() => {
@@ -48,9 +50,9 @@ describe('CreateMoveCustomerInfo Component', () => {
 
   it('shows an error message if trying to submit an invalid form', async () => {
     const { getByRole, findAllByRole, getByLabelText } = render(
-      <MockProviders>
+      <Provider store={mockStore.store}>
         <AddOrdersForm {...testProps} />
-      </MockProviders>,
+      </Provider>,
     );
     await userEvent.click(getByLabelText('Orders type'));
     await userEvent.click(getByLabelText('Orders date'));
