@@ -4994,6 +4994,28 @@ definitions:
       organizationalClothingAndIndividualEquipment:
         example: true
         type: boolean
+      accompaniedTour:
+        type: boolean
+        example: true
+        x-nullable: true
+        description: >-
+          Indicates if the move entitlement allows dependents to travel to the
+          new Permanent Duty Station (PDS). This is only present on OCONUS
+          moves.
+      dependentsUnderTwelve:
+        type: integer
+        example: 5
+        x-nullable: true
+        description: >-
+          Indicates the number of dependents under the age of twelve for a move.
+          This is only present on OCONUS moves.
+      dependentsTwelveAndOver:
+        type: integer
+        example: 3
+        x-nullable: true
+        description: >-
+          Indicates the number of dependents of the age twelve or older for a
+          move. This is only present on OCONUS moves.
       eTag:
         type: string
     type: object
@@ -5795,6 +5817,28 @@ definitions:
           their move without it being charged against their weight allowance.
         type: boolean
         x-nullable: true
+      accompaniedTour:
+        type: boolean
+        example: true
+        x-nullable: true
+        description: >-
+          Indicates if the move entitlement allows dependents to travel to the
+          new Permanent Duty Station (PDS). This is only present on OCONUS
+          moves.
+      dependentsUnderTwelve:
+        type: integer
+        example: 5
+        x-nullable: true
+        description: >-
+          Indicates the number of dependents under the age of twelve for a move.
+          This is only present on OCONUS moves.
+      dependentsTwelveAndOver:
+        type: integer
+        example: 3
+        x-nullable: true
+        description: >-
+          Indicates the number of dependents of the age twelve or older for a
+          move. This is only present on OCONUS moves.
   UpdateBillableWeightPayload:
     type: object
     properties:
@@ -5872,6 +5916,28 @@ definitions:
           their move without it being charged against their weight allowance.
         type: boolean
         x-nullable: true
+      accompaniedTour:
+        type: boolean
+        example: true
+        x-nullable: true
+        description: >-
+          Indicates if the move entitlement allows dependents to travel to the
+          new Permanent Duty Station (PDS). This is only present on OCONUS
+          moves.
+      dependentsUnderTwelve:
+        type: integer
+        example: 5
+        x-nullable: true
+        description: >-
+          Indicates the number of dependents under the age of twelve for a move.
+          This is only present on OCONUS moves.
+      dependentsTwelveAndOver:
+        type: integer
+        example: 3
+        x-nullable: true
+        description: >-
+          Indicates the number of dependents of the age twelve or older for a
+          move. This is only present on OCONUS moves.
   MoveTaskOrder:
     description: The Move (MoveTaskOrder)
     properties:
