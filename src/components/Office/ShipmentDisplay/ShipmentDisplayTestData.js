@@ -138,6 +138,28 @@ export const canceledInfo = {
   counselorRemarks: 'counselor approved',
 };
 
+export const diversionRequestedInfo = {
+  heading: 'HHG',
+  shipmentId: 'testShipmentId394',
+  isDiversion: false,
+  shipmentStatus: shipmentStatuses.DIVERSION_REQUESTED,
+  requestedPickupDate: '26 Mar 2020',
+  pickupAddress,
+  destinationAddress,
+  counselorRemarks: 'counselor approved',
+};
+
+export const cancellationRequestedInfo = {
+  heading: 'HHG',
+  shipmentId: 'testShipmentId394',
+  isDiversion: false,
+  shipmentStatus: shipmentStatuses.CANCELLATION_REQUESTED,
+  requestedPickupDate: '26 Mar 2020',
+  pickupAddress,
+  destinationAddress,
+  counselorRemarks: 'counselor approved',
+};
+
 export const ppmInfo = {
   heading: 'PPM',
   shipmentLocator: 'EVLRPT-03',
