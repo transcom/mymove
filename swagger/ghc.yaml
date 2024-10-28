@@ -3792,6 +3792,7 @@ paths:
             - emplid
             - age
             - originDutyLocation
+            - assignedTo
           description: field that results should be sorted by
         - in: query
           name: order

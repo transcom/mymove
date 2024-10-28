@@ -185,7 +185,7 @@ describe('PaymentRequestQueue', () => {
     const paymentRequests = wrapper.find('tbody tr');
     const firstPaymentRequest = paymentRequests.at(0);
 
-    expect(firstPaymentRequest.find('td.lastName').text()).toBe('Spacemen, Leo');
+    expect(firstPaymentRequest.find('td.customerName').text()).toBe('Spacemen, Leo');
     expect(firstPaymentRequest.find('td.dodID').text()).toBe('3305957632');
     expect(firstPaymentRequest.find('td.emplid').text()).toBe('1253694');
     expect(firstPaymentRequest.find('td.status').text()).toBe('Payment requested');
@@ -197,7 +197,7 @@ describe('PaymentRequestQueue', () => {
     expect(firstPaymentRequest.find('td.originDutyLocation').text()).toBe('Scott AFB');
 
     const secondPaymentRequest = paymentRequests.at(1);
-    expect(secondPaymentRequest.find('td.lastName').text()).toBe('Booga, Ooga');
+    expect(secondPaymentRequest.find('td.customerName').text()).toBe('Booga, Ooga');
     expect(secondPaymentRequest.find('td.dodID').text()).toBe('1234567890');
     expect(secondPaymentRequest.find('td.emplid').text()).toBe('');
     expect(secondPaymentRequest.find('td.status').text()).toBe('Payment requested');

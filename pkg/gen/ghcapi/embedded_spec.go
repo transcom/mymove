@@ -4605,7 +4605,8 @@ func init() {
               "dodID",
               "emplid",
               "age",
-              "originDutyLocation"
+              "originDutyLocation",
+              "assignedTo"
             ],
             "type": "string",
             "description": "field that results should be sorted by",
@@ -20329,7 +20330,8 @@ func init() {
               "dodID",
               "emplid",
               "age",
-              "originDutyLocation"
+              "originDutyLocation",
+              "assignedTo"
             ],
             "type": "string",
             "description": "field that results should be sorted by",

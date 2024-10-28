@@ -464,7 +464,7 @@ func (o *GetPaymentRequestsQueueParams) bindSort(rawData []string, hasKey bool, 
 // validateSort carries on validations for parameter Sort
 func (o *GetPaymentRequestsQueueParams) validateSort(formats strfmt.Registry) error {
 
-	if err := validate.EnumCase("sort", "query", *o.Sort, []interface{}{"customerName", "locator", "submittedAt", "branch", "status", "dodID", "emplid", "age", "originDutyLocation"}, true); err != nil {
+	if err := validate.EnumCase("sort", "query", *o.Sort, []interface{}{"customerName", "locator", "submittedAt", "branch", "status", "dodID", "emplid", "age", "originDutyLocation", "assignedTo"}, true); err != nil {
 		return err
 	}
 
