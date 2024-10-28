@@ -488,6 +488,17 @@ describe('RequestedShipments', () => {
       expect(screen.getByText('Approve selected')).toBeInTheDocument();
     });
 
+    it('does not render the "Add service items to move" section when all shipments are PPM', () => {
+      const testProps = {
+        mtoShipments: ppmOnlyShipments,
+        ...conditionalFormTestProps,
+      };
+      renderComponent(testProps);
+
+      expect(screen.queryByText('Add service items to this move')).not.toBeInTheDocument();
+      expect(screen.getByText('Approve selected')).toBeInTheDocument();
+    });
+
     it('renders the "Add service items to move" section with only counseling when only move management is present in service items', () => {
       const testProps = {
         mtoServiceItems: serviceItemsMS,
@@ -527,20 +538,6 @@ describe('RequestedShipments', () => {
       expect(screen.getByText('Add service items to this move')).toBeInTheDocument();
       expect(screen.getByText('Approve selected')).toBeInTheDocument();
       expect(screen.getByTestId('shipmentManagementFee')).toBeInTheDocument();
-      expect(screen.getByTestId('counselingFee')).toBeInTheDocument();
-    });
-
-    it('renders the "Add service items to move" section with only counseling when all shipments are PPM', () => {
-      const testProps = {
-        mtoServiceItems: serviceItemsEmpty,
-        mtoShipments: ppmOnlyShipments,
-        ...conditionalFormTestProps,
-      };
-      renderComponent(testProps);
-
-      expect(screen.getByText('Add service items to this move')).toBeInTheDocument();
-      expect(screen.getByText('Approve selected')).toBeInTheDocument();
-      expect(screen.queryByTestId('shipmentManagementFee')).not.toBeInTheDocument();
       expect(screen.getByTestId('counselingFee')).toBeInTheDocument();
     });
   });

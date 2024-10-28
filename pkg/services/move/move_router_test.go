@@ -296,15 +296,15 @@ func (suite *MoveServiceSuite) TestMoveSubmission() {
 					},
 				}, nil)
 
-				ppmShipment := factory.BuildPPMShipment(suite.DB(), []factory.Customization{
-					{
-						Model: models.PPMShipment{
-							Status: models.PPMShipmentStatusDraft,
-						},
-					},
-				}, nil)
+				// ppmShipment := factory.BuildPPMShipment(suite.DB(), []factory.Customization{
+				// 	{
+				// 		Model: models.PPMShipment{
+				// 			Status: models.PPMShipmentStatusDraft,
+				// 		},
+				// 	},
+				// }, nil)
 				move.MTOShipments = models.MTOShipments{shipment}
-				move.MTOShipments[0].PPMShipment = &ppmShipment
+				// move.MTOShipments[0].PPMShipment = &ppmShipment
 
 				newSignedCertification := factory.BuildSignedCertification(nil, []factory.Customization{
 					{
