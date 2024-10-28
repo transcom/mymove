@@ -21,6 +21,7 @@ func (suite *PayloadsSuite) TestPPMShipmentModelFromUpdate() {
 		City:           "city",
 		State:          "state",
 		PostalCode:     "12345",
+		Country:        &models.Country{Country: "US"},
 	}
 	address2 := models.Address{
 		StreetAddress1: "some address",
@@ -44,7 +45,7 @@ func (suite *PayloadsSuite) TestPPMShipmentModelFromUpdate() {
 
 	pickupAddress = internalmessages.Address{
 		City:           &address.City,
-		Country:        address.Country,
+		Country:        &address.Country.Country,
 		PostalCode:     &address.PostalCode,
 		State:          &address.State,
 		StreetAddress1: &address.StreetAddress1,
@@ -53,7 +54,7 @@ func (suite *PayloadsSuite) TestPPMShipmentModelFromUpdate() {
 	}
 	destinationAddress = internalmessages.Address{
 		City:           &address.City,
-		Country:        address.Country,
+		Country:        &address.Country.Country,
 		PostalCode:     &address.PostalCode,
 		State:          &address.State,
 		StreetAddress1: &address.StreetAddress1,
@@ -62,7 +63,7 @@ func (suite *PayloadsSuite) TestPPMShipmentModelFromUpdate() {
 	}
 	secondaryPickupAddress = internalmessages.Address{
 		City:           &address2.City,
-		Country:        address2.Country,
+		Country:        &address.Country.Country,
 		PostalCode:     &address2.PostalCode,
 		State:          &address2.State,
 		StreetAddress1: &address2.StreetAddress1,
@@ -71,7 +72,7 @@ func (suite *PayloadsSuite) TestPPMShipmentModelFromUpdate() {
 	}
 	secondaryDestinationAddress = internalmessages.Address{
 		City:           &address2.City,
-		Country:        address2.Country,
+		Country:        &address.Country.Country,
 		PostalCode:     &address2.PostalCode,
 		State:          &address2.State,
 		StreetAddress1: &address2.StreetAddress1,
@@ -80,7 +81,7 @@ func (suite *PayloadsSuite) TestPPMShipmentModelFromUpdate() {
 	}
 	tertiaryPickupAddress = internalmessages.Address{
 		City:           &address3.City,
-		Country:        address3.Country,
+		Country:        &address.Country.Country,
 		PostalCode:     &address3.PostalCode,
 		State:          &address3.State,
 		StreetAddress1: &address3.StreetAddress1,
@@ -89,7 +90,7 @@ func (suite *PayloadsSuite) TestPPMShipmentModelFromUpdate() {
 	}
 	tertiaryDestinationAddress = internalmessages.Address{
 		City:           &address3.City,
-		Country:        address3.Country,
+		Country:        &address.Country.Country,
 		PostalCode:     &address3.PostalCode,
 		State:          &address3.State,
 		StreetAddress1: &address3.StreetAddress1,

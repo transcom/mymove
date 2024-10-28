@@ -708,6 +708,14 @@ func DutyLocation(dutyLocation *models.DutyLocation) *ghcmessages.DutyLocation {
 	return &payload
 }
 
+// Country payload
+func Country(country *models.Country) *string {
+	if country == nil {
+		return nil
+	}
+	return &country.Country
+}
+
 // Address payload
 func Address(address *models.Address) *ghcmessages.Address {
 	if address == nil {
@@ -721,9 +729,10 @@ func Address(address *models.Address) *ghcmessages.Address {
 		City:           &address.City,
 		State:          &address.State,
 		PostalCode:     &address.PostalCode,
-		Country:        address.Country,
+		Country:        Country(address.Country),
 		County:         &address.County,
 		ETag:           etag.GenerateEtag(address.UpdatedAt),
+		IsOconus:       address.IsOconus,
 	}
 }
 
@@ -1367,6 +1376,14 @@ func LineOfAccounting(lineOfAccounting *models.LineOfAccounting) *ghcmessages.Li
 	}
 }
 
+// MarketCode payload
+func MarketCode(marketCode *models.MarketCode) string {
+	if marketCode == nil {
+		return "" // Or a default string value
+	}
+	return string(*marketCode)
+}
+
 // MTOShipment payload
 func MTOShipment(storer storage.FileStorer, mtoShipment *models.MTOShipment, sitStatusPayload *ghcmessages.SITStatus) *ghcmessages.MTOShipment {
 
@@ -1415,6 +1432,7 @@ func MTOShipment(storer storage.FileStorer, mtoShipment *models.MTOShipment, sit
 		MobileHomeShipment:          MobileHomeShipment(storer, mtoShipment.MobileHome),
 		DeliveryAddressUpdate:       ShipmentAddressUpdate(mtoShipment.DeliveryAddressUpdate),
 		ShipmentLocator:             handlers.FmtStringPtr(mtoShipment.ShipmentLocator),
+		MarketCode:                  MarketCode(&mtoShipment.MarketCode),
 	}
 
 	if mtoShipment.Distance != nil {

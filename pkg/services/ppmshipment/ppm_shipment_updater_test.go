@@ -424,7 +424,7 @@ func (suite *PPMShipmentSuite) TestUpdatePPMShipment() {
 					City:           "Des Moines",
 					State:          "IA",
 					PostalCode:     "50309",
-					Country:        models.StringPointer("US"),
+					County:         "POLK",
 				},
 				Type: &factory.Addresses.PickupAddress,
 			},
@@ -436,7 +436,7 @@ func (suite *PPMShipmentSuite) TestUpdatePPMShipment() {
 					City:           "Fort Eisenhower",
 					State:          "GA",
 					PostalCode:     "50309",
-					Country:        models.StringPointer("US"),
+					County:         "COLUMBIA",
 				},
 				Type: &factory.Addresses.DeliveryAddress,
 			},
@@ -451,7 +451,7 @@ func (suite *PPMShipmentSuite) TestUpdatePPMShipment() {
 				City:           "Des Moines",
 				State:          "IA",
 				PostalCode:     "50308",
-				Country:        models.StringPointer("US"),
+				County:         "POLK",
 			},
 			DestinationAddress: &models.Address{
 				StreetAddress1: "987 Other Avenue",
@@ -460,7 +460,7 @@ func (suite *PPMShipmentSuite) TestUpdatePPMShipment() {
 				City:           "Fort Eisenhower",
 				State:          "GA",
 				PostalCode:     "30183",
-				Country:        models.StringPointer("US"),
+				County:         "COLUMBIA",
 			},
 		}
 
@@ -1174,7 +1174,6 @@ func (suite *PPMShipmentSuite) TestUpdatePPMShipment() {
 				City:           city,
 				State:          state,
 				PostalCode:     postalCode,
-				Country:        models.StringPointer(""),
 			},
 		}
 		updatedPPM, err := subtestData.ppmShipmentUpdater.UpdatePPMShipmentWithDefaultCheck(appCtx, &newPPM, originalPPM.ShipmentID)
@@ -1188,7 +1187,7 @@ func (suite *PPMShipmentSuite) TestUpdatePPMShipment() {
 		suite.Equal(postalCode, updatedPPM.W2Address.PostalCode)
 		suite.Nil(updatedPPM.W2Address.StreetAddress2)
 		suite.Nil(updatedPPM.W2Address.StreetAddress3)
-		suite.Nil(updatedPPM.W2Address.Country)
+		suite.NotNil(updatedPPM.W2Address.Country)
 	})
 
 	suite.Run("Can successfully update a PPMShipment - modify W-2 address", func() {
@@ -1231,7 +1230,7 @@ func (suite *PPMShipmentSuite) TestUpdatePPMShipment() {
 		suite.Equal(state, updatedPPM.W2Address.State)
 		suite.Equal(postalCode, updatedPPM.W2Address.PostalCode)
 		suite.Equal(*address.StreetAddress3, *updatedPPM.W2Address.StreetAddress3)
-		suite.Equal(*address.Country, *updatedPPM.W2Address.Country)
+		suite.Equal(address.CountryId, updatedPPM.W2Address.CountryId)
 	})
 
 	suite.Run("Can successfully update a PPMShipment - add Pickup and Destination address", func() {
