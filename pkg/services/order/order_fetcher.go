@@ -106,7 +106,7 @@ func (f orderFetcher) ListOrders(appCtx appcontext.AppContext, officeUserID uuid
 	locatorQuery := locatorFilter(params.Locator)
 	dodIDQuery := dodIDFilter(params.DodID)
 	emplidQuery := emplidFilter(params.Emplid)
-	customerNameQuery := nameFilter(params.CustomerName)
+	customerNameQuery := customerNameFilter(params.CustomerName)
 	originDutyLocationQuery := originDutyLocationFilter(params.OriginDutyLocation)
 	destinationDutyLocationQuery := destinationDutyLocationFilter(params.DestinationDutyLocation)
 	moveStatusQuery := moveStatusFilter(params.Status)
@@ -505,7 +505,7 @@ func branchFilter(branch *string, needsCounseling bool, ppmCloseoutGblocs bool) 
 	}
 }
 
-func nameFilter(name *string) QueryOption {
+func customerNameFilter(name *string) QueryOption {
 	return func(query *pop.Query) {
 		if name == nil {
 			return

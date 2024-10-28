@@ -2032,7 +2032,7 @@ func (suite *OrderServiceSuite) TestListAllOrderLocations() {
 }
 
 func (suite *OrderServiceSuite) TestListOrdersFilteredByCustomerName() {
-	serviceMemberFirstName := "Hanna"
+	serviceMemberFirstName := "Margaret"
 	serviceMemberLastName := "Starlight"
 	edipi := "9999999998"
 	var officeUser models.OfficeUser
@@ -2092,13 +2092,22 @@ func (suite *OrderServiceSuite) TestListOrdersFilteredByCustomerName() {
 
 	orderFetcher := NewOrderFetcher()
 
-	suite.Run("list moves by customer name - full name", func() {
-		// Search "Spacemen, Hanna"
-		params := services.ListOrderParams{CustomerName: models.StringPointer("Spacemen, Hanna"), Sort: models.StringPointer("customerName"), Order: models.StringPointer("asc")}
+	suite.Run("list moves by customer name - full name (last, first)", func() {
+		// Search "Spacemen, Margaret"
+		params := services.ListOrderParams{CustomerName: models.StringPointer("Spacemen, Margaret"), Sort: models.StringPointer("customerName"), Order: models.StringPointer("asc")}
 		moves, _, err := orderFetcher.ListOrders(suite.AppContextWithSessionForTest(&session), officeUser.ID, &params)
 		suite.NoError(err)
 		suite.Equal(1, len(moves))
-		suite.Equal("Spacemen, Hanna", *moves[0].Orders.ServiceMember.LastName+", "+*moves[0].Orders.ServiceMember.FirstName)
+		suite.Equal("Spacemen, Margaret", *moves[0].Orders.ServiceMember.LastName+", "+*moves[0].Orders.ServiceMember.FirstName)
+	})
+
+	suite.Run("list moves by customer name - full name (first last)", func() {
+		// Search "Margaret Spacemen"
+		params := services.ListOrderParams{CustomerName: models.StringPointer("Margaret Spacemen"), Sort: models.StringPointer("customerName"), Order: models.StringPointer("asc")}
+		moves, _, err := orderFetcher.ListOrders(suite.AppContextWithSessionForTest(&session), officeUser.ID, &params)
+		suite.NoError(err)
+		suite.Equal(1, len(moves))
+		suite.Equal("Spacemen, Margaret", *moves[0].Orders.ServiceMember.LastName+", "+*moves[0].Orders.ServiceMember.FirstName)
 	})
 
 	suite.Run("list moves by customer name - partial last (multiple)", func() {
@@ -2107,8 +2116,8 @@ func (suite *OrderServiceSuite) TestListOrdersFilteredByCustomerName() {
 		moves, _, err := orderFetcher.ListOrders(suite.AppContextWithSessionForTest(&session), officeUser.ID, &params)
 		suite.NoError(err)
 		suite.Equal(2, len(moves))
-		suite.Equal("Spacemen, Hanna", *moves[0].Orders.ServiceMember.LastName+", "+*moves[0].Orders.ServiceMember.FirstName)
-		suite.Equal("Spacemen, Leo", *moves[1].Orders.ServiceMember.LastName+", "+*moves[1].Orders.ServiceMember.FirstName)
+		suite.Equal("Spacemen, Leo", *moves[0].Orders.ServiceMember.LastName+", "+*moves[0].Orders.ServiceMember.FirstName)
+		suite.Equal("Spacemen, Margaret", *moves[1].Orders.ServiceMember.LastName+", "+*moves[1].Orders.ServiceMember.FirstName)
 	})
 
 	suite.Run("list moves by customer name - partial last (single)", func() {
@@ -2127,6 +2136,16 @@ func (suite *OrderServiceSuite) TestListOrdersFilteredByCustomerName() {
 		suite.NoError(err)
 		suite.Equal(2, len(moves))
 		suite.Equal("Spacemen, Leo", *moves[0].Orders.ServiceMember.LastName+", "+*moves[0].Orders.ServiceMember.FirstName)
+		suite.Equal("Starlight, Leo", *moves[1].Orders.ServiceMember.LastName+", "+*moves[1].Orders.ServiceMember.FirstName)
+	})
+
+	suite.Run("list moves by customer name - partial matching within first or last", func() {
+		// Search "ar"
+		params := services.ListOrderParams{CustomerName: models.StringPointer("ar"), Sort: models.StringPointer("customerName"), Order: models.StringPointer("asc")}
+		moves, _, err := orderFetcher.ListOrders(suite.AppContextWithSessionForTest(&session), officeUser.ID, &params)
+		suite.NoError(err)
+		suite.Equal(2, len(moves))
+		suite.Equal("Spacemen, Margaret", *moves[0].Orders.ServiceMember.LastName+", "+*moves[0].Orders.ServiceMember.FirstName)
 		suite.Equal("Starlight, Leo", *moves[1].Orders.ServiceMember.LastName+", "+*moves[1].Orders.ServiceMember.FirstName)
 	})
 
