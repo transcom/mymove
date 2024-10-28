@@ -153,7 +153,7 @@ export class SelectShipmentType extends Component {
 
     const boatCardText = 'Provide information about your boat and we will determine how it will ship.';
 
-    const mobileHomeCardText = 'Please provide information about your mobile home.';
+    const mobileHomeCardText = 'Provide information about your mobile home.';
 
     const ubCardText = shipmentInfo.isUBSelectable
       ? 'Certain personal property items are packed and moved by professionals, paid for by the government. Subject to item type and weight limitations. This is an unaccompanied baggage shipment (UB).'

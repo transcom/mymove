@@ -18,13 +18,12 @@ export const shipmentForm = {
     [SHIPMENT_OPTIONS.HHG]: 'Movers pack and transport this shipment',
     [SHIPMENT_OPTIONS.NTS]: 'Where and when should the movers pick up your personal property going into storage?',
     [SHIPMENT_OPTIONS.NTSR]: 'Where and when should the movers deliver your personal property from storage?',
-    [SHIPMENT_OPTIONS.MOBILE_HOME]: 'Where and when should the movers deliver your mobile home?',
   },
 };
 
 export const shipmentSectionLabels = {
   HHG: 'HHG shipment',
-  MOBILE_HOME: 'MOBILE Home shipment',
+  MOBILE_HOME: 'Mobile Home shipment',
   HHG_INTO_NTS_DOMESTIC: 'NTS shipment',
   HHG_OUTOF_NTS_DOMESTIC: 'NTS-release shipment',
 };

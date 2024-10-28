@@ -729,8 +729,10 @@ definitions:
         type: string
         title: Country
         x-nullable: true
-        example: 'USA'
-        default: USA
+        example: 'US'
+        default: 'US'
+        pattern: '^[A-Z]{2}$'
+        description: 'Two-letter country code'
       county:
         type: string
         title: County
@@ -1466,6 +1468,13 @@ definitions:
       pointOfContact:
         type: string
         description: Email or id of a contact person for this update.
+      marketCode:
+        type: string
+        enum:
+          - 'd'
+          - 'i'
+        example: 'd'
+        description: 'Single-letter designator for domestic (d) or international (i) shipments'
   MTOShipments:
     items:
       $ref: '#/definitions/MTOShipment'
