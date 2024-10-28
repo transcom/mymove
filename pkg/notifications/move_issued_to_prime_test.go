@@ -495,7 +495,7 @@ under the Privacy Act of 1974. Failure to protect Privacy Act information could 
 	})
 }
 
-func (suite *NotificationSuite) TestTOOApprovedMoveDetailsForSeparatee() {
+func (suite *NotificationSuite) TestMoveIssuedToPrimeTOOApprovedMoveDetailsForSeparatee() {
 	move := factory.BuildMoveWithShipment(suite.DB(), []factory.Customization{
 		{
 			Model: models.Order{
@@ -503,7 +503,7 @@ func (suite *NotificationSuite) TestTOOApprovedMoveDetailsForSeparatee() {
 			},
 		},
 	}, nil)
-	notification := NewMoveCounseled(move.ID)
+	notification := NewMoveIssuedToPrime(move.ID)
 
 	emails, err := notification.emails(suite.AppContextWithSessionForTest(&auth.Session{
 		ServiceMemberID: move.Orders.ServiceMember.ID,
@@ -528,7 +528,7 @@ func (suite *NotificationSuite) TestTOOApprovedMoveDetailsForSeparatee() {
 	suite.Contains(email.textBody, move.MTOShipments[0].DestinationAddress.PostalCode)
 }
 
-func (suite *NotificationSuite) TestTOOApprovedMoveDetailsForRetiree() {
+func (suite *NotificationSuite) TestMoveIssuedToPrimeTOOApprovedMoveDetailsForRetiree() {
 	move := factory.BuildMoveWithShipment(suite.DB(), []factory.Customization{
 		{
 			Model: models.Order{
@@ -536,7 +536,7 @@ func (suite *NotificationSuite) TestTOOApprovedMoveDetailsForRetiree() {
 			},
 		},
 	}, nil)
-	notification := NewMoveCounseled(move.ID)
+	notification := NewMoveIssuedToPrime(move.ID)
 
 	emails, err := notification.emails(suite.AppContextWithSessionForTest(&auth.Session{
 		ServiceMemberID: move.Orders.ServiceMember.ID,
