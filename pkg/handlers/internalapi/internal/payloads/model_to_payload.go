@@ -14,6 +14,14 @@ import (
 	"github.com/transcom/mymove/pkg/storage"
 )
 
+// Country payload
+func Country(country *models.Country) *string {
+	if country == nil {
+		return nil
+	}
+	return &country.Country
+}
+
 // Address payload
 func Address(address *models.Address) *internalmessages.Address {
 	if address == nil {
@@ -29,9 +37,10 @@ func Address(address *models.Address) *internalmessages.Address {
 		StreetAddress3: address.StreetAddress3,
 		City:           &address.City,
 		State:          &address.State,
+		Country:        Country(address.Country),
 		PostalCode:     &address.PostalCode,
-		Country:        address.Country,
 		County:         &address.County,
+		IsOconus:       address.IsOconus,
 	}
 }
 
@@ -171,6 +180,14 @@ func MobileHomeShipment(storer storage.FileStorer, mobileHomeShipment *models.Mo
 	return payloadMobileHomeShipment
 }
 
+// MarketCode payload
+func MarketCode(marketCode *models.MarketCode) string {
+	if marketCode == nil {
+		return "" // Or a default string value
+	}
+	return string(*marketCode)
+}
+
 // MTOShipment payload
 func MTOShipment(storer storage.FileStorer, mtoShipment *models.MTOShipment) *internalmessages.MTOShipment {
 	payload := &internalmessages.MTOShipment{
@@ -199,6 +216,7 @@ func MTOShipment(storer storage.FileStorer, mtoShipment *models.MTOShipment) *in
 		MobileHomeShipment:          MobileHomeShipment(storer, mtoShipment.MobileHome),
 		ETag:                        etag.GenerateEtag(mtoShipment.UpdatedAt),
 		ShipmentLocator:             handlers.FmtStringPtr(mtoShipment.ShipmentLocator),
+		MarketCode:                  MarketCode(&mtoShipment.MarketCode),
 	}
 	if mtoShipment.HasSecondaryPickupAddress != nil && !*mtoShipment.HasSecondaryPickupAddress {
 		payload.SecondaryPickupAddress = nil

@@ -1,6 +1,6 @@
 import React from 'react';
 import * as PropTypes from 'prop-types';
-import { generatePath } from 'react-router-dom';
+import { generatePath, useParams, useNavigate } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 import styles from './RequestedShipments.module.scss';
@@ -14,6 +14,10 @@ import shipmentCardsStyles from 'styles/shipmentCards.module.scss';
 import { MTOServiceItemShape, OrdersInfoShape } from 'types/order';
 import { ShipmentShape } from 'types/shipment';
 import { formatDateFromIso } from 'utils/formatters';
+import ButtonDropdown from 'components/ButtonDropdown/ButtonDropdown';
+import { SHIPMENT_OPTIONS_URL } from 'shared/constants';
+import Restricted from 'components/Restricted/Restricted';
+import { permissionTypes } from 'constants/permissions';
 
 // nts defaults show preferred pickup date and pickup address, flagged items when collapsed
 // ntsr defaults shows preferred delivery date, storage facility address, destination address, flagged items when collapsed
@@ -66,11 +70,54 @@ const ApprovedRequestedShipments = ({
     };
   };
 
+  const { moveCode } = useParams();
+  const navigate = useNavigate();
+  const handleButtonDropdownChange = (e) => {
+    const selectedOption = e.target.value;
+
+    const addShipmentPath = `${generatePath(tooRoutes.SHIPMENT_ADD_PATH, {
+      moveCode,
+      shipmentType: selectedOption,
+    })}`;
+
+    navigate(addShipmentPath);
+  };
+
   const dutyLocationPostal = { postalCode: ordersInfo.newDutyLocation?.address?.postalCode };
 
   return (
     <div className={styles.RequestedShipments} data-testid="requested-shipments">
-      <h2>Approved Shipments</h2>
+      <div className={styles.sectionHeader}>
+        <h2>Approved Shipments</h2>
+        <div className={styles.buttonDropdown}>
+          {!isMoveLocked && (
+            <Restricted to={permissionTypes.createTxoShipment}>
+              <ButtonDropdown
+                ariaLabel="Add a new shipment"
+                data-testid="addShipmentButton"
+                onChange={handleButtonDropdownChange}
+              >
+                <option value="" label="Add a new shipment">
+                  Add a new shipment
+                </option>
+                <option data-testid="hhgOption" value={SHIPMENT_OPTIONS_URL.HHG}>
+                  HHG
+                </option>
+                <option value={SHIPMENT_OPTIONS_URL.PPM}>PPM</option>
+                <option value={SHIPMENT_OPTIONS_URL.NTS}>NTS</option>
+                <option value={SHIPMENT_OPTIONS_URL.NTSrelease}>NTS-release</option>
+                <option data-testid="boatOption" value={SHIPMENT_OPTIONS_URL.BOAT}>
+                  Boat
+                </option>
+                <option data-testid="mobileHomeOption" value={SHIPMENT_OPTIONS_URL.MOBILE_HOME}>
+                  Mobile Home
+                </option>
+              </ButtonDropdown>
+            </Restricted>
+          )}
+        </div>
+      </div>
+
       <div className={shipmentCardsStyles.shipmentCards}>
         {mtoShipments &&
           mtoShipments.map((shipment) => {

@@ -380,10 +380,22 @@ func (h GetAllMovesHandler) Handle(params moveop.GetAllMovesParams) middleware.R
 			isMobileHomeFeatureOn := false
 			flagMH, err := h.FeatureFlagFetcher().GetBooleanFlagForUser(params.HTTPRequest.Context(), appCtx, featureFlagNameMH, map[string]string{})
 			if err != nil {
-				appCtx.Logger().Error("Error fetching feature flag", zap.String("featureFlagKey", featureFlagName), zap.Error(err))
+				appCtx.Logger().Error("Error fetching feature flag", zap.String("featureFlagKey", featureFlagNameMH), zap.Error(err))
 				isMobileHomeFeatureOn = false
 			} else {
 				isMobileHomeFeatureOn = flagMH.Match
+			}
+			/** End of Feature Flag Block **/
+
+			/** Feature Flag - Unaccompanied Baggage Shipment **/
+			featureFlagNameUB := "unaccompanied_baggage"
+			isUBFeatureOn := false
+			flagUB, err := h.FeatureFlagFetcher().GetBooleanFlagForUser(params.HTTPRequest.Context(), appCtx, featureFlagNameUB, map[string]string{})
+			if err != nil {
+				appCtx.Logger().Error("Error fetching feature flag", zap.String("featureFlagKey", featureFlagNameUB), zap.Error(err))
+				isUBFeatureOn = false
+			} else {
+				isUBFeatureOn = flagUB.Match
 			}
 			/** End of Feature Flag Block **/
 
@@ -433,6 +445,23 @@ func (h GetAllMovesHandler) Handle(params moveop.GetAllMovesParams) middleware.R
 					move.MTOShipments = filteredShipments
 				}
 				/** End of Feature Flag **/
+
+				/** Feature Flag - UB Shipment **/
+				if !isUBFeatureOn {
+					var filteredShipments models.MTOShipments
+					if move.MTOShipments != nil {
+						filteredShipments = models.MTOShipments{}
+					}
+					for i, shipment := range move.MTOShipments {
+						if shipment.ShipmentType == models.MTOShipmentTypeUnaccompaniedBaggage {
+							continue
+						}
+
+						filteredShipments = append(filteredShipments, move.MTOShipments[i])
+					}
+					move.MTOShipments = filteredShipments
+				}
+				/** End of Feature Flag Block **/
 
 				if latestMove.CreatedAt == nilTime {
 					latestMove = move
