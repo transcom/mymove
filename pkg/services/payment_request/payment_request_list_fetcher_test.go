@@ -986,7 +986,6 @@ func (suite *PaymentRequestServiceSuite) TestListPaymentRequestNameFilter() {
 				},
 			},
 		}, nil)
-
 		originDutyLocation2 := factory.BuildDutyLocation(suite.DB(), []factory.Customization{
 			{
 				Model: models.DutyLocation{
@@ -1015,7 +1014,6 @@ func (suite *PaymentRequestServiceSuite) TestListPaymentRequestNameFilter() {
 				Type:     &factory.DutyLocations.OriginDutyLocation,
 			},
 		}, nil)
-
 		expectedMove2 := factory.BuildMoveWithShipment(suite.DB(), []factory.Customization{
 			{
 				Model: models.ServiceMember{
@@ -1028,6 +1026,26 @@ func (suite *PaymentRequestServiceSuite) TestListPaymentRequestNameFilter() {
 			{
 				Model: models.Move{
 					Locator: "ZZZZ",
+				},
+			},
+			{
+				Model:    originDutyLocation2,
+				LinkOnly: true,
+				Type:     &factory.DutyLocations.OriginDutyLocation,
+			},
+		}, nil)
+		expectedMove3 := factory.BuildMoveWithShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.ServiceMember{
+					FirstName: models.StringPointer("Lena"),
+					LastName:  models.StringPointer("Starlight"),
+					Edipi:     models.StringPointer("1234567999"),
+					Emplid:    models.StringPointer("1111112"),
+				},
+			},
+			{
+				Model: models.Move{
+					Locator: "ZZZZA",
 				},
 			},
 			{
@@ -1062,6 +1080,18 @@ func (suite *PaymentRequestServiceSuite) TestListPaymentRequestNameFilter() {
 				LinkOnly: true,
 			},
 		}, nil)
+		factory.BuildPaymentRequest(suite.DB(), []factory.Customization{
+			{
+				Model: models.PaymentRequest{
+					Status:    models.PaymentRequestStatusPending,
+					CreatedAt: prevCreatedAt,
+				},
+			},
+			{
+				Model:    expectedMove3,
+				LinkOnly: true,
+			},
+		}, nil)
 
 		factory.BuildMTOShipment(suite.DB(), []factory.Customization{
 			{
@@ -1076,9 +1106,20 @@ func (suite *PaymentRequestServiceSuite) TestListPaymentRequestNameFilter() {
 		}, nil)
 	})
 
-	suite.Run("filter payment requests by customer name - full name", func() {
+	suite.Run("filter payment requests by customer name - full name (last, first)", func() {
 		// Search "Spacemen, Lena"
 		params := services.FetchPaymentRequestListParams{CustomerName: models.StringPointer("Spacemen, Lena"), Sort: models.StringPointer("customerName"), Order: models.StringPointer("asc")}
+		expectedPaymentRequests, _, err := paymentRequestListFetcher.FetchPaymentRequestList(suite.AppContextWithSessionForTest(&session), officeUser.ID, &params)
+		paymentRequests := *expectedPaymentRequests
+
+		suite.NoError(err)
+		suite.Equal(1, len(paymentRequests))
+		suite.Equal("Spacemen, Lena", *paymentRequests[0].MoveTaskOrder.Orders.ServiceMember.LastName+", "+*paymentRequests[0].MoveTaskOrder.Orders.ServiceMember.FirstName)
+	})
+
+	suite.Run("filter payment requests by customer name - full name (first last)", func() {
+		// Search "Lena Spacemen"
+		params := services.FetchPaymentRequestListParams{CustomerName: models.StringPointer("Lena Spacemen"), Sort: models.StringPointer("customerName"), Order: models.StringPointer("asc")}
 		expectedPaymentRequests, _, err := paymentRequestListFetcher.FetchPaymentRequestList(suite.AppContextWithSessionForTest(&session), officeUser.ID, &params)
 		paymentRequests := *expectedPaymentRequests
 
@@ -1106,8 +1147,21 @@ func (suite *PaymentRequestServiceSuite) TestListPaymentRequestNameFilter() {
 		paymentRequests := *expectedPaymentRequests
 
 		suite.NoError(err)
-		suite.Equal(1, len(paymentRequests))
+		suite.Equal(2, len(paymentRequests))
 		suite.Equal("Spacemen, Lena", *paymentRequests[0].MoveTaskOrder.Orders.ServiceMember.LastName+", "+*paymentRequests[0].MoveTaskOrder.Orders.ServiceMember.FirstName)
+		suite.Equal("Starlight, Lena", *paymentRequests[1].MoveTaskOrder.Orders.ServiceMember.LastName+", "+*paymentRequests[1].MoveTaskOrder.Orders.ServiceMember.FirstName)
+	})
+
+	suite.Run("filter payment requests by customer name - partial matching within first or last", func() {
+		// Search "en"
+		params := services.FetchPaymentRequestListParams{CustomerName: models.StringPointer("en"), Sort: models.StringPointer("customerName"), Order: models.StringPointer("asc")}
+		expectedPaymentRequests, _, err := paymentRequestListFetcher.FetchPaymentRequestList(suite.AppContextWithSessionForTest(&session), officeUser.ID, &params)
+		paymentRequests := *expectedPaymentRequests
+		suite.NoError(err)
+		suite.Equal(3, len(paymentRequests))
+		suite.Equal("Spacemen, Lena", *paymentRequests[0].MoveTaskOrder.Orders.ServiceMember.LastName+", "+*paymentRequests[0].MoveTaskOrder.Orders.ServiceMember.FirstName)
+		suite.Equal("Spacemen, Leo", *paymentRequests[1].MoveTaskOrder.Orders.ServiceMember.LastName+", "+*paymentRequests[1].MoveTaskOrder.Orders.ServiceMember.FirstName)
+		suite.Equal("Starlight, Lena", *paymentRequests[2].MoveTaskOrder.Orders.ServiceMember.LastName+", "+*paymentRequests[2].MoveTaskOrder.Orders.ServiceMember.FirstName)
 	})
 
 	suite.Run("filter payment requests by customer name - empty", func() {
