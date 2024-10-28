@@ -2236,7 +2236,6 @@ func QueueMoves(moves []models.Move, officeUsers []models.OfficeUser, requestedP
 			isAssignable = true
 		}
 
-		// add isHqRolecheck here
 		if isHQRole {
 			isAssignable = false
 		}

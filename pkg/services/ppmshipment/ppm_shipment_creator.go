@@ -67,6 +67,7 @@ func (f *ppmShipmentCreator) createPPMShipment(appCtx appcontext.AppContext, ppm
 				}
 			}
 			ppmShipment.PickupAddressID = &address.ID
+			ppmShipment.PickupAddress = address
 		}
 
 		if ppmShipment.SecondaryPickupAddress != nil {
