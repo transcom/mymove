@@ -921,6 +921,8 @@ commands:
             FEATURE_FLAG_QUEUE_MANAGEMENT: 'false'
             FEATURE_FLAG_UNACCOMPANIED_BAGGAGE: 'false'
             FEATURE_FLAG_ENABLE_ALASKA: 'false'
+            IN_MAINTENANCE: 'false'
+            IN_MAINTENANCE_LEVEL: ""
           command: |
             SHARD=$((${CIRCLE_NODE_INDEX}+1))
             PLAYWRIGHT_JUNIT_OUTPUT_NAME=playwright-results.xml \
