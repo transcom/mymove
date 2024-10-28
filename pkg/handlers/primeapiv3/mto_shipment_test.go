@@ -1,6 +1,7 @@
 package primeapiv3
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"net/http/httptest"
@@ -9,6 +10,7 @@ import (
 	"github.com/go-openapi/strfmt"
 	"github.com/gofrs/uuid"
 	"github.com/stretchr/testify/mock"
+	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/apperror"
 	"github.com/transcom/mymove/pkg/etag"
@@ -175,6 +177,16 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 				mock.AnythingOfType("string"),
 				mock.Anything,
 			).Return(services.FeatureFlag{}, errors.New("Some error"))
+
+			mockFeatureFlagFetcher.On("GetBooleanFlag",
+				mock.Anything,
+				mock.Anything,
+				mock.AnythingOfType("string"),
+				mock.AnythingOfType("string"),
+				mock.Anything,
+			).Return(func(_ context.Context, _ *zap.Logger, _ string, key string, flagContext map[string]string) (services.FeatureFlag, error) {
+				return services.FeatureFlag{}, errors.New("Some error")
+			})
 			handlerConfig.SetFeatureFlagFetcher(mockFeatureFlagFetcher)
 		}
 		handler := CreateMTOShipmentHandler{
@@ -991,6 +1003,42 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		suite.NoError(typedResponse.Payload.Validate(strfmt.Default))
 
 		suite.Contains(*typedResponse.Payload.Detail, unavailableMove.ID.String())
+	})
+
+	suite.Run("POST failure - 500 - App Event Internal DTOD Server Error", func() {
+		// Under Test: CreateMTOShipmentHandler
+		// Setup:      Create a shipment with DTOD outage simulated or bad zip
+		// Expected:   500 Internal Server Error returned
+
+		handler, move := setupTestData(true, false)
+		req := httptest.NewRequest("POST", "/mto-shipments", nil)
+		handler.ShipmentCreator = &mockCreator
+
+		err := apperror.EventError{}
+
+		mockCreator.On("CreateShipment",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.Anything,
+		).Return(nil, nil, err)
+
+		params := mtoshipmentops.CreateMTOShipmentParams{
+			HTTPRequest: req,
+			Body: &primev3messages.CreateMTOShipment{
+				MoveTaskOrderID:     handlers.FmtUUID(move.ID),
+				Agents:              nil,
+				CustomerRemarks:     nil,
+				PointOfContact:      "John Doe",
+				RequestedPickupDate: handlers.FmtDatePtr(models.TimePointer(time.Now())),
+				ShipmentType:        primev3messages.NewMTOShipmentType(primev3messages.MTOShipmentTypeHHG),
+				PickupAddress:       struct{ primev3messages.Address }{pickupAddress},
+				DestinationAddress:  struct{ primev3messages.Address }{destinationAddress},
+			},
+		}
+
+		response := handler.Handle(params)
+		suite.IsType(&mtoshipmentops.CreateMTOShipmentInternalServerError{}, response)
+		typedResponse := response.(*mtoshipmentops.CreateMTOShipmentInternalServerError)
+		suite.Contains(*typedResponse.Payload.Detail, "An internal server error has occurred")
 	})
 
 	suite.Run("POST failure - 422 - MTO Shipment object not formatted correctly", func() {
