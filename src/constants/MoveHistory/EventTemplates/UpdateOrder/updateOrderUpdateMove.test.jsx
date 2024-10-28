@@ -1,9 +1,9 @@
 import { render, screen } from '@testing-library/react';
 
 import getTemplate from 'constants/MoveHistory/TemplateManager';
-import e from 'constants/MoveHistory/EventTemplates/UpdateOrders/updateOrderUpdateMove';
+import e from 'constants/MoveHistory/EventTemplates/UpdateOrder/updateOrderUpdateMove';
 
-describe('when given an mto shipment update with service item status history record', () => {
+describe('when given an mto shipment update for the moves table from the office side', () => {
   const historyRecord = {
     action: 'UPDATE',
     changedValues: { status: 'APPROVED' },
