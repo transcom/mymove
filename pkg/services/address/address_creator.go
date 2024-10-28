@@ -57,7 +57,6 @@ func (f *addressCreator) CreateAddress(appCtx appcontext.AppContext, address *mo
 		}
 		transformedAddress.Country = &country
 		transformedAddress.CountryId = &country.ID
-		transformedAddress.Country = &country
 	}
 
 	// Evaluate address and populate addresses isOconus value
