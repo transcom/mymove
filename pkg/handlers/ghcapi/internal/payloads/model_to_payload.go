@@ -600,7 +600,7 @@ func Order(order *models.Order) *ghcmessages.Order {
 
 	var moveCode string
 	var moveTaskOrderID strfmt.UUID
-	if order.Moves != nil && len(order.Moves) > 0 {
+	if len(order.Moves) > 0 {
 		moveCode = order.Moves[0].Locator
 		moveTaskOrderID = strfmt.UUID(order.Moves[0].ID.String())
 	}
@@ -709,6 +709,14 @@ func DutyLocation(dutyLocation *models.DutyLocation) *ghcmessages.DutyLocation {
 	return &payload
 }
 
+// Country payload
+func Country(country *models.Country) *string {
+	if country == nil {
+		return nil
+	}
+	return &country.Country
+}
+
 // Address payload
 func Address(address *models.Address) *ghcmessages.Address {
 	if address == nil {
@@ -722,9 +730,10 @@ func Address(address *models.Address) *ghcmessages.Address {
 		City:           &address.City,
 		State:          &address.State,
 		PostalCode:     &address.PostalCode,
-		Country:        address.Country,
+		Country:        Country(address.Country),
 		County:         &address.County,
 		ETag:           etag.GenerateEtag(address.UpdatedAt),
+		IsOconus:       address.IsOconus,
 	}
 }
 
@@ -1363,6 +1372,14 @@ func LineOfAccounting(lineOfAccounting *models.LineOfAccounting) *ghcmessages.Li
 	}
 }
 
+// MarketCode payload
+func MarketCode(marketCode *models.MarketCode) string {
+	if marketCode == nil {
+		return "" // Or a default string value
+	}
+	return string(*marketCode)
+}
+
 // MTOShipment payload
 func MTOShipment(storer storage.FileStorer, mtoShipment *models.MTOShipment, sitStatusPayload *ghcmessages.SITStatus) *ghcmessages.MTOShipment {
 
@@ -1411,6 +1428,7 @@ func MTOShipment(storer storage.FileStorer, mtoShipment *models.MTOShipment, sit
 		MobileHomeShipment:          MobileHomeShipment(storer, mtoShipment.MobileHome),
 		DeliveryAddressUpdate:       ShipmentAddressUpdate(mtoShipment.DeliveryAddressUpdate),
 		ShipmentLocator:             handlers.FmtStringPtr(mtoShipment.ShipmentLocator),
+		MarketCode:                  MarketCode(&mtoShipment.MarketCode),
 	}
 
 	if mtoShipment.Distance != nil {
@@ -1429,7 +1447,7 @@ func MTOShipment(storer storage.FileStorer, mtoShipment *models.MTOShipment, sit
 		payload.SitDaysAllowance = handlers.FmtIntPtrToInt64(&totalSITAllowance)
 	}
 
-	if mtoShipment.SITDurationUpdates != nil && len(mtoShipment.SITDurationUpdates) > 0 {
+	if len(mtoShipment.SITDurationUpdates) > 0 {
 		payload.SitExtensions = *SITDurationUpdates(&mtoShipment.SITDurationUpdates)
 	}
 
@@ -1551,7 +1569,7 @@ func PaymentRequests(appCtx appcontext.AppContext, prs *models.PaymentRequests, 
 func PaymentRequest(appCtx appcontext.AppContext, pr *models.PaymentRequest, storer storage.FileStorer) (*ghcmessages.PaymentRequest, error) {
 	serviceDocs := make(ghcmessages.ProofOfServiceDocs, len(pr.ProofOfServiceDocs))
 
-	if pr.ProofOfServiceDocs != nil && len(pr.ProofOfServiceDocs) > 0 {
+	if len(pr.ProofOfServiceDocs) > 0 {
 		for i, proofOfService := range pr.ProofOfServiceDocs {
 			payload, err := ProofOfServiceDoc(proofOfService, storer)
 			if err != nil {
@@ -1696,7 +1714,7 @@ func ServiceRequestDoc(serviceRequest models.ServiceRequestDocument, storer stor
 
 	uploads := make([]*ghcmessages.Upload, len(serviceRequest.ServiceRequestDocumentUploads))
 
-	if serviceRequest.ServiceRequestDocumentUploads != nil && len(serviceRequest.ServiceRequestDocumentUploads) > 0 {
+	if len(serviceRequest.ServiceRequestDocumentUploads) > 0 {
 		for i, serviceRequestUpload := range serviceRequest.ServiceRequestDocumentUploads {
 			url, err := storer.PresignedURL(serviceRequestUpload.Upload.StorageKey, serviceRequestUpload.Upload.ContentType)
 			if err != nil {
@@ -1744,7 +1762,7 @@ func MTOServiceItemModel(s *models.MTOServiceItem, storer storage.FileStorer) *g
 
 	serviceRequestDocs := make(ghcmessages.ServiceRequestDocuments, len(s.ServiceRequestDocuments))
 
-	if s.ServiceRequestDocuments != nil && len(s.ServiceRequestDocuments) > 0 {
+	if len(s.ServiceRequestDocuments) > 0 {
 		for i, serviceRequest := range s.ServiceRequestDocuments {
 			payload, err := ServiceRequestDoc(serviceRequest, storer)
 			if err != nil {
@@ -1933,7 +1951,7 @@ func WeightTicketUpload(storer storage.FileStorer, upload models.Upload, url str
 func ProofOfServiceDoc(proofOfService models.ProofOfServiceDoc, storer storage.FileStorer) (*ghcmessages.ProofOfServiceDoc, error) {
 
 	uploads := make([]*ghcmessages.Upload, len(proofOfService.PrimeUploads))
-	if proofOfService.PrimeUploads != nil && len(proofOfService.PrimeUploads) > 0 {
+	if len(proofOfService.PrimeUploads) > 0 {
 		for i, primeUpload := range proofOfService.PrimeUploads {
 			url, err := storer.PresignedURL(primeUpload.Upload.StorageKey, primeUpload.Upload.ContentType)
 			if err != nil {
@@ -2302,6 +2320,8 @@ func SearchMoves(appCtx appcontext.AppContext, moves models.Moves) *ghcmessages.
 
 		if err != nil {
 			destinationGBLOC = *ghcmessages.NewGBLOC("")
+		} else if customer.Affiliation.String() == "MARINES" {
+			destinationGBLOC = ghcmessages.GBLOC("USMC/" + PostalCodeToGBLOC.GBLOC)
 		} else {
 			destinationGBLOC = ghcmessages.GBLOC(PostalCodeToGBLOC.GBLOC)
 		}

@@ -22,6 +22,10 @@ type OfficeUserFetcherPop struct {
 func (_m *OfficeUserFetcherPop) FetchOfficeUserByID(appCtx appcontext.AppContext, id uuid.UUID) (models.OfficeUser, error) {
 	ret := _m.Called(appCtx, id)
 
+	if len(ret) == 0 {
+		panic("no return value specified for FetchOfficeUserByID")
+	}
+
 	var r0 models.OfficeUser
 	var r1 error
 	if rf, ok := ret.Get(0).(func(appcontext.AppContext, uuid.UUID) (models.OfficeUser, error)); ok {
@@ -45,6 +49,10 @@ func (_m *OfficeUserFetcherPop) FetchOfficeUserByID(appCtx appcontext.AppContext
 // FetchOfficeUsersByRoleAndOffice provides a mock function with given fields: appCtx, role, officeID
 func (_m *OfficeUserFetcherPop) FetchOfficeUsersByRoleAndOffice(appCtx appcontext.AppContext, role roles.RoleType, officeID uuid.UUID) ([]models.OfficeUser, error) {
 	ret := _m.Called(appCtx, role, officeID)
+
+	if len(ret) == 0 {
+		panic("no return value specified for FetchOfficeUsersByRoleAndOffice")
+	}
 
 	var r0 []models.OfficeUser
 	var r1 error

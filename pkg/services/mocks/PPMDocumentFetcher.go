@@ -20,6 +20,10 @@ type PPMDocumentFetcher struct {
 func (_m *PPMDocumentFetcher) GetPPMDocuments(appCtx appcontext.AppContext, mtoShipmentID uuid.UUID) (*models.PPMDocuments, error) {
 	ret := _m.Called(appCtx, mtoShipmentID)
 
+	if len(ret) == 0 {
+		panic("no return value specified for GetPPMDocuments")
+	}
+
 	var r0 *models.PPMDocuments
 	var r1 error
 	if rf, ok := ret.Get(0).(func(appcontext.AppContext, uuid.UUID) (*models.PPMDocuments, error)); ok {

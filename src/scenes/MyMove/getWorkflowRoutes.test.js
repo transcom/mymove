@@ -101,7 +101,6 @@ describe('when getting the routes for the current workflow', () => {
         it('getPagesInFlow returns service member, order and move pages', () => {
           expect(pages).toEqual([
             '/service-member/validation-code',
-            '/service-member/conus-oconus',
             '/service-member/dod-info',
             '/service-member/name',
             '/service-member/contact-info',

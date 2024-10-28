@@ -13,11 +13,11 @@ describe('AddressFields component', () => {
       </Formik>,
     );
     expect(getByText('Address Form')).toBeInstanceOf(HTMLLegendElement);
-    expect(getByLabelText('Address 1')).toBeInstanceOf(HTMLInputElement);
+    expect(getByLabelText(/Address 1/)).toBeInstanceOf(HTMLInputElement);
     expect(getByLabelText(/Address 2/)).toBeInstanceOf(HTMLInputElement);
-    expect(getByLabelText('City')).toBeInstanceOf(HTMLInputElement);
-    expect(getByLabelText('State')).toBeInstanceOf(HTMLSelectElement);
-    expect(getByLabelText('ZIP')).toBeInstanceOf(HTMLInputElement);
+    expect(getByLabelText(/City/)).toBeInstanceOf(HTMLInputElement);
+    expect(getByLabelText(/State/)).toBeInstanceOf(HTMLSelectElement);
+    expect(getByLabelText(/ZIP/)).toBeInstanceOf(HTMLInputElement);
   });
 
   describe('with pre-filled values', () => {
@@ -37,11 +37,11 @@ describe('AddressFields component', () => {
           <AddressFields legend="Address Form" name="address" />
         </Formik>,
       );
-      expect(getByLabelText('Address 1')).toHaveValue(initialValues.address.streetAddress1);
+      expect(getByLabelText(/Address 1/)).toHaveValue(initialValues.address.streetAddress1);
       expect(getByLabelText(/Address 2/)).toHaveValue(initialValues.address.streetAddress2);
-      expect(getByLabelText('City')).toHaveValue(initialValues.address.city);
-      expect(getByLabelText('State')).toHaveValue(initialValues.address.state);
-      expect(getByLabelText('ZIP')).toHaveValue(initialValues.address.postalCode);
+      expect(getByLabelText(/City/)).toHaveValue(initialValues.address.city);
+      expect(getByLabelText(/State/)).toHaveValue(initialValues.address.state);
+      expect(getByLabelText(/ZIP/)).toHaveValue(initialValues.address.postalCode);
     });
   });
 
@@ -73,7 +73,7 @@ describe('AddressFields component', () => {
         </Formik>,
       );
 
-      const postalCodeInput = getByLabelText('ZIP');
+      const postalCodeInput = getByLabelText(/ZIP/);
       await userEvent.type(postalCodeInput, '12345');
       fireEvent.blur(postalCodeInput);
 
@@ -112,7 +112,7 @@ describe('AddressFields component', () => {
         </Formik>,
       );
 
-      const postalCodeInput = getByLabelText('ZIP');
+      const postalCodeInput = getByLabelText(/ZIP/);
       await userEvent.type(postalCodeInput, '12345');
 
       const postalCodeError = await findByRole('alert');

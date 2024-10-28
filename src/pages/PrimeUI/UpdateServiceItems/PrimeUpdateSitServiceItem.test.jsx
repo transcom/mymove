@@ -71,6 +71,7 @@ describe('PrimeUIUpdateSitServiceItems page', () => {
     expect(screen.getByRole('textbox', { name: 'SIT Departure Date' })).toBeInTheDocument();
     expect(screen.getByRole('textbox', { name: 'SIT Requested Delivery' })).toBeInTheDocument();
     expect(screen.getByRole('textbox', { name: 'SIT Customer Contacted' })).toBeInTheDocument();
+    expect(screen.getByRole('textbox', { name: 'Update Reason' })).toBeInTheDocument();
   });
 
   it('renders the origin sit service item form', async () => {
@@ -131,5 +132,6 @@ describe('PrimeUIUpdateSitServiceItems page', () => {
     expect(screen.getByRole('textbox', { name: 'SIT Departure Date' })).toBeInTheDocument();
     expect(screen.getByRole('textbox', { name: 'SIT Requested Delivery' })).toBeInTheDocument();
     expect(screen.getByRole('textbox', { name: 'SIT Customer Contacted' })).toBeInTheDocument();
+    expect(screen.getByRole('textbox', { name: 'Update Reason' })).toBeInTheDocument();
   });
 });

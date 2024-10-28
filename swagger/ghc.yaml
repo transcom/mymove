@@ -4878,8 +4878,8 @@ definitions:
   FetchLineOfAccountingPayload:
     type: object
     properties:
-      serviceMemberAffiliation:
-        $ref: '#/definitions/Affiliation'
+      departmentIndicator:
+        $ref: '#/definitions/DepartmentIndicator'
       effectiveDate:
         description: >
           The effective date for the Line Of Accounting (LOA) being fetched. Eg,
@@ -7723,8 +7723,6 @@ definitions:
       - AIR_FORCE
       - COAST_GUARD
       - SPACE_FORCE
-      - NAVY_AND_MARINES
-      - AIR_AND_SPACE_FORCE
       - OTHER
     x-display-value:
       ARMY: Army
@@ -7880,13 +7878,20 @@ definitions:
         type: string
         title: Country
         x-nullable: true
-        example: USA
-        default: USA
+        example: US
+        default: US
+        pattern: ^[A-Z]{2}$
+        description: Two-letter country code
       county:
         type: string
         title: County
         x-nullable: true
         example: LOS ANGELES
+      isOconus:
+        type: boolean
+        title: isOconus
+        x-nullable: true
+        example: false
     required:
       - streetAddress1
       - city
@@ -8369,22 +8374,20 @@ definitions:
       - HHG
       - HHG_INTO_NTS_DOMESTIC
       - HHG_OUTOF_NTS_DOMESTIC
-      - INTERNATIONAL_HHG
-      - INTERNATIONAL_UB
       - PPM
       - BOAT_HAUL_AWAY
       - BOAT_TOW_AWAY
       - MOBILE_HOME
+      - UNACCOMPANIED_BAGGAGE
     x-display-value:
       HHG: HHG
-      INTERNATIONAL_HHG: International HHG
-      INTERNATIONAL_UB: International UB
       HHG_INTO_NTS_DOMESTIC: NTS
       HHG_OUTOF_NTS_DOMESTIC: NTS Release
       PPM: PPM
       BOAT_HAUL_AWAY: Boat Haul-Away
       BOAT_TOW_AWAY: Boat Tow-Away
       MOBILE_HOME: Mobile Home
+      UNACCOMPANIED_BAGGAGE: Unaccompanied Baggage
   LOAType:
     description: The Line of accounting (TAC/SAC) type that will be used for the shipment
     type: string
@@ -9968,6 +9971,15 @@ definitions:
       destinationSitAuthEndDate:
         format: date-time
         type: string
+      marketCode:
+        type: string
+        enum:
+          - d
+          - i
+        example: d
+        description: >-
+          Single-letter designator for domestic (d) or international (i)
+          shipments
   LOATypeNullable:
     description: The Line of accounting (TAC/SAC) type that will be used for the shipment
     type: string
@@ -10528,6 +10540,25 @@ definitions:
     type: array
     items:
       $ref: '#/definitions/CustomerSupportRemark'
+  DepartmentIndicator:
+    type: string
+    x-nullable: true
+    title: Department indicator
+    description: Military branch of service indicator for orders
+    enum:
+      - ARMY
+      - ARMY_CORPS_OF_ENGINEERS
+      - COAST_GUARD
+      - NAVY_AND_MARINES
+      - AIR_AND_SPACE_FORCE
+      - OFFICE_OF_SECRETARY_OF_DEFENSE
+    x-display-value:
+      ARMY: 21 Army
+      ARMY_CORPS_OF_ENGINEERS: 96 Army Corps of Engineers
+      COAST_GUARD: 70 Coast Guard
+      NAVY_AND_MARINES: 17 Navy and Marine Corps
+      AIR_AND_SPACE_FORCE: 57 Air Force and Space Force
+      OFFICE_OF_SECRETARY_OF_DEFENSE: 97 Office of Secretary of Defense
   LineOfAccounting:
     type: object
     properties:

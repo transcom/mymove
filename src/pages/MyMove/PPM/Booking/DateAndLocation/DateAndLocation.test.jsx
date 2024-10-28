@@ -257,7 +257,7 @@ describe('DateAndLocation component', () => {
         await userEvent.type(document.querySelector('input[name="destinationAddress.address.postalCode"]'), '10002');
       });
 
-      await userEvent.type(screen.getByLabelText('When do you plan to start moving your PPM?'), '04 Jul 2022');
+      await userEvent.type(screen.getByLabelText(/When do you plan to start moving your PPM?/), '04 Jul 2022');
 
       await userEvent.click(screen.getByRole('button', { name: 'Save & Continue' }));
 
@@ -340,7 +340,7 @@ describe('DateAndLocation component', () => {
         await userEvent.type(document.querySelector('input[name="destinationAddress.address.postalCode"]'), '10002');
       });
 
-      await userEvent.type(screen.getByLabelText('When do you plan to start moving your PPM?'), '04 Jul 2022');
+      await userEvent.type(screen.getByLabelText(/When do you plan to start moving your PPM?/), '04 Jul 2022');
 
       await userEvent.click(screen.getByRole('button', { name: 'Save & Continue' }));
 
@@ -551,7 +551,7 @@ describe('DateAndLocation component', () => {
 
       await userEvent.click(radioElements[2]);
 
-      await userEvent.type(screen.getByLabelText('When do you plan to start moving your PPM?'), '04 Jul 2022');
+      await userEvent.type(screen.getByLabelText(/When do you plan to start moving your PPM?/), '04 Jul 2022');
 
       await userEvent.click(screen.getByRole('button', { name: 'Save & Continue' }));
 
@@ -659,13 +659,13 @@ describe('DateAndLocation component', () => {
       });
 
       await act(async () => {
-        await userEvent.type(screen.getAllByRole('textbox', { name: 'ZIP' })[1], '10002');
+        await userEvent.type(screen.getAllByRole('textbox', { name: /ZIP/ })[1], '10002');
       });
 
-      await userEvent.type(screen.getByLabelText('When do you plan to start moving your PPM?'), '04 Jul 2022');
+      await userEvent.type(screen.getByLabelText(/When do you plan to start moving your PPM?/), '04 Jul 2022');
 
       // Set Closeout office
-      const closeoutOfficeInput = await screen.getByLabelText('Which closeout office should review your PPM?');
+      const closeoutOfficeInput = await screen.getByLabelText(/Which closeout office should review your PPM?/);
       await fireEvent.change(closeoutOfficeInput, { target: { value: 'Tester' } });
       await act(() => selectEvent.select(closeoutOfficeInput, /Tester/));
 
@@ -739,10 +739,10 @@ describe('DateAndLocation component', () => {
         await userEvent.type(document.querySelector('input[name="destinationAddress.address.postalCode"]'), '10002');
       });
 
-      await userEvent.type(screen.getByLabelText('When do you plan to start moving your PPM?'), '04 Jul 2022');
+      await userEvent.type(screen.getByLabelText(/When do you plan to start moving your PPM?/), '04 Jul 2022');
 
       // Should not see closeout office field
-      expect(screen.queryByLabelText('Which closeout office should review your PPM?')).not.toBeInTheDocument();
+      expect(screen.queryByLabelText(/Which closeout office should review your PPM?/)).not.toBeInTheDocument();
 
       // Submit form
       await userEvent.click(screen.getByRole('button', { name: 'Save & Continue' }));
@@ -814,10 +814,10 @@ describe('DateAndLocation component', () => {
         await userEvent.type(document.querySelector('input[name="destinationAddress.address.postalCode"]'), '10002');
       });
 
-      await userEvent.type(screen.getByLabelText('When do you plan to start moving your PPM?'), '04 Jul 2022');
+      await userEvent.type(screen.getByLabelText(/When do you plan to start moving your PPM?/), '04 Jul 2022');
 
       // Set Closeout office
-      const closeoutOfficeInput = await screen.getByLabelText('Which closeout office should review your PPM?');
+      const closeoutOfficeInput = await screen.getByLabelText(/Which closeout office should review your PPM?/);
       await fireEvent.change(closeoutOfficeInput, { target: { value: 'Tester' } });
       await act(() => selectEvent.select(closeoutOfficeInput, /Tester/));
 
@@ -889,10 +889,10 @@ describe('DateAndLocation component', () => {
         await userEvent.type(document.querySelector('input[name="destinationAddress.address.postalCode"]'), '10002');
       });
 
-      await userEvent.type(screen.getByLabelText('When do you plan to start moving your PPM?'), '04 Jul 2022');
+      await userEvent.type(screen.getByLabelText(/When do you plan to start moving your PPM?/), '04 Jul 2022');
 
       // Set Closeout office
-      const closeoutOfficeInput = await screen.getByLabelText('Which closeout office should review your PPM?');
+      const closeoutOfficeInput = await screen.getByLabelText(/Which closeout office should review your PPM?/);
       await fireEvent.change(closeoutOfficeInput, { target: { value: 'Tester' } });
       await act(() => selectEvent.select(closeoutOfficeInput, /Tester/));
 
@@ -930,7 +930,7 @@ describe('DateAndLocation component', () => {
       await userEvent.click(YesButtonSelectors[2]);
       await userEvent.click(YesButtonSelectors[3]);
 
-      const postalCodes = screen.getAllByLabelText('ZIP');
+      const postalCodes = screen.getAllByLabelText(/ZIP/);
 
       expect(screen.getAllByLabelText('Yes')[0]).toBeChecked();
       expect(screen.getAllByLabelText('Yes')[1]).toBeChecked();
@@ -938,7 +938,7 @@ describe('DateAndLocation component', () => {
       expect(screen.getAllByLabelText('Yes')[3]).toBeChecked();
 
       await waitFor(() => {
-        expect(screen.getByLabelText('When do you plan to start moving your PPM?')).toHaveValue('31 Dec 2022');
+        expect(screen.getByLabelText(/When do you plan to start moving your PPM?/)).toHaveValue('31 Dec 2022');
       });
 
       expect(postalCodes[0]).toHaveValue('20002');
@@ -961,7 +961,7 @@ describe('DateAndLocation component', () => {
         await userEvent.click(YesButtonSelectors[2]);
         await userEvent.click(YesButtonSelectors[3]);
 
-        const postalCodes = screen.getAllByLabelText('ZIP');
+        const postalCodes = screen.getAllByLabelText(/ZIP/);
 
         expect(screen.getAllByLabelText('Yes')[0]).toBeChecked();
         expect(screen.getAllByLabelText('Yes')[1]).toBeChecked();
@@ -969,7 +969,7 @@ describe('DateAndLocation component', () => {
         expect(screen.getAllByLabelText('Yes')[3]).toBeChecked();
 
         await waitFor(() => {
-          expect(screen.getByLabelText('When do you plan to start moving your PPM?')).toHaveValue('31 Dec 2022');
+          expect(screen.getByLabelText(/When do you plan to start moving your PPM?/)).toHaveValue('31 Dec 2022');
         });
 
         expect(postalCodes[0]).toHaveValue('20002');
@@ -1069,7 +1069,7 @@ describe('DateAndLocation component', () => {
 
         renderDateAndLocation(fullShipmentProps);
 
-        const expectedDepartureDate = screen.getByLabelText('When do you plan to start moving your PPM?');
+        const expectedDepartureDate = screen.getByLabelText(/When do you plan to start moving your PPM?/);
         await userEvent.clear(expectedDepartureDate);
         await userEvent.type(expectedDepartureDate, '04 Jul 2022');
 

@@ -21,6 +21,10 @@ type PrimeDownloadMoveUploadPDFGenerator struct {
 func (_m *PrimeDownloadMoveUploadPDFGenerator) GenerateDownloadMoveUserUploadPDF(appCtx appcontext.AppContext, moveOrderUploadType services.MoveOrderUploadType, move models.Move, addBookmarks bool) (afero.File, error) {
 	ret := _m.Called(appCtx, moveOrderUploadType, move, addBookmarks)
 
+	if len(ret) == 0 {
+		panic("no return value specified for GenerateDownloadMoveUserUploadPDF")
+	}
+
 	var r0 afero.File
 	var r1 error
 	if rf, ok := ret.Get(0).(func(appcontext.AppContext, services.MoveOrderUploadType, models.Move, bool) (afero.File, error)); ok {
