@@ -37,6 +37,11 @@ jest.mock('hooks/queries', () => ({
         data: [
           {
             age: 0.8477863,
+            assignedTo: {
+              firstName: 'Alice',
+              lastName: 'Bob',
+              officeUserId: '404011d1-052a-4c34-b2e0-71dd5082718a',
+            },
             customer: {
               agency: 'COAST_GUARD',
               dodID: '3305957632',
@@ -62,8 +67,47 @@ jest.mock('hooks/queries', () => ({
             lockExpiresAt: '2099-10-15T23:48:35.420Z',
             lockedByOfficeUserID: '2744435d-7ba8-4cc5-bae5-f302c72c966e',
           },
+          {
+            age: 0.8477863,
+            availableOfficeUsers: [
+              {
+                firstName: 'Alice',
+                lastName: 'Bob',
+                officeUserId: '404011d1-052a-4c34-b2e0-71dd5082718a',
+              },
+            ],
+            customer: {
+              agency: 'NAVY',
+              cacValidated: true,
+              eTag: 'MjAyNC0xMC0xMFQyMjoyNDo1My4xNjYxNjNa',
+              dodID: '1234567890',
+              edipi: '1234567',
+              email: '20241010222310-ae019978709c@example.com',
+              first_name: 'Ooga',
+              id: 'f23b5293-8ef0-453d-bd51-7c21d9730fcb',
+              last_name: 'Booga',
+              middle_name: '',
+              phone: '211-111-1111',
+              phoneIsPreferred: true,
+              secondaryTelephone: '',
+              suffix: '',
+              userID: 'e9d421af-b598-4ff1-b102-d8b14d414129',
+            },
+            departmentIndicator: 'COAST_GUARD',
+            id: '32b90458-2171-4451-bb0a-c5c0db897e34',
+            locator: '0OOGAB',
+            moveID: '8f29e53d-e816-4476-bfee-f38d07b94f2d',
+            originGBLOC: 'LKNQ',
+            status: 'PENDING',
+            submittedAt: '2020-10-17T23:48:35.420Z',
+            originDutyLocation: {
+              name: 'Scott AFB',
+            },
+            lockExpiresAt: '2099-10-15T23:48:35.420Z',
+            lockedByOfficeUserID: '2744435d-7ba8-4cc5-bae5-f302c72c966e',
+          },
         ],
-        totalCount: 1,
+        totalCount: 2,
       },
       isLoading: false,
       isError: false,
@@ -121,26 +165,62 @@ describe('PaymentRequestQueue', () => {
         <PaymentRequestQueue />
       </MockProviders>,
     );
-    expect(screen.queryByText('Payment requests (1)')).toBeInTheDocument();
+    expect(screen.queryByText('Payment requests (2)')).toBeInTheDocument();
   });
 
-  it('renders the table with data and expected values', () => {
+  it('renders the table with data and expected values without queue management ff', async () => {
     reactRouterDom.useParams.mockReturnValue({ queueType: tioRoutes.PAYMENT_REQUEST_QUEUE });
+    const wrapper = mount(
+      <MockProviders client={client}>
+        {/* eslint-disable-next-line react/jsx-props-no-spreading */}
+        <PaymentRequestQueue />
+      </MockProviders>,
+    );
     render(
       <MockProviders>
         <PaymentRequestQueue />
       </MockProviders>,
     );
-    expect(screen.getByRole('cell', { name: 'Spacemen, Leo' })).toBeInTheDocument();
-    expect(screen.getByRole('cell', { name: '3305957632' })).toBeInTheDocument();
-    expect(screen.getByRole('cell', { name: '1253694' })).toBeInTheDocument();
-    expect(screen.getByRole('cell', { name: 'Payment requested' })).toBeInTheDocument();
-    expect(screen.getByRole('cell', { name: 'Less than 1 day' })).toBeInTheDocument();
-    expect(screen.getByRole('cell', { name: '15 Oct 2020' })).toBeInTheDocument();
-    expect(screen.getByRole('cell', { name: 'R993T7' })).toBeInTheDocument();
-    expect(screen.getByRole('cell', { name: 'Coast Guard' })).toBeInTheDocument();
-    expect(screen.getByRole('cell', { name: 'LKNQ' })).toBeInTheDocument();
-    expect(screen.getByRole('cell', { name: 'Scott AFB' })).toBeInTheDocument();
+
+    const paymentRequests = wrapper.find('tbody tr');
+    const firstPaymentRequest = paymentRequests.at(0);
+
+    expect(firstPaymentRequest.find('td.customerName').text()).toBe('Spacemen, Leo');
+    expect(firstPaymentRequest.find('td.dodID').text()).toBe('3305957632');
+    expect(firstPaymentRequest.find('td.emplid').text()).toBe('1253694');
+    expect(firstPaymentRequest.find('td.status').text()).toBe('Payment requested');
+    expect(firstPaymentRequest.find('td.age').text()).toBe('Less than 1 day');
+    expect(firstPaymentRequest.find('td.submittedAt').text()).toBe('15 Oct 2020');
+    expect(firstPaymentRequest.find('td.locator').text()).toBe('R993T7');
+    expect(firstPaymentRequest.find('td.branch').text()).toBe('Coast Guard');
+    expect(firstPaymentRequest.find('td.originGBLOC').text()).toBe('LKNQ');
+    expect(firstPaymentRequest.find('td.originDutyLocation').text()).toBe('Scott AFB');
+
+    const secondPaymentRequest = paymentRequests.at(1);
+    expect(secondPaymentRequest.find('td.customerName').text()).toBe('Booga, Ooga');
+    expect(secondPaymentRequest.find('td.dodID').text()).toBe('1234567890');
+    expect(secondPaymentRequest.find('td.emplid').text()).toBe('');
+    expect(secondPaymentRequest.find('td.status').text()).toBe('Payment requested');
+    expect(secondPaymentRequest.find('td.age').text()).toBe('Less than 1 day');
+    expect(secondPaymentRequest.find('td.submittedAt').text()).toBe('17 Oct 2020');
+    expect(secondPaymentRequest.find('td.locator').text()).toBe('0OOGAB');
+    expect(secondPaymentRequest.find('td.branch').text()).toBe('Navy');
+    expect(secondPaymentRequest.find('td.originGBLOC').text()).toBe('LKNQ');
+    expect(secondPaymentRequest.find('td.originDutyLocation').text()).toBe('Scott AFB');
+  });
+
+  it('renders the table with data and expected values with queue management ff', async () => {
+    reactRouterDom.useParams.mockReturnValue({ queueType: tioRoutes.PAYMENT_REQUEST_QUEUE });
+    render(
+      <reactRouterDom.BrowserRouter>
+        <PaymentRequestQueue isQueueManagementFFEnabled />
+      </reactRouterDom.BrowserRouter>,
+    );
+
+    await waitFor(() => {
+      const assignedSelect = screen.queryAllByTestId('assigned-col')[0];
+      expect(assignedSelect).toBeInTheDocument();
+    });
   });
 
   it('applies the sort to the age column in descending direction', () => {
@@ -336,7 +416,7 @@ describe('PaymentRequestQueue', () => {
       </MockProviders>,
     );
     // expect Payment requested status to appear in the TIO queue
-    expect(screen.queryByText('Payment requested')).toBeInTheDocument();
+    expect(screen.getAllByText('Payment requested')).toHaveLength(2);
     // expect other statuses NOT to appear in the TIO queue
     expect(screen.queryByText('Deprecated')).not.toBeInTheDocument();
     expect(screen.queryByText('Error')).not.toBeInTheDocument();
@@ -363,7 +443,7 @@ describe('PaymentRequestQueue', () => {
       </MockProviders>,
     );
     await waitFor(() => {
-      const lockIcon = screen.queryByTestId('lock-icon');
+      const lockIcon = screen.queryAllByTestId('lock-icon')[0];
       expect(lockIcon).toBeInTheDocument();
     });
   });
@@ -379,6 +459,32 @@ describe('PaymentRequestQueue', () => {
     await waitFor(() => {
       const lockIcon = screen.queryByTestId('lock-icon');
       expect(lockIcon).not.toBeInTheDocument();
+    });
+  });
+  it('renders assignedTo columns when the queue management flag is on', async () => {
+    reactRouterDom.useParams.mockReturnValue({ queueType: tioRoutes.PAYMENT_REQUEST_QUEUE });
+
+    render(
+      <reactRouterDom.BrowserRouter>
+        <PaymentRequestQueue isQueueManagementFFEnabled />
+      </reactRouterDom.BrowserRouter>,
+    );
+    await waitFor(() => {
+      const assignedToColumn = screen.queryByText('Assigned');
+      expect(assignedToColumn).toBeInTheDocument();
+    });
+  });
+  it('does NOT render assignedTo columns when the queue management flag is on', async () => {
+    reactRouterDom.useParams.mockReturnValue({ queueType: tioRoutes.PAYMENT_REQUEST_QUEUE });
+
+    render(
+      <reactRouterDom.BrowserRouter>
+        <PaymentRequestQueue />
+      </reactRouterDom.BrowserRouter>,
+    );
+    await waitFor(() => {
+      const assignedToColumn = screen.queryByText('Assigned');
+      expect(assignedToColumn).not.toBeInTheDocument();
     });
   });
 });

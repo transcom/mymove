@@ -16,6 +16,7 @@ import (
 
 // GetPaymentRequestsQueueURL generates an URL for the get payment requests queue operation
 type GetPaymentRequestsQueueURL struct {
+	AssignedTo              *string
 	Branch                  *string
 	CustomerName            *string
 	DestinationDutyLocation *string
@@ -65,6 +66,14 @@ func (o *GetPaymentRequestsQueueURL) Build() (*url.URL, error) {
 	_result.Path = golangswaggerpaths.Join(_basePath, _path)
 
 	qs := make(url.Values)
+
+	var assignedToQ string
+	if o.AssignedTo != nil {
+		assignedToQ = *o.AssignedTo
+	}
+	if assignedToQ != "" {
+		qs.Set("assignedTo", assignedToQ)
+	}
 
 	var branchQ string
 	if o.Branch != nil {

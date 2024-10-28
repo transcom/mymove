@@ -30,7 +30,7 @@ type orderFetcher struct {
 // QueryOption defines the type for the functional arguments used for private functions in OrderFetcher
 type QueryOption func(*pop.Query)
 
-func (f orderFetcher) ListOrders(appCtx appcontext.AppContext, officeUserID uuid.UUID, params *services.ListOrderParams) ([]models.Move, int, error) {
+func (f orderFetcher) ListOrders(appCtx appcontext.AppContext, officeUserID uuid.UUID, role roles.RoleType, params *services.ListOrderParams) ([]models.Move, int, error) {
 	var moves []models.Move
 
 	var officeUserGbloc string
@@ -117,11 +117,12 @@ func (f orderFetcher) ListOrders(appCtx appcontext.AppContext, officeUserID uuid
 	closeoutLocationQuery := closeoutLocationFilter(params.CloseoutLocation, ppmCloseoutGblocs)
 	ppmTypeQuery := ppmTypeFilter(params.PPMType)
 	ppmStatusQuery := ppmStatusFilter(params.PPMStatus)
-	SCAssignedUserQuery := SCAssignedUserFilter(params.SCAssignedUser)
+	scAssignedUserQuery := scAssignedUserFilter(params.SCAssignedUser)
+	tooAssignedUserQuery := tooAssignedUserFilter(params.TOOAssignedUser)
 	sortOrderQuery := sortOrder(params.Sort, params.Order, ppmCloseoutGblocs)
 	counselingQuery := counselingOfficeFilter(params.CounselingOffice)
 	// Adding to an array so we can iterate over them and apply the filters after the query structure is set below
-	options := [19]QueryOption{branchQuery, locatorQuery, dodIDQuery, emplidQuery, customerNameQuery, originDutyLocationQuery, destinationDutyLocationQuery, moveStatusQuery, gblocQuery, submittedAtQuery, appearedInTOOAtQuery, requestedMoveDateQuery, ppmTypeQuery, closeoutInitiatedQuery, closeoutLocationQuery, ppmStatusQuery, sortOrderQuery, SCAssignedUserQuery, counselingQuery}
+	options := [20]QueryOption{branchQuery, locatorQuery, dodIDQuery, emplidQuery, customerNameQuery, originDutyLocationQuery, destinationDutyLocationQuery, moveStatusQuery, gblocQuery, submittedAtQuery, appearedInTOOAtQuery, requestedMoveDateQuery, ppmTypeQuery, closeoutInitiatedQuery, closeoutLocationQuery, ppmStatusQuery, sortOrderQuery, scAssignedUserQuery, tooAssignedUserQuery, counselingQuery}
 
 	var query *pop.Query
 	if ppmCloseoutGblocs {
@@ -162,6 +163,7 @@ func (f orderFetcher) ListOrders(appCtx appcontext.AppContext, officeUserID uuid
 			"LockedByOfficeUser",
 			"CounselingOffice",
 			"SCAssignedUser",
+			"TOOAssignedUser",
 		).InnerJoin("orders", "orders.id = moves.orders_id").
 			InnerJoin("service_members", "orders.service_member_id = service_members.id").
 			InnerJoin("mto_shipments", "moves.id = mto_shipments.move_id").
@@ -174,12 +176,18 @@ func (f orderFetcher) ListOrders(appCtx appcontext.AppContext, officeUserID uuid
 			LeftJoin("duty_locations as dest_dl", "dest_dl.id = orders.new_duty_location_id").
 			LeftJoin("office_users", "office_users.id = moves.locked_by").
 			LeftJoin("transportation_offices", "moves.counseling_transportation_office_id = transportation_offices.id").
-			LeftJoin("office_users as assigned_user", "moves.sc_assigned_id  = assigned_user.id").
 			Where("show = ?", models.BoolPointer(true))
 
 		if !privileges.HasPrivilege(models.PrivilegeTypeSafety) {
 			query.Where("orders.orders_type != (?)", "SAFETY")
 		}
+		if role == roles.RoleTypeServicesCounselor {
+			query.LeftJoin("office_users as assigned_user", "moves.sc_assigned_id  = assigned_user.id")
+		}
+		if role == roles.RoleTypeTOO {
+			query.LeftJoin("office_users as assigned_user", "moves.too_assigned_id  = assigned_user.id")
+		}
+
 		if params.NeedsPPMCloseout != nil {
 			if *params.NeedsPPMCloseout {
 				query.InnerJoin("ppm_shipments", "ppm_shipments.shipment_id = mto_shipments.id").
@@ -633,10 +641,19 @@ func ppmStatusFilter(ppmStatus *string) QueryOption {
 		}
 	}
 }
-func SCAssignedUserFilter(scAssigned *string) QueryOption {
+
+func scAssignedUserFilter(scAssigned *string) QueryOption {
 	return func(query *pop.Query) {
 		if scAssigned != nil {
 			query.Where("f_unaccent(lower(?)) % searchable_full_name(assigned_user.first_name, assigned_user.last_name)", *scAssigned)
+		}
+	}
+}
+
+func tooAssignedUserFilter(tooAssigned *string) QueryOption {
+	return func(query *pop.Query) {
+		if tooAssigned != nil {
+			query.Where("f_unaccent(lower(?)) % searchable_full_name(assigned_user.first_name, assigned_user.last_name)", *tooAssigned)
 		}
 	}
 }
