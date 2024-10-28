@@ -121,16 +121,36 @@ const (
 	ReServiceCodeNSTH ReServiceCode = "NSTH"
 	// ReServiceCodeNSTUB Nonstandard UB
 	ReServiceCodeNSTUB ReServiceCode = "NSTUB"
+	// ReServiceCodeUBP International UB
+	ReServiceCodeUBP ReServiceCode = "UBP"
+	// ReServiceCodeISLH Shipping & Linehaul
+	ReServiceCodeISLH ReServiceCode = "ISLH"
+	// ReServiceCodePOEFSC International POE Fuel Surcharge
+	ReServiceCodePOEFSC ReServiceCode = "POEFSC"
+	// ReServiceCodePODFSC International POD Fuel Surcharge
+	ReServiceCodePODFSC ReServiceCode = "PODFSC"
+)
+
+type ServiceLocationType string
+
+const (
+	// ServiceLocationO Origin
+	ServiceLocationO ServiceLocationType = "O"
+	// ServiceLocationD Destination
+	ServiceLocationD ServiceLocationType = "D"
+	// ServiceLocationB Both
+	ServiceLocationB ServiceLocationType = "B"
 )
 
 // ReService model struct
 type ReService struct {
-	ID        uuid.UUID     `json:"id" db:"id"`
-	Code      ReServiceCode `json:"code" db:"code"`
-	Priority  int           `db:"priority"`
-	Name      string        `json:"name" db:"name"`
-	CreatedAt time.Time     `json:"created_at" db:"created_at"`
-	UpdatedAt time.Time     `json:"updated_at" db:"updated_at"`
+	ID              uuid.UUID            `json:"id" db:"id"`
+	Code            ReServiceCode        `json:"code" db:"code"`
+	Priority        int                  `db:"priority"`
+	Name            string               `json:"name" db:"name"`
+	CreatedAt       time.Time            `json:"created_at" db:"created_at"`
+	UpdatedAt       time.Time            `json:"updated_at" db:"updated_at"`
+	ServiceLocation *ServiceLocationType `db:"service_location"`
 }
 
 // Hold groupings of SIT for the shipment
