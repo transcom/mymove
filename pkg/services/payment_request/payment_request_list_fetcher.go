@@ -93,14 +93,14 @@ func (f *paymentRequestListFetcher) FetchPaymentRequestList(appCtx appcontext.Ap
 	locatorQuery := locatorFilter(params.Locator)
 	dodIDQuery := dodIDFilter(params.DodID)
 	emplidQuery := emplidFilter(params.Emplid)
-	nameQuery := nameFilter(params.CustomerName)
+	customerNameQuery := customerNameFilter(params.CustomerName)
 	dutyLocationQuery := destinationDutyLocationFilter(params.DestinationDutyLocation)
 	statusQuery := paymentRequestsStatusFilter(params.Status)
 	submittedAtQuery := submittedAtFilter(params.SubmittedAt)
 	originDutyLocationQuery := dutyLocationFilter(params.OriginDutyLocation)
 	orderQuery := sortOrder(params.Sort, params.Order)
 
-	options := [11]QueryOption{branchQuery, locatorQuery, dodIDQuery, nameQuery, dutyLocationQuery, statusQuery, originDutyLocationQuery, submittedAtQuery, gblocQuery, orderQuery, emplidQuery}
+	options := [11]QueryOption{branchQuery, locatorQuery, dodIDQuery, customerNameQuery, dutyLocationQuery, statusQuery, originDutyLocationQuery, submittedAtQuery, gblocQuery, orderQuery, emplidQuery}
 
 	for _, option := range options {
 		if option != nil {
@@ -305,7 +305,7 @@ func branchFilter(branch *string) QueryOption {
 	}
 }
 
-func nameFilter(name *string) QueryOption {
+func customerNameFilter(name *string) QueryOption {
 	return func(query *pop.Query) {
 		if name == nil {
 			return
