@@ -80,12 +80,11 @@ func (m MoveCounseled) emails(appCtx appcontext.AppContext) ([]emailContent, err
 		destinationAddress = fmt.Sprintf("%s%s%s, %s, %s %s", mtoShipDestinationAddress.StreetAddress1, streetAddr2, streetAddr3, mtoShipDestinationAddress.City, mtoShipDestinationAddress.State, mtoShipDestinationAddress.PostalCode)
 	}
 
-	var actualExpenseReimbursement bool
-	for i := 0; i <= len(move.MTOShipments); i++ {
-		if move.MTOShipments[i].PPMShipment.IsActualExpenseReimbursement == &actualExpenseReimbursement {
+	actualExpenseReimbursement := false
+	for i := 0; i < len(move.MTOShipments); i++ {
+		if move.MTOShipments[i].PPMShipment.IsActualExpenseReimbursement != &actualExpenseReimbursement {
 			actualExpenseReimbursement = true
 		}
-		actualExpenseReimbursement = false
 	}
 
 	if serviceMember.PersonalEmail == nil {
