@@ -18,6 +18,10 @@ type SFTPClient struct {
 func (_m *SFTPClient) Open(path string) (services.SFTPFiler, error) {
 	ret := _m.Called(path)
 
+	if len(ret) == 0 {
+		panic("no return value specified for Open")
+	}
+
 	var r0 services.SFTPFiler
 	var r1 error
 	if rf, ok := ret.Get(0).(func(string) (services.SFTPFiler, error)); ok {
@@ -44,6 +48,10 @@ func (_m *SFTPClient) Open(path string) (services.SFTPFiler, error) {
 func (_m *SFTPClient) ReadDir(p string) ([]fs.FileInfo, error) {
 	ret := _m.Called(p)
 
+	if len(ret) == 0 {
+		panic("no return value specified for ReadDir")
+	}
+
 	var r0 []fs.FileInfo
 	var r1 error
 	if rf, ok := ret.Get(0).(func(string) ([]fs.FileInfo, error)); ok {
@@ -69,6 +77,10 @@ func (_m *SFTPClient) ReadDir(p string) ([]fs.FileInfo, error) {
 // Remove provides a mock function with given fields: path
 func (_m *SFTPClient) Remove(path string) error {
 	ret := _m.Called(path)
+
+	if len(ret) == 0 {
+		panic("no return value specified for Remove")
+	}
 
 	var r0 error
 	if rf, ok := ret.Get(0).(func(string) error); ok {

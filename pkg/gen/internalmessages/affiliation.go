@@ -50,12 +50,6 @@ const (
 	// AffiliationSPACEFORCE captures enum value "SPACE_FORCE"
 	AffiliationSPACEFORCE Affiliation = "SPACE_FORCE"
 
-	// AffiliationNAVYANDMARINES captures enum value "NAVY_AND_MARINES"
-	AffiliationNAVYANDMARINES Affiliation = "NAVY_AND_MARINES"
-
-	// AffiliationAIRANDSPACEFORCE captures enum value "AIR_AND_SPACE_FORCE"
-	AffiliationAIRANDSPACEFORCE Affiliation = "AIR_AND_SPACE_FORCE"
-
 	// AffiliationOTHER captures enum value "OTHER"
 	AffiliationOTHER Affiliation = "OTHER"
 )
@@ -65,7 +59,7 @@ var affiliationEnum []interface{}
 
 func init() {
 	var res []Affiliation
-	if err := json.Unmarshal([]byte(`["ARMY","NAVY","MARINES","AIR_FORCE","COAST_GUARD","SPACE_FORCE","NAVY_AND_MARINES","AIR_AND_SPACE_FORCE","OTHER"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["ARMY","NAVY","MARINES","AIR_FORCE","COAST_GUARD","SPACE_FORCE","OTHER"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {

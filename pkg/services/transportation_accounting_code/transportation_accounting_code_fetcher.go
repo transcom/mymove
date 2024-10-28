@@ -19,7 +19,7 @@ func NewTransportationAccountingCodeFetcher() services.TransportationAccountingC
 
 // FetchOrderTransportationAccountingCodes returns all applicable transportation accounting codes
 // alongside their associated lines of accounting for an order
-func (f transportationAccountingCodeFetcher) FetchOrderTransportationAccountingCodes(serviceMemberAffiliation models.ServiceMemberAffiliation, ordersIssueDate time.Time, tacCode string, appCtx appcontext.AppContext) ([]models.TransportationAccountingCode, error) {
+func (f transportationAccountingCodeFetcher) FetchOrderTransportationAccountingCodes(departmentIndicator models.DepartmentIndicator, ordersIssueDate time.Time, tacCode string, appCtx appcontext.AppContext) ([]models.TransportationAccountingCode, error) {
 	var tacs []models.TransportationAccountingCode
 	var err error
 
@@ -35,7 +35,7 @@ func (f transportationAccountingCodeFetcher) FetchOrderTransportationAccountingC
 		Where("transportation_accounting_codes.tac_fn_bl_mod_cd != 'P'")
 
 	// For all other service members, filter out LineOfAccountingHouseholdGoodsCodeNTS "HS"
-	if serviceMemberAffiliation != models.AffiliationCOASTGUARD {
+	if departmentIndicator != models.DepartmentIndicatorCOASTGUARD {
 		query = query.Where("loa.loa_hs_gds_cd != ?", models.LineOfAccountingHouseholdGoodsCodeNTS)
 	}
 	err = query.All(&tacs)

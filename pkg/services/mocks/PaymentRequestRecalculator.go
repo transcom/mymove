@@ -20,6 +20,10 @@ type PaymentRequestRecalculator struct {
 func (_m *PaymentRequestRecalculator) RecalculatePaymentRequest(appCtx appcontext.AppContext, paymentRequestID uuid.UUID) (*models.PaymentRequest, error) {
 	ret := _m.Called(appCtx, paymentRequestID)
 
+	if len(ret) == 0 {
+		panic("no return value specified for RecalculatePaymentRequest")
+	}
+
 	var r0 *models.PaymentRequest
 	var r1 error
 	if rf, ok := ret.Get(0).(func(appcontext.AppContext, uuid.UUID) (*models.PaymentRequest, error)); ok {

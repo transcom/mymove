@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { Formik, Field } from 'formik';
 import * as Yup from 'yup';
@@ -13,7 +13,6 @@ import UploadsTable from 'components/UploadsTable/UploadsTable';
 import SectionWrapper from 'components/Customer/SectionWrapper';
 import { documentSizeLimitMsg } from 'shared/constants';
 import profileImage from 'scenes/Review/images/profile.png';
-import Hint from 'components/Hint/index';
 import { DropdownArrayOf } from 'types';
 import { ExistingUploadsShape } from 'types/uploads';
 import { DropdownInput, DatePickerInput, DutyLocationInput } from 'components/form/fields';
@@ -21,6 +20,7 @@ import WizardNavigation from 'components/Customer/WizardNavigation/WizardNavigat
 import Callout from 'components/Callout';
 import { formatLabelReportByDate, dropdownInputOptions } from 'utils/formatters';
 import formStyles from 'styles/form.module.scss';
+import { showCounselingOffices } from 'services/internalApi';
 
 const EditOrdersForm = ({
   createUpload,
@@ -32,6 +32,8 @@ const EditOrdersForm = ({
   ordersTypeOptions,
   onCancel,
 }) => {
+  const [officeOptions, setOfficeOptions] = useState(null);
+  const [dutyLocation, setDutyLocation] = useState(initialValues.origin_duty_location);
   const validationSchema = Yup.object().shape({
     orders_type: Yup.mixed()
       .oneOf(ordersTypeOptions.map((i) => i.key))
@@ -57,6 +59,9 @@ const EditOrdersForm = ({
       .min(1),
     grade: Yup.mixed().oneOf(Object.keys(ORDERS_PAY_GRADE_OPTIONS)).required('Required'),
     origin_duty_location: Yup.object().nullable().required('Required'),
+    counseling_office_id: dutyLocation?.provides_services_counseling
+      ? Yup.string().required('Required')
+      : Yup.string().notRequired(),
   });
 
   const enableDelete = () => {
@@ -66,10 +71,37 @@ const EditOrdersForm = ({
 
   const payGradeOptions = dropdownInputOptions(ORDERS_PAY_GRADE_OPTIONS);
 
+  let originMeta;
+  let newDutyMeta = '';
+
+  useEffect(() => {
+    showCounselingOffices(dutyLocation?.id).then((fetchedData) => {
+      if (fetchedData.body) {
+        const counselingOffices = fetchedData.body.map((item) => ({
+          key: item.id,
+          value: item.name,
+        }));
+        setOfficeOptions(counselingOffices);
+      }
+    });
+  }, [dutyLocation]);
+
   return (
-    <Formik initialValues={initialValues} onSubmit={onSubmit} validationSchema={validationSchema} validateOnMount>
+    <Formik
+      initialValues={initialValues}
+      onSubmit={onSubmit}
+      validationSchema={validationSchema}
+      validateOnMount
+      initialTouched={{ orders_type: true, issue_date: true, report_by_date: true, has_dependents: true, grade: true }}
+    >
       {({ isValid, isSubmitting, handleSubmit, values }) => {
         const isRetirementOrSeparation = ['RETIREMENT', 'SEPARATION'].includes(values.orders_type);
+
+        if (!values.origin_duty_location) originMeta = 'Required';
+        else originMeta = null;
+
+        if (!values.new_duty_location) newDutyMeta = 'Required';
+        else newDutyMeta = null;
 
         return (
           <Form className={`${formStyles.form} ${styles.EditOrdersForm}`}>
@@ -86,23 +118,22 @@ const EditOrdersForm = ({
             </h1>
             <SectionWrapper className={formStyles.formSection}>
               <h2>Edit Orders:</h2>
-              <DropdownInput label="Orders type" name="orders_type" options={ordersTypeOptions} required />
-              <DatePickerInput
-                name="issue_date"
-                label="Orders date"
+              <DropdownInput
+                label="Orders type"
+                name="orders_type"
+                options={ordersTypeOptions}
                 required
-                renderInput={(input) => (
-                  <>
-                    {input}
-                    <Hint>
-                      <p>Date your orders were issued.</p>
-                    </Hint>
-                  </>
-                )}
+                hint="Required"
               />
-              <DatePickerInput name="report_by_date" label={formatLabelReportByDate(values.orders_type)} required />
+              <DatePickerInput name="issue_date" label="Orders date" hint="Required" required />
+              <DatePickerInput
+                name="report_by_date"
+                label={formatLabelReportByDate(values.orders_type)}
+                required
+                hint="Required"
+              />
               <FormGroup>
-                <Label>Are dependents included in your orders?</Label>
+                <Label hint="Required">Are dependents included in your orders?</Label>
                 <div>
                   <Field
                     as={Radio}
@@ -129,9 +160,30 @@ const EditOrdersForm = ({
                 label="Current duty location"
                 name="origin_duty_location"
                 id="origin_duty_location"
+                hint="Required"
+                onDutyLocationChange={(e) => {
+                  setDutyLocation(e);
+                }}
                 required
+                metaOverride={originMeta}
               />
-
+              {dutyLocation?.provides_services_counseling && (
+                <div>
+                  <Label>
+                    Select an origin duty location that most closely represents your current physical location, not
+                    where your shipment will originate, if different. This will allow a nearby transportation office to
+                    assist
+                  </Label>
+                  <DropdownInput
+                    label="Counseling Office"
+                    name="counseling_office_id"
+                    id="counseling_office_id"
+                    hint="Required"
+                    required
+                    options={officeOptions}
+                  />
+                </div>
+              )}
               {isRetirementOrSeparation ? (
                 <>
                   <h3 className={styles.calloutLabel}>Where are you entitled to move?</h3>
@@ -161,12 +213,25 @@ const EditOrdersForm = ({
                     displayAddress={false}
                     hint="Enter the option closest to your destination. Your move counselor will identify if there might be a cost to you."
                     placeholder="Enter a city or ZIP"
+                    metaOverride={newDutyMeta}
                   />
                 </>
               ) : (
-                <DutyLocationInput name="new_duty_location" label="New duty location" displayAddress={false} />
+                <DutyLocationInput
+                  name="new_duty_location"
+                  label="New duty location"
+                  displayAddress={false}
+                  metaOverride={newDutyMeta}
+                />
               )}
-              <DropdownInput label="Pay grade" name="grade" id="grade" required options={payGradeOptions} />
+              <DropdownInput
+                label="Pay grade"
+                name="grade"
+                id="grade"
+                required
+                options={payGradeOptions}
+                hint="Required"
+              />
 
               <p>Uploads:</p>
               <UploadsTable

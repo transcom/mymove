@@ -15,6 +15,8 @@ import {
   selectPPMSitEstimate,
   selectWeightAllotmentsForLoggedInUser,
   selectWeightTicketAndIndexById,
+  selectCanAddOrders,
+  selectMoveId,
 } from './selectors';
 
 import { profileStates } from 'constants/customerStates';
@@ -1696,5 +1698,47 @@ describe('selectWeightAllotmentsForLoggedInUser', () => {
         weight: 5000,
       });
     });
+  });
+});
+
+describe('selectCanAddOrders', () => {
+  it('returns the value canAddOrders from state', () => {
+    const testState = {
+      generalState: {
+        canAddOrders: true,
+      },
+    };
+
+    expect(selectCanAddOrders(testState)).toEqual(testState.generalState.canAddOrders);
+  });
+  it('returns false if canAddOrders is null or undefined', () => {
+    const testState = {
+      generalState: {
+        canAddOrders: undefined,
+      },
+    };
+
+    expect(selectCanAddOrders(testState)).toEqual(false);
+  });
+});
+
+describe('selectMoveId', () => {
+  it('returns the value moveId from state', () => {
+    const testState = {
+      generalState: {
+        moveId: 'testMoveId',
+      },
+    };
+
+    expect(selectMoveId(testState)).toEqual(testState.generalState.moveId);
+  });
+  it('returns an empty string if moveId is null or undefined', () => {
+    const testState = {
+      generalState: {
+        moveId: undefined,
+      },
+    };
+
+    expect(selectMoveId(testState)).toEqual('');
   });
 });

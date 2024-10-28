@@ -20,6 +20,10 @@ type WeightTicketGenerator struct {
 func (_m *WeightTicketGenerator) FillWeightEstimatorPDFForm(PageValues services.WeightEstimatorPages, fileName string) (afero.File, *pdfcpu.PDFInfo, error) {
 	ret := _m.Called(PageValues, fileName)
 
+	if len(ret) == 0 {
+		panic("no return value specified for FillWeightEstimatorPDFForm")
+	}
+
 	var r0 afero.File
 	var r1 *pdfcpu.PDFInfo
 	var r2 error

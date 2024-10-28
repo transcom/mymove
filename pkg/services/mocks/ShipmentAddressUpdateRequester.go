@@ -20,6 +20,10 @@ type ShipmentAddressUpdateRequester struct {
 func (_m *ShipmentAddressUpdateRequester) RequestShipmentDeliveryAddressUpdate(appCtx appcontext.AppContext, shipmentID uuid.UUID, newAddress models.Address, contractorRemarks string, eTag string) (*models.ShipmentAddressUpdate, error) {
 	ret := _m.Called(appCtx, shipmentID, newAddress, contractorRemarks, eTag)
 
+	if len(ret) == 0 {
+		panic("no return value specified for RequestShipmentDeliveryAddressUpdate")
+	}
+
 	var r0 *models.ShipmentAddressUpdate
 	var r1 error
 	if rf, ok := ret.Get(0).(func(appcontext.AppContext, uuid.UUID, models.Address, string, string) (*models.ShipmentAddressUpdate, error)); ok {
@@ -45,6 +49,10 @@ func (_m *ShipmentAddressUpdateRequester) RequestShipmentDeliveryAddressUpdate(a
 // ReviewShipmentAddressChange provides a mock function with given fields: appCtx, shipmentID, tooApprovalStatus, tooRemarks
 func (_m *ShipmentAddressUpdateRequester) ReviewShipmentAddressChange(appCtx appcontext.AppContext, shipmentID uuid.UUID, tooApprovalStatus models.ShipmentAddressUpdateStatus, tooRemarks string) (*models.ShipmentAddressUpdate, error) {
 	ret := _m.Called(appCtx, shipmentID, tooApprovalStatus, tooRemarks)
+
+	if len(ret) == 0 {
+		panic("no return value specified for ReviewShipmentAddressChange")
+	}
 
 	var r0 *models.ShipmentAddressUpdate
 	var r1 error

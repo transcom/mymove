@@ -47,12 +47,12 @@ describe('DateAndLocationForm component', () => {
     it('renders blank form on load', async () => {
       render(<DateAndLocationForm {...defaultProps} />);
       expect(await screen.getByRole('heading', { level: 2, name: 'Origin' })).toBeInTheDocument();
-      const postalCodes = screen.getAllByLabelText('ZIP');
-      const address1 = screen.getAllByLabelText('Address 1');
+      const postalCodes = screen.getAllByLabelText(/ZIP/);
+      const address1 = screen.getAllByLabelText(/Address 1/);
       const address2 = screen.getAllByLabelText('Address 2', { exact: false });
       const address3 = screen.getAllByLabelText('Address 3', { exact: false });
-      const state = screen.getAllByLabelText('State');
-      const city = screen.getAllByLabelText('City');
+      const state = screen.getAllByLabelText(/State/);
+      const city = screen.getAllByLabelText(/City/);
 
       expect(address1[0]).toBeInstanceOf(HTMLInputElement);
       expect(address2[0]).toBeInstanceOf(HTMLInputElement);
@@ -72,19 +72,19 @@ describe('DateAndLocationForm component', () => {
       expect(screen.getAllByLabelText('Yes')[1]).toBeInstanceOf(HTMLInputElement);
       expect(screen.getAllByLabelText('No')[1]).toBeInstanceOf(HTMLInputElement);
       expect(screen.getByRole('heading', { level: 2, name: 'Closeout Office' })).toBeInTheDocument();
-      expect(screen.getByLabelText('Which closeout office should review your PPM?')).toBeInstanceOf(HTMLInputElement);
+      expect(screen.getByLabelText(/Which closeout office should review your PPM\?/)).toBeInstanceOf(HTMLInputElement);
       expect(screen.getByRole('heading', { level: 2, name: 'Storage' })).toBeInTheDocument();
       expect(screen.getAllByLabelText('Yes')[2]).toBeInstanceOf(HTMLInputElement);
       expect(screen.getAllByLabelText('No')[2]).toBeInstanceOf(HTMLInputElement);
       expect(screen.getByRole('heading', { level: 2, name: 'Departure date' })).toBeInTheDocument();
-      expect(screen.getByLabelText('When do you plan to start moving your PPM?')).toBeInstanceOf(HTMLInputElement);
+      expect(screen.getByLabelText(/When do you plan to start moving your PPM?/)).toBeInstanceOf(HTMLInputElement);
     });
   });
 
   describe('displays conditional inputs', () => {
     it('displays current address when "Use my current origin address" is selected', async () => {
       render(<DateAndLocationForm {...defaultProps} />);
-      const postalCodes = screen.getAllByLabelText('ZIP');
+      const postalCodes = screen.getAllByLabelText(/ZIP/);
       expect(postalCodes[0].value).toBe('');
       await act(async () => {
         await userEvent.click(screen.getByLabelText('Use my current origin address'));
@@ -99,7 +99,7 @@ describe('DateAndLocationForm component', () => {
       await act(async () => {
         await userEvent.click(screen.getByLabelText('Use my current origin address'));
       });
-      const postalCodes = screen.getAllByLabelText('ZIP');
+      const postalCodes = screen.getAllByLabelText(/ZIP/);
 
       await waitFor(() => {
         expect(postalCodes[0].value).toBe(defaultProps.serviceMember.residential_address.postalCode);
@@ -120,11 +120,11 @@ describe('DateAndLocationForm component', () => {
         const hasSecondaryPickupAddress = await screen.getAllByLabelText('Yes')[1];
 
         await userEvent.click(hasSecondaryPickupAddress);
-        const postalCodes = screen.getAllByLabelText('ZIP');
-        const address1 = screen.getAllByLabelText('Address 1', { exact: false });
+        const postalCodes = screen.getAllByLabelText(/ZIP/);
+        const address1 = screen.getAllByLabelText(/Address 1/, { exact: false });
         const address2 = screen.getAllByLabelText('Address 2', { exact: false });
-        const state = screen.getAllByLabelText('State');
-        const city = screen.getAllByLabelText('City');
+        const state = screen.getAllByLabelText(/State/);
+        const city = screen.getAllByLabelText(/City/);
         await waitFor(() => {
           expect(address1[1]).toBeInstanceOf(HTMLInputElement);
           expect(address2[1]).toBeInstanceOf(HTMLInputElement);
@@ -139,11 +139,11 @@ describe('DateAndLocationForm component', () => {
       await act(async () => {
         render(<DateAndLocationForm {...defaultProps} />);
         await userEvent.click(screen.getByLabelText('Use my current destination address'));
-        const postalCodes = screen.getAllByLabelText('ZIP');
-        const address1 = screen.getAllByLabelText('Address 1', { exact: false });
+        const postalCodes = screen.getAllByLabelText(/ZIP/);
+        const address1 = screen.getAllByLabelText(/Address 1/, { exact: false });
         const address2 = screen.getAllByLabelText('Address 2', { exact: false });
-        const state = screen.getAllByLabelText('State');
-        const city = screen.getAllByLabelText('City');
+        const state = screen.getAllByLabelText(/State/);
+        const city = screen.getAllByLabelText(/City/);
         expect(await address1[1]).toHaveValue(defaultProps.destinationDutyLocation.address.streetAddress1);
         expect(address2[1]).toHaveValue('');
         expect(city[1]).toHaveValue(defaultProps.destinationDutyLocation.address.city);
@@ -159,12 +159,12 @@ describe('DateAndLocationForm component', () => {
       const hasSecondaryDestinationAddress = await screen.getAllByLabelText('Yes')[1];
 
       await userEvent.click(hasSecondaryDestinationAddress);
-      const postalCodes = screen.getAllByLabelText('ZIP');
-      const address1 = screen.getAllByLabelText('Address 1', { exact: false });
+      const postalCodes = screen.getAllByLabelText(/ZIP/);
+      const address1 = screen.getAllByLabelText(/Address 1/, { exact: false });
       const address2 = screen.getAllByLabelText('Address 2', { exact: false });
       const address3 = screen.getAllByLabelText('Address 3', { exact: false });
-      const state = screen.getAllByLabelText('State');
-      const city = screen.getAllByLabelText('City');
+      const state = screen.getAllByLabelText(/State/);
+      const city = screen.getAllByLabelText(/City/);
 
       await waitFor(() => {
         expect(address1[2]).toBeInstanceOf(HTMLInputElement);
@@ -186,7 +186,7 @@ describe('DateAndLocationForm component', () => {
       render(<DateAndLocationForm {...defaultProps} serviceMember={armyServiceMember} />);
 
       expect(screen.getByText('Closeout Office')).toBeInTheDocument();
-      expect(screen.getByLabelText('Which closeout office should review your PPM?')).toBeInTheDocument();
+      expect(screen.getByLabelText(/Which closeout office should review your PPM\?/)).toBeInTheDocument();
       expect(screen.getByText('Start typing a closeout office...')).toBeInTheDocument();
     });
   });
@@ -200,7 +200,7 @@ describe('DateAndLocationForm component', () => {
       render(<DateAndLocationForm {...defaultProps} serviceMember={airForceServiceMember} />);
 
       expect(screen.getByText('Closeout Office')).toBeInTheDocument();
-      expect(screen.getByLabelText('Which closeout office should review your PPM?')).toBeInTheDocument();
+      expect(screen.getByLabelText(/Which closeout office should review your PPM\?/)).toBeInTheDocument();
       expect(screen.getByText('Start typing a closeout office...')).toBeInTheDocument();
     });
   });
@@ -214,7 +214,7 @@ describe('DateAndLocationForm component', () => {
 
       render(<DateAndLocationForm {...defaultProps} serviceMember={navyServiceMember} />);
       expect(screen.queryByText('Closeout Office')).not.toBeInTheDocument();
-      expect(screen.queryByLabelText('Which closeout office should review your PPM?')).not.toBeInTheDocument();
+      expect(screen.queryByLabelText(/Which closeout office should review your PPM\?/)).not.toBeInTheDocument();
       expect(screen.queryByText('Start typing a closeout office...')).not.toBeInTheDocument();
     });
   });
@@ -225,13 +225,13 @@ describe('validates form fields and displays error messages', () => {
     render(<DateAndLocationForm {...defaultProps} />);
 
     await act(async () => {
-      await userEvent.click(screen.getByLabelText('Which closeout office should review your PPM?'));
-      await userEvent.keyboard('{backspace}');
+      await userEvent.click(screen.getByLabelText(/Which closeout office should review your PPM\?/));
+      await userEvent.keyboard('{backspace}[Tab]');
     });
 
     expect(screen.getByRole('button', { name: 'Save & Continue' })).toBeDisabled();
     await userEvent.click(screen.getByText('Start typing a closeout office...'));
-    expect(screen.getByText('Required')).toBeVisible();
+    expect(screen.getByTestId('errorMessage')).toBeVisible();
   });
   it('displays type errors when input fails validation schema', async () => {
     await act(async () => {
@@ -248,7 +248,7 @@ describe('validates form fields and displays error messages', () => {
 
       await userEvent.type(document.querySelector('input[name="destinationAddress.address.postalCode"]'), '1000');
 
-      await userEvent.type(screen.getByLabelText('When do you plan to start moving your PPM?'), '1 January 2022');
+      await userEvent.type(screen.getByLabelText(/When do you plan to start moving your PPM?/), '1 January 2022');
       await userEvent.click(screen.getByRole('button', { name: 'Save & Continue' }));
 
       await waitFor(() => {
@@ -260,7 +260,7 @@ describe('validates form fields and displays error messages', () => {
         // Departure date
         expect(requiredAlerts[2]).toHaveTextContent('Enter a complete date in DD MMM YYYY format (day, month, year).');
         expect(
-          within(requiredAlerts[2].nextElementSibling).getByLabelText('When do you plan to start moving your PPM?'),
+          within(requiredAlerts[2].nextElementSibling).getByLabelText(/When do you plan to start moving your PPM?/),
         ).toBeInTheDocument();
       });
     });
@@ -271,11 +271,11 @@ describe('validates form fields and displays error messages', () => {
       const hasTertiaryPickupAddress = await screen.getAllByLabelText('Yes')[2];
 
       await userEvent.click(hasTertiaryPickupAddress);
-      const postalCodes = screen.getAllByLabelText('ZIP');
-      const address1 = screen.getAllByLabelText('Address 1', { exact: false });
+      const postalCodes = screen.getAllByLabelText(/ZIP/);
+      const address1 = screen.getAllByLabelText(/Address 1/, { exact: false });
       const address2 = screen.getAllByLabelText('Address 2', { exact: false });
-      const state = screen.getAllByLabelText('State');
-      const city = screen.getAllByLabelText('City');
+      const state = screen.getAllByLabelText(/State/);
+      const city = screen.getAllByLabelText(/City/);
       await waitFor(() => {
         expect(address1[1]).toBeInstanceOf(HTMLInputElement);
         expect(address2[1]).toBeInstanceOf(HTMLInputElement);
@@ -291,12 +291,12 @@ describe('validates form fields and displays error messages', () => {
       const hasTertiaryDestinationAddress = await screen.getAllByLabelText('Yes')[2];
 
       await userEvent.click(hasTertiaryDestinationAddress);
-      const postalCodes = screen.getAllByLabelText('ZIP');
-      const address1 = screen.getAllByLabelText('Address 1', { exact: false });
+      const postalCodes = screen.getAllByLabelText(/ZIP/);
+      const address1 = screen.getAllByLabelText(/Address 1/, { exact: false });
       const address2 = screen.getAllByLabelText('Address 2', { exact: false });
       const address3 = screen.getAllByLabelText('Address 3', { exact: false });
-      const state = screen.getAllByLabelText('State');
-      const city = screen.getAllByLabelText('City');
+      const state = screen.getAllByLabelText(/State/);
+      const city = screen.getAllByLabelText(/City/);
 
       await waitFor(() => {
         expect(address1[1]).toBeInstanceOf(HTMLInputElement);

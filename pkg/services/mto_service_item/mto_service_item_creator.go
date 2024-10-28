@@ -482,6 +482,28 @@ func (o *mtoServiceItemCreator) CreateMTOServiceItem(appCtx appcontext.AppContex
 			}
 			serviceItem.SITOriginHHGActualAddress.County = county
 
+			// if there is a country code provided, we will search for it - else we will create it for CONUS
+			if serviceItem.SITOriginHHGActualAddress.Country != nil {
+				country, errCountry := models.FetchCountryByCode(appCtx.DB(), serviceItem.SITOriginHHGActualAddress.Country.Country)
+				if errCountry != nil {
+					return nil, nil, errCounty
+				}
+				serviceItem.SITOriginHHGActualAddress.CountryId = &country.ID
+			} else {
+				country, errCountry := models.FetchCountryByCode(appCtx.DB(), "US")
+				if errCountry != nil {
+					return nil, nil, errCounty
+				}
+				serviceItem.SITOriginHHGActualAddress.CountryId = &country.ID
+			}
+
+			// Evaluate address and populate addresses isOconus value
+			isOconus, err := models.IsAddressOconus(appCtx.DB(), *serviceItem.SITOriginHHGActualAddress)
+			if err != nil {
+				return nil, nil, err
+			}
+			serviceItem.SITOriginHHGActualAddress.IsOconus = &isOconus
+
 			// update the SIT service item to track/save the HHG original pickup address (that came from the
 			// MTO shipment
 			serviceItem.SITOriginHHGOriginalAddress = mtoShipment.PickupAddress.Copy()

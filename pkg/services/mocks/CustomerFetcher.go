@@ -20,6 +20,10 @@ type CustomerFetcher struct {
 func (_m *CustomerFetcher) FetchCustomer(appCtx appcontext.AppContext, customerID uuid.UUID) (*models.ServiceMember, error) {
 	ret := _m.Called(appCtx, customerID)
 
+	if len(ret) == 0 {
+		panic("no return value specified for FetchCustomer")
+	}
+
 	var r0 *models.ServiceMember
 	var r1 error
 	if rf, ok := ret.Get(0).(func(appcontext.AppContext, uuid.UUID) (*models.ServiceMember, error)); ok {

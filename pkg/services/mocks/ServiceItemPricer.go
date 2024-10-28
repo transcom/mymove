@@ -20,6 +20,10 @@ type ServiceItemPricer struct {
 func (_m *ServiceItemPricer) PriceServiceItem(appCtx appcontext.AppContext, item models.PaymentServiceItem) (unit.Cents, models.PaymentServiceItemParams, error) {
 	ret := _m.Called(appCtx, item)
 
+	if len(ret) == 0 {
+		panic("no return value specified for PriceServiceItem")
+	}
+
 	var r0 unit.Cents
 	var r1 models.PaymentServiceItemParams
 	var r2 error

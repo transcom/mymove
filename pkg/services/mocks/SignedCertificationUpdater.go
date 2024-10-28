@@ -18,6 +18,10 @@ type SignedCertificationUpdater struct {
 func (_m *SignedCertificationUpdater) UpdateSignedCertification(appCtx appcontext.AppContext, signedCertification models.SignedCertification, eTag string) (*models.SignedCertification, error) {
 	ret := _m.Called(appCtx, signedCertification, eTag)
 
+	if len(ret) == 0 {
+		panic("no return value specified for UpdateSignedCertification")
+	}
+
 	var r0 *models.SignedCertification
 	var r1 error
 	if rf, ok := ret.Get(0).(func(appcontext.AppContext, models.SignedCertification, string) (*models.SignedCertification, error)); ok {
