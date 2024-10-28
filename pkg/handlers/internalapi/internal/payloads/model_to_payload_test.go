@@ -50,7 +50,7 @@ func (suite *PayloadsSuite) TestFetchPPMShipment() {
 		suite.Equal(&postalcode, returnedPPMShipment.PickupAddress.PostalCode)
 		suite.Equal(&city, returnedPPMShipment.PickupAddress.City)
 		suite.Equal(&state, returnedPPMShipment.PickupAddress.State)
-		suite.Equal(&country, returnedPPMShipment.PickupAddress.Country)
+		suite.Equal(&country.Country, returnedPPMShipment.PickupAddress.Country)
 		suite.Equal(&county, returnedPPMShipment.PickupAddress.County)
 
 		suite.Equal(&streetAddress1, returnedPPMShipment.DestinationAddress.StreetAddress1)
@@ -59,7 +59,7 @@ func (suite *PayloadsSuite) TestFetchPPMShipment() {
 		suite.Equal(&postalcode, returnedPPMShipment.DestinationAddress.PostalCode)
 		suite.Equal(&city, returnedPPMShipment.DestinationAddress.City)
 		suite.Equal(&state, returnedPPMShipment.DestinationAddress.State)
-		suite.Equal(&country, returnedPPMShipment.DestinationAddress.Country)
+		suite.Equal(&country.Country, returnedPPMShipment.DestinationAddress.Country)
 		suite.Equal(&county, returnedPPMShipment.DestinationAddress.County)
 
 		suite.True(*returnedPPMShipment.IsActualExpenseReimbursement)
