@@ -106,11 +106,15 @@ func (d *dtodZip5DistanceInfo) DTODZip5Distance(appCtx appcontext.AppContext, pi
 
 	if distanceFloat <= 0 {
 		dtodAvailable, _ := validateDTODServiceAvailable(*d)
-		if !dtodAvailable && appCtx.Session().IsServiceMember() {
-			return distance, nil
+		if !dtodAvailable {
+			if appCtx.Session().IsServiceMember() {
+				return distance, nil
+			} else {
+				return distance, apperror.NewEventError(notifications.DTODDownErrorMessage, nil)
+			}
 		}
 
-		return distance, apperror.NewEventError(notifications.DtodErrorMessage, nil)
+		return distance, apperror.NewEventError(notifications.DTODFailureErrorMessage, nil)
 	}
 
 	// TODO: DTOD gives us a float back. Should we round, floor, or ceiling? Just going to round for now.
