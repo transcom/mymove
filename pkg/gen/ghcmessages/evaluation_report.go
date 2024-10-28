@@ -40,6 +40,9 @@ type EvaluationReport struct {
 	// Pattern: ^(0[0-9]|1[0-9]|2[0-3]):[0-5][0-9]$
 	EvalStart *string `json:"evalStart,omitempty"`
 
+	// gsr appeals
+	GsrAppeals GSRAppeals `json:"gsrAppeals,omitempty"`
+
 	// id
 	// Example: 1f2270c7-7166-40ae-981e-b200ebdf3054
 	// Read Only: true
@@ -154,6 +157,10 @@ func (m *EvaluationReport) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validateEvalStart(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateGsrAppeals(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -282,6 +289,23 @@ func (m *EvaluationReport) validateEvalStart(formats strfmt.Registry) error {
 	}
 
 	if err := validate.Pattern("evalStart", "body", *m.EvalStart, `^(0[0-9]|1[0-9]|2[0-3]):[0-5][0-9]$`); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *EvaluationReport) validateGsrAppeals(formats strfmt.Registry) error {
+	if swag.IsZero(m.GsrAppeals) { // not required
+		return nil
+	}
+
+	if err := m.GsrAppeals.Validate(formats); err != nil {
+		if ve, ok := err.(*errors.Validation); ok {
+			return ve.ValidateName("gsrAppeals")
+		} else if ce, ok := err.(*errors.CompositeError); ok {
+			return ce.ValidateName("gsrAppeals")
+		}
 		return err
 	}
 
@@ -542,6 +566,10 @@ func (m *EvaluationReport) ContextValidate(ctx context.Context, formats strfmt.R
 		res = append(res, err)
 	}
 
+	if err := m.contextValidateGsrAppeals(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.contextValidateID(ctx, formats); err != nil {
 		res = append(res, err)
 	}
@@ -601,6 +629,20 @@ func (m *EvaluationReport) contextValidateReportViolations(ctx context.Context, 
 func (m *EvaluationReport) contextValidateCreatedAt(ctx context.Context, formats strfmt.Registry) error {
 
 	if err := validate.ReadOnly(ctx, "createdAt", "body", strfmt.DateTime(m.CreatedAt)); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *EvaluationReport) contextValidateGsrAppeals(ctx context.Context, formats strfmt.Registry) error {
+
+	if err := m.GsrAppeals.ContextValidate(ctx, formats); err != nil {
+		if ve, ok := err.(*errors.Validation); ok {
+			return ve.ValidateName("gsrAppeals")
+		} else if ce, ok := err.(*errors.CompositeError); ok {
+			return ce.ValidateName("gsrAppeals")
+		}
 		return err
 	}
 
