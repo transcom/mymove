@@ -315,7 +315,7 @@ func nameFilter(name *string) QueryOption {
 		removeCharsRegex := regexp.MustCompile("[,]+")
 		nameQueryParam = removeCharsRegex.ReplaceAllString(nameQueryParam, "")
 		nameQueryParam = fmt.Sprintf("%%%s%%", nameQueryParam)
-		query.Where("(service_members.last_name || ' ' || service_members.first_name) ILIKE ?", nameQueryParam)
+		query.Where("((service_members.last_name || ' ' || service_members.first_name) || (service_members.first_name || ' ' || service_members.last_name)) ILIKE ?", nameQueryParam)
 	}
 }
 
