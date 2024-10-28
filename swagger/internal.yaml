@@ -1806,14 +1806,18 @@ definitions:
       - BOAT_HAUL_AWAY
       - BOAT_TOW_AWAY
       - MOBILE_HOME
+      - UNACCOMPANIED_BAGGAGE
     x-display-value:
       HHG: HHG
+      HHG_INTO_NTS_DOMESTIC: NTS
+      HHG_OUTOF_NTS_DOMESTIC: NTS Release
       INTERNATIONAL_HHG: International HHG
       INTERNATIONAL_UB: International UB
       PPM: PPM
       BOAT_HAUL_AWAY: Boat Haul-Away
       BOAT_TOW_AWAY: Boat Tow-Away
       MOBILE_HOME: Mobile Home
+      UNACCOMPANIED_BAGGAGE: Unaccompanied Baggage
   MTOShipment:
     properties:
       moveTaskOrderID:
@@ -1904,6 +1908,15 @@ definitions:
         x-nullable: true
         readOnly: true
         example: 1K43AR-01
+      marketCode:
+        type: string
+        enum:
+          - d
+          - i
+        example: d
+        description: >-
+          Single-letter designator for domestic (d) or international (i)
+          shipments
   MTOShipments:
     items:
       $ref: '#/definitions/MTOShipment'
