@@ -34,7 +34,7 @@ type OfficeUser struct {
 	Telephone                       string                          `json:"telephone" db:"telephone"`
 	TransportationOfficeID          uuid.UUID                       `json:"transportation_office_id" db:"transportation_office_id"`
 	TransportationOffice            TransportationOffice            `belongs_to:"transportation_office" fk_id:"transportation_office_id"`
-	TransportationOfficeAssignments TransportationOfficeAssignments `many_to_many:"transportation_office_assignments" primary_id:"id"`
+	TransportationOfficeAssignments TransportationOfficeAssignments `has_many:"transportation_office_assignments" fk_id:"id" order_by:"created_at asc"`
 	CreatedAt                       time.Time                       `json:"created_at" db:"created_at"`
 	UpdatedAt                       time.Time                       `json:"updated_at" db:"updated_at"`
 	Active                          bool                            `json:"active" db:"active"`
