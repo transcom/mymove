@@ -5002,6 +5002,13 @@ definitions:
           Indicates if the move entitlement allows dependents to travel to the
           new Permanent Duty Station (PDS). This is only present on OCONUS
           moves.
+      ubAllowance:
+        type: integer
+        example: 3
+        x-nullable: true
+        description: >-
+          The amount of weight in pounds that the move is entitled for shipment
+          types of Unaccompanied Baggage.
       dependentsUnderTwelve:
         type: integer
         example: 5
