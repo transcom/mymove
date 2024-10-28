@@ -67,6 +67,10 @@ type MTOServiceItem struct {
 	PricingEstimate                   *unit.Cents                    `db:"pricing_estimate"`
 	StandaloneCrate                   *bool                          `db:"standalone_crate"`
 	LockedPriceCents                  *unit.Cents                    `db:"locked_price_cents"`
+	POELocation                       *Port                          `belongs_to:"ports" fk_id:"poe_location_id"`
+	POELocationID                     *uuid.UUID                     `db:"poe_location_id uuid"`
+	PODLocation                       *Port                          `belongs_to:"ports" fk_id:"pod_location_id"`
+	PODLocationID                     *uuid.UUID                     `db:"pod_location_id uuid"`
 }
 
 // MTOServiceItemSingle is an object representing a single column in the service items table
