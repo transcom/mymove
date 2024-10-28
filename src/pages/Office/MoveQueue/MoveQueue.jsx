@@ -150,7 +150,11 @@ export const columns = (moveLockFlag, isQueueManagementEnabled, showBranchFilter
         'Assigned',
         (row) => {
           return !row?.assignable ? (
-            <div data-testid="assigned-col">{`${row.assignedTo?.lastName}, ${row.assignedTo?.firstName}`}</div>
+            <div data-testid="assigned-col">
+              {row.assignedTo?.lastName && row.assignedTo.lastName}
+              {row.assignedTo?.lastName && ', '}
+              {row.assignedTo?.firstName}
+            </div>
           ) : (
             <div data-label="assignedSelect" data-testid="assigned-col" className={styles.assignedToCol}>
               <Dropdown
