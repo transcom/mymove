@@ -1,17 +1,22 @@
 package internalapi
 
 import (
+	"context"
+
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/gofrs/uuid"
+	"github.com/spf13/viper"
 	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/apperror"
+	"github.com/transcom/mymove/pkg/cli"
 	locationop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/duty_locations"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/handlers/internalapi/internal/payloads"
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/services/featureflag"
 )
 
 func payloadForDutyLocationModel(location models.DutyLocation) *internalmessages.DutyLocationPayload {
@@ -46,7 +51,30 @@ func (h SearchDutyLocationsHandler) Handle(params locationop.SearchDutyLocations
 	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
 		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
 
-			locations, err := models.FindDutyLocations(appCtx.DB(), params.Search)
+			/** Feature Flag - Alaska - Determines if AK be included/excluded **/
+			isAlaskaEnabled := false
+			featureFlagName := "enable_alaska"
+			config := cli.GetFliptFetcherConfig(viper.GetViper())
+			flagFetcher, err := featureflag.NewFeatureFlagFetcher(config)
+			if err != nil {
+				appCtx.Logger().Error("Error initializing FeatureFlagFetcher", zap.String("featureFlagKey", featureFlagName), zap.Error(err))
+			}
+
+			flag, err := flagFetcher.GetBooleanFlagForUser(context.TODO(), appCtx, featureFlagName, map[string]string{})
+			if err != nil {
+				appCtx.Logger().Error("Error fetching feature flag", zap.String("featureFlagKey", featureFlagName), zap.Error(err))
+			} else {
+				isAlaskaEnabled = flag.Match
+			}
+
+			statesToExclude := make([]string, 0)
+			if !isAlaskaEnabled {
+				// HI locations will also be excluded as part of AK embargo
+				statesToExclude = append(statesToExclude, "AK")
+				statesToExclude = append(statesToExclude, "HI")
+			}
+
+			locations, err := models.FindDutyLocationsExcludingStates(appCtx.DB(), params.Search, statesToExclude)
 			if err != nil {
 				dutyLocationErr := apperror.NewNotFoundError(uuid.Nil, "Finding duty locations")
 				appCtx.Logger().Error(dutyLocationErr.Error(), zap.Error(err))
