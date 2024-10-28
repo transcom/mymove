@@ -21,7 +21,6 @@ import AsyncPacketDownloadLink from 'shared/AsyncPacketDownloadLink/AsyncPacketD
  * TODO
  * - implement next/previous pages instead of scroll through pages
  * - implement rotate left/right
- * - handle fetch doc errors
  */
 
 const DocumentViewer = ({ files, allowDownload, paymentRequestId }) => {
