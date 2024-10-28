@@ -18,8 +18,8 @@ type officeUserUpdater struct {
 // UpdateOfficeUser updates an office user
 func (o *officeUserUpdater) UpdateOfficeUser(appCtx appcontext.AppContext, id uuid.UUID, payload *adminmessages.OfficeUserUpdate, primaryTransportationOfficeID uuid.UUID) (*models.OfficeUser, *validate.Errors, error) {
 	var foundUser models.OfficeUser
-	officeUserFetcher := NewOfficeUserFetcherPop()
-	foundUser, err := officeUserFetcher.FetchOfficeUserByID(appCtx, id)
+	filters := []services.QueryFilter{query.NewQueryFilter("id", "=", id.String())}
+	err := o.builder.FetchOne(appCtx, &foundUser, filters)
 
 	if err != nil {
 		return nil, nil, err
