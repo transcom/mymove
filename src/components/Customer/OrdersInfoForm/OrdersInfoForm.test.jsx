@@ -195,20 +195,20 @@ describe('OrdersInfoForm component', () => {
     const ordersTypeDropdown = getByLabelText(/Orders type/);
     expect(ordersTypeDropdown).toBeInstanceOf(HTMLSelectElement);
 
-    await userEvent.selectOptions(ordersTypeDropdown, 'PERMANENT_CHANGE_OF_STATION');
-    expect(ordersTypeDropdown).toHaveValue('PERMANENT_CHANGE_OF_STATION');
+    await userEvent.selectOptions(ordersTypeDropdown, ORDERS_TYPE.PERMANENT_CHANGE_OF_STATION);
+    expect(ordersTypeDropdown).toHaveValue(ORDERS_TYPE.PERMANENT_CHANGE_OF_STATION);
 
-    await userEvent.selectOptions(ordersTypeDropdown, 'LOCAL_MOVE');
-    expect(ordersTypeDropdown).toHaveValue('LOCAL_MOVE');
+    await userEvent.selectOptions(ordersTypeDropdown, ORDERS_TYPE.LOCAL_MOVE);
+    expect(ordersTypeDropdown).toHaveValue(ORDERS_TYPE.LOCAL_MOVE);
 
-    await userEvent.selectOptions(ordersTypeDropdown, 'RETIREMENT');
-    expect(ordersTypeDropdown).toHaveValue('RETIREMENT');
+    await userEvent.selectOptions(ordersTypeDropdown, ORDERS_TYPE.RETIREMENT);
+    expect(ordersTypeDropdown).toHaveValue(ORDERS_TYPE.RETIREMENT);
 
-    await userEvent.selectOptions(ordersTypeDropdown, 'SEPARATION');
-    expect(ordersTypeDropdown).toHaveValue('SEPARATION');
+    await userEvent.selectOptions(ordersTypeDropdown, ORDERS_TYPE.SEPARATION);
+    expect(ordersTypeDropdown).toHaveValue(ORDERS_TYPE.SEPARATION);
 
-    await userEvent.selectOptions(ordersTypeDropdown, 'TEMPORARY_DUTY');
-    expect(ordersTypeDropdown).toHaveValue('TEMPORARY_DUTY');
+    await userEvent.selectOptions(ordersTypeDropdown, ORDERS_TYPE.TEMPORARY_DUTY);
+    expect(ordersTypeDropdown).toHaveValue(ORDERS_TYPE.TEMPORARY_DUTY);
   });
 
   it('allows new and current duty location to be the same', async () => {
@@ -283,7 +283,7 @@ describe('OrdersInfoForm component', () => {
 
     render(<OrdersInfoForm {...testPropsWithCounselingOffice} />);
 
-    await userEvent.selectOptions(screen.getByLabelText(/Orders type/), 'PERMANENT_CHANGE_OF_STATION');
+    await userEvent.selectOptions(screen.getByLabelText(/Orders type/), ORDERS_TYPE.PERMANENT_CHANGE_OF_STATION);
     await userEvent.type(screen.getByLabelText(/Orders date/), '08 Nov 2020');
     await userEvent.type(screen.getByLabelText(/Report by date/), '26 Nov 2020');
     await userEvent.click(screen.getByLabelText('No'));
@@ -312,7 +312,7 @@ describe('OrdersInfoForm component', () => {
     await waitFor(() => {
       expect(testPropsWithCounselingOffice.onSubmit).toHaveBeenCalledWith(
         expect.objectContaining({
-          orders_type: 'PERMANENT_CHANGE_OF_STATION',
+          orders_type: ORDERS_TYPE.PERMANENT_CHANGE_OF_STATION,
           counseling_office_id: '3be2381f-f9ed-4902-bbdc-69c69e43eb86',
           has_dependents: 'no',
           issue_date: '08 Nov 2020',
@@ -358,7 +358,7 @@ describe('OrdersInfoForm component', () => {
   it('submits the form when its valid', async () => {
     render(<OrdersInfoForm {...testProps} />);
 
-    await userEvent.selectOptions(screen.getByLabelText(/Orders type/), 'PERMANENT_CHANGE_OF_STATION');
+    await userEvent.selectOptions(screen.getByLabelText(/Orders type/), ORDERS_TYPE.PERMANENT_CHANGE_OF_STATION);
     await userEvent.type(screen.getByLabelText(/Orders date/), '08 Nov 2020');
     await userEvent.type(screen.getByLabelText(/Report by date/), '26 Nov 2020');
     await userEvent.click(screen.getByLabelText('No'));
@@ -387,7 +387,7 @@ describe('OrdersInfoForm component', () => {
     await waitFor(() => {
       expect(testProps.onSubmit).toHaveBeenCalledWith(
         expect.objectContaining({
-          orders_type: 'PERMANENT_CHANGE_OF_STATION',
+          orders_type: ORDERS_TYPE.PERMANENT_CHANGE_OF_STATION,
           has_dependents: 'no',
           issue_date: '08 Nov 2020',
           report_by_date: '26 Nov 2020',
@@ -509,7 +509,7 @@ describe('OrdersInfoForm component', () => {
 
   describe('with initial values', () => {
     const testInitialValues = {
-      orders_type: 'PERMANENT_CHANGE_OF_STATION',
+      orders_type: ORDERS_TYPE.PERMANENT_CHANGE_OF_STATION,
       issue_date: '2020-11-08',
       report_by_date: '2020-11-26',
       has_dependents: 'no',
