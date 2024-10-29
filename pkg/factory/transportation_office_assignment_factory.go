@@ -26,11 +26,11 @@ func BuildPrimaryTransportationOfficeAssignment(db *pop.Connection, customs []Cu
 		}
 	}
 
-	// Find/Create the associated office user model
-	officeUser := BuildOfficeUser(db, customs, traits)
-
 	// Find/Create the associated transportation office model
 	transportationOffice := BuildTransportationOffice(db, customs, traits)
+
+	// Find/Create the associated office user model
+	officeUser := BuildOfficeUser(db, customs, traits)
 
 	// Create transportationOffice
 	transportationOfficeAssignment := models.TransportationOfficeAssignment{
@@ -57,7 +57,7 @@ func BuildPrimaryTransportationOfficeAssignment(db *pop.Connection, customs []Cu
 // Notes:
 //   - Marks the transportation office assignment as a non-primary transportation office assignment,
 //     use BuildPrimaryTransportationOfficeAssignment for primary transportation office assignments.
-func BuildAlternateTransportationAssignment(db *pop.Connection, customs []Customization, traits []Trait) models.TransportationOfficeAssignment {
+func BuildAlternateTransportationOfficeAssignment(db *pop.Connection, customs []Customization, traits []Trait) models.TransportationOfficeAssignment {
 	customs = setupCustomizations(customs, traits)
 
 	// Find TransportationAssignment assertion and convert to models.TransportationAssignment
