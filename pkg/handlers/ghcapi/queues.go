@@ -60,6 +60,7 @@ func (h GetMovesQueueHandler) Handle(params queues.GetMovesQueueParams) middlewa
 				Sort:                    params.Sort,
 				Order:                   params.Order,
 				OrderType:               params.OrderType,
+				TOOAssignedUser:         params.AssignedTo,
 			}
 
 			// When no status filter applied, TOO should only see moves with status of New Move, Service Counseling Completed, or Approvals Requested
@@ -83,6 +84,7 @@ func (h GetMovesQueueHandler) Handle(params queues.GetMovesQueueParams) middlewa
 			moves, count, err := h.OrderFetcher.ListOrders(
 				appCtx,
 				appCtx.Session().OfficeUserID,
+				roles.RoleTypeTOO,
 				&ListOrderParams,
 			)
 			if err != nil {
@@ -133,7 +135,7 @@ func (h GetMovesQueueHandler) Handle(params queues.GetMovesQueueParams) middlewa
 				}
 			}
 
-			queueMoves := payloads.QueueMoves(moves, officeUsers, nil)
+			queueMoves := payloads.QueueMoves(moves, officeUsers, nil, roles.RoleTypeTOO)
 
 			result := &ghcmessages.QueueMovesResult{
 				Page:       *ListOrderParams.Page,
@@ -394,6 +396,7 @@ func (h GetServicesCounselingQueueHandler) Handle(
 			moves, count, err := h.OrderFetcher.ListOrders(
 				appCtx,
 				appCtx.Session().OfficeUserID,
+				roles.RoleTypeServicesCounselor,
 				&ListOrderParams,
 			)
 			if err != nil {
@@ -444,7 +447,7 @@ func (h GetServicesCounselingQueueHandler) Handle(
 				}
 			}
 
-			queueMoves := payloads.QueueMoves(moves, officeUsers, &requestedPpmStatus)
+			queueMoves := payloads.QueueMoves(moves, officeUsers, &requestedPpmStatus, roles.RoleTypeServicesCounselor)
 
 			result := &ghcmessages.QueueMovesResult{
 				Page:       *ListOrderParams.Page,

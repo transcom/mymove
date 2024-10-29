@@ -1,4 +1,5 @@
 import React from 'react';
+import { Provider } from 'react-redux';
 
 import {
   shipments,
@@ -12,6 +13,7 @@ import SubmittedRequestedShipments from './SubmittedRequestedShipments';
 
 import { MockProviders, MockRouterProvider } from 'testUtils';
 import { permissionTypes } from 'constants/permissions';
+import { store } from 'shared/store';
 
 export default {
   title: 'Office Components/SubmittedRequestedShipments',
@@ -21,17 +23,21 @@ export default {
       // Don't wrap with permissions for the read only tests
       if (context.name.includes('Read Only')) {
         return (
-          <MockRouterProvider>
-            <Story />
-          </MockRouterProvider>
+          <Provider store={store}>
+            <MockRouterProvider>
+              <Story />
+            </MockRouterProvider>
+          </Provider>
         );
       }
 
       // By default, show component with permissions
       return (
-        <MockProviders permissions={[permissionTypes.updateShipment]}>
-          <Story />
-        </MockProviders>
+        <Provider store={store}>
+          <MockProviders permissions={[permissionTypes.updateShipment]}>
+            <Story />
+          </MockProviders>
+        </Provider>
       );
     },
   ],
