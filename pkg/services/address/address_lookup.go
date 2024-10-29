@@ -1,6 +1,7 @@
 package address
 
 import (
+	"context"
 	"database/sql"
 	"fmt"
 	"regexp"
@@ -8,11 +9,15 @@ import (
 
 	"github.com/gofrs/uuid"
 	"github.com/pkg/errors"
+	"github.com/spf13/viper"
+	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/apperror"
+	"github.com/transcom/mymove/pkg/cli"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
+	"github.com/transcom/mymove/pkg/services/featureflag"
 )
 
 type vLocation struct {
@@ -22,7 +27,7 @@ func NewVLocation() services.VLocation {
 	return &vLocation{}
 }
 
-func (o vLocation) GetLocationsByZipCity(appCtx appcontext.AppContext, search string) (*models.VLocations, error) {
+func (o vLocation) GetLocationsByZipCityState(appCtx appcontext.AppContext, search string) (*models.VLocations, error) {
 	locationList, err := FindLocationsByZipCity(appCtx, search)
 
 	if err != nil {
@@ -70,14 +75,36 @@ func FindLocationsByZipCity(appCtx appcontext.AppContext, search string) (models
 		city = strings.ReplaceAll(city, ",", "")
 	}
 
-	// city = "swansea"
-	// state = "IL"
-	// postalCode = "62226"
+	/** Feature Flag - Alaska - Determines if AK be included/excluded **/
+	isAlaskaEnabled := false
+	featureFlagName := "enable_alaska"
+	config := cli.GetFliptFetcherConfig(viper.GetViper())
+	flagFetcher, err := featureflag.NewFeatureFlagFetcher(config)
+	if err != nil {
+		appCtx.Logger().Error("Error initializing FeatureFlagFetcher", zap.String("featureFlagKey", featureFlagName), zap.Error(err))
+	}
 
-	sqlQuery := fmt.Sprintf(`
+	flag, err := flagFetcher.GetBooleanFlagForUser(context.TODO(), appCtx, featureFlagName, map[string]string{})
+	if err != nil {
+		appCtx.Logger().Error("Error fetching feature flag", zap.String("featureFlagKey", featureFlagName), zap.Error(err))
+	} else {
+		isAlaskaEnabled = flag.Match
+	}
+
+	sqlQuery := ""
+
+	if isAlaskaEnabled {
+		sqlQuery = fmt.Sprintf(`
+			select vl.city_name, vl.state, vl.usprc_county_nm, vl.uspr_zip_id, vl.uprc_id
+				from v_locations vl where vl.uspr_zip_id like '%[1]s%%' and
+				vl.city_name like upper('%[2]s%%') and vl.state like upper('%[3]s%%') limit 30`, postalCode, city, state)
+	} else {
+		sqlQuery = fmt.Sprintf(`
 		select vl.city_name, vl.state, vl.usprc_county_nm, vl.uspr_zip_id, vl.uprc_id
 			from v_locations vl where vl.uspr_zip_id like '%[1]s%%' and
-			vl.city_name like upper('%[2]s%%') and vl.state like upper('%[3]s%%') limit 30`, postalCode, city, state)
+			vl.city_name like upper('%[2]s%%') and vl.state like upper('%[3]s%%') and (vl.state != 'AK' or vl.state != 'HI') limit 30`, postalCode, city, state)
+	}
+
 	query := appCtx.DB().Q().RawQuery(sqlQuery)
 	if err := query.All(&locationList); err != nil {
 		if errors.Cause(err).Error() != models.RecordNotFoundErrorString {

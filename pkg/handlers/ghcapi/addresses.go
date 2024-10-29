@@ -26,7 +26,7 @@ func (h GetLocationByZipCityStateHandler) Handle(params addressop.GetLocationByZ
 				return addressop.NewGetLocationByZipCityStateForbidden(), noOfficeUserIDErr
 			}
 
-			locationList, err := h.GetLocationsByZipCity(appCtx, params.Search)
+			locationList, err := h.GetLocationsByZipCityState(appCtx, params.Search)
 			if err != nil {
 				appCtx.Logger().Error("Error searching for Zip/City/State: ", zap.Error(err))
 				return addressop.NewGetLocationByZipCityStateInternalServerError(), err
