@@ -580,7 +580,7 @@ func (o *mtoServiceItemCreator) CreateMTOServiceItem(appCtx appcontext.AppContex
 	// DLH, DPK, DOP, DDP, DUPK
 
 	// NTS-release requested pickup dates are for handle out, their pricing is handled differently as their locations are based on storage facilities, not pickup locations
-	if mtoShipment.PrimeEstimatedWeight != nil && mtoShipment.RequestedPickupDate != nil && mtoShipment.ShipmentType != models.MTOShipmentTypeHHGOutOfNTSDom {
+	if mtoShipment.PrimeEstimatedWeight != nil && mtoShipment.RequestedPickupDate != nil {
 		serviceItemEstimatedPrice, err := o.findEstimatedPrice(appCtx, serviceItem, mtoShipment)
 		if serviceItemEstimatedPrice != 0 && err == nil {
 			serviceItem.PricingEstimate = &serviceItemEstimatedPrice
