@@ -1133,6 +1133,7 @@ describe('DateAndLocation component', () => {
                 hasTertiaryDestinationAddress: true,
                 sitExpected: true,
                 expectedDepartureDate: '2022-12-31',
+                isActualExpenseReimbursement: false,
               },
             },
             fullShipmentProps.mtoShipment.eTag,
