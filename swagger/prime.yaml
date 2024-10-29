@@ -2935,6 +2935,7 @@ definitions:
       - WOUNDED_WARRIOR
       - BLUEBARK
       - SAFETY
+      - TEMPORARY_DUTY
     x-display-value:
       PERMANENT_CHANGE_OF_STATION: Permanent Change Of Station
       LOCAL_MOVE: Local Move
@@ -2943,6 +2944,7 @@ definitions:
       WOUNDED_WARRIOR: Wounded Warrior
       BLUEBARK: BLUEBARK
       SAFETY: Safety
+      TEMPORARY_DUTY: Temporary Duty (TDY)
   Order:
     type: object
     required:

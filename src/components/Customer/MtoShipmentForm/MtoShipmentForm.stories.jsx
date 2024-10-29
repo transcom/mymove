@@ -7,6 +7,7 @@ import MtoShipmentForm from './MtoShipmentForm';
 import { SHIPMENT_OPTIONS } from 'shared/constants';
 import { store } from 'shared/store';
 import { MockRouterProvider } from 'testUtils';
+import { ORDERS_TYPE } from 'constants/orders';
 
 const defaultProps = {
   pageList: ['page1', 'anotherPage/:foo/:bar'],
@@ -29,7 +30,7 @@ const defaultProps = {
     destinationAddress: undefined,
   },
   orders: {
-    orders_type: 'PERMANENT_CHANGE_OF_STATION',
+    orders_type: ORDERS_TYPE.PERMANENT_CHANGE_OF_STATION,
     authorizedWeight: 5000,
     entitlement: {
       proGear: 1000,
