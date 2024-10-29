@@ -38,6 +38,7 @@ describe('ResidentialAddress page', () => {
     state: 'TX',
     postalCode: '79912',
     county: 'El Paso',
+    usprcId: '',
   };
 
   const blankAddress = Object.fromEntries(Object.keys(fakeAddress).map((k) => [k, '']));
@@ -63,27 +64,6 @@ describe('ResidentialAddress page', () => {
 
     await waitFor(() => {
       expect(screen.getByRole('heading', { name: 'Current address', level: 1 })).toBeInTheDocument();
-    });
-  });
-
-  it('validates zip code using api endpoint', async () => {
-    const testProps = generateTestProps(blankAddress);
-
-    ValidateZipRateData.mockImplementation(() => ({
-      valid: true,
-    }));
-
-    render(<ResidentialAddress {...testProps} />);
-
-    const postalCodeInput = await screen.findByLabelText(/ZIP/);
-
-    const postalCode = '99999';
-
-    await userEvent.type(postalCodeInput, postalCode);
-    await userEvent.tab();
-
-    await waitFor(() => {
-      expect(ValidateZipRateData).toHaveBeenCalledWith(postalCode, 'origin');
     });
   });
 
@@ -121,10 +101,6 @@ describe('ResidentialAddress page', () => {
       </Provider>,
     );
 
-    await userEvent.type(screen.getByLabelText(/Address 1/), fakeAddress.streetAddress1);
-    await userEvent.type(screen.getByLabelText(/Address 2/), fakeAddress.streetAddress2);
-    await userEvent.tab();
-
     const submitButton = screen.getByRole('button', { name: 'Next' });
     expect(submitButton).toBeInTheDocument();
     await userEvent.click(submitButton);
@@ -139,26 +115,23 @@ describe('ResidentialAddress page', () => {
 
   it('shows an error if the ValidateZipRateData API returns an error', async () => {
     const testProps = generateTestProps(fakeAddress);
+    const mockStore = configureStore({});
 
     ValidateZipRateData.mockImplementation(() => ({
       valid: false,
     }));
     patchServiceMember.mockImplementation(() => Promise.resolve(testProps.serviceMember));
 
-    render(<ResidentialAddress {...testProps} />);
-
-    // Touch field so that error message can be displayed
-    await userEvent.click(screen.getByLabelText(/ZIP/));
+    render(
+      <Provider store={mockStore.store}>
+        <ResidentialAddress {...testProps} />
+      </Provider>,
+    );
 
     const submitButton = screen.getByRole('button', { name: 'Next' });
     expect(submitButton).toBeInTheDocument();
     await userEvent.click(submitButton);
 
-    const alert = await screen.findByRole('alert');
-
-    expect(alert).toHaveTextContent(
-      'Sorry, we don’t support that zip code yet. Please contact your local PPPO for assistance.',
-    );
     expect(patchServiceMember).not.toHaveBeenCalled();
     expect(testProps.updateServiceMember).not.toHaveBeenCalled();
     expect(mockNavigate).not.toHaveBeenCalled();

@@ -92,18 +92,18 @@ func (suite *HandlerSuite) TestGetLocationByZipCityHandler() {
 		move := factory.BuildMove(suite.DB(), nil, nil)
 		req := httptest.NewRequest("GET", "/addresses/zip_city_lookup/"+zip, nil)
 		req = suite.AuthenticateRequest(req, move.Orders.ServiceMember)
-		params := addressop.GetLocationByZipCityParams{
+		params := addressop.GetLocationByZipCityStateParams{
 			HTTPRequest: req,
 			Search:      zip,
 		}
 
-		handler := GetLocationByZipCityHandler{
+		handler := GetLocationByZipCityStateHandler{
 			HandlerConfig: suite.HandlerConfig(),
 			VLocation:     vLocationServices}
 
 		response := handler.Handle(params)
-		suite.Assertions.IsType(&addressop.GetLocationByZipCityOK{}, response)
-		responsePayload := response.(*addressop.GetLocationByZipCityOK)
+		suite.Assertions.IsType(&addressop.GetLocationByZipCityStateOK{}, response)
+		responsePayload := response.(*addressop.GetLocationByZipCityStateOK)
 		suite.NoError(responsePayload.Payload.Validate(strfmt.Default))
 		suite.Equal(zip, responsePayload.Payload[0].PostalCode)
 	})

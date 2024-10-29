@@ -10,7 +10,7 @@ import styles from 'components/form/AddressFields/AddressFields.module.scss';
 import { technicalHelpDeskURL } from 'shared/constants';
 import TextField from 'components/form/fields/TextField/TextField';
 import { DropdownInput } from 'components/form/fields/DropdownInput';
-import ZipCityInput from 'components/form/fields/ZipCityInput';
+import LocationInput from 'components/form/fields/LocationInput';
 
 /**
  * @param legend
@@ -33,7 +33,7 @@ export const AddressFields = ({
   validators,
   zipCityEnabled,
   zipCityError,
-  handleZipCityChange,
+  handleZipCityChange: handleLocationChange,
   formikFunctionsToValidatePostalCodeOnChange,
   labelHint: labelHintProp,
 }) => {
@@ -125,16 +125,16 @@ export const AddressFields = ({
             data-testid={`${name}.streetAddress3`}
             validate={validators?.streetAddress3}
           />
-          {handleZipCityChange && (
+          {handleLocationChange && (
             <>
-              <ZipCityInput
+              <LocationInput
                 name={`${name}-zipCity`}
-                placeholder="Start typing a Zip Code or City..."
-                label="Zip/City Lookup"
-                handleZipCityChange={handleZipCityChange}
+                placeholder="Start typing a Zip or City, State Zip"
+                label="Location Lookup"
+                handleLocationChange={handleLocationChange}
               />
               {!zipCityError && (
-                <Hint className={styles.hint} id="zipCityInfo" data-testid="zipCityInfo">
+                <Hint className={styles.hint} id="locationInfo" data-testid="locationInfo">
                   {infoStr}
                   <a href={technicalHelpDeskURL} target="_blank" rel="noreferrer">
                     Technical Help Desk
@@ -164,7 +164,7 @@ export const AddressFields = ({
                 validate={validators?.city}
                 isDisabled={zipCityEnabled}
               />
-              {handleZipCityChange && (
+              {handleLocationChange && (
                 <TextField
                   className={styles.countyInput}
                   label="County"

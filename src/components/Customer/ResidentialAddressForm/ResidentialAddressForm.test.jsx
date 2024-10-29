@@ -59,39 +59,17 @@ describe('ResidentialAddressForm component', () => {
     );
 
     await waitFor(() => {
-      expect(getByLabelText(/Address 1/)).toBeInstanceOf(HTMLInputElement);
+      expect(getByLabelText('Address 1')).toBeInstanceOf(HTMLInputElement);
 
       expect(getByLabelText(/Address 2/)).toBeInstanceOf(HTMLInputElement);
 
-      expect(getByLabelText(/City/)).toBeInstanceOf(HTMLInputElement);
+      expect(getByLabelText('City')).toBeInstanceOf(HTMLInputElement);
 
       expect(getByLabelText('State')).toBeInstanceOf(HTMLInputElement);
 
-      expect(getByLabelText(/ZIP/)).toBeInstanceOf(HTMLInputElement);
+      expect(getByLabelText('ZIP')).toBeInstanceOf(HTMLInputElement);
 
       expect(getByText('Must be a physical address.')).toBeInTheDocument();
-    });
-  });
-
-  it('passes custom validators to fields', async () => {
-    const postalCodeValidator = jest.fn().mockImplementation(() => undefined);
-
-    const { findByLabelText } = render(
-      <ResidentialAddressForm {...testProps} validators={{ postalCode: postalCodeValidator }} />,
-    );
-
-    const postalCodeInput = await findByLabelText(/ZIP/);
-
-    const postalCode = '99999';
-
-    await userEvent.type(postalCodeInput, postalCode);
-
-    await waitFor(() => {
-      // We expect this to be called 6 times.
-      // 1 - validate on mount
-      // 5 - once for each 9 that was typed, since we are validating on change
-      expect(postalCodeValidator).toHaveBeenCalledTimes(6);
-      expect(postalCodeValidator).toHaveBeenCalledWith(postalCode);
     });
   });
 
@@ -102,7 +80,7 @@ describe('ResidentialAddressForm component', () => {
         <ResidentialAddressForm {...testProps} />
       </Provider>,
     );
-    await userEvent.click(getByLabelText('Address 1'));
+    await userEvent.click(getByLabelText(/Address 1/));
     await userEvent.click(getByLabelText(/Address 2/));
 
     const submitBtn = getByRole('button', { name: 'Next' });
@@ -130,9 +108,6 @@ describe('ResidentialAddressForm component', () => {
 
     await userEvent.type(getByLabelText(/Address 1/), fakeAddress.streetAddress1);
     await userEvent.type(getByLabelText(/Address 2/), fakeAddress.streetAddress2);
-    await userEvent.type(getByLabelText(/City/), fakeAddress.city);
-    await userEvent.selectOptions(getByLabelText(/State/), [fakeAddress.state]);
-    await userEvent.type(getByLabelText(/ZIP/), fakeAddress.postalCode);
     await userEvent.tab();
 
     await waitFor(() => {

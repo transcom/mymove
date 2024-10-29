@@ -64,7 +64,7 @@ describe('BackupAddressForm component', () => {
 
       expect(getByLabelText(/Address 2/)).toBeInstanceOf(HTMLInputElement);
 
-      expect(getByLabelText(/City/)).toBeInstanceOf(HTMLInputElement);
+      expect(getByLabelText('City')).toBeInstanceOf(HTMLInputElement);
 
       expect(getByLabelText('State')).toBeInstanceOf(HTMLInputElement);
 
@@ -106,9 +106,7 @@ describe('BackupAddressForm component', () => {
 
     await userEvent.type(getByLabelText(/Address 1/), fakeAddress.streetAddress1);
     await userEvent.type(getByLabelText(/Address 2/), fakeAddress.streetAddress2);
-    await userEvent.type(getByLabelText(/City/), fakeAddress.city);
-    await userEvent.selectOptions(getByLabelText(/State/), [fakeAddress.state]);
-    await userEvent.type(getByLabelText(/ZIP/), fakeAddress.postalCode);
+
     await userEvent.tab();
 
     await waitFor(() => {

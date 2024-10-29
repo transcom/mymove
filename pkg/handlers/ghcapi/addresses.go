@@ -13,26 +13,26 @@ import (
 	"github.com/transcom/mymove/pkg/services"
 )
 
-type GetLocationByZipCityHandler struct {
+type GetLocationByZipCityStateHandler struct {
 	handlers.HandlerConfig
 	services.VLocation
 }
 
-func (h GetLocationByZipCityHandler) Handle(params addressop.GetLocationByZipCityParams) middleware.Responder {
+func (h GetLocationByZipCityStateHandler) Handle(params addressop.GetLocationByZipCityStateParams) middleware.Responder {
 	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
 		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
 			if !appCtx.Session().IsOfficeApp() && appCtx.Session().OfficeUserID == uuid.Nil {
 				noOfficeUserIDErr := apperror.NewSessionError("No office user ID")
-				return addressop.NewGetLocationByZipCityForbidden(), noOfficeUserIDErr
+				return addressop.NewGetLocationByZipCityStateForbidden(), noOfficeUserIDErr
 			}
 
 			locationList, err := h.GetLocationsByZipCity(appCtx, params.Search)
 			if err != nil {
 				appCtx.Logger().Error("Error searching for Zip/City/State: ", zap.Error(err))
-				return addressop.NewGetLocationByZipCityInternalServerError(), err
+				return addressop.NewGetLocationByZipCityStateInternalServerError(), err
 			}
 
 			returnPayload := payloads.VLocations(*locationList)
-			return addressop.NewGetLocationByZipCityOK().WithPayload(returnPayload), nil
+			return addressop.NewGetLocationByZipCityStateOK().WithPayload(returnPayload), nil
 		})
 }

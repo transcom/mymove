@@ -630,7 +630,7 @@ func NewGhcAPIHandler(handlerConfig handlers.HandlerConfig) *ghcops.MymoveAPI {
 		closeoutOfficeUpdater,
 	}
 
-	ghcAPI.AddressesGetLocationByZipCityHandler = GetLocationByZipCityHandler{
+	ghcAPI.AddressesGetLocationByZipCityStateHandler = GetLocationByZipCityStateHandler{
 		handlerConfig,
 		vLocation,
 	}

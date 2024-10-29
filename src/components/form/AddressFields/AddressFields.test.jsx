@@ -157,7 +157,7 @@ describe('AddressFields component', () => {
       expect(getByLabelText('City')).toHaveValue(initialValues.address.city);
       expect(getByLabelText('State')).toHaveValue(initialValues.address.state);
       expect(getByLabelText('ZIP')).toHaveValue(initialValues.address.postalCode);
-      expect(getByTestId('zipCityInfo')).toBeInTheDocument();
+      expect(getByTestId('locationInfo')).toBeInTheDocument();
     });
     it('renders zip city lookup with error', () => {
       const initialValues = {

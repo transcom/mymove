@@ -42,8 +42,8 @@ func init() {
         "tags": [
           "addresses"
         ],
-        "summary": "Returns City, State, Postal Code, and County associated with the specified full/partial Postal Code or City string",
-        "operationId": "getLocationByZipCity",
+        "summary": "Returns City, State, Postal Code, and County associated with the specified full/partial Postal Code or City and State string",
+        "operationId": "getLocationByZipCityState",
         "parameters": [
           {
             "type": "string",
@@ -14437,8 +14437,8 @@ func init() {
         "tags": [
           "addresses"
         ],
-        "summary": "Returns City, State, Postal Code, and County associated with the specified full/partial Postal Code or City string",
-        "operationId": "getLocationByZipCity",
+        "summary": "Returns City, State, Postal Code, and County associated with the specified full/partial Postal Code or City and State string",
+        "operationId": "getLocationByZipCityState",
         "parameters": [
           {
             "type": "string",

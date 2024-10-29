@@ -226,9 +226,9 @@ func configureAPI(api *ghcoperations.MymoveAPI) http.Handler {
 			return middleware.NotImplemented("operation evaluation_reports.GetEvaluationReport has not yet been implemented")
 		})
 	}
-	if api.AddressesGetLocationByZipCityHandler == nil {
-		api.AddressesGetLocationByZipCityHandler = addresses.GetLocationByZipCityHandlerFunc(func(params addresses.GetLocationByZipCityParams) middleware.Responder {
-			return middleware.NotImplemented("operation addresses.GetLocationByZipCity has not yet been implemented")
+	if api.AddressesGetLocationByZipCityStateHandler == nil {
+		api.AddressesGetLocationByZipCityStateHandler = addresses.GetLocationByZipCityStateHandlerFunc(func(params addresses.GetLocationByZipCityStateParams) middleware.Responder {
+			return middleware.NotImplemented("operation addresses.GetLocationByZipCityState has not yet been implemented")
 		})
 	}
 	if api.MtoServiceItemGetMTOServiceItemHandler == nil {

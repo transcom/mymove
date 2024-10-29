@@ -111,7 +111,7 @@ export const LocationSearchBoxComponent = ({
   hint,
   placeholder,
   isDisabled,
-  handleZipCityOnChange,
+  handleLocationOnChange,
 }) => {
   const { value, onChange, locationState, name: inputName } = input;
 
@@ -163,7 +163,7 @@ export const LocationSearchBoxComponent = ({
   }, DEBOUNCE_TIMER_MS);
 
   const selectOption = async (selectedValue) => {
-    if (!selectedValue.address && !handleZipCityOnChange) {
+    if (!selectedValue.address && !handleLocationOnChange) {
       const address = await showAddress(selectedValue.address_id);
       const newValue = {
         ...selectedValue,
@@ -177,8 +177,8 @@ export const LocationSearchBoxComponent = ({
     locationState(selectedValue);
     onChange(selectedValue);
 
-    if (handleZipCityOnChange !== null) {
-      handleZipCityOnChange(selectedValue);
+    if (handleLocationOnChange !== null) {
+      handleLocationOnChange(selectedValue);
     }
     return selectedValue;
   };
@@ -226,7 +226,7 @@ export const LocationSearchBoxComponent = ({
           inputId={inputId}
           className={dutyInputClasses}
           cacheOptions
-          formatOptionLabel={handleZipCityOnChange ? formatZipCity : formatOptionLabel}
+          formatOptionLabel={handleLocationOnChange ? formatZipCity : formatOptionLabel}
           getOptionValue={getOptionName}
           loadOptions={loadOptions}
           onChange={selectOption}
@@ -271,7 +271,7 @@ LocationSearchBoxContainer.propTypes = {
   placeholder: PropTypes.string,
   isDisabled: PropTypes.bool,
   searchLocations: PropTypes.func,
-  handleZipCityOnChange: PropTypes.func,
+  handleLocationOnChange: PropTypes.func,
 };
 
 LocationSearchBoxContainer.defaultProps = {
@@ -288,7 +288,7 @@ LocationSearchBoxContainer.defaultProps = {
   placeholder: 'Start typing a duty location...',
   isDisabled: false,
   searchLocations: SearchDutyLocations,
-  handleZipCityOnChange: null,
+  handleLocationOnChange: null,
 };
 
 LocationSearchBoxComponent.propTypes = {

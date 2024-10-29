@@ -305,7 +305,7 @@ export const ZipCityLocationBasic = () => {
       name="test_component"
       searchLocations={mockZipCity}
       displayAddress={false}
-      handleZipCityOnChange={handleZipCityOnChange}
+      handleLocationOnChange={handleZipCityOnChange}
     />
   );
 };

@@ -278,7 +278,7 @@ func NewInternalAPI(handlerConfig handlers.HandlerConfig) *internalops.MymoveAPI
 		transportationOfficeFetcher,
 	}
 
-	internalAPI.AddressesGetLocationByZipCityHandler = GetLocationByZipCityHandler{
+	internalAPI.AddressesGetLocationByZipCityStateHandler = GetLocationByZipCityStateHandler{
 		handlerConfig,
 		vLocation,
 	}

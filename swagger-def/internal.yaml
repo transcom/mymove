@@ -4386,9 +4386,9 @@ paths:
           description: server error
   /addresses/zip_city_lookup/{search}:
     get:
-      summary: Returns City, State, Postal Code, and County associated with the specified full/partial Postal Code or City string
+      summary: Returns City, State, Postal Code, and County associated with the specified full/partial Postal Code or City State string
       description: Find by API using full/partial Postal Code or City name that returns an us_post_region_cities json object containing city, state, county and postal code.
-      operationId: getLocationByZipCity
+      operationId: getLocationByZipCityState
       tags:
         - addresses
       parameters:

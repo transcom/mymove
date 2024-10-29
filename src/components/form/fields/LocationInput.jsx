@@ -5,13 +5,13 @@ import PropTypes from 'prop-types';
 
 import './DropdownInput.module.scss';
 import LocationSearchBox from 'components/LocationSearchBox/LocationSearchBox';
-import { searchLocationByZipCity } from 'services/internalApi';
-import { searchLocationByZipCity as ghcSearchLocationByZipCity } from 'services/ghcApi';
+import { searchLocationByZipCityState } from 'services/internalApi';
+import { searchLocationByZipCityState as ghcSearchLocationByZipCityState } from 'services/ghcApi';
 import { selectLoggedInUser } from 'store/entities/selectors';
 import { OfficeUserInfoShape } from 'types/index';
 
-export const ZipCityInput = (props) => {
-  const { label, name, displayAddress, hint, placeholder, isDisabled, handleZipCityChange, officeUser } = props;
+export const LocationInput = (props) => {
+  const { label, name, displayAddress, hint, placeholder, isDisabled, handleLocationChange, officeUser } = props;
   const [field, meta, helpers] = useField(props);
   const errorString = meta.value?.name ? meta.error?.name || meta.error : '';
 
@@ -30,24 +30,24 @@ export const ZipCityInput = (props) => {
       hint={hint}
       placeholder={placeholder}
       isDisabled={isDisabled}
-      searchLocations={officeUser?.id ? ghcSearchLocationByZipCity : searchLocationByZipCity}
-      handleZipCityOnChange={handleZipCityChange}
+      searchLocations={officeUser?.id ? ghcSearchLocationByZipCityState : searchLocationByZipCityState}
+      handleLocationOnChange={handleLocationChange}
     />
   );
 };
 
-ZipCityInput.propTypes = {
+LocationInput.propTypes = {
   label: PropTypes.string.isRequired,
   name: PropTypes.string.isRequired,
   displayAddress: PropTypes.bool,
   hint: PropTypes.node,
   placeholder: PropTypes.string,
   isDisabled: PropTypes.bool,
-  handleZipCityChange: PropTypes.func.isRequired,
+  handleLocationChange: PropTypes.func.isRequired,
   officeUser: OfficeUserInfoShape,
 };
 
-ZipCityInput.defaultProps = {
+LocationInput.defaultProps = {
   displayAddress: false,
   hint: '',
   placeholder: '',
@@ -65,4 +65,4 @@ const mapStateToProps = (state) => {
 
 const mapDispatchToProps = {};
 
-export default connect(mapStateToProps, mapDispatchToProps)(ZipCityInput);
+export default connect(mapStateToProps, mapDispatchToProps)(LocationInput);

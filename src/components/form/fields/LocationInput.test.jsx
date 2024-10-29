@@ -2,10 +2,10 @@ import React from 'react';
 import { shallow } from 'enzyme';
 import AsyncSelect from 'react-select/async';
 
-import { ZipCityInput } from './ZipCityInput';
+import { LocationInput } from './LocationInput';
 
 import { LocationSearchBoxComponent, LocationSearchBoxContainer } from 'components/LocationSearchBox/LocationSearchBox';
-import { searchLocationByZipCity } from 'services/internalApi';
+import { searchLocationByZipCityState } from 'services/internalApi';
 
 const mockOnChange = jest.fn();
 const mockSetValue = jest.fn();
@@ -26,7 +26,7 @@ jest.mock('formik', () => {
 
 jest.mock('services/internalApi', () => ({
   ...jest.requireActual('services/internalApi'),
-  searchLocationByZipCity: jest.fn(),
+  searchLocationByZipCityState: jest.fn(),
 }));
 
 const handleZipCityChange = jest.fn();
@@ -34,12 +34,12 @@ const handleZipCityChange = jest.fn();
 describe('ZipCityInput', () => {
   describe('with all required props', () => {
     const wrapper = shallow(
-      <ZipCityInput
+      <LocationInput
         name="zipCity"
         placeholder="Start typing a Zip Code or City..."
         label="Zip/City Lookup"
         displayAddress={false}
-        handleZipCityChange={handleZipCityChange}
+        handleLocationChange={handleZipCityChange}
       />,
     );
 
@@ -50,7 +50,7 @@ describe('ZipCityInput', () => {
 
     it('triggers onChange properly', async () => {
       const cityName = 'El Paso';
-      searchLocationByZipCity.mockImplementation(() => Promise.resolve(cityName));
+      searchLocationByZipCityState.mockImplementation(() => Promise.resolve(cityName));
       const container = wrapper.find(LocationSearchBoxContainer).dive();
       const component = container.find(LocationSearchBoxComponent).dive();
       const select = component.find(AsyncSelect);
