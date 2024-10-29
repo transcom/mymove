@@ -1128,8 +1128,13 @@ func (SSWPPMGenerator *SSWPPMGenerator) FillSSWPDFForm(Page1Values services.Page
 	var sswHeader = header{
 		Source:   "ShipmentSummaryWorksheet.pdf",
 		Version:  "pdfcpu v0.9.1 dev",
-		Creation: "2024-10-25 18:48:51 UTC",
+		Creation: "2024-10-29 20:00:40 UTC",
 		Producer: "macOS Version 13.5 (Build 22G74) Quartz PDFContext, AppendMode 1.1",
+	}
+
+	isActualExpenseReimbursement := false
+	if Page1Values.IsActualExpenseReimbursement {
+		isActualExpenseReimbursement = true
 	}
 
 	var sswCheckbox = []checkbox{
@@ -1146,7 +1151,7 @@ func (SSWPPMGenerator *SSWPPMGenerator) FillSSWPDFForm(Page1Values services.Page
 			ID:      "505",
 			Name:    "IsActualExpenseReimbursement",
 			Value:   true,
-			Default: false,
+			Default: isActualExpenseReimbursement,
 			Locked:  false,
 		},
 	}
