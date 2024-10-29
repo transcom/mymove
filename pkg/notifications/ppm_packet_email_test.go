@@ -130,9 +130,11 @@ func (suite *NotificationSuite) TestPpmPacketEmailHTMLTemplateRenderForAirAndSpa
 <p>Log in to SmartVoucher at <a href="` + SmartVoucherLink + `">` + SmartVoucherLink + `</a> using your CAC or myPay username and password. This will allow you to edit your voucher, and complete and sign DD Form 1351-2.</p>
 
 <p>You can now log into MilMove <a href="` + MyMoveLink + `">` + MyMoveLink + `</a> and download your payment packet to submit to ` + allOtherSubmitLocation + `. <strong>You must complete this step to receive final settlement of your PPM.</strong></p>
+
 <p>Note: The Transportation Office does not determine claimable expenses. Claimable expenses will be determined by finance.</p>
 
 <p>Please be advised, your local finance office may require a DD Form 1351-2 to process payment. You can obtain a copy of this form by utilizing the search feature at <a href="` + WashingtonHQServicesLink + `">` + WashingtonHQServicesLink + `</a>.</p>
+
 <p>If you have any questions, contact a government transportation office. You can see a listing of transportation offices on Military One Source here: <a href="` + OneSourceTransportationOfficeLink + `">` + OneSourceTransportationOfficeLink + `</a></p>
 
 <p>Thank you,</p>
@@ -140,8 +142,8 @@ func (suite *NotificationSuite) TestPpmPacketEmailHTMLTemplateRenderForAirAndSpa
 <p>USTRANSCOM MilMove Team</p>
 
 <p>
-  The information contained in this email may contain Privacy Act information and is therefore protected under the
-  Privacy Act of 1974.  Failure to protect Privacy Act information could result in a $5,000 fine.
+The information contained in this email may contain Privacy Act information and is therefore protected under the
+Privacy Act of 1974.  Failure to protect Privacy Act information could result in a $5,000 fine.
 </p>
 `
 
