@@ -22,6 +22,8 @@ export const ORDERS_TYPE_OPTIONS = {
   SEPARATION: 'Separation',
   WOUNDED_WARRIOR: 'Wounded Warrior',
   BLUEBARK: 'BLUEBARK',
+  EARLY_RETURN_OF_DEPENDENTS: 'Early Return of Dependents',
+  STUDENT_TRAVEL: 'Student Travel',
 };
 
 export const ORDERS_TYPE_DETAILS = {
