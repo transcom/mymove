@@ -261,6 +261,7 @@ const mockPPMShipment = {
     hasRequestedAdvance: true,
     advanceAmountRequested: 487500,
     advanceStatus: 'APPROVED',
+    isActualExpenseReimbursement: true,
   },
 };
 
@@ -1605,9 +1606,11 @@ describe('ShipmentForm component', () => {
 
       expect(screen.getAllByLabelText('Yes')[0]).toBeChecked();
       expect(screen.getAllByLabelText('No')[0]).not.toBeChecked();
+      expect(screen.getAllByLabelText('Yes')[1]).toBeChecked();
+      expect(screen.getAllByLabelText('No')[1]).not.toBeChecked();
       expect(screen.getByLabelText('Estimated PPM weight')).toHaveValue('4,999');
-      expect(screen.getAllByLabelText('Yes')[2]).toBeChecked();
-      expect(screen.getAllByLabelText('No')[2]).not.toBeChecked();
+      expect(screen.getAllByLabelText('Yes')[3]).toBeChecked();
+      expect(screen.getAllByLabelText('No')[3]).not.toBeChecked();
     });
 
     it('renders the PPM shipment form with pre-filled requested values for Advance Page for TOO', async () => {
@@ -1728,9 +1731,11 @@ describe('ShipmentForm component', () => {
 
         expect(screen.getAllByLabelText('Yes')[0]).toBeChecked();
         expect(screen.getAllByLabelText('No')[0]).not.toBeChecked();
+        expect(screen.getAllByLabelText('Yes')[1]).toBeChecked();
+        expect(screen.getAllByLabelText('No')[1]).not.toBeChecked();
         expect(screen.getByLabelText('Estimated PPM weight')).toHaveValue('4,999');
-        expect(screen.getAllByLabelText('Yes')[2]).toBeChecked();
-        expect(screen.getAllByLabelText('No')[2]).not.toBeChecked();
+        expect(screen.getAllByLabelText('Yes')[3]).toBeChecked();
+        expect(screen.getAllByLabelText('No')[3]).not.toBeChecked();
       });
     });
     it('renders the PPM shipment form with pre-filled requested values for Advance Page', async () => {
@@ -2015,6 +2020,7 @@ describe('ShipmentForm component', () => {
       );
 
       expect(await screen.findByTestId('tag')).toHaveTextContent('PPM');
+      expect(screen.getByText('Is this PPM an Actual Expense Reimbursement?')).toBeInTheDocument();
       expect(screen.getByText('What address are you moving from?')).toBeInTheDocument();
       expect(screen.getByText('Second pickup address')).toBeInTheDocument();
       expect(

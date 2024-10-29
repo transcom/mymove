@@ -397,6 +397,124 @@ func (suite *MoveServiceSuite) TestMoveSubmission() {
 		suite.Equal(models.MTOShipmentStatusSubmitted, move.MTOShipments[0].Status, "expected Submitted")
 		suite.Equal(models.PPMShipmentStatusSubmitted, move.MTOShipments[0].PPMShipment.Status, "expected Submitted")
 	})
+
+	suite.Run("PPM Actual Expense Reimbursement is true for Civilian Employee on submit", func() {
+		move := factory.BuildMove(suite.DB(), []factory.Customization{
+			{
+				Model: models.DutyLocation{
+					ProvidesServicesCounseling: true,
+				},
+				Type: &factory.DutyLocations.OriginDutyLocation,
+			},
+			{
+				Model: models.Move{
+					Status: models.MoveStatusDRAFT,
+				},
+			},
+			{
+				Model: models.Order{
+					Grade: models.ServiceMemberGradeCIVILIANEMPLOYEE.Pointer(),
+				},
+			},
+		}, nil)
+
+		shipment := factory.BuildMTOShipmentMinimal(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					Status:       models.MTOShipmentStatusDraft,
+					ShipmentType: models.MTOShipmentTypePPM,
+				},
+			},
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+		}, nil)
+
+		ppmShipment := factory.BuildPPMShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.PPMShipment{
+					Status:                       models.PPMShipmentStatusDraft,
+					IsActualExpenseReimbursement: models.BoolPointer(false),
+				},
+			},
+		}, nil)
+		move.MTOShipments = models.MTOShipments{shipment}
+		move.MTOShipments[0].PPMShipment = &ppmShipment
+
+		newSignedCertification := factory.BuildSignedCertification(nil, []factory.Customization{
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+		}, nil)
+		err := moveRouter.Submit(suite.AppContextForTest(), &move, &newSignedCertification)
+		suite.NoError(err)
+		suite.NotNil(newSignedCertification)
+
+		err = suite.DB().Find(&move, move.ID)
+		suite.NoError(err)
+		suite.True(*move.MTOShipments[0].PPMShipment.IsActualExpenseReimbursement)
+	})
+
+	suite.Run("PPM Actual Expense Reimbursement is false for non-civilian on submit", func() {
+		move := factory.BuildMove(suite.DB(), []factory.Customization{
+			{
+				Model: models.DutyLocation{
+					ProvidesServicesCounseling: true,
+				},
+				Type: &factory.DutyLocations.OriginDutyLocation,
+			},
+			{
+				Model: models.Move{
+					Status: models.MoveStatusDRAFT,
+				},
+			},
+			{
+				Model: models.Order{
+					Grade: models.ServiceMemberGradeE1.Pointer(),
+				},
+			},
+		}, nil)
+
+		shipment := factory.BuildMTOShipmentMinimal(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					Status:       models.MTOShipmentStatusDraft,
+					ShipmentType: models.MTOShipmentTypePPM,
+				},
+			},
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+		}, nil)
+
+		ppmShipment := factory.BuildPPMShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.PPMShipment{
+					Status:                       models.PPMShipmentStatusDraft,
+					IsActualExpenseReimbursement: models.BoolPointer(true),
+				},
+			},
+		}, nil)
+		move.MTOShipments = models.MTOShipments{shipment}
+		move.MTOShipments[0].PPMShipment = &ppmShipment
+
+		newSignedCertification := factory.BuildSignedCertification(nil, []factory.Customization{
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+		}, nil)
+		err := moveRouter.Submit(suite.AppContextForTest(), &move, &newSignedCertification)
+		suite.NoError(err)
+		suite.NotNil(newSignedCertification)
+
+		err = suite.DB().Find(&move, move.ID)
+		suite.NoError(err)
+		suite.False(*move.MTOShipments[0].PPMShipment.IsActualExpenseReimbursement)
+	})
 }
 
 func (suite *MoveServiceSuite) TestMoveCancellation() {

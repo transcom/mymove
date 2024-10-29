@@ -214,6 +214,7 @@ describe('PPMHeaderSummary component', () => {
         clickDetailsButton('shipmentInfo');
       });
 
+      expect(screen.getByText('Actual Expense Reimbursement')).toBeInTheDocument();
       expect(screen.getByText('Planned Move Start Date')).toBeInTheDocument();
       expect(screen.getByText('15-Mar-2020')).toBeInTheDocument();
       expect(screen.getByText('Actual Move Start Date')).toBeInTheDocument();
