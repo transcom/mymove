@@ -40,7 +40,7 @@ type PpmPacketEmailData struct {
 	SubmitLocation                    string
 	ServiceBranch                     string
 	Locator                           string
-	IsActualExpenseReimbursement      *bool
+	IsActualExpenseReimbursement      string
 	OneSourceTransportationOfficeLink string
 	WashingtonHQServicesLink          string
 	MyMoveLink                        string
@@ -62,6 +62,13 @@ func NewPpmPacketEmail(ppmShipmentID uuid.UUID) *PpmPacketEmail {
 		htmlTemplate:  ppmPacketEmailHTMLTemplate,
 		textTemplate:  ppmPacketEmailTextTemplate,
 	}
+}
+
+func (p PpmPacketEmail) ConvertBoolToString(b *bool) string {
+	if b != nil && *b {
+		return "true"
+	}
+	return "false"
 }
 
 // NotificationSendingContext expects a `notification` with an `emails` method,
@@ -170,7 +177,7 @@ func (p PpmPacketEmail) GetEmailData(appCtx appcontext.AppContext) (PpmPacketEma
 				SubmitLocation:                    submitLocation,
 				ServiceBranch:                     affiliationDisplayValue[*serviceMember.Affiliation],
 				Locator:                           move.Locator,
-				IsActualExpenseReimbursement:      ppmShipment.IsActualExpenseReimbursement,
+				IsActualExpenseReimbursement:      p.ConvertBoolToString(ppmShipment.IsActualExpenseReimbursement),
 				OneSourceTransportationOfficeLink: OneSourceTransportationOfficeLink,
 				WashingtonHQServicesLink:          WashingtonHQServicesLink,
 				MyMoveLink:                        MyMoveLink,
@@ -190,7 +197,7 @@ func (p PpmPacketEmail) GetEmailData(appCtx appcontext.AppContext) (PpmPacketEma
 			SubmitLocation:                    submitLocation,
 			ServiceBranch:                     affiliationDisplayValue[*serviceMember.Affiliation],
 			Locator:                           move.Locator,
-			IsActualExpenseReimbursement:      ppmShipment.IsActualExpenseReimbursement,
+			IsActualExpenseReimbursement:      p.ConvertBoolToString(ppmShipment.IsActualExpenseReimbursement),
 			OneSourceTransportationOfficeLink: OneSourceTransportationOfficeLink,
 			WashingtonHQServicesLink:          WashingtonHQServicesLink,
 			MyMoveLink:                        MyMoveLink,
