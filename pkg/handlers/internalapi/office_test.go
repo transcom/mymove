@@ -168,6 +168,33 @@ func (suite *HandlerSuite) TestCancelMoveHandler() {
 		suite.Equal(internalmessages.MoveStatusCANCELED, okResponse.Payload.Status)
 	})
 
+	suite.Run("Fails to cancel someone elses move", func() {
+		// Given: a set of orders, a move, and office user
+		// Orders has service member with transportation office and phone nums
+		moveRouter := moverouter.NewMoveRouter()
+
+		// Given: a set of orders, a move, user and servicemember
+		move := factory.BuildMove(suite.DB(), nil, nil)
+		other_user := factory.BuildServiceMember(suite.DB(), nil, nil)
+
+		// And: the context contains the auth values
+		req := httptest.NewRequest("POST", "/moves/some_id/cancel", nil)
+		req = suite.AuthenticateRequest(req, other_user)
+
+		params := officeop.CancelMoveParams{
+			HTTPRequest: req,
+			MoveID:      strfmt.UUID(move.ID.String()),
+		}
+
+		// And: a move is canceled
+		handlerConfig := suite.HandlerConfig()
+		handler := CancelMoveHandler{handlerConfig, moveRouter}
+		response := handler.Handle(params)
+
+		// Then: expect a 403 status code
+		suite.Assertions.IsType(&handlers.ErrResponse{}, response)
+	})
+
 	suite.Run("Fails to cancel submitted move", func() {
 		// Given: a set of orders, a move, and office user
 		// Orders has service member with transportation office and phone nums
@@ -196,7 +223,7 @@ func (suite *HandlerSuite) TestCancelMoveHandler() {
 		handler := CancelMoveHandler{handlerConfig, moveRouter}
 		response := handler.Handle(params)
 
-		// Then: expect a 200 status code
+		// Then: expect a error status code
 		suite.Assertions.IsType(&officeop.ApproveMoveConflict{}, response)
 	})
 }
