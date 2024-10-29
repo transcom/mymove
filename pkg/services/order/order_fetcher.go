@@ -524,7 +524,9 @@ func customerNameFilter(name *string) QueryOption {
 		removeCharsRegex := regexp.MustCompile("[,]+")
 		nameQueryParam = removeCharsRegex.ReplaceAllString(nameQueryParam, "")
 		nameQueryParam = fmt.Sprintf("%%%s%%", nameQueryParam)
-		query.Where("((service_members.last_name || ' ' || service_members.first_name) || (service_members.first_name || ' ' || service_members.last_name)) ILIKE ?", nameQueryParam)
+
+		// Search for partial within both (last first) and (first last) in one go
+		query.Where("(service_members.last_name || ' ' || service_members.first_name || service_members.first_name || ' ' || service_members.last_name) ILIKE ?", nameQueryParam)
 	}
 }
 
