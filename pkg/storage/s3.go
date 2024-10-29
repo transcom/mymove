@@ -50,8 +50,8 @@ func (s *S3) Store(key string, data io.ReadSeeker, checksum string, tags *string
 		Bucket:               &s.bucket,
 		Key:                  &namespacedKey,
 		Body:                 data,
-		ContentMD5:           &checksum,
 		ServerSideEncryption: types.ServerSideEncryptionAes256,
+		ChecksumAlgorithm:    types.ChecksumAlgorithmSha256,
 	}
 	if tags != nil {
 		input.Tagging = tags
