@@ -1714,7 +1714,7 @@ definitions:
         description: zip code, international allowed
         format: zip
         title: ZIP
-        example: '''90210'' or ''N15 3NL'''
+        example: "'90210' or 'N15 3NL'"
       postal_code_type:
         type: string
         enum:
@@ -2531,6 +2531,7 @@ definitions:
       - WOUNDED_WARRIOR
       - BLUEBARK
       - SAFETY
+      - TEMPORARY_DUTY
     x-display-value:
       PERMANENT_CHANGE_OF_STATION: Permanent Change Of Station
       LOCAL_MOVE: Local Move
@@ -2539,6 +2540,7 @@ definitions:
       WOUNDED_WARRIOR: Wounded Warrior
       BLUEBARK: BLUEBARK
       SAFETY: Safety
+      TEMPORARY_DUTY: Temporary Duty (TDY)
   Address:
     description: A postal address
     type: object

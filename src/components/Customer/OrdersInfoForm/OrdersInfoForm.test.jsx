@@ -5,6 +5,7 @@ import userEvent from '@testing-library/user-event';
 import OrdersInfoForm from './OrdersInfoForm';
 
 import { showCounselingOffices } from 'services/internalApi';
+import { ORDERS_TYPE } from 'constants/orders';
 
 jest.mock('services/internalApi', () => ({
   ...jest.requireActual('services/internalApi'),
@@ -164,6 +165,7 @@ const testProps = {
     { key: 'LOCAL_MOVE', value: 'Local Move' },
     { key: 'RETIREMENT', value: 'Retirement' },
     { key: 'SEPARATION', value: 'Separation' },
+    { key: 'TEMPORARY_DUTY', value: 'Temporary Duty (TDY)' },
   ],
 };
 
@@ -204,12 +206,15 @@ describe('OrdersInfoForm component', () => {
 
     await userEvent.selectOptions(ordersTypeDropdown, 'SEPARATION');
     expect(ordersTypeDropdown).toHaveValue('SEPARATION');
+
+    await userEvent.selectOptions(ordersTypeDropdown, 'TEMPORARY_DUTY');
+    expect(ordersTypeDropdown).toHaveValue('TEMPORARY_DUTY');
   });
 
   it('allows new and current duty location to be the same', async () => {
     render(<OrdersInfoForm {...testProps} />);
 
-    await userEvent.selectOptions(screen.getByLabelText(/Orders type/), 'PERMANENT_CHANGE_OF_STATION');
+    await userEvent.selectOptions(screen.getByLabelText(/Orders type/), ORDERS_TYPE.PERMANENT_CHANGE_OF_STATION);
     await userEvent.type(screen.getByLabelText(/Orders date/), '08 Nov 2020');
     await userEvent.type(screen.getByLabelText(/Report by date/), '26 Nov 2020');
     await userEvent.click(screen.getByLabelText('No'));
@@ -272,6 +277,7 @@ describe('OrdersInfoForm component', () => {
         { key: 'LOCAL_MOVE', value: 'Local Move' },
         { key: 'RETIREMENT', value: 'Retirement' },
         { key: 'SEPARATION', value: 'Separation' },
+        { key: 'TEMPORARY_DUTY', value: 'Temporary Duty (TDY)' },
       ],
     };
 
@@ -402,6 +408,73 @@ describe('OrdersInfoForm component', () => {
             updated_at: '2021-02-11T16:48:04.117Z',
           },
           grade: 'E_5',
+          origin_duty_location: {
+            address: {
+              city: '',
+              id: '00000000-0000-0000-0000-000000000000',
+              postalCode: '',
+              state: '',
+              streetAddress1: '',
+            },
+            address_id: '46c4640b-c35e-4293-a2f1-36c7b629f903',
+            affiliation: 'AIR_FORCE',
+            created_at: '2021-02-11T16:48:04.117Z',
+            id: '93f0755f-6f35-478b-9a75-35a69211da1c',
+            name: 'Altus AFB',
+            updated_at: '2021-02-11T16:48:04.117Z',
+          },
+        }),
+        expect.anything(),
+      );
+    });
+  });
+
+  it('submits the form when temporary duty orders type is selected', async () => {
+    render(<OrdersInfoForm {...testProps} />);
+
+    await userEvent.selectOptions(screen.getByLabelText(/Orders type/), ORDERS_TYPE.TEMPORARY_DUTY);
+    await userEvent.type(screen.getByLabelText(/Orders date/), '28 Oct 2024');
+    await userEvent.type(screen.getByLabelText(/Report by date/), '28 Oct 2024');
+    await userEvent.click(screen.getByLabelText('No'));
+    await userEvent.selectOptions(screen.getByLabelText(/Pay grade/), ['E_7']);
+
+    // Test Current Duty Location Search Box interaction
+    await userEvent.type(screen.getByLabelText(/Current duty location/), 'AFB', { delay: 100 });
+    const selectedOptionCurrent = await screen.findByText(/Altus/);
+    await userEvent.click(selectedOptionCurrent);
+
+    // Test New Duty Location Search Box interaction
+    await userEvent.type(screen.getByLabelText(/New duty location/), 'AFB', { delay: 100 });
+    const selectedOptionNew = await screen.findByText(/Luke/);
+    await userEvent.click(selectedOptionNew);
+
+    const submitBtn = screen.getByRole('button', { name: 'Next' });
+    await userEvent.click(submitBtn);
+
+    await waitFor(() => {
+      expect(testProps.onSubmit).toHaveBeenCalledWith(
+        expect.objectContaining({
+          orders_type: ORDERS_TYPE.TEMPORARY_DUTY,
+          has_dependents: 'no',
+          issue_date: '28 Oct 2024',
+          report_by_date: '28 Oct 2024',
+          new_duty_location: {
+            address: {
+              city: 'Glendale Luke AFB',
+              country: 'United States',
+              id: 'fa51dab0-4553-4732-b843-1f33407f77bc',
+              postalCode: '85309',
+              state: 'AZ',
+              streetAddress1: 'n/a',
+            },
+            address_id: '25be4d12-fe93-47f1-bbec-1db386dfa67f',
+            affiliation: 'AIR_FORCE',
+            created_at: '2021-02-11T16:48:04.117Z',
+            id: 'a8d6b33c-8370-4e92-8df2-356b8c9d0c1a',
+            name: 'Luke AFB',
+            updated_at: '2021-02-11T16:48:04.117Z',
+          },
+          grade: 'E_7',
           origin_duty_location: {
             address: {
               city: '',
