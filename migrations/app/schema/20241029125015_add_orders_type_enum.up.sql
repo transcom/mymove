@@ -1,0 +1,13 @@
+CREATE TYPE orders_type AS ENUM (
+'PERMANENT_CHANGE_OF_STATION',
+'LOCAL_MOVE',
+'RETIREMENT',
+'SEPARATION',
+'WOUNDED_WARRIOR',
+'BLUEBARK',
+'SAFETY',
+'TEMPORARY_DUTY'
+    );
+
+ALTER TABLE orders
+  ALTER COLUMN orders_type TYPE orders_type using orders_type::orders_type;
