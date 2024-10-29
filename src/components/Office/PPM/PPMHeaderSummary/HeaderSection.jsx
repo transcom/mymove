@@ -47,6 +47,7 @@ const OpenModalButton = ({ onClick, isDisabled, dataTestId, ariaLabel }) => (
     onClick={onClick}
     disabled={isDisabled}
     aria-label={ariaLabel}
+    title="Edit"
   >
     <span>
       <FontAwesomeIcon icon="pencil" style={{ marginRight: '5px', color: isDisabled ? 'black' : 'inherit' }} />
