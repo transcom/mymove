@@ -89,6 +89,10 @@ func (h CancelMoveHandler) Handle(params officeop.CancelMoveParams) middleware.R
 				return handlers.ResponseForError(appCtx.Logger(), err), err
 			}
 
+			if appCtx.Session().ServiceMemberID != move.Orders.ServiceMemberID {
+				return officeop.NewCancelMoveForbidden(), apperror.NewForbiddenError("cannot cancel move that isn't yours")
+			}
+
 			if move.Status != models.MoveStatusDRAFT {
 				return officeop.NewApproveMoveConflict(), apperror.NewConflictError(move.ID, "move must be in draft status")
 			}
