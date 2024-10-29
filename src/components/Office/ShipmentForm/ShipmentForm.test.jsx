@@ -1676,11 +1676,9 @@ describe('ShipmentForm component', () => {
 
       expect(screen.getAllByLabelText('Yes')[0]).toBeChecked();
       expect(screen.getAllByLabelText('No')[0]).not.toBeChecked();
-      expect(screen.getAllByLabelText('Yes')[1]).toBeChecked();
-      expect(screen.getAllByLabelText('No')[1]).not.toBeChecked();
       expect(screen.getByLabelText('Estimated PPM weight')).toHaveValue('4,999');
-      expect(screen.getAllByLabelText('Yes')[3]).toBeChecked();
-      expect(screen.getAllByLabelText('No')[3]).not.toBeChecked();
+      expect(screen.getAllByLabelText('Yes')[2]).toBeChecked();
+      expect(screen.getAllByLabelText('No')[2]).not.toBeChecked();
     });
 
     it('renders the PPM shipment form with pre-filled requested values for Advance Page for TOO', async () => {
