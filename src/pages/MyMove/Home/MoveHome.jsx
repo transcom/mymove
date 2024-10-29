@@ -496,7 +496,7 @@ const MoveHome = ({ serviceMemberMoves, isProfileComplete, serviceMember, signed
     <>
       <CancelMoveConfirmationModal
         isOpen={showCancelMoveModal}
-        moveID={moveId}
+        moveId={moveId}
         onClose={() => setShowCancelMoveModal(false)}
         onSubmit={handleCancelMove}
         title="Cancel this move?"
