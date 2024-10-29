@@ -18,7 +18,7 @@ var (
 	ppmPacketEmailRawText      = string(assets.MustAsset("notifications/templates/ppm_packet_email_template.txt"))
 	ppmPacketEmailTextTemplate = text.Must(text.New("text_template").Parse(ppmPacketEmailRawText))
 	ppmPacketEmailRawHTML      = string(assets.MustAsset("notifications/templates/ppm_packet_email_template.html"))
-	ppmPacketEmailHTMLTemplate = html.Must(html.New("text_template").Parse(ppmPacketEmailRawHTML))
+	ppmPacketEmailHTMLTemplate = html.Must(html.New("html_template").Parse(ppmPacketEmailRawHTML))
 )
 
 // PpmPacketEmail has notification content for approved moves
@@ -40,9 +40,11 @@ type PpmPacketEmailData struct {
 	SubmitLocation                    string
 	ServiceBranch                     string
 	Locator                           string
+	IsActualExpenseReimbursement      *bool
 	OneSourceTransportationOfficeLink string
 	WashingtonHQServicesLink          string
 	MyMoveLink                        string
+	SmartVoucherLink                  string
 }
 
 // Used to get logging data from GetEmailData
@@ -168,9 +170,11 @@ func (p PpmPacketEmail) GetEmailData(appCtx appcontext.AppContext) (PpmPacketEma
 				SubmitLocation:                    submitLocation,
 				ServiceBranch:                     affiliationDisplayValue[*serviceMember.Affiliation],
 				Locator:                           move.Locator,
+				IsActualExpenseReimbursement:      ppmShipment.IsActualExpenseReimbursement,
 				OneSourceTransportationOfficeLink: OneSourceTransportationOfficeLink,
 				WashingtonHQServicesLink:          WashingtonHQServicesLink,
 				MyMoveLink:                        MyMoveLink,
+				SmartVoucherLink:                  SmartVoucherLink,
 			},
 			LoggerData{
 				ServiceMember: *serviceMember,
@@ -186,9 +190,11 @@ func (p PpmPacketEmail) GetEmailData(appCtx appcontext.AppContext) (PpmPacketEma
 			SubmitLocation:                    submitLocation,
 			ServiceBranch:                     affiliationDisplayValue[*serviceMember.Affiliation],
 			Locator:                           move.Locator,
+			IsActualExpenseReimbursement:      ppmShipment.IsActualExpenseReimbursement,
 			OneSourceTransportationOfficeLink: OneSourceTransportationOfficeLink,
 			WashingtonHQServicesLink:          WashingtonHQServicesLink,
 			MyMoveLink:                        MyMoveLink,
+			SmartVoucherLink:                  SmartVoucherLink,
 		},
 		LoggerData{
 			ServiceMember: *serviceMember,
