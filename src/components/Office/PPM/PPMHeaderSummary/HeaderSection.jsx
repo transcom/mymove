@@ -44,6 +44,7 @@ const OpenModalButton = ({ onClick, isDisabled }) => (
     className={styles['edit-btn']}
     onClick={onClick}
     disabled={isDisabled}
+    title="Edit"
   >
     <span>
       <FontAwesomeIcon icon="pencil" style={{ marginRight: '5px', color: isDisabled ? 'black' : 'inherit' }} />
