@@ -3,6 +3,7 @@ import { act } from 'react-dom/test-utils';
 import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { generatePath } from 'react-router-dom';
+import { Provider } from 'react-redux';
 
 import {
   shipments,
@@ -24,6 +25,7 @@ import { SHIPMENT_OPTIONS_URL } from 'shared/constants';
 import { tooRoutes } from 'constants/routes';
 import { MockProviders } from 'testUtils';
 import { permissionTypes } from 'constants/permissions';
+import { configureStore } from 'shared/store';
 
 const mockNavigate = jest.fn();
 jest.mock('react-router-dom', () => ({
@@ -49,17 +51,20 @@ const moveTaskOrderServicesCounselingCompleted = {
 };
 
 const approveMTO = jest.fn().mockResolvedValue({ response: { status: 200 } });
+const mockStore = configureStore({});
 
 const submittedRequestedShipmentsComponent = (
-  <SubmittedRequestedShipments
-    allowancesInfo={allowancesInfo}
-    moveCode="TE5TC0DE"
-    mtoShipments={shipments}
-    closeoutOffice={closeoutOffice}
-    customerInfo={customerInfo}
-    ordersInfo={ordersInfo}
-    approveMTO={approveMTO}
-  />
+  <Provider store={mockStore.store}>
+    <SubmittedRequestedShipments
+      allowancesInfo={allowancesInfo}
+      moveCode="TE5TC0DE"
+      mtoShipments={shipments}
+      closeoutOffice={closeoutOffice}
+      customerInfo={customerInfo}
+      ordersInfo={ordersInfo}
+      approveMTO={approveMTO}
+    />
+  </Provider>
 );
 
 const submittedRequestedShipmentsComponentWithPermission = (
@@ -106,16 +111,18 @@ const submittedRequestedShipmentsComponentAvailableToPrimeAt = (
 );
 
 const submittedRequestedShipmentsComponentServicesCounselingCompleted = (
-  <SubmittedRequestedShipments
-    ordersInfo={ordersInfo}
-    allowancesInfo={allowancesInfo}
-    customerInfo={customerInfo}
-    mtoShipments={shipments}
-    closeoutOffice={closeoutOffice}
-    approveMTO={approveMTO}
-    moveTaskOrder={moveTaskOrderServicesCounselingCompleted}
-    moveCode="TE5TC0DE"
-  />
+  <Provider store={mockStore.store}>
+    <SubmittedRequestedShipments
+      ordersInfo={ordersInfo}
+      allowancesInfo={allowancesInfo}
+      customerInfo={customerInfo}
+      mtoShipments={shipments}
+      closeoutOffice={closeoutOffice}
+      approveMTO={approveMTO}
+      moveTaskOrder={moveTaskOrderServicesCounselingCompleted}
+      moveCode="TE5TC0DE"
+    />
+  </Provider>
 );
 
 const submittedRequestedShipmentsComponentMissingRequiredInfo = (
@@ -429,11 +436,14 @@ describe('RequestedShipments', () => {
 
         const Component = statusComponents[status];
 
-        render(<Component {...statusTestProps[status]} />);
+        render(
+          <Provider store={mockStore.store}>
+            <Component {...statusTestProps[status]} />
+          </Provider>,
+        );
 
         const customerRemarks = screen.getAllByTestId('customerRemarks');
         const counselorRemarks = screen.getAllByTestId('counselorRemarks');
-
         expect(customerRemarks.at(0).textContent).toBe('please treat gently');
         expect(customerRemarks.at(1).textContent).toBe('please treat gently');
 
