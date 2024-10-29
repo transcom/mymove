@@ -656,7 +656,7 @@ describe('EditOrdersForm component', () => {
     await waitFor(() => {
       expect(testProps.onSubmit).toHaveBeenCalledWith(
         expect.objectContaining({
-          orders_type: 'TEMPORARY_DUTY',
+          orders_type: ORDERS_TYPE.TEMPORARY_DUTY,
           has_dependents: 'no',
           issue_date: '28 Oct 2024',
           report_by_date: '28 Oct 2024',

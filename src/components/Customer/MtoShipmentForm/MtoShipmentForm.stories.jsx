@@ -93,7 +93,10 @@ function renderStory(props) {
 // create shipment stories (form should not prefill customer data)
 export const HHGShipment = () => renderStory({ shipmentType: SHIPMENT_OPTIONS.HHG });
 export const HHGShipmentRetiree = () =>
-  renderStory({ shipmentType: SHIPMENT_OPTIONS.HHG, orders: { orders_type: 'RETIREMENT', authorizedWeight: 5000 } });
+  renderStory({
+    shipmentType: SHIPMENT_OPTIONS.HHG,
+    orders: { orders_type: ORDERS_TYPE.RETIREMENT, authorizedWeight: 5000 },
+  });
 export const NTSReleaseShipment = () => renderStory({ shipmentType: SHIPMENT_OPTIONS.NTSR });
 export const NTSShipment = () => renderStory({ shipmentType: SHIPMENT_OPTIONS.NTS });
 export const UBShipment = () => renderStory({ shipmentType: SHIPMENT_OPTIONS.UNACCOMPANIED_BAGGAGE });
@@ -129,7 +132,7 @@ export const EditShipmentAsSeparatee = () =>
     shipmentType: SHIPMENT_OPTIONS.HHG,
     isCreatePage: false,
     mtoShipment: mockMtoShipment,
-    orders: { orders_type: 'SEPARATION', authorizedWeight: 5000 },
+    orders: { orders_type: ORDERS_TYPE.SEPARATION, authorizedWeight: 5000 },
   });
 
 export const EditHHGShipmentWithSecondaryAddresses = () => {
