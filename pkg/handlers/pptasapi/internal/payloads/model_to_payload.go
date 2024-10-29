@@ -127,6 +127,14 @@ func PPTASReports(appCtx appcontext.AppContext, pptasReports *models.PPTASReport
 	return payload
 }
 
+// Country payload
+func Country(country *models.Country) *string {
+	if country == nil {
+		return nil
+	}
+	return &country.Country
+}
+
 func Address(address *models.Address) *pptasmessages.Address {
 	if address == nil {
 		return nil
@@ -139,7 +147,7 @@ func Address(address *models.Address) *pptasmessages.Address {
 		City:           &address.City,
 		State:          &address.State,
 		PostalCode:     &address.PostalCode,
-		Country:        address.Country,
+		Country:        Country(address.Country),
 		County:         &address.County,
 		ETag:           etag.GenerateEtag(address.UpdatedAt),
 	}

@@ -1,5 +1,6 @@
 import React from 'react';
 import { mount } from 'enzyme';
+import { render, screen } from '@testing-library/react';
 
 import ToolTip from './ToolTip';
 
@@ -55,5 +56,44 @@ describe('ToolTip', () => {
 
     // Assert that the tooltip content is displayed
     expect(tooltipContent.text()).toBe(text);
+  });
+
+  it('should display tooltip with title when provided', () => {
+    const titleText = 'Tooltip Title';
+    const bodyText = 'Tooltip Body';
+
+    const component = mount(<ToolTip text={bodyText} title={titleText} icon="circle-question" />);
+
+    component.find('.tooltipContainer').simulate('click');
+
+    const tooltipTitle = component.find('.popoverHeader');
+    const tooltipBody = component.find('.popoverBody');
+
+    expect(tooltipTitle.text()).toBe(titleText);
+    expect(tooltipBody.text()).toBe(bodyText);
+  });
+
+  it('should not display title when it is not provided', () => {
+    const bodyText = 'Tooltip Body';
+
+    const component = mount(<ToolTip text={bodyText} icon="circle-question" />);
+
+    component.find('.tooltipContainer').simulate('click');
+
+    // Find the tooltip content and assert only the body is displayed
+    const tooltipTitle = component.find('.popoverHeader');
+    const tooltipBody = component.find('.popoverBody');
+
+    expect(tooltipTitle.exists()).toBe(false);
+    expect(tooltipBody.text()).toBe(bodyText);
+  });
+
+  it('verify data-testid is present', () => {
+    const text = 'Test Text';
+    render(<ToolTip text={text} icon="circle-question" position="left" />);
+
+    // Verify data-testid is present
+    const tooltipIcon = screen.getByTestId('tooltip-container');
+    expect(tooltipIcon).toBeInTheDocument();
   });
 });
