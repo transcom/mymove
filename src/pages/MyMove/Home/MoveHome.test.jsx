@@ -1178,6 +1178,11 @@ describe('Home component', () => {
       const confirmMoveRequest = wrapper.find('Step[step="4"]');
       expect(confirmMoveRequest.prop('actionBtnDisabled')).toBeFalsy();
     });
+
+    it('cancel move button is visible', () => {
+      const cancelMoveButton = wrapper.find('button[data-testid="cancel-move-button"]');
+      expect(cancelMoveButton.length).toBe(1);
+    });
   });
 
   describe('with default props, orders with HHG & PPM shipments and NEEDS_SERVICE_COUNSELING move status', () => {
@@ -1216,6 +1221,11 @@ describe('Home component', () => {
       const confirmMoveRequest = wrapper.find('Step[step="4"]');
       expect(confirmMoveRequest.prop('actionBtnDisabled')).toBeFalsy();
       expect(confirmMoveRequest.prop('actionBtnLabel')).toBe('Review your request');
+    });
+
+    it('cancel move button is not visible', () => {
+      const cancelMoveButton = wrapper.find('button[data-testid="cancel-move-button"]');
+      expect(cancelMoveButton.length).toBe(0);
     });
   });
 

@@ -32,7 +32,13 @@ import MOVE_STATUSES from 'constants/moves';
 import { customerRoutes } from 'constants/routes';
 import { ppmShipmentStatuses, shipmentTypes } from 'constants/shipments';
 import ConnectedFlashMessage from 'containers/FlashMessage/FlashMessage';
-import { deleteMTOShipment, getAllMoves, getMTOShipmentsForMove, downloadPPMAOAPacket } from 'services/internalApi';
+import {
+  deleteMTOShipment,
+  getAllMoves,
+  getMTOShipmentsForMove,
+  downloadPPMAOAPacket,
+  cancelMove,
+} from 'services/internalApi';
 import { withContext } from 'shared/AppContext';
 import { SHIPMENT_OPTIONS, SHIPMENT_TYPES } from 'shared/constants';
 import {
@@ -61,6 +67,7 @@ import {
 import withRouter from 'utils/routing';
 import { ADVANCE_STATUSES } from 'constants/ppms';
 import { isBooleanFlagEnabled } from 'utils/featureFlags';
+import CancelMoveConfirmationModal from 'components/ConfirmationModals/CancelMoveConfirmationModal';
 
 const Description = ({ className, children, dataTestId }) => (
   <p className={`${styles.description} ${className}`} data-testid={dataTestId}>
@@ -86,7 +93,9 @@ const MoveHome = ({ serviceMemberMoves, isProfileComplete, serviceMember, signed
   let { state } = useLocation();
   state = { ...state, moveId };
   const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [showCancelMoveModal, setShowCancelMoveModal] = useState(false);
   const [targetShipmentId, setTargetShipmentId] = useState(null);
+  const [showCancelSuccessAlert, setShowCancelSuccessAlert] = useState(false);
   const [showDeleteSuccessAlert, setShowDeleteSuccessAlert] = useState(false);
   const [showDeleteErrorAlert, setShowDeleteErrorAlert] = useState(false);
   const [showErrorAlert, setShowErrorAlert] = useState(false);
@@ -98,6 +107,21 @@ const MoveHome = ({ serviceMemberMoves, isProfileComplete, serviceMember, signed
     };
     fetchData();
   }, []);
+
+  const handleCancelMove = () => {
+    cancelMove(moveId)
+      .then(() => {
+        setShowCancelSuccessAlert(true);
+      })
+      .catch(() => {
+        setShowDeleteErrorAlert(true);
+        setShowCancelSuccessAlert(false);
+      })
+      .finally(() => {
+        const path = generatePath('/');
+        navigate(path);
+      });
+  };
 
   // fetching all move data on load since this component is dependent on that data
   // this will run each time the component is loaded/accessed
@@ -470,6 +494,16 @@ const MoveHome = ({ serviceMemberMoves, isProfileComplete, serviceMember, signed
   const shipmentNumbersByType = {};
   return (
     <>
+      <CancelMoveConfirmationModal
+        isOpen={showCancelMoveModal}
+        moveID={moveId}
+        onClose={() => setShowCancelMoveModal(false)}
+        onSubmit={handleCancelMove}
+        title="Cancel this move?"
+        content="Your move will be canceled and all associated information will be removed. This cannot be undone."
+        submitText="Yes, Cancel"
+        closeText="No, Keep It"
+      />
       <ConnectedDestructiveShipmentConfirmationModal
         isOpen={showDeleteModal}
         shipmentID={targetShipmentId}
@@ -491,6 +525,11 @@ const MoveHome = ({ serviceMemberMoves, isProfileComplete, serviceMember, signed
           </div>
         </header>
         <div className={`usa-prose grid-container ${styles['grid-container']}`}>
+          {showCancelSuccessAlert && (
+            <Alert headingLevel="h4" slim type="success">
+              Your move was cancelled.
+            </Alert>
+          )}
           {showDeleteSuccessAlert && (
             <Alert headingLevel="h4" slim type="success">
               The shipment was deleted.
@@ -507,6 +546,19 @@ const MoveHome = ({ serviceMemberMoves, isProfileComplete, serviceMember, signed
             <>
               {renderAlert()}
               {renderHelper()}
+              {!hasSubmittedMove() && !showCancelSuccessAlert ? (
+                <div className={styles.cancelMoveContainer}>
+                  <Button
+                    onClick={() => {
+                      setShowCancelMoveModal(true);
+                    }}
+                    unstyled
+                    data-testid="cancel-move-button"
+                  >
+                    Cancel move
+                  </Button>
+                </div>
+              ) : null}
               <SectionWrapper>
                 <Step
                   complete={serviceMember.is_profile_complete}
@@ -561,7 +613,7 @@ const MoveHome = ({ serviceMemberMoves, isProfileComplete, serviceMember, signed
                 )}
                 <Step
                   actionBtnLabel={shipmentActionBtnLabel()}
-                  actionBtnDisabled={!hasOrdersAndUpload()}
+                  actionBtnDisabled={!hasOrdersAndUpload() || showCancelSuccessAlert}
                   actionBtnId="shipment-selection-btn"
                   onActionBtnClick={() => handleNewPathClick(shipmentSelectionPath)}
                   complete={!hasIncompleteShipment() && hasAnyShipments()}

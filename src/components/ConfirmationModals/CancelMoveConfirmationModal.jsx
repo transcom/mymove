@@ -1,18 +1,18 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 import { Button } from '@trussworks/react-uswds';
+import PropTypes from 'prop-types';
 
 import Modal, { ModalTitle, ModalClose, ModalActions, connectModal } from 'components/Modal/Modal';
 
-export const CancelMoveConfirmationModal = ({ onClose, onSubmit, moveID, title, content, submitText, closeText }) => (
+export const CancelMoveConfirmationModal = ({ onClose, onSubmit, moveId, title, content, submitText, closeText }) => (
   <Modal>
     <ModalClose handleClick={() => onClose()} />
     <ModalTitle>
-      <h3>{title}</h3>
+      <h3 data-testid="modaltitle">{title}</h3>
     </ModalTitle>
     <p>{content}</p>
     <ModalActions autofocus="true">
-      <Button data-focus="true" className="usa-button--destructive" type="submit" onClick={() => onSubmit(moveID)}>
+      <Button data-focus="true" className="usa-button--destructive" type="submit" onClick={() => onSubmit(moveId)}>
         {submitText}
       </Button>
       <Button className="usa-button--secondary" type="button" onClick={() => onClose()} data-testid="modalBackButton">
@@ -25,6 +25,8 @@ export const CancelMoveConfirmationModal = ({ onClose, onSubmit, moveID, title, 
 CancelMoveConfirmationModal.propTypes = {
   onClose: PropTypes.func.isRequired,
   onSubmit: PropTypes.func.isRequired,
+
+  moveId: PropTypes.string.isRequired,
 
   title: PropTypes.string,
   content: PropTypes.string,
