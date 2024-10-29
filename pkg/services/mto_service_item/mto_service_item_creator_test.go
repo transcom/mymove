@@ -114,7 +114,7 @@ func (suite *MTOServiceItemServiceSuite) buildValidDDFSITServiceItemWithValidMov
 
 func (suite *MTOServiceItemServiceSuite) buildValidDOSHUTServiceItemWithValidMove() models.MTOServiceItem {
 	move := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
-	reServiceDOSHUT := factory.BuildReServiceByCode(suite.DB(), models.ReServiceCodeDOSHUT)
+	reServiceDOSHUT := factory.FetchOrBuildReServiceByCode(suite.DB(), models.ReServiceCodeDOSHUT)
 
 	estimatedPrimeWeight := unit.Pound(6000)
 	shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
@@ -491,7 +491,7 @@ func (suite *MTOServiceItemServiceSuite) TestCreateMTOServiceItem() {
 
 		move := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
 		shipment := factory.BuildMTOShipment(suite.DB(), nil, nil)
-		reService := factory.BuildReServiceByCode(suite.DB(), "ANY")
+		reService := factory.FetchOrBuildReServiceByCode(suite.DB(), "ANY")
 		serviceItemBadShip := models.MTOServiceItem{
 			MoveTaskOrderID: move.ID,
 			MoveTaskOrder:   move,
@@ -524,7 +524,7 @@ func (suite *MTOServiceItemServiceSuite) TestCreateMTOServiceItem() {
 			},
 		}, nil)
 
-		reService := factory.BuildReServiceByCode(suite.DB(), models.ReServiceCodeDDSHUT)
+		reService := factory.FetchOrBuildReServiceByCode(suite.DB(), models.ReServiceCodeDDSHUT)
 
 		serviceItemNoWeight := models.MTOServiceItem{
 			MoveTaskOrderID: move.ID,
@@ -679,10 +679,10 @@ func (suite *MTOServiceItemServiceSuite) TestCreateOriginSITServiceItem() {
 			},
 		}, nil)
 
-		reServiceDOASIT = factory.BuildReServiceByCode(suite.DB(), models.ReServiceCodeDOASIT)
-		reServiceDOFSIT = factory.BuildReServiceByCode(suite.DB(), models.ReServiceCodeDOFSIT)
-		reServiceDOPSIT = factory.BuildReServiceByCode(suite.DB(), models.ReServiceCodeDOPSIT)
-		reServiceDOSFSC = factory.BuildReServiceByCode(suite.DB(), models.ReServiceCodeDOSFSC)
+		reServiceDOASIT = factory.FetchOrBuildReServiceByCode(suite.DB(), models.ReServiceCodeDOASIT)
+		reServiceDOFSIT = factory.FetchOrBuildReServiceByCode(suite.DB(), models.ReServiceCodeDOFSIT)
+		reServiceDOPSIT = factory.FetchOrBuildReServiceByCode(suite.DB(), models.ReServiceCodeDOPSIT)
+		reServiceDOSFSC = factory.FetchOrBuildReServiceByCode(suite.DB(), models.ReServiceCodeDOSFSC)
 
 		return mtoShipment
 	}
@@ -1094,7 +1094,7 @@ func (suite *MTOServiceItemServiceSuite) TestCreateOriginSITServiceItemFailToCre
 			},
 		}, nil)
 
-		reServiceDOFSIT := factory.BuildReServiceByCode(suite.DB(), models.ReServiceCodeDOFSIT)
+		reServiceDOFSIT := factory.FetchOrBuildReServiceByCode(suite.DB(), models.ReServiceCodeDOFSIT)
 
 		serviceItemDOFSIT := models.MTOServiceItem{
 			MoveTaskOrder:   move,
@@ -1150,16 +1150,16 @@ func (suite *MTOServiceItemServiceSuite) TestCreateDestSITServiceItem() {
 		).Return(400, nil)
 		creator := NewMTOServiceItemCreator(planner, builder, moveRouter, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticPackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer())
 
-		reServiceDDFSIT := factory.BuildReServiceByCode(suite.DB(), models.ReServiceCodeDDFSIT)
+		reServiceDDFSIT := factory.FetchOrBuildReServiceByCode(suite.DB(), models.ReServiceCodeDDFSIT)
 		return shipment, creator, reServiceDDFSIT
 
 	}
 
 	setupAdditionalSIT := func() (models.ReService, models.ReService, models.ReService) {
 		// These codes will be needed for the following tests:
-		reServiceDDASIT := factory.BuildReServiceByCode(suite.DB(), models.ReServiceCodeDDASIT)
-		reServiceDDDSIT := factory.BuildReServiceByCode(suite.DB(), models.ReServiceCodeDDDSIT)
-		reServiceDDSFSC := factory.BuildReServiceByCode(suite.DB(), models.ReServiceCodeDDSFSC)
+		reServiceDDASIT := factory.FetchOrBuildReServiceByCode(suite.DB(), models.ReServiceCodeDDASIT)
+		reServiceDDDSIT := factory.FetchOrBuildReServiceByCode(suite.DB(), models.ReServiceCodeDDDSIT)
+		reServiceDDSFSC := factory.FetchOrBuildReServiceByCode(suite.DB(), models.ReServiceCodeDDSFSC)
 		return reServiceDDASIT, reServiceDDDSIT, reServiceDDSFSC
 	}
 
@@ -1420,7 +1420,7 @@ func (suite *MTOServiceItemServiceSuite) TestCreateDestSITServiceItem() {
 
 		// Make the necessary SIT code objects
 		reServiceDDASIT, _, _ := setupAdditionalSIT()
-		factory.BuildReServiceByCode(suite.DB(), models.ReServiceCodeDDFSIT)
+		factory.FetchOrBuildReServiceByCode(suite.DB(), models.ReServiceCodeDDFSIT)
 
 		// Make a shipment with no DDFSIT
 		now := time.Now()

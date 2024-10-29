@@ -9,23 +9,7 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 )
 
-// MakeReService creates a single ReService
-func MakeReService(db *pop.Connection, assertions Assertions) models.ReService {
-	reService := models.ReService{
-		Code: DefaultServiceCode,
-		Name: "Test Service",
-	}
-
-	// Overwrite values with those from assertions
-	mergeModels(&reService, assertions.ReService)
-
-	mustCreate(db, &reService, assertions.Stub)
-
-	return reService
-}
-
-// FetchOrMakeReService returns the ReService for a given service code, or creates one if
-// the service code does not exist yet.
+// FetchOrMakeReService returns the ReService for a given service code, or returns a default (DLH).
 func FetchOrMakeReService(db *pop.Connection, assertions Assertions) models.ReService {
 	var existingReServices models.ReServices
 	code := DefaultServiceCode
@@ -38,7 +22,7 @@ func FetchOrMakeReService(db *pop.Connection, assertions Assertions) models.ReSe
 	}
 
 	if len(existingReServices) == 0 {
-		return MakeReService(db, assertions)
+		return MakeDefaultReService(db)
 	}
 
 	return existingReServices[0]
@@ -46,5 +30,11 @@ func FetchOrMakeReService(db *pop.Connection, assertions Assertions) models.ReSe
 
 // MakeDefaultReService makes a single ReService with default values
 func MakeDefaultReService(db *pop.Connection) models.ReService {
-	return MakeReService(db, Assertions{})
+	reService := models.ReService{
+		Code: "DLH",
+		Name: "Domestic linehaul",
+	}
+	return FetchOrMakeReService(db, Assertions{
+		ReService: reService,
+	})
 }

@@ -669,7 +669,7 @@ func (suite *HandlerSuite) setupDomesticLinehaulData() (models.Move, models.MTOS
 		},
 	})
 
-	csService := factory.BuildReServiceByCode(suite.DB(), models.ReServiceCodeCS)
+	csService := factory.FetchOrBuildReServiceByCode(suite.DB(), models.ReServiceCodeCS)
 	csTaskOrderFee := models.ReTaskOrderFee{
 		ContractYearID: contractYear.ID,
 		ServiceID:      csService.ID,
@@ -677,7 +677,7 @@ func (suite *HandlerSuite) setupDomesticLinehaulData() (models.Move, models.MTOS
 	}
 	suite.MustSave(&csTaskOrderFee)
 
-	msService := factory.BuildReServiceByCode(suite.DB(), models.ReServiceCodeMS)
+	msService := factory.FetchOrBuildReServiceByCode(suite.DB(), models.ReServiceCodeMS)
 	msTaskOrderFee := models.ReTaskOrderFee{
 		ContractYearID: contractYear.ID,
 		ServiceID:      msService.ID,

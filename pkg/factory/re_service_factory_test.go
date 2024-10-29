@@ -13,7 +13,7 @@ func (suite *FactorySuite) TestBuildReService() {
 		// Mocked:          None
 		// Set up:          Create a ReService with no customizations or traits
 		// Expected outcome:ReService should be created with default values
-		defaultReServiceCode := models.ReServiceCode("STEST")
+		defaultReServiceCode := models.ReServiceCode("DLH")
 		reService := BuildReService(suite.DB(), nil, nil)
 		suite.Equal(defaultReServiceCode, reService.Code)
 	})
@@ -215,7 +215,7 @@ func (suite *FactorySuite) TestBuildReServiceHelpers() {
 		// Set up:          Call BuildDDFSITReService with ReServiceCodeCS
 		// Expected outcome:ReService is created
 
-		reService := BuildReServiceByCode(suite.DB(), models.ReServiceCodeCS)
+		reService := FetchOrBuildReServiceByCode(suite.DB(), models.ReServiceCodeCS)
 		suite.Equal(models.ReServiceCodeCS, reService.Code)
 	})
 

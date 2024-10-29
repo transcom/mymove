@@ -75,7 +75,7 @@ func (suite *MTOShipmentServiceSuite) createApproveShipmentSubtestData() (subtes
 	}
 
 	for _, serviceCode := range subtestData.reServiceCodes {
-		factory.BuildReServiceByCode(suite.DB(), serviceCode)
+		factory.FetchOrBuildReServiceByCode(suite.DB(), serviceCode)
 	}
 
 	subtestData.mockedShipmentRouter = &shipmentmocks.ShipmentRouter{}

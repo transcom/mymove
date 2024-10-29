@@ -42,8 +42,8 @@ import (
 
 func (suite *HandlerSuite) TestGetMoveTaskOrderHandlerIntegration() {
 	moveTaskOrder := factory.BuildMove(suite.DB(), nil, nil)
-	factory.BuildReServiceByCode(suite.DB(), models.ReServiceCodeMS)
-	factory.BuildReServiceByCode(suite.DB(), models.ReServiceCodeCS)
+	factory.FetchOrBuildReServiceByCode(suite.DB(), models.ReServiceCodeMS)
+	factory.FetchOrBuildReServiceByCode(suite.DB(), models.ReServiceCodeCS)
 
 	request := httptest.NewRequest("GET", "/move-task-orders/{moveTaskOrderID}", nil)
 	params := movetaskorderops.GetMoveTaskOrderParams{

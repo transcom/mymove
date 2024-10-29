@@ -124,7 +124,7 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemHandler() {
 			},
 		}, nil)
 		mtoShipment.PrimeEstimatedWeight = nil
-		factory.BuildReServiceByCode(suite.DB(), models.ReServiceCodeDOSHUT)
+		factory.FetchOrBuildReServiceByCode(suite.DB(), models.ReServiceCodeDOSHUT)
 		req := httptest.NewRequest("POST", "/mto-service-items", nil)
 		reason := "lorem ipsum"
 
@@ -442,8 +442,8 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemDomesticCratingHandler() {
 				LinkOnly: true,
 			},
 		}, nil)
-		factory.BuildReServiceByCode(suite.DB(), models.ReServiceCodeDCRT)
-		factory.BuildReServiceByCode(suite.DB(), models.ReServiceCodeDUCRT)
+		factory.FetchOrBuildReServiceByCode(suite.DB(), models.ReServiceCodeDCRT)
+		factory.FetchOrBuildReServiceByCode(suite.DB(), models.ReServiceCodeDUCRT)
 		subtestData.req = httptest.NewRequest("POST", "/mto-service-items", nil)
 
 		subtestData.mtoServiceItem = models.MTOServiceItem{

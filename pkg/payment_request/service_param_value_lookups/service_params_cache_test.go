@@ -58,11 +58,11 @@ func (suite *ServiceParamValueLookupsSuite) makeSubtestData() (subtestData *para
 	subtestData.mtoShipment1.PrimeEstimatedWeight = &subtestData.estimatedWeight
 	suite.MustSave(&subtestData.mtoShipment1)
 
-	reServiceDLH := factory.BuildReServiceByCode(suite.DB(), models.ReServiceCodeDLH)
-	reServiceDOP := factory.BuildReServiceByCode(suite.DB(), models.ReServiceCodeDOP)
-	reServiceMS := factory.BuildReServiceByCode(suite.DB(), models.ReServiceCodeMS)
-	reServiceDCRT := factory.BuildReServiceByCode(suite.DB(), models.ReServiceCodeDCRT)
-	reServiceDOSHUT := factory.BuildReServiceByCode(suite.DB(), models.ReServiceCodeDOSHUT)
+	reServiceDLH := factory.FetchOrBuildReServiceByCode(suite.DB(), models.ReServiceCodeDLH)
+	reServiceDOP := factory.FetchOrBuildReServiceByCode(suite.DB(), models.ReServiceCodeDOP)
+	reServiceMS := factory.FetchOrBuildReServiceByCode(suite.DB(), models.ReServiceCodeMS)
+	reServiceDCRT := factory.FetchOrBuildReServiceByCode(suite.DB(), models.ReServiceCodeDCRT)
+	reServiceDOSHUT := factory.FetchOrBuildReServiceByCode(suite.DB(), models.ReServiceCodeDOSHUT)
 
 	// DLH
 	subtestData.mtoServiceItemShip1DLH = factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{

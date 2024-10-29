@@ -11,7 +11,7 @@ import (
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
-const defaultServiceCode = models.ReServiceCode("STEST")
+const defaultServiceCode = models.ReServiceCode("DLH")
 
 // BuildReService creates a ReService
 // Params:

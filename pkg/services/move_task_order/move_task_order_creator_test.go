@@ -8,8 +8,8 @@ import (
 )
 
 func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderCreatorIntegration() {
-	factory.BuildReServiceByCode(suite.DB(), models.ReServiceCodeMS)
-	factory.BuildReServiceByCode(suite.DB(), models.ReServiceCodeCS)
+	factory.FetchOrBuildReServiceByCode(suite.DB(), models.ReServiceCodeMS)
+	factory.FetchOrBuildReServiceByCode(suite.DB(), models.ReServiceCodeCS)
 	builder := query.NewQueryBuilder()
 	mtoCreator := m.NewMoveTaskOrderCreator(builder)
 

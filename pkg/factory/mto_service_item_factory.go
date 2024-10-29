@@ -52,7 +52,7 @@ func buildMTOServiceItemWithBuildType(db *pop.Connection, customs []Customizatio
 	if result := findValidCustomization(customs, ReService); result != nil {
 		reService = FetchOrBuildReService(db, customs, nil)
 	} else {
-		reService = FetchOrBuildReServiceByCode(db, models.ReServiceCode("STEST"))
+		reService = FetchOrBuildReServiceByCode(db, models.ReServiceCode("DLH"))
 	}
 
 	requestedApprovalsRequestedStatus := false

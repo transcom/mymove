@@ -168,7 +168,7 @@ func (suite *PreloadedPopSuite) TestRunAlt() {
 			suite.NoError(err, "Reservice %s not found", reservice.Code)
 		}
 		// Add a DUCRT ReService, this should not exist outside this subtest
-		factory.BuildReServiceByCode(suite.DB(), models.ReServiceCodeDUCRT)
+		factory.FetchOrBuildReServiceByCode(suite.DB(), models.ReServiceCodeDUCRT)
 
 	})
 	suite.Run("Run a test to check that subtests are isolated", func() {
