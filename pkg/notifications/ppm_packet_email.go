@@ -18,7 +18,7 @@ var (
 	ppmPacketEmailRawText      = string(assets.MustAsset("notifications/templates/ppm_packet_email_template.txt"))
 	ppmPacketEmailTextTemplate = text.Must(text.New("text_template").Parse(ppmPacketEmailRawText))
 	ppmPacketEmailRawHTML      = string(assets.MustAsset("notifications/templates/ppm_packet_email_template.html"))
-	ppmPacketEmailHTMLTemplate = html.Must(html.New("html_template").Parse(ppmPacketEmailRawHTML))
+	ppmPacketEmailHTMLTemplate = html.Must(html.New("text_template").Parse(ppmPacketEmailRawHTML))
 )
 
 // PpmPacketEmail has notification content for approved moves
