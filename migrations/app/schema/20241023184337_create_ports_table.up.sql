@@ -1,6 +1,6 @@
 CREATE TABLE IF NOT EXISTS ports (
     id          uuid             NOT NULL,
-    port_code   varchar(4)       UNIQUE NOT NULL,
+    port_code   varchar(4)       NOT NULL,
     port_type   varchar(1)       NOT NULL,
     port_name   varchar(100)     NOT NULL,
     created_at  timestamp        NOT NULL DEFAULT NOW(),
