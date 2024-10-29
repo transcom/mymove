@@ -2066,16 +2066,21 @@ func init() {
         "GHC",
         "NTS",
         "WOUNDED_WARRIOR",
-        "BLUEBARK"
+        "BLUEBARK",
+        "SAFETY",
+        "EARLY_RETURN_OF_DEPENDENTS",
+        "STUDENT_TRAVEL"
       ],
       "x-display-value": {
         "BLUEBARK": "BLUEBARK",
+        "EARLY_RETURN_OF_DEPENDENTS": "Early Return of Dependents",
         "GHC": "GHC",
         "LOCAL_MOVE": "Local Move",
         "NTS": "NTS",
         "PERMANENT_CHANGE_OF_STATION": "Permanent Change Of Station (PCS)",
         "RETIREMENT": "Retirement",
         "SEPARATION": "Separation",
+        "STUDENT_TRAVEL": "Student Travel",
         "WOUNDED_WARRIOR": "Wounded Warrior"
       }
     },
@@ -4921,16 +4926,21 @@ func init() {
         "GHC",
         "NTS",
         "WOUNDED_WARRIOR",
-        "BLUEBARK"
+        "BLUEBARK",
+        "SAFETY",
+        "EARLY_RETURN_OF_DEPENDENTS",
+        "STUDENT_TRAVEL"
       ],
       "x-display-value": {
         "BLUEBARK": "BLUEBARK",
+        "EARLY_RETURN_OF_DEPENDENTS": "Early Return of Dependents",
         "GHC": "GHC",
         "LOCAL_MOVE": "Local Move",
         "NTS": "NTS",
         "PERMANENT_CHANGE_OF_STATION": "Permanent Change Of Station (PCS)",
         "RETIREMENT": "Retirement",
         "SEPARATION": "Separation",
+        "STUDENT_TRAVEL": "Student Travel",
         "WOUNDED_WARRIOR": "Wounded Warrior"
       }
     },
