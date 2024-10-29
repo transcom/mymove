@@ -82,7 +82,7 @@ func (m MoveCounseled) emails(appCtx appcontext.AppContext) ([]emailContent, err
 
 	actualExpenseReimbursement := false
 	for i := 0; i < len(move.MTOShipments); i++ {
-		if move.MTOShipments[i].PPMShipment.IsActualExpenseReimbursement != &actualExpenseReimbursement {
+		if *move.MTOShipments[i].PPMShipment.IsActualExpenseReimbursement {
 			actualExpenseReimbursement = true
 		}
 	}
