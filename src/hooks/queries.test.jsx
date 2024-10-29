@@ -501,6 +501,7 @@ describe('useMoveDetailsQueries', () => {
         },
         report_by_date: '2018-08-01',
       },
+      uploads: undefined,
       mtoShipments: undefined,
       mtoServiceItems: undefined,
       isLoading: true,
@@ -539,6 +540,9 @@ describe('useMoveDetailsQueries', () => {
           name: 'JB Lewis-McChord',
         },
         report_by_date: '2018-08-01',
+      },
+      uploads: {
+        id: '20',
       },
       mtoShipments: [
         {

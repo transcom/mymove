@@ -438,7 +438,7 @@ export const useMoveTaskOrderQueries = (moveCode) => {
 export const useGetDocumentQuery = (documentId) => {
   const staleTime = 15 * 60000; // 15 * 60000 milliseconds = 15 mins
   const cacheTime = staleTime;
-  const { data: { documents, uploads } = {}, ...documentsQuery } = useQuery(
+  const { data: { documents, upload } = {}, ...documentsQuery } = useQuery(
     [ORDERS_DOCUMENTS, documentId],
     ({ queryKey }) => getDocument(...queryKey),
     {
@@ -453,7 +453,7 @@ export const useGetDocumentQuery = (documentId) => {
 
   return {
     documents,
-    uploads,
+    upload,
     isLoading,
     isError,
     isSuccess,
@@ -845,7 +845,7 @@ export const useMoveDetailsQueries = (moveCode) => {
 
   const order = Object.values(orders || {})?.[0];
 
-  const { data: uploads, ...documentQuery } = useGetDocumentQuery(order.uploaded_order_id);
+  const { upload: uploads, ...documentQuery } = useGetDocumentQuery(order.uploaded_order_id);
 
   const { data: mtoShipments, ...mtoShipmentQuery } = useQuery({
     queryKey: [MTO_SHIPMENTS, moveId, false],

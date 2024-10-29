@@ -314,6 +314,18 @@ const newMoveDetailsQuery = {
   isLoading: false,
   isError: false,
   isSuccess: true,
+  uploads: {
+    z: {
+      id: 'z',
+      filename: 'test.pdf',
+      contentType: 'application/pdf',
+      url: '/storage/user/1/uploads/2?contentType=application%2Fpdf',
+    },
+  },
+};
+
+const newOrdersDocumentQuery = {
+  ...newMoveDetailsQuery,
   upload: {
     z: {
       id: 'z',
@@ -330,6 +342,14 @@ const counselingCompletedMoveDetailsQuery = {
     id: '9c7b255c-2981-4bf8-839f-61c7458e2b4d',
     ordersId: '1',
     status: MOVE_STATUSES.SERVICE_COUNSELING_COMPLETED,
+  },
+  upload: {
+    z: {
+      id: 'z',
+      filename: 'test.pdf',
+      contentType: 'application/pdf',
+      url: '/storage/user/1/uploads/2?contentType=application%2Fpdf',
+    },
   },
 };
 
@@ -532,6 +552,14 @@ const ppmShipmentQuery = {
       updatedAt: '2022-11-08T23:44:58.306Z',
     },
   ],
+  upload: {
+    z: {
+      id: 'z',
+      filename: 'test.pdf',
+      contentType: 'application/pdf',
+      url: '/storage/user/1/uploads/2?contentType=application%2Fpdf',
+    },
+  },
 };
 
 const renderComponent = (props, permissions = [permissionTypes.updateShipment, permissionTypes.updateCustomer]) => {
@@ -588,7 +616,7 @@ describe('MoveDetails page', () => {
   describe('Basic rendering', () => {
     it('renders the h1', async () => {
       useMoveDetailsQueries.mockReturnValue(newMoveDetailsQuery);
-      useOrdersDocumentQueries.mockReturnValue(newMoveDetailsQuery);
+      useOrdersDocumentQueries.mockReturnValue(newOrdersDocumentQuery);
 
       renderComponent();
 
@@ -599,7 +627,7 @@ describe('MoveDetails page', () => {
       'renders side navigation for section %s',
       async (sectionName) => {
         useMoveDetailsQueries.mockReturnValue(newMoveDetailsQuery);
-        useOrdersDocumentQueries.mockReturnValue(newMoveDetailsQuery);
+        useOrdersDocumentQueries.mockReturnValue(newOrdersDocumentQuery);
 
         renderComponent();
 
@@ -614,7 +642,7 @@ describe('MoveDetails page', () => {
       };
 
       useMoveDetailsQueries.mockReturnValue(moveDetailsQuery);
-      useOrdersDocumentQueries.mockReturnValue(moveDetailsQuery);
+      useOrdersDocumentQueries.mockReturnValue(newOrdersDocumentQuery);
 
       renderComponent();
 
@@ -629,24 +657,7 @@ describe('MoveDetails page', () => {
       };
 
       useMoveDetailsQueries.mockReturnValue(moveDetailsQuery);
-      useOrdersDocumentQueries.mockReturnValue(moveDetailsQuery);
-
-      const mockSetMissingOrdersInfoCount = jest.fn();
-      renderComponent({ setMissingOrdersInfoCount: mockSetMissingOrdersInfoCount });
-
-      // Should have called `setMissingOrdersInfoCount` with 4 missing fields
-      expect(mockSetMissingOrdersInfoCount).toHaveBeenCalledTimes(1);
-      expect(mockSetMissingOrdersInfoCount).toHaveBeenCalledWith(4);
-    });
-
-    it('shares the number of missing orders information', () => {
-      const moveDetailsQuery = {
-        ...newMoveDetailsQuery,
-        order: orderMissingRequiredInfo,
-      };
-
-      useMoveDetailsQueries.mockReturnValue(moveDetailsQuery);
-      useOrdersDocumentQueries.mockReturnValue(moveDetailsQuery);
+      useOrdersDocumentQueries.mockReturnValue(newOrdersDocumentQuery);
 
       const mockSetMissingOrdersInfoCount = jest.fn();
       renderComponent({ setMissingOrdersInfoCount: mockSetMissingOrdersInfoCount });
@@ -659,7 +670,7 @@ describe('MoveDetails page', () => {
     /* eslint-disable camelcase */
     it('renders shipments info', async () => {
       useMoveDetailsQueries.mockReturnValue(newMoveDetailsQuery);
-      useOrdersDocumentQueries.mockReturnValue(newMoveDetailsQuery);
+      useOrdersDocumentQueries.mockReturnValue(newOrdersDocumentQuery);
 
       renderComponent();
 
@@ -781,7 +792,7 @@ describe('MoveDetails page', () => {
       delete moveDetailsQuery.mtoShipments[0].destinationAddress;
 
       useMoveDetailsQueries.mockReturnValue(moveDetailsQuery);
-      useOrdersDocumentQueries.mockReturnValue(moveDetailsQuery);
+      useOrdersDocumentQueries.mockReturnValue(newOrdersDocumentQuery);
 
       renderComponent();
 
@@ -806,7 +817,7 @@ describe('MoveDetails page', () => {
 
     it('renders customer info', async () => {
       useMoveDetailsQueries.mockReturnValue(newMoveDetailsQuery);
-      useOrdersDocumentQueries.mockReturnValue(newMoveDetailsQuery);
+      useOrdersDocumentQueries.mockReturnValue(newOrdersDocumentQuery);
 
       renderComponent();
 
@@ -824,7 +835,7 @@ describe('MoveDetails page', () => {
     describe('new move - needs service counseling', () => {
       it('submit move details button is on page', async () => {
         useMoveDetailsQueries.mockReturnValue(newMoveDetailsQuery);
-        useOrdersDocumentQueries.mockReturnValue(newMoveDetailsQuery);
+        useOrdersDocumentQueries.mockReturnValue(newOrdersDocumentQuery);
 
         renderComponent();
 
@@ -833,7 +844,7 @@ describe('MoveDetails page', () => {
 
       it('submit move details button is disabled when there are no shipments', async () => {
         useMoveDetailsQueries.mockReturnValue({ ...newMoveDetailsQuery, mtoShipments: [] });
-        useOrdersDocumentQueries.mockReturnValue({ ...newMoveDetailsQuery, mtoShipments: [] });
+        useOrdersDocumentQueries.mockReturnValue({ ...newOrdersDocumentQuery, mtoShipments: [] });
 
         renderComponent();
 
@@ -863,9 +874,9 @@ describe('MoveDetails page', () => {
           },
         });
         useOrdersDocumentQueries.mockReturnValue({
-          ...newMoveDetailsQuery,
+          ...newOrdersDocumentQuery,
           order: {
-            ...newMoveDetailsQuery.order,
+            ...newOrdersDocumentQuery.order,
             department_indicator: undefined,
           },
         });
@@ -888,7 +899,7 @@ describe('MoveDetails page', () => {
           mtoShipments: deletedMtoShipments,
         });
         useOrdersDocumentQueries.mockReturnValue({
-          ...newMoveDetailsQuery,
+          ...newOrdersDocumentQuery,
           mtoShipments: deletedMtoShipments,
         });
 
@@ -911,7 +922,7 @@ describe('MoveDetails page', () => {
           mtoShipments: deletedMtoShipments,
         });
         useOrdersDocumentQueries.mockReturnValue({
-          ...newMoveDetailsQuery,
+          ...newOrdersDocumentQuery,
           mtoShipments: deletedMtoShipments,
         });
 
@@ -945,7 +956,7 @@ describe('MoveDetails page', () => {
           mtoShipments: [ntsrShipmentMissingRequiredInfo],
         };
         useMoveDetailsQueries.mockReturnValue(moveDetailsQuery);
-        useOrdersDocumentQueries.mockReturnValue(moveDetailsQuery);
+        useOrdersDocumentQueries.mockReturnValue(newOrdersDocumentQuery);
 
         renderComponent();
 
@@ -955,7 +966,7 @@ describe('MoveDetails page', () => {
 
       it('renders the Orders Definition List', async () => {
         useMoveDetailsQueries.mockReturnValue(newMoveDetailsQuery);
-        useOrdersDocumentQueries.mockReturnValue(newMoveDetailsQuery);
+        useOrdersDocumentQueries.mockReturnValue(newOrdersDocumentQuery);
 
         renderComponent();
 
@@ -965,7 +976,7 @@ describe('MoveDetails page', () => {
 
       it('renders the Allowances Table', async () => {
         useMoveDetailsQueries.mockReturnValue(newMoveDetailsQuery);
-        useOrdersDocumentQueries.mockReturnValue(newMoveDetailsQuery);
+        useOrdersDocumentQueries.mockReturnValue(newOrdersDocumentQuery);
 
         renderComponent();
 
@@ -975,7 +986,7 @@ describe('MoveDetails page', () => {
 
       it('allows the service counselor to use the modal as expected', async () => {
         useMoveDetailsQueries.mockReturnValue(newMoveDetailsQuery);
-        useOrdersDocumentQueries.mockReturnValue(newMoveDetailsQuery);
+        useOrdersDocumentQueries.mockReturnValue(newOrdersDocumentQuery);
         updateMoveStatusServiceCounselingCompleted.mockImplementation(() => Promise.resolve({}));
 
         renderComponent();
@@ -1001,7 +1012,7 @@ describe('MoveDetails page', () => {
         ['Edit customer info', servicesCounselingRoutes.CUSTOMER_INFO_EDIT_PATH],
       ])('shows the "%s" link as expected: %s', async (linkText, route) => {
         useMoveDetailsQueries.mockReturnValue(newMoveDetailsQuery);
-        useOrdersDocumentQueries.mockReturnValue(newMoveDetailsQuery);
+        useOrdersDocumentQueries.mockReturnValue(newOrdersDocumentQuery);
 
         renderComponent();
 
@@ -1053,7 +1064,7 @@ describe('MoveDetails page', () => {
 
       it('shows the edit shipment buttons', async () => {
         useMoveDetailsQueries.mockReturnValue(newMoveDetailsQuery);
-        useOrdersDocumentQueries.mockReturnValue(newMoveDetailsQuery);
+        useOrdersDocumentQueries.mockReturnValue(newOrdersDocumentQuery);
 
         renderComponent();
 
@@ -1073,7 +1084,7 @@ describe('MoveDetails page', () => {
 
       it('shows the customer and counselor remarks', async () => {
         useMoveDetailsQueries.mockReturnValue(newMoveDetailsQuery);
-        useOrdersDocumentQueries.mockReturnValue(newMoveDetailsQuery);
+        useOrdersDocumentQueries.mockReturnValue(newOrdersDocumentQuery);
 
         renderComponent();
 
@@ -1108,7 +1119,7 @@ describe('MoveDetails page', () => {
 
     describe('permission dependent rendering', () => {
       useMoveDetailsQueries.mockReturnValue(newMoveDetailsQuery);
-      useOrdersDocumentQueries.mockReturnValue(newMoveDetailsQuery);
+      useOrdersDocumentQueries.mockReturnValue(newOrdersDocumentQuery);
 
       it('renders the financial review flag button when user has permission', async () => {
         render(
