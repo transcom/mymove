@@ -17,3 +17,5 @@ ALTER TABLE mto_service_items ADD COLUMN IF NOT EXISTS poe_location_id uuid;
 ALTER TABLE mto_service_items ADD CONSTRAINT fk_poe_location_id FOREIGN KEY (poe_location_id) REFERENCES ports (id);
 ALTER TABLE mto_service_items ADD COLUMN IF NOT EXISTS pod_location_id uuid;
 ALTER TABLE mto_service_items ADD CONSTRAINT fk_pod_location_id FOREIGN KEY (pod_location_id) REFERENCES ports (id);
+COMMENT ON COLUMN mto_service_items.poe_location_id IS 'Stores the POE location id for port of embarkation';
+COMMENT ON COLUMN mto_service_items.pod_location_id IS 'Stores the POD location id for port of debarkation';
