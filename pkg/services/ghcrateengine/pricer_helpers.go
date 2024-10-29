@@ -3,6 +3,7 @@ package ghcrateengine
 import (
 	"fmt"
 	"math"
+	"strconv"
 	"time"
 
 	"github.com/gofrs/uuid"
@@ -493,9 +494,80 @@ func escalatePriceForContractYear(appCtx appcontext.AppContext, contractID uuid.
 	}
 
 	escalatedPrice = roundToPrecision(escalatedPrice, precision)
-	escalatedPrice = escalatedPrice * contractYear.EscalationCompounded
+
+	if contractYear.Name == models.BasePeriodYear1 {
+		escalatedPrice = escalatedPrice * contractYear.EscalationCompounded
+	} else {
+		escalatedPrice, err = compoundEscalationFactors(appCtx, contractID, contractYear, escalatedPrice)
+		return 0, contractYear, err
+	}
+
 	escalatedPrice = roundToPrecision(escalatedPrice, precision)
 	return escalatedPrice, contractYear, nil
+}
+
+func compoundEscalationFactors(appCtx appcontext.AppContext, contractID uuid.UUID, contractYear models.ReContractYear, escalatedPrice float64) (float64, error) {
+	// Get all contracts based on contract Id
+	contractYearsFromDB, err := fetchContractsByContractId(appCtx, contractID)
+	if err != nil {
+		return escalatedPrice, fmt.Errorf("could not lookup contracts by Id: %w", err)
+	}
+
+	// A contract may have Option Year 3 but it is not guaranteed. Need to know if it does or not
+	contractsYearsFromDBMap := make(map[string]models.ReContractYear)
+	hasOptionYear3 := false
+	for _, contract := range contractYearsFromDB {
+		if contract.Name == models.OptionPeriod3 {
+			hasOptionYear3 = true
+		}
+		// Add re_contract_years record to map
+		contractsYearsFromDBMap[contract.Name] = contract
+	}
+
+	// Get expectations for price escalations calculations
+	expectations, err := models.GetExpectedEscalationPriceContractsCount(contractYear.Name, hasOptionYear3)
+	if err != nil {
+		err := apperror.NewInternalServerError(fmt.Sprintf("Error getting expectations for escalated price calculations", err))
+		return escalatedPrice, err
+	}
+
+	// Adding contracts that are expected to be in the calculations based on the contract year to a map
+	contractYearsForCalculation := make(map[string]models.ReContractYear)
+	if expectations.ExpectedAmountOfAwardTermsForCalculation > 0 {
+		contractYearsForCalculation, err = addContractsForEscalationCalculation(contractYearsForCalculation, contractsYearsFromDBMap, expectations.ExpectedAmountOfAwardTermsForCalculation, models.AwardTerm)
+		if err != nil {
+			err := apperror.NewInternalServerError(fmt.Sprintf("Error collecting expected Award Term contracts for escalated price calculations", err))
+			return escalatedPrice, err
+		}
+	}
+	if expectations.ExpectedAmountOfOptionPeriodYearsForCalculation > 0 {
+		contractYearsForCalculation, err = addContractsForEscalationCalculation(contractYearsForCalculation, contractsYearsFromDBMap, expectations.ExpectedAmountOfOptionPeriodYearsForCalculation, models.OptionPeriod)
+		if err != nil {
+			err := apperror.NewInternalServerError(fmt.Sprintf("Error collecting expected Option Period contracts for escalated price calculations", err))
+			return escalatedPrice, err
+		}
+	}
+	if expectations.ExpectedAmountOfBasePeriodYearsForCalculation > 0 {
+		contractYearsForCalculation, err = addContractsForEscalationCalculation(contractYearsForCalculation, contractsYearsFromDBMap, expectations.ExpectedAmountOfBasePeriodYearsForCalculation, models.BasePeriodYear)
+		if err != nil {
+			err := apperror.NewInternalServerError(fmt.Sprintf("Error collecting expected Base Period Year contracts for escalated price calculations", err))
+			return escalatedPrice, err
+		}
+	}
+
+	// Make sure the expected amount of contracts are being used in the escalated Price calculation
+	if len(contractYearsForCalculation) != expectations.ExpectedAmountOfContractYearsForCalculation {
+		err := apperror.NewInternalServerError("Unexpected amount of contract years being used in escalated price calculation")
+		return escalatedPrice, err
+	}
+
+	// Multiply the escalated price by each re_contract_years record escalation factor. EscalatedPrice = EscalatedPrice * ContractEscalationFactor
+	var compoundedEscalatedPrice = escalatedPrice
+	for _, contract := range contractYearsForCalculation {
+		compoundedEscalatedPrice = compoundedEscalatedPrice * contract.Escalation
+	}
+
+	return escalatedPrice, nil
 }
 
 // roundToPrecision rounds a float64 value to the number of decimal points indicated by the precision.
@@ -503,4 +575,20 @@ func escalatePriceForContractYear(appCtx appcontext.AppContext, contractID uuid.
 func roundToPrecision(value float64, precision int) float64 {
 	ratio := math.Pow(10, float64(precision))
 	return math.Round(value*ratio) / ratio
+}
+
+func addContractsForEscalationCalculation(contractsMap map[string]models.ReContractYear, contractsMapDB map[string]models.ReContractYear, contractsAmount int, contractName string) (map[string]models.ReContractYear, error) {
+	if contractsAmount > 0 {
+		for i := contractsAmount; i != 0; i-- {
+			name := fmt.Sprintf("%s %s", contractName, strconv.FormatInt(int64(i), 10))
+			// If a contract that is expected to be used in the calculations is not found then return error
+			if _, exist := contractsMapDB[name]; exist {
+				contractsMap[contractsMapDB[name].Name] = contractsMapDB[name]
+			} else {
+				err := apperror.NewInternalServerError(fmt.Sprintf("Expected %s contract not found", name))
+				return contractsMap, err
+			}
+		}
+	}
+	return contractsMap, nil
 }

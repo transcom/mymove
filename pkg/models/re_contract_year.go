@@ -1,13 +1,36 @@
 package models
 
 import (
+	"fmt"
 	"time"
 
 	"github.com/gobuffalo/pop/v6"
 	"github.com/gobuffalo/validate/v3"
 	"github.com/gobuffalo/validate/v3/validators"
 	"github.com/gofrs/uuid"
+	"github.com/transcom/mymove/pkg/apperror"
 )
+
+const (
+	BasePeriodYear1 string = "Base Period Year 1"
+	BasePeriodYear2 string = "Base Period Year 2"
+	BasePeriodYear3 string = "Base Period Year 3"
+	OptionPeriod1   string = "Option Period 1"
+	OptionPeriod2   string = "Option Period 2"
+	OptionPeriod3   string = "Option Period 3"
+	AwardTerm1      string = "Award Term 1"
+	AwardTerm2      string = "Award Term 2"
+	AwardTerm       string = "Award Term"
+	OptionPeriod    string = "Option Period"
+	BasePeriodYear  string = "Base Period Year"
+)
+
+type ExpectedEscalationPriceContractsCount struct {
+	ExpectedAmountOfContractYearsForCalculation     int
+	ExpectedAmountOfBasePeriodYearsForCalculation   int
+	ExpectedAmountOfOptionPeriodYearsForCalculation int
+	ExpectedAmountOfAwardTermsForCalculation        int
+}
 
 // ReContractYear represents a single "year" of a contract
 type ReContractYear struct {
@@ -45,4 +68,86 @@ func (r *ReContractYear) Validate(_ *pop.Connection) (*validate.Errors, error) {
 		&Float64IsPresent{Field: r.EscalationCompounded, Name: "EscalationCompounded"},
 		&Float64IsGreaterThan{Field: r.EscalationCompounded, Name: "EscalationCompounded", Compared: 0},
 	), nil
+}
+
+func GetExpectedEscalationPriceContractsCount(contractYearName string, hasOptionYear3 bool) (ExpectedEscalationPriceContractsCount, error) {
+	switch contractYearName {
+	case BasePeriodYear1:
+		return ExpectedEscalationPriceContractsCount{
+			ExpectedAmountOfContractYearsForCalculation:     1,
+			ExpectedAmountOfBasePeriodYearsForCalculation:   1,
+			ExpectedAmountOfOptionPeriodYearsForCalculation: 0,
+			ExpectedAmountOfAwardTermsForCalculation:        0,
+		}, nil
+	case BasePeriodYear2:
+		return ExpectedEscalationPriceContractsCount{
+			ExpectedAmountOfContractYearsForCalculation:     2,
+			ExpectedAmountOfBasePeriodYearsForCalculation:   2,
+			ExpectedAmountOfOptionPeriodYearsForCalculation: 0,
+			ExpectedAmountOfAwardTermsForCalculation:        0,
+		}, nil
+	case BasePeriodYear3:
+		return ExpectedEscalationPriceContractsCount{
+			ExpectedAmountOfContractYearsForCalculation:     3,
+			ExpectedAmountOfBasePeriodYearsForCalculation:   3,
+			ExpectedAmountOfOptionPeriodYearsForCalculation: 0,
+			ExpectedAmountOfAwardTermsForCalculation:        0,
+		}, nil
+	case OptionPeriod1:
+		return ExpectedEscalationPriceContractsCount{
+			ExpectedAmountOfContractYearsForCalculation:     4,
+			ExpectedAmountOfBasePeriodYearsForCalculation:   3,
+			ExpectedAmountOfOptionPeriodYearsForCalculation: 1,
+			ExpectedAmountOfAwardTermsForCalculation:        0,
+		}, nil
+	case OptionPeriod2:
+		return ExpectedEscalationPriceContractsCount{
+			ExpectedAmountOfContractYearsForCalculation:     5,
+			ExpectedAmountOfBasePeriodYearsForCalculation:   3,
+			ExpectedAmountOfOptionPeriodYearsForCalculation: 2,
+			ExpectedAmountOfAwardTermsForCalculation:        0,
+		}, nil
+	case OptionPeriod3:
+		return ExpectedEscalationPriceContractsCount{
+			ExpectedAmountOfContractYearsForCalculation:     6,
+			ExpectedAmountOfBasePeriodYearsForCalculation:   3,
+			ExpectedAmountOfOptionPeriodYearsForCalculation: 3,
+			ExpectedAmountOfAwardTermsForCalculation:        0,
+		}, nil
+	case AwardTerm1:
+		if hasOptionYear3 {
+			return ExpectedEscalationPriceContractsCount{
+				ExpectedAmountOfContractYearsForCalculation:     7,
+				ExpectedAmountOfBasePeriodYearsForCalculation:   3,
+				ExpectedAmountOfOptionPeriodYearsForCalculation: 3,
+				ExpectedAmountOfAwardTermsForCalculation:        1,
+			}, nil
+		} else {
+			return ExpectedEscalationPriceContractsCount{
+				ExpectedAmountOfContractYearsForCalculation:     6,
+				ExpectedAmountOfBasePeriodYearsForCalculation:   3,
+				ExpectedAmountOfOptionPeriodYearsForCalculation: 2,
+				ExpectedAmountOfAwardTermsForCalculation:        1,
+			}, nil
+		}
+	case AwardTerm2:
+		if hasOptionYear3 {
+			return ExpectedEscalationPriceContractsCount{
+				ExpectedAmountOfContractYearsForCalculation:     8,
+				ExpectedAmountOfBasePeriodYearsForCalculation:   3,
+				ExpectedAmountOfOptionPeriodYearsForCalculation: 3,
+				ExpectedAmountOfAwardTermsForCalculation:        2,
+			}, nil
+		} else {
+			return ExpectedEscalationPriceContractsCount{
+				ExpectedAmountOfContractYearsForCalculation:     7,
+				ExpectedAmountOfBasePeriodYearsForCalculation:   3,
+				ExpectedAmountOfOptionPeriodYearsForCalculation: 2,
+				ExpectedAmountOfAwardTermsForCalculation:        2,
+			}, nil
+		}
+	default:
+		err := apperror.NewInternalServerError(fmt.Sprintf("Unexpected contract year name %s.", contractYearName))
+		return ExpectedEscalationPriceContractsCount{}, err
+	}
 }
