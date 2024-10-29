@@ -69,6 +69,10 @@ const ServicesCounselingMoveDetails = ({
 
   const { order, customerData, uploads, move, closeoutOffice, mtoShipments, isLoading, isError } =
     useMoveDetailsQueries(moveCode);
+
+  let validOrderUploads = Object.fromEntries(Object.entries(uploads || {}).filter(([, value]) => !value.deletedAt));
+  if (Object.entries(validOrderUploads).length === 0) validOrderUploads = null;
+
   const { customer, entitlement: allowances } = order;
 
   const moveWeightTotal = calculateWeightRequested(mtoShipments);
@@ -337,7 +341,7 @@ const ServicesCounselingMoveDetails = ({
     ordersType: order.order_type,
     ordersNumber: order.order_number,
     ordersTypeDetail: order.order_type_detail,
-    ordersDocuments: uploads,
+    ordersDocuments: validOrderUploads,
     tacMDC: order.tac,
     sacSDN: order.sac,
     NTStac: order.ntsTac,
@@ -355,17 +359,17 @@ const ServicesCounselingMoveDetails = ({
 
   // using useMemo here due to this being used in a useEffect
   // using useMemo prevents the useEffect from being rendered on ever render by memoizing the object
-  // so that it only recognizes the change when the orders or uploads objects change
+  // so that it only recognizes the change when the orders or validUploads objects change
   const requiredOrdersInfo = useMemo(
     () => ({
       ordersNumber: order?.order_number || '',
       ordersType: order?.order_type || '',
       ordersTypeDetail: order?.order_type_detail || '',
-      ordersDocuments: uploads || '',
+      ordersDocuments: validOrderUploads || '',
       tacMDC: order?.tac || '',
-      departmentIndicator: order?.department_indicator || '',
+      departmentIndicator: validOrderUploads?.department_indicator || '',
     }),
-    [order, uploads],
+    [order, validOrderUploads],
   );
 
   const handleButtonDropdownChange = (e) => {
