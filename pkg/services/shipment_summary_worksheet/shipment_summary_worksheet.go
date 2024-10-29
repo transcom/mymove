@@ -254,6 +254,7 @@ func (s SSWPPMComputer) FormatValuesShipmentSummaryWorksheetFormPage1(data model
 		page1.PreparationDate1 = formatAOADate(data.SignedCertifications, data.PPMShipment.ID)
 	}
 
+	// Fill out form fields related to Actual Expense Reimbursement status
 	if data.PPMShipment.IsActualExpenseReimbursement != nil {
 		page1.IsActualExpenseReimbursement = *data.PPMShipment.IsActualExpenseReimbursement
 	}
@@ -1135,6 +1136,8 @@ func (SSWPPMGenerator *SSWPPMGenerator) FillSSWPDFForm(Page1Values services.Page
 	isActualExpenseReimbursement := false
 	if Page1Values.IsActualExpenseReimbursement {
 		isActualExpenseReimbursement = true
+		Page1Values.GCCIsActualExpenseReimbursement = "Actual Expense Reimbursement"
+		Page2Values.IncentiveIsActualExpenseReimbursement = "Actual Expense Reimbursement"
 	}
 
 	var sswCheckbox = []checkbox{
