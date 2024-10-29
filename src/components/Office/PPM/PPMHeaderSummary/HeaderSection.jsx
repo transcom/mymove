@@ -55,9 +55,10 @@ const OpenModalButton = ({ onClick, isDisabled, dataTestId, ariaLabel }) => (
 );
 
 // Returns the markup needed for a specific section
-const getSectionMarkup = (sectionInfo, handleEditOnClick, isFetchingItems, updatedItemName, readOnly) => {
+const getSectionMarkup = (sectionInfo, handleEditOnClick, isFetchingItems, updatedItemName, readOnly, grade) => {
   const aoaRequestedValue = `$${formatCents(sectionInfo.advanceAmountRequested)}`;
   const aoaValue = `$${formatCents(sectionInfo.advanceAmountReceived)}`;
+  const isCivilian = grade === 'CIVILIAN_EMPLOYEE';
 
   const renderHaulType = (haulType) => {
     return haulType === HAUL_TYPES.LINEHAUL ? 'Linehaul' : 'Shorthaul';
@@ -90,6 +91,22 @@ const getSectionMarkup = (sectionInfo, handleEditOnClick, isFetchingItems, updat
     case sectionTypes.shipmentInfo:
       return (
         <div className={classnames(styles.Details)}>
+          <div>
+            <Label>Actual Expense Reimbursement</Label>
+            <span data-testid="isActualExpenseReimbursement" className={styles.light}>
+              {isFetchingItems && updatedItemName === 'isActualExpenseReimbursement' ? (
+                <FontAwesomeIcon icon="spinner" spin pulse size="1x" />
+              ) : (
+                <>
+                  {sectionInfo.isActualExpenseReimbursement ? 'Yes' : 'No'}
+                  <OpenModalButton
+                    onClick={() => handleEditOnClick(sectionInfo.type, 'isActualExpenseReimbursement')}
+                    isDisabled={isFetchingItems || readOnly || isCivilian}
+                  />
+                </>
+              )}
+            </span>
+          </div>
           <div>
             <Label>Planned Move Start Date</Label>
             <span className={styles.light}>{formatDate(sectionInfo.plannedMoveDate, null, 'DD-MMM-YYYY')}</span>
@@ -334,6 +351,7 @@ export default function HeaderSection({
   setUpdatedItemName,
   readOnly,
   expanded,
+  grade,
 }) {
   const requestDetailsButtonTestId = `${sectionInfo.type}-showRequestDetailsButton`;
   const { shipmentId, moveCode } = useParams();
@@ -428,6 +446,11 @@ export default function HeaderSection({
           actualDestinationPostalCode: values.destinationAddress?.postalCode,
         };
         break;
+      case 'isActualExpenseReimbursement':
+        body = {
+          isActualExpenseReimbursement: values.isActualExpenseReimbursement === 'true',
+        };
+        break;
 
       default:
         break;
@@ -461,7 +484,8 @@ export default function HeaderSection({
           </Button>
         )}
       </div>
-      {showDetails && getSectionMarkup(sectionInfo, handleEditOnClick, isFetchingItems, updatedItemName, readOnly)}
+      {showDetails &&
+        getSectionMarkup(sectionInfo, handleEditOnClick, isFetchingItems, updatedItemName, readOnly, grade)}
       {isEditModalVisible && (
         <EditPPMHeaderSummaryModal
           onClose={handleEditOnClose}
