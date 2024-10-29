@@ -15,7 +15,9 @@ func (suite *PayloadsSuite) TestFetchPPMShipment() {
 	city := "Tampa"
 	state := "FL"
 	postalcode := "33621"
-	country := "US"
+	country := models.Country{
+		Country: "US",
+	}
 	county := "HILLSBOROUGH"
 
 	expectedAddress := models.Address{
@@ -48,7 +50,7 @@ func (suite *PayloadsSuite) TestFetchPPMShipment() {
 		suite.Equal(&postalcode, returnedPPMShipment.PickupAddress.PostalCode)
 		suite.Equal(&city, returnedPPMShipment.PickupAddress.City)
 		suite.Equal(&state, returnedPPMShipment.PickupAddress.State)
-		suite.Equal(&country, returnedPPMShipment.PickupAddress.Country)
+		suite.Equal(&country.Country, returnedPPMShipment.PickupAddress.Country)
 		suite.Equal(&county, returnedPPMShipment.PickupAddress.County)
 
 		suite.Equal(&streetAddress1, returnedPPMShipment.DestinationAddress.StreetAddress1)
@@ -57,9 +59,31 @@ func (suite *PayloadsSuite) TestFetchPPMShipment() {
 		suite.Equal(&postalcode, returnedPPMShipment.DestinationAddress.PostalCode)
 		suite.Equal(&city, returnedPPMShipment.DestinationAddress.City)
 		suite.Equal(&state, returnedPPMShipment.DestinationAddress.State)
-		suite.Equal(&country, returnedPPMShipment.DestinationAddress.Country)
+		suite.Equal(&country.Country, returnedPPMShipment.DestinationAddress.Country)
 		suite.Equal(&county, returnedPPMShipment.DestinationAddress.County)
 
 		suite.True(*returnedPPMShipment.IsActualExpenseReimbursement)
+	})
+}
+
+func (suite *PayloadsSuite) TestMarketCode() {
+	suite.Run("returns nil when marketCode is nil", func() {
+		var marketCode *models.MarketCode = nil
+		result := MarketCode(marketCode)
+		suite.Equal(result, "")
+	})
+
+	suite.Run("returns string when marketCode is not nil", func() {
+		marketCodeDomestic := models.MarketCodeDomestic
+		result := MarketCode(&marketCodeDomestic)
+		suite.NotNil(result, "Expected result to not be nil when marketCode is not nil")
+		suite.Equal("d", result, "Expected result to be 'd' for domestic market code")
+	})
+
+	suite.Run("returns string when marketCode is international", func() {
+		marketCodeInternational := models.MarketCodeInternational
+		result := MarketCode(&marketCodeInternational)
+		suite.NotNil(result, "Expected result to not be nil when marketCode is not nil")
+		suite.Equal("i", result, "Expected result to be 'i' for international market code")
 	})
 }

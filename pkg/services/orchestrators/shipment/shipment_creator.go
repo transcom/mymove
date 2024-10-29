@@ -1,6 +1,8 @@
 package shipment
 
 import (
+	"database/sql"
+
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
@@ -73,7 +75,6 @@ func (s *shipmentCreator) CreateShipment(appCtx appcontext.AppContext, shipment 
 		if !isPPMShipment {
 			// Update PPMType once shipment gets created.
 			_, err = s.moveTaskOrderUpdater.UpdatePPMType(txnAppCtx, mtoShipment.MoveTaskOrderID)
-
 			if err != nil {
 				return err
 			}
@@ -84,15 +85,28 @@ func (s *shipmentCreator) CreateShipment(appCtx appcontext.AppContext, shipment 
 			mtoShipment.PPMShipment.Shipment = *mtoShipment
 
 			_, err = s.ppmShipmentCreator.CreatePPMShipmentWithDefaultCheck(txnAppCtx, mtoShipment.PPMShipment)
-
 			if err != nil {
 				return err
 			}
+
 			// Update PPMType once shipment gets created.
 			_, err = s.moveTaskOrderUpdater.UpdatePPMType(txnAppCtx, mtoShipment.MoveTaskOrderID)
-
 			if err != nil {
 				return err
+			}
+
+			// getting updated shipment since market code value was updated after PPM creation
+			var updatedShipment models.MTOShipment
+			err = txnAppCtx.DB().Find(&updatedShipment, mtoShipment.ID)
+			if err != nil && err != sql.ErrNoRows {
+				return err
+			}
+			if mtoShipment.MarketCode != updatedShipment.MarketCode {
+				mtoShipment.MarketCode = updatedShipment.MarketCode
+			}
+			// since the shipment was updated, we need to ensure we have the most recent eTag
+			if mtoShipment.UpdatedAt != updatedShipment.UpdatedAt {
+				mtoShipment.UpdatedAt = updatedShipment.UpdatedAt
 			}
 			return nil
 		} else if isBoatShipment {
