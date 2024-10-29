@@ -254,6 +254,10 @@ func (s SSWPPMComputer) FormatValuesShipmentSummaryWorksheetFormPage1(data model
 		page1.PreparationDate1 = formatAOADate(data.SignedCertifications, data.PPMShipment.ID)
 	}
 
+	if data.PPMShipment.IsActualExpenseReimbursement != nil {
+		page1.IsActualExpenseReimbursement = *data.PPMShipment.IsActualExpenseReimbursement
+	}
+
 	page1.SITDaysInStorage = formattedSIT.DaysInStorage
 	page1.SITEntryDates = formattedSIT.EntryDates
 	page1.SITEndDates = formattedSIT.EndDates
@@ -1032,21 +1036,28 @@ func (SSWPPMComputer *SSWPPMComputer) FetchDataShipmentSummaryWorksheetFormData(
 	if ppmShipment.Shipment.MoveTaskOrder.Orders.OriginDutyLocation == nil {
 		return nil, errors.New("order for PPM shipment does not have a origin duty location attached")
 	}
+
+	isActualExpenseReimbursement := false
+	if ppmShipment.IsActualExpenseReimbursement != nil {
+		isActualExpenseReimbursement = true
+	}
+
 	ssd := models.ShipmentSummaryFormData{
-		AllShipments:             ppmShipment.Shipment.MoveTaskOrder.MTOShipments,
-		ServiceMember:            serviceMember,
-		Order:                    ppmShipment.Shipment.MoveTaskOrder.Orders,
-		Move:                     ppmShipment.Shipment.MoveTaskOrder,
-		CurrentDutyLocation:      *ppmShipment.Shipment.MoveTaskOrder.Orders.OriginDutyLocation,
-		NewDutyLocation:          ppmShipment.Shipment.MoveTaskOrder.Orders.NewDutyLocation,
-		WeightAllotment:          weightAllotment,
-		PPMShipment:              ppmShipment,
-		PPMShipments:             ppmShipments,
-		PPMShipmentFinalWeight:   ppmShipmentFinalWeight,
-		W2Address:                ppmShipment.W2Address,
-		MovingExpenses:           ppmShipment.MovingExpenses,
-		SignedCertifications:     signedCertifications,
-		MaxSITStorageEntitlement: maxSit,
+		AllShipments:                 ppmShipment.Shipment.MoveTaskOrder.MTOShipments,
+		ServiceMember:                serviceMember,
+		Order:                        ppmShipment.Shipment.MoveTaskOrder.Orders,
+		Move:                         ppmShipment.Shipment.MoveTaskOrder,
+		CurrentDutyLocation:          *ppmShipment.Shipment.MoveTaskOrder.Orders.OriginDutyLocation,
+		NewDutyLocation:              ppmShipment.Shipment.MoveTaskOrder.Orders.NewDutyLocation,
+		WeightAllotment:              weightAllotment,
+		PPMShipment:                  ppmShipment,
+		PPMShipments:                 ppmShipments,
+		PPMShipmentFinalWeight:       ppmShipmentFinalWeight,
+		W2Address:                    ppmShipment.W2Address,
+		MovingExpenses:               ppmShipment.MovingExpenses,
+		SignedCertifications:         signedCertifications,
+		MaxSITStorageEntitlement:     maxSit,
+		IsActualExpenseReimbursement: isActualExpenseReimbursement,
 	}
 	return &ssd, nil
 }
@@ -1116,16 +1127,24 @@ func (SSWPPMGenerator *SSWPPMGenerator) FillSSWPDFForm(Page1Values services.Page
 
 	var sswHeader = header{
 		Source:   "ShipmentSummaryWorksheet.pdf",
-		Version:  "pdfcpu v0.8.0 dev",
-		Creation: "2024-09-06 13:06:23 UTC",
+		Version:  "pdfcpu v0.9.1 dev",
+		Creation: "2024-10-25 18:48:51 UTC",
 		Producer: "macOS Version 13.5 (Build 22G74) Quartz PDFContext, AppendMode 1.1",
 	}
 
 	var sswCheckbox = []checkbox{
 		{
 			Pages:   []int{2},
-			ID:      "797",
+			ID:      "141",
 			Name:    "EDOther",
+			Value:   true,
+			Default: false,
+			Locked:  false,
+		},
+		{
+			Pages:   []int{1},
+			ID:      "505",
+			Name:    "IsActualExpenseReimbursement",
 			Value:   true,
 			Default: false,
 			Locked:  false,
@@ -1137,10 +1156,7 @@ func (SSWPPMGenerator *SSWPPMGenerator) FillSSWPDFForm(Page1Values services.Page
 		Forms: []form{
 			{ // Dynamically loops, creates, and aggregates json for text fields, merges page 1 and 2
 				TextField: mergeTextFields(createTextFields(Page1Values, 1), createTextFields(Page2Values, 2), createTextFields(Page3Values, 3)),
-			},
-			// The following is the structure for using a Checkbox field
-			{
-				Checkbox: sswCheckbox,
+				Checkbox:  sswCheckbox,
 			},
 		},
 	}

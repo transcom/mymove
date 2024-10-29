@@ -55,6 +55,7 @@ type Page1Values struct {
 	ActualObligationSIT             string
 	MileageTotal                    string
 	MailingAddressW2                string
+	IsActualExpenseReimbursement    bool
 }
 
 // Page2Values is an object representing a Shipment Summary Worksheet
