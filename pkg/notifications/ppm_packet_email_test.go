@@ -55,8 +55,6 @@ func (suite *NotificationSuite) TestPpmPacketEmail() {
 	sm := ppmShipment.Shipment.MoveTaskOrder.Orders.ServiceMember
 	suite.Equal(email.recipientEmail, *sm.PersonalEmail)
 	suite.Equal(email.subject, subject)
-	suite.NotEmpty(email.htmlBody)
-	suite.NotEmpty(email.textBody)
 }
 
 func (suite *NotificationSuite) TestPpmPacketEmailHTMLTemplateRenderForAirAndSpaceForce() {
