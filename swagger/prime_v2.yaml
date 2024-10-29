@@ -2878,6 +2878,15 @@ definitions:
         type: string
         description: The SIT authorized end date for destination SIT.
         x-nullable: true
+      marketCode:
+        type: string
+        enum:
+          - d
+          - i
+        example: d
+        description: >-
+          Single-letter designator for domestic (d) or international (i)
+          shipments
   MTOShipmentsWithoutServiceObjects:
     description: A list of shipments without their associated service items.
     items:

@@ -1883,6 +1883,13 @@ definitions:
         x-nullable: true
         readOnly: true
         example: '1K43AR-01'
+      marketCode:
+        type: string
+        enum:
+          - 'd'
+          - 'i'
+        example: 'd'
+        description: 'Single-letter designator for domestic (d) or international (i) shipments'
   MTOShipments:
     items:
       $ref: '#/definitions/MTOShipment'

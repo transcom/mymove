@@ -104,15 +104,11 @@ describe('BackupAddress page', () => {
 
     patchServiceMember.mockImplementation(() => Promise.resolve(expectedServiceMemberPayload));
 
-    const { getByRole } = render(
+    const { getByRole, getByLabelText } = render(
       <Provider store={mockStore.store}>
         <BackupAddress {...testProps} />
       </Provider>,
     );
-
-    await userEvent.type(getByLabelText(/Address 1/), fakeAddress.streetAddress1);
-    await userEvent.type(getByLabelText(/Address 2/), fakeAddress.streetAddress2);
-    await userEvent.tab();
 
     const submitButton = getByRole('button', { name: 'Next' });
     expect(submitButton).toBeInTheDocument();

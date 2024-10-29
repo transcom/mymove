@@ -79,7 +79,7 @@ describe('BackupAddressForm component', () => {
         <BackupAddressForm {...testProps} />
       </Provider>,
     );
-    await userEvent.click(getByLabelText('Address 1'));
+    await userEvent.click(getByLabelText(/Address 1/));
     await userEvent.click(getByLabelText(/Address 2/));
 
     const submitBtn = getByRole('button', { name: 'Next' });

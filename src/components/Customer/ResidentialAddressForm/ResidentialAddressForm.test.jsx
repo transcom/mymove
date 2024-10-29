@@ -59,7 +59,7 @@ describe('ResidentialAddressForm component', () => {
     );
 
     await waitFor(() => {
-      expect(getByLabelText('Address 1')).toBeInstanceOf(HTMLInputElement);
+      expect(getByLabelText(/Address 1/)).toBeInstanceOf(HTMLInputElement);
 
       expect(getByLabelText(/Address 2/)).toBeInstanceOf(HTMLInputElement);
 
