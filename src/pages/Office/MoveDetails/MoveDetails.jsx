@@ -86,7 +86,7 @@ const MoveDetails = ({
   const { move, customerData, uploads, order, closeoutOffice, mtoShipments, mtoServiceItems, isLoading, isError } =
     useMoveDetailsQueries(moveCode);
 
-  let validOrderUploads = Object.fromEntries(Object.entries(uploads || {}).filter(([, v]) => !v.deletedAt));
+  let validOrderUploads = Object.fromEntries(Object.entries(uploads || {}).filter(([, value]) => !value.deletedAt));
   if (Object.entries(validOrderUploads).length === 0) validOrderUploads = null;
 
   // for now we are only showing dest type on retiree and separatee orders
