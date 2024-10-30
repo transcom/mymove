@@ -327,7 +327,7 @@ describe('PPMHeaderSummary component', () => {
       usePPMShipmentDocsQueries.mockReturnValue(usePPMShipmentDocsQueriesReturnValue);
       useEditShipmentQueries.mockReturnValue(useEditShipmentQueriesReturnValue);
       await act(async () => {
-        renderWithProviders(<HeaderSection {...shipmentInfoProps} />, mockRoutingConfig);
+        renderWithProviders(<HeaderSection {...ppmShipmentInfoProps} />, mockRoutingConfig);
       });
       await act(async () => {
         clickDetailsButton('shipmentInfo');
@@ -360,7 +360,7 @@ describe('PPMHeaderSummary component', () => {
       usePPMShipmentDocsQueries.mockReturnValue(usePPMShipmentDocsQueriesReturnValue);
       useEditShipmentQueries.mockReturnValue(useEditShipmentQueriesReturnValue);
       await act(async () => {
-        renderWithProviders(<HeaderSection {...shipmentInfoProps} />, mockRoutingConfig);
+        renderWithProviders(<HeaderSection {...ppmShipmentInfoProps} />, mockRoutingConfig);
       });
       await act(async () => {
         clickDetailsButton('shipmentInfo');
