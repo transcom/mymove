@@ -314,14 +314,6 @@ const newMoveDetailsQuery = {
   isLoading: false,
   isError: false,
   isSuccess: true,
-  uploads: {
-    z: {
-      id: 'z',
-      filename: 'test.pdf',
-      contentType: 'application/pdf',
-      url: '/storage/user/1/uploads/2?contentType=application%2Fpdf',
-    },
-  },
 };
 
 const newOrdersDocumentQuery = {
