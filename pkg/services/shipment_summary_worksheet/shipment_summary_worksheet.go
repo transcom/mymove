@@ -257,6 +257,7 @@ func (s SSWPPMComputer) FormatValuesShipmentSummaryWorksheetFormPage1(data model
 	// Fill out form fields related to Actual Expense Reimbursement status
 	if data.PPMShipment.IsActualExpenseReimbursement != nil {
 		page1.IsActualExpenseReimbursement = *data.PPMShipment.IsActualExpenseReimbursement
+		page1.GCCIsActualExpenseReimbursement = "Actual Expense Reimbursement"
 	}
 
 	page1.SITDaysInStorage = formattedSIT.DaysInStorage
@@ -324,6 +325,12 @@ func (s *SSWPPMComputer) FormatValuesShipmentSummaryWorksheetFormPage2(data mode
 	page2.ServiceMemberSignature = certificationInfo.CustomerField
 	page2.PPPOPPSORepresentative = certificationInfo.OfficeField
 	page2.SignatureDate = certificationInfo.DateField
+
+	if data.PPMShipment.IsActualExpenseReimbursement != nil {
+		page2.IncentiveIsActualExpenseReimbursement = "Actual Expense Reimbursement"
+		page2.HeaderIsActualExpenseReimbursement = `This PPM is being processed at actual expense reimbursement for valid expenses not to exceed the
+		government constructed cost (GCC).`
+	}
 
 	return page2, nil
 }
@@ -1136,10 +1143,6 @@ func (SSWPPMGenerator *SSWPPMGenerator) FillSSWPDFForm(Page1Values services.Page
 	isActualExpenseReimbursement := false
 	if Page1Values.IsActualExpenseReimbursement {
 		isActualExpenseReimbursement = true
-		Page1Values.GCCIsActualExpenseReimbursement = "Actual Expense Reimbursement"
-		Page2Values.IncentiveIsActualExpenseReimbursement = "Actual Expense Reimbursement"
-		Page2Values.HeaderIsActualExpenseReimbursement = `This PPM is being processed at actual expense reimbursement for valid expenses not to exceed the
-		government constructed cost (GCC).`
 	}
 
 	var sswCheckbox = []checkbox{
