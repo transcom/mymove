@@ -8,7 +8,7 @@ import MoveHome from './MoveHome';
 
 import { customerRoutes } from 'constants/routes';
 import { MockProviders } from 'testUtils';
-import { downloadPPMAOAPacket } from 'services/internalApi';
+import { cancelMove, downloadPPMAOAPacket } from 'services/internalApi';
 
 jest.mock('containers/FlashMessage/FlashMessage', () => {
   const MockFlash = () => <div>Flash message</div>;
@@ -32,6 +32,7 @@ jest.mock('services/internalApi', () => ({
   getMTOShipmentsForMove: jest.fn(),
   getAllMoves: jest.fn().mockImplementation(() => Promise.resolve()),
   downloadPPMAOAPacket: jest.fn().mockImplementation(() => Promise.resolve()),
+  cancelMove: jest.fn(),
 }));
 
 jest.mock('utils/featureFlags', () => ({
@@ -1179,9 +1180,19 @@ describe('Home component', () => {
       expect(confirmMoveRequest.prop('actionBtnDisabled')).toBeFalsy();
     });
 
-    it('cancel move button is visible', () => {
-      const cancelMoveButton = wrapper.find('button[data-testid="cancel-move-button"]');
-      expect(cancelMoveButton.length).toBe(1);
+    it('cancel move button is visible', async () => {
+      const cancelMoveButtonId = `button[data-testid="cancel-move-button"]`;
+      expect(wrapper.find(cancelMoveButtonId).length).toBe(1);
+
+      const mockResponse = {
+        status: 'CANCELED',
+      };
+      cancelMove.mockImplementation(() => Promise.resolve(mockResponse));
+      await wrapper.find(cancelMoveButtonId).simulate('click');
+      await waitFor(() => {
+        wrapper.find(`button[data-testid="modalSubmitButton"]`).simulate('click');
+        expect(cancelMove).toHaveBeenCalledTimes(1);
+      });
     });
   });
 
