@@ -538,18 +538,21 @@ func compoundEscalationFactors(appCtx appcontext.AppContext, contractID uuid.UUI
 	if expectations.ExpectedAmountOfAwardTermsForCalculation > 0 {
 		contractYearsForCalculation, err = addContractsForEscalationCalculation(contractYearsForCalculation, contractsYearsFromDBMap, expectations.ExpectedAmountOfAwardTermsForCalculation, models.AwardTerm)
 		if err != nil {
+			err := apperror.NewInternalServerError(fmt.Sprintf("Error collecting expected Award Term contracts for escalated price calculations", err))
 			return escalatedPrice, err
 		}
 	}
 	if expectations.ExpectedAmountOfOptionPeriodYearsForCalculation > 0 {
 		contractYearsForCalculation, err = addContractsForEscalationCalculation(contractYearsForCalculation, contractsYearsFromDBMap, expectations.ExpectedAmountOfOptionPeriodYearsForCalculation, models.OptionPeriod)
 		if err != nil {
+			err := apperror.NewInternalServerError(fmt.Sprintf("Error collecting expected Option Period contracts for escalated price calculations", err))
 			return escalatedPrice, err
 		}
 	}
 	if expectations.ExpectedAmountOfBasePeriodYearsForCalculation > 0 {
 		contractYearsForCalculation, err = addContractsForEscalationCalculation(contractYearsForCalculation, contractsYearsFromDBMap, expectations.ExpectedAmountOfBasePeriodYearsForCalculation, models.BasePeriodYear)
 		if err != nil {
+			err := apperror.NewInternalServerError(fmt.Sprintf("Error collecting expected Base Period Year contracts for escalated price calculations", err))
 			return escalatedPrice, err
 		}
 	}
