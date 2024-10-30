@@ -287,7 +287,7 @@ func (suite *MoveServiceSuite) TestMoveSubmission() {
 					{
 						Model: models.MTOShipment{
 							Status:       models.MTOShipmentStatusDraft,
-							ShipmentType: models.MTOShipmentTypePPM,
+							ShipmentType: models.MTOShipmentTypeHHG,
 						},
 					},
 					{
@@ -296,15 +296,7 @@ func (suite *MoveServiceSuite) TestMoveSubmission() {
 					},
 				}, nil)
 
-				// ppmShipment := factory.BuildPPMShipment(suite.DB(), []factory.Customization{
-				// 	{
-				// 		Model: models.PPMShipment{
-				// 			Status: models.PPMShipmentStatusDraft,
-				// 		},
-				// 	},
-				// }, nil)
 				move.MTOShipments = models.MTOShipments{shipment}
-				// move.MTOShipments[0].PPMShipment = &ppmShipment
 
 				newSignedCertification := factory.BuildSignedCertification(nil, []factory.Customization{
 					{
@@ -393,7 +385,7 @@ func (suite *MoveServiceSuite) TestMoveSubmission() {
 		err := moveRouter.Submit(suite.AppContextForTest(), &move, &newSignedCertification)
 
 		suite.NoError(err)
-		suite.Equal(models.MoveStatusSUBMITTED, move.Status, "expected Submitted")
+		suite.Equal(models.MoveStatusNeedsServiceCounseling, move.Status, "expected Needs Service Counseling")
 		suite.Equal(models.MTOShipmentStatusSubmitted, move.MTOShipments[0].Status, "expected Submitted")
 		suite.Equal(models.PPMShipmentStatusSubmitted, move.MTOShipments[0].PPMShipment.Status, "expected Submitted")
 	})
