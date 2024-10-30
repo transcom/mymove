@@ -89,11 +89,12 @@ func (suite *NotificationSuite) TestPpmPacketEmailHTMLTemplateRenderForAirAndSpa
 	}, nil)
 
 	customPPM := models.PPMShipment{
-		ID:                   uuid.Must(uuid.NewV4()),
-		ShipmentID:           shipment.ID,
-		Status:               models.PPMShipmentStatusWaitingOnCustomer,
-		PickupAddressID:      &pickupAddress.ID,
-		DestinationAddressID: &destinationAddress.ID,
+		ID:                           uuid.Must(uuid.NewV4()),
+		ShipmentID:                   shipment.ID,
+		Status:                       models.PPMShipmentStatusWaitingOnCustomer,
+		PickupAddressID:              &pickupAddress.ID,
+		DestinationAddressID:         &destinationAddress.ID,
+		IsActualExpenseReimbursement: models.BoolPointer(false),
 	}
 
 	ppmShipment := factory.BuildPPMShipmentReadyForFinalCustomerCloseOut(suite.DB(), nil, []factory.Customization{
@@ -185,11 +186,12 @@ func (suite *NotificationSuite) TestPpmPacketEmailHTMLTemplateRenderForArmy() {
 	}, nil)
 
 	customPPM := models.PPMShipment{
-		ID:                   uuid.Must(uuid.NewV4()),
-		ShipmentID:           shipment.ID,
-		Status:               models.PPMShipmentStatusWaitingOnCustomer,
-		PickupAddressID:      &pickupAddress.ID,
-		DestinationAddressID: &destinationAddress.ID,
+		ID:                           uuid.Must(uuid.NewV4()),
+		ShipmentID:                   shipment.ID,
+		Status:                       models.PPMShipmentStatusWaitingOnCustomer,
+		PickupAddressID:              &pickupAddress.ID,
+		DestinationAddressID:         &destinationAddress.ID,
+		IsActualExpenseReimbursement: models.BoolPointer(false),
 	}
 
 	ppmShipment := factory.BuildPPMShipmentReadyForFinalCustomerCloseOut(suite.DB(), nil, []factory.Customization{
@@ -454,6 +456,7 @@ func (suite *NotificationSuite) TestPpmPacketEmailZipcodeFallback() {
 			City:       "Fort Eisenhower",
 			State:      "GA",
 		},
+		IsActualExpenseReimbursement: models.BoolPointer(false),
 	}
 
 	ppmShipment := factory.BuildPPMShipmentReadyForFinalCustomerCloseOut(suite.DB(), nil, []factory.Customization{
