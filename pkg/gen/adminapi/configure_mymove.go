@@ -18,6 +18,8 @@ import (
 	"github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/notifications"
 	"github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/office_users"
 	"github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/organizations"
+	"github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/payment_request_syncada_file"
+	"github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/payment_request_syncada_files"
 	"github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/requested_office_users"
 	"github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/transportation_offices"
 	"github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/uploads"
@@ -160,6 +162,11 @@ func configureAPI(api *adminoperations.MymoveAPI) http.Handler {
 			return middleware.NotImplemented("operation organizations.IndexOrganizations has not yet been implemented")
 		})
 	}
+	if api.PaymentRequestSyncadaFilesIndexPaymentRequestSyncadaFilesHandler == nil {
+		api.PaymentRequestSyncadaFilesIndexPaymentRequestSyncadaFilesHandler = payment_request_syncada_files.IndexPaymentRequestSyncadaFilesHandlerFunc(func(params payment_request_syncada_files.IndexPaymentRequestSyncadaFilesParams) middleware.Responder {
+			return middleware.NotImplemented("operation payment_request_syncada_files.IndexPaymentRequestSyncadaFiles has not yet been implemented")
+		})
+	}
 	if api.RequestedOfficeUsersIndexRequestedOfficeUsersHandler == nil {
 		api.RequestedOfficeUsersIndexRequestedOfficeUsersHandler = requested_office_users.IndexRequestedOfficeUsersHandlerFunc(func(params requested_office_users.IndexRequestedOfficeUsersParams) middleware.Responder {
 			return middleware.NotImplemented("operation requested_office_users.IndexRequestedOfficeUsers has not yet been implemented")
@@ -173,6 +180,11 @@ func configureAPI(api *adminoperations.MymoveAPI) http.Handler {
 	if api.WebhookSubscriptionsIndexWebhookSubscriptionsHandler == nil {
 		api.WebhookSubscriptionsIndexWebhookSubscriptionsHandler = webhook_subscriptions.IndexWebhookSubscriptionsHandlerFunc(func(params webhook_subscriptions.IndexWebhookSubscriptionsParams) middleware.Responder {
 			return middleware.NotImplemented("operation webhook_subscriptions.IndexWebhookSubscriptions has not yet been implemented")
+		})
+	}
+	if api.PaymentRequestSyncadaFilePaymentRequestSyncadaFileHandler == nil {
+		api.PaymentRequestSyncadaFilePaymentRequestSyncadaFileHandler = payment_request_syncada_file.PaymentRequestSyncadaFileHandlerFunc(func(params payment_request_syncada_file.PaymentRequestSyncadaFileParams) middleware.Responder {
+			return middleware.NotImplemented("operation payment_request_syncada_file.PaymentRequestSyncadaFile has not yet been implemented")
 		})
 	}
 	if api.ClientCertificatesRemoveClientCertificateHandler == nil {

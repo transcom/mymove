@@ -36,6 +36,7 @@ const BackupAddressForm = ({ formFieldsName, initialValues, onSubmit, onBack }) 
 
             <SectionWrapper className={formStyles.formSection}>
               <AddressFields
+                labelHint="Required"
                 name={formFieldsName}
                 formikFunctionsToValidatePostalCodeOnChange={{ setFieldTouched, handleChange }}
               />

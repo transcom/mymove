@@ -4,6 +4,11 @@ import userEvent from '@testing-library/user-event';
 
 import AboutForm from 'components/Customer/PPM/Closeout/AboutForm/AboutForm';
 
+jest.mock('utils/featureFlags', () => ({
+  ...jest.requireActual('utils/featureFlags'),
+  isBooleanFlagEnabled: jest.fn().mockImplementation(() => Promise.resolve(false)),
+}));
+
 beforeEach(() => {
   jest.clearAllMocks();
 });
@@ -67,7 +72,9 @@ const fillOutBasicForm = async () => {
   within(form).getByLabelText('When did you leave your origin?').focus();
   await userEvent.paste('2022-05-31');
 
-  within(form).getAllByLabelText('Address 1')[0].focus();
+  within(form)
+    .getAllByLabelText(/Address 1/)[0]
+    .focus();
   await userEvent.paste('812 S 129th St');
 
   within(form)
@@ -80,15 +87,17 @@ const fillOutBasicForm = async () => {
     .focus();
   await userEvent.paste('');
 
-  within(form).getAllByLabelText('City')[0].focus();
+  within(form).getAllByLabelText(/City/)[0].focus();
   await userEvent.paste('San Antonio');
 
-  await userEvent.selectOptions(within(form).getAllByLabelText('State')[0], 'TX');
+  await userEvent.selectOptions(within(form).getAllByLabelText(/State/)[0], 'TX');
 
-  within(form).getAllByLabelText('ZIP')[0].focus();
+  within(form).getAllByLabelText(/ZIP/)[0].focus();
   await userEvent.paste('78234');
 
-  within(form).getAllByLabelText('Address 1')[1].focus();
+  within(form)
+    .getAllByLabelText(/Address 1/)[1]
+    .focus();
   await userEvent.paste('441 SW Rio de la Plata Drive');
 
   within(form)
@@ -101,23 +110,25 @@ const fillOutBasicForm = async () => {
     .focus();
   await userEvent.paste('');
 
-  within(form).getAllByLabelText('City')[1].focus();
+  within(form).getAllByLabelText(/City/)[1].focus();
   await userEvent.paste('Tacoma');
 
-  await userEvent.selectOptions(within(form).getAllByLabelText('State')[1], 'WA');
+  await userEvent.selectOptions(within(form).getAllByLabelText(/State/)[1], 'WA');
 
-  within(form).getAllByLabelText('ZIP')[1].focus();
+  within(form).getAllByLabelText(/ZIP/)[1].focus();
   await userEvent.paste('98421');
 
-  within(form).getAllByLabelText('Address 1')[2].focus();
+  within(form)
+    .getAllByLabelText(/Address 1/)[2]
+    .focus();
   await userEvent.paste('11 NE Elm Road');
 
-  within(form).getAllByLabelText('City')[2].focus();
+  within(form).getAllByLabelText(/City/)[2].focus();
   await userEvent.paste('Jacksonville');
 
-  await userEvent.selectOptions(within(form).getAllByLabelText('State')[2], 'FL');
+  await userEvent.selectOptions(within(form).getAllByLabelText(/State/)[2], 'FL');
 
-  within(form).getAllByLabelText('ZIP')[2].focus();
+  within(form).getAllByLabelText(/ZIP/)[2].focus();
   await userEvent.paste('32217');
 
   await userEvent.click(within(form).getAllByLabelText('Yes')[2]);
@@ -142,17 +153,17 @@ describe('AboutForm component', () => {
       await expect(screen.getByTestId('no-has-received-advance')).toBeInstanceOf(HTMLInputElement);
       await expect(screen.getByTestId('no-has-received-advance')).toBeChecked();
 
-      await expect(screen.getAllByLabelText('Address 1')[0]).toHaveValue('');
+      await expect(screen.getAllByLabelText(/Address 1/)[0]).toHaveValue('');
       await expect(screen.getAllByLabelText(/Address 2/)[0]).toHaveValue('');
-      await expect(screen.getAllByLabelText('City')[0]).toHaveValue('');
-      await expect(screen.getAllByLabelText('State')[0]).toHaveValue('');
-      await expect(screen.getAllByLabelText('ZIP')[0]).toHaveValue('');
+      await expect(screen.getAllByLabelText(/City/)[0]).toHaveValue('');
+      await expect(screen.getAllByLabelText(/State/)[0]).toHaveValue('');
+      await expect(screen.getAllByLabelText(/ZIP/)[0]).toHaveValue('');
 
-      await expect(screen.getAllByLabelText('Address 1')[1]).toHaveValue('');
+      await expect(screen.getAllByLabelText(/Address 1/)[1]).toHaveValue('');
       await expect(screen.getAllByLabelText(/Address 2/)[1]).toHaveValue('');
-      await expect(screen.getAllByLabelText('City')[1]).toHaveValue('');
-      await expect(screen.getAllByLabelText('State')[1]).toHaveValue('');
-      await expect(screen.getAllByLabelText('ZIP')[1]).toHaveValue('');
+      await expect(screen.getAllByLabelText(/City/)[1]).toHaveValue('');
+      await expect(screen.getAllByLabelText(/State/)[1]).toHaveValue('');
+      await expect(screen.getAllByLabelText(/ZIP/)[1]).toHaveValue('');
 
       await expect(screen.getByRole('button', { name: 'Return To Homepage' })).toBeInTheDocument();
       await expect(screen.getByRole('button', { name: 'Save & Continue' })).toBeEnabled();
@@ -199,11 +210,11 @@ describe('AboutForm component', () => {
       await expect(screen.getByTestId('no-has-received-advance')).not.toBeChecked();
       await expect(screen.getByLabelText('How much did you receive?')).toHaveDisplayValue('1,000');
 
-      await expect(screen.getAllByLabelText('Address 1')[2]).toHaveDisplayValue('11 NE Elm Road');
+      await expect(screen.getAllByLabelText(/Address 1/)[2]).toHaveDisplayValue('11 NE Elm Road');
       await expect(screen.getAllByLabelText(/Address 2/)[2]).toHaveDisplayValue('');
-      await expect(screen.getAllByLabelText('City')[2]).toHaveDisplayValue('Jacksonville');
-      await expect(screen.getAllByLabelText('State')[2]).toHaveDisplayValue('FL');
-      await expect(screen.getAllByLabelText('ZIP')[2]).toHaveDisplayValue('32217');
+      await expect(screen.getAllByLabelText(/City/)[2]).toHaveDisplayValue('Jacksonville');
+      await expect(screen.getAllByLabelText(/State/)[2]).toHaveDisplayValue('FL');
+      await expect(screen.getAllByLabelText(/ZIP/)[2]).toHaveDisplayValue('32217');
 
       await expect(screen.getByRole('button', { name: 'Save & Continue' })).toBeEnabled();
     });

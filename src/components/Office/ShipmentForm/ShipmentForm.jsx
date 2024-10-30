@@ -12,6 +12,10 @@ import { CloseoutOfficeInput } from '../../form/fields/CloseoutOfficeInput';
 
 import ppmShipmentSchema from './ppmShipmentSchema';
 import styles from './ShipmentForm.module.scss';
+import MobileHomeShipmentForm from './MobileHomeShipmentForm/MobileHomeShipmentForm';
+import mobileHomeShipmentSchema from './MobileHomeShipmentForm/mobileHomeShipmentSchema';
+import BoatShipmentForm from './BoatShipmentForm/BoatShipmentForm';
+import boatShipmentSchema from './BoatShipmentForm/boatShipmentSchema';
 
 import ppmStyles from 'components/Customer/PPM/PPM.module.scss';
 import SERVICE_MEMBER_AGENCIES from 'content/serviceMemberAgencies';
@@ -56,6 +60,10 @@ import {
   formatMtoShipmentForDisplay,
   formatPpmShipmentForAPI,
   formatPpmShipmentForDisplay,
+  formatMobileHomeShipmentForDisplay,
+  formatMobileHomeShipmentForAPI,
+  formatBoatShipmentForDisplay,
+  formatBoatShipmentForAPI,
 } from 'utils/formatMtoShipment';
 import { formatWeight, dropdownInputOptions } from 'utils/formatters';
 import { validateDate } from 'utils/validation';
@@ -257,6 +265,11 @@ const ShipmentForm = (props) => {
   const isNTS = shipmentType === SHIPMENT_OPTIONS.NTS;
   const isNTSR = shipmentType === SHIPMENT_OPTIONS.NTSR;
   const isPPM = shipmentType === SHIPMENT_OPTIONS.PPM;
+  const isMobileHome = shipmentType === SHIPMENT_OPTIONS.MOBILE_HOME;
+  const isBoat =
+    shipmentType === SHIPMENT_OPTIONS.BOAT ||
+    shipmentType === SHIPMENT_OPTIONS.BOAT_HAUL_AWAY ||
+    shipmentType === SHIPMENT_OPTIONS.BOAT_TOW_AWAY;
 
   const showAccountingCodes = isNTS || isNTSR;
 
@@ -272,21 +285,34 @@ const ShipmentForm = (props) => {
   const shipmentDestinationAddressOptions = dropdownInputOptions(shipmentDestinationTypes);
 
   const shipmentNumber = isHHG ? getShipmentNumber() : null;
-  const initialValues = isPPM
-    ? formatPpmShipmentForDisplay(
-        isCreatePage
-          ? { closeoutOffice: move.closeoutOffice }
-          : {
-              counselorRemarks: mtoShipment.counselorRemarks,
-              ppmShipment: mtoShipment.ppmShipment,
-              closeoutOffice: move.closeoutOffice,
-            },
-      )
-    : formatMtoShipmentForDisplay(
-        isCreatePage
-          ? { userRole, shipmentType }
-          : { userRole, shipmentType, agents: mtoShipment.mtoAgents, ...mtoShipment },
-      );
+  let initialValues = {};
+  if (isPPM) {
+    initialValues = formatPpmShipmentForDisplay(
+      isCreatePage
+        ? { closeoutOffice: move.closeoutOffice }
+        : {
+            counselorRemarks: mtoShipment.counselorRemarks,
+            ppmShipment: mtoShipment.ppmShipment,
+            closeoutOffice: move.closeoutOffice,
+          },
+    );
+  } else if (isMobileHome) {
+    const hhgInitialValues = formatMtoShipmentForDisplay(
+      isCreatePage ? { userRole } : { userRole, shipmentType, agents: mtoShipment.mtoAgents, ...mtoShipment },
+    );
+    initialValues = formatMobileHomeShipmentForDisplay(mtoShipment?.mobileHomeShipment, hhgInitialValues);
+  } else if (isBoat) {
+    const hhgInitialValues = formatMtoShipmentForDisplay(
+      isCreatePage ? { userRole } : { userRole, shipmentType, agents: mtoShipment.mtoAgents, ...mtoShipment },
+    );
+    initialValues = formatBoatShipmentForDisplay(mtoShipment?.boatShipment, hhgInitialValues);
+  } else {
+    initialValues = formatMtoShipmentForDisplay(
+      isCreatePage
+        ? { userRole, shipmentType }
+        : { userRole, shipmentType, agents: mtoShipment.mtoAgents, ...mtoShipment },
+    );
+  }
 
   let showDeliveryFields;
   let showPickupFields;
@@ -302,6 +328,14 @@ const ShipmentForm = (props) => {
       showCloseoutOffice,
       sitEstimatedWeightMax: estimatedWeightValue || 0,
     });
+  } else if (isMobileHome) {
+    schema = mobileHomeShipmentSchema();
+    showDeliveryFields = true;
+    showPickupFields = true;
+  } else if (isBoat) {
+    schema = boatShipmentSchema();
+    showDeliveryFields = true;
+    showPickupFields = true;
   } else {
     const shipmentOptions = getShipmentOptions(shipmentType, userRole);
 
@@ -509,7 +543,7 @@ const ShipmentForm = (props) => {
       nullableSacType = typeof sacType === 'undefined' ? '' : sacType;
     }
 
-    const pendingMtoShipment = formatMtoShipmentForAPI({
+    let pendingMtoShipment = formatMtoShipmentForAPI({
       shipmentType,
       moveCode,
       customerRemarks,
@@ -532,6 +566,24 @@ const ShipmentForm = (props) => {
       hasTertiaryDelivery: hasTertiaryDelivery === 'yes',
       tertiaryDelivery: hasTertiaryDelivery === 'yes' ? tertiaryDelivery : {},
     });
+
+    // Mobile Home Shipment
+    if (isMobileHome) {
+      const mobileHomeShipmentBody = formatMobileHomeShipmentForAPI(formValues);
+      pendingMtoShipment = {
+        ...pendingMtoShipment,
+        ...mobileHomeShipmentBody,
+      };
+    }
+
+    // Boat Shipment
+    if (isBoat) {
+      const boatShipmentBody = formatBoatShipmentForAPI(formValues);
+      pendingMtoShipment = {
+        ...pendingMtoShipment,
+        ...boatShipmentBody,
+      };
+    }
 
     const updateMTOShipmentPayload = {
       moveTaskOrderID,
@@ -587,10 +639,22 @@ const ShipmentForm = (props) => {
       initialValues={initialValues}
       validateOnMount
       validateOnBlur
+      validateOnChange
       validationSchema={schema}
       onSubmit={submitMTOShipment}
     >
-      {({ values, isValid, isSubmitting, setValues, handleSubmit, errors }) => {
+      {({
+        values,
+        isValid,
+        isSubmitting,
+        setValues,
+        handleSubmit,
+        errors,
+        touched,
+        setFieldTouched,
+        setFieldError,
+        validateForm,
+      }) => {
         const {
           hasSecondaryDestination,
           hasTertiaryDestination,
@@ -600,6 +664,36 @@ const ShipmentForm = (props) => {
           hasTertiaryPickup,
           hasTertiaryDelivery,
         } = values;
+
+        const lengthHasError = !!(
+          (touched.lengthFeet && errors.lengthFeet === 'Required') ||
+          (touched.lengthInches && errors.lengthFeet === 'Required')
+        );
+        const widthHasError = !!(
+          (touched.widthFeet && errors.widthFeet === 'Required') ||
+          (touched.widthInches && errors.widthFeet === 'Required')
+        );
+        const heightHasError = !!(
+          (touched.heightFeet && errors.heightFeet === 'Required') ||
+          (touched.heightInches && errors.heightFeet === 'Required')
+        );
+        const dimensionError = !!(
+          (touched.lengthFeet && errors.lengthFeet?.includes('Dimensions')) ||
+          (touched.lengthInches && errors.lengthFeet?.includes('Dimensions'))
+        );
+        if (touched.lengthInches && !touched.lengthFeet) {
+          setFieldTouched('lengthFeet', true);
+        }
+        if (touched.widthInches && !touched.widthFeet) {
+          setFieldTouched('widthFeet', true);
+        }
+        if (touched.heightInches && !touched.heightFeet) {
+          setFieldTouched('heightFeet', true);
+        }
+        // manually turn off 'required' error when page loads if field is empty.
+        if (values.year === null && !touched.year && errors.year === 'Required') {
+          setFieldError('year', null);
+        }
 
         const handleUseCurrentResidenceChange = (e) => {
           const { checked } = e.target;
@@ -780,9 +874,35 @@ const ShipmentForm = (props) => {
               </SectionWrapper>
 
               <Form className={formStyles.form}>
-                {isTOO && !isHHG && !isPPM && <ShipmentVendor />}
+                {isTOO && !isHHG && !isPPM && !isBoat && !isMobileHome && <ShipmentVendor />}
 
                 {isNTSR && <ShipmentWeightInput userRole={userRole} />}
+
+                {isMobileHome && (
+                  <MobileHomeShipmentForm
+                    lengthHasError={lengthHasError}
+                    widthHasError={widthHasError}
+                    heightHasError={heightHasError}
+                    values={values}
+                    setFieldTouched={setFieldTouched}
+                    setFieldError={setFieldError}
+                    validateForm={validateForm}
+                    dimensionError={dimensionError}
+                  />
+                )}
+
+                {isBoat && (
+                  <BoatShipmentForm
+                    lengthHasError={lengthHasError}
+                    widthHasError={widthHasError}
+                    heightHasError={heightHasError}
+                    values={values}
+                    setFieldTouched={setFieldTouched}
+                    setFieldError={setFieldError}
+                    validateForm={validateForm}
+                    dimensionError={dimensionError}
+                  />
+                )}
 
                 {showPickupFields && (
                   <SectionWrapper className={formStyles.formSection}>
@@ -1221,7 +1341,7 @@ const ShipmentForm = (props) => {
                         legend="Pickup Address"
                         render={(fields) => (
                           <>
-                            <p>What address are the movers picking up from?</p>
+                            <p>What address are you moving from?</p>
                             <Checkbox
                               data-testid="useCurrentResidence"
                               label="Use Current Address"
@@ -1230,11 +1350,11 @@ const ShipmentForm = (props) => {
                               id="useCurrentResidenceCheckbox"
                             />
                             {fields}
-                            <h4>Second pickup location</h4>
+                            <h4>Second pickup address</h4>
                             <FormGroup>
                               <p>
-                                Will the movers pick up any belongings from a second address? (Must be near the pickup
-                                address. Subject to approval.)
+                                Will you move any belongings from a second address? (Must be near the pickup address.
+                                Subject to approval.)
                               </p>
                               <div className={formStyles.radioGroup}>
                                 <Field
@@ -1264,11 +1384,11 @@ const ShipmentForm = (props) => {
                                 <AddressFields name="secondaryPickup.address" />
                                 {isTertiaryAddressEnabled && (
                                   <>
-                                    <h4>Third pickup location</h4>
+                                    <h4>Third pickup address</h4>
                                     <FormGroup>
                                       <p>
-                                        Will the movers pick up any belongings from a third address? (Must be near the
-                                        pickup address. Subject to approval.)
+                                        Will you move any belongings from a third address? (Must be near the pickup
+                                        address. Subject to approval.)
                                       </p>
                                       <div className={formStyles.radioGroup}>
                                         <Field
@@ -1303,15 +1423,15 @@ const ShipmentForm = (props) => {
                       />
                       <AddressFields
                         name="destination.address"
-                        legend="Destination Address"
+                        legend="Delivery Address"
                         render={(fields) => (
                           <>
                             {fields}
-                            <h4>Second destination address</h4>
+                            <h4>Second delivery address</h4>
                             <FormGroup>
                               <p>
-                                Will the movers deliver any belongings to a second address? (Must be near the
-                                destination address. Subject to approval.)
+                                Will you move any belongings to a second address? (Must be near the delivery address.
+                                Subject to approval.)
                               </p>
                               <div className={formStyles.radioGroup}>
                                 <Field
@@ -1341,11 +1461,11 @@ const ShipmentForm = (props) => {
                                 <AddressFields name="secondaryDestination.address" />
                                 {isTertiaryAddressEnabled && (
                                   <>
-                                    <h4>Third destination address</h4>
+                                    <h4>Third delivery address</h4>
                                     <FormGroup>
                                       <p>
-                                        Will the movers deliver any belongings to a third address? (Must be near the
-                                        destination address. Subject to approval.)
+                                        Will you move any belongings to a third address? (Must be near the delivery
+                                        address. Subject to approval.)
                                       </p>
                                       <div className={formStyles.radioGroup}>
                                         <Field

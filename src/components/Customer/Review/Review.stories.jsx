@@ -35,6 +35,9 @@ const serviceMemberMoves = {
       id: mtoUuid,
       moveCode: mtoLocator,
       mtoShipments: [],
+      counselingOffice: {
+        name: 'PPPO McAlester',
+      },
       orders: {
         authorizedWeight: 11000,
         created_at: '2024-03-12T13:36:14.940Z',
@@ -134,6 +137,9 @@ const defaultProps = {
     locator: mtoLocator,
     service_member_id: customerUuid,
     status: MOVE_STATUSES.DRAFT,
+    counseling_office: {
+      name: 'PPPO McAlester',
+    },
   },
   currentOrders: {
     orders_type: 'PERMANENT_CHANGE_OF_STATION',
