@@ -13,6 +13,20 @@ import (
 	"github.com/transcom/mymove/pkg/unit"
 )
 
+// CountryModel model
+func CountryModel(country *string) *models.Country {
+	// The prime doesn't know the uuids of our countries, so for now we are going to just populate the name so we can query that
+	// when creating the address IF it is provided - else this will be nil and a US country will be created
+	if country == nil {
+		return nil
+	}
+
+	modelCountry := &models.Country{
+		Country: *country,
+	}
+	return modelCountry
+}
+
 // AddressModel model
 func AddressModel(address *primev2messages.Address) *models.Address {
 	// To check if the model is intended to be blank, we'll look at both ID and StreetAddress1
@@ -26,7 +40,6 @@ func AddressModel(address *primev2messages.Address) *models.Address {
 		ID:             uuid.FromStringOrNil(address.ID.String()),
 		StreetAddress2: address.StreetAddress2,
 		StreetAddress3: address.StreetAddress3,
-		Country:        address.Country,
 	}
 	if address.StreetAddress1 != nil {
 		modelAddress.StreetAddress1 = *address.StreetAddress1
@@ -39,6 +52,9 @@ func AddressModel(address *primev2messages.Address) *models.Address {
 	}
 	if address.PostalCode != nil {
 		modelAddress.PostalCode = *address.PostalCode
+	}
+	if address.Country != nil {
+		modelAddress.Country = CountryModel(address.Country)
 	}
 	return modelAddress
 }
@@ -223,7 +239,6 @@ func PPMShipmentModelFromCreate(ppmShipment *primev2messages.CreatePPMShipment) 
 		City:           "DEPV1",
 		State:          "CA",
 		PostalCode:     "90210",
-		Country:        models.StringPointer("US"),
 	}
 
 	model.PickupAddress = addressModel
@@ -256,6 +271,10 @@ func PPMShipmentModelFromCreate(ppmShipment *primev2messages.CreatePPMShipment) 
 	if model.HasProGear != nil && *model.HasProGear {
 		model.ProGearWeight = handlers.PoundPtrFromInt64Ptr(ppmShipment.ProGearWeight)
 		model.SpouseProGearWeight = handlers.PoundPtrFromInt64Ptr(ppmShipment.SpouseProGearWeight)
+	}
+
+	if ppmShipment.IsActualExpenseReimbursement != nil {
+		model.IsActualExpenseReimbursement = ppmShipment.IsActualExpenseReimbursement
 	}
 
 	return model
@@ -381,6 +400,10 @@ func PPMShipmentModelFromUpdate(ppmShipment *primev2messages.UpdatePPMShipment) 
 	sitEstimatedDepartureDate := handlers.FmtDatePtrToPopPtr(ppmShipment.SitEstimatedDepartureDate)
 	if sitEstimatedDepartureDate != nil && !sitEstimatedDepartureDate.IsZero() {
 		model.SITEstimatedDepartureDate = sitEstimatedDepartureDate
+	}
+
+	if ppmShipment.IsActualExpenseReimbursement != nil {
+		model.IsActualExpenseReimbursement = ppmShipment.IsActualExpenseReimbursement
 	}
 
 	return model
