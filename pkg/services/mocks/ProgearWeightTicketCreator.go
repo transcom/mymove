@@ -20,6 +20,10 @@ type ProgearWeightTicketCreator struct {
 func (_m *ProgearWeightTicketCreator) CreateProgearWeightTicket(appCtx appcontext.AppContext, ppmShipmentID uuid.UUID) (*models.ProgearWeightTicket, error) {
 	ret := _m.Called(appCtx, ppmShipmentID)
 
+	if len(ret) == 0 {
+		panic("no return value specified for CreateProgearWeightTicket")
+	}
+
 	var r0 *models.ProgearWeightTicket
 	var r1 error
 	if rf, ok := ret.Get(0).(func(appcontext.AppContext, uuid.UUID) (*models.ProgearWeightTicket, error)); ok {

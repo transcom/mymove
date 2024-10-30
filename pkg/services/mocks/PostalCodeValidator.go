@@ -16,6 +16,10 @@ type PostalCodeValidator struct {
 func (_m *PostalCodeValidator) ValidatePostalCode(appCtx appcontext.AppContext, postalCode string) (bool, error) {
 	ret := _m.Called(appCtx, postalCode)
 
+	if len(ret) == 0 {
+		panic("no return value specified for ValidatePostalCode")
+	}
+
 	var r0 bool
 	var r1 error
 	if rf, ok := ret.Get(0).(func(appcontext.AppContext, string) (bool, error)); ok {

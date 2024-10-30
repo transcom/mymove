@@ -20,6 +20,10 @@ type MoveTaskOrderFetcher struct {
 func (_m *MoveTaskOrderFetcher) FetchMoveTaskOrder(appCtx appcontext.AppContext, searchParams *services.MoveTaskOrderFetcherParams) (*models.Move, error) {
 	ret := _m.Called(appCtx, searchParams)
 
+	if len(ret) == 0 {
+		panic("no return value specified for FetchMoveTaskOrder")
+	}
+
 	var r0 *models.Move
 	var r1 error
 	if rf, ok := ret.Get(0).(func(appcontext.AppContext, *services.MoveTaskOrderFetcherParams) (*models.Move, error)); ok {
@@ -53,6 +57,10 @@ func (_m *MoveTaskOrderFetcher) GetMove(appCtx appcontext.AppContext, searchPara
 	_ca = append(_ca, _va...)
 	ret := _m.Called(_ca...)
 
+	if len(ret) == 0 {
+		panic("no return value specified for GetMove")
+	}
+
 	var r0 *models.Move
 	var r1 error
 	if rf, ok := ret.Get(0).(func(appcontext.AppContext, *services.MoveTaskOrderFetcherParams, ...string) (*models.Move, error)); ok {
@@ -79,6 +87,10 @@ func (_m *MoveTaskOrderFetcher) GetMove(appCtx appcontext.AppContext, searchPara
 func (_m *MoveTaskOrderFetcher) ListAllMoveTaskOrders(appCtx appcontext.AppContext, searchParams *services.MoveTaskOrderFetcherParams) (models.Moves, error) {
 	ret := _m.Called(appCtx, searchParams)
 
+	if len(ret) == 0 {
+		panic("no return value specified for ListAllMoveTaskOrders")
+	}
+
 	var r0 models.Moves
 	var r1 error
 	if rf, ok := ret.Get(0).(func(appcontext.AppContext, *services.MoveTaskOrderFetcherParams) (models.Moves, error)); ok {
@@ -104,6 +116,10 @@ func (_m *MoveTaskOrderFetcher) ListAllMoveTaskOrders(appCtx appcontext.AppConte
 // ListNewPrimeMoveTaskOrders provides a mock function with given fields: appCtx, searchParams
 func (_m *MoveTaskOrderFetcher) ListNewPrimeMoveTaskOrders(appCtx appcontext.AppContext, searchParams *services.MoveTaskOrderFetcherParams) (models.Moves, int, error) {
 	ret := _m.Called(appCtx, searchParams)
+
+	if len(ret) == 0 {
+		panic("no return value specified for ListNewPrimeMoveTaskOrders")
+	}
 
 	var r0 models.Moves
 	var r1 int
@@ -138,6 +154,10 @@ func (_m *MoveTaskOrderFetcher) ListNewPrimeMoveTaskOrders(appCtx appcontext.App
 func (_m *MoveTaskOrderFetcher) ListPrimeMoveTaskOrders(appCtx appcontext.AppContext, searchParams *services.MoveTaskOrderFetcherParams) (models.Moves, error) {
 	ret := _m.Called(appCtx, searchParams)
 
+	if len(ret) == 0 {
+		panic("no return value specified for ListPrimeMoveTaskOrders")
+	}
+
 	var r0 models.Moves
 	var r1 error
 	if rf, ok := ret.Get(0).(func(appcontext.AppContext, *services.MoveTaskOrderFetcherParams) (models.Moves, error)); ok {
@@ -163,6 +183,10 @@ func (_m *MoveTaskOrderFetcher) ListPrimeMoveTaskOrders(appCtx appcontext.AppCon
 // ListPrimeMoveTaskOrdersAmendments provides a mock function with given fields: appCtx, searchParams
 func (_m *MoveTaskOrderFetcher) ListPrimeMoveTaskOrdersAmendments(appCtx appcontext.AppContext, searchParams *services.MoveTaskOrderFetcherParams) (models.Moves, services.MoveOrderAmendmentAvailableSinceCounts, error) {
 	ret := _m.Called(appCtx, searchParams)
+
+	if len(ret) == 0 {
+		panic("no return value specified for ListPrimeMoveTaskOrdersAmendments")
+	}
 
 	var r0 models.Moves
 	var r1 services.MoveOrderAmendmentAvailableSinceCounts

@@ -20,6 +20,10 @@ type PPMShipmentFetcher struct {
 func (_m *PPMShipmentFetcher) GetPPMShipment(appCtx appcontext.AppContext, ppmShipmentID uuid.UUID, eagerPreloadAssociations []string, postloadAssociations []string) (*models.PPMShipment, error) {
 	ret := _m.Called(appCtx, ppmShipmentID, eagerPreloadAssociations, postloadAssociations)
 
+	if len(ret) == 0 {
+		panic("no return value specified for GetPPMShipment")
+	}
+
 	var r0 *models.PPMShipment
 	var r1 error
 	if rf, ok := ret.Get(0).(func(appcontext.AppContext, uuid.UUID, []string, []string) (*models.PPMShipment, error)); ok {
@@ -45,6 +49,10 @@ func (_m *PPMShipmentFetcher) GetPPMShipment(appCtx appcontext.AppContext, ppmSh
 // PostloadAssociations provides a mock function with given fields: appCtx, ppmShipment, postloadAssociations
 func (_m *PPMShipmentFetcher) PostloadAssociations(appCtx appcontext.AppContext, ppmShipment *models.PPMShipment, postloadAssociations []string) error {
 	ret := _m.Called(appCtx, ppmShipment, postloadAssociations)
+
+	if len(ret) == 0 {
+		panic("no return value specified for PostloadAssociations")
+	}
 
 	var r0 error
 	if rf, ok := ret.Get(0).(func(appcontext.AppContext, *models.PPMShipment, []string) error); ok {

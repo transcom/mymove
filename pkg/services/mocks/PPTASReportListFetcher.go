@@ -20,6 +20,10 @@ type PPTASReportListFetcher struct {
 func (_m *PPTASReportListFetcher) BuildPPTASReportsFromMoves(appCtx appcontext.AppContext, moves models.Moves) (models.PPTASReports, error) {
 	ret := _m.Called(appCtx, moves)
 
+	if len(ret) == 0 {
+		panic("no return value specified for BuildPPTASReportsFromMoves")
+	}
+
 	var r0 models.PPTASReports
 	var r1 error
 	if rf, ok := ret.Get(0).(func(appcontext.AppContext, models.Moves) (models.PPTASReports, error)); ok {
@@ -45,6 +49,10 @@ func (_m *PPTASReportListFetcher) BuildPPTASReportsFromMoves(appCtx appcontext.A
 // GetMovesForReportBuilder provides a mock function with given fields: appCtx, params
 func (_m *PPTASReportListFetcher) GetMovesForReportBuilder(appCtx appcontext.AppContext, params *services.MoveTaskOrderFetcherParams) (models.Moves, error) {
 	ret := _m.Called(appCtx, params)
+
+	if len(ret) == 0 {
+		panic("no return value specified for GetMovesForReportBuilder")
+	}
 
 	var r0 models.Moves
 	var r1 error

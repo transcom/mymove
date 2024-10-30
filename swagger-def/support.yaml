@@ -729,13 +729,20 @@ definitions:
         type: string
         title: Country
         x-nullable: true
-        example: 'USA'
-        default: USA
+        example: 'US'
+        default: 'US'
+        pattern: '^[A-Z]{2}$'
+        description: 'Two-letter country code'
       county:
         type: string
         title: County
         x-nullable: true
         example: LOS ANGELES
+      isOconus:
+        type: boolean
+        title: isOconus
+        x-nullable: true
+        example: false
     required:
       - streetAddress1
       - city
@@ -1461,6 +1468,13 @@ definitions:
       pointOfContact:
         type: string
         description: Email or id of a contact person for this update.
+      marketCode:
+        type: string
+        enum:
+          - 'd'
+          - 'i'
+        example: 'd'
+        description: 'Single-letter designator for domestic (d) or international (i) shipments'
   MTOShipments:
     items:
       $ref: '#/definitions/MTOShipment'
@@ -1471,12 +1485,22 @@ definitions:
     example: HHG
     enum:
       - HHG
-      - INTERNATIONAL_HHG
-      - INTERNATIONAL_UB
+      - HHG_INTO_NTS_DOMESTIC
+      - HHG_OUTOF_NTS_DOMESTIC
+      - PPM
+      - BOAT_HAUL_AWAY
+      - BOAT_TOW_AWAY
+      - MOBILE_HOME
+      - UNACCOMPANIED_BAGGAGE
     x-display-value:
       HHG: HHG
-      INTERNATIONAL_HHG: International HHG
-      INTERNATIONAL_UB: International UB
+      HHG_INTO_NTS_DOMESTIC: NTS
+      HHG_OUTOF_NTS_DOMESTIC: NTS Release
+      PPM: PPM
+      BOAT_HAUL_AWAY: Boat Haul-Away
+      BOAT_TOW_AWAY: Boat Tow-Away
+      MOBILE_HOME: Mobile Home
+      UNACCOMPANIED_BAGGAGE: Unaccompanied Baggage
   Order:
     properties:
       id:

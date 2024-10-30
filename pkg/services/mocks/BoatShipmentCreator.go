@@ -18,6 +18,10 @@ type BoatShipmentCreator struct {
 func (_m *BoatShipmentCreator) CreateBoatShipmentWithDefaultCheck(appCtx appcontext.AppContext, boatshipment *models.BoatShipment) (*models.BoatShipment, error) {
 	ret := _m.Called(appCtx, boatshipment)
 
+	if len(ret) == 0 {
+		panic("no return value specified for CreateBoatShipmentWithDefaultCheck")
+	}
+
 	var r0 *models.BoatShipment
 	var r1 error
 	if rf, ok := ret.Get(0).(func(appcontext.AppContext, *models.BoatShipment) (*models.BoatShipment, error)); ok {

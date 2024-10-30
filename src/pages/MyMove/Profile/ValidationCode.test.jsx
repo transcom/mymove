@@ -54,7 +54,7 @@ describe('ValidationCode', () => {
     expect(nextBtn).toBeEnabled();
     await userEvent.click(nextBtn);
 
-    expect(mockNavigate).toHaveBeenCalledWith(customerRoutes.CONUS_OCONUS_PATH);
+    expect(mockNavigate).toHaveBeenCalledWith(customerRoutes.DOD_INFO_PATH);
   });
 
   test('it displays error when code is not correct', async () => {

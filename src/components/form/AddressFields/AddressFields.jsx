@@ -27,6 +27,7 @@ export const AddressFields = ({
   render,
   validators,
   formikFunctionsToValidatePostalCodeOnChange,
+  labelHint: labelHintProp,
 }) => {
   const addressFieldsUUID = useRef(uuidv4());
 
@@ -39,6 +40,7 @@ export const AddressFields = ({
         id={`zip_${addressFieldsUUID.current}`}
         name={`${name}.postalCode`}
         maxLength={10}
+        labelHint={labelHintProp}
         validate={validators?.postalCode}
         onChange={async (e) => {
           // If we are validating on change we need to also set the field to touched when it is changed.
@@ -58,6 +60,7 @@ export const AddressFields = ({
         id={`zip_${addressFieldsUUID.current}`}
         name={`${name}.postalCode`}
         maxLength={10}
+        labelHint={labelHintProp}
         validate={validators?.postalCode}
       />
     );
@@ -71,18 +74,19 @@ export const AddressFields = ({
             label="Address 1"
             id={`mailingAddress1_${addressFieldsUUID.current}`}
             name={`${name}.streetAddress1`}
+            labelHint={labelHintProp}
             validate={validators?.streetAddress1}
           />
           <TextField
             label="Address 2"
-            labelHint="Optional"
+            labelHint={labelHintProp ? null : 'Optional'}
             id={`mailingAddress2_${addressFieldsUUID.current}`}
             name={`${name}.streetAddress2`}
             validate={validators?.streetAddress2}
           />
           <TextField
             label="Address 3"
-            labelHint="Optional"
+            labelHint={labelHintProp ? null : 'Optional'}
             id={`mailingAddress3_${addressFieldsUUID.current}`}
             name={`${name}.streetAddress3`}
             validate={validators?.streetAddress3}
@@ -91,6 +95,7 @@ export const AddressFields = ({
             label="City"
             id={`city_${addressFieldsUUID.current}`}
             name={`${name}.city`}
+            labelHint={labelHintProp}
             validate={validators?.city}
           />
 
@@ -100,6 +105,7 @@ export const AddressFields = ({
                 name={`${name}.state`}
                 id={`state_${addressFieldsUUID.current}`}
                 label="State"
+                labelHint={labelHintProp}
                 options={statesList}
                 validate={validators?.state}
               />

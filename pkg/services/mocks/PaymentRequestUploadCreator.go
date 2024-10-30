@@ -23,6 +23,10 @@ type PaymentRequestUploadCreator struct {
 func (_m *PaymentRequestUploadCreator) CreateUpload(appCtx appcontext.AppContext, file io.ReadCloser, paymentRequestID uuid.UUID, userID uuid.UUID, filename string, isWeightTicket bool) (*models.Upload, error) {
 	ret := _m.Called(appCtx, file, paymentRequestID, userID, filename, isWeightTicket)
 
+	if len(ret) == 0 {
+		panic("no return value specified for CreateUpload")
+	}
+
 	var r0 *models.Upload
 	var r1 error
 	if rf, ok := ret.Get(0).(func(appcontext.AppContext, io.ReadCloser, uuid.UUID, uuid.UUID, string, bool) (*models.Upload, error)); ok {

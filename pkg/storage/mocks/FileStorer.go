@@ -21,6 +21,10 @@ type FileStorer struct {
 func (_m *FileStorer) Delete(_a0 string) error {
 	ret := _m.Called(_a0)
 
+	if len(ret) == 0 {
+		panic("no return value specified for Delete")
+	}
+
 	var r0 error
 	if rf, ok := ret.Get(0).(func(string) error); ok {
 		r0 = rf(_a0)
@@ -34,6 +38,10 @@ func (_m *FileStorer) Delete(_a0 string) error {
 // Fetch provides a mock function with given fields: _a0
 func (_m *FileStorer) Fetch(_a0 string) (io.ReadCloser, error) {
 	ret := _m.Called(_a0)
+
+	if len(ret) == 0 {
+		panic("no return value specified for Fetch")
+	}
 
 	var r0 io.ReadCloser
 	var r1 error
@@ -61,6 +69,10 @@ func (_m *FileStorer) Fetch(_a0 string) (io.ReadCloser, error) {
 func (_m *FileStorer) FileSystem() *afero.Afero {
 	ret := _m.Called()
 
+	if len(ret) == 0 {
+		panic("no return value specified for FileSystem")
+	}
+
 	var r0 *afero.Afero
 	if rf, ok := ret.Get(0).(func() *afero.Afero); ok {
 		r0 = rf()
@@ -76,6 +88,10 @@ func (_m *FileStorer) FileSystem() *afero.Afero {
 // PresignedURL provides a mock function with given fields: _a0, _a1, _a2
 func (_m *FileStorer) PresignedURL(_a0 string, _a1 string, _a2 string) (string, error) {
 	ret := _m.Called(_a0, _a1, _a2)
+
+	if len(ret) == 0 {
+		panic("no return value specified for PresignedURL")
+	}
 
 	var r0 string
 	var r1 error
@@ -100,6 +116,10 @@ func (_m *FileStorer) PresignedURL(_a0 string, _a1 string, _a2 string) (string, 
 // Store provides a mock function with given fields: _a0, _a1, _a2, _a3
 func (_m *FileStorer) Store(_a0 string, _a1 io.ReadSeeker, _a2 string, _a3 *string) (*storage.StoreResult, error) {
 	ret := _m.Called(_a0, _a1, _a2, _a3)
+
+	if len(ret) == 0 {
+		panic("no return value specified for Store")
+	}
 
 	var r0 *storage.StoreResult
 	var r1 error
@@ -127,6 +147,10 @@ func (_m *FileStorer) Store(_a0 string, _a1 io.ReadSeeker, _a2 string, _a3 *stri
 func (_m *FileStorer) Tags(_a0 string) (map[string]string, error) {
 	ret := _m.Called(_a0)
 
+	if len(ret) == 0 {
+		panic("no return value specified for Tags")
+	}
+
 	var r0 map[string]string
 	var r1 error
 	if rf, ok := ret.Get(0).(func(string) (map[string]string, error)); ok {
@@ -152,6 +176,10 @@ func (_m *FileStorer) Tags(_a0 string) (map[string]string, error) {
 // TempFileSystem provides a mock function with given fields:
 func (_m *FileStorer) TempFileSystem() *afero.Afero {
 	ret := _m.Called()
+
+	if len(ret) == 0 {
+		panic("no return value specified for TempFileSystem")
+	}
 
 	var r0 *afero.Afero
 	if rf, ok := ret.Get(0).(func() *afero.Afero); ok {
