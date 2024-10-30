@@ -7100,11 +7100,17 @@ definitions:
       counselingOffice:
         type: string
         x-nullable: true
+      counselingOfficeID:
+        type: string
+        format: uuid
+        x-nullable: true
       assignedTo:
         $ref: '#/definitions/AssignedOfficeUser'
         x-nullable: true
       availableOfficeUsers:
         $ref: '#/definitions/AvailableOfficeUsers'
+      assignable:
+        type: boolean
   QueueMovesResult:
     type: object
     properties:
