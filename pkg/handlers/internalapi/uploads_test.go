@@ -594,7 +594,7 @@ func (suite *HandlerSuite) TestCreatePPMUploadsHandlerSuccess() {
 		}
 
 		suite.NoError(err)
-		suite.Equal("qEnueX0FLpoz4bTnliprog==", upload.Checksum)
+		suite.Equal("/io1MRhLi2BFk9eF+lH1Ax+hyH+bPhlEK7A9/bqWlPY=", upload.Checksum)
 
 		suite.NotEmpty(createdResponse.Payload.ID)
 		suite.Equal(FixtureScreenshot, createdResponse.Payload.Filename)
