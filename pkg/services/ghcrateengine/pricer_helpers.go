@@ -499,7 +499,9 @@ func escalatePriceForContractYear(appCtx appcontext.AppContext, contractID uuid.
 		escalatedPrice = escalatedPrice * contractYear.EscalationCompounded
 	} else {
 		escalatedPrice, err = compoundEscalationFactors(appCtx, contractID, contractYear, escalatedPrice)
-		return 0, contractYear, err
+		if err != nil {
+			return 0, contractYear, err
+		}
 	}
 
 	escalatedPrice = roundToPrecision(escalatedPrice, precision)
