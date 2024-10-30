@@ -522,7 +522,7 @@ describe('CreateCustomerForm', () => {
   it('submits the form and tests for unsupported state validation', async () => {
     createCustomerWithOktaOption.mockImplementation(() => Promise.resolve(fakeResponse));
 
-    const { getByLabelText, getByTestId, getByRole, getByText } = render(
+    const { getByLabelText, getByTestId, getByRole } = render(
       <MockProviders>
         <CreateCustomerForm {...testProps} />
       </MockProviders>,
@@ -567,7 +567,7 @@ describe('CreateCustomerForm', () => {
     await userEvent.selectOptions(getByTestId('backup-add-state'), 'HI');
     await userEvent.tab();
 
-    const msg = getByText('Moves to this state are not supported at this time.');
+    const msg = screen.getByText('Moves to this state are not supported at this time.');
     expect(msg).toBeVisible();
 
     await userEvent.selectOptions(getByTestId('backup-add-state'), [fakePayload.residential_address.state]);
