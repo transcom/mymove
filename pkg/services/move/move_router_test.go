@@ -610,92 +610,187 @@ func (suite *MoveServiceSuite) TestMoveSubmission() {
 		suite.Contains(err.Error(), expError)
 		suite.Equal(models.MoveStatusNeedsServiceCounseling, move.Status, "expected move to still be in NEEDS_SERVICE_COUNSELING status when routing has failed")
 	})
+
+	suite.Run("PPM Actual Expense Reimbursement is true for Civilian Employee on submit", func() {
+		move := factory.BuildMove(suite.DB(), []factory.Customization{
+			{
+				Model: models.DutyLocation{
+					ProvidesServicesCounseling: true,
+				},
+				Type: &factory.DutyLocations.OriginDutyLocation,
+			},
+			{
+				Model: models.Move{
+					Status: models.MoveStatusDRAFT,
+				},
+			},
+			{
+				Model: models.Order{
+					Grade: models.ServiceMemberGradeCIVILIANEMPLOYEE.Pointer(),
+				},
+			},
+		}, nil)
+
+		shipment := factory.BuildMTOShipmentMinimal(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					Status:       models.MTOShipmentStatusDraft,
+					ShipmentType: models.MTOShipmentTypePPM,
+				},
+			},
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+		}, nil)
+
+		ppmShipment := factory.BuildPPMShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.PPMShipment{
+					Status:                       models.PPMShipmentStatusDraft,
+					IsActualExpenseReimbursement: models.BoolPointer(false),
+				},
+			},
+		}, nil)
+		move.MTOShipments = models.MTOShipments{shipment}
+		move.MTOShipments[0].PPMShipment = &ppmShipment
+
+		newSignedCertification := factory.BuildSignedCertification(nil, []factory.Customization{
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+		}, nil)
+		err := moveRouter.Submit(suite.AppContextForTest(), &move, &newSignedCertification)
+		suite.NoError(err)
+		suite.NotNil(newSignedCertification)
+
+		err = suite.DB().Find(&move, move.ID)
+		suite.NoError(err)
+		suite.True(*move.MTOShipments[0].PPMShipment.IsActualExpenseReimbursement)
+	})
+
+	suite.Run("PPM Actual Expense Reimbursement is false for non-civilian on submit", func() {
+		move := factory.BuildMove(suite.DB(), []factory.Customization{
+			{
+				Model: models.DutyLocation{
+					ProvidesServicesCounseling: true,
+				},
+				Type: &factory.DutyLocations.OriginDutyLocation,
+			},
+			{
+				Model: models.Move{
+					Status: models.MoveStatusDRAFT,
+				},
+			},
+			{
+				Model: models.Order{
+					Grade: models.ServiceMemberGradeE1.Pointer(),
+				},
+			},
+		}, nil)
+
+		shipment := factory.BuildMTOShipmentMinimal(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					Status:       models.MTOShipmentStatusDraft,
+					ShipmentType: models.MTOShipmentTypePPM,
+				},
+			},
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+		}, nil)
+
+		ppmShipment := factory.BuildPPMShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.PPMShipment{
+					Status:                       models.PPMShipmentStatusDraft,
+					IsActualExpenseReimbursement: models.BoolPointer(true),
+				},
+			},
+		}, nil)
+		move.MTOShipments = models.MTOShipments{shipment}
+		move.MTOShipments[0].PPMShipment = &ppmShipment
+
+		newSignedCertification := factory.BuildSignedCertification(nil, []factory.Customization{
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+		}, nil)
+		err := moveRouter.Submit(suite.AppContextForTest(), &move, &newSignedCertification)
+		suite.NoError(err)
+		suite.NotNil(newSignedCertification)
+
+		err = suite.DB().Find(&move, move.ID)
+		suite.NoError(err)
+		suite.False(*move.MTOShipments[0].PPMShipment.IsActualExpenseReimbursement)
+	})
 }
 
 func (suite *MoveServiceSuite) TestMoveCancellation() {
 	moveRouter := NewMoveRouter()
 
-	suite.Run("defaults to nil reason if empty string provided", func() {
-		move := factory.BuildMove(nil, nil, nil)
+	suite.Run("Cancel move with no shipments", func() {
+		move := factory.BuildMove(suite.DB(), nil, nil)
 
-		err := moveRouter.Cancel(suite.AppContextForTest(), "", &move)
-
+		err := moveRouter.Cancel(suite.AppContextForTest(), &move)
 		suite.NoError(err)
-		suite.Equal(models.MoveStatusCANCELED, move.Status, "expected Canceled")
-		suite.Nil(move.CancelReason)
+
+		suite.Equal(models.MoveStatusCANCELED, move.Status)
 	})
 
-	suite.Run("adds reason if provided", func() {
-		move := factory.BuildMove(nil, nil, nil)
+	suite.Run("Cancel move with HHG", func() {
+		move := factory.BuildMoveWithShipment(suite.AppContextForTest().DB(), []factory.Customization{
+			{
+				Model: models.Move{
+					Status: models.MoveStatusDRAFT,
+				},
+			},
+			{
+				Model: models.MTOShipment{
+					Status: models.MTOShipmentStatusDraft,
+				},
+			},
+		}, nil)
 
-		reason := "SM's orders revoked"
-		err := moveRouter.Cancel(suite.AppContextForTest(), reason, &move)
-
+		err := moveRouter.Cancel(suite.AppContextForTest(), &move)
 		suite.NoError(err)
-		suite.Equal(models.MoveStatusCANCELED, move.Status, "expected Canceled")
-		suite.Equal(&reason, move.CancelReason, "expected 'SM's orders revoked'")
+
+		_ = suite.DB().Reload(&move.MTOShipments)
+		suite.Equal(models.MoveStatusCANCELED, move.Status)
+		suite.Equal(models.MTOShipmentStatusCanceled, move.MTOShipments[0].Status)
 	})
 
-	suite.Run("cancels PPM and Order when move is canceled", func() {
+	suite.Run("Cancel move with PPM", func() {
+		move := factory.BuildMove(suite.AppContextForTest().DB(), []factory.Customization{
+			{
+				Model: models.Move{
+					Status: models.MoveStatusDRAFT,
+				},
+			},
+		}, nil)
 
-		// Create PPM on this move
+		ppm := factory.BuildPPMShipment(suite.AppContextForTest().DB(), []factory.Customization{
+			{
+				Model: models.PPMShipment{
+					Status: models.PPMShipmentStatusSubmitted,
+				},
+			},
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+		}, nil)
 
-		move := factory.BuildMoveWithPPMShipment(suite.DB(), nil, nil)
-
-		err := moveRouter.Cancel(suite.AppContextForTest(), "", &move)
-
+		err := moveRouter.Cancel(suite.AppContextForTest(), &move)
 		suite.NoError(err)
-		suite.Equal(models.MoveStatusCANCELED, move.Status, "expected Canceled")
-		suite.Equal(models.PPMShipmentStatusCanceled, move.MTOShipments[0].PPMShipment.Status, "expected Canceled")
-		suite.Equal(models.OrderStatusCANCELED, move.Orders.Status, "expected Canceled")
-	})
-
-	suite.Run("from valid statuses", func() {
-		validStatuses := []struct {
-			desc   string
-			status models.MoveStatus
-		}{
-			{"Submitted", models.MoveStatusSUBMITTED},
-			{"Approvals Requested", models.MoveStatusAPPROVALSREQUESTED},
-			{"Service Counseling Completed", models.MoveStatusServiceCounselingCompleted},
-			{"Approved", models.MoveStatusAPPROVED},
-			{"Draft", models.MoveStatusDRAFT},
-			{"Needs Service Counseling", models.MoveStatusNeedsServiceCounseling},
-		}
-		for _, tt := range validStatuses {
-			suite.Run(tt.desc, func() {
-				move := factory.BuildMove(nil, nil, nil)
-
-				move.Status = tt.status
-				move.Orders.Status = models.OrderStatusSUBMITTED
-
-				err := moveRouter.Cancel(suite.AppContextForTest(), "", &move)
-
-				suite.NoError(err)
-				suite.Equal(models.MoveStatusCANCELED, move.Status)
-			})
-		}
-	})
-
-	suite.Run("from invalid statuses", func() {
-		invalidStatuses := []struct {
-			desc   string
-			status models.MoveStatus
-		}{
-			{"Canceled", models.MoveStatusCANCELED},
-		}
-		for _, tt := range invalidStatuses {
-			suite.Run(tt.desc, func() {
-				move := factory.BuildMove(nil, nil, nil)
-
-				move.Status = tt.status
-
-				err := moveRouter.Cancel(suite.AppContextForTest(), "", &move)
-
-				suite.Error(err)
-				suite.Contains(err.Error(), "cannot cancel a move that is already canceled")
-			})
-		}
+		_ = suite.DB().Reload(&move.MTOShipments)
+		suite.Equal(models.MoveStatusCANCELED, move.Status)
+		ppms, _ := models.FetchPPMShipmentByPPMShipmentID(suite.AppContextForTest().DB(), ppm.ID)
+		suite.Equal(models.PPMShipmentStatusCanceled, ppms.Status)
 	})
 }
 
