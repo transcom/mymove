@@ -3,6 +3,7 @@ package ghcrateengine
 import (
 	"fmt"
 	"math"
+	"slices"
 	"strconv"
 	"time"
 
@@ -495,13 +496,13 @@ func escalatePriceForContractYear(appCtx appcontext.AppContext, contractID uuid.
 
 	escalatedPrice = roundToPrecision(escalatedPrice, precision)
 
-	if contractYear.Name == models.BasePeriodYear1 {
-		escalatedPrice = escalatedPrice * contractYear.EscalationCompounded
-	} else {
+	if slices.Contains(models.ContractYears, contractYear.Name) {
 		escalatedPrice, err = compoundEscalationFactors(appCtx, contractID, contractYear, escalatedPrice)
 		if err != nil {
 			return 0, contractYear, err
 		}
+	} else {
+		escalatedPrice = escalatedPrice * contractYear.EscalationCompounded
 	}
 
 	escalatedPrice = roundToPrecision(escalatedPrice, precision)

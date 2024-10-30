@@ -32,6 +32,8 @@ type ExpectedEscalationPriceContractsCount struct {
 	ExpectedAmountOfAwardTermsForCalculation        int
 }
 
+var ContractYears = []string{AwardTerm1, AwardTerm2, OptionPeriod1, OptionPeriod2, OptionPeriod3, BasePeriodYear2, BasePeriodYear3}
+
 // ReContractYear represents a single "year" of a contract
 type ReContractYear struct {
 	ID                   uuid.UUID `json:"id" db:"id"`
