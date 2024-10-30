@@ -63,11 +63,11 @@ describe('ResidentialAddressForm component', () => {
 
       expect(getByLabelText(/Address 2/)).toBeInstanceOf(HTMLInputElement);
 
-      expect(getByLabelText('City')).toBeInstanceOf(HTMLInputElement);
+      expect(getByLabelText(/City/)).toBeInstanceOf(HTMLInputElement);
 
-      expect(getByLabelText('State')).toBeInstanceOf(HTMLInputElement);
+      expect(getByLabelText(/State/)).toBeInstanceOf(HTMLInputElement);
 
-      expect(getByLabelText('ZIP')).toBeInstanceOf(HTMLInputElement);
+      expect(getByLabelText(/ZIP/)).toBeInstanceOf(HTMLInputElement);
 
       expect(getByText('Must be a physical address.')).toBeInTheDocument();
     });

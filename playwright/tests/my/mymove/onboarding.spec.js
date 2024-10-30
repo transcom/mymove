@@ -3,7 +3,7 @@
 import { test, expect } from '../../utils/my/customerTest';
 
 const multiMoveEnabled = process.env.FEATURE_FLAG_MULTI_MOVE;
-const zipCityLookup = 'ATCO, NJ 08004 (CAMDEN)';
+const LocationLookup = 'ATCO, NJ 08004 (CAMDEN)';
 
 test.describe('Onboarding', () => {
   test.skip(multiMoveEnabled === 'true', 'Skip if MultiMove workflow is enabled.');
@@ -97,8 +97,8 @@ test.describe('(MultiMove) Onboarding', () => {
     await customerPage.waitForPage.onboardingCurrentAddress();
     await page.getByLabel('Address 1').fill('7 Q St');
     await page.getByLabel('Address 1').blur();
-    await page.getByLabel('Zip/City Lookup').fill('08004');
-    await expect(page.getByText(zipCityLookup, { exact: true })).toBeVisible();
+    await page.getByLabel('Location Lookup').fill('08004');
+    await expect(page.getByText(LocationLookup, { exact: true })).toBeVisible();
     await page.keyboard.press('Enter');
     await customerPage.navigateForward();
 
@@ -106,8 +106,8 @@ test.describe('(MultiMove) Onboarding', () => {
     await customerPage.waitForPage.onboardingBackupAddress();
     await page.getByLabel('Address 1').fill('7 Q St');
     await page.getByLabel('Address 1').blur();
-    await page.getByLabel('Zip/City Lookup').fill('08004');
-    await expect(page.getByText(zipCityLookup, { exact: true })).toBeVisible();
+    await page.getByLabel('Location Lookup').fill('08004');
+    await expect(page.getByText(LocationLookup, { exact: true })).toBeVisible();
     await page.keyboard.press('Enter');
     await customerPage.navigateForward();
 

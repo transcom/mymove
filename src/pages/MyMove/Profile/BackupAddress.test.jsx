@@ -104,7 +104,7 @@ describe('BackupAddress page', () => {
 
     patchServiceMember.mockImplementation(() => Promise.resolve(expectedServiceMemberPayload));
 
-    const { getByRole, getByLabelText } = render(
+    const { getByRole } = render(
       <Provider store={mockStore.store}>
         <BackupAddress {...testProps} />
       </Provider>,

@@ -64,9 +64,9 @@ describe('BackupAddressForm component', () => {
 
       expect(getByLabelText(/Address 2/)).toBeInstanceOf(HTMLInputElement);
 
-      expect(getByLabelText('City')).toBeInstanceOf(HTMLInputElement);
+      expect(getByLabelText(/City/)).toBeInstanceOf(HTMLInputElement);
 
-      expect(getByLabelText('State')).toBeInstanceOf(HTMLInputElement);
+      expect(getByLabelText(/State/)).toBeInstanceOf(HTMLInputElement);
 
       expect(getByLabelText(/ZIP/)).toBeInstanceOf(HTMLInputElement);
     });
