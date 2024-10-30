@@ -30,12 +30,12 @@ var validPortType = []string{
 }
 
 type Port struct {
-	ID        uuid.UUID `json:"id" db:"id"`
-	PortCode  string    `json:"port_code" db:"port_code"`
-	PortType  PortType  `json:"port_type" db:"port_type"`
-	PortName  string    `json:"port_name" db:"port_name"`
-	CreatedAt time.Time `json:"created_at" db:"created_at"`
-	UpdatedAt time.Time `json:"updated_at" db:"updated_at"`
+	ID        uuid.UUID `json:"id" db:"id" rw:"r"`
+	PortCode  string    `json:"port_code" db:"port_code" rw:"r"`
+	PortType  PortType  `json:"port_type" db:"port_type" rw:"r"`
+	PortName  string    `json:"port_name" db:"port_name" rw:"r"`
+	CreatedAt time.Time `json:"created_at" db:"created_at" rw:"r"`
+	UpdatedAt time.Time `json:"updated_at" db:"updated_at" rw:"r"`
 }
 
 func (p Port) TableName() string {
