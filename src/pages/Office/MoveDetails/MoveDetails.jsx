@@ -20,7 +20,7 @@ import FinancialReviewButton from 'components/Office/FinancialReviewButton/Finan
 import FinancialReviewModal from 'components/Office/FinancialReviewModal/FinancialReviewModal';
 import ApprovedRequestedShipments from 'components/Office/RequestedShipments/ApprovedRequestedShipments';
 import SubmittedRequestedShipments from 'components/Office/RequestedShipments/SubmittedRequestedShipments';
-import { useMoveDetailsQueries } from 'hooks/queries';
+import { useMoveDetailsQueries, useOrdersDocumentQueries } from 'hooks/queries';
 import { updateMoveStatus, updateMTOShipmentStatus, updateFinancialFlag } from 'services/ghcApi';
 import LeftNav from 'components/LeftNav/LeftNav';
 import LeftNavTag from 'components/LeftNavTag/LeftNavTag';
@@ -83,11 +83,16 @@ const MoveDetails = ({
 
   const navigate = useNavigate();
 
-  const { move, customerData, uploads, order, closeoutOffice, mtoShipments, mtoServiceItems, isLoading, isError } =
+  const { move, customerData, order, closeoutOffice, mtoShipments, mtoServiceItems, isLoading, isError } =
     useMoveDetailsQueries(moveCode);
 
-  let validOrderUploads = Object.fromEntries(Object.entries(uploads || {}).filter(([, value]) => !value.deletedAt));
-  if (Object.entries(validOrderUploads).length === 0) validOrderUploads = null;
+  const { upload, amendedUpload } = useOrdersDocumentQueries(moveCode);
+  const documentsForViewer = Object.values(upload || {})
+    .concat(Object.values(amendedUpload || {}))
+    ?.filter((file) => {
+      return !file.deletedAt;
+    });
+  const hasDocuments = documentsForViewer?.length > 0;
 
   // for now we are only showing dest type on retiree and separatee orders
   let isRetirementOrSeparation = false;
@@ -252,17 +257,17 @@ const MoveDetails = ({
 
   // using useMemo here due to this being used in a useEffect
   // using useMemo prevents the useEffect from being rendered on ever render by memoizing the object
-  // so that it only recognizes the change when the orders or validOrderUploads objects change
+  // so that it only recognizes the change when the orders, hasDocuments or documentsForViewer objects change
   const requiredOrdersInfo = useMemo(
     () => ({
       ordersNumber: order?.order_number || '',
       ordersType: order?.order_type || '',
       ordersTypeDetail: order?.order_type_detail || '',
-      ordersDocuments: validOrderUploads || '',
+      ordersDocuments: hasDocuments ? documentsForViewer : null,
       tacMDC: order?.tac || '',
       departmentIndicator: order?.department_indicator || '',
     }),
-    [order, validOrderUploads],
+    [order, hasDocuments, documentsForViewer],
   );
 
   // Keep num of missing orders info synced up
@@ -295,7 +300,7 @@ const MoveDetails = ({
     ordersNumber: order.order_number,
     ordersType: order.order_type,
     ordersTypeDetail: order.order_type_detail,
-    ordersDocuments: validOrderUploads,
+    ordersDocuments: hasDocuments ? documentsForViewer : null,
     uploadedAmendedOrderID: order.uploadedAmendedOrderID,
     amendedOrdersAcknowledgedAt: order.amendedOrdersAcknowledgedAt,
     tacMDC: order.tac,

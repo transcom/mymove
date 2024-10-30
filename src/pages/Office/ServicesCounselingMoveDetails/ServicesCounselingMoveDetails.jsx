@@ -67,11 +67,8 @@ const ServicesCounselingMoveDetails = ({
     });
   const hasDocuments = documentsForViewer?.length > 0;
 
-  const { order, customerData, uploads, move, closeoutOffice, mtoShipments, isLoading, isError } =
+  const { order, customerData, move, closeoutOffice, mtoShipments, isLoading, isError } =
     useMoveDetailsQueries(moveCode);
-
-  let validOrderUploads = Object.fromEntries(Object.entries(uploads || {}).filter(([, value]) => !value.deletedAt));
-  if (Object.entries(validOrderUploads).length === 0) validOrderUploads = null;
 
   const { customer, entitlement: allowances } = order;
 
@@ -341,7 +338,7 @@ const ServicesCounselingMoveDetails = ({
     ordersType: order.order_type,
     ordersNumber: order.order_number,
     ordersTypeDetail: order.order_type_detail,
-    ordersDocuments: validOrderUploads,
+    ordersDocuments: hasDocuments ? documentsForViewer : null,
     tacMDC: order.tac,
     sacSDN: order.sac,
     NTStac: order.ntsTac,
@@ -359,17 +356,17 @@ const ServicesCounselingMoveDetails = ({
 
   // using useMemo here due to this being used in a useEffect
   // using useMemo prevents the useEffect from being rendered on ever render by memoizing the object
-  // so that it only recognizes the change when the orders or validUploads objects change
+  // so that it only recognizes the change when the orders, hasDocuments or documentsForViewer objects change
   const requiredOrdersInfo = useMemo(
     () => ({
       ordersNumber: order?.order_number || '',
       ordersType: order?.order_type || '',
       ordersTypeDetail: order?.order_type_detail || '',
-      ordersDocuments: validOrderUploads || '',
+      ordersDocuments: hasDocuments ? documentsForViewer : null,
       tacMDC: order?.tac || '',
-      departmentIndicator: validOrderUploads?.department_indicator || '',
+      departmentIndicator: order?.department_indicator || '',
     }),
-    [order, validOrderUploads],
+    [order, hasDocuments, documentsForViewer],
   );
 
   const handleButtonDropdownChange = (e) => {
