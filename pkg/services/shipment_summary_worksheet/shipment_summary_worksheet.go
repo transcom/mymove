@@ -1138,12 +1138,14 @@ func (SSWPPMGenerator *SSWPPMGenerator) FillSSWPDFForm(Page1Values services.Page
 		isActualExpenseReimbursement = true
 		Page1Values.GCCIsActualExpenseReimbursement = "Actual Expense Reimbursement"
 		Page2Values.IncentiveIsActualExpenseReimbursement = "Actual Expense Reimbursement"
+		Page2Values.HeaderIsActualExpenseReimbursement = `This PPM is being processed at actual expense reimbursement for valid expenses not to exceed the
+		government constructed cost (GCC).`
 	}
 
 	var sswCheckbox = []checkbox{
 		{
 			Pages:   []int{2},
-			ID:      "141",
+			ID:      "198",
 			Name:    "EDOther",
 			Value:   true,
 			Default: false,
@@ -1151,7 +1153,7 @@ func (SSWPPMGenerator *SSWPPMGenerator) FillSSWPDFForm(Page1Values services.Page
 		},
 		{
 			Pages:   []int{1},
-			ID:      "505",
+			ID:      "444",
 			Name:    "IsActualExpenseReimbursement",
 			Value:   true,
 			Default: isActualExpenseReimbursement,

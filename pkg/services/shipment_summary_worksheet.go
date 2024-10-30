@@ -99,6 +99,7 @@ type Page2Values struct {
 	FormattedMovingExpenses
 	FormattedOtherExpenses
 	IncentiveIsActualExpenseReimbursement string
+	HeaderIsActualExpenseReimbursement    string
 }
 
 // Page3Values is an object representing a Shipment Summary Worksheet
