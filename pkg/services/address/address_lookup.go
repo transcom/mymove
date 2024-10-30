@@ -102,7 +102,7 @@ func FindLocationsByZipCity(appCtx appcontext.AppContext, search string) (models
 		sqlQuery = fmt.Sprintf(`
 		select vl.city_name, vl.state, vl.usprc_county_nm, vl.uspr_zip_id, vl.uprc_id
 			from v_locations vl where vl.uspr_zip_id like '%[1]s%%' and
-			vl.city_name like upper('%[2]s%%') and vl.state like upper('%[3]s%%') and (vl.state != 'AK' or vl.state != 'HI') limit 30`, postalCode, city, state)
+			vl.city_name like upper('%[2]s%%') and vl.state like upper('%[3]s%%') and vl.state NOT in ('AK','HI') limit 30`, postalCode, city, state)
 	}
 
 	query := appCtx.DB().Q().RawQuery(sqlQuery)
