@@ -9,6 +9,8 @@ allOf:
         enum:
           - DOFSIT # Domestic Origin First Day SIT
           - DOASIT # Domestic Origin Additional SIT
+          - IOFSIT # International Origin First Day SIT
+          - IOASIT # International Origin Additional SIT
       reason:
         type: string
         example: Storage items need to be picked up

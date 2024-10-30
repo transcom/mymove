@@ -2284,7 +2284,9 @@ func init() {
               "type": "string",
               "enum": [
                 "DOFSIT",
-                "DOASIT"
+                "DOASIT",
+                "IOFSIT",
+                "IOASIT"
               ]
             },
             "reason": {
@@ -7006,7 +7008,9 @@ func init() {
               "type": "string",
               "enum": [
                 "DOFSIT",
-                "DOASIT"
+                "DOASIT",
+                "IOFSIT",
+                "IOASIT"
               ]
             },
             "reason": {

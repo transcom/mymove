@@ -78,7 +78,7 @@ func (suite *PPMShipmentSuite) TestPPMShipmentCreator() {
 				City:           "Des Moines",
 				State:          "IA",
 				PostalCode:     "50308",
-				County:         "POLK",
+				County:         models.StringPointer("POLK"),
 			},
 			DestinationAddress: &models.Address{
 				StreetAddress1: "987 Other Avenue",
@@ -87,7 +87,7 @@ func (suite *PPMShipmentSuite) TestPPMShipmentCreator() {
 				City:           "Fort Eisenhower",
 				State:          "GA",
 				PostalCode:     "30183",
-				County:         "COLUMBIA",
+				County:         models.StringPointer("COLUMBIA"),
 			},
 		}, nil)
 

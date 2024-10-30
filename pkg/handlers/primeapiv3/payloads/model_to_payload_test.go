@@ -63,7 +63,7 @@ func (suite *PayloadsSuite) TestMoveTaskOrder() {
 					City:           "Washington",
 					State:          "DC",
 					PostalCode:     "20001",
-					County:         "my county",
+					County:         models.StringPointer("my county"),
 				},
 			},
 		},

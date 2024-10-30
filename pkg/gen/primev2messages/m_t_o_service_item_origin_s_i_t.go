@@ -40,7 +40,7 @@ type MTOServiceItemOriginSIT struct {
 
 	// Service code allowed for this model type.
 	// Required: true
-	// Enum: [DOFSIT DOASIT]
+	// Enum: [DOFSIT DOASIT IOFSIT IOASIT]
 	ReServiceCode *string `json:"reServiceCode"`
 
 	// Explanation of why Prime is picking up SIT item.
@@ -186,7 +186,7 @@ func (m *MTOServiceItemOriginSIT) UnmarshalJSON(raw []byte) error {
 
 		// Service code allowed for this model type.
 		// Required: true
-		// Enum: [DOFSIT DOASIT]
+		// Enum: [DOFSIT DOASIT IOFSIT IOASIT]
 		ReServiceCode *string `json:"reServiceCode"`
 
 		// Explanation of why Prime is picking up SIT item.
@@ -313,7 +313,7 @@ func (m MTOServiceItemOriginSIT) MarshalJSON() ([]byte, error) {
 
 		// Service code allowed for this model type.
 		// Required: true
-		// Enum: [DOFSIT DOASIT]
+		// Enum: [DOFSIT DOASIT IOFSIT IOASIT]
 		ReServiceCode *string `json:"reServiceCode"`
 
 		// Explanation of why Prime is picking up SIT item.
@@ -571,7 +571,7 @@ var mTOServiceItemOriginSITTypeReServiceCodePropEnum []interface{}
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["DOFSIT","DOASIT"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["DOFSIT","DOASIT","IOFSIT","IOASIT"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {

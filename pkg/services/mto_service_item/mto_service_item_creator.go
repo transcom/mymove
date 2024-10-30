@@ -352,6 +352,44 @@ func (o *mtoServiceItemCreator) CreateMTOServiceItem(appCtx appcontext.AppContex
 		)
 	}
 
+	var mtoShipment models.MTOShipment
+	// MS and CS have no mtoShipment, for all other service items, process MTO Shipment info.
+	// For SIT service items, validate whether domestic or international before setting service code information.
+	if serviceItem.ReService.Code != models.ReServiceCodeMS && serviceItem.ReService.Code != models.ReServiceCodeCS {
+		// check if shipment exists linked by MoveTaskOrderID
+		mtoShipmentID := *serviceItem.MTOShipmentID
+		queryFilters = []services.QueryFilter{
+			query.NewQueryFilter("id", "=", mtoShipmentID),
+			query.NewQueryFilter("move_id", "=", moveID),
+		}
+		err = o.builder.FetchOne(appCtx, &mtoShipment, queryFilters)
+		if err != nil {
+			switch err {
+			case sql.ErrNoRows:
+				return nil, nil, apperror.NewNotFoundError(mtoShipmentID, fmt.Sprintf("for mtoShipment with moveID: %s", moveID.String()))
+			default:
+				return nil, nil, apperror.NewQueryError("MTOShipment", err, "")
+			}
+		}
+
+		// If mtoShipment is an international shipment, use international SIT codes. Else, use domestic.
+		// This aligns any SIT Creation to be correctly filed with international or domestic codes.
+		if mtoShipment.MarketCode == models.MarketCodeInternational {
+			if serviceItem.ReService.Code == models.ReServiceCodeDDFSIT {
+				serviceItem.ReService.Code = models.ReServiceCodeIDFSIT
+			} else if serviceItem.ReService.Code == models.ReServiceCodeDOFSIT {
+				serviceItem.ReService.Code = models.ReServiceCodeIOFSIT
+			}
+		} else {
+			if serviceItem.ReService.Code == models.ReServiceCodeIDFSIT {
+				serviceItem.ReService.Code = models.ReServiceCodeDDFSIT
+			} else if serviceItem.ReService.Code == models.ReServiceCodeIOFSIT {
+				serviceItem.ReService.Code = models.ReServiceCodeDDFSIT
+			}
+		}
+
+	}
+
 	// find the re service code id
 	var reService models.ReService
 	reServiceCode := serviceItem.ReService.Code
@@ -402,27 +440,11 @@ func (o *mtoServiceItemCreator) CreateMTOServiceItem(appCtx appcontext.AppContex
 		serviceItem.Status = models.MTOServiceItemStatusSubmitted
 	}
 
-	// check if shipment exists linked by MoveTaskOrderID
-	var mtoShipment models.MTOShipment
-	mtoShipmentID := *serviceItem.MTOShipmentID
-	queryFilters = []services.QueryFilter{
-		query.NewQueryFilter("id", "=", mtoShipmentID),
-		query.NewQueryFilter("move_id", "=", moveID),
-	}
-	err = o.builder.FetchOne(appCtx, &mtoShipment, queryFilters)
-	if err != nil {
-		switch err {
-		case sql.ErrNoRows:
-			return nil, nil, apperror.NewNotFoundError(mtoShipmentID, fmt.Sprintf("for mtoShipment with moveID: %s", moveID.String()))
-		default:
-			return nil, nil, apperror.NewQueryError("MTOShipment", err, "")
-		}
-	}
-
 	// checking to see if the service item being created is a destination SIT
 	// if so, we want the destination address to be the same as the shipment's
 	// which will later populate the additional dest SIT service items as well
-	if serviceItem.ReService.Code == models.ReServiceCodeDDFSIT && mtoShipment.DestinationAddressID != nil {
+	// Also handles aligning service code with international/domestic
+	if serviceItem.ReService.Code == models.ReServiceCodeDDFSIT && mtoShipment.DestinationAddressID != nil || serviceItem.ReService.Code == models.ReServiceCodeIDFSIT && mtoShipment.DestinationAddressID != nil {
 		serviceItem.SITDestinationFinalAddress = mtoShipment.DestinationAddress
 		serviceItem.SITDestinationFinalAddressID = mtoShipment.DestinationAddressID
 	}
@@ -460,14 +482,14 @@ func (o *mtoServiceItemCreator) CreateMTOServiceItem(appCtx appcontext.AppContex
 	}
 
 	updateShipmentPickupAddress := false
-	if serviceItem.ReService.Code == models.ReServiceCodeDDFSIT || serviceItem.ReService.Code == models.ReServiceCodeDOFSIT {
+	if serviceItem.ReService.Code == models.ReServiceCodeDDFSIT || serviceItem.ReService.Code == models.ReServiceCodeDOFSIT || serviceItem.ReService.Code == models.ReServiceCodeIDFSIT || serviceItem.ReService.Code == models.ReServiceCodeIOFSIT {
 		extraServiceItems, errSIT := o.validateFirstDaySITServiceItem(appCtx, serviceItem)
 		if errSIT != nil {
 			return nil, nil, errSIT
 		}
 
 		// update HHG origin address for ReServiceCodeDOFSIT service item
-		if serviceItem.ReService.Code == models.ReServiceCodeDOFSIT {
+		if serviceItem.ReService.Code == models.ReServiceCodeDOFSIT || serviceItem.ReService.Code == models.ReServiceCodeIOFSIT {
 			// When creating a DOFSIT, the prime must provide an HHG actual address for the move/shift in origin (pickup address)
 			if serviceItem.SITOriginHHGActualAddress == nil {
 				verrs = validate.NewErrors()
@@ -528,17 +550,27 @@ func (o *mtoServiceItemCreator) CreateMTOServiceItem(appCtx appcontext.AppContex
 					extraServiceItem.SITOriginHHGActualAddressID = serviceItem.SITOriginHHGActualAddressID
 					extraServiceItem.SITOriginHHGOriginalAddress = serviceItem.SITOriginHHGOriginalAddress
 					extraServiceItem.SITOriginHHGOriginalAddressID = serviceItem.SITOriginHHGOriginalAddressID
+				} else if extraServiceItem.ReService.Code == models.ReServiceCodeIOPSIT ||
+					extraServiceItem.ReService.Code == models.ReServiceCodeIOASIT { // || extraServiceItem.ReService.Code == models.ReServiceCodeDOSFSC
+					extraServiceItem.SITOriginHHGActualAddress = serviceItem.SITOriginHHGActualAddress
+					extraServiceItem.SITOriginHHGActualAddressID = serviceItem.SITOriginHHGActualAddressID
+					extraServiceItem.SITOriginHHGOriginalAddress = serviceItem.SITOriginHHGOriginalAddress
+					extraServiceItem.SITOriginHHGOriginalAddressID = serviceItem.SITOriginHHGOriginalAddressID
 				}
 			}
 		}
 
 		// make sure SITDestinationFinalAddress is the same for all destination SIT related service item
-		if serviceItem.ReService.Code == models.ReServiceCodeDDFSIT && serviceItem.SITDestinationFinalAddress != nil {
+		if serviceItem.ReService.Code == models.ReServiceCodeDDFSIT && serviceItem.SITDestinationFinalAddress != nil || serviceItem.ReService.Code == models.ReServiceCodeIDFSIT && serviceItem.SITDestinationFinalAddress != nil {
 			for itemIndex := range *extraServiceItems {
 				extraServiceItem := &(*extraServiceItems)[itemIndex]
 				if extraServiceItem.ReService.Code == models.ReServiceCodeDDDSIT ||
 					extraServiceItem.ReService.Code == models.ReServiceCodeDDASIT ||
 					extraServiceItem.ReService.Code == models.ReServiceCodeDDSFSC {
+					extraServiceItem.SITDestinationFinalAddress = serviceItem.SITDestinationFinalAddress
+					extraServiceItem.SITDestinationFinalAddressID = serviceItem.SITDestinationFinalAddressID
+				} else if extraServiceItem.ReService.Code == models.ReServiceCodeIDDSIT ||
+					extraServiceItem.ReService.Code == models.ReServiceCodeIDASIT { // || extraServiceItem.ReService.Code == models.ReServiceCodeIDSFSC
 					extraServiceItem.SITDestinationFinalAddress = serviceItem.SITDestinationFinalAddress
 					extraServiceItem.SITDestinationFinalAddressID = serviceItem.SITDestinationFinalAddressID
 				}
@@ -887,6 +919,10 @@ func (o *mtoServiceItemCreator) validateFirstDaySITServiceItem(appCtx appcontext
 		reServiceCodes = append(reServiceCodes, models.ReServiceCodeDDASIT, models.ReServiceCodeDDDSIT, models.ReServiceCodeDDSFSC)
 	case models.ReServiceCodeDOFSIT:
 		reServiceCodes = append(reServiceCodes, models.ReServiceCodeDOASIT, models.ReServiceCodeDOPSIT, models.ReServiceCodeDOSFSC)
+	case models.ReServiceCodeIDFSIT:
+		reServiceCodes = append(reServiceCodes, models.ReServiceCodeIDASIT, models.ReServiceCodeIDDSIT) // Add , models.ReServiceCodeIDSFSC
+	case models.ReServiceCodeIOFSIT:
+		reServiceCodes = append(reServiceCodes, models.ReServiceCodeIOASIT, models.ReServiceCodeIOPSIT) // Add , models.ReServiceCodeIOSFSC
 	default:
 		verrs := validate.NewErrors()
 		verrs.Add("reServiceCode", fmt.Sprintf("%s invalid code", serviceItem.ReService.Code))

@@ -2,18 +2,18 @@ package models_test
 
 import (
 	"github.com/transcom/mymove/pkg/factory"
-	m "github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/models"
 )
 
 func (suite *ModelSuite) TestBasicAddressInstantiation() {
-	newAddress := &m.Address{
+	newAddress := &models.Address{
 		StreetAddress1: "street 1",
-		StreetAddress2: m.StringPointer("street 2"),
-		StreetAddress3: m.StringPointer("street 3"),
+		StreetAddress2: models.StringPointer("street 2"),
+		StreetAddress3: models.StringPointer("street 3"),
 		City:           "city",
 		State:          "state",
 		PostalCode:     "90210",
-		County:         "County",
+		County:         models.StringPointer("County"),
 	}
 
 	verrs, err := newAddress.Validate(nil)
@@ -23,7 +23,7 @@ func (suite *ModelSuite) TestBasicAddressInstantiation() {
 }
 
 func (suite *ModelSuite) TestEmptyAddressInstantiation() {
-	newAddress := m.Address{}
+	newAddress := models.Address{}
 
 	expErrors := map[string][]string{
 		"street_address1": {"StreetAddress1 can not be blank."},
@@ -36,14 +36,14 @@ func (suite *ModelSuite) TestEmptyAddressInstantiation() {
 }
 
 func (suite *ModelSuite) TestAddressCountryCode() {
-	noCountry := m.Address{
+	noCountry := models.Address{
 		StreetAddress1: "street 1",
-		StreetAddress2: m.StringPointer("street 2"),
-		StreetAddress3: m.StringPointer("street 3"),
+		StreetAddress2: models.StringPointer("street 2"),
+		StreetAddress3: models.StringPointer("street 3"),
 		City:           "city",
 		State:          "state",
 		PostalCode:     "90210",
-		County:         "county",
+		County:         models.StringPointer("county"),
 	}
 
 	var expected *string
@@ -52,10 +52,10 @@ func (suite *ModelSuite) TestAddressCountryCode() {
 	suite.Equal(expected, countryCode)
 
 	country := factory.FetchOrBuildCountry(suite.DB(), nil, nil)
-	usCountry := m.Address{
+	usCountry := models.Address{
 		StreetAddress1: "street 1",
-		StreetAddress2: m.StringPointer("street 2"),
-		StreetAddress3: m.StringPointer("street 3"),
+		StreetAddress2: models.StringPointer("street 2"),
+		StreetAddress3: models.StringPointer("street 3"),
 		City:           "city",
 		State:          "state",
 		PostalCode:     "90210",
@@ -67,17 +67,17 @@ func (suite *ModelSuite) TestAddressCountryCode() {
 }
 
 func (suite *ModelSuite) TestIsAddressOconusNoCountry() {
-	address := m.Address{
+	address := models.Address{
 		StreetAddress1: "street 1",
-		StreetAddress2: m.StringPointer("street 2"),
-		StreetAddress3: m.StringPointer("street 3"),
+		StreetAddress2: models.StringPointer("street 2"),
+		StreetAddress3: models.StringPointer("street 3"),
 		City:           "city",
 		State:          "SC",
 		PostalCode:     "29229",
-		County:         "county",
+		County:         models.StringPointer("county"),
 	}
 
-	result, err := m.IsAddressOconus(suite.DB(), address)
+	result, err := models.IsAddressOconus(suite.DB(), address)
 	suite.NoError(err)
 
 	suite.Equal(false, result)
@@ -85,17 +85,17 @@ func (suite *ModelSuite) TestIsAddressOconusNoCountry() {
 
 // Test IsOconus logic for an address with no country and a state of AK
 func (suite *ModelSuite) TestIsAddressOconusForAKState() {
-	address := m.Address{
+	address := models.Address{
 		StreetAddress1: "street 1",
-		StreetAddress2: m.StringPointer("street 2"),
-		StreetAddress3: m.StringPointer("street 3"),
+		StreetAddress2: models.StringPointer("street 2"),
+		StreetAddress3: models.StringPointer("street 3"),
 		City:           "Anchorage",
 		State:          "AK",
 		PostalCode:     "99502",
-		County:         "county",
+		County:         models.StringPointer("county"),
 	}
 
-	result, err := m.IsAddressOconus(suite.DB(), address)
+	result, err := models.IsAddressOconus(suite.DB(), address)
 	suite.NoError(err)
 
 	suite.Equal(true, result)
@@ -103,14 +103,14 @@ func (suite *ModelSuite) TestIsAddressOconusForAKState() {
 
 func (suite *ModelSuite) TestAddressFormat() {
 	country := factory.FetchOrBuildCountry(suite.DB(), nil, nil)
-	newAddress := &m.Address{
+	newAddress := &models.Address{
 		StreetAddress1: "street 1",
-		StreetAddress2: m.StringPointer("street 2"),
-		StreetAddress3: m.StringPointer("street 3"),
+		StreetAddress2: models.StringPointer("street 2"),
+		StreetAddress3: models.StringPointer("street 3"),
 		City:           "city",
 		State:          "state",
 		PostalCode:     "90210",
-		County:         "County",
+		County:         models.StringPointer("County"),
 		Country:        &country,
 		CountryId:      &country.ID,
 	}
