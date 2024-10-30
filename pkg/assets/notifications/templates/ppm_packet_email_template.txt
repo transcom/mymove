@@ -11,9 +11,9 @@ You can now log into MilMove <{{.MyMoveLink}}> and view your payment packet; how
 Note: Not all claimed expenses may have been accepted during PPM closeout if they did not meet the definition of a valid expense.
 {{else}}
 For {{.ServiceBranch}} personnel (FURTHER ACTION REQUIRED):
-
+{{if eq .ServiceBranch "Army"}}
 Log in to SmartVoucher at {{.SmartVoucherLink}} using your CAC or myPay username and password. This will allow you to edit your voucher, and complete and sign DD Form 1351-2.
-
+{{end}}
 {{if ne .ServiceBranch "Army"}}You can now log into MilMove <{{.MyMoveLink}}> and download your payment packet to submit to {{.SubmitLocation}}. You must complete this step to receive final settlement of your PPM.
 
 {{if eq .ServiceBranch "Air Force and Space Force"}}Note: The Transportation Office does not determine claimable expenses. Claimable expenses will be determined by finance.
