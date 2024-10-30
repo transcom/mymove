@@ -80,15 +80,23 @@ func (m MoveCounseled) emails(appCtx appcontext.AppContext) ([]emailContent, err
 		destinationAddress = fmt.Sprintf("%s%s%s, %s, %s %s", mtoShipDestinationAddress.StreetAddress1, streetAddr2, streetAddr3, mtoShipDestinationAddress.City, mtoShipDestinationAddress.State, mtoShipDestinationAddress.PostalCode)
 	}
 
+	actualExpenseReimbursement := false
+	for i := 0; i < len(move.MTOShipments); i++ {
+		if move.MTOShipments[i].PPMShipment.IsActualExpenseReimbursement != nil && *move.MTOShipments[i].PPMShipment.IsActualExpenseReimbursement {
+			actualExpenseReimbursement = true
+		}
+	}
+
 	if serviceMember.PersonalEmail == nil {
 		return emails, fmt.Errorf("no email found for service member")
 	}
 
 	htmlBody, textBody, err := m.renderTemplates(appCtx, MoveCounseledEmailData{
-		OriginDutyLocation:  originDutyLocationName,
-		DestinationLocation: destinationAddress,
-		Locator:             move.Locator,
-		MyMoveLink:          MyMoveLink,
+		OriginDutyLocation:         originDutyLocationName,
+		DestinationLocation:        destinationAddress,
+		Locator:                    move.Locator,
+		MyMoveLink:                 MyMoveLink,
+		ActualExpenseReimbursement: actualExpenseReimbursement,
 	})
 
 	if err != nil {
@@ -122,10 +130,11 @@ func (m MoveCounseled) renderTemplates(appCtx appcontext.AppContext, data MoveCo
 }
 
 type MoveCounseledEmailData struct {
-	OriginDutyLocation  *string
-	DestinationLocation string
-	Locator             string
-	MyMoveLink          string
+	OriginDutyLocation         *string
+	DestinationLocation        string
+	Locator                    string
+	MyMoveLink                 string
+	ActualExpenseReimbursement bool
 }
 
 // RenderHTML renders the html for the email
