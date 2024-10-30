@@ -214,6 +214,15 @@ func ReportViolations(reportViolations models.ReportViolations) ghcmessages.Repo
 	return payload
 }
 
+func GsrAppeals(gsrAppeals models.GsrAppeals) ghcmessages.GSRAppeals {
+	payload := make(ghcmessages.GSRAppeals, len(gsrAppeals))
+	for i, v := range gsrAppeals {
+		gsrAppeal := v
+		payload[i] = GsrAppeal(&gsrAppeal)
+	}
+	return payload
+}
+
 func EvaluationReportOfficeUser(officeUser models.OfficeUser) ghcmessages.EvaluationReportOfficeUser {
 	payload := ghcmessages.EvaluationReportOfficeUser{
 		Email:     officeUser.Email,
@@ -296,6 +305,7 @@ func EvaluationReport(evaluationReport *models.EvaluationReport) *ghcmessages.Ev
 		ETag:                               etag.GenerateEtag(evaluationReport.UpdatedAt),
 		UpdatedAt:                          strfmt.DateTime(evaluationReport.UpdatedAt),
 		ReportViolations:                   ReportViolations(evaluationReport.ReportViolations),
+		GsrAppeals:                         GsrAppeals(evaluationReport.GsrAppeals),
 	}
 	return payload
 }
@@ -346,6 +356,37 @@ func ReportViolation(reportViolation *models.ReportViolation) *ghcmessages.Repor
 		ViolationID: violationID,
 		ReportID:    reportID,
 		Violation:   PWSViolationItem(&reportViolation.Violation),
+		GsrAppeals:  GsrAppeals(reportViolation.GsrAppeals),
+	}
+	return payload
+}
+
+func GsrAppeal(gsrAppeal *models.GsrAppeal) *ghcmessages.GSRAppeal {
+	if gsrAppeal == nil {
+		return nil
+	}
+	id := *handlers.FmtUUID(gsrAppeal.ID)
+	reportID := *handlers.FmtUUID(gsrAppeal.EvaluationReportID)
+	officeUserID := *handlers.FmtUUID(gsrAppeal.OfficeUserID)
+	officeUser := EvaluationReportOfficeUser(*gsrAppeal.OfficeUser)
+	isSeriousIncident := false
+	if gsrAppeal.IsSeriousIncidentAppeal != nil {
+		isSeriousIncident = *gsrAppeal.IsSeriousIncidentAppeal
+	}
+
+	payload := &ghcmessages.GSRAppeal{
+		ID:                id,
+		ReportID:          reportID,
+		OfficeUserID:      officeUserID,
+		OfficeUser:        &officeUser,
+		IsSeriousIncident: isSeriousIncident,
+		AppealStatus:      ghcmessages.GSRAppealStatusType(gsrAppeal.AppealStatus),
+		Remarks:           gsrAppeal.Remarks,
+		CreatedAt:         strfmt.DateTime(gsrAppeal.CreatedAt),
+	}
+
+	if gsrAppeal.ReportViolationID != nil {
+		payload.ViolationID = *handlers.FmtUUID(*gsrAppeal.ReportViolationID)
 	}
 	return payload
 }
@@ -2283,7 +2324,7 @@ func queuePaymentRequestStatus(paymentRequest models.PaymentRequest) string {
 }
 
 // QueuePaymentRequests payload
-func QueuePaymentRequests(paymentRequests *models.PaymentRequests, officeUsers []models.OfficeUser) *ghcmessages.QueuePaymentRequests {
+func QueuePaymentRequests(paymentRequests *models.PaymentRequests, officeUsers []models.OfficeUser, officeUser models.OfficeUser, isSupervisor bool) *ghcmessages.QueuePaymentRequests {
 	queuePaymentRequests := make(ghcmessages.QueuePaymentRequests, len(*paymentRequests))
 
 	for i, paymentRequest := range *paymentRequests {
@@ -2307,7 +2348,31 @@ func QueuePaymentRequests(paymentRequests *models.PaymentRequests, officeUsers [
 			OrderType:            (*string)(orders.OrdersType.Pointer()),
 			LockedByOfficeUserID: handlers.FmtUUIDPtr(moveTaskOrder.LockedByOfficeUserID),
 			LockExpiresAt:        handlers.FmtDateTimePtr(moveTaskOrder.LockExpiresAt),
-			AvailableOfficeUsers: *QueueAvailableOfficeUsers(officeUsers),
+		}
+
+		if paymentRequest.MoveTaskOrder.TIOAssignedUser != nil {
+			queuePaymentRequests[i].AssignedTo = AssignedOfficeUser(paymentRequest.MoveTaskOrder.TIOAssignedUser)
+		}
+
+		isAssignable := false
+		if queuePaymentRequests[i].AssignedTo == nil {
+			isAssignable = true
+		}
+
+		if isSupervisor {
+			isAssignable = true
+		}
+
+		queuePaymentRequests[i].Assignable = isAssignable
+
+		// only need to attach available office users if move is assignable
+		if queuePaymentRequests[i].Assignable {
+			availableOfficeUsers := officeUsers
+			if !isSupervisor {
+				availableOfficeUsers = models.OfficeUsers{officeUser}
+			}
+
+			queuePaymentRequests[i].AvailableOfficeUsers = *QueueAvailableOfficeUsers(availableOfficeUsers)
 		}
 
 		if orders.DepartmentIndicator != nil {
