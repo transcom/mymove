@@ -428,7 +428,7 @@ test.describe('Services counselor user', () => {
     await page.getByRole('button', { name: 'Confirm' }).click();
     await scPage.waitForPage.moveDetails();
 
-    await expect(page.getByTestId('ShipmentContainer').getByTestId('tag')).toContainText('packet ready for download');
+    await expect(page.getByText('PACKET READY FOR DOWNLOAD')).toBeVisible();
 
     // Navigate to the "View documents" page
     await expect(page.getByRole('button', { name: /View documents/i })).toBeVisible();
@@ -454,7 +454,7 @@ test.describe('Services counselor user', () => {
     await page.getByTestId('reviewDocumentsContinueButton').click();
     await scPage.waitForPage.moveDetails();
 
-    await expect(page.getByTestId('ShipmentContainer').getByTestId('tag')).toContainText('packet ready for download');
+    await expect(page.getByText('PACKET READY FOR DOWNLOAD')).toBeVisible();
   });
 
   test.describe('Edit shipment info and incentives', () => {
@@ -470,7 +470,6 @@ test.describe('Services counselor user', () => {
 
       await scPage.waitForPage.reviewWeightTicket();
       // Edit Actual Move Start Date
-      await page.getByTestId('shipmentInfo').getByTestId('shipmentInfo-showRequestDetailsButton').click();
       await page.getByTestId('actualMoveDate').getByTestId('editTextButton').click();
       await page.waitForSelector('text="Edit Shipment Info"');
       await page.getByRole('button', { name: 'Save' }).click();
@@ -487,7 +486,6 @@ test.describe('Services counselor user', () => {
 
       await scPage.waitForPage.reviewWeightTicket();
       // Edit Starting Address
-      await page.getByTestId('shipmentInfo').getByTestId('shipmentInfo-showRequestDetailsButton').click();
       await page.getByTestId('pickupAddress').getByTestId('editTextButton').click();
       await page.waitForSelector('text="Edit Shipment Info"');
       await page.getByRole('button', { name: 'Save' }).click();
@@ -504,7 +502,6 @@ test.describe('Services counselor user', () => {
 
       await scPage.waitForPage.reviewWeightTicket();
       // Edit Ending Address
-      await page.getByTestId('shipmentInfo').getByTestId('shipmentInfo-showRequestDetailsButton').click();
       await page.getByTestId('destinationAddress').getByTestId('editTextButton').click();
       await page.waitForSelector('text="Edit Shipment Info"');
       await page.getByRole('button', { name: 'Save' }).click();
@@ -568,6 +565,105 @@ test.describe('Services counselor user', () => {
       fullPpmMoveLocator = fullPpmMove.locator;
       await scPage.searchForCloseoutMove(fullPpmMoveLocator);
       await expect(page.getByTestId('ppmType-0')).toContainText('Full');
+    });
+  });
+
+  test.describe('Actual expense reimbursement tests', () => {
+    test.describe('is able to view/edit actual expense reimbursement for non-civilian moves', () => {
+      test('view/edit actual expense reimbursement - edit shipments page', async ({ page, scPage }) => {
+        const move = await scPage.testHarness.buildSubmittedMoveWithPPMShipmentForSC();
+        await scPage.navigateToMove(move.locator);
+
+        await expect(page.getByTestId('payGrade')).toContainText('E-1');
+        await expect(page.getByText('actual expense reimbursement')).not.toBeVisible();
+
+        await page.getByRole('button', { name: 'Edit shipment' }).click();
+        await expect(page.locator('h1').getByText('Edit shipment details')).toBeVisible();
+
+        expect(await page.locator('[data-testid="actualExpenseReimbursementTag"]').count()).toBe(0);
+
+        await page.getByText('Yes').first().click();
+        await page.getByTestId('submitForm').click();
+        await expect(page.getByTestId('actualExpenseReimbursementTag')).toContainText('Actual Expense Reimbursement');
+        await page.getByText('Approve').click();
+        await page.getByTestId('counselor-remarks').click();
+        await page.getByTestId('counselor-remarks').fill('test');
+        await page.getByTestId('submitForm').click();
+
+        await expect(page.getByTestId('payGrade')).toContainText('E-1');
+        await expect(page.getByTestId('ShipmentContainer').getByTestId('tag')).toContainText(
+          'actual expense reimbursement',
+        );
+
+        await page.getByRole('button', { name: 'Edit shipment' }).click();
+        await expect(page.locator('h1').getByText('Edit shipment details')).toBeVisible();
+        await expect(page.getByTestId('actualExpenseReimbursementTag')).toContainText('Actual Expense Reimbursement');
+      });
+
+      test('view/edit actual expense reimbursement - PPM closeout review documents', async ({ page, scPage }) => {
+        const move = await scPage.testHarness.buildApprovedMoveWithPPMProgearWeightTicketOffice();
+        await scPage.navigateToMoveUsingMoveSearch(move.locator);
+
+        await expect(page.getByTestId('payGrade')).toContainText('E-1');
+        await expect(page.getByText('actual expense reimbursement')).not.toBeVisible();
+
+        await page.getByText('Review documents').click();
+        await expect(page.getByRole('heading', { name: 'View documents' })).toBeVisible();
+
+        expect(await page.locator('[data-testid="tag"]').count()).toBe(0);
+        await expect(page.locator('label').getByText('Actual Expense Reimbursement')).toBeVisible();
+        await page.getByTestId('isActualExpenseReimbursement').getByTestId('editTextButton').click();
+
+        await expect(page.getByText('Is this PPM an Actual Expense Reimbursement?')).toBeVisible();
+        await page.getByTestId('modal').getByText('Yes').click();
+        await page.getByTestId('modal').getByTestId('button').click();
+
+        await expect(page.getByText('Is this PPM an Actual Expense Reimbursement?')).not.toBeVisible();
+        await page.getByTestId('shipmentInfo-showRequestDetailsButton').click();
+        expect(await page.locator('[data-testid="tag"]').count()).toBe(1);
+        await page.getByText('Accept').click();
+        await page.getByTestId('closeSidebar').click();
+        await expect(page.getByRole('heading', { name: 'Move details' })).toBeVisible();
+        await expect(page.getByText('actual expense reimbursement')).toBeVisible();
+      });
+    });
+
+    test.describe('is unable to edit actual expense reimbursement for civilian moves', () => {
+      test('cannot edit actual expense reimbursement - edit shipments page', async ({ page, scPage }) => {
+        const move = await scPage.testHarness.buildSubmittedMoveWithPPMShipmentForSC();
+        await scPage.navigateToMove(move.locator);
+
+        await expect(page.getByText('actual expense reimbursement')).not.toBeVisible();
+        await page.getByTestId('view-edit-orders').click();
+        await page.getByTestId('payGradeInput').selectOption('AVIATION_CADET');
+        await page.getByTestId('payGradeInput').selectOption('CIVILIAN_EMPLOYEE');
+        await page.getByRole('button', { name: 'Save' }).click();
+
+        await expect(page.getByTestId('payGrade')).toContainText('Civilian Employee');
+        await expect(page.getByText('actual expense reimbursement')).toBeVisible();
+        await page.getByRole('button', { name: 'Edit shipment' }).click();
+
+        await expect(page.locator('h1').getByText('Edit shipment details')).toBeVisible();
+
+        expect(await page.locator('[data-testid="isActualExpenseReimbursementYes"]').isDisabled()).toBe(true);
+        expect(await page.locator('[data-testid="isActualExpenseReimbursementNo"]').isDisabled()).toBe(true);
+      });
+
+      test('cannot edit actual expense reimbursement - PPM closeout review documents', async ({ page, scPage }) => {
+        const move = await scPage.testHarness.buildApprovedMoveWithPPMProgearWeightTicketOfficeCivilian();
+        await scPage.navigateToMoveUsingMoveSearch(move.locator);
+
+        await expect(page.getByTestId('payGrade')).toContainText('Civilian Employee');
+
+        await page.getByText('Review documents').click();
+        await expect(page.getByRole('heading', { name: 'View documents' })).toBeVisible();
+        await expect(page.getByTestId('tag')).toContainText('actual expense reimbursement');
+
+        await expect(page.locator('label').getByText('Actual Expense Reimbursement')).toBeVisible();
+        expect(await page.getByTestId('isActualExpenseReimbursement').getByTestId('editTextButton').isDisabled()).toBe(
+          true,
+        );
+      });
     });
   });
 

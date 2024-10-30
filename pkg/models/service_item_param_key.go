@@ -111,10 +111,6 @@ const (
 	ServiceItemParamNameServiceAreaDest ServiceItemParamName = "ServiceAreaDest"
 	// ServiceItemParamNameServiceAreaOrigin is the param key name ServiceAreaOrigin
 	ServiceItemParamNameServiceAreaOrigin ServiceItemParamName = "ServiceAreaOrigin"
-	// ServiceItemParamNameInternationalRateAreaDest is the param key name InternationalRateAreaDest
-	ServiceItemParamNameInternationalRateAreaDest ServiceItemParamName = "InternationalRateAreaDest"
-	// ServiceItemParamNameInternationalRateAreaOrigin is the param key name InternationalRateAreaOrigin
-	ServiceItemParamNameInternationalRateAreaOrigin ServiceItemParamName = "InternationalRateAreaOrigin"
 	// ServiceItemParamNameServicesScheduleDest is the param key name ServicesScheduleDest
 	ServiceItemParamNameServicesScheduleDest ServiceItemParamName = "ServicesScheduleDest"
 	// ServiceItemParamNameServicesScheduleOrigin is the param key name ServicesScheduleOrigin
@@ -256,8 +252,6 @@ var ValidServiceItemParamNames = []ServiceItemParamName{
 	ServiceItemParamNameRequestedPickupDate,
 	ServiceItemParamNameServiceAreaDest,
 	ServiceItemParamNameServiceAreaOrigin,
-	ServiceItemParamNameInternationalRateAreaDest,
-	ServiceItemParamNameInternationalRateAreaOrigin,
 	ServiceItemParamNameServicesScheduleDest,
 	ServiceItemParamNameServicesScheduleOrigin,
 	ServiceItemParamNameSITPaymentRequestEnd,
@@ -332,8 +326,6 @@ var ValidServiceItemParamNameStrings = []string{
 	string(ServiceItemParamNameRequestedPickupDate),
 	string(ServiceItemParamNameServiceAreaDest),
 	string(ServiceItemParamNameServiceAreaOrigin),
-	string(ServiceItemParamNameInternationalRateAreaDest),
-	string(ServiceItemParamNameInternationalRateAreaOrigin),
 	string(ServiceItemParamNameServicesScheduleDest),
 	string(ServiceItemParamNameServicesScheduleOrigin),
 	string(ServiceItemParamNameSITPaymentRequestEnd),

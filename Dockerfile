@@ -16,6 +16,7 @@ COPY bin/rds-ca-2019-root.pem /bin/rds-ca-2019-root.pem
 COPY bin/milmove /bin/milmove
 
 COPY config/tls/milmove-cert-bundle.p7b /config/tls/milmove-cert-bundle.p7b
+COPY config/tls/dod-sw-ca-75.pem /config/tls/dod-sw-ca-75.pem
 COPY config/tls/dod-sw-ca-66.pem /config/tls/dod-sw-ca-66.pem
 
 COPY swagger/* /swagger/

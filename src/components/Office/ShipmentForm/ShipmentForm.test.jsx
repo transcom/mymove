@@ -261,6 +261,7 @@ const mockPPMShipment = {
     hasRequestedAdvance: true,
     advanceAmountRequested: 487500,
     advanceStatus: 'APPROVED',
+    isActualExpenseReimbursement: true,
   },
 };
 
@@ -1306,6 +1307,39 @@ describe('ShipmentForm component', () => {
       expect(mockNavigate).not.toHaveBeenCalled();
     });
 
+    it('shows a specific error message if the submitHandler returns a specific error message', async () => {
+      const mockSpecificMessage = 'The data entered no good.';
+      const mockSubmitHandler = jest.fn((payload, { onError }) => {
+        // fire onError handler on form
+        onError({ response: { body: { message: mockSpecificMessage, status: 400 } } });
+      });
+
+      validatePostalCode.mockImplementation(() => Promise.resolve(false));
+
+      renderWithRouter(
+        <ShipmentForm
+          {...defaultProps}
+          shipmentType={SHIPMENT_OPTIONS.PPM}
+          mtoShipment={mockPPMShipment}
+          submitHandler={mockSubmitHandler}
+          isCreatePage={false}
+        />,
+      );
+
+      const saveButton = screen.getByRole('button', { name: 'Save and Continue' });
+      expect(saveButton).not.toBeDisabled();
+      await act(async () => {
+        await userEvent.click(saveButton);
+      });
+
+      await waitFor(() => {
+        expect(mockSubmitHandler).toHaveBeenCalled();
+      });
+
+      expect(await screen.findByText(mockSpecificMessage)).toBeInTheDocument();
+      expect(mockNavigate).not.toHaveBeenCalled();
+    });
+
     it('shows an error if the submitHandler returns an error when editing a PPM', async () => {
       const mockSubmitHandler = jest.fn((payload, { onError }) => {
         // fire onError handler on form
@@ -1765,9 +1799,11 @@ describe('ShipmentForm component', () => {
 
         expect(screen.getAllByLabelText('Yes')[0]).toBeChecked();
         expect(screen.getAllByLabelText('No')[0]).not.toBeChecked();
+        expect(screen.getAllByLabelText('Yes')[1]).toBeChecked();
+        expect(screen.getAllByLabelText('No')[1]).not.toBeChecked();
         expect(screen.getByLabelText('Estimated PPM weight')).toHaveValue('4,999');
-        expect(screen.getAllByLabelText('Yes')[2]).toBeChecked();
-        expect(screen.getAllByLabelText('No')[2]).not.toBeChecked();
+        expect(screen.getAllByLabelText('Yes')[3]).toBeChecked();
+        expect(screen.getAllByLabelText('No')[3]).not.toBeChecked();
       });
 
       it('test destination address street 1 is OPTIONAL', async () => {
@@ -2097,6 +2133,7 @@ describe('ShipmentForm component', () => {
       );
 
       expect(await screen.findByTestId('tag')).toHaveTextContent('PPM');
+      expect(screen.getByText('Is this PPM an Actual Expense Reimbursement?')).toBeInTheDocument();
       expect(screen.getByText('What address are you moving from?')).toBeInTheDocument();
       expect(screen.getByText('Second pickup address')).toBeInTheDocument();
       expect(

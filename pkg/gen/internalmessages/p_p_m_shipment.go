@@ -51,6 +51,11 @@ type PPMShipment struct {
 	// advance status
 	AdvanceStatus *PPMAdvanceStatus `json:"advanceStatus,omitempty"`
 
+	// The allowable weight of the PPM shipment goods being moved.
+	// Example: 4300
+	// Minimum: 0
+	AllowableWeight *int64 `json:"allowableWeight"`
+
 	// The timestamp of when the shipment was approved and the service member can begin their move.
 	// Format: date-time
 	ApprovedAt *strfmt.DateTime `json:"approvedAt"`
@@ -117,6 +122,10 @@ type PPMShipment struct {
 	// Read Only: true
 	// Format: uuid
 	ID strfmt.UUID `json:"id"`
+
+	// Used for PPM shipments only. Denotes if this shipment uses the Actual Expense Reimbursement method.
+	// Example: false
+	IsActualExpenseReimbursement *bool `json:"isActualExpenseReimbursement"`
 
 	// All expense documentation receipt records of this PPM shipment.
 	MovingExpenses []*MovingExpense `json:"movingExpenses"`
@@ -221,6 +230,10 @@ func (m *PPMShipment) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validateAdvanceStatus(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateAllowableWeight(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -380,6 +393,18 @@ func (m *PPMShipment) validateAdvanceStatus(formats strfmt.Registry) error {
 			}
 			return err
 		}
+	}
+
+	return nil
+}
+
+func (m *PPMShipment) validateAllowableWeight(formats strfmt.Registry) error {
+	if swag.IsZero(m.AllowableWeight) { // not required
+		return nil
+	}
+
+	if err := validate.MinimumInt("allowableWeight", "body", *m.AllowableWeight, 0, false); err != nil {
+		return err
 	}
 
 	return nil

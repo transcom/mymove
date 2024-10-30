@@ -33,9 +33,7 @@ const defaultProps = {
   },
   tripNumber: 1,
   showAllFields: false,
-  ppmNumber: 1,
-  updateAllowableWeight: mockCallback,
-  updateDocumentSetAllowableWeight: mockCallback,
+  ppmNumber: '1',
   setCurrentMtoShipments: mockCallback,
 };
 
@@ -45,7 +43,6 @@ const baseWeightTicketProps = {
   vehicleDescription: 'Kia Forte',
   emptyWeight: 400,
   fullWeight: 1200,
-  allowableWeight: 800,
 };
 
 const missingWeightTicketProps = {
@@ -81,7 +78,6 @@ const claimableTrailerProps = {
 const fullShipmentProps = {
   weightTicket: {
     adjustedNetWeight: null,
-    allowableWeight: 7000,
     createdAt: '2023-12-20T17:33:48.215Z',
     eTag: 'MjAyMy0xMi0yMFQxNzozMzo1MC4xMDIwNzJa',
     emptyDocument: {
@@ -171,6 +167,7 @@ const fullShipmentProps = {
       eTag: 'MjAyMy0xMi0yMFQxNzozMzo1MC4xMDExNDFa',
       estimatedIncentive: 1000000,
       estimatedWeight: 4000,
+      allowableWeight: 7000,
       expectedDepartureDate: '2020-03-15',
       finalIncentive: null,
       hasProGear: true,
@@ -205,7 +202,6 @@ const fullShipmentProps = {
       weightTickets: [
         {
           adjustedNetWeight: null,
-          allowableWeight: null,
           createdAt: '2023-12-20T17:33:48.215Z',
           eTag: 'MjAyMy0xMi0yMFQxNzozMzo1MC4xMDIwNzJa',
           emptyDocument: {
@@ -305,6 +301,7 @@ const fullShipmentProps = {
         eTag: 'MjAyMy0xMi0yMFQxNzozMzo1MC4xMDExNDFa',
         estimatedIncentive: 1000000,
         estimatedWeight: 4000,
+        allowableWeight: 7000,
         expectedDepartureDate: '2020-03-15',
         finalIncentive: null,
         hasProGear: true,
@@ -339,7 +336,6 @@ const fullShipmentProps = {
         weightTickets: [
           {
             adjustedNetWeight: null,
-            allowableWeight: null,
             createdAt: '2023-12-20T17:33:48.215Z',
             eTag: 'MjAyMy0xMi0yMFQxNzozMzo1MC4xMDIwNzJa',
             emptyDocument: {
@@ -440,7 +436,6 @@ describe('ReviewWeightTicket component', () => {
       expect(screen.getByText('Vehicle description')).toBeInTheDocument();
       expect(screen.getByLabelText('Full weight')).toBeInstanceOf(HTMLInputElement);
       expect(screen.getByText('Net weight')).toBeInTheDocument();
-      expect(screen.getByText('Allowable weight')).toBeInTheDocument();
       expect(screen.getByText('Did they use a trailer they owned?')).toBeInTheDocument();
       expect(screen.getByLabelText('Yes')).toBeInstanceOf(HTMLInputElement);
       expect(screen.getByLabelText('No')).toBeInstanceOf(HTMLInputElement);
@@ -501,12 +496,7 @@ describe('ReviewWeightTicket component', () => {
     it('populates edit form with existing weight ticket values and modifies them to alter the net weight calculation', async () => {
       render(
         <MockProviders>
-          <ReviewWeightTicket
-            updateTotalWeight={mockCallback}
-            updateDocumentSetAllowableWeight={mockCallback}
-            {...defaultProps}
-            {...fullShipmentProps}
-          />
+          <ReviewWeightTicket updateTotalWeight={mockCallback} {...defaultProps} {...fullShipmentProps} />
         </MockProviders>,
       );
 
@@ -515,11 +505,9 @@ describe('ReviewWeightTicket component', () => {
       });
       const emptyWeightInput = screen.getByTestId('emptyWeight');
       const fullWeightInput = screen.getByTestId('fullWeight');
-      const allowableWeightInput = screen.getByTestId('allowableWeight');
       const netWeightDisplay = screen.getByTestId('net-weight-display');
       expect(emptyWeightInput).toHaveDisplayValue('1,000');
       expect(fullWeightInput).toHaveDisplayValue('8,000');
-      expect(allowableWeightInput).toHaveDisplayValue('7,000');
       expect(netWeightDisplay).toHaveTextContent('7,000');
       expect(screen.getByLabelText('No')).toBeChecked();
 
@@ -529,15 +517,8 @@ describe('ReviewWeightTicket component', () => {
         fullWeightInput.blur();
       });
 
-      await act(async () => {
-        await userEvent.clear(allowableWeightInput);
-        await userEvent.type(allowableWeightInput, '11,000');
-        allowableWeightInput.blur();
-      });
-
       await waitFor(() => {
         expect(netWeightDisplay).toHaveTextContent('9,000');
-        expect(allowableWeightInput).toHaveDisplayValue('11,000');
       });
     });
 

@@ -90,12 +90,18 @@ const ShipmentDisplay = ({
           <div className={styles.headerContainer}>
             <div className={styles.shipmentTypeHeader}>
               <h3>
-                <label id={`shipment-display-label-${shipmentId}`}>{displayInfo.heading}</label>
+                <label id={`shipment-display-label-${shipmentId}`}>
+                  <span className={styles.marketCodeIndicator}>{displayInfo.marketCode}</span>
+                  {displayInfo.heading}
+                </label>
               </h3>
               <div>
+                {displayInfo.isActualExpenseReimbursement && <Tag>actual expense reimbursement</Tag>}
                 {displayInfo.isDiversion && <Tag>diversion</Tag>}
-                {displayInfo.shipmentStatus === shipmentStatuses.CANCELED && (
-                  <Tag className="usa-tag--red">cancelled</Tag>
+                {(displayInfo.shipmentStatus === shipmentStatuses.CANCELED ||
+                  displayInfo.status === shipmentStatuses.CANCELED ||
+                  displayInfo.ppmShipment?.status === ppmShipmentStatuses.CANCELED) && (
+                  <Tag className="usa-tag--red">canceled</Tag>
                 )}
                 {displayInfo.shipmentStatus === shipmentStatuses.DIVERSION_REQUESTED && <Tag>diversion requested</Tag>}
                 {displayInfo.shipmentStatus === shipmentStatuses.CANCELLATION_REQUESTED && (
@@ -181,6 +187,7 @@ ShipmentDisplay.propTypes = {
     SHIPMENT_OPTIONS.PPM,
     SHIPMENT_TYPES.BOAT_HAUL_AWAY,
     SHIPMENT_TYPES.BOAT_TOW_AWAY,
+    SHIPMENT_OPTIONS.MOBILE_HOME,
   ]),
   displayInfo: PropTypes.oneOfType([
     PropTypes.shape({

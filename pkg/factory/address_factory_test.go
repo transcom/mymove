@@ -55,11 +55,13 @@ func (suite *FactorySuite) TestBuildAddress() {
 					City:           customCity,
 					State:          customState,
 					PostalCode:     customPostalCode,
+					County:         customCounty,
+					IsOconus:       models.BoolPointer(false),
 				},
 			},
 			{
 				Model: models.Country{
-					Country:     "AL",
+					Country:     "US",
 					CountryName: "UNITED STATES",
 				},
 			},
@@ -110,6 +112,7 @@ func (suite *FactorySuite) TestBuildAddress() {
 				Model: models.Address{
 					StreetAddress1: customAddress1,
 					StreetAddress2: customAddress2,
+					IsOconus:       models.BoolPointer(false),
 				},
 			},
 		}, []Trait{
@@ -142,6 +145,7 @@ func (suite *FactorySuite) TestBuildAddress() {
 			{
 				Model: models.Address{
 					StreetAddress1: customAddress1,
+					IsOconus:       models.BoolPointer(false),
 				},
 			},
 		}, []Trait{
@@ -183,6 +187,7 @@ func (suite *FactorySuite) TestBuildAddress() {
 					State:          customState,
 					PostalCode:     customPostalCode,
 					County:         "County",
+					IsOconus:       models.BoolPointer(false),
 				},
 				LinkOnly: true,
 			},
@@ -239,6 +244,7 @@ func (suite *FactorySuite) TestBuildMinimalAddress() {
 				Model: models.Address{
 					StreetAddress1: customStreet,
 					PostalCode:     customPostalCode,
+					IsOconus:       models.BoolPointer(false),
 				},
 			},
 		}, nil)
@@ -285,6 +291,7 @@ func (suite *FactorySuite) TestBuildMinimalAddress() {
 				Model: models.Address{
 					StreetAddress1: customStreet,
 					PostalCode:     customPostalCode,
+					IsOconus:       models.BoolPointer(false),
 				},
 			},
 		}, nil)
@@ -312,6 +319,7 @@ func (suite *FactorySuite) TestBuildMinimalAddress() {
 					ID:             uuid.Must(uuid.NewV4()),
 					StreetAddress1: customStreet,
 					PostalCode:     customPostalCode,
+					IsOconus:       models.BoolPointer(false),
 				},
 				LinkOnly: true,
 			},

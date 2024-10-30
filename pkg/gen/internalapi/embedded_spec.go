@@ -3867,6 +3867,13 @@ func init() {
           "x-nullable": true,
           "x-omitempty": false
         },
+        "isActualExpenseReimbursement": {
+          "description": "Denotes if this PPM shipment uses the Actual Expense Reimbursement method.",
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false,
+          "example": false
+        },
         "pickupAddress": {
           "$ref": "#/definitions/Address"
         },
@@ -4145,6 +4152,11 @@ func init() {
           "format": "date",
           "title": "Orders date",
           "example": "2018-04-26"
+        },
+        "move_id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "cf1addea-a4f9-4173-8506-2bb82a064cb7"
         },
         "new_duty_location_id": {
           "type": "string",
@@ -4496,6 +4508,9 @@ func init() {
         "closeoutOffice": {
           "$ref": "#/definitions/TransportationOffice"
         },
+        "counselingOffice": {
+          "$ref": "#/definitions/TransportationOffice"
+        },
         "createdAt": {
           "type": "string",
           "format": "date-time",
@@ -4765,6 +4780,15 @@ func init() {
           "format": "uuid",
           "readOnly": true,
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "marketCode": {
+          "description": "Single-letter designator for domestic (d) or international (i) shipments",
+          "type": "string",
+          "enum": [
+            "d",
+            "i"
+          ],
+          "example": "d"
         },
         "mobileHomeShipment": {
           "$ref": "#/definitions/MobileHome"
@@ -5143,6 +5167,9 @@ func init() {
           "example": "Change of orders"
         },
         "closeout_office": {
+          "$ref": "#/definitions/TransportationOffice"
+        },
+        "counseling_office": {
           "$ref": "#/definitions/TransportationOffice"
         },
         "created_at": {
@@ -5955,7 +5982,8 @@ func init() {
         "SEPARATION",
         "WOUNDED_WARRIOR",
         "BLUEBARK",
-        "SAFETY"
+        "SAFETY",
+        "TEMPORARY_DUTY"
       ],
       "x-display-value": {
         "BLUEBARK": "BLUEBARK",
@@ -5964,6 +5992,7 @@ func init() {
         "RETIREMENT": "Retirement",
         "SAFETY": "Safety",
         "SEPARATION": "Separation",
+        "TEMPORARY_DUTY": "Temporary Duty (TDY)",
         "WOUNDED_WARRIOR": "Wounded Warrior"
       }
     },
@@ -6255,6 +6284,13 @@ func init() {
         "advanceStatus": {
           "$ref": "#/definitions/PPMAdvanceStatus"
         },
+        "allowableWeight": {
+          "description": "The allowable weight of the PPM shipment goods being moved.",
+          "type": "integer",
+          "x-nullable": true,
+          "x-omitempty": false,
+          "example": 4300
+        },
         "approvedAt": {
           "description": "The timestamp of when the shipment was approved and the service member can begin their move.",
           "type": "string",
@@ -6347,6 +6383,13 @@ func init() {
           "format": "uuid",
           "readOnly": true,
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "isActualExpenseReimbursement": {
+          "description": "Used for PPM shipments only. Denotes if this shipment uses the Actual Expense Reimbursement method.",
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false,
+          "example": false
         },
         "movingExpenses": {
           "description": "All expense documentation receipt records of this PPM shipment.",
@@ -7637,6 +7680,13 @@ func init() {
           "x-nullable": true,
           "x-omitempty": false
         },
+        "isActualExpenseReimbursement": {
+          "description": "Used for PPM shipments only. Denotes if this shipment uses the Actual Expense Reimbursement method.",
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false,
+          "example": false
+        },
         "pickupAddress": {
           "$ref": "#/definitions/Address"
         },
@@ -7815,10 +7865,6 @@ func init() {
       "properties": {
         "adjustedNetWeight": {
           "description": "Indicates the adjusted net weight of the vehicle",
-          "type": "integer"
-        },
-        "allowableWeight": {
-          "description": "Indicates the maximum reimbursable weight of the shipment",
           "type": "integer"
         },
         "emptyWeight": {
@@ -8008,12 +8054,6 @@ func init() {
       "properties": {
         "adjustedNetWeight": {
           "description": "Indicates the adjusted net weight of the vehicle",
-          "type": "integer",
-          "x-nullable": true,
-          "x-omitempty": false
-        },
-        "allowableWeight": {
-          "description": "Maximum reimbursable weight.",
           "type": "integer",
           "x-nullable": true,
           "x-omitempty": false
@@ -12660,6 +12700,13 @@ func init() {
           "x-nullable": true,
           "x-omitempty": false
         },
+        "isActualExpenseReimbursement": {
+          "description": "Denotes if this PPM shipment uses the Actual Expense Reimbursement method.",
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false,
+          "example": false
+        },
         "pickupAddress": {
           "$ref": "#/definitions/Address"
         },
@@ -12938,6 +12985,11 @@ func init() {
           "format": "date",
           "title": "Orders date",
           "example": "2018-04-26"
+        },
+        "move_id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "cf1addea-a4f9-4173-8506-2bb82a064cb7"
         },
         "new_duty_location_id": {
           "type": "string",
@@ -13291,6 +13343,9 @@ func init() {
         "closeoutOffice": {
           "$ref": "#/definitions/TransportationOffice"
         },
+        "counselingOffice": {
+          "$ref": "#/definitions/TransportationOffice"
+        },
         "createdAt": {
           "type": "string",
           "format": "date-time",
@@ -13560,6 +13615,15 @@ func init() {
           "format": "uuid",
           "readOnly": true,
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "marketCode": {
+          "description": "Single-letter designator for domestic (d) or international (i) shipments",
+          "type": "string",
+          "enum": [
+            "d",
+            "i"
+          ],
+          "example": "d"
         },
         "mobileHomeShipment": {
           "$ref": "#/definitions/MobileHome"
@@ -13940,6 +14004,9 @@ func init() {
           "example": "Change of orders"
         },
         "closeout_office": {
+          "$ref": "#/definitions/TransportationOffice"
+        },
+        "counseling_office": {
           "$ref": "#/definitions/TransportationOffice"
         },
         "created_at": {
@@ -14752,7 +14819,8 @@ func init() {
         "SEPARATION",
         "WOUNDED_WARRIOR",
         "BLUEBARK",
-        "SAFETY"
+        "SAFETY",
+        "TEMPORARY_DUTY"
       ],
       "x-display-value": {
         "BLUEBARK": "BLUEBARK",
@@ -14761,6 +14829,7 @@ func init() {
         "RETIREMENT": "Retirement",
         "SAFETY": "Safety",
         "SEPARATION": "Separation",
+        "TEMPORARY_DUTY": "Temporary Duty (TDY)",
         "WOUNDED_WARRIOR": "Wounded Warrior"
       }
     },
@@ -15052,6 +15121,14 @@ func init() {
         "advanceStatus": {
           "$ref": "#/definitions/PPMAdvanceStatus"
         },
+        "allowableWeight": {
+          "description": "The allowable weight of the PPM shipment goods being moved.",
+          "type": "integer",
+          "minimum": 0,
+          "x-nullable": true,
+          "x-omitempty": false,
+          "example": 4300
+        },
         "approvedAt": {
           "description": "The timestamp of when the shipment was approved and the service member can begin their move.",
           "type": "string",
@@ -15144,6 +15221,13 @@ func init() {
           "format": "uuid",
           "readOnly": true,
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "isActualExpenseReimbursement": {
+          "description": "Used for PPM shipments only. Denotes if this shipment uses the Actual Expense Reimbursement method.",
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false,
+          "example": false
         },
         "movingExpenses": {
           "description": "All expense documentation receipt records of this PPM shipment.",
@@ -16436,6 +16520,13 @@ func init() {
           "x-nullable": true,
           "x-omitempty": false
         },
+        "isActualExpenseReimbursement": {
+          "description": "Used for PPM shipments only. Denotes if this shipment uses the Actual Expense Reimbursement method.",
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false,
+          "example": false
+        },
         "pickupAddress": {
           "$ref": "#/definitions/Address"
         },
@@ -16615,11 +16706,6 @@ func init() {
       "properties": {
         "adjustedNetWeight": {
           "description": "Indicates the adjusted net weight of the vehicle",
-          "type": "integer",
-          "minimum": 0
-        },
-        "allowableWeight": {
-          "description": "Indicates the maximum reimbursable weight of the shipment",
           "type": "integer",
           "minimum": 0
         },
@@ -16815,13 +16901,6 @@ func init() {
       "properties": {
         "adjustedNetWeight": {
           "description": "Indicates the adjusted net weight of the vehicle",
-          "type": "integer",
-          "minimum": 0,
-          "x-nullable": true,
-          "x-omitempty": false
-        },
-        "allowableWeight": {
-          "description": "Maximum reimbursable weight.",
           "type": "integer",
           "minimum": 0,
           "x-nullable": true,

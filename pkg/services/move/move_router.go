@@ -168,6 +168,22 @@ func (router moveRouter) needsServiceCounseling(appCtx appcontext.AppContext, mo
 
 // sendToServiceCounselor makes the move available for a Service Counselor to review
 func (router moveRouter) sendToServiceCounselor(appCtx appcontext.AppContext, move *models.Move) error {
+	var orders models.Order
+	err := appCtx.DB().Q().
+		Where("orders.id = ?", move.OrdersID).
+		First(&orders)
+
+	if err != nil {
+		switch err {
+		case sql.ErrNoRows:
+			appCtx.Logger().Error("failure finding move", zap.Error(err))
+			return apperror.NewNotFoundError(move.OrdersID, "looking for move.OrdersID")
+		default:
+			appCtx.Logger().Error("failure encountered querying for orders associated with the move", zap.Error(err))
+			return apperror.NewQueryError("Order", err, fmt.Sprintf("failure encountered querying for orders associated with the move, %s, id: %s", err.Error(), move.ID))
+		}
+	}
+
 	if move.Status == models.MoveStatusNeedsServiceCounseling {
 		return nil
 	}
@@ -186,6 +202,7 @@ func (router moveRouter) sendToServiceCounselor(appCtx appcontext.AppContext, mo
 		)
 	}
 
+	isCivilian := orders.Grade != nil && *orders.Grade == models.ServiceMemberGradeCIVILIANEMPLOYEE
 	move.Status = models.MoveStatusNeedsServiceCounseling
 	now := time.Now()
 	move.SubmittedAt = &now
@@ -195,6 +212,8 @@ func (router moveRouter) sendToServiceCounselor(appCtx appcontext.AppContext, mo
 		if move.MTOShipments[i].ShipmentType == models.MTOShipmentTypePPM {
 			move.MTOShipments[i].Status = models.MTOShipmentStatusSubmitted
 			move.MTOShipments[i].PPMShipment.Status = models.PPMShipmentStatusSubmitted
+			// actual expense reimbursement is always true for civilian moves
+			move.MTOShipments[i].PPMShipment.IsActualExpenseReimbursement = models.BoolPointer(isCivilian)
 
 			if verrs, err := appCtx.DB().ValidateAndUpdate(&move.MTOShipments[i]); verrs.HasAny() || err != nil {
 				msg := "failure saving shipment when routing move submission"
@@ -214,19 +233,25 @@ func (router moveRouter) sendToServiceCounselor(appCtx appcontext.AppContext, mo
 			move.MTOShipments[i].Status = models.MTOShipmentStatusSubmitted
 
 			if verrs, err := appCtx.DB().ValidateAndUpdate(&move.MTOShipments[i]); verrs.HasAny() || err != nil {
-				msg := "failure saving shipment when routing move submission"
+				msg := "failure saving parent MTO shipment object for boat/mobile home shipment when routing move submission"
 				appCtx.Logger().Error(msg, zap.Error(err))
 				return apperror.NewInvalidInputError(move.MTOShipments[i].ID, err, verrs, msg)
 			}
-		}
-		// update status for mobile home shipment
-		if move.MTOShipments[i].ShipmentType == models.MTOShipmentTypeMobileHome {
-			move.MTOShipments[i].Status = models.MTOShipmentStatusSubmitted
 
-			if verrs, err := appCtx.DB().ValidateAndUpdate(&move.MTOShipments[i]); verrs.HasAny() || err != nil {
-				msg := "failure saving shipment when routing move submission"
-				appCtx.Logger().Error(msg, zap.Error(err))
-				return apperror.NewInvalidInputError(move.MTOShipments[i].ID, err, verrs, msg)
+			if move.MTOShipments[i].BoatShipment != nil {
+				if verrs, err := appCtx.DB().ValidateAndUpdate(move.MTOShipments[i].BoatShipment); verrs.HasAny() || err != nil {
+					msg := "failure saving boat shipment when routing move submission"
+					appCtx.Logger().Error(msg, zap.Error(err))
+					return apperror.NewInvalidInputError(move.MTOShipments[i].ID, err, verrs, msg)
+				}
+			}
+
+			if move.MTOShipments[i].MobileHome != nil {
+				if verrs, err := appCtx.DB().ValidateAndUpdate(move.MTOShipments[i].MobileHome); verrs.HasAny() || err != nil {
+					msg := "failure saving mobile home shipment when routing move submission"
+					appCtx.Logger().Error(msg, zap.Error(err))
+					return apperror.NewInvalidInputError(move.MTOShipments[i].ID, err, verrs, msg)
+				}
 			}
 		}
 	}

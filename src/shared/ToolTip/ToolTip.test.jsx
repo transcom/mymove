@@ -1,5 +1,6 @@
 import React from 'react';
 import { mount } from 'enzyme';
+import { render, screen } from '@testing-library/react';
 
 import ToolTip from './ToolTip';
 
@@ -84,5 +85,27 @@ describe('ToolTip', () => {
 
     expect(tooltipTitle.exists()).toBe(false);
     expect(tooltipBody.text()).toBe(bodyText);
+  });
+
+  it('verify data-testid is present', () => {
+    const text = 'Test Text';
+    render(<ToolTip text={text} icon="circle-question" position="left" />);
+
+    // Verify data-testid is present
+    const tooltipIcon = screen.getByTestId('tooltip-container');
+    expect(tooltipIcon).toBeInTheDocument();
+  });
+  it('should display a large tooltip', () => {
+    const text = 'Test Text';
+    const component = mount(<ToolTip text={text} icon="circle-question" position="top" textAreaSize="large" />);
+
+    // Simulate a click on the tooltip container
+    component.find('.tooltipContainer').simulate('click');
+
+    // Find the tooltip content after the click with left class
+    const tooltipContent = component.find('.tooltipTextTop.toolTipTextAreaLarge');
+
+    // Assert that the tooltip content is displayed
+    expect(tooltipContent.text()).toBe(text);
   });
 });

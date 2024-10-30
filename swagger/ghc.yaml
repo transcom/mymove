@@ -422,7 +422,7 @@ paths:
       parameters: []
       responses:
         '200':
-          description: Successfully cancelled move
+          description: Successfully canceled move
           schema:
             $ref: '#/definitions/Move'
         '403':
@@ -442,6 +442,8 @@ paths:
       description: cancels a move
       operationId: moveCanceler
       summary: Cancels a move
+      x-permissions:
+        - update.cancelMoveFlag
   /counseling/orders/{orderID}:
     parameters:
       - description: ID of order to update
@@ -2942,6 +2944,50 @@ paths:
           $ref: '#/responses/ServerError'
       x-permissions:
         - update.evaluationReport
+  /evaluation-reports/{reportID}/{reportViolationID}/appeal/add:
+    parameters:
+      - in: path
+        description: the evaluation report ID
+        name: reportID
+        required: true
+        type: string
+        format: uuid
+      - in: path
+        description: the report violation ID
+        name: reportViolationID
+        required: true
+        type: string
+        format: uuid
+    post:
+      summary: Adds an appeal to a violation
+      description: Adds an appeal to a violation
+      operationId: addAppealToViolation
+      tags:
+        - evaluationReports
+      produces:
+        - application/json
+      consumes:
+        - application/json
+      parameters:
+        - in: body
+          name: body
+          schema:
+            $ref: '#/definitions/CreateViolationAppeal'
+      responses:
+        '204':
+          description: Successfully added an appeal to a violation
+        '403':
+          $ref: '#/responses/PermissionDenied'
+        '404':
+          $ref: '#/responses/NotFound'
+        '412':
+          $ref: '#/responses/PreconditionFailed'
+        '422':
+          $ref: '#/responses/UnprocessableEntity'
+        '500':
+          $ref: '#/responses/ServerError'
+      x-permissions:
+        - update.evaluationReport
   /pws-violations:
     get:
       summary: Fetch the possible PWS violations for an evaluation report
@@ -3746,6 +3792,7 @@ paths:
             - emplid
             - age
             - originDutyLocation
+            - assignedTo
           description: field that results should be sorted by
         - in: query
           name: order
@@ -3790,6 +3837,11 @@ paths:
         - in: query
           name: originDutyLocation
           type: string
+        - in: query
+          name: assignedTo
+          type: string
+          description: |
+            Used to illustrate which user is assigned to this payment request.
         - in: query
           name: status
           type: array
@@ -3887,6 +3939,7 @@ paths:
                     - APPROVED
                     - NEEDS SERVICE COUNSELING
                     - SERVICE COUNSELING COMPLETED
+                    - CANCELED
               originPostalCode:
                 type: string
                 x-nullable: true
@@ -5369,7 +5422,7 @@ definitions:
   PPMStatus:
     type: string
     enum:
-      - CANCELLED
+      - CANCELED
       - DRAFT
       - SUBMITTED
       - WAITING_ON_CUSTOMER
@@ -6346,6 +6399,12 @@ definitions:
         type: integer
         example: 4200
         x-nullable: true
+      allowableWeight:
+        description: The allowable weight of the PPM shipment goods being moved.
+        type: integer
+        minimum: 0
+        example: 4300
+        x-nullable: true
       hasProGear:
         description: |
           Indicates whether PPM shipment has pro gear.
@@ -6381,6 +6440,14 @@ definitions:
         x-nullable: true
       advanceStatus:
         $ref: '#/definitions/PPMAdvanceStatus'
+        x-nullable: true
+      isActualExpenseReimbursement:
+        description: >-
+          Used for PPM shipments only. Denotes if this shipment uses the Actual
+          Expense Reimbursement method.
+        type: boolean
+        example: false
+        x-omitempty: false
         x-nullable: true
   UpdateBoatShipment:
     type: object
@@ -6481,10 +6548,6 @@ definitions:
       netWeightRemarks:
         description: Remarks explaining any edits made to the net weight
         type: string
-      allowableWeight:
-        description: Indicates the maximum reimbursable weight of the shipment
-        type: integer
-        minimum: 0
   UpdateMovingExpense:
     type: object
     properties:
@@ -6770,6 +6833,14 @@ definitions:
         x-nullable: true
       spouseProGearWeight:
         type: integer
+        x-nullable: true
+      isActualExpenseReimbursement:
+        description: >-
+          Used for PPM shipments only. Denotes if this shipment uses the Actual
+          Expense Reimbursement method.
+        type: boolean
+        example: false
+        x-omitempty: false
         x-nullable: true
     required:
       - expectedDepartureDate
@@ -7209,8 +7280,13 @@ definitions:
         type: string
         format: date-time
         x-nullable: true
+      assignedTo:
+        $ref: '#/definitions/AssignedOfficeUser'
+        x-nullable: true
       availableOfficeUsers:
         $ref: '#/definitions/AvailableOfficeUsers'
+      assignable:
+        type: boolean
   QueuePaymentRequests:
     type: array
     items:
@@ -7449,6 +7525,9 @@ definitions:
       ReportViolations:
         $ref: '#/definitions/ReportViolations'
         x-nullable: true
+      gsrAppeals:
+        $ref: '#/definitions/GSRAppeals'
+        x-nullable: true
       locationDescription:
         type: string
         example: Route 66 at crash inspection site 3
@@ -7537,6 +7616,21 @@ definitions:
         example: 01b9671e-b268-4906-967b-ba661a1d3933
         format: uuid
         type: string
+  CreateViolationAppeal:
+    type: object
+    description: Appeal status and remarks left for a violation, created by a GSR user.
+    properties:
+      remarks:
+        description: Remarks left by the GSR user
+        example: These are my violation appeal remarks
+        type: string
+      appealStatus:
+        description: The status of the appeal set by the GSR user
+        example: These are my violation appeal remarks
+        type: string
+        enum:
+          - sustained
+          - rejected
   PWSViolation:
     type: object
     description: A PWS violation for an evaluation report
@@ -7606,10 +7700,56 @@ definitions:
         type: string
       violation:
         $ref: '#/definitions/PWSViolation'
+      gsrAppeals:
+        $ref: '#/definitions/GSRAppeals'
+        x-nullable: true
   ReportViolations:
     type: array
     items:
       $ref: '#/definitions/ReportViolation'
+  GSRAppealStatusType:
+    type: string
+    enum:
+      - SUSTAINED
+      - REJECTED
+  GSRAppeals:
+    type: array
+    items:
+      $ref: '#/definitions/GSRAppeal'
+  GSRAppeal:
+    type: object
+    description: An object associating appeals on violations and serious incidents
+    properties:
+      id:
+        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
+        format: uuid
+        type: string
+      reportID:
+        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
+        format: uuid
+        type: string
+      violationID:
+        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
+        format: uuid
+        type: string
+      officeUserID:
+        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
+        format: uuid
+        type: string
+      officeUser:
+        $ref: '#/definitions/EvaluationReportOfficeUser'
+      isSeriousIncident:
+        type: boolean
+        example: false
+      appealStatus:
+        $ref: '#/definitions/GSRAppealStatusType'
+      remarks:
+        type: string
+        example: Office user remarks
+      createdAt:
+        type: string
+        format: date-time
+        readOnly: true
   TransportationOffices:
     type: array
     items:
@@ -7975,6 +8115,7 @@ definitions:
       - WOUNDED_WARRIOR
       - BLUEBARK
       - SAFETY
+      - TEMPORARY_DUTY
     x-display-value:
       PERMANENT_CHANGE_OF_STATION: Permanent Change Of Station
       LOCAL_MOVE: Local Move
@@ -7983,6 +8124,7 @@ definitions:
       WOUNDED_WARRIOR: Wounded Warrior
       BLUEBARK: BLUEBARK
       SAFETY: Safety
+      TEMPORARY_DUTY: Temporary Duty (TDY)
   Upload:
     description: An uploaded file.
     type: object
@@ -9029,12 +9171,6 @@ definitions:
         description: A hash that should be used as the "If-Match" header for any updates.
         type: string
         readOnly: true
-      allowableWeight:
-        description: Maximum reimbursable weight.
-        type: integer
-        minimum: 0
-        x-nullable: true
-        x-omitempty: false
     required:
       - ppmShipmentId
       - createdAt
@@ -9592,6 +9728,13 @@ definitions:
         example: 4200
         x-nullable: true
         x-omitempty: false
+      allowableWeight:
+        description: The allowable weight of the PPM shipment goods being moved.
+        type: integer
+        example: 4300
+        minimum: 0
+        x-nullable: true
+        x-omitempty: false
       hasProGear:
         description: >
           Indicates whether PPM shipment has pro gear for themselves or their
@@ -9704,6 +9847,14 @@ definitions:
         type: array
         items:
           $ref: '#/definitions/ProGearWeightTicket'
+      isActualExpenseReimbursement:
+        description: >-
+          Used for PPM shipments only. Denotes if this shipment uses the Actual
+          Expense Reimbursement method.
+        type: boolean
+        example: false
+        x-omitempty: false
+        x-nullable: true
       signedCertification:
         $ref: '#/definitions/SignedCertification'
       eTag:
@@ -10135,6 +10286,15 @@ definitions:
       destinationSitAuthEndDate:
         format: date-time
         type: string
+      marketCode:
+        type: string
+        enum:
+          - d
+          - i
+        example: d
+        description: >-
+          Single-letter designator for domestic (d) or international (i)
+          shipments
   LOATypeNullable:
     description: The Line of accounting (TAC/SAC) type that will be used for the shipment
     type: string
