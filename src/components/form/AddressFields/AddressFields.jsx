@@ -214,7 +214,7 @@ AddressFields.defaultProps = {
   legend: '',
   className: '',
   render: (fields) => fields,
-  zipCityEnabled: false,
+  zipCityEnabled: true,
   zipCityError: false,
   handleZipCityChange: null,
   validators: {},

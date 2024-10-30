@@ -101,7 +101,6 @@ const EditContactInfoForm = ({ initialValues, onSubmit, onCancel }) => {
               <AddressFields
                 name={residentialAddressName}
                 labelHint="Required"
-                zipCityEnabled
                 zipCityError={isCurrentLookupErrorVisible}
                 handleZipCityChange={handleCurrentZipCityChange}
               />
@@ -117,7 +116,6 @@ const EditContactInfoForm = ({ initialValues, onSubmit, onCancel }) => {
               <AddressFields
                 name={backupAddressName}
                 labelHint="Required"
-                zipCityEnabled
                 zipCityError={isBackupLookupErrorVisible}
                 handleZipCityChange={handleBackupZipCityChange}
               />

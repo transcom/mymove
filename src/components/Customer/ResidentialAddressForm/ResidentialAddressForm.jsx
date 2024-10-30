@@ -61,7 +61,6 @@ const ResidentialAddressForm = ({ formFieldsName, initialValues, onSubmit, onBac
                 labelHint="Required"
                 name={formFieldsName}
                 validators={validators}
-                zipCityEnabled
                 zipCityError={isLookupErrorVisible}
                 handleZipCityChange={handleZipCityChange}
               />

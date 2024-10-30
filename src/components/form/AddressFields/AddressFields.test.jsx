@@ -143,12 +143,7 @@ describe('AddressFields component', () => {
       const { getByLabelText, getByTestId } = render(
         <Provider store={mockStore.store}>
           <Formik initialValues={initialValues}>
-            <AddressFields
-              legend="Address Form"
-              name="address"
-              zipCityEnabled
-              handleZipCityChange={handleZipCityChange}
-            />
+            <AddressFields legend="Address Form" name="address" handleZipCityChange={handleZipCityChange} />
           </Formik>
         </Provider>,
       );
@@ -178,7 +173,6 @@ describe('AddressFields component', () => {
             <AddressFields
               legend="Address Form"
               name="address"
-              zipCityEnabled
               zipCityError
               handleZipCityChange={handleZipCityChange}
             />

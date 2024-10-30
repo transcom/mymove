@@ -141,7 +141,7 @@ export const ZipCityAddress = () => (
   >
     {() => (
       <Form className={formStyles.form}>
-        <AddressFields legend="Zip city address" name="residentialAddress" zipCityEnabled />
+        <AddressFields legend="Zip city address" name="residentialAddress" />
       </Form>
     )}
   </Formik>
