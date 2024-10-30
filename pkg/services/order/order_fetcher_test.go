@@ -1,7 +1,6 @@
 package order
 
 import (
-	"fmt"
 	"time"
 
 	"github.com/gofrs/uuid"
@@ -600,9 +599,8 @@ func (suite *OrderServiceSuite) TestListOrderWithAssignedUserSingle() {
 	createdMove.SCAssignedUser = &scUser
 	_, updateError := assignedOfficeUserUpdater.UpdateAssignedOfficeUser(appCtx, createdMove.ID, &scUser, roles.RoleTypeServicesCounselor)
 
-	searchString := fmt.Sprintf("%s, %s", scUser.LastName, scUser.FirstName)
 	moves, _, err := orderFetcherTest.ListOrders(suite.AppContextWithSessionForTest(&session), scUser.ID, roles.RoleTypeServicesCounselor, &services.ListOrderParams{
-		SCAssignedUser: &searchString,
+		SCAssignedUser: &scUser.LastName,
 	})
 
 	suite.FatalNoError(err)
@@ -1642,7 +1640,6 @@ func (suite *OrderServiceSuite) TestListOrdersNeedingServicesCounselingWithGBLOC
 					City:           "Fort Eisenhower",
 					State:          "GA",
 					PostalCode:     "89898",
-					Country:        models.StringPointer("United States"),
 				},
 			},
 		}, nil)

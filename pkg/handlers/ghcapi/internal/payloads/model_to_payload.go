@@ -709,6 +709,14 @@ func DutyLocation(dutyLocation *models.DutyLocation) *ghcmessages.DutyLocation {
 	return &payload
 }
 
+// Country payload
+func Country(country *models.Country) *string {
+	if country == nil {
+		return nil
+	}
+	return &country.Country
+}
+
 // Address payload
 func Address(address *models.Address) *ghcmessages.Address {
 	if address == nil {
@@ -722,9 +730,10 @@ func Address(address *models.Address) *ghcmessages.Address {
 		City:           &address.City,
 		State:          &address.State,
 		PostalCode:     &address.PostalCode,
-		Country:        address.Country,
+		Country:        Country(address.Country),
 		County:         &address.County,
 		ETag:           etag.GenerateEtag(address.UpdatedAt),
+		IsOconus:       address.IsOconus,
 	}
 }
 
@@ -901,6 +910,7 @@ func PPMShipment(_ storage.FileStorer, ppmShipment *models.PPMShipment) *ghcmess
 		SitEstimatedEntryDate:          handlers.FmtDatePtr(ppmShipment.SITEstimatedEntryDate),
 		SitEstimatedDepartureDate:      handlers.FmtDatePtr(ppmShipment.SITEstimatedDepartureDate),
 		SitEstimatedCost:               handlers.FmtCost(ppmShipment.SITEstimatedCost),
+		IsActualExpenseReimbursement:   ppmShipment.IsActualExpenseReimbursement,
 		ETag:                           etag.GenerateEtag(ppmShipment.UpdatedAt),
 	}
 
@@ -932,6 +942,10 @@ func PPMShipment(_ storage.FileStorer, ppmShipment *models.PPMShipment) *ghcmess
 
 	if ppmShipment.TertiaryDestinationAddress != nil {
 		payloadPPMShipment.TertiaryDestinationAddress = Address(ppmShipment.TertiaryDestinationAddress)
+	}
+
+	if ppmShipment.IsActualExpenseReimbursement != nil {
+		payloadPPMShipment.IsActualExpenseReimbursement = ppmShipment.IsActualExpenseReimbursement
 	}
 
 	return payloadPPMShipment
@@ -1363,6 +1377,14 @@ func LineOfAccounting(lineOfAccounting *models.LineOfAccounting) *ghcmessages.Li
 	}
 }
 
+// MarketCode payload
+func MarketCode(marketCode *models.MarketCode) string {
+	if marketCode == nil {
+		return "" // Or a default string value
+	}
+	return string(*marketCode)
+}
+
 // MTOShipment payload
 func MTOShipment(storer storage.FileStorer, mtoShipment *models.MTOShipment, sitStatusPayload *ghcmessages.SITStatus) *ghcmessages.MTOShipment {
 
@@ -1411,6 +1433,7 @@ func MTOShipment(storer storage.FileStorer, mtoShipment *models.MTOShipment, sit
 		MobileHomeShipment:          MobileHomeShipment(storer, mtoShipment.MobileHome),
 		DeliveryAddressUpdate:       ShipmentAddressUpdate(mtoShipment.DeliveryAddressUpdate),
 		ShipmentLocator:             handlers.FmtStringPtr(mtoShipment.ShipmentLocator),
+		MarketCode:                  MarketCode(&mtoShipment.MarketCode),
 	}
 
 	if mtoShipment.Distance != nil {
@@ -2128,14 +2151,23 @@ func QueueMoves(moves []models.Move, officeUsers []models.OfficeUser, role roles
 			queueMoves[i].AssignedTo = AssignedOfficeUser(move.TOOAssignedUser)
 		}
 
+		// scenarios where a move is assinable:
+
+		// if it is unassigned, it is always assignable
 		isAssignable := false
 		if queueMoves[i].AssignedTo == nil {
 			isAssignable = true
 		}
-		// if it is assigned
+
+		// in TOO queues, all moves are assignable for supervisor users
+		if role == roles.RoleTypeTOO && isSupervisor {
+			isAssignable = true
+		}
+
+		// if it is assigned in the SCs queue
 		// it is only assignable if the user is a supervisor
 		// and if the move's counseling office is the supervisor's transportation office
-		if queueMoves[i].AssignedTo != nil && isSupervisor && move.CounselingOfficeID != nil && *move.CounselingOfficeID == officeUser.TransportationOfficeID {
+		if role == roles.RoleTypeServicesCounselor && isSupervisor && move.CounselingOfficeID != nil && *move.CounselingOfficeID == officeUser.TransportationOfficeID {
 			isAssignable = true
 		}
 
@@ -2144,22 +2176,20 @@ func QueueMoves(moves []models.Move, officeUsers []models.OfficeUser, role roles
 		// only need to attach available office users if move is assignable
 		if queueMoves[i].Assignable {
 			availableOfficeUsers := officeUsers
-			// if there is no counseling office
-			// OR if our current user doesn't work at the move's counseling office
-			// only available user should be themself
-			if (move.CounselingOfficeID == nil) || (move.CounselingOfficeID != nil && *move.CounselingOfficeID != officeUser.TransportationOfficeID) {
-				availableOfficeUsers = models.OfficeUsers{officeUser}
-			}
+			if role == roles.RoleTypeServicesCounselor {
+				// if there is no counseling office
+				// OR if our current user doesn't work at the move's counseling office
+				// only available user should be themself
+				if (move.CounselingOfficeID == nil) || (move.CounselingOfficeID != nil && *move.CounselingOfficeID != officeUser.TransportationOfficeID) {
+					availableOfficeUsers = models.OfficeUsers{officeUser}
+				}
 
-			// if the office user currently assigned to move works outside of the logged in users counseling office
-			// add them to the set
-			if role == roles.RoleTypeServicesCounselor && move.SCAssignedUser != nil && move.SCAssignedUser.TransportationOfficeID != officeUser.TransportationOfficeID {
-				availableOfficeUsers = append(availableOfficeUsers, *move.SCAssignedUser)
+				// if the office user currently assigned to move works outside of the logged in users counseling office
+				// add them to the set
+				if move.SCAssignedUser != nil && move.SCAssignedUser.TransportationOfficeID != officeUser.TransportationOfficeID {
+					availableOfficeUsers = append(availableOfficeUsers, *move.SCAssignedUser)
+				}
 			}
-			if role == roles.RoleTypeTOO && move.TOOAssignedUser != nil && move.TOOAssignedUser.TransportationOfficeID != officeUser.TransportationOfficeID {
-				availableOfficeUsers = append(availableOfficeUsers, *move.TOOAssignedUser)
-			}
-
 			queueMoves[i].AvailableOfficeUsers = *QueueAvailableOfficeUsers(availableOfficeUsers)
 		}
 	}
