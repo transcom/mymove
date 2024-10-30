@@ -123,30 +123,7 @@ func (suite *NotificationSuite) TestPpmPacketEmailHTMLTemplateRenderForAirAndSpa
 		SmartVoucherLink:                  SmartVoucherLink,
 	})
 
-	expectedHTMLContent := `<p>*** DO NOT REPLY directly to this email ***</p>
-<p>This is a confirmation that your Personally Procured Move (PPM) with the <strong>assigned move code ` + move.Locator + `</strong> from <strong>` + pickupAddress.City + `, ` + pickupAddress.State + `</strong> to <strong>` + destinationAddress.City + `, ` + destinationAddress.State + `</strong> has been processed in MilMove.</p>
-<h4>Next steps:</h4>
-
-<p>For ` + affiliationDisplayValue[*serviceMember.Affiliation] + ` personnel (FURTHER ACTION REQUIRED):</p>
-<p>Log in to SmartVoucher at <a href="` + SmartVoucherLink + `">` + SmartVoucherLink + `</a> using your CAC or myPay username and password. This will allow you to edit your voucher, and complete and sign DD Form 1351-2.</p>
-
-<p>You can now log into MilMove <a href="` + MyMoveLink + `">` + MyMoveLink + `</a> and download your payment packet to submit to ` + allOtherSubmitLocation + `. <strong>You must complete this step to receive final settlement of your PPM.</strong></p>
-
-<p>Note: The Transportation Office does not determine claimable expenses. Claimable expenses will be determined by finance.</p>
-
-<p>Please be advised, your local finance office may require a DD Form 1351-2 to process payment. You can obtain a copy of this form by utilizing the search feature at <a href="` + WashingtonHQServicesLink + `">` + WashingtonHQServicesLink + `</a>.</p>
-
-<p>If you have any questions, contact a government transportation office. You can see a listing of transportation offices on Military One Source here: <a href="` + OneSourceTransportationOfficeLink + `">` + OneSourceTransportationOfficeLink + `</a></p>
-
-<p>Thank you,</p>
-
-<p>USTRANSCOM MilMove Team</p>
-
-<p>
-The information contained in this email may contain Privacy Act information and is therefore protected under the
-Privacy Act of 1974.  Failure to protect Privacy Act information could result in a $5,000 fine.
-</p>
-`
+	expectedHTMLContent := "<p>*** DO NOT REPLY directly to this email ***</p>\n<p>This is a confirmation that your Personally Procured Move (PPM) with the <strong>assigned move code 87K86H</strong> from <strong>Miami Gardens, FL</strong> to <strong>Key West, FL</strong> has been processed in MilMove.</p>\n<h4>Next steps:</h4>\n\n<p>For Air Force and Space Force personnel (FURTHER ACTION REQUIRED):</p>\n<p>Log in to SmartVoucher at <a href=\"https://smartvoucher.dfas.mil/\">https://smartvoucher.dfas.mil/</a> using your CAC or myPay username and password. This will allow you to edit your voucher, and complete and sign DD Form 1351-2.</p>\n\n<p>You can now log into MilMove <a href=\"https://my.move.mil/\">https://my.move.mil/</a> and download your payment packet to submit to your local finance office. <strong>You must complete this step to receive final settlement of your PPM.</strong></p>\n<p>Note: The Transportation Office does not determine claimable expenses. Claimable expenses will be determined by finance.</p>\n<p>Please be advised, your local finance office may require a DD Form 1351-2 to process payment. You can obtain a copy of this form by utilizing the search feature at <a href=\"https://www.esd.whs.mil\">https://www.esd.whs.mil</a>.</p>\n\n<p>If you have any questions, contact a government transportation office. You can see a listing of transportation offices on Military One Source here: <a href=\"https://installations.militaryonesource.mil/search?program-service=2/view-by=ALL\">https://installations.militaryonesource.mil/search?program-service=2/view-by=ALL</a></p>\n<p>Thank you,</p>\n<p>USTRANSCOM MilMove Team</p>\n<p>\n  The information contained in this email may contain Privacy Act information and is therefore protected under the\n  Privacy Act of 1974.  Failure to protect Privacy Act information could result in a $5,000 fine.\n</p>\n\n"
 
 	htmlContent, err := notification.RenderHTML(suite.AppContextForTest(), ppmEmailData)
 
@@ -220,28 +197,7 @@ func (suite *NotificationSuite) TestPpmPacketEmailHTMLTemplateRenderForArmy() {
 		SmartVoucherLink:                  SmartVoucherLink,
 	})
 
-	expectedHTMLContent := `<p>*** DO NOT REPLY directly to this email ***</p>
-<p>This is a confirmation that your Personally Procured Move (PPM) with the <strong>assigned move code ` + move.Locator + `</strong> from <strong>` + pickupAddress.City + `, ` + pickupAddress.State + `</strong> to <strong>` + destinationAddress.City + `, ` + destinationAddress.State + `</strong> has been processed in MilMove.</p>
-<h4>Next steps:</h4>
-
-<p>For ` + affiliationDisplayValue[*serviceMember.Affiliation] + ` personnel (FURTHER ACTION REQUIRED):</p>
-<p>Log in to SmartVoucher at <a href="` + SmartVoucherLink + `">` + SmartVoucherLink + `</a> using your CAC or myPay username and password. This will allow you to edit your voucher, and complete and sign DD Form 1351-2.</p>
-
-<p>You can now log into MilMove <a href="` + MyMoveLink + `">` + MyMoveLink + `</a> and download your payment packet to submit to ` + armySubmitLocation + `. <strong>You must complete this step to receive final settlement of your PPM.</strong></p>
-<p>Note: Not all claimed expenses may have been accepted during PPM closeout if they did not meet the definition of a valid expense.</p>
-
-<p>Please be advised, your local finance office may require a DD Form 1351-2 to process payment. You can obtain a copy of this form by utilizing the search feature at <a href="` + WashingtonHQServicesLink + `">` + WashingtonHQServicesLink + `</a>.</p>
-<p>If you have any questions, contact a government transportation office. You can see a listing of transportation offices on Military One Source here: <a href="` + OneSourceTransportationOfficeLink + `">` + OneSourceTransportationOfficeLink + `</a></p>
-
-<p>Thank you,</p>
-
-<p>USTRANSCOM MilMove Team</p>
-
-<p>
-  The information contained in this email may contain Privacy Act information and is therefore protected under the
-  Privacy Act of 1974.  Failure to protect Privacy Act information could result in a $5,000 fine.
-</p>
-`
+	expectedHTMLContent := "<p>*** DO NOT REPLY directly to this email ***</p>\n<p>This is a confirmation that your Personally Procured Move (PPM) with the <strong>assigned move code VBXRJD</strong> from <strong>Miami Gardens, FL</strong> to <strong>Key West, FL</strong> has been processed in MilMove.</p>\n<h4>Next steps:</h4>\n\n<p>For Army personnel (FURTHER ACTION REQUIRED):</p>\n<p>Log in to SmartVoucher at <a href=\"https://smartvoucher.dfas.mil/\">https://smartvoucher.dfas.mil/</a> using your CAC or myPay username and password. This will allow you to edit your voucher, and complete and sign DD Form 1351-2.</p>\n\n<p>Please be advised, your local finance office may require a DD Form 1351-2 to process payment. You can obtain a copy of this form by utilizing the search feature at <a href=\"https://www.esd.whs.mil\">https://www.esd.whs.mil</a>.</p>\n\n<p>If you have any questions, contact a government transportation office. You can see a listing of transportation offices on Military One Source here: <a href=\"https://installations.militaryonesource.mil/search?program-service=2/view-by=ALL\">https://installations.militaryonesource.mil/search?program-service=2/view-by=ALL</a></p>\n<p>Thank you,</p>\n<p>USTRANSCOM MilMove Team</p>\n<p>\n  The information contained in this email may contain Privacy Act information and is therefore protected under the\n  Privacy Act of 1974.  Failure to protect Privacy Act information could result in a $5,000 fine.\n</p>\n\n"
 
 	htmlContent, err := notification.RenderHTML(suite.AppContextForTest(), ppmEmailData)
 
@@ -314,25 +270,7 @@ func (suite *NotificationSuite) TestPpmPacketEmailHTMLTemplateRenderForNavalBran
 		SmartVoucherLink:                  SmartVoucherLink,
 	})
 
-	expectedHTMLContent := `<p>*** DO NOT REPLY directly to this email ***</p>
-<p>This is a confirmation that your Personally Procured Move (PPM) with the <strong>assigned move code ` + move.Locator + `</strong> from <strong>` + pickupAddress.City + `, ` + pickupAddress.State + `</strong> to <strong>` + destinationAddress.City + `, ` + destinationAddress.State + `</strong> has been processed in MilMove.</p>
-<h4>Next steps:</h4>
-
-<p>For ` + affiliationDisplayValue[*serviceMember.Affiliation] + ` personnel:</p>
-<p>You can now log into MilMove <a href="` + MyMoveLink + `">` + MyMoveLink + `</a> and view your payment packet; however, you do not need to forward your payment packet to finance as your closeout location is associated with your finance office and they will handle this step for you.</p>
-<p>Note: Not all claimed expenses may have been accepted during PPM closeout if they did not meet the definition of a valid expense.</p>
-
-<p>If you have any questions, contact a government transportation office. You can see a listing of transportation offices on Military One Source here: <a href="` + OneSourceTransportationOfficeLink + `">` + OneSourceTransportationOfficeLink + `</a></p>
-
-<p>Thank you,</p>
-
-<p>USTRANSCOM MilMove Team</p>
-
-<p>
-  The information contained in this email may contain Privacy Act information and is therefore protected under the
-  Privacy Act of 1974.  Failure to protect Privacy Act information could result in a $5,000 fine.
-</p>
-`
+	expectedHTMLContent := "<p>*** DO NOT REPLY directly to this email ***</p>\n<p>This is a confirmation that your Personally Procured Move (PPM) with the <strong>assigned move code KMG33M</strong> from <strong>Miami Gardens, FL</strong> to <strong>Key West, FL</strong> has been processed in MilMove.</p>\n<h4>Next steps:</h4>\n\n<p>For Marine Corps, Navy, and Coast Guard personnel:</p>\n<p>You can now log into MilMove <a href=\"https://my.move.mil/\">https://my.move.mil/</a> and view your payment packet; however, you do not need to forward your payment packet to finance as your closeout location is associated with your finance office and they will handle this step for you.</p>\n<p>Note: Not all claimed expenses may have been accepted during PPM closeout if they did not meet the definition of a valid expense.</p>\n\n"
 
 	htmlContent, err := notification.RenderHTML(suite.AppContextForTest(), ppmEmailData)
 
@@ -389,32 +327,7 @@ func (suite *NotificationSuite) TestPpmPacketEmailTextTemplateRender() {
 	ppmEmailData, _, err := notification.GetEmailData(suite.AppContextForTest())
 	suite.NoError(err)
 
-	expectedTextContent := `*** DO NOT REPLY directly to this email ***
-
-This is a confirmation that your Personally Procured Move (PPM) with the assigned move code ` + move.Locator + ` from ` + pickupAddress.City + `, ` + pickupAddress.State + ` to ` + destinationAddress.City + `, ` + destinationAddress.State + ` has been processed in MilMove.
-
-Next steps:
-
-For ` + affiliationDisplayValue[*serviceMember.Affiliation] + ` personnel (FURTHER ACTION REQUIRED):
-
-Log in to SmartVoucher at ` + SmartVoucherLink + ` using your CAC or myPay username and password. This will allow you to edit your voucher, and complete and sign DD Form 1351-2.
-
-You can now log into MilMove <` + MyMoveLink + `> and download your payment packet to submit to ` + armySubmitLocation + `. You must complete this step to receive final settlement of your PPM.
-
-Note: Not all claimed expenses may have been accepted during PPM closeout if they did not meet the definition of a valid expense.
-
-Please be advised, your local finance office may require a DD Form 1351-2 to process payment. You can obtain a copy of this form by utilizing the search feature at ` + WashingtonHQServicesLink + `.
-
-If you have any questions, contact a government transportation office. You can see a listing of transportation offices on Military One Source here: ` + OneSourceTransportationOfficeLink + `
-
-Thank you,
-
-USTRANSCOM MilMove Team
-
-
-The information contained in this email may contain Privacy Act information and is therefore protected under the
-Privacy Act of 1974.  Failure to protect Privacy Act information could result in a $5,000 fine.
-`
+	expectedTextContent := "*** DO NOT REPLY directly to this email ***\n\nThis is a confirmation that your Personally Procured Move (PPM) with the assigned move code 3TVVYW from Miami Gardens, FL to Key West, FL has been processed in MilMove.\n\nNext steps:\n\nFor Army personnel (FURTHER ACTION REQUIRED):\n\nLog in to SmartVoucher at https://smartvoucher.dfas.mil/ using your CAC or myPay username and password. This will allow you to edit your voucher, and complete and sign DD Form 1351-2.\n\n\n\nPlease be advised, your local finance office may require a DD Form 1351-2 to process payment. You can obtain a copy of this form by utilizing the search feature at https://www.esd.whs.mil.\n\nIf you have any questions, contact a government transportation office. You can see a listing of transportation offices on Military One Source here: https://installations.militaryonesource.mil/search?program-service=2/view-by=ALL\n\nThank you,\n\nUSTRANSCOM MilMove Team\n\nThe information contained in this email may contain Privacy Act information and is therefore protected under the\nPrivacy Act of 1974.  Failure to protect Privacy Act information could result in a $5,000 fine.\n\n"
 
 	textContent, err := notification.RenderText(suite.AppContextForTest(), ppmEmailData)
 
@@ -441,21 +354,23 @@ func (suite *NotificationSuite) TestPpmPacketEmailZipcodeFallback() {
 			LinkOnly: true,
 		},
 	}, nil)
+	var pickupAddress = factory.BuildAddress(suite.DB(), []factory.Customization{
+		{
+			Model: pickupAddressModel,
+		},
+	}, nil)
+	var destinationAddress = factory.BuildAddress(suite.DB(), []factory.Customization{
+		{
+			Model: destinationAddressModel,
+		},
+	}, nil)
 
 	customPPM := models.PPMShipment{
-		ID:         uuid.Must(uuid.NewV4()),
-		ShipmentID: shipment.ID,
-		Status:     models.PPMShipmentStatusWaitingOnCustomer,
-		PickupAddress: &models.Address{
-			PostalCode: "50309",
-			City:       "Des Moines",
-			State:      "IA",
-		},
-		DestinationAddress: &models.Address{
-			PostalCode: "30905",
-			City:       "Fort Eisenhower",
-			State:      "GA",
-		},
+		ID:                           uuid.Must(uuid.NewV4()),
+		ShipmentID:                   shipment.ID,
+		Status:                       models.PPMShipmentStatusWaitingOnCustomer,
+		PickupAddress:                &pickupAddress,
+		DestinationAddress:           &destinationAddress,
 		IsActualExpenseReimbursement: models.BoolPointer(false),
 	}
 
@@ -558,32 +473,7 @@ func (suite *NotificationSuite) TestPpmPacketEmailTextTemplateRenderForArmyWithA
 	ppmEmailData, _, err := notification.GetEmailData(suite.AppContextForTest())
 	suite.NoError(err)
 
-	expectedTextContent := `*** DO NOT REPLY directly to this email ***
-
-This is a confirmation that your Personally Procured Move (PPM) with the assigned move code ` + move.Locator + ` from ` + pickupAddress.City + `, ` + pickupAddress.State + ` to ` + destinationAddress.City + `, ` + destinationAddress.State + ` has been processed in MilMove.
-
-Next steps:
-
-For ` + affiliationDisplayValue[*serviceMember.Affiliation] + ` personnel (FURTHER ACTION REQUIRED):
-
-Log in to SmartVoucher at ` + SmartVoucherLink + ` using your CAC or myPay username and password. This will allow you to edit your voucher, and complete and sign DD Form 1351-2.
-
-You can now log into MilMove <` + MyMoveLink + `> and download your payment packet to submit to ` + armySubmitLocation + `. You must complete this step to receive final settlement of your PPM.
-
-Note: Not all claimed expenses may have been accepted during PPM closeout if they did not meet the definition of a valid expense.
-
-Please be advised, your local finance office may require a DD Form 1351-2 to process payment. You can obtain a copy of this form by utilizing the search feature at ` + WashingtonHQServicesLink + `.
-
-If you have any questions, contact a government transportation office. You can see a listing of transportation offices on Military One Source here: ` + OneSourceTransportationOfficeLink + `
-
-Thank you,
-
-USTRANSCOM MilMove Team
-
-
-The information contained in this email may contain Privacy Act information and is therefore protected under the
-Privacy Act of 1974.  Failure to protect Privacy Act information could result in a $5,000 fine.
-`
+	expectedTextContent := "*** DO NOT REPLY directly to this email ***\n\nThis is a confirmation that your Personally Procured Move (PPM) with the assigned move code 9X7YG7 from Miami Gardens, FL to Key West, FL has been processed in MilMove.\n\nNext steps:\n\nFor Army personnel (FURTHER ACTION REQUIRED):\n\nLog in to SmartVoucher at https://smartvoucher.dfas.mil/ using your CAC or myPay username and password. This will allow you to edit your voucher, and complete and sign DD Form 1351-2.\n\n\n\nPlease be advised, your local finance office may require a DD Form 1351-2 to process payment. You can obtain a copy of this form by utilizing the search feature at https://www.esd.whs.mil.\n\nPlease Note: Your PPM has been designated as Actual Expense Reimbursement. This is the standard entitlement for Civilian employees. For uniformed Service Members, your PPM may have been designated as Actual Expense Reimbursement due to failure to receive authorization prior to movement or failure to obtain certified weight tickets. Actual Expense Reimbursement means reimbursement for expenses not to exceed the Government Constructed Cost (GCC).\n\nIf you have any questions, contact a government transportation office. You can see a listing of transportation offices on Military One Source here: https://installations.militaryonesource.mil/search?program-service=2/view-by=ALL\n\nThank you,\n\nUSTRANSCOM MilMove Team\n\nThe information contained in this email may contain Privacy Act information and is therefore protected under the\nPrivacy Act of 1974.  Failure to protect Privacy Act information could result in a $5,000 fine.\n\n"
 
 	textContent, err := notification.RenderText(suite.AppContextForTest(), ppmEmailData)
 
