@@ -1,12 +1,14 @@
 package models
 
 import (
+	"fmt"
 	"time"
 
 	"github.com/gobuffalo/pop/v6"
 	"github.com/gobuffalo/validate/v3"
 	"github.com/gobuffalo/validate/v3/validators"
 	"github.com/gofrs/uuid"
+	"github.com/transcom/mymove/pkg/apperror"
 )
 
 const (
@@ -70,7 +72,7 @@ func (r *ReContractYear) Validate(_ *pop.Connection) (*validate.Errors, error) {
 	), nil
 }
 
-func GetExpectedEscalationPriceContractsCount(contractYearName string, hasOptionYear3 bool) ExpectedEscalationPriceContractsCount {
+func GetExpectedEscalationPriceContractsCount(contractYearName string, hasOptionYear3 bool) (ExpectedEscalationPriceContractsCount, error) {
 	switch contractYearName {
 	case BasePeriodYear1:
 		return ExpectedEscalationPriceContractsCount{
@@ -78,42 +80,42 @@ func GetExpectedEscalationPriceContractsCount(contractYearName string, hasOption
 			ExpectedAmountOfBasePeriodYearsForCalculation:   1,
 			ExpectedAmountOfOptionPeriodYearsForCalculation: 0,
 			ExpectedAmountOfAwardTermsForCalculation:        0,
-		}
+		}, nil
 	case BasePeriodYear2:
 		return ExpectedEscalationPriceContractsCount{
 			ExpectedAmountOfContractYearsForCalculation:     2,
 			ExpectedAmountOfBasePeriodYearsForCalculation:   2,
 			ExpectedAmountOfOptionPeriodYearsForCalculation: 0,
 			ExpectedAmountOfAwardTermsForCalculation:        0,
-		}
+		}, nil
 	case BasePeriodYear3:
 		return ExpectedEscalationPriceContractsCount{
 			ExpectedAmountOfContractYearsForCalculation:     3,
 			ExpectedAmountOfBasePeriodYearsForCalculation:   3,
 			ExpectedAmountOfOptionPeriodYearsForCalculation: 0,
 			ExpectedAmountOfAwardTermsForCalculation:        0,
-		}
+		}, nil
 	case OptionPeriod1:
 		return ExpectedEscalationPriceContractsCount{
 			ExpectedAmountOfContractYearsForCalculation:     4,
 			ExpectedAmountOfBasePeriodYearsForCalculation:   3,
 			ExpectedAmountOfOptionPeriodYearsForCalculation: 1,
 			ExpectedAmountOfAwardTermsForCalculation:        0,
-		}
+		}, nil
 	case OptionPeriod2:
 		return ExpectedEscalationPriceContractsCount{
 			ExpectedAmountOfContractYearsForCalculation:     5,
 			ExpectedAmountOfBasePeriodYearsForCalculation:   3,
 			ExpectedAmountOfOptionPeriodYearsForCalculation: 2,
 			ExpectedAmountOfAwardTermsForCalculation:        0,
-		}
+		}, nil
 	case OptionPeriod3:
 		return ExpectedEscalationPriceContractsCount{
 			ExpectedAmountOfContractYearsForCalculation:     6,
 			ExpectedAmountOfBasePeriodYearsForCalculation:   3,
 			ExpectedAmountOfOptionPeriodYearsForCalculation: 3,
 			ExpectedAmountOfAwardTermsForCalculation:        0,
-		}
+		}, nil
 	case AwardTerm1:
 		if hasOptionYear3 {
 			return ExpectedEscalationPriceContractsCount{
@@ -121,14 +123,14 @@ func GetExpectedEscalationPriceContractsCount(contractYearName string, hasOption
 				ExpectedAmountOfBasePeriodYearsForCalculation:   3,
 				ExpectedAmountOfOptionPeriodYearsForCalculation: 3,
 				ExpectedAmountOfAwardTermsForCalculation:        1,
-			}
+			}, nil
 		} else {
 			return ExpectedEscalationPriceContractsCount{
 				ExpectedAmountOfContractYearsForCalculation:     6,
 				ExpectedAmountOfBasePeriodYearsForCalculation:   3,
 				ExpectedAmountOfOptionPeriodYearsForCalculation: 2,
 				ExpectedAmountOfAwardTermsForCalculation:        1,
-			}
+			}, nil
 		}
 	case AwardTerm2:
 		if hasOptionYear3 {
@@ -137,21 +139,17 @@ func GetExpectedEscalationPriceContractsCount(contractYearName string, hasOption
 				ExpectedAmountOfBasePeriodYearsForCalculation:   3,
 				ExpectedAmountOfOptionPeriodYearsForCalculation: 3,
 				ExpectedAmountOfAwardTermsForCalculation:        2,
-			}
+			}, nil
 		} else {
 			return ExpectedEscalationPriceContractsCount{
 				ExpectedAmountOfContractYearsForCalculation:     7,
 				ExpectedAmountOfBasePeriodYearsForCalculation:   3,
 				ExpectedAmountOfOptionPeriodYearsForCalculation: 2,
 				ExpectedAmountOfAwardTermsForCalculation:        2,
-			}
+			}, nil
 		}
 	default:
-		return ExpectedEscalationPriceContractsCount{
-			ExpectedAmountOfContractYearsForCalculation:     0,
-			ExpectedAmountOfBasePeriodYearsForCalculation:   0,
-			ExpectedAmountOfOptionPeriodYearsForCalculation: 0,
-			ExpectedAmountOfAwardTermsForCalculation:        0,
-		}
+		err := apperror.NewInternalServerError(fmt.Sprintf("Unexpected contract year name %s.", contractYearName))
+		return ExpectedEscalationPriceContractsCount{}, err
 	}
 }

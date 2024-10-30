@@ -481,9 +481,6 @@ func createPricerGeneratedParams(appCtx appcontext.AppContext, paymentServiceIte
 // nearest tenth-cent for linehaul prices, before and after multiplication. The resulting price is returned in cents along
 // with the contract year.
 func escalatePriceForContractYear(appCtx appcontext.AppContext, contractID uuid.UUID, referenceDate time.Time, isLinehaul bool, basePriceCents float64) (float64, models.ReContractYear, error) {
-
-	referenceDate = referenceDate.AddDate(3, 0, 0)
-
 	contractYear, err := fetchContractYear(appCtx, contractID, referenceDate)
 	if err != nil {
 		return 0, contractYear, fmt.Errorf("could not lookup contract year: %w", err)
@@ -531,7 +528,11 @@ func compoundEscalationFactors(appCtx appcontext.AppContext, contractID uuid.UUI
 	}
 
 	// Get expectations for price escalations calculations
-	expectations := models.GetExpectedEscalationPriceContractsCount(contractYear.Name, hasOptionYear3)
+	expectations, err := models.GetExpectedEscalationPriceContractsCount(contractYear.Name, hasOptionYear3)
+	if err != nil {
+		err := apperror.NewInternalServerError(fmt.Sprintf("Error getting expectations for escalated price calculations", err))
+		return escalatedPrice, err
+	}
 
 	// Adding contracts that are expected to be in the calculations based on the contract year to a map
 	contractYearsForCalculation := make(map[string]models.ReContractYear)
@@ -558,21 +559,18 @@ func compoundEscalationFactors(appCtx appcontext.AppContext, contractID uuid.UUI
 	}
 
 	// Make sure the expected amount of contracts are being used in the escalated Price calculation
-	if expectations.ExpectedAmountOfContractYearsForCalculation != 0 && len(contractYearsForCalculation) != expectations.ExpectedAmountOfContractYearsForCalculation {
+	if len(contractYearsForCalculation) != expectations.ExpectedAmountOfContractYearsForCalculation {
 		err := apperror.NewInternalServerError("Unexpected amount of contract years being used in escalated price calculation")
 		return escalatedPrice, err
 	}
 
 	// Multiply the escalated price by each re_contract_years record escalation factor. EscalatedPrice = EscalatedPrice * ContractEscalationFactor
 	var compoundedEscalatedPrice = escalatedPrice
-
-	if len(contractYearsForCalculation) > 0 {
-		for _, contract := range contractYearsForCalculation {
-			compoundedEscalatedPrice = compoundedEscalatedPrice * contract.Escalation
-		}
+	for _, contract := range contractYearsForCalculation {
+		compoundedEscalatedPrice = compoundedEscalatedPrice * contract.Escalation
 	}
 
-	return compoundedEscalatedPrice, nil
+	return escalatedPrice, nil
 }
 
 // roundToPrecision rounds a float64 value to the number of decimal points indicated by the precision.
