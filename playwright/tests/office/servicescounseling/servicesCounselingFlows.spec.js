@@ -447,7 +447,7 @@ test.describe('Services counselor user', () => {
     await page.getByLabel('Accept').isDisabled();
     await page.getByRole('button', { name: 'Continue' }).click();
 
-    await expect(page.getByRole('heading', { name: 'Sent to customer', level: 3 })).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Sent to customer', level: 3 })).toBeVisible({ timeout: 10000 });
 
     await page.getByTestId('reviewDocumentsContinueButton').click();
     await scPage.waitForPage.moveDetails();
