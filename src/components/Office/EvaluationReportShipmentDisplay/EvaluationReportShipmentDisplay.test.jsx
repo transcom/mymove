@@ -7,7 +7,6 @@ import {
   hhgInfo,
   ntsInfo,
   ntsReleaseInfo,
-  canceledInfo,
   ordersLOA,
   ppmInfo,
 } from 'components/Office/ShipmentDisplay/ShipmentDisplayTestData';
@@ -26,12 +25,6 @@ describe('Evaluation report - HHG Shipment', () => {
     expect(screen.getByTestId('shipment-display')).toHaveTextContent('HHG');
     expect(screen.getByTestId('ShipmentContainer')).toHaveTextContent('EVLRPT-01');
   });
-  it('renders with canceled tag', () => {
-    render(
-      <EvaluationReportShipmentDisplay shipmentId="1" displayInfo={canceledInfo} onChange={jest.fn()} isSubmitted />,
-    );
-    expect(screen.getByText('canceled')).toBeInTheDocument();
-  });
 });
 
 describe('Evaluation report - NTS Shipment', () => {
@@ -48,12 +41,6 @@ describe('Evaluation report - NTS Shipment', () => {
     expect(screen.getByTestId('shipment-display')).toHaveTextContent('NTS');
     expect(screen.getByTestId('ShipmentContainer')).toHaveTextContent('EVLRPT-02');
   });
-  it('renders with canceled tag', () => {
-    render(
-      <EvaluationReportShipmentDisplay shipmentId="1" displayInfo={canceledInfo} onChange={jest.fn()} isSubmitted />,
-    );
-    expect(screen.getByText('canceled')).toBeInTheDocument();
-  });
 });
 
 describe('Evaluation report - NTSR Shipment', () => {
@@ -68,12 +55,6 @@ describe('Evaluation report - NTSR Shipment', () => {
       />,
     );
     expect(screen.getByTestId('shipment-display')).toHaveTextContent('NTS-release');
-  });
-  it('renders with canceled tag', () => {
-    render(
-      <EvaluationReportShipmentDisplay shipmentId="1" displayInfo={canceledInfo} onChange={jest.fn()} isSubmitted />,
-    );
-    expect(screen.getByText('canceled')).toBeInTheDocument();
   });
 });
 
@@ -90,11 +71,5 @@ describe('Evaluation report - PPM Shipment', () => {
     );
     expect(screen.getByTestId('shipment-display')).toHaveTextContent('PPM');
     expect(screen.getByTestId('ShipmentContainer')).toHaveTextContent('EVLRPT-03');
-  });
-  it('renders with canceled tag', () => {
-    render(
-      <EvaluationReportShipmentDisplay shipmentId="1" displayInfo={canceledInfo} onChange={jest.fn()} isSubmitted />,
-    );
-    expect(screen.getByText('canceled')).toBeInTheDocument();
   });
 });

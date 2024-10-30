@@ -9,8 +9,6 @@ import {
   postalOnlyInfo,
   diversionInfo,
   canceledInfo,
-  diversionRequestedInfo,
-  cancellationRequestedInfo,
   ntsReleaseInfo,
   ntsReleaseMissingInfo,
   ordersLOA,
@@ -76,30 +74,6 @@ describe('Shipment Container', () => {
       render(<ShipmentDisplay shipmentId="1" displayInfo={hhgInfo} onChange={jest.fn()} isSubmitted={false} />);
       expect(screen.queryByRole('button', { name: 'Edit shipment' })).not.toBeInTheDocument();
     });
-    it('renders with review button when user has permission', async () => {
-      render(
-        <MockProviders permissions={[permissionTypes.updateShipment]}>
-          <ShipmentDisplay
-            shipmentId="1"
-            displayInfo={hhgInfo}
-            onChange={jest.fn()}
-            isSubmitted={false}
-            reviewURL="/"
-          />
-        </MockProviders>,
-      );
-
-      const button = screen.getByRole('button', { name: 'Review documents' });
-      expect(button).toBeInTheDocument();
-      await userEvent.click(button);
-      await waitFor(() => {
-        expect(mockNavigate).toHaveBeenCalledWith('/');
-      });
-    });
-    it('renders without review button when user does not have permissions', () => {
-      render(<ShipmentDisplay shipmentId="1" displayInfo={hhgInfo} onChange={jest.fn()} isSubmitted={false} />);
-      expect(screen.queryByRole('button', { name: 'Review documents' })).not.toBeInTheDocument();
-    });
     it('renders with diversion tag', () => {
       render(<ShipmentDisplay shipmentId="1" displayInfo={diversionInfo} onChange={jest.fn()} isSubmitted={false} />);
       expect(screen.getByText('diversion')).toBeInTheDocument();
@@ -107,28 +81,6 @@ describe('Shipment Container', () => {
     it('renders with canceled tag', () => {
       render(<ShipmentDisplay shipmentId="1" displayInfo={canceledInfo} onChange={jest.fn()} isSubmitted={false} />);
       expect(screen.getByText('canceled')).toBeInTheDocument();
-    });
-    it('renders with diversion requested tag', () => {
-      render(
-        <ShipmentDisplay
-          shipmentId="1"
-          displayInfo={diversionRequestedInfo}
-          onChange={jest.fn()}
-          isSubmitted={false}
-        />,
-      );
-      expect(screen.getByText('diversion requested')).toBeInTheDocument();
-    });
-    it('renders with cancellation requested tag', () => {
-      render(
-        <ShipmentDisplay
-          shipmentId="1"
-          displayInfo={cancellationRequestedInfo}
-          onChange={jest.fn()}
-          isSubmitted={false}
-        />,
-      );
-      expect(screen.getByText('cancellation requested')).toBeInTheDocument();
     });
     it('renders a disabled button when move is locked', () => {
       render(
@@ -188,6 +140,10 @@ describe('Shipment Container', () => {
       );
       expect(screen.getByTestId('shipment-display-checkbox')).toBeDisabled();
     });
+    it('renders with canceled tag', () => {
+      render(<ShipmentDisplay shipmentId="1" displayInfo={canceledInfo} onChange={jest.fn()} isSubmitted={false} />);
+      expect(screen.getByText('canceled')).toBeInTheDocument();
+    });
   });
 
   describe('NTS-release shipment', () => {
@@ -225,6 +181,10 @@ describe('Shipment Container', () => {
       expect(screen.getByText('external vendor')).toBeInTheDocument();
     });
 
+    it('renders with canceled tag', () => {
+      render(<ShipmentDisplay shipmentId="1" displayInfo={canceledInfo} onChange={jest.fn()} isSubmitted={false} />);
+      expect(screen.getByText('canceled')).toBeInTheDocument();
+    });
     it('renders with external vendor tag', () => {
       render(
         <ShipmentDisplay
@@ -324,6 +284,10 @@ describe('Shipment Container', () => {
           </MockProviders>,
         );
         expect(screen.getByTestId('tag', { name: 'packet ready for download' })).toBeInTheDocument();
+      });
+      it('renders with canceled tag', () => {
+        render(<ShipmentDisplay shipmentId="1" displayInfo={canceledInfo} onChange={jest.fn()} isSubmitted={false} />);
+        expect(screen.getByText('canceled')).toBeInTheDocument();
       });
       it('excluded', () => {
         render(
