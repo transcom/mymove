@@ -528,11 +528,7 @@ func compoundEscalationFactors(appCtx appcontext.AppContext, contractID uuid.UUI
 	}
 
 	// Get expectations for price escalations calculations
-	expectations, err := models.GetExpectedEscalationPriceContractsCount(contractYear.Name, hasOptionYear3)
-	if err != nil {
-		err := apperror.NewInternalServerError(fmt.Sprintf("Error getting expectations for escalated price calculations", err))
-		return escalatedPrice, err
-	}
+	expectations := models.GetExpectedEscalationPriceContractsCount(contractYear.Name, hasOptionYear3)
 
 	// Adding contracts that are expected to be in the calculations based on the contract year to a map
 	contractYearsForCalculation := make(map[string]models.ReContractYear)
@@ -559,18 +555,21 @@ func compoundEscalationFactors(appCtx appcontext.AppContext, contractID uuid.UUI
 	}
 
 	// Make sure the expected amount of contracts are being used in the escalated Price calculation
-	if len(contractYearsForCalculation) != expectations.ExpectedAmountOfContractYearsForCalculation {
+	if expectations.ExpectedAmountOfContractYearsForCalculation > 0 && len(contractYearsForCalculation) != expectations.ExpectedAmountOfContractYearsForCalculation {
 		err := apperror.NewInternalServerError("Unexpected amount of contract years being used in escalated price calculation")
 		return escalatedPrice, err
 	}
 
 	// Multiply the escalated price by each re_contract_years record escalation factor. EscalatedPrice = EscalatedPrice * ContractEscalationFactor
 	var compoundedEscalatedPrice = escalatedPrice
-	for _, contract := range contractYearsForCalculation {
-		compoundedEscalatedPrice = compoundedEscalatedPrice * contract.Escalation
+
+	if expectations.ExpectedAmountOfContractYearsForCalculation > 0 {
+		for _, contract := range contractYearsForCalculation {
+			compoundedEscalatedPrice = compoundedEscalatedPrice * contract.Escalation
+		}
 	}
 
-	return escalatedPrice, nil
+	return compoundedEscalatedPrice, nil
 }
 
 // roundToPrecision rounds a float64 value to the number of decimal points indicated by the precision.
