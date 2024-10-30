@@ -107,6 +107,11 @@ export const phoneSchema = Yup.string().matches(
   'Please enter a valid phone number. Phone numbers must be entered as ###-###-####.',
 ); // min 12 includes hyphens
 
+export const OfficeAccountRequestEmailSchema = Yup.string().matches(
+  /^[a-zA-Z0-9._%+-]+@(.[a-zA-Z0-9-.]+)[.]{1}(?<!gov|edu|mil)(gov|edu|mil)(?!gov|edu|mil)$/,
+  'Domain must be .mil, .gov or .edu',
+);
+
 export const emailSchema = Yup.string().matches(
   /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+.[a-zA-Z]{2,}$/,
   'Must be a valid email address',
@@ -243,7 +248,7 @@ export const officeAccountRequestSchema = Yup.object().shape({
     .matches(/^[A-Za-z0-9]+$/, otherUniqueIdErrorMsg)
     .test('officeAccountRequestOtherUniqueId', 'Required if not using DODID#', validateOtherUniqueId),
   officeAccountRequestTelephone: phoneSchema.required('Required'),
-  officeAccountRequestEmail: emailSchema.required('Required'),
+  officeAccountRequestEmail: OfficeAccountRequestEmailSchema.required('Required'),
   officeAccountTransportationOffice: Yup.object().required('Required'),
   taskOrderingOfficerCheckBox: Yup.bool()
     .test('roleRequestedRequired', 'You must select at least one role.', validateRoleRequestedMethod)

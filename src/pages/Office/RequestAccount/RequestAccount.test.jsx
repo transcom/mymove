@@ -79,7 +79,7 @@ describe('RequestAccount page', () => {
 
     await userEvent.type(screen.getByLabelText('First Name'), 'Bob');
     await userEvent.type(screen.getByLabelText('Last Name'), 'Banks');
-    await userEvent.type(screen.getByLabelText('Email'), 'banks@gmail.com');
+    await userEvent.type(screen.getByLabelText('Email'), 'banks@us.af.mil');
     await userEvent.type(screen.getByLabelText('Telephone'), '333-333-3333');
     await userEvent.type(screen.getByTestId('officeAccountRequestEdipi'), '1111111111');
     await userEvent.type(screen.getByTestId('officeAccountRequestOtherUniqueId'), '1111111111');
@@ -121,7 +121,7 @@ describe('RequestAccount page', () => {
 
     await userEvent.type(screen.getByLabelText('First Name'), 'Bob');
     await userEvent.type(screen.getByLabelText('Last Name'), 'Banks');
-    await userEvent.type(screen.getByLabelText('Email'), 'banks@gmail.com');
+    await userEvent.type(screen.getByLabelText('Email'), 'banks@test.edu');
     await userEvent.type(screen.getByLabelText('Telephone'), '333-333-3333');
     await userEvent.type(screen.getByTestId('officeAccountRequestEdipi'), '1111111111');
     await userEvent.type(screen.getByTestId('officeAccountRequestOtherUniqueId'), '1111111111');
