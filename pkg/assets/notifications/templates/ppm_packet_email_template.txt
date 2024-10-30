@@ -19,10 +19,10 @@ Log in to SmartVoucher at {{.SmartVoucherLink}} using your CAC or myPay username
 {{if eq .ServiceBranch "Air Force and Space Force"}}Note: The Transportation Office does not determine claimable expenses. Claimable expenses will be determined by finance.
 Note: Not all claimed expenses may have been accepted during PPM closeout if they did not meet the definition of a valid expense.{{end}}
 
-Please be advised, your local finance office may require a DD Form 1351-2 to process payment. You can obtain a copy of this form by utilizing the search feature at {{.WashingtonHQServicesLink}}.{{end}}
+Please be advised, your local finance office may require a DD Form 1351-2 to process payment. You can obtain a copy of this form by utilizing the search feature at {{.WashingtonHQServicesLink}}.{{end}}{{end}}
 {{if eq .IsActualExpenseReimbursement "true"}}
 Please Note: Your PPM has been designated as Actual Expense Reimbursement. This is the standard entitlement for Civilian employees. For uniformed Service Members, your PPM may have been designated as Actual Expense Reimbursement due to failure to receive authorization prior to movement or failure to obtain certified weight tickets. Actual Expense Reimbursement means reimbursement for expenses not to exceed the Government Constructed Cost (GCC).
-{{end}}{{end}}
+{{end}}
 If you have any questions, contact a government transportation office. You can see a listing of transportation offices on Military One Source here: {{.OneSourceTransportationOfficeLink}}
 
 Thank you,
