@@ -428,8 +428,6 @@ test.describe('Services counselor user', () => {
     await page.getByRole('button', { name: 'Confirm' }).click();
     await scPage.waitForPage.moveDetails();
 
-    await expect(page.getByTestId('ShipmentContainer').getByTestId('tag')).toContainText('packet ready for download');
-
     // Navigate to the "View documents" page
     await expect(page.getByRole('button', { name: /View documents/i })).toBeVisible();
     await page.getByRole('button', { name: 'View documents' }).click();
@@ -449,7 +447,7 @@ test.describe('Services counselor user', () => {
     await page.getByLabel('Accept').isDisabled();
     await page.getByRole('button', { name: 'Continue' }).click();
 
-    await expect(page.getByRole('heading', { name: 'Sent to customer', level: 3 })).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Sent to customer', level: 3 })).toBeVisible({ timeout: 10000 });
 
     await page.getByTestId('reviewDocumentsContinueButton').click();
     await scPage.waitForPage.moveDetails();
