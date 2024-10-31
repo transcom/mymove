@@ -1,5 +1,6 @@
 import React from 'react';
-import { waitFor, screen, fireEvent, act } from '@testing-library/react';
+import { waitFor, screen, fireEvent, act, within } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 
 import HeaderSection from './HeaderSection';
 
@@ -19,6 +20,48 @@ jest.mock('hooks/queries', () => ({
   usePPMShipmentDocsQueries: jest.fn(),
   useEditShipmentQueries: jest.fn(),
 }));
+
+const mockUpdateMTOShipment = jest.fn();
+jest.mock('services/ghcApi', () => ({
+  ...jest.requireActual('services/ghcApi'),
+  updateMTOShipment: (options) => mockUpdateMTOShipment(options),
+}));
+
+const usePPMShipmentDocsQueriesReturnValue = {
+  mtoShipment: {
+    id: 'shipment123',
+    moveTaskOrderID: 'move123',
+    eTag: 'etag123',
+    ppmShipment: {
+      id: 'ppm123',
+      actualMoveDate: '2022-01-12',
+      isActualExpenseReimbursement: false,
+    },
+    pickupAddress: {
+      city: 'Beverly Hills',
+      country: 'US',
+      eTag: 'MjAyMC0wNi0xMFQxNTo1ODowMi4zODQ3Njla',
+      id: '1686751b-ab36-43cf-b3c9-c0f467d13c19',
+      postalCode: '90210',
+      state: 'CA',
+      streetAddress1: '123 Any Street',
+      streetAddress2: 'P.O. Box 12345',
+      streetAddress3: 'c/o Some Person',
+    },
+    destinationAddress: {
+      city: 'Fairfield',
+      country: 'US',
+      id: '672ff379-f6e3-48b4-a87d-796713f8f997',
+      postalCode: '94535',
+      state: 'CA',
+      streetAddress1: '987 Any Avenue',
+      streetAddress2: 'P.O. Box 9876',
+      streetAddress3: 'c/o Some Person',
+    },
+  },
+  refetchMTOShipment: jest.fn(), // Mock the refetch function
+  isFetching: false,
+};
 
 const useEditShipmentQueriesReturnValue = {
   move: {
@@ -127,6 +170,8 @@ const useEditShipmentQueriesReturnValue = {
   isLoading: false,
   isError: false,
   isSuccess: true,
+  refetchMTOShipment: jest.fn(),
+  isFetching: false,
 };
 
 const ppmShipmentInfoProps = {
@@ -141,6 +186,8 @@ const ppmShipmentInfoProps = {
     actualWeight: 4200,
     allowableWeight: 4300,
   },
+  setUpdatedItemName: jest.fn(),
+  setIsSubmitting: jest.fn(),
 };
 
 const incentivesProps = {
@@ -154,6 +201,22 @@ const incentivesProps = {
     gcc: 7231285,
     remainingIncentive: 7119041,
   },
+  setUpdatedItemName: jest.fn(),
+  setIsSubmitting: jest.fn(),
+};
+const incentivesAdvanceReceivedZeroProps = {
+  sectionInfo: {
+    type: 'incentives',
+    isAdvanceRequested: false,
+    isAdvanceReceived: true,
+    advanceAmountRequested: 598700,
+    advanceAmountReceived: 0,
+    grossIncentive: 7231285,
+    gcc: 7231285,
+    remainingIncentive: 7119041,
+  },
+  setUpdatedItemName: jest.fn(),
+  setIsSubmitting: jest.fn(),
 };
 
 const incentiveFactorsProps = {
@@ -202,7 +265,7 @@ const clickDetailsButton = async (buttonType) => {
 describe('PPMHeaderSummary component', () => {
   describe('displays Shipment Info section', () => {
     it('renders Shipment Info section on load with defaults', async () => {
-      usePPMShipmentDocsQueries.mockReturnValue(useEditShipmentQueriesReturnValue);
+      usePPMShipmentDocsQueries.mockReturnValue(usePPMShipmentDocsQueriesReturnValue);
       useEditShipmentQueries.mockReturnValue(useEditShipmentQueriesReturnValue);
       await act(async () => {
         renderWithProviders(<HeaderSection {...ppmShipmentInfoProps} />, mockRoutingConfig);
@@ -237,7 +300,7 @@ describe('PPMHeaderSummary component', () => {
 
   describe('displays "Incentives/Costs" section', () => {
     it('renders "Incentives/Costs" section on load with correct prop values', async () => {
-      usePPMShipmentDocsQueries.mockReturnValue(useEditShipmentQueriesReturnValue);
+      usePPMShipmentDocsQueries.mockReturnValue(usePPMShipmentDocsQueriesReturnValue);
       useEditShipmentQueries.mockReturnValue(useEditShipmentQueriesReturnValue);
       await act(async () => {
         renderWithProviders(<HeaderSection {...incentivesProps} />, mockRoutingConfig);
@@ -259,9 +322,142 @@ describe('PPMHeaderSummary component', () => {
     });
   });
 
+  describe('edit items correctly', () => {
+    it('edits actual expense reimbursement correctly', async () => {
+      usePPMShipmentDocsQueries.mockReturnValue(usePPMShipmentDocsQueriesReturnValue);
+      useEditShipmentQueries.mockReturnValue(useEditShipmentQueriesReturnValue);
+      await act(async () => {
+        renderWithProviders(<HeaderSection {...ppmShipmentInfoProps} />, mockRoutingConfig);
+      });
+      await act(async () => {
+        clickDetailsButton('shipmentInfo');
+      });
+
+      const modalButton = within(screen.getByTestId('isActualExpenseReimbursement')).getByTestId('editTextButton');
+      await act(() => userEvent.click(modalButton));
+      await act(() => userEvent.click(screen.getByText('Yes')));
+      await act(() => userEvent.click(screen.getByRole('button', { name: 'Save' })));
+
+      await act(async () => {
+        expect(mockUpdateMTOShipment).toHaveBeenCalledTimes(1);
+      });
+
+      await act(async () => {
+        expect(mockUpdateMTOShipment).toHaveBeenCalledWith({
+          moveTaskOrderID: 'move123',
+          shipmentID: 'shipment123',
+          ifMatchETag: 'etag123',
+          body: {
+            ppmShipment: {
+              isActualExpenseReimbursement: true,
+            },
+          },
+        });
+      });
+    });
+
+    it('edits actual move date correctly', async () => {
+      usePPMShipmentDocsQueries.mockReturnValue(usePPMShipmentDocsQueriesReturnValue);
+      useEditShipmentQueries.mockReturnValue(useEditShipmentQueriesReturnValue);
+      await act(async () => {
+        renderWithProviders(<HeaderSection {...ppmShipmentInfoProps} />, mockRoutingConfig);
+      });
+      await act(async () => {
+        clickDetailsButton('shipmentInfo');
+      });
+
+      const modalButton = within(screen.getByTestId('actualMoveDate')).getByTestId('editTextButton');
+      await act(() => userEvent.click(modalButton));
+      await act(() => userEvent.click(screen.getByRole('button', { name: 'Save' })));
+
+      await act(async () => {
+        expect(mockUpdateMTOShipment).toHaveBeenCalledTimes(1);
+      });
+
+      await act(async () => {
+        expect(mockUpdateMTOShipment).toHaveBeenCalledWith({
+          moveTaskOrderID: 'move123',
+          shipmentID: 'shipment123',
+          ifMatchETag: 'etag123',
+          body: {
+            ppmShipment: {
+              actualMoveDate: '2022-01-20',
+            },
+          },
+        });
+      });
+    });
+
+    it('edits advance amount received correctly', async () => {
+      usePPMShipmentDocsQueries.mockReturnValue(usePPMShipmentDocsQueriesReturnValue);
+      useEditShipmentQueries.mockReturnValue(useEditShipmentQueriesReturnValue);
+      await act(async () => {
+        renderWithProviders(<HeaderSection {...incentivesProps} />, mockRoutingConfig);
+      });
+      await act(async () => {
+        clickDetailsButton('incentives');
+      });
+
+      const modalButton = within(screen.getByTestId('advanceReceived')).getByTestId('editTextButton');
+      await act(() => userEvent.click(modalButton));
+      await act(() => userEvent.click(screen.getByRole('button', { name: 'Save' })));
+
+      await act(async () => {
+        expect(mockUpdateMTOShipment).toHaveBeenCalledTimes(1);
+      });
+
+      await act(async () => {
+        expect(mockUpdateMTOShipment).toHaveBeenCalledWith({
+          moveTaskOrderID: 'move123',
+          shipmentID: 'shipment123',
+          ifMatchETag: 'etag123',
+          body: {
+            ppmShipment: {
+              advanceAmountReceived: 112200,
+              hasReceivedAdvance: true,
+            },
+          },
+        });
+      });
+    });
+
+    it('if advance amount received is 0', async () => {
+      usePPMShipmentDocsQueries.mockReturnValue(usePPMShipmentDocsQueriesReturnValue);
+      useEditShipmentQueries.mockReturnValue(useEditShipmentQueriesReturnValue);
+      await act(async () => {
+        renderWithProviders(<HeaderSection {...incentivesAdvanceReceivedZeroProps} />, mockRoutingConfig);
+      });
+      await act(async () => {
+        clickDetailsButton('incentives');
+      });
+
+      const modalButton = within(screen.getByTestId('advanceReceived')).getByTestId('editTextButton');
+      await act(() => userEvent.click(modalButton));
+      await act(() => userEvent.click(screen.getByRole('button', { name: 'Save' })));
+
+      await act(async () => {
+        expect(mockUpdateMTOShipment).toHaveBeenCalledTimes(1);
+      });
+
+      await act(async () => {
+        expect(mockUpdateMTOShipment).toHaveBeenCalledWith({
+          moveTaskOrderID: 'move123',
+          shipmentID: 'shipment123',
+          ifMatchETag: 'etag123',
+          body: {
+            ppmShipment: {
+              advanceAmountReceived: null,
+              hasReceivedAdvance: false,
+            },
+          },
+        });
+      });
+    });
+  });
+
   describe('displays "Incentive Factors" section', () => {
     it('renders "Incentive Factors" on load with correct prop values', async () => {
-      usePPMShipmentDocsQueries.mockReturnValue(useEditShipmentQueriesReturnValue);
+      usePPMShipmentDocsQueries.mockReturnValue(usePPMShipmentDocsQueriesReturnValue);
       useEditShipmentQueries.mockReturnValue(useEditShipmentQueriesReturnValue);
       await act(async () => {
         renderWithProviders(<HeaderSection {...incentiveFactorsProps} />, mockRoutingConfig);
@@ -286,7 +482,7 @@ describe('PPMHeaderSummary component', () => {
     });
 
     it('renders "Shorthaul" in place of linehaul when given a shorthaul type', async () => {
-      usePPMShipmentDocsQueries.mockReturnValue(useEditShipmentQueriesReturnValue);
+      usePPMShipmentDocsQueries.mockReturnValue(usePPMShipmentDocsQueriesReturnValue);
       useEditShipmentQueries.mockReturnValue(useEditShipmentQueriesReturnValue);
       await act(async () => {
         renderWithProviders(<HeaderSection {...incentiveFactorsShorthaulProps} />, mockRoutingConfig);
@@ -313,7 +509,7 @@ describe('PPMHeaderSummary component', () => {
 
   describe('handles errors correctly', () => {
     it('renders an alert if an unknown section type was passed in', async () => {
-      usePPMShipmentDocsQueries.mockReturnValue(useEditShipmentQueriesReturnValue);
+      usePPMShipmentDocsQueries.mockReturnValue(usePPMShipmentDocsQueriesReturnValue);
       useEditShipmentQueries.mockReturnValue(useEditShipmentQueriesReturnValue);
       await act(async () => {
         renderWithProviders(<HeaderSection {...invalidSectionTypeProps} />, mockRoutingConfig);
@@ -325,7 +521,7 @@ describe('PPMHeaderSummary component', () => {
     });
 
     it('renders an alert if an unknown section type was passed in and details are expanded', async () => {
-      usePPMShipmentDocsQueries.mockReturnValue(useEditShipmentQueriesReturnValue);
+      usePPMShipmentDocsQueries.mockReturnValue(usePPMShipmentDocsQueriesReturnValue);
       useEditShipmentQueries.mockReturnValue(useEditShipmentQueriesReturnValue);
       await act(async () => {
         renderWithProviders(<HeaderSection {...invalidSectionTypeProps} />, mockRoutingConfig);
