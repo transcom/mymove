@@ -102,7 +102,7 @@ func (suite *PayloadsSuite) TestMoveTaskOrder() {
 		suite.Equal(models.NAICS, returnedModel.Order.Naics)
 		suite.Equal(packingInstructions, returnedModel.Order.PackingAndShippingInstructions)
 		suite.Require().NotEmpty(returnedModel.MtoShipments)
-		suite.Equal(basicMove.MTOShipments[0].PickupAddress.County, *returnedModel.MtoShipments[0].PickupAddress.County)
+		suite.Equal(basicMove.MTOShipments[0].PickupAddress.County, returnedModel.MtoShipments[0].PickupAddress.County)
 	})
 }
 func (suite *PayloadsSuite) TestReweigh() {

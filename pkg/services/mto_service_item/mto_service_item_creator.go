@@ -551,7 +551,7 @@ func (o *mtoServiceItemCreator) CreateMTOServiceItem(appCtx appcontext.AppContex
 					extraServiceItem.SITOriginHHGOriginalAddress = serviceItem.SITOriginHHGOriginalAddress
 					extraServiceItem.SITOriginHHGOriginalAddressID = serviceItem.SITOriginHHGOriginalAddressID
 				} else if extraServiceItem.ReService.Code == models.ReServiceCodeIOPSIT ||
-					extraServiceItem.ReService.Code == models.ReServiceCodeIOASIT { // || extraServiceItem.ReService.Code == models.ReServiceCodeDOSFSC
+					extraServiceItem.ReService.Code == models.ReServiceCodeIOASIT || extraServiceItem.ReService.Code == models.ReServiceCodeIOSFSC {
 					extraServiceItem.SITOriginHHGActualAddress = serviceItem.SITOriginHHGActualAddress
 					extraServiceItem.SITOriginHHGActualAddressID = serviceItem.SITOriginHHGActualAddressID
 					extraServiceItem.SITOriginHHGOriginalAddress = serviceItem.SITOriginHHGOriginalAddress
@@ -570,7 +570,7 @@ func (o *mtoServiceItemCreator) CreateMTOServiceItem(appCtx appcontext.AppContex
 					extraServiceItem.SITDestinationFinalAddress = serviceItem.SITDestinationFinalAddress
 					extraServiceItem.SITDestinationFinalAddressID = serviceItem.SITDestinationFinalAddressID
 				} else if extraServiceItem.ReService.Code == models.ReServiceCodeIDDSIT ||
-					extraServiceItem.ReService.Code == models.ReServiceCodeIDASIT { // || extraServiceItem.ReService.Code == models.ReServiceCodeIDSFSC
+					extraServiceItem.ReService.Code == models.ReServiceCodeIDASIT || extraServiceItem.ReService.Code == models.ReServiceCodeIDSFSC {
 					extraServiceItem.SITDestinationFinalAddress = serviceItem.SITDestinationFinalAddress
 					extraServiceItem.SITDestinationFinalAddressID = serviceItem.SITDestinationFinalAddressID
 				}
@@ -920,9 +920,9 @@ func (o *mtoServiceItemCreator) validateFirstDaySITServiceItem(appCtx appcontext
 	case models.ReServiceCodeDOFSIT:
 		reServiceCodes = append(reServiceCodes, models.ReServiceCodeDOASIT, models.ReServiceCodeDOPSIT, models.ReServiceCodeDOSFSC)
 	case models.ReServiceCodeIDFSIT:
-		reServiceCodes = append(reServiceCodes, models.ReServiceCodeIDASIT, models.ReServiceCodeIDDSIT) // Add , models.ReServiceCodeIDSFSC
+		reServiceCodes = append(reServiceCodes, models.ReServiceCodeIDASIT, models.ReServiceCodeIDDSIT, models.ReServiceCodeIDSFSC)
 	case models.ReServiceCodeIOFSIT:
-		reServiceCodes = append(reServiceCodes, models.ReServiceCodeIOASIT, models.ReServiceCodeIOPSIT) // Add , models.ReServiceCodeIOSFSC
+		reServiceCodes = append(reServiceCodes, models.ReServiceCodeIOASIT, models.ReServiceCodeIOPSIT, models.ReServiceCodeIOSFSC)
 	default:
 		verrs := validate.NewErrors()
 		verrs.Add("reServiceCode", fmt.Sprintf("%s invalid code", serviceItem.ReService.Code))

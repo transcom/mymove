@@ -30,7 +30,6 @@ func (suite *ModelSuite) TestEmptyAddressInstantiation() {
 		"city":            {"City can not be blank."},
 		"state":           {"State can not be blank."},
 		"postal_code":     {"PostalCode can not be blank."},
-		"county":          {"County can not be blank."},
 	}
 	suite.verifyValidationErrors(&newAddress, expErrors)
 }
