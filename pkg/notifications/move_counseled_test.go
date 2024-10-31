@@ -56,7 +56,7 @@ If you are doing a Personally Procured Move (PPM), you can start moving your per
 <p><strong>Next steps for a PPM:</strong>
 <ul>
   <li>Please Note: Your PPM has been designated as Actual Expense Reimbursement. This is the standard entitlement for Civilian employees. For uniformed Service Members, your PPM may have been designated as Actual Expense Reimbursement due to failure to receive authorization prior to movement or failure to obtain certified weight tickets. Actual Expense Reimbursement means reimbursement for expenses not to exceed the Government Constructed Cost (GCC).</li>
-  <li>Remember to get legible certified weight tickets for both the empty and full weights for every trip you perform. If you do not upload legible certified weight tickets, your PPM incentive(or Actual Expense Reimbursement for Civilians) could be affected. Failure to obtain weight tickets will result in losing eligibility to receive your incentive.</li>
+  <li>Remember to get legible certified weight tickets for both the empty and full weights for every trip you perform. If you do not upload legible certified weight tickets, your PPM incentive (or Actual Expense Reimbursement for Civilians) could be affected. Failure to obtain weight tickets will result in losing eligibility to receive your incentive.</li>
 <p>Note: To receive allowance for Pro-Gear, you must identify allowable items and provide weight tickets separately for Pro-Gear.</p>
   <li>For authorized storage:</li>
     <ul>
@@ -111,7 +111,7 @@ What this means to you:
 If you are doing a Personally Procured Move (PPM), you can start moving your personal property.
 
 Next steps for a PPM:
-    * Remember to get legible certified weight tickets for both the empty and full weights for every trip you perform. If you do not upload legible certified weight tickets, your PPM incentive(or Actual Expense Reimbursement for Civilians) could be affected. Failure to obtain weight tickets will result in losing eligibility to receive your incentive.
+    * Remember to get legible certified weight tickets for both the empty and full weights for every trip you perform. If you do not upload legible certified weight tickets, your PPM incentive (or Actual Expense Reimbursement for Civilians) could be affected. Failure to obtain weight tickets will result in losing eligibility to receive your incentive.
 Note: To receive allowance for Pro-Gear, you must identify allowable items and provide weight tickets separately for Pro-Gear.
     * For authorized storage:
         * You will need to get weight ticket(s) for the items you store.
