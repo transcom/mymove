@@ -79,7 +79,7 @@ describe('Feedback page', () => {
     expect(screen.getByTestId('w-2Address')).toHaveTextContent('W-2 address: 422 Dearborn AveMissoula, MT 59801');
   });
 
-  it('formats and diplays trip weight', () => {
+  it('formats and displays trip weight', () => {
     renderFeedbackPage();
 
     expect(screen.getByText('Trip weight:')).toBeInTheDocument();
@@ -96,5 +96,34 @@ describe('Feedback page', () => {
     renderFeedbackPage();
 
     expect(screen.queryByTestId('expenses-items')).not.toBeInTheDocument();
+  });
+
+  it('returns correct trip weight', () => {
+    const doc = { fullWeight: 5844, emptyWeight: 1999 };
+    expect(Feedback.getTripWeight(doc)).toBe(3845);
+  });
+
+  it('formats row correctly', () => {
+    const row = { value: 1000, format: (val) => `$${val}` };
+    const formattedRow = Feedback.formatRow(row);
+    expect(formattedRow.value).toBe('$1000');
+  });
+
+  it('formats single document for feedback item correctly', () => {
+    const doc = { fullWeight: 5844, emptyWeight: 1999, key: 'tripWeight' };
+    const formattedDoc = Feedback.formatSingleDocForFeedbackItem(doc, 'WEIGHT');
+    expect(formattedDoc[0].value).toBe(3845);
+  });
+
+  it('formats documents correctly', () => {
+    const docs = [{ fullWeight: 5844, emptyWeight: 1999, key: 'tripWeight' }];
+    const formattedDocs = Feedback.formatDocuments(docs, 'WEIGHT');
+    expect(formattedDocs[0][0].value).toBe(3845);
+  });
+
+  it('displays loading placeholder when mtoShipment is not present', () => {
+    selectMTOShipmentById.mockReturnValueOnce(null);
+    renderFeedbackPage();
+    expect(screen.getByText('Loading...')).toBeInTheDocument();
   });
 });
