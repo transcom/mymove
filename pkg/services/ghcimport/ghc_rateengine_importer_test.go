@@ -24,7 +24,6 @@ type GHCRateEngineImportSuite struct {
 func (suite *GHCRateEngineImportSuite) SetupSuite() {
 	suite.PreloadData(func() {
 		suite.helperSetupStagingTables()
-		suite.helperSetupReServicesTable()
 	})
 }
 
@@ -47,10 +46,6 @@ func (suite *GHCRateEngineImportSuite) helperLoadSQLFixture(fileName string) {
 
 func (suite *GHCRateEngineImportSuite) helperSetupStagingTables() {
 	suite.helperLoadSQLFixture("stage_ghc_pricing.sql")
-}
-
-func (suite *GHCRateEngineImportSuite) helperSetupReServicesTable() {
-	suite.helperLoadSQLFixture("re_services_data.sql")
 }
 
 func TestGHCRateEngineImportSuite(t *testing.T) {
