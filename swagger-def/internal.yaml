@@ -633,6 +633,10 @@ definitions:
         title: Best contact phone
       transportation_office:
         $ref: 'definitions/TransportationOffice.yaml'
+      transportation_office_assignments:
+         type: array
+         items:
+          $ref: 'definitions/TransportationOfficeAssignment.yaml'
       created_at:
         type: string
         format: date-time

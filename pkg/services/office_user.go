@@ -22,6 +22,7 @@ type OfficeUserFetcher interface {
 //go:generate mockery --name OfficeUserFetcherPop
 type OfficeUserFetcherPop interface {
 	FetchOfficeUserByID(appCtx appcontext.AppContext, id uuid.UUID) (models.OfficeUser, error)
+	FetchOfficeUserByIDWithTransportationOfficeAssignments(appCtx appcontext.AppContext, id uuid.UUID) (models.OfficeUser, error)
 	FetchOfficeUsersByRoleAndOffice(appCtx appcontext.AppContext, role roles.RoleType, officeID uuid.UUID) ([]models.OfficeUser, error)
 }
 
