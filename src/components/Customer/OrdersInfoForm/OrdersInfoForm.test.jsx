@@ -164,6 +164,8 @@ const testProps = {
     { key: 'LOCAL_MOVE', value: 'Local Move' },
     { key: 'RETIREMENT', value: 'Retirement' },
     { key: 'SEPARATION', value: 'Separation' },
+    { key: 'EARLY_RETURN_OF_DEPENDENTS', value: 'Early Return of Dependents' },
+    { key: 'STUDENT_TRAVEL', value: 'Student Travel' },
   ],
 };
 
@@ -204,6 +206,12 @@ describe('OrdersInfoForm component', () => {
 
     await userEvent.selectOptions(ordersTypeDropdown, 'SEPARATION');
     expect(ordersTypeDropdown).toHaveValue('SEPARATION');
+
+    await userEvent.selectOptions(ordersTypeDropdown, 'EARLY_RETURN_OF_DEPENDENTS');
+    expect(ordersTypeDropdown).toHaveValue('EARLY_RETURN_OF_DEPENDENTS');
+
+    await userEvent.selectOptions(ordersTypeDropdown, 'STUDENT_TRAVEL');
+    expect(ordersTypeDropdown).toHaveValue('STUDENT_TRAVEL');
   });
 
   it('allows new and current duty location to be the same', async () => {
@@ -272,6 +280,8 @@ describe('OrdersInfoForm component', () => {
         { key: 'LOCAL_MOVE', value: 'Local Move' },
         { key: 'RETIREMENT', value: 'Retirement' },
         { key: 'SEPARATION', value: 'Separation' },
+        { key: 'EARLY_RETURN_OF_DEPENDENTS', value: 'Early Return of Dependents' },
+        { key: 'STUDENT_TRAVEL', value: 'Student Travel' },
       ],
     };
 
@@ -496,6 +506,68 @@ describe('OrdersInfoForm component', () => {
         expect(getByLabelText(/Pay grade/)).toHaveValue(testInitialValues.grade);
         expect(queryByText('Altus AFB')).toBeInTheDocument();
       });
+    });
+  });
+
+  it('has dependents is yes and disabled when order type is student travel', async () => {
+    render(<OrdersInfoForm {...testProps} />);
+
+    await userEvent.selectOptions(screen.getByLabelText(/Orders type/), 'STUDENT_TRAVEL');
+
+    const hasDependentsYes = screen.getByLabelText('Yes');
+    const hasDependentsNo = screen.getByLabelText('No');
+
+    await waitFor(() => {
+      expect(hasDependentsYes).toBeChecked();
+      expect(hasDependentsYes).toBeDisabled();
+      expect(hasDependentsNo).toBeDisabled();
+    });
+  });
+
+  it('has dependents is yes and disabled when order type is early return', async () => {
+    render(<OrdersInfoForm {...testProps} />);
+
+    await userEvent.selectOptions(screen.getByLabelText(/Orders type/), 'EARLY_RETURN_OF_DEPENDENTS');
+
+    const hasDependentsYes = screen.getByLabelText('Yes');
+    const hasDependentsNo = screen.getByLabelText('No');
+
+    await waitFor(() => {
+      expect(hasDependentsYes).toBeChecked();
+      expect(hasDependentsYes).toBeDisabled();
+      expect(hasDependentsNo).toBeDisabled();
+    });
+  });
+
+  it('has dependents becomes disabled and then re-enabled', async () => {
+    render(<OrdersInfoForm {...testProps} />);
+
+    // set order type to perm change and verify the "has dependents" state
+    await userEvent.selectOptions(screen.getByLabelText(/Orders type/), 'PERMANENT_CHANGE_OF_STATION');
+
+    const hasDependentsYesPermChg = screen.getByLabelText('Yes');
+    const hasDependentsNoPermChg = screen.getByLabelText('No');
+
+    await waitFor(() => {
+      expect(hasDependentsYesPermChg).not.toBeChecked();
+      expect(hasDependentsYesPermChg).toBeEnabled();
+      expect(hasDependentsYesPermChg).not.toBeChecked();
+      expect(hasDependentsNoPermChg).toBeEnabled();
+    });
+
+    // set order type to value that disables and defaults "has dependents"
+    await userEvent.selectOptions(screen.getByLabelText(/Orders type/), 'EARLY_RETURN_OF_DEPENDENTS');
+
+    // set order type to value the re-enables "has dependents"
+    await userEvent.selectOptions(screen.getByLabelText(/Orders type/), 'LOCAL_MOVE');
+
+    const hasDependentsYesLocalMove = screen.getByLabelText('Yes');
+    const hasDependentsNoLocalMove = screen.getByLabelText('No');
+
+    await waitFor(() => {
+      expect(hasDependentsYesLocalMove).toBeChecked();
+      expect(hasDependentsYesLocalMove).toBeEnabled();
+      expect(hasDependentsNoLocalMove).toBeEnabled();
     });
   });
 
