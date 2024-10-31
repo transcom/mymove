@@ -63,7 +63,7 @@ func (suite *PayloadsSuite) TestMoveTaskOrder() {
 					City:           "Washington",
 					State:          "DC",
 					PostalCode:     "20001",
-					County:         "my county",
+					County:         models.StringPointer("my county"),
 				},
 			},
 		},
@@ -102,7 +102,7 @@ func (suite *PayloadsSuite) TestMoveTaskOrder() {
 		suite.Equal(models.NAICS, returnedModel.Order.Naics)
 		suite.Equal(packingInstructions, returnedModel.Order.PackingAndShippingInstructions)
 		suite.Require().NotEmpty(returnedModel.MtoShipments)
-		suite.Equal(basicMove.MTOShipments[0].PickupAddress.County, *returnedModel.MtoShipments[0].PickupAddress.County)
+		suite.Equal(basicMove.MTOShipments[0].PickupAddress.County, returnedModel.MtoShipments[0].PickupAddress.County)
 	})
 }
 func (suite *PayloadsSuite) TestReweigh() {
@@ -541,7 +541,7 @@ func (suite *PayloadsSuite) TestPPMShipmentContainingOptionalDestinationStreet1(
 			City:           "SomeCity",
 			State:          "CA",
 			PostalCode:     "90210",
-			County:         "SomeCounty",
+			County:         models.StringPointer("SomeCounty"),
 			UpdatedAt:      now,
 		},
 	}

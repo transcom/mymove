@@ -29,7 +29,7 @@ func (suite *PayloadsSuite) TestFetchPPMShipment() {
 		State:          state,
 		PostalCode:     postalcode,
 		Country:        &country,
-		County:         county,
+		County:         &county,
 	}
 
 	isActualExpenseReimbursement := true

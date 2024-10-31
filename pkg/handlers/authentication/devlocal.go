@@ -493,7 +493,7 @@ func createUser(h devlocalAuthHandler, w http.ResponseWriter, r *http.Request) (
 		City:           "San Francisco",
 		State:          "CA",
 		PostalCode:     "94115",
-		County:         "SAINT CLAIR",
+		County:         models.StringPointer("SAINT CLAIR"),
 		IsOconus:       models.BoolPointer(false),
 	}
 

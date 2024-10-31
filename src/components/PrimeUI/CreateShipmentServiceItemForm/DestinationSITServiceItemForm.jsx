@@ -110,11 +110,17 @@ const DestinationSITServiceItemForm = ({ shipment, submission }) => {
         <DatePickerInput label="SIT entry date" name="sitEntryDate" id="sitEntryDate" />
         <DatePickerInput label="SIT departure date" name="sitDepartureDate" id="sitDepartureDate" />
         <Hint data-testid="destinationSitInfo">
-          The following service items will be created: <br />
-          DDFSIT (Destination 1st day SIT) <br />
-          DDASIT (Destination additional days SIT) <br />
-          DDDSIT (Destination SIT delivery) <br />
-          DDSFSC (Destination SIT fuel surcharge) <br />
+          The following service items will be created for domestic SIT: <br />
+          DDFSIT (Domestic Destination 1st day SIT) <br />
+          DDASIT (Domestic Destination additional days SIT) <br />
+          DDDSIT (Domestic Destination SIT delivery) <br />
+          FSC (Fuel surcharge) <br />
+          <br />
+          The following service items will be created for international SIT: <br />
+          IDFSIT (International Destination 1st day SIT) <br />
+          IDASIT (International Destination additional days SIT) <br />
+          IDDSIT (International Destination SIT delivery) <br />
+          FSC (fuel surcharge) <br />
           <br />
           <strong>NOTE:</strong> The above service items will use the current destination address of the shipment as
           their final destination address. Ensure the shipment address is accurate before creating these service items.

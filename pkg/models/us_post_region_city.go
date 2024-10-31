@@ -45,16 +45,16 @@ func (usprc *UsPostRegionCity) Validate(_ *pop.Connection) (*validate.Errors, er
 }
 
 // Find a corresponding county for a provided zip code from the USPRC table
-func FindCountyByZipCode(db *pop.Connection, zipCode string) (string, error) {
+func FindCountyByZipCode(db *pop.Connection, zipCode string) (*string, error) {
 	var usprc UsPostRegionCity
 	err := db.Where("uspr_zip_id = ?", zipCode).First(&usprc)
 	if err != nil {
 		switch err {
 		case sql.ErrNoRows:
-			return "", apperror.NewEventError("No county found for provided zip code "+zipCode+".", err)
+			return nil, apperror.NewEventError("No county found for provided zip code "+zipCode+".", err)
 		default:
-			return "", err
+			return nil, err
 		}
 	}
-	return usprc.UsprcCountyNm, nil
+	return &usprc.UsprcCountyNm, nil
 }

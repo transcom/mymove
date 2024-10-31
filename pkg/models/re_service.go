@@ -83,6 +83,8 @@ const (
 	ReServiceCodeIDASIT ReServiceCode = "IDASIT"
 	// ReServiceCodeIDDSIT International destination SIT delivery
 	ReServiceCodeIDDSIT ReServiceCode = "IDDSIT"
+	// ReServiceCodeIDSFSC International destination SIT FSC
+	ReServiceCodeIDSFSC ReServiceCode = "IDSFSC"
 	// ReServiceCodeIDFSIT International destination 1st day SIT
 	ReServiceCodeIDFSIT ReServiceCode = "IDFSIT"
 	// ReServiceCodeIDSHUT International destination shuttle service
@@ -107,6 +109,8 @@ const (
 	ReServiceCodeIOOUB ReServiceCode = "IOOUB"
 	// ReServiceCodeIOPSIT International origin SIT pickup
 	ReServiceCodeIOPSIT ReServiceCode = "IOPSIT"
+	// ReServiceCodeIOSFSC International origin SIT FSC
+	ReServiceCodeIOSFSC ReServiceCode = "IOSFSC"
 	// ReServiceCodeIOSHUT International origin shuttle service
 	ReServiceCodeIOSHUT ReServiceCode = "IOSHUT"
 	// ReServiceCodeIUBPK International UB pack
@@ -181,6 +185,7 @@ var ValidInternationalOriginSITReServiceCodes = []ReServiceCode{
 	ReServiceCodeIOFSIT,
 	ReServiceCodeIOPSIT,
 	ReServiceCodeIOSHUT,
+	ReServiceCodeIOSFSC,
 }
 
 // Definition of valid International Destination SIT ReServiceCodes
@@ -189,6 +194,7 @@ var ValidInternationalDestinationSITReServiceCodes = []ReServiceCode{
 	ReServiceCodeIDDSIT,
 	ReServiceCodeIDFSIT,
 	ReServiceCodeIDSHUT,
+	ReServiceCodeIDSFSC,
 }
 
 // TableName overrides the table name used by Pop.
