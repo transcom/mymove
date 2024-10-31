@@ -4808,11 +4808,6 @@ paths:
           format: uuid
           required: true
           description: UUID of the move
-        - in: body
-          name: cancelMove
-          required: true
-          schema:
-            $ref: '#/definitions/CancelMove'
       responses:
         '200':
           description: returns updated (canceled) move object
