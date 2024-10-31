@@ -28,7 +28,7 @@ func (suite *UploaderSuite) TestUserUploadFromLocalFile() {
 	suite.Nil(err, "failed to create upload")
 	suite.False(verrs.HasAny(), "failed to validate upload", verrs)
 	suite.Equal(userUpload.Upload.ContentType, uploader.FileTypePDF)
-	suite.Equal(userUpload.Upload.Checksum, "nOE6HwzyE4VEDXn67ULeeA==")
+	suite.Equal(userUpload.Upload.Checksum, "w7rJQqzlaazDW+mxTU9Q40Qchr3DW7FPQD7f8Js2J88=")
 }
 
 func (suite *UploaderSuite) TestUserUploadFromLocalFileZeroLength() {
