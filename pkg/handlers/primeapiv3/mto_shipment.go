@@ -41,12 +41,11 @@ func (h CreateMTOShipmentHandler) Handle(params mtoshipmentops.CreateMTOShipment
 			}
 
 			/** Feature Flag - Boat Shipment **/
-			featureFlagName := "boat"
+			const featureFlagName = "boat"
 			isBoatFeatureOn := false
 			flag, err := h.FeatureFlagFetcher().GetBooleanFlag(params.HTTPRequest.Context(), appCtx.Logger(), "", featureFlagName, map[string]string{})
 			if err != nil {
 				appCtx.Logger().Error("Error fetching feature flag", zap.String("featureFlagKey", featureFlagName), zap.Error(err))
-				isBoatFeatureOn = false
 			} else {
 				isBoatFeatureOn = flag.Match
 			}

@@ -278,7 +278,6 @@ func CreateMoveWithHHGAndPPM(appCtx appcontext.AppContext, userUploader *uploade
 				City:           "Columbia",
 				State:          "SC",
 				PostalCode:     "29212",
-				Country:        models.StringPointer("US"),
 			},
 		},
 	}, nil)
@@ -362,7 +361,7 @@ func CreateMoveWithHHGAndPPM(appCtx appcontext.AppContext, userUploader *uploade
 	// If not ready for closeout, just submit the shipment
 	ppmShipmentStatus := models.PPMShipmentStatusSubmitted
 	if readyForCloseout {
-		ppmShipmentStatus = models.PPMShipmentStatusWaitingOnCustomer
+		ppmShipmentStatus = models.PPMShipmentStatusNeedsCloseout
 	}
 
 	factory.BuildPPMShipment(appCtx.DB(), []factory.Customization{
@@ -2579,7 +2578,6 @@ func CreateMoveWithCloseOut(appCtx appcontext.AppContext, userUploader *uploader
 				City:           "Columbia",
 				State:          "SC",
 				PostalCode:     "29212",
-				Country:        models.StringPointer("US"),
 			},
 		},
 	}, nil)
@@ -3821,7 +3819,6 @@ func createUnsubmittedHHGMoveMultiplePickup(appCtx appcontext.AppContext) {
 				City:           "Columbia",
 				State:          "SC",
 				PostalCode:     "29212",
-				Country:        models.StringPointer("US"),
 			},
 		},
 	}, nil)
@@ -3836,7 +3833,6 @@ func createUnsubmittedHHGMoveMultiplePickup(appCtx appcontext.AppContext) {
 				City:           "Columbia",
 				State:          "SC",
 				PostalCode:     "29212",
-				Country:        models.StringPointer("US"),
 			},
 		},
 	}, nil)
@@ -3930,7 +3926,6 @@ func createSubmittedHHGMoveMultiplePickupAmendedOrders(appCtx appcontext.AppCont
 				City:           "Columbia",
 				State:          "SC",
 				PostalCode:     "29212",
-				Country:        models.StringPointer("US"),
 			},
 		},
 	}, nil)
@@ -3945,7 +3940,6 @@ func createSubmittedHHGMoveMultiplePickupAmendedOrders(appCtx appcontext.AppCont
 				City:           "Columbia",
 				State:          "SC",
 				PostalCode:     "29212",
-				Country:        models.StringPointer("US"),
 			},
 		},
 	}, nil)
@@ -4241,6 +4235,7 @@ func createHHGWithOriginSITServiceItems(
 	// the prime API requires it to be specified.
 	originSITAddress := shipment.PickupAddress
 	originSITAddress.ID = uuid.Nil
+	originSITAddress.Country = nil
 
 	originSIT := factory.BuildMTOServiceItem(nil, []factory.Customization{
 		{
@@ -4938,7 +4933,12 @@ func createHHGWithPaymentServiceItems(
 	// have a departure date for the payment request param lookup to not encounter an error
 	originEntryDate := actualPickupDate
 
+	// Prep country with a real db
+	country := factory.FetchOrBuildCountry(db, nil, nil)
 	originSITAddress := factory.BuildAddress(nil, nil, []factory.Trait{factory.GetTraitAddress2})
+	// Manually set Country ID. Customizations will not work because DB is nil
+	originSITAddress.CountryId = &country.ID
+	originSITAddress.Country = nil
 	originSITAddress.ID = uuid.Nil
 
 	originSIT := factory.BuildMTOServiceItem(nil, []factory.Customization{
@@ -6414,7 +6414,6 @@ func createMoveWithHHGAndNTSRPaymentRequest(appCtx appcontext.AppContext, userUp
 				City:           "Columbia",
 				State:          "SC",
 				PostalCode:     "29212",
-				Country:        models.StringPointer("US"),
 			},
 		},
 	}, nil)
@@ -6429,7 +6428,6 @@ func createMoveWithHHGAndNTSRPaymentRequest(appCtx appcontext.AppContext, userUp
 				City:           "Princeton",
 				State:          "NJ",
 				PostalCode:     "08540",
-				Country:        models.StringPointer("US"),
 			},
 		},
 	}, nil)
@@ -6472,7 +6470,6 @@ func createMoveWithHHGAndNTSRPaymentRequest(appCtx appcontext.AppContext, userUp
 				City:           "Houston",
 				State:          "TX",
 				PostalCode:     "77083",
-				Country:        models.StringPointer("US"),
 			},
 		},
 	}, nil)
@@ -7547,7 +7544,6 @@ func createMoveWith2ShipmentsAndPaymentRequest(appCtx appcontext.AppContext, use
 				City:           "Columbia",
 				State:          "SC",
 				PostalCode:     "29212",
-				Country:        models.StringPointer("US"),
 			},
 		},
 	}, nil)
@@ -7562,7 +7558,6 @@ func createMoveWith2ShipmentsAndPaymentRequest(appCtx appcontext.AppContext, use
 				City:           "Princeton",
 				State:          "NJ",
 				PostalCode:     "08540",
-				Country:        models.StringPointer("US"),
 			},
 		},
 	}, nil)
@@ -10149,7 +10144,6 @@ func createMoveWithUniqueDestinationAddress(appCtx appcontext.AppContext) {
 				City:           "Columbia",
 				State:          "SC",
 				PostalCode:     "29212",
-				Country:        models.StringPointer("US"),
 			},
 			Type: &factory.Addresses.DutyLocationAddress,
 		},

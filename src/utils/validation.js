@@ -108,7 +108,7 @@ export const phoneSchema = Yup.string().matches(
 ); // min 12 includes hyphens
 
 export const OfficeAccountRequestEmailSchema = Yup.string().matches(
-  /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9-]+[.]{1}(?<!gov|edu|mil)(gov|edu|mil)(?!gov|edu|mil)$/,
+  /^[a-zA-Z0-9._%+-]+@(.[a-zA-Z0-9-.]+)[.]{1}(?<!gov|edu|mil)(gov|edu|mil)(?!gov|edu|mil)$/,
   'Domain must be .mil, .gov or .edu',
 );
 

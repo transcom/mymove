@@ -1,6 +1,5 @@
 import React from 'react';
 import * as PropTypes from 'prop-types';
-// import BoatShipmentInfoList from 'components/Office/DefinitionLists/BoatShipmentInfoList';
 
 import { ShipmentShape } from 'types/shipment';
 import ShipmentInfoList from 'components/Office/DefinitionLists/ShipmentInfoList';
