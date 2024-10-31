@@ -406,7 +406,7 @@ describe('MoveQueue', () => {
       </reactRouterDom.BrowserRouter>,
     );
     await waitFor(() => {
-      const assignedSelect = screen.queryAllByTestId('assigned-select')[0];
+      const assignedSelect = screen.queryAllByTestId('assigned-col')[0];
       expect(assignedSelect).toBeInTheDocument();
     });
   });
@@ -418,7 +418,7 @@ describe('MoveQueue', () => {
       </reactRouterDom.BrowserRouter>,
     );
     await waitFor(() => {
-      const assignedSelect = screen.queryByTestId('assigned-select');
+      const assignedSelect = screen.queryByTestId('assigned-col');
       expect(assignedSelect).not.toBeInTheDocument();
     });
   });
