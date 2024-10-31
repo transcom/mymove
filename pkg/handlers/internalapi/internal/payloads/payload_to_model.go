@@ -187,6 +187,10 @@ func PPMShipmentModelFromCreate(ppmShipment *internalmessages.CreatePPMShipment)
 		model.TertiaryDestinationAddress = AddressModel(ppmShipment.TertiaryDestinationAddress)
 	}
 
+	if ppmShipment.IsActualExpenseReimbursement != nil {
+		model.IsActualExpenseReimbursement = ppmShipment.IsActualExpenseReimbursement
+	}
+
 	return model
 }
 
@@ -202,6 +206,7 @@ func UpdatePPMShipmentModel(ppmShipment *internalmessages.UpdatePPMShipment) *mo
 		SITExpected:                    ppmShipment.SitExpected,
 		EstimatedWeight:                handlers.PoundPtrFromInt64Ptr(ppmShipment.EstimatedWeight),
 		HasProGear:                     ppmShipment.HasProGear,
+		IsActualExpenseReimbursement:   ppmShipment.IsActualExpenseReimbursement,
 		ProGearWeight:                  handlers.PoundPtrFromInt64Ptr(ppmShipment.ProGearWeight),
 		SpouseProGearWeight:            handlers.PoundPtrFromInt64Ptr(ppmShipment.SpouseProGearWeight),
 		HasRequestedAdvance:            ppmShipment.HasRequestedAdvance,
