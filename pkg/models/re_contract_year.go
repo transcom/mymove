@@ -70,7 +70,7 @@ func (r *ReContractYear) Validate(_ *pop.Connection) (*validate.Errors, error) {
 	), nil
 }
 
-func GetExpectedEscalationPriceContractsCount(contractYearName string, hasOptionYear3 bool) ExpectedEscalationPriceContractsCount {
+func GetExpectedEscalationPriceContractsCount(contractYearName string) ExpectedEscalationPriceContractsCount {
 	switch contractYearName {
 	case BasePeriodYear1:
 		return ExpectedEscalationPriceContractsCount{
@@ -107,44 +107,26 @@ func GetExpectedEscalationPriceContractsCount(contractYearName string, hasOption
 			ExpectedAmountOfOptionPeriodYearsForCalculation: 2,
 			ExpectedAmountOfAwardTermsForCalculation:        0,
 		}
-	case OptionPeriod3:
+	case AwardTerm1:
 		return ExpectedEscalationPriceContractsCount{
 			ExpectedAmountOfContractYearsForCalculation:     6,
 			ExpectedAmountOfBasePeriodYearsForCalculation:   3,
-			ExpectedAmountOfOptionPeriodYearsForCalculation: 3,
-			ExpectedAmountOfAwardTermsForCalculation:        0,
-		}
-	case AwardTerm1:
-		if hasOptionYear3 {
-			return ExpectedEscalationPriceContractsCount{
-				ExpectedAmountOfContractYearsForCalculation:     7,
-				ExpectedAmountOfBasePeriodYearsForCalculation:   3,
-				ExpectedAmountOfOptionPeriodYearsForCalculation: 3,
-				ExpectedAmountOfAwardTermsForCalculation:        1,
-			}
-		} else {
-			return ExpectedEscalationPriceContractsCount{
-				ExpectedAmountOfContractYearsForCalculation:     6,
-				ExpectedAmountOfBasePeriodYearsForCalculation:   3,
-				ExpectedAmountOfOptionPeriodYearsForCalculation: 2,
-				ExpectedAmountOfAwardTermsForCalculation:        1,
-			}
+			ExpectedAmountOfOptionPeriodYearsForCalculation: 2,
+			ExpectedAmountOfAwardTermsForCalculation:        1,
 		}
 	case AwardTerm2:
-		if hasOptionYear3 {
-			return ExpectedEscalationPriceContractsCount{
-				ExpectedAmountOfContractYearsForCalculation:     8,
-				ExpectedAmountOfBasePeriodYearsForCalculation:   3,
-				ExpectedAmountOfOptionPeriodYearsForCalculation: 3,
-				ExpectedAmountOfAwardTermsForCalculation:        2,
-			}
-		} else {
-			return ExpectedEscalationPriceContractsCount{
-				ExpectedAmountOfContractYearsForCalculation:     7,
-				ExpectedAmountOfBasePeriodYearsForCalculation:   3,
-				ExpectedAmountOfOptionPeriodYearsForCalculation: 2,
-				ExpectedAmountOfAwardTermsForCalculation:        2,
-			}
+		return ExpectedEscalationPriceContractsCount{
+			ExpectedAmountOfContractYearsForCalculation:     7,
+			ExpectedAmountOfBasePeriodYearsForCalculation:   3,
+			ExpectedAmountOfOptionPeriodYearsForCalculation: 2,
+			ExpectedAmountOfAwardTermsForCalculation:        2,
+		}
+	case OptionPeriod3:
+		return ExpectedEscalationPriceContractsCount{
+			ExpectedAmountOfContractYearsForCalculation:     8,
+			ExpectedAmountOfBasePeriodYearsForCalculation:   3,
+			ExpectedAmountOfOptionPeriodYearsForCalculation: 3,
+			ExpectedAmountOfAwardTermsForCalculation:        2,
 		}
 	default:
 		return ExpectedEscalationPriceContractsCount{
