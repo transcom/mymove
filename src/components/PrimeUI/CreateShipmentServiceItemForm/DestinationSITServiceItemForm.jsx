@@ -114,13 +114,13 @@ const DestinationSITServiceItemForm = ({ shipment, submission }) => {
           DDFSIT (Domestic Destination 1st day SIT) <br />
           DDASIT (Domestic Destination additional days SIT) <br />
           DDDSIT (Domestic Destination SIT delivery) <br />
-          FSC (Fuel surcharge) <br />
+          DDSFSC (Domestic Destination SIT fuel surcharge) <br />
           <br />
           The following service items will be created for international SIT: <br />
           IDFSIT (International Destination 1st day SIT) <br />
           IDASIT (International Destination additional days SIT) <br />
           IDDSIT (International Destination SIT delivery) <br />
-          FSC (fuel surcharge) <br />
+          IDSFSC (International Destination SIT fuel surcharge) <br />
           <br />
           <strong>NOTE:</strong> The above service items will use the current destination address of the shipment as
           their final destination address. Ensure the shipment address is accurate before creating these service items.

@@ -91,13 +91,8 @@ describe('DestinationSITServiceItemForm component', () => {
     const hintInfo = screen.getByTestId('destinationSitInfo');
     expect(hintInfo).toBeInTheDocument();
 
-    expect(hintInfo).toHaveTextContent('The following service items will be created:');
-    expect(hintInfo).toHaveTextContent('DDFSIT (Destination 1st day SIT)');
-    expect(hintInfo).toHaveTextContent('DDASIT (Destination additional days SIT)');
-    expect(hintInfo).toHaveTextContent('DDDSIT (Destination SIT delivery)');
-    expect(hintInfo).toHaveTextContent('DDSFSC (Destination SIT fuel surcharge)');
     expect(hintInfo).toHaveTextContent(
-      'NOTE: The above service items will use the current destination address of the shipment as their final destination address. Ensure the shipment address is accurate before creating these service items.',
+      'The following service items will be created for domestic SIT: DDFSIT (Domestic Destination 1st day SIT) DDASIT (Domestic Destination additional days SIT) DDDSIT (Domestic Destination SIT delivery) DDSFSC (Domestic Destination SIT fuel surcharge) The following service items will be created for international SIT: IDFSIT (International Destination 1st day SIT) IDASIT (International Destination additional days SIT) IDDSIT (International Destination SIT delivery) IDSFSC (International Destination SIT fuel surcharge) NOTE: The above service items will use the current destination address of the shipment as their final destination address. Ensure the shipment address is accurate before creating these service items.',
     );
   });
 
