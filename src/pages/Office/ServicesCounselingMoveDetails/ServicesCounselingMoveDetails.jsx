@@ -10,7 +10,7 @@ import styles from '../ServicesCounselingMoveInfo/ServicesCounselingTab.module.s
 
 import scMoveDetailsStyles from './ServicesCounselingMoveDetails.module.scss';
 
-import { MOVES } from 'constants/queryKeys';
+import { MOVES, MTO_SHIPMENTS, PPMCLOSEOUT } from 'constants/queryKeys';
 import { ORDERS_TYPE } from 'constants/orders';
 import { servicesCounselingRoutes } from 'constants/routes';
 import AllowancesList from 'components/Office/DefinitionLists/AllowancesList';
@@ -22,7 +22,7 @@ import FinancialReviewModal from 'components/Office/FinancialReviewModal/Financi
 import ShipmentDisplay from 'components/Office/ShipmentDisplay/ShipmentDisplay';
 import { SubmitMoveConfirmationModal } from 'components/Office/SubmitMoveConfirmationModal/SubmitMoveConfirmationModal';
 import { useMoveDetailsQueries, useOrdersDocumentQueries } from 'hooks/queries';
-import { updateMoveStatusServiceCounselingCompleted, updateFinancialFlag } from 'services/ghcApi';
+import { updateMoveStatusServiceCounselingCompleted, updateFinancialFlag, updateMTOShipment } from 'services/ghcApi';
 import { MOVE_STATUSES, SHIPMENT_OPTIONS_URL, SHIPMENT_OPTIONS } from 'shared/constants';
 import { ppmShipmentStatuses } from 'constants/shipments';
 import shipmentCardsStyles from 'styles/shipmentCards.module.scss';
@@ -414,6 +414,46 @@ const ServicesCounselingMoveDetails = ({
     },
   });
 
+  const shipmentMutation = useMutation(updateMTOShipment, {
+    onSuccess: (updatedMTOShipment) => {
+      mtoShipments[mtoShipments?.findIndex((shipment) => shipment.id === updatedMTOShipment.id)] = updatedMTOShipment;
+
+      queryClient.setQueryData([MTO_SHIPMENTS, mtoShipments.moveTaskOrderID, false], mtoShipments);
+      queryClient.invalidateQueries([MTO_SHIPMENTS, mtoShipments.moveTaskOrderID]);
+      queryClient.invalidateQueries([PPMCLOSEOUT, mtoShipments?.ppmShipment?.id]);
+      setAlertType('success');
+    },
+    onError: (error) => {
+      setAlertMessage(error?.response?.body?.message ? error.response.body.message : 'Shipment updated.');
+      setAlertType('error');
+    },
+  });
+
+  const handleConfirmSubmitMoveDetails = async () => {
+    const shipmentPromise = await mtoShipments.map((shipment) => {
+      if (shipment?.ppmShipment?.estimatedIncentive === 0) {
+        return shipmentMutation.mutateAsync({
+          moveTaskOrderID: shipment.moveTaskOrderID,
+          shipmentID: shipment.id,
+          ifMatchETag: shipment.eTag,
+          body: {
+            ppmShipment: shipment.ppmShipment,
+          },
+        });
+      }
+
+      return Promise.resolve();
+    });
+
+    Promise.all(shipmentPromise)
+      .then(() => {
+        mutateMoveStatus({ moveTaskOrderID: move.id, ifMatchETag: move.eTag });
+      })
+      .finally(() => {
+        setIsSubmitModalVisible(false);
+      });
+  };
+
   useEffect(() => {
     setMoveHasExcessWeight(moveWeightTotal > order.entitlement.totalWeight);
   }, [moveWeightTotal, order.entitlement.totalWeight]);
@@ -449,11 +489,6 @@ const ServicesCounselingMoveDetails = ({
 
   const handleShowCancellationModal = () => {
     setIsSubmitModalVisible(true);
-  };
-
-  const handleConfirmSubmitMoveDetails = () => {
-    mutateMoveStatus({ moveTaskOrderID: move.id, ifMatchETag: move.eTag });
-    setIsSubmitModalVisible(false);
   };
 
   const handleShowFinancialReviewModal = () => {
