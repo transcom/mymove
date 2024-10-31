@@ -457,6 +457,46 @@ const ServicesCounselingMoveDetails = ({
     },
   });
 
+  const shipmentMutation = useMutation(updateMTOShipment, {
+    onSuccess: (updatedMTOShipment) => {
+      mtoShipments[mtoShipments?.findIndex((shipment) => shipment.id === updatedMTOShipment.id)] = updatedMTOShipment;
+
+      queryClient.setQueryData([MTO_SHIPMENTS, mtoShipments.moveTaskOrderID, false], mtoShipments);
+      queryClient.invalidateQueries([MTO_SHIPMENTS, mtoShipments.moveTaskOrderID]);
+      queryClient.invalidateQueries([PPMCLOSEOUT, mtoShipments?.ppmShipment?.id]);
+      setAlertType('success');
+    },
+    onError: (error) => {
+      setAlertMessage(error?.response?.body?.message ? error.response.body.message : 'Shipment updated.');
+      setAlertType('error');
+    },
+  });
+
+  const handleConfirmSubmitMoveDetails = async () => {
+    const shipmentPromise = await mtoShipments.map((shipment) => {
+      if (shipment?.ppmShipment?.estimatedIncentive === 0) {
+        return shipmentMutation.mutateAsync({
+          moveTaskOrderID: shipment.moveTaskOrderID,
+          shipmentID: shipment.id,
+          ifMatchETag: shipment.eTag,
+          body: {
+            ppmShipment: shipment.ppmShipment,
+          },
+        });
+      }
+
+      return Promise.resolve();
+    });
+
+    Promise.all(shipmentPromise)
+      .then(() => {
+        mutateMoveStatus({ moveTaskOrderID: move.id, ifMatchETag: move.eTag });
+      })
+      .finally(() => {
+        setIsSubmitModalVisible(false);
+      });
+  };
+
   useEffect(() => {
     setMoveHasExcessWeight(moveWeightTotal > order.entitlement.totalWeight);
   }, [moveWeightTotal, order.entitlement.totalWeight]);
@@ -492,11 +532,6 @@ const ServicesCounselingMoveDetails = ({
 
   const handleShowSubmitMoveModal = () => {
     setIsSubmitModalVisible(true);
-  };
-
-  const handleConfirmSubmitMoveDetails = () => {
-    mutateMoveStatus({ moveTaskOrderID: move.id, ifMatchETag: move.eTag });
-    setIsSubmitModalVisible(false);
   };
 
   const handleShowFinancialReviewModal = () => {
