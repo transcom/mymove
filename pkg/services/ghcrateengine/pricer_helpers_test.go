@@ -712,3 +712,196 @@ func (suite *GHCRateEngineServiceSuite) Test_escalatePriceForContractYear() {
 		suite.Contains(err.Error(), "could not lookup contract year")
 	})
 }
+
+func (suite *GHCRateEngineServiceSuite) Test_new() {
+
+	setUpContracts := func() map[string]models.ReContractYear {
+		escalationCompounded := 1.04071
+		basePeriodYear1 := testdatagen.MakeReContractYear(suite.DB(),
+			testdatagen.Assertions{
+				ReContractYear: models.ReContractYear{
+					EscalationCompounded: escalationCompounded,
+					Name:                 models.BasePeriodYear1,
+				},
+			})
+		basePeriodYear2 := testdatagen.MakeReContractYear(suite.DB(),
+			testdatagen.Assertions{
+				ReContractYear: models.ReContractYear{
+					EscalationCompounded: escalationCompounded,
+					Name:                 models.BasePeriodYear2,
+					StartDate:            basePeriodYear1.StartDate.AddDate(1, 0, 0),
+					EndDate:              basePeriodYear1.EndDate.AddDate(1, 0, 0),
+				},
+			})
+		basePeriodYear3 := testdatagen.MakeReContractYear(suite.DB(),
+			testdatagen.Assertions{
+				ReContractYear: models.ReContractYear{
+					EscalationCompounded: escalationCompounded,
+					Name:                 models.BasePeriodYear3,
+					StartDate:            basePeriodYear2.StartDate.AddDate(1, 0, 0),
+					EndDate:              basePeriodYear2.EndDate.AddDate(1, 0, 0),
+				},
+			})
+		optionPeriod1 := testdatagen.MakeReContractYear(suite.DB(),
+			testdatagen.Assertions{
+				ReContractYear: models.ReContractYear{
+					EscalationCompounded: escalationCompounded,
+					Name:                 models.OptionPeriod1,
+					StartDate:            basePeriodYear3.StartDate.AddDate(1, 0, 0),
+					EndDate:              basePeriodYear3.EndDate.AddDate(1, 0, 0),
+				},
+			})
+		optionPeriod2 := testdatagen.MakeReContractYear(suite.DB(),
+			testdatagen.Assertions{
+				ReContractYear: models.ReContractYear{
+					EscalationCompounded: escalationCompounded,
+					Name:                 models.OptionPeriod2,
+					StartDate:            optionPeriod1.StartDate.AddDate(1, 0, 0),
+					EndDate:              optionPeriod1.EndDate.AddDate(1, 0, 0),
+				},
+			})
+		awardTerm1 := testdatagen.MakeReContractYear(suite.DB(),
+			testdatagen.Assertions{
+				ReContractYear: models.ReContractYear{
+					EscalationCompounded: escalationCompounded,
+					Name:                 models.AwardTerm1,
+					StartDate:            optionPeriod2.StartDate.AddDate(1, 0, 0),
+					EndDate:              optionPeriod2.EndDate.AddDate(1, 0, 0),
+				},
+			})
+		awardTerm2 := testdatagen.MakeReContractYear(suite.DB(),
+			testdatagen.Assertions{
+				ReContractYear: models.ReContractYear{
+					EscalationCompounded: escalationCompounded,
+					Name:                 models.AwardTerm2,
+					StartDate:            awardTerm1.StartDate.AddDate(1, 0, 0),
+					EndDate:              awardTerm1.EndDate.AddDate(1, 0, 0),
+				},
+			})
+
+		optionPeriod3 := testdatagen.MakeReContractYear(suite.DB(),
+			testdatagen.Assertions{
+				ReContractYear: models.ReContractYear{
+					EscalationCompounded: escalationCompounded,
+					Name:                 models.OptionPeriod3,
+					StartDate:            awardTerm2.StartDate.AddDate(1, 0, 0),
+					EndDate:              awardTerm2.EndDate.AddDate(1, 0, 0),
+				},
+			})
+
+		contractsYearsMap := make(map[string]models.ReContractYear)
+		contractsYearsMap[optionPeriod3.Name] = optionPeriod3
+		contractsYearsMap[awardTerm2.Name] = awardTerm2
+		contractsYearsMap[awardTerm1.Name] = awardTerm1
+		contractsYearsMap[optionPeriod2.Name] = optionPeriod2
+		contractsYearsMap[optionPeriod1.Name] = optionPeriod1
+		contractsYearsMap[basePeriodYear3.Name] = basePeriodYear3
+		contractsYearsMap[basePeriodYear2.Name] = basePeriodYear2
+		contractsYearsMap[basePeriodYear1.Name] = basePeriodYear1
+		return contractsYearsMap
+	}
+
+	setUpContractsWithMissingContracts := func() map[string]models.ReContractYear {
+		escalationCompounded := 1.04071
+		basePeriodYear1 := testdatagen.MakeReContractYear(suite.DB(),
+			testdatagen.Assertions{
+				ReContractYear: models.ReContractYear{
+					EscalationCompounded: escalationCompounded,
+					Name:                 models.BasePeriodYear1,
+				},
+			})
+		basePeriodYear2 := testdatagen.MakeReContractYear(suite.DB(),
+			testdatagen.Assertions{
+				ReContractYear: models.ReContractYear{
+					EscalationCompounded: escalationCompounded,
+					Name:                 models.BasePeriodYear2,
+					StartDate:            basePeriodYear1.StartDate.AddDate(1, 0, 0),
+					EndDate:              basePeriodYear1.EndDate.AddDate(1, 0, 0),
+				},
+			})
+		basePeriodYear3 := testdatagen.MakeReContractYear(suite.DB(),
+			testdatagen.Assertions{
+				ReContractYear: models.ReContractYear{
+					EscalationCompounded: escalationCompounded,
+					Name:                 models.BasePeriodYear3,
+					StartDate:            basePeriodYear2.StartDate.AddDate(1, 0, 0),
+					EndDate:              basePeriodYear2.EndDate.AddDate(1, 0, 0),
+				},
+			})
+		optionPeriod2 := testdatagen.MakeReContractYear(suite.DB(),
+			testdatagen.Assertions{
+				ReContractYear: models.ReContractYear{
+					EscalationCompounded: escalationCompounded,
+					Name:                 models.OptionPeriod2,
+					StartDate:            basePeriodYear2.StartDate.AddDate(2, 0, 0),
+					EndDate:              basePeriodYear2.EndDate.AddDate(2, 0, 0),
+				},
+			})
+		awardTerm1 := testdatagen.MakeReContractYear(suite.DB(),
+			testdatagen.Assertions{
+				ReContractYear: models.ReContractYear{
+					EscalationCompounded: escalationCompounded,
+					Name:                 models.AwardTerm1,
+					StartDate:            optionPeriod2.StartDate.AddDate(1, 0, 0),
+					EndDate:              optionPeriod2.EndDate.AddDate(1, 0, 0),
+				},
+			})
+		awardTerm2 := testdatagen.MakeReContractYear(suite.DB(),
+			testdatagen.Assertions{
+				ReContractYear: models.ReContractYear{
+					EscalationCompounded: escalationCompounded,
+					Name:                 models.AwardTerm2,
+					StartDate:            awardTerm1.StartDate.AddDate(1, 0, 0),
+					EndDate:              awardTerm1.EndDate.AddDate(1, 0, 0),
+				},
+			})
+
+		optionPeriod3 := testdatagen.MakeReContractYear(suite.DB(),
+			testdatagen.Assertions{
+				ReContractYear: models.ReContractYear{
+					EscalationCompounded: escalationCompounded,
+					Name:                 models.OptionPeriod3,
+					StartDate:            awardTerm2.StartDate.AddDate(1, 0, 0),
+					EndDate:              awardTerm2.EndDate.AddDate(1, 0, 0),
+				},
+			})
+
+		contractsYearsMap := make(map[string]models.ReContractYear)
+		contractsYearsMap[optionPeriod3.Name] = optionPeriod3
+		contractsYearsMap[awardTerm2.Name] = awardTerm2
+		contractsYearsMap[awardTerm1.Name] = awardTerm1
+		contractsYearsMap[optionPeriod2.Name] = optionPeriod2
+		contractsYearsMap[basePeriodYear3.Name] = basePeriodYear3
+		contractsYearsMap[basePeriodYear2.Name] = basePeriodYear2
+		contractsYearsMap[basePeriodYear1.Name] = basePeriodYear1
+		return contractsYearsMap
+	}
+
+	suite.Run("should correctly calculate escalated price based on the escalation factors of each contract year", func() {
+		contracts := setUpContracts()
+
+		isLinehaul := false
+		basePrice := 5117.0
+
+		contract := contracts[models.OptionPeriod3]
+
+		escalatedPrice, contractYear, err := escalatePriceForContractYear(suite.AppContextForTest(), contract.ContractID, contract.StartDate.AddDate(0, 0, 1), isLinehaul, basePrice)
+
+		suite.Nil(err)
+		suite.Equal(contract.ID, contractYear.ID)
+		suite.Equal(5981.0, escalatedPrice)
+	})
+	suite.Run("should error if an expected contract needed for the escalation price calculation is not found", func() {
+		contracts := setUpContractsWithMissingContracts()
+		isLinehaul := false
+		basePrice := 5117.0
+
+		contract := contracts[models.OptionPeriod3]
+		escalatedPrice, contractYear, err := escalatePriceForContractYear(suite.AppContextForTest(), contract.ContractID, contract.StartDate.AddDate(0, 0, 1), isLinehaul, basePrice)
+
+		suite.Error(err)
+		suite.Equal("Expected contract Option Period 1 not found", err.Error())
+		suite.Equal(contract.ID, contractYear.ID)
+		suite.NotNil(escalatedPrice)
+	})
+}

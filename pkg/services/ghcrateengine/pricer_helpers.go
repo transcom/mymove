@@ -580,7 +580,7 @@ func addContractsForEscalationCalculation(contractsMap map[string]models.ReContr
 			if _, exist := contractsMapDB[name]; exist {
 				contractsMap[contractsMapDB[name].Name] = contractsMapDB[name]
 			} else {
-				err := apperror.NewInternalServerError(fmt.Sprintf("Expected %s contract not found", name))
+				err := fmt.Errorf("Expected contract " + name + " not found")
 				return contractsMap, err
 			}
 		}
