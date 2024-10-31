@@ -1677,7 +1677,6 @@ describe('MtoShipmentForm component', () => {
           city: 'San Marcos',
           state: 'TX',
           postalCode: '78666',
-          county: 'HAYS',
         },
       };
 
@@ -1734,6 +1733,17 @@ describe('MtoShipmentForm component', () => {
       await userEvent.clear(pickupAddress2Input);
       await userEvent.type(pickupAddress2Input, shipmentInfo.pickupAddress.streetAddress2);
 
+      const pickupCityInput = screen.getAllByLabelText(/City/)[0];
+      await userEvent.clear(pickupCityInput);
+      await userEvent.type(pickupCityInput, shipmentInfo.pickupAddress.city);
+
+      const pickupStateInput = screen.getAllByLabelText(/State/)[0];
+      await userEvent.selectOptions(pickupStateInput, shipmentInfo.pickupAddress.state);
+
+      const pickupPostalCodeInput = screen.getAllByLabelText(/ZIP/)[0];
+      await userEvent.clear(pickupPostalCodeInput);
+      await userEvent.type(pickupPostalCodeInput, shipmentInfo.pickupAddress.postalCode);
+
       const saveButton = await screen.findByRole('button', { name: 'Save' });
       expect(saveButton).not.toBeDisabled();
       await userEvent.click(saveButton);
@@ -1780,6 +1790,17 @@ describe('MtoShipmentForm component', () => {
       const pickupAddress2Input = screen.getAllByLabelText(/Address 2/)[0];
       await userEvent.clear(pickupAddress2Input);
       await userEvent.type(pickupAddress2Input, shipmentInfo.pickupAddress.streetAddress2);
+
+      const pickupCityInput = screen.getAllByLabelText(/City/)[0];
+      await userEvent.clear(pickupCityInput);
+      await userEvent.type(pickupCityInput, shipmentInfo.pickupAddress.city);
+
+      const pickupStateInput = screen.getAllByLabelText(/State/)[0];
+      await userEvent.selectOptions(pickupStateInput, shipmentInfo.pickupAddress.state);
+
+      const pickupPostalCodeInput = screen.getAllByLabelText(/ZIP/)[0];
+      await userEvent.clear(pickupPostalCodeInput);
+      await userEvent.type(pickupPostalCodeInput, shipmentInfo.pickupAddress.postalCode);
 
       const saveButton = await screen.findByRole('button', { name: 'Save' });
       expect(saveButton).not.toBeDisabled();
@@ -1963,7 +1984,7 @@ describe('MtoShipmentForm component', () => {
       expect(screen.getByLabelText(/Address 1/)).toBeInstanceOf(HTMLInputElement);
       expect(screen.getByLabelText(/Address 2/)).toBeInstanceOf(HTMLInputElement);
       expect(screen.getByLabelText(/City/)).toBeInstanceOf(HTMLInputElement);
-      expect(screen.getByLabelText(/State/)).toBeInstanceOf(HTMLInputElement);
+      expect(screen.getByLabelText(/State/)).toBeInstanceOf(HTMLSelectElement);
       expect(screen.getByLabelText(/ZIP/)).toBeInstanceOf(HTMLInputElement);
 
       expect(screen.getByText(/Releasing agent/).parentElement).toBeInstanceOf(HTMLLegendElement);

@@ -1,4 +1,4 @@
-import React from 'react';
+import { React, useState } from 'react';
 import { Field, Formik } from 'formik';
 import * as Yup from 'yup';
 import PropTypes from 'prop-types';
@@ -41,6 +41,9 @@ const CustomerContactInfoForm = ({ initialValues, onSubmit, onBack }) => {
     emailIsPreferred: Yup.boolean(),
     cacUser: Yup.boolean().required('Required'),
   });
+
+  const [isLookupErrorVisible, setIsLookupErrorVisible] = useState(false);
+
   return (
     <Grid row>
       <Grid col>
@@ -61,6 +64,12 @@ const CustomerContactInfoForm = ({ initialValues, onSubmit, onBack }) => {
                   },
                   { shouldValidate: true },
                 );
+
+                if (!value.city || !value.state || !value.county || !value.postalCode) {
+                  setIsLookupErrorVisible(true);
+                } else {
+                  setIsLookupErrorVisible(false);
+                }
               };
               const handleBackupZipCityChange = (value) => {
                 setValues(
@@ -76,6 +85,12 @@ const CustomerContactInfoForm = ({ initialValues, onSubmit, onBack }) => {
                   },
                   { shouldValidate: true },
                 );
+
+                if (!value.city || !value.state || !value.county || !value.postalCode) {
+                  setIsLookupErrorVisible(true);
+                } else {
+                  setIsLookupErrorVisible(false);
+                }
               };
               return (
                 <Form className={formStyles.form}>
@@ -95,9 +110,19 @@ const CustomerContactInfoForm = ({ initialValues, onSubmit, onBack }) => {
                       )}
                     />
                     <h3 className={styles.sectionHeader}>Current Address</h3>
-                    <AddressFields name="customerAddress" handleZipCityChange={handleCurrentZipCityChange} />
+                    <AddressFields
+                      name="customerAddress"
+                      zipCityEnabled
+                      zipCityError={isLookupErrorVisible}
+                      handleLocationChange={handleCurrentZipCityChange}
+                    />
                     <h3 className={styles.sectionHeader}>Backup Address</h3>
-                    <AddressFields name="backupAddress" handleZipCityChange={handleBackupZipCityChange} />
+                    <AddressFields
+                      name="backupAddress"
+                      zipCityEnabled
+                      zipCityError={isLookupErrorVisible}
+                      handleLocationChange={handleBackupZipCityChange}
+                    />
                   </SectionWrapper>
                   <SectionWrapper className={`${formStyles.formSection} ${styles.formSectionHeader}`}>
                     <h2 className={styles.sectionHeader}>Backup contact</h2>

@@ -26,7 +26,7 @@ const BackupAddressForm = ({ formFieldsName, initialValues, onSubmit, onBack }) 
       validationSchema={validationSchema}
     >
       {({ isValid, isSubmitting, handleSubmit, values, setValues }) => {
-        const handleZipCityChange = (value) => {
+        const handleLocationChange = (value) => {
           setValues(
             {
               ...values,
@@ -61,8 +61,9 @@ const BackupAddressForm = ({ formFieldsName, initialValues, onSubmit, onBack }) 
               <AddressFields
                 labelHint="Required"
                 name={formFieldsName}
+                zipCityEnabled
                 zipCityError={isLookupErrorVisible}
-                handleZipCityChange={handleZipCityChange}
+                handleLocationChange={handleLocationChange}
               />
             </SectionWrapper>
 

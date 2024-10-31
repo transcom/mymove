@@ -126,7 +126,7 @@ export const InsideSectionWrapper = () => (
   </Formik>
 );
 
-export const ZipCityAddress = () => (
+export const ZipCityStateAddress = () => (
   <Formik
     initialValues={{
       residential_address: {
@@ -141,7 +141,7 @@ export const ZipCityAddress = () => (
   >
     {() => (
       <Form className={formStyles.form}>
-        <AddressFields legend="Zip city address" name="residentialAddress" />
+        <AddressFields legend="Zip city state address" name="residentialAddress" />
       </Form>
     )}
   </Formik>

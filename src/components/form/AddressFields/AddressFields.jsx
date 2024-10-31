@@ -33,7 +33,7 @@ export const AddressFields = ({
   validators,
   zipCityEnabled,
   zipCityError,
-  handleZipCityChange: handleLocationChange,
+  handleLocationChange,
   formikFunctionsToValidatePostalCodeOnChange,
   labelHint: labelHintProp,
 }) => {
@@ -195,7 +195,7 @@ AddressFields.propTypes = {
   render: PropTypes.func,
   zipCityEnabled: PropTypes.bool,
   zipCityError: PropTypes.bool,
-  handleZipCityChange: PropTypes.func,
+  handleLocationChange: PropTypes.func,
   validators: PropTypes.shape({
     streetAddress1: PropTypes.func,
     streetAddress2: PropTypes.func,
@@ -214,9 +214,9 @@ AddressFields.defaultProps = {
   legend: '',
   className: '',
   render: (fields) => fields,
-  zipCityEnabled: true,
+  zipCityEnabled: false,
   zipCityError: false,
-  handleZipCityChange: null,
+  handleLocationChange: null,
   validators: {},
   formikFunctionsToValidatePostalCodeOnChange: null,
 };

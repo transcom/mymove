@@ -1,4 +1,4 @@
-import React from 'react';
+import { React, useState } from 'react';
 import { Formik, Field } from 'formik';
 import PropTypes from 'prop-types';
 import * as Yup from 'yup';
@@ -32,6 +32,8 @@ export const EditFacilityInfoModal = ({
     enabledAK,
   });
 
+  const [isLookupErrorVisible, setIsLookupErrorVisible] = useState(false);
+
   return (
     <Modal className={styles.EditFacilityInfoModal}>
       <ShipmentTag shipmentType={shipmentType} />
@@ -48,7 +50,28 @@ export const EditFacilityInfoModal = ({
           enabledAK,
         }}
       >
-        {({ isValid }) => {
+        {({ isValid, handleChange, setFieldTouched, values, setValues }) => {
+          const handleLocationChange = (value) => {
+            setValues(
+              {
+                ...values,
+                backup_mailing_address: {
+                  ...values.backup_mailing_address,
+                  city: value.city,
+                  state: value.state ? value.state : '',
+                  county: value.county,
+                  postalCode: value.postalCode,
+                },
+              },
+              { shouldValidate: true },
+            );
+
+            if (!value.city || !value.state || !value.county || !value.postalCode) {
+              setIsLookupErrorVisible(true);
+            } else {
+              setIsLookupErrorVisible(false);
+            }
+          };
           return (
             <Form className={formStyles.form}>
               <Fieldset>
@@ -96,6 +119,10 @@ export const EditFacilityInfoModal = ({
                 <AddressFields
                   name="storageFacility.address"
                   className={styles.AddressFields}
+                  formikFunctionsToValidatePostalCodeOnChange={{ handleChange, setFieldTouched }}
+                  zipCityEnabled
+                  zipCityError={isLookupErrorVisible}
+                  handleLocationChange={handleLocationChange}
                   render={(fields) => (
                     <>
                       {fields}

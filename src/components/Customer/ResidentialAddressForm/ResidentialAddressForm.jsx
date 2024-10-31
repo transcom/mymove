@@ -29,7 +29,7 @@ const ResidentialAddressForm = ({ formFieldsName, initialValues, onSubmit, onBac
       validationSchema={validationSchema}
     >
       {({ isValid, isSubmitting, handleSubmit, values, setValues }) => {
-        const handleZipCityChange = (value) => {
+        const handleLocationChange = (value) => {
           setValues(
             {
               ...values,
@@ -61,8 +61,9 @@ const ResidentialAddressForm = ({ formFieldsName, initialValues, onSubmit, onBac
                 labelHint="Required"
                 name={formFieldsName}
                 validators={validators}
+                zipCityEnabled
                 zipCityError={isLookupErrorVisible}
-                handleZipCityChange={handleZipCityChange}
+                handleLocationChange={handleLocationChange}
               />
             </SectionWrapper>
 

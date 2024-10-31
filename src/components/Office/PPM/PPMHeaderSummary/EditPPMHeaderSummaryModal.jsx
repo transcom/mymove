@@ -139,8 +139,9 @@ const EditPPMHeaderSummaryModal = ({ sectionType, sectionInfo, onClose, onSubmit
                         legend="Pickup Address"
                         className={styles.AddressFieldSet}
                         formikFunctionsToValidatePostalCodeOnChange={{ handleChange, setFieldTouched }}
+                        zipCityEnabled
                         zipCityError={isLookupErrorVisible}
-                        handleZipCityChange={handlePickupZipCityChange}
+                        handleLocationChange={handlePickupZipCityChange}
                       />
                     )}
                     {editItemName === 'destinationAddress' && (
@@ -149,8 +150,9 @@ const EditPPMHeaderSummaryModal = ({ sectionType, sectionInfo, onClose, onSubmit
                         legend="Destination Address"
                         className={styles.AddressFieldSet}
                         formikFunctionsToValidatePostalCodeOnChange={{ handleChange, setFieldTouched }}
+                        zipCityEnabled
                         zipCityError={isLookupErrorVisible}
-                        handleZipCityChange={handleDestinationZipCityChange}
+                        handleLocationChange={handleDestinationZipCityChange}
                       />
                     )}
                   </div>
