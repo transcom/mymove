@@ -50,9 +50,9 @@ func buildMTOServiceItemWithBuildType(db *pop.Connection, customs []Customizatio
 
 	var reService models.ReService
 	if result := findValidCustomization(customs, ReService); result != nil {
-		reService = FetchOrBuildReService(db, customs, nil)
+		reService = FetchReService(db, customs, nil)
 	} else {
-		reService = FetchOrBuildReServiceByCode(db, models.ReServiceCode("DLH"))
+		reService = FetchReServiceByCode(db, models.ReServiceCode("DLH"))
 	}
 
 	requestedApprovalsRequestedStatus := false
@@ -606,7 +606,7 @@ func BuildRealMTOServiceItemWithAllDeps(db *pop.Connection, serviceCode models.R
 	// look up the service item param keys we need
 	if serviceItemParamKeys, ok := fixtureServiceItemParamsMap[serviceCode]; ok {
 		// get or create the ReService
-		reService := FetchOrBuildReServiceByCode(db, serviceCode)
+		reService := FetchReServiceByCode(db, serviceCode)
 
 		// create all params defined for this particular service
 		for _, serviceParamKeyToCreate := range serviceItemParamKeys {

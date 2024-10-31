@@ -28,7 +28,7 @@ func makeServiceItem(db *pop.Connection, assertions Assertions, isBasicServiceIt
 
 	reService := assertions.ReService
 	if isZeroUUID(reService.ID) {
-		reService = FetchOrMakeReService(db, assertions)
+		reService = FetchReService(db, assertions)
 	}
 
 	status := assertions.MTOServiceItem.Status

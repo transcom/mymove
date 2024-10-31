@@ -25,7 +25,7 @@ func (suite *ServiceParamValueLookupsSuite) TestZipSITOriginHHGOriginalAddressLo
 				EndDate:   time.Now().Add(24 * time.Hour),
 			},
 		})
-		reService := factory.FetchOrBuildReServiceByCode(suite.DB(), models.ReServiceCodeDOFSIT)
+		reService := factory.FetchReServiceByCode(suite.DB(), models.ReServiceCodeDOFSIT)
 
 		originAddress := factory.BuildAddress(suite.DB(),
 			[]factory.Customization{

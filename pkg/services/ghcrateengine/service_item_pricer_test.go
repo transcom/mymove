@@ -89,7 +89,7 @@ func (suite *GHCRateEngineServiceSuite) TestGetPricer() {
 func (suite *GHCRateEngineServiceSuite) setupPriceServiceItemData() {
 	contractYear := testdatagen.MakeDefaultReContractYear(suite.DB())
 
-	counselingService := factory.FetchOrBuildReServiceByCode(suite.DB(), models.ReServiceCodeMS)
+	counselingService := factory.FetchReServiceByCode(suite.DB(), models.ReServiceCodeMS)
 
 	taskOrderFee := models.ReTaskOrderFee{
 		ContractYearID: contractYear.ID,

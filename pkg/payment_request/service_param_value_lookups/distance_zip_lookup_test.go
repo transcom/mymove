@@ -230,7 +230,7 @@ func (suite *ServiceParamValueLookupsSuite) TestDistanceLookup() {
 		}, nil)
 
 		// DLH
-		reServiceDLH := factory.FetchOrBuildReServiceByCode(suite.DB(), models.ReServiceCodeDLH)
+		reServiceDLH := factory.FetchReServiceByCode(suite.DB(), models.ReServiceCodeDLH)
 
 		estimatedWeight := unit.Pound(2048)
 

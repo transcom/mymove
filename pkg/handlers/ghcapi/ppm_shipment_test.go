@@ -123,7 +123,7 @@ func (suite *HandlerSuite) TestGetPPMSITEstimatedCostHandler() {
 			},
 		})
 
-		dopService := factory.FetchOrBuildReServiceByCode(suite.DB(), models.ReServiceCodeDOP)
+		dopService := factory.FetchReServiceByCode(suite.DB(), models.ReServiceCodeDOP)
 
 		testdatagen.FetchOrMakeReDomesticServiceAreaPrice(suite.DB(), testdatagen.Assertions{
 			ReDomesticServiceAreaPrice: models.ReDomesticServiceAreaPrice{
@@ -151,7 +151,7 @@ func (suite *HandlerSuite) TestGetPPMSITEstimatedCostHandler() {
 			},
 		})
 
-		ddpService := factory.FetchOrBuildReServiceByCode(suite.DB(), models.ReServiceCodeDDP)
+		ddpService := factory.FetchReServiceByCode(suite.DB(), models.ReServiceCodeDDP)
 
 		testdatagen.FetchOrMakeReDomesticServiceAreaPrice(suite.DB(), testdatagen.Assertions{
 			ReDomesticServiceAreaPrice: models.ReDomesticServiceAreaPrice{
@@ -179,7 +179,7 @@ func (suite *HandlerSuite) TestGetPPMSITEstimatedCostHandler() {
 			},
 		})
 
-		dpkService := factory.FetchOrBuildReServiceByCode(suite.DB(), models.ReServiceCodeDPK)
+		dpkService := factory.FetchReServiceByCode(suite.DB(), models.ReServiceCodeDPK)
 
 		testdatagen.FetchOrMakeReDomesticOtherPrice(suite.DB(), testdatagen.Assertions{
 			ReDomesticOtherPrice: models.ReDomesticOtherPrice{
@@ -205,7 +205,7 @@ func (suite *HandlerSuite) TestGetPPMSITEstimatedCostHandler() {
 			},
 		})
 
-		dupkService := factory.FetchOrBuildReServiceByCode(suite.DB(), models.ReServiceCodeDUPK)
+		dupkService := factory.FetchReServiceByCode(suite.DB(), models.ReServiceCodeDUPK)
 
 		testdatagen.FetchOrMakeReDomesticOtherPrice(suite.DB(), testdatagen.Assertions{
 			ReDomesticOtherPrice: models.ReDomesticOtherPrice{
@@ -231,7 +231,7 @@ func (suite *HandlerSuite) TestGetPPMSITEstimatedCostHandler() {
 			},
 		})
 
-		dofsitService := factory.FetchOrBuildReServiceByCode(suite.DB(), models.ReServiceCodeDOFSIT)
+		dofsitService := factory.FetchReServiceByCode(suite.DB(), models.ReServiceCodeDOFSIT)
 
 		testdatagen.FetchOrMakeReDomesticServiceAreaPrice(suite.DB(), testdatagen.Assertions{
 			ReDomesticServiceAreaPrice: models.ReDomesticServiceAreaPrice{
@@ -259,7 +259,7 @@ func (suite *HandlerSuite) TestGetPPMSITEstimatedCostHandler() {
 			},
 		})
 
-		doasitService := factory.FetchOrBuildReServiceByCode(suite.DB(), models.ReServiceCodeDOASIT)
+		doasitService := factory.FetchReServiceByCode(suite.DB(), models.ReServiceCodeDOASIT)
 
 		testdatagen.FetchOrMakeReDomesticServiceAreaPrice(suite.DB(), testdatagen.Assertions{
 			ReDomesticServiceAreaPrice: models.ReDomesticServiceAreaPrice{
@@ -287,7 +287,7 @@ func (suite *HandlerSuite) TestGetPPMSITEstimatedCostHandler() {
 			},
 		})
 
-		ddfsitService := factory.FetchOrBuildReServiceByCode(suite.DB(), models.ReServiceCodeDDFSIT)
+		ddfsitService := factory.FetchReServiceByCode(suite.DB(), models.ReServiceCodeDDFSIT)
 
 		testdatagen.FetchOrMakeReDomesticServiceAreaPrice(suite.DB(), testdatagen.Assertions{
 			ReDomesticServiceAreaPrice: models.ReDomesticServiceAreaPrice{
@@ -315,7 +315,7 @@ func (suite *HandlerSuite) TestGetPPMSITEstimatedCostHandler() {
 			},
 		})
 
-		ddasitService := factory.FetchOrBuildReServiceByCode(suite.DB(), models.ReServiceCodeDDASIT)
+		ddasitService := factory.FetchReServiceByCode(suite.DB(), models.ReServiceCodeDDASIT)
 
 		testdatagen.FetchOrMakeReDomesticServiceAreaPrice(suite.DB(), testdatagen.Assertions{
 			ReDomesticServiceAreaPrice: models.ReDomesticServiceAreaPrice{

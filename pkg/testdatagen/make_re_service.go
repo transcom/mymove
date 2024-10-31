@@ -9,8 +9,8 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 )
 
-// FetchOrMakeReService returns the ReService for a given service code, or returns a default (DLH).
-func FetchOrMakeReService(db *pop.Connection, assertions Assertions) models.ReService {
+// FetchReService returns the ReService for a given service code, or returns a default (DLH).
+func FetchReService(db *pop.Connection, assertions Assertions) models.ReService {
 	var existingReServices models.ReServices
 	code := DefaultServiceCode
 	if assertions.ReService.Code != "" {
@@ -34,7 +34,7 @@ func MakeDefaultReService(db *pop.Connection) models.ReService {
 		Code: "DLH",
 		Name: "Domestic linehaul",
 	}
-	return FetchOrMakeReService(db, Assertions{
+	return FetchReService(db, Assertions{
 		ReService: reService,
 	})
 }
