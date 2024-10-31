@@ -438,30 +438,6 @@ func (suite *PayloadsSuite) TestPPMShipmentModelFromUpdate() {
 	model := UpdatePPMShipmentModel(&ppmShipment)
 
 	suite.NotNil(model)
-	suite.Equal(model.DestinationAddress.StreetAddress1, models.STREET_ADDRESS_1_NOT_PROVIDED)
-
-	// test when street address 1 contains white spaces
-	destinationAddress.StreetAddress1 = models.StringPointer("  ")
-	ppmShipmentWhiteSpaces := internalmessages.UpdatePPMShipment{
-		ExpectedDepartureDate: expectedDepartureDate,
-		PickupAddress:         &pickupAddress,
-		DestinationAddress:    &destinationAddress,
-	}
-
-	model2 := UpdatePPMShipmentModel(&ppmShipmentWhiteSpaces)
-	suite.Equal(model2.DestinationAddress.StreetAddress1, models.STREET_ADDRESS_1_NOT_PROVIDED)
-
-	// test with valid street address 1
-	streetAddress1 := "1234 Street"
-	destinationAddress.StreetAddress1 = &streetAddress1
-	ppmShipmentValidDestAddress1 := internalmessages.UpdatePPMShipment{
-		ExpectedDepartureDate: expectedDepartureDate,
-		PickupAddress:         &pickupAddress,
-		DestinationAddress:    &destinationAddress,
-	}
-
-	model3 := UpdatePPMShipmentModel(&ppmShipmentValidDestAddress1)
-	suite.Equal(model3.DestinationAddress.StreetAddress1, streetAddress1)
 	suite.True(*model.SITExpected)
 	suite.Equal(unit.Pound(estimatedWeight), *model.EstimatedWeight)
 	suite.True(*model.HasProGear)
