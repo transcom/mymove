@@ -1046,6 +1046,36 @@ describe('MoveDetails page', () => {
     });
   });
 
+  describe('When required Orders Document is missing', () => {
+    useMoveDetailsQueries.mockReturnValue(requestedMoveDetailsMissingInfoQuery);
+    useOrdersDocumentQueries.mockReturnValue({
+      ...requestedMoveDetailsMissingInfoQuery,
+      upload: undefined,
+    });
+
+    const mockSetMissingOrdersInfoCount = jest.fn();
+
+    mount(
+      <MockProviders permissions={[permissionTypes.updateShipment, permissionTypes.updateCustomer]}>
+        <MoveDetails
+          setUnapprovedShipmentCount={setUnapprovedShipmentCount}
+          setUnapprovedServiceItemCount={setUnapprovedServiceItemCount}
+          setExcessWeightRiskCount={setExcessWeightRiskCount}
+          setUnapprovedSITExtensionCount={setUnapprovedSITExtensionCount}
+          missingOrdersInfoCount={0}
+          setMissingOrdersInfoCount={mockSetMissingOrdersInfoCount}
+          setShipmentErrorConcernCount={setShipmentErrorConcernCount}
+        />
+      </MockProviders>,
+    );
+
+    it('missing info count matches missing info from queries', () => {
+      expect(mockSetMissingOrdersInfoCount).toHaveBeenCalledTimes(1);
+      // 5 order values missing + 1 'upload' missing
+      expect(mockSetMissingOrdersInfoCount).toHaveBeenCalledWith(6);
+    });
+  });
+
   describe('When required shipment information (like TAC) is missing', () => {
     it('renders an error indicator in the sidebar', async () => {
       useMoveDetailsQueries.mockReturnValue(requestedMoveDetailsMissingInfoQuery);
