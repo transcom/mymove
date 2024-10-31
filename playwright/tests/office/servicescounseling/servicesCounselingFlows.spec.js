@@ -428,6 +428,8 @@ test.describe('Services counselor user', () => {
     await page.getByRole('button', { name: 'Confirm' }).click();
     await scPage.waitForPage.moveDetails();
 
+    await expect(page.getByText('PACKET READY FOR DOWNLOAD')).toBeVisible();
+
     // Navigate to the "View documents" page
     await expect(page.getByRole('button', { name: /View documents/i })).toBeVisible();
     await page.getByRole('button', { name: 'View documents' }).click();
@@ -445,12 +447,6 @@ test.describe('Services counselor user', () => {
     await scPage.waitForPage.reviewExpenseTicket('Packing Materials', 1, 1);
     await expect(page.getByLabel('Accept')).toBeVisible();
     await page.getByLabel('Accept').isDisabled();
-    await page.getByRole('button', { name: 'Continue' }).click();
-
-    await page.getByTestId('reviewDocumentsContinueButton').click();
-    await scPage.waitForPage.moveDetails();
-
-    await expect(page.getByText('PACKET READY FOR DOWNLOAD')).toBeVisible();
   });
 
   test.describe('Edit shipment info and incentives', () => {
