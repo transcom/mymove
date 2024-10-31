@@ -713,7 +713,7 @@ func (suite *GHCRateEngineServiceSuite) Test_escalatePriceForContractYear() {
 	})
 }
 
-func (suite *GHCRateEngineServiceSuite) Test_new() {
+func (suite *GHCRateEngineServiceSuite) Test_escalatedPriceForContractYearCompounded() {
 
 	setUpContracts := func() map[string]models.ReContractYear {
 		escalationCompounded := 1.04071
