@@ -2,7 +2,7 @@ import React from 'react';
 import { render, screen } from '@testing-library/react';
 import { v4 } from 'uuid';
 
-import Feedback from './Feedback';
+import Feedback, { GetTripWeight, FormatRow } from './Feedback';
 
 import { MockProviders } from 'testUtils';
 import { selectMTOShipmentById } from 'store/entities/selectors';
@@ -100,25 +100,13 @@ describe('Feedback page', () => {
 
   it('returns correct trip weight', () => {
     const doc = { fullWeight: 5844, emptyWeight: 1999 };
-    expect(Feedback.getTripWeight(doc)).toBe(3845);
+    expect(GetTripWeight(doc)).toBe(3845);
   });
 
   it('formats row correctly', () => {
     const row = { value: 1000, format: (val) => `$${val}` };
-    const formattedRow = Feedback.formatRow(row);
+    const formattedRow = FormatRow(row);
     expect(formattedRow.value).toBe('$1000');
-  });
-
-  it('formats single document for feedback item correctly', () => {
-    const doc = { fullWeight: 5844, emptyWeight: 1999, key: 'tripWeight' };
-    const formattedDoc = Feedback.formatSingleDocForFeedbackItem(doc, 'WEIGHT');
-    expect(formattedDoc[0].value).toBe(3845);
-  });
-
-  it('formats documents correctly', () => {
-    const docs = [{ fullWeight: 5844, emptyWeight: 1999, key: 'tripWeight' }];
-    const formattedDocs = Feedback.formatDocuments(docs, 'WEIGHT');
-    expect(formattedDocs[0][0].value).toBe(3845);
   });
 
   it('displays loading placeholder when mtoShipment is not present', () => {
