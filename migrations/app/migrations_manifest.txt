@@ -1021,3 +1021,4 @@
 20241008212243_populate_market_code_on_shipments_table.up.sql
 20241009210749_create_view_v_locations.up.sql
 20241018091722_oconus-entitlements-enhancement.up.sql
+20241031163018_create_ub_allowances_table.up.sql
