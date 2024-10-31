@@ -111,7 +111,7 @@ func (suite *PPMCloseoutSuite) TestPPMShipmentCreator() {
 			},
 		})
 
-		dopService := factory.BuildReServiceByCode(suite.AppContextForTest().DB(), models.ReServiceCodeDOP)
+		dopService := factory.FetchReServiceByCode(suite.AppContextForTest().DB(), models.ReServiceCodeDOP)
 
 		testdatagen.FetchOrMakeReDomesticServiceAreaPrice(suite.AppContextForTest().DB(), testdatagen.Assertions{
 			ReDomesticServiceAreaPrice: models.ReDomesticServiceAreaPrice{
@@ -155,7 +155,7 @@ func (suite *PPMCloseoutSuite) TestPPMShipmentCreator() {
 			},
 		})
 
-		ddpService := factory.BuildReServiceByCode(suite.AppContextForTest().DB(), models.ReServiceCodeDDP)
+		ddpService := factory.FetchReServiceByCode(suite.AppContextForTest().DB(), models.ReServiceCodeDDP)
 
 		testdatagen.FetchOrMakeReDomesticServiceAreaPrice(suite.AppContextForTest().DB(), testdatagen.Assertions{
 			ReDomesticServiceAreaPrice: models.ReDomesticServiceAreaPrice{
@@ -182,7 +182,7 @@ func (suite *PPMCloseoutSuite) TestPPMShipmentCreator() {
 			},
 		})
 
-		dpkService := factory.BuildReServiceByCode(suite.AppContextForTest().DB(), models.ReServiceCodeDPK)
+		dpkService := factory.FetchReServiceByCode(suite.AppContextForTest().DB(), models.ReServiceCodeDPK)
 
 		testdatagen.FetchOrMakeReDomesticOtherPrice(suite.AppContextForTest().DB(), testdatagen.Assertions{
 			ReDomesticOtherPrice: models.ReDomesticOtherPrice{
@@ -207,7 +207,7 @@ func (suite *PPMCloseoutSuite) TestPPMShipmentCreator() {
 			},
 		})
 
-		dupkService := factory.BuildReServiceByCode(suite.AppContextForTest().DB(), models.ReServiceCodeDUPK)
+		dupkService := factory.FetchReServiceByCode(suite.AppContextForTest().DB(), models.ReServiceCodeDUPK)
 
 		testdatagen.FetchOrMakeReDomesticOtherPrice(suite.AppContextForTest().DB(), testdatagen.Assertions{
 			ReDomesticOtherPrice: models.ReDomesticOtherPrice{
@@ -232,7 +232,7 @@ func (suite *PPMCloseoutSuite) TestPPMShipmentCreator() {
 			},
 		})
 
-		dofsitService := factory.BuildReServiceByCode(suite.AppContextForTest().DB(), models.ReServiceCodeDOFSIT)
+		dofsitService := factory.FetchReServiceByCode(suite.AppContextForTest().DB(), models.ReServiceCodeDOFSIT)
 
 		testdatagen.FetchOrMakeReDomesticServiceAreaPrice(suite.AppContextForTest().DB(), testdatagen.Assertions{
 			ReDomesticServiceAreaPrice: models.ReDomesticServiceAreaPrice{
@@ -259,7 +259,7 @@ func (suite *PPMCloseoutSuite) TestPPMShipmentCreator() {
 			},
 		})
 
-		doasitService := factory.BuildReServiceByCode(suite.AppContextForTest().DB(), models.ReServiceCodeDOASIT)
+		doasitService := factory.FetchReServiceByCode(suite.AppContextForTest().DB(), models.ReServiceCodeDOASIT)
 
 		testdatagen.FetchOrMakeReDomesticServiceAreaPrice(suite.AppContextForTest().DB(), testdatagen.Assertions{
 			ReDomesticServiceAreaPrice: models.ReDomesticServiceAreaPrice{
@@ -286,7 +286,7 @@ func (suite *PPMCloseoutSuite) TestPPMShipmentCreator() {
 			},
 		})
 
-		ddfsitService := factory.BuildReServiceByCode(suite.AppContextForTest().DB(), models.ReServiceCodeDDFSIT)
+		ddfsitService := factory.FetchReServiceByCode(suite.AppContextForTest().DB(), models.ReServiceCodeDDFSIT)
 
 		testdatagen.FetchOrMakeReDomesticServiceAreaPrice(suite.AppContextForTest().DB(), testdatagen.Assertions{
 			ReDomesticServiceAreaPrice: models.ReDomesticServiceAreaPrice{
@@ -313,7 +313,7 @@ func (suite *PPMCloseoutSuite) TestPPMShipmentCreator() {
 			},
 		})
 
-		ddasitService := factory.BuildReServiceByCode(suite.AppContextForTest().DB(), models.ReServiceCodeDDASIT)
+		ddasitService := factory.FetchReServiceByCode(suite.AppContextForTest().DB(), models.ReServiceCodeDDASIT)
 
 		testdatagen.FetchOrMakeReDomesticServiceAreaPrice(suite.AppContextForTest().DB(), testdatagen.Assertions{
 			ReDomesticServiceAreaPrice: models.ReDomesticServiceAreaPrice{
