@@ -6,7 +6,14 @@ What this means to you:
 If you are doing a Personally Procured Move (PPM), you can start moving your personal property.
 
 Next steps for a PPM:
-    * Remember to get legible certified weight tickets for both the empty and full weights for every trip you perform. If you do not upload legible certified weight tickets, your PPM incentive could be affected.
+    {{if .ActualExpenseReimbursement}}
+    * Please Note: Your PPM has been designated as Actual Expense Reimbursement. This is the standard entitlement for Civilian employees. For uniformed Service Members, your PPM may have been designated as Actual Expense Reimbursement due to failure to receive authorization prior to movement or failure to obtain certified weight tickets. Actual Expense Reimbursement means reimbursement for expenses not to exceed the Government Constructed Cost (GCC).
+    {{end}}
+    * Remember to get legible certified weight tickets for both the empty and full weights for every trip you perform. If you do not upload legible certified weight tickets, your PPM incentive (or Actual Expense Reimbursement for Civilians) could be affected. Failure to obtain weight tickets will result in losing eligibility to receive your incentive.
+Note: To receive allowance for Pro-Gear, you must identify allowable items and provide weight tickets separately for Pro-Gear.
+    * For authorized storage:
+        * You will need to get weight ticket(s) for the items you store.
+        * Storage costs cannot be paid in advance.
     * If your counselor approved an Advance Operating Allowance (AOA, or cash advance) for a PPM, log into MilMove <{{.MyMoveLink}}> to download your AOA Packet, and submit it to finance according to the instructions provided by your counselor. If you have been directed to use your government travel charge card (GTCC) for expenses no further action is required.
     * Once you complete your PPM, log into MilMove <{{.MyMoveLink}}>, upload your receipts and weight tickets, and submit your PPM for review.
 
