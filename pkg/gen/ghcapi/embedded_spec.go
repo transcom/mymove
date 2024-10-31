@@ -7253,6 +7253,13 @@ func init() {
           "x-nullable": true,
           "x-omitempty": false
         },
+        "isActualExpenseReimbursement": {
+          "description": "Used for PPM shipments only. Denotes if this shipment uses the Actual Expense Reimbursement method.",
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false,
+          "example": false
+        },
         "pickupAddress": {
           "allOf": [
             {
@@ -9387,8 +9394,6 @@ func init() {
         "HHG",
         "HHG_INTO_NTS_DOMESTIC",
         "HHG_OUTOF_NTS_DOMESTIC",
-        "INTERNATIONAL_HHG",
-        "INTERNATIONAL_UB",
         "PPM",
         "BOAT_HAUL_AWAY",
         "BOAT_TOW_AWAY",
@@ -9401,8 +9406,6 @@ func init() {
         "HHG": "HHG",
         "HHG_INTO_NTS_DOMESTIC": "NTS",
         "HHG_OUTOF_NTS_DOMESTIC": "NTS Release",
-        "INTERNATIONAL_HHG": "International HHG",
-        "INTERNATIONAL_UB": "International UB",
         "MOBILE_HOME": "Mobile Home",
         "PPM": "PPM",
         "UNACCOMPANIED_BAGGAGE": "Unaccompanied Baggage"
@@ -11062,6 +11065,13 @@ func init() {
           "readOnly": true,
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
         },
+        "isActualExpenseReimbursement": {
+          "description": "Used for PPM shipments only. Denotes if this shipment uses the Actual Expense Reimbursement method.",
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false,
+          "example": false
+        },
         "movingExpenses": {
           "description": "All expense documentation receipt records of this PPM shipment.",
           "type": "array",
@@ -11759,6 +11769,9 @@ func init() {
           "format": "date-time",
           "x-nullable": true
         },
+        "assignable": {
+          "type": "boolean"
+        },
         "assignedTo": {
           "x-nullable": true,
           "$ref": "#/definitions/AssignedOfficeUser"
@@ -11777,6 +11790,11 @@ func init() {
         },
         "counselingOffice": {
           "type": "string",
+          "x-nullable": true
+        },
+        "counselingOfficeID": {
+          "type": "string",
+          "format": "uuid",
           "x-nullable": true
         },
         "customer": {
@@ -13476,6 +13494,13 @@ func init() {
           "type": "boolean",
           "x-nullable": true,
           "x-omitempty": false
+        },
+        "isActualExpenseReimbursement": {
+          "description": "Used for PPM shipments only. Denotes if this shipment uses the Actual Expense Reimbursement method.",
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false,
+          "example": false
         },
         "pickupAddress": {
           "allOf": [
@@ -22960,6 +22985,13 @@ func init() {
           "x-nullable": true,
           "x-omitempty": false
         },
+        "isActualExpenseReimbursement": {
+          "description": "Used for PPM shipments only. Denotes if this shipment uses the Actual Expense Reimbursement method.",
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false,
+          "example": false
+        },
         "pickupAddress": {
           "allOf": [
             {
@@ -25094,8 +25126,6 @@ func init() {
         "HHG",
         "HHG_INTO_NTS_DOMESTIC",
         "HHG_OUTOF_NTS_DOMESTIC",
-        "INTERNATIONAL_HHG",
-        "INTERNATIONAL_UB",
         "PPM",
         "BOAT_HAUL_AWAY",
         "BOAT_TOW_AWAY",
@@ -25108,8 +25138,6 @@ func init() {
         "HHG": "HHG",
         "HHG_INTO_NTS_DOMESTIC": "NTS",
         "HHG_OUTOF_NTS_DOMESTIC": "NTS Release",
-        "INTERNATIONAL_HHG": "International HHG",
-        "INTERNATIONAL_UB": "International UB",
         "MOBILE_HOME": "Mobile Home",
         "PPM": "PPM",
         "UNACCOMPANIED_BAGGAGE": "Unaccompanied Baggage"
@@ -26842,6 +26870,13 @@ func init() {
           "readOnly": true,
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
         },
+        "isActualExpenseReimbursement": {
+          "description": "Used for PPM shipments only. Denotes if this shipment uses the Actual Expense Reimbursement method.",
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false,
+          "example": false
+        },
         "movingExpenses": {
           "description": "All expense documentation receipt records of this PPM shipment.",
           "type": "array",
@@ -27541,6 +27576,9 @@ func init() {
           "format": "date-time",
           "x-nullable": true
         },
+        "assignable": {
+          "type": "boolean"
+        },
         "assignedTo": {
           "x-nullable": true,
           "$ref": "#/definitions/AssignedOfficeUser"
@@ -27559,6 +27597,11 @@ func init() {
         },
         "counselingOffice": {
           "type": "string",
+          "x-nullable": true
+        },
+        "counselingOfficeID": {
+          "type": "string",
+          "format": "uuid",
           "x-nullable": true
         },
         "customer": {
@@ -29314,6 +29357,13 @@ func init() {
           "type": "boolean",
           "x-nullable": true,
           "x-omitempty": false
+        },
+        "isActualExpenseReimbursement": {
+          "description": "Used for PPM shipments only. Denotes if this shipment uses the Actual Expense Reimbursement method.",
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false,
+          "example": false
         },
         "pickupAddress": {
           "allOf": [
