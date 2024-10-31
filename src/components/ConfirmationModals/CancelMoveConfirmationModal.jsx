@@ -12,7 +12,13 @@ export const CancelMoveConfirmationModal = ({ onClose, onSubmit, moveID, title, 
     </ModalTitle>
     <p>{content}</p>
     <ModalActions autofocus="true">
-      <Button data-focus="true" className="usa-button--destructive" type="submit" onClick={() => onSubmit(moveID)}>
+      <Button
+        data-focus="true"
+        className="usa-button--destructive"
+        type="submit"
+        data-testid="modalSubmitButton"
+        onClick={() => onSubmit(moveID)}
+      >
         {submitText}
       </Button>
       <Button className="usa-button--secondary" type="button" onClick={() => onClose()} data-testid="modalBackButton">
