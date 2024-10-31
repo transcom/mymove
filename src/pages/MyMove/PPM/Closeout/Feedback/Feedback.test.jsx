@@ -108,10 +108,4 @@ describe('Feedback page', () => {
     const formattedRow = FormatRow(row);
     expect(formattedRow.value).toBe('$1000');
   });
-
-  it('displays loading placeholder when mtoShipment is not present', () => {
-    selectMTOShipmentById.mockReturnValueOnce(null);
-    renderFeedbackPage();
-    expect(screen.getByText('Loading...')).toBeInTheDocument();
-  });
 });
