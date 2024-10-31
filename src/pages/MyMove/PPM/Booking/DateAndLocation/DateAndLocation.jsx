@@ -39,6 +39,7 @@ const DateAndLocation = ({ mtoShipment, serviceMember, destinationDutyLocation, 
     serviceMember.affiliation === SERVICE_MEMBER_AGENCIES.AIR_FORCE ||
     serviceMember.affiliation === SERVICE_MEMBER_AGENCIES.SPACE_FORCE;
   const isNewShipment = !mtoShipment?.id;
+  const isCivilian = move.orders?.grade === 'CIVILIAN_EMPLOYEE';
 
   useEffect(() => {
     isBooleanFlagEnabled('multi_move').then((enabled) => {
@@ -104,6 +105,7 @@ const DateAndLocation = ({ mtoShipment, serviceMember, destinationDutyLocation, 
         hasTertiaryDestinationAddress, // I think sending this is necessary so we know if the customer wants to clear their previously tertiary ZIPs, or we could send nulls for those fields.
         sitExpected: values.sitExpected === 'true',
         expectedDepartureDate: formatDateForSwagger(values.expectedDepartureDate),
+        isActualExpenseReimbursement: isCivilian,
       },
     };
 
