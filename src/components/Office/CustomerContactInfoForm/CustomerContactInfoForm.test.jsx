@@ -109,7 +109,7 @@ describe('CustomerContactInfoForm Component', () => {
       expect(screen.getByDisplayValue('123 Happy St')).toBeInstanceOf(HTMLInputElement);
       expect(screen.getByDisplayValue('Unit 4')).toBeInstanceOf(HTMLInputElement);
       expect(screen.getByDisplayValue('Missoula')).toBeInstanceOf(HTMLInputElement);
-      expect(screen.getByDisplayValue('MT')).toBeInstanceOf(HTMLSelectElement);
+      expect(screen.getByDisplayValue('MT')).toBeInstanceOf(HTMLInputElement);
       expect(screen.getByDisplayValue('59802')).toBeInstanceOf(HTMLInputElement);
 
       expect(screen.getByLabelText('Name')).toBeInstanceOf(HTMLInputElement);
