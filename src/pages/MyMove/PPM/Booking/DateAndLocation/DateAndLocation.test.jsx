@@ -1068,6 +1068,80 @@ describe('DateAndLocation component', () => {
         });
       });
 
+      it('displays an sepcific error message when the update shipment fails and return specific message', async () => {
+        const mockSpecificMessage = 'The data entered no good.';
+        patchMTOShipment.mockRejectedValueOnce({ response: { body: { detail: mockSpecificMessage, status: 400 } } });
+
+        renderDateAndLocation(fullShipmentProps);
+
+        await userEvent.click(screen.getByRole('button', { name: 'Save & Continue' }));
+
+        await waitFor(() => {
+          expect(patchMTOShipment).toHaveBeenCalledWith(
+            fullShipmentProps.mtoShipment.id,
+            {
+              id: fullShipmentProps.mtoShipment.id,
+              moveTaskOrderID: mockMoveId,
+              shipmentType: 'PPM',
+              ppmShipment: {
+                id: fullShipmentProps.mtoShipment.ppmShipment.id,
+                pickupAddress: {
+                  streetAddress1: '234 Any St',
+                  streetAddress2: '',
+                  city: 'Richmond',
+                  state: 'VA',
+                  postalCode: '20002',
+                },
+                destinationAddress: {
+                  streetAddress1: '234 Any St',
+                  streetAddress2: '',
+                  city: 'Richmond',
+                  state: 'VA',
+                  postalCode: '20003',
+                },
+                secondaryPickupAddress: {
+                  streetAddress1: '234 Any St',
+                  streetAddress2: '',
+                  city: 'Richmond',
+                  state: 'VA',
+                  postalCode: '20004',
+                },
+                secondaryDestinationAddress: {
+                  streetAddress1: '234 Any St',
+                  streetAddress2: '',
+                  city: 'Richmond',
+                  state: 'VA',
+                  postalCode: '20005',
+                },
+                tertiaryPickupAddress: {
+                  streetAddress1: '234 Any St',
+                  streetAddress2: '',
+                  city: 'Richmond',
+                  state: 'VA',
+                  postalCode: '20006',
+                },
+                tertiaryDestinationAddress: {
+                  streetAddress1: '234 Any St',
+                  streetAddress2: '',
+                  city: 'Richmond',
+                  state: 'VA',
+                  postalCode: '20007',
+                },
+                hasSecondaryPickupAddress: true,
+                hasSecondaryDestinationAddress: true,
+                hasTertiaryPickupAddress: true,
+                hasTertiaryDestinationAddress: true,
+                sitExpected: true,
+                expectedDepartureDate: '2022-12-31',
+              },
+            },
+            fullShipmentProps.mtoShipment.eTag,
+          );
+
+          expect(screen.getByText(mockSpecificMessage)).toBeInTheDocument();
+        });
+      });
+
       it('calls update shipment endpoint and formats optional payload values', async () => {
         patchMTOShipment.mockResolvedValueOnce({ id: fullShipmentProps.mtoShipment.id });
 

@@ -1307,6 +1307,39 @@ describe('ShipmentForm component', () => {
       expect(mockNavigate).not.toHaveBeenCalled();
     });
 
+    it('shows a specific error message if the submitHandler returns a specific error message', async () => {
+      const mockSpecificMessage = 'The data entered no good.';
+      const mockSubmitHandler = jest.fn((payload, { onError }) => {
+        // fire onError handler on form
+        onError({ response: { body: { message: mockSpecificMessage, status: 400 } } });
+      });
+
+      validatePostalCode.mockImplementation(() => Promise.resolve(false));
+
+      renderWithRouter(
+        <ShipmentForm
+          {...defaultProps}
+          shipmentType={SHIPMENT_OPTIONS.PPM}
+          mtoShipment={mockPPMShipment}
+          submitHandler={mockSubmitHandler}
+          isCreatePage={false}
+        />,
+      );
+
+      const saveButton = screen.getByRole('button', { name: 'Save and Continue' });
+      expect(saveButton).not.toBeDisabled();
+      await act(async () => {
+        await userEvent.click(saveButton);
+      });
+
+      await waitFor(() => {
+        expect(mockSubmitHandler).toHaveBeenCalled();
+      });
+
+      expect(await screen.findByText(mockSpecificMessage)).toBeInTheDocument();
+      expect(mockNavigate).not.toHaveBeenCalled();
+    });
+
     it('shows an error if the submitHandler returns an error when editing a PPM', async () => {
       const mockSubmitHandler = jest.fn((payload, { onError }) => {
         // fire onError handler on form
