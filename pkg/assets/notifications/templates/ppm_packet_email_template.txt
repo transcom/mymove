@@ -1,9 +1,7 @@
 {{.MessageOpening}}
 
 {{.MessageConfirmation}}
-{{if eq .IsActualExpenseReimbursement "true"}}
-{{.MessageAER}}
-{{end}}
+{{if eq .IsActualExpenseReimbursement "true"}}{{.MessageAER}}{{end}}
 Next steps:
 {{.MessageBranchCondition}}
 {{.MessageClosing}}

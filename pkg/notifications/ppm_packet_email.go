@@ -39,44 +39,44 @@ func formatMessageOpeningBranchCondition(branch, submitLocation string) string {
 		GetAffiliationDisplayValues()[models.AffiliationCOASTGUARD],
 		GetAffiliationDisplayValues()[models.AffiliationNAVY]:
 		if !templateShouldBeHTML {
-			return "For Marine Corps, Navy, and Coast Guard personnel:\n\nYou can now log into MilMove <" + MyMoveLink + "> " +
+			return "For Marine Corps, Navy, and Coast Guard personnel:\n\nYou can now log into MilMove " + MyMoveLink +
 				"and view your payment packet; however, you do not need to forward your payment packet to finance as your closeout " +
 				"location is associated with your finance office and they will handle this step for you.\n\nNote: Not all claimed " +
-				"expenses may have been accepted during PPM closeout if they did not meet the definition of a valid expense."
+				"expenses may have been accepted during PPM closeout if they did not meet the definition of a valid expense.\n\n" +
+				"Please be advised, your local finance office may require a DD Form 1351-2 to process payment. You can obtain a copy " +
+				"of this form by utilizing the search feature at " + WashingtonHQServicesLink + "."
 		}
 
-		return "For Marine Corps, Navy, and Coast Guard personnel:</p><p>You can now log into MilMove <a href=\" " + MyMoveLink + "\">" + MyMoveLink + "</a> " +
+		return "For Marine Corps, Navy, and Coast Guard personnel:<br><br>You can now log into MilMove " + MyMoveLink +
 			"and view your payment packet; however, you do not need to forward your payment packet to finance as your closeout " +
-			"location is associated with your finance office and they will handle this step for you.</p><p>Note: Not all claimed " +
-			"expenses may have been accepted during PPM closeout if they did not meet the definition of a valid expense."
+			"location is associated with your finance office and they will handle this step for you.<br><br>Note: Not all claimed " +
+			"expenses may have been accepted during PPM closeout if they did not meet the definition of a valid expense.<br><br>" +
+			"Please be advised, your local finance office may require a DD Form 1351-2 to process payment. You can obtain a copy " +
+			"of this form by utilizing the search feature at " + WashingtonHQServicesLink + "."
 	case GetAffiliationDisplayValues()[models.AffiliationARMY]:
 		if !templateShouldBeHTML {
 			return "For Army personnel (FURTHER ACTION REQUIRED):\n\nLog in to " +
-				"SmartVoucher at " + SmartVoucherLink + " using your CAC or myPay username and password. This will allow you to edit " +
-				"your voucher, and complete and sign DD Form 1351-2.\n\nPlease be advised, your local finance office may require a DD " +
-				"Form 1351-2 to process payment. You can obtain a copy of this form by utilizing the search feature at " + WashingtonHQServicesLink + "."
+				"SmartVoucher at " + SmartVoucherLink + " using your CAC or myPay username and password.\n\nThis will allow you to edit " +
+				"your voucher, and complete and sign DD Form 1351-2."
 		}
 
-		return "For Army personnel (FURTHER ACTION REQUIRED):</p><p>Log in to " +
-			"SmartVoucher at <a href=\"" + SmartVoucherLink + "\">" + SmartVoucherLink + "</a> using your CAC or myPay username and password. This will allow you to edit " +
-			"your voucher, and complete and sign DD Form 1351-2.</p><p>Please be advised, your local finance office may require a DD " +
-			"Form 1351-2 to process payment. You can obtain a copy of this form by utilizing the search feature at <a href=\"" + WashingtonHQServicesLink + "\">" + WashingtonHQServicesLink + "</a>."
+		return "For Army personnel (FURTHER ACTION REQUIRED):<br><br>Log in to " +
+			"SmartVoucher at " + SmartVoucherLink + " using your CAC or myPay username and password. This will allow you to edit " +
+			"your voucher, and complete and sign DD Form 1351-2."
 	case GetAffiliationDisplayValues()[models.AffiliationAIRFORCE], GetAffiliationDisplayValues()[models.AffiliationSPACEFORCE]:
 		if !templateShouldBeHTML {
 			return "For Air Force and Space Force personnel (FURTHER ACTION REQUIRED):\n\nYou can now log into MilMove <" + MyMoveLink +
 				"> and download your payment packet to submit to " + submitLocation + ". You must complete this step to receive final " +
 				"settlement of your PPM.\n\nNote: The Transportation Office does not determine claimable expenses. Claimable expenses " +
-				"will be determined by finance.\n\nNote: Not all claimed expenses may have been accepted during PPM closeout if they " +
-				"did not meet the definition of a valid expense.\n\nPlease be advised, your local finance office may require a DD Form 1351-2 " +
+				"will be determined by finance.\n\nPlease be advised, your local finance office may require a DD Form 1351-2 " +
 				"to process payment. You can obtain a copy of this form by utilizing the search feature at " + WashingtonHQServicesLink + "."
 		}
 
-		return "For Air Force and Space Force personnel (FURTHER ACTION REQUIRED):</p><p>You can now log into MilMove <a href=\"" + MyMoveLink + "\">" + MyMoveLink +
-			"</a> and download your payment packet to submit to " + submitLocation + ". You must complete this step to receive final " +
-			"settlement of your PPM.</p><p>Note: The Transportation Office does not determine claimable expenses. Claimable expenses " +
-			"will be determined by finance.</p><p>Note: Not all claimed expenses may have been accepted during PPM closeout if they " +
-			"did not meet the definition of a valid expense.</p><p>Please be advised, your local finance office may require a DD Form 1351-2 " +
-			"to process payment. You can obtain a copy of this form by utilizing the search feature at <a href=\"" + WashingtonHQServicesLink + "\">" + WashingtonHQServicesLink + "</a>."
+		return "For Air Force and Space Force personnel (FURTHER ACTION REQUIRED):<br><br>You can now log into MilMove " + MyMoveLink +
+			" and download your payment packet to submit to " + submitLocation + ". You must complete this step to receive final " +
+			"settlement of your PPM.<br><br>Note: The Transportation Office does not determine claimable expenses. Claimable expenses " +
+			"will be determined by finance.<br><br>Please be advised, your local finance office may require a DD Form 1351-2 " +
+			"to process payment. You can obtain a copy of this form by utilizing the search feature at " + WashingtonHQServicesLink + "."
 	}
 
 	return ""
@@ -86,13 +86,13 @@ func formatMessageClosing() string {
 	if !templateShouldBeHTML {
 		return "If you have any questions, contact a government transportation office. You can see a listing of transportation " +
 			"offices on Military One Source here: " + OneSourceTransportationOfficeLink + "\n\n" +
-			"Thank you,\nUSTRANSCOM MilMove Team\n\nThe information contained in this email may contain Privacy Act information " +
+			"Thank you,\n\nUSTRANSCOM MilMove Team\n\nThe information contained in this email may contain Privacy Act information " +
 			"and is therefore protected under the Privacy Act of 1974.  Failure to protect Privacy Act information could result in a $5,000 fine."
 	}
 
 	return "If you have any questions, contact a government transportation office. You can see a listing of transportation " +
-		"offices on Military One Source here: " + OneSourceTransportationOfficeLink + "</p><p>" +
-		"Thank you,<br>USTRANSCOM MilMove Team</p><p>The information contained in this email may contain Privacy Act information " +
+		"offices on Military One Source here: " + OneSourceTransportationOfficeLink + "<br><br>" +
+		"Thank you,<br><br>USTRANSCOM MilMove Team<br><br>The information contained in this email may contain Privacy Act information " +
 		"and is therefore protected under the Privacy Act of 1974.  Failure to protect Privacy Act information could result in a $5,000 fine."
 }
 
@@ -316,6 +316,7 @@ func (p PpmPacketEmail) renderTemplates(appCtx appcontext.AppContext, data PpmPa
 // RenderHTML renders the html for the email
 func (p PpmPacketEmail) RenderHTML(appCtx appcontext.AppContext, data PpmPacketEmailData) (string, error) {
 	var htmlBuffer bytes.Buffer
+	templateShouldBeHTML = true
 	if err := p.htmlTemplate.Execute(&htmlBuffer, data); err != nil {
 		appCtx.Logger().Error("cant render html template ", zap.Error(err))
 	}
@@ -325,6 +326,7 @@ func (p PpmPacketEmail) RenderHTML(appCtx appcontext.AppContext, data PpmPacketE
 // RenderText renders the text for the email
 func (p PpmPacketEmail) RenderText(appCtx appcontext.AppContext, data PpmPacketEmailData) (string, error) {
 	var textBuffer bytes.Buffer
+	templateShouldBeHTML = false
 	if err := p.textTemplate.Execute(&textBuffer, data); err != nil {
 		appCtx.Logger().Error("cant render text template ", zap.Error(err))
 		return "", err
