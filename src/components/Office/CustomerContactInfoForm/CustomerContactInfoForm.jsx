@@ -1,4 +1,4 @@
-import { React, useState } from 'react';
+import React from 'react';
 import { Field, Formik } from 'formik';
 import * as Yup from 'yup';
 import PropTypes from 'prop-types';
@@ -42,8 +42,6 @@ const CustomerContactInfoForm = ({ initialValues, onSubmit, onBack }) => {
     cacUser: Yup.boolean().required('Required'),
   });
 
-  const [isLookupErrorVisible, setIsLookupErrorVisible] = useState(false);
-
   return (
     <Grid row>
       <Grid col>
@@ -64,12 +62,6 @@ const CustomerContactInfoForm = ({ initialValues, onSubmit, onBack }) => {
                   },
                   { shouldValidate: true },
                 );
-
-                if (!value.city || !value.state || !value.county || !value.postalCode) {
-                  setIsLookupErrorVisible(true);
-                } else {
-                  setIsLookupErrorVisible(false);
-                }
               };
               const handleBackupZipCityChange = (value) => {
                 setValues(
@@ -85,12 +77,6 @@ const CustomerContactInfoForm = ({ initialValues, onSubmit, onBack }) => {
                   },
                   { shouldValidate: true },
                 );
-
-                if (!value.city || !value.state || !value.county || !value.postalCode) {
-                  setIsLookupErrorVisible(true);
-                } else {
-                  setIsLookupErrorVisible(false);
-                }
               };
               return (
                 <Form className={formStyles.form}>
@@ -113,14 +99,12 @@ const CustomerContactInfoForm = ({ initialValues, onSubmit, onBack }) => {
                     <AddressFields
                       name="customerAddress"
                       zipCityEnabled
-                      zipCityError={isLookupErrorVisible}
                       handleLocationChange={handleCurrentZipCityChange}
                     />
                     <h3 className={styles.sectionHeader}>Backup Address</h3>
                     <AddressFields
                       name="backupAddress"
                       zipCityEnabled
-                      zipCityError={isLookupErrorVisible}
                       handleLocationChange={handleBackupZipCityChange}
                     />
                   </SectionWrapper>

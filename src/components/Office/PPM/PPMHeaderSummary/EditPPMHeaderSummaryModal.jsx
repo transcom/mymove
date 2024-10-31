@@ -1,4 +1,4 @@
-import { React, useState } from 'react';
+import React from 'react';
 import { Formik } from 'formik';
 import PropTypes from 'prop-types';
 import * as Yup from 'yup';
@@ -53,7 +53,6 @@ const EditPPMHeaderSummaryModal = ({ sectionType, sectionInfo, onClose, onSubmit
       otherwise: (schema) => schema,
     }),
   });
-  const [isLookupErrorVisible, setIsLookupErrorVisible] = useState(false);
 
   return (
     <div>
@@ -80,12 +79,6 @@ const EditPPMHeaderSummaryModal = ({ sectionType, sectionInfo, onClose, onSubmit
                   },
                   { shouldValidate: true },
                 );
-
-                if (!value.city || !value.state || !value.county || !value.postalCode) {
-                  setIsLookupErrorVisible(true);
-                } else {
-                  setIsLookupErrorVisible(false);
-                }
               };
               const handleDestinationZipCityChange = (value) => {
                 setValues(
@@ -101,12 +94,6 @@ const EditPPMHeaderSummaryModal = ({ sectionType, sectionInfo, onClose, onSubmit
                   },
                   { shouldValidate: true },
                 );
-
-                if (!value.city || !value.state || !value.county || !value.postalCode) {
-                  setIsLookupErrorVisible(true);
-                } else {
-                  setIsLookupErrorVisible(false);
-                }
               };
               return (
                 <Form>
@@ -140,7 +127,6 @@ const EditPPMHeaderSummaryModal = ({ sectionType, sectionInfo, onClose, onSubmit
                         className={styles.AddressFieldSet}
                         formikFunctionsToValidatePostalCodeOnChange={{ handleChange, setFieldTouched }}
                         zipCityEnabled
-                        zipCityError={isLookupErrorVisible}
                         handleLocationChange={handlePickupZipCityChange}
                       />
                     )}
@@ -151,7 +137,6 @@ const EditPPMHeaderSummaryModal = ({ sectionType, sectionInfo, onClose, onSubmit
                         className={styles.AddressFieldSet}
                         formikFunctionsToValidatePostalCodeOnChange={{ handleChange, setFieldTouched }}
                         zipCityEnabled
-                        zipCityError={isLookupErrorVisible}
                         handleLocationChange={handleDestinationZipCityChange}
                       />
                     )}

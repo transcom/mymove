@@ -1,5 +1,5 @@
 import classnames from 'classnames';
-import { React, useState } from 'react';
+import React from 'react';
 import PropTypes from 'prop-types';
 import { Formik } from 'formik';
 import * as Yup from 'yup';
@@ -37,8 +37,6 @@ const EditContactInfoForm = ({ initialValues, onSubmit, onCancel }) => {
     .test('contactMethodRequired', 'Please select a preferred method of contact.', preferredContactMethodValidation);
 
   const sectionStyles = classnames(formStyles.formSection, editContactInfoFormStyle.formSection);
-  const [isCurrentLookupErrorVisible, setIsCurrentLookupErrorVisible] = useState(false);
-  const [isBackupLookupErrorVisible, setIsBackupLookupErrorVisible] = useState(false);
 
   return (
     <Formik initialValues={initialValues} onSubmit={onSubmit} validateOnMount validationSchema={validationSchema}>
@@ -57,12 +55,6 @@ const EditContactInfoForm = ({ initialValues, onSubmit, onCancel }) => {
             },
             { shouldValidate: true },
           );
-
-          if (!value.city || !value.state || !value.county || !value.postalCode) {
-            setIsCurrentLookupErrorVisible(true);
-          } else {
-            setIsCurrentLookupErrorVisible(false);
-          }
         };
         const handleBackupZipCityChange = (value) => {
           setValues(
@@ -78,12 +70,6 @@ const EditContactInfoForm = ({ initialValues, onSubmit, onCancel }) => {
             },
             { shouldValidate: true },
           );
-
-          if (!value.city || !value.state || !value.county || !value.postalCode) {
-            setIsBackupLookupErrorVisible(true);
-          } else {
-            setIsBackupLookupErrorVisible(false);
-          }
         };
         return (
           <Form className={classnames(formStyles.form, editContactInfoFormStyle.form)}>
@@ -102,7 +88,6 @@ const EditContactInfoForm = ({ initialValues, onSubmit, onCancel }) => {
                 name={residentialAddressName}
                 labelHint="Required"
                 zipCityEnabled
-                zipCityError={isCurrentLookupErrorVisible}
                 handleLocationChange={handleCurrentZipCityChange}
               />
             </SectionWrapper>
@@ -118,7 +103,6 @@ const EditContactInfoForm = ({ initialValues, onSubmit, onCancel }) => {
                 name={backupAddressName}
                 labelHint="Required"
                 zipCityEnabled
-                zipCityError={isBackupLookupErrorVisible}
                 handleLocationChange={handleBackupZipCityChange}
               />
             </SectionWrapper>

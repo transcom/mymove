@@ -32,14 +32,12 @@ export const AddressFields = ({
   render,
   validators,
   zipCityEnabled,
-  zipCityError,
   handleLocationChange,
   formikFunctionsToValidatePostalCodeOnChange,
   labelHint: labelHintProp,
 }) => {
   const addressFieldsUUID = useRef(uuidv4());
   const infoStr = 'If you encounter any inaccurate lookup information please contact the ';
-  const errorStr = 'Not all data was able to populate successfully. Contact the ';
   const assistanceStr = ' for further assistance.';
 
   const postalCodeField = formikFunctionsToValidatePostalCodeOnChange ? (
@@ -133,24 +131,13 @@ export const AddressFields = ({
                 label="Location Lookup"
                 handleLocationChange={handleLocationChange}
               />
-              {!zipCityError && (
-                <Hint className={styles.hint} id="locationInfo" data-testid="locationInfo">
-                  {infoStr}
-                  <a href={technicalHelpDeskURL} target="_blank" rel="noreferrer">
-                    Technical Help Desk
-                  </a>
-                  {assistanceStr}
-                </Hint>
-              )}
-              {zipCityError && (
-                <Hint className={styles.hintError} id="zipCityError" data-testid="zipCityError">
-                  {errorStr}
-                  <a href={technicalHelpDeskURL} target="_blank" rel="noreferrer">
-                    Technical Help Desk
-                  </a>
-                  {assistanceStr}
-                </Hint>
-              )}
+              <Hint className={styles.hint} id="locationInfo" data-testid="locationInfo">
+                {infoStr}
+                <a href={technicalHelpDeskURL} target="_blank" rel="noreferrer">
+                  Technical Help Desk
+                </a>
+                {assistanceStr}
+              </Hint>
             </>
           )}
           <div className="grid-row grid-gap">
@@ -194,7 +181,6 @@ AddressFields.propTypes = {
   name: PropTypes.string.isRequired,
   render: PropTypes.func,
   zipCityEnabled: PropTypes.bool,
-  zipCityError: PropTypes.bool,
   handleLocationChange: PropTypes.func,
   validators: PropTypes.shape({
     streetAddress1: PropTypes.func,
@@ -215,7 +201,6 @@ AddressFields.defaultProps = {
   className: '',
   render: (fields) => fields,
   zipCityEnabled: false,
-  zipCityError: false,
   handleLocationChange: null,
   validators: {},
   formikFunctionsToValidatePostalCodeOnChange: null,

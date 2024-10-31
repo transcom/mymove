@@ -622,8 +622,6 @@ const ShipmentForm = (props) => {
     }
   };
 
-  const [isLookupErrorVisible, setIsLookupErrorVisible] = useState(false);
-
   return (
     <Formik
       initialValues={initialValues}
@@ -722,7 +720,7 @@ const ShipmentForm = (props) => {
           }
         };
 
-        const handlePickupZipCityChange = (value) => {
+        const handlePickupLocationChange = (value) => {
           setValues(
             {
               ...values,
@@ -739,15 +737,9 @@ const ShipmentForm = (props) => {
             },
             { shouldValidate: true },
           );
-
-          if (!value.city || !value.state || !value.county || !value.postalCode) {
-            setIsLookupErrorVisible(true);
-          } else {
-            setIsLookupErrorVisible(false);
-          }
         };
 
-        const handleSecondaryPickupZipCityChange = (value) => {
+        const handleSecondaryPickupLocationChange = (value) => {
           setValues(
             {
               ...values,
@@ -764,15 +756,9 @@ const ShipmentForm = (props) => {
             },
             { shouldValidate: true },
           );
-
-          if (!value.city || !value.state || !value.county || !value.postalCode) {
-            setIsLookupErrorVisible(true);
-          } else {
-            setIsLookupErrorVisible(false);
-          }
         };
 
-        const handleTertiaryPickupZipCityChange = (value) => {
+        const handleTertiaryPickupLocationChange = (value) => {
           setValues(
             {
               ...values,
@@ -789,15 +775,9 @@ const ShipmentForm = (props) => {
             },
             { shouldValidate: true },
           );
-
-          if (!value.city || !value.state || !value.county || !value.postalCode) {
-            setIsLookupErrorVisible(true);
-          } else {
-            setIsLookupErrorVisible(false);
-          }
         };
 
-        const handleDeliveryZipCityChange = (value) => {
+        const handleDeliveryLocationChange = (value) => {
           setValues(
             {
               ...values,
@@ -814,15 +794,9 @@ const ShipmentForm = (props) => {
             },
             { shouldValidate: true },
           );
-
-          if (!value.city || !value.state || !value.county || !value.postalCode) {
-            setIsLookupErrorVisible(true);
-          } else {
-            setIsLookupErrorVisible(false);
-          }
         };
 
-        const handleSecondaryDeliveryZipCityChange = (value) => {
+        const handleSecondaryDeliveryLocationChange = (value) => {
           setValues(
             {
               ...values,
@@ -839,15 +813,9 @@ const ShipmentForm = (props) => {
             },
             { shouldValidate: true },
           );
-
-          if (!value.city || !value.state || !value.county || !value.postalCode) {
-            setIsLookupErrorVisible(true);
-          } else {
-            setIsLookupErrorVisible(false);
-          }
         };
 
-        const handleTertiaryDeliveryZipCityChange = (value) => {
+        const handleTertiaryDeliveryLocationChange = (value) => {
           setValues(
             {
               ...values,
@@ -866,7 +834,7 @@ const ShipmentForm = (props) => {
           );
         };
 
-        const handleDestinationZipCityChange = (value) => {
+        const handleDestinationLocationChange = (value) => {
           setValues(
             {
               ...values,
@@ -883,15 +851,9 @@ const ShipmentForm = (props) => {
             },
             { shouldValidate: true },
           );
-
-          if (!value.city || !value.state || !value.county || !value.postalCode) {
-            setIsLookupErrorVisible(true);
-          } else {
-            setIsLookupErrorVisible(false);
-          }
         };
 
-        const handleSecondaryDestinationZipCityChange = (value) => {
+        const handleSecondaryDestinationLocationChange = (value) => {
           setValues(
             {
               ...values,
@@ -908,15 +870,9 @@ const ShipmentForm = (props) => {
             },
             { shouldValidate: true },
           );
-
-          if (!value.city || !value.state || !value.county || !value.postalCode) {
-            setIsLookupErrorVisible(true);
-          } else {
-            setIsLookupErrorVisible(false);
-          }
         };
 
-        const handleTertiaryDestinationZipCityChange = (value) => {
+        const handleTertiaryDestinationLocationChange = (value) => {
           setValues(
             {
               ...values,
@@ -933,12 +889,25 @@ const ShipmentForm = (props) => {
             },
             { shouldValidate: true },
           );
+        };
 
-          if (!value.city || !value.state || !value.county || !value.postalCode) {
-            setIsLookupErrorVisible(true);
-          } else {
-            setIsLookupErrorVisible(false);
-          }
+        const handleStorageFacilityLocationChange = (value) => {
+          setValues(
+            {
+              ...values,
+              storageFacility: {
+                ...values.storageFacility,
+                address: {
+                  ...values.storageFacility.address,
+                  city: value.city,
+                  state: value.state ? value.state : '',
+                  county: value.county,
+                  postalCode: value.postalCode,
+                },
+              },
+            },
+            { shouldValidate: true },
+          );
         };
 
         const handlePickupDateChange = (e) => {
@@ -1133,8 +1102,7 @@ const ShipmentForm = (props) => {
                           name="pickup.address"
                           legend="Pickup location"
                           zipCityEnabled
-                          zipCityError={isLookupErrorVisible}
-                          handleLocationChange={handlePickupZipCityChange}
+                          handleLocationChange={handlePickupLocationChange}
                           render={(fields) => (
                             <>
                               <p>What address are the movers picking up from?</p>
@@ -1177,8 +1145,7 @@ const ShipmentForm = (props) => {
                                   <AddressFields
                                     name="secondaryPickup.address"
                                     zipCityEnabled
-                                    zipCityError={isLookupErrorVisible}
-                                    handleLocationChange={handleSecondaryPickupZipCityChange}
+                                    handleLocationChange={handleSecondaryPickupLocationChange}
                                   />
                                   {isTertiaryAddressEnabled && (
                                     <>
@@ -1212,8 +1179,7 @@ const ShipmentForm = (props) => {
                                         <AddressFields
                                           name="tertiaryPickup.address"
                                           zipCityEnabled
-                                          zipCityError={isLookupErrorVisible}
-                                          handleLocationChange={handleTertiaryPickupZipCityChange}
+                                          handleLocationChange={handleTertiaryPickupLocationChange}
                                         />
                                       )}
                                     </>
@@ -1239,14 +1205,14 @@ const ShipmentForm = (props) => {
                 {isTOO && (isNTS || isNTSR) && (
                   <>
                     <StorageFacilityInfo userRole={userRole} />
-                    <StorageFacilityAddress />
+                    <StorageFacilityAddress onLocationChange={handleStorageFacilityLocationChange} />
                   </>
                 )}
 
                 {isServiceCounselor && isNTSR && (
                   <>
                     <StorageFacilityInfo userRole={userRole} />
-                    <StorageFacilityAddress />
+                    <StorageFacilityAddress onLocationChange={handleStorageFacilityLocationChange} />
                   </>
                 )}
 
@@ -1294,8 +1260,7 @@ const ShipmentForm = (props) => {
                           <AddressFields
                             name="delivery.address"
                             zipCityEnabled
-                            zipCityError={isLookupErrorVisible}
-                            handleLocationChange={handleDeliveryZipCityChange}
+                            handleLocationChange={handleDeliveryLocationChange}
                             render={(fields) => {
                               return fields;
                             }}
@@ -1331,8 +1296,7 @@ const ShipmentForm = (props) => {
                               <AddressFields
                                 name="secondaryDelivery.address"
                                 zipCityEnabled
-                                zipCityError={isLookupErrorVisible}
-                                handleLocationChange={handleSecondaryDeliveryZipCityChange}
+                                handleLocationChange={handleSecondaryDeliveryLocationChange}
                               />
                               {isTertiaryAddressEnabled && (
                                 <>
@@ -1366,8 +1330,7 @@ const ShipmentForm = (props) => {
                                     <AddressFields
                                       name="tertiaryDelivery.address"
                                       zipCityEnabled
-                                      zipCityError={isLookupErrorVisible}
-                                      handleLocationChange={handleTertiaryDeliveryZipCityChange}
+                                      handleLocationChange={handleTertiaryDeliveryLocationChange}
                                     />
                                   )}
                                 </>
@@ -1447,8 +1410,7 @@ const ShipmentForm = (props) => {
                             <AddressFields
                               name="delivery.address"
                               zipCityEnabled
-                              zipCityError={isLookupErrorVisible}
-                              handleLocationChange={handleDeliveryZipCityChange}
+                              handleLocationChange={handleDeliveryLocationChange}
                               render={(fields) => (
                                 <>
                                   {fields}
@@ -1491,8 +1453,7 @@ const ShipmentForm = (props) => {
                                       <AddressFields
                                         name="secondaryDelivery.address"
                                         zipCityEnabled
-                                        zipCityError={isLookupErrorVisible}
-                                        handleLocationChange={handleSecondaryDeliveryZipCityChange}
+                                        handleLocationChange={handleSecondaryDeliveryLocationChange}
                                       />
                                       {isTertiaryAddressEnabled && (
                                         <>
@@ -1528,8 +1489,7 @@ const ShipmentForm = (props) => {
                                             <AddressFields
                                               name="tertiaryDelivery.address"
                                               zipCityEnabled
-                                              zipCityError={isLookupErrorVisible}
-                                              handleLocationChange={handleTertiaryDeliveryZipCityChange}
+                                              handleLocationChange={handleTertiaryDeliveryLocationChange}
                                             />
                                           )}
                                         </>
@@ -1589,8 +1549,7 @@ const ShipmentForm = (props) => {
                         name="pickup.address"
                         legend="Pickup Address"
                         zipCityEnabled
-                        zipCityError={isLookupErrorVisible}
-                        handleLocationChange={handlePickupZipCityChange}
+                        handleLocationChange={handlePickupLocationChange}
                         render={(fields) => (
                           <>
                             <p>What address are you moving from?</p>
@@ -1636,8 +1595,7 @@ const ShipmentForm = (props) => {
                                 <AddressFields
                                   name="secondaryPickup.address"
                                   zipCityEnabled
-                                  zipCityError={isLookupErrorVisible}
-                                  handleLocationChange={handleSecondaryPickupZipCityChange}
+                                  handleLocationChange={handleSecondaryPickupLocationChange}
                                 />
                                 {isTertiaryAddressEnabled && (
                                   <>
@@ -1674,8 +1632,7 @@ const ShipmentForm = (props) => {
                                       <AddressFields
                                         name="tertiaryPickup.address"
                                         zipCityEnabled
-                                        zipCityError={isLookupErrorVisible}
-                                        handleLocationChange={handleTertiaryPickupZipCityChange}
+                                        handleLocationChange={handleTertiaryPickupLocationChange}
                                       />
                                     )}
                                   </>
@@ -1689,8 +1646,7 @@ const ShipmentForm = (props) => {
                         name="destination.address"
                         legend="Delivery Address"
                         zipCityEnabled
-                        zipCityError={isLookupErrorVisible}
-                        handleLocationChange={handleDestinationZipCityChange}
+                        handleLocationChange={handleDestinationLocationChange}
                         render={(fields) => (
                           <>
                             {fields}
@@ -1728,8 +1684,7 @@ const ShipmentForm = (props) => {
                                 <AddressFields
                                   name="secondaryDestination.address"
                                   zipCityEnabled
-                                  zipCityError={isLookupErrorVisible}
-                                  handleLocationChange={handleSecondaryDestinationZipCityChange}
+                                  handleLocationChange={handleSecondaryDestinationLocationChange}
                                 />
                                 {isTertiaryAddressEnabled && (
                                   <>
@@ -1766,8 +1721,7 @@ const ShipmentForm = (props) => {
                                       <AddressFields
                                         name="tertiaryDestination.address"
                                         zipCityEnabled
-                                        zipCityError={isLookupErrorVisible}
-                                        handleLocationChange={handleTertiaryDestinationZipCityChange}
+                                        handleLocationChange={handleTertiaryDestinationLocationChange}
                                       />
                                     )}
                                   </>
