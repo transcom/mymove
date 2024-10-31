@@ -900,7 +900,7 @@ func (suite *GHCRateEngineServiceSuite) Test_escalatedPriceForContractYearCompou
 		escalatedPrice, contractYear, err := escalatePriceForContractYear(suite.AppContextForTest(), contract.ContractID, contract.StartDate.AddDate(0, 0, 1), isLinehaul, basePrice)
 
 		suite.Error(err)
-		suite.Equal("Expected contract Option Period 1 not found", err.Error())
+		suite.Equal("expected contract Option Period 1 not found", err.Error())
 		suite.Equal(contract.ID, contractYear.ID)
 		suite.NotNil(escalatedPrice)
 	})
