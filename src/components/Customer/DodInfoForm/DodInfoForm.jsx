@@ -13,7 +13,7 @@ import { dropdownInputOptions } from 'utils/formatters';
 import formStyles from 'styles/form.module.scss';
 import { isBooleanFlagEnabled } from 'utils/featureFlags';
 
-const DodInfoForm = ({ initialValues, onSubmit, onBack }) => {
+const DodInfoForm = ({ initialValues, onSubmit }) => {
   const branchOptions = dropdownInputOptions(SERVICE_MEMBER_AGENCY_LABELS);
   const [showEmplid, setShowEmplid] = useState(initialValues.affiliation === 'COAST_GUARD');
   const [isDodidDisabled, setIsDodidDisabled] = useState(false);
@@ -104,11 +104,7 @@ const DodInfoForm = ({ initialValues, onSubmit, onBack }) => {
             </SectionWrapper>
 
             <div className={formStyles.formActions}>
-              <WizardNavigation
-                onBackClick={onBack}
-                disableNext={!isValid || isSubmitting}
-                onNextClick={handleSubmit}
-              />
+              <WizardNavigation disableNext={!isValid || isSubmitting} onNextClick={handleSubmit} isFirstPage />
             </div>
           </Form>
         );
@@ -123,7 +119,6 @@ DodInfoForm.propTypes = {
     edipi: PropTypes.string,
   }).isRequired,
   onSubmit: PropTypes.func.isRequired,
-  onBack: PropTypes.func.isRequired,
 };
 
 export default DodInfoForm;

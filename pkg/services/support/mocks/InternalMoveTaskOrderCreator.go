@@ -20,6 +20,10 @@ type InternalMoveTaskOrderCreator struct {
 func (_m *InternalMoveTaskOrderCreator) InternalCreateMoveTaskOrder(appCtx appcontext.AppContext, moveTaskOrder supportmessages.MoveTaskOrder) (*models.Move, error) {
 	ret := _m.Called(appCtx, moveTaskOrder)
 
+	if len(ret) == 0 {
+		panic("no return value specified for InternalCreateMoveTaskOrder")
+	}
+
 	var r0 *models.Move
 	var r1 error
 	if rf, ok := ret.Get(0).(func(appcontext.AppContext, supportmessages.MoveTaskOrder) (*models.Move, error)); ok {

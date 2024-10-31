@@ -1,6 +1,6 @@
 import * as Yup from 'yup';
 
-import { unSupportedStates } from '../constants/states';
+import { getUnSupportedStates, unSupportedStates, unSupportedStatesDisabledAlaska } from '../constants/states';
 
 import { ValidateZipRateData } from 'shared/api';
 
@@ -52,10 +52,19 @@ export const validatePostalCode = async (value, postalCodeType, errMsg = Unsuppo
 };
 
 export const UnsupportedStateErrorMsg = 'Moves to this state are not supported at this time.';
-export const IsSupportedState = async (value) => {
+export const IsSupportedState = async (value, context) => {
   const selectedState = value;
 
-  const found = unSupportedStates.find((unsupportedState) => unsupportedState.key === selectedState);
+  const enableAK = 'enabledAK';
+
+  let unsupportedStates;
+  if (enableAK in context.options.context) {
+    unsupportedStates = context.options.context.enabledAK ? unSupportedStates : unSupportedStatesDisabledAlaska;
+  } else {
+    unsupportedStates = await getUnSupportedStates();
+  }
+
+  const found = unsupportedStates.find((unsupportedState) => unsupportedState.key === selectedState);
 
   if (found) {
     return false;
@@ -109,6 +118,11 @@ export const phoneSchema = Yup.string().matches(
   PHONE_NUMBER_REGEX,
   'Please enter a valid phone number. Phone numbers must be entered as ###-###-####.',
 ); // min 12 includes hyphens
+
+export const OfficeAccountRequestEmailSchema = Yup.string().matches(
+  /^[a-zA-Z0-9._%+-]+@(.[a-zA-Z0-9-.]+)[.]{1}(?<!gov|edu|mil)(gov|edu|mil)(?!gov|edu|mil)$/,
+  'Domain must be .mil, .gov or .edu',
+);
 
 export const emailSchema = Yup.string().matches(
   /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+.[a-zA-Z]{2,}$/,
@@ -246,7 +260,7 @@ export const officeAccountRequestSchema = Yup.object().shape({
     .matches(/^[A-Za-z0-9]+$/, otherUniqueIdErrorMsg)
     .test('officeAccountRequestOtherUniqueId', 'Required if not using DODID#', validateOtherUniqueId),
   officeAccountRequestTelephone: phoneSchema.required('Required'),
-  officeAccountRequestEmail: emailSchema.required('Required'),
+  officeAccountRequestEmail: OfficeAccountRequestEmailSchema.required('Required'),
   officeAccountTransportationOffice: Yup.object().required('Required'),
   taskOrderingOfficerCheckBox: Yup.bool()
     .test('roleRequestedRequired', 'You must select at least one role.', validateRoleRequestedMethod)

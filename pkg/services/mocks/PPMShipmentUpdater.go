@@ -20,6 +20,10 @@ type PPMShipmentUpdater struct {
 func (_m *PPMShipmentUpdater) UpdatePPMShipmentSITEstimatedCost(appCtx appcontext.AppContext, ppmshipment *models.PPMShipment) (*models.PPMShipment, error) {
 	ret := _m.Called(appCtx, ppmshipment)
 
+	if len(ret) == 0 {
+		panic("no return value specified for UpdatePPMShipmentSITEstimatedCost")
+	}
+
 	var r0 *models.PPMShipment
 	var r1 error
 	if rf, ok := ret.Get(0).(func(appcontext.AppContext, *models.PPMShipment) (*models.PPMShipment, error)); ok {
@@ -45,6 +49,10 @@ func (_m *PPMShipmentUpdater) UpdatePPMShipmentSITEstimatedCost(appCtx appcontex
 // UpdatePPMShipmentWithDefaultCheck provides a mock function with given fields: appCtx, ppmshipment, mtoShipmentID
 func (_m *PPMShipmentUpdater) UpdatePPMShipmentWithDefaultCheck(appCtx appcontext.AppContext, ppmshipment *models.PPMShipment, mtoShipmentID uuid.UUID) (*models.PPMShipment, error) {
 	ret := _m.Called(appCtx, ppmshipment, mtoShipmentID)
+
+	if len(ret) == 0 {
+		panic("no return value specified for UpdatePPMShipmentWithDefaultCheck")
+	}
 
 	var r0 *models.PPMShipment
 	var r1 error

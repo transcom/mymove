@@ -20,6 +20,10 @@ type WeightTicketCreator struct {
 func (_m *WeightTicketCreator) CreateWeightTicket(appCtx appcontext.AppContext, ppmShipmentID uuid.UUID) (*models.WeightTicket, error) {
 	ret := _m.Called(appCtx, ppmShipmentID)
 
+	if len(ret) == 0 {
+		panic("no return value specified for CreateWeightTicket")
+	}
+
 	var r0 *models.WeightTicket
 	var r1 error
 	if rf, ok := ret.Get(0).(func(appcontext.AppContext, uuid.UUID) (*models.WeightTicket, error)); ok {

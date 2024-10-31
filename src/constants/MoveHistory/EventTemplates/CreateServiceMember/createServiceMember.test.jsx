@@ -7,16 +7,16 @@ describe('When a service members creates a profile', () => {
   const item = {
     action: 'INSERT',
     tableName: 'service_members',
-    eventNameDisplay: 'Created Profile',
+    eventNameDisplay: 'Created profile',
   };
   it('correctly matches the create service member event template', () => {
     const result = getTemplate(item);
     expect(result).toMatchObject(createServiceMember);
-    expect(result.getEventNameDisplay()).toEqual('Created Profile');
+    expect(result.getEventNameDisplay()).toEqual('Created profile');
   });
   it('correctly displays the details component', () => {
     const result = getTemplate(item);
     render(result.getDetails(item));
-    expect(screen.getByText('-')).toBeInTheDocument();
+    expect(screen.getByText('New profile created')).toBeInTheDocument();
   });
 });

@@ -22,6 +22,10 @@ type CounselingServicesPricer struct {
 func (_m *CounselingServicesPricer) Price(appCtx appcontext.AppContext, lockedPriceCents *unit.Cents) (unit.Cents, services.PricingDisplayParams, error) {
 	ret := _m.Called(appCtx, lockedPriceCents)
 
+	if len(ret) == 0 {
+		panic("no return value specified for Price")
+	}
+
 	var r0 unit.Cents
 	var r1 services.PricingDisplayParams
 	var r2 error
@@ -54,6 +58,10 @@ func (_m *CounselingServicesPricer) Price(appCtx appcontext.AppContext, lockedPr
 // PriceUsingParams provides a mock function with given fields: appCtx, params
 func (_m *CounselingServicesPricer) PriceUsingParams(appCtx appcontext.AppContext, params models.PaymentServiceItemParams) (unit.Cents, services.PricingDisplayParams, error) {
 	ret := _m.Called(appCtx, params)
+
+	if len(ret) == 0 {
+		panic("no return value specified for PriceUsingParams")
+	}
 
 	var r0 unit.Cents
 	var r1 services.PricingDisplayParams

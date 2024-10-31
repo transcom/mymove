@@ -627,6 +627,7 @@ func Test_MustBeBothNilOrBothNotNil_IsValid(t *testing.T) {
 
 func Test_ItemCanFitInsideCrate_IsValid(t *testing.T) {
 	makeInt32 := func(i int) *int32 {
+		// #nosec G115: it is unrealistic that an imperial measurement will exceed int32 limits
 		val := int32(i)
 		return &val
 	}
@@ -709,6 +710,7 @@ func Test_ItemCanFitInsideCrate_IsValid(t *testing.T) {
 
 func Test_ItemCanFitInsideCrate_IsValid_V2(t *testing.T) {
 	makeInt32 := func(i int) *int32 {
+		// #nosec G115: it is unrealistic that an imperial measurement will exceed int32 limits
 		val := int32(i)
 		return &val
 	}

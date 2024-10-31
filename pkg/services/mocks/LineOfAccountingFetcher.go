@@ -20,6 +20,10 @@ type LineOfAccountingFetcher struct {
 func (_m *LineOfAccountingFetcher) BuildFullLineOfAccountingString(loa models.LineOfAccounting) string {
 	ret := _m.Called(loa)
 
+	if len(ret) == 0 {
+		panic("no return value specified for BuildFullLineOfAccountingString")
+	}
+
 	var r0 string
 	if rf, ok := ret.Get(0).(func(models.LineOfAccounting) string); ok {
 		r0 = rf(loa)
@@ -30,25 +34,29 @@ func (_m *LineOfAccountingFetcher) BuildFullLineOfAccountingString(loa models.Li
 	return r0
 }
 
-// FetchLongLinesOfAccounting provides a mock function with given fields: serviceMemberAffiliation, ordersIssueDate, tacCode, appCtx
-func (_m *LineOfAccountingFetcher) FetchLongLinesOfAccounting(serviceMemberAffiliation models.ServiceMemberAffiliation, ordersIssueDate time.Time, tacCode string, appCtx appcontext.AppContext) ([]models.LineOfAccounting, error) {
-	ret := _m.Called(serviceMemberAffiliation, ordersIssueDate, tacCode, appCtx)
+// FetchLongLinesOfAccounting provides a mock function with given fields: departmentIndicator, ordersIssueDate, tacCode, appCtx
+func (_m *LineOfAccountingFetcher) FetchLongLinesOfAccounting(departmentIndicator models.DepartmentIndicator, ordersIssueDate time.Time, tacCode string, appCtx appcontext.AppContext) ([]models.LineOfAccounting, error) {
+	ret := _m.Called(departmentIndicator, ordersIssueDate, tacCode, appCtx)
+
+	if len(ret) == 0 {
+		panic("no return value specified for FetchLongLinesOfAccounting")
+	}
 
 	var r0 []models.LineOfAccounting
 	var r1 error
-	if rf, ok := ret.Get(0).(func(models.ServiceMemberAffiliation, time.Time, string, appcontext.AppContext) ([]models.LineOfAccounting, error)); ok {
-		return rf(serviceMemberAffiliation, ordersIssueDate, tacCode, appCtx)
+	if rf, ok := ret.Get(0).(func(models.DepartmentIndicator, time.Time, string, appcontext.AppContext) ([]models.LineOfAccounting, error)); ok {
+		return rf(departmentIndicator, ordersIssueDate, tacCode, appCtx)
 	}
-	if rf, ok := ret.Get(0).(func(models.ServiceMemberAffiliation, time.Time, string, appcontext.AppContext) []models.LineOfAccounting); ok {
-		r0 = rf(serviceMemberAffiliation, ordersIssueDate, tacCode, appCtx)
+	if rf, ok := ret.Get(0).(func(models.DepartmentIndicator, time.Time, string, appcontext.AppContext) []models.LineOfAccounting); ok {
+		r0 = rf(departmentIndicator, ordersIssueDate, tacCode, appCtx)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).([]models.LineOfAccounting)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(models.ServiceMemberAffiliation, time.Time, string, appcontext.AppContext) error); ok {
-		r1 = rf(serviceMemberAffiliation, ordersIssueDate, tacCode, appCtx)
+	if rf, ok := ret.Get(1).(func(models.DepartmentIndicator, time.Time, string, appcontext.AppContext) error); ok {
+		r1 = rf(departmentIndicator, ordersIssueDate, tacCode, appCtx)
 	} else {
 		r1 = ret.Error(1)
 	}

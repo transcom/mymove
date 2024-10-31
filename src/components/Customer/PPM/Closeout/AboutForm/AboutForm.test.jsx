@@ -4,6 +4,11 @@ import userEvent from '@testing-library/user-event';
 
 import AboutForm from 'components/Customer/PPM/Closeout/AboutForm/AboutForm';
 
+jest.mock('utils/featureFlags', () => ({
+  ...jest.requireActual('utils/featureFlags'),
+  isBooleanFlagEnabled: jest.fn().mockImplementation(() => Promise.resolve(false)),
+}));
+
 beforeEach(() => {
   jest.clearAllMocks();
 });

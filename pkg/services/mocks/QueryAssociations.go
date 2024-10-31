@@ -13,6 +13,10 @@ type QueryAssociations struct {
 func (_m *QueryAssociations) Preload() bool {
 	ret := _m.Called()
 
+	if len(ret) == 0 {
+		panic("no return value specified for Preload")
+	}
+
 	var r0 bool
 	if rf, ok := ret.Get(0).(func() bool); ok {
 		r0 = rf()
@@ -26,6 +30,10 @@ func (_m *QueryAssociations) Preload() bool {
 // StringGetAssociations provides a mock function with given fields:
 func (_m *QueryAssociations) StringGetAssociations() []string {
 	ret := _m.Called()
+
+	if len(ret) == 0 {
+		panic("no return value specified for StringGetAssociations")
+	}
 
 	var r0 []string
 	if rf, ok := ret.Get(0).(func() []string); ok {

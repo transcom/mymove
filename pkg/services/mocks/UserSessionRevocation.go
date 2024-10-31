@@ -26,6 +26,10 @@ type UserSessionRevocation struct {
 func (_m *UserSessionRevocation) RevokeUserSession(appCtx appcontext.AppContext, id uuid.UUID, payload *adminmessages.UserUpdate, sessionManagers auth.AppSessionManagers) (*models.User, *validate.Errors, error) {
 	ret := _m.Called(appCtx, id, payload, sessionManagers)
 
+	if len(ret) == 0 {
+		panic("no return value specified for RevokeUserSession")
+	}
+
 	var r0 *models.User
 	var r1 *validate.Errors
 	var r2 error

@@ -56,4 +56,9 @@ export default {
   deleteMovingExpense: 'deleteMovingExpense', // internal.yaml
   submitPPMShipmentDocumentation: 'submitPPMShipmentDocumentation', // internal.yaml
   finishDocumentReview: 'finishDocumentReview', // ghc.yaml
+  getMove: 'getMove', // ghc.yaml
+  createSITExtension: 'createSITExtension', // prime.yaml
+  patchMove: 'patchMove', // internal.yaml
+  uploadAdditionalDocuments: 'uploadAdditionalDocuments', // internal.yaml
+  createOrder: 'createOrder', // ghc.yaml
 };

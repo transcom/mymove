@@ -81,17 +81,6 @@ describe('DodInfoForm component', () => {
     });
   });
 
-  it('implements the onBack handler when the Back button is clicked', async () => {
-    const { getByRole } = render(<DodInfoForm {...testProps} />);
-    const backBtn = getByRole('button', { name: 'Back' });
-
-    await userEvent.click(backBtn);
-
-    await waitFor(() => {
-      expect(testProps.onBack).toHaveBeenCalled();
-    });
-  });
-
   describe('Coast Guard Customers', () => {
     it('shows an error message if EMPLID not present ', async () => {
       const { getByRole, getAllByTestId, getByLabelText } = render(<DodInfoForm {...coastGuardTestProps} />);

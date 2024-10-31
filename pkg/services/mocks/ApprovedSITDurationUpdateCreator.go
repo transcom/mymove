@@ -20,6 +20,10 @@ type ApprovedSITDurationUpdateCreator struct {
 func (_m *ApprovedSITDurationUpdateCreator) CreateApprovedSITDurationUpdate(appCtx appcontext.AppContext, sitDurationUpdate *models.SITDurationUpdate, shipmentID uuid.UUID, eTag string) (*models.MTOShipment, error) {
 	ret := _m.Called(appCtx, sitDurationUpdate, shipmentID, eTag)
 
+	if len(ret) == 0 {
+		panic("no return value specified for CreateApprovedSITDurationUpdate")
+	}
+
 	var r0 *models.MTOShipment
 	var r1 error
 	if rf, ok := ret.Get(0).(func(appcontext.AppContext, *models.SITDurationUpdate, uuid.UUID, string) (*models.MTOShipment, error)); ok {

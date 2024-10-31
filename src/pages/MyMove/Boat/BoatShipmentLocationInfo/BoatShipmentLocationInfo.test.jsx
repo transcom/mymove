@@ -23,6 +23,11 @@ jest.mock('react-router-dom', () => ({
   useParams: () => ({ moveId: mockMoveId, mtoShipmentId: mockMTOShipmentId }),
 }));
 
+jest.mock('utils/featureFlags', () => ({
+  ...jest.requireActual('utils/featureFlags'),
+  isBooleanFlagEnabled: jest.fn().mockImplementation(() => Promise.resolve(false)),
+}));
+
 const shipmentEditPath = generatePath(customerRoutes.SHIPMENT_EDIT_PATH, {
   moveId: mockMoveId,
   mtoShipmentId: mockMTOShipmentId,
