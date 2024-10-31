@@ -494,6 +494,9 @@ export class Summary extends Component {
             originDutyLocationName={currentOrders.origin_duty_location.name}
             orderId={currentOrders.id}
             counselingOfficeName={currentMove.counselingOffice?.name || ''}
+            accompaniedTour={currentOrders.entitlement?.accompanied_tour}
+            dependentsUnderTwelve={currentOrders.entitlement?.dependents_under_twelve}
+            dependentsTwelveAndOver={currentOrders.entitlement?.dependents_twelve_and_over}
           />
         </SectionWrapper>
         {thirdSectionHasContent && (
