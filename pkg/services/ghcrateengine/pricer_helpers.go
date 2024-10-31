@@ -518,17 +518,13 @@ func compoundEscalationFactors(appCtx appcontext.AppContext, contractID uuid.UUI
 
 	// A contract may have Option Year 3 but it is not guaranteed. Need to know if it does or not
 	contractsYearsFromDBMap := make(map[string]models.ReContractYear)
-	hasOptionYear3 := false
 	for _, contract := range contractYearsFromDB {
-		if contract.Name == models.OptionPeriod3 {
-			hasOptionYear3 = true
-		}
 		// Add re_contract_years record to map
 		contractsYearsFromDBMap[contract.Name] = contract
 	}
 
 	// Get expectations for price escalations calculations
-	expectations := models.GetExpectedEscalationPriceContractsCount(contractYear.Name, hasOptionYear3)
+	expectations := models.GetExpectedEscalationPriceContractsCount(contractYear.Name)
 
 	// Adding contracts that are expected to be in the calculations based on the contract year to a map
 	contractYearsForCalculation := make(map[string]models.ReContractYear)
