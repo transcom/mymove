@@ -255,7 +255,7 @@ func (s SSWPPMComputer) FormatValuesShipmentSummaryWorksheetFormPage1(data model
 	}
 
 	// Fill out form fields related to Actual Expense Reimbursement status
-	if data.PPMShipment.IsActualExpenseReimbursement != nil {
+	if data.PPMShipment.IsActualExpenseReimbursement == models.BoolPointer(true) {
 		page1.IsActualExpenseReimbursement = *data.PPMShipment.IsActualExpenseReimbursement
 		page1.GCCIsActualExpenseReimbursement = "Actual Expense Reimbursement"
 	}
@@ -326,7 +326,7 @@ func (s *SSWPPMComputer) FormatValuesShipmentSummaryWorksheetFormPage2(data mode
 	page2.PPPOPPSORepresentative = certificationInfo.OfficeField
 	page2.SignatureDate = certificationInfo.DateField
 
-	if data.PPMShipment.IsActualExpenseReimbursement != nil {
+	if data.PPMShipment.IsActualExpenseReimbursement == models.BoolPointer(true) {
 		page2.IncentiveIsActualExpenseReimbursement = "Actual Expense Reimbursement"
 		page2.HeaderIsActualExpenseReimbursement = `This PPM is being processed at actual expense reimbursement for valid expenses not to exceed the
 		government constructed cost (GCC).`
