@@ -1,26 +1,8 @@
-<p>*** DO NOT REPLY directly to this email ***</p>
-<p>This is a confirmation that your Personally Procured Move (PPM) with the <strong>assigned move code {{.Locator}}</strong> from <strong>{{if and .OriginCity .OriginState .DestinationCity .DestinationState}}{{.OriginCity}}, {{.OriginState}}</strong> to <strong>{{.DestinationCity}}, {{.DestinationState}}</strong> {{else}}{{.OriginZIP}}</strong> to <strong>{{.DestinationZIP}}</strong> {{end}}has been processed in MilMove.</p>
+<p>{{.MessageOpening}}</p>
+<p>{{.MessageConfirmation}}</p>
 {{if eq .IsActualExpenseReimbursement "true"}}
-<p>Please Note: Your PPM has been designated as Actual Expense Reimbursement. This is the standard entitlement for Civilian employees. For uniformed Service Members, your PPM may have been designated as Actual Expense Reimbursement due to failure to receive authorization prior to movement or failure to obtain certified weight tickets. Actual Expense Reimbursement means reimbursement for expenses not to exceed the Government Constructed Cost (GCC).</p>
+<p>{{.MessageAER}}</p>
 {{end}}
-<h4>Next steps:</h4>
-{{if eq .ServiceBranch "Marine Corps, Navy, and Coast Guard"}}
-<p>For Marine Corps, Navy, and Coast Guard personnel:</p>
-<p>You can now log into MilMove <a href="{{.MyMoveLink}}">{{.MyMoveLink}}</a> and view your payment packet; however, you do not need to forward your payment packet to finance as your closeout location is associated with your finance office and they will handle this step for you.</p>
-<p>Note: Not all claimed expenses may have been accepted during PPM closeout if they did not meet the definition of a valid expense.</p>
-{{else}}
-<p>For {{.ServiceBranch}} personnel (FURTHER ACTION REQUIRED):</p>
-{{if eq .ServiceBranch "Army"}}<p>Log in to SmartVoucher at <a href="{{.SmartVoucherLink}}">{{.SmartVoucherLink}}</a> using your CAC or myPay username and password. This will allow you to edit your voucher, and complete and sign DD Form 1351-2.</p>{{end}}
-{{if ne .ServiceBranch "Army"}}
-<p>You can now log into MilMove <a href="{{.MyMoveLink}}">{{.MyMoveLink}}</a> and download your payment packet to submit to {{.SubmitLocation}}. <strong>You must complete this step to receive final settlement of your PPM.</strong></p>
-{{if eq .ServiceBranch "Air Force and Space Force"}}<p>Note: The Transportation Office does not determine claimable expenses. Claimable expenses will be determined by finance.</p>{{end}}{{if eq .ServiceBranch "Army"}}<p>Note: Not all claimed expenses may have been accepted during PPM closeout if they did not meet the definition of a valid expense.</p>
-{{end}}
-<p>Please be advised, your local finance office may require a DD Form 1351-2 to process payment. You can obtain a copy of this form by utilizing the search feature at <a href="{{.WashingtonHQServicesLink}}">{{.WashingtonHQServicesLink}}</a>.</p>{{end}}{{end}}
-<p>If you have any questions, contact a government transportation office. You can see a listing of transportation offices on Military One Source here: <a href="{{.OneSourceTransportationOfficeLink}}">{{.OneSourceTransportationOfficeLink}}</a></p>
-<p>Thank you,</p>
-<p>USTRANSCOM MilMove Team</p>
-<p>
-  The information contained in this email may contain Privacy Act information and is therefore protected under the
-  Privacy Act of 1974.  Failure to protect Privacy Act information could result in a $5,000 fine.
-</p>
-
+<p>Next steps:<br>
+{{.MessageBranchCondition}}</p>
+<p>{{.MessageClosing}}</p>

@@ -26,15 +26,6 @@ var destinationAddressModel = models.Address{
 	PostalCode:     "33040",
 }
 
-var affiliationDisplayValue = map[models.ServiceMemberAffiliation]string{
-	models.AffiliationARMY:       "Army",
-	models.AffiliationNAVY:       "Marine Corps, Navy, and Coast Guard",
-	models.AffiliationMARINES:    "Marine Corps, Navy, and Coast Guard",
-	models.AffiliationAIRFORCE:   "Air Force and Space Force",
-	models.AffiliationSPACEFORCE: "Air Force and Space Force",
-	models.AffiliationCOASTGUARD: "Marine Corps, Navy, and Coast Guard",
-}
-
 var armySubmitLocation = `the Defense Finance and Accounting Service (DFAS)`
 var allOtherSubmitLocation = `your local finance office`
 
@@ -114,7 +105,7 @@ func (suite *NotificationSuite) TestPpmPacketEmailHTMLTemplateRenderForAirAndSpa
 		DestinationState:                  &destinationAddress.State,
 		DestinationZIP:                    &destinationAddress.PostalCode,
 		SubmitLocation:                    allOtherSubmitLocation,
-		ServiceBranch:                     affiliationDisplayValue[*serviceMember.Affiliation],
+		ServiceBranch:                     GetAffiliationDisplayValues()[*serviceMember.Affiliation],
 		Locator:                           move.Locator,
 		IsActualExpenseReimbursement:      notification.ConvertBoolToString(ppmShipment.IsActualExpenseReimbursement),
 		OneSourceTransportationOfficeLink: OneSourceTransportationOfficeLink,
@@ -188,7 +179,7 @@ func (suite *NotificationSuite) TestPpmPacketEmailHTMLTemplateRenderForArmy() {
 		DestinationState:                  &destinationAddress.State,
 		DestinationZIP:                    &destinationAddress.PostalCode,
 		SubmitLocation:                    armySubmitLocation,
-		ServiceBranch:                     affiliationDisplayValue[*serviceMember.Affiliation],
+		ServiceBranch:                     GetAffiliationDisplayValues()[*serviceMember.Affiliation],
 		Locator:                           move.Locator,
 		IsActualExpenseReimbursement:      notification.ConvertBoolToString(ppmShipment.IsActualExpenseReimbursement),
 		OneSourceTransportationOfficeLink: OneSourceTransportationOfficeLink,
@@ -261,7 +252,7 @@ func (suite *NotificationSuite) TestPpmPacketEmailHTMLTemplateRenderForNavalBran
 		DestinationState:                  &destinationAddress.State,
 		DestinationZIP:                    &destinationAddress.PostalCode,
 		SubmitLocation:                    allOtherSubmitLocation,
-		ServiceBranch:                     affiliationDisplayValue[*serviceMember.Affiliation],
+		ServiceBranch:                     GetAffiliationDisplayValues()[*serviceMember.Affiliation],
 		Locator:                           move.Locator,
 		IsActualExpenseReimbursement:      notification.ConvertBoolToString(ppmShipment.IsActualExpenseReimbursement),
 		OneSourceTransportationOfficeLink: OneSourceTransportationOfficeLink,

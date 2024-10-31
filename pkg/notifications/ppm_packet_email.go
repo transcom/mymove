@@ -21,6 +21,90 @@ var (
 	ppmPacketEmailHTMLTemplate = html.Must(html.New("text_template").Parse(ppmPacketEmailRawHTML))
 )
 
+func formatMessageConfirmation(locator, pickupCity, pickupState, destinationCity, destinationState string) string {
+	return fmt.Sprintf("This is a confirmation that your Personally Procured Move (PPM) with the assigned move code %s from %s, %s to %s, %s has been processed in MilMove.",
+		locator,
+		pickupCity,
+		pickupState,
+		destinationCity,
+		destinationState,
+	)
+}
+
+var templateShouldBeHTML = true
+
+func formatMessageOpeningBranchCondition(branch, submitLocation string) string {
+	switch branch {
+	case GetAffiliationDisplayValues()[models.AffiliationMARINES],
+		GetAffiliationDisplayValues()[models.AffiliationCOASTGUARD],
+		GetAffiliationDisplayValues()[models.AffiliationNAVY]:
+		if !templateShouldBeHTML {
+			return "For Marine Corps, Navy, and Coast Guard personnel:\n\nYou can now log into MilMove <" + MyMoveLink + "> " +
+				"and view your payment packet; however, you do not need to forward your payment packet to finance as your closeout " +
+				"location is associated with your finance office and they will handle this step for you.\n\nNote: Not all claimed " +
+				"expenses may have been accepted during PPM closeout if they did not meet the definition of a valid expense."
+		}
+
+		return "For Marine Corps, Navy, and Coast Guard personnel:</p><p>You can now log into MilMove <a href=\" " + MyMoveLink + "\">" + MyMoveLink + "</a> " +
+			"and view your payment packet; however, you do not need to forward your payment packet to finance as your closeout " +
+			"location is associated with your finance office and they will handle this step for you.</p><p>Note: Not all claimed " +
+			"expenses may have been accepted during PPM closeout if they did not meet the definition of a valid expense."
+	case GetAffiliationDisplayValues()[models.AffiliationARMY]:
+		if !templateShouldBeHTML {
+			return "For Army personnel (FURTHER ACTION REQUIRED):\n\nLog in to " +
+				"SmartVoucher at " + SmartVoucherLink + " using your CAC or myPay username and password. This will allow you to edit " +
+				"your voucher, and complete and sign DD Form 1351-2.\n\nPlease be advised, your local finance office may require a DD " +
+				"Form 1351-2 to process payment. You can obtain a copy of this form by utilizing the search feature at " + WashingtonHQServicesLink + "."
+		}
+
+		return "For Army personnel (FURTHER ACTION REQUIRED):</p><p>Log in to " +
+			"SmartVoucher at <a href=\"" + SmartVoucherLink + "\">" + SmartVoucherLink + "</a> using your CAC or myPay username and password. This will allow you to edit " +
+			"your voucher, and complete and sign DD Form 1351-2.</p><p>Please be advised, your local finance office may require a DD " +
+			"Form 1351-2 to process payment. You can obtain a copy of this form by utilizing the search feature at <a href=\"" + WashingtonHQServicesLink + "\">" + WashingtonHQServicesLink + "</a>."
+	case GetAffiliationDisplayValues()[models.AffiliationAIRFORCE], GetAffiliationDisplayValues()[models.AffiliationSPACEFORCE]:
+		if !templateShouldBeHTML {
+			return "For Air Force and Space Force personnel (FURTHER ACTION REQUIRED):\n\nYou can now log into MilMove <" + MyMoveLink +
+				"> and download your payment packet to submit to " + submitLocation + ". You must complete this step to receive final " +
+				"settlement of your PPM.\n\nNote: The Transportation Office does not determine claimable expenses. Claimable expenses " +
+				"will be determined by finance.\n\nNote: Not all claimed expenses may have been accepted during PPM closeout if they " +
+				"did not meet the definition of a valid expense.\n\nPlease be advised, your local finance office may require a DD Form 1351-2 " +
+				"to process payment. You can obtain a copy of this form by utilizing the search feature at " + WashingtonHQServicesLink + "."
+		}
+
+		return "For Air Force and Space Force personnel (FURTHER ACTION REQUIRED):</p><p>You can now log into MilMove <a href=\"" + MyMoveLink + "\">" + MyMoveLink +
+			"</a> and download your payment packet to submit to " + submitLocation + ". You must complete this step to receive final " +
+			"settlement of your PPM.</p><p>Note: The Transportation Office does not determine claimable expenses. Claimable expenses " +
+			"will be determined by finance.</p><p>Note: Not all claimed expenses may have been accepted during PPM closeout if they " +
+			"did not meet the definition of a valid expense.</p><p>Please be advised, your local finance office may require a DD Form 1351-2 " +
+			"to process payment. You can obtain a copy of this form by utilizing the search feature at <a href=\"" + WashingtonHQServicesLink + "\">" + WashingtonHQServicesLink + "</a>."
+	}
+
+	return ""
+}
+
+func formatMessageClosing() string {
+	if !templateShouldBeHTML {
+		return "If you have any questions, contact a government transportation office. You can see a listing of transportation " +
+			"offices on Military One Source here: " + OneSourceTransportationOfficeLink + "\n\n" +
+			"Thank you,\nUSTRANSCOM MilMove Team\n\nThe information contained in this email may contain Privacy Act information " +
+			"and is therefore protected under the Privacy Act of 1974.  Failure to protect Privacy Act information could result in a $5,000 fine."
+	}
+
+	return "If you have any questions, contact a government transportation office. You can see a listing of transportation " +
+		"offices on Military One Source here: " + OneSourceTransportationOfficeLink + "</p><p>" +
+		"Thank you,<br>USTRANSCOM MilMove Team</p><p>The information contained in this email may contain Privacy Act information " +
+		"and is therefore protected under the Privacy Act of 1974.  Failure to protect Privacy Act information could result in a $5,000 fine."
+}
+
+const (
+	MessageDoNotReply                 = "*** DO NOT REPLY directly to this email ***"
+	MessageActualExpenseReimbursement = "Please Note: Your PPM has been designated as Actual Expense Reimbursement. " +
+		"This is the standard entitlement for Civilian employees. For uniformed Service Members, your PPM may have been " +
+		"designated as Actual Expense Reimbursement due to failure to receive authorization prior to movement or failure " +
+		"to obtain certified weight tickets. Actual Expense Reimbursement means reimbursement for expenses not to exceed " +
+		"the Government Constructed Cost (GCC)."
+)
+
 // PpmPacketEmail has notification content for approved moves
 type PpmPacketEmail struct {
 	ppmShipmentID uuid.UUID
@@ -45,6 +129,11 @@ type PpmPacketEmailData struct {
 	WashingtonHQServicesLink          string
 	MyMoveLink                        string
 	SmartVoucherLink                  string
+	MessageOpening                    string
+	MessageConfirmation               string
+	MessageBranchCondition            string
+	MessageClosing                    string
+	MessageAER                        string
 }
 
 // Used to get logging data from GetEmailData
@@ -145,15 +234,6 @@ func (p PpmPacketEmail) GetEmailData(appCtx appcontext.AppContext) (PpmPacketEma
 		submitLocation = `your local finance office`
 	}
 
-	var affiliationDisplayValue = map[models.ServiceMemberAffiliation]string{
-		models.AffiliationARMY:       "Army",
-		models.AffiliationNAVY:       "Marine Corps, Navy, and Coast Guard",
-		models.AffiliationMARINES:    "Marine Corps, Navy, and Coast Guard",
-		models.AffiliationAIRFORCE:   "Air Force and Space Force",
-		models.AffiliationSPACEFORCE: "Air Force and Space Force",
-		models.AffiliationCOASTGUARD: "Marine Corps, Navy, and Coast Guard",
-	}
-
 	// If address IDs are available for this PPM shipment, then do another query to get the city/state for origin and destination.
 	// Note: This is a conditional put in because this work was done before address_ids were added to the ppm_shipments table.
 	if ppmShipment.PickupAddressID != nil && ppmShipment.DestinationAddressID != nil {
@@ -175,13 +255,18 @@ func (p PpmPacketEmail) GetEmailData(appCtx appcontext.AppContext) (PpmPacketEma
 				DestinationState:                  &destinationAddress.State,
 				DestinationZIP:                    &destinationAddress.PostalCode,
 				SubmitLocation:                    submitLocation,
-				ServiceBranch:                     affiliationDisplayValue[*serviceMember.Affiliation],
+				ServiceBranch:                     GetAffiliationDisplayValues()[*serviceMember.Affiliation],
 				Locator:                           move.Locator,
 				IsActualExpenseReimbursement:      p.ConvertBoolToString(ppmShipment.IsActualExpenseReimbursement),
 				OneSourceTransportationOfficeLink: OneSourceTransportationOfficeLink,
 				WashingtonHQServicesLink:          WashingtonHQServicesLink,
 				MyMoveLink:                        MyMoveLink,
 				SmartVoucherLink:                  SmartVoucherLink,
+				MessageOpening:                    MessageDoNotReply,
+				MessageConfirmation:               formatMessageConfirmation(move.Locator, pickupAddress.City, pickupAddress.State, destinationAddress.City, destinationAddress.State),
+				MessageBranchCondition:            formatMessageOpeningBranchCondition(GetAffiliationDisplayValues()[*serviceMember.Affiliation], submitLocation),
+				MessageClosing:                    formatMessageClosing(),
+				MessageAER:                        MessageActualExpenseReimbursement,
 			},
 			LoggerData{
 				ServiceMember: *serviceMember,
@@ -195,13 +280,18 @@ func (p PpmPacketEmail) GetEmailData(appCtx appcontext.AppContext) (PpmPacketEma
 			OriginZIP:                         &ppmShipment.PickupAddress.PostalCode,
 			DestinationZIP:                    &ppmShipment.DestinationAddress.PostalCode,
 			SubmitLocation:                    submitLocation,
-			ServiceBranch:                     affiliationDisplayValue[*serviceMember.Affiliation],
+			ServiceBranch:                     GetAffiliationDisplayValues()[*serviceMember.Affiliation],
 			Locator:                           move.Locator,
 			IsActualExpenseReimbursement:      p.ConvertBoolToString(ppmShipment.IsActualExpenseReimbursement),
 			OneSourceTransportationOfficeLink: OneSourceTransportationOfficeLink,
 			WashingtonHQServicesLink:          WashingtonHQServicesLink,
 			MyMoveLink:                        MyMoveLink,
 			SmartVoucherLink:                  SmartVoucherLink,
+			MessageOpening:                    MessageDoNotReply,
+			MessageConfirmation:               formatMessageConfirmation(move.Locator, ppmShipment.PickupAddress.City, ppmShipment.PickupAddress.State, ppmShipment.DestinationAddress.City, ppmShipment.DestinationAddress.State),
+			MessageBranchCondition:            formatMessageOpeningBranchCondition(GetAffiliationDisplayValues()[*serviceMember.Affiliation], submitLocation),
+			MessageClosing:                    formatMessageClosing(),
+			MessageAER:                        MessageActualExpenseReimbursement,
 		},
 		LoggerData{
 			ServiceMember: *serviceMember,
