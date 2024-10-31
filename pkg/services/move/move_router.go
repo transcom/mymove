@@ -168,6 +168,22 @@ func (router moveRouter) needsServiceCounseling(appCtx appcontext.AppContext, mo
 
 // sendToServiceCounselor makes the move available for a Service Counselor to review
 func (router moveRouter) sendToServiceCounselor(appCtx appcontext.AppContext, move *models.Move) error {
+	var orders models.Order
+	err := appCtx.DB().Q().
+		Where("orders.id = ?", move.OrdersID).
+		First(&orders)
+
+	if err != nil {
+		switch err {
+		case sql.ErrNoRows:
+			appCtx.Logger().Error("failure finding move", zap.Error(err))
+			return apperror.NewNotFoundError(move.OrdersID, "looking for move.OrdersID")
+		default:
+			appCtx.Logger().Error("failure encountered querying for orders associated with the move", zap.Error(err))
+			return apperror.NewQueryError("Order", err, fmt.Sprintf("failure encountered querying for orders associated with the move, %s, id: %s", err.Error(), move.ID))
+		}
+	}
+
 	if move.Status == models.MoveStatusNeedsServiceCounseling {
 		return nil
 	}
@@ -186,6 +202,7 @@ func (router moveRouter) sendToServiceCounselor(appCtx appcontext.AppContext, mo
 		)
 	}
 
+	isCivilian := orders.Grade != nil && *orders.Grade == models.ServiceMemberGradeCIVILIANEMPLOYEE
 	move.Status = models.MoveStatusNeedsServiceCounseling
 	now := time.Now()
 	move.SubmittedAt = &now
@@ -195,6 +212,8 @@ func (router moveRouter) sendToServiceCounselor(appCtx appcontext.AppContext, mo
 		if move.MTOShipments[i].ShipmentType == models.MTOShipmentTypePPM {
 			move.MTOShipments[i].Status = models.MTOShipmentStatusSubmitted
 			move.MTOShipments[i].PPMShipment.Status = models.PPMShipmentStatusSubmitted
+			// actual expense reimbursement is always true for civilian moves
+			move.MTOShipments[i].PPMShipment.IsActualExpenseReimbursement = models.BoolPointer(isCivilian)
 
 			if verrs, err := appCtx.DB().ValidateAndUpdate(&move.MTOShipments[i]); verrs.HasAny() || err != nil {
 				msg := "failure saving shipment when routing move submission"
