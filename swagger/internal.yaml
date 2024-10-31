@@ -1807,8 +1807,6 @@ definitions:
       HHG: HHG
       HHG_INTO_NTS_DOMESTIC: NTS
       HHG_OUTOF_NTS_DOMESTIC: NTS Release
-      INTERNATIONAL_HHG: International HHG
-      INTERNATIONAL_UB: International UB
       PPM: PPM
       BOAT_HAUL_AWAY: Boat Haul-Away
       BOAT_TOW_AWAY: Boat Tow-Away

@@ -3,7 +3,6 @@ package testingsuite
 import (
 	"testing"
 
-	"github.com/gofrs/uuid"
 	"github.com/stretchr/testify/suite"
 
 	"github.com/transcom/mymove/pkg/factory"
@@ -104,44 +103,20 @@ func (suite *PreloadedPopSuite) SetupTest() {
 
 }
 
-func (suite *PreloadedPopSuite) SetupSuite() {
-
-	suite.PreloadData(func() {
-		// Loads some data into database
-		// ReServiceCodeCS
-		factory.BuildReService(suite.DB(), []factory.Customization{
-			{Model: suite.ReServices[0]},
-		}, nil)
-
-		// ReServiceCodeMS
-		factory.BuildReService(suite.DB(), []factory.Customization{
-			{Model: suite.ReServices[1]},
-		}, nil)
-
-		// ReServiceCodeDCRT
-		factory.BuildReService(suite.DB(), []factory.Customization{
-			{Model: suite.ReServices[2]},
-		}, nil)
-	})
-
-}
-
 func (suite *PreloadedPopSuite) TearDownSuite() {
 	suite.PopTestSuite.TearDown()
 }
 
 func TestPreloadedPopSuite(t *testing.T) {
+
 	reservices := []models.ReService{
 		{
-			ID:   uuid.Must(uuid.NewV4()),
 			Code: models.ReServiceCodeCS,
 		},
 		{
-			ID:   uuid.Must(uuid.NewV4()),
 			Code: models.ReServiceCodeMS,
 		},
 		{
-			ID:   uuid.Must(uuid.NewV4()),
 			Code: models.ReServiceCodeDCRT,
 		},
 	}
@@ -164,28 +139,22 @@ func (suite *PreloadedPopSuite) TestRunAlt() {
 
 		var foundReService models.ReService
 		for _, reservice := range suite.ReServices {
-			err := suite.DB().Find(&foundReService, reservice.ID)
+			err := suite.DB().Where("code = $1", reservice.Code).First(&foundReService)
 			suite.NoError(err, "Reservice %s not found", reservice.Code)
 		}
 		// Add a DUCRT ReService, this should not exist outside this subtest
-		factory.BuildReServiceByCode(suite.DB(), models.ReServiceCodeDUCRT)
+		factory.FetchReServiceByCode(suite.DB(), models.ReServiceCodeDUCRT)
 
 	})
 	suite.Run("Run a test to check that subtests are isolated", func() {
 		// Under test:       suite.PreloadData
 		// Set up:           This suite has preloaded data in the SetupSuite function
 		// Expected outcome: The 3 preloaded reService items are found in the database
-		//                   The one new reService added in the subtest above is NOT found
 		var foundReService models.ReService
 		for _, reservice := range suite.ReServices {
-			err := suite.DB().Find(&foundReService, reservice.ID)
+			err := suite.DB().Where("code = $1", reservice.Code).First(&foundReService)
 			suite.NoError(err, "Reservice %s not found", reservice.Code)
 		}
-
-		var foundReServices []models.ReService
-		err := suite.DB().Where("code = ?", models.ReServiceCodeDUCRT).All(&foundReServices)
-		suite.NoError(err)
-		suite.Len(foundReServices, 0)
 	})
 
 }
@@ -195,19 +164,13 @@ func (suite *PreloadedPopSuite) TestRunAltAgain() {
 		// Under test:       suite.PreloadData
 		// Set up:           This suite has preloaded data in the SetupSuite function
 		// Expected outcome: The 3 preloaded reService items are found in the database
-		//                   The one new reService added in the other test in this suite is NOT found
 
 		// Reason for a second test is to ensure they don't accidentally get cleaned up between tests
 		var foundReService models.ReService
 		for _, reservice := range suite.ReServices {
-			err := suite.DB().Find(&foundReService, reservice.ID)
+			err := suite.DB().Where("code = $1", reservice.Code).First(&foundReService)
 			suite.NoError(err, "Reservice %s not found", reservice.Code)
 
 		}
-
-		var foundReServices []models.ReService
-		err := suite.DB().Where("code = ?", models.ReServiceCodeDUCRT).All(&foundReServices)
-		suite.NoError(err)
-		suite.Len(foundReServices, 0)
 	})
 }
