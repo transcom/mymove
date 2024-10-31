@@ -16,6 +16,7 @@ import (
 	"github.com/transcom/mymove/pkg/gen/ghcmessages"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/models/roles"
 	"github.com/transcom/mymove/pkg/services"
 	mtoshipment "github.com/transcom/mymove/pkg/services/mto_shipment"
 	"github.com/transcom/mymove/pkg/storage"
@@ -909,6 +910,7 @@ func PPMShipment(_ storage.FileStorer, ppmShipment *models.PPMShipment) *ghcmess
 		SitEstimatedEntryDate:          handlers.FmtDatePtr(ppmShipment.SITEstimatedEntryDate),
 		SitEstimatedDepartureDate:      handlers.FmtDatePtr(ppmShipment.SITEstimatedDepartureDate),
 		SitEstimatedCost:               handlers.FmtCost(ppmShipment.SITEstimatedCost),
+		IsActualExpenseReimbursement:   ppmShipment.IsActualExpenseReimbursement,
 		ETag:                           etag.GenerateEtag(ppmShipment.UpdatedAt),
 	}
 
@@ -940,6 +942,10 @@ func PPMShipment(_ storage.FileStorer, ppmShipment *models.PPMShipment) *ghcmess
 
 	if ppmShipment.TertiaryDestinationAddress != nil {
 		payloadPPMShipment.TertiaryDestinationAddress = Address(ppmShipment.TertiaryDestinationAddress)
+	}
+
+	if ppmShipment.IsActualExpenseReimbursement != nil {
+		payloadPPMShipment.IsActualExpenseReimbursement = ppmShipment.IsActualExpenseReimbursement
 	}
 
 	return payloadPPMShipment
@@ -2052,14 +2058,16 @@ func QueueAvailableOfficeUsers(officeUsers []models.OfficeUser) *ghcmessages.Ava
 }
 
 // QueueMoves payload
-func QueueMoves(moves []models.Move, officeUsers []models.OfficeUser) *ghcmessages.QueueMoves {
+func QueueMoves(moves []models.Move, officeUsers []models.OfficeUser, requestedPpmStatus *models.PPMShipmentStatus, role roles.RoleType, officeUser models.OfficeUser, isSupervisor bool) *ghcmessages.QueueMoves {
 	queueMoves := make(ghcmessages.QueueMoves, len(moves))
 	for i, move := range moves {
 		customer := move.Orders.ServiceMember
 
 		var transportationOffice string
+		var transportationOfficeId uuid.UUID
 		if move.CounselingOffice != nil {
 			transportationOffice = move.CounselingOffice.Name
+			transportationOfficeId = move.CounselingOffice.ID
 		}
 		var validMTOShipments []models.MTOShipment
 		var earliestRequestedPickup *time.Time
@@ -2102,7 +2110,13 @@ func QueueMoves(moves []models.Move, officeUsers []models.OfficeUser) *ghcmessag
 		var ppmStatus models.PPMShipmentStatus
 		for _, shipment := range move.MTOShipments {
 			if shipment.PPMShipment != nil {
-				ppmStatus = shipment.PPMShipment.Status
+				if requestedPpmStatus != nil {
+					if shipment.PPMShipment.Status == *requestedPpmStatus {
+						ppmStatus = shipment.PPMShipment.Status
+					}
+				} else {
+					ppmStatus = shipment.PPMShipment.Status
+				}
 				if shipment.PPMShipment.SubmittedAt != nil {
 					if closeoutInitiated.Before(*shipment.PPMShipment.SubmittedAt) {
 						closeoutInitiated = *shipment.PPMShipment.SubmittedAt
@@ -2133,8 +2147,56 @@ func QueueMoves(moves []models.Move, officeUsers []models.OfficeUser) *ghcmessag
 			LockExpiresAt:           handlers.FmtDateTimePtr(move.LockExpiresAt),
 			PpmStatus:               ghcmessages.PPMStatus(ppmStatus),
 			CounselingOffice:        &transportationOffice,
-			AssignedTo:              AssignedOfficeUser(move.SCAssignedUser),
-			AvailableOfficeUsers:    *QueueAvailableOfficeUsers(officeUsers),
+			CounselingOfficeID:      handlers.FmtUUID(transportationOfficeId),
+		}
+
+		if role == roles.RoleTypeServicesCounselor && move.SCAssignedUser != nil {
+			queueMoves[i].AssignedTo = AssignedOfficeUser(move.SCAssignedUser)
+		}
+		if role == roles.RoleTypeTOO && move.TOOAssignedUser != nil {
+			queueMoves[i].AssignedTo = AssignedOfficeUser(move.TOOAssignedUser)
+		}
+
+		// scenarios where a move is assinable:
+
+		// if it is unassigned, it is always assignable
+		isAssignable := false
+		if queueMoves[i].AssignedTo == nil {
+			isAssignable = true
+		}
+
+		// in TOO queues, all moves are assignable for supervisor users
+		if role == roles.RoleTypeTOO && isSupervisor {
+			isAssignable = true
+		}
+
+		// if it is assigned in the SCs queue
+		// it is only assignable if the user is a supervisor
+		// and if the move's counseling office is the supervisor's transportation office
+		if role == roles.RoleTypeServicesCounselor && isSupervisor && move.CounselingOfficeID != nil && *move.CounselingOfficeID == officeUser.TransportationOfficeID {
+			isAssignable = true
+		}
+
+		queueMoves[i].Assignable = isAssignable
+
+		// only need to attach available office users if move is assignable
+		if queueMoves[i].Assignable {
+			availableOfficeUsers := officeUsers
+			if role == roles.RoleTypeServicesCounselor {
+				// if there is no counseling office
+				// OR if our current user doesn't work at the move's counseling office
+				// only available user should be themself
+				if (move.CounselingOfficeID == nil) || (move.CounselingOfficeID != nil && *move.CounselingOfficeID != officeUser.TransportationOfficeID) {
+					availableOfficeUsers = models.OfficeUsers{officeUser}
+				}
+
+				// if the office user currently assigned to move works outside of the logged in users counseling office
+				// add them to the set
+				if move.SCAssignedUser != nil && move.SCAssignedUser.TransportationOfficeID != officeUser.TransportationOfficeID {
+					availableOfficeUsers = append(availableOfficeUsers, *move.SCAssignedUser)
+				}
+			}
+			queueMoves[i].AvailableOfficeUsers = *QueueAvailableOfficeUsers(availableOfficeUsers)
 		}
 	}
 	return &queueMoves
