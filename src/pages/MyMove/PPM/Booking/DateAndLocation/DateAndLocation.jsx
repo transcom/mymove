@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useDispatch } from 'react-redux';
-import { generatePath, useNavigate, useParams, useLocation } from 'react-router-dom';
+import { generatePath, useNavigate, useParams, useLocation, Link } from 'react-router-dom';
 import { GridContainer, Grid, Alert } from '@trussworks/react-uswds';
 
 import { isBooleanFlagEnabled } from '../../../../../utils/featureFlags';
@@ -12,7 +12,7 @@ import { customerRoutes, generalRoutes } from 'constants/routes';
 import { shipmentTypes } from 'constants/shipments';
 import ppmPageStyles from 'pages/MyMove/PPM/PPM.module.scss';
 import { createMTOShipment, getAllMoves, patchMove, patchMTOShipment } from 'services/internalApi';
-import { SHIPMENT_OPTIONS } from 'shared/constants';
+import { SHIPMENT_OPTIONS, technicalHelpDeskURL } from 'shared/constants';
 import { formatDateForSwagger } from 'shared/dates';
 import { updateMTOShipment, updateMove, updateAllMoves } from 'store/entities/actions';
 import { DutyLocationShape } from 'types';
@@ -24,6 +24,7 @@ import { formatAddressForAPI } from 'utils/formatMtoShipment';
 
 const DateAndLocation = ({ mtoShipment, serviceMember, destinationDutyLocation, move }) => {
   const [errorMessage, setErrorMessage] = useState(null);
+  const [errorCode, setErrorCode] = useState(null);
   const [multiMove, setMultiMove] = useState(false);
   const navigate = useNavigate();
   const { moveId } = useParams();
@@ -38,6 +39,7 @@ const DateAndLocation = ({ mtoShipment, serviceMember, destinationDutyLocation, 
     serviceMember.affiliation === SERVICE_MEMBER_AGENCIES.AIR_FORCE ||
     serviceMember.affiliation === SERVICE_MEMBER_AGENCIES.SPACE_FORCE;
   const isNewShipment = !mtoShipment?.id;
+  const isCivilian = move.orders?.grade === 'CIVILIAN_EMPLOYEE';
 
   useEffect(() => {
     isBooleanFlagEnabled('multi_move').then((enabled) => {
@@ -71,6 +73,17 @@ const DateAndLocation = ({ mtoShipment, serviceMember, destinationDutyLocation, 
     );
   };
 
+  const handleSetError = (error, defaultError) => {
+    if (error?.response?.body?.detail !== null && error?.response?.body?.detail !== undefined) {
+      if (error?.statusCode !== null && error?.statusCode !== undefined) {
+        setErrorCode(error.statusCode);
+      }
+      setErrorMessage(`${error?.response?.body.detail}`);
+    } else {
+      setErrorMessage(defaultError);
+    }
+  };
+
   const handleSubmit = async (values, { setSubmitting }) => {
     setErrorMessage(null);
 
@@ -92,6 +105,7 @@ const DateAndLocation = ({ mtoShipment, serviceMember, destinationDutyLocation, 
         hasTertiaryDestinationAddress, // I think sending this is necessary so we know if the customer wants to clear their previously tertiary ZIPs, or we could send nulls for those fields.
         sitExpected: values.sitExpected === 'true',
         expectedDepartureDate: formatDateForSwagger(values.expectedDepartureDate),
+        isActualExpenseReimbursement: isCivilian,
       },
     };
 
@@ -139,9 +153,9 @@ const DateAndLocation = ({ mtoShipment, serviceMember, destinationDutyLocation, 
             onShipmentSaveSuccess(shipmentResponse, setSubmitting);
           }
         })
-        .catch(() => {
+        .catch((error) => {
           setSubmitting(false);
-          setErrorMessage('There was an error attempting to create your shipment.');
+          handleSetError(error, 'There was an error attempting to create your shipment.');
         });
     } else {
       createOrUpdateShipment.id = mtoShipment.id;
@@ -170,9 +184,9 @@ const DateAndLocation = ({ mtoShipment, serviceMember, destinationDutyLocation, 
             onShipmentSaveSuccess(shipmentResponse, setSubmitting);
           }
         })
-        .catch(() => {
+        .catch((error) => {
           setSubmitting(false);
-          setErrorMessage('There was an error attempting to update your shipment.');
+          handleSetError(error, 'There was an error attempting to update your shipment.');
         });
     }
   };
@@ -187,7 +201,17 @@ const DateAndLocation = ({ mtoShipment, serviceMember, destinationDutyLocation, 
             <h1>PPM date & location</h1>
             {errorMessage && (
               <Alert headingLevel="h4" slim type="error">
-                {errorMessage}
+                {errorCode === 400 ? (
+                  <p>
+                    {errorMessage} If the error persists, please try again later, or contact the&nbsp;
+                    <Link to={technicalHelpDeskURL} target="_blank" rel="noreferrer">
+                      Technical Help Desk
+                    </Link>
+                    .
+                  </p>
+                ) : (
+                  <p>{errorMessage}</p>
+                )}
               </Alert>
             )}
             <DateAndLocationForm

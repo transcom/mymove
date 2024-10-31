@@ -126,6 +126,7 @@ const ppmShipmentSchema = ({
         (isAdvancePage && ADVANCE_STATUSES[advanceStatus] === ADVANCE_STATUSES.REJECTED),
       then: (schema) => schema.required('Required'),
     }),
+    isActualExpenseReimbursement: Yup.boolean().required('Required'),
   });
 
   return formSchema;
