@@ -35,7 +35,7 @@ CancelMoveConfirmationModal.propTypes = {
 CancelMoveConfirmationModal.defaultProps = {
   title: 'Are you sure?',
   content:
-    'You’ll lose all the information in this move. If you want it back later, you’ll have to request a new move.',
+    'If you proceed with cancellation and later want to process a move request for these orders, you will have to start again with a new move.',
   submitText: 'Cancel move',
   closeText: 'Keep move',
 };
