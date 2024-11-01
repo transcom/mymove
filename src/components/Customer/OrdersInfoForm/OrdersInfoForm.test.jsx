@@ -5,6 +5,7 @@ import userEvent from '@testing-library/user-event';
 import OrdersInfoForm from './OrdersInfoForm';
 
 import { showCounselingOffices } from 'services/internalApi';
+import { ORDERS_TYPE, ORDERS_TYPE_OPTIONS } from 'constants/orders';
 
 jest.mock('services/internalApi', () => ({
   ...jest.requireActual('services/internalApi'),
@@ -164,8 +165,8 @@ const testProps = {
     { key: 'LOCAL_MOVE', value: 'Local Move' },
     { key: 'RETIREMENT', value: 'Retirement' },
     { key: 'SEPARATION', value: 'Separation' },
-    { key: 'EARLY_RETURN_OF_DEPENDENTS', value: 'Early Return of Dependents' },
-    { key: 'STUDENT_TRAVEL', value: 'Student Travel' },
+    { key: ORDERS_TYPE.EARLY_RETURN_OF_DEPENDENTS, value: ORDERS_TYPE_OPTIONS.EARLY_RETURN_OF_DEPENDENTS },
+    { key: ORDERS_TYPE.STUDENT_TRAVEL, value: ORDERS_TYPE_OPTIONS.STUDENT_TRAVEL },
   ],
 };
 
@@ -207,11 +208,11 @@ describe('OrdersInfoForm component', () => {
     await userEvent.selectOptions(ordersTypeDropdown, 'SEPARATION');
     expect(ordersTypeDropdown).toHaveValue('SEPARATION');
 
-    await userEvent.selectOptions(ordersTypeDropdown, 'EARLY_RETURN_OF_DEPENDENTS');
-    expect(ordersTypeDropdown).toHaveValue('EARLY_RETURN_OF_DEPENDENTS');
+    await userEvent.selectOptions(ordersTypeDropdown, ORDERS_TYPE.EARLY_RETURN_OF_DEPENDENTS);
+    expect(ordersTypeDropdown).toHaveValue(ORDERS_TYPE.EARLY_RETURN_OF_DEPENDENTS);
 
-    await userEvent.selectOptions(ordersTypeDropdown, 'STUDENT_TRAVEL');
-    expect(ordersTypeDropdown).toHaveValue('STUDENT_TRAVEL');
+    await userEvent.selectOptions(ordersTypeDropdown, ORDERS_TYPE.STUDENT_TRAVEL);
+    expect(ordersTypeDropdown).toHaveValue(ORDERS_TYPE.STUDENT_TRAVEL);
   });
 
   it('allows new and current duty location to be the same', async () => {
@@ -280,8 +281,8 @@ describe('OrdersInfoForm component', () => {
         { key: 'LOCAL_MOVE', value: 'Local Move' },
         { key: 'RETIREMENT', value: 'Retirement' },
         { key: 'SEPARATION', value: 'Separation' },
-        { key: 'EARLY_RETURN_OF_DEPENDENTS', value: 'Early Return of Dependents' },
-        { key: 'STUDENT_TRAVEL', value: 'Student Travel' },
+        { key: ORDERS_TYPE.EARLY_RETURN_OF_DEPENDENTS, value: ORDERS_TYPE_OPTIONS.EARLY_RETURN_OF_DEPENDENTS },
+        { key: ORDERS_TYPE.STUDENT_TRAVEL, value: ORDERS_TYPE_OPTIONS.STUDENT_TRAVEL },
       ],
     };
 
@@ -512,7 +513,7 @@ describe('OrdersInfoForm component', () => {
   it('has dependents is yes and disabled when order type is student travel', async () => {
     render(<OrdersInfoForm {...testProps} />);
 
-    await userEvent.selectOptions(screen.getByLabelText(/Orders type/), 'STUDENT_TRAVEL');
+    await userEvent.selectOptions(screen.getByLabelText(/Orders type/), ORDERS_TYPE.STUDENT_TRAVEL);
 
     const hasDependentsYes = screen.getByLabelText('Yes');
     const hasDependentsNo = screen.getByLabelText('No');
@@ -527,7 +528,7 @@ describe('OrdersInfoForm component', () => {
   it('has dependents is yes and disabled when order type is early return', async () => {
     render(<OrdersInfoForm {...testProps} />);
 
-    await userEvent.selectOptions(screen.getByLabelText(/Orders type/), 'EARLY_RETURN_OF_DEPENDENTS');
+    await userEvent.selectOptions(screen.getByLabelText(/Orders type/), ORDERS_TYPE.EARLY_RETURN_OF_DEPENDENTS);
 
     const hasDependentsYes = screen.getByLabelText('Yes');
     const hasDependentsNo = screen.getByLabelText('No');
@@ -556,7 +557,7 @@ describe('OrdersInfoForm component', () => {
     });
 
     // set order type to value that disables and defaults "has dependents"
-    await userEvent.selectOptions(screen.getByLabelText(/Orders type/), 'EARLY_RETURN_OF_DEPENDENTS');
+    await userEvent.selectOptions(screen.getByLabelText(/Orders type/), ORDERS_TYPE.EARLY_RETURN_OF_DEPENDENTS);
 
     // set order type to value the re-enables "has dependents"
     await userEvent.selectOptions(screen.getByLabelText(/Orders type/), 'LOCAL_MOVE');
