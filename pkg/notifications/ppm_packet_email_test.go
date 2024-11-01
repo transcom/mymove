@@ -112,10 +112,6 @@ func (suite *NotificationSuite) TestPpmPacketEmailHTMLTemplateRenderForAirAndSpa
 		WashingtonHQServicesLink:          WashingtonHQServicesLink,
 		MyMoveLink:                        MyMoveLink,
 		SmartVoucherLink:                  SmartVoucherLink,
-		MessageOpening:                    MessageDoNotReply,
-		MessageBranchCondition:            formatMessageOpeningBranchCondition(GetAffiliationDisplayValues()[*serviceMember.Affiliation], allOtherSubmitLocation),
-		MessageClosing:                    formatMessageClosing(),
-		MessageAER:                        MessageActualExpenseReimbursement,
 	})
 
 	expectedHTMLContent := "<p>*** DO NOT REPLY directly to this email ***</p>\n\n<p>This is a confirmation that your Personally Procured Move (PPM) with the assigned move code <b>" + move.Locator + "</b> from <b>" + pickupAddress.City + "</b>, <b>" + pickupAddress.State + "</b> to <b>" + destinationAddress.City + "</b>, <b>" + destinationAddress.State + "</b> has been processed in MilMove.</p>\n\n<p><b>Next steps:</b></p>\n\n<p>For Air Force and Space Force personnel (FURTHER ACTION REQUIRED):</p>\n\n<p>You can now log into MilMove &lt;https://my.move.mil/&gt; and download your payment packet to submit to your local finance office. You must complete this step to receive final settlement of your PPM.</p>\n\n<p>Note: The Transportation Office does not determine claimable expenses. Claimable expenses will be determined by finance.</p>\n\n<p>Please be advised, your local finance office may require a DD Form 1351-2 to process payment. You can obtain a copy of this form by utilizing the search feature at https://www.esd.whs.mil.</p>\n\n\n<p>If you have any questions, contact a government transportation office. You can see a listing of transportation offices on Military One Source here: https://installations.militaryonesource.mil/search?program-service=2/view-by=ALL</p>\n\n<p>Thank you,</p>\n\n<p>USTRANSCOM MilMove Team</p>\n\n<p>The information contained in this email may contain Privacy Act information and is therefore protected under the Privacy Act of 1974.  Failure to protect Privacy Act information could result in a $5,000 fine.</p>\n\n"
@@ -190,10 +186,6 @@ func (suite *NotificationSuite) TestPpmPacketEmailHTMLTemplateRenderForArmy() {
 		WashingtonHQServicesLink:          WashingtonHQServicesLink,
 		MyMoveLink:                        MyMoveLink,
 		SmartVoucherLink:                  SmartVoucherLink,
-		MessageOpening:                    MessageDoNotReply,
-		MessageBranchCondition:            formatMessageOpeningBranchCondition(GetAffiliationDisplayValues()[*serviceMember.Affiliation], armySubmitLocation),
-		MessageClosing:                    formatMessageClosing(),
-		MessageAER:                        MessageActualExpenseReimbursement,
 	})
 
 	expectedHTMLContent := "<p>*** DO NOT REPLY directly to this email ***</p>\n\n<p>This is a confirmation that your Personally Procured Move (PPM) with the assigned move code <b>" + move.Locator + "</b> from <b>" + pickupAddress.City + "</b>, <b>" + pickupAddress.State + "</b> to <b>" + destinationAddress.City + "</b>, <b>" + destinationAddress.State + "</b> has been processed in MilMove.</p>\n\n<p><b>Next steps:</b></p>\n\n<p>For Army personnel (FURTHER ACTION REQUIRED):</p>\n\n<p>Log in to SmartVoucher at https://smartvoucher.dfas.mil/ using your CAC or myPay username and password.</p>\n\n<p>This will allow you to edit your voucher, and complete and sign DD Form 1351-2.</p>\n\n<p>Note: Not all claimed expenses may have been accepted during PPM closeout if they did not meet the definition of a valid expense.</P<p>If you have any questions, contact a government transportation office. You can see a listing of transportation offices on Military One Source here: https://installations.militaryonesource.mil/search?program-service=2/view-by=ALL</p>\n\n<p>Thank you,</p>\n\n<p>USTRANSCOM MilMove Team</p>\n\n<p>The information contained in this email may contain Privacy Act information and is therefore protected under the Privacy Act of 1974.  Failure to protect Privacy Act information could result in a $5,000 fine.</p>\n\n"
@@ -267,10 +259,6 @@ func (suite *NotificationSuite) TestPpmPacketEmailHTMLTemplateRenderForNavalBran
 		WashingtonHQServicesLink:          WashingtonHQServicesLink,
 		MyMoveLink:                        MyMoveLink,
 		SmartVoucherLink:                  SmartVoucherLink,
-		MessageOpening:                    MessageDoNotReply,
-		MessageBranchCondition:            formatMessageOpeningBranchCondition(GetAffiliationDisplayValues()[*serviceMember.Affiliation], allOtherSubmitLocation),
-		MessageClosing:                    formatMessageClosing(),
-		MessageAER:                        MessageActualExpenseReimbursement,
 	})
 
 	expectedHTMLContent := "<p>*** DO NOT REPLY directly to this email ***</p>\n\n<p>This is a confirmation that your Personally Procured Move (PPM) with the assigned move code <b>" + move.Locator + "</b> from <b>" + pickupAddress.City + "</b>, <b>" + pickupAddress.State + "</b> to <b>" + destinationAddress.City + "</b>, <b>" + destinationAddress.State + "</b> has been processed in MilMove.</p>\n\n<p><b>Next steps:</b></p>\n\n<p>For Marine Corps, Navy, and Coast Guard personnel:&lt;br&gt;&lt;br&gt;You can now log into MilMove https://my.move.mil/ and view your payment packet; however, you do not need to forward your payment packet to finance as your closeout location is associated with your finance office and they will handle this step for you.</p>\n\n<p>Note: Not all claimed expenses may have been accepted during PPM closeout if they did not meet the definition of a valid expense.</p>\n\n<p>Please be advised, your local finance office may require a DD Form 1351-2 to process payment. You can obtain a copy of this form by utilizing the search feature at https://www.esd.whs.mil.</p>\n\n\n<p>If you have any questions, contact a government transportation office. You can see a listing of transportation offices on Military One Source here: https://installations.militaryonesource.mil/search?program-service=2/view-by=ALL</p>\n\n<p>Thank you,</p>\n\n<p>USTRANSCOM MilMove Team</p>\n\n<p>The information contained in this email may contain Privacy Act information and is therefore protected under the Privacy Act of 1974.  Failure to protect Privacy Act information could result in a $5,000 fine.</p>\n\n"

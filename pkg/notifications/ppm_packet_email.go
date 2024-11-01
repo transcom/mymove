@@ -21,54 +21,6 @@ var (
 	ppmPacketEmailHTMLTemplate = html.Must(html.New("text_template").Parse(ppmPacketEmailRawHTML))
 )
 
-func formatMessageOpeningBranchCondition(branch, submitLocation string) []string {
-	switch branch {
-	case GetAffiliationDisplayValues()[models.AffiliationMARINES],
-		GetAffiliationDisplayValues()[models.AffiliationCOASTGUARD],
-		GetAffiliationDisplayValues()[models.AffiliationNAVY]:
-		return []string{
-			"For Marine Corps, Navy, and Coast Guard personnel:",
-			"You can now log into MilMove " + MyMoveLink + " and view your payment packet; however, you do not need to forward your payment packet to finance as your closeout location is associated with your finance office and they will handle this step for you.",
-			"Note: Not all claimed expenses may have been accepted during PPM closeout if they did not meet the definition of a valid expense.",
-			"Please be advised, your local finance office may require a DD Form 1351-2 to process payment. You can obtain a copy of this form by utilizing the search feature at " + WashingtonHQServicesLink + ".",
-		}
-	case GetAffiliationDisplayValues()[models.AffiliationARMY]:
-		return []string{
-			"For Army personnel (FURTHER ACTION REQUIRED):",
-			"Log in to SmartVoucher at " + SmartVoucherLink + " using your CAC or myPay username and password.",
-			"This will allow you to edit your voucher, and complete and sign DD Form 1351-2.",
-			"Note: Not all claimed expenses may have been accepted during PPM closeout if they did not meet the definition of a valid expense.",
-		}
-	case GetAffiliationDisplayValues()[models.AffiliationAIRFORCE], GetAffiliationDisplayValues()[models.AffiliationSPACEFORCE]:
-		return []string{
-			"For Air Force and Space Force personnel (FURTHER ACTION REQUIRED):",
-			"You can now log into MilMove <" + MyMoveLink + "> and download your payment packet to submit to " + submitLocation + ". You must complete this step to receive final settlement of your PPM.",
-			"Note: The Transportation Office does not determine claimable expenses. Claimable expenses will be determined by finance.",
-			"Please be advised, your local finance office may require a DD Form 1351-2 to process payment. You can obtain a copy of this form by utilizing the search feature at " + WashingtonHQServicesLink + ".",
-		}
-	}
-
-	return []string{""}
-}
-
-func formatMessageClosing() []string {
-	return []string{
-		"If you have any questions, contact a government transportation office. You can see a listing of transportation offices on Military One Source here: " + OneSourceTransportationOfficeLink,
-		"Thank you,",
-		"USTRANSCOM MilMove Team",
-		"The information contained in this email may contain Privacy Act information and is therefore protected under the Privacy Act of 1974.  Failure to protect Privacy Act information could result in a $5,000 fine.",
-	}
-}
-
-const (
-	MessageDoNotReply                 = "*** DO NOT REPLY directly to this email ***"
-	MessageActualExpenseReimbursement = "Please Note: Your PPM has been designated as Actual Expense Reimbursement. " +
-		"This is the standard entitlement for Civilian employees. For uniformed Service Members, your PPM may have been " +
-		"designated as Actual Expense Reimbursement due to failure to receive authorization prior to movement or failure " +
-		"to obtain certified weight tickets. Actual Expense Reimbursement means reimbursement for expenses not to exceed " +
-		"the Government Constructed Cost (GCC)."
-)
-
 // PpmPacketEmail has notification content for approved moves
 type PpmPacketEmail struct {
 	ppmShipmentID uuid.UUID
@@ -93,10 +45,6 @@ type PpmPacketEmailData struct {
 	WashingtonHQServicesLink          string
 	MyMoveLink                        string
 	SmartVoucherLink                  string
-	MessageOpening                    string
-	MessageBranchCondition            []string
-	MessageClosing                    []string
-	MessageAER                        string
 }
 
 // Used to get logging data from GetEmailData
@@ -225,10 +173,6 @@ func (p PpmPacketEmail) GetEmailData(appCtx appcontext.AppContext) (PpmPacketEma
 				WashingtonHQServicesLink:          WashingtonHQServicesLink,
 				MyMoveLink:                        MyMoveLink,
 				SmartVoucherLink:                  SmartVoucherLink,
-				MessageOpening:                    MessageDoNotReply,
-				MessageBranchCondition:            formatMessageOpeningBranchCondition(GetAffiliationDisplayValues()[*serviceMember.Affiliation], submitLocation),
-				MessageClosing:                    formatMessageClosing(),
-				MessageAER:                        MessageActualExpenseReimbursement,
 			},
 			LoggerData{
 				ServiceMember: *serviceMember,
@@ -249,10 +193,6 @@ func (p PpmPacketEmail) GetEmailData(appCtx appcontext.AppContext) (PpmPacketEma
 			WashingtonHQServicesLink:          WashingtonHQServicesLink,
 			MyMoveLink:                        MyMoveLink,
 			SmartVoucherLink:                  SmartVoucherLink,
-			MessageOpening:                    MessageDoNotReply,
-			MessageBranchCondition:            formatMessageOpeningBranchCondition(GetAffiliationDisplayValues()[*serviceMember.Affiliation], submitLocation),
-			MessageClosing:                    formatMessageClosing(),
-			MessageAER:                        MessageActualExpenseReimbursement,
 		},
 		LoggerData{
 			ServiceMember: *serviceMember,
