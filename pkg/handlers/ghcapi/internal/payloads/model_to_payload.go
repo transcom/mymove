@@ -16,6 +16,7 @@ import (
 	"github.com/transcom/mymove/pkg/gen/ghcmessages"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/models/roles"
 	"github.com/transcom/mymove/pkg/services"
 	mtoshipment "github.com/transcom/mymove/pkg/services/mto_shipment"
 	"github.com/transcom/mymove/pkg/storage"
@@ -2067,7 +2068,7 @@ func QueueAvailableOfficeUsers(officeUsers []models.OfficeUser) *ghcmessages.Ava
 }
 
 // QueueMoves payload
-func QueueMoves(moves []models.Move, officeUsers []models.OfficeUser) *ghcmessages.QueueMoves {
+func QueueMoves(moves []models.Move, officeUsers []models.OfficeUser, role roles.RoleType) *ghcmessages.QueueMoves {
 	queueMoves := make(ghcmessages.QueueMoves, len(moves))
 	for i, move := range moves {
 		customer := move.Orders.ServiceMember
@@ -2148,9 +2149,16 @@ func QueueMoves(moves []models.Move, officeUsers []models.OfficeUser) *ghcmessag
 			LockExpiresAt:           handlers.FmtDateTimePtr(move.LockExpiresAt),
 			PpmStatus:               ghcmessages.PPMStatus(ppmStatus),
 			CounselingOffice:        &transportationOffice,
-			AssignedTo:              AssignedOfficeUser(move.SCAssignedUser),
 			AvailableOfficeUsers:    *QueueAvailableOfficeUsers(officeUsers),
 		}
+
+		if role == roles.RoleTypeServicesCounselor {
+			queueMoves[i].AssignedTo = AssignedOfficeUser(move.SCAssignedUser)
+		}
+		if role == roles.RoleTypeTOO {
+			queueMoves[i].AssignedTo = AssignedOfficeUser(move.TOOAssignedUser)
+		}
+
 	}
 	return &queueMoves
 }
