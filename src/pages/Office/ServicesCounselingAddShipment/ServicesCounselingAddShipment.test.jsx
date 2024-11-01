@@ -5,7 +5,7 @@ import userEvent from '@testing-library/user-event';
 
 import ServicesCounselingAddShipment from './ServicesCounselingAddShipment';
 
-import { createMTOShipment, searchLocationByZipCityState } from 'services/ghcApi';
+import createMTOShipment from 'services/ghcApi';
 import { useEditShipmentQueries } from 'hooks/queries';
 import { MockProviders } from 'testUtils';
 import { servicesCounselingRoutes } from 'constants/routes';
@@ -20,7 +20,6 @@ jest.mock('react-router-dom', () => ({
 jest.mock('services/ghcApi', () => ({
   ...jest.requireActual('services/ghcApi'),
   createMTOShipment: jest.fn(),
-  searchLocationByZipCityState: jest.fn(),
 }));
 
 jest.mock('hooks/queries', () => ({
@@ -166,18 +165,6 @@ beforeEach(() => {
   jest.resetAllMocks();
 });
 
-const mockLocation = {
-  address: {
-    city: 'San Antonio',
-    county: 'Bexar',
-    postalCode: '78234',
-    state: 'TX',
-    usprcId: '',
-  },
-};
-
-const mockSearchLocationByZipCityState = () => Promise.resolve([mockLocation]);
-
 describe('ServicesCounselingAddShipment component', () => {
   describe('check different component states', () => {
     it('renders the Loading Placeholder when the query is still loading', async () => {
@@ -212,7 +199,6 @@ describe('ServicesCounselingAddShipment component', () => {
     it('routes to the move details page when the save button is clicked', async () => {
       useEditShipmentQueries.mockReturnValue(useEditShipmentQueriesReturnValue);
       createMTOShipment.mockImplementation(() => Promise.resolve({}));
-      searchLocationByZipCityState.mockImplementation(mockSearchLocationByZipCityState);
       renderWithMocks();
 
       const user = userEvent.setup();

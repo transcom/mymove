@@ -1059,57 +1059,48 @@ describe('ShipmentForm component', () => {
       expect(mockNavigate).not.toHaveBeenCalled();
     });
 
-    // it('shows an error if the submitHandler returns an error when creating a PPM', async () => {
-    //   const mockSubmitHandler = jest.fn((payload, { onError }) => {
-    //     // fire onError handler on form
-    //     onError();
-    //   });
+    it('shows an error if the submitHandler returns an error when creating a PPM', async () => {
+      const mockSubmitHandler = jest.fn((payload, { onError }) => {
+        // fire onError handler on form
+        onError();
+      });
 
-    //   renderWithRouter(
-    //     <ShipmentForm
-    //       {...defaultProps}
-    //       shipmentType={SHIPMENT_OPTIONS.PPM}
-    //       mtoShipment={mockPPMShipment}
-    //       submitHandler={mockSubmitHandler}
-    //       isCreatePage
-    //     />,
-    //   );
+      renderWithRouter(
+        <ShipmentForm
+          {...defaultProps}
+          shipmentType={SHIPMENT_OPTIONS.PPM}
+          mtoShipment={mockPPMShipment}
+          submitHandler={mockSubmitHandler}
+          isCreatePage
+        />,
+      );
 
-    //   await act(async () => {
-    //     screen.getByLabelText('Planned Departure Date').focus();
-    //     await userEvent.paste('26 Mar 2022');
+      await act(async () => {
+        screen.getByLabelText('Planned Departure Date').focus();
+        await userEvent.paste('26 Mar 2022');
+        const user = userEvent.setup();
 
-    //     const inputs = screen.getAllByRole('combobox');
+        await act(async () => {
+          await user.click(screen.getByLabelText('Use Current Address'));
+        });
 
-    //     screen.getAllByLabelText('Address 1')[0].focus();
-    //     await userEvent.paste('Test Street 1');
-    //     inputs[0].focus();
-    //     await userEvent.type(inputs[0], '90210');
-    //     await userEvent.keyboard('{Enter}');
+        screen.getByLabelText('Estimated PPM weight').focus();
+        await userEvent.paste('1000');
 
-    //     screen.getAllByLabelText('Address 1')[1].focus();
-    //     await userEvent.paste('Test Street 3');
-    //     inputs[1].focus();
-    //     await userEvent.type(inputs[1], '90210');
-    //     await userEvent.keyboard('{Enter}');
+        const saveButton = screen.getByRole('button', { name: 'Save and Continue' });
+        expect(saveButton).not.toBeDisabled();
+        await userEvent.click(saveButton);
+      });
 
-    //     screen.getByLabelText('Estimated PPM weight').focus();
-    //     await userEvent.paste('1000');
+      await waitFor(() => {
+        expect(mockSubmitHandler).toHaveBeenCalled();
+      });
 
-    //     const saveButton = screen.getByRole('button', { name: 'Save and Continue' });
-    //     expect(saveButton).not.toBeDisabled();
-    //     await userEvent.click(saveButton);
-    //   });
-
-    //   await waitFor(() => {
-    //     expect(mockSubmitHandler).toHaveBeenCalled();
-    //   });
-
-    //   await waitFor(() => {
-    //     expect(screen.getByTestId('errorMessage')).toBeVisible();
-    //   });
-    //   expect(mockNavigate).not.toHaveBeenCalled();
-    // });
+      await waitFor(() => {
+        expect(screen.getByTestId('errorMessage')).toBeVisible();
+      });
+      expect(mockNavigate).not.toHaveBeenCalled();
+    });
 
     it('saves the update to the counselor remarks when the save button is clicked', async () => {
       const newCounselorRemarks = 'Counselor remarks';
