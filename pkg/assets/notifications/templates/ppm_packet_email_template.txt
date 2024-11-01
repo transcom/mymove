@@ -16,7 +16,7 @@ Please be advised, your local finance office may require a DD Form 1351-2 to pro
 {{else if eq .ServiceBranch "Army"}}
 For Army personnel (FURTHER ACTION REQUIRED):
 
-Log in to SmartVoucher ({{.SmartVoucherLink}}) using your CAC or myPay username and password.
+Log in to SmartVoucher at ({{.SmartVoucherLink}}) using your CAC or myPay username and password.
 
 This will allow you to edit your voucher, and complete and sign DD Form 1351-2.
 
