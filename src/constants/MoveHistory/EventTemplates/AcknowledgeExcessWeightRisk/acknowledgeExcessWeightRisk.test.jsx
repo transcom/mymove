@@ -8,11 +8,16 @@ describe('when given an Acknowledge excess weight risk history record', () => {
     action: 'UPDATE',
     eventName: 'acknowledgeExcessWeightRisk',
     tableName: 'moves',
+    eventNameDisplay: 'Updated move',
   };
 
   it('correctly matches the Acknowledge excess weight risk template', () => {
     const result = getTemplate(historyRecord);
     expect(result).toMatchObject(e);
+  });
+  it('it correctly matches the event that acknowledges weight risk', () => {
+    const result = getTemplate(historyRecord);
+    expect(result.getEventNameDisplay()).toMatch(historyRecord.eventNameDisplay);
   });
   it('renders the default details in the details column when excess risk key is not present ', () => {
     const newHistoryRecord = {
