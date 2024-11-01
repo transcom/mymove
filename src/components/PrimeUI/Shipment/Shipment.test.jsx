@@ -27,6 +27,7 @@ const approvedMoveTaskOrder = {
         actualProGearWeight: null,
         actualSpouseProGearWeight: 117,
         agents: [],
+        marketCode: 'd',
         approvedDate: '2021-10-20',
         counselorRemarks: 'These are counselor remarks for an HHG.',
         createdAt: '2021-10-21',
@@ -119,7 +120,10 @@ const mockedComponent = (
 describe('Shipment details component', () => {
   it('renders the component headings and links without errors', () => {
     render(mockedComponent);
-    const shipmentLevelHeader = screen.getByRole('heading', { name: 'HHG shipment', level: 3 });
+    const shipmentLevelHeader = screen.getByRole('heading', {
+      name: `${approvedMoveTaskOrder.moveTaskOrder.mtoShipments[0].marketCode}HHG shipment`,
+      level: 3,
+    });
     expect(shipmentLevelHeader).toBeInTheDocument();
 
     const updateShipmentLink = screen.getAllByText(/Update Shipment/, { selector: 'a.usa-button' })[0];
@@ -133,6 +137,13 @@ describe('Shipment details component', () => {
     expect(screen.queryAllByRole('link', { name: 'Edit' })).toHaveLength(7);
   });
 
+  it('renders HHGShipmentCard with a heading that has a market code and shipment type', async () => {
+    render(mockedComponent);
+    expect(screen.getByRole('heading', { level: 3 })).toHaveTextContent(
+      `${approvedMoveTaskOrder.moveTaskOrder.mtoShipments[0].marketCode}HHG shipment`,
+    );
+  });
+  
   it('renders the shipment address values', async () => {
     render(mockedComponent);
     const shipment = approvedMoveTaskOrder.moveTaskOrder.mtoShipments[0];

@@ -35,14 +35,14 @@ const moveTaskOrder = {
       shipmentType: 'HHG',
       requestedPickupDate: '2021-11-26',
       pickupAddress: { streetAddress1: '100 1st Avenue', city: 'New York', state: 'NY', postalCode: '10001' },
-      destinationAddress: { streetAddress1: '200 2nd Avenue', city: 'Buffalo', state: 'NY', postalCode: '1001' },
+      destinationAddress: { streetAddress1: '200 2nd Avenue', city: 'Buffalo', state: 'NY', postalCode: '1001', marketCode: 'd', },
     },
     {
       id: '3',
       shipmentType: 'HHG_INTO_NTS_DOMESTIC',
       requestedPickupDate: '2021-12-01',
       pickupAddress: { streetAddress1: '800 Madison Avenue', city: 'New York', state: 'NY', postalCode: '10002' },
-      destinationAddress: { streetAddress1: '200 2nd Avenue', city: 'Buffalo', state: 'NY', postalCode: '1001' },
+      destinationAddress: { streetAddress1: '200 2nd Avenue', city: 'Buffalo', state: 'NY', postalCode: '1001', marketCode: 'i', },
     },
   ],
   mtoServiceItems: [
@@ -135,7 +135,10 @@ describe('CreatePaymentRequest page', () => {
       expect(shipmentsHeading).toBeInTheDocument();
 
       const shipmentsContainer = shipmentsHeading.parentElement;
-      const hhgHeading = within(shipmentsContainer).getByRole('heading', { name: 'HHG shipment', level: 3 });
+      const hhgHeading = within(shipmentsContainer).getByRole('heading', {
+        name: `${moveTaskOrder.mtoShipments[0].marketCode}HHG shipment`,
+        level: 3,
+      });
 
       expect(hhgHeading).toBeInTheDocument();
       const hhgContainer = hhgHeading.parentElement.parentElement;
@@ -150,7 +153,10 @@ describe('CreatePaymentRequest page', () => {
         within(hhgContainer).getByRole('checkbox', { name: 'Add to payment request', checked: false }),
       ).toBeInTheDocument();
 
-      const ntsHeading = within(shipmentsContainer).getByRole('heading', { name: 'NTS shipment', level: 3 });
+      const ntsHeading = within(shipmentsContainer).getByRole('heading', {
+        name: `${moveTaskOrder.mtoShipments[1].marketCode}NTS shipment`,
+        level: 3,
+      });
       expect(ntsHeading).toBeInTheDocument();
       const ntsContainer = ntsHeading.parentElement.parentElement;
 
