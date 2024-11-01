@@ -59,6 +59,7 @@ export const EditFacilityInfoModal = ({
                   state: value.state ? value.state : '',
                   county: value.county,
                   postalCode: value.postalCode,
+                  usprcId: value.usPostRegionCitiesId ? value.usPostRegionCitiesId : '',
                 },
               },
               { shouldValidate: true },

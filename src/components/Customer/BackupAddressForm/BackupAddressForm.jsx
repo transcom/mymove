@@ -29,12 +29,13 @@ const BackupAddressForm = ({ formFieldsName, initialValues, onSubmit, onBack }) 
           setValues(
             {
               ...values,
-              formFieldsName: {
-                ...values.formFieldsName,
+              backup_mailing_address: {
+                ...values.backup_mailing_address,
                 city: value.city,
                 state: value.state ? value.state : '',
                 county: value.county,
                 postalCode: value.postalCode,
+                usprcId: value.usPostRegionCitiesId ? value.usPostRegionCitiesId : '',
               },
             },
             { shouldValidate: true },
