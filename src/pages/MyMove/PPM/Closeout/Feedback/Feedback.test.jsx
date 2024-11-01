@@ -1,10 +1,17 @@
 import React from 'react';
 import { render, screen } from '@testing-library/react';
 import { v4 } from 'uuid';
+import { MemoryRouter } from 'react-router-dom';
+import { Provider } from 'react-redux';
+import configureStore from 'redux-mock-store';
+import * as reactRedux from 'react-redux';
+import * as reactRouterDom from 'react-router-dom';
 
 import Feedback from './Feedback';
 
+import * as formatters from 'utils/formatters';
 import { MockProviders } from 'testUtils';
+import * as selectors from 'store/entities/selectors';
 import { selectMTOShipmentById } from 'store/entities/selectors';
 import { customerRoutes } from 'constants/routes';
 
@@ -18,12 +25,6 @@ const mockRoutingConfig = {
     mtoShipmentId: mockMTOShipmentId,
   },
 };
-
-const mockNavigate = jest.fn();
-jest.mock('react-router-dom', () => ({
-  ...jest.requireActual('react-router-dom'),
-  useNavigate: () => mockNavigate,
-}));
 
 const mockMTOShipment = {
   ppmShipment: {
@@ -90,6 +91,12 @@ const renderFeedbackPage = (mockData) => {
 };
 
 describe('Feedback page', () => {
+  const mockNavigate = jest.fn();
+  jest.mock('react-router-dom', () => ({
+    ...jest.requireActual('react-router-dom'),
+    useNavigate: () => mockNavigate,
+  }));
+
   it('displays PPM details', () => {
     renderFeedbackPage(mockMTOShipment);
 
@@ -120,9 +127,7 @@ describe('Feedback page', () => {
 
     expect(screen.queryByTestId('expenses-items')).not.toBeInTheDocument();
   });
-});
 
-describe('Additional Feedback page tests for improved coverage', () => {
   it('displays weight moved section if weight tickets are present', () => {
     renderFeedbackPage(mockMTOShipmentWithAdvance);
 
@@ -146,5 +151,102 @@ describe('Additional Feedback page tests for improved coverage', () => {
     expect(screen.getByTestId('expenses-items')).toBeInTheDocument();
     expect(screen.getByText('Expenses')).toBeInTheDocument();
     expect(screen.getByText('- $50.00')).toBeInTheDocument();
+  });
+});
+
+describe('Additional code coverage tests', () => {
+  const mockStore = configureStore([]);
+  const store = mockStore({});
+
+  const mockNavigate = jest.fn();
+
+  beforeEach(() => {
+    jest.spyOn(reactRouterDom, 'useNavigate').mockReturnValue(mockNavigate);
+    jest.spyOn(reactRouterDom, 'useParams').mockReturnValue({ mtoShipmentId: '1234' });
+    jest.spyOn(selectors, 'selectMTOShipmentById').mockReturnValue({
+      /* Mock shipment data */
+    });
+    jest.spyOn(formatters, 'formatCentsTruncateWhole').mockReturnValue('Mocked Amount');
+    jest.spyOn(formatters, 'formatCustomerDate').mockReturnValue('Mocked Date');
+    jest.spyOn(formatters, 'formatWeight').mockReturnValue('Mocked Weight');
+  });
+
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('renders LoadingPlaceholder when no shipment data is available (line 47)', () => {
+    jest.spyOn(reactRedux, 'useSelector').mockReturnValue(null); // No shipment data
+
+    render(
+      <Provider store={store}>
+        <MemoryRouter>
+          <Feedback />
+        </MemoryRouter>
+      </Provider>,
+    );
+
+    expect(screen.getByText(/Loading/)).toBeInTheDocument();
+  });
+
+  it('calculates trip weight correctly (lines 64-65)', () => {
+    const ppmShipment = {
+      weightTickets: [{ weight: 2000 }],
+      proGearWeightTickets: [], // Initialize as empty array
+      movingExpenses: [], // Initialize as empty array
+    };
+    jest.spyOn(reactRedux, 'useSelector').mockReturnValue({ ppmShipment });
+
+    render(
+      <Provider store={store}>
+        <MemoryRouter>
+          <Feedback />
+        </MemoryRouter>
+      </Provider>,
+    );
+
+    expect(screen.getByText(/Weight Moved/)).toBeInTheDocument();
+  });
+
+  it('formats single document for feedback item (line 92)', () => {
+    const ppmShipment = {
+      weightTickets: [{ weight: 1000, status: 'REJECTED', reason: 'Incorrect weight' }],
+      proGearWeightTickets: [], // Initialize as empty array
+      movingExpenses: [], // Initialize as empty array
+    };
+    jest.spyOn(reactRedux, 'useSelector').mockReturnValue({ ppmShipment });
+
+    render(
+      <Provider store={store}>
+        <MemoryRouter>
+          <Feedback />
+        </MemoryRouter>
+      </Provider>,
+    );
+
+    expect(screen.getByText(/Incorrect weight/)).toBeInTheDocument();
+  });
+
+  it('displays pro-gear items when available (line 108)', () => {
+    const ppmShipment = {
+      weightTickets: [{ weight: 2000 }],
+      proGearWeightTickets: [{ weight: 500 }],
+      movingExpenses: [], // Initialize as empty array
+    };
+    jest.spyOn(reactRedux, 'useSelector').mockReturnValue({ ppmShipment });
+
+    render(
+      <Provider store={store}>
+        <MemoryRouter>
+          <Feedback />
+        </MemoryRouter>
+      </Provider>,
+    );
+
+    expect(screen.getByTestId('pro-gear-items')).toBeInTheDocument();
+  });
+
+  afterAll(() => {
+    jest.restoreAllMocks();
   });
 });
