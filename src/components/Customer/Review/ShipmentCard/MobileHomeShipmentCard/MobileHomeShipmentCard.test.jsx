@@ -98,7 +98,7 @@ describe('MobileHomeShipmentCard component', () => {
 
   it('renders MobileHomeShipmentCard with a heading that has a market code and shipment type', async () => {
     render(<MobileHomeShipmentCard {...defaultProps} />);
-    expect(screen.getByRole('heading', { level: 3 })).toHaveTextContent(`${defaultProps.marketCode}MobileHome 1`);
+    expect(screen.getByRole('heading', { level: 3 })).toHaveTextContent(`${defaultProps.marketCode}Mobile Home 1`);
   });
 
   it('omits the edit button when showEditAndDeleteBtn prop is false', () => {
