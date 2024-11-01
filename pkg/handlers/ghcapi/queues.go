@@ -60,6 +60,7 @@ func (h GetMovesQueueHandler) Handle(params queues.GetMovesQueueParams) middlewa
 				Sort:                    params.Sort,
 				Order:                   params.Order,
 				OrderType:               params.OrderType,
+				TOOAssignedUser:         params.AssignedTo,
 			}
 
 			// When no status filter applied, TOO should only see moves with status of New Move, Service Counseling Completed, or Approvals Requested
@@ -83,6 +84,7 @@ func (h GetMovesQueueHandler) Handle(params queues.GetMovesQueueParams) middlewa
 			moves, count, err := h.OrderFetcher.ListOrders(
 				appCtx,
 				appCtx.Session().OfficeUserID,
+				roles.RoleTypeTOO,
 				&ListOrderParams,
 			)
 			if err != nil {
@@ -100,11 +102,22 @@ func (h GetMovesQueueHandler) Handle(params queues.GetMovesQueueParams) middlewa
 				}
 			}
 
-			officeUsers, err := h.OfficeUserFetcherPop.FetchOfficeUsersByRoleAndOffice(
-				appCtx,
-				roles.RoleTypeTOO,
-				officeUser.TransportationOfficeID,
-			)
+			privileges, err := models.FetchPrivilegesForUser(appCtx.DB(), appCtx.Session().UserID)
+			if err != nil {
+				appCtx.Logger().Error("Error retreiving user privileges", zap.Error(err))
+			}
+
+			isSupervisor := privileges.HasPrivilege(models.PrivilegeTypeSupervisor)
+			var officeUsers models.OfficeUsers
+			if isSupervisor {
+				officeUsers, err = h.OfficeUserFetcherPop.FetchOfficeUsersByRoleAndOffice(
+					appCtx,
+					roles.RoleTypeTOO,
+					officeUser.TransportationOfficeID,
+				)
+			} else {
+				officeUsers = models.OfficeUsers{officeUser}
+			}
 
 			if err != nil {
 				appCtx.Logger().
@@ -133,7 +146,7 @@ func (h GetMovesQueueHandler) Handle(params queues.GetMovesQueueParams) middlewa
 				}
 			}
 
-			queueMoves := payloads.QueueMoves(moves, officeUsers)
+			queueMoves := payloads.QueueMoves(moves, officeUsers, nil, roles.RoleTypeTOO, officeUser, isSupervisor)
 
 			result := &ghcmessages.QueueMovesResult{
 				Page:       *ListOrderParams.Page,
@@ -367,7 +380,9 @@ func (h GetServicesCounselingQueueHandler) Handle(
 				SCAssignedUser:          params.AssignedTo,
 			}
 
+			var requestedPpmStatus models.PPMShipmentStatus
 			if params.NeedsPPMCloseout != nil && *params.NeedsPPMCloseout {
+				requestedPpmStatus = models.PPMShipmentStatusNeedsCloseout
 				ListOrderParams.Status = []string{string(models.MoveStatusAPPROVED), string(models.MoveStatusServiceCounselingCompleted)}
 			} else if len(params.Status) == 0 {
 				ListOrderParams.Status = []string{string(models.MoveStatusNeedsServiceCounseling)}
@@ -392,6 +407,7 @@ func (h GetServicesCounselingQueueHandler) Handle(
 			moves, count, err := h.OrderFetcher.ListOrders(
 				appCtx,
 				appCtx.Session().OfficeUserID,
+				roles.RoleTypeServicesCounselor,
 				&ListOrderParams,
 			)
 			if err != nil {
@@ -409,11 +425,23 @@ func (h GetServicesCounselingQueueHandler) Handle(
 				}
 			}
 
-			officeUsers, err := h.OfficeUserFetcherPop.FetchOfficeUsersByRoleAndOffice(
-				appCtx,
-				roles.RoleTypeServicesCounselor,
-				officeUser.TransportationOfficeID,
-			)
+			privileges, err := models.FetchPrivilegesForUser(appCtx.DB(), appCtx.Session().UserID)
+			if err != nil {
+				appCtx.Logger().Error("Error retreiving user privileges", zap.Error(err))
+			}
+
+			isSupervisor := privileges.HasPrivilege(models.PrivilegeTypeSupervisor)
+			var officeUsers models.OfficeUsers
+
+			if isSupervisor {
+				officeUsers, err = h.OfficeUserFetcherPop.FetchOfficeUsersByRoleAndOffice(
+					appCtx,
+					roles.RoleTypeServicesCounselor,
+					officeUser.TransportationOfficeID,
+				)
+			} else {
+				officeUsers = models.OfficeUsers{officeUser}
+			}
 
 			if err != nil {
 				appCtx.Logger().
@@ -442,7 +470,7 @@ func (h GetServicesCounselingQueueHandler) Handle(
 				}
 			}
 
-			queueMoves := payloads.QueueMoves(moves, officeUsers)
+			queueMoves := payloads.QueueMoves(moves, officeUsers, &requestedPpmStatus, roles.RoleTypeServicesCounselor, officeUser, isSupervisor)
 
 			result := &ghcmessages.QueueMovesResult{
 				Page:       *ListOrderParams.Page,
