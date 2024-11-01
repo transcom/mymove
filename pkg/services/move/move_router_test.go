@@ -320,7 +320,8 @@ func (suite *MoveServiceSuite) TestMoveSubmission() {
 	suite.Run("PPM moves are routed correctly and SignedCertification is created", func() {
 		// Under test: MoveRouter.Submit (Full PPM should always route to service counselor, never to office user)
 		// Set up: Create moves and SignedCertification
-		// Expected outcome: signed cert is created and move status is updated
+		// Expected outcome: signed cert is created
+		// Expected outcome: Move status is set to needs service counseling for both true and false on origin providing service counseling
 		tests := []struct {
 			desc                       string
 			ProvidesServicesCounseling bool
