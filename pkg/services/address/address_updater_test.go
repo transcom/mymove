@@ -136,7 +136,7 @@ func (suite *AddressSuite) TestAddressUpdater() {
 
 		suite.Nil(updatedAddress)
 		suite.NotNil(err)
-		suite.Equal("No county found for provided zip code  ", err.Error())
+		suite.Equal("No county found for provided zip code  .", err.Error())
 	})
 
 	suite.Run("Fails to update an address because of invalid ID", func() {
