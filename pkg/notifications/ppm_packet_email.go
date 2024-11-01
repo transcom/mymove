@@ -37,14 +37,17 @@ func formatMessageOpeningBranchCondition(branch, submitLocation string) []string
 		GetAffiliationDisplayValues()[models.AffiliationCOASTGUARD],
 		GetAffiliationDisplayValues()[models.AffiliationNAVY]:
 		return []string{
-			"For Marine Corps, Navy, and Coast Guard personnel:<br><br>You can now log into MilMove " + MyMoveLink + "and view your payment packet; however, you do not need to forward your payment packet to finance as your closeout location is associated with your finance office and they will handle this step for you.",
+			"For Marine Corps, Navy, and Coast Guard personnel:",
+			"You can now log into MilMove " + MyMoveLink + "and view your payment packet; however, you do not need to forward your payment packet to finance as your closeout location is associated with your finance office and they will handle this step for you.",
 			"Note: Not all claimed expenses may have been accepted during PPM closeout if they did not meet the definition of a valid expense.",
 			"Please be advised, your local finance office may require a DD Form 1351-2 to process payment. You can obtain a copy of this form by utilizing the search feature at " + WashingtonHQServicesLink + ".",
 		}
 	case GetAffiliationDisplayValues()[models.AffiliationARMY]:
 		return []string{
 			"For Army personnel (FURTHER ACTION REQUIRED):",
-			"Log in to SmartVoucher at " + SmartVoucherLink + " using your CAC or myPay username and password. This will allow you to edit your voucher, and complete and sign DD Form 1351-2.",
+			"Log in to SmartVoucher at " + SmartVoucherLink + " using your CAC or myPay username and password.",
+			"This will allow you to edit your voucher, and complete and sign DD Form 1351-2.",
+			"Note: Not all claimed expenses may have been accepted during PPM closeout if they did not meet the definition of a valid expense.",
 		}
 	case GetAffiliationDisplayValues()[models.AffiliationAIRFORCE], GetAffiliationDisplayValues()[models.AffiliationSPACEFORCE]:
 		return []string{
