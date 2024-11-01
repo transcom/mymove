@@ -148,6 +148,7 @@ export const AddressFields = ({
                 labelHint={labelHintProp}
                 data-testid={`${name}.city`}
                 validate={validators?.city}
+                isDisabled={zipCityEnabled}
               />
               {handleLocationChange && (
                 <TextField
@@ -158,6 +159,7 @@ export const AddressFields = ({
                   labelHint={labelHintProp}
                   data-testid={`${name}.county`}
                   validate={validators?.county}
+                  isDisabled={zipCityEnabled}
                 />
               )}
             </div>

@@ -1,6 +1,6 @@
 /* eslint-disable react/jsx-props-no-spreading */
 import React from 'react';
-import { render, screen, waitFor } from '@testing-library/react';
+import { render, screen, waitFor, act } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 import ServicesCounselingAddShipment from './ServicesCounselingAddShipment';
@@ -172,6 +172,7 @@ const mockLocation = {
     county: 'Bexar',
     postalCode: '78234',
     state: 'TX',
+    usprcId: '',
   },
 };
 
@@ -214,6 +215,7 @@ describe('ServicesCounselingAddShipment component', () => {
       searchLocationByZipCityState.mockImplementation(mockSearchLocationByZipCityState);
       renderWithMocks();
 
+      const user = userEvent.setup();
       const saveButton = screen.getByRole('button', { name: 'Save' });
 
       expect(saveButton).toBeInTheDocument();
@@ -222,15 +224,10 @@ describe('ServicesCounselingAddShipment component', () => {
         expect(saveButton).toBeDisabled();
       });
 
-      expect(screen.getByLabelText('Use current address')).not.toBeChecked();
+      await act(async () => {
+        await user.click(screen.getByLabelText('Use current address'));
+      });
 
-      await userEvent.type(screen.getAllByLabelText('Address 1')[0], '812 S 129th St');
-      const inputs = screen.getAllByRole('combobox');
-      await userEvent.type(inputs[0], '78234');
-      await userEvent.keyboard('{Enter}');
-      // await userEvent.type(screen.getAllByLabelText('City')[0], 'San Antonio');
-      // await userEvent.selectOptions(screen.getAllByLabelText('State')[0], ['TX']);
-      // await userEvent.type(screen.getAllByLabelText('ZIP')[0], '78234');
       await userEvent.type(screen.getByLabelText('Requested pickup date'), '01 Nov 2020');
       await userEvent.type(screen.getByLabelText('Requested delivery date'), '08 Nov 2020');
 
