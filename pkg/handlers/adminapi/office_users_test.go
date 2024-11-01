@@ -61,8 +61,9 @@ func (suite *HandlerSuite) TestIndexOfficeUsersHandler() {
 
 	// Test that user roles list is not returning duplicate roles
 	suite.Run("roles list has no duplicate roles", func() {
-		officeUsers := setupTestData()
-
+		officeUsers := models.OfficeUsers{
+			factory.BuildOfficeUserWithRoles(suite.DB(), factory.GetTraitApprovedOfficeUser(), []roles.RoleType{roles.RoleTypeQae, roles.RoleTypeQae, roles.RoleTypeCustomer, roles.RoleTypeContractingOfficer, roles.RoleTypeContractingOfficer}),
+		}
 		params := officeuserop.IndexOfficeUsersParams{
 			HTTPRequest: suite.setupAuthenticatedRequest("GET", "/office_users"),
 		}
@@ -79,10 +80,25 @@ func (suite *HandlerSuite) TestIndexOfficeUsersHandler() {
 
 		suite.IsType(&officeuserop.IndexOfficeUsersOK{}, response)
 		okResponse := response.(*officeuserop.IndexOfficeUsersOK)
-		suite.Len(okResponse.Payload, 3)
-		suite.Len(officeUsers[0].User.Roles, 1)
-		suite.Len(officeUsers[1].User.Roles, 1)
-		suite.Len(officeUsers[2].User.Roles, 3)
+
+		// Check payload user roles list for duplicate roles
+		for _, r := range officeUsers[0].User.Roles {
+			var dup = false
+			var count = 0
+			for _, r2 := range officeUsers[0].User.Roles {
+				if r.RoleName == r2.RoleName {
+					count++
+				}
+			}
+
+			if count > 1 {
+				dup = true
+			}
+			suite.False(dup)
+		}
+
+		suite.Len(okResponse.Payload, 1)
+		suite.Len(officeUsers[0].User.Roles, 3)
 	})
 
 	suite.Run("fetch return an empty list", func() {

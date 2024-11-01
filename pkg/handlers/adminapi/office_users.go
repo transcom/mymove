@@ -45,19 +45,14 @@ func payloadForPrivilege(r models.Privilege) *adminmessages.Privilege {
 // Ensures the payload does not have duplicate roles in the roles array. That would cause the Admin UI to show duplicate roles for a user.
 func nonDuplicateRolesList(roles roles.Roles) []*adminmessages.Role {
 	var rolesList []*adminmessages.Role
-	roleNames := []string{}
+	seenRoles := make(map[string]bool)
+
 	for _, role := range roles {
-		isDuplicate := false
+		roleName := string(role.RoleName)
 
-		for _, roleName := range roleNames {
-			if string(role.RoleName) == roleName {
-				isDuplicate = true
-			}
-		}
-
-		if !isDuplicate {
+		if !seenRoles[roleName] {
 			rolesList = append(rolesList, payloadForRole(role))
-			roleNames = append(roleNames, string(role.RoleName))
+			seenRoles[roleName] = true
 		}
 	}
 
