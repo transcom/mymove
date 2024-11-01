@@ -34,6 +34,7 @@ jest.mock('hooks/queries', () => ({
 jest.mock('services/ghcApi', () => ({
   ...jest.requireActual('services/ghcApi'),
   updateMoveStatusServiceCounselingCompleted: jest.fn(),
+  updateMTOShipment: jest.fn(),
 }));
 
 const mtoShipments = [
