@@ -2,13 +2,14 @@ package models
 
 import (
 	"database/sql"
-	"fmt"
 	"time"
 
 	"github.com/gobuffalo/pop/v6"
 	"github.com/gobuffalo/validate/v3"
 	"github.com/gobuffalo/validate/v3/validators"
 	"github.com/gofrs/uuid"
+
+	"github.com/transcom/mymove/pkg/apperror"
 )
 
 // UsPostRegionCity represents postal region information retrieved from TRDM
@@ -50,7 +51,7 @@ func FindCountyByZipCode(db *pop.Connection, zipCode string) (string, error) {
 	if err != nil {
 		switch err {
 		case sql.ErrNoRows:
-			return "", fmt.Errorf("No county found for provided zip code %s", zipCode)
+			return "", apperror.NewEventError("No county found for provided zip code "+zipCode+".", err)
 		default:
 			return "", err
 		}
