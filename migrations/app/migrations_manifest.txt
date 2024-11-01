@@ -1023,3 +1023,4 @@
 20241009210749_create_view_v_locations.up.sql
 20241011201326_changes_for_actual_expense_reimbursement_field.up.sql
 20241024114748_create_gbloc_aors.up.sql
+20241101200658_add_values_for_international_sit_fuel_surcharge_to_re_services.up.sql
