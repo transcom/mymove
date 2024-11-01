@@ -273,11 +273,7 @@ export class OfficeApp extends Component {
                         end
                         element={
                           <PrivateRoute requiredRoles={[roleTypes.TOO]}>
-                            <MoveQueue
-                              userPrivileges={userPrivileges}
-                              currentUserId={officeUserId}
-                              isQueueManagementFFEnabled={queueManagementFlag}
-                            />
+                            <MoveQueue isQueueManagementFFEnabled={queueManagementFlag} />
                           </PrivateRoute>
                         }
                       />
@@ -317,11 +313,7 @@ export class OfficeApp extends Component {
                           end
                           element={
                             <PrivateRoute requiredRoles={[roleTypes.SERVICES_COUNSELOR]}>
-                              <ServicesCounselingQueue
-                                userPrivileges={userPrivileges}
-                                currentUserId={officeUserId}
-                                isQueueManagementFFEnabled={queueManagementFlag}
-                              />
+                              <ServicesCounselingQueue isQueueManagementFFEnabled={queueManagementFlag} />
                             </PrivateRoute>
                           }
                         />
@@ -359,11 +351,7 @@ export class OfficeApp extends Component {
                           end
                           element={
                             <PrivateRoute requiredRoles={[roleTypes.TOO]}>
-                              <MoveQueue
-                                userPrivileges={userPrivileges}
-                                currentUserId={officeUserId}
-                                isQueueManagementFFEnabled={queueManagementFlag}
-                              />
+                              <MoveQueue isQueueManagementFFEnabled={queueManagementFlag} />
                             </PrivateRoute>
                           }
                         />
