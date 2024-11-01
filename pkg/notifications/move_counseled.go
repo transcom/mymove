@@ -66,6 +66,13 @@ func (m MoveCounseled) emails(appCtx appcontext.AppContext) ([]emailContent, err
 		originDutyLocationName = &originDSTransportInfo.Name
 	}
 
+	actualExpenseReimbursement := false
+	for i := 0; i < len(move.MTOShipments); i++ {
+		if move.MTOShipments[i].PPMShipment.IsActualExpenseReimbursement != nil && *move.MTOShipments[i].PPMShipment.IsActualExpenseReimbursement {
+			actualExpenseReimbursement = true
+		}
+	}
+
 	if serviceMember.PersonalEmail == nil {
 		return emails, fmt.Errorf("no email found for service member")
 	}
@@ -75,7 +82,7 @@ func (m MoveCounseled) emails(appCtx appcontext.AppContext) ([]emailContent, err
 		DestinationDutyLocation:    orders.NewDutyLocation.Name,
 		Locator:                    move.Locator,
 		MyMoveLink:                 MyMoveLink,
-		ActualExpenseReimbursement: true,
+		ActualExpenseReimbursement: actualExpenseReimbursement,
 	})
 
 	if err != nil {
