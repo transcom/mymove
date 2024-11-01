@@ -26,6 +26,7 @@ const OrdersInfoForm = ({ ordersTypeOptions, initialValues, onSubmit, onBack }) 
   const [dutyLocation, setDutyLocation] = useState('');
   const [counselingOfficeOptions, setCounselingOfficeOptions] = useState(null);
   const [isHasDependentsDisabled, setHasDependentsDisabled] = useState(false);
+  const [prevOrderType, setPrevOrderType] = useState('');
   const validationSchema = Yup.object().shape({
     orders_type: Yup.mixed()
       .oneOf(ordersTypeOptions.map((i) => i.key))
@@ -74,7 +75,14 @@ const OrdersInfoForm = ({ ordersTypeOptions, initialValues, onSubmit, onBack }) 
             setFieldValue('has_dependents', 'yes');
           } else {
             setHasDependentsDisabled(false);
+            if (
+              prevOrderType === ORDERS_TYPE.STUDENT_TRAVEL ||
+              prevOrderType === ORDERS_TYPE.EARLY_RETURN_OF_DEPENDENTS
+            ) {
+              setFieldValue('has_dependents', '');
+            }
           }
+          setPrevOrderType(value);
         };
 
         return (
