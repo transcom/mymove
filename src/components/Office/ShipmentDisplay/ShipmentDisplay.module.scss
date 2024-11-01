@@ -18,7 +18,6 @@
       background-color: $info-light;
       &.ppmStatus {
         @include u-font-size('body', 'sm');
-        @include u-margin-left(1);
         background-color: $base-lightest;
       }
     }
@@ -103,6 +102,15 @@
     display: flex;
     justify-content: flex-start;
     align-items: center;
+    flex-wrap: wrap;
+
+    label {
+      @include u-margin-right(1);
+    }
+    :global(.usa-tag) {
+      display: inline-block;
+      line-height: normal;
+    }
   }
 
   h5 {

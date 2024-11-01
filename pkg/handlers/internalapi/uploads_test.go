@@ -163,7 +163,7 @@ func (suite *HandlerSuite) TestCreateUploadsHandlerSuccess() {
 		t.Fatalf("Couldn't find expected upload.")
 	}
 
-	expectedChecksum := "nOE6HwzyE4VEDXn67ULeeA=="
+	expectedChecksum := "w7rJQqzlaazDW+mxTU9Q40Qchr3DW7FPQD7f8Js2J88="
 	if upload.Checksum != expectedChecksum {
 		t.Errorf("Did not calculate the correct MD5: expected %s, got %s", expectedChecksum, upload.Checksum)
 	}
@@ -462,7 +462,7 @@ func (suite *HandlerSuite) TestCreatePPMUploadsHandlerSuccess() {
 		err := suite.DB().Find(&upload, createdResponse.Payload.ID)
 
 		suite.NoError(err)
-		suite.Equal("e14dC4vs5L1gOb6M8N0vow==", upload.Checksum)
+		suite.Equal("V/Q6K9rVdEPVzgKbh5cn2x4Oci4XDaG4fcG04R41Iz4=", upload.Checksum)
 
 		suite.NotEmpty(createdResponse.Payload.ID)
 		suite.Equal(FixtureXLS, createdResponse.Payload.Filename)
@@ -487,7 +487,7 @@ func (suite *HandlerSuite) TestCreatePPMUploadsHandlerSuccess() {
 		err := suite.DB().Find(&upload, createdResponse.Payload.ID)
 
 		suite.NoError(err)
-		suite.Equal("laUtcMk6foIO71eS2J/t2A==", upload.Checksum)
+		suite.Equal("eRZ1Cr3Ms0692k03ftoEdqXpvd/CHcbxmhEGEQBYVdY=", upload.Checksum)
 
 		suite.NotEmpty(createdResponse.Payload.ID)
 		suite.Equal(FixtureXLSX, createdResponse.Payload.Filename)
@@ -537,7 +537,7 @@ func (suite *HandlerSuite) TestCreatePPMUploadsHandlerSuccess() {
 		err := suite.DB().Find(&upload, createdResponse.Payload.ID)
 
 		suite.NoError(err)
-		suite.Equal("qEnueX0FLpoz4bTnliprog==", upload.Checksum)
+		suite.Equal("/io1MRhLi2BFk9eF+lH1Ax+hyH+bPhlEK7A9/bqWlPY=", upload.Checksum)
 
 		suite.NotEmpty(createdResponse.Payload.ID)
 		suite.Equal(FixturePNG, createdResponse.Payload.Filename)
@@ -562,7 +562,7 @@ func (suite *HandlerSuite) TestCreatePPMUploadsHandlerSuccess() {
 		err := suite.DB().Find(&upload, createdResponse.Payload.ID)
 
 		suite.NoError(err)
-		suite.Equal("sedKa8jlK99FB1knFoxLsA==", upload.Checksum)
+		suite.Equal("ibKT78j4CJecDXC6CbGISkqWFG5eSjCjlZJHlaFRho4=", upload.Checksum)
 
 		suite.NotEmpty(createdResponse.Payload.ID)
 		suite.Equal(FixtureJPG, createdResponse.Payload.Filename)
@@ -594,7 +594,7 @@ func (suite *HandlerSuite) TestCreatePPMUploadsHandlerSuccess() {
 		}
 
 		suite.NoError(err)
-		suite.Equal("qEnueX0FLpoz4bTnliprog==", upload.Checksum)
+		suite.Equal("/io1MRhLi2BFk9eF+lH1Ax+hyH+bPhlEK7A9/bqWlPY=", upload.Checksum)
 
 		suite.NotEmpty(createdResponse.Payload.ID)
 		suite.Equal(FixtureScreenshot, createdResponse.Payload.Filename)
