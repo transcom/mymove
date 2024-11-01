@@ -29,8 +29,8 @@ const BackupAddressForm = ({ formFieldsName, initialValues, onSubmit, onBack }) 
           setValues(
             {
               ...values,
-              backup_mailing_address: {
-                ...values.backup_mailing_address,
+              formFieldsName: {
+                ...values.formFieldsName,
                 city: value.city,
                 state: value.state ? value.state : '',
                 county: value.county,

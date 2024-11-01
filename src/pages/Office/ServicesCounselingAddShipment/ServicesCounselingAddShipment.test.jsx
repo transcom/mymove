@@ -5,7 +5,7 @@ import userEvent from '@testing-library/user-event';
 
 import ServicesCounselingAddShipment from './ServicesCounselingAddShipment';
 
-import { createMTOShipment } from 'services/ghcApi';
+import { createMTOShipment, searchLocationByZipCityState } from 'services/ghcApi';
 import { useEditShipmentQueries } from 'hooks/queries';
 import { MockProviders } from 'testUtils';
 import { servicesCounselingRoutes } from 'constants/routes';
@@ -20,6 +20,7 @@ jest.mock('react-router-dom', () => ({
 jest.mock('services/ghcApi', () => ({
   ...jest.requireActual('services/ghcApi'),
   createMTOShipment: jest.fn(),
+  searchLocationByZipCityState: jest.fn(),
 }));
 
 jest.mock('hooks/queries', () => ({
@@ -165,6 +166,17 @@ beforeEach(() => {
   jest.resetAllMocks();
 });
 
+const mockLocation = {
+  address: {
+    city: 'San Antonio',
+    county: 'Bexar',
+    postalCode: '78234',
+    state: 'TX',
+  },
+};
+
+const mockSearchLocationByZipCityState = () => Promise.resolve([mockLocation]);
+
 describe('ServicesCounselingAddShipment component', () => {
   describe('check different component states', () => {
     it('renders the Loading Placeholder when the query is still loading', async () => {
@@ -199,7 +211,7 @@ describe('ServicesCounselingAddShipment component', () => {
     it('routes to the move details page when the save button is clicked', async () => {
       useEditShipmentQueries.mockReturnValue(useEditShipmentQueriesReturnValue);
       createMTOShipment.mockImplementation(() => Promise.resolve({}));
-
+      searchLocationByZipCityState.mockImplementation(mockSearchLocationByZipCityState);
       renderWithMocks();
 
       const saveButton = screen.getByRole('button', { name: 'Save' });
@@ -213,9 +225,12 @@ describe('ServicesCounselingAddShipment component', () => {
       expect(screen.getByLabelText('Use current address')).not.toBeChecked();
 
       await userEvent.type(screen.getAllByLabelText('Address 1')[0], '812 S 129th St');
-      await userEvent.type(screen.getAllByLabelText('City')[0], 'San Antonio');
-      await userEvent.selectOptions(screen.getAllByLabelText('State')[0], ['TX']);
-      await userEvent.type(screen.getAllByLabelText('ZIP')[0], '78234');
+      const inputs = screen.getAllByRole('combobox');
+      await userEvent.type(inputs[0], '78234');
+      await userEvent.keyboard('{Enter}');
+      // await userEvent.type(screen.getAllByLabelText('City')[0], 'San Antonio');
+      // await userEvent.selectOptions(screen.getAllByLabelText('State')[0], ['TX']);
+      // await userEvent.type(screen.getAllByLabelText('ZIP')[0], '78234');
       await userEvent.type(screen.getByLabelText('Requested pickup date'), '01 Nov 2020');
       await userEvent.type(screen.getByLabelText('Requested delivery date'), '08 Nov 2020');
 

@@ -49,7 +49,6 @@ export const AddressFields = ({
       maxLength={10}
       labelHint={labelHintProp}
       validate={validators?.postalCode}
-      isDisabled={zipCityEnabled}
       onChange={async (e) => {
         // If we are validating on change we need to also set the field to touched when it is changed.
         // Formik, by default, only sets the field to touched on blur.
@@ -149,7 +148,6 @@ export const AddressFields = ({
                 labelHint={labelHintProp}
                 data-testid={`${name}.city`}
                 validate={validators?.city}
-                isDisabled={zipCityEnabled}
               />
               {handleLocationChange && (
                 <TextField
@@ -160,7 +158,6 @@ export const AddressFields = ({
                   labelHint={labelHintProp}
                   data-testid={`${name}.county`}
                   validate={validators?.county}
-                  isDisabled={zipCityEnabled}
                 />
               )}
             </div>

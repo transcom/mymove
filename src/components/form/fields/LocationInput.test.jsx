@@ -29,7 +29,7 @@ jest.mock('services/internalApi', () => ({
   searchLocationByZipCityState: jest.fn(),
 }));
 
-const handleZipCityChange = jest.fn();
+const handleLocationChange = jest.fn();
 
 describe('ZipCityInput', () => {
   describe('with all required props', () => {
@@ -39,7 +39,7 @@ describe('ZipCityInput', () => {
         placeholder="Start typing a Zip Code or City..."
         label="Zip/City Lookup"
         displayAddress={false}
-        handleLocationChange={handleZipCityChange}
+        handleLocationChange={handleLocationChange}
       />,
     );
 
