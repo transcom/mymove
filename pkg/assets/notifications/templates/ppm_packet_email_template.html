@@ -1,6 +1,13 @@
 <p>{{.MessageOpening}}</p>
+
 <p>{{.MessageConfirmation}}</p>
-{{if eq .IsActualExpenseReimbursement "true"}}<p>{{.MessageAER}}</p>{{end}}
+{{if eq .IsActualExpenseReimbursement "true"}}
+<p>{{.MessageAER}}</p>
+{{end}}
 <p>Next steps:</p>
-<p>{{.MessageBranchCondition}}</p>
-<p>{{.MessageClosing}}</p>
+{{range .MessageBranchCondition}}
+<p>{{.}}</p>
+{{end}}
+{{range .MessageClosing}}
+<p>{{.}}</p>
+{{end}}
