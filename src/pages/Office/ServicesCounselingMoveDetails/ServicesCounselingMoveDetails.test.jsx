@@ -14,7 +14,7 @@ import { SHIPMENT_OPTIONS_URL } from 'shared/constants';
 import { useMoveDetailsQueries, useOrdersDocumentQueries } from 'hooks/queries';
 import { formatDateWithUTC } from 'shared/dates';
 import { MockProviders } from 'testUtils';
-import { updateMoveStatusServiceCounselingCompleted } from 'services/ghcApi';
+import { updateMTOShipment, updateMoveStatusServiceCounselingCompleted } from 'services/ghcApi';
 
 const mockRequestedMoveCode = 'LR4T8V';
 const mockRoutingParams = { moveCode: mockRequestedMoveCode };
@@ -430,6 +430,207 @@ const ppmShipmentQuery = {
         createdAt: '2022-11-08T23:44:58.226Z',
         eTag: 'MjAyMi0xMS0wOFQyMzo0NDo1OC4yMjY0NTNa',
         estimatedIncentive: 1000000,
+        estimatedWeight: 4000,
+        expectedDepartureDate: '2020-03-15',
+        finalIncentive: null,
+        hasProGear: true,
+        hasReceivedAdvance: null,
+        hasRequestedAdvance: true,
+        id: '79b98a71-158d-4b04-9a6c-25543c52183d',
+        movingExpenses: null,
+        hasSecondaryPickupAddress: true,
+        hasSecondaryDestinationAddress: true,
+        pickupAddress: {
+          streetAddress1: '111 Test Street',
+          streetAddress2: '222 Test Street',
+          streetAddress3: 'Test Man',
+          city: 'Test City',
+          state: 'KY',
+          postalCode: '42701',
+        },
+        secondaryPickupAddress: {
+          streetAddress1: '777 Test Street',
+          streetAddress2: '888 Test Street',
+          streetAddress3: 'Test Man',
+          city: 'Test City',
+          state: 'KY',
+          postalCode: '42702',
+        },
+        destinationAddress: {
+          streetAddress1: '222 Test Street',
+          streetAddress2: '333 Test Street',
+          streetAddress3: 'Test Man',
+          city: 'Test City',
+          state: 'KY',
+          postalCode: '42703',
+        },
+        secondaryDestinationAddress: {
+          streetAddress1: '444 Test Street',
+          streetAddress2: '555 Test Street',
+          streetAddress3: 'Test Man',
+          city: 'Test City',
+          state: 'KY',
+          postalCode: '42701',
+        },
+        proGearWeight: 1987,
+        proGearWeightTickets: null,
+        reviewedAt: null,
+        shipmentId: 'e33a1a7b-530f-4df4-b947-d3d719786385',
+        sitEstimatedCost: null,
+        sitEstimatedDepartureDate: null,
+        sitEstimatedEntryDate: null,
+        sitEstimatedWeight: null,
+        sitExpected: false,
+        spouseProGearWeight: 498,
+        status: 'NEEDS_CLOSEOUT',
+        submittedAt: null,
+        updatedAt: '2022-11-08T23:44:58.226Z',
+        weightTickets: null,
+      },
+      primeActualWeight: 980,
+      requestedDeliveryDate: '0001-01-01',
+      requestedPickupDate: '0001-01-01',
+      shipmentType: 'PPM',
+      status: 'APPROVED',
+      updatedAt: '2022-11-08T23:44:58.217Z',
+    },
+    {
+      actualPickupDate: '2020-03-16',
+      createdAt: '2022-11-08T23:44:58.306Z',
+      customerRemarks: 'Please treat gently',
+      destinationAddress: {
+        city: 'Fairfield',
+        country: 'US',
+        eTag: 'MjAyMi0xMS0wOFQyMzo0NDo1OC4zMDQxOTRa',
+        id: '290f7c0a-867f-4d33-83e2-a465dcd83423',
+        postalCode: '94535',
+        state: 'CA',
+        streetAddress1: '987 Any Avenue',
+        streetAddress2: 'P.O. Box 9876',
+        streetAddress3: 'c/o Some Person',
+      },
+      eTag: 'MjAyMi0xMS0wOFQyMzo0NDo1OC4zMDY2Mzda',
+      id: 'a335b359-96cd-4123-8d07-d2270ebaa95c',
+      moveTaskOrderID: 'bfd1e5ad-bcbe-4a67-a8e5-4436396cc946',
+      pickupAddress: {
+        city: 'Beverly Hills',
+        country: 'US',
+        eTag: 'MjAyMi0xMS0wOFQyMzo0NDo1OC4zMDE5Njha',
+        id: 'da8852a6-9a77-4e8b-b943-f65e616fbc7a',
+        postalCode: '90210',
+        state: 'CA',
+        streetAddress1: '123 Any Street',
+        streetAddress2: 'P.O. Box 12345',
+        streetAddress3: 'c/o Some Person',
+      },
+      primeActualWeight: 980,
+      requestedDeliveryDate: '2020-03-15',
+      requestedPickupDate: '2020-03-15',
+      scheduledPickupDate: '2020-03-16',
+      shipmentType: 'HHG',
+      status: 'SUBMITTED',
+      updatedAt: '2022-11-08T23:44:58.306Z',
+    },
+  ],
+};
+
+const zeroEstimatedIncentivePPMShipmentQuery = {
+  ...newMoveDetailsQuery,
+  mtoShipments: [
+    {
+      customerRemarks: 'Please treat gently',
+      eTag: 'MjAyMi0xMS0wOFQyMzo0NDo1OC4yMTc4MVo=',
+      id: '167985a7-6d47-4412-b620-d4b7f98a09ed',
+      moveTaskOrderID: 'ddf94b4f-db77-4916-83ff-0d6bc68c8b42',
+      ppmShipment: {
+        actualDestinationPostalCode: null,
+        actualMoveDate: null,
+        actualPickupPostalCode: null,
+        advanceAmountReceived: null,
+        advanceAmountRequested: 598700,
+        approvedAt: null,
+        createdAt: '2022-11-08T23:44:58.226Z',
+        eTag: 'MjAyMi0xMS0wOFQyMzo0NDo1OC4yMjY0NTNa',
+        estimatedIncentive: 0,
+        estimatedWeight: 4000,
+        expectedDepartureDate: '2020-03-15',
+        finalIncentive: null,
+        hasProGear: true,
+        hasReceivedAdvance: null,
+        hasRequestedAdvance: true,
+        id: '79b98a71-158d-4b04-9a6c-25543c52183d',
+        movingExpenses: null,
+        proGearWeight: 1987,
+        proGearWeightTickets: null,
+        reviewedAt: null,
+        hasSecondaryPickupAddress: true,
+        hasSecondaryDestinationAddress: true,
+        pickupAddress: {
+          streetAddress1: '111 Test Street',
+          streetAddress2: '222 Test Street',
+          streetAddress3: 'Test Man',
+          city: 'Test City',
+          state: 'KY',
+          postalCode: '42701',
+        },
+        secondaryPickupAddress: {
+          streetAddress1: '777 Test Street',
+          streetAddress2: '888 Test Street',
+          streetAddress3: 'Test Man',
+          city: 'Test City',
+          state: 'KY',
+          postalCode: '42702',
+        },
+        destinationAddress: {
+          streetAddress1: '222 Test Street',
+          streetAddress2: '333 Test Street',
+          streetAddress3: 'Test Man',
+          city: 'Test City',
+          state: 'KY',
+          postalCode: '42703',
+        },
+        secondaryDestinationAddress: {
+          streetAddress1: '444 Test Street',
+          streetAddress2: '555 Test Street',
+          streetAddress3: 'Test Man',
+          city: 'Test City',
+          state: 'KY',
+          postalCode: '42701',
+        },
+        shipmentId: '167985a7-6d47-4412-b620-d4b7f98a09ed',
+        sitEstimatedCost: null,
+        sitEstimatedDepartureDate: null,
+        sitEstimatedEntryDate: null,
+        sitEstimatedWeight: null,
+        sitExpected: false,
+        spouseProGearWeight: 498,
+        status: 'NEEDS_CLOSEOUT',
+        submittedAt: null,
+        updatedAt: '2022-11-08T23:44:58.226Z',
+        weightTickets: [{ emptyWeight: 0, fullWeight: 20000 }],
+      },
+      primeActualWeight: 980,
+      requestedDeliveryDate: '0001-01-01',
+      requestedPickupDate: '0001-01-01',
+      shipmentType: 'PPM',
+      status: 'APPROVED',
+      updatedAt: '2022-11-08T23:44:58.217Z',
+    },
+    {
+      customerRemarks: 'Please treat gently',
+      eTag: 'MjAyMi0xMS0wOFQyMzo0NDo1OC4yMTc4MVo=',
+      id: 'e33a1a7b-530f-4df4-b947-d3d719786385',
+      moveTaskOrderID: 'ddf94b4f-db77-4916-83ff-0d6bc68c8b42',
+      ppmShipment: {
+        actualDestinationPostalCode: null,
+        actualMoveDate: null,
+        actualPickupPostalCode: null,
+        advanceAmountReceived: null,
+        advanceAmountRequested: 598700,
+        approvedAt: null,
+        createdAt: '2022-11-08T23:44:58.226Z',
+        eTag: 'MjAyMi0xMS0wOFQyMzo0NDo1OC4yMjY0NTNa',
+        estimatedIncentive: 0,
         estimatedWeight: 4000,
         expectedDepartureDate: '2020-03-15',
         finalIncentive: null,
@@ -992,6 +1193,29 @@ describe('MoveDetails page', () => {
 
         await waitFor(() => {
           expect(screen.queryByRole('heading', { name: 'Are you sure?', level: 2 })).not.toBeInTheDocument();
+        });
+      });
+
+      it('calls update shipment when ppm estimatedIncentive is zero', async () => {
+        useMoveDetailsQueries.mockReturnValue(zeroEstimatedIncentivePPMShipmentQuery);
+        useOrdersDocumentQueries.mockReturnValue(zeroEstimatedIncentivePPMShipmentQuery);
+        updateMTOShipment.mockImplementation(() => Promise.resolve({}));
+        updateMoveStatusServiceCounselingCompleted.mockImplementation(() => Promise.resolve({}));
+
+        renderComponent();
+
+        const submitButton = await screen.findByRole('button', { name: 'Submit move details' });
+
+        await userEvent.click(submitButton);
+
+        expect(await screen.findByRole('heading', { name: 'Are you sure?', level: 2 })).toBeInTheDocument();
+
+        const modalSubmitButton = screen.getByRole('button', { name: 'Yes, submit' });
+
+        await userEvent.click(modalSubmitButton);
+
+        await waitFor(() => {
+          expect(updateMTOShipment).toHaveBeenCalled();
         });
       });
 
