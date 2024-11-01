@@ -191,7 +191,7 @@ func (f orderFetcher) ListOrders(appCtx appcontext.AppContext, officeUserID uuid
 			if *params.NeedsPPMCloseout {
 				query.InnerJoin("ppm_shipments", "ppm_shipments.shipment_id = mto_shipments.id").
 					LeftJoin("transportation_offices as closeout_to", "closeout_to.id = moves.closeout_office_id").
-					Where("ppm_shipments.status IN (?)", models.PPMShipmentStatusWaitingOnCustomer, models.PPMShipmentStatusNeedsCloseout).
+					Where("ppm_shipments.status IN (?)", models.PPMShipmentStatusNeedsCloseout).
 					Where("service_members.affiliation NOT IN (?)", models.AffiliationNAVY, models.AffiliationMARINES, models.AffiliationCOASTGUARD)
 			} else {
 				query.LeftJoin("ppm_shipments", "ppm_shipments.shipment_id = mto_shipments.id").
@@ -430,7 +430,7 @@ func (f orderFetcher) ListAllOrderLocations(appCtx appcontext.AppContext, office
 		if params.NeedsPPMCloseout != nil {
 			if *params.NeedsPPMCloseout {
 				query.InnerJoin("ppm_shipments", "ppm_shipments.shipment_id = mto_shipments.id").
-					Where("ppm_shipments.status IN (?)", models.PPMShipmentStatusWaitingOnCustomer, models.PPMShipmentStatusNeedsCloseout, models.PPMShipmentStatusCloseoutComplete).
+					Where("ppm_shipments.status IN (?)", models.PPMShipmentStatusNeedsCloseout, models.PPMShipmentStatusCloseoutComplete).
 					Where("service_members.affiliation NOT IN (?)", models.AffiliationNAVY, models.AffiliationMARINES, models.AffiliationCOASTGUARD)
 			} else {
 				query.LeftJoin("ppm_shipments", "ppm_shipments.shipment_id = mto_shipments.id").
@@ -548,7 +548,7 @@ func locatorFilter(locator *string) QueryOption {
 func originDutyLocationFilter(originDutyLocation []string) QueryOption {
 	return func(query *pop.Query) {
 		if len(originDutyLocation) > 0 {
-			query.Where("origin_dl.name IN (?)", originDutyLocation)
+			query.Where("origin_dl.name ILIKE ?", "%"+strings.Join(originDutyLocation, " ")+"%")
 		}
 	}
 }
