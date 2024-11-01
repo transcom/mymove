@@ -491,12 +491,14 @@ func (suite *MTOServiceItemServiceSuite) TestCreateMTOServiceItem() {
 
 		contract := testdatagen.FetchOrMakeReContract(suite.DB(), testdatagen.Assertions{})
 
+		startDate := time.Date(2024, time.January, 1, 12, 0, 0, 0, time.UTC)
+		endDate := time.Date(2024, time.December, 31, 12, 0, 0, 0, time.UTC)
 		contractYear := testdatagen.FetchOrMakeReContractYear(suite.DB(), testdatagen.Assertions{
 			ReContractYear: models.ReContractYear{
 				Contract:             contract,
 				ContractID:           contract.ID,
-				StartDate:            time.Now(),
-				EndDate:              time.Now().Add(time.Hour * 12),
+				StartDate:            startDate,
+				EndDate:              endDate,
 				Escalation:           1.0,
 				EscalationCompounded: 1.0,
 			},
@@ -511,6 +513,19 @@ func (suite *MTOServiceItemServiceSuite) TestCreateMTOServiceItem() {
 		suite.MustSave(&msTaskOrderFee)
 
 		move := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
+
+		pickupDate := time.Date(2024, time.July, 31, 12, 0, 0, 0, time.UTC)
+		factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+			{
+				Model: models.MTOShipment{
+					RequestedPickupDate: &pickupDate,
+				},
+			},
+		}, nil)
 
 		serviceItemMS := models.MTOServiceItem{
 			MoveTaskOrderID: move.ID,
