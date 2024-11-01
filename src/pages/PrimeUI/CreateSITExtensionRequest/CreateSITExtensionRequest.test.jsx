@@ -37,9 +37,8 @@ const moveTaskOrder = {
         streetAddress1: '100 1st Avenue',
         city: 'New York',
         state: 'NY',
-        postalCode: '10001',
+        postalCode: '10001' },
         marketCode: 'd',
-      },
     },
   ],
   mtoServiceItems: [
