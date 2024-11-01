@@ -259,12 +259,12 @@ func (router moveRouter) sendToServiceCounselor(appCtx appcontext.AppContext, mo
 				return apperror.NewInvalidInputError(move.MTOShipments[i].ID, err, verrs, msg)
 			}
 		}
+	}
 
-		if verrs, err := appCtx.DB().ValidateAndSave(move); verrs.HasAny() || err != nil {
-			msg := "failure saving move when routing move submission"
-			appCtx.Logger().Error(msg, zap.Error(err))
-			return apperror.NewInvalidInputError(move.ID, err, verrs, msg)
-		}
+	if verrs, err := appCtx.DB().ValidateAndSave(move); verrs.HasAny() || err != nil {
+		msg := "failure saving move when routing move submission"
+		appCtx.Logger().Error(msg, zap.Error(err))
+		return apperror.NewInvalidInputError(move.ID, err, verrs, msg)
 	}
 	return nil
 }
