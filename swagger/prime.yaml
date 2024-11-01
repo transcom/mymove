@@ -2093,6 +2093,8 @@ definitions:
             enum:
               - DOFSIT
               - DOASIT
+              - IOFSIT
+              - IOASIT
           reason:
             type: string
             example: Storage items need to be picked up
