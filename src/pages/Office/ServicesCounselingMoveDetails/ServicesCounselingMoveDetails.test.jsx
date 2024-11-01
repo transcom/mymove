@@ -614,7 +614,7 @@ const zeroIncentivePpmShipmentQuery = {
       requestedDeliveryDate: '0001-01-01',
       requestedPickupDate: '0001-01-01',
       shipmentType: 'PPM',
-      status: 'APPROVED',
+      status: 'NEEDS SERVICE COUNSELING',
       updatedAt: '2022-11-08T23:44:58.217Z',
     },
     {
@@ -684,7 +684,7 @@ const zeroIncentivePpmShipmentQuery = {
         sitEstimatedWeight: null,
         sitExpected: false,
         spouseProGearWeight: 0,
-        status: 'NEEDS_CLOSEOUT',
+        status: 'NEEDS SERVICE COUNSELING',
         submittedAt: null,
         updatedAt: '2022-11-08T23:44:58.226Z',
         weightTickets: null,
@@ -693,7 +693,7 @@ const zeroIncentivePpmShipmentQuery = {
       requestedDeliveryDate: '0001-01-01',
       requestedPickupDate: '0001-01-01',
       shipmentType: 'PPM',
-      status: 'APPROVED',
+      status: 'NEEDS SERVICE COUNSELING',
       updatedAt: '2022-11-08T23:44:58.217Z',
     },
     {
