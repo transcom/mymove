@@ -143,7 +143,7 @@ describe('Shipment details component', () => {
       `${approvedMoveTaskOrder.moveTaskOrder.mtoShipments[0].marketCode}HHG shipment`,
     );
   });
-  
+
   it('renders the shipment address values', async () => {
     render(mockedComponent);
     const shipment = approvedMoveTaskOrder.moveTaskOrder.mtoShipments[0];
