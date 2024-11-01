@@ -1201,7 +1201,7 @@ describe('MoveDetails page', () => {
         useMoveDetailsQueries.mockReturnValue(zeroIncentivePpmShipmentQuery);
         useOrdersDocumentQueries.mockReturnValue(zeroIncentivePpmShipmentQuery);
         updateMoveStatusServiceCounselingCompleted.mockImplementation(() => Promise.resolve({}));
-        updateMTOShipment.mockImplmenetation(zeroIncentivePpmShipmentQuery);
+        updateMTOShipment.mockImplementation(zeroIncentivePpmShipmentQuery);
 
         renderComponent();
 
