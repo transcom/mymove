@@ -23,7 +23,12 @@ import CancelMoveConfirmationModal from 'components/ConfirmationModals/CancelMov
 import ShipmentDisplay from 'components/Office/ShipmentDisplay/ShipmentDisplay';
 import { SubmitMoveConfirmationModal } from 'components/Office/SubmitMoveConfirmationModal/SubmitMoveConfirmationModal';
 import { useMoveDetailsQueries, useOrdersDocumentQueries } from 'hooks/queries';
-import { updateMoveStatusServiceCounselingCompleted, cancelMove, updateFinancialFlag, updateMTOShipment } from 'services/ghcApi';
+import {
+  updateMoveStatusServiceCounselingCompleted,
+  cancelMove,
+  updateFinancialFlag,
+  updateMTOShipment,
+} from 'services/ghcApi';
 import { MOVE_STATUSES, SHIPMENT_OPTIONS_URL, SHIPMENT_OPTIONS, FEATURE_FLAG_KEYS } from 'shared/constants';
 import { ppmShipmentStatuses, shipmentStatuses } from 'constants/shipments';
 import shipmentCardsStyles from 'styles/shipmentCards.module.scss';
