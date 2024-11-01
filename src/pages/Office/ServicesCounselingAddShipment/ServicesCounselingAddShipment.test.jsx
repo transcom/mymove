@@ -5,7 +5,7 @@ import userEvent from '@testing-library/user-event';
 
 import ServicesCounselingAddShipment from './ServicesCounselingAddShipment';
 
-import createMTOShipment from 'services/ghcApi';
+import { createMTOShipment } from 'services/ghcApi';
 import { useEditShipmentQueries } from 'hooks/queries';
 import { MockProviders } from 'testUtils';
 import { servicesCounselingRoutes } from 'constants/routes';

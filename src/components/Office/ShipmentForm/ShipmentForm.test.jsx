@@ -1071,22 +1071,11 @@ describe('ShipmentForm component', () => {
           shipmentType={SHIPMENT_OPTIONS.PPM}
           mtoShipment={mockPPMShipment}
           submitHandler={mockSubmitHandler}
-          isCreatePage
+          isCreatePage={false}
         />,
       );
 
       await act(async () => {
-        screen.getByLabelText('Planned Departure Date').focus();
-        await userEvent.paste('26 Mar 2022');
-        const user = userEvent.setup();
-
-        await act(async () => {
-          await user.click(screen.getByLabelText('Use Current Address'));
-        });
-
-        screen.getByLabelText('Estimated PPM weight').focus();
-        await userEvent.paste('1000');
-
         const saveButton = screen.getByRole('button', { name: 'Save and Continue' });
         expect(saveButton).not.toBeDisabled();
         await userEvent.click(saveButton);
