@@ -35,6 +35,7 @@ describe('when given an Acknowledge excess weight risk history record', () => {
       ...historyRecord,
       changedValues: { excess_weight_acknowledged_at: 'this would usually be a time value' },
     };
+
     const template = getTemplate(newHistoryRecordAcknowledged);
     render(template.getDetails(newHistoryRecordAcknowledged));
     expect(screen.getByText('Dismissed excess weight alert')).toBeInTheDocument();
