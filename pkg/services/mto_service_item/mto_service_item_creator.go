@@ -356,6 +356,9 @@ func (o *mtoServiceItemCreator) CreateMTOServiceItem(appCtx appcontext.AppContex
 	// MS and CS have no mtoShipment, for all other service items, process MTO Shipment info.
 	// For SIT service items, validate whether domestic or international before setting service code information.
 	if serviceItem.ReService.Code != models.ReServiceCodeMS && serviceItem.ReService.Code != models.ReServiceCodeCS {
+		if serviceItem.MTOShipmentID == nil {
+			return nil, nil, apperror.NewNotFoundError(uuid.Nil, "this service item expects an associated mtoshipment, none was provided")
+		}
 		// check if shipment exists linked by MoveTaskOrderID
 		mtoShipmentID := *serviceItem.MTOShipmentID
 		queryFilters = []services.QueryFilter{

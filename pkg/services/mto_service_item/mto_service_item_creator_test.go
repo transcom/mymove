@@ -403,6 +403,7 @@ func (suite *MTOServiceItemServiceSuite) TestCreateMTOServiceItem() {
 		serviceItemBadCode := models.MTOServiceItem{
 			MoveTaskOrderID: sitMove.ID,
 			MoveTaskOrder:   sitMove,
+			MTOShipmentID:   sitServiceItem.MTOShipmentID,
 			ReService: models.ReService{
 				Code: fakeCode,
 			},
@@ -413,6 +414,33 @@ func (suite *MTOServiceItemServiceSuite) TestCreateMTOServiceItem() {
 		suite.Error(err)
 		suite.IsType(apperror.NotFoundError{}, err)
 		suite.Contains(err.Error(), fakeCode)
+	})
+
+	// Should return a "NotFoundError" if the reServiceCode passed in isn't CS or MS and has no MTOShipment
+	suite.Run("unexpected reServiceCode with no MTOShipment", func() {
+		// TESTCASE SCENARIO
+		// Under test: CreateMTOServiceItem function
+		// Set up:     Create service item with an expected MTOShipment association but no ID
+		// Expected outcome:
+		//             Not found error returned, no new service items created
+
+		sitServiceItem := suite.buildValidDDFSITServiceItemWithValidMove()
+		sitMove := sitServiceItem.MoveTaskOrder
+
+		fakeCode := models.ReServiceCode("FAKE")
+		serviceItemBadCode := models.MTOServiceItem{
+			MoveTaskOrderID: sitMove.ID,
+			MoveTaskOrder:   sitMove,
+			ReService: models.ReService{
+				Code: fakeCode,
+			},
+		}
+
+		createdServiceItemsBadCode, _, err := creator.CreateMTOServiceItem(suite.AppContextForTest(), &serviceItemBadCode)
+		suite.Nil(createdServiceItemsBadCode)
+		suite.Error(err)
+		suite.IsType(apperror.NotFoundError{}, err)
+		suite.Contains(err.Error(), "this service item expects an associated mtoshipment, none was provided")
 	})
 
 	// Should be able to create a service item with code ReServiceCodeMS or ReServiceCodeCS without a shipment,
