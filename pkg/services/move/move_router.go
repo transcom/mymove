@@ -226,10 +226,9 @@ func (router moveRouter) sendToServiceCounselor(appCtx appcontext.AppContext, mo
 				return apperror.NewInvalidInputError(move.MTOShipments[i].PPMShipment.ID, err, verrs, msg)
 			}
 		}
-		// update status for boat or mobile home shipment
+		// update status for boat shipment
 		if move.MTOShipments[i].ShipmentType == models.MTOShipmentTypeBoatHaulAway ||
-			move.MTOShipments[i].ShipmentType == models.MTOShipmentTypeBoatTowAway ||
-			move.MTOShipments[i].ShipmentType == models.MTOShipmentTypeMobileHome {
+			move.MTOShipments[i].ShipmentType == models.MTOShipmentTypeBoatTowAway {
 			move.MTOShipments[i].Status = models.MTOShipmentStatusSubmitted
 
 			if verrs, err := appCtx.DB().ValidateAndUpdate(&move.MTOShipments[i]); verrs.HasAny() || err != nil {

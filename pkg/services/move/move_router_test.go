@@ -578,9 +578,9 @@ func (suite *MoveServiceSuite) TestMoveSubmission() {
 		suite.Equal(models.MoveStatusNeedsServiceCounseling, move.Status, "expected move to still be in NEEDS_SERVICE_COUNSELING status when routing has failed")
 	})
 
-	suite.Run("returns an error when a Mobile Home Shipment is not formatted correctly", func() {
+	suite.Run("returns an error when a Boat Shipment is not formatted correctly", func() {
 		// Under test: MoveRouter.Submit
-		// Set up: Submit a move without a mobile home shipment that has a field that will not pass validation
+		// Set up: Submit a move without a boat shipment that has a field that will not pass validation
 		// Expected outcome: Error on DB().ValidateAndUpdate
 		move := factory.BuildMove(suite.DB(), []factory.Customization{
 			{
