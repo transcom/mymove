@@ -21,16 +21,6 @@ var (
 	ppmPacketEmailHTMLTemplate = html.Must(html.New("text_template").Parse(ppmPacketEmailRawHTML))
 )
 
-func formatMessageConfirmation(locator, pickupCity, pickupState, destinationCity, destinationState string) string {
-	return fmt.Sprintf("This is a confirmation that your Personally Procured Move (PPM) with the assigned move code %s from %s, %s to %s, %s has been processed in MilMove.",
-		locator,
-		pickupCity,
-		pickupState,
-		destinationCity,
-		destinationState,
-	)
-}
-
 func formatMessageOpeningBranchCondition(branch, submitLocation string) []string {
 	switch branch {
 	case GetAffiliationDisplayValues()[models.AffiliationMARINES],
@@ -38,7 +28,7 @@ func formatMessageOpeningBranchCondition(branch, submitLocation string) []string
 		GetAffiliationDisplayValues()[models.AffiliationNAVY]:
 		return []string{
 			"For Marine Corps, Navy, and Coast Guard personnel:",
-			"You can now log into MilMove " + MyMoveLink + "and view your payment packet; however, you do not need to forward your payment packet to finance as your closeout location is associated with your finance office and they will handle this step for you.",
+			"You can now log into MilMove " + MyMoveLink + " and view your payment packet; however, you do not need to forward your payment packet to finance as your closeout location is associated with your finance office and they will handle this step for you.",
 			"Note: Not all claimed expenses may have been accepted during PPM closeout if they did not meet the definition of a valid expense.",
 			"Please be advised, your local finance office may require a DD Form 1351-2 to process payment. You can obtain a copy of this form by utilizing the search feature at " + WashingtonHQServicesLink + ".",
 		}
@@ -104,7 +94,6 @@ type PpmPacketEmailData struct {
 	MyMoveLink                        string
 	SmartVoucherLink                  string
 	MessageOpening                    string
-	MessageConfirmation               string
 	MessageBranchCondition            []string
 	MessageClosing                    []string
 	MessageAER                        string
@@ -237,7 +226,6 @@ func (p PpmPacketEmail) GetEmailData(appCtx appcontext.AppContext) (PpmPacketEma
 				MyMoveLink:                        MyMoveLink,
 				SmartVoucherLink:                  SmartVoucherLink,
 				MessageOpening:                    MessageDoNotReply,
-				MessageConfirmation:               formatMessageConfirmation(move.Locator, pickupAddress.City, pickupAddress.State, destinationAddress.City, destinationAddress.State),
 				MessageBranchCondition:            formatMessageOpeningBranchCondition(GetAffiliationDisplayValues()[*serviceMember.Affiliation], submitLocation),
 				MessageClosing:                    formatMessageClosing(),
 				MessageAER:                        MessageActualExpenseReimbursement,
@@ -262,7 +250,6 @@ func (p PpmPacketEmail) GetEmailData(appCtx appcontext.AppContext) (PpmPacketEma
 			MyMoveLink:                        MyMoveLink,
 			SmartVoucherLink:                  SmartVoucherLink,
 			MessageOpening:                    MessageDoNotReply,
-			MessageConfirmation:               formatMessageConfirmation(move.Locator, ppmShipment.PickupAddress.City, ppmShipment.PickupAddress.State, ppmShipment.DestinationAddress.City, ppmShipment.DestinationAddress.State),
 			MessageBranchCondition:            formatMessageOpeningBranchCondition(GetAffiliationDisplayValues()[*serviceMember.Affiliation], submitLocation),
 			MessageClosing:                    formatMessageClosing(),
 			MessageAER:                        MessageActualExpenseReimbursement,

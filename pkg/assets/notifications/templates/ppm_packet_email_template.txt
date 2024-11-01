@@ -1,6 +1,6 @@
 {{.MessageOpening}}
 
-{{.MessageConfirmation}}
+This is a confirmation that your Personally Procured Move (PPM) with the assigned move code {{.Locator}} from {{.OriginCity}}, {{.OriginState}} to {{.DestinationCity}}, {{.DestinationState}} has been processed in MilMove.
 {{if eq .IsActualExpenseReimbursement "true"}}
 {{.MessageAER}}
 {{end}}

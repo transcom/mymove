@@ -1,10 +1,10 @@
 <p>{{.MessageOpening}}</p>
 
-<p>{{.MessageConfirmation}}</p>
+<p>This is a confirmation that your Personally Procured Move (PPM) with the assigned move code <b>{{.Locator}}</b> from <b>{{.OriginCity}}</b>, <b>{{.OriginState}}</b> to <b>{{.DestinationCity}}</b>, <b>{{.DestinationState}}</b> has been processed in MilMove.</p>
 {{if eq .IsActualExpenseReimbursement "true"}}
 <p>{{.MessageAER}}</p>
 {{end}}
-<p>Next steps:</p>
+<p><b>Next steps:</b></p>
 {{range .MessageBranchCondition}}
 <p>{{.}}</p>
 {{end}}
