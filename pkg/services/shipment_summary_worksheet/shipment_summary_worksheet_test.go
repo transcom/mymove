@@ -331,6 +331,7 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestFormatValuesShipmentSumma
 		Shipment: models.MTOShipment{
 			ShipmentLocator: &locator,
 		},
+		IsActualExpenseReimbursement: models.BoolPointer(true),
 	}
 	ssd := models.ShipmentSummaryFormData{
 		ServiceMember:           serviceMember,
@@ -374,6 +375,8 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestFormatValuesShipmentSumma
 	suite.Equal("Waiting On Customer", sswPage1.ShipmentCurrentShipmentStatuses)
 	suite.Equal("17,500", sswPage1.TotalWeightAllotmentRepeat)
 	suite.Equal("15,000 lbs; $10,000.00", sswPage1.MaxObligationGCC100)
+	suite.True(sswPage1.IsActualExpenseReimbursement)
+	suite.Equal("Actual Expense Reimbursement", sswPage1.GCCIsActualExpenseReimbursement)
 
 	// quick test when there is no PPM actual move date
 	PPMShipmentWithoutActualMoveDate := models.PPMShipment{
@@ -408,6 +411,7 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestFormatValuesShipmentSumma
 		Shipment: models.MTOShipment{
 			ShipmentLocator: &locator,
 		},
+		IsActualExpenseReimbursement: models.BoolPointer(true),
 	}
 
 	order := models.Order{
@@ -481,6 +485,9 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestFormatValuesShipmentSumma
 	suite.Equal("$400.00", sswPage2.TotalMemberPaid)
 	suite.Equal("NTA4", sswPage2.TAC)
 	suite.Equal("SAC", sswPage2.SAC)
+	suite.Equal("Actual Expense Reimbursement", sswPage2.IncentiveIsActualExpenseReimbursement)
+	suite.Equal(`This PPM is being processed at actual expense reimbursement for valid expenses not to exceed the
+		government constructed cost (GCC).`, sswPage2.HeaderIsActualExpenseReimbursement)
 }
 
 func (suite *ShipmentSummaryWorksheetServiceSuite) TestFormatValuesShipmentSummaryWorksheetFormPage2ExcludeRejectedOrExcludedExpensesFromTotal() {
