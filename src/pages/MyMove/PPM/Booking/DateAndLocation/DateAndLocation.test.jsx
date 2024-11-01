@@ -284,6 +284,7 @@ describe('DateAndLocation component', () => {
             hasTertiaryDestinationAddress: false,
             sitExpected: false,
             expectedDepartureDate: '2022-07-04',
+            isActualExpenseReimbursement: false,
           },
         });
 
@@ -367,6 +368,7 @@ describe('DateAndLocation component', () => {
             hasTertiaryDestinationAddress: false,
             sitExpected: false,
             expectedDepartureDate: '2022-07-04',
+            isActualExpenseReimbursement: false,
           },
         });
 
@@ -602,6 +604,7 @@ describe('DateAndLocation component', () => {
             hasTertiaryDestinationAddress: true,
             sitExpected: true,
             expectedDepartureDate: '2022-07-04',
+            isActualExpenseReimbursement: false,
           },
         });
 
@@ -1055,6 +1058,7 @@ describe('DateAndLocation component', () => {
                 hasTertiaryDestinationAddress: true,
                 sitExpected: true,
                 expectedDepartureDate: '2022-12-31',
+                isActualExpenseReimbursement: false,
               },
             },
             fullShipmentProps.mtoShipment.eTag,
@@ -1129,6 +1133,7 @@ describe('DateAndLocation component', () => {
                 hasTertiaryDestinationAddress: true,
                 sitExpected: true,
                 expectedDepartureDate: '2022-12-31',
+                isActualExpenseReimbursement: false,
               },
             },
             fullShipmentProps.mtoShipment.eTag,
@@ -1206,6 +1211,7 @@ describe('DateAndLocation component', () => {
                 hasTertiaryDestinationAddress: true,
                 sitExpected: true,
                 expectedDepartureDate: '2022-07-04',
+                isActualExpenseReimbursement: false,
               },
             },
             fullShipmentProps.mtoShipment.eTag,

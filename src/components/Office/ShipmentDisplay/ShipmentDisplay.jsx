@@ -93,6 +93,7 @@ const ShipmentDisplay = ({
                 <label id={`shipment-display-label-${shipmentId}`}>{displayInfo.heading}</label>
               </h3>
               <div>
+                {displayInfo.isActualExpenseReimbursement && <Tag>actual expense reimbursement</Tag>}
                 {displayInfo.isDiversion && <Tag>diversion</Tag>}
                 {displayInfo.shipmentStatus === shipmentStatuses.CANCELED && (
                   <Tag className="usa-tag--red">cancelled</Tag>

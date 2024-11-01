@@ -548,7 +548,7 @@ func locatorFilter(locator *string) QueryOption {
 func originDutyLocationFilter(originDutyLocation []string) QueryOption {
 	return func(query *pop.Query) {
 		if len(originDutyLocation) > 0 {
-			query.Where("origin_dl.name IN (?)", originDutyLocation)
+			query.Where("origin_dl.name ILIKE ?", "%"+strings.Join(originDutyLocation, " ")+"%")
 		}
 	}
 }
