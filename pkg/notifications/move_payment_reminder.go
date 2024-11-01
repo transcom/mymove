@@ -11,6 +11,7 @@ import (
 
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/assets"
+	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/unit"
 )
@@ -46,14 +47,21 @@ type PaymentReminderEmailInfos []PaymentReminderEmailInfo
 
 // PaymentReminderEmailInfo contains payment reminder data for rendering a template
 type PaymentReminderEmailInfo struct {
-	ServiceMemberID        uuid.UUID   `db:"id"`
-	Email                  *string     `db:"personal_email"`
-	NewDutyLocationName    string      `db:"new_duty_location_name"`
-	OriginDutyLocationName string      `db:"origin_duty_location_name"`
-	MoveDate               string      `db:"move_date"`
-	Locator                string      `db:"locator"`
-	WeightEstimate         *unit.Pound `db:"weight_estimate"`
-	IncentiveEstimate      *unit.Cents `db:"incentive_estimate"`
+	ServiceMemberID        uuid.UUID                   `db:"id"`
+	Email                  *string                     `db:"personal_email"`
+	NewDutyLocationName    string                      `db:"new_duty_location_name"`
+	OriginDutyLocationName string                      `db:"origin_duty_location_name"`
+	MoveDate               string                      `db:"move_date"`
+	Locator                string                      `db:"locator"`
+	WeightEstimate         *unit.Pound                 `db:"weight_estimate"`
+	IncentiveEstimate      *unit.Cents                 `db:"incentive_estimate"`
+	DestinationStreet1     *string                     `db:"destination_street_address_1"`
+	DestinationStreet2     *string                     `db:"destination_street_address_2"`
+	DestinationStreet3     *string                     `db:"destination_street_address_3"`
+	DestinationCity        *string                     `db:"destination_city"`
+	DestinationState       *string                     `db:"destination_state"`
+	DestinationPostalCode  *string                     `db:"destination_postal_code"`
+	OrdersType             internalmessages.OrdersType `db:"orders_type"`
 }
 
 // GetEmailInfo fetches payment email information
@@ -65,7 +73,14 @@ func (m PaymentReminder) GetEmailInfo(appCtx appcontext.AppContext) (PaymentRemi
 	ps.expected_departure_date  as move_date,
 	dln.name AS new_duty_location_name,
 	dln2.name AS origin_duty_location_name,
-	m.locator
+	m.locator,
+	da.street_address_1 AS destination_street_address_1,
+	da.street_address_2 AS destination_street_address_2,
+	da.street_address_3 AS destination_street_address_3,
+	da.city AS destination_city,
+	da.state AS destination_state,
+	da.postal_code AS destination_postal_code,
+	o.orders_type
 FROM ppm_shipments ps
 	JOIN mto_shipments ms on ms.id = ps.shipment_id
 	JOIN moves m ON ms.move_id  = m.id
@@ -73,6 +88,7 @@ FROM ppm_shipments ps
 	JOIN service_members sm ON o.service_member_id = sm.id
 	JOIN duty_locations dln ON o.new_duty_location_id = dln.id
 	JOIN duty_locations dln2 ON o.origin_duty_location_id = dln2.id
+	JOIN addresses da ON ps.destination_postal_address_id = da.id
 	WHERE ps.status = 'WAITING_ON_CUSTOMER'::public."ppm_shipment_status"
 	AND ms.status = 'APPROVED'::public."mto_shipment_status"
 	AND ps.expected_departure_date <= now() - ($1)::interval
@@ -104,13 +120,14 @@ func (m PaymentReminder) emails(appCtx appcontext.AppContext) ([]emailContent, e
 	return m.formatEmails(appCtx, paymentReminderEmailInfos)
 }
 
+// TODO: rename to DestinationLocation
 // formatEmails formats email data using both html and text template
 func (m PaymentReminder) formatEmails(appCtx appcontext.AppContext, PaymentReminderEmailInfos PaymentReminderEmailInfos) ([]emailContent, error) {
 	var emails []emailContent
 	for _, PaymentReminderEmailInfo := range PaymentReminderEmailInfos {
 		htmlBody, textBody, err := m.renderTemplates(appCtx, PaymentReminderEmailData{
 			OriginDutyLocation:      PaymentReminderEmailInfo.OriginDutyLocationName,
-			DestinationDutyLocation: PaymentReminderEmailInfo.NewDutyLocationName,
+			DestinationDutyLocation: getDestinationLocation(appCtx, PaymentReminderEmailInfo),
 			Locator:                 PaymentReminderEmailInfo.Locator,
 			OneSourceLink:           OneSourceTransportationOfficeLink,
 			MyMoveLink:              MyMoveLink,
@@ -150,6 +167,45 @@ func (m PaymentReminder) renderTemplates(appCtx appcontext.AppContext, data Paym
 		return "", "", fmt.Errorf("error rendering text template using %#v", data)
 	}
 	return htmlBody, textBody, nil
+}
+
+func getDestinationLocation(appCtx appcontext.AppContext, PaymentReminderEmailInfo PaymentReminderEmailInfo) string {
+	destinationLocation := PaymentReminderEmailInfo.NewDutyLocationName
+	ordersType := PaymentReminderEmailInfo.OrdersType
+	street1 := PaymentReminderEmailInfo.DestinationStreet1
+	if street1 != nil {
+		appCtx.Logger().Error("Street1 is: " + *street1)
+	} else {
+		appCtx.Logger().Error("Street1 is nil")
+	}
+	isSeparateeOrRetireeOrder := ordersType == internalmessages.OrdersTypeRETIREMENT || ordersType == internalmessages.OrdersTypeSEPARATION
+	if isSeparateeOrRetireeOrder {
+		appCtx.Logger().Debug("isSeparateeOrRetireeOrder: true")
+	} else {
+		appCtx.Logger().Debug("isSeparateeOrRetireeOrder: false")
+	}
+	if isSeparateeOrRetireeOrder && street1 != nil {
+		appCtx.Logger().Debug("In address section")
+		street2, street3, city, state, postalCode := "", "", "", "", ""
+		if PaymentReminderEmailInfo.DestinationStreet2 != nil {
+			street2 = " " + *PaymentReminderEmailInfo.DestinationStreet2
+		}
+		if PaymentReminderEmailInfo.DestinationStreet3 != nil {
+			street3 = " " + *PaymentReminderEmailInfo.DestinationStreet3
+		}
+		if PaymentReminderEmailInfo.DestinationCity != nil {
+			city = ", " + *PaymentReminderEmailInfo.DestinationCity
+		}
+		if PaymentReminderEmailInfo.DestinationState != nil {
+			state = ", " + *PaymentReminderEmailInfo.DestinationState
+		}
+		if PaymentReminderEmailInfo.DestinationPostalCode != nil {
+			postalCode = " " + *PaymentReminderEmailInfo.DestinationPostalCode
+		}
+		destinationLocation = fmt.Sprintf("%s%s%s%s%s%s", *street1, street2, street3, city, state, postalCode)
+		appCtx.Logger().Debug("New location: " + destinationLocation)
+	}
+	return destinationLocation
 }
 
 // OnSuccess callback passed to be invoked by NewNotificationSender when an email successfully sent
