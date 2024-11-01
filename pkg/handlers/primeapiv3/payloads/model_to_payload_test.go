@@ -558,7 +558,7 @@ func (suite *PayloadsSuite) TestPPMShipmentContainingOptionalDestinationStreet1(
 	suite.Equal(*result.DestinationAddress.City, ppmShipment.DestinationAddress.City)
 	suite.Equal(*result.DestinationAddress.State, ppmShipment.DestinationAddress.State)
 	suite.Equal(*result.DestinationAddress.PostalCode, ppmShipment.DestinationAddress.PostalCode)
-	suite.Equal(*result.DestinationAddress.County, ppmShipment.DestinationAddress.County)
+	suite.Equal(result.DestinationAddress.County, ppmShipment.DestinationAddress.County)
 	suite.Equal(result.DestinationAddress.ETag, eTag)
 }
 
