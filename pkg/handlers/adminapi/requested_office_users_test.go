@@ -78,9 +78,10 @@ func (suite *HandlerSuite) TestGetRequestedOfficeUserHandler() {
 			mock.Anything,
 		).Return(mockRoles, nil)
 
+		queryBuilder := query.NewQueryBuilder()
 		handler := GetRequestedOfficeUserHandler{
 			suite.HandlerConfig(),
-			requestedofficeusers.NewRequestedOfficeUserFetcherPop(),
+			requestedofficeusers.NewRequestedOfficeUserFetcher(queryBuilder),
 			mockRoleAssociator,
 			query.NewQueryFilter,
 		}
@@ -99,8 +100,8 @@ func (suite *HandlerSuite) TestGetRequestedOfficeUserHandler() {
 			OfficeUserID: strfmt.UUID(requestedOfficeUser.ID.String()),
 		}
 
-		requestedOfficeUserFetcher := &mocks.RequestedOfficeUserFetcherPop{}
-		requestedOfficeUserFetcher.On("FetchRequestedOfficeUserByID",
+		requestedOfficeUserFetcher := &mocks.RequestedOfficeUserFetcher{}
+		requestedOfficeUserFetcher.On("FetchRequestedOfficeUser",
 			mock.AnythingOfType("*appcontext.appContext"),
 			mock.Anything,
 		).Return(requestedOfficeUser, nil).Once()
@@ -143,8 +144,8 @@ func (suite *HandlerSuite) TestGetRequestedOfficeUserHandler() {
 		}
 
 		expectedError := models.ErrFetchNotFound
-		requestedOfficeUserFetcher := &mocks.RequestedOfficeUserFetcherPop{}
-		requestedOfficeUserFetcher.On("FetchRequestedOfficeUserByID",
+		requestedOfficeUserFetcher := &mocks.RequestedOfficeUserFetcher{}
+		requestedOfficeUserFetcher.On("FetchRequestedOfficeUser",
 			mock.AnythingOfType("*appcontext.appContext"),
 			mock.Anything,
 		).Return(models.OfficeUser{}, expectedError).Once()

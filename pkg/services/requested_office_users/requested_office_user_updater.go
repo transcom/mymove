@@ -17,21 +17,8 @@ type requestedOfficeUserUpdater struct {
 
 func (o *requestedOfficeUserUpdater) UpdateRequestedOfficeUser(appCtx appcontext.AppContext, id uuid.UUID, payload *adminmessages.RequestedOfficeUserUpdate) (*models.OfficeUser, *validate.Errors, error) {
 	var officeUser models.OfficeUser
-	// filters := []services.QueryFilter{query.NewQueryFilter("id", "=", id.String())}
-	// err := o.builder.FetchOne(appCtx, &officeUser, filters)
-
-	requestedOfficeUserFetcher := NewRequestedOfficeUserFetcherPop()
-	officeUser, err := requestedOfficeUserFetcher.FetchRequestedOfficeUserByID(appCtx, id)
-
-	// err := appCtx.DB().Eager("TransportationOffice").Find(&officeUser, id)
-	// if err != nil {
-	// 	switch err {
-	// 	case sql.ErrNoRows:
-	// 		return models.OfficeUser{}, apperror.NewNotFoundError(id, "looking for OfficeUser")
-	// 	default:
-	// 		return models.OfficeUser{}, apperror.NewQueryError("OfficeUser", err, "")
-	// 	}
-	// }
+	filters := []services.QueryFilter{query.NewQueryFilter("id", "=", id.String())}
+	err := o.builder.FetchOne(appCtx, &officeUser, filters)
 
 	if err != nil {
 		return nil, nil, err

@@ -129,6 +129,7 @@ export function formatPpmShipmentForDisplay({ counselorRemarks = '', ppmShipment
     advance: (ppmShipment.advanceAmountRequested / 100 || '').toString(),
     closeoutOffice,
     counselorRemarks,
+    isActualExpenseReimbursement: ppmShipment.isActualExpenseReimbursement ? 'true' : 'false',
   };
 
   if (ppmShipment.hasSecondaryPickupAddress) {
@@ -305,6 +306,7 @@ export function formatPpmShipmentForAPI(formValues) {
     hasSecondaryDestinationAddress: formValues.hasSecondaryDestination === 'true',
     hasTertiaryPickupAddress: formValues.hasTertiaryPickup === 'true',
     hasTertiaryDestinationAddress: formValues.hasTertiaryDestination === 'true',
+    isActualExpenseReimbursement: formValues.isActualExpenseReimbursement === 'true',
   };
 
   if (ppmShipmentValues.hasSecondaryPickupAddress) {
