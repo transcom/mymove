@@ -450,6 +450,7 @@ const ServicesCounselingMoveDetails = ({
         mutateMoveStatus({ moveTaskOrderID: move.id, ifMatchETag: move.eTag });
       })
       .finally(() => {
+        mutateMoveStatus({ moveTaskOrderID: move.id, ifMatchETag: move.eTag });
         setIsSubmitModalVisible(false);
       });
   };
