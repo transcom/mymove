@@ -36,7 +36,7 @@ const moveTaskOrder = {
       requestedPickupDate: '2021-11-26',
       pickupAddress: { streetAddress1: '100 1st Avenue', city: 'New York', state: 'NY', postalCode: '10001' },
       destinationAddress: { streetAddress1: '200 2nd Avenue', city: 'Buffalo', state: 'NY', postalCode: '1001' },
-      marketCode: 'd', 
+      marketCode: 'd',
     },
     {
       id: '3',
