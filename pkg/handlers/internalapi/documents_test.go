@@ -3,6 +3,7 @@ package internalapi
 import (
 	"fmt"
 	"net/http"
+	"net/url"
 
 	"github.com/go-openapi/strfmt"
 	"github.com/gofrs/uuid"
@@ -100,7 +101,11 @@ func (suite *HandlerSuite) TestShowDocumentHandler() {
 	}
 
 	uploadPayload := documentPayload.Uploads[0]
-	expectedURL := fmt.Sprintf("https://example.com/dir/%s?contentType=%s&signed=test", userUpload.Upload.StorageKey, uploader.FileTypePDF)
+	values := url.Values{}
+	values.Add("response-content-type", uploader.FileTypePDF)
+	values.Add("response-content-disposition", "attachment; filename="+userUpload.Upload.Filename)
+	values.Add("signed", "test")
+	expectedURL := fmt.Sprintf("https://example.com/dir/%s?", userUpload.Upload.StorageKey) + values.Encode()
 	if (uploadPayload.URL).String() != expectedURL {
 		t.Errorf("wrong URL for upload, expected %s, got %s", expectedURL, uploadPayload.URL)
 	}
