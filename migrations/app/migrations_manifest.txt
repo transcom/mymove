@@ -1028,3 +1028,4 @@
 20241024114748_create_gbloc_aors.up.sql
 20241029125015_add_orders_type_enum.up.sql
 20241029144404_hdt-614-adjust-accomack-county.up.sql
+20241101200658_add_values_for_international_sit_fuel_surcharge_to_re_services.up.sql
