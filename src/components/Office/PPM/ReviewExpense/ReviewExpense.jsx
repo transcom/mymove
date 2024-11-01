@@ -20,6 +20,7 @@ import {
   toDollarString,
 } from 'utils/formatters';
 import { ExpenseShape } from 'types/shipment';
+import { OrderShape } from 'types/order';
 import Fieldset from 'shared/Fieldset';
 import { DatePickerInput } from 'components/form/fields';
 import MaskedTextField from 'components/form/fields/MaskedTextField/MaskedTextField';
@@ -89,6 +90,7 @@ export default function ReviewExpense({
   onSuccess,
   formRef,
   readOnly,
+  order,
 }) {
   const {
     movingExpenseType,
@@ -304,6 +306,7 @@ export default function ReviewExpense({
               <div className={classnames(formStyles.form, styles.ReviewExpense, styles.headerContainer)}>
                 <PPMHeaderSummary
                   ppmShipmentInfo={ppmShipmentInfo}
+                  order={order}
                   ppmNumber={ppmNumber}
                   showAllFields={false}
                   readOnly={readOnly}
@@ -560,6 +563,7 @@ ReviewExpense.propTypes = {
   ppmNumber: number.isRequired,
   onSuccess: func,
   formRef: object,
+  order: OrderShape.isRequired,
 };
 
 ReviewExpense.defaultProps = {

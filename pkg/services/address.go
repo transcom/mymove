@@ -13,7 +13,7 @@ type AddressUpdater interface {
 	UpdateAddress(appCtx appcontext.AppContext, address *models.Address, eTag string) (*models.Address, error)
 }
 
-//go:generate mockery --name UsPostRegionCity
+//go:generate mockery --name VLocation
 type VLocation interface {
 	GetLocationsByZipCityState(appCtx appcontext.AppContext, search string) (*models.VLocations, error)
 }
