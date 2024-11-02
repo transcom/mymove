@@ -532,6 +532,7 @@ test.describe('TOO user', () => {
 
     test('is able to edit shipment', async ({ page }) => {
       const deliveryDate = new Date().toLocaleDateString('en-US');
+      const LocationLookup = 'BEVERLY HILLS, CA 90210 (LOS ANGELES)';
 
       // Edit the shipment
       await page.locator('[data-testid="ShipmentContainer"] .usa-button').first().click();
@@ -541,11 +542,9 @@ test.describe('TOO user', () => {
       await page.locator('#requestedDeliveryDate').blur();
       await page.locator('input[name="delivery.address.streetAddress1"]').clear();
       await page.locator('input[name="delivery.address.streetAddress1"]').fill('7 q st');
-      await page.locator('input[name="delivery.address.city"]').clear();
-      await page.locator('input[name="delivery.address.city"]').fill('city');
-      await page.locator('select[name="delivery.address.state"]').selectOption({ label: 'OH' });
-      await page.locator('input[name="delivery.address.postalCode"]').clear();
-      await page.locator('input[name="delivery.address.postalCode"]').fill('90210');
+      await page.getByLabel('Location Lookup').nth(1).fill('90210');
+      await expect(page.getByText(LocationLookup, { exact: true })).toBeVisible();
+      await page.keyboard.press('Enter');
       await page.locator('[data-testid="submitForm"]').click();
       await expect(page.locator('[data-testid="submitForm"]')).not.toBeEnabled();
 
@@ -638,6 +637,7 @@ test.describe('TOO user', () => {
 
     test('is able to edit shipment for retiree', async ({ page }) => {
       const deliveryDate = new Date().toLocaleDateString('en-US');
+      const LocationLookup = 'BEVERLY HILLS, CA 90210 (LOS ANGELES)';
 
       // Edit the shipment
       await page.locator('[data-testid="ShipmentContainer"] .usa-button').first().click();
@@ -648,11 +648,9 @@ test.describe('TOO user', () => {
 
       await page.locator('input[name="delivery.address.streetAddress1"]').clear();
       await page.locator('input[name="delivery.address.streetAddress1"]').fill('7 q st');
-      await page.locator('input[name="delivery.address.city"]').clear();
-      await page.locator('input[name="delivery.address.city"]').fill('city');
-      await page.locator('select[name="delivery.address.state"]').selectOption({ label: 'OH' });
-      await page.locator('input[name="delivery.address.postalCode"]').clear();
-      await page.locator('input[name="delivery.address.postalCode"]').fill('90210');
+      await page.getByLabel('Location Lookup').nth(1).fill('90210');
+      await expect(page.getByText(LocationLookup, { exact: true })).toBeVisible();
+      await page.keyboard.press('Enter');
       await page.locator('select[name="destinationType"]').selectOption({ label: 'Home of selection (HOS)' });
 
       await page.locator('[data-testid="submitForm"]').click();
