@@ -157,9 +157,7 @@ const DocumentViewer = ({ files, allowDownload, paymentRequestId }) => {
         {paymentRequestId !== undefined ? paymentPacketDownload : null}
       </div>
       {showContentError && (
-        <div className={styles.errorMessage}>
-          <h2>File Not Found</h2>The document is not yet available for viewing. Please try again in a moment.
-        </div>
+        <div className={styles.errorMessage}>If your document does not display, please refresh your browser.</div>
       )}
       <Content
         fileType={fileType.current}
