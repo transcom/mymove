@@ -144,16 +144,16 @@ func (suite *NotificationSuite) TestPaymentReminderHTMLTemplateRender() {
 	suite.NoError(err)
 
 	paymentReminderData := PaymentReminderEmailData{
-		OriginDutyLocation:      "OriginDutyLocation",
-		DestinationDutyLocation: "DestDutyLocation",
-		Locator:                 "abc123",
-		OneSourceLink:           OneSourceTransportationOfficeLink,
-		MyMoveLink:              MyMoveLink,
+		OriginDutyLocation:  "OriginDutyLocation",
+		DestinationLocation: "DestDutyLocation",
+		Locator:             "abc123",
+		OneSourceLink:       OneSourceTransportationOfficeLink,
+		MyMoveLink:          MyMoveLink,
 	}
 	expectedHTMLContent := `<p><strong>***</strong> DO NOT REPLY directly to this email <strong>***</strong></p>
 
 <p>This is a reminder that your PPM with the <strong>assigned move code ` + paymentReminderData.Locator + `</strong> from
-<strong>` + paymentReminderData.OriginDutyLocation + `</strong> to <strong>` + paymentReminderData.DestinationDutyLocation + `</strong> is awaiting action in MilMove.</p>
+<strong>` + paymentReminderData.OriginDutyLocation + `</strong> to <strong>` + paymentReminderData.DestinationLocation + `</strong> is awaiting action in MilMove.</p>
 
 <p>Next steps:</p>
 
@@ -201,17 +201,17 @@ func (suite *NotificationSuite) TestPaymentReminderTextTemplateRender() {
 	pr, err := NewPaymentReminder()
 	suite.NoError(err)
 	paymentReminderData := PaymentReminderEmailData{
-		OriginDutyLocation:      "OriginDutyLocation",
-		DestinationDutyLocation: "DestDutyLocation",
-		Locator:                 "abc123",
-		OneSourceLink:           OneSourceTransportationOfficeLink,
-		MyMoveLink:              MyMoveLink,
+		OriginDutyLocation:  "OriginDutyLocation",
+		DestinationLocation: "DestDutyLocation",
+		Locator:             "abc123",
+		OneSourceLink:       OneSourceTransportationOfficeLink,
+		MyMoveLink:          MyMoveLink,
 	}
 	expectedTextContent := `*** DO NOT REPLY directly to this email ***
 
 This is a reminder that your PPM with the assigned move code ` + paymentReminderData.Locator + ` from ` + paymentReminderData.OriginDutyLocation +
 		`
-to ` + paymentReminderData.DestinationDutyLocation + ` is awaiting action in MilMove.
+to ` + paymentReminderData.DestinationLocation + ` is awaiting action in MilMove.
 
 Next steps:
 
@@ -288,10 +288,10 @@ func (suite *NotificationSuite) TestFormatPaymentRequestedEmails() {
 		emailInfo := emailInfos[i]
 
 		data := PaymentReminderEmailData{
-			DestinationDutyLocation: emailInfo.NewDutyLocationName,
-			Locator:                 emailInfo.Locator,
-			OneSourceLink:           OneSourceTransportationOfficeLink,
-			MyMoveLink:              MyMoveLink,
+			DestinationLocation: emailInfo.NewDutyLocationName,
+			Locator:             emailInfo.Locator,
+			OneSourceLink:       OneSourceTransportationOfficeLink,
+			MyMoveLink:          MyMoveLink,
 		}
 		htmlBody, err := pr.RenderHTML(suite.AppContextForTest(), data)
 		suite.NoError(err)
@@ -413,10 +413,10 @@ func (suite *NotificationSuite) TestFormatPaymentRequestedEmailsForRetireeSepara
 		expectedDestination := expectedDestinations[i]
 
 		data := PaymentReminderEmailData{
-			DestinationDutyLocation: expectedDestination,
-			Locator:                 emailInfo.Locator,
-			OneSourceLink:           OneSourceTransportationOfficeLink,
-			MyMoveLink:              MyMoveLink,
+			DestinationLocation: expectedDestination,
+			Locator:             emailInfo.Locator,
+			OneSourceLink:       OneSourceTransportationOfficeLink,
+			MyMoveLink:          MyMoveLink,
 		}
 		htmlBody, err := pr.RenderHTML(suite.AppContextForTest(), data)
 		suite.NoError(err)
