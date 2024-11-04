@@ -197,7 +197,7 @@ describe('DocumentViewer component', () => {
   });
 
   describe('regarding content errors', () => {
-    const errorMessageText = 'The document is not yet available for viewing. Please try again in a moment.';
+    const errorMessageText = 'If your document does not display, please refresh your browser.';
     const downloadLinkText = 'Download file';
     it('no error message normally', async () => {
       render(
@@ -226,7 +226,7 @@ describe('DocumentViewer component', () => {
       expect(screen.getByText(errorMessageText)).toBeVisible();
     });
 
-    it('no download link on content error', async () => {
+    it('download link on content error', async () => {
       render(
         <QueryClientProvider client={new QueryClient()}>
           <DocumentViewer files={mockErrorFiles} allowDownload />
