@@ -479,6 +479,14 @@ export class TestHarness {
   }
 
   /**
+   * Use testharness to build Use testharness to build submitted move with ppm and pro-gear - civilian
+   * @returns {Promise<Move>}
+   */
+  async buildApprovedMoveWithPPMProgearWeightTicketOfficeCivilian() {
+    return this.buildDefault('ApprovedMoveWithPPMProgearWeightTicketOfficeCivilian');
+  }
+
+  /**
    * Use testharness to build submitted move with ppm and weight ticket
    * @returns {Promise<Object>}
    */
