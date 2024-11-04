@@ -31,7 +31,7 @@ const ServicesCounselingEditShipmentDetails = ({ onUpdate, isAdvancePage }) => {
   if (isLoading) return <LoadingPlaceholder />;
   if (isError) return <SomethingWentWrong />;
 
-  const { customer, entitlement: allowances } = order;
+  const { customer, entitlement: allowances, grade } = order;
 
   const matchingShipment = mtoShipments?.filter((shipment) => shipment.id === shipmentId)[0];
   const weightAllotment = { ...allowances, totalWeightSelf: allowances.authorizedWeight };
@@ -65,7 +65,7 @@ const ServicesCounselingEditShipmentDetails = ({ onUpdate, isAdvancePage }) => {
                 newDutyLocationAddress={order.destinationDutyLocation?.address}
                 shipmentType={matchingShipment.shipmentType}
                 mtoShipment={matchingShipment}
-                serviceMember={{ weightAllotment, agency: customer.agency }}
+                serviceMember={{ weightAllotment, agency: customer.agency, grade }}
                 moveTaskOrderID={move.id}
                 mtoShipments={mtoShipments}
                 TACs={TACs}

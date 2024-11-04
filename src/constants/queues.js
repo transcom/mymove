@@ -59,7 +59,6 @@ export const BRANCH_OPTIONS = [
 
 export const SERVICE_COUNSELING_PPM_STATUS_OPTIONS = [
   { value: '', label: 'All' },
-  { value: 'WAITING_ON_CUSTOMER', label: 'Waiting on customer' },
   { value: 'NEEDS_CLOSEOUT', label: 'Needs closeout' },
 ];
 
