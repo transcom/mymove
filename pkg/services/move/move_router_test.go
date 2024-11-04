@@ -517,7 +517,7 @@ func (suite *MoveServiceSuite) TestMoveSubmission() {
 	})
 }
 
-func (suite *MoveServiceSuite) TestMoveCancellation() {
+func (suite *MoveServiceSuite) TestMoveCancelation() {
 	moveRouter := NewMoveRouter()
 
 	suite.Run("Cancel move with no shipments", func() {
