@@ -310,5 +310,21 @@ describe('Shipment Container', () => {
         expect(screen.getByTestId('tag', { name: 'packet ready for download' })).toBeInTheDocument();
       });
     });
+    it('renders the Actual Expense Reimbursement tag', () => {
+      render(
+        <MockProviders permissions={[permissionTypes.updateShipment]}>
+          <ShipmentDisplay
+            displayInfo={{ isActualExpenseReimbursement: true, ...ppmInfo }}
+            ordersLOA={ordersLOA}
+            shipmentType={SHIPMENT_OPTIONS.PPM}
+            isSubmitted
+            allowApproval={false}
+            warnIfMissing={['counselorRemarks']}
+            reviewURL="/"
+          />
+        </MockProviders>,
+      );
+      expect(screen.getByTestId('tag', { name: 'actual expense reimbursement' })).toBeInTheDocument();
+    });
   });
 });

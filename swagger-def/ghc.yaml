@@ -3581,7 +3581,7 @@ paths:
         - in: query
           name: sort
           type: string
-          enum: [lastName, locator, submittedAt, branch, status, dodID, emplid, age, originDutyLocation]
+          enum: [lastName, locator, submittedAt, branch, status, dodID, emplid, age, originDutyLocation, assignedTo]
           description: field that results should be sorted by
         - in: query
           name: order
@@ -3622,6 +3622,11 @@ paths:
         - in: query
           name: originDutyLocation
           type: string
+        - in: query
+          name: assignedTo
+          type: string
+          description: |
+            Used to illustrate which user is assigned to this payment request.
         - in: query
           name: status
           type: array
@@ -4109,18 +4114,18 @@ paths:
           type: string
           format: date
       responses:
-        "200":
+        '200':
           description: Successfully determine if given date is weekend and/or holiday for given country.
           schema:
-            $ref: "#/definitions/IsDateWeekendHolidayInfo"
-        "400":
-          $ref: "#/responses/InvalidRequest"
-        "401":
-          $ref: "#/responses/PermissionDenied"
-        "404":
-          $ref: "#/responses/NotFound"
-        "500":
-          $ref: "#/responses/ServerError"
+            $ref: '#/definitions/IsDateWeekendHolidayInfo'
+        '400':
+          $ref: '#/responses/InvalidRequest'
+        '401':
+          $ref: '#/responses/PermissionDenied'
+        '404':
+          $ref: '#/responses/NotFound'
+        '500':
+          $ref: '#/responses/ServerError'
   /moves/{moveID}/assignOfficeUser:
     parameters:
       - description: ID of the move
@@ -6128,6 +6133,12 @@ definitions:
       advanceStatus:
         $ref: 'definitions/PPMAdvanceStatus.yaml'
         x-nullable: true
+      isActualExpenseReimbursement:
+        description: Used for PPM shipments only. Denotes if this shipment uses the Actual Expense Reimbursement method.
+        type: boolean
+        example: false
+        x-omitempty: false
+        x-nullable: true
   UpdateBoatShipment:
     type: object
     properties:
@@ -6416,7 +6427,7 @@ definitions:
       ppmShipment:
         $ref: '#/definitions/CreatePPMShipment'
       boatShipment:
-        $ref: "#/definitions/CreateBoatShipment"
+        $ref: '#/definitions/CreateBoatShipment'
     required:
       - moveTaskOrderID
       - shipmentType
@@ -6492,6 +6503,12 @@ definitions:
         x-nullable: true
       spouseProGearWeight:
         type: integer
+        x-nullable: true
+      isActualExpenseReimbursement:
+        description: Used for PPM shipments only. Denotes if this shipment uses the Actual Expense Reimbursement method.
+        type: boolean
+        example: false
+        x-omitempty: false
         x-nullable: true
     required:
       - expectedDepartureDate
@@ -6791,11 +6808,17 @@ definitions:
       counselingOffice:
         type: string
         x-nullable: true
+      counselingOfficeID:
+        type: string
+        format: uuid
+        x-nullable: true
       assignedTo:
         $ref: '#/definitions/AssignedOfficeUser'
         x-nullable: true
       availableOfficeUsers:
         $ref: '#/definitions/AvailableOfficeUsers'
+      assignable:
+        type: boolean
   QueueMovesResult:
     type: object
     properties:
@@ -6910,8 +6933,13 @@ definitions:
         type: string
         format: date-time
         x-nullable: true
+      assignedTo:
+        $ref: '#/definitions/AssignedOfficeUser'
+        x-nullable: true
       availableOfficeUsers:
         $ref: '#/definitions/AvailableOfficeUsers'
+      assignable:
+        type: boolean
   QueuePaymentRequests:
     type: array
     items:
@@ -7380,7 +7408,7 @@ definitions:
       date:
         type: string
         format: date
-        example: "2018-09-25"
+        example: '2018-09-25'
       is_weekend:
         type: boolean
       is_holiday:

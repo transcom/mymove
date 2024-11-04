@@ -24,6 +24,9 @@ type QueueMove struct {
 	// Format: date-time
 	AppearedInTooAt *strfmt.DateTime `json:"appearedInTooAt,omitempty"`
 
+	// assignable
+	Assignable bool `json:"assignable,omitempty"`
+
 	// assigned to
 	AssignedTo *AssignedOfficeUser `json:"assignedTo,omitempty"`
 
@@ -39,6 +42,10 @@ type QueueMove struct {
 
 	// counseling office
 	CounselingOffice *string `json:"counselingOffice,omitempty"`
+
+	// counseling office ID
+	// Format: uuid
+	CounselingOfficeID *strfmt.UUID `json:"counselingOfficeID,omitempty"`
 
 	// customer
 	Customer *Customer `json:"customer,omitempty"`
@@ -115,6 +122,10 @@ func (m *QueueMove) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validateCloseoutInitiated(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateCounselingOfficeID(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -234,6 +245,18 @@ func (m *QueueMove) validateCloseoutInitiated(formats strfmt.Registry) error {
 	}
 
 	if err := validate.FormatOf("closeoutInitiated", "body", "date-time", m.CloseoutInitiated.String(), formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *QueueMove) validateCounselingOfficeID(formats strfmt.Registry) error {
+	if swag.IsZero(m.CounselingOfficeID) { // not required
+		return nil
+	}
+
+	if err := validate.FormatOf("counselingOfficeID", "body", "uuid", m.CounselingOfficeID.String(), formats); err != nil {
 		return err
 	}
 

@@ -417,6 +417,34 @@ func (h UpdateOrdersHandler) Handle(params ordersop.UpdateOrdersParams) middlewa
 
 				order.EntitlementID = &entitlement.ID
 				order.Entitlement = &entitlement
+
+				// change actual expense reimbursement to 'true' for all PPM shipments if pay grade is civilian
+				if payload.Grade != nil && *payload.Grade == models.ServiceMemberGradeCIVILIANEMPLOYEE {
+					moves, fetchErr := models.FetchMovesByOrderID(appCtx.DB(), order.ID)
+					if fetchErr != nil {
+						appCtx.Logger().Error("failure encountered querying for move associated with the order", zap.Error(fetchErr))
+					} else {
+						move := moves[0]
+						for i := range move.MTOShipments {
+							shipment := &move.MTOShipments[i]
+
+							if shipment.ShipmentType == models.MTOShipmentTypePPM {
+								if shipment.PPMShipment == nil {
+									appCtx.Logger().Warn("PPM shipment not found for MTO shipment", zap.String("shipmentID", shipment.ID.String()))
+									continue
+								}
+								// actual expense reimbursement is always true for civilian moves
+								shipment.PPMShipment.IsActualExpenseReimbursement = models.BoolPointer(true)
+
+								if verrs, err := appCtx.DB().ValidateAndUpdate(shipment.PPMShipment); verrs.HasAny() || err != nil {
+									msg := "failure saving PPM shipment when updating orders"
+									appCtx.Logger().Error(msg, zap.Error(err))
+								}
+							}
+						}
+					}
+				}
+
 			}
 			order.Grade = payload.Grade
 
