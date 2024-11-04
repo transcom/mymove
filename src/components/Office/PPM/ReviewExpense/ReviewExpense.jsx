@@ -1,6 +1,6 @@
 import React, { useEffect, useCallback } from 'react';
 import { useMutation } from '@tanstack/react-query';
-import { func, number, object } from 'prop-types';
+import { func, number, string, object } from 'prop-types';
 import { Formik, Field } from 'formik';
 import classnames from 'classnames';
 import { FormGroup, Label, Radio, Textarea } from '@trussworks/react-uswds';
@@ -20,6 +20,7 @@ import {
   toDollarString,
 } from 'utils/formatters';
 import { ExpenseShape } from 'types/shipment';
+import { OrderShape } from 'types/order';
 import Fieldset from 'shared/Fieldset';
 import { DatePickerInput } from 'components/form/fields';
 import MaskedTextField from 'components/form/fields/MaskedTextField/MaskedTextField';
@@ -89,6 +90,7 @@ export default function ReviewExpense({
   onSuccess,
   formRef,
   readOnly,
+  order,
 }) {
   const {
     movingExpenseType,
@@ -304,6 +306,7 @@ export default function ReviewExpense({
               <div className={classnames(formStyles.form, styles.ReviewExpense, styles.headerContainer)}>
                 <PPMHeaderSummary
                   ppmShipmentInfo={ppmShipmentInfo}
+                  order={order}
                   ppmNumber={ppmNumber}
                   showAllFields={false}
                   readOnly={readOnly}
@@ -557,9 +560,10 @@ export default function ReviewExpense({
 ReviewExpense.propTypes = {
   expense: ExpenseShape,
   tripNumber: number.isRequired,
-  ppmNumber: number.isRequired,
+  ppmNumber: string.isRequired,
   onSuccess: func,
   formRef: object,
+  order: OrderShape.isRequired,
 };
 
 ReviewExpense.defaultProps = {

@@ -52,6 +52,7 @@ export default {
   prime_actual_weight: 'Shipment weight',
   actual_weight: 'Actual weight',
   estimated_weight: 'Estimated weight',
+  allowable_weight: 'Allowable weight',
   description: 'Description',
   reason: 'Reason',
   rejection_reason: 'Reason',
@@ -140,4 +141,5 @@ export default {
   dest_sit_auth_end_date: 'Destination SIT authorized date',
   approvals_requested_at: 'Approvals requested at',
   approved_at: 'Approved at',
+  counseling_office_name: 'Counseling office',
 };

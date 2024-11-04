@@ -24,7 +24,7 @@ func (suite *ModelSuite) TestMTOShipmentValidation() {
 			SITDaysAllowance:     &sitDaysAllowance,
 			TACType:              &tacType,
 			SACType:              &sacType,
-			MarketCode:           &marketCode,
+			MarketCode:           marketCode,
 		}
 		expErrors := map[string][]string{}
 		suite.verifyValidationErrors(&validMTOShipment, expErrors)
@@ -45,7 +45,7 @@ func (suite *ModelSuite) TestMTOShipmentValidation() {
 		rejectedMTOShipment := models.MTOShipment{
 			MoveTaskOrderID: uuid.Must(uuid.NewV4()),
 			Status:          models.MTOShipmentStatusRejected,
-			MarketCode:      &marketCode,
+			MarketCode:      marketCode,
 			RejectionReason: &rejectionReason,
 		}
 		expErrors := map[string][]string{}
@@ -74,7 +74,7 @@ func (suite *ModelSuite) TestMTOShipmentValidation() {
 			StorageFacilityID:           &uuid.Nil,
 			TACType:                     &tacType,
 			SACType:                     &tacType,
-			MarketCode:                  &marketCode,
+			MarketCode:                  marketCode,
 		}
 		expErrors := map[string][]string{
 			"prime_estimated_weight":        {"-1000 is not greater than 0."},
@@ -90,5 +90,185 @@ func (suite *ModelSuite) TestMTOShipmentValidation() {
 			"market_code":                   {"MarketCode is not in the list [d, i]."},
 		}
 		suite.verifyValidationErrors(&invalidMTOShipment, expErrors)
+	})
+}
+
+func (suite *ModelSuite) TestDetermineShipmentMarketCode() {
+	suite.Run("test MTOShipmentTypeHHGIntoNTSDom with domestic pickup and storage facility", func() {
+		pickupAddress := models.Address{
+			IsOconus: models.BoolPointer(false),
+		}
+		storageAddress := models.Address{
+			IsOconus: models.BoolPointer(false),
+		}
+		shipment := &models.MTOShipment{
+			ShipmentType:  models.MTOShipmentTypeHHGIntoNTSDom,
+			PickupAddress: &pickupAddress,
+			StorageFacility: &models.StorageFacility{
+				Address: storageAddress,
+			},
+		}
+
+		updatedShipment := models.DetermineShipmentMarketCode(shipment)
+		suite.Equal(models.MarketCodeDomestic, updatedShipment.MarketCode, "Expected MarketCode to be d")
+	})
+
+	suite.Run("test MTOShipmentTypeHHGIntoNTSDom with international pickup", func() {
+		pickupAddress := models.Address{
+			IsOconus: models.BoolPointer(true),
+		}
+		shipment := &models.MTOShipment{
+			ShipmentType:  models.MTOShipmentTypeHHGIntoNTSDom,
+			PickupAddress: &pickupAddress,
+		}
+
+		updatedShipment := models.DetermineShipmentMarketCode(shipment)
+		suite.Equal(models.MarketCodeInternational, updatedShipment.MarketCode, "Expected MarketCode to be i")
+	})
+
+	suite.Run("test MTOShipmentTypeHHGOutOfNTSDom with domestic storage and destination", func() {
+		storageAddress := models.Address{
+			IsOconus: models.BoolPointer(false),
+		}
+		destinationAddress := models.Address{
+			IsOconus: models.BoolPointer(false),
+		}
+		shipment := &models.MTOShipment{
+			ShipmentType: models.MTOShipmentTypeHHGOutOfNTSDom,
+			StorageFacility: &models.StorageFacility{
+				Address: storageAddress,
+			},
+			DestinationAddress: &destinationAddress,
+		}
+
+		updatedShipment := models.DetermineShipmentMarketCode(shipment)
+		suite.Equal(models.MarketCodeDomestic, updatedShipment.MarketCode, "Expected MarketCode to be d")
+	})
+
+	suite.Run("testMTOShipmentTypeHHGOutOfNTSDom with international destination", func() {
+		storageAddress := models.Address{
+			IsOconus: models.BoolPointer(false),
+		}
+		destinationAddress := models.Address{
+			IsOconus: models.BoolPointer(true),
+		}
+		shipment := &models.MTOShipment{
+			ShipmentType: models.MTOShipmentTypeHHGOutOfNTSDom,
+			StorageFacility: &models.StorageFacility{
+				Address: storageAddress,
+			},
+			DestinationAddress: &destinationAddress,
+		}
+
+		updatedShipment := models.DetermineShipmentMarketCode(shipment)
+		suite.Equal(models.MarketCodeInternational, updatedShipment.MarketCode, "Expected MarketCode to be i")
+	})
+
+	suite.Run("test default shipment with domestic pickup and destination", func() {
+		pickupAddress := models.Address{
+			IsOconus: models.BoolPointer(false),
+		}
+		destinationAddress := models.Address{
+			IsOconus: models.BoolPointer(false),
+		}
+		shipment := &models.MTOShipment{
+			PickupAddress:      &pickupAddress,
+			DestinationAddress: &destinationAddress,
+		}
+
+		updatedShipment := models.DetermineShipmentMarketCode(shipment)
+		suite.Equal(models.MarketCodeDomestic, updatedShipment.MarketCode, "Expected MarketCode to be d")
+	})
+
+	suite.Run("test default shipment with international destination", func() {
+		pickupAddress := models.Address{
+			IsOconus: models.BoolPointer(false),
+		}
+		destinationAddress := models.Address{
+			IsOconus: models.BoolPointer(true),
+		}
+		shipment := &models.MTOShipment{
+			PickupAddress:      &pickupAddress,
+			DestinationAddress: &destinationAddress,
+		}
+
+		updatedShipment := models.DetermineShipmentMarketCode(shipment)
+		suite.Equal(models.MarketCodeInternational, updatedShipment.MarketCode, "Expected MarketCode to be i")
+	})
+}
+
+func (suite *ModelSuite) TestDetermineMarketCode() {
+	marketCodeNil := models.MarketCode("")
+	suite.Run("test domestic market code for two CONUS addresses", func() {
+		address1 := &models.Address{
+			IsOconus: models.BoolPointer(false),
+		}
+		address2 := &models.Address{
+			IsOconus: models.BoolPointer(false),
+		}
+
+		marketCode, err := models.DetermineMarketCode(address1, address2)
+		suite.NoError(err)
+		suite.Equal(models.MarketCodeDomestic, marketCode, "Expected MarketCode to be d")
+	})
+
+	suite.Run("test international market code with CONUS and OCONUS address", func() {
+		address1 := &models.Address{
+			IsOconus: models.BoolPointer(false),
+		}
+		address2 := &models.Address{
+			IsOconus: models.BoolPointer(true),
+		}
+
+		marketCode, err := models.DetermineMarketCode(address1, address2)
+		suite.NoError(err)
+		suite.Equal(models.MarketCodeInternational, marketCode, "Expected MarketCode to be i")
+	})
+
+	suite.Run("test international market code for two OCONUS addresses", func() {
+		address1 := &models.Address{
+			IsOconus: models.BoolPointer(true),
+		}
+		address2 := &models.Address{
+			IsOconus: models.BoolPointer(true),
+		}
+
+		marketCode, err := models.DetermineMarketCode(address1, address2)
+		suite.NoError(err)
+		suite.Equal(models.MarketCodeInternational, marketCode, "Expected MarketCode to be i")
+	})
+
+	suite.Run("test error when address1 is nil", func() {
+		address1 := (*models.Address)(nil)
+		address2 := &models.Address{
+			IsOconus: models.BoolPointer(false),
+		}
+
+		marketCode, err := models.DetermineMarketCode(address1, address2)
+		suite.Error(err)
+		suite.Equal(marketCodeNil, marketCode, "Expected MarketCode to be empty when address1 is nil")
+		suite.EqualError(err, "both address1 and address2 must be provided")
+	})
+
+	suite.Run("test error when address2 is nil", func() {
+		address1 := &models.Address{
+			IsOconus: models.BoolPointer(false),
+		}
+		address2 := (*models.Address)(nil)
+
+		marketCode, err := models.DetermineMarketCode(address1, address2)
+		suite.Error(err)
+		suite.Equal(marketCodeNil, marketCode, "Expected MarketCode to be empty when address2 is nil")
+		suite.EqualError(err, "both address1 and address2 must be provided")
+	})
+
+	suite.Run("test error when both addresses are nil", func() {
+		address1 := (*models.Address)(nil)
+		address2 := (*models.Address)(nil)
+
+		marketCode, err := models.DetermineMarketCode(address1, address2)
+		suite.Error(err)
+		suite.Equal(marketCodeNil, marketCode, "Expected MarketCode to be empty when both addresses are nil")
+		suite.EqualError(err, "both address1 and address2 must be provided")
 	})
 }

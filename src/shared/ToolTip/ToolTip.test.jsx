@@ -57,7 +57,6 @@ describe('ToolTip', () => {
     // Assert that the tooltip content is displayed
     expect(tooltipContent.text()).toBe(text);
   });
-
   it('should display tooltip with title when provided', () => {
     const titleText = 'Tooltip Title';
     const bodyText = 'Tooltip Body';
@@ -95,5 +94,18 @@ describe('ToolTip', () => {
     // Verify data-testid is present
     const tooltipIcon = screen.getByTestId('tooltip-container');
     expect(tooltipIcon).toBeInTheDocument();
+  });
+  it('should display a large tooltip', () => {
+    const text = 'Test Text';
+    const component = mount(<ToolTip text={text} icon="circle-question" position="top" textAreaSize="large" />);
+
+    // Simulate a click on the tooltip container
+    component.find('.tooltipContainer').simulate('click');
+
+    // Find the tooltip content after the click with left class
+    const tooltipContent = component.find('.tooltipTextTop.toolTipTextAreaLarge');
+
+    // Assert that the tooltip content is displayed
+    expect(tooltipContent.text()).toBe(text);
   });
 });

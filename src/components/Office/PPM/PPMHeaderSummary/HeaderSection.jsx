@@ -4,9 +4,11 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { Label, Button, Alert } from '@trussworks/react-uswds';
 import { useQueryClient, useMutation, useIsFetching } from '@tanstack/react-query';
 import classnames from 'classnames';
+import propTypes from 'prop-types';
 
 import styles from './HeaderSection.module.scss';
 
+import ToolTip from 'shared/ToolTip/ToolTip';
 import EditPPMHeaderSummaryModal from 'components/Office/PPM/PPMHeaderSummary/EditPPMHeaderSummaryModal';
 import { formatDate, formatCents, formatWeight } from 'utils/formatters';
 import { MTO_SHIPMENTS, PPMCLOSEOUT } from 'constants/queryKeys';
@@ -37,13 +39,15 @@ const getSectionTitle = (sectionInfo) => {
   }
 };
 
-const OpenModalButton = ({ onClick, isDisabled }) => (
+const OpenModalButton = ({ onClick, isDisabled, dataTestId, ariaLabel }) => (
   <Button
     type="button"
-    data-testid="editTextButton"
+    data-testid={dataTestId || 'editTextButton'}
     className={styles['edit-btn']}
     onClick={onClick}
     disabled={isDisabled}
+    aria-label={ariaLabel}
+    title="Edit"
   >
     <span>
       <FontAwesomeIcon icon="pencil" style={{ marginRight: '5px', color: isDisabled ? 'black' : 'inherit' }} />
@@ -52,9 +56,10 @@ const OpenModalButton = ({ onClick, isDisabled }) => (
 );
 
 // Returns the markup needed for a specific section
-const getSectionMarkup = (sectionInfo, handleEditOnClick, isFetchingItems, updatedItemName, readOnly) => {
+const getSectionMarkup = (sectionInfo, handleEditOnClick, isFetchingItems, updatedItemName, readOnly, grade) => {
   const aoaRequestedValue = `$${formatCents(sectionInfo.advanceAmountRequested)}`;
   const aoaValue = `$${formatCents(sectionInfo.advanceAmountReceived)}`;
+  const isCivilian = grade === 'CIVILIAN_EMPLOYEE';
 
   const renderHaulType = (haulType) => {
     return haulType === HAUL_TYPES.LINEHAUL ? 'Linehaul' : 'Shorthaul';
@@ -88,6 +93,22 @@ const getSectionMarkup = (sectionInfo, handleEditOnClick, isFetchingItems, updat
       return (
         <div className={classnames(styles.Details)}>
           <div>
+            <Label>Actual Expense Reimbursement</Label>
+            <span data-testid="isActualExpenseReimbursement" className={styles.light}>
+              {isFetchingItems && updatedItemName === 'isActualExpenseReimbursement' ? (
+                <FontAwesomeIcon icon="spinner" spin pulse size="1x" />
+              ) : (
+                <>
+                  {sectionInfo.isActualExpenseReimbursement ? 'Yes' : 'No'}
+                  <OpenModalButton
+                    onClick={() => handleEditOnClick(sectionInfo.type, 'isActualExpenseReimbursement')}
+                    isDisabled={isFetchingItems || readOnly || isCivilian}
+                  />
+                </>
+              )}
+            </span>
+          </div>
+          <div>
             <Label>Planned Move Start Date</Label>
             <span className={styles.light}>{formatDate(sectionInfo.plannedMoveDate, null, 'DD-MMM-YYYY')}</span>
           </div>
@@ -102,6 +123,7 @@ const getSectionMarkup = (sectionInfo, handleEditOnClick, isFetchingItems, updat
                   <OpenModalButton
                     onClick={() => handleEditOnClick(sectionInfo.type, 'actualMoveDate')}
                     isDisabled={isFetchingItems || readOnly}
+                    ariaLabel="Edit actual move start date"
                   />
                 </>
               )}
@@ -118,6 +140,7 @@ const getSectionMarkup = (sectionInfo, handleEditOnClick, isFetchingItems, updat
                   <OpenModalButton
                     onClick={() => handleEditOnClick(sectionInfo.type, 'pickupAddress')}
                     isDisabled={isFetchingItems || readOnly}
+                    ariaLabel="Edit pickup address"
                   />
                 </>
               )}
@@ -134,6 +157,7 @@ const getSectionMarkup = (sectionInfo, handleEditOnClick, isFetchingItems, updat
                   <OpenModalButton
                     onClick={() => handleEditOnClick(sectionInfo.type, 'destinationAddress')}
                     isDisabled={isFetchingItems || readOnly}
+                    ariaLabel="Edit destination address"
                   />
                 </>
               )}
@@ -155,7 +179,29 @@ const getSectionMarkup = (sectionInfo, handleEditOnClick, isFetchingItems, updat
           </div>
           <div>
             <Label>Actual Net Weight</Label>
-            <span className={styles.light}>{formatWeight(sectionInfo.actualWeight)}</span>
+            <span>{formatWeight(sectionInfo.actualWeight)}</span>
+          </div>
+          <div>
+            <Label>Allowable Weight</Label>
+            {isFetchingItems && updatedItemName === 'allowableWeight' ? (
+              <FontAwesomeIcon icon="spinner" spin pulse size="1x" />
+            ) : (
+              <>
+                <b>{formatWeight(sectionInfo.allowableWeight)}</b>
+                <OpenModalButton
+                  onClick={() => handleEditOnClick(sectionInfo.type, 'allowableWeight')}
+                  isDisabled={isFetchingItems || readOnly}
+                  dataTestId="editAllowableWeightButton"
+                  ariaLabel="Edit allowable weight"
+                />
+              </>
+            )}
+            <ToolTip
+              icon="info-circle"
+              style={{ display: 'inline-block', height: '15px', margin: '0' }}
+              textAreaSize="large"
+              text="The total PPM weight moved (all trips combined). The Counselor may edit this field to reflect the customer's remaining weight entitlement if the combined weight of all shipments exceeds the customer's weight entitlement."
+            />
           </div>
         </div>
       );
@@ -200,6 +246,7 @@ const getSectionMarkup = (sectionInfo, handleEditOnClick, isFetchingItems, updat
                   <OpenModalButton
                     onClick={() => handleEditOnClick(sectionInfo.type, 'advanceAmountReceived')}
                     isDisabled={isFetchingItems || readOnly}
+                    ariaLabel="Edit advance amount received"
                   />
                 </>
               )}
@@ -298,12 +345,20 @@ const getSectionMarkup = (sectionInfo, handleEditOnClick, isFetchingItems, updat
   }
 };
 
-export default function HeaderSection({ sectionInfo, dataTestId, updatedItemName, setUpdatedItemName, readOnly }) {
+export default function HeaderSection({
+  sectionInfo,
+  dataTestId,
+  updatedItemName,
+  setUpdatedItemName,
+  readOnly,
+  expanded,
+  grade,
+}) {
   const requestDetailsButtonTestId = `${sectionInfo.type}-showRequestDetailsButton`;
   const { shipmentId, moveCode } = useParams();
   const { mtoShipment, refetchMTOShipment, isFetching: isFetchingMtoShipment } = usePPMShipmentDocsQueries(shipmentId);
   const queryClient = useQueryClient();
-  const [showDetails, setShowDetails] = useState(false);
+  const [showDetails, setShowDetails] = useState(expanded);
   const [isEditModalVisible, setIsEditModalVisible] = useState(false);
   const [itemName, setItemName] = useState('');
   const [sectionType, setSectionType] = useState('');
@@ -377,6 +432,9 @@ export default function HeaderSection({ sectionInfo, dataTestId, updatedItemName
           };
         }
         break;
+      case 'allowableWeight':
+        body = { allowableWeight: Number(values?.allowableWeight) };
+        break;
       case 'pickupAddress':
         body = {
           pickupAddress: values.pickupAddress,
@@ -387,6 +445,11 @@ export default function HeaderSection({ sectionInfo, dataTestId, updatedItemName
         body = {
           destinationAddress: values.destinationAddress,
           actualDestinationPostalCode: values.destinationAddress?.postalCode,
+        };
+        break;
+      case 'isActualExpenseReimbursement':
+        body = {
+          isActualExpenseReimbursement: values.isActualExpenseReimbursement === 'true',
         };
         break;
 
@@ -422,7 +485,8 @@ export default function HeaderSection({ sectionInfo, dataTestId, updatedItemName
           </Button>
         )}
       </div>
-      {showDetails && getSectionMarkup(sectionInfo, handleEditOnClick, isFetchingItems, updatedItemName, readOnly)}
+      {showDetails &&
+        getSectionMarkup(sectionInfo, handleEditOnClick, isFetchingItems, updatedItemName, readOnly, grade)}
       {isEditModalVisible && (
         <EditPPMHeaderSummaryModal
           onClose={handleEditOnClose}
@@ -435,3 +499,16 @@ export default function HeaderSection({ sectionInfo, dataTestId, updatedItemName
     </section>
   );
 }
+
+HeaderSection.propTypes = {
+  sectionInfo: propTypes.object.isRequired,
+  dataTestId: propTypes.string.isRequired,
+  updatedItemName: propTypes.string.isRequired,
+  setUpdatedItemName: propTypes.func.isRequired,
+  readOnly: propTypes.bool.isRequired,
+  expanded: propTypes.bool,
+};
+
+HeaderSection.defaultProps = {
+  expanded: false,
+};

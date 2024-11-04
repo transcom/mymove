@@ -4,6 +4,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/go-openapi/strfmt"
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/factory"
@@ -51,10 +52,13 @@ func (suite *PayloadsSuite) TestFetchPPMShipment() {
 		County:         county,
 	}
 
+	isActualExpenseReimbursement := true
+
 	expectedPPMShipment := models.PPMShipment{
-		ID:                 ppmShipmentID,
-		PickupAddress:      &expectedAddress,
-		DestinationAddress: &expectedAddress,
+		ID:                           ppmShipmentID,
+		PickupAddress:                &expectedAddress,
+		DestinationAddress:           &expectedAddress,
+		IsActualExpenseReimbursement: &isActualExpenseReimbursement,
 	}
 
 	suite.Run("Success -", func() {
@@ -78,7 +82,45 @@ func (suite *PayloadsSuite) TestFetchPPMShipment() {
 		suite.Equal(&state, returnedPPMShipment.DestinationAddress.State)
 		suite.Equal(&country.Country, returnedPPMShipment.DestinationAddress.Country)
 		suite.Equal(&county, returnedPPMShipment.DestinationAddress.County)
+		suite.True(*returnedPPMShipment.IsActualExpenseReimbursement)
+	})
 
+	suite.Run("Destination street address 1 returns empty string to convey OPTIONAL state ", func() {
+		expected_street_address_1 := ""
+		expectedAddress2 := models.Address{
+			StreetAddress1: expected_street_address_1,
+			StreetAddress2: &streetAddress2,
+			StreetAddress3: &streetAddress3,
+			City:           city,
+			State:          state,
+			PostalCode:     postalcode,
+			Country:        &country,
+			County:         county,
+		}
+
+		expectedPPMShipment2 := models.PPMShipment{
+			ID:                 ppmShipmentID,
+			PickupAddress:      &expectedAddress,
+			DestinationAddress: &expectedAddress2,
+		}
+		returnedPPMShipment := PPMShipment(nil, &expectedPPMShipment2)
+
+		suite.IsType(returnedPPMShipment, &ghcmessages.PPMShipment{})
+		suite.Equal(&streetAddress1, returnedPPMShipment.PickupAddress.StreetAddress1)
+		suite.Equal(expectedPPMShipment.PickupAddress.StreetAddress2, returnedPPMShipment.PickupAddress.StreetAddress2)
+		suite.Equal(expectedPPMShipment.PickupAddress.StreetAddress3, returnedPPMShipment.PickupAddress.StreetAddress3)
+		suite.Equal(&postalcode, returnedPPMShipment.PickupAddress.PostalCode)
+		suite.Equal(&city, returnedPPMShipment.PickupAddress.City)
+		suite.Equal(&state, returnedPPMShipment.PickupAddress.State)
+		suite.Equal(&county, returnedPPMShipment.PickupAddress.County)
+
+		suite.Equal(&expected_street_address_1, returnedPPMShipment.DestinationAddress.StreetAddress1)
+		suite.Equal(expectedPPMShipment.DestinationAddress.StreetAddress2, returnedPPMShipment.DestinationAddress.StreetAddress2)
+		suite.Equal(expectedPPMShipment.DestinationAddress.StreetAddress3, returnedPPMShipment.DestinationAddress.StreetAddress3)
+		suite.Equal(&postalcode, returnedPPMShipment.DestinationAddress.PostalCode)
+		suite.Equal(&city, returnedPPMShipment.DestinationAddress.City)
+		suite.Equal(&state, returnedPPMShipment.DestinationAddress.State)
+		suite.Equal(&county, returnedPPMShipment.DestinationAddress.County)
 	})
 }
 
@@ -366,5 +408,104 @@ func (suite *PayloadsSuite) TestSearchMoves() {
 
 		suite.IsType(payload, &ghcmessages.SearchMoves{})
 		suite.NotNil(payload)
+	})
+}
+
+func (suite *PayloadsSuite) TestMarketCode() {
+	suite.Run("returns nil when marketCode is nil", func() {
+		var marketCode *models.MarketCode = nil
+		result := MarketCode(marketCode)
+		suite.Equal(result, "")
+	})
+
+	suite.Run("returns string when marketCode is not nil", func() {
+		marketCodeDomestic := models.MarketCodeDomestic
+		result := MarketCode(&marketCodeDomestic)
+		suite.NotNil(result, "Expected result to not be nil when marketCode is not nil")
+		suite.Equal("d", result, "Expected result to be 'd' for domestic market code")
+	})
+
+	suite.Run("returns string when marketCode is international", func() {
+		marketCodeInternational := models.MarketCodeInternational
+		result := MarketCode(&marketCodeInternational)
+		suite.NotNil(result, "Expected result to not be nil when marketCode is not nil")
+		suite.Equal("i", result, "Expected result to be 'i' for international market code")
+	})
+}
+
+func (suite *PayloadsSuite) TestGsrAppeal() {
+	officeUser := factory.BuildOfficeUser(suite.DB(), nil, nil)
+
+	suite.Run("returns nil when gsrAppeal is nil", func() {
+		var gsrAppeal *models.GsrAppeal = nil
+		result := GsrAppeal(gsrAppeal)
+		suite.Nil(result, "Expected result to be nil when gsrAppeal is nil")
+	})
+
+	suite.Run("correctly maps GsrAppeal with all fields populated", func() {
+		gsrAppealID := uuid.Must(uuid.NewV4())
+		reportViolationID := uuid.Must(uuid.NewV4())
+		evaluationReportID := uuid.Must(uuid.NewV4())
+		appealStatus := models.AppealStatusSustained
+		isSeriousIncident := true
+		remarks := "Sample remarks"
+		createdAt := time.Now()
+
+		gsrAppeal := &models.GsrAppeal{
+			ID:                      gsrAppealID,
+			ReportViolationID:       &reportViolationID,
+			EvaluationReportID:      evaluationReportID,
+			OfficeUser:              &officeUser,
+			OfficeUserID:            officeUser.ID,
+			IsSeriousIncidentAppeal: &isSeriousIncident,
+			AppealStatus:            appealStatus,
+			Remarks:                 remarks,
+			CreatedAt:               createdAt,
+		}
+
+		result := GsrAppeal(gsrAppeal)
+
+		suite.NotNil(result, "Expected result to not be nil when gsrAppeal has values")
+		suite.Equal(handlers.FmtUUID(gsrAppealID), &result.ID, "Expected ID to match")
+		suite.Equal(handlers.FmtUUID(reportViolationID), &result.ViolationID, "Expected ViolationID to match")
+		suite.Equal(handlers.FmtUUID(evaluationReportID), &result.ReportID, "Expected ReportID to match")
+		suite.Equal(handlers.FmtUUID(officeUser.ID), &result.OfficeUserID, "Expected OfficeUserID to match")
+		suite.Equal(ghcmessages.GSRAppealStatusType(appealStatus), result.AppealStatus, "Expected AppealStatus to match")
+		suite.Equal(remarks, result.Remarks, "Expected Remarks to match")
+		suite.Equal(strfmt.DateTime(createdAt), result.CreatedAt, "Expected CreatedAt to match")
+		suite.True(result.IsSeriousIncident, "Expected IsSeriousIncident to be true")
+	})
+
+	suite.Run("handles nil ReportViolationID without panic", func() {
+		gsrAppealID := uuid.Must(uuid.NewV4())
+		evaluationReportID := uuid.Must(uuid.NewV4())
+		isSeriousIncident := false
+		appealStatus := models.AppealStatusRejected
+		remarks := "Sample remarks"
+		createdAt := time.Now()
+
+		gsrAppeal := &models.GsrAppeal{
+			ID:                      gsrAppealID,
+			ReportViolationID:       nil,
+			EvaluationReportID:      evaluationReportID,
+			OfficeUser:              &officeUser,
+			OfficeUserID:            officeUser.ID,
+			IsSeriousIncidentAppeal: &isSeriousIncident,
+			AppealStatus:            appealStatus,
+			Remarks:                 remarks,
+			CreatedAt:               createdAt,
+		}
+
+		result := GsrAppeal(gsrAppeal)
+
+		suite.NotNil(result, "Expected result to not be nil when gsrAppeal has values")
+		suite.Equal(handlers.FmtUUID(gsrAppealID), &result.ID, "Expected ID to match")
+		suite.Equal(strfmt.UUID(""), result.ViolationID, "Expected ViolationID to be nil when ReportViolationID is nil")
+		suite.Equal(handlers.FmtUUID(evaluationReportID), &result.ReportID, "Expected ReportID to match")
+		suite.Equal(handlers.FmtUUID(officeUser.ID), &result.OfficeUserID, "Expected OfficeUserID to match")
+		suite.Equal(ghcmessages.GSRAppealStatusType(appealStatus), result.AppealStatus, "Expected AppealStatus to match")
+		suite.Equal(remarks, result.Remarks, "Expected Remarks to match")
+		suite.Equal(strfmt.DateTime(createdAt), result.CreatedAt, "Expected CreatedAt to match")
+		suite.False(result.IsSeriousIncident, "Expected IsSeriousIncident to be false")
 	})
 }

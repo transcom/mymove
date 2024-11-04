@@ -150,7 +150,7 @@ func (suite *MTOShipmentServiceSuite) TestCreateMTOShipment() {
 	})
 
 	// Happy path
-	suite.Run("If the shipment is created successfully it should be returned", func() {
+	suite.Run("If a domestic shipment is created successfully it should be returned", func() {
 		subtestData := suite.createSubtestData(nil)
 		creator := subtestData.shipmentCreator
 
@@ -171,6 +171,84 @@ func (suite *MTOShipmentServiceSuite) TestCreateMTOShipment() {
 		suite.Equal(models.MTOShipmentStatusDraft, createdShipment.Status)
 		suite.NotEmpty(createdShipment.PickupAddressID)
 		suite.NotEmpty(createdShipment.DestinationAddressID)
+		// both pickup and destination addresses should be CONUS
+		suite.False(*createdShipment.PickupAddress.IsOconus)
+		suite.False(*createdShipment.DestinationAddress.IsOconus)
+		suite.Equal(createdShipment.MarketCode, models.MarketCodeDomestic)
+	})
+
+	suite.Run("If an international shipment is created successfully it should be returned", func() {
+		subtestData := suite.createSubtestData(nil)
+		creator := subtestData.shipmentCreator
+
+		mtoShipment := factory.BuildMTOShipment(nil, []factory.Customization{
+			{
+				Model:    subtestData.move,
+				LinkOnly: true,
+			},
+			{
+				Model: models.Address{
+					State: "AK",
+				},
+				Type: &factory.Addresses.PickupAddress,
+			},
+			{
+				Model: models.Address{
+					State: "HI",
+				},
+				Type: &factory.Addresses.DeliveryAddress,
+			},
+		}, nil)
+
+		mtoShipmentClear := clearShipmentIDFields(&mtoShipment)
+		mtoShipmentClear.MTOServiceItems = models.MTOServiceItems{}
+
+		createdShipment, err := creator.CreateMTOShipment(suite.AppContextForTest(), mtoShipmentClear)
+
+		suite.NoError(err)
+		suite.NotNil(createdShipment)
+		suite.Equal(models.MTOShipmentStatusDraft, createdShipment.Status)
+		suite.NotEmpty(createdShipment.PickupAddressID)
+		suite.NotEmpty(createdShipment.DestinationAddressID)
+		// both pickup and destination addresses should be OCONUS since Alaska & Hawaii are considered OCONUS
+		suite.True(*createdShipment.PickupAddress.IsOconus)
+		suite.True(*createdShipment.DestinationAddress.IsOconus)
+		suite.Equal(createdShipment.MarketCode, models.MarketCodeInternational)
+	})
+
+	suite.Run("If the shipment has an international address it should be returned", func() {
+		subtestData := suite.createSubtestData(nil)
+		creator := subtestData.shipmentCreator
+
+		internationalAddress := factory.BuildAddress(nil, []factory.Customization{
+			{
+				Model: models.Country{
+					Country:     "GB",
+					CountryName: "UNITED KINGDOM",
+				},
+			},
+		}, nil)
+		// stubbed countries need an ID
+		internationalAddress.ID = uuid.Must(uuid.NewV4())
+
+		mtoShipment := factory.BuildMTOShipment(nil, []factory.Customization{
+			{
+				Model:    subtestData.move,
+				LinkOnly: true,
+			},
+			{
+				Model:    internationalAddress,
+				LinkOnly: true,
+			},
+		}, nil)
+
+		mtoShipmentClear := clearShipmentIDFields(&mtoShipment)
+		mtoShipmentClear.MTOServiceItems = models.MTOServiceItems{}
+
+		_, err := creator.CreateMTOShipment(suite.AppContextForTest(), mtoShipmentClear)
+
+		suite.Error(err)
+		suite.Equal("failed to create pickup address - the country GB is not supported at this time - only US is allowed", err.Error())
 	})
 
 	suite.Run("If the shipment has an international address it should be returned", func() {

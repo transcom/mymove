@@ -22,7 +22,7 @@ type UpdatePPMShipment struct {
 	// The address of the destination location where goods are being delivered to.
 	//
 	DestinationAddress struct {
-		Address
+		PPMDestinationAddress
 	} `json:"destinationAddress,omitempty"`
 
 	// The estimated weight of the PPM shipment goods being moved.
@@ -49,6 +49,10 @@ type UpdatePPMShipment struct {
 
 	// has tertiary pickup address
 	HasTertiaryPickupAddress *bool `json:"hasTertiaryPickupAddress"`
+
+	// Used for PPM shipments only. Denotes if this shipment uses the Actual Expense Reimbursement method.
+	// Example: false
+	IsActualExpenseReimbursement *bool `json:"isActualExpenseReimbursement"`
 
 	// The address of the origin location where goods are being moved from.
 	//
