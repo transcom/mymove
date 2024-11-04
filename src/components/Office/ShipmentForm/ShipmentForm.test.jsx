@@ -1110,8 +1110,6 @@ describe('ShipmentForm component', () => {
       );
 
       await act(async () => {
-        await userEvent.type(screen.getByLabelText('Planned Departure Date'), '26 Mar 2022');
-        await userEvent.type(screen.getByLabelText('Estimated PPM weight'), '1000');
         const saveButton = screen.getByRole('button', { name: 'Save and Continue' });
         expect(saveButton).not.toBeDisabled();
         await userEvent.click(saveButton);
