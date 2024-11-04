@@ -13,7 +13,7 @@ func (suite *ModelSuite) TestPortValidation() {
 		validPort := models.Port{
 			ID:        uuid.Must(uuid.NewV4()),
 			PortCode:  "1234",
-			PortType:  models.PortTypeA,
+			PortType:  models.PortTypeAir,
 			PortName:  "Valid port name",
 			CreatedAt: time.Now(),
 			UpdatedAt: time.Now(),
@@ -25,7 +25,7 @@ func (suite *ModelSuite) TestPortValidation() {
 	suite.Run("test missing required fields", func() {
 		invalidPort := models.Port{
 			ID:        uuid.Must(uuid.NewV4()),
-			PortType:  models.PortTypeA,
+			PortType:  models.PortTypeAir,
 			CreatedAt: time.Now(),
 			UpdatedAt: time.Now(),
 		}
