@@ -6,7 +6,7 @@ import (
 	"github.com/gofrs/uuid"
 )
 
-type ReServiceItems struct {
+type ReServiceItem struct {
 	ID             uuid.UUID       `db:"id" rw:"r"`
 	ServiceId      uuid.UUID       `db:"service_id" rw:"r"`
 	Code           ReServiceCode   `belongs_to:"re_services" fk_id:"service_id" rw:"r"`
@@ -17,6 +17,6 @@ type ReServiceItems struct {
 	UpdatedAt      time.Time       `db:"updated_at" rw:"r"`
 }
 
-func (g ReServiceItems) TableName() string {
+func (g ReServiceItem) TableName() string {
 	return "re_service_items"
 }
