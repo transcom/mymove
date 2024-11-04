@@ -409,16 +409,15 @@ export class CustomerPpmPage extends CustomerPage {
    */
   async navigateFromDateAndLocationPageToEstimatedWeightsPage() {
     await this.page.locator('input[name="pickupAddress.address.streetAddress1"]').fill('123 Street');
-    await this.page.locator('input[name="pickupAddress.address.city"]').fill('SomeCity - Secondary');
+    await this.page.locator('input[name="pickupAddress.address.city"]').fill('BEVERLY HILLS');
     await this.page.locator('select[name="pickupAddress.address.state"]').selectOption({ label: 'CA' });
     await this.page.locator('input[name="pickupAddress.address.postalCode"]').clear();
     await this.page.locator('input[name="pickupAddress.address.postalCode"]').fill('90210');
     await this.page.locator('input[name="pickupAddress.address.postalCode"]').blur();
-
     await this.page.locator('input[name="destinationAddress.address.postalCode"]').clear();
     await this.page.locator('input[name="destinationAddress.address.postalCode"]').fill('76127');
     await this.page.locator('input[name="destinationAddress.address.streetAddress1"]').fill('123 Street');
-    await this.page.locator('input[name="destinationAddress.address.city"]').fill('SomeCity');
+    await this.page.locator('input[name="destinationAddress.address.city"]').fill('FORT WORTH');
     await this.page.locator('select[name="destinationAddress.address.state"]').selectOption({ label: 'TX' });
 
     await this.page.locator('input[name="expectedDepartureDate"]').clear();
