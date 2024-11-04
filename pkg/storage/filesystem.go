@@ -95,9 +95,10 @@ func (fs *Filesystem) Delete(key string) error {
 }
 
 // PresignedURL returns a URL that provides access to a file for 15 mintes.
-func (fs *Filesystem) PresignedURL(key, contentType string) (string, error) {
+func (fs *Filesystem) PresignedURL(key, contentType string, filename string) (string, error) {
 	values := url.Values{}
 	values.Add("contentType", contentType)
+	values.Add("filename", filename)
 	url := fs.webRoot + "/" + key + "?" + values.Encode()
 	return url, nil
 }

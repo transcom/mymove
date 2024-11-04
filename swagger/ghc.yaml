@@ -3746,6 +3746,7 @@ paths:
             - emplid
             - age
             - originDutyLocation
+            - assignedTo
           description: field that results should be sorted by
         - in: query
           name: order
@@ -3790,6 +3791,11 @@ paths:
         - in: query
           name: originDutyLocation
           type: string
+        - in: query
+          name: assignedTo
+          type: string
+          description: |
+            Used to illustrate which user is assigned to this payment request.
         - in: query
           name: status
           type: array
@@ -7225,8 +7231,13 @@ definitions:
         type: string
         format: date-time
         x-nullable: true
+      assignedTo:
+        $ref: '#/definitions/AssignedOfficeUser'
+        x-nullable: true
       availableOfficeUsers:
         $ref: '#/definitions/AvailableOfficeUsers'
+      assignable:
+        type: boolean
   QueuePaymentRequests:
     type: array
     items:
