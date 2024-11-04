@@ -28,6 +28,7 @@ var parameters = map[string]string{
 	"status":             "payment_requests.status",
 	"age":                "payment_requests.created_at",
 	"originDutyLocation": "duty_locations.name",
+	"assignedTo":         "assigned_user.last_name,assigned_user.first_name",
 }
 
 // NewPaymentRequestListFetcher returns a new payment request list fetcher
@@ -61,6 +62,7 @@ func (f *paymentRequestListFetcher) FetchPaymentRequestList(appCtx appcontext.Ap
 	query := appCtx.DB().Q().EagerPreload(
 		"MoveTaskOrder.Orders.OriginDutyLocation.TransportationOffice",
 		"MoveTaskOrder.Orders.OriginDutyLocation.Address",
+		"MoveTaskOrder.TIOAssignedUser",
 		// See note further below about having to do this in a separate Load call due to a Pop issue.
 		// "MoveTaskOrder.Orders.ServiceMember",
 	).
@@ -73,6 +75,7 @@ func (f *paymentRequestListFetcher) FetchPaymentRequestList(appCtx appcontext.Ap
 		// If a customer puts in an invalid ZIP for their pickup address, it won't show up in this view,
 		// and we don't want it to get hidden from services counselors.
 		LeftJoin("move_to_gbloc", "move_to_gbloc.move_id = moves.id").
+		LeftJoin("office_users as assigned_user", "moves.tio_assigned_id = assigned_user.id").
 		Where("moves.show = ?", models.BoolPointer(true))
 
 	if !privileges.HasPrivilege(models.PrivilegeTypeSafety) {
@@ -98,8 +101,9 @@ func (f *paymentRequestListFetcher) FetchPaymentRequestList(appCtx appcontext.Ap
 	submittedAtQuery := submittedAtFilter(params.SubmittedAt)
 	originDutyLocationQuery := dutyLocationFilter(params.OriginDutyLocation)
 	orderQuery := sortOrder(params.Sort, params.Order)
+	tioAssignedUserQuery := tioAssignedUserFilter(params.TIOAssignedUser)
 
-	options := [11]QueryOption{branchQuery, locatorQuery, dodIDQuery, lastNameQuery, dutyLocationQuery, statusQuery, originDutyLocationQuery, submittedAtQuery, gblocQuery, orderQuery, emplidQuery}
+	options := [12]QueryOption{branchQuery, locatorQuery, dodIDQuery, lastNameQuery, dutyLocationQuery, statusQuery, originDutyLocationQuery, submittedAtQuery, gblocQuery, orderQuery, emplidQuery, tioAssignedUserQuery}
 
 	for _, option := range options {
 		if option != nil {
@@ -115,7 +119,7 @@ func (f *paymentRequestListFetcher) FetchPaymentRequestList(appCtx appcontext.Ap
 		params.PerPage = models.Int64Pointer(20)
 	}
 
-	err = query.GroupBy("payment_requests.id, service_members.id, moves.id, duty_locations.id, duty_locations.name").Paginate(int(*params.Page), int(*params.PerPage)).All(&paymentRequests)
+	err = query.GroupBy("payment_requests.id, service_members.id, moves.id, duty_locations.id, duty_locations.name, assigned_user.last_name, assigned_user.first_name").Paginate(int(*params.Page), int(*params.PerPage)).All(&paymentRequests)
 	if err != nil {
 		return nil, 0, err
 	}
@@ -269,6 +273,11 @@ func orderName(query *pop.Query, order *string) *pop.Query {
 	return query
 }
 
+func orderAssignedName(query *pop.Query, order *string) *pop.Query {
+	query.Order(fmt.Sprintf("assigned_user.last_name %s, assigned_user.first_name %s", *order, *order))
+	return query
+}
+
 func reverseOrder(order *string) string {
 	if *order == "asc" {
 		return "desc"
@@ -284,6 +293,8 @@ func sortOrder(sort *string, order *string) QueryOption {
 				orderName(query, order)
 			} else if *sort == "age" {
 				query.Order(fmt.Sprintf("%s %s", sortTerm, reverseOrder(order)))
+			} else if *sort == "assignedTo" {
+				orderAssignedName(query, order)
 			} else {
 				query.Order(fmt.Sprintf("%s %s", sortTerm, *order))
 			}
@@ -399,4 +410,13 @@ func paymentRequestsStatusFilter(statuses []string) QueryOption {
 		}
 	}
 
+}
+
+func tioAssignedUserFilter(tioAssigned *string) QueryOption {
+	return func(query *pop.Query) {
+		if tioAssigned != nil {
+			nameSearch := fmt.Sprintf("%s%%", *tioAssigned)
+			query.Where("assigned_user.last_name ILIKE ?", nameSearch)
+		}
+	}
 }
