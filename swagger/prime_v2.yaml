@@ -411,6 +411,8 @@ definitions:
             enum:
               - DDFSIT
               - DDASIT
+              - IDFSIT
+              - IDASIT
           dateOfContact1:
             format: date
             type: string
