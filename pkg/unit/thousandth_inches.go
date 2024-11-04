@@ -10,6 +10,7 @@ type ThousandthInches int
 
 // Int32Ptr returns the int32 representation of an int type.
 func (t ThousandthInches) Int32Ptr() *int32 {
+	// #nosec G115: it is unrealistic that an imperial measurement will exceed int32 limits
 	val := int32(t)
 	return &val
 }

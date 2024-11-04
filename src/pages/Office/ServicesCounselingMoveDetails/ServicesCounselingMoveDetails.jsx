@@ -40,13 +40,17 @@ import NotificationScrollToTop from 'components/NotificationScrollToTop';
 import { objectIsMissingFieldWithCondition } from 'utils/displayFlags';
 import { ReviewButton } from 'components/form/IconButtons';
 import { calculateWeightRequested } from 'hooks/custom';
+import { ADVANCE_STATUSES } from 'constants/ppms';
 
 const ServicesCounselingMoveDetails = ({
   infoSavedAlert,
-  setUnapprovedShipmentCount,
-  isMoveLocked,
+  shipmentWarnConcernCount,
+  setShipmentWarnConcernCount,
+  shipmentErrorConcernCount,
+  setShipmentErrorConcernCount,
   missingOrdersInfoCount,
   setMissingOrdersInfoCount,
+  isMoveLocked,
 }) => {
   const { moveCode } = useParams();
   const navigate = useNavigate();
@@ -55,7 +59,6 @@ const ServicesCounselingMoveDetails = ({
   const [moveHasExcessWeight, setMoveHasExcessWeight] = useState(false);
   const [isSubmitModalVisible, setIsSubmitModalVisible] = useState(false);
   const [isFinancialModalVisible, setIsFinancialModalVisible] = useState(false);
-  const [shipmentConcernCount, setShipmentConcernCount] = useState(0);
   const { upload, amendedUpload } = useOrdersDocumentQueries(moveCode);
   const documentsForViewer = Object.values(upload || {})
     .concat(Object.values(amendedUpload || {}))
@@ -90,23 +93,22 @@ const ServicesCounselingMoveDetails = ({
     HHG_OUTOF_NTS_DOMESTIC: ['requestedPickupDate'],
   };
   const warnIfMissing = {
-    HHG: [{ fieldName: 'counselorRemarks' }],
-    HHG_INTO_NTS_DOMESTIC: [{ fieldName: 'counselorRemarks' }, { fieldName: 'tacType' }, { fieldName: 'sacType' }],
+    HHG_INTO_NTS_DOMESTIC: [{ fieldName: 'tacType' }, { fieldName: 'sacType' }],
     HHG_OUTOF_NTS_DOMESTIC: [
       { fieldName: 'ntsRecordedWeight' },
       { fieldName: 'serviceOrderNumber' },
-      { fieldName: 'counselorRemarks' },
       { fieldName: 'tacType' },
       { fieldName: 'sacType' },
     ],
-    PPM: [{ fieldName: 'counselorRemarks' }],
   };
   const errorIfMissing = {
     HHG_OUTOF_NTS_DOMESTIC: [{ fieldName: 'storageFacility' }],
     PPM: [
       {
         fieldName: 'advanceStatus',
-        condition: (shipment) => shipment?.ppmShipment?.hasRequestedAdvance === true,
+        condition: (shipment) =>
+          shipment?.ppmShipment?.hasRequestedAdvance === true &&
+          shipment?.ppmShipment?.advanceStatus !== ADVANCE_STATUSES.APPROVED.apiValue,
       },
     ],
   };
@@ -416,19 +418,22 @@ const ServicesCounselingMoveDetails = ({
     setMoveHasExcessWeight(moveWeightTotal > order.entitlement.totalWeight);
   }, [moveWeightTotal, order.entitlement.totalWeight]);
 
-  // Keep unapproved shipment count in sync
+  // Keep unapproved shipments, warn & error counts in sync
   useEffect(() => {
-    let shipmentConcerns = numberOfErrorIfMissingForAllShipments + numberOfWarnIfMissingForAllShipments;
+    let shipmentWarnConcerns = numberOfWarnIfMissingForAllShipments;
+    const shipmentErrorConcerns = numberOfErrorIfMissingForAllShipments;
     if (moveHasExcessWeight) {
-      shipmentConcerns += 1;
+      shipmentWarnConcerns += 1;
     }
-    setShipmentConcernCount(shipmentConcerns);
-    setUnapprovedShipmentCount(shipmentConcerns);
+    setShipmentWarnConcernCount(shipmentWarnConcerns);
+    setShipmentErrorConcernCount(shipmentErrorConcerns);
   }, [
     moveHasExcessWeight,
+    mtoShipments,
     numberOfErrorIfMissingForAllShipments,
     numberOfWarnIfMissingForAllShipments,
-    setUnapprovedShipmentCount,
+    setShipmentErrorConcernCount,
+    setShipmentWarnConcernCount,
   ]);
 
   // Keep num of missing orders info synced up
@@ -491,10 +496,18 @@ const ServicesCounselingMoveDetails = ({
         <LeftNav sections={sections}>
           <LeftNavTag
             associatedSectionName="shipments"
-            showTag={shipmentConcernCount !== 0}
+            showTag={shipmentWarnConcernCount !== 0}
             testID="requestedShipmentsTag"
           >
-            {shipmentConcernCount}
+            {shipmentWarnConcernCount}
+          </LeftNavTag>
+          <LeftNavTag
+            background="#e34b11"
+            associatedSectionName="shipments"
+            showTag={shipmentErrorConcernCount !== 0}
+            testID="shipment-missing-info-alert"
+          >
+            {shipmentErrorConcernCount}
           </LeftNavTag>
           <LeftNavTag
             background="#e34b11"
@@ -603,6 +616,9 @@ const ServicesCounselingMoveDetails = ({
                     <option data-testid="boatOption" value={SHIPMENT_OPTIONS_URL.BOAT}>
                       Boat
                     </option>
+                    <option data-testid="mobileHomeOption" value={SHIPMENT_OPTIONS_URL.MOBILE_HOME}>
+                      Mobile Home
+                    </option>
                   </ButtonDropdown>
                 )
               }
@@ -709,7 +725,7 @@ const ServicesCounselingMoveDetails = ({
               }
               ppmShipmentInfoNeedsApproval={ppmShipmentsInfoNeedsApproval}
             >
-              <AllowancesList info={allowancesInfo} showVisualCues />
+              <AllowancesList info={allowancesInfo} />
             </DetailsPanel>
           </div>
           <div className={styles.section} id="customer-info">
@@ -741,7 +757,8 @@ const ServicesCounselingMoveDetails = ({
 
 ServicesCounselingMoveDetails.propTypes = {
   infoSavedAlert: AlertStateShape,
-  setUnapprovedShipmentCount: func.isRequired,
+  setShipmentWarnConcernCount: func.isRequired,
+  setShipmentErrorConcernCount: func.isRequired,
 };
 
 ServicesCounselingMoveDetails.defaultProps = {

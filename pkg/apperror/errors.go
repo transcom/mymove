@@ -222,7 +222,7 @@ func NewInvalidInputError(id uuid.UUID, err error, validationErrors *validate.Er
 
 func (e InvalidInputError) Error() string {
 	if e.message != "" {
-		return fmt.Sprintf(e.message)
+		return e.message
 	} else if e.id == uuid.Nil && e.ValidationErrors != nil {
 		return fmt.Sprintf("Invalid input received. %s", e.ValidationErrors)
 	} else if e.ValidationErrors != nil {
@@ -244,7 +244,7 @@ type QueryError struct {
 
 func (e QueryError) Error() string {
 	if e.message != "" {
-		return fmt.Sprintf(e.message)
+		return e.message
 	}
 	return fmt.Sprintf("Could not complete query related to object of type: %s.", e.objectType)
 }
@@ -281,7 +281,7 @@ func NewInvalidCreateInputError(validationErrors *validate.Errors, message strin
 
 func (e InvalidCreateInputError) Error() string {
 	if e.message != "" {
-		return fmt.Sprintf(e.message)
+		return e.message
 	}
 	return fmt.Sprintf("Invalid input for ID: %s", e.ValidationErrors)
 }

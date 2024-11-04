@@ -7,13 +7,12 @@ import { isBooleanFlagEnabled } from '../../../../utils/featureFlags';
 
 import MobileHomeShipmentForm from 'components/Customer/MobileHomeShipment/MobileHomeShipmentForm/MobileHomeShipmentForm';
 import NotificationScrollToTop from 'components/NotificationScrollToTop';
-import scrollToTop from 'shared/scrollToTop';
 import ShipmentTag from 'components/ShipmentTag/ShipmentTag';
 import { customerRoutes, generalRoutes } from 'constants/routes';
 import pageStyles from 'pages/MyMove/PPM/PPM.module.scss';
-import { createMTOShipment, patchMTOShipment, deleteMTOShipment, getAllMoves } from 'services/internalApi';
+import { createMTOShipment, patchMTOShipment } from 'services/internalApi';
 import { SHIPMENT_OPTIONS, SHIPMENT_TYPES } from 'shared/constants';
-import { updateMTOShipment, updateAllMoves } from 'store/entities/actions';
+import { updateMTOShipment } from 'store/entities/actions';
 import { DutyLocationShape } from 'types';
 import { MoveShape, ServiceMemberShape } from 'types/customerShapes';
 import { ShipmentShape } from 'types/shipment';
@@ -29,8 +28,6 @@ const MobileHomeShipmentCreate = ({
 }) => {
   const [errorMessage, setErrorMessage] = useState(null);
   const [multiMove, setMultiMove] = useState(false);
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [isDeleting, setIsDeleting] = useState(false);
 
   const navigate = useNavigate();
   const { moveId } = useParams();
@@ -79,7 +76,7 @@ const MobileHomeShipmentCreate = ({
       });
     }
 
-    dispatch(updateMTOShipment(response));
+    dispatch(updateMTOShipment(data));
 
     // navigate to the next page
     navigate(
@@ -90,39 +87,6 @@ const MobileHomeShipmentCreate = ({
     );
   };
 
-  const redirectShipment = () => {
-    setTimeout(() => {
-      scrollToTop();
-      const createShipmentPath = generatePath(customerRoutes.SHIPMENT_CREATE_PATH, { moveId });
-      navigate(`${createShipmentPath}?type=${SHIPMENT_TYPES.HHG}`, {
-        state: {
-          mtoShipment,
-        },
-      });
-    }, 100);
-  };
-
-  const handleConfirmationDeleteAndRedirect = () => {
-    if (isDeleting || isSubmitting) return;
-    setIsDeleting(true);
-
-    deleteMTOShipment(mtoShipment?.id)
-      .then(() => {
-        getAllMoves(serviceMember.id).then((res) => {
-          updateAllMoves(res);
-        });
-        redirectShipment();
-      })
-      .catch(() => {
-        const errorMsg = 'There was an error attempting to delete your shipment.';
-        setErrorMessage(errorMsg);
-      })
-      .finally(() => {
-        setIsDeleting(false);
-      });
-  };
-
-  // open confirmation modal to validate mobile home shipment
   const handleSubmit = async (values, { setSubmitting }) => {
     setErrorMessage(null);
     const totalLengthInInches = toTotalInches(values.lengthFeet, values.lengthInches);
@@ -176,7 +140,6 @@ const MobileHomeShipmentCreate = ({
             errorMsg = firstError;
           }
           setErrorMessage(errorMsg);
-          setIsSubmitting(false);
         });
     }
   };
@@ -188,7 +151,7 @@ const MobileHomeShipmentCreate = ({
         <Grid row>
           <Grid col desktop={{ col: 8, offset: 2 }}>
             <ShipmentTag shipmentType={SHIPMENT_OPTIONS.MOBILE_HOME} shipmentNumber={shipmentNumber} />
-            <h1>Mobile home details and measurements</h1>
+            <h1>Mobile Home details and measurements</h1>
             {errorMessage && (
               <Alert headingLevel="h4" slim type="error">
                 {errorMessage}
@@ -202,8 +165,6 @@ const MobileHomeShipmentCreate = ({
               onSubmit={handleSubmit}
               onBack={handleBack}
               postalCodeValidator={validatePostalCode}
-              handleConfirmationDeleteAndRedirect={handleConfirmationDeleteAndRedirect}
-              isSubmitting={false}
               isEditPage={isEditPage}
             />
           </Grid>

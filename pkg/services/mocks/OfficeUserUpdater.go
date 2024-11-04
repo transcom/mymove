@@ -24,6 +24,10 @@ type OfficeUserUpdater struct {
 func (_m *OfficeUserUpdater) UpdateOfficeUser(appCtx appcontext.AppContext, id uuid.UUID, payload *adminmessages.OfficeUserUpdate) (*models.OfficeUser, *validate.Errors, error) {
 	ret := _m.Called(appCtx, id, payload)
 
+	if len(ret) == 0 {
+		panic("no return value specified for UpdateOfficeUser")
+	}
+
 	var r0 *models.OfficeUser
 	var r1 *validate.Errors
 	var r2 error

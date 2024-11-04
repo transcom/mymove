@@ -852,7 +852,6 @@ func MakePrimeSimulatorMoveSameBasePointCity(appCtx appcontext.AppContext) model
 				City:           "Miami Gardens",
 				State:          "FL",
 				PostalCode:     "33169",
-				Country:        models.StringPointer("US"),
 			},
 		},
 	}, nil)
@@ -865,7 +864,6 @@ func MakePrimeSimulatorMoveSameBasePointCity(appCtx appcontext.AppContext) model
 				City:           "Key West",
 				State:          "FL",
 				PostalCode:     "33040",
-				Country:        models.StringPointer("US"),
 			},
 		},
 	}, nil)
@@ -3949,7 +3947,6 @@ func MakeMoveWithPPMShipmentReadyForFinalCloseout(appCtx appcontext.AppContext) 
 				City:           "Miami Gardens",
 				State:          "FL",
 				PostalCode:     "33169",
-				Country:        models.StringPointer("US"),
 			},
 		},
 	}, nil)
@@ -3962,7 +3959,6 @@ func MakeMoveWithPPMShipmentReadyForFinalCloseout(appCtx appcontext.AppContext) 
 				City:           "Key West",
 				State:          "FL",
 				PostalCode:     "33040",
-				Country:        models.StringPointer("US"),
 			},
 		},
 	}, nil)
@@ -5371,8 +5367,8 @@ func MakeHHGMoveInSIT(appCtx appcontext.AppContext) models.Move {
 		},
 	}, nil)
 
-	twoMonthsAgo := now.AddDate(0, 0, -60)
-	oneMonthAgo := now.AddDate(0, 0, -30)
+	twoMonthsAgo := now.AddDate(0, -2, 0)
+	oneMonthAgo := now.AddDate(0, -1, 0)
 	factory.BuildOriginSITServiceItems(appCtx.DB(), move, shipment, &twoMonthsAgo, &oneMonthAgo)
 	factory.BuildDestSITServiceItems(appCtx.DB(), move, shipment, &oneMonthAgo, nil)
 
@@ -5486,10 +5482,10 @@ func HHGMoveWithPastSITs(appCtx appcontext.AppContext) models.Move {
 		},
 	}, nil)
 
-	fourMonthsAgo := now.AddDate(0, 0, -120)
-	threeMonthsAgo := now.AddDate(0, 0, -90)
-	twoMonthsAgo := now.AddDate(0, 0, -60)
-	oneMonthAgo := now.AddDate(0, 0, -30)
+	fourMonthsAgo := now.AddDate(0, -4, 0)
+	threeMonthsAgo := now.AddDate(0, -3, 0)
+	twoMonthsAgo := now.AddDate(0, -2, 0)
+	oneMonthAgo := now.AddDate(0, -1, 0)
 	factory.BuildOriginSITServiceItems(appCtx.DB(), move, shipment, &fourMonthsAgo, &threeMonthsAgo)
 	factory.BuildDestSITServiceItems(appCtx.DB(), move, shipment, &twoMonthsAgo, &oneMonthAgo)
 

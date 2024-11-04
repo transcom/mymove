@@ -18,6 +18,10 @@ type ListFetcher struct {
 func (_m *ListFetcher) FetchRecordCount(appCtx appcontext.AppContext, model interface{}, filters []services.QueryFilter) (int, error) {
 	ret := _m.Called(appCtx, model, filters)
 
+	if len(ret) == 0 {
+		panic("no return value specified for FetchRecordCount")
+	}
+
 	var r0 int
 	var r1 error
 	if rf, ok := ret.Get(0).(func(appcontext.AppContext, interface{}, []services.QueryFilter) (int, error)); ok {
@@ -41,6 +45,10 @@ func (_m *ListFetcher) FetchRecordCount(appCtx appcontext.AppContext, model inte
 // FetchRecordList provides a mock function with given fields: appCtx, model, filters, associations, pagination, ordering
 func (_m *ListFetcher) FetchRecordList(appCtx appcontext.AppContext, model interface{}, filters []services.QueryFilter, associations services.QueryAssociations, pagination services.Pagination, ordering services.QueryOrder) error {
 	ret := _m.Called(appCtx, model, filters, associations, pagination, ordering)
+
+	if len(ret) == 0 {
+		panic("no return value specified for FetchRecordList")
+	}
 
 	var r0 error
 	if rf, ok := ret.Get(0).(func(appcontext.AppContext, interface{}, []services.QueryFilter, services.QueryAssociations, services.Pagination, services.QueryOrder) error); ok {

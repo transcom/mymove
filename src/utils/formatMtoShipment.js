@@ -519,6 +519,49 @@ export function convertInchesToFeetAndInches(totalInches) {
   return { feet, inches };
 }
 
+// Initial values for mobile home shipment
+export function formatMobileHomeShipmentForDisplay(mobileHomeShipment, initialValues) {
+  const { year, make, model, lengthInInches, widthInInches, heightInInches } = mobileHomeShipment || {};
+
+  const length = convertInchesToFeetAndInches(lengthInInches);
+  const width = convertInchesToFeetAndInches(widthInInches);
+  const height = convertInchesToFeetAndInches(heightInInches);
+
+  const displayValues = {
+    year: year?.toString() || null,
+    make: make || '',
+    model: model || '',
+    lengthFeet: length.feet,
+    lengthInches: length.inches,
+    widthFeet: width.feet,
+    widthInches: width.inches,
+    heightFeet: height.feet,
+    heightInches: height.inches,
+    ...initialValues,
+  };
+
+  return displayValues;
+}
+
+export function formatMobileHomeShipmentForAPI(values) {
+  const totalLengthInInches = toTotalInches(values.lengthFeet, values.lengthInches);
+  const totalWidthInInches = toTotalInches(values.widthFeet, values.widthInches);
+  const totalHeightInInches = toTotalInches(values.heightFeet, values.heightInches);
+
+  const mobileHomeShipment = {
+    year: Number(values.year),
+    make: values.make,
+    model: values.model,
+    lengthInInches: totalLengthInInches,
+    widthInInches: totalWidthInInches,
+    heightInInches: totalHeightInInches,
+  };
+
+  return {
+    mobileHomeShipment,
+  };
+}
+
 // Initial values for boat shipment
 export function formatBoatShipmentForDisplay(boatShipment, initialValues) {
   const { type, year, make, model, lengthInInches, widthInInches, heightInInches, hasTrailer, isRoadworthy } =
@@ -583,6 +626,8 @@ export default {
   getMtoShipmentLabel,
   toTotalInches,
   convertInchesToFeetAndInches,
+  formatMobileHomeShipmentForDisplay,
+  formatMobileHomeShipmentForAPI,
   formatBoatShipmentForDisplay,
   formatBoatShipmentForAPI,
 };

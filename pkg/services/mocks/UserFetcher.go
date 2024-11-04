@@ -20,6 +20,10 @@ type UserFetcher struct {
 func (_m *UserFetcher) FetchUser(appCtx appcontext.AppContext, filters []services.QueryFilter) (models.User, error) {
 	ret := _m.Called(appCtx, filters)
 
+	if len(ret) == 0 {
+		panic("no return value specified for FetchUser")
+	}
+
 	var r0 models.User
 	var r1 error
 	if rf, ok := ret.Get(0).(func(appcontext.AppContext, []services.QueryFilter) (models.User, error)); ok {

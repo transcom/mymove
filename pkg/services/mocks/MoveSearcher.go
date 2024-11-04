@@ -20,6 +20,10 @@ type MoveSearcher struct {
 func (_m *MoveSearcher) SearchMoves(appCtx appcontext.AppContext, params *services.SearchMovesParams) (models.Moves, int, error) {
 	ret := _m.Called(appCtx, params)
 
+	if len(ret) == 0 {
+		panic("no return value specified for SearchMoves")
+	}
+
 	var r0 models.Moves
 	var r1 int
 	var r2 error

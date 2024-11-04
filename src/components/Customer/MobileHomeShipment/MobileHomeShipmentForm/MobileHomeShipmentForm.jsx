@@ -17,6 +17,7 @@ import MaskedTextField from 'components/form/fields/MaskedTextField/MaskedTextFi
 import Callout from 'components/Callout';
 import { ErrorMessage } from 'components/form/index';
 import { convertInchesToFeetAndInches } from 'utils/formatMtoShipment';
+import RequiredTag from 'components/form/RequiredTag';
 
 const currentYear = new Date().getFullYear();
 const maxYear = currentYear + 2;
@@ -109,7 +110,7 @@ const MobileHomeShipmentForm = ({ mtoShipment, onBack, onSubmit }) => {
           <div className={styles.formContainer}>
             <Form className={formStyles.form}>
               <SectionWrapper className={classnames(styles.sectionWrapper, formStyles.formSection, 'origin')}>
-                <h2>Mobile home Information</h2>
+                <h2>Mobile Home Information</h2>
                 <div className="grid-row grid-gap">
                   <div className="mobile-lg:grid-col-3">
                     <MaskedTextField
@@ -141,11 +142,12 @@ const MobileHomeShipmentForm = ({ mtoShipment, onBack, onSubmit }) => {
               </SectionWrapper>
               <SectionWrapper className={classnames(styles.sectionWrapper, formStyles.formSection, 'origin')}>
                 <h2>Mobile Home Dimensions</h2>
-                <p>Enter all of the dimensions of the mobile home.</p>
+                <p>Enter the total outside dimensions (in Feet and Inches) of the Mobile Home.</p>
                 <div>
                   <Fieldset className={styles.formFieldContainer}>
                     <div className="labelWrapper">
                       <legend className="usa-label">Length</legend>
+                      <RequiredTag />
                       <ErrorMessage display={lengthHasError}>Required</ErrorMessage>
                     </div>
                     <div className={classnames(styles.formTextFieldWrapper, 'grid-row grid-gap')}>
@@ -183,6 +185,7 @@ const MobileHomeShipmentForm = ({ mtoShipment, onBack, onSubmit }) => {
                   <Fieldset className={styles.formFieldContainer}>
                     <div className="labelWrapper">
                       <legend className="usa-label">Width</legend>
+                      <RequiredTag />
                       <ErrorMessage display={widthHasError}>Required</ErrorMessage>
                     </div>
                     <div className={classnames(styles.formTextFieldWrapper, 'grid-row grid-gap')}>
@@ -220,6 +223,7 @@ const MobileHomeShipmentForm = ({ mtoShipment, onBack, onSubmit }) => {
                   <Fieldset className={styles.formFieldContainer}>
                     <div className="labelWrapper">
                       <legend className="usa-label">Height</legend>
+                      <RequiredTag />
                       <ErrorMessage display={heightHasError}>Required</ErrorMessage>
                     </div>
                     <div className={classnames(styles.formTextFieldWrapper, 'grid-row grid-gap')}>
@@ -257,27 +261,19 @@ const MobileHomeShipmentForm = ({ mtoShipment, onBack, onSubmit }) => {
                 </div>
               </SectionWrapper>
               <SectionWrapper className={formStyles.formSection}>
-                <Fieldset
-                  legend={
-                    <div className={formStyles.legendContent}>
-                      Remarks <span className={formStyles.optional}>Optional</span>
-                    </div>
-                  }
-                >
+                <Fieldset legend={<div className={formStyles.legendContent}>Remarks</div>}>
                   <Label htmlFor="customerRemarks">
                     Are there things about this mobile home shipment that your counselor or movers should know or
                     discuss with you?
                   </Label>
 
                   <Callout>
-                    Examples
+                    Example
                     <ul>
                       <li>
-                        Dimensions of the mobile home on the trailer are significantly different than one would expect
-                        given their individual dimensions
+                        Is there additional information you feel is pertinent to the processing of your mobile home
+                        shipment?(e.g., &lsquo;wrecker service requested&rsquo; and &lsquo;crane service needed&rsquo;).
                       </li>
-
-                      <li>Access info for your origin or destination address/marina</li>
                     </ul>
                   </Callout>
 

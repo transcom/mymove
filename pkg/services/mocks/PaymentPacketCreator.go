@@ -21,6 +21,10 @@ type PaymentPacketCreator struct {
 func (_m *PaymentPacketCreator) Generate(appCtx appcontext.AppContext, ppmShipmentID uuid.UUID, addBookmarks bool, addWaterMarks bool) (io.ReadCloser, error) {
 	ret := _m.Called(appCtx, ppmShipmentID, addBookmarks, addWaterMarks)
 
+	if len(ret) == 0 {
+		panic("no return value specified for Generate")
+	}
+
 	var r0 io.ReadCloser
 	var r1 error
 	if rf, ok := ret.Get(0).(func(appcontext.AppContext, uuid.UUID, bool, bool) (io.ReadCloser, error)); ok {
@@ -46,6 +50,10 @@ func (_m *PaymentPacketCreator) Generate(appCtx appcontext.AppContext, ppmShipme
 // GenerateDefault provides a mock function with given fields: appCtx, ppmShipmentID
 func (_m *PaymentPacketCreator) GenerateDefault(appCtx appcontext.AppContext, ppmShipmentID uuid.UUID) (io.ReadCloser, error) {
 	ret := _m.Called(appCtx, ppmShipmentID)
+
+	if len(ret) == 0 {
+		panic("no return value specified for GenerateDefault")
+	}
 
 	var r0 io.ReadCloser
 	var r1 error

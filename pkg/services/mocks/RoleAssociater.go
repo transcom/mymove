@@ -20,6 +20,10 @@ type RoleAssociater struct {
 func (_m *RoleAssociater) FetchRolesForUser(appCtx appcontext.AppContext, userID uuid.UUID) (roles.Roles, error) {
 	ret := _m.Called(appCtx, userID)
 
+	if len(ret) == 0 {
+		panic("no return value specified for FetchRolesForUser")
+	}
+
 	var r0 roles.Roles
 	var r1 error
 	if rf, ok := ret.Get(0).(func(appcontext.AppContext, uuid.UUID) (roles.Roles, error)); ok {

@@ -18,7 +18,7 @@ const ContactInfoForm = ({ initialValues, onSubmit, onBack }) => {
             <h1>Your contact info</h1>
             <SectionWrapper className={formStyles.formSection}>
               <div className="tablet:margin-top-neg-3">
-                <CustomerContactInfoFields />
+                <CustomerContactInfoFields labelHint="Required" />
               </div>
             </SectionWrapper>
             <div className={formStyles.formActions}>

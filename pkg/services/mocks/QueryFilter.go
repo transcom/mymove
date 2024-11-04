@@ -13,6 +13,10 @@ type QueryFilter struct {
 func (_m *QueryFilter) Column() string {
 	ret := _m.Called()
 
+	if len(ret) == 0 {
+		panic("no return value specified for Column")
+	}
+
 	var r0 string
 	if rf, ok := ret.Get(0).(func() string); ok {
 		r0 = rf()
@@ -27,6 +31,10 @@ func (_m *QueryFilter) Column() string {
 func (_m *QueryFilter) Comparator() string {
 	ret := _m.Called()
 
+	if len(ret) == 0 {
+		panic("no return value specified for Comparator")
+	}
+
 	var r0 string
 	if rf, ok := ret.Get(0).(func() string); ok {
 		r0 = rf()
@@ -40,6 +48,10 @@ func (_m *QueryFilter) Comparator() string {
 // Value provides a mock function with given fields:
 func (_m *QueryFilter) Value() interface{} {
 	ret := _m.Called()
+
+	if len(ret) == 0 {
+		panic("no return value specified for Value")
+	}
 
 	var r0 interface{}
 	if rf, ok := ret.Get(0).(func() interface{}); ok {

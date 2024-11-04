@@ -323,7 +323,7 @@ func (suite *BaseRoutingSuite) NewTLSAuthenticatedPrimeRequest(method string, re
 func (suite *BaseRoutingSuite) CreateFileWithContent(fpath string, fcontent string) {
 	routingConfig := suite.RoutingConfig()
 	dir := filepath.Dir(fpath)
-	suite.NoError(routingConfig.FileSystem.MkdirAll(dir, 0777))
+	suite.NoError(routingConfig.FileSystem.MkdirAll(dir, 0600))
 	f, err := routingConfig.FileSystem.Create(fpath)
 	suite.NoError(err)
 	_, err = f.WriteString(fcontent)
