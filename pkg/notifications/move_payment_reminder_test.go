@@ -78,6 +78,13 @@ func (suite *NotificationSuite) TestPaymentReminderFetchSomeFound() {
 				suite.Equal(ppms[i].EstimatedWeight, emailInfo[j].WeightEstimate)
 				suite.Equal(ppms[i].EstimatedIncentive, emailInfo[j].IncentiveEstimate)
 				suite.Equal(ppms[i].Shipment.MoveTaskOrder.Locator, emailInfo[j].Locator)
+				suite.Equal(ppms[i].DestinationAddress.StreetAddress1, *emailInfo[j].DestinationStreet1)
+				suite.Equal(ppms[i].DestinationAddress.StreetAddress2, emailInfo[j].DestinationStreet2)
+				suite.Equal(ppms[i].DestinationAddress.StreetAddress3, emailInfo[j].DestinationStreet3)
+				suite.Equal(ppms[i].DestinationAddress.City, *emailInfo[j].DestinationCity)
+				suite.Equal(ppms[i].DestinationAddress.State, *emailInfo[j].DestinationState)
+				suite.Equal(ppms[i].DestinationAddress.PostalCode, *emailInfo[j].DestinationPostalCode)
+				suite.Equal(ppms[i].Shipment.MoveTaskOrder.Orders.OrdersType, emailInfo[j].OrdersType)
 			}
 		}
 	}
