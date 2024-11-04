@@ -2309,7 +2309,7 @@ func QueuePaymentRequests(paymentRequests *models.PaymentRequests, officeUsers [
 		if isSupervisor {
 			isAssignable = true
 		}
-    
+
 		if isHQRole {
 			isAssignable = false
 		}
