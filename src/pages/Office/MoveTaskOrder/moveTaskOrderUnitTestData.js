@@ -1268,7 +1268,7 @@ export const riskOfExcessWeightQueryExternalShipment = {
   ],
 };
 
-export const approvedMTOWithCancelledShipmentQuery = {
+export const approvedMTOWithCanceledShipmentQuery = {
   orders: {
     1: {
       id: '1',

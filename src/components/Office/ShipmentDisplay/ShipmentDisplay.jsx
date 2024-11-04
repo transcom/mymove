@@ -95,8 +95,10 @@ const ShipmentDisplay = ({
               <div>
                 {displayInfo.isActualExpenseReimbursement && <Tag>actual expense reimbursement</Tag>}
                 {displayInfo.isDiversion && <Tag>diversion</Tag>}
-                {displayInfo.shipmentStatus === shipmentStatuses.CANCELED && (
-                  <Tag className="usa-tag--red">cancelled</Tag>
+                {(displayInfo.shipmentStatus === shipmentStatuses.CANCELED ||
+                  displayInfo.status === shipmentStatuses.CANCELED ||
+                  displayInfo.ppmShipment?.status === ppmShipmentStatuses.CANCELED) && (
+                  <Tag className="usa-tag--red">canceled</Tag>
                 )}
                 {displayInfo.shipmentStatus === shipmentStatuses.DIVERSION_REQUESTED && <Tag>diversion requested</Tag>}
                 {displayInfo.shipmentStatus === shipmentStatuses.CANCELLATION_REQUESTED && (
