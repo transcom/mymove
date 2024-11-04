@@ -101,7 +101,7 @@ const OrdersList = ({ ordersInfo, showMissingWarnings }) => {
             [styles.missingInfoError]: showMissingWarnings && !ordersInfo.ordersDocuments,
           })}
         >
-          <dt>Orders Document(s)</dt>
+          <dt>Orders document(s)</dt>
           <dd data-testid="ordersDocuments">{!ordersInfo.ordersDocuments ? missingText : 'File(s) Uploaded'}</dd>
         </div>
         <div
