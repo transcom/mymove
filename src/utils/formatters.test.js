@@ -77,6 +77,23 @@ describe('formatters', () => {
     });
   });
 
+  describe('formatUBAllowanceWeight', () => {
+    describe('when formatting a integer weight', () => {
+      const weight = 500;
+      const formattedUBAllowanceWeight = formatters.formatUBAllowanceWeight(weight);
+      it('should be be formatted as expected', () => {
+        expect(formattedUBAllowanceWeight).toEqual('500 lbs');
+      });
+    });
+    describe('when formatting a null value', () => {
+      const weight = null;
+      const formattedUBAllowanceWeight = formatters.formatUBAllowanceWeight(weight);
+      it('should be be formatted as expected', () => {
+        expect(formattedUBAllowanceWeight).toEqual('your UB allowance');
+      });
+    });
+  });
+
   describe('formatDollarFromMillicents', () => {
     it('returns expected value', () => {
       expect(formatters.formatDollarFromMillicents('80000')).toBe('$0.80');

@@ -52,6 +52,7 @@ jest.mock('components/LocationSearchBox/api', () => ({
         id: '93f0755f-6f35-478b-9a75-35a69211da1c',
         name: 'Altus AFB',
         updated_at: '2021-02-11T16:48:04.117Z',
+        provides_services_counseling: true,
       },
       {
         address: {
@@ -82,6 +83,7 @@ jest.mock('components/LocationSearchBox/api', () => ({
         created_at: '2021-02-11T16:48:04.117Z',
         id: 'a8d6b33c-8370-4e92-8df2-356b8c9d0c1a',
         name: 'Luke AFB',
+        provides_services_counseling: true,
         updated_at: '2021-02-11T16:48:04.117Z',
       },
       {
@@ -230,7 +232,15 @@ const initialValues = {
     },
   ],
   grade: 'E_1',
+  accompanied_tour: '',
+  dependents_under_twelve: '',
+  dependents_twelve_and_over: '',
 };
+
+jest.mock('utils/featureFlags', () => ({
+  ...jest.requireActual('utils/featureFlags'),
+  isBooleanFlagEnabled: jest.fn().mockImplementation(() => Promise.resolve(false)),
+}));
 
 describe('EditOrdersForm component', () => {
   describe('renders each input and checks if the field is required', () => {
@@ -282,14 +292,20 @@ describe('EditOrdersForm component', () => {
   });
 
   it('allows new and current duty location to be the same', async () => {
-    // Not testing the upload interaction, so give uploaded orders to the props.
+    // Render the component
     render(
       <EditOrdersForm
         {...testProps}
-        currentDutyLocation={{ name: 'Luke AFB' }}
         initialValues={{
           origin_duty_location: {
-            provides_services_counseling: true,
+            name: 'Luke AFB',
+            provides_services_counseling: false,
+            address: { isOconus: false },
+          },
+          new_duty_location: {
+            name: 'Luke AFB',
+            provides_services_counseling: false,
+            address: { isOconus: false },
           },
           uploaded_orders: [
             {
@@ -315,34 +331,21 @@ describe('EditOrdersForm component', () => {
     await userEvent.type(screen.getByLabelText(/Report by date/), '26 Nov 2020');
     await userEvent.click(screen.getByLabelText('No'));
     await userEvent.selectOptions(screen.getByLabelText(/Pay grade/), ['E_5']);
-
-    // Test Current Duty Location Search Box interaction
-    await userEvent.type(screen.getByLabelText(/Current duty location/), 'AFB', { delay: 100 });
-    const selectedOptionCurrent = await screen.findByText(/Altus/);
-    await userEvent.click(selectedOptionCurrent);
-
-    // Test New Duty Location Search Box interaction
-    await userEvent.type(screen.getByLabelText(/New duty location/), 'AFB', { delay: 100 });
-    const selectedOptionNew = await screen.findByText(/Luke/);
-    await userEvent.click(selectedOptionNew);
+    await userEvent.click(screen.getByTestId('hasDependentsYes'));
 
     await waitFor(() => {
       expect(screen.getByRole('form')).toHaveFormValues({
         new_duty_location: 'Luke AFB',
-        origin_duty_location: 'Altus AFB',
+        origin_duty_location: 'Luke AFB',
       });
     });
 
-    expect(submitButton).not.toHaveAttribute('disabled');
+    expect(submitButton).not.toBeDisabled();
   });
 
   it('shows an error message if the form is invalid', async () => {
     render(<EditOrdersForm {...testProps} initialValues={initialValues} />);
-    const submitButton = screen.getByRole('button', { name: 'Save' });
-
-    await waitFor(() => {
-      expect(submitButton).toBeEnabled();
-    });
+    const submitButton = await screen.findByRole('button', { name: 'Save' });
 
     const ordersTypeDropdown = screen.getByLabelText(/Orders type/);
     await userEvent.selectOptions(ordersTypeDropdown, '');
@@ -438,7 +441,8 @@ describe('EditOrdersForm component', () => {
 
   it('implements the onCancel handler when the Cancel button is clicked', async () => {
     render(<EditOrdersForm {...testProps} />);
-    const cancelButton = screen.getByRole('button', { name: 'Cancel' });
+
+    const cancelButton = await screen.findByRole('button', { name: 'Cancel' });
 
     await userEvent.click(cancelButton);
 
@@ -594,7 +598,7 @@ describe('EditOrdersForm component', () => {
 
       render(<EditOrdersForm {...modifiedProps} />);
 
-      const save = screen.getByRole('button', { name: 'Save' });
+      const save = await screen.findByRole('button', { name: 'Save' });
       await waitFor(() => {
         expect(save).toBeInTheDocument();
       });

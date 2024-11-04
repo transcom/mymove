@@ -4848,6 +4848,25 @@ definitions:
       organizationalClothingAndIndividualEquipment:
         example: true
         type: boolean
+      accompaniedTour:
+        type: boolean
+        example: true
+        x-nullable: true
+        description: Indicates if the move entitlement allows dependents to travel to the new Permanent Duty Station (PDS). This is only present on OCONUS moves.
+      dependentsUnderTwelve:
+        type: integer
+        example: 5
+        x-nullable: true
+        description: Indicates the number of dependents under the age of twelve for a move. This is only present on OCONUS moves.
+      dependentsTwelveAndOver:
+        type: integer
+        example: 3
+        x-nullable: true
+        description: Indicates the number of dependents of the age twelve or older for a move. This is only present on OCONUS moves.
+      ubAllowance:
+        example: 500
+        type: integer
+        x-nullable: true
       eTag:
         type: string
     type: object
@@ -5621,6 +5640,25 @@ definitions:
         description: True if user is entitled to move a gun safe (up to 500 lbs) as part of their move without it being charged against their weight allowance.
         type: boolean
         x-nullable: true
+      accompaniedTour:
+        type: boolean
+        example: true
+        x-nullable: true
+        description: Indicates if the move entitlement allows dependents to travel to the new Permanent Duty Station (PDS). This is only present on OCONUS moves.
+      dependentsUnderTwelve:
+        type: integer
+        example: 5
+        x-nullable: true
+        description: Indicates the number of dependents under the age of twelve for a move. This is only present on OCONUS moves.
+      dependentsTwelveAndOver:
+        type: integer
+        example: 3
+        x-nullable: true
+        description: Indicates the number of dependents of the age twelve or older for a move. This is only present on OCONUS moves.
+      ubAllowance:
+        example: 500
+        type: integer
+        x-nullable: true
   UpdateBillableWeightPayload:
     type: object
     properties:
@@ -5693,6 +5731,25 @@ definitions:
       gunSafe:
         description: True if user is entitled to move a gun safe (up to 500 lbs) as part of their move without it being charged against their weight allowance.
         type: boolean
+        x-nullable: true
+      accompaniedTour:
+        type: boolean
+        example: true
+        x-nullable: true
+        description: Indicates if the move entitlement allows dependents to travel to the new Permanent Duty Station (PDS). This is only present on OCONUS moves.
+      dependentsUnderTwelve:
+        type: integer
+        example: 5
+        x-nullable: true
+        description: Indicates the number of dependents under the age of twelve for a move. This is only present on OCONUS moves.
+      dependentsTwelveAndOver:
+        type: integer
+        example: 3
+        x-nullable: true
+        description: Indicates the number of dependents of the age twelve or older for a move. This is only present on OCONUS moves.
+      ubAllowance:
+        example: 500
+        type: integer
         x-nullable: true
   MoveTaskOrder:
     description: The Move (MoveTaskOrder)
