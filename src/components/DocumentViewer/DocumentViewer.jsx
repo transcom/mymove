@@ -147,7 +147,7 @@ const DocumentViewer = ({ files, allowDownload, paymentRequestId }) => {
         <p title={selectedFilename} className={styles.documentTitle} data-testid="documentTitle">
           <span>{selectedFilename}</span> <span>- Added on {selectedFileDate}</span>
         </p>
-        {allowDownload && !showContentError && (
+        {allowDownload && (
           <p className={styles.downloadLink}>
             <a href={selectedFile?.url} download tabIndex={menuIsOpen ? '-1' : '0'}>
               <span>Download file</span> <FontAwesomeIcon icon="download" />

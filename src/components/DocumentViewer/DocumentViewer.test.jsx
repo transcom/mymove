@@ -232,7 +232,7 @@ describe('DocumentViewer component', () => {
           <DocumentViewer files={mockErrorFiles} allowDownload />
         </QueryClientProvider>,
       );
-      expect(screen.queryByText(downloadLinkText)).toBeNull();
+      expect(screen.getByText(downloadLinkText)).toBeVisible();
     });
   });
 
