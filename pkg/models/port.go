@@ -18,15 +18,15 @@ func (p PortType) String() string {
 }
 
 const (
-	PortTypeA PortType = "A"
-	PortTypeS PortType = "S"
-	PortTypeB PortType = "B"
+	PortTypeAir PortType = "A"
+	PortTypeSurface PortType = "S"
+	PortTypeBoth PortType = "B"
 )
 
 var validPortType = []string{
-	string(PortTypeA),
-	string(PortTypeS),
-	string(PortTypeB),
+	string(PortTypeAir),
+	string(PortTypeSurface),
+	string(PortTypeBoth),
 }
 
 type Port struct {
