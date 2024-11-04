@@ -4535,7 +4535,8 @@ func init() {
               "dodID",
               "emplid",
               "age",
-              "originDutyLocation"
+              "originDutyLocation",
+              "assignedTo"
             ],
             "type": "string",
             "description": "field that results should be sorted by",
@@ -4604,6 +4605,12 @@ func init() {
           {
             "type": "string",
             "name": "originDutyLocation",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "Used to illustrate which user is assigned to this payment request.\n",
+            "name": "assignedTo",
             "in": "query"
           },
           {
@@ -11897,6 +11904,13 @@ func init() {
           "description": "Days since the payment request has been requested.  Decimal representation will allow more accurate sorting.",
           "type": "number",
           "format": "double"
+        },
+        "assignable": {
+          "type": "boolean"
+        },
+        "assignedTo": {
+          "x-nullable": true,
+          "$ref": "#/definitions/AssignedOfficeUser"
         },
         "availableOfficeUsers": {
           "$ref": "#/definitions/AvailableOfficeUsers"
@@ -19899,7 +19913,8 @@ func init() {
               "dodID",
               "emplid",
               "age",
-              "originDutyLocation"
+              "originDutyLocation",
+              "assignedTo"
             ],
             "type": "string",
             "description": "field that results should be sorted by",
@@ -19968,6 +19983,12 @@ func init() {
           {
             "type": "string",
             "name": "originDutyLocation",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "Used to illustrate which user is assigned to this payment request.\n",
+            "name": "assignedTo",
             "in": "query"
           },
           {
@@ -27704,6 +27725,13 @@ func init() {
           "description": "Days since the payment request has been requested.  Decimal representation will allow more accurate sorting.",
           "type": "number",
           "format": "double"
+        },
+        "assignable": {
+          "type": "boolean"
+        },
+        "assignedTo": {
+          "x-nullable": true,
+          "$ref": "#/definitions/AssignedOfficeUser"
         },
         "availableOfficeUsers": {
           "$ref": "#/definitions/AvailableOfficeUsers"
