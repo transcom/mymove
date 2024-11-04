@@ -415,7 +415,7 @@ describe('ServicesCounselingQueue', () => {
     // Verify controls are using cached data on load.
     // If any of these fail check setup data window.sessionStorage.setItem()
     expect(wrapper.find('th[data-testid="customerName"] input').instance().value).toBe('Spacemen');
-    expect(wrapper.find('th[data-testid="dodID"] input').instance().value).toBe('7232607949');
+    expect(wrapper.find('th[data-testid="edipi"] input').instance().value).toBe('7232607949');
     expect(wrapper.find('th[data-testid="locator"] input').instance().value).toBe('PPMADD');
     expect(wrapper.find('th[data-testid="requestedMoveDate"] input').instance().value).toBe('21 Jun 2024');
     expect(wrapper.find('th[data-testid="submittedAt"] input').instance().value).toBe('20 Jun 2024');
@@ -438,7 +438,7 @@ describe('ServicesCounselingQueue', () => {
       </MockProviders>,
     );
     expect(wrapper.find('th[data-testid="customerName"] input').instance().value).toBe('');
-    expect(wrapper.find('th[data-testid="dodID"] input').instance().value).toBe('');
+    expect(wrapper.find('th[data-testid="edipi"] input').instance().value).toBe('');
     expect(wrapper.find('th[data-testid="locator"] input').instance().value).toBe('');
     expect(wrapper.find('th[data-testid="requestedMoveDate"] input').instance().value).toBe('');
     expect(wrapper.find('th[data-testid="submittedAt"] input').instance().value).toBe('');
