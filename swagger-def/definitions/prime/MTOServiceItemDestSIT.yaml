@@ -9,6 +9,8 @@ allOf:
         enum:
           - DDFSIT # Domestic Destination First Day SIT
           - DDASIT # Domestic Destination Additional SIT
+          - IDFSIT # International Destination First Day SIT
+          - IDASIT # International Destination Additional SIT
       dateOfContact1:
         format: date
         type: string

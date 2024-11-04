@@ -621,7 +621,7 @@ func MTOServiceItem(mtoServiceItem *models.MTOServiceItem) primemessages.MTOServ
 	var payload primemessages.MTOServiceItem
 	// here we determine which payload model to use based on the re service code
 	switch mtoServiceItem.ReService.Code {
-	case models.ReServiceCodeDOFSIT, models.ReServiceCodeDOASIT, models.ReServiceCodeDOPSIT, models.ReServiceCodeDOSFSC:
+	case models.ReServiceCodeDOFSIT, models.ReServiceCodeDOASIT, models.ReServiceCodeDOPSIT, models.ReServiceCodeDOSFSC, models.ReServiceCodeIOFSIT, models.ReServiceCodeIOASIT, models.ReServiceCodeIOPSIT, models.ReServiceCodeIOSFSC:
 		var sitDepartureDate time.Time
 		if mtoServiceItem.SITDepartureDate != nil {
 			sitDepartureDate = *mtoServiceItem.SITDepartureDate
@@ -638,7 +638,7 @@ func MTOServiceItem(mtoServiceItem *models.MTOServiceItem) primemessages.MTOServ
 			SitCustomerContacted:            handlers.FmtDatePtr(mtoServiceItem.SITCustomerContacted),
 			SitRequestedDelivery:            handlers.FmtDatePtr(mtoServiceItem.SITRequestedDelivery),
 		}
-	case models.ReServiceCodeDDFSIT, models.ReServiceCodeDDASIT, models.ReServiceCodeDDDSIT, models.ReServiceCodeDDSFSC:
+	case models.ReServiceCodeDDFSIT, models.ReServiceCodeDDASIT, models.ReServiceCodeDDDSIT, models.ReServiceCodeDDSFSC, models.ReServiceCodeIDFSIT, models.ReServiceCodeIDASIT, models.ReServiceCodeIDDSIT, models.ReServiceCodeIDSFSC:
 		var sitDepartureDate, firstAvailableDeliveryDate1, firstAvailableDeliveryDate2, dateOfContact1, dateOfContact2 time.Time
 		var timeMilitary1, timeMilitary2 *string
 

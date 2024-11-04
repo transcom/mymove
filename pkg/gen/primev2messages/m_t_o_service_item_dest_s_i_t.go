@@ -56,7 +56,7 @@ type MTOServiceItemDestSIT struct {
 
 	// Service code allowed for this model type.
 	// Required: true
-	// Enum: [DDFSIT DDASIT]
+	// Enum: [DDFSIT DDASIT IDFSIT IDASIT]
 	ReServiceCode *string `json:"reServiceCode"`
 
 	// The reason item has been placed in SIT.
@@ -216,7 +216,7 @@ func (m *MTOServiceItemDestSIT) UnmarshalJSON(raw []byte) error {
 
 		// Service code allowed for this model type.
 		// Required: true
-		// Enum: [DDFSIT DDASIT]
+		// Enum: [DDFSIT DDASIT IDFSIT IDASIT]
 		ReServiceCode *string `json:"reServiceCode"`
 
 		// The reason item has been placed in SIT.
@@ -360,7 +360,7 @@ func (m MTOServiceItemDestSIT) MarshalJSON() ([]byte, error) {
 
 		// Service code allowed for this model type.
 		// Required: true
-		// Enum: [DDFSIT DDASIT]
+		// Enum: [DDFSIT DDASIT IDFSIT IDASIT]
 		ReServiceCode *string `json:"reServiceCode"`
 
 		// The reason item has been placed in SIT.
@@ -690,7 +690,7 @@ var mTOServiceItemDestSITTypeReServiceCodePropEnum []interface{}
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["DDFSIT","DDASIT"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["DDFSIT","DDASIT","IDFSIT","IDASIT"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
