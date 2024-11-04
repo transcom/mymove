@@ -39,7 +39,7 @@ const UploadsTable = ({ className, uploads, onDelete, showDeleteButton, showDown
                 <div className={styles.fileInfo}>
                   <p>
                     {showDownloadLink ? (
-                      <a href={upload.url} download={upload.filename}>
+                      <a href={upload.url} download>
                         {upload.filename}
                       </a>
                     ) : (

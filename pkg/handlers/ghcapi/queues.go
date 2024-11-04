@@ -325,6 +325,7 @@ func (h GetPaymentRequestsQueueHandler) Handle(
 			if err != nil {
 				appCtx.Logger().Error("Error retreiving user privileges", zap.Error(err))
 			}
+
 			isHQrole := appCtx.Session().Roles.HasRole(roles.RoleTypeHQ)
 
 			isSupervisor := privileges.HasPrivilege(models.PrivilegeTypeSupervisor)
