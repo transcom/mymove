@@ -6,7 +6,7 @@ import { Radio, FormGroup, Label, Link as USWDSLink } from '@trussworks/react-us
 
 import styles from './EditOrdersForm.module.scss';
 
-import { ORDERS_PAY_GRADE_OPTIONS } from 'constants/orders';
+import { ORDERS_PAY_GRADE_OPTIONS, ORDERS_TYPE } from 'constants/orders';
 import { Form } from 'components/form/Form';
 import FileUpload from 'components/FileUpload/FileUpload';
 import UploadsTable from 'components/UploadsTable/UploadsTable';
@@ -34,6 +34,9 @@ const EditOrdersForm = ({
 }) => {
   const [officeOptions, setOfficeOptions] = useState(null);
   const [dutyLocation, setDutyLocation] = useState(initialValues.origin_duty_location);
+  const [isHasDependentsDisabled, setHasDependentsDisabled] = useState(false);
+  const [prevOrderType, setPrevOrderType] = useState('');
+
   const validationSchema = Yup.object().shape({
     orders_type: Yup.mixed()
       .oneOf(ordersTypeOptions.map((i) => i.key))
@@ -94,7 +97,7 @@ const EditOrdersForm = ({
       validateOnMount
       initialTouched={{ orders_type: true, issue_date: true, report_by_date: true, has_dependents: true, grade: true }}
     >
-      {({ isValid, isSubmitting, handleSubmit, values }) => {
+      {({ isValid, isSubmitting, handleSubmit, handleChange, values, setFieldValue }) => {
         const isRetirementOrSeparation = ['RETIREMENT', 'SEPARATION'].includes(values.orders_type);
 
         if (!values.origin_duty_location) originMeta = 'Required';
@@ -102,6 +105,23 @@ const EditOrdersForm = ({
 
         if (!values.new_duty_location) newDutyMeta = 'Required';
         else newDutyMeta = null;
+
+        const handleOrderTypeChange = (e) => {
+          const { value } = e.target;
+          if (value === ORDERS_TYPE.STUDENT_TRAVEL || value === ORDERS_TYPE.EARLY_RETURN_OF_DEPENDENTS) {
+            setHasDependentsDisabled(true);
+            setFieldValue('has_dependents', 'yes');
+          } else {
+            setHasDependentsDisabled(false);
+            if (
+              prevOrderType === ORDERS_TYPE.STUDENT_TRAVEL ||
+              prevOrderType === ORDERS_TYPE.EARLY_RETURN_OF_DEPENDENTS
+            ) {
+              setFieldValue('has_dependents', '');
+            }
+          }
+          setPrevOrderType(value);
+        };
 
         return (
           <Form className={`${formStyles.form} ${styles.EditOrdersForm}`}>
@@ -124,6 +144,10 @@ const EditOrdersForm = ({
                 options={ordersTypeOptions}
                 required
                 hint="Required"
+                onChange={(e) => {
+                  handleChange(e);
+                  handleOrderTypeChange(e);
+                }}
               />
               <DatePickerInput name="issue_date" label="Orders date" hint="Required" required />
               <DatePickerInput
@@ -143,6 +167,7 @@ const EditOrdersForm = ({
                     value="yes"
                     title="Yes, dependents are included in my orders"
                     type="radio"
+                    disabled={isHasDependentsDisabled}
                   />
                   <Field
                     as={Radio}
@@ -152,6 +177,7 @@ const EditOrdersForm = ({
                     value="no"
                     title="No, dependents are not included in my orders"
                     type="radio"
+                    disabled={isHasDependentsDisabled}
                   />
                 </div>
               </FormGroup>
