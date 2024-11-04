@@ -341,6 +341,7 @@ export class Summary extends Component {
             showEditAndDeleteBtn={showEditAndDeleteBtn}
             status={shipment.status}
             onIncompleteClick={this.toggleIncompleteShipmentModal}
+            marketCode={shipment.marketCode}
           />
         );
       }
