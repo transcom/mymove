@@ -815,7 +815,7 @@ func Upload(appCtx appcontext.AppContext, storer storage.FileStorer, upload *mod
 		UpdatedAt:   strfmt.DateTime(upload.UpdatedAt),
 	}
 
-	url, err := storer.PresignedURL(upload.StorageKey, upload.ContentType)
+	url, err := storer.PresignedURL(upload.StorageKey, upload.ContentType, upload.Filename)
 	if err == nil {
 		payload.URL = *handlers.FmtURI(url)
 	} else {
