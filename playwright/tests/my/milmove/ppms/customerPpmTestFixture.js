@@ -408,18 +408,17 @@ export class CustomerPpmPage extends CustomerPage {
    * returns {Promise<void>}
    */
   async navigateFromDateAndLocationPageToEstimatedWeightsPage() {
-    const PickupLocationLookup = 'BEVERLY HILLS, CA 90210 (LOS ANGELES)';
-    const DestinationLocationLookup = 'FORT WORTH, TX 76127 (TARRANT)';
-
     await this.page.locator('input[name="pickupAddress.address.streetAddress1"]').fill('123 Street');
-    await this.page.getByLabel('Location Lookup').nth(0).fill('90210');
-    await expect(this.page.getByText(PickupLocationLookup, { exact: true })).toBeVisible();
-    await this.page.keyboard.press('Enter');
-
+    await this.page.locator('input[name="pickupAddress.address.city"]').fill('BEVERLY HILLS');
+    await this.page.locator('select[name="pickupAddress.address.state"]').selectOption({ label: 'CA' });
+    await this.page.locator('input[name="pickupAddress.address.postalCode"]').clear();
+    await this.page.locator('input[name="pickupAddress.address.postalCode"]').fill('90210');
+    await this.page.locator('input[name="pickupAddress.address.postalCode"]').blur();
+    await this.page.locator('input[name="destinationAddress.address.postalCode"]').clear();
+    await this.page.locator('input[name="destinationAddress.address.postalCode"]').fill('76127');
     await this.page.locator('input[name="destinationAddress.address.streetAddress1"]').fill('123 Street');
-    await this.page.getByLabel('Location Lookup').nth(1).fill('76127');
-    await expect(this.page.getByText(DestinationLocationLookup, { exact: true })).toBeVisible();
-    await this.page.keyboard.press('Enter');
+    await this.page.locator('input[name="destinationAddress.address.city"]').fill('FORT WORTH');
+    await this.page.locator('select[name="destinationAddress.address.state"]').selectOption({ label: 'TX' });
 
     await this.page.locator('input[name="expectedDepartureDate"]').clear();
     await this.page.locator('input[name="expectedDepartureDate"]').fill('01 Feb 2022');
