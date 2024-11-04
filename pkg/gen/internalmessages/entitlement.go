@@ -38,6 +38,10 @@ type Entitlement struct {
 	//
 	// Example: 500
 	ProGearSpouse *int64 `json:"proGearSpouse,omitempty"`
+
+	// ub allowance
+	// Example: 500
+	UbAllowance *int64 `json:"ubAllowance,omitempty"`
 }
 
 // Validate validates this entitlement

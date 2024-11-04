@@ -5021,6 +5021,10 @@ definitions:
         description: >-
           Indicates the number of dependents of the age twelve or older for a
           move. This is only present on OCONUS moves.
+      ubAllowance:
+        example: 500
+        type: integer
+        x-nullable: true
       eTag:
         type: string
     type: object
@@ -5844,6 +5848,10 @@ definitions:
         description: >-
           Indicates the number of dependents of the age twelve or older for a
           move. This is only present on OCONUS moves.
+      ubAllowance:
+        example: 500
+        type: integer
+        x-nullable: true
   UpdateBillableWeightPayload:
     type: object
     properties:
@@ -5943,6 +5951,10 @@ definitions:
         description: >-
           Indicates the number of dependents of the age twelve or older for a
           move. This is only present on OCONUS moves.
+      ubAllowance:
+        example: 500
+        type: integer
+        x-nullable: true
   MoveTaskOrder:
     description: The Move (MoveTaskOrder)
     properties:

@@ -180,6 +180,28 @@ func (suite *HandlerSuite) TestShowOrder() {
 	suite.Assertions.Equal(order.SpouseHasProGear, *okResponse.Payload.SpouseHasProGear)
 }
 
+func (suite *HandlerSuite) TestPayloadForOrdersModel() {
+	dutyLocation := factory.BuildDutyLocation(suite.DB(), []factory.Customization{
+		{
+			Model:    factory.BuildAddress(suite.DB(), nil, []factory.Trait{factory.GetTraitAddress2}),
+			LinkOnly: true,
+		},
+	}, nil)
+	order := factory.BuildOrder(suite.DB(), []factory.Customization{
+		{
+			Model:    dutyLocation,
+			LinkOnly: true,
+			Type:     &factory.DutyLocations.OriginDutyLocation,
+		},
+	}, nil)
+
+	fakeS3 := storageTest.NewFakeS3Storage(true)
+
+	payload, err := payloadForOrdersModel(fakeS3, order)
+	suite.NoError(err)
+	suite.NotNil(payload)
+}
+
 func setUpMockOrders() models.Order {
 	orders := factory.BuildOrderWithoutDefaults(nil, nil, nil)
 

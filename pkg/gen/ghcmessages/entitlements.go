@@ -86,6 +86,10 @@ type Entitlements struct {
 	// total weight
 	// Example: 500
 	TotalWeight int64 `json:"totalWeight,omitempty"`
+
+	// ub allowance
+	// Example: 500
+	UbAllowance *int64 `json:"ubAllowance,omitempty"`
 }
 
 // Validate validates this entitlements

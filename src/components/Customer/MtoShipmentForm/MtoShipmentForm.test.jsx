@@ -91,6 +91,9 @@ const ubProps = {
   orders: {
     orders_type: 'PERMANENT_CHANGE_OF_STATION',
     has_dependents: false,
+    entitlement: {
+      ubAllowance: 600,
+    },
   },
   shipmentType: SHIPMENT_OPTIONS.UNACCOMPANIED_BAGGAGE,
 };
@@ -1052,6 +1055,12 @@ describe('MtoShipmentForm component', () => {
 
       expect(await screen.findByText('UB')).toHaveClass('usa-tag');
 
+      expect(
+        screen.queryByText(
+          'Remember: You can move up to 600 lbs for this UB shipment. The weight of your UB is part of your authorized weight allowance. You’ll be billed for any excess weight you move.',
+        ),
+      ).toBeInTheDocument();
+
       expect(screen.getAllByText('Date')[0]).toBeInstanceOf(HTMLLegendElement);
       expect(screen.getByLabelText(/Preferred pickup date/)).toBeInstanceOf(HTMLInputElement);
       expect(screen.getByRole('heading', { level: 2, name: 'Pickup info' })).toBeInTheDocument();
@@ -1104,6 +1113,15 @@ describe('MtoShipmentForm component', () => {
           'Are there things about this shipment that your counselor or movers should discuss with you?',
         ),
       ).toBeInstanceOf(HTMLTextAreaElement);
+    });
+
+    it('renders the correct helper text when the UB allowance is null', async () => {
+      renderUBShipmentForm({ orders: { entitlement: { ubAllowance: null } } });
+      expect(
+        screen.queryByText(
+          'Remember: You can move up to your UB allowance for this UB shipment. The weight of your UB is part of your authorized weight allowance. You’ll be billed for any excess weight you move.',
+        ),
+      ).toBeInTheDocument();
     });
 
     it('renders the correct helper text for Delivery Location when orders type is RETIREMENT', async () => {
