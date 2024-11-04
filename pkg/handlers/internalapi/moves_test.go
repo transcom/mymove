@@ -399,7 +399,6 @@ func (suite *HandlerSuite) TestSubmitMoveForServiceCounselingHandler() {
 		// This is better than asserting that it's not Nil, and avoids trying to mock
 		// time.Now() or having to pass in a date to sendToServiceCounseling just
 		// to be able to test it.
-		suite.NotNil(updatedMove.SubmittedAt)
 		actualSubmittedAt := updatedMove.SubmittedAt
 		suite.WithinDuration(time.Now(), *actualSubmittedAt, 2*time.Second)
 

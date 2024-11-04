@@ -536,8 +536,8 @@ func (suite *PayloadsSuite) TestCountryModel_WithNilCountry() {
 
 func (suite *PayloadsSuite) TestMTOShipmentModelFromCreate_WithNilInput() {
 	result, verrs := MTOShipmentModelFromCreate(nil)
-	suite.Nil(result)
 	suite.NotNil(verrs)
+	suite.Nil(result)
 }
 
 func (suite *PayloadsSuite) TestMTOShipmentModelFromCreate_WithValidInput() {
