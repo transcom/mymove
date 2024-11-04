@@ -669,6 +669,95 @@ func (suite *PayloadsSuite) TestMTOServiceItemDDSHUT() {
 	suite.True(ok)
 }
 
+func (suite *PayloadsSuite) TestMTOServiceItemIOFSIT() {
+	reServiceCode := models.ReServiceCodeIOFSIT
+	reason := "reason"
+	dummy := "dummy"
+	SITOriginAddress := &models.Address{
+		StreetAddress1: dummy,
+		City:           dummy,
+		State:          dummy,
+		PostalCode:     dummy,
+	}
+
+	requestApprovalsRequestedStatus := true
+	entryDate := time.Now()
+	departureDate := entryDate.AddDate(0, 0, 10)
+
+	mtoServiceItemIOFSIT := &models.MTOServiceItem{
+		ID:                                uuid.Must(uuid.NewV4()),
+		ReService:                         models.ReService{Code: reServiceCode},
+		Reason:                            &reason,
+		RequestedApprovalsRequestedStatus: &requestApprovalsRequestedStatus,
+		SITDepartureDate:                  &departureDate,
+		SITEntryDate:                      &entryDate,
+		SITPostalCode:                     &dummy,
+		SITOriginHHGActualAddress:         SITOriginAddress,
+		SITOriginHHGOriginalAddress:       SITOriginAddress,
+		SITCustomerContacted:              &entryDate,
+		SITRequestedDelivery:              &departureDate,
+	}
+
+	resultIOFSIT := MTOServiceItem(mtoServiceItemIOFSIT)
+
+	suite.NotNil(resultIOFSIT)
+
+	_, ok := resultIOFSIT.(*primemessages.MTOServiceItemOriginSIT)
+
+	suite.True(ok)
+}
+
+func (suite *PayloadsSuite) TestMTOServiceItemIDFSIT() {
+	reServiceCode := models.ReServiceCodeIDFSIT
+	reason := "reason"
+	dummy := "dummy"
+	dateOfContact1 := time.Now()
+	timeMilitary1 := "1500Z"
+	firstAvailableDeliveryDate1 := dateOfContact1.AddDate(0, 0, 10)
+	dateOfContact2 := time.Now().AddDate(0, 0, 5)
+	timeMilitary2 := "1300Z"
+	firstAvailableDeliveryDate2 := dateOfContact2.AddDate(0, 0, 10)
+	dateOfContact3 := time.Now().AddDate(0, 0, 6)
+	sitRequestedDelivery := time.Now().AddDate(0, 0, 20)
+	mtoServiceItemIDFSIT := &models.MTOServiceItem{
+		ID:        uuid.Must(uuid.NewV4()),
+		ReService: models.ReService{Code: reServiceCode},
+		Reason:    &reason,
+		CustomerContacts: models.MTOServiceItemCustomerContacts{
+			models.MTOServiceItemCustomerContact{
+				DateOfContact:              dateOfContact1,
+				TimeMilitary:               timeMilitary1,
+				FirstAvailableDeliveryDate: firstAvailableDeliveryDate1,
+				Type:                       models.CustomerContactTypeFirst,
+			},
+			models.MTOServiceItemCustomerContact{
+				DateOfContact:              dateOfContact2,
+				TimeMilitary:               timeMilitary2,
+				FirstAvailableDeliveryDate: firstAvailableDeliveryDate2,
+				Type:                       models.CustomerContactTypeSecond,
+			},
+		},
+		SITDepartureDate: &dateOfContact3,
+		SITEntryDate:     &dateOfContact2,
+		SITDestinationFinalAddress: &models.Address{
+			StreetAddress1: dummy,
+			City:           dummy,
+			State:          dummy,
+			PostalCode:     dummy,
+		},
+		SITCustomerContacted: &dateOfContact3,
+		SITRequestedDelivery: &sitRequestedDelivery,
+	}
+
+	resultIDFSIT := MTOServiceItem(mtoServiceItemIDFSIT)
+
+	suite.NotNil(resultIDFSIT)
+
+	_, ok := resultIDFSIT.(*primemessages.MTOServiceItemDestSIT)
+
+	suite.True(ok)
+}
+
 func (suite *PayloadsSuite) TestStorageFacilityPayload() {
 	phone := "555"
 	email := "email"
