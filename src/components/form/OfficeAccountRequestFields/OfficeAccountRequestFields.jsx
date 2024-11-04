@@ -61,6 +61,12 @@ export const OfficeAccountRequestFields = ({ render }) => {
           />
           <h4>Requested Role(s)</h4>
           <CheckboxField
+            id="headquartersCheckBox"
+            data-testid="headquartersCheckBox"
+            name="headquartersCheckBox"
+            label="Headquarters"
+          />
+          <CheckboxField
             id="taskOrderingOfficerCheckBox"
             data-testid="taskOrderingOfficerCheckBox"
             name="taskOrderingOfficerCheckBox"
