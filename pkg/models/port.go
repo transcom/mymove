@@ -18,9 +18,9 @@ func (p PortType) String() string {
 }
 
 const (
-	PortTypeAir PortType = "A"
+	PortTypeAir     PortType = "A"
 	PortTypeSurface PortType = "S"
-	PortTypeBoth PortType = "B"
+	PortTypeBoth    PortType = "B"
 )
 
 var validPortType = []string{
