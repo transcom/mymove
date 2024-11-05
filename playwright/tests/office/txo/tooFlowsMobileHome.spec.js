@@ -177,14 +177,14 @@ test.describe('TOO user', () => {
     await page.locator('#requestedDeliveryDate').blur();
 
     // Update form (adding pickup and delivery address)
-    const PickupLocationLookup = 'ATCO, NJ 08004 (CAMDEN)';
+    const LocationLookup = 'ATCO, NJ 08004 (CAMDEN)';
     const pickupAddressGroup = page.getByRole('group', { name: 'Pickup location' });
     await pickupAddressGroup.getByText('Yes').click();
     await pickupAddressGroup.getByLabel('Address 1').nth(0).fill(pickupAddress.Address1);
     await pickupAddressGroup.getByLabel('Address 2').nth(0).clear();
     await pickupAddressGroup.getByLabel('Address 3').nth(0).clear();
     await page.getByLabel('Location Lookup').nth(0).fill('08004');
-    await expect(page.getByText(PickupLocationLookup, { exact: true })).toBeVisible();
+    await expect(page.getByText(LocationLookup, { exact: true })).toBeVisible();
     await page.keyboard.press('Enter');
 
     // Secondary pickup address
@@ -193,7 +193,7 @@ test.describe('TOO user', () => {
     await pickupAddressGroup.getByLabel('Address 2').nth(1).clear();
     await pickupAddressGroup.getByLabel('Address 3').nth(1).clear();
     await page.getByLabel('Location Lookup').nth(1).fill('08004');
-    await expect(page.getByText(PickupLocationLookup, { exact: true })).toBeVisible();
+    await expect(page.getByText(LocationLookup, { exact: true })).toBeVisible();
     await page.keyboard.press('Enter');
 
     // Releasing agent
@@ -218,7 +218,7 @@ test.describe('TOO user', () => {
     await deliveryAddressGroup.getByLabel('Address 2').nth(1).clear();
     await deliveryAddressGroup.getByLabel('Address 3').nth(1).clear();
     await page.getByLabel('Location Lookup').nth(3).fill('08004');
-    await expect(page.getByText(PickupLocationLookup, { exact: true })).toBeVisible();
+    await expect(page.getByText(LocationLookup, { exact: true })).toBeVisible();
     await page.keyboard.press('Enter');
 
     // Receiving agent
