@@ -3790,6 +3790,64 @@ func MakeHHGMoveNeedsSC(appCtx appcontext.AppContext) models.Move {
 	return *newmove
 }
 
+// MakeBoatHaulAwayMoveNeedsSC creates an fully ready move with a boat haul-away shipment needing SC approval
+func MakeBoatHaulAwayMoveNeedsSC(appCtx appcontext.AppContext) models.Move {
+	userUploader := newUserUploader(appCtx)
+
+	userInfo := newUserInfo("customer")
+	moveInfo := scenario.MoveCreatorInfo{
+		UserID:      uuid.Must(uuid.NewV4()),
+		Email:       userInfo.email,
+		SmID:        uuid.Must(uuid.NewV4()),
+		FirstName:   userInfo.firstName,
+		LastName:    userInfo.lastName,
+		MoveID:      uuid.Must(uuid.NewV4()),
+		MoveLocator: models.GenerateLocator(),
+	}
+
+	moveRouter := moverouter.NewMoveRouter()
+
+	move := scenario.CreateBoatHaulAwayMoveForSC(appCtx, userUploader, moveRouter, moveInfo)
+
+	// re-fetch the move so that we ensure we have exactly what is in
+	// the db
+	newmove, err := models.FetchMove(appCtx.DB(), &auth.Session{}, move.ID)
+	if err != nil {
+		log.Panic(fmt.Errorf("failed to fetch move: %w", err))
+	}
+
+	return *newmove
+}
+
+// MakeBoatHaulAwayMoveNeedsTOOApproval creates an fully ready move with a boat haul-away shipment needing SC approval
+func MakeBoatHaulAwayMoveNeedsTOOApproval(appCtx appcontext.AppContext) models.Move {
+	userUploader := newUserUploader(appCtx)
+
+	userInfo := newUserInfo("customer")
+	moveInfo := scenario.MoveCreatorInfo{
+		UserID:      uuid.Must(uuid.NewV4()),
+		Email:       userInfo.email,
+		SmID:        uuid.Must(uuid.NewV4()),
+		FirstName:   userInfo.firstName,
+		LastName:    userInfo.lastName,
+		MoveID:      uuid.Must(uuid.NewV4()),
+		MoveLocator: models.GenerateLocator(),
+	}
+
+	moveRouter := moverouter.NewMoveRouter()
+
+	move := scenario.CreateBoatHaulAwayMoveForTOO(appCtx, userUploader, moveRouter, moveInfo)
+
+	// re-fetch the move so that we ensure we have exactly what is in
+	// the db
+	newmove, err := models.FetchMove(appCtx.DB(), &auth.Session{}, move.ID)
+	if err != nil {
+		log.Panic(fmt.Errorf("failed to fetch move: %w", err))
+	}
+
+	return *newmove
+}
+
 // MakeHHGMoveNeedsServicesCounselingUSMC creates an fully ready move as USMC needing SC approval
 func MakeHHGMoveNeedsServicesCounselingUSMC(appCtx appcontext.AppContext) models.Move {
 	userUploader := newUserUploader(appCtx)

@@ -1993,7 +1993,8 @@ func init() {
                       "APPROVALS REQUESTED",
                       "APPROVED",
                       "NEEDS SERVICE COUNSELING",
-                      "SERVICE COUNSELING COMPLETED"
+                      "SERVICE COUNSELING COMPLETED",
+                      "CANCELED"
                     ]
                   }
                 }
@@ -2351,7 +2352,7 @@ func init() {
         "operationId": "moveCanceler",
         "responses": {
           "200": {
-            "description": "Successfully cancelled move",
+            "description": "Successfully canceled move",
             "schema": {
               "$ref": "#/definitions/Move"
             }
@@ -2374,7 +2375,10 @@ func init() {
           "500": {
             "$ref": "#/responses/ServerError"
           }
-        }
+        },
+        "x-permissions": [
+          "update.cancelMoveFlag"
+        ]
       },
       "parameters": [
         {
@@ -4535,7 +4539,8 @@ func init() {
               "dodID",
               "emplid",
               "age",
-              "originDutyLocation"
+              "originDutyLocation",
+              "assignedTo"
             ],
             "type": "string",
             "description": "field that results should be sorted by",
@@ -4604,6 +4609,12 @@ func init() {
           {
             "type": "string",
             "name": "originDutyLocation",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "Used to illustrate which user is assigned to this payment request.\n",
+            "name": "assignedTo",
             "in": "query"
           },
           {
@@ -11459,7 +11470,7 @@ func init() {
     "PPMStatus": {
       "type": "string",
       "enum": [
-        "CANCELLED",
+        "CANCELED",
         "DRAFT",
         "SUBMITTED",
         "WAITING_ON_CUSTOMER",
@@ -12070,6 +12081,13 @@ func init() {
           "description": "Days since the payment request has been requested.  Decimal representation will allow more accurate sorting.",
           "type": "number",
           "format": "double"
+        },
+        "assignable": {
+          "type": "boolean"
+        },
+        "assignedTo": {
+          "x-nullable": true,
+          "$ref": "#/definitions/AssignedOfficeUser"
         },
         "availableOfficeUsers": {
           "$ref": "#/definitions/AvailableOfficeUsers"
@@ -16936,7 +16954,8 @@ func init() {
                       "APPROVALS REQUESTED",
                       "APPROVED",
                       "NEEDS SERVICE COUNSELING",
-                      "SERVICE COUNSELING COMPLETED"
+                      "SERVICE COUNSELING COMPLETED",
+                      "CANCELED"
                     ]
                   }
                 }
@@ -17375,7 +17394,7 @@ func init() {
         "operationId": "moveCanceler",
         "responses": {
           "200": {
-            "description": "Successfully cancelled move",
+            "description": "Successfully canceled move",
             "schema": {
               "$ref": "#/definitions/Move"
             }
@@ -17416,7 +17435,10 @@ func init() {
               "$ref": "#/definitions/Error"
             }
           }
-        }
+        },
+        "x-permissions": [
+          "update.cancelMoveFlag"
+        ]
       },
       "parameters": [
         {
@@ -20072,7 +20094,8 @@ func init() {
               "dodID",
               "emplid",
               "age",
-              "originDutyLocation"
+              "originDutyLocation",
+              "assignedTo"
             ],
             "type": "string",
             "description": "field that results should be sorted by",
@@ -20141,6 +20164,12 @@ func init() {
           {
             "type": "string",
             "name": "originDutyLocation",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "Used to illustrate which user is assigned to this payment request.\n",
+            "name": "assignedTo",
             "in": "query"
           },
           {
@@ -27437,7 +27466,7 @@ func init() {
     "PPMStatus": {
       "type": "string",
       "enum": [
-        "CANCELLED",
+        "CANCELED",
         "DRAFT",
         "SUBMITTED",
         "WAITING_ON_CUSTOMER",
@@ -28050,6 +28079,13 @@ func init() {
           "description": "Days since the payment request has been requested.  Decimal representation will allow more accurate sorting.",
           "type": "number",
           "format": "double"
+        },
+        "assignable": {
+          "type": "boolean"
+        },
+        "assignedTo": {
+          "x-nullable": true,
+          "$ref": "#/definitions/AssignedOfficeUser"
         },
         "availableOfficeUsers": {
           "$ref": "#/definitions/AvailableOfficeUsers"
