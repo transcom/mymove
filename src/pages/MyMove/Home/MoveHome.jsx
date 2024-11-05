@@ -499,10 +499,6 @@ const MoveHome = ({ serviceMemberMoves, isProfileComplete, serviceMember, signed
         moveID={moveId}
         onClose={() => setShowCancelMoveModal(false)}
         onSubmit={handleCancelMove}
-        title="Cancel this move?"
-        content="Your move will be canceled and all associated information will be removed. This cannot be undone."
-        submitText="Yes, Cancel"
-        closeText="No, Keep It"
       />
       <ConnectedDestructiveShipmentConfirmationModal
         isOpen={showDeleteModal}
@@ -527,7 +523,7 @@ const MoveHome = ({ serviceMemberMoves, isProfileComplete, serviceMember, signed
         <div className={`usa-prose grid-container ${styles['grid-container']}`}>
           {showCancelSuccessAlert && (
             <Alert headingLevel="h4" slim type="success">
-              Your move was cancelled.
+              Your move was canceled.
             </Alert>
           )}
           {showDeleteSuccessAlert && (
