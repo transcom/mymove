@@ -558,40 +558,6 @@ WITH move AS (
 		GROUP BY
 			move_addresses.shipment_id, move_addresses.service_member_id, audit_history.id
 	),
-	/*
-	ppms (ppm_id, shipment_type, shipment_id, w2_address_id) AS (
-		SELECT
-			audit_history.object_id,
-			move_shipments.shipment_type,
-			move_shipments.id,
-			ppm_shipments.w2_address_id,
-			move_shipments.shipment_locator
-		FROM
-			audit_history
-		JOIN ppm_shipments ON audit_history.object_id = ppm_shipments.id
-		JOIN move_shipments ON move_shipments.id = ppm_shipments.shipment_id
-	),
-	ppm_logs AS (
-		SELECT
-			audit_history.*,
-			jsonb_agg(
-				jsonb_strip_nulls(
-					jsonb_build_object(
-						'shipment_type', ppms.shipment_type,
-						'shipment_id_abbr', (CASE WHEN ppms.shipment_id IS NOT NULL THEN LEFT(ppms.shipment_id::TEXT, 5) ELSE NULL END),
-						'w2_address', (SELECT row_to_json(x) FROM (SELECT * FROM addresses WHERE addresses.id = CAST(ppms.w2_address_id AS UUID)) x)::TEXT,
-						'shipment_locator', ppms.shipment_locator
-					)
-				)
-			)::TEXT AS context,
-			COALESCE(ppms.shipment_id::TEXT, NULL)::TEXT AS context_id
-		FROM
-			audit_history
-		JOIN ppms ON ppms.ppm_id = audit_history.object_id
-		WHERE audit_history.table_name = 'ppm_shipments'
-		GROUP BY
-			ppms.shipment_id, audit_history.id
-	), */
 	file_uploads (user_upload_id, filename, upload_type, shipment_type, shipment_id_abbr, expense_type, shipment_locator) AS (
 		-- orders uploads have the document id the uploaded orders id column
 		SELECT
