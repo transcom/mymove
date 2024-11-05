@@ -499,10 +499,6 @@ const MoveHome = ({ serviceMemberMoves, isProfileComplete, serviceMember, signed
         moveID={moveId}
         onClose={() => setShowCancelMoveModal(false)}
         onSubmit={handleCancelMove}
-        title="Cancel this move?"
-        content="Your move will be canceled and all associated information will be removed. This cannot be undone."
-        submitText="Yes, Cancel"
-        closeText="No, Keep It"
       />
       <ConnectedDestructiveShipmentConfirmationModal
         isOpen={showDeleteModal}
