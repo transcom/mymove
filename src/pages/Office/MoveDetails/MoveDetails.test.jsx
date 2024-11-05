@@ -1238,6 +1238,26 @@ describe('MoveDetails page', () => {
       expect(screen.queryByRole('link', { name: 'Edit allowances' })).not.toBeInTheDocument();
       expect(screen.queryByRole('link', { name: 'Edit customer info' })).not.toBeInTheDocument();
     });
+
+    it('renders the cancel move button when user has permission', async () => {
+      render(
+        <MockProviders permissions={[permissionTypes.cancelMoveFlag]}>
+          <MoveDetails {...testProps} />
+        </MockProviders>,
+      );
+
+      expect(await screen.getByText('Cancel move')).toBeInTheDocument();
+    });
+
+    it('does not show the cancel move button if user does not have permission', () => {
+      render(
+        <MockProviders>
+          <MoveDetails {...testProps} />
+        </MockProviders>,
+      );
+
+      expect(screen.queryByText('Cancel move')).not.toBeInTheDocument();
+    });
   });
 
   describe('when MTO shipments are not yet defined', () => {

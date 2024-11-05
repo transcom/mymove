@@ -16,7 +16,7 @@ import TableQueue from 'components/Table/TableQueue';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
 import DateSelectFilter from 'components/Table/Filters/DateSelectFilter';
-import { DATE_FORMAT_STRING } from 'shared/constants';
+import { DATE_FORMAT_STRING, DEFAULT_EMPTY_VALUE } from 'shared/constants';
 import { CHECK_SPECIAL_ORDERS_TYPES, SPECIAL_ORDERS_TYPES } from 'constants/orders';
 import MoveSearchForm from 'components/MoveSearchForm/MoveSearchForm';
 import { roleTypes } from 'constants/userRoles';
@@ -26,10 +26,9 @@ import { generalRoutes, tooRoutes } from 'constants/routes';
 import { isNullUndefinedOrWhitespace } from 'shared/utils';
 import NotFound from 'components/NotFound/NotFound';
 import { isBooleanFlagEnabled } from 'utils/featureFlags';
-import { formatAvailableOfficeUsersForRow, handleQueueAssignment } from 'utils/queues';
-import { elevatedPrivilegeTypes } from 'constants/userPrivileges';
+import handleQueueAssignment from 'utils/queues';
 
-export const columns = (moveLockFlag, isQueueManagementEnabled, supervisor, currentUserId, showBranchFilter = true) => {
+export const columns = (moveLockFlag, isQueueManagementEnabled, showBranchFilter = true) => {
   const cols = [
     createHeader('ID', 'id', { id: 'id' }),
     createHeader(
@@ -150,19 +149,23 @@ export const columns = (moveLockFlag, isQueueManagementEnabled, supervisor, curr
       createHeader(
         'Assigned',
         (row) => {
-          const { formattedAvailableOfficeUsers, assignedToUser } = formatAvailableOfficeUsersForRow(
-            row,
-            supervisor,
-            currentUserId,
-          );
-          return (
-            <div data-label="assignedSelect" data-testid="assigned-select" className={styles.assignedToCol}>
+          return !row?.assignable ? (
+            <div data-testid="assigned-col">
+              {row.assignedTo ? `${row.assignedTo?.lastName}, ${row.assignedTo?.firstName}` : ''}
+            </div>
+          ) : (
+            <div data-label="assignedSelect" data-testid="assigned-col" className={styles.assignedToCol}>
               <Dropdown
-                defaultValue={assignedToUser?.value}
+                defaultValue={row.assignedTo?.officeUserId}
                 onChange={(e) => handleQueueAssignment(row.id, e.target.value, roleTypes.TOO)}
                 title="Assigned dropdown"
               >
-                {formattedAvailableOfficeUsers}
+                <option value={null}>{DEFAULT_EMPTY_VALUE}</option>
+                {row.availableOfficeUsers.map(({ lastName, firstName, officeUserId }) => (
+                  <option value={officeUserId} key={`filterOption_${officeUserId}`}>
+                    {`${lastName}, ${firstName}`}
+                  </option>
+                ))}
               </Dropdown>
             </div>
           );
@@ -177,15 +180,12 @@ export const columns = (moveLockFlag, isQueueManagementEnabled, supervisor, curr
   return cols;
 };
 
-const MoveQueue = ({ userPrivileges, currentUserId, isQueueManagementFFEnabled }) => {
+const MoveQueue = ({ isQueueManagementFFEnabled }) => {
   const navigate = useNavigate();
   const { queueType } = useParams();
   const [search, setSearch] = useState({ moveCode: null, dodID: null, customerName: null, paymentRequestCode: null });
   const [searchHappened, setSearchHappened] = useState(false);
   const [moveLockFlag, setMoveLockFlag] = useState(false);
-  const supervisor = userPrivileges
-    ? userPrivileges.some((p) => p.privilegeType === elevatedPrivilegeTypes.SUPERVISOR)
-    : false;
 
   useEffect(() => {
     const fetchData = async () => {
@@ -312,7 +312,7 @@ const MoveQueue = ({ userPrivileges, currentUserId, isQueueManagementFFEnabled }
           defaultSortedColumns={[{ id: 'status', desc: false }]}
           disableMultiSort
           disableSortBy={false}
-          columns={columns(moveLockFlag, isQueueManagementFFEnabled, supervisor, currentUserId, showBranchFilter)}
+          columns={columns(moveLockFlag, isQueueManagementFFEnabled, showBranchFilter)}
           title="All moves"
           handleClick={handleClick}
           useQueries={useMovesQueueQueries}
