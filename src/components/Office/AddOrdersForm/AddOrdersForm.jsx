@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import PropTypes from 'prop-types';
 import { Field, Formik } from 'formik';
 import * as Yup from 'yup';
 import { FormGroup, Label, Radio, Link as USWDSLink } from '@trussworks/react-uswds';
@@ -16,7 +15,6 @@ import { Form } from 'components/form/Form';
 import SectionWrapper from 'components/Customer/SectionWrapper';
 import { ORDERS_PAY_GRADE_OPTIONS } from 'constants/orders';
 import { dropdownInputOptions } from 'utils/formatters';
-import { DutyLocationShape } from 'types/dutyLocation';
 import WizardNavigation from 'components/Customer/WizardNavigation/WizardNavigation';
 import Callout from 'components/Callout';
 import MaskedTextField from 'components/form/fields/MaskedTextField/MaskedTextField';
@@ -45,16 +43,16 @@ const AddOrdersForm = ({ onSubmit, ordersTypeOptions, initialValues, onBack, isS
       .typeError('Enter a complete date in DD MMM YYYY format (day, month, year).')
       .required('Required'),
     hasDependents: Yup.mixed().oneOf(['yes', 'no']).required('Required'),
-    currentDutyLocation: Yup.object().nullable().required('Required'),
+    originDutyLocation: Yup.object().nullable().required('Required'),
     newDutyLocation: Yup.object().nullable().required('Required'),
     grade: Yup.mixed().oneOf(Object.keys(ORDERS_PAY_GRADE_OPTIONS)).required('Required'),
-    accompanied_tour: showAccompaniedTourField
+    accompaniedTour: showAccompaniedTourField
       ? Yup.mixed().oneOf(['yes', 'no']).required('Required')
       : Yup.string().notRequired(),
-    dependents_under_twelve: showDependentAgeFields
+    dependentsUnderTwelve: showDependentAgeFields
       ? Yup.number().min(0).required('Required')
       : Yup.number().notRequired(),
-    dependents_twelve_and_over: showDependentAgeFields
+    dependentsTwelveAndOver: showDependentAgeFields
       ? Yup.number().min(0).required('Required')
       : Yup.number().notRequired(),
   });
@@ -226,7 +224,7 @@ const AddOrdersForm = ({ onSubmit, ordersTypeOptions, initialValues, onBack, isS
                         label="Yes"
                         id="isAnAccompaniedTourYes"
                         data-testid="isAnAccompaniedTourYes"
-                        name="accompanied_tour"
+                        name="accompaniedTour"
                         value="yes"
                         type="radio"
                       />
@@ -245,7 +243,7 @@ const AddOrdersForm = ({ onSubmit, ordersTypeOptions, initialValues, onBack, isS
                         label="No"
                         id="isAnAccompaniedTourNo"
                         data-testid="isAnAccompaniedTourNo"
-                        name="accompanied_tour"
+                        name="accompaniedTour"
                         value="no"
                         type="radio"
                       />
@@ -267,7 +265,7 @@ const AddOrdersForm = ({ onSubmit, ordersTypeOptions, initialValues, onBack, isS
                   <MaskedTextField
                     data-testid="dependentsUnderTwelve"
                     defaultValue="0"
-                    name="dependents_under_twelve"
+                    name="dependentsUnderTwelve"
                     label="Number of dependents under the age of 12"
                     id="dependentsUnderTwelve"
                     mask={Number}
@@ -280,7 +278,7 @@ const AddOrdersForm = ({ onSubmit, ordersTypeOptions, initialValues, onBack, isS
                   <MaskedTextField
                     data-testid="dependentsTwelveAndOver"
                     defaultValue="0"
-                    name="dependents_twelve_and_over"
+                    name="dependentsTwelveAndOver"
                     label="Number of dependents of the age 12 or over"
                     id="dependentsTwelveAndOver"
                     mask={Number}
