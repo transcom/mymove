@@ -30,4 +30,23 @@ func (suite *MoveServiceSuite) TestMoveCanceler() {
 		_, err := moveCanceler.CancelMove(suite.AppContextForTest(), move.ID)
 		suite.Error(err)
 	})
+
+	suite.Run("fails to cancel move with close complete ppm shipment", func() {
+		move := factory.BuildMove(suite.DB(), nil, nil)
+
+		factory.BuildPPMShipment(suite.DB(), []factory.Customization{
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+			{
+				Model: models.PPMShipment{
+					Status: models.PPMShipmentStatusCloseoutComplete,
+				},
+			},
+		}, nil)
+
+		_, err := moveCanceler.CancelMove(suite.AppContextForTest(), move.ID)
+		suite.Error(err)
+	})
 }
