@@ -307,6 +307,7 @@ func (suite *NotificationSuite) TestFormatPaymentRequestedEmails() {
 			suite.Equal(expectedEmailContent.recipientEmail, actualEmailContent.recipientEmail)
 			suite.Equal(expectedEmailContent.subject, actualEmailContent.subject)
 			suite.Equal(expectedEmailContent.textBody, actualEmailContent.textBody)
+			suite.Equal(expectedEmailContent.htmlBody, actualEmailContent.htmlBody)
 		}
 	}
 	// only expect the three moves with non-nil email addresses to get added to formattedEmails
@@ -432,6 +433,7 @@ func (suite *NotificationSuite) TestFormatPaymentRequestedEmailsForRetireeSepara
 			suite.Equal(expectedEmailContent.recipientEmail, actualEmailContent.recipientEmail)
 			suite.Equal(expectedEmailContent.subject, actualEmailContent.subject)
 			suite.Equal(expectedEmailContent.textBody, actualEmailContent.textBody)
+			suite.Equal(expectedEmailContent.htmlBody, actualEmailContent.htmlBody)
 		}
 	}
 	suite.Len(formattedEmails, 5)
