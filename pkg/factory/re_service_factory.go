@@ -128,3 +128,21 @@ func BuildDOFSITReService(db *pop.Connection) models.ReService {
 	FetchOrBuildReServiceByCode(db, models.ReServiceCodeDOSFSC)
 	return reService
 }
+
+// BuildIDFSITReService creates the three destination SIT service codes: IDFSIT, IDASIT, IDDSIT. Returns IDFSIT only.
+func BuildIDFSITReService(db *pop.Connection) models.ReService {
+	reService := FetchOrBuildReServiceByCode(db, models.ReServiceCodeIDFSIT)
+	FetchOrBuildReServiceByCode(db, models.ReServiceCodeIDASIT)
+	FetchOrBuildReServiceByCode(db, models.ReServiceCodeIDDSIT)
+	FetchOrBuildReServiceByCode(db, models.ReServiceCodeIDSFSC)
+	return reService
+}
+
+// BuildIOFSITReService creates the three origin SIT service codes: IOFSIT, IOPSIT, IOASIT. Returns IOFSIT only.
+func BuildIOFSITReService(db *pop.Connection) models.ReService {
+	reService := FetchOrBuildReServiceByCode(db, models.ReServiceCodeIOFSIT)
+	FetchOrBuildReServiceByCode(db, models.ReServiceCodeIOASIT)
+	FetchOrBuildReServiceByCode(db, models.ReServiceCodeIOPSIT)
+	FetchOrBuildReServiceByCode(db, models.ReServiceCodeIOSFSC)
+	return reService
+}

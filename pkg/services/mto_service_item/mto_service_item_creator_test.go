@@ -1151,6 +1151,472 @@ func (suite *MTOServiceItemServiceSuite) TestCreateOriginSITServiceItemFailToCre
 	})
 }
 
+func (suite *MTOServiceItemServiceSuite) TestCreateInternationalOriginSITServiceItem() {
+
+	// Set up data to use for all Origin SIT Service Item tests
+	var reServiceIOASIT models.ReService
+	var reServiceIOFSIT models.ReService
+	var reServiceIOPSIT models.ReService
+	var reServiceIOSFSC models.ReService
+
+	setupTestData := func() models.MTOShipment {
+		move := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
+		mtoShipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+			{
+				Model: models.MTOShipment{
+					MarketCode: models.MarketCodeInternational,
+				},
+			},
+		}, nil)
+		reServiceIOASIT = factory.BuildReServiceByCode(suite.DB(), models.ReServiceCodeIOASIT)
+		reServiceIOFSIT = factory.BuildReServiceByCode(suite.DB(), models.ReServiceCodeIOFSIT)
+		reServiceIOPSIT = factory.BuildReServiceByCode(suite.DB(), models.ReServiceCodeIOPSIT)
+		reServiceIOSFSC = factory.BuildReServiceByCode(suite.DB(), models.ReServiceCodeIOSFSC)
+
+		return mtoShipment
+	}
+
+	sitEntryDate := time.Date(2020, time.October, 24, 0, 0, 0, 0, time.UTC)
+	sitPostalCode := "99999"
+	reason := "lorem ipsum"
+
+	suite.Run("Failure - 422 Cannot create IOFSIT service item with non-null address.ID", func() {
+
+		// TESTCASE SCENARIO
+		// Under test: CreateMTOServiceItem function
+		// Set up:     Create IOFSIT service item with a non-null address ID
+		// Expected outcome: InvalidInput error returned, no new service items created
+		shipment := setupTestData()
+
+		// Create and address where ID != uuid.Nil
+		actualPickupAddress := factory.BuildAddress(suite.DB(), nil, []factory.Trait{factory.GetTraitAddress2})
+
+		serviceItemIOFSIT := models.MTOServiceItem{
+			MoveTaskOrder:             shipment.MoveTaskOrder,
+			MoveTaskOrderID:           shipment.MoveTaskOrderID,
+			MTOShipment:               shipment,
+			MTOShipmentID:             &shipment.ID,
+			ReService:                 reServiceIOFSIT,
+			SITEntryDate:              &sitEntryDate,
+			SITPostalCode:             &sitPostalCode,
+			Reason:                    &reason,
+			SITOriginHHGActualAddress: &actualPickupAddress,
+			Status:                    models.MTOServiceItemStatusSubmitted,
+		}
+
+		builder := query.NewQueryBuilder()
+		moveRouter := moverouter.NewMoveRouter()
+		planner := &mocks.Planner{}
+		planner.On("ZipTransitDistance",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.Anything,
+			mock.Anything,
+		).Return(400, nil)
+		creator := NewMTOServiceItemCreator(planner, builder, moveRouter, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticPackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer())
+
+		createdServiceItems, verr, err := creator.CreateMTOServiceItem(suite.AppContextForTest(), &serviceItemIOFSIT)
+		suite.Nil(createdServiceItems)
+		suite.Error(verr)
+		suite.IsType(apperror.InvalidInputError{}, err)
+
+	})
+
+	suite.Run("Create IOFSIT service item and auto-create IOASIT, IOPSIT, IOSFSC", func() {
+		// TESTCASE SCENARIO
+		// Under test: CreateMTOServiceItem function
+		// Set up:     Create IOFSIT service item with a new address
+		// Expected outcome: Success, 4 service items created
+
+		// Customer gets new pickup address for SIT Origin Pickup (IOPSIT) which gets added when
+		// creating IOFSIT (SIT origin first day).
+		shipment := setupTestData()
+
+		// Do not create Address in the database (Assertions.Stub = true) because if the information is coming from the Prime
+		// via the Prime API, the address will not have a valid database ID. And tests need to ensure
+		// that we properly create the address coming in from the API.
+		country := factory.FetchOrBuildCountry(suite.DB(), nil, nil)
+		actualPickupAddress := factory.BuildAddress(nil, nil, []factory.Trait{factory.GetTraitAddress2})
+		actualPickupAddress.ID = uuid.Nil
+		actualPickupAddress.CountryId = &country.ID
+		actualPickupAddress.Country = &country
+
+		serviceItemIOFSIT := models.MTOServiceItem{
+			MoveTaskOrder:             shipment.MoveTaskOrder,
+			MoveTaskOrderID:           shipment.MoveTaskOrderID,
+			MTOShipment:               shipment,
+			MTOShipmentID:             &shipment.ID,
+			ReService:                 reServiceIOFSIT,
+			SITEntryDate:              &sitEntryDate,
+			SITPostalCode:             &sitPostalCode,
+			Reason:                    &reason,
+			SITOriginHHGActualAddress: &actualPickupAddress,
+			Status:                    models.MTOServiceItemStatusSubmitted,
+		}
+
+		builder := query.NewQueryBuilder()
+		moveRouter := moverouter.NewMoveRouter()
+		planner := &mocks.Planner{}
+		planner.On("ZipTransitDistance",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.Anything,
+			mock.Anything,
+		).Return(400, nil)
+		creator := NewMTOServiceItemCreator(planner, builder, moveRouter, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticPackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer())
+
+		createdServiceItems, _, err := creator.CreateMTOServiceItem(suite.AppContextForTest(), &serviceItemIOFSIT)
+		suite.NotNil(createdServiceItems)
+		suite.NoError(err)
+
+		createdServiceItemsList := *createdServiceItems
+		suite.Equal(4, len(createdServiceItemsList))
+
+		numIOFSITFound := 0
+		numIOASITFound := 0
+		numIOPSITFound := 0
+		numIOSFSCFound := 0
+
+		for _, item := range createdServiceItemsList {
+			suite.Equal(serviceItemIOFSIT.MoveTaskOrderID, item.MoveTaskOrderID)
+			suite.Equal(serviceItemIOFSIT.MTOShipmentID, item.MTOShipmentID)
+			suite.Equal(serviceItemIOFSIT.SITEntryDate, item.SITEntryDate)
+			suite.Equal(serviceItemIOFSIT.Reason, item.Reason)
+			suite.Equal(serviceItemIOFSIT.SITPostalCode, item.SITPostalCode)
+			suite.Equal(actualPickupAddress.StreetAddress1, item.SITOriginHHGActualAddress.StreetAddress1)
+			suite.Equal(actualPickupAddress.ID, *item.SITOriginHHGActualAddressID)
+
+			// International distance calculations for SIT will be enabled in downstream B-21424/B-21425
+			// if item.ReService.Code == models.ReServiceCodeIOPSIT || item.ReService.Code == models.ReServiceCodeIOSFSC {
+			// 	suite.Equal(*item.SITDeliveryMiles, 400)
+			// }
+
+			switch item.ReService.Code {
+			case models.ReServiceCodeIOFSIT:
+				numIOFSITFound++
+			case models.ReServiceCodeIOASIT:
+				numIOASITFound++
+			case models.ReServiceCodeIOPSIT:
+				numIOPSITFound++
+			case models.ReServiceCodeIOSFSC:
+				numIOSFSCFound++
+			}
+		}
+
+		suite.Equal(1, numIOFSITFound)
+		suite.Equal(1, numIOASITFound)
+		suite.Equal(1, numIOPSITFound)
+		suite.Equal(1, numIOSFSCFound)
+	})
+
+	setupIOFSIT := func(shipment models.MTOShipment) services.MTOServiceItemCreator {
+		// Create IOFSIT
+		country := factory.FetchOrBuildCountry(suite.DB(), nil, nil)
+		actualPickupAddress := factory.BuildAddress(nil, nil, []factory.Trait{factory.GetTraitAddress2})
+		actualPickupAddress.ID = uuid.Nil
+		actualPickupAddress.CountryId = &country.ID
+		actualPickupAddress.Country = &country
+
+		serviceItemIOFSIT := models.MTOServiceItem{
+			MoveTaskOrder:             shipment.MoveTaskOrder,
+			MoveTaskOrderID:           shipment.MoveTaskOrderID,
+			MTOShipment:               shipment,
+			MTOShipmentID:             &shipment.ID,
+			ReService:                 reServiceIOFSIT,
+			SITEntryDate:              &sitEntryDate,
+			SITPostalCode:             &sitPostalCode,
+			Reason:                    &reason,
+			SITOriginHHGActualAddress: &actualPickupAddress,
+			Status:                    models.MTOServiceItemStatusSubmitted,
+		}
+
+		builder := query.NewQueryBuilder()
+		moveRouter := moverouter.NewMoveRouter()
+		planner := &mocks.Planner{}
+		planner.On("ZipTransitDistance",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.Anything,
+			mock.Anything,
+		).Return(400, nil)
+		creator := NewMTOServiceItemCreator(planner, builder, moveRouter, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticPackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer())
+
+		// Successful creation of IOFSIT
+		createdServiceItems, _, err := creator.CreateMTOServiceItem(suite.AppContextForTest(), &serviceItemIOFSIT)
+		suite.NotNil(createdServiceItems)
+		suite.NoError(err)
+
+		return creator
+	}
+
+	suite.Run("Create standalone IOASIT item for shipment if existing IOFSIT", func() {
+		// TESTCASE SCENARIO
+		// Under test: CreateMTOServiceItem function
+		// Set up:     Create IOFSIT service item successfully
+		//             Create IOASIT item on existing IOFSIT
+		// Expected outcome: Success, IOASIT item created
+
+		shipment := setupTestData()
+		creator := setupIOFSIT(shipment)
+
+		// Create IOASIT
+		serviceItemIOASIT := models.MTOServiceItem{
+			MoveTaskOrder:   shipment.MoveTaskOrder,
+			MoveTaskOrderID: shipment.MoveTaskOrderID,
+			MTOShipment:     shipment,
+			MTOShipmentID:   &shipment.ID,
+			ReService:       reServiceIOASIT,
+			Status:          models.MTOServiceItemStatusSubmitted,
+		}
+
+		createdServiceItems, _, err := creator.CreateMTOServiceItem(suite.AppContextForTest(), &serviceItemIOASIT)
+
+		createdIOASITItem := (*createdServiceItems)[0]
+		originalDate, _ := sitEntryDate.MarshalText()
+		returnedDate, _ := createdIOASITItem.SITEntryDate.MarshalText()
+
+		// Item is created successfully
+		suite.NotNil(createdServiceItems)
+		suite.NoError(err)
+		// Item contains fields copied over from IOFSIT parent
+		suite.EqualValues(originalDate, returnedDate)
+		suite.EqualValues(*createdIOASITItem.Reason, reason)
+		suite.EqualValues(*createdIOASITItem.SITPostalCode, sitPostalCode)
+	})
+
+	suite.Run("Failure - 422 Create standalone IOASIT item for shipment does not match existing IOFSIT addresses", func() {
+		// TESTCASE SCENARIO
+		// Under test: CreateMTOServiceItem function
+		// Set up:     Create IOFSIT service item successfully
+		//             Create IOASIT item on existing IOFSIT but with non-matching address
+		// Expected outcome: Invalid input error, no service items created
+
+		shipment := setupTestData()
+		creator := setupIOFSIT(shipment)
+
+		// Change pickup address
+		serviceItemIOASIT := models.MTOServiceItem{
+			MoveTaskOrder:   shipment.MoveTaskOrder,
+			MoveTaskOrderID: shipment.MoveTaskOrderID,
+			MTOShipment:     shipment,
+			MTOShipmentID:   &shipment.ID,
+			ReService:       reServiceIOASIT,
+			Status:          models.MTOServiceItemStatusSubmitted,
+		}
+
+		actualPickupAddress2 := factory.BuildAddress(nil, nil, []factory.Trait{factory.GetTraitAddress2})
+		existingServiceItem := &serviceItemIOASIT
+		existingServiceItem.SITOriginHHGActualAddress = &actualPickupAddress2
+
+		createdServiceItems, verr, err := creator.CreateMTOServiceItem(suite.AppContextForTest(), existingServiceItem)
+		suite.Nil(createdServiceItems)
+		suite.Error(verr)
+		suite.IsType(apperror.InvalidInputError{}, err)
+	})
+
+	suite.Run("Do not create IOFSIT if one already exists for the shipment", func() {
+		// TESTCASE SCENARIO
+		// Under test: CreateMTOServiceItem function
+		// Set up:     Create IOFSIT service item successfully
+		//             Create another IOFSIT item on the same shipment
+		// Expected outcome: Conflict error, no new IOFSIT item created
+
+		shipment := setupTestData()
+		creator := setupIOFSIT(shipment)
+
+		serviceItemIOFSIT := models.MTOServiceItem{
+			MoveTaskOrder:   shipment.MoveTaskOrder,
+			MoveTaskOrderID: shipment.MoveTaskOrderID,
+			MTOShipment:     shipment,
+			MTOShipmentID:   &shipment.ID,
+			ReService:       reServiceIOFSIT,
+			SITEntryDate:    &sitEntryDate,
+			SITPostalCode:   &sitPostalCode,
+			Reason:          &reason,
+		}
+
+		createdServiceItems, _, err := creator.CreateMTOServiceItem(suite.AppContextForTest(), &serviceItemIOFSIT)
+		suite.Nil(createdServiceItems)
+		suite.Error(err)
+		suite.IsType(apperror.ConflictError{}, err)
+	})
+
+	suite.Run("Do not create standalone IOPSIT service item", func() {
+		// TESTCASE SCENARIO
+		// Under test: CreateMTOServiceItem function
+		// Set up:     Create a shipment, then create a IOPSIT item on it
+		// Expected outcome: Invalid input error, can't create standalone IOPSIT, no IOPSIT item created
+
+		shipment := setupTestData()
+
+		serviceItemIOPSIT := models.MTOServiceItem{
+			MoveTaskOrder:   shipment.MoveTaskOrder,
+			MoveTaskOrderID: shipment.MoveTaskOrderID,
+			MTOShipment:     shipment,
+			MTOShipmentID:   &shipment.ID,
+			ReService:       reServiceIOPSIT,
+		}
+
+		builder := query.NewQueryBuilder()
+		moveRouter := moverouter.NewMoveRouter()
+		planner := &mocks.Planner{}
+		planner.On("ZipTransitDistance",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.Anything,
+			mock.Anything,
+		).Return(400, nil)
+		creator := NewMTOServiceItemCreator(planner, builder, moveRouter, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticPackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer())
+
+		createdServiceItems, _, err := creator.CreateMTOServiceItem(suite.AppContextForTest(), &serviceItemIOPSIT)
+
+		suite.Nil(createdServiceItems)
+		suite.Error(err)
+		suite.IsType(apperror.InvalidInputError{}, err)
+
+	})
+
+	suite.Run("Do not create standalone IOSFSC service item", func() {
+		// TESTCASE SCENARIO
+		// Under test: CreateMTOServiceItem function
+		// Set up:     Create a shipment, then create a IOSFSC item on it
+		// Expected outcome: Invalid input error, can't create standalone IOSFSC, no IOSFSC item created
+
+		shipment := setupTestData()
+
+		serviceItemIOPSIT := models.MTOServiceItem{
+			MoveTaskOrder:   shipment.MoveTaskOrder,
+			MoveTaskOrderID: shipment.MoveTaskOrderID,
+			MTOShipment:     shipment,
+			MTOShipmentID:   &shipment.ID,
+			ReService:       reServiceIOSFSC,
+		}
+
+		builder := query.NewQueryBuilder()
+		moveRouter := moverouter.NewMoveRouter()
+		planner := &mocks.Planner{}
+		planner.On("ZipTransitDistance",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.Anything,
+			mock.Anything,
+		).Return(400, nil)
+		creator := NewMTOServiceItemCreator(planner, builder, moveRouter, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticPackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer())
+
+		createdServiceItems, _, err := creator.CreateMTOServiceItem(suite.AppContextForTest(), &serviceItemIOPSIT)
+
+		suite.Nil(createdServiceItems)
+		suite.Error(err)
+		suite.IsType(apperror.InvalidInputError{}, err)
+
+	})
+
+	suite.Run("Do not create standalone IOASIT if there is no IOFSIT on shipment", func() {
+		// TESTCASE SCENARIO
+		// Under test: CreateMTOServiceItem function
+		// Set up:     Create a shipment, then create a IOASIT item on it
+		// Expected outcome: Invalid input error, can't create standalone IOASIT, no IOASIT item created
+		shipment := setupTestData()
+
+		serviceItemIOASIT := models.MTOServiceItem{
+			MoveTaskOrder:   shipment.MoveTaskOrder,
+			MoveTaskOrderID: shipment.MoveTaskOrderID,
+			MTOShipment:     shipment,
+			MTOShipmentID:   &shipment.ID,
+			ReService:       reServiceIOASIT,
+		}
+
+		builder := query.NewQueryBuilder()
+		moveRouter := moverouter.NewMoveRouter()
+		planner := &mocks.Planner{}
+		planner.On("ZipTransitDistance",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.Anything,
+			mock.Anything,
+		).Return(400, nil)
+		creator := NewMTOServiceItemCreator(planner, builder, moveRouter, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticPackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer())
+
+		createdServiceItems, _, err := creator.CreateMTOServiceItem(suite.AppContextForTest(), &serviceItemIOASIT)
+
+		suite.Nil(createdServiceItems)
+		suite.Error(err)
+		suite.IsType(apperror.NotFoundError{}, err)
+	})
+
+	suite.Run("Do not create IOASIT if the IOFSIT ReService Code is bad", func() {
+		// TESTCASE SCENARIO
+		// Under test: CreateMTOServiceItem function
+		// Set up:     Create a shipment, then create a IOFSIT item on it
+		//             Create a serviceItem with type IOASIT but a bad reServiceCode
+		// Expected outcome: Not found error, can't create IOASIT
+		shipment := setupTestData()
+		creator := setupIOFSIT(shipment)
+		badReService := models.ReService{
+			Code: "bad code",
+		}
+
+		serviceItemIOASIT := models.MTOServiceItem{
+			MoveTaskOrder:   shipment.MoveTaskOrder,
+			MoveTaskOrderID: shipment.MoveTaskOrderID,
+			MTOShipment:     shipment,
+			MTOShipmentID:   &shipment.ID,
+			ReService:       badReService,
+		}
+
+		createdServiceItems, _, err := creator.CreateMTOServiceItem(suite.AppContextForTest(), &serviceItemIOASIT)
+
+		suite.Nil(createdServiceItems)
+		suite.Error(err)
+		suite.IsType(apperror.NotFoundError{}, err)
+	})
+
+}
+
+func (suite *MTOServiceItemServiceSuite) TestCreateOriginSITServiceItemFailToCreateIOFSIT() {
+
+	sitEntryDate := time.Date(2020, time.October, 24, 0, 0, 0, 0, time.UTC)
+	sitPostalCode := "99999"
+	reason := "lorem ipsum"
+
+	suite.Run("Fail to create IOFSIT service item due to missing SITOriginHHGActualAddress", func() {
+		// Set up data to use for all Origin SIT Service Item tests
+		move := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
+		move.Status = models.MoveStatusAPPROVED
+		mtoShipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+		}, nil)
+
+		reServiceIOFSIT := factory.BuildReServiceByCode(suite.DB(), models.ReServiceCodeIOFSIT)
+
+		serviceItemIOFSIT := models.MTOServiceItem{
+			MoveTaskOrder:   move,
+			MoveTaskOrderID: move.ID,
+			MTOShipment:     mtoShipment,
+			MTOShipmentID:   &mtoShipment.ID,
+			ReService:       reServiceIOFSIT,
+			SITEntryDate:    &sitEntryDate,
+			SITPostalCode:   &sitPostalCode,
+			Reason:          &reason,
+		}
+		builder := query.NewQueryBuilder()
+		moveRouter := moverouter.NewMoveRouter()
+		planner := &mocks.Planner{}
+		planner.On("ZipTransitDistance",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.Anything,
+			mock.Anything,
+		).Return(400, nil)
+		creator := NewMTOServiceItemCreator(planner, builder, moveRouter, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticPackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer())
+
+		createdServiceItems, _, err := creator.CreateMTOServiceItem(suite.AppContextForTest(), &serviceItemIOFSIT)
+		suite.Nil(createdServiceItems)
+		suite.Error(err)
+		suite.IsType(apperror.NotFoundError{}, err)
+	})
+}
+
 // TestCreateDestSITServiceItem tests the creation of destination SIT service items
 func (suite *MTOServiceItemServiceSuite) TestCreateDestSITServiceItem() {
 
@@ -1534,6 +2000,401 @@ func (suite *MTOServiceItemServiceSuite) TestCreateDestSITServiceItem() {
 		suite.Error(err)
 		suite.IsType(apperror.InvalidInputError{}, err)
 		suite.Contains(err.Error(), models.ReServiceCodeDDSFSC)
+
+		invalidInputError := err.(apperror.InvalidInputError)
+		suite.NotEmpty(invalidInputError.ValidationErrors)
+		suite.Contains(invalidInputError.ValidationErrors.Keys(), "reServiceCode")
+	})
+}
+
+// TestCreateInternationalDestSITServiceItem tests the creation of international destination SIT service items
+func (suite *MTOServiceItemServiceSuite) TestCreateInternationalDestSITServiceItem() {
+	setupTestData := func() (models.MTOShipment, services.MTOServiceItemCreator, models.ReService) {
+		move := factory.BuildMove(suite.DB(), []factory.Customization{
+			{
+				Model: models.Move{
+					Status: models.MoveStatusAPPROVED,
+				},
+			},
+		}, nil)
+		shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+			{
+				Model: models.MTOShipment{
+					MarketCode: models.MarketCodeInternational,
+				},
+			},
+		}, nil)
+		builder := query.NewQueryBuilder()
+		moveRouter := moverouter.NewMoveRouter()
+		planner := &mocks.Planner{}
+		planner.On("ZipTransitDistance",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.Anything,
+			mock.Anything,
+		).Return(400, nil)
+		creator := NewMTOServiceItemCreator(planner, builder, moveRouter, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticPackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer())
+
+		reServiceIDFSIT := factory.BuildReServiceByCode(suite.DB(), models.ReServiceCodeIDFSIT)
+		return shipment, creator, reServiceIDFSIT
+
+	}
+
+	setupAdditionalSIT := func() (models.ReService, models.ReService, models.ReService) {
+		// These codes will be needed for the following tests:
+		reServiceIDASIT := factory.BuildReServiceByCode(suite.DB(), models.ReServiceCodeIDASIT)
+		reServiceIDDSIT := factory.BuildReServiceByCode(suite.DB(), models.ReServiceCodeIDDSIT)
+		reServiceIDSFSC := factory.BuildReServiceByCode(suite.DB(), models.ReServiceCodeIDSFSC)
+		return reServiceIDASIT, reServiceIDDSIT, reServiceIDSFSC
+	}
+
+	getCustomerContacts := func() models.MTOServiceItemCustomerContacts {
+		deliveryDate := time.Now()
+		attemptedContact := time.Now()
+		contact1 := models.MTOServiceItemCustomerContact{
+			Type:                       models.CustomerContactTypeFirst,
+			DateOfContact:              attemptedContact,
+			FirstAvailableDeliveryDate: deliveryDate,
+			TimeMilitary:               "0815Z",
+		}
+		contact2 := models.MTOServiceItemCustomerContact{
+			Type:                       models.CustomerContactTypeSecond,
+			DateOfContact:              attemptedContact,
+			FirstAvailableDeliveryDate: deliveryDate,
+			TimeMilitary:               "1430Z",
+		}
+		var contacts models.MTOServiceItemCustomerContacts
+		contacts = append(contacts, contact1, contact2)
+		return contacts
+	}
+
+	sitEntryDate := time.Now().AddDate(0, 0, 1)
+	sitDepartureDate := sitEntryDate.AddDate(0, 0, 7)
+	attemptedContact := time.Now()
+
+	// Failed creation of IDFSIT because IDASIT/IDDSIT codes are not found in DB
+	suite.Run("Failure - no IDASIT/IDDSIT codes", func() {
+
+		shipment, creator, reServiceIDFSIT := setupTestData()
+		serviceItemIDFSIT := models.MTOServiceItem{
+			MoveTaskOrderID:  shipment.MoveTaskOrderID,
+			MoveTaskOrder:    shipment.MoveTaskOrder,
+			MTOShipmentID:    &shipment.ID,
+			MTOShipment:      shipment,
+			ReService:        reServiceIDFSIT,
+			SITEntryDate:     &sitEntryDate,
+			CustomerContacts: getCustomerContacts(),
+			Status:           models.MTOServiceItemStatusSubmitted,
+		}
+
+		createdServiceItems, _, err := creator.CreateMTOServiceItem(suite.AppContextForTest(), &serviceItemIDFSIT)
+		suite.Nil(createdServiceItems)
+		suite.Error(err)
+		suite.IsType(apperror.NotFoundError{}, err)
+		suite.Contains(err.Error(), "service code")
+	})
+
+	// Failed creation of IDFSIT because CustomerContacts has invalid data
+	suite.Run("Failure - bad CustomerContacts", func() {
+		shipment, creator, reServiceIDFSIT := setupTestData()
+		setupAdditionalSIT()
+
+		badContact1 := models.MTOServiceItemCustomerContact{
+			Type:                       models.CustomerContactTypeFirst,
+			DateOfContact:              attemptedContact,
+			FirstAvailableDeliveryDate: sitEntryDate,
+			TimeMilitary:               "2611B",
+		}
+		badContact2 := models.MTOServiceItemCustomerContact{
+			Type:                       models.CustomerContactTypeSecond,
+			DateOfContact:              attemptedContact,
+			FirstAvailableDeliveryDate: sitEntryDate,
+			TimeMilitary:               "aaaaaaah",
+		}
+		var badContacts models.MTOServiceItemCustomerContacts
+		badContacts = append(badContacts, badContact1, badContact2)
+
+		serviceItemIDFSIT := models.MTOServiceItem{
+			MoveTaskOrderID:  shipment.MoveTaskOrderID,
+			MoveTaskOrder:    shipment.MoveTaskOrder,
+			MTOShipmentID:    &shipment.ID,
+			MTOShipment:      shipment,
+			ReService:        reServiceIDFSIT,
+			SITEntryDate:     &sitEntryDate,
+			CustomerContacts: badContacts,
+			Status:           models.MTOServiceItemStatusSubmitted,
+		}
+
+		createdServiceItems, _, err := creator.CreateMTOServiceItem(suite.AppContextForTest(), &serviceItemIDFSIT)
+		suite.Nil(createdServiceItems)
+		suite.Error(err)
+		suite.IsType(apperror.InvalidInputError{}, err)
+		suite.Contains(err.Error(), "timeMilitary")
+	})
+
+	// Successful creation of IDFSIT service item and the extra IDASIT/IDDSIT items
+	suite.Run("Success - IDFSIT creation approved - no SITDestinationFinalAddress", func() {
+		shipment, creator, reServiceIDFSIT := setupTestData()
+		setupAdditionalSIT()
+
+		serviceItemIDFSIT := models.MTOServiceItem{
+			MoveTaskOrderID:  shipment.MoveTaskOrderID,
+			MoveTaskOrder:    shipment.MoveTaskOrder,
+			MTOShipmentID:    &shipment.ID,
+			MTOShipment:      shipment,
+			ReService:        reServiceIDFSIT,
+			SITEntryDate:     &sitEntryDate,
+			SITDepartureDate: &sitDepartureDate,
+			CustomerContacts: getCustomerContacts(),
+			Status:           models.MTOServiceItemStatusSubmitted,
+		}
+
+		createdServiceItems, _, err := creator.CreateMTOServiceItem(suite.AppContextForTest(), &serviceItemIDFSIT)
+		suite.NotNil(createdServiceItems)
+		suite.NoError(err)
+
+		createdServiceItemList := *createdServiceItems
+		suite.Equal(len(createdServiceItemList), 4)
+
+		// check the returned items for the correct data
+		numIDASITFound := 0
+		numIDDSITFound := 0
+		numIDFSITFound := 0
+		numIDSFSCFound := 0
+		for _, item := range createdServiceItemList {
+			suite.Equal(item.MoveTaskOrderID, serviceItemIDFSIT.MoveTaskOrderID)
+			suite.Equal(item.MTOShipmentID, serviceItemIDFSIT.MTOShipmentID)
+			suite.Equal(item.SITEntryDate, serviceItemIDFSIT.SITEntryDate)
+			suite.Equal(item.SITDepartureDate, serviceItemIDFSIT.SITDepartureDate)
+
+			// International distance calculations for SIT will be enabled in downstream B-21424/B-21425
+			// if item.ReService.Code == models.ReServiceCodeIDDSIT || item.ReService.Code == models.ReServiceCodeIDSFSC {
+			// 	suite.Equal(*item.SITDeliveryMiles, 400)
+			// }
+
+			if item.ReService.Code == models.ReServiceCodeIDASIT {
+				numIDASITFound++
+			}
+			if item.ReService.Code == models.ReServiceCodeIDDSIT {
+				numIDDSITFound++
+			}
+			if item.ReService.Code == models.ReServiceCodeIDFSIT {
+				numIDFSITFound++
+				suite.Equal(len(item.CustomerContacts), len(serviceItemIDFSIT.CustomerContacts))
+			}
+			if item.ReService.Code == models.ReServiceCodeIDDSIT {
+				numIDSFSCFound++
+			}
+		}
+		suite.Equal(numIDASITFound, 1)
+		suite.Equal(numIDDSITFound, 1)
+		suite.Equal(numIDFSITFound, 1)
+		suite.Equal(numIDSFSCFound, 1)
+
+		// We create one set of customer contacts and attach them to each destination service item.
+		// This portion verifies that.
+		suite.Equal(createdServiceItemList[1].CustomerContacts[0], serviceItemIDFSIT.CustomerContacts[0])
+		suite.Equal(createdServiceItemList[1].CustomerContacts[1], serviceItemIDFSIT.CustomerContacts[1])
+		suite.Equal(createdServiceItemList[2].CustomerContacts[0], serviceItemIDFSIT.CustomerContacts[0])
+		suite.Equal(createdServiceItemList[2].CustomerContacts[1], serviceItemIDFSIT.CustomerContacts[1])
+	})
+
+	// Failed creation of IDFSIT because of duplicate service for shipment
+	suite.Run("Failure - duplicate IDFSIT", func() {
+		shipment, creator, reServiceIDFSIT := setupTestData()
+		setupAdditionalSIT()
+
+		serviceItemIDFSIT := models.MTOServiceItem{
+			MoveTaskOrderID:  shipment.MoveTaskOrderID,
+			MoveTaskOrder:    shipment.MoveTaskOrder,
+			MTOShipmentID:    &shipment.ID,
+			MTOShipment:      shipment,
+			ReService:        reServiceIDFSIT,
+			SITEntryDate:     &sitEntryDate,
+			CustomerContacts: getCustomerContacts(),
+			Status:           models.MTOServiceItemStatusSubmitted,
+		}
+
+		createdServiceItems, _, err := creator.CreateMTOServiceItem(suite.AppContextForTest(), &serviceItemIDFSIT)
+		suite.NotNil(createdServiceItems)
+		suite.NoError(err)
+
+		// Make a second attempt to add a IDFSIT
+		createdServiceItems, _, err = creator.CreateMTOServiceItem(suite.AppContextForTest(), &serviceItemIDFSIT)
+		suite.Nil(createdServiceItems)
+		suite.Error(err)
+		suite.IsType(apperror.ConflictError{}, err)
+		suite.Contains(err.Error(), fmt.Sprintf("A service item with reServiceCode %s already exists for this move and/or shipment.", models.ReServiceCodeIDFSIT))
+	})
+
+	suite.Run("Failure - SIT entry date is before FADD for IDFSIT creation", func() {
+		shipment, creator, reServiceIDFSIT := setupTestData()
+		setupAdditionalSIT()
+
+		sitEntryDateBeforeToday := time.Now().AddDate(0, 0, -1)
+
+		serviceItemIDFSIT := models.MTOServiceItem{
+			MoveTaskOrderID:  shipment.MoveTaskOrderID,
+			MoveTaskOrder:    shipment.MoveTaskOrder,
+			MTOShipmentID:    &shipment.ID,
+			MTOShipment:      shipment,
+			ReService:        reServiceIDFSIT,
+			SITEntryDate:     &sitEntryDateBeforeToday,
+			CustomerContacts: getCustomerContacts(),
+			Status:           models.MTOServiceItemStatusSubmitted,
+		}
+
+		// Make a second attempt to add a IDFSIT
+		serviceItem, _, err := creator.CreateMTOServiceItem(suite.AppContextForTest(), &serviceItemIDFSIT)
+		suite.Nil(serviceItem)
+		suite.Error(err)
+		suite.IsType(apperror.UnprocessableEntityError{}, err)
+		expectedError := fmt.Sprintf(
+			"the SIT Entry Date (%s) cannot be before the First Available Delivery Date (%s)",
+			serviceItemIDFSIT.SITEntryDate.Format("2006-01-02"),
+			serviceItemIDFSIT.CustomerContacts[0].FirstAvailableDeliveryDate.Format("2006-01-02"),
+		)
+		suite.Contains(err.Error(), expectedError)
+	})
+
+	// Successful creation of IDASIT service item
+	suite.Run("Success - IDASIT creation approved", func() {
+		shipment, creator, reServiceIDFSIT := setupTestData()
+		reServiceIDASIT, _, _ := setupAdditionalSIT()
+
+		// First create a IDFSIT because it's required to request a IDASIT
+		serviceItemIDFSIT := models.MTOServiceItem{
+			MoveTaskOrderID:  shipment.MoveTaskOrderID,
+			MoveTaskOrder:    shipment.MoveTaskOrder,
+			MTOShipmentID:    &shipment.ID,
+			MTOShipment:      shipment,
+			ReService:        reServiceIDFSIT,
+			SITEntryDate:     &sitEntryDate,
+			CustomerContacts: getCustomerContacts(),
+			Status:           models.MTOServiceItemStatusSubmitted,
+		}
+
+		createdServiceItems, _, err := creator.CreateMTOServiceItem(suite.AppContextForTest(), &serviceItemIDFSIT)
+		suite.NotNil(createdServiceItems)
+		suite.NoError(err)
+
+		// Then attempt to create a IDASIT
+		serviceItemIDASIT := models.MTOServiceItem{
+			MoveTaskOrderID: shipment.MoveTaskOrderID,
+			MoveTaskOrder:   shipment.MoveTaskOrder,
+			MTOShipmentID:   &shipment.ID,
+			MTOShipment:     shipment,
+			ReService:       reServiceIDASIT,
+			Status:          models.MTOServiceItemStatusSubmitted,
+		}
+
+		createdServiceItems, _, err = creator.CreateMTOServiceItem(suite.AppContextForTest(), &serviceItemIDASIT)
+		suite.NotNil(createdServiceItems)
+		suite.NoError(err)
+		suite.Equal(len(*createdServiceItems), 1)
+
+		createdServiceItemsList := *createdServiceItems
+		suite.Equal(createdServiceItemsList[0].ReService.Code, models.ReServiceCodeIDASIT)
+		// The time on the date doesn't matter, so let's just check the date:
+		suite.Equal(createdServiceItemsList[0].SITEntryDate.Day(), sitEntryDate.Day())
+		suite.Equal(createdServiceItemsList[0].SITEntryDate.Month(), sitEntryDate.Month())
+		suite.Equal(createdServiceItemsList[0].SITEntryDate.Year(), sitEntryDate.Year())
+	})
+
+	// Failed creation of IDASIT service item due to no IDFSIT on shipment
+	suite.Run("Failure - IDASIT creation needs IDFSIT", func() {
+
+		// Make the necessary SIT code objects
+		reServiceIDASIT, _, _ := setupAdditionalSIT()
+		factory.BuildReServiceByCode(suite.DB(), models.ReServiceCodeIDFSIT)
+
+		// Make a shipment with no IDFSIT
+		now := time.Now()
+		shipmentNoIDFSIT := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.Move{
+					AvailableToPrimeAt: &now,
+					ApprovedAt:         &now,
+					Status:             models.MoveStatusAPPROVED,
+				},
+			},
+		}, nil)
+		serviceItemIDASIT := models.MTOServiceItem{
+			MoveTaskOrderID: shipmentNoIDFSIT.MoveTaskOrderID,
+			MoveTaskOrder:   shipmentNoIDFSIT.MoveTaskOrder,
+			MTOShipmentID:   &shipmentNoIDFSIT.ID,
+			MTOShipment:     shipmentNoIDFSIT,
+			ReService:       reServiceIDASIT,
+			Status:          models.MTOServiceItemStatusSubmitted,
+		}
+
+		builder := query.NewQueryBuilder()
+		moveRouter := moverouter.NewMoveRouter()
+		planner := &mocks.Planner{}
+		planner.On("ZipTransitDistance",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.Anything,
+			mock.Anything,
+		).Return(400, nil)
+		creator := NewMTOServiceItemCreator(planner, builder, moveRouter, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticPackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer())
+		createdServiceItems, _, err := creator.CreateMTOServiceItem(suite.AppContextForTest(), &serviceItemIDASIT)
+
+		suite.Nil(createdServiceItems)
+		suite.Error(err)
+		suite.IsType(apperror.NotFoundError{}, err)
+		suite.Contains(err.Error(), "No matching first-day SIT service item found")
+		suite.Contains(err.Error(), shipmentNoIDFSIT.ID.String())
+	})
+
+	// Failed creation of IDDSIT service item
+	suite.Run("Failure - cannot create IDDSIT", func() {
+		shipment, creator, _ := setupTestData()
+		_, reServiceIDDSIT, _ := setupAdditionalSIT()
+
+		serviceItemIDDSIT := models.MTOServiceItem{
+			MoveTaskOrder:    shipment.MoveTaskOrder,
+			MoveTaskOrderID:  shipment.MoveTaskOrderID,
+			MTOShipment:      shipment,
+			MTOShipmentID:    &shipment.ID,
+			ReService:        reServiceIDDSIT,
+			SITEntryDate:     &sitEntryDate,
+			CustomerContacts: getCustomerContacts(),
+		}
+
+		createdServiceItems, _, err := creator.CreateMTOServiceItem(suite.AppContextForTest(), &serviceItemIDDSIT)
+		suite.Nil(createdServiceItems)
+		suite.Error(err)
+		suite.IsType(apperror.InvalidInputError{}, err)
+		suite.Contains(err.Error(), models.ReServiceCodeIDDSIT)
+
+		invalidInputError := err.(apperror.InvalidInputError)
+		suite.NotEmpty(invalidInputError.ValidationErrors)
+		suite.Contains(invalidInputError.ValidationErrors.Keys(), "reServiceCode")
+	})
+
+	// Failed creation of IDSFSC service item
+	suite.Run("Failure - cannot create IDSFSC", func() {
+		shipment, creator, _ := setupTestData()
+		_, _, reServiceIDSFSC := setupAdditionalSIT()
+
+		serviceItemIDSFSC := models.MTOServiceItem{
+			MoveTaskOrder:    shipment.MoveTaskOrder,
+			MoveTaskOrderID:  shipment.MoveTaskOrderID,
+			MTOShipment:      shipment,
+			MTOShipmentID:    &shipment.ID,
+			ReService:        reServiceIDSFSC,
+			SITEntryDate:     &sitEntryDate,
+			CustomerContacts: getCustomerContacts(),
+		}
+
+		createdServiceItems, _, err := creator.CreateMTOServiceItem(suite.AppContextForTest(), &serviceItemIDSFSC)
+		suite.Nil(createdServiceItems)
+		suite.Error(err)
+		suite.IsType(apperror.InvalidInputError{}, err)
+		suite.Contains(err.Error(), models.ReServiceCodeIDSFSC)
 
 		invalidInputError := err.(apperror.InvalidInputError)
 		suite.NotEmpty(invalidInputError.ValidationErrors)

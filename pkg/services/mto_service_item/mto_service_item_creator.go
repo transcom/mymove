@@ -383,11 +383,11 @@ func (o *mtoServiceItemCreator) CreateMTOServiceItem(appCtx appcontext.AppContex
 			} else if serviceItem.ReService.Code == models.ReServiceCodeDOFSIT {
 				serviceItem.ReService.Code = models.ReServiceCodeIOFSIT
 			}
-		} else {
+		} else if mtoShipment.MarketCode == models.MarketCodeDomestic {
 			if serviceItem.ReService.Code == models.ReServiceCodeIDFSIT {
 				serviceItem.ReService.Code = models.ReServiceCodeDDFSIT
 			} else if serviceItem.ReService.Code == models.ReServiceCodeIOFSIT {
-				serviceItem.ReService.Code = models.ReServiceCodeDDFSIT
+				serviceItem.ReService.Code = models.ReServiceCodeDOFSIT
 			}
 		}
 
@@ -460,9 +460,25 @@ func (o *mtoServiceItemCreator) CreateMTOServiceItem(appCtx appcontext.AppContex
 		}
 	}
 
+	if serviceItem.ReService.Code == models.ReServiceCodeIOASIT {
+		// IOASIT must be associated with shipment that has IOFSIT
+		serviceItem, err = o.validateSITStandaloneServiceItem(appCtx, serviceItem, models.ReServiceCodeIOFSIT)
+		if err != nil {
+			return nil, nil, err
+		}
+	}
+
 	if serviceItem.ReService.Code == models.ReServiceCodeDDASIT {
 		// DDASIT must be associated with shipment that has DDFSIT
 		serviceItem, err = o.validateSITStandaloneServiceItem(appCtx, serviceItem, models.ReServiceCodeDDFSIT)
+		if err != nil {
+			return nil, nil, err
+		}
+	}
+
+	if serviceItem.ReService.Code == models.ReServiceCodeIDASIT {
+		// IDASIT must be associated with shipment that has IDFSIT
+		serviceItem, err = o.validateSITStandaloneServiceItem(appCtx, serviceItem, models.ReServiceCodeIDFSIT)
 		if err != nil {
 			return nil, nil, err
 		}
@@ -477,7 +493,9 @@ func (o *mtoServiceItemCreator) CreateMTOServiceItem(appCtx appcontext.AppContex
 	}
 
 	if serviceItem.ReService.Code == models.ReServiceCodeDDDSIT || serviceItem.ReService.Code == models.ReServiceCodeDOPSIT ||
-		serviceItem.ReService.Code == models.ReServiceCodeDDSFSC || serviceItem.ReService.Code == models.ReServiceCodeDOSFSC {
+		serviceItem.ReService.Code == models.ReServiceCodeDDSFSC || serviceItem.ReService.Code == models.ReServiceCodeDOSFSC ||
+		serviceItem.ReService.Code == models.ReServiceCodeIDDSIT || serviceItem.ReService.Code == models.ReServiceCodeIOPSIT ||
+		serviceItem.ReService.Code == models.ReServiceCodeIDSFSC || serviceItem.ReService.Code == models.ReServiceCodeIOSFSC {
 		verrs = validate.NewErrors()
 		verrs.Add("reServiceCode", fmt.Sprintf("%s cannot be created", serviceItem.ReService.Code))
 		return nil, nil, apperror.NewInvalidInputError(serviceItem.ID, nil, verrs,

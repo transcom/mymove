@@ -292,4 +292,78 @@ func (suite *FactorySuite) TestBuildReServiceHelpers() {
 		suite.True(hasDOASIT)
 		suite.True(hasDOSFSC)
 	})
+
+	suite.Run("BuildIDFSITReService", func() {
+		// Under test:      BuildIDFSITReService
+		// Set up:          Call BuildIDFSITReService
+		// Expected outcome:IDFSIT reservice is returned. IDASIT, IDDSIT, and IDSFSC are also created
+
+		precount, err := suite.DB().Count(&models.ReService{})
+		suite.NoError(err)
+
+		reService := BuildIDFSITReService(suite.DB())
+		suite.NoError(err)
+
+		suite.Equal(models.ReServiceCodeIDFSIT, reService.Code)
+
+		// Count how many reServices are in the DB, 3 new reServices should have been created.
+		var reServices []models.ReService
+		var hasIDASIT, hasIDDSIT, hasIDSFSC bool
+		err = suite.DB().All(&reServices)
+		suite.NoError(err)
+		suite.Equal(precount+4, len(reServices))
+		for _, service := range reServices {
+			if service.Code == models.ReServiceCodeIDASIT {
+				hasIDASIT = true
+				continue
+			}
+			if service.Code == models.ReServiceCodeIDDSIT {
+				hasIDDSIT = true
+				continue
+			}
+			if service.Code == models.ReServiceCodeIDSFSC {
+				hasIDSFSC = true
+			}
+		}
+		suite.True(hasIDASIT)
+		suite.True(hasIDDSIT)
+		suite.True(hasIDSFSC)
+	})
+
+	suite.Run("BuildIOFSITReService", func() {
+		// Under test:      BuildIOFSITReService
+		// Set up:          Call BuildIOFSITReService
+		// Expected outcome:IOFSIT reservice is returned. IOPSIT and IOASIT are also created
+
+		precount, err := suite.DB().Count(&models.ReService{})
+		suite.NoError(err)
+
+		reService := BuildIOFSITReService(suite.DB())
+		suite.NoError(err)
+
+		suite.Equal(models.ReServiceCodeIOFSIT, reService.Code)
+
+		// Count how many reServices are in the DB, 3 new reServices should have been created.
+		var reServices []models.ReService
+		var hasIOPSIT, hasIOASIT, hasIOSFSC bool
+		err = suite.DB().All(&reServices)
+		suite.NoError(err)
+		suite.Equal(precount+4, len(reServices))
+		for _, service := range reServices {
+			if service.Code == models.ReServiceCodeIOPSIT {
+				hasIOPSIT = true
+				continue
+			}
+			if service.Code == models.ReServiceCodeIOASIT {
+				hasIOASIT = true
+				continue
+			}
+			if service.Code == models.ReServiceCodeIOSFSC {
+				hasIOSFSC = true
+			}
+		}
+		suite.True(hasIOPSIT)
+		suite.True(hasIOASIT)
+		suite.True(hasIOSFSC)
+	})
 }
