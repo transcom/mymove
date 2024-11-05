@@ -421,7 +421,7 @@ SubmittedRequestedShipments.propTypes = {
   }).isRequired,
   approveMTO: PropTypes.func,
   approveMTOShipment: PropTypes.func,
-  setErrorMessage: PropTypes.func,
+  setErrorMessage: PropTypes.func.isRequired,
   moveTaskOrder: MoveTaskOrderShape,
   missingRequiredOrdersInfo: PropTypes.bool,
   handleAfterSuccess: PropTypes.func,
