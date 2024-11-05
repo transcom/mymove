@@ -450,8 +450,8 @@ const ServicesCounselingMoveDetails = ({
 
   const shipmentMutation = useMutation(updateMTOShipment, {
     onSuccess: (updatedMTOShipments) => {
-      mtoShipments.forEach((shipment, key) => {
-        if (updatedMTOShipments.mtoShipments[shipment.id] != null) {
+      mtoShipments?.forEach((shipment, key) => {
+        if (updatedMTOShipments?.mtoShipments[shipment.id] != null) {
           mtoShipments[key] = updatedMTOShipments.mtoShipments[shipment.id];
         }
       });
