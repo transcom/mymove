@@ -461,6 +461,7 @@ func NewGhcAPIHandler(handlerConfig handlers.HandlerConfig) *ghcops.MymoveAPI {
 	ghcAPI.MoveSearchMovesHandler = SearchMovesHandler{
 		HandlerConfig: handlerConfig,
 		MoveSearcher:  move.NewMoveSearcher(),
+		MoveUnlocker:  movelocker.NewMoveUnlocker(),
 	}
 
 	ghcAPI.MtoShipmentUpdateMTOShipmentHandler = UpdateShipmentHandler{
