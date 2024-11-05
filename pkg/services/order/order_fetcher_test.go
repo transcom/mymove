@@ -1,7 +1,7 @@
 package order
 
 import (
-	"fmt"
+	"strings"
 	"time"
 
 	"github.com/gofrs/uuid"
@@ -600,9 +600,8 @@ func (suite *OrderServiceSuite) TestListOrderWithAssignedUserSingle() {
 	createdMove.SCAssignedUser = &scUser
 	_, updateError := assignedOfficeUserUpdater.UpdateAssignedOfficeUser(appCtx, createdMove.ID, &scUser, roles.RoleTypeServicesCounselor)
 
-	searchString := fmt.Sprintf("%s, %s", scUser.LastName, scUser.FirstName)
 	moves, _, err := orderFetcherTest.ListOrders(suite.AppContextWithSessionForTest(&session), scUser.ID, roles.RoleTypeServicesCounselor, &services.ListOrderParams{
-		SCAssignedUser: &searchString,
+		SCAssignedUser: &scUser.LastName,
 	})
 
 	suite.FatalNoError(err)
@@ -1569,13 +1568,6 @@ func (suite *OrderServiceSuite) TestListOrdersNeedingServicesCounselingWithPPMCl
 			},
 		}, nil)
 		ppmShipmentNeedsCloseout := getPPMShipmentWithCloseoutOfficeNeedsCloseout(suite, closeoutOffice)
-		ppmShipmentWaitingOnCustomer := factory.BuildPPMShipmentWaitingOnCustomer(suite.DB(), nil, []factory.Customization{
-			{
-				Model:    closeoutOffice,
-				LinkOnly: true,
-				Type:     &factory.TransportationOffices.CloseoutOffice,
-			},
-		})
 
 		// Sort by PPM type (ascending)
 		moves, _, err := orderFetcher.ListOrders(suite.AppContextWithSessionForTest(&session), officeUser.ID, roles.RoleTypeTOO, &services.ListOrderParams{
@@ -1585,9 +1577,8 @@ func (suite *OrderServiceSuite) TestListOrdersNeedingServicesCounselingWithPPMCl
 		})
 
 		suite.FatalNoError(err)
-		suite.Equal(2, len(moves))
-		suite.Equal(ppmShipmentWaitingOnCustomer.Status, moves[0].MTOShipments[0].PPMShipment.Status)
-		suite.Equal(ppmShipmentNeedsCloseout.Status, moves[1].MTOShipments[0].PPMShipment.Status)
+		suite.Equal(1, len(moves))
+		suite.Equal(ppmShipmentNeedsCloseout.Status, moves[0].MTOShipments[0].PPMShipment.Status)
 
 		// Sort by PPM type (descending)
 		moves, _, err = orderFetcher.ListOrders(suite.AppContextWithSessionForTest(&session), officeUser.ID, roles.RoleTypeTOO, &services.ListOrderParams{
@@ -1597,9 +1588,8 @@ func (suite *OrderServiceSuite) TestListOrdersNeedingServicesCounselingWithPPMCl
 		})
 
 		suite.FatalNoError(err)
-		suite.Equal(2, len(moves))
+		suite.Equal(1, len(moves))
 		suite.Equal(ppmShipmentNeedsCloseout.Status, moves[0].MTOShipments[0].PPMShipment.Status)
-		suite.Equal(ppmShipmentWaitingOnCustomer.Status, moves[1].MTOShipments[0].PPMShipment.Status)
 	})
 }
 
@@ -2155,5 +2145,43 @@ func (suite *OrderServiceSuite) TestListOrdersFilteredByCustomerName() {
 		moves, _, err := orderFetcher.ListOrders(suite.AppContextWithSessionForTest(&session), officeUser.ID, roles.RoleTypeTOO, &params)
 		suite.NoError(err)
 		suite.Equal(0, len(moves))
+	})
+}
+
+func (suite *OrderServiceSuite) TestOriginDutyLocationFilter() {
+	var session auth.Session
+	var expectedMove models.Move
+	var officeUser models.OfficeUser
+	orderFetcher := NewOrderFetcher()
+	suite.PreloadData(func() {
+		setupTestData := func() (models.OfficeUser, models.Move, auth.Session) {
+			officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
+			session := auth.Session{
+				ApplicationName: auth.OfficeApp,
+				Roles:           officeUser.User.Roles,
+				OfficeUserID:    officeUser.ID,
+				IDToken:         "fake_token",
+				AccessToken:     "fakeAccessToken",
+			}
+			move := factory.BuildMoveWithShipment(suite.DB(), nil, nil)
+			return officeUser, move, session
+		}
+		officeUser, expectedMove, session = setupTestData()
+	})
+	locationName := expectedMove.Orders.OriginDutyLocation.Name
+	suite.Run("Returns orders matching full originDutyLocation name filter", func() {
+		expectedMoves, _, err := orderFetcher.ListOrders(suite.AppContextWithSessionForTest(&session), officeUser.ID, roles.RoleTypeTOO, &services.ListOrderParams{OriginDutyLocation: strings.Split(locationName, " ")})
+		suite.NoError(err)
+		suite.Equal(1, len(expectedMoves))
+		suite.Equal(locationName, string(expectedMoves[0].Orders.OriginDutyLocation.Name))
+	})
+
+	suite.Run("Returns orders matching partial originDutyLocation name filter", func() {
+		//Split the location name and retrieve a substring (first string) for the search param
+		partialParamSearch := strings.Split(locationName, " ")[0]
+		expectedMoves, _, err := orderFetcher.ListOrders(suite.AppContextWithSessionForTest(&session), officeUser.ID, roles.RoleTypeTOO, &services.ListOrderParams{OriginDutyLocation: strings.Split(partialParamSearch, " ")})
+		suite.NoError(err)
+		suite.Equal(1, len(expectedMoves))
+		suite.Equal(locationName, string(expectedMoves[0].Orders.OriginDutyLocation.Name))
 	})
 }

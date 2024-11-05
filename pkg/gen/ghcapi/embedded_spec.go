@@ -1993,7 +1993,8 @@ func init() {
                       "APPROVALS REQUESTED",
                       "APPROVED",
                       "NEEDS SERVICE COUNSELING",
-                      "SERVICE COUNSELING COMPLETED"
+                      "SERVICE COUNSELING COMPLETED",
+                      "CANCELED"
                     ]
                   }
                 }
@@ -2351,7 +2352,7 @@ func init() {
         "operationId": "moveCanceler",
         "responses": {
           "200": {
-            "description": "Successfully cancelled move",
+            "description": "Successfully canceled move",
             "schema": {
               "$ref": "#/definitions/Move"
             }
@@ -2374,7 +2375,10 @@ func init() {
           "500": {
             "$ref": "#/responses/ServerError"
           }
-        }
+        },
+        "x-permissions": [
+          "update.cancelMoveFlag"
+        ]
       },
       "parameters": [
         {
@@ -7260,6 +7264,13 @@ func init() {
           "x-nullable": true,
           "x-omitempty": false
         },
+        "isActualExpenseReimbursement": {
+          "description": "Used for PPM shipments only. Denotes if this shipment uses the Actual Expense Reimbursement method.",
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false,
+          "example": false
+        },
         "pickupAddress": {
           "allOf": [
             {
@@ -11065,6 +11076,13 @@ func init() {
           "readOnly": true,
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
         },
+        "isActualExpenseReimbursement": {
+          "description": "Used for PPM shipments only. Denotes if this shipment uses the Actual Expense Reimbursement method.",
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false,
+          "example": false
+        },
         "movingExpenses": {
           "description": "All expense documentation receipt records of this PPM shipment.",
           "type": "array",
@@ -11279,7 +11297,7 @@ func init() {
     "PPMStatus": {
       "type": "string",
       "enum": [
-        "CANCELLED",
+        "CANCELED",
         "DRAFT",
         "SUBMITTED",
         "WAITING_ON_CUSTOMER",
@@ -13494,6 +13512,13 @@ func init() {
           "type": "boolean",
           "x-nullable": true,
           "x-omitempty": false
+        },
+        "isActualExpenseReimbursement": {
+          "description": "Used for PPM shipments only. Denotes if this shipment uses the Actual Expense Reimbursement method.",
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false,
+          "example": false
         },
         "pickupAddress": {
           "allOf": [
@@ -16756,7 +16781,8 @@ func init() {
                       "APPROVALS REQUESTED",
                       "APPROVED",
                       "NEEDS SERVICE COUNSELING",
-                      "SERVICE COUNSELING COMPLETED"
+                      "SERVICE COUNSELING COMPLETED",
+                      "CANCELED"
                     ]
                   }
                 }
@@ -17195,7 +17221,7 @@ func init() {
         "operationId": "moveCanceler",
         "responses": {
           "200": {
-            "description": "Successfully cancelled move",
+            "description": "Successfully canceled move",
             "schema": {
               "$ref": "#/definitions/Move"
             }
@@ -17236,7 +17262,10 @@ func init() {
               "$ref": "#/definitions/Error"
             }
           }
-        }
+        },
+        "x-permissions": [
+          "update.cancelMoveFlag"
+        ]
       },
       "parameters": [
         {
@@ -22985,6 +23014,13 @@ func init() {
           "x-nullable": true,
           "x-omitempty": false
         },
+        "isActualExpenseReimbursement": {
+          "description": "Used for PPM shipments only. Denotes if this shipment uses the Actual Expense Reimbursement method.",
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false,
+          "example": false
+        },
         "pickupAddress": {
           "allOf": [
             {
@@ -26863,6 +26899,13 @@ func init() {
           "readOnly": true,
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
         },
+        "isActualExpenseReimbursement": {
+          "description": "Used for PPM shipments only. Denotes if this shipment uses the Actual Expense Reimbursement method.",
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false,
+          "example": false
+        },
         "movingExpenses": {
           "description": "All expense documentation receipt records of this PPM shipment.",
           "type": "array",
@@ -27077,7 +27120,7 @@ func init() {
     "PPMStatus": {
       "type": "string",
       "enum": [
-        "CANCELLED",
+        "CANCELED",
         "DRAFT",
         "SUBMITTED",
         "WAITING_ON_CUSTOMER",
@@ -29350,6 +29393,13 @@ func init() {
           "type": "boolean",
           "x-nullable": true,
           "x-omitempty": false
+        },
+        "isActualExpenseReimbursement": {
+          "description": "Used for PPM shipments only. Denotes if this shipment uses the Actual Expense Reimbursement method.",
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false,
+          "example": false
         },
         "pickupAddress": {
           "allOf": [

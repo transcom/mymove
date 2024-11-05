@@ -160,12 +160,22 @@ func (suite *PaymentRequestServiceSuite) TestFetchPaymentRequestList() {
 		paymentRequests = *expectedPaymentRequests
 		suite.Equal(models.AffiliationAIRFORCE, *paymentRequests[0].MoveTaskOrder.Orders.ServiceMember.Affiliation)
 	})
-
-	suite.Run("Returns payment request matching the originDutyLocation filter", func() {
-		locationName := paymentRequest.MoveTaskOrder.Orders.OriginDutyLocation.Name
+	locationName := paymentRequest.MoveTaskOrder.Orders.OriginDutyLocation.Name
+	suite.Run("Returns payment request matching a full originDutyLocation name filter", func() {
 
 		expectedPaymentRequests, _, err := paymentRequestListFetcher.FetchPaymentRequestList(suite.AppContextWithSessionForTest(&session), officeUser.ID,
 			&services.FetchPaymentRequestListParams{Page: models.Int64Pointer(1), PerPage: models.Int64Pointer(2), OriginDutyLocation: &locationName})
+		suite.NoError(err)
+		suite.Equal(1, len(*expectedPaymentRequests))
+		paymentRequests := *expectedPaymentRequests
+		suite.Equal(locationName, paymentRequests[0].MoveTaskOrder.Orders.OriginDutyLocation.Name)
+
+	})
+	suite.Run("Returns payment request matching a partial originDutyLocation filter", func() {
+		//Split the location name and retrieve a substring (first string) for the search param
+		partialParamSearch := strings.Split(locationName, " ")[0]
+		expectedPaymentRequests, _, err := paymentRequestListFetcher.FetchPaymentRequestList(suite.AppContextWithSessionForTest(&session), officeUser.ID,
+			&services.FetchPaymentRequestListParams{Page: models.Int64Pointer(1), PerPage: models.Int64Pointer(2), OriginDutyLocation: &partialParamSearch})
 		suite.NoError(err)
 		suite.Equal(1, len(*expectedPaymentRequests))
 		paymentRequests := *expectedPaymentRequests
