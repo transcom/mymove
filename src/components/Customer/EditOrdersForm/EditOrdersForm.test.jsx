@@ -232,9 +232,9 @@ const initialValues = {
     },
   ],
   grade: 'E_1',
-  accompanied_tour: null,
-  dependents_under_twelve: null,
-  dependents_twelve_and_over: null,
+  accompanied_tour: '',
+  dependents_under_twelve: '',
+  dependents_twelve_and_over: '',
 };
 
 jest.mock('utils/featureFlags', () => ({
