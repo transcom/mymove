@@ -301,6 +301,7 @@ func (f orderFetcher) ListOrders(appCtx appcontext.AppContext, officeUserID uuid
 	return moves, count, nil
 }
 
+// TODO: Update query to select distinct duty locations
 func (f orderFetcher) ListAllOrderLocations(appCtx appcontext.AppContext, officeUserID uuid.UUID, params *services.ListOrderParams) ([]models.Move, error) {
 	var moves []models.Move
 	var transportationOffice models.TransportationOffice
@@ -351,6 +352,8 @@ func (f orderFetcher) ListAllOrderLocations(appCtx appcontext.AppContext, office
 	if officeUserGbloc == "USMC" && !needsCounseling {
 		branchQuery = branchFilter(models.StringPointer(string(models.AffiliationMARINES)), needsCounseling, ppmCloseoutGblocs)
 		gblocToFilterBy = &officeUserGbloc
+	} else {
+		gblocToFilterBy = &officeUserGbloc
 	}
 
 	// We need to use three different GBLOC filter queries because:
@@ -391,6 +394,7 @@ func (f orderFetcher) ListAllOrderLocations(appCtx appcontext.AppContext, office
 			InnerJoin("ppm_shipments", "ppm_shipments.shipment_id = mto_shipments.id").
 			InnerJoin("duty_locations as origin_dl", "orders.origin_duty_location_id = origin_dl.id").
 			LeftJoin("duty_locations as dest_dl", "dest_dl.id = orders.new_duty_location_id").
+			LeftJoin("transportation_offices as closeout_to", "closeout_to.id = moves.closeout_office_id").
 			LeftJoin("office_users", "office_users.id = moves.locked_by").
 			Where("show = ?", models.BoolPointer(true))
 
