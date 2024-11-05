@@ -14,7 +14,7 @@ func (suite *AddressSuite) TestAddressCreator() {
 	postalCode := "42701"
 	oConusState := "AK"
 
-	suite.Run("Successfully creates an address", func() {
+	suite.Run("Successfully creates a CONUS address", func() {
 		addressCreator := NewAddressCreator()
 		address, err := addressCreator.CreateAddress(suite.AppContextForTest(), &models.Address{
 			StreetAddress1: streetAddress1,
@@ -30,6 +30,7 @@ func (suite *AddressSuite) TestAddressCreator() {
 		suite.Equal(city, address.City)
 		suite.Equal(state, address.State)
 		suite.Equal(postalCode, address.PostalCode)
+		suite.False(*address.IsOconus)
 		suite.Nil(address.StreetAddress2)
 		suite.NotNil(address.Country)
 	})
@@ -41,6 +42,7 @@ func (suite *AddressSuite) TestAddressCreator() {
 			City:           city,
 			State:          oConusState,
 			PostalCode:     postalCode,
+			IsOconus:       models.BoolPointer(true),
 		})
 
 		suite.Nil(err)
@@ -68,6 +70,21 @@ func (suite *AddressSuite) TestAddressCreator() {
 		suite.Error(err)
 		suite.Nil(address)
 		suite.Equal("- the country GB is not supported at this time - only US is allowed", err.Error())
+	})
+
+	suite.Run("Shows error when country is not supported", func() {
+		addressCreator := NewAddressCreator()
+		address, err := addressCreator.CreateAddress(suite.AppContextForTest(), &models.Address{
+			StreetAddress1: streetAddress1,
+			City:           city,
+			State:          oConusState,
+			PostalCode:     postalCode,
+			Country:        &models.Country{Country: ""},
+		})
+
+		suite.Error(err)
+		suite.Nil(address)
+		suite.Equal("- the country  is not supported at this time - only US is allowed", err.Error())
 	})
 
 	suite.Run("Successfully creates an address with empty strings for optional fields", func() {
@@ -140,7 +157,7 @@ func (suite *AddressSuite) TestAddressCreator() {
 
 		suite.Nil(address)
 		suite.NotNil(err)
-		suite.Equal("No county found for provided zip code 11111", err.Error())
+		suite.Equal("No county found for provided zip code 11111.", err.Error())
 	})
 
 	suite.Run("Successfully creates a CONUS address", func() {

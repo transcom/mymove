@@ -60,4 +60,6 @@ export default {
   createSITExtension: 'createSITExtension', // prime.yaml
   patchMove: 'patchMove', // internal.yaml
   uploadAdditionalDocuments: 'uploadAdditionalDocuments', // internal.yaml
+  createOrder: 'createOrder', // ghc.yaml
+  moveCanceler: 'moveCanceler', // ghc.yaml
 };

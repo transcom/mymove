@@ -51,10 +51,13 @@ func (suite *PayloadsSuite) TestFetchPPMShipment() {
 		County:         county,
 	}
 
+	isActualExpenseReimbursement := true
+
 	expectedPPMShipment := models.PPMShipment{
-		ID:                 ppmShipmentID,
-		PickupAddress:      &expectedAddress,
-		DestinationAddress: &expectedAddress,
+		ID:                           ppmShipmentID,
+		PickupAddress:                &expectedAddress,
+		DestinationAddress:           &expectedAddress,
+		IsActualExpenseReimbursement: &isActualExpenseReimbursement,
 	}
 
 	suite.Run("Success -", func() {
@@ -78,6 +81,8 @@ func (suite *PayloadsSuite) TestFetchPPMShipment() {
 		suite.Equal(&state, returnedPPMShipment.DestinationAddress.State)
 		suite.Equal(&country.Country, returnedPPMShipment.DestinationAddress.Country)
 		suite.Equal(&county, returnedPPMShipment.DestinationAddress.County)
+
+		suite.True(*returnedPPMShipment.IsActualExpenseReimbursement)
 
 	})
 }
@@ -366,5 +371,27 @@ func (suite *PayloadsSuite) TestSearchMoves() {
 
 		suite.IsType(payload, &ghcmessages.SearchMoves{})
 		suite.NotNil(payload)
+	})
+}
+
+func (suite *PayloadsSuite) TestMarketCode() {
+	suite.Run("returns nil when marketCode is nil", func() {
+		var marketCode *models.MarketCode = nil
+		result := MarketCode(marketCode)
+		suite.Equal(result, "")
+	})
+
+	suite.Run("returns string when marketCode is not nil", func() {
+		marketCodeDomestic := models.MarketCodeDomestic
+		result := MarketCode(&marketCodeDomestic)
+		suite.NotNil(result, "Expected result to not be nil when marketCode is not nil")
+		suite.Equal("d", result, "Expected result to be 'd' for domestic market code")
+	})
+
+	suite.Run("returns string when marketCode is international", func() {
+		marketCodeInternational := models.MarketCodeInternational
+		result := MarketCode(&marketCodeInternational)
+		suite.NotNil(result, "Expected result to not be nil when marketCode is not nil")
+		suite.Equal("i", result, "Expected result to be 'i' for international market code")
 	})
 }

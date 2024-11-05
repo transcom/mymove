@@ -50,6 +50,34 @@ func (suite *AddressSuite) TestAddressUpdater() {
 		suite.Equal(county, desiredAddress.County)
 	})
 
+	suite.Run("Successfully merges state for an address", func() {
+		originalAddress := createOriginalAddress()
+
+		addressUpdater := NewAddressUpdater()
+		desiredAddress := &models.Address{
+			ID:             originalAddress.ID,
+			StreetAddress1: streetAddress1,
+			City:           city,
+			State:          "IL",
+			PostalCode:     postalCode,
+		}
+		updatedAddress, err := addressUpdater.UpdateAddress(suite.AppContextForTest(), desiredAddress, etag.GenerateEtag(originalAddress.UpdatedAt))
+
+		suite.NotNil(updatedAddress)
+		suite.Nil(err)
+		suite.Equal(originalAddress.ID, updatedAddress.ID)
+		suite.Equal(desiredAddress.StreetAddress1, updatedAddress.StreetAddress1)
+		suite.Equal(desiredAddress.City, updatedAddress.City)
+		suite.Equal(desiredAddress.State, updatedAddress.State)
+		suite.Equal(desiredAddress.PostalCode, updatedAddress.PostalCode)
+		suite.NotNil(updatedAddress.StreetAddress2)
+		suite.Equal(originalAddress.StreetAddress2, updatedAddress.StreetAddress2)
+		suite.NotNil(updatedAddress.StreetAddress3)
+		suite.Equal(originalAddress.StreetAddress3, updatedAddress.StreetAddress3)
+		suite.NotNil(updatedAddress.Country)
+		suite.Equal(county, desiredAddress.County)
+	})
+
 	suite.Run("Fails to updates because of stale etag", func() {
 		originalAddress := createOriginalAddress()
 
@@ -108,7 +136,7 @@ func (suite *AddressSuite) TestAddressUpdater() {
 
 		suite.Nil(updatedAddress)
 		suite.NotNil(err)
-		suite.Equal("No county found for provided zip code  ", err.Error())
+		suite.Equal("No county found for provided zip code  .", err.Error())
 	})
 
 	suite.Run("Fails to update an address because of invalid ID", func() {

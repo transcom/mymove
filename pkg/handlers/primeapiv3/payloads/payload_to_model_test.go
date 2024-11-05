@@ -621,18 +621,19 @@ func (suite *PayloadsSuite) TestPPMShipmentModelFromCreate() {
 	}
 
 	ppmShipment := primev3messages.CreatePPMShipment{
-		ExpectedDepartureDate:       expectedDepartureDate,
-		PickupAddress:               struct{ primev3messages.Address }{pickupAddress},
-		SecondaryPickupAddress:      struct{ primev3messages.Address }{secondaryPickupAddress},
-		TertiaryPickupAddress:       struct{ primev3messages.Address }{tertiaryPickupAddress},
-		DestinationAddress:          struct{ primev3messages.Address }{destinationAddress},
-		SecondaryDestinationAddress: struct{ primev3messages.Address }{secondaryDestinationAddress},
-		TertiaryDestinationAddress:  struct{ primev3messages.Address }{tertiaryDestinationAddress},
-		SitExpected:                 &sitExpected,
-		EstimatedWeight:             &estimatedWeight,
-		HasProGear:                  &hasProGear,
-		ProGearWeight:               &proGearWeight,
-		SpouseProGearWeight:         &spouseProGearWeight,
+		ExpectedDepartureDate:        expectedDepartureDate,
+		PickupAddress:                struct{ primev3messages.Address }{pickupAddress},
+		SecondaryPickupAddress:       struct{ primev3messages.Address }{secondaryPickupAddress},
+		TertiaryPickupAddress:        struct{ primev3messages.Address }{tertiaryPickupAddress},
+		DestinationAddress:           struct{ primev3messages.Address }{destinationAddress},
+		SecondaryDestinationAddress:  struct{ primev3messages.Address }{secondaryDestinationAddress},
+		TertiaryDestinationAddress:   struct{ primev3messages.Address }{tertiaryDestinationAddress},
+		SitExpected:                  &sitExpected,
+		EstimatedWeight:              &estimatedWeight,
+		HasProGear:                   &hasProGear,
+		ProGearWeight:                &proGearWeight,
+		SpouseProGearWeight:          &spouseProGearWeight,
+		IsActualExpenseReimbursement: models.BoolPointer(true),
 	}
 
 	model := PPMShipmentModelFromCreate(&ppmShipment)
@@ -648,6 +649,135 @@ func (suite *PayloadsSuite) TestPPMShipmentModelFromCreate() {
 	suite.True(*model.HasSecondaryDestinationAddress)
 	suite.True(*model.HasTertiaryPickupAddress)
 	suite.True(*model.HasTertiaryDestinationAddress)
+	suite.True(*model.IsActualExpenseReimbursement)
+	suite.NotNil(model)
+}
+
+func (suite *PayloadsSuite) TestPPMShipmentModelFromUpdate() {
+	time := time.Now()
+	expectedDepartureDate := handlers.FmtDatePtr(&time)
+	estimatedWeight := int64(5000)
+	proGearWeight := int64(500)
+	spouseProGearWeight := int64(50)
+
+	country := models.Country{
+		Country:     "US",
+		CountryName: "United States",
+	}
+
+	address := models.Address{
+		StreetAddress1: "some address",
+		City:           "city",
+		State:          "state",
+		PostalCode:     "12345",
+		Country:        &country,
+	}
+	address2 := models.Address{
+		StreetAddress1: "some address",
+		City:           "city",
+		State:          "state",
+		PostalCode:     "11111",
+		Country:        &country,
+	}
+	address3 := models.Address{
+		StreetAddress1: "some address",
+		City:           "city",
+		State:          "state",
+		PostalCode:     "54321",
+		Country:        &country,
+	}
+
+	var pickupAddress primev3messages.Address
+	var secondaryPickupAddress primev3messages.Address
+	var tertiaryPickupAddress primev3messages.Address
+	var destinationAddress primev3messages.Address
+	var secondaryDestinationAddress primev3messages.Address
+	var tertiaryDestinationAddress primev3messages.Address
+
+	pickupAddress = primev3messages.Address{
+		City:           &address.City,
+		Country:        &address.Country.Country,
+		PostalCode:     &address.PostalCode,
+		State:          &address.State,
+		StreetAddress1: &address.StreetAddress1,
+		StreetAddress2: address.StreetAddress2,
+		StreetAddress3: address.StreetAddress3,
+	}
+	destinationAddress = primev3messages.Address{
+		City:           &address.City,
+		Country:        &address.Country.Country,
+		PostalCode:     &address.PostalCode,
+		State:          &address.State,
+		StreetAddress1: &address.StreetAddress1,
+		StreetAddress2: address.StreetAddress2,
+		StreetAddress3: address.StreetAddress3,
+	}
+	secondaryPickupAddress = primev3messages.Address{
+		City:           &address2.City,
+		Country:        &address2.Country.Country,
+		PostalCode:     &address2.PostalCode,
+		State:          &address2.State,
+		StreetAddress1: &address2.StreetAddress1,
+		StreetAddress2: address2.StreetAddress2,
+		StreetAddress3: address2.StreetAddress3,
+	}
+	secondaryDestinationAddress = primev3messages.Address{
+		City:           &address2.City,
+		Country:        &address2.Country.Country,
+		PostalCode:     &address2.PostalCode,
+		State:          &address2.State,
+		StreetAddress1: &address2.StreetAddress1,
+		StreetAddress2: address2.StreetAddress2,
+		StreetAddress3: address2.StreetAddress3,
+	}
+	tertiaryPickupAddress = primev3messages.Address{
+		City:           &address3.City,
+		Country:        &address3.Country.Country,
+		PostalCode:     &address3.PostalCode,
+		State:          &address3.State,
+		StreetAddress1: &address3.StreetAddress1,
+		StreetAddress2: address3.StreetAddress2,
+		StreetAddress3: address3.StreetAddress3,
+	}
+	tertiaryDestinationAddress = primev3messages.Address{
+		City:           &address3.City,
+		Country:        &address3.Country.Country,
+		PostalCode:     &address3.PostalCode,
+		State:          &address3.State,
+		StreetAddress1: &address3.StreetAddress1,
+		StreetAddress2: address3.StreetAddress2,
+		StreetAddress3: address3.StreetAddress3,
+	}
+
+	ppmShipment := primev3messages.UpdatePPMShipment{
+		ExpectedDepartureDate:        expectedDepartureDate,
+		PickupAddress:                struct{ primev3messages.Address }{pickupAddress},
+		SecondaryPickupAddress:       struct{ primev3messages.Address }{secondaryPickupAddress},
+		TertiaryPickupAddress:        struct{ primev3messages.Address }{tertiaryPickupAddress},
+		DestinationAddress:           struct{ primev3messages.Address }{destinationAddress},
+		SecondaryDestinationAddress:  struct{ primev3messages.Address }{secondaryDestinationAddress},
+		TertiaryDestinationAddress:   struct{ primev3messages.Address }{tertiaryDestinationAddress},
+		SitExpected:                  models.BoolPointer(true),
+		EstimatedWeight:              &estimatedWeight,
+		HasProGear:                   models.BoolPointer(true),
+		ProGearWeight:                &proGearWeight,
+		SpouseProGearWeight:          &spouseProGearWeight,
+		IsActualExpenseReimbursement: models.BoolPointer(true),
+	}
+
+	model := PPMShipmentModelFromUpdate(&ppmShipment)
+
+	suite.NotNil(model)
+	suite.True(*model.SITExpected)
+	suite.Equal(unit.Pound(estimatedWeight), *model.EstimatedWeight)
+	suite.True(*model.HasProGear)
+	suite.Equal(unit.Pound(proGearWeight), *model.ProGearWeight)
+	suite.Equal(unit.Pound(spouseProGearWeight), *model.SpouseProGearWeight)
+	suite.Nil(model.HasSecondaryPickupAddress)
+	suite.Nil(model.HasSecondaryDestinationAddress)
+	suite.Nil(model.HasTertiaryPickupAddress)
+	suite.Nil(model.HasTertiaryDestinationAddress)
+	suite.True(*model.IsActualExpenseReimbursement)
 	suite.NotNil(model)
 }
 
@@ -782,18 +912,18 @@ func (suite *PayloadsSuite) TestBoatShipmentModelFromCreate() {
 			BoatShipment:    boatShipment,
 		}
 
-		returnedBoatHaulAway, _ := BoatShipmentModelFromCreate(&mtoShipment)
+		returnedBoatTowAway, _ := BoatShipmentModelFromCreate(&mtoShipment)
 
-		suite.IsType(&models.BoatShipment{}, returnedBoatHaulAway)
+		suite.IsType(&models.BoatShipment{}, returnedBoatTowAway)
 
-		suite.Equal(expectedBoatTowAway.Make, returnedBoatHaulAway.Make)
-		suite.Equal(expectedBoatTowAway.Model, returnedBoatHaulAway.Model)
-		suite.Equal(expectedBoatTowAway.Year, returnedBoatHaulAway.Year)
-		suite.Equal(expectedBoatTowAway.LengthInInches, returnedBoatHaulAway.LengthInInches)
-		suite.Equal(expectedBoatTowAway.HeightInInches, returnedBoatHaulAway.HeightInInches)
-		suite.Equal(expectedBoatTowAway.WidthInInches, returnedBoatHaulAway.WidthInInches)
-		suite.Equal(expectedBoatTowAway.HasTrailer, returnedBoatHaulAway.HasTrailer)
-		suite.Equal(expectedBoatTowAway.IsRoadworthy, returnedBoatHaulAway.IsRoadworthy)
+		suite.Equal(expectedBoatTowAway.Make, returnedBoatTowAway.Make)
+		suite.Equal(expectedBoatTowAway.Model, returnedBoatTowAway.Model)
+		suite.Equal(expectedBoatTowAway.Year, returnedBoatTowAway.Year)
+		suite.Equal(expectedBoatTowAway.LengthInInches, returnedBoatTowAway.LengthInInches)
+		suite.Equal(expectedBoatTowAway.HeightInInches, returnedBoatTowAway.HeightInInches)
+		suite.Equal(expectedBoatTowAway.WidthInInches, returnedBoatTowAway.WidthInInches)
+		suite.Equal(expectedBoatTowAway.HasTrailer, returnedBoatTowAway.HasTrailer)
+		suite.Equal(expectedBoatTowAway.IsRoadworthy, returnedBoatTowAway.IsRoadworthy)
 	})
 }
 
