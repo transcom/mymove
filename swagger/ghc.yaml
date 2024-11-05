@@ -422,7 +422,7 @@ paths:
       parameters: []
       responses:
         '200':
-          description: Successfully cancelled move
+          description: Successfully canceled move
           schema:
             $ref: '#/definitions/Move'
         '403':
@@ -442,6 +442,8 @@ paths:
       description: cancels a move
       operationId: moveCanceler
       summary: Cancels a move
+      x-permissions:
+        - update.cancelMoveFlag
   /counseling/orders/{orderID}:
     parameters:
       - description: ID of order to update
@@ -3746,6 +3748,7 @@ paths:
             - emplid
             - age
             - originDutyLocation
+            - assignedTo
           description: field that results should be sorted by
         - in: query
           name: order
@@ -3790,6 +3793,11 @@ paths:
         - in: query
           name: originDutyLocation
           type: string
+        - in: query
+          name: assignedTo
+          type: string
+          description: |
+            Used to illustrate which user is assigned to this payment request.
         - in: query
           name: status
           type: array
@@ -3887,6 +3895,7 @@ paths:
                     - APPROVED
                     - NEEDS SERVICE COUNSELING
                     - SERVICE COUNSELING COMPLETED
+                    - CANCELED
               originPostalCode:
                 type: string
                 x-nullable: true
@@ -5369,7 +5378,7 @@ definitions:
   PPMStatus:
     type: string
     enum:
-      - CANCELLED
+      - CANCELED
       - DRAFT
       - SUBMITTED
       - WAITING_ON_CUSTOMER
@@ -7097,11 +7106,17 @@ definitions:
       counselingOffice:
         type: string
         x-nullable: true
+      counselingOfficeID:
+        type: string
+        format: uuid
+        x-nullable: true
       assignedTo:
         $ref: '#/definitions/AssignedOfficeUser'
         x-nullable: true
       availableOfficeUsers:
         $ref: '#/definitions/AvailableOfficeUsers'
+      assignable:
+        type: boolean
   QueueMovesResult:
     type: object
     properties:
@@ -7219,8 +7234,13 @@ definitions:
         type: string
         format: date-time
         x-nullable: true
+      assignedTo:
+        $ref: '#/definitions/AssignedOfficeUser'
+        x-nullable: true
       availableOfficeUsers:
         $ref: '#/definitions/AvailableOfficeUsers'
+      assignable:
+        type: boolean
   QueuePaymentRequests:
     type: array
     items:
