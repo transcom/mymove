@@ -265,6 +265,10 @@ func PPMShipmentModelFromCreate(ppmShipment *primemessages.CreatePPMShipment) *m
 		model.SpouseProGearWeight = handlers.PoundPtrFromInt64Ptr(ppmShipment.SpouseProGearWeight)
 	}
 
+	if ppmShipment.IsActualExpenseReimbursement != nil {
+		model.IsActualExpenseReimbursement = ppmShipment.IsActualExpenseReimbursement
+	}
+
 	return model
 }
 
@@ -386,6 +390,10 @@ func PPMShipmentModelFromUpdate(ppmShipment *primemessages.UpdatePPMShipment) *m
 	sitEstimatedDepartureDate := handlers.FmtDatePtrToPopPtr(ppmShipment.SitEstimatedDepartureDate)
 	if sitEstimatedDepartureDate != nil && !sitEstimatedDepartureDate.IsZero() {
 		model.SITEstimatedDepartureDate = sitEstimatedDepartureDate
+	}
+
+	if ppmShipment.IsActualExpenseReimbursement != nil {
+		model.IsActualExpenseReimbursement = ppmShipment.IsActualExpenseReimbursement
 	}
 
 	return model

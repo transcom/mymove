@@ -113,6 +113,10 @@ type PPMShipment struct {
 	// Format: uuid
 	ID strfmt.UUID `json:"id"`
 
+	// Used for PPM shipments only. Denotes if this shipment uses the Actual Expense Reimbursement method.
+	// Example: false
+	IsActualExpenseReimbursement *bool `json:"isActualExpenseReimbursement"`
+
 	// origin rate area
 	OriginRateArea *RateArea `json:"originRateArea,omitempty"`
 
