@@ -133,11 +133,13 @@ const SubmittedRequestedShipments = ({
   const queryClient = useQueryClient();
   const shipmentMutation = useMutation(updateMTOShipment, {
     onSuccess: (updatedMTOShipments) => {
-      filteredShipments.forEach((shipment, key) => {
-        if (updatedMTOShipments.mtoShipments[shipment.id] != null) {
-          filteredShipments[key] = updatedMTOShipments.mtoShipments[shipment.id];
-        }
-      });
+      if (filteredShipments !== null && updatedMTOShipments?.mtoShipments !== undefined) {
+        filteredShipments.forEach((shipment, key) => {
+          if (updatedMTOShipments?.mtoShipments[shipment.id] !== undefined) {
+            filteredShipments[key] = updatedMTOShipments.mtoShipments[shipment.id];
+          }
+        });
+      }
 
       queryClient.setQueryData([MTO_SHIPMENTS, filteredShipments.moveTaskOrderID, false], filteredShipments);
       queryClient.invalidateQueries([MTO_SHIPMENTS, filteredShipments.moveTaskOrderID]);
@@ -421,7 +423,7 @@ SubmittedRequestedShipments.propTypes = {
   }).isRequired,
   approveMTO: PropTypes.func,
   approveMTOShipment: PropTypes.func,
-  setErrorMessage: PropTypes.func,
+  setErrorMessage: PropTypes.func.isRequired,
   moveTaskOrder: MoveTaskOrderShape,
   missingRequiredOrdersInfo: PropTypes.bool,
   handleAfterSuccess: PropTypes.func,

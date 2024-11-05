@@ -29,7 +29,13 @@ import {
   updateFinancialFlag,
   updateMTOShipment,
 } from 'services/ghcApi';
-import { MOVE_STATUSES, SHIPMENT_OPTIONS_URL, SHIPMENT_OPTIONS, FEATURE_FLAG_KEYS } from 'shared/constants';
+import {
+  MOVE_STATUSES,
+  SHIPMENT_OPTIONS_URL,
+  SHIPMENT_OPTIONS,
+  FEATURE_FLAG_KEYS,
+  technicalHelpDeskURL,
+} from 'shared/constants';
 import { ppmShipmentStatuses, shipmentStatuses } from 'constants/shipments';
 import shipmentCardsStyles from 'styles/shipmentCards.module.scss';
 import LeftNav from 'components/LeftNav/LeftNav';
@@ -465,11 +471,13 @@ const ServicesCounselingMoveDetails = ({
 
   const shipmentMutation = useMutation(updateMTOShipment, {
     onSuccess: (updatedMTOShipments) => {
-      mtoShipments.forEach((shipment, key) => {
-        if (updatedMTOShipments.mtoShipments[shipment.id] != null) {
-          mtoShipments[key] = updatedMTOShipments.mtoShipments[shipment.id];
-        }
-      });
+      if (mtoShipments !== null && updatedMTOShipments?.mtoShipments !== undefined) {
+        mtoShipments?.forEach((shipment, key) => {
+          if (updatedMTOShipments?.mtoShipments[shipment.id] !== undefined) {
+            mtoShipments[key] = updatedMTOShipments.mtoShipments[shipment.id];
+          }
+        });
+      }
 
       queryClient.setQueryData([MTO_SHIPMENTS, mtoShipments.moveTaskOrderID, false], mtoShipments);
       queryClient.invalidateQueries([MTO_SHIPMENTS, mtoShipments.moveTaskOrderID]);
