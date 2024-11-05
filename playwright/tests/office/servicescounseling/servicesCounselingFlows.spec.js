@@ -74,7 +74,7 @@ test.describe('Services counselor user', () => {
       await page.locator('#requestedPickupDate').clear();
       await page.locator('#requestedPickupDate').fill('16 Mar 2022');
       await page.locator('#requestedPickupDate').blur();
-      await page.getByText('Use current address').click();
+      await page.getByText('Use pickup address').click();
 
       await page.locator('#requestedDeliveryDate').clear();
       await page.locator('#requestedDeliveryDate').fill('16 May 2022');
@@ -242,7 +242,7 @@ test.describe('Services counselor user', () => {
 
       await page.locator('#requestedPickupDate').fill(deliveryDate);
       await page.locator('#requestedPickupDate').blur();
-      await page.getByText('Use current address').click();
+      await page.getByText('Use pickup address').click();
       await page.locator('#requestedDeliveryDate').fill('16 Mar 2022');
       await page.locator('#requestedDeliveryDate').blur();
       await page.getByRole('group', { name: 'Delivery location' }).getByText('Yes').click();
@@ -340,7 +340,7 @@ test.describe('Services counselor user', () => {
       await page.locator('#requestedPickupDate').clear();
       await page.locator('#requestedPickupDate').fill('16 Mar 2022');
       await page.locator('#requestedPickupDate').blur();
-      await page.getByText('Use current address').click();
+      await page.getByText('Use pickup address').click();
 
       await page.locator('#requestedDeliveryDate').clear();
       await page.locator('#requestedDeliveryDate').fill('16 May 2022');
@@ -365,7 +365,7 @@ test.describe('Services counselor user', () => {
       await page.locator('#requestedPickupDate').clear();
       await page.locator('#requestedPickupDate').fill('16 Mar 2022');
       await page.locator('#requestedPickupDate').blur();
-      await page.getByText('Use current address').click();
+      await page.getByText('Use pickup address').click();
 
       await page.locator('#requestedDeliveryDate').clear();
       await page.locator('#requestedDeliveryDate').fill('16 May 2022');

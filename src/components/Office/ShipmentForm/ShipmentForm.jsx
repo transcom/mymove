@@ -939,7 +939,7 @@ const ShipmentForm = (props) => {
                               <p>What address are the movers picking up from?</p>
                               <Checkbox
                                 data-testid="useCurrentResidence"
-                                label="Use current address"
+                                label="Use pickup address"
                                 name="useCurrentResidence"
                                 onChange={handleUseCurrentResidenceChange}
                                 id="useCurrentResidenceCheckbox"
@@ -1386,7 +1386,7 @@ const ShipmentForm = (props) => {
                             <p>What address are you moving from?</p>
                             <Checkbox
                               data-testid="useCurrentResidence"
-                              label="Use Current Address"
+                              label="Use Pickup Address"
                               name="useCurrentResidence"
                               onChange={handleUseCurrentResidenceChange}
                               id="useCurrentResidenceCheckbox"

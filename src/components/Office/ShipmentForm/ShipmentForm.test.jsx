@@ -399,7 +399,7 @@ describe('ShipmentForm component', () => {
       expect(screen.getByLabelText('Requested pickup date')).toBeInstanceOf(HTMLInputElement);
 
       expect(screen.getByText('Pickup Address')).toBeInstanceOf(HTMLLegendElement);
-      expect(screen.getByLabelText('Use current address')).toBeInstanceOf(HTMLInputElement);
+      expect(screen.getByLabelText('Use pickup address')).toBeInstanceOf(HTMLInputElement);
       expect(screen.getByLabelText(/Address 1/)).toBeInstanceOf(HTMLInputElement);
       expect(screen.getByLabelText(/Address 2/)).toBeInstanceOf(HTMLInputElement);
       expect(screen.getByLabelText('City')).toBeInstanceOf(HTMLInputElement);
@@ -468,7 +468,7 @@ describe('ShipmentForm component', () => {
       renderWithRouter(<ShipmentForm {...defaultProps} shipmentType={SHIPMENT_OPTIONS.HHG} />);
 
       await act(async () => {
-        await user.click(screen.getByLabelText('Use current address'));
+        await user.click(screen.getByLabelText('Use pickup address'));
       });
 
       expect((await screen.findAllByLabelText('Address 1'))[0]).toHaveValue(
@@ -578,7 +578,7 @@ describe('ShipmentForm component', () => {
       );
 
       expect(await screen.findByLabelText('Requested pickup date')).toHaveValue('01 Mar 2020');
-      expect(screen.getByLabelText('Use current address')).not.toBeChecked();
+      expect(screen.getByLabelText('Use pickup address')).not.toBeChecked();
       expect(screen.getAllByLabelText('Address 1')[0]).toHaveValue('812 S 129th St');
       expect(screen.getAllByLabelText(/Address 2/)[0]).toHaveValue('');
       expect(screen.getAllByLabelText('City')[0]).toHaveValue('San Antonio');
@@ -626,7 +626,7 @@ describe('ShipmentForm component', () => {
       );
 
       expect(await screen.findByLabelText('Requested pickup date')).toHaveValue('01 Mar 2020');
-      expect(screen.getByLabelText('Use current address')).not.toBeChecked();
+      expect(screen.getByLabelText('Use pickup address')).not.toBeChecked();
       expect(screen.getAllByLabelText('Address 1')[0]).toHaveValue('812 S 129th St');
       expect(screen.getAllByLabelText(/Address 2/)[0]).toHaveValue('');
       expect(screen.getAllByLabelText('City')[0]).toHaveValue('San Antonio');
@@ -805,7 +805,7 @@ describe('ShipmentForm component', () => {
       expect(screen.getByLabelText('Requested pickup date')).toBeInstanceOf(HTMLInputElement);
 
       expect(screen.getByText('Pickup Address')).toBeInstanceOf(HTMLLegendElement);
-      expect(screen.getByLabelText('Use current address')).toBeInstanceOf(HTMLInputElement);
+      expect(screen.getByLabelText('Use pickup address')).toBeInstanceOf(HTMLInputElement);
       expect(screen.getByLabelText(/Address 1/)).toBeInstanceOf(HTMLInputElement);
       expect(screen.getByLabelText(/Address 2/)).toBeInstanceOf(HTMLInputElement);
       expect(screen.getByLabelText('City')).toBeInstanceOf(HTMLInputElement);
