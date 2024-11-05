@@ -464,8 +464,12 @@ const ServicesCounselingMoveDetails = ({
   });
 
   const shipmentMutation = useMutation(updateMTOShipment, {
-    onSuccess: (updatedMTOShipment) => {
-      mtoShipments[mtoShipments?.findIndex((shipment) => shipment.id === updatedMTOShipment.id)] = updatedMTOShipment;
+    onSuccess: (updatedMTOShipments) => {
+      mtoShipments.forEach((shipment, key) => {
+        if (updatedMTOShipments.mtoShipments[shipment.id] != null) {
+          mtoShipments[key] = updatedMTOShipments.mtoShipments[shipment.id];
+        }
+      });
 
       queryClient.setQueryData([MTO_SHIPMENTS, mtoShipments.moveTaskOrderID, false], mtoShipments);
       queryClient.invalidateQueries([MTO_SHIPMENTS, mtoShipments.moveTaskOrderID]);
@@ -656,20 +660,20 @@ const ServicesCounselingMoveDetails = ({
           onClose={handleCloseCancelMoveModal}
           onSubmit={handleCancelMove}
         />
-        <NotificationScrollToTop dependency={errorMessage} />
-        {errorMessage && (
-          <Alert data-testid="errorMessage" type="error" headingLevel="h4" heading="An error occurred">
-            <p>
-              {errorMessage} Please try again later, or contact the&nbsp;
-              <Link to={technicalHelpDeskURL} target="_blank" rel="noreferrer">
-                Technical Help Desk
-              </Link>
-              .
-            </p>
-          </Alert>
-        )}
         <GridContainer className={classnames(styles.gridContainer, scMoveDetailsStyles.ServicesCounselingMoveDetails)}>
           <NotificationScrollToTop dependency={alertMessage || infoSavedAlert} />
+          <NotificationScrollToTop dependency={errorMessage} />
+          {errorMessage && (
+            <Alert data-testid="errorMessage" type="error" headingLevel="h4" heading="An error occurred">
+              <p>
+                {errorMessage} Please try again later, or contact the&nbsp;
+                <Link to={technicalHelpDeskURL} target="_blank" rel="noreferrer">
+                  Technical Help Desk
+                </Link>
+                .
+              </p>
+            </Alert>
+          )}
           <Grid row className={scMoveDetailsStyles.pageHeader}>
             {alertMessage && (
               <Grid col={12} className={scMoveDetailsStyles.alertContainer}>
