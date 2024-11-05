@@ -71,6 +71,10 @@ describe('RequestAccountForm component', () => {
     expect(transportationOffice).toBeInstanceOf(HTMLInputElement);
     expect(transportationOffice).toHaveTextContent('');
 
+    const hqCheckbox = screen.getByTestId('headquartersCheckBox');
+    expect(hqCheckbox).toBeInstanceOf(HTMLInputElement);
+    expect(hqCheckbox).not.toBeChecked(false);
+
     const tooCheckbox = screen.getByTestId('taskOrderingOfficerCheckBox');
     expect(tooCheckbox).toBeInstanceOf(HTMLInputElement);
     expect(tooCheckbox).not.toBeChecked(false);
