@@ -283,6 +283,7 @@ export const ReviewDocuments = ({ readOnly }) => {
                 formRef={formRef}
                 allowableWeight={currentAllowableWeight}
                 readOnly={readOnly}
+                order={order}
               />
             ) : (
               <>
@@ -317,6 +318,7 @@ export const ReviewDocuments = ({ readOnly }) => {
                     onSuccess={onSuccess}
                     formRef={formRef}
                     readOnly={readOnly}
+                    order={order}
                   />
                 )}
                 {currentDocumentSet.documentSetType === DOCUMENT_TYPES.MOVING_EXPENSE && (
@@ -334,6 +336,7 @@ export const ReviewDocuments = ({ readOnly }) => {
                     onSuccess={onSuccess}
                     formRef={formRef}
                     readOnly={readOnly}
+                    order={order}
                   />
                 )}
               </>

@@ -8,6 +8,7 @@ import (
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/apperror"
 	mtoshipmentops "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/mto_shipment"
+	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/handlers/internalapi/internal/payloads"
 	"github.com/transcom/mymove/pkg/models"
@@ -29,6 +30,23 @@ func (h CreateMTOShipmentHandler) Handle(params mtoshipmentops.CreateMTOShipment
 	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
 		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
 
+			/** Feature Flag - UB Shipment **/
+			featureFlagNameUB := "unaccompanied_baggage"
+			isUBFeatureOn := false
+			UBflag, err := h.FeatureFlagFetcher().GetBooleanFlagForUser(params.HTTPRequest.Context(), appCtx, featureFlagNameUB, map[string]string{})
+			if err != nil {
+				appCtx.Logger().Error("Error fetching feature flag", zap.String("featureFlagKey", featureFlagNameUB), zap.Error(err))
+				isUBFeatureOn = false
+			} else {
+				isUBFeatureOn = UBflag.Match
+			}
+
+			// Return an error if UB shipment is sent while the feature flag is turned off.
+			if !isUBFeatureOn && (*params.Body.ShipmentType == internalmessages.MTOShipmentTypeUNACCOMPANIEDBAGGAGE) {
+				return mtoshipmentops.NewCreateMTOShipmentUnprocessableEntity().WithPayload(payloads.ValidationError(
+					"Unaccompanied baggage shipments can't be created unless the unaccompanied_baggage feature flag is enabled.", h.GetTraceIDFromRequest(params.HTTPRequest), nil)), nil
+			}
+
 			if appCtx.Session() == nil || (!appCtx.Session().IsMilApp() && appCtx.Session().ServiceMemberID == uuid.Nil) {
 				noSessionErr := apperror.NewSessionError("No service member ID")
 				return mtoshipmentops.NewCreateMTOShipmentUnauthorized(), noSessionErr
@@ -42,7 +60,6 @@ func (h CreateMTOShipmentHandler) Handle(params mtoshipmentops.CreateMTOShipment
 					"The MTO Shipment request body cannot be empty.", h.GetTraceIDFromRequest(params.HTTPRequest))), noBodyErr
 			}
 			mtoShipment := payloads.MTOShipmentModelFromCreate(payload)
-			var err error
 
 			mtoShipment, err = h.shipmentCreator.CreateShipment(appCtx, mtoShipment)
 
@@ -59,6 +76,13 @@ func (h CreateMTOShipmentHandler) Handle(params mtoshipmentops.CreateMTOShipment
 								h.GetTraceIDFromRequest(params.HTTPRequest),
 							),
 						), err
+				case apperror.EventError:
+					return mtoshipmentops.NewUpdateMTOShipmentBadRequest().WithPayload(
+						payloads.ClientError(handlers.InternalServerErrMessage,
+							err.Error(),
+							h.GetTraceIDFromRequest(params.HTTPRequest),
+						),
+					), err
 				case apperror.InvalidInputError:
 					return mtoshipmentops.
 						NewCreateMTOShipmentUnprocessableEntity().
@@ -163,6 +187,13 @@ func (h UpdateMTOShipmentHandler) Handle(params mtoshipmentops.UpdateMTOShipment
 				case apperror.UpdateError:
 					return mtoshipmentops.NewUpdateMTOShipmentBadRequest().WithPayload(
 						payloads.ClientError(handlers.BadRequestErrMessage,
+							err.Error(),
+							h.GetTraceIDFromRequest(params.HTTPRequest),
+						),
+					), err
+				case apperror.EventError:
+					return mtoshipmentops.NewUpdateMTOShipmentBadRequest().WithPayload(
+						payloads.ClientError(handlers.InternalServerErrMessage,
 							err.Error(),
 							h.GetTraceIDFromRequest(params.HTTPRequest),
 						),
@@ -312,6 +343,34 @@ func (h ListMTOShipmentsHandler) Handle(params mtoshipmentops.ListMTOShipmentsPa
 				}
 				for i, shipment := range shipments {
 					if shipment.ShipmentType == models.MTOShipmentTypeMobileHome {
+						continue
+					}
+
+					filteredShipments = append(filteredShipments, shipments[i])
+				}
+				shipments = filteredShipments
+			}
+			/** End of Feature Flag **/
+
+			/** Feature Flag - UB Shipment **/
+			featureFlagNameUB := "unaccompanied_baggage"
+			isUBFeatureOn := false
+			flagUB, err := h.FeatureFlagFetcher().GetBooleanFlagForUser(params.HTTPRequest.Context(), appCtx, featureFlagNameUB, map[string]string{})
+			if err != nil {
+				appCtx.Logger().Error("Error fetching feature flag", zap.String("featureFlagKey", featureFlagNameUB), zap.Error(err))
+				isUBFeatureOn = false
+			} else {
+				isUBFeatureOn = flagUB.Match
+			}
+
+			// Remove UB shipments if UB FF is off
+			if !isUBFeatureOn {
+				var filteredShipments models.MTOShipments
+				if shipments != nil {
+					filteredShipments = models.MTOShipments{}
+				}
+				for i, shipment := range shipments {
+					if shipment.ShipmentType == models.MTOShipmentTypeUnaccompaniedBaggage {
 						continue
 					}
 

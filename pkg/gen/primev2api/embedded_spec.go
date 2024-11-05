@@ -131,6 +131,25 @@ func init() {
                     "shipmentType": "HHG"
                   }
                 },
+                "mobileHome": {
+                  "summary": "Mobile Home Shipment",
+                  "value": {
+                    "counselorRemarks": "test",
+                    "mobileHomeShipment": {
+                      "heightFeet": 2,
+                      "heightInches": 2,
+                      "lengthFeet": 2,
+                      "lengthInches": 0,
+                      "make": "make",
+                      "model": "model",
+                      "widthFeet": 2,
+                      "widthInches": 2,
+                      "year": 1999
+                    },
+                    "moveTaskOrderID": "d4d95b22-2d9d-428b-9a11-284455aa87ba",
+                    "shipmentType": "MOBILE_HOME"
+                  }
+                },
                 "nts": {
                   "summary": "NTS",
                   "value": {
@@ -366,11 +385,13 @@ func init() {
           "example": "Anytown"
         },
         "country": {
+          "description": "Two-letter country code",
           "type": "string",
           "title": "Country",
-          "default": "USA",
+          "default": "US",
+          "pattern": "^[A-Z]{2}$",
           "x-nullable": true,
-          "example": "USA"
+          "example": "US"
         },
         "county": {
           "type": "string",
@@ -550,7 +571,7 @@ func init() {
       }
     },
     "CreateBoatShipment": {
-      "description": "Creation object containing the ` + "`" + `PPM` + "`" + ` shipmentType specific data, not used for other shipment types.",
+      "description": "Creation object containing the ` + "`" + `Boat` + "`" + ` shipmentType specific data, not used for other shipment types.",
       "type": "object",
       "required": [
         "year",
@@ -682,6 +703,44 @@ func init() {
         }
       }
     },
+    "CreateMobileHomeShipment": {
+      "description": "Creation object containing the ` + "`" + `MobileHome` + "`" + ` shipmentType specific data, not used for other shipment types.",
+      "type": "object",
+      "required": [
+        "year",
+        "make",
+        "model",
+        "lengthInInches",
+        "widthInInches",
+        "heightInInches"
+      ],
+      "properties": {
+        "heightInInches": {
+          "description": "Height of the Mobile Home in inches",
+          "type": "integer"
+        },
+        "lengthInInches": {
+          "description": "Length of the Mobile Home in inches",
+          "type": "integer"
+        },
+        "make": {
+          "description": "Make of the Mobile Home",
+          "type": "string"
+        },
+        "model": {
+          "description": "Model of the Mobile Home",
+          "type": "string"
+        },
+        "widthInInches": {
+          "description": "Width of the Mobile Home in inches",
+          "type": "integer"
+        },
+        "year": {
+          "description": "Year of the Mobile Home",
+          "type": "integer"
+        }
+      }
+    },
     "CreatePPMShipment": {
       "description": "Creation object containing the ` + "`" + `PPM` + "`" + ` shipmentType specific data, not used for other shipment types.",
       "type": "object",
@@ -713,6 +772,13 @@ func init() {
         "hasProGear": {
           "description": "Indicates whether PPM shipment has pro gear for themselves or their spouse.\n",
           "type": "boolean"
+        },
+        "isActualExpenseReimbursement": {
+          "description": "Used for PPM shipments only. Denotes if this shipment uses the Actual Expense Reimbursement method.",
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false,
+          "example": false
         },
         "pickupAddress": {
           "description": "The address of the origin location where goods are being moved from.",
@@ -1484,10 +1550,9 @@ func init() {
         "HHG",
         "HHG_INTO_NTS_DOMESTIC",
         "HHG_OUTOF_NTS_DOMESTIC",
-        "INTERNATIONAL_HHG",
-        "INTERNATIONAL_UB",
         "MOBILE_HOME",
-        "PPM"
+        "PPM",
+        "UNACCOMPANIED_BAGGAGE"
       ],
       "x-display-value": {
         "BOAT_HAUL_AWAY": "Boat shipment that requires additional equipment to haul it to it's destination",
@@ -1495,7 +1560,8 @@ func init() {
         "HHG": "Household goods move (HHG)",
         "HHG_INTO_NTS_DOMESTIC": "HHG into Non-temporary storage (NTS)",
         "HHG_OUTOF_NTS_DOMESTIC": "HHG out of Non-temporary storage (NTS Release)",
-        "PPM": "Personally Procured Move also known as Do It Yourself (DITY)"
+        "PPM": "Personally Procured Move also known as Do It Yourself (DITY)",
+        "UNACCOMPANIED_BAGGAGE": "Unaccompanied Baggage"
       },
       "example": "HHG"
     },
@@ -1606,6 +1672,15 @@ func init() {
           "format": "uuid",
           "readOnly": true,
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "marketCode": {
+          "description": "Single-letter designator for domestic (d) or international (i) shipments",
+          "type": "string",
+          "enum": [
+            "d",
+            "i"
+          ],
+          "example": "d"
         },
         "moveTaskOrderID": {
           "description": "The ID of the move for this shipment.",
@@ -2088,6 +2163,13 @@ func init() {
           "format": "uuid",
           "readOnly": true,
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "isActualExpenseReimbursement": {
+          "description": "Used for PPM shipments only. Denotes if this shipment uses the Actual Expense Reimbursement method.",
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false,
+          "example": false
         },
         "proGearWeight": {
           "description": "The estimated weight of the pro-gear being moved belonging to the service member in pounds.",
@@ -3152,6 +3234,13 @@ func init() {
           "description": "Indicates whether PPM shipment has pro gear for themselves or their spouse.\n",
           "type": "boolean",
           "x-nullable": true
+        },
+        "isActualExpenseReimbursement": {
+          "description": "Used for PPM shipments only. Denotes if this shipment uses the Actual Expense Reimbursement method.",
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false,
+          "example": false
         },
         "proGearWeight": {
           "description": "The estimated weight of the pro-gear being moved belonging to the service member.",
@@ -3511,6 +3600,25 @@ func init() {
                     "shipmentType": "HHG"
                   }
                 },
+                "mobileHome": {
+                  "summary": "Mobile Home Shipment",
+                  "value": {
+                    "counselorRemarks": "test",
+                    "mobileHomeShipment": {
+                      "heightFeet": 2,
+                      "heightInches": 2,
+                      "lengthFeet": 2,
+                      "lengthInches": 0,
+                      "make": "make",
+                      "model": "model",
+                      "widthFeet": 2,
+                      "widthInches": 2,
+                      "year": 1999
+                    },
+                    "moveTaskOrderID": "d4d95b22-2d9d-428b-9a11-284455aa87ba",
+                    "shipmentType": "MOBILE_HOME"
+                  }
+                },
                 "nts": {
                   "summary": "NTS",
                   "value": {
@@ -3783,11 +3891,13 @@ func init() {
           "example": "Anytown"
         },
         "country": {
+          "description": "Two-letter country code",
           "type": "string",
           "title": "Country",
-          "default": "USA",
+          "default": "US",
+          "pattern": "^[A-Z]{2}$",
           "x-nullable": true,
-          "example": "USA"
+          "example": "US"
         },
         "county": {
           "type": "string",
@@ -3967,7 +4077,7 @@ func init() {
       }
     },
     "CreateBoatShipment": {
-      "description": "Creation object containing the ` + "`" + `PPM` + "`" + ` shipmentType specific data, not used for other shipment types.",
+      "description": "Creation object containing the ` + "`" + `Boat` + "`" + ` shipmentType specific data, not used for other shipment types.",
       "type": "object",
       "required": [
         "year",
@@ -4099,6 +4209,44 @@ func init() {
         }
       }
     },
+    "CreateMobileHomeShipment": {
+      "description": "Creation object containing the ` + "`" + `MobileHome` + "`" + ` shipmentType specific data, not used for other shipment types.",
+      "type": "object",
+      "required": [
+        "year",
+        "make",
+        "model",
+        "lengthInInches",
+        "widthInInches",
+        "heightInInches"
+      ],
+      "properties": {
+        "heightInInches": {
+          "description": "Height of the Mobile Home in inches",
+          "type": "integer"
+        },
+        "lengthInInches": {
+          "description": "Length of the Mobile Home in inches",
+          "type": "integer"
+        },
+        "make": {
+          "description": "Make of the Mobile Home",
+          "type": "string"
+        },
+        "model": {
+          "description": "Model of the Mobile Home",
+          "type": "string"
+        },
+        "widthInInches": {
+          "description": "Width of the Mobile Home in inches",
+          "type": "integer"
+        },
+        "year": {
+          "description": "Year of the Mobile Home",
+          "type": "integer"
+        }
+      }
+    },
     "CreatePPMShipment": {
       "description": "Creation object containing the ` + "`" + `PPM` + "`" + ` shipmentType specific data, not used for other shipment types.",
       "type": "object",
@@ -4130,6 +4278,13 @@ func init() {
         "hasProGear": {
           "description": "Indicates whether PPM shipment has pro gear for themselves or their spouse.\n",
           "type": "boolean"
+        },
+        "isActualExpenseReimbursement": {
+          "description": "Used for PPM shipments only. Denotes if this shipment uses the Actual Expense Reimbursement method.",
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false,
+          "example": false
         },
         "pickupAddress": {
           "description": "The address of the origin location where goods are being moved from.",
@@ -4901,10 +5056,9 @@ func init() {
         "HHG",
         "HHG_INTO_NTS_DOMESTIC",
         "HHG_OUTOF_NTS_DOMESTIC",
-        "INTERNATIONAL_HHG",
-        "INTERNATIONAL_UB",
         "MOBILE_HOME",
-        "PPM"
+        "PPM",
+        "UNACCOMPANIED_BAGGAGE"
       ],
       "x-display-value": {
         "BOAT_HAUL_AWAY": "Boat shipment that requires additional equipment to haul it to it's destination",
@@ -4912,7 +5066,8 @@ func init() {
         "HHG": "Household goods move (HHG)",
         "HHG_INTO_NTS_DOMESTIC": "HHG into Non-temporary storage (NTS)",
         "HHG_OUTOF_NTS_DOMESTIC": "HHG out of Non-temporary storage (NTS Release)",
-        "PPM": "Personally Procured Move also known as Do It Yourself (DITY)"
+        "PPM": "Personally Procured Move also known as Do It Yourself (DITY)",
+        "UNACCOMPANIED_BAGGAGE": "Unaccompanied Baggage"
       },
       "example": "HHG"
     },
@@ -5023,6 +5178,15 @@ func init() {
           "format": "uuid",
           "readOnly": true,
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "marketCode": {
+          "description": "Single-letter designator for domestic (d) or international (i) shipments",
+          "type": "string",
+          "enum": [
+            "d",
+            "i"
+          ],
+          "example": "d"
         },
         "moveTaskOrderID": {
           "description": "The ID of the move for this shipment.",
@@ -5505,6 +5669,13 @@ func init() {
           "format": "uuid",
           "readOnly": true,
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "isActualExpenseReimbursement": {
+          "description": "Used for PPM shipments only. Denotes if this shipment uses the Actual Expense Reimbursement method.",
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false,
+          "example": false
         },
         "proGearWeight": {
           "description": "The estimated weight of the pro-gear being moved belonging to the service member in pounds.",
@@ -6571,6 +6742,13 @@ func init() {
           "description": "Indicates whether PPM shipment has pro gear for themselves or their spouse.\n",
           "type": "boolean",
           "x-nullable": true
+        },
+        "isActualExpenseReimbursement": {
+          "description": "Used for PPM shipments only. Denotes if this shipment uses the Actual Expense Reimbursement method.",
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false,
+          "example": false
         },
         "proGearWeight": {
           "description": "The estimated weight of the pro-gear being moved belonging to the service member.",

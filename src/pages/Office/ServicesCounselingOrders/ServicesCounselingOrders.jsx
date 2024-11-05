@@ -136,7 +136,7 @@ const ServicesCounselingOrders = ({ files, amendedDocumentId, updateAmendedDocum
       // Only run validation if a 4 length TAC is present, and department and issue date are also present
       validateLoa({
         tacCode: tac,
-        serviceMemberAffiliation: departmentIndicator,
+        departmentIndicator,
         effectiveDate: formatSwaggerDate(issueDate),
         loaType: LOA_TYPE.HHG,
       });
@@ -154,7 +154,7 @@ const ServicesCounselingOrders = ({ files, amendedDocumentId, updateAmendedDocum
       const effectiveDate = move?.approvedAt || Date.now();
       validateLoa({
         tacCode: ntsTac,
-        serviceMemberAffiliation: departmentIndicator,
+        departmentIndicator,
         effectiveDate: formatSwaggerDate(effectiveDate),
         loaType: LOA_TYPE.NTS,
       });
@@ -204,7 +204,7 @@ const ServicesCounselingOrders = ({ files, amendedDocumentId, updateAmendedDocum
       // Only run validation if a 4 length TAC is present, and department and issue date are also present
       validateLoa({
         tacCode: order?.tac,
-        serviceMemberAffiliation: order?.department_indicator,
+        departmentIndicator: order?.department_indicator,
         effectiveDate: formatSwaggerDate(order?.date_issued),
         loaType: LOA_TYPE.HHG,
       });
@@ -217,7 +217,7 @@ const ServicesCounselingOrders = ({ files, amendedDocumentId, updateAmendedDocum
       const effectiveDate = move?.approvedAt || Date.now();
       validateLoa({
         tacCode: order?.ntsTac,
-        serviceMemberAffiliation: order?.department_indicator,
+        departmentIndicator: order?.department_indicator,
         effectiveDate: formatSwaggerDate(effectiveDate),
         loaType: LOA_TYPE.NTS,
       });
