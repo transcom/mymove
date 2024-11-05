@@ -351,7 +351,7 @@ describe('ServicesCounselingQueue', () => {
 
     it('allows sorting on certain columns', () => {
       expect(wrapper.find('th[data-testid="customerName"][role="columnheader"]').prop('onClick')).not.toBe(undefined);
-      expect(wrapper.find('th[data-testid="eipid"][role="columnheader"]').prop('onClick')).not.toBe(undefined);
+      expect(wrapper.find('th[data-testid="dodID"][role="columnheader"]').prop('onClick')).not.toBe(undefined);
       expect(wrapper.find('th[data-testid="emplid"][role="columnheader"]').prop('onClick')).not.toBe(undefined);
       expect(wrapper.find('th[data-testid="locator"][role="columnheader"]').prop('onClick')).not.toBe(undefined);
       expect(wrapper.find('th[data-testid="requestedMoveDate"][role="columnheader"]').prop('onClick')).not.toBe(
