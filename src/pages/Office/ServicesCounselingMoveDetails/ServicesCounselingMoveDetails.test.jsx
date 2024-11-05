@@ -1258,6 +1258,31 @@ describe('MoveDetails page', () => {
 
         expect(screen.queryByText('Edit customer info')).not.toBeInTheDocument();
       });
+
+      it('renders the cancel move button when user has permission', async () => {
+        render(
+          <MockProviders permissions={[permissionTypes.cancelMoveFlag]} {...mockRoutingOptions}>
+            <ServicesCounselingMoveDetails
+              setUnapprovedShipmentCount={jest.fn()}
+              setMissingOrdersInfoCount={jest.fn()}
+              setShipmentWarnConcernCount={jest.fn()}
+              setShipmentErrorConcernCount={jest.fn()}
+            />
+          </MockProviders>,
+        );
+
+        expect(await screen.getByText('Cancel move')).toBeInTheDocument();
+      });
+
+      it('does not show the cancel move button if user does not have permission', () => {
+        render(
+          <MockProviders {...mockRoutingOptions}>
+            <ServicesCounselingMoveDetails setUnapprovedShipmentCount={jest.fn()} />
+          </MockProviders>,
+        );
+
+        expect(screen.queryByText('Cancel move')).not.toBeInTheDocument();
+      });
     });
   });
 });
