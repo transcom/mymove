@@ -398,7 +398,7 @@ describe('ShipmentForm component', () => {
 
       expect(screen.getByLabelText('Requested pickup date')).toBeInstanceOf(HTMLInputElement);
 
-      expect(screen.getByText('Pickup location')).toBeInstanceOf(HTMLLegendElement);
+      expect(screen.getByText('Pickup Address')).toBeInstanceOf(HTMLLegendElement);
       expect(screen.getByLabelText('Use current address')).toBeInstanceOf(HTMLInputElement);
       expect(screen.getByLabelText(/Address 1/)).toBeInstanceOf(HTMLInputElement);
       expect(screen.getByLabelText(/Address 2/)).toBeInstanceOf(HTMLInputElement);
@@ -804,7 +804,7 @@ describe('ShipmentForm component', () => {
 
       expect(screen.getByLabelText('Requested pickup date')).toBeInstanceOf(HTMLInputElement);
 
-      expect(screen.getByText('Pickup location')).toBeInstanceOf(HTMLLegendElement);
+      expect(screen.getByText('Pickup Address')).toBeInstanceOf(HTMLLegendElement);
       expect(screen.getByLabelText('Use current address')).toBeInstanceOf(HTMLInputElement);
       expect(screen.getByLabelText(/Address 1/)).toBeInstanceOf(HTMLInputElement);
       expect(screen.getByLabelText(/Address 2/)).toBeInstanceOf(HTMLInputElement);
@@ -958,7 +958,7 @@ describe('ShipmentForm component', () => {
 
       expect(await screen.findByText('NTS-release')).toHaveClass('usa-tag');
 
-      expect(screen.queryByText('Pickup location')).not.toBeInTheDocument();
+      expect(screen.queryByText('Pickup Address')).not.toBeInTheDocument();
       expect(screen.queryByText(/Releasing agent/)).not.toBeInTheDocument();
 
       expect(screen.getByLabelText('Requested delivery date')).toBeInstanceOf(HTMLInputElement);
@@ -1130,7 +1130,7 @@ describe('ShipmentForm component', () => {
       expect(await screen.findByText('HHG')).toHaveClass('usa-tag');
       expect(screen.queryByRole('heading', { level: 2, name: 'Vendor' })).not.toBeInTheDocument();
       expect(screen.getByLabelText('Requested pickup date')).toBeInTheDocument();
-      expect(screen.getByText('Pickup location')).toBeInTheDocument();
+      expect(screen.getByText('Pickup Address')).toBeInTheDocument();
       expect(screen.getByLabelText('Requested delivery date')).toBeInTheDocument();
       expect(screen.getByText(/Receiving agent/).parentElement).toBeInTheDocument();
       expect(screen.getByText('Customer remarks')).toBeInTheDocument();
