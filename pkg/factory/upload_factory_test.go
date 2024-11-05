@@ -1,9 +1,6 @@
 package factory
 
 import (
-	"encoding/base64"
-	"encoding/hex"
-
 	"github.com/transcom/mymove/pkg/models"
 	storageTest "github.com/transcom/mymove/pkg/storage/test"
 	uploaderPkg "github.com/transcom/mymove/pkg/uploader"
@@ -77,7 +74,7 @@ func (suite *FactorySuite) TestBuildUpload() {
 		}, nil)
 
 		suite.Contains(upload.Filename, defaultFileName)
-		suite.Equal(encodeMD5("9ce13a1f0cf21385440d79faed42de78"), upload.Checksum)
+		suite.Equal("w7rJQqzlaazDW+mxTU9Q40Qchr3DW7FPQD7f8Js2J88=", upload.Checksum)
 		suite.Equal(int64(10596), upload.Bytes)
 		suite.Equal(uploaderPkg.FileTypePDF, upload.ContentType)
 		suite.Equal(models.UploadTypeUSER, upload.UploadType)
@@ -126,14 +123,9 @@ func (suite *FactorySuite) TestBuildUpload() {
 			},
 		}, nil)
 		suite.Contains(upload.Filename, uploadFile)
-		suite.Equal(encodeMD5("b1e74a6bc8e52bdf45075927168c4bb0"), upload.Checksum)
+		suite.Equal("ibKT78j4CJecDXC6CbGISkqWFG5eSjCjlZJHlaFRho4=", upload.Checksum)
 		suite.Equal(int64(37986), upload.Bytes)
 		suite.Equal(uploaderPkg.FileTypeJPEG, upload.ContentType)
 		suite.Equal(models.UploadTypeUSER, upload.UploadType)
 	})
-}
-
-func encodeMD5(md5 string) string {
-	result, _ := hex.DecodeString(md5)
-	return base64.StdEncoding.EncodeToString(result)
 }

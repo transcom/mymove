@@ -55,8 +55,8 @@ func (suite *FactorySuite) TestBuildAddress() {
 					City:           customCity,
 					State:          customState,
 					PostalCode:     customPostalCode,
-					IsOconus:       models.BoolPointer(false),
 					County:         customCounty,
+					IsOconus:       models.BoolPointer(false),
 				},
 			},
 			{

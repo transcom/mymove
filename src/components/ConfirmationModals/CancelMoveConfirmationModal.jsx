@@ -12,7 +12,13 @@ export const CancelMoveConfirmationModal = ({ onClose, onSubmit, moveID, title, 
     </ModalTitle>
     <p>{content}</p>
     <ModalActions autofocus="true">
-      <Button data-focus="true" className="usa-button--destructive" type="submit" onClick={() => onSubmit(moveID)}>
+      <Button
+        data-focus="true"
+        className="usa-button--destructive"
+        type="submit"
+        data-testid="modalSubmitButton"
+        onClick={() => onSubmit(moveID)}
+      >
         {submitText}
       </Button>
       <Button className="usa-button--secondary" type="button" onClick={() => onClose()} data-testid="modalBackButton">
@@ -35,7 +41,7 @@ CancelMoveConfirmationModal.propTypes = {
 CancelMoveConfirmationModal.defaultProps = {
   title: 'Are you sure?',
   content:
-    'You’ll lose all the information in this move. If you want it back later, you’ll have to request a new move.',
+    'If you proceed with cancellation and later want to process a move request for these orders, you will have to start again with a new move.',
   submitText: 'Cancel move',
   closeText: 'Keep move',
 };

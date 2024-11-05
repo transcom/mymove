@@ -195,9 +195,8 @@ func (o *mtoServiceItemCreator) findEstimatedPrice(appCtx appcontext.AppContext,
 	return 0, nil
 }
 
-func fetchCurrentTaskOrderFee(appCtx appcontext.AppContext, serviceCode models.ReServiceCode) (models.ReTaskOrderFee, error) {
-	currTime := time.Now()
-	contractCode, err := FetchContractCode(appCtx, currTime)
+func fetchCurrentTaskOrderFee(appCtx appcontext.AppContext, serviceCode models.ReServiceCode, requestedPickupDate time.Time) (models.ReTaskOrderFee, error) {
+	contractCode, err := FetchContractCode(appCtx, requestedPickupDate)
 	if err != nil {
 		return models.ReTaskOrderFee{}, err
 	}
@@ -208,7 +207,7 @@ func fetchCurrentTaskOrderFee(appCtx appcontext.AppContext, serviceCode models.R
 		Join("re_services s", "re_task_order_fees.service_id = s.id").
 		Where("c.code = $1", contractCode).
 		Where("s.code = $2", serviceCode).
-		Where("$3 between cy.start_date and cy.end_date", currTime).
+		Where("$3 between cy.start_date and cy.end_date", requestedPickupDate).
 		First(&taskOrderFee)
 
 	if err != nil {
@@ -376,8 +375,22 @@ func (o *mtoServiceItemCreator) CreateMTOServiceItem(appCtx appcontext.AppContex
 	// also rather basic.
 	if serviceItem.MTOShipmentID == nil {
 		if serviceItem.ReService.Code == models.ReServiceCodeMS || serviceItem.ReService.Code == models.ReServiceCodeCS {
+			// we need to know the first shipment's requested pickup date to establish the correct base year for the fee
+			// Loop through shipments to find the first requested pickup date
+			var requestedPickupDate *time.Time
+			for _, shipment := range move.MTOShipments {
+				if shipment.RequestedPickupDate != nil {
+					requestedPickupDate = shipment.RequestedPickupDate
+					break
+				}
+			}
+			if requestedPickupDate == nil {
+				return nil, nil, apperror.NewNotFoundError(moveID, fmt.Sprintf(
+					"cannot create fee for service item %s: missing requested pickup date for shipment in move %s",
+					serviceItem.ReService.Code, moveID.String()))
+			}
 			serviceItem.Status = "APPROVED"
-			taskOrderFee, err := fetchCurrentTaskOrderFee(appCtx, serviceItem.ReService.Code)
+			taskOrderFee, err := fetchCurrentTaskOrderFee(appCtx, serviceItem.ReService.Code, *requestedPickupDate)
 			if err != nil {
 				return nil, nil, err
 			}
@@ -578,9 +591,7 @@ func (o *mtoServiceItemCreator) CreateMTOServiceItem(appCtx appcontext.AppContex
 
 	// if estimated weight for shipment provided by the prime, calculate the estimated prices for
 	// DLH, DPK, DOP, DDP, DUPK
-
-	// NTS-release requested pickup dates are for handle out, their pricing is handled differently as their locations are based on storage facilities, not pickup locations
-	if mtoShipment.PrimeEstimatedWeight != nil && mtoShipment.RequestedPickupDate != nil && mtoShipment.ShipmentType != models.MTOShipmentTypeHHGOutOfNTSDom {
+	if mtoShipment.PrimeEstimatedWeight != nil && mtoShipment.RequestedPickupDate != nil {
 		serviceItemEstimatedPrice, err := o.findEstimatedPrice(appCtx, serviceItem, mtoShipment)
 		if serviceItemEstimatedPrice != 0 && err == nil {
 			serviceItem.PricingEstimate = &serviceItemEstimatedPrice
