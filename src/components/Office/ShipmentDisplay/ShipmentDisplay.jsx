@@ -10,7 +10,7 @@ import { EditButton, ReviewButton } from 'components/form/IconButtons';
 import ShipmentInfoListSelector from 'components/Office/DefinitionLists/ShipmentInfoListSelector';
 import ShipmentContainer from 'components/Office/ShipmentContainer/ShipmentContainer';
 import styles from 'components/Office/ShipmentDisplay/ShipmentDisplay.module.scss';
-import { SHIPMENT_OPTIONS } from 'shared/constants';
+import { SHIPMENT_OPTIONS, SHIPMENT_TYPES } from 'shared/constants';
 import { AddressShape } from 'types/address';
 import { AgentShape } from 'types/agent';
 import { OrdersLOAShape } from 'types/order';
@@ -185,6 +185,8 @@ ShipmentDisplay.propTypes = {
     SHIPMENT_OPTIONS.NTS,
     SHIPMENT_OPTIONS.NTSR,
     SHIPMENT_OPTIONS.PPM,
+    SHIPMENT_TYPES.BOAT_HAUL_AWAY,
+    SHIPMENT_TYPES.BOAT_TOW_AWAY,
   ]),
   displayInfo: PropTypes.oneOfType([
     PropTypes.shape({
