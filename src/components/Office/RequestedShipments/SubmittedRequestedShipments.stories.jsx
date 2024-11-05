@@ -8,6 +8,7 @@ import {
   allowancesInfo,
   customerInfo,
   moveTaskOrders,
+  zeroIncentivePPM,
 } from './RequestedShipmentsTestData';
 import SubmittedRequestedShipments from './SubmittedRequestedShipments';
 
@@ -62,6 +63,19 @@ export const withOneExternalVendorShipment = () => (
       allowancesInfo={allowancesInfo}
       moveCode="TE5TC0DE"
       mtoShipments={[ntsExternalVendorShipments[0]]}
+      ordersInfo={ordersInfo}
+      moveTaskOrder={moveTaskOrders[0]}
+      customerInfo={customerInfo}
+    />
+  </div>
+);
+
+export const withZeroIncentivePPM = () => (
+  <div className="officeApp">
+    <SubmittedRequestedShipments
+      allowancesInfo={allowancesInfo}
+      moveCode="TE5TC0DE"
+      mtoShipments={[zeroIncentivePPM[0]]}
       ordersInfo={ordersInfo}
       moveTaskOrder={moveTaskOrders[0]}
       customerInfo={customerInfo}

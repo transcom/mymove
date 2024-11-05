@@ -70,6 +70,7 @@ const ServicesCounselingMoveDetails = ({
   const [enableBoat, setEnableBoat] = useState(false);
   const [enableMobileHome, setEnableMobileHome] = useState(false);
   const { upload, amendedUpload } = useOrdersDocumentQueries(moveCode);
+  const [errorMessage, setErrorMessage] = useState(null);
   const documentsForViewer = Object.values(upload || {})
     .concat(Object.values(amendedUpload || {}))
     ?.filter((file) => {
@@ -463,17 +464,20 @@ const ServicesCounselingMoveDetails = ({
   });
 
   const shipmentMutation = useMutation(updateMTOShipment, {
-    onSuccess: (updatedMTOShipment) => {
-      mtoShipments[mtoShipments?.findIndex((shipment) => shipment.id === updatedMTOShipment.id)] = updatedMTOShipment;
+    onSuccess: (updatedMTOShipments) => {
+      mtoShipments.forEach((shipment, key) => {
+        if (updatedMTOShipments.mtoShipments[shipment.id] != null) {
+          mtoShipments[key] = updatedMTOShipments.mtoShipments[shipment.id];
+        }
+      });
 
       queryClient.setQueryData([MTO_SHIPMENTS, mtoShipments.moveTaskOrderID, false], mtoShipments);
       queryClient.invalidateQueries([MTO_SHIPMENTS, mtoShipments.moveTaskOrderID]);
       queryClient.invalidateQueries([PPMCLOSEOUT, mtoShipments?.ppmShipment?.id]);
-      setAlertType('success');
+      setErrorMessage(null);
     },
     onError: (error) => {
-      setAlertMessage(error?.response?.body?.message ? error.response.body.message : 'Shipment updated.');
-      setAlertType('error');
+      setErrorMessage(error?.response?.body?.message ? error.response.body.message : 'Shipment failed to update.');
     },
   });
 
@@ -658,6 +662,18 @@ const ServicesCounselingMoveDetails = ({
         />
         <GridContainer className={classnames(styles.gridContainer, scMoveDetailsStyles.ServicesCounselingMoveDetails)}>
           <NotificationScrollToTop dependency={alertMessage || infoSavedAlert} />
+          <NotificationScrollToTop dependency={errorMessage} />
+          {errorMessage && (
+            <Alert data-testid="errorMessage" type="error" headingLevel="h4" heading="An error occurred">
+              <p>
+                {errorMessage} Please try again later, or contact the&nbsp;
+                <Link to={technicalHelpDeskURL} target="_blank" rel="noreferrer">
+                  Technical Help Desk
+                </Link>
+                .
+              </p>
+            </Alert>
+          )}
           <Grid row className={scMoveDetailsStyles.pageHeader}>
             {alertMessage && (
               <Grid col={12} className={scMoveDetailsStyles.alertContainer}>

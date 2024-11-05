@@ -7,6 +7,7 @@ import { func } from 'prop-types';
 
 import styles from '../TXOMoveInfo/TXOTab.module.scss';
 
+import NotificationScrollToTop from 'components/NotificationScrollToTop';
 import hasRiskOfExcess from 'utils/hasRiskOfExcess';
 import { MOVES, MTO_SERVICE_ITEMS, MTO_SHIPMENTS } from 'constants/queryKeys';
 import { tooRoutes } from 'constants/routes';
@@ -36,6 +37,7 @@ import { objectIsMissingFieldWithCondition } from 'utils/displayFlags';
 import formattedCustomerName from 'utils/formattedCustomerName';
 import { calculateEstimatedWeight } from 'hooks/custom';
 import { ADVANCE_STATUSES } from 'constants/ppms';
+import { technicalHelpDeskURL } from 'shared/constants';
 
 const MoveDetails = ({
   setUnapprovedShipmentCount,
@@ -51,6 +53,7 @@ const MoveDetails = ({
 }) => {
   const { moveCode } = useParams();
   const [isFinancialModalVisible, setIsFinancialModalVisible] = useState(false);
+  const [errorMessage, setErrorMessage] = useState(null);
   const [isCancelMoveModalVisible, setIsCancelMoveModalVisible] = useState(false);
   const [alertMessage, setAlertMessage] = useState(null);
   const [alertType, setAlertType] = useState('success');
@@ -453,6 +456,18 @@ const MoveDetails = ({
               initialSelection={move?.financialReviewFlag}
             />
           )}
+          <NotificationScrollToTop dependency={errorMessage} />
+          {errorMessage && (
+            <Alert data-testid="errorMessage" type="error" headingLevel="h4" heading="An error occurred">
+              <p>
+                {errorMessage} Please try again later, or contact the&nbsp;
+                <Link to={technicalHelpDeskURL} target="_blank" rel="noreferrer">
+                  Technical Help Desk
+                </Link>
+                .
+              </p>
+            </Alert>
+          )}
           <Grid row col={12}>
             <Restricted to={permissionTypes.cancelMoveFlag}>
               <div className={styles.tooCancelMoveContainer}>
@@ -487,6 +502,7 @@ const MoveDetails = ({
                 displayDestinationType={isRetirementOrSeparation}
                 mtoServiceItems={mtoServiceItems}
                 isMoveLocked={isMoveLocked}
+                setErrorMessage={setErrorMessage}
               />
             </div>
           )}
