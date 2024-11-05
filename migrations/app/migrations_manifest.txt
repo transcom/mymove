@@ -1024,8 +1024,10 @@
 20241008212243_populate_market_code_on_shipments_table.up.sql
 20241009210749_create_view_v_locations.up.sql
 20241011201326_changes_for_actual_expense_reimbursement_field.up.sql
+20241017183144_add_AK_HI_duty_locations.up.sql
 20241023184337_create_ports_table.up.sql
 20241023184350_create_port_locations_table.up.sql
 20241023184437_insert_ports.up.sql
 20241024114748_create_gbloc_aors.up.sql
+20241029125015_add_orders_type_enum.up.sql
 20241029144404_hdt-614-adjust-accomack-county.up.sql
