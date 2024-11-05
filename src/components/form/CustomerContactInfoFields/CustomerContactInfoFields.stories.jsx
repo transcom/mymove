@@ -20,7 +20,7 @@ export const Basic = () => (
   >
     {() => (
       <Form className={formStyles.form}>
-        <CustomerContactInfoFields legend="Your contact info" />
+        <CustomerContactInfoFields legend="Your contact info" labelHint="Required" />
       </Form>
     )}
   </Formik>

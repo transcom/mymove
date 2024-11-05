@@ -225,6 +225,11 @@ func (h CreateMTOShipmentHandler) Handle(params mtoshipmentops.CreateMTOShipment
 						Message: handlers.FmtString(err.Error()),
 					}
 					return mtoshipmentops.NewCreateMTOShipmentNotFound().WithPayload(&payload), err
+				case apperror.EventError:
+					payload := ghcmessages.Error{
+						Message: handlers.FmtString(err.Error()),
+					}
+					return mtoshipmentops.NewUpdateMTOShipmentBadRequest().WithPayload(&payload), err
 				case apperror.InvalidInputError:
 					payload := payloadForValidationError(
 						"Validation errors",
@@ -309,6 +314,11 @@ func (h UpdateShipmentHandler) Handle(params mtoshipmentops.UpdateMTOShipmentPar
 				switch err.(type) {
 				case apperror.NotFoundError:
 					return mtoshipmentops.NewUpdateMTOShipmentNotFound(), err
+				case apperror.EventError:
+					payload := ghcmessages.Error{
+						Message: handlers.FmtString(err.Error()),
+					}
+					return mtoshipmentops.NewUpdateMTOShipmentBadRequest().WithPayload(&payload), err
 				default:
 					msg := fmt.Sprintf("%v | Instance: %v", handlers.FmtString(err.Error()), h.GetTraceIDFromRequest(params.HTTPRequest))
 
@@ -338,6 +348,11 @@ func (h UpdateShipmentHandler) Handle(params mtoshipmentops.UpdateMTOShipmentPar
 				switch e := err.(type) {
 				case apperror.NotFoundError:
 					return mtoshipmentops.NewUpdateMTOShipmentNotFound(), err
+				case apperror.EventError:
+					payload := ghcmessages.Error{
+						Message: handlers.FmtString(err.Error()),
+					}
+					return mtoshipmentops.NewUpdateMTOShipmentBadRequest().WithPayload(&payload), err
 				case apperror.ForbiddenError:
 					msg := fmt.Sprintf("%v | Instance: %v", handlers.FmtString(err.Error()), h.GetTraceIDFromRequest(params.HTTPRequest))
 					return mtoshipmentops.NewUpdateMTOShipmentForbidden().WithPayload(
@@ -922,6 +937,11 @@ func (h RequestShipmentReweighHandler) Handle(params shipmentops.RequestShipment
 				switch err.(type) {
 				case apperror.NotFoundError:
 					return mtoshipmentops.NewUpdateMTOShipmentNotFound()
+				case apperror.EventError:
+					payload := ghcmessages.Error{
+						Message: handlers.FmtString(err.Error()),
+					}
+					return mtoshipmentops.NewUpdateMTOShipmentBadRequest().WithPayload(&payload)
 				default:
 					msg := fmt.Sprintf("%v | Instance: %v", handlers.FmtString(err.Error()), h.GetTraceIDFromRequest(params.HTTPRequest))
 

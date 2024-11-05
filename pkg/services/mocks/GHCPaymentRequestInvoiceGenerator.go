@@ -20,6 +20,10 @@ type GHCPaymentRequestInvoiceGenerator struct {
 func (_m *GHCPaymentRequestInvoiceGenerator) Generate(appCtx appcontext.AppContext, paymentRequest models.PaymentRequest, sendProductionInvoice bool) (ediinvoice.Invoice858C, error) {
 	ret := _m.Called(appCtx, paymentRequest, sendProductionInvoice)
 
+	if len(ret) == 0 {
+		panic("no return value specified for Generate")
+	}
+
 	var r0 ediinvoice.Invoice858C
 	var r1 error
 	if rf, ok := ret.Get(0).(func(appcontext.AppContext, models.PaymentRequest, bool) (ediinvoice.Invoice858C, error)); ok {

@@ -6,7 +6,7 @@ const ruleTester = new RuleTester();
 
 const ERRORS = {
   REQUIRES_APPROVAL_MSG:
-    'Please add the truss-is3 team as reviewers for this PR and ping the ISSO in #static-code-review Slack. Add label ‘needs-is3-review’ to this PR. For more information, please visit https://dp3.atlassian.net/wiki/spaces/MT/pages/1920991340/Guide+to+Static+Analysis+Security+Workflow',
+    'Due to an added annotation, this PR requires approval from a codeowner. Once a codeowner has reviewed/approved your PR, you will need to change the RA Validator Status to CODEOWNER ACCEPTED. For more information, please visit https://dp3.atlassian.net/wiki/spaces/MT/pages/1920991340/Guide+to+Static+Analysis+Security+Workflow',
   REQUIRES_ANNOTATION_MSG:
     'Disabling of this rule requires an annotation. Please visit https://dp3.atlassian.net/wiki/spaces/MT/pages/1921122376/Guide+to+Static+Analysis+Annotations+for+Disabled+Linters',
   NO_INLINE_DISABLE_MSG: 'Please use eslint-disable-next-line instead of eslint-disable-line',

@@ -12,5 +12,6 @@ import (
 //
 //go:generate mockery --name LineOfAccountingFetcher
 type LineOfAccountingFetcher interface {
-	FetchLongLinesOfAccounting(serviceMemberAffiliation models.ServiceMemberAffiliation, ordersIssueDate time.Time, tacCode string, appCtx appcontext.AppContext) ([]models.LineOfAccounting, error)
+	FetchLongLinesOfAccounting(departmentIndicator models.DepartmentIndicator, ordersIssueDate time.Time, tacCode string, appCtx appcontext.AppContext) ([]models.LineOfAccounting, error)
+	BuildFullLineOfAccountingString(loa models.LineOfAccounting) string
 }

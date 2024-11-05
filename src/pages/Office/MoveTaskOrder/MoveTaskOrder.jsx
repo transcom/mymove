@@ -67,6 +67,7 @@ import { tooRoutes } from 'constants/routes';
 import { formatDateForSwagger } from 'shared/dates';
 import EditSitEntryDateModal from 'components/Office/EditSitEntryDateModal/EditSitEntryDateModal';
 import { formatWeight } from 'utils/formatters';
+import { roleTypes } from 'constants/userRoles';
 
 const nonShipmentSectionLabels = {
   'move-weights': 'Move weights',
@@ -139,6 +140,7 @@ export const MoveTaskOrder = (props) => {
     setExcessWeightRiskCount,
     setMessage,
     setUnapprovedSITExtensionCount,
+    userRole,
     isMoveLocked,
   } = props;
 
@@ -803,7 +805,7 @@ export const MoveTaskOrder = (props) => {
 
   /* ------------------ Update Shipment approvals ------------------------- */
   useEffect(() => {
-    if (mtoShipments) {
+    if (mtoShipments && userRole !== roleTypes.SERVICES_COUNSELOR) {
       const shipmentCount = mtoShipments?.length
         ? mtoShipments.filter((shipment) => shipment.status === shipmentStatuses.SUBMITTED).length
         : 0;
@@ -814,7 +816,7 @@ export const MoveTaskOrder = (props) => {
         : 0;
       setExternalVendorShipmentCount(externalVendorShipments);
     }
-  }, [mtoShipments, setUnapprovedShipmentCount]);
+  }, [mtoShipments, setUnapprovedShipmentCount, userRole]);
 
   /* ------------------ Update Weight related alerts and estimates ------------------------- */
   useEffect(() => {
@@ -1217,7 +1219,7 @@ export const MoveTaskOrder = (props) => {
                     originPostalCode: pickupAddress?.postalCode || '',
                     destinationAddress: destinationAddress || dutyLocationPostal,
                     scheduledPickupDate: formattedScheduledPickup,
-                    shipmentStatus: mtoShipment.status,
+                    shipmentStatus: mtoShipment.ppmShipment?.status || mtoShipment.status,
                     ifMatchEtag: mtoShipment.eTag,
                     moveTaskOrderID: mtoShipment.moveTaskOrderID,
                     shipmentLocator: mtoShipment.shipmentLocator,

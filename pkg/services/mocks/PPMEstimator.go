@@ -20,6 +20,10 @@ type PPMEstimator struct {
 func (_m *PPMEstimator) CalculatePPMSITEstimatedCost(appCtx appcontext.AppContext, ppmShipment *models.PPMShipment) (*unit.Cents, error) {
 	ret := _m.Called(appCtx, ppmShipment)
 
+	if len(ret) == 0 {
+		panic("no return value specified for CalculatePPMSITEstimatedCost")
+	}
+
 	var r0 *unit.Cents
 	var r1 error
 	if rf, ok := ret.Get(0).(func(appcontext.AppContext, *models.PPMShipment) (*unit.Cents, error)); ok {
@@ -46,6 +50,10 @@ func (_m *PPMEstimator) CalculatePPMSITEstimatedCost(appCtx appcontext.AppContex
 func (_m *PPMEstimator) CalculatePPMSITEstimatedCostBreakdown(appCtx appcontext.AppContext, ppmShipment *models.PPMShipment) (*models.PPMSITEstimatedCostInfo, error) {
 	ret := _m.Called(appCtx, ppmShipment)
 
+	if len(ret) == 0 {
+		panic("no return value specified for CalculatePPMSITEstimatedCostBreakdown")
+	}
+
 	var r0 *models.PPMSITEstimatedCostInfo
 	var r1 error
 	if rf, ok := ret.Get(0).(func(appcontext.AppContext, *models.PPMShipment) (*models.PPMSITEstimatedCostInfo, error)); ok {
@@ -71,6 +79,10 @@ func (_m *PPMEstimator) CalculatePPMSITEstimatedCostBreakdown(appCtx appcontext.
 // EstimateIncentiveWithDefaultChecks provides a mock function with given fields: appCtx, oldPPMShipment, newPPMShipment
 func (_m *PPMEstimator) EstimateIncentiveWithDefaultChecks(appCtx appcontext.AppContext, oldPPMShipment models.PPMShipment, newPPMShipment *models.PPMShipment) (*unit.Cents, *unit.Cents, error) {
 	ret := _m.Called(appCtx, oldPPMShipment, newPPMShipment)
+
+	if len(ret) == 0 {
+		panic("no return value specified for EstimateIncentiveWithDefaultChecks")
+	}
 
 	var r0 *unit.Cents
 	var r1 *unit.Cents
@@ -107,6 +119,10 @@ func (_m *PPMEstimator) EstimateIncentiveWithDefaultChecks(appCtx appcontext.App
 func (_m *PPMEstimator) FinalIncentiveWithDefaultChecks(appCtx appcontext.AppContext, oldPPMShipment models.PPMShipment, newPPMShipment *models.PPMShipment) (*unit.Cents, error) {
 	ret := _m.Called(appCtx, oldPPMShipment, newPPMShipment)
 
+	if len(ret) == 0 {
+		panic("no return value specified for FinalIncentiveWithDefaultChecks")
+	}
+
 	var r0 *unit.Cents
 	var r1 error
 	if rf, ok := ret.Get(0).(func(appcontext.AppContext, models.PPMShipment, *models.PPMShipment) (*unit.Cents, error)); ok {
@@ -127,6 +143,76 @@ func (_m *PPMEstimator) FinalIncentiveWithDefaultChecks(appCtx appcontext.AppCon
 	}
 
 	return r0, r1
+}
+
+// PriceBreakdown provides a mock function with given fields: appCtx, ppmShipment
+func (_m *PPMEstimator) PriceBreakdown(appCtx appcontext.AppContext, ppmShipment *models.PPMShipment) (unit.Cents, unit.Cents, unit.Cents, unit.Cents, unit.Cents, unit.Cents, unit.Cents, error) {
+	ret := _m.Called(appCtx, ppmShipment)
+
+	if len(ret) == 0 {
+		panic("no return value specified for PriceBreakdown")
+	}
+
+	var r0 unit.Cents
+	var r1 unit.Cents
+	var r2 unit.Cents
+	var r3 unit.Cents
+	var r4 unit.Cents
+	var r5 unit.Cents
+	var r6 unit.Cents
+	var r7 error
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, *models.PPMShipment) (unit.Cents, unit.Cents, unit.Cents, unit.Cents, unit.Cents, unit.Cents, unit.Cents, error)); ok {
+		return rf(appCtx, ppmShipment)
+	}
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, *models.PPMShipment) unit.Cents); ok {
+		r0 = rf(appCtx, ppmShipment)
+	} else {
+		r0 = ret.Get(0).(unit.Cents)
+	}
+
+	if rf, ok := ret.Get(1).(func(appcontext.AppContext, *models.PPMShipment) unit.Cents); ok {
+		r1 = rf(appCtx, ppmShipment)
+	} else {
+		r1 = ret.Get(1).(unit.Cents)
+	}
+
+	if rf, ok := ret.Get(2).(func(appcontext.AppContext, *models.PPMShipment) unit.Cents); ok {
+		r2 = rf(appCtx, ppmShipment)
+	} else {
+		r2 = ret.Get(2).(unit.Cents)
+	}
+
+	if rf, ok := ret.Get(3).(func(appcontext.AppContext, *models.PPMShipment) unit.Cents); ok {
+		r3 = rf(appCtx, ppmShipment)
+	} else {
+		r3 = ret.Get(3).(unit.Cents)
+	}
+
+	if rf, ok := ret.Get(4).(func(appcontext.AppContext, *models.PPMShipment) unit.Cents); ok {
+		r4 = rf(appCtx, ppmShipment)
+	} else {
+		r4 = ret.Get(4).(unit.Cents)
+	}
+
+	if rf, ok := ret.Get(5).(func(appcontext.AppContext, *models.PPMShipment) unit.Cents); ok {
+		r5 = rf(appCtx, ppmShipment)
+	} else {
+		r5 = ret.Get(5).(unit.Cents)
+	}
+
+	if rf, ok := ret.Get(6).(func(appcontext.AppContext, *models.PPMShipment) unit.Cents); ok {
+		r6 = rf(appCtx, ppmShipment)
+	} else {
+		r6 = ret.Get(6).(unit.Cents)
+	}
+
+	if rf, ok := ret.Get(7).(func(appcontext.AppContext, *models.PPMShipment) error); ok {
+		r7 = rf(appCtx, ppmShipment)
+	} else {
+		r7 = ret.Error(7)
+	}
+
+	return r0, r1, r2, r3, r4, r5, r6, r7
 }
 
 // NewPPMEstimator creates a new instance of PPMEstimator. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.

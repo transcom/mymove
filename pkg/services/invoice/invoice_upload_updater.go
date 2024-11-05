@@ -32,7 +32,7 @@ func (u UploadUpdater) saveInvoice(appCtx appcontext.AppContext, invoice *models
 		if verrs.HasAny() {
 			dbError = dbError + verrs.Error()
 		}
-		return errors.Wrapf(errors.New(dbError), "error saving invoice with ID: "+invoice.ID.String())
+		return errors.Wrapf(errors.New(dbError), "error saving invoice with ID: %s", invoice.ID.String())
 	}
 	return nil
 }

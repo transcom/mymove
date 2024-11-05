@@ -59,3 +59,52 @@ func (f moveFetcher) FetchMove(appCtx appcontext.AppContext, locator string, sea
 
 	return move, nil
 }
+
+// Fetches moves for Navy servicemembers with approved shipments. Ignores gbloc rules
+func (f moveFetcher) FetchMovesForPPTASReports(appCtx appcontext.AppContext, params *services.MoveTaskOrderFetcherParams) (models.Moves, error) {
+	var moves models.Moves
+
+	query := appCtx.DB().EagerPreload(
+		"MTOShipments.DestinationAddress",
+		"MTOShipments.PickupAddress",
+		"MTOShipments.SecondaryDeliveryAddress",
+		"MTOShipments.SecondaryPickupAddress",
+		"MTOShipments.MTOAgents",
+		"MTOShipments.Reweigh",
+		"MTOShipments.PPMShipment",
+		"Orders.ServiceMember",
+		"Orders.ServiceMember.ResidentialAddress",
+		"Orders.ServiceMember.BackupContacts",
+		"Orders.Entitlement",
+		"Orders.Entitlement.WeightAllotted",
+		"Orders.NewDutyLocation.Address.Country",
+		"Orders.NewDutyLocation.TransportationOffice.Gbloc",
+		"Orders.OriginDutyLocation.Address.Country",
+		"Orders.TAC",
+	).
+		InnerJoin("orders", "orders.id = moves.orders_id").
+		InnerJoin("entitlements", "entitlements.id = orders.entitlement_id").
+		InnerJoin("service_members", "orders.service_member_id = service_members.id").
+		InnerJoin("mto_shipments", "mto_shipments.move_id = moves.id").
+		LeftJoin("ppm_shipments", "ppm_shipments.shipment_id = mto_shipments.id").
+		LeftJoin("addresses", "addresses.id in (mto_shipments.pickup_address_id, mto_shipments.destination_address_id)").
+		Where("mto_shipments.status = 'APPROVED'").
+		Where("service_members.affiliation = ?", models.AffiliationNAVY).
+		GroupBy("moves.id")
+
+	if params.Since != nil {
+		query.Where("mto_shipments.updated_at >= ?", params.Since)
+	}
+
+	err := query.All(&moves)
+
+	if err != nil {
+		return nil, err
+	}
+
+	if len(moves) < 1 {
+		return nil, nil
+	}
+
+	return moves, nil
+}

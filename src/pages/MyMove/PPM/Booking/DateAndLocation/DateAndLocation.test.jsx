@@ -257,7 +257,7 @@ describe('DateAndLocation component', () => {
         await userEvent.type(document.querySelector('input[name="destinationAddress.address.postalCode"]'), '10002');
       });
 
-      await userEvent.type(screen.getByLabelText('When do you plan to start moving your PPM?'), '04 Jul 2022');
+      await userEvent.type(screen.getByLabelText(/When do you plan to start moving your PPM?/), '04 Jul 2022');
 
       await userEvent.click(screen.getByRole('button', { name: 'Save & Continue' }));
 
@@ -284,6 +284,7 @@ describe('DateAndLocation component', () => {
             hasTertiaryDestinationAddress: false,
             sitExpected: false,
             expectedDepartureDate: '2022-07-04',
+            isActualExpenseReimbursement: false,
           },
         });
 
@@ -340,7 +341,7 @@ describe('DateAndLocation component', () => {
         await userEvent.type(document.querySelector('input[name="destinationAddress.address.postalCode"]'), '10002');
       });
 
-      await userEvent.type(screen.getByLabelText('When do you plan to start moving your PPM?'), '04 Jul 2022');
+      await userEvent.type(screen.getByLabelText(/When do you plan to start moving your PPM?/), '04 Jul 2022');
 
       await userEvent.click(screen.getByRole('button', { name: 'Save & Continue' }));
 
@@ -367,6 +368,7 @@ describe('DateAndLocation component', () => {
             hasTertiaryDestinationAddress: false,
             sitExpected: false,
             expectedDepartureDate: '2022-07-04',
+            isActualExpenseReimbursement: false,
           },
         });
 
@@ -551,7 +553,7 @@ describe('DateAndLocation component', () => {
 
       await userEvent.click(radioElements[2]);
 
-      await userEvent.type(screen.getByLabelText('When do you plan to start moving your PPM?'), '04 Jul 2022');
+      await userEvent.type(screen.getByLabelText(/When do you plan to start moving your PPM?/), '04 Jul 2022');
 
       await userEvent.click(screen.getByRole('button', { name: 'Save & Continue' }));
 
@@ -602,6 +604,7 @@ describe('DateAndLocation component', () => {
             hasTertiaryDestinationAddress: true,
             sitExpected: true,
             expectedDepartureDate: '2022-07-04',
+            isActualExpenseReimbursement: false,
           },
         });
 
@@ -659,13 +662,13 @@ describe('DateAndLocation component', () => {
       });
 
       await act(async () => {
-        await userEvent.type(screen.getAllByRole('textbox', { name: 'ZIP' })[1], '10002');
+        await userEvent.type(screen.getAllByRole('textbox', { name: /ZIP/ })[1], '10002');
       });
 
-      await userEvent.type(screen.getByLabelText('When do you plan to start moving your PPM?'), '04 Jul 2022');
+      await userEvent.type(screen.getByLabelText(/When do you plan to start moving your PPM?/), '04 Jul 2022');
 
       // Set Closeout office
-      const closeoutOfficeInput = await screen.getByLabelText('Which closeout office should review your PPM?');
+      const closeoutOfficeInput = await screen.getByLabelText(/Which closeout office should review your PPM?/);
       await fireEvent.change(closeoutOfficeInput, { target: { value: 'Tester' } });
       await act(() => selectEvent.select(closeoutOfficeInput, /Tester/));
 
@@ -739,10 +742,10 @@ describe('DateAndLocation component', () => {
         await userEvent.type(document.querySelector('input[name="destinationAddress.address.postalCode"]'), '10002');
       });
 
-      await userEvent.type(screen.getByLabelText('When do you plan to start moving your PPM?'), '04 Jul 2022');
+      await userEvent.type(screen.getByLabelText(/When do you plan to start moving your PPM?/), '04 Jul 2022');
 
       // Should not see closeout office field
-      expect(screen.queryByLabelText('Which closeout office should review your PPM?')).not.toBeInTheDocument();
+      expect(screen.queryByLabelText(/Which closeout office should review your PPM?/)).not.toBeInTheDocument();
 
       // Submit form
       await userEvent.click(screen.getByRole('button', { name: 'Save & Continue' }));
@@ -814,10 +817,10 @@ describe('DateAndLocation component', () => {
         await userEvent.type(document.querySelector('input[name="destinationAddress.address.postalCode"]'), '10002');
       });
 
-      await userEvent.type(screen.getByLabelText('When do you plan to start moving your PPM?'), '04 Jul 2022');
+      await userEvent.type(screen.getByLabelText(/When do you plan to start moving your PPM?/), '04 Jul 2022');
 
       // Set Closeout office
-      const closeoutOfficeInput = await screen.getByLabelText('Which closeout office should review your PPM?');
+      const closeoutOfficeInput = await screen.getByLabelText(/Which closeout office should review your PPM?/);
       await fireEvent.change(closeoutOfficeInput, { target: { value: 'Tester' } });
       await act(() => selectEvent.select(closeoutOfficeInput, /Tester/));
 
@@ -889,10 +892,10 @@ describe('DateAndLocation component', () => {
         await userEvent.type(document.querySelector('input[name="destinationAddress.address.postalCode"]'), '10002');
       });
 
-      await userEvent.type(screen.getByLabelText('When do you plan to start moving your PPM?'), '04 Jul 2022');
+      await userEvent.type(screen.getByLabelText(/When do you plan to start moving your PPM?/), '04 Jul 2022');
 
       // Set Closeout office
-      const closeoutOfficeInput = await screen.getByLabelText('Which closeout office should review your PPM?');
+      const closeoutOfficeInput = await screen.getByLabelText(/Which closeout office should review your PPM?/);
       await fireEvent.change(closeoutOfficeInput, { target: { value: 'Tester' } });
       await act(() => selectEvent.select(closeoutOfficeInput, /Tester/));
 
@@ -930,7 +933,7 @@ describe('DateAndLocation component', () => {
       await userEvent.click(YesButtonSelectors[2]);
       await userEvent.click(YesButtonSelectors[3]);
 
-      const postalCodes = screen.getAllByLabelText('ZIP');
+      const postalCodes = screen.getAllByLabelText(/ZIP/);
 
       expect(screen.getAllByLabelText('Yes')[0]).toBeChecked();
       expect(screen.getAllByLabelText('Yes')[1]).toBeChecked();
@@ -938,7 +941,7 @@ describe('DateAndLocation component', () => {
       expect(screen.getAllByLabelText('Yes')[3]).toBeChecked();
 
       await waitFor(() => {
-        expect(screen.getByLabelText('When do you plan to start moving your PPM?')).toHaveValue('31 Dec 2022');
+        expect(screen.getByLabelText(/When do you plan to start moving your PPM?/)).toHaveValue('31 Dec 2022');
       });
 
       expect(postalCodes[0]).toHaveValue('20002');
@@ -961,7 +964,7 @@ describe('DateAndLocation component', () => {
         await userEvent.click(YesButtonSelectors[2]);
         await userEvent.click(YesButtonSelectors[3]);
 
-        const postalCodes = screen.getAllByLabelText('ZIP');
+        const postalCodes = screen.getAllByLabelText(/ZIP/);
 
         expect(screen.getAllByLabelText('Yes')[0]).toBeChecked();
         expect(screen.getAllByLabelText('Yes')[1]).toBeChecked();
@@ -969,7 +972,7 @@ describe('DateAndLocation component', () => {
         expect(screen.getAllByLabelText('Yes')[3]).toBeChecked();
 
         await waitFor(() => {
-          expect(screen.getByLabelText('When do you plan to start moving your PPM?')).toHaveValue('31 Dec 2022');
+          expect(screen.getByLabelText(/When do you plan to start moving your PPM?/)).toHaveValue('31 Dec 2022');
         });
 
         expect(postalCodes[0]).toHaveValue('20002');
@@ -1055,6 +1058,7 @@ describe('DateAndLocation component', () => {
                 hasTertiaryDestinationAddress: true,
                 sitExpected: true,
                 expectedDepartureDate: '2022-12-31',
+                isActualExpenseReimbursement: false,
               },
             },
             fullShipmentProps.mtoShipment.eTag,
@@ -1064,12 +1068,87 @@ describe('DateAndLocation component', () => {
         });
       });
 
+      it('displays an sepcific error message when the update shipment fails and return specific message', async () => {
+        const mockSpecificMessage = 'The data entered no good.';
+        patchMTOShipment.mockRejectedValueOnce({ response: { body: { detail: mockSpecificMessage, status: 400 } } });
+
+        renderDateAndLocation(fullShipmentProps);
+
+        await userEvent.click(screen.getByRole('button', { name: 'Save & Continue' }));
+
+        await waitFor(() => {
+          expect(patchMTOShipment).toHaveBeenCalledWith(
+            fullShipmentProps.mtoShipment.id,
+            {
+              id: fullShipmentProps.mtoShipment.id,
+              moveTaskOrderID: mockMoveId,
+              shipmentType: 'PPM',
+              ppmShipment: {
+                id: fullShipmentProps.mtoShipment.ppmShipment.id,
+                pickupAddress: {
+                  streetAddress1: '234 Any St',
+                  streetAddress2: '',
+                  city: 'Richmond',
+                  state: 'VA',
+                  postalCode: '20002',
+                },
+                destinationAddress: {
+                  streetAddress1: '234 Any St',
+                  streetAddress2: '',
+                  city: 'Richmond',
+                  state: 'VA',
+                  postalCode: '20003',
+                },
+                secondaryPickupAddress: {
+                  streetAddress1: '234 Any St',
+                  streetAddress2: '',
+                  city: 'Richmond',
+                  state: 'VA',
+                  postalCode: '20004',
+                },
+                secondaryDestinationAddress: {
+                  streetAddress1: '234 Any St',
+                  streetAddress2: '',
+                  city: 'Richmond',
+                  state: 'VA',
+                  postalCode: '20005',
+                },
+                tertiaryPickupAddress: {
+                  streetAddress1: '234 Any St',
+                  streetAddress2: '',
+                  city: 'Richmond',
+                  state: 'VA',
+                  postalCode: '20006',
+                },
+                tertiaryDestinationAddress: {
+                  streetAddress1: '234 Any St',
+                  streetAddress2: '',
+                  city: 'Richmond',
+                  state: 'VA',
+                  postalCode: '20007',
+                },
+                hasSecondaryPickupAddress: true,
+                hasSecondaryDestinationAddress: true,
+                hasTertiaryPickupAddress: true,
+                hasTertiaryDestinationAddress: true,
+                sitExpected: true,
+                expectedDepartureDate: '2022-12-31',
+                isActualExpenseReimbursement: false,
+              },
+            },
+            fullShipmentProps.mtoShipment.eTag,
+          );
+
+          expect(screen.getByText(mockSpecificMessage)).toBeInTheDocument();
+        });
+      });
+
       it('calls update shipment endpoint and formats optional payload values', async () => {
         patchMTOShipment.mockResolvedValueOnce({ id: fullShipmentProps.mtoShipment.id });
 
         renderDateAndLocation(fullShipmentProps);
 
-        const expectedDepartureDate = screen.getByLabelText('When do you plan to start moving your PPM?');
+        const expectedDepartureDate = screen.getByLabelText(/When do you plan to start moving your PPM?/);
         await userEvent.clear(expectedDepartureDate);
         await userEvent.type(expectedDepartureDate, '04 Jul 2022');
 
@@ -1132,6 +1211,7 @@ describe('DateAndLocation component', () => {
                 hasTertiaryDestinationAddress: true,
                 sitExpected: true,
                 expectedDepartureDate: '2022-07-04',
+                isActualExpenseReimbursement: false,
               },
             },
             fullShipmentProps.mtoShipment.eTag,

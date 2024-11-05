@@ -40,7 +40,12 @@ const mockMTOShipment = {
       state: 'MT',
       streetAddress1: '422 Dearborn Ave',
     },
-    weightTickets: [],
+    weightTickets: [
+      {
+        emptyWeight: 1999,
+        fullWeight: 5844,
+      },
+    ],
   },
 };
 
@@ -72,6 +77,13 @@ describe('Feedback page', () => {
     expect(screen.getByText('Ending ZIP: 20889')).toBeInTheDocument();
     expect(screen.getByText('Advance: No')).toBeInTheDocument();
     expect(screen.getByTestId('w-2Address')).toHaveTextContent('W-2 address: 422 Dearborn AveMissoula, MT 59801');
+  });
+
+  it('formats and diplays trip weight', () => {
+    renderFeedbackPage();
+
+    expect(screen.getByText('Trip weight:')).toBeInTheDocument();
+    expect(screen.getByText('3,845 lbs')).toBeInTheDocument();
   });
 
   it('does not display pro-gear if no pro-gear documents are present', () => {

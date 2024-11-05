@@ -852,7 +852,6 @@ func MakePrimeSimulatorMoveSameBasePointCity(appCtx appcontext.AppContext) model
 				City:           "Miami Gardens",
 				State:          "FL",
 				PostalCode:     "33169",
-				Country:        models.StringPointer("US"),
 			},
 		},
 	}, nil)
@@ -865,7 +864,6 @@ func MakePrimeSimulatorMoveSameBasePointCity(appCtx appcontext.AppContext) model
 				City:           "Key West",
 				State:          "FL",
 				PostalCode:     "33040",
-				Country:        models.StringPointer("US"),
 			},
 		},
 	}, nil)
@@ -3891,7 +3889,6 @@ func MakeMoveWithPPMShipmentReadyForFinalCloseout(appCtx appcontext.AppContext) 
 				City:           "Miami Gardens",
 				State:          "FL",
 				PostalCode:     "33169",
-				Country:        models.StringPointer("US"),
 			},
 		},
 	}, nil)
@@ -3904,7 +3901,6 @@ func MakeMoveWithPPMShipmentReadyForFinalCloseout(appCtx appcontext.AppContext) 
 				City:           "Key West",
 				State:          "FL",
 				PostalCode:     "33040",
-				Country:        models.StringPointer("US"),
 			},
 		},
 	}, nil)
@@ -4546,6 +4542,95 @@ func MakeApprovedMoveWithPPMProgearWeightTicketOffice(appCtx appcontext.AppConte
 			HasReceivedAdvance:          models.BoolPointer(true),
 			AdvanceAmountReceived:       models.CentPointer(unit.Cents(340000)),
 			W2Address:                   &address,
+		},
+	}
+
+	move, shipment := scenario.CreateGenericMoveWithPPMShipment(appCtx, moveInfo, false, userUploader, &assertions.MTOShipment, &assertions.Move, assertions.PPMShipment)
+
+	factory.BuildWeightTicket(appCtx.DB(), []factory.Customization{
+		{
+			Model:    shipment,
+			LinkOnly: true,
+		},
+		{
+			Model:    move.Orders.ServiceMember,
+			LinkOnly: true,
+		},
+	}, nil)
+	factory.BuildProgearWeightTicket(appCtx.DB(), []factory.Customization{
+		{
+			Model:    shipment,
+			LinkOnly: true,
+		},
+		{
+			Model:    move.Orders.ServiceMember,
+			LinkOnly: true,
+		},
+	}, nil)
+
+	// re-fetch the move so that we ensure we have exactly what is in
+	// the db
+	newmove, err := models.FetchMove(appCtx.DB(), &auth.Session{}, move.ID)
+	if err != nil {
+		log.Panic(fmt.Errorf("failed to fetch move: %w", err))
+	}
+
+	return *newmove
+}
+
+func MakeApprovedMoveWithPPMProgearWeightTicketOfficeCivilian(appCtx appcontext.AppContext) models.Move {
+	userUploader := newUserUploader(appCtx)
+	closeoutOffice := factory.BuildTransportationOffice(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.TransportationOffice{Gbloc: "KKFA", ProvidesCloseout: true},
+		},
+	}, nil)
+
+	userInfo := newUserInfo("customer")
+	moveInfo := scenario.MoveCreatorInfo{
+		UserID:           uuid.Must(uuid.NewV4()),
+		Email:            userInfo.email,
+		SmID:             uuid.Must(uuid.NewV4()),
+		FirstName:        userInfo.firstName,
+		LastName:         userInfo.lastName,
+		MoveID:           uuid.Must(uuid.NewV4()),
+		MoveLocator:      models.GenerateLocator(),
+		CloseoutOfficeID: &closeoutOffice.ID,
+	}
+
+	approvedAt := time.Date(2022, 4, 15, 12, 30, 0, 0, time.UTC)
+	address := factory.BuildAddress(appCtx.DB(), nil, nil)
+
+	order := factory.BuildOrder(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.Order{
+				Grade: models.ServiceMemberGradeCIVILIANEMPLOYEE.Pointer(),
+			},
+		},
+	}, nil)
+
+	move := models.Move{
+		Status:   models.MoveStatusAPPROVED,
+		OrdersID: order.ID,
+	}
+
+	assertions := testdatagen.Assertions{
+		UserUploader: userUploader,
+		Move:         move,
+		MTOShipment: models.MTOShipment{
+			Status: models.MTOShipmentStatusApproved,
+		},
+		PPMShipment: models.PPMShipment{
+			ID:                           uuid.Must(uuid.NewV4()),
+			ApprovedAt:                   &approvedAt,
+			Status:                       models.PPMShipmentStatusNeedsCloseout,
+			ActualMoveDate:               models.TimePointer(time.Date(testdatagen.GHCTestYear, time.March, 16, 0, 0, 0, 0, time.UTC)),
+			ActualPickupPostalCode:       models.StringPointer("42444"),
+			ActualDestinationPostalCode:  models.StringPointer("30813"),
+			HasReceivedAdvance:           models.BoolPointer(true),
+			AdvanceAmountReceived:        models.CentPointer(unit.Cents(340000)),
+			W2Address:                    &address,
+			IsActualExpenseReimbursement: models.BoolPointer(true),
 		},
 	}
 
@@ -5313,8 +5398,8 @@ func MakeHHGMoveInSIT(appCtx appcontext.AppContext) models.Move {
 		},
 	}, nil)
 
-	twoMonthsAgo := now.AddDate(0, 0, -60)
-	oneMonthAgo := now.AddDate(0, 0, -30)
+	twoMonthsAgo := now.AddDate(0, -2, 0)
+	oneMonthAgo := now.AddDate(0, -1, 0)
 	factory.BuildOriginSITServiceItems(appCtx.DB(), move, shipment, &twoMonthsAgo, &oneMonthAgo)
 	factory.BuildDestSITServiceItems(appCtx.DB(), move, shipment, &oneMonthAgo, nil)
 
@@ -5428,10 +5513,10 @@ func HHGMoveWithPastSITs(appCtx appcontext.AppContext) models.Move {
 		},
 	}, nil)
 
-	fourMonthsAgo := now.AddDate(0, 0, -120)
-	threeMonthsAgo := now.AddDate(0, 0, -90)
-	twoMonthsAgo := now.AddDate(0, 0, -60)
-	oneMonthAgo := now.AddDate(0, 0, -30)
+	fourMonthsAgo := now.AddDate(0, -4, 0)
+	threeMonthsAgo := now.AddDate(0, -3, 0)
+	twoMonthsAgo := now.AddDate(0, -2, 0)
+	oneMonthAgo := now.AddDate(0, -1, 0)
 	factory.BuildOriginSITServiceItems(appCtx.DB(), move, shipment, &fourMonthsAgo, &threeMonthsAgo)
 	factory.BuildDestSITServiceItems(appCtx.DB(), move, shipment, &twoMonthsAgo, &oneMonthAgo)
 

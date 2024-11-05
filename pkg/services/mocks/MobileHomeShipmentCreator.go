@@ -18,6 +18,10 @@ type MobileHomeShipmentCreator struct {
 func (_m *MobileHomeShipmentCreator) CreateMobileHomeShipmentWithDefaultCheck(appCtx appcontext.AppContext, mobileHomeshipment *models.MobileHome) (*models.MobileHome, error) {
 	ret := _m.Called(appCtx, mobileHomeshipment)
 
+	if len(ret) == 0 {
+		panic("no return value specified for CreateMobileHomeShipmentWithDefaultCheck")
+	}
+
 	var r0 *models.MobileHome
 	var r1 error
 	if rf, ok := ret.Get(0).(func(appcontext.AppContext, *models.MobileHome) (*models.MobileHome, error)); ok {

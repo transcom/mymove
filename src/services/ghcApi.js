@@ -337,13 +337,9 @@ export async function getTacValid({ tac }) {
 
 // Retrieves the line of accounting based on a given TAC,
 // effective date, and service member affiliation
-export async function getLoa({ tacCode, effectiveDate, serviceMemberAffiliation }) {
+export async function getLoa({ tacCode, effectiveDate, departmentIndicator }) {
   const operationPath = 'linesOfAccounting.requestLineOfAccounting';
-  return makeGHCRequest(
-    operationPath,
-    { body: { tacCode, effectiveDate, serviceMemberAffiliation } },
-    { normalize: false },
-  );
+  return makeGHCRequest(operationPath, { body: { tacCode, effectiveDate, departmentIndicator } }, { normalize: false });
 }
 
 export async function updateOrder({ orderID, ifMatchETag, body }) {
@@ -431,6 +427,17 @@ export function updateMoveStatusServiceCounselingCompleted({ moveTaskOrderID, if
     {
       moveTaskOrderID,
       'If-Match': ifMatchETag,
+    },
+    { normalize },
+  );
+}
+
+export function cancelMove({ moveID, normalize = false }) {
+  const operationPath = 'move.moveCanceler';
+  return makeGHCRequest(
+    operationPath,
+    {
+      moveID,
     },
     { normalize },
   );
@@ -848,20 +855,6 @@ export async function patchPPMSIT({ ppmShipmentId, payload, eTag }) {
   );
 }
 
-export async function updateAssignedOfficeUserForMove({ moveID, officeUserId, roleType }) {
-  return makeGHCRequest('move.updateAssignedOfficeUser', {
-    moveID,
-    body: { officeUserId, roleType },
-  });
-}
-
-export async function deleteAssignedOfficeUserForMove({ moveID, roleType }) {
-  return makeGHCRequest('move.deleteAssignedOfficeUser', {
-    moveID,
-    body: { roleType },
-  });
-}
-
 export async function bulkDownloadPaymentRequest(paymentRequestID) {
   return makeGHCRequestRaw('paymentRequests.bulkDownload', { paymentRequestID });
 }
@@ -875,4 +868,18 @@ export async function dateSelectionIsWeekendHoliday(countryCode, date) {
     },
     { normalize: false },
   );
+}
+
+export async function updateAssignedOfficeUserForMove({ moveID, officeUserId, roleType }) {
+  return makeGHCRequest('move.updateAssignedOfficeUser', {
+    moveID,
+    body: { officeUserId, roleType },
+  });
+}
+
+export async function deleteAssignedOfficeUserForMove({ moveID, roleType }) {
+  return makeGHCRequest('move.deleteAssignedOfficeUser', {
+    moveID,
+    body: { roleType },
+  });
 }

@@ -20,6 +20,10 @@ type MoveTaskOrderUpdater struct {
 func (_m *MoveTaskOrderUpdater) MakeAvailableToPrime(appCtx appcontext.AppContext, moveTaskOrderID uuid.UUID, eTag string, includeServiceCodeMS bool, includeServiceCodeCS bool) (*models.Move, error) {
 	ret := _m.Called(appCtx, moveTaskOrderID, eTag, includeServiceCodeMS, includeServiceCodeCS)
 
+	if len(ret) == 0 {
+		panic("no return value specified for MakeAvailableToPrime")
+	}
+
 	var r0 *models.Move
 	var r1 error
 	if rf, ok := ret.Get(0).(func(appcontext.AppContext, uuid.UUID, string, bool, bool) (*models.Move, error)); ok {
@@ -45,6 +49,10 @@ func (_m *MoveTaskOrderUpdater) MakeAvailableToPrime(appCtx appcontext.AppContex
 // ShowHide provides a mock function with given fields: appCtx, moveTaskOrderID, show
 func (_m *MoveTaskOrderUpdater) ShowHide(appCtx appcontext.AppContext, moveTaskOrderID uuid.UUID, show *bool) (*models.Move, error) {
 	ret := _m.Called(appCtx, moveTaskOrderID, show)
+
+	if len(ret) == 0 {
+		panic("no return value specified for ShowHide")
+	}
 
 	var r0 *models.Move
 	var r1 error
@@ -72,6 +80,10 @@ func (_m *MoveTaskOrderUpdater) ShowHide(appCtx appcontext.AppContext, moveTaskO
 func (_m *MoveTaskOrderUpdater) UpdatePPMType(appCtx appcontext.AppContext, moveTaskOrderID uuid.UUID) (*models.Move, error) {
 	ret := _m.Called(appCtx, moveTaskOrderID)
 
+	if len(ret) == 0 {
+		panic("no return value specified for UpdatePPMType")
+	}
+
 	var r0 *models.Move
 	var r1 error
 	if rf, ok := ret.Get(0).(func(appcontext.AppContext, uuid.UUID) (*models.Move, error)); ok {
@@ -97,6 +109,10 @@ func (_m *MoveTaskOrderUpdater) UpdatePPMType(appCtx appcontext.AppContext, move
 // UpdatePostCounselingInfo provides a mock function with given fields: appCtx, moveTaskOrderID, eTag
 func (_m *MoveTaskOrderUpdater) UpdatePostCounselingInfo(appCtx appcontext.AppContext, moveTaskOrderID uuid.UUID, eTag string) (*models.Move, error) {
 	ret := _m.Called(appCtx, moveTaskOrderID, eTag)
+
+	if len(ret) == 0 {
+		panic("no return value specified for UpdatePostCounselingInfo")
+	}
 
 	var r0 *models.Move
 	var r1 error
@@ -124,6 +140,10 @@ func (_m *MoveTaskOrderUpdater) UpdatePostCounselingInfo(appCtx appcontext.AppCo
 func (_m *MoveTaskOrderUpdater) UpdateReviewedBillableWeightsAt(appCtx appcontext.AppContext, moveTaskOrderID uuid.UUID, eTag string) (*models.Move, error) {
 	ret := _m.Called(appCtx, moveTaskOrderID, eTag)
 
+	if len(ret) == 0 {
+		panic("no return value specified for UpdateReviewedBillableWeightsAt")
+	}
+
 	var r0 *models.Move
 	var r1 error
 	if rf, ok := ret.Get(0).(func(appcontext.AppContext, uuid.UUID, string) (*models.Move, error)); ok {
@@ -150,6 +170,10 @@ func (_m *MoveTaskOrderUpdater) UpdateReviewedBillableWeightsAt(appCtx appcontex
 func (_m *MoveTaskOrderUpdater) UpdateStatusServiceCounselingCompleted(appCtx appcontext.AppContext, moveTaskOrderID uuid.UUID, eTag string) (*models.Move, error) {
 	ret := _m.Called(appCtx, moveTaskOrderID, eTag)
 
+	if len(ret) == 0 {
+		panic("no return value specified for UpdateStatusServiceCounselingCompleted")
+	}
+
 	var r0 *models.Move
 	var r1 error
 	if rf, ok := ret.Get(0).(func(appcontext.AppContext, uuid.UUID, string) (*models.Move, error)); ok {
@@ -175,6 +199,10 @@ func (_m *MoveTaskOrderUpdater) UpdateStatusServiceCounselingCompleted(appCtx ap
 // UpdateTIORemarks provides a mock function with given fields: appCtx, moveTaskOrderID, eTag, remarks
 func (_m *MoveTaskOrderUpdater) UpdateTIORemarks(appCtx appcontext.AppContext, moveTaskOrderID uuid.UUID, eTag string, remarks string) (*models.Move, error) {
 	ret := _m.Called(appCtx, moveTaskOrderID, eTag, remarks)
+
+	if len(ret) == 0 {
+		panic("no return value specified for UpdateTIORemarks")
+	}
 
 	var r0 *models.Move
 	var r1 error

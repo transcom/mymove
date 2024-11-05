@@ -540,6 +540,8 @@ const renderComponent = (props, permissions = [permissionTypes.updateShipment, p
       <ServicesCounselingMoveDetails
         setUnapprovedShipmentCount={jest.fn()}
         setMissingOrdersInfoCount={jest.fn()}
+        setShipmentWarnConcernCount={jest.fn()}
+        setShipmentErrorConcernCount={jest.fn()}
         {...props}
       />
     </MockProviders>,
@@ -605,7 +607,7 @@ describe('MoveDetails page', () => {
       },
     );
 
-    it('renders the number of shipment concerns for all shipments in a section', async () => {
+    it('renders warnings and errors on left nav bar for all shipments in a section', async () => {
       const moveDetailsQuery = {
         ...newMoveDetailsQuery,
         mtoShipments: [ntsrShipmentMissingRequiredInfo],
@@ -616,26 +618,25 @@ describe('MoveDetails page', () => {
 
       renderComponent();
 
-      // In this case, we would expect 3 since this shipment is missing the storage facility
-      // and tac type.
-      expect(await screen.findByTestId('requestedShipmentsTag')).toHaveTextContent('3');
+      expect(await screen.findByTestId('requestedShipmentsTag')).toBeInTheDocument();
+      expect(await screen.findByTestId('shipment-missing-info-alert')).toBeInTheDocument();
     });
 
-    it('shares the number of missing shipment information', () => {
+    it('shares the number of missing orders information', () => {
       const moveDetailsQuery = {
         ...newMoveDetailsQuery,
-        mtoShipments: [ntsrShipmentMissingRequiredInfo],
+        order: orderMissingRequiredInfo,
       };
 
       useMoveDetailsQueries.mockReturnValue(moveDetailsQuery);
       useOrdersDocumentQueries.mockReturnValue(moveDetailsQuery);
 
-      const mockSetUpapprovedShipmentCount = jest.fn();
-      renderComponent({ setUnapprovedShipmentCount: mockSetUpapprovedShipmentCount });
+      const mockSetMissingOrdersInfoCount = jest.fn();
+      renderComponent({ setMissingOrdersInfoCount: mockSetMissingOrdersInfoCount });
 
-      // Should have called `setUnapprovedShipmentCount` with 3 missing shipping info
-      expect(mockSetUpapprovedShipmentCount).toHaveBeenCalledTimes(1);
-      expect(mockSetUpapprovedShipmentCount).toHaveBeenCalledWith(3);
+      // Should have called `setMissingOrdersInfoCount` with 4 missing fields
+      expect(mockSetMissingOrdersInfoCount).toHaveBeenCalledTimes(1);
+      expect(mockSetMissingOrdersInfoCount).toHaveBeenCalledWith(4);
     });
 
     it('shares the number of missing orders information', () => {
@@ -756,9 +757,7 @@ describe('MoveDetails page', () => {
       );
       expect(excessWeightAlert).toBeInTheDocument();
 
-      // In this case, we would expect 6 shipment concerns since 3 shipments are missing counselor remarks,
-      // 2 shipments are missing advance status, and the move has excess weight
-      expect(await screen.findByTestId('requestedShipmentsTag')).toHaveTextContent('6');
+      expect(await screen.findByTestId('requestedShipmentsTag')).toBeInTheDocument();
     });
 
     it('renders the allowances error message when allowances are less than moves values', async () => {
@@ -924,6 +923,8 @@ describe('MoveDetails page', () => {
             <ServicesCounselingMoveDetails
               setUnapprovedShipmentCount={jest.fn()}
               setMissingOrdersInfoCount={jest.fn()}
+              setShipmentWarnConcernCount={jest.fn()}
+              setShipmentErrorConcernCount={jest.fn()}
               isMoveLocked={isMoveLocked}
             />
           </MockProviders>,
@@ -1025,6 +1026,8 @@ describe('MoveDetails page', () => {
                 <ServicesCounselingMoveDetails
                   setUnapprovedShipmentCount={jest.fn()}
                   setMissingOrdersInfoCount={jest.fn()}
+                  setShipmentWarnConcernCount={jest.fn()}
+                  setShipmentErrorConcernCount={jest.fn()}
                 />
                 ,
               </MockProviders>,
@@ -1085,20 +1088,6 @@ describe('MoveDetails page', () => {
         expect(counselorRemarks1).toBeInTheDocument();
         expect(counselorRemarks2).toBeInTheDocument();
       });
-
-      it('shows a warning if counselor remarks are empty', async () => {
-        const moveDetailsQuery = {
-          ...newMoveDetailsQuery,
-          mtoShipments: [{ ...mtoShipments[0], counselorRemarks: '' }],
-        };
-        useMoveDetailsQueries.mockReturnValue(moveDetailsQuery);
-        useOrdersDocumentQueries.mockReturnValue(moveDetailsQuery);
-
-        renderComponent();
-
-        const counselorRemarksElement = screen.getByTestId('counselorRemarks');
-        expect(counselorRemarksElement.parentElement).toHaveClass('warning');
-      });
     });
 
     describe('service counseling completed', () => {
@@ -1127,6 +1116,8 @@ describe('MoveDetails page', () => {
             <ServicesCounselingMoveDetails
               setUnapprovedShipmentCount={jest.fn()}
               setMissingOrdersInfoCount={jest.fn()}
+              setShipmentWarnConcernCount={jest.fn()}
+              setShipmentErrorConcernCount={jest.fn()}
             />
           </MockProviders>,
         );
@@ -1152,6 +1143,31 @@ describe('MoveDetails page', () => {
         );
 
         expect(screen.queryByText('Edit customer info')).not.toBeInTheDocument();
+      });
+
+      it('renders the cancel move button when user has permission', async () => {
+        render(
+          <MockProviders permissions={[permissionTypes.cancelMoveFlag]} {...mockRoutingOptions}>
+            <ServicesCounselingMoveDetails
+              setUnapprovedShipmentCount={jest.fn()}
+              setMissingOrdersInfoCount={jest.fn()}
+              setShipmentWarnConcernCount={jest.fn()}
+              setShipmentErrorConcernCount={jest.fn()}
+            />
+          </MockProviders>,
+        );
+
+        expect(await screen.getByText('Cancel move')).toBeInTheDocument();
+      });
+
+      it('does not show the cancel move button if user does not have permission', () => {
+        render(
+          <MockProviders {...mockRoutingOptions}>
+            <ServicesCounselingMoveDetails setUnapprovedShipmentCount={jest.fn()} />
+          </MockProviders>,
+        );
+
+        expect(screen.queryByText('Cancel move')).not.toBeInTheDocument();
       });
     });
   });

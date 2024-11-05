@@ -20,6 +20,10 @@ type DateSelectionChecker struct {
 func (_m *DateSelectionChecker) IsDateWeekendHoliday(appCtx appcontext.AppContext, countryCode string, date time.Time) (*services.IsDateWeekendHolidayInfo, error) {
 	ret := _m.Called(appCtx, countryCode, date)
 
+	if len(ret) == 0 {
+		panic("no return value specified for IsDateWeekendHoliday")
+	}
+
 	var r0 *services.IsDateWeekendHolidayInfo
 	var r1 error
 	if rf, ok := ret.Get(0).(func(appcontext.AppContext, string, time.Time) (*services.IsDateWeekendHolidayInfo, error)); ok {

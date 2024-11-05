@@ -240,6 +240,14 @@ func DutyLocation(dutyLocation *models.DutyLocation) *primemessages.DutyLocation
 	return &payload
 }
 
+// Country payload
+func Country(country *models.Country) *string {
+	if country == nil {
+		return nil
+	}
+	return &country.Country
+}
+
 // Address payload
 func Address(address *models.Address) *primemessages.Address {
 	if address == nil {
@@ -253,7 +261,7 @@ func Address(address *models.Address) *primemessages.Address {
 		City:           &address.City,
 		State:          &address.State,
 		PostalCode:     &address.PostalCode,
-		Country:        address.Country,
+		Country:        Country(address.Country),
 		County:         &address.County,
 		ETag:           etag.GenerateEtag(address.UpdatedAt),
 	}
@@ -314,7 +322,7 @@ func MTOAgents(mtoAgents *models.MTOAgents) *primemessages.MTOAgents {
 
 func ProofOfServiceDoc(proofOfServiceDoc models.ProofOfServiceDoc) *primemessages.ProofOfServiceDoc {
 	uploads := make([]*primemessages.UploadWithOmissions, len(proofOfServiceDoc.PrimeUploads))
-	if proofOfServiceDoc.PrimeUploads != nil && len(proofOfServiceDoc.PrimeUploads) > 0 {
+	if len(proofOfServiceDoc.PrimeUploads) > 0 {
 		for i, primeUpload := range proofOfServiceDoc.PrimeUploads {
 			uploads[i] = basicUpload(&primeUpload.Upload) //#nosec G601
 		}
@@ -333,7 +341,7 @@ func PaymentRequest(paymentRequest *models.PaymentRequest) *primemessages.Paymen
 
 	serviceDocs := make(primemessages.ProofOfServiceDocs, len(paymentRequest.ProofOfServiceDocs))
 
-	if paymentRequest.ProofOfServiceDocs != nil && len(paymentRequest.ProofOfServiceDocs) > 0 {
+	if len(paymentRequest.ProofOfServiceDocs) > 0 {
 		for i, proofOfService := range paymentRequest.ProofOfServiceDocs {
 			serviceDocs[i] = ProofOfServiceDoc(proofOfService)
 		}
@@ -445,7 +453,7 @@ func PaymentServiceItemParams(paymentServiceItemParams *models.PaymentServiceIte
 //nolint:gosec //G601
 func ServiceRequestDocument(serviceRequestDocument models.ServiceRequestDocument) *primemessages.ServiceRequestDocument {
 	uploads := make([]*primemessages.UploadWithOmissions, len(serviceRequestDocument.ServiceRequestDocumentUploads))
-	if serviceRequestDocument.ServiceRequestDocumentUploads != nil && len(serviceRequestDocument.ServiceRequestDocumentUploads) > 0 {
+	if len(serviceRequestDocument.ServiceRequestDocumentUploads) > 0 {
 		for i, proofOfServiceDocumentUpload := range serviceRequestDocument.ServiceRequestDocumentUploads {
 			uploads[i] = basicUpload(&proofOfServiceDocumentUpload.Upload)
 		}
@@ -463,33 +471,34 @@ func PPMShipment(ppmShipment *models.PPMShipment) *primemessages.PPMShipment {
 	}
 
 	payloadPPMShipment := &primemessages.PPMShipment{
-		ID:                          *handlers.FmtUUID(ppmShipment.ID),
-		ShipmentID:                  *handlers.FmtUUID(ppmShipment.ShipmentID),
-		CreatedAt:                   strfmt.DateTime(ppmShipment.CreatedAt),
-		UpdatedAt:                   strfmt.DateTime(ppmShipment.UpdatedAt),
-		Status:                      primemessages.PPMShipmentStatus(ppmShipment.Status),
-		ExpectedDepartureDate:       handlers.FmtDate(ppmShipment.ExpectedDepartureDate),
-		ActualMoveDate:              handlers.FmtDatePtr(ppmShipment.ActualMoveDate),
-		SubmittedAt:                 handlers.FmtDateTimePtr(ppmShipment.SubmittedAt),
-		ReviewedAt:                  handlers.FmtDateTimePtr(ppmShipment.ReviewedAt),
-		ApprovedAt:                  handlers.FmtDateTimePtr(ppmShipment.ApprovedAt),
-		ActualPickupPostalCode:      ppmShipment.ActualPickupPostalCode,
-		ActualDestinationPostalCode: ppmShipment.ActualDestinationPostalCode,
-		SitExpected:                 ppmShipment.SITExpected,
-		SitEstimatedWeight:          handlers.FmtPoundPtr(ppmShipment.SITEstimatedWeight),
-		SitEstimatedEntryDate:       handlers.FmtDatePtr(ppmShipment.SITEstimatedEntryDate),
-		SitEstimatedDepartureDate:   handlers.FmtDatePtr(ppmShipment.SITEstimatedDepartureDate),
-		SitEstimatedCost:            handlers.FmtCost(ppmShipment.SITEstimatedCost),
-		EstimatedWeight:             handlers.FmtPoundPtr(ppmShipment.EstimatedWeight),
-		EstimatedIncentive:          handlers.FmtCost(ppmShipment.EstimatedIncentive),
-		HasProGear:                  ppmShipment.HasProGear,
-		ProGearWeight:               handlers.FmtPoundPtr(ppmShipment.ProGearWeight),
-		SpouseProGearWeight:         handlers.FmtPoundPtr(ppmShipment.SpouseProGearWeight),
-		HasRequestedAdvance:         ppmShipment.HasRequestedAdvance,
-		AdvanceAmountRequested:      handlers.FmtCost(ppmShipment.AdvanceAmountRequested),
-		HasReceivedAdvance:          ppmShipment.HasReceivedAdvance,
-		AdvanceAmountReceived:       handlers.FmtCost(ppmShipment.AdvanceAmountReceived),
-		ETag:                        etag.GenerateEtag(ppmShipment.UpdatedAt),
+		ID:                           *handlers.FmtUUID(ppmShipment.ID),
+		ShipmentID:                   *handlers.FmtUUID(ppmShipment.ShipmentID),
+		CreatedAt:                    strfmt.DateTime(ppmShipment.CreatedAt),
+		UpdatedAt:                    strfmt.DateTime(ppmShipment.UpdatedAt),
+		Status:                       primemessages.PPMShipmentStatus(ppmShipment.Status),
+		ExpectedDepartureDate:        handlers.FmtDate(ppmShipment.ExpectedDepartureDate),
+		ActualMoveDate:               handlers.FmtDatePtr(ppmShipment.ActualMoveDate),
+		SubmittedAt:                  handlers.FmtDateTimePtr(ppmShipment.SubmittedAt),
+		ReviewedAt:                   handlers.FmtDateTimePtr(ppmShipment.ReviewedAt),
+		ApprovedAt:                   handlers.FmtDateTimePtr(ppmShipment.ApprovedAt),
+		ActualPickupPostalCode:       ppmShipment.ActualPickupPostalCode,
+		ActualDestinationPostalCode:  ppmShipment.ActualDestinationPostalCode,
+		SitExpected:                  ppmShipment.SITExpected,
+		SitEstimatedWeight:           handlers.FmtPoundPtr(ppmShipment.SITEstimatedWeight),
+		SitEstimatedEntryDate:        handlers.FmtDatePtr(ppmShipment.SITEstimatedEntryDate),
+		SitEstimatedDepartureDate:    handlers.FmtDatePtr(ppmShipment.SITEstimatedDepartureDate),
+		SitEstimatedCost:             handlers.FmtCost(ppmShipment.SITEstimatedCost),
+		EstimatedWeight:              handlers.FmtPoundPtr(ppmShipment.EstimatedWeight),
+		EstimatedIncentive:           handlers.FmtCost(ppmShipment.EstimatedIncentive),
+		HasProGear:                   ppmShipment.HasProGear,
+		ProGearWeight:                handlers.FmtPoundPtr(ppmShipment.ProGearWeight),
+		SpouseProGearWeight:          handlers.FmtPoundPtr(ppmShipment.SpouseProGearWeight),
+		HasRequestedAdvance:          ppmShipment.HasRequestedAdvance,
+		AdvanceAmountRequested:       handlers.FmtCost(ppmShipment.AdvanceAmountRequested),
+		HasReceivedAdvance:           ppmShipment.HasReceivedAdvance,
+		AdvanceAmountReceived:        handlers.FmtCost(ppmShipment.AdvanceAmountReceived),
+		IsActualExpenseReimbursement: ppmShipment.IsActualExpenseReimbursement,
+		ETag:                         etag.GenerateEtag(ppmShipment.UpdatedAt),
 	}
 
 	if ppmShipment.SITLocation != nil {
@@ -497,7 +506,19 @@ func PPMShipment(ppmShipment *models.PPMShipment) *primemessages.PPMShipment {
 		payloadPPMShipment.SitLocation = &sitLocation
 	}
 
+	if ppmShipment.IsActualExpenseReimbursement != nil {
+		payloadPPMShipment.IsActualExpenseReimbursement = ppmShipment.IsActualExpenseReimbursement
+	}
+
 	return payloadPPMShipment
+}
+
+// MarketCode payload
+func MarketCode(marketCode *models.MarketCode) string {
+	if marketCode == nil {
+		return "" // Or a default string value
+	}
+	return string(*marketCode)
 }
 
 func MTOShipmentWithoutServiceItems(mtoShipment *models.MTOShipment) *primemessages.MTOShipmentWithoutServiceItems {
@@ -530,6 +551,7 @@ func MTOShipmentWithoutServiceItems(mtoShipment *models.MTOShipment) *primemessa
 		ETag:                             etag.GenerateEtag(mtoShipment.UpdatedAt),
 		OriginSitAuthEndDate:             (*strfmt.Date)(mtoShipment.OriginSITAuthEndDate),
 		DestinationSitAuthEndDate:        (*strfmt.Date)(mtoShipment.DestinationSITAuthEndDate),
+		MarketCode:                       MarketCode(&mtoShipment.MarketCode),
 	}
 
 	// Set up address payloads
@@ -705,7 +727,7 @@ func MTOServiceItem(mtoServiceItem *models.MTOServiceItem) primemessages.MTOServ
 
 	serviceRequestDocuments := make(primemessages.ServiceRequestDocuments, len(mtoServiceItem.ServiceRequestDocuments))
 
-	if mtoServiceItem.ServiceRequestDocuments != nil && len(mtoServiceItem.ServiceRequestDocuments) > 0 {
+	if len(mtoServiceItem.ServiceRequestDocuments) > 0 {
 		for i, serviceRequestDocument := range mtoServiceItem.ServiceRequestDocuments {
 			serviceRequestDocuments[i] = ServiceRequestDocument(serviceRequestDocument)
 		}
@@ -793,7 +815,7 @@ func Upload(appCtx appcontext.AppContext, storer storage.FileStorer, upload *mod
 		UpdatedAt:   strfmt.DateTime(upload.UpdatedAt),
 	}
 
-	url, err := storer.PresignedURL(upload.StorageKey, upload.ContentType)
+	url, err := storer.PresignedURL(upload.StorageKey, upload.ContentType, upload.Filename)
 	if err == nil {
 		payload.URL = *handlers.FmtURI(url)
 	} else {

@@ -1,61 +1,49 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { generatePath, Link, useNavigate, useParams } from 'react-router-dom';
-import { Alert, Grid, GridContainer } from '@trussworks/react-uswds';
+import { Link, useNavigate, useParams } from 'react-router-dom';
+import { Alert, Grid, GridContainer, Button } from '@trussworks/react-uswds';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { useQueryClient, useMutation } from '@tanstack/react-query';
 import { func } from 'prop-types';
 
 import styles from '../TXOMoveInfo/TXOTab.module.scss';
-import 'styles/office.scss';
 
 import hasRiskOfExcess from 'utils/hasRiskOfExcess';
 import { MOVES, MTO_SERVICE_ITEMS, MTO_SHIPMENTS } from 'constants/queryKeys';
 import { tooRoutes } from 'constants/routes';
 import SERVICE_ITEM_STATUSES from 'constants/serviceItems';
-import { ADDRESS_UPDATE_STATUS, shipmentStatuses } from 'constants/shipments';
+import { ADDRESS_UPDATE_STATUS, shipmentStatuses, ppmShipmentStatuses } from 'constants/shipments';
 import AllowancesList from 'components/Office/DefinitionLists/AllowancesList';
 import CustomerInfoList from 'components/Office/DefinitionLists/CustomerInfoList';
-import ButtonDropdown from 'components/ButtonDropdown/ButtonDropdown';
 import OrdersList from 'components/Office/DefinitionLists/OrdersList';
 import DetailsPanel from 'components/Office/DetailsPanel/DetailsPanel';
 import FinancialReviewButton from 'components/Office/FinancialReviewButton/FinancialReviewButton';
 import FinancialReviewModal from 'components/Office/FinancialReviewModal/FinancialReviewModal';
+import CancelMoveConfirmationModal from 'components/ConfirmationModals/CancelMoveConfirmationModal';
 import ApprovedRequestedShipments from 'components/Office/RequestedShipments/ApprovedRequestedShipments';
 import SubmittedRequestedShipments from 'components/Office/RequestedShipments/SubmittedRequestedShipments';
 import { useMoveDetailsQueries } from 'hooks/queries';
-import { updateMoveStatus, updateMTOShipmentStatus, updateFinancialFlag } from 'services/ghcApi';
+import { updateMoveStatus, updateMTOShipmentStatus, cancelMove, updateFinancialFlag } from 'services/ghcApi';
 import LeftNav from 'components/LeftNav/LeftNav';
 import LeftNavTag from 'components/LeftNavTag/LeftNavTag';
 import Restricted from 'components/Restricted/Restricted';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
-import { SHIPMENT_OPTIONS_URL } from 'shared/constants';
+import { MOVE_STATUSES } from 'shared/constants';
 import { SIT_EXTENSION_STATUS } from 'constants/sitExtensions';
 import { ORDERS_TYPE } from 'constants/orders';
 import { permissionTypes } from 'constants/permissions';
 import { objectIsMissingFieldWithCondition } from 'utils/displayFlags';
 import formattedCustomerName from 'utils/formattedCustomerName';
 import { calculateEstimatedWeight } from 'hooks/custom';
-
-const errorIfMissing = {
-  HHG_INTO_NTS_DOMESTIC: [
-    { fieldName: 'storageFacility' },
-    { fieldName: 'serviceOrderNumber' },
-    { fieldName: 'tacType' },
-  ],
-  HHG_OUTOF_NTS_DOMESTIC: [
-    { fieldName: 'storageFacility' },
-    { fieldName: 'ntsRecordedWeight' },
-    { fieldName: 'serviceOrderNumber' },
-    { fieldName: 'tacType' },
-  ],
-};
+import { ADVANCE_STATUSES } from 'constants/ppms';
 
 const MoveDetails = ({
   setUnapprovedShipmentCount,
   setUnapprovedServiceItemCount,
   setExcessWeightRiskCount,
   setUnapprovedSITExtensionCount,
+  setShipmentErrorConcernCount,
+  shipmentErrorConcernCount,
   setShipmentsWithDeliveryAddressUpdateRequestedCount,
   missingOrdersInfoCount,
   setMissingOrdersInfoCount,
@@ -63,9 +51,38 @@ const MoveDetails = ({
 }) => {
   const { moveCode } = useParams();
   const [isFinancialModalVisible, setIsFinancialModalVisible] = useState(false);
-  const [shipmentMissingRequiredInformation, setShipmentMissingRequiredInformation] = useState(false);
+  const [isCancelMoveModalVisible, setIsCancelMoveModalVisible] = useState(false);
   const [alertMessage, setAlertMessage] = useState(null);
   const [alertType, setAlertType] = useState('success');
+
+  // RA Summary: eslint-disable-next-line react-hooks/exhaustive-deps
+  // RA: This rule is used to enforce correct dependency arrays in hooks like useEffect, useCallback, and useMemo.
+  // RA: We are disabling this rule here because adding useMemo causes undesired behavior in our case.
+  // RA Developer Status: Known Issue - Intentional decision to prevent page refresh issues related to action counts.
+  // RA Validator Status: CODEOWNER ACCEPTED
+  // RA Modified Severity: N/A
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const errorIfMissing = {
+    HHG_INTO_NTS_DOMESTIC: [
+      { fieldName: 'storageFacility' },
+      { fieldName: 'serviceOrderNumber' },
+      { fieldName: 'tacType' },
+    ],
+    HHG_OUTOF_NTS_DOMESTIC: [
+      { fieldName: 'storageFacility' },
+      { fieldName: 'ntsRecordedWeight' },
+      { fieldName: 'serviceOrderNumber' },
+      { fieldName: 'tacType' },
+    ],
+    PPM: [
+      {
+        fieldName: 'advanceStatus',
+        condition: (mtoShipment) =>
+          mtoShipment?.ppmShipment?.hasRequestedAdvance === true &&
+          mtoShipment?.ppmShipment?.advanceStatus !== ADVANCE_STATUSES.APPROVED.apiValue,
+      },
+    ],
+  };
 
   const navigate = useNavigate();
 
@@ -74,6 +91,7 @@ const MoveDetails = ({
 
   // for now we are only showing dest type on retiree and separatee orders
   let isRetirementOrSeparation = false;
+  let numberOfShipmentsNotAllowedForCancel = 0;
 
   isRetirementOrSeparation =
     order?.order_type === ORDERS_TYPE.RETIREMENT || order?.order_type === ORDERS_TYPE.SEPARATION;
@@ -104,6 +122,20 @@ const MoveDetails = ({
       queryClient.setQueryData([MTO_SHIPMENTS, updatedMTOShipment.moveTaskOrderID, false], mtoShipments);
       queryClient.invalidateQueries([MTO_SHIPMENTS, updatedMTOShipment.moveTaskOrderID]);
       queryClient.invalidateQueries([MTO_SERVICE_ITEMS, updatedMTOShipment.moveTaskOrderID]);
+    },
+  });
+
+  const { mutate: mutateCancelMove } = useMutation(cancelMove, {
+    onSuccess: (data) => {
+      queryClient.setQueryData([MOVES, data.locator], data);
+      queryClient.invalidateQueries([MOVES, data.locator]);
+      queryClient.invalidateQueries({ queryKey: [MTO_SHIPMENTS] });
+      setAlertMessage('Move canceled.');
+      setAlertType('success');
+    },
+    onError: () => {
+      setAlertMessage('There was a problem cancelling the move. Please try again later.');
+      setAlertType('error');
     },
   });
 
@@ -143,6 +175,23 @@ const MoveDetails = ({
   const handleCancelFinancialReviewModal = () => {
     setIsFinancialModalVisible(false);
   };
+
+  const handleShowCancelMoveModal = () => {
+    setIsCancelMoveModalVisible(true);
+  };
+
+  const handleCancelMove = () => {
+    mutateCancelMove({
+      moveID: move.id,
+      ifMatchETag: move.eTag,
+    });
+    setIsCancelMoveModalVisible(false);
+  };
+
+  const handleCloseCancelMoveModal = () => {
+    setIsCancelMoveModalVisible(false);
+  };
+
   const submittedShipments = mtoShipments?.filter(
     (shipment) => shipment.status === shipmentStatuses.SUBMITTED && !shipment.deletedAt,
   );
@@ -159,17 +208,6 @@ const MoveDetails = ({
     (shipment) => shipment?.deliveryAddressUpdate?.status === ADDRESS_UPDATE_STATUS.REQUESTED && !shipment.deletedAt,
   );
 
-  const handleButtonDropdownChange = (e) => {
-    const selectedOption = e.target.value;
-
-    const addShipmentPath = `${generatePath(tooRoutes.SHIPMENT_ADD_PATH, {
-      moveCode,
-      shipmentType: selectedOption,
-    })}`;
-
-    navigate(addShipmentPath);
-  };
-
   useEffect(() => {
     const shipmentCount = shipmentWithDestinationAddressChangeRequest?.length || 0;
     if (setShipmentsWithDeliveryAddressUpdateRequestedCount)
@@ -177,6 +215,18 @@ const MoveDetails = ({
   }, [shipmentWithDestinationAddressChangeRequest?.length, setShipmentsWithDeliveryAddressUpdateRequestedCount]);
 
   const shipmentsInfoNonPPM = mtoShipments?.filter((shipment) => shipment.shipmentType !== 'PPM');
+  if (mtoShipments) {
+    const nonDeletedShipments = mtoShipments?.filter((shipment) => !shipment.deletedAt);
+    const nonPpmShipments = nonDeletedShipments.filter((shipment) => shipment.shipmentType !== 'PPM');
+    const nonPpmApprovedShipments = nonPpmShipments.filter(
+      (shipment) => shipment?.status === shipmentStatuses.APPROVED,
+    );
+    const onlyPpmShipments = nonDeletedShipments.filter((shipment) => shipment.shipmentType === 'PPM');
+    const ppmCloseoutCompleteShipments = onlyPpmShipments.filter(
+      (shipment) => shipment.ppmShipment?.status === ppmShipmentStatuses.CLOSEOUT_COMPLETE,
+    );
+    numberOfShipmentsNotAllowedForCancel = nonPpmApprovedShipments.length + ppmCloseoutCompleteShipments.length;
+  }
 
   useEffect(() => {
     const shipmentCount = submittedShipments?.length || 0;
@@ -224,21 +274,25 @@ const MoveDetails = ({
   }, [mtoShipments, setUnapprovedSITExtensionCount]);
 
   useEffect(() => {
-    let shipmentIsMissingInformation = false;
+    // Reset the error count before running any logic
+    let numberOfErrorIfMissingForAllShipments = 0;
 
+    // Process each shipment to accumulate errors
     mtoShipments?.forEach((mtoShipment) => {
-      const fieldsToCheckForShipment = errorIfMissing[mtoShipment.shipmentType];
-      const existsMissingFieldsOnShipment = fieldsToCheckForShipment?.some((field) =>
-        objectIsMissingFieldWithCondition(mtoShipment, field),
-      );
+      const errorIfMissingList = errorIfMissing[mtoShipment.shipmentType];
 
-      // If there were no fields to check, then nothing was required.
-      if (fieldsToCheckForShipment && existsMissingFieldsOnShipment) {
-        shipmentIsMissingInformation = true;
+      if (errorIfMissingList) {
+        errorIfMissingList.forEach((fieldToCheck) => {
+          if (objectIsMissingFieldWithCondition(mtoShipment, fieldToCheck)) {
+            numberOfErrorIfMissingForAllShipments += 1;
+          }
+        });
       }
     });
-    setShipmentMissingRequiredInformation(shipmentIsMissingInformation);
-  }, [mtoShipments]);
+
+    // Set the error concern count after processing
+    setShipmentErrorConcernCount(numberOfErrorIfMissingForAllShipments);
+  }, [errorIfMissing, mtoShipments, setShipmentErrorConcernCount]);
 
   // using useMemo here due to this being used in a useEffect
   // using useMemo prevents the useEffect from being rendered on ever render by memoizing the object
@@ -322,6 +376,7 @@ const MoveDetails = ({
   const hasAmendedOrders = ordersInfo.uploadedAmendedOrderID && !ordersInfo.amendedOrdersAcknowledgedAt;
   const hasDestinationAddressUpdate =
     shipmentWithDestinationAddressChangeRequest && shipmentWithDestinationAddressChangeRequest.length > 0;
+  const tooCanCancelMove = move.status !== MOVE_STATUSES.CANCELED && numberOfShipmentsNotAllowedForCancel === 0;
 
   return (
     <div className={styles.tabContent}>
@@ -344,18 +399,18 @@ const MoveDetails = ({
           </LeftNavTag>
           <LeftNavTag
             associatedSectionName="requested-shipments"
-            showTag={!shipmentMissingRequiredInformation}
+            showTag={submittedShipments?.length > 0}
             testID="requestedShipmentsTag"
           >
             {submittedShipments?.length || 0}
           </LeftNavTag>
           <LeftNavTag
-            className="usa-tag usa-tag--alert"
+            background="#e34b11"
             associatedSectionName="requested-shipments"
-            showTag={shipmentMissingRequiredInformation}
+            showTag={shipmentErrorConcernCount !== 0}
             testID="shipment-missing-info-alert"
           >
-            <FontAwesomeIcon icon="exclamation" />
+            {shipmentErrorConcernCount}
           </LeftNavTag>
           <LeftNavTag
             associatedSectionName="approved-shipments"
@@ -367,17 +422,28 @@ const MoveDetails = ({
         </LeftNav>
 
         <GridContainer className={styles.gridContainer} data-testid="too-move-details">
-          <div className={styles.tooMoveDetailsHeadingFlexbox}>
-            <h1 className={styles.tooMoveDetailsH1}>Move details</h1>
-            <Restricted to={permissionTypes.updateFinancialReviewFlag}>
-              <div className={styles.tooFinancialReviewContainer}>
-                <FinancialReviewButton
-                  onClick={handleShowFinancialReviewModal}
-                  reviewRequested={move.financialReviewFlag}
-                  isMoveLocked={isMoveLocked}
-                />
-              </div>
-            </Restricted>
+          <div>
+            <Grid row className={styles.pageHeader}>
+              {alertMessage && (
+                <Grid col={12} className={styles.alertContainer}>
+                  <Alert headingLevel="h4" slim type={alertType}>
+                    {alertMessage}
+                  </Alert>
+                </Grid>
+              )}
+            </Grid>
+            <Grid col={12} className={styles.tooMoveDetailsHeadingFlexbox}>
+              <h1 className={styles.tooMoveDetailsH1}>Move details</h1>
+              <Restricted to={permissionTypes.updateFinancialReviewFlag}>
+                <div>
+                  <FinancialReviewButton
+                    onClick={handleShowFinancialReviewModal}
+                    reviewRequested={move.financialReviewFlag}
+                    isMoveLocked={isMoveLocked}
+                  />
+                </div>
+              </Restricted>
+            </Grid>
           </div>
           {isFinancialModalVisible && (
             <FinancialReviewModal
@@ -387,34 +453,22 @@ const MoveDetails = ({
               initialSelection={move?.financialReviewFlag}
             />
           )}
-          <Grid row className={styles.pageHeader}>
-            {alertMessage && (
-              <Grid col={12} className={styles.alertContainer}>
-                <Alert headingLevel="h4" slim type={alertType}>
-                  {alertMessage}
-                </Alert>
-              </Grid>
-            )}
-          </Grid>
-          {!isMoveLocked && (
-            <Restricted to={permissionTypes.createTxoShipment}>
-              <ButtonDropdown
-                ariaLabel="Add a new shipment"
-                data-testid="addShipmentButton"
-                onChange={handleButtonDropdownChange}
-              >
-                <option value="" label="Add a new shipment">
-                  Add a new shipment
-                </option>
-                <option data-testid="hhgOption" value={SHIPMENT_OPTIONS_URL.HHG}>
-                  HHG
-                </option>
-                <option value={SHIPMENT_OPTIONS_URL.PPM}>PPM</option>
-                <option value={SHIPMENT_OPTIONS_URL.NTS}>NTS</option>
-                <option value={SHIPMENT_OPTIONS_URL.NTSrelease}>NTS-release</option>
-              </ButtonDropdown>
+          <Grid row col={12}>
+            <Restricted to={permissionTypes.cancelMoveFlag}>
+              <div className={styles.tooCancelMoveContainer}>
+                {tooCanCancelMove && !isMoveLocked && (
+                  <Button type="button" unstyled onClick={handleShowCancelMoveModal}>
+                    Cancel move
+                  </Button>
+                )}
+              </div>
             </Restricted>
-          )}
+          </Grid>
+          <CancelMoveConfirmationModal
+            isOpen={isCancelMoveModalVisible}
+            onClose={handleCloseCancelMoveModal}
+            onSubmit={handleCancelMove}
+          />
           {submittedShipments?.length > 0 && (
             <div className={styles.section} id="requested-shipments">
               <SubmittedRequestedShipments
@@ -529,6 +583,7 @@ MoveDetails.propTypes = {
   setUnapprovedServiceItemCount: func.isRequired,
   setExcessWeightRiskCount: func.isRequired,
   setUnapprovedSITExtensionCount: func.isRequired,
+  setShipmentErrorConcernCount: func.isRequired,
   setShipmentsWithDeliveryAddressUpdateRequestedCount: func,
 };
 
