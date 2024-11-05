@@ -97,11 +97,11 @@ const PrimeUIUpdateSitServiceItem = ({ setFlashMessage }) => {
       sitCustomerContacted: sitCustomerContacted === 'Invalid date' ? null : formatDateForSwagger(sitCustomerContacted),
       reServiceCode,
       modelType: 'UpdateMTOServiceItemSIT',
-      updateReason,
     };
 
     if (serviceItem?.status === SERVICE_ITEM_STATUSES.REJECTED) {
       body.requestApprovalsRequestedStatus = true;
+      body.updateReason = updateReason;
     }
 
     createUpdateSITServiceItemRequestMutation({ mtoServiceItemID, eTag, body });
