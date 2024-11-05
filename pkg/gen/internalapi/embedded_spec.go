@@ -4123,7 +4123,7 @@ func init() {
         "new_duty_location_id"
       ],
       "properties": {
-        "accompaniedTour": {
+        "accompanied_tour": {
           "description": "Indicates if the move entitlement allows dependents to travel to the new Permanent Duty Station (PDS). This is only present on OCONUS moves.",
           "type": "boolean",
           "x-nullable": true,
@@ -4138,13 +4138,13 @@ func init() {
         "department_indicator": {
           "$ref": "#/definitions/DeptIndicator"
         },
-        "dependentsTwelveAndOver": {
+        "dependents_twelve_and_over": {
           "description": "Indicates the number of dependents of the age twelve or older for a move. This is only present on OCONUS moves.",
           "type": "integer",
           "x-nullable": true,
           "example": 3
         },
-        "dependentsUnderTwelve": {
+        "dependents_under_twelve": {
           "description": "Indicates the number of dependents under the age of twelve for a move. This is only present on OCONUS moves.",
           "type": "integer",
           "x-nullable": true,
@@ -4401,19 +4401,19 @@ func init() {
     "Entitlement": {
       "type": "object",
       "properties": {
-        "accompaniedTour": {
+        "accompanied_tour": {
           "description": "Indicates if the move entitlement allows dependents to travel to the new Permanent Duty Station (PDS). This is only present on OCONUS moves.",
           "type": "boolean",
           "x-nullable": true,
           "example": true
         },
-        "dependentsTwelveAndOver": {
+        "dependents_twelve_and_over": {
           "description": "Indicates the number of dependents of the age twelve or older for a move. This is only present on OCONUS moves.",
           "type": "integer",
           "x-nullable": true,
           "example": 3
         },
-        "dependentsUnderTwelve": {
+        "dependents_under_twelve": {
           "description": "Indicates the number of dependents under the age of twelve for a move. This is only present on OCONUS moves.",
           "type": "integer",
           "x-nullable": true,
@@ -12799,7 +12799,7 @@ func init() {
         "new_duty_location_id"
       ],
       "properties": {
-        "accompaniedTour": {
+        "accompanied_tour": {
           "description": "Indicates if the move entitlement allows dependents to travel to the new Permanent Duty Station (PDS). This is only present on OCONUS moves.",
           "type": "boolean",
           "x-nullable": true,
@@ -12814,13 +12814,13 @@ func init() {
         "department_indicator": {
           "$ref": "#/definitions/DeptIndicator"
         },
-        "dependentsTwelveAndOver": {
+        "dependents_twelve_and_over": {
           "description": "Indicates the number of dependents of the age twelve or older for a move. This is only present on OCONUS moves.",
           "type": "integer",
           "x-nullable": true,
           "example": 3
         },
-        "dependentsUnderTwelve": {
+        "dependents_under_twelve": {
           "description": "Indicates the number of dependents under the age of twelve for a move. This is only present on OCONUS moves.",
           "type": "integer",
           "x-nullable": true,
@@ -13079,19 +13079,19 @@ func init() {
     "Entitlement": {
       "type": "object",
       "properties": {
-        "accompaniedTour": {
+        "accompanied_tour": {
           "description": "Indicates if the move entitlement allows dependents to travel to the new Permanent Duty Station (PDS). This is only present on OCONUS moves.",
           "type": "boolean",
           "x-nullable": true,
           "example": true
         },
-        "dependentsTwelveAndOver": {
+        "dependents_twelve_and_over": {
           "description": "Indicates the number of dependents of the age twelve or older for a move. This is only present on OCONUS moves.",
           "type": "integer",
           "x-nullable": true,
           "example": 3
         },
-        "dependentsUnderTwelve": {
+        "dependents_under_twelve": {
           "description": "Indicates the number of dependents under the age of twelve for a move. This is only present on OCONUS moves.",
           "type": "integer",
           "x-nullable": true,
