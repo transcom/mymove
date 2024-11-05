@@ -55,9 +55,9 @@ const officeQueryConfig = new QueryClient({
 });
 
 const App = () => {
-  if (flags.InMaintenance === undefined) {
-    return <MaintenancePage />;
-  }
+  // if (flags.InMaintenance === undefined) {
+  //   return <MaintenancePage />;
+  // }
 
   // We need an error boundary around each of the main apps (Office,
   // SystemAdmin, MyMove) because they are lazy loaded and it's
