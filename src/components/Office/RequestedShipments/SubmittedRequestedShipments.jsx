@@ -134,7 +134,7 @@ const SubmittedRequestedShipments = ({
   const shipmentMutation = useMutation(updateMTOShipment, {
     onSuccess: (updatedMTOShipments) => {
       filteredShipments.forEach((shipment, key) => {
-        if (updatedMTOShipments.mtoShipments[shipment.id] != null) {
+        if (updatedMTOShipments?.mtoShipments[shipment.id] != null) {
           filteredShipments[key] = updatedMTOShipments.mtoShipments[shipment.id];
         }
       });

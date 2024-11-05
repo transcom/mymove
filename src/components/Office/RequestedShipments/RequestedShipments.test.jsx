@@ -2,6 +2,7 @@ import React from 'react';
 import { act } from 'react-dom/test-utils';
 import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { generatePath } from 'react-router-dom';
 import { Provider } from 'react-redux';
 
@@ -54,17 +55,19 @@ const approveMTO = jest.fn().mockResolvedValue({ response: { status: 200 } });
 const mockStore = configureStore({});
 
 const submittedRequestedShipmentsComponent = (
-  <Provider store={mockStore.store}>
-    <SubmittedRequestedShipments
-      allowancesInfo={allowancesInfo}
-      moveCode="TE5TC0DE"
-      mtoShipments={shipments}
-      closeoutOffice={closeoutOffice}
-      customerInfo={customerInfo}
-      ordersInfo={ordersInfo}
-      approveMTO={approveMTO}
-    />
-  </Provider>
+  <QueryClientProvider client={new QueryClient()}>
+    <Provider store={mockStore.store}>
+      <SubmittedRequestedShipments
+        allowancesInfo={allowancesInfo}
+        moveCode="TE5TC0DE"
+        mtoShipments={shipments}
+        closeoutOffice={closeoutOffice}
+        customerInfo={customerInfo}
+        ordersInfo={ordersInfo}
+        approveMTO={approveMTO}
+      />
+    </Provider>
+  </QueryClientProvider>
 );
 
 const submittedRequestedShipmentsComponentWithPermission = (
