@@ -5,9 +5,11 @@ import { Button, Checkbox, Fieldset } from '@trussworks/react-uswds';
 import { generatePath, useParams, useNavigate } from 'react-router-dom';
 import { debounce } from 'lodash';
 import { connect } from 'react-redux';
+import { useQueryClient, useMutation } from '@tanstack/react-query';
 
 import styles from './RequestedShipments.module.scss';
 
+import { MTO_SHIPMENTS, PPMCLOSEOUT } from 'constants/queryKeys';
 import { hasCounseling, hasMoveManagement } from 'utils/serviceItems';
 import { isPPMOnly } from 'utils/shipments';
 import ShipmentApprovalPreview from 'components/Office/ShipmentApprovalPreview/ShipmentApprovalPreview';
@@ -25,6 +27,7 @@ import { fieldValidationShape } from 'utils/displayFlags';
 import ButtonDropdown from 'components/ButtonDropdown/ButtonDropdown';
 import { SHIPMENT_OPTIONS_URL } from 'shared/constants';
 import { setFlashMessage as setFlashMessageAction } from 'store/flash/actions';
+import { updateMTOShipment } from 'services/ghcApi';
 
 // nts defaults show preferred pickup date and pickup address, flagged items when collapsed
 // ntsr defaults shows preferred delivery date, storage facility address, destination address, flagged items when collapsed
@@ -55,6 +58,7 @@ const SubmittedRequestedShipments = ({
   mtoServiceItems,
   isMoveLocked,
   setFlashMessage,
+  setErrorMessage,
 }) => {
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [filteredShipments, setFilteredShipments] = useState([]);
@@ -100,6 +104,24 @@ const SubmittedRequestedShipments = ({
     };
   };
 
+  const queryClient = useQueryClient();
+  const shipmentMutation = useMutation(updateMTOShipment, {
+    onSuccess: (updatedMTOShipment) => {
+      filteredShipments[filteredShipments?.findIndex((shipment) => shipment.id === updatedMTOShipment.id)] =
+        updatedMTOShipment;
+
+      queryClient.setQueryData([MTO_SHIPMENTS, mtoShipments.moveTaskOrderID, false], mtoShipments);
+      queryClient.invalidateQueries([MTO_SHIPMENTS, mtoShipments.moveTaskOrderID]);
+      queryClient.invalidateQueries([PPMCLOSEOUT, mtoShipments?.ppmShipment?.id]);
+
+      setErrorMessage(null);
+    },
+    onError: (error) => {
+      setIsModalVisible(false);
+      setErrorMessage(error?.response?.body?.message ? error.response.body.message : 'Shipment failed to update.');
+    },
+  });
+
   const formik = useFormik({
     initialValues: {
       shipmentManagementFee: true,
@@ -112,53 +134,69 @@ const SubmittedRequestedShipments = ({
         serviceCodeCS: values.counselingFee,
       };
 
-      approveMTO(
-        {
-          moveTaskOrderID: moveTaskOrder.id,
-          ifMatchETag: moveTaskOrder.eTag,
-          mtoApprovalServiceItemCodes,
-          normalize: false,
-        },
-        {
-          onSuccess: async () => {
-            try {
-              await Promise.all(
-                filteredShipments.map((shipment) => {
-                  let operationPath = 'shipment.approveShipment';
+      const ppmShipmentPromise = filteredShipments.map((shipment) => {
+        if (shipment?.ppmShipment?.estimatedIncentive === 0) {
+          return shipmentMutation.mutateAsync({
+            moveTaskOrderID: shipment.moveTaskOrderID,
+            shipmentID: shipment.id,
+            ifMatchETag: shipment.eTag,
+            body: {
+              ppmShipment: shipment.ppmShipment,
+            },
+          });
+        }
 
-                  if (shipment.approvedDate && moveTaskOrder.availableToPrimeAt) {
-                    operationPath = 'shipment.approveShipmentDiversion';
-                  }
-                  return approveMTOShipment(
-                    {
-                      shipmentID: shipment.id,
-                      operationPath,
-                      ifMatchETag: shipment.eTag,
-                      normalize: false,
-                    },
-                    {
-                      onError: () => {
-                        // TODO: Decide if we want to display an error notice, log error event, or retry
-                        setSubmitting(false);
-                        setFlashMessage(null);
+        return Promise.resolve();
+      });
+
+      Promise.all(ppmShipmentPromise).then(() => {
+        approveMTO(
+          {
+            moveTaskOrderID: moveTaskOrder.id,
+            ifMatchETag: moveTaskOrder.eTag,
+            mtoApprovalServiceItemCodes,
+            normalize: false,
+          },
+          {
+            onSuccess: async () => {
+              try {
+                await Promise.all(
+                  filteredShipments.map((shipment) => {
+                    let operationPath = 'shipment.approveShipment';
+
+                    if (shipment.approvedDate && moveTaskOrder.availableToPrimeAt) {
+                      operationPath = 'shipment.approveShipmentDiversion';
+                    }
+                    return approveMTOShipment(
+                      {
+                        shipmentID: shipment.id,
+                        operationPath,
+                        ifMatchETag: shipment.eTag,
+                        normalize: false,
                       },
-                    },
-                  );
-                }),
-              );
-              setFlashMessage('TASK_ORDER_CREATE_SUCCESS', 'success', 'Task order created successfully.');
-              handleAfterSuccess('../mto', { showMTOpostedMessage: true });
-            } catch {
+                      {
+                        onError: () => {
+                          // TODO: Decide if we want to display an error notice, log error event, or retry
+                          setSubmitting(false);
+                          setFlashMessage(null);
+                        },
+                      },
+                    );
+                  }),
+                );
+                setFlashMessage('TASK_ORDER_CREATE_SUCCESS', 'success', 'Task order created successfully.');
+                handleAfterSuccess('../mto', { showMTOpostedMessage: true });
+              } catch {
+                setSubmitting(false);
+              }
+            },
+            onError: () => {
+              // TODO: Decide if we want to display an error notice, log error event, or retry
               setSubmitting(false);
-            }
+            },
           },
-          onError: () => {
-            // TODO: Decide if we want to display an error notice, log error event, or retry
-            setSubmitting(false);
-          },
-        },
-      );
-      //
+        );
+      });
     },
   });
 
@@ -362,6 +400,7 @@ SubmittedRequestedShipments.propTypes = {
   }).isRequired,
   approveMTO: PropTypes.func,
   approveMTOShipment: PropTypes.func,
+  setErrorMessage: PropTypes.func,
   moveTaskOrder: MoveTaskOrderShape,
   missingRequiredOrdersInfo: PropTypes.bool,
   handleAfterSuccess: PropTypes.func,
