@@ -89,7 +89,7 @@ test.describe('Services counselor user', () => {
       await page.locator('input[name="delivery.address.postalCode"]').clear();
       await page.locator('input[name="delivery.address.postalCode"]').fill('90210');
 
-      // Select that we do not know the destination address yet
+      // Select that we do not know the delivery address yet
       await page.getByRole('group', { name: 'Delivery location' }).getByText('No').nth(1).click();
       await expect(page.getByText('We can use the zip of their new duty location:')).toBeVisible();
 
@@ -360,7 +360,7 @@ test.describe('Services counselor user', () => {
       await expect(page.locator('.usa-alert__text')).toContainText('Your changes were saved.');
     });
 
-    test('is able to update destination type if destination address is unknown', async ({ page, scPage }) => {
+    test('is able to update destination type if delivery address is unknown', async ({ page, scPage }) => {
       await page.locator('[data-testid="ShipmentContainer"] .usa-button').first().click();
       await page.locator('#requestedPickupDate').clear();
       await page.locator('#requestedPickupDate').fill('16 Mar 2022');
@@ -371,7 +371,7 @@ test.describe('Services counselor user', () => {
       await page.locator('#requestedDeliveryDate').fill('16 May 2022');
       await page.locator('#requestedDeliveryDate').blur();
 
-      // Select that we do not know the destination address yet
+      // Select that we do not know the delivery address yet
       await page.getByRole('group', { name: 'Delivery location' }).getByText('No').nth(1).click();
 
       await expect(page.locator('select[name="destinationType"]')).toBeVisible();
@@ -497,7 +497,7 @@ test.describe('Services counselor user', () => {
       await page.getByRole('button', { name: 'Continue' }).click();
     });
 
-    test('is able to edit/save destination address', async ({ page, scPage }) => {
+    test('is able to edit/save delivery address', async ({ page, scPage }) => {
       // Navigate to the "Review documents" page
       await expect(page.getByRole('button', { name: /Review documents/i })).toBeVisible();
       await page.getByRole('button', { name: 'Review documents' }).click();

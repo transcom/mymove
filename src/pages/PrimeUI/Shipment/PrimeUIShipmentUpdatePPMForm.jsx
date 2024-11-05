@@ -110,15 +110,15 @@ const PrimeUIShipmentUpdatePPMForm = () => {
       <h2 className={styles.sectionHeader}>Destination Info</h2>
       <AddressFields
         name="ppmShipment.destinationAddress"
-        legend="Destination Address"
+        legend="Delivery Address"
         render={(fields) => (
           <>
             {fields}
-            <h4>Second destination address</h4>
+            <h4>Second delivery address</h4>
             <FormGroup>
               <p>
-                Will the movers deliver any belongings to a second address? (Must be near the destination address.
-                Subject to approval.)
+                Will the movers deliver any belongings to a second address? (Must be near the delivery address. Subject
+                to approval.)
               </p>
               <div className={formStyles.radioGroup}>
                 <Field
@@ -149,7 +149,7 @@ const PrimeUIShipmentUpdatePPMForm = () => {
                 <h4>Third destination location</h4>
                 <FormGroup>
                   <p>
-                    Will the movers pick up any belongings from a third address? (Must be near the Destination address.
+                    Will the movers pick up any belongings from a third address? (Must be near the Delivery Address.
                     Subject to approval.)
                   </p>
                   <div className={formStyles.radioGroup}>

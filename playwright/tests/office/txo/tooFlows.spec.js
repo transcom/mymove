@@ -803,7 +803,7 @@ test.describe('TOO user', () => {
     await expect(destinationAddress.getByLabel('State')).toHaveValue('CA');
     await expect(destinationAddress.getByLabel('ZIP')).toHaveValue('90210');
 
-    // Save the approved destination address change
+    // Save the approved delivery address change
     await page.getByRole('button', { name: 'Save' }).click();
 
     await expect(page.getByText('Update request details')).not.toBeVisible();

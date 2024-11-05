@@ -8,10 +8,10 @@ import { formatMoveHistoryFullAddress } from 'utils/formatters';
 
 const LABEL = {
   backupMailingAddress: 'Backup address',
-  destinationAddress: 'Destination address',
+  destinationAddress: 'Delivery Address',
   pickupAddress: 'Origin address',
   residentialAddress: 'Current address',
-  secondaryDestinationAddress: 'Secondary destination address',
+  secondaryDestinationAddress: 'Secondary delivery address',
   secondaryPickupAddress: 'Secondary origin address',
 };
 

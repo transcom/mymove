@@ -20,7 +20,7 @@ import Restricted from 'components/Restricted/Restricted';
 import { permissionTypes } from 'constants/permissions';
 
 // nts defaults show preferred pickup date and pickup address, flagged items when collapsed
-// ntsr defaults shows preferred delivery date, storage facility address, destination address, flagged items when collapsed
+// ntsr defaults shows preferred delivery date, storage facility address, delivery address, flagged items when collapsed
 // Different things show when collapsed depending on if the shipment is an external vendor or not.
 const showWhenCollapsedWithExternalVendor = {
   HHG_INTO_NTS_DOMESTIC: ['serviceOrderNumber', 'requestedDeliveryDate'],

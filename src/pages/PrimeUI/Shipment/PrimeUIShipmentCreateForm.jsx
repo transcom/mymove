@@ -198,14 +198,14 @@ const PrimeUIShipmentCreateForm = () => {
           <h2 className={styles.sectionHeader}>Destination Info</h2>
           <AddressFields
             name="ppmShipment.destinationAddress"
-            legend="Destination Address"
+            legend="Delivery Address"
             render={(fields) => (
               <>
                 {fields}
-                <h4>Second destination address</h4>
+                <h4>Second delivery address</h4>
                 <FormGroup>
                   <p>
-                    Will the movers deliver any belongings to a second address? (Must be near the destination address.
+                    Will the movers deliver any belongings to a second address? (Must be near the delivery address.
                     Subject to approval.)
                   </p>
                   <div className={formStyles.radioGroup}>
@@ -233,7 +233,7 @@ const PrimeUIShipmentCreateForm = () => {
                 </FormGroup>
                 {hasSecondaryDestinationAddress === 'true' && (
                   <>
-                    <h5 className={styles.sectionHeader}>Second Destination Address</h5>
+                    <h5 className={styles.sectionHeader}>Second Delivery Address</h5>
                     <AddressFields name="ppmShipment.secondaryDestinationAddress" />
 
                     <h4>Third delivery location</h4>
@@ -269,7 +269,7 @@ const PrimeUIShipmentCreateForm = () => {
                 )}
                 {hasTertiaryDestinationAddress === 'true' && hasSecondaryDestinationAddress === 'true' && (
                   <>
-                    <h5 className={styles.sectionHeader}>Third Destination Address</h5>
+                    <h5 className={styles.sectionHeader}>Third Delivery Address</h5>
                     <AddressFields name="ppmShipment.tertiaryDestinationAddress" />
                   </>
                 )}
@@ -472,7 +472,7 @@ const PrimeUIShipmentCreateForm = () => {
           <h3 className={styles.sectionHeader}>Destination Info</h3>
           <AddressFields
             name="destinationAddress"
-            legend="Destination Address"
+            legend="Delivery Address"
             render={(fields) => (
               <>
                 {fields}
@@ -508,7 +508,7 @@ const PrimeUIShipmentCreateForm = () => {
                 </FormGroup>
                 {hasSecondaryDestinationAddress === 'true' && (
                   <>
-                    <h5 className={styles.sectionHeader}>Second Destination Address</h5>
+                    <h5 className={styles.sectionHeader}>Second Delivery Address</h5>
                     <AddressFields name="secondaryDestinationAddress" />
 
                     <h4>Third delivery location</h4>
@@ -544,7 +544,7 @@ const PrimeUIShipmentCreateForm = () => {
                 )}
                 {hasTertiaryDestinationAddress === 'true' && hasSecondaryDestinationAddress === 'true' && (
                   <>
-                    <h5 className={styles.sectionHeader}>Third Destination Address</h5>
+                    <h5 className={styles.sectionHeader}>Third Delivery Address</h5>
                     <AddressFields name="tertiaryDestinationAddress" />
                   </>
                 )}

@@ -206,7 +206,7 @@ describe('Shipment details component', () => {
     expect(field.nextElementSibling.textContent).toContain(shipment.pickupAddress.streetAddress2);
     expect(field.nextElementSibling.textContent).toContain(shipment.pickupAddress.postalCode);
 
-    field = screen.getByText('Destination Address:');
+    field = screen.getByText('Delivery Address:');
     expect(field).toBeInTheDocument();
     expect(field.nextElementSibling.textContent).toContain(shipment.destinationAddress.city);
     expect(field.nextElementSibling.textContent).toContain(shipment.destinationAddress.state);

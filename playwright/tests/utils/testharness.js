@@ -186,7 +186,7 @@ export class TestHarness {
   }
 
   /**
-   *    * Use testharness to build a move with an hhg shipment in SIT without destination address
+   *    * Use testharness to build a move with an hhg shipment in SIT without delivery address
    * @returns {Promise<Move>}
    */
 
