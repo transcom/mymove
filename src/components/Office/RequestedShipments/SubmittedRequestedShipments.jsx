@@ -106,13 +106,16 @@ const SubmittedRequestedShipments = ({
 
   const queryClient = useQueryClient();
   const shipmentMutation = useMutation(updateMTOShipment, {
-    onSuccess: (updatedMTOShipment) => {
-      filteredShipments[filteredShipments?.findIndex((shipment) => shipment.id === updatedMTOShipment.id)] =
-        updatedMTOShipment;
+    onSuccess: (updatedMTOShipments) => {
+      filteredShipments.forEach((shipment, key) => {
+        if (updatedMTOShipments.mtoShipments[shipment.id] != null) {
+          filteredShipments[key] = updatedMTOShipments.mtoShipments[shipment.id];
+        }
+      });
 
-      queryClient.setQueryData([MTO_SHIPMENTS, mtoShipments.moveTaskOrderID, false], mtoShipments);
-      queryClient.invalidateQueries([MTO_SHIPMENTS, mtoShipments.moveTaskOrderID]);
-      queryClient.invalidateQueries([PPMCLOSEOUT, mtoShipments?.ppmShipment?.id]);
+      queryClient.setQueryData([MTO_SHIPMENTS, filteredShipments.moveTaskOrderID, false], filteredShipments);
+      queryClient.invalidateQueries([MTO_SHIPMENTS, filteredShipments.moveTaskOrderID]);
+      queryClient.invalidateQueries([PPMCLOSEOUT, filteredShipments?.ppmShipment?.id]);
 
       setErrorMessage(null);
     },
@@ -128,7 +131,7 @@ const SubmittedRequestedShipments = ({
       counselingFee: false,
       shipments: [],
     },
-    onSubmit: (values, { setSubmitting }) => {
+    onSubmit: async (values, { setSubmitting }) => {
       const mtoApprovalServiceItemCodes = {
         serviceCodeMS: values.shipmentManagementFee && !moveTaskOrder.availableToPrimeAt,
         serviceCodeCS: values.counselingFee,
@@ -149,54 +152,57 @@ const SubmittedRequestedShipments = ({
         return Promise.resolve();
       });
 
-      Promise.all(ppmShipmentPromise).then(() => {
-        approveMTO(
-          {
-            moveTaskOrderID: moveTaskOrder.id,
-            ifMatchETag: moveTaskOrder.eTag,
-            mtoApprovalServiceItemCodes,
-            normalize: false,
-          },
-          {
-            onSuccess: async () => {
-              try {
-                await Promise.all(
-                  filteredShipments.map((shipment) => {
-                    let operationPath = 'shipment.approveShipment';
+      try {
+        await Promise.all(ppmShipmentPromise).then(() => {
+          approveMTO(
+            {
+              moveTaskOrderID: moveTaskOrder.id,
+              ifMatchETag: moveTaskOrder.eTag,
+              mtoApprovalServiceItemCodes,
+              normalize: false,
+            },
+            {
+              onSuccess: async () => {
+                try {
+                  await Promise.all(
+                    filteredShipments.map((shipment) => {
+                      let operationPath = 'shipment.approveShipment';
 
-                    if (shipment.approvedDate && moveTaskOrder.availableToPrimeAt) {
-                      operationPath = 'shipment.approveShipmentDiversion';
-                    }
-                    return approveMTOShipment(
-                      {
-                        shipmentID: shipment.id,
-                        operationPath,
-                        ifMatchETag: shipment.eTag,
-                        normalize: false,
-                      },
-                      {
-                        onError: () => {
-                          // TODO: Decide if we want to display an error notice, log error event, or retry
-                          setSubmitting(false);
-                          setFlashMessage(null);
+                      if (shipment.approvedDate && moveTaskOrder.availableToPrimeAt) {
+                        operationPath = 'shipment.approveShipmentDiversion';
+                      }
+                      return approveMTOShipment(
+                        {
+                          shipmentID: shipment.id,
+                          operationPath,
+                          ifMatchETag: shipment.eTag,
+                          normalize: false,
                         },
-                      },
-                    );
-                  }),
-                );
-                setFlashMessage('TASK_ORDER_CREATE_SUCCESS', 'success', 'Task order created successfully.');
-                handleAfterSuccess('../mto', { showMTOpostedMessage: true });
-              } catch {
+                        {
+                          onError: () => {
+                            setSubmitting(false);
+                            setFlashMessage(null);
+                          },
+                        },
+                      );
+                    }),
+                  ).then(() => {
+                    setFlashMessage('TASK_ORDER_CREATE_SUCCESS', 'success', 'Task order created successfully.');
+                    handleAfterSuccess('../mto', { showMTOpostedMessage: true });
+                  });
+                } catch {
+                  setSubmitting(false);
+                }
+              },
+              onError: () => {
                 setSubmitting(false);
-              }
+              },
             },
-            onError: () => {
-              // TODO: Decide if we want to display an error notice, log error event, or retry
-              setSubmitting(false);
-            },
-          },
-        );
-      });
+          );
+        });
+      } catch {
+        setSubmitting(false);
+      }
     },
   });
 
