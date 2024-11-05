@@ -81,6 +81,7 @@ func (suite *PayloadsSuite) TestFetchPPMShipment() {
 		suite.Equal(&state, returnedPPMShipment.DestinationAddress.State)
 		suite.Equal(&country.Country, returnedPPMShipment.DestinationAddress.Country)
 		suite.Equal(&county, returnedPPMShipment.DestinationAddress.County)
+		suite.True(*returnedPPMShipment.IsActualExpenseReimbursement)
 	})
 
 	suite.Run("Destination street address 1 returns empty string to convey OPTIONAL state ", func() {
