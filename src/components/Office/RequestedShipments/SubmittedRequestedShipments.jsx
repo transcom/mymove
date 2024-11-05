@@ -107,9 +107,9 @@ const SubmittedRequestedShipments = ({
   const queryClient = useQueryClient();
   const shipmentMutation = useMutation(updateMTOShipment, {
     onSuccess: (updatedMTOShipments) => {
-      if (filteredShipments !== null && updatedMTOShipments !== undefined) {
+      if (filteredShipments !== null && updatedMTOShipments?.mtoShipments !== undefined) {
         filteredShipments.forEach((shipment, key) => {
-          if (updatedMTOShipments?.mtoShipments[shipment.id] != null) {
+          if (updatedMTOShipments?.mtoShipments[shipment.id] !== undefined) {
             filteredShipments[key] = updatedMTOShipments.mtoShipments[shipment.id];
           }
         });
