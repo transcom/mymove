@@ -378,7 +378,7 @@ describe('ServicesCounselingQueue', () => {
   describe('verify cached filters are displayed in respective filter column header on page reload -  Service Counselor', () => {
     window.sessionStorage.setItem(
       OFFICE_TABLE_QUEUE_SESSION_STORAGE_ID,
-      '{"counseling":{"filters":[{"id":"customerName","value":"Spacemen"},{"id":"dodID","value":"7232607949"},{"id":"locator","value":"PPMADD"},{"id":"requestedMoveDate","value":"2024-06-21"},{"id":"submittedAt","value":"2024-06-20T04:00:00+00:00"},{"id":"branch","value":"ARMY"},{"id":"originDutyLocation","value":"12345"}], "sortParam":[{"id":"customerName","desc":false}], "page":3,"pageSize":10}}',
+      '{"counseling":{"filters":[{"id":"customerName","value":"Spacemen"},{"id":"edipi","value":"7232607949"},{"id":"locator","value":"PPMADD"},{"id":"requestedMoveDate","value":"2024-06-21"},{"id":"submittedAt","value":"2024-06-20T04:00:00+00:00"},{"id":"branch","value":"ARMY"},{"id":"originDutyLocation","value":"12345"}], "sortParam":[{"id":"customerName","desc":false}], "page":3,"pageSize":10}}',
     );
     useUserQueries.mockReturnValue(serviceCounselorUser);
 
