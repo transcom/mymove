@@ -446,7 +446,6 @@ describe('RequestedShipments', () => {
             <Provider store={mockStore.store}>
               <Component {...statusTestProps[status]} />
             </Provider>
-            ,
           </QueryClientProvider>,
         );
 
