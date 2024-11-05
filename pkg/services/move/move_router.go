@@ -446,7 +446,7 @@ func (router moveRouter) Cancel(appCtx appcontext.AppContext, move *models.Move)
 	moveDelta := move
 	moveDelta.Status = models.MoveStatusCANCELED
 
-	// get all shipments in move for cancelation
+	// get all shipments in move for cancellation
 	var shipments []models.MTOShipment
 	err := appCtx.DB().EagerPreload("Status", "PPMShipment", "PPMShipment.Status").Where("mto_shipments.move_id = $1", move.ID).All(&shipments)
 	if err != nil {
