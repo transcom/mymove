@@ -114,18 +114,20 @@ const submittedRequestedShipmentsComponentAvailableToPrimeAt = (
 );
 
 const submittedRequestedShipmentsComponentServicesCounselingCompleted = (
-  <Provider store={mockStore.store}>
-    <SubmittedRequestedShipments
-      ordersInfo={ordersInfo}
-      allowancesInfo={allowancesInfo}
-      customerInfo={customerInfo}
-      mtoShipments={shipments}
-      closeoutOffice={closeoutOffice}
-      approveMTO={approveMTO}
-      moveTaskOrder={moveTaskOrderServicesCounselingCompleted}
-      moveCode="TE5TC0DE"
-    />
-  </Provider>
+  <QueryClientProvider client={new QueryClient()}>
+    <Provider store={mockStore.store}>
+      <SubmittedRequestedShipments
+        ordersInfo={ordersInfo}
+        allowancesInfo={allowancesInfo}
+        customerInfo={customerInfo}
+        mtoShipments={shipments}
+        closeoutOffice={closeoutOffice}
+        approveMTO={approveMTO}
+        moveTaskOrder={moveTaskOrderServicesCounselingCompleted}
+        moveCode="TE5TC0DE"
+      />
+    </Provider>
+  </QueryClientProvider>
 );
 
 const submittedRequestedShipmentsComponentMissingRequiredInfo = (
@@ -440,9 +442,12 @@ describe('RequestedShipments', () => {
         const Component = statusComponents[status];
 
         render(
-          <Provider store={mockStore.store}>
-            <Component {...statusTestProps[status]} />
-          </Provider>,
+          <QueryClientProvider client={new QueryClient()}>
+            <Provider store={mockStore.store}>
+              <Component {...statusTestProps[status]} />
+            </Provider>
+            ,
+          </QueryClientProvider>,
         );
 
         const customerRemarks = screen.getAllByTestId('customerRemarks');
