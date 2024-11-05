@@ -91,8 +91,6 @@ const PrimeUIUpdateSitServiceItem = ({ setFlashMessage }) => {
       eTag,
     } = values;
 
-    const requestApprovalsRequestedStatus = serviceItem?.status === SERVICE_ITEM_STATUSES.REJECTED;
-
     const body = {
       sitDepartureDate: sitDepartureDate === 'Invalid date' ? null : formatDateForSwagger(sitDepartureDate),
       sitRequestedDelivery: sitRequestedDelivery === 'Invalid date' ? null : formatDateForSwagger(sitRequestedDelivery),
@@ -100,8 +98,11 @@ const PrimeUIUpdateSitServiceItem = ({ setFlashMessage }) => {
       reServiceCode,
       modelType: 'UpdateMTOServiceItemSIT',
       updateReason,
-      requestApprovalsRequestedStatus,
     };
+
+    if (serviceItem?.status === SERVICE_ITEM_STATUSES.REJECTED) {
+      body.requestApprovalsRequestedStatus = true;
+    }
 
     createUpdateSITServiceItemRequestMutation({ mtoServiceItemID, eTag, body });
   };
