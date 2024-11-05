@@ -980,7 +980,6 @@
 20240801135811_create_mobile_home.up.sql
 20240801135833_alter_mto_shipment_type_motorhome.up.sql
 20240802161708_tpps_paid_invoice_table.up.sql
-20240805234231_update_us_post_region_cities_state.up.sql
 20240806151051_update_pws_violations.up.sql
 20240806230447_add_rotation_to_uploads.up.sql
 20240807140736_add_locked_price_cents_to_mto_service_items.up.sql
