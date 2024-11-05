@@ -8,6 +8,7 @@ import { customerRoutes } from 'constants/routes';
 import { SHIPMENT_OPTIONS } from 'shared/constants';
 import { renderWithRouterProp } from 'testUtils';
 import { selectCurrentMoveFromAllMoves, selectCurrentShipmentFromMove } from 'store/entities/selectors';
+import { ORDERS_TYPE } from 'constants/orders';
 
 const mockParams = { moveId: 'move123', mtoShipmentId: 'shipment123' };
 const mockPath = customerRoutes.SHIPMENT_EDIT_PATH;
@@ -178,7 +179,7 @@ const testMove = {
       name: 'Flagstaff, AZ 86003',
       updated_at: '2024-02-27T18:22:12.471Z',
     },
-    orders_type: 'PERMANENT_CHANGE_OF_STATION',
+    orders_type: ORDERS_TYPE.PERMANENT_CHANGE_OF_STATION,
     originDutyLocationGbloc: 'BGAC',
     origin_duty_location: {
       address: {
