@@ -95,7 +95,7 @@ const needsCounselingMoves = {
           agency: SERVICE_MEMBER_AGENCIES.ARMY,
           first_name: 'test first',
           last_name: 'test last',
-          dodID: '555555555',
+          eipid: '555555555',
         },
         locator: 'AB5PC',
         requestedMoveDate: '2021-03-01T00:00:00.000Z',
@@ -129,7 +129,7 @@ const needsCounselingMoves = {
           agency: SERVICE_MEMBER_AGENCIES.COAST_GUARD,
           first_name: 'test another first',
           last_name: 'test another last',
-          dodID: '4444444444',
+          eipid: '4444444444',
           emplid: '4521567',
         },
         locator: 'T12AR',
@@ -165,7 +165,7 @@ const needsCounselingMoves = {
           agency: SERVICE_MEMBER_AGENCIES.MARINES,
           first_name: 'test third first',
           last_name: 'test third last',
-          dodID: '4444444444',
+          eipid: '4444444444',
         },
         locator: 'T12MP',
         requestedMoveDate: '2021-04-15T00:00:00.000Z',
@@ -209,7 +209,7 @@ const serviceCounselingCompletedMoves = {
           agency: SERVICE_MEMBER_AGENCIES.ARMY,
           first_name: 'test first',
           last_name: 'test last',
-          dodID: '555555555',
+          eipid: '555555555',
         },
         locator: 'AB5PC',
         requestedMoveDate: '2021-03-01T00:00:00.000Z',
@@ -231,7 +231,7 @@ const serviceCounselingCompletedMoves = {
           agency: SERVICE_MEMBER_AGENCIES.COAST_GUARD,
           first_name: 'test another first',
           last_name: 'test another last',
-          dodID: '4444444444',
+          eipid: '4444444444',
         },
         locator: 'T12AR',
         requestedMoveDate: '2021-04-15T00:00:00.000Z',
@@ -309,7 +309,7 @@ describe('ServicesCounselingQueue', () => {
       const moves = wrapper.find('tbody tr');
       const firstMove = moves.at(0);
       expect(firstMove.find('td.customerName').text()).toBe('test last, test first');
-      expect(firstMove.find('td.dodID').text()).toBe('555555555');
+      expect(firstMove.find('td.eipid').text()).toBe('555555555');
       expect(firstMove.find('td.locator').text()).toBe('AB5PC');
       expect(firstMove.find('td.status').text()).toBe('Needs counseling');
       expect(firstMove.find('td.requestedMoveDate').text()).toBe('01 Mar 2021');
@@ -321,7 +321,7 @@ describe('ServicesCounselingQueue', () => {
 
       const secondMove = moves.at(1);
       expect(secondMove.find('td.customerName').text()).toBe('test another last, test another first');
-      expect(secondMove.find('td.dodID').text()).toBe('4444444444');
+      expect(secondMove.find('td.eipid').text()).toBe('4444444444');
       expect(secondMove.find('td.emplid').text()).toBe('4521567');
       expect(secondMove.find('td.locator').text()).toBe('T12AR');
       expect(secondMove.find('td.status').text()).toBe('Needs counseling');
@@ -334,7 +334,7 @@ describe('ServicesCounselingQueue', () => {
 
       const thirdMove = moves.at(2);
       expect(thirdMove.find('td.customerName').text()).toBe('test third last, test third first');
-      expect(thirdMove.find('td.dodID').text()).toBe('4444444444');
+      expect(thirdMove.find('td.eipid').text()).toBe('4444444444');
       expect(thirdMove.find('td.locator').text()).toBe('T12MP');
       expect(thirdMove.find('td.status').text()).toBe('Needs counseling');
       expect(thirdMove.find('td.requestedMoveDate').text()).toBe('15 Apr 2021');
@@ -351,7 +351,7 @@ describe('ServicesCounselingQueue', () => {
 
     it('allows sorting on certain columns', () => {
       expect(wrapper.find('th[data-testid="customerName"][role="columnheader"]').prop('onClick')).not.toBe(undefined);
-      expect(wrapper.find('th[data-testid="dodID"][role="columnheader"]').prop('onClick')).not.toBe(undefined);
+      expect(wrapper.find('th[data-testid="eipid"][role="columnheader"]').prop('onClick')).not.toBe(undefined);
       expect(wrapper.find('th[data-testid="emplid"][role="columnheader"]').prop('onClick')).not.toBe(undefined);
       expect(wrapper.find('th[data-testid="locator"][role="columnheader"]').prop('onClick')).not.toBe(undefined);
       expect(wrapper.find('th[data-testid="requestedMoveDate"][role="columnheader"]').prop('onClick')).not.toBe(
@@ -391,7 +391,7 @@ describe('ServicesCounselingQueue', () => {
           agency: SERVICE_MEMBER_AGENCIES.ARMY,
           first_name: 'test first',
           last_name: 'test last',
-          dodID: '555555555',
+          eipid: '555555555',
         },
         locator: 'AB5PC',
         requestedMoveDate: '2021-03-01T00:00:00.000Z',
