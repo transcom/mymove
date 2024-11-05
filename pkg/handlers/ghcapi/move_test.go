@@ -295,9 +295,11 @@ func (suite *HandlerSuite) TestSearchMovesHandler() {
 
 		mockSearcher := mocks.MoveSearcher{}
 
+		mockUnlocker := movelocker.NewMoveUnlocker()
 		handler := SearchMovesHandler{
 			HandlerConfig: suite.HandlerConfig(),
 			MoveSearcher:  &mockSearcher,
+			MoveUnlocker:  mockUnlocker,
 		}
 		mockSearcher.On("SearchMoves",
 			mock.AnythingOfType("*appcontext.appContext"),
