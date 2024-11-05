@@ -25,6 +25,8 @@ const ServicesCounselingAddShipment = () => {
     shipmentType = SHIPMENT_OPTIONS.NTSR;
   } else if (shipmentType === SHIPMENT_OPTIONS_URL.BOAT) {
     shipmentType = SHIPMENT_OPTIONS.BOAT;
+  } else if (shipmentType === SHIPMENT_OPTIONS_URL.MOBILE_HOME) {
+    shipmentType = SHIPMENT_OPTIONS.MOBILE_HOME;
   } else {
     shipmentType = SHIPMENT_OPTIONS[shipmentType];
   }
@@ -46,7 +48,7 @@ const ServicesCounselingAddShipment = () => {
   if (isLoading) return <LoadingPlaceholder />;
   if (isError) return <SomethingWentWrong />;
 
-  const { customer, entitlement: allowances } = order;
+  const { customer, entitlement: allowances, grade } = order;
   const weightAllotment = { ...allowances, totalWeightSelf: allowances.authorizedWeight };
 
   const TACs = {
@@ -73,7 +75,7 @@ const ServicesCounselingAddShipment = () => {
                 originDutyLocationAddress={order.originDutyLocation?.address}
                 newDutyLocationAddress={order.destinationDutyLocation?.address}
                 shipmentType={shipmentType}
-                serviceMember={{ weightAllotment, agency: customer.agency }}
+                serviceMember={{ weightAllotment, agency: customer.agency, grade }}
                 moveTaskOrderID={move.id}
                 mtoShipments={mtoShipments}
                 TACs={TACs}

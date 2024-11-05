@@ -1,6 +1,7 @@
 package order
 
 import (
+	"strings"
 	"time"
 
 	"github.com/gofrs/uuid"
@@ -10,6 +11,7 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/models/roles"
 	"github.com/transcom/mymove/pkg/services"
+	moveservice "github.com/transcom/mymove/pkg/services/move"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
@@ -74,6 +76,7 @@ func (suite *OrderServiceSuite) TestListOrders() {
 
 	agfmPostalCode := "06001"
 	setupTestData := func() (models.OfficeUser, models.Move, auth.Session) {
+
 		// Make an office user → GBLOC X
 		officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
 		session := auth.Session{
@@ -105,7 +108,7 @@ func (suite *OrderServiceSuite) TestListOrders() {
 		// Create a Move without a shipment
 		factory.BuildMove(suite.DB(), nil, nil)
 
-		moves, moveCount, err := orderFetcher.ListOrders(suite.AppContextWithSessionForTest(&session), officeUser.ID, &services.ListOrderParams{})
+		moves, moveCount, err := orderFetcher.ListOrders(suite.AppContextWithSessionForTest(&session), officeUser.ID, roles.RoleTypeTOO, &services.ListOrderParams{})
 
 		// Expect a single move returned
 		suite.FatalNoError(err)
@@ -146,7 +149,7 @@ func (suite *OrderServiceSuite) TestListOrders() {
 			},
 		}, nil)
 
-		moves, _, err := orderFetcher.ListOrders(suite.AppContextWithSessionForTest(&session), officeUser.ID, &services.ListOrderParams{Page: models.Int64Pointer(1)})
+		moves, _, err := orderFetcher.ListOrders(suite.AppContextWithSessionForTest(&session), officeUser.ID, roles.RoleTypeTOO, &services.ListOrderParams{Page: models.Int64Pointer(1)})
 
 		suite.FatalNoError(err)
 		suite.Equal(1, len(moves))
@@ -170,7 +173,7 @@ func (suite *OrderServiceSuite) TestListOrders() {
 				},
 			},
 		}, nil)
-		moves, _, err := orderFetcher.ListOrders(suite.AppContextWithSessionForTest(&session), officeUser.ID, &params)
+		moves, _, err := orderFetcher.ListOrders(suite.AppContextWithSessionForTest(&session), officeUser.ID, roles.RoleTypeTOO, &params)
 
 		suite.FatalNoError(err)
 		suite.Equal(1, len(moves))
@@ -187,7 +190,7 @@ func (suite *OrderServiceSuite) TestListOrders() {
 		officeUser, expectedMove, session := setupTestData()
 		expectedComboMove := factory.BuildMoveWithShipment(suite.DB(), nil, nil)
 
-		moves, moveCount, err := orderFetcher.ListOrders(suite.AppContextWithSessionForTest(&session), officeUser.ID, &services.ListOrderParams{})
+		moves, moveCount, err := orderFetcher.ListOrders(suite.AppContextWithSessionForTest(&session), officeUser.ID, roles.RoleTypeTOO, &services.ListOrderParams{})
 
 		suite.FatalNoError(err)
 		suite.Equal(2, moveCount)
@@ -221,7 +224,7 @@ func (suite *OrderServiceSuite) TestListOrders() {
 		}, nil)
 		// Filter by airforce move
 		params := services.ListOrderParams{Branch: &airForceString, Page: models.Int64Pointer(1)}
-		moves, _, err := orderFetcher.ListOrders(suite.AppContextWithSessionForTest(&session), officeUser.ID, &params)
+		moves, _, err := orderFetcher.ListOrders(suite.AppContextWithSessionForTest(&session), officeUser.ID, roles.RoleTypeTOO, &params)
 
 		suite.FatalNoError(err)
 		suite.Equal(1, len(moves))
@@ -266,7 +269,7 @@ func (suite *OrderServiceSuite) TestListOrders() {
 
 		// Filter by submittedAt timestamp
 		params := services.ListOrderParams{SubmittedAt: &submittedAt}
-		moves, _, err := orderFetcher.ListOrders(suite.AppContextWithSessionForTest(&session), officeUser.ID, &params)
+		moves, _, err := orderFetcher.ListOrders(suite.AppContextWithSessionForTest(&session), officeUser.ID, roles.RoleTypeTOO, &params)
 
 		suite.FatalNoError(err)
 		suite.Equal(1, len(moves))
@@ -321,7 +324,7 @@ func (suite *OrderServiceSuite) TestListOrders() {
 		}, nil)
 		// Filter by AppearedInTOOAt timestamp
 		params := services.ListOrderParams{AppearedInTOOAt: &specifiedDay}
-		moves, _, err := orderFetcher.ListOrders(suite.AppContextWithSessionForTest(&session), officeUser.ID, &params)
+		moves, _, err := orderFetcher.ListOrders(suite.AppContextWithSessionForTest(&session), officeUser.ID, roles.RoleTypeTOO, &params)
 
 		suite.FatalNoError(err)
 		suite.Equal(3, len(moves))
@@ -349,7 +352,7 @@ func (suite *OrderServiceSuite) TestListOrders() {
 			},
 		}, nil)
 		requestedMoveDateString := createdMove.MTOShipments[0].RequestedPickupDate.Format("2006-01-02")
-		moves, _, err := orderFetcher.ListOrders(suite.AppContextWithSessionForTest(&session), officeUser.ID, &services.ListOrderParams{
+		moves, _, err := orderFetcher.ListOrders(suite.AppContextWithSessionForTest(&session), officeUser.ID, roles.RoleTypeTOO, &services.ListOrderParams{
 			RequestedMoveDate: &requestedMoveDateString,
 		})
 
@@ -381,7 +384,7 @@ func (suite *OrderServiceSuite) TestListOrders() {
 		fullPPMMove := ppmShipment.Shipment.MoveTaskOrder
 
 		// Search for PARTIAL PPM moves
-		moves, _, err := orderFetcher.ListOrders(suite.AppContextWithSessionForTest(&session), officeUser.ID, &services.ListOrderParams{
+		moves, _, err := orderFetcher.ListOrders(suite.AppContextWithSessionForTest(&session), officeUser.ID, roles.RoleTypeTOO, &services.ListOrderParams{
 			PPMType: models.StringPointer("PARTIAL"),
 		})
 
@@ -390,7 +393,7 @@ func (suite *OrderServiceSuite) TestListOrders() {
 		suite.Equal(partialPPMMove.Locator, moves[0].Locator)
 
 		// Search for FULL PPM moves
-		moves, _, err = orderFetcher.ListOrders(suite.AppContextWithSessionForTest(&session), officeUser.ID, &services.ListOrderParams{
+		moves, _, err = orderFetcher.ListOrders(suite.AppContextWithSessionForTest(&session), officeUser.ID, roles.RoleTypeTOO, &services.ListOrderParams{
 			PPMType: models.StringPointer("FULL"),
 		})
 
@@ -416,7 +419,7 @@ func (suite *OrderServiceSuite) TestListOrders() {
 			},
 		})
 		// Search for PARTIAL PPM moves
-		moves, _, err := orderFetcher.ListOrders(suite.AppContextWithSessionForTest(&session), officeUser.ID, &services.ListOrderParams{
+		moves, _, err := orderFetcher.ListOrders(suite.AppContextWithSessionForTest(&session), officeUser.ID, roles.RoleTypeTOO, &services.ListOrderParams{
 			PPMStatus: models.StringPointer("NEEDS_CLOSEOUT"),
 		})
 
@@ -433,7 +436,7 @@ func (suite *OrderServiceSuite) TestListOrders() {
 			},
 		})
 		// Search for FULL PPM moves
-		moves, _, err = orderFetcher.ListOrders(suite.AppContextWithSessionForTest(&session), officeUser.ID, &services.ListOrderParams{
+		moves, _, err = orderFetcher.ListOrders(suite.AppContextWithSessionForTest(&session), officeUser.ID, roles.RoleTypeTOO, &services.ListOrderParams{
 			PPMStatus: models.StringPointer("WAITING_ON_CUSTOMER"),
 		})
 
@@ -464,7 +467,7 @@ func (suite *OrderServiceSuite) TestListOrders() {
 		})
 
 		// Search should be case insensitive and allow partial matches
-		moves, _, err := orderFetcher.ListOrders(suite.AppContextWithSessionForTest(&session), officeUser.ID, &services.ListOrderParams{
+		moves, _, err := orderFetcher.ListOrders(suite.AppContextWithSessionForTest(&session), officeUser.ID, roles.RoleTypeTOO, &services.ListOrderParams{
 			CloseoutLocation: models.StringPointer("fT bR"),
 			NeedsPPMCloseout: models.BoolPointer(true),
 		})
@@ -509,7 +512,7 @@ func (suite *OrderServiceSuite) TestListOrders() {
 		})
 
 		// Search for PPMs submitted on April 1st
-		moves, _, err := orderFetcher.ListOrders(suite.AppContextWithSessionForTest(&session), officeUser.ID, &services.ListOrderParams{
+		moves, _, err := orderFetcher.ListOrders(suite.AppContextWithSessionForTest(&session), officeUser.ID, roles.RoleTypeTOO, &services.ListOrderParams{
 			CloseoutInitiated: &closeoutInitiatedDate,
 		})
 
@@ -559,14 +562,14 @@ func (suite *OrderServiceSuite) TestListOrders() {
 		}, nil)
 
 		// Search for PPMs submitted on April 1st
-		moves, _, err := orderFetcher.ListOrders(suite.AppContextWithSessionForTest(&session), officeUser.ID, &services.ListOrderParams{
+		moves, _, err := orderFetcher.ListOrders(suite.AppContextWithSessionForTest(&session), officeUser.ID, roles.RoleTypeTOO, &services.ListOrderParams{
 			CloseoutInitiated: &closeoutInitiatedDate,
 		})
 		suite.Empty(moves)
 		suite.FatalNoError(err)
 
 		// Search for PPMs submitted on April 2nd
-		moves, _, err = orderFetcher.ListOrders(suite.AppContextWithSessionForTest(&session), officeUser.ID, &services.ListOrderParams{
+		moves, _, err = orderFetcher.ListOrders(suite.AppContextWithSessionForTest(&session), officeUser.ID, roles.RoleTypeTOO, &services.ListOrderParams{
 			CloseoutInitiated: &closeoutInitiatedDate2,
 		})
 
@@ -575,7 +578,40 @@ func (suite *OrderServiceSuite) TestListOrders() {
 		suite.Equal(createdPPM.Shipment.MoveTaskOrder.Locator, moves[0].Locator)
 	})
 }
+func (suite *OrderServiceSuite) TestListOrderWithAssignedUserSingle() {
+	// Under test: ListOrders
+	// Set up:           Make a move, assign one to an SC office user
+	// Expected outcome: Only the one move with the assigned user should be returned
+	assignedOfficeUserUpdater := moveservice.NewAssignedOfficeUserUpdater(moveservice.NewMoveFetcher())
+	scUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeServicesCounselor})
+	var orderFetcherTest orderFetcher
+	session := auth.Session{
+		ApplicationName: auth.OfficeApp,
+		Roles:           scUser.User.Roles,
+		OfficeUserID:    scUser.ID,
+		IDToken:         "fake_token",
+		AccessToken:     "fakeAccessToken",
+	}
 
+	appCtx := suite.AppContextWithSessionForTest(&session)
+
+	createdMove := factory.BuildMoveWithShipment(suite.DB(), nil, nil)
+	createdMove.SCAssignedID = &scUser.ID
+	createdMove.SCAssignedUser = &scUser
+	_, updateError := assignedOfficeUserUpdater.UpdateAssignedOfficeUser(appCtx, createdMove.ID, &scUser, roles.RoleTypeServicesCounselor)
+
+	moves, _, err := orderFetcherTest.ListOrders(suite.AppContextWithSessionForTest(&session), scUser.ID, roles.RoleTypeServicesCounselor, &services.ListOrderParams{
+		SCAssignedUser: &scUser.LastName,
+	})
+
+	suite.FatalNoError(err)
+	suite.FatalNoError(updateError)
+	suite.Equal(1, len(moves))
+	suite.Equal(moves[0].SCAssignedID, createdMove.SCAssignedID)
+	suite.Equal(createdMove.SCAssignedUser.ID, moves[0].SCAssignedUser.ID)
+	suite.Equal(createdMove.SCAssignedUser.FirstName, moves[0].SCAssignedUser.FirstName)
+	suite.Equal(createdMove.SCAssignedUser.LastName, moves[0].SCAssignedUser.LastName)
+}
 func (suite *OrderServiceSuite) TestListOrdersUSMCGBLOC() {
 	orderFetcher := NewOrderFetcher()
 
@@ -618,14 +654,14 @@ func (suite *OrderServiceSuite) TestListOrdersUSMCGBLOC() {
 		}
 
 		params := services.ListOrderParams{PerPage: models.Int64Pointer(2), Page: models.Int64Pointer(1)}
-		moves, _, err := orderFetcher.ListOrders(suite.AppContextWithSessionForTest(&session), officeUserOooRah.ID, &params)
+		moves, _, err := orderFetcher.ListOrders(suite.AppContextWithSessionForTest(&session), officeUserOooRah.ID, roles.RoleTypeServicesCounselor, &params)
 
 		suite.FatalNoError(err)
 		suite.Equal(1, len(moves))
 		suite.Equal(models.AffiliationMARINES, *moves[0].Orders.ServiceMember.Affiliation)
 
 		params = services.ListOrderParams{PerPage: models.Int64Pointer(2), Page: models.Int64Pointer(1)}
-		moves, _, err = orderFetcher.ListOrders(suite.AppContextWithSessionForTest(&session), officeUser.ID, &params)
+		moves, _, err = orderFetcher.ListOrders(suite.AppContextWithSessionForTest(&session), officeUser.ID, roles.RoleTypeServicesCounselor, &params)
 
 		suite.FatalNoError(err)
 		suite.Equal(1, len(moves))
@@ -738,7 +774,7 @@ func (suite *OrderServiceSuite) TestListOrdersPPMCloseoutForArmyAirforce() {
 		buildPPMShipmentNeedsCloseout(suite, cgMove)
 
 		params := services.ListOrderParams{PerPage: models.Int64Pointer(9), Page: models.Int64Pointer(1), NeedsPPMCloseout: models.BoolPointer(true), Status: []string{string(models.MoveStatusNeedsServiceCounseling)}}
-		moves, _, err := orderFetcher.ListOrders(suite.AppContextWithSessionForTest(&session), officeUserSC.ID, &params)
+		moves, _, err := orderFetcher.ListOrders(suite.AppContextWithSessionForTest(&session), officeUserSC.ID, roles.RoleTypeServicesCounselor, &params)
 
 		suite.FatalNoError(err)
 		suite.Equal(1, len(moves))
@@ -765,7 +801,7 @@ func (suite *OrderServiceSuite) TestListOrdersPPMCloseoutForArmyAirforce() {
 
 		params := services.ListOrderParams{PerPage: models.Int64Pointer(9), Page: models.Int64Pointer(1), NeedsPPMCloseout: models.BoolPointer(false), Status: []string{string(models.MoveStatusNeedsServiceCounseling)}}
 
-		moves, _, err := orderFetcher.ListOrders(suite.AppContextWithSessionForTest(&session), officeUserSC.ID, &params)
+		moves, _, err := orderFetcher.ListOrders(suite.AppContextWithSessionForTest(&session), officeUserSC.ID, roles.RoleTypeServicesCounselor, &params)
 
 		suite.FatalNoError(err)
 		suite.Equal(1, len(moves))
@@ -802,7 +838,7 @@ func (suite *OrderServiceSuite) TestListOrdersPPMCloseoutForNavyCoastGuardAndMar
 		}
 
 		params := services.ListOrderParams{PerPage: models.Int64Pointer(9), Page: models.Int64Pointer(1)}
-		moves, _, err := orderFetcher.ListOrders(suite.AppContextWithSessionForTest(&session), officeUserSC.ID, &params)
+		moves, _, err := orderFetcher.ListOrders(suite.AppContextWithSessionForTest(&session), officeUserSC.ID, roles.RoleTypeServicesCounselor, &params)
 
 		suite.FatalNoError(err)
 		suite.Equal(1, len(moves))
@@ -836,7 +872,7 @@ func (suite *OrderServiceSuite) TestListOrdersPPMCloseoutForNavyCoastGuardAndMar
 		}
 
 		params := services.ListOrderParams{PerPage: models.Int64Pointer(2), Page: models.Int64Pointer(1)}
-		moves, _, err := orderFetcher.ListOrders(suite.AppContextWithSessionForTest(&session), officeUserSC.ID, &params)
+		moves, _, err := orderFetcher.ListOrders(suite.AppContextWithSessionForTest(&session), officeUserSC.ID, roles.RoleTypeServicesCounselor, &params)
 
 		suite.FatalNoError(err)
 		suite.Equal(1, len(moves))
@@ -870,7 +906,7 @@ func (suite *OrderServiceSuite) TestListOrdersPPMCloseoutForNavyCoastGuardAndMar
 		}
 
 		params := services.ListOrderParams{PerPage: models.Int64Pointer(2), Page: models.Int64Pointer(1)}
-		moves, _, err := orderFetcher.ListOrders(suite.AppContextWithSessionForTest(&session), officeUserSC.ID, &params)
+		moves, _, err := orderFetcher.ListOrders(suite.AppContextWithSessionForTest(&session), officeUserSC.ID, roles.RoleTypeServicesCounselor, &params)
 
 		suite.FatalNoError(err)
 		suite.Equal(1, len(moves))
@@ -891,7 +927,7 @@ func (suite *OrderServiceSuite) TestListOrdersPPMCloseoutForNavyCoastGuardAndMar
 		}, []roles.RoleType{roles.RoleTypeServicesCounselor})
 		var session auth.Session
 		params := services.ListOrderParams{PerPage: models.Int64Pointer(2), Page: models.Int64Pointer(1)}
-		moves, _, err := orderFetcher.ListOrders(suite.AppContextWithSessionForTest(&session), officeUserSC.ID, &params)
+		moves, _, err := orderFetcher.ListOrders(suite.AppContextWithSessionForTest(&session), officeUserSC.ID, roles.RoleTypeServicesCounselor, &params)
 
 		suite.FatalNoError(err)
 		suite.Equal(0, len(moves))
@@ -929,7 +965,7 @@ func (suite *OrderServiceSuite) TestListOrdersPPMCloseoutForNavyCoastGuardAndMar
 		}
 
 		params := services.ListOrderParams{PerPage: models.Int64Pointer(2), Page: models.Int64Pointer(1)}
-		moves, _, err := orderFetcher.ListOrders(suite.AppContextWithSessionForTest(&session), officeUserSC.ID, &params)
+		moves, _, err := orderFetcher.ListOrders(suite.AppContextWithSessionForTest(&session), officeUserSC.ID, roles.RoleTypeServicesCounselor, &params)
 
 		suite.FatalNoError(err)
 		suite.Equal(0, len(moves))
@@ -957,7 +993,7 @@ func (suite *OrderServiceSuite) TestListOrdersMarines() {
 		}
 
 		params := services.ListOrderParams{PerPage: models.Int64Pointer(2), Page: models.Int64Pointer(1)}
-		moves, _, err := orderFetcher.ListOrders(suite.AppContextWithSessionForTest(&session), officeUser.ID, &params)
+		moves, _, err := orderFetcher.ListOrders(suite.AppContextWithSessionForTest(&session), officeUser.ID, roles.RoleTypeTOO, &params)
 
 		suite.FatalNoError(err)
 		suite.Equal(0, len(moves))
@@ -1017,7 +1053,7 @@ func (suite *OrderServiceSuite) TestListOrdersWithEmptyFields() {
 	}
 
 	orderFetcher := NewOrderFetcher()
-	moves, _, err := orderFetcher.ListOrders(suite.AppContextWithSessionForTest(&session), officeUser.ID, &services.ListOrderParams{PerPage: models.Int64Pointer(1), Page: models.Int64Pointer(1)})
+	moves, _, err := orderFetcher.ListOrders(suite.AppContextWithSessionForTest(&session), officeUser.ID, roles.RoleTypeTOO, &services.ListOrderParams{PerPage: models.Int64Pointer(1), Page: models.Int64Pointer(1)})
 
 	suite.FatalNoError(err)
 	suite.Nil(moves)
@@ -1040,7 +1076,7 @@ func (suite *OrderServiceSuite) TestListOrdersWithPagination() {
 
 	orderFetcher := NewOrderFetcher()
 	params := services.ListOrderParams{Page: models.Int64Pointer(1), PerPage: models.Int64Pointer(1)}
-	moves, count, err := orderFetcher.ListOrders(suite.AppContextWithSessionForTest(&session), officeUser.ID, &params)
+	moves, count, err := orderFetcher.ListOrders(suite.AppContextWithSessionForTest(&session), officeUser.ID, roles.RoleTypeTOO, &params)
 
 	suite.NoError(err)
 	suite.Equal(1, len(moves))
@@ -1124,14 +1160,14 @@ func (suite *OrderServiceSuite) TestListOrdersWithSortOrder() {
 	suite.Run("Sort by locator code", func() {
 		expectedMove1, expectedMove2, session := setupTestData()
 		params := services.ListOrderParams{Sort: models.StringPointer("locator"), Order: models.StringPointer("asc")}
-		moves, _, err := orderFetcher.ListOrders(suite.AppContextWithSessionForTest(&session), officeUser.ID, &params)
+		moves, _, err := orderFetcher.ListOrders(suite.AppContextWithSessionForTest(&session), officeUser.ID, roles.RoleTypeTOO, &params)
 		suite.NoError(err)
 		suite.Equal(2, len(moves))
 		suite.Equal(expectedMove1.Locator, moves[0].Locator)
 		suite.Equal(expectedMove2.Locator, moves[1].Locator)
 
 		params = services.ListOrderParams{Sort: models.StringPointer("locator"), Order: models.StringPointer("desc")}
-		moves, _, err = orderFetcher.ListOrders(suite.AppContextWithSessionForTest(&session), officeUser.ID, &params)
+		moves, _, err = orderFetcher.ListOrders(suite.AppContextWithSessionForTest(&session), officeUser.ID, roles.RoleTypeTOO, &params)
 		suite.NoError(err)
 		suite.Equal(2, len(moves))
 		suite.Equal(expectedMove2.Locator, moves[0].Locator)
@@ -1141,14 +1177,14 @@ func (suite *OrderServiceSuite) TestListOrdersWithSortOrder() {
 	suite.Run("Sort by move status", func() {
 		expectedMove1, expectedMove2, session := setupTestData()
 		params := services.ListOrderParams{Sort: models.StringPointer("status"), Order: models.StringPointer("asc")}
-		moves, _, err := orderFetcher.ListOrders(suite.AppContextWithSessionForTest(&session), officeUser.ID, &params)
+		moves, _, err := orderFetcher.ListOrders(suite.AppContextWithSessionForTest(&session), officeUser.ID, roles.RoleTypeTOO, &params)
 		suite.NoError(err)
 		suite.Equal(2, len(moves))
 		suite.Equal(expectedMove1.Status, moves[0].Status)
 		suite.Equal(expectedMove2.Status, moves[1].Status)
 
 		params = services.ListOrderParams{Sort: models.StringPointer("status"), Order: models.StringPointer("desc")}
-		moves, _, err = orderFetcher.ListOrders(suite.AppContextWithSessionForTest(&session), officeUser.ID, &params)
+		moves, _, err = orderFetcher.ListOrders(suite.AppContextWithSessionForTest(&session), officeUser.ID, roles.RoleTypeTOO, &params)
 		suite.NoError(err)
 		suite.Equal(2, len(moves))
 		suite.Equal(expectedMove2.Status, moves[0].Status)
@@ -1158,14 +1194,14 @@ func (suite *OrderServiceSuite) TestListOrdersWithSortOrder() {
 	suite.Run("Sort by service member affiliations", func() {
 		expectedMove1, expectedMove2, session := setupTestData()
 		params := services.ListOrderParams{Sort: models.StringPointer("branch"), Order: models.StringPointer("asc")}
-		moves, _, err := orderFetcher.ListOrders(suite.AppContextWithSessionForTest(&session), officeUser.ID, &params)
+		moves, _, err := orderFetcher.ListOrders(suite.AppContextWithSessionForTest(&session), officeUser.ID, roles.RoleTypeTOO, &params)
 		suite.NoError(err)
 		suite.Equal(2, len(moves))
 		suite.Equal(*expectedMove1.Orders.ServiceMember.Affiliation, *moves[0].Orders.ServiceMember.Affiliation)
 		suite.Equal(*expectedMove2.Orders.ServiceMember.Affiliation, *moves[1].Orders.ServiceMember.Affiliation)
 
 		params = services.ListOrderParams{Sort: models.StringPointer("branch"), Order: models.StringPointer("desc")}
-		moves, _, err = orderFetcher.ListOrders(suite.AppContextWithSessionForTest(&session), officeUser.ID, &params)
+		moves, _, err = orderFetcher.ListOrders(suite.AppContextWithSessionForTest(&session), officeUser.ID, roles.RoleTypeTOO, &params)
 		suite.NoError(err)
 		suite.Equal(2, len(moves))
 		suite.Equal(*expectedMove2.Orders.ServiceMember.Affiliation, *moves[0].Orders.ServiceMember.Affiliation)
@@ -1175,7 +1211,7 @@ func (suite *OrderServiceSuite) TestListOrdersWithSortOrder() {
 	suite.Run("Sort by request move date", func() {
 		_, _, session := setupTestData()
 		params := services.ListOrderParams{Sort: models.StringPointer("requestedMoveDate"), Order: models.StringPointer("asc")}
-		moves, _, err := orderFetcher.ListOrders(suite.AppContextWithSessionForTest(&session), officeUser.ID, &params)
+		moves, _, err := orderFetcher.ListOrders(suite.AppContextWithSessionForTest(&session), officeUser.ID, roles.RoleTypeTOO, &params)
 		suite.NoError(err)
 		suite.Equal(2, len(moves))
 		suite.Equal(2, len(moves[0].MTOShipments)) // the move with two shipments has the earlier date
@@ -1184,7 +1220,7 @@ func (suite *OrderServiceSuite) TestListOrdersWithSortOrder() {
 		suite.Equal(requestedMoveDate1.Format("2006/01/02"), moves[1].MTOShipments[0].RequestedPickupDate.Format("2006/01/02"))
 
 		params = services.ListOrderParams{Sort: models.StringPointer("requestedMoveDate"), Order: models.StringPointer("desc")}
-		moves, _, err = orderFetcher.ListOrders(suite.AppContextWithSessionForTest(&session), officeUser.ID, &params)
+		moves, _, err = orderFetcher.ListOrders(suite.AppContextWithSessionForTest(&session), officeUser.ID, roles.RoleTypeTOO, &params)
 		suite.NoError(err)
 		suite.Equal(2, len(moves))
 		suite.Equal(1, len(moves[0].MTOShipments)) // the move with one shipment should be first
@@ -1219,7 +1255,7 @@ func (suite *OrderServiceSuite) TestListOrdersWithSortOrder() {
 
 		params := services.ListOrderParams{Sort: models.StringPointer("appearedInTooAt"), Order: models.StringPointer("asc")}
 
-		moves, _, err := orderFetcher.ListOrders(suite.AppContextWithSessionForTest(&session), officeUser.ID, &params)
+		moves, _, err := orderFetcher.ListOrders(suite.AppContextWithSessionForTest(&session), officeUser.ID, roles.RoleTypeTOO, &params)
 		suite.NoError(err)
 		suite.Equal(3, len(moves))
 		suite.Equal(moves[0].ID, move1.ID)
@@ -1240,7 +1276,7 @@ func (suite *OrderServiceSuite) TestListOrdersWithSortOrder() {
 			},
 		}, nil)
 		params := services.ListOrderParams{Sort: models.StringPointer("lastName"), Order: models.StringPointer("asc")}
-		moves, _, err := orderFetcher.ListOrders(suite.AppContextWithSessionForTest(&session), officeUser.ID, &params)
+		moves, _, err := orderFetcher.ListOrders(suite.AppContextWithSessionForTest(&session), officeUser.ID, roles.RoleTypeTOO, &params)
 
 		suite.NoError(err)
 		suite.Equal(3, len(moves))
@@ -1249,7 +1285,7 @@ func (suite *OrderServiceSuite) TestListOrdersWithSortOrder() {
 		suite.Equal("Zephyer, Leo", *moves[2].Orders.ServiceMember.LastName+", "+*moves[2].Orders.ServiceMember.FirstName)
 
 		params = services.ListOrderParams{Sort: models.StringPointer("lastName"), Order: models.StringPointer("desc")}
-		moves, _, err = orderFetcher.ListOrders(suite.AppContextWithSessionForTest(&session), officeUser.ID, &params)
+		moves, _, err = orderFetcher.ListOrders(suite.AppContextWithSessionForTest(&session), officeUser.ID, roles.RoleTypeTOO, &params)
 
 		suite.NoError(err)
 		suite.Equal(3, len(moves))
@@ -1337,7 +1373,7 @@ func (suite *OrderServiceSuite) TestListOrdersNeedingServicesCounselingWithPPMCl
 		})
 
 		// Sort by closeout initiated date (ascending)
-		moves, _, err := orderFetcher.ListOrders(suite.AppContextWithSessionForTest(&session), officeUser.ID, &services.ListOrderParams{
+		moves, _, err := orderFetcher.ListOrders(suite.AppContextWithSessionForTest(&session), officeUser.ID, roles.RoleTypeTOO, &services.ListOrderParams{
 			NeedsPPMCloseout: models.BoolPointer(true),
 			Sort:             models.StringPointer("closeoutInitiated"),
 			Order:            models.StringPointer("asc"),
@@ -1349,7 +1385,7 @@ func (suite *OrderServiceSuite) TestListOrdersNeedingServicesCounselingWithPPMCl
 		suite.Equal(ppm2.Shipment.MoveTaskOrder.Locator, moves[1].Locator)
 
 		// Sort by closeout initiated date (descending)
-		moves, _, err = orderFetcher.ListOrders(suite.AppContextWithSessionForTest(&session), officeUser.ID, &services.ListOrderParams{
+		moves, _, err = orderFetcher.ListOrders(suite.AppContextWithSessionForTest(&session), officeUser.ID, roles.RoleTypeTOO, &services.ListOrderParams{
 			NeedsPPMCloseout: models.BoolPointer(true),
 			Sort:             models.StringPointer("closeoutInitiated"),
 			Order:            models.StringPointer("desc"),
@@ -1371,7 +1407,7 @@ func (suite *OrderServiceSuite) TestListOrdersNeedingServicesCounselingWithPPMCl
 		ppmShipmentB := getPPMShipmentWithCloseoutOfficeNeedsCloseout(suite, locationB)
 
 		// Sort by closeout location (ascending)
-		moves, _, err := orderFetcher.ListOrders(suite.AppContextWithSessionForTest(&session), officeUser.ID, &services.ListOrderParams{
+		moves, _, err := orderFetcher.ListOrders(suite.AppContextWithSessionForTest(&session), officeUser.ID, roles.RoleTypeTOO, &services.ListOrderParams{
 			NeedsPPMCloseout: models.BoolPointer(true),
 			Sort:             models.StringPointer("closeoutLocation"),
 			Order:            models.StringPointer("asc"),
@@ -1383,7 +1419,7 @@ func (suite *OrderServiceSuite) TestListOrdersNeedingServicesCounselingWithPPMCl
 		suite.Equal(ppmShipmentB.Shipment.MoveTaskOrder.Locator, moves[1].Locator)
 
 		// Sort by closeout location (descending)
-		moves, _, err = orderFetcher.ListOrders(suite.AppContextWithSessionForTest(&session), officeUser.ID, &services.ListOrderParams{
+		moves, _, err = orderFetcher.ListOrders(suite.AppContextWithSessionForTest(&session), officeUser.ID, roles.RoleTypeTOO, &services.ListOrderParams{
 			NeedsPPMCloseout: models.BoolPointer(true),
 			Sort:             models.StringPointer("closeoutLocation"),
 			Order:            models.StringPointer("desc"),
@@ -1444,7 +1480,7 @@ func (suite *OrderServiceSuite) TestListOrdersNeedingServicesCounselingWithPPMCl
 		})
 
 		// Sort by destination duty location (ascending)
-		moves, _, err := orderFetcher.ListOrders(suite.AppContextWithSessionForTest(&session), officeUser.ID, &services.ListOrderParams{
+		moves, _, err := orderFetcher.ListOrders(suite.AppContextWithSessionForTest(&session), officeUser.ID, roles.RoleTypeTOO, &services.ListOrderParams{
 			NeedsPPMCloseout: models.BoolPointer(true),
 			Sort:             models.StringPointer("destinationDutyLocation"),
 			Order:            models.StringPointer("asc"),
@@ -1456,7 +1492,7 @@ func (suite *OrderServiceSuite) TestListOrdersNeedingServicesCounselingWithPPMCl
 		suite.Equal(ppmShipmentB.Shipment.MoveTaskOrder.Locator, moves[1].Locator)
 
 		// Sort by destination duty location (descending)
-		moves, _, err = orderFetcher.ListOrders(suite.AppContextWithSessionForTest(&session), officeUser.ID, &services.ListOrderParams{
+		moves, _, err = orderFetcher.ListOrders(suite.AppContextWithSessionForTest(&session), officeUser.ID, roles.RoleTypeTOO, &services.ListOrderParams{
 			NeedsPPMCloseout: models.BoolPointer(true),
 			Sort:             models.StringPointer("destinationDutyLocation"),
 			Order:            models.StringPointer("desc"),
@@ -1501,7 +1537,7 @@ func (suite *OrderServiceSuite) TestListOrdersNeedingServicesCounselingWithPPMCl
 		})
 
 		// Sort by PPM type (ascending)
-		moves, _, err := orderFetcher.ListOrders(suite.AppContextWithSessionForTest(&session), officeUser.ID, &services.ListOrderParams{
+		moves, _, err := orderFetcher.ListOrders(suite.AppContextWithSessionForTest(&session), officeUser.ID, roles.RoleTypeTOO, &services.ListOrderParams{
 			NeedsPPMCloseout: models.BoolPointer(true),
 			Sort:             models.StringPointer("ppmType"),
 			Order:            models.StringPointer("asc"),
@@ -1513,7 +1549,7 @@ func (suite *OrderServiceSuite) TestListOrdersNeedingServicesCounselingWithPPMCl
 		suite.Equal(ppmShipmentPartial.Shipment.MoveTaskOrder.Locator, moves[1].Locator)
 
 		// Sort by PPM type (descending)
-		moves, _, err = orderFetcher.ListOrders(suite.AppContextWithSessionForTest(&session), officeUser.ID, &services.ListOrderParams{
+		moves, _, err = orderFetcher.ListOrders(suite.AppContextWithSessionForTest(&session), officeUser.ID, roles.RoleTypeTOO, &services.ListOrderParams{
 			NeedsPPMCloseout: models.BoolPointer(true),
 			Sort:             models.StringPointer("ppmType"),
 			Order:            models.StringPointer("desc"),
@@ -1532,37 +1568,28 @@ func (suite *OrderServiceSuite) TestListOrdersNeedingServicesCounselingWithPPMCl
 			},
 		}, nil)
 		ppmShipmentNeedsCloseout := getPPMShipmentWithCloseoutOfficeNeedsCloseout(suite, closeoutOffice)
-		ppmShipmentWaitingOnCustomer := factory.BuildPPMShipmentWaitingOnCustomer(suite.DB(), nil, []factory.Customization{
-			{
-				Model:    closeoutOffice,
-				LinkOnly: true,
-				Type:     &factory.TransportationOffices.CloseoutOffice,
-			},
-		})
 
 		// Sort by PPM type (ascending)
-		moves, _, err := orderFetcher.ListOrders(suite.AppContextWithSessionForTest(&session), officeUser.ID, &services.ListOrderParams{
+		moves, _, err := orderFetcher.ListOrders(suite.AppContextWithSessionForTest(&session), officeUser.ID, roles.RoleTypeTOO, &services.ListOrderParams{
 			NeedsPPMCloseout: models.BoolPointer(true),
 			Sort:             models.StringPointer("ppmStatus"),
 			Order:            models.StringPointer("asc"),
 		})
 
 		suite.FatalNoError(err)
-		suite.Equal(2, len(moves))
-		suite.Equal(ppmShipmentWaitingOnCustomer.Status, moves[0].MTOShipments[0].PPMShipment.Status)
-		suite.Equal(ppmShipmentNeedsCloseout.Status, moves[1].MTOShipments[0].PPMShipment.Status)
+		suite.Equal(1, len(moves))
+		suite.Equal(ppmShipmentNeedsCloseout.Status, moves[0].MTOShipments[0].PPMShipment.Status)
 
 		// Sort by PPM type (descending)
-		moves, _, err = orderFetcher.ListOrders(suite.AppContextWithSessionForTest(&session), officeUser.ID, &services.ListOrderParams{
+		moves, _, err = orderFetcher.ListOrders(suite.AppContextWithSessionForTest(&session), officeUser.ID, roles.RoleTypeTOO, &services.ListOrderParams{
 			NeedsPPMCloseout: models.BoolPointer(true),
 			Sort:             models.StringPointer("ppmStatus"),
 			Order:            models.StringPointer("desc"),
 		})
 
 		suite.FatalNoError(err)
-		suite.Equal(2, len(moves))
+		suite.Equal(1, len(moves))
 		suite.Equal(ppmShipmentNeedsCloseout.Status, moves[0].MTOShipments[0].PPMShipment.Status)
-		suite.Equal(ppmShipmentWaitingOnCustomer.Status, moves[1].MTOShipments[0].PPMShipment.Status)
 	})
 }
 
@@ -1605,7 +1632,6 @@ func (suite *OrderServiceSuite) TestListOrdersNeedingServicesCounselingWithGBLOC
 					City:           "Fort Eisenhower",
 					State:          "GA",
 					PostalCode:     "89898",
-					Country:        models.StringPointer("United States"),
 				},
 			},
 		}, nil)
@@ -1642,7 +1668,7 @@ func (suite *OrderServiceSuite) TestListOrdersNeedingServicesCounselingWithGBLOC
 		statuses := []string{"NEEDS SERVICE COUNSELING"}
 		// Sort by origin GBLOC, filter by status
 		params := services.ListOrderParams{Sort: models.StringPointer("originGBLOC"), Order: models.StringPointer("asc"), Status: statuses}
-		moves, _, err := orderFetcher.ListOrders(suite.AppContextWithSessionForTest(&session), officeUser.ID, &params)
+		moves, _, err := orderFetcher.ListOrders(suite.AppContextWithSessionForTest(&session), officeUser.ID, roles.RoleTypeServicesCounselor, &params)
 
 		// Expect only LKNQ move to be returned
 		suite.NoError(err)
@@ -1671,7 +1697,7 @@ func (suite *OrderServiceSuite) TestListOrdersForTOOWithNTSRelease() {
 	}
 
 	orderFetcher := NewOrderFetcher()
-	moves, moveCount, err := orderFetcher.ListOrders(suite.AppContextWithSessionForTest(&session), tooOfficeUser.ID, &services.ListOrderParams{})
+	moves, moveCount, err := orderFetcher.ListOrders(suite.AppContextWithSessionForTest(&session), tooOfficeUser.ID, roles.RoleTypeTOO, &services.ListOrderParams{})
 
 	suite.FatalNoError(err)
 	suite.Equal(1, moveCount)
@@ -1715,7 +1741,7 @@ func (suite *OrderServiceSuite) TestListOrdersForTOOWithPPM() {
 	factory.FetchOrBuildPostalCodeToGBLOC(suite.DB(), ppmShipment.PickupAddress.PostalCode, tooOfficeUser.TransportationOffice.Gbloc)
 
 	orderFetcher := NewOrderFetcher()
-	moves, moveCount, err := orderFetcher.ListOrders(suite.AppContextWithSessionForTest(&session), tooOfficeUser.ID, &services.ListOrderParams{})
+	moves, moveCount, err := orderFetcher.ListOrders(suite.AppContextWithSessionForTest(&session), tooOfficeUser.ID, roles.RoleTypeTOO, &services.ListOrderParams{})
 	suite.FatalNoError(err)
 	suite.Equal(1, moveCount)
 	suite.Len(moves, 1)
@@ -1813,7 +1839,7 @@ func (suite *OrderServiceSuite) TestListOrdersForHQWithViewAsParam() {
 
 		// Request as an HQ user with their default GBLOC, KKFA
 		params := services.ListOrderParams{Sort: models.StringPointer("locator"), Order: models.StringPointer("asc")}
-		moves, _, err := orderFetcher.ListOrders(suite.AppContextWithSessionForTest(&hqSession), hqOfficeUser.ID, &params)
+		moves, _, err := orderFetcher.ListOrders(suite.AppContextWithSessionForTest(&hqSession), hqOfficeUser.ID, roles.RoleTypeTOO, &params)
 		suite.NoError(err)
 		suite.Equal(2, len(moves))
 		suite.Equal(expectedMove1.Locator, moves[0].Locator)
@@ -1821,7 +1847,7 @@ func (suite *OrderServiceSuite) TestListOrdersForHQWithViewAsParam() {
 
 		// Expect the same results with a ViewAsGBLOC that equals the user's default GBLOC
 		params = services.ListOrderParams{Sort: models.StringPointer("locator"), Order: models.StringPointer("asc"), ViewAsGBLOC: models.StringPointer("KKFA")}
-		moves, _, err = orderFetcher.ListOrders(suite.AppContextWithSessionForTest(&hqSession), hqOfficeUser.ID, &params)
+		moves, _, err = orderFetcher.ListOrders(suite.AppContextWithSessionForTest(&hqSession), hqOfficeUser.ID, roles.RoleTypeTOO, &params)
 		suite.NoError(err)
 		suite.Equal(2, len(moves))
 		suite.Equal(expectedMove1.Locator, moves[0].Locator)
@@ -1829,14 +1855,14 @@ func (suite *OrderServiceSuite) TestListOrdersForHQWithViewAsParam() {
 
 		// Expect the AGFM move when using the ViewAsGBLOC param set to AGFM
 		params = services.ListOrderParams{ViewAsGBLOC: models.StringPointer("AGFM")}
-		moves, _, err = orderFetcher.ListOrders(suite.AppContextWithSessionForTest(&hqSession), hqOfficeUser.ID, &params)
+		moves, _, err = orderFetcher.ListOrders(suite.AppContextWithSessionForTest(&hqSession), hqOfficeUser.ID, roles.RoleTypeTOO, &params)
 		suite.NoError(err)
 		suite.Equal(1, len(moves))
 		suite.Equal(expectedShipment3.ID, moves[0].MTOShipments[0].ID)
 
 		// Expect the same results without a ViewAsGBLOC for a user whose default GBLOC is AGFM
 		params = services.ListOrderParams{}
-		moves, _, err = orderFetcher.ListOrders(suite.AppContextWithSessionForTest(&hqSessionAGFM), hqOfficeUserAGFM.ID, &params)
+		moves, _, err = orderFetcher.ListOrders(suite.AppContextWithSessionForTest(&hqSessionAGFM), hqOfficeUserAGFM.ID, roles.RoleTypeTOO, &params)
 		suite.NoError(err)
 		suite.Equal(1, len(moves))
 		suite.Equal(expectedShipment3.ID, moves[0].MTOShipments[0].ID)
@@ -1889,7 +1915,7 @@ func (suite *OrderServiceSuite) TestListOrdersForTOOWithPPMWithDeletedShipment()
 	}
 
 	orderFetcher := NewOrderFetcher()
-	moves, moveCount, err := orderFetcher.ListOrders(suite.AppContextWithSessionForTest(&session), tooOfficeUser.ID, &services.ListOrderParams{Status: []string{string(models.MoveStatusSUBMITTED)}})
+	moves, moveCount, err := orderFetcher.ListOrders(suite.AppContextWithSessionForTest(&session), tooOfficeUser.ID, roles.RoleTypeTOO, &services.ListOrderParams{Status: []string{string(models.MoveStatusSUBMITTED)}})
 	suite.FatalNoError(err)
 	suite.Equal(0, moveCount)
 	suite.Len(moves, 0)
@@ -1969,7 +1995,7 @@ func (suite *OrderServiceSuite) TestListOrdersForTOOWithPPMWithOneDeletedShipmen
 	}
 
 	orderFetcher := NewOrderFetcher()
-	moves, moveCount, err := orderFetcher.ListOrders(suite.AppContextWithSessionForTest(&session), tooOfficeUser.ID, &services.ListOrderParams{})
+	moves, moveCount, err := orderFetcher.ListOrders(suite.AppContextWithSessionForTest(&session), tooOfficeUser.ID, roles.RoleTypeTOO, &services.ListOrderParams{})
 	suite.FatalNoError(err)
 	suite.Equal(1, moveCount)
 	suite.Len(moves, 1)
@@ -1992,5 +2018,43 @@ func (suite *OrderServiceSuite) TestListAllOrderLocations() {
 
 		suite.FatalNoError(err)
 		suite.Equal(0, len(moves))
+	})
+}
+
+func (suite *OrderServiceSuite) TestOriginDutyLocationFilter() {
+	var session auth.Session
+	var expectedMove models.Move
+	var officeUser models.OfficeUser
+	orderFetcher := NewOrderFetcher()
+	suite.PreloadData(func() {
+		setupTestData := func() (models.OfficeUser, models.Move, auth.Session) {
+			officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
+			session := auth.Session{
+				ApplicationName: auth.OfficeApp,
+				Roles:           officeUser.User.Roles,
+				OfficeUserID:    officeUser.ID,
+				IDToken:         "fake_token",
+				AccessToken:     "fakeAccessToken",
+			}
+			move := factory.BuildMoveWithShipment(suite.DB(), nil, nil)
+			return officeUser, move, session
+		}
+		officeUser, expectedMove, session = setupTestData()
+	})
+	locationName := expectedMove.Orders.OriginDutyLocation.Name
+	suite.Run("Returns orders matching full originDutyLocation name filter", func() {
+		expectedMoves, _, err := orderFetcher.ListOrders(suite.AppContextWithSessionForTest(&session), officeUser.ID, roles.RoleTypeTOO, &services.ListOrderParams{OriginDutyLocation: strings.Split(locationName, " ")})
+		suite.NoError(err)
+		suite.Equal(1, len(expectedMoves))
+		suite.Equal(locationName, string(expectedMoves[0].Orders.OriginDutyLocation.Name))
+	})
+
+	suite.Run("Returns orders matching partial originDutyLocation name filter", func() {
+		//Split the location name and retrieve a substring (first string) for the search param
+		partialParamSearch := strings.Split(locationName, " ")[0]
+		expectedMoves, _, err := orderFetcher.ListOrders(suite.AppContextWithSessionForTest(&session), officeUser.ID, roles.RoleTypeTOO, &services.ListOrderParams{OriginDutyLocation: strings.Split(partialParamSearch, " ")})
+		suite.NoError(err)
+		suite.Equal(1, len(expectedMoves))
+		suite.Equal(locationName, string(expectedMoves[0].Orders.OriginDutyLocation.Name))
 	})
 }
