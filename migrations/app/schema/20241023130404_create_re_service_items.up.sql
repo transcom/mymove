@@ -48,6 +48,14 @@ INSERT INTO public.re_services
 (id, code, name, created_at, updated_at, priority, service_location)
 VALUES('388115e8-abe9-441d-96cf-a39f24baa0a3', 'PODFSC', 'International POD Fuel Surcharge', now(), now(), 99, 'D');
 
+INSERT INTO public.re_services
+(id, code, name, created_at, updated_at, priority, service_location)
+VALUES('81e29d0c-02a6-4a7a-be02-554deb3ee49e', 'IOSFSC', 'International Origin SIT Fuel Surcharge', now(), now(), 99, 'O');
+
+INSERT INTO public.re_services
+(id, code, name, created_at, updated_at, priority, service_location)
+VALUES('690a5fc1-0ea5-4554-8294-a367b5daefa9', 'IDSFSC', 'International Destination SIT Fuel Surcharge', now(), now(), 99, 'D');
+
 --update existing re_services
 update re_services set service_location = 'O' where code in ('IUBPK','IHPK','IOASIT','IOFSIT','IOPSIT','IOSHUT','ICRT');
 update re_services set service_location = 'D' where code in ('IUBUPK','IHUPK','IDASIT','IDFSIT','IDDSIT','IDSHUT','IUCRT');
@@ -85,7 +93,11 @@ INSERT INTO re_service_items (id,service_id,shipment_type,market_code,is_auto_ap
 INSERT INTO re_service_items (id,service_id,shipment_type,market_code,is_auto_approved,created_at,updated_at) VALUES
 	 ('d6c8ce58-bc00-499f-9cad-9047210b8746'::uuid,'6f4f6e31-0675-4051-b659-89832259f390'::uuid,'UNACCOMPANIED_BAGGAGE'::public."mto_shipment_type",'i'::public."market_code_enum",true,now(),now()),
 	 ('6799f4b5-c4ba-48e4-a4bd-c6adb71b7041'::uuid,'624a97c5-dfbf-4da9-a6e9-526b4f95af8d'::uuid,'UNACCOMPANIED_BAGGAGE'::public."mto_shipment_type",'i'::public."market_code_enum",true,now(),now()),
-	 ('faa6dc9d-e120-4d26-a54b-b84a2b2f6d7c'::uuid,'4132416b-b1aa-42e7-98f2-0ac0a03e8a31'::uuid,'UNACCOMPANIED_BAGGAGE'::public."mto_shipment_type",'i'::public."market_code_enum",true,now(),now());
+	 ('faa6dc9d-e120-4d26-a54b-b84a2b2f6d7c'::uuid,'4132416b-b1aa-42e7-98f2-0ac0a03e8a31'::uuid,'UNACCOMPANIED_BAGGAGE'::public."mto_shipment_type",'i'::public."market_code_enum",true,now(),now()),
+	 ('cdc719ba-8f57-4b11-80a0-f416413b0064'::uuid,'81e29d0c-02a6-4a7a-be02-554deb3ee49e'::uuid,'HHG'::public."mto_shipment_type",'i'::public."market_code_enum",true,now(),now()),
+	 ('b56b974c-ce60-4efc-bf79-553d8094d18a'::uuid,'690a5fc1-0ea5-4554-8294-a367b5daefa9'::uuid,'HHG'::public."mto_shipment_type",'i'::public."market_code_enum",true,now(),now()),
+	 ('a5b07f41-b279-44c0-9ecd-241bd8a5c2eb'::uuid,'81e29d0c-02a6-4a7a-be02-554deb3ee49e'::uuid,'UNACCOMPANIED_BAGGAGE'::public."mto_shipment_type",'i'::public."market_code_enum",true,now(),now()),
+	 ('39cd5798-f0b1-49a6-b9fe-0f4f4039b80b'::uuid,'690a5fc1-0ea5-4554-8294-a367b5daefa9'::uuid,'UNACCOMPANIED_BAGGAGE'::public."mto_shipment_type",'i'::public."market_code_enum",true,now(),now());
 
 --Point existing UB service pricing to new UBP service
 update re_intl_prices
