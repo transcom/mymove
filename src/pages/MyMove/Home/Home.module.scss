@@ -204,3 +204,14 @@
     color: red;
   }
 }
+
+.cancelMoveContainer {
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-end;
+  margin: 20px 0 !important;
+
+  button {
+    height: auto;
+  }
+}

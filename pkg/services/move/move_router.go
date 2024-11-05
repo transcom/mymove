@@ -442,39 +442,63 @@ func (router moveRouter) SendToOfficeUser(appCtx appcontext.AppContext, move *mo
 }
 
 // Cancel cancels the Move and its associated PPMs
-func (router moveRouter) Cancel(appCtx appcontext.AppContext, reason string, move *models.Move) error {
-	router.logMove(appCtx, move)
-	// We can cancel any move that isn't already complete.
-	// TODO: What does complete mean? How do we determine when a move is complete?
-	if move.Status == models.MoveStatusCANCELED {
-		return errors.Wrap(models.ErrInvalidTransition, "cannot cancel a move that is already canceled")
-	}
+func (router moveRouter) Cancel(appCtx appcontext.AppContext, move *models.Move) error {
+	moveDelta := move
+	moveDelta.Status = models.MoveStatusCANCELED
 
-	move.Status = models.MoveStatusCANCELED
-
-	// If a reason was submitted, add it to the move record.
-	if reason != "" {
-		move.CancelReason = &reason
-	}
-
-	// This will work only if you use the PPM in question rather than a var representing it
-	// i.e. you can't use _, ppm := range PPMs, has to be PPMS[i] as below
-	for i := range move.MTOShipments {
-		err := move.MTOShipments[i].PPMShipment.CancelShipment()
-		if err != nil {
-			return err
-		}
-	}
-
-	// TODO: Orders can exist after related moves are canceled
-	err := move.Orders.Cancel()
+	// get all shipments in move for cancellation
+	var shipments []models.MTOShipment
+	err := appCtx.DB().EagerPreload("Status", "PPMShipment", "PPMShipment.Status").Where("mto_shipments.move_id = $1", move.ID).All(&shipments)
 	if err != nil {
-		return err
+		return apperror.NewNotFoundError(move.ID, "while looking for shipments")
 	}
 
-	appCtx.Logger().Info("SUCCESS: Move Canceled")
-	return nil
+	txnErr := appCtx.NewTransaction(func(txnAppCtx appcontext.AppContext) error {
+		for _, shipment := range shipments {
+			shipmentDelta := shipment
+			shipmentDelta.Status = models.MTOShipmentStatusCanceled
 
+			if shipment.PPMShipment != nil {
+				var ppmshipment models.PPMShipment
+				qerr := appCtx.DB().Where("id = ?", shipment.PPMShipment.ID).First(&ppmshipment)
+				if qerr != nil {
+					return apperror.NewNotFoundError(ppmshipment.ID, "while looking for ppm shipment")
+				}
+
+				ppmshipment.Status = models.PPMShipmentStatusCanceled
+
+				verrs, err := txnAppCtx.DB().ValidateAndUpdate(&ppmshipment)
+				if verrs != nil && verrs.HasAny() {
+					return apperror.NewInvalidInputError(shipment.ID, err, verrs, "Validation errors found while setting shipment status")
+				} else if err != nil {
+					return apperror.NewQueryError("PPM Shipment", err, "Failed to update status for ppm shipment")
+				}
+			}
+
+			verrs, err := txnAppCtx.DB().ValidateAndUpdate(&shipmentDelta)
+			if verrs != nil && verrs.HasAny() {
+				return apperror.NewInvalidInputError(shipment.ID, err, verrs, "Validation errors found while setting shipment status")
+			} else if err != nil {
+				return apperror.NewQueryError("Shipment", err, "Failed to update status for shipment")
+			}
+		}
+
+		verrs, err := txnAppCtx.DB().ValidateAndUpdate(moveDelta)
+		if verrs != nil && verrs.HasAny() {
+			return apperror.NewInvalidInputError(
+				move.ID, err, verrs, "Validation errors found while setting move status")
+		} else if err != nil {
+			return apperror.NewQueryError("Move", err, "Failed to update status for move")
+		}
+
+		return nil
+	})
+
+	if txnErr != nil {
+		return txnErr
+	}
+
+	return nil
 }
 
 // CompleteServiceCounseling sets the move status to:
