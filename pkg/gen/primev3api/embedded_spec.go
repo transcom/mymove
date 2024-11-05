@@ -1797,6 +1797,9 @@ func init() {
             }
           ]
         },
+        "destinationRateArea": {
+          "$ref": "#/definitions/RateArea"
+        },
         "destinationSitAuthEndDate": {
           "description": "The SIT authorized end date for destination SIT.",
           "type": "string",
@@ -1860,6 +1863,9 @@ func init() {
           "x-formatting": "weight",
           "x-nullable": true,
           "example": 4500
+        },
+        "originRateArea": {
+          "$ref": "#/definitions/RateArea"
         },
         "originSitAuthEndDate": {
           "description": "The SIT authorized end date for origin SIT.",
@@ -2339,6 +2345,9 @@ func init() {
         "destinationAddress": {
           "$ref": "#/definitions/Address"
         },
+        "destinationRateArea": {
+          "$ref": "#/definitions/RateArea"
+        },
         "eTag": {
           "description": "A hash unique to this shipment that should be used as the \"If-Match\" header for any updates.",
           "type": "string",
@@ -2407,6 +2416,9 @@ func init() {
           "format": "uuid",
           "readOnly": true,
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "originRateArea": {
+          "$ref": "#/definitions/RateArea"
         },
         "pickupAddress": {
           "$ref": "#/definitions/Address"
@@ -2716,6 +2728,32 @@ func init() {
       "type": "array",
       "items": {
         "$ref": "#/definitions/ProofOfServiceDoc"
+      }
+    },
+    "RateArea": {
+      "description": "Rate area info for OCONUS postal code",
+      "type": "object",
+      "required": [
+        "id",
+        "rateAreaId",
+        "rateAreaName"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "rateAreaId": {
+          "description": "Rate area code",
+          "type": "string",
+          "example": "US8101000"
+        },
+        "rateAreaName": {
+          "description": "Rate area name",
+          "type": "string",
+          "example": "Alaska (Zone) I"
+        }
       }
     },
     "ReServiceCode": {
@@ -5634,6 +5672,9 @@ func init() {
             }
           ]
         },
+        "destinationRateArea": {
+          "$ref": "#/definitions/RateArea"
+        },
         "destinationSitAuthEndDate": {
           "description": "The SIT authorized end date for destination SIT.",
           "type": "string",
@@ -5697,6 +5738,9 @@ func init() {
           "x-formatting": "weight",
           "x-nullable": true,
           "example": 4500
+        },
+        "originRateArea": {
+          "$ref": "#/definitions/RateArea"
         },
         "originSitAuthEndDate": {
           "description": "The SIT authorized end date for origin SIT.",
@@ -6176,6 +6220,9 @@ func init() {
         "destinationAddress": {
           "$ref": "#/definitions/Address"
         },
+        "destinationRateArea": {
+          "$ref": "#/definitions/RateArea"
+        },
         "eTag": {
           "description": "A hash unique to this shipment that should be used as the \"If-Match\" header for any updates.",
           "type": "string",
@@ -6244,6 +6291,9 @@ func init() {
           "format": "uuid",
           "readOnly": true,
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "originRateArea": {
+          "$ref": "#/definitions/RateArea"
         },
         "pickupAddress": {
           "$ref": "#/definitions/Address"
@@ -6553,6 +6603,32 @@ func init() {
       "type": "array",
       "items": {
         "$ref": "#/definitions/ProofOfServiceDoc"
+      }
+    },
+    "RateArea": {
+      "description": "Rate area info for OCONUS postal code",
+      "type": "object",
+      "required": [
+        "id",
+        "rateAreaId",
+        "rateAreaName"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "rateAreaId": {
+          "description": "Rate area code",
+          "type": "string",
+          "example": "US8101000"
+        },
+        "rateAreaName": {
+          "description": "Rate area name",
+          "type": "string",
+          "example": "Alaska (Zone) I"
+        }
       }
     },
     "ReServiceCode": {
