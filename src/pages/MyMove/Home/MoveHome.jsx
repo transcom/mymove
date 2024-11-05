@@ -527,7 +527,7 @@ const MoveHome = ({ serviceMemberMoves, isProfileComplete, serviceMember, signed
         <div className={`usa-prose grid-container ${styles['grid-container']}`}>
           {showCancelSuccessAlert && (
             <Alert headingLevel="h4" slim type="success">
-              Your move was cancelled.
+              Your move was canceled.
             </Alert>
           )}
           {showDeleteSuccessAlert && (
