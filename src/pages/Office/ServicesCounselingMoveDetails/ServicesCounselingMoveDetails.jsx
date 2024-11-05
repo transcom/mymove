@@ -29,7 +29,7 @@ import {
   updateFinancialFlag,
   updateMTOShipment,
 } from 'services/ghcApi';
-import { MOVE_STATUSES, SHIPMENT_OPTIONS_URL, SHIPMENT_OPTIONS, FEATURE_FLAG_KEYS } from 'shared/constants';
+import { MOVE_STATUSES, SHIPMENT_OPTIONS_URL, SHIPMENT_OPTIONS, FEATURE_FLAG_KEYS, technicalHelpDeskURL } from 'shared/constants';
 import { ppmShipmentStatuses, shipmentStatuses } from 'constants/shipments';
 import shipmentCardsStyles from 'styles/shipmentCards.module.scss';
 import LeftNav from 'components/LeftNav/LeftNav';
@@ -70,6 +70,7 @@ const ServicesCounselingMoveDetails = ({
   const [enableBoat, setEnableBoat] = useState(false);
   const [enableMobileHome, setEnableMobileHome] = useState(false);
   const { upload, amendedUpload } = useOrdersDocumentQueries(moveCode);
+  const [errorMessage, setErrorMessage] = useState(null);
   const documentsForViewer = Object.values(upload || {})
     .concat(Object.values(amendedUpload || {}))
     ?.filter((file) => {
@@ -469,11 +470,10 @@ const ServicesCounselingMoveDetails = ({
       queryClient.setQueryData([MTO_SHIPMENTS, mtoShipments.moveTaskOrderID, false], mtoShipments);
       queryClient.invalidateQueries([MTO_SHIPMENTS, mtoShipments.moveTaskOrderID]);
       queryClient.invalidateQueries([PPMCLOSEOUT, mtoShipments?.ppmShipment?.id]);
-      setAlertType('success');
+      setErrorMessage(null);
     },
     onError: (error) => {
-      setAlertMessage(error?.response?.body?.message ? error.response.body.message : 'Shipment updated.');
-      setAlertType('error');
+      setErrorMessage(error?.response?.body?.message ? error.response.body.message : 'Shipment failed to update.');
     },
   });
 
@@ -656,6 +656,18 @@ const ServicesCounselingMoveDetails = ({
           onClose={handleCloseCancelMoveModal}
           onSubmit={handleCancelMove}
         />
+        <NotificationScrollToTop dependency={errorMessage} />
+        {errorMessage && (
+          <Alert data-testid="errorMessage" type="error" headingLevel="h4" heading="An error occurred">
+            <p>
+              {errorMessage} Please try again later, or contact the&nbsp;
+              <Link to={technicalHelpDeskURL} target="_blank" rel="noreferrer">
+                Technical Help Desk
+              </Link>
+              .
+            </p>
+          </Alert>
+        )}
         <GridContainer className={classnames(styles.gridContainer, scMoveDetailsStyles.ServicesCounselingMoveDetails)}>
           <NotificationScrollToTop dependency={alertMessage || infoSavedAlert} />
           <Grid row className={scMoveDetailsStyles.pageHeader}>
