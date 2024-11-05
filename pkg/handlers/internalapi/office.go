@@ -79,15 +79,6 @@ type CancelMoveHandler struct {
 func (h CancelMoveHandler) Handle(params officeop.CancelMoveParams) middleware.Responder {
 	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
 		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
-
-			if !appCtx.Session().IsOfficeUser() {
-				sessionErr := apperror.NewSessionError(
-					"user is not authorized NewCancelMoveForbidden",
-				)
-				appCtx.Logger().Error(sessionErr.Error())
-				return officeop.NewCancelMoveForbidden(), sessionErr
-			}
-
 			moveID, err := uuid.FromString(params.MoveID.String())
 			if err != nil {
 				return handlers.ResponseForError(appCtx.Logger(), err), err
@@ -98,9 +89,17 @@ func (h CancelMoveHandler) Handle(params officeop.CancelMoveParams) middleware.R
 				return handlers.ResponseForError(appCtx.Logger(), err), err
 			}
 
+			if appCtx.Session().ServiceMemberID != move.Orders.ServiceMemberID {
+				return officeop.NewCancelMoveForbidden(), apperror.NewForbiddenError("cannot cancel move that isn't yours")
+			}
+
+			if move.Status != models.MoveStatusDRAFT {
+				return officeop.NewApproveMoveConflict(), apperror.NewConflictError(move.ID, "move must be in draft status")
+			}
+
 			logger := appCtx.Logger().With(zap.String("moveLocator", move.Locator))
 			// Canceling move will result in canceled associated PPMs
-			err = h.MoveRouter.Cancel(appCtx, *params.CancelMove.CancelReason, move)
+			err = h.MoveRouter.Cancel(appCtx, move)
 			if err != nil {
 				logger.Error("Attempted to cancel move, got invalid transition", zap.Error(err), zap.String("move_status", string(move.Status)))
 				return handlers.ResponseForError(logger, err), err
