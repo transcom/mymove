@@ -133,11 +133,13 @@ const SubmittedRequestedShipments = ({
   const queryClient = useQueryClient();
   const shipmentMutation = useMutation(updateMTOShipment, {
     onSuccess: (updatedMTOShipments) => {
-      filteredShipments.forEach((shipment, key) => {
-        if (updatedMTOShipments?.mtoShipments[shipment.id] != null) {
-          filteredShipments[key] = updatedMTOShipments.mtoShipments[shipment.id];
-        }
-      });
+      if (filteredShipments !== null && updatedMTOShipments !== undefined) {
+        filteredShipments.forEach((shipment, key) => {
+          if (updatedMTOShipments?.mtoShipments[shipment.id] != null) {
+            filteredShipments[key] = updatedMTOShipments.mtoShipments[shipment.id];
+          }
+        });
+      }
 
       queryClient.setQueryData([MTO_SHIPMENTS, filteredShipments.moveTaskOrderID, false], filteredShipments);
       queryClient.invalidateQueries([MTO_SHIPMENTS, filteredShipments.moveTaskOrderID]);
