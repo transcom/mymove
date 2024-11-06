@@ -106,10 +106,12 @@ test.describe('Services counselor user', () => {
     await expect(shipmentContainer.locator('[data-testid="expectedDepartureDate"]')).toContainText('09 Jun 2022');
 
     await expect(shipmentContainer.locator('[data-testid="pickupAddress"]')).toContainText('123 Street');
+    await expect(shipmentContainer.locator('[data-testid="pickupAddress"]')).toContainText('BEVERLY HILLS');
     await expect(shipmentContainer.locator('[data-testid="pickupAddress"]')).toContainText('CA');
     await expect(shipmentContainer.locator('[data-testid="pickupAddress"]')).toContainText('90210');
 
     await expect(shipmentContainer.locator('[data-testid="destinationAddress"]')).toContainText('123 Street');
+    await expect(shipmentContainer.locator('[data-testid="destinationAddress"]')).toContainText('FORT WORTH,');
     await expect(shipmentContainer.locator('[data-testid="destinationAddress"]')).toContainText('TX');
     await expect(shipmentContainer.locator('[data-testid="destinationAddress"]')).toContainText('76127');
 
