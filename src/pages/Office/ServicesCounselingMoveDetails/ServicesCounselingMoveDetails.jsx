@@ -62,11 +62,14 @@ const ServicesCounselingMoveDetails = ({
   const [isFinancialModalVisible, setIsFinancialModalVisible] = useState(false);
   const [isCancelMoveModalVisible, setIsCancelMoveModalVisible] = useState(false);
   const { upload, amendedUpload } = useOrdersDocumentQueries(moveCode);
+  const validOrdersDocuments = Object.values(upload || {})?.filter((file) => !file.deletedAt);
   const documentsForViewer = Object.values(upload || {})
     .concat(Object.values(amendedUpload || {}))
     ?.filter((file) => {
       return !file.deletedAt;
     });
+
+  const hasOrdersDocuments = validOrdersDocuments?.length > 0;
   const hasDocuments = documentsForViewer?.length > 0;
 
   const { order, customerData, move, closeoutOffice, mtoShipments, isLoading, isError } =
@@ -352,7 +355,7 @@ const ServicesCounselingMoveDetails = ({
     ordersType: order.order_type,
     ordersNumber: order.order_number,
     ordersTypeDetail: order.order_type_detail,
-    ordersDocuments: hasDocuments ? documentsForViewer : null,
+    ordersDocuments: hasOrdersDocuments ? validOrdersDocuments : null,
     tacMDC: order.tac,
     sacSDN: order.sac,
     NTStac: order.ntsTac,
@@ -370,17 +373,17 @@ const ServicesCounselingMoveDetails = ({
 
   // using useMemo here due to this being used in a useEffect
   // using useMemo prevents the useEffect from being rendered on ever render by memoizing the object
-  // so that it only recognizes the change when the orders, hasDocuments or documentsForViewer objects change
+  // so that it only recognizes the change when the orders, hasOrdersDocuments or validOrdersDocuments objects change
   const requiredOrdersInfo = useMemo(
     () => ({
       ordersNumber: order?.order_number || '',
       ordersType: order?.order_type || '',
       ordersTypeDetail: order?.order_type_detail || '',
-      ordersDocuments: hasDocuments ? documentsForViewer : null,
+      ordersDocuments: hasOrdersDocuments ? validOrdersDocuments : null,
       tacMDC: order?.tac || '',
       departmentIndicator: order?.department_indicator || '',
     }),
-    [order, hasDocuments, documentsForViewer],
+    [order, hasOrdersDocuments, validOrdersDocuments],
   );
 
   const handleButtonDropdownChange = (e) => {
