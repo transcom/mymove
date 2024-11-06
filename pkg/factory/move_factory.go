@@ -175,6 +175,7 @@ func BuildMoveWithPPMShipment(db *pop.Connection, customs []Customization, trait
 	ppmShipment.ShipmentID = mtoShipment.ID
 
 	mtoShipment.PPMShipment = &ppmShipment
+	mtoShipment.ShipmentType = models.MTOShipmentTypePPM
 	move.MTOShipments = append(move.MTOShipments, mtoShipment)
 
 	if db != nil {
