@@ -156,7 +156,11 @@ describe('CreateMoveCustomerInfo Component', () => {
 describe('AddOrdersForm - OCONUS and Accompanied Tour Test', () => {
   it('submits the form with OCONUS values and accompanied tour selection', async () => {
     isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(true));
-    render(<AddOrdersForm {...testProps} />);
+    render(
+      <Provider store={mockStore.store}>
+        <AddOrdersForm {...testProps} />
+      </Provider>,
+    );
 
     await userEvent.selectOptions(await screen.findByLabelText(/Orders type/), 'PERMANENT_CHANGE_OF_STATION');
     await userEvent.type(screen.getByLabelText(/Orders date/), '08 Nov 2020');
