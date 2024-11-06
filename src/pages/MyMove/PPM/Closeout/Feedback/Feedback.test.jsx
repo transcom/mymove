@@ -101,15 +101,4 @@ describe('Feedback page', () => {
     const formattedRow = FormatRow(row);
     expect(formattedRow.value).toBe('$1000');
   });
-
-  it('returns correct trip weight', () => {
-    const doc = { fullWeight: 5844, emptyWeight: 1999 };
-    expect(GetTripWeight(doc)).toBe(3845);
-  });
-
-  it('formats row correctly', () => {
-    const row = { value: 1000, format: (val) => `$${val}` };
-    const formattedRow = FormatRow(row);
-    expect(formattedRow.value).toBe('$1000');
-  });
 });
