@@ -339,6 +339,7 @@ func (suite *PayloadsSuite) TestEntitlement() {
 	dependentsUnderTwelve := 1
 	dependentsTwelveAndOver := 1
 	authorizedWeight := 8000
+	ubAllowance := 300
 
 	entitlement := &models.Entitlement{
 		ID:                             entitlementID,
@@ -355,9 +356,11 @@ func (suite *PayloadsSuite) TestEntitlement() {
 		DependentsUnderTwelve:          &dependentsUnderTwelve,
 		DependentsTwelveAndOver:        &dependentsTwelveAndOver,
 		UpdatedAt:                      time.Now(),
+		UBAllowance:                    &ubAllowance,
 	}
 
 	returnedEntitlement := Entitlement(entitlement)
+	returnedUBAllowance := entitlement.UBAllowance
 
 	suite.IsType(&ghcmessages.Entitlements{}, returnedEntitlement)
 
@@ -366,6 +369,7 @@ func (suite *PayloadsSuite) TestEntitlement() {
 	suite.Equal(entitlement.DependentsAuthorized, returnedEntitlement.DependentsAuthorized)
 	suite.Equal(entitlement.NonTemporaryStorage, returnedEntitlement.NonTemporaryStorage)
 	suite.Equal(entitlement.PrivatelyOwnedVehicle, returnedEntitlement.PrivatelyOwnedVehicle)
+	suite.Equal(int(*returnedUBAllowance), int(*returnedEntitlement.UbAllowance))
 	suite.Equal(int64(proGearWeight), returnedEntitlement.ProGearWeight)
 	suite.Equal(int64(proGearWeightSpouse), returnedEntitlement.ProGearWeightSpouse)
 	suite.Equal(storageInTransit, int(*returnedEntitlement.StorageInTransit))
