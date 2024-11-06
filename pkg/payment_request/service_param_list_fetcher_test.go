@@ -7,8 +7,8 @@ import (
 
 func (suite *PaymentRequestHelperSuite) TestFetchServiceParamList() {
 	// Make a couple of services
-	dlhService := factory.BuildReServiceByCode(suite.DB(), models.ReServiceCodeDLH)
-	dopService := factory.BuildReServiceByCode(suite.DB(), models.ReServiceCodeDOP)
+	dlhService := factory.FetchReServiceByCode(suite.DB(), models.ReServiceCodeDLH)
+	dopService := factory.FetchReServiceByCode(suite.DB(), models.ReServiceCodeDOP)
 
 	// Make a few keys
 	contractCodeKey := factory.BuildServiceItemParamKey(suite.DB(), []factory.Customization{
