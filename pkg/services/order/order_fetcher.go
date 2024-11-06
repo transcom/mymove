@@ -3,6 +3,7 @@ package order
 import (
 	"database/sql"
 	"fmt"
+	"regexp"
 	"strings"
 	"time"
 
@@ -105,7 +106,7 @@ func (f orderFetcher) ListOrders(appCtx appcontext.AppContext, officeUserID uuid
 	locatorQuery := locatorFilter(params.Locator)
 	dodIDQuery := dodIDFilter(params.DodID)
 	emplidQuery := emplidFilter(params.Emplid)
-	lastNameQuery := lastNameFilter(params.LastName)
+	customerNameQuery := customerNameFilter(params.CustomerName)
 	originDutyLocationQuery := originDutyLocationFilter(params.OriginDutyLocation)
 	destinationDutyLocationQuery := destinationDutyLocationFilter(params.DestinationDutyLocation)
 	moveStatusQuery := moveStatusFilter(params.Status)
@@ -116,12 +117,12 @@ func (f orderFetcher) ListOrders(appCtx appcontext.AppContext, officeUserID uuid
 	closeoutLocationQuery := closeoutLocationFilter(params.CloseoutLocation, ppmCloseoutGblocs)
 	ppmTypeQuery := ppmTypeFilter(params.PPMType)
 	ppmStatusQuery := ppmStatusFilter(params.PPMStatus)
-	SCAssignedUserQuery := SCAssignedUserFilter(params.SCAssignedUser)
-	TOOAssignedUserQuery := TOOAssignedUserFilter(params.TOOAssignedUser)
+	scAssignedUserQuery := scAssignedUserFilter(params.SCAssignedUser)
+	tooAssignedUserQuery := tooAssignedUserFilter(params.TOOAssignedUser)
 	sortOrderQuery := sortOrder(params.Sort, params.Order, ppmCloseoutGblocs)
 	counselingQuery := counselingOfficeFilter(params.CounselingOffice)
 	// Adding to an array so we can iterate over them and apply the filters after the query structure is set below
-	options := [20]QueryOption{branchQuery, locatorQuery, dodIDQuery, emplidQuery, lastNameQuery, originDutyLocationQuery, destinationDutyLocationQuery, moveStatusQuery, gblocQuery, submittedAtQuery, appearedInTOOAtQuery, requestedMoveDateQuery, ppmTypeQuery, closeoutInitiatedQuery, closeoutLocationQuery, ppmStatusQuery, sortOrderQuery, SCAssignedUserQuery, TOOAssignedUserQuery, counselingQuery}
+	options := [20]QueryOption{branchQuery, locatorQuery, dodIDQuery, emplidQuery, customerNameQuery, originDutyLocationQuery, destinationDutyLocationQuery, moveStatusQuery, gblocQuery, submittedAtQuery, appearedInTOOAtQuery, requestedMoveDateQuery, ppmTypeQuery, closeoutInitiatedQuery, closeoutLocationQuery, ppmStatusQuery, sortOrderQuery, scAssignedUserQuery, tooAssignedUserQuery, counselingQuery}
 
 	var query *pop.Query
 	if ppmCloseoutGblocs {
@@ -191,7 +192,7 @@ func (f orderFetcher) ListOrders(appCtx appcontext.AppContext, officeUserID uuid
 			if *params.NeedsPPMCloseout {
 				query.InnerJoin("ppm_shipments", "ppm_shipments.shipment_id = mto_shipments.id").
 					LeftJoin("transportation_offices as closeout_to", "closeout_to.id = moves.closeout_office_id").
-					Where("ppm_shipments.status IN (?)", models.PPMShipmentStatusWaitingOnCustomer, models.PPMShipmentStatusNeedsCloseout).
+					Where("ppm_shipments.status IN (?)", models.PPMShipmentStatusNeedsCloseout).
 					Where("service_members.affiliation NOT IN (?)", models.AffiliationNAVY, models.AffiliationMARINES, models.AffiliationCOASTGUARD)
 			} else {
 				query.LeftJoin("ppm_shipments", "ppm_shipments.shipment_id = mto_shipments.id").
@@ -430,7 +431,7 @@ func (f orderFetcher) ListAllOrderLocations(appCtx appcontext.AppContext, office
 		if params.NeedsPPMCloseout != nil {
 			if *params.NeedsPPMCloseout {
 				query.InnerJoin("ppm_shipments", "ppm_shipments.shipment_id = mto_shipments.id").
-					Where("ppm_shipments.status IN (?)", models.PPMShipmentStatusWaitingOnCustomer, models.PPMShipmentStatusNeedsCloseout, models.PPMShipmentStatusCloseoutComplete).
+					Where("ppm_shipments.status IN (?)", models.PPMShipmentStatusNeedsCloseout, models.PPMShipmentStatusCloseoutComplete).
 					Where("service_members.affiliation NOT IN (?)", models.AffiliationNAVY, models.AffiliationMARINES, models.AffiliationCOASTGUARD)
 			} else {
 				query.LeftJoin("ppm_shipments", "ppm_shipments.shipment_id = mto_shipments.id").
@@ -512,12 +513,20 @@ func branchFilter(branch *string, needsCounseling bool, ppmCloseoutGblocs bool) 
 	}
 }
 
-func lastNameFilter(lastName *string) QueryOption {
+func customerNameFilter(name *string) QueryOption {
 	return func(query *pop.Query) {
-		if lastName != nil {
-			nameSearch := fmt.Sprintf("%s%%", *lastName)
-			query.Where("service_members.last_name ILIKE ?", nameSearch)
+		if name == nil {
+			return
 		}
+
+		// Remove "," that user may enter between names (displayed on frontend column)
+		nameQueryParam := *name
+		removeCharsRegex := regexp.MustCompile("[,]+")
+		nameQueryParam = removeCharsRegex.ReplaceAllString(nameQueryParam, "")
+		nameQueryParam = fmt.Sprintf("%%%s%%", nameQueryParam)
+
+		// Search for partial within both (last first) and (first last) in one go
+		query.Where("(service_members.last_name || ' ' || service_members.first_name || service_members.first_name || ' ' || service_members.last_name) ILIKE ?", nameQueryParam)
 	}
 }
 
@@ -548,7 +557,7 @@ func locatorFilter(locator *string) QueryOption {
 func originDutyLocationFilter(originDutyLocation []string) QueryOption {
 	return func(query *pop.Query) {
 		if len(originDutyLocation) > 0 {
-			query.Where("origin_dl.name IN (?)", originDutyLocation)
+			query.Where("origin_dl.name ILIKE ?", "%"+strings.Join(originDutyLocation, " ")+"%")
 		}
 	}
 }
@@ -635,18 +644,20 @@ func ppmStatusFilter(ppmStatus *string) QueryOption {
 	}
 }
 
-func SCAssignedUserFilter(scAssigned *string) QueryOption {
+func scAssignedUserFilter(scAssigned *string) QueryOption {
 	return func(query *pop.Query) {
 		if scAssigned != nil {
-			query.Where("f_unaccent(lower(?)) % searchable_full_name(assigned_user.first_name, assigned_user.last_name)", *scAssigned)
+			nameSearch := fmt.Sprintf("%s%%", *scAssigned)
+			query.Where("assigned_user.last_name ILIKE ?", nameSearch)
 		}
 	}
 }
 
-func TOOAssignedUserFilter(tooAssigned *string) QueryOption {
+func tooAssignedUserFilter(tooAssigned *string) QueryOption {
 	return func(query *pop.Query) {
 		if tooAssigned != nil {
-			query.Where("f_unaccent(lower(?)) % searchable_full_name(assigned_user.first_name, assigned_user.last_name)", *tooAssigned)
+			nameSearch := fmt.Sprintf("%s%%", *tooAssigned)
+			query.Where("assigned_user.last_name ILIKE ?", nameSearch)
 		}
 	}
 }
@@ -715,7 +726,7 @@ func gblocFilterForPPMCloseoutForNavyMarineAndCG(gbloc *string) QueryOption {
 
 func sortOrder(sort *string, order *string, ppmCloseoutGblocs bool) QueryOption {
 	parameters := map[string]string{
-		"lastName":                "service_members.last_name",
+		"customerName":            "(service_members.last_name || ' ' || service_members.first_name)",
 		"dodID":                   "service_members.edipi",
 		"emplid":                  "service_members.emplid",
 		"branch":                  "service_members.affiliation",
@@ -744,7 +755,7 @@ func sortOrder(sort *string, order *string, ppmCloseoutGblocs bool) QueryOption 
 				return
 			}
 			if sortTerm, ok := parameters[*sort]; ok {
-				if *sort == "lastName" {
+				if *sort == "customerName" {
 					query.Order(fmt.Sprintf("service_members.last_name %s, service_members.first_name %s", *order, *order))
 				} else if *sort == "assignedTo" {
 					query.Order(fmt.Sprintf("assigned_user.last_name %s, assigned_user.first_name %s", *order, *order))
