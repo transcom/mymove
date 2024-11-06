@@ -179,7 +179,7 @@ const GetMountedComponent = (queueTypeToMount) => {
   return wrapper;
 };
 
-const SEARCH_OPTIONS = ['Move Code', 'edpi', 'Customer Name', 'Payment Request Number'];
+const SEARCH_OPTIONS = ['Move Code', 'edipi', 'Customer Name', 'Payment Request Number'];
 
 describe('HeadquartersQueue', () => {
   afterEach(() => {
