@@ -126,7 +126,7 @@ func (m PaymentReminder) formatEmails(appCtx appcontext.AppContext, PaymentRemin
 	for _, PaymentReminderEmailInfo := range PaymentReminderEmailInfos {
 		htmlBody, textBody, err := m.renderTemplates(appCtx, PaymentReminderEmailData{
 			OriginDutyLocation:  PaymentReminderEmailInfo.OriginDutyLocationName,
-			DestinationLocation: getDestinationLocation(appCtx, PaymentReminderEmailInfo),
+			DestinationLocation: getDestinationLocation(PaymentReminderEmailInfo),
 			Locator:             PaymentReminderEmailInfo.Locator,
 			OneSourceLink:       OneSourceTransportationOfficeLink,
 			MyMoveLink:          MyMoveLink,
@@ -168,23 +168,12 @@ func (m PaymentReminder) renderTemplates(appCtx appcontext.AppContext, data Paym
 	return htmlBody, textBody, nil
 }
 
-func getDestinationLocation(appCtx appcontext.AppContext, PaymentReminderEmailInfo PaymentReminderEmailInfo) string {
+func getDestinationLocation(PaymentReminderEmailInfo PaymentReminderEmailInfo) string {
 	destinationLocation := PaymentReminderEmailInfo.NewDutyLocationName
 	ordersType := PaymentReminderEmailInfo.OrdersType
 	street1 := PaymentReminderEmailInfo.DestinationStreet1
-	if street1 != nil {
-		appCtx.Logger().Error("Street1 is: " + *street1)
-	} else {
-		appCtx.Logger().Error("Street1 is nil")
-	}
 	isSeparateeOrRetireeOrder := ordersType == internalmessages.OrdersTypeRETIREMENT || ordersType == internalmessages.OrdersTypeSEPARATION
-	if isSeparateeOrRetireeOrder {
-		appCtx.Logger().Debug("isSeparateeOrRetireeOrder: true")
-	} else {
-		appCtx.Logger().Debug("isSeparateeOrRetireeOrder: false")
-	}
 	if isSeparateeOrRetireeOrder && street1 != nil {
-		appCtx.Logger().Debug("In address section")
 		street2, street3, city, state, postalCode := "", "", "", "", ""
 		if PaymentReminderEmailInfo.DestinationStreet2 != nil {
 			street2 = " " + *PaymentReminderEmailInfo.DestinationStreet2
@@ -202,7 +191,6 @@ func getDestinationLocation(appCtx appcontext.AppContext, PaymentReminderEmailIn
 			postalCode = " " + *PaymentReminderEmailInfo.DestinationPostalCode
 		}
 		destinationLocation = fmt.Sprintf("%s%s%s%s%s%s", *street1, street2, street3, city, state, postalCode)
-		appCtx.Logger().Debug("New location: " + destinationLocation)
 	}
 	return destinationLocation
 }
