@@ -17,6 +17,8 @@ import { DropdownInput } from 'components/form/fields/DropdownInput';
  * @param formikFunctionsToValidatePostalCodeOnChange If you are intending to validate the postal code on change, you
  * will need to pass the handleChange and setFieldTouched Formik functions through in an object here.
  * See ResidentialAddressForm for an example.
+ * @param address1LabelHint string to override display labelHint if street 1 is Optional/Required per context.
+ * This is specifically designed to handle unique display between customer and office/prime sim for address 1.
  * @return {JSX.Element}
  * @constructor
  */
@@ -28,6 +30,7 @@ export const AddressFields = ({
   validators,
   formikFunctionsToValidatePostalCodeOnChange,
   labelHint: labelHintProp,
+  address1LabelHint,
 }) => {
   const addressFieldsUUID = useRef(uuidv4());
 
@@ -66,6 +69,19 @@ export const AddressFields = ({
     );
   }
 
+  const getAddress1LabelHintText = (labelHint, address1Label) => {
+    if (address1Label === null) {
+      return labelHint;
+    }
+
+    // Override default and use what is passed in.
+    if (address1Label && address1Label.trim().length > 0) {
+      return address1Label;
+    }
+
+    return null;
+  };
+
   return (
     <Fieldset legend={legend} className={className}>
       {render(
@@ -74,7 +90,7 @@ export const AddressFields = ({
             label="Address 1"
             id={`mailingAddress1_${addressFieldsUUID.current}`}
             name={`${name}.streetAddress1`}
-            labelHint={labelHintProp}
+            labelHint={getAddress1LabelHintText(labelHintProp, address1LabelHint)}
             validate={validators?.streetAddress1}
           />
           <TextField
@@ -134,6 +150,7 @@ AddressFields.propTypes = {
     handleChange: PropTypes.func,
     setFieldTouched: PropTypes.func,
   }),
+  address1LabelHint: PropTypes.string,
 };
 
 AddressFields.defaultProps = {
@@ -142,6 +159,7 @@ AddressFields.defaultProps = {
   render: (fields) => fields,
   validators: {},
   formikFunctionsToValidatePostalCodeOnChange: null,
+  address1LabelHint: null,
 };
 
 export default AddressFields;

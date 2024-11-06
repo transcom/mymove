@@ -22,7 +22,7 @@ type CreatePPMShipment struct {
 	// destination address
 	// Required: true
 	DestinationAddress struct {
-		Address
+		PPMDestinationAddress
 	} `json:"destinationAddress"`
 
 	// estimated weight
