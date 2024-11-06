@@ -94,6 +94,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 	var pickupAddress primev3messages.Address
 	var secondaryPickupAddress primev3messages.Address
 	var destinationAddress primev3messages.Address
+	var ppmDestinationAddress primev3messages.PPMDestinationAddress
 	var secondaryDestinationAddress primev3messages.Address
 
 	creator := paymentrequest.NewPaymentRequestCreator(planner, ghcrateengine.NewServiceItemPricer())
@@ -354,6 +355,14 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 			StreetAddress2: expectedDestinationAddress.StreetAddress2,
 			StreetAddress3: expectedDestinationAddress.StreetAddress3,
 		}
+		ppmDestinationAddress = primev3messages.PPMDestinationAddress{
+			City:           &expectedDestinationAddress.City,
+			PostalCode:     &expectedDestinationAddress.PostalCode,
+			State:          &expectedDestinationAddress.State,
+			StreetAddress1: &expectedDestinationAddress.StreetAddress1,
+			StreetAddress2: expectedDestinationAddress.StreetAddress2,
+			StreetAddress3: expectedDestinationAddress.StreetAddress3,
+		}
 
 		expectedSecondaryDestinationAddress := address2
 		secondaryDestinationAddress = primev3messages.Address{
@@ -372,10 +381,12 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 				ShipmentType:     primev3messages.NewMTOShipmentType(primev3messages.MTOShipmentTypePPM),
 				CounselorRemarks: &counselorRemarks,
 				PpmShipment: &primev3messages.CreatePPMShipment{
-					ExpectedDepartureDate:       handlers.FmtDate(expectedDepartureDate),
-					PickupAddress:               struct{ primev3messages.Address }{pickupAddress},
-					SecondaryPickupAddress:      struct{ primev3messages.Address }{secondaryPickupAddress},
-					DestinationAddress:          struct{ primev3messages.Address }{destinationAddress},
+					ExpectedDepartureDate:  handlers.FmtDate(expectedDepartureDate),
+					PickupAddress:          struct{ primev3messages.Address }{pickupAddress},
+					SecondaryPickupAddress: struct{ primev3messages.Address }{secondaryPickupAddress},
+					DestinationAddress: struct {
+						primev3messages.PPMDestinationAddress
+					}{ppmDestinationAddress},
 					SecondaryDestinationAddress: struct{ primev3messages.Address }{secondaryDestinationAddress},
 					SitExpected:                 &sitExpected,
 					SitLocation:                 &sitLocation,
@@ -522,6 +533,191 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		suite.Nil(updatedPPM.SecondaryDestinationAddress)
 		suite.False(*models.BoolPointer(*updatedPPM.HasSecondaryPickupAddress))
 		suite.False(*models.BoolPointer(*updatedPPM.HasSecondaryDestinationAddress))
+	})
+
+	suite.Run("Successful POST/PATCH - Integration Test (PPM) - Destination address street 1 OPTIONAL", func() {
+		// Under Test: CreateMTOShipment handler code
+		// Setup:      Create a PPM shipment on an available move
+		// Expected:   Successful submission, status should be SUBMITTED
+		handler, move := setupTestData(true, true)
+		req := httptest.NewRequest("POST", "/mto-shipments", nil)
+
+		counselorRemarks := "Some counselor remarks"
+		expectedDepartureDate := time.Now().AddDate(0, 0, 10)
+		sitExpected := true
+		sitLocation := primev3messages.SITLocationTypeDESTINATION
+		sitEstimatedWeight := unit.Pound(1500)
+		sitEstimatedEntryDate := expectedDepartureDate.AddDate(0, 0, 5)
+		sitEstimatedDepartureDate := sitEstimatedEntryDate.AddDate(0, 0, 20)
+		estimatedWeight := unit.Pound(3200)
+		hasProGear := true
+		proGearWeight := unit.Pound(400)
+		spouseProGearWeight := unit.Pound(250)
+		estimatedIncentive := 123456
+		sitEstimatedCost := 67500
+
+		address1 := models.Address{
+			StreetAddress1: "some address",
+			City:           "city",
+			State:          "CA",
+			PostalCode:     "90210",
+		}
+		addressWithEmptyStreet1 := models.Address{
+			StreetAddress1: "",
+			City:           "city",
+			State:          "CA",
+			PostalCode:     "90210",
+		}
+
+		expectedPickupAddress := address1
+		pickupAddress = primev3messages.Address{
+			City:           &expectedPickupAddress.City,
+			PostalCode:     &expectedPickupAddress.PostalCode,
+			State:          &expectedPickupAddress.State,
+			StreetAddress1: &expectedPickupAddress.StreetAddress1,
+			StreetAddress2: expectedPickupAddress.StreetAddress2,
+			StreetAddress3: expectedPickupAddress.StreetAddress3,
+		}
+
+		expectedDestinationAddress := address1
+		destinationAddress = primev3messages.Address{
+			City:           &expectedDestinationAddress.City,
+			PostalCode:     &expectedDestinationAddress.PostalCode,
+			State:          &expectedDestinationAddress.State,
+			StreetAddress1: &expectedDestinationAddress.StreetAddress1,
+			StreetAddress2: expectedDestinationAddress.StreetAddress2,
+			StreetAddress3: expectedDestinationAddress.StreetAddress3,
+		}
+		ppmDestinationAddress = primev3messages.PPMDestinationAddress{
+			City:           &addressWithEmptyStreet1.City,
+			PostalCode:     &addressWithEmptyStreet1.PostalCode,
+			State:          &addressWithEmptyStreet1.State,
+			StreetAddress1: &addressWithEmptyStreet1.StreetAddress1,
+			StreetAddress2: addressWithEmptyStreet1.StreetAddress2,
+			StreetAddress3: addressWithEmptyStreet1.StreetAddress3,
+		}
+
+		params := mtoshipmentops.CreateMTOShipmentParams{
+			HTTPRequest: req,
+			Body: &primev3messages.CreateMTOShipment{
+				MoveTaskOrderID:  handlers.FmtUUID(move.ID),
+				ShipmentType:     primev3messages.NewMTOShipmentType(primev3messages.MTOShipmentTypePPM),
+				CounselorRemarks: &counselorRemarks,
+				PpmShipment: &primev3messages.CreatePPMShipment{
+					ExpectedDepartureDate: handlers.FmtDate(expectedDepartureDate),
+					PickupAddress:         struct{ primev3messages.Address }{pickupAddress},
+					DestinationAddress: struct {
+						primev3messages.PPMDestinationAddress
+					}{ppmDestinationAddress},
+					SitExpected:               &sitExpected,
+					SitLocation:               &sitLocation,
+					SitEstimatedWeight:        handlers.FmtPoundPtr(&sitEstimatedWeight),
+					SitEstimatedEntryDate:     handlers.FmtDate(sitEstimatedEntryDate),
+					SitEstimatedDepartureDate: handlers.FmtDate(sitEstimatedDepartureDate),
+					EstimatedWeight:           handlers.FmtPoundPtr(&estimatedWeight),
+					HasProGear:                &hasProGear,
+					ProGearWeight:             handlers.FmtPoundPtr(&proGearWeight),
+					SpouseProGearWeight:       handlers.FmtPoundPtr(&spouseProGearWeight),
+				},
+			},
+		}
+
+		ppmEstimator.On("EstimateIncentiveWithDefaultChecks",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.AnythingOfType("models.PPMShipment"),
+			mock.AnythingOfType("*models.PPMShipment")).
+			Return(models.CentPointer(unit.Cents(estimatedIncentive)), models.CentPointer(unit.Cents(sitEstimatedCost)), nil).Once()
+
+		// Validate incoming payload
+		suite.NoError(params.Body.Validate(strfmt.Default))
+
+		response := handler.Handle(params)
+		suite.IsType(&mtoshipmentops.CreateMTOShipmentOK{}, response)
+		okResponse := response.(*mtoshipmentops.CreateMTOShipmentOK)
+		createdShipment := okResponse.Payload
+
+		// Validate outgoing payload
+		suite.NoError(createdShipment.Validate(strfmt.Default))
+
+		createdPPM := createdShipment.PpmShipment
+
+		suite.Equal(move.ID.String(), createdShipment.MoveTaskOrderID.String())
+		suite.Equal(primev3messages.MTOShipmentTypePPM, createdShipment.ShipmentType)
+		suite.Equal(primev3messages.MTOShipmentWithoutServiceItemsStatusSUBMITTED, createdShipment.Status)
+
+		suite.Equal(createdShipment.ID.String(), createdPPM.ShipmentID.String())
+		suite.Equal(addressWithEmptyStreet1.StreetAddress1, *createdPPM.DestinationAddress.StreetAddress1)
+		suite.True(len(*createdPPM.DestinationAddress.StreetAddress1) == 0)
+
+		// ************
+		// PATCH TESTS
+		// ************
+		ppmEstimator.On("EstimateIncentiveWithDefaultChecks",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.AnythingOfType("models.PPMShipment"),
+			mock.AnythingOfType("*models.PPMShipment")).
+			Return(models.CentPointer(unit.Cents(estimatedIncentive)), models.CentPointer(unit.Cents(sitEstimatedCost)), nil).Times(2)
+
+		ppmEstimator.On("FinalIncentiveWithDefaultChecks",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.AnythingOfType("models.PPMShipment"),
+			mock.AnythingOfType("*models.PPMShipment")).
+			Return(nil, nil)
+
+		patchHandler := UpdateMTOShipmentHandler{
+			suite.HandlerConfig(),
+			shipmentUpdater,
+		}
+
+		patchReq := httptest.NewRequest("PATCH", fmt.Sprintf("/mto-shipments/%s", createdPPM.ShipmentID.String()), nil)
+
+		var mtoShipment models.MTOShipment
+		err := suite.DB().Find(&mtoShipment, createdPPM.ShipmentID)
+		suite.NoError(err)
+		eTag := etag.GenerateEtag(mtoShipment.UpdatedAt)
+		patchParams := mtoshipmentops.UpdateMTOShipmentParams{
+			HTTPRequest:   patchReq,
+			MtoShipmentID: createdPPM.ShipmentID,
+			IfMatch:       eTag,
+		}
+		patchParams.Body = &primev3messages.UpdateMTOShipment{
+			ShipmentType: primev3messages.MTOShipmentTypePPM,
+		}
+		// *************************************************************************************
+		// *************************************************************************************
+		// Run with whitespace in destination street 1. Whitespace will be trimmed and seen as
+		// as empty on the server side.
+		// *************************************************************************************
+		ppmDestinationAddressOptionalStreet1ContainingWhitespaces := primev3messages.PPMDestinationAddress{
+			City:           models.StringPointer("SomeCity"),
+			Country:        models.StringPointer("US"),
+			PostalCode:     models.StringPointer("90210"),
+			State:          models.StringPointer("CA"),
+			StreetAddress1: models.StringPointer("  "), //whitespace
+		}
+		patchParams.Body.PpmShipment = &primev3messages.UpdatePPMShipment{
+			DestinationAddress: struct {
+				primev3messages.PPMDestinationAddress
+			}{ppmDestinationAddressOptionalStreet1ContainingWhitespaces},
+		}
+
+		// Validate incoming payload
+		suite.NoError(patchParams.Body.Validate(strfmt.Default))
+
+		patchResponse := patchHandler.Handle(patchParams)
+		suite.IsType(&mtoshipmentops.UpdateMTOShipmentOK{}, patchResponse)
+		okPatchResponse := patchResponse.(*mtoshipmentops.UpdateMTOShipmentOK)
+		updatedShipment := okPatchResponse.Payload
+
+		// Validate outgoing payload
+		suite.NoError(updatedShipment.Validate(strfmt.Default))
+
+		updatedPPM := updatedShipment.PpmShipment
+		suite.Equal(ppmDestinationAddressOptionalStreet1ContainingWhitespaces.City, updatedPPM.DestinationAddress.City)
+		// test whitespace has been trimmed. it should not be equal after update
+		suite.NotEqual(ppmDestinationAddressOptionalStreet1ContainingWhitespaces.StreetAddress1, updatedPPM.DestinationAddress.StreetAddress1)
+		// verify street address1 is returned as empty string
+		suite.True(len(*updatedPPM.DestinationAddress.StreetAddress1) == 0)
 	})
 
 	suite.Run("Successful POST with Shuttle service items without primeEstimatedWeight - Integration Test", func() {

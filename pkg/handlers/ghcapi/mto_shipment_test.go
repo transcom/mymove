@@ -3507,7 +3507,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandlerUsingPPM() {
 
 		var pickupAddress ghcmessages.Address
 		var secondaryPickupAddress ghcmessages.Address
-		var destinationAddress ghcmessages.Address
+		var destinationAddress ghcmessages.PPMDestinationAddress
 		var secondaryDestinationAddress ghcmessages.Address
 
 		expectedPickupAddress := factory.BuildAddress(nil, []factory.Customization{
@@ -3549,7 +3549,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandlerUsingPPM() {
 				},
 			},
 		}, nil)
-		destinationAddress = ghcmessages.Address{
+		destinationAddress = ghcmessages.PPMDestinationAddress{
 			City:           &expectedDestinationAddress.City,
 			PostalCode:     &expectedDestinationAddress.PostalCode,
 			State:          &expectedDestinationAddress.State,
@@ -3580,10 +3580,12 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandlerUsingPPM() {
 				MoveTaskOrderID: handlers.FmtUUID(move.ID),
 				ShipmentType:    &shipmentType,
 				PpmShipment: &ghcmessages.CreatePPMShipment{
-					ExpectedDepartureDate:       handlers.FmtDatePtr(expectedDepartureDate),
-					PickupAddress:               struct{ ghcmessages.Address }{pickupAddress},
-					SecondaryPickupAddress:      struct{ ghcmessages.Address }{secondaryPickupAddress},
-					DestinationAddress:          struct{ ghcmessages.Address }{destinationAddress},
+					ExpectedDepartureDate:  handlers.FmtDatePtr(expectedDepartureDate),
+					PickupAddress:          struct{ ghcmessages.Address }{pickupAddress},
+					SecondaryPickupAddress: struct{ ghcmessages.Address }{secondaryPickupAddress},
+					DestinationAddress: struct {
+						ghcmessages.PPMDestinationAddress
+					}{destinationAddress},
 					SecondaryDestinationAddress: struct{ ghcmessages.Address }{secondaryDestinationAddress},
 					SitExpected:                 &sitExpected,
 					SitLocation:                 &sitLocation,
@@ -3698,7 +3700,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandlerUsingPPM() {
 		estimatedIncentive := 123456
 
 		var pickupAddress ghcmessages.Address
-		var destinationAddress ghcmessages.Address
+		var destinationAddress ghcmessages.PPMDestinationAddress
 
 		expectedPickupAddress := factory.BuildAddress(nil, []factory.Customization{
 			{
@@ -3723,7 +3725,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandlerUsingPPM() {
 				},
 			},
 		}, nil)
-		destinationAddress = ghcmessages.Address{
+		destinationAddress = ghcmessages.PPMDestinationAddress{
 			City:           &expectedDestinationAddress.City,
 			PostalCode:     &expectedDestinationAddress.PostalCode,
 			State:          &expectedDestinationAddress.State,
@@ -3742,10 +3744,12 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandlerUsingPPM() {
 				PpmShipment: &ghcmessages.CreatePPMShipment{
 					ExpectedDepartureDate: handlers.FmtDatePtr(expectedDepartureDate),
 					PickupAddress:         struct{ ghcmessages.Address }{pickupAddress},
-					DestinationAddress:    struct{ ghcmessages.Address }{destinationAddress},
-					SitExpected:           &sitExpected,
-					EstimatedWeight:       handlers.FmtPoundPtr(&estimatedWeight),
-					HasProGear:            &hasProGear,
+					DestinationAddress: struct {
+						ghcmessages.PPMDestinationAddress
+					}{destinationAddress},
+					SitExpected:     &sitExpected,
+					EstimatedWeight: handlers.FmtPoundPtr(&estimatedWeight),
+					HasProGear:      &hasProGear,
 				},
 			},
 		}
@@ -3840,7 +3844,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandlerUsingPPM() {
 		estimatedIncentive := 123456
 
 		var pickupAddress ghcmessages.Address
-		var destinationAddress ghcmessages.Address
+		var destinationAddress ghcmessages.PPMDestinationAddress
 
 		expectedPickupAddress := factory.BuildAddress(nil, []factory.Customization{
 			{
@@ -3865,7 +3869,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandlerUsingPPM() {
 				},
 			},
 		}, nil)
-		destinationAddress = ghcmessages.Address{
+		destinationAddress = ghcmessages.PPMDestinationAddress{
 			City:           &expectedDestinationAddress.City,
 			PostalCode:     &expectedDestinationAddress.PostalCode,
 			State:          &expectedDestinationAddress.State,
@@ -3884,10 +3888,12 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandlerUsingPPM() {
 				PpmShipment: &ghcmessages.CreatePPMShipment{
 					ExpectedDepartureDate: handlers.FmtDatePtr(expectedDepartureDate),
 					PickupAddress:         struct{ ghcmessages.Address }{pickupAddress},
-					DestinationAddress:    struct{ ghcmessages.Address }{destinationAddress},
-					SitExpected:           &sitExpected,
-					EstimatedWeight:       handlers.FmtPoundPtr(&estimatedWeight),
-					HasProGear:            &hasProGear,
+					DestinationAddress: struct {
+						ghcmessages.PPMDestinationAddress
+					}{destinationAddress},
+					SitExpected:     &sitExpected,
+					EstimatedWeight: handlers.FmtPoundPtr(&estimatedWeight),
+					HasProGear:      &hasProGear,
 				},
 			},
 		}
@@ -4134,7 +4140,7 @@ func (suite *HandlerSuite) TestUpdateShipmentHandler() {
 
 		var pickupAddress ghcmessages.Address
 		var secondaryPickupAddress ghcmessages.Address
-		var destinationAddress ghcmessages.Address
+		var destinationAddress ghcmessages.PPMDestinationAddress
 		var secondaryDestinationAddress ghcmessages.Address
 
 		expectedPickupAddress := ppmShipment.PickupAddress
@@ -4164,7 +4170,7 @@ func (suite *HandlerSuite) TestUpdateShipmentHandler() {
 		}
 
 		expectedDestinationAddress := ppmShipment.DestinationAddress
-		destinationAddress = ghcmessages.Address{
+		destinationAddress = ghcmessages.PPMDestinationAddress{
 			City:           &expectedDestinationAddress.City,
 			PostalCode:     &expectedDestinationAddress.PostalCode,
 			State:          &expectedDestinationAddress.State,
@@ -4203,11 +4209,13 @@ func (suite *HandlerSuite) TestUpdateShipmentHandler() {
 		params := suite.getUpdateShipmentParams(ppmShipment.Shipment)
 		params.Body.ShipmentType = ghcmessages.MTOShipmentTypePPM
 		params.Body.PpmShipment = &ghcmessages.UpdatePPMShipment{
-			ActualMoveDate:              handlers.FmtDatePtr(&actualMoveDate),
-			ExpectedDepartureDate:       handlers.FmtDatePtr(&expectedDepartureDate),
-			PickupAddress:               struct{ ghcmessages.Address }{pickupAddress},
-			SecondaryPickupAddress:      struct{ ghcmessages.Address }{secondaryPickupAddress},
-			DestinationAddress:          struct{ ghcmessages.Address }{destinationAddress},
+			ActualMoveDate:         handlers.FmtDatePtr(&actualMoveDate),
+			ExpectedDepartureDate:  handlers.FmtDatePtr(&expectedDepartureDate),
+			PickupAddress:          struct{ ghcmessages.Address }{pickupAddress},
+			SecondaryPickupAddress: struct{ ghcmessages.Address }{secondaryPickupAddress},
+			DestinationAddress: struct {
+				ghcmessages.PPMDestinationAddress
+			}{destinationAddress},
 			SecondaryDestinationAddress: struct{ ghcmessages.Address }{secondaryDestinationAddress},
 			SitExpected:                 &sitExpected,
 			SitEstimatedWeight:          handlers.FmtPoundPtr(&sitEstimatedWeight),
