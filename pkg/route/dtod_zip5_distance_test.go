@@ -7,6 +7,8 @@ import (
 	"github.com/stretchr/testify/mock"
 	"github.com/tiaguinho/gosoap"
 
+	"github.com/transcom/mymove/pkg/apperror"
+	"github.com/transcom/mymove/pkg/notifications"
 	"github.com/transcom/mymove/pkg/route/ghcmocks"
 )
 
@@ -94,6 +96,10 @@ func (suite *GHCTestSuite) TestDTODZip5DistanceFake() {
 
 			if test.shouldError {
 				suite.Error(err)
+				switch err.(type) {
+				case apperror.EventError:
+					suite.Equal(err.Error(), notifications.DtodErrorMessage)
+				}
 			} else {
 				suite.NoError(err)
 			}

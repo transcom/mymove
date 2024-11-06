@@ -8,6 +8,7 @@ import (
 
 	"github.com/gobuffalo/validate/v3"
 	"github.com/gofrs/uuid"
+	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/apperror"
@@ -760,6 +761,32 @@ func updateOrderInTx(appCtx appcontext.AppContext, order models.Order, checks ..
 	verrs, err = appCtx.DB().ValidateAndUpdate(&order)
 	if e := handleError(order.ID, verrs, err); e != nil {
 		return nil, e
+	}
+
+	// change actual expense reimbursement to 'true' for all PPM shipments if pay grade is civilian
+	if order.Grade != nil && *order.Grade == models.ServiceMemberGradeCIVILIANEMPLOYEE {
+		moves, fetchErr := models.FetchMovesByOrderID(appCtx.DB(), order.ID)
+		if fetchErr != nil || len(moves) == 0 {
+			appCtx.Logger().Error("failure encountered querying for move associated with the order", zap.Error(err))
+		} else {
+			move := moves[0]
+			for i := range move.MTOShipments {
+				shipment := &move.MTOShipments[i]
+
+				if shipment.ShipmentType == models.MTOShipmentTypePPM {
+					if shipment.PPMShipment == nil {
+						appCtx.Logger().Warn("PPM shipment not found for MTO shipment", zap.String("shipmentID", shipment.ID.String()))
+						continue
+					}
+					shipment.PPMShipment.IsActualExpenseReimbursement = models.BoolPointer(true)
+
+					if verrs, err := appCtx.DB().ValidateAndUpdate(shipment.PPMShipment); verrs.HasAny() || err != nil {
+						msg := "failure saving PPM shipment when updating orders"
+						appCtx.Logger().Error(msg, zap.Error(err))
+					}
+				}
+			}
+		}
 	}
 
 	return &order, nil
