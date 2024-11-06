@@ -15,6 +15,8 @@ import (
 	"github.com/transcom/mymove/pkg/utils"
 )
 
+const STREET_ADDRESS_1_NOT_PROVIDED string = "n/a"
+
 // Address is an address
 type Address struct {
 	ID                 uuid.UUID         `json:"id" db:"id"`

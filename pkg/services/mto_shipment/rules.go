@@ -148,12 +148,9 @@ func checkPrimeDeleteAllowed() validator {
 		return nil
 	})
 }
+
 func isTertiaryAddressPresentWithoutSecondaryMTO(mtoShipmentToCheck models.MTOShipment) bool {
 	return (models.IsAddressEmpty(mtoShipmentToCheck.SecondaryPickupAddress) && !models.IsAddressEmpty(mtoShipmentToCheck.TertiaryPickupAddress)) || (models.IsAddressEmpty(mtoShipmentToCheck.SecondaryDeliveryAddress) && !models.IsAddressEmpty(mtoShipmentToCheck.TertiaryDeliveryAddress))
-}
-
-func isTertiaryAddressPresentWithoutSecondaryPPM(mtoShipmentToCheck models.MTOShipment) bool {
-	return (models.IsAddressEmpty(mtoShipmentToCheck.PPMShipment.SecondaryPickupAddress) && !models.IsAddressEmpty(mtoShipmentToCheck.PPMShipment.TertiaryPickupAddress)) || (models.IsAddressEmpty(mtoShipmentToCheck.PPMShipment.SecondaryDestinationAddress) && !models.IsAddressEmpty(mtoShipmentToCheck.PPMShipment.TertiaryDestinationAddress))
 }
 
 func MTOShipmentHasTertiaryAddressWithNoSecondaryAddress() validator {

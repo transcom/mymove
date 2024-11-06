@@ -470,7 +470,7 @@ definitions:
       destinationAddress:
         description: The address of the destination location where goods are being delivered to.
         allOf:
-          - $ref: 'definitions/Address.yaml'
+          - $ref: 'definitions/PPMDestinationAddress.yaml'
       secondaryDestinationAddress:
         description: An optional secondary address near the destination where goods will be dropped off.
         allOf:
@@ -715,7 +715,7 @@ definitions:
         description: >
           The address of the destination location where goods are being delivered to.
         allOf:
-          - $ref: 'definitions/Address.yaml'
+          - $ref: 'definitions/PPMDestinationAddress.yaml'
       hasSecondaryDestinationAddress:
         type: boolean
         x-omitempty: false
