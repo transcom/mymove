@@ -40,9 +40,11 @@ type PpmPacketEmailData struct {
 	SubmitLocation                    string
 	ServiceBranch                     string
 	Locator                           string
+	IsActualExpenseReimbursement      string
 	OneSourceTransportationOfficeLink string
 	WashingtonHQServicesLink          string
 	MyMoveLink                        string
+	SmartVoucherLink                  string
 }
 
 // Used to get logging data from GetEmailData
@@ -60,6 +62,13 @@ func NewPpmPacketEmail(ppmShipmentID uuid.UUID) *PpmPacketEmail {
 		htmlTemplate:  ppmPacketEmailHTMLTemplate,
 		textTemplate:  ppmPacketEmailTextTemplate,
 	}
+}
+
+func (p PpmPacketEmail) ConvertBoolToString(b *bool) string {
+	if b != nil && *b {
+		return "true"
+	}
+	return "false"
 }
 
 // NotificationSendingContext expects a `notification` with an `emails` method,
@@ -136,15 +145,6 @@ func (p PpmPacketEmail) GetEmailData(appCtx appcontext.AppContext) (PpmPacketEma
 		submitLocation = `your local finance office`
 	}
 
-	var affiliationDisplayValue = map[models.ServiceMemberAffiliation]string{
-		models.AffiliationARMY:       "Army",
-		models.AffiliationNAVY:       "Marine Corps, Navy, and Coast Guard",
-		models.AffiliationMARINES:    "Marine Corps, Navy, and Coast Guard",
-		models.AffiliationAIRFORCE:   "Air Force and Space Force",
-		models.AffiliationSPACEFORCE: "Air Force and Space Force",
-		models.AffiliationCOASTGUARD: "Marine Corps, Navy, and Coast Guard",
-	}
-
 	// If address IDs are available for this PPM shipment, then do another query to get the city/state for origin and destination.
 	// Note: This is a conditional put in because this work was done before address_ids were added to the ppm_shipments table.
 	if ppmShipment.PickupAddressID != nil && ppmShipment.DestinationAddressID != nil {
@@ -166,11 +166,13 @@ func (p PpmPacketEmail) GetEmailData(appCtx appcontext.AppContext) (PpmPacketEma
 				DestinationState:                  &destinationAddress.State,
 				DestinationZIP:                    &destinationAddress.PostalCode,
 				SubmitLocation:                    submitLocation,
-				ServiceBranch:                     affiliationDisplayValue[*serviceMember.Affiliation],
+				ServiceBranch:                     GetAffiliationDisplayValues()[*serviceMember.Affiliation],
 				Locator:                           move.Locator,
+				IsActualExpenseReimbursement:      p.ConvertBoolToString(ppmShipment.IsActualExpenseReimbursement),
 				OneSourceTransportationOfficeLink: OneSourceTransportationOfficeLink,
 				WashingtonHQServicesLink:          WashingtonHQServicesLink,
 				MyMoveLink:                        MyMoveLink,
+				SmartVoucherLink:                  SmartVoucherLink,
 			},
 			LoggerData{
 				ServiceMember: *serviceMember,
@@ -184,11 +186,13 @@ func (p PpmPacketEmail) GetEmailData(appCtx appcontext.AppContext) (PpmPacketEma
 			OriginZIP:                         &ppmShipment.PickupAddress.PostalCode,
 			DestinationZIP:                    &ppmShipment.DestinationAddress.PostalCode,
 			SubmitLocation:                    submitLocation,
-			ServiceBranch:                     affiliationDisplayValue[*serviceMember.Affiliation],
+			ServiceBranch:                     GetAffiliationDisplayValues()[*serviceMember.Affiliation],
 			Locator:                           move.Locator,
+			IsActualExpenseReimbursement:      p.ConvertBoolToString(ppmShipment.IsActualExpenseReimbursement),
 			OneSourceTransportationOfficeLink: OneSourceTransportationOfficeLink,
 			WashingtonHQServicesLink:          WashingtonHQServicesLink,
 			MyMoveLink:                        MyMoveLink,
+			SmartVoucherLink:                  SmartVoucherLink,
 		},
 		LoggerData{
 			ServiceMember: *serviceMember,
