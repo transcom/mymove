@@ -121,7 +121,7 @@ const PrimeUIShipmentCreateForm = () => {
               <>
                 <p>What address are the movers picking up from?</p>
                 {fields}
-                <h4>Second pickup location</h4>
+                <h4>Second pickup address</h4>
                 <FormGroup>
                   <p>
                     Will the movers pick up any belongings from a second address? (Must be near the pickup address.
@@ -135,7 +135,7 @@ const PrimeUIShipmentCreateForm = () => {
                       label="Yes"
                       name="ppmShipment.hasSecondaryPickupAddress"
                       value="true"
-                      title="Yes, there is a second pickup location"
+                      title="Yes, there is a second pickup address"
                       checked={hasSecondaryPickupAddress === 'true'}
                     />
                     <Field
@@ -145,7 +145,7 @@ const PrimeUIShipmentCreateForm = () => {
                       label="No"
                       name="ppmShipment.hasSecondaryPickupAddress"
                       value="false"
-                      title="No, there is not a second pickup location"
+                      title="No, there is not a second pickup address"
                       checked={hasSecondaryPickupAddress !== 'true' && hasTertiaryPickupAddress !== 'true'}
                     />
                   </div>
@@ -155,7 +155,7 @@ const PrimeUIShipmentCreateForm = () => {
                     <h5 className={styles.sectionHeader}>Second Pickup Address</h5>
                     <AddressFields name="ppmShipment.secondaryPickupAddress" />
 
-                    <h4>Third pickup location</h4>
+                    <h4>Third pickup address</h4>
                     <FormGroup>
                       <p>
                         Will the movers pick up any belongings from a third address? (Must be near the pickup address.
@@ -169,7 +169,7 @@ const PrimeUIShipmentCreateForm = () => {
                           label="Yes"
                           name="ppmShipment.hasTertiaryPickupAddress"
                           value="true"
-                          title="Yes, there is a tertiary pickup location"
+                          title="Yes, there is a tertiary pickup address"
                           checked={hasTertiaryPickupAddress === 'true'}
                         />
                         <Field
@@ -179,7 +179,7 @@ const PrimeUIShipmentCreateForm = () => {
                           label="No"
                           name="ppmShipment.hasTertiaryPickupAddress"
                           value="false"
-                          title="No, there is not a tertiary pickup location"
+                          title="No, there is not a tertiary pickup address"
                           checked={hasTertiaryPickupAddress !== 'true'}
                         />
                       </div>
@@ -198,15 +198,15 @@ const PrimeUIShipmentCreateForm = () => {
           <h2 className={styles.sectionHeader}>Destination Info</h2>
           <AddressFields
             name="ppmShipment.destinationAddress"
-            legend="Destination Address"
+            legend="Delivery Address"
             address1LabelHint="Optional"
             render={(fields) => (
               <>
                 {fields}
-                <h4>Second destination address</h4>
+                <h4>Second delivery address</h4>
                 <FormGroup>
                   <p>
-                    Will the movers deliver any belongings to a second address? (Must be near the destination address.
+                    Will the movers deliver any belongings to a second address? (Must be near the delivery address.
                     Subject to approval.)
                   </p>
                   <div className={formStyles.radioGroup}>
@@ -234,7 +234,7 @@ const PrimeUIShipmentCreateForm = () => {
                 </FormGroup>
                 {hasSecondaryDestinationAddress === 'true' && (
                   <>
-                    <h5 className={styles.sectionHeader}>Second Destination Address</h5>
+                    <h5 className={styles.sectionHeader}>Second Delivery Address</h5>
                     <AddressFields name="ppmShipment.secondaryDestinationAddress" />
 
                     <h4>Third delivery location</h4>
@@ -270,7 +270,7 @@ const PrimeUIShipmentCreateForm = () => {
                 )}
                 {hasTertiaryDestinationAddress === 'true' && hasSecondaryDestinationAddress === 'true' && (
                   <>
-                    <h5 className={styles.sectionHeader}>Third Destination Address</h5>
+                    <h5 className={styles.sectionHeader}>Third Delivery Address</h5>
                     <AddressFields name="ppmShipment.tertiaryDestinationAddress" />
                   </>
                 )}
@@ -395,7 +395,7 @@ const PrimeUIShipmentCreateForm = () => {
             render={(fields) => (
               <>
                 {fields}
-                <h4>Second pickup location</h4>
+                <h4>Second pickup address</h4>
                 <FormGroup>
                   <p>
                     Will the movers pick up any belongings from a second address? (Must be near the pickup address.
@@ -409,7 +409,7 @@ const PrimeUIShipmentCreateForm = () => {
                       label="Yes"
                       name="hasSecondaryPickupAddress"
                       value="true"
-                      title="Yes, there is a second pickup location"
+                      title="Yes, there is a second pickup address"
                       checked={hasSecondaryPickupAddress === 'true'}
                     />
                     <Field
@@ -419,7 +419,7 @@ const PrimeUIShipmentCreateForm = () => {
                       label="No"
                       name="hasSecondaryPickupAddress"
                       value="false"
-                      title="No, there is not a second pickup location"
+                      title="No, there is not a second pickup address"
                       checked={hasSecondaryPickupAddress !== 'true'}
                     />
                   </div>
@@ -429,7 +429,7 @@ const PrimeUIShipmentCreateForm = () => {
                     <h5 className={styles.sectionHeader}>Second Pickup Address</h5>
                     <AddressFields name="secondaryPickupAddress" />
 
-                    <h4>Third pickup location</h4>
+                    <h4>Third pickup address</h4>
                     <FormGroup>
                       <p>
                         Will the movers pick up any belongings from a third address? (Must be near the pickup address.
@@ -443,7 +443,7 @@ const PrimeUIShipmentCreateForm = () => {
                           label="Yes"
                           name="hasTertiaryPickupAddress"
                           value="true"
-                          title="Yes, there is a tertiary pickup location"
+                          title="Yes, there is a tertiary pickup address"
                           checked={hasTertiaryPickupAddress === 'true'}
                         />
                         <Field
@@ -453,7 +453,7 @@ const PrimeUIShipmentCreateForm = () => {
                           label="No"
                           name="hasTertiaryPickupAddress"
                           value="false"
-                          title="No, there is not a tertiary pickup location"
+                          title="No, there is not a tertiary pickup address"
                           checked={hasTertiaryPickupAddress !== 'true'}
                         />
                       </div>
@@ -473,7 +473,7 @@ const PrimeUIShipmentCreateForm = () => {
           <h3 className={styles.sectionHeader}>Destination Info</h3>
           <AddressFields
             name="destinationAddress"
-            legend="Destination Address"
+            legend="Delivery Address"
             render={(fields) => (
               <>
                 {fields}
@@ -509,7 +509,7 @@ const PrimeUIShipmentCreateForm = () => {
                 </FormGroup>
                 {hasSecondaryDestinationAddress === 'true' && (
                   <>
-                    <h5 className={styles.sectionHeader}>Second Destination Address</h5>
+                    <h5 className={styles.sectionHeader}>Second Delivery Address</h5>
                     <AddressFields name="secondaryDestinationAddress" />
 
                     <h4>Third delivery location</h4>
@@ -545,7 +545,7 @@ const PrimeUIShipmentCreateForm = () => {
                 )}
                 {hasTertiaryDestinationAddress === 'true' && hasSecondaryDestinationAddress === 'true' && (
                   <>
-                    <h5 className={styles.sectionHeader}>Third Destination Address</h5>
+                    <h5 className={styles.sectionHeader}>Third Delivery Address</h5>
                     <AddressFields name="tertiaryDestinationAddress" />
                   </>
                 )}

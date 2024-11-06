@@ -8,10 +8,10 @@ import { formatMoveHistoryFullAddress } from 'utils/formatters';
 
 const LABEL = {
   backupMailingAddress: 'Backup address',
-  destinationAddress: 'Destination address',
+  destinationAddress: 'Delivery Address',
   pickupAddress: 'Origin address',
-  residentialAddress: 'Current address',
-  secondaryDestinationAddress: 'Secondary destination address',
+  residentialAddress: 'Pickup Address',
+  secondaryDestinationAddress: 'Secondary delivery address',
   secondaryPickupAddress: 'Secondary origin address',
 };
 
@@ -112,7 +112,7 @@ describe('when given a Update basic service item address history record', () => 
     };
     const updatedTemplate = getTemplate(updatedHistoryRecord);
 
-    it.each([['Current address', ': 1234 New Ave, los angeles, CA 90210']])(
+    it.each([['Pickup Address', ': 1234 New Ave, los angeles, CA 90210']])(
       'Label `%s` should have the full address `%s`',
       async (label, value) => {
         render(updatedTemplate.getDetails(updatedHistoryRecord));

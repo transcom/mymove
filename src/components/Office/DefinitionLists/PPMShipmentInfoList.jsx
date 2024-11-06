@@ -133,7 +133,7 @@ const PPMShipmentInfoList = ({
   const destinationAddressElementFlags = getDisplayFlags('destinationAddress');
   const destinationAddressElement = (
     <div className={destinationAddressElementFlags.classes}>
-      <dt>Destination address</dt>
+      <dt>Delivery Address</dt>
       <dd data-testid="destinationAddress">{destinationAddress ? formatAddress(destinationAddress) : '-'}</dd>
     </div>
   );
@@ -141,7 +141,7 @@ const PPMShipmentInfoList = ({
   const secondaryDestinationAddressElementFlags = getDisplayFlags('secondaryDestinationAddress');
   const secondaryDestinationAddressElement = (
     <div className={secondaryDestinationAddressElementFlags.classes}>
-      <dt>Second destination address</dt>
+      <dt>Second delivery address</dt>
       <dd data-testid="secondaryDestinationAddress">
         {secondaryDestinationAddress ? formatAddress(secondaryDestinationAddress) : '—'}
       </dd>
@@ -151,7 +151,7 @@ const PPMShipmentInfoList = ({
   const tertiaryDestinationAddressElementFlags = getDisplayFlags('tertiaryDestinationAddress');
   const tertiaryDestinationAddressElement = (
     <div className={tertiaryDestinationAddressElementFlags.classes}>
-      <dt>Third destination address</dt>
+      <dt>Third delivery address</dt>
       <dd data-testid="tertiaryDestinationAddress">
         {tertiaryDestinationAddress ? formatAddress(tertiaryDestinationAddress) : '—'}
       </dd>

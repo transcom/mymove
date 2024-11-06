@@ -42,7 +42,7 @@ test.describe('HHG', () => {
     await customerPage.waitForPage.hhgShipment();
 
     // Update form (adding pickup and delivery address)
-    const pickupAddress = await page.getByRole('group', { name: 'Pickup location' });
+    const pickupAddress = await page.getByRole('group', { name: 'Pickup Address' });
     await pickupAddress.getByLabel('Address 1').fill('7 Q St');
     await pickupAddress.getByLabel('Address 2').clear();
     await pickupAddress.getByLabel('City').fill('Atco');
@@ -147,7 +147,7 @@ test.describe('(MultiMove) HHG', () => {
     await customerPage.waitForPage.hhgShipment();
 
     // Update form (adding pickup and delivery address)
-    const pickupAddress = await page.getByRole('group', { name: 'Pickup location' });
+    const pickupAddress = await page.getByRole('group', { name: 'Pickup Address' });
     await pickupAddress.getByLabel('Address 1').fill('7 Q St');
     await pickupAddress.getByLabel('Address 2').clear();
     await pickupAddress.getByLabel('City').fill('Atco');

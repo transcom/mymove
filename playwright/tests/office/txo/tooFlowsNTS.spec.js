@@ -59,7 +59,7 @@ test.describe('TOO user', () => {
       // Basic info
       await page.locator('#requestedPickupDate').clear();
       await page.locator('#requestedPickupDate').fill('16 Mar 2022');
-      await page.getByText('Use current address').click();
+      await page.getByText('Use pickup address').click();
 
       // Storage facility info
       await page.locator('#facilityName').fill('Sample Facility Name');

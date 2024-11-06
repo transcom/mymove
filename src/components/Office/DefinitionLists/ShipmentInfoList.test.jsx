@@ -74,9 +74,9 @@ const labels = {
   pickupAddress: 'Origin address',
   secondaryPickupAddress: 'Second pickup address',
   tertiaryPickupAddress: 'Third pickup address',
-  destinationAddress: 'Destination address',
-  secondaryDeliveryAddress: 'Second destination address',
-  tertiaryDeliveryAddress: 'Third destination address',
+  destinationAddress: 'Delivery Address',
+  secondaryDeliveryAddress: 'Second delivery address',
+  tertiaryDeliveryAddress: 'Third delivery address',
   mtoAgents: ['Releasing agent', 'Receiving agent'],
   counselorRemarks: 'Counselor remarks',
   customerRemarks: 'Customer remarks',
@@ -198,7 +198,7 @@ describe('Shipment Info List', () => {
     expect(within(customerRemarks.parentElement).getByText(info.customerRemarks)).toBeInTheDocument();
   });
 
-  it('renders Review required instead of destination address when the Prime has submitted a destination address change', async () => {
+  it('renders Review required instead of delivery address when the Prime has submitted a delivery address change', async () => {
     render(
       <ShipmentInfoList
         shipment={{
@@ -218,7 +218,7 @@ describe('Shipment Info List', () => {
     );
 
     const destinationAddress = screen.getByText(labels.destinationAddress);
-    // The destination address will not render the address field
+    // The delivery address will not render the address field
     // when the Prime requests a dest add update
     expect(
       within(destinationAddress.parentElement).queryByText(info.destinationAddress.streetAddress1, {

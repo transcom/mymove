@@ -236,7 +236,7 @@ const ShipmentInfoList = ({
   const destinationAddressElementFlags = getDisplayFlags('destinationAddress');
   const destinationAddressElement = (
     <div className={destinationAddressElementFlags.classes}>
-      <dt>Destination address</dt>
+      <dt>Delivery Address</dt>
       <dd data-testid="destinationAddress">
         {deliveryAddressUpdate?.status === ADDRESS_UPDATE_STATUS.REQUESTED
           ? 'Review required'
@@ -248,7 +248,7 @@ const ShipmentInfoList = ({
   const secondaryDeliveryAddressElementFlags = getDisplayFlags('secondaryDeliveryAddress');
   const secondaryDeliveryAddressElement = (
     <div className={secondaryDeliveryAddressElementFlags.classes}>
-      <dt>Second destination address</dt>
+      <dt>Second delivery address</dt>
       <dd data-testid="secondaryDeliveryAddress">
         {secondaryDeliveryAddress ? formatAddress(secondaryDeliveryAddress) : '—'}
       </dd>
@@ -258,7 +258,7 @@ const ShipmentInfoList = ({
   const tertiaryDeliveryAddressElementFlags = getDisplayFlags('tertiaryDeliveryAddress');
   const tertiaryDeliveryAddressElement = (
     <div className={tertiaryDeliveryAddressElementFlags.classes}>
-      <dt>Third destination address</dt>
+      <dt>Third delivery address</dt>
       <dd data-testid="tertiaryDeliveryAddress">
         {tertiaryDeliveryAddress ? formatAddress(tertiaryDeliveryAddress) : '—'}
       </dd>
