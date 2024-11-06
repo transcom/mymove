@@ -70,6 +70,8 @@ func (suite *HandlerSuite) TestGetMoveTaskOrderHandlerIntegration() {
 	suite.Equal(strfmt.UUID(moveTaskOrder.ID.String()), moveTaskOrderPayload.ID)
 	suite.Nil(moveTaskOrderPayload.AvailableToPrimeAt)
 	suite.Nil(moveTaskOrderPayload.ApprovedAt)
+	// TODO: Check that the *moveTaskOrderPayload.Status is not "canceled"
+	// suite.False(*moveTaskOrderPayload.IsCanceled)
 	suite.Equal(strfmt.UUID(moveTaskOrder.OrdersID.String()), moveTaskOrderPayload.OrderID)
 	suite.NotNil(moveTaskOrderPayload.ReferenceID)
 }
@@ -145,18 +147,6 @@ func (suite *HandlerSuite) TestUpdateMoveTaskOrderHandlerIntegrationSuccess() {
 			{
 				Model: models.Move{
 					Status: validStatus.status,
-				},
-			},
-		}, nil)
-		pickupDate := time.Now()
-		factory.BuildMTOShipment(suite.DB(), []factory.Customization{
-			{
-				Model:    move,
-				LinkOnly: true,
-			},
-			{
-				Model: models.MTOShipment{
-					RequestedPickupDate: &pickupDate,
 				},
 			},
 		}, nil)
