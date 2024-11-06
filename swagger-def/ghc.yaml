@@ -6065,7 +6065,7 @@ definitions:
           - $ref: 'definitions/Address.yaml'
       destinationAddress:
         allOf:
-          - $ref: 'definitions/Address.yaml'
+          - $ref: 'definitions/PPMDestinationAddress.yaml'
       actualDestinationPostalCode:
         description: >
           The actual postal code where the PPM shipment ended. To be filled once the customer has moved the shipment.
@@ -6479,7 +6479,7 @@ definitions:
           - $ref: 'definitions/Address.yaml'
       destinationAddress:
         allOf:
-          - $ref: 'definitions/Address.yaml'
+          - $ref: 'definitions/PPMDestinationAddress.yaml'
       secondaryDestinationAddress:
         allOf:
           - $ref: 'definitions/Address.yaml'

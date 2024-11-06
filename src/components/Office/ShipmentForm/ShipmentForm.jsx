@@ -1720,6 +1720,7 @@ const ShipmentForm = (props) => {
                         legend="Delivery Address"
                         zipCityEnabled
                         handleLocationChange={handleDestinationLocationChange}
+                        address1LabelHint="Optional"
                         render={(fields) => (
                           <>
                             {fields}

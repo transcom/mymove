@@ -1266,6 +1266,43 @@ describe('ShipmentForm component', () => {
 
       expect(await screen.findByTestId('tag')).toHaveTextContent('PPM');
     });
+
+    it('PPM - destination address street 1 is OPTIONAL', async () => {
+      renderWithRouter(
+        <ShipmentForm
+          {...defaultProps}
+          shipmentType={SHIPMENT_OPTIONS.PPM}
+          isCreatePage
+          userRole={roleTypes.SERVICES_COUNSELOR}
+        />,
+      );
+
+      expect(await screen.findByTestId('tag')).toHaveTextContent('PPM');
+
+      // controlled test. we expect alert to be raised if we type in whitespace to trigger required alert
+      // for pickup
+      await userEvent.type(document.querySelector('input[name="pickup.address.streetAddress1"]'), '  ');
+      await userEvent.tab();
+      await waitFor(() => {
+        const requiredAlerts = screen.getAllByRole('alert');
+        expect(requiredAlerts.length).toBe(1);
+      });
+
+      await userEvent.type(document.querySelector('input[name="pickup.address.streetAddress1"]'), '123 New Street');
+      await userEvent.tab();
+      await waitFor(() => {
+        // verify no alerts are present
+        expect(screen.queryByRole('alert')).not.toBeInTheDocument();
+      });
+
+      // test that destination address street1 is OPTIONAL and not raise any required alert
+      await userEvent.type(document.querySelector('input[name="destination.address.streetAddress1"]'), '  ');
+      await userEvent.tab();
+      await waitFor(() => {
+        // verify required alert was not raised
+        expect(screen.queryByRole('alert')).not.toBeInTheDocument();
+      });
+    });
   });
 
   describe('TOO editing an already existing PPM shipment', () => {
@@ -1311,7 +1348,7 @@ describe('ShipmentForm component', () => {
         mockPPMShipment.ppmShipment.secondaryPickupAddress.postalCode,
       );
 
-      expect(await screen.getAllByLabelText('Address 1')[2]).toHaveValue(
+      expect(await screen.getAllByLabelText(/Address 1/)[2]).toHaveValue(
         mockPPMShipment.ppmShipment.destinationAddress.streetAddress1,
       );
       expect(await screen.getAllByLabelText(/Address 2/)[2]).toHaveValue(
@@ -1323,23 +1360,23 @@ describe('ShipmentForm component', () => {
       expect(await screen.getAllByLabelText('State')[2]).toHaveValue(
         mockPPMShipment.ppmShipment.destinationAddress.state,
       );
-      expect(await screen.getAllByLabelText('ZIP')[2]).toHaveValue(
+      expect(await screen.getAllByLabelText(/ZIP/)[2]).toHaveValue(
         mockPPMShipment.ppmShipment.destinationAddress.postalCode,
       );
 
-      expect(await screen.getAllByLabelText('Address 1')[3]).toHaveValue(
+      expect(await screen.getAllByLabelText(/Address 1/)[3]).toHaveValue(
         mockPPMShipment.ppmShipment.secondaryDestinationAddress.streetAddress1,
       );
       expect(await screen.getAllByLabelText(/Address 2/)[3]).toHaveValue(
         mockPPMShipment.ppmShipment.secondaryDestinationAddress.streetAddress2,
       );
-      expect(await screen.getAllByLabelText('City')[3]).toHaveValue(
+      expect(await screen.getAllByLabelText(/City/)[3]).toHaveValue(
         mockPPMShipment.ppmShipment.secondaryDestinationAddress.city,
       );
       expect(await screen.getAllByLabelText('State')[3]).toHaveValue(
         mockPPMShipment.ppmShipment.secondaryDestinationAddress.state,
       );
-      expect(await screen.getAllByLabelText('ZIP')[3]).toHaveValue(
+      expect(await screen.getAllByLabelText(/ZIP/)[3]).toHaveValue(
         mockPPMShipment.ppmShipment.secondaryDestinationAddress.postalCode,
       );
 
@@ -1434,7 +1471,7 @@ describe('ShipmentForm component', () => {
           mockPPMShipment.ppmShipment.secondaryPickupAddress.postalCode,
         );
 
-        expect(await screen.getAllByLabelText('Address 1')[2]).toHaveValue(
+        expect(await screen.getAllByLabelText(/Address 1/)[2]).toHaveValue(
           mockPPMShipment.ppmShipment.destinationAddress.streetAddress1,
         );
         expect(await screen.getAllByLabelText(/Address 2/)[2]).toHaveValue(
@@ -1446,23 +1483,23 @@ describe('ShipmentForm component', () => {
         expect(await screen.getAllByLabelText('State')[2]).toHaveValue(
           mockPPMShipment.ppmShipment.destinationAddress.state,
         );
-        expect(await screen.getAllByLabelText('ZIP')[2]).toHaveValue(
+        expect(await screen.getAllByLabelText(/ZIP/)[2]).toHaveValue(
           mockPPMShipment.ppmShipment.destinationAddress.postalCode,
         );
 
-        expect(await screen.getAllByLabelText('Address 1')[3]).toHaveValue(
+        expect(await screen.getAllByLabelText(/Address 1/)[3]).toHaveValue(
           mockPPMShipment.ppmShipment.secondaryDestinationAddress.streetAddress1,
         );
         expect(await screen.getAllByLabelText(/Address 2/)[3]).toHaveValue(
           mockPPMShipment.ppmShipment.secondaryDestinationAddress.streetAddress2,
         );
-        expect(await screen.getAllByLabelText('City')[3]).toHaveValue(
+        expect(await screen.getAllByLabelText(/City/)[3]).toHaveValue(
           mockPPMShipment.ppmShipment.secondaryDestinationAddress.city,
         );
         expect(await screen.getAllByLabelText('State')[3]).toHaveValue(
           mockPPMShipment.ppmShipment.secondaryDestinationAddress.state,
         );
-        expect(await screen.getAllByLabelText('ZIP')[3]).toHaveValue(
+        expect(await screen.getAllByLabelText(/ZIP/)[3]).toHaveValue(
           mockPPMShipment.ppmShipment.secondaryDestinationAddress.postalCode,
         );
 
@@ -1474,7 +1511,52 @@ describe('ShipmentForm component', () => {
         expect(screen.getAllByLabelText('Yes')[3]).toBeChecked();
         expect(screen.getAllByLabelText('No')[3]).not.toBeChecked();
       });
+
+      it('test destination address street 1 is OPTIONAL', async () => {
+        isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(true));
+        renderWithRouter(
+          <ShipmentForm
+            {...defaultProps}
+            isCreatePage={false}
+            shipmentType={SHIPMENT_OPTIONS.PPM}
+            mtoShipment={mockPPMShipment}
+          />,
+        );
+
+        await userEvent.clear(document.querySelector('input[name="pickup.address.streetAddress1"]'));
+        await userEvent.tab();
+        await waitFor(() => {
+          const requiredAlerts = screen.getAllByRole('alert');
+          expect(requiredAlerts.length).toBe(1);
+        });
+
+        await userEvent.type(document.querySelector('input[name="pickup.address.streetAddress1"]'), '123 New Street');
+        await userEvent.tab();
+        await waitFor(() => {
+          // verify no alerts are present
+          expect(screen.queryByRole('alert')).not.toBeInTheDocument();
+        });
+
+        // test that destination address street1 is OPTIONAL and not raise any required alert
+        await userEvent.clear(document.querySelector('input[name="destination.address.streetAddress1"]'));
+        await userEvent.tab();
+        await waitFor(() => {
+          // verify required alert was not raised
+          expect(screen.queryByRole('alert')).not.toBeInTheDocument();
+
+          // 'Optional' labelHint on address display. expecting a total of 9(2 for pickup address and 3 destination address, 4 for secondary addrs).
+          // This is to verify Optional labelHints are displayed correctly for PPM onboarding/edit for the destination address
+          // street 1 is now OPTIONAL. If this fails it means addtional labelHints have been introduced elsewhere within the control.
+          const hints = document.getElementsByClassName('usa-hint');
+          expect(hints.length).toBe(9);
+          // verify labelHints are actually 'Optional'
+          for (let i = 0; i < hints.length; i += 1) {
+            expect(hints[i]).toHaveTextContent('Optional');
+          }
+        });
+      });
     });
+
     it('renders the PPM shipment form with pre-filled requested values for Advance Page', async () => {
       renderWithRouter(
         <ShipmentForm
