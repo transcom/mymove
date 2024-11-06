@@ -46,6 +46,12 @@ export const RequestAccount = ({ setFlashMessage }) => {
         roleType: 'task_ordering_officer',
       });
     }
+    if (values.headquartersCheckBox) {
+      requestedRoles.push({
+        name: 'Headquarters',
+        roleType: 'headquarters',
+      });
+    }
     if (values.transportationContractingOfficerCheckBox) {
       requestedRoles.push({
         name: 'Contracting Officer',
