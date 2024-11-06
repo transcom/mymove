@@ -75,7 +75,7 @@ func NewCustomerMTOShipmentUpdater(builder UpdateMTOShipmentQueryBuilder, _ serv
 		moveWeights,
 		sender,
 		recalculator,
-		[]validator{checkStatus(), checkIfMTOShipmentHasTertiaryAddressWithNoSecondaryAddress()},
+		[]validator{checkStatus(), MTOShipmentHasTertiaryAddressWithNoSecondaryAddress()},
 	}
 }
 
@@ -90,7 +90,7 @@ func NewOfficeMTOShipmentUpdater(builder UpdateMTOShipmentQueryBuilder, _ servic
 		moveWeights,
 		sender,
 		recalculator,
-		[]validator{checkStatus(), checkUpdateAllowed(), checkIfMTOShipmentHasTertiaryAddressWithNoSecondaryAddress()},
+		[]validator{checkStatus(), checkUpdateAllowed(), MTOShipmentHasTertiaryAddressWithNoSecondaryAddress()},
 	}
 }
 
@@ -107,7 +107,7 @@ func NewPrimeMTOShipmentUpdater(builder UpdateMTOShipmentQueryBuilder, _ service
 		moveWeights,
 		sender,
 		recalculator,
-		[]validator{checkStatus(), checkAvailToPrime(), checkPrimeValidationsOnModel(planner), checkIfMTOShipmentHasTertiaryAddressWithNoSecondaryAddress()},
+		[]validator{checkStatus(), checkAvailToPrime(), checkPrimeValidationsOnModel(planner), MTOShipmentHasTertiaryAddressWithNoSecondaryAddress()},
 	}
 }
 

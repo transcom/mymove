@@ -52,7 +52,7 @@ func checkAvailToPrime() validator {
 			return apperror.NewQueryError("Move", err, "Unexpected error")
 		}
 		if !availToPrime {
-			return apperror.NewNotFoundError(newer.ID, "for mtoShipment")
+			return apperror.NewNotFoundError(newer.ID, "not available to prime for mtoShipment")
 		}
 		return nil
 	})
@@ -152,13 +152,17 @@ func isTertiaryAddressPresentWithoutSecondaryMTO(mtoShipmentToCheck models.MTOSh
 	return (models.IsAddressEmpty(mtoShipmentToCheck.SecondaryPickupAddress) && !models.IsAddressEmpty(mtoShipmentToCheck.TertiaryPickupAddress)) || (models.IsAddressEmpty(mtoShipmentToCheck.SecondaryDeliveryAddress) && !models.IsAddressEmpty(mtoShipmentToCheck.TertiaryDeliveryAddress))
 }
 
-func checkIfMTOShipmentHasTertiaryAddressWithNoSecondaryAddress() validator {
+func isTertiaryAddressPresentWithoutSecondaryPPM(mtoShipmentToCheck models.MTOShipment) bool {
+	return (models.IsAddressEmpty(mtoShipmentToCheck.PPMShipment.SecondaryPickupAddress) && !models.IsAddressEmpty(mtoShipmentToCheck.PPMShipment.TertiaryPickupAddress)) || (models.IsAddressEmpty(mtoShipmentToCheck.PPMShipment.SecondaryDestinationAddress) && !models.IsAddressEmpty(mtoShipmentToCheck.PPMShipment.TertiaryDestinationAddress))
+}
+
+func MTOShipmentHasTertiaryAddressWithNoSecondaryAddress() validator {
 	return validatorFunc(func(appCtx appcontext.AppContext, newer *models.MTOShipment, older *models.MTOShipment) error {
 		verrs := validate.NewErrors()
-		check := isTertiaryAddressPresentWithoutSecondaryMTO(*newer)
-		if check {
-			verrs.Add("missing secondary address for pickup/destination address", "tertiary address cannot be added to an MTO shipment without a second address")
-			return verrs
+		checkMTO := isTertiaryAddressPresentWithoutSecondaryMTO(*newer)
+		if checkMTO {
+			verrs.Add("error validating mto shipment", "MTO Shipment cannot have a tertiary address without a secondary pickup/destination address present")
+			return apperror.NewInvalidInputError(newer.ID, nil, verrs, "mto shipment is missing a secondary pickup/destination address")
 		}
 		return nil
 	})

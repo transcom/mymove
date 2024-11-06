@@ -36,7 +36,7 @@ func NewMTOShipmentCreatorV1(builder createMTOShipmentQueryBuilder, fetcher serv
 		fetcher,
 		moveRouter,
 		addressCreator,
-		[]validator{protectV1Diversion(), checkIfMTOShipmentHasTertiaryAddressWithNoSecondaryAddress()},
+		[]validator{protectV1Diversion(), MTOShipmentHasTertiaryAddressWithNoSecondaryAddress()},
 	}
 }
 
@@ -48,7 +48,7 @@ func NewMTOShipmentCreatorV2(builder createMTOShipmentQueryBuilder, fetcher serv
 		fetcher,
 		moveRouter,
 		addressCreator,
-		[]validator{checkDiversionValid(), childDiversionPrimeWeightRule(), checkIfMTOShipmentHasTertiaryAddressWithNoSecondaryAddress()},
+		[]validator{checkDiversionValid(), childDiversionPrimeWeightRule(), MTOShipmentHasTertiaryAddressWithNoSecondaryAddress()},
 	}
 }
 
