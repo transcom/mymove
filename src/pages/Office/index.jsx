@@ -624,7 +624,7 @@ OfficeApp.propTypes = {
   hasRecentError: PropTypes.bool.isRequired,
   traceId: PropTypes.string.isRequired,
   router: RouterShape.isRequired,
-  userPrivileges: PropTypes.arrayOf(PropTypes.string),
+  userPrivileges: PropTypes.arrayOf(PropTypes.object),
 };
 
 OfficeApp.defaultProps = {

@@ -44,8 +44,8 @@ const OfficeLoggedInHeader = ({ officeUser, activeRole, logOut }) => {
       {officeUser?.transportation_office && (
         <ul className="usa-nav__primary">
           <li className={classnames('usa-nav__primary-item')}>
-            {activeRole === roleTypes.HQ ? (
-              <GblocSwitcher officeUsersDefaultGbloc={officeUser.transportation_office.gbloc} />
+            {activeRole === roleTypes.HQ || officeUser?.transportation_office_assignments?.length > 1 ? (
+              <GblocSwitcher acticeRole={activeRole} officeUser={officeUser} />
             ) : (
               <Link to="/">
                 {officeUser.transportation_office.gbloc} {queueText}

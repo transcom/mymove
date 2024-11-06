@@ -292,7 +292,7 @@ func TransportationOfficeAssignment(toa models.TransportationOfficeAssignment) *
 		OfficeUserID:           handlers.FmtUUID(toa.ID),
 		TransportationOfficeID: handlers.FmtUUID(toa.TransportationOfficeID),
 		TransportationOffice:   TransportationOffice(toa.TransportationOffice),
-		PrimaryOffice:          &toa.PrimaryOffice,
+		PrimaryOffice:          toa.PrimaryOffice,
 		CreatedAt:              *handlers.FmtDateTime(toa.CreatedAt),
 		UpdatedAt:              *handlers.FmtDateTime(toa.UpdatedAt),
 	}

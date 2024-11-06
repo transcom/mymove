@@ -304,11 +304,15 @@ func (f orderFetcher) ListOrders(appCtx appcontext.AppContext, officeUserID uuid
 // TODO: Update query to select distinct duty locations
 func (f orderFetcher) ListAllOrderLocations(appCtx appcontext.AppContext, officeUserID uuid.UUID, params *services.ListOrderParams) ([]models.Move, error) {
 	var moves []models.Move
-	var transportationOffice models.TransportationOffice
-	// select the GBLOC associated with the transportation office of the session's current office user
-	err := appCtx.DB().Q().
-		Join("office_users", "transportation_offices.id = office_users.transportation_office_id").
-		Where("office_users.id = ?", officeUserID).First(&transportationOffice)
+	var err error
+	var officeUserGbloc string
+
+	if params.ViewAsGBLOC != nil {
+		officeUserGbloc = *params.ViewAsGBLOC
+	} else {
+		gblocFetcher := officeuser.NewOfficeUserGblocFetcher()
+		officeUserGbloc, err = gblocFetcher.FetchGblocForOfficeUser(appCtx, officeUserID)
+	}
 
 	if err != nil {
 		return []models.Move{}, err
@@ -319,14 +323,6 @@ func (f orderFetcher) ListAllOrderLocations(appCtx appcontext.AppContext, office
 		appCtx.Logger().Error("Error retreiving user privileges", zap.Error(err))
 	}
 
-	officeUserGbloc := transportationOffice.Gbloc
-
-	// Alright let's build our query based on the filters we got from the handler. These use the FilterOption type above.
-	// Essentially these are private functions that return query objects that we can mash together to form a complete
-	// query from modular parts.
-
-	// The services counselor queue does not base exclude marine results.
-	// Only the TIO and TOO queues should.
 	needsCounseling := false
 	if len(params.Status) > 0 {
 		for _, status := range params.Status {

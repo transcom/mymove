@@ -1,5 +1,6 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState, useContext } from 'react';
 import { generatePath, useNavigate, Navigate, useParams, NavLink } from 'react-router-dom';
+import { connect } from 'react-redux';
 import { Button, Dropdown } from '@trussworks/react-uswds';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
@@ -49,6 +50,8 @@ import { isNullUndefinedOrWhitespace } from 'shared/utils';
 import CustomerSearchForm from 'components/CustomerSearchForm/CustomerSearchForm';
 import MultiSelectTypeAheadCheckBoxFilter from 'components/Table/Filters/MutliSelectTypeAheadCheckboxFilter';
 import handleQueueAssignment from 'utils/queues';
+import { selectLoggedInUser } from 'store/entities/selectors';
+import SelectedGblocContext from 'components/Office/GblocSwitcher/SelectedGblocContext';
 
 export const counselingColumns = (moveLockFlag, originLocationList, supervisor, isQueueManagementEnabled) => {
   const cols = [
@@ -375,7 +378,7 @@ export const closeoutColumns = (moveLockFlag, ppmCloseoutGBLOC, ppmCloseoutOrigi
   }),
 ];
 
-const ServicesCounselingQueue = ({ userPrivileges, isQueueManagementFFEnabled }) => {
+const ServicesCounselingQueue = ({ userPrivileges, isQueueManagementFFEnabled, officeUser }) => {
   const { queueType } = useParams();
   const { data, isLoading, isError } = useUserQueries();
 
@@ -390,11 +393,17 @@ const ServicesCounselingQueue = ({ userPrivileges, isQueueManagementFFEnabled })
     ? userPrivileges.some((p) => p.privilegeType === elevatedPrivilegeTypes.SUPERVISOR)
     : false;
 
+  const gblocContext = useContext(SelectedGblocContext);
+  const { selectedGbloc } =
+    officeUser?.transportation_office_assignments?.length > 1 && gblocContext
+      ? gblocContext
+      : { selectedGbloc: undefined };
+
   // Feature Flag
   useEffect(() => {
-    const getOriginLocationList = (needsPPMCloseout) => {
+    const getOriginLocationList = (needsPPMCloseout, gbloc) => {
       if (supervisor) {
-        getServicesCounselingOriginLocations(needsPPMCloseout).then((response) => {
+        getServicesCounselingOriginLocations(needsPPMCloseout, gbloc).then((response) => {
           if (needsPPMCloseout) {
             setPpmCloseoutOriginLocationList(response);
           } else {
@@ -404,8 +413,8 @@ const ServicesCounselingQueue = ({ userPrivileges, isQueueManagementFFEnabled })
       }
     };
 
-    getOriginLocationList(true);
-    getOriginLocationList(false);
+    getOriginLocationList(true, selectedGbloc);
+    getOriginLocationList(false, selectedGbloc);
 
     const fetchData = async () => {
       try {
@@ -425,7 +434,7 @@ const ServicesCounselingQueue = ({ userPrivileges, isQueueManagementFFEnabled })
       }
     };
     fetchData();
-  }, [setErrorState, supervisor]);
+  }, [setErrorState, supervisor, selectedGbloc]);
 
   const handleEditProfileClick = (locator) => {
     navigate(generatePath(servicesCounselingRoutes.BASE_CUSTOMER_INFO_EDIT_PATH, { moveCode: locator }));
@@ -666,5 +675,12 @@ const ServicesCounselingQueue = ({ userPrivileges, isQueueManagementFFEnabled })
 
   return <NotFound />;
 };
+const mapStateToProps = (state) => {
+  const user = selectLoggedInUser(state);
 
-export default ServicesCounselingQueue;
+  return {
+    officeUser: user?.office_user || {},
+  };
+};
+
+export default connect(mapStateToProps)(ServicesCounselingQueue);
