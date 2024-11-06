@@ -845,6 +845,8 @@ export const useMoveDetailsQueries = (moveCode) => {
 
   const order = Object.values(orders || {})?.[0];
 
+  const { upload: orderDocuments, ...documentQuery } = useGetDocumentQuery(order.uploaded_order_id);
+
   const { data: mtoShipments, ...mtoShipmentQuery } = useQuery({
     queryKey: [MTO_SHIPMENTS, moveId, false],
     queryFn: ({ queryKey }) => getMTOShipments(...queryKey),
@@ -877,6 +879,7 @@ export const useMoveDetailsQueries = (moveCode) => {
   const { isLoading, isError, isSuccess } = getQueriesStatus([
     moveQuery,
     orderQuery,
+    documentQuery,
     customerQuery,
     mtoShipmentQuery,
     mtoServiceItemQuery,
@@ -886,6 +889,7 @@ export const useMoveDetailsQueries = (moveCode) => {
   return {
     move,
     order,
+    orderDocuments,
     customerData,
     closeoutOffice,
     mtoShipments,

@@ -21,7 +21,7 @@ import FinancialReviewModal from 'components/Office/FinancialReviewModal/Financi
 import CancelMoveConfirmationModal from 'components/ConfirmationModals/CancelMoveConfirmationModal';
 import ApprovedRequestedShipments from 'components/Office/RequestedShipments/ApprovedRequestedShipments';
 import SubmittedRequestedShipments from 'components/Office/RequestedShipments/SubmittedRequestedShipments';
-import { useMoveDetailsQueries, useOrdersDocumentQueries } from 'hooks/queries';
+import { useMoveDetailsQueries } from 'hooks/queries';
 import { updateMoveStatus, updateMTOShipmentStatus, cancelMove, updateFinancialFlag } from 'services/ghcApi';
 import LeftNav from 'components/LeftNav/LeftNav';
 import LeftNavTag from 'components/LeftNavTag/LeftNavTag';
@@ -86,11 +86,19 @@ const MoveDetails = ({
 
   const navigate = useNavigate();
 
-  const { move, customerData, order, closeoutOffice, mtoShipments, mtoServiceItems, isLoading, isError } =
-    useMoveDetailsQueries(moveCode);
+  const {
+    move,
+    customerData,
+    order,
+    orderDocuments,
+    closeoutOffice,
+    mtoShipments,
+    mtoServiceItems,
+    isLoading,
+    isError,
+  } = useMoveDetailsQueries(moveCode);
 
-  const { upload } = useOrdersDocumentQueries(moveCode);
-  const validOrdersDocuments = Object.values(upload || {})?.filter((file) => !file.deletedAt);
+  const validOrdersDocuments = Object.values(orderDocuments || {})?.filter((file) => !file.deletedAt);
   const hasOrdersDocuments = validOrdersDocuments?.length > 0;
 
   // for now we are only showing dest type on retiree and separatee orders

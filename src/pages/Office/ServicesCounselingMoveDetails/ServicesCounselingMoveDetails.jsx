@@ -62,18 +62,18 @@ const ServicesCounselingMoveDetails = ({
   const [isFinancialModalVisible, setIsFinancialModalVisible] = useState(false);
   const [isCancelMoveModalVisible, setIsCancelMoveModalVisible] = useState(false);
   const { upload, amendedUpload } = useOrdersDocumentQueries(moveCode);
-  const validOrdersDocuments = Object.values(upload || {})?.filter((file) => !file.deletedAt);
   const documentsForViewer = Object.values(upload || {})
     .concat(Object.values(amendedUpload || {}))
     ?.filter((file) => {
       return !file.deletedAt;
     });
-
-  const hasOrdersDocuments = validOrdersDocuments?.length > 0;
   const hasDocuments = documentsForViewer?.length > 0;
 
-  const { order, customerData, move, closeoutOffice, mtoShipments, isLoading, isError } =
+  const { order, orderDocuments, customerData, move, closeoutOffice, mtoShipments, isLoading, isError } =
     useMoveDetailsQueries(moveCode);
+
+  const validOrdersDocuments = Object.values(orderDocuments || {})?.filter((file) => !file.deletedAt);
+  const hasOrdersDocuments = validOrdersDocuments?.length > 0;
 
   const { customer, entitlement: allowances } = order;
 
