@@ -79,6 +79,13 @@ describe('Feedback page', () => {
     expect(screen.getByTestId('w-2Address')).toHaveTextContent('W-2 address: 422 Dearborn AveMissoula, MT 59801');
   });
 
+  it('formats and displays trip weight', () => {
+    renderFeedbackPage();
+
+    expect(screen.getByText('Trip weight:')).toBeInTheDocument();
+    expect(screen.getByText('3,845 lbs')).toBeInTheDocument();
+  });
+
   it('does not display pro-gear if no pro-gear documents are present', () => {
     renderFeedbackPage();
 
