@@ -10,7 +10,6 @@ import styles from 'components/Customer/Review/ShipmentCard/ShipmentCard.module.
 import ShipmentContainer from 'components/Office/ShipmentContainer/ShipmentContainer';
 import IncompleteShipmentToolTip from 'components/Customer/Review/IncompleteShipmentToolTip/IncompleteShipmentToolTip';
 import { customerRoutes } from 'constants/routes';
-import { SHIPMENT_OPTIONS } from 'shared/constants';
 import { boatShipmentAbbr, boatShipmentTypes } from 'constants/shipments';
 import { ShipmentShape } from 'types/shipment';
 import { convertInchesToFeetAndInches } from 'utils/formatMtoShipment';
@@ -37,6 +36,7 @@ const BoatShipmentCard = ({
   requestedDeliveryDate,
   requestedPickupDate,
   shipmentId,
+  marketCode,
 }) => {
   const { moveTaskOrderID, id, shipmentType, shipmentLocator } = shipment;
   const { type, year, make, model, lengthInInches, widthInInches, heightInInches, hasTrailer, isRoadworthy } =
@@ -63,7 +63,7 @@ const BoatShipmentCard = ({
 
   return (
     <div className={styles.ShipmentCard}>
-      <ShipmentContainer className={styles.container} shipmentType={SHIPMENT_OPTIONS.BOAT}>
+      <ShipmentContainer className={styles.container} shipmentType={shipmentType}>
         {shipmentIsIncomplete && (
           <IncompleteShipmentToolTip
             onClick={onIncompleteClick}
@@ -74,7 +74,10 @@ const BoatShipmentCard = ({
         )}
         <div className={styles.ShipmentCardHeader}>
           <div className={styles.shipmentTypeNumber}>
-            <h3 data-testid="ShipmentCardNumber">{shipmentLabel}</h3>
+            <h3 data-testid="ShipmentCardNumber">
+              <span className={styles.marketCodeIndicator}>{marketCode}</span>
+              {shipmentLabel}
+            </h3>
             <p>#{moveCodeLabel}</p>
           </div>
           {showEditAndDeleteBtn && (
@@ -98,7 +101,7 @@ const BoatShipmentCard = ({
           <PickupDisplay
             shipmentId={shipmentId}
             shipmentType={shipmentType}
-            requestedPickupDate={requestedPickupDate}
+            requestedPickupDate={requestedPickupDate || ''}
             pickupLocation={pickupLocation}
             secondaryPickupAddress={secondaryPickupAddress}
             tertiaryPickupAddress={tertiaryPickupAddress}
@@ -107,7 +110,7 @@ const BoatShipmentCard = ({
           <DeliveryDisplay
             shipmentId={shipmentId}
             shipmentType={shipmentType}
-            requestedDeliveryDate={requestedDeliveryDate}
+            requestedDeliveryDate={requestedDeliveryDate || ''}
             destinationLocation={destinationLocation}
             secondaryDeliveryAddress={secondaryDeliveryAddress}
             tertiaryDeliveryAddress={tertiaryDeliveryAddress}

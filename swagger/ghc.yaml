@@ -422,7 +422,7 @@ paths:
       parameters: []
       responses:
         '200':
-          description: Successfully cancelled move
+          description: Successfully canceled move
           schema:
             $ref: '#/definitions/Move'
         '403':
@@ -442,6 +442,8 @@ paths:
       description: cancels a move
       operationId: moveCanceler
       summary: Cancels a move
+      x-permissions:
+        - update.cancelMoveFlag
   /counseling/orders/{orderID}:
     parameters:
       - description: ID of order to update
@@ -3373,7 +3375,7 @@ paths:
           name: sort
           type: string
           enum:
-            - lastName
+            - customerName
             - dodID
             - emplid
             - branch
@@ -3389,6 +3391,7 @@ paths:
             - closeoutLocation
             - ppmStatus
             - counselingOffice
+            - assignedTo
           description: field that results should be sorted by
         - in: query
           name: order
@@ -3406,7 +3409,7 @@ paths:
           type: string
           description: filters to match the unique move code locator
         - in: query
-          name: lastName
+          name: customerName
           type: string
           description: filters using a prefix match on the service member's last name
         - in: query
@@ -3498,6 +3501,11 @@ paths:
             Used to return a queue for a GBLOC other than the default of the
             current user. Requires the HQ role. The parameter is ignored if the
             requesting user does not have the necessary role.
+        - in: query
+          name: assignedTo
+          type: string
+          description: |
+            Used to illustrate which user is assigned to this payment request.
       responses:
         '200':
           description: Successfully returned all moves matching the criteria
@@ -3626,7 +3634,7 @@ paths:
           name: sort
           type: string
           enum:
-            - lastName
+            - customerName
             - dodID
             - emplid
             - branch
@@ -3636,6 +3644,7 @@ paths:
             - destinationDutyLocation
             - requestedMoveDate
             - appearedInTooAt
+            - assignedTo
           description: field that results should be sorted by
         - in: query
           name: order
@@ -3651,7 +3660,7 @@ paths:
           name: locator
           type: string
         - in: query
-          name: lastName
+          name: customerName
           type: string
         - in: query
           name: dodID
@@ -3699,6 +3708,11 @@ paths:
             Used to return a queue for a GBLOC other than the default of the
             current user. Requires the HQ role. The parameter is ignored if the
             requesting user does not have the necessary role.
+        - in: query
+          name: assignedTo
+          type: string
+          description: |
+            Used to illustrate which user is assigned to this move.
       responses:
         '200':
           description: Successfully returned all moves matching the criteria
@@ -3725,7 +3739,7 @@ paths:
           name: sort
           type: string
           enum:
-            - lastName
+            - customerName
             - locator
             - submittedAt
             - branch
@@ -3734,6 +3748,7 @@ paths:
             - emplid
             - age
             - originDutyLocation
+            - assignedTo
           description: field that results should be sorted by
         - in: query
           name: order
@@ -3764,7 +3779,7 @@ paths:
           name: locator
           type: string
         - in: query
-          name: lastName
+          name: customerName
           type: string
         - in: query
           name: dodID
@@ -3778,6 +3793,11 @@ paths:
         - in: query
           name: originDutyLocation
           type: string
+        - in: query
+          name: assignedTo
+          type: string
+          description: |
+            Used to illustrate which user is assigned to this payment request.
         - in: query
           name: status
           type: array
@@ -3875,6 +3895,7 @@ paths:
                     - APPROVED
                     - NEEDS SERVICE COUNSELING
                     - SERVICE COUNSELING COMPLETED
+                    - CANCELED
               originPostalCode:
                 type: string
                 x-nullable: true
@@ -5357,7 +5378,7 @@ definitions:
   PPMStatus:
     type: string
     enum:
-      - CANCELLED
+      - CANCELED
       - DRAFT
       - SUBMITTED
       - WAITING_ON_CUSTOMER
@@ -6272,7 +6293,7 @@ definitions:
           - $ref: '#/definitions/Address'
       destinationAddress:
         allOf:
-          - $ref: '#/definitions/Address'
+          - $ref: '#/definitions/PPMDestinationAddress'
       actualDestinationPostalCode:
         description: >
           The actual postal code where the PPM shipment ended. To be filled once
@@ -6369,6 +6390,14 @@ definitions:
         x-nullable: true
       advanceStatus:
         $ref: '#/definitions/PPMAdvanceStatus'
+        x-nullable: true
+      isActualExpenseReimbursement:
+        description: >-
+          Used for PPM shipments only. Denotes if this shipment uses the Actual
+          Expense Reimbursement method.
+        type: boolean
+        example: false
+        x-omitempty: false
         x-nullable: true
   UpdateBoatShipment:
     type: object
@@ -6705,7 +6734,7 @@ definitions:
           - $ref: '#/definitions/Address'
       destinationAddress:
         allOf:
-          - $ref: '#/definitions/Address'
+          - $ref: '#/definitions/PPMDestinationAddress'
       secondaryDestinationAddress:
         allOf:
           - $ref: '#/definitions/Address'
@@ -6758,6 +6787,14 @@ definitions:
         x-nullable: true
       spouseProGearWeight:
         type: integer
+        x-nullable: true
+      isActualExpenseReimbursement:
+        description: >-
+          Used for PPM shipments only. Denotes if this shipment uses the Actual
+          Expense Reimbursement method.
+        type: boolean
+        example: false
+        x-omitempty: false
         x-nullable: true
     required:
       - expectedDepartureDate
@@ -7069,9 +7106,17 @@ definitions:
       counselingOffice:
         type: string
         x-nullable: true
+      counselingOfficeID:
+        type: string
+        format: uuid
+        x-nullable: true
       assignedTo:
         $ref: '#/definitions/AssignedOfficeUser'
         x-nullable: true
+      availableOfficeUsers:
+        $ref: '#/definitions/AvailableOfficeUsers'
+      assignable:
+        type: boolean
   QueueMovesResult:
     type: object
     properties:
@@ -7083,8 +7128,6 @@ definitions:
         type: integer
       queueMoves:
         $ref: '#/definitions/QueueMoves'
-      availableOfficeUsers:
-        $ref: '#/definitions/AvailableOfficeUsers'
   ListPrimeMove:
     description: >
       An abbreviated definition for a move, without all the nested information
@@ -7191,6 +7234,13 @@ definitions:
         type: string
         format: date-time
         x-nullable: true
+      assignedTo:
+        $ref: '#/definitions/AssignedOfficeUser'
+        x-nullable: true
+      availableOfficeUsers:
+        $ref: '#/definitions/AvailableOfficeUsers'
+      assignable:
+        type: boolean
   QueuePaymentRequests:
     type: array
     items:
@@ -7206,8 +7256,6 @@ definitions:
         type: integer
       queuePaymentRequests:
         $ref: '#/definitions/QueuePaymentRequests'
-      availableOfficeUsers:
-        $ref: '#/definitions/AvailableOfficeUsers'
   QueuePaymentRequestStatus:
     enum:
       - Payment requested
@@ -7691,7 +7739,7 @@ definitions:
   AssignedOfficeUser:
     type: object
     properties:
-      id:
+      officeUserId:
         type: string
         format: uuid
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
@@ -8362,22 +8410,20 @@ definitions:
       - HHG
       - HHG_INTO_NTS_DOMESTIC
       - HHG_OUTOF_NTS_DOMESTIC
-      - INTERNATIONAL_HHG
-      - INTERNATIONAL_UB
       - PPM
       - BOAT_HAUL_AWAY
       - BOAT_TOW_AWAY
       - MOBILE_HOME
+      - UNACCOMPANIED_BAGGAGE
     x-display-value:
       HHG: HHG
-      INTERNATIONAL_HHG: International HHG
-      INTERNATIONAL_UB: International UB
       HHG_INTO_NTS_DOMESTIC: NTS
       HHG_OUTOF_NTS_DOMESTIC: NTS Release
       PPM: PPM
       BOAT_HAUL_AWAY: Boat Haul-Away
       BOAT_TOW_AWAY: Boat Tow-Away
       MOBILE_HOME: Mobile Home
+      UNACCOMPANIED_BAGGAGE: Unaccompanied Baggage
   LOAType:
     description: The Line of accounting (TAC/SAC) type that will be used for the shipment
     type: string
@@ -8413,6 +8459,164 @@ definitions:
       eTag:
         type: string
         readOnly: true
+  PPMDestinationAddress:
+    description: A postal address
+    type: object
+    properties:
+      id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      streetAddress1:
+        type: string
+        example: 123 Main Ave
+        x-nullable: true
+        title: Street address 1
+      streetAddress2:
+        type: string
+        example: Apartment 9000
+        x-nullable: true
+        title: Street address 2
+      streetAddress3:
+        type: string
+        example: Montmârtre
+        x-nullable: true
+        title: Address Line 3
+      city:
+        type: string
+        example: Anytown
+        title: City
+      eTag:
+        type: string
+        readOnly: true
+      state:
+        title: State
+        type: string
+        x-display-value:
+          AL: AL
+          AK: AK
+          AR: AR
+          AZ: AZ
+          CA: CA
+          CO: CO
+          CT: CT
+          DC: DC
+          DE: DE
+          FL: FL
+          GA: GA
+          HI: HI
+          IA: IA
+          ID: ID
+          IL: IL
+          IN: IN
+          KS: KS
+          KY: KY
+          LA: LA
+          MA: MA
+          MD: MD
+          ME: ME
+          MI: MI
+          MN: MN
+          MO: MO
+          MS: MS
+          MT: MT
+          NC: NC
+          ND: ND
+          NE: NE
+          NH: NH
+          NJ: NJ
+          NM: NM
+          NV: NV
+          NY: NY
+          OH: OH
+          OK: OK
+          OR: OR
+          PA: PA
+          RI: RI
+          SC: SC
+          SD: SD
+          TN: TN
+          TX: TX
+          UT: UT
+          VA: VA
+          VT: VT
+          WA: WA
+          WI: WI
+          WV: WV
+          WY: WY
+        enum:
+          - AL
+          - AK
+          - AR
+          - AZ
+          - CA
+          - CO
+          - CT
+          - DC
+          - DE
+          - FL
+          - GA
+          - HI
+          - IA
+          - ID
+          - IL
+          - IN
+          - KS
+          - KY
+          - LA
+          - MA
+          - MD
+          - ME
+          - MI
+          - MN
+          - MO
+          - MS
+          - MT
+          - NC
+          - ND
+          - NE
+          - NH
+          - NJ
+          - NM
+          - NV
+          - NY
+          - OH
+          - OK
+          - OR
+          - PA
+          - RI
+          - SC
+          - SD
+          - TN
+          - TX
+          - UT
+          - VA
+          - VT
+          - WA
+          - WI
+          - WV
+          - WY
+      postalCode:
+        type: string
+        format: zip
+        title: ZIP
+        example: '90210'
+        pattern: ^(\d{5}([\-]\d{4})?)$
+      country:
+        type: string
+        title: Country
+        x-nullable: true
+        example: USA
+        default: USA
+      county:
+        type: string
+        title: County
+        x-nullable: true
+        example: LOS ANGELES
+    required:
+      - city
+      - state
+      - postalCode
   SITLocationType:
     description: The list of SIT location types.
     type: string
@@ -9530,6 +9734,14 @@ definitions:
         type: array
         items:
           $ref: '#/definitions/ProGearWeightTicket'
+      isActualExpenseReimbursement:
+        description: >-
+          Used for PPM shipments only. Denotes if this shipment uses the Actual
+          Expense Reimbursement method.
+        type: boolean
+        example: false
+        x-omitempty: false
+        x-nullable: true
       signedCertification:
         $ref: '#/definitions/SignedCertification'
       eTag:
@@ -9961,6 +10173,15 @@ definitions:
       destinationSitAuthEndDate:
         format: date-time
         type: string
+      marketCode:
+        type: string
+        enum:
+          - d
+          - i
+        example: d
+        description: >-
+          Single-letter designator for domestic (d) or international (i)
+          shipments
   LOATypeNullable:
     description: The Line of accounting (TAC/SAC) type that will be used for the shipment
     type: string

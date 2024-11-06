@@ -48,15 +48,23 @@ func (f *addressCreator) CreateAddress(appCtx appcontext.AppContext, address *mo
 		if err != nil {
 			return nil, err
 		}
+		transformedAddress.Country = &country
 		transformedAddress.CountryId = &country.ID
 	} else {
 		country, err := models.FetchCountryByCode(appCtx.DB(), "US")
 		if err != nil {
 			return nil, err
 		}
-		transformedAddress.CountryId = &country.ID
 		transformedAddress.Country = &country
+		transformedAddress.CountryId = &country.ID
 	}
+
+	// Evaluate address and populate addresses isOconus value
+	isOconus, err := models.IsAddressOconus(appCtx.DB(), transformedAddress)
+	if err != nil {
+		return nil, err
+	}
+	transformedAddress.IsOconus = &isOconus
 
 	txnErr := appCtx.NewTransaction(func(txnCtx appcontext.AppContext) error {
 		verrs, err := txnCtx.DB().Eager().ValidateAndCreate(&transformedAddress)

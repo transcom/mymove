@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { Formik, Field } from 'formik';
 import * as Yup from 'yup';
@@ -20,6 +20,7 @@ import WizardNavigation from 'components/Customer/WizardNavigation/WizardNavigat
 import Callout from 'components/Callout';
 import { formatLabelReportByDate, dropdownInputOptions } from 'utils/formatters';
 import formStyles from 'styles/form.module.scss';
+import { showCounselingOffices } from 'services/internalApi';
 
 const EditOrdersForm = ({
   createUpload,
@@ -31,6 +32,8 @@ const EditOrdersForm = ({
   ordersTypeOptions,
   onCancel,
 }) => {
+  const [officeOptions, setOfficeOptions] = useState(null);
+  const [dutyLocation, setDutyLocation] = useState(initialValues.origin_duty_location);
   const validationSchema = Yup.object().shape({
     orders_type: Yup.mixed()
       .oneOf(ordersTypeOptions.map((i) => i.key))
@@ -56,6 +59,9 @@ const EditOrdersForm = ({
       .min(1),
     grade: Yup.mixed().oneOf(Object.keys(ORDERS_PAY_GRADE_OPTIONS)).required('Required'),
     origin_duty_location: Yup.object().nullable().required('Required'),
+    counseling_office_id: dutyLocation?.provides_services_counseling
+      ? Yup.string().required('Required')
+      : Yup.string().notRequired(),
   });
 
   const enableDelete = () => {
@@ -67,6 +73,18 @@ const EditOrdersForm = ({
 
   let originMeta;
   let newDutyMeta = '';
+
+  useEffect(() => {
+    showCounselingOffices(dutyLocation?.id).then((fetchedData) => {
+      if (fetchedData.body) {
+        const counselingOffices = fetchedData.body.map((item) => ({
+          key: item.id,
+          value: item.name,
+        }));
+        setOfficeOptions(counselingOffices);
+      }
+    });
+  }, [dutyLocation]);
 
   return (
     <Formik
@@ -143,10 +161,29 @@ const EditOrdersForm = ({
                 name="origin_duty_location"
                 id="origin_duty_location"
                 hint="Required"
+                onDutyLocationChange={(e) => {
+                  setDutyLocation(e);
+                }}
                 required
                 metaOverride={originMeta}
               />
-
+              {dutyLocation?.provides_services_counseling && (
+                <div>
+                  <Label>
+                    Select an origin duty location that most closely represents your current physical location, not
+                    where your shipment will originate, if different. This will allow a nearby transportation office to
+                    assist
+                  </Label>
+                  <DropdownInput
+                    label="Counseling Office"
+                    name="counseling_office_id"
+                    id="counseling_office_id"
+                    hint="Required"
+                    required
+                    options={officeOptions}
+                  />
+                </div>
+              )}
               {isRetirementOrSeparation ? (
                 <>
                   <h3 className={styles.calloutLabel}>Where are you entitled to move?</h3>

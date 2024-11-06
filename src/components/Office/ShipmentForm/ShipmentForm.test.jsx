@@ -261,6 +261,7 @@ const mockPPMShipment = {
     hasRequestedAdvance: true,
     advanceAmountRequested: 487500,
     advanceStatus: 'APPROVED',
+    isActualExpenseReimbursement: true,
   },
 };
 
@@ -1306,6 +1307,39 @@ describe('ShipmentForm component', () => {
       expect(mockNavigate).not.toHaveBeenCalled();
     });
 
+    it('shows a specific error message if the submitHandler returns a specific error message', async () => {
+      const mockSpecificMessage = 'The data entered no good.';
+      const mockSubmitHandler = jest.fn((payload, { onError }) => {
+        // fire onError handler on form
+        onError({ response: { body: { message: mockSpecificMessage, status: 400 } } });
+      });
+
+      validatePostalCode.mockImplementation(() => Promise.resolve(false));
+
+      renderWithRouter(
+        <ShipmentForm
+          {...defaultProps}
+          shipmentType={SHIPMENT_OPTIONS.PPM}
+          mtoShipment={mockPPMShipment}
+          submitHandler={mockSubmitHandler}
+          isCreatePage={false}
+        />,
+      );
+
+      const saveButton = screen.getByRole('button', { name: 'Save and Continue' });
+      expect(saveButton).not.toBeDisabled();
+      await act(async () => {
+        await userEvent.click(saveButton);
+      });
+
+      await waitFor(() => {
+        expect(mockSubmitHandler).toHaveBeenCalled();
+      });
+
+      expect(await screen.findByText(mockSpecificMessage)).toBeInTheDocument();
+      expect(mockNavigate).not.toHaveBeenCalled();
+    });
+
     it('shows an error if the submitHandler returns an error when editing a PPM', async () => {
       const mockSubmitHandler = jest.fn((payload, { onError }) => {
         // fire onError handler on form
@@ -1365,11 +1399,11 @@ describe('ShipmentForm component', () => {
         await userEvent.selectOptions(pickupStateInput, 'CA');
         await userEvent.type(screen.getAllByLabelText('ZIP')[0], '90210');
 
-        await userEvent.type(screen.getAllByLabelText('Address 1')[1], 'Test Street 3');
-        await userEvent.type(screen.getAllByLabelText('City')[1], 'TestTwo City');
+        await userEvent.type(screen.getAllByLabelText(/Address 1/)[1], 'Test Street 3');
+        await userEvent.type(screen.getAllByLabelText(/City/)[1], 'TestTwo City');
         const destinationStateInput = screen.getAllByLabelText('State')[1];
         await userEvent.selectOptions(destinationStateInput, 'CA');
-        await userEvent.type(screen.getAllByLabelText('ZIP')[1], '90210');
+        await userEvent.type(screen.getAllByLabelText(/ZIP/)[1], '90210');
 
         await userEvent.type(screen.getByLabelText('Estimated PPM weight'), '1000');
 
@@ -1526,6 +1560,43 @@ describe('ShipmentForm component', () => {
 
       expect(await screen.findByTestId('tag')).toHaveTextContent('PPM');
     });
+
+    it('PPM - destination address street 1 is OPTIONAL', async () => {
+      renderWithRouter(
+        <ShipmentForm
+          {...defaultProps}
+          shipmentType={SHIPMENT_OPTIONS.PPM}
+          isCreatePage
+          userRole={roleTypes.SERVICES_COUNSELOR}
+        />,
+      );
+
+      expect(await screen.findByTestId('tag')).toHaveTextContent('PPM');
+
+      // controlled test. we expect alert to be raised if we type in whitespace to trigger required alert
+      // for pickup
+      await userEvent.type(document.querySelector('input[name="pickup.address.streetAddress1"]'), '  ');
+      await userEvent.tab();
+      await waitFor(() => {
+        const requiredAlerts = screen.getAllByRole('alert');
+        expect(requiredAlerts.length).toBe(1);
+      });
+
+      await userEvent.type(document.querySelector('input[name="pickup.address.streetAddress1"]'), '123 New Street');
+      await userEvent.tab();
+      await waitFor(() => {
+        // verify no alerts are present
+        expect(screen.queryByRole('alert')).not.toBeInTheDocument();
+      });
+
+      // test that destination address street1 is OPTIONAL and not raise any required alert
+      await userEvent.type(document.querySelector('input[name="destination.address.streetAddress1"]'), '  ');
+      await userEvent.tab();
+      await waitFor(() => {
+        // verify required alert was not raised
+        expect(screen.queryByRole('alert')).not.toBeInTheDocument();
+      });
+    });
   });
 
   describe('TOO editing an already existing PPM shipment', () => {
@@ -1571,7 +1642,7 @@ describe('ShipmentForm component', () => {
         mockPPMShipment.ppmShipment.secondaryPickupAddress.postalCode,
       );
 
-      expect(await screen.getAllByLabelText('Address 1')[2]).toHaveValue(
+      expect(await screen.getAllByLabelText(/Address 1/)[2]).toHaveValue(
         mockPPMShipment.ppmShipment.destinationAddress.streetAddress1,
       );
       expect(await screen.getAllByLabelText(/Address 2/)[2]).toHaveValue(
@@ -1583,23 +1654,23 @@ describe('ShipmentForm component', () => {
       expect(await screen.getAllByLabelText('State')[2]).toHaveValue(
         mockPPMShipment.ppmShipment.destinationAddress.state,
       );
-      expect(await screen.getAllByLabelText('ZIP')[2]).toHaveValue(
+      expect(await screen.getAllByLabelText(/ZIP/)[2]).toHaveValue(
         mockPPMShipment.ppmShipment.destinationAddress.postalCode,
       );
 
-      expect(await screen.getAllByLabelText('Address 1')[3]).toHaveValue(
+      expect(await screen.getAllByLabelText(/Address 1/)[3]).toHaveValue(
         mockPPMShipment.ppmShipment.secondaryDestinationAddress.streetAddress1,
       );
       expect(await screen.getAllByLabelText(/Address 2/)[3]).toHaveValue(
         mockPPMShipment.ppmShipment.secondaryDestinationAddress.streetAddress2,
       );
-      expect(await screen.getAllByLabelText('City')[3]).toHaveValue(
+      expect(await screen.getAllByLabelText(/City/)[3]).toHaveValue(
         mockPPMShipment.ppmShipment.secondaryDestinationAddress.city,
       );
       expect(await screen.getAllByLabelText('State')[3]).toHaveValue(
         mockPPMShipment.ppmShipment.secondaryDestinationAddress.state,
       );
-      expect(await screen.getAllByLabelText('ZIP')[3]).toHaveValue(
+      expect(await screen.getAllByLabelText(/ZIP/)[3]).toHaveValue(
         mockPPMShipment.ppmShipment.secondaryDestinationAddress.postalCode,
       );
 
@@ -1694,7 +1765,7 @@ describe('ShipmentForm component', () => {
           mockPPMShipment.ppmShipment.secondaryPickupAddress.postalCode,
         );
 
-        expect(await screen.getAllByLabelText('Address 1')[2]).toHaveValue(
+        expect(await screen.getAllByLabelText(/Address 1/)[2]).toHaveValue(
           mockPPMShipment.ppmShipment.destinationAddress.streetAddress1,
         );
         expect(await screen.getAllByLabelText(/Address 2/)[2]).toHaveValue(
@@ -1706,33 +1777,80 @@ describe('ShipmentForm component', () => {
         expect(await screen.getAllByLabelText('State')[2]).toHaveValue(
           mockPPMShipment.ppmShipment.destinationAddress.state,
         );
-        expect(await screen.getAllByLabelText('ZIP')[2]).toHaveValue(
+        expect(await screen.getAllByLabelText(/ZIP/)[2]).toHaveValue(
           mockPPMShipment.ppmShipment.destinationAddress.postalCode,
         );
 
-        expect(await screen.getAllByLabelText('Address 1')[3]).toHaveValue(
+        expect(await screen.getAllByLabelText(/Address 1/)[3]).toHaveValue(
           mockPPMShipment.ppmShipment.secondaryDestinationAddress.streetAddress1,
         );
         expect(await screen.getAllByLabelText(/Address 2/)[3]).toHaveValue(
           mockPPMShipment.ppmShipment.secondaryDestinationAddress.streetAddress2,
         );
-        expect(await screen.getAllByLabelText('City')[3]).toHaveValue(
+        expect(await screen.getAllByLabelText(/City/)[3]).toHaveValue(
           mockPPMShipment.ppmShipment.secondaryDestinationAddress.city,
         );
         expect(await screen.getAllByLabelText('State')[3]).toHaveValue(
           mockPPMShipment.ppmShipment.secondaryDestinationAddress.state,
         );
-        expect(await screen.getAllByLabelText('ZIP')[3]).toHaveValue(
+        expect(await screen.getAllByLabelText(/ZIP/)[3]).toHaveValue(
           mockPPMShipment.ppmShipment.secondaryDestinationAddress.postalCode,
         );
 
         expect(screen.getAllByLabelText('Yes')[0]).toBeChecked();
         expect(screen.getAllByLabelText('No')[0]).not.toBeChecked();
+        expect(screen.getAllByLabelText('Yes')[1]).toBeChecked();
+        expect(screen.getAllByLabelText('No')[1]).not.toBeChecked();
         expect(screen.getByLabelText('Estimated PPM weight')).toHaveValue('4,999');
-        expect(screen.getAllByLabelText('Yes')[2]).toBeChecked();
-        expect(screen.getAllByLabelText('No')[2]).not.toBeChecked();
+        expect(screen.getAllByLabelText('Yes')[3]).toBeChecked();
+        expect(screen.getAllByLabelText('No')[3]).not.toBeChecked();
+      });
+
+      it('test destination address street 1 is OPTIONAL', async () => {
+        isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(true));
+        renderWithRouter(
+          <ShipmentForm
+            {...defaultProps}
+            isCreatePage={false}
+            shipmentType={SHIPMENT_OPTIONS.PPM}
+            mtoShipment={mockPPMShipment}
+          />,
+        );
+
+        await userEvent.clear(document.querySelector('input[name="pickup.address.streetAddress1"]'));
+        await userEvent.tab();
+        await waitFor(() => {
+          const requiredAlerts = screen.getAllByRole('alert');
+          expect(requiredAlerts.length).toBe(1);
+        });
+
+        await userEvent.type(document.querySelector('input[name="pickup.address.streetAddress1"]'), '123 New Street');
+        await userEvent.tab();
+        await waitFor(() => {
+          // verify no alerts are present
+          expect(screen.queryByRole('alert')).not.toBeInTheDocument();
+        });
+
+        // test that destination address street1 is OPTIONAL and not raise any required alert
+        await userEvent.clear(document.querySelector('input[name="destination.address.streetAddress1"]'));
+        await userEvent.tab();
+        await waitFor(() => {
+          // verify required alert was not raised
+          expect(screen.queryByRole('alert')).not.toBeInTheDocument();
+
+          // 'Optional' labelHint on address display. expecting a total of 9(2 for pickup address and 3 destination address, 4 for secondary addrs).
+          // This is to verify Optional labelHints are displayed correctly for PPM onboarding/edit for the destination address
+          // street 1 is now OPTIONAL. If this fails it means addtional labelHints have been introduced elsewhere within the control.
+          const hints = document.getElementsByClassName('usa-hint');
+          expect(hints.length).toBe(9);
+          // verify labelHints are actually 'Optional'
+          for (let i = 0; i < hints.length; i += 1) {
+            expect(hints[i]).toHaveTextContent('Optional');
+          }
+        });
       });
     });
+
     it('renders the PPM shipment form with pre-filled requested values for Advance Page', async () => {
       renderWithRouter(
         <ShipmentForm
@@ -2015,6 +2133,7 @@ describe('ShipmentForm component', () => {
       );
 
       expect(await screen.findByTestId('tag')).toHaveTextContent('PPM');
+      expect(screen.getByText('Is this PPM an Actual Expense Reimbursement?')).toBeInTheDocument();
       expect(screen.getByText('What address are you moving from?')).toBeInTheDocument();
       expect(screen.getByText('Second pickup address')).toBeInTheDocument();
       expect(
@@ -2236,6 +2355,83 @@ describe('ShipmentForm component', () => {
           'The dimensions do not meet the requirements for a boat shipment. Please cancel and select a different shipment type.',
         ),
       ).not.toBeInTheDocument();
+    });
+  });
+
+  describe('creating a new Mobile Home shipment', () => {
+    it('renders the Mobile Home shipment form correctly', async () => {
+      renderWithRouter(<ShipmentForm {...defaultProps} shipmentType={SHIPMENT_OPTIONS.MOBILE_HOME} isCreatePage />);
+
+      expect(screen.getByLabelText('Year')).toBeInTheDocument();
+      expect(screen.getByLabelText('Make')).toBeInTheDocument();
+      expect(screen.getByLabelText('Model')).toBeInTheDocument();
+      expect(await screen.findByText('Length')).toBeInTheDocument();
+      expect(await screen.findByText('Width')).toBeInTheDocument();
+      expect(await screen.findByText('Height')).toBeInTheDocument();
+      expect(await screen.findByText('Remarks')).toBeInTheDocument();
+    });
+
+    it('validates length and width input fields to ensure they accept only numeric values', async () => {
+      renderWithRouter(<ShipmentForm {...defaultProps} shipmentType={SHIPMENT_OPTIONS.MOBILE_HOME} />);
+
+      const lengthInput = await screen.findByTestId('lengthFeet');
+      const heightInput = await screen.findByTestId('heightFeet');
+      const widthInput = await screen.findByTestId('widthFeet');
+
+      await act(async () => {
+        userEvent.type(lengthInput, 'abc');
+        userEvent.type(heightInput, 'xyz');
+        userEvent.type(widthInput, 'zyz');
+      });
+
+      await waitFor(() => {
+        expect(lengthInput).toHaveValue('');
+        expect(heightInput).toHaveValue('');
+        expect(widthInput).toHaveValue('');
+      });
+    });
+
+    it('validates required fields for Mobile Home shipment', async () => {
+      renderWithRouter(<ShipmentForm {...defaultProps} shipmentType={SHIPMENT_OPTIONS.MOBILE_HOME} />);
+
+      const submitButton = screen.getByRole('button', { name: 'Save' });
+
+      await act(async () => {
+        userEvent.click(submitButton);
+      });
+
+      expect(submitButton).toBeDisabled();
+    });
+
+    it('validates the year field is within the valid range', async () => {
+      renderWithRouter(<ShipmentForm {...defaultProps} shipmentType={SHIPMENT_OPTIONS.MOBILE_HOME} />);
+
+      await act(async () => {
+        await userEvent.click(screen.getByTestId('year'));
+        await userEvent.type(screen.getByTestId('year'), '1600');
+        const submitButton = screen.getByRole('button', { name: 'Save' });
+        userEvent.click(submitButton);
+      });
+
+      expect(await screen.findByText('Invalid year')).toBeInTheDocument();
+    });
+
+    it('validates dimensions - pass', async () => {
+      renderWithRouter(<ShipmentForm {...defaultProps} shipmentType={SHIPMENT_OPTIONS.MOBILE_HOME} />);
+
+      // Enter dimensions below the required minimums
+      await act(async () => {
+        await userEvent.click(screen.getByTestId('lengthFeet'));
+        await userEvent.type(screen.getByTestId('lengthFeet'), '15');
+        await userEvent.click(screen.getByTestId('widthFeet'));
+        await userEvent.type(screen.getByTestId('widthFeet'), '5');
+        await userEvent.click(screen.getByTestId('heightFeet'));
+        await userEvent.type(screen.getByTestId('heightFeet'), '6');
+        const submitButton = screen.getByRole('button', { name: 'Save' });
+        userEvent.click(submitButton);
+      });
+
+      expect(screen.queryByText('Where and when should the movers deliver your mobile home?')).not.toBeInTheDocument();
     });
   });
 });

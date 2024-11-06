@@ -331,6 +331,7 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestFormatValuesShipmentSumma
 		Shipment: models.MTOShipment{
 			ShipmentLocator: &locator,
 		},
+		IsActualExpenseReimbursement: models.BoolPointer(true),
 	}
 	ssd := models.ShipmentSummaryFormData{
 		ServiceMember:           serviceMember,
@@ -374,6 +375,8 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestFormatValuesShipmentSumma
 	suite.Equal("Waiting On Customer", sswPage1.ShipmentCurrentShipmentStatuses)
 	suite.Equal("17,500", sswPage1.TotalWeightAllotmentRepeat)
 	suite.Equal("15,000 lbs; $10,000.00", sswPage1.MaxObligationGCC100)
+	suite.True(sswPage1.IsActualExpenseReimbursement)
+	suite.Equal("Actual Expense Reimbursement", sswPage1.GCCIsActualExpenseReimbursement)
 
 	// quick test when there is no PPM actual move date
 	PPMShipmentWithoutActualMoveDate := models.PPMShipment{
@@ -408,6 +411,7 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestFormatValuesShipmentSumma
 		Shipment: models.MTOShipment{
 			ShipmentLocator: &locator,
 		},
+		IsActualExpenseReimbursement: models.BoolPointer(true),
 	}
 
 	order := models.Order{
@@ -481,6 +485,9 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestFormatValuesShipmentSumma
 	suite.Equal("$400.00", sswPage2.TotalMemberPaid)
 	suite.Equal("NTA4", sswPage2.TAC)
 	suite.Equal("SAC", sswPage2.SAC)
+	suite.Equal("Actual Expense Reimbursement", sswPage2.IncentiveIsActualExpenseReimbursement)
+	suite.Equal(`This PPM is being processed at actual expense reimbursement for valid expenses not to exceed the
+		government constructed cost (GCC).`, sswPage2.HeaderIsActualExpenseReimbursement)
 }
 
 func (suite *ShipmentSummaryWorksheetServiceSuite) TestFormatValuesShipmentSummaryWorksheetFormPage2ExcludeRejectedOrExcludedExpensesFromTotal() {
@@ -1499,7 +1506,7 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestFormatAdditionalShipments
 		},
 		{
 			PPMShipment:          &ppm2,
-			ShipmentType:         models.MTOShipmentTypeInternationalHHG,
+			ShipmentType:         models.MTOShipmentTypePPM,
 			ShipmentLocator:      &locator,
 			RequestedPickupDate:  &now,
 			Status:               models.MTOShipmentStatusSubmitted,
@@ -1508,7 +1515,7 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestFormatAdditionalShipments
 		},
 		{
 			PPMShipment:          &ppm2,
-			ShipmentType:         models.MTOShipmentTypeInternationalUB,
+			ShipmentType:         models.MTOShipmentTypePPM,
 			ShipmentLocator:      &locator,
 			RequestedPickupDate:  &now,
 			Status:               models.MTOShipmentStatusSubmitted,
@@ -1544,7 +1551,7 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestFormatAdditionalShipments
 		},
 		{
 			PPMShipment:          &ppm2,
-			ShipmentType:         models.MTOShipmentTypeInternationalHHG,
+			ShipmentType:         models.MTOShipmentTypePPM,
 			ShipmentLocator:      &locator,
 			RequestedPickupDate:  &now,
 			Status:               models.MTOShipmentStatusSubmitted,
@@ -1552,7 +1559,7 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestFormatAdditionalShipments
 		},
 		{
 			PPMShipment:          &ppm2,
-			ShipmentType:         models.MTOShipmentTypeInternationalHHG,
+			ShipmentType:         models.MTOShipmentTypePPM,
 			ShipmentLocator:      &locator,
 			ActualPickupDate:     &now,
 			Status:               models.MTOShipmentStatusSubmitted,
@@ -1560,7 +1567,7 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestFormatAdditionalShipments
 		},
 		{
 			PPMShipment:          &ppm2,
-			ShipmentType:         models.MTOShipmentTypeInternationalHHG,
+			ShipmentType:         models.MTOShipmentTypePPM,
 			ShipmentLocator:      &locator,
 			ScheduledPickupDate:  &now,
 			Status:               models.MTOShipmentStatusSubmitted,
@@ -1568,7 +1575,7 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestFormatAdditionalShipments
 		},
 		{
 			PPMShipment:     &ppm2,
-			ShipmentType:    models.MTOShipmentTypeInternationalHHG,
+			ShipmentType:    models.MTOShipmentTypePPM,
 			ShipmentLocator: &locator,
 			Status:          models.MTOShipmentStatusSubmitted,
 		},
@@ -1596,16 +1603,14 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestFormatAdditionalShipments
 					suite.Equal(fmt.Sprintf("%s %s", locator, "NTS Release"), value)
 				} else if shipment.ShipmentType == models.MTOShipmentTypeHHGIntoNTSDom {
 					suite.Equal(fmt.Sprintf("%s %s", locator, "NTS"), value)
-				} else if shipment.ShipmentType == models.MTOShipmentTypeInternationalHHG {
-					suite.Equal(fmt.Sprintf("%s %s", locator, "Int'l HHG"), value)
-				} else if shipment.ShipmentType == models.MTOShipmentTypeInternationalUB {
-					suite.Equal(fmt.Sprintf("%s %s", locator, "Int'l UB"), value)
 				} else if shipment.ShipmentType == models.MTOShipmentTypeMobileHome {
 					suite.Equal(fmt.Sprintf("%s %s", locator, "Mobile Home"), value)
 				} else if shipment.ShipmentType == models.MTOShipmentTypeBoatHaulAway {
 					suite.Equal(fmt.Sprintf("%s %s", locator, "Boat Haul"), value)
 				} else if shipment.ShipmentType == models.MTOShipmentTypeBoatTowAway {
 					suite.Equal(fmt.Sprintf("%s %s", locator, "Boat Tow"), value)
+				} else if shipment.ShipmentType == models.MTOShipmentTypeUnaccompaniedBaggage {
+					suite.Equal(fmt.Sprintf("%s %s", locator, "UB"), value)
 				} else {
 					suite.Fail(fmt.Sprintf("unaccounted type: %s", string(shipment.ShipmentType)))
 				}

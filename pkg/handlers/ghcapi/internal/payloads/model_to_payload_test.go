@@ -6,6 +6,7 @@ import (
 
 	"github.com/gofrs/uuid"
 
+	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/gen/ghcmessages"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
@@ -50,10 +51,13 @@ func (suite *PayloadsSuite) TestFetchPPMShipment() {
 		County:         county,
 	}
 
+	isActualExpenseReimbursement := true
+
 	expectedPPMShipment := models.PPMShipment{
-		ID:                 ppmShipmentID,
-		PickupAddress:      &expectedAddress,
-		DestinationAddress: &expectedAddress,
+		ID:                           ppmShipmentID,
+		PickupAddress:                &expectedAddress,
+		DestinationAddress:           &expectedAddress,
+		IsActualExpenseReimbursement: &isActualExpenseReimbursement,
 	}
 
 	suite.Run("Success -", func() {
@@ -77,7 +81,45 @@ func (suite *PayloadsSuite) TestFetchPPMShipment() {
 		suite.Equal(&state, returnedPPMShipment.DestinationAddress.State)
 		suite.Equal(&country.Country, returnedPPMShipment.DestinationAddress.Country)
 		suite.Equal(&county, returnedPPMShipment.DestinationAddress.County)
+		suite.True(*returnedPPMShipment.IsActualExpenseReimbursement)
+	})
 
+	suite.Run("Destination street address 1 returns empty string to convey OPTIONAL state ", func() {
+		expected_street_address_1 := ""
+		expectedAddress2 := models.Address{
+			StreetAddress1: expected_street_address_1,
+			StreetAddress2: &streetAddress2,
+			StreetAddress3: &streetAddress3,
+			City:           city,
+			State:          state,
+			PostalCode:     postalcode,
+			Country:        &country,
+			County:         county,
+		}
+
+		expectedPPMShipment2 := models.PPMShipment{
+			ID:                 ppmShipmentID,
+			PickupAddress:      &expectedAddress,
+			DestinationAddress: &expectedAddress2,
+		}
+		returnedPPMShipment := PPMShipment(nil, &expectedPPMShipment2)
+
+		suite.IsType(returnedPPMShipment, &ghcmessages.PPMShipment{})
+		suite.Equal(&streetAddress1, returnedPPMShipment.PickupAddress.StreetAddress1)
+		suite.Equal(expectedPPMShipment.PickupAddress.StreetAddress2, returnedPPMShipment.PickupAddress.StreetAddress2)
+		suite.Equal(expectedPPMShipment.PickupAddress.StreetAddress3, returnedPPMShipment.PickupAddress.StreetAddress3)
+		suite.Equal(&postalcode, returnedPPMShipment.PickupAddress.PostalCode)
+		suite.Equal(&city, returnedPPMShipment.PickupAddress.City)
+		suite.Equal(&state, returnedPPMShipment.PickupAddress.State)
+		suite.Equal(&county, returnedPPMShipment.PickupAddress.County)
+
+		suite.Equal(&expected_street_address_1, returnedPPMShipment.DestinationAddress.StreetAddress1)
+		suite.Equal(expectedPPMShipment.DestinationAddress.StreetAddress2, returnedPPMShipment.DestinationAddress.StreetAddress2)
+		suite.Equal(expectedPPMShipment.DestinationAddress.StreetAddress3, returnedPPMShipment.DestinationAddress.StreetAddress3)
+		suite.Equal(&postalcode, returnedPPMShipment.DestinationAddress.PostalCode)
+		suite.Equal(&city, returnedPPMShipment.DestinationAddress.City)
+		suite.Equal(&state, returnedPPMShipment.DestinationAddress.State)
+		suite.Equal(&county, returnedPPMShipment.DestinationAddress.County)
 	})
 }
 
@@ -344,5 +386,48 @@ func (suite *PayloadsSuite) TestCreateCustomer() {
 		returnedShipmentAddressUpdate := CreatedCustomer(&sm, &oktaUser, &backupContact)
 
 		suite.IsType(returnedShipmentAddressUpdate, &ghcmessages.CreatedCustomer{})
+	})
+}
+
+func (suite *PayloadsSuite) TestSearchMoves() {
+	appCtx := suite.AppContextForTest()
+
+	marines := models.AffiliationMARINES
+	moveUSMC := factory.BuildMove(suite.DB(), []factory.Customization{
+		{
+			Model: models.ServiceMember{
+				Affiliation: &marines,
+			},
+		},
+	}, nil)
+
+	moves := models.Moves{moveUSMC}
+	suite.Run("Success - Returns a ghcmessages Upload payload from Upload Struct", func() {
+		payload := SearchMoves(appCtx, moves)
+
+		suite.IsType(payload, &ghcmessages.SearchMoves{})
+		suite.NotNil(payload)
+	})
+}
+
+func (suite *PayloadsSuite) TestMarketCode() {
+	suite.Run("returns nil when marketCode is nil", func() {
+		var marketCode *models.MarketCode = nil
+		result := MarketCode(marketCode)
+		suite.Equal(result, "")
+	})
+
+	suite.Run("returns string when marketCode is not nil", func() {
+		marketCodeDomestic := models.MarketCodeDomestic
+		result := MarketCode(&marketCodeDomestic)
+		suite.NotNil(result, "Expected result to not be nil when marketCode is not nil")
+		suite.Equal("d", result, "Expected result to be 'd' for domestic market code")
+	})
+
+	suite.Run("returns string when marketCode is international", func() {
+		marketCodeInternational := models.MarketCodeInternational
+		result := MarketCode(&marketCodeInternational)
+		suite.NotNil(result, "Expected result to not be nil when marketCode is not nil")
+		suite.Equal("i", result, "Expected result to be 'i' for international market code")
 	})
 }
