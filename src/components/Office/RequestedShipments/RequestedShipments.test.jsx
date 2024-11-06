@@ -31,6 +31,10 @@ jest.mock('react-router-dom', () => ({
   useNavigate: () => mockNavigate,
 }));
 
+jest.mock('hooks/queries', () => ({
+  useOrdersDocumentQueries: jest.fn(),
+}));
+
 const moveTaskOrder = {
   eTag: 'MjAyMC0wNi0yNlQyMDoyMjo0MS43Mjc4NTNa',
   id: '6e8c5ca4-774c-4170-934a-59d22259e480',

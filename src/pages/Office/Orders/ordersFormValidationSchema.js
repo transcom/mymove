@@ -1,6 +1,6 @@
 import * as Yup from 'yup';
 
-const ordersFormValidationSchema = Yup.object({
+const ordersFormValidationSchema = Yup.object().shape({
   originDutyLocation: Yup.object().defined('Required'),
   newDutyLocation: Yup.object().required('Required'),
   issueDate: Yup.date()
@@ -15,6 +15,7 @@ const ordersFormValidationSchema = Yup.object({
   ordersTypeDetail: Yup.string().required('Required'),
   tac: Yup.string().min(4, 'Enter a 4-character TAC').required('Required'),
   sac: Yup.string(),
+  ordersDoc: Yup.mixed().required('Required'),
 });
 
 export default ordersFormValidationSchema;

@@ -38,7 +38,7 @@ const Orders = ({ files, amendedDocumentId, updateAmendedDocument }) => {
   const [tacValidationState, tacValidationDispatch] = useReducer(tacReducer, null, initialTacState);
   const [loaValidationState, loaValidationDispatch] = useReducer(loaReducer, null, initialLoaState);
 
-  const { move, orders, isLoading, isError } = useOrdersDocumentQueries(moveCode);
+  const { move, orders, isLoading, isError, upload, amendedUpload } = useOrdersDocumentQueries(moveCode);
   const { state } = useLocation();
   const orderId = move?.ordersId;
   const documentId = orders[orderId]?.uploaded_order_id;
@@ -47,6 +47,13 @@ const Orders = ({ files, amendedDocumentId, updateAmendedDocument }) => {
 
   const ordersDocuments = files[MOVE_DOCUMENT_TYPE.ORDERS];
   const amendedDocuments = files[MOVE_DOCUMENT_TYPE.AMENDMENTS];
+
+  const orderHasDocuments =
+    Object.values(upload || {})
+      .concat(Object.values(amendedUpload || {}))
+      ?.filter((file) => {
+        return !file.deletedAt;
+      })?.length > 0;
 
   const handleClose = useCallback(() => {
     let redirectPath;
@@ -309,6 +316,7 @@ const Orders = ({ files, amendedDocumentId, updateAmendedDocument }) => {
     ntsSac: order?.ntsSac,
     ordersAcknowledgement: !!amendedOrdersAcknowledgedAt,
     payGrade: order?.grade,
+    ordersDoc: ordersDocuments?.filename || '',
   };
 
   return (
@@ -372,6 +380,9 @@ const Orders = ({ files, amendedDocumentId, updateAmendedDocument }) => {
                       orderId={orderId}
                       documentId={documentId}
                       files={ordersDocuments}
+                      name="ordersDoc"
+                      required={!orderHasDocuments}
+                      className={styles.upload}
                       documentType={MOVE_DOCUMENT_TYPE.ORDERS}
                     />
                     <DocumentViewerFileManager
@@ -433,7 +444,7 @@ const Orders = ({ files, amendedDocumentId, updateAmendedDocument }) => {
                 <Restricted to={permissionTypes.updateOrders}>
                   <div className={styles.bottom}>
                     <div className={styles.buttonGroup}>
-                      <Button disabled={formik.isSubmitting} type="submit">
+                      <Button disabled={formik.isSubmitting} type="submit" onSubmit={formik.handleSubmit}>
                         Save
                       </Button>
                       <Button type="button" secondary onClick={handleClose}>

@@ -23,6 +23,7 @@ import { ShipmentShape } from 'types/shipment';
 import { fieldValidationShape } from 'utils/displayFlags';
 import ButtonDropdown from 'components/ButtonDropdown/ButtonDropdown';
 import { SHIPMENT_OPTIONS_URL } from 'shared/constants';
+import { useOrdersDocumentQueries } from 'hooks/queries';
 
 // nts defaults show preferred pickup date and pickup address, flagged items when collapsed
 // ntsr defaults shows preferred delivery date, storage facility address, destination address, flagged items when collapsed
@@ -71,6 +72,8 @@ const SubmittedRequestedShipments = ({
 
   const { moveCode } = useParams();
   const navigate = useNavigate();
+  const { upload, amendedUpload } = useOrdersDocumentQueries(moveCode);
+
   const handleButtonDropdownChange = (e) => {
     const selectedOption = e.target.value;
 
@@ -198,6 +201,14 @@ const SubmittedRequestedShipments = ({
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const debouncedSubmit = useCallback(debounce(formik.handleSubmit, 5000, { leading: true }), []);
 
+  // Check that an order to have a document uploaded.
+  const orderHasDocuments =
+    Object.values(upload || {})
+      .concat(Object.values(amendedUpload || {}))
+      ?.filter((file) => {
+        return !file.deletedAt;
+      })?.length > 0;
+
   return (
     <div className={styles.RequestedShipments} data-testid="requested-shipments">
       <div
@@ -317,7 +328,7 @@ const SubmittedRequestedShipments = ({
               className={styles.approveButton}
               onClick={handleReviewClick}
               type="button"
-              disabled={!isButtonEnabled || isMoveLocked}
+              disabled={!isButtonEnabled || isMoveLocked || !orderHasDocuments}
             >
               <span>Approve selected</span>
             </Button>

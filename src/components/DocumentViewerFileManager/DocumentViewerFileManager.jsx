@@ -1,8 +1,9 @@
 import React, { useEffect, useRef, useState } from 'react';
 import PropTypes from 'prop-types';
 import { useQueryClient } from '@tanstack/react-query';
-import { Button, Alert } from '@trussworks/react-uswds';
+import { Button, Alert, ErrorMessage, FormGroup } from '@trussworks/react-uswds';
 import classnames from 'classnames';
+import { useField } from 'formik';
 
 import styles from './DocumentViewerFileManager.module.scss';
 
@@ -28,6 +29,8 @@ const DocumentViewerFileManager = ({
   files,
   documentType,
   updateAmendedDocument,
+  required,
+  name,
 }) => {
   const queryClient = useQueryClient();
   const filePondEl = useRef();
@@ -38,6 +41,7 @@ const DocumentViewerFileManager = ({
   const [showUpload, setShowUpload] = useState(false);
   const [isExpandedView, setIsExpandedView] = useState(false);
   const [buttonHeaderText, setButtonHeaderText] = useState('Manage Documents');
+  const [metaProps, helperProps] = useField({ className, name, required });
 
   const moveId = move?.id;
   const moveCode = move?.locator;
@@ -197,6 +201,8 @@ const DocumentViewerFileManager = ({
     filePondEl.current?.removeFiles();
     queryClient.invalidateQueries([ORDERS_DOCUMENTS, documentId]);
     setServerError('');
+    helperProps.setValue(!metaProps.value);
+    helperProps.setTouched(true);
   };
 
   const handleDeleteSubmit = () => {
@@ -232,12 +238,30 @@ const DocumentViewerFileManager = ({
             )}
             <UploadsTable className={styles.sectionWrapper} uploads={files} onDelete={openDeleteFileModal} />
             <div className={classnames(styles.upload, className)}>
-              <FileUpload
-                ref={filePondEl}
-                createUpload={handleUpload}
-                onChange={handleChange}
-                labelIdle={'Drag files here or <span class="filepond--label-action">click</span> to upload'}
-              />
+              {required && (
+                <FormGroup error={required}>
+                  {required && (
+                    <ErrorMessage display={required}>{helperProps.error ? helperProps.error : ''}</ErrorMessage>
+                  )}
+                  <FileUpload
+                    ref={filePondEl}
+                    name={name}
+                    createUpload={handleUpload}
+                    onChange={handleChange}
+                    labelIdle={'Drag files here or <span class="filepond--label-action">click</span> to upload'}
+                  />
+                </FormGroup>
+              )}
+
+              {!required && (
+                <FileUpload
+                  ref={filePondEl}
+                  name={name}
+                  createUpload={handleUpload}
+                  onChange={handleChange}
+                  labelIdle={'Drag files here or <span class="filepond--label-action">click</span> to upload'}
+                />
+              )}
               <Hint>PDF, JPG, or PNG only. Maximum file size 25MB. Each page must be clear and legible</Hint>
               {!isExpandedView && (
                 <Button disabled={isFileProcessing} onClick={toggleUploadVisibility}>
@@ -257,6 +281,9 @@ DocumentViewerFileManager.propTypes = {
   documentId: PropTypes.string.isRequired,
   files: PropTypes.array.isRequired,
   documentType: PropTypes.string.isRequired,
+  required: PropTypes.bool,
 };
-
+DocumentViewerFileManager.defaultProps = {
+  required: false,
+};
 export default DocumentViewerFileManager;
