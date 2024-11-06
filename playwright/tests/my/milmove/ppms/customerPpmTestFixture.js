@@ -916,10 +916,12 @@ export class CustomerPpmPage extends CustomerPage {
    * returns {Promise<void>}
    */
   async navigateFromCloseoutReviewPageToExpensesPage() {
-    await expect(async () => {
-      await this.page.getByRole('link', { name: 'Add Expenses' }).click();
-      await expect(this.page.getByRole('heading', { level: 1, name: 'Expenses' })).toBeVisible();
-    }).toPass();
+    await this.page.getByRole('link', { name: 'Add Expenses' }).waitFor({ state: 'visible' });
+    await this.page.getByRole('link', { name: 'Add Expenses' }).click();
+
+    // Retry to confirm the heading is visible - this is an effort to reduce flaky test failures
+    await this.page.waitForTimeout(1000);
+    await expect(this.page.getByRole('heading', { level: 1, name: 'Expenses' })).toBeVisible({ timeout: 5000 });
   }
 
   /**
