@@ -551,7 +551,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		// Under Test: CreateMTOShipment handler code
 		// Setup:      Create a PPM shipment on an available move
 		// Expected:   Successful submission, status should be SUBMITTED
-		handler, move := setupTestData(true, false)
+		handler, move := setupTestData(true, true)
 		req := httptest.NewRequest("POST", "/mto-shipments", nil)
 
 		counselorRemarks := "Some counselor remarks"
