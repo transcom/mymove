@@ -86,6 +86,18 @@ export const requiredAddressSchema = Yup.object().shape({
   postalCode: Yup.string().matches(ZIP_CODE_REGEX, 'Must be valid zip code').required('Required'),
 });
 
+// city, state, postalCode only required
+export const partialRequiredAddressSchema = Yup.object().shape({
+  streetAddress1: Yup.string(),
+  streetAddress2: Yup.string(),
+  city: Yup.string().trim().required('Required'),
+  state: Yup.string()
+    .test('', UnsupportedStateErrorMsg, IsSupportedState)
+    .length(2, 'Must use state abbreviation')
+    .required('Required'),
+  postalCode: Yup.string().matches(ZIP_CODE_REGEX, 'Must be valid zip code').required('Required'),
+});
+
 export const requiredW2AddressSchema = Yup.object().shape({
   streetAddress1: Yup.string().required('Required'),
   streetAddress2: Yup.string(),
