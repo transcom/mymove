@@ -58,11 +58,10 @@ func NewAdminAPI(handlerConfig handlers.HandlerConfig) *adminops.MymoveAPI {
 
 	userRolesCreator := usersroles.NewUsersRolesCreator()
 	newRolesFetcher := roles.NewRolesFetcher()
-	newRequestedOfficeUserFetcherPop := requestedofficeusers.NewRequestedOfficeUserFetcherPop()
 
 	adminAPI.RequestedOfficeUsersGetRequestedOfficeUserHandler = GetRequestedOfficeUserHandler{
 		handlerConfig,
-		newRequestedOfficeUserFetcherPop,
+		requestedofficeusers.NewRequestedOfficeUserFetcher(queryBuilder),
 		newRolesFetcher,
 		query.NewQueryFilter,
 	}

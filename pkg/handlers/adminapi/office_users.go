@@ -46,7 +46,7 @@ func payloadForTransportationOfficeAssignment(toa models.TransportationOfficeAss
 	return &adminmessages.TransportationOfficeAssignment{
 		OfficeUserID:           *handlers.FmtUUID(toa.ID),
 		TransportationOfficeID: *handlers.FmtUUID(toa.TransportationOfficeID),
-		PrimaryOffice:          *handlers.FmtBool(toa.PrimaryOffice),
+		PrimaryOffice:          *handlers.FmtBool(*toa.PrimaryOffice),
 		CreatedAt:              *handlers.FmtDateTime(toa.CreatedAt),
 		UpdatedAt:              *handlers.FmtDateTime(toa.UpdatedAt),
 	}
@@ -560,7 +560,7 @@ func transportationOfficeAssignmentsPayloadToModel(payload []*adminmessages.Offi
 
 		model := &models.TransportationOfficeAssignment{
 			TransportationOfficeID: transportationOfficeID,
-			PrimaryOffice:          *toa.PrimaryOffice,
+			PrimaryOffice:          toa.PrimaryOffice,
 		}
 
 		toas = append(toas, *model)

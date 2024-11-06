@@ -302,13 +302,18 @@ func (f orderFetcher) ListOrders(appCtx appcontext.AppContext, officeUserID uuid
 	return moves, count, nil
 }
 
+// TODO: Update query to select distinct duty locations
 func (f orderFetcher) ListAllOrderLocations(appCtx appcontext.AppContext, officeUserID uuid.UUID, params *services.ListOrderParams) ([]models.Move, error) {
 	var moves []models.Move
-	var transportationOffice models.TransportationOffice
-	// select the GBLOC associated with the transportation office of the session's current office user
-	err := appCtx.DB().Q().
-		Join("office_users", "transportation_offices.id = office_users.transportation_office_id").
-		Where("office_users.id = ?", officeUserID).First(&transportationOffice)
+	var err error
+	var officeUserGbloc string
+
+	if params.ViewAsGBLOC != nil {
+		officeUserGbloc = *params.ViewAsGBLOC
+	} else {
+		gblocFetcher := officeuser.NewOfficeUserGblocFetcher()
+		officeUserGbloc, err = gblocFetcher.FetchGblocForOfficeUser(appCtx, officeUserID)
+	}
 
 	if err != nil {
 		return []models.Move{}, err
@@ -319,14 +324,6 @@ func (f orderFetcher) ListAllOrderLocations(appCtx appcontext.AppContext, office
 		appCtx.Logger().Error("Error retreiving user privileges", zap.Error(err))
 	}
 
-	officeUserGbloc := transportationOffice.Gbloc
-
-	// Alright let's build our query based on the filters we got from the handler. These use the FilterOption type above.
-	// Essentially these are private functions that return query objects that we can mash together to form a complete
-	// query from modular parts.
-
-	// The services counselor queue does not base exclude marine results.
-	// Only the TIO and TOO queues should.
 	needsCounseling := false
 	if len(params.Status) > 0 {
 		for _, status := range params.Status {
@@ -351,6 +348,8 @@ func (f orderFetcher) ListAllOrderLocations(appCtx appcontext.AppContext, office
 	var gblocToFilterBy *string
 	if officeUserGbloc == "USMC" && !needsCounseling {
 		branchQuery = branchFilter(models.StringPointer(string(models.AffiliationMARINES)), needsCounseling, ppmCloseoutGblocs)
+		gblocToFilterBy = &officeUserGbloc
+	} else {
 		gblocToFilterBy = &officeUserGbloc
 	}
 
@@ -392,6 +391,7 @@ func (f orderFetcher) ListAllOrderLocations(appCtx appcontext.AppContext, office
 			InnerJoin("ppm_shipments", "ppm_shipments.shipment_id = mto_shipments.id").
 			InnerJoin("duty_locations as origin_dl", "orders.origin_duty_location_id = origin_dl.id").
 			LeftJoin("duty_locations as dest_dl", "dest_dl.id = orders.new_duty_location_id").
+			LeftJoin("transportation_offices as closeout_to", "closeout_to.id = moves.closeout_office_id").
 			LeftJoin("office_users", "office_users.id = moves.locked_by").
 			Where("show = ?", models.BoolPointer(true))
 

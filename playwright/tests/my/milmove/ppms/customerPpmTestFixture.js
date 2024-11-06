@@ -814,10 +814,8 @@ export class CustomerPpmPage extends CustomerPage {
    * returns {Promise<void>}
    */
   async navigateFromCloseoutReviewPageToAddExpensePage() {
-    await expect(async () => {
-      await this.page.getByRole('link', { name: 'Add Expenses' }).click();
-      await expect(this.page.getByRole('heading', { level: 1, name: 'Expenses' })).toBeVisible();
-    }).toPass();
+    await this.page.getByRole('link', { name: 'Add Expenses' }).click();
+    await expect(this.page.getByRole('heading', { level: 1, name: 'Expenses' })).toBeVisible();
   }
 
   /**
