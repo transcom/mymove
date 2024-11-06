@@ -9,10 +9,10 @@ import { formatMoveHistoryFullAddress } from 'utils/formatters';
 const LABEL = {
   backupMailingAddress: 'Backup address',
   destinationAddress: 'Delivery Address',
-  pickupAddress: 'Origin address',
+  pickupAddress: 'Pickup address',
   residentialAddress: 'Pickup Address',
   secondaryDestinationAddress: 'Secondary delivery address',
-  secondaryPickupAddress: 'Secondary origin address',
+  secondaryPickupAddress: 'Second pickup address',
 };
 
 describe('when given a Update basic service item address history record', () => {
