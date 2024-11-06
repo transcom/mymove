@@ -701,7 +701,7 @@ func (suite *MTOServiceItemServiceSuite) TestCreateMTOServiceItem() {
 			},
 		})
 
-		reServiceMS := factory.FetchOrBuildReServiceByCode(suite.DB(), "MS")
+		reServiceMS := factory.FetchReServiceByCode(suite.DB(), "MS")
 		msTaskOrderFee := models.ReTaskOrderFee{
 			ContractYearID: contractYear.ID,
 			ServiceID:      reServiceMS.ID,
