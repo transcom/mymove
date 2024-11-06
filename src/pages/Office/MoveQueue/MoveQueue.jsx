@@ -1,5 +1,6 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { useNavigate, NavLink, useParams, Navigate, generatePath } from 'react-router-dom';
+import { Dropdown } from '@trussworks/react-uswds';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 import styles from './MoveQueue.module.scss';
@@ -15,7 +16,7 @@ import TableQueue from 'components/Table/TableQueue';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
 import DateSelectFilter from 'components/Table/Filters/DateSelectFilter';
-import { DATE_FORMAT_STRING } from 'shared/constants';
+import { DATE_FORMAT_STRING, DEFAULT_EMPTY_VALUE } from 'shared/constants';
 import { CHECK_SPECIAL_ORDERS_TYPES, SPECIAL_ORDERS_TYPES } from 'constants/orders';
 import MoveSearchForm from 'components/MoveSearchForm/MoveSearchForm';
 import { roleTypes } from 'constants/userRoles';
@@ -25,124 +26,161 @@ import { generalRoutes, tooRoutes } from 'constants/routes';
 import { isNullUndefinedOrWhitespace } from 'shared/utils';
 import NotFound from 'components/NotFound/NotFound';
 import { isBooleanFlagEnabled } from 'utils/featureFlags';
+import handleQueueAssignment from 'utils/queues';
 
-export const columns = (moveLockFlag, showBranchFilter = true) => [
-  createHeader('ID', 'id', { id: 'id' }),
-  createHeader(
-    ' ',
-    (row) => {
-      const now = new Date();
-      // this will render a lock icon if the move is locked & if the lockExpiresAt value is after right now
-      if (row.lockedByOfficeUserID && row.lockExpiresAt && now < new Date(row.lockExpiresAt) && moveLockFlag) {
+export const columns = (moveLockFlag, isQueueManagementEnabled, showBranchFilter = true) => {
+  const cols = [
+    createHeader('ID', 'id', { id: 'id' }),
+    createHeader(
+      ' ',
+      (row) => {
+        const now = new Date();
+        // this will render a lock icon if the move is locked & if the lockExpiresAt value is after right now
+        if (row.lockedByOfficeUserID && row.lockExpiresAt && now < new Date(row.lockExpiresAt) && moveLockFlag) {
+          return (
+            <div data-testid="lock-icon">
+              <FontAwesomeIcon icon="lock" />
+            </div>
+          );
+        }
+        return null;
+      },
+      {
+        id: 'lock',
+      },
+    ),
+    createHeader(
+      'Customer name',
+      (row) => {
         return (
-          <div data-testid="lock-icon">
-            <FontAwesomeIcon icon="lock" />
+          <div>
+            {CHECK_SPECIAL_ORDERS_TYPES(row.orderType) ? (
+              <span className={styles.specialMoves}>{SPECIAL_ORDERS_TYPES[`${row.orderType}`]}</span>
+            ) : null}
+            {`${row.customer.last_name}, ${row.customer.first_name}`}
           </div>
         );
-      }
-      return null;
-    },
-    {
-      id: 'lock',
-    },
-  ),
-  createHeader(
-    'Customer name',
-    (row) => {
-      return (
-        <div>
-          {CHECK_SPECIAL_ORDERS_TYPES(row.orderType) ? (
-            <span className={styles.specialMoves}>{SPECIAL_ORDERS_TYPES[`${row.orderType}`]}</span>
-          ) : null}
-          {`${row.customer.last_name}, ${row.customer.first_name}`}
-        </div>
-      );
-    },
-    {
-      id: 'lastName',
+      },
+      {
+        id: 'lastName',
+        isFilterable: true,
+        exportValue: (row) => {
+          return `${row.customer.last_name}, ${row.customer.first_name}`;
+        },
+      },
+    ),
+    createHeader('DoD ID', 'customer.dodID', {
+      id: 'dodID',
       isFilterable: true,
       exportValue: (row) => {
-        return `${row.customer.last_name}, ${row.customer.first_name}`;
+        return row.customer.dodID;
       },
-    },
-  ),
-  createHeader('DoD ID', 'customer.dodID', {
-    id: 'dodID',
-    isFilterable: true,
-    exportValue: (row) => {
-      return row.customer.dodID;
-    },
-  }),
-  createHeader('EMPLID', 'customer.emplid', {
-    id: 'emplid',
-    isFilterable: true,
-  }),
-  createHeader(
-    'Status',
-    (row) => {
-      return MOVE_STATUS_LABELS[`${row.status}`];
-    },
-    {
-      id: 'status',
+    }),
+    createHeader('EMPLID', 'customer.emplid', {
+      id: 'emplid',
       isFilterable: true,
-      // eslint-disable-next-line react/jsx-props-no-spreading
-      Filter: (props) => <MultiSelectCheckBoxFilter options={MOVE_STATUS_OPTIONS} {...props} />,
-    },
-  ),
-  createHeader('Move code', 'locator', {
-    id: 'locator',
-    isFilterable: true,
-  }),
-  createHeader(
-    'Requested move date',
-    (row) => {
-      return formatDateFromIso(row.requestedMoveDate, DATE_FORMAT_STRING);
-    },
-    {
-      id: 'requestedMoveDate',
-      isFilterable: true,
-      // eslint-disable-next-line react/jsx-props-no-spreading
-      Filter: (props) => <DateSelectFilter dateTime {...props} />,
-    },
-  ),
-  createHeader(
-    'Date submitted',
-    (row) => {
-      return formatDateFromIso(row.appearedInTooAt, DATE_FORMAT_STRING);
-    },
-    {
-      id: 'appearedInTooAt',
-      isFilterable: true,
-      // eslint-disable-next-line react/jsx-props-no-spreading
-      Filter: (props) => <DateSelectFilter dateTime {...props} />,
-    },
-  ),
-  createHeader(
-    'Branch',
-    (row) => {
-      return serviceMemberAgencyLabel(row.customer.agency);
-    },
-    {
-      id: 'branch',
-      isFilterable: showBranchFilter,
-      Filter: (props) => (
+    }),
+    createHeader(
+      'Status',
+      (row) => {
+        return MOVE_STATUS_LABELS[`${row.status}`];
+      },
+      {
+        id: 'status',
+        isFilterable: true,
         // eslint-disable-next-line react/jsx-props-no-spreading
-        <SelectFilter options={BRANCH_OPTIONS} {...props} />
+        Filter: (props) => <MultiSelectCheckBoxFilter options={MOVE_STATUS_OPTIONS} {...props} />,
+      },
+    ),
+    createHeader('Move code', 'locator', {
+      id: 'locator',
+      isFilterable: true,
+    }),
+    createHeader(
+      'Requested move date',
+      (row) => {
+        return formatDateFromIso(row.requestedMoveDate, DATE_FORMAT_STRING);
+      },
+      {
+        id: 'requestedMoveDate',
+        isFilterable: true,
+        // eslint-disable-next-line react/jsx-props-no-spreading
+        Filter: (props) => <DateSelectFilter dateTime {...props} />,
+      },
+    ),
+    createHeader(
+      'Date submitted',
+      (row) => {
+        return formatDateFromIso(row.appearedInTooAt, DATE_FORMAT_STRING);
+      },
+      {
+        id: 'appearedInTooAt',
+        isFilterable: true,
+        // eslint-disable-next-line react/jsx-props-no-spreading
+        Filter: (props) => <DateSelectFilter dateTime {...props} />,
+      },
+    ),
+    createHeader(
+      'Branch',
+      (row) => {
+        return serviceMemberAgencyLabel(row.customer.agency);
+      },
+      {
+        id: 'branch',
+        isFilterable: showBranchFilter,
+        Filter: (props) => (
+          // eslint-disable-next-line react/jsx-props-no-spreading
+          <SelectFilter options={BRANCH_OPTIONS} {...props} />
+        ),
+      },
+    ),
+    createHeader('# of shipments', 'shipmentsCount', { disableSortBy: true }),
+    createHeader('Origin duty location', 'originDutyLocation.name', {
+      id: 'originDutyLocation',
+      isFilterable: true,
+      exportValue: (row) => {
+        return row.originDutyLocation?.name;
+      },
+    }),
+    createHeader('Origin GBLOC', 'originGBLOC', { disableSortBy: true }),
+  ];
+  if (isQueueManagementEnabled)
+    cols.push(
+      createHeader(
+        'Assigned',
+        (row) => {
+          return !row?.assignable ? (
+            <div data-testid="assigned-col">
+              {row.assignedTo ? `${row.assignedTo?.lastName}, ${row.assignedTo?.firstName}` : ''}
+            </div>
+          ) : (
+            <div data-label="assignedSelect" data-testid="assigned-col" className={styles.assignedToCol}>
+              <Dropdown
+                defaultValue={row.assignedTo?.officeUserId}
+                onChange={(e) => handleQueueAssignment(row.id, e.target.value, roleTypes.TOO)}
+                title="Assigned dropdown"
+              >
+                <option value={null}>{DEFAULT_EMPTY_VALUE}</option>
+                {row.availableOfficeUsers.map(({ lastName, firstName, officeUserId }) => (
+                  <option value={officeUserId} key={`filterOption_${officeUserId}`}>
+                    {`${lastName}, ${firstName}`}
+                  </option>
+                ))}
+              </Dropdown>
+            </div>
+          );
+        },
+        {
+          id: 'assignedTo',
+          isFilterable: true,
+        },
       ),
-    },
-  ),
-  createHeader('# of shipments', 'shipmentsCount', { disableSortBy: true }),
-  createHeader('Origin duty location', 'originDutyLocation.name', {
-    id: 'originDutyLocation',
-    isFilterable: true,
-    exportValue: (row) => {
-      return row.originDutyLocation?.name;
-    },
-  }),
-  createHeader('Origin GBLOC', 'originGBLOC', { disableSortBy: true }),
-];
+    );
 
-const MoveQueue = () => {
+  return cols;
+};
+
+const MoveQueue = ({ isQueueManagementFFEnabled }) => {
   const navigate = useNavigate();
   const { queueType } = useParams();
   const [search, setSearch] = useState({ moveCode: null, dodID: null, customerName: null, paymentRequestCode: null });
@@ -197,8 +235,11 @@ const MoveQueue = () => {
     // if the user clicked the profile icon to edit, we want to route them elsewhere
     // since we don't have innerText, we are using the data-label property
     const editProfileDiv = e.target.closest('div[data-label="editProfile"]');
+    const assignedSelect = e.target.closest('div[data-label="assignedSelect"]');
     if (editProfileDiv) {
       navigate(generatePath(tooRoutes.BASE_CUSTOMER_INFO_EDIT_PATH, { moveCode: values.locator }));
+    } else if (assignedSelect) {
+      // don't want to page redirect if clicking in the assigned dropdown
     } else {
       navigate(generatePath(tooRoutes.BASE_MOVE_VIEW_PATH, { moveCode: values.locator }));
     }
@@ -271,7 +312,7 @@ const MoveQueue = () => {
           defaultSortedColumns={[{ id: 'status', desc: false }]}
           disableMultiSort
           disableSortBy={false}
-          columns={columns(moveLockFlag, showBranchFilter)}
+          columns={columns(moveLockFlag, isQueueManagementFFEnabled, showBranchFilter)}
           title="All moves"
           handleClick={handleClick}
           useQueries={useMovesQueueQueries}

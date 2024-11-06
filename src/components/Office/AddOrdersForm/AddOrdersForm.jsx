@@ -19,6 +19,7 @@ import WizardNavigation from 'components/Customer/WizardNavigation/WizardNavigat
 import Callout from 'components/Callout';
 import MaskedTextField from 'components/form/fields/MaskedTextField/MaskedTextField';
 import formStyles from 'styles/form.module.scss';
+import ConnectedFlashMessage from 'containers/FlashMessage/FlashMessage';
 
 let originMeta;
 let newDutyMeta = '';
@@ -112,6 +113,7 @@ const AddOrdersForm = ({ onSubmit, ordersTypeOptions, initialValues, onBack, isS
         };
         return (
           <Form className={`${formStyles.form}`}>
+            <ConnectedFlashMessage />
             <h1>Tell us about the orders</h1>
 
             <SectionWrapper className={formStyles.formSection}>

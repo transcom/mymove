@@ -188,6 +188,9 @@ var actionDispatcher = map[string]actionFunc{
 	"ApprovedMoveWithPPMProgearWeightTicketOffice": func(appCtx appcontext.AppContext) testHarnessResponse {
 		return MakeApprovedMoveWithPPMProgearWeightTicketOffice(appCtx)
 	},
+	"ApprovedMoveWithPPMProgearWeightTicketOfficeCivilian": func(appCtx appcontext.AppContext) testHarnessResponse {
+		return MakeApprovedMoveWithPPMProgearWeightTicketOfficeCivilian(appCtx)
+	},
 	"ApprovedMoveWithPPMWeightTicketOffice": func(appCtx appcontext.AppContext) testHarnessResponse {
 		return MakeApprovedMoveWithPPMWeightTicketOffice(appCtx)
 	},
@@ -232,6 +235,12 @@ var actionDispatcher = map[string]actionFunc{
 	},
 	"MakeCoastGuardMoveReadyForEDI": func(appCtx appcontext.AppContext) testHarnessResponse {
 		return MakeCoastGuardMoveReadyForEDI(appCtx)
+	},
+	"BoatHaulAwayMoveNeedsSC": func(appCtx appcontext.AppContext) testHarnessResponse {
+		return MakeBoatHaulAwayMoveNeedsSC(appCtx)
+	},
+	"BoatHaulAwayMoveNeedsTOOApproval": func(appCtx appcontext.AppContext) testHarnessResponse {
+		return MakeBoatHaulAwayMoveNeedsTOOApproval(appCtx)
 	},
 }
 
