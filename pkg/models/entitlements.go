@@ -279,15 +279,11 @@ func GetUBWeightAllowance(appCtx appcontext.AppContext, originDutyLocationIsOcon
 		const civilianBaseUBAllowance = 350
 		const dependents12AndOverUBAllowance = 350
 		const depedentsUnder12UBAllowance = 175
-		const maxNoDependentsCivilianUBAllowance = 350
 		const maxWholeFamilyCivilianUBAllowance = 2000
 		ubAllowance := 0
 
 		if orderPayGrade == string(internalmessages.OrderPayGradeCIVILIANEMPLOYEE) && dependentsAreAuthorized && underTwelveDependents == 0 && twelveAndOverDependents == 0 {
 			ubAllowance = civilianBaseUBAllowance
-			if ubAllowance > maxNoDependentsCivilianUBAllowance {
-				ubAllowance = maxNoDependentsCivilianUBAllowance
-			}
 		} else if orderPayGrade == string(internalmessages.OrderPayGradeCIVILIANEMPLOYEE) && dependentsAreAuthorized && underTwelveDependents > 0 && twelveAndOverDependents > 0 {
 			ubAllowance = civilianBaseUBAllowance
 			// for each dependent 12 and older, add an additional 350 lbs to the civilian's baggage allowance
