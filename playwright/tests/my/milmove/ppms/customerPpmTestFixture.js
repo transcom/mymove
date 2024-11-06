@@ -814,10 +814,8 @@ export class CustomerPpmPage extends CustomerPage {
    * returns {Promise<void>}
    */
   async navigateFromCloseoutReviewPageToAddExpensePage() {
-    await expect(async () => {
-      await this.page.getByRole('link', { name: 'Add Expenses' }).click();
-      await expect(this.page.getByRole('heading', { level: 1, name: 'Expenses' })).toBeVisible();
-    }).toPass();
+    await this.page.getByRole('link', { name: 'Add Expenses' }).click();
+    await expect(this.page.getByRole('heading', { level: 1, name: 'Expenses' })).toBeVisible();
   }
 
   /**
@@ -916,15 +914,12 @@ export class CustomerPpmPage extends CustomerPage {
    * returns {Promise<void>}
    */
   async navigateFromCloseoutReviewPageToExpensesPage() {
-    // Wrap in expect.toPass so the whole function will retry from the begining if any one part fails - this is an effort to reduce flaky test failures
-    await expect(async () => {
-      await this.page.getByRole('link', { name: 'Add Expenses' }).waitFor({ state: 'visible' });
-      await this.page.getByRole('link', { name: 'Add Expenses' }).click();
+    await this.page.getByRole('link', { name: 'Add Expenses' }).waitFor({ state: 'visible' });
+    await this.page.getByRole('link', { name: 'Add Expenses' }).click();
 
-      // Retry to confirm the heading is visible - this is an effort to reduce flaky test failures
-      await this.page.waitForTimeout(1000);
-      await expect(this.page.getByRole('heading', { level: 1, name: 'Expenses' })).toBeVisible({ timeout: 5000 });
-    }).toPass();
+    // Retry to confirm the heading is visible - this is an effort to reduce flaky test failures
+    await this.page.waitForTimeout(1000);
+    await expect(this.page.getByRole('heading', { level: 1, name: 'Expenses' })).toBeVisible({ timeout: 5000 });
   }
 
   /**
