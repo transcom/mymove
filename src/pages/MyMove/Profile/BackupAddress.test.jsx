@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, screen, waitFor } from '@testing-library/react';
+import { render, waitFor, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 import { MockProviders } from 'testUtils';
@@ -111,19 +111,23 @@ describe('BackupAddress page', () => {
     await userEvent.type(getByLabelText(/ZIP/), fakeAddress.postalCode);
     await userEvent.tab();
 
-    let msg = screen.getByText('Moves to this state are not supported at this time.');
-    expect(msg).toBeVisible();
+    await waitFor(() => {
+      expect(screen.getByText('Moves to this state are not supported at this time.')).toBeInTheDocument();
+    });
 
     await userEvent.selectOptions(getByLabelText(/State/), 'AL');
     await userEvent.type(getByLabelText(/ZIP/), fakeAddress.postalCode);
     await userEvent.tab();
-    expect(msg).not.toBeVisible();
+    await waitFor(() => {
+      expect(screen.queryByText('Moves to this state are not supported at this time.')).not.toBeInTheDocument();
+    });
 
     await userEvent.selectOptions(getByLabelText(/State/), 'HI');
     await userEvent.type(getByLabelText(/ZIP/), fakeAddress.postalCode);
     await userEvent.tab();
-    msg = screen.getByText('Moves to this state are not supported at this time.');
-    expect(msg).toBeVisible();
+    await waitFor(() => {
+      expect(screen.queryByText('Moves to this state are not supported at this time.')).toBeInTheDocument();
+    });
   });
 
   it('shows an error if the patchServiceMember API returns an error', async () => {
