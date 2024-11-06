@@ -17,6 +17,6 @@ type ReServiceItem struct {
 	UpdatedAt      time.Time       `db:"updated_at" rw:"r"`
 }
 
-func (g ReServiceItem) TableName() string {
+func (r ReServiceItem) TableName() string {
 	return "re_service_items"
 }
