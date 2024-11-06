@@ -17,6 +17,7 @@ const defaultProps = {
   shipmentNumber: 1,
   shipmentId: '#ABC123K',
   shipmentLocator: '#ABC123K-01',
+  marketCode: 'i',
   shipmentType: 'HHG',
   showEditAndDeleteBtn: false,
   requestedPickupDate: new Date('01/01/2020').toISOString(),
@@ -58,6 +59,7 @@ const incompleteProps = {
   showEditAndDeleteBtn: false,
   requestedPickupDate: new Date('01/01/2020').toISOString(),
   status: shipmentStatuses.DRAFT,
+  marketCode: 'd',
 };
 
 const completeProps = {
@@ -72,6 +74,7 @@ const completeProps = {
   showEditAndDeleteBtn: false,
   requestedPickupDate: new Date('01/01/2020').toISOString(),
   status: shipmentStatuses.SUBMITTED,
+  marketCode: 'd',
 };
 
 const secondaryDeliveryAddress = {
@@ -182,6 +185,11 @@ describe('HHGShipmentCard component', () => {
     expect(secondDesintationInformation).toBeInTheDocument();
   });
 
+  it('renders HHGShipmentCard with a heading that has a market code and shipment type', async () => {
+    render(<HHGShipmentCard {...defaultProps} />);
+    expect(screen.getByRole('heading', { level: 3 })).toHaveTextContent(`${defaultProps.marketCode}HHG 1`);
+  });
+
   it('does not render incomplete label and tooltip icon for completed hhg shipment with SUBMITTED status', async () => {
     render(<HHGShipmentCard {...completeProps} />);
 
@@ -189,6 +197,11 @@ describe('HHGShipmentCard component', () => {
     expect(screen.getByText(/^#ABC123K-01$/, { selector: 'p' })).toBeInTheDocument();
 
     expect(screen.queryByText('Incomplete')).toBeNull();
+  });
+
+  it('renders complete HHGShipmentCard with a heading that has a market code and shipment type', async () => {
+    render(<HHGShipmentCard {...completeProps} />);
+    expect(screen.getByRole('heading', { level: 3 })).toHaveTextContent(`${completeProps.marketCode}HHG 1`);
   });
 
   it('renders incomplete label and tooltip icon for incomplete HHG shipment with DRAFT status', async () => {
@@ -204,6 +217,11 @@ describe('HHGShipmentCard component', () => {
 
     // verify onclick is getting json string as parameter
     expect(mockedOnIncompleteClickFunction).toHaveBeenCalledWith('HHG 1', 'ABC123K-01', 'HHG');
+  });
+
+  it('renders incomplete HHGShipmentCard with a heading that has a market code and shipment type', async () => {
+    render(<HHGShipmentCard {...incompleteProps} />);
+    expect(screen.getByRole('heading', { level: 3 })).toHaveTextContent(`${incompleteProps.marketCode}HHG 1`);
   });
 });
 
