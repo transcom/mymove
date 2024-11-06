@@ -42,37 +42,33 @@ func (o vLocation) GetLocationsByZipCityState(appCtx appcontext.AppContext, sear
 	return &locationList, nil
 }
 
+// Returns a VLocation array containing all results for the search
+// This method expects a comma to be entered after the city name has been entered and is used
+// to determine when the state and postal code need to be parsed from the search string
+// If there is only one result and no comma and the search string is all numbers we then search
+// using the entered postal code rather than city name
 func FindLocationsByZipCity(appCtx appcontext.AppContext, search string) (models.VLocations, error) {
 	var locationList []models.VLocation
-	search = strings.ReplaceAll(search, ",", "") //remove any commas so they are not used in the search
-	searchSlice := strings.Split(search, " ")
+	searchSlice := strings.Split(search, ",")
 	city := ""
 	state := ""
 	postalCode := ""
-
 	var postalCodeRegex = regexp.MustCompile(`^[0-9]+$`)
 
-	if len(searchSlice) == 1 {
-		// check if this is a zip only search
+	if len(searchSlice) > 1 {
+		city = searchSlice[0]
+		searchSlice = strings.Split(searchSlice[1], " ")
+		state = searchSlice[1]
+
+		if len(searchSlice) > 2 {
+			postalCode = searchSlice[2]
+		}
+	} else {
 		if postalCodeRegex.MatchString(search) {
-			postalCode = search
+			postalCode = strings.TrimSpace(search)
 		} else {
 			city = search
 		}
-	} else if postalCode == "" && len(searchSlice) == 2 {
-		city = strings.TrimSpace(searchSlice[0])
-		state = strings.TrimSpace(searchSlice[1])
-	} else if len(searchSlice) == 3 {
-		if postalCodeRegex.MatchString(searchSlice[2]) {
-			postalCode = strings.TrimSpace(searchSlice[2])
-		}
-		city = strings.TrimSpace(searchSlice[0])
-		state = strings.TrimSpace(searchSlice[1])
-	}
-
-	// user may have typed a comma as part of the city name we need to remove that do to the query
-	if city != "" {
-		city = strings.ReplaceAll(city, ",", "")
 	}
 
 	/** Feature Flag - Alaska - Determines if AK be included/excluded **/
