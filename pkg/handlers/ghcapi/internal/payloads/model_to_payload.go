@@ -717,6 +717,18 @@ func Entitlement(entitlement *models.Entitlement) *ghcmessages.Entitlements {
 	}
 	requiredMedicalEquipmentWeight := int64(entitlement.RequiredMedicalEquipmentWeight)
 	gunSafe := entitlement.GunSafe
+	var accompaniedTour *bool
+	if entitlement.AccompaniedTour != nil {
+		accompaniedTour = models.BoolPointer(*entitlement.AccompaniedTour)
+	}
+	var dependentsUnderTwelve *int64
+	if entitlement.DependentsUnderTwelve != nil {
+		dependentsUnderTwelve = models.Int64Pointer(int64(*entitlement.DependentsUnderTwelve))
+	}
+	var dependentsTwelveAndOver *int64
+	if entitlement.DependentsTwelveAndOver != nil {
+		dependentsTwelveAndOver = models.Int64Pointer(int64(*entitlement.DependentsTwelveAndOver))
+	}
 	return &ghcmessages.Entitlements{
 		ID:                             strfmt.UUID(entitlement.ID.String()),
 		AuthorizedWeight:               authorizedWeight,
@@ -729,6 +741,9 @@ func Entitlement(entitlement *models.Entitlement) *ghcmessages.Entitlements {
 		TotalDependents:                totalDependents,
 		TotalWeight:                    totalWeight,
 		RequiredMedicalEquipmentWeight: requiredMedicalEquipmentWeight,
+		DependentsUnderTwelve:          dependentsUnderTwelve,
+		DependentsTwelveAndOver:        dependentsTwelveAndOver,
+		AccompaniedTour:                accompaniedTour,
 		OrganizationalClothingAndIndividualEquipment: entitlement.OrganizationalClothingAndIndividualEquipment,
 		GunSafe: gunSafe,
 		ETag:    etag.GenerateEtag(entitlement.UpdatedAt),
@@ -2329,6 +2344,7 @@ func queuePaymentRequestStatus(paymentRequest models.PaymentRequest) string {
 
 // QueuePaymentRequests payload
 func QueuePaymentRequests(paymentRequests *models.PaymentRequests, officeUsers []models.OfficeUser, officeUser models.OfficeUser, isSupervisor bool, isHQRole bool) *ghcmessages.QueuePaymentRequests {
+
 	queuePaymentRequests := make(ghcmessages.QueuePaymentRequests, len(*paymentRequests))
 
 	for i, paymentRequest := range *paymentRequests {
@@ -2366,6 +2382,7 @@ func QueuePaymentRequests(paymentRequests *models.PaymentRequests, officeUsers [
 		if isSupervisor {
 			isAssignable = true
 		}
+
 		if isHQRole {
 			isAssignable = false
 		}
