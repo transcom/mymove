@@ -1,6 +1,6 @@
 package models
 
-// UBAllowances represents the UB weight allowance for a branch, grade, order type, dependenths authorized, and accompanied tour variables on an order
+// UBAllowances represents the UB weight allowance for a branch, grade, order type, dependents authorized, and accompanied tour variables on an order
 type UBAllowances struct {
 	BranchOfService string `db:"branch"`
 	OrderPayGrade   string `db:"grade"`
