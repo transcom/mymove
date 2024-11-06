@@ -432,6 +432,17 @@ export function updateMoveStatusServiceCounselingCompleted({ moveTaskOrderID, if
   );
 }
 
+export function cancelMove({ moveID, normalize = false }) {
+  const operationPath = 'move.moveCanceler';
+  return makeGHCRequest(
+    operationPath,
+    {
+      moveID,
+    },
+    { normalize },
+  );
+}
+
 export function updateMTOShipmentStatus({
   shipmentID,
   diversionReason,

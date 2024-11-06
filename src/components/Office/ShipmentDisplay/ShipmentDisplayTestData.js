@@ -127,7 +127,7 @@ export const diversionInfo = {
   counselorRemarks: 'counselor approved',
 };
 
-export const cancelledInfo = {
+export const canceledInfo = {
   heading: 'HHG',
   shipmentId: 'testShipmentId394',
   isDiversion: false,

@@ -1957,7 +1957,7 @@ definitions:
       secondaryPickupAddress:
         $ref: 'definitions/Address.yaml'
       destinationAddress:
-        $ref: 'definitions/Address.yaml'
+        $ref: "definitions/PPMDestinationAddress.yaml"
       secondaryDestinationAddress:
         $ref: 'definitions/Address.yaml'
       tertiaryDestinationAddress:
@@ -2022,7 +2022,7 @@ definitions:
         pattern: ^(\d{5})$
         x-nullable: true
       destinationAddress:
-        $ref: 'definitions/Address.yaml'
+        $ref: "definitions/PPMDestinationAddress.yaml"
       secondaryDestinationAddress:
         $ref: 'definitions/Address.yaml'
       hasSecondaryDestinationAddress:
@@ -3112,11 +3112,6 @@ paths:
           format: uuid
           required: true
           description: UUID of the move
-        - in: body
-          name: cancelMove
-          required: true
-          schema:
-            $ref: '#/definitions/CancelMove'
       responses:
         '200':
           description: returns updated (canceled) move object
