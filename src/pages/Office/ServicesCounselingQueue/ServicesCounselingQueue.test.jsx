@@ -95,7 +95,7 @@ const needsCounselingMoves = {
           agency: SERVICE_MEMBER_AGENCIES.ARMY,
           first_name: 'test first',
           last_name: 'test last',
-          dodID: '555555555',
+          edipi: '555555555',
         },
         locator: 'AB5PC',
         requestedMoveDate: '2021-03-01T00:00:00.000Z',
@@ -129,7 +129,7 @@ const needsCounselingMoves = {
           agency: SERVICE_MEMBER_AGENCIES.COAST_GUARD,
           first_name: 'test another first',
           last_name: 'test another last',
-          dodID: '4444444444',
+          edipi: '4444444444',
           emplid: '4521567',
         },
         locator: 'T12AR',
@@ -165,7 +165,7 @@ const needsCounselingMoves = {
           agency: SERVICE_MEMBER_AGENCIES.MARINES,
           first_name: 'test third first',
           last_name: 'test third last',
-          dodID: '4444444444',
+          edipi: '4444444444',
         },
         locator: 'T12MP',
         requestedMoveDate: '2021-04-15T00:00:00.000Z',
@@ -209,7 +209,7 @@ const serviceCounselingCompletedMoves = {
           agency: SERVICE_MEMBER_AGENCIES.ARMY,
           first_name: 'test first',
           last_name: 'test last',
-          dodID: '555555555',
+          edipi: '555555555',
         },
         locator: 'AB5PC',
         requestedMoveDate: '2021-03-01T00:00:00.000Z',
@@ -231,7 +231,7 @@ const serviceCounselingCompletedMoves = {
           agency: SERVICE_MEMBER_AGENCIES.COAST_GUARD,
           first_name: 'test another first',
           last_name: 'test another last',
-          dodID: '4444444444',
+          edipi: '4444444444',
         },
         locator: 'T12AR',
         requestedMoveDate: '2021-04-15T00:00:00.000Z',
@@ -309,7 +309,7 @@ describe('ServicesCounselingQueue', () => {
       const moves = wrapper.find('tbody tr');
       const firstMove = moves.at(0);
       expect(firstMove.find('td.lastName').text()).toBe('test last, test first');
-      expect(firstMove.find('td.dodID').text()).toBe('555555555');
+      expect(firstMove.find('td.edipi').text()).toBe('555555555');
       expect(firstMove.find('td.locator').text()).toBe('AB5PC');
       expect(firstMove.find('td.status').text()).toBe('Needs counseling');
       expect(firstMove.find('td.requestedMoveDate').text()).toBe('01 Mar 2021');
@@ -321,7 +321,7 @@ describe('ServicesCounselingQueue', () => {
 
       const secondMove = moves.at(1);
       expect(secondMove.find('td.lastName').text()).toBe('test another last, test another first');
-      expect(secondMove.find('td.dodID').text()).toBe('4444444444');
+      expect(secondMove.find('td.edipi').text()).toBe('4444444444');
       expect(secondMove.find('td.emplid').text()).toBe('4521567');
       expect(secondMove.find('td.locator').text()).toBe('T12AR');
       expect(secondMove.find('td.status').text()).toBe('Needs counseling');
@@ -334,7 +334,7 @@ describe('ServicesCounselingQueue', () => {
 
       const thirdMove = moves.at(2);
       expect(thirdMove.find('td.lastName').text()).toBe('test third last, test third first');
-      expect(thirdMove.find('td.dodID').text()).toBe('4444444444');
+      expect(thirdMove.find('td.edipi').text()).toBe('4444444444');
       expect(thirdMove.find('td.locator').text()).toBe('T12MP');
       expect(thirdMove.find('td.status').text()).toBe('Needs counseling');
       expect(thirdMove.find('td.requestedMoveDate').text()).toBe('15 Apr 2021');
@@ -351,7 +351,7 @@ describe('ServicesCounselingQueue', () => {
 
     it('allows sorting on certain columns', () => {
       expect(wrapper.find('th[data-testid="lastName"][role="columnheader"]').prop('onClick')).not.toBe(undefined);
-      expect(wrapper.find('th[data-testid="dodID"][role="columnheader"]').prop('onClick')).not.toBe(undefined);
+      expect(wrapper.find('th[data-testid="edipi"][role="columnheader"]').prop('onClick')).not.toBe(undefined);
       expect(wrapper.find('th[data-testid="emplid"][role="columnheader"]').prop('onClick')).not.toBe(undefined);
       expect(wrapper.find('th[data-testid="locator"][role="columnheader"]').prop('onClick')).not.toBe(undefined);
       expect(wrapper.find('th[data-testid="requestedMoveDate"][role="columnheader"]').prop('onClick')).not.toBe(
@@ -378,7 +378,7 @@ describe('ServicesCounselingQueue', () => {
   describe('verify cached filters are displayed in respective filter column header on page reload -  Service Counselor', () => {
     window.sessionStorage.setItem(
       OFFICE_TABLE_QUEUE_SESSION_STORAGE_ID,
-      '{"counseling":{"filters":[{"id":"lastName","value":"Spacemen"},{"id":"dodID","value":"7232607949"},{"id":"locator","value":"PPMADD"},{"id":"requestedMoveDate","value":"2024-06-21"},{"id":"submittedAt","value":"2024-06-20T04:00:00+00:00"},{"id":"branch","value":"ARMY"},{"id":"originDutyLocation","value":"12345"}], "sortParam":[{"id":"lastName","desc":false}], "page":3,"pageSize":10}}',
+      '{"counseling":{"filters":[{"id":"lastName","value":"Spacemen"},{"id":"edipi","value":"7232607949"},{"id":"locator","value":"PPMADD"},{"id":"requestedMoveDate","value":"2024-06-21"},{"id":"submittedAt","value":"2024-06-20T04:00:00+00:00"},{"id":"branch","value":"ARMY"},{"id":"originDutyLocation","value":"12345"}], "sortParam":[{"id":"lastName","desc":false}], "page":3,"pageSize":10}}',
     );
     useUserQueries.mockReturnValue(serviceCounselorUser);
 
@@ -391,7 +391,7 @@ describe('ServicesCounselingQueue', () => {
           agency: SERVICE_MEMBER_AGENCIES.ARMY,
           first_name: 'test first',
           last_name: 'test last',
-          dodID: '555555555',
+          edipi: '555555555',
         },
         locator: 'AB5PC',
         requestedMoveDate: '2021-03-01T00:00:00.000Z',
@@ -415,7 +415,7 @@ describe('ServicesCounselingQueue', () => {
     // Verify controls are using cached data on load.
     // If any of these fail check setup data window.sessionStorage.setItem()
     expect(wrapper.find('th[data-testid="lastName"] input').instance().value).toBe('Spacemen');
-    expect(wrapper.find('th[data-testid="dodID"] input').instance().value).toBe('7232607949');
+    expect(wrapper.find('th[data-testid="edipi"] input').instance().value).toBe('7232607949');
     expect(wrapper.find('th[data-testid="locator"] input').instance().value).toBe('PPMADD');
     expect(wrapper.find('th[data-testid="requestedMoveDate"] input').instance().value).toBe('21 Jun 2024');
     expect(wrapper.find('th[data-testid="submittedAt"] input').instance().value).toBe('20 Jun 2024');
@@ -436,7 +436,7 @@ describe('ServicesCounselingQueue', () => {
       </MockProviders>,
     );
     expect(wrapper.find('th[data-testid="lastName"] input').instance().value).toBe('');
-    expect(wrapper.find('th[data-testid="dodID"] input').instance().value).toBe('');
+    expect(wrapper.find('th[data-testid="edipi"] input').instance().value).toBe('');
     expect(wrapper.find('th[data-testid="locator"] input').instance().value).toBe('');
     expect(wrapper.find('th[data-testid="requestedMoveDate"] input').instance().value).toBe('');
     expect(wrapper.find('th[data-testid="submittedAt"] input').instance().value).toBe('');
