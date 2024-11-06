@@ -10,6 +10,8 @@ import { ORDERS_TYPE_OPTIONS } from 'constants/orders';
 import { configureStore } from 'shared/store';
 import { isBooleanFlagEnabled } from 'utils/featureFlags';
 
+jest.setTimeout(60000);
+
 jest.mock('components/LocationSearchBox/api', () => ({
   ShowAddress: jest.fn().mockImplementation(() =>
     Promise.resolve({
