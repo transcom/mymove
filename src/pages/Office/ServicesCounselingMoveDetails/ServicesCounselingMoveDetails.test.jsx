@@ -14,7 +14,7 @@ import { SHIPMENT_OPTIONS_URL } from 'shared/constants';
 import { useMoveDetailsQueries, useOrdersDocumentQueries } from 'hooks/queries';
 import { formatDateWithUTC } from 'shared/dates';
 import { MockProviders } from 'testUtils';
-import { updateMoveStatusServiceCounselingCompleted } from 'services/ghcApi';
+import { updateMTOShipment, updateMoveStatusServiceCounselingCompleted } from 'services/ghcApi';
 
 const mockRequestedMoveCode = 'LR4T8V';
 const mockRoutingParams = { moveCode: mockRequestedMoveCode };
@@ -33,6 +33,7 @@ jest.mock('hooks/queries', () => ({
 
 jest.mock('services/ghcApi', () => ({
   ...jest.requireActual('services/ghcApi'),
+  updateMTOShipment: jest.fn(),
   updateMoveStatusServiceCounselingCompleted: jest.fn(),
 }));
 
@@ -322,6 +323,96 @@ const newMoveDetailsQuery = {
       url: '/storage/user/1/uploads/2?contentType=application%2Fpdf',
     },
   },
+};
+
+const zeroIncentiveMoveDetailsQuery = {
+  ...newMoveDetailsQuery,
+  move: {
+    id: '9c7b255c-2981-4bf8-839f-61c7458e2b4d',
+    ordersId: '1',
+    status: MOVE_STATUSES.NEEDS_SERVICE_COUNSELING,
+  },
+  mtoShipments: [
+    {
+      customerRemarks: 'Please treat gently',
+      eTag: 'MjAyMi0xMS0wOFQyMzo0NDo1OC4yMTc4MVo=',
+      id: '167985a7-6d47-4412-b620-d4b7f98a09ed',
+      moveTaskOrderID: 'ddf94b4f-db77-4916-83ff-0d6bc68c8b42',
+      ppmShipment: {
+        actualDestinationPostalCode: null,
+        actualMoveDate: null,
+        actualPickupPostalCode: null,
+        advanceAmountReceived: null,
+        advanceAmountRequested: null,
+        approvedAt: null,
+        createdAt: '2022-11-08T23:44:58.226Z',
+        eTag: 'MjAyMi0xMS0wOFQyMzo0NDo1OC4yMjY0NTNa',
+        estimatedIncentive: 0,
+        estimatedWeight: 400,
+        expectedDepartureDate: '2020-03-15',
+        finalIncentive: null,
+        hasProGear: false,
+        hasReceivedAdvance: null,
+        hasRequestedAdvance: false,
+        id: '79b98a71-158d-4b04-9a6c-25543c52183d',
+        movingExpenses: null,
+        proGearWeight: null,
+        proGearWeightTickets: null,
+        reviewedAt: null,
+        hasSecondaryPickupAddress: false,
+        hasSecondaryDestinationAddress: false,
+        pickupAddress: {
+          streetAddress1: '111 Test Street',
+          streetAddress2: '222 Test Street',
+          streetAddress3: 'Test Man',
+          city: 'Test City',
+          state: 'KY',
+          postalCode: '42701',
+        },
+        secondaryPickupAddress: {
+          streetAddress1: '777 Test Street',
+          streetAddress2: '888 Test Street',
+          streetAddress3: 'Test Man',
+          city: 'Test City',
+          state: 'KY',
+          postalCode: '42702',
+        },
+        destinationAddress: {
+          streetAddress1: '222 Test Street',
+          streetAddress2: '333 Test Street',
+          streetAddress3: 'Test Man',
+          city: 'Test City',
+          state: 'KY',
+          postalCode: '42703',
+        },
+        secondaryDestinationAddress: {
+          streetAddress1: '444 Test Street',
+          streetAddress2: '555 Test Street',
+          streetAddress3: 'Test Man',
+          city: 'Test City',
+          state: 'KY',
+          postalCode: '42701',
+        },
+        shipmentId: '167985a7-6d47-4412-b620-d4b7f98a09ed',
+        sitEstimatedCost: null,
+        sitEstimatedDepartureDate: null,
+        sitEstimatedEntryDate: null,
+        sitEstimatedWeight: null,
+        sitExpected: false,
+        spouseProGearWeight: null,
+        status: 'SUBMITTED',
+        submittedAt: null,
+        updatedAt: '2022-11-08T23:44:58.226Z',
+        weightTickets: [{ emptyWeight: 0, fullWeight: 20000 }],
+      },
+      primeActualWeight: 980,
+      requestedDeliveryDate: '0001-01-01',
+      requestedPickupDate: '0001-01-01',
+      shipmentType: 'PPM',
+      status: 'APPROVED',
+      updatedAt: '2022-11-08T23:44:58.217Z',
+    },
+  ],
 };
 
 const counselingCompletedMoveDetailsQuery = {
@@ -976,6 +1067,29 @@ describe('MoveDetails page', () => {
       it('allows the service counselor to use the modal as expected', async () => {
         useMoveDetailsQueries.mockReturnValue(newMoveDetailsQuery);
         useOrdersDocumentQueries.mockReturnValue(newMoveDetailsQuery);
+        updateMoveStatusServiceCounselingCompleted.mockImplementation(() => Promise.resolve({}));
+
+        renderComponent();
+
+        const submitButton = await screen.findByRole('button', { name: 'Submit move details' });
+
+        await userEvent.click(submitButton);
+
+        expect(await screen.findByRole('heading', { name: 'Are you sure?', level: 2 })).toBeInTheDocument();
+
+        const modalSubmitButton = screen.getByRole('button', { name: 'Yes, submit' });
+
+        await userEvent.click(modalSubmitButton);
+
+        await waitFor(() => {
+          expect(screen.queryByRole('heading', { name: 'Are you sure?', level: 2 })).not.toBeInTheDocument();
+        });
+      });
+
+      it('allows the service counselor to submit details for ppm with zero incentive', async () => {
+        useMoveDetailsQueries.mockReturnValue(zeroIncentiveMoveDetailsQuery);
+        useOrdersDocumentQueries.mockReturnValue(zeroIncentiveMoveDetailsQuery);
+        updateMTOShipment.mockImplementation(() => Promise.resolve({}));
         updateMoveStatusServiceCounselingCompleted.mockImplementation(() => Promise.resolve({}));
 
         renderComponent();
