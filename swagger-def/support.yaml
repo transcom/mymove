@@ -1622,7 +1622,6 @@ definitions:
       - NTS
       - WOUNDED_WARRIOR
       - BLUEBARK
-      - SAFETY
       - EARLY_RETURN_OF_DEPENDENTS
       - STUDENT_TRAVEL
     x-display-value:

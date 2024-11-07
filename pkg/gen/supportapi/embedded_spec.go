@@ -2067,7 +2067,6 @@ func init() {
         "NTS",
         "WOUNDED_WARRIOR",
         "BLUEBARK",
-        "SAFETY",
         "EARLY_RETURN_OF_DEPENDENTS",
         "STUDENT_TRAVEL"
       ],
@@ -4927,7 +4926,6 @@ func init() {
         "NTS",
         "WOUNDED_WARRIOR",
         "BLUEBARK",
-        "SAFETY",
         "EARLY_RETURN_OF_DEPENDENTS",
         "STUDENT_TRAVEL"
       ],
