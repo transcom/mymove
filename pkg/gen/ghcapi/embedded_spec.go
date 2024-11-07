@@ -4134,7 +4134,7 @@ func init() {
           },
           {
             "enum": [
-              "lastName",
+              "customerName",
               "dodID",
               "emplid",
               "branch",
@@ -4182,7 +4182,7 @@ func init() {
           {
             "type": "string",
             "description": "filters using a prefix match on the service member's last name",
-            "name": "lastName",
+            "name": "customerName",
             "in": "query"
           },
           {
@@ -4388,7 +4388,7 @@ func init() {
           },
           {
             "enum": [
-              "lastName",
+              "customerName",
               "dodID",
               "emplid",
               "branch",
@@ -4427,7 +4427,7 @@ func init() {
           },
           {
             "type": "string",
-            "name": "lastName",
+            "name": "customerName",
             "in": "query"
           },
           {
@@ -4531,7 +4531,7 @@ func init() {
         "parameters": [
           {
             "enum": [
-              "lastName",
+              "customerName",
               "locator",
               "submittedAt",
               "branch",
@@ -4588,7 +4588,7 @@ func init() {
           },
           {
             "type": "string",
-            "name": "lastName",
+            "name": "customerName",
             "in": "query"
           },
           {
@@ -19671,7 +19671,7 @@ func init() {
           },
           {
             "enum": [
-              "lastName",
+              "customerName",
               "dodID",
               "emplid",
               "branch",
@@ -19719,7 +19719,7 @@ func init() {
           {
             "type": "string",
             "description": "filters using a prefix match on the service member's last name",
-            "name": "lastName",
+            "name": "customerName",
             "in": "query"
           },
           {
@@ -19937,7 +19937,7 @@ func init() {
           },
           {
             "enum": [
-              "lastName",
+              "customerName",
               "dodID",
               "emplid",
               "branch",
@@ -19976,7 +19976,7 @@ func init() {
           },
           {
             "type": "string",
-            "name": "lastName",
+            "name": "customerName",
             "in": "query"
           },
           {
@@ -20086,7 +20086,7 @@ func init() {
         "parameters": [
           {
             "enum": [
-              "lastName",
+              "customerName",
               "locator",
               "submittedAt",
               "branch",
@@ -20143,7 +20143,7 @@ func init() {
           },
           {
             "type": "string",
-            "name": "lastName",
+            "name": "customerName",
             "in": "query"
           },
           {
