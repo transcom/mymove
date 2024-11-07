@@ -3,6 +3,7 @@ package factory
 import (
 	"github.com/gobuffalo/pop/v6"
 
+	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
@@ -25,9 +26,9 @@ func BuildUBAllowance(db *pop.Connection, customs []Customization, traits []Trai
 	ubAllowanceValue := 2000
 
 	ubAllowance := models.UBAllowances{
-		BranchOfService: "AIR_FORCE",
-		OrderPayGrade:   "E_1",
-		OrdersType:      "PERMANENT_CHANGE_OF_STATION",
+		BranchOfService: models.AffiliationAIRFORCE.String(),
+		OrderPayGrade:   string(models.ServiceMemberGradeE1),
+		OrdersType:      string(internalmessages.OrdersTypePERMANENTCHANGEOFSTATION),
 		HasDependents:   true,
 		AccompaniedTour: true,
 		UBAllowance:     ubAllowanceValue,
