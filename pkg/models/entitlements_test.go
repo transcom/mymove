@@ -10,20 +10,6 @@ const dependents12AndOverUBAllowanceTestConstant = 350
 const depedentsUnder12UBAllowanceTestConstant = 175
 const maxWholeFamilyCivilianUBAllowanceTestConstant = 2000
 
-// type EntitlementsModelSuite struct {
-// 	*testingsuite.PopTestSuite
-// }
-
-// func TestEntitlementsModelSuite(t *testing.T) {
-// 	ts := &EntitlementsModelSuite{
-// 		PopTestSuite: testingsuite.NewPopTestSuite(testingsuite.CurrentPackage(),
-// 			testingsuite.WithPerTestTransaction()),
-// 	}
-
-// 	suite.Run(t, ts)
-// 	ts.PopTestSuite.TearDown()
-// }
-
 func (suite *ModelSuite) TestGetEntitlementWithValidValues() {
 	E1 := models.ServiceMemberGradeE1
 
@@ -126,7 +112,7 @@ func (suite *ModelSuite) TestGetUBWeightAllowanceEdgeCases() {
 	branch := models.AffiliationAIRFORCE
 	originDutyLocationIsOconus := true
 	newDutyLocationIsOconus := false
-	grade := models.ServiceMemberGradeO4
+	grade := models.ServiceMemberGradeE1
 	orderType := internalmessages.OrdersTypePERMANENTCHANGEOFSTATION
 	dependentsAuthorized := true
 	isAccompaniedTour := true
