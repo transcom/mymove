@@ -327,3 +327,92 @@ describe('formatters', () => {
     });
   });
 });
+
+describe('constructSCOrderOconusFields', () => {
+  it('returns null for all fields if not OCONUS and no dependents', () => {
+    const values = {
+      originDutyLocation: { address: { isOconus: false } },
+      newDutyLocation: { address: { isOconus: false } },
+      hasDependents: false,
+    };
+
+    const result = formatters.constructSCOrderOconusFields(values);
+
+    expect(result).toEqual({
+      accompaniedTour: null,
+      dependentsUnderTwelve: null,
+      dependentsTwelveAndOver: null,
+    });
+  });
+
+  it('returns accompaniedTour as null if OCONUS but no dependents', () => {
+    const values = {
+      originDutyLocation: { address: { isOconus: true } },
+      newDutyLocation: { address: { isOconus: false } },
+      hasDependents: false,
+    };
+
+    const result = formatters.constructSCOrderOconusFields(values);
+
+    expect(result).toEqual({
+      accompaniedTour: null,
+      dependentsUnderTwelve: null,
+      dependentsTwelveAndOver: null,
+    });
+  });
+
+  it('returns fields with values if OCONUS and has dependents', () => {
+    const values = {
+      originDutyLocation: { address: { isOconus: true } },
+      newDutyLocation: { address: { isOconus: false } },
+      hasDependents: true,
+      accompaniedTour: 'yes',
+      dependentsUnderTwelve: '3',
+      dependentsTwelveAndOver: '2',
+    };
+
+    const result = formatters.constructSCOrderOconusFields(values);
+
+    expect(result).toEqual({
+      accompaniedTour: true,
+      dependentsUnderTwelve: 3,
+      dependentsTwelveAndOver: 2,
+    });
+  });
+
+  it('handles newDutyLocation as OCONUS when originDutyLocation is CONUS', () => {
+    const values = {
+      originDutyLocation: { address: { isOconus: false } },
+      newDutyLocation: { address: { isOconus: true } },
+      hasDependents: true,
+      accompaniedTour: 'yes',
+      dependentsUnderTwelve: '5',
+      dependentsTwelveAndOver: '1',
+    };
+
+    const result = formatters.constructSCOrderOconusFields(values);
+
+    expect(result).toEqual({
+      accompaniedTour: true,
+      dependentsUnderTwelve: 5,
+      dependentsTwelveAndOver: 1,
+    });
+  });
+
+  it('returns fields as null if both locations are missing', () => {
+    const values = {
+      hasDependents: true,
+      accompaniedTour: 'yes',
+      dependentsUnderTwelve: '3',
+      dependentsTwelveAndOver: '2',
+    };
+
+    const result = formatters.constructSCOrderOconusFields(values);
+
+    expect(result).toEqual({
+      accompaniedTour: null,
+      dependentsUnderTwelve: null,
+      dependentsTwelveAndOver: null,
+    });
+  });
+});
