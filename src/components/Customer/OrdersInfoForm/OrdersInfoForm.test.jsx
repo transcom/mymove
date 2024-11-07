@@ -7,8 +7,6 @@ import OrdersInfoForm from './OrdersInfoForm';
 import { showCounselingOffices } from 'services/internalApi';
 import { ORDERS_TYPE } from 'constants/orders';
 
-jest.setTimeout(60000);
-
 jest.mock('services/internalApi', () => ({
   ...jest.requireActual('services/internalApi'),
   showCounselingOffices: jest.fn().mockImplementation(() =>
