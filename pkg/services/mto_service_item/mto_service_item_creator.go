@@ -329,11 +329,9 @@ func (o *mtoServiceItemCreator) CreateMTOServiceItem(appCtx appcontext.AppContex
 
 	var move models.Move
 	moveID := serviceItem.MoveTaskOrderID
-	queryFilters := []services.QueryFilter{
-		query.NewQueryFilter("id", "=", moveID),
-	}
-	// check if Move exists
-	err = o.builder.FetchOne(appCtx, &move, queryFilters)
+	err = appCtx.DB().Q().EagerPreload(
+		"MTOShipments.PPMShipment",
+	).Find(&move, moveID)
 	if err != nil {
 		switch err {
 		case sql.ErrNoRows:
@@ -355,7 +353,7 @@ func (o *mtoServiceItemCreator) CreateMTOServiceItem(appCtx appcontext.AppContex
 	// find the re service code id
 	var reService models.ReService
 	reServiceCode := serviceItem.ReService.Code
-	queryFilters = []services.QueryFilter{
+	queryFilters := []services.QueryFilter{
 		query.NewQueryFilter("code", "=", reServiceCode),
 	}
 	err = o.builder.FetchOne(appCtx, &reService, queryFilters)
@@ -385,22 +383,26 @@ func (o *mtoServiceItemCreator) CreateMTOServiceItem(appCtx appcontext.AppContex
 	// also rather basic.
 	if serviceItem.MTOShipmentID == nil {
 		if serviceItem.ReService.Code == models.ReServiceCodeMS || serviceItem.ReService.Code == models.ReServiceCodeCS {
-			// we need to know the first shipment's requested pickup date to establish the correct base year for the fee
+			// we need to know the first shipment's requested pickup date OR a PPM's expected departure date to establish the correct base year for the fee
 			// Loop through shipments to find the first requested pickup date
-			var requestedPickupDate *time.Time
+			var feeDate *time.Time
 			for _, shipment := range move.MTOShipments {
 				if shipment.RequestedPickupDate != nil {
-					requestedPickupDate = shipment.RequestedPickupDate
+					feeDate = shipment.RequestedPickupDate
 					break
 				}
+				var nilTime time.Time
+				if shipment.PPMShipment != nil && shipment.PPMShipment.ExpectedDepartureDate != nilTime {
+					feeDate = &shipment.PPMShipment.ExpectedDepartureDate
+				}
 			}
-			if requestedPickupDate == nil {
+			if feeDate == nil {
 				return nil, nil, apperror.NewNotFoundError(moveID, fmt.Sprintf(
-					"cannot create fee for service item %s: missing requested pickup date for shipment in move %s",
+					"cannot create fee for service item %s: missing requested pickup date (non-PPMs) or expected departure date (PPMs) for shipment in move %s",
 					serviceItem.ReService.Code, moveID.String()))
 			}
 			serviceItem.Status = "APPROVED"
-			taskOrderFee, err := fetchCurrentTaskOrderFee(appCtx, serviceItem.ReService.Code, *requestedPickupDate)
+			taskOrderFee, err := fetchCurrentTaskOrderFee(appCtx, serviceItem.ReService.Code, *feeDate)
 			if err != nil {
 				return nil, nil, err
 			}

@@ -48,8 +48,8 @@ func (suite *FactorySuite) TestBuildMTOServiceItem() {
 			Status: models.MTOShipmentStatusDraft,
 		}
 		customReService := models.ReService{
-			Name: "Custom Name",
-			Code: models.ReServiceCode("CNAME"),
+			Name: "Domestic linehaul",
+			Code: models.ReServiceCode("DLH"),
 		}
 		customMtoServiceItem := models.MTOServiceItem{
 			Status: models.MTOServiceItemStatusRejected,
@@ -236,7 +236,7 @@ func (suite *FactorySuite) TestBuildMTOServiceItem() {
 		mtoServiceItem := BuildRealMTOServiceItemWithAllDeps(suite.DB(),
 			models.ReServiceCodeMS, move, shipment, nil, nil)
 
-		reService := FetchOrBuildReServiceByCode(suite.DB(), models.ReServiceCodeMS)
+		reService := FetchReServiceByCode(suite.DB(), models.ReServiceCodeMS)
 
 		suite.Equal(move.ID, mtoServiceItem.MoveTaskOrderID)
 		suite.NotNil(mtoServiceItem.MTOShipmentID)

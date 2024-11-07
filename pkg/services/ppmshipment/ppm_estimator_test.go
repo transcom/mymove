@@ -259,7 +259,7 @@ func (suite *PPMShipmentSuite) TestPPMEstimator() {
 			},
 		})
 
-		dopService := factory.BuildReServiceByCode(suite.DB(), models.ReServiceCodeDOP)
+		dopService := factory.FetchReServiceByCode(suite.DB(), models.ReServiceCodeDOP)
 
 		testdatagen.FetchOrMakeReDomesticServiceAreaPrice(suite.DB(), testdatagen.Assertions{
 			ReDomesticServiceAreaPrice: models.ReDomesticServiceAreaPrice{
@@ -287,7 +287,7 @@ func (suite *PPMShipmentSuite) TestPPMEstimator() {
 			},
 		})
 
-		ddpService := factory.BuildReServiceByCode(suite.DB(), models.ReServiceCodeDDP)
+		ddpService := factory.FetchReServiceByCode(suite.DB(), models.ReServiceCodeDDP)
 
 		testdatagen.FetchOrMakeReDomesticServiceAreaPrice(suite.DB(), testdatagen.Assertions{
 			ReDomesticServiceAreaPrice: models.ReDomesticServiceAreaPrice{
@@ -315,7 +315,7 @@ func (suite *PPMShipmentSuite) TestPPMEstimator() {
 			},
 		})
 
-		dpkService := factory.BuildReServiceByCode(suite.DB(), models.ReServiceCodeDPK)
+		dpkService := factory.FetchReServiceByCode(suite.DB(), models.ReServiceCodeDPK)
 
 		testdatagen.FetchOrMakeReDomesticOtherPrice(suite.DB(), testdatagen.Assertions{
 			ReDomesticOtherPrice: models.ReDomesticOtherPrice{
@@ -341,7 +341,7 @@ func (suite *PPMShipmentSuite) TestPPMEstimator() {
 			},
 		})
 
-		dupkService := factory.BuildReServiceByCode(suite.DB(), models.ReServiceCodeDUPK)
+		dupkService := factory.FetchReServiceByCode(suite.DB(), models.ReServiceCodeDUPK)
 
 		testdatagen.FetchOrMakeReDomesticOtherPrice(suite.DB(), testdatagen.Assertions{
 			ReDomesticOtherPrice: models.ReDomesticOtherPrice{
@@ -367,7 +367,7 @@ func (suite *PPMShipmentSuite) TestPPMEstimator() {
 			},
 		})
 
-		dofsitService := factory.BuildReServiceByCode(suite.DB(), models.ReServiceCodeDOFSIT)
+		dofsitService := factory.FetchReServiceByCode(suite.DB(), models.ReServiceCodeDOFSIT)
 
 		testdatagen.FetchOrMakeReDomesticServiceAreaPrice(suite.DB(), testdatagen.Assertions{
 			ReDomesticServiceAreaPrice: models.ReDomesticServiceAreaPrice{
@@ -395,7 +395,7 @@ func (suite *PPMShipmentSuite) TestPPMEstimator() {
 			},
 		})
 
-		doasitService := factory.BuildReServiceByCode(suite.DB(), models.ReServiceCodeDOASIT)
+		doasitService := factory.FetchReServiceByCode(suite.DB(), models.ReServiceCodeDOASIT)
 
 		testdatagen.FetchOrMakeReDomesticServiceAreaPrice(suite.DB(), testdatagen.Assertions{
 			ReDomesticServiceAreaPrice: models.ReDomesticServiceAreaPrice{
@@ -423,7 +423,7 @@ func (suite *PPMShipmentSuite) TestPPMEstimator() {
 			},
 		})
 
-		ddfsitService := factory.BuildReServiceByCode(suite.DB(), models.ReServiceCodeDDFSIT)
+		ddfsitService := factory.FetchReServiceByCode(suite.DB(), models.ReServiceCodeDDFSIT)
 
 		testdatagen.FetchOrMakeReDomesticServiceAreaPrice(suite.DB(), testdatagen.Assertions{
 			ReDomesticServiceAreaPrice: models.ReDomesticServiceAreaPrice{
@@ -451,7 +451,7 @@ func (suite *PPMShipmentSuite) TestPPMEstimator() {
 			},
 		})
 
-		ddasitService := factory.BuildReServiceByCode(suite.DB(), models.ReServiceCodeDDASIT)
+		ddasitService := factory.FetchReServiceByCode(suite.DB(), models.ReServiceCodeDDASIT)
 
 		testdatagen.FetchOrMakeReDomesticServiceAreaPrice(suite.DB(), testdatagen.Assertions{
 			ReDomesticServiceAreaPrice: models.ReDomesticServiceAreaPrice{
@@ -516,6 +516,40 @@ func (suite *PPMShipmentSuite) TestPPMEstimator() {
 	suite.Run("Estimated Incentive", func() {
 		suite.Run("Estimated Incentive - Success", func() {
 			oldPPMShipment := factory.BuildMinimalPPMShipment(suite.DB(), nil, nil)
+
+			setupPricerData()
+
+			// shipment has locations and date but is now updating the estimated weight for the first time
+			estimatedWeight := unit.Pound(5000)
+			newPPM := oldPPMShipment
+			newPPM.EstimatedWeight = &estimatedWeight
+
+			mockedPaymentRequestHelper.On(
+				"FetchServiceParamsForServiceItems",
+				mock.AnythingOfType("*appcontext.appContext"),
+				mock.AnythingOfType("[]models.MTOServiceItem")).Return(serviceParams, nil)
+
+			// DTOD distance is going to be less than the HHG Rand McNally distance of 2361 miles
+			mockedPlanner.On("ZipTransitDistance", mock.AnythingOfType("*appcontext.appContext"),
+				"50309", "30813").Return(2294, nil)
+
+			ppmEstimate, _, err := ppmEstimator.EstimateIncentiveWithDefaultChecks(suite.AppContextForTest(), oldPPMShipment, &newPPM)
+			suite.NilOrNoVerrs(err)
+
+			mockedPlanner.AssertCalled(suite.T(), "ZipTransitDistance", mock.AnythingOfType("*appcontext.appContext"),
+				"50309", "30813")
+			mockedPaymentRequestHelper.AssertCalled(suite.T(), "FetchServiceParamsForServiceItems", mock.AnythingOfType("*appcontext.appContext"), mock.AnythingOfType("[]models.MTOServiceItem"))
+
+			suite.Equal(oldPPMShipment.PickupAddress.PostalCode, newPPM.PickupAddress.PostalCode)
+			suite.Equal(unit.Pound(5000), *newPPM.EstimatedWeight)
+			suite.Equal(unit.Cents(112102682), *ppmEstimate)
+		})
+
+		suite.Run("Estimated Incentive - Success when old Estimated Incentive is zero", func() {
+			oldPPMShipment := factory.BuildMinimalPPMShipment(suite.DB(), nil, nil)
+
+			zeroIncentive := unit.Cents(0)
+			oldPPMShipment.EstimatedIncentive = &zeroIncentive
 
 			setupPricerData()
 
