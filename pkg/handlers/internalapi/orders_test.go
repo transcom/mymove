@@ -25,6 +25,16 @@ import (
 )
 
 func (suite *HandlerSuite) TestCreateOrder() {
+	suite.PreloadData(func() {
+		factory.FetchOrBuildCountry(suite.DB(), []factory.Customization{
+			{
+				Model: models.Country{
+					Country:     "US",
+					CountryName: "UNITED STATES",
+				},
+			},
+		}, nil)
+	})
 	sm := factory.BuildExtendedServiceMember(suite.DB(), nil, nil)
 	suite.Run("can create conus and oconus orders", func() {
 		testCases := []struct {

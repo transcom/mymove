@@ -644,7 +644,7 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderUpdater_MakeAvailableTo
 			},
 		})
 
-		service := factory.FetchOrBuildReServiceByCode(suite.DB(), "MS")
+		service := factory.FetchReServiceByCode(suite.DB(), "MS")
 		msTaskOrderFee := models.ReTaskOrderFee{
 			ContractYearID: contractYear.ID,
 			ServiceID:      service.ID,
@@ -652,7 +652,7 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderUpdater_MakeAvailableTo
 		}
 		suite.MustSave(&msTaskOrderFee)
 
-		service = factory.FetchOrBuildReServiceByCode(suite.DB(), "CS")
+		service = factory.FetchReServiceByCode(suite.DB(), "CS")
 		csTaskOrderFee := models.ReTaskOrderFee{
 			ContractYearID: contractYear.ID,
 			ServiceID:      service.ID,

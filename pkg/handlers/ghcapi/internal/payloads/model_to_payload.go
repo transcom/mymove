@@ -2344,6 +2344,7 @@ func queuePaymentRequestStatus(paymentRequest models.PaymentRequest) string {
 
 // QueuePaymentRequests payload
 func QueuePaymentRequests(paymentRequests *models.PaymentRequests, officeUsers []models.OfficeUser, officeUser models.OfficeUser, isSupervisor bool, isHQRole bool) *ghcmessages.QueuePaymentRequests {
+
 	queuePaymentRequests := make(ghcmessages.QueuePaymentRequests, len(*paymentRequests))
 
 	for i, paymentRequest := range *paymentRequests {
@@ -2381,6 +2382,7 @@ func QueuePaymentRequests(paymentRequests *models.PaymentRequests, officeUsers [
 		if isSupervisor {
 			isAssignable = true
 		}
+
 		if isHQRole {
 			isAssignable = false
 		}
