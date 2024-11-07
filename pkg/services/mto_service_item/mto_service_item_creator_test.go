@@ -571,7 +571,7 @@ func (suite *MTOServiceItemServiceSuite) TestCreateMTOServiceItem() {
 		suite.Contains(err.Error(), "cannot create fee for service item MS: missing requested pickup date (non-PPMs) or expected departure date (PPMs) for shipment")
 	})
 
-	// Should not be able to create CS service items unless a PPM has an expected departure date
+	// Should be able to create CS service item for full PPM that has expected departure date
 	suite.Run("ReServiceCodeCS creation for Full PPM", func() {
 		// TESTCASE SCENARIO
 		// Under test: CreateMTOServiceItem function
