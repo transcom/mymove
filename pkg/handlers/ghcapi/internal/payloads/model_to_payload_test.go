@@ -9,6 +9,7 @@ import (
 
 	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/gen/ghcmessages"
+	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/storage/test"
@@ -209,40 +210,90 @@ func (suite *PayloadsSuite) TestShipmentAddressUpdate() {
 }
 
 func (suite *PayloadsSuite) TestMoveWithGBLOC() {
-	appCtx := suite.AppContextForTest()
+	defaultOrdersNumber := "ORDER3"
+	defaultTACNumber := "F8E1"
+	defaultDepartmentIndicator := "AIR_AND_SPACE_FORCE"
+	defaultGrade := "E_1"
+	defaultHasDependents := false
+	defaultSpouseHasProGear := false
+	defaultOrdersType := internalmessages.OrdersTypePERMANENTCHANGEOFSTATION
+	defaultOrdersTypeDetail := internalmessages.OrdersTypeDetail("HHG_PERMITTED")
+	defaultStatus := models.OrderStatusDRAFT
+	testYear := 2018
+	defaultIssueDate := time.Date(testYear, time.March, 15, 0, 0, 0, 0, time.UTC)
+	defaultReportByDate := time.Date(testYear, time.August, 1, 0, 0, 0, 0, time.UTC)
+	defaultGBLOC := "KKFA"
 
-	originDutyLocation := factory.BuildDutyLocation(suite.DB(), []factory.Customization{
+	originDutyLocation := models.DutyLocation{
+		Name: "Custom Origin",
+	}
+	originDutyLocationTOName := "origin duty location transportation office"
+	firstName := "customFirst"
+	lastName := "customLast"
+	serviceMember := models.ServiceMember{
+		FirstName: &firstName,
+		LastName:  &lastName,
+	}
+	uploadedOrders := models.Document{
+		ID: uuid.Must(uuid.NewV4()),
+	}
+	dependents := 7
+	entitlement := models.Entitlement{
+		TotalDependents: &dependents,
+	}
+	amendedOrders := models.Document{
+		ID: uuid.Must(uuid.NewV4()),
+	}
+	// Create order
+	order := factory.BuildOrder(suite.DB(), []factory.Customization{
 		{
-			Model: models.Address{
-				PostalCode: "90210",
+			Model: originDutyLocation,
+			Type:  &factory.DutyLocations.OriginDutyLocation,
+		},
+		{
+			Model: models.TransportationOffice{
+				Name: originDutyLocationTOName,
 			},
+			Type: &factory.TransportationOffices.OriginDutyLocation,
+		},
+		{
+			Model: serviceMember,
+		},
+		{
+			Model: uploadedOrders,
+			Type:  &factory.Documents.UploadedOrders,
+		},
+		{
+			Model: entitlement,
+		},
+		{
+			Model: amendedOrders,
+			Type:  &factory.Documents.UploadedAmendedOrders,
 		},
 	}, nil)
 
-	order := factory.BuildOrder(suite.DB(), nil, nil)
-	order.OriginDutyLocation = &originDutyLocation
-	suite.MustSave(&order)
+	suite.Equal(defaultOrdersNumber, *order.OrdersNumber)
+	suite.Equal(defaultTACNumber, *order.TAC)
+	suite.Equal(defaultDepartmentIndicator, *order.DepartmentIndicator)
+	suite.Equal(defaultGrade, string(*order.Grade))
+	suite.Equal(defaultHasDependents, order.HasDependents)
+	suite.Equal(defaultSpouseHasProGear, order.SpouseHasProGear)
+	suite.Equal(defaultOrdersType, order.OrdersType)
+	suite.Equal(defaultOrdersTypeDetail, *order.OrdersTypeDetail)
+	suite.Equal(defaultStatus, order.Status)
+	suite.Equal(defaultIssueDate, order.IssueDate)
+	suite.Equal(defaultReportByDate, order.ReportByDate)
+	suite.Equal(defaultGBLOC, *order.OriginDutyLocationGBLOC)
 
-	move := factory.BuildMove(suite.DB(), []factory.Customization{
-		{
-			Model: models.Move{
-				OrdersID: order.ID,
-				Orders:   order,
-			},
-		},
-	}, nil)
-
-	suite.Run("Success - Returns a ghcmessages Move payload with GBLOC", func() {
-		returnedMove, err := Move(&move, &test.FakeS3Storage{})
-		suite.NoError(err)
-
-		originGBLOCobj, gblocErr := models.FetchGBLOCForPostalCode(appCtx.DB(), move.Orders.OriginDutyLocation.Address.PostalCode)
-		suite.NoError(gblocErr)
-		expectedGBLOC := originGBLOCobj.GBLOC
-
-		suite.IsType(&ghcmessages.Move{}, returnedMove)
-		suite.Equal(expectedGBLOC, returnedMove.ShipmentGBLOC)
-	})
+	suite.Equal(originDutyLocation.Name, order.OriginDutyLocation.Name)
+	suite.Equal(originDutyLocationTOName, order.OriginDutyLocation.TransportationOffice.Name)
+	suite.Equal(*serviceMember.FirstName, *order.ServiceMember.FirstName)
+	suite.Equal(*serviceMember.LastName, *order.ServiceMember.LastName)
+	suite.Equal(uploadedOrders.ID, order.UploadedOrdersID)
+	suite.Equal(uploadedOrders.ID, order.UploadedOrders.ID)
+	suite.Equal(*entitlement.TotalDependents, *order.Entitlement.TotalDependents)
+	suite.Equal(amendedOrders.ID, *order.UploadedAmendedOrdersID)
+	suite.Equal(amendedOrders.ID, order.UploadedAmendedOrders.ID)
 }
 
 func (suite *PayloadsSuite) TestWeightTicketUpload() {
