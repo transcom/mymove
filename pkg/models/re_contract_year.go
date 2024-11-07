@@ -128,12 +128,6 @@ func GetExpectedEscalationPriceContractsCount(contractYearName string) ExpectedE
 			ExpectedAmountOfOptionPeriodYearsForCalculation: 3,
 			ExpectedAmountOfAwardTermsForCalculation:        2,
 		}
-	default:
-		return ExpectedEscalationPriceContractsCount{
-			ExpectedAmountOfContractYearsForCalculation:     0,
-			ExpectedAmountOfBasePeriodYearsForCalculation:   0,
-			ExpectedAmountOfOptionPeriodYearsForCalculation: 0,
-			ExpectedAmountOfAwardTermsForCalculation:        0,
-		}
 	}
+	return ExpectedEscalationPriceContractsCount{}
 }
