@@ -1,13 +1,8 @@
 package models_test
 
 import (
-	"testing"
-
-	"github.com/stretchr/testify/suite"
-
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/models"
-	"github.com/transcom/mymove/pkg/testingsuite"
 )
 
 const civilianBaseUBAllowanceTestConstant = 350
@@ -15,21 +10,21 @@ const dependents12AndOverUBAllowanceTestConstant = 350
 const depedentsUnder12UBAllowanceTestConstant = 175
 const maxWholeFamilyCivilianUBAllowanceTestConstant = 2000
 
-type EntitlementsModelSuite struct {
-	*testingsuite.PopTestSuite
-}
+// type EntitlementsModelSuite struct {
+// 	*testingsuite.PopTestSuite
+// }
 
-func TestEntitlementsModelSuite(t *testing.T) {
-	ts := &EntitlementsModelSuite{
-		PopTestSuite: testingsuite.NewPopTestSuite(testingsuite.CurrentPackage(),
-			testingsuite.WithPerTestTransaction()),
-	}
+// func TestEntitlementsModelSuite(t *testing.T) {
+// 	ts := &EntitlementsModelSuite{
+// 		PopTestSuite: testingsuite.NewPopTestSuite(testingsuite.CurrentPackage(),
+// 			testingsuite.WithPerTestTransaction()),
+// 	}
 
-	suite.Run(t, ts)
-	ts.PopTestSuite.TearDown()
-}
+// 	suite.Run(t, ts)
+// 	ts.PopTestSuite.TearDown()
+// }
 
-func (suite *EntitlementsModelSuite) TestGetEntitlementWithValidValues() {
+func (suite *ModelSuite) TestGetEntitlementWithValidValues() {
 	E1 := models.ServiceMemberGradeE1
 
 	suite.Run("E1 with dependents", func() {
@@ -53,7 +48,7 @@ func (suite *EntitlementsModelSuite) TestGetEntitlementWithValidValues() {
 	})
 }
 
-func (suite *EntitlementsModelSuite) TestGetUBWeightAllowanceIsZero() {
+func (suite *ModelSuite) TestGetUBWeightAllowanceIsZero() {
 	appCtx := suite.AppContextForTest()
 	branch := models.AffiliationMARINES
 	originDutyLocationIsOconus := false
@@ -87,7 +82,7 @@ func (suite *EntitlementsModelSuite) TestGetUBWeightAllowanceIsZero() {
 	})
 }
 
-func (suite *EntitlementsModelSuite) TestGetUBWeightAllowanceCivilians() {
+func (suite *ModelSuite) TestGetUBWeightAllowanceCivilians() {
 	appCtx := suite.AppContextForTest()
 	branch := models.AffiliationCOASTGUARD
 	originDutyLocationIsOconus := true
@@ -126,7 +121,7 @@ func (suite *EntitlementsModelSuite) TestGetUBWeightAllowanceCivilians() {
 	})
 }
 
-func (suite *EntitlementsModelSuite) TestGetUBWeightAllowanceEdgeCases() {
+func (suite *ModelSuite) TestGetUBWeightAllowanceEdgeCases() {
 	appCtx := suite.AppContextForTest()
 	branch := models.AffiliationAIRFORCE
 	originDutyLocationIsOconus := true
@@ -167,7 +162,7 @@ func (suite *EntitlementsModelSuite) TestGetUBWeightAllowanceEdgeCases() {
 	})
 }
 
-func (suite *EntitlementsModelSuite) TestGetUBWeightAllowanceWithValidValues() {
+func (suite *ModelSuite) TestGetUBWeightAllowanceWithValidValues() {
 	appCtx := suite.AppContextForTest()
 	branch := models.AffiliationMARINES
 	originDutyLocationIsOconus := true
