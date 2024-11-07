@@ -479,6 +479,14 @@ export class TestHarness {
   }
 
   /**
+   * Use testharness to build Use testharness to build submitted move with ppm and pro-gear - civilian
+   * @returns {Promise<Move>}
+   */
+  async buildApprovedMoveWithPPMProgearWeightTicketOfficeCivilian() {
+    return this.buildDefault('ApprovedMoveWithPPMProgearWeightTicketOfficeCivilian');
+  }
+
+  /**
    * Use testharness to build submitted move with ppm and weight ticket
    * @returns {Promise<Object>}
    */
@@ -579,6 +587,24 @@ export class TestHarness {
 
   async buildNTSRMoveWithAddressChangeRequest() {
     return this.buildDefault('NTSRMoveWithAddressChangeRequest');
+  }
+
+  /**
+   * Use testharness to build boat move needing SC
+   * @returns {Promise<Move>}
+   */
+
+  async buildBoatHaulAwayMoveNeedsSC() {
+    return this.buildDefault('BoatHaulAwayMoveNeedsSC');
+  }
+
+  /**
+   * Use testharness to build boat move needing TOO approval
+   * @returns {Promise<Move>}
+   */
+
+  async buildBoatHaulAwayMoveNeedsTOOApproval() {
+    return this.buildDefault('BoatHaulAwayMoveNeedsTOOApproval');
   }
 }
 export default TestHarness;
