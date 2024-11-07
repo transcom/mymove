@@ -2,10 +2,8 @@ import React from 'react';
 
 import EditOrdersForm from './EditOrdersForm';
 
-import { ORDERS_TYPE } from 'constants/orders';
-
 const testInitialValues = {
-  orders_type: ORDERS_TYPE.PERMANENT_CHANGE_OF_STATION,
+  orders_type: 'PERMANENT_CHANGE_OF_STATION',
   issue_date: '2020-11-08',
   report_by_date: '2020-11-26',
   has_dependents: 'no',
@@ -95,7 +93,6 @@ const testProps = {
     { key: 'LOCAL_MOVE', value: 'Local Move' },
     { key: 'RETIREMENT', value: 'Retirement' },
     { key: 'SEPARATION', value: 'Separation' },
-    { key: 'TEMPORARY_DUTY', value: 'Temporary Duty (TDY)' },
   ],
   currentDutyLocation: {},
 };
