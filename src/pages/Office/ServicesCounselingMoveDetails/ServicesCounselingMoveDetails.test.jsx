@@ -218,6 +218,7 @@ const orderMissingRequiredInfo = {
     totalDependents: 1,
     totalWeight: 8000,
   },
+  orderDocuments: undefined,
   order_number: '',
   order_type: ORDERS_TYPE.PERMANENT_CHANGE_OF_STATION,
   order_type_detail: '',
@@ -308,6 +309,14 @@ const newMoveDetailsQuery = {
     department_indicator: 'ARMY',
     tac: '9999',
   },
+  orderDocuments: {
+    z: {
+      id: 'z',
+      filename: 'test.pdf',
+      contentType: 'application/pdf',
+      url: '/storage/user/1/uploads/2?contentType=application%2Fpdf',
+    },
+  },
   mtoShipments,
   mtoServiceItems: [],
   mtoAgents: [],
@@ -335,7 +344,7 @@ const counselingCompletedMoveDetailsQuery = {
     ordersId: '1',
     status: MOVE_STATUSES.SERVICE_COUNSELING_COMPLETED,
   },
-  upload: {
+  orderDocuments: {
     z: {
       id: 'z',
       filename: 'test.pdf',

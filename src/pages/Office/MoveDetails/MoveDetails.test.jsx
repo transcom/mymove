@@ -8,12 +8,11 @@ import { ORDERS_TYPE, ORDERS_TYPE_DETAILS } from '../../../constants/orders';
 import MoveDetails from './MoveDetails';
 
 import { MockProviders } from 'testUtils';
-import { useMoveDetailsQueries, useOrdersDocumentQueries } from 'hooks/queries';
+import { useMoveDetailsQueries } from 'hooks/queries';
 import { permissionTypes } from 'constants/permissions';
 
 jest.mock('hooks/queries', () => ({
   useMoveDetailsQueries: jest.fn(),
-  useOrdersDocumentQueries: jest.fn(),
 }));
 
 const setUnapprovedShipmentCount = jest.fn();
@@ -30,18 +29,6 @@ jest.mock('react-router-dom', () => ({
   useParams: () => ({ moveCode: mockRequestedMoveCode }),
   useNavigate: () => mockNavigate,
 }));
-
-const newOrdersDocumentQuery = (moveDetailsQuery) => ({
-  ...moveDetailsQuery,
-  upload: {
-    z: {
-      id: 'z',
-      filename: 'test.pdf',
-      contentType: 'application/pdf',
-      url: '/storage/user/1/uploads/2?contentType=application%2Fpdf',
-    },
-  },
-});
 
 const requestedMoveDetailsQuery = {
   move: {
@@ -77,6 +64,19 @@ const requestedMoveDetailsQuery = {
         city: 'Fort Irwin',
         state: 'CA',
         postalCode: '92310',
+      },
+    },
+    orderDocuments: {
+      'c0a22a98-a806-47a2-ab54-2dac938667b3': {
+        bytes: 2202009,
+        contentType: 'application/pdf',
+        createdAt: '2024-10-23T16:31:21.085Z',
+        filename: 'testFile.pdf',
+        id: 'c0a22a98-a806-47a2-ab54-2dac938667b3',
+        status: 'PROCESSING',
+        updatedAt: '2024-10-23T16:31:21.085Z',
+        uploadType: 'USER',
+        url: '/storage/USER/uploads/c0a22a98-a806-47a2-ab54-2dac938667b3?contentType=application%2Fpdf',
       },
     },
     customer: {
@@ -281,6 +281,19 @@ const requestedMoveDetailsQueryRetiree = {
     ntsTac: '1111',
     ntsSac: '2222',
   },
+  orderDocuments: {
+    'c0a22a98-a806-47a2-ab54-2dac938667b3': {
+      bytes: 2202009,
+      contentType: 'application/pdf',
+      createdAt: '2024-10-23T16:31:21.085Z',
+      filename: 'testFile.pdf',
+      id: 'c0a22a98-a806-47a2-ab54-2dac938667b3',
+      status: 'PROCESSING',
+      updatedAt: '2024-10-23T16:31:21.085Z',
+      uploadType: 'USER',
+      url: '/storage/USER/uploads/c0a22a98-a806-47a2-ab54-2dac938667b3?contentType=application%2Fpdf',
+    },
+  },
   mtoShipments: [
     {
       customerRemarks: 'please treat gently',
@@ -439,6 +452,19 @@ const requestedMoveDetailsAmendedOrdersQuery = {
     uploadedAmendedOrderID: '3',
     tac: '9999',
   },
+  orderDocuments: {
+    'c0a22a98-a806-47a2-ab54-2dac938667b3': {
+      bytes: 2202009,
+      contentType: 'application/pdf',
+      createdAt: '2024-10-23T16:31:21.085Z',
+      filename: 'testFile.pdf',
+      id: 'c0a22a98-a806-47a2-ab54-2dac938667b3',
+      status: 'PROCESSING',
+      updatedAt: '2024-10-23T16:31:21.085Z',
+      uploadType: 'USER',
+      url: '/storage/USER/uploads/c0a22a98-a806-47a2-ab54-2dac938667b3?contentType=application%2Fpdf',
+    },
+  },
   mtoShipments: [
     {
       customerRemarks: 'please treat gently',
@@ -589,6 +615,7 @@ const requestedMoveDetailsMissingInfoQuery = {
       totalWeight: 8000,
     },
   },
+  orderDocuments: undefined,
   mtoShipments: [
     {
       customerRemarks: 'please treat gently',
@@ -793,7 +820,6 @@ describe('MoveDetails page', () => {
   describe('check loading and error component states', () => {
     it('renders the Loading Placeholder when the query is still loading', async () => {
       useMoveDetailsQueries.mockReturnValue(loadingReturnValue);
-      useOrdersDocumentQueries.mockReturnValue(newOrdersDocumentQuery(loadingReturnValue));
 
       render(
         <MockProviders>
@@ -815,7 +841,6 @@ describe('MoveDetails page', () => {
 
     it('renders the Something Went Wrong component when the query errors', async () => {
       useMoveDetailsQueries.mockReturnValue(errorReturnValue);
-      useOrdersDocumentQueries.mockReturnValue(newOrdersDocumentQuery(errorReturnValue));
 
       render(
         <MockProviders>
@@ -837,7 +862,6 @@ describe('MoveDetails page', () => {
   });
   describe('requested shipment', () => {
     useMoveDetailsQueries.mockReturnValue(requestedMoveDetailsQuery);
-    useOrdersDocumentQueries.mockReturnValue(newOrdersDocumentQuery(requestedMoveDetailsQuery));
 
     const wrapper = mount(
       <MockProviders>
@@ -907,7 +931,6 @@ describe('MoveDetails page', () => {
 
   describe('retiree move with shipment', () => {
     useMoveDetailsQueries.mockReturnValue(requestedMoveDetailsQueryRetiree);
-    useOrdersDocumentQueries.mockReturnValue(newOrdersDocumentQuery(requestedMoveDetailsQueryRetiree));
 
     const wrapper = mount(
       <MockProviders>
@@ -931,7 +954,6 @@ describe('MoveDetails page', () => {
 
   describe('requested shipment with amended orders', () => {
     useMoveDetailsQueries.mockReturnValue(requestedMoveDetailsAmendedOrdersQuery);
-    useOrdersDocumentQueries.mockReturnValue(newOrdersDocumentQuery(requestedMoveDetailsAmendedOrdersQuery));
 
     const wrapper = mount(
       <MockProviders>
@@ -958,7 +980,6 @@ describe('MoveDetails page', () => {
 
   describe('requested and approved shipment', () => {
     useMoveDetailsQueries.mockReturnValue(requestedAndApprovedMoveDetailsQuery);
-    useOrdersDocumentQueries.mockReturnValue(newOrdersDocumentQuery(requestedAndApprovedMoveDetailsQuery));
 
     const wrapper = mount(
       <MockProviders>
@@ -1001,7 +1022,6 @@ describe('MoveDetails page', () => {
       'renders side navigation for section %s',
       async (sectionName) => {
         useMoveDetailsQueries.mockReturnValue(approvedMoveDetailsQuery);
-        useOrdersDocumentQueries.mockReturnValue(newOrdersDocumentQuery(approvedMoveDetailsQuery));
 
         render(
           <MockProviders>
@@ -1024,7 +1044,6 @@ describe('MoveDetails page', () => {
 
   describe('When required Orders information (like TAC) is missing', () => {
     useMoveDetailsQueries.mockReturnValue(requestedMoveDetailsMissingInfoQuery);
-    useOrdersDocumentQueries.mockReturnValue(newOrdersDocumentQuery(requestedMoveDetailsMissingInfoQuery));
 
     const wrapper = mount(
       <MockProviders>
@@ -1048,10 +1067,6 @@ describe('MoveDetails page', () => {
 
   describe('When required Orders Document is missing', () => {
     useMoveDetailsQueries.mockReturnValue(requestedMoveDetailsMissingInfoQuery);
-    useOrdersDocumentQueries.mockReturnValue({
-      ...requestedMoveDetailsMissingInfoQuery,
-      upload: undefined,
-    });
 
     const mockSetMissingOrdersInfoCount = jest.fn();
 
@@ -1079,7 +1094,6 @@ describe('MoveDetails page', () => {
   describe('When required shipment information (like TAC) is missing', () => {
     it('renders an error indicator in the sidebar', async () => {
       useMoveDetailsQueries.mockReturnValue(requestedMoveDetailsMissingInfoQuery);
-      useOrdersDocumentQueries.mockReturnValue(newOrdersDocumentQuery(requestedMoveDetailsMissingInfoQuery));
 
       render(
         <MockProviders>
@@ -1102,7 +1116,6 @@ describe('MoveDetails page', () => {
   describe('When a shipment has a pending destination address update requested by the Prime', () => {
     it('renders an alert indicator in the sidebar', async () => {
       useMoveDetailsQueries.mockReturnValue(requestedMoveDetailsMissingInfoQuery);
-      useOrdersDocumentQueries.mockReturnValue(newOrdersDocumentQuery(requestedMoveDetailsMissingInfoQuery));
 
       render(
         <MockProviders>
@@ -1263,7 +1276,6 @@ describe('MoveDetails page', () => {
   describe('when MTO shipments are not yet defined', () => {
     it('does not show the "Something Went Wrong" error', () => {
       useMoveDetailsQueries.mockReturnValue(undefinedMTOShipmentsMoveDetailsQuery);
-      useOrdersDocumentQueries.mockReturnValue(newOrdersDocumentQuery(undefinedMTOShipmentsMoveDetailsQuery));
 
       render(
         <MockProviders>
