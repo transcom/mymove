@@ -4577,6 +4577,10 @@ definitions:
         format: uuid
       transportationOffice:
         $ref: '#/definitions/TransportationOffice'
+      transportationOfficeAssignments:
+        type: array
+        items:
+          $ref: '#/definitions/TransportationOfficeAssignment'
       active:
         type: boolean
       roles:
@@ -5052,6 +5056,28 @@ definitions:
       organizationalClothingAndIndividualEquipment:
         example: true
         type: boolean
+      accompaniedTour:
+        type: boolean
+        example: true
+        x-nullable: true
+        description: >-
+          Indicates if the move entitlement allows dependents to travel to the
+          new Permanent Duty Station (PDS). This is only present on OCONUS
+          moves.
+      dependentsUnderTwelve:
+        type: integer
+        example: 5
+        x-nullable: true
+        description: >-
+          Indicates the number of dependents under the age of twelve for a move.
+          This is only present on OCONUS moves.
+      dependentsTwelveAndOver:
+        type: integer
+        example: 3
+        x-nullable: true
+        description: >-
+          Indicates the number of dependents of the age twelve or older for a
+          move. This is only present on OCONUS moves.
       eTag:
         type: string
     type: object
@@ -5663,6 +5689,28 @@ definitions:
         type: string
         format: uuid
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      accompaniedTour:
+        type: boolean
+        example: true
+        x-nullable: true
+        description: >-
+          Indicates if the move entitlement allows dependents to travel to the
+          new Permanent Duty Station (PDS). This is only present on OCONUS
+          moves.
+      dependentsUnderTwelve:
+        type: integer
+        example: 5
+        x-nullable: true
+        description: >-
+          Indicates the number of dependents under the age of twelve for a move.
+          This is only present on OCONUS moves.
+      dependentsTwelveAndOver:
+        type: integer
+        example: 3
+        x-nullable: true
+        description: >-
+          Indicates the number of dependents of the age twelve or older for a
+          move. This is only present on OCONUS moves.
     required:
       - serviceMemberId
       - issueDate
@@ -5853,6 +5901,28 @@ definitions:
           their move without it being charged against their weight allowance.
         type: boolean
         x-nullable: true
+      accompaniedTour:
+        type: boolean
+        example: true
+        x-nullable: true
+        description: >-
+          Indicates if the move entitlement allows dependents to travel to the
+          new Permanent Duty Station (PDS). This is only present on OCONUS
+          moves.
+      dependentsUnderTwelve:
+        type: integer
+        example: 5
+        x-nullable: true
+        description: >-
+          Indicates the number of dependents under the age of twelve for a move.
+          This is only present on OCONUS moves.
+      dependentsTwelveAndOver:
+        type: integer
+        example: 3
+        x-nullable: true
+        description: >-
+          Indicates the number of dependents of the age twelve or older for a
+          move. This is only present on OCONUS moves.
   UpdateBillableWeightPayload:
     type: object
     properties:
@@ -5930,6 +6000,28 @@ definitions:
           their move without it being charged against their weight allowance.
         type: boolean
         x-nullable: true
+      accompaniedTour:
+        type: boolean
+        example: true
+        x-nullable: true
+        description: >-
+          Indicates if the move entitlement allows dependents to travel to the
+          new Permanent Duty Station (PDS). This is only present on OCONUS
+          moves.
+      dependentsUnderTwelve:
+        type: integer
+        example: 5
+        x-nullable: true
+        description: >-
+          Indicates the number of dependents under the age of twelve for a move.
+          This is only present on OCONUS moves.
+      dependentsTwelveAndOver:
+        type: integer
+        example: 3
+        x-nullable: true
+        description: >-
+          Indicates the number of dependents of the age twelve or older for a
+          move. This is only present on OCONUS moves.
   MoveTaskOrder:
     description: The Move (MoveTaskOrder)
     properties:
@@ -8086,6 +8178,34 @@ definitions:
       - address
       - created_at
       - updated_at
+  TransportationOfficeAssignment:
+    type: object
+    properties:
+      officeUserId:
+        type: string
+        format: uuid
+        example: c56a4780-65aa-42ec-a945-5fd87dec0538
+      transportationOfficeId:
+        type: string
+        format: uuid
+        example: d67a4780-65aa-42ec-a945-5fd87dec0549
+      transportationOffice:
+        $ref: '#/definitions/TransportationOffice'
+      primaryOffice:
+        type: boolean
+        x-omitempty: false
+      createdAt:
+        type: string
+        format: date-time
+        readOnly: true
+      updatedAt:
+        type: string
+        format: date-time
+        readOnly: true
+    required:
+      - officeUserId
+      - transportationOfficeId
+      - primaryOffice
   DutyLocation:
     type: object
     properties:
