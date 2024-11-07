@@ -279,6 +279,7 @@ describe('EditOrdersForm component', () => {
       ['LOCAL_MOVE', 'LOCAL_MOVE'],
       ['RETIREMENT', 'RETIREMENT'],
       ['SEPARATION', 'SEPARATION'],
+      ['TEMPORARY_DUTY', 'TEMPORARY_DUTY'],
     ])('rendering the %s option', async (selectionOption, expectedValue) => {
       render(<EditOrdersForm {...testProps} />);
 
