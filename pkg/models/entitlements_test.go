@@ -193,13 +193,13 @@ func (suite *EntitlementsModelSuite) TestGetUBWeightAllowanceWithValidValues() {
 		suite.Assertions.Equal(2000, ubAllowance)
 	})
 
-	suite.Run("OCONUS, MARINES, E1, PCS, dependents are authorized, is accompanied = 2000 lbs", func() {
+	suite.Run("OCONUS, Marines, E1, PCS, dependents are authorized, is accompanied = 2000 lbs", func() {
 		ubAllowance, err := models.GetUBWeightAllowance(appCtx, &originDutyLocationIsOconus, &newDutyLocationIsOconus, &branch, &grade, &orderType, &dependentsAuthorized, &isAccompaniedTour, &dependentsUnderTwelve, &dependentsTwelveAndOver)
 		suite.NoError(err)
 		suite.Assertions.Equal(2000, ubAllowance)
 	})
 
-	suite.Run("OCONUS, MARINES, E1, PCS, dependents are authorized, is accompanied = 2000 lbs", func() {
+	suite.Run("OCONUS, Marines, E1, PCS, dependents are authorized, is accompanied = 2000 lbs", func() {
 		ubAllowance, err := models.GetUBWeightAllowance(appCtx, &originDutyLocationIsOconus, &newDutyLocationIsOconus, &branch, &grade, &orderType, &dependentsAuthorized, &isAccompaniedTour, &dependentsUnderTwelve, &dependentsTwelveAndOver)
 		suite.NoError(err)
 		suite.Assertions.Equal(2000, ubAllowance)
@@ -220,7 +220,7 @@ func (suite *EntitlementsModelSuite) TestGetUBWeightAllowanceWithValidValues() {
 	})
 
 	dependentsAuthorized = false
-	suite.Run("OCONUS, Air Force, E1, PCS, dependents are NOTauthorized, is NOT accompanied = 500 lbs", func() {
+	suite.Run("OCONUS, Air Force, E1, PCS, dependents are NOT authorized, is NOT accompanied = 500 lbs", func() {
 		ubAllowance, err := models.GetUBWeightAllowance(appCtx, &originDutyLocationIsOconus, &newDutyLocationIsOconus, &branch, &grade, &orderType, &dependentsAuthorized, &isAccompaniedTour, &dependentsUnderTwelve, &dependentsTwelveAndOver)
 		suite.NoError(err)
 		suite.Assertions.Equal(500, ubAllowance)
