@@ -67,6 +67,13 @@ func (m MoveCounseled) emails(appCtx appcontext.AppContext) ([]emailContent, err
 		originDutyLocationName = &originDSTransportInfo.Name
 	}
 
+	actualExpenseReimbursement := false
+	for i := 0; i < len(move.MTOShipments); i++ {
+		if move.MTOShipments[i].PPMShipment.IsActualExpenseReimbursement != nil && *move.MTOShipments[i].PPMShipment.IsActualExpenseReimbursement {
+			actualExpenseReimbursement = true
+		}
+	}
+
 	destinationAddress := orders.NewDutyLocation.Name
 	isSeparateeOrRetireeOrder := orders.OrdersType == internalmessages.OrdersTypeRETIREMENT || orders.OrdersType == internalmessages.OrdersTypeSEPARATION
 	if isSeparateeOrRetireeOrder && len(move.MTOShipments) > 0 && move.MTOShipments[0].DestinationAddress != nil {
@@ -85,10 +92,11 @@ func (m MoveCounseled) emails(appCtx appcontext.AppContext) ([]emailContent, err
 	}
 
 	htmlBody, textBody, err := m.renderTemplates(appCtx, MoveCounseledEmailData{
-		OriginDutyLocation:  originDutyLocationName,
-		DestinationLocation: destinationAddress,
-		Locator:             move.Locator,
-		MyMoveLink:          MyMoveLink,
+		OriginDutyLocation:         originDutyLocationName,
+		DestinationLocation:        destinationAddress,
+		Locator:                    move.Locator,
+		MyMoveLink:                 MyMoveLink,
+		ActualExpenseReimbursement: actualExpenseReimbursement,
 	})
 
 	if err != nil {
@@ -122,10 +130,11 @@ func (m MoveCounseled) renderTemplates(appCtx appcontext.AppContext, data MoveCo
 }
 
 type MoveCounseledEmailData struct {
-	OriginDutyLocation  *string
-	DestinationLocation string
-	Locator             string
-	MyMoveLink          string
+	OriginDutyLocation         *string
+	DestinationLocation        string
+	Locator                    string
+	MyMoveLink                 string
+	ActualExpenseReimbursement bool
 }
 
 // RenderHTML renders the html for the email

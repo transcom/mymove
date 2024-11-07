@@ -24,8 +24,14 @@ type QueueMove struct {
 	// Format: date-time
 	AppearedInTooAt *strfmt.DateTime `json:"appearedInTooAt,omitempty"`
 
+	// assignable
+	Assignable bool `json:"assignable,omitempty"`
+
 	// assigned to
 	AssignedTo *AssignedOfficeUser `json:"assignedTo,omitempty"`
+
+	// available office users
+	AvailableOfficeUsers AvailableOfficeUsers `json:"availableOfficeUsers,omitempty"`
 
 	// closeout initiated
 	// Format: date-time
@@ -36,6 +42,10 @@ type QueueMove struct {
 
 	// counseling office
 	CounselingOffice *string `json:"counselingOffice,omitempty"`
+
+	// counseling office ID
+	// Format: uuid
+	CounselingOfficeID *strfmt.UUID `json:"counselingOfficeID,omitempty"`
 
 	// customer
 	Customer *Customer `json:"customer,omitempty"`
@@ -107,7 +117,15 @@ func (m *QueueMove) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
+	if err := m.validateAvailableOfficeUsers(formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.validateCloseoutInitiated(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateCounselingOfficeID(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -204,12 +222,41 @@ func (m *QueueMove) validateAssignedTo(formats strfmt.Registry) error {
 	return nil
 }
 
+func (m *QueueMove) validateAvailableOfficeUsers(formats strfmt.Registry) error {
+	if swag.IsZero(m.AvailableOfficeUsers) { // not required
+		return nil
+	}
+
+	if err := m.AvailableOfficeUsers.Validate(formats); err != nil {
+		if ve, ok := err.(*errors.Validation); ok {
+			return ve.ValidateName("availableOfficeUsers")
+		} else if ce, ok := err.(*errors.CompositeError); ok {
+			return ce.ValidateName("availableOfficeUsers")
+		}
+		return err
+	}
+
+	return nil
+}
+
 func (m *QueueMove) validateCloseoutInitiated(formats strfmt.Registry) error {
 	if swag.IsZero(m.CloseoutInitiated) { // not required
 		return nil
 	}
 
 	if err := validate.FormatOf("closeoutInitiated", "body", "date-time", m.CloseoutInitiated.String(), formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *QueueMove) validateCounselingOfficeID(formats strfmt.Registry) error {
+	if swag.IsZero(m.CounselingOfficeID) { // not required
+		return nil
+	}
+
+	if err := validate.FormatOf("counselingOfficeID", "body", "uuid", m.CounselingOfficeID.String(), formats); err != nil {
 		return err
 	}
 
@@ -472,6 +519,10 @@ func (m *QueueMove) ContextValidate(ctx context.Context, formats strfmt.Registry
 		res = append(res, err)
 	}
 
+	if err := m.contextValidateAvailableOfficeUsers(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.contextValidateCustomer(ctx, formats); err != nil {
 		res = append(res, err)
 	}
@@ -526,6 +577,20 @@ func (m *QueueMove) contextValidateAssignedTo(ctx context.Context, formats strfm
 			}
 			return err
 		}
+	}
+
+	return nil
+}
+
+func (m *QueueMove) contextValidateAvailableOfficeUsers(ctx context.Context, formats strfmt.Registry) error {
+
+	if err := m.AvailableOfficeUsers.ContextValidate(ctx, formats); err != nil {
+		if ve, ok := err.(*errors.Validation); ok {
+			return ve.ValidateName("availableOfficeUsers")
+		} else if ce, ok := err.(*errors.CompositeError); ok {
+			return ce.ValidateName("availableOfficeUsers")
+		}
+		return err
 	}
 
 	return nil

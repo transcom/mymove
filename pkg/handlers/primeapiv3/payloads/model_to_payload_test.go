@@ -32,7 +32,6 @@ func (suite *PayloadsSuite) TestMoveTaskOrder() {
 
 	streetAddress2 := "Apt 1"
 	streetAddress3 := "Apt 1"
-	country := "USA"
 
 	basicMove := models.Move{
 		ID:                 moveTaskOrderID,
@@ -64,7 +63,6 @@ func (suite *PayloadsSuite) TestMoveTaskOrder() {
 					City:           "Washington",
 					State:          "DC",
 					PostalCode:     "20001",
-					Country:        &country,
 					County:         "my county",
 				},
 			},
@@ -518,14 +516,50 @@ func (suite *PayloadsSuite) TestServiceRequestDocument() {
 }
 
 func (suite *PayloadsSuite) TestPPMShipment() {
+	isActualExpenseReimbursemnt := true
 	ppmShipment := &models.PPMShipment{
-		ID: uuid.Must(uuid.NewV4()),
+		ID:                           uuid.Must(uuid.NewV4()),
+		IsActualExpenseReimbursement: &isActualExpenseReimbursemnt,
 	}
 
 	result := PPMShipment(ppmShipment)
 
 	suite.NotNil(result)
 	suite.Equal(strfmt.UUID(ppmShipment.ID.String()), result.ID)
+	suite.True(*ppmShipment.IsActualExpenseReimbursement)
+}
+
+func (suite *PayloadsSuite) TestPPMShipmentContainingOptionalDestinationStreet1() {
+	now := time.Now()
+	ppmShipment := &models.PPMShipment{
+		ID: uuid.Must(uuid.NewV4()),
+		DestinationAddress: &models.Address{
+			ID:             uuid.Must(uuid.NewV4()),
+			StreetAddress1: models.STREET_ADDRESS_1_NOT_PROVIDED,
+			StreetAddress2: models.StringPointer("1"),
+			StreetAddress3: models.StringPointer("2"),
+			City:           "SomeCity",
+			State:          "CA",
+			PostalCode:     "90210",
+			County:         "SomeCounty",
+			UpdatedAt:      now,
+		},
+	}
+
+	result := PPMShipment(ppmShipment)
+
+	eTag := etag.GenerateEtag(now)
+
+	suite.NotNil(result)
+	// expecting empty string on the response side to simulate nothing was provided.
+	suite.Equal(result.DestinationAddress.StreetAddress1, models.StringPointer(""))
+	suite.Equal(result.DestinationAddress.StreetAddress2, ppmShipment.DestinationAddress.StreetAddress2)
+	suite.Equal(result.DestinationAddress.StreetAddress3, ppmShipment.DestinationAddress.StreetAddress3)
+	suite.Equal(*result.DestinationAddress.City, ppmShipment.DestinationAddress.City)
+	suite.Equal(*result.DestinationAddress.State, ppmShipment.DestinationAddress.State)
+	suite.Equal(*result.DestinationAddress.PostalCode, ppmShipment.DestinationAddress.PostalCode)
+	suite.Equal(*result.DestinationAddress.County, ppmShipment.DestinationAddress.County)
+	suite.Equal(result.DestinationAddress.ETag, eTag)
 }
 
 func (suite *PayloadsSuite) TestMTOServiceItem() {
@@ -793,7 +827,6 @@ func (suite *PayloadsSuite) TestStorageFacility() {
 			City:           dummy,
 			State:          dummy,
 			PostalCode:     dummy,
-			Country:        &dummy,
 		},
 		Email:        &email,
 		FacilityName: facilityName,
@@ -831,4 +864,26 @@ func (suite *PayloadsSuite) TestBoatShipment() {
 
 	result := BoatShipment(boatShipment)
 	suite.NotNil(result)
+}
+
+func (suite *PayloadsSuite) TestMarketCode() {
+	suite.Run("returns nil when marketCode is nil", func() {
+		var marketCode *models.MarketCode = nil
+		result := MarketCode(marketCode)
+		suite.Equal(result, "")
+	})
+
+	suite.Run("returns string when marketCode is not nil", func() {
+		marketCodeDomestic := models.MarketCodeDomestic
+		result := MarketCode(&marketCodeDomestic)
+		suite.NotNil(result, "Expected result to not be nil when marketCode is not nil")
+		suite.Equal("d", result, "Expected result to be 'd' for domestic market code")
+	})
+
+	suite.Run("returns string when marketCode is international", func() {
+		marketCodeInternational := models.MarketCodeInternational
+		result := MarketCode(&marketCodeInternational)
+		suite.NotNil(result, "Expected result to not be nil when marketCode is not nil")
+		suite.Equal("i", result, "Expected result to be 'i' for international market code")
+	})
 }

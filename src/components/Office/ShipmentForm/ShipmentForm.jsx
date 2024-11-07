@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { arrayOf, bool, func, number, shape, string, oneOf } from 'prop-types';
 import { Field, Formik } from 'formik';
-import { generatePath, useNavigate, useParams } from 'react-router-dom';
+import { generatePath, useNavigate, useParams, Link } from 'react-router-dom';
 import { useQueryClient, useMutation } from '@tanstack/react-query';
-import { Alert, Button, Checkbox, Fieldset, FormGroup, Radio } from '@trussworks/react-uswds';
+import { Alert, Button, Checkbox, Fieldset, FormGroup, Radio, Label, Tag } from '@trussworks/react-uswds';
 import classNames from 'classnames';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
@@ -12,6 +12,8 @@ import { CloseoutOfficeInput } from '../../form/fields/CloseoutOfficeInput';
 
 import ppmShipmentSchema from './ppmShipmentSchema';
 import styles from './ShipmentForm.module.scss';
+import MobileHomeShipmentForm from './MobileHomeShipmentForm/MobileHomeShipmentForm';
+import mobileHomeShipmentSchema from './MobileHomeShipmentForm/mobileHomeShipmentSchema';
 import BoatShipmentForm from './BoatShipmentForm/BoatShipmentForm';
 import boatShipmentSchema from './BoatShipmentForm/boatShipmentSchema';
 
@@ -47,7 +49,7 @@ import {
   updateMoveCloseoutOffice,
   dateSelectionIsWeekendHoliday,
 } from 'services/ghcApi';
-import { SHIPMENT_OPTIONS } from 'shared/constants';
+import { SHIPMENT_OPTIONS, SHIPMENT_TYPES, technicalHelpDeskURL } from 'shared/constants';
 import formStyles from 'styles/form.module.scss';
 import { AccountingCodesShape } from 'types/accountingCodes';
 import { AddressShape, SimpleAddressShape } from 'types/address';
@@ -58,6 +60,8 @@ import {
   formatMtoShipmentForDisplay,
   formatPpmShipmentForAPI,
   formatPpmShipmentForDisplay,
+  formatMobileHomeShipmentForDisplay,
+  formatMobileHomeShipmentForAPI,
   formatBoatShipmentForDisplay,
   formatBoatShipmentForAPI,
 } from 'utils/formatMtoShipment';
@@ -99,6 +103,7 @@ const ShipmentForm = (props) => {
 
   const [datesErrorMessage, setDatesErrorMessage] = useState(null);
   const [errorMessage, setErrorMessage] = useState(null);
+  const [errorCode, setErrorCode] = useState(null);
   const [successMessage, setSuccessMessage] = useState(null);
   const [shipmentAddressUpdateReviewErrorMessage, setShipmentAddressUpdateReviewErrorMessage] = useState(null);
 
@@ -181,6 +186,17 @@ const ShipmentForm = (props) => {
     });
   };
 
+  const handleSetError = (error, defaultError) => {
+    if (error?.response?.body?.message !== null && error?.response?.body?.message !== undefined) {
+      if (error?.statusCode !== null && error?.statusCode !== undefined) {
+        setErrorCode(error.statusCode);
+      }
+      setErrorMessage(`${error?.response?.body?.message}`);
+    } else {
+      setErrorMessage(defaultError);
+    }
+  };
+
   const handleSubmitShipmentAddressUpdateReview = async (
     shipmentID,
     shipmentETag,
@@ -249,10 +265,11 @@ const ShipmentForm = (props) => {
   const isNTS = shipmentType === SHIPMENT_OPTIONS.NTS;
   const isNTSR = shipmentType === SHIPMENT_OPTIONS.NTSR;
   const isPPM = shipmentType === SHIPMENT_OPTIONS.PPM;
+  const isMobileHome = shipmentType === SHIPMENT_OPTIONS.MOBILE_HOME;
   const isBoat =
     shipmentType === SHIPMENT_OPTIONS.BOAT ||
-    shipmentType === SHIPMENT_OPTIONS.BOAT_HAUL_AWAY ||
-    shipmentType === SHIPMENT_OPTIONS.BOAT_TOW_AWAY;
+    shipmentType === SHIPMENT_TYPES.BOAT_HAUL_AWAY ||
+    shipmentType === SHIPMENT_TYPES.BOAT_TOW_AWAY;
 
   const showAccountingCodes = isNTS || isNTSR;
 
@@ -279,6 +296,13 @@ const ShipmentForm = (props) => {
             closeoutOffice: move.closeoutOffice,
           },
     );
+    if (isCreatePage && serviceMember?.grade === 'CIVILIAN_EMPLOYEE')
+      initialValues.isActualExpenseReimbursement = 'true';
+  } else if (isMobileHome) {
+    const hhgInitialValues = formatMtoShipmentForDisplay(
+      isCreatePage ? { userRole } : { userRole, shipmentType, agents: mtoShipment.mtoAgents, ...mtoShipment },
+    );
+    initialValues = formatMobileHomeShipmentForDisplay(mtoShipment?.mobileHomeShipment, hhgInitialValues);
   } else if (isBoat) {
     const hhgInitialValues = formatMtoShipmentForDisplay(
       isCreatePage ? { userRole } : { userRole, shipmentType, agents: mtoShipment.mtoAgents, ...mtoShipment },
@@ -306,6 +330,10 @@ const ShipmentForm = (props) => {
       showCloseoutOffice,
       sitEstimatedWeightMax: estimatedWeightValue || 0,
     });
+  } else if (isMobileHome) {
+    schema = mobileHomeShipmentSchema();
+    showDeliveryFields = true;
+    showPickupFields = true;
   } else if (isBoat) {
     schema = boatShipmentSchema();
     showDeliveryFields = true;
@@ -384,9 +412,9 @@ const ShipmentForm = (props) => {
                       setErrorMessage(null);
                       onUpdate('success');
                     },
-                    onError: () => {
+                    onError: (error) => {
                       actions.setSubmitting(false);
-                      setErrorMessage(`Something went wrong, and your changes were not saved. Please try again.`);
+                      handleSetError(error, `Something went wrong, and your changes were not saved. Please try again.`);
                     },
                   },
                 );
@@ -399,9 +427,9 @@ const ShipmentForm = (props) => {
                 }
               }
             },
-            onError: () => {
+            onError: (error) => {
               actions.setSubmitting(false);
-              setErrorMessage(`Something went wrong, and your changes were not saved. Please try again.`);
+              handleSetError(error, `Something went wrong, and your changes were not saved. Please try again.`);
             },
           },
         );
@@ -447,9 +475,9 @@ const ShipmentForm = (props) => {
                   navigate(advancePath);
                   onUpdate('success');
                 },
-                onError: () => {
+                onError: (error) => {
                   actions.setSubmitting(false);
-                  setErrorMessage(`Something went wrong, and your changes were not saved. Please try again.`);
+                  handleSetError(error, `Something went wrong, and your changes were not saved. Please try again.`);
                 },
               },
             );
@@ -472,9 +500,9 @@ const ShipmentForm = (props) => {
             onUpdate('success');
           }
         },
-        onError: () => {
+        onError: (error) => {
           actions.setSubmitting(false);
-          setErrorMessage(`Something went wrong, and your changes were not saved. Please try again.`);
+          handleSetError(error, `Something went wrong, and your changes were not saved. Please try again.`);
         },
       });
       return;
@@ -541,6 +569,15 @@ const ShipmentForm = (props) => {
       tertiaryDelivery: hasTertiaryDelivery === 'yes' ? tertiaryDelivery : {},
     });
 
+    // Mobile Home Shipment
+    if (isMobileHome) {
+      const mobileHomeShipmentBody = formatMobileHomeShipmentForAPI(formValues);
+      pendingMtoShipment = {
+        ...pendingMtoShipment,
+        ...mobileHomeShipmentBody,
+      };
+    }
+
     // Boat Shipment
     if (isBoat) {
       const boatShipmentBody = formatBoatShipmentForAPI(formValues);
@@ -567,8 +604,8 @@ const ShipmentForm = (props) => {
           onSuccess: () => {
             navigate(moveDetailsPath);
           },
-          onError: () => {
-            setErrorMessage(`Something went wrong, and your changes were not saved. Please try again.`);
+          onError: (error) => {
+            handleSetError(error, `Something went wrong, and your changes were not saved. Please try again.`);
           },
         },
       );
@@ -581,8 +618,8 @@ const ShipmentForm = (props) => {
           navigate(moveDetailsPath);
           onUpdate('success');
         },
-        onError: () => {
-          setErrorMessage(`Something went wrong, and your changes were not saved. Please try again.`);
+        onError: (error) => {
+          handleSetError(error, `Something went wrong, and your changes were not saved. Please try again.`);
         },
       });
     }
@@ -592,8 +629,8 @@ const ShipmentForm = (props) => {
         onSuccess: () => {
           navigate(moveDetailsPath);
         },
-        onError: () => {
-          setErrorMessage(`Something went wrong, and your changes were not saved. Please try again.`);
+        onError: (error) => {
+          handleSetError(error, `Something went wrong, and your changes were not saved. Please try again.`);
         },
       });
     }
@@ -612,13 +649,13 @@ const ShipmentForm = (props) => {
         values,
         isValid,
         isSubmitting,
-        touched,
         setValues,
         handleSubmit,
+        errors,
+        touched,
         setFieldTouched,
         setFieldError,
         validateForm,
-        errors,
       }) => {
         const {
           hasSecondaryDestination,
@@ -628,6 +665,7 @@ const ShipmentForm = (props) => {
           hasSecondaryDelivery,
           hasTertiaryPickup,
           hasTertiaryDelivery,
+          isActualExpenseReimbursement,
         } = values;
 
         const lengthHasError = !!(
@@ -780,7 +818,17 @@ const ShipmentForm = (props) => {
             <NotificationScrollToTop dependency={errorMessage} />
             {errorMessage && (
               <Alert data-testid="errorMessage" type="error" headingLevel="h4" heading="An error occurred">
-                {errorMessage}
+                {errorCode === 400 ? (
+                  <p>
+                    {errorMessage} If the error persists, please try again later, or contact the&nbsp;
+                    <Link to={technicalHelpDeskURL} target="_blank" rel="noreferrer">
+                      Technical Help Desk
+                    </Link>
+                    .
+                  </p>
+                ) : (
+                  <p>{errorMessage}</p>
+                )}
               </Alert>
             )}
             <NotificationScrollToTop dependency={successMessage} />
@@ -805,6 +853,11 @@ const ShipmentForm = (props) => {
               <div className={styles.headerWrapper}>
                 <div>
                   <ShipmentTag shipmentType={shipmentType} shipmentNumber={shipmentNumber} />
+                  {isActualExpenseReimbursement === 'true' && (
+                    <Tag className={styles.tagInfo} data-testid="actualExpenseReimbursementTag">
+                      Actual Expense Reimbursement
+                    </Tag>
+                  )}
 
                   <h1>{isCreatePage ? 'Add' : 'Edit'} shipment details</h1>
                 </div>
@@ -829,9 +882,22 @@ const ShipmentForm = (props) => {
               </SectionWrapper>
 
               <Form className={formStyles.form}>
-                {isTOO && !isHHG && !isPPM && !isBoat && <ShipmentVendor />}
+                {isTOO && !isHHG && !isPPM && !isBoat && !isMobileHome && <ShipmentVendor />}
 
                 {isNTSR && <ShipmentWeightInput userRole={userRole} />}
+
+                {isMobileHome && (
+                  <MobileHomeShipmentForm
+                    lengthHasError={lengthHasError}
+                    widthHasError={widthHasError}
+                    heightHasError={heightHasError}
+                    values={values}
+                    setFieldTouched={setFieldTouched}
+                    setFieldError={setFieldError}
+                    validateForm={validateForm}
+                    dimensionError={dimensionError}
+                  />
+                )}
 
                 {isBoat && (
                   <BoatShipmentForm
@@ -1269,6 +1335,40 @@ const ShipmentForm = (props) => {
 
                 {isPPM && !isAdvancePage && (
                   <>
+                    {isServiceCounselor && (
+                      <SectionWrapper className={classNames(ppmStyles.sectionWrapper, formStyles.formSection)}>
+                        <h2>Actual Expense Reimbursement</h2>
+                        <FormGroup>
+                          <Label className={styles.Label} htmlFor="isActualExpenseReimbursement">
+                            Is this PPM an Actual Expense Reimbursement?
+                          </Label>
+                          <Field
+                            as={Radio}
+                            id="isActualExpenseReimbursementYes"
+                            label="Yes"
+                            name="isActualExpenseReimbursement"
+                            value="true"
+                            title="Yes"
+                            checked={isActualExpenseReimbursement === 'true'}
+                            disabled={serviceMember?.grade === 'CIVILIAN_EMPLOYEE'}
+                            className={styles.buttonGroup}
+                            data-testid="isActualExpenseReimbursementYes"
+                          />
+                          <Field
+                            as={Radio}
+                            id="isActualExpenseReimbursementNo"
+                            label="No"
+                            name="isActualExpenseReimbursement"
+                            value="false"
+                            title="No"
+                            checked={isActualExpenseReimbursement !== 'true'}
+                            disabled={serviceMember?.grade === 'CIVILIAN_EMPLOYEE'}
+                            className={styles.buttonGroup}
+                            data-testid="isActualExpenseReimbursementNo"
+                          />
+                        </FormGroup>
+                      </SectionWrapper>
+                    )}
                     <SectionWrapper className={classNames(ppmStyles.sectionWrapper, formStyles.formSection)}>
                       <h2>Departure date</h2>
                       <DatePickerInput name="expectedDepartureDate" label="Planned Departure Date" />
@@ -1366,6 +1466,7 @@ const ShipmentForm = (props) => {
                       <AddressFields
                         name="destination.address"
                         legend="Delivery Address"
+                        address1LabelHint="Optional"
                         render={(fields) => (
                           <>
                             {fields}

@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"io"
 	"path/filepath"
+	"regexp"
 	"strings"
 
 	"github.com/go-openapi/runtime"
@@ -289,10 +290,24 @@ func (h CreatePPMUploadHandler) Handle(params ppmop.CreatePPMUploadParams) middl
 
 			uploadedFile := file
 
-			// check if this is an excel file and parse if it is
-			extension := filepath.Ext(file.Header.Filename)
+			// extract extension from filename
+			filename := file.Header.Filename
+			timestampPattern := regexp.MustCompile(`-(\d{14})$`)
 
-			if extension == ".xlsx" {
+			timestamp := ""
+			filenameWithoutTimestamp := ""
+			if matches := timestampPattern.FindStringSubmatch(filename); len(matches) > 1 {
+				timestamp = matches[1]
+				filenameWithoutTimestamp = strings.TrimSuffix(filename, "-"+timestamp)
+			} else {
+				filenameWithoutTimestamp = filename
+			}
+
+			extension := filepath.Ext(filenameWithoutTimestamp)
+			extensionLower := strings.ToLower(extension)
+
+			// check if file is an excel file
+			if extensionLower == ".xlsx" {
 				var err error
 
 				isWeightEstimatorFile, err = weightticketparser.IsWeightEstimatorFile(appCtx, file)
@@ -315,7 +330,7 @@ func (h CreatePPMUploadHandler) Handle(params ppmop.CreatePPMUploadParams) middl
 					return ppmop.NewCreatePPMUploadInternalServerError(), rollbackErr
 				}
 
-				pdfFileName := strings.TrimSuffix(file.Header.Filename, filepath.Ext(file.Header.Filename)) + ".pdf"
+				pdfFileName := strings.TrimSuffix(filenameWithoutTimestamp, filepath.Ext(filenameWithoutTimestamp)) + ".pdf" + "-" + timestamp
 				aFile, pdfInfo, err := h.WeightTicketGenerator.FillWeightEstimatorPDFForm(*pageValues, pdfFileName)
 
 				// Ensure weight receipt PDF is not corrupted

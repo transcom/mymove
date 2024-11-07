@@ -1,6 +1,7 @@
 package payloads
 
 import (
+	"strings"
 	"time"
 
 	"github.com/go-openapi/strfmt"
@@ -27,9 +28,34 @@ func AddressModel(address *internalmessages.Address) *models.Address {
 		City:           *address.City,
 		State:          *address.State,
 		PostalCode:     *address.PostalCode,
-		Country:        address.Country,
 		County:         *address.County,
 	}
+}
+
+func PPMDestinationAddressModel(address *internalmessages.PPMDestinationAddress) *models.Address {
+	if address == nil {
+		return nil
+	}
+	if address.County == nil {
+		address.County = models.StringPointer("")
+	}
+	addressModel := &models.Address{
+		ID:             uuid.FromStringOrNil(address.ID.String()),
+		StreetAddress2: address.StreetAddress2,
+		StreetAddress3: address.StreetAddress3,
+		City:           *address.City,
+		State:          *address.State,
+		PostalCode:     *address.PostalCode,
+		County:         *address.County,
+	}
+	if address.StreetAddress1 != nil && len(strings.Trim(*address.StreetAddress1, " ")) > 0 {
+		addressModel.StreetAddress1 = *address.StreetAddress1
+	} else {
+		// Street address 1 is optional for certain business context but not nullable on the database level.
+		// Use place holder text to represent NULL.
+		addressModel.StreetAddress1 = models.STREET_ADDRESS_1_NOT_PROVIDED
+	}
+	return addressModel
 }
 
 // MTOAgentModel model
@@ -155,7 +181,7 @@ func PPMShipmentModelFromCreate(ppmShipment *internalmessages.CreatePPMShipment)
 	}
 
 	if ppmShipment.DestinationAddress != nil {
-		model.DestinationAddress = AddressModel(ppmShipment.DestinationAddress)
+		model.DestinationAddress = PPMDestinationAddressModel(ppmShipment.DestinationAddress)
 	}
 
 	model.HasSecondaryDestinationAddress = handlers.FmtBool(ppmShipment.SecondaryDestinationAddress != nil)
@@ -166,6 +192,10 @@ func PPMShipmentModelFromCreate(ppmShipment *internalmessages.CreatePPMShipment)
 	model.HasTertiaryDestinationAddress = handlers.FmtBool(ppmShipment.TertiaryDestinationAddress != nil)
 	if ppmShipment.TertiaryDestinationAddress != nil {
 		model.TertiaryDestinationAddress = AddressModel(ppmShipment.TertiaryDestinationAddress)
+	}
+
+	if ppmShipment.IsActualExpenseReimbursement != nil {
+		model.IsActualExpenseReimbursement = ppmShipment.IsActualExpenseReimbursement
 	}
 
 	return model
@@ -183,6 +213,7 @@ func UpdatePPMShipmentModel(ppmShipment *internalmessages.UpdatePPMShipment) *mo
 		SITExpected:                    ppmShipment.SitExpected,
 		EstimatedWeight:                handlers.PoundPtrFromInt64Ptr(ppmShipment.EstimatedWeight),
 		HasProGear:                     ppmShipment.HasProGear,
+		IsActualExpenseReimbursement:   ppmShipment.IsActualExpenseReimbursement,
 		ProGearWeight:                  handlers.PoundPtrFromInt64Ptr(ppmShipment.ProGearWeight),
 		SpouseProGearWeight:            handlers.PoundPtrFromInt64Ptr(ppmShipment.SpouseProGearWeight),
 		HasRequestedAdvance:            ppmShipment.HasRequestedAdvance,
@@ -214,7 +245,7 @@ func UpdatePPMShipmentModel(ppmShipment *internalmessages.UpdatePPMShipment) *mo
 	}
 
 	if ppmShipment.DestinationAddress != nil {
-		ppmModel.DestinationAddress = AddressModel(ppmShipment.DestinationAddress)
+		ppmModel.DestinationAddress = PPMDestinationAddressModel(ppmShipment.DestinationAddress)
 	}
 
 	if ppmShipment.SecondaryDestinationAddress != nil {

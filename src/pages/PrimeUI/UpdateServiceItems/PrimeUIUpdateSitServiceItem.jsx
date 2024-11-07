@@ -17,6 +17,7 @@ import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import primeStyles from 'pages/PrimeUI/Prime.module.scss';
 import { primeSimulatorRoutes } from 'constants/routes';
 import { formatDateForSwagger, formatDateWithUTC } from 'shared/dates';
+import { SERVICE_ITEM_STATUSES } from 'constants/serviceItems';
 
 const PrimeUIUpdateSitServiceItem = ({ setFlashMessage }) => {
   const [errorMessage, setErrorMessage] = useState();
@@ -80,8 +81,15 @@ const PrimeUIUpdateSitServiceItem = ({ setFlashMessage }) => {
   // sending the data submitted in the form to the API
   // if any of the dates are skipped or not filled with values, we'll just make them null
   const onSubmit = (values) => {
-    const { sitCustomerContacted, sitDepartureDate, sitRequestedDelivery, mtoServiceItemID, reServiceCode, eTag } =
-      values;
+    const {
+      sitCustomerContacted,
+      sitDepartureDate,
+      sitRequestedDelivery,
+      updateReason,
+      mtoServiceItemID,
+      reServiceCode,
+      eTag,
+    } = values;
 
     const body = {
       sitDepartureDate: sitDepartureDate === 'Invalid date' ? null : formatDateForSwagger(sitDepartureDate),
@@ -90,6 +98,11 @@ const PrimeUIUpdateSitServiceItem = ({ setFlashMessage }) => {
       reServiceCode,
       modelType: 'UpdateMTOServiceItemSIT',
     };
+
+    if (serviceItem?.status === SERVICE_ITEM_STATUSES.REJECTED) {
+      body.requestApprovalsRequestedStatus = true;
+      body.updateReason = updateReason;
+    }
 
     createUpdateSITServiceItemRequestMutation({ mtoServiceItemID, eTag, body });
   };

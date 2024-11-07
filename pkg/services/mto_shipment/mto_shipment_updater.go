@@ -461,6 +461,7 @@ func (f *mtoShipmentUpdater) updateShipmentRecord(appCtx appcontext.AppContext, 
 				// Make sure the shipment has the updated DestinationAddressID to store
 				// in mto_shipments table
 				newShipment.DestinationAddressID = &newDestinationAddress.ID
+				newShipment.DestinationAddress = newDestinationAddress
 			} else if newShipment.DestinationAddressID == nil {
 				// There is no original address to update
 				if newShipment.DestinationAddress.ID == uuid.Nil {
@@ -471,6 +472,7 @@ func (f *mtoShipmentUpdater) updateShipmentRecord(appCtx appcontext.AppContext, 
 						return newDestAddErr
 					}
 					newShipment.DestinationAddressID = &newDestinationAddress.ID
+					newShipment.DestinationAddress = newDestinationAddress
 				} else {
 					// Otherwise, there is no original address to update and this new address already has an ID
 					newShipment.DestinationAddressID = &newShipment.DestinationAddress.ID
@@ -493,6 +495,7 @@ func (f *mtoShipmentUpdater) updateShipmentRecord(appCtx appcontext.AppContext, 
 				}
 
 				newShipment.PickupAddressID = &newPickupAddress.ID
+				newShipment.PickupAddress = newPickupAddress
 			} else if newShipment.PickupAddressID == nil {
 				// There is no original address to update
 				if newShipment.PickupAddress.ID == uuid.Nil {
@@ -503,6 +506,7 @@ func (f *mtoShipmentUpdater) updateShipmentRecord(appCtx appcontext.AppContext, 
 						return newPickupAddCreateErr
 					}
 					newShipment.PickupAddressID = &newPickupAddress.ID
+					newShipment.PickupAddress = newPickupAddress
 				} else {
 					// Otherwise, there is no original address to update and this new address already has an ID
 					newShipment.PickupAddressID = &newShipment.PickupAddress.ID
@@ -657,6 +661,7 @@ func (f *mtoShipmentUpdater) updateShipmentRecord(appCtx appcontext.AppContext, 
 				}
 				// Assign updated storage facility address to the updated shipment
 				newShipment.StorageFacility.AddressID = newStorageFacilityAddress.ID
+				newShipment.StorageFacility.Address = *newStorageFacilityAddress
 			} else {
 				// Make sure that the new storage facility address doesn't already have an ID.
 				// If it does, we just assign it. Otherwise, we need to create it.
@@ -684,10 +689,13 @@ func (f *mtoShipmentUpdater) updateShipmentRecord(appCtx appcontext.AppContext, 
 			// For NTS-Release set the pick up address to the storage facility
 			if newShipment.ShipmentType == models.MTOShipmentTypeHHGOutOfNTSDom {
 				newShipment.PickupAddressID = &newShipment.StorageFacility.AddressID
+				newShipment.PickupAddress = &newShipment.StorageFacility.Address
+
 			}
 			// For NTS set the destination address to the storage facility
 			if newShipment.ShipmentType == models.MTOShipmentTypeHHGIntoNTSDom {
 				newShipment.DestinationAddressID = &newShipment.StorageFacility.AddressID
+				newShipment.DestinationAddress = &newShipment.StorageFacility.Address
 			}
 		}
 
@@ -834,6 +842,9 @@ func (f *mtoShipmentUpdater) updateShipmentRecord(appCtx appcontext.AppContext, 
 		} else if newShipment.SACType == nil {
 			newShipment.SACType = dbShipment.SACType
 		}
+
+		// when populating the market_code column, it is considered domestic if both pickup & dest are CONUS addresses
+		newShipment = models.DetermineShipmentMarketCode(newShipment)
 
 		if err := txnAppCtx.DB().Update(newShipment); err != nil {
 			return err
@@ -994,7 +1005,7 @@ func (o *mtoShipmentStatusUpdater) setRequiredDeliveryDate(appCtx appcontext.App
 			if shipment.StorageFacility == nil || shipment.StorageFacility.AddressID == uuid.Nil {
 				return errors.Errorf("StorageFacility is required for %s shipments", models.MTOShipmentTypeHHGIntoNTSDom)
 			}
-			err := appCtx.DB().Load(shipment.StorageFacility, "Address")
+			err := appCtx.DB().Load(shipment.StorageFacility, "Address", "Address.Country")
 			if err != nil {
 				return apperror.NewNotFoundError(shipment.StorageFacility.AddressID, "looking for MTOShipment.StorageFacility.Address")
 			}
@@ -1005,7 +1016,7 @@ func (o *mtoShipmentStatusUpdater) setRequiredDeliveryDate(appCtx appcontext.App
 			if shipment.StorageFacility == nil || shipment.StorageFacility.AddressID == uuid.Nil {
 				return errors.Errorf("StorageFacility is required for %s shipments", models.MTOShipmentTypeHHGOutOfNTSDom)
 			}
-			err := appCtx.DB().Load(shipment.StorageFacility, "Address")
+			err := appCtx.DB().Load(shipment.StorageFacility, "Address", "Address.Country")
 			if err != nil {
 				return apperror.NewNotFoundError(shipment.StorageFacility.AddressID, "looking for MTOShipment.StorageFacility.Address")
 			}

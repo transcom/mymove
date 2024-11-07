@@ -2,6 +2,7 @@ package payloads
 
 import (
 	"errors"
+	"strings"
 
 	"github.com/go-openapi/strfmt"
 	"github.com/gobuffalo/validate/v3"
@@ -13,6 +14,14 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/storage"
 )
+
+// Country payload
+func Country(country *models.Country) *string {
+	if country == nil {
+		return nil
+	}
+	return &country.Country
+}
 
 // Address payload
 func Address(address *models.Address) *internalmessages.Address {
@@ -29,10 +38,28 @@ func Address(address *models.Address) *internalmessages.Address {
 		StreetAddress3: address.StreetAddress3,
 		City:           &address.City,
 		State:          &address.State,
+		Country:        Country(address.Country),
 		PostalCode:     &address.PostalCode,
-		Country:        address.Country,
 		County:         &address.County,
+		IsOconus:       address.IsOconus,
 	}
+}
+
+// PPM Destination Address payload
+func PPMDestinationAddress(address *models.Address) *internalmessages.Address {
+	payload := Address(address)
+
+	if payload == nil {
+		return nil
+	}
+
+	// Street address 1 is optional per business rule but not nullable on the database level.
+	// Check if streetAddress 1 is using place holder value to represent 'NULL'.
+	// If so return empty string.
+	if strings.EqualFold(*payload.StreetAddress1, models.STREET_ADDRESS_1_NOT_PROVIDED) {
+		payload.StreetAddress1 = models.StringPointer("")
+	}
+	return payload
 }
 
 // MTOAgent payload
@@ -93,7 +120,7 @@ func PPMShipment(storer storage.FileStorer, ppmShipment *models.PPMShipment) *in
 		TertiaryPickupAddress:          Address(ppmShipment.TertiaryPickupAddress),
 		HasTertiaryPickupAddress:       ppmShipment.HasTertiaryPickupAddress,
 		ActualPickupPostalCode:         ppmShipment.ActualPickupPostalCode,
-		DestinationAddress:             Address(ppmShipment.DestinationAddress),
+		DestinationAddress:             PPMDestinationAddress(ppmShipment.DestinationAddress),
 		SecondaryDestinationAddress:    Address(ppmShipment.SecondaryDestinationAddress),
 		HasSecondaryDestinationAddress: ppmShipment.HasSecondaryDestinationAddress,
 		TertiaryDestinationAddress:     Address(ppmShipment.TertiaryDestinationAddress),
@@ -115,8 +142,13 @@ func PPMShipment(storer storage.FileStorer, ppmShipment *models.PPMShipment) *in
 		WeightTickets:                  WeightTickets(storer, ppmShipment.WeightTickets),
 		MovingExpenses:                 MovingExpenses(storer, ppmShipment.MovingExpenses),
 		ProGearWeightTickets:           ProGearWeightTickets(storer, ppmShipment.ProgearWeightTickets),
+		IsActualExpenseReimbursement:   ppmShipment.IsActualExpenseReimbursement,
 		SignedCertification:            SignedCertification(ppmShipment.SignedCertification),
 		ETag:                           etag.GenerateEtag(ppmShipment.UpdatedAt),
+	}
+
+	if ppmShipment.IsActualExpenseReimbursement != nil {
+		payloadPPMShipment.IsActualExpenseReimbursement = ppmShipment.IsActualExpenseReimbursement
 	}
 
 	return payloadPPMShipment
@@ -171,6 +203,14 @@ func MobileHomeShipment(storer storage.FileStorer, mobileHomeShipment *models.Mo
 	return payloadMobileHomeShipment
 }
 
+// MarketCode payload
+func MarketCode(marketCode *models.MarketCode) string {
+	if marketCode == nil {
+		return "" // Or a default string value
+	}
+	return string(*marketCode)
+}
+
 // MTOShipment payload
 func MTOShipment(storer storage.FileStorer, mtoShipment *models.MTOShipment) *internalmessages.MTOShipment {
 	payload := &internalmessages.MTOShipment{
@@ -199,6 +239,7 @@ func MTOShipment(storer storage.FileStorer, mtoShipment *models.MTOShipment) *in
 		MobileHomeShipment:          MobileHomeShipment(storer, mtoShipment.MobileHome),
 		ETag:                        etag.GenerateEtag(mtoShipment.UpdatedAt),
 		ShipmentLocator:             handlers.FmtStringPtr(mtoShipment.ShipmentLocator),
+		MarketCode:                  MarketCode(&mtoShipment.MarketCode),
 	}
 	if mtoShipment.HasSecondaryPickupAddress != nil && !*mtoShipment.HasSecondaryPickupAddress {
 		payload.SecondaryPickupAddress = nil
@@ -345,7 +386,7 @@ func PayloadForDocumentModel(storer storage.FileStorer, document models.Document
 		if userUpload.Upload.ID == uuid.Nil {
 			return nil, errors.New("no uploads for user")
 		}
-		url, err := storer.PresignedURL(userUpload.Upload.StorageKey, userUpload.Upload.ContentType)
+		url, err := storer.PresignedURL(userUpload.Upload.StorageKey, userUpload.Upload.ContentType, userUpload.Upload.Filename)
 		if err != nil {
 			return nil, err
 		}

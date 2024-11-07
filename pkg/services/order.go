@@ -10,6 +10,7 @@ import (
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/gen/ghcmessages"
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/models/roles"
 	"github.com/transcom/mymove/pkg/storage"
 )
 
@@ -18,7 +19,7 @@ import (
 //go:generate mockery --name OrderFetcher
 type OrderFetcher interface {
 	FetchOrder(appCtx appcontext.AppContext, orderID uuid.UUID) (*models.Order, error)
-	ListOrders(appCtx appcontext.AppContext, officeUserID uuid.UUID, params *ListOrderParams) ([]models.Move, int, error)
+	ListOrders(appCtx appcontext.AppContext, officeUserID uuid.UUID, role roles.RoleType, params *ListOrderParams) ([]models.Move, int, error)
 	ListAllOrderLocations(appCtx appcontext.AppContext, officeUserID uuid.UUID, params *ListOrderParams) ([]models.Move, error)
 }
 
@@ -49,7 +50,7 @@ type ListOrderParams struct {
 	Locator                 *string
 	DodID                   *string
 	Emplid                  *string
-	LastName                *string
+	CustomerName            *string
 	DestinationDutyLocation *string
 	OriginDutyLocation      []string
 	OriginGBLOC             *string
@@ -69,4 +70,6 @@ type ListOrderParams struct {
 	PPMStatus               *string
 	ViewAsGBLOC             *string
 	CounselingOffice        *string
+	SCAssignedUser          *string
+	TOOAssignedUser         *string
 }
