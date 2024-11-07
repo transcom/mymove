@@ -219,18 +219,15 @@ func (suite *PayloadsSuite) TestMoveWithGBLOC() {
 		},
 	}, nil)
 
-	order := factory.BuildOrder(suite.DB(), []factory.Customization{
-		{
-			Model: models.Order{
-				OriginDutyLocation: &originDutyLocation,
-			},
-		},
-	}, nil)
+	order := factory.BuildOrder(suite.DB(), nil, nil)
+	order.OriginDutyLocation = &originDutyLocation
+	suite.MustSave(&order)
 
 	move := factory.BuildMove(suite.DB(), []factory.Customization{
 		{
 			Model: models.Move{
-				Orders: order,
+				OrdersID: order.ID,
+				Orders:   order,
 			},
 		},
 	}, nil)
