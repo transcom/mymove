@@ -18,7 +18,7 @@ import { searchTransportationOffices } from 'services/internalApi';
 import SERVICE_MEMBER_AGENCIES from 'content/serviceMemberAgencies';
 import { AddressFields } from 'components/form/AddressFields/AddressFields';
 import { OptionalAddressSchema } from 'components/Customer/MtoShipmentForm/validationSchemas';
-import { requiredAddressSchema } from 'utils/validation';
+import { requiredAddressSchema, partialRequiredAddressSchema } from 'utils/validation';
 import { isBooleanFlagEnabled } from 'utils/featureFlags';
 import RequiredTag from 'components/form/RequiredTag';
 
@@ -37,7 +37,7 @@ let validationShape = {
     address: requiredAddressSchema,
   }),
   destinationAddress: Yup.object().shape({
-    address: requiredAddressSchema,
+    address: partialRequiredAddressSchema,
   }),
   secondaryPickupAddress: Yup.object().shape({
     address: OptionalAddressSchema,
@@ -299,6 +299,9 @@ const DateAndLocationForm = ({ mtoShipment, destinationDutyLocation, serviceMemb
                 <AddressFields
                   name="destinationAddress.address"
                   labelHint="Required"
+                  // White spaces are used specifically to override incoming labelHint prop
+                  // not to display anything.
+                  address1LabelHint=" "
                   render={(fields) => (
                     <>
                       <p>Please input your destination address.</p>

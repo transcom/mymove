@@ -2,6 +2,7 @@ package payloads
 
 import (
 	"errors"
+	"strings"
 	"time"
 
 	"github.com/go-openapi/strfmt"
@@ -108,6 +109,44 @@ func AddressModel(address *ghcmessages.Address) *models.Address {
 	if address.PostalCode != nil {
 		modelAddress.PostalCode = *address.PostalCode
 	}
+	return modelAddress
+}
+
+// AddressModel model
+func PPMDestinationAddressModel(address *ghcmessages.PPMDestinationAddress) *models.Address {
+	// To check if the model is intended to be blank, we'll look at ID and City, State, PostalCode
+	// We should always have ID if the user intends to update an Address,
+	// and City, State, PostalCode is a required field on creation. If both are blank, it should be treated as nil.
+	var blankSwaggerID strfmt.UUID
+	// unlike other addresses PPM destination address can be created without StreetAddress1
+	if address == nil || (address.ID == blankSwaggerID && address.City == nil && address.State == nil && address.PostalCode == nil) {
+		return nil
+	}
+
+	modelAddress := &models.Address{
+		ID:             uuid.FromStringOrNil(address.ID.String()),
+		StreetAddress2: address.StreetAddress2,
+		StreetAddress3: address.StreetAddress3,
+	}
+
+	if address.StreetAddress1 != nil && len(strings.Trim(*address.StreetAddress1, " ")) > 0 {
+		modelAddress.StreetAddress1 = *address.StreetAddress1
+	} else {
+		// Street address 1 is optional for certain business context but not nullable on the database level.
+		// Use place holder text to represent NULL.
+		modelAddress.StreetAddress1 = models.STREET_ADDRESS_1_NOT_PROVIDED
+	}
+
+	if address.City != nil {
+		modelAddress.City = *address.City
+	}
+	if address.State != nil {
+		modelAddress.State = *address.State
+	}
+	if address.PostalCode != nil {
+		modelAddress.PostalCode = *address.PostalCode
+	}
+
 	return modelAddress
 }
 
@@ -307,7 +346,7 @@ func PPMShipmentModelFromCreate(ppmShipment *ghcmessages.CreatePPMShipment) *mod
 		model.HasTertiaryPickupAddress = handlers.FmtBool(true)
 	}
 
-	addressModel = AddressModel(&ppmShipment.DestinationAddress.Address)
+	addressModel = PPMDestinationAddressModel(&ppmShipment.DestinationAddress.PPMDestinationAddress)
 	if addressModel != nil {
 		model.DestinationAddress = addressModel
 	}
@@ -628,7 +667,7 @@ func PPMShipmentModelFromUpdate(ppmShipment *ghcmessages.UpdatePPMShipment) *mod
 		model.TertiaryPickupAddressID = &tertiaryPickupAddressID
 	}
 
-	addressModel = AddressModel(&ppmShipment.DestinationAddress.Address)
+	addressModel = PPMDestinationAddressModel(&ppmShipment.DestinationAddress.PPMDestinationAddress)
 	if addressModel != nil {
 		model.DestinationAddress = addressModel
 	}

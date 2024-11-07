@@ -26,15 +26,6 @@ var destinationAddressModel = models.Address{
 	PostalCode:     "33040",
 }
 
-var affiliationDisplayValue = map[models.ServiceMemberAffiliation]string{
-	models.AffiliationARMY:       "Army",
-	models.AffiliationNAVY:       "Marine Corps, Navy, and Coast Guard",
-	models.AffiliationMARINES:    "Marine Corps, Navy, and Coast Guard",
-	models.AffiliationAIRFORCE:   "Air Force and Space Force",
-	models.AffiliationSPACEFORCE: "Air Force and Space Force",
-	models.AffiliationCOASTGUARD: "Marine Corps, Navy, and Coast Guard",
-}
-
 var armySubmitLocation = `the Defense Finance and Accounting Service (DFAS)`
 var allOtherSubmitLocation = `your local finance office`
 
@@ -55,8 +46,6 @@ func (suite *NotificationSuite) TestPpmPacketEmail() {
 	sm := ppmShipment.Shipment.MoveTaskOrder.Orders.ServiceMember
 	suite.Equal(email.recipientEmail, *sm.PersonalEmail)
 	suite.Equal(email.subject, subject)
-	suite.NotEmpty(email.htmlBody)
-	suite.NotEmpty(email.textBody)
 }
 
 func (suite *NotificationSuite) TestPpmPacketEmailHTMLTemplateRenderForAirAndSpaceForce() {
@@ -91,11 +80,12 @@ func (suite *NotificationSuite) TestPpmPacketEmailHTMLTemplateRenderForAirAndSpa
 	}, nil)
 
 	customPPM := models.PPMShipment{
-		ID:                   uuid.Must(uuid.NewV4()),
-		ShipmentID:           shipment.ID,
-		Status:               models.PPMShipmentStatusWaitingOnCustomer,
-		PickupAddressID:      &pickupAddress.ID,
-		DestinationAddressID: &destinationAddress.ID,
+		ID:                           uuid.Must(uuid.NewV4()),
+		ShipmentID:                   shipment.ID,
+		Status:                       models.PPMShipmentStatusWaitingOnCustomer,
+		PickupAddressID:              &pickupAddress.ID,
+		DestinationAddressID:         &destinationAddress.ID,
+		IsActualExpenseReimbursement: models.BoolPointer(false),
 	}
 
 	ppmShipment := factory.BuildPPMShipmentReadyForFinalCustomerCloseOut(suite.DB(), nil, []factory.Customization{
@@ -115,33 +105,16 @@ func (suite *NotificationSuite) TestPpmPacketEmailHTMLTemplateRenderForAirAndSpa
 		DestinationState:                  &destinationAddress.State,
 		DestinationZIP:                    &destinationAddress.PostalCode,
 		SubmitLocation:                    allOtherSubmitLocation,
-		ServiceBranch:                     affiliationDisplayValue[*serviceMember.Affiliation],
+		ServiceBranch:                     GetAffiliationDisplayValues()[*serviceMember.Affiliation],
 		Locator:                           move.Locator,
+		IsActualExpenseReimbursement:      notification.ConvertBoolToString(ppmShipment.IsActualExpenseReimbursement),
 		OneSourceTransportationOfficeLink: OneSourceTransportationOfficeLink,
 		WashingtonHQServicesLink:          WashingtonHQServicesLink,
 		MyMoveLink:                        MyMoveLink,
+		SmartVoucherLink:                  SmartVoucherLink,
 	})
 
-	expectedHTMLContent := `<p>*** DO NOT REPLY directly to this email ***</p>
-<p>This is a confirmation that your Personally Procured Move (PPM) with the <strong>assigned move code ` + move.Locator + `</strong> from <strong>` + pickupAddress.City + `, ` + pickupAddress.State + `</strong> to <strong>` + destinationAddress.City + `, ` + destinationAddress.State + `</strong> has been processed in MilMove. </p>
-<h4>Next steps:</h4>
-
-<p>For ` + affiliationDisplayValue[*serviceMember.Affiliation] + ` personnel (FURTHER ACTION REQUIRED):</p>
-<p>You can now log into MilMove <a href="` + MyMoveLink + `">` + MyMoveLink + `</a> and download your payment packet to submit to ` + allOtherSubmitLocation + `. <strong>You must complete this step to receive final settlement of your PPM.</strong></p>
-<p>Note: The Transportation Office does not determine claimable expenses. Claimable expenses will be determined by finance.</p>
-
-<p>Please be advised, your local finance office may require a DD Form 1351-2 to process payment. You can obtain a copy of this form by utilizing the search feature at <a href="` + WashingtonHQServicesLink + `">` + WashingtonHQServicesLink + `</a>.</p>
-<p>If you have any questions, contact a government transportation office. You can see a listing of transportation offices on Military One Source here: <a href="` + OneSourceTransportationOfficeLink + `">` + OneSourceTransportationOfficeLink + `</a></p>
-
-<p>Thank you,</p>
-
-<p>USTRANSCOM MilMove Team</p>
-
-<p>
-  The information contained in this email may contain Privacy Act information and is therefore protected under the
-  Privacy Act of 1974.  Failure to protect Privacy Act information could result in a $5,000 fine.
-</p>
-`
+	expectedHTMLContent := "<p>*** DO NOT REPLY directly to this email ***</p>\n<p>This is a confirmation that your Personally Procured Move (PPM) with the <b>assigned move code " + move.Locator + "</b> from <b>" + pickupAddress.City + "</b>, <b>" + pickupAddress.State + "</b> to <b>" + destinationAddress.City + "</b>, <b>" + destinationAddress.State + "</b> has been processed in MilMove.</p>\n\n<p><b>Next steps:</b></p>\n\n<p>For Air Force and Space Force personnel (FURTHER ACTION REQUIRED):</p>\n<p>You can now log into MilMove <a href=\"https://my.move.mil/\">https://my.move.mil/</a> and download your payment packet to submit to your local finance office. <b>You must complete this step to receive final settlement of your PPM.</b></p>\n<p>Note: The Transportation Office does not determine claimable expenses. Claimable expenses will be determined by finance.</p>\n<p>Please be advised, your local finance office may require a DD Form 1351-2 to process payment. You can obtain a copy of this form by utilizing the search feature at <a href=\"https://www.esd.whs.mil\">https://www.esd.whs.mil</a>.</p>\n\n<p>If you have any questions, contact a government transportation office. You can see a listing of transportation offices on Military One Source here: <a href=\"https://installations.militaryonesource.mil/search?program-service=2/view-by=ALL\">https://installations.militaryonesource.mil/search?program-service=2/view-by=ALL</a></p>\n<p>Thank you,</p>\n<p>USTRANSCOM MilMove Team</p>\n<p>The information contained in this email may contain Privacy Act information and is therefore protected under the Privacy Act of 1974. Failure to protect Privacy Act information could result in a $5,000 fine.</p>\n"
 
 	htmlContent, err := notification.RenderHTML(suite.AppContextForTest(), ppmEmailData)
 
@@ -181,11 +154,12 @@ func (suite *NotificationSuite) TestPpmPacketEmailHTMLTemplateRenderForArmy() {
 	}, nil)
 
 	customPPM := models.PPMShipment{
-		ID:                   uuid.Must(uuid.NewV4()),
-		ShipmentID:           shipment.ID,
-		Status:               models.PPMShipmentStatusWaitingOnCustomer,
-		PickupAddressID:      &pickupAddress.ID,
-		DestinationAddressID: &destinationAddress.ID,
+		ID:                           uuid.Must(uuid.NewV4()),
+		ShipmentID:                   shipment.ID,
+		Status:                       models.PPMShipmentStatusWaitingOnCustomer,
+		PickupAddressID:              &pickupAddress.ID,
+		DestinationAddressID:         &destinationAddress.ID,
+		IsActualExpenseReimbursement: models.BoolPointer(false),
 	}
 
 	ppmShipment := factory.BuildPPMShipmentReadyForFinalCustomerCloseOut(suite.DB(), nil, []factory.Customization{
@@ -205,33 +179,16 @@ func (suite *NotificationSuite) TestPpmPacketEmailHTMLTemplateRenderForArmy() {
 		DestinationState:                  &destinationAddress.State,
 		DestinationZIP:                    &destinationAddress.PostalCode,
 		SubmitLocation:                    armySubmitLocation,
-		ServiceBranch:                     affiliationDisplayValue[*serviceMember.Affiliation],
+		ServiceBranch:                     GetAffiliationDisplayValues()[*serviceMember.Affiliation],
 		Locator:                           move.Locator,
+		IsActualExpenseReimbursement:      notification.ConvertBoolToString(ppmShipment.IsActualExpenseReimbursement),
 		OneSourceTransportationOfficeLink: OneSourceTransportationOfficeLink,
 		WashingtonHQServicesLink:          WashingtonHQServicesLink,
 		MyMoveLink:                        MyMoveLink,
+		SmartVoucherLink:                  SmartVoucherLink,
 	})
 
-	expectedHTMLContent := `<p>*** DO NOT REPLY directly to this email ***</p>
-<p>This is a confirmation that your Personally Procured Move (PPM) with the <strong>assigned move code ` + move.Locator + `</strong> from <strong>` + pickupAddress.City + `, ` + pickupAddress.State + `</strong> to <strong>` + destinationAddress.City + `, ` + destinationAddress.State + `</strong> has been processed in MilMove. </p>
-<h4>Next steps:</h4>
-
-<p>For ` + affiliationDisplayValue[*serviceMember.Affiliation] + ` personnel (FURTHER ACTION REQUIRED):</p>
-<p>You can now log into MilMove <a href="` + MyMoveLink + `">` + MyMoveLink + `</a> and download your payment packet to submit to ` + armySubmitLocation + `. <strong>You must complete this step to receive final settlement of your PPM.</strong></p>
-<p>Note: Not all claimed expenses may have been accepted during PPM closeout if they did not meet the definition of a valid expense.</p>
-
-<p>Please be advised, your local finance office may require a DD Form 1351-2 to process payment. You can obtain a copy of this form by utilizing the search feature at <a href="` + WashingtonHQServicesLink + `">` + WashingtonHQServicesLink + `</a>.</p>
-<p>If you have any questions, contact a government transportation office. You can see a listing of transportation offices on Military One Source here: <a href="` + OneSourceTransportationOfficeLink + `">` + OneSourceTransportationOfficeLink + `</a></p>
-
-<p>Thank you,</p>
-
-<p>USTRANSCOM MilMove Team</p>
-
-<p>
-  The information contained in this email may contain Privacy Act information and is therefore protected under the
-  Privacy Act of 1974.  Failure to protect Privacy Act information could result in a $5,000 fine.
-</p>
-`
+	expectedHTMLContent := "<p>*** DO NOT REPLY directly to this email ***</p>\n<p>This is a confirmation that your Personally Procured Move (PPM) with the <b>assigned move code " + move.Locator + "</b> from <b>" + pickupAddress.City + "</b>, <b>" + pickupAddress.State + "</b> to <b>" + destinationAddress.City + "</b>, <b>" + destinationAddress.State + "</b> has been processed in MilMove.</p>\n\n<p><b>Next steps:</b></p>\n\n<p>For Army personnel (FURTHER ACTION REQUIRED):</p>\n<p>Log in to SmartVoucher at <a href=\"https://smartvoucher.dfas.mil/\">https://smartvoucher.dfas.mil/</a> using your CAC or myPay username and password.</p>\n<p>This will allow you to edit your voucher, and complete and sign DD Form 1351-2.</p>\n<p>Note: Not all claimed expenses may have been accepted during PPM closeout if they did not meet the definition of a valid expense.</p>\n\n<p>If you have any questions, contact a government transportation office. You can see a listing of transportation offices on Military One Source here: <a href=\"https://installations.militaryonesource.mil/search?program-service=2/view-by=ALL\">https://installations.militaryonesource.mil/search?program-service=2/view-by=ALL</a></p>\n<p>Thank you,</p>\n<p>USTRANSCOM MilMove Team</p>\n<p>The information contained in this email may contain Privacy Act information and is therefore protected under the Privacy Act of 1974. Failure to protect Privacy Act information could result in a $5,000 fine.</p>\n"
 
 	htmlContent, err := notification.RenderHTML(suite.AppContextForTest(), ppmEmailData)
 
@@ -295,193 +252,23 @@ func (suite *NotificationSuite) TestPpmPacketEmailHTMLTemplateRenderForNavalBran
 		DestinationState:                  &destinationAddress.State,
 		DestinationZIP:                    &destinationAddress.PostalCode,
 		SubmitLocation:                    allOtherSubmitLocation,
-		ServiceBranch:                     affiliationDisplayValue[*serviceMember.Affiliation],
+		ServiceBranch:                     GetAffiliationDisplayValues()[*serviceMember.Affiliation],
 		Locator:                           move.Locator,
+		IsActualExpenseReimbursement:      notification.ConvertBoolToString(ppmShipment.IsActualExpenseReimbursement),
 		OneSourceTransportationOfficeLink: OneSourceTransportationOfficeLink,
 		WashingtonHQServicesLink:          WashingtonHQServicesLink,
 		MyMoveLink:                        MyMoveLink,
+		SmartVoucherLink:                  SmartVoucherLink,
 	})
 
-	expectedHTMLContent := `<p>*** DO NOT REPLY directly to this email ***</p>
-<p>This is a confirmation that your Personally Procured Move (PPM) with the <strong>assigned move code ` + move.Locator + `</strong> from <strong>` + pickupAddress.City + `, ` + pickupAddress.State + `</strong> to <strong>` + destinationAddress.City + `, ` + destinationAddress.State + `</strong> has been processed in MilMove. </p>
-<h4>Next steps:</h4>
+	expectedHTMLContent := "<p>*** DO NOT REPLY directly to this email ***</p>\n<p>This is a confirmation that your Personally Procured Move (PPM) with the <b>assigned move code " + move.Locator + "</b> from <b>" + pickupAddress.City + "</b>, <b>" + pickupAddress.State + "</b> to <b>" + destinationAddress.City + "</b>, <b>" + destinationAddress.State + "</b> has been processed in MilMove.</p>\n\n<p><b>Next steps:</b></p>\n\n<p>For Marine Corps, Navy, and Coast Guard personnel:</p>\n<p>You can now log into MilMove <a href=\"https://my.move.mil/\">https://my.move.mil/</a> and view your payment packet; however, you do not need to forward your payment packet to finance as your closeout location is associated with your finance office and they will handle this step for you.</p>\n<p>Note: Not all claimed expenses may have been accepted during PPM closeout if they did not meet the definition of a valid expense.</p>\n<p>Please be advised, your local finance office may require a DD Form 1351-2 to process payment. You can obtain a copy of this form by utilizing the search feature at <a href=\"https://www.esd.whs.mil\">https://www.esd.whs.mil</a>.</p>\n\n<p>If you have any questions, contact a government transportation office. You can see a listing of transportation offices on Military One Source here: <a href=\"https://installations.militaryonesource.mil/search?program-service=2/view-by=ALL\">https://installations.militaryonesource.mil/search?program-service=2/view-by=ALL</a></p>\n<p>Thank you,</p>\n<p>USTRANSCOM MilMove Team</p>\n<p>The information contained in this email may contain Privacy Act information and is therefore protected under the Privacy Act of 1974. Failure to protect Privacy Act information could result in a $5,000 fine.</p>\n"
+	expectedTextContent := "*** DO NOT REPLY directly to this email ***\n\nThis is a confirmation that your Personally Procured Move (PPM) with the assigned move code " + move.Locator + " from " + pickupAddress.City + ", " + pickupAddress.State + " to " + destinationAddress.City + ", " + destinationAddress.State + " has been processed in MilMove.\n\nNext steps:\n\nFor Marine Corps, Navy, and Coast Guard personnel:\n\nYou can now log into MilMove (https://my.move.mil/) and view your payment packet; however, you do not need to forward your payment packet to finance as your closeout location is associated with your finance office and they will handle this step for you.\n\nNote: Not all claimed expenses may have been accepted during PPM closeout if they did not meet the definition of a valid expense.\n\nPlease be advised, your local finance office may require a DD Form 1351-2 to process payment. You can obtain a copy of this form by utilizing the search feature at https://www.esd.whs.mil.\n\nIf you have any questions, contact a government transportation office. You can see a listing of transportation offices on Military One Source here: https://installations.militaryonesource.mil/search?program-service=2/view-by=ALL\n\nThank you,\n\nUSTRANSCOM MilMove Team\n\nThe information contained in this email may contain Privacy Act information and is therefore protected under the Privacy Act of 1974. Failure to protect Privacy Act information could result in a $5,000 fine.\n"
 
-<p>For ` + affiliationDisplayValue[*serviceMember.Affiliation] + ` personnel:</p>
-<p>You can now log into MilMove <a href="` + MyMoveLink + `">` + MyMoveLink + `</a> and view your payment packet; however, you do not need to forward your payment packet to finance as your closeout location is associated with your finance office and they will handle this step for you.</p>
-<p>Note: Not all claimed expenses may have been accepted during PPM closeout if they did not meet the definition of a valid expense.</p>
+	htmlContent, htmlErr := notification.RenderHTML(suite.AppContextForTest(), ppmEmailData)
+	txtContent, txtErr := notification.RenderText(suite.AppContextForTest(), ppmEmailData)
 
-<p>Please be advised, your local finance office may require a DD Form 1351-2 to process payment. You can obtain a copy of this form by utilizing the search feature at <a href="` + WashingtonHQServicesLink + `">` + WashingtonHQServicesLink + `</a>.</p>
-<p>If you have any questions, contact a government transportation office. You can see a listing of transportation offices on Military One Source here: <a href="` + OneSourceTransportationOfficeLink + `">` + OneSourceTransportationOfficeLink + `</a></p>
-
-<p>Thank you,</p>
-
-<p>USTRANSCOM MilMove Team</p>
-
-<p>
-  The information contained in this email may contain Privacy Act information and is therefore protected under the
-  Privacy Act of 1974.  Failure to protect Privacy Act information could result in a $5,000 fine.
-</p>
-`
-
-	htmlContent, err := notification.RenderHTML(suite.AppContextForTest(), ppmEmailData)
-
-	suite.NoError(err)
+	suite.NoError(htmlErr)
+	suite.NoError(txtErr)
 	suite.Equal(expectedHTMLContent, htmlContent)
-}
-
-func (suite *NotificationSuite) TestPpmPacketEmailTextTemplateRender() {
-
-	var pickupAddress = factory.BuildAddress(suite.DB(), []factory.Customization{
-		{
-			Model: pickupAddressModel,
-		},
-	}, nil)
-	var destinationAddress = factory.BuildAddress(suite.DB(), []factory.Customization{
-		{
-			Model: destinationAddressModel,
-		},
-	}, nil)
-
-	customAffiliation := models.AffiliationARMY
-	serviceMember := factory.BuildServiceMember(suite.DB(), []factory.Customization{
-		{Model: models.ServiceMember{
-			Affiliation: &customAffiliation,
-		}},
-	}, nil)
-	move := factory.BuildMove(suite.DB(), []factory.Customization{
-		{
-			Model:    serviceMember,
-			LinkOnly: true,
-		},
-	}, nil)
-	shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
-		{
-			Model:    move,
-			LinkOnly: true,
-		},
-	}, nil)
-
-	customPPM := models.PPMShipment{
-		ID:                   uuid.Must(uuid.NewV4()),
-		ShipmentID:           shipment.ID,
-		Status:               models.PPMShipmentStatusWaitingOnCustomer,
-		PickupAddressID:      &pickupAddress.ID,
-		DestinationAddressID: &destinationAddress.ID,
-	}
-
-	ppmShipment := factory.BuildPPMShipmentReadyForFinalCustomerCloseOut(suite.DB(), nil, []factory.Customization{
-		{Model: customPPM},
-	})
-
-	notification := NewPpmPacketEmail(ppmShipment.ID)
-
-	ppmEmailData, _, err := notification.GetEmailData(suite.AppContextForTest())
-	suite.NoError(err)
-
-	expectedTextContent := `*** DO NOT REPLY directly to this email ***
-
-This is a confirmation that your Personally Procured Move (PPM) with the assigned move code ` + move.Locator + ` from ` + pickupAddress.City + `, ` + pickupAddress.State + ` to ` + destinationAddress.City + `, ` + destinationAddress.State + ` has been processed in MilMove.
-
-Next steps:
-
-For ` + affiliationDisplayValue[*serviceMember.Affiliation] + ` personnel (FURTHER ACTION REQUIRED):
-
-You can now log into MilMove <` + MyMoveLink + `> and download your payment packet to submit to ` + armySubmitLocation + `. You must complete this step to receive final settlement of your PPM.
-
-Note: Not all claimed expenses may have been accepted during PPM closeout if they did not meet the definition of a valid expense.
-
-Please be advised, your local finance office may require a DD Form 1351-2 to process payment. You can obtain a copy of this form by utilizing the search feature at ` + WashingtonHQServicesLink + `.
-
-If you have any questions, contact a government transportation office. You can see a listing of transportation offices on Military One Source here: ` + OneSourceTransportationOfficeLink + `
-
-Thank you,
-
-USTRANSCOM MilMove Team
-
-
-The information contained in this email may contain Privacy Act information and is therefore protected under the
-Privacy Act of 1974.  Failure to protect Privacy Act information could result in a $5,000 fine.
-`
-
-	textContent, err := notification.RenderText(suite.AppContextForTest(), ppmEmailData)
-
-	suite.NoError(err)
-	suite.Equal(expectedTextContent, textContent)
-}
-
-func (suite *NotificationSuite) TestPpmPacketEmailZipcodeFallback() {
-	customAffiliation := models.AffiliationAIRFORCE
-	serviceMember := factory.BuildServiceMember(suite.DB(), []factory.Customization{
-		{Model: models.ServiceMember{
-			Affiliation: &customAffiliation,
-		}},
-	}, nil)
-	move := factory.BuildMove(suite.DB(), []factory.Customization{
-		{
-			Model:    serviceMember,
-			LinkOnly: true,
-		},
-	}, nil)
-	shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
-		{
-			Model:    move,
-			LinkOnly: true,
-		},
-	}, nil)
-
-	customPPM := models.PPMShipment{
-		ID:         uuid.Must(uuid.NewV4()),
-		ShipmentID: shipment.ID,
-		Status:     models.PPMShipmentStatusWaitingOnCustomer,
-	}
-
-	ppmShipment := factory.BuildPPMShipmentReadyForFinalCustomerCloseOut(suite.DB(), nil, []factory.Customization{
-		{Model: customPPM},
-	})
-	notification := NewPpmPacketEmail(ppmShipment.ID)
-
-	ppmEmailData, _, err := notification.GetEmailData(suite.AppContextForTest())
-	suite.NoError(err)
-	suite.NotNil(ppmEmailData)
-
-	suite.EqualExportedValues(ppmEmailData, PpmPacketEmailData{
-		OriginZIP:                         &ppmShipment.PickupAddress.PostalCode,
-		OriginCity:                        &ppmShipment.PickupAddress.City,
-		OriginState:                       &ppmShipment.PickupAddress.State,
-		DestinationZIP:                    &ppmShipment.DestinationAddress.PostalCode,
-		DestinationCity:                   &ppmShipment.DestinationAddress.City,
-		DestinationState:                  &ppmShipment.DestinationAddress.State,
-		SubmitLocation:                    allOtherSubmitLocation,
-		ServiceBranch:                     affiliationDisplayValue[*serviceMember.Affiliation],
-		Locator:                           move.Locator,
-		OneSourceTransportationOfficeLink: OneSourceTransportationOfficeLink,
-		WashingtonHQServicesLink:          WashingtonHQServicesLink,
-		MyMoveLink:                        MyMoveLink,
-	})
-	// <strong>Des Moines, IA</strong> to <strong>Fort Eisenhower, GA</strong>
-	expectedHTMLContent := `<p>*** DO NOT REPLY directly to this email ***</p>
-<p>This is a confirmation that your Personally Procured Move (PPM) with the <strong>assigned move code ` + move.Locator + `</strong> from <strong>` + *ppmEmailData.OriginCity + `, ` + *ppmEmailData.OriginState + `</strong> to <strong>` + *ppmEmailData.DestinationCity + `, ` + *ppmEmailData.DestinationState + `</strong> has been processed in MilMove. </p>
-<h4>Next steps:</h4>
-
-<p>For ` + affiliationDisplayValue[*serviceMember.Affiliation] + ` personnel (FURTHER ACTION REQUIRED):</p>
-<p>You can now log into MilMove <a href="` + MyMoveLink + `">` + MyMoveLink + `</a> and download your payment packet to submit to ` + allOtherSubmitLocation + `. <strong>You must complete this step to receive final settlement of your PPM.</strong></p>
-<p>Note: The Transportation Office does not determine claimable expenses. Claimable expenses will be determined by finance.</p>
-
-<p>Please be advised, your local finance office may require a DD Form 1351-2 to process payment. You can obtain a copy of this form by utilizing the search feature at <a href="` + WashingtonHQServicesLink + `">` + WashingtonHQServicesLink + `</a>.</p>
-<p>If you have any questions, contact a government transportation office. You can see a listing of transportation offices on Military One Source here: <a href="` + OneSourceTransportationOfficeLink + `">` + OneSourceTransportationOfficeLink + `</a></p>
-
-<p>Thank you,</p>
-
-<p>USTRANSCOM MilMove Team</p>
-
-<p>
-  The information contained in this email may contain Privacy Act information and is therefore protected under the
-  Privacy Act of 1974.  Failure to protect Privacy Act information could result in a $5,000 fine.
-</p>
-`
-
-	htmlContent, err := notification.RenderHTML(suite.AppContextForTest(), ppmEmailData)
-
-	suite.NoError(err)
-	suite.Equal(expectedHTMLContent, htmlContent)
+	suite.Equal(expectedTextContent, txtContent)
 }

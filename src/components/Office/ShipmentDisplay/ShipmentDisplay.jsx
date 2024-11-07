@@ -90,7 +90,10 @@ const ShipmentDisplay = ({
           <div className={styles.headerContainer}>
             <div className={styles.shipmentTypeHeader}>
               <h3>
-                <label id={`shipment-display-label-${shipmentId}`}>{displayInfo.heading}</label>
+                <label id={`shipment-display-label-${shipmentId}`}>
+                  <span className={styles.marketCodeIndicator}>{displayInfo.marketCode}</span>
+                  {displayInfo.heading}
+                </label>
               </h3>
               <div>
                 {displayInfo.isActualExpenseReimbursement && <Tag>actual expense reimbursement</Tag>}

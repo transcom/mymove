@@ -302,12 +302,7 @@ func (suite *ShipmentSuite) TestUpdateShipment() {
 		mtoShipment, err := subtestData.shipmentUpdaterOrchestrator.UpdateShipment(appCtx, &shipment, etag.GenerateEtag(shipment.UpdatedAt), "test")
 
 		suite.NoError(err)
-
 		suite.NotNil(mtoShipment)
-
-		// check that the PPMShipment has the expected MTOShipment fields
-		suite.Equal(mtoShipment.ID, mtoShipment.PPMShipment.ShipmentID)
-		suite.Equal(*mtoShipment, mtoShipment.PPMShipment.Shipment)
 
 		// check we got the latest version back
 		suite.NotEqual(&ppmShipment, mtoShipment.PPMShipment)

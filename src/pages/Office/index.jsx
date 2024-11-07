@@ -313,7 +313,10 @@ export class OfficeApp extends Component {
                           end
                           element={
                             <PrivateRoute requiredRoles={[roleTypes.SERVICES_COUNSELOR]}>
-                              <ServicesCounselingQueue isQueueManagementFFEnabled={queueManagementFlag} />
+                              <ServicesCounselingQueue
+                                userPrivileges={userPrivileges}
+                                isQueueManagementFFEnabled={queueManagementFlag}
+                              />
                             </PrivateRoute>
                           }
                         />

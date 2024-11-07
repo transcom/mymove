@@ -526,6 +526,100 @@ func (suite *ServiceParamValueLookupsSuite) TestServiceParamValueLookup() {
 		}
 	})
 
+	suite.Run("DestinationAddress is new address when there's a DeliverAddressUpdate and partially approved SIT", func() {
+		testdatagen.MakeReContractYear(suite.DB(), testdatagen.Assertions{
+			ReContractYear: models.ReContractYear{
+				StartDate: time.Now().Add(-24 * time.Hour),
+				EndDate:   time.Now().Add(24 * time.Hour),
+			},
+		})
+		testData := []models.MTOServiceItem{
+			factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+				{
+					Model: models.ReService{
+						Code: models.ReServiceCodeDDASIT,
+						Name: models.ReServiceCodeDDASIT.String(),
+					},
+				},
+				{
+					Model: models.MTOServiceItem{
+						Status: models.MTOServiceItemStatusSubmitted,
+					},
+				},
+			}, []factory.Trait{
+				factory.GetTraitAvailableToPrimeMove,
+			}),
+			factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+				{
+					Model: models.ReService{
+						Code: models.ReServiceCodeDDDSIT,
+						Name: models.ReServiceCodeDDDSIT.String(),
+					},
+				},
+				{
+					Model: models.MTOServiceItem{
+						Status: models.MTOServiceItemStatusSubmitted,
+					},
+				},
+			}, []factory.Trait{
+				factory.GetTraitAvailableToPrimeMove,
+			}),
+
+			factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+				{
+					Model: models.ReService{
+						Code: models.ReServiceCodeDDSFSC,
+						Name: models.ReServiceCodeDDSFSC.String(),
+					},
+				},
+				{
+					Model: models.MTOServiceItem{
+						Status: models.MTOServiceItemStatusApproved,
+					},
+				},
+			}, []factory.Trait{
+				factory.GetTraitAvailableToPrimeMove,
+			}),
+			factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+				{
+					Model: models.ReService{
+						Code: models.ReServiceCodeDDFSIT,
+						Name: models.ReServiceCodeDDFSIT.String(),
+					},
+				},
+				{
+					Model: models.MTOServiceItem{
+						Status: models.MTOServiceItemStatusSubmitted,
+					},
+				},
+			}, []factory.Trait{
+				factory.GetTraitAvailableToPrimeMove,
+			}),
+		}
+
+		addressUpdate := factory.BuildShipmentAddressUpdate(nil, nil, nil)
+
+		for _, mtoServiceItem := range testData {
+			paramLookup, err := ServiceParamLookupInitialize(suite.AppContextForTest(), suite.planner, mtoServiceItem, uuid.Must(uuid.NewV4()), mtoServiceItem.MoveTaskOrderID, nil)
+			suite.FatalNoError(err)
+
+			mtoServiceItem.MTOShipment.DeliveryAddressUpdate = &addressUpdate
+
+			suite.NotNil(paramLookup.MTOServiceItem)
+
+			originalAddress, err := getDestinationAddressForService(suite.AppContextForTest(), models.ReServiceCodeDDDSIT, mtoServiceItem.MTOShipment)
+			suite.FatalNoError(err)
+
+			if sdal, ok := paramLookup.lookups[models.ServiceItemParamNameZipDestAddress].(ZipAddressLookup); ok {
+				suite.Equal(originalAddress.PostalCode, sdal.Address.PostalCode)
+			} else {
+				suite.Fail("lookup not ZipAddressLookup type")
+			}
+
+			suite.Equal(originalAddress.PostalCode, addressUpdate.OriginalAddress.PostalCode)
+		}
+	})
+
 	suite.Run("DestinationAddress is not required for service items like domestic pack", func() {
 		testdatagen.MakeReContractYear(suite.DB(), testdatagen.Assertions{
 			ReContractYear: models.ReContractYear{

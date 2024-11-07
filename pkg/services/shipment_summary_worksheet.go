@@ -55,6 +55,8 @@ type Page1Values struct {
 	ActualObligationSIT             string
 	MileageTotal                    string
 	MailingAddressW2                string
+	IsActualExpenseReimbursement    bool
+	GCCIsActualExpenseReimbursement string
 }
 
 // Page2Values is an object representing a Shipment Summary Worksheet
@@ -96,6 +98,8 @@ type Page2Values struct {
 	PPMRemainingEntitlement     string
 	FormattedMovingExpenses
 	FormattedOtherExpenses
+	IncentiveIsActualExpenseReimbursement string
+	HeaderIsActualExpenseReimbursement    string
 }
 
 // Page3Values is an object representing a Shipment Summary Worksheet

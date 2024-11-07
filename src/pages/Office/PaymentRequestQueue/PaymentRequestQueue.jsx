@@ -66,7 +66,7 @@ export const columns = (moveLockFlag, isQueueManagementEnabled, showBranchFilter
         );
       },
       {
-        id: 'lastName',
+        id: 'customerName',
         isFilterable: true,
         exportValue: (row) => {
           return `${row.customer.last_name}, ${row.customer.first_name}`;
@@ -149,7 +149,9 @@ export const columns = (moveLockFlag, isQueueManagementEnabled, showBranchFilter
         'Assigned',
         (row) => {
           return !row?.assignable ? (
-            <div data-testid="assigned-col">{`${row.assignedTo?.lastName}, ${row.assignedTo?.firstName}`}</div>
+            <div data-testid="assigned-col">
+              {row.assignedTo ? `${row.assignedTo?.lastName}, ${row.assignedTo?.firstName}` : ''}
+            </div>
           ) : (
             <div data-label="assignedSelect" data-testid="assigned-col" className={styles.assignedToCol}>
               <Dropdown
