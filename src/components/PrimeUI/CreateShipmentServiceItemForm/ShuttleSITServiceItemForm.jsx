@@ -9,14 +9,18 @@ import MaskedTextField from 'components/form/fields/MaskedTextField/MaskedTextFi
 import { Form } from 'components/form/Form';
 import { ShipmentShape } from 'types/shipment';
 import { DropdownInput } from 'components/form/fields';
-import { shuttleServiceItemCodeOptions, createServiceItemModelTypes } from 'constants/prime';
+import {
+  shuttleServiceItemCodeOptions,
+  createServiceItemModelTypes,
+  internationalShuttleServiceItemCodeOptions,
+} from 'constants/prime';
 
 const shuttleSITValidationSchema = Yup.object().shape({
   reServiceCode: Yup.string().required('Required'),
   reason: Yup.string().required('Required'),
 });
 
-const ShuttleSITServiceItemForm = ({ shipment, submission }) => {
+const ShuttleSITServiceItemForm = ({ shipment, submission, international }) => {
   const initialValues = {
     moveTaskOrderID: shipment.moveTaskOrderID,
     mtoShipmentID: shipment.id,
@@ -24,6 +28,7 @@ const ShuttleSITServiceItemForm = ({ shipment, submission }) => {
     reason: '',
     estimatedWeight: null,
     actualWeight: null,
+    international,
   };
 
   const onSubmit = (values) => {
@@ -39,13 +44,23 @@ const ShuttleSITServiceItemForm = ({ shipment, submission }) => {
   return (
     <Formik initialValues={initialValues} validationSchema={shuttleSITValidationSchema} onSubmit={onSubmit}>
       <Form data-testid="shuttleSITServiceItemForm">
-        <DropdownInput
-          label="Service item code"
-          name="reServiceCode"
-          id="reServiceCode"
-          required
-          options={shuttleServiceItemCodeOptions}
-        />
+        {initialValues.international ? (
+          <DropdownInput
+            label="Service item code"
+            name="reServiceCode"
+            id="reServiceCode"
+            required
+            options={internationalShuttleServiceItemCodeOptions}
+          />
+        ) : (
+          <DropdownInput
+            label="Service item code"
+            name="reServiceCode"
+            id="reServiceCode"
+            required
+            options={shuttleServiceItemCodeOptions}
+          />
+        )}
         <TextField name="reason" id="reason" label="Reason" />
         <MaskedTextField
           data-testid="estimatedWeightInput"
@@ -78,6 +93,11 @@ const ShuttleSITServiceItemForm = ({ shipment, submission }) => {
 ShuttleSITServiceItemForm.propTypes = {
   shipment: ShipmentShape.isRequired,
   submission: PropTypes.func.isRequired,
+  international: PropTypes.bool,
+};
+
+ShuttleSITServiceItemForm.defaultProps = {
+  international: false,
 };
 
 export default ShuttleSITServiceItemForm;

@@ -115,6 +115,10 @@ const Shipment = ({ shipment, moveId, onDelete, mtoServiceItems }) => {
         <dd>{shipment.eTag}</dd>
       </div>
       <div className={descriptionListStyles.row}>
+        <dt>Market Code:</dt>
+        <dd>{shipment.marketCode}</dd>
+      </div>
+      <div className={descriptionListStyles.row}>
         <dt>Requested Pickup Date:</dt>
         <dd>{shipment.requestedPickupDate}</dd>
       </div>
