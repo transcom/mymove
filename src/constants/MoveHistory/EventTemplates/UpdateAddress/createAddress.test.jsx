@@ -9,8 +9,8 @@ const LABEL = {
   destinationAddress: 'Delivery Address',
   pickupAddress: 'Origin address',
   residentialAddress: 'Pickup Address',
-  secondaryDestinationAddress: 'Secondary delivery address',
-  secondaryPickupAddress: 'Secondary pickup address',
+  secondaryDestinationAddress: 'Second delivery address',
+  secondaryPickupAddress: 'Second pickup address',
   tertiaryDestinationAddress: 'Third delivery address',
   tertiaryPickupAddress: 'Third pickup address',
 };
