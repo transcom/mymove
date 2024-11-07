@@ -8,6 +8,7 @@ import { renderWithRouterProp } from 'testUtils';
 import { isBooleanFlagEnabled } from 'utils/featureFlags';
 import { customerRoutes } from 'constants/routes';
 import { selectCurrentMoveFromAllMoves } from 'store/entities/selectors';
+import { ORDERS_TYPE } from 'constants/orders';
 
 jest.mock('services/internalApi', () => ({
   ...jest.requireActual('services/internalApi'),
@@ -89,7 +90,7 @@ const testMove = {
       name: 'Flagstaff, AZ 86003',
       updated_at: '2024-02-27T18:22:12.471Z',
     },
-    orders_type: 'PERMANENT_CHANGE_OF_STATION',
+    orders_type: ORDERS_TYPE.PERMANENT_CHANGE_OF_STATION,
     originDutyLocationGbloc: 'BGAC',
     origin_duty_location: {
       address: {
@@ -223,7 +224,7 @@ const testProps = {
             transportation_office_id: '7f5b64b8-979c-4cbd-890b-bffd6fdf56d9',
             updated_at: '2024-02-27T18:22:12.471Z',
           },
-          orders_type: 'PERMANENT_CHANGE_OF_STATION',
+          orders_type: ORDERS_TYPE.PERMANENT_CHANGE_OF_STATION,
           originDutyLocationGbloc: 'HAFC',
           origin_duty_location: {
             address: {
@@ -351,7 +352,7 @@ const testProps = {
             name: 'Flagstaff, AZ 86003',
             updated_at: '2024-02-27T18:22:12.471Z',
           },
-          orders_type: 'PERMANENT_CHANGE_OF_STATION',
+          orders_type: ORDERS_TYPE.PERMANENT_CHANGE_OF_STATION,
           originDutyLocationGbloc: 'BGAC',
           origin_duty_location: {
             address: {
@@ -463,7 +464,7 @@ const testProps = {
             transportation_office_id: '7f5b64b8-979c-4cbd-890b-bffd6fdf56d9',
             updated_at: '2024-02-27T18:22:12.471Z',
           },
-          orders_type: 'PERMANENT_CHANGE_OF_STATION',
+          orders_type: ORDERS_TYPE.PERMANENT_CHANGE_OF_STATION,
           originDutyLocationGbloc: 'HAFC',
           origin_duty_location: {
             address: {
@@ -528,7 +529,7 @@ const testProps = {
     ],
   },
   currentOrders: {
-    orders_type: 'PERMANENT_CHANGE_OF_STATION',
+    orders_type: ORDERS_TYPE.PERMANENT_CHANGE_OF_STATION,
     has_dependents: false,
     issue_date: '2020-08-11',
     grade: 'E_1',
