@@ -344,14 +344,6 @@ const counselingCompletedMoveDetailsQuery = {
     ordersId: '1',
     status: MOVE_STATUSES.SERVICE_COUNSELING_COMPLETED,
   },
-  orderDocuments: {
-    z: {
-      id: 'z',
-      filename: 'test.pdf',
-      contentType: 'application/pdf',
-      url: '/storage/user/1/uploads/2?contentType=application%2Fpdf',
-    },
-  },
 };
 
 const ppmShipmentQuery = {
@@ -553,14 +545,6 @@ const ppmShipmentQuery = {
       updatedAt: '2022-11-08T23:44:58.306Z',
     },
   ],
-  upload: {
-    z: {
-      id: 'z',
-      filename: 'test.pdf',
-      contentType: 'application/pdf',
-      url: '/storage/user/1/uploads/2?contentType=application%2Fpdf',
-    },
-  },
 };
 
 const renderComponent = (props, permissions = [permissionTypes.updateShipment, permissionTypes.updateCustomer]) => {
@@ -732,14 +716,14 @@ describe('MoveDetails page', () => {
 
     it('renders review documents button', async () => {
       useMoveDetailsQueries.mockReturnValue(ppmShipmentQuery);
-      useOrdersDocumentQueries.mockReturnValue(ppmShipmentQuery);
+      useOrdersDocumentQueries.mockReturnValue(newOrdersDocumentQuery);
       renderComponent();
       expect(screen.getAllByRole('button', { name: 'Review documents' }).length).toBe(2);
     });
 
     it('renders review shipment weights button with correct path', async () => {
       useMoveDetailsQueries.mockReturnValue(ppmShipmentQuery);
-      useOrdersDocumentQueries.mockReturnValue(ppmShipmentQuery);
+      useOrdersDocumentQueries.mockReturnValue(newOrdersDocumentQuery);
       const path = generatePath(servicesCounselingRoutes.BASE_REVIEW_SHIPMENT_WEIGHTS_PATH, {
         moveCode: mockRequestedMoveCode,
       });
@@ -753,7 +737,7 @@ describe('MoveDetails page', () => {
 
     it('shows an error if there is an advance requested and no advance status for a PPM shipment', async () => {
       useMoveDetailsQueries.mockReturnValue(ppmShipmentQuery);
-      useOrdersDocumentQueries.mockReturnValue(ppmShipmentQuery);
+      useOrdersDocumentQueries.mockReturnValue(newOrdersDocumentQuery);
       renderComponent();
 
       const advanceStatusElement = screen.getAllByTestId('advanceRequestStatus')[0];
@@ -762,7 +746,7 @@ describe('MoveDetails page', () => {
 
     it('renders the excess weight alert and additional shipment concern if there is excess weight', async () => {
       useMoveDetailsQueries.mockReturnValue(ppmShipmentQuery);
-      useOrdersDocumentQueries.mockReturnValue(ppmShipmentQuery);
+      useOrdersDocumentQueries.mockReturnValue(newOrdersDocumentQuery);
       renderComponent();
       const excessWeightAlert = screen.getByText(
         'This move has excess weight. Review PPM weight ticket documents to resolve.',
@@ -774,7 +758,7 @@ describe('MoveDetails page', () => {
 
     it('renders the allowances error message when allowances are less than moves values', async () => {
       useMoveDetailsQueries.mockReturnValue(ppmShipmentQuery);
-      useOrdersDocumentQueries.mockReturnValue(ppmShipmentQuery);
+      useOrdersDocumentQueries.mockReturnValue(newOrdersDocumentQuery);
       renderComponent();
       const allowanceError = screen.getByTestId('allowanceError');
       expect(allowanceError).toBeInTheDocument();
@@ -1105,7 +1089,7 @@ describe('MoveDetails page', () => {
     describe('service counseling completed', () => {
       it('hides submit and view/edit buttons/links', async () => {
         useMoveDetailsQueries.mockReturnValue(counselingCompletedMoveDetailsQuery);
-        useOrdersDocumentQueries.mockReturnValue(counselingCompletedMoveDetailsQuery);
+        useOrdersDocumentQueries.mockReturnValue(newOrdersDocumentQuery);
 
         renderComponent();
 
