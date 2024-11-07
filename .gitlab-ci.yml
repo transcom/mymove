@@ -40,9 +40,10 @@ variables:
 
 stages:
 #- security-testing
-#- test
 - pre_checks
+#- test_builds
 - build
+- push 
 - deploy
 
 # sast:
@@ -174,6 +175,56 @@ pre_deps_yarn:
 #   script:
 #     - echo "Temporarily skipping TLS certificate check."
 
+# pre_test:
+#   stage: test_builds
+#   image: $DOCKER_APP_IMAGE
+#   needs: 
+#     - pre_deps_golang
+#   script:
+#     - rm -f /builds/*/*/.git/index.lock
+#     - export CURRENT_BUILD_PATH=$(pwd)
+#     - echo $PATH
+#     - rm -rf $HOME/golang
+#     - rm -rf $HOME/gopath
+#     - mkdir -p $HOME/golang # for GOROOT (contains the Go binary & core packages)
+#     - mkdir -p $HOME/gopath # for GOPATH (contains code and external packages)
+#     - curl -sSL http://storage.googleapis.com/golang/go1.5.2.linux-amd64.tar.gz -o go1.5.2.linux-amd64.tar.gz
+#     - tar -C $HOME/golang -xzf go1.5.2.linux-amd64.tar.gz
+#     - export GOROOT=$HOME/golang/go
+#     - export GOPATH=$HOME/gopath
+#     - export PATH=$PATH:$GOROOT/bin:$GOPATH/bin
+#     - if [[ "$(go version)" == *"go version go1.11"* ]]; then echo "✓ Go binary installed!"; else echo "Go binary not installed"; exit 1; fi;
+#     - go version
+#     - go env
+#     - which go
+#     - 'scripts/pre-commit-go-mod || exit 0'
+#     - 'SKIP=golangci-lint,eslint,prettier pre-commit run --all-files'
+#     - mkdir -p tmp/test-results/pretest
+#     - pre-commit run -v --all-files golangci-lint | tee tmp/test-results/pretest/golangci-lint.out
+#     - ./scripts/ensure-spectral-lint /tmp/spectral_baseline spectral
+#     - echo "Temporarily bypassing some pre_test steps."
+#   rules:
+#     - if: '$CI_COMMIT_BRANCH == "B-18585-gitlab-deploy" || $CI_COMMIT_BRANCH == "main"'
+#   cache:
+#     - key: "$CI_COMMIT_REF_SLUG-go"
+#       paths:
+#         - $GOPATH/pkg/mod
+#     - key: "v3-cache-yarn-v3-$CI_COMMIT_REF_SLUG"
+#       paths:
+#         - .yarn/cache
+#     - key: "v1-pre-commit-dot-cache-$CI_COMMIT_REF_SLUG"
+#       paths:
+#         - ~/.cache/pre-commit
+#     - key: "v8-spectral-lint-$CI_COMMIT_REF_SLUG"
+#       paths:
+#         - ~/transcom/mymove/spectral
+
+#   artifacts:
+#     paths:
+#       - ~/transcom/mymove/spectral
+#       - tmp/test-results/pretest/
+#     expire_in: 1 week
+
 # build_storybook:
 #   stage: build
 #   image: $DOCKER_APP_IMAGE 
@@ -196,7 +247,6 @@ pre_deps_yarn:
 #     expire_in: 1 week
 #   rules:
 #     - if: '$CI_COMMIT_BRANCH == "B-18585-gitlab-deploy" || $CI_COMMIT_BRANCH == "main"'
-
 
 compile_app_client:
   stage: build
@@ -319,7 +369,7 @@ build_migrations:
   after_script:
     - echo "Migrations image built successfully."
 
-build_tasks:
+build_dp3_tasks:
   stage: build
   image:
     name: gcr.io/kaniko-project/executor:v1.14.0-debug
@@ -342,8 +392,8 @@ build_tasks:
   after_script:
     - echo "Tasks image built successfully."
 
-push_migrations_gov_dev:
-  stage: deploy
+push_migrations_dp3:
+  stage: push
   image: gcr.io/kaniko-project/executor:v1.14.0-debug # Uncomment and use the correct image if needed
   needs:
     - build_migrations
@@ -364,8 +414,8 @@ push_migrations_gov_dev:
     - echo "Deployment completed. Check above for any errors."
   allow_failure: false
 
-push_app_gov_dev:
-  stage: deploy
+push_app_dp3:
+  stage: push
   image: gcr.io/kaniko-project/executor:v1.14.0-debug
   needs:
     - build_app
@@ -384,11 +434,11 @@ push_app_gov_dev:
     - echo "Tasks image pushed to AWS ECR successfully."
   allow_failure: false
 
-push_tasks_gov_dev:
-  stage: deploy
+push_tasks_dp3:
+  stage: push
   image: gcr.io/kaniko-project/executor:v1.14.0-debug
   needs:
-    - build_tasks
+    - build_dp3_tasks
     - compile_app_client
     - compile_app_server
   before_script:
@@ -403,27 +453,155 @@ push_tasks_gov_dev:
   after_script:
     - echo "Tasks image pushed to AWS ECR successfully."
 
-push_otel_collector_image_demo:
-  stage: deploy
+push_otel_collector_image_dp3:
+  stage: push
   image: 
-    name: $DOCKER_BASE_IMAGE  # Uncomment if you need a specific Docker image to run your job.
+    name: $DOCKER_BASE_IMAGE
     entrypoint: [""]
   needs: 
     - compile_app_server
   script:
-    - echo "Logging in to Amazon ECR..."
-    - aws ecr get-login-password --region us-gov-west-1 | docker login --username AWS --password-stdin 447641181206.dkr.ecr.us-gov-west-1.amazonaws.com
+    - echo "Logging in to Amazon ECR with Crane..."
+    - aws ecr get-login-password --region us-gov-west-1 | crane auth login 447641181206.dkr.ecr.us-gov-west-1.amazonaws.com -u AWS --password-stdin
     
-    - echo "Pulling the AWS OTel Collector image from public registry..."
-    - docker pull public.ecr.aws/aws-observability/aws-otel-collector:v0.31.0
+    - echo "Pulling the AWS OTel Collector image from the public registry with Crane..."
+    - crane pull --insecure public.ecr.aws/aws-observability/aws-otel-collector:v0.31.0 image.tar
     
-    - echo "Tagging the image for our ECR repository..."
-    - docker tag public.ecr.aws/aws-observability/aws-otel-collector:v0.31.0 447641181206.dkr.ecr.us-gov-west-1.amazonaws.com/otel-collector:${CI_COMMIT_SHORT_SHA}
+    - echo "Pushing the image to our private ECR using Crane..."
+    - crane push --insecure image.tar 447641181206.dkr.ecr.us-gov-west-1.amazonaws.com/otel-collector:${CI_COMMIT_SHORT_SHA}
     
-    - echo "Pushing the image to ECR..."
-    - docker push 447641181206.dkr.ecr.us-gov-west-1.amazonaws.com/otel-collector:${CI_COMMIT_SHORT_SHA}
-  after_script:
-    - echo "Tagging and pushing the AWS OTel Collector image to ECR..."
+    - echo "Cleaning up the temporary image file..."
+    - rm image.tar
   allow_failure: false
   rules:
     - if: '$CI_COMMIT_BRANCH == "B-18585-gitlab-deploy" || $CI_COMMIT_BRANCH == "main"'
+
+deploy_dp3_migrations:
+  stage: deploy
+  image:
+    name: $DOCKER_APP_IMAGE
+    entrypoint: [""]
+  needs:
+    - pre_deps_golang
+    #- pre_test
+    - push_app_dp3
+    - push_otel_collector_image_dp3
+    - compile_app_server
+    - compile_app_client
+    - push_tasks_dp3
+    - push_migrations_dp3
+  script:
+    - echo "Getting Digest from filesystem"
+    - export ECR_DIGEST=$(cat images/sha/ECR_DIGEST_app-migrations_demo)
+    - echo "Snapshotting database"
+    - ./scripts/do-exclusively --job-name $CI_JOB_NAME ./scripts/rds-snapshot-app-db $APP_ENVIRONMENT
+    - echo "Running migrations"
+    - ./scripts/do-exclusively --job-name $CI_JOB_NAME ./scripts/ecs-run-app-migrations-container ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/app-migrations@${ECR_DIGEST} $APP_ENVIRONMENT
+ # Run failure announcement only if on the main branch (./scripts/announce-broken-branch)
+    - |
+      if [[ "$CI_COMMIT_BRANCH" == "main" && "$CI_JOB_STATUS" == "failed" ]]; then
+        ./scripts/circleci-announce-broken-branch
+      fi
+  timeout: 20m
+
+deploy_dp3_tasks:
+  stage: deploy
+  image:
+    name: $DOCKER_APP_IMAGE
+    entrypoint: [""]
+  needs:
+    - deploy_dp3_migrations  
+  script:
+    - echo "Getting Digest from filesystem"
+    - export ECR_DIGEST=$(cat images/sha/ECR_DIGEST_app-tasks_demo)
+    - echo "Deploying GHC fuel price data task service"
+    - ./scripts/do-exclusively --job-name $CI_JOB_NAME ./scripts/ecs-deploy-task-container save-ghc-fuel-price-data "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/app-tasks@${ECR_DIGEST}" "${APP_ENVIRONMENT}"
+    - echo "Deploying payment reminder email task service"
+    - ./scripts/do-exclusively --job-name $CI_JOB_NAME ./scripts/ecs-deploy-task-container send-payment-reminder "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/app-tasks@${ECR_DIGEST}" "${APP_ENVIRONMENT}"
+  # Run failure announcement only if on the main branch
+    - |
+      if [[ "$CI_COMMIT_BRANCH" == "main" && "$CI_JOB_STATUS" == "failed" ]]; then
+        ./scripts/circleci-announce-broken-branch
+      fi
+  timeout: 20m
+
+deploy_dp3_app_client_tls:
+  stage: deploy
+  image:
+    name: $DOCKER_APP_IMAGE
+    entrypoint: [""]
+  needs:
+    - deploy_dp3_migrations  
+  variables:
+    OPEN_TELEMETRY_SIDECAR: "true"
+    HEALTH_CHECK: "true"
+  script:
+    - echo "Comparing against deployed commit"
+    - ./scripts/compare-deployed-commit "" $CI_COMMIT_SHA ${TLS_KEY} ${TLS_CERT} ${TLS_CA}
+    - echo "Getting Digest from filesystem"
+    - export ECR_DIGEST=$(cat images/sha/ECR_DIGEST_app_demo)
+    - echo "Getting otel collector digest from filesystem"
+    - export OTEL_ECR_DIGEST=$(cat images/sha/ECR_DIGEST_otel-collector_demo)
+    - export OTEL_COLLECTOR_IMAGE="${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/otel-collector@${OTEL_ECR_DIGEST}"
+    - echo "Deploying app-client-tls service"
+    - ./scripts/do-exclusively --job-name $CI_JOB_NAME ./scripts/ecs-deploy-service-container app-client-tls "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/app@${ECR_DIGEST}" "${APP_ENVIRONMENT}" "/bin/milmove serve"
+    - echo "Running Health Check"
+    - bin/health-checker --schemes https --hosts api.demo.dp3.us --key ${TLS_KEY} --cert ${TLS_CERT} --ca ${TLS_CA} --tries 10 --backoff 3 --log-level info --timeout 5m
+    - echo "Running TLS Check"
+    - bin/tls-checker --schemes https --hosts api.demo.dp3.us --key ${TLS_KEY} --cert ${TLS_CERT} --ca ${TLS_CA} --log-level info --timeout 15m
+    - echo "Checking deployed commits"
+    - ./scripts/check-deployed-commit "api.demo.dp3.us" "$CI_COMMIT_SHA" ${TLS_KEY} ${TLS_CERT} ${TLS_CA}
+    - |
+      # Run failure announcement only if on the main branch
+      if [[ "$CI_COMMIT_BRANCH" == "main" && "$CI_JOB_STATUS" == "failed" ]]; then
+        ./scripts/circleci-announce-broken-branch
+      fi
+  timeout: 20m
+
+
+deploy_dp3_app:
+  stage: deploy
+  image:
+    name: $DOCKER_APP_IMAGE
+    entrypoint: [""]
+  needs:
+    - deploy_dp3_migrations  
+  variables:
+    APP_ENVIRONMENT: "demo"
+    OPEN_TELEMETRY_SIDECAR: "true"
+    HEALTH_CHECK: "true"
+  script:
+    - echo "Comparing against deployed commit"
+    - ./scripts/compare-deployed-commit "" "$CI_COMMIT_SHA" "$TLS_KEY" "$TLS_CERT" "$TLS_CA"
+    - echo "Creating .go-version file if not already present"
+    - |
+      if [ -f ".go-version" ]; then
+        echo ".go-version already exists, no need to re-create"
+      else
+        GO_VERSION=$(awk '/golang/ { print $2 }' .tool-versions)
+        echo "Creating .go-version using version ${GO_VERSION}"
+        echo $GO_VERSION > .go-version
+      fi
+    - echo "Getting Digest from filesystem"
+    - export ECR_DIGEST=$(cat images/sha/ECR_DIGEST_app_demo)
+    - echo "Getting otel collector digest from filesystem"
+    - export OTEL_ECR_DIGEST=$(cat images/sha/ECR_DIGEST_otel-collector_demo)
+    - export OTEL_COLLECTOR_IMAGE="${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/otel-collector@${OTEL_ECR_DIGEST}"
+    - echo "Deploying app service"
+    - ./scripts/do-exclusively --job-name $CI_JOB_NAME ./scripts/ecs-deploy-service-container app "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/app@${ECR_DIGEST}" "${APP_ENVIRONMENT}" "/bin/milmove serve"
+    - echo "Running Health Check"
+    - bin/health-checker --schemes https --hosts my.demo.dp3.us,office.demo.dp3.us,admin.demo.dp3.us --tries 10 --backoff 3 --log-level info --timeout 5m
+    - echo "Running TLS Check"
+    - bin/tls-checker --schemes https --hosts my.demo.dp3.us,office.demo.dp3.us,admin.demo.dp3.us --log-level info --timeout 15m
+    - echo "Checking deployed commits"
+    - ./scripts/check-deployed-commit "my.demo.dp3.us,office.demo.dp3.us,admin.demo.dp3.us" "$CI_COMMIT_SHA"
+  # Run failure announcement only if on the main branch
+    - |
+      if [[ "$CI_COMMIT_BRANCH" == "main" && "$CI_JOB_STATUS" == "failed" ]]; then
+        ./scripts/circleci-announce-broken-branch
+      fi
+  timeout: 20m
+
+
+
+
