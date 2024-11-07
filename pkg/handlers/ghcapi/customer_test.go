@@ -406,7 +406,7 @@ func (suite *HandlerSuite) TestSearchCustomersHandler() {
 		params := customerops.SearchCustomersParams{
 			HTTPRequest: req,
 			Body: customerops.SearchCustomersBody{
-				DodID: customer.Edipi,
+				Edipi: customer.Edipi,
 			},
 		}
 
