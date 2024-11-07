@@ -6,12 +6,11 @@ export const shipmentTypes = {
   [SHIPMENT_OPTIONS.PPM]: 'PPM',
   [SHIPMENT_OPTIONS.NTS]: 'NTS',
   [SHIPMENT_OPTIONS.NTSR]: 'NTS-release',
-  [SHIPMENT_OPTIONS.MOBILE_HOME]: 'MobileHome',
+  [SHIPMENT_OPTIONS.MOBILE_HOME]: 'Mobile Home',
   [SHIPMENT_OPTIONS.BOAT]: 'Boat',
   [SHIPMENT_TYPES.BOAT_HAUL_AWAY]: 'Boat',
   [SHIPMENT_TYPES.BOAT_TOW_AWAY]: 'Boat',
   [SHIPMENT_OPTIONS.UNACCOMPANIED_BAGGAGE]: 'UB',
-  [SHIPMENT_OPTIONS.MOBILE_HOME]: 'Mobile Home',
 };
 
 export const shipmentModificationTypes = {
