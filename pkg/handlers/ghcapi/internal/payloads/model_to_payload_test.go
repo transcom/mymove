@@ -208,6 +208,46 @@ func (suite *PayloadsSuite) TestShipmentAddressUpdate() {
 	})
 }
 
+func (suite *PayloadsSuite) TestMoveWithGBLOC() {
+	appCtx := suite.AppContextForTest()
+
+	originDutyLocation := factory.BuildDutyLocation(suite.DB(), []factory.Customization{
+		{
+			Model: models.Address{
+				PostalCode: "90210",
+			},
+		},
+	}, nil)
+
+	order := factory.BuildOrder(suite.DB(), []factory.Customization{
+		{
+			Model: models.Order{
+				OriginDutyLocation: &originDutyLocation,
+			},
+		},
+	}, nil)
+
+	move := factory.BuildMove(suite.DB(), []factory.Customization{
+		{
+			Model: models.Move{
+				Orders: order,
+			},
+		},
+	}, nil)
+
+	suite.Run("Success - Returns a ghcmessages Move payload with GBLOC", func() {
+		returnedMove, err := Move(&move, &test.FakeS3Storage{})
+		suite.NoError(err)
+
+		originGBLOCobj, gblocErr := models.FetchGBLOCForPostalCode(appCtx.DB(), move.Orders.OriginDutyLocation.Address.PostalCode)
+		suite.NoError(gblocErr)
+		expectedGBLOC := originGBLOCobj.GBLOC
+
+		suite.IsType(&ghcmessages.Move{}, returnedMove)
+		suite.Equal(expectedGBLOC, returnedMove.ShipmentGBLOC)
+	})
+}
+
 func (suite *PayloadsSuite) TestWeightTicketUpload() {
 	uploadID, _ := uuid.NewV4()
 	testURL := "https://testurl.com"

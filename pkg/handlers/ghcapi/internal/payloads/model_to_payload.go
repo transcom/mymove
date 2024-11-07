@@ -2454,19 +2454,15 @@ func SearchMoves(appCtx appcontext.AppContext, moves models.Moves) *ghcmessages.
 			deliveryDate = nil
 		}
 
-		var originGBLOC string
-		if move.Status == models.MoveStatusNeedsServiceCounseling {
-			originGBLOC = swag.StringValue(move.Orders.OriginDutyLocationGBLOC)
-		} else if len(move.ShipmentGBLOC) > 0 && move.ShipmentGBLOC[0].GBLOC != nil {
-			// There is a Pop bug that prevents us from using a has_one association for
-			// Move.ShipmentGBLOC, so we have to treat move.ShipmentGBLOC as an array, even
-			// though there can never be more than one GBLOC for a move.
-			originGBLOC = swag.StringValue(move.ShipmentGBLOC[0].GBLOC)
+		var originGBLOC ghcmessages.GBLOC
+		var OriginPostalCodeToGBLOC models.PostalCodeToGBLOC
+		OriginPostalCodeToGBLOC, gblocErr := models.FetchGBLOCForPostalCode(appCtx.DB(), move.Orders.OriginDutyLocation.Address.PostalCode)
+		if gblocErr != nil {
+			originGBLOC = *ghcmessages.NewGBLOC("")
+		} else if customer.Affiliation.String() == "MARINES" {
+			originGBLOC = ghcmessages.GBLOC("USMC/" + OriginPostalCodeToGBLOC.GBLOC)
 		} else {
-			// If the move's first shipment doesn't have a pickup address (like with an NTS-Release),
-			// we need to fall back to the origin duty location GBLOC.  If that's not available for
-			// some reason, then we should get the empty string (no GBLOC).
-			originGBLOC = swag.StringValue(move.Orders.OriginDutyLocationGBLOC)
+			originGBLOC = ghcmessages.GBLOC(OriginPostalCodeToGBLOC.GBLOC)
 		}
 
 		var destinationGBLOC ghcmessages.GBLOC
