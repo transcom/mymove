@@ -1,6 +1,7 @@
 package models
 
 import (
+	"fmt"
 	"time"
 
 	"github.com/gobuffalo/pop/v6"
@@ -70,7 +71,7 @@ func (r *ReContractYear) Validate(_ *pop.Connection) (*validate.Errors, error) {
 	), nil
 }
 
-func GetExpectedEscalationPriceContractsCount(contractYearName string) ExpectedEscalationPriceContractsCount {
+func GetExpectedEscalationPriceContractsCount(contractYearName string) (ExpectedEscalationPriceContractsCount, error) {
 	switch contractYearName {
 	case BasePeriodYear1:
 		return ExpectedEscalationPriceContractsCount{
@@ -78,56 +79,58 @@ func GetExpectedEscalationPriceContractsCount(contractYearName string) ExpectedE
 			ExpectedAmountOfBasePeriodYearsForCalculation:   1,
 			ExpectedAmountOfOptionPeriodYearsForCalculation: 0,
 			ExpectedAmountOfAwardTermsForCalculation:        0,
-		}
+		}, nil
 	case BasePeriodYear2:
 		return ExpectedEscalationPriceContractsCount{
 			ExpectedAmountOfContractYearsForCalculation:     2,
 			ExpectedAmountOfBasePeriodYearsForCalculation:   2,
 			ExpectedAmountOfOptionPeriodYearsForCalculation: 0,
 			ExpectedAmountOfAwardTermsForCalculation:        0,
-		}
+		}, nil
 	case BasePeriodYear3:
 		return ExpectedEscalationPriceContractsCount{
 			ExpectedAmountOfContractYearsForCalculation:     3,
 			ExpectedAmountOfBasePeriodYearsForCalculation:   3,
 			ExpectedAmountOfOptionPeriodYearsForCalculation: 0,
 			ExpectedAmountOfAwardTermsForCalculation:        0,
-		}
+		}, nil
 	case OptionPeriod1:
 		return ExpectedEscalationPriceContractsCount{
 			ExpectedAmountOfContractYearsForCalculation:     4,
 			ExpectedAmountOfBasePeriodYearsForCalculation:   3,
 			ExpectedAmountOfOptionPeriodYearsForCalculation: 1,
 			ExpectedAmountOfAwardTermsForCalculation:        0,
-		}
+		}, nil
 	case OptionPeriod2:
 		return ExpectedEscalationPriceContractsCount{
 			ExpectedAmountOfContractYearsForCalculation:     5,
 			ExpectedAmountOfBasePeriodYearsForCalculation:   3,
 			ExpectedAmountOfOptionPeriodYearsForCalculation: 2,
 			ExpectedAmountOfAwardTermsForCalculation:        0,
-		}
+		}, nil
 	case AwardTerm1:
 		return ExpectedEscalationPriceContractsCount{
 			ExpectedAmountOfContractYearsForCalculation:     6,
 			ExpectedAmountOfBasePeriodYearsForCalculation:   3,
 			ExpectedAmountOfOptionPeriodYearsForCalculation: 2,
 			ExpectedAmountOfAwardTermsForCalculation:        1,
-		}
+		}, nil
 	case AwardTerm2:
 		return ExpectedEscalationPriceContractsCount{
 			ExpectedAmountOfContractYearsForCalculation:     7,
 			ExpectedAmountOfBasePeriodYearsForCalculation:   3,
 			ExpectedAmountOfOptionPeriodYearsForCalculation: 2,
 			ExpectedAmountOfAwardTermsForCalculation:        2,
-		}
+		}, nil
 	case OptionPeriod3:
 		return ExpectedEscalationPriceContractsCount{
 			ExpectedAmountOfContractYearsForCalculation:     8,
 			ExpectedAmountOfBasePeriodYearsForCalculation:   3,
 			ExpectedAmountOfOptionPeriodYearsForCalculation: 3,
 			ExpectedAmountOfAwardTermsForCalculation:        2,
-		}
+		}, nil
 	}
-	return ExpectedEscalationPriceContractsCount{}
+
+	err := fmt.Errorf("unexpected contract year %s", contractYearName)
+	return ExpectedEscalationPriceContractsCount{}, err
 }
