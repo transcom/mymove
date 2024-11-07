@@ -127,10 +127,14 @@ func (f *estimatePPM) PriceBreakdown(appCtx appcontext.AppContext, ppmShipment *
 }
 
 func shouldSkipEstimatingIncentive(newPPMShipment *models.PPMShipment, oldPPMShipment *models.PPMShipment) bool {
-	return oldPPMShipment.ExpectedDepartureDate.Equal(newPPMShipment.ExpectedDepartureDate) &&
-		newPPMShipment.PickupAddress.PostalCode == oldPPMShipment.PickupAddress.PostalCode &&
-		newPPMShipment.DestinationAddress.PostalCode == oldPPMShipment.DestinationAddress.PostalCode &&
-		((newPPMShipment.EstimatedWeight == nil && oldPPMShipment.EstimatedWeight == nil) || (oldPPMShipment.EstimatedWeight != nil && newPPMShipment.EstimatedWeight.Int() == oldPPMShipment.EstimatedWeight.Int()))
+	if oldPPMShipment.Status != models.PPMShipmentStatusDraft && oldPPMShipment.EstimatedIncentive != nil && *newPPMShipment.EstimatedIncentive == 0 {
+		return false
+	} else {
+		return oldPPMShipment.ExpectedDepartureDate.Equal(newPPMShipment.ExpectedDepartureDate) &&
+			newPPMShipment.PickupAddress.PostalCode == oldPPMShipment.PickupAddress.PostalCode &&
+			newPPMShipment.DestinationAddress.PostalCode == oldPPMShipment.DestinationAddress.PostalCode &&
+			((newPPMShipment.EstimatedWeight == nil && oldPPMShipment.EstimatedWeight == nil) || (oldPPMShipment.EstimatedWeight != nil && newPPMShipment.EstimatedWeight.Int() == oldPPMShipment.EstimatedWeight.Int()))
+	}
 }
 
 func shouldSkipCalculatingFinalIncentive(newPPMShipment *models.PPMShipment, oldPPMShipment *models.PPMShipment, originalTotalWeight unit.Pound, newTotalWeight unit.Pound) bool {
