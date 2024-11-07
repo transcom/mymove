@@ -74,7 +74,12 @@ const OfficeUserList = () => (
       <TextField source="email" />
       <TextField source="firstName" />
       <TextField source="lastName" />
-      <ReferenceField label="Transportation Office" source="transportationOfficeId" reference="offices" link={false}>
+      <ReferenceField
+        label="Primary Transportation Office"
+        source="transportationOfficeId"
+        reference="offices"
+        link={false}
+      >
         <TextField source="name" />
       </ReferenceField>
       <TextField source="userId" label="User Id" />

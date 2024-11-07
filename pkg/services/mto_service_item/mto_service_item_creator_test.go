@@ -59,7 +59,7 @@ func (suite *MTOServiceItemServiceSuite) buildValidServiceItemWithInvalidMove() 
 	// service items can only be created if a Move's status is Approved or
 	// Approvals Requested
 	move := factory.BuildMove(suite.DB(), nil, nil)
-	reServiceDDFSIT := factory.BuildDDFSITReService(suite.DB())
+	reServiceDDFSIT := factory.FetchReServiceByCode(suite.DB(), models.ReServiceCodeDDFSIT)
 	shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
 		{
 			Model:    move,
@@ -88,7 +88,7 @@ func (suite *MTOServiceItemServiceSuite) buildValidDDFSITServiceItemWithValidMov
 		CreatedAt: time.Now(),
 		UpdatedAt: time.Now(),
 	}
-	reServiceDDFSIT := factory.BuildDDFSITReService(suite.DB())
+	reServiceDDFSIT := factory.FetchReServiceByCode(suite.DB(), models.ReServiceCodeDDFSIT)
 	shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
 		{
 			Model:    move,
@@ -114,7 +114,7 @@ func (suite *MTOServiceItemServiceSuite) buildValidDDFSITServiceItemWithValidMov
 
 func (suite *MTOServiceItemServiceSuite) buildValidDOSHUTServiceItemWithValidMove() models.MTOServiceItem {
 	move := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
-	reServiceDOSHUT := factory.BuildReServiceByCode(suite.DB(), models.ReServiceCodeDOSHUT)
+	reServiceDOSHUT := factory.FetchReServiceByCode(suite.DB(), models.ReServiceCodeDOSHUT)
 
 	estimatedPrimeWeight := unit.Pound(6000)
 	shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
@@ -156,7 +156,7 @@ func (suite *MTOServiceItemServiceSuite) buildValidServiceItemWithNoStatusAndVal
 		CreatedAt: time.Now(),
 		UpdatedAt: time.Now(),
 	}
-	reService := factory.BuildReService(suite.DB(), nil, nil)
+	reService := factory.FetchReService(suite.DB(), nil, nil)
 	shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
 		{
 			Model:    move,
@@ -439,7 +439,7 @@ func (suite *MTOServiceItemServiceSuite) TestCreateMTOServiceItem() {
 			},
 		})
 
-		reServiceCS := factory.FetchOrBuildReServiceByCode(suite.DB(), "CS")
+		reServiceCS := factory.FetchReServiceByCode(suite.DB(), "CS")
 		csTaskOrderFee := models.ReTaskOrderFee{
 			ContractYearID: contractYear.ID,
 			ServiceID:      reServiceCS.ID,
@@ -473,7 +473,7 @@ func (suite *MTOServiceItemServiceSuite) TestCreateMTOServiceItem() {
 		createdServiceItemCSList := *createdServiceItemsCS
 		suite.Equal(createdServiceItemCSList[0].Status, models.MTOServiceItemStatus("APPROVED"))
 
-		reServiceMS := factory.FetchOrBuildReServiceByCode(suite.DB(), "MS")
+		reServiceMS := factory.FetchReServiceByCode(suite.DB(), "MS")
 		msTaskOrderFee := models.ReTaskOrderFee{
 			ContractYearID: contractYear.ID,
 			ServiceID:      reServiceMS.ID,
@@ -518,7 +518,7 @@ func (suite *MTOServiceItemServiceSuite) TestCreateMTOServiceItem() {
 			},
 		})
 
-		reServiceCS := factory.FetchOrBuildReServiceByCode(suite.DB(), "CS")
+		reServiceCS := factory.FetchReServiceByCode(suite.DB(), "CS")
 		csTaskOrderFee := models.ReTaskOrderFee{
 			ContractYearID: contractYear.ID,
 			ServiceID:      reServiceCS.ID,
@@ -551,7 +551,7 @@ func (suite *MTOServiceItemServiceSuite) TestCreateMTOServiceItem() {
 		suite.Error(err)
 		suite.Contains(err.Error(), "cannot create fee for service item CS: missing requested pickup date for shipment")
 
-		reServiceMS := factory.FetchOrBuildReServiceByCode(suite.DB(), "MS")
+		reServiceMS := factory.FetchReServiceByCode(suite.DB(), "MS")
 		msTaskOrderFee := models.ReTaskOrderFee{
 			ContractYearID: contractYear.ID,
 			ServiceID:      reServiceMS.ID,
@@ -607,7 +607,7 @@ func (suite *MTOServiceItemServiceSuite) TestCreateMTOServiceItem() {
 			},
 		})
 
-		reServiceCS := factory.FetchOrBuildReServiceByCode(suite.DB(), "CS")
+		reServiceCS := factory.FetchReServiceByCode(suite.DB(), "CS")
 		csTaskOrderFee := models.ReTaskOrderFee{
 			ContractYearID: contractYear.ID,
 			ServiceID:      reServiceCS.ID,
@@ -650,7 +650,7 @@ func (suite *MTOServiceItemServiceSuite) TestCreateMTOServiceItem() {
 		suite.Equal(createdServiceItemCSList[0].Status, models.MTOServiceItemStatus("APPROVED"))
 		suite.Equal(*createdServiceItemCSList[0].LockedPriceCents, csTaskOrderFee2.PriceCents)
 
-		reServiceMS := factory.FetchOrBuildReServiceByCode(suite.DB(), "MS")
+		reServiceMS := factory.FetchReServiceByCode(suite.DB(), "MS")
 		msTaskOrderFee := models.ReTaskOrderFee{
 			ContractYearID: contractYear.ID,
 			ServiceID:      reServiceMS.ID,
@@ -678,6 +678,70 @@ func (suite *MTOServiceItemServiceSuite) TestCreateMTOServiceItem() {
 		suite.Equal(*createdServiceItemMSList[0].LockedPriceCents, csTaskOrderFee2.PriceCents)
 	})
 
+	// Should not be able to create a service item with code ReServiceCodeMS if there is one already created for the move.
+	suite.Run("ReServiceCodeMS multiple creation error", func() {
+		// TESTCASE SCENARIO
+		// Under test: CreateMTOServiceItem function
+		// Set up:     Then create service items for CS or MS. Then try to create again.
+		// Expected outcome:
+		//             Fail, MS cannot be created if there is one already created for the move.
+
+		contract := testdatagen.FetchOrMakeReContract(suite.DB(), testdatagen.Assertions{})
+
+		startDate := time.Date(2024, time.January, 1, 12, 0, 0, 0, time.UTC)
+		endDate := time.Date(2024, time.December, 31, 12, 0, 0, 0, time.UTC)
+		contractYear := testdatagen.FetchOrMakeReContractYear(suite.DB(), testdatagen.Assertions{
+			ReContractYear: models.ReContractYear{
+				Contract:             contract,
+				ContractID:           contract.ID,
+				StartDate:            startDate,
+				EndDate:              endDate,
+				Escalation:           1.0,
+				EscalationCompounded: 1.0,
+			},
+		})
+
+		reServiceMS := factory.FetchReServiceByCode(suite.DB(), "MS")
+		msTaskOrderFee := models.ReTaskOrderFee{
+			ContractYearID: contractYear.ID,
+			ServiceID:      reServiceMS.ID,
+			PriceCents:     90000,
+		}
+		suite.MustSave(&msTaskOrderFee)
+
+		move := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
+
+		pickupDate := time.Date(2024, time.July, 31, 12, 0, 0, 0, time.UTC)
+		factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+			{
+				Model: models.MTOShipment{
+					RequestedPickupDate: &pickupDate,
+				},
+			},
+		}, nil)
+
+		serviceItemMS := models.MTOServiceItem{
+			MoveTaskOrderID: move.ID,
+			MoveTaskOrder:   move,
+			ReService:       reServiceMS,
+		}
+
+		createdServiceItemsMS, _, err := creator.CreateMTOServiceItem(suite.AppContextForTest(), &serviceItemMS)
+		suite.NotNil(createdServiceItemsMS)
+		suite.NoError(err)
+
+		createdServiceItemsMSDupe, _, err := creator.CreateMTOServiceItem(suite.AppContextForTest(), &serviceItemMS)
+
+		fakeMTOShipmentRouterErr := apperror.NewConflictError(serviceItemMS.ID, fmt.Sprintf("for creating a service item. A service item with reServiceCode %s already exists for this move and/or shipment.", serviceItemMS.ReService.Code))
+
+		suite.Nil(createdServiceItemsMSDupe)
+		suite.Equal(fakeMTOShipmentRouterErr.Error(), err.Error())
+	})
+
 	// Should return a "NotFoundError" if the mtoShipmentID isn't linked to the mtoID passed in
 	suite.Run("mtoShipmentID not found", func() {
 		// TESTCASE SCENARIO
@@ -688,7 +752,7 @@ func (suite *MTOServiceItemServiceSuite) TestCreateMTOServiceItem() {
 
 		move := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
 		shipment := factory.BuildMTOShipment(suite.DB(), nil, nil)
-		reService := factory.BuildReServiceByCode(suite.DB(), "ANY")
+		reService := factory.FetchReServiceByCode(suite.DB(), "ANY")
 		serviceItemBadShip := models.MTOServiceItem{
 			MoveTaskOrderID: move.ID,
 			MoveTaskOrder:   move,
@@ -721,7 +785,7 @@ func (suite *MTOServiceItemServiceSuite) TestCreateMTOServiceItem() {
 			},
 		}, nil)
 
-		reService := factory.BuildReServiceByCode(suite.DB(), models.ReServiceCodeDDSHUT)
+		reService := factory.FetchReServiceByCode(suite.DB(), models.ReServiceCodeDDSHUT)
 
 		serviceItemNoWeight := models.MTOServiceItem{
 			MoveTaskOrderID: move.ID,
@@ -745,7 +809,7 @@ func (suite *MTOServiceItemServiceSuite) TestCreateMTOServiceItem() {
 				LinkOnly: true,
 			},
 		}, nil)
-		reServiceDDFSIT := factory.BuildDDFSITReService(suite.DB())
+		reServiceDDFSIT := factory.FetchReServiceByCode(suite.DB(), models.ReServiceCodeDDFSIT)
 
 		contactOne := models.MTOServiceItemCustomerContact{
 			Type:                       models.CustomerContactTypeFirst,
@@ -876,10 +940,10 @@ func (suite *MTOServiceItemServiceSuite) TestCreateOriginSITServiceItem() {
 			},
 		}, nil)
 
-		reServiceDOASIT = factory.BuildReServiceByCode(suite.DB(), models.ReServiceCodeDOASIT)
-		reServiceDOFSIT = factory.BuildReServiceByCode(suite.DB(), models.ReServiceCodeDOFSIT)
-		reServiceDOPSIT = factory.BuildReServiceByCode(suite.DB(), models.ReServiceCodeDOPSIT)
-		reServiceDOSFSC = factory.BuildReServiceByCode(suite.DB(), models.ReServiceCodeDOSFSC)
+		reServiceDOASIT = factory.FetchReServiceByCode(suite.DB(), models.ReServiceCodeDOASIT)
+		reServiceDOFSIT = factory.FetchReServiceByCode(suite.DB(), models.ReServiceCodeDOFSIT)
+		reServiceDOPSIT = factory.FetchReServiceByCode(suite.DB(), models.ReServiceCodeDOPSIT)
+		reServiceDOSFSC = factory.FetchReServiceByCode(suite.DB(), models.ReServiceCodeDOSFSC)
 
 		return mtoShipment
 	}
@@ -1291,7 +1355,7 @@ func (suite *MTOServiceItemServiceSuite) TestCreateOriginSITServiceItemFailToCre
 			},
 		}, nil)
 
-		reServiceDOFSIT := factory.BuildReServiceByCode(suite.DB(), models.ReServiceCodeDOFSIT)
+		reServiceDOFSIT := factory.FetchReServiceByCode(suite.DB(), models.ReServiceCodeDOFSIT)
 
 		serviceItemDOFSIT := models.MTOServiceItem{
 			MoveTaskOrder:   move,
@@ -1316,7 +1380,7 @@ func (suite *MTOServiceItemServiceSuite) TestCreateOriginSITServiceItemFailToCre
 		createdServiceItems, _, err := creator.CreateMTOServiceItem(suite.AppContextForTest(), &serviceItemDOFSIT)
 		suite.Nil(createdServiceItems)
 		suite.Error(err)
-		suite.IsType(apperror.NotFoundError{}, err)
+		suite.IsType(apperror.InvalidInputError{}, err)
 	})
 }
 
@@ -1347,16 +1411,16 @@ func (suite *MTOServiceItemServiceSuite) TestCreateDestSITServiceItem() {
 		).Return(400, nil)
 		creator := NewMTOServiceItemCreator(planner, builder, moveRouter, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticPackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer())
 
-		reServiceDDFSIT := factory.BuildReServiceByCode(suite.DB(), models.ReServiceCodeDDFSIT)
+		reServiceDDFSIT := factory.FetchReServiceByCode(suite.DB(), models.ReServiceCodeDDFSIT)
 		return shipment, creator, reServiceDDFSIT
 
 	}
 
 	setupAdditionalSIT := func() (models.ReService, models.ReService, models.ReService) {
 		// These codes will be needed for the following tests:
-		reServiceDDASIT := factory.BuildReServiceByCode(suite.DB(), models.ReServiceCodeDDASIT)
-		reServiceDDDSIT := factory.BuildReServiceByCode(suite.DB(), models.ReServiceCodeDDDSIT)
-		reServiceDDSFSC := factory.BuildReServiceByCode(suite.DB(), models.ReServiceCodeDDSFSC)
+		reServiceDDASIT := factory.FetchReServiceByCode(suite.DB(), models.ReServiceCodeDDASIT)
+		reServiceDDDSIT := factory.FetchReServiceByCode(suite.DB(), models.ReServiceCodeDDDSIT)
+		reServiceDDSFSC := factory.FetchReServiceByCode(suite.DB(), models.ReServiceCodeDDSFSC)
 		return reServiceDDASIT, reServiceDDDSIT, reServiceDDSFSC
 	}
 
@@ -1399,11 +1463,8 @@ func (suite *MTOServiceItemServiceSuite) TestCreateDestSITServiceItem() {
 			Status:           models.MTOServiceItemStatusSubmitted,
 		}
 
-		createdServiceItems, _, err := creator.CreateMTOServiceItem(suite.AppContextForTest(), &serviceItemDDFSIT)
-		suite.Nil(createdServiceItems)
-		suite.Error(err)
-		suite.IsType(apperror.NotFoundError{}, err)
-		suite.Contains(err.Error(), "service code")
+		_, _, err := creator.CreateMTOServiceItem(suite.AppContextForTest(), &serviceItemDDFSIT)
+		suite.NoError(err)
 	})
 
 	// Failed creation of DDFSIT because CustomerContacts has invalid data
@@ -1617,7 +1678,7 @@ func (suite *MTOServiceItemServiceSuite) TestCreateDestSITServiceItem() {
 
 		// Make the necessary SIT code objects
 		reServiceDDASIT, _, _ := setupAdditionalSIT()
-		factory.BuildReServiceByCode(suite.DB(), models.ReServiceCodeDDFSIT)
+		factory.FetchReServiceByCode(suite.DB(), models.ReServiceCodeDDFSIT)
 
 		// Make a shipment with no DDFSIT
 		now := time.Now()
