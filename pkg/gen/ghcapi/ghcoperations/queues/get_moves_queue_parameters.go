@@ -54,6 +54,10 @@ type GetMovesQueueParams struct {
 	/*
 	  In: query
 	*/
+	CustomerName *string
+	/*
+	  In: query
+	*/
 	DestinationDutyLocation *string
 	/*
 	  In: query
@@ -63,10 +67,6 @@ type GetMovesQueueParams struct {
 	  In: query
 	*/
 	Emplid *string
-	/*
-	  In: query
-	*/
-	LastName *string
 	/*
 	  In: query
 	*/
@@ -144,6 +144,11 @@ func (o *GetMovesQueueParams) BindRequest(r *http.Request, route *middleware.Mat
 		res = append(res, err)
 	}
 
+	qCustomerName, qhkCustomerName, _ := qs.GetOK("customerName")
+	if err := o.bindCustomerName(qCustomerName, qhkCustomerName, route.Formats); err != nil {
+		res = append(res, err)
+	}
+
 	qDestinationDutyLocation, qhkDestinationDutyLocation, _ := qs.GetOK("destinationDutyLocation")
 	if err := o.bindDestinationDutyLocation(qDestinationDutyLocation, qhkDestinationDutyLocation, route.Formats); err != nil {
 		res = append(res, err)
@@ -156,11 +161,6 @@ func (o *GetMovesQueueParams) BindRequest(r *http.Request, route *middleware.Mat
 
 	qEmplid, qhkEmplid, _ := qs.GetOK("emplid")
 	if err := o.bindEmplid(qEmplid, qhkEmplid, route.Formats); err != nil {
-		res = append(res, err)
-	}
-
-	qLastName, qhkLastName, _ := qs.GetOK("lastName")
-	if err := o.bindLastName(qLastName, qhkLastName, route.Formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -310,6 +310,24 @@ func (o *GetMovesQueueParams) bindCounselingOffice(rawData []string, hasKey bool
 	return nil
 }
 
+// bindCustomerName binds and validates parameter CustomerName from query.
+func (o *GetMovesQueueParams) bindCustomerName(rawData []string, hasKey bool, formats strfmt.Registry) error {
+	var raw string
+	if len(rawData) > 0 {
+		raw = rawData[len(rawData)-1]
+	}
+
+	// Required: false
+	// AllowEmptyValue: false
+
+	if raw == "" { // empty values pass all other validations
+		return nil
+	}
+	o.CustomerName = &raw
+
+	return nil
+}
+
 // bindDestinationDutyLocation binds and validates parameter DestinationDutyLocation from query.
 func (o *GetMovesQueueParams) bindDestinationDutyLocation(rawData []string, hasKey bool, formats strfmt.Registry) error {
 	var raw string
@@ -360,24 +378,6 @@ func (o *GetMovesQueueParams) bindEmplid(rawData []string, hasKey bool, formats 
 		return nil
 	}
 	o.Emplid = &raw
-
-	return nil
-}
-
-// bindLastName binds and validates parameter LastName from query.
-func (o *GetMovesQueueParams) bindLastName(rawData []string, hasKey bool, formats strfmt.Registry) error {
-	var raw string
-	if len(rawData) > 0 {
-		raw = rawData[len(rawData)-1]
-	}
-
-	// Required: false
-	// AllowEmptyValue: false
-
-	if raw == "" { // empty values pass all other validations
-		return nil
-	}
-	o.LastName = &raw
 
 	return nil
 }
@@ -574,7 +574,7 @@ func (o *GetMovesQueueParams) bindSort(rawData []string, hasKey bool, formats st
 // validateSort carries on validations for parameter Sort
 func (o *GetMovesQueueParams) validateSort(formats strfmt.Registry) error {
 
-	if err := validate.EnumCase("sort", "query", *o.Sort, []interface{}{"lastName", "dodID", "emplid", "branch", "locator", "status", "originDutyLocation", "destinationDutyLocation", "requestedMoveDate", "appearedInTooAt", "assignedTo", "counselingOffice"}, true); err != nil {
+	if err := validate.EnumCase("sort", "query", *o.Sort, []interface{}{"customerName", "dodID", "emplid", "branch", "locator", "status", "originDutyLocation", "destinationDutyLocation", "requestedMoveDate", "appearedInTooAt", "assignedTo", "counselingOffice"}, true); err != nil {
 		return err
 	}
 
