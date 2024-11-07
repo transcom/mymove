@@ -2066,7 +2066,8 @@ func init() {
         "GHC",
         "NTS",
         "WOUNDED_WARRIOR",
-        "BLUEBARK"
+        "BLUEBARK",
+        "TEMPORARY_DUTY"
       ],
       "x-display-value": {
         "BLUEBARK": "BLUEBARK",
@@ -2076,6 +2077,7 @@ func init() {
         "PERMANENT_CHANGE_OF_STATION": "Permanent Change Of Station (PCS)",
         "RETIREMENT": "Retirement",
         "SEPARATION": "Separation",
+        "TEMPORARY_DUTY": "Temporary Duty (TDY)",
         "WOUNDED_WARRIOR": "Wounded Warrior"
       }
     },
@@ -4921,7 +4923,8 @@ func init() {
         "GHC",
         "NTS",
         "WOUNDED_WARRIOR",
-        "BLUEBARK"
+        "BLUEBARK",
+        "TEMPORARY_DUTY"
       ],
       "x-display-value": {
         "BLUEBARK": "BLUEBARK",
@@ -4931,6 +4934,7 @@ func init() {
         "PERMANENT_CHANGE_OF_STATION": "Permanent Change Of Station (PCS)",
         "RETIREMENT": "Retirement",
         "SEPARATION": "Separation",
+        "TEMPORARY_DUTY": "Temporary Duty (TDY)",
         "WOUNDED_WARRIOR": "Wounded Warrior"
       }
     },
