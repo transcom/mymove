@@ -56,7 +56,7 @@ const Shipment = ({ shipment, moveId, onDelete, mtoServiceItems }) => {
 
   return (
     <dl className={descriptionListStyles.descriptionList}>
-      <h3>{`${shipmentTypeLabels[shipment.shipmentType]} shipment`}</h3>
+      <h3>{`${shipment.marketCode}${shipmentTypeLabels[shipment.shipmentType]} shipment`}</h3>
       <div className={classnames(descriptionListStyles.row, styles.shipmentHeader)}>
         {moveId && (
           <>
