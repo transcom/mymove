@@ -1,8 +1,13 @@
 package models_test
 
 import (
+	"testing"
+
+	"github.com/stretchr/testify/suite"
+
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/testingsuite"
 )
 
 const civilianBaseUBAllowanceTestConstant = 350
@@ -10,7 +15,21 @@ const dependents12AndOverUBAllowanceTestConstant = 350
 const depedentsUnder12UBAllowanceTestConstant = 175
 const maxWholeFamilyCivilianUBAllowanceTestConstant = 2000
 
-func (suite *ModelSuite) TestGetEntitlementWithValidValues() {
+type EntitlementsModelSuite struct {
+	*testingsuite.PopTestSuite
+}
+
+func TestEntitlementsModelSuite(t *testing.T) {
+	ts := &EntitlementsModelSuite{
+		PopTestSuite: testingsuite.NewPopTestSuite(testingsuite.CurrentPackage(),
+			testingsuite.WithPerTestTransaction()),
+	}
+
+	suite.Run(t, ts)
+	ts.PopTestSuite.TearDown()
+}
+
+func (suite *EntitlementsModelSuite) TestGetEntitlementWithValidValues() {
 	E1 := models.ServiceMemberGradeE1
 
 	suite.Run("E1 with dependents", func() {
@@ -34,7 +53,7 @@ func (suite *ModelSuite) TestGetEntitlementWithValidValues() {
 	})
 }
 
-func (suite *ModelSuite) TestGetUBWeightAllowanceIsZero() {
+func (suite *EntitlementsModelSuite) TestGetUBWeightAllowanceIsZero() {
 	appCtx := suite.AppContextForTest()
 	branch := models.AffiliationMARINES
 	originDutyLocationIsOconus := false
@@ -68,7 +87,7 @@ func (suite *ModelSuite) TestGetUBWeightAllowanceIsZero() {
 	})
 }
 
-func (suite *ModelSuite) TestGetUBWeightAllowanceCivilians() {
+func (suite *EntitlementsModelSuite) TestGetUBWeightAllowanceCivilians() {
 	appCtx := suite.AppContextForTest()
 	branch := models.AffiliationCOASTGUARD
 	originDutyLocationIsOconus := true
@@ -107,46 +126,48 @@ func (suite *ModelSuite) TestGetUBWeightAllowanceCivilians() {
 	})
 }
 
-func (suite *ModelSuite) TestGetUBWeightAllowanceEdgeCases() {
+func (suite *EntitlementsModelSuite) TestGetUBWeightAllowanceEdgeCases() {
 	appCtx := suite.AppContextForTest()
-	branch := models.AffiliationCOASTGUARD
+	branch := models.AffiliationAIRFORCE
 	originDutyLocationIsOconus := true
 	newDutyLocationIsOconus := false
-	grade := models.ServiceMemberGradeCIVILIANEMPLOYEE
+	grade := models.ServiceMemberGradeO4
 	orderType := internalmessages.OrdersTypePERMANENTCHANGEOFSTATION
 	dependentsAuthorized := true
 	isAccompaniedTour := true
-
 	dependentsUnderTwelve := 0
 	dependentsTwelveAndOver := 0
-	suite.Run("UB allowance is calculated for Civilian Employee pay grade with no dependents", func() {
+
+	suite.Run("Air Force gets a UB allowance", func() {
 		ubAllowance, err := models.GetUBWeightAllowance(appCtx, &originDutyLocationIsOconus, &newDutyLocationIsOconus, &branch, &grade, &orderType, &dependentsAuthorized, &isAccompaniedTour, &dependentsUnderTwelve, &dependentsTwelveAndOver)
 		suite.NoError(err)
-		suite.Assertions.Equal(civilianBaseUBAllowanceTestConstant, ubAllowance)
+		suite.Assertions.Equal(2000, ubAllowance)
 	})
 
-	dependentsUnderTwelve = 2
-	dependentsTwelveAndOver = 1
-	suite.Run("UB allowance is calculated for Civilian Employee pay grade", func() {
+	branch = models.AffiliationSPACEFORCE
+	suite.Run("Space Force gets the same UB allowance as Air Force", func() {
 		ubAllowance, err := models.GetUBWeightAllowance(appCtx, &originDutyLocationIsOconus, &newDutyLocationIsOconus, &branch, &grade, &orderType, &dependentsAuthorized, &isAccompaniedTour, &dependentsUnderTwelve, &dependentsTwelveAndOver)
 		suite.NoError(err)
-		civilianPlusDependentsTotalBaggageAllowance := civilianBaseUBAllowanceTestConstant + (dependentsUnderTwelve * depedentsUnder12UBAllowanceTestConstant) + (dependentsTwelveAndOver * dependents12AndOverUBAllowanceTestConstant)
-		suite.Assertions.Equal(civilianPlusDependentsTotalBaggageAllowance, ubAllowance)
+		suite.Assertions.Equal(2000, ubAllowance)
 	})
 
-	dependentsTwelveAndOver = 4
-	// this combination of depdendents would tally up to 2100 pounds normally
-	// however, we limit the max ub allowance for a family to 2000
-	suite.Run("UB allowance is set to 2000 for the max weight for a family", func() {
+	branch = models.AffiliationNAVY
+	grade = models.ServiceMemberGradeE9
+	suite.Run("Pay grade E9 gets a UB allowance", func() {
 		ubAllowance, err := models.GetUBWeightAllowance(appCtx, &originDutyLocationIsOconus, &newDutyLocationIsOconus, &branch, &grade, &orderType, &dependentsAuthorized, &isAccompaniedTour, &dependentsUnderTwelve, &dependentsTwelveAndOver)
 		suite.NoError(err)
-		civilianPlusDependentsTotalBaggageAllowance := civilianBaseUBAllowanceTestConstant + (dependentsUnderTwelve * depedentsUnder12UBAllowanceTestConstant) + (dependentsTwelveAndOver * dependents12AndOverUBAllowanceTestConstant)
-		suite.Assertions.NotEqual(civilianPlusDependentsTotalBaggageAllowance, ubAllowance)
-		suite.Assertions.Equal(maxWholeFamilyCivilianUBAllowanceTestConstant, ubAllowance)
+		suite.Assertions.Equal(2000, ubAllowance)
+	})
+
+	grade = models.ServiceMemberGradeE9SPECIALSENIORENLISTED
+	suite.Run("Pay grade E9 Special Senior Enlisted and pay grade E9 get the same UB allowance", func() {
+		ubAllowance, err := models.GetUBWeightAllowance(appCtx, &originDutyLocationIsOconus, &newDutyLocationIsOconus, &branch, &grade, &orderType, &dependentsAuthorized, &isAccompaniedTour, &dependentsUnderTwelve, &dependentsTwelveAndOver)
+		suite.NoError(err)
+		suite.Assertions.Equal(2000, ubAllowance)
 	})
 }
 
-func (suite *ModelSuite) TestGetUBWeightAllowanceWithValidValues() {
+func (suite *EntitlementsModelSuite) TestGetUBWeightAllowanceWithValidValues() {
 	appCtx := suite.AppContextForTest()
 	branch := models.AffiliationMARINES
 	originDutyLocationIsOconus := true
