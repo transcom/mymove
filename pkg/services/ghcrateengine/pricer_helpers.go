@@ -524,7 +524,10 @@ func compoundEscalationFactors(appCtx appcontext.AppContext, contractID uuid.UUI
 	}
 
 	// Get expectations for price escalations calculations
-	expectations := models.GetExpectedEscalationPriceContractsCount(contractYear.Name)
+	expectations, err := models.GetExpectedEscalationPriceContractsCount(contractYear.Name)
+	if err != nil {
+		return escalatedPrice, err
+	}
 
 	// Adding contracts that are expected to be in the calculations based on the contract year to a map
 	contractYearsForCalculation := make(map[string]models.ReContractYear)
