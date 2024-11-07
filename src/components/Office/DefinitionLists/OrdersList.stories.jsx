@@ -1,5 +1,5 @@
 import React from 'react';
-import { object, text } from '@storybook/addon-knobs';
+import { array, object, text } from '@storybook/addon-knobs';
 
 import OrdersList from './OrdersList';
 
@@ -20,19 +20,21 @@ export const Basic = () => (
         ordersNumber: text('ordersInfo.ordersNumber', '999999999'),
         ordersType: text('ordersInfo.ordersType', 'PERMANENT_CHANGE_OF_STATION'),
         ordersTypeDetail: text('ordersInfo.ordersTypeDetail', 'HHG_PERMITTED'),
-        ordersDocuments: object('ordersInfo.ordersDocuments', {
-          'c0a22a98-a806-47a2-ab54-2dac938667b3': {
-            bytes: 2202009,
-            contentType: 'application/pdf',
-            createdAt: '2024-10-23T16:31:21.085Z',
-            filename: 'testFile.pdf',
-            id: 'c0a22a98-a806-47a2-ab54-2dac938667b3',
-            status: 'PROCESSING',
-            updatedAt: '2024-10-23T16:31:21.085Z',
-            uploadType: 'USER',
-            url: '/storage/USER/uploads/c0a22a98-a806-47a2-ab54-2dac938667b3?contentType=application%2Fpdf',
+        ordersDocuments: array('ordersInfo.ordersDocuments', [
+          {
+            'c0a22a98-a806-47a2-ab54-2dac938667b3': {
+              bytes: 2202009,
+              contentType: 'application/pdf',
+              createdAt: '2024-10-23T16:31:21.085Z',
+              filename: 'testFile.pdf',
+              id: 'c0a22a98-a806-47a2-ab54-2dac938667b3',
+              status: 'PROCESSING',
+              updatedAt: '2024-10-23T16:31:21.085Z',
+              uploadType: 'USER',
+              url: '/storage/USER/uploads/c0a22a98-a806-47a2-ab54-2dac938667b3?contentType=application%2Fpdf',
+            },
           },
-        }),
+        ]),
         tacMDC: text('ordersInfo.tacMDC', '9999'),
         sacSDN: text('ordersInfo.sacSDN', '999 999999 999'),
         NTSsac: text('ordersInfo.NTSsac', '999 999999 999'),
@@ -56,19 +58,21 @@ export const AsServiceCounselor = () => (
         ordersNumber: '',
         ordersType: '',
         ordersTypeDetail: '',
-        ordersDocuments: object('ordersInfo.ordersDocuments', {
-          'c0a22a98-a806-47a2-ab54-2dac938667b3': {
-            bytes: 2202009,
-            contentType: 'application/pdf',
-            createdAt: '2024-10-23T16:31:21.085Z',
-            filename: 'testFile.pdf',
-            id: 'c0a22a98-a806-47a2-ab54-2dac938667b3',
-            status: 'PROCESSING',
-            updatedAt: '2024-10-23T16:31:21.085Z',
-            uploadType: 'USER',
-            url: '/storage/USER/uploads/c0a22a98-a806-47a2-ab54-2dac938667b3?contentType=application%2Fpdf',
+        ordersDocuments: array('ordersInfo.ordersDocuments', [
+          {
+            'c0a22a98-a806-47a2-ab54-2dac938667b3': {
+              bytes: 2202009,
+              contentType: 'application/pdf',
+              createdAt: '2024-10-23T16:31:21.085Z',
+              filename: 'testFile.pdf',
+              id: 'c0a22a98-a806-47a2-ab54-2dac938667b3',
+              status: 'PROCESSING',
+              updatedAt: '2024-10-23T16:31:21.085Z',
+              uploadType: 'USER',
+              url: '/storage/USER/uploads/c0a22a98-a806-47a2-ab54-2dac938667b3?contentType=application%2Fpdf',
+            },
           },
-        }),
+        ]),
         tacMDC: '',
         sacSDN: '',
         NTSsac: '',
@@ -139,19 +143,21 @@ export const AsTOO = () => (
         ordersNumber: '',
         ordersType: '',
         ordersTypeDetail: '',
-        ordersDocuments: object('ordersInfo.ordersDocuments', {
-          'c0a22a98-a806-47a2-ab54-2dac938667b3': {
-            bytes: 2202009,
-            contentType: 'application/pdf',
-            createdAt: '2024-10-23T16:31:21.085Z',
-            filename: 'testFile.pdf',
-            id: 'c0a22a98-a806-47a2-ab54-2dac938667b3',
-            status: 'PROCESSING',
-            updatedAt: '2024-10-23T16:31:21.085Z',
-            uploadType: 'USER',
-            url: '/storage/USER/uploads/c0a22a98-a806-47a2-ab54-2dac938667b3?contentType=application%2Fpdf',
+        ordersDocuments: array('ordersInfo.ordersDocuments', [
+          {
+            'c0a22a98-a806-47a2-ab54-2dac938667b3': {
+              bytes: 2202009,
+              contentType: 'application/pdf',
+              createdAt: '2024-10-23T16:31:21.085Z',
+              filename: 'testFile.pdf',
+              id: 'c0a22a98-a806-47a2-ab54-2dac938667b3',
+              status: 'PROCESSING',
+              updatedAt: '2024-10-23T16:31:21.085Z',
+              uploadType: 'USER',
+              url: '/storage/USER/uploads/c0a22a98-a806-47a2-ab54-2dac938667b3?contentType=application%2Fpdf',
+            },
           },
-        }),
+        ]),
         tacMDC: '',
         sacSDN: '',
         NTSsac: '',

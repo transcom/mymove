@@ -12,19 +12,21 @@ const ordersInfo = {
   ordersNumber: '999999999',
   ordersType: 'PERMANENT_CHANGE_OF_STATION',
   ordersTypeDetail: 'HHG_PERMITTED',
-  ordersDocuments: {
-    'c0a22a98-a806-47a2-ab54-2dac938667b3': {
-      bytes: 2202009,
-      contentType: 'application/pdf',
-      createdAt: '2024-10-23T16:31:21.085Z',
-      filename: 'testFile.pdf',
-      id: 'c0a22a98-a806-47a2-ab54-2dac938667b3',
-      status: 'PROCESSING',
-      updatedAt: '2024-10-23T16:31:21.085Z',
-      uploadType: 'USER',
-      url: '/storage/USER/uploads/c0a22a98-a806-47a2-ab54-2dac938667b3?contentType=application%2Fpdf',
+  ordersDocuments: [
+    {
+      'c0a22a98-a806-47a2-ab54-2dac938667b3': {
+        bytes: 2202009,
+        contentType: 'application/pdf',
+        createdAt: '2024-10-23T16:31:21.085Z',
+        filename: 'testFile.pdf',
+        id: 'c0a22a98-a806-47a2-ab54-2dac938667b3',
+        status: 'PROCESSING',
+        updatedAt: '2024-10-23T16:31:21.085Z',
+        uploadType: 'USER',
+        url: '/storage/USER/uploads/c0a22a98-a806-47a2-ab54-2dac938667b3?contentType=application%2Fpdf',
+      },
     },
-  },
+  ],
   tacMDC: '9999',
   sacSDN: '999 999999 999',
   payGrade: 'E_7',
