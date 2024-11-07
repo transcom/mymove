@@ -198,7 +198,7 @@ describe('HeadquartersQueue', () => {
     const moves = GetMountedComponent(hqRoutes.MOVE_QUEUE).find('tbody tr');
 
     const firstMove = moves.at(0);
-    expect(firstMove.find({ 'data-testid': 'lastName-0' }).text()).toBe('test last, test first');
+    expect(firstMove.find({ 'data-testid': 'customerName-0' }).text()).toBe('test last, test first');
     expect(firstMove.find({ 'data-testid': 'edipi-0' }).text()).toBe('555555555');
     expect(firstMove.find({ 'data-testid': 'status-0' }).text()).toBe('New move');
     expect(firstMove.find({ 'data-testid': 'locator-0' }).text()).toBe('AB5P');
@@ -210,7 +210,7 @@ describe('HeadquartersQueue', () => {
     expect(firstMove.find({ 'data-testid': 'appearedInTooAt-0' }).text()).toBe('10 Feb 2023');
 
     const secondMove = moves.at(1);
-    expect(secondMove.find({ 'data-testid': 'lastName-1' }).text()).toBe('test another last, test another first');
+    expect(secondMove.find({ 'data-testid': 'customerName-1' }).text()).toBe('test another last, test another first');
     expect(secondMove.find({ 'data-testid': 'edipi-1' }).text()).toBe('4444444444');
     expect(secondMove.find({ 'data-testid': 'status-1' }).text()).toBe('Move approved');
     expect(secondMove.find({ 'data-testid': 'locator-1' }).text()).toBe('T12A');
@@ -247,11 +247,11 @@ describe('HeadquartersQueue', () => {
     expect(wrapper.find({ 'data-testid': 'status' }).at(0).hasClass('sortAscending')).toBe(false);
     expect(wrapper.find({ 'data-testid': 'status' }).at(0).hasClass('sortDescending')).toBe(false);
 
-    const nameHeading = wrapper.find({ 'data-testid': 'lastName' }).at(0);
+    const nameHeading = wrapper.find({ 'data-testid': 'customerName' }).at(0);
     nameHeading.simulate('click');
     wrapper.update();
 
-    expect(wrapper.find({ 'data-testid': 'lastName' }).at(0).hasClass('sortAscending')).toBe(true);
+    expect(wrapper.find({ 'data-testid': 'customerName' }).at(0).hasClass('sortAscending')).toBe(true);
   });
 
   it('filters the queue', () => {

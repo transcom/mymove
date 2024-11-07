@@ -190,7 +190,7 @@ describe('MoveQueue', () => {
     const moves = GetMountedComponent(tooRoutes.MOVE_QUEUE).find('tbody tr');
 
     currentMove = moves.at(currentIndex);
-    expect(currentMove.find({ 'data-testid': `lastName-${currentIndex}` }).text()).toBe(
+    expect(currentMove.find({ 'data-testid': `customerName-${currentIndex}` }).text()).toBe(
       `${moveData[currentIndex].customer.last_name}, ${moveData[currentIndex].customer.first_name}`,
     );
     expect(currentMove.find({ 'data-testid': `edipi-${currentIndex}` }).text()).toBe(
@@ -215,10 +215,10 @@ describe('MoveQueue', () => {
 
     currentIndex += 1;
     currentMove = moves.at(currentIndex);
-    expect(currentMove.find({ 'data-testid': `lastName-${currentIndex}` }).text()).toBe(
+    expect(currentMove.find({ 'data-testid': `customerName-${currentIndex}` }).text()).toBe(
       'test another last, test another first',
     );
-    expect(currentMove.find({ 'data-testid': `lastName-${currentIndex}` }).text()).toBe(
+    expect(currentMove.find({ 'data-testid': `customerName-${currentIndex}` }).text()).toBe(
       `${moveData[currentIndex].customer.last_name}, ${moveData[currentIndex].customer.first_name}`,
     );
     expect(currentMove.find({ 'data-testid': `edipi-${currentIndex}` }).text()).toBe(
@@ -246,7 +246,7 @@ describe('MoveQueue', () => {
 
     currentIndex += 1;
     currentMove = moves.at(currentIndex);
-    expect(currentMove.find({ 'data-testid': `lastName-${currentIndex}` }).text()).toBe(
+    expect(currentMove.find({ 'data-testid': `customerName-${currentIndex}` }).text()).toBe(
       `${moveData[currentIndex].customer.last_name}, ${moveData[currentIndex].customer.first_name}`,
     );
     expect(currentMove.find({ 'data-testid': `edipi-${currentIndex}` }).text()).toBe(
@@ -296,11 +296,11 @@ describe('MoveQueue', () => {
     expect(wrapper.find({ 'data-testid': 'status' }).at(0).hasClass('sortAscending')).toBe(false);
     expect(wrapper.find({ 'data-testid': 'status' }).at(0).hasClass('sortDescending')).toBe(false);
 
-    const nameHeading = wrapper.find({ 'data-testid': 'lastName' }).at(0);
+    const nameHeading = wrapper.find({ 'data-testid': 'customerName' }).at(0);
     nameHeading.simulate('click');
     wrapper.update();
 
-    expect(wrapper.find({ 'data-testid': 'lastName' }).at(0).hasClass('sortAscending')).toBe(true);
+    expect(wrapper.find({ 'data-testid': 'customerName' }).at(0).hasClass('sortAscending')).toBe(true);
   });
 
   it('filters the queue', () => {
