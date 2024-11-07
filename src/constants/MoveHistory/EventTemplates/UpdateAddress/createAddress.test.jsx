@@ -9,8 +9,10 @@ const LABEL = {
   destinationAddress: 'Destination address',
   pickupAddress: 'Origin address',
   residentialAddress: 'Current address',
-  secondaryDestinationAddress: 'Secondary destination address',
-  secondaryPickupAddress: 'Secondary origin address',
+  secondaryDestinationAddress: 'Second destination address',
+  secondaryPickupAddress: 'Second origin address',
+  tertiaryDestinationAddress: 'Third destination address',
+  tertiaryPickupAddress: 'Third origin address',
 };
 
 describe('when given an insert with address table history record', () => {
