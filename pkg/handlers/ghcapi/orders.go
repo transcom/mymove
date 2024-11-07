@@ -245,12 +245,24 @@ func (h CreateOrderHandler) Handle(params orderop.CreateOrderParams) middleware.
 
 			sitDaysAllowance := models.DefaultServiceMemberSITDaysAllowance
 
+			var dependentsTwelveAndOver *int
+			var dependentsUnderTwelve *int
+			if payload.DependentsTwelveAndOver != nil {
+				dependentsTwelveAndOver = models.IntPointer(int(*payload.DependentsTwelveAndOver))
+			}
+			if payload.DependentsUnderTwelve != nil {
+				dependentsUnderTwelve = models.IntPointer(int(*payload.DependentsUnderTwelve))
+			}
+
 			entitlement := models.Entitlement{
-				DependentsAuthorized: payload.HasDependents,
-				DBAuthorizedWeight:   models.IntPointer(weight),
-				StorageInTransit:     models.IntPointer(sitDaysAllowance),
-				ProGearWeight:        weightAllotment.ProGearWeight,
-				ProGearWeightSpouse:  weightAllotment.ProGearWeightSpouse,
+				DependentsAuthorized:    payload.HasDependents,
+				DBAuthorizedWeight:      models.IntPointer(weight),
+				StorageInTransit:        models.IntPointer(sitDaysAllowance),
+				ProGearWeight:           weightAllotment.ProGearWeight,
+				ProGearWeightSpouse:     weightAllotment.ProGearWeightSpouse,
+				AccompaniedTour:         payload.AccompaniedTour,
+				DependentsUnderTwelve:   dependentsUnderTwelve,
+				DependentsTwelveAndOver: dependentsTwelveAndOver,
 			}
 
 			if saveEntitlementErr := appCtx.DB().Save(&entitlement); saveEntitlementErr != nil {

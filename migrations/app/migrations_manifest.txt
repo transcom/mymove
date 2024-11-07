@@ -1025,6 +1025,8 @@
 20241009210749_create_view_v_locations.up.sql
 20241011201326_changes_for_actual_expense_reimbursement_field.up.sql
 20241017183144_add_AK_HI_duty_locations.up.sql
+20241018091722_oconus-entitlements-enhancement.up.sql
+20241023130404_create_re_service_items.up.sql
 20241023184337_create_ports_table.up.sql
 20241023184350_create_port_locations_table.up.sql
 20241023184437_insert_ports.up.sql
