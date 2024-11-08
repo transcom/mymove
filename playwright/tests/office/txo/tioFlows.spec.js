@@ -207,7 +207,7 @@ test.describe('TIO user', () => {
       await page.getByTestId('searchTextSubmit').click();
 
       await expect(page.getByText('Results')).toBeVisible();
-      await expect(page.getByTestId('dodID-0')).toContainText(testMove.Orders.ServiceMember.edipi);
+      await expect(page.getByTestId('edipi-0')).toContainText(testMove.Orders.ServiceMember.edipi);
     });
     test('can search for moves using Customer Name', async ({ page }) => {
       const CustomerName = `${testMove.Orders.ServiceMember.last_name}, ${testMove.Orders.ServiceMember.first_name}`;
