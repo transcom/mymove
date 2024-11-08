@@ -16,7 +16,8 @@ func (suite *PayloadsSuite) TestFetchPPMShipment() {
 	state := "FL"
 	postalcode := "33621"
 	country := models.Country{
-		Country: "US",
+		Country:     "US",
+		CountryName: "United States",
 	}
 	county := "HILLSBOROUGH"
 

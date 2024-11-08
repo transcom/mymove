@@ -820,7 +820,7 @@ const ShipmentForm = (props) => {
               <Alert data-testid="errorMessage" type="error" headingLevel="h4" heading="An error occurred">
                 {errorCode === 400 ? (
                   <p>
-                    {errorMessage} If the error persists, please try again later, or contact the&nbsp;
+                    {errorMessage} Please try again later, or contact the&nbsp;
                     <Link to={technicalHelpDeskURL} target="_blank" rel="noreferrer">
                       Technical Help Desk
                     </Link>
@@ -886,8 +886,8 @@ const ShipmentForm = (props) => {
 
                 {isNTSR && <ShipmentWeightInput userRole={userRole} />}
 
-                {isMobileHome && (
-                  <MobileHomeShipmentForm
+                {isBoat && (
+                  <BoatShipmentForm
                     lengthHasError={lengthHasError}
                     widthHasError={widthHasError}
                     heightHasError={heightHasError}
@@ -899,8 +899,8 @@ const ShipmentForm = (props) => {
                   />
                 )}
 
-                {isBoat && (
-                  <BoatShipmentForm
+                {isMobileHome && (
+                  <MobileHomeShipmentForm
                     lengthHasError={lengthHasError}
                     widthHasError={widthHasError}
                     heightHasError={heightHasError}

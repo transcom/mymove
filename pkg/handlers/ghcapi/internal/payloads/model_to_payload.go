@@ -214,6 +214,15 @@ func ReportViolations(reportViolations models.ReportViolations) ghcmessages.Repo
 	return payload
 }
 
+func GsrAppeals(gsrAppeals models.GsrAppeals) ghcmessages.GSRAppeals {
+	payload := make(ghcmessages.GSRAppeals, len(gsrAppeals))
+	for i, v := range gsrAppeals {
+		gsrAppeal := v
+		payload[i] = GsrAppeal(&gsrAppeal)
+	}
+	return payload
+}
+
 func EvaluationReportOfficeUser(officeUser models.OfficeUser) ghcmessages.EvaluationReportOfficeUser {
 	payload := ghcmessages.EvaluationReportOfficeUser{
 		Email:     officeUser.Email,
@@ -296,6 +305,7 @@ func EvaluationReport(evaluationReport *models.EvaluationReport) *ghcmessages.Ev
 		ETag:                               etag.GenerateEtag(evaluationReport.UpdatedAt),
 		UpdatedAt:                          strfmt.DateTime(evaluationReport.UpdatedAt),
 		ReportViolations:                   ReportViolations(evaluationReport.ReportViolations),
+		GsrAppeals:                         GsrAppeals(evaluationReport.GsrAppeals),
 	}
 	return payload
 }
@@ -346,6 +356,37 @@ func ReportViolation(reportViolation *models.ReportViolation) *ghcmessages.Repor
 		ViolationID: violationID,
 		ReportID:    reportID,
 		Violation:   PWSViolationItem(&reportViolation.Violation),
+		GsrAppeals:  GsrAppeals(reportViolation.GsrAppeals),
+	}
+	return payload
+}
+
+func GsrAppeal(gsrAppeal *models.GsrAppeal) *ghcmessages.GSRAppeal {
+	if gsrAppeal == nil {
+		return nil
+	}
+	id := *handlers.FmtUUID(gsrAppeal.ID)
+	reportID := *handlers.FmtUUID(gsrAppeal.EvaluationReportID)
+	officeUserID := *handlers.FmtUUID(gsrAppeal.OfficeUserID)
+	officeUser := EvaluationReportOfficeUser(*gsrAppeal.OfficeUser)
+	isSeriousIncident := false
+	if gsrAppeal.IsSeriousIncidentAppeal != nil {
+		isSeriousIncident = *gsrAppeal.IsSeriousIncidentAppeal
+	}
+
+	payload := &ghcmessages.GSRAppeal{
+		ID:                id,
+		ReportID:          reportID,
+		OfficeUserID:      officeUserID,
+		OfficeUser:        &officeUser,
+		IsSeriousIncident: isSeriousIncident,
+		AppealStatus:      ghcmessages.GSRAppealStatusType(gsrAppeal.AppealStatus),
+		Remarks:           gsrAppeal.Remarks,
+		CreatedAt:         strfmt.DateTime(gsrAppeal.CreatedAt),
+	}
+
+	if gsrAppeal.ReportViolationID != nil {
+		payload.ViolationID = *handlers.FmtUUID(*gsrAppeal.ReportViolationID)
 	}
 	return payload
 }
@@ -676,6 +717,18 @@ func Entitlement(entitlement *models.Entitlement) *ghcmessages.Entitlements {
 	}
 	requiredMedicalEquipmentWeight := int64(entitlement.RequiredMedicalEquipmentWeight)
 	gunSafe := entitlement.GunSafe
+	var accompaniedTour *bool
+	if entitlement.AccompaniedTour != nil {
+		accompaniedTour = models.BoolPointer(*entitlement.AccompaniedTour)
+	}
+	var dependentsUnderTwelve *int64
+	if entitlement.DependentsUnderTwelve != nil {
+		dependentsUnderTwelve = models.Int64Pointer(int64(*entitlement.DependentsUnderTwelve))
+	}
+	var dependentsTwelveAndOver *int64
+	if entitlement.DependentsTwelveAndOver != nil {
+		dependentsTwelveAndOver = models.Int64Pointer(int64(*entitlement.DependentsTwelveAndOver))
+	}
 	return &ghcmessages.Entitlements{
 		ID:                             strfmt.UUID(entitlement.ID.String()),
 		AuthorizedWeight:               authorizedWeight,
@@ -688,6 +741,9 @@ func Entitlement(entitlement *models.Entitlement) *ghcmessages.Entitlements {
 		TotalDependents:                totalDependents,
 		TotalWeight:                    totalWeight,
 		RequiredMedicalEquipmentWeight: requiredMedicalEquipmentWeight,
+		DependentsUnderTwelve:          dependentsUnderTwelve,
+		DependentsTwelveAndOver:        dependentsTwelveAndOver,
+		AccompaniedTour:                accompaniedTour,
 		OrganizationalClothingAndIndividualEquipment: entitlement.OrganizationalClothingAndIndividualEquipment,
 		GunSafe: gunSafe,
 		ETag:    etag.GenerateEtag(entitlement.UpdatedAt),
@@ -916,6 +972,7 @@ func PPMShipment(_ storage.FileStorer, ppmShipment *models.PPMShipment) *ghcmess
 		HasTertiaryPickupAddress:       ppmShipment.HasTertiaryPickupAddress,
 		HasTertiaryDestinationAddress:  ppmShipment.HasTertiaryDestinationAddress,
 		EstimatedWeight:                handlers.FmtPoundPtr(ppmShipment.EstimatedWeight),
+		AllowableWeight:                handlers.FmtPoundPtr(ppmShipment.AllowableWeight),
 		HasProGear:                     ppmShipment.HasProGear,
 		ProGearWeight:                  handlers.FmtPoundPtr(ppmShipment.ProGearWeight),
 		SpouseProGearWeight:            handlers.FmtPoundPtr(ppmShipment.SpouseProGearWeight),
@@ -1183,7 +1240,6 @@ func WeightTicket(storer storage.FileStorer, weightTicket *models.WeightTicket) 
 		ProofOfTrailerOwnershipDocumentID: *handlers.FmtUUID(weightTicket.ProofOfTrailerOwnershipDocumentID),
 		ProofOfTrailerOwnershipDocument:   proofOfTrailerOwnershipDocument,
 		AdjustedNetWeight:                 handlers.FmtPoundPtr(weightTicket.AdjustedNetWeight),
-		AllowableWeight:                   handlers.FmtPoundPtr(weightTicket.AllowableWeight),
 		NetWeightRemarks:                  weightTicket.NetWeightRemarks,
 		ETag:                              etag.GenerateEtag(weightTicket.UpdatedAt),
 	}

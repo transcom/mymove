@@ -11,6 +11,7 @@ import (
 
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/assets"
+	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/models"
 )
 
@@ -66,6 +67,19 @@ func (m MoveCounseled) emails(appCtx appcontext.AppContext) ([]emailContent, err
 		originDutyLocationName = &originDSTransportInfo.Name
 	}
 
+	destinationAddress := orders.NewDutyLocation.Name
+	isSeparateeOrRetireeOrder := orders.OrdersType == internalmessages.OrdersTypeRETIREMENT || orders.OrdersType == internalmessages.OrdersTypeSEPARATION
+	if isSeparateeOrRetireeOrder && len(move.MTOShipments) > 0 && move.MTOShipments[0].DestinationAddress != nil {
+		mtoShipDestinationAddress, streetAddr2, streetAddr3 := *move.MTOShipments[0].DestinationAddress, "", ""
+		if mtoShipDestinationAddress.StreetAddress2 != nil {
+			streetAddr2 = " " + *mtoShipDestinationAddress.StreetAddress2
+		}
+		if mtoShipDestinationAddress.StreetAddress3 != nil {
+			streetAddr3 = " " + *mtoShipDestinationAddress.StreetAddress3
+		}
+		destinationAddress = fmt.Sprintf("%s%s%s, %s, %s %s", mtoShipDestinationAddress.StreetAddress1, streetAddr2, streetAddr3, mtoShipDestinationAddress.City, mtoShipDestinationAddress.State, mtoShipDestinationAddress.PostalCode)
+	}
+
 	actualExpenseReimbursement := false
 	for i := 0; i < len(move.MTOShipments); i++ {
 		if move.MTOShipments[i].PPMShipment.IsActualExpenseReimbursement != nil && *move.MTOShipments[i].PPMShipment.IsActualExpenseReimbursement {
@@ -79,7 +93,7 @@ func (m MoveCounseled) emails(appCtx appcontext.AppContext) ([]emailContent, err
 
 	htmlBody, textBody, err := m.renderTemplates(appCtx, MoveCounseledEmailData{
 		OriginDutyLocation:         originDutyLocationName,
-		DestinationDutyLocation:    orders.NewDutyLocation.Name,
+		DestinationLocation:        destinationAddress,
 		Locator:                    move.Locator,
 		MyMoveLink:                 MyMoveLink,
 		ActualExpenseReimbursement: actualExpenseReimbursement,
@@ -117,7 +131,7 @@ func (m MoveCounseled) renderTemplates(appCtx appcontext.AppContext, data MoveCo
 
 type MoveCounseledEmailData struct {
 	OriginDutyLocation         *string
-	DestinationDutyLocation    string
+	DestinationLocation        string
 	Locator                    string
 	MyMoveLink                 string
 	ActualExpenseReimbursement bool

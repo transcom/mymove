@@ -227,9 +227,7 @@ func applyMinimum(code models.ReServiceCode, shipmentType models.MTOShipmentType
 			models.ReServiceCodeDUPK,
 			models.ReServiceCodeDOSHUT,
 			models.ReServiceCodeDDSHUT,
-			models.ReServiceCodeIOOLH,
-			models.ReServiceCodeICOLH,
-			models.ReServiceCodeIOCLH,
+			models.ReServiceCodeISLH,
 			models.ReServiceCodeIHPK,
 			models.ReServiceCodeIHUPK,
 			models.ReServiceCodeIOFSIT,
@@ -244,9 +242,7 @@ func applyMinimum(code models.ReServiceCode, shipmentType models.MTOShipmentType
 			if weight < 500 {
 				result = 500
 			}
-		case models.ReServiceCodeIOOUB,
-			models.ReServiceCodeICOUB,
-			models.ReServiceCodeIOCUB,
+		case models.ReServiceCodeUBP,
 			models.ReServiceCodeIUBPK,
 			models.ReServiceCodeIUBUPK:
 			if weight < 300 {

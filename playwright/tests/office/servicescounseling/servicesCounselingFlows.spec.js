@@ -447,14 +447,6 @@ test.describe('Services counselor user', () => {
     await scPage.waitForPage.reviewExpenseTicket('Packing Materials', 1, 1);
     await expect(page.getByLabel('Accept')).toBeVisible();
     await page.getByLabel('Accept').isDisabled();
-    await page.getByRole('button', { name: 'Continue' }).click();
-
-    await expect(page.getByRole('heading', { name: 'Sent to customer', level: 3 })).toBeVisible();
-
-    await page.getByTestId('reviewDocumentsContinueButton').click();
-    await scPage.waitForPage.moveDetails();
-
-    await expect(page.getByText('PACKET READY FOR DOWNLOAD')).toBeVisible();
   });
 
   test.describe('Edit shipment info and incentives', () => {
@@ -470,7 +462,6 @@ test.describe('Services counselor user', () => {
 
       await scPage.waitForPage.reviewWeightTicket();
       // Edit Actual Move Start Date
-      await page.getByTestId('shipmentInfo').getByTestId('shipmentInfo-showRequestDetailsButton').click();
       await page.getByTestId('actualMoveDate').getByTestId('editTextButton').click();
       await page.waitForSelector('text="Edit Shipment Info"');
       await page.getByRole('button', { name: 'Save' }).click();
@@ -487,7 +478,6 @@ test.describe('Services counselor user', () => {
 
       await scPage.waitForPage.reviewWeightTicket();
       // Edit Starting Address
-      await page.getByTestId('shipmentInfo').getByTestId('shipmentInfo-showRequestDetailsButton').click();
       await page.getByTestId('pickupAddress').getByTestId('editTextButton').click();
       await page.waitForSelector('text="Edit Shipment Info"');
       await page.getByRole('button', { name: 'Save' }).click();
@@ -504,7 +494,6 @@ test.describe('Services counselor user', () => {
 
       await scPage.waitForPage.reviewWeightTicket();
       // Edit Ending Address
-      await page.getByTestId('shipmentInfo').getByTestId('shipmentInfo-showRequestDetailsButton').click();
       await page.getByTestId('destinationAddress').getByTestId('editTextButton').click();
       await page.waitForSelector('text="Edit Shipment Info"');
       await page.getByRole('button', { name: 'Save' }).click();
@@ -612,7 +601,6 @@ test.describe('Services counselor user', () => {
 
         await page.getByText('Review documents').click();
         await expect(page.getByRole('heading', { name: 'View documents' })).toBeVisible();
-        await page.getByTestId('shipmentInfo-showRequestDetailsButton').click();
 
         expect(await page.locator('[data-testid="tag"]').count()).toBe(0);
         await expect(page.locator('label').getByText('Actual Expense Reimbursement')).toBeVisible();
@@ -663,7 +651,6 @@ test.describe('Services counselor user', () => {
         await expect(page.getByRole('heading', { name: 'View documents' })).toBeVisible();
         await expect(page.getByTestId('tag')).toContainText('actual expense reimbursement');
 
-        await page.getByTestId('shipmentInfo-showRequestDetailsButton').click();
         await expect(page.locator('label').getByText('Actual Expense Reimbursement')).toBeVisible();
         expect(await page.getByTestId('isActualExpenseReimbursement').getByTestId('editTextButton').isDisabled()).toBe(
           true,
