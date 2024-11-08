@@ -61,6 +61,7 @@ func (h GetMovesQueueHandler) Handle(params queues.GetMovesQueueParams) middlewa
 				Order:                   params.Order,
 				OrderType:               params.OrderType,
 				TOOAssignedUser:         params.AssignedTo,
+				CounselingOffice:        params.CounselingOffice,
 			}
 
 			// When no status filter applied, TOO should only see moves with status of New Move, Service Counseling Completed, or Approvals Requested

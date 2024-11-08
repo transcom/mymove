@@ -47,6 +47,10 @@ type GetMovesQueueParams struct {
 	  In: query
 	*/
 	Branch *string
+	/*filters using a counselingOffice name of the move
+	  In: query
+	*/
+	CounselingOffice *string
 	/*
 	  In: query
 	*/
@@ -132,6 +136,11 @@ func (o *GetMovesQueueParams) BindRequest(r *http.Request, route *middleware.Mat
 
 	qBranch, qhkBranch, _ := qs.GetOK("branch")
 	if err := o.bindBranch(qBranch, qhkBranch, route.Formats); err != nil {
+		res = append(res, err)
+	}
+
+	qCounselingOffice, qhkCounselingOffice, _ := qs.GetOK("counselingOffice")
+	if err := o.bindCounselingOffice(qCounselingOffice, qhkCounselingOffice, route.Formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -279,6 +288,24 @@ func (o *GetMovesQueueParams) bindBranch(rawData []string, hasKey bool, formats 
 		return nil
 	}
 	o.Branch = &raw
+
+	return nil
+}
+
+// bindCounselingOffice binds and validates parameter CounselingOffice from query.
+func (o *GetMovesQueueParams) bindCounselingOffice(rawData []string, hasKey bool, formats strfmt.Registry) error {
+	var raw string
+	if len(rawData) > 0 {
+		raw = rawData[len(rawData)-1]
+	}
+
+	// Required: false
+	// AllowEmptyValue: false
+
+	if raw == "" { // empty values pass all other validations
+		return nil
+	}
+	o.CounselingOffice = &raw
 
 	return nil
 }
@@ -547,7 +574,7 @@ func (o *GetMovesQueueParams) bindSort(rawData []string, hasKey bool, formats st
 // validateSort carries on validations for parameter Sort
 func (o *GetMovesQueueParams) validateSort(formats strfmt.Registry) error {
 
-	if err := validate.EnumCase("sort", "query", *o.Sort, []interface{}{"customerName", "dodID", "emplid", "branch", "locator", "status", "originDutyLocation", "destinationDutyLocation", "requestedMoveDate", "appearedInTooAt", "assignedTo"}, true); err != nil {
+	if err := validate.EnumCase("sort", "query", *o.Sort, []interface{}{"customerName", "dodID", "emplid", "branch", "locator", "status", "originDutyLocation", "destinationDutyLocation", "requestedMoveDate", "appearedInTooAt", "assignedTo", "counselingOffice"}, true); err != nil {
 		return err
 	}
 
