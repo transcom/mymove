@@ -1,7 +1,7 @@
 import React, { useRef } from 'react';
-import PropTypes from 'prop-types';
+import { PropTypes, shape } from 'prop-types';
 import { v4 as uuidv4 } from 'uuid';
-import { Fieldset } from '@trussworks/react-uswds';
+import { Fieldset, Label } from '@trussworks/react-uswds';
 
 import { statesList } from '../../../constants/states';
 
@@ -32,8 +32,8 @@ export const AddressFields = ({
   className,
   name,
   render,
+  values,
   validators,
-  zipCityEnabled,
   handleLocationChange,
   formikFunctionsToValidatePostalCodeOnChange,
   labelHint: labelHintProp,
@@ -63,28 +63,21 @@ export const AddressFields = ({
       }}
     />
   ) : (
-    <TextField
-      label="ZIP"
-      id={`zip_${addressFieldsUUID.current}`}
-      name={`${name}.postalCode`}
-      data-testid={`${name}.postalCode`}
-      maxLength={10}
-      labelHint={labelHintProp}
-      validate={validators?.postalCode}
-      isDisabled={zipCityEnabled}
-    />
+    <>
+      <Label>ZIP</Label>
+      <label id={`zip_${addressFieldsUUID.current}`} className={styles.label}>
+        {values[name].postalCode}
+      </label>
+    </>
   );
 
-  const stateField = zipCityEnabled ? (
-    <TextField
-      name={`${name}.state`}
-      data-testid={`${name}.state`}
-      id={`state_${addressFieldsUUID.current}`}
-      label="State"
-      labelHint={labelHintProp}
-      validate={validators?.state}
-      isDisabled={zipCityEnabled}
-    />
+  const stateField = handleLocationChange ? (
+    <>
+      <Label>State</Label>
+      <label id={`state_${addressFieldsUUID.current}`} className={styles.label}>
+        {values[name].state}
+      </label>
+    </>
   ) : (
     <DropdownInput
       name={`${name}.state`}
@@ -157,26 +150,27 @@ export const AddressFields = ({
           )}
           <div className="grid-row grid-gap">
             <div className="mobile-lg:grid-col-6">
-              <TextField
-                label="City"
-                id={`city_${addressFieldsUUID.current}`}
-                name={`${name}.city`}
-                labelHint={labelHintProp}
-                data-testid={`${name}.city`}
-                validate={validators?.city}
-                isDisabled={zipCityEnabled}
-              />
-              {handleLocationChange && (
+              {!handleLocationChange && (
                 <TextField
-                  className={styles.countyInput}
-                  label="County"
-                  id={`county_${addressFieldsUUID.current}`}
-                  name={`${name}.county`}
+                  label="City"
+                  id={`city_${addressFieldsUUID.current}`}
+                  name={`${name}.city`}
                   labelHint={labelHintProp}
-                  data-testid={`${name}.county`}
-                  validate={validators?.county}
-                  isDisabled={zipCityEnabled}
+                  data-testid={`${name}.city`}
+                  validate={validators?.city}
                 />
+              )}
+              {handleLocationChange && (
+                <>
+                  <Label>City</Label>
+                  <label id={`city_${addressFieldsUUID.current}`} className={styles.label}>
+                    {values[name].city}
+                  </label>
+                  <Label>County</Label>
+                  <label id={`county_${addressFieldsUUID.current}`} className={styles.label}>
+                    {values[name].county}
+                  </label>
+                </>
               )}
             </div>
             <div className="mobile-lg:grid-col-6">
@@ -195,7 +189,7 @@ AddressFields.propTypes = {
   className: PropTypes.string,
   name: PropTypes.string.isRequired,
   render: PropTypes.func,
-  zipCityEnabled: PropTypes.bool,
+  values: shape({}),
   handleLocationChange: PropTypes.func,
   validators: PropTypes.shape({
     streetAddress1: PropTypes.func,
@@ -216,7 +210,7 @@ AddressFields.defaultProps = {
   legend: '',
   className: '',
   render: (fields) => fields,
-  zipCityEnabled: false,
+  values: {},
   handleLocationChange: null,
   validators: {},
   formikFunctionsToValidatePostalCodeOnChange: null,

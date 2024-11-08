@@ -113,7 +113,7 @@ export const EditFacilityInfoModal = ({
                   name="storageFacility.address"
                   className={styles.AddressFields}
                   formikFunctionsToValidatePostalCodeOnChange={{ handleChange, setFieldTouched }}
-                  zipCityEnabled
+                  values={values}
                   handleLocationChange={handleLocationChange}
                   render={(fields) => (
                     <>

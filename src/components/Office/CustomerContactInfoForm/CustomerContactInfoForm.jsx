@@ -99,13 +99,13 @@ const CustomerContactInfoForm = ({ initialValues, onSubmit, onBack }) => {
                     <h3 className={styles.sectionHeader}>Current Address</h3>
                     <AddressFields
                       name="customerAddress"
-                      zipCityEnabled
+                      values={values}
                       handleLocationChange={handleCurrentZipCityChange}
                     />
                     <h3 className={styles.sectionHeader}>Backup Address</h3>
                     <AddressFields
                       name="backupAddress"
-                      zipCityEnabled
+                      values={values}
                       handleLocationChange={handleBackupZipCityChange}
                     />
                   </SectionWrapper>

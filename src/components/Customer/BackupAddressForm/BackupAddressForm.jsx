@@ -55,7 +55,7 @@ const BackupAddressForm = ({ formFieldsName, initialValues, onSubmit, onBack }) 
               <AddressFields
                 labelHint="Required"
                 name={formFieldsName}
-                zipCityEnabled
+                values={values}
                 handleLocationChange={handleLocationChange}
               />
             </SectionWrapper>

@@ -54,7 +54,7 @@ const ResidentialAddressForm = ({ formFieldsName, initialValues, onSubmit, onBac
                 labelHint="Required"
                 name={formFieldsName}
                 validators={validators}
-                zipCityEnabled
+                values={values}
                 handleLocationChange={handleLocationChange}
               />
             </SectionWrapper>

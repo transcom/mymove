@@ -1,5 +1,5 @@
 import React from 'react';
-import PropTypes from 'prop-types';
+import { PropTypes, shape } from 'prop-types';
 import { Fieldset, FormGroup, Label, TextInput, Grid } from '@trussworks/react-uswds';
 import { Field } from 'formik';
 
@@ -8,14 +8,14 @@ import styles from 'components/Office/ShipmentForm/ShipmentForm.module.scss';
 import SectionWrapper from 'components/Customer/SectionWrapper';
 import { AddressFields } from 'components/form/AddressFields/AddressFields';
 
-const StorageFacilityAddress = ({ onLocationChange }) => {
+const StorageFacilityAddress = ({ onLocationChange, values }) => {
   return (
     <SectionWrapper className={formStyles.formSection}>
       <Fieldset className={styles.Fieldset}>
         <h2 className={styles.SectionHeader}>Storage facility address</h2>
         <AddressFields
           name="storageFacility.address"
-          zipCityEnabled
+          values={values}
           handleLocationChange={onLocationChange}
           render={(fields) => (
             <>
@@ -41,6 +41,11 @@ const StorageFacilityAddress = ({ onLocationChange }) => {
 
 StorageFacilityAddress.propTypes = {
   onLocationChange: PropTypes.func.isRequired,
+  values: shape({}),
+};
+
+StorageFacilityAddress.defaultProps = {
+  values: {},
 };
 
 export default StorageFacilityAddress;
