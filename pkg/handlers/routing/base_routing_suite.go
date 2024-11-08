@@ -138,7 +138,7 @@ func (suite *BaseRoutingSuite) SetupCustomSiteHandler(routingConfig *Config) htt
 }
 
 func (suite *BaseRoutingSuite) SetupCustomSiteHandlerWithTelemetry(routingConfig *Config, telemetryConfig *telemetry.Config) http.Handler {
-	siteHandler, err := InitRouting(suite.serverName, suite.AppContextForTest(), nil, routingConfig, telemetryConfig)
+	siteHandler, err := InitRouting(suite.serverName, suite.AppContextForTest(), nil, routingConfig, telemetryConfig, false)
 	suite.FatalNoError(err)
 	return siteHandler
 }
