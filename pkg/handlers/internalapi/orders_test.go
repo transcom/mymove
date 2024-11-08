@@ -583,6 +583,7 @@ func (suite *HandlerSuite) TestUpdateOrdersHandler() {
 				Grade:                models.ServiceMemberGradeE4.Pointer(),
 				MoveID:               *handlers.FmtUUID(move.ID),
 				CounselingOfficeID:   handlers.FmtUUID(*newDutyLocation.TransportationOfficeID),
+				ServiceMemberID:      handlers.FmtUUID(order.ServiceMemberID),
 			}
 			// The default move factory does not include OCONUS fields, set these
 			// new fields conditionally for the update
@@ -667,6 +668,7 @@ func (suite *HandlerSuite) TestEntitlementHelperFunc() {
 			payloadDependentsTwelveAndOver *int64
 			payloadAccompaniedTour         *bool
 			shouldReturnFalse              *bool
+			payloadOrdersType              *internalmessages.OrdersType
 		}{
 			{
 				order: models.Order{
@@ -702,10 +704,10 @@ func (suite *HandlerSuite) TestEntitlementHelperFunc() {
 		for _, tc := range testCases {
 			if tc.shouldReturnFalse != nil && *tc.shouldReturnFalse {
 				// Test should return false
-				suite.False(hasEntitlementChanged(tc.order, tc.payloadPayGrade, tc.payloadDependentsUnderTwelve, tc.payloadDependentsTwelveAndOver, tc.payloadAccompaniedTour))
+				suite.False(hasEntitlementChanged(tc.order, tc.payloadOrdersType, tc.payloadPayGrade, tc.payloadDependentsUnderTwelve, tc.payloadDependentsTwelveAndOver, tc.payloadAccompaniedTour))
 			} else {
 				// Test defaults to returning true
-				suite.True(hasEntitlementChanged(tc.order, tc.payloadPayGrade, tc.payloadDependentsUnderTwelve, tc.payloadDependentsTwelveAndOver, tc.payloadAccompaniedTour))
+				suite.True(hasEntitlementChanged(tc.order, tc.payloadOrdersType, tc.payloadPayGrade, tc.payloadDependentsUnderTwelve, tc.payloadDependentsTwelveAndOver, tc.payloadAccompaniedTour))
 			}
 
 		}
@@ -756,6 +758,7 @@ func (suite *HandlerSuite) TestUpdateOrdersHandlerWithCounselingOffice() {
 		Grade:                models.ServiceMemberGradeE4.Pointer(),
 		MoveID:               *handlers.FmtUUID(move.ID),
 		CounselingOfficeID:   handlers.FmtUUID(*newDutyLocation.TransportationOfficeID),
+		ServiceMemberID:      handlers.FmtUUID(order.ServiceMemberID),
 	}
 
 	path := fmt.Sprintf("/orders/%v", order.ID.String())

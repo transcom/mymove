@@ -4430,10 +4430,11 @@ func init() {
           "x-nullable": true,
           "example": 500
         },
-        "ubAllowance": {
+        "ub_allowance": {
+          "description": "The amount of weight in pounds that the move is entitled for shipment types of Unaccompanied Baggage.",
           "type": "integer",
           "x-nullable": true,
-          "example": 500
+          "example": 3
         }
       }
     },
@@ -13298,10 +13299,11 @@ func init() {
           "x-nullable": true,
           "example": 500
         },
-        "ubAllowance": {
+        "ub_allowance": {
+          "description": "The amount of weight in pounds that the move is entitled for shipment types of Unaccompanied Baggage.",
           "type": "integer",
           "x-nullable": true,
-          "example": 500
+          "example": 3
         }
       }
     },

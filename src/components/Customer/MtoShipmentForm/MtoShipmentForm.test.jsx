@@ -92,7 +92,7 @@ const ubProps = {
     orders_type: ORDERS_TYPE.PERMANENT_CHANGE_OF_STATION,
     has_dependents: false,
     entitlement: {
-      ubAllowance: 600,
+      ub_allowance: 600,
     },
   },
   shipmentType: SHIPMENT_OPTIONS.UNACCOMPANIED_BAGGAGE,
@@ -1121,7 +1121,7 @@ describe('MtoShipmentForm component', () => {
     });
 
     it('renders the correct helper text when the UB allowance is null', async () => {
-      renderUBShipmentForm({ orders: { entitlement: { ubAllowance: null } } });
+      renderUBShipmentForm({ orders: { entitlement: { ub_allowance: null } } });
       expect(
         screen.queryByText(
           'Remember: You can move up to your UB allowance for this UB shipment. The weight of your UB is part of your authorized weight allowance. You’ll be billed for any excess weight you move.',

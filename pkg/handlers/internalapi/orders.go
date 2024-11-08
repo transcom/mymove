@@ -194,11 +194,17 @@ func (h CreateOrdersHandler) Handle(params ordersop.CreateOrdersParams) middlewa
 			}
 
 			grade := payload.Grade
-			weightAllotment := models.GetWeightAllotment(*grade)
 
+			// Calculate the entitlement for the order
+			weightAllotment := models.GetWeightAllotment(*grade)
 			weight := weightAllotment.TotalWeightSelf
 			if *payload.HasDependents {
 				weight = weightAllotment.TotalWeightSelfPlusDependents
+			}
+			// Calculate UB allowance for the order entitlement
+			unaccompaniedBaggageAllowance, err := models.GetUBWeightAllowance(appCtx, originDutyLocation.Address.IsOconus, newDutyLocation.Address.IsOconus, serviceMember.Affiliation, grade, payload.OrdersType, payload.HasDependents, payload.AccompaniedTour, dependentsUnderTwelve, dependentsTwelveAndOver)
+			if err == nil {
+				weightAllotment.UnaccompaniedBaggageAllowance = unaccompaniedBaggageAllowance
 			}
 
 			// Assign default SIT allowance based on customer type.
@@ -214,6 +220,7 @@ func (h CreateOrdersHandler) Handle(params ordersop.CreateOrdersParams) middlewa
 				StorageInTransit:        models.IntPointer(sitDaysAllowance),
 				ProGearWeight:           weightAllotment.ProGearWeight,
 				ProGearWeightSpouse:     weightAllotment.ProGearWeightSpouse,
+				UBAllowance:             &weightAllotment.UnaccompaniedBaggageAllowance,
 			}
 
 			/*
@@ -410,8 +417,17 @@ func (h UpdateOrdersHandler) Handle(params ordersop.UpdateOrdersParams) middlewa
 			order.TAC = payload.Tac
 			order.SAC = payload.Sac
 
+			serviceMemberID, err := uuid.FromString(payload.ServiceMemberID.String())
+			if err != nil {
+				return handlers.ResponseForError(appCtx.Logger(), err), err
+			}
+			serviceMember, err := models.FetchServiceMemberForUser(appCtx.DB(), appCtx.Session(), serviceMemberID)
+			if err != nil {
+				return handlers.ResponseForError(appCtx.Logger(), err), err
+			}
+
 			// Check if the grade or dependents are receiving an update
-			if hasEntitlementChanged(order, payload.Grade, payload.DependentsUnderTwelve, payload.DependentsTwelveAndOver, payload.AccompaniedTour) {
+			if hasEntitlementChanged(order, payload.OrdersType, payload.Grade, payload.DependentsUnderTwelve, payload.DependentsTwelveAndOver, payload.AccompaniedTour) {
 				weightAllotment := models.GetWeightAllotment(*payload.Grade)
 				weight := weightAllotment.TotalWeightSelf
 				if *payload.HasDependents {
@@ -431,6 +447,20 @@ func (h UpdateOrdersHandler) Handle(params ordersop.UpdateOrdersParams) middlewa
 					// Convert from int64 to int
 					dependentsUnderTwelve = models.IntPointer(int(*payload.DependentsUnderTwelve))
 				}
+				var grade *internalmessages.OrderPayGrade
+				if payload.Grade != nil {
+					grade = payload.Grade
+				} else {
+					grade = order.Grade
+				}
+
+				// Calculate UB allowance for the order entitlement
+				if order.Entitlement != nil {
+					unaccompaniedBaggageAllowance, err := models.GetUBWeightAllowance(appCtx, order.OriginDutyLocation.Address.IsOconus, order.NewDutyLocation.Address.IsOconus, serviceMember.Affiliation, grade, payload.OrdersType, payload.HasDependents, payload.AccompaniedTour, dependentsUnderTwelve, dependentsTwelveAndOver)
+					if err == nil {
+						weightAllotment.UnaccompaniedBaggageAllowance = unaccompaniedBaggageAllowance
+					}
+				}
 
 				entitlement := models.Entitlement{
 					DependentsAuthorized:    payload.HasDependents,
@@ -441,6 +471,7 @@ func (h UpdateOrdersHandler) Handle(params ordersop.UpdateOrdersParams) middlewa
 					DependentsUnderTwelve:   dependentsUnderTwelve,
 					DependentsTwelveAndOver: dependentsTwelveAndOver,
 					AccompaniedTour:         payload.AccompaniedTour,
+					UBAllowance:             &weightAllotment.UnaccompaniedBaggageAllowance,
 				}
 
 				/*
@@ -505,12 +536,15 @@ func (h UpdateOrdersHandler) Handle(params ordersop.UpdateOrdersParams) middlewa
 
 // Helper func for the UpdateOrdersHandler to check if the entitlement has changed from the new payload
 // This handles the nil checks and value comparisons outside of the handler func for organization
-func hasEntitlementChanged(order models.Order, payloadPayGrade *internalmessages.OrderPayGrade, payloadDependentsUnderTwelve *int64, payloadDependentsTwelveAndOver *int64, payloadAccompaniedTour *bool) bool {
+func hasEntitlementChanged(order models.Order, payloadOrderType *internalmessages.OrdersType, payloadPayGrade *internalmessages.OrderPayGrade, payloadDependentsUnderTwelve *int64, payloadDependentsTwelveAndOver *int64, payloadAccompaniedTour *bool) bool {
 	// Check pay grade
 	if (order.Grade == nil && payloadPayGrade != nil) || (order.Grade != nil && payloadPayGrade == nil) || (order.Grade != nil && payloadPayGrade != nil && *order.Grade != *payloadPayGrade) {
 		return true
 	}
-
+	// check orders type
+	if (order.OrdersType == "" && payloadOrderType != nil) || (order.OrdersType != "" && payloadPayGrade == nil) || (order.OrdersType != "" && payloadPayGrade != nil && internalmessages.OrderPayGrade(order.OrdersType) != *payloadPayGrade) {
+		return true
+	}
 	// Check entitlement
 	if order.Entitlement != nil {
 		// Check dependents under twelve
