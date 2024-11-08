@@ -10,7 +10,6 @@ import { renderWithProviders } from 'testUtils';
 import { customerRoutes, generalRoutes } from 'constants/routes';
 import { selectCanAddOrders, selectServiceMemberFromLoggedInUser } from 'store/entities/selectors';
 import { setCanAddOrders, setMoveId } from 'store/general/actions';
-import { ORDERS_TYPE } from 'constants/orders';
 import { isBooleanFlagEnabled } from 'utils/featureFlags';
 
 jest.mock('services/internalApi', () => ({
@@ -366,7 +365,7 @@ describe('Add Orders page', () => {
   it('next button creates the orders and updates state', async () => {
     const testOrdersValues = {
       id: 'testOrdersId',
-      orders_type: ORDERS_TYPE.PERMANENT_CHANGE_OF_STATION,
+      orders_type: 'PERMANENT_CHANGE_OF_STATION',
       issue_date: '2020-11-08',
       report_by_date: '2020-11-26',
       has_dependents: false,
@@ -406,7 +405,7 @@ describe('Add Orders page', () => {
     expect(nextBtn).toBeInTheDocument();
 
     await act(async () => {
-      await userEvent.selectOptions(screen.getByLabelText(/Orders type/), ORDERS_TYPE.PERMANENT_CHANGE_OF_STATION);
+      await userEvent.selectOptions(screen.getByLabelText(/Orders type/), 'PERMANENT_CHANGE_OF_STATION');
       await userEvent.type(screen.getByLabelText(/Orders date/), '08 Nov 2020');
       await userEvent.type(screen.getByLabelText(/Report by date/), '26 Nov 2020');
       await userEvent.click(screen.getByLabelText('No'));

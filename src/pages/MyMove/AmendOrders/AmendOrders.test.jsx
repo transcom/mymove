@@ -8,7 +8,6 @@ import { getOrders, submitAmendedOrders } from 'services/internalApi';
 import { customerRoutes } from 'constants/routes';
 import { renderWithProviders } from 'testUtils';
 import { selectOrdersForLoggedInUser } from 'store/entities/selectors';
-import { ORDERS_TYPE } from 'constants/orders';
 
 const mockNavigate = jest.fn();
 jest.mock('react-router-dom', () => ({
@@ -32,7 +31,7 @@ jest.mock('services/internalApi', () => ({
 
 const testPropsWithUploads = {
   id: 'testOrderId',
-  orders_type: ORDERS_TYPE.PERMANENT_CHANGE_OF_STATION,
+  orders_type: 'PERMANENT_CHANGE_OF_STATION',
   issue_date: '2020-11-08',
   report_by_date: '2020-11-26',
   has_dependents: false,
@@ -74,7 +73,7 @@ const testPropsWithUploads = {
 
 const testPropsNoUploads = {
   id: 'testOrderId2',
-  orders_type: ORDERS_TYPE.PERMANENT_CHANGE_OF_STATION,
+  orders_type: 'PERMANENT_CHANGE_OF_STATION',
   issue_date: '2020-11-08',
   report_by_date: '2020-11-26',
   has_dependents: false,

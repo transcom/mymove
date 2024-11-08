@@ -3,8 +3,6 @@ import { object, text } from '@storybook/addon-knobs';
 
 import OrdersList from './OrdersList';
 
-import { ORDERS_TYPE } from 'constants/orders';
-
 export default {
   title: 'Office Components/OrdersList',
   component: OrdersList,
@@ -20,7 +18,7 @@ export const Basic = () => (
         reportByDate: text('ordersInfo.reportByDate', '2020-04-01'),
         departmentIndicator: text('ordersInfo.departmentIndicator', 'NAVY_AND_MARINES'),
         ordersNumber: text('ordersInfo.ordersNumber', '999999999'),
-        ordersType: text('ordersInfo.ordersType', ORDERS_TYPE.PERMANENT_CHANGE_OF_STATION),
+        ordersType: text('ordersInfo.ordersType', 'PERMANENT_CHANGE_OF_STATION'),
         ordersTypeDetail: text('ordersInfo.ordersTypeDetail', 'HHG_PERMITTED'),
         tacMDC: text('ordersInfo.tacMDC', '9999'),
         sacSDN: text('ordersInfo.sacSDN', '999 999999 999'),

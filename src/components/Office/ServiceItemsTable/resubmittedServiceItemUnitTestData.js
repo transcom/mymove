@@ -2,7 +2,6 @@
 import MOVE_STATUSES from 'constants/moves';
 import { shipmentStatuses } from 'constants/shipments';
 import { SERVICE_ITEM_STATUSES } from 'constants/serviceItems';
-import { ORDERS_TYPE } from 'constants/orders';
 
 const move = {
   id: '1',
@@ -17,7 +16,7 @@ const move = {
 };
 
 const order = {
-  orders_type: ORDERS_TYPE.PERMANENT_CHANGE_OF_STATION,
+  orders_type: 'PERMANENT_CHANGE_OF_STATION',
   has_dependents: false,
   issue_date: '2020-08-11',
   grade: 'E_1',

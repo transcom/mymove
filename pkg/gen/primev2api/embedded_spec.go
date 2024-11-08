@@ -786,6 +786,13 @@ func init() {
           "x-omitempty": false,
           "example": false
         },
+        "isActualExpenseReimbursement": {
+          "description": "Used for PPM shipments only. Denotes if this shipment uses the Actual Expense Reimbursement method.",
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false,
+          "example": false
+        },
         "pickupAddress": {
           "description": "The address of the origin location where goods are being moved from.",
           "allOf": [
@@ -2177,6 +2184,13 @@ func init() {
           "x-omitempty": false,
           "example": false
         },
+        "isActualExpenseReimbursement": {
+          "description": "Used for PPM shipments only. Denotes if this shipment uses the Actual Expense Reimbursement method.",
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false,
+          "example": false
+        },
         "proGearWeight": {
           "description": "The estimated weight of the pro-gear being moved belonging to the service member in pounds.",
           "type": "integer",
@@ -3240,6 +3254,13 @@ func init() {
           "description": "Indicates whether PPM shipment has pro gear for themselves or their spouse.\n",
           "type": "boolean",
           "x-nullable": true
+        },
+        "isActualExpenseReimbursement": {
+          "description": "Used for PPM shipments only. Denotes if this shipment uses the Actual Expense Reimbursement method.",
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false,
+          "example": false
         },
         "isActualExpenseReimbursement": {
           "description": "Used for PPM shipments only. Denotes if this shipment uses the Actual Expense Reimbursement method.",
@@ -4298,6 +4319,13 @@ func init() {
           "x-omitempty": false,
           "example": false
         },
+        "isActualExpenseReimbursement": {
+          "description": "Used for PPM shipments only. Denotes if this shipment uses the Actual Expense Reimbursement method.",
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false,
+          "example": false
+        },
         "pickupAddress": {
           "description": "The address of the origin location where goods are being moved from.",
           "allOf": [
@@ -5689,6 +5717,13 @@ func init() {
           "x-omitempty": false,
           "example": false
         },
+        "isActualExpenseReimbursement": {
+          "description": "Used for PPM shipments only. Denotes if this shipment uses the Actual Expense Reimbursement method.",
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false,
+          "example": false
+        },
         "proGearWeight": {
           "description": "The estimated weight of the pro-gear being moved belonging to the service member in pounds.",
           "type": "integer",
@@ -6754,6 +6789,13 @@ func init() {
           "description": "Indicates whether PPM shipment has pro gear for themselves or their spouse.\n",
           "type": "boolean",
           "x-nullable": true
+        },
+        "isActualExpenseReimbursement": {
+          "description": "Used for PPM shipments only. Denotes if this shipment uses the Actual Expense Reimbursement method.",
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false,
+          "example": false
         },
         "isActualExpenseReimbursement": {
           "description": "Used for PPM shipments only. Denotes if this shipment uses the Actual Expense Reimbursement method.",

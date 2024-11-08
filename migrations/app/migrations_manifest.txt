@@ -1028,5 +1028,4 @@
 20241018091722_oconus-entitlements-enhancement.up.sql
 20241023130404_create_re_service_items.up.sql
 20241024114748_create_gbloc_aors.up.sql
-20241029125015_add_orders_type_enum.up.sql
 20241029144404_hdt-614-adjust-accomack-county.up.sql

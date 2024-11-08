@@ -175,14 +175,13 @@ const testProps = {
     { key: 'LOCAL_MOVE', value: 'Local Move' },
     { key: 'RETIREMENT', value: 'Retirement' },
     { key: 'SEPARATION', value: 'Separation' },
-    { key: 'TEMPORARY_DUTY', value: 'Temporary Duty (TDY)' },
   ],
   currentDutyLocation: {},
   grade: '',
 };
 
 const initialValues = {
-  orders_type: ORDERS_TYPE.PERMANENT_CHANGE_OF_STATION,
+  orders_type: 'PERMANENT_CHANGE_OF_STATION',
   issue_date: '2020-11-08',
   report_by_date: '2020-11-26',
   has_dependents: 'no',
@@ -279,7 +278,6 @@ describe('EditOrdersForm component', () => {
       ['LOCAL_MOVE', 'LOCAL_MOVE'],
       ['RETIREMENT', 'RETIREMENT'],
       ['SEPARATION', 'SEPARATION'],
-      ['TEMPORARY_DUTY', 'TEMPORARY_DUTY'],
     ])('rendering the %s option', async (selectionOption, expectedValue) => {
       render(<EditOrdersForm {...testProps} />);
 
@@ -332,7 +330,7 @@ describe('EditOrdersForm component', () => {
       expect(submitButton).not.toBeDisabled();
     });
 
-    await userEvent.selectOptions(screen.getByLabelText(/Orders type/), ORDERS_TYPE.PERMANENT_CHANGE_OF_STATION);
+    await userEvent.selectOptions(screen.getByLabelText(/Orders type/), 'PERMANENT_CHANGE_OF_STATION');
     await userEvent.type(screen.getByLabelText(/Orders date/), '08 Nov 2020');
     await userEvent.type(screen.getByLabelText(/Report by date/), '26 Nov 2020');
     await userEvent.click(screen.getByLabelText('No'));
@@ -471,7 +469,7 @@ describe('EditOrdersForm component', () => {
 
   describe('with initial values', () => {
     const testInitialValues = {
-      orders_type: ORDERS_TYPE.PERMANENT_CHANGE_OF_STATION,
+      orders_type: 'PERMANENT_CHANGE_OF_STATION',
       issue_date: '2020-11-08',
       report_by_date: '2020-11-26',
       has_dependents: 'no',
@@ -560,7 +558,7 @@ describe('EditOrdersForm component', () => {
       const modifiedProps = {
         onSubmit: jest.fn().mockImplementation(() => Promise.resolve()),
         initialValues: {
-          orders_type: ORDERS_TYPE.PERMANENT_CHANGE_OF_STATION,
+          orders_type: 'PERMANENT_CHANGE_OF_STATION',
           issue_date: '2020-11-08',
           report_by_date: '2020-11-26',
           has_dependents: 'no',
@@ -607,7 +605,6 @@ describe('EditOrdersForm component', () => {
           { key: 'LOCAL_MOVE', value: 'Local Move' },
           { key: 'RETIREMENT', value: 'Retirement' },
           { key: 'SEPARATION', value: 'Separation' },
-          { key: 'TEMPORARY_DUTY', value: 'Temporary Duty (TDY)' },
         ],
         currentDutyLocation: {},
       };
