@@ -61,7 +61,7 @@ const defaultProps = {
     streetAddress2: '',
   },
   orders: {
-    orders_type: 'PERMANENT_CHANGE_OF_STATION',
+    orders_type: ORDERS_TYPE.PERMANENT_CHANGE_OF_STATION,
     has_dependents: false,
     authorizedWeight: 5000,
   },
@@ -89,7 +89,7 @@ const ubProps = {
     streetAddress2: '',
   },
   orders: {
-    orders_type: 'PERMANENT_CHANGE_OF_STATION',
+    orders_type: ORDERS_TYPE.PERMANENT_CHANGE_OF_STATION,
     has_dependents: false,
     entitlement: {
       ubAllowance: 600,
@@ -220,6 +220,11 @@ describe('MtoShipmentForm component', () => {
 
     it('renders the correct helper text for Delivery Location when orders type is LOCAL_MOVE', async () => {
       renderMtoShipmentForm({ orders: { orders_type: ORDERS_TYPE.LOCAL_MOVE } });
+      await waitFor(() => expect(screen.getByText(/We can use the zip of your new duty location./).toBeInTheDocument));
+    });
+
+    it('renders the correct helper text for Delivery Location when orders type is TEMPORARY_DUTY', async () => {
+      renderMtoShipmentForm({ orders: { orders_type: ORDERS_TYPE.TEMPORARY_DUTY } });
       await waitFor(() => expect(screen.getByText(/We can use the zip of your new duty location./).toBeInTheDocument));
     });
 
@@ -1151,6 +1156,11 @@ describe('MtoShipmentForm component', () => {
 
     it('renders the correct helper text for Delivery Location when orders type is LOCAL_MOVE', async () => {
       renderUBShipmentForm({ orders: { orders_type: ORDERS_TYPE.LOCAL_MOVE } });
+      await waitFor(() => expect(screen.getByText(/We can use the zip of your new duty location./).toBeInTheDocument));
+    });
+
+    it('renders the correct helper text for Delivery Location when orders type is TEMPORARY_DUTY', async () => {
+      renderUBShipmentForm({ orders: { orders_type: ORDERS_TYPE.TEMPORARY_DUTY } });
       await waitFor(() => expect(screen.getByText(/We can use the zip of your new duty location./).toBeInTheDocument));
     });
 
