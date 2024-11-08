@@ -346,7 +346,7 @@ const ServicesCounselingMoveDetails = ({
   const customerInfo = {
     name: formattedCustomerName(customer.last_name, customer.first_name, customer.suffix, customer.middle_name),
     agency: customer.agency,
-    dodId: customer.dodID,
+    edipi: customer.edipi,
     emplid: customer.emplid,
     phone: customer.phone,
     altPhone: customer.secondaryTelephone,
