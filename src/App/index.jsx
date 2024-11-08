@@ -18,6 +18,7 @@ import MarkerIO from 'components/ThirdParty/MarkerIO';
 import MilMoveErrorBoundary from 'components/MilMoveErrorBoundary';
 import ScrollToTop from 'components/ScrollToTop';
 import PageTitle from 'components/PageTitle';
+import MaintenancePage from 'pages/Maintenance/MaintenancePage';
 
 const Office = lazy(() => import('pages/Office'));
 const MyMove = lazy(() => import('scenes/MyMove'));
@@ -54,6 +55,10 @@ const officeQueryConfig = new QueryClient({
 });
 
 const App = () => {
+  // if (flags.InMaintenance === undefined) {
+  //   return <MaintenancePage />;
+  // }
+
   // We need an error boundary around each of the main apps (Office,
   // SystemAdmin, MyMove) because they are lazy loaded and it's
   // possible we could get a ChunkLoadError when trying to load them.
