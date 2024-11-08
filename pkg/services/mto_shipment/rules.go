@@ -158,7 +158,7 @@ func MTOShipmentHasTertiaryAddressWithNoSecondaryAddress() validator {
 		verrs := validate.NewErrors()
 		checkMTO := isTertiaryAddressPresentWithoutSecondaryMTO(*newer)
 		if checkMTO {
-			verrs.Add("error validating mto shipment", "MTO Shipment cannot have a tertiary address without a secondary pickup/destination address present")
+			verrs.Add("error validating mto shipment", "MTO Shipment cannot have a tertiary address without a secondary address present")
 			return apperror.NewInvalidInputError(newer.ID, nil, verrs, "mto shipment is missing a secondary pickup/destination address")
 		}
 		return nil

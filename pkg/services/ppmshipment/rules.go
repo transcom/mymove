@@ -62,7 +62,7 @@ func checkIfPPMShipmentHasTertiaryAddressWithNoSecondaryAddress() ppmShipmentVal
 	return ppmShipmentValidatorFunc(func(appCtx appcontext.AppContext, newer models.PPMShipment, _ *models.PPMShipment, _ *models.MTOShipment) error {
 		verrs := validate.NewErrors()
 		if isTertiaryAddressPresentWithoutSecondaryPPM(newer) {
-			verrs.Add("error validating mto shipment", "PPM Shipment cannot have a tertiary address without a secondary address present")
+			verrs.Add("error validating ppm shipment", "PPM Shipment cannot have a tertiary address without a secondary address present")
 			return verrs
 		}
 		return nil

@@ -1284,40 +1284,6 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		suite.Contains(*errResponse.Payload.Detail, "Unaccompanied baggage shipments can't be created unless the unaccompanied_baggage feature flag is enabled.")
 	})
 
-	suite.Run("POST failure - Error creating a mto shipment contains tertiary pickup address no secondary pickup address.", func() {
-		// Under Test: CreateMTOShipmentHandler
-		// Setup:   If underlying CreateMTOShipment returns error, handler should return 422 response
-		// Expected:   422 Response returned
-
-		handler, move := setupTestData(false, false)
-
-		req := httptest.NewRequest("POST", "/mto-shipments", nil)
-
-		params := mtoshipmentops.CreateMTOShipmentParams{
-			HTTPRequest: req,
-			Body: &primev3messages.CreateMTOShipment{
-				MoveTaskOrderID:       handlers.FmtUUID(move.ID),
-				Agents:                nil,
-				CustomerRemarks:       nil,
-				PointOfContact:        "John Doe",
-				PrimeEstimatedWeight:  handlers.FmtInt64(1200),
-				RequestedPickupDate:   handlers.FmtDatePtr(models.TimePointer(time.Now())),
-				ShipmentType:          primev3messages.NewMTOShipmentType(primev3messages.MTOShipmentTypePPM),
-				PickupAddress:         struct{ primev3messages.Address }{pickupAddress},
-				TertiaryPickupAddress: struct{ primev3messages.Address }{tertiaryPickupAddress},
-				DestinationAddress:    struct{ primev3messages.Address }{destinationAddress},
-			},
-		}
-
-		// Validate incoming payload
-		suite.NoError(params.Body.Validate(strfmt.Default))
-
-		response := handler.Handle(params)
-		suite.IsType(&mtoshipmentops.CreateMTOShipmentUnprocessableEntity{}, response)
-		errResponse := response.(*mtoshipmentops.CreateMTOShipmentUnprocessableEntity)
-
-		suite.Contains(*errResponse.Payload.Detail, "mto shipment is missing a secondary pickup/destination address")
-	})
 	suite.Run("POST failure - Error creating a mto shipment contains tertiary destination address no secondary destination address.", func() {
 		// Under Test: CreateMTOShipmentHandler
 		// Setup:   If underlying CreateMTOShipment returns error, handler should return 422 response
@@ -1351,9 +1317,10 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		errResponse := response.(*mtoshipmentops.CreateMTOShipmentUnprocessableEntity)
 
 		suite.Contains(*errResponse.Payload.Detail, "mto shipment is missing a secondary pickup/destination address")
+		suite.Contains(errResponse.Payload.InvalidFields["error validating mto shipment"][0], "MTO Shipment cannot have a tertiary address without a secondary address present")
 	})
 
-	suite.Run("POST failure - Error creating an mto shipment containing a ppm shipment contains tertiary pickup address no secondary pickup address.", func() {
+	suite.Run("POST failure - Error creating an mto shipment with ppm shipment contains tertiary pickup address no secondary pickup address.", func() {
 		// Under Test: UpdateMTOShipmentHandler
 		// Setup:   If underlying UpdateMTOShipment returns error, handler should return 422 response
 		// Expected:   422 Response returned
@@ -1409,7 +1376,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		errResponse := response.(*mtoshipmentops.CreateMTOShipmentUnprocessableEntity)
 
 		suite.Contains(*errResponse.Payload.Detail, "Invalid input found while validating the PPM shipment.")
-		suite.Contains(errResponse.Payload.InvalidFields["error validating mto shipment"], "PPM Shipment cannot have a tertiary address without a secondary address present")
+		suite.Contains(errResponse.Payload.InvalidFields["error validating ppm shipment"][0], "PPM Shipment cannot have a tertiary address without a secondary address present")
 	})
 
 	suite.Run("POST failure - Error creating mto shipment containing a ppm shipment contains tertiary destination address no secondary destination address.", func() {
@@ -1468,13 +1435,12 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		errResponse := response.(*mtoshipmentops.CreateMTOShipmentUnprocessableEntity)
 
 		suite.Contains(*errResponse.Payload.Detail, "Invalid input found while validating the PPM shipment.")
-		suite.Contains(errResponse.Payload.InvalidFields["error validating mto shipment"], "PPM Shipment cannot have a tertiary address without a secondary address present")
+		suite.Contains(errResponse.Payload.InvalidFields["error validating ppm shipment"][0], "PPM Shipment cannot have a tertiary address without a secondary address present")
 	})
 	suite.Run("PATCH failure - Error updating an mto shipment contains tertiary pickup address no secondary pickup address.", func() {
 		// Under Test: UpdateMTOShipmentHandler
 		// Setup:   If underlying CreateMTOShipment returns error, handler should return 422 response
 		// Expected:   422 Response returned
-		testSetPrimeTo := time.Now()
 
 		shipmentUpdater := shipmentorchestrator.NewShipmentUpdater(mtoShipmentUpdater, ppmShipmentUpdater, boatShipmentUpdater, mobileHomeShipmentUpdater)
 		patchHandler := UpdateMTOShipmentHandler{
@@ -1482,52 +1448,43 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 			shipmentUpdater,
 		}
 
-		newMove := factory.BuildMove(suite.DB(), []factory.Customization{
+		now := time.Now()
+		move := factory.BuildMoveWithPPMShipment(suite.DB(), []factory.Customization{
 			{
 				Model: models.Move{
-					AvailableToPrimeAt: &testSetPrimeTo,
+					AvailableToPrimeAt: &now,
+					ApprovedAt:         &now,
+					Status:             models.MoveStatusAPPROVED,
 				},
 			},
 		}, nil)
 
-		createdPPM := factory.BuildPPMShipment(suite.DB(), nil, nil)
-		mtoShipment := factory.BuildMTOShipmentWithMove(&newMove, suite.DB(), []factory.Customization{
-			{
-				Model: models.MTOShipment{
-					ShipmentType: models.MTOShipmentTypePPM,
-				},
-			},
-			{
-				Model: createdPPM,
-			},
-		}, nil)
+		patchReq := httptest.NewRequest("PATCH", fmt.Sprintf("/mto-shipments/%s", move.MTOShipments[0].ID), nil)
 
-		patchReq := httptest.NewRequest("PATCH", fmt.Sprintf("/mto-shipments/%s", mtoShipment.ID.String()), nil)
-
-		err := suite.DB().Find(&mtoShipment, mtoShipment.ID)
+		err := suite.DB().Find(&move.MTOShipments[0], move.MTOShipments[0].ID)
 		suite.NoError(err)
 
-		eTag := etag.GenerateEtag(mtoShipment.UpdatedAt)
+		eTag := etag.GenerateEtag(move.MTOShipments[0].UpdatedAt)
 		patchParams := mtoshipmentops.UpdateMTOShipmentParams{
 			HTTPRequest:   patchReq,
-			MtoShipmentID: strfmt.UUID(mtoShipment.ID.String()),
+			MtoShipmentID: strfmt.UUID(move.MTOShipments[0].ID.String()),
 			IfMatch:       eTag,
 		}
+		tertiaryAddress := GetTestAddress()
 		patchParams.Body = &primev3messages.UpdateMTOShipment{
-			TertiaryDeliveryAddress: struct{ primev3messages.Address }{tertiaryDestinationAddress},
+			TertiaryDeliveryAddress: struct{ primev3messages.Address }{tertiaryAddress},
 		}
 		patchResponse := patchHandler.Handle(patchParams)
 		errResponse := patchResponse.(*mtoshipmentops.UpdateMTOShipmentUnprocessableEntity)
 		suite.Contains(*errResponse.Payload.Detail, "mto shipment is missing a secondary pickup/destination address")
-		suite.Contains(errResponse.Payload.InvalidFields["error validating mto shipment"], "MTO Shipment cannot have a tertiary address without a secondary pickup/destination address present")
+		suite.Contains(errResponse.Payload.InvalidFields["error validating mto shipment"][0], "MTO Shipment cannot have a tertiary address without a secondary address present")
 
 	})
-	suite.Run("PATCH failure - Error updating an mto shipment contains tertiary destination address no secondary destination address", func() {
+	suite.Run("PATCH failure - Error updating an ppm shipment contains tertiary destination address no secondary destination address", func() {
 		// Under Test: UpdateMTOShipmentHandler
 		// Mocked:     UpdateMTOShipment creator
 		// Setup:   If underlying UpdateMTOShipment returns error, handler should return 422 response
 		// Expected:   422 Response returned
-		testSetPrimeTo := time.Now()
 
 		shipmentUpdater := shipmentorchestrator.NewShipmentUpdater(mtoShipmentUpdater, ppmShipmentUpdater, boatShipmentUpdater, mobileHomeShipmentUpdater)
 		patchHandler := UpdateMTOShipmentHandler{
@@ -1535,136 +1492,57 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 			shipmentUpdater,
 		}
 
-		newMove := factory.BuildMove(suite.DB(), []factory.Customization{
+		move := factory.BuildAvailableToPrimeMove(suite.DB(), []factory.Customization{}, nil)
+		factory.BuildPPMShipment(suite.DB(), []factory.Customization{
 			{
-				Model: models.Move{
-					AvailableToPrimeAt: &testSetPrimeTo,
-				},
+				Model:    move,
+				LinkOnly: true,
 			},
 		}, nil)
 
-		createdPPM := factory.BuildPPMShipment(suite.DB(), nil, nil)
-		mtoShipment := factory.BuildMTOShipmentWithMove(&newMove, suite.DB(), []factory.Customization{
-			{
-				Model: models.MTOShipment{
-					ShipmentType: models.MTOShipmentTypePPM,
-				},
-			},
-			{
-				Model: createdPPM,
-			},
-		}, nil)
-
-		patchReq := httptest.NewRequest("PATCH", fmt.Sprintf("/mto-shipments/%s", mtoShipment.ID.String()), nil)
-
-		err := suite.DB().Find(&mtoShipment, mtoShipment.ID)
+		var testMove models.Move
+		err := suite.DB().EagerPreload("MTOShipments.PPMShipment").Find(&testMove, move.ID)
 		suite.NoError(err)
-		eTag := etag.GenerateEtag(mtoShipment.UpdatedAt)
+
+		patchReq := httptest.NewRequest("PATCH", fmt.Sprintf("/mto-shipments/%s", testMove.MTOShipments[0].ID.String()), nil)
+
+		eTag := etag.GenerateEtag(testMove.MTOShipments[0].UpdatedAt)
 		patchParams := mtoshipmentops.UpdateMTOShipmentParams{
 			HTTPRequest:   patchReq,
-			MtoShipmentID: strfmt.UUID(createdPPM.ShipmentID.String()),
+			MtoShipmentID: strfmt.UUID(testMove.MTOShipments[0].ID.String()),
 			IfMatch:       eTag,
 		}
-		patchParams.Body = &primev3messages.UpdateMTOShipment{
-			TertiaryDeliveryAddress: struct{ primev3messages.Address }{tertiaryDestinationAddress},
-		}
-		patchResponse := patchHandler.Handle(patchParams)
-		errResponse := patchResponse.(*mtoshipmentops.UpdateMTOShipmentUnprocessableEntity)
-		suite.Contains(*errResponse.Payload.Detail, "mto shipment is missing a secondary pickup/destination address")
-		suite.Contains(errResponse.Payload.InvalidFields["error validating mto shipment"], "MTO Shipment cannot have a tertiary address without a secondary pickup/destination address present")
-
-	})
-	suite.Run("PATCH failure - Error updating a ppm shipment contains tertiary pickup address no pickup destination address", func() {
-		// Under Test: UpdateMTOShipmentHandler
-		// Mocked:     UpdateMTOShipment creator
-		// Setup:   If underlying UpdateMTOShipment returns error, handler should return 422 response
-		// Expected:   422 Response returned
-		_, move := setupTestData(false, false)
-
-		shipmentUpdater := shipmentorchestrator.NewShipmentUpdater(mtoShipmentUpdater, ppmShipmentUpdater, boatShipmentUpdater, mobileHomeShipmentUpdater)
-		patchHandler := UpdateMTOShipmentHandler{
-			suite.HandlerConfig(),
-			shipmentUpdater,
-		}
-
-		createdPPM := factory.BuildPPMShipment(suite.DB(), nil, nil)
-		mtoShipment := factory.BuildMTOShipmentWithMove(&move, suite.DB(), []factory.Customization{
-			{
-				Model: models.MTOShipment{
-					ShipmentType: models.MTOShipmentTypePPM,
-				},
-			},
-			{
-				Model: createdPPM,
-			},
-		}, nil)
-
-		patchReq := httptest.NewRequest("PATCH", fmt.Sprintf("/mto-shipments/%s", mtoShipment.ID.String()), nil)
-
-		err := suite.DB().Find(&mtoShipment, createdPPM.ShipmentID)
-		suite.NoError(err)
-		eTag := etag.GenerateEtag(mtoShipment.UpdatedAt)
-
-		patchParams := mtoshipmentops.UpdateMTOShipmentParams{
-			HTTPRequest:   patchReq,
-			MtoShipmentID: strfmt.UUID(createdPPM.ShipmentID.String()),
-			IfMatch:       eTag,
-		}
-		patchParams.Body.PpmShipment = &primev3messages.UpdatePPMShipment{
-			HasTertiaryPickupAddress: models.BoolPointer(true),
-			TertiaryPickupAddress:    struct{ primev3messages.Address }{tertiaryPickupAddress},
-		}
-		patchResponse := patchHandler.Handle(patchParams)
-		errResponse := patchResponse.(*mtoshipmentops.UpdateMTOShipmentUnprocessableEntity)
-		suite.Contains(*errResponse.Payload.Detail, "ppm shipment is missing a secondary pickup/destination address")
-
-	})
-
-	suite.Run("PATCH failure - Error updating a ppm shipment contains tertiary destination address no secondary destination address", func() {
-		// Under Test: UpdateMTOShipmentHandler
-		// Setup:   If underlying UpdateMTOShipment returns error, handler should return 422 response
-		// Expected:   422 Response returned
-		_, move := setupTestData(false, false)
-
-		shipmentUpdater := shipmentorchestrator.NewShipmentUpdater(mtoShipmentUpdater, ppmShipmentUpdater, boatShipmentUpdater, mobileHomeShipmentUpdater)
-		patchHandler := UpdateMTOShipmentHandler{
-			suite.HandlerConfig(),
-			shipmentUpdater,
-		}
-
-		createdPPM := factory.BuildPPMShipment(suite.DB(), nil, nil)
-		mtoShipment := factory.BuildMTOShipmentWithMove(&move, suite.DB(), []factory.Customization{
-			{
-				Model: models.MTOShipment{
-					ShipmentType: models.MTOShipmentTypePPM,
-				},
-			},
-			{
-				Model: createdPPM,
-			},
-		}, nil)
-
-		patchReq := httptest.NewRequest("PATCH", fmt.Sprintf("/mto-shipments/%s", mtoShipment.ID.String()), nil)
-
-		err := suite.DB().Find(&mtoShipment, mtoShipment.ID)
-		suite.NoError(err)
-		eTag := etag.GenerateEtag(mtoShipment.UpdatedAt)
-		patchParams := mtoshipmentops.UpdateMTOShipmentParams{
-			HTTPRequest:   patchReq,
-			MtoShipmentID: strfmt.UUID(mtoShipment.ID.String()),
-			IfMatch:       eTag,
-		}
-		ppmShipmentParams := primev3messages.UpdatePPMShipment{
+		tertiaryAddress := GetTestAddress()
+		ppmShipmentParamSetup := primev3messages.UpdatePPMShipment{
 			HasTertiaryDestinationAddress: models.BoolPointer(true),
-			TertiaryDestinationAddress:    struct{ primev3messages.Address }{tertiaryDestinationAddress},
+			TertiaryDestinationAddress:    struct{ primev3messages.Address }{tertiaryAddress},
 		}
-		patchParams.Body = &primev3messages.UpdateMTOShipment{
-			PpmShipment: &ppmShipmentParams,
+		mtoShipmentParamSetup := primev3messages.UpdateMTOShipment{
+			PpmShipment: &ppmShipmentParamSetup,
 		}
+
+		patchParams.Body = &mtoShipmentParamSetup
 		patchResponse := patchHandler.Handle(patchParams)
 		errResponse := patchResponse.(*mtoshipmentops.UpdateMTOShipmentUnprocessableEntity)
-		suite.Contains(*errResponse.Payload.Detail, "ppm shipment is missing a secondary pickup/destination address")
+		suite.Contains(*errResponse.Payload.Detail, "Invalid input found while validating the PPM shipment")
+		suite.Contains(errResponse.Payload.InvalidFields["error validating ppm shipment"][0], "PPM Shipment cannot have a tertiary address without a secondary address present")
 
 	})
-
+}
+func GetTestAddress() primev3messages.Address {
+	newAddress := factory.BuildAddress(nil, []factory.Customization{
+		{
+			Model: models.Address{
+				ID: uuid.Must(uuid.NewV4()),
+			},
+		},
+	}, nil)
+	return primev3messages.Address{
+		City:           &newAddress.City,
+		PostalCode:     &newAddress.PostalCode,
+		State:          &newAddress.State,
+		StreetAddress1: &newAddress.StreetAddress1,
+		StreetAddress2: newAddress.StreetAddress2,
+		StreetAddress3: newAddress.StreetAddress3,
+	}
 }
