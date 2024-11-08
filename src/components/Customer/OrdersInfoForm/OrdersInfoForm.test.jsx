@@ -5,7 +5,6 @@ import userEvent from '@testing-library/user-event';
 import OrdersInfoForm from './OrdersInfoForm';
 
 import { showCounselingOffices } from 'services/internalApi';
-import { ORDERS_TYPE } from 'constants/orders';
 
 jest.mock('services/internalApi', () => ({
   ...jest.requireActual('services/internalApi'),
@@ -165,7 +164,6 @@ const testProps = {
     { key: 'LOCAL_MOVE', value: 'Local Move' },
     { key: 'RETIREMENT', value: 'Retirement' },
     { key: 'SEPARATION', value: 'Separation' },
-    { key: 'TEMPORARY_DUTY', value: 'Temporary Duty (TDY)' },
   ],
 };
 
@@ -195,26 +193,23 @@ describe('OrdersInfoForm component', () => {
     const ordersTypeDropdown = getByLabelText(/Orders type/);
     expect(ordersTypeDropdown).toBeInstanceOf(HTMLSelectElement);
 
-    await userEvent.selectOptions(ordersTypeDropdown, ORDERS_TYPE.PERMANENT_CHANGE_OF_STATION);
-    expect(ordersTypeDropdown).toHaveValue(ORDERS_TYPE.PERMANENT_CHANGE_OF_STATION);
+    await userEvent.selectOptions(ordersTypeDropdown, 'PERMANENT_CHANGE_OF_STATION');
+    expect(ordersTypeDropdown).toHaveValue('PERMANENT_CHANGE_OF_STATION');
 
-    await userEvent.selectOptions(ordersTypeDropdown, ORDERS_TYPE.LOCAL_MOVE);
-    expect(ordersTypeDropdown).toHaveValue(ORDERS_TYPE.LOCAL_MOVE);
+    await userEvent.selectOptions(ordersTypeDropdown, 'LOCAL_MOVE');
+    expect(ordersTypeDropdown).toHaveValue('LOCAL_MOVE');
 
-    await userEvent.selectOptions(ordersTypeDropdown, ORDERS_TYPE.RETIREMENT);
-    expect(ordersTypeDropdown).toHaveValue(ORDERS_TYPE.RETIREMENT);
+    await userEvent.selectOptions(ordersTypeDropdown, 'RETIREMENT');
+    expect(ordersTypeDropdown).toHaveValue('RETIREMENT');
 
-    await userEvent.selectOptions(ordersTypeDropdown, ORDERS_TYPE.SEPARATION);
-    expect(ordersTypeDropdown).toHaveValue(ORDERS_TYPE.SEPARATION);
-
-    await userEvent.selectOptions(ordersTypeDropdown, ORDERS_TYPE.TEMPORARY_DUTY);
-    expect(ordersTypeDropdown).toHaveValue(ORDERS_TYPE.TEMPORARY_DUTY);
+    await userEvent.selectOptions(ordersTypeDropdown, 'SEPARATION');
+    expect(ordersTypeDropdown).toHaveValue('SEPARATION');
   });
 
   it('allows new and current duty location to be the same', async () => {
     render(<OrdersInfoForm {...testProps} />);
 
-    await userEvent.selectOptions(screen.getByLabelText(/Orders type/), ORDERS_TYPE.PERMANENT_CHANGE_OF_STATION);
+    await userEvent.selectOptions(screen.getByLabelText(/Orders type/), 'PERMANENT_CHANGE_OF_STATION');
     await userEvent.type(screen.getByLabelText(/Orders date/), '08 Nov 2020');
     await userEvent.type(screen.getByLabelText(/Report by date/), '26 Nov 2020');
     await userEvent.click(screen.getByLabelText('No'));
@@ -277,13 +272,12 @@ describe('OrdersInfoForm component', () => {
         { key: 'LOCAL_MOVE', value: 'Local Move' },
         { key: 'RETIREMENT', value: 'Retirement' },
         { key: 'SEPARATION', value: 'Separation' },
-        { key: 'TEMPORARY_DUTY', value: 'Temporary Duty (TDY)' },
       ],
     };
 
     render(<OrdersInfoForm {...testPropsWithCounselingOffice} />);
 
-    await userEvent.selectOptions(screen.getByLabelText(/Orders type/), ORDERS_TYPE.PERMANENT_CHANGE_OF_STATION);
+    await userEvent.selectOptions(screen.getByLabelText(/Orders type/), 'PERMANENT_CHANGE_OF_STATION');
     await userEvent.type(screen.getByLabelText(/Orders date/), '08 Nov 2020');
     await userEvent.type(screen.getByLabelText(/Report by date/), '26 Nov 2020');
     await userEvent.click(screen.getByLabelText('No'));
@@ -312,7 +306,7 @@ describe('OrdersInfoForm component', () => {
     await waitFor(() => {
       expect(testPropsWithCounselingOffice.onSubmit).toHaveBeenCalledWith(
         expect.objectContaining({
-          orders_type: ORDERS_TYPE.PERMANENT_CHANGE_OF_STATION,
+          orders_type: 'PERMANENT_CHANGE_OF_STATION',
           counseling_office_id: '3be2381f-f9ed-4902-bbdc-69c69e43eb86',
           has_dependents: 'no',
           issue_date: '08 Nov 2020',
@@ -358,7 +352,7 @@ describe('OrdersInfoForm component', () => {
   it('submits the form when its valid', async () => {
     render(<OrdersInfoForm {...testProps} />);
 
-    await userEvent.selectOptions(screen.getByLabelText(/Orders type/), ORDERS_TYPE.PERMANENT_CHANGE_OF_STATION);
+    await userEvent.selectOptions(screen.getByLabelText(/Orders type/), 'PERMANENT_CHANGE_OF_STATION');
     await userEvent.type(screen.getByLabelText(/Orders date/), '08 Nov 2020');
     await userEvent.type(screen.getByLabelText(/Report by date/), '26 Nov 2020');
     await userEvent.click(screen.getByLabelText('No'));
@@ -387,7 +381,7 @@ describe('OrdersInfoForm component', () => {
     await waitFor(() => {
       expect(testProps.onSubmit).toHaveBeenCalledWith(
         expect.objectContaining({
-          orders_type: ORDERS_TYPE.PERMANENT_CHANGE_OF_STATION,
+          orders_type: 'PERMANENT_CHANGE_OF_STATION',
           has_dependents: 'no',
           issue_date: '08 Nov 2020',
           report_by_date: '26 Nov 2020',
@@ -429,73 +423,6 @@ describe('OrdersInfoForm component', () => {
     });
   });
 
-  it('submits the form when temporary duty orders type is selected', async () => {
-    render(<OrdersInfoForm {...testProps} />);
-
-    await userEvent.selectOptions(screen.getByLabelText(/Orders type/), ORDERS_TYPE.TEMPORARY_DUTY);
-    await userEvent.type(screen.getByLabelText(/Orders date/), '28 Oct 2024');
-    await userEvent.type(screen.getByLabelText(/Report by date/), '28 Oct 2024');
-    await userEvent.click(screen.getByLabelText('No'));
-    await userEvent.selectOptions(screen.getByLabelText(/Pay grade/), ['E_7']);
-
-    // Test Current Duty Location Search Box interaction
-    await userEvent.type(screen.getByLabelText(/Current duty location/), 'AFB', { delay: 100 });
-    const selectedOptionCurrent = await screen.findByText(/Altus/);
-    await userEvent.click(selectedOptionCurrent);
-
-    // Test New Duty Location Search Box interaction
-    await userEvent.type(screen.getByLabelText(/New duty location/), 'AFB', { delay: 100 });
-    const selectedOptionNew = await screen.findByText(/Luke/);
-    await userEvent.click(selectedOptionNew);
-
-    const submitBtn = screen.getByRole('button', { name: 'Next' });
-    await userEvent.click(submitBtn);
-
-    await waitFor(() => {
-      expect(testProps.onSubmit).toHaveBeenCalledWith(
-        expect.objectContaining({
-          orders_type: ORDERS_TYPE.TEMPORARY_DUTY,
-          has_dependents: 'no',
-          issue_date: '28 Oct 2024',
-          report_by_date: '28 Oct 2024',
-          new_duty_location: {
-            address: {
-              city: 'Glendale Luke AFB',
-              country: 'United States',
-              id: 'fa51dab0-4553-4732-b843-1f33407f77bc',
-              postalCode: '85309',
-              state: 'AZ',
-              streetAddress1: 'n/a',
-            },
-            address_id: '25be4d12-fe93-47f1-bbec-1db386dfa67f',
-            affiliation: 'AIR_FORCE',
-            created_at: '2021-02-11T16:48:04.117Z',
-            id: 'a8d6b33c-8370-4e92-8df2-356b8c9d0c1a',
-            name: 'Luke AFB',
-            updated_at: '2021-02-11T16:48:04.117Z',
-          },
-          grade: 'E_7',
-          origin_duty_location: {
-            address: {
-              city: '',
-              id: '00000000-0000-0000-0000-000000000000',
-              postalCode: '',
-              state: '',
-              streetAddress1: '',
-            },
-            address_id: '46c4640b-c35e-4293-a2f1-36c7b629f903',
-            affiliation: 'AIR_FORCE',
-            created_at: '2021-02-11T16:48:04.117Z',
-            id: '93f0755f-6f35-478b-9a75-35a69211da1c',
-            name: 'Altus AFB',
-            updated_at: '2021-02-11T16:48:04.117Z',
-          },
-        }),
-        expect.anything(),
-      );
-    });
-  });
-
   it('implements the onBack handler when the Back button is clicked', async () => {
     const { getByRole } = render(<OrdersInfoForm {...testProps} />);
     const backBtn = getByRole('button', { name: 'Back' });
@@ -509,7 +436,7 @@ describe('OrdersInfoForm component', () => {
 
   describe('with initial values', () => {
     const testInitialValues = {
-      orders_type: ORDERS_TYPE.PERMANENT_CHANGE_OF_STATION,
+      orders_type: 'PERMANENT_CHANGE_OF_STATION',
       issue_date: '2020-11-08',
       report_by_date: '2020-11-26',
       has_dependents: 'no',
