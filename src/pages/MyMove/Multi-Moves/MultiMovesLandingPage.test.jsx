@@ -8,7 +8,6 @@ import MultiMovesLandingPage from './MultiMovesLandingPage';
 
 import { MockProviders } from 'testUtils';
 import { selectServiceMemberFromLoggedInUser } from 'store/entities/selectors';
-import { ORDERS_TYPE } from 'constants/orders';
 
 // Mock external dependencies
 jest.mock('containers/FlashMessage/FlashMessage', () => {
@@ -121,7 +120,7 @@ const defaultProps = {
           service_member_id: '6686d242-e7af-4a06-afd7-7be423bfca2d',
           issue_date: '2024-01-31T00:00:00Z',
           report_by_date: '2024-02-09T00:00:00Z',
-          orders_type: ORDERS_TYPE.PERMANENT_CHANGE_OF_STATION,
+          orders_type: 'PERMANENT_CHANGE_OF_STATION',
           orders_type_detail: null,
           has_dependents: false,
           spouse_has_pro_gear: false,
@@ -357,7 +356,7 @@ const defaultPropsMultipleMove = {
           service_member_id: '6686d242-e7af-4a06-afd7-7be423bfca2d',
           issue_date: '2024-01-31T00:00:00Z',
           report_by_date: '2024-02-09T00:00:00Z',
-          orders_type: ORDERS_TYPE.PERMANENT_CHANGE_OF_STATION,
+          orders_type: 'PERMANENT_CHANGE_OF_STATION',
           orders_type_detail: null,
           has_dependents: false,
           spouse_has_pro_gear: false,
@@ -494,7 +493,7 @@ const defaultPropsMultipleMove = {
           service_member_id: '6686d242-e7af-4a06-afd7-7be423bfca2d',
           issue_date: '2024-01-31T00:00:00Z',
           report_by_date: '2024-02-09T00:00:00Z',
-          orders_type: ORDERS_TYPE.PERMANENT_CHANGE_OF_STATION,
+          orders_type: 'PERMANENT_CHANGE_OF_STATION',
           orders_type_detail: null,
           has_dependents: false,
           spouse_has_pro_gear: false,
@@ -629,7 +628,7 @@ const defaultPropsMultipleMove = {
           service_member_id: '6686d242-e7af-4a06-afd7-7be423bfca2d',
           issue_date: '2024-01-31T00:00:00Z',
           report_by_date: '2024-02-09T00:00:00Z',
-          orders_type: ORDERS_TYPE.PERMANENT_CHANGE_OF_STATION,
+          orders_type: 'PERMANENT_CHANGE_OF_STATION',
           orders_type_detail: null,
           has_dependents: false,
           spouse_has_pro_gear: false,

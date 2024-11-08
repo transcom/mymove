@@ -9,7 +9,6 @@ import MoveHome from './MoveHome';
 import { customerRoutes } from 'constants/routes';
 import { MockProviders } from 'testUtils';
 import { cancelMove, downloadPPMAOAPacket } from 'services/internalApi';
-import { ORDERS_TYPE } from 'constants/orders';
 
 jest.mock('containers/FlashMessage/FlashMessage', () => {
   const MockFlash = () => <div>Flash message</div>;
@@ -140,7 +139,7 @@ const defaultPropsOrdersWithUploads = {
             transportation_office_id: '0357f830-2f32-41f3-9ca2-268dd70df5cb',
             updated_at: '2024-02-15T14:42:58.875Z',
           },
-          orders_type: ORDERS_TYPE.PERMANENT_CHANGE_OF_STATION,
+          orders_type: 'PERMANENT_CHANGE_OF_STATION',
           originDutyLocationGbloc: 'HAFC',
           origin_duty_location: {
             address: {
@@ -355,7 +354,7 @@ const defaultPropsOrdersWithUnsubmittedShipments = {
             transportation_office_id: '0357f830-2f32-41f3-9ca2-268dd70df5cb',
             updated_at: '2024-02-15T14:42:58.875Z',
           },
-          orders_type: ORDERS_TYPE.PERMANENT_CHANGE_OF_STATION,
+          orders_type: 'PERMANENT_CHANGE_OF_STATION',
           originDutyLocationGbloc: 'HAFC',
           origin_duty_location: {
             address: {
@@ -570,7 +569,7 @@ const defaultPropsOrdersWithSubmittedShipments = {
             transportation_office_id: '0357f830-2f32-41f3-9ca2-268dd70df5cb',
             updated_at: '2024-02-15T14:42:58.875Z',
           },
-          orders_type: ORDERS_TYPE.PERMANENT_CHANGE_OF_STATION,
+          orders_type: 'PERMANENT_CHANGE_OF_STATION',
           originDutyLocationGbloc: 'HAFC',
           origin_duty_location: {
             address: {
@@ -755,7 +754,7 @@ const defaultPropsAmendedOrdersWithAdvanceRequested = {
             transportation_office_id: '7f5b64b8-979c-4cbd-890b-bffd6fdf56d9',
             updated_at: '2024-02-15T14:42:58.875Z',
           },
-          orders_type: ORDERS_TYPE.PERMANENT_CHANGE_OF_STATION,
+          orders_type: 'PERMANENT_CHANGE_OF_STATION',
           originDutyLocationGbloc: 'HAFC',
           origin_duty_location: {
             address: {
@@ -961,7 +960,7 @@ const defaultPropsWithAdvanceAndPPMApproved = {
             updated_at: '2024-02-15T14:42:58.875Z',
           },
           orders_number: '12345678901234',
-          orders_type: ORDERS_TYPE.PERMANENT_CHANGE_OF_STATION,
+          orders_type: 'PERMANENT_CHANGE_OF_STATION',
           orders_type_detail: 'PCS_TDY',
           originDutyLocationGbloc: 'HAFC',
           origin_duty_location: {
@@ -1481,7 +1480,7 @@ describe('Home component', () => {
               updated_at: '2024-02-15T14:42:58.875Z',
             },
             orders_number: '12345678901234',
-            orders_type: ORDERS_TYPE.PERMANENT_CHANGE_OF_STATION,
+            orders_type: 'PERMANENT_CHANGE_OF_STATION',
             orders_type_detail: 'PCS_TDY',
             originDutyLocationGbloc: 'HAFC',
             origin_duty_location: {
