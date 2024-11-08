@@ -4853,6 +4853,11 @@ definitions:
         example: true
         x-nullable: true
         description: Indicates if the move entitlement allows dependents to travel to the new Permanent Duty Station (PDS). This is only present on OCONUS moves.
+      ubAllowance:
+        type: integer
+        example: 3
+        x-nullable: true
+        description: The amount of weight in pounds that the move is entitled for shipment types of Unaccompanied Baggage.
       dependentsUnderTwelve:
         type: integer
         example: 5
@@ -4863,10 +4868,6 @@ definitions:
         example: 3
         x-nullable: true
         description: Indicates the number of dependents of the age twelve or older for a move. This is only present on OCONUS moves.
-      ubAllowance:
-        example: 500
-        type: integer
-        x-nullable: true
       eTag:
         type: string
     type: object

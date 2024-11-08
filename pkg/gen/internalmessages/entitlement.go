@@ -39,9 +39,9 @@ type Entitlement struct {
 	// Example: 500
 	ProGearSpouse *int64 `json:"proGearSpouse,omitempty"`
 
-	// ub allowance
-	// Example: 500
-	UbAllowance *int64 `json:"ubAllowance,omitempty"`
+	// The amount of weight in pounds that the move is entitled for shipment types of Unaccompanied Baggage.
+	// Example: 3
+	UbAllowance *int64 `json:"ub_allowance,omitempty"`
 }
 
 // Validate validates this entitlement
