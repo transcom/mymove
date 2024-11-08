@@ -20,6 +20,7 @@ import { downloadPPMAOAPacket, downloadPPMPaymentPacket } from 'services/interna
 import { ppmShipmentStatuses } from 'constants/shipments';
 import { setFlashMessage as setFlashMessageAction } from 'store/flash/actions';
 import scrollToTop from 'shared/scrollToTop';
+import { MOVE_STATUSES } from 'shared/constants';
 
 const MultiMovesMoveContainer = ({ moves, setFlashMessage }) => {
   const [expandedMoves, setExpandedMoves] = useState({});
@@ -128,9 +129,16 @@ const MultiMovesMoveContainer = ({ moves, setFlashMessage }) => {
       <div className={styles.moveContainer}>
         <div className={styles.heading} key={index}>
           <h3>#{m.moveCode}</h3>
-          {CHECK_SPECIAL_ORDERS_TYPES(m?.orders?.orders_type) ? (
-            <div className={styles.specialMoves}>{SPECIAL_ORDERS_TYPES[`${m?.orders?.orders_type}`]}</div>
-          ) : null}
+          {m.status === MOVE_STATUSES.CANCELED ? (
+            <div className={styles.specialMoves}>Canceled</div>
+          ) : (
+            <>
+              &nbsp;
+              {CHECK_SPECIAL_ORDERS_TYPES(m?.orders?.orders_type) ? (
+                <div className={styles.specialMoves}>{SPECIAL_ORDERS_TYPES[`${m?.orders?.orders_type}`]}</div>
+              ) : null}
+            </>
+          )}
           <div className={styles.moveContainerButtons} data-testid="headerBtns">
             <Button
               data-testid="goToMoveBtn"
