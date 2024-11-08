@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"math"
+	"strings"
 	"time"
 
 	"github.com/go-openapi/strfmt"
@@ -213,6 +214,15 @@ func ReportViolations(reportViolations models.ReportViolations) ghcmessages.Repo
 	return payload
 }
 
+func GsrAppeals(gsrAppeals models.GsrAppeals) ghcmessages.GSRAppeals {
+	payload := make(ghcmessages.GSRAppeals, len(gsrAppeals))
+	for i, v := range gsrAppeals {
+		gsrAppeal := v
+		payload[i] = GsrAppeal(&gsrAppeal)
+	}
+	return payload
+}
+
 func EvaluationReportOfficeUser(officeUser models.OfficeUser) ghcmessages.EvaluationReportOfficeUser {
 	payload := ghcmessages.EvaluationReportOfficeUser{
 		Email:     officeUser.Email,
@@ -295,6 +305,7 @@ func EvaluationReport(evaluationReport *models.EvaluationReport) *ghcmessages.Ev
 		ETag:                               etag.GenerateEtag(evaluationReport.UpdatedAt),
 		UpdatedAt:                          strfmt.DateTime(evaluationReport.UpdatedAt),
 		ReportViolations:                   ReportViolations(evaluationReport.ReportViolations),
+		GsrAppeals:                         GsrAppeals(evaluationReport.GsrAppeals),
 	}
 	return payload
 }
@@ -345,6 +356,37 @@ func ReportViolation(reportViolation *models.ReportViolation) *ghcmessages.Repor
 		ViolationID: violationID,
 		ReportID:    reportID,
 		Violation:   PWSViolationItem(&reportViolation.Violation),
+		GsrAppeals:  GsrAppeals(reportViolation.GsrAppeals),
+	}
+	return payload
+}
+
+func GsrAppeal(gsrAppeal *models.GsrAppeal) *ghcmessages.GSRAppeal {
+	if gsrAppeal == nil {
+		return nil
+	}
+	id := *handlers.FmtUUID(gsrAppeal.ID)
+	reportID := *handlers.FmtUUID(gsrAppeal.EvaluationReportID)
+	officeUserID := *handlers.FmtUUID(gsrAppeal.OfficeUserID)
+	officeUser := EvaluationReportOfficeUser(*gsrAppeal.OfficeUser)
+	isSeriousIncident := false
+	if gsrAppeal.IsSeriousIncidentAppeal != nil {
+		isSeriousIncident = *gsrAppeal.IsSeriousIncidentAppeal
+	}
+
+	payload := &ghcmessages.GSRAppeal{
+		ID:                id,
+		ReportID:          reportID,
+		OfficeUserID:      officeUserID,
+		OfficeUser:        &officeUser,
+		IsSeriousIncident: isSeriousIncident,
+		AppealStatus:      ghcmessages.GSRAppealStatusType(gsrAppeal.AppealStatus),
+		Remarks:           gsrAppeal.Remarks,
+		CreatedAt:         strfmt.DateTime(gsrAppeal.CreatedAt),
+	}
+
+	if gsrAppeal.ReportViolationID != nil {
+		payload.ViolationID = *handlers.FmtUUID(*gsrAppeal.ReportViolationID)
 	}
 	return payload
 }
@@ -737,6 +779,23 @@ func Address(address *models.Address) *ghcmessages.Address {
 	}
 }
 
+// PPM destination Address payload
+func PPMDestinationAddress(address *models.Address) *ghcmessages.Address {
+	payload := Address(address)
+
+	if payload == nil {
+		return nil
+	}
+
+	// Street address 1 is optional per business rule but not nullable on the database level.
+	// Check if streetAddress 1 is using place holder value to represent 'NULL'.
+	// If so return empty string.
+	if strings.EqualFold(*payload.StreetAddress1, models.STREET_ADDRESS_1_NOT_PROVIDED) {
+		payload.StreetAddress1 = models.StringPointer("")
+	}
+	return payload
+}
+
 // StorageFacility payload
 func StorageFacility(storageFacility *models.StorageFacility) *ghcmessages.StorageFacility {
 	if storageFacility == nil {
@@ -889,7 +948,7 @@ func PPMShipment(_ storage.FileStorer, ppmShipment *models.PPMShipment) *ghcmess
 		ReviewedAt:                     handlers.FmtDateTimePtr(ppmShipment.ReviewedAt),
 		ApprovedAt:                     handlers.FmtDateTimePtr(ppmShipment.ApprovedAt),
 		PickupAddress:                  Address(ppmShipment.PickupAddress),
-		DestinationAddress:             Address(ppmShipment.DestinationAddress),
+		DestinationAddress:             PPMDestinationAddress(ppmShipment.DestinationAddress),
 		ActualPickupPostalCode:         ppmShipment.ActualPickupPostalCode,
 		ActualDestinationPostalCode:    ppmShipment.ActualDestinationPostalCode,
 		SitExpected:                    ppmShipment.SITExpected,
