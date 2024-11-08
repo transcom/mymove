@@ -54,15 +54,15 @@ func checkPPMShipmentID() ppmShipmentValidator {
 		return verrs
 	})
 }
-func isTertiaryAddressPresentWithoutSecondaryPPM(mtoShipmentToCheck models.PPMShipment) bool {
-	return (models.IsAddressEmpty(mtoShipmentToCheck.SecondaryPickupAddress) && !models.IsAddressEmpty(mtoShipmentToCheck.TertiaryPickupAddress)) || (models.IsAddressEmpty(mtoShipmentToCheck.SecondaryDestinationAddress) && !models.IsAddressEmpty(mtoShipmentToCheck.TertiaryDestinationAddress))
+func isTertiaryAddressPresentWithoutSecondaryPPM(ppmShipmentToCheck models.PPMShipment) bool {
+	return (models.IsAddressEmpty(ppmShipmentToCheck.SecondaryPickupAddress) && !models.IsAddressEmpty(ppmShipmentToCheck.TertiaryPickupAddress)) || (models.IsAddressEmpty(ppmShipmentToCheck.SecondaryDestinationAddress) && !models.IsAddressEmpty(ppmShipmentToCheck.TertiaryDestinationAddress))
 }
 
 func checkIfPPMShipmentHasTertiaryAddressWithNoSecondaryAddress() ppmShipmentValidator {
 	return ppmShipmentValidatorFunc(func(appCtx appcontext.AppContext, newer models.PPMShipment, _ *models.PPMShipment, _ *models.MTOShipment) error {
 		verrs := validate.NewErrors()
 		if isTertiaryAddressPresentWithoutSecondaryPPM(newer) {
-			verrs.Add("missing secondary address for pickup/destination address", "tertiary address cannot be added to an MTO shipment without a second address")
+			verrs.Add("error validating ppm shipment", "PPM Shipment cannot have a tertiary address without a secondary address present")
 			return verrs
 		}
 		return nil
