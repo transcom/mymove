@@ -20,9 +20,9 @@ type OfficeUserUpdater struct {
 	mock.Mock
 }
 
-// UpdateOfficeUser provides a mock function with given fields: appCtx, id, payload
-func (_m *OfficeUserUpdater) UpdateOfficeUser(appCtx appcontext.AppContext, id uuid.UUID, payload *adminmessages.OfficeUserUpdate) (*models.OfficeUser, *validate.Errors, error) {
-	ret := _m.Called(appCtx, id, payload)
+// UpdateOfficeUser provides a mock function with given fields: appCtx, id, payload, primaryTransportationOfficeId
+func (_m *OfficeUserUpdater) UpdateOfficeUser(appCtx appcontext.AppContext, id uuid.UUID, payload *adminmessages.OfficeUserUpdate, primaryTransportationOfficeId uuid.UUID) (*models.OfficeUser, *validate.Errors, error) {
+	ret := _m.Called(appCtx, id, payload, primaryTransportationOfficeId)
 
 	if len(ret) == 0 {
 		panic("no return value specified for UpdateOfficeUser")
@@ -31,27 +31,27 @@ func (_m *OfficeUserUpdater) UpdateOfficeUser(appCtx appcontext.AppContext, id u
 	var r0 *models.OfficeUser
 	var r1 *validate.Errors
 	var r2 error
-	if rf, ok := ret.Get(0).(func(appcontext.AppContext, uuid.UUID, *adminmessages.OfficeUserUpdate) (*models.OfficeUser, *validate.Errors, error)); ok {
-		return rf(appCtx, id, payload)
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, uuid.UUID, *adminmessages.OfficeUserUpdate, uuid.UUID) (*models.OfficeUser, *validate.Errors, error)); ok {
+		return rf(appCtx, id, payload, primaryTransportationOfficeId)
 	}
-	if rf, ok := ret.Get(0).(func(appcontext.AppContext, uuid.UUID, *adminmessages.OfficeUserUpdate) *models.OfficeUser); ok {
-		r0 = rf(appCtx, id, payload)
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, uuid.UUID, *adminmessages.OfficeUserUpdate, uuid.UUID) *models.OfficeUser); ok {
+		r0 = rf(appCtx, id, payload, primaryTransportationOfficeId)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*models.OfficeUser)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(appcontext.AppContext, uuid.UUID, *adminmessages.OfficeUserUpdate) *validate.Errors); ok {
-		r1 = rf(appCtx, id, payload)
+	if rf, ok := ret.Get(1).(func(appcontext.AppContext, uuid.UUID, *adminmessages.OfficeUserUpdate, uuid.UUID) *validate.Errors); ok {
+		r1 = rf(appCtx, id, payload, primaryTransportationOfficeId)
 	} else {
 		if ret.Get(1) != nil {
 			r1 = ret.Get(1).(*validate.Errors)
 		}
 	}
 
-	if rf, ok := ret.Get(2).(func(appcontext.AppContext, uuid.UUID, *adminmessages.OfficeUserUpdate) error); ok {
-		r2 = rf(appCtx, id, payload)
+	if rf, ok := ret.Get(2).(func(appcontext.AppContext, uuid.UUID, *adminmessages.OfficeUserUpdate, uuid.UUID) error); ok {
+		r2 = rf(appCtx, id, payload, primaryTransportationOfficeId)
 	} else {
 		r2 = ret.Error(2)
 	}
