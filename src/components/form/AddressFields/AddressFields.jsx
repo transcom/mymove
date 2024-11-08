@@ -34,7 +34,6 @@ export const AddressFields = ({
   render,
   values,
   validators,
-  zipCityEnabled,
   handleLocationChange,
   formikFunctionsToValidatePostalCodeOnChange,
   labelHint: labelHintProp,
@@ -72,7 +71,7 @@ export const AddressFields = ({
     </>
   );
 
-  const stateField = zipCityEnabled ? (
+  const stateField = handleLocationChange ? (
     <>
       <Label>State</Label>
       <label id={`state_${addressFieldsUUID.current}`} className={styles.label}>
@@ -159,7 +158,6 @@ export const AddressFields = ({
                   labelHint={labelHintProp}
                   data-testid={`${name}.city`}
                   validate={validators?.city}
-                  isDisabled={zipCityEnabled}
                 />
               )}
               {handleLocationChange && (
@@ -191,7 +189,6 @@ AddressFields.propTypes = {
   className: PropTypes.string,
   name: PropTypes.string.isRequired,
   render: PropTypes.func,
-  zipCityEnabled: PropTypes.bool,
   values: shape({}),
   handleLocationChange: PropTypes.func,
   validators: PropTypes.shape({
@@ -214,7 +211,6 @@ AddressFields.defaultProps = {
   className: '',
   render: (fields) => fields,
   values: {},
-  zipCityEnabled: false,
   handleLocationChange: null,
   validators: {},
   formikFunctionsToValidatePostalCodeOnChange: null,

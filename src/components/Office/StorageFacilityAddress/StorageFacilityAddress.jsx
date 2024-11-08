@@ -16,7 +16,6 @@ const StorageFacilityAddress = ({ onLocationChange, values }) => {
         <AddressFields
           name="storageFacility.address"
           values={values}
-          zipCityEnabled
           handleLocationChange={onLocationChange}
           render={(fields) => (
             <>

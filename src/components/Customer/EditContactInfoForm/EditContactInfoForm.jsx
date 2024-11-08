@@ -90,7 +90,6 @@ const EditContactInfoForm = ({ initialValues, onSubmit, onCancel }) => {
                 name={residentialAddressName}
                 values={values}
                 labelHint="Required"
-                zipCityEnabled
                 handleLocationChange={handleCurrentZipCityChange}
               />
             </SectionWrapper>
@@ -106,7 +105,6 @@ const EditContactInfoForm = ({ initialValues, onSubmit, onCancel }) => {
                 name={backupAddressName}
                 values={values}
                 labelHint="Required"
-                zipCityEnabled
                 handleLocationChange={handleBackupZipCityChange}
               />
             </SectionWrapper>
