@@ -7235,8 +7235,26 @@ func init() {
         "newDutyLocationId"
       ],
       "properties": {
+        "accompaniedTour": {
+          "description": "Indicates if the move entitlement allows dependents to travel to the new Permanent Duty Station (PDS). This is only present on OCONUS moves.",
+          "type": "boolean",
+          "x-nullable": true,
+          "example": true
+        },
         "departmentIndicator": {
           "$ref": "#/definitions/DeptIndicator"
+        },
+        "dependentsTwelveAndOver": {
+          "description": "Indicates the number of dependents of the age twelve or older for a move. This is only present on OCONUS moves.",
+          "type": "integer",
+          "x-nullable": true,
+          "example": 3
+        },
+        "dependentsUnderTwelve": {
+          "description": "Indicates the number of dependents under the age of twelve for a move. This is only present on OCONUS moves.",
+          "type": "integer",
+          "x-nullable": true,
+          "example": 5
         },
         "grade": {
           "$ref": "#/definitions/Grade"
@@ -23394,8 +23412,26 @@ func init() {
         "newDutyLocationId"
       ],
       "properties": {
+        "accompaniedTour": {
+          "description": "Indicates if the move entitlement allows dependents to travel to the new Permanent Duty Station (PDS). This is only present on OCONUS moves.",
+          "type": "boolean",
+          "x-nullable": true,
+          "example": true
+        },
         "departmentIndicator": {
           "$ref": "#/definitions/DeptIndicator"
+        },
+        "dependentsTwelveAndOver": {
+          "description": "Indicates the number of dependents of the age twelve or older for a move. This is only present on OCONUS moves.",
+          "type": "integer",
+          "x-nullable": true,
+          "example": 3
+        },
+        "dependentsUnderTwelve": {
+          "description": "Indicates the number of dependents under the age of twelve for a move. This is only present on OCONUS moves.",
+          "type": "integer",
+          "x-nullable": true,
+          "example": 5
         },
         "grade": {
           "$ref": "#/definitions/Grade"

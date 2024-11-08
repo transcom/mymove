@@ -5,9 +5,7 @@ import (
 
 	"github.com/stretchr/testify/suite"
 
-	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/handlers"
-	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/notifications"
 	storageTest "github.com/transcom/mymove/pkg/storage/test"
 	"github.com/transcom/mymove/pkg/testingsuite"
@@ -40,19 +38,6 @@ func (suite *HandlerSuite) AfterTest() {
 		// nolint:errcheck
 		file.Data.Close()
 	}
-}
-
-func (suite *HandlerSuite) SetupSuite() {
-	suite.PreloadData(func() {
-		factory.BuildCountry(suite.DB(), []factory.Customization{
-			{
-				Model: models.Country{
-					Country:     "US",
-					CountryName: "UNITED STATES",
-				},
-			},
-		}, nil)
-	})
 }
 
 // TestHandlerSuite creates our test suite

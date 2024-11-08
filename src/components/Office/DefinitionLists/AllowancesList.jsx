@@ -56,17 +56,17 @@ const AllowancesList = ({ info, showVisualCues }) => {
         {enableUB && (info?.accompaniedTour || info?.dependentsTwelveAndOver || info?.dependentsUnderTwelve) && (
           <>
             <div className={descriptionListStyles.row}>
-              <dt>Is this an accompanied tour?</dt>
+              <dt>Accompanied tour</dt>
               <dd data-testid="ordersAccompaniedTour">{info.accompaniedTour ? 'Yes' : 'No'}</dd>
             </div>
             <div className={descriptionListStyles.row}>
-              <dt>Number of dependents under the age of 12</dt>
+              <dt>Dependents under age 12</dt>
               <dd data-testid="ordersDependentsUnderTwelve">
                 {info.dependentsUnderTwelve ? info.dependentsUnderTwelve : DEFAULT_EMPTY_VALUE}
               </dd>
             </div>
             <div className={descriptionListStyles.row}>
-              <dt>Number of dependents of the age 12 or over</dt>
+              <dt>Dependents over age 12</dt>
               <dd data-testid="ordersDependentsTwelveAndOver">
                 {info.dependentsTwelveAndOver ? info.dependentsTwelveAndOver : DEFAULT_EMPTY_VALUE}
               </dd>
