@@ -317,7 +317,7 @@ class MtoShipmentForm extends Component {
                       Remember: You can move
                       {isUB
                         ? ` up to ${formatUBAllowanceWeight(
-                            orders?.entitlement?.ubAllowance,
+                            orders?.entitlement?.ub_allowance,
                           )} for this UB shipment. The weight of your UB is part of your authorized weight allowance`
                         : ` ${formatWeight(orders.authorizedWeight)} total`}
                       . You’ll be billed for any excess weight you move.
