@@ -7,7 +7,7 @@ import ADDRESS_TYPE from 'constants/MoveHistory/Database/AddressTypes';
 const LABEL = {
   backupMailingAddress: 'Backup address',
   destinationAddress: 'Delivery Address',
-  pickupAddress: 'Origin address',
+  pickupAddress: 'Pickup address',
   residentialAddress: 'Pickup Address',
   secondaryDestinationAddress: 'Second delivery address',
   secondaryPickupAddress: 'Second pickup address',
