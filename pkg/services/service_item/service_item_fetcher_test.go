@@ -15,7 +15,7 @@ func (suite *ServiceItemServiceSuite) TestFetchServiceItem() {
 
 		result, _ := serviceItemFetcher.FetchServiceItemList(suite.AppContextForTest())
 		var poefscServiceItem models.ReServiceItem
-		for _, v := range result {
+		for _, v := range *result {
 			if models.ReServiceCodePOEFSC == v.ReService.Code && models.MTOShipmentTypeHHG == v.ShipmentType && models.MarketCodeInternational == v.MarketCode {
 				poefscServiceItem = v
 				break
@@ -28,7 +28,7 @@ func (suite *ServiceItemServiceSuite) TestFetchServiceItem() {
 
 		result, _ := serviceItemFetcher.FetchServiceItemList(suite.AppContextForTest())
 		var podfscServiceItem models.ReServiceItem
-		for _, v := range result {
+		for _, v := range *result {
 			if models.ReServiceCodePODFSC == v.ReService.Code && models.MTOShipmentTypeUnaccompaniedBaggage == v.ShipmentType && models.MarketCodeInternational == v.MarketCode {
 				podfscServiceItem = v
 				break
@@ -41,7 +41,7 @@ func (suite *ServiceItemServiceSuite) TestFetchServiceItem() {
 
 		result, _ := serviceItemFetcher.FetchServiceItemList(suite.AppContextForTest())
 		var dofsitServiceItem models.ReServiceItem
-		for _, v := range result {
+		for _, v := range *result {
 			if models.ReServiceCodeDOFSIT == v.ReService.Code && models.MTOShipmentTypeUnaccompaniedBaggage == v.ShipmentType && models.MarketCodeInternational == v.MarketCode {
 				dofsitServiceItem = v
 				break

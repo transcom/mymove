@@ -14,9 +14,9 @@ func NewServiceItemFetcher() services.ServiceItemListFetcher {
 	return &serviceItemFetcher{}
 }
 
-func (s *serviceItemFetcher) FetchServiceItemList(appCtx appcontext.AppContext) (models.ReServiceItems, error) {
+func (s *serviceItemFetcher) FetchServiceItemList(appCtx appcontext.AppContext) (*models.ReServiceItems, error) {
 
 	var serviceItems models.ReServiceItems
 	err := appCtx.DB().Eager("ReService").All(&serviceItems)
-	return serviceItems, err
+	return &serviceItems, err
 }

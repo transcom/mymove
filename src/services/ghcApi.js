@@ -883,3 +883,7 @@ export async function deleteAssignedOfficeUserForMove({ moveID, roleType }) {
     body: { roleType },
   });
 }
+
+export async function getAllReServiceItems() {
+  return makeGHCRequest('reServiceItems.getAllReServiceItems');
+}

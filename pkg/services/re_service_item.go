@@ -9,5 +9,5 @@ import (
 //
 //go:generate mockery --name serviceItemListFetcher
 type ServiceItemListFetcher interface {
-	FetchServiceItemList(appCtx appcontext.AppContext) (models.ReServiceItems, error)
+	FetchServiceItemList(appCtx appcontext.AppContext) (*models.ReServiceItems, error)
 }
