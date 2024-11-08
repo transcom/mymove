@@ -603,6 +603,39 @@ WITH move AS (
 	    GROUP BY
 	        document_review_items.doc_id, document_review_items.shipment_id, audit_history.id
 	),
+	gsr_appeals AS (
+		SELECT
+			gsr_appeals.id,
+			gsr_appeals.remarks,
+			gsr_appeals.appeal_status,
+			CASE
+				WHEN gsr_appeals.is_serious_incident_appeal = 'true' THEN TRUE
+				WHEN gsr_appeals.is_serious_incident_appeal = 'false' THEN FALSE
+				ELSE NULL
+			END AS is_serious_incident_appeal,
+			jsonb_agg(
+				jsonb_build_object(
+					'evaluation_report_type',
+					evaluation_reports.type
+				)
+			)::TEXT AS context
+		FROM
+			gsr_appeals
+		JOIN evaluation_reports ON gsr_appeals.evaluation_report_id = evaluation_reports.id
+		JOIN move ON evaluation_reports.move_id = move.id
+		WHERE move.id = (SELECT move.id FROM move)
+		GROUP BY gsr_appeals.id
+	),
+	gsr_appeals_logs AS (
+		SELECT
+			audit_history.*,
+			gsr_appeals.context AS context,
+			NULL AS context_id
+		FROM
+			audit_history
+		JOIN gsr_appeals ON gsr_appeals.id = audit_history.object_id
+		WHERE audit_history.table_name = 'gsr_appeals'
+	),
 	combined_logs AS (
 		SELECT
 			*
@@ -688,7 +721,11 @@ WITH move AS (
 			*
 		FROM
 			document_review_logs
-
+		UNION
+		SELECT
+			*
+		FROM
+			gsr_appeals_logs
 
 	) SELECT DISTINCT
 		combined_logs.*,
