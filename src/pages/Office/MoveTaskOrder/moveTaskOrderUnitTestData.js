@@ -5,7 +5,6 @@ import { SERVICE_ITEM_STATUSES } from 'constants/serviceItems';
 import { SIT_EXTENSION_STATUS } from 'constants/sitExtensions';
 import { SERVICE_ITEM_STATUS, SHIPMENT_OPTIONS } from 'shared/constants';
 import { SITStatusOrigin } from 'components/Office/ShipmentSITDisplay/ShipmentSITDisplayTestParams';
-import { ORDERS_TYPE } from 'constants/orders';
 
 export const unapprovedMTOQuery = {
   orders: {
@@ -2705,7 +2704,7 @@ const move = {
 };
 
 const order = {
-  orders_type: ORDERS_TYPE.PERMANENT_CHANGE_OF_STATION,
+  orders_type: 'PERMANENT_CHANGE_OF_STATION',
   has_dependents: false,
   issue_date: '2020-08-11',
   grade: 'GRADE',

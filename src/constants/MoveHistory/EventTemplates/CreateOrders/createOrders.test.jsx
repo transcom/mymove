@@ -2,7 +2,6 @@ import { render, screen } from '@testing-library/react';
 
 import getTemplate from 'constants/MoveHistory/TemplateManager';
 import e from 'constants/MoveHistory/EventTemplates/CreateOrders/createOrders';
-import { ORDERS_TYPE } from 'constants/orders';
 
 describe('When given a created orders event for the orders table', () => {
   const item = {
@@ -14,7 +13,7 @@ describe('When given a created orders event for the orders table', () => {
       status: 'DRAFT',
       report_by_date: '2022-10-18',
       issue_date: '2022-10-11',
-      orders_type: ORDERS_TYPE.PERMANENT_CHANGE_OF_STATION,
+      orders_type: 'PERMANENT_CHANGE_OF_STATION',
       origin_duty_location_name: 'Los Angeles AFB',
       new_duty_location_name: 'Fairchild AFB',
       has_dependents: true,
