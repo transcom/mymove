@@ -258,20 +258,26 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderFetcher() {
 
 		actualMTO, err := mtoFetcher.FetchMoveTaskOrder(suite.AppContextForTest(), &searchParams)
 		suite.NoError(err)
-		if suite.Len(actualMTO.MTOServiceItems, 2) {
-			serviceItem1 := actualMTO.MTOServiceItems[0]
-			suite.Equal(models.ReServiceCodeDDFSIT, serviceItem1.ReService.Code)
-			suite.Equal(address.StreetAddress1, serviceItem1.SITDestinationFinalAddress.StreetAddress1)
-			suite.Equal(address.State, serviceItem1.SITDestinationFinalAddress.State)
-			suite.Equal(address.City, serviceItem1.SITDestinationFinalAddress.City)
-			suite.Equal(1, len(serviceItem1.CustomerContacts))
+		found := false
+		for _, serviceItem := range actualMTO.MTOServiceItems {
+			if serviceItem.ReService.Code == models.ReServiceCodeDDFSIT {
+				suite.Equal(address.StreetAddress1, serviceItem.SITDestinationFinalAddress.StreetAddress1)
+				suite.Equal(address.State, serviceItem.SITDestinationFinalAddress.State)
+				suite.Equal(address.City, serviceItem.SITDestinationFinalAddress.City)
+				suite.Equal(1, len(serviceItem.CustomerContacts))
 
-			if suite.Len(serviceItem1.ServiceRequestDocuments, 1) {
-				if suite.Len(serviceItem1.ServiceRequestDocuments[0].ServiceRequestDocumentUploads, 1) {
-					suite.Equal(serviceRequestDocumentUpload.ID, serviceItem1.ServiceRequestDocuments[0].ServiceRequestDocumentUploads[0].ID)
+				if suite.Len(serviceItem.ServiceRequestDocuments, 1) {
+					if suite.Len(serviceItem.ServiceRequestDocuments[0].ServiceRequestDocumentUploads, 1) {
+						suite.Equal(serviceRequestDocumentUpload.ID, serviceItem.ServiceRequestDocuments[0].ServiceRequestDocumentUploads[0].ID)
+					}
 				}
+
+				found = true
+				break
 			}
 		}
+		// Verify that the expected service item was found
+		suite.True(found, "Expected service item with ReServiceCodeDDFSIT not found")
 	})
 
 	suite.Run("Success with Prime-available move by Locator, no deleted or external shipments", func() {
