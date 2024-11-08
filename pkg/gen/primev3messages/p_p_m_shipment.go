@@ -59,7 +59,7 @@ type PPMShipment struct {
 
 	// destination address
 	// Required: true
-	DestinationAddress *Address `json:"destinationAddress"`
+	DestinationAddress *PPMDestinationAddress `json:"destinationAddress"`
 
 	// A hash unique to this shipment that should be used as the "If-Match" header for any updates.
 	// Required: true
