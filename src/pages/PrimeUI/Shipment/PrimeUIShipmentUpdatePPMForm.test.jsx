@@ -4,6 +4,7 @@ import { Formik } from 'formik';
 
 import PrimeUIShipmentUpdatePPMForm from 'pages/PrimeUI/Shipment/PrimeUIShipmentUpdatePPMForm';
 import { formatCustomerDate } from 'utils/formatters';
+import { MockProviders } from 'testUtils';
 
 const shipment = {
   actualPickupDate: null,
@@ -157,11 +158,13 @@ const initialValues = {
 
 function renderShipmentUpdatePPMForm(props) {
   render(
-    <Formik initialValues={initialValues}>
-      <form>
-        <PrimeUIShipmentUpdatePPMForm {...props} />
-      </form>
-    </Formik>,
+    <MockProviders>
+      <Formik initialValues={initialValues}>
+        <form>
+          <PrimeUIShipmentUpdatePPMForm {...props} />
+        </form>
+      </Formik>
+    </MockProviders>,
   );
 }
 

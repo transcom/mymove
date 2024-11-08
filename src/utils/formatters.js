@@ -436,6 +436,7 @@ export function fromPrimeAPIAddressFormat(address) {
     streetAddress2: address.streetAddress2,
     streetAddress3: address.streetAddress3,
     city: address.city,
+    county: address.county,
     state: address.state,
     postalCode: address.postalCode,
   };

@@ -2563,3 +2563,31 @@ func SearchCustomers(customers models.ServiceMemberSearchResults) *ghcmessages.S
 	}
 	return &searchCustomers
 }
+
+// VLocation payload
+func VLocation(vLocation *models.VLocation) *ghcmessages.VLocation {
+	if vLocation == nil {
+		return nil
+	}
+	if *vLocation == (models.VLocation{}) {
+		return nil
+	}
+
+	return &ghcmessages.VLocation{
+		City:                 vLocation.CityName,
+		State:                vLocation.StateName,
+		PostalCode:           vLocation.UsprZipID,
+		County:               &vLocation.UsprcCountyNm,
+		UsPostRegionCitiesID: *handlers.FmtUUID(*vLocation.UprcId),
+	}
+}
+
+// VLocations payload
+func VLocations(vLocations models.VLocations) ghcmessages.VLocations {
+	payload := make(ghcmessages.VLocations, len(vLocations))
+	for i, vLocation := range vLocations {
+		copyOfVLocation := vLocation
+		payload[i] = VLocation(&copyOfVLocation)
+	}
+	return payload
+}

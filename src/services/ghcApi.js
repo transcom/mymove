@@ -867,6 +867,10 @@ export async function bulkDownloadPaymentRequest(paymentRequestID) {
   return makeGHCRequestRaw('paymentRequests.bulkDownload', { paymentRequestID });
 }
 
+export async function searchLocationByZipCityState(search) {
+  return makeGHCRequest('addresses.getLocationByZipCityState', { search }, { normalize: false });
+}
+
 export async function dateSelectionIsWeekendHoliday(countryCode, date) {
   return makeGHCRequestRaw(
     'calendar.isDateWeekendHoliday',
