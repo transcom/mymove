@@ -2,10 +2,8 @@ import React from 'react';
 
 import OrdersInfoForm from './OrdersInfoForm';
 
-import { ORDERS_TYPE } from 'constants/orders';
-
 const testInitialValues = {
-  orders_type: ORDERS_TYPE.PERMANENT_CHANGE_OF_STATION,
+  orders_type: 'PERMANENT_CHANGE_OF_STATION',
   issue_date: '2020-11-08',
   report_by_date: '2020-11-26',
   has_dependents: 'no',

@@ -11,7 +11,6 @@ import { useMovePaymentRequestsQueries } from 'hooks/queries';
 import { shipmentStatuses } from 'constants/shipments';
 import SERVICE_ITEM_STATUSES from 'constants/serviceItems';
 import { permissionTypes } from 'constants/permissions';
-import { ORDERS_TYPE } from 'constants/orders';
 
 jest.mock('hooks/queries', () => ({
   useMovePaymentRequestsQueries: jest.fn(),
@@ -45,7 +44,7 @@ const move = {
 };
 
 const order = {
-  orders_type: ORDERS_TYPE.PERMANENT_CHANGE_OF_STATION,
+  orders_type: 'PERMANENT_CHANGE_OF_STATION',
   has_dependents: false,
   issue_date: '2020-08-11',
   grade: 'E_1',

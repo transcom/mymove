@@ -12,7 +12,6 @@ import {
   selectOrdersForLoggedInUser,
   selectServiceMemberFromLoggedInUser,
 } from 'store/entities/selectors';
-import { ORDERS_TYPE } from 'constants/orders';
 
 const mockNavigate = jest.fn();
 jest.mock('react-router-dom', () => ({
@@ -117,7 +116,7 @@ describe('EditOrders Page', () => {
           transportation_office_id: 'd00e3ee8-baba-4991-8f3b-86c2e370d1be',
           updated_at: '2024-02-22T21:34:21.449Z',
         },
-        orders_type: ORDERS_TYPE.PERMANENT_CHANGE_OF_STATION,
+        orders_type: 'PERMANENT_CHANGE_OF_STATION',
         originDutyLocationGbloc: 'BGAC',
         origin_duty_location: {
           address: {
@@ -220,7 +219,7 @@ describe('EditOrders Page', () => {
               transportation_office_id: 'd00e3ee8-baba-4991-8f3b-86c2e370d1be',
               updated_at: '2024-02-22T21:34:21.449Z',
             },
-            orders_type: ORDERS_TYPE.PERMANENT_CHANGE_OF_STATION,
+            orders_type: 'PERMANENT_CHANGE_OF_STATION',
             originDutyLocationGbloc: 'BGAC',
             origin_duty_location: {
               address: {

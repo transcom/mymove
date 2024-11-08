@@ -1747,7 +1747,6 @@ definitions:
       - NTS
       - WOUNDED_WARRIOR
       - BLUEBARK
-      - TEMPORARY_DUTY
     x-display-value:
       PERMANENT_CHANGE_OF_STATION: Permanent Change Of Station (PCS)
       LOCAL_MOVE: Local Move
@@ -1757,7 +1756,6 @@ definitions:
       NTS: NTS
       WOUNDED_WARRIOR: Wounded Warrior
       BLUEBARK: BLUEBARK
-      TEMPORARY_DUTY: Temporary Duty (TDY)
   OrdersTypeDetail:
     type: string
     title: Orders type detail

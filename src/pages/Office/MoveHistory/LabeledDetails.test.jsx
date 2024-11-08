@@ -4,7 +4,6 @@ import { render, screen } from '@testing-library/react';
 import LabeledDetails, { retrieveTextToDisplay } from './LabeledDetails';
 
 import { SHIPMENT_OPTIONS } from 'shared/constants';
-import { ORDERS_TYPE } from 'constants/orders';
 
 describe('LabeledDetails', () => {
   describe('for each changed value', () => {
@@ -23,7 +22,7 @@ describe('LabeledDetails', () => {
       pro_gear_weight_spouse: '50',
       required_medical_equipment_weight: '300',
       organizational_clothing_and_individual_equipment: 'false',
-      orders_type: ORDERS_TYPE.PERMANENT_CHANGE_OF_STATION,
+      orders_type: 'PERMANENT_CHANGE_OF_STATION',
       orders_type_detail: 'HHG_PERMITTED',
       origin_duty_location_name: 'Origin duty location name',
       new_duty_location_name: 'New duty location name',
