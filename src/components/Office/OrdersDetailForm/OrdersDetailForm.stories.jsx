@@ -4,7 +4,12 @@ import { Formik } from 'formik';
 
 import OrdersDetailForm from 'components/Office/OrdersDetailForm/OrdersDetailForm';
 import { dropdownInputOptions } from 'utils/formatters';
-import { ORDERS_TYPE_OPTIONS, ORDERS_TYPE_DETAILS_OPTIONS, ORDERS_PAY_GRADE_OPTIONS } from 'constants/orders';
+import {
+  ORDERS_TYPE_OPTIONS,
+  ORDERS_TYPE_DETAILS_OPTIONS,
+  ORDERS_PAY_GRADE_OPTIONS,
+  ORDERS_TYPE,
+} from 'constants/orders';
 import { DEPARTMENT_INDICATOR_OPTIONS } from 'constants/departmentIndicators';
 
 const originDutyLocation = {
@@ -111,7 +116,7 @@ export const InitialValues = () => {
           reportByDate: '2020-04-01',
           departmentIndicator: 'NAVY_AND_MARINES',
           ordersNumber: '999999999',
-          ordersType: 'PERMANENT_CHANGE_OF_STATION',
+          ordersType: ORDERS_TYPE.PERMANENT_CHANGE_OF_STATION,
           ordersTypeDetail: 'HHG_PERMITTED',
           tac: 'Tac',
           sac: 'Sac',
@@ -164,7 +169,7 @@ export const FieldsHidden = (args) => {
           reportByDate: '2020-04-01',
           departmentIndicator: 'NAVY_AND_MARINES',
           ordersNumber: '999999999',
-          ordersType: 'PERMANENT_CHANGE_OF_STATION',
+          ordersType: ORDERS_TYPE.PERMANENT_CHANGE_OF_STATION,
           ordersTypeDetail: 'HHG_PERMITTED',
           tac: 'Tac',
           sac: 'Sac',

@@ -271,12 +271,33 @@ func (f *ppmShipmentUpdater) updatePPMShipment(appCtx appcontext.AppContext, ppm
 		}
 
 		verrs, err := appCtx.DB().ValidateAndUpdate(updatedPPMShipment)
-
 		if verrs != nil && verrs.HasAny() {
 			return apperror.NewInvalidInputError(updatedPPMShipment.ID, err, verrs, "Invalid input found while updating the PPMShipments.")
 		} else if err != nil {
 			return apperror.NewQueryError("PPMShipments", err, "")
 		}
+
+		// updating the shipment after PPM creation due to addresses not being created until PPM shipment is created
+		// when populating the market_code column, it is considered domestic if both pickup & dest on the PPM are CONUS addresses
+		var mtoShipment models.MTOShipment
+		if err := txnAppCtx.DB().Find(&mtoShipment, updatedPPMShipment.ShipmentID); err != nil {
+			return err
+		}
+		if updatedPPMShipment.PickupAddress != nil && updatedPPMShipment.DestinationAddress != nil &&
+			updatedPPMShipment.PickupAddress.IsOconus != nil && updatedPPMShipment.DestinationAddress.IsOconus != nil {
+			pickupAddress := updatedPPMShipment.PickupAddress
+			destAddress := updatedPPMShipment.DestinationAddress
+			marketCode, err := models.DetermineMarketCode(pickupAddress, destAddress)
+			if err != nil {
+				return err
+			}
+			mtoShipment.MarketCode = marketCode
+			if err := txnAppCtx.DB().Update(&mtoShipment); err != nil {
+				return err
+			}
+			ppmShipment.Shipment = mtoShipment
+		}
+
 		return nil
 	})
 
