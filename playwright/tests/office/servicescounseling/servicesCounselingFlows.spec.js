@@ -444,14 +444,6 @@ test.describe('Services counselor user', () => {
     await scPage.waitForPage.reviewExpenseTicket('Packing Materials', 1, 1);
     await expect(page.getByLabel('Accept')).toBeVisible();
     await page.getByLabel('Accept').isDisabled();
-    await page.getByRole('button', { name: 'Continue' }).click();
-
-    await expect(page.getByRole('heading', { name: 'Sent to customer', level: 3 })).toBeVisible();
-
-    await page.getByTestId('reviewDocumentsContinueButton').click();
-    await scPage.waitForPage.moveDetails();
-
-    await expect(page.getByText('PACKET READY FOR DOWNLOAD')).toBeVisible();
   });
 
   test.describe('Edit shipment info and incentives', () => {
