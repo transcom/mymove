@@ -19,6 +19,7 @@ import (
 	"github.com/transcom/mymove/pkg/models/roles"
 	evaluationreportservice "github.com/transcom/mymove/pkg/services/evaluation_report"
 	"github.com/transcom/mymove/pkg/services/mocks"
+	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
 func (suite *HandlerSuite) TestGetShipmentEvaluationReportsHandler() {
@@ -1079,5 +1080,147 @@ func (suite *HandlerSuite) TestDownloadEvaluationReportHandler() {
 
 		// Validate outgoing payload: nil payload
 		suite.Nil(payload)
+	})
+}
+
+func (suite *HandlerSuite) TestAddAppealToViolationHandler() {
+	suite.Run("Successful Add Appeal to Violation", func() {
+		handlerConfig := suite.HandlerConfig()
+		mockService := &mocks.ReportViolationsAddAppeal{}
+		handler := AddAppealToViolationHandler{
+			HandlerConfig:             handlerConfig,
+			ReportViolationsAddAppeal: mockService,
+		}
+		officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeQae})
+		report := factory.BuildEvaluationReport(suite.DB(), nil, nil)
+		violation := testdatagen.MakePWSViolation(suite.DB(), testdatagen.Assertions{})
+		body := ghcmessages.CreateAppeal{AppealStatus: "sustained", Remarks: "Appeal submitted"}
+		request := httptest.NewRequest("POST", fmt.Sprintf("/evaluation-reports/%s/%s/appeal/add", report.ID, violation.ID), nil)
+		request = suite.AuthenticateOfficeRequest(request, officeUser)
+		params := evaluationReportop.AddAppealToViolationParams{
+			HTTPRequest:       request,
+			ReportID:          strfmt.UUID(report.ID.String()),
+			ReportViolationID: strfmt.UUID(violation.ID.String()),
+			Body:              &body,
+		}
+
+		mockService.On("AddAppealToViolation", mock.Anything, report.ID, violation.ID, officeUser.ID, body.Remarks, body.AppealStatus).Return(models.GsrAppeal{}, nil).Once()
+
+		response := handler.Handle(params)
+		suite.IsType(&evaluationReportop.AddAppealToViolationNoContent{}, response)
+	})
+
+	suite.Run("Unsuccessful Add Appeal to Violation - Missing Data", func() {
+		handlerConfig := suite.HandlerConfig()
+		mockService := &mocks.ReportViolationsAddAppeal{}
+		handler := AddAppealToViolationHandler{
+			HandlerConfig:             handlerConfig,
+			ReportViolationsAddAppeal: mockService,
+		}
+		reportID := uuid.Must(uuid.NewV4())
+		violationID := uuid.Must(uuid.NewV4())
+		body := ghcmessages.CreateAppeal{AppealStatus: "", Remarks: ""}
+		request := httptest.NewRequest("POST", fmt.Sprintf("/evaluation-reports/%s/%s/appeal/add", reportID, violationID), nil)
+		params := evaluationReportop.AddAppealToViolationParams{
+			HTTPRequest:       request,
+			ReportID:          strfmt.UUID(reportID.String()),
+			ReportViolationID: strfmt.UUID(violationID.String()),
+			Body:              &body,
+		}
+
+		response := handler.Handle(params)
+		suite.IsType(&evaluationReportop.AddAppealToViolationForbidden{}, response)
+	})
+
+	suite.Run("Unsuccessful Add Appeal to Violation - Service Error", func() {
+		handlerConfig := suite.HandlerConfig()
+		mockService := &mocks.ReportViolationsAddAppeal{}
+		handler := AddAppealToViolationHandler{
+			HandlerConfig:             handlerConfig,
+			ReportViolationsAddAppeal: mockService,
+		}
+		reportID := uuid.Must(uuid.NewV4())
+		violationID := uuid.Must(uuid.NewV4())
+		body := ghcmessages.CreateAppeal{AppealStatus: "sustained", Remarks: "Appeal submitted"}
+		request := httptest.NewRequest("POST", fmt.Sprintf("/evaluation-reports/%s/%s/appeal/add", reportID, violationID), nil)
+		params := evaluationReportop.AddAppealToViolationParams{
+			HTTPRequest:       request,
+			ReportID:          strfmt.UUID(reportID.String()),
+			ReportViolationID: strfmt.UUID(violationID.String()),
+			Body:              &body,
+		}
+
+		mockService.On("AddAppealToViolation", mock.Anything, reportID, violationID, mock.Anything, body.Remarks, body.AppealStatus).Return(nil, apperror.NewForbiddenError("Forbidden")).Once()
+
+		response := handler.Handle(params)
+		suite.IsType(&evaluationReportop.AddAppealToViolationForbidden{}, response)
+	})
+}
+
+func (suite *HandlerSuite) TestAddAppealToSeriousIncidentHandler() {
+	suite.Run("Successful Add Appeal to Serious Incident", func() {
+		handlerConfig := suite.HandlerConfig()
+		mockService := &mocks.SeriousIncidentAddAppeal{}
+		handler := AddAppealToSeriousIncidentHandler{
+			HandlerConfig:            handlerConfig,
+			SeriousIncidentAddAppeal: mockService,
+		}
+		report := factory.BuildEvaluationReport(suite.DB(), nil, nil)
+		officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeGSR})
+		body := ghcmessages.CreateAppeal{AppealStatus: "sustained", Remarks: "Appeal submitted for serious incident"}
+		request := httptest.NewRequest("POST", fmt.Sprintf("/evaluation-reports/%s/appeal/add", report.ID), nil)
+		request = suite.AuthenticateOfficeRequest(request, officeUser)
+		params := evaluationReportop.AddAppealToSeriousIncidentParams{
+			HTTPRequest: request,
+			ReportID:    strfmt.UUID(report.ID.String()),
+			Body:        &body,
+		}
+
+		mockService.On("AddAppealToSeriousIncident", mock.Anything, report.ID, officeUser.ID, body.Remarks, body.AppealStatus).Return(models.GsrAppeal{}, nil).Once()
+
+		response := handler.Handle(params)
+		suite.IsType(&evaluationReportop.AddAppealToSeriousIncidentNoContent{}, response)
+	})
+
+	suite.Run("Unsuccessful Add Appeal to Serious Incident - Missing Data", func() {
+		handlerConfig := suite.HandlerConfig()
+		mockService := &mocks.SeriousIncidentAddAppeal{}
+		handler := AddAppealToSeriousIncidentHandler{
+			HandlerConfig:            handlerConfig,
+			SeriousIncidentAddAppeal: mockService,
+		}
+		reportID := uuid.Must(uuid.NewV4())
+		body := ghcmessages.CreateAppeal{AppealStatus: "", Remarks: ""}
+		request := httptest.NewRequest("POST", fmt.Sprintf("/evaluation-reports/%s/appeal/add", reportID), nil)
+		params := evaluationReportop.AddAppealToSeriousIncidentParams{
+			HTTPRequest: request,
+			ReportID:    strfmt.UUID(reportID.String()),
+			Body:        &body,
+		}
+
+		response := handler.Handle(params)
+		suite.IsType(&evaluationReportop.AddAppealToSeriousIncidentForbidden{}, response)
+	})
+
+	suite.Run("Unsuccessful Add Appeal to Serious Incident - Service Error", func() {
+		handlerConfig := suite.HandlerConfig()
+		mockService := &mocks.SeriousIncidentAddAppeal{}
+		handler := AddAppealToSeriousIncidentHandler{
+			HandlerConfig:            handlerConfig,
+			SeriousIncidentAddAppeal: mockService,
+		}
+		reportID := uuid.Must(uuid.NewV4())
+		body := ghcmessages.CreateAppeal{AppealStatus: "pending", Remarks: "Appeal submitted"}
+		request := httptest.NewRequest("POST", fmt.Sprintf("/evaluation-reports/%s/appeal/add", reportID), nil)
+		params := evaluationReportop.AddAppealToSeriousIncidentParams{
+			HTTPRequest: request,
+			ReportID:    strfmt.UUID(reportID.String()),
+			Body:        &body,
+		}
+
+		mockService.On("AddAppealToSeriousIncident", mock.Anything, reportID, mock.Anything, body.Remarks, body.AppealStatus).Return(nil, apperror.NewForbiddenError("Forbidden")).Once()
+
+		response := handler.Handle(params)
+		suite.IsType(&evaluationReportop.AddAppealToSeriousIncidentForbidden{}, response)
 	})
 }
