@@ -29,25 +29,43 @@ const PrimeUIShipmentUpdateAddressForm = ({
 
   return (
     <Formik initialValues={initialValues} onSubmit={onSubmit} validationSchema={updateShipmentAddressSchema}>
-      {({ isValid, isSubmitting, handleSubmit, errors }) => (
-        <Form className={classnames(formStyles.form)}>
-          <FormGroup error={errors != null && Object.keys(errors).length > 0 ? 1 : 0}>
-            <SectionWrapper className={formStyles.formSection}>
-              <h2>{addressLocation}</h2>
-              <AddressFields name={name} />
-            </SectionWrapper>
-            <WizardNavigation
-              editMode
-              className={formStyles.formActions}
-              aria-label="Update Shipment Address"
-              type="submit"
-              disableNext={isSubmitting || !isValid}
-              onCancelClick={handleClose}
-              onNextClick={handleSubmit}
-            />
-          </FormGroup>
-        </Form>
-      )}
+      {({ isValid, isSubmitting, handleSubmit, errors, setValues }) => {
+        const handleLocationChange = (newValue) => {
+          setValues((prevValues) => {
+            return {
+              ...prevValues,
+              address: {
+                ...prevValues.address,
+                city: newValue.city,
+                state: newValue.state ? newValue.state : '',
+                county: newValue.county,
+                postalCode: newValue.postalCode,
+                usprcId: newValue.usPostRegionCitiesId ? newValue.usPostRegionCitiesId : '',
+              },
+            };
+          });
+        };
+
+        return (
+          <Form className={classnames(formStyles.form)}>
+            <FormGroup error={errors != null && Object.keys(errors).length > 0 ? 1 : 0}>
+              <SectionWrapper className={formStyles.formSection}>
+                <h2>{addressLocation}</h2>
+                <AddressFields name={name} zipCityEnabled handleLocationChange={handleLocationChange} />
+              </SectionWrapper>
+              <WizardNavigation
+                editMode
+                className={formStyles.formActions}
+                aria-label="Update Shipment Address"
+                type="submit"
+                disableNext={isSubmitting || !isValid}
+                onCancelClick={handleClose}
+                onNextClick={handleSubmit}
+              />
+            </FormGroup>
+          </Form>
+        );
+      }}
     </Formik>
   );
 };
