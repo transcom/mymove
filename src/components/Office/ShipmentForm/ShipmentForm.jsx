@@ -1140,6 +1140,7 @@ const ShipmentForm = (props) => {
                         <AddressFields
                           name="pickup.address"
                           legend="Pickup location"
+                          values={values}
                           zipCityEnabled
                           handleLocationChange={handlePickupLocationChange}
                           render={(fields) => (
@@ -1183,6 +1184,7 @@ const ShipmentForm = (props) => {
                                 <>
                                   <AddressFields
                                     name="secondaryPickup.address"
+                                    values={values}
                                     zipCityEnabled
                                     handleLocationChange={handleSecondaryPickupLocationChange}
                                   />
@@ -1217,6 +1219,7 @@ const ShipmentForm = (props) => {
                                       {hasTertiaryPickup === 'yes' && (
                                         <AddressFields
                                           name="tertiaryPickup.address"
+                                          values={values}
                                           zipCityEnabled
                                           handleLocationChange={handleTertiaryPickupLocationChange}
                                         />
@@ -1244,14 +1247,14 @@ const ShipmentForm = (props) => {
                 {isTOO && (isNTS || isNTSR) && (
                   <>
                     <StorageFacilityInfo userRole={userRole} />
-                    <StorageFacilityAddress onLocationChange={handleStorageFacilityLocationChange} />
+                    <StorageFacilityAddress onLocationChange={handleStorageFacilityLocationChange} values={values} />
                   </>
                 )}
 
                 {isServiceCounselor && isNTSR && (
                   <>
                     <StorageFacilityInfo userRole={userRole} />
-                    <StorageFacilityAddress onLocationChange={handleStorageFacilityLocationChange} />
+                    <StorageFacilityAddress onLocationChange={handleStorageFacilityLocationChange} values={values} />
                   </>
                 )}
 
@@ -1298,6 +1301,7 @@ const ShipmentForm = (props) => {
                         >
                           <AddressFields
                             name="delivery.address"
+                            values={values}
                             zipCityEnabled
                             handleLocationChange={handleDeliveryLocationChange}
                             render={(fields) => {
@@ -1334,6 +1338,7 @@ const ShipmentForm = (props) => {
                             <>
                               <AddressFields
                                 name="secondaryDelivery.address"
+                                values={values}
                                 zipCityEnabled
                                 handleLocationChange={handleSecondaryDeliveryLocationChange}
                               />
@@ -1368,6 +1373,7 @@ const ShipmentForm = (props) => {
                                   {hasTertiaryDelivery === 'yes' && (
                                     <AddressFields
                                       name="tertiaryDelivery.address"
+                                      values={values}
                                       zipCityEnabled
                                       handleLocationChange={handleTertiaryDeliveryLocationChange}
                                     />
@@ -1448,6 +1454,7 @@ const ShipmentForm = (props) => {
                           {hasDeliveryAddress === 'yes' ? (
                             <AddressFields
                               name="delivery.address"
+                              values={values}
                               zipCityEnabled
                               handleLocationChange={handleDeliveryLocationChange}
                               render={(fields) => (
@@ -1491,6 +1498,7 @@ const ShipmentForm = (props) => {
                                     <>
                                       <AddressFields
                                         name="secondaryDelivery.address"
+                                        values={values}
                                         zipCityEnabled
                                         handleLocationChange={handleSecondaryDeliveryLocationChange}
                                       />
@@ -1527,6 +1535,7 @@ const ShipmentForm = (props) => {
                                           {hasTertiaryDelivery === 'yes' && (
                                             <AddressFields
                                               name="tertiaryDelivery.address"
+                                              values={values}
                                               zipCityEnabled
                                               handleLocationChange={handleTertiaryDeliveryLocationChange}
                                             />
@@ -1621,6 +1630,7 @@ const ShipmentForm = (props) => {
                       <AddressFields
                         name="pickup.address"
                         legend="Pickup Address"
+                        values={values}
                         zipCityEnabled
                         handleLocationChange={handlePickupLocationChange}
                         render={(fields) => (
@@ -1667,6 +1677,7 @@ const ShipmentForm = (props) => {
                               <>
                                 <AddressFields
                                   name="secondaryPickup.address"
+                                  values={values}
                                   zipCityEnabled
                                   handleLocationChange={handleSecondaryPickupLocationChange}
                                 />
@@ -1704,6 +1715,7 @@ const ShipmentForm = (props) => {
                                     {hasTertiaryPickup === 'true' && (
                                       <AddressFields
                                         name="tertiaryPickup.address"
+                                        values={values}
                                         zipCityEnabled
                                         handleLocationChange={handleTertiaryPickupLocationChange}
                                       />
@@ -1718,6 +1730,7 @@ const ShipmentForm = (props) => {
                       <AddressFields
                         name="destination.address"
                         legend="Delivery Address"
+                        values={values}
                         zipCityEnabled
                         handleLocationChange={handleDestinationLocationChange}
                         address1LabelHint="Optional"
@@ -1757,6 +1770,7 @@ const ShipmentForm = (props) => {
                               <>
                                 <AddressFields
                                   name="secondaryDestination.address"
+                                  values={values}
                                   zipCityEnabled
                                   handleLocationChange={handleSecondaryDestinationLocationChange}
                                 />
@@ -1794,6 +1808,7 @@ const ShipmentForm = (props) => {
                                     {hasTertiaryDestination === 'true' && (
                                       <AddressFields
                                         name="tertiaryDestination.address"
+                                        values={values}
                                         zipCityEnabled
                                         handleLocationChange={handleTertiaryDestinationLocationChange}
                                       />
