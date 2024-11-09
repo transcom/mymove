@@ -214,8 +214,6 @@ export class OfficeApp extends Component {
       pathname,
     );
 
-    // console.log(underMaintenance);
-
     if (underMaintenance) {
       return <MaintenancePage />;
     }

@@ -533,7 +533,7 @@ func (suite *AuthSuite) TestIsLoggedInWhenNoUserLoggedIn() {
 
 	rr := httptest.NewRecorder()
 	sessionManager := scs.New()
-	handler := sessionManager.LoadAndSave(IsLoggedInMiddleware(suite.Logger()))
+	handler := sessionManager.LoadAndSave(IsLoggedInMiddleware(suite.Logger(), false))
 
 	handler.ServeHTTP(rr, req)
 
@@ -542,6 +542,23 @@ func (suite *AuthSuite) TestIsLoggedInWhenNoUserLoggedIn() {
 
 	// expects to return that no one is logged in
 	expected := "{\"isLoggedIn\":false}\n"
+	suite.Equal(expected, rr.Body.String(), "handler returned wrong body")
+}
+
+func (suite *AuthSuite) TestUnderMaintenanceFlag() {
+	req := httptest.NewRequest("GET", "/is_logged_in", nil)
+
+	rr := httptest.NewRecorder()
+	sessionManager := scs.New()
+	handler := sessionManager.LoadAndSave(IsLoggedInMiddleware(suite.Logger(), true))
+
+	handler.ServeHTTP(rr, req)
+
+	// expects to return 200 OK
+	suite.Equal(http.StatusOK, rr.Code, "handler returned the wrong status code")
+
+	// expects to return that no one is logged in
+	expected := "{\"isLoggedIn\":false,\"underMaintenance\":true}\n"
 	suite.Equal(expected, rr.Body.String(), "handler returned wrong body")
 }
 
@@ -563,7 +580,7 @@ func (suite *AuthSuite) TestIsLoggedInWhenUserLoggedIn() {
 	req = req.WithContext(ctx)
 
 	rr := httptest.NewRecorder()
-	handler := sessionManager.LoadAndSave(IsLoggedInMiddleware(suite.Logger()))
+	handler := sessionManager.LoadAndSave(IsLoggedInMiddleware(suite.Logger(), false))
 
 	handler.ServeHTTP(rr, req)
 
