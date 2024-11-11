@@ -1,5 +1,9 @@
 -- Add enum values for order.orders_type
 
+UPDATE orders
+SET orders_type = 'PERMANENT_CHANGE_OF_STATION'
+WHERE orders_type = 'VARIOUS' OR orders_type = 'NTS' OR orders_type = 'DEPENDENT_TRAVEL' OR orders_type = 'GHC';
+
 CREATE TYPE orders_type AS ENUM (
 'PERMANENT_CHANGE_OF_STATION',
 'LOCAL_MOVE',
