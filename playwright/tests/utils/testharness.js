@@ -22,6 +22,9 @@ export class TestHarness {
    * @property {string} id
    * @property {string} locator
    * @property {Object} Orders
+   * @property {Object} OriginDutyLocation
+   * @property {Object} OriginDutyLocation.Address
+   * @property {string} OriginDutyLocation.Address.PostalCode
    * @property {Object} Orders.NewDutyLocation
    * @property {string} Orders.NewDutyLocation.name
    * @property {Object} Orders.ServiceMember
@@ -368,6 +371,14 @@ export class TestHarness {
    * @returns {Promise<Move>}
    */
   async buildHHGMoveNeedsSC() {
+    return this.buildDefault('HHGMoveNeedsSC');
+  }
+
+  /**
+   * Use testharness to build hhg move needing SC approval in a non-default GBLOC
+   * @returns {Promise<Move>}
+   */
+  async buildHHGMoveNeedsSCInOtherGBLOC() {
     return this.buildDefault('HHGMoveNeedsSC');
   }
 

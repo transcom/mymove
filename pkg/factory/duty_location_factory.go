@@ -124,6 +124,33 @@ func BuildDutyLocationWithoutTransportationOffice(db *pop.Connection, customs []
 	return buildDutyLocationWithBuildType(db, customs, traits, dutyLocationBuildWithoutTransportationOffice)
 }
 
+// FetchOrBuildOtherDutyLocation returns a duty location other
+// than the default. It always fetches or builds a Bessemer, AL Duty Location
+func FetchOrBuildOtherDutyLocation(db *pop.Connection) models.DutyLocation {
+	if db == nil {
+		return BuildDutyLocation(nil, []Customization{
+			{
+				Model: models.DutyLocation{
+					Name: "Bessemer, AL 35023",
+				},
+			},
+		}, nil)
+	}
+	// Check if Bessemer, AL Location exists, if not, create it.
+	defaultLocation, err := models.FetchDutyLocationByName(db, "Bessemer, AL 35023")
+	if err != nil {
+		return BuildDutyLocation(db, []Customization{
+			{
+				Model: models.DutyLocation{
+					Name: "Bessemer, AL 35023",
+				},
+			},
+		}, nil)
+	}
+
+	return defaultLocation
+}
+
 // FetchOrBuildCurrentDutyLocation returns a default duty location
 // It always fetches or builds a Yuma AFB Duty Location
 func FetchOrBuildCurrentDutyLocation(db *pop.Connection) models.DutyLocation {

@@ -12,6 +12,33 @@ import { test, expect } from './servicesCounselingTestFixture';
 const supportingDocsEnabled = process.env.FEATURE_FLAG_MANAGE_SUPPORTING_DOCS;
 
 test.describe('Services counselor user', () => {
+  test.describe('GBLOC tests', () => {
+    test.describe('Origin Duty Location', () => {
+      let moveLocatorKKFA = '';
+      let moveLocatorCNNQ = '';
+      test.beforeEach(async ({ scPage }) => {
+        const moveKKFA = await scPage.testHarness.buildHHGMoveNeedsSC();
+        const moveCNNQ = await scPage.testHarness.buildHHGMoveNeedsSCInOtherGBLOC();
+        moveLocatorKKFA = moveKKFA.locator;
+        moveLocatorCNNQ = moveCNNQ.locator;
+      });
+
+      test('when origin duty location GBLOC matches services counselor GBLOC', async ({ page }) => {
+        const locatorFilter = await page.getByTestId('locator').getByTestId('TextBoxFilter');
+        await locatorFilter.fill(moveLocatorKKFA);
+        await locatorFilter.blur();
+        await expect(page.getByTestId('locator-0')).toBeVisible();
+      });
+
+      test('when origin duty location GBLOC does not match services counselor GBLOC', async ({ page }) => {
+        const locatorFilter = await page.getByTestId('locator').getByTestId('TextBoxFilter');
+        await locatorFilter.fill(moveLocatorCNNQ);
+        await locatorFilter.blur();
+        await expect(page.getByTestId('locator-0')).not.toBeVisible();
+      });
+    });
+  });
+
   test.describe('with basic HHG move', () => {
     test.beforeEach(async ({ scPage }) => {
       const move = await scPage.testHarness.buildHHGMoveNeedsSC();
