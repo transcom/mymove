@@ -379,7 +379,7 @@ export class TestHarness {
    * @returns {Promise<Move>}
    */
   async buildHHGMoveNeedsSCInOtherGBLOC() {
-    return this.buildDefault('HHGMoveNeedsSC');
+    return this.buildDefault('HHGMoveNeedsSCOtherGBLOC');
   }
 
   /**

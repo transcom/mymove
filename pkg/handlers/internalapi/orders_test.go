@@ -631,6 +631,82 @@ func (suite *HandlerSuite) TestUpdateOrdersHandler() {
 			}
 		}
 	})
+
+	suite.Run("Updated Origin GBLOC is reflected in move", func() {
+		dutyLocation := factory.FetchOrBuildOtherDutyLocation(suite.DB())
+		order := factory.BuildOrder(suite.DB(), []factory.Customization{
+			{
+				Model:    dutyLocation,
+				LinkOnly: true,
+				Type:     &factory.DutyLocations.OriginDutyLocation,
+			},
+		}, nil)
+		move := factory.BuildMove(suite.DB(), []factory.Customization{
+			{
+				Model:    order,
+				LinkOnly: true,
+			}}, nil)
+
+		originalOriginGBLOC, gblocErr := models.FetchGBLOCForPostalCode(suite.DB(), move.Orders.OriginDutyLocation.Address.PostalCode)
+		suite.NoError(gblocErr)
+
+		suite.Equal("CNNQ", originalOriginGBLOC)
+
+		updatedDutyLocation := factory.BuildDutyLocation(suite.DB(), nil, nil)
+		updatedTransportationOffice := factory.BuildTransportationOffice(suite.DB(), nil, nil)
+		updatedDutyLocation.TransportationOffice = updatedTransportationOffice
+
+		updatedOrdersType := internalmessages.OrdersTypePERMANENTCHANGEOFSTATION
+		updatedOrdersNumber := "123456"
+		issueDate := time.Date(2018, time.March, 10, 0, 0, 0, 0, time.UTC)
+		reportByDate := time.Date(2018, time.August, 1, 0, 0, 0, 0, time.UTC)
+		deptIndicator := internalmessages.DeptIndicatorAIRANDSPACEFORCE
+
+		payload := &internalmessages.CreateUpdateOrders{
+			OrdersNumber:         handlers.FmtString(updatedOrdersNumber),
+			OrdersType:           &updatedOrdersType,
+			NewDutyLocationID:    handlers.FmtUUID(updatedDutyLocation.ID),
+			OriginDutyLocationID: *handlers.FmtUUID(*order.OriginDutyLocationID),
+			IssueDate:            handlers.FmtDate(issueDate),
+			ReportByDate:         handlers.FmtDate(reportByDate),
+			DepartmentIndicator:  &deptIndicator,
+			HasDependents:        handlers.FmtBool(false),
+			SpouseHasProGear:     handlers.FmtBool(false),
+			Grade:                models.ServiceMemberGradeE4.Pointer(),
+			MoveID:               *handlers.FmtUUID(move.ID),
+			CounselingOfficeID:   handlers.FmtUUID(*updatedDutyLocation.TransportationOfficeID),
+		}
+
+		path := fmt.Sprintf("/orders/%v", order.ID.String())
+		req := httptest.NewRequest("PUT", path, nil)
+		req = suite.AuthenticateRequest(req, order.ServiceMember)
+
+		params := ordersop.UpdateOrdersParams{
+			HTTPRequest:  req,
+			OrdersID:     *handlers.FmtUUID(order.ID),
+			UpdateOrders: payload,
+		}
+
+		fakeS3 := storageTest.NewFakeS3Storage(true)
+		handlerConfig := suite.HandlerConfig()
+		handlerConfig.SetFileStorer(fakeS3)
+
+		handler := UpdateOrdersHandler{handlerConfig}
+
+		response := handler.Handle(params)
+
+		suite.IsType(&ordersop.UpdateOrdersOK{}, response)
+		okResponse := response.(*ordersop.UpdateOrdersOK)
+		suite.NoError(okResponse.Payload.Validate(strfmt.Default))
+
+		updatedOrder, err := models.FetchOrder(suite.DB(), order.ID)
+		suite.NoError(err)
+
+		updatedOriginalOriginGBLOC, gblocErrUpdated := models.FetchGBLOCForPostalCode(suite.DB(), updatedOrder.OriginDutyLocation.Address.PostalCode)
+		suite.NoError(gblocErrUpdated)
+
+		suite.Equal("CNNQ", updatedOriginalOriginGBLOC)
+	})
 }
 
 func (suite *HandlerSuite) TestEntitlementHelperFunc() {
