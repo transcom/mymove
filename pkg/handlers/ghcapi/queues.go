@@ -18,6 +18,7 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/models/roles"
 	"github.com/transcom/mymove/pkg/services"
+	officeuser "github.com/transcom/mymove/pkg/services/office_user"
 )
 
 // GetMovesQueueHandler returns the moves for the TOO queue user via GET /queues/moves
@@ -148,7 +149,7 @@ func (h GetMovesQueueHandler) Handle(params queues.GetMovesQueueParams) middlewa
 			}
 			isHQrole := appCtx.Session().Roles.HasRole(roles.RoleTypeHQ)
 
-			queueMoves := payloads.QueueMoves(moves, officeUsers, nil, roles.RoleTypeTOO, officeUser, isSupervisor, isHQrole)
+			queueMoves := payloads.QueueMoves(moves, officeUsers, nil, roles.RoleTypeTOO, officeUser, isSupervisor, isHQrole, false)
 
 			result := &ghcmessages.QueueMovesResult{
 				Page:       *ListOrderParams.Page,
@@ -481,8 +482,19 @@ func (h GetServicesCounselingQueueHandler) Handle(
 				}
 			}
 			isHQrole := appCtx.Session().Roles.HasRole(roles.RoleTypeHQ)
+			isCloseoutQueue := params.NeedsPPMCloseout != nil && *params.NeedsPPMCloseout
+			gblocFetcher := officeuser.NewOfficeUserGblocFetcher()
+			officeUserGbloc, gblocErr := gblocFetcher.FetchGblocForOfficeUser(appCtx, officeUser.ID)
+			if gblocErr != nil {
+				return nil, gblocErr
+			}
+			fmt.Println("officeUserGbloc")
+			fmt.Println("officeUserGbloc")
+			fmt.Println(officeUserGbloc)
+			fmt.Println("officeUserGbloc")
+			fmt.Println("officeUserGbloc")
 
-			queueMoves := payloads.QueueMoves(moves, officeUsers, &requestedPpmStatus, roles.RoleTypeServicesCounselor, officeUser, isSupervisor, isHQrole)
+			queueMoves := payloads.QueueMoves(moves, officeUsers, &requestedPpmStatus, roles.RoleTypeServicesCounselor, officeUser, isSupervisor, isHQrole, isCloseoutQueue)
 
 			result := &ghcmessages.QueueMovesResult{
 				Page:       *ListOrderParams.Page,
