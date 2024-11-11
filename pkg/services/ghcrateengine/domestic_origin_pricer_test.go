@@ -69,7 +69,7 @@ func (suite *GHCRateEngineServiceSuite) TestPriceDomesticOriginWithServiceItemPa
 		suite.Equal(expectedCost, cost)
 
 		expectedParams := services.PricingDisplayParams{
-			{Key: models.ServiceItemParamNameContractYearName, Value: "Test Contract Year"},
+			{Key: models.ServiceItemParamNameContractYearName, Value: "Base Period Year 1"},
 			{Key: models.ServiceItemParamNameEscalationCompounded, Value: "1.04070"},
 			{Key: models.ServiceItemParamNameIsPeak, Value: "true"},
 			{Key: models.ServiceItemParamNamePriceRateOrFactor, Value: "1.46"},
@@ -126,7 +126,7 @@ func (suite *GHCRateEngineServiceSuite) TestPriceDomesticOrigin() {
 		suite.Equal(expectedCost, cost)
 
 		expectedParams := services.PricingDisplayParams{
-			{Key: models.ServiceItemParamNameContractYearName, Value: "Test Contract Year"},
+			{Key: models.ServiceItemParamNameContractYearName, Value: "Base Period Year 1"},
 			{Key: models.ServiceItemParamNameEscalationCompounded, Value: "1.04070"},
 			{Key: models.ServiceItemParamNameIsPeak, Value: "true"},
 			{Key: models.ServiceItemParamNamePriceRateOrFactor, Value: "1.46"},
@@ -153,7 +153,7 @@ func (suite *GHCRateEngineServiceSuite) TestPriceDomesticOrigin() {
 		suite.Equal(expectedCost, cost)
 
 		expectedParams := services.PricingDisplayParams{
-			{Key: models.ServiceItemParamNameContractYearName, Value: "Test Contract Year"},
+			{Key: models.ServiceItemParamNameContractYearName, Value: "Base Period Year 1"},
 			{Key: models.ServiceItemParamNameEscalationCompounded, Value: "1.04070"},
 			{Key: models.ServiceItemParamNameIsPeak, Value: "false"},
 			{Key: models.ServiceItemParamNamePriceRateOrFactor, Value: "1.27"},
@@ -286,7 +286,7 @@ func (suite *GHCRateEngineServiceSuite) TestPriceDomesticOrigin() {
 		suite.Equal(basePriceCents/5, fifthPriceCents)
 
 		expectedParams := services.PricingDisplayParams{
-			{Key: models.ServiceItemParamNameContractYearName, Value: "Test Contract Year"},
+			{Key: models.ServiceItemParamNameContractYearName, Value: "Base Period Year 1"},
 			{Key: models.ServiceItemParamNameEscalationCompounded, Value: "1.04070"},
 			{Key: models.ServiceItemParamNameIsPeak, Value: "true"},
 			{Key: models.ServiceItemParamNamePriceRateOrFactor, Value: "1.46"},
@@ -341,7 +341,7 @@ func (suite *GHCRateEngineServiceSuite) setUpDomesticOriginData() {
 			},
 		})
 
-	domesticOriginService := factory.BuildReService(suite.DB(), []factory.Customization{
+	domesticOriginService := factory.FetchReService(suite.DB(), []factory.Customization{
 		{
 			Model: models.ReService{
 				Code: models.ReServiceCodeDOP,

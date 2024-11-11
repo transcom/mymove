@@ -103,6 +103,9 @@ const restProvider = (apiUrl, httpClient = fetchUtils.fetchJson) => {
         if (paramsDiff.privileges) {
           paramsDiff.privileges = params.data.privileges;
         }
+        if (paramsDiff.transportationOfficeAssignments) {
+          paramsDiff.transportationOfficeAssignments = params.data.transportationOfficeAssignments;
+        }
         options.body = JSON.stringify(paramsDiff);
         break;
       }

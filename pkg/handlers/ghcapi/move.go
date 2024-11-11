@@ -98,6 +98,7 @@ func (h GetMoveHandler) Handle(params moveop.GetMoveParams) middleware.Responder
 type SearchMovesHandler struct {
 	handlers.HandlerConfig
 	services.MoveSearcher
+	services.MoveUnlocker
 }
 
 func (h SearchMovesHandler) Handle(params moveop.SearchMovesParams) middleware.Responder {
@@ -106,7 +107,7 @@ func (h SearchMovesHandler) Handle(params moveop.SearchMovesParams) middleware.R
 			searchMovesParams := services.SearchMovesParams{
 				Branch:                params.Body.Branch,
 				Locator:               params.Body.Locator,
-				DodID:                 params.Body.DodID,
+				DodID:                 params.Body.Edipi,
 				Emplid:                params.Body.Emplid,
 				CustomerName:          params.Body.CustomerName,
 				PaymentRequestCode:    params.Body.PaymentRequestCode,
@@ -127,6 +128,22 @@ func (h SearchMovesHandler) Handle(params moveop.SearchMovesParams) middleware.R
 			if err != nil {
 				appCtx.Logger().Error("Error searching for move", zap.Error(err))
 				return moveop.NewSearchMovesInternalServerError(), err
+			}
+
+			// if the search move office user is accessing the queue, we need to unlock move/moves they have locked
+			if appCtx.Session().IsOfficeUser() {
+				officeUserID := appCtx.Session().OfficeUserID
+				for i, move := range moves {
+					lockedOfficeUserID := move.LockedByOfficeUserID
+					if lockedOfficeUserID != nil && *lockedOfficeUserID == officeUserID {
+						copyOfMove := move
+						unlockedMove, err := h.UnlockMove(appCtx, &copyOfMove, officeUserID)
+						if err != nil {
+							return moveop.NewSearchMovesInternalServerError(), err
+						}
+						moves[i] = *unlockedMove
+					}
+				}
 			}
 			searchMoves := payloads.SearchMoves(appCtx, moves)
 			payload := &ghcmessages.SearchMovesResult{

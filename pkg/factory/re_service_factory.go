@@ -5,54 +5,24 @@ import (
 	"log"
 
 	"github.com/gobuffalo/pop/v6"
-	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
-const defaultServiceCode = models.ReServiceCode("STEST")
+const defaultServiceCode = models.ReServiceCode("DLH")
 
-// BuildReService creates a ReService
-// Params:
-// - customs is a slice that will be modified by the factory
-// - db can be set to nil to create a stubbed model that is not stored in DB.
-func BuildReService(db *pop.Connection, customs []Customization, traits []Trait) models.ReService {
-	customs = setupCustomizations(customs, traits)
-
-	// Find reService assertion and convert to models ReService
-	var cReService models.ReService
-	if result := findValidCustomization(customs, ReService); result != nil {
-		cReService = result.Model.(models.ReService)
-		if result.LinkOnly {
-			return cReService
-		}
+func fetchDefaultReService(db *pop.Connection) models.ReService {
+	var reService models.ReService
+	err := db.Where("code = $1", defaultServiceCode).First(&reService)
+	if err != nil && err != sql.ErrNoRows {
+		log.Panic(err)
 	}
-
-	// create reService
-	reServiceUUID := uuid.Must(uuid.NewV4())
-	reService := models.ReService{
-		ID:   reServiceUUID,
-		Name: "Test Service",
-		Code: defaultServiceCode,
-	}
-
-	// Overwrite values with those from assertions
-	testdatagen.MergeModels(&reService, cReService)
-
-	// If db is false, it's a stub. No need to create in database
-	if db != nil {
-		mustCreate(db, &reService)
-	}
-
 	return reService
 }
 
-// FetchOrBuildReService tries fetching a ReService using ReServiceCode, then falls back to creating one
-func FetchOrBuildReService(db *pop.Connection, customs []Customization, traits []Trait) models.ReService {
-	if db == nil {
-		return BuildReService(db, customs, traits)
-	}
+// FetchReService tries fetching a ReService using ReServiceCode, then falls back to creating one
+func FetchReService(db *pop.Connection, customs []Customization, traits []Trait) models.ReService {
 
 	customs = setupCustomizations(customs, traits)
 
@@ -64,6 +34,17 @@ func FetchOrBuildReService(db *pop.Connection, customs []Customization, traits [
 			return cReService
 		}
 	}
+
+	if db == nil {
+		defaultReService := models.ReService{
+			Name: "Domestic linehaul",
+			Code: defaultServiceCode,
+		}
+		// Overwrite values with those from assertions
+		testdatagen.MergeModels(&defaultReService, cReService)
+		return defaultReService
+	}
+
 	var reService models.ReService
 	if !cReService.ID.IsNil() {
 		err := db.Where("ID = $1", cReService.ID).First(&reService)
@@ -87,11 +68,11 @@ func FetchOrBuildReService(db *pop.Connection, customs []Customization, traits [
 		return reService
 	}
 
-	return BuildReService(db, customs, traits)
+	return fetchDefaultReService(db)
 }
 
-func FetchOrBuildReServiceByCode(db *pop.Connection, reServiceCode models.ReServiceCode) models.ReService {
-	return FetchOrBuildReService(db, []Customization{
+func FetchReServiceByCode(db *pop.Connection, reServiceCode models.ReServiceCode) models.ReService {
+	return FetchReService(db, []Customization{
 		{
 			Model: models.ReService{
 				Code: reServiceCode,

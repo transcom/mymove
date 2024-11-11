@@ -138,7 +138,7 @@ describe('CreatePaymentRequest page', () => {
 
       const shipmentsContainer = shipmentsHeading.parentElement;
       const hhgHeading = within(shipmentsContainer).getByRole('heading', {
-        name: `${moveTaskOrder.mtoShipments[0].marketCode}HHG shipment`,
+        name: `${moveTaskOrder.mtoShipments[0].marketCode}${moveTaskOrder.mtoShipments[0].shipmentType} shipment`,
         level: 3,
       });
 
