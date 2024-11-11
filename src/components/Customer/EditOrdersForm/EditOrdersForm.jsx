@@ -34,7 +34,10 @@ const EditOrdersForm = ({
 }) => {
   const [officeOptions, setOfficeOptions] = useState(null);
   const [dutyLocation, setDutyLocation] = useState(initialValues.origin_duty_location);
-  const [isHasDependentsDisabled, setHasDependentsDisabled] = useState(false);
+  const isInitialHasDependentsDisabled =
+    initialValues.orders_type === ORDERS_TYPE.STUDENT_TRAVEL ||
+    initialValues.orders_type === ORDERS_TYPE.EARLY_RETURN_OF_DEPENDENTS;
+  const [isHasDependentsDisabled, setHasDependentsDisabled] = useState(isInitialHasDependentsDisabled);
   const [prevOrderType, setPrevOrderType] = useState('');
 
   const validationSchema = Yup.object().shape({
@@ -91,7 +94,10 @@ const EditOrdersForm = ({
 
   return (
     <Formik
-      initialValues={initialValues}
+      initialValues={{
+        ...initialValues,
+        has_dependents: isInitialHasDependentsDisabled ? 'yes' : initialValues.has_dependents,
+      }}
       onSubmit={onSubmit}
       validationSchema={validationSchema}
       validateOnMount
