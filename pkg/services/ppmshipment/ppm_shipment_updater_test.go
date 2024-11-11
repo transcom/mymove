@@ -409,7 +409,7 @@ func (suite *PPMShipmentSuite) TestUpdatePPMShipment() {
 
 		subtestData := setUpForTests(nil, nil, nil)
 
-		originalPPM := factory.BuildMinimalPPMShipment(appCtx.DB(), []factory.Customization{
+		originalPPM := factory.BuildPPMShipment(appCtx.DB(), []factory.Customization{
 			{
 				Model: models.PPMShipment{
 					ExpectedDepartureDate: testdatagen.NextValidMoveDate,
@@ -424,7 +424,7 @@ func (suite *PPMShipmentSuite) TestUpdatePPMShipment() {
 					City:           "Des Moines",
 					State:          "IA",
 					PostalCode:     "50309",
-					Country:        models.StringPointer("US"),
+					County:         "POLK",
 				},
 				Type: &factory.Addresses.PickupAddress,
 			},
@@ -436,7 +436,7 @@ func (suite *PPMShipmentSuite) TestUpdatePPMShipment() {
 					City:           "Fort Eisenhower",
 					State:          "GA",
 					PostalCode:     "50309",
-					Country:        models.StringPointer("US"),
+					County:         "COLUMBIA",
 				},
 				Type: &factory.Addresses.DeliveryAddress,
 			},
@@ -451,7 +451,7 @@ func (suite *PPMShipmentSuite) TestUpdatePPMShipment() {
 				City:           "Des Moines",
 				State:          "IA",
 				PostalCode:     "50308",
-				Country:        models.StringPointer("US"),
+				County:         "POLK",
 			},
 			DestinationAddress: &models.Address{
 				StreetAddress1: "987 Other Avenue",
@@ -460,7 +460,7 @@ func (suite *PPMShipmentSuite) TestUpdatePPMShipment() {
 				City:           "Fort Eisenhower",
 				State:          "GA",
 				PostalCode:     "30183",
-				Country:        models.StringPointer("US"),
+				County:         "COLUMBIA",
 			},
 		}
 
@@ -476,6 +476,68 @@ func (suite *PPMShipmentSuite) TestUpdatePPMShipment() {
 
 		// Estimated Incentive shouldn't be set since we don't have all the necessary fields.
 		suite.Nil(updatedPPM.EstimatedIncentive)
+	})
+
+	suite.Run("Can successfully update a PPMShipment and shipment market code reflects international shipment", func() {
+		appCtx := suite.AppContextWithSessionForTest(&auth.Session{})
+
+		subtestData := setUpForTests(nil, nil, nil)
+
+		originalPPM := factory.BuildPPMShipment(appCtx.DB(), []factory.Customization{
+			{
+				Model: models.PPMShipment{
+					ExpectedDepartureDate: testdatagen.NextValidMoveDate,
+					SITExpected:           models.BoolPointer(false),
+				},
+			},
+			{
+				Model: models.Address{
+					StreetAddress1: "987 Other Avenue",
+					StreetAddress2: models.StringPointer("P.O. Box 1234"),
+					StreetAddress3: models.StringPointer("c/o Another Person"),
+					City:           "Des Moines",
+					State:          "IA",
+					PostalCode:     "50309",
+				},
+				Type: &factory.Addresses.PickupAddress,
+			},
+			{
+				Model: models.Address{
+					StreetAddress1: "987 Other Avenue",
+					StreetAddress2: models.StringPointer("P.O. Box 12345"),
+					StreetAddress3: models.StringPointer("c/o Another Person"),
+					City:           "Fort Eisenhower",
+					State:          "GA",
+					PostalCode:     "50309",
+				},
+				Type: &factory.Addresses.DeliveryAddress,
+			},
+		}, nil)
+		newPPM := models.PPMShipment{
+			PickupAddress: &models.Address{
+				StreetAddress1: "987 Cold Avenue",
+				City:           "Anchorage",
+				State:          "AK",
+				PostalCode:     "99501",
+			},
+			DestinationAddress: &models.Address{
+				StreetAddress1: "987 Other Avenue",
+				StreetAddress2: models.StringPointer("P.O. Box 12345"),
+				StreetAddress3: models.StringPointer("c/o Another Person"),
+				City:           "Fort Eisenhower",
+				State:          "GA",
+				PostalCode:     "30183",
+			},
+		}
+
+		updatedPPM, err := subtestData.ppmShipmentUpdater.UpdatePPMShipmentWithDefaultCheck(appCtx, &newPPM, originalPPM.ShipmentID)
+		suite.NilOrNoVerrs(err)
+
+		// since one of the addresses is being updated to be OCONUS, the shipment's market code should change
+		updatedShipment := models.MTOShipment{}
+		err = suite.DB().Find(&updatedShipment, updatedPPM.ShipmentID)
+		suite.NoError(err)
+		suite.Equal(updatedShipment.MarketCode, models.MarketCodeInternational)
 	})
 
 	suite.Run("Can successfully update a PPMShipment - edit estimated dates & locations - weights already set", func() {
@@ -514,6 +576,8 @@ func (suite *PPMShipmentSuite) TestUpdatePPMShipment() {
 		suite.Equal(newPPM.ExpectedDepartureDate.Format(dateOnly), updatedPPM.ExpectedDepartureDate.Format(dateOnly))
 		suite.Equal(newPPM.SITExpected, updatedPPM.SITExpected)
 		suite.Equal(*newFakeEstimatedIncentive, *updatedPPM.EstimatedIncentive)
+
+		suite.Equal(updatedPPM.Shipment.MarketCode, models.MarketCodeDomestic)
 	})
 
 	suite.Run("Can successfully update a PPMShipment - add estimated weights - no pro gear", func() {
@@ -1174,7 +1238,6 @@ func (suite *PPMShipmentSuite) TestUpdatePPMShipment() {
 				City:           city,
 				State:          state,
 				PostalCode:     postalCode,
-				Country:        models.StringPointer(""),
 			},
 		}
 		updatedPPM, err := subtestData.ppmShipmentUpdater.UpdatePPMShipmentWithDefaultCheck(appCtx, &newPPM, originalPPM.ShipmentID)
@@ -1188,7 +1251,7 @@ func (suite *PPMShipmentSuite) TestUpdatePPMShipment() {
 		suite.Equal(postalCode, updatedPPM.W2Address.PostalCode)
 		suite.Nil(updatedPPM.W2Address.StreetAddress2)
 		suite.Nil(updatedPPM.W2Address.StreetAddress3)
-		suite.Nil(updatedPPM.W2Address.Country)
+		suite.NotNil(updatedPPM.W2Address.Country)
 	})
 
 	suite.Run("Can successfully update a PPMShipment - modify W-2 address", func() {
@@ -1231,7 +1294,7 @@ func (suite *PPMShipmentSuite) TestUpdatePPMShipment() {
 		suite.Equal(state, updatedPPM.W2Address.State)
 		suite.Equal(postalCode, updatedPPM.W2Address.PostalCode)
 		suite.Equal(*address.StreetAddress3, *updatedPPM.W2Address.StreetAddress3)
-		suite.Equal(*address.Country, *updatedPPM.W2Address.Country)
+		suite.Equal(address.CountryId, updatedPPM.W2Address.CountryId)
 	})
 
 	suite.Run("Can successfully update a PPMShipment - add Pickup and Destination address", func() {

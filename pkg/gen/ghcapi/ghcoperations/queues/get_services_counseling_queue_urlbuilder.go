@@ -16,14 +16,15 @@ import (
 
 // GetServicesCounselingQueueURL generates an URL for the get services counseling queue operation
 type GetServicesCounselingQueueURL struct {
+	AssignedTo              *string
 	Branch                  *string
 	CloseoutInitiated       *strfmt.DateTime
 	CloseoutLocation        *string
 	CounselingOffice        *string
+	CustomerName            *string
 	DestinationDutyLocation *string
 	DodID                   *string
 	Emplid                  *string
-	LastName                *string
 	Locator                 *string
 	NeedsPPMCloseout        *bool
 	Order                   *string
@@ -74,6 +75,14 @@ func (o *GetServicesCounselingQueueURL) Build() (*url.URL, error) {
 
 	qs := make(url.Values)
 
+	var assignedToQ string
+	if o.AssignedTo != nil {
+		assignedToQ = *o.AssignedTo
+	}
+	if assignedToQ != "" {
+		qs.Set("assignedTo", assignedToQ)
+	}
+
 	var branchQ string
 	if o.Branch != nil {
 		branchQ = *o.Branch
@@ -106,6 +115,14 @@ func (o *GetServicesCounselingQueueURL) Build() (*url.URL, error) {
 		qs.Set("counselingOffice", counselingOfficeQ)
 	}
 
+	var customerNameQ string
+	if o.CustomerName != nil {
+		customerNameQ = *o.CustomerName
+	}
+	if customerNameQ != "" {
+		qs.Set("customerName", customerNameQ)
+	}
+
 	var destinationDutyLocationQ string
 	if o.DestinationDutyLocation != nil {
 		destinationDutyLocationQ = *o.DestinationDutyLocation
@@ -128,14 +145,6 @@ func (o *GetServicesCounselingQueueURL) Build() (*url.URL, error) {
 	}
 	if emplidQ != "" {
 		qs.Set("emplid", emplidQ)
-	}
-
-	var lastNameQ string
-	if o.LastName != nil {
-		lastNameQ = *o.LastName
-	}
-	if lastNameQ != "" {
-		qs.Set("lastName", lastNameQ)
 	}
 
 	var locatorQ string

@@ -86,6 +86,18 @@ export const requiredAddressSchema = Yup.object().shape({
   postalCode: Yup.string().matches(ZIP_CODE_REGEX, 'Must be valid zip code').required('Required'),
 });
 
+// city, state, postalCode only required
+export const partialRequiredAddressSchema = Yup.object().shape({
+  streetAddress1: Yup.string(),
+  streetAddress2: Yup.string(),
+  city: Yup.string().trim().required('Required'),
+  state: Yup.string()
+    .test('', UnsupportedStateErrorMsg, IsSupportedState)
+    .length(2, 'Must use state abbreviation')
+    .required('Required'),
+  postalCode: Yup.string().matches(ZIP_CODE_REGEX, 'Must be valid zip code').required('Required'),
+});
+
 export const requiredW2AddressSchema = Yup.object().shape({
   streetAddress1: Yup.string().required('Required'),
   streetAddress2: Yup.string(),
@@ -106,6 +118,11 @@ export const phoneSchema = Yup.string().matches(
   PHONE_NUMBER_REGEX,
   'Please enter a valid phone number. Phone numbers must be entered as ###-###-####.',
 ); // min 12 includes hyphens
+
+export const OfficeAccountRequestEmailSchema = Yup.string().matches(
+  /^[a-zA-Z0-9._%+-]+@(.[a-zA-Z0-9-.]+)[.]{1}(?<!gov|edu|mil)(gov|edu|mil)(?!gov|edu|mil)$/,
+  'Domain must be .mil, .gov or .edu',
+);
 
 export const emailSchema = Yup.string().matches(
   /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+.[a-zA-Z]{2,}$/,
@@ -243,7 +260,7 @@ export const officeAccountRequestSchema = Yup.object().shape({
     .matches(/^[A-Za-z0-9]+$/, otherUniqueIdErrorMsg)
     .test('officeAccountRequestOtherUniqueId', 'Required if not using DODID#', validateOtherUniqueId),
   officeAccountRequestTelephone: phoneSchema.required('Required'),
-  officeAccountRequestEmail: emailSchema.required('Required'),
+  officeAccountRequestEmail: OfficeAccountRequestEmailSchema.required('Required'),
   officeAccountTransportationOffice: Yup.object().required('Required'),
   taskOrderingOfficerCheckBox: Yup.bool()
     .test('roleRequestedRequired', 'You must select at least one role.', validateRoleRequestedMethod)

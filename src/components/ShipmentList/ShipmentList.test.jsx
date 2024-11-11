@@ -4,7 +4,7 @@ import userEvent from '@testing-library/user-event';
 
 import ShipmentList from './ShipmentList';
 
-import { SHIPMENT_OPTIONS } from 'shared/constants';
+import { SHIPMENT_OPTIONS, SHIPMENT_TYPES } from 'shared/constants';
 import { formatWeight } from 'utils/formatters';
 
 beforeEach(() => {
@@ -24,6 +24,7 @@ describe('ShipmentList component', () => {
     { id: 'ID-2', shipmentType: SHIPMENT_OPTIONS.HHG },
     { id: 'ID-3', shipmentType: SHIPMENT_OPTIONS.NTS },
     { id: 'ID-4', shipmentType: SHIPMENT_OPTIONS.NTSR },
+    { id: 'ID-5', shipmentType: SHIPMENT_OPTIONS.UNACCOMPANIED_BAGGAGE },
   ];
   const onShipmentClick = jest.fn();
   const onDeleteClick = jest.fn();
@@ -36,11 +37,12 @@ describe('ShipmentList component', () => {
   it('renders ShipmentList with shipments', async () => {
     render(<ShipmentList {...defaultProps} />);
 
-    expect(screen.getAllByTestId('shipment-list-item-container').length).toBe(4);
+    expect(screen.getAllByTestId('shipment-list-item-container').length).toBe(5);
     expect(screen.getAllByTestId('shipment-list-item-container')[0]).toHaveTextContent(/^ppm/i);
     expect(screen.getAllByTestId('shipment-list-item-container')[1]).toHaveTextContent(/^hhg/i);
     expect(screen.getAllByTestId('shipment-list-item-container')[2]).toHaveTextContent(/^nts/i);
     expect(screen.getAllByTestId('shipment-list-item-container')[3]).toHaveTextContent(/^nts-release/i);
+    expect(screen.getAllByTestId('shipment-list-item-container')[4]).toHaveTextContent(/^UB/i);
   });
 
   it.each([
@@ -72,6 +74,9 @@ describe('ShipmentList component', () => {
 
     editBtn = queryByRole(screen.getAllByTestId('shipment-list-item-container')[3], 'button', { name: 'Edit' });
     await checkShipmentClick('ID-4', 1, SHIPMENT_OPTIONS.NTSR);
+
+    editBtn = queryByRole(screen.getAllByTestId('shipment-list-item-container')[4], 'button', { name: 'Edit' });
+    await checkShipmentClick('ID-5', 1, SHIPMENT_OPTIONS.UNACCOMPANIED_BAGGAGE);
   });
 
   it.each([
@@ -79,6 +84,7 @@ describe('ShipmentList component', () => {
     [SHIPMENT_OPTIONS.HHG, 2],
     [SHIPMENT_OPTIONS.NTS, 3],
     [SHIPMENT_OPTIONS.NTSR, 4],
+    [SHIPMENT_OPTIONS.UNACCOMPANIED_BAGGAGE, 5],
   ])('calls onDeleteClick for shipment type %s when delete is clicked', async (_, id) => {
     render(<ShipmentList {...defaultProps} />);
     const deleteBtn = getByRole(screen.getAllByTestId('shipment-list-item-container')[id - 1], 'button', {
@@ -88,6 +94,52 @@ describe('ShipmentList component', () => {
     await userEvent.click(deleteBtn);
     expect(onDeleteClick).toHaveBeenCalledWith(`ID-${id}`);
     expect(onDeleteClick).toHaveBeenCalledTimes(1);
+  });
+});
+
+describe('ShipmentList shipment weight tooltip', () => {
+  const defaultProps = {
+    moveSubmitted: false,
+  };
+
+  it.each([
+    [SHIPMENT_OPTIONS.HHG, 'ID-2', '110% Prime Estimated Weight'],
+    [SHIPMENT_OPTIONS.NTS, 'ID-3', '110% Prime Estimated Weight'],
+    [SHIPMENT_OPTIONS.NTSR, 'ID-4', '110% Previously Recorded Weight'],
+    [SHIPMENT_TYPES.BOAT_HAUL_AWAY, 'ID-5', '110% Prime Estimated Weight'],
+    [SHIPMENT_TYPES.BOAT_TOW_AWAY, 'ID-6', '110% Prime Estimated Weight'],
+    [SHIPMENT_OPTIONS.MOBILE_HOME, 'ID-7', '110% Prime Estimated Weight'],
+  ])('shipment weight tooltip, show is true. %s', async (type, id, expectedTooltipText) => {
+    // Render component
+    const props = { ...defaultProps, showShipmentTooltip: true, shipments: [{ id, shipmentType: type }] };
+    render(<ShipmentList {...props} />);
+
+    // Verify tooltip exists
+    const tooltipIcon = screen.getByTestId('tooltip-container');
+    expect(tooltipIcon).toBeInTheDocument();
+
+    // Click the tooltip
+    await userEvent.hover(tooltipIcon);
+
+    // Verify tooltip text
+    const tooltipText = await screen.findByText(expectedTooltipText);
+    expect(tooltipText).toBeInTheDocument();
+  });
+
+  it.each([
+    [SHIPMENT_OPTIONS.HHG, 'ID-2'],
+    [SHIPMENT_OPTIONS.NTS, 'ID-3'],
+    [SHIPMENT_OPTIONS.NTSR, 'ID-4'],
+    [SHIPMENT_TYPES.BOAT_HAUL_AWAY, 'ID-5'],
+    [SHIPMENT_TYPES.BOAT_TOW_AWAY, 'ID-6'],
+    [SHIPMENT_OPTIONS.MOBILE_HOME, 'ID-7'],
+  ])('shipment weight tooltip, show is false. %s', async (type, id) => {
+    // Render component
+    const props = { ...defaultProps, showShipmentTooltip: false, shipments: [{ id, shipmentType: type }] };
+    render(<ShipmentList {...props} />);
+
+    // Verify tooltip doesn't exist
+    expect(screen.queryByTestId('tooltip-container')).not.toBeInTheDocument();
   });
 });
 

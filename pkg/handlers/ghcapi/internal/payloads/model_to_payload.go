@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"math"
+	"strings"
 	"time"
 
 	"github.com/go-openapi/strfmt"
@@ -16,6 +17,7 @@ import (
 	"github.com/transcom/mymove/pkg/gen/ghcmessages"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/models/roles"
 	"github.com/transcom/mymove/pkg/services"
 	mtoshipment "github.com/transcom/mymove/pkg/services/mto_shipment"
 	"github.com/transcom/mymove/pkg/storage"
@@ -54,9 +56,9 @@ func OfficeUser(officeUser *models.OfficeUser) *ghcmessages.LockedOfficeUser {
 func AssignedOfficeUser(officeUser *models.OfficeUser) *ghcmessages.AssignedOfficeUser {
 	if officeUser != nil {
 		payload := ghcmessages.AssignedOfficeUser{
-			ID:        strfmt.UUID(officeUser.ID.String()),
-			FirstName: officeUser.FirstName,
-			LastName:  officeUser.LastName,
+			OfficeUserID: strfmt.UUID(officeUser.ID.String()),
+			FirstName:    officeUser.FirstName,
+			LastName:     officeUser.LastName,
 		}
 		return &payload
 	}
@@ -708,6 +710,14 @@ func DutyLocation(dutyLocation *models.DutyLocation) *ghcmessages.DutyLocation {
 	return &payload
 }
 
+// Country payload
+func Country(country *models.Country) *string {
+	if country == nil {
+		return nil
+	}
+	return &country.Country
+}
+
 // Address payload
 func Address(address *models.Address) *ghcmessages.Address {
 	if address == nil {
@@ -721,10 +731,28 @@ func Address(address *models.Address) *ghcmessages.Address {
 		City:           &address.City,
 		State:          &address.State,
 		PostalCode:     &address.PostalCode,
-		Country:        address.Country,
+		Country:        Country(address.Country),
 		County:         &address.County,
 		ETag:           etag.GenerateEtag(address.UpdatedAt),
+		IsOconus:       address.IsOconus,
 	}
+}
+
+// PPM destination Address payload
+func PPMDestinationAddress(address *models.Address) *ghcmessages.Address {
+	payload := Address(address)
+
+	if payload == nil {
+		return nil
+	}
+
+	// Street address 1 is optional per business rule but not nullable on the database level.
+	// Check if streetAddress 1 is using place holder value to represent 'NULL'.
+	// If so return empty string.
+	if strings.EqualFold(*payload.StreetAddress1, models.STREET_ADDRESS_1_NOT_PROVIDED) {
+		payload.StreetAddress1 = models.StringPointer("")
+	}
+	return payload
 }
 
 // StorageFacility payload
@@ -879,7 +907,7 @@ func PPMShipment(_ storage.FileStorer, ppmShipment *models.PPMShipment) *ghcmess
 		ReviewedAt:                     handlers.FmtDateTimePtr(ppmShipment.ReviewedAt),
 		ApprovedAt:                     handlers.FmtDateTimePtr(ppmShipment.ApprovedAt),
 		PickupAddress:                  Address(ppmShipment.PickupAddress),
-		DestinationAddress:             Address(ppmShipment.DestinationAddress),
+		DestinationAddress:             PPMDestinationAddress(ppmShipment.DestinationAddress),
 		ActualPickupPostalCode:         ppmShipment.ActualPickupPostalCode,
 		ActualDestinationPostalCode:    ppmShipment.ActualDestinationPostalCode,
 		SitExpected:                    ppmShipment.SITExpected,
@@ -900,6 +928,7 @@ func PPMShipment(_ storage.FileStorer, ppmShipment *models.PPMShipment) *ghcmess
 		SitEstimatedEntryDate:          handlers.FmtDatePtr(ppmShipment.SITEstimatedEntryDate),
 		SitEstimatedDepartureDate:      handlers.FmtDatePtr(ppmShipment.SITEstimatedDepartureDate),
 		SitEstimatedCost:               handlers.FmtCost(ppmShipment.SITEstimatedCost),
+		IsActualExpenseReimbursement:   ppmShipment.IsActualExpenseReimbursement,
 		ETag:                           etag.GenerateEtag(ppmShipment.UpdatedAt),
 	}
 
@@ -931,6 +960,10 @@ func PPMShipment(_ storage.FileStorer, ppmShipment *models.PPMShipment) *ghcmess
 
 	if ppmShipment.TertiaryDestinationAddress != nil {
 		payloadPPMShipment.TertiaryDestinationAddress = Address(ppmShipment.TertiaryDestinationAddress)
+	}
+
+	if ppmShipment.IsActualExpenseReimbursement != nil {
+		payloadPPMShipment.IsActualExpenseReimbursement = ppmShipment.IsActualExpenseReimbursement
 	}
 
 	return payloadPPMShipment
@@ -1362,6 +1395,14 @@ func LineOfAccounting(lineOfAccounting *models.LineOfAccounting) *ghcmessages.Li
 	}
 }
 
+// MarketCode payload
+func MarketCode(marketCode *models.MarketCode) string {
+	if marketCode == nil {
+		return "" // Or a default string value
+	}
+	return string(*marketCode)
+}
+
 // MTOShipment payload
 func MTOShipment(storer storage.FileStorer, mtoShipment *models.MTOShipment, sitStatusPayload *ghcmessages.SITStatus) *ghcmessages.MTOShipment {
 
@@ -1410,6 +1451,7 @@ func MTOShipment(storer storage.FileStorer, mtoShipment *models.MTOShipment, sit
 		MobileHomeShipment:          MobileHomeShipment(storer, mtoShipment.MobileHome),
 		DeliveryAddressUpdate:       ShipmentAddressUpdate(mtoShipment.DeliveryAddressUpdate),
 		ShipmentLocator:             handlers.FmtStringPtr(mtoShipment.ShipmentLocator),
+		MarketCode:                  MarketCode(&mtoShipment.MarketCode),
 	}
 
 	if mtoShipment.Distance != nil {
@@ -1697,7 +1739,7 @@ func ServiceRequestDoc(serviceRequest models.ServiceRequestDocument, storer stor
 
 	if len(serviceRequest.ServiceRequestDocumentUploads) > 0 {
 		for i, serviceRequestUpload := range serviceRequest.ServiceRequestDocumentUploads {
-			url, err := storer.PresignedURL(serviceRequestUpload.Upload.StorageKey, serviceRequestUpload.Upload.ContentType)
+			url, err := storer.PresignedURL(serviceRequestUpload.Upload.StorageKey, serviceRequestUpload.Upload.ContentType, serviceRequestUpload.Upload.Filename)
 			if err != nil {
 				return nil, err
 			}
@@ -1934,7 +1976,7 @@ func ProofOfServiceDoc(proofOfService models.ProofOfServiceDoc, storer storage.F
 	uploads := make([]*ghcmessages.Upload, len(proofOfService.PrimeUploads))
 	if len(proofOfService.PrimeUploads) > 0 {
 		for i, primeUpload := range proofOfService.PrimeUploads {
-			url, err := storer.PresignedURL(primeUpload.Upload.StorageKey, primeUpload.Upload.ContentType)
+			url, err := storer.PresignedURL(primeUpload.Upload.StorageKey, primeUpload.Upload.ContentType, primeUpload.Upload.Filename)
 			if err != nil {
 				return nil, err
 			}
@@ -1990,7 +2032,7 @@ func PayloadForDocumentModel(storer storage.FileStorer, document models.Document
 		if userUpload.Upload.ID == uuid.Nil {
 			return nil, errors.New("no uploads for user")
 		}
-		url, err := storer.PresignedURL(userUpload.Upload.StorageKey, userUpload.Upload.ContentType)
+		url, err := storer.PresignedURL(userUpload.Upload.StorageKey, userUpload.Upload.ContentType, userUpload.Upload.Filename)
 		if err != nil {
 			return nil, err
 		}
@@ -2034,14 +2076,16 @@ func QueueAvailableOfficeUsers(officeUsers []models.OfficeUser) *ghcmessages.Ava
 }
 
 // QueueMoves payload
-func QueueMoves(moves []models.Move) *ghcmessages.QueueMoves {
+func QueueMoves(moves []models.Move, officeUsers []models.OfficeUser, requestedPpmStatus *models.PPMShipmentStatus, role roles.RoleType, officeUser models.OfficeUser, isSupervisor bool, isHQRole bool) *ghcmessages.QueueMoves {
 	queueMoves := make(ghcmessages.QueueMoves, len(moves))
 	for i, move := range moves {
 		customer := move.Orders.ServiceMember
 
 		var transportationOffice string
+		var transportationOfficeId uuid.UUID
 		if move.CounselingOffice != nil {
 			transportationOffice = move.CounselingOffice.Name
+			transportationOfficeId = move.CounselingOffice.ID
 		}
 		var validMTOShipments []models.MTOShipment
 		var earliestRequestedPickup *time.Time
@@ -2084,7 +2128,13 @@ func QueueMoves(moves []models.Move) *ghcmessages.QueueMoves {
 		var ppmStatus models.PPMShipmentStatus
 		for _, shipment := range move.MTOShipments {
 			if shipment.PPMShipment != nil {
-				ppmStatus = shipment.PPMShipment.Status
+				if requestedPpmStatus != nil {
+					if shipment.PPMShipment.Status == *requestedPpmStatus {
+						ppmStatus = shipment.PPMShipment.Status
+					}
+				} else {
+					ppmStatus = shipment.PPMShipment.Status
+				}
 				if shipment.PPMShipment.SubmittedAt != nil {
 					if closeoutInitiated.Before(*shipment.PPMShipment.SubmittedAt) {
 						closeoutInitiated = *shipment.PPMShipment.SubmittedAt
@@ -2115,7 +2165,60 @@ func QueueMoves(moves []models.Move) *ghcmessages.QueueMoves {
 			LockExpiresAt:           handlers.FmtDateTimePtr(move.LockExpiresAt),
 			PpmStatus:               ghcmessages.PPMStatus(ppmStatus),
 			CounselingOffice:        &transportationOffice,
-			AssignedTo:              AssignedOfficeUser(move.SCAssignedUser),
+			CounselingOfficeID:      handlers.FmtUUID(transportationOfficeId),
+		}
+
+		if role == roles.RoleTypeServicesCounselor && move.SCAssignedUser != nil {
+			queueMoves[i].AssignedTo = AssignedOfficeUser(move.SCAssignedUser)
+		}
+		if role == roles.RoleTypeTOO && move.TOOAssignedUser != nil {
+			queueMoves[i].AssignedTo = AssignedOfficeUser(move.TOOAssignedUser)
+		}
+
+		// scenarios where a move is assinable:
+
+		// if it is unassigned, it is always assignable
+		isAssignable := false
+		if queueMoves[i].AssignedTo == nil {
+			isAssignable = true
+		}
+
+		// in TOO queues, all moves are assignable for supervisor users
+		if role == roles.RoleTypeTOO && isSupervisor {
+			isAssignable = true
+		}
+
+		// if it is assigned in the SCs queue
+		// it is only assignable if the user is a supervisor
+		// and if the move's counseling office is the supervisor's transportation office
+		if role == roles.RoleTypeServicesCounselor && isSupervisor && move.CounselingOfficeID != nil && *move.CounselingOfficeID == officeUser.TransportationOfficeID {
+			isAssignable = true
+		}
+
+		if isHQRole {
+			isAssignable = false
+		}
+
+		queueMoves[i].Assignable = isAssignable
+
+		// only need to attach available office users if move is assignable
+		if queueMoves[i].Assignable {
+			availableOfficeUsers := officeUsers
+			if role == roles.RoleTypeServicesCounselor {
+				// if there is no counseling office
+				// OR if our current user doesn't work at the move's counseling office
+				// only available user should be themself
+				if (move.CounselingOfficeID == nil) || (move.CounselingOfficeID != nil && *move.CounselingOfficeID != officeUser.TransportationOfficeID) {
+					availableOfficeUsers = models.OfficeUsers{officeUser}
+				}
+
+				// if the office user currently assigned to move works outside of the logged in users counseling office
+				// add them to the set
+				if move.SCAssignedUser != nil && move.SCAssignedUser.TransportationOfficeID != officeUser.TransportationOfficeID {
+					availableOfficeUsers = append(availableOfficeUsers, *move.SCAssignedUser)
+				}
+			}
+			queueMoves[i].AvailableOfficeUsers = *QueueAvailableOfficeUsers(availableOfficeUsers)
 		}
 	}
 	return &queueMoves
@@ -2184,7 +2287,8 @@ func queuePaymentRequestStatus(paymentRequest models.PaymentRequest) string {
 }
 
 // QueuePaymentRequests payload
-func QueuePaymentRequests(paymentRequests *models.PaymentRequests) *ghcmessages.QueuePaymentRequests {
+func QueuePaymentRequests(paymentRequests *models.PaymentRequests, officeUsers []models.OfficeUser, officeUser models.OfficeUser, isSupervisor bool, isHQRole bool) *ghcmessages.QueuePaymentRequests {
+
 	queuePaymentRequests := make(ghcmessages.QueuePaymentRequests, len(*paymentRequests))
 
 	for i, paymentRequest := range *paymentRequests {
@@ -2208,6 +2312,35 @@ func QueuePaymentRequests(paymentRequests *models.PaymentRequests) *ghcmessages.
 			OrderType:            (*string)(orders.OrdersType.Pointer()),
 			LockedByOfficeUserID: handlers.FmtUUIDPtr(moveTaskOrder.LockedByOfficeUserID),
 			LockExpiresAt:        handlers.FmtDateTimePtr(moveTaskOrder.LockExpiresAt),
+		}
+
+		if paymentRequest.MoveTaskOrder.TIOAssignedUser != nil {
+			queuePaymentRequests[i].AssignedTo = AssignedOfficeUser(paymentRequest.MoveTaskOrder.TIOAssignedUser)
+		}
+
+		isAssignable := false
+		if queuePaymentRequests[i].AssignedTo == nil {
+			isAssignable = true
+		}
+
+		if isSupervisor {
+			isAssignable = true
+		}
+
+		if isHQRole {
+			isAssignable = false
+		}
+
+		queuePaymentRequests[i].Assignable = isAssignable
+
+		// only need to attach available office users if move is assignable
+		if queuePaymentRequests[i].Assignable {
+			availableOfficeUsers := officeUsers
+			if !isSupervisor {
+				availableOfficeUsers = models.OfficeUsers{officeUser}
+			}
+
+			queuePaymentRequests[i].AvailableOfficeUsers = *QueueAvailableOfficeUsers(availableOfficeUsers)
 		}
 
 		if orders.DepartmentIndicator != nil {
@@ -2292,6 +2425,8 @@ func SearchMoves(appCtx appcontext.AppContext, moves models.Moves) *ghcmessages.
 
 		if err != nil {
 			destinationGBLOC = *ghcmessages.NewGBLOC("")
+		} else if customer.Affiliation.String() == "MARINES" {
+			destinationGBLOC = ghcmessages.GBLOC("USMC/" + PostalCodeToGBLOC.GBLOC)
 		} else {
 			destinationGBLOC = ghcmessages.GBLOC(PostalCodeToGBLOC.GBLOC)
 		}
