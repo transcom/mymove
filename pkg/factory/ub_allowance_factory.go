@@ -106,5 +106,6 @@ func FetchOrBuildUBAllowance(db *pop.Connection, customs []Customization, traits
 		return ubAllowance
 	}
 
-	return BuildUBAllowance(db, customs, traits)
+	builtUBAllowance := BuildUBAllowance(db, customs, traits)
+	return builtUBAllowance
 }
