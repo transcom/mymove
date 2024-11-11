@@ -935,6 +935,72 @@ func init() {
         }
       ]
     },
+    "/evaluation-reports/{reportID}/{reportViolationID}/appeal/add": {
+      "post": {
+        "description": "Adds an appeal to a violation",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "evaluationReports"
+        ],
+        "summary": "Adds an appeal to a violation",
+        "operationId": "addAppealToViolation",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "schema": {
+              "$ref": "#/definitions/CreateViolationAppeal"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successfully added an appeal to a violation"
+          },
+          "403": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "404": {
+            "$ref": "#/responses/NotFound"
+          },
+          "412": {
+            "$ref": "#/responses/PreconditionFailed"
+          },
+          "422": {
+            "$ref": "#/responses/UnprocessableEntity"
+          },
+          "500": {
+            "$ref": "#/responses/ServerError"
+          }
+        },
+        "x-permissions": [
+          "update.evaluationReport"
+        ]
+      },
+      "parameters": [
+        {
+          "type": "string",
+          "format": "uuid",
+          "description": "the evaluation report ID",
+          "name": "reportID",
+          "in": "path",
+          "required": true
+        },
+        {
+          "type": "string",
+          "format": "uuid",
+          "description": "the report violation ID",
+          "name": "reportViolationID",
+          "in": "path",
+          "required": true
+        }
+      ]
+    },
     "/lines-of-accounting": {
       "post": {
         "description": "Fetches a line of accounting based on provided service member affiliation, effective date, and Transportation Accounting Code (TAC). It uses these parameters to filter the correct Line of Accounting for the provided TAC. It does this by filtering through both TAC and LOAs based on the provided code and effective date. The 'Effective Date' is the date that can be either the orders issued date (For HHG shipments), MTO approval date (For NTS shipments), or even the current date for NTS shipments with no approval yet (Just providing a preview to the office users per customer request). Effective date is used to find \"Active\" TGET data by searching for the TACs and LOAs with begin and end dates containing this date.\n",
@@ -7344,6 +7410,26 @@ func init() {
         }
       }
     },
+    "CreateViolationAppeal": {
+      "description": "Appeal status and remarks left for a violation, created by a GSR user.",
+      "type": "object",
+      "properties": {
+        "appealStatus": {
+          "description": "The status of the appeal set by the GSR user",
+          "type": "string",
+          "enum": [
+            "sustained",
+            "rejected"
+          ],
+          "example": "These are my violation appeal remarks"
+        },
+        "remarks": {
+          "description": "Remarks left by the GSR user",
+          "type": "string",
+          "example": "These are my violation appeal remarks"
+        }
+      }
+    },
     "CreatedCustomer": {
       "type": "object",
       "properties": {
@@ -7824,6 +7910,10 @@ func init() {
           "x-nullable": true,
           "example": "15:00"
         },
+        "gsrAppeals": {
+          "x-nullable": true,
+          "$ref": "#/definitions/GSRAppeals"
+        },
         "id": {
           "type": "string",
           "format": "uuid",
@@ -8051,6 +8141,64 @@ func init() {
       "type": "array",
       "items": {
         "type": "string"
+      }
+    },
+    "GSRAppeal": {
+      "description": "An object associating appeals on violations and serious incidents",
+      "type": "object",
+      "properties": {
+        "appealStatus": {
+          "$ref": "#/definitions/GSRAppealStatusType"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "isSeriousIncident": {
+          "type": "boolean",
+          "example": false
+        },
+        "officeUser": {
+          "$ref": "#/definitions/EvaluationReportOfficeUser"
+        },
+        "officeUserID": {
+          "type": "string",
+          "format": "uuid",
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "remarks": {
+          "type": "string",
+          "example": "Office user remarks"
+        },
+        "reportID": {
+          "type": "string",
+          "format": "uuid",
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "violationID": {
+          "type": "string",
+          "format": "uuid",
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        }
+      }
+    },
+    "GSRAppealStatusType": {
+      "type": "string",
+      "enum": [
+        "SUSTAINED",
+        "REJECTED"
+      ]
+    },
+    "GSRAppeals": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/GSRAppeal"
       }
     },
     "Grade": {
@@ -10584,7 +10732,8 @@ func init() {
         "SEPARATION",
         "WOUNDED_WARRIOR",
         "BLUEBARK",
-        "SAFETY"
+        "SAFETY",
+        "TEMPORARY_DUTY"
       ],
       "x-display-value": {
         "BLUEBARK": "BLUEBARK",
@@ -10593,6 +10742,7 @@ func init() {
         "RETIREMENT": "Retirement",
         "SAFETY": "Safety",
         "SEPARATION": "Separation",
+        "TEMPORARY_DUTY": "Temporary Duty (TDY)",
         "WOUNDED_WARRIOR": "Wounded Warrior"
       }
     },
@@ -12186,6 +12336,10 @@ func init() {
       "description": "An object associating violations to evaluation reports",
       "type": "object",
       "properties": {
+        "gsrAppeals": {
+          "x-nullable": true,
+          "$ref": "#/definitions/GSRAppeals"
+        },
         "id": {
           "type": "string",
           "format": "uuid",
@@ -15609,6 +15763,87 @@ func init() {
           "format": "uuid",
           "description": "the evaluation report ID to be modified",
           "name": "reportID",
+          "in": "path",
+          "required": true
+        }
+      ]
+    },
+    "/evaluation-reports/{reportID}/{reportViolationID}/appeal/add": {
+      "post": {
+        "description": "Adds an appeal to a violation",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "evaluationReports"
+        ],
+        "summary": "Adds an appeal to a violation",
+        "operationId": "addAppealToViolation",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "schema": {
+              "$ref": "#/definitions/CreateViolationAppeal"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successfully added an appeal to a violation"
+          },
+          "403": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "412": {
+            "description": "Precondition failed",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "422": {
+            "description": "The payload was unprocessable.",
+            "schema": {
+              "$ref": "#/definitions/ValidationError"
+            }
+          },
+          "500": {
+            "description": "A server error occurred",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        },
+        "x-permissions": [
+          "update.evaluationReport"
+        ]
+      },
+      "parameters": [
+        {
+          "type": "string",
+          "format": "uuid",
+          "description": "the evaluation report ID",
+          "name": "reportID",
+          "in": "path",
+          "required": true
+        },
+        {
+          "type": "string",
+          "format": "uuid",
+          "description": "the report violation ID",
+          "name": "reportViolationID",
           "in": "path",
           "required": true
         }
@@ -23267,6 +23502,26 @@ func init() {
         }
       }
     },
+    "CreateViolationAppeal": {
+      "description": "Appeal status and remarks left for a violation, created by a GSR user.",
+      "type": "object",
+      "properties": {
+        "appealStatus": {
+          "description": "The status of the appeal set by the GSR user",
+          "type": "string",
+          "enum": [
+            "sustained",
+            "rejected"
+          ],
+          "example": "These are my violation appeal remarks"
+        },
+        "remarks": {
+          "description": "Remarks left by the GSR user",
+          "type": "string",
+          "example": "These are my violation appeal remarks"
+        }
+      }
+    },
     "CreatedCustomer": {
       "type": "object",
       "properties": {
@@ -23747,6 +24002,10 @@ func init() {
           "x-nullable": true,
           "example": "15:00"
         },
+        "gsrAppeals": {
+          "x-nullable": true,
+          "$ref": "#/definitions/GSRAppeals"
+        },
         "id": {
           "type": "string",
           "format": "uuid",
@@ -23974,6 +24233,64 @@ func init() {
       "type": "array",
       "items": {
         "type": "string"
+      }
+    },
+    "GSRAppeal": {
+      "description": "An object associating appeals on violations and serious incidents",
+      "type": "object",
+      "properties": {
+        "appealStatus": {
+          "$ref": "#/definitions/GSRAppealStatusType"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "isSeriousIncident": {
+          "type": "boolean",
+          "example": false
+        },
+        "officeUser": {
+          "$ref": "#/definitions/EvaluationReportOfficeUser"
+        },
+        "officeUserID": {
+          "type": "string",
+          "format": "uuid",
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "remarks": {
+          "type": "string",
+          "example": "Office user remarks"
+        },
+        "reportID": {
+          "type": "string",
+          "format": "uuid",
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "violationID": {
+          "type": "string",
+          "format": "uuid",
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        }
+      }
+    },
+    "GSRAppealStatusType": {
+      "type": "string",
+      "enum": [
+        "SUSTAINED",
+        "REJECTED"
+      ]
+    },
+    "GSRAppeals": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/GSRAppeal"
       }
     },
     "Grade": {
@@ -26507,7 +26824,8 @@ func init() {
         "SEPARATION",
         "WOUNDED_WARRIOR",
         "BLUEBARK",
-        "SAFETY"
+        "SAFETY",
+        "TEMPORARY_DUTY"
       ],
       "x-display-value": {
         "BLUEBARK": "BLUEBARK",
@@ -26516,6 +26834,7 @@ func init() {
         "RETIREMENT": "Retirement",
         "SAFETY": "Safety",
         "SEPARATION": "Separation",
+        "TEMPORARY_DUTY": "Temporary Duty (TDY)",
         "WOUNDED_WARRIOR": "Wounded Warrior"
       }
     },
@@ -28184,6 +28503,10 @@ func init() {
       "description": "An object associating violations to evaluation reports",
       "type": "object",
       "properties": {
+        "gsrAppeals": {
+          "x-nullable": true,
+          "$ref": "#/definitions/GSRAppeals"
+        },
         "id": {
           "type": "string",
           "format": "uuid",
