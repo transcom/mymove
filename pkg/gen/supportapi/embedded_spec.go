@@ -2080,8 +2080,8 @@ func init() {
         "PERMANENT_CHANGE_OF_STATION": "Permanent Change Of Station (PCS)",
         "RETIREMENT": "Retirement",
         "SEPARATION": "Separation",
-        "TEMPORARY_DUTY": "Temporary Duty (TDY)",
         "STUDENT_TRAVEL": "Student Travel",
+        "TEMPORARY_DUTY": "Temporary Duty (TDY)",
         "WOUNDED_WARRIOR": "Wounded Warrior"
       }
     },
@@ -4941,8 +4941,8 @@ func init() {
         "PERMANENT_CHANGE_OF_STATION": "Permanent Change Of Station (PCS)",
         "RETIREMENT": "Retirement",
         "SEPARATION": "Separation",
-        "TEMPORARY_DUTY": "Temporary Duty (TDY)",
         "STUDENT_TRAVEL": "Student Travel",
+        "TEMPORARY_DUTY": "Temporary Duty (TDY)",
         "WOUNDED_WARRIOR": "Wounded Warrior"
       }
     },

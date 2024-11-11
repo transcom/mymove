@@ -53,7 +53,7 @@ const (
 
 	// OrdersTypeTEMPORARYDUTY captures enum value "TEMPORARY_DUTY"
 	OrdersTypeTEMPORARYDUTY OrdersType = "TEMPORARY_DUTY"
-  
+
 	// OrdersTypeEARLYRETURNOFDEPENDENTS captures enum value "EARLY_RETURN_OF_DEPENDENTS"
 	OrdersTypeEARLYRETURNOFDEPENDENTS OrdersType = "EARLY_RETURN_OF_DEPENDENTS"
 

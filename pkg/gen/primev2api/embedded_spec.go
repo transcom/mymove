@@ -2054,8 +2054,8 @@ func init() {
         "RETIREMENT": "Retirement",
         "SAFETY": "Safety",
         "SEPARATION": "Separation",
-        "TEMPORARY_DUTY": "Temporary Duty (TDY)",
         "STUDENT_TRAVEL": "Student Travel",
+        "TEMPORARY_DUTY": "Temporary Duty (TDY)",
         "WOUNDED_WARRIOR": "Wounded Warrior"
       }
     },
@@ -5570,8 +5570,8 @@ func init() {
         "RETIREMENT": "Retirement",
         "SAFETY": "Safety",
         "SEPARATION": "Separation",
-        "TEMPORARY_DUTY": "Temporary Duty (TDY)",
         "STUDENT_TRAVEL": "Student Travel",
+        "TEMPORARY_DUTY": "Temporary Duty (TDY)",
         "WOUNDED_WARRIOR": "Wounded Warrior"
       }
     },
