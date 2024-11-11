@@ -127,11 +127,19 @@ func BuildDutyLocationWithoutTransportationOffice(db *pop.Connection, customs []
 // FetchOrBuildOtherDutyLocation returns a duty location other
 // than the default. It always fetches or builds a Bessemer, AL Duty Location
 func FetchOrBuildOtherDutyLocation(db *pop.Connection) models.DutyLocation {
+	bessemerAddress := models.Address{
+		StreetAddress1: "123 Main St",
+		City:           "Bessemer",
+		State:          "AL",
+		PostalCode:     "35023",
+	}
+
 	if db == nil {
 		return BuildDutyLocation(nil, []Customization{
 			{
 				Model: models.DutyLocation{
-					Name: "Bessemer, AL 35023",
+					Name:    "Bessemer, AL 35023",
+					Address: bessemerAddress,
 				},
 			},
 		}, nil)
@@ -142,7 +150,8 @@ func FetchOrBuildOtherDutyLocation(db *pop.Connection) models.DutyLocation {
 		return BuildDutyLocation(db, []Customization{
 			{
 				Model: models.DutyLocation{
-					Name: "Bessemer, AL 35023",
+					Name:    "Bessemer, AL 35023",
+					Address: bessemerAddress,
 				},
 			},
 		}, nil)
