@@ -885,5 +885,5 @@ export async function deleteAssignedOfficeUserForMove({ moveID, roleType }) {
 }
 
 export async function getAllReServiceItems() {
-  return makeGHCRequest('reServiceItems.getAllReServiceItems');
+  return makeGHCRequestRaw('reServiceItems.getAllReServiceItems', {}, { normalize: false });
 }
