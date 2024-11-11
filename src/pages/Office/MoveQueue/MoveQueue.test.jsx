@@ -30,7 +30,7 @@ const moveData = [
       agency: 'AIR_FORCE',
       first_name: 'test first',
       last_name: 'test last',
-      dodID: '555555555',
+      edipi: '555555555',
     },
     locator: 'AB5P',
     departmentIndicator: 'ARMY',
@@ -68,7 +68,7 @@ const moveData = [
       agency: 'COAST_GUARD',
       first_name: 'test another first',
       last_name: 'test another last',
-      dodID: '4444444444',
+      edipi: '4444444444',
       emplid: '4589652',
     },
     locator: 'T12A',
@@ -105,7 +105,7 @@ const moveData = [
       agency: 'Marine Corps',
       first_name: 'will',
       last_name: 'robinson',
-      dodID: '6666666666',
+      edipi: '6666666666',
     },
     locator: 'PREP',
     departmentIndicator: 'MARINES',
@@ -193,8 +193,8 @@ describe('MoveQueue', () => {
     expect(currentMove.find({ 'data-testid': `customerName-${currentIndex}` }).text()).toBe(
       `${moveData[currentIndex].customer.last_name}, ${moveData[currentIndex].customer.first_name}`,
     );
-    expect(currentMove.find({ 'data-testid': `dodID-${currentIndex}` }).text()).toBe(
-      moveData[currentIndex].customer.dodID,
+    expect(currentMove.find({ 'data-testid': `edipi-${currentIndex}` }).text()).toBe(
+      moveData[currentIndex].customer.edipi,
     );
     expect(currentMove.find({ 'data-testid': `status-${currentIndex}` }).text()).toBe('New move');
     expect(currentMove.find({ 'data-testid': `locator-${currentIndex}` }).text()).toBe(moveData[currentIndex].locator);
@@ -221,8 +221,8 @@ describe('MoveQueue', () => {
     expect(currentMove.find({ 'data-testid': `customerName-${currentIndex}` }).text()).toBe(
       `${moveData[currentIndex].customer.last_name}, ${moveData[currentIndex].customer.first_name}`,
     );
-    expect(currentMove.find({ 'data-testid': `dodID-${currentIndex}` }).text()).toBe(
-      moveData[currentIndex].customer.dodID,
+    expect(currentMove.find({ 'data-testid': `edipi-${currentIndex}` }).text()).toBe(
+      moveData[currentIndex].customer.edipi,
     );
     expect(currentMove.find({ 'data-testid': `emplid-${currentIndex}` }).text()).toBe(
       moveData[currentIndex].customer.emplid,
@@ -249,8 +249,8 @@ describe('MoveQueue', () => {
     expect(currentMove.find({ 'data-testid': `customerName-${currentIndex}` }).text()).toBe(
       `${moveData[currentIndex].customer.last_name}, ${moveData[currentIndex].customer.first_name}`,
     );
-    expect(currentMove.find({ 'data-testid': `dodID-${currentIndex}` }).text()).toBe(
-      moveData[currentIndex].customer.dodID,
+    expect(currentMove.find({ 'data-testid': `edipi-${currentIndex}` }).text()).toBe(
+      moveData[currentIndex].customer.edipi,
     );
     expect(currentMove.find({ 'data-testid': `status-${currentIndex}` }).text()).toBe('New move');
     expect(currentMove.find({ 'data-testid': `locator-${currentIndex}` }).text()).toBe(moveData[currentIndex].locator);
