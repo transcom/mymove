@@ -10,7 +10,7 @@ import { EditButton, ReviewButton } from 'components/form/IconButtons';
 import ShipmentInfoListSelector from 'components/Office/DefinitionLists/ShipmentInfoListSelector';
 import ShipmentContainer from 'components/Office/ShipmentContainer/ShipmentContainer';
 import styles from 'components/Office/ShipmentDisplay/ShipmentDisplay.module.scss';
-import { SHIPMENT_OPTIONS } from 'shared/constants';
+import { SHIPMENT_OPTIONS, SHIPMENT_TYPES } from 'shared/constants';
 import { AddressShape } from 'types/address';
 import { AgentShape } from 'types/agent';
 import { OrdersLOAShape } from 'types/order';
@@ -90,7 +90,10 @@ const ShipmentDisplay = ({
           <div className={styles.headerContainer}>
             <div className={styles.shipmentTypeHeader}>
               <h3>
-                <label id={`shipment-display-label-${shipmentId}`}>{displayInfo.heading}</label>
+                <label id={`shipment-display-label-${shipmentId}`}>
+                  <span className={styles.marketCodeIndicator}>{displayInfo.marketCode}</span>
+                  {displayInfo.heading}
+                </label>
               </h3>
               <div>
                 {displayInfo.isActualExpenseReimbursement && <Tag>actual expense reimbursement</Tag>}
@@ -182,6 +185,9 @@ ShipmentDisplay.propTypes = {
     SHIPMENT_OPTIONS.NTS,
     SHIPMENT_OPTIONS.NTSR,
     SHIPMENT_OPTIONS.PPM,
+    SHIPMENT_TYPES.BOAT_HAUL_AWAY,
+    SHIPMENT_TYPES.BOAT_TOW_AWAY,
+    SHIPMENT_OPTIONS.MOBILE_HOME,
   ]),
   displayInfo: PropTypes.oneOfType([
     PropTypes.shape({

@@ -71,6 +71,14 @@ export class WaitForOfficePage extends WaitForPage {
   /**
    * @returns {Promise<void>}
    */
+  async editMobileHomeShipment() {
+    await base.expect(this.page.getByRole('heading', { level: 1 })).toHaveText('Edit shipment details');
+    await base.expect(this.page.getByTestId('tag')).toHaveText('Mobile Home');
+  }
+
+  /**
+   * @returns {Promise<void>}
+   */
   async moveDetails() {
     await base.expect(this.page.getByRole('heading', { level: 1 })).toHaveText('Move details');
   }
