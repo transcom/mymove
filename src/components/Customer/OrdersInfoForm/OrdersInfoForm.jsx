@@ -6,7 +6,7 @@ import { Radio, FormGroup, Label, Link as USWDSLink } from '@trussworks/react-us
 
 import styles from './OrdersInfoForm.module.scss';
 
-import { ORDERS_PAY_GRADE_OPTIONS } from 'constants/orders';
+import { ORDERS_PAY_GRADE_OPTIONS, ORDERS_TYPE } from 'constants/orders';
 import { DropdownInput, DatePickerInput, DutyLocationInput } from 'components/form/fields';
 import Hint from 'components/Hint/index';
 import { Form } from 'components/form/Form';
@@ -25,6 +25,8 @@ const OrdersInfoForm = ({ ordersTypeOptions, initialValues, onSubmit, onBack }) 
   const payGradeOptions = dropdownInputOptions(ORDERS_PAY_GRADE_OPTIONS);
   const [dutyLocation, setDutyLocation] = useState('');
   const [counselingOfficeOptions, setCounselingOfficeOptions] = useState(null);
+  const [isHasDependentsDisabled, setHasDependentsDisabled] = useState(false);
+  const [prevOrderType, setPrevOrderType] = useState('');
   const validationSchema = Yup.object().shape({
     orders_type: Yup.mixed()
       .oneOf(ordersTypeOptions.map((i) => i.key))
@@ -57,7 +59,7 @@ const OrdersInfoForm = ({ ordersTypeOptions, initialValues, onSubmit, onBack }) 
 
   return (
     <Formik initialValues={initialValues} validateOnMount validationSchema={validationSchema} onSubmit={onSubmit}>
-      {({ isValid, isSubmitting, handleSubmit, values, touched }) => {
+      {({ isValid, isSubmitting, handleSubmit, handleChange, values, touched, setFieldValue }) => {
         const isRetirementOrSeparation = ['RETIREMENT', 'SEPARATION'].includes(values.orders_type);
 
         if (!values.origin_duty_location && touched.origin_duty_location) originMeta = 'Required';
@@ -65,6 +67,23 @@ const OrdersInfoForm = ({ ordersTypeOptions, initialValues, onSubmit, onBack }) 
 
         if (!values.new_duty_location && touched.new_duty_location) newDutyMeta = 'Required';
         else newDutyMeta = null;
+
+        const handleOrderTypeChange = (e) => {
+          const { value } = e.target;
+          if (value === ORDERS_TYPE.STUDENT_TRAVEL || value === ORDERS_TYPE.EARLY_RETURN_OF_DEPENDENTS) {
+            setHasDependentsDisabled(true);
+            setFieldValue('has_dependents', 'yes');
+          } else {
+            setHasDependentsDisabled(false);
+            if (
+              prevOrderType === ORDERS_TYPE.STUDENT_TRAVEL ||
+              prevOrderType === ORDERS_TYPE.EARLY_RETURN_OF_DEPENDENTS
+            ) {
+              setFieldValue('has_dependents', '');
+            }
+          }
+          setPrevOrderType(value);
+        };
 
         return (
           <Form className={`${formStyles.form} ${styles.OrdersInfoForm}`}>
@@ -77,6 +96,10 @@ const OrdersInfoForm = ({ ordersTypeOptions, initialValues, onSubmit, onBack }) 
                 options={ordersTypeOptions}
                 required
                 hint="Required"
+                onChange={(e) => {
+                  handleChange(e);
+                  handleOrderTypeChange(e);
+                }}
               />
               <DatePickerInput
                 name="issue_date"
@@ -109,6 +132,7 @@ const OrdersInfoForm = ({ ordersTypeOptions, initialValues, onSubmit, onBack }) 
                     value="yes"
                     title="Yes, dependents are included in my orders"
                     type="radio"
+                    disabled={isHasDependentsDisabled}
                   />
                   <Field
                     as={Radio}
@@ -118,6 +142,7 @@ const OrdersInfoForm = ({ ordersTypeOptions, initialValues, onSubmit, onBack }) 
                     value="no"
                     title="No, dependents are not included in my orders"
                     type="radio"
+                    disabled={isHasDependentsDisabled}
                   />
                 </div>
               </FormGroup>
