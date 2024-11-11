@@ -59,7 +59,7 @@ func FetchOrBuildUBAllowance(db *pop.Connection, customs []Customization, traits
 	customs = setupCustomizations(customs, traits)
 
 	var cUBAllowance models.UBAllowances
-	if result := findValidCustomization(customs, Country); result != nil {
+	if result := findValidCustomization(customs, UBAllowance); result != nil {
 		cUBAllowance = result.Model.(models.UBAllowances)
 		if result.LinkOnly {
 			return cUBAllowance
