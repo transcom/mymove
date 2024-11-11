@@ -2486,7 +2486,7 @@ func SearchMoves(appCtx appcontext.AppContext, moves models.Moves) *ghcmessages.
 		searchMoves[i] = &ghcmessages.SearchMove{
 			FirstName:                         customer.FirstName,
 			LastName:                          customer.LastName,
-			DodID:                             customer.Edipi,
+			Edipi:                             customer.Edipi,
 			Emplid:                            customer.Emplid,
 			Branch:                            customer.Affiliation.String(),
 			Status:                            ghcmessages.MoveStatus(move.Status),
@@ -2549,7 +2549,7 @@ func SearchCustomers(customers models.ServiceMemberSearchResults) *ghcmessages.S
 		searchCustomers[i] = &ghcmessages.SearchCustomer{
 			FirstName:     customer.FirstName,
 			LastName:      customer.LastName,
-			DodID:         customer.Edipi,
+			Edipi:         customer.Edipi,
 			Emplid:        customer.Emplid,
 			Branch:        customer.Affiliation.String(),
 			ID:            *handlers.FmtUUID(customer.ID),
