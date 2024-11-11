@@ -1115,6 +1115,48 @@ func init() {
         }
       }
     },
+    "/offices/{officeId}": {
+      "get": {
+        "description": "This endpoint returns a list of Transportation Offices. Do not use this endpoint\ndirectly as it is meant to be used with the Admin UI exclusively.\n",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "Transportation offices"
+        ],
+        "summary": "Get Transportation Office by ID",
+        "operationId": "getOfficeById",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "name": "officeId",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "success",
+            "schema": {
+              "$ref": "#/definitions/TransportationOffice"
+            }
+          },
+          "400": {
+            "description": "invalid request"
+          },
+          "401": {
+            "description": "request requires user authentication"
+          },
+          "404": {
+            "description": "Transportation Office not found"
+          },
+          "500": {
+            "description": "server error"
+          }
+        }
+      }
+    },
     "/organizations": {
       "get": {
         "description": "This endpoint returns a list of Organizations. Do not use this endpoint directly\nas it is meant to be used with the Admin UI exclusively.\n",
@@ -4713,6 +4755,48 @@ func init() {
                 "type": "string",
                 "description": "Used for pagination"
               }
+            }
+          },
+          "400": {
+            "description": "invalid request"
+          },
+          "401": {
+            "description": "request requires user authentication"
+          },
+          "404": {
+            "description": "Transportation Office not found"
+          },
+          "500": {
+            "description": "server error"
+          }
+        }
+      }
+    },
+    "/offices/{officeId}": {
+      "get": {
+        "description": "This endpoint returns a list of Transportation Offices. Do not use this endpoint\ndirectly as it is meant to be used with the Admin UI exclusively.\n",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "Transportation offices"
+        ],
+        "summary": "Get Transportation Office by ID",
+        "operationId": "getOfficeById",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "name": "officeId",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "success",
+            "schema": {
+              "$ref": "#/definitions/TransportationOffice"
             }
           },
           "400": {
