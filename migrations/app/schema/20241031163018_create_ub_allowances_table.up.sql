@@ -1,12 +1,12 @@
 -- Create table to static UB allowances, used for calculating entitlements.ub_allowance for orders
 CREATE TABLE IF NOT EXISTS ub_allowances (
-    id uuid not null,
-    branch text,
-    grade text,
-    orders_type text,
-    dependents_authorized boolean,
-    accompanied_tour boolean,
-    ub_weight_allowance integer
+    id uuid NOT NULL,
+    branch TEXT CHECK (branch in ('AIR_FORCE', 'ARMY', 'COAST_GUARD', 'MARINES', 'NAVY')),
+    grade TEXT CHECK (grade in ('E_1', 'E_2', 'E_3', 'E_4', 'E_5', 'E_6', 'E_7', 'E_8', 'E_9', 'O_1_ACADEMY_GRADUATE', 'O_2', 'O_3', 'O_4', 'O_5', 'O_6', 'O_7', 'O_8', 'O_9', 'O_10', 'W_1', 'W_2', 'W_3', 'W_4', 'W_5')),
+    orders_type TEXT CHECK (orders_type IN ('PERMANENT_CHANGE_OF_STATION', 'TEMPORARY_DUTY')),
+    dependents_authorized BOOLEAN,
+    accompanied_tour BOOLEAN,
+    ub_weight_allowance INTEGER CHECK (ub_weight_allowance >= 0 AND ub_weight_allowance <= 2000)
 );
 
 COMMENT ON TABLE ub_allowances IS 'Base UB allowance values used to lookup and calculate entitlements.ub_allowance for orders';

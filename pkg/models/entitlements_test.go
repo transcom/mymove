@@ -122,17 +122,18 @@ func (suite *ModelSuite) TestGetUBWeightAllowanceEdgeCases() {
 	isAccompaniedTour := true
 	dependentsUnderTwelve := 0
 	dependentsTwelveAndOver := 0
+	ubAllowance := 2000
 
-	factory.BuildUBAllowance(suite.DB(), []factory.Customization{
+	factory.FetchOrBuildUBAllowance(suite.DB(), []factory.Customization{
 		{
 			Model: models.UBAllowances{
 				ID:              uuid.Must(uuid.NewV4()),
-				BranchOfService: branch.String(),
-				OrderPayGrade:   string(grade),
-				OrdersType:      string(orderType),
-				HasDependents:   dependentsAuthorized,
-				AccompaniedTour: isAccompaniedTour,
-				UBAllowance:     2000,
+				BranchOfService: (*string)(&branch),
+				OrderPayGrade:   (*string)(&grade),
+				OrdersType:      (*string)(&orderType),
+				HasDependents:   &dependentsAuthorized,
+				AccompaniedTour: &isAccompaniedTour,
+				UBAllowance:     &ubAllowance,
 			},
 		},
 	}, nil)
@@ -143,16 +144,16 @@ func (suite *ModelSuite) TestGetUBWeightAllowanceEdgeCases() {
 
 	})
 
-	factory.BuildUBAllowance(suite.DB(), []factory.Customization{
+	factory.FetchOrBuildUBAllowance(suite.DB(), []factory.Customization{
 		{
 			Model: models.UBAllowances{
 				ID:              uuid.Must(uuid.NewV4()),
-				BranchOfService: branch.String(),
-				OrderPayGrade:   string(grade),
-				OrdersType:      string(orderType),
-				HasDependents:   dependentsAuthorized,
-				AccompaniedTour: isAccompaniedTour,
-				UBAllowance:     2000,
+				BranchOfService: (*string)(&branch),
+				OrderPayGrade:   (*string)(&grade),
+				OrdersType:      (*string)(&orderType),
+				HasDependents:   &dependentsAuthorized,
+				AccompaniedTour: &isAccompaniedTour,
+				UBAllowance:     &ubAllowance,
 			},
 		},
 	}, nil)
@@ -165,16 +166,16 @@ func (suite *ModelSuite) TestGetUBWeightAllowanceEdgeCases() {
 
 	branch = models.AffiliationNAVY
 	grade = models.ServiceMemberGradeE9
-	factory.BuildUBAllowance(suite.DB(), []factory.Customization{
+	factory.FetchOrBuildUBAllowance(suite.DB(), []factory.Customization{
 		{
 			Model: models.UBAllowances{
 				ID:              uuid.Must(uuid.NewV4()),
-				BranchOfService: branch.String(),
-				OrderPayGrade:   string(grade),
-				OrdersType:      string(orderType),
-				HasDependents:   dependentsAuthorized,
-				AccompaniedTour: isAccompaniedTour,
-				UBAllowance:     2000,
+				BranchOfService: (*string)(&branch),
+				OrderPayGrade:   (*string)(&grade),
+				OrdersType:      (*string)(&orderType),
+				HasDependents:   &dependentsAuthorized,
+				AccompaniedTour: &isAccompaniedTour,
+				UBAllowance:     &ubAllowance,
 			},
 		},
 	}, nil)
@@ -184,16 +185,16 @@ func (suite *ModelSuite) TestGetUBWeightAllowanceEdgeCases() {
 		suite.Assertions.Equal(2000, ubAllowance)
 	})
 
-	factory.BuildUBAllowance(suite.DB(), []factory.Customization{
+	factory.FetchOrBuildUBAllowance(suite.DB(), []factory.Customization{
 		{
 			Model: models.UBAllowances{
 				ID:              uuid.Must(uuid.NewV4()),
-				BranchOfService: branch.String(),
-				OrderPayGrade:   string(grade),
-				OrdersType:      string(internalmessages.OrdersTypePERMANENTCHANGEOFSTATION),
-				HasDependents:   dependentsAuthorized,
-				AccompaniedTour: isAccompaniedTour,
-				UBAllowance:     2000,
+				BranchOfService: (*string)(&branch),
+				OrderPayGrade:   (*string)(&grade),
+				OrdersType:      (*string)(&orderType),
+				HasDependents:   &dependentsAuthorized,
+				AccompaniedTour: &isAccompaniedTour,
+				UBAllowance:     &ubAllowance,
 			},
 		},
 	}, nil)
@@ -216,17 +217,18 @@ func (suite *ModelSuite) TestGetUBWeightAllowanceWithValidValues() {
 	isAccompaniedTour := true
 	dependentsUnderTwelve := 2
 	dependentsTwelveAndOver := 4
+	ubAllowance := 2000
 
 	factory.BuildUBAllowance(suite.DB(), []factory.Customization{
 		{
 			Model: models.UBAllowances{
 				ID:              uuid.Must(uuid.NewV4()),
-				BranchOfService: branch.String(),
-				OrderPayGrade:   string(grade),
-				OrdersType:      string(orderType),
-				HasDependents:   dependentsAuthorized,
-				AccompaniedTour: isAccompaniedTour,
-				UBAllowance:     2000,
+				BranchOfService: (*string)(&branch),
+				OrderPayGrade:   (*string)(&grade),
+				OrdersType:      (*string)(&orderType),
+				HasDependents:   &dependentsAuthorized,
+				AccompaniedTour: &isAccompaniedTour,
+				UBAllowance:     &ubAllowance,
 			},
 		},
 	}, nil)
@@ -261,12 +263,12 @@ func (suite *ModelSuite) TestGetUBWeightAllowanceWithValidValues() {
 		{
 			Model: models.UBAllowances{
 				ID:              uuid.Must(uuid.NewV4()),
-				BranchOfService: branch.String(),
-				OrderPayGrade:   string(grade),
-				OrdersType:      string(orderType),
-				HasDependents:   dependentsAuthorized,
-				AccompaniedTour: isAccompaniedTour,
-				UBAllowance:     2000,
+				BranchOfService: (*string)(&branch),
+				OrderPayGrade:   (*string)(&grade),
+				OrdersType:      (*string)(&orderType),
+				HasDependents:   &dependentsAuthorized,
+				AccompaniedTour: &isAccompaniedTour,
+				UBAllowance:     &ubAllowance,
 			},
 		},
 	}, nil)
@@ -277,16 +279,17 @@ func (suite *ModelSuite) TestGetUBWeightAllowanceWithValidValues() {
 	})
 
 	orderType = internalmessages.OrdersTypeTEMPORARYDUTY
+	ubAllowance = 400
 	factory.BuildUBAllowance(suite.DB(), []factory.Customization{
 		{
 			Model: models.UBAllowances{
 				ID:              uuid.Must(uuid.NewV4()),
-				BranchOfService: branch.String(),
-				OrderPayGrade:   string(grade),
-				OrdersType:      string(orderType),
-				HasDependents:   dependentsAuthorized,
-				AccompaniedTour: isAccompaniedTour,
-				UBAllowance:     400,
+				BranchOfService: (*string)(&branch),
+				OrderPayGrade:   (*string)(&grade),
+				OrdersType:      (*string)(&orderType),
+				HasDependents:   &dependentsAuthorized,
+				AccompaniedTour: &isAccompaniedTour,
+				UBAllowance:     &ubAllowance,
 			},
 		},
 	}, nil)
@@ -296,23 +299,26 @@ func (suite *ModelSuite) TestGetUBWeightAllowanceWithValidValues() {
 		suite.Assertions.Equal(400, ubAllowance)
 	})
 
+	airForceBranch := models.AffiliationAIRFORCE.String()
 	grade = models.ServiceMemberGradeW2
-	orderType = internalmessages.OrdersTypeRETIREMENT
+	retirementOrderType := internalmessages.OrdersTypeRETIREMENT
+	orderType = internalmessages.OrdersTypePERMANENTCHANGEOFSTATION
+	ubAllowance = 600
 	factory.BuildUBAllowance(suite.DB(), []factory.Customization{
 		{
 			Model: models.UBAllowances{
 				ID:              uuid.Must(uuid.NewV4()),
-				BranchOfService: models.AffiliationAIRFORCE.String(),
-				OrderPayGrade:   string(grade),
-				OrdersType:      string(internalmessages.OrdersTypePERMANENTCHANGEOFSTATION),
-				HasDependents:   dependentsAuthorized,
-				AccompaniedTour: isAccompaniedTour,
-				UBAllowance:     600,
+				BranchOfService: &airForceBranch,
+				OrderPayGrade:   (*string)(&grade),
+				OrdersType:      (*string)(&orderType),
+				HasDependents:   &dependentsAuthorized,
+				AccompaniedTour: &isAccompaniedTour,
+				UBAllowance:     &ubAllowance,
 			},
 		},
 	}, nil)
 	suite.Run("Orders type of Retirement returns same entitlement value as the PCS orders type in the database", func() {
-		ubAllowance, err := models.GetUBWeightAllowance(appCtx, &originDutyLocationIsOconus, &newDutyLocationIsOconus, &branch, &grade, &orderType, &dependentsAuthorized, &isAccompaniedTour, &dependentsUnderTwelve, &dependentsTwelveAndOver)
+		ubAllowance, err := models.GetUBWeightAllowance(appCtx, &originDutyLocationIsOconus, &newDutyLocationIsOconus, &branch, &grade, &retirementOrderType, &dependentsAuthorized, &isAccompaniedTour, &dependentsUnderTwelve, &dependentsTwelveAndOver)
 		suite.NoError(err)
 		suite.Assertions.Equal(600, ubAllowance)
 	})
@@ -322,12 +328,12 @@ func (suite *ModelSuite) TestGetUBWeightAllowanceWithValidValues() {
 		{
 			Model: models.UBAllowances{
 				ID:              uuid.Must(uuid.NewV4()),
-				BranchOfService: models.AffiliationAIRFORCE.String(),
-				OrderPayGrade:   string(grade),
-				OrdersType:      string(orderType),
-				HasDependents:   dependentsAuthorized,
-				AccompaniedTour: isAccompaniedTour,
-				UBAllowance:     600,
+				BranchOfService: &airForceBranch,
+				OrderPayGrade:   (*string)(&grade),
+				OrdersType:      (*string)(&orderType),
+				HasDependents:   &dependentsAuthorized,
+				AccompaniedTour: &isAccompaniedTour,
+				UBAllowance:     &ubAllowance,
 			},
 		},
 	}, nil)
