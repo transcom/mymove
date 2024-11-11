@@ -139,6 +139,7 @@ ShipmentInfoListSelector.propTypes = {
     SHIPMENT_OPTIONS.PPM,
     SHIPMENT_TYPES.BOAT_HAUL_AWAY,
     SHIPMENT_TYPES.BOAT_TOW_AWAY,
+    SHIPMENT_OPTIONS.MOBILE_HOME,
   ]),
   isForEvaluationReport: PropTypes.bool,
   destinationDutyLocationPostalCode: PropTypes.string,
