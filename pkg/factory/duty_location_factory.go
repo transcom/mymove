@@ -133,14 +133,15 @@ func FetchOrBuildOtherDutyLocation(db *pop.Connection) models.DutyLocation {
 		State:          "AL",
 		PostalCode:     "35023",
 	}
+	dutyLoc := models.DutyLocation{
+		Name:    "Bessemer, AL 35023",
+		Address: bessemerAddress,
+	}
 
 	if db == nil {
 		return BuildDutyLocation(nil, []Customization{
 			{
-				Model: models.DutyLocation{
-					Name:    "Bessemer, AL 35023",
-					Address: bessemerAddress,
-				},
+				Model: dutyLoc,
 			},
 		}, nil)
 	}
@@ -149,10 +150,7 @@ func FetchOrBuildOtherDutyLocation(db *pop.Connection) models.DutyLocation {
 	if err != nil {
 		return BuildDutyLocation(db, []Customization{
 			{
-				Model: models.DutyLocation{
-					Name:    "Bessemer, AL 35023",
-					Address: bessemerAddress,
-				},
+				Model: dutyLoc,
 			},
 		}, nil)
 	}
