@@ -541,7 +541,7 @@ func (suite *AuthSuite) TestIsLoggedInWhenNoUserLoggedIn() {
 	suite.Equal(http.StatusOK, rr.Code, "handler returned the wrong status code")
 
 	// expects to return that no one is logged in
-	expected := "{\"isLoggedIn\":false}\n"
+	expected := "{\"isLoggedIn\":false,\"underMaintenance\":false}\n"
 	suite.Equal(expected, rr.Body.String(), "handler returned wrong body")
 }
 
@@ -588,7 +588,7 @@ func (suite *AuthSuite) TestIsLoggedInWhenUserLoggedIn() {
 	suite.Equal(http.StatusOK, rr.Code, "handler returned the wrong status code")
 
 	// expects to return that no one is logged in
-	expected := "{\"isLoggedIn\":true}\n"
+	expected := "{\"isLoggedIn\":true,\"underMaintenance\":false}\n"
 	suite.Equal(expected, rr.Body.String(), "handler returned wrong body")
 }
 
