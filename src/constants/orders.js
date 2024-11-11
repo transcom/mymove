@@ -3,6 +3,7 @@ export const ORDERS_TYPE = {
   LOCAL_MOVE: 'LOCAL_MOVE',
   RETIREMENT: 'RETIREMENT',
   SEPARATION: 'SEPARATION',
+  TEMPORARY_DUTY: 'TEMPORARY_DUTY',
 };
 
 export const SPECIAL_ORDERS_TYPES = {
@@ -22,6 +23,7 @@ export const ORDERS_TYPE_OPTIONS = {
   SEPARATION: 'Separation',
   WOUNDED_WARRIOR: 'Wounded Warrior',
   BLUEBARK: 'BLUEBARK',
+  TEMPORARY_DUTY: 'Temporary Duty (TDY)',
 };
 
 export const ORDERS_TYPE_DETAILS = {
