@@ -20,7 +20,7 @@ type GetPaymentRequestsQueueURL struct {
 	Branch                  *string
 	CustomerName            *string
 	DestinationDutyLocation *string
-	DodID                   *string
+	Edipi                   *string
 	Emplid                  *string
 	Locator                 *string
 	Order                   *string
@@ -99,12 +99,12 @@ func (o *GetPaymentRequestsQueueURL) Build() (*url.URL, error) {
 		qs.Set("destinationDutyLocation", destinationDutyLocationQ)
 	}
 
-	var dodIDQ string
-	if o.DodID != nil {
-		dodIDQ = *o.DodID
+	var edipiQ string
+	if o.Edipi != nil {
+		edipiQ = *o.Edipi
 	}
-	if dodIDQ != "" {
-		qs.Set("dodID", dodIDQ)
+	if edipiQ != "" {
+		qs.Set("edipi", edipiQ)
 	}
 
 	var emplidQ string
