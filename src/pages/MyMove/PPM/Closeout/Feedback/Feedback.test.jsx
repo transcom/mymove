@@ -7,7 +7,7 @@ import configureStore from 'redux-mock-store';
 import * as reactRedux from 'react-redux';
 import * as reactRouterDom from 'react-router-dom';
 
-import Feedback from './Feedback';
+import Feedback, { GetTripWeight, FormatRow } from './Feedback';
 
 import * as formatters from 'utils/formatters';
 import { MockProviders } from 'testUtils';
@@ -152,6 +152,17 @@ describe('Feedback page', () => {
     expect(screen.getByText('Expenses')).toBeInTheDocument();
     expect(screen.getByText('- $50.00')).toBeInTheDocument();
   });
+  
+  it('returns correct trip weight', () => {
+    const doc = { fullWeight: 5844, emptyWeight: 1999 };
+    expect(GetTripWeight(doc)).toBe(3845);
+  });
+
+  it('formats row correctly', () => {
+    const row = { value: 1000, format: (val) => `$${val}` };
+    const formattedRow = FormatRow(row);
+    expect(formattedRow.value).toBe('$1000');
+  });      
 });
 
 describe('Additional code coverage tests', () => {
@@ -248,5 +259,4 @@ describe('Additional code coverage tests', () => {
 
   afterAll(() => {
     jest.restoreAllMocks();
-  });
 });

@@ -2951,6 +2951,7 @@ definitions:
       - WOUNDED_WARRIOR
       - BLUEBARK
       - SAFETY
+      - TEMPORARY_DUTY
       - EARLY_RETURN_OF_DEPENDENTS
       - STUDENT_TRAVEL
     x-display-value:
@@ -2961,6 +2962,7 @@ definitions:
       WOUNDED_WARRIOR: Wounded Warrior
       BLUEBARK: BLUEBARK
       SAFETY: Safety
+      TEMPORARY_DUTY: Temporary Duty (TDY)
       EARLY_RETURN_OF_DEPENDENTS: Early Return of Dependents
       STUDENT_TRAVEL: Student Travel
   Order:

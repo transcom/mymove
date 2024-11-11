@@ -1002,6 +1002,7 @@
 20240927145659_update_mobile_home_factor.up.sql
 20240930171315_updatePostalCodeToGbloc233BGNC.up.sql
 20240930224757_add_transportation_office_assignments.up.sql
+20241001122750_fix-tget-data.up.sql
 20241001144741_update_boat_factor.up.sql
 20241001174400_add_is_oconus_column.up.sql
 20241001193619_market-code-enum.up.sql
@@ -1022,4 +1023,7 @@
 20241008212243_populate_market_code_on_shipments_table.up.sql
 20241009210749_create_view_v_locations.up.sql
 20241011201326_changes_for_actual_expense_reimbursement_field.up.sql
+20241017183144_add_AK_HI_duty_locations.up.sql
 20241024114748_create_gbloc_aors.up.sql
+20241029125015_add_orders_type_enum.up.sql
+20241029144404_hdt-614-adjust-accomack-county.up.sql

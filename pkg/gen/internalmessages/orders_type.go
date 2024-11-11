@@ -51,6 +51,9 @@ const (
 	// OrdersTypeSAFETY captures enum value "SAFETY"
 	OrdersTypeSAFETY OrdersType = "SAFETY"
 
+	// OrdersTypeTEMPORARYDUTY captures enum value "TEMPORARY_DUTY"
+	OrdersTypeTEMPORARYDUTY OrdersType = "TEMPORARY_DUTY"
+  
 	// OrdersTypeEARLYRETURNOFDEPENDENTS captures enum value "EARLY_RETURN_OF_DEPENDENTS"
 	OrdersTypeEARLYRETURNOFDEPENDENTS OrdersType = "EARLY_RETURN_OF_DEPENDENTS"
 
@@ -63,7 +66,7 @@ var ordersTypeEnum []interface{}
 
 func init() {
 	var res []OrdersType
-	if err := json.Unmarshal([]byte(`["PERMANENT_CHANGE_OF_STATION","LOCAL_MOVE","RETIREMENT","SEPARATION","WOUNDED_WARRIOR","BLUEBARK","SAFETY","EARLY_RETURN_OF_DEPENDENTS","STUDENT_TRAVEL"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["PERMANENT_CHANGE_OF_STATION","LOCAL_MOVE","RETIREMENT","SEPARATION","WOUNDED_WARRIOR","BLUEBARK","SAFETY","TEMPORARY_DUTY","EARLY_RETURN_OF_DEPENDENTS","STUDENT_TRAVEL"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {

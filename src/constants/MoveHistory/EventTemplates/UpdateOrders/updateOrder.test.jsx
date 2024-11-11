@@ -2,6 +2,7 @@ import { render, screen } from '@testing-library/react';
 
 import getTemplate from 'constants/MoveHistory/TemplateManager';
 import e from 'constants/MoveHistory/EventTemplates/UpdateOrders/updateOrder';
+import { ORDERS_TYPE } from 'constants/orders';
 
 describe('when given an Order update history record', () => {
   const historyRecord = {
@@ -14,7 +15,7 @@ describe('when given an Order update history record', () => {
         status: 'SUBMITTED',
         report_by_date: '2022-10-12',
         issue_date: '2022-10-11',
-        orders_type: 'PERMANENT_CHANGE_OF_STATION',
+        orders_type: ORDERS_TYPE.PERMANENT_CHANGE_OF_STATION,
         origin_duty_location_id: 'ID2',
         new_duty_location_id: 'ID2',
         has_dependents: true,
@@ -36,7 +37,7 @@ describe('when given an Order update history record', () => {
         report_by_date: '2022-10-12',
       },
       oldValues: {
-        orders_type: 'SEPARATION',
+        orders_type: ORDERS_TYPE.SEPARATION,
       },
     },
     RETIREMENT: {
@@ -46,7 +47,7 @@ describe('when given an Order update history record', () => {
       eventNameDisplay: 'Updated orders',
       changedValues: {
         report_by_date: '2022-10-12',
-        orders_type: 'RETIREMENT',
+        orders_type: ORDERS_TYPE.RETIREMENT,
       },
     },
   };

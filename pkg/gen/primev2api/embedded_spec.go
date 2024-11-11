@@ -628,6 +628,9 @@ func init() {
         "agents": {
           "$ref": "#/definitions/MTOAgents"
         },
+        "boatShipment": {
+          "$ref": "#/definitions/CreateBoatShipment"
+        },
         "counselorRemarks": {
           "type": "string",
           "x-nullable": true,
@@ -656,6 +659,9 @@ func init() {
           "type": "string",
           "format": "uuid",
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "mobileHomeShipment": {
+          "$ref": "#/definitions/CreateMobileHomeShipment"
         },
         "moveTaskOrderID": {
           "description": "The ID of the move this new shipment is for.",
@@ -2036,6 +2042,7 @@ func init() {
         "WOUNDED_WARRIOR",
         "BLUEBARK",
         "SAFETY",
+        "TEMPORARY_DUTY",
         "EARLY_RETURN_OF_DEPENDENTS",
         "STUDENT_TRAVEL"
       ],
@@ -2047,6 +2054,7 @@ func init() {
         "RETIREMENT": "Retirement",
         "SAFETY": "Safety",
         "SEPARATION": "Separation",
+        "TEMPORARY_DUTY": "Temporary Duty (TDY)",
         "STUDENT_TRAVEL": "Student Travel",
         "WOUNDED_WARRIOR": "Wounded Warrior"
       }
@@ -4136,6 +4144,9 @@ func init() {
         "agents": {
           "$ref": "#/definitions/MTOAgents"
         },
+        "boatShipment": {
+          "$ref": "#/definitions/CreateBoatShipment"
+        },
         "counselorRemarks": {
           "type": "string",
           "x-nullable": true,
@@ -4164,6 +4175,9 @@ func init() {
           "type": "string",
           "format": "uuid",
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "mobileHomeShipment": {
+          "$ref": "#/definitions/CreateMobileHomeShipment"
         },
         "moveTaskOrderID": {
           "description": "The ID of the move this new shipment is for.",
@@ -5544,6 +5558,7 @@ func init() {
         "WOUNDED_WARRIOR",
         "BLUEBARK",
         "SAFETY",
+        "TEMPORARY_DUTY",
         "EARLY_RETURN_OF_DEPENDENTS",
         "STUDENT_TRAVEL"
       ],
@@ -5555,6 +5570,7 @@ func init() {
         "RETIREMENT": "Retirement",
         "SAFETY": "Safety",
         "SEPARATION": "Separation",
+        "TEMPORARY_DUTY": "Temporary Duty (TDY)",
         "STUDENT_TRAVEL": "Student Travel",
         "WOUNDED_WARRIOR": "Wounded Warrior"
       }

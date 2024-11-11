@@ -30,6 +30,7 @@ export const hhgInfo = {
   pickupAddress,
   destinationAddress,
   shipmentLocator: 'EVLRPT-01',
+  marketCode: 'd',
 };
 
 export const ntsInfo = {
@@ -127,7 +128,7 @@ export const diversionInfo = {
   counselorRemarks: 'counselor approved',
 };
 
-export const cancelledInfo = {
+export const canceledInfo = {
   heading: 'HHG',
   shipmentId: 'testShipmentId394',
   isDiversion: false,

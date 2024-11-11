@@ -54,6 +54,7 @@ describe('PrimeUIUpdateSitServiceItems page', () => {
             postalCode: '90210',
           },
           id: '45fe9475-d592-48f5-896a-45d4d6eb7e76',
+          status: 'REJECTED',
         },
       ],
     };
@@ -115,6 +116,7 @@ describe('PrimeUIUpdateSitServiceItems page', () => {
             postalCode: '90210',
           },
           id: '45fe9475-d592-48f5-896a-45d4d6eb7e76',
+          status: 'REJECTED',
         },
       ],
     };

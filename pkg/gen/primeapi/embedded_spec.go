@@ -2891,6 +2891,7 @@ func init() {
         "WOUNDED_WARRIOR",
         "BLUEBARK",
         "SAFETY",
+        "TEMPORARY_DUTY"
         "EARLY_RETURN_OF_DEPENDENTS",
         "STUDENT_TRAVEL"
       ],
@@ -2902,6 +2903,7 @@ func init() {
         "RETIREMENT": "Retirement",
         "SAFETY": "Safety",
         "SEPARATION": "Separation",
+        "TEMPORARY_DUTY": "Temporary Duty (TDY)",
         "STUDENT_TRAVEL": "Student Travel",
         "WOUNDED_WARRIOR": "Wounded Warrior"
       }
@@ -7638,6 +7640,7 @@ func init() {
         "WOUNDED_WARRIOR",
         "BLUEBARK",
         "SAFETY",
+        "TEMPORARY_DUTY",
         "EARLY_RETURN_OF_DEPENDENTS",
         "STUDENT_TRAVEL"
       ],
@@ -7649,6 +7652,7 @@ func init() {
         "RETIREMENT": "Retirement",
         "SAFETY": "Safety",
         "SEPARATION": "Separation",
+        "TEMPORARY_DUTY": "Temporary Duty (TDY)",
         "STUDENT_TRAVEL": "Student Travel",
         "WOUNDED_WARRIOR": "Wounded Warrior"
       }
