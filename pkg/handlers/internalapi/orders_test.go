@@ -650,11 +650,9 @@ func (suite *HandlerSuite) TestUpdateOrdersHandler() {
 		originalOriginGBLOC, gblocErr := models.FetchGBLOCForPostalCode(suite.DB(), move.Orders.OriginDutyLocation.Address.PostalCode)
 		suite.NoError(gblocErr)
 
-		suite.Equal("CNNQ", originalOriginGBLOC)
+		suite.Equal("CNNQ", originalOriginGBLOC.GBLOC)
 
 		updatedDutyLocation := factory.BuildDutyLocation(suite.DB(), nil, nil)
-		updatedTransportationOffice := factory.BuildTransportationOffice(suite.DB(), nil, nil)
-		updatedDutyLocation.TransportationOffice = updatedTransportationOffice
 
 		updatedOrdersType := internalmessages.OrdersTypePERMANENTCHANGEOFSTATION
 		updatedOrdersNumber := "123456"
@@ -705,7 +703,7 @@ func (suite *HandlerSuite) TestUpdateOrdersHandler() {
 		updatedOriginalOriginGBLOC, gblocErrUpdated := models.FetchGBLOCForPostalCode(suite.DB(), updatedOrder.OriginDutyLocation.Address.PostalCode)
 		suite.NoError(gblocErrUpdated)
 
-		suite.Equal("CNNQ", updatedOriginalOriginGBLOC)
+		suite.Equal("CNNQ", updatedOriginalOriginGBLOC.GBLOC)
 	})
 }
 
