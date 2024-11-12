@@ -177,7 +177,7 @@ test.describe('TOO user', () => {
     await page.locator('#requestedDeliveryDate').blur();
 
     // Update form (adding pickup and delivery address)
-    const pickupAddressGroup = await page.getByRole('group', { name: 'Pickup location' });
+    const pickupAddressGroup = await page.getByRole('group', { name: 'Pickup Address' });
     await pickupAddressGroup.getByText('Yes').click();
     await pickupAddressGroup.getByLabel('Address 1').nth(0).fill(pickupAddress.Address1);
     await pickupAddressGroup.getByLabel('Address 2').nth(0).clear();
