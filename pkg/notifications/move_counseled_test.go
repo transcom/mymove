@@ -6,6 +6,8 @@ import (
 
 	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/factory"
+	"github.com/transcom/mymove/pkg/gen/internalmessages"
+	"github.com/transcom/mymove/pkg/models"
 )
 
 func (suite *NotificationSuite) TestMoveCounseled() {
@@ -38,7 +40,7 @@ func (suite *NotificationSuite) TestMoveCounseledHTMLTemplateRender() {
 
 	s := MoveCounseledEmailData{
 		OriginDutyLocation:         &originDutyLocation,
-		DestinationDutyLocation:    "destDutyLocation",
+		DestinationLocation:        "destDutyLocation",
 		Locator:                    "abc123",
 		MyMoveLink:                 MyMoveLink,
 		ActualExpenseReimbursement: true,
@@ -90,7 +92,7 @@ func (suite *NotificationSuite) TestMoveCounseledTextTemplateRender() {
 
 	s := MoveCounseledEmailData{
 		OriginDutyLocation:         &originDutyLocation,
-		DestinationDutyLocation:    "destDutyLocation",
+		DestinationLocation:        "destDutyLocation",
 		Locator:                    "abc123",
 		MyMoveLink:                 MyMoveLink,
 		ActualExpenseReimbursement: false,
@@ -130,4 +132,70 @@ func trimExtraSpaces(input string) string {
 	re := regexp.MustCompile(`\s+`)
 	// return the result without leading or trailing spaces
 	return strings.TrimSpace(re.ReplaceAllString(input, " "))
+}
+
+func (suite *NotificationSuite) TestCounselorApprovedMoveForSeparatee() {
+	move := factory.BuildMoveWithShipment(suite.DB(), []factory.Customization{
+		{
+			Model: models.Order{
+				OrdersType: internalmessages.OrdersTypeSEPARATION,
+			},
+		},
+	}, nil)
+	notification := NewMoveCounseled(move.ID)
+
+	emails, err := notification.emails(suite.AppContextWithSessionForTest(&auth.Session{
+		ServiceMemberID: move.Orders.ServiceMember.ID,
+		ApplicationName: auth.MilApp,
+	}))
+	subject := "Your counselor has approved your move details"
+
+	suite.NoError(err)
+	suite.Equal(len(emails), 1)
+
+	email := emails[0]
+	sm := move.Orders.ServiceMember
+	suite.Equal(email.recipientEmail, *sm.PersonalEmail)
+	suite.Equal(email.subject, subject)
+	suite.NotEmpty(email.htmlBody)
+	suite.NotEmpty(email.textBody)
+	suite.Contains(email.textBody, move.MTOShipments[0].DestinationAddress.StreetAddress1)
+	suite.Contains(email.textBody, *move.MTOShipments[0].DestinationAddress.StreetAddress2)
+	suite.Contains(email.textBody, *move.MTOShipments[0].DestinationAddress.StreetAddress3)
+	suite.Contains(email.textBody, move.MTOShipments[0].DestinationAddress.City)
+	suite.Contains(email.textBody, move.MTOShipments[0].DestinationAddress.State)
+	suite.Contains(email.textBody, move.MTOShipments[0].DestinationAddress.PostalCode)
+}
+
+func (suite *NotificationSuite) TestCounselorApprovedMoveForRetiree() {
+	move := factory.BuildMoveWithShipment(suite.DB(), []factory.Customization{
+		{
+			Model: models.Order{
+				OrdersType: internalmessages.OrdersTypeRETIREMENT,
+			},
+		},
+	}, nil)
+	notification := NewMoveCounseled(move.ID)
+
+	emails, err := notification.emails(suite.AppContextWithSessionForTest(&auth.Session{
+		ServiceMemberID: move.Orders.ServiceMember.ID,
+		ApplicationName: auth.MilApp,
+	}))
+	subject := "Your counselor has approved your move details"
+
+	suite.NoError(err)
+	suite.Equal(len(emails), 1)
+
+	email := emails[0]
+	sm := move.Orders.ServiceMember
+	suite.Equal(email.recipientEmail, *sm.PersonalEmail)
+	suite.Equal(email.subject, subject)
+	suite.NotEmpty(email.htmlBody)
+	suite.NotEmpty(email.textBody)
+	suite.Contains(email.textBody, move.MTOShipments[0].DestinationAddress.StreetAddress1)
+	suite.Contains(email.textBody, *move.MTOShipments[0].DestinationAddress.StreetAddress2)
+	suite.Contains(email.textBody, *move.MTOShipments[0].DestinationAddress.StreetAddress3)
+	suite.Contains(email.textBody, move.MTOShipments[0].DestinationAddress.City)
+	suite.Contains(email.textBody, move.MTOShipments[0].DestinationAddress.State)
+	suite.Contains(email.textBody, move.MTOShipments[0].DestinationAddress.PostalCode)
 }
