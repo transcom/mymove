@@ -656,9 +656,9 @@ func (suite *HandlerSuite) TestUpdateOrdersHandler() {
 		originalOriginGBLOC, gblocErr := models.FetchGBLOCForPostalCode(suite.DB(), move.Orders.OriginDutyLocation.Address.PostalCode)
 		suite.NoError(gblocErr)
 
-		suite.Equal("CNNQ", originalOriginGBLOC.GBLOC)
+		suite.Equal("KKFA", originalOriginGBLOC.GBLOC)
 
-		updatedDutyLocation := factory.BuildDutyLocation(suite.DB(), nil, nil)
+		updatedDutyLocation := factory.FetchOrBuildOtherDutyLocation(suite.DB())
 
 		updatedOrdersType := internalmessages.OrdersTypePERMANENTCHANGEOFSTATION
 		updatedOrdersNumber := "123456"
