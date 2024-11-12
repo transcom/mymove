@@ -636,7 +636,18 @@ func (suite *HandlerSuite) TestUpdateOrdersHandler() {
 		dutyLocation := factory.FetchOrBuildOtherDutyLocation(suite.DB())
 		order := factory.BuildOrder(suite.DB(), []factory.Customization{
 			{
-				Model:    dutyLocation,
+				Model: models.DutyLocation{
+					ID:                         dutyLocation.ID,
+					CreatedAt:                  dutyLocation.CreatedAt,
+					UpdatedAt:                  dutyLocation.UpdatedAt,
+					Name:                       dutyLocation.Name,
+					AddressID:                  dutyLocation.AddressID,
+					Affiliation:                dutyLocation.Affiliation,
+					Address:                    dutyLocation.Address,
+					TransportationOfficeID:     dutyLocation.TransportationOfficeID,
+					TransportationOffice:       dutyLocation.TransportationOffice,
+					ProvidesServicesCounseling: dutyLocation.ProvidesServicesCounseling,
+				},
 				LinkOnly: true,
 				Type:     &factory.DutyLocations.OriginDutyLocation,
 			},
