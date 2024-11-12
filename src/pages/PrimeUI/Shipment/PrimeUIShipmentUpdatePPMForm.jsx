@@ -111,6 +111,7 @@ const PrimeUIShipmentUpdatePPMForm = () => {
       <AddressFields
         name="ppmShipment.destinationAddress"
         legend="Delivery Address"
+        address1LabelHint="Optional"
         render={(fields) => (
           <>
             {fields}

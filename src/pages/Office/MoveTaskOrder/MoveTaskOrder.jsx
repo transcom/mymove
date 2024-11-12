@@ -1223,6 +1223,7 @@ export const MoveTaskOrder = (props) => {
                     ifMatchEtag: mtoShipment.eTag,
                     moveTaskOrderID: mtoShipment.moveTaskOrderID,
                     shipmentLocator: mtoShipment.shipmentLocator,
+                    marketCode: mtoShipment.marketCode,
                   }}
                   handleShowCancellationModal={handleShowCancellationModal}
                   isMoveLocked={isMoveLocked}

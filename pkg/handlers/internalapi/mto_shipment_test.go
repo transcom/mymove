@@ -347,7 +347,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandlerV1() {
 					StreetAddress2: pickupAddress.StreetAddress2,
 					StreetAddress3: pickupAddress.StreetAddress3,
 				},
-				DestinationAddress: &internalmessages.Address{
+				DestinationAddress: &internalmessages.PPMDestinationAddress{
 					City:           &destinationAddress.City,
 					PostalCode:     &destinationAddress.PostalCode,
 					State:          &destinationAddress.State,
@@ -414,7 +414,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandlerV1() {
 					StreetAddress2: pickupAddress.StreetAddress2,
 					StreetAddress3: pickupAddress.StreetAddress3,
 				},
-				DestinationAddress: &internalmessages.Address{
+				DestinationAddress: &internalmessages.PPMDestinationAddress{
 					City:           &destinationAddress.City,
 					PostalCode:     &destinationAddress.PostalCode,
 					State:          &destinationAddress.State,
