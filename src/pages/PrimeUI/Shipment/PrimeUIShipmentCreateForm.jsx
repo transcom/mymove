@@ -237,7 +237,7 @@ const PrimeUIShipmentCreateForm = () => {
                     <h5 className={styles.sectionHeader}>Second Delivery Address</h5>
                     <AddressFields name="ppmShipment.secondaryDestinationAddress" />
 
-                    <h4>Third delivery location</h4>
+                    <h4>Third delivery address</h4>
                     <FormGroup>
                       <p>
                         Will the movers pick up any belongings from a third address? (Must be near the pickup address.
@@ -251,7 +251,7 @@ const PrimeUIShipmentCreateForm = () => {
                           label="Yes"
                           name="ppmShipment.hasTertiaryDestinationAddress"
                           value="true"
-                          title="Yes, there is a third delivery location"
+                          title="Yes, there is a third delivery address"
                           checked={hasTertiaryDestinationAddress === 'true'}
                         />
                         <Field
@@ -261,7 +261,7 @@ const PrimeUIShipmentCreateForm = () => {
                           label="No"
                           name="ppmShipment.hasTertiaryDestinationAddress"
                           value="false"
-                          title="No, there is not a third delivery location"
+                          title="No, there is not a third delivery address"
                           checked={hasTertiaryDestinationAddress !== 'true'}
                         />
                       </div>
@@ -478,7 +478,7 @@ const PrimeUIShipmentCreateForm = () => {
               <>
                 {fields}
 
-                <h4>Second delivery location</h4>
+                <h4>Second delivery address</h4>
                 <FormGroup>
                   <p>
                     Will the movers pick up any belongings from a second address? (Must be near the pickup address.
@@ -492,7 +492,7 @@ const PrimeUIShipmentCreateForm = () => {
                       label="Yes"
                       name="hasSecondaryDestinationAddress"
                       value="true"
-                      title="Yes, there is a second delivery location"
+                      title="Yes, there is a second delivery address"
                       checked={hasSecondaryDestinationAddress === 'true'}
                     />
                     <Field
@@ -502,7 +502,7 @@ const PrimeUIShipmentCreateForm = () => {
                       label="No"
                       name="hasSecondaryDestinationAddress"
                       value="false"
-                      title="No, there is not a second delivery location"
+                      title="No, there is not a second delivery address"
                       checked={hasSecondaryDestinationAddress !== 'true'}
                     />
                   </div>
@@ -512,7 +512,7 @@ const PrimeUIShipmentCreateForm = () => {
                     <h5 className={styles.sectionHeader}>Second Delivery Address</h5>
                     <AddressFields name="secondaryDestinationAddress" />
 
-                    <h4>Third delivery location</h4>
+                    <h4>Third delivery address</h4>
                     <FormGroup>
                       <p>
                         Will the movers pick up any belongings from a third address? (Must be near the pickup address.
@@ -526,7 +526,7 @@ const PrimeUIShipmentCreateForm = () => {
                           label="Yes"
                           name="hasTertiaryDestinationAddress"
                           value="true"
-                          title="Yes, there is a third delivery location"
+                          title="Yes, there is a third delivery address"
                           checked={hasTertiaryDestinationAddress === 'true'}
                         />
                         <Field
@@ -536,7 +536,7 @@ const PrimeUIShipmentCreateForm = () => {
                           label="No"
                           name="hasTertiaryDestinationAddress"
                           value="false"
-                          title="No, there is not a third delivery location"
+                          title="No, there is not a third delivery address"
                           checked={hasTertiaryDestinationAddress !== 'true'}
                         />
                       </div>
