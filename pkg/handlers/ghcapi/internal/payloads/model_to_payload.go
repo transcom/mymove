@@ -2137,7 +2137,7 @@ func QueueAvailableOfficeUsers(officeUsers []models.OfficeUser) *ghcmessages.Ava
 }
 
 // QueueMoves payload
-func QueueMoves(moves []models.Move, officeUsers []models.OfficeUser, requestedPpmStatus *models.PPMShipmentStatus, role roles.RoleType, officeUser models.OfficeUser, isSupervisor bool, isHQRole bool, isCloseoutQueue bool) *ghcmessages.QueueMoves {
+func QueueMoves(moves []models.Move, officeUsers []models.OfficeUser, requestedPpmStatus *models.PPMShipmentStatus, role roles.RoleType, officeUser models.OfficeUser, isSupervisor bool, isHQRole bool) *ghcmessages.QueueMoves {
 	queueMoves := make(ghcmessages.QueueMoves, len(moves))
 	for i, move := range moves {
 		customer := move.Orders.ServiceMember
@@ -2250,6 +2250,7 @@ func QueueMoves(moves []models.Move, officeUsers []models.OfficeUser, requestedP
 		}
 
 		ppmCloseoutGblocs := closeoutLocation == "NAVY" || closeoutLocation == "TVCB" || closeoutLocation == "USCG"
+		isCloseoutQueue := *requestedPpmStatus == models.PPMShipmentStatusNeedsCloseout
 		// if it is assigned in the SCs queue
 		// it is only assignable if the user is a supervisor
 		if role == roles.RoleTypeServicesCounselor && isSupervisor {
