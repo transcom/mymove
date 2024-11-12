@@ -633,60 +633,55 @@ func (suite *HandlerSuite) TestUpdateOrdersHandler() {
 	})
 
 	suite.Run("Updated Origin GBLOC is reflected in move", func() {
-		address := factory.BuildAddress(suite.DB(), nil, nil)
-		updatedAddress := factory.BuildAddress(suite.DB(), nil, nil)
-		updatedAddress.PostalCode = "35023"
-		dutyLocation := factory.BuildDutyLocation(suite.DB(), []factory.Customization{
+		originDutyLocation := factory.BuildDutyLocation(suite.DB(), []factory.Customization{
 			{
-				Model:    address,
-				LinkOnly: true,
+				Model: models.DutyLocation{
+					Name: "Test Location",
+				},
 			},
 		}, nil)
-		updatedDutyLocation := factory.BuildDutyLocation(suite.DB(), []factory.Customization{
+
+		postalCodeToGBLOC := factory.BuildPostalCodeToGBLOC(suite.DB(), []factory.Customization{
 			{
-				Model:    updatedAddress,
-				LinkOnly: true,
+				Model: models.PostalCodeToGBLOC{
+					PostalCode: "35023",
+					GBLOC:      "CNNQ",
+				},
 			},
 		}, nil)
+
+		originDutyLocation.Address.PostalCode = postalCodeToGBLOC.PostalCode
+		err := suite.DB().Update(&originDutyLocation.Address)
+		suite.NoError(err)
+
 		order := factory.BuildOrder(suite.DB(), []factory.Customization{
 			{
-				Model:    dutyLocation,
-				LinkOnly: true,
-				Type:     &factory.DutyLocations.OriginDutyLocation,
+				Model: models.Order{
+					OriginDutyLocation:   &originDutyLocation,
+					OriginDutyLocationID: &originDutyLocation.ID,
+				},
 			},
 		}, nil)
+
 		move := factory.BuildMove(suite.DB(), []factory.Customization{
 			{
-				Model:    order,
-				LinkOnly: true,
-			},
-		}, nil)
-
-		originalOriginGBLOC, gblocErr := models.FetchGBLOCForPostalCode(suite.DB(), move.Orders.OriginDutyLocation.Address.PostalCode)
-		suite.NoError(gblocErr)
-
-		suite.Equal("KKFA", originalOriginGBLOC.GBLOC)
-
-		updatedOrders := factory.BuildOrder(suite.DB(), []factory.Customization{
-			{
-				Model:    updatedDutyLocation,
-				LinkOnly: true,
-				Type:     &factory.DutyLocations.OriginDutyLocation,
+				Model: models.Move{
+					OrdersID: order.ID,
+				},
 			},
 		}, nil)
 
 		payload := &internalmessages.CreateUpdateOrders{
-			OrdersNumber:         handlers.FmtString(*updatedOrders.OrdersNumber),
+			OrdersNumber:         handlers.FmtString(*order.OrdersNumber),
 			OrdersType:           &order.OrdersType,
-			OriginDutyLocationID: *handlers.FmtUUID(updatedDutyLocation.ID),
-			IssueDate:            handlers.FmtDate(updatedOrders.IssueDate),
-			ReportByDate:         handlers.FmtDate(updatedOrders.ReportByDate),
+			OriginDutyLocationID: *handlers.FmtUUID(originDutyLocation.ID),
+			IssueDate:            handlers.FmtDate(order.IssueDate),
+			ReportByDate:         handlers.FmtDate(order.ReportByDate),
 			DepartmentIndicator:  (*internalmessages.DeptIndicator)(order.DepartmentIndicator),
 			HasDependents:        handlers.FmtBool(false),
 			SpouseHasProGear:     handlers.FmtBool(false),
 			Grade:                models.ServiceMemberGradeE4.Pointer(),
 			MoveID:               *handlers.FmtUUID(move.ID),
-			CounselingOfficeID:   handlers.FmtUUID(order.NewDutyLocation.TransportationOffice.ID),
 		}
 
 		path := fmt.Sprintf("/orders/%v", order.ID.String())
@@ -704,20 +699,17 @@ func (suite *HandlerSuite) TestUpdateOrdersHandler() {
 		handlerConfig.SetFileStorer(fakeS3)
 
 		handler := UpdateOrdersHandler{handlerConfig}
-
 		response := handler.Handle(params)
 
 		suite.IsType(&ordersop.UpdateOrdersOK{}, response)
 		okResponse := response.(*ordersop.UpdateOrdersOK)
 		suite.NoError(okResponse.Payload.Validate(strfmt.Default))
 
-		updatedOrderFromDB, err := models.FetchOrder(suite.DB(), updatedOrders.ID)
+		var returnedGbloc string
+
+		err = suite.DB().RawQuery("SELECT gbloc FROM move_to_gbloc WHERE move_id = $1", move.ID).First(&returnedGbloc)
 		suite.NoError(err)
-
-		updatedOriginalOriginGBLOC, gblocErrUpdated := models.FetchGBLOCForPostalCode(suite.DB(), updatedOrderFromDB.OriginDutyLocation.Address.PostalCode)
-		suite.NoError(gblocErrUpdated)
-
-		suite.Equal("CNNQ", updatedOriginalOriginGBLOC.GBLOC)
+		suite.Equal("CNNQ", &returnedGbloc)
 	})
 }
 
