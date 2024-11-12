@@ -90,7 +90,7 @@ test.describe('Office User Create Page', () => {
     await page.getByTestId('AddCircleOutlineIcon').click();
     // The autocomplete form results in multiple matching elements, so
     // pick the input element
-    await page.getByLabel('Transportation Office').nth(1).fill('JPPSO Testy McTest');
+    await page.getByLabel('Transportation Office').nth(0).fill('JPPSO Testy McTest');
     // the autocomplete might return multiples because of concurrent
     // tests running that are adding offices
     await page.getByRole('option', { name: 'JPPSO Testy McTest' }).first().click();
@@ -190,13 +190,13 @@ test.describe('Office Users Edit Page', () => {
 
     // The autocomplete form results in multiple matching elements, so
     // pick the input element
-    await expect(page.getByLabel('Transportation Office').nth(1)).toBeEditable();
+    await expect(page.getByLabel('Transportation Office').nth(0)).toBeEditable();
 
     // Add a Transportation Office Assignment
     await page.getByTestId('AddCircleOutlineIcon').click();
-    await expect(page.getByLabel('Transportation Office').nth(1)).toBeEditable();
+    await expect(page.getByLabel('Transportation Office').nth(2)).toBeEditable();
 
-    await page.getByLabel('Transportation Office').nth(1).fill('AGFM');
+    await page.getByLabel('Transportation Office').nth(2).fill('AGFM');
     // the autocomplete might return multiples because of concurrent
     // tests running that are adding offices
     await page.getByRole('option', { name: 'JPPSO - North East (AGFM) - USAF' }).first().click();
