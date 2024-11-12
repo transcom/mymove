@@ -2254,6 +2254,8 @@ func QueueMoves(moves []models.Move, officeUsers []models.OfficeUser, requestedP
 		}
 
 		// queue assignment logic below
+
+		// determine if there is an assigned user
 		var assignedToUser *ghcmessages.AssignedOfficeUser
 		if role == roles.RoleTypeServicesCounselor && move.SCAssignedUser != nil {
 			assignedToUser = AssignedOfficeUser(move.SCAssignedUser)
@@ -2262,8 +2264,11 @@ func QueueMoves(moves []models.Move, officeUsers []models.OfficeUser, requestedP
 			assignedToUser = AssignedOfficeUser(move.TOOAssignedUser)
 		}
 
+		// these branches have their own closeout specific offices
 		ppmCloseoutGblocs := closeoutLocation == "NAVY" || closeoutLocation == "TVCB" || closeoutLocation == "USCG"
+		// requestedPpmStatus also represents if we are viewing the closeout queue
 		isCloseoutQueue := requestedPpmStatus != nil && *requestedPpmStatus == models.PPMShipmentStatusNeedsCloseout
+		// determine if the move is assignable
 		assignable := queueMoveIsAssignable(move, assignedToUser, isCloseoutQueue, role, officeUser, isSupervisor, isHQRole, ppmCloseoutGblocs)
 
 		// only need to attach available office users if move is assignable
