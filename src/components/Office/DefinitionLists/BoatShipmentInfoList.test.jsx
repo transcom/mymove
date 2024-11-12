@@ -58,7 +58,7 @@ const shipment = {
 
 const labels = {
   requestedPickupDate: 'Requested pickup date',
-  pickupAddress: 'Origin address',
+  pickupAddress: 'Pickup Address',
   destinationAddress: 'Delivery Address',
   mtoAgents: ['Releasing agent', 'Receiving agent'],
   counselorRemarks: 'Counselor remarks',

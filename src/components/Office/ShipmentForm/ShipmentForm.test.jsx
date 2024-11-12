@@ -414,7 +414,7 @@ describe('ShipmentForm component', () => {
 
       expect(screen.getByLabelText('Requested delivery date')).toBeInstanceOf(HTMLInputElement);
 
-      const deliveryLocationSectionHeadings = screen.getAllByText('Delivery location');
+      const deliveryLocationSectionHeadings = screen.getAllByText('Delivery Address');
       expect(deliveryLocationSectionHeadings).toHaveLength(2);
       expect(deliveryLocationSectionHeadings[0]).toBeInstanceOf(HTMLParagraphElement);
       expect(deliveryLocationSectionHeadings[1]).toBeInstanceOf(HTMLLegendElement);
@@ -674,9 +674,9 @@ describe('ShipmentForm component', () => {
 
       const alerts = await screen.findAllByTestId('alert');
       expect(alerts).toHaveLength(2); // Should have 2 alerts shown due to the address update request
-      expect(alerts[0]).toHaveTextContent('Request needs review. See delivery location to proceed.');
+      expect(alerts[0]).toHaveTextContent('Request needs review. See delivery address to proceed.');
       expect(alerts[1]).toHaveTextContent(
-        'Pending delivery location change request needs review. Review request to proceed.',
+        'Pending delivery address change request needs review. Review request to proceed.',
       );
     };
 
@@ -818,7 +818,7 @@ describe('ShipmentForm component', () => {
       expect(screen.getByLabelText('Phone')).toHaveAttribute('name', 'pickup.agent.phone');
       expect(screen.getByLabelText('Email')).toHaveAttribute('name', 'pickup.agent.email');
 
-      expect(screen.queryByText('Delivery location')).not.toBeInTheDocument();
+      expect(screen.queryByText('Delivery Address')).not.toBeInTheDocument();
       expect(screen.queryByText(/Receiving agent/)).not.toBeInTheDocument();
 
       expect(screen.getByText('Customer remarks')).toBeTruthy();
@@ -963,7 +963,7 @@ describe('ShipmentForm component', () => {
 
       expect(screen.getByLabelText('Requested delivery date')).toBeInstanceOf(HTMLInputElement);
 
-      expect(screen.getByText('Delivery location')).toBeInstanceOf(HTMLLegendElement);
+      expect(screen.getByText('Delivery Address')).toBeInstanceOf(HTMLLegendElement);
 
       expect(screen.getByText(/Receiving agent/).parentElement).toBeInstanceOf(HTMLLegendElement);
       expect(screen.getByLabelText('First name')).toHaveAttribute('name', 'delivery.agent.firstName');
@@ -1561,7 +1561,7 @@ describe('ShipmentForm component', () => {
       expect(await screen.findByTestId('tag')).toHaveTextContent('PPM');
     });
 
-    it('PPM - destination address street 1 is OPTIONAL', async () => {
+    it('PPM - delivery address street 1 is OPTIONAL', async () => {
       renderWithRouter(
         <ShipmentForm
           {...defaultProps}
@@ -1589,7 +1589,7 @@ describe('ShipmentForm component', () => {
         expect(screen.queryByRole('alert')).not.toBeInTheDocument();
       });
 
-      // test that destination address street1 is OPTIONAL and not raise any required alert
+      // test that delivery address street1 is OPTIONAL and not raise any required alert
       await userEvent.type(document.querySelector('input[name="destination.address.streetAddress1"]'), '  ');
       await userEvent.tab();
       await waitFor(() => {
@@ -1806,7 +1806,7 @@ describe('ShipmentForm component', () => {
         expect(screen.getAllByLabelText('No')[3]).not.toBeChecked();
       });
 
-      it('test destination address street 1 is OPTIONAL', async () => {
+      it('test delivery address street 1 is OPTIONAL', async () => {
         isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(true));
         renderWithRouter(
           <ShipmentForm
@@ -1831,15 +1831,15 @@ describe('ShipmentForm component', () => {
           expect(screen.queryByRole('alert')).not.toBeInTheDocument();
         });
 
-        // test that destination address street1 is OPTIONAL and not raise any required alert
+        // test that delivery address street1 is OPTIONAL and not raise any required alert
         await userEvent.clear(document.querySelector('input[name="destination.address.streetAddress1"]'));
         await userEvent.tab();
         await waitFor(() => {
           // verify required alert was not raised
           expect(screen.queryByRole('alert')).not.toBeInTheDocument();
 
-          // 'Optional' labelHint on address display. expecting a total of 9(2 for pickup address and 3 destination address, 4 for secondary addrs).
-          // This is to verify Optional labelHints are displayed correctly for PPM onboarding/edit for the destination address
+          // 'Optional' labelHint on address display. expecting a total of 9(2 for pickup address and 3 delivery address, 4 for secondary addrs).
+          // This is to verify Optional labelHints are displayed correctly for PPM onboarding/edit for the delivery address
           // street 1 is now OPTIONAL. If this fails it means addtional labelHints have been introduced elsewhere within the control.
           const hints = document.getElementsByClassName('usa-hint');
           expect(hints.length).toBe(9);

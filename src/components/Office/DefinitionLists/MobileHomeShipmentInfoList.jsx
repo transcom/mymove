@@ -186,7 +186,7 @@ const ShipmentInfoList = ({
   const pickupAddressElementFlags = getDisplayFlags('pickupAddress');
   const pickupAddressElement = (
     <div className={pickupAddressElementFlags.classes}>
-      <dt>Origin address</dt>
+      <dt>Pickup Address</dt>
       <dd data-testid="pickupAddress">
         {(pickupAddress && formatAddress(pickupAddress)) || getMissingOrDash('pickupAddress')}
       </dd>

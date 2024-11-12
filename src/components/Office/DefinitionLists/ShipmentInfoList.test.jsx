@@ -71,7 +71,7 @@ const info = {
 
 const labels = {
   requestedPickupDate: 'Requested pickup date',
-  pickupAddress: 'Origin address',
+  pickupAddress: 'Pickup Address',
   secondaryPickupAddress: 'Second pickup address',
   tertiaryPickupAddress: 'Third pickup address',
   destinationAddress: 'Delivery Address',
