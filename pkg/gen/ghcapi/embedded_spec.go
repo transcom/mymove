@@ -7531,6 +7531,26 @@ func init() {
         }
       }
     },
+    "CreateViolationAppeal": {
+      "description": "Appeal status and remarks left for a violation, created by a GSR user.",
+      "type": "object",
+      "properties": {
+        "appealStatus": {
+          "description": "The status of the appeal set by the GSR user",
+          "type": "string",
+          "enum": [
+            "sustained",
+            "rejected"
+          ],
+          "example": "These are my violation appeal remarks"
+        },
+        "remarks": {
+          "description": "Remarks left by the GSR user",
+          "type": "string",
+          "example": "These are my violation appeal remarks"
+        }
+      }
+    },
     "CreatedCustomer": {
       "type": "object",
       "properties": {
@@ -23818,6 +23838,26 @@ func init() {
               "$ref": "#/definitions/Address"
             }
           ]
+        }
+      }
+    },
+    "CreateViolationAppeal": {
+      "description": "Appeal status and remarks left for a violation, created by a GSR user.",
+      "type": "object",
+      "properties": {
+        "appealStatus": {
+          "description": "The status of the appeal set by the GSR user",
+          "type": "string",
+          "enum": [
+            "sustained",
+            "rejected"
+          ],
+          "example": "These are my violation appeal remarks"
+        },
+        "remarks": {
+          "description": "Remarks left by the GSR user",
+          "type": "string",
+          "example": "These are my violation appeal remarks"
         }
       }
     },
