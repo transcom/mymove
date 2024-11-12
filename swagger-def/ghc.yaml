@@ -3577,6 +3577,7 @@ paths:
               requestedMoveDate,
               appearedInTooAt,
               assignedTo,
+              counselingOffice,
             ]
           description: field that results should be sorted by
         - in: query
@@ -3642,6 +3643,10 @@ paths:
           type: string
           description: |
             Used to illustrate which user is assigned to this move.
+        - in: query
+          name: counselingOffice
+          type: string
+          description: filters using a counselingOffice name of the move
       responses:
         '200':
           description: Successfully returned all moves matching the criteria
