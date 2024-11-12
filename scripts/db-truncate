@@ -9,7 +9,7 @@ DO \$\$ DECLARE
     r RECORD;
 BEGIN
     FOR r IN (SELECT tablename FROM pg_tables WHERE schemaname = current_schema()
-              AND tablename NOT IN ('us_post_region_cities', 're_countries', 're_states', 're_cities', 're_us_post_regions', 're_oconus_rate_areas', 're_rate_areas', 're_intl_transit_times','re_services','re_service_items')) LOOP
+              AND tablename NOT IN ('us_post_region_cities', 're_countries', 're_states', 're_cities', 're_us_post_regions', 're_oconus_rate_areas', 're_rate_areas', 're_intl_transit_times','re_services','re_service_items', 'ub_allowances')) LOOP
         EXECUTE 'TRUNCATE TABLE ' || quote_ident(r.tablename) || ' CASCADE';
     END LOOP;
 END \$\$;
