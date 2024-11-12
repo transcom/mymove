@@ -38,7 +38,7 @@ const EditOrdersForm = ({
     initialValues.orders_type === ORDERS_TYPE.STUDENT_TRAVEL ||
     initialValues.orders_type === ORDERS_TYPE.EARLY_RETURN_OF_DEPENDENTS;
   const [isHasDependentsDisabled, setHasDependentsDisabled] = useState(isInitialHasDependentsDisabled);
-  const [prevOrderType, setPrevOrderType] = useState('');
+  const [prevOrderType, setPrevOrderType] = useState(initialValues.orders_type);
   const validationSchema = Yup.object().shape({
     orders_type: Yup.mixed()
       .oneOf(ordersTypeOptions.map((i) => i.key))
