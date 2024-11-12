@@ -311,10 +311,15 @@ const newMoveDetailsQuery = {
   },
   orderDocuments: {
     z: {
-      id: 'z',
-      filename: 'test.pdf',
+      bytes: 2202009,
       contentType: 'application/pdf',
-      url: '/storage/user/1/uploads/2?contentType=application%2Fpdf',
+      createdAt: '2024-10-23T16:31:21.085Z',
+      filename: 'testFile.pdf',
+      id: 'z',
+      status: 'PROCESSING',
+      updatedAt: '2024-10-23T16:31:21.085Z',
+      uploadType: 'USER',
+      url: '/storage/USER/uploads/z?contentType=application%2Fpdf',
     },
   },
   mtoShipments,
