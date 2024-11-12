@@ -5,7 +5,7 @@ import userEvent from '@testing-library/user-event';
 import OrdersInfoForm from './OrdersInfoForm';
 
 import { showCounselingOffices } from 'services/internalApi';
-import { ORDERS_TYPE } from 'constants/orders';
+import { ORDERS_TYPE, ORDERS_TYPE_OPTIONS } from 'constants/orders';
 
 jest.setTimeout(60000);
 
@@ -168,6 +168,8 @@ const testProps = {
     { key: 'RETIREMENT', value: 'Retirement' },
     { key: 'SEPARATION', value: 'Separation' },
     { key: 'TEMPORARY_DUTY', value: 'Temporary Duty (TDY)' },
+    { key: ORDERS_TYPE.EARLY_RETURN_OF_DEPENDENTS, value: ORDERS_TYPE_OPTIONS.EARLY_RETURN_OF_DEPENDENTS },
+    { key: ORDERS_TYPE.STUDENT_TRAVEL, value: ORDERS_TYPE_OPTIONS.STUDENT_TRAVEL },
   ],
 };
 
@@ -211,6 +213,12 @@ describe('OrdersInfoForm component', () => {
 
     await userEvent.selectOptions(ordersTypeDropdown, ORDERS_TYPE.TEMPORARY_DUTY);
     expect(ordersTypeDropdown).toHaveValue(ORDERS_TYPE.TEMPORARY_DUTY);
+
+    await userEvent.selectOptions(ordersTypeDropdown, ORDERS_TYPE.EARLY_RETURN_OF_DEPENDENTS);
+    expect(ordersTypeDropdown).toHaveValue(ORDERS_TYPE.EARLY_RETURN_OF_DEPENDENTS);
+
+    await userEvent.selectOptions(ordersTypeDropdown, ORDERS_TYPE.STUDENT_TRAVEL);
+    expect(ordersTypeDropdown).toHaveValue(ORDERS_TYPE.STUDENT_TRAVEL);
   });
 
   it('allows new and current duty location to be the same', async () => {
@@ -280,6 +288,8 @@ describe('OrdersInfoForm component', () => {
         { key: 'RETIREMENT', value: 'Retirement' },
         { key: 'SEPARATION', value: 'Separation' },
         { key: 'TEMPORARY_DUTY', value: 'Temporary Duty (TDY)' },
+        { key: ORDERS_TYPE.EARLY_RETURN_OF_DEPENDENTS, value: ORDERS_TYPE_OPTIONS.EARLY_RETURN_OF_DEPENDENTS },
+        { key: ORDERS_TYPE.STUDENT_TRAVEL, value: ORDERS_TYPE_OPTIONS.STUDENT_TRAVEL },
       ],
     };
 
@@ -571,6 +581,102 @@ describe('OrdersInfoForm component', () => {
         expect(getByLabelText(/Pay grade/)).toHaveValue(testInitialValues.grade);
         expect(queryByText('Altus AFB')).toBeInTheDocument();
       });
+    });
+  });
+
+  it('has dependents is yes and disabled when order type is student travel', async () => {
+    render(<OrdersInfoForm {...testProps} />);
+
+    await userEvent.selectOptions(screen.getByLabelText(/Orders type/), ORDERS_TYPE.STUDENT_TRAVEL);
+
+    const hasDependentsYes = screen.getByLabelText('Yes');
+    const hasDependentsNo = screen.getByLabelText('No');
+
+    await waitFor(() => {
+      expect(hasDependentsYes).toBeChecked();
+      expect(hasDependentsYes).toBeDisabled();
+      expect(hasDependentsNo).toBeDisabled();
+    });
+  });
+
+  it('has dependents is yes and disabled when order type is early return', async () => {
+    render(<OrdersInfoForm {...testProps} />);
+
+    await userEvent.selectOptions(screen.getByLabelText(/Orders type/), ORDERS_TYPE.EARLY_RETURN_OF_DEPENDENTS);
+
+    const hasDependentsYes = await screen.getByLabelText('Yes');
+    const hasDependentsNo = await screen.getByLabelText('No');
+
+    await waitFor(() => {
+      expect(hasDependentsYes).toBeChecked();
+      expect(hasDependentsYes).toBeDisabled();
+      expect(hasDependentsNo).toBeDisabled();
+    });
+  });
+
+  it('has dependents becomes disabled and then re-enabled for order type student travel', async () => {
+    render(<OrdersInfoForm {...testProps} />);
+
+    // set order type to perm change and verify the "has dependents" state
+    await userEvent.selectOptions(screen.getByLabelText(/Orders type/), 'PERMANENT_CHANGE_OF_STATION');
+
+    const hasDependentsYesPermChg = screen.getByLabelText('Yes');
+    const hasDependentsNoPermChg = screen.getByLabelText('No');
+
+    await waitFor(() => {
+      expect(hasDependentsYesPermChg).not.toBeChecked();
+      expect(hasDependentsYesPermChg).toBeEnabled();
+      expect(hasDependentsNoPermChg).not.toBeChecked();
+      expect(hasDependentsNoPermChg).toBeEnabled();
+    });
+
+    // set order type to value that disables and defaults "has dependents"
+    await userEvent.selectOptions(screen.getByLabelText(/Orders type/), ORDERS_TYPE.STUDENT_TRAVEL);
+
+    // set order type to value the re-enables "has dependents"
+    await userEvent.selectOptions(screen.getByLabelText(/Orders type/), 'LOCAL_MOVE');
+
+    const hasDependentsYesLocalMove = screen.getByLabelText('Yes');
+    const hasDependentsNoLocalMove = screen.getByLabelText('No');
+
+    await waitFor(() => {
+      expect(hasDependentsYesLocalMove).not.toBeChecked();
+      expect(hasDependentsYesLocalMove).toBeEnabled();
+      expect(hasDependentsNoLocalMove).not.toBeChecked();
+      expect(hasDependentsNoLocalMove).toBeEnabled();
+    });
+  });
+
+  it('has dependents becomes disabled and then re-enabled for order type early return', async () => {
+    render(<OrdersInfoForm {...testProps} />);
+
+    // set order type to perm change and verify the "has dependents" state
+    await userEvent.selectOptions(screen.getByLabelText(/Orders type/), 'PERMANENT_CHANGE_OF_STATION');
+
+    const hasDependentsYesPermChg = screen.getByLabelText('Yes');
+    const hasDependentsNoPermChg = screen.getByLabelText('No');
+
+    await waitFor(() => {
+      expect(hasDependentsYesPermChg).not.toBeChecked();
+      expect(hasDependentsYesPermChg).toBeEnabled();
+      expect(hasDependentsNoPermChg).not.toBeChecked();
+      expect(hasDependentsNoPermChg).toBeEnabled();
+    });
+
+    // set order type to value that disables and defaults "has dependents"
+    await userEvent.selectOptions(screen.getByLabelText(/Orders type/), ORDERS_TYPE.EARLY_RETURN_OF_DEPENDENTS);
+
+    // set order type to value the re-enables "has dependents"
+    await userEvent.selectOptions(screen.getByLabelText(/Orders type/), 'LOCAL_MOVE');
+
+    const hasDependentsYesLocalMove = screen.getByLabelText('Yes');
+    const hasDependentsNoLocalMove = screen.getByLabelText('No');
+
+    await waitFor(() => {
+      expect(hasDependentsYesLocalMove).not.toBeChecked();
+      expect(hasDependentsYesLocalMove).toBeEnabled();
+      expect(hasDependentsNoLocalMove).not.toBeChecked();
+      expect(hasDependentsNoLocalMove).toBeEnabled();
     });
   });
 

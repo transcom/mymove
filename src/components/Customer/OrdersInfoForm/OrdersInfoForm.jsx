@@ -11,7 +11,7 @@ import styles from './OrdersInfoForm.module.scss';
 
 import MaskedTextField from 'components/form/fields/MaskedTextField/MaskedTextField';
 import ToolTip from 'shared/ToolTip/ToolTip';
-import { ORDERS_PAY_GRADE_OPTIONS } from 'constants/orders';
+import { ORDERS_PAY_GRADE_OPTIONS, ORDERS_TYPE } from 'constants/orders';
 import { DropdownInput, DatePickerInput, DutyLocationInput } from 'components/form/fields';
 import Hint from 'components/Hint/index';
 import { Form } from 'components/form/Form';
@@ -36,6 +36,8 @@ const OrdersInfoForm = ({ ordersTypeOptions, initialValues, onSubmit, onBack }) 
   const [hasDependents, setHasDependents] = useState(false);
   const [isOconusMove, setIsOconusMove] = useState(false);
   const [enableUB, setEnableUB] = useState(false);
+  const [isHasDependentsDisabled, setHasDependentsDisabled] = useState(false);
+  const [prevOrderType, setPrevOrderType] = useState('');
   const validationSchema = Yup.object().shape({
     orders_type: Yup.mixed()
       .oneOf(ordersTypeOptions.map((i) => i.key))
@@ -115,7 +117,7 @@ const OrdersInfoForm = ({ ordersTypeOptions, initialValues, onSubmit, onBack }) 
       setShowAccompaniedTourField={setShowAccompaniedTourField}
       setShowDependentAgeFields={setShowDependentAgeFields}
     >
-      {({ isValid, isSubmitting, handleSubmit, values, touched, setFieldValue }) => {
+      {({ isValid, isSubmitting, handleSubmit, handleChange, values, touched, setFieldValue }) => {
         const isRetirementOrSeparation = ['RETIREMENT', 'SEPARATION'].includes(values.orders_type);
 
         if (!values.origin_duty_location && touched.origin_duty_location) originMeta = 'Required';
@@ -127,9 +129,9 @@ const OrdersInfoForm = ({ ordersTypeOptions, initialValues, onSubmit, onBack }) 
         const handleHasDependentsChange = (e) => {
           // Declare a duplicate local scope of the field value
           // for the form to prevent state race conditions
-          const fieldValueHasDependents = e.target.value === 'yes';
-          setHasDependents(e.target.value === 'yes');
-          setFieldValue('has_dependents', fieldValueHasDependents ? 'yes' : 'no');
+          const fieldValueHasDependents = e.target.value;
+          setHasDependents(e.target.value);
+          setFieldValue('has_dependents', e.target.value);
           if (fieldValueHasDependents && isOconusMove && enableUB) {
             setShowAccompaniedTourField(true);
             setShowDependentAgeFields(true);
@@ -137,6 +139,23 @@ const OrdersInfoForm = ({ ordersTypeOptions, initialValues, onSubmit, onBack }) 
             setShowAccompaniedTourField(false);
             setShowDependentAgeFields(false);
           }
+        };
+
+        const handleOrderTypeChange = (e) => {
+          const { value } = e.target;
+          if (value === ORDERS_TYPE.STUDENT_TRAVEL || value === ORDERS_TYPE.EARLY_RETURN_OF_DEPENDENTS) {
+            setHasDependentsDisabled(true);
+            handleHasDependentsChange({ target: { value: 'yes' } });
+          } else {
+            setHasDependentsDisabled(false);
+            if (
+              prevOrderType === ORDERS_TYPE.STUDENT_TRAVEL ||
+              prevOrderType === ORDERS_TYPE.EARLY_RETURN_OF_DEPENDENTS
+            ) {
+              handleHasDependentsChange({ target: { value: '' } });
+            }
+          }
+          setPrevOrderType(value);
         };
 
         return (
@@ -150,6 +169,10 @@ const OrdersInfoForm = ({ ordersTypeOptions, initialValues, onSubmit, onBack }) 
                 options={ordersTypeOptions}
                 required
                 hint="Required"
+                onChange={(e) => {
+                  handleChange(e);
+                  handleOrderTypeChange(e);
+                }}
               />
               <DatePickerInput
                 name="issue_date"
@@ -171,7 +194,6 @@ const OrdersInfoForm = ({ ordersTypeOptions, initialValues, onSubmit, onBack }) 
                 label={formatLabelReportByDate(values.orders_type)}
                 required
               />
-
               <DutyLocationInput
                 label="Current duty location"
                 hint="Required"
@@ -263,6 +285,7 @@ const OrdersInfoForm = ({ ordersTypeOptions, initialValues, onSubmit, onBack }) 
                     onChange={(e) => {
                       handleHasDependentsChange(e);
                     }}
+                    disabled={isHasDependentsDisabled}
                   />
                   <Field
                     as={Radio}
@@ -276,6 +299,7 @@ const OrdersInfoForm = ({ ordersTypeOptions, initialValues, onSubmit, onBack }) 
                     onChange={(e) => {
                       handleHasDependentsChange(e);
                     }}
+                    disabled={isHasDependentsDisabled}
                   />
                 </div>
               </FormGroup>
