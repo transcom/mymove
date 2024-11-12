@@ -1185,6 +1185,11 @@ func (SSWPPMGenerator *SSWPPMGenerator) FillSSWPDFForm(Page1Values services.Page
 		return nil, nil, err
 	}
 
+	SSWWorksheet, err = SSWPPMGenerator.generator.LockPDFForm(SSWWorksheet, "")
+	if err != nil {
+		return nil, nil, err
+	}
+
 	// pdfInfo.PageCount is a great way to tell whether returned PDF is corrupted. Pages is expected pages
 	const pages = 3
 	pdfInfoResult, err := SSWPPMGenerator.generator.GetPdfFileInfo(SSWWorksheet.Name())
