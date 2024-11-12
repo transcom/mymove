@@ -215,6 +215,7 @@ export const ShipmentShape = shape({
   deliveryAddressUpdate: ShipmentAddressUpdateShape,
   actual_pro_gear_weight: number,
   actual_spouse_pro_gear_weight: number,
+  marketCode: string,
 });
 
 const DocumentShape = shape({

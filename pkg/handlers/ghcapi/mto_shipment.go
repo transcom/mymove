@@ -158,7 +158,8 @@ func (h GetMTOShipmentHandler) Handle(params mtoshipmentops.GetShipmentParams) m
 				"PPMShipment",
 				"BoatShipment",
 				"MobileHome",
-				"Distance"}
+				"Distance",
+				"MTOServiceItems.ReService"}
 
 			shipmentID := uuid.FromStringOrNil(params.ShipmentID.String())
 

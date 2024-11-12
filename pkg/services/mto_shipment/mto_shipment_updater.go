@@ -1080,15 +1080,35 @@ func reServiceCodesForShipment(shipment models.MTOShipment) []models.ReServiceCo
 			}
 		}
 
-		// Need to create: Dom Linehaul, Fuel Surcharge, Dom Origin Price, Dom Destination Price, Dom Packing, and Dom Unpacking.
-		return []models.ReServiceCode{
-			models.ReServiceCodeDLH,
-			models.ReServiceCodeFSC,
-			models.ReServiceCodeDOP,
-			models.ReServiceCodeDDP,
-			models.ReServiceCodeDPK,
-			models.ReServiceCodeDUPK,
+		if shipment.MarketCode == models.MarketCodeInternational {
+			// if address is NOT oconus then address IS CONUS
+			if !*shipment.PickupAddress.IsOconus || !*shipment.DestinationAddress.IsOconus {
+				return []models.ReServiceCode{
+					models.ReServiceCodeISLH,
+					models.ReServiceCodePODFSC,
+					models.ReServiceCodeIHPK,
+					models.ReServiceCodeIHUPK,
+				}
+			} else {
+				return []models.ReServiceCode{
+					models.ReServiceCodeISLH,
+					models.ReServiceCodePOEFSC,
+					models.ReServiceCodeIHPK,
+					models.ReServiceCodeIHUPK,
+				}
+			}
+		} else {
+			// Need to create: Dom Linehaul, Fuel Surcharge, Dom Origin Price, Dom Destination Price, Dom Packing, and Dom Unpacking.
+			return []models.ReServiceCode{
+				models.ReServiceCodeDLH,
+				models.ReServiceCodeFSC,
+				models.ReServiceCodeDOP,
+				models.ReServiceCodeDDP,
+				models.ReServiceCodeDPK,
+				models.ReServiceCodeDUPK,
+			}
 		}
+
 	case models.MTOShipmentTypeHHGIntoNTSDom:
 		// Need to create: Dom Linehaul, Fuel Surcharge, Dom Origin Price, Dom Destination Price, Dom NTS Packing
 		return []models.ReServiceCode{

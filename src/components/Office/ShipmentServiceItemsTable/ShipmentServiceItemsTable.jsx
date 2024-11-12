@@ -6,6 +6,11 @@ import styles from './ShipmentServiceItemsTable.module.scss';
 
 import { serviceItemCodes } from 'content/serviceItems';
 
+const internationalServiceItems = {
+  true: [serviceItemCodes.ISLH, serviceItemCodes.POEFSC, serviceItemCodes.IHPK, serviceItemCodes.IHUPK],
+  false: [serviceItemCodes.ISLH, serviceItemCodes.PODFSC, serviceItemCodes.IHPK, serviceItemCodes.IHUPK],
+};
+
 const shipmentTypes = {
   HHG: [
     serviceItemCodes.DLH,
@@ -52,10 +57,15 @@ const shipmentTypes = {
   ],
 };
 
-const ShipmentServiceItemsTable = ({ shipmentType, destinationZip3, pickupZip3, className }) => {
-  const shipmentServiceItems = shipmentTypes[`${shipmentType}`] || [];
+const ShipmentServiceItemsTable = ({ isOconus, shipmentType, marketCode, destinationZip3, pickupZip3, className }) => {
+  let shipmentServiceItems = shipmentTypes[`${shipmentType}`] || [];
   const sameZip3 = destinationZip3 === pickupZip3;
   let filteredServiceItemsList;
+
+  // if international address is conus
+  if (marketCode === 'i') {
+    shipmentServiceItems = internationalServiceItems[`${isOconus}`];
+  }
 
   if (sameZip3) {
     filteredServiceItemsList = shipmentServiceItems.filter((item) => {
@@ -95,6 +105,8 @@ const ShipmentServiceItemsTable = ({ shipmentType, destinationZip3, pickupZip3, 
 };
 
 ShipmentServiceItemsTable.propTypes = {
+  isOconus: propTypes.bool.isRequired,
+  marketCode: propTypes.string.isRequired,
   shipmentType: propTypes.oneOf(Object.keys(shipmentTypes)).isRequired,
   className: propTypes.string,
 };
