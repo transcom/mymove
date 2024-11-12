@@ -23,6 +23,7 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 	mocks "github.com/transcom/mymove/pkg/route/mocks"
 	"github.com/transcom/mymove/pkg/services/address"
+	"github.com/transcom/mymove/pkg/services/ghcrateengine"
 	moverouter "github.com/transcom/mymove/pkg/services/move"
 	movetaskorder "github.com/transcom/mymove/pkg/services/move_task_order"
 	mtoshipment "github.com/transcom/mymove/pkg/services/mto_shipment"
@@ -48,7 +49,7 @@ func (suite *MTOServiceItemServiceSuite) TestMTOServiceItemUpdater() {
 		mock.Anything,
 		mock.Anything,
 	).Return(400, nil)
-	updater := NewMTOServiceItemUpdater(planner, builder, moveRouter, shipmentFetcher, addressCreator)
+	updater := NewMTOServiceItemUpdater(planner, builder, moveRouter, shipmentFetcher, addressCreator, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer(), ghcrateengine.NewDomesticDestinationSITDeliveryPricer(), ghcrateengine.NewDomesticOriginSITFuelSurchargePricer())
 
 	setupServiceItem := func() (models.MTOServiceItem, string) {
 		serviceItem := testdatagen.MakeDefaultMTOServiceItem(suite.DB())
@@ -1757,7 +1758,7 @@ func (suite *MTOServiceItemServiceSuite) TestUpdateMTOServiceItemStatus() {
 		mock.Anything,
 		mock.Anything,
 	).Return(400, nil)
-	updater := NewMTOServiceItemUpdater(planner, builder, moveRouter, shipmentFetcher, addressCreator)
+	updater := NewMTOServiceItemUpdater(planner, builder, moveRouter, shipmentFetcher, addressCreator, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer(), ghcrateengine.NewDomesticDestinationSITDeliveryPricer(), ghcrateengine.NewDomesticOriginSITFuelSurchargePricer())
 
 	rejectionReason := models.StringPointer("")
 
