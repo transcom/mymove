@@ -651,7 +651,8 @@ func (suite *HandlerSuite) TestUpdateOrdersHandler() {
 			{
 				Model:    order,
 				LinkOnly: true,
-			}}, nil)
+			},
+		}, nil)
 
 		originalOriginGBLOC, gblocErr := models.FetchGBLOCForPostalCode(suite.DB(), move.Orders.OriginDutyLocation.Address.PostalCode)
 		suite.NoError(gblocErr)
@@ -704,7 +705,7 @@ func (suite *HandlerSuite) TestUpdateOrdersHandler() {
 		okResponse := response.(*ordersop.UpdateOrdersOK)
 		suite.NoError(okResponse.Payload.Validate(strfmt.Default))
 
-		updatedOrder, err := models.FetchOrder(suite.DB(), order.ID)
+		updatedOrder, err := models.FetchOrder(suite.DB(), uuid.FromStringOrNil(updatedOrdersNumber))
 		suite.NoError(err)
 
 		updatedOriginalOriginGBLOC, gblocErrUpdated := models.FetchGBLOCForPostalCode(suite.DB(), updatedOrder.OriginDutyLocation.Address.PostalCode)
