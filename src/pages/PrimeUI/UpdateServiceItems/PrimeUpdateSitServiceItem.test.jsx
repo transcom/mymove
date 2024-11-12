@@ -54,6 +54,7 @@ describe('PrimeUIUpdateSitServiceItems page', () => {
             postalCode: '90210',
           },
           id: '45fe9475-d592-48f5-896a-45d4d6eb7e76',
+          status: 'REJECTED',
         },
       ],
     };
@@ -71,6 +72,7 @@ describe('PrimeUIUpdateSitServiceItems page', () => {
     expect(screen.getByRole('textbox', { name: 'SIT Departure Date' })).toBeInTheDocument();
     expect(screen.getByRole('textbox', { name: 'SIT Requested Delivery' })).toBeInTheDocument();
     expect(screen.getByRole('textbox', { name: 'SIT Customer Contacted' })).toBeInTheDocument();
+    expect(screen.getByRole('textbox', { name: 'Update Reason' })).toBeInTheDocument();
   });
 
   it('renders the origin sit service item form', async () => {
@@ -114,6 +116,7 @@ describe('PrimeUIUpdateSitServiceItems page', () => {
             postalCode: '90210',
           },
           id: '45fe9475-d592-48f5-896a-45d4d6eb7e76',
+          status: 'REJECTED',
         },
       ],
     };
@@ -131,5 +134,6 @@ describe('PrimeUIUpdateSitServiceItems page', () => {
     expect(screen.getByRole('textbox', { name: 'SIT Departure Date' })).toBeInTheDocument();
     expect(screen.getByRole('textbox', { name: 'SIT Requested Delivery' })).toBeInTheDocument();
     expect(screen.getByRole('textbox', { name: 'SIT Customer Contacted' })).toBeInTheDocument();
+    expect(screen.getByRole('textbox', { name: 'Update Reason' })).toBeInTheDocument();
   });
 });

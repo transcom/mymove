@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { number, bool } from 'prop-types';
 import classnames from 'classnames';
+import { Tag } from '@trussworks/react-uswds';
 
 import HeaderSection, { sectionTypes } from './HeaderSection';
 import styles from './PPMHeaderSummary.module.scss';
@@ -61,7 +62,7 @@ const GCCAndIncentiveInfo = ({ ppmShipmentInfo, updatedItemName, setUpdatedItemN
     </>
   );
 };
-export default function PPMHeaderSummary({ ppmShipmentInfo, ppmNumber, showAllFields, readOnly }) {
+export default function PPMHeaderSummary({ ppmShipmentInfo, order, ppmNumber, showAllFields, readOnly }) {
   const [updatedItemName, setUpdatedItemName] = useState('');
 
   const shipmentInfo = {
@@ -78,6 +79,7 @@ export default function PPMHeaderSummary({ ppmShipmentInfo, ppmNumber, showAllFi
     miles: ppmShipmentInfo.miles,
     estimatedWeight: ppmShipmentInfo.estimatedWeight,
     actualWeight: ppmShipmentInfo.actualWeight,
+    isActualExpenseReimbursement: ppmShipmentInfo.isActualExpenseReimbursement,
     allowableWeight: ppmShipmentInfo.allowableWeight,
   };
 
@@ -85,6 +87,9 @@ export default function PPMHeaderSummary({ ppmShipmentInfo, ppmNumber, showAllFi
     <header className={classnames(styles.PPMHeaderSummary)}>
       <div className={styles.header}>
         <h3>PPM {ppmNumber}</h3>
+        {shipmentInfo.isActualExpenseReimbursement && (
+          <Tag className={styles.tagInfo}>actual expense reimbursement</Tag>
+        )}
         <section>
           <HeaderSection
             sectionInfo={{
@@ -96,6 +101,7 @@ export default function PPMHeaderSummary({ ppmShipmentInfo, ppmNumber, showAllFi
             updatedItemName={updatedItemName}
             setUpdatedItemName={setUpdatedItemName}
             readOnly={readOnly}
+            grade={order?.grade}
             expanded
           />
         </section>

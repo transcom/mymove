@@ -162,6 +162,48 @@ paths:
                         'sitExpected': false,
                       },
                   }
+              boat:
+                summary: Boat Shipment
+                value:
+                  {
+                    'boatShipment':
+                      {
+                        'hasTrailer': true,
+                        'heightFeet': 2,
+                        'heightInches': 2,
+                        'isRoadworthy': false,
+                        'lengthFeet': 2,
+                        'lengthInches': 0,
+                        'make': 'make',
+                        'model': 'model',
+                        'widthFeet': 2,
+                        'widthInches': 2,
+                        'year': 1999,
+                      },
+                    'counselorRemarks': 'test',
+                    'moveTaskOrderID': 'd4d95b22-2d9d-428b-9a11-284455aa87ba',
+                    'shipmentType': 'HAUL_AWAY',
+                  }
+              mobileHome:
+                summary: Mobile Home Shipment
+                value:
+                  {
+                    'mobileHomeShipment':
+                      {
+                        'heightFeet': 2,
+                        'heightInches': 2,
+                        'lengthFeet': 2,
+                        'lengthInches': 0,
+                        'make': 'make',
+                        'model': 'model',
+                        'widthFeet': 2,
+                        'widthInches': 2,
+                        'year': 1999,
+                      },
+                    'counselorRemarks': 'test',
+                    'moveTaskOrderID': 'd4d95b22-2d9d-428b-9a11-284455aa87ba',
+                    'shipmentType': 'MOBILE_HOME',
+                  }
       responses:
         '200':
           description: Successfully created a MTO shipment.
@@ -365,7 +407,7 @@ definitions:
         allOf:
           - $ref: 'definitions/Address.yaml'
       shipmentType:
-        $ref: 'definitions/prime/MTOShipmentType.yaml'
+        $ref: 'definitions/prime/v2/MTOShipmentType.yaml'
       diversion:
         description: >
           This value indicates whether or not this shipment is part of a diversion.
@@ -391,6 +433,10 @@ definitions:
         x-nullable: true
       ppmShipment:
         $ref: '#/definitions/CreatePPMShipment'
+      boatShipment:
+        $ref: '#/definitions/CreateBoatShipment'
+      mobileHomeShipment:
+        $ref: '#/definitions/CreateMobileHomeShipment'
     required:
       - moveTaskOrderID
       - shipmentType
@@ -452,11 +498,83 @@ definitions:
         description: The estimated weight of the pro-gear being moved belonging to a spouse in pounds.
         type: integer
         x-nullable: true
+      isActualExpenseReimbursement:
+        description: Used for PPM shipments only. Denotes if this shipment uses the Actual Expense Reimbursement method.
+        type: boolean
+        example: false
+        x-omitempty: false
+        x-nullable: true
     required:
       - expectedDepartureDate
       - sitExpected
       - estimatedWeight
       - hasProGear
+  CreateBoatShipment:
+    description: Creation object containing the `Boat` shipmentType specific data, not used for other shipment types.
+    type: object
+    properties:
+      year:
+        type: integer
+        description: Year of the Boat
+      make:
+        type: string
+        description: Make of the Boat
+      model:
+        type: string
+        description: Model of the Boat
+      lengthInInches:
+        type: integer
+        description: Length of the Boat in inches
+      widthInInches:
+        type: integer
+        description: Width of the Boat in inches
+      heightInInches:
+        type: integer
+        description: Height of the Boat in inches
+      hasTrailer:
+        type: boolean
+        description: Does the boat have a trailer
+      isRoadworthy:
+        type: boolean
+        description: Is the trailer roadworthy
+        x-nullable: true
+    required:
+      - year
+      - make
+      - model
+      - lengthInInches
+      - widthInInches
+      - heightInInches
+      - hasTrailer
+  CreateMobileHomeShipment:
+    description: Creation object containing the `MobileHome` shipmentType specific data, not used for other shipment types.
+    type: object
+    properties:
+      year:
+        type: integer
+        description: Year of the Mobile Home
+      make:
+        type: string
+        description: Make of the Mobile Home
+      model:
+        type: string
+        description: Model of the Mobile Home
+      lengthInInches:
+        type: integer
+        description: Length of the Mobile Home in inches
+      widthInInches:
+        type: integer
+        description: Width of the Mobile Home in inches
+      heightInInches:
+        type: integer
+        description: Height of the Mobile Home in inches
+    required:
+      - year
+      - make
+      - model
+      - lengthInInches
+      - widthInInches
+      - heightInInches
   MTOShipment:
     type: object
     properties:
@@ -590,6 +708,12 @@ definitions:
         description: The estimated weight of the pro-gear being moved belonging to a spouse.
         type: integer
         x-nullable: true
+      isActualExpenseReimbursement:
+        description: Used for PPM shipments only. Denotes if this shipment uses the Actual Expense Reimbursement method.
+        type: boolean
+        example: false
+        x-omitempty: false
+        x-nullable: true
   UpdateMTOShipment:
     properties:
       scheduledPickupDate:
@@ -675,7 +799,7 @@ definitions:
           - x-nullable: true
           - $ref: 'definitions/StorageFacility.yaml'
       shipmentType:
-        $ref: 'definitions/prime/MTOShipmentType.yaml'
+        $ref: 'definitions/prime/v2/MTOShipmentType.yaml'
       diversion:
         description: >
           This value indicates whether or not this shipment is part of a diversion.

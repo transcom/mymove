@@ -422,7 +422,7 @@ paths:
       parameters: []
       responses:
         '200':
-          description: Successfully cancelled move
+          description: Successfully canceled move
           schema:
             $ref: '#/definitions/Move'
         '403':
@@ -442,6 +442,8 @@ paths:
       description: cancels a move
       operationId: moveCanceler
       summary: Cancels a move
+      x-permissions:
+        - update.cancelMoveFlag
   /counseling/orders/{orderID}:
     parameters:
       - description: ID of order to update
@@ -2942,6 +2944,50 @@ paths:
           $ref: '#/responses/ServerError'
       x-permissions:
         - update.evaluationReport
+  /evaluation-reports/{reportID}/{reportViolationID}/appeal/add:
+    parameters:
+      - in: path
+        description: the evaluation report ID
+        name: reportID
+        required: true
+        type: string
+        format: uuid
+      - in: path
+        description: the report violation ID
+        name: reportViolationID
+        required: true
+        type: string
+        format: uuid
+    post:
+      summary: Adds an appeal to a violation
+      description: Adds an appeal to a violation
+      operationId: addAppealToViolation
+      tags:
+        - evaluationReports
+      produces:
+        - application/json
+      consumes:
+        - application/json
+      parameters:
+        - in: body
+          name: body
+          schema:
+            $ref: '#/definitions/CreateViolationAppeal'
+      responses:
+        '204':
+          description: Successfully added an appeal to a violation
+        '403':
+          $ref: '#/responses/PermissionDenied'
+        '404':
+          $ref: '#/responses/NotFound'
+        '412':
+          $ref: '#/responses/PreconditionFailed'
+        '422':
+          $ref: '#/responses/UnprocessableEntity'
+        '500':
+          $ref: '#/responses/ServerError'
+      x-permissions:
+        - update.evaluationReport
   /pws-violations:
     get:
       summary: Fetch the possible PWS violations for an evaluation report
@@ -3373,7 +3419,7 @@ paths:
           name: sort
           type: string
           enum:
-            - lastName
+            - customerName
             - dodID
             - emplid
             - branch
@@ -3389,6 +3435,7 @@ paths:
             - closeoutLocation
             - ppmStatus
             - counselingOffice
+            - assignedTo
           description: field that results should be sorted by
         - in: query
           name: order
@@ -3406,7 +3453,7 @@ paths:
           type: string
           description: filters to match the unique move code locator
         - in: query
-          name: lastName
+          name: customerName
           type: string
           description: filters using a prefix match on the service member's last name
         - in: query
@@ -3498,6 +3545,11 @@ paths:
             Used to return a queue for a GBLOC other than the default of the
             current user. Requires the HQ role. The parameter is ignored if the
             requesting user does not have the necessary role.
+        - in: query
+          name: assignedTo
+          type: string
+          description: |
+            Used to illustrate which user is assigned to this payment request.
       responses:
         '200':
           description: Successfully returned all moves matching the criteria
@@ -3626,7 +3678,7 @@ paths:
           name: sort
           type: string
           enum:
-            - lastName
+            - customerName
             - dodID
             - emplid
             - branch
@@ -3636,6 +3688,7 @@ paths:
             - destinationDutyLocation
             - requestedMoveDate
             - appearedInTooAt
+            - assignedTo
           description: field that results should be sorted by
         - in: query
           name: order
@@ -3651,7 +3704,7 @@ paths:
           name: locator
           type: string
         - in: query
-          name: lastName
+          name: customerName
           type: string
         - in: query
           name: dodID
@@ -3699,6 +3752,11 @@ paths:
             Used to return a queue for a GBLOC other than the default of the
             current user. Requires the HQ role. The parameter is ignored if the
             requesting user does not have the necessary role.
+        - in: query
+          name: assignedTo
+          type: string
+          description: |
+            Used to illustrate which user is assigned to this move.
       responses:
         '200':
           description: Successfully returned all moves matching the criteria
@@ -3725,7 +3783,7 @@ paths:
           name: sort
           type: string
           enum:
-            - lastName
+            - customerName
             - locator
             - submittedAt
             - branch
@@ -3734,6 +3792,7 @@ paths:
             - emplid
             - age
             - originDutyLocation
+            - assignedTo
           description: field that results should be sorted by
         - in: query
           name: order
@@ -3764,7 +3823,7 @@ paths:
           name: locator
           type: string
         - in: query
-          name: lastName
+          name: customerName
           type: string
         - in: query
           name: dodID
@@ -3778,6 +3837,11 @@ paths:
         - in: query
           name: originDutyLocation
           type: string
+        - in: query
+          name: assignedTo
+          type: string
+          description: |
+            Used to illustrate which user is assigned to this payment request.
         - in: query
           name: status
           type: array
@@ -3875,6 +3939,7 @@ paths:
                     - APPROVED
                     - NEEDS SERVICE COUNSELING
                     - SERVICE COUNSELING COMPLETED
+                    - CANCELED
               originPostalCode:
                 type: string
                 x-nullable: true
@@ -4866,8 +4931,8 @@ definitions:
   FetchLineOfAccountingPayload:
     type: object
     properties:
-      serviceMemberAffiliation:
-        $ref: '#/definitions/Affiliation'
+      departmentIndicator:
+        $ref: '#/definitions/DepartmentIndicator'
       effectiveDate:
         description: >
           The effective date for the Line Of Accounting (LOA) being fetched. Eg,
@@ -5357,7 +5422,7 @@ definitions:
   PPMStatus:
     type: string
     enum:
-      - CANCELLED
+      - CANCELED
       - DRAFT
       - SUBMITTED
       - WAITING_ON_CUSTOMER
@@ -6376,6 +6441,14 @@ definitions:
       advanceStatus:
         $ref: '#/definitions/PPMAdvanceStatus'
         x-nullable: true
+      isActualExpenseReimbursement:
+        description: >-
+          Used for PPM shipments only. Denotes if this shipment uses the Actual
+          Expense Reimbursement method.
+        type: boolean
+        example: false
+        x-omitempty: false
+        x-nullable: true
   UpdateBoatShipment:
     type: object
     properties:
@@ -6761,6 +6834,14 @@ definitions:
       spouseProGearWeight:
         type: integer
         x-nullable: true
+      isActualExpenseReimbursement:
+        description: >-
+          Used for PPM shipments only. Denotes if this shipment uses the Actual
+          Expense Reimbursement method.
+        type: boolean
+        example: false
+        x-omitempty: false
+        x-nullable: true
     required:
       - expectedDepartureDate
       - pickupAddress
@@ -7071,9 +7152,17 @@ definitions:
       counselingOffice:
         type: string
         x-nullable: true
+      counselingOfficeID:
+        type: string
+        format: uuid
+        x-nullable: true
       assignedTo:
         $ref: '#/definitions/AssignedOfficeUser'
         x-nullable: true
+      availableOfficeUsers:
+        $ref: '#/definitions/AvailableOfficeUsers'
+      assignable:
+        type: boolean
   QueueMovesResult:
     type: object
     properties:
@@ -7085,8 +7174,6 @@ definitions:
         type: integer
       queueMoves:
         $ref: '#/definitions/QueueMoves'
-      availableOfficeUsers:
-        $ref: '#/definitions/AvailableOfficeUsers'
   ListPrimeMove:
     description: >
       An abbreviated definition for a move, without all the nested information
@@ -7193,6 +7280,13 @@ definitions:
         type: string
         format: date-time
         x-nullable: true
+      assignedTo:
+        $ref: '#/definitions/AssignedOfficeUser'
+        x-nullable: true
+      availableOfficeUsers:
+        $ref: '#/definitions/AvailableOfficeUsers'
+      assignable:
+        type: boolean
   QueuePaymentRequests:
     type: array
     items:
@@ -7208,8 +7302,6 @@ definitions:
         type: integer
       queuePaymentRequests:
         $ref: '#/definitions/QueuePaymentRequests'
-      availableOfficeUsers:
-        $ref: '#/definitions/AvailableOfficeUsers'
   QueuePaymentRequestStatus:
     enum:
       - Payment requested
@@ -7433,6 +7525,9 @@ definitions:
       ReportViolations:
         $ref: '#/definitions/ReportViolations'
         x-nullable: true
+      gsrAppeals:
+        $ref: '#/definitions/GSRAppeals'
+        x-nullable: true
       locationDescription:
         type: string
         example: Route 66 at crash inspection site 3
@@ -7521,6 +7616,21 @@ definitions:
         example: 01b9671e-b268-4906-967b-ba661a1d3933
         format: uuid
         type: string
+  CreateViolationAppeal:
+    type: object
+    description: Appeal status and remarks left for a violation, created by a GSR user.
+    properties:
+      remarks:
+        description: Remarks left by the GSR user
+        example: These are my violation appeal remarks
+        type: string
+      appealStatus:
+        description: The status of the appeal set by the GSR user
+        example: These are my violation appeal remarks
+        type: string
+        enum:
+          - sustained
+          - rejected
   PWSViolation:
     type: object
     description: A PWS violation for an evaluation report
@@ -7590,10 +7700,56 @@ definitions:
         type: string
       violation:
         $ref: '#/definitions/PWSViolation'
+      gsrAppeals:
+        $ref: '#/definitions/GSRAppeals'
+        x-nullable: true
   ReportViolations:
     type: array
     items:
       $ref: '#/definitions/ReportViolation'
+  GSRAppealStatusType:
+    type: string
+    enum:
+      - SUSTAINED
+      - REJECTED
+  GSRAppeals:
+    type: array
+    items:
+      $ref: '#/definitions/GSRAppeal'
+  GSRAppeal:
+    type: object
+    description: An object associating appeals on violations and serious incidents
+    properties:
+      id:
+        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
+        format: uuid
+        type: string
+      reportID:
+        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
+        format: uuid
+        type: string
+      violationID:
+        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
+        format: uuid
+        type: string
+      officeUserID:
+        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
+        format: uuid
+        type: string
+      officeUser:
+        $ref: '#/definitions/EvaluationReportOfficeUser'
+      isSeriousIncident:
+        type: boolean
+        example: false
+      appealStatus:
+        $ref: '#/definitions/GSRAppealStatusType'
+      remarks:
+        type: string
+        example: Office user remarks
+      createdAt:
+        type: string
+        format: date-time
+        readOnly: true
   TransportationOffices:
     type: array
     items:
@@ -7693,7 +7849,7 @@ definitions:
   AssignedOfficeUser:
     type: object
     properties:
-      id:
+      officeUserId:
         type: string
         format: uuid
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
@@ -7713,8 +7869,6 @@ definitions:
       - AIR_FORCE
       - COAST_GUARD
       - SPACE_FORCE
-      - NAVY_AND_MARINES
-      - AIR_AND_SPACE_FORCE
       - OTHER
     x-display-value:
       ARMY: Army
@@ -7870,8 +8024,10 @@ definitions:
         type: string
         title: Country
         x-nullable: true
-        example: USA
-        default: USA
+        example: US
+        default: US
+        pattern: ^[A-Z]{2}$
+        description: Two-letter country code
       county:
         type: string
         title: County
@@ -7959,6 +8115,7 @@ definitions:
       - WOUNDED_WARRIOR
       - BLUEBARK
       - SAFETY
+      - TEMPORARY_DUTY
     x-display-value:
       PERMANENT_CHANGE_OF_STATION: Permanent Change Of Station
       LOCAL_MOVE: Local Move
@@ -7967,6 +8124,7 @@ definitions:
       WOUNDED_WARRIOR: Wounded Warrior
       BLUEBARK: BLUEBARK
       SAFETY: Safety
+      TEMPORARY_DUTY: Temporary Duty (TDY)
   Upload:
     description: An uploaded file.
     type: object
@@ -8364,22 +8522,20 @@ definitions:
       - HHG
       - HHG_INTO_NTS_DOMESTIC
       - HHG_OUTOF_NTS_DOMESTIC
-      - INTERNATIONAL_HHG
-      - INTERNATIONAL_UB
       - PPM
       - BOAT_HAUL_AWAY
       - BOAT_TOW_AWAY
       - MOBILE_HOME
+      - UNACCOMPANIED_BAGGAGE
     x-display-value:
       HHG: HHG
-      INTERNATIONAL_HHG: International HHG
-      INTERNATIONAL_UB: International UB
       HHG_INTO_NTS_DOMESTIC: NTS
       HHG_OUTOF_NTS_DOMESTIC: NTS Release
       PPM: PPM
       BOAT_HAUL_AWAY: Boat Haul-Away
       BOAT_TOW_AWAY: Boat Tow-Away
       MOBILE_HOME: Mobile Home
+      UNACCOMPANIED_BAGGAGE: Unaccompanied Baggage
   LOAType:
     description: The Line of accounting (TAC/SAC) type that will be used for the shipment
     type: string
@@ -9691,6 +9847,14 @@ definitions:
         type: array
         items:
           $ref: '#/definitions/ProGearWeightTicket'
+      isActualExpenseReimbursement:
+        description: >-
+          Used for PPM shipments only. Denotes if this shipment uses the Actual
+          Expense Reimbursement method.
+        type: boolean
+        example: false
+        x-omitempty: false
+        x-nullable: true
       signedCertification:
         $ref: '#/definitions/SignedCertification'
       eTag:
@@ -10122,6 +10286,15 @@ definitions:
       destinationSitAuthEndDate:
         format: date-time
         type: string
+      marketCode:
+        type: string
+        enum:
+          - d
+          - i
+        example: d
+        description: >-
+          Single-letter designator for domestic (d) or international (i)
+          shipments
   LOATypeNullable:
     description: The Line of accounting (TAC/SAC) type that will be used for the shipment
     type: string
@@ -10682,6 +10855,25 @@ definitions:
     type: array
     items:
       $ref: '#/definitions/CustomerSupportRemark'
+  DepartmentIndicator:
+    type: string
+    x-nullable: true
+    title: Department indicator
+    description: Military branch of service indicator for orders
+    enum:
+      - ARMY
+      - ARMY_CORPS_OF_ENGINEERS
+      - COAST_GUARD
+      - NAVY_AND_MARINES
+      - AIR_AND_SPACE_FORCE
+      - OFFICE_OF_SECRETARY_OF_DEFENSE
+    x-display-value:
+      ARMY: 21 Army
+      ARMY_CORPS_OF_ENGINEERS: 96 Army Corps of Engineers
+      COAST_GUARD: 70 Coast Guard
+      NAVY_AND_MARINES: 17 Navy and Marine Corps
+      AIR_AND_SPACE_FORCE: 57 Air Force and Space Force
+      OFFICE_OF_SECRETARY_OF_DEFENSE: 97 Office of Secretary of Defense
   LineOfAccounting:
     type: object
     properties:

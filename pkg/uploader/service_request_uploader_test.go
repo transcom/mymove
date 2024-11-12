@@ -23,7 +23,7 @@ func (suite *UploaderSuite) TestServiceRequestUploadFromLocalFile() {
 	suite.Nil(err, "failed to create upload")
 	suite.False(verrs.HasAny(), "failed to validate upload", verrs)
 	suite.Equal(serviceRequestUpload.Upload.ContentType, uploader.FileTypePDF)
-	suite.Equal(serviceRequestUpload.Upload.Checksum, "nOE6HwzyE4VEDXn67ULeeA==")
+	suite.Equal(serviceRequestUpload.Upload.Checksum, "w7rJQqzlaazDW+mxTU9Q40Qchr3DW7FPQD7f8Js2J88=")
 }
 
 func (suite *UploaderSuite) TestServiceRequestUploadFromLocalFileZeroLength() {
@@ -91,7 +91,7 @@ func (suite *UploaderSuite) TestFailureCreatingServiceRequestUpload() {
 	suite.Nil(err, "failed to create upload")
 	suite.False(verrs.HasAny(), "failed to validate upload", verrs)
 	suite.Equal(serviceRequestUpload.Upload.ContentType, uploader.FileTypePDF)
-	suite.Equal(serviceRequestUpload.Upload.Checksum, "nOE6HwzyE4VEDXn67ULeeA==")
+	suite.Equal(serviceRequestUpload.Upload.Checksum, "w7rJQqzlaazDW+mxTU9Q40Qchr3DW7FPQD7f8Js2J88=")
 	suite.False(verrs.HasAny(), "failed to validate upload")
 }
 

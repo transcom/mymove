@@ -240,6 +240,7 @@ function ReviewWeightTicket({
                 <HHGWeightSummary mtoShipments={currentMtoShipments} />
                 <PPMHeaderSummary
                   ppmShipmentInfo={ppmShipmentInfo}
+                  order={order}
                   ppmNumber={ppmNumber}
                   showAllFields={false}
                   className={classnames(formStyles.form)}

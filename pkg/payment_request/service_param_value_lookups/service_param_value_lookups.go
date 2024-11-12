@@ -186,7 +186,7 @@ func ServiceParamLookupInitialize(
 		// Due to a bug in pop (https://github.com/gobuffalo/pop/issues/578), we cannot eager load the storage
 		// facility's address as "StorageFacility.Address" because StorageFacility is a pointer.
 		if mtoShipment.StorageFacility != nil {
-			err = appCtx.DB().Load(mtoShipment.StorageFacility, "Address")
+			err = appCtx.DB().Load(mtoShipment.StorageFacility, "Address", "Address.Country")
 			if err != nil {
 				return nil, apperror.NewQueryError("Address", err, "")
 			}
@@ -457,7 +457,7 @@ func GetDestinationForDistanceLookup(appCtx appcontext.AppContext, mtoShipment m
 		switch siCopy.ReService.Code {
 		case models.ReServiceCodeDDASIT, models.ReServiceCodeDDDSIT, models.ReServiceCodeDDFSIT, models.ReServiceCodeDDSFSC:
 			if shipmentCopy.DeliveryAddressUpdate != nil && shipmentCopy.DeliveryAddressUpdate.Status == models.ShipmentAddressUpdateStatusApproved {
-				if shipmentCopy.DeliveryAddressUpdate.UpdatedAt.After(*siCopy.ApprovedAt) {
+				if siCopy.ApprovedAt != nil && shipmentCopy.DeliveryAddressUpdate.UpdatedAt.After(*siCopy.ApprovedAt) {
 					return shipmentCopy.DeliveryAddressUpdate.OriginalAddress, nil
 				}
 				return shipmentCopy.DeliveryAddressUpdate.NewAddress, nil
@@ -510,6 +510,10 @@ func (s *ServiceItemParamKeyData) ServiceParamValue(appCtx appcontext.AppContext
 	if lookup, ok := s.lookups[key]; ok {
 		value, err := lookup.lookup(appCtx, s)
 		if err != nil {
+			switch err.(type) {
+			case apperror.EventError:
+				return "", err
+			}
 			return "", fmt.Errorf(" failed ServiceParamValue %sLookup with error %w", key, err)
 		}
 		// Save param value to cache
@@ -576,7 +580,7 @@ func getDestinationAddressForService(appCtx appcontext.AppContext, serviceCode m
 			switch siCopy.ReService.Code {
 			case models.ReServiceCodeDDASIT, models.ReServiceCodeDDDSIT, models.ReServiceCodeDDFSIT, models.ReServiceCodeDDSFSC:
 				if shipmentCopy.DeliveryAddressUpdate != nil && shipmentCopy.DeliveryAddressUpdate.Status == models.ShipmentAddressUpdateStatusApproved {
-					if shipmentCopy.DeliveryAddressUpdate.UpdatedAt.After(*siCopy.ApprovedAt) {
+					if siCopy.ApprovedAt != nil && shipmentCopy.DeliveryAddressUpdate.UpdatedAt.After(*siCopy.ApprovedAt) {
 						return shipmentCopy.DeliveryAddressUpdate.OriginalAddress, nil
 					}
 					return shipmentCopy.DeliveryAddressUpdate.NewAddress, nil

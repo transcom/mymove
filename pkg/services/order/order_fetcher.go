@@ -3,6 +3,7 @@ package order
 import (
 	"database/sql"
 	"fmt"
+	"regexp"
 	"strings"
 	"time"
 
@@ -29,7 +30,7 @@ type orderFetcher struct {
 // QueryOption defines the type for the functional arguments used for private functions in OrderFetcher
 type QueryOption func(*pop.Query)
 
-func (f orderFetcher) ListOrders(appCtx appcontext.AppContext, officeUserID uuid.UUID, params *services.ListOrderParams) ([]models.Move, int, error) {
+func (f orderFetcher) ListOrders(appCtx appcontext.AppContext, officeUserID uuid.UUID, role roles.RoleType, params *services.ListOrderParams) ([]models.Move, int, error) {
 	var moves []models.Move
 
 	var officeUserGbloc string
@@ -105,7 +106,7 @@ func (f orderFetcher) ListOrders(appCtx appcontext.AppContext, officeUserID uuid
 	locatorQuery := locatorFilter(params.Locator)
 	dodIDQuery := dodIDFilter(params.DodID)
 	emplidQuery := emplidFilter(params.Emplid)
-	lastNameQuery := lastNameFilter(params.LastName)
+	customerNameQuery := customerNameFilter(params.CustomerName)
 	originDutyLocationQuery := originDutyLocationFilter(params.OriginDutyLocation)
 	destinationDutyLocationQuery := destinationDutyLocationFilter(params.DestinationDutyLocation)
 	moveStatusQuery := moveStatusFilter(params.Status)
@@ -116,10 +117,13 @@ func (f orderFetcher) ListOrders(appCtx appcontext.AppContext, officeUserID uuid
 	closeoutLocationQuery := closeoutLocationFilter(params.CloseoutLocation, ppmCloseoutGblocs)
 	ppmTypeQuery := ppmTypeFilter(params.PPMType)
 	ppmStatusQuery := ppmStatusFilter(params.PPMStatus)
+	scAssignedUserQuery := scAssignedUserFilter(params.SCAssignedUser)
+	tooAssignedUserQuery := tooAssignedUserFilter(params.TOOAssignedUser)
 	sortOrderQuery := sortOrder(params.Sort, params.Order, ppmCloseoutGblocs)
 	counselingQuery := counselingOfficeFilter(params.CounselingOffice)
 	// Adding to an array so we can iterate over them and apply the filters after the query structure is set below
-	options := [18]QueryOption{branchQuery, locatorQuery, dodIDQuery, emplidQuery, lastNameQuery, originDutyLocationQuery, destinationDutyLocationQuery, moveStatusQuery, gblocQuery, submittedAtQuery, appearedInTOOAtQuery, requestedMoveDateQuery, ppmTypeQuery, closeoutInitiatedQuery, closeoutLocationQuery, ppmStatusQuery, sortOrderQuery, counselingQuery}
+	options := [20]QueryOption{branchQuery, locatorQuery, dodIDQuery, emplidQuery, customerNameQuery, originDutyLocationQuery, destinationDutyLocationQuery, moveStatusQuery, gblocQuery, submittedAtQuery, appearedInTOOAtQuery, requestedMoveDateQuery, ppmTypeQuery, closeoutInitiatedQuery, closeoutLocationQuery, ppmStatusQuery, sortOrderQuery, scAssignedUserQuery, tooAssignedUserQuery, counselingQuery}
+
 	var query *pop.Query
 	if ppmCloseoutGblocs {
 		query = appCtx.DB().Q().Scope(utilities.ExcludeDeletedScope(models.MTOShipment{})).EagerPreload(
@@ -157,8 +161,9 @@ func (f orderFetcher) ListOrders(appCtx appcontext.AppContext, officeUserID uuid
 			"MTOShipments.PPMShipment",
 			"CloseoutOffice",
 			"LockedByOfficeUser",
-			"SCAssignedUser",
 			"CounselingOffice",
+			"SCAssignedUser",
+			"TOOAssignedUser",
 		).InnerJoin("orders", "orders.id = moves.orders_id").
 			InnerJoin("service_members", "orders.service_member_id = service_members.id").
 			InnerJoin("mto_shipments", "moves.id = mto_shipments.move_id").
@@ -176,12 +181,18 @@ func (f orderFetcher) ListOrders(appCtx appcontext.AppContext, officeUserID uuid
 		if !privileges.HasPrivilege(models.PrivilegeTypeSafety) {
 			query.Where("orders.orders_type != (?)", "SAFETY")
 		}
+		if role == roles.RoleTypeServicesCounselor {
+			query.LeftJoin("office_users as assigned_user", "moves.sc_assigned_id  = assigned_user.id")
+		}
+		if role == roles.RoleTypeTOO {
+			query.LeftJoin("office_users as assigned_user", "moves.too_assigned_id  = assigned_user.id")
+		}
 
 		if params.NeedsPPMCloseout != nil {
 			if *params.NeedsPPMCloseout {
 				query.InnerJoin("ppm_shipments", "ppm_shipments.shipment_id = mto_shipments.id").
 					LeftJoin("transportation_offices as closeout_to", "closeout_to.id = moves.closeout_office_id").
-					Where("ppm_shipments.status IN (?)", models.PPMShipmentStatusWaitingOnCustomer, models.PPMShipmentStatusNeedsCloseout).
+					Where("ppm_shipments.status IN (?)", models.PPMShipmentStatusNeedsCloseout).
 					Where("service_members.affiliation NOT IN (?)", models.AffiliationNAVY, models.AffiliationMARINES, models.AffiliationCOASTGUARD)
 			} else {
 				query.LeftJoin("ppm_shipments", "ppm_shipments.shipment_id = mto_shipments.id").
@@ -235,6 +246,9 @@ func (f orderFetcher) ListOrders(appCtx appcontext.AppContext, officeUserID uuid
 
 	if params.Sort != nil && *params.Sort == "counselingOffice" {
 		groupByColumms = append(groupByColumms, "transportation_offices.id")
+	}
+	if params.Sort != nil && *params.Sort == "assignedTo" {
+		groupByColumms = append(groupByColumms, "assigned_user.last_name", "assigned_user.first_name")
 	}
 
 	err = query.GroupBy("moves.id", groupByColumms...).Paginate(int(*params.Page), int(*params.PerPage)).All(&moves)
@@ -417,7 +431,7 @@ func (f orderFetcher) ListAllOrderLocations(appCtx appcontext.AppContext, office
 		if params.NeedsPPMCloseout != nil {
 			if *params.NeedsPPMCloseout {
 				query.InnerJoin("ppm_shipments", "ppm_shipments.shipment_id = mto_shipments.id").
-					Where("ppm_shipments.status IN (?)", models.PPMShipmentStatusWaitingOnCustomer, models.PPMShipmentStatusNeedsCloseout, models.PPMShipmentStatusCloseoutComplete).
+					Where("ppm_shipments.status IN (?)", models.PPMShipmentStatusNeedsCloseout, models.PPMShipmentStatusCloseoutComplete).
 					Where("service_members.affiliation NOT IN (?)", models.AffiliationNAVY, models.AffiliationMARINES, models.AffiliationCOASTGUARD)
 			} else {
 				query.LeftJoin("ppm_shipments", "ppm_shipments.shipment_id = mto_shipments.id").
@@ -459,7 +473,7 @@ func (f orderFetcher) FetchOrder(appCtx appcontext.AppContext, orderID uuid.UUID
 	err := appCtx.DB().Q().Eager(
 		"ServiceMember.BackupContacts",
 		"ServiceMember.ResidentialAddress",
-		"NewDutyLocation.Address",
+		"NewDutyLocation.Address.Country",
 		"OriginDutyLocation",
 		"Entitlement",
 		"Moves",
@@ -478,7 +492,7 @@ func (f orderFetcher) FetchOrder(appCtx appcontext.AppContext, orderID uuid.UUID
 	// cannot eager load the address as "OriginDutyLocation.Address" because
 	// OriginDutyLocation is a pointer.
 	if order.OriginDutyLocation != nil {
-		err = appCtx.DB().Load(order.OriginDutyLocation, "Address")
+		err = appCtx.DB().Load(order.OriginDutyLocation, "Address", "Address.Country")
 		if err != nil {
 			return order, err
 		}
@@ -499,12 +513,20 @@ func branchFilter(branch *string, needsCounseling bool, ppmCloseoutGblocs bool) 
 	}
 }
 
-func lastNameFilter(lastName *string) QueryOption {
+func customerNameFilter(name *string) QueryOption {
 	return func(query *pop.Query) {
-		if lastName != nil {
-			nameSearch := fmt.Sprintf("%s%%", *lastName)
-			query.Where("service_members.last_name ILIKE ?", nameSearch)
+		if name == nil {
+			return
 		}
+
+		// Remove "," that user may enter between names (displayed on frontend column)
+		nameQueryParam := *name
+		removeCharsRegex := regexp.MustCompile("[,]+")
+		nameQueryParam = removeCharsRegex.ReplaceAllString(nameQueryParam, "")
+		nameQueryParam = fmt.Sprintf("%%%s%%", nameQueryParam)
+
+		// Search for partial within both (last first) and (first last) in one go
+		query.Where("(service_members.last_name || ' ' || service_members.first_name || service_members.first_name || ' ' || service_members.last_name) ILIKE ?", nameQueryParam)
 	}
 }
 
@@ -535,7 +557,7 @@ func locatorFilter(locator *string) QueryOption {
 func originDutyLocationFilter(originDutyLocation []string) QueryOption {
 	return func(query *pop.Query) {
 		if len(originDutyLocation) > 0 {
-			query.Where("origin_dl.name IN (?)", originDutyLocation)
+			query.Where("origin_dl.name ILIKE ?", "%"+strings.Join(originDutyLocation, " ")+"%")
 		}
 	}
 }
@@ -622,6 +644,24 @@ func ppmStatusFilter(ppmStatus *string) QueryOption {
 	}
 }
 
+func scAssignedUserFilter(scAssigned *string) QueryOption {
+	return func(query *pop.Query) {
+		if scAssigned != nil {
+			nameSearch := fmt.Sprintf("%s%%", *scAssigned)
+			query.Where("assigned_user.last_name ILIKE ?", nameSearch)
+		}
+	}
+}
+
+func tooAssignedUserFilter(tooAssigned *string) QueryOption {
+	return func(query *pop.Query) {
+		if tooAssigned != nil {
+			nameSearch := fmt.Sprintf("%s%%", *tooAssigned)
+			query.Where("assigned_user.last_name ILIKE ?", nameSearch)
+		}
+	}
+}
+
 func closeoutLocationFilter(closeoutLocation *string, ppmCloseoutGblocs bool) QueryOption {
 	return func(query *pop.Query) {
 		// If the office user is in a closeout gbloc, every single result they're seeing will have
@@ -686,7 +726,7 @@ func gblocFilterForPPMCloseoutForNavyMarineAndCG(gbloc *string) QueryOption {
 
 func sortOrder(sort *string, order *string, ppmCloseoutGblocs bool) QueryOption {
 	parameters := map[string]string{
-		"lastName":                "service_members.last_name",
+		"customerName":            "(service_members.last_name || ' ' || service_members.first_name)",
 		"dodID":                   "service_members.edipi",
 		"emplid":                  "service_members.emplid",
 		"branch":                  "service_members.affiliation",
@@ -703,6 +743,7 @@ func sortOrder(sort *string, order *string, ppmCloseoutGblocs bool) QueryOption 
 		"closeoutLocation":        "closeout_to.name",
 		"closeoutInitiated":       "MAX(ppm_shipments.submitted_at)",
 		"counselingOffice":        "transportation_offices.name",
+		"assignedTo":              "assigned_user.last_name,assigned_user.first_name",
 	}
 
 	return func(query *pop.Query) {
@@ -714,8 +755,10 @@ func sortOrder(sort *string, order *string, ppmCloseoutGblocs bool) QueryOption 
 				return
 			}
 			if sortTerm, ok := parameters[*sort]; ok {
-				if *sort == "lastName" {
+				if *sort == "customerName" {
 					query.Order(fmt.Sprintf("service_members.last_name %s, service_members.first_name %s", *order, *order))
+				} else if *sort == "assignedTo" {
+					query.Order(fmt.Sprintf("assigned_user.last_name %s, assigned_user.first_name %s", *order, *order))
 				} else {
 					query.Order(fmt.Sprintf("%s %s", sortTerm, *order))
 				}

@@ -202,6 +202,8 @@ definitions:
         $ref: '#/definitions/MTOShipments'
       closeout_office:
         $ref: '#/definitions/TransportationOffice'
+      counseling_office:
+        $ref: '#/definitions/TransportationOffice'
       cancel_reason:
         type: string
         example: Change of orders
@@ -1485,6 +1487,15 @@ definitions:
         type: string
         format: uuid
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      counseling_office_id:
+        type: string
+        format: uuid
+        example: cf1addea-a4f9-4173-8506-2bb82a064cb7
+        x-nullable: true
+      move_id:
+        type: string
+        format: uuid
+        example: cf1addea-a4f9-4173-8506-2bb82a064cb7
       orders_number:
         type: string
         title: Orders Number
@@ -1791,14 +1802,16 @@ definitions:
       - BOAT_HAUL_AWAY
       - BOAT_TOW_AWAY
       - MOBILE_HOME
+      - UNACCOMPANIED_BAGGAGE
     x-display-value:
       HHG: HHG
-      INTERNATIONAL_HHG: International HHG
-      INTERNATIONAL_UB: International UB
+      HHG_INTO_NTS_DOMESTIC: NTS
+      HHG_OUTOF_NTS_DOMESTIC: NTS Release
       PPM: PPM
       BOAT_HAUL_AWAY: Boat Haul-Away
       BOAT_TOW_AWAY: Boat Tow-Away
       MOBILE_HOME: Mobile Home
+      UNACCOMPANIED_BAGGAGE: Unaccompanied Baggage
   MTOShipment:
     properties:
       moveTaskOrderID:
@@ -1889,6 +1902,15 @@ definitions:
         x-nullable: true
         readOnly: true
         example: 1K43AR-01
+      marketCode:
+        type: string
+        enum:
+          - d
+          - i
+        example: d
+        description: >-
+          Single-letter designator for domestic (d) or international (i)
+          shipments
   MTOShipments:
     items:
       $ref: '#/definitions/MTOShipment'
@@ -1975,6 +1997,14 @@ definitions:
         x-omitempty: false
       sitExpected:
         type: boolean
+      isActualExpenseReimbursement:
+        description: >-
+          Denotes if this PPM shipment uses the Actual Expense Reimbursement
+          method.
+        type: boolean
+        example: false
+        x-omitempty: false
+        x-nullable: true
     required:
       - expectedDepartureDate
       - pickupAddress
@@ -2093,6 +2123,14 @@ definitions:
           The amount received for an advance, or null if no advance is received.
         type: integer
         format: cents
+        x-nullable: true
+      isActualExpenseReimbursement:
+        description: >-
+          Used for PPM shipments only. Denotes if this shipment uses the Actual
+          Expense Reimbursement method.
+        type: boolean
+        example: false
+        x-omitempty: false
         x-nullable: true
   CreateBoatShipment:
     description: Boat shipment information for the move.
@@ -2383,6 +2421,8 @@ definitions:
         $ref: '#/definitions/MTOShipments'
       closeoutOffice:
         $ref: '#/definitions/TransportationOffice'
+      counselingOffice:
+        $ref: '#/definitions/TransportationOffice'
       eTag:
         type: string
         readOnly: true
@@ -2487,6 +2527,7 @@ definitions:
       - WOUNDED_WARRIOR
       - BLUEBARK
       - SAFETY
+      - TEMPORARY_DUTY
     x-display-value:
       PERMANENT_CHANGE_OF_STATION: Permanent Change Of Station
       LOCAL_MOVE: Local Move
@@ -2495,6 +2536,7 @@ definitions:
       WOUNDED_WARRIOR: Wounded Warrior
       BLUEBARK: BLUEBARK
       SAFETY: Safety
+      TEMPORARY_DUTY: Temporary Duty (TDY)
   Address:
     description: A postal address
     type: object
@@ -2641,8 +2683,10 @@ definitions:
         type: string
         title: Country
         x-nullable: true
-        example: USA
-        default: USA
+        example: US
+        default: US
+        pattern: ^[A-Z]{2}$
+        description: Two-letter country code
       county:
         type: string
         title: County
@@ -2670,8 +2714,6 @@ definitions:
       - AIR_FORCE
       - COAST_GUARD
       - SPACE_FORCE
-      - NAVY_AND_MARINES
-      - AIR_AND_SPACE_FORCE
       - OTHER
     x-display-value:
       ARMY: Army
@@ -2755,6 +2797,9 @@ definitions:
       updated_at:
         type: string
         format: date-time
+      provides_services_counseling:
+        type: boolean
+        x-nullable: false
     required:
       - id
       - name
@@ -3736,6 +3781,14 @@ definitions:
         type: array
         items:
           $ref: '#/definitions/ProGearWeightTicket'
+      isActualExpenseReimbursement:
+        description: >-
+          Used for PPM shipments only. Denotes if this shipment uses the Actual
+          Expense Reimbursement method.
+        type: boolean
+        example: false
+        x-omitempty: false
+        x-nullable: true
       signedCertification:
         $ref: '#/definitions/SignedCertification'
       eTag:
@@ -4755,11 +4808,6 @@ paths:
           format: uuid
           required: true
           description: UUID of the move
-        - in: body
-          name: cancelMove
-          required: true
-          schema:
-            $ref: '#/definitions/CancelMove'
       responses:
         '200':
           description: returns updated (canceled) move object

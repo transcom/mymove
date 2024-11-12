@@ -14,7 +14,8 @@ import (
 
 // AddressModel model
 func AddressModel(address *internalmessages.Address) *models.Address {
-	if address == nil {
+	var blankSwaggerID strfmt.UUID
+	if address == nil || (address.ID == blankSwaggerID && address.StreetAddress1 == nil) {
 		return nil
 	}
 	if address.County == nil {
@@ -28,7 +29,6 @@ func AddressModel(address *internalmessages.Address) *models.Address {
 		City:           *address.City,
 		State:          *address.State,
 		PostalCode:     *address.PostalCode,
-		Country:        address.Country,
 		County:         *address.County,
 	}
 }
@@ -47,7 +47,6 @@ func PPMDestinationAddressModel(address *internalmessages.PPMDestinationAddress)
 		City:           *address.City,
 		State:          *address.State,
 		PostalCode:     *address.PostalCode,
-		Country:        address.Country,
 		County:         *address.County,
 	}
 	if address.StreetAddress1 != nil && len(strings.Trim(*address.StreetAddress1, " ")) > 0 {
@@ -196,6 +195,10 @@ func PPMShipmentModelFromCreate(ppmShipment *internalmessages.CreatePPMShipment)
 		model.TertiaryDestinationAddress = AddressModel(ppmShipment.TertiaryDestinationAddress)
 	}
 
+	if ppmShipment.IsActualExpenseReimbursement != nil {
+		model.IsActualExpenseReimbursement = ppmShipment.IsActualExpenseReimbursement
+	}
+
 	return model
 }
 
@@ -211,6 +214,7 @@ func UpdatePPMShipmentModel(ppmShipment *internalmessages.UpdatePPMShipment) *mo
 		SITExpected:                    ppmShipment.SitExpected,
 		EstimatedWeight:                handlers.PoundPtrFromInt64Ptr(ppmShipment.EstimatedWeight),
 		HasProGear:                     ppmShipment.HasProGear,
+		IsActualExpenseReimbursement:   ppmShipment.IsActualExpenseReimbursement,
 		ProGearWeight:                  handlers.PoundPtrFromInt64Ptr(ppmShipment.ProGearWeight),
 		SpouseProGearWeight:            handlers.PoundPtrFromInt64Ptr(ppmShipment.SpouseProGearWeight),
 		HasRequestedAdvance:            ppmShipment.HasRequestedAdvance,

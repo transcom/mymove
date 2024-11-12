@@ -59,15 +59,26 @@ func (f *ppmShipmentCreator) createPPMShipment(appCtx appcontext.AppContext, ppm
 		if ppmShipment.PickupAddress != nil {
 			address, err = f.addressCreator.CreateAddress(txnAppCtx, ppmShipment.PickupAddress)
 			if err != nil {
-				return fmt.Errorf("failed to create pickup address %e", err)
+				switch err := err.(type) {
+				case apperror.EventError:
+					return err
+				default:
+					return fmt.Errorf("failed to create pickup address %e", err)
+				}
 			}
 			ppmShipment.PickupAddressID = &address.ID
+			ppmShipment.PickupAddress = address
 		}
 
 		if ppmShipment.SecondaryPickupAddress != nil {
 			address, err = f.addressCreator.CreateAddress(txnAppCtx, ppmShipment.SecondaryPickupAddress)
 			if err != nil {
-				return fmt.Errorf("failed to create secondary pickup address %e", err)
+				switch err := err.(type) {
+				case apperror.EventError:
+					return err
+				default:
+					return fmt.Errorf("failed to create secondary pickup address %e", err)
+				}
 			}
 			ppmShipment.SecondaryPickupAddressID = &address.ID
 			// ensure HasSecondaryPickupAddress property is set true on create
@@ -87,15 +98,26 @@ func (f *ppmShipmentCreator) createPPMShipment(appCtx appcontext.AppContext, ppm
 		if ppmShipment.DestinationAddress != nil {
 			address, err = f.addressCreator.CreateAddress(txnAppCtx, ppmShipment.DestinationAddress)
 			if err != nil {
-				return fmt.Errorf("failed to create destination address %e", err)
+				switch err := err.(type) {
+				case apperror.EventError:
+					return err
+				default:
+					return fmt.Errorf("failed to create destination address %e", err)
+				}
 			}
 			ppmShipment.DestinationAddressID = &address.ID
+			ppmShipment.DestinationAddress = address
 		}
 
 		if ppmShipment.SecondaryDestinationAddress != nil {
 			address, err = f.addressCreator.CreateAddress(txnAppCtx, ppmShipment.SecondaryDestinationAddress)
 			if err != nil {
-				return fmt.Errorf("failed to create secondary delivery address %e", err)
+				switch err := err.(type) {
+				case apperror.EventError:
+					return err
+				default:
+					return fmt.Errorf("failed to create secondary destination address %e", err)
+				}
 			}
 			ppmShipment.SecondaryDestinationAddressID = &address.ID
 			// ensure HasSecondaryDestinationAddress property is set true on create
@@ -126,13 +148,33 @@ func (f *ppmShipmentCreator) createPPMShipment(appCtx appcontext.AppContext, ppm
 
 		// Validate ppm shipment model object and save it to DB
 		verrs, err := txnAppCtx.DB().ValidateAndCreate(ppmShipment)
-
 		// Check validation errors
 		if verrs != nil && verrs.HasAny() {
 			return apperror.NewInvalidInputError(uuid.Nil, err, verrs, "Invalid input found while creating the PPM shipment.")
 		} else if err != nil {
 			// If the error is something else (this is unexpected), we create a QueryError
 			return apperror.NewQueryError("PPM Shipment", err, "")
+		}
+
+		// updating the shipment after PPM creation due to addresses not being created until PPM shipment is created
+		// when populating the market_code column, it is considered domestic if both pickup & dest on the PPM are CONUS addresses
+		var mtoShipment models.MTOShipment
+		if err := txnAppCtx.DB().Find(&mtoShipment, ppmShipment.ShipmentID); err != nil {
+			return err
+		}
+		if ppmShipment.PickupAddress != nil && ppmShipment.DestinationAddress != nil &&
+			ppmShipment.PickupAddress.IsOconus != nil && ppmShipment.DestinationAddress.IsOconus != nil {
+			pickupAddress := ppmShipment.PickupAddress
+			destAddress := ppmShipment.DestinationAddress
+			marketCode, err := models.DetermineMarketCode(pickupAddress, destAddress)
+			if err != nil {
+				return err
+			}
+			mtoShipment.MarketCode = marketCode
+			if err := txnAppCtx.DB().Update(&mtoShipment); err != nil {
+				return err
+			}
+			ppmShipment.Shipment = mtoShipment
 		}
 
 		return err

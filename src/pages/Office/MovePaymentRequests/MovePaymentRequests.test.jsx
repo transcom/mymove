@@ -11,6 +11,7 @@ import { useMovePaymentRequestsQueries } from 'hooks/queries';
 import { shipmentStatuses } from 'constants/shipments';
 import SERVICE_ITEM_STATUSES from 'constants/serviceItems';
 import { permissionTypes } from 'constants/permissions';
+import { ORDERS_TYPE } from 'constants/orders';
 
 jest.mock('hooks/queries', () => ({
   useMovePaymentRequestsQueries: jest.fn(),
@@ -44,7 +45,7 @@ const move = {
 };
 
 const order = {
-  orders_type: 'PERMANENT_CHANGE_OF_STATION',
+  orders_type: ORDERS_TYPE.PERMANENT_CHANGE_OF_STATION,
   has_dependents: false,
   issue_date: '2020-08-11',
   grade: 'E_1',
@@ -623,7 +624,7 @@ describe('MovePaymentRequests', () => {
       jest.spyOn(console, 'error').mockImplementation(() => {});
       renderMovePaymentRequests(testProps);
 
-      const reviewWeights = screen.getByRole('button', { name: 'Review weights' });
+      const reviewWeights = screen.getByRole('button', { name: 'Review shipment weights' });
 
       await userEvent.click(reviewWeights);
 
@@ -659,7 +660,7 @@ describe('MovePaymentRequests', () => {
     });
   });
 
-  describe('a move that does not have a billableWeightsReviewedAt timestamp displays a primary styled Review Weights btn', () => {
+  describe('a move that does not have a billableWeightsReviewedAt timestamp displays a primary styled Review shipment weights btn', () => {
     beforeEach(() => {
       useMovePaymentRequestsQueries.mockReturnValue(moveShipmentMissingReweighWeight);
     });
@@ -667,12 +668,12 @@ describe('MovePaymentRequests', () => {
     it('shows the max billable weight warning tag in sidebar', async () => {
       renderMovePaymentRequests(testProps);
 
-      const reviewWeights = screen.getByRole('button', { name: 'Review weights' });
+      const reviewWeights = screen.getByRole('button', { name: 'Review shipment weights' });
       expect(reviewWeights).not.toHaveClass('usa-button--secondary');
     });
   });
 
-  describe('a move that has a billableWeightsReviewedAt timestamp displays a secondary styled Review Weights btn', () => {
+  describe('a move that has a billableWeightsReviewedAt timestamp displays a secondary styled Review shipment weights btn', () => {
     beforeEach(() => {
       useMovePaymentRequestsQueries.mockReturnValue(returnWithBillableWeightsReviewed);
     });
@@ -680,7 +681,7 @@ describe('MovePaymentRequests', () => {
     it('shows the max billable weight warning tag in sidebar', async () => {
       renderMovePaymentRequests(testProps);
 
-      const reviewWeights = screen.getByRole('button', { name: 'Review weights' });
+      const reviewWeights = screen.getByRole('button', { name: 'Review shipment weights' });
       expect(reviewWeights).toHaveClass('usa-button--secondary');
     });
   });

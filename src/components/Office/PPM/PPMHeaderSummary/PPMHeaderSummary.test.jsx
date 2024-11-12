@@ -158,6 +158,7 @@ const defaultProps = {
     miles: 300,
     estimatedWeight: 3000,
     actualWeight: 3500,
+    isActualExpenseReimbursement: true,
   },
   ppmNumber: 1,
   showAllFields: false,
@@ -173,7 +174,9 @@ describe('PPMHeaderSummary component', () => {
       await waitFor(() => {
         expect(screen.getByRole('heading', { level: 3, name: 'PPM 1' })).toBeInTheDocument();
       });
+      expect(screen.getByTestId('tag', { name: 'actual expense reimbursement' })).toBeInTheDocument();
 
+      expect(screen.getByText('Actual Expense Reimbursement')).toBeInTheDocument();
       expect(screen.getByText('Planned Move Start Date')).toBeInTheDocument();
       expect(screen.getByText('02-Dec-2022')).toBeInTheDocument();
       expect(screen.getByText('Actual Move Start Date')).toBeInTheDocument();
