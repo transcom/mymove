@@ -197,7 +197,7 @@ export const counselingColumns = (moveLockFlag, originLocationList, supervisor, 
         'Assigned',
         (row) => {
           return !row?.assignable ? (
-            <div>{`${row.assignedTo?.lastName}, ${row.assignedTo?.firstName}`}</div>
+            <div>{row.assignedTo ? `${row.assignedTo?.lastName}, ${row.assignedTo?.firstName}` : ''}</div>
           ) : (
             <div data-label="assignedSelect" className={styles.assignedToCol}>
               <Dropdown
@@ -387,7 +387,7 @@ export const closeoutColumns = (
         'Assigned',
         (row) => {
           return !row?.assignable ? (
-            <div>{`${row.assignedTo?.lastName}, ${row.assignedTo?.firstName}`}</div>
+            <div>{row.assignedTo ? `${row.assignedTo?.lastName}, ${row.assignedTo?.firstName}` : ''}</div>
           ) : (
             <div data-label="assignedSelect" className={styles.assignedToCol}>
               <Dropdown
