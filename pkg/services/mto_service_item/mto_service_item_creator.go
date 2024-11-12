@@ -8,6 +8,7 @@ import (
 
 	"github.com/gobuffalo/validate/v3"
 	"github.com/gofrs/uuid"
+	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/apperror"
@@ -367,6 +368,15 @@ func (o *mtoServiceItemCreator) CreateMTOServiceItem(appCtx appcontext.AppContex
 	// set re service fields for service item
 	serviceItem.ReServiceID = reService.ID
 	serviceItem.ReService.Name = reService.Name
+
+	if serviceItem.ReService.Code == models.ReServiceCodeMS {
+		// check if the MS exists already for the move
+		err := o.checkDuplicateServiceCodes(appCtx, serviceItem)
+		if err != nil {
+			appCtx.Logger().Error(fmt.Sprintf("Error trying to create a duplicate MS service item for move ID: %s", move.ID), zap.Error(err))
+			return nil, nil, err
+		}
+	}
 
 	// We can have two service items that come in from a MTO approval that do not have an MTOShipmentID
 	// they are MTO level service items. This should capture that and create them accordingly, they are thankfully

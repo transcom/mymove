@@ -12,6 +12,7 @@ import PPMHeaderSummary from '../PPMHeaderSummary/PPMHeaderSummary';
 import styles from './ReviewProGear.module.scss';
 
 import { ErrorMessage } from 'components/form';
+import { OrderShape } from 'types/order';
 import { patchProGearWeightTicket } from 'services/ghcApi';
 import { ProGearTicketShape } from 'types/shipment';
 import Fieldset from 'shared/Fieldset';
@@ -47,6 +48,7 @@ export default function ReviewProGear({
   onSuccess,
   formRef,
   readOnly,
+  order,
 }) {
   const [canEditRejection, setCanEditRejection] = useState(true);
 
@@ -127,6 +129,7 @@ export default function ReviewProGear({
               <div className={classnames(formStyles.form, styles.reviewProGear, styles.headerContainer)}>
                 <PPMHeaderSummary
                   ppmShipmentInfo={ppmShipmentInfo}
+                  order={order}
                   ppmNumber={ppmNumber}
                   showAllFields={false}
                   readOnly={readOnly}
@@ -295,6 +298,7 @@ ReviewProGear.propTypes = {
   ppmNumber: number.isRequired,
   onSuccess: func,
   formRef: object,
+  order: OrderShape.isRequired,
 };
 
 ReviewProGear.defaultProps = {

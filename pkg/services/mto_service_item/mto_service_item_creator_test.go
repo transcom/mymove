@@ -495,6 +495,70 @@ func (suite *MTOServiceItemServiceSuite) TestCreateMTOServiceItem() {
 		suite.Equal(createdServiceItemMSList[0].Status, models.MTOServiceItemStatus("APPROVED"))
 	})
 
+	// Should not be able to create a service item with code ReServiceCodeMS if there is one already created for the move.
+	suite.Run("ReServiceCodeMS multiple creation error", func() {
+		// TESTCASE SCENARIO
+		// Under test: CreateMTOServiceItem function
+		// Set up:     Then create service items for CS or MS. Then try to create again.
+		// Expected outcome:
+		//             Fail, MS cannot be created if there is one already created for the move.
+
+		contract := testdatagen.FetchOrMakeReContract(suite.DB(), testdatagen.Assertions{})
+
+		startDate := time.Date(2024, time.January, 1, 12, 0, 0, 0, time.UTC)
+		endDate := time.Date(2024, time.December, 31, 12, 0, 0, 0, time.UTC)
+		contractYear := testdatagen.FetchOrMakeReContractYear(suite.DB(), testdatagen.Assertions{
+			ReContractYear: models.ReContractYear{
+				Contract:             contract,
+				ContractID:           contract.ID,
+				StartDate:            startDate,
+				EndDate:              endDate,
+				Escalation:           1.0,
+				EscalationCompounded: 1.0,
+			},
+		})
+
+		reServiceMS := factory.FetchOrBuildReServiceByCode(suite.DB(), "MS")
+		msTaskOrderFee := models.ReTaskOrderFee{
+			ContractYearID: contractYear.ID,
+			ServiceID:      reServiceMS.ID,
+			PriceCents:     90000,
+		}
+		suite.MustSave(&msTaskOrderFee)
+
+		move := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
+
+		pickupDate := time.Date(2024, time.July, 31, 12, 0, 0, 0, time.UTC)
+		factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+			{
+				Model: models.MTOShipment{
+					RequestedPickupDate: &pickupDate,
+				},
+			},
+		}, nil)
+
+		serviceItemMS := models.MTOServiceItem{
+			MoveTaskOrderID: move.ID,
+			MoveTaskOrder:   move,
+			ReService:       reServiceMS,
+		}
+
+		createdServiceItemsMS, _, err := creator.CreateMTOServiceItem(suite.AppContextForTest(), &serviceItemMS)
+		suite.NotNil(createdServiceItemsMS)
+		suite.NoError(err)
+
+		createdServiceItemsMSDupe, _, err := creator.CreateMTOServiceItem(suite.AppContextForTest(), &serviceItemMS)
+
+		fakeMTOShipmentRouterErr := apperror.NewConflictError(serviceItemMS.ID, fmt.Sprintf("for creating a service item. A service item with reServiceCode %s already exists for this move and/or shipment.", serviceItemMS.ReService.Code))
+
+		suite.Nil(createdServiceItemsMSDupe)
+		suite.Equal(fakeMTOShipmentRouterErr.Error(), err.Error())
+	})
+
 	// Should not be able to create CS or MS service items unless a shipment within the move has a requested pickup date
 	suite.Run("ReServiceCodeCS & ReServiceCodeMS creation error due to lack of shipment requested pickup date", func() {
 		// TESTCASE SCENARIO
@@ -593,7 +657,7 @@ func (suite *MTOServiceItemServiceSuite) TestCreateMTOServiceItem() {
 			},
 		})
 
-		reServiceCS := factory.FetchReServiceByCode(suite.DB(), "CS")
+		reServiceCS := factory.FetchOrBuildReServiceByCode(suite.DB(), "CS")
 		csTaskOrderFee := models.ReTaskOrderFee{
 			ContractYearID: contractYear.ID,
 			ServiceID:      reServiceCS.ID,

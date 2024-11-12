@@ -476,6 +476,34 @@ func (suite *OrderServiceSuite) TestUpdateOrderAsCounselor() {
 		suite.Equal(*updatedOrder.Entitlement.DBAuthorizedWeight, 16000)
 	})
 
+	suite.Run("Updates the PPM actual expense reimbursement when pay grade is civilian", func() {
+		moveRouter := move.NewMoveRouter()
+		orderUpdater := NewOrderUpdater(moveRouter)
+
+		ppmShipment := factory.BuildPPMShipmentThatNeedsCloseout(suite.DB(), nil, nil)
+		move := ppmShipment.Shipment.MoveTaskOrder
+
+		order := move.Orders
+		grade := ghcmessages.GradeCIVILIANEMPLOYEE
+		body := ghcmessages.CounselingUpdateOrderPayload{
+			Grade: &grade,
+		}
+		eTag := etag.GenerateEtag(order.UpdatedAt)
+
+		var moved models.Move
+		err := suite.DB().Find(&moved, move.ID)
+		suite.NoError(err)
+
+		_, _, errs := orderUpdater.UpdateOrderAsCounselor(suite.AppContextForTest(), order.ID, body, eTag)
+		suite.NoError(errs)
+
+		var updatedPPMShipment models.PPMShipment
+		err = suite.DB().Find(&updatedPPMShipment, ppmShipment.ID)
+
+		suite.NoError(err)
+		suite.EqualValues(true, *updatedPPMShipment.IsActualExpenseReimbursement)
+	})
+
 	suite.Run("Rolls back transaction if Order is invalid", func() {
 		moveRouter := move.NewMoveRouter()
 		orderUpdater := NewOrderUpdater(moveRouter)
@@ -976,7 +1004,7 @@ func (suite *OrderServiceSuite) TestUploadAmendedOrdersForCustomer() {
 		suite.NoError(err)
 		suite.NoVerrs(verrs)
 
-		expectedChecksum := "EUzjq/RQB5xjsdYBNl13zQ=="
+		expectedChecksum := "+XM59C3+hSg3Qrs0dPRuUhng5IQTWdYZtmcXhEH0SYU="
 		if upload.Checksum != expectedChecksum {
 			suite.Fail("Did not calculate the correct MD5: expected %s, got %s", expectedChecksum, upload.Checksum)
 		}
