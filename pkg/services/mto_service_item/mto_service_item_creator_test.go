@@ -415,23 +415,25 @@ func (suite *MTOServiceItemServiceSuite) TestCreateMTOServiceItem() {
 		suite.Contains(err.Error(), fakeCode)
 	})
 
-	// Should be able to create a service item with code ReServiceCodeMS or ReServiceCodeCS without a shipment,
+	// Should be able to create a service item with code ReServiceCodeMS or ReServiceCodeCS that uses a shipment's requested pickup date,
 	// and it should come back as "APPROVED"
-	suite.Run("ReServiceCodeCS creation approved", func() {
+	suite.Run("ReServiceCodeCS & ReServiceCodeMS creation approved", func() {
 		// TESTCASE SCENARIO
 		// Under test: CreateMTOServiceItem function
-		// Set up:     Create an approved move with no shipments. Then create service items for CS or MS.
+		// Set up:     Create an approved move with a shipment. Then create service items for CS & MS.
 		// Expected outcome:
-		//             Success, CS and MS can be created on moves without shipments.
+		//             Success, CS & MS can be created as long as requested pickup date exists on a shipment
 
 		contract := testdatagen.FetchOrMakeReContract(suite.DB(), testdatagen.Assertions{})
 
+		startDate := time.Date(2024, time.January, 1, 12, 0, 0, 0, time.UTC)
+		endDate := time.Date(2024, time.December, 31, 12, 0, 0, 0, time.UTC)
 		contractYear := testdatagen.FetchOrMakeReContractYear(suite.DB(), testdatagen.Assertions{
 			ReContractYear: models.ReContractYear{
 				Contract:             contract,
 				ContractID:           contract.ID,
-				StartDate:            time.Now(),
-				EndDate:              time.Now().Add(time.Hour * 12),
+				StartDate:            startDate,
+				EndDate:              endDate,
 				Escalation:           1.0,
 				EscalationCompounded: 1.0,
 			},
@@ -446,6 +448,18 @@ func (suite *MTOServiceItemServiceSuite) TestCreateMTOServiceItem() {
 		suite.MustSave(&csTaskOrderFee)
 
 		move := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
+		pickupDate := time.Date(2024, time.July, 31, 12, 0, 0, 0, time.UTC)
+		factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+			{
+				Model: models.MTOShipment{
+					RequestedPickupDate: &pickupDate,
+				},
+			},
+		}, nil)
 		serviceItemCS := models.MTOServiceItem{
 			MoveTaskOrderID: move.ID,
 			MoveTaskOrder:   move,
@@ -543,6 +557,237 @@ func (suite *MTOServiceItemServiceSuite) TestCreateMTOServiceItem() {
 
 		suite.Nil(createdServiceItemsMSDupe)
 		suite.Equal(fakeMTOShipmentRouterErr.Error(), err.Error())
+	})
+
+	// Should not be able to create CS or MS service items unless a shipment within the move has a requested pickup date
+	suite.Run("ReServiceCodeCS & ReServiceCodeMS creation error due to lack of shipment requested pickup date", func() {
+		// TESTCASE SCENARIO
+		// Under test: CreateMTOServiceItem function
+		// Set up:     Create an approved move with a shipment that does not have a requested pickup date. Then attempt to create service items for CS & MS.
+		// Expected outcome:
+		//             Error, CS & MS cannot be created unless a shipment within the move has a requested pickup date
+
+		contract := testdatagen.FetchOrMakeReContract(suite.DB(), testdatagen.Assertions{})
+
+		startDate := time.Date(2020, time.January, 1, 12, 0, 0, 0, time.UTC)
+		endDate := time.Date(2020, time.December, 31, 12, 0, 0, 0, time.UTC)
+		contractYear := testdatagen.FetchOrMakeReContractYear(suite.DB(), testdatagen.Assertions{
+			ReContractYear: models.ReContractYear{
+				Contract:             contract,
+				ContractID:           contract.ID,
+				StartDate:            startDate,
+				EndDate:              endDate,
+				Escalation:           1.0,
+				EscalationCompounded: 1.0,
+			},
+		})
+
+		reServiceCS := factory.FetchOrBuildReServiceByCode(suite.DB(), "CS")
+		csTaskOrderFee := models.ReTaskOrderFee{
+			ContractYearID: contractYear.ID,
+			ServiceID:      reServiceCS.ID,
+			PriceCents:     90000,
+		}
+		suite.MustSave(&csTaskOrderFee)
+
+		move := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
+		shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+			{
+				Model: models.MTOShipment{
+					RequestedPickupDate: nil,
+				},
+			},
+		}, nil)
+		shipment.RequestedPickupDate = nil
+		suite.MustSave(&shipment)
+		serviceItemCS := models.MTOServiceItem{
+			MoveTaskOrderID: move.ID,
+			MoveTaskOrder:   move,
+			ReService:       reServiceCS,
+		}
+
+		createdServiceItemsCS, _, err := creator.CreateMTOServiceItem(suite.AppContextForTest(), &serviceItemCS)
+		suite.Nil(createdServiceItemsCS)
+		suite.Error(err)
+		suite.Contains(err.Error(), "cannot create fee for service item CS: missing requested pickup date (non-PPMs) or expected departure date (PPMs) for shipment")
+
+		reServiceMS := factory.FetchOrBuildReServiceByCode(suite.DB(), "MS")
+		msTaskOrderFee := models.ReTaskOrderFee{
+			ContractYearID: contractYear.ID,
+			ServiceID:      reServiceMS.ID,
+			PriceCents:     90000,
+		}
+		suite.MustSave(&msTaskOrderFee)
+
+		serviceItemMS := models.MTOServiceItem{
+			MoveTaskOrderID: move.ID,
+			MoveTaskOrder:   move,
+			ReService:       reServiceMS,
+		}
+
+		createdServiceItemsMS, _, err := creator.CreateMTOServiceItem(suite.AppContextForTest(), &serviceItemMS)
+		suite.Nil(createdServiceItemsMS)
+		suite.Error(err)
+		suite.Contains(err.Error(), "cannot create fee for service item MS: missing requested pickup date (non-PPMs) or expected departure date (PPMs) for shipment")
+	})
+
+	// Should be able to create CS service item for full PPM that has expected departure date
+	suite.Run("ReServiceCodeCS creation for Full PPM", func() {
+		// TESTCASE SCENARIO
+		// Under test: CreateMTOServiceItem function
+		// Set up:     Create an approved move with a PPM shipment that has an expected departure date
+		//             Success, CS can be created
+
+		contract := testdatagen.FetchOrMakeReContract(suite.DB(), testdatagen.Assertions{})
+
+		startDate := time.Date(2020, time.January, 1, 12, 0, 0, 0, time.UTC)
+		endDate := time.Date(2020, time.December, 31, 12, 0, 0, 0, time.UTC)
+		contractYear := testdatagen.FetchOrMakeReContractYear(suite.DB(), testdatagen.Assertions{
+			ReContractYear: models.ReContractYear{
+				Contract:             contract,
+				ContractID:           contract.ID,
+				StartDate:            startDate,
+				EndDate:              endDate,
+				Escalation:           1.0,
+				EscalationCompounded: 1.0,
+			},
+		})
+
+		reServiceCS := factory.FetchOrBuildReServiceByCode(suite.DB(), "CS")
+		csTaskOrderFee := models.ReTaskOrderFee{
+			ContractYearID: contractYear.ID,
+			ServiceID:      reServiceCS.ID,
+			PriceCents:     90000,
+		}
+		suite.MustSave(&csTaskOrderFee)
+
+		move := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
+		factory.BuildPPMShipment(suite.DB(), []factory.Customization{
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+		}, nil)
+		serviceItemCS := models.MTOServiceItem{
+			MoveTaskOrderID: move.ID,
+			MoveTaskOrder:   move,
+			ReService:       reServiceCS,
+		}
+
+		createdServiceItemsCS, _, err := creator.CreateMTOServiceItem(suite.AppContextForTest(), &serviceItemCS)
+		suite.NotNil(createdServiceItemsCS)
+		suite.NoError(err)
+	})
+
+	suite.Run("ReServiceCodeCS & ReServiceCodeMS use the correct contract year based on a shipment's requested pickup date", func() {
+		// TESTCASE SCENARIO
+		// Under test: CreateMTOServiceItem function
+		// Set up:     Create an approved move with a shipment that has a requested pickup date. Then create service items for CS & MS.
+		// Expected outcome:
+		//             Success and the service items should have the correct price based off of the contract year/requested pickup date
+
+		contract := testdatagen.FetchOrMakeReContract(suite.DB(), testdatagen.Assertions{})
+
+		startDate := time.Date(2020, time.January, 1, 12, 0, 0, 0, time.UTC)
+		endDate := time.Date(2020, time.December, 31, 12, 0, 0, 0, time.UTC)
+		contractYear := testdatagen.FetchOrMakeReContractYear(suite.DB(), testdatagen.Assertions{
+			ReContractYear: models.ReContractYear{
+				Contract:             contract,
+				ContractID:           contract.ID,
+				StartDate:            startDate,
+				EndDate:              endDate,
+				Escalation:           1.0,
+				EscalationCompounded: 1.0,
+			},
+		})
+
+		contract2 := testdatagen.FetchOrMakeReContract(suite.DB(), testdatagen.Assertions{})
+		startDate2 := time.Date(2021, time.January, 1, 12, 0, 0, 0, time.UTC)
+		endDate2 := time.Date(2021, time.December, 31, 12, 0, 0, 0, time.UTC)
+		contractYear2 := testdatagen.FetchOrMakeReContractYear(suite.DB(), testdatagen.Assertions{
+			ReContractYear: models.ReContractYear{
+				Contract:             contract2,
+				ContractID:           contract2.ID,
+				StartDate:            startDate2,
+				EndDate:              endDate2,
+				Escalation:           1.0,
+				EscalationCompounded: 1.0,
+			},
+		})
+
+		reServiceCS := factory.FetchOrBuildReServiceByCode(suite.DB(), "CS")
+		csTaskOrderFee := models.ReTaskOrderFee{
+			ContractYearID: contractYear.ID,
+			ServiceID:      reServiceCS.ID,
+			PriceCents:     90000,
+		}
+		suite.MustSave(&csTaskOrderFee)
+
+		// creating second fee that we will test against
+		csTaskOrderFee2 := models.ReTaskOrderFee{
+			ContractYearID: contractYear2.ID,
+			ServiceID:      reServiceCS.ID,
+			PriceCents:     100000,
+		}
+		suite.MustSave(&csTaskOrderFee2)
+
+		move := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
+		// going to link a shipment that has a requested pickup date falling under the second contract period
+		pickupDate := time.Date(2021, time.July, 1, 12, 0, 0, 0, time.UTC)
+		factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+			{
+				Model: models.MTOShipment{
+					RequestedPickupDate: &pickupDate,
+				},
+			},
+		}, nil)
+		serviceItemCS := models.MTOServiceItem{
+			MoveTaskOrderID: move.ID,
+			MoveTaskOrder:   move,
+			ReService:       reServiceCS,
+		}
+
+		createdServiceItemsCS, _, err := creator.CreateMTOServiceItem(suite.AppContextForTest(), &serviceItemCS)
+		suite.NotNil(createdServiceItemsCS)
+		suite.NoError(err)
+		createdServiceItemCSList := *createdServiceItemsCS
+		suite.Equal(createdServiceItemCSList[0].Status, models.MTOServiceItemStatus("APPROVED"))
+		suite.Equal(*createdServiceItemCSList[0].LockedPriceCents, csTaskOrderFee2.PriceCents)
+
+		reServiceMS := factory.FetchOrBuildReServiceByCode(suite.DB(), "MS")
+		msTaskOrderFee := models.ReTaskOrderFee{
+			ContractYearID: contractYear.ID,
+			ServiceID:      reServiceMS.ID,
+			PriceCents:     90000,
+		}
+		suite.MustSave(&msTaskOrderFee)
+		msTaskOrderFee2 := models.ReTaskOrderFee{
+			ContractYearID: contractYear2.ID,
+			ServiceID:      reServiceMS.ID,
+			PriceCents:     100000,
+		}
+		suite.MustSave(&msTaskOrderFee2)
+
+		serviceItemMS := models.MTOServiceItem{
+			MoveTaskOrderID: move.ID,
+			MoveTaskOrder:   move,
+			ReService:       reServiceMS,
+		}
+
+		createdServiceItemsMS, _, err := creator.CreateMTOServiceItem(suite.AppContextForTest(), &serviceItemMS)
+		suite.NotNil(createdServiceItemsMS)
+		suite.NoError(err)
+		createdServiceItemMSList := *createdServiceItemsMS
+		suite.Equal(createdServiceItemMSList[0].Status, models.MTOServiceItemStatus("APPROVED"))
+		suite.Equal(*createdServiceItemMSList[0].LockedPriceCents, csTaskOrderFee2.PriceCents)
 	})
 
 	// Should return a "NotFoundError" if the mtoShipmentID isn't linked to the mtoID passed in
