@@ -96,7 +96,6 @@ export const EditFacilityInfoModal = ({
                 <AddressFields
                   name="storageFacility.address"
                   className={styles.AddressFields}
-                  values={values}
                   locationLookup
                   formikProps={formikProps}
                   render={(fields) => (

@@ -942,7 +942,6 @@ const ShipmentForm = (props) => {
                           name="pickup.address"
                           legend="Pickup location"
                           locationLookup
-                          values={values}
                           formikProps={formikProps}
                           render={(fields) => (
                             <>
@@ -986,7 +985,6 @@ const ShipmentForm = (props) => {
                                   <AddressFields
                                     name="secondaryPickup.address"
                                     locationLookup
-                                    values={values}
                                     formikProps={formikProps}
                                   />
                                   {isTertiaryAddressEnabled && (
@@ -1021,7 +1019,6 @@ const ShipmentForm = (props) => {
                                         <AddressFields
                                           name="tertiaryPickup.address"
                                           locationLookup
-                                          values={values}
                                           formikProps={formikProps}
                                         />
                                       )}
@@ -1103,7 +1100,6 @@ const ShipmentForm = (props) => {
                           <AddressFields
                             name="delivery.address"
                             locationLookup
-                            values={values}
                             formikProps={formikProps}
                             render={(fields) => {
                               return fields;
@@ -1140,7 +1136,6 @@ const ShipmentForm = (props) => {
                               <AddressFields
                                 name="secondaryDelivery.address"
                                 locationLookup
-                                values={values}
                                 formikProps={formikProps}
                               />
                               {isTertiaryAddressEnabled && (
@@ -1175,7 +1170,6 @@ const ShipmentForm = (props) => {
                                     <AddressFields
                                       name="tertiaryDelivery.address"
                                       locationLookup
-                                      values={values}
                                       formikProps={formikProps}
                                     />
                                   )}
@@ -1256,7 +1250,6 @@ const ShipmentForm = (props) => {
                             <AddressFields
                               name="delivery.address"
                               locationLookup
-                              values={values}
                               formikProps={formikProps}
                               render={(fields) => (
                                 <>
@@ -1300,7 +1293,6 @@ const ShipmentForm = (props) => {
                                       <AddressFields
                                         name="secondaryDelivery.address"
                                         locationLookup
-                                        values={values}
                                         formikProps={formikProps}
                                       />
                                       {isTertiaryAddressEnabled && (
@@ -1337,7 +1329,6 @@ const ShipmentForm = (props) => {
                                             <AddressFields
                                               name="tertiaryDelivery.address"
                                               locationLookup
-                                              values={values}
                                               formikProps={formikProps}
                                             />
                                           )}
@@ -1432,7 +1423,6 @@ const ShipmentForm = (props) => {
                         name="pickup.address"
                         legend="Pickup Address"
                         locationLookup
-                        values={values}
                         formikProps={formikProps}
                         render={(fields) => (
                           <>
@@ -1479,7 +1469,6 @@ const ShipmentForm = (props) => {
                                 <AddressFields
                                   name="secondaryPickup.address"
                                   locationLookup
-                                  values={values}
                                   formikProps={formikProps}
                                 />
                                 {isTertiaryAddressEnabled && (
@@ -1517,7 +1506,6 @@ const ShipmentForm = (props) => {
                                       <AddressFields
                                         name="tertiaryPickup.address"
                                         locationLookup
-                                        values={values}
                                         formikProps={formikProps}
                                       />
                                     )}
@@ -1532,7 +1520,6 @@ const ShipmentForm = (props) => {
                         name="destination.address"
                         legend="Delivery Address"
                         locationLookup
-                        values={values}
                         formikProps={formikProps}
                         address1LabelHint="Optional"
                         render={(fields) => (
@@ -1572,7 +1559,6 @@ const ShipmentForm = (props) => {
                                 <AddressFields
                                   name="secondaryDestination.address"
                                   locationLookup
-                                  values={values}
                                   formikProps={formikProps}
                                 />
                                 {isTertiaryAddressEnabled && (
@@ -1610,7 +1596,6 @@ const ShipmentForm = (props) => {
                                       <AddressFields
                                         name="tertiaryDestination.address"
                                         locationLookup
-                                        values={values}
                                         formikProps={formikProps}
                                       />
                                     )}

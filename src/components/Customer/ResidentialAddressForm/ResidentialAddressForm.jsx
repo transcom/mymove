@@ -38,7 +38,6 @@ const ResidentialAddressForm = ({ formFieldsName, initialValues, onSubmit, onBac
                 name={formFieldsName}
                 validators={validators}
                 locationLookup
-                values={values}
                 formikProps={formikProps}
               />
             </SectionWrapper>

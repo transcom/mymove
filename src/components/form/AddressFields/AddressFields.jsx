@@ -66,21 +66,26 @@ export const AddressFields = ({
       }}
     />
   ) : (
-    <>
-      <Label>ZIP</Label>
-      <label id={`zip_${addressFieldsUUID.current}`} className={styles.label}>
-        {values[name]?.postalCode}
-      </label>
-    </>
+    <TextField
+      label="ZIP"
+      id={`zip_${addressFieldsUUID.current}`}
+      name={`${name}.postalCode`}
+      data-testid={`${name}.postalCode`}
+      maxLength={10}
+      labelHint={labelHintProp}
+      display="readonly"
+    />
   );
 
   const stateField = locationLookup ? (
-    <>
-      <Label>State</Label>
-      <label id={`state_${addressFieldsUUID.current}`} className={styles.label}>
-        {values[name]?.state}
-      </label>
-    </>
+    <TextField
+      label="State"
+      id={`state_${addressFieldsUUID.current}`}
+      name={`${name}.state`}
+      data-testid={`${name}.state`}
+      labelHint={labelHintProp}
+      display="readonly"
+    />
   ) : (
     <DropdownInput
       name={`${name}.state`}
@@ -108,28 +113,15 @@ export const AddressFields = ({
 
   const handleOnLocationChange = (value) => {
     setFieldValue(`${name}.city`, value.city);
-    setFieldTouched(`${name}.city`, true);
+    setFieldTouched(`${name}.city`, true, true);
     setFieldValue(`${name}.state`, value.state);
-    setFieldTouched(`${name}.state`, true);
+    setFieldTouched(`${name}.state`, true, true);
     setFieldValue(`${name}.county`, value.county);
-    setFieldTouched(`${name}.county`, true);
+    setFieldTouched(`${name}.county`, true, true);
     setFieldValue(`${name}.postalCode`, value.postalCode);
-    setFieldTouched(`${name}.postalCode`, true);
+    setFieldTouched(`${name}.postalCode`, true, true);
     setFieldValue(`${name}.usprcId`, value.usPostRegionCitiesId);
-    setFieldTouched(`${name}.usprcId`, true);
-    // formikSetValues(
-    //   {
-    //     ...formikValues,
-    //     [name]: {
-    //       city: value.city,
-    //       state: value.state ? value.state : '',
-    //       county: value.county,
-    //       postalCode: value.postalCode,
-    //       usprcId: value.usPostRegionCitiesId ? value.usPostRegionCitiesId : '',
-    //     },
-    //   },
-    //   { shouldValidate: true },
-    // );
+    setFieldTouched(`${name}.usprcId`, true, true);
   };
 
   return (
@@ -192,14 +184,23 @@ export const AddressFields = ({
               )}
               {locationLookup && (
                 <>
-                  <Label>City</Label>
-                  <label id={`city_${addressFieldsUUID.current}`} className={styles.label}>
-                    {values[name]?.city}
-                  </label>
-                  <Label>County</Label>
-                  <label id={`county_${addressFieldsUUID.current}`} className={styles.label}>
-                    {values[name]?.county}
-                  </label>
+                  <TextField
+                    label="City"
+                    id={`city_${addressFieldsUUID.current}`}
+                    name={`${name}.city`}
+                    labelHint={labelHintProp}
+                    data-testid={`${name}.city`}
+                    display="readonly"
+                  />
+                  <TextField
+                    className={styles.label}
+                    label="County"
+                    id={`county_${addressFieldsUUID.current}`}
+                    name={`${name}.county`}
+                    labelHint={labelHintProp}
+                    data-testid={`${name}.county`}
+                    display="readonly"
+                  />
                 </>
               )}
             </div>
@@ -250,8 +251,8 @@ AddressFields.defaultProps = {
   validators: {},
   formikFunctionsToValidatePostalCodeOnChange: null,
   address1LabelHint: null,
-  formikProps: {},
   values: {},
+  formikProps: {},
 };
 
 export default AddressFields;
