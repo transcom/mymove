@@ -633,21 +633,16 @@ func (suite *HandlerSuite) TestUpdateOrdersHandler() {
 	})
 
 	suite.Run("Updated Origin GBLOC is reflected in move", func() {
-		dutyLocation := factory.FetchOrBuildOtherDutyLocation(suite.DB())
+		address := factory.BuildAddress(suite.DB(), nil, nil)
+		dutyLocation := factory.BuildDutyLocation(suite.DB(), []factory.Customization{
+			{
+				Model:    address,
+				LinkOnly: true,
+			},
+		}, nil)
 		order := factory.BuildOrder(suite.DB(), []factory.Customization{
 			{
-				Model: models.DutyLocation{
-					ID:                         dutyLocation.ID,
-					CreatedAt:                  dutyLocation.CreatedAt,
-					UpdatedAt:                  dutyLocation.UpdatedAt,
-					Name:                       dutyLocation.Name,
-					AddressID:                  dutyLocation.AddressID,
-					Affiliation:                dutyLocation.Affiliation,
-					Address:                    dutyLocation.Address,
-					TransportationOfficeID:     dutyLocation.TransportationOfficeID,
-					TransportationOffice:       dutyLocation.TransportationOffice,
-					ProvidesServicesCounseling: dutyLocation.ProvidesServicesCounseling,
-				},
+				Model:    dutyLocation,
 				LinkOnly: true,
 				Type:     &factory.DutyLocations.OriginDutyLocation,
 			},
