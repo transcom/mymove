@@ -768,7 +768,7 @@ describe('MoveDetails page', () => {
         );
       }
 
-      const originAddressTerms = screen.getAllByText('Origin address');
+      const originAddressTerms = screen.getAllByText('Delivery Address');
 
       expect(originAddressTerms.length).toBe(2);
 
