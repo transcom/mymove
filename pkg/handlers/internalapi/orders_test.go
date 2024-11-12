@@ -647,7 +647,6 @@ func (suite *HandlerSuite) TestUpdateOrdersHandler() {
 		order := factory.BuildOrder(suite.DB(), []factory.Customization{
 			{
 				Model: models.Order{
-					OriginDutyLocation:   &originDutyLocation,
 					OriginDutyLocationID: &originDutyLocation.ID,
 				},
 			},
