@@ -633,26 +633,17 @@ func (suite *HandlerSuite) TestUpdateOrdersHandler() {
 	})
 
 	suite.Run("Updated Origin GBLOC is reflected in move", func() {
+		dutyLocationAddressDefault := factory.BuildDefaultAddress(suite.DB())
+
 		originDutyLocation := factory.BuildDutyLocation(suite.DB(), []factory.Customization{
 			{
 				Model: models.DutyLocation{
-					Name: "Test Location",
+					Name:      "Test Location",
+					AddressID: dutyLocationAddressDefault.ID,
+					Address:   dutyLocationAddressDefault,
 				},
 			},
 		}, nil)
-
-		postalCodeToGBLOC := factory.BuildPostalCodeToGBLOC(suite.DB(), []factory.Customization{
-			{
-				Model: models.PostalCodeToGBLOC{
-					PostalCode: "35023",
-					GBLOC:      "CNNQ",
-				},
-			},
-		}, nil)
-
-		originDutyLocation.Address.PostalCode = postalCodeToGBLOC.PostalCode
-		err := suite.DB().Update(&originDutyLocation.Address)
-		suite.NoError(err)
 
 		order := factory.BuildOrder(suite.DB(), []factory.Customization{
 			{
@@ -667,6 +658,39 @@ func (suite *HandlerSuite) TestUpdateOrdersHandler() {
 			{
 				Model: models.Move{
 					OrdersID: order.ID,
+					Orders:   order,
+				},
+			},
+		}, nil)
+
+		var initialOrderPostalCode string
+		errSqlInitialOrder := suite.DB().RawQuery(`
+			SELECT a.postal_code from orders o
+			join duty_locations dl on dl.id = o.origin_duty_location_id
+			join addresses a on dl.address_id = a.id
+			where o.id = ?`, order.ID).First(&initialOrderPostalCode)
+		suite.NoError(errSqlInitialOrder)
+
+		// establish the baseline of the current order's origin duty location GBLOC being KKFA
+		initialGblocResult, errGblocFetch := models.FetchGBLOCForPostalCode(suite.DB(), initialOrderPostalCode)
+		suite.NoError(errGblocFetch)
+		suite.Equal("KKFA", &initialGblocResult)
+
+		// update the order's origin duty location to a new location
+		dutyLocationAddressUpdated := factory.BuildAddress(suite.DB(), []factory.Customization{
+			{
+				Model: models.Address{
+					PostalCode: "35023",
+				},
+			},
+		}, nil)
+
+		originDutyLocationUpdated := factory.BuildDutyLocation(suite.DB(), []factory.Customization{
+			{
+				Model: models.DutyLocation{
+					Name:      "Test Location 2",
+					AddressID: dutyLocationAddressUpdated.ID,
+					Address:   dutyLocationAddressUpdated,
 				},
 			},
 		}, nil)
@@ -674,7 +698,7 @@ func (suite *HandlerSuite) TestUpdateOrdersHandler() {
 		payload := &internalmessages.CreateUpdateOrders{
 			OrdersNumber:         handlers.FmtString(*order.OrdersNumber),
 			OrdersType:           &order.OrdersType,
-			OriginDutyLocationID: *handlers.FmtUUID(originDutyLocation.ID),
+			OriginDutyLocationID: *handlers.FmtUUID(originDutyLocationUpdated.ID),
 			IssueDate:            handlers.FmtDate(order.IssueDate),
 			ReportByDate:         handlers.FmtDate(order.ReportByDate),
 			DepartmentIndicator:  (*internalmessages.DeptIndicator)(order.DepartmentIndicator),
@@ -705,11 +729,14 @@ func (suite *HandlerSuite) TestUpdateOrdersHandler() {
 		okResponse := response.(*ordersop.UpdateOrdersOK)
 		suite.NoError(okResponse.Payload.Validate(strfmt.Default))
 
-		var returnedGbloc string
-
-		err = suite.DB().RawQuery("SELECT gbloc FROM move_to_gbloc WHERE move_id = $1", move.ID).First(&returnedGbloc)
-		suite.NoError(err)
-		suite.Equal("CNNQ", &returnedGbloc)
+		var updatedOrderReturnedGbloc string
+		errSqlUpdatedOrder := suite.DB().RawQuery(`
+			SELECT a.postal_code from orders o
+			join duty_locations dl on dl.id = o.origin_duty_location_id
+			join addresses a on dl.address_id = a.id
+			where o.id = ?`, order.ID).First(&updatedOrderReturnedGbloc)
+		suite.NoError(errSqlUpdatedOrder)
+		suite.Equal("CNNQ", &errSqlUpdatedOrder)
 	})
 }
 
