@@ -659,6 +659,7 @@ func (suite *HandlerSuite) TestUpdateOrdersHandler() {
 		suite.Equal("KKFA", originalOriginGBLOC.GBLOC)
 
 		updatedDutyLocation := factory.FetchOrBuildOtherDutyLocation(suite.DB())
+		updatedDutyLocationId := updatedDutyLocation.ID
 
 		updatedOrdersType := internalmessages.OrdersTypePERMANENTCHANGEOFSTATION
 		updatedOrdersNumber := "123456"
@@ -669,7 +670,7 @@ func (suite *HandlerSuite) TestUpdateOrdersHandler() {
 		payload := &internalmessages.CreateUpdateOrders{
 			OrdersNumber:         handlers.FmtString(updatedOrdersNumber),
 			OrdersType:           &updatedOrdersType,
-			NewDutyLocationID:    handlers.FmtUUID(updatedDutyLocation.ID),
+			NewDutyLocationID:    handlers.FmtUUID(updatedDutyLocationId),
 			OriginDutyLocationID: *handlers.FmtUUID(*order.OriginDutyLocationID),
 			IssueDate:            handlers.FmtDate(issueDate),
 			ReportByDate:         handlers.FmtDate(reportByDate),
