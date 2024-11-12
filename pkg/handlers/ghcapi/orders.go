@@ -237,7 +237,6 @@ func (h CreateOrderHandler) Handle(params orderop.CreateOrderParams) middleware.
 
 			grade := (internalmessages.OrderPayGrade)(*payload.Grade)
 			weightAllotment := models.GetWeightAllotment(grade)
-
 			weight := weightAllotment.TotalWeightSelf
 			if *payload.HasDependents {
 				weight = weightAllotment.TotalWeightSelfPlusDependents
@@ -253,6 +252,11 @@ func (h CreateOrderHandler) Handle(params orderop.CreateOrderParams) middleware.
 			if payload.DependentsUnderTwelve != nil {
 				dependentsUnderTwelve = models.IntPointer(int(*payload.DependentsUnderTwelve))
 			}
+			// Calculate UB allowance for the order entitlement
+			unaccompaniedBaggageAllowance, err := models.GetUBWeightAllowance(appCtx, originDutyLocation.Address.IsOconus, newDutyLocation.Address.IsOconus, serviceMember.Affiliation, &grade, (*internalmessages.OrdersType)(payload.OrdersType), payload.HasDependents, payload.AccompaniedTour, dependentsUnderTwelve, dependentsTwelveAndOver)
+			if err == nil {
+				weightAllotment.UnaccompaniedBaggageAllowance = unaccompaniedBaggageAllowance
+			}
 
 			entitlement := models.Entitlement{
 				DependentsAuthorized:    payload.HasDependents,
@@ -263,6 +267,7 @@ func (h CreateOrderHandler) Handle(params orderop.CreateOrderParams) middleware.
 				AccompaniedTour:         payload.AccompaniedTour,
 				DependentsUnderTwelve:   dependentsUnderTwelve,
 				DependentsTwelveAndOver: dependentsTwelveAndOver,
+				UBAllowance:             &weightAllotment.UnaccompaniedBaggageAllowance,
 			}
 
 			if saveEntitlementErr := appCtx.DB().Save(&entitlement); saveEntitlementErr != nil {

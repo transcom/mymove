@@ -1030,4 +1030,5 @@
 20241024114748_create_gbloc_aors.up.sql
 20241029125015_add_orders_type_enum.up.sql
 20241029144404_hdt-614-adjust-accomack-county.up.sql
+20241031163018_create_ub_allowances_table.up.sql
 20241111221400_add_new_order_types.up.sql
