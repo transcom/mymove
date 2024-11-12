@@ -53,6 +53,7 @@ const EditOrdersForm = ({
     initialValues.orders_type === ORDERS_TYPE.EARLY_RETURN_OF_DEPENDENTS;
   const [isHasDependentsDisabled, setHasDependentsDisabled] = useState(isInitialHasDependentsDisabled);
   const [prevOrderType, setPrevOrderType] = useState(initialValues.orders_type);
+  const [filteredOrderTypeOptions, setFilteredOrderTypeOptions] = useState(ordersTypeOptions);
   const validationSchema = Yup.object().shape({
     orders_type: Yup.mixed()
       .oneOf(ordersTypeOptions.map((i) => i.key))
@@ -147,6 +148,21 @@ const EditOrdersForm = ({
     }
   }, [currentDutyLocation, newDutyLocation, isOconusMove, hasDependents, enableUB, finishedFetchingFF, isLoading]);
 
+  useEffect(() => {
+    const fetchData = async () => {
+      const alaskaEnabled = await isBooleanFlagEnabled(FEATURE_FLAG_KEYS.ENABLE_ALASKA);
+
+      const updatedOptions = alaskaEnabled
+        ? ordersTypeOptions
+        : ordersTypeOptions.filter(
+            (e) => e.key !== ORDERS_TYPE.EARLY_RETURN_OF_DEPENDENTS && e.key !== ORDERS_TYPE.STUDENT_TRAVEL,
+          );
+
+      setFilteredOrderTypeOptions(updatedOptions);
+    };
+    fetchData();
+  }, [ordersTypeOptions]);
+
   if (isLoading) {
     return <LoadingPlaceholder />;
   }
@@ -232,7 +248,7 @@ const EditOrdersForm = ({
               <DropdownInput
                 label="Orders type"
                 name="orders_type"
-                options={ordersTypeOptions}
+                options={filteredOrderTypeOptions}
                 required
                 hint="Required"
                 onChange={(e) => {

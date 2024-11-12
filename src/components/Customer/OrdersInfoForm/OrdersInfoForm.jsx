@@ -38,6 +38,8 @@ const OrdersInfoForm = ({ ordersTypeOptions, initialValues, onSubmit, onBack }) 
   const [enableUB, setEnableUB] = useState(false);
   const [isHasDependentsDisabled, setHasDependentsDisabled] = useState(false);
   const [prevOrderType, setPrevOrderType] = useState('');
+  const [filteredOrderTypeOptions, setFilteredOrderTypeOptions] = useState(ordersTypeOptions);
+
   const validationSchema = Yup.object().shape({
     orders_type: Yup.mixed()
       .oneOf(ordersTypeOptions.map((i) => i.key))
@@ -108,6 +110,21 @@ const OrdersInfoForm = ({ ordersTypeOptions, initialValues, onSubmit, onBack }) 
     }
   }, [currentDutyLocation, newDutyLocation, isOconusMove, hasDependents, enableUB]);
 
+  useEffect(() => {
+    const fetchData = async () => {
+      const alaskaEnabled = await isBooleanFlagEnabled(FEATURE_FLAG_KEYS.ENABLE_ALASKA);
+
+      const updatedOptions = alaskaEnabled
+        ? ordersTypeOptions
+        : ordersTypeOptions.filter(
+            (e) => e.key !== ORDERS_TYPE.EARLY_RETURN_OF_DEPENDENTS && e.key !== ORDERS_TYPE.STUDENT_TRAVEL,
+          );
+
+      setFilteredOrderTypeOptions(updatedOptions);
+    };
+    fetchData();
+  }, [ordersTypeOptions]);
+
   return (
     <Formik
       initialValues={initialValues}
@@ -166,7 +183,7 @@ const OrdersInfoForm = ({ ordersTypeOptions, initialValues, onSubmit, onBack }) 
               <DropdownInput
                 label="Orders type"
                 name="orders_type"
-                options={ordersTypeOptions}
+                options={filteredOrderTypeOptions}
                 required
                 hint="Required"
                 onChange={(e) => {
