@@ -668,10 +668,12 @@ func (suite *HandlerSuite) TestUpdateOrdersHandler() {
 			where o.id = ?`, order.ID).First(&initialOrderPostalCode)
 		suite.NoError(errSqlInitialOrder)
 
-		// establish the baseline of the current order's origin duty location GBLOC being KKFA
-		initialGblocResult, errGblocFetch := models.FetchGBLOCForPostalCode(suite.DB(), initialOrderPostalCode)
-		suite.NoError(errGblocFetch)
-		suite.Equal("KKFA", initialGblocResult.GBLOC)
+		var updatedPostalCodeGBLOC string
+		errSqlGbloc := suite.DB().RawQuery(`
+			SELECT gbloc from postal_code_to_gbloc
+			where postal_code = ?`, initialOrderPostalCode).First(&updatedPostalCodeGBLOC)
+		suite.NoError(errSqlGbloc)
+		suite.Equal("KKFA", updatedPostalCodeGBLOC)
 
 		// update the order's origin duty location to a new location
 		dutyLocationAddressUpdated := factory.BuildAddress(suite.DB(), []factory.Customization{
