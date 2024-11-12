@@ -640,7 +640,6 @@ func (suite *HandlerSuite) TestUpdateOrdersHandler() {
 				Model: models.DutyLocation{
 					Name:      "Test Location",
 					AddressID: dutyLocationAddressDefault.ID,
-					Address:   dutyLocationAddressDefault,
 				},
 			},
 		}, nil)
@@ -658,7 +657,6 @@ func (suite *HandlerSuite) TestUpdateOrdersHandler() {
 			{
 				Model: models.Move{
 					OrdersID: order.ID,
-					Orders:   order,
 				},
 			},
 		}, nil)
@@ -690,7 +688,6 @@ func (suite *HandlerSuite) TestUpdateOrdersHandler() {
 				Model: models.DutyLocation{
 					Name:      "Test Location 2",
 					AddressID: dutyLocationAddressUpdated.ID,
-					Address:   dutyLocationAddressUpdated,
 				},
 			},
 		}, nil)
