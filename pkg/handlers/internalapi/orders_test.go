@@ -677,16 +677,16 @@ func (suite *HandlerSuite) TestUpdateOrdersHandler() {
 
 		payload := &internalmessages.CreateUpdateOrders{
 			OrdersNumber:         handlers.FmtString(*updatedOrders.OrdersNumber),
-			OrdersType:           &updatedOrders.OrdersType,
+			OrdersType:           &order.OrdersType,
 			OriginDutyLocationID: *handlers.FmtUUID(updatedDutyLocation.ID),
 			IssueDate:            handlers.FmtDate(updatedOrders.IssueDate),
 			ReportByDate:         handlers.FmtDate(updatedOrders.ReportByDate),
-			DepartmentIndicator:  (*internalmessages.DeptIndicator)(updatedOrders.DepartmentIndicator),
+			DepartmentIndicator:  (*internalmessages.DeptIndicator)(order.DepartmentIndicator),
 			HasDependents:        handlers.FmtBool(false),
 			SpouseHasProGear:     handlers.FmtBool(false),
 			Grade:                models.ServiceMemberGradeE4.Pointer(),
 			MoveID:               *handlers.FmtUUID(move.ID),
-			CounselingOfficeID:   handlers.FmtUUID(*updatedDutyLocation.TransportationOfficeID),
+			CounselingOfficeID:   handlers.FmtUUID(order.NewDutyLocation.TransportationOffice.ID),
 		}
 
 		path := fmt.Sprintf("/orders/%v", order.ID.String())
