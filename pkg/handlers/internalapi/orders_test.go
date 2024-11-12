@@ -660,20 +660,13 @@ func (suite *HandlerSuite) TestUpdateOrdersHandler() {
 			},
 		}, nil)
 
-		var initialOrderPostalCode string
-		errSqlInitialOrder := suite.DB().RawQuery(`
-			SELECT a.postal_code from orders o
-			join duty_locations dl on dl.id = o.origin_duty_location_id
-			join addresses a on dl.address_id = a.id
-			where o.id = ?`, order.ID).First(&initialOrderPostalCode)
-		suite.NoError(errSqlInitialOrder)
+		fetchedOrder, errFetchOrder := models.FetchOrder(suite.DB(), order.ID)
+		suite.NoError(errFetchOrder)
 
-		var updatedPostalCodeGBLOC string
-		errSqlGbloc := suite.DB().RawQuery(`
-			SELECT gbloc from postal_code_to_gbloc
-			where postal_code = ?`, initialOrderPostalCode).First(&updatedPostalCodeGBLOC)
-		suite.NoError(errSqlGbloc)
-		suite.Equal("KKFA", updatedPostalCodeGBLOC)
+		fetchedGbloc, errFetchGbloc := models.FetchGBLOCForPostalCode(suite.DB(), fetchedOrder.OriginDutyLocation.Address.PostalCode)
+		suite.NoError(errFetchGbloc)
+
+		suite.Equal("KKFA", fetchedGbloc.GBLOC)
 
 		// update the order's origin duty location to a new location
 		dutyLocationAddressUpdated := factory.BuildAddress(suite.DB(), []factory.Customization{
@@ -727,14 +720,13 @@ func (suite *HandlerSuite) TestUpdateOrdersHandler() {
 		okResponse := response.(*ordersop.UpdateOrdersOK)
 		suite.NoError(okResponse.Payload.Validate(strfmt.Default))
 
-		var updatedOrderReturnedGbloc string
-		errSqlUpdatedOrder := suite.DB().RawQuery(`
-			SELECT a.postal_code from orders o
-			join duty_locations dl on dl.id = o.origin_duty_location_id
-			join addresses a on dl.address_id = a.id
-			where o.id = ?`, order.ID).First(&updatedOrderReturnedGbloc)
-		suite.NoError(errSqlUpdatedOrder)
-		suite.Equal("CNNQ", &errSqlUpdatedOrder)
+		fetchedOrder, errFetchOrder = models.FetchOrder(suite.DB(), order.ID)
+		suite.NoError(errFetchOrder)
+
+		fetchedGbloc, errFetchGbloc = models.FetchGBLOCForPostalCode(suite.DB(), fetchedOrder.OriginDutyLocation.Address.PostalCode)
+		suite.NoError(errFetchGbloc)
+
+		suite.Equal("CNNQ", fetchedGbloc.GBLOC)
 	})
 }
 
