@@ -582,7 +582,7 @@ func (suite *MTOServiceItemServiceSuite) TestCreateMTOServiceItem() {
 			},
 		})
 
-		reServiceCS := factory.FetchOrBuildReServiceByCode(suite.DB(), "CS")
+		reServiceCS := factory.FetchReServiceByCode(suite.DB(), "CS")
 		csTaskOrderFee := models.ReTaskOrderFee{
 			ContractYearID: contractYear.ID,
 			ServiceID:      reServiceCS.ID,
@@ -615,7 +615,7 @@ func (suite *MTOServiceItemServiceSuite) TestCreateMTOServiceItem() {
 		suite.Error(err)
 		suite.Contains(err.Error(), "cannot create fee for service item CS: missing requested pickup date (non-PPMs) or expected departure date (PPMs) for shipment")
 
-		reServiceMS := factory.FetchOrBuildReServiceByCode(suite.DB(), "MS")
+		reServiceMS := factory.FetchReServiceByCode(suite.DB(), "MS")
 		msTaskOrderFee := models.ReTaskOrderFee{
 			ContractYearID: contractYear.ID,
 			ServiceID:      reServiceMS.ID,
@@ -657,7 +657,7 @@ func (suite *MTOServiceItemServiceSuite) TestCreateMTOServiceItem() {
 			},
 		})
 
-		reServiceCS := factory.FetchOrBuildReServiceByCode(suite.DB(), "CS")
+		reServiceCS := factory.FetchReServiceByCode(suite.DB(), "CS")
 		csTaskOrderFee := models.ReTaskOrderFee{
 			ContractYearID: contractYear.ID,
 			ServiceID:      reServiceCS.ID,
@@ -719,7 +719,7 @@ func (suite *MTOServiceItemServiceSuite) TestCreateMTOServiceItem() {
 			},
 		})
 
-		reServiceCS := factory.FetchOrBuildReServiceByCode(suite.DB(), "CS")
+		reServiceCS := factory.FetchReServiceByCode(suite.DB(), "CS")
 		csTaskOrderFee := models.ReTaskOrderFee{
 			ContractYearID: contractYear.ID,
 			ServiceID:      reServiceCS.ID,
@@ -762,7 +762,7 @@ func (suite *MTOServiceItemServiceSuite) TestCreateMTOServiceItem() {
 		suite.Equal(createdServiceItemCSList[0].Status, models.MTOServiceItemStatus("APPROVED"))
 		suite.Equal(*createdServiceItemCSList[0].LockedPriceCents, csTaskOrderFee2.PriceCents)
 
-		reServiceMS := factory.FetchOrBuildReServiceByCode(suite.DB(), "MS")
+		reServiceMS := factory.FetchReServiceByCode(suite.DB(), "MS")
 		msTaskOrderFee := models.ReTaskOrderFee{
 			ContractYearID: contractYear.ID,
 			ServiceID:      reServiceMS.ID,
