@@ -100,7 +100,8 @@ export class MovingInfo extends Component {
                 >
                   <p>
                     If you request an unaccompanied baggage shipment, keep in mind that you will need to stay under that
-                    weight allowance.
+                    weight allowance and that the weight of your UB shipment is part of your authorized weight
+                    allowance.
                   </p>
                 </IconSection>
               ) : null}
