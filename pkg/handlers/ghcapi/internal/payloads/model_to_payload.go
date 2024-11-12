@@ -2257,26 +2257,31 @@ func QueueMoves(moves []models.Move, officeUsers []models.OfficeUser, requestedP
 
 		// only need to attach available office users if move is assignable
 		if queueMoves[i].Assignable {
+			// non SC roles don't need the extra logic, just make availableOfficeUsers = officeUsers
 			availableOfficeUsers := officeUsers
-			if role == roles.RoleTypeServicesCounselor && !isCloseoutQueue {
-				// if there is no counseling office
-				// OR if our current user doesn't work at the move's counseling office
-				// only available user should be themself
-				if (move.CounselingOfficeID == nil) || (move.CounselingOfficeID != nil && *move.CounselingOfficeID != officeUser.TransportationOfficeID) {
-					availableOfficeUsers = models.OfficeUsers{officeUser}
-				}
 
-				// if the office user currently assigned to move works outside of the logged in users counseling office
+			if role == roles.RoleTypeServicesCounselor {
+				// if the office user currently assigned to the move works outside of the logged in users counseling office
 				// add them to the set
 				if move.SCAssignedUser != nil && move.SCAssignedUser.TransportationOfficeID != officeUser.TransportationOfficeID {
 					availableOfficeUsers = append(availableOfficeUsers, *move.SCAssignedUser)
 				}
-			}
 
-			// if its the closeout queue, and its not a Navy, Marine, or Coast Guard user
-			// check if the move's closeout office is the office users office
-			if role == roles.RoleTypeServicesCounselor && isCloseoutQueue && !ppmCloseoutGblocs && move.CloseoutOfficeID == nil || (move.CloseoutOfficeID != nil && *move.CloseoutOfficeID != officeUser.TransportationOfficeID) {
-				availableOfficeUsers = models.OfficeUsers{officeUser}
+				// if there is no counseling office
+				// OR if our current user doesn't work at the move's counseling office
+				// only available user should be themself
+				if !isCloseoutQueue && (move.CounselingOfficeID == nil) || (move.CounselingOfficeID != nil && *move.CounselingOfficeID != officeUser.TransportationOfficeID) {
+					availableOfficeUsers = models.OfficeUsers{officeUser}
+				}
+
+				// if its the closeout queue and its not a Navy, Marine, or Coast Guard user
+				// and the move doesn't have a closeout office
+				// OR the move's closeout office is not the office users office
+				// only available user should be themself
+				if isCloseoutQueue && !ppmCloseoutGblocs && move.CloseoutOfficeID == nil || (move.CloseoutOfficeID != nil && *move.CloseoutOfficeID != officeUser.TransportationOfficeID) {
+					availableOfficeUsers = models.OfficeUsers{officeUser}
+
+				}
 			}
 
 			queueMoves[i].AvailableOfficeUsers = *QueueAvailableOfficeUsers(availableOfficeUsers)
