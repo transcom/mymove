@@ -217,7 +217,7 @@ func (suite *TransportationOfficeServiceSuite) Test_GetTransportationOffice() {
 	suite.Error(err2t)
 	suite.NoError(err2f)
 
-	suite.Equal(office1t, "OFFICE ONE")
-	suite.Equal(office1f, "OFFICE ONE")
-	suite.Equal(office2f, "OFFICE TWO")
+	suite.Equal("OFFICE ONE", office1t.Name)
+	suite.Equal("OFFICE ONE", office1f.Name)
+	suite.Equal("OFFICE TWO", office2f.Name)
 }
