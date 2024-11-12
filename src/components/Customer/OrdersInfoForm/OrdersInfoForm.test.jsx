@@ -6,6 +6,7 @@ import OrdersInfoForm from './OrdersInfoForm';
 
 import { showCounselingOffices } from 'services/internalApi';
 import { ORDERS_TYPE, ORDERS_TYPE_OPTIONS } from 'constants/orders';
+import { isBooleanFlagEnabled } from '../../../utils/featureFlags';
 
 jest.setTimeout(60000);
 
@@ -150,6 +151,10 @@ jest.mock('components/LocationSearchBox/api', () => ({
   ),
 }));
 
+jest.mock('../../../utils/featureFlags', () => ({
+  isBooleanFlagEnabled: jest.fn(),
+}));
+
 const testProps = {
   onSubmit: jest.fn().mockImplementation(() => Promise.resolve()),
   initialValues: {
@@ -193,6 +198,8 @@ describe('OrdersInfoForm component', () => {
   });
 
   it('renders each option for orders type', async () => {
+    isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(true));
+
     showCounselingOffices.mockImplementation(() => Promise.resolve({}));
     const { getByLabelText } = render(<OrdersInfoForm {...testProps} />);
 
@@ -585,6 +592,8 @@ describe('OrdersInfoForm component', () => {
   });
 
   it('has dependents is yes and disabled when order type is student travel', async () => {
+    isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(true));
+
     render(<OrdersInfoForm {...testProps} />);
 
     await userEvent.selectOptions(screen.getByLabelText(/Orders type/), ORDERS_TYPE.STUDENT_TRAVEL);
@@ -600,6 +609,8 @@ describe('OrdersInfoForm component', () => {
   });
 
   it('has dependents is yes and disabled when order type is early return', async () => {
+    isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(true));
+
     render(<OrdersInfoForm {...testProps} />);
 
     await userEvent.selectOptions(screen.getByLabelText(/Orders type/), ORDERS_TYPE.EARLY_RETURN_OF_DEPENDENTS);
@@ -615,6 +626,8 @@ describe('OrdersInfoForm component', () => {
   });
 
   it('has dependents becomes disabled and then re-enabled for order type student travel', async () => {
+    isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(true));
+
     render(<OrdersInfoForm {...testProps} />);
 
     // set order type to perm change and verify the "has dependents" state
@@ -648,6 +661,8 @@ describe('OrdersInfoForm component', () => {
   });
 
   it('has dependents becomes disabled and then re-enabled for order type early return', async () => {
+    isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(true));
+
     render(<OrdersInfoForm {...testProps} />);
 
     // set order type to perm change and verify the "has dependents" state

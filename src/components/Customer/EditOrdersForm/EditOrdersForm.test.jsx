@@ -7,6 +7,7 @@ import EditOrdersForm from './EditOrdersForm';
 import { documentSizeLimitMsg } from 'shared/constants';
 import { showCounselingOffices } from 'services/internalApi';
 import { ORDERS_TYPE, ORDERS_TYPE_OPTIONS } from 'constants/orders';
+import { isBooleanFlagEnabled } from '../../../utils/featureFlags';
 
 jest.setTimeout(60000);
 
@@ -285,6 +286,8 @@ describe('EditOrdersForm component', () => {
       [ORDERS_TYPE.EARLY_RETURN_OF_DEPENDENTS, ORDERS_TYPE.EARLY_RETURN_OF_DEPENDENTS],
       [ORDERS_TYPE.STUDENT_TRAVEL, ORDERS_TYPE.STUDENT_TRAVEL],
     ])('rendering the %s option', async (selectionOption, expectedValue) => {
+      isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(true));
+
       render(<EditOrdersForm {...testProps} />);
 
       const ordersTypeDropdown = await screen.findByLabelText(/Orders type/);
