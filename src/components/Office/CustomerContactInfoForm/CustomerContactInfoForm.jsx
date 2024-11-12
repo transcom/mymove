@@ -47,38 +47,7 @@ const CustomerContactInfoForm = ({ initialValues, onSubmit, onBack }) => {
       <Grid col>
         <div className={styles.customerContactForm}>
           <Formik initialValues={initialValues} onSubmit={onSubmit} validationSchema={validationSchema} validateOnMount>
-            {({ isValid, handleSubmit, values, setValues }) => {
-              const handleCurrentZipCityChange = (value) => {
-                setValues(
-                  {
-                    ...values,
-                    customerAddress: {
-                      ...values.customerAddress,
-                      city: value.city,
-                      state: value.state ? value.state : '',
-                      county: value.county,
-                      postalCode: value.postalCode,
-                    },
-                  },
-                  { shouldValidate: true },
-                );
-              };
-              const handleBackupZipCityChange = (value) => {
-                setValues(
-                  {
-                    ...values,
-                    backupAddress: {
-                      ...values.backupAddress,
-                      city: value.city ? value.city : '',
-                      state: value.state ? value.state : '',
-                      county: value.county ? value.county : '',
-                      postalCode: value.postalCode ? value.postalCode : '',
-                      usprcId: value.usPostRegionCitiesId ? value.usPostRegionCitiesId : '',
-                    },
-                  },
-                  { shouldValidate: true },
-                );
-              };
+            {({ isValid, handleSubmit, values, ...formikProps }) => {
               return (
                 <Form className={formStyles.form}>
                   <SectionWrapper className={`${formStyles.formSection} ${styles.formSectionHeader}`}>
@@ -97,17 +66,9 @@ const CustomerContactInfoForm = ({ initialValues, onSubmit, onBack }) => {
                       )}
                     />
                     <h3 className={styles.sectionHeader}>Current Address</h3>
-                    <AddressFields
-                      name="customerAddress"
-                      values={values}
-                      handleLocationChange={handleCurrentZipCityChange}
-                    />
+                    <AddressFields name="customerAddress" values={values} locationLookup formikProps={formikProps} />
                     <h3 className={styles.sectionHeader}>Backup Address</h3>
-                    <AddressFields
-                      name="backupAddress"
-                      values={values}
-                      handleLocationChange={handleBackupZipCityChange}
-                    />
+                    <AddressFields name="backupAddress" values={values} locationLookup formikProps={formikProps} />
                   </SectionWrapper>
                   <SectionWrapper className={`${formStyles.formSection} ${styles.formSectionHeader}`}>
                     <h2 className={styles.sectionHeader}>Backup contact</h2>

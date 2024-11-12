@@ -48,23 +48,7 @@ export const EditFacilityInfoModal = ({
           enabledAK,
         }}
       >
-        {({ isValid, handleChange, setFieldTouched, values, setValues }) => {
-          const handleLocationChange = (value) => {
-            setValues(
-              {
-                ...values,
-                backup_mailing_address: {
-                  ...values.backup_mailing_address,
-                  city: value.city,
-                  state: value.state ? value.state : '',
-                  county: value.county,
-                  postalCode: value.postalCode,
-                  usprcId: value.usPostRegionCitiesId ? value.usPostRegionCitiesId : '',
-                },
-              },
-              { shouldValidate: true },
-            );
-          };
+        {({ isValid, handleChange, values, ...formikProps }) => {
           return (
             <Form className={formStyles.form}>
               <Fieldset>
@@ -112,9 +96,9 @@ export const EditFacilityInfoModal = ({
                 <AddressFields
                   name="storageFacility.address"
                   className={styles.AddressFields}
-                  formikFunctionsToValidatePostalCodeOnChange={{ handleChange, setFieldTouched }}
                   values={values}
-                  handleLocationChange={handleLocationChange}
+                  locationLookup
+                  formikProps={formikProps}
                   render={(fields) => (
                     <>
                       {fields}

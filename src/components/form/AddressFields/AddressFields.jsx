@@ -32,10 +32,11 @@ export const AddressFields = ({
   className,
   name,
   render,
-  values,
   validators,
-  handleLocationChange,
+  locationLookup,
   formikFunctionsToValidatePostalCodeOnChange,
+  values,
+  formikProps: { setFieldTouched, setFieldValue },
   labelHint: labelHintProp,
   address1LabelHint,
 }) => {
@@ -43,7 +44,7 @@ export const AddressFields = ({
   const infoStr = 'If you encounter any inaccurate lookup information please contact the ';
   const assistanceStr = ' for further assistance.';
 
-  const postalCodeField = formikFunctionsToValidatePostalCodeOnChange ? (
+  const postalCodeField = !locationLookup ? (
     <TextField
       label="ZIP"
       id={`zip_${addressFieldsUUID.current}`}
@@ -53,29 +54,31 @@ export const AddressFields = ({
       labelHint={labelHintProp}
       validate={validators?.postalCode}
       onChange={async (e) => {
-        // If we are validating on change we need to also set the field to touched when it is changed.
-        // Formik, by default, only sets the field to touched on blur.
-        // The validation errors will not show unless the field has been touched. We await the handleChange event,
-        // then we set the field to touched.
-        // We send true for the shouldValidate arg to validate the field at the same time.
-        await formikFunctionsToValidatePostalCodeOnChange.handleChange(e);
-        formikFunctionsToValidatePostalCodeOnChange.setFieldTouched(`${name}.postalCode`, true, true);
+        if (formikFunctionsToValidatePostalCodeOnChange) {
+          // If we are validating on change we need to also set the field to touched when it is changed.
+          // Formik, by default, only sets the field to touched on blur.
+          // The validation errors will not show unless the field has been touched. We await the handleChange event,
+          // then we set the field to touched.
+          // We send true for the shouldValidate arg to validate the field at the same time.
+          await formikFunctionsToValidatePostalCodeOnChange.handleChange(e);
+          formikFunctionsToValidatePostalCodeOnChange.setFieldTouched(`${name}.postalCode`, true, true);
+        }
       }}
     />
   ) : (
     <>
       <Label>ZIP</Label>
       <label id={`zip_${addressFieldsUUID.current}`} className={styles.label}>
-        {values[name].postalCode}
+        {values[name]?.postalCode}
       </label>
     </>
   );
 
-  const stateField = handleLocationChange ? (
+  const stateField = locationLookup ? (
     <>
       <Label>State</Label>
       <label id={`state_${addressFieldsUUID.current}`} className={styles.label}>
-        {values[name].state}
+        {values[name]?.state}
       </label>
     </>
   ) : (
@@ -101,6 +104,32 @@ export const AddressFields = ({
     }
 
     return null;
+  };
+
+  const handleOnLocationChange = (value) => {
+    setFieldValue(`${name}.city`, value.city);
+    setFieldTouched(`${name}.city`, true);
+    setFieldValue(`${name}.state`, value.state);
+    setFieldTouched(`${name}.state`, true);
+    setFieldValue(`${name}.county`, value.county);
+    setFieldTouched(`${name}.county`, true);
+    setFieldValue(`${name}.postalCode`, value.postalCode);
+    setFieldTouched(`${name}.postalCode`, true);
+    setFieldValue(`${name}.usprcId`, value.usPostRegionCitiesId);
+    setFieldTouched(`${name}.usprcId`, true);
+    // formikSetValues(
+    //   {
+    //     ...formikValues,
+    //     [name]: {
+    //       city: value.city,
+    //       state: value.state ? value.state : '',
+    //       county: value.county,
+    //       postalCode: value.postalCode,
+    //       usprcId: value.usPostRegionCitiesId ? value.usPostRegionCitiesId : '',
+    //     },
+    //   },
+    //   { shouldValidate: true },
+    // );
   };
 
   return (
@@ -131,13 +160,14 @@ export const AddressFields = ({
             data-testid={`${name}.streetAddress3`}
             validate={validators?.streetAddress3}
           />
-          {handleLocationChange && (
+          {locationLookup && (
             <>
               <LocationInput
                 name={`${name}-zipCity`}
                 placeholder="Start typing a Zip or City, State Zip"
                 label="Location Lookup"
-                handleLocationChange={handleLocationChange}
+                handleLocationChange={handleOnLocationChange}
+                valueName={name}
               />
               <Hint className={styles.hint} id="locationInfo" data-testid="locationInfo">
                 {infoStr}
@@ -150,7 +180,7 @@ export const AddressFields = ({
           )}
           <div className="grid-row grid-gap">
             <div className="mobile-lg:grid-col-6">
-              {!handleLocationChange && (
+              {!locationLookup && (
                 <TextField
                   label="City"
                   id={`city_${addressFieldsUUID.current}`}
@@ -160,15 +190,15 @@ export const AddressFields = ({
                   validate={validators?.city}
                 />
               )}
-              {handleLocationChange && (
+              {locationLookup && (
                 <>
                   <Label>City</Label>
                   <label id={`city_${addressFieldsUUID.current}`} className={styles.label}>
-                    {values[name].city}
+                    {values[name]?.city}
                   </label>
                   <Label>County</Label>
                   <label id={`county_${addressFieldsUUID.current}`} className={styles.label}>
-                    {values[name].county}
+                    {values[name]?.county}
                   </label>
                 </>
               )}
@@ -189,8 +219,7 @@ AddressFields.propTypes = {
   className: PropTypes.string,
   name: PropTypes.string.isRequired,
   render: PropTypes.func,
-  values: shape({}),
-  handleLocationChange: PropTypes.func,
+  locationLookup: PropTypes.bool,
   validators: PropTypes.shape({
     streetAddress1: PropTypes.func,
     streetAddress2: PropTypes.func,
@@ -204,17 +233,25 @@ AddressFields.propTypes = {
     setFieldTouched: PropTypes.func,
   }),
   address1LabelHint: PropTypes.string,
+  values: shape({}),
+  formikProps: shape({
+    touched: shape({}),
+    errors: shape({}),
+    setFieldTouched: PropTypes.func,
+    setFieldValue: PropTypes.func,
+  }),
 };
 
 AddressFields.defaultProps = {
   legend: '',
   className: '',
   render: (fields) => fields,
-  values: {},
-  handleLocationChange: null,
+  locationLookup: false,
   validators: {},
   formikFunctionsToValidatePostalCodeOnChange: null,
   address1LabelHint: null,
+  formikProps: {},
+  values: {},
 };
 
 export default AddressFields;

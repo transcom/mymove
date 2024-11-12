@@ -24,24 +24,7 @@ const BackupAddressForm = ({ formFieldsName, initialValues, onSubmit, onBack }) 
       validateOnMount
       validationSchema={validationSchema}
     >
-      {({ isValid, isSubmitting, handleSubmit, values, setValues }) => {
-        const handleLocationChange = (value) => {
-          setValues(
-            {
-              ...values,
-              backup_mailing_address: {
-                ...values.backup_mailing_address,
-                city: value.city,
-                state: value.state ? value.state : '',
-                county: value.county,
-                postalCode: value.postalCode,
-                usprcId: value.usPostRegionCitiesId ? value.usPostRegionCitiesId : '',
-              },
-            },
-            { shouldValidate: true },
-          );
-        };
-
+      {({ isValid, isSubmitting, handleSubmit, values, setFieldValue, setFieldTouched }) => {
         return (
           <Form className={formStyles.form}>
             <h1>Backup address</h1>
@@ -56,7 +39,9 @@ const BackupAddressForm = ({ formFieldsName, initialValues, onSubmit, onBack }) 
                 labelHint="Required"
                 name={formFieldsName}
                 values={values}
-                handleLocationChange={handleLocationChange}
+                locationLookup
+                setFieldValue={setFieldValue}
+                setFieldTouched={setFieldTouched}
               />
             </SectionWrapper>
 

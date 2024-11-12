@@ -8,7 +8,7 @@ import styles from 'components/Office/ShipmentForm/ShipmentForm.module.scss';
 import SectionWrapper from 'components/Customer/SectionWrapper';
 import { AddressFields } from 'components/form/AddressFields/AddressFields';
 
-const StorageFacilityAddress = ({ onLocationChange, values }) => {
+const StorageFacilityAddress = ({ formikProps, values }) => {
   return (
     <SectionWrapper className={formStyles.formSection}>
       <Fieldset className={styles.Fieldset}>
@@ -16,7 +16,8 @@ const StorageFacilityAddress = ({ onLocationChange, values }) => {
         <AddressFields
           name="storageFacility.address"
           values={values}
-          handleLocationChange={onLocationChange}
+          locationLookup
+          formikProps={formikProps}
           render={(fields) => (
             <>
               {fields}
@@ -40,11 +41,17 @@ const StorageFacilityAddress = ({ onLocationChange, values }) => {
 };
 
 StorageFacilityAddress.propTypes = {
-  onLocationChange: PropTypes.func.isRequired,
+  formikProps: shape({
+    touched: shape({}),
+    errors: shape({}),
+    setFieldTouched: PropTypes.func,
+    setFieldValue: PropTypes.func,
+  }),
   values: shape({}),
 };
 
 StorageFacilityAddress.defaultProps = {
+  formikProps: {},
   values: {},
 };
 
