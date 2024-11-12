@@ -1496,8 +1496,8 @@ func (suite *MTOServiceItemServiceSuite) TestCreateDestSITServiceItem() {
 	sitDepartureDate := sitEntryDate.AddDate(0, 0, 7)
 	attemptedContact := time.Now()
 
-	// Failed creation of DDFSIT because DDASIT/DDDSIT codes are not found in DB
-	suite.Run("Failure - no DDASIT/DDDSIT codes", func() {
+	// Successful creation of DDFSIT MTO service item.
+	suite.Run("Success - Creation of DDFSIT MTO Service Item", func() {
 
 		shipment, creator, reServiceDDFSIT := setupTestData()
 		serviceItemDDFSIT := models.MTOServiceItem{
