@@ -2116,6 +2116,75 @@ func QueueAvailableOfficeUsers(officeUsers []models.OfficeUser) *ghcmessages.Ava
 	return &availableOfficeUsers
 }
 
+func queueMoveIsAssignable(move models.Move, assignedToUser *ghcmessages.AssignedOfficeUser, isCloseoutQueue bool, role roles.RoleType, officeUser models.OfficeUser, isSupervisor bool, isHQRole bool, ppmCloseoutGblocs bool) bool {
+	// default to false
+	isAssignable := false
+
+	// HQ role is read only
+	if isHQRole {
+		isAssignable = false
+		return isAssignable
+	}
+
+	// if its unassigned its assignable in all cases
+	if assignedToUser == nil {
+		isAssignable = true
+	}
+
+	// in TOO queues, all moves are assignable for supervisor users
+	if role == roles.RoleTypeTOO && isSupervisor {
+		isAssignable = true
+	}
+
+	// if it is assigned in the SCs queue
+	// it is only assignable if the user is a supervisor...
+	if role == roles.RoleTypeServicesCounselor && isSupervisor {
+		// AND we are in the counseling queue AND the move's counseling office is the supervisor's transportation office
+		if !isCloseoutQueue && move.CounselingOfficeID != nil && *move.CounselingOfficeID == officeUser.TransportationOfficeID {
+			isAssignable = true
+		}
+		// OR we are in the closeout queue AND the move's closeout office is the supervisor's transportation office
+		if isCloseoutQueue && move.CloseoutOfficeID != nil && *move.CloseoutOfficeID == officeUser.TransportationOfficeID {
+			isAssignable = true
+		}
+
+		// OR theyre a navy, marine, or coast guard supervisor
+		if ppmCloseoutGblocs {
+			isAssignable = true
+		}
+	}
+
+	return isAssignable
+}
+
+func servicesCounselorAvailableOfficeUsers(move models.Move, officeUsers []models.OfficeUser, role roles.RoleType, officeUser models.OfficeUser, ppmCloseoutGblocs bool, isCloseoutQueue bool) []models.OfficeUser {
+	if role == roles.RoleTypeServicesCounselor {
+		// if the office user currently assigned to the move works outside of the logged in users counseling office
+		// add them to the set
+		if move.SCAssignedUser != nil && move.SCAssignedUser.TransportationOfficeID != officeUser.TransportationOfficeID {
+			officeUsers = append(officeUsers, *move.SCAssignedUser)
+		}
+
+		// if there is no counseling office
+		// OR if our current user doesn't work at the move's counseling office
+		// only available user should be themself
+		if !isCloseoutQueue && (move.CounselingOfficeID == nil) || (move.CounselingOfficeID != nil && *move.CounselingOfficeID != officeUser.TransportationOfficeID) {
+			officeUsers = models.OfficeUsers{officeUser}
+		}
+
+		// if its the closeout queue and its not a Navy, Marine, or Coast Guard user
+		// and the move doesn't have a closeout office
+		// OR the move's closeout office is not the office users office
+		// only available user should be themself
+		if isCloseoutQueue && !ppmCloseoutGblocs && move.CloseoutOfficeID == nil || (move.CloseoutOfficeID != nil && *move.CloseoutOfficeID != officeUser.TransportationOfficeID) {
+			officeUsers = models.OfficeUsers{officeUser}
+
+		}
+	}
+
+	return officeUsers
+}
+
 // QueueMoves payload
 func QueueMoves(moves []models.Move, officeUsers []models.OfficeUser, requestedPpmStatus *models.PPMShipmentStatus, role roles.RoleType, officeUser models.OfficeUser, isSupervisor bool, isHQRole bool) *ghcmessages.QueueMoves {
 	queueMoves := make(ghcmessages.QueueMoves, len(moves))
@@ -2184,6 +2253,32 @@ func QueueMoves(moves []models.Move, officeUsers []models.OfficeUser, requestedP
 			}
 		}
 
+		// queue assignment logic below
+		var assignedToUser *ghcmessages.AssignedOfficeUser
+		if role == roles.RoleTypeServicesCounselor && move.SCAssignedUser != nil {
+			assignedToUser = AssignedOfficeUser(move.SCAssignedUser)
+		}
+		if role == roles.RoleTypeTOO && move.TOOAssignedUser != nil {
+			assignedToUser = AssignedOfficeUser(move.TOOAssignedUser)
+		}
+
+		ppmCloseoutGblocs := closeoutLocation == "NAVY" || closeoutLocation == "TVCB" || closeoutLocation == "USCG"
+		isCloseoutQueue := requestedPpmStatus != nil && *requestedPpmStatus == models.PPMShipmentStatusNeedsCloseout
+		assignable := queueMoveIsAssignable(move, assignedToUser, isCloseoutQueue, role, officeUser, isSupervisor, isHQRole, ppmCloseoutGblocs)
+
+		// only need to attach available office users if move is assignable
+		var apiAvailableOfficeUsers ghcmessages.AvailableOfficeUsers
+		if assignable {
+			// non SC roles don't need the extra logic, just make availableOfficeUsers = officeUsers
+			availableOfficeUsers := officeUsers
+
+			if role == roles.RoleTypeServicesCounselor {
+				availableOfficeUsers = servicesCounselorAvailableOfficeUsers(move, availableOfficeUsers, role, officeUser, ppmCloseoutGblocs, isCloseoutQueue)
+			}
+
+			apiAvailableOfficeUsers = *QueueAvailableOfficeUsers(availableOfficeUsers)
+		}
+
 		queueMoves[i] = &ghcmessages.QueueMove{
 			Customer:                Customer(&customer),
 			Status:                  ghcmessages.MoveStatus(move.Status),
@@ -2207,84 +2302,9 @@ func QueueMoves(moves []models.Move, officeUsers []models.OfficeUser, requestedP
 			PpmStatus:               ghcmessages.PPMStatus(ppmStatus),
 			CounselingOffice:        &transportationOffice,
 			CounselingOfficeID:      handlers.FmtUUID(transportationOfficeId),
-		}
-
-		if role == roles.RoleTypeServicesCounselor && move.SCAssignedUser != nil {
-			queueMoves[i].AssignedTo = AssignedOfficeUser(move.SCAssignedUser)
-		}
-		if role == roles.RoleTypeTOO && move.TOOAssignedUser != nil {
-			queueMoves[i].AssignedTo = AssignedOfficeUser(move.TOOAssignedUser)
-		}
-
-		// scenarios where a move is assignable:
-
-		// if it is unassigned, it is always assignable
-		isAssignable := false
-		if queueMoves[i].AssignedTo == nil {
-			isAssignable = true
-		}
-
-		// in TOO queues, all moves are assignable for supervisor users
-		if role == roles.RoleTypeTOO && isSupervisor {
-			isAssignable = true
-		}
-
-		ppmCloseoutGblocs := closeoutLocation == "NAVY" || closeoutLocation == "TVCB" || closeoutLocation == "USCG"
-		isCloseoutQueue := *requestedPpmStatus == models.PPMShipmentStatusNeedsCloseout
-		// if it is assigned in the SCs queue
-		// it is only assignable if the user is a supervisor
-		if role == roles.RoleTypeServicesCounselor && isSupervisor {
-			// and we are in the counseling queue AND the move's counseling office is the supervisor's transportation office
-			if !isCloseoutQueue && move.CounselingOfficeID != nil && *move.CounselingOfficeID == officeUser.TransportationOfficeID {
-				isAssignable = true
-			}
-			// or we are in the closeout quque AND the move's closeout office is the supervisor's transportation office
-			if isCloseoutQueue && move.CloseoutOfficeID != nil && *move.CloseoutOfficeID == officeUser.TransportationOfficeID {
-				isAssignable = true
-			}
-
-			// if theyre a navy, marine, or coast guard supervisor, all moves in their queue are assignable
-			if ppmCloseoutGblocs {
-				isAssignable = true
-			}
-		}
-
-		if isHQRole {
-			isAssignable = false
-		}
-
-		queueMoves[i].Assignable = isAssignable
-
-		// only need to attach available office users if move is assignable
-		if queueMoves[i].Assignable {
-			// non SC roles don't need the extra logic, just make availableOfficeUsers = officeUsers
-			availableOfficeUsers := officeUsers
-
-			if role == roles.RoleTypeServicesCounselor {
-				// if the office user currently assigned to the move works outside of the logged in users counseling office
-				// add them to the set
-				if move.SCAssignedUser != nil && move.SCAssignedUser.TransportationOfficeID != officeUser.TransportationOfficeID {
-					availableOfficeUsers = append(availableOfficeUsers, *move.SCAssignedUser)
-				}
-
-				// if there is no counseling office
-				// OR if our current user doesn't work at the move's counseling office
-				// only available user should be themself
-				if !isCloseoutQueue && (move.CounselingOfficeID == nil) || (move.CounselingOfficeID != nil && *move.CounselingOfficeID != officeUser.TransportationOfficeID) {
-					availableOfficeUsers = models.OfficeUsers{officeUser}
-				}
-
-				// if its the closeout queue and its not a Navy, Marine, or Coast Guard user
-				// and the move doesn't have a closeout office
-				// OR the move's closeout office is not the office users office
-				// only available user should be themself
-				if isCloseoutQueue && !ppmCloseoutGblocs && move.CloseoutOfficeID == nil || (move.CloseoutOfficeID != nil && *move.CloseoutOfficeID != officeUser.TransportationOfficeID) {
-					availableOfficeUsers = models.OfficeUsers{officeUser}
-
-				}
-			}
-
-			queueMoves[i].AvailableOfficeUsers = *QueueAvailableOfficeUsers(availableOfficeUsers)
+			AssignedTo:              assignedToUser,
+			Assignable:              assignable,
+			AvailableOfficeUsers:    apiAvailableOfficeUsers,
 		}
 	}
 	return &queueMoves
