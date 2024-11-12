@@ -56,5 +56,8 @@ describe('OfficeAccountRequestFields component', () => {
 
     const csrCheckbox = await screen.getByTestId('customerSupportRepresentativeCheckBox');
     expect(csrCheckbox).toBeInstanceOf(HTMLInputElement);
+
+    const gsrCheckbox = await screen.getByTestId('governmentSurveillanceRepresentativeCheckbox');
+    expect(gsrCheckbox).toBeInstanceOf(HTMLInputElement);
   });
 });
