@@ -105,6 +105,56 @@ func (suite *ModelSuite) TestFindDutyLocations() {
 	}
 }
 
+func (suite *ModelSuite) TestFindDutyLocationExcludeStates() {
+	addressCreator := address.NewAddressCreator()
+	newAKAddress := models.Address{
+		StreetAddress1: "some address",
+		City:           "city",
+		State:          "AK",
+		PostalCode:     "12345",
+	}
+	createdAddress1, err := addressCreator.CreateAddress(suite.AppContextForTest(), &newAKAddress)
+	suite.NoError(err)
+
+	newHIAddress := models.Address{
+		StreetAddress1: "some address",
+		City:           "city",
+		State:          "HI",
+		PostalCode:     "12345",
+	}
+	createdAddress2, err := addressCreator.CreateAddress(suite.AppContextForTest(), &newHIAddress)
+	suite.NoError(err)
+
+	location1 := models.DutyLocation{
+		Name:      "Fort Test 1",
+		AddressID: createdAddress1.ID,
+	}
+	suite.MustSave(&location1)
+
+	location2 := models.DutyLocation{
+		Name:      "Fort Test 2",
+		AddressID: createdAddress2.ID,
+	}
+	suite.MustSave(&location2)
+
+	tests := []struct {
+		query         string
+		dutyLocations []string
+	}{
+		{query: "fort test", dutyLocations: []string{"Fort Test 1", "Fort Test 2"}},
+	}
+
+	statesToExclude := make([]string, 0)
+	statesToExclude = append(statesToExclude, "AK")
+	statesToExclude = append(statesToExclude, "HI")
+
+	for _, ts := range tests {
+		dutyLocations, err := models.FindDutyLocationsExcludingStates(suite.DB(), ts.query, statesToExclude)
+		suite.NoError(err)
+		suite.Require().Equal(0, len(dutyLocations), "Wrong number of duty locations returned from query: %s", ts.query)
+	}
+}
+
 func (suite *ModelSuite) Test_DutyLocationValidations() {
 	location := &models.DutyLocation{}
 

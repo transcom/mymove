@@ -42,6 +42,8 @@ var cipherSuites = []uint16{
 var curvePreferences = []tls.CurveID{
 	tls.CurveP256,
 	tls.X25519,
+	tls.CurveP384,
+	tls.CurveP521,
 }
 
 // CreateNamedServerInput contains the input for the CreateServer function.
