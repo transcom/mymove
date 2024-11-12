@@ -8,6 +8,7 @@ import (
 
 	"github.com/gobuffalo/validate/v3"
 	"github.com/gofrs/uuid"
+	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/apperror"
@@ -200,9 +201,8 @@ func (o *mtoServiceItemCreator) findEstimatedPrice(appCtx appcontext.AppContext,
 	return 0, nil
 }
 
-func fetchCurrentTaskOrderFee(appCtx appcontext.AppContext, serviceCode models.ReServiceCode) (models.ReTaskOrderFee, error) {
-	currTime := time.Now()
-	contractCode, err := FetchContractCode(appCtx, currTime)
+func fetchCurrentTaskOrderFee(appCtx appcontext.AppContext, serviceCode models.ReServiceCode, requestedPickupDate time.Time) (models.ReTaskOrderFee, error) {
+	contractCode, err := FetchContractCode(appCtx, requestedPickupDate)
 	if err != nil {
 		return models.ReTaskOrderFee{}, err
 	}
@@ -213,7 +213,7 @@ func fetchCurrentTaskOrderFee(appCtx appcontext.AppContext, serviceCode models.R
 		Join("re_services s", "re_task_order_fees.service_id = s.id").
 		Where("c.code = $1", contractCode).
 		Where("s.code = $2", serviceCode).
-		Where("$3 between cy.start_date and cy.end_date", currTime).
+		Where("$3 between cy.start_date and cy.end_date", requestedPickupDate).
 		First(&taskOrderFee)
 
 	if err != nil {
@@ -334,11 +334,9 @@ func (o *mtoServiceItemCreator) CreateMTOServiceItem(appCtx appcontext.AppContex
 
 	var move models.Move
 	moveID := serviceItem.MoveTaskOrderID
-	queryFilters := []services.QueryFilter{
-		query.NewQueryFilter("id", "=", moveID),
-	}
-	// check if Move exists
-	err = o.builder.FetchOne(appCtx, &move, queryFilters)
+	err = appCtx.DB().Q().EagerPreload(
+		"MTOShipments.PPMShipment",
+	).Find(&move, moveID)
 	if err != nil {
 		switch err {
 		case sql.ErrNoRows:
@@ -360,7 +358,7 @@ func (o *mtoServiceItemCreator) CreateMTOServiceItem(appCtx appcontext.AppContex
 	// find the re service code id
 	var reService models.ReService
 	reServiceCode := serviceItem.ReService.Code
-	queryFilters = []services.QueryFilter{
+	queryFilters := []services.QueryFilter{
 		query.NewQueryFilter("code", "=", reServiceCode),
 	}
 	err = o.builder.FetchOne(appCtx, &reService, queryFilters)
@@ -376,13 +374,40 @@ func (o *mtoServiceItemCreator) CreateMTOServiceItem(appCtx appcontext.AppContex
 	serviceItem.ReServiceID = reService.ID
 	serviceItem.ReService.Name = reService.Name
 
+	if serviceItem.ReService.Code == models.ReServiceCodeMS {
+		// check if the MS exists already for the move
+		err := o.checkDuplicateServiceCodes(appCtx, serviceItem)
+		if err != nil {
+			appCtx.Logger().Error(fmt.Sprintf("Error trying to create a duplicate MS service item for move ID: %s", move.ID), zap.Error(err))
+			return nil, nil, err
+		}
+	}
+
 	// We can have two service items that come in from a MTO approval that do not have an MTOShipmentID
 	// they are MTO level service items. This should capture that and create them accordingly, they are thankfully
 	// also rather basic.
 	if serviceItem.MTOShipmentID == nil {
 		if serviceItem.ReService.Code == models.ReServiceCodeMS || serviceItem.ReService.Code == models.ReServiceCodeCS {
+			// we need to know the first shipment's requested pickup date OR a PPM's expected departure date to establish the correct base year for the fee
+			// Loop through shipments to find the first requested pickup date
+			var feeDate *time.Time
+			for _, shipment := range move.MTOShipments {
+				if shipment.RequestedPickupDate != nil {
+					feeDate = shipment.RequestedPickupDate
+					break
+				}
+				var nilTime time.Time
+				if shipment.PPMShipment != nil && shipment.PPMShipment.ExpectedDepartureDate != nilTime {
+					feeDate = &shipment.PPMShipment.ExpectedDepartureDate
+				}
+			}
+			if feeDate == nil {
+				return nil, nil, apperror.NewNotFoundError(moveID, fmt.Sprintf(
+					"cannot create fee for service item %s: missing requested pickup date (non-PPMs) or expected departure date (PPMs) for shipment in move %s",
+					serviceItem.ReService.Code, moveID.String()))
+			}
 			serviceItem.Status = "APPROVED"
-			taskOrderFee, err := fetchCurrentTaskOrderFee(appCtx, serviceItem.ReService.Code)
+			taskOrderFee, err := fetchCurrentTaskOrderFee(appCtx, serviceItem.ReService.Code, *feeDate)
 			if err != nil {
 				return nil, nil, err
 			}

@@ -31,7 +31,7 @@ import {
   getServicesCounselingQueue,
   getServicesCounselingPPMQueue,
 } from 'services/ghcApi';
-import { DATE_FORMAT_STRING, MOVE_STATUSES } from 'shared/constants';
+import { DATE_FORMAT_STRING, DEFAULT_EMPTY_VALUE, MOVE_STATUSES } from 'shared/constants';
 import { formatDateFromIso, serviceMemberAgencyLabel } from 'utils/formatters';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
@@ -48,15 +48,9 @@ import ConnectedFlashMessage from 'containers/FlashMessage/FlashMessage';
 import { isNullUndefinedOrWhitespace } from 'shared/utils';
 import CustomerSearchForm from 'components/CustomerSearchForm/CustomerSearchForm';
 import MultiSelectTypeAheadCheckBoxFilter from 'components/Table/Filters/MutliSelectTypeAheadCheckboxFilter';
-import { formatAvailableOfficeUsersForRow, handleQueueAssignment } from 'utils/queues';
+import handleQueueAssignment from 'utils/queues';
 
-export const counselingColumns = (
-  moveLockFlag,
-  originLocationList,
-  supervisor,
-  isQueueManagementEnabled,
-  currentUserId,
-) => {
+export const counselingColumns = (moveLockFlag, originLocationList, supervisor, isQueueManagementEnabled) => {
   const cols = [
     createHeader(
       ' ',
@@ -88,7 +82,7 @@ export const counselingColumns = (
         );
       },
       {
-        id: 'lastName',
+        id: 'customerName',
         isFilterable: true,
         exportValue: (row) => {
           return `${row.customer.last_name}, ${row.customer.first_name}`;
@@ -202,19 +196,21 @@ export const counselingColumns = (
       createHeader(
         'Assigned',
         (row) => {
-          const { formattedAvailableOfficeUsers, assignedToUser } = formatAvailableOfficeUsersForRow(
-            row,
-            supervisor,
-            currentUserId,
-          );
-          return (
+          return !row?.assignable ? (
+            <div>{`${row.assignedTo?.lastName}, ${row.assignedTo?.firstName}`}</div>
+          ) : (
             <div data-label="assignedSelect" className={styles.assignedToCol}>
               <Dropdown
-                defaultValue={assignedToUser?.value}
+                defaultValue={row.assignedTo?.officeUserId}
                 onChange={(e) => handleQueueAssignment(row.id, e.target.value, roleTypes.SERVICES_COUNSELOR)}
                 title="Assigned dropdown"
               >
-                {formattedAvailableOfficeUsers}
+                <option value={null}>{DEFAULT_EMPTY_VALUE}</option>
+                {row.availableOfficeUsers.map(({ lastName, firstName, officeUserId }) => (
+                  <option value={officeUserId} key={`filterOption_${officeUserId}`}>
+                    {`${lastName}, ${firstName}`}
+                  </option>
+                ))}
               </Dropdown>
             </div>
           );
@@ -379,7 +375,7 @@ export const closeoutColumns = (moveLockFlag, ppmCloseoutGBLOC, ppmCloseoutOrigi
   }),
 ];
 
-const ServicesCounselingQueue = ({ userPrivileges, currentUserId, isQueueManagementFFEnabled }) => {
+const ServicesCounselingQueue = ({ userPrivileges, isQueueManagementFFEnabled }) => {
   const { queueType } = useParams();
   const { data, isLoading, isError } = useUserQueries();
 
@@ -619,13 +615,7 @@ const ServicesCounselingQueue = ({ userPrivileges, currentUserId, isQueueManagem
           defaultSortedColumns={[{ id: 'submittedAt', desc: false }]}
           disableMultiSort
           disableSortBy={false}
-          columns={counselingColumns(
-            moveLockFlag,
-            originLocationList,
-            supervisor,
-            isQueueManagementFFEnabled,
-            currentUserId,
-          )}
+          columns={counselingColumns(moveLockFlag, originLocationList, supervisor, isQueueManagementFFEnabled)}
           title="Moves"
           handleClick={handleClick}
           useQueries={useServicesCounselingQueueQueries}
@@ -635,8 +625,6 @@ const ServicesCounselingQueue = ({ userPrivileges, currentUserId, isQueueManagem
           csvExportQueueFetcherKey="queueMoves"
           sessionStorageKey={queueType}
           key={queueType}
-          isSupervisor={!!supervisor}
-          currentUserId={currentUserId}
         />
       </div>
     );
