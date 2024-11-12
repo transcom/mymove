@@ -60,7 +60,7 @@ func (e *Entitlement) Validate(*pop.Connection) (*validate.Errors, error) {
 	}
 
 	if e.UBAllowance != nil {
-		vs = append(vs, &validators.IntIsGreaterThan{Field: *e.UBAllowance, Compared: 0, Name: "UBAllowance"})
+		vs = append(vs, &validators.IntIsGreaterThan{Field: *e.UBAllowance, Compared: -1, Name: "UBAllowance"})
 	}
 
 	return validate.Validate(vs...), nil
@@ -78,6 +78,16 @@ func (e *Entitlement) SetWeightAllotment(grade string) {
 // WeightAllotment returns the weight allotment
 func (e *Entitlement) WeightAllotment() *WeightAllotment {
 	return e.WeightAllotted
+}
+
+// UBWeightAllotment returns the UB weight allotment
+func (e *Entitlement) UBWeightAllotment() *int {
+	if e.WeightAllotment() != nil {
+		if e.WeightAllotment().UnaccompaniedBaggageAllowance >= 0 {
+			return &e.WeightAllotment().UnaccompaniedBaggageAllowance
+		}
+	}
+	return nil
 }
 
 // AuthorizedWeight returns authorized weight. If authorized weight has not been
@@ -108,4 +118,14 @@ func (e *Entitlement) WeightAllowance() *int {
 	}
 
 	return nil
+}
+
+// UBWeightAllowance returns authorized weight for UB shipments
+func (e *Entitlement) UBWeightAllowance() *int {
+	switch {
+	case e.UBWeightAllotment() != nil:
+		return e.UBAllowance
+	default:
+		return nil
+	}
 }
