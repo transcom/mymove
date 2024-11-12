@@ -1041,6 +1041,145 @@ func (suite *MTOServiceItemServiceSuite) TestCreateOriginSITServiceItem() {
 
 	})
 
+	suite.Run("Calcuating price estimated on creation for ReServiceCodeDOP ", func() {
+
+		var reServiceCodeDOP models.ReService
+		// var reServiceCodeDPK models.ReService
+		// var reServiceCodeDDP models.ReService
+		// var reServiceCodeDUPK models.ReService
+
+		setupTestData := func() models.MTOShipment {
+			// Set up data to use for all Origin SIT Service Item tests
+
+			move := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
+			estimatedPrimeWeight := unit.Pound(6000)
+			pickupDate := time.Date(2024, time.July, 31, 12, 0, 0, 0, time.UTC)
+			pickupAddress := factory.BuildAddress(suite.DB(), nil, []factory.Trait{factory.GetTraitAddress2})
+			pickupAddress.PostalCode = "67449"
+
+			mtoShipment := factory.BuildMTOShipmentMinimal(suite.DB(), []factory.Customization{
+				{
+					Model:    move,
+					LinkOnly: true,
+				},
+				{
+					Model:    pickupAddress,
+					LinkOnly: true,
+					Type:     &factory.Addresses.PickupAddress,
+				},
+				{
+					Model: models.MTOShipment{
+						PrimeEstimatedWeight: &estimatedPrimeWeight,
+						RequestedPickupDate: &pickupDate,
+					},
+				},
+			}, nil)
+
+			reServiceCodeDOP = factory.FetchReServiceByCode(suite.DB(), models.ReServiceCodeDOP)
+
+			return mtoShipment
+		}
+
+		shipment := setupTestData()
+		actualPickupAddress := factory.BuildAddress(suite.DB(), nil, []factory.Trait{factory.GetTraitAddress2})
+		serviceItemDOP := models.MTOServiceItem{
+			MoveTaskOrder:             shipment.MoveTaskOrder,
+			MoveTaskOrderID:           shipment.MoveTaskOrderID,
+			MTOShipment:               shipment,
+			MTOShipmentID:             &shipment.ID,
+			ReService:                 reServiceCodeDOP,
+			SITEntryDate:              &sitEntryDate,
+			SITPostalCode:             &sitPostalCode,
+			Reason:                    &reason,
+			SITOriginHHGActualAddress: &actualPickupAddress,
+			Status:                    models.MTOServiceItemStatusSubmitted,
+
+		}
+
+		builder := query.NewQueryBuilder()
+		moveRouter := moverouter.NewMoveRouter()
+		planner := &mocks.Planner{}
+		planner.On("ZipTransitDistance",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.Anything,
+			mock.Anything,
+		).Return(400, nil)
+		creator := NewMTOServiceItemCreator(planner, builder, moveRouter, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticPackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer())
+
+		fetchDomesticServiceArea(suite.AppContextForTest(), "ABC", "67449")
+		estimatedPriceInCents, _ := creator.FindEstimatedPrice(suite.AppContextForTest(), &serviceItemDOP, shipment)
+		suite.Equal(estimatedPriceInCents, unit.Cents(47760))
+	})
+
+	suite.Run("Calcuating price estimated on creation for NTS shipment ", func() {
+
+		var reServiceCodeDOP models.ReService
+
+		setupTestData := func() models.MTOShipment {
+			// Set up data to use for all Origin SIT Service Item tests
+
+			move := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
+			estimatedPrimeWeight := unit.Pound(6000)
+			pickupDate := time.Date(2024, time.July, 31, 12, 0, 0, 0, time.UTC)
+			pickupAddress := factory.BuildAddress(suite.DB(), nil, []factory.Trait{factory.GetTraitAddress2})
+			pickupAddress.PostalCode = "67449"
+
+			customMTOShipmentTypeHHGOutOfNTSDom := factory.BuildMTOShipmentMinimal(suite.DB(), []factory.Customization{
+				{
+					Model:    move,
+					LinkOnly: true,
+				},
+				{
+					Model:    pickupAddress,
+					LinkOnly: true,
+					Type:     &factory.Addresses.PickupAddress,
+				},
+				{
+					Model: models.MTOShipment{
+						PrimeEstimatedWeight: &estimatedPrimeWeight,
+						RequestedPickupDate: &pickupDate,
+						ShipmentType:         models.MTOShipmentTypeHHGOutOfNTSDom,
+					},
+				},
+			}, nil)
+
+			reServiceCodeDOP = factory.FetchReServiceByCode(suite.DB(), models.ReServiceCodeDOP)
+
+			return customMTOShipmentTypeHHGOutOfNTSDom
+		}
+
+		shipment := setupTestData()
+		actualPickupAddress := factory.BuildAddress(suite.DB(), nil, []factory.Trait{factory.GetTraitAddress2})
+		actualPickupAddress.PostalCode = "67449"
+
+		serviceItemDOP := models.MTOServiceItem{
+			MoveTaskOrder:             shipment.MoveTaskOrder,
+			MoveTaskOrderID:           shipment.MoveTaskOrderID,
+			MTOShipment:               shipment,
+			MTOShipmentID:             &shipment.ID,
+			ReService:                 reServiceCodeDOP,
+			SITEntryDate:              &sitEntryDate,
+			SITPostalCode:             &sitPostalCode,
+			Reason:                    &reason,
+			SITOriginHHGActualAddress: &actualPickupAddress,
+			Status:                    models.MTOServiceItemStatusSubmitted,
+		}
+
+		builder := query.NewQueryBuilder()
+		moveRouter := moverouter.NewMoveRouter()
+		planner := &mocks.Planner{}
+		planner.On("ZipTransitDistance",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.Anything,
+			mock.Anything,
+		).Return(400, nil)
+		creator := NewMTOServiceItemCreator(planner, builder, moveRouter, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticPackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer())
+
+		estimatedPriceInCents, _ := creator.FindEstimatedPrice(suite.AppContextForTest(), &serviceItemDOP, shipment)
+		estimatedPriceForMTOShipmentTypeHHGOutOfNTSDom := estimatedPriceInCents.Float64() * 1.1
+		suite.Equal(estimatedPriceInCents, unit.Cents(estimatedPriceForMTOShipmentTypeHHGOutOfNTSDom))
+	})
+
 	suite.Run("Create DOFSIT service item and auto-create DOASIT, DOPSIT, DOSFSC", func() {
 		// TESTCASE SCENARIO
 		// Under test: CreateMTOServiceItem function
