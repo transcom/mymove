@@ -634,9 +634,17 @@ func (suite *HandlerSuite) TestUpdateOrdersHandler() {
 
 	suite.Run("Updated Origin GBLOC is reflected in move", func() {
 		address := factory.BuildAddress(suite.DB(), nil, nil)
+		updatedAddress := factory.BuildAddress(suite.DB(), nil, nil)
+		updatedAddress.PostalCode = "35023"
 		dutyLocation := factory.BuildDutyLocation(suite.DB(), []factory.Customization{
 			{
 				Model:    address,
+				LinkOnly: true,
+			},
+		}, nil)
+		updatedDutyLocation := factory.BuildDutyLocation(suite.DB(), []factory.Customization{
+			{
+				Model:    updatedAddress,
 				LinkOnly: true,
 			},
 		}, nil)
@@ -659,23 +667,21 @@ func (suite *HandlerSuite) TestUpdateOrdersHandler() {
 
 		suite.Equal("KKFA", originalOriginGBLOC.GBLOC)
 
-		updatedDutyLocation := factory.FetchOrBuildOtherDutyLocation(suite.DB())
-		updatedDutyLocationId := updatedDutyLocation.ID
-
-		updatedOrdersType := internalmessages.OrdersTypePERMANENTCHANGEOFSTATION
-		updatedOrdersNumber := "123456"
-		issueDate := time.Date(2018, time.March, 10, 0, 0, 0, 0, time.UTC)
-		reportByDate := time.Date(2018, time.August, 1, 0, 0, 0, 0, time.UTC)
-		deptIndicator := internalmessages.DeptIndicatorAIRANDSPACEFORCE
+		updatedOrders := factory.BuildOrder(suite.DB(), []factory.Customization{
+			{
+				Model:    updatedDutyLocation,
+				LinkOnly: true,
+				Type:     &factory.DutyLocations.OriginDutyLocation,
+			},
+		}, nil)
 
 		payload := &internalmessages.CreateUpdateOrders{
-			OrdersNumber:         handlers.FmtString(updatedOrdersNumber),
-			OrdersType:           &updatedOrdersType,
-			NewDutyLocationID:    handlers.FmtUUID(updatedDutyLocationId),
-			OriginDutyLocationID: *handlers.FmtUUID(*order.OriginDutyLocationID),
-			IssueDate:            handlers.FmtDate(issueDate),
-			ReportByDate:         handlers.FmtDate(reportByDate),
-			DepartmentIndicator:  &deptIndicator,
+			OrdersNumber:         handlers.FmtString(*updatedOrders.OrdersNumber),
+			OrdersType:           &updatedOrders.OrdersType,
+			OriginDutyLocationID: *handlers.FmtUUID(updatedDutyLocation.ID),
+			IssueDate:            handlers.FmtDate(updatedOrders.IssueDate),
+			ReportByDate:         handlers.FmtDate(updatedOrders.ReportByDate),
+			DepartmentIndicator:  (*internalmessages.DeptIndicator)(updatedOrders.DepartmentIndicator),
 			HasDependents:        handlers.FmtBool(false),
 			SpouseHasProGear:     handlers.FmtBool(false),
 			Grade:                models.ServiceMemberGradeE4.Pointer(),
@@ -705,10 +711,10 @@ func (suite *HandlerSuite) TestUpdateOrdersHandler() {
 		okResponse := response.(*ordersop.UpdateOrdersOK)
 		suite.NoError(okResponse.Payload.Validate(strfmt.Default))
 
-		updatedOrder, err := models.FetchOrder(suite.DB(), uuid.FromStringOrNil(updatedOrdersNumber))
+		updatedOrderFromDB, err := models.FetchOrder(suite.DB(), updatedOrders.ID)
 		suite.NoError(err)
 
-		updatedOriginalOriginGBLOC, gblocErrUpdated := models.FetchGBLOCForPostalCode(suite.DB(), updatedOrder.OriginDutyLocation.Address.PostalCode)
+		updatedOriginalOriginGBLOC, gblocErrUpdated := models.FetchGBLOCForPostalCode(suite.DB(), updatedOrderFromDB.OriginDutyLocation.Address.PostalCode)
 		suite.NoError(gblocErrUpdated)
 
 		suite.Equal("CNNQ", updatedOriginalOriginGBLOC.GBLOC)
