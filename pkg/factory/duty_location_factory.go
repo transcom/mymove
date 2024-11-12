@@ -132,13 +132,16 @@ func FetchOrBuildOtherDutyLocation(db *pop.Connection) models.DutyLocation {
 			{
 				Model: models.DutyLocation{
 					Name: "Bessemer, AL 35023",
-					Address: models.Address{
-						StreetAddress1: "123 Main St",
-						City:           "Bessemer",
-						State:          "AL",
-						PostalCode:     "35023",
-					},
 				},
+			},
+			{
+				Model: models.Address{
+					StreetAddress1: "123 Main St",
+					City:           "Bessemer",
+					State:          "AL",
+					PostalCode:     "35023",
+				},
+				Type: &Addresses.DutyLocationAddress,
 			},
 		}, nil)
 	}
@@ -149,13 +152,16 @@ func FetchOrBuildOtherDutyLocation(db *pop.Connection) models.DutyLocation {
 			{
 				Model: models.DutyLocation{
 					Name: "Bessemer, AL 35023",
-					Address: models.Address{
-						StreetAddress1: "123 Main St",
-						City:           "Bessemer",
-						State:          "AL",
-						PostalCode:     "35023",
-					},
 				},
+			},
+			{
+				Model: models.Address{
+					StreetAddress1: "123 Main St",
+					City:           "Bessemer",
+					State:          "AL",
+					PostalCode:     "35023",
+				},
+				Type: &Addresses.DutyLocationAddress,
 			},
 		}, nil)
 	}
