@@ -36,15 +36,17 @@ const moveTaskOrderServicesCounselingCompleted = {
 const approveMTO = jest.fn().mockResolvedValue({ response: { status: 200 } });
 
 const submittedRequestedShipmentsComponent = (
-  <SubmittedRequestedShipments
-    allowancesInfo={allowancesInfo}
-    moveCode="TE5TC0DE"
-    mtoShipments={shipments}
-    closeoutOffice={closeoutOffice}
-    customerInfo={customerInfo}
-    ordersInfo={ordersInfo}
-    approveMTO={approveMTO}
-  />
+  <MockProviders permissions={[permissionTypes.updateShipment]}>
+    <SubmittedRequestedShipments
+      allowancesInfo={allowancesInfo}
+      moveCode="TE5TC0DE"
+      mtoShipments={shipments}
+      closeoutOffice={closeoutOffice}
+      customerInfo={customerInfo}
+      ordersInfo={ordersInfo}
+      approveMTO={approveMTO}
+    />
+  </MockProviders>
 );
 
 const submittedRequestedShipmentsComponentWithPermission = (
@@ -77,16 +79,18 @@ const submittedRequestedShipmentsComponentAvailableToPrimeAt = (
 );
 
 const submittedRequestedShipmentsComponentServicesCounselingCompleted = (
-  <SubmittedRequestedShipments
-    ordersInfo={ordersInfo}
-    allowancesInfo={allowancesInfo}
-    customerInfo={customerInfo}
-    mtoShipments={shipments}
-    closeoutOffice={closeoutOffice}
-    approveMTO={approveMTO}
-    moveTaskOrder={moveTaskOrderServicesCounselingCompleted}
-    moveCode="TE5TC0DE"
-  />
+  <MockProviders permissions={[permissionTypes.updateShipment]}>
+    <SubmittedRequestedShipments
+      ordersInfo={ordersInfo}
+      allowancesInfo={allowancesInfo}
+      customerInfo={customerInfo}
+      mtoShipments={shipments}
+      closeoutOffice={closeoutOffice}
+      approveMTO={approveMTO}
+      moveTaskOrder={moveTaskOrderServicesCounselingCompleted}
+      moveCode="TE5TC0DE"
+    />
+  </MockProviders>
 );
 
 const submittedRequestedShipmentsCanCreateNewShipment = (
@@ -115,7 +119,7 @@ describe('RequestedShipments', () => {
     it('renders the container successfully with services counseling completed', () => {
       render(submittedRequestedShipmentsComponentServicesCounselingCompleted);
       expect(screen.getByTestId('requested-shipments')).toBeInTheDocument();
-      expect(screen.queryByTestId('services-counseling-completed-text')).not.toBeInTheDocument();
+      expect(screen.queryByTestId('services-counseling-completed-text')).toBeInTheDocument();
     });
 
     it('renders a shipment passed to it', () => {
