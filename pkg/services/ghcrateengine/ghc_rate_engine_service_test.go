@@ -28,7 +28,7 @@ func TestGHCRateEngineServiceSuite(t *testing.T) {
 func (suite *GHCRateEngineServiceSuite) setupTaskOrderFeeData(code models.ReServiceCode, priceCents unit.Cents) {
 	contractYear := testdatagen.MakeDefaultReContractYear(suite.DB())
 
-	counselingService := factory.BuildReServiceByCode(suite.DB(), code)
+	counselingService := factory.FetchReServiceByCode(suite.DB(), code)
 	taskOrderFee := models.ReTaskOrderFee{
 		ContractYearID: contractYear.ID,
 		ServiceID:      counselingService.ID,
@@ -46,7 +46,7 @@ func (suite *GHCRateEngineServiceSuite) setupDomesticOtherPrice(code models.ReSe
 			},
 		})
 
-	service := factory.BuildReServiceByCode(suite.DB(), code)
+	service := factory.FetchReServiceByCode(suite.DB(), code)
 
 	otherPrice := models.ReDomesticOtherPrice{
 		ContractID:   contractYear.Contract.ID,
@@ -68,7 +68,7 @@ func (suite *GHCRateEngineServiceSuite) setupDomesticAccessorialPrice(code model
 			},
 		})
 
-	service := factory.BuildReServiceByCode(suite.DB(), code)
+	service := factory.FetchReServiceByCode(suite.DB(), code)
 
 	accessorialPrice := models.ReDomesticAccessorialPrice{
 		ContractID:       contractYear.Contract.ID,
@@ -89,7 +89,7 @@ func (suite *GHCRateEngineServiceSuite) setupDomesticServiceAreaPrice(code model
 			},
 		})
 
-	service := factory.BuildReServiceByCode(suite.DB(), code)
+	service := factory.FetchReServiceByCode(suite.DB(), code)
 
 	serviceArea := testdatagen.MakeReDomesticServiceArea(suite.DB(),
 		testdatagen.Assertions{
@@ -150,7 +150,7 @@ func (suite *GHCRateEngineServiceSuite) setupShipmentTypePrice(code models.ReSer
 			},
 		})
 
-	service := factory.BuildReServiceByCode(suite.DB(), code)
+	service := factory.FetchReServiceByCode(suite.DB(), code)
 
 	shipmentTypePrice := models.ReShipmentTypePrice{
 		ContractID: contractYear.Contract.ID,
