@@ -13,8 +13,8 @@ import {
   selectOrdersForLoggedInUser,
   selectServiceMemberFromLoggedInUser,
 } from 'store/entities/selectors';
-import { ORDERS_TYPE } from 'constants/orders';
 import { isBooleanFlagEnabled } from 'utils/featureFlags';
+import { ORDERS_TYPE } from 'constants/orders';
 
 const mockNavigate = jest.fn();
 jest.mock('react-router-dom', () => ({

@@ -22,8 +22,8 @@ type SearchCustomer struct {
 	// branch
 	Branch string `json:"branch,omitempty"`
 
-	// dod ID
-	DodID *string `json:"dodID,omitempty"`
+	// edipi
+	Edipi *string `json:"edipi,omitempty"`
 
 	// emplid
 	Emplid *string `json:"emplid,omitempty"`
