@@ -667,11 +667,17 @@ func (suite *HandlerSuite) TestUpdateOrdersHandler() {
 		suite.NoError(err)
 		suite.Equal("KKFA", fetchedGBLOC.GBLOC)
 
-		originDutyLocationAddress.PostalCode = "35023"
-
-		originDutyLocation = factory.BuildDutyLocation(suite.DB(), []factory.Customization{
+		originDutyLocationAddress = factory.BuildAddress(suite.DB(), []factory.Customization{
 			{
-				Model: originDutyLocationAddress,
+				Model: models.Address{
+					PostalCode: "35023",
+				},
+			},
+		}, nil)
+		originDutyLocation = factory.BuildDutyLocationWithoutTransportationOffice(suite.DB(), []factory.Customization{
+			{
+				Model:    originDutyLocationAddress,
+				LinkOnly: true,
 			},
 		}, nil)
 
