@@ -559,7 +559,7 @@ func (suite *MoveHistoryServiceSuite) TestMoveHistoryFetcherScenarios() {
 			CreatedAt: time.Now(),
 			UpdatedAt: time.Now(),
 		}
-		reServiceDDFSIT := factory.BuildDDFSITReService(suite.DB())
+		reServiceDDFSIT := factory.FetchReServiceByCode(suite.DB(), models.ReServiceCodeDDFSIT)
 
 		serviceItem := models.MTOServiceItem{
 			MoveTaskOrderID: move.ID,
@@ -624,7 +624,7 @@ func (suite *MoveHistoryServiceSuite) TestMoveHistoryFetcherScenarios() {
 		).Return(400, nil)
 		creator := mtoserviceitem.NewMTOServiceItemCreator(planner, builder, moveRouter, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticPackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer())
 
-		reService := factory.BuildReServiceByCode(suite.DB(), models.ReServiceCodeMS)
+		reService := factory.FetchReServiceByCode(suite.DB(), models.ReServiceCodeMS)
 
 		sitEntryDate := time.Now()
 		attemptedContact := time.Now()

@@ -32,7 +32,7 @@ func (suite *FactorySuite) TestBuildServiceParam() {
 			IsOptional: false,
 		}
 
-		reService := BuildDOFSITReService(suite.DB())
+		reService := FetchReServiceByCode(suite.DB(), models.ReServiceCodeDOFSIT)
 
 		serviceItemParamKey := BuildServiceItemParamKey(suite.DB(), []Customization{
 			{
