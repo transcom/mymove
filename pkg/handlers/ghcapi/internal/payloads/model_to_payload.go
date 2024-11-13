@@ -729,6 +729,10 @@ func Entitlement(entitlement *models.Entitlement) *ghcmessages.Entitlements {
 	if entitlement.DependentsTwelveAndOver != nil {
 		dependentsTwelveAndOver = models.Int64Pointer(int64(*entitlement.DependentsTwelveAndOver))
 	}
+	var ubAllowance *int64
+	if entitlement.UBAllowance != nil {
+		ubAllowance = models.Int64Pointer(int64(*entitlement.UBAllowance))
+	}
 	return &ghcmessages.Entitlements{
 		ID:                             strfmt.UUID(entitlement.ID.String()),
 		AuthorizedWeight:               authorizedWeight,
@@ -744,6 +748,7 @@ func Entitlement(entitlement *models.Entitlement) *ghcmessages.Entitlements {
 		DependentsUnderTwelve:          dependentsUnderTwelve,
 		DependentsTwelveAndOver:        dependentsTwelveAndOver,
 		AccompaniedTour:                accompaniedTour,
+		UbAllowance:                    ubAllowance,
 		OrganizationalClothingAndIndividualEquipment: entitlement.OrganizationalClothingAndIndividualEquipment,
 		GunSafe: gunSafe,
 		ETag:    etag.GenerateEtag(entitlement.UpdatedAt),
@@ -2490,7 +2495,7 @@ func SearchMoves(appCtx appcontext.AppContext, moves models.Moves) *ghcmessages.
 		searchMoves[i] = &ghcmessages.SearchMove{
 			FirstName:                         customer.FirstName,
 			LastName:                          customer.LastName,
-			DodID:                             customer.Edipi,
+			Edipi:                             customer.Edipi,
 			Emplid:                            customer.Emplid,
 			Branch:                            customer.Affiliation.String(),
 			Status:                            ghcmessages.MoveStatus(move.Status),
@@ -2553,7 +2558,7 @@ func SearchCustomers(customers models.ServiceMemberSearchResults) *ghcmessages.S
 		searchCustomers[i] = &ghcmessages.SearchCustomer{
 			FirstName:     customer.FirstName,
 			LastName:      customer.LastName,
-			DodID:         customer.Edipi,
+			Edipi:         customer.Edipi,
 			Emplid:        customer.Emplid,
 			Branch:        customer.Affiliation.String(),
 			ID:            *handlers.FmtUUID(customer.ID),

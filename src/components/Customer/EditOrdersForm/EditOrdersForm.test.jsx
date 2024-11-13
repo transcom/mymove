@@ -331,7 +331,6 @@ describe('EditOrdersForm component', () => {
     await waitFor(() => {
       expect(submitButton).not.toBeDisabled();
     });
-
     await userEvent.selectOptions(screen.getByLabelText(/Orders type/), ORDERS_TYPE.PERMANENT_CHANGE_OF_STATION);
     await userEvent.type(screen.getByLabelText(/Orders date/), '08 Nov 2020');
     await userEvent.type(screen.getByLabelText(/Report by date/), '26 Nov 2020');
