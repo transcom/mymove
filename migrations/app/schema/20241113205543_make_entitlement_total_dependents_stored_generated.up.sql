@@ -1,4 +1,4 @@
-UPDATE entitlements 
+UPDATE entitlements
 SET total_dependents = entitlements.dependents_under_twelve + entitlements.dependents_twelve_and_over
 WHERE total_dependents IS DISTINCT FROM (entitlements.dependents_under_twelve + entitlements.dependents_twelve_and_over);
 

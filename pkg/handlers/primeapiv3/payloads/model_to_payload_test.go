@@ -234,20 +234,20 @@ func (suite *PayloadsSuite) TestEntitlement() {
 
 	suite.Run("Success - Returns the entitlement payload with only required fields", func() {
 		entitlement := models.Entitlement{
-			ID:                             uuid.Must(uuid.NewV4()),
-			DependentsAuthorized:           nil,
+			ID:                   uuid.Must(uuid.NewV4()),
+			DependentsAuthorized: nil,
 			// TotalDependents:                nil,
-			NonTemporaryStorage:            nil,
-			PrivatelyOwnedVehicle:          nil,
-			DBAuthorizedWeight:             nil,
-			UBAllowance:                    nil,
-			StorageInTransit:               nil,
-			RequiredMedicalEquipmentWeight: 0,
+			NonTemporaryStorage:                          nil,
+			PrivatelyOwnedVehicle:                        nil,
+			DBAuthorizedWeight:                           nil,
+			UBAllowance:                                  nil,
+			StorageInTransit:                             nil,
+			RequiredMedicalEquipmentWeight:               0,
 			OrganizationalClothingAndIndividualEquipment: false,
-			ProGearWeight:       0,
-			ProGearWeightSpouse: 0,
-			CreatedAt:           time.Now(),
-			UpdatedAt:           time.Now(),
+			ProGearWeight:                                0,
+			ProGearWeightSpouse:                          0,
+			CreatedAt:                                    time.Now(),
+			UpdatedAt:                                    time.Now(),
 		}
 
 		payload := Entitlement(&entitlement)
@@ -274,20 +274,20 @@ func (suite *PayloadsSuite) TestEntitlement() {
 
 	suite.Run("Success - Returns the entitlement payload with all optional fields populated", func() {
 		entitlement := models.Entitlement{
-			ID:                             uuid.Must(uuid.NewV4()),
-			DependentsAuthorized:           handlers.FmtBool(true),
+			ID:                   uuid.Must(uuid.NewV4()),
+			DependentsAuthorized: handlers.FmtBool(true),
 			// TotalDependents:                handlers.FmtInt(2),
-			NonTemporaryStorage:            handlers.FmtBool(true),
-			PrivatelyOwnedVehicle:          handlers.FmtBool(true),
-			DBAuthorizedWeight:             handlers.FmtInt(10000),
-			UBAllowance:                    handlers.FmtInt(400),
-			StorageInTransit:               handlers.FmtInt(45),
-			RequiredMedicalEquipmentWeight: 500,
+			NonTemporaryStorage:                          handlers.FmtBool(true),
+			PrivatelyOwnedVehicle:                        handlers.FmtBool(true),
+			DBAuthorizedWeight:                           handlers.FmtInt(10000),
+			UBAllowance:                                  handlers.FmtInt(400),
+			StorageInTransit:                             handlers.FmtInt(45),
+			RequiredMedicalEquipmentWeight:               500,
 			OrganizationalClothingAndIndividualEquipment: true,
-			ProGearWeight:       1000,
-			ProGearWeightSpouse: 750,
-			CreatedAt:           time.Now(),
-			UpdatedAt:           time.Now(),
+			ProGearWeight:                                1000,
+			ProGearWeightSpouse:                          750,
+			CreatedAt:                                    time.Now(),
+			UpdatedAt:                                    time.Now(),
 		}
 
 		// TotalWeight needs to read from the internal weightAllotment, in this case 7000 lbs w/o dependents and
@@ -316,20 +316,20 @@ func (suite *PayloadsSuite) TestEntitlement() {
 
 	suite.Run("Success - Returns the entitlement payload with total weight self when dependents are not authorized", func() {
 		entitlement := models.Entitlement{
-			ID:                             uuid.Must(uuid.NewV4()),
-			DependentsAuthorized:           handlers.FmtBool(false),
+			ID:                   uuid.Must(uuid.NewV4()),
+			DependentsAuthorized: handlers.FmtBool(false),
 			// TotalDependents:                handlers.FmtInt(2),
-			NonTemporaryStorage:            handlers.FmtBool(true),
-			PrivatelyOwnedVehicle:          handlers.FmtBool(true),
-			DBAuthorizedWeight:             handlers.FmtInt(10000),
-			UBAllowance:                    handlers.FmtInt(400),
-			StorageInTransit:               handlers.FmtInt(45),
-			RequiredMedicalEquipmentWeight: 500,
+			NonTemporaryStorage:                          handlers.FmtBool(true),
+			PrivatelyOwnedVehicle:                        handlers.FmtBool(true),
+			DBAuthorizedWeight:                           handlers.FmtInt(10000),
+			UBAllowance:                                  handlers.FmtInt(400),
+			StorageInTransit:                             handlers.FmtInt(45),
+			RequiredMedicalEquipmentWeight:               500,
 			OrganizationalClothingAndIndividualEquipment: true,
-			ProGearWeight:       1000,
-			ProGearWeightSpouse: 750,
-			CreatedAt:           time.Now(),
-			UpdatedAt:           time.Now(),
+			ProGearWeight:                                1000,
+			ProGearWeightSpouse:                          750,
+			CreatedAt:                                    time.Now(),
+			UpdatedAt:                                    time.Now(),
 		}
 
 		// TotalWeight needs to read from the internal weightAllotment, in this case 7000 lbs w/o dependents and

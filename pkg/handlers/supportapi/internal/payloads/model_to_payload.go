@@ -164,8 +164,8 @@ func Entitlement(entitlement *models.Entitlement) *supportmessages.Entitlement {
 		OrganizationalClothingAndIndividualEquipment: entitlement.OrganizationalClothingAndIndividualEquipment,
 		StorageInTransit: sit,
 		// TotalDependents:  totalDependents,
-		TotalWeight:      totalWeight,
-		ETag:             etag.GenerateEtag(entitlement.UpdatedAt),
+		TotalWeight: totalWeight,
+		ETag:        etag.GenerateEtag(entitlement.UpdatedAt),
 	}
 }
 

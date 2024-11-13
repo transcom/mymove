@@ -49,7 +49,7 @@ func BuildEntitlement(db *pop.Connection, customs []Customization, traits []Trai
 
 	// Create default Entitlement
 	entitlement := models.Entitlement{
-		DependentsAuthorized:                         setBoolPtr(cEntitlement.DependentsAuthorized, true),
+		DependentsAuthorized: setBoolPtr(cEntitlement.DependentsAuthorized, true),
 		// TotalDependents:                              &dependents,
 		NonTemporaryStorage:                          setBoolPtr(cEntitlement.NonTemporaryStorage, true),
 		PrivatelyOwnedVehicle:                        setBoolPtr(cEntitlement.PrivatelyOwnedVehicle, true),

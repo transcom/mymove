@@ -342,14 +342,14 @@ func (suite *PayloadsSuite) TestEntitlement() {
 	ubAllowance := 300
 
 	entitlement := &models.Entitlement{
-		ID:                             entitlementID,
-		DBAuthorizedWeight:             &authorizedWeight,
-		DependentsAuthorized:           &dependentsAuthorized,
-		NonTemporaryStorage:            &nonTemporaryStorage,
-		PrivatelyOwnedVehicle:          &privatelyOwnedVehicle,
-		ProGearWeight:                  proGearWeight,
-		ProGearWeightSpouse:            proGearWeightSpouse,
-		StorageInTransit:               &storageInTransit,
+		ID:                    entitlementID,
+		DBAuthorizedWeight:    &authorizedWeight,
+		DependentsAuthorized:  &dependentsAuthorized,
+		NonTemporaryStorage:   &nonTemporaryStorage,
+		PrivatelyOwnedVehicle: &privatelyOwnedVehicle,
+		ProGearWeight:         proGearWeight,
+		ProGearWeightSpouse:   proGearWeightSpouse,
+		StorageInTransit:      &storageInTransit,
 		// TotalDependents:                &totalDependents,
 		RequiredMedicalEquipmentWeight: requiredMedicalEquipmentWeight,
 		AccompaniedTour:                &accompaniedTour,

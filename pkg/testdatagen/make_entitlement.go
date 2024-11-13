@@ -22,7 +22,7 @@ func makeEntitlement(db *pop.Connection, assertions Assertions) models.Entitleme
 	}
 
 	entitlement := models.Entitlement{
-		DependentsAuthorized:                         setDependentsAuthorized(assertions.Entitlement.DependentsAuthorized),
+		DependentsAuthorized: setDependentsAuthorized(assertions.Entitlement.DependentsAuthorized),
 		// TotalDependents:                              &dependents,
 		NonTemporaryStorage:                          &truePtr,
 		PrivatelyOwnedVehicle:                        &truePtr,

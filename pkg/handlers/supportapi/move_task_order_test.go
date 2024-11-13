@@ -282,7 +282,7 @@ func (suite *HandlerSuite) TestCreateMoveTaskOrderRequestHandler() {
 				Entitlement: &supportmessages.Entitlement{
 					DependentsAuthorized: models.BoolPointer(true),
 					// TotalDependents:      5,
-					NonTemporaryStorage:  models.BoolPointer(false),
+					NonTemporaryStorage: models.BoolPointer(false),
 				},
 				IssueDate:           handlers.FmtDatePtr(issueDate),
 				ReportByDate:        handlers.FmtDatePtr(reportByDate),

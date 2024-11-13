@@ -17,7 +17,7 @@ func (suite *FactorySuite) TestBuildEntitlement() {
 		// SETUP
 		// Create a default entitlement to compare values
 		defEnt := models.Entitlement{
-			DependentsAuthorized:                         models.BoolPointer(true),
+			DependentsAuthorized: models.BoolPointer(true),
 			// TotalDependents:                              models.IntPointer(0),
 			NonTemporaryStorage:                          models.BoolPointer(true),
 			PrivatelyOwnedVehicle:                        models.BoolPointer(true),
@@ -56,7 +56,7 @@ func (suite *FactorySuite) TestBuildEntitlement() {
 		// SETUP
 		// Create a default entitlement to compare values
 		custEnt := models.Entitlement{
-			DependentsAuthorized:                         models.BoolPointer(false),
+			DependentsAuthorized: models.BoolPointer(false),
 			// TotalDependents:                              models.IntPointer(0),
 			NonTemporaryStorage:                          models.BoolPointer(true),
 			PrivatelyOwnedVehicle:                        models.BoolPointer(true),
