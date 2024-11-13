@@ -653,8 +653,6 @@ func (suite *HandlerSuite) TestUpdateOrdersHandler() {
 				LinkOnly: true,
 			},
 		}, nil)
-		orderId := uuid.Must(uuid.NewV4())
-		order.ID = orderId
 		factory.BuildMove(suite.DB(), []factory.Customization{
 			{
 				Model:    order,
