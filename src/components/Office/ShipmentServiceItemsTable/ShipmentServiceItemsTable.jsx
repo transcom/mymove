@@ -7,14 +7,6 @@ import styles from './ShipmentServiceItemsTable.module.scss';
 import { serviceItemCodes } from 'content/serviceItems';
 import { getAllReServiceItems } from 'services/ghcApi';
 
-let allReServiceItems;
-const fetchAllReServiceItems = async () => {
-  getAllReServiceItems().then((response) => {
-    allReServiceItems = JSON.parse(response.data);
-  });
-};
-fetchAllReServiceItems();
-
 const shipmentTypes = {
   HHG: [
     serviceItemCodes.DLH,
@@ -84,7 +76,7 @@ function convertServiceItemsToServiceNames(serviceItems) {
   return serviceNames;
 }
 
-function getPreapprovedServiceItems(shipment) {
+function getPreapprovedServiceItems(allReServiceItems, shipment) {
   const { shipmentType, marketCode } = shipment;
   const autoApprovedItems = allReServiceItems.filter((reServiceItem) => {
     return (
@@ -98,25 +90,33 @@ function getPreapprovedServiceItems(shipment) {
 
 const ShipmentServiceItemsTable = ({ shipment, className }) => {
   const { shipmentType, marketCode } = shipment;
-  let filteredServiceItemsList;
-  if (marketCode === 'i') {
-    filteredServiceItemsList = getPreapprovedServiceItems(shipment);
-  } else {
-    const destinationZip3 = shipment.destinationAddress?.postalCode.slice(0, 3);
-    const pickupZip3 = shipment.pickupAddress?.postalCode.slice(0, 3);
-    const shipmentServiceItems = shipmentTypes[`${shipmentType}`] || [];
-    const sameZip3 = destinationZip3 === pickupZip3;
-
-    if (sameZip3) {
-      filteredServiceItemsList = shipmentServiceItems.filter((item) => {
-        return item !== serviceItemCodes.DLH;
-      });
+  const [filteredServiceItems, setFilteredServiceItems] = React.useState([]);
+  React.useEffect(() => {
+    if (marketCode === 'i') {
+      const fetchServiceItemsFunction = async () => {
+        const response = await getAllReServiceItems();
+        const allReServiceItems = await JSON.parse(response.data);
+        setFilteredServiceItems(getPreapprovedServiceItems(allReServiceItems, shipment));
+      };
+      fetchServiceItemsFunction();
     } else {
-      filteredServiceItemsList = shipmentServiceItems.filter((item) => {
-        return item !== serviceItemCodes.DSH;
-      });
+      let filteredServiceItemsList;
+      const destinationZip3 = shipment.destinationAddress?.postalCode.slice(0, 3);
+      const pickupZip3 = shipment.pickupAddress?.postalCode.slice(0, 3);
+      const shipmentServiceItems = shipmentTypes[`${shipmentType}`] || [];
+      const sameZip3 = destinationZip3 === pickupZip3;
+      if (sameZip3) {
+        filteredServiceItemsList = shipmentServiceItems.filter((item) => {
+          return item !== serviceItemCodes.DLH;
+        });
+      } else {
+        filteredServiceItemsList = shipmentServiceItems.filter((item) => {
+          return item !== serviceItemCodes.DSH;
+        });
+      }
+      setFilteredServiceItems(filteredServiceItemsList);
     }
-  }
+  }, [marketCode, shipmentType, shipment]);
   return (
     <div className={classNames('container', 'container--gray', className)}>
       <table className={classNames('table--stacked', styles.serviceItemsTable)}>
@@ -124,7 +124,7 @@ const ShipmentServiceItemsTable = ({ shipment, className }) => {
           <div className="stackedtable-header">
             <h4>
               Service items for this shipment <br />
-              {filteredServiceItemsList.length} items
+              {filteredServiceItems.length} items
             </h4>
           </div>
         </caption>
@@ -134,7 +134,7 @@ const ShipmentServiceItemsTable = ({ shipment, className }) => {
           </tr>
         </thead>
         <tbody>
-          {filteredServiceItemsList.map((serviceItem) => (
+          {filteredServiceItems.map((serviceItem) => (
             <tr key={serviceItem}>
               <td>{serviceItem}</td>
             </tr>
