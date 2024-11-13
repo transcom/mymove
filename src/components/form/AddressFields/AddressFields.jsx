@@ -35,7 +35,6 @@ export const AddressFields = ({
   validators,
   locationLookup,
   formikFunctionsToValidatePostalCodeOnChange,
-  validateForm,
   formikProps: { setFieldTouched, setFieldValue },
   labelHint: labelHintProp,
   address1LabelHint,
@@ -112,17 +111,18 @@ export const AddressFields = ({
   };
 
   const handleOnLocationChange = (value) => {
-    setFieldValue(`${name}.city`, value.city);
-    setFieldTouched(`${name}.city`, true);
-    setFieldValue(`${name}.state`, value.state);
-    setFieldTouched(`${name}.state`, true);
-    setFieldValue(`${name}.county`, value.county);
-    setFieldTouched(`${name}.county`, true);
-    setFieldValue(`${name}.postalCode`, value.postalCode);
-    setFieldTouched(`${name}.postalCode`, true);
-    setFieldValue(`${name}.usprcId`, value.usPostRegionCitiesId);
-    setFieldTouched(`${name}.usprcId`, true);
-    validateForm();
+    setFieldValue(`${name}.city`, value.city).then(() => {
+      setFieldTouched(`${name}.city`, true);
+    });
+    setFieldValue(`${name}.state`, value.state).then(() => {
+      setFieldTouched(`${name}.state`, true);
+    });
+    setFieldValue(`${name}.county`, value.county).then(() => {
+      setFieldTouched(`${name}.county`, true);
+    });
+    setFieldValue(`${name}.postalCode`, value.postalCode).then(() => {
+      setFieldTouched(`${name}.postalCode`, true);
+    });
   };
 
   return (
@@ -235,7 +235,6 @@ AddressFields.propTypes = {
     setFieldTouched: PropTypes.func,
   }),
   address1LabelHint: PropTypes.string,
-  validateForm: PropTypes.func,
   formikProps: shape({
     touched: shape({}),
     errors: shape({}),
@@ -252,7 +251,6 @@ AddressFields.defaultProps = {
   validators: {},
   formikFunctionsToValidatePostalCodeOnChange: null,
   address1LabelHint: null,
-  validateForm: {},
   formikProps: {},
 };
 
