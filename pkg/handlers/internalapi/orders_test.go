@@ -640,9 +640,35 @@ func (suite *HandlerSuite) TestUpdateOrdersHandler() {
 				},
 			},
 		}, nil)
+		newDutyLocationAddress := factory.BuildAddress(suite.DB(), []factory.Customization{
+			{
+				Model: models.Address{
+					PostalCode: "62225",
+				},
+			},
+		}, nil)
+		updatedOriginDutyLocationAddress := factory.BuildAddress(suite.DB(), []factory.Customization{
+			{
+				Model: models.Address{
+					PostalCode: "35023",
+				},
+			},
+		}, nil)
 		originDutyLocation := factory.BuildDutyLocationWithoutTransportationOffice(suite.DB(), []factory.Customization{
 			{
 				Model:    originDutyLocationAddress,
+				LinkOnly: true,
+			},
+		}, nil)
+		newDutyLocation := factory.BuildDutyLocationWithoutTransportationOffice(suite.DB(), []factory.Customization{
+			{
+				Model:    newDutyLocationAddress,
+				LinkOnly: true,
+			},
+		}, nil)
+		updatedOriginDutyLocation := factory.BuildDutyLocationWithoutTransportationOffice(suite.DB(), []factory.Customization{
+			{
+				Model:    updatedOriginDutyLocationAddress,
 				LinkOnly: true,
 			},
 		}, nil)
@@ -650,12 +676,6 @@ func (suite *HandlerSuite) TestUpdateOrdersHandler() {
 			{
 				Model:    originDutyLocation,
 				Type:     &factory.DutyLocations.OriginDutyLocation,
-				LinkOnly: true,
-			},
-		}, nil)
-		factory.BuildMove(suite.DB(), []factory.Customization{
-			{
-				Model:    order,
 				LinkOnly: true,
 			},
 		}, nil)
@@ -667,22 +687,15 @@ func (suite *HandlerSuite) TestUpdateOrdersHandler() {
 		suite.NoError(err)
 		suite.Equal("KKFA", fetchedGBLOC.GBLOC)
 
-		originDutyLocationAddress = factory.BuildAddress(suite.DB(), []factory.Customization{
-			{
-				Model: models.Address{
-					PostalCode: "35023",
-				},
-			},
-		}, nil)
-		originDutyLocation = factory.BuildDutyLocationWithoutTransportationOffice(suite.DB(), []factory.Customization{
-			{
-				Model:    originDutyLocationAddress,
-				LinkOnly: true,
-			},
-		}, nil)
-
 		payload := &internalmessages.CreateUpdateOrders{
-			OriginDutyLocationID: *handlers.FmtUUID(originDutyLocation.ID),
+			OriginDutyLocationID: *handlers.FmtUUID(updatedOriginDutyLocation.ID),
+			NewDutyLocationID:    handlers.FmtUUID(newDutyLocation.ID),
+			HasDependents:        handlers.FmtBool(order.HasDependents),
+			SpouseHasProGear:     handlers.FmtBool(order.SpouseHasProGear),
+			IssueDate:            handlers.FmtDate(order.IssueDate),
+			ReportByDate:         handlers.FmtDate(order.ReportByDate),
+			OrdersType:           &order.OrdersType,
+			Grade:                order.Grade,
 		}
 
 		path := fmt.Sprintf("/orders/%v", order.ID.String())
