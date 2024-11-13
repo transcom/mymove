@@ -143,13 +143,13 @@
   @include at-media('tablet') {
     @include u-margin-y(3);
 
-    +.formSection {
+    + .formSection {
       @include u-margin-top(3);
     }
   }
 }
 
-+ .formSection {
+p + .radioGroup {
   @include u-margin-top('neg-05');
 }
 
