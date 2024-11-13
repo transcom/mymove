@@ -101,7 +101,6 @@ const MoveDetails = ({
   } = useMoveDetailsQueries(moveCode);
 
   const validOrdersDocuments = Object.values(orderDocuments || {})?.filter((file) => !file.deletedAt);
-  const hasOrdersDocuments = validOrdersDocuments?.length > 0;
 
   // for now we are only showing dest type on retiree and separatee orders
   let isRetirementOrSeparation = false;
@@ -310,17 +309,17 @@ const MoveDetails = ({
 
   // using useMemo here due to this being used in a useEffect
   // using useMemo prevents the useEffect from being rendered on ever render by memoizing the object
-  // so that it only recognizes the change when the orders, hasOrdersDocuments or validOrdersDocuments objects change
+  // so that it only recognizes the change when the orders or validOrdersDocuments objects change
   const requiredOrdersInfo = useMemo(
     () => ({
       ordersNumber: order?.order_number || '',
       ordersType: order?.order_type || '',
       ordersTypeDetail: order?.order_type_detail || '',
-      ordersDocuments: hasOrdersDocuments ? validOrdersDocuments : null,
+      ordersDocuments: validOrdersDocuments?.length ? validOrdersDocuments : null,
       tacMDC: order?.tac || '',
       departmentIndicator: order?.department_indicator || '',
     }),
-    [order, hasOrdersDocuments, validOrdersDocuments],
+    [order, validOrdersDocuments],
   );
 
   // Keep num of missing orders info synced up
@@ -353,7 +352,7 @@ const MoveDetails = ({
     ordersNumber: order.order_number,
     ordersType: order.order_type,
     ordersTypeDetail: order.order_type_detail,
-    ordersDocuments: hasOrdersDocuments ? validOrdersDocuments : null,
+    ordersDocuments: validOrdersDocuments?.length ? validOrdersDocuments : null,
     uploadedAmendedOrderID: order.uploadedAmendedOrderID,
     amendedOrdersAcknowledgedAt: order.amendedOrdersAcknowledgedAt,
     tacMDC: order.tac,
