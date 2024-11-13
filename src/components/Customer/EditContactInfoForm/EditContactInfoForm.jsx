@@ -58,7 +58,6 @@ const EditContactInfoForm = ({ initialValues, onSubmit, onCancel }) => {
                 name={residentialAddressName}
                 labelHint="Required"
                 locationLookup
-                values={values}
                 formikProps={formikProps}
               />
             </SectionWrapper>
@@ -70,13 +69,7 @@ const EditContactInfoForm = ({ initialValues, onSubmit, onCancel }) => {
                 transit during your move.
               </p>
 
-              <AddressFields
-                name={backupAddressName}
-                labelHint="Required"
-                locationLookup
-                values={values}
-                formikProps={formikProps}
-              />
+              <AddressFields name={backupAddressName} labelHint="Required" locationLookup formikProps={formikProps} />
             </SectionWrapper>
 
             <SectionWrapper className={sectionStyles}>

@@ -139,7 +139,7 @@ const DateAndLocationForm = ({ mtoShipment, destinationDutyLocation, serviceMemb
       validateOnMount
       validateOnChange
     >
-      {({ isValid, isSubmitting, handleSubmit, setValues, values, validateForm, ...formikProps }) => {
+      {({ isValid, isSubmitting, handleSubmit, setValues, values, ...formikProps }) => {
         const handleUseCurrentResidenceChange = (e) => {
           const { checked } = e.target;
           if (checked) {
@@ -202,7 +202,6 @@ const DateAndLocationForm = ({ mtoShipment, destinationDutyLocation, serviceMemb
                   name="pickupAddress.address"
                   labelHint="Required"
                   locationLookup
-                  validateForm={validateForm}
                   formikProps={formikProps}
                   render={(fields) => (
                     <>
@@ -246,7 +245,6 @@ const DateAndLocationForm = ({ mtoShipment, destinationDutyLocation, serviceMemb
                             labelHint="Required"
                             name="secondaryPickupAddress.address"
                             locationLookup
-                            validateForm={validateForm}
                             formikProps={formikProps}
                           />
                           <Hint className={ppmStyles.hint}>
@@ -300,7 +298,6 @@ const DateAndLocationForm = ({ mtoShipment, destinationDutyLocation, serviceMemb
                               labelHint="Required"
                               name="tertiaryPickupAddress.address"
                               locationLookup
-                              validateForm={validateForm}
                               formikProps={formikProps}
                             />
                           </>
@@ -315,7 +312,6 @@ const DateAndLocationForm = ({ mtoShipment, destinationDutyLocation, serviceMemb
                   name="destinationAddress.address"
                   labelHint="Required"
                   locationLookup
-                  validateForm={validateForm}
                   formikProps={formikProps}
                   // White spaces are used specifically to override incoming labelHint prop
                   // not to display anything.
@@ -362,7 +358,6 @@ const DateAndLocationForm = ({ mtoShipment, destinationDutyLocation, serviceMemb
                             name="secondaryDestinationAddress.address"
                             labelHint="Required"
                             locationLookup
-                            validateForm={validateForm}
                             formikProps={formikProps}
                           />
                           <Hint className={ppmStyles.hint}>
@@ -417,7 +412,6 @@ const DateAndLocationForm = ({ mtoShipment, destinationDutyLocation, serviceMemb
                               name="tertiaryDestinationAddress.address"
                               labelHint="Required"
                               locationLookup
-                              validateForm={validateForm}
                               formikProps={formikProps}
                             />
                           </>

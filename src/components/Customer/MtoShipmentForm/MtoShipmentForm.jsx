@@ -208,7 +208,7 @@ class MtoShipmentForm extends Component {
         validationSchema={schema}
         onSubmit={this.submitMTOShipment}
       >
-        {({ values, isValid, isSubmitting, setValues, handleSubmit, validateForm, ...formikProps }) => {
+        {({ values, isValid, isSubmitting, setValues, handleSubmit, ...formikProps }) => {
           const {
             hasDeliveryAddress,
             hasSecondaryPickup,
@@ -350,7 +350,6 @@ class MtoShipmentForm extends Component {
                             legend="Pickup location"
                             labelHint="Required"
                             locationLookup
-                            validateForm={validateForm}
                             formikProps={formikProps}
                             render={(fields) => (
                               <>
@@ -397,7 +396,6 @@ class MtoShipmentForm extends Component {
                                     name="secondaryPickup.address"
                                     labelHint="Required"
                                     locationLookup
-                                    validateForm={validateForm}
                                     formikProps={formikProps}
                                   />
                                 )}
@@ -439,7 +437,6 @@ class MtoShipmentForm extends Component {
                                         name="tertiaryPickup.address"
                                         labelHint="Required"
                                         locationLookup
-                                        validateForm={validateForm}
                                         formikProps={formikProps}
                                       />
                                     </>
@@ -516,7 +513,6 @@ class MtoShipmentForm extends Component {
                                 name="delivery.address"
                                 labelHint="Required"
                                 locationLookup
-                                validateForm={validateForm}
                                 formikProps={formikProps}
                                 render={(fields) => (
                                   <>
@@ -555,7 +551,6 @@ class MtoShipmentForm extends Component {
                                         name="secondaryDelivery.address"
                                         labelHint="Required"
                                         locationLookup
-                                        validateForm={validateForm}
                                         formikProps={formikProps}
                                       />
                                     )}
@@ -597,7 +592,6 @@ class MtoShipmentForm extends Component {
                                             name="tertiaryDelivery.address"
                                             labelHint="Required"
                                             locationLookup
-                                            validateForm={validateForm}
                                             formikProps={formikProps}
                                           />
                                         </>
