@@ -1,7 +1,7 @@
 import React, { useRef } from 'react';
 import { PropTypes, shape } from 'prop-types';
 import { v4 as uuidv4 } from 'uuid';
-import { Fieldset, Label } from '@trussworks/react-uswds';
+import { Fieldset } from '@trussworks/react-uswds';
 
 import { statesList } from '../../../constants/states';
 
@@ -35,7 +35,7 @@ export const AddressFields = ({
   validators,
   locationLookup,
   formikFunctionsToValidatePostalCodeOnChange,
-  values,
+  validateForm,
   formikProps: { setFieldTouched, setFieldValue },
   labelHint: labelHintProp,
   address1LabelHint,
@@ -113,15 +113,16 @@ export const AddressFields = ({
 
   const handleOnLocationChange = (value) => {
     setFieldValue(`${name}.city`, value.city);
-    setFieldTouched(`${name}.city`, true, true);
+    setFieldTouched(`${name}.city`, true);
     setFieldValue(`${name}.state`, value.state);
-    setFieldTouched(`${name}.state`, true, true);
+    setFieldTouched(`${name}.state`, true);
     setFieldValue(`${name}.county`, value.county);
-    setFieldTouched(`${name}.county`, true, true);
+    setFieldTouched(`${name}.county`, true);
     setFieldValue(`${name}.postalCode`, value.postalCode);
-    setFieldTouched(`${name}.postalCode`, true, true);
+    setFieldTouched(`${name}.postalCode`, true);
     setFieldValue(`${name}.usprcId`, value.usPostRegionCitiesId);
-    setFieldTouched(`${name}.usprcId`, true, true);
+    setFieldTouched(`${name}.usprcId`, true);
+    validateForm();
   };
 
   return (
@@ -234,7 +235,7 @@ AddressFields.propTypes = {
     setFieldTouched: PropTypes.func,
   }),
   address1LabelHint: PropTypes.string,
-  values: shape({}),
+  validateForm: PropTypes.func,
   formikProps: shape({
     touched: shape({}),
     errors: shape({}),
@@ -251,7 +252,7 @@ AddressFields.defaultProps = {
   validators: {},
   formikFunctionsToValidatePostalCodeOnChange: null,
   address1LabelHint: null,
-  values: {},
+  validateForm: {},
   formikProps: {},
 };
 
