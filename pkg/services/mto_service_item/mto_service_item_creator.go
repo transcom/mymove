@@ -40,8 +40,6 @@ type mtoServiceItemCreator struct {
 }
 
 func (o *mtoServiceItemCreator) FindEstimatedPrice(appCtx appcontext.AppContext, serviceItem *models.MTOServiceItem, mtoShipment models.MTOShipment) (unit.Cents, error) {
-	print("\n\n\nStart: ", serviceItem.ReService.Code, " 1. \n")
-
 	if serviceItem.ReService.Code == models.ReServiceCodeDOP ||
 		serviceItem.ReService.Code == models.ReServiceCodeDPK ||
 		serviceItem.ReService.Code == models.ReServiceCodeDDP ||
@@ -65,10 +63,8 @@ func (o *mtoServiceItemCreator) FindEstimatedPrice(appCtx appcontext.AppContext,
 
 		contractCode, err := FetchContractCode(appCtx, currTime)
 		if err != nil {
-			print(err.Error(), " 2. \n\n\n")
 			contractCode, err = FetchContractCode(appCtx, requestedPickupDate)
 			if err != nil {
-				print(err.Error(), " 3. \n\n\n")
 				return 0, err
 			}
 		}
@@ -79,13 +75,11 @@ func (o *mtoServiceItemCreator) FindEstimatedPrice(appCtx appcontext.AppContext,
 		if serviceItem.ReService.Code == models.ReServiceCodeDOP {
 			domesticServiceArea, err := fetchDomesticServiceArea(appCtx, contractCode, mtoShipment.PickupAddress.PostalCode)
 			if err != nil {
-				print(err.Error(), " 4. \n\n\n")
 				return 0, err
 			}
 
 			price, _, err = o.originPricer.Price(appCtx, contractCode, requestedPickupDate, *primeEstimatedWeight, domesticServiceArea.ServiceArea, isPPM)
 			if err != nil {
-				print(err.Error(), " 5. \n\n\n")
 				return 0, err
 			}
 		}
