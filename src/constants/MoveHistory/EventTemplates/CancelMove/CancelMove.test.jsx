@@ -1,12 +1,12 @@
 import { screen, render } from '@testing-library/react';
 
 import getTemplate from 'constants/MoveHistory/TemplateManager';
-import e from 'constants/MoveHistory/EventTemplates/MoveCanceler/MoveCancelerMoves';
+import e from 'constants/MoveHistory/EventTemplates/CancelMove/CancelMove';
 
 describe('when given a Move cancellation history record', () => {
   const historyRecord = {
     action: 'UPDATE',
-    eventName: 'moveCanceler',
+    eventName: 'cancelMove',
     tableName: 'moves',
   };
 
