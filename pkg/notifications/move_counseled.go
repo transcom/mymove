@@ -67,6 +67,13 @@ func (m MoveCounseled) emails(appCtx appcontext.AppContext) ([]emailContent, err
 		originDutyLocationName = &originDSTransportInfo.Name
 	}
 
+	actualExpenseReimbursement := false
+	for i := 0; i < len(move.MTOShipments); i++ {
+		if move.MTOShipments[i].PPMShipment.IsActualExpenseReimbursement != nil && *move.MTOShipments[i].PPMShipment.IsActualExpenseReimbursement {
+			actualExpenseReimbursement = true
+		}
+	}
+
 	destinationAddress := orders.NewDutyLocation.Name
 	isSeparateeOrRetireeOrder := orders.OrdersType == internalmessages.OrdersTypeRETIREMENT || orders.OrdersType == internalmessages.OrdersTypeSEPARATION
 	if isSeparateeOrRetireeOrder && len(move.MTOShipments) > 0 && move.MTOShipments[0].DestinationAddress != nil {
@@ -78,13 +85,6 @@ func (m MoveCounseled) emails(appCtx appcontext.AppContext) ([]emailContent, err
 			streetAddr3 = " " + *mtoShipDestinationAddress.StreetAddress3
 		}
 		destinationAddress = fmt.Sprintf("%s%s%s, %s, %s %s", mtoShipDestinationAddress.StreetAddress1, streetAddr2, streetAddr3, mtoShipDestinationAddress.City, mtoShipDestinationAddress.State, mtoShipDestinationAddress.PostalCode)
-	}
-
-	actualExpenseReimbursement := false
-	for i := 0; i < len(move.MTOShipments); i++ {
-		if move.MTOShipments[i].PPMShipment.IsActualExpenseReimbursement != nil && *move.MTOShipments[i].PPMShipment.IsActualExpenseReimbursement {
-			actualExpenseReimbursement = true
-		}
 	}
 
 	if serviceMember.PersonalEmail == nil {
