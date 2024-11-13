@@ -24,7 +24,7 @@ func TestEntitlement(t *testing.T) {
 		entitlement := models.Entitlement{
 			ID:                             uuid.Must(uuid.NewV4()),
 			DependentsAuthorized:           nil,
-			TotalDependents:                nil,
+			// TotalDependents:                nil,
 			NonTemporaryStorage:            nil,
 			PrivatelyOwnedVehicle:          nil,
 			DBAuthorizedWeight:             nil,
@@ -55,7 +55,7 @@ func TestEntitlement(t *testing.T) {
 
 		/* These fields are defaulting to zero if they are nil in the model */
 		assert.Equal(t, int64(0), payload.StorageInTransit)
-		assert.Equal(t, int64(0), payload.TotalDependents)
+		// assert.Equal(t, int64(0), payload.TotalDependents)
 		assert.Equal(t, int64(0), payload.TotalWeight)
 		assert.Equal(t, int64(0), *payload.UnaccompaniedBaggageAllowance)
 	})
@@ -64,7 +64,7 @@ func TestEntitlement(t *testing.T) {
 		entitlement := models.Entitlement{
 			ID:                             uuid.Must(uuid.NewV4()),
 			DependentsAuthorized:           handlers.FmtBool(true),
-			TotalDependents:                handlers.FmtInt(2),
+			// TotalDependents:                handlers.FmtInt(2),
 			NonTemporaryStorage:            handlers.FmtBool(true),
 			PrivatelyOwnedVehicle:          handlers.FmtBool(true),
 			DBAuthorizedWeight:             handlers.FmtInt(10000),
@@ -86,7 +86,7 @@ func TestEntitlement(t *testing.T) {
 
 		assert.Equal(t, strfmt.UUID(entitlement.ID.String()), payload.ID)
 		assert.True(t, *payload.DependentsAuthorized)
-		assert.Equal(t, int64(2), payload.TotalDependents)
+		// assert.Equal(t, int64(2), payload.TotalDependents)
 		assert.True(t, *payload.NonTemporaryStorage)
 		assert.True(t, *payload.PrivatelyOwnedVehicle)
 		assert.Equal(t, int64(10000), *payload.AuthorizedWeight)
@@ -105,7 +105,7 @@ func TestEntitlement(t *testing.T) {
 		entitlement := models.Entitlement{
 			ID:                             uuid.Must(uuid.NewV4()),
 			DependentsAuthorized:           handlers.FmtBool(false),
-			TotalDependents:                handlers.FmtInt(2),
+			// TotalDependents:                handlers.FmtInt(2),
 			NonTemporaryStorage:            handlers.FmtBool(true),
 			PrivatelyOwnedVehicle:          handlers.FmtBool(true),
 			DBAuthorizedWeight:             handlers.FmtInt(10000),
@@ -127,7 +127,7 @@ func TestEntitlement(t *testing.T) {
 
 		assert.Equal(t, strfmt.UUID(entitlement.ID.String()), payload.ID)
 		assert.False(t, *payload.DependentsAuthorized)
-		assert.Equal(t, int64(2), payload.TotalDependents)
+		// assert.Equal(t, int64(2), payload.TotalDependents)
 		assert.True(t, *payload.NonTemporaryStorage)
 		assert.True(t, *payload.PrivatelyOwnedVehicle)
 		assert.Equal(t, int64(10000), *payload.AuthorizedWeight)

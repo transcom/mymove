@@ -236,7 +236,7 @@ func (suite *PayloadsSuite) TestEntitlement() {
 		entitlement := models.Entitlement{
 			ID:                             uuid.Must(uuid.NewV4()),
 			DependentsAuthorized:           nil,
-			TotalDependents:                nil,
+			// TotalDependents:                nil,
 			NonTemporaryStorage:            nil,
 			PrivatelyOwnedVehicle:          nil,
 			DBAuthorizedWeight:             nil,
@@ -276,7 +276,7 @@ func (suite *PayloadsSuite) TestEntitlement() {
 		entitlement := models.Entitlement{
 			ID:                             uuid.Must(uuid.NewV4()),
 			DependentsAuthorized:           handlers.FmtBool(true),
-			TotalDependents:                handlers.FmtInt(2),
+			// TotalDependents:                handlers.FmtInt(2),
 			NonTemporaryStorage:            handlers.FmtBool(true),
 			PrivatelyOwnedVehicle:          handlers.FmtBool(true),
 			DBAuthorizedWeight:             handlers.FmtInt(10000),
@@ -318,7 +318,7 @@ func (suite *PayloadsSuite) TestEntitlement() {
 		entitlement := models.Entitlement{
 			ID:                             uuid.Must(uuid.NewV4()),
 			DependentsAuthorized:           handlers.FmtBool(false),
-			TotalDependents:                handlers.FmtInt(2),
+			// TotalDependents:                handlers.FmtInt(2),
 			NonTemporaryStorage:            handlers.FmtBool(true),
 			PrivatelyOwnedVehicle:          handlers.FmtBool(true),
 			DBAuthorizedWeight:             handlers.FmtInt(10000),

@@ -333,7 +333,7 @@ func (suite *PayloadsSuite) TestEntitlement() {
 	proGearWeight := 1000
 	proGearWeightSpouse := 500
 	storageInTransit := 90
-	totalDependents := 2
+	// totalDependents := 2
 	requiredMedicalEquipmentWeight := 200
 	accompaniedTour := true
 	dependentsUnderTwelve := 1
@@ -350,7 +350,7 @@ func (suite *PayloadsSuite) TestEntitlement() {
 		ProGearWeight:                  proGearWeight,
 		ProGearWeightSpouse:            proGearWeightSpouse,
 		StorageInTransit:               &storageInTransit,
-		TotalDependents:                &totalDependents,
+		// TotalDependents:                &totalDependents,
 		RequiredMedicalEquipmentWeight: requiredMedicalEquipmentWeight,
 		AccompaniedTour:                &accompaniedTour,
 		DependentsUnderTwelve:          &dependentsUnderTwelve,
@@ -373,7 +373,7 @@ func (suite *PayloadsSuite) TestEntitlement() {
 	suite.Equal(int64(proGearWeight), returnedEntitlement.ProGearWeight)
 	suite.Equal(int64(proGearWeightSpouse), returnedEntitlement.ProGearWeightSpouse)
 	suite.Equal(storageInTransit, int(*returnedEntitlement.StorageInTransit))
-	suite.Equal(totalDependents, int(returnedEntitlement.TotalDependents))
+	// suite.Equal(totalDependents, int(returnedEntitlement.TotalDependents))
 	suite.Equal(int64(requiredMedicalEquipmentWeight), returnedEntitlement.RequiredMedicalEquipmentWeight)
 	suite.Equal(models.BoolPointer(accompaniedTour), returnedEntitlement.AccompaniedTour)
 	suite.Equal(dependentsUnderTwelve, int(*returnedEntitlement.DependentsUnderTwelve))

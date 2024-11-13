@@ -1031,3 +1031,4 @@
 20241029144404_hdt-614-adjust-accomack-county.up.sql
 20241031163018_create_ub_allowances_table.up.sql
 20241111223224_change_international_sit_services_to_accessorials.up.sql
+20241113205543_make_entitlement_total_dependents_stored_generated.up.sql

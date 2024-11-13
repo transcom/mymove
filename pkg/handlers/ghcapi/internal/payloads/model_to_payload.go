@@ -711,10 +711,10 @@ func Entitlement(entitlement *models.Entitlement) *ghcmessages.Entitlements {
 		sitValue := int64(*entitlement.StorageInTransit)
 		sit = &sitValue
 	}
-	var totalDependents int64
-	if entitlement.TotalDependents != nil {
-		totalDependents = int64(*entitlement.TotalDependents)
-	}
+	// var totalDependents int64
+	// if entitlement.TotalDependents != nil {
+	// 	totalDependents = int64(*entitlement.TotalDependents)
+	// }
 	requiredMedicalEquipmentWeight := int64(entitlement.RequiredMedicalEquipmentWeight)
 	gunSafe := entitlement.GunSafe
 	var accompaniedTour *bool
@@ -742,7 +742,7 @@ func Entitlement(entitlement *models.Entitlement) *ghcmessages.Entitlements {
 		ProGearWeight:                  proGearWeight,
 		ProGearWeightSpouse:            proGearWeightSpouse,
 		StorageInTransit:               sit,
-		TotalDependents:                totalDependents,
+		// TotalDependents:                totalDependents,
 		TotalWeight:                    totalWeight,
 		RequiredMedicalEquipmentWeight: requiredMedicalEquipmentWeight,
 		DependentsUnderTwelve:          dependentsUnderTwelve,

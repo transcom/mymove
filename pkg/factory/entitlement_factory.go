@@ -40,7 +40,7 @@ func BuildEntitlement(db *pop.Connection, customs []Customization, traits []Trai
 		grade = &defaultGrade
 	}
 
-	dependents := 0
+	// dependents := 0
 	storageInTransit := 90
 	rmeWeight := 1000
 	ocie := true
@@ -50,7 +50,7 @@ func BuildEntitlement(db *pop.Connection, customs []Customization, traits []Trai
 	// Create default Entitlement
 	entitlement := models.Entitlement{
 		DependentsAuthorized:                         setBoolPtr(cEntitlement.DependentsAuthorized, true),
-		TotalDependents:                              &dependents,
+		// TotalDependents:                              &dependents,
 		NonTemporaryStorage:                          setBoolPtr(cEntitlement.NonTemporaryStorage, true),
 		PrivatelyOwnedVehicle:                        setBoolPtr(cEntitlement.PrivatelyOwnedVehicle, true),
 		StorageInTransit:                             &storageInTransit,

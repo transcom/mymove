@@ -18,7 +18,7 @@ func (suite *FactorySuite) TestBuildEntitlement() {
 		// Create a default entitlement to compare values
 		defEnt := models.Entitlement{
 			DependentsAuthorized:                         models.BoolPointer(true),
-			TotalDependents:                              models.IntPointer(0),
+			// TotalDependents:                              models.IntPointer(0),
 			NonTemporaryStorage:                          models.BoolPointer(true),
 			PrivatelyOwnedVehicle:                        models.BoolPointer(true),
 			StorageInTransit:                             models.IntPointer(90),
@@ -35,7 +35,7 @@ func (suite *FactorySuite) TestBuildEntitlement() {
 
 		// VALIDATE RESULTS
 		suite.Equal(*defEnt.DependentsAuthorized, *entitlement.DependentsAuthorized)
-		suite.Equal(*defEnt.TotalDependents, *entitlement.TotalDependents)
+		// suite.Equal(*defEnt.TotalDependents, *entitlement.TotalDependents)
 		suite.Equal(*defEnt.NonTemporaryStorage, *entitlement.NonTemporaryStorage)
 		suite.Equal(*defEnt.PrivatelyOwnedVehicle, *entitlement.PrivatelyOwnedVehicle)
 		suite.Equal(*defEnt.StorageInTransit, *entitlement.StorageInTransit)
@@ -57,7 +57,7 @@ func (suite *FactorySuite) TestBuildEntitlement() {
 		// Create a default entitlement to compare values
 		custEnt := models.Entitlement{
 			DependentsAuthorized:                         models.BoolPointer(false),
-			TotalDependents:                              models.IntPointer(0),
+			// TotalDependents:                              models.IntPointer(0),
 			NonTemporaryStorage:                          models.BoolPointer(true),
 			PrivatelyOwnedVehicle:                        models.BoolPointer(true),
 			StorageInTransit:                             models.IntPointer(90),
@@ -74,7 +74,7 @@ func (suite *FactorySuite) TestBuildEntitlement() {
 
 		// VALIDATE RESULTS
 		suite.Equal(*custEnt.DependentsAuthorized, *entitlement.DependentsAuthorized)
-		suite.Equal(*custEnt.TotalDependents, *entitlement.TotalDependents)
+		// suite.Equal(*custEnt.TotalDependents, *entitlement.TotalDependents)
 		suite.Equal(*custEnt.NonTemporaryStorage, *entitlement.NonTemporaryStorage)
 		suite.Equal(*custEnt.PrivatelyOwnedVehicle, *entitlement.PrivatelyOwnedVehicle)
 		suite.Equal(*custEnt.StorageInTransit, *entitlement.StorageInTransit)

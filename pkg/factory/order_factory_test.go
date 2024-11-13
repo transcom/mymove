@@ -98,9 +98,9 @@ func (suite *FactorySuite) TestBuildOrder() {
 		uploadedOrders := models.Document{
 			ID: uuid.Must(uuid.NewV4()),
 		}
-		dependents := 7
+		// dependents := 7
 		entitlement := models.Entitlement{
-			TotalDependents: &dependents,
+			// TotalDependents: &dependents,
 		}
 		amendedOrders := models.Document{
 			ID: uuid.Must(uuid.NewV4()),
@@ -140,7 +140,7 @@ func (suite *FactorySuite) TestBuildOrder() {
 		suite.Equal(*serviceMember.LastName, *order.ServiceMember.LastName)
 		suite.Equal(uploadedOrders.ID, order.UploadedOrdersID)
 		suite.Equal(uploadedOrders.ID, order.UploadedOrders.ID)
-		suite.Equal(*entitlement.TotalDependents, *order.Entitlement.TotalDependents)
+		// suite.Equal(*entitlement.TotalDependents, *order.Entitlement.TotalDependents)
 		suite.Equal(amendedOrders.ID, *order.UploadedAmendedOrdersID)
 		suite.Equal(amendedOrders.ID, order.UploadedAmendedOrders.ID)
 	})

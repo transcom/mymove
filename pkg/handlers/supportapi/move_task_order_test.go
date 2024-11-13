@@ -281,7 +281,7 @@ func (suite *HandlerSuite) TestCreateMoveTaskOrderRequestHandler() {
 				OriginDutyLocationID:      handlers.FmtUUID(originDutyLocation.ID),
 				Entitlement: &supportmessages.Entitlement{
 					DependentsAuthorized: models.BoolPointer(true),
-					TotalDependents:      5,
+					// TotalDependents:      5,
 					NonTemporaryStorage:  models.BoolPointer(false),
 				},
 				IssueDate:           handlers.FmtDatePtr(issueDate),

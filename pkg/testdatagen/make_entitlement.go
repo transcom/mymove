@@ -9,7 +9,7 @@ import (
 // makeEntitlement creates a single Entitlement
 func makeEntitlement(db *pop.Connection, assertions Assertions) models.Entitlement {
 	truePtr := true
-	dependents := 1
+	// dependents := 1
 	storageInTransit := 90
 	rmeWeight := 1000
 	ocie := true
@@ -23,7 +23,7 @@ func makeEntitlement(db *pop.Connection, assertions Assertions) models.Entitleme
 
 	entitlement := models.Entitlement{
 		DependentsAuthorized:                         setDependentsAuthorized(assertions.Entitlement.DependentsAuthorized),
-		TotalDependents:                              &dependents,
+		// TotalDependents:                              &dependents,
 		NonTemporaryStorage:                          &truePtr,
 		PrivatelyOwnedVehicle:                        &truePtr,
 		StorageInTransit:                             &storageInTransit,

@@ -148,10 +148,10 @@ func Entitlement(entitlement *models.Entitlement) *primev2messages.Entitlements 
 	if entitlement.StorageInTransit != nil {
 		sit = int64(*entitlement.StorageInTransit)
 	}
-	var totalDependents int64
-	if entitlement.TotalDependents != nil {
-		totalDependents = int64(*entitlement.TotalDependents)
-	}
+	// var totalDependents int64
+	// if entitlement.TotalDependents != nil {
+	// 	totalDependents = int64(*entitlement.TotalDependents)
+	// }
 	var ubAllowance int64
 	if entitlement.UBAllowance != nil {
 		ubAllowance = int64(*entitlement.UBAllowance)
@@ -169,7 +169,7 @@ func Entitlement(entitlement *models.Entitlement) *primev2messages.Entitlements 
 		RequiredMedicalEquipmentWeight: int64(entitlement.RequiredMedicalEquipmentWeight),
 		OrganizationalClothingAndIndividualEquipment: entitlement.OrganizationalClothingAndIndividualEquipment,
 		StorageInTransit: sit,
-		TotalDependents:  totalDependents,
+		// TotalDependents:  totalDependents,
 		TotalWeight:      totalWeight,
 		ETag:             etag.GenerateEtag(entitlement.UpdatedAt),
 	}

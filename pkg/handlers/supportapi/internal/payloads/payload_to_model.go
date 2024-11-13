@@ -85,8 +85,8 @@ func EntitlementModel(entitlementPayload *supportmessages.Entitlement) *models.E
 		model.DBAuthorizedWeight = models.IntPointer(int(*entitlementPayload.AuthorizedWeight))
 	}
 
-	totalDependents := int(entitlementPayload.TotalDependents)
-	model.TotalDependents = &totalDependents
+	// totalDependents := int(entitlementPayload.TotalDependents)
+	// model.TotalDependents = &totalDependents
 
 	storageInTransit := int(entitlementPayload.StorageInTransit)
 	model.StorageInTransit = &storageInTransit
