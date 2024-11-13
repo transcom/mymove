@@ -5,9 +5,7 @@
   display: flex;
   flex-wrap: wrap;
 
-  button,
-  :global(.usa-button) {
-    margin: 0;
+  button {
     flex-grow: 0;
     flex-basis: auto;
   }
