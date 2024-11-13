@@ -146,15 +146,19 @@ const OrdersInfoForm = ({ ordersTypeOptions, initialValues, onSubmit, onBack }) 
         const handleHasDependentsChange = (e) => {
           // Declare a duplicate local scope of the field value
           // for the form to prevent state race conditions
-          const fieldValueHasDependents = e.target.value;
-          setHasDependents(e.target.value);
-          setFieldValue('has_dependents', e.target.value);
-          if (fieldValueHasDependents && isOconusMove && enableUB) {
-            setShowAccompaniedTourField(true);
-            setShowDependentAgeFields(true);
+          if (e.target.value === '') {
+            setFieldValue('has_dependents', '');
           } else {
-            setShowAccompaniedTourField(false);
-            setShowDependentAgeFields(false);
+            const fieldValueHasDependents = e.target.value === 'yes';
+            setHasDependents(e.target.value === 'yes');
+            setFieldValue('has_dependents', fieldValueHasDependents ? 'yes' : 'no');
+            if (fieldValueHasDependents && isOconusMove && enableUB) {
+              setShowAccompaniedTourField(true);
+              setShowDependentAgeFields(true);
+            } else {
+              setShowAccompaniedTourField(false);
+              setShowDependentAgeFields(false);
+            }
           }
         };
 
