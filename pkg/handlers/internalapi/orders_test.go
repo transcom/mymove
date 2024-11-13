@@ -665,8 +665,13 @@ func (suite *HandlerSuite) TestUpdateOrdersHandler() {
 		fetchedMove, err := models.FetchMoveByMoveID(suite.DB(), move.ID)
 		suite.NoError(err)
 		var fetchedGBLOC models.PostalCodeToGBLOC
+		if fetchedMove.Orders.OriginDutyLocation == nil {
+			suite.FailNow("the OriginDutyLocation on fetchMove is NIL")
+		} else if fetchedMove.Orders.OriginDutyLocation.Address.PostalCode == "" {
+			suite.FailNow("the OriginDutyLocation.Address on fetchMove is EMPTY")
+		}
 		fetchedGBLOC, err = models.FetchGBLOCForPostalCode(suite.DB(), fetchedMove.Orders.OriginDutyLocation.Address.PostalCode)
-		suite.NoError(err)
+		suite.NoError(err, "")
 		suite.Equal("KKFA", fetchedGBLOC.GBLOC)
 
 		updatedOriginDutyLocationAddress := factory.BuildAddress(suite.DB(), []factory.Customization{
