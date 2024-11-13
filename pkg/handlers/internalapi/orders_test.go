@@ -640,29 +640,22 @@ func (suite *HandlerSuite) TestUpdateOrdersHandler() {
 				},
 			},
 		}, nil)
-		originDutyLocationAddresId := uuid.Must(uuid.NewV4())
-		originDutyLocationAddress.ID = originDutyLocationAddresId
 		originDutyLocation := factory.BuildDutyLocationWithoutTransportationOffice(suite.DB(), []factory.Customization{
 			{
-				Model:    originDutyLocationAddress,
-				LinkOnly: true,
+				Model: originDutyLocationAddress,
 			},
 		}, nil)
-		dutyLocId := uuid.Must(uuid.NewV4())
-		originDutyLocation.ID = dutyLocId
 		order := factory.BuildOrder(suite.DB(), []factory.Customization{
 			{
-				Model:    originDutyLocation,
-				Type:     &factory.DutyLocations.OriginDutyLocation,
-				LinkOnly: true,
+				Model: originDutyLocation,
+				Type:  &factory.DutyLocations.OriginDutyLocation,
 			},
 		}, nil)
 		orderId := uuid.Must(uuid.NewV4())
 		order.ID = orderId
 		factory.BuildMove(suite.DB(), []factory.Customization{
 			{
-				Model:    order,
-				LinkOnly: true,
+				Model: order,
 			},
 		}, nil)
 
@@ -677,12 +670,9 @@ func (suite *HandlerSuite) TestUpdateOrdersHandler() {
 
 		originDutyLocation = factory.BuildDutyLocation(suite.DB(), []factory.Customization{
 			{
-				Model:    originDutyLocationAddress,
-				LinkOnly: true,
+				Model: originDutyLocationAddress,
 			},
 		}, nil)
-		dutyLocId = uuid.Must(uuid.NewV4())
-		originDutyLocation.ID = dutyLocId
 
 		payload := &internalmessages.CreateUpdateOrders{
 			OriginDutyLocationID: *handlers.FmtUUID(originDutyLocation.ID),
