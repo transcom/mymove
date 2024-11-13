@@ -1,0 +1,7 @@
+#! /usr/bin/env bash
+
+# Copies the react file viewer webpack chunks to a public static directory to enable serving
+# Without this, the client will attempt to HTTP GET the chunk file, but if it cannot be found (Because it isn't served)
+# it will default to MilMove's index.html
+# This doesn't serve it, but it enables the backend to serve the static chunk fle
+cp node_modules/@transcom/react-file-viewer/dist/{*.js,*.png} public/static/react-file-viewer

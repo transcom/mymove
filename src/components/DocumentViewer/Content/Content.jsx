@@ -33,7 +33,7 @@ const DocViewerContent = ({ fileType, filePath, saveRotation, setRotationValue, 
               <FontAwesomeIcon icon="search-plus" title="Zoom in" aria-label="Zoom in" />
               Zoom in
             </Button>
-            {['jpg', 'jpeg', 'gif', 'png'].includes(fileType) && (
+            {['jpg', 'jpeg', 'gif', 'png', 'pdf'].includes(fileType) && (
               <>
                 <Button type="button" unstyled onClick={handleRotateLeft}>
                   <FontAwesomeIcon icon="rotate-left" title="Rotate left" aria-label="Rotate left" />
