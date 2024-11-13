@@ -3127,10 +3127,9 @@ func (suite *MTOShipmentServiceSuite) TestConusInternationalServiceItems() {
 		err = appCtx.DB().EagerPreload("ReService").Where("mto_shipment_id = ?", updatedShipment.ID).All(&serviceItems)
 		suite.NoError(err)
 
-		suite.Equal(expectedWithConusReServiceCodes[0], serviceItems[0].ReService.Code)
-		suite.Equal(expectedWithConusReServiceCodes[1], serviceItems[1].ReService.Code)
-		suite.Equal(expectedWithConusReServiceCodes[2], serviceItems[2].ReService.Code)
-		suite.Equal(expectedWithConusReServiceCodes[3], serviceItems[3].ReService.Code)
+		for i := 0; i < len(expectedWithConusReServiceCodes); i++ {
+			suite.Equal(expectedWithConusReServiceCodes[i], serviceItems[i].ReService.Code)
+		}
 	})
 }
 
@@ -3234,9 +3233,8 @@ func (suite *MTOShipmentServiceSuite) TestWithoutConusInternationalServiceItems(
 		err = appCtx.DB().EagerPreload("ReService").Where("mto_shipment_id = ?", updatedShipment.ID).All(&serviceItems)
 		suite.NoError(err)
 
-		suite.Equal(expectedWithoutConusReServiceCodes[0], serviceItems[0].ReService.Code)
-		suite.Equal(expectedWithoutConusReServiceCodes[1], serviceItems[1].ReService.Code)
-		suite.Equal(expectedWithoutConusReServiceCodes[2], serviceItems[2].ReService.Code)
-		suite.Equal(expectedWithoutConusReServiceCodes[3], serviceItems[3].ReService.Code)
+		for i := 0; i < len(expectedWithoutConusReServiceCodes); i++ {
+			suite.Equal(expectedWithoutConusReServiceCodes[i], serviceItems[i].ReService.Code)
+		}
 	})
 }
