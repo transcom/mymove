@@ -65,34 +65,42 @@ function filterPortFuelSurcharge(shipment, autoApprovedItems) {
   let filteredPortFuelSurchargeList = autoApprovedItems;
   if (shipment.pickupAddress.isOconus) {
     filteredPortFuelSurchargeList = autoApprovedItems.filter((serviceItem) => {
-      return serviceItem.serviceCode !== serviceItemCodes.POEFSC;
+      return serviceItem.serviceCode !== 'POEFSC';
     });
   }
   if (shipment.destinationAddress.isOconus) {
     filteredPortFuelSurchargeList = autoApprovedItems.filter((serviceItem) => {
-      return serviceItem.serviceCode !== serviceItemCodes.PODFSC;
+      return serviceItem.serviceCode !== 'PODFSC';
     });
   }
   return filteredPortFuelSurchargeList;
 }
 
-function filterServiceItems(shipment) {
+function convertServiceItemsToServiceNames(serviceItems) {
+  const serviceNames = Array(serviceItems.length);
+  for (let i = 0; i < serviceItems.length; i += 1) {
+    serviceNames[i] = serviceItems[i].serviceName;
+  }
+  return serviceNames;
+}
+
+function getPreapprovedServiceItems(shipment) {
   const { shipmentType, marketCode } = shipment;
   const autoApprovedItems = allReServiceItems.filter((reServiceItem) => {
     return (
-      reServiceItem.marektCode === marketCode &&
+      reServiceItem.marketCode === marketCode &&
       reServiceItem.shipmentType === shipmentType &&
       reServiceItem.isAutoApproved === true
     );
   });
-  return filterPortFuelSurcharge(shipment, autoApprovedItems);
+  return convertServiceItemsToServiceNames(filterPortFuelSurcharge(shipment, autoApprovedItems));
 }
 
 const ShipmentServiceItemsTable = ({ shipment, className }) => {
   const { shipmentType, marketCode } = shipment;
   let filteredServiceItemsList;
   if (marketCode === 'i') {
-    filteredServiceItemsList = filterServiceItems(shipmentType, marketCode);
+    filteredServiceItemsList = getPreapprovedServiceItems(shipment);
   } else {
     const destinationZip3 = shipment.destinationAddress?.postalCode.slice(0, 3);
     const pickupZip3 = shipment.pickupAddress?.postalCode.slice(0, 3);
@@ -137,8 +145,18 @@ const ShipmentServiceItemsTable = ({ shipment, className }) => {
   );
 };
 
+const AddressShape = propTypes.shape({
+  isOconus: propTypes.bool.isRequired,
+});
+const ShipmentShape = propTypes.shape({
+  shipmentType: propTypes.string.isRequired,
+  marketCode: propTypes.string.isRequired,
+  pickupAddress: AddressShape.isRequired,
+  destinationAddress: AddressShape.isRequired,
+});
+
 ShipmentServiceItemsTable.propTypes = {
-  shipmentType: propTypes.oneOf(Object.keys(shipmentTypes)).isRequired,
+  shipment: ShipmentShape.isRequired,
   className: propTypes.string,
 };
 
