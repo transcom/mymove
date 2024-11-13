@@ -28,20 +28,20 @@
     }
   }
 
-  legend+ :global(.usa-form-group .usa-label) {
+  legend + :global(.usa-form-group .usa-label) {
     @include u-margin-top(2);
   }
 
-  legend+ :global(.usa-form-group) p {
+  legend + :global(.usa-form-group) p {
     @include u-margin-top(3);
     @include u-margin-bottom(1);
   }
 
-  legend+ :global(.usa-checkbox) {
+  legend + :global(.usa-checkbox) {
     @include u-margin-top(3);
   }
 
-  legend+p {
+  legend + p {
     @include u-margin-top('205');
     margin-bottom: 0;
   }
@@ -82,7 +82,7 @@
     }
   }
 
-  fieldset+fieldset {
+  fieldset + fieldset {
     @include u-margin-y(4);
   }
 
@@ -108,7 +108,7 @@
 .formSection {
   @include u-margin-y(4);
 
-  +.formSection {
+  + .formSection {
     @include u-margin-top(5);
   }
 
@@ -149,7 +149,7 @@
   }
 }
 
-p+.radioGroup {
++ .formSection {
   @include u-margin-top('neg-05');
 }
 
@@ -168,7 +168,7 @@ p+.radioGroup {
   }
 }
 
-.customerPreferredContact>div {
+.customerPreferredContact > div {
   margin-top: 0;
 }
 
