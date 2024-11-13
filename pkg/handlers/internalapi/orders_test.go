@@ -646,11 +646,15 @@ func (suite *HandlerSuite) TestUpdateOrdersHandler() {
 				Type:     &factory.Addresses.DutyLocationAddress,
 				LinkOnly: true,
 			},
+			{
+				Model: models.DutyLocation{
+					Name: "test duty location",
+				},
+			},
 		}, nil)
 		order := factory.BuildOrder(suite.DB(), []factory.Customization{
 			{
 				Model:    originDutyLocation,
-				Type:     &factory.DutyLocations.OriginDutyLocation,
 				LinkOnly: true,
 			},
 		}, nil)
@@ -662,11 +666,11 @@ func (suite *HandlerSuite) TestUpdateOrdersHandler() {
 			},
 		}, nil)
 
-		fetchedOrder, err := models.FetchOrder(suite.DB(), order.ID)
+		fetchedDutyLocation, err := models.FetchDutyLocationByName(suite.DB(), "test duty location")
 		suite.NoError(err)
 		var fetchedGBLOC models.PostalCodeToGBLOC
-		fetchedGBLOC, err = models.FetchGBLOCForPostalCode(suite.DB(), fetchedOrder.OriginDutyLocation.Address.PostalCode)
-		suite.NoError(err, "")
+		fetchedGBLOC, err = models.FetchGBLOCForPostalCode(suite.DB(), fetchedDutyLocation.Address.PostalCode)
+		suite.NoError(err)
 		suite.Equal("KKFA", fetchedGBLOC.GBLOC)
 
 		updatedOriginDutyLocationAddress := factory.BuildAddress(suite.DB(), []factory.Customization{
@@ -718,9 +722,9 @@ func (suite *HandlerSuite) TestUpdateOrdersHandler() {
 		okResponse := response.(*ordersop.UpdateOrdersOK)
 		suite.NoError(okResponse.Payload.Validate(strfmt.Default))
 
-		fetchedOrder, err = models.FetchOrder(suite.DB(), order.ID)
+		fetchedDutyLocation, err = models.FetchDutyLocationByName(suite.DB(), "test duty location")
 		suite.NoError(err)
-		fetchedGBLOC, err = models.FetchGBLOCForPostalCode(suite.DB(), fetchedOrder.OriginDutyLocation.Address.PostalCode)
+		fetchedGBLOC, err = models.FetchGBLOCForPostalCode(suite.DB(), fetchedDutyLocation.Address.PostalCode)
 		suite.NoError(err)
 		suite.Equal("CNNQ", fetchedGBLOC.GBLOC)
 	})
