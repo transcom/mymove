@@ -387,9 +387,12 @@ describe('ServicesCounselingEditShipmentDetails component', () => {
       expect(await screen.getAllByLabelText(/Address 2/)[0]).toHaveValue(
         ppmShipment.ppmShipment.pickupAddress.streetAddress2,
       );
-      expect(await screen.getAllByLabelText('City')[0]).toHaveValue(ppmShipment.ppmShipment.pickupAddress.city);
-      expect(await screen.getAllByLabelText('State')[0]).toHaveValue(ppmShipment.ppmShipment.pickupAddress.state);
-      expect(await screen.getAllByLabelText('ZIP')[0]).toHaveValue(ppmShipment.ppmShipment.pickupAddress.postalCode);
+
+      const cities = screen.getAllByTestId('City');
+
+      expect(await screen.getAllByTestId('City')[0]).toHaveTextContent(ppmShipment.ppmShipment.pickupAddress.city);
+      expect(await screen.getAllByTestId('State')[0]).toHaveTextContent(ppmShipment.ppmShipment.pickupAddress.state);
+      expect(await screen.getAllByTestId('ZIP')[0]).toHaveTextContent(ppmShipment.ppmShipment.pickupAddress.postalCode);
 
       expect(await screen.getAllByLabelText('Address 1')[1]).toHaveValue(
         ppmShipment.ppmShipment.secondaryPickupAddress.streetAddress1,
@@ -397,13 +400,13 @@ describe('ServicesCounselingEditShipmentDetails component', () => {
       expect(await screen.getAllByLabelText(/Address 2/)[1]).toHaveValue(
         ppmShipment.ppmShipment.secondaryPickupAddress.streetAddress2,
       );
-      expect(await screen.getAllByLabelText('City')[1]).toHaveValue(
+      expect(await screen.getAllByTestId('City')[1]).toHaveTextContent(
         ppmShipment.ppmShipment.secondaryPickupAddress.city,
       );
-      expect(await screen.getAllByLabelText('State')[1]).toHaveValue(
+      expect(await screen.getAllByTestId('State')[1]).toHaveTextContent(
         ppmShipment.ppmShipment.secondaryPickupAddress.state,
       );
-      expect(await screen.getAllByLabelText('ZIP')[1]).toHaveValue(
+      expect(await screen.getAllByTestId('ZIP')[1]).toHaveTextContent(
         ppmShipment.ppmShipment.secondaryPickupAddress.postalCode,
       );
 
@@ -413,9 +416,9 @@ describe('ServicesCounselingEditShipmentDetails component', () => {
       expect(await screen.getAllByLabelText(/Address 2/)[2]).toHaveValue(
         ppmShipment.ppmShipment.destinationAddress.streetAddress2,
       );
-      expect(await screen.getAllByLabelText('City')[2]).toHaveValue(ppmShipment.ppmShipment.destinationAddress.city);
-      expect(await screen.getAllByLabelText('State')[2]).toHaveValue(ppmShipment.ppmShipment.destinationAddress.state);
-      expect(await screen.getAllByLabelText(/ZIP/)[2]).toHaveValue(
+      expect(await screen.getAllByTestId('City')[2]).toHaveTextContent(ppmShipment.ppmShipment.destinationAddress.city);
+      expect(await screen.getAllByTestId('State')[2]).toHaveTextContent(ppmShipment.ppmShipment.destinationAddress.state);
+      expect(await screen.getAllByTestId(/ZIP/)[2]).toHaveTextContent(
         ppmShipment.ppmShipment.destinationAddress.postalCode,
       );
 
@@ -425,13 +428,13 @@ describe('ServicesCounselingEditShipmentDetails component', () => {
       expect(await screen.getAllByLabelText(/Address 2/)[3]).toHaveValue(
         ppmShipment.ppmShipment.secondaryDestinationAddress.streetAddress2,
       );
-      expect(await screen.getAllByLabelText(/City/)[3]).toHaveValue(
+      expect(await screen.getAllByTestId(/City/)[3]).toHaveTextContent(
         ppmShipment.ppmShipment.secondaryDestinationAddress.city,
       );
-      expect(await screen.getAllByLabelText('State')[3]).toHaveValue(
+      expect(await screen.getAllByTestId('State')[3]).toHaveTextContent(
         ppmShipment.ppmShipment.secondaryDestinationAddress.state,
       );
-      expect(await screen.getAllByLabelText(/ZIP/)[3]).toHaveValue(
+      expect(await screen.getAllByTestId(/ZIP/)[3]).toHaveTextContent(
         ppmShipment.ppmShipment.secondaryDestinationAddress.postalCode,
       );
 
