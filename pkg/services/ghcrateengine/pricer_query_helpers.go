@@ -47,6 +47,7 @@ func fetchDomOtherPrice(appCtx appcontext.AppContext, contractCode string, servi
 
 func fetchDomServiceAreaPrice(appCtx appcontext.AppContext, contractCode string, serviceCode models.ReServiceCode, serviceArea string, isPeakPeriod bool) (models.ReDomesticServiceAreaPrice, error) {
 	var domServiceAreaPrice models.ReDomesticServiceAreaPrice
+	print("\n\n\n6. ", contractCode, " ", serviceCode, " ", serviceArea, "\n\n\n")
 	err := appCtx.DB().Q().
 		Join("re_domestic_service_areas sa", "domestic_service_area_id = sa.id").
 		Join("re_services", "service_id = re_services.id").
