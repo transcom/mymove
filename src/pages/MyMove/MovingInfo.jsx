@@ -99,9 +99,9 @@ export class MovingInfo extends Component {
                   )} of unaccompanied baggage in this move.`}
                 >
                   <p>
-                    If you request an unaccompanied baggage shipment, keep in mind that you will need to stay under that
-                    weight allowance and that the weight of your UB shipment is part of your authorized weight
-                    allowance.
+                    If you request an unaccompanied baggage (UB) shipment, keep in mind that you will need to stay under
+                    that weight allowance for your UB shipment, and that the weight of your UB shipment is also part of
+                    your overall authorized weight allowance.
                   </p>
                 </IconSection>
               ) : null}
