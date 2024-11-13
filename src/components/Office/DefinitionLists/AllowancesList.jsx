@@ -13,7 +13,6 @@ import { ORDERS_BRANCH_OPTIONS } from 'constants/orders';
 
 const AllowancesList = ({ info, showVisualCues }) => {
   const [enableUB, setEnableUB] = useState(false);
-
   const visualCuesStyle = classNames(descriptionListStyles.row, {
     [`${descriptionListStyles.rowWithVisualCue}`]: showVisualCues,
   });
@@ -51,28 +50,36 @@ const AllowancesList = ({ info, showVisualCues }) => {
         {/* As these fields are grouped together and only apply to OCONUS orders
         They will all be NULL for CONUS orders. If one of these fields are present,
         it will be safe to assume it is an OCONUS order. With this, if one field is present
-        we show all three. Otherwise, we show none */}
+        we show all four. Otherwise, we show none */}
         {/* Wrap in FF */}
-        {enableUB && (info?.accompaniedTour || info?.dependentsTwelveAndOver || info?.dependentsUnderTwelve) && (
-          <>
-            <div className={descriptionListStyles.row}>
-              <dt>Accompanied tour</dt>
-              <dd data-testid="ordersAccompaniedTour">{info.accompaniedTour ? 'Yes' : 'No'}</dd>
-            </div>
-            <div className={descriptionListStyles.row}>
-              <dt>Dependents under age 12</dt>
-              <dd data-testid="ordersDependentsUnderTwelve">
-                {info.dependentsUnderTwelve ? info.dependentsUnderTwelve : DEFAULT_EMPTY_VALUE}
-              </dd>
-            </div>
-            <div className={descriptionListStyles.row}>
-              <dt>Dependents over age 12</dt>
-              <dd data-testid="ordersDependentsTwelveAndOver">
-                {info.dependentsTwelveAndOver ? info.dependentsTwelveAndOver : DEFAULT_EMPTY_VALUE}
-              </dd>
-            </div>
-          </>
-        )}
+        {enableUB &&
+          (info?.accompaniedTour ||
+            info?.dependentsTwelveAndOver ||
+            info?.dependentsUnderTwelve ||
+            info?.ubAllowance) && (
+            <>
+              <div className={descriptionListStyles.row}>
+                <dt>Accompanied tour</dt>
+                <dd data-testid="ordersAccompaniedTour">{info.accompaniedTour ? 'Yes' : 'No'}</dd>
+              </div>
+              <div className={descriptionListStyles.row}>
+                <dt>Dependents under age 12</dt>
+                <dd data-testid="ordersDependentsUnderTwelve">
+                  {info.dependentsUnderTwelve ? info.dependentsUnderTwelve : DEFAULT_EMPTY_VALUE}
+                </dd>
+              </div>
+              <div className={descriptionListStyles.row}>
+                <dt>Dependents over age 12</dt>
+                <dd data-testid="ordersDependentsTwelveAndOver">
+                  {info.dependentsTwelveAndOver ? info.dependentsTwelveAndOver : DEFAULT_EMPTY_VALUE}
+                </dd>
+              </div>
+              <div className={descriptionListStyles.row}>
+                <dt>Unaccompanied baggage allowance</dt>
+                <dd data-testid="unaccompaniedBaggageAllowance">{formatWeight(info.ubAllowance)}</dd>
+              </div>
+            </>
+          )}
         {/* End OCONUS fields */}
         <div className={visualCuesStyle}>
           <dt>Pro-gear</dt>
@@ -112,6 +119,7 @@ AllowancesList.propTypes = {
     dependents: PropTypes.bool,
     requiredMedicalEquipmentWeight: PropTypes.number,
     organizationalClothingAndIndividualEquipment: PropTypes.bool,
+    ubAllowance: PropTypes.number,
   }).isRequired,
   showVisualCues: PropTypes.bool,
 };
