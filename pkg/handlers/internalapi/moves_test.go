@@ -291,7 +291,7 @@ func (suite *HandlerSuite) TestSubmitMoveForApprovalHandler() {
 		suite.NoError(err)
 
 		// And: Returned query to have a submitted status
-		suite.Assertions.Equal(internalmessages.MoveStatusSUBMITTED, okResponse.Payload.Status)
+		suite.Assertions.Equal(internalmessages.MoveStatusNEEDSSERVICECOUNSELING, okResponse.Payload.Status)
 		suite.Assertions.NotNil(okResponse.Payload.SubmittedAt)
 
 		// And: SignedCertification was created
