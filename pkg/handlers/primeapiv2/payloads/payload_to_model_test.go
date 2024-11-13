@@ -288,7 +288,10 @@ func (suite *PayloadsSuite) TestMTOAgentsModel() {
 
 func (suite *PayloadsSuite) TestMTOServiceItemModelListFromCreate() {
 	suite.Run("successful", func() {
-		mtoShipment := &primev2messages.CreateMTOShipment{}
+		mtoID, _ := uuid.NewV4()
+		mtoShipment := &primev2messages.CreateMTOShipment{
+			MoveTaskOrderID: handlers.FmtUUID(mtoID),
+		}
 
 		serviceItemsList, verrs := MTOServiceItemModelListFromCreate(mtoShipment)
 
@@ -298,7 +301,10 @@ func (suite *PayloadsSuite) TestMTOServiceItemModelListFromCreate() {
 	})
 
 	suite.Run("successful multiple items", func() {
-		mtoShipment := &primev2messages.CreateMTOShipment{}
+		mtoID, _ := uuid.NewV4()
+		mtoShipment := &primev2messages.CreateMTOShipment{
+			MoveTaskOrderID: handlers.FmtUUID(mtoID),
+		}
 
 		serviceItemsList, verrs := MTOServiceItemModelListFromCreate(mtoShipment)
 
@@ -309,7 +315,7 @@ func (suite *PayloadsSuite) TestMTOServiceItemModelListFromCreate() {
 
 	suite.Run("unsuccessful", func() {
 		serviceItemsList, verrs := MTOServiceItemModelListFromCreate(nil)
-		suite.Nil(verrs)
+		suite.NotNil(verrs)
 		suite.Nil(serviceItemsList)
 	})
 }
@@ -463,12 +469,13 @@ func (suite *PayloadsSuite) TestPPMShipmentModelFromCreate() {
 	spouseProGearWeight := int64(50)
 
 	ppmShipment := primev2messages.CreatePPMShipment{
-		ExpectedDepartureDate: expectedDepartureDate,
-		SitExpected:           &sitExpected,
-		EstimatedWeight:       &estimatedWeight,
-		HasProGear:            &hasProGear,
-		ProGearWeight:         &proGearWeight,
-		SpouseProGearWeight:   &spouseProGearWeight,
+		ExpectedDepartureDate:        expectedDepartureDate,
+		SitExpected:                  &sitExpected,
+		EstimatedWeight:              &estimatedWeight,
+		HasProGear:                   &hasProGear,
+		ProGearWeight:                &proGearWeight,
+		SpouseProGearWeight:          &spouseProGearWeight,
+		IsActualExpenseReimbursement: models.BoolPointer(true),
 	}
 
 	model := PPMShipmentModelFromCreate(&ppmShipment)
@@ -480,6 +487,36 @@ func (suite *PayloadsSuite) TestPPMShipmentModelFromCreate() {
 	suite.True(*model.HasProGear)
 	suite.Equal(unit.Pound(proGearWeight), *model.ProGearWeight)
 	suite.Equal(unit.Pound(spouseProGearWeight), *model.SpouseProGearWeight)
+	suite.True(*model.IsActualExpenseReimbursement)
+}
+
+func (suite *PayloadsSuite) TestPPMShipmentModelFromUpdate() {
+	time := time.Now()
+	expectedDepartureDate := handlers.FmtDatePtr(&time)
+	estimatedWeight := int64(5000)
+	proGearWeight := int64(500)
+	spouseProGearWeight := int64(50)
+
+	ppmShipment := primev2messages.UpdatePPMShipment{
+		ExpectedDepartureDate:        expectedDepartureDate,
+		SitExpected:                  models.BoolPointer(true),
+		EstimatedWeight:              &estimatedWeight,
+		HasProGear:                   models.BoolPointer(true),
+		ProGearWeight:                &proGearWeight,
+		SpouseProGearWeight:          &spouseProGearWeight,
+		IsActualExpenseReimbursement: models.BoolPointer(true),
+	}
+
+	model := PPMShipmentModelFromUpdate(&ppmShipment)
+
+	suite.NotNil(model)
+	suite.True(*model.SITExpected)
+	suite.Equal(unit.Pound(estimatedWeight), *model.EstimatedWeight)
+	suite.True(*model.HasProGear)
+	suite.Equal(unit.Pound(proGearWeight), *model.ProGearWeight)
+	suite.Equal(unit.Pound(spouseProGearWeight), *model.SpouseProGearWeight)
+	suite.True(*model.IsActualExpenseReimbursement)
+	suite.NotNil(model)
 }
 
 func (suite *PayloadsSuite) TestCountryModel_WithValidCountry() {
@@ -498,7 +535,9 @@ func (suite *PayloadsSuite) TestCountryModel_WithNilCountry() {
 }
 
 func (suite *PayloadsSuite) TestMTOShipmentModelFromCreate_WithNilInput() {
-	result := MTOShipmentModelFromCreate(nil)
+	result, verrs := MTOShipmentModelFromCreate(nil)
+
+	suite.NotNil(verrs)
 	suite.Nil(result)
 }
 
@@ -508,8 +547,9 @@ func (suite *PayloadsSuite) TestMTOShipmentModelFromCreate_WithValidInput() {
 		MoveTaskOrderID: &moveTaskOrderID,
 	}
 
-	result := MTOShipmentModelFromCreate(&mtoShipment)
+	result, verrs := MTOShipmentModelFromCreate(&mtoShipment)
 
+	suite.Nil(verrs)
 	suite.NotNil(result)
 	suite.Equal(mtoShipment.MoveTaskOrderID.String(), result.MoveTaskOrderID.String())
 	suite.Nil(result.PrimeEstimatedWeight)
@@ -552,8 +592,9 @@ func (suite *PayloadsSuite) TestMTOShipmentModelFromCreate_WithOptionalFields() 
 		DestinationAddress:     struct{ primev2messages.Address }{destinationAddress},
 	}
 
-	result := MTOShipmentModelFromCreate(mtoShipment)
+	result, verrs := MTOShipmentModelFromCreate(mtoShipment)
 
+	suite.Nil(verrs)
 	suite.NotNil(result)
 	suite.Equal(mtoShipment.MoveTaskOrderID.String(), result.MoveTaskOrderID.String())
 	suite.Equal(*mtoShipment.CustomerRemarks, *result.CustomerRemarks)

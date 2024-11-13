@@ -18,7 +18,7 @@ import WizardNavigation from 'components/Customer/WizardNavigation/WizardNavigat
 import { isEmpty, isValidWeight } from 'shared/utils';
 import { formatAddressForPrimeAPI, formatSwaggerDate } from 'utils/formatters';
 import { setFlashMessage as setFlashMessageAction } from 'store/flash/actions';
-import { requiredAddressSchema } from 'utils/validation';
+import { requiredAddressSchema, partialRequiredAddressSchema } from 'utils/validation';
 import PrimeUIShipmentCreateForm from 'pages/PrimeUI/Shipment/PrimeUIShipmentCreateForm';
 import { OptionalAddressSchema } from 'components/Customer/MtoShipmentForm/validationSchemas';
 import { SHIPMENT_OPTIONS, SHIPMENT_TYPES } from 'shared/constants';
@@ -465,7 +465,7 @@ const PrimeUIShipmentCreate = ({ setFlashMessage }) => {
           pickupAddress: requiredAddressSchema.required('Required'),
           secondaryPickupAddress: OptionalAddressSchema,
           tertiaryPickupAddress: OptionalAddressSchema,
-          destinationAddress: requiredAddressSchema.required('Required'),
+          destinationAddress: partialRequiredAddressSchema.required('Required'),
           secondaryDestinationAddress: OptionalAddressSchema,
           tertiaryDestinationAddress: OptionalAddressSchema,
           sitExpected: Yup.boolean().required('Required'),

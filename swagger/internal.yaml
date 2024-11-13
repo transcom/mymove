@@ -1984,7 +1984,7 @@ definitions:
       secondaryPickupAddress:
         $ref: '#/definitions/Address'
       destinationAddress:
-        $ref: '#/definitions/Address'
+        $ref: '#/definitions/PPMDestinationAddress'
       secondaryDestinationAddress:
         $ref: '#/definitions/Address'
       tertiaryDestinationAddress:
@@ -2001,6 +2001,14 @@ definitions:
         x-omitempty: false
       sitExpected:
         type: boolean
+      isActualExpenseReimbursement:
+        description: >-
+          Denotes if this PPM shipment uses the Actual Expense Reimbursement
+          method.
+        type: boolean
+        example: false
+        x-omitempty: false
+        x-nullable: true
     required:
       - expectedDepartureDate
       - pickupAddress
@@ -2044,7 +2052,7 @@ definitions:
         pattern: ^(\d{5})$
         x-nullable: true
       destinationAddress:
-        $ref: '#/definitions/Address'
+        $ref: '#/definitions/PPMDestinationAddress'
       secondaryDestinationAddress:
         $ref: '#/definitions/Address'
       hasSecondaryDestinationAddress:
@@ -2119,6 +2127,14 @@ definitions:
           The amount received for an advance, or null if no advance is received.
         type: integer
         format: cents
+        x-nullable: true
+      isActualExpenseReimbursement:
+        description: >-
+          Used for PPM shipments only. Denotes if this shipment uses the Actual
+          Expense Reimbursement method.
+        type: boolean
+        example: false
+        x-omitempty: false
         x-nullable: true
   CreateBoatShipment:
     description: Boat shipment information for the move.
@@ -2515,6 +2531,7 @@ definitions:
       - WOUNDED_WARRIOR
       - BLUEBARK
       - SAFETY
+      - TEMPORARY_DUTY
     x-display-value:
       PERMANENT_CHANGE_OF_STATION: Permanent Change Of Station
       LOCAL_MOVE: Local Move
@@ -2523,6 +2540,7 @@ definitions:
       WOUNDED_WARRIOR: Wounded Warrior
       BLUEBARK: BLUEBARK
       SAFETY: Safety
+      TEMPORARY_DUTY: Temporary Duty (TDY)
   Address:
     description: A postal address
     type: object
@@ -3766,6 +3784,14 @@ definitions:
         type: array
         items:
           $ref: '#/definitions/ProGearWeightTicket'
+      isActualExpenseReimbursement:
+        description: >-
+          Used for PPM shipments only. Denotes if this shipment uses the Actual
+          Expense Reimbursement method.
+        type: boolean
+        example: false
+        x-omitempty: false
+        x-nullable: true
       signedCertification:
         $ref: '#/definitions/SignedCertification'
       eTag:
@@ -3935,6 +3961,164 @@ definitions:
       RENTAL_EQUIPMENT: Rental equipment
       TOLLS: Tolls
       WEIGHING_FEE: Weighing fee
+  PPMDestinationAddress:
+    description: A postal address
+    type: object
+    properties:
+      id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      streetAddress1:
+        type: string
+        example: 123 Main Ave
+        x-nullable: true
+        title: Street address 1
+      streetAddress2:
+        type: string
+        example: Apartment 9000
+        x-nullable: true
+        title: Street address 2
+      streetAddress3:
+        type: string
+        example: Montmârtre
+        x-nullable: true
+        title: Address Line 3
+      city:
+        type: string
+        example: Anytown
+        title: City
+      eTag:
+        type: string
+        readOnly: true
+      state:
+        title: State
+        type: string
+        x-display-value:
+          AL: AL
+          AK: AK
+          AR: AR
+          AZ: AZ
+          CA: CA
+          CO: CO
+          CT: CT
+          DC: DC
+          DE: DE
+          FL: FL
+          GA: GA
+          HI: HI
+          IA: IA
+          ID: ID
+          IL: IL
+          IN: IN
+          KS: KS
+          KY: KY
+          LA: LA
+          MA: MA
+          MD: MD
+          ME: ME
+          MI: MI
+          MN: MN
+          MO: MO
+          MS: MS
+          MT: MT
+          NC: NC
+          ND: ND
+          NE: NE
+          NH: NH
+          NJ: NJ
+          NM: NM
+          NV: NV
+          NY: NY
+          OH: OH
+          OK: OK
+          OR: OR
+          PA: PA
+          RI: RI
+          SC: SC
+          SD: SD
+          TN: TN
+          TX: TX
+          UT: UT
+          VA: VA
+          VT: VT
+          WA: WA
+          WI: WI
+          WV: WV
+          WY: WY
+        enum:
+          - AL
+          - AK
+          - AR
+          - AZ
+          - CA
+          - CO
+          - CT
+          - DC
+          - DE
+          - FL
+          - GA
+          - HI
+          - IA
+          - ID
+          - IL
+          - IN
+          - KS
+          - KY
+          - LA
+          - MA
+          - MD
+          - ME
+          - MI
+          - MN
+          - MO
+          - MS
+          - MT
+          - NC
+          - ND
+          - NE
+          - NH
+          - NJ
+          - NM
+          - NV
+          - NY
+          - OH
+          - OK
+          - OR
+          - PA
+          - RI
+          - SC
+          - SD
+          - TN
+          - TX
+          - UT
+          - VA
+          - VT
+          - WA
+          - WI
+          - WV
+          - WY
+      postalCode:
+        type: string
+        format: zip
+        title: ZIP
+        example: '90210'
+        pattern: ^(\d{5}([\-]\d{4})?)$
+      country:
+        type: string
+        title: Country
+        x-nullable: true
+        example: USA
+        default: USA
+      county:
+        type: string
+        title: County
+        x-nullable: true
+        example: LOS ANGELES
+    required:
+      - city
+      - state
+      - postalCode
 paths:
   /feature-flags/user-boolean/{key}:
     post:
@@ -4627,11 +4811,6 @@ paths:
           format: uuid
           required: true
           description: UUID of the move
-        - in: body
-          name: cancelMove
-          required: true
-          schema:
-            $ref: '#/definitions/CancelMove'
       responses:
         '200':
           description: returns updated (canceled) move object

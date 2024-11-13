@@ -71,6 +71,7 @@ type MTOServiceItem struct {
 	POELocationID                     *uuid.UUID                     `db:"poe_location_id"`
 	PODLocation                       *Port                          `belongs_to:"port" fk_id:"pod_location_id"`
 	PODLocationID                     *uuid.UUID                     `db:"pod_location_id"`
+	ServiceLocation                   *ServiceLocationType           `db:"service_location"`
 }
 
 // MTOServiceItemSingle is an object representing a single column in the service items table

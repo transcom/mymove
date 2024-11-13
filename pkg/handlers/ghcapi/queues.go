@@ -49,7 +49,7 @@ func (h GetMovesQueueHandler) Handle(params queues.GetMovesQueueParams) middlewa
 				Locator:                 params.Locator,
 				DodID:                   params.DodID,
 				Emplid:                  params.Emplid,
-				LastName:                params.LastName,
+				CustomerName:            params.CustomerName,
 				DestinationDutyLocation: params.DestinationDutyLocation,
 				OriginDutyLocation:      params.OriginDutyLocation,
 				AppearedInTOOAt:         handlers.FmtDateTimePtrToPopPtr(params.AppearedInTooAt),
@@ -102,11 +102,22 @@ func (h GetMovesQueueHandler) Handle(params queues.GetMovesQueueParams) middlewa
 				}
 			}
 
-			officeUsers, err := h.OfficeUserFetcherPop.FetchOfficeUsersByRoleAndOffice(
-				appCtx,
-				roles.RoleTypeTOO,
-				officeUser.TransportationOfficeID,
-			)
+			privileges, err := models.FetchPrivilegesForUser(appCtx.DB(), appCtx.Session().UserID)
+			if err != nil {
+				appCtx.Logger().Error("Error retreiving user privileges", zap.Error(err))
+			}
+
+			isSupervisor := privileges.HasPrivilege(models.PrivilegeTypeSupervisor)
+			var officeUsers models.OfficeUsers
+			if isSupervisor {
+				officeUsers, err = h.OfficeUserFetcherPop.FetchOfficeUsersByRoleAndOffice(
+					appCtx,
+					roles.RoleTypeTOO,
+					officeUser.TransportationOfficeID,
+				)
+			} else {
+				officeUsers = models.OfficeUsers{officeUser}
+			}
 
 			if err != nil {
 				appCtx.Logger().
@@ -134,8 +145,9 @@ func (h GetMovesQueueHandler) Handle(params queues.GetMovesQueueParams) middlewa
 					appCtx.Logger().Error(fmt.Sprintf("failed to unlock moves for office user ID: %s", officeUserID), zap.Error(err))
 				}
 			}
+			isHQrole := appCtx.Session().Roles.HasRole(roles.RoleTypeHQ)
 
-			queueMoves := payloads.QueueMoves(moves, officeUsers, roles.RoleTypeTOO)
+			queueMoves := payloads.QueueMoves(moves, officeUsers, nil, roles.RoleTypeTOO, officeUser, isSupervisor, isHQrole)
 
 			result := &ghcmessages.QueueMovesResult{
 				Page:       *ListOrderParams.Page,
@@ -227,7 +239,7 @@ func (h GetPaymentRequestsQueueHandler) Handle(
 				Locator:                 params.Locator,
 				DodID:                   params.DodID,
 				Emplid:                  params.Emplid,
-				LastName:                params.LastName,
+				CustomerName:            params.CustomerName,
 				DestinationDutyLocation: params.DestinationDutyLocation,
 				Status:                  params.Status,
 				Page:                    params.Page,
@@ -237,6 +249,7 @@ func (h GetPaymentRequestsQueueHandler) Handle(
 				Order:                   params.Order,
 				OriginDutyLocation:      params.OriginDutyLocation,
 				OrderType:               params.OrderType,
+				TIOAssignedUser:         params.AssignedTo,
 			}
 
 			listPaymentRequestParams.Status = []string{string(models.QueuePaymentRequestPaymentRequested)}
@@ -308,7 +321,15 @@ func (h GetPaymentRequestsQueueHandler) Handle(
 				}
 			}
 
-			queuePaymentRequests := payloads.QueuePaymentRequests(paymentRequests, officeUsers)
+			privileges, err := models.FetchPrivilegesForUser(appCtx.DB(), appCtx.Session().UserID)
+			if err != nil {
+				appCtx.Logger().Error("Error retreiving user privileges", zap.Error(err))
+			}
+
+			isHQrole := appCtx.Session().Roles.HasRole(roles.RoleTypeHQ)
+
+			isSupervisor := privileges.HasPrivilege(models.PrivilegeTypeSupervisor)
+			queuePaymentRequests := payloads.QueuePaymentRequests(paymentRequests, officeUsers, officeUser, isSupervisor, isHQrole)
 
 			result := &ghcmessages.QueuePaymentRequestsResult{
 				TotalCount:           int64(count),
@@ -349,7 +370,7 @@ func (h GetServicesCounselingQueueHandler) Handle(
 				Locator:                 params.Locator,
 				DodID:                   params.DodID,
 				Emplid:                  params.Emplid,
-				LastName:                params.LastName,
+				CustomerName:            params.CustomerName,
 				OriginDutyLocation:      params.OriginDutyLocation,
 				DestinationDutyLocation: params.DestinationDutyLocation,
 				OriginGBLOC:             params.OriginGBLOC,
@@ -369,7 +390,9 @@ func (h GetServicesCounselingQueueHandler) Handle(
 				SCAssignedUser:          params.AssignedTo,
 			}
 
+			var requestedPpmStatus models.PPMShipmentStatus
 			if params.NeedsPPMCloseout != nil && *params.NeedsPPMCloseout {
+				requestedPpmStatus = models.PPMShipmentStatusNeedsCloseout
 				ListOrderParams.Status = []string{string(models.MoveStatusAPPROVED), string(models.MoveStatusServiceCounselingCompleted)}
 			} else if len(params.Status) == 0 {
 				ListOrderParams.Status = []string{string(models.MoveStatusNeedsServiceCounseling)}
@@ -412,11 +435,23 @@ func (h GetServicesCounselingQueueHandler) Handle(
 				}
 			}
 
-			officeUsers, err := h.OfficeUserFetcherPop.FetchOfficeUsersByRoleAndOffice(
-				appCtx,
-				roles.RoleTypeServicesCounselor,
-				officeUser.TransportationOfficeID,
-			)
+			privileges, err := models.FetchPrivilegesForUser(appCtx.DB(), appCtx.Session().UserID)
+			if err != nil {
+				appCtx.Logger().Error("Error retreiving user privileges", zap.Error(err))
+			}
+
+			isSupervisor := privileges.HasPrivilege(models.PrivilegeTypeSupervisor)
+			var officeUsers models.OfficeUsers
+
+			if isSupervisor {
+				officeUsers, err = h.OfficeUserFetcherPop.FetchOfficeUsersByRoleAndOffice(
+					appCtx,
+					roles.RoleTypeServicesCounselor,
+					officeUser.TransportationOfficeID,
+				)
+			} else {
+				officeUsers = models.OfficeUsers{officeUser}
+			}
 
 			if err != nil {
 				appCtx.Logger().
@@ -444,8 +479,9 @@ func (h GetServicesCounselingQueueHandler) Handle(
 					appCtx.Logger().Error(fmt.Sprintf("failed to unlock moves for office user ID: %s", officeUserID), zap.Error(err))
 				}
 			}
+			isHQrole := appCtx.Session().Roles.HasRole(roles.RoleTypeHQ)
 
-			queueMoves := payloads.QueueMoves(moves, officeUsers, roles.RoleTypeServicesCounselor)
+			queueMoves := payloads.QueueMoves(moves, officeUsers, &requestedPpmStatus, roles.RoleTypeServicesCounselor, officeUser, isSupervisor, isHQrole)
 
 			result := &ghcmessages.QueueMovesResult{
 				Page:       *ListOrderParams.Page,
