@@ -7536,6 +7536,26 @@ func init() {
         }
       }
     },
+    "CreateViolationAppeal": {
+      "description": "Appeal status and remarks left for a violation, created by a GSR user.",
+      "type": "object",
+      "properties": {
+        "appealStatus": {
+          "description": "The status of the appeal set by the GSR user",
+          "type": "string",
+          "enum": [
+            "sustained",
+            "rejected"
+          ],
+          "example": "These are my violation appeal remarks"
+        },
+        "remarks": {
+          "description": "Remarks left by the GSR user",
+          "type": "string",
+          "example": "These are my violation appeal remarks"
+        }
+      }
+    },
     "CreatedCustomer": {
       "type": "object",
       "properties": {
@@ -7993,7 +8013,7 @@ func init() {
           "x-formatting": "weight",
           "example": 500
         },
-        "ubAllowance": {
+        "unaccompaniedBaggageAllowance": {
           "description": "The amount of weight in pounds that the move is entitled for shipment types of Unaccompanied Baggage.",
           "type": "integer",
           "x-nullable": true,
@@ -23842,6 +23862,26 @@ func init() {
         }
       }
     },
+    "CreateViolationAppeal": {
+      "description": "Appeal status and remarks left for a violation, created by a GSR user.",
+      "type": "object",
+      "properties": {
+        "appealStatus": {
+          "description": "The status of the appeal set by the GSR user",
+          "type": "string",
+          "enum": [
+            "sustained",
+            "rejected"
+          ],
+          "example": "These are my violation appeal remarks"
+        },
+        "remarks": {
+          "description": "Remarks left by the GSR user",
+          "type": "string",
+          "example": "These are my violation appeal remarks"
+        }
+      }
+    },
     "CreatedCustomer": {
       "type": "object",
       "properties": {
@@ -24299,7 +24339,7 @@ func init() {
           "x-formatting": "weight",
           "example": 500
         },
-        "ubAllowance": {
+        "unaccompaniedBaggageAllowance": {
           "description": "The amount of weight in pounds that the move is entitled for shipment types of Unaccompanied Baggage.",
           "type": "integer",
           "x-nullable": true,
