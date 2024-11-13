@@ -12102,7 +12102,8 @@ func init() {
           "$ref": "#/definitions/AvailableOfficeUsers"
         },
         "counselingOffice": {
-          "type": "string"
+          "type": "string",
+          "x-nullable": true
         },
         "customer": {
           "$ref": "#/definitions/Customer"
@@ -28112,7 +28113,8 @@ func init() {
           "$ref": "#/definitions/AvailableOfficeUsers"
         },
         "counselingOffice": {
-          "type": "string"
+          "type": "string",
+          "x-nullable": true
         },
         "customer": {
           "$ref": "#/definitions/Customer"

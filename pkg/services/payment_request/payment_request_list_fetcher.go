@@ -30,6 +30,7 @@ var parameters = map[string]string{
 	"age":                "payment_requests.created_at",
 	"originDutyLocation": "duty_locations.name",
 	"assignedTo":         "assigned_user.last_name,assigned_user.first_name",
+	"counselingOffice":   "transportation_offices.id",
 }
 
 // NewPaymentRequestListFetcher returns a new payment request list fetcher

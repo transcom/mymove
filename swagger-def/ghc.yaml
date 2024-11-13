@@ -6949,6 +6949,7 @@ definitions:
         type: boolean
       counselingOffice:
         type: string
+        x-nullable: true
   QueuePaymentRequests:
     type: array
     items:

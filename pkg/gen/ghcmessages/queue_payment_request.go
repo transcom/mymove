@@ -32,7 +32,7 @@ type QueuePaymentRequest struct {
 	AvailableOfficeUsers AvailableOfficeUsers `json:"availableOfficeUsers,omitempty"`
 
 	// counseling office
-	CounselingOffice string `json:"counselingOffice,omitempty"`
+	CounselingOffice *string `json:"counselingOffice,omitempty"`
 
 	// customer
 	Customer *Customer `json:"customer,omitempty"`
