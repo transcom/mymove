@@ -94,6 +94,7 @@
     @include u-margin-top(1.5);
   }
 }
+
 :global(.usa-form-group) {
   .labelWrapper {
     display: flex;
@@ -152,7 +153,7 @@ p + .radioGroup {
 .radioGroup {
   display: flex;
 
-  >*+* {
+  > * + * {
     @include u-margin-left(5);
   }
 
