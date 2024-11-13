@@ -587,7 +587,7 @@ func (suite *MTOShipmentServiceSuite) TestCreateMTOShipment() {
 		}
 
 		for _, serviceCode := range expectedReServiceCodes {
-			factory.BuildReServiceByCode(suite.DB(), serviceCode)
+			factory.FetchReServiceByCode(suite.DB(), serviceCode)
 		}
 
 		serviceItemsList := []models.MTOServiceItem{
