@@ -14,7 +14,6 @@
   .hide {
     display: none;
   }
-
   legend {
     width: 100%;
     max-width: none;
@@ -91,12 +90,12 @@
     @include u-padding(0);
     @include u-border(0);
   }
-
   > :global(.usa-form-group:first-of-type .usa-label),
   > :global(.usa-fieldset > .usa-form-group:first-of-type .usa-label) {
     @include u-margin-top(1.5);
   }
 }
+
 :global(.usa-form-group) {
   .labelWrapper {
     display: flex;
@@ -155,7 +154,7 @@ p + .radioGroup {
 .radioGroup {
   display: flex;
 
-  >*+* {
+  > * + * {
     @include u-margin-left(5);
   }
 
