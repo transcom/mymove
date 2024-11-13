@@ -1856,13 +1856,13 @@ func (suite *MTOServiceItemServiceSuite) TestPriceEstimator() {
 			return mtoShipment
 		}
 
-		reServiceCodeDOP := factory.BuildReServiceByCode(suite.DB(), models.ReServiceCodeDOP)
-		reServiceCodeDPK := factory.BuildReServiceByCode(suite.DB(), models.ReServiceCodeDPK)
-		reServiceCodeDDP := factory.BuildReServiceByCode(suite.DB(), models.ReServiceCodeDDP)
-		reServiceCodeDUPK := factory.BuildReServiceByCode(suite.DB(), models.ReServiceCodeDUPK)
-		reServiceCodeDLH := factory.BuildReServiceByCode(suite.DB(), models.ReServiceCodeDLH)
-		reServiceCodeDSH := factory.BuildReServiceByCode(suite.DB(), models.ReServiceCodeDSH)
-		reServiceCodeFSC := factory.BuildReServiceByCode(suite.DB(), models.ReServiceCodeFSC)
+		reServiceCodeDOP := factory.FetchReServiceByCode(suite.DB(), models.ReServiceCodeDOP)
+		reServiceCodeDPK := factory.FetchReServiceByCode(suite.DB(), models.ReServiceCodeDPK)
+		reServiceCodeDDP := factory.FetchReServiceByCode(suite.DB(), models.ReServiceCodeDDP)
+		reServiceCodeDUPK := factory.FetchReServiceByCode(suite.DB(), models.ReServiceCodeDUPK)
+		reServiceCodeDLH := factory.FetchReServiceByCode(suite.DB(), models.ReServiceCodeDLH)
+		reServiceCodeDSH := factory.FetchReServiceByCode(suite.DB(), models.ReServiceCodeDSH)
+		reServiceCodeFSC := factory.FetchReServiceByCode(suite.DB(), models.ReServiceCodeFSC)
 
 		startDate := time.Now().AddDate(-1, 0, 0)
 		endDate := startDate.AddDate(1, 1, 1)
@@ -2146,13 +2146,13 @@ func (suite *MTOServiceItemServiceSuite) TestPriceEstimator() {
 			return mtoShipment
 		}
 
-		reServiceCodeDOP := factory.BuildReServiceByCode(suite.DB(), models.ReServiceCodeDOP)
-		reServiceCodeDPK := factory.BuildReServiceByCode(suite.DB(), models.ReServiceCodeDPK)
-		reServiceCodeDDP := factory.BuildReServiceByCode(suite.DB(), models.ReServiceCodeDDP)
-		reServiceCodeDUPK := factory.BuildReServiceByCode(suite.DB(), models.ReServiceCodeDUPK)
-		reServiceCodeDLH := factory.BuildReServiceByCode(suite.DB(), models.ReServiceCodeDLH)
-		reServiceCodeDSH := factory.BuildReServiceByCode(suite.DB(), models.ReServiceCodeDSH)
-		reServiceCodeFSC := factory.BuildReServiceByCode(suite.DB(), models.ReServiceCodeFSC)
+		reServiceCodeDOP := factory.FetchReServiceByCode(suite.DB(), models.ReServiceCodeDOP)
+		reServiceCodeDPK := factory.FetchReServiceByCode(suite.DB(), models.ReServiceCodeDPK)
+		reServiceCodeDDP := factory.FetchReServiceByCode(suite.DB(), models.ReServiceCodeDDP)
+		reServiceCodeDUPK := factory.FetchReServiceByCode(suite.DB(), models.ReServiceCodeDUPK)
+		reServiceCodeDLH := factory.FetchReServiceByCode(suite.DB(), models.ReServiceCodeDLH)
+		reServiceCodeDSH := factory.FetchReServiceByCode(suite.DB(), models.ReServiceCodeDSH)
+		reServiceCodeFSC := factory.FetchReServiceByCode(suite.DB(), models.ReServiceCodeFSC)
 
 		startDate := time.Now().AddDate(-1, 0, 0)
 		endDate := startDate.AddDate(1, 1, 1)
