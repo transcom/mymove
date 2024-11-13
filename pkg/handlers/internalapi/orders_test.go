@@ -640,11 +640,23 @@ func (suite *HandlerSuite) TestUpdateOrdersHandler() {
 				},
 			},
 		}, nil)
+		transportationOffice := factory.BuildTransportationOffice(suite.DB(), []factory.Customization{
+			{
+				Model: models.TransportationOffice{
+					ID: uuid.Must(uuid.NewV4()),
+				},
+				LinkOnly: true,
+			},
+		}, nil)
 		originDutyLocationAddresId := uuid.Must(uuid.NewV4())
 		originDutyLocationAddress.ID = originDutyLocationAddresId
 		originDutyLocation := factory.BuildDutyLocation(suite.DB(), []factory.Customization{
 			{
 				Model:    originDutyLocationAddress,
+				LinkOnly: true,
+			},
+			{
+				Model:    transportationOffice,
 				LinkOnly: true,
 			},
 		}, nil)
