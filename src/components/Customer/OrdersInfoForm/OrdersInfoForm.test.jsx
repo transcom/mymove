@@ -6,6 +6,7 @@ import OrdersInfoForm from './OrdersInfoForm';
 
 import { showCounselingOffices } from 'services/internalApi';
 import { ORDERS_TYPE, ORDERS_TYPE_OPTIONS } from 'constants/orders';
+import { isBooleanFlagEnabled } from '../../../utils/featureFlags';
 
 jest.mock('services/internalApi', () => ({
   ...jest.requireActual('services/internalApi'),
@@ -148,6 +149,10 @@ jest.mock('components/LocationSearchBox/api', () => ({
   ),
 }));
 
+jest.mock('../../../utils/featureFlags', () => ({
+  isBooleanFlagEnabled: jest.fn(),
+}));
+
 const testProps = {
   onSubmit: jest.fn().mockImplementation(() => Promise.resolve()),
   initialValues: {
@@ -191,6 +196,8 @@ describe('OrdersInfoForm component', () => {
   });
 
   it('renders each option for orders type', async () => {
+    isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(true));
+
     showCounselingOffices.mockImplementation(() => Promise.resolve({}));
     const { getByLabelText } = render(<OrdersInfoForm {...testProps} />);
 
