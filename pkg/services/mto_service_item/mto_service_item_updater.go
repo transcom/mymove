@@ -199,6 +199,72 @@ func (p *mtoServiceItemUpdater) findEstimatedPrice(appCtx appcontext.AppContext,
 				return 0, err
 			}
 		}
+		// unpacking
+		if serviceItem.ReService.Code == models.ReServiceCodeDUPK {
+			domesticServiceArea, err := fetchDomesticServiceArea(appCtx, contractCode, mtoShipment.DestinationAddress.PostalCode)
+			if err != nil {
+				return 0, err
+			}
+			price, _, err = p.unpackPricer.Price(appCtx, contractCode, requestedPickupDate, *mtoShipment.PrimeEstimatedWeight, domesticServiceArea.ServicesSchedule, isPPM)
+			if err != nil {
+				return 0, err
+			}
+		}
+		// destination sit delivery
+		if serviceItem.ReService.Code == models.ReServiceCodeDDDSIT {
+			var pickupDate time.Time
+			if mtoShipment.ActualPickupDate != nil {
+				pickupDate = *mtoShipment.ActualPickupDate
+			} else {
+				pickupDate = requestedPickupDate
+			}
+			domesticServiceArea, err := fetchDomesticServiceArea(appCtx, contractCode, mtoShipment.DestinationAddress.PostalCode)
+			if err != nil {
+				return 0, err
+			}
+			if mtoShipment.DestinationAddress != nil {
+				distance, err = p.planner.ZipTransitDistance(appCtx, serviceItem.SITDestinationFinalAddress.PostalCode, mtoShipment.DestinationAddress.PostalCode)
+				if err != nil {
+					return 0, err
+				}
+			}
+			price, _, err = p.sitDeliverPricer.Price(appCtx, contractCode, pickupDate, *mtoShipment.PrimeEstimatedWeight, domesticServiceArea.ServiceArea, domesticServiceArea.SITPDSchedule, mtoShipment.DestinationAddress.PostalCode, serviceItem.SITDestinationFinalAddress.PostalCode, unit.Miles(distance))
+			if err != nil {
+				return 0, err
+			}
+		}
+		// destination sit fuel surcharge
+		if serviceItem.ReService.Code == models.ReServiceCodeDDSFSC {
+			var pickupDateForFSC time.Time
+			if mtoShipment.ActualPickupDate != nil {
+				pickupDateForFSC = *mtoShipment.ActualPickupDate
+			} else {
+				pickupDateForFSC = requestedPickupDate
+			}
+
+			if mtoShipment.DestinationAddress != nil {
+				distance, err = p.planner.ZipTransitDistance(appCtx, serviceItem.SITDestinationFinalAddress.PostalCode, mtoShipment.DestinationAddress.PostalCode)
+				if err != nil {
+					return 0, err
+				}
+			}
+			fscWeightBasedDistanceMultiplier, err := LookupFSCWeightBasedDistanceMultiplier(appCtx, primeEstimatedWeight)
+			if err != nil {
+				return 0, err
+			}
+			fscWeightBasedDistanceMultiplierFloat, err := strconv.ParseFloat(fscWeightBasedDistanceMultiplier, 64)
+			if err != nil {
+				return 0, err
+			}
+			eiaFuelPrice, err := LookupEIAFuelPrice(appCtx, pickupDateForFSC)
+			if err != nil {
+				return 0, err
+			}
+			price, _, err = p.sitFuelSurchargePricer.Price(appCtx, *mtoShipment.ActualPickupDate, unit.Miles(distance), *mtoShipment.PrimeEstimatedWeight, fscWeightBasedDistanceMultiplierFloat, eiaFuelPrice, isPPM)
+			if err != nil {
+				return 0, err
+			}
+		}
 		// fuel surcharge
 		if serviceItem.ReService.Code == models.ReServiceCodeFSC {
 			var pickupDateForFSC time.Time
