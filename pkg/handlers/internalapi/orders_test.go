@@ -638,9 +638,10 @@ func (suite *HandlerSuite) TestUpdateOrdersHandler() {
 				Model: models.Address{
 					PostalCode: "90210",
 				},
-				LinkOnly: true,
 			},
 		}, nil)
+		originDutyLocationAddresId := uuid.Must(uuid.NewV4())
+		originDutyLocationAddress.ID = originDutyLocationAddresId
 		originDutyLocation := factory.BuildDutyLocation(suite.DB(), []factory.Customization{
 			{
 				Model:    originDutyLocationAddress,
