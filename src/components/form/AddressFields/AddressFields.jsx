@@ -1,7 +1,7 @@
 import React, { useRef } from 'react';
 import { PropTypes, shape } from 'prop-types';
 import { v4 as uuidv4 } from 'uuid';
-import { Fieldset, Label } from '@trussworks/react-uswds';
+import { Fieldset } from '@trussworks/react-uswds';
 
 import { statesList } from '../../../constants/states';
 
@@ -32,10 +32,11 @@ export const AddressFields = ({
   className,
   name,
   render,
-  values,
   validators,
-  handleLocationChange,
+  locationLookup,
   formikFunctionsToValidatePostalCodeOnChange,
+  validateForm,
+  formikProps: { setFieldTouched, setFieldValue },
   labelHint: labelHintProp,
   address1LabelHint,
 }) => {
@@ -43,7 +44,7 @@ export const AddressFields = ({
   const infoStr = 'If you encounter any inaccurate lookup information please contact the ';
   const assistanceStr = ' for further assistance.';
 
-  const postalCodeField = formikFunctionsToValidatePostalCodeOnChange ? (
+  const postalCodeField = !locationLookup ? (
     <TextField
       label="ZIP"
       id={`zip_${addressFieldsUUID.current}`}
@@ -53,31 +54,38 @@ export const AddressFields = ({
       labelHint={labelHintProp}
       validate={validators?.postalCode}
       onChange={async (e) => {
-        // If we are validating on change we need to also set the field to touched when it is changed.
-        // Formik, by default, only sets the field to touched on blur.
-        // The validation errors will not show unless the field has been touched. We await the handleChange event,
-        // then we set the field to touched.
-        // We send true for the shouldValidate arg to validate the field at the same time.
-        await formikFunctionsToValidatePostalCodeOnChange.handleChange(e);
-        formikFunctionsToValidatePostalCodeOnChange.setFieldTouched(`${name}.postalCode`, true, true);
+        if (formikFunctionsToValidatePostalCodeOnChange) {
+          // If we are validating on change we need to also set the field to touched when it is changed.
+          // Formik, by default, only sets the field to touched on blur.
+          // The validation errors will not show unless the field has been touched. We await the handleChange event,
+          // then we set the field to touched.
+          // We send true for the shouldValidate arg to validate the field at the same time.
+          await formikFunctionsToValidatePostalCodeOnChange.handleChange(e);
+          formikFunctionsToValidatePostalCodeOnChange.setFieldTouched(`${name}.postalCode`, true, true);
+        }
       }}
     />
   ) : (
-    <>
-      <Label>ZIP</Label>
-      <label id={`zip_${addressFieldsUUID.current}`} className={styles.label}>
-        {values[name].postalCode}
-      </label>
-    </>
+    <TextField
+      label="ZIP"
+      id={`zip_${addressFieldsUUID.current}`}
+      name={`${name}.postalCode`}
+      data-testid={`${name}.postalCode`}
+      maxLength={10}
+      labelHint={labelHintProp}
+      display="readonly"
+    />
   );
 
-  const stateField = handleLocationChange ? (
-    <>
-      <Label>State</Label>
-      <label id={`state_${addressFieldsUUID.current}`} className={styles.label}>
-        {values[name].state}
-      </label>
-    </>
+  const stateField = locationLookup ? (
+    <TextField
+      label="State"
+      id={`state_${addressFieldsUUID.current}`}
+      name={`${name}.state`}
+      data-testid={`${name}.state`}
+      labelHint={labelHintProp}
+      display="readonly"
+    />
   ) : (
     <DropdownInput
       name={`${name}.state`}
@@ -101,6 +109,20 @@ export const AddressFields = ({
     }
 
     return null;
+  };
+
+  const handleOnLocationChange = (value) => {
+    setFieldValue(`${name}.city`, value.city);
+    setFieldTouched(`${name}.city`, true);
+    setFieldValue(`${name}.state`, value.state);
+    setFieldTouched(`${name}.state`, true);
+    setFieldValue(`${name}.county`, value.county);
+    setFieldTouched(`${name}.county`, true);
+    setFieldValue(`${name}.postalCode`, value.postalCode);
+    setFieldTouched(`${name}.postalCode`, true);
+    setFieldValue(`${name}.usprcId`, value.usPostRegionCitiesId);
+    setFieldTouched(`${name}.usprcId`, true);
+    validateForm();
   };
 
   return (
@@ -131,13 +153,14 @@ export const AddressFields = ({
             data-testid={`${name}.streetAddress3`}
             validate={validators?.streetAddress3}
           />
-          {handleLocationChange && (
+          {locationLookup && (
             <>
               <LocationInput
                 name={`${name}-zipCity`}
                 placeholder="Start typing a Zip or City, State Zip"
                 label="Location Lookup"
-                handleLocationChange={handleLocationChange}
+                handleLocationChange={handleOnLocationChange}
+                valueName={name}
               />
               <Hint className={styles.hint} id="locationInfo" data-testid="locationInfo">
                 {infoStr}
@@ -150,7 +173,7 @@ export const AddressFields = ({
           )}
           <div className="grid-row grid-gap">
             <div className="mobile-lg:grid-col-6">
-              {!handleLocationChange && (
+              {!locationLookup && (
                 <TextField
                   label="City"
                   id={`city_${addressFieldsUUID.current}`}
@@ -160,16 +183,25 @@ export const AddressFields = ({
                   validate={validators?.city}
                 />
               )}
-              {handleLocationChange && (
+              {locationLookup && (
                 <>
-                  <Label>City</Label>
-                  <label id={`city_${addressFieldsUUID.current}`} className={styles.label}>
-                    {values[name].city}
-                  </label>
-                  <Label>County</Label>
-                  <label id={`county_${addressFieldsUUID.current}`} className={styles.label}>
-                    {values[name].county}
-                  </label>
+                  <TextField
+                    label="City"
+                    id={`city_${addressFieldsUUID.current}`}
+                    name={`${name}.city`}
+                    labelHint={labelHintProp}
+                    data-testid={`${name}.city`}
+                    display="readonly"
+                  />
+                  <TextField
+                    className={styles.label}
+                    label="County"
+                    id={`county_${addressFieldsUUID.current}`}
+                    name={`${name}.county`}
+                    labelHint={labelHintProp}
+                    data-testid={`${name}.county`}
+                    display="readonly"
+                  />
                 </>
               )}
             </div>
@@ -189,8 +221,7 @@ AddressFields.propTypes = {
   className: PropTypes.string,
   name: PropTypes.string.isRequired,
   render: PropTypes.func,
-  values: shape({}),
-  handleLocationChange: PropTypes.func,
+  locationLookup: PropTypes.bool,
   validators: PropTypes.shape({
     streetAddress1: PropTypes.func,
     streetAddress2: PropTypes.func,
@@ -204,17 +235,25 @@ AddressFields.propTypes = {
     setFieldTouched: PropTypes.func,
   }),
   address1LabelHint: PropTypes.string,
+  validateForm: PropTypes.func,
+  formikProps: shape({
+    touched: shape({}),
+    errors: shape({}),
+    setFieldTouched: PropTypes.func,
+    setFieldValue: PropTypes.func,
+  }),
 };
 
 AddressFields.defaultProps = {
   legend: '',
   className: '',
   render: (fields) => fields,
-  values: {},
-  handleLocationChange: null,
+  locationLookup: false,
   validators: {},
   formikFunctionsToValidatePostalCodeOnChange: null,
   address1LabelHint: null,
+  validateForm: {},
+  formikProps: {},
 };
 
 export default AddressFields;

@@ -23,28 +23,12 @@ const ResidentialAddressForm = ({ formFieldsName, initialValues, onSubmit, onBac
     <Formik
       initialValues={initialValues}
       onSubmit={onSubmit}
-      validateOnChange={false}
       validateOnMount
+      validateOnBlur
+      validateOnChange
       validationSchema={validationSchema}
     >
-      {({ isValid, isSubmitting, handleSubmit, values, setValues }) => {
-        const handleLocationChange = (value) => {
-          setValues(
-            {
-              ...values,
-              current_residence: {
-                ...values.current_residence,
-                city: value.city ? value.city : '',
-                state: value.state ? value.state : '',
-                county: value.county ? value.county : '',
-                postalCode: value.postalCode ? value.postalCode : '',
-                usprcId: value.usPostRegionCitiesId ? value.usPostRegionCitiesId : '',
-              },
-            },
-            { shouldValidate: true },
-          );
-        };
-
+      {({ isValid, isSubmitting, handleSubmit, values, validateForm, ...formikProps }) => {
         return (
           <Form className={formStyles.form}>
             <h1>Current address</h1>
@@ -54,8 +38,9 @@ const ResidentialAddressForm = ({ formFieldsName, initialValues, onSubmit, onBac
                 labelHint="Required"
                 name={formFieldsName}
                 validators={validators}
-                values={values}
-                handleLocationChange={handleLocationChange}
+                locationLookup
+                validateForm={validateForm}
+                formikProps={formikProps}
               />
             </SectionWrapper>
 
