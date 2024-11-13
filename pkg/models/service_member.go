@@ -153,7 +153,8 @@ func FetchServiceMemberForUser(db *pop.Connection, session *auth.Session, id uui
 		"Orders.OriginDutyLocation",
 		"Orders.UploadedOrders.UserUploads.Upload",
 		"Orders.Moves",
-		"ResidentialAddress").Find(&serviceMember, id)
+		"ResidentialAddress",
+		"Affiliation").Find(&serviceMember, id)
 
 	if err != nil {
 		if errors.Cause(err).Error() == RecordNotFoundErrorString {
