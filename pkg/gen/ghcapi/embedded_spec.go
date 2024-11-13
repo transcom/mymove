@@ -4667,7 +4667,7 @@ func init() {
               "submittedAt",
               "branch",
               "status",
-              "dodID",
+              "edipi",
               "emplid",
               "age",
               "originDutyLocation",
@@ -4753,7 +4753,7 @@ func init() {
             "type": "string",
             "description": "filters using a counselingOffice name of the move",
             "name": "counselingOffice",
-            "in": "query
+            "in": "query"
           },
           {
             "uniqueItems": true,
@@ -20616,7 +20616,7 @@ func init() {
               "submittedAt",
               "branch",
               "status",
-              "dodID",
+              "edipi",
               "emplid",
               "age",
               "originDutyLocation",
