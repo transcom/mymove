@@ -94,7 +94,7 @@ const ShipmentApprovalPreview = ({
                         shipmentType={shipment.shipmentType}
                         destinationZip3={shipment.destinationAddress?.postalCode.slice(0, 3)}
                         pickupZip3={shipment.pickupAddress?.postalCode.slice(0, 3)}
-                        isOconus={shipment.pickupAddress.isOconus || shipment.destinationAddress.isOconus}
+                        isOconus={shipment.pickupAddress?.isOconus || shipment.destinationAddress?.isOconus}
                       />
                     </div>
                   </div>

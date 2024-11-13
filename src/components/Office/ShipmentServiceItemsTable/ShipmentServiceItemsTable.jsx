@@ -62,7 +62,6 @@ const ShipmentServiceItemsTable = ({ isOconus, shipmentType, marketCode, destina
   const sameZip3 = destinationZip3 === pickupZip3;
   let filteredServiceItemsList;
 
-  // if international address is conus
   if (marketCode === 'i') {
     shipmentServiceItems = internationalServiceItems[`${isOconus}`];
   }

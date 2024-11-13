@@ -3026,3 +3026,217 @@ func (suite *MTOShipmentServiceSuite) TestUpdateStatusServiceItems() {
 		suite.Equal(models.ReServiceCodeDSH, serviceItems[0].ReService.Code)
 	})
 }
+
+func (suite *MTOShipmentServiceSuite) TestConusInternationalServiceItems() {
+
+	expectedWithConusReServiceCodes := []models.ReServiceCode{
+		models.ReServiceCodeISLH,
+		models.ReServiceCodePODFSC,
+		models.ReServiceCodeIHPK,
+		models.ReServiceCodeIHUPK,
+	}
+
+	var conusPickupAddress models.Address
+	var conusDestinationAddress models.Address
+	var mto models.Move
+
+	setupTestData := func() {
+		for i := range expectedWithConusReServiceCodes {
+			factory.FetchReServiceByCode(suite.DB(), expectedWithConusReServiceCodes[i])
+		}
+
+		conus := false
+		conusPickupAddress = factory.BuildAddress(suite.DB(), []factory.Customization{
+			{
+				Model: models.Address{
+					StreetAddress1: "7 Q St",
+					City:           "Anchorage",
+					State:          "AK",
+					PostalCode:     "99505",
+					IsOconus:       &conus,
+				},
+			},
+		}, nil)
+
+		conusDestinationAddress = factory.BuildAddress(suite.DB(), []factory.Customization{
+			{
+				Model: models.Address{
+					StreetAddress1: "278 E Maple Drive",
+					City:           "San Diego",
+					State:          "CA",
+					PostalCode:     "92114",
+					IsOconus:       &conus,
+				},
+			},
+		}, nil)
+
+		mto = factory.BuildMove(suite.DB(), []factory.Customization{
+			{
+				Model: models.Move{
+					Status: models.MoveStatusAPPROVED,
+				},
+			},
+		}, nil)
+	}
+
+	builder := query.NewQueryBuilder()
+	moveRouter := moveservices.NewMoveRouter()
+	planner := &mocks.Planner{}
+	planner.On("ZipTransitDistance",
+		mock.AnythingOfType("*appcontext.appContext"),
+		mock.Anything,
+		mock.Anything,
+	).Return(400, nil)
+	siCreator := mtoserviceitem.NewMTOServiceItemCreator(planner, builder, moveRouter, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticPackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer())
+	updater := NewMTOShipmentStatusUpdater(builder, siCreator, planner)
+
+	suite.Run("Shipments without conus pickup/destination locations", func() {
+		setupTestData()
+
+		shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model:    mto,
+				LinkOnly: true,
+			},
+			{
+				Model:    conusPickupAddress,
+				Type:     &factory.Addresses.PickupAddress,
+				LinkOnly: true,
+			},
+			{
+				Model:    conusDestinationAddress,
+				Type:     &factory.Addresses.DeliveryAddress,
+				LinkOnly: true,
+			},
+			{
+				Model: models.MTOShipment{
+					ShipmentType: models.MTOShipmentTypeHHG,
+					Status:       models.MTOShipmentStatusSubmitted,
+					MarketCode:   models.MarketCodeInternational,
+				},
+			},
+		}, nil)
+
+		appCtx := suite.AppContextForTest()
+		eTag := etag.GenerateEtag(shipment.UpdatedAt)
+
+		updatedShipment, err := updater.UpdateMTOShipmentStatus(appCtx, shipment.ID, models.MTOShipmentStatusApproved, nil, nil, eTag)
+		suite.NoError(err)
+
+		serviceItems := models.MTOServiceItems{}
+		err = appCtx.DB().EagerPreload("ReService").Where("mto_shipment_id = ?", updatedShipment.ID).All(&serviceItems)
+		suite.NoError(err)
+
+		suite.Equal(expectedWithConusReServiceCodes[0], serviceItems[0].ReService.Code)
+		suite.Equal(expectedWithConusReServiceCodes[1], serviceItems[1].ReService.Code)
+		suite.Equal(expectedWithConusReServiceCodes[2], serviceItems[2].ReService.Code)
+		suite.Equal(expectedWithConusReServiceCodes[3], serviceItems[3].ReService.Code)
+	})
+}
+
+func (suite *MTOShipmentServiceSuite) TestWithoutConusInternationalServiceItems() {
+
+	expectedWithoutConusReServiceCodes := []models.ReServiceCode{
+		models.ReServiceCodeISLH,
+		models.ReServiceCodePOEFSC,
+		models.ReServiceCodeIHPK,
+		models.ReServiceCodeIHUPK,
+	}
+
+	var NoConusPickupAddress models.Address
+	var NoConusDestinationAddress models.Address
+	var mto models.Move
+
+	setupTestData := func() {
+		for i := range expectedWithoutConusReServiceCodes {
+			factory.FetchReServiceByCode(suite.DB(), expectedWithoutConusReServiceCodes[i])
+		}
+
+		isOconus := true
+		NoConusPickupAddress = factory.BuildAddress(suite.DB(), []factory.Customization{
+			{
+				Model: models.Address{
+					StreetAddress1: "7 Q St",
+					City:           "Anchorage",
+					State:          "AK",
+					PostalCode:     "99505",
+					IsOconus:       &isOconus,
+				},
+			},
+		}, nil)
+
+		NoConusDestinationAddress = factory.BuildAddress(suite.DB(), []factory.Customization{
+			{
+				Model: models.Address{
+					StreetAddress1: "278 E Maple Drive",
+					City:           "San Diego",
+					State:          "CA",
+					PostalCode:     "92114",
+					IsOconus:       &isOconus,
+				},
+			},
+		}, nil)
+
+		mto = factory.BuildMove(suite.DB(), []factory.Customization{
+			{
+				Model: models.Move{
+					Status: models.MoveStatusAPPROVED,
+				},
+			},
+		}, nil)
+	}
+
+	builder := query.NewQueryBuilder()
+	moveRouter := moveservices.NewMoveRouter()
+	planner := &mocks.Planner{}
+	planner.On("ZipTransitDistance",
+		mock.AnythingOfType("*appcontext.appContext"),
+		mock.Anything,
+		mock.Anything,
+	).Return(400, nil)
+	siCreator := mtoserviceitem.NewMTOServiceItemCreator(planner, builder, moveRouter, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticPackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer())
+	updater := NewMTOShipmentStatusUpdater(builder, siCreator, planner)
+
+	suite.Run("Shipments without conus pickup/destination locations", func() {
+		setupTestData()
+
+		shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model:    mto,
+				LinkOnly: true,
+			},
+			{
+				Model:    NoConusPickupAddress,
+				Type:     &factory.Addresses.PickupAddress,
+				LinkOnly: true,
+			},
+			{
+				Model:    NoConusDestinationAddress,
+				Type:     &factory.Addresses.DeliveryAddress,
+				LinkOnly: true,
+			},
+			{
+				Model: models.MTOShipment{
+					ShipmentType: models.MTOShipmentTypeHHG,
+					Status:       models.MTOShipmentStatusSubmitted,
+					MarketCode:   models.MarketCodeInternational,
+				},
+			},
+		}, nil)
+
+		appCtx := suite.AppContextForTest()
+		eTag := etag.GenerateEtag(shipment.UpdatedAt)
+
+		updatedShipment, err := updater.UpdateMTOShipmentStatus(appCtx, shipment.ID, models.MTOShipmentStatusApproved, nil, nil, eTag)
+		suite.NoError(err)
+
+		serviceItems := models.MTOServiceItems{}
+		err = appCtx.DB().EagerPreload("ReService").Where("mto_shipment_id = ?", updatedShipment.ID).All(&serviceItems)
+		suite.NoError(err)
+
+		suite.Equal(expectedWithoutConusReServiceCodes[0], serviceItems[0].ReService.Code)
+		suite.Equal(expectedWithoutConusReServiceCodes[1], serviceItems[1].ReService.Code)
+		suite.Equal(expectedWithoutConusReServiceCodes[2], serviceItems[2].ReService.Code)
+		suite.Equal(expectedWithoutConusReServiceCodes[3], serviceItems[3].ReService.Code)
+	})
+}
