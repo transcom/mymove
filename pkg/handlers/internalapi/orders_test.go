@@ -638,67 +638,53 @@ func (suite *HandlerSuite) TestUpdateOrdersHandler() {
 				Model: models.Address{
 					PostalCode: "90210",
 				},
+				LinkOnly: true,
 			},
 		}, nil)
 		originDutyLocation := factory.BuildDutyLocation(suite.DB(), []factory.Customization{
 			{
 				Model:    originDutyLocationAddress,
-				Type:     &factory.Addresses.DutyLocationAddress,
 				LinkOnly: true,
 			},
-			{
-				Model: models.DutyLocation{
-					Name: "test duty location",
-				},
-			},
 		}, nil)
+		dutyLocId := uuid.Must(uuid.NewV4())
+		originDutyLocation.ID = dutyLocId
 		order := factory.BuildOrder(suite.DB(), []factory.Customization{
 			{
 				Model:    originDutyLocation,
+				Type:     &factory.DutyLocations.OriginDutyLocation,
 				LinkOnly: true,
 			},
 		}, nil)
-		move := factory.BuildMove(suite.DB(), []factory.Customization{
+		orderId := uuid.Must(uuid.NewV4())
+		order.ID = orderId
+		factory.BuildMove(suite.DB(), []factory.Customization{
 			{
 				Model:    order,
-				Type:     &factory.Order,
 				LinkOnly: true,
 			},
 		}, nil)
 
-		fetchedDutyLocation, err := models.FetchDutyLocationByName(suite.DB(), "test duty location")
+		fetchedDutyLocation, err := models.FetchDutyLocation(suite.DB(), order.OriginDutyLocation.ID)
 		suite.NoError(err)
 		var fetchedGBLOC models.PostalCodeToGBLOC
 		fetchedGBLOC, err = models.FetchGBLOCForPostalCode(suite.DB(), fetchedDutyLocation.Address.PostalCode)
 		suite.NoError(err)
 		suite.Equal("KKFA", fetchedGBLOC.GBLOC)
 
-		updatedOriginDutyLocationAddress := factory.BuildAddress(suite.DB(), []factory.Customization{
+		originDutyLocationAddress.PostalCode = "35023"
+
+		originDutyLocation = factory.BuildDutyLocation(suite.DB(), []factory.Customization{
 			{
-				Model: models.Address{
-					PostalCode: "35023",
-				},
-			},
-		}, nil)
-		updatedOriginDutyLocation := factory.BuildDutyLocation(suite.DB(), []factory.Customization{
-			{
-				Model:    updatedOriginDutyLocationAddress,
-				Type:     &factory.Addresses.DutyLocationAddress,
+				Model:    originDutyLocationAddress,
 				LinkOnly: true,
 			},
 		}, nil)
+		dutyLocId = uuid.Must(uuid.NewV4())
+		originDutyLocation.ID = dutyLocId
 
 		payload := &internalmessages.CreateUpdateOrders{
-			OrdersNumber:         handlers.FmtString(*order.OrdersNumber),
-			OrdersType:           &order.OrdersType,
-			OriginDutyLocationID: *handlers.FmtUUID(updatedOriginDutyLocation.ID),
-			IssueDate:            handlers.FmtDate(order.IssueDate),
-			ReportByDate:         handlers.FmtDate(order.ReportByDate),
-			DepartmentIndicator:  (*internalmessages.DeptIndicator)(order.DepartmentIndicator),
-			HasDependents:        handlers.FmtBool(false),
-			SpouseHasProGear:     handlers.FmtBool(false),
-			Grade:                models.ServiceMemberGradeE4.Pointer(),
-			MoveID:               *handlers.FmtUUID(move.ID),
+			OriginDutyLocationID: *handlers.FmtUUID(originDutyLocation.ID),
 		}
 
 		path := fmt.Sprintf("/orders/%v", order.ID.String())
@@ -722,7 +708,7 @@ func (suite *HandlerSuite) TestUpdateOrdersHandler() {
 		okResponse := response.(*ordersop.UpdateOrdersOK)
 		suite.NoError(okResponse.Payload.Validate(strfmt.Default))
 
-		fetchedDutyLocation, err = models.FetchDutyLocationByName(suite.DB(), "test duty location")
+		fetchedDutyLocation, err = models.FetchDutyLocation(suite.DB(), order.OriginDutyLocation.ID)
 		suite.NoError(err)
 		fetchedGBLOC, err = models.FetchGBLOCForPostalCode(suite.DB(), fetchedDutyLocation.Address.PostalCode)
 		suite.NoError(err)
