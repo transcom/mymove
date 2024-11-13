@@ -642,20 +642,23 @@ func (suite *HandlerSuite) TestUpdateOrdersHandler() {
 		}, nil)
 		originDutyLocation := factory.BuildDutyLocationWithoutTransportationOffice(suite.DB(), []factory.Customization{
 			{
-				Model: originDutyLocationAddress,
+				Model:    originDutyLocationAddress,
+				LinkOnly: true,
 			},
 		}, nil)
 		order := factory.BuildOrder(suite.DB(), []factory.Customization{
 			{
-				Model: originDutyLocation,
-				Type:  &factory.DutyLocations.OriginDutyLocation,
+				Model:    originDutyLocation,
+				Type:     &factory.DutyLocations.OriginDutyLocation,
+				LinkOnly: true,
 			},
 		}, nil)
 		orderId := uuid.Must(uuid.NewV4())
 		order.ID = orderId
 		factory.BuildMove(suite.DB(), []factory.Customization{
 			{
-				Model: order,
+				Model:    order,
+				LinkOnly: true,
 			},
 		}, nil)
 
