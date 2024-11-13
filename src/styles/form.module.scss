@@ -10,9 +10,11 @@
     @include typeset('body', 11, 2);
     @include u-margin-y(4);
   }
+
   .hide {
     display: none;
   }
+
   legend {
     width: 100%;
     max-width: none;
@@ -26,20 +28,20 @@
     }
   }
 
-  legend + :global(.usa-form-group .usa-label) {
+  legend+ :global(.usa-form-group .usa-label) {
     @include u-margin-top(2);
   }
 
-  legend + :global(.usa-form-group) p {
+  legend+ :global(.usa-form-group) p {
     @include u-margin-top(3);
     @include u-margin-bottom(1);
   }
 
-  legend + :global(.usa-checkbox) {
+  legend+ :global(.usa-checkbox) {
     @include u-margin-top(3);
   }
 
-  legend + p {
+  legend+p {
     @include u-margin-top('205');
     margin-bottom: 0;
   }
@@ -80,7 +82,7 @@
     }
   }
 
-  fieldset + fieldset {
+  fieldset+fieldset {
     @include u-margin-y(4);
   }
 
@@ -89,6 +91,7 @@
     @include u-padding(0);
     @include u-border(0);
   }
+
   > :global(.usa-form-group:first-of-type .usa-label),
   > :global(.usa-fieldset > .usa-form-group:first-of-type .usa-label) {
     @include u-margin-top(1.5);
@@ -105,7 +108,7 @@
 .formSection {
   @include u-margin-y(4);
 
-  + .formSection {
+  +.formSection {
     @include u-margin-top(5);
   }
 
@@ -140,20 +143,20 @@
   @include at-media('tablet') {
     @include u-margin-y(3);
 
-    + .formSection {
+    +.formSection {
       @include u-margin-top(3);
     }
   }
 }
 
-p + .radioGroup {
+p+.radioGroup {
   @include u-margin-top('neg-05');
 }
 
 .radioGroup {
   display: flex;
 
-  > * + * {
+  >*+* {
     @include u-margin-left(5);
   }
 
@@ -165,7 +168,7 @@ p + .radioGroup {
   }
 }
 
-.customerPreferredContact > div {
+.customerPreferredContact>div {
   margin-top: 0;
 }
 
