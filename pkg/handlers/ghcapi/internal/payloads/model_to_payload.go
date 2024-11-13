@@ -2360,6 +2360,10 @@ func QueuePaymentRequests(paymentRequests *models.PaymentRequests, officeUsers [
 			gbloc = ghcmessages.GBLOC(*moveTaskOrder.ShipmentGBLOC[0].GBLOC)
 		}
 
+		if paymentRequest.MoveTaskOrder.CounselingOffice != nil {
+			queuePaymentRequests[i].CounselingOffice = &paymentRequest.MoveTaskOrder.CounselingOffice.Name
+		}
+
 		queuePaymentRequests[i] = &ghcmessages.QueuePaymentRequest{
 			ID:                   *handlers.FmtUUID(paymentRequest.ID),
 			MoveID:               *handlers.FmtUUID(moveTaskOrder.ID),
