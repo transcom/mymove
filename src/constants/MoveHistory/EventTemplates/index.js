@@ -103,3 +103,4 @@ export { default as createOrderCreateMoves } from './CreateOrder/createOrderCrea
 export { default as updateOrderUpdateMove } from './UpdateOrder/updateOrderUpdateMove';
 export { default as moveCancelerMoves } from './MoveCanceler/MoveCancelerMoves';
 export { default as moveCancelerMTOShipments } from './MoveCanceler/MoveCancelerMTOShipments';
+export { default as moveCancelerPPMShipments } from './MoveCanceler/MoveCancelerPPMShipments';
