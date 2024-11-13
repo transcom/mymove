@@ -64,6 +64,7 @@ func (f *paymentRequestListFetcher) FetchPaymentRequestList(appCtx appcontext.Ap
 		"MoveTaskOrder.Orders.OriginDutyLocation.TransportationOffice",
 		"MoveTaskOrder.Orders.OriginDutyLocation.Address",
 		"MoveTaskOrder.TIOAssignedUser",
+		"MoveTaskOrder.CounselingOffice",
 		// See note further below about having to do this in a separate Load call due to a Pop issue.
 		// "MoveTaskOrder.Orders.ServiceMember",
 	).
@@ -72,11 +73,12 @@ func (f *paymentRequestListFetcher) FetchPaymentRequestList(appCtx appcontext.Ap
 		InnerJoin("service_members", "orders.service_member_id = service_members.id").
 		InnerJoin("duty_locations", "duty_locations.id = orders.origin_duty_location_id").
 		// Need to use left join because some duty locations do not have transportation offices
-		LeftJoin("transportation_offices", "duty_locations.transportation_office_id = transportation_offices.id").
+		LeftJoin("transportation_offices as origin_to", "duty_locations.transportation_office_id = origin_to.id").
 		// If a customer puts in an invalid ZIP for their pickup address, it won't show up in this view,
 		// and we don't want it to get hidden from services counselors.
 		LeftJoin("move_to_gbloc", "move_to_gbloc.move_id = moves.id").
 		LeftJoin("office_users as assigned_user", "moves.tio_assigned_id = assigned_user.id").
+		LeftJoin("transportation_offices", "moves.counseling_transportation_office_id = transportation_offices.id").
 		Where("moves.show = ?", models.BoolPointer(true))
 
 	if !privileges.HasPrivilege(models.PrivilegeTypeSafety) {
@@ -120,8 +122,12 @@ func (f *paymentRequestListFetcher) FetchPaymentRequestList(appCtx appcontext.Ap
 	if params.PerPage == nil {
 		params.PerPage = models.Int64Pointer(20)
 	}
-
-	err = query.GroupBy("payment_requests.id, service_members.id, moves.id, duty_locations.id, duty_locations.name, assigned_user.last_name, assigned_user.first_name").Paginate(int(*params.Page), int(*params.PerPage)).All(&paymentRequests)
+	fmt.Println("--------------------3---------------------------------")
+	fmt.Println("")
+	fmt.Println(params.CounselingOffice)
+	fmt.Println("")
+	fmt.Println("")
+	err = query.GroupBy("payment_requests.id, service_members.id, moves.id, duty_locations.id, duty_locations.name, assigned_user.last_name, assigned_user.first_name, transportation_offices.id, transportation_offices.name").Paginate(int(*params.Page), int(*params.PerPage)).All(&paymentRequests)
 	if err != nil {
 		return nil, 0, err
 	}
@@ -162,7 +168,6 @@ func (f *paymentRequestListFetcher) FetchPaymentRequestListByMove(appCtx appcont
 		"PaymentServiceItems.MTOServiceItem.ReService",
 		"PaymentServiceItems.MTOServiceItem.MTOShipment",
 		"ProofOfServiceDocs.PrimeUploads.Upload",
-		"CounselingOffice",
 		"MoveTaskOrder.Contractor",
 		"MoveTaskOrder.Orders.ServiceMember",
 		"MoveTaskOrder.Orders.NewDutyLocation.Address",

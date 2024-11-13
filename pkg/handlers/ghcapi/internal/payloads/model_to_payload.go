@@ -2329,11 +2329,8 @@ func QueuePaymentRequests(paymentRequests *models.PaymentRequests, officeUsers [
 			OrderType:            (*string)(orders.OrdersType.Pointer()),
 			LockedByOfficeUserID: handlers.FmtUUIDPtr(moveTaskOrder.LockedByOfficeUserID),
 			LockExpiresAt:        handlers.FmtDateTimePtr(moveTaskOrder.LockExpiresAt),
-			// CounselingOffice: 	  moveTaskOrder.CounselingOfficeID, - convert from uuid to string
+			CounselingOffice:     moveTaskOrder.CounselingOffice.Name,
 		}
-		// if paymentRequest.MoveTaskOrder.CounselingOfficeID {
-		// 	TransportationOfficesFetcher.GetTransportationOffice
-		// }
 
 		if paymentRequest.MoveTaskOrder.TIOAssignedUser != nil {
 			queuePaymentRequests[i].AssignedTo = AssignedOfficeUser(paymentRequest.MoveTaskOrder.TIOAssignedUser)
