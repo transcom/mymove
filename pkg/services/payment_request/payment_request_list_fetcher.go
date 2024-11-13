@@ -103,8 +103,9 @@ func (f *paymentRequestListFetcher) FetchPaymentRequestList(appCtx appcontext.Ap
 	originDutyLocationQuery := dutyLocationFilter(params.OriginDutyLocation)
 	orderQuery := sortOrder(params.Sort, params.Order)
 	tioAssignedUserQuery := tioAssignedUserFilter(params.TIOAssignedUser)
+	counselingQuery := counselingOfficeFilter(params.CounselingOffice)
 
-	options := [12]QueryOption{branchQuery, locatorQuery, dodIDQuery, customerNameQuery, dutyLocationQuery, statusQuery, originDutyLocationQuery, submittedAtQuery, gblocQuery, orderQuery, emplidQuery, tioAssignedUserQuery}
+	options := [13]QueryOption{branchQuery, locatorQuery, dodIDQuery, customerNameQuery, dutyLocationQuery, statusQuery, originDutyLocationQuery, submittedAtQuery, gblocQuery, orderQuery, emplidQuery, tioAssignedUserQuery, counselingQuery}
 
 	for _, option := range options {
 		if option != nil {
@@ -161,6 +162,7 @@ func (f *paymentRequestListFetcher) FetchPaymentRequestListByMove(appCtx appcont
 		"PaymentServiceItems.MTOServiceItem.ReService",
 		"PaymentServiceItems.MTOServiceItem.MTOShipment",
 		"ProofOfServiceDocs.PrimeUploads.Upload",
+		"CounselingOffice",
 		"MoveTaskOrder.Contractor",
 		"MoveTaskOrder.Orders.ServiceMember",
 		"MoveTaskOrder.Orders.NewDutyLocation.Address",
@@ -425,6 +427,14 @@ func tioAssignedUserFilter(tioAssigned *string) QueryOption {
 		if tioAssigned != nil {
 			nameSearch := fmt.Sprintf("%s%%", *tioAssigned)
 			query.Where("assigned_user.last_name ILIKE ?", nameSearch)
+		}
+	}
+}
+
+func counselingOfficeFilter(office *string) QueryOption {
+	return func(query *pop.Query) {
+		if office != nil {
+			query.Where("transportation_offices.name ILIKE ?", "%"+*office+"%")
 		}
 	}
 }

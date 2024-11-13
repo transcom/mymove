@@ -3,6 +3,7 @@ package payloads
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	"math"
 	"strings"
 	"time"
@@ -2292,7 +2293,23 @@ func QueuePaymentRequests(paymentRequests *models.PaymentRequests, officeUsers [
 	queuePaymentRequests := make(ghcmessages.QueuePaymentRequests, len(*paymentRequests))
 
 	for i, paymentRequest := range *paymentRequests {
+
+		var transportationOffice string
+		var transportationOfficeId uuid.UUID
+
 		moveTaskOrder := paymentRequest.MoveTaskOrder
+
+		if moveTaskOrder.CounselingOffice != nil {
+			transportationOffice = moveTaskOrder.CounselingOffice.Name
+			transportationOfficeId = *moveTaskOrder.CounselingOfficeID
+		}
+		fmt.Println("--------------Start----------------------------------------------------------------")
+		fmt.Println()
+		fmt.Println("movetaskorder: ", moveTaskOrder.CounselingOfficeID)
+		fmt.Println("counseling office: ", transportationOffice)
+		fmt.Println("counseling office ID: ", transportationOfficeId)
+		fmt.Println()
+		fmt.Println("--------------end----------------------------------------------------------------")
 		orders := moveTaskOrder.Orders
 		var gbloc ghcmessages.GBLOC
 		if moveTaskOrder.ShipmentGBLOC[0].GBLOC != nil {
@@ -2312,7 +2329,11 @@ func QueuePaymentRequests(paymentRequests *models.PaymentRequests, officeUsers [
 			OrderType:            (*string)(orders.OrdersType.Pointer()),
 			LockedByOfficeUserID: handlers.FmtUUIDPtr(moveTaskOrder.LockedByOfficeUserID),
 			LockExpiresAt:        handlers.FmtDateTimePtr(moveTaskOrder.LockExpiresAt),
+			// CounselingOffice: 	  moveTaskOrder.CounselingOfficeID, - convert from uuid to string
 		}
+		// if paymentRequest.MoveTaskOrder.CounselingOfficeID {
+		// 	TransportationOfficesFetcher.GetTransportationOffice
+		// }
 
 		if paymentRequest.MoveTaskOrder.TIOAssignedUser != nil {
 			queuePaymentRequests[i].AssignedTo = AssignedOfficeUser(paymentRequest.MoveTaskOrder.TIOAssignedUser)

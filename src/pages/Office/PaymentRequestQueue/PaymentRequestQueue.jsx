@@ -134,6 +134,10 @@ export const columns = (moveLockFlag, isQueueManagementEnabled, showBranchFilter
       },
     ),
     createHeader('Origin GBLOC', 'originGBLOC', { disableSortBy: true }),
+    createHeader('Counseling office', 'counselingOffice', {
+      id: 'counselingOffice',
+      isFilterable: true,
+    }),
     createHeader('Origin Duty Location', 'originDutyLocation.name', {
       id: 'originDutyLocation',
       isFilterable: true,
