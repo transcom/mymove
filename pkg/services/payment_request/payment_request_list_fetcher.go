@@ -123,11 +123,6 @@ func (f *paymentRequestListFetcher) FetchPaymentRequestList(appCtx appcontext.Ap
 	if params.PerPage == nil {
 		params.PerPage = models.Int64Pointer(20)
 	}
-	fmt.Println("--------------------3---------------------------------")
-	fmt.Println("")
-	fmt.Println(params.CounselingOffice)
-	fmt.Println("")
-	fmt.Println("")
 	err = query.GroupBy("payment_requests.id, service_members.id, moves.id, duty_locations.id, duty_locations.name, assigned_user.last_name, assigned_user.first_name, transportation_offices.id, transportation_offices.name").Paginate(int(*params.Page), int(*params.PerPage)).All(&paymentRequests)
 	if err != nil {
 		return nil, 0, err

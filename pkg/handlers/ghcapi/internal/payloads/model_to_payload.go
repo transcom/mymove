@@ -2292,9 +2292,7 @@ func QueuePaymentRequests(paymentRequests *models.PaymentRequests, officeUsers [
 	queuePaymentRequests := make(ghcmessages.QueuePaymentRequests, len(*paymentRequests))
 
 	for i, paymentRequest := range *paymentRequests {
-
 		moveTaskOrder := paymentRequest.MoveTaskOrder
-
 		orders := moveTaskOrder.Orders
 		var gbloc ghcmessages.GBLOC
 		if moveTaskOrder.ShipmentGBLOC[0].GBLOC != nil {
