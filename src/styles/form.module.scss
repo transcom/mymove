@@ -10,9 +10,11 @@
     @include typeset('body', 11, 2);
     @include u-margin-y(4);
   }
+
   .hide {
     display: none;
   }
+
   legend {
     width: 100%;
     max-width: none;
@@ -89,6 +91,7 @@
     @include u-padding(0);
     @include u-border(0);
   }
+
   > :global(.usa-form-group:first-of-type .usa-label),
   > :global(.usa-fieldset > .usa-form-group:first-of-type .usa-label) {
     @include u-margin-top(1.5);
