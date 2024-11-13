@@ -287,7 +287,7 @@ const intlUbConusToOconusShipment = {
   destinationAddress: oconusDestinationAddress,
 };
 
-const intlUbOConusToConusShipment = {
+const intlUbOconusToConusShipment = {
   shipmentType: SHIPMENT_OPTIONS.UNACCOMPANIED_BAGGAGE,
   marketCode: MARKET_CODES.INTERNATIONAL,
   pickupAddress: oconusPickupAddress,
@@ -383,7 +383,7 @@ describe('Shipment Service Items Table', () => {
       ['International UB pack'],
       ['International UB unpack'],
     ])('expects %s to be in the document', async (serviceItem) => {
-      render(<ShipmentServiceItemsTable shipment={intlUbOConusToConusShipment} />);
+      render(<ShipmentServiceItemsTable shipment={intlUbOconusToConusShipment} />);
       expect(
         await screen.findByRole('heading', { name: 'Service items for this shipment 4 items', level: 4 }),
       ).toBeInTheDocument();
