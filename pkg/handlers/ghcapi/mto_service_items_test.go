@@ -45,7 +45,7 @@ func (suite *HandlerSuite) TestListMTOServiceItemHandler() {
 	setupTestData := func() (models.User, models.MTOServiceItems) {
 		mto := factory.BuildMove(suite.DB(), nil, nil)
 		mtoID = mto.ID
-		reService := factory.BuildReService(suite.DB(), []factory.Customization{
+		reService := factory.FetchReService(suite.DB(), []factory.Customization{
 			{
 				Model: models.ReService{
 					ID:   reServiceID,
