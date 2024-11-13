@@ -101,3 +101,5 @@ export { default as createOrder } from './CreateOrder/createOrder';
 export { default as createOrderCreateEntitlements } from './CreateOrder/createOrderCreateEntitlements';
 export { default as createOrderCreateMoves } from './CreateOrder/createOrderCreateMoves';
 export { default as updateOrderUpdateMove } from './UpdateOrder/updateOrderUpdateMove';
+export { default as moveCancelerMoves } from './MoveCanceler/MoveCancelerMoves';
+export { default as moveCancelerMTOShipments } from './MoveCanceler/MoveCancelerMTOShipments';
