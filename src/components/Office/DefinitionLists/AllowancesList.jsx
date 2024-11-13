@@ -76,7 +76,9 @@ const AllowancesList = ({ info, showVisualCues }) => {
               </div>
               <div className={descriptionListStyles.row}>
                 <dt>Unaccompanied baggage allowance</dt>
-                <dd data-testid="unaccompaniedBaggageAllowance">{formatWeight(info.ubAllowance)}</dd>
+                <dd data-testid="unaccompaniedBaggageAllowance">
+                  {info.ubAllowance ? formatWeight(info.ubAllowance) : DEFAULT_EMPTY_VALUE}
+                </dd>
               </div>
             </>
           )}
