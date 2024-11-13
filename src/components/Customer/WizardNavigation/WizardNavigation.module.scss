@@ -12,10 +12,10 @@
     flex-grow: 1;
     flex-basis: 0;
 
-    @include at-media('tablet') {
-      flex-grow: 0;
-      flex-basis: auto;
-    }
+    // @include at-media('tablet') {
+    //   flex-grow: 0;
+    //   flex-basis: auto;
+    // }
   }
 
   > .button + .button {
