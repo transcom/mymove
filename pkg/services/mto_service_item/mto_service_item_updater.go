@@ -141,7 +141,17 @@ func (p *mtoServiceItemUpdater) findEstimatedPrice(appCtx appcontext.AppContext,
 		requestedPickupDate := *mtoShipment.RequestedPickupDate
 		currTime := time.Now()
 		var distance int
-		primeEstimatedWeight := *mtoShipment.PrimeEstimatedWeight
+
+		var shipmentWeight unit.Pound
+		if mtoShipment.PrimeActualWeight != nil {
+			shipmentWeight = *mtoShipment.PrimeActualWeight
+		} else {
+			if mtoShipment.PrimeEstimatedWeight != nil {
+				shipmentWeight = *mtoShipment.PrimeEstimatedWeight
+			} else {
+				shipmentWeight = 0
+			}
+		}
 
 		contractCode, err := FetchContractCode(appCtx, currTime)
 		if err != nil {
@@ -163,7 +173,7 @@ func (p *mtoServiceItemUpdater) findEstimatedPrice(appCtx appcontext.AppContext,
 				}
 			}
 
-			price, _, err = p.destinationPricer.Price(appCtx, contractCode, requestedPickupDate, *mtoShipment.PrimeEstimatedWeight, domesticServiceArea.ServiceArea, isPPM)
+			price, _, err = p.destinationPricer.Price(appCtx, contractCode, requestedPickupDate, shipmentWeight, domesticServiceArea.ServiceArea, isPPM)
 			if err != nil {
 				return 0, err
 			}
@@ -176,7 +186,7 @@ func (p *mtoServiceItemUpdater) findEstimatedPrice(appCtx appcontext.AppContext,
 
 			serviceScheduleDestination := domesticServiceArea.ServicesSchedule
 
-			price, _, err = p.unpackPricer.Price(appCtx, contractCode, requestedPickupDate, *mtoShipment.PrimeEstimatedWeight, serviceScheduleDestination, isPPM)
+			price, _, err = p.unpackPricer.Price(appCtx, contractCode, requestedPickupDate, shipmentWeight, serviceScheduleDestination, isPPM)
 			if err != nil {
 				return 0, err
 			}
@@ -194,7 +204,7 @@ func (p *mtoServiceItemUpdater) findEstimatedPrice(appCtx appcontext.AppContext,
 					return 0, err
 				}
 			}
-			price, _, err = p.linehaulPricer.Price(appCtx, contractCode, requestedPickupDate, unit.Miles(distance), *mtoShipment.PrimeEstimatedWeight, domesticServiceArea.ServiceArea, isPPM)
+			price, _, err = p.linehaulPricer.Price(appCtx, contractCode, requestedPickupDate, unit.Miles(distance), shipmentWeight, domesticServiceArea.ServiceArea, isPPM)
 			if err != nil {
 				return 0, err
 			}
@@ -205,7 +215,7 @@ func (p *mtoServiceItemUpdater) findEstimatedPrice(appCtx appcontext.AppContext,
 			if err != nil {
 				return 0, err
 			}
-			price, _, err = p.unpackPricer.Price(appCtx, contractCode, requestedPickupDate, *mtoShipment.PrimeEstimatedWeight, domesticServiceArea.ServicesSchedule, isPPM)
+			price, _, err = p.unpackPricer.Price(appCtx, contractCode, requestedPickupDate, shipmentWeight, domesticServiceArea.ServicesSchedule, isPPM)
 			if err != nil {
 				return 0, err
 			}
@@ -228,7 +238,7 @@ func (p *mtoServiceItemUpdater) findEstimatedPrice(appCtx appcontext.AppContext,
 					return 0, err
 				}
 			}
-			price, _, err = p.sitDeliverPricer.Price(appCtx, contractCode, pickupDate, *mtoShipment.PrimeEstimatedWeight, domesticServiceArea.ServiceArea, domesticServiceArea.SITPDSchedule, mtoShipment.DestinationAddress.PostalCode, serviceItem.SITDestinationFinalAddress.PostalCode, unit.Miles(distance))
+			price, _, err = p.sitDeliverPricer.Price(appCtx, contractCode, pickupDate, shipmentWeight, domesticServiceArea.ServiceArea, domesticServiceArea.SITPDSchedule, mtoShipment.DestinationAddress.PostalCode, serviceItem.SITDestinationFinalAddress.PostalCode, unit.Miles(distance))
 			if err != nil {
 				return 0, err
 			}
@@ -248,7 +258,7 @@ func (p *mtoServiceItemUpdater) findEstimatedPrice(appCtx appcontext.AppContext,
 					return 0, err
 				}
 			}
-			fscWeightBasedDistanceMultiplier, err := LookupFSCWeightBasedDistanceMultiplier(appCtx, primeEstimatedWeight)
+			fscWeightBasedDistanceMultiplier, err := LookupFSCWeightBasedDistanceMultiplier(appCtx, shipmentWeight)
 			if err != nil {
 				return 0, err
 			}
@@ -260,7 +270,7 @@ func (p *mtoServiceItemUpdater) findEstimatedPrice(appCtx appcontext.AppContext,
 			if err != nil {
 				return 0, err
 			}
-			price, _, err = p.sitFuelSurchargePricer.Price(appCtx, *mtoShipment.ActualPickupDate, unit.Miles(distance), *mtoShipment.PrimeEstimatedWeight, fscWeightBasedDistanceMultiplierFloat, eiaFuelPrice, isPPM)
+			price, _, err = p.sitFuelSurchargePricer.Price(appCtx, *mtoShipment.ActualPickupDate, unit.Miles(distance), shipmentWeight, fscWeightBasedDistanceMultiplierFloat, eiaFuelPrice, isPPM)
 			if err != nil {
 				return 0, err
 			}
@@ -284,7 +294,7 @@ func (p *mtoServiceItemUpdater) findEstimatedPrice(appCtx appcontext.AppContext,
 				}
 			}
 
-			fscWeightBasedDistanceMultiplier, err := LookupFSCWeightBasedDistanceMultiplier(appCtx, primeEstimatedWeight)
+			fscWeightBasedDistanceMultiplier, err := LookupFSCWeightBasedDistanceMultiplier(appCtx, shipmentWeight)
 			if err != nil {
 				return 0, err
 			}
@@ -296,7 +306,7 @@ func (p *mtoServiceItemUpdater) findEstimatedPrice(appCtx appcontext.AppContext,
 			if err != nil {
 				return 0, err
 			}
-			price, _, err = p.fuelSurchargePricer.Price(appCtx, pickupDateForFSC, unit.Miles(distance), primeEstimatedWeight, fscWeightBasedDistanceMultiplierFloat, eiaFuelPrice, isPPM)
+			price, _, err = p.fuelSurchargePricer.Price(appCtx, pickupDateForFSC, unit.Miles(distance), shipmentWeight, fscWeightBasedDistanceMultiplierFloat, eiaFuelPrice, isPPM)
 			if err != nil {
 				return 0, err
 			}
