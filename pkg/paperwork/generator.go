@@ -721,6 +721,46 @@ func (g *Generator) FillPDFForm(jsonData []byte, templateReader io.ReadSeeker, f
 	return outputFile, nil
 }
 
+// LockPDFForm takes in a PDF Form readseeker, reads all form fields, and locks them
+// This is primarily for the SSW, but needs to be done separately from filling as only one process (filling, locking, merging, etc)
+// may be completed at a time.
+func (g *Generator) LockPDFForm(templateReader io.ReadSeeker, fileName string) (SSWWorksheet afero.File, err error) {
+	var conf = g.pdfConfig
+	buf := new(bytes.Buffer)
+	// Reads all form fields on document as []form.Field
+	fields, err := api.FormFields(templateReader, conf)
+	// Assembles them to the API's required []string
+	fieldList := make([]string, len(fields))
+	for i, field := range fields {
+		fieldList[i] = field.ID
+	}
+
+	// Locks all fields
+	formerr := api.LockFormFields(templateReader, buf, fieldList, conf)
+	if formerr != nil {
+		return nil, err
+	}
+
+	tempFile, err := g.newTempFileWithName(fileName) // Will use g.newTempFileWithName for proper memory usage, saves the new temp file with the fileName
+	if err != nil {
+		return nil, err
+	}
+
+	// copy byte[] to temp file
+	_, err = io.Copy(tempFile, buf)
+	if err != nil {
+		return nil, errors.Wrap(err, "error io.Copy on byte[] to temp")
+	}
+
+	// Reload the file from memstore
+	outputFile, err := g.FileSystem().Open(tempFile.Name())
+	if err != nil {
+		return nil, errors.Wrap(err, "error g.fs.Open on reload from memstore")
+	}
+
+	return outputFile, nil
+}
+
 // MergePDFFiles Merges a slice of paths to PDF files into a single PDF
 func (g *Generator) MergePDFFilesByContents(_ appcontext.AppContext, fileReaders []io.ReadSeeker) (afero.File, error) {
 	var err error
