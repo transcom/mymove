@@ -39,7 +39,7 @@ func MakeReDomesticServiceAreaPrice(db *pop.Connection, assertions Assertions) m
 	}
 
 	if reService.ID == uuid.Nil {
-		reService = FetchOrMakeReService(db, assertions)
+		reService = FetchReService(db, assertions)
 	}
 
 	reDomesticServiceAreaPrice := models.ReDomesticServiceAreaPrice{
