@@ -720,7 +720,7 @@ func (s SSWPPMComputer) FormatShipment(ppm models.PPMShipment, weightAllotment m
 		}
 		// If it's received, reflect that
 		if ppm.AdvanceAmountReceived != nil {
-			formattedShipment.AdvanceAmountReceived = FormatDollarFromCents(*ppm.AdvanceAmountReceived) + "Customer received"
+			formattedShipment.AdvanceAmountReceived = FormatDollarFromCents(*ppm.AdvanceAmountReceived) + " Customer received"
 		} else if hasRequestedAdvance {
 			// If it's requested, give amount and status
 			if *ppm.AdvanceStatus != models.PPMAdvanceStatusReceived {
