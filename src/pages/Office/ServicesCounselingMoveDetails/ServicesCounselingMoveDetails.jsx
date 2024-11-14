@@ -84,8 +84,11 @@ const ServicesCounselingMoveDetails = ({
     });
   const hasDocuments = documentsForViewer?.length > 0;
 
-  const { order, customerData, move, closeoutOffice, mtoShipments, isLoading, isError } =
+  const { order, orderDocuments, customerData, move, closeoutOffice, mtoShipments, isLoading, isError } =
     useMoveDetailsQueries(moveCode);
+
+  const validOrdersDocuments = Object.values(orderDocuments || {})?.filter((file) => !file.deletedAt);
+
   const { customer, entitlement: allowances } = order;
 
   const moveWeightTotal = calculateWeightRequested(mtoShipments);
@@ -346,7 +349,7 @@ const ServicesCounselingMoveDetails = ({
   const customerInfo = {
     name: formattedCustomerName(customer.last_name, customer.first_name, customer.suffix, customer.middle_name),
     agency: customer.agency,
-    dodId: customer.dodID,
+    edipi: customer.edipi,
     emplid: customer.emplid,
     phone: customer.phone,
     altPhone: customer.secondaryTelephone,
@@ -381,6 +384,7 @@ const ServicesCounselingMoveDetails = ({
     ordersType: order.order_type,
     ordersNumber: order.order_number,
     ordersTypeDetail: order.order_type_detail,
+    ordersDocuments: validOrdersDocuments?.length ? validOrdersDocuments : null,
     tacMDC: order.tac,
     sacSDN: order.sac,
     NTStac: order.ntsTac,
@@ -398,16 +402,17 @@ const ServicesCounselingMoveDetails = ({
 
   // using useMemo here due to this being used in a useEffect
   // using useMemo prevents the useEffect from being rendered on ever render by memoizing the object
-  // so that it only recognizes the change when the orders object changes
+  // so that it only recognizes the change when the orders or validOrdersDocuments objects change
   const requiredOrdersInfo = useMemo(
     () => ({
       ordersNumber: order?.order_number || '',
       ordersType: order?.order_type || '',
       ordersTypeDetail: order?.order_type_detail || '',
+      ordersDocuments: validOrdersDocuments?.length ? validOrdersDocuments : null,
       tacMDC: order?.tac || '',
       departmentIndicator: order?.department_indicator || '',
     }),
-    [order],
+    [order, validOrdersDocuments],
   );
 
   const handleButtonDropdownChange = (e) => {

@@ -98,8 +98,8 @@ test.describe('GSR User Flow', () => {
     await gsrFlowPage.goToFormPageTwo();
     // Selecting a violation
     await gsrFlowPage.selectViolation('Storage', '1.2.6.16 Storage');
-    // No serious violations
-    await page.locator('[data-testid="radio"] [for="no"]').click();
+    await page.locator('[data-testid="radio"] [for="yes"]').click();
+    await page.locator('textarea[name="seriousIncidentDesc"]').fill('This is a serious incident description');
     await gsrFlowPage.openSubmissionPreview();
     await gsrFlowPage.submitReportFromPreviewAndVerify();
 
@@ -115,13 +115,15 @@ test.describe('GSR User Flow', () => {
     test.skip(gsrEnabled === 'false', 'Skip if the GSR flag is off.');
     test('QAE creates an evaluation report and a GSR user can leave remarks', async ({ page }) => {
       await page.getByTestId('viewReport').click();
-      const addAppealBtn = page.getByTestId('addAppealBtn');
-      await expect(addAppealBtn).toBeVisible();
-      await addAppealBtn.click();
+
+      // adding appeal to violation
+      const addViolationAppealBtn = page.getByTestId('addViolationAppealBtn');
+      await expect(addViolationAppealBtn).toBeVisible();
+      await addViolationAppealBtn.click();
       await expect(page.getByRole('heading', { name: 'Leave Appeal Decision' })).toBeVisible();
       const remarksInput = page.getByTestId('addAppealRemarks');
       await expect(remarksInput).toBeVisible();
-      await page.locator('textarea[name="remarks"]').fill('These are some appeal remarks');
+      await page.locator('textarea[name="remarks"]').fill('These are some appeal remarks for a violation');
       await expect(page.getByText('Sustained')).toBeVisible();
       await expect(page.getByText('Rejected')).toBeVisible();
       await page.getByText('Sustained').click();
@@ -132,7 +134,23 @@ test.describe('GSR User Flow', () => {
       await showAppealsBtn.click();
 
       await expect(page.getByText('Sustained')).toBeVisible();
-      await expect(page.getByText('These are some appeal remarks')).toBeVisible();
+      await expect(page.getByText('These are some appeal remarks for a violation')).toBeVisible();
+
+      // adding serious incident appeal
+      const addSeriousIncidentAppealBtn = page.getByTestId('addSeriousIncidentAppealBtn');
+      await expect(addSeriousIncidentAppealBtn).toBeVisible();
+      await addSeriousIncidentAppealBtn.click();
+      await expect(page.getByRole('heading', { name: 'Leave Appeal Decision' })).toBeVisible();
+      await expect(remarksInput).toBeVisible();
+      await page.locator('textarea[name="remarks"]').fill('These are some appeal remarks for a serious incident');
+      await page.getByText('Rejected').click();
+      await page.getByRole('button', { name: 'Save' }).click();
+
+      await expect(showAppealsBtn).toBeVisible();
+      await showAppealsBtn.click();
+
+      await expect(page.getByText('Rejected')).toBeVisible();
+      await expect(page.getByText('These are some appeal remarks for a serious incident')).toBeVisible();
     });
   });
 });
