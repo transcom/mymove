@@ -2346,6 +2346,110 @@ func (suite *MTOServiceItemServiceSuite) TestUpdateMTOServiceItemStatus() {
 	})
 }
 
+func (suite *MTOServiceItemServiceSuite) setupServiceItemData() {
+	startDate := time.Date(2020, time.January, 1, 12, 0, 0, 0, time.UTC)
+	endDate := time.Date(2020, time.December, 31, 12, 0, 0, 0, time.UTC)
+
+	testdatagen.FetchOrMakeReContractYear(suite.DB(), testdatagen.Assertions{
+		ReContractYear: models.ReContractYear{
+			StartDate: startDate,
+			EndDate:   endDate,
+		},
+	})
+
+	originalDomesticServiceArea := testdatagen.FetchOrMakeReDomesticServiceArea(suite.AppContextForTest().DB(), testdatagen.Assertions{
+		ReDomesticServiceArea: models.ReDomesticServiceArea{
+			ServiceArea:      "004",
+			ServicesSchedule: 2,
+		},
+		ReContract: testdatagen.FetchOrMakeReContract(suite.AppContextForTest().DB(), testdatagen.Assertions{}),
+	})
+
+	testdatagen.FetchOrMakeReDomesticLinehaulPrice(suite.DB(), testdatagen.Assertions{
+		ReDomesticLinehaulPrice: models.ReDomesticLinehaulPrice{
+			Contract:              originalDomesticServiceArea.Contract,
+			ContractID:            originalDomesticServiceArea.ContractID,
+			DomesticServiceArea:   originalDomesticServiceArea,
+			DomesticServiceAreaID: originalDomesticServiceArea.ID,
+			WeightLower:           unit.Pound(500),
+			WeightUpper:           unit.Pound(9999),
+			MilesLower:            500,
+			MilesUpper:            9999,
+			PriceMillicents:       unit.Millicents(606800),
+			IsPeakPeriod:          false,
+		},
+	})
+}
+
+func (suite *MTOServiceItemServiceSuite) TestUpdateMTOServiceItemPricingEstimate() {
+	suite.setupServiceItemData()
+	builder := query.NewQueryBuilder()
+	moveRouter := moverouter.NewMoveRouter()
+	shipmentFetcher := mtoshipment.NewMTOShipmentFetcher()
+	addressCreator := address.NewAddressCreator()
+	planner := &mocks.Planner{}
+	planner.On("ZipTransitDistance",
+		mock.AnythingOfType("*appcontext.appContext"),
+		mock.Anything,
+		mock.Anything,
+	).Return(400, nil)
+	updater := NewMTOServiceItemUpdater(planner, builder, moveRouter, shipmentFetcher, addressCreator, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer(), ghcrateengine.NewDomesticDestinationSITDeliveryPricer(), ghcrateengine.NewDomesticOriginSITFuelSurchargePricer())
+
+	setupServiceItem := func() (models.MTOServiceItem, string) {
+		serviceItem := testdatagen.MakeDefaultMTOServiceItem(suite.DB())
+		eTag := etag.GenerateEtag(serviceItem.UpdatedAt)
+		return serviceItem, eTag
+	}
+
+	now := time.Now()
+	year, month, day := now.Add(time.Hour * 24 * -30).Date()
+	aMonthAgo := time.Date(year, month, day, 0, 0, 0, 0, time.UTC)
+	move := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
+	shipmentSITAllowance := int(90)
+	estimatedWeight := unit.Pound(1400)
+
+	shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+		{
+			Model: models.MTOShipment{
+				Status:               models.MTOShipmentStatusApproved,
+				SITDaysAllowance:     &shipmentSITAllowance,
+				PrimeEstimatedWeight: &estimatedWeight,
+				RequiredDeliveryDate: &aMonthAgo,
+				UpdatedAt:            aMonthAgo,
+			},
+		},
+		{
+			Model:    move,
+			LinkOnly: true,
+		},
+	}, nil)
+
+	suite.Run("Validation Error", func() {
+		serviceItem, eTag := setupServiceItem()
+		invalidServiceItem := serviceItem
+		invalidServiceItem.MoveTaskOrderID = serviceItem.ID // invalid Move ID
+
+		updatedServiceItem, err := updater.UpdateMTOServiceItemPricingEstimate(suite.AppContextForTest(), &invalidServiceItem, shipment, eTag)
+
+		suite.Nil(updatedServiceItem)
+		suite.Error(err)
+		suite.IsType(apperror.InvalidInputError{}, err)
+
+		invalidInputError := err.(apperror.InvalidInputError)
+		suite.True(invalidInputError.ValidationErrors.HasAny())
+		suite.Contains(invalidInputError.ValidationErrors.Keys(), "moveTaskOrderID")
+	})
+
+	suite.Run("Returns updated service item on success", func() {
+		serviceItem, eTag := setupServiceItem()
+
+		updatedServiceItem, err := updater.UpdateMTOServiceItemPricingEstimate(suite.AppContextForTest(), &serviceItem, shipment, eTag)
+
+		suite.NotNil(updatedServiceItem)
+		suite.Nil(err)
+	})
+}
+
 // Helper function to create a rejected service item
 func buildRejectedServiceItem(suite *MTOServiceItemServiceSuite, reServiceCode models.ReServiceCode, reason string, contactDatePlusGracePeriod, aMonthAgo, now, sitRequestedDelivery time.Time, requestApprovalsRequestedStatus bool) models.MTOServiceItem {
 	return factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
