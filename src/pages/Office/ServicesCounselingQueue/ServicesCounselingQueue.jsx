@@ -360,6 +360,10 @@ export const closeoutColumns = (moveLockFlag, ppmCloseoutGBLOC, ppmCloseoutOrigi
           return row.originDutyLocation?.name;
         },
       }),
+  createHeader('Counseling office', 'counselingOffice', {
+    id: 'counselingOffice',
+    isFilterable: true,
+  }),
   createHeader('Destination duty location', 'destinationDutyLocation.name', {
     id: 'destinationDutyLocation',
     isFilterable: true,
