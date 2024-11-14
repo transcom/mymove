@@ -101,7 +101,7 @@ const OfficeUserEdit = ({ adminUser }) => {
   };
 
   return (
-    <Edit>
+    <Edit mutationMode="pessimistic">
       <SimpleForm
         toolbar={<OfficeUserEditToolbar />}
         sx={{ '& .MuiInputBase-input': { width: 232 } }}
