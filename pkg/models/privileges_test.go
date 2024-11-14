@@ -7,6 +7,7 @@ import (
 
 	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
+	roles "github.com/transcom/mymove/pkg/models/roles"
 	"github.com/transcom/mymove/pkg/testingsuite"
 )
 
@@ -31,6 +32,11 @@ func (suite *PrivilegesSuite) TestFetchPrivilegesForUser() {
 		},
 		{
 			Model: models.User{
+				Roles: []roles.Role{
+					{
+						RoleType: roles.RoleTypeServicesCounselor,
+					},
+				},
 				Privileges: []models.Privilege{
 					{
 						PrivilegeType: models.PrivilegeTypeSupervisor,
