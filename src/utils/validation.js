@@ -56,7 +56,6 @@ export const IsSupportedState = async (value, context) => {
   const selectedState = value;
 
   const enableAK = 'enabledAK';
-
   let unsupportedStates;
   if (enableAK in context.options.context) {
     unsupportedStates = context.options.context.enabledAK ? unSupportedStates : unSupportedStatesDisabledAlaska;
@@ -77,6 +76,18 @@ export const IsSupportedState = async (value, context) => {
 
 export const requiredAddressSchema = Yup.object().shape({
   streetAddress1: Yup.string().trim().required('Required'),
+  streetAddress2: Yup.string(),
+  city: Yup.string().trim().required('Required'),
+  state: Yup.string()
+    .test('', UnsupportedStateErrorMsg, IsSupportedState)
+    .length(2, 'Must use state abbreviation')
+    .required('Required'),
+  postalCode: Yup.string().matches(ZIP_CODE_REGEX, 'Must be valid zip code').required('Required'),
+});
+
+// city, state, postalCode only required
+export const partialRequiredAddressSchema = Yup.object().shape({
+  streetAddress1: Yup.string(),
   streetAddress2: Yup.string(),
   city: Yup.string().trim().required('Required'),
   state: Yup.string()

@@ -66,18 +66,18 @@ export const columns = (moveLockFlag, isQueueManagementEnabled, showBranchFilter
         );
       },
       {
-        id: 'lastName',
+        id: 'customerName',
         isFilterable: true,
         exportValue: (row) => {
           return `${row.customer.last_name}, ${row.customer.first_name}`;
         },
       },
     ),
-    createHeader('DoD ID', 'customer.dodID', {
-      id: 'dodID',
+    createHeader('DoD ID', 'customer.edipi', {
+      id: 'edipi',
       isFilterable: true,
       exportValue: (row) => {
-        return row.customer.dodID;
+        return row.customer.edipi;
       },
     }),
     createHeader('EMPLID', 'customer.emplid', {
@@ -149,7 +149,9 @@ export const columns = (moveLockFlag, isQueueManagementEnabled, showBranchFilter
         'Assigned',
         (row) => {
           return !row?.assignable ? (
-            <div data-testid="assigned-col">{`${row.assignedTo?.lastName}, ${row.assignedTo?.firstName}`}</div>
+            <div data-testid="assigned-col">
+              {row.assignedTo ? `${row.assignedTo?.lastName}, ${row.assignedTo?.firstName}` : ''}
+            </div>
           ) : (
             <div data-label="assignedSelect" data-testid="assigned-col" className={styles.assignedToCol}>
               <Dropdown

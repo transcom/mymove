@@ -768,7 +768,7 @@ func (suite *PaymentRequestServiceSuite) TestListPaymentRequestWithSortOrder() {
 		sort.Strings(expectedDodIDOrder)
 
 		// Sort by dodID
-		params := services.FetchPaymentRequestListParams{Sort: models.StringPointer("dodID"), Order: models.StringPointer("asc")}
+		params := services.FetchPaymentRequestListParams{Sort: models.StringPointer("edipi"), Order: models.StringPointer("asc")}
 		expectedPaymentRequests, _, err := paymentRequestListFetcher.FetchPaymentRequestList(suite.AppContextWithSessionForTest(&session), officeUser.ID, &params)
 		paymentRequests := *expectedPaymentRequests
 
@@ -781,7 +781,7 @@ func (suite *PaymentRequestServiceSuite) TestListPaymentRequestWithSortOrder() {
 	suite.Run("Sort by dodID DESC", func() {
 		sort.Strings(expectedDodIDOrder)
 
-		params := services.FetchPaymentRequestListParams{Sort: models.StringPointer("dodID"), Order: models.StringPointer("desc")}
+		params := services.FetchPaymentRequestListParams{Sort: models.StringPointer("edipi"), Order: models.StringPointer("desc")}
 		expectedPaymentRequests, _, err := paymentRequestListFetcher.FetchPaymentRequestList(suite.AppContextWithSessionForTest(&session), officeUser.ID, &params)
 		paymentRequests := *expectedPaymentRequests
 
@@ -960,5 +960,217 @@ func (suite *PaymentRequestServiceSuite) TestListPaymentRequestWithSortOrder() {
 		suite.Equal(2, len(paymentRequests))
 		suite.Equal(expectedOriginDutyLocation[0], string(paymentRequests[1].MoveTaskOrder.Orders.OriginDutyLocation.Name))
 		suite.Equal(expectedOriginDutyLocation[1], string(paymentRequests[0].MoveTaskOrder.Orders.OriginDutyLocation.Name))
+	})
+}
+
+func (suite *PaymentRequestServiceSuite) TestListPaymentRequestNameFilter() {
+	var officeUser models.OfficeUser
+	var session auth.Session
+
+	paymentRequestListFetcher := NewPaymentRequestListFetcher()
+
+	suite.PreloadData(func() {
+		officeUser = factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTIO})
+		session = auth.Session{
+			ApplicationName: auth.OfficeApp,
+			Roles:           officeUser.User.Roles,
+			OfficeUserID:    officeUser.ID,
+			IDToken:         "fake_token",
+			AccessToken:     "fakeAccessToken",
+		}
+
+		originDutyLocation1 := factory.BuildDutyLocation(suite.DB(), []factory.Customization{
+			{
+				Model: models.DutyLocation{
+					Name: "Applewood, CA 99999",
+				},
+			},
+		}, nil)
+		originDutyLocation2 := factory.BuildDutyLocation(suite.DB(), []factory.Customization{
+			{
+				Model: models.DutyLocation{
+					Name: "Scott AFB",
+				},
+			},
+		}, nil)
+
+		expectedMove1 := factory.BuildMoveWithShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.ServiceMember{
+					Edipi:     models.StringPointer("1234512345"),
+					LastName:  models.StringPointer("Spacemen"),
+					FirstName: models.StringPointer("Lena"),
+					Emplid:    models.StringPointer(""),
+				},
+			},
+			{
+				Model: models.Move{
+					Locator: "AAAA",
+				},
+			},
+			{
+				Model:    originDutyLocation1,
+				LinkOnly: true,
+				Type:     &factory.DutyLocations.OriginDutyLocation,
+			},
+		}, nil)
+		expectedMove2 := factory.BuildMoveWithShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.ServiceMember{
+					FirstName: models.StringPointer("Leo"),
+					LastName:  models.StringPointer("Spacemen"),
+					Edipi:     models.StringPointer("1234567899"),
+					Emplid:    models.StringPointer("1111111"),
+				},
+			},
+			{
+				Model: models.Move{
+					Locator: "ZZZZ",
+				},
+			},
+			{
+				Model:    originDutyLocation2,
+				LinkOnly: true,
+				Type:     &factory.DutyLocations.OriginDutyLocation,
+			},
+		}, nil)
+		expectedMove3 := factory.BuildMoveWithShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.ServiceMember{
+					FirstName: models.StringPointer("Lena"),
+					LastName:  models.StringPointer("Starlight"),
+					Edipi:     models.StringPointer("1234567999"),
+					Emplid:    models.StringPointer("1111112"),
+				},
+			},
+			{
+				Model: models.Move{
+					Locator: "ZZZZA",
+				},
+			},
+			{
+				Model:    originDutyLocation2,
+				LinkOnly: true,
+				Type:     &factory.DutyLocations.OriginDutyLocation,
+			},
+		}, nil)
+
+		// Fake this as a day and a half in the past so floating point age values can be tested
+		prevCreatedAt := time.Now().Add(time.Duration(time.Hour * -36))
+		factory.BuildPaymentRequest(suite.DB(), []factory.Customization{
+			{
+				Model: models.PaymentRequest{
+					Status:    models.PaymentRequestStatusPending,
+					CreatedAt: prevCreatedAt,
+				},
+			},
+			{
+				Model:    expectedMove1,
+				LinkOnly: true,
+			},
+		}, nil)
+		paymentRequest2 := factory.BuildPaymentRequest(suite.DB(), []factory.Customization{
+			{
+				Model: models.PaymentRequest{
+					Status: models.PaymentRequestStatusReviewed,
+				},
+			},
+			{
+				Model:    expectedMove2,
+				LinkOnly: true,
+			},
+		}, nil)
+		factory.BuildPaymentRequest(suite.DB(), []factory.Customization{
+			{
+				Model: models.PaymentRequest{
+					Status:    models.PaymentRequestStatusPending,
+					CreatedAt: prevCreatedAt,
+				},
+			},
+			{
+				Model:    expectedMove3,
+				LinkOnly: true,
+			},
+		}, nil)
+
+		factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model:    paymentRequest2.MoveTaskOrder,
+				LinkOnly: true,
+			},
+			{
+				Model: models.MTOShipment{
+					Status: models.MTOShipmentStatusSubmitted,
+				},
+			},
+		}, nil)
+	})
+
+	suite.Run("filter payment requests by customer name - full name (last, first)", func() {
+		// Search "Spacemen, Lena"
+		params := services.FetchPaymentRequestListParams{CustomerName: models.StringPointer("Spacemen, Lena"), Sort: models.StringPointer("customerName"), Order: models.StringPointer("asc")}
+		expectedPaymentRequests, _, err := paymentRequestListFetcher.FetchPaymentRequestList(suite.AppContextWithSessionForTest(&session), officeUser.ID, &params)
+		paymentRequests := *expectedPaymentRequests
+
+		suite.NoError(err)
+		suite.Equal(1, len(paymentRequests))
+		suite.Equal("Spacemen, Lena", *paymentRequests[0].MoveTaskOrder.Orders.ServiceMember.LastName+", "+*paymentRequests[0].MoveTaskOrder.Orders.ServiceMember.FirstName)
+	})
+
+	suite.Run("filter payment requests by customer name - full name (first last)", func() {
+		// Search "Lena Spacemen"
+		params := services.FetchPaymentRequestListParams{CustomerName: models.StringPointer("Lena Spacemen"), Sort: models.StringPointer("customerName"), Order: models.StringPointer("asc")}
+		expectedPaymentRequests, _, err := paymentRequestListFetcher.FetchPaymentRequestList(suite.AppContextWithSessionForTest(&session), officeUser.ID, &params)
+		paymentRequests := *expectedPaymentRequests
+
+		suite.NoError(err)
+		suite.Equal(1, len(paymentRequests))
+		suite.Equal("Spacemen, Lena", *paymentRequests[0].MoveTaskOrder.Orders.ServiceMember.LastName+", "+*paymentRequests[0].MoveTaskOrder.Orders.ServiceMember.FirstName)
+	})
+
+	suite.Run("filter payment requests by customer name - last", func() {
+		// Search "Spacemen "
+		params := services.FetchPaymentRequestListParams{CustomerName: models.StringPointer("Spacemen "), Sort: models.StringPointer("customerName"), Order: models.StringPointer("asc")}
+		expectedPaymentRequests, _, err := paymentRequestListFetcher.FetchPaymentRequestList(suite.AppContextWithSessionForTest(&session), officeUser.ID, &params)
+		paymentRequests := *expectedPaymentRequests
+
+		suite.NoError(err)
+		suite.Equal(2, len(paymentRequests))
+		suite.Equal("Spacemen, Lena", *paymentRequests[0].MoveTaskOrder.Orders.ServiceMember.LastName+", "+*paymentRequests[0].MoveTaskOrder.Orders.ServiceMember.FirstName)
+		suite.Equal("Spacemen, Leo", *paymentRequests[1].MoveTaskOrder.Orders.ServiceMember.LastName+", "+*paymentRequests[1].MoveTaskOrder.Orders.ServiceMember.FirstName)
+	})
+
+	suite.Run("filter payment requests by customer name - first", func() {
+		// Search "lena"
+		params := services.FetchPaymentRequestListParams{CustomerName: models.StringPointer("lena"), Sort: models.StringPointer("customerName"), Order: models.StringPointer("asc")}
+		expectedPaymentRequests, _, err := paymentRequestListFetcher.FetchPaymentRequestList(suite.AppContextWithSessionForTest(&session), officeUser.ID, &params)
+		paymentRequests := *expectedPaymentRequests
+
+		suite.NoError(err)
+		suite.Equal(2, len(paymentRequests))
+		suite.Equal("Spacemen, Lena", *paymentRequests[0].MoveTaskOrder.Orders.ServiceMember.LastName+", "+*paymentRequests[0].MoveTaskOrder.Orders.ServiceMember.FirstName)
+		suite.Equal("Starlight, Lena", *paymentRequests[1].MoveTaskOrder.Orders.ServiceMember.LastName+", "+*paymentRequests[1].MoveTaskOrder.Orders.ServiceMember.FirstName)
+	})
+
+	suite.Run("filter payment requests by customer name - partial matching within first or last", func() {
+		// Search "en"
+		params := services.FetchPaymentRequestListParams{CustomerName: models.StringPointer("en"), Sort: models.StringPointer("customerName"), Order: models.StringPointer("asc")}
+		expectedPaymentRequests, _, err := paymentRequestListFetcher.FetchPaymentRequestList(suite.AppContextWithSessionForTest(&session), officeUser.ID, &params)
+		paymentRequests := *expectedPaymentRequests
+		suite.NoError(err)
+		suite.Equal(3, len(paymentRequests))
+		suite.Equal("Spacemen, Lena", *paymentRequests[0].MoveTaskOrder.Orders.ServiceMember.LastName+", "+*paymentRequests[0].MoveTaskOrder.Orders.ServiceMember.FirstName)
+		suite.Equal("Spacemen, Leo", *paymentRequests[1].MoveTaskOrder.Orders.ServiceMember.LastName+", "+*paymentRequests[1].MoveTaskOrder.Orders.ServiceMember.FirstName)
+		suite.Equal("Starlight, Lena", *paymentRequests[2].MoveTaskOrder.Orders.ServiceMember.LastName+", "+*paymentRequests[2].MoveTaskOrder.Orders.ServiceMember.FirstName)
+	})
+
+	suite.Run("filter payment requests by customer name - empty", func() {
+		// Search "johnny"
+		params := services.FetchPaymentRequestListParams{CustomerName: models.StringPointer("johnny"), Sort: models.StringPointer("customerName"), Order: models.StringPointer("asc")}
+		expectedPaymentRequests, _, err := paymentRequestListFetcher.FetchPaymentRequestList(suite.AppContextWithSessionForTest(&session), officeUser.ID, &params)
+		paymentRequests := *expectedPaymentRequests
+
+		suite.NoError(err)
+		suite.Equal(0, len(paymentRequests))
 	})
 }

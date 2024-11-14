@@ -604,10 +604,6 @@ definitions:
       netWeightRemarks:
         description: Remarks explaining any edits made to the net weight
         type: string
-      allowableWeight:
-        description: Indicates the maximum reimbursable weight of the shipment
-        type: integer
-        minimum: 0
   TransportationOffices:
     type: array
     items:
@@ -1456,6 +1452,35 @@ definitions:
         description: >
           Spouse's pro-gear weight limit as set by an Office user, distinct from
           the service member's default weight allotment determined by pay grade
+      accompanied_tour:
+        type: boolean
+        example: true
+        x-nullable: true
+        description: >-
+          Indicates if the move entitlement allows dependents to travel to the
+          new Permanent Duty Station (PDS). This is only present on OCONUS
+          moves.
+      dependents_under_twelve:
+        type: integer
+        example: 5
+        x-nullable: true
+        description: >-
+          Indicates the number of dependents under the age of twelve for a move.
+          This is only present on OCONUS moves.
+      dependents_twelve_and_over:
+        type: integer
+        example: 3
+        x-nullable: true
+        description: >-
+          Indicates the number of dependents of the age twelve or older for a
+          move. This is only present on OCONUS moves.
+      ub_allowance:
+        type: integer
+        example: 3
+        x-nullable: true
+        description: >-
+          The amount of weight in pounds that the move is entitled for shipment
+          types of Unaccompanied Baggage.
   CreateUpdateOrders:
     type: object
     properties:
@@ -1523,6 +1548,28 @@ definitions:
         type: string
         format: uuid
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      accompanied_tour:
+        type: boolean
+        example: true
+        x-nullable: true
+        description: >-
+          Indicates if the move entitlement allows dependents to travel to the
+          new Permanent Duty Station (PDS). This is only present on OCONUS
+          moves.
+      dependents_under_twelve:
+        type: integer
+        example: 5
+        x-nullable: true
+        description: >-
+          Indicates the number of dependents under the age of twelve for a move.
+          This is only present on OCONUS moves.
+      dependents_twelve_and_over:
+        type: integer
+        example: 3
+        x-nullable: true
+        description: >-
+          Indicates the number of dependents of the age twelve or older for a
+          move. This is only present on OCONUS moves.
     required:
       - service_member_id
       - issue_date
@@ -1984,7 +2031,7 @@ definitions:
       secondaryPickupAddress:
         $ref: '#/definitions/Address'
       destinationAddress:
-        $ref: '#/definitions/Address'
+        $ref: '#/definitions/PPMDestinationAddress'
       secondaryDestinationAddress:
         $ref: '#/definitions/Address'
       tertiaryDestinationAddress:
@@ -2052,7 +2099,7 @@ definitions:
         pattern: ^(\d{5})$
         x-nullable: true
       destinationAddress:
-        $ref: '#/definitions/Address'
+        $ref: '#/definitions/PPMDestinationAddress'
       secondaryDestinationAddress:
         $ref: '#/definitions/Address'
       hasSecondaryDestinationAddress:
@@ -2531,6 +2578,7 @@ definitions:
       - WOUNDED_WARRIOR
       - BLUEBARK
       - SAFETY
+      - TEMPORARY_DUTY
     x-display-value:
       PERMANENT_CHANGE_OF_STATION: Permanent Change Of Station
       LOCAL_MOVE: Local Move
@@ -2539,6 +2587,7 @@ definitions:
       WOUNDED_WARRIOR: Wounded Warrior
       BLUEBARK: BLUEBARK
       SAFETY: Safety
+      TEMPORARY_DUTY: Temporary Duty (TDY)
   Address:
     description: A postal address
     type: object
@@ -3107,12 +3156,6 @@ definitions:
         description: A hash that should be used as the "If-Match" header for any updates.
         type: string
         readOnly: true
-      allowableWeight:
-        description: Maximum reimbursable weight.
-        type: integer
-        minimum: 0
-        x-nullable: true
-        x-omitempty: false
     required:
       - ppmShipmentId
       - createdAt
@@ -3670,6 +3713,13 @@ definitions:
         example: 4200
         x-nullable: true
         x-omitempty: false
+      allowableWeight:
+        description: The allowable weight of the PPM shipment goods being moved.
+        type: integer
+        example: 4300
+        minimum: 0
+        x-nullable: true
+        x-omitempty: false
       hasProGear:
         description: >
           Indicates whether PPM shipment has pro gear for themselves or their
@@ -3959,6 +4009,164 @@ definitions:
       RENTAL_EQUIPMENT: Rental equipment
       TOLLS: Tolls
       WEIGHING_FEE: Weighing fee
+  PPMDestinationAddress:
+    description: A postal address
+    type: object
+    properties:
+      id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      streetAddress1:
+        type: string
+        example: 123 Main Ave
+        x-nullable: true
+        title: Street address 1
+      streetAddress2:
+        type: string
+        example: Apartment 9000
+        x-nullable: true
+        title: Street address 2
+      streetAddress3:
+        type: string
+        example: Montmârtre
+        x-nullable: true
+        title: Address Line 3
+      city:
+        type: string
+        example: Anytown
+        title: City
+      eTag:
+        type: string
+        readOnly: true
+      state:
+        title: State
+        type: string
+        x-display-value:
+          AL: AL
+          AK: AK
+          AR: AR
+          AZ: AZ
+          CA: CA
+          CO: CO
+          CT: CT
+          DC: DC
+          DE: DE
+          FL: FL
+          GA: GA
+          HI: HI
+          IA: IA
+          ID: ID
+          IL: IL
+          IN: IN
+          KS: KS
+          KY: KY
+          LA: LA
+          MA: MA
+          MD: MD
+          ME: ME
+          MI: MI
+          MN: MN
+          MO: MO
+          MS: MS
+          MT: MT
+          NC: NC
+          ND: ND
+          NE: NE
+          NH: NH
+          NJ: NJ
+          NM: NM
+          NV: NV
+          NY: NY
+          OH: OH
+          OK: OK
+          OR: OR
+          PA: PA
+          RI: RI
+          SC: SC
+          SD: SD
+          TN: TN
+          TX: TX
+          UT: UT
+          VA: VA
+          VT: VT
+          WA: WA
+          WI: WI
+          WV: WV
+          WY: WY
+        enum:
+          - AL
+          - AK
+          - AR
+          - AZ
+          - CA
+          - CO
+          - CT
+          - DC
+          - DE
+          - FL
+          - GA
+          - HI
+          - IA
+          - ID
+          - IL
+          - IN
+          - KS
+          - KY
+          - LA
+          - MA
+          - MD
+          - ME
+          - MI
+          - MN
+          - MO
+          - MS
+          - MT
+          - NC
+          - ND
+          - NE
+          - NH
+          - NJ
+          - NM
+          - NV
+          - NY
+          - OH
+          - OK
+          - OR
+          - PA
+          - RI
+          - SC
+          - SD
+          - TN
+          - TX
+          - UT
+          - VA
+          - VT
+          - WA
+          - WI
+          - WV
+          - WY
+      postalCode:
+        type: string
+        format: zip
+        title: ZIP
+        example: '90210'
+        pattern: ^(\d{5}([\-]\d{4})?)$
+      country:
+        type: string
+        title: Country
+        x-nullable: true
+        example: USA
+        default: USA
+      county:
+        type: string
+        title: County
+        x-nullable: true
+        example: LOS ANGELES
+    required:
+      - city
+      - state
+      - postalCode
 paths:
   /feature-flags/user-boolean/{key}:
     post:

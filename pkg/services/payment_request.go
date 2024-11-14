@@ -80,9 +80,9 @@ type PaymentRequestReviewedProcessor interface {
 type FetchPaymentRequestListParams struct {
 	Branch                  *string
 	Locator                 *string
-	DodID                   *string
+	Edipi                   *string
 	Emplid                  *string
-	LastName                *string
+	CustomerName            *string
 	DestinationDutyLocation *string
 	Status                  []string
 	Page                    *int64

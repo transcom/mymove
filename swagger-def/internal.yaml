@@ -583,10 +583,6 @@ definitions:
       netWeightRemarks:
         description: Remarks explaining any edits made to the net weight
         type: string
-      allowableWeight:
-        description: Indicates the maximum reimbursable weight of the shipment
-        type: integer
-        minimum: 0
   TransportationOffices:
     type: array
     items:
@@ -1431,6 +1427,26 @@ definitions:
         x-nullable: true
         description: >
           Spouse's pro-gear weight limit as set by an Office user, distinct from the service member's default weight allotment determined by pay grade
+      accompanied_tour:
+        type: boolean
+        example: true
+        x-nullable: true
+        description: Indicates if the move entitlement allows dependents to travel to the new Permanent Duty Station (PDS). This is only present on OCONUS moves.
+      dependents_under_twelve:
+        type: integer
+        example: 5
+        x-nullable: true
+        description: Indicates the number of dependents under the age of twelve for a move. This is only present on OCONUS moves.
+      dependents_twelve_and_over:
+        type: integer
+        example: 3
+        x-nullable: true
+        description: Indicates the number of dependents of the age twelve or older for a move. This is only present on OCONUS moves.
+      ub_allowance:
+        type: integer
+        example: 3
+        x-nullable: true
+        description: The amount of weight in pounds that the move is entitled for shipment types of Unaccompanied Baggage.
   CreateUpdateOrders:
     type: object
     properties:
@@ -1496,6 +1512,21 @@ definitions:
         type: string
         format: uuid
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      accompanied_tour:
+        type: boolean
+        example: true
+        x-nullable: true
+        description: Indicates if the move entitlement allows dependents to travel to the new Permanent Duty Station (PDS). This is only present on OCONUS moves.
+      dependents_under_twelve:
+        type: integer
+        example: 5
+        x-nullable: true
+        description: Indicates the number of dependents under the age of twelve for a move. This is only present on OCONUS moves.
+      dependents_twelve_and_over:
+        type: integer
+        example: 3
+        x-nullable: true
+        description: Indicates the number of dependents of the age twelve or older for a move. This is only present on OCONUS moves.
     required:
       - service_member_id
       - issue_date
@@ -1953,7 +1984,7 @@ definitions:
       secondaryPickupAddress:
         $ref: 'definitions/Address.yaml'
       destinationAddress:
-        $ref: 'definitions/Address.yaml'
+        $ref: "definitions/PPMDestinationAddress.yaml"
       secondaryDestinationAddress:
         $ref: 'definitions/Address.yaml'
       tertiaryDestinationAddress:
@@ -2018,7 +2049,7 @@ definitions:
         pattern: ^(\d{5})$
         x-nullable: true
       destinationAddress:
-        $ref: 'definitions/Address.yaml'
+        $ref: "definitions/PPMDestinationAddress.yaml"
       secondaryDestinationAddress:
         $ref: 'definitions/Address.yaml'
       hasSecondaryDestinationAddress:

@@ -292,7 +292,7 @@ export class OfficeApp extends Component {
                         end
                         element={
                           <PrivateRoute requiredRoles={hqRoleFlag ? [roleTypes.HQ] : [undefined]}>
-                            <HeadquartersQueues />
+                            <HeadquartersQueues isQueueManagementFFEnabled={queueManagementFlag} />
                           </PrivateRoute>
                         }
                       />
@@ -313,7 +313,10 @@ export class OfficeApp extends Component {
                           end
                           element={
                             <PrivateRoute requiredRoles={[roleTypes.SERVICES_COUNSELOR]}>
-                              <ServicesCounselingQueue isQueueManagementFFEnabled={queueManagementFlag} />
+                              <ServicesCounselingQueue
+                                userPrivileges={userPrivileges}
+                                isQueueManagementFFEnabled={queueManagementFlag}
+                              />
                             </PrivateRoute>
                           }
                         />
@@ -363,7 +366,7 @@ export class OfficeApp extends Component {
                           end
                           element={
                             <PrivateRoute requiredRoles={hqRoleFlag ? [roleTypes.HQ] : [undefined]}>
-                              <HeadquartersQueues />
+                              <HeadquartersQueues isQueueManagementFFEnabled={queueManagementFlag} />
                             </PrivateRoute>
                           }
                         />

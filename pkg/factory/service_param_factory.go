@@ -33,7 +33,7 @@ func BuildServiceParam(db *pop.Connection, customs []Customization, traits []Tra
 		}
 	}
 
-	reService := FetchOrBuildReService(db, customs, traits)
+	reService := FetchReService(db, customs, traits)
 
 	serviceItemParamKey := FetchOrBuildServiceItemParamKey(db, customs, traits)
 
@@ -83,7 +83,7 @@ func FetchOrBuildServiceParam(db *pop.Connection, customs []Customization, trait
 		}
 	}
 
-	reService := FetchOrBuildReService(db, customs, traits)
+	reService := FetchReService(db, customs, traits)
 	serviceItemParamKey := FetchOrBuildServiceItemParamKey(db, customs, traits)
 
 	existingServiceParam := models.ServiceParam{}

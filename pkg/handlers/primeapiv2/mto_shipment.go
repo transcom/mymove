@@ -43,7 +43,7 @@ func (h CreateMTOShipmentHandler) Handle(params mtoshipmentops.CreateMTOShipment
 			/** Feature Flag - Boat Shipment **/
 			const featureFlagName = "boat"
 			isBoatFeatureOn := false
-			flag, err := h.FeatureFlagFetcher().GetBooleanFlagForUser(params.HTTPRequest.Context(), appCtx, featureFlagName, map[string]string{})
+			flag, err := h.FeatureFlagFetcher().GetBooleanFlag(params.HTTPRequest.Context(), appCtx.Logger(), "", featureFlagName, map[string]string{})
 			if err != nil {
 				appCtx.Logger().Error("Error fetching feature flag", zap.String("featureFlagKey", featureFlagName), zap.Error(err))
 			} else {
@@ -59,7 +59,7 @@ func (h CreateMTOShipmentHandler) Handle(params mtoshipmentops.CreateMTOShipment
 			/** Feature Flag - Mobile Home Shipment **/
 			const featureFlagMobileHome = "mobile_home"
 			isMobileHomeFeatureOn := false
-			flagMH, err := h.FeatureFlagFetcher().GetBooleanFlagForUser(params.HTTPRequest.Context(), appCtx, featureFlagMobileHome, map[string]string{})
+			flagMH, err := h.FeatureFlagFetcher().GetBooleanFlag(params.HTTPRequest.Context(), appCtx.Logger(), "", featureFlagMobileHome, map[string]string{})
 			if err != nil {
 				appCtx.Logger().Error("Error fetching feature flagMH", zap.String("featureFlagKey", featureFlagMobileHome), zap.Error(err))
 			} else {
@@ -104,7 +104,14 @@ func (h CreateMTOShipmentHandler) Handle(params mtoshipmentops.CreateMTOShipment
 				}
 			}
 
-			mtoShipment := payloads.MTOShipmentModelFromCreate(payload)
+			mtoShipment, verrs := payloads.MTOShipmentModelFromCreate(payload)
+			if verrs != nil && verrs.HasAny() {
+				appCtx.Logger().Error("Error validating mto shipment object: ", zap.Error(verrs))
+
+				return mtoshipmentops.NewCreateMTOShipmentUnprocessableEntity().WithPayload(payloads.ValidationError(
+					"The MTO shipment object is invalid.", h.GetTraceIDFromRequest(params.HTTPRequest), nil)), verrs
+			}
+
 			mtoShipment.Status = models.MTOShipmentStatusSubmitted
 			mtoServiceItemsList, verrs := payloads.MTOServiceItemModelListFromCreate(payload)
 
@@ -135,6 +142,9 @@ func (h CreateMTOShipmentHandler) Handle(params mtoshipmentops.CreateMTOShipment
 				case apperror.NotFoundError:
 					return mtoshipmentops.NewCreateMTOShipmentNotFound().WithPayload(
 						payloads.ClientError(handlers.NotFoundMessage, err.Error(), h.GetTraceIDFromRequest(params.HTTPRequest))), err
+				case apperror.EventError:
+					return mtoshipmentops.NewUpdateMTOShipmentBadRequest().WithPayload(
+						payloads.ClientError(handlers.InternalServerErrMessage, err.Error(), h.GetTraceIDFromRequest(params.HTTPRequest))), err
 				case apperror.InvalidInputError:
 					return mtoshipmentops.NewCreateMTOShipmentUnprocessableEntity().WithPayload(
 						payloads.ValidationError(err.Error(), h.GetTraceIDFromRequest(params.HTTPRequest), e.ValidationErrors)), err
@@ -199,6 +209,9 @@ func (h UpdateMTOShipmentHandler) Handle(params mtoshipmentops.UpdateMTOShipment
 				case apperror.NotFoundError:
 					return mtoshipmentops.NewUpdateMTOShipmentNotFound().WithPayload(
 						payloads.ClientError(handlers.NotFoundMessage, err.Error(), h.GetTraceIDFromRequest(params.HTTPRequest))), err
+				case apperror.EventError:
+					return mtoshipmentops.NewUpdateMTOShipmentBadRequest().WithPayload(
+						payloads.ClientError(handlers.InternalServerErrMessage, err.Error(), h.GetTraceIDFromRequest(params.HTTPRequest))), err
 				case apperror.InvalidInputError:
 					payload := payloads.ValidationError(err.Error(), h.GetTraceIDFromRequest(params.HTTPRequest), e.ValidationErrors)
 					return mtoshipmentops.NewUpdateMTOShipmentUnprocessableEntity().WithPayload(payload), err

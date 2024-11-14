@@ -163,6 +163,10 @@ func (router moveRouter) needsServiceCounseling(appCtx appcontext.AppContext, mo
 		return false, nil
 	}
 
+	if move.IsPPMOnly() {
+		return true, nil
+	}
+
 	return originDutyLocation.ProvidesServicesCounseling, nil
 }
 
@@ -226,6 +230,7 @@ func (router moveRouter) sendToServiceCounselor(appCtx appcontext.AppContext, mo
 				return apperror.NewInvalidInputError(move.MTOShipments[i].PPMShipment.ID, err, verrs, msg)
 			}
 		}
+
 		// update status for boat or mobile home shipment
 		if move.MTOShipments[i].ShipmentType == models.MTOShipmentTypeBoatHaulAway ||
 			move.MTOShipments[i].ShipmentType == models.MTOShipmentTypeBoatTowAway ||
@@ -233,9 +238,25 @@ func (router moveRouter) sendToServiceCounselor(appCtx appcontext.AppContext, mo
 			move.MTOShipments[i].Status = models.MTOShipmentStatusSubmitted
 
 			if verrs, err := appCtx.DB().ValidateAndUpdate(&move.MTOShipments[i]); verrs.HasAny() || err != nil {
-				msg := "failure saving shipment when routing move submission"
+				msg := "failure saving parent MTO shipment object for boat/mobile home shipment when routing move submission"
 				appCtx.Logger().Error(msg, zap.Error(err))
 				return apperror.NewInvalidInputError(move.MTOShipments[i].ID, err, verrs, msg)
+			}
+
+			if move.MTOShipments[i].BoatShipment != nil {
+				if verrs, err := appCtx.DB().ValidateAndUpdate(move.MTOShipments[i].BoatShipment); verrs.HasAny() || err != nil {
+					msg := "failure saving boat shipment when routing move submission"
+					appCtx.Logger().Error(msg, zap.Error(err))
+					return apperror.NewInvalidInputError(move.MTOShipments[i].ID, err, verrs, msg)
+				}
+			}
+
+			if move.MTOShipments[i].MobileHome != nil {
+				if verrs, err := appCtx.DB().ValidateAndUpdate(move.MTOShipments[i].MobileHome); verrs.HasAny() || err != nil {
+					msg := "failure saving mobile home shipment when routing move submission"
+					appCtx.Logger().Error(msg, zap.Error(err))
+					return apperror.NewInvalidInputError(move.MTOShipments[i].ID, err, verrs, msg)
+				}
 			}
 		}
 	}
@@ -245,7 +266,6 @@ func (router moveRouter) sendToServiceCounselor(appCtx appcontext.AppContext, mo
 		appCtx.Logger().Error(msg, zap.Error(err))
 		return apperror.NewInvalidInputError(move.ID, err, verrs, msg)
 	}
-
 	return nil
 }
 

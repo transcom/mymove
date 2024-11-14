@@ -886,8 +886,8 @@ const ShipmentForm = (props) => {
 
                 {isNTSR && <ShipmentWeightInput userRole={userRole} />}
 
-                {isMobileHome && (
-                  <MobileHomeShipmentForm
+                {isBoat && (
+                  <BoatShipmentForm
                     lengthHasError={lengthHasError}
                     widthHasError={widthHasError}
                     heightHasError={heightHasError}
@@ -899,8 +899,8 @@ const ShipmentForm = (props) => {
                   />
                 )}
 
-                {isBoat && (
-                  <BoatShipmentForm
+                {isMobileHome && (
+                  <MobileHomeShipmentForm
                     lengthHasError={lengthHasError}
                     widthHasError={widthHasError}
                     heightHasError={heightHasError}
@@ -1466,6 +1466,7 @@ const ShipmentForm = (props) => {
                       <AddressFields
                         name="destination.address"
                         legend="Delivery Address"
+                        address1LabelHint="Optional"
                         render={(fields) => (
                           <>
                             {fields}
