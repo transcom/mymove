@@ -51,7 +51,7 @@ const TextField = ({
         return <Textarea id={id} name={name} disabled={isDisabled} {...fieldProps} {...inputProps} />;
       case 'readonly':
         return (
-          <label htmlFor={id || name} id={id} data-testid={label} aria-label={label}>
+          <label htmlFor={id || name} id={id} data-testid={label} aria-label={name}>
             {fieldProps.value}
           </label>
         );

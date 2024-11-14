@@ -1,8 +1,10 @@
 import React from 'react';
 import { render, waitFor, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { Provider } from 'react-redux';
 
 import AboutForm from 'components/Customer/PPM/Closeout/AboutForm/AboutForm';
+import { configureStore } from 'shared/store';
 
 jest.mock('utils/featureFlags', () => ({
   ...jest.requireActual('utils/featureFlags'),
@@ -62,6 +64,8 @@ const shipmentProps = {
     },
   },
 };
+
+const mockStore = configureStore({});
 
 const fillOutBasicForm = async () => {
   let form;
@@ -140,7 +144,11 @@ const fillOutBasicForm = async () => {
 describe('AboutForm component', () => {
   describe('displays form', () => {
     it('renders blank form on load', async () => {
-      render(<AboutForm {...defaultProps} />);
+      render(
+        <Provider store={mockStore.store}>
+          <AboutForm {...defaultProps} />
+        </Provider>,
+      );
 
       await waitFor(() => {
         expect(screen.getByRole('heading', { level: 2, name: 'Departure date' })).toBeInTheDocument();
@@ -171,7 +179,11 @@ describe('AboutForm component', () => {
 
     describe('validates form fields and displays error messages', () => {
       it('marks all required fields when form is submitted', async () => {
-        render(<AboutForm {...defaultProps} />);
+        render(
+          <Provider store={mockStore.store}>
+            <AboutForm {...defaultProps} />
+          </Provider>,
+        );
 
         await userEvent.click(screen.getByRole('button', { name: 'Save & Continue' }));
 
@@ -200,7 +212,11 @@ describe('AboutForm component', () => {
     });
 
     it('populates appropriate field values', async () => {
-      render(<AboutForm {...shipmentProps} />);
+      render(
+        <Provider store={mockStore.store}>
+          <AboutForm {...shipmentProps} />
+        </Provider>,
+      );
 
       await waitFor(() => {
         expect(screen.getByLabelText('When did you leave your origin?')).toHaveDisplayValue('31 May 2022');
@@ -220,8 +236,12 @@ describe('AboutForm component', () => {
     });
 
     it('PPM destination street1 is required', async () => {
-      render(<AboutForm {...shipmentProps} />);
-      await expect(screen.getByRole('button', { name: 'Save & Continue' })).toBeEnabled();
+      render(
+        <Provider store={mockStore.store}>
+          <AboutForm {...shipmentProps} />
+        </Provider>,
+      );
+      expect(screen.getByRole('button', { name: 'Save & Continue' })).toBeEnabled();
 
       // Start controlled test case to verify everything is working.
       const input = await document.querySelector('input[name="destinationAddress.streetAddress1"]');
@@ -254,14 +274,22 @@ describe('AboutForm component', () => {
     });
 
     it('displays type error messages for invalid input', async () => {
-      render(<AboutForm {...defaultProps} />);
+      render(
+        <Provider store={mockStore.store}>
+          <AboutForm {...defaultProps} />
+        </Provider>,
+      );
 
       await userEvent.type(screen.getByLabelText('When did you leave your origin?'), '1 January 2022');
       await userEvent.tab();
     });
 
     it('displays error when advance received is below 1 dollar minimum', async () => {
-      await render(<AboutForm {...defaultProps} />);
+      render(
+        <Provider store={mockStore.store}>
+          <AboutForm {...defaultProps} />
+        </Provider>,
+      );
 
       await userEvent.click(screen.getByTestId('yes-has-received-advance'));
 
@@ -276,7 +304,11 @@ describe('AboutForm component', () => {
 
     describe('calls button event handlers', () => {
       it('calls onBack handler when "Return To Homepage" is pressed', async () => {
-        await render(<AboutForm {...defaultProps} />);
+        render(
+          <Provider store={mockStore.store}>
+            <AboutForm {...defaultProps} />
+          </Provider>,
+        );
 
         await userEvent.click(screen.getByRole('button', { name: 'Return To Homepage' }));
 
@@ -286,7 +318,11 @@ describe('AboutForm component', () => {
       });
 
       it('calls onSubmit handler when "Save & Continue" is pressed', async () => {
-        await render(<AboutForm {...defaultProps} />);
+        render(
+          <Provider store={mockStore.store}>
+            <AboutForm {...defaultProps} />
+          </Provider>,
+        );
 
         await fillOutBasicForm();
 
