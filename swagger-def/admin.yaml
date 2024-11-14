@@ -1903,6 +1903,35 @@ paths:
           description: Transportation Office not found
         "500":
           description: server error
+  /offices/{officeId}:
+    get:
+      produces:
+        - application/json
+      summary: Get Transportation Office by ID
+      description:
+        $ref: paths/offices/get/description.md
+      operationId: getOfficeById
+      tags:
+        - Transportation offices
+      parameters:
+      - in: path
+        name: officeId
+        type: string
+        format: uuid
+        required: true
+      responses:
+        "200":
+          description: success
+          schema:
+            $ref: "#/definitions/TransportationOffice"
+        "400":
+          description: invalid request
+        "401":
+          description: request requires user authentication
+        "404":
+          description: Transportation Office not found
+        "500":
+          description: server error
   /electronic-orders:
     get:
       produces:
