@@ -114,8 +114,7 @@ func (suite *OfficeUserServiceSuite) TestFetchOfficeUserPop() {
 	})
 
 	suite.Run("returns a set of safety office users when given a type and role", func() {
-		// build 1 TOO
-		//officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), factory.GetTraitActiveOfficeUser(), []roles.RoleType{roles.RoleTypeTOO})
+		// build 1 TOO supervisor with safety privilege
 		officeUser := factory.BuildOfficeUserWithPrivileges(suite.DB(), []factory.Customization{
 			{
 				Model: models.OfficeUser{
@@ -128,6 +127,9 @@ func (suite *OfficeUserServiceSuite) TestFetchOfficeUserPop() {
 						{
 							PrivilegeType: models.PrivilegeTypeSafety,
 						},
+						{
+							PrivilegeType: models.PrivilegeSearchTypeSupervisor,
+						},
 					},
 					Roles: []roles.Role{
 						{
@@ -137,57 +139,17 @@ func (suite *OfficeUserServiceSuite) TestFetchOfficeUserPop() {
 				},
 			},
 		}, nil)
-		// build 1 SC and 1 TIO
-		factory.BuildOfficeUserWithRoles(suite.DB(), []factory.Customization{
-			{
-				Model: models.OfficeUser{
-					Email: "officeuser2@example.com",
-				},
-			},
-			{
-				Model: models.User{
-					Privileges: []models.Privilege{
-						{
-							PrivilegeType: models.PrivilegeTypeSafety,
-						},
-					},
-					Roles: []roles.Role{
-						{
-							RoleType: roles.RoleTypeServicesCounselor,
-						},
-					},
-				},
-			},
-		}, nil)
-		factory.BuildOfficeUserWithRoles(suite.DB(), []factory.Customization{
-			{
-				Model: models.OfficeUser{
-					Email: "officeuser3@example.com",
-				},
-			},
-			{
-				Model: models.User{
-					Privileges: []models.Privilege{
-						{
-							PrivilegeType: models.PrivilegeTypeSafety,
-						},
-					},
-					Roles: []roles.Role{
-						{
-							RoleType: roles.RoleTypeTIO,
-						},
-					},
-				},
-			},
-		}, nil)
+		// build 1 TOO without safety privilege
+		factory.BuildOfficeUserWithRoles(suite.DB(), factory.GetTraitActiveOfficeUser(), []roles.RoleType{roles.RoleTypeTOO})
+
 		fetcher := NewOfficeUserFetcherPop()
 
 		fetchedUsers, err := fetcher.FetchSafetyMoveOfficeUsersByRoleAndOffice(suite.AppContextForTest(), roles.RoleTypeTOO, officeUser.TransportationOfficeID)
 
 		// ensure length of returned set is 1, corresponding to the TOO role passed to FetchOfficeUsersByRoleAndOffice
-		// and not 1 (SC) or 1 (TIO)
 		suite.NoError(err)
 		suite.Len(fetchedUsers, 1)
+		suite.NotNil(officeUser.User.Privileges.HasPrivilege(models.PrivilegeTypeSupervisor))
 	})
 
 	suite.Run("returns zero value office user on error", func() {
