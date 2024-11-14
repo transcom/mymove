@@ -64,7 +64,9 @@ func (SSWPPMComputer *SSWPPMComputer) FormatValuesShipmentSummaryWorksheet(shipm
 	if err != nil {
 		return page1, services.Page2Values{}, services.Page3Values{}, errors.WithStack(err)
 	}
-	page2, err := SSWPPMComputer.FormatValuesShipmentSummaryWorksheetFormPage2(shipmentSummaryFormData, isPaymentPacket)
+
+	expensesMap := SubTotalExpenses(shipmentSummaryFormData.MovingExpenses)
+	page2, err := SSWPPMComputer.FormatValuesShipmentSummaryWorksheetFormPage2(shipmentSummaryFormData, isPaymentPacket, expensesMap)
 	if err != nil {
 		return page1, page2, services.Page3Values{}, errors.WithStack(err)
 	}
@@ -72,6 +74,43 @@ func (SSWPPMComputer *SSWPPMComputer) FormatValuesShipmentSummaryWorksheet(shipm
 	if err != nil {
 		return page1, page2, services.Page3Values{}, errors.WithStack(err)
 	}
+
+	// Different calculations for Actual Reimbursement packets
+	sumGTCC := expensesMap["TotalGTCCPaid"] + expensesMap["StorageGTCCPaid"]
+	sumMemberExpenses := expensesMap["TotalMemberPaid"] + expensesMap["StorageMemberPaid"]
+	var newGTCCDisbursement float64
+	var newMemberDisbursement float64
+
+	/**
+		If AOA uses the "Actual Expense" reimbursement method, the "disbursement" field on page 2 uses the following formula:
+
+		GTCC disbursement gets paid first, and is the lesser amount of either:
+		A. the full GTCC total + GTCC SIT amount OR
+		B. the Actual GCC
+
+		If there is any amount left from the GCC after this, then the member disbursement is the lesser amount of either:
+		A. the difference between the GTCC paid expenses and the GCC OR
+		B. the total member-paid expenses plus the member paid SIT
+	**/
+	if shipmentSummaryFormData.IsActualExpenseReimbursement {
+		floatFinalIncentive := shipmentSummaryFormData.PPMShipment.FinalIncentive.ToDollarFloatNoRound() // FinalIncentive == ActualGCC
+
+		if sumGTCC < floatFinalIncentive { // There are funds left over after GTCC to pay out member expenses
+			newGTCCDisbursement = sumGTCC
+
+			if sumMemberExpenses < floatFinalIncentive-sumGTCC {
+				newMemberDisbursement = sumMemberExpenses
+			} else {
+				newMemberDisbursement = floatFinalIncentive - sumGTCC
+			}
+		} else { // GTCC takes up all of the GCC funds, none left over to pay member expenses
+			newGTCCDisbursement = floatFinalIncentive
+			newMemberDisbursement = 0
+		}
+
+		page2.Disbursement = "GTCC: " + FormatDollars(newGTCCDisbursement) + "\nMember: " + FormatDollars(newMemberDisbursement)
+	}
+
 	return page1, page2, page3, nil
 }
 
@@ -275,9 +314,9 @@ func (s SSWPPMComputer) FormatValuesShipmentSummaryWorksheetFormPage1(data model
 }
 
 // FormatValuesShipmentSummaryWorksheetFormPage2 formats the data for page 2 of the Shipment Summary Worksheet
-func (s *SSWPPMComputer) FormatValuesShipmentSummaryWorksheetFormPage2(data models.ShipmentSummaryFormData, isPaymentPacket bool) (services.Page2Values, error) {
+func (s *SSWPPMComputer) FormatValuesShipmentSummaryWorksheetFormPage2(data models.ShipmentSummaryFormData, isPaymentPacket bool, expensesMap map[string]float64) (services.Page2Values, error) {
 	var err error
-	expensesMap := SubTotalExpenses(data.MovingExpenses)
+
 	certificationInfo := formatSignedCertifications(data.SignedCertifications, data.PPMShipment.ID, isPaymentPacket)
 	formattedShipments := s.FormatShipment(data.PPMShipment, data.WeightAllotment, isPaymentPacket)
 
