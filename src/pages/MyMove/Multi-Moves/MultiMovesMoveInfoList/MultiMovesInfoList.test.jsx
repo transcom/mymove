@@ -4,12 +4,14 @@ import '@testing-library/jest-dom/extend-expect';
 
 import MultiMovesMoveInfoList from './MultiMovesMoveInfoList';
 
+import { ORDERS_TYPE } from 'constants/orders';
+
 describe('MultiMovesMoveInfoList', () => {
   const mockMoveSeparation = {
     status: 'DRAFT',
     orders: {
       issue_date: '2022-01-01',
-      orders_type: 'SEPARATION',
+      orders_type: ORDERS_TYPE.SEPARATION,
       report_by_date: '2022-02-01',
       origin_duty_location: {
         name: 'Fort Bragg North Station',
@@ -42,7 +44,7 @@ describe('MultiMovesMoveInfoList', () => {
     status: 'DRAFT',
     orders: {
       issue_date: '2022-01-01',
-      orders_type: 'RETIREMENT',
+      orders_type: ORDERS_TYPE.RETIREMENT,
       report_by_date: '2022-02-01',
       origin_duty_location: {
         name: 'Fort Bragg North Station',
@@ -75,7 +77,7 @@ describe('MultiMovesMoveInfoList', () => {
     status: 'DRAFT',
     orders: {
       issue_date: '2022-01-01',
-      orders_type: 'PERMANENT_CHANGE_OF_DUTY_STATION',
+      orders_type: ORDERS_TYPE.PERMANENT_CHANGE_OF_STATION,
       report_by_date: '2022-02-01',
       origin_duty_location: {
         name: 'Fort Bragg North Station',

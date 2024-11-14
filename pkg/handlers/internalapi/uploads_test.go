@@ -12,10 +12,12 @@ package internalapi
 import (
 	"fmt"
 	"net/http"
+	"net/url"
 
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/go-openapi/strfmt"
 	"github.com/gofrs/uuid"
+	"golang.org/x/text/encoding/charmap"
 
 	"github.com/transcom/mymove/pkg/factory"
 	ppmop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/ppm"
@@ -38,6 +40,7 @@ const FixtureXLSX = "Weight Estimator.xlsx"
 const WeightEstimatorFullXLSX = "Weight Estimator Full.xlsx"
 const WeightEstimatorPrefix = "Weight Estimator Full"
 const FixtureEmpty = "empty.pdf"
+const FixtureScreenshot = "Screenshot 2024-10-10 at 10.46.48 AM.png"
 
 func createPrereqs(suite *HandlerSuite, fixtureFile string) (models.Document, uploadop.CreateUploadParams) {
 	document := factory.BuildDocument(suite.DB(), nil, nil)
@@ -160,7 +163,7 @@ func (suite *HandlerSuite) TestCreateUploadsHandlerSuccess() {
 		t.Fatalf("Couldn't find expected upload.")
 	}
 
-	expectedChecksum := "nOE6HwzyE4VEDXn67ULeeA=="
+	expectedChecksum := "w7rJQqzlaazDW+mxTU9Q40Qchr3DW7FPQD7f8Js2J88="
 	if upload.Checksum != expectedChecksum {
 		t.Errorf("Did not calculate the correct MD5: expected %s, got %s", expectedChecksum, upload.Checksum)
 	}
@@ -459,14 +462,15 @@ func (suite *HandlerSuite) TestCreatePPMUploadsHandlerSuccess() {
 		err := suite.DB().Find(&upload, createdResponse.Payload.ID)
 
 		suite.NoError(err)
-		suite.Equal("e14dC4vs5L1gOb6M8N0vow==", upload.Checksum)
+		suite.Equal("V/Q6K9rVdEPVzgKbh5cn2x4Oci4XDaG4fcG04R41Iz4=", upload.Checksum)
 
 		suite.NotEmpty(createdResponse.Payload.ID)
 		suite.Equal(FixtureXLS, createdResponse.Payload.Filename)
 		suite.Equal(uploader.FileTypeExcel, createdResponse.Payload.ContentType)
-		suite.Contains(createdResponse.Payload.URL, document.ServiceMember.UserID.String())
-		suite.Contains(createdResponse.Payload.URL, upload.ID.String())
-		suite.Contains(createdResponse.Payload.URL, uploader.FileTypeExcel)
+		suite.Contains(createdResponse.Payload.URL, url.QueryEscape(document.ServiceMember.UserID.String()))
+		suite.Contains(createdResponse.Payload.URL, url.QueryEscape(upload.ID.String()))
+		suite.Contains(createdResponse.Payload.URL, url.QueryEscape(uploader.FileTypeExcel))
+		suite.Contains(createdResponse.Payload.URL, url.QueryEscape("attachment; filename="+upload.Filename))
 	})
 
 	suite.Run("uploads .xlsx file", func() {
@@ -483,14 +487,15 @@ func (suite *HandlerSuite) TestCreatePPMUploadsHandlerSuccess() {
 		err := suite.DB().Find(&upload, createdResponse.Payload.ID)
 
 		suite.NoError(err)
-		suite.Equal("laUtcMk6foIO71eS2J/t2A==", upload.Checksum)
+		suite.Equal("eRZ1Cr3Ms0692k03ftoEdqXpvd/CHcbxmhEGEQBYVdY=", upload.Checksum)
 
 		suite.NotEmpty(createdResponse.Payload.ID)
 		suite.Equal(FixtureXLSX, createdResponse.Payload.Filename)
 		suite.Equal(uploader.FileTypeExcelXLSX, createdResponse.Payload.ContentType)
-		suite.Contains(createdResponse.Payload.URL, document.ServiceMember.UserID.String())
-		suite.Contains(createdResponse.Payload.URL, upload.ID.String())
-		suite.Contains(createdResponse.Payload.URL, uploader.FileTypeExcelXLSX)
+		suite.Contains(createdResponse.Payload.URL, url.QueryEscape(document.ServiceMember.UserID.String()))
+		suite.Contains(createdResponse.Payload.URL, url.QueryEscape(upload.ID.String()))
+		suite.Contains(createdResponse.Payload.URL, url.QueryEscape(uploader.FileTypeExcelXLSX))
+		suite.Contains(createdResponse.Payload.URL, url.QueryEscape("attachment; filename="+upload.Filename))
 	})
 
 	suite.Run("uploads weight estimator .xlsx file (full weight)", func() {
@@ -512,9 +517,10 @@ func (suite *HandlerSuite) TestCreatePPMUploadsHandlerSuccess() {
 		suite.NotEmpty(createdResponse.Payload.ID)
 		suite.Contains(createdResponse.Payload.Filename, WeightEstimatorPrefix)
 		suite.Equal(uploader.FileTypePDF, createdResponse.Payload.ContentType)
-		suite.Contains(createdResponse.Payload.URL, document.ServiceMember.UserID.String())
-		suite.Contains(createdResponse.Payload.URL, upload.ID.String())
-		suite.Contains(createdResponse.Payload.URL, uploader.FileTypePDF)
+		suite.Contains(createdResponse.Payload.URL, url.QueryEscape(document.ServiceMember.UserID.String()))
+		suite.Contains(createdResponse.Payload.URL, url.QueryEscape(upload.ID.String()))
+		suite.Contains(createdResponse.Payload.URL, url.QueryEscape(uploader.FileTypePDF))
+		suite.Contains(createdResponse.Payload.URL, url.QueryEscape("attachment; filename="+upload.Filename))
 	})
 
 	suite.Run("uploads file for a progear document", func() {
@@ -531,14 +537,15 @@ func (suite *HandlerSuite) TestCreatePPMUploadsHandlerSuccess() {
 		err := suite.DB().Find(&upload, createdResponse.Payload.ID)
 
 		suite.NoError(err)
-		suite.Equal("qEnueX0FLpoz4bTnliprog==", upload.Checksum)
+		suite.Equal("/io1MRhLi2BFk9eF+lH1Ax+hyH+bPhlEK7A9/bqWlPY=", upload.Checksum)
 
 		suite.NotEmpty(createdResponse.Payload.ID)
 		suite.Equal(FixturePNG, createdResponse.Payload.Filename)
 		suite.Equal(uploader.FileTypePNG, createdResponse.Payload.ContentType)
-		suite.Contains(createdResponse.Payload.URL, document.ServiceMember.UserID.String())
-		suite.Contains(createdResponse.Payload.URL, upload.ID.String())
-		suite.Contains(createdResponse.Payload.URL, uploader.FileTypePNG)
+		suite.Contains(createdResponse.Payload.URL, url.QueryEscape(document.ServiceMember.UserID.String()))
+		suite.Contains(createdResponse.Payload.URL, url.QueryEscape(upload.ID.String()))
+		suite.Contains(createdResponse.Payload.URL, url.QueryEscape(uploader.FileTypePNG))
+		suite.Contains(createdResponse.Payload.URL, url.QueryEscape("attachment; filename="+upload.Filename))
 	})
 
 	suite.Run("uploads file for an expense document", func() {
@@ -555,14 +562,48 @@ func (suite *HandlerSuite) TestCreatePPMUploadsHandlerSuccess() {
 		err := suite.DB().Find(&upload, createdResponse.Payload.ID)
 
 		suite.NoError(err)
-		suite.Equal("sedKa8jlK99FB1knFoxLsA==", upload.Checksum)
+		suite.Equal("ibKT78j4CJecDXC6CbGISkqWFG5eSjCjlZJHlaFRho4=", upload.Checksum)
 
 		suite.NotEmpty(createdResponse.Payload.ID)
 		suite.Equal(FixtureJPG, createdResponse.Payload.Filename)
 		suite.Equal(uploader.FileTypeJPEG, createdResponse.Payload.ContentType)
-		suite.Contains(createdResponse.Payload.URL, document.ServiceMember.UserID.String())
-		suite.Contains(createdResponse.Payload.URL, upload.ID.String())
-		suite.Contains(createdResponse.Payload.URL, uploader.FileTypeJPEG)
+		suite.Contains(createdResponse.Payload.URL, url.QueryEscape(document.ServiceMember.UserID.String()))
+		suite.Contains(createdResponse.Payload.URL, url.QueryEscape(upload.ID.String()))
+		suite.Contains(createdResponse.Payload.URL, url.QueryEscape(uploader.FileTypeJPEG))
+		suite.Contains(createdResponse.Payload.URL, url.QueryEscape("attachment; filename="+upload.Filename))
+	})
+
+	suite.Run("uploads file with filename characters not supported by ISO8859_1", func() {
+		fakeS3 := storageTest.NewFakeS3Storage(true)
+		document, params := createPPMExpensePrereqs(suite, FixtureScreenshot)
+
+		response := makePPMRequest(suite, params, document.ServiceMember, fakeS3)
+
+		suite.IsType(&ppmop.CreatePPMUploadCreated{}, response)
+
+		createdResponse, _ := response.(*ppmop.CreatePPMUploadCreated)
+
+		upload := models.Upload{}
+		err := suite.DB().Find(&upload, createdResponse.Payload.ID)
+
+		filenameBuffer := make([]byte, 0)
+		for _, r := range upload.Filename {
+			if encodedRune, ok := charmap.ISO8859_1.EncodeRune(r); ok {
+				filenameBuffer = append(filenameBuffer, encodedRune)
+			}
+		}
+
+		suite.NoError(err)
+		suite.Equal("/io1MRhLi2BFk9eF+lH1Ax+hyH+bPhlEK7A9/bqWlPY=", upload.Checksum)
+
+		suite.NotEmpty(createdResponse.Payload.ID)
+		suite.Equal(FixtureScreenshot, createdResponse.Payload.Filename)
+		suite.Equal(uploader.FileTypePNG, createdResponse.Payload.ContentType)
+		suite.Contains(createdResponse.Payload.URL, url.QueryEscape(document.ServiceMember.UserID.String()))
+		suite.Contains(createdResponse.Payload.URL, url.QueryEscape(upload.ID.String()))
+		suite.Contains(createdResponse.Payload.URL, url.QueryEscape(uploader.FileTypePNG))
+		suite.NotContains(createdResponse.Payload.URL, url.QueryEscape(upload.Filename))
+		suite.Contains(createdResponse.Payload.URL, url.QueryEscape("attachment; filename="+string(filenameBuffer)))
 	})
 }
 

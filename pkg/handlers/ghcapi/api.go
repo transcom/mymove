@@ -183,6 +183,11 @@ func NewGhcAPIHandler(handlerConfig handlers.HandlerConfig) *ghcops.MymoveAPI {
 		EvaluationReportUpdater: evaluationreport.NewEvaluationReportUpdater(),
 	}
 
+	ghcAPI.EvaluationReportsAddAppealToViolationHandler = AddAppealToViolationHandler{
+		HandlerConfig:             handlerConfig,
+		ReportViolationsAddAppeal: reportviolation.NewReportViolationsAddAppeal(),
+	}
+
 	ghcAPI.MtoServiceItemGetMTOServiceItemHandler = GetMTOServiceItemHandler{
 		HandlerConfig:         handlerConfig,
 		mtoServiceItemFetcher: mtoserviceitem.NewMTOServiceItemFetcher(),
