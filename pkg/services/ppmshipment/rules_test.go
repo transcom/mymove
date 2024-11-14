@@ -87,54 +87,107 @@ func (suite *PPMShipmentSuite) TestValidationRules() {
 		})
 	})
 
-	suite.Run("checkThatMTOShipmentHasTertiaryAddressWithNoSecondaryAddress No Secondary Pickup", func() {
-		secondaryDestinationAddress := factory.BuildAddress(suite.DB(), nil, nil)
+	suite.Run("checkPPMShipmentSequenceValidForUpdate add tertiary address without secondary Invalid", func() {
 		tertiaryDestinationAddress := factory.BuildAddress(suite.DB(), nil, nil)
-		tertiaryPickupAddress := factory.BuildAddress(suite.DB(), nil, nil)
 
-		shipmentWithPPM := factory.BuildMoveWithPPMShipment(suite.DB(), nil, nil)
-		ppmShipmentFromMove := shipmentWithPPM.MTOShipments[0].PPMShipment
-		ppmShipmentFromMove.SecondaryPickupAddress = nil
-		ppmShipmentFromMove.SecondaryDestinationAddress = &secondaryDestinationAddress
-		ppmShipmentFromMove.TertiaryPickupAddress = &tertiaryPickupAddress
-		ppmShipmentFromMove.TertiaryDestinationAddress = &tertiaryDestinationAddress
-		checker := checkIfPPMShipmentHasTertiaryAddressWithNoSecondaryAddress()
-		err := checker.Validate(suite.AppContextForTest(), *ppmShipmentFromMove, nil, &shipmentWithPPM.MTOShipments[0])
+		ppmShipmentToUpdateWith := models.PPMShipment{
+			TertiaryDestinationAddress: &tertiaryDestinationAddress,
+		}
+
+		olderPPMShipment := factory.BuildPPMShipment(suite.DB(), nil, nil)
+
+		checker := checkPPMShipmentSequenceValidForUpdate()
+		err := checker.Validate(suite.AppContextForTest(), ppmShipmentToUpdateWith, &olderPPMShipment, nil)
 		suite.Error(err)
 	})
 
-	suite.Run("checkThatMTOShipmentHasTertiaryAddressWithNoSecondaryAddress No Secondary Destination", func() {
+	suite.Run("checkPPMShipmentSequenceValidForUpdate add secondary address Valid", func() {
 		secondaryPickupAddress := factory.BuildAddress(suite.DB(), nil, nil)
-		TertiaryDestinationAddress := factory.BuildAddress(suite.DB(), nil, nil)
+
+		ppmShipmentToUpdateWith := models.PPMShipment{
+			SecondaryPickupAddress: &secondaryPickupAddress,
+		}
+
+		olderPPMShipment := factory.BuildPPMShipment(suite.DB(), nil, nil)
+
+		checker := checkPPMShipmentSequenceValidForUpdate()
+		err := checker.Validate(suite.AppContextForTest(), ppmShipmentToUpdateWith, &olderPPMShipment, nil)
+		suite.NoError(err)
+	})
+
+	suite.Run("checkPPMShipmentSequenceValidForUpdate remove secondary address Valid", func() {
+		secondaryPickupAddress := factory.BuildAddress(suite.DB(), nil, nil)
+
+		ppmShipmentToUpdateWith := models.PPMShipment{
+			SecondaryPickupAddress: &secondaryPickupAddress,
+		}
+
+		olderPPMShipment := factory.BuildPPMShipment(suite.DB(), nil, nil)
+
+		checker := checkPPMShipmentSequenceValidForUpdate()
+		err := checker.Validate(suite.AppContextForTest(), ppmShipmentToUpdateWith, &olderPPMShipment, nil)
+		suite.NoError(err)
+	})
+
+	suite.Run("checkPPMShipmentSequenceValidForUpdate Valid", func() {
 		tertiaryPickupAddress := factory.BuildAddress(suite.DB(), nil, nil)
 
-		shipmentWithPPM := factory.BuildMoveWithPPMShipment(suite.DB(), nil, nil)
-		ppmShipmentFromMove := shipmentWithPPM.MTOShipments[0].PPMShipment
-		ppmShipmentFromMove.SecondaryPickupAddress = &secondaryPickupAddress
-		ppmShipmentFromMove.TertiaryPickupAddress = &tertiaryPickupAddress
-		ppmShipmentFromMove.SecondaryDestinationAddress = nil
-		ppmShipmentFromMove.TertiaryDestinationAddress = &TertiaryDestinationAddress
+		ppmShipmentToUpdateWith := models.PPMShipment{
+			SecondaryPickupAddress: &tertiaryPickupAddress,
+		}
 
-		checker := checkIfPPMShipmentHasTertiaryAddressWithNoSecondaryAddress()
-		err := checker.Validate(suite.AppContextForTest(), *ppmShipmentFromMove, nil, &shipmentWithPPM.MTOShipments[0])
+		olderPPMShipment := factory.BuildPPMShipment(suite.DB(), nil, nil)
+
+		checker := checkPPMShipmentSequenceValidForUpdate()
+		err := checker.Validate(suite.AppContextForTest(), ppmShipmentToUpdateWith, &olderPPMShipment, nil)
+		suite.NoError(err)
+	})
+
+	suite.Run("checkPPMShipmentSequenceValidForCreate No Secondary Address With Tertiary Invalid", func() {
+		tertiaryPickupAddress := factory.BuildAddress(suite.DB(), nil, nil)
+
+		newPPMShipment := factory.BuildPPMShipment(suite.DB(), nil, nil)
+		newPPMShipment.TertiaryPickupAddress = &tertiaryPickupAddress
+
+		checker := checkPPMShipmentSequenceValidForCreate()
+		err := checker.Validate(suite.AppContextForTest(), newPPMShipment, nil, nil)
 		suite.Error(err)
 	})
 
-	suite.Run("checkThatMTOShipmentHasTertiaryAddressWithNoSecondaryAddress Valid", func() {
-		SecondaryDestinationAddress := factory.BuildAddress(suite.DB(), nil, nil)
+	suite.Run("checkPPMShipmentSequenceValidForCreate Primary Address Only Valid", func() {
+
+		newPPMShipment := factory.BuildPPMShipment(suite.DB(), nil, nil)
+
+		checker := checkPPMShipmentSequenceValidForCreate()
+		err := checker.Validate(suite.AppContextForTest(), newPPMShipment, nil, nil)
+		suite.NoError(err)
+	})
+
+	suite.Run("checkPPMShipmentSequenceValidForCreate with Secondary Address Only Valid", func() {
 		secondaryPickupAddress := factory.BuildAddress(suite.DB(), nil, nil)
+
+		newPPMShipment := factory.BuildPPMShipment(suite.DB(), nil, nil)
+		newPPMShipment.SecondaryPickupAddress = &secondaryPickupAddress
+
+		checker := checkPPMShipmentSequenceValidForCreate()
+		err := checker.Validate(suite.AppContextForTest(), newPPMShipment, nil, nil)
+		suite.NoError(err)
+	})
+
+	suite.Run("checkPPMShipmentSequenceValidForCreate AllFields Valid", func() {
+		secondaryPickupAddress := factory.BuildAddress(suite.DB(), nil, nil)
+		secondaryDestinationAddress := factory.BuildAddress(suite.DB(), nil, nil)
 		TertiaryDestinationAddress := factory.BuildAddress(suite.DB(), nil, nil)
 		tertiaryPickupAddress := factory.BuildAddress(suite.DB(), nil, nil)
 
-		shipmentWithPPM := factory.BuildMoveWithPPMShipment(suite.DB(), nil, nil)
-		ppmShipmentFromMove := shipmentWithPPM.MTOShipments[0].PPMShipment
-		ppmShipmentFromMove.SecondaryPickupAddress = &secondaryPickupAddress
-		ppmShipmentFromMove.SecondaryDestinationAddress = &SecondaryDestinationAddress
-		ppmShipmentFromMove.TertiaryPickupAddress = &tertiaryPickupAddress
-		ppmShipmentFromMove.TertiaryDestinationAddress = &TertiaryDestinationAddress
+		newPPMShipment := factory.BuildPPMShipment(suite.DB(), nil, nil)
+		newPPMShipment.SecondaryPickupAddress = &secondaryPickupAddress
+		newPPMShipment.TertiaryPickupAddress = &tertiaryPickupAddress
+		newPPMShipment.SecondaryDestinationAddress = &secondaryDestinationAddress
+		newPPMShipment.TertiaryDestinationAddress = &TertiaryDestinationAddress
 
-		checker := checkIfPPMShipmentHasTertiaryAddressWithNoSecondaryAddress()
-		err := checker.Validate(suite.AppContextForTest(), *ppmShipmentFromMove, nil, &shipmentWithPPM.MTOShipments[0])
+		checker := checkPPMShipmentSequenceValidForCreate()
+		err := checker.Validate(suite.AppContextForTest(), newPPMShipment, nil, nil)
 		suite.NoError(err)
 	})
 

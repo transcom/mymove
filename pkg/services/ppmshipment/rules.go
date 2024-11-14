@@ -54,14 +54,69 @@ func checkPPMShipmentID() ppmShipmentValidator {
 		return verrs
 	})
 }
-func isTertiaryAddressPresentWithoutSecondaryPPM(ppmShipmentToCheck models.PPMShipment) bool {
-	return (models.IsAddressEmpty(ppmShipmentToCheck.SecondaryPickupAddress) && !models.IsAddressEmpty(ppmShipmentToCheck.TertiaryPickupAddress)) || (models.IsAddressEmpty(ppmShipmentToCheck.SecondaryDestinationAddress) && !models.IsAddressEmpty(ppmShipmentToCheck.TertiaryDestinationAddress))
+
+// helper function to check if the secondary address is empty, but the tertiary is not
+func isPPMShipmentAddressCreateSequenceValid(ppmShipmentToCheck models.PPMShipment) bool {
+	bothPickupAddressesEmpty := (models.IsAddressEmpty(ppmShipmentToCheck.SecondaryPickupAddress) && models.IsAddressEmpty(ppmShipmentToCheck.TertiaryPickupAddress))
+	bothDestinationAddressesEmpty := (models.IsAddressEmpty(ppmShipmentToCheck.SecondaryDestinationAddress) && models.IsAddressEmpty(ppmShipmentToCheck.TertiaryDestinationAddress))
+	bothPickupAddressesNotEmpty := !bothPickupAddressesEmpty
+	bothDestinationAddressesNotEmpty := !bothDestinationAddressesEmpty
+	hasNoSecondaryHasTertiaryPickup := (models.IsAddressEmpty(ppmShipmentToCheck.SecondaryPickupAddress) && !models.IsAddressEmpty(ppmShipmentToCheck.TertiaryPickupAddress))
+	hasNoSecondaryHasTertiaryDestination := (models.IsAddressEmpty(ppmShipmentToCheck.SecondaryDestinationAddress) && !models.IsAddressEmpty(ppmShipmentToCheck.TertiaryDestinationAddress))
+
+	// need an explicit case to capture when both are empty or not empty
+	if (bothPickupAddressesEmpty && bothDestinationAddressesEmpty) || (bothPickupAddressesNotEmpty && bothDestinationAddressesNotEmpty) {
+		return true
+	}
+	if hasNoSecondaryHasTertiaryPickup || hasNoSecondaryHasTertiaryDestination {
+		return false
+	}
+	return true
 }
 
-func checkIfPPMShipmentHasTertiaryAddressWithNoSecondaryAddress() ppmShipmentValidator {
+/* Checks if a valid address sequence is being maintained. This will return false if the tertiary address is being updated while the secondary address remains empty
+*
+ */
+func isPPMAddressUpdateSequenceValid(shipmentToUpdateWith *models.PPMShipment, currentShipment *models.PPMShipment) bool {
+	// if the incoming model has both fields, then we know the model will be updated with both secondary and tertiary addresses. therefore return true
+	if !models.IsAddressEmpty(shipmentToUpdateWith.SecondaryPickupAddress) && !models.IsAddressEmpty(shipmentToUpdateWith.TertiaryPickupAddress) {
+		return true
+	}
+	if !models.IsAddressEmpty(shipmentToUpdateWith.SecondaryDestinationAddress) && !models.IsAddressEmpty(shipmentToUpdateWith.TertiaryDestinationAddress) {
+		return true
+	}
+	if currentShipment.SecondaryPickupAddress == nil && shipmentToUpdateWith.TertiaryPickupAddress != nil {
+		return !hasTertiaryWithNoSecondaryAddress(currentShipment.SecondaryPickupAddress, shipmentToUpdateWith.TertiaryPickupAddress)
+	}
+	if currentShipment.SecondaryDestinationAddress == nil && shipmentToUpdateWith.TertiaryDestinationAddress != nil {
+		return !hasTertiaryWithNoSecondaryAddress(currentShipment.SecondaryDestinationAddress, shipmentToUpdateWith.TertiaryDestinationAddress)
+	}
+	// no addresses are being updated, so correct address sequence is maintained, return true
+	return true
+}
+
+// helper function to check if the secondary address is empty, but the tertiary is not
+func hasTertiaryWithNoSecondaryAddress(secondaryAddress *models.Address, tertiaryAddress *models.Address) bool {
+	return (models.IsAddressEmpty(secondaryAddress) && !models.IsAddressEmpty(tertiaryAddress))
+}
+
+func checkPPMShipmentSequenceValidForCreate() ppmShipmentValidator {
 	return ppmShipmentValidatorFunc(func(appCtx appcontext.AppContext, newer models.PPMShipment, _ *models.PPMShipment, _ *models.MTOShipment) error {
 		verrs := validate.NewErrors()
-		if isTertiaryAddressPresentWithoutSecondaryPPM(newer) {
+		squenceIsValid := isPPMShipmentAddressCreateSequenceValid(newer)
+		if !squenceIsValid {
+			verrs.Add("error validating ppm shipment", "PPM Shipment cannot have a tertiary address without a secondary address present")
+			return verrs
+		}
+		return nil
+	})
+}
+
+func checkPPMShipmentSequenceValidForUpdate() ppmShipmentValidator {
+	return ppmShipmentValidatorFunc(func(appCtx appcontext.AppContext, newer models.PPMShipment, older *models.PPMShipment, _ *models.MTOShipment) error {
+		verrs := validate.NewErrors()
+		sequenceIsValid := isPPMAddressUpdateSequenceValid(&newer, older)
+		if !sequenceIsValid {
 			verrs.Add("error validating ppm shipment", "PPM Shipment cannot have a tertiary address without a secondary address present")
 			return verrs
 		}
