@@ -12,11 +12,13 @@ import (
 	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/testingsuite"
 )
 
 type TransportationOfficeServiceSuite struct {
 	*testingsuite.PopTestSuite
+	toFetcher services.TransportationOfficesFetcher
 }
 
 func TestTransportationOfficeServiceSuite(t *testing.T) {
@@ -638,4 +640,41 @@ func (suite *TransportationOfficeServiceSuite) Test_Oconus_AK_FindCounselingOffi
 		}
 	})
 
+}
+
+func (suite *TransportationOfficeServiceSuite) Test_GetTransportationOffice() {
+	suite.toFetcher = NewTransportationOfficesFetcher()
+	transportationOffice1 := factory.BuildTransportationOffice(suite.DB(), []factory.Customization{
+		{
+			Model: models.TransportationOffice{
+				Name:             "OFFICE ONE",
+				ProvidesCloseout: true,
+			},
+		},
+	}, nil)
+
+	transportationOffice2 := factory.BuildTransportationOffice(suite.DB(), []factory.Customization{
+		{
+			Model: models.TransportationOffice{
+				Name:             "OFFICE TWO",
+				ProvidesCloseout: false,
+			},
+		},
+	}, nil)
+
+	office1t, err1t := suite.toFetcher.GetTransportationOffice(suite.AppContextForTest(), transportationOffice1.ID, true)
+	office1f, err1f := suite.toFetcher.GetTransportationOffice(suite.AppContextForTest(), transportationOffice1.ID, false)
+
+	_, err2t := suite.toFetcher.GetTransportationOffice(suite.AppContextForTest(), transportationOffice2.ID, true)
+	office2f, err2f := suite.toFetcher.GetTransportationOffice(suite.AppContextForTest(), transportationOffice2.ID, false)
+
+	suite.NoError(err1t)
+	suite.NoError(err1f)
+	// Should return an error since no office matches the ID and provides closeout
+	suite.Error(err2t)
+	suite.NoError(err2f)
+
+	suite.Equal("OFFICE ONE", office1t.Name)
+	suite.Equal("OFFICE ONE", office1f.Name)
+	suite.Equal("OFFICE TWO", office2f.Name)
 }
