@@ -1430,6 +1430,17 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestActualExpenseReimbursemen
 	println(test.Name())           // ensures was generated with temp filesystem
 	suite.Equal(info.PageCount, 3) // ensures PDF is not corrupted
 
+	// Also test for AOA instead of payment packet
+	page1Data, page2Data, Page3Data, err = sswPPMComputer.FormatValuesShipmentSummaryWorksheet(ssd, false)
+	suite.NoError(err)
+	suite.Equal(expectedDisbursementString(20000, 0), page2Data.Disbursement)
+
+	// Usual test checks to ensure PDF was generated properly
+	test, info, err = ppmGenerator.FillSSWPDFForm(page1Data, page2Data, Page3Data)
+	suite.NoError(err)
+	println(test.Name())           // ensures was generated with temp filesystem
+	suite.Equal(info.PageCount, 3) // ensures PDF is not corrupted
+
 	/**
 		Test case 2: GTCC is less than GCC, and total member expenses (incl. SIT) exceed amount left over from GCC - GTCC
 
@@ -1451,6 +1462,15 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestActualExpenseReimbursemen
 	println(test.Name())
 	suite.Equal(info.PageCount, 3)
 
+	page1Data, page2Data, Page3Data, err = sswPPMComputer.FormatValuesShipmentSummaryWorksheet(ssd, false)
+	suite.NoError(err)
+	suite.Equal(expectedDisbursementString(11500, 8500), page2Data.Disbursement)
+
+	test, info, err = ppmGenerator.FillSSWPDFForm(page1Data, page2Data, Page3Data)
+	suite.NoError(err)
+	println(test.Name())
+	suite.Equal(info.PageCount, 3)
+
 	/**
 		Test case 3: GTCC is less than GCC, and total member expenses (incl. SIT) are lower than amount left over from GCC - GTCC
 
@@ -1464,6 +1484,15 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestActualExpenseReimbursemen
 	movingExpenses[GTCCSITExpenses].Amount = models.CentPointer(1500)
 
 	page1Data, page2Data, Page3Data, err = sswPPMComputer.FormatValuesShipmentSummaryWorksheet(ssd, true)
+	suite.NoError(err)
+	suite.Equal(expectedDisbursementString(11500, 3000), page2Data.Disbursement)
+
+	test, info, err = ppmGenerator.FillSSWPDFForm(page1Data, page2Data, Page3Data)
+	suite.NoError(err)
+	println(test.Name())
+	suite.Equal(info.PageCount, 3)
+
+	page1Data, page2Data, Page3Data, err = sswPPMComputer.FormatValuesShipmentSummaryWorksheet(ssd, false)
 	suite.NoError(err)
 	suite.Equal(expectedDisbursementString(11500, 3000), page2Data.Disbursement)
 
