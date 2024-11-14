@@ -18,6 +18,16 @@ import (
 )
 
 func (suite *ShipmentAddressUpdateServiceSuite) setupServiceItemData() {
+	startDate := time.Date(2020, time.January, 1, 12, 0, 0, 0, time.UTC)
+	endDate := time.Date(2020, time.December, 31, 12, 0, 0, 0, time.UTC)
+
+	testdatagen.FetchOrMakeReContractYear(suite.DB(), testdatagen.Assertions{
+		ReContractYear: models.ReContractYear{
+			StartDate: startDate,
+			EndDate:   endDate,
+		},
+	})
+
 	originalDomesticServiceArea := testdatagen.FetchOrMakeReDomesticServiceArea(suite.AppContextForTest().DB(), testdatagen.Assertions{
 		ReDomesticServiceArea: models.ReDomesticServiceArea{
 			ServiceArea:      "004",
@@ -38,17 +48,6 @@ func (suite *ShipmentAddressUpdateServiceSuite) setupServiceItemData() {
 			MilesUpper:            9999,
 			PriceMillicents:       unit.Millicents(606800),
 			IsPeakPeriod:          false,
-		},
-	})
-
-	testdatagen.FetchOrMakeReContractYear(suite.DB(), testdatagen.Assertions{
-		ReContractYear: models.ReContractYear{
-			Contract:             originalDomesticServiceArea.Contract,
-			ContractID:           originalDomesticServiceArea.ContractID,
-			StartDate:            time.Date(2019, time.June, 1, 0, 0, 0, 0, time.UTC),
-			EndDate:              time.Date(2030, time.May, 31, 0, 0, 0, 0, time.UTC),
-			Escalation:           1.0,
-			EscalationCompounded: 1.0,
 		},
 	})
 }
@@ -1030,6 +1029,11 @@ func (suite *ShipmentAddressUpdateServiceSuite) TestTOOApprovedShipmentAddressUp
 			State:          "CA",
 			PostalCode:     shipment.DestinationAddress.PostalCode,
 		}
+		mockPlanner.On("ZipTransitDistance",
+			mock.AnythingOfType("*appcontext.appContext"),
+			"90210",
+			"94535",
+		).Return(2500, nil).Once()
 		mockPlanner.On("ZipTransitDistance",
 			mock.AnythingOfType("*appcontext.appContext"),
 			"94535",
