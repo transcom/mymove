@@ -203,7 +203,6 @@ export const FEATURE_FLAG_KEYS = {
   BOAT: 'boat',
   MOBILE_HOME: 'mobile_home',
   UNACCOMPANIED_BAGGAGE: 'unaccompanied_baggage',
-  ENABLE_ALASKA: 'enable_alaska',
 };
 
 export const MOVE_DOCUMENT_TYPE = {
