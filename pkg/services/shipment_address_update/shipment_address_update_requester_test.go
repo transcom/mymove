@@ -40,6 +40,17 @@ func (suite *ShipmentAddressUpdateServiceSuite) setupServiceItemData() {
 			IsPeakPeriod:          false,
 		},
 	})
+
+	testdatagen.FetchOrMakeReContractYear(suite.DB(), testdatagen.Assertions{
+		ReContractYear: models.ReContractYear{
+			Contract:             originalDomesticServiceArea.Contract,
+			ContractID:           originalDomesticServiceArea.ContractID,
+			StartDate:            time.Date(2019, time.June, 1, 0, 0, 0, 0, time.UTC),
+			EndDate:              time.Date(2030, time.May, 31, 0, 0, 0, 0, time.UTC),
+			Escalation:           1.0,
+			EscalationCompounded: 1.0,
+		},
+	})
 }
 
 func (suite *ShipmentAddressUpdateServiceSuite) TestCreateApprovedShipmentAddressUpdate() {
