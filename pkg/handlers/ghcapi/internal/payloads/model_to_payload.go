@@ -2360,10 +2360,6 @@ func QueuePaymentRequests(paymentRequests *models.PaymentRequests, officeUsers [
 			gbloc = ghcmessages.GBLOC(*moveTaskOrder.ShipmentGBLOC[0].GBLOC)
 		}
 
-		if paymentRequest.MoveTaskOrder.CounselingOffice != nil {
-			queuePaymentRequests[i].CounselingOffice = &paymentRequest.MoveTaskOrder.CounselingOffice.Name
-		}
-
 		queuePaymentRequests[i] = &ghcmessages.QueuePaymentRequest{
 			ID:                   *handlers.FmtUUID(paymentRequest.ID),
 			MoveID:               *handlers.FmtUUID(moveTaskOrder.ID),
@@ -2381,6 +2377,10 @@ func QueuePaymentRequests(paymentRequests *models.PaymentRequests, officeUsers [
 
 		if paymentRequest.MoveTaskOrder.TIOAssignedUser != nil {
 			queuePaymentRequests[i].AssignedTo = AssignedOfficeUser(paymentRequest.MoveTaskOrder.TIOAssignedUser)
+		}
+
+		if paymentRequest.MoveTaskOrder.CounselingOffice != nil {
+			queuePaymentRequests[i].CounselingOffice = &paymentRequest.MoveTaskOrder.CounselingOffice.Name
 		}
 
 		isAssignable := false
