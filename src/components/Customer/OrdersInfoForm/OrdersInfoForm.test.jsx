@@ -2,11 +2,12 @@ import React from 'react';
 import { render, waitFor, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
+import { isBooleanFlagEnabled } from '../../../utils/featureFlags';
+
 import OrdersInfoForm from './OrdersInfoForm';
 
 import { showCounselingOffices } from 'services/internalApi';
 import { ORDERS_TYPE, ORDERS_TYPE_OPTIONS } from 'constants/orders';
-import { isBooleanFlagEnabled } from '../../../utils/featureFlags';
 
 jest.mock('services/internalApi', () => ({
   ...jest.requireActual('services/internalApi'),
