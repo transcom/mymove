@@ -2,6 +2,7 @@ import PropTypes from 'prop-types';
 
 import { AddressShape } from './address';
 import { BackupContactShape } from './backupContact';
+import { ExistingUploadsShape } from './uploads';
 
 import customerContactTypes from 'constants/customerContactTypes';
 import dimensionTypes from 'constants/dimensionTypes';
@@ -51,6 +52,7 @@ export const OrdersInfoShape = PropTypes.shape({
   ordersNumber: PropTypes.string,
   ordersType: PropTypes.string,
   ordersTypeDetail: PropTypes.string,
+  ordersDocuments: ExistingUploadsShape,
   tacMDC: PropTypes.string,
   sacSDN: PropTypes.string,
 });
