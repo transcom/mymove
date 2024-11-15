@@ -7,6 +7,7 @@ import { renderWithProviders } from 'testUtils';
 import { selectAllMoves, selectServiceMemberFromLoggedInUser } from 'store/entities/selectors';
 import { customerRoutes } from 'constants/routes';
 import { getAllMoves } from 'services/internalApi';
+import { ORDERS_TYPE } from 'constants/orders';
 
 // Mock the summary part of the review page since we're just testing the
 // navigation portion.
@@ -85,7 +86,7 @@ describe('Review page', () => {
             transportation_office_id: '7f5b64b8-979c-4cbd-890b-bffd6fdf56d9',
             updated_at: '2024-02-27T18:22:12.471Z',
           },
-          orders_type: 'PERMANENT_CHANGE_OF_STATION',
+          orders_type: ORDERS_TYPE.PERMANENT_CHANGE_OF_STATION,
           originDutyLocationGbloc: 'HAFC',
           origin_duty_location: {
             address: {
@@ -213,7 +214,7 @@ describe('Review page', () => {
             name: 'Flagstaff, AZ 86003',
             updated_at: '2024-02-27T18:22:12.471Z',
           },
-          orders_type: 'PERMANENT_CHANGE_OF_STATION',
+          orders_type: ORDERS_TYPE.PERMANENT_CHANGE_OF_STATION,
           originDutyLocationGbloc: 'BGAC',
           origin_duty_location: {
             address: {
@@ -325,7 +326,7 @@ describe('Review page', () => {
             transportation_office_id: '7f5b64b8-979c-4cbd-890b-bffd6fdf56d9',
             updated_at: '2024-02-27T18:22:12.471Z',
           },
-          orders_type: 'PERMANENT_CHANGE_OF_STATION',
+          orders_type: ORDERS_TYPE.PERMANENT_CHANGE_OF_STATION,
           originDutyLocationGbloc: 'HAFC',
           origin_duty_location: {
             address: {

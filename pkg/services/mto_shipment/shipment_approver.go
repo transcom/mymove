@@ -114,7 +114,7 @@ func (f *shipmentApprover) findShipment(appCtx appcontext.AppContext, shipmentID
 	// cannot eager load the address as "StorageFacility.Address" because
 	// StorageFacility is a pointer.
 	if shipment.StorageFacility != nil {
-		err = appCtx.DB().Load(shipment.StorageFacility, "Address")
+		err = appCtx.DB().Load(shipment.StorageFacility, "Address", "Address.Country")
 	}
 
 	if err != nil {

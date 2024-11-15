@@ -79,7 +79,7 @@ properties:
     x-nullable: true
     x-omitempty: false
   destinationAddress:
-    $ref: '../../Address.yaml'
+    $ref: '../../PPMDestinationAddress.yaml'
   secondaryDestinationAddress:
     $ref: '../../Address.yaml'
   hasSecondaryDestinationAddress:
@@ -191,6 +191,12 @@ properties:
     format: cents
     x-nullable: true
     x-omitempty: false
+  isActualExpenseReimbursement:
+    description: Used for PPM shipments only. Denotes if this shipment uses the Actual Expense Reimbursement method.
+    type: boolean
+    example: false
+    x-omitempty: false
+    x-nullable: true
   eTag:
     description: A hash unique to this shipment that should be used as the "If-Match" header for any updates.
     type: string
