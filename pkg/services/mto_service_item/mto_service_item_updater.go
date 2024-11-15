@@ -506,7 +506,7 @@ func (p *mtoServiceItemUpdater) UpdateMTOServiceItemPricingEstimate(
 	eTag string,
 ) (*models.MTOServiceItem, error) {
 	estimatedPrice, err := p.findEstimatedPrice(appCtx, mtoServiceItem, shipment)
-	if estimatedPrice != 0 && err != nil {
+	if estimatedPrice != 0 && err == nil {
 		mtoServiceItem.PricingEstimate = &estimatedPrice
 		return p.UpdateMTOServiceItem(appCtx, mtoServiceItem, eTag, UpdateMTOServiceItemBasicValidator)
 	}

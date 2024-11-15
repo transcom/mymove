@@ -2357,12 +2357,21 @@ func (suite *MTOServiceItemServiceSuite) setupServiceItemData() {
 		},
 	})
 
-	originalDomesticServiceArea := testdatagen.FetchOrMakeReDomesticServiceArea(suite.AppContextForTest().DB(), testdatagen.Assertions{
+	originalDomesticServiceArea := testdatagen.FetchOrMakeReDomesticServiceArea(suite.DB(), testdatagen.Assertions{
 		ReDomesticServiceArea: models.ReDomesticServiceArea{
 			ServiceArea:      "004",
 			ServicesSchedule: 2,
 		},
-		ReContract: testdatagen.FetchOrMakeReContract(suite.AppContextForTest().DB(), testdatagen.Assertions{}),
+		ReContract: testdatagen.FetchOrMakeReContract(suite.DB(), testdatagen.Assertions{}),
+	})
+
+	testdatagen.FetchOrMakeReZip3(suite.DB(), testdatagen.Assertions{
+		ReZip3: models.ReZip3{
+			Contract:            originalDomesticServiceArea.Contract,
+			ContractID:          originalDomesticServiceArea.ContractID,
+			DomesticServiceArea: originalDomesticServiceArea,
+			Zip3:                "902",
+		},
 	})
 
 	testdatagen.FetchOrMakeReDomesticLinehaulPrice(suite.DB(), testdatagen.Assertions{
@@ -2373,7 +2382,7 @@ func (suite *MTOServiceItemServiceSuite) setupServiceItemData() {
 			DomesticServiceAreaID: originalDomesticServiceArea.ID,
 			WeightLower:           unit.Pound(500),
 			WeightUpper:           unit.Pound(9999),
-			MilesLower:            500,
+			MilesLower:            250,
 			MilesUpper:            9999,
 			PriceMillicents:       unit.Millicents(606800),
 			IsPeakPeriod:          false,
@@ -2382,7 +2391,6 @@ func (suite *MTOServiceItemServiceSuite) setupServiceItemData() {
 }
 
 func (suite *MTOServiceItemServiceSuite) TestUpdateMTOServiceItemPricingEstimate() {
-	suite.setupServiceItemData()
 	builder := query.NewQueryBuilder()
 	moveRouter := moverouter.NewMoveRouter()
 	shipmentFetcher := mtoshipment.NewMTOShipmentFetcher()
@@ -2401,35 +2409,13 @@ func (suite *MTOServiceItemServiceSuite) TestUpdateMTOServiceItemPricingEstimate
 		return serviceItem, eTag
 	}
 
-	now := time.Now()
-	year, month, day := now.Add(time.Hour * 24 * -30).Date()
-	aMonthAgo := time.Date(year, month, day, 0, 0, 0, 0, time.UTC)
-	move := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
-	shipmentSITAllowance := int(90)
-	estimatedWeight := unit.Pound(1400)
-
-	shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
-		{
-			Model: models.MTOShipment{
-				Status:               models.MTOShipmentStatusApproved,
-				SITDaysAllowance:     &shipmentSITAllowance,
-				PrimeEstimatedWeight: &estimatedWeight,
-				RequiredDeliveryDate: &aMonthAgo,
-				UpdatedAt:            aMonthAgo,
-			},
-		},
-		{
-			Model:    move,
-			LinkOnly: true,
-		},
-	}, nil)
-
 	suite.Run("Validation Error", func() {
+		suite.setupServiceItemData()
 		serviceItem, eTag := setupServiceItem()
 		invalidServiceItem := serviceItem
 		invalidServiceItem.MoveTaskOrderID = serviceItem.ID // invalid Move ID
 
-		updatedServiceItem, err := updater.UpdateMTOServiceItemPricingEstimate(suite.AppContextForTest(), &invalidServiceItem, shipment, eTag)
+		updatedServiceItem, err := updater.UpdateMTOServiceItemPricingEstimate(suite.AppContextForTest(), &invalidServiceItem, serviceItem.MTOShipment, eTag)
 
 		suite.Nil(updatedServiceItem)
 		suite.Error(err)
@@ -2441,9 +2427,10 @@ func (suite *MTOServiceItemServiceSuite) TestUpdateMTOServiceItemPricingEstimate
 	})
 
 	suite.Run("Returns updated service item on success", func() {
+		suite.setupServiceItemData()
 		serviceItem, eTag := setupServiceItem()
 
-		updatedServiceItem, err := updater.UpdateMTOServiceItemPricingEstimate(suite.AppContextForTest(), &serviceItem, shipment, eTag)
+		updatedServiceItem, err := updater.UpdateMTOServiceItemPricingEstimate(suite.AppContextForTest(), &serviceItem, serviceItem.MTOShipment, eTag)
 
 		suite.NotNil(updatedServiceItem)
 		suite.Nil(err)
