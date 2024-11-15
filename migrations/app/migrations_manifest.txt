@@ -1028,5 +1028,6 @@
 20241024114748_create_gbloc_aors.up.sql
 20241029125015_add_orders_type_enum.up.sql
 20241029144404_hdt-614-adjust-accomack-county.up.sql
+20241109002854_add_gsr_table_to_move_history.up.sql
 20241111223224_change_international_sit_services_to_accessorials.up.sql
 20241114125825_update_incorrect_addresses.up.sql
