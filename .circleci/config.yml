@@ -879,6 +879,7 @@ commands:
             export FEATURE_FLAG_QUEUE_MANAGEMENT=false
             export FEATURE_FLAG_ENABLE_ALASKA=false
             export FEATURE_FLAG_UNACCOMPANIED_BAGGAGE=false
+            export FEATURE_FLAG_ENABLE_HAWAII=false
 
             # disable for speed, playwright tests can fail otherwise
             export DB_DEBUG=false

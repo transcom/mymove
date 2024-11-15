@@ -164,6 +164,24 @@ const mockMtoShipment = {
   ],
 };
 
+const mockUBShipment = {
+  id: 'shipment123',
+  moveTaskOrderId: 'mock move id',
+  customerRemarks: 'mock customer remarks',
+  counselorRemarks: 'mock counselor remarks',
+  requestedPickupDate: '2020-03-01',
+  requestedDeliveryDate: '2020-03-30',
+  hasSecondaryDeliveryAddress: false,
+  hasSecondaryPickupAddress: false,
+  pickupAddress: {
+    streetAddress1: '812 S 129th St',
+    city: 'San Antonio',
+    state: 'TX',
+    postalCode: '78234',
+  },
+  shipmentType: SHIPMENT_OPTIONS.UNACCOMPANIED_BAGGAGE,
+};
+
 const defaultProps = {
   isCreatePage: true,
   submitHandler: jest.fn(),
@@ -191,6 +209,7 @@ const defaultProps = {
   serviceMember: {
     weightAllotment: {
       totalWeightSelf: 5000,
+      ubAllowance: 400,
     },
     agency: '',
   },
@@ -575,6 +594,40 @@ describe('ShipmentForm component', () => {
       });
       expect(screen.getByText('We can use the zip of their new duty location:')).toBeTruthy();
       expect(screen.queryByLabelText('Destination type')).toBeNull();
+    });
+  });
+
+  describe('weight allowance appears at the top of the page', () => {
+    it('renders the UB weight allowance for UB shipment form', async () => {
+      renderWithRouter(
+        <ShipmentForm
+          {...defaultProps}
+          isCreatePage={false}
+          shipmentType={SHIPMENT_OPTIONS.UNACCOMPANIED_BAGGAGE}
+          displayDestinationType={false}
+          mtoShipment={{
+            ...mockUBShipment,
+          }}
+        />,
+      );
+
+      expect(screen.getByTestId('ubWeightAllowance')).toBeInTheDocument();
+    });
+
+    it('renders the weight allowance for shipment form', async () => {
+      renderWithRouter(
+        <ShipmentForm
+          {...defaultProps}
+          isCreatePage={false}
+          shipmentType={SHIPMENT_OPTIONS.HHG}
+          displayDestinationType={false}
+          mtoShipment={{
+            ...mockMtoShipment,
+          }}
+        />,
+      );
+
+      expect(screen.getByTestId('weightAllowance')).toBeInTheDocument();
     });
   });
 
