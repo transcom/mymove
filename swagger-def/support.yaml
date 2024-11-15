@@ -866,6 +866,11 @@ definitions:
         type: integer
         x-formatting: weight
         x-nullable: true
+      unaccompaniedBaggageAllowance:
+        type: integer
+        example: 3
+        x-nullable: true
+        description: The amount of weight in pounds that the move is entitled for shipment types of Unaccompanied Baggage.
       dependentsAuthorized:
         example: true
         type: boolean

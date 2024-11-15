@@ -5107,7 +5107,7 @@ definitions:
           Indicates if the move entitlement allows dependents to travel to the
           new Permanent Duty Station (PDS). This is only present on OCONUS
           moves.
-      ubAllowance:
+      unaccompaniedBaggageAllowance:
         type: integer
         example: 3
         x-nullable: true
@@ -5973,6 +5973,10 @@ definitions:
         description: >-
           Indicates the number of dependents of the age twelve or older for a
           move. This is only present on OCONUS moves.
+      ubAllowance:
+        example: 500
+        type: integer
+        x-nullable: true
   UpdateBillableWeightPayload:
     type: object
     properties:
@@ -6072,6 +6076,10 @@ definitions:
         description: >-
           Indicates the number of dependents of the age twelve or older for a
           move. This is only present on OCONUS moves.
+      ubAllowance:
+        example: 500
+        type: integer
+        x-nullable: true
   MoveTaskOrder:
     description: The Move (MoveTaskOrder)
     properties:
