@@ -99,6 +99,7 @@ COPY public /build/public
 COPY src /build/src
 RUN set -x \
   && ./scripts/copy-swagger-ui \
+  && ./scripts/copy-react-file-viewer \
   && yarn build
 
 #########
