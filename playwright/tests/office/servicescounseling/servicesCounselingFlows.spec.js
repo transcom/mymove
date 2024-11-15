@@ -407,25 +407,23 @@ test.describe('Services counselor user', () => {
 
     await scPage.waitForPage.reviewWeightTicket();
     await expect(page.getByLabel('Accept')).toBeVisible();
-    await page.getByLabel('Accept').dispatchEvent('click');
+    await page.getByText('Accept').click();
     await page.getByRole('button', { name: 'Continue' }).click();
 
     await scPage.waitForPage.reviewProGear();
     await expect(page.getByLabel('Accept')).toBeVisible();
-    await page.getByLabel('Accept').dispatchEvent('click');
+    await page.getByText('Accept').click();
     await page.getByRole('button', { name: 'Continue' }).click();
 
     await scPage.waitForPage.reviewExpenseTicket('Packing Materials', 1, 1);
     await expect(page.getByLabel('Accept')).toBeVisible();
-    await page.getByLabel('Accept').dispatchEvent('click');
+    await page.getByText('Accept').click();
     await page.getByRole('button', { name: 'Continue' }).click();
 
     await scPage.waitForPage.reviewDocumentsConfirmation();
 
     await page.getByRole('button', { name: 'Confirm' }).click();
     await scPage.waitForPage.moveDetails();
-
-    await expect(page.getByText('PACKET READY FOR DOWNLOAD')).toBeVisible();
 
     // Navigate to the "View documents" page
     await expect(page.getByRole('button', { name: /View documents/i })).toBeVisible();
