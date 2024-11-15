@@ -10,6 +10,7 @@ import (
 	"github.com/transcom/mymove/pkg/gen/ghcmessages"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/models/roles"
 	"github.com/transcom/mymove/pkg/storage/test"
 )
 
@@ -24,6 +25,85 @@ func TestMove(t *testing.T) {
 	if err != nil {
 		t.Fail()
 	}
+}
+
+func (suite *PayloadsSuite) TestPaymentRequestQueue() {
+	officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
+
+	gbloc := "LKNQ"
+
+	approvedMove := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
+	approvedMove.ShipmentGBLOC = append(approvedMove.ShipmentGBLOC, models.MoveToGBLOC{GBLOC: &gbloc})
+
+	pr2 := factory.BuildPaymentRequest(suite.DB(), []factory.Customization{
+		{
+			Model:    approvedMove,
+			LinkOnly: true,
+		},
+		{
+			Model: models.TransportationOffice{
+				Gbloc: "LKNQ",
+			},
+			Type: &factory.TransportationOffices.OriginDutyLocation,
+		},
+		{
+			Model: models.DutyLocation{
+				Name: "KJKJKJKJKJK",
+			},
+			Type: &factory.DutyLocations.OriginDutyLocation,
+		},
+	}, nil)
+
+	paymentRequests := models.PaymentRequests{pr2}
+	transportationOffice := factory.BuildTransportationOffice(suite.DB(), nil, nil)
+	paymentRequests[0].MoveTaskOrder.TIOAssignedUser = &officeUser
+	paymentRequests[0].MoveTaskOrder.CounselingOffice = &transportationOffice
+
+	var officeUsers models.OfficeUsers
+	officeUsers = append(officeUsers, officeUser)
+
+	suite.Run("Test Counseling Offices and TIO AssignedUser ", func() {
+		result := QueuePaymentRequests(&paymentRequests, officeUsers, officeUser, true, false)
+		suite.NotNil(result)
+	})
+}
+
+func (suite *PayloadsSuite) TestPaymentRequestQueueAvailableOfficeUsers() {
+	officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
+
+	gbloc := "LKNQ"
+
+	approvedMove := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
+	approvedMove.ShipmentGBLOC = append(approvedMove.ShipmentGBLOC, models.MoveToGBLOC{GBLOC: &gbloc})
+
+	pr2 := factory.BuildPaymentRequest(suite.DB(), []factory.Customization{
+		{
+			Model:    approvedMove,
+			LinkOnly: true,
+		},
+		{
+			Model: models.TransportationOffice{
+				Gbloc: "LKNQ",
+			},
+			Type: &factory.TransportationOffices.OriginDutyLocation,
+		},
+		{
+			Model: models.DutyLocation{
+				Name: "KJKJKJKJKJK",
+			},
+			Type: &factory.DutyLocations.OriginDutyLocation,
+		},
+	}, nil)
+
+	paymentRequests := models.PaymentRequests{pr2}
+
+	var officeUsers models.OfficeUsers
+	officeUsers = append(officeUsers, officeUser)
+
+	suite.Run("attach available office users if move is assignable", func() {
+		result := QueuePaymentRequests(&paymentRequests, officeUsers, officeUser, false, false)
+		suite.NotNil(result)
+	})
 }
 
 func (suite *PayloadsSuite) TestFetchPPMShipment() {

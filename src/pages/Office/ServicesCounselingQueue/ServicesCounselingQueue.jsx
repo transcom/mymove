@@ -255,7 +255,7 @@ export const closeoutColumns = (moveLockFlag, ppmCloseoutGBLOC, ppmCloseoutOrigi
       );
     },
     {
-      id: 'lastName',
+      id: 'customerName',
       isFilterable: true,
       exportValue: (row) => {
         return `${row.customer.last_name}, ${row.customer.first_name}`;
