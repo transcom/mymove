@@ -1,6 +1,7 @@
 /* eslint-disable react/jsx-props-no-spreading */
 import React from 'react';
 import { screen } from '@testing-library/react';
+import { Provider } from 'react-redux';
 
 import { CreateOrEditMtoShipment } from './CreateOrEditMtoShipment';
 
@@ -9,6 +10,7 @@ import { SHIPMENT_OPTIONS } from 'shared/constants';
 import { renderWithRouterProp } from 'testUtils';
 import { selectCurrentMoveFromAllMoves, selectCurrentShipmentFromMove } from 'store/entities/selectors';
 import { ORDERS_TYPE } from 'constants/orders';
+import { configureStore } from 'shared/store';
 
 const mockParams = { moveId: 'move123', mtoShipmentId: 'shipment123' };
 const mockPath = customerRoutes.SHIPMENT_EDIT_PATH;
@@ -269,8 +271,15 @@ const mockPPMShipment = {
   shipmentType: 'PPM',
 };
 
+const mockStore = configureStore({});
+
 const renderComponent = (props, options) =>
-  renderWithRouterProp(<CreateOrEditMtoShipment {...defaultProps} {...props} />, options);
+  renderWithRouterProp(
+    <Provider store={mockStore.store}>
+      <CreateOrEditMtoShipment {...defaultProps} {...props} />
+    </Provider>,
+    options,
+  );
 
 describe('CreateOrEditMtoShipment component', () => {
   selectCurrentMoveFromAllMoves.mockImplementation(() => testMove);

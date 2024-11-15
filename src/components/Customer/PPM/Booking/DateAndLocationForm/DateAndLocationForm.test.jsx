@@ -55,7 +55,7 @@ describe('DateAndLocationForm component', () => {
         </Provider>,
       );
       expect(screen.getByRole('heading', { level: 2, name: 'Origin' })).toBeInTheDocument();
-      const postalCodes = screen.getAllByLabelText(/ZIP/);
+      const postalCodes = screen.getAllByTestId('ZIP');
       const address1 = screen.getAllByLabelText(/Address 1/);
       const address2 = screen.getAllByLabelText('Address 2', { exact: false });
       const address3 = screen.getAllByLabelText('Address 3', { exact: false });
@@ -67,7 +67,7 @@ describe('DateAndLocationForm component', () => {
       expect(address3[0]).toBeInstanceOf(HTMLInputElement);
       expect(state[0]).toBeInstanceOf(HTMLLabelElement);
       expect(city[0]).toBeInstanceOf(HTMLLabelElement);
-      expect(postalCodes[0]).toBeInstanceOf(HTMLInputElement);
+      expect(postalCodes[0]).toBeInstanceOf(HTMLLabelElement);
       expect(screen.getAllByLabelText('Yes')[0]).toBeInstanceOf(HTMLInputElement);
       expect(screen.getAllByLabelText('No')[0]).toBeInstanceOf(HTMLInputElement);
       expect(screen.getByRole('heading', { level: 2, name: 'Destination' })).toBeInTheDocument();
@@ -76,7 +76,7 @@ describe('DateAndLocationForm component', () => {
       expect(address3[1]).toBeInstanceOf(HTMLInputElement);
       expect(state[1]).toBeInstanceOf(HTMLLabelElement);
       expect(city[1]).toBeInstanceOf(HTMLLabelElement);
-      expect(postalCodes[1]).toBeInstanceOf(HTMLInputElement);
+      expect(postalCodes[1]).toBeInstanceOf(HTMLLabelElement);
       expect(screen.getAllByLabelText('Yes')[1]).toBeInstanceOf(HTMLInputElement);
       expect(screen.getAllByLabelText('No')[1]).toBeInstanceOf(HTMLInputElement);
       expect(screen.getByRole('heading', { level: 2, name: 'Closeout Office' })).toBeInTheDocument();
@@ -290,9 +290,6 @@ describe('validates form fields and displays error messages', () => {
           <DateAndLocationForm {...invalidTypes} />
         </Provider>,
       );
-      await userEvent.type(document.querySelector('input[name="pickupAddress.address.postalCode"]'), '1000');
-
-      await userEvent.type(document.querySelector('input[name="destinationAddress.address.postalCode"]'), '1000');
 
       await userEvent.type(screen.getByLabelText(/When do you plan to start moving your PPM?/), '1 January 2022');
       await userEvent.click(screen.getByRole('button', { name: 'Save & Continue' }));
@@ -301,12 +298,12 @@ describe('validates form fields and displays error messages', () => {
         expect(screen.getByRole('button', { name: 'Save & Continue' })).toBeDisabled();
 
         const requiredAlerts = screen.getAllByRole('alert');
-        expect(requiredAlerts.length).toBe(3);
+        expect(requiredAlerts.length).toBe(1);
 
         // Departure date
-        expect(requiredAlerts[2]).toHaveTextContent('Enter a complete date in DD MMM YYYY format (day, month, year).');
+        expect(requiredAlerts[0]).toHaveTextContent('Enter a complete date in DD MMM YYYY format (day, month, year).');
         expect(
-          within(requiredAlerts[2].nextElementSibling).getByLabelText(/When do you plan to start moving your PPM?/),
+          within(requiredAlerts[0].nextElementSibling).getByLabelText(/When do you plan to start moving your PPM?/),
         ).toBeInTheDocument();
       });
     });
