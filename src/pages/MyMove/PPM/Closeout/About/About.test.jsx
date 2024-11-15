@@ -157,14 +157,14 @@ const fillOutBasicForm = async (form) => {
     .focus();
   await userEvent.paste('Some Person');
 
-  within(form).getAllByLabelText(/City/)[0].focus();
-  await userEvent.paste('San Antonio');
+  // within(form).getAllByLabelText(/City/)[0].focus();
+  // await userEvent.paste('San Antonio');
 
-  within(form).getAllByLabelText(/State/)[0].focus();
-  await userEvent.selectOptions(within(form).getAllByLabelText(/State/)[0], 'TX');
+  // within(form).getAllByLabelText(/State/)[0].focus();
+  // await userEvent.selectOptions(within(form).getAllByLabelText(/State/)[0], 'TX');
 
-  within(form).getAllByLabelText(/ZIP/)[0].focus();
-  await userEvent.paste('78234');
+  // within(form).getAllByLabelText(/ZIP/)[0].focus();
+  // await userEvent.paste('78234');
 
   within(form)
     .getAllByLabelText(/Address 1/)[1]
@@ -181,28 +181,28 @@ const fillOutBasicForm = async (form) => {
     .focus();
   await userEvent.paste('Some Person');
 
-  within(form).getAllByLabelText(/City/)[1].focus();
-  await userEvent.paste('Tacoma');
+  // within(form).getAllByLabelText(/City/)[1].focus();
+  // await userEvent.paste('Tacoma');
 
-  within(form).getAllByLabelText(/State/)[1].focus();
-  await userEvent.selectOptions(within(form).getAllByLabelText(/State/)[1], 'WA');
+  // within(form).getAllByLabelText(/State/)[1].focus();
+  // await userEvent.selectOptions(within(form).getAllByLabelText(/State/)[1], 'WA');
 
-  within(form).getAllByLabelText(/ZIP/)[1].focus();
-  await userEvent.paste('98421');
+  // within(form).getAllByLabelText(/ZIP/)[1].focus();
+  // await userEvent.paste('98421');
 
   within(form)
     .getAllByLabelText(/Address 1/)[2]
     .focus();
   await userEvent.paste('11 NE Elm Road');
 
-  within(form).getAllByLabelText(/City/)[2].focus();
-  await userEvent.paste('Jacksonville');
+  // within(form).getAllByLabelText(/City/)[2].focus();
+  // await userEvent.paste('Jacksonville');
 
-  within(form).getAllByLabelText(/State/)[2].focus();
-  await userEvent.selectOptions(within(form).getAllByLabelText(/State/)[2], 'FL');
+  // within(form).getAllByLabelText(/State/)[2].focus();
+  // await userEvent.selectOptions(within(form).getAllByLabelText(/State/)[2], 'FL');
 
-  within(form).getAllByLabelText(/ZIP/)[2].focus();
-  await userEvent.paste('32217');
+  // within(form).getAllByLabelText(/ZIP/)[2].focus();
+  // await userEvent.paste('32217');
 };
 
 const fillOutAdvanceSections = async (form) => {

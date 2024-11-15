@@ -160,7 +160,6 @@ export const AddressFields = ({
                 placeholder="Start typing a Zip or City, State Zip"
                 label="Location Lookup"
                 handleLocationChange={handleOnLocationChange}
-                valueName={name}
               />
               <Hint className={styles.hint} id="locationInfo" data-testid="locationInfo">
                 {infoStr}

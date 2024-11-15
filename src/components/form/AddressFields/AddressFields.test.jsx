@@ -8,8 +8,6 @@ import { AddressFields } from './AddressFields';
 
 import { configureStore } from 'shared/store';
 
-const handleZipCityChange = {};
-
 describe('AddressFields component', () => {
   it('renders a legend and all address inputs', () => {
     const { getByText, getByLabelText } = render(
@@ -140,18 +138,20 @@ describe('AddressFields component', () => {
       };
       const mockStore = configureStore({});
 
-      const { getByLabelText } = render(
+      const { getByLabelText, getByTestId } = render(
         <Provider store={mockStore.store}>
           <Formik initialValues={initialValues}>
-            <AddressFields legend="Address Form" name="address" handleZipCityChange={handleZipCityChange} />
+            {({ ...formikProps }) => {
+              return <AddressFields legend="Address Form" name="address" locationLookup formikProps={formikProps} />;
+            }}
           </Formik>
         </Provider>,
       );
       expect(getByLabelText('Address 1')).toHaveValue(initialValues.address.streetAddress1);
       expect(getByLabelText(/Address 2/)).toHaveValue(initialValues.address.streetAddress2);
-      expect(getByLabelText('City')).toHaveValue(initialValues.address.city);
-      expect(getByLabelText('State')).toHaveValue(initialValues.address.state);
-      expect(getByLabelText('ZIP')).toHaveValue(initialValues.address.postalCode);
+      expect(getByTestId('City')).toHaveTextContent(initialValues.address.city);
+      expect(getByTestId('State')).toHaveTextContent(initialValues.address.state);
+      expect(getByTestId('ZIP')).toHaveTextContent(initialValues.address.postalCode);
     });
   });
 });

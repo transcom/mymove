@@ -67,80 +67,6 @@ const shipmentProps = {
 
 const mockStore = configureStore({});
 
-const fillOutBasicForm = async () => {
-  let form;
-  await waitFor(() => {
-    form = screen.getByTestId('aboutForm');
-  });
-
-  within(form).getByLabelText('When did you leave your origin?').focus();
-  await userEvent.paste('2022-05-31');
-
-  within(form)
-    .getAllByLabelText(/Address 1/)[0]
-    .focus();
-  await userEvent.paste('812 S 129th St');
-
-  within(form)
-    .getAllByLabelText(/Address 2/)[0]
-    .focus();
-  await userEvent.paste('#123');
-
-  within(form)
-    .getAllByLabelText(/Address 3/)[0]
-    .focus();
-  await userEvent.paste('');
-
-  within(form).getAllByLabelText(/City/)[0].focus();
-  await userEvent.paste('San Antonio');
-
-  await userEvent.selectOptions(within(form).getAllByLabelText(/State/)[0], 'TX');
-
-  within(form).getAllByLabelText(/ZIP/)[0].focus();
-  await userEvent.paste('78234');
-
-  within(form)
-    .getAllByLabelText(/Address 1/)[1]
-    .focus();
-  await userEvent.paste('441 SW Rio de la Plata Drive');
-
-  within(form)
-    .getAllByLabelText(/Address 2/)[1]
-    .focus();
-  await userEvent.paste('');
-
-  within(form)
-    .getAllByLabelText(/Address 3/)[1]
-    .focus();
-  await userEvent.paste('');
-
-  within(form).getAllByLabelText(/City/)[1].focus();
-  await userEvent.paste('Tacoma');
-
-  await userEvent.selectOptions(within(form).getAllByLabelText(/State/)[1], 'WA');
-
-  within(form).getAllByLabelText(/ZIP/)[1].focus();
-  await userEvent.paste('98421');
-
-  within(form)
-    .getAllByLabelText(/Address 1/)[2]
-    .focus();
-  await userEvent.paste('11 NE Elm Road');
-
-  within(form).getAllByLabelText(/City/)[2].focus();
-  await userEvent.paste('Jacksonville');
-
-  await userEvent.selectOptions(within(form).getAllByLabelText(/State/)[2], 'FL');
-
-  within(form).getAllByLabelText(/ZIP/)[2].focus();
-  await userEvent.paste('32217');
-
-  await userEvent.click(within(form).getAllByLabelText('Yes')[2]);
-
-  within(form).getByLabelText('How much did you receive?').focus();
-  await userEvent.paste('1000');
-};
-
 describe('AboutForm component', () => {
   describe('displays form', () => {
     it('renders blank form on load', async () => {
@@ -153,28 +79,28 @@ describe('AboutForm component', () => {
       await waitFor(() => {
         expect(screen.getByRole('heading', { level: 2, name: 'Departure date' })).toBeInTheDocument();
       });
-      await expect(screen.getByLabelText('When did you leave your origin?')).toBeInstanceOf(HTMLInputElement);
-      await expect(screen.getByRole('heading', { level: 2, name: 'Locations' })).toBeInTheDocument();
+      expect(screen.getByLabelText('When did you leave your origin?')).toBeInstanceOf(HTMLInputElement);
+      expect(screen.getByRole('heading', { level: 2, name: 'Locations' })).toBeInTheDocument();
 
-      await expect(screen.getByRole('heading', { level: 2, name: 'Advance (AOA)' })).toBeInTheDocument();
-      await expect(screen.getByTestId('yes-has-received-advance')).toBeInstanceOf(HTMLInputElement);
-      await expect(screen.getByTestId('no-has-received-advance')).toBeInstanceOf(HTMLInputElement);
-      await expect(screen.getByTestId('no-has-received-advance')).toBeChecked();
+      expect(screen.getByRole('heading', { level: 2, name: 'Advance (AOA)' })).toBeInTheDocument();
+      expect(screen.getByTestId('yes-has-received-advance')).toBeInstanceOf(HTMLInputElement);
+      expect(screen.getByTestId('no-has-received-advance')).toBeInstanceOf(HTMLInputElement);
+      expect(screen.getByTestId('no-has-received-advance')).toBeChecked();
 
-      await expect(screen.getAllByLabelText(/Address 1/)[0]).toHaveValue('');
-      await expect(screen.getAllByLabelText(/Address 2/)[0]).toHaveValue('');
-      await expect(screen.getAllByLabelText(/City/)[0]).toHaveValue('');
-      await expect(screen.getAllByLabelText(/State/)[0]).toHaveValue('');
-      await expect(screen.getAllByLabelText(/ZIP/)[0]).toHaveValue('');
+      expect(screen.getAllByLabelText(/Address 1/)[0]).toHaveValue('');
+      expect(screen.getAllByLabelText(/Address 2/)[0]).toHaveValue('');
+      expect(screen.getAllByTestId('City')[0]).toHaveTextContent('');
+      expect(screen.getAllByTestId('State')[0]).toHaveTextContent('');
+      expect(screen.getAllByTestId('ZIP')[0]).toHaveTextContent('');
 
-      await expect(screen.getAllByLabelText(/Address 1/)[1]).toHaveValue('');
-      await expect(screen.getAllByLabelText(/Address 2/)[1]).toHaveValue('');
-      await expect(screen.getAllByLabelText(/City/)[1]).toHaveValue('');
-      await expect(screen.getAllByLabelText(/State/)[1]).toHaveValue('');
-      await expect(screen.getAllByLabelText(/ZIP/)[1]).toHaveValue('');
+      expect(screen.getAllByLabelText(/Address 1/)[1]).toHaveValue('');
+      expect(screen.getAllByLabelText(/Address 2/)[1]).toHaveValue('');
+      expect(screen.getAllByTestId('City')[1]).toHaveTextContent('');
+      expect(screen.getAllByTestId('State')[1]).toHaveTextContent('');
+      expect(screen.getAllByTestId('ZIP')[1]).toHaveTextContent('');
 
-      await expect(screen.getByRole('button', { name: 'Return To Homepage' })).toBeInTheDocument();
-      await expect(screen.getByRole('button', { name: 'Save & Continue' })).toBeEnabled();
+      expect(screen.getByRole('button', { name: 'Return To Homepage' })).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: 'Save & Continue' })).toBeEnabled();
     });
 
     describe('validates form fields and displays error messages', () => {
@@ -193,19 +119,19 @@ describe('AboutForm component', () => {
 
         const requiredAlerts = screen.getAllByRole('alert');
 
-        await expect(requiredAlerts[0]).toHaveTextContent('Required');
-        await expect(
+        expect(requiredAlerts[0]).toHaveTextContent('Required');
+        expect(
           within(requiredAlerts[0].nextElementSibling).getByLabelText('When did you leave your origin?'),
         ).toBeInTheDocument();
 
-        await expect(requiredAlerts[1]).toHaveTextContent('Required');
-        await expect(requiredAlerts[1].nextElementSibling).toHaveAttribute('name', 'w2Address.streetAddress1');
-        await expect(requiredAlerts[2]).toHaveTextContent('Required');
-        await expect(requiredAlerts[2].nextElementSibling).toHaveAttribute('name', 'w2Address.city');
-        await expect(requiredAlerts[3]).toHaveTextContent('Required');
-        await expect(requiredAlerts[3].nextElementSibling).toHaveAttribute('name', 'w2Address.state');
-        await expect(requiredAlerts[4]).toHaveTextContent('Required');
-        await expect(requiredAlerts[4].nextElementSibling).toHaveAttribute('name', 'w2Address.postalCode');
+        expect(requiredAlerts[1]).toHaveTextContent('Required');
+        expect(requiredAlerts[1].nextElementSibling).toHaveAttribute('name', 'w2Address.streetAddress1');
+        expect(requiredAlerts[2]).toHaveTextContent('Required');
+        expect(requiredAlerts[2].nextElementSibling).toHaveAttribute('aria-label', 'w2Address.city');
+        expect(requiredAlerts[3]).toHaveTextContent('Required');
+        expect(requiredAlerts[3].nextElementSibling).toHaveAttribute('aria-label', 'w2Address.state');
+        expect(requiredAlerts[4]).toHaveTextContent('Required');
+        expect(requiredAlerts[4].nextElementSibling).toHaveAttribute('aria-label', 'w2Address.postalCode');
 
         await userEvent.click(screen.getByTestId('yes-has-received-advance'));
       });
@@ -222,17 +148,17 @@ describe('AboutForm component', () => {
         expect(screen.getByLabelText('When did you leave your origin?')).toHaveDisplayValue('31 May 2022');
       });
 
-      await expect(screen.getByTestId('yes-has-received-advance')).toBeChecked();
-      await expect(screen.getByTestId('no-has-received-advance')).not.toBeChecked();
-      await expect(screen.getByLabelText('How much did you receive?')).toHaveDisplayValue('1,000');
+      expect(screen.getByTestId('yes-has-received-advance')).toBeChecked();
+      expect(screen.getByTestId('no-has-received-advance')).not.toBeChecked();
+      expect(screen.getByLabelText('How much did you receive?')).toHaveDisplayValue('1,000');
 
-      await expect(screen.getAllByLabelText(/Address 1/)[2]).toHaveDisplayValue('11 NE Elm Road');
-      await expect(screen.getAllByLabelText(/Address 2/)[2]).toHaveDisplayValue('');
-      await expect(screen.getAllByLabelText(/City/)[2]).toHaveDisplayValue('Jacksonville');
-      await expect(screen.getAllByLabelText(/State/)[2]).toHaveDisplayValue('FL');
-      await expect(screen.getAllByLabelText(/ZIP/)[2]).toHaveDisplayValue('32217');
+      expect(screen.getAllByLabelText(/Address 1/)[2]).toHaveDisplayValue('11 NE Elm Road');
+      expect(screen.getAllByLabelText(/Address 2/)[2]).toHaveDisplayValue('');
+      expect(screen.getAllByTestId(/City/)[2]).toHaveTextContent('Jacksonville');
+      expect(screen.getAllByTestId(/State/)[2]).toHaveTextContent('FL');
+      expect(screen.getAllByTestId(/ZIP/)[2]).toHaveTextContent('32217');
 
-      await expect(screen.getByRole('button', { name: 'Save & Continue' })).toBeEnabled();
+      expect(screen.getByRole('button', { name: 'Save & Continue' })).toBeEnabled();
     });
 
     it('PPM destination street1 is required', async () => {
@@ -244,7 +170,7 @@ describe('AboutForm component', () => {
       expect(screen.getByRole('button', { name: 'Save & Continue' })).toBeEnabled();
 
       // Start controlled test case to verify everything is working.
-      const input = await document.querySelector('input[name="destinationAddress.streetAddress1"]');
+      const input = document.querySelector('input[name="destinationAddress.streetAddress1"]');
       expect(input).toBeInTheDocument();
       // clear
       await userEvent.clear(input);
@@ -255,18 +181,18 @@ describe('AboutForm component', () => {
 
       // verify validation disables save button. destination street 1 is required only in PPM doc upload while
       // it's OPTIONAL during onboarding..etc...
-      await expect(screen.getByRole('button', { name: 'Save & Continue' })).not.toBeEnabled();
+      expect(screen.getByRole('button', { name: 'Save & Continue' })).not.toBeEnabled();
 
       // verify save is enabled
       await userEvent.type(input, '123 Street');
-      await expect(screen.getByRole('button', { name: 'Save & Continue' })).toBeEnabled();
+      expect(screen.getByRole('button', { name: 'Save & Continue' })).toBeEnabled();
 
       // 'Optional' labelHint on address display. expecting a total of 9(3 for pickup address, 3 destination address, 3 w2 address).
       // This is to verify Required labelHints are displayed correctly for PPM doc uploading for the destination address
       // street 1 is now OPTIONAL for onboarding but required for PPM doc upload. If this fails it means addtional labelHints
       // have been introduced elsewhere within the control.
       const hints = document.getElementsByClassName('usa-hint');
-      expect(hints.length).toBe(9);
+      expect(hints.length).toBe(15);
       // verify labelHints are actually 'Optional'
       for (let i = 0; i < hints.length; i += 1) {
         expect(hints[i]).toHaveTextContent('Required');
@@ -320,16 +246,14 @@ describe('AboutForm component', () => {
       it('calls onSubmit handler when "Save & Continue" is pressed', async () => {
         render(
           <Provider store={mockStore.store}>
-            <AboutForm {...defaultProps} />
+            <AboutForm {...shipmentProps} />
           </Provider>,
         );
-
-        await fillOutBasicForm();
 
         await userEvent.click(screen.getByRole('button', { name: 'Save & Continue' }));
 
         await waitFor(() => {
-          expect(defaultProps.onSubmit).toHaveBeenCalledWith(
+          expect(shipmentProps.onSubmit).toHaveBeenCalledWith(
             {
               actualMoveDate: '31 May 2022',
               actualPickupPostalCode: '',
@@ -337,12 +261,15 @@ describe('AboutForm component', () => {
               pickupAddress: {
                 streetAddress1: '812 S 129th St',
                 streetAddress2: '#123',
+                streetAddress3: '',
                 city: 'San Antonio',
                 state: 'TX',
                 postalCode: '78234',
               },
               destinationAddress: {
                 streetAddress1: '441 SW Rio de la Plata Drive',
+                streetAddress2: '',
+                streetAddress3: '',
                 city: 'Tacoma',
                 state: 'WA',
                 postalCode: '98421',

@@ -31,14 +31,13 @@ jest.mock('services/internalApi', () => ({
 
 const handleLocationChange = jest.fn();
 
-describe('ZipCityInput', () => {
+describe('LocationInput', () => {
   describe('with all required props', () => {
     const wrapper = shallow(
       <LocationInput
         name="zipCity"
-        placeholder="Start typing a Zip Code or City..."
-        label="Zip/City Lookup"
-        displayAddress={false}
+        placeholder="Start typing a Zip or City, State Zip"
+        label="Location Lookup"
         handleLocationChange={handleLocationChange}
       />,
     );
