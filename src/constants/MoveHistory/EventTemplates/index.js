@@ -101,3 +101,5 @@ export { default as createOrder } from './CreateOrder/createOrder';
 export { default as createOrderCreateEntitlements } from './CreateOrder/createOrderCreateEntitlements';
 export { default as createOrderCreateMoves } from './CreateOrder/createOrderCreateMoves';
 export { default as updateOrderUpdateMove } from './UpdateOrder/updateOrderUpdateMove';
+export { default as addAppealToViolation } from './AddAppeal/addAppealToViolation';
+export { default as addAppealToSeriousIncident } from './AddAppeal/addAppealToSeriousIncident';
