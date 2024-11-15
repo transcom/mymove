@@ -5,7 +5,7 @@ import * as PropTypes from 'prop-types';
 import styles from './ShipmentContainer.module.scss';
 
 import { SHIPMENT_OPTIONS, SHIPMENT_TYPES } from 'shared/constants';
-import { ShipmentOptionsOneOf } from 'types/shipment';
+import { ShipmentTypesOneOf } from 'types/shipment';
 
 const ShipmentContainer = ({ id, className, children, shipmentType }) => {
   const isBoat = shipmentType === SHIPMENT_TYPES.BOAT_HAUL_AWAY || shipmentType === SHIPMENT_TYPES.BOAT_TOW_AWAY;
@@ -22,6 +22,7 @@ const ShipmentContainer = ({ id, className, children, shipmentType }) => {
       'container--accent--ppm': shipmentType === SHIPMENT_OPTIONS.PPM,
       'container--accent--boat': isBoat,
       'container--accent--mobilehome': shipmentType === SHIPMENT_OPTIONS.MOBILE_HOME,
+      'container--accent--ub': shipmentType === SHIPMENT_OPTIONS.UNACCOMPANIED_BAGGAGE,
     },
     className,
   );
@@ -38,7 +39,7 @@ ShipmentContainer.propTypes = {
   className: PropTypes.string,
   children: PropTypes.node.isRequired,
   /** Describes the type of shipment container. */
-  shipmentType: ShipmentOptionsOneOf,
+  shipmentType: ShipmentTypesOneOf,
 };
 
 ShipmentContainer.defaultProps = {

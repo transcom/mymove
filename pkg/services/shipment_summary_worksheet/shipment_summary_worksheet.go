@@ -254,6 +254,12 @@ func (s SSWPPMComputer) FormatValuesShipmentSummaryWorksheetFormPage1(data model
 		page1.PreparationDate1 = formatAOADate(data.SignedCertifications, data.PPMShipment.ID)
 	}
 
+	// Fill out form fields related to Actual Expense Reimbursement status
+	if data.PPMShipment.IsActualExpenseReimbursement != nil && *data.PPMShipment.IsActualExpenseReimbursement {
+		page1.IsActualExpenseReimbursement = *data.PPMShipment.IsActualExpenseReimbursement
+		page1.GCCIsActualExpenseReimbursement = "Actual Expense Reimbursement"
+	}
+
 	page1.SITDaysInStorage = formattedSIT.DaysInStorage
 	page1.SITEntryDates = formattedSIT.EntryDates
 	page1.SITEndDates = formattedSIT.EndDates
@@ -319,6 +325,12 @@ func (s *SSWPPMComputer) FormatValuesShipmentSummaryWorksheetFormPage2(data mode
 	page2.ServiceMemberSignature = certificationInfo.CustomerField
 	page2.PPPOPPSORepresentative = certificationInfo.OfficeField
 	page2.SignatureDate = certificationInfo.DateField
+
+	if data.PPMShipment.IsActualExpenseReimbursement != nil && *data.PPMShipment.IsActualExpenseReimbursement {
+		page2.IncentiveIsActualExpenseReimbursement = "Actual Expense Reimbursement"
+		page2.HeaderIsActualExpenseReimbursement = `This PPM is being processed at actual expense reimbursement for valid expenses not to exceed the
+		government constructed cost (GCC).`
+	}
 
 	return page2, nil
 }
@@ -401,17 +413,16 @@ func formatAdditionalShipments(ssfd models.ShipmentSummaryFormData) (map[string]
 			page3Map[fmt.Sprintf("AddShipmentNumberAndTypes%d", i)] = *shipment.ShipmentLocator + " NTS Release"
 		case shipment.ShipmentType == models.MTOShipmentTypeHHGIntoNTSDom:
 			page3Map[fmt.Sprintf("AddShipmentNumberAndTypes%d", i)] = *shipment.ShipmentLocator + " NTS"
-		case shipment.ShipmentType == models.MTOShipmentTypeInternationalHHG:
-			page3Map[fmt.Sprintf("AddShipmentNumberAndTypes%d", i)] = *shipment.ShipmentLocator + " Int'l HHG"
-		case shipment.ShipmentType == models.MTOShipmentTypeInternationalUB:
-			page3Map[fmt.Sprintf("AddShipmentNumberAndTypes%d", i)] = *shipment.ShipmentLocator + " Int'l UB"
 		case shipment.ShipmentType == models.MTOShipmentTypeMobileHome:
 			page3Map[fmt.Sprintf("AddShipmentNumberAndTypes%d", i)] = *shipment.ShipmentLocator + " Mobile Home"
 		case shipment.ShipmentType == models.MTOShipmentTypeBoatHaulAway:
 			page3Map[fmt.Sprintf("AddShipmentNumberAndTypes%d", i)] = *shipment.ShipmentLocator + " Boat Haul"
 		case shipment.ShipmentType == models.MTOShipmentTypeBoatTowAway:
 			page3Map[fmt.Sprintf("AddShipmentNumberAndTypes%d", i)] = *shipment.ShipmentLocator + " Boat Tow"
+		case shipment.ShipmentType == models.MTOShipmentTypeUnaccompaniedBaggage:
+			page3Map[fmt.Sprintf("AddShipmentNumberAndTypes%d", i)] = *shipment.ShipmentLocator + " UB"
 		}
+
 	}
 	return page3Map, nil
 }
@@ -589,6 +600,13 @@ func formatSSWDate(signedCertifications []*models.SignedCertification, ppmid uui
 func FormatAddress(w2Address *models.Address) string {
 	var addressString string
 
+	var country string
+	if w2Address != nil && w2Address.Country != nil && w2Address.Country.Country != "" {
+		country = w2Address.Country.Country
+	} else {
+		country = ""
+	}
+
 	if w2Address != nil {
 		addressString = fmt.Sprintf("%s, %s %s%s %s %s%s",
 			w2Address.StreetAddress1,
@@ -596,7 +614,7 @@ func FormatAddress(w2Address *models.Address) string {
 			nilOrValue(w2Address.StreetAddress3),
 			w2Address.City,
 			w2Address.State,
-			nilOrValue(w2Address.Country),
+			nilOrValue(&country),
 			w2Address.PostalCode,
 		)
 	} else {
@@ -1026,21 +1044,28 @@ func (SSWPPMComputer *SSWPPMComputer) FetchDataShipmentSummaryWorksheetFormData(
 	if ppmShipment.Shipment.MoveTaskOrder.Orders.OriginDutyLocation == nil {
 		return nil, errors.New("order for PPM shipment does not have a origin duty location attached")
 	}
+
+	isActualExpenseReimbursement := false
+	if ppmShipment.IsActualExpenseReimbursement != nil && *ppmShipment.IsActualExpenseReimbursement {
+		isActualExpenseReimbursement = true
+	}
+
 	ssd := models.ShipmentSummaryFormData{
-		AllShipments:             ppmShipment.Shipment.MoveTaskOrder.MTOShipments,
-		ServiceMember:            serviceMember,
-		Order:                    ppmShipment.Shipment.MoveTaskOrder.Orders,
-		Move:                     ppmShipment.Shipment.MoveTaskOrder,
-		CurrentDutyLocation:      *ppmShipment.Shipment.MoveTaskOrder.Orders.OriginDutyLocation,
-		NewDutyLocation:          ppmShipment.Shipment.MoveTaskOrder.Orders.NewDutyLocation,
-		WeightAllotment:          weightAllotment,
-		PPMShipment:              ppmShipment,
-		PPMShipments:             ppmShipments,
-		PPMShipmentFinalWeight:   ppmShipmentFinalWeight,
-		W2Address:                ppmShipment.W2Address,
-		MovingExpenses:           ppmShipment.MovingExpenses,
-		SignedCertifications:     signedCertifications,
-		MaxSITStorageEntitlement: maxSit,
+		AllShipments:                 ppmShipment.Shipment.MoveTaskOrder.MTOShipments,
+		ServiceMember:                serviceMember,
+		Order:                        ppmShipment.Shipment.MoveTaskOrder.Orders,
+		Move:                         ppmShipment.Shipment.MoveTaskOrder,
+		CurrentDutyLocation:          *ppmShipment.Shipment.MoveTaskOrder.Orders.OriginDutyLocation,
+		NewDutyLocation:              ppmShipment.Shipment.MoveTaskOrder.Orders.NewDutyLocation,
+		WeightAllotment:              weightAllotment,
+		PPMShipment:                  ppmShipment,
+		PPMShipments:                 ppmShipments,
+		PPMShipmentFinalWeight:       ppmShipmentFinalWeight,
+		W2Address:                    ppmShipment.W2Address,
+		MovingExpenses:               ppmShipment.MovingExpenses,
+		SignedCertifications:         signedCertifications,
+		MaxSITStorageEntitlement:     maxSit,
+		IsActualExpenseReimbursement: isActualExpenseReimbursement,
 	}
 	return &ssd, nil
 }
@@ -1110,18 +1135,31 @@ func (SSWPPMGenerator *SSWPPMGenerator) FillSSWPDFForm(Page1Values services.Page
 
 	var sswHeader = header{
 		Source:   "ShipmentSummaryWorksheet.pdf",
-		Version:  "pdfcpu v0.8.0 dev",
-		Creation: "2024-09-06 13:06:23 UTC",
+		Version:  "pdfcpu v0.9.1 dev",
+		Creation: "2024-11-13 13:44:05 UTC",
 		Producer: "macOS Version 13.5 (Build 22G74) Quartz PDFContext, AppendMode 1.1",
+	}
+
+	isActualExpenseReimbursement := false
+	if Page1Values.IsActualExpenseReimbursement {
+		isActualExpenseReimbursement = true
 	}
 
 	var sswCheckbox = []checkbox{
 		{
 			Pages:   []int{2},
-			ID:      "797",
+			ID:      "198",
 			Name:    "EDOther",
 			Value:   true,
 			Default: false,
+			Locked:  false,
+		},
+		{
+			Pages:   []int{1},
+			ID:      "444",
+			Name:    "IsActualExpenseReimbursement",
+			Value:   true,
+			Default: isActualExpenseReimbursement,
 			Locked:  false,
 		},
 	}
@@ -1131,10 +1169,7 @@ func (SSWPPMGenerator *SSWPPMGenerator) FillSSWPDFForm(Page1Values services.Page
 		Forms: []form{
 			{ // Dynamically loops, creates, and aggregates json for text fields, merges page 1 and 2
 				TextField: mergeTextFields(createTextFields(Page1Values, 1), createTextFields(Page2Values, 2), createTextFields(Page3Values, 3)),
-			},
-			// The following is the structure for using a Checkbox field
-			{
-				Checkbox: sswCheckbox,
+				Checkbox:  sswCheckbox,
 			},
 		},
 	}
@@ -1146,6 +1181,11 @@ func (SSWPPMGenerator *SSWPPMGenerator) FillSSWPDFForm(Page1Values services.Page
 		return
 	}
 	SSWWorksheet, err := SSWPPMGenerator.generator.FillPDFForm(jsonData, SSWPPMGenerator.templateReader, "")
+	if err != nil {
+		return nil, nil, err
+	}
+
+	SSWWorksheet, err = SSWPPMGenerator.generator.LockPDFForm(SSWWorksheet, "")
 	if err != nil {
 		return nil, nil, err
 	}

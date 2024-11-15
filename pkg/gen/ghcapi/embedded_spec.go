@@ -833,6 +833,64 @@ func init() {
         }
       ]
     },
+    "/evaluation-reports/{reportID}/appeal/add": {
+      "post": {
+        "description": "Adds an appeal to a serious incident on an evaluation report",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "evaluationReports"
+        ],
+        "summary": "Adds an appeal to a serious incident on an evaluation report",
+        "operationId": "addAppealToSeriousIncident",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "schema": {
+              "$ref": "#/definitions/CreateAppeal"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successfully added an appeal to a serious incident"
+          },
+          "403": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "404": {
+            "$ref": "#/responses/NotFound"
+          },
+          "412": {
+            "$ref": "#/responses/PreconditionFailed"
+          },
+          "422": {
+            "$ref": "#/responses/UnprocessableEntity"
+          },
+          "500": {
+            "$ref": "#/responses/ServerError"
+          }
+        },
+        "x-permissions": [
+          "update.evaluationReport"
+        ]
+      },
+      "parameters": [
+        {
+          "type": "string",
+          "format": "uuid",
+          "description": "the evaluation report ID",
+          "name": "reportID",
+          "in": "path",
+          "required": true
+        }
+      ]
+    },
     "/evaluation-reports/{reportID}/download": {
       "get": {
         "description": "Downloads an evaluation report as a PDF",
@@ -930,6 +988,72 @@ func init() {
           "format": "uuid",
           "description": "the evaluation report ID to be modified",
           "name": "reportID",
+          "in": "path",
+          "required": true
+        }
+      ]
+    },
+    "/evaluation-reports/{reportID}/{reportViolationID}/appeal/add": {
+      "post": {
+        "description": "Adds an appeal to a violation",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "evaluationReports"
+        ],
+        "summary": "Adds an appeal to a violation",
+        "operationId": "addAppealToViolation",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "schema": {
+              "$ref": "#/definitions/CreateAppeal"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successfully added an appeal to a violation"
+          },
+          "403": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "404": {
+            "$ref": "#/responses/NotFound"
+          },
+          "412": {
+            "$ref": "#/responses/PreconditionFailed"
+          },
+          "422": {
+            "$ref": "#/responses/UnprocessableEntity"
+          },
+          "500": {
+            "$ref": "#/responses/ServerError"
+          }
+        },
+        "x-permissions": [
+          "update.evaluationReport"
+        ]
+      },
+      "parameters": [
+        {
+          "type": "string",
+          "format": "uuid",
+          "description": "the evaluation report ID",
+          "name": "reportID",
+          "in": "path",
+          "required": true
+        },
+        {
+          "type": "string",
+          "format": "uuid",
+          "description": "the report violation ID",
+          "name": "reportViolationID",
           "in": "path",
           "required": true
         }
@@ -1993,7 +2117,8 @@ func init() {
                       "APPROVALS REQUESTED",
                       "APPROVED",
                       "NEEDS SERVICE COUNSELING",
-                      "SERVICE COUNSELING COMPLETED"
+                      "SERVICE COUNSELING COMPLETED",
+                      "CANCELED"
                     ]
                   }
                 }
@@ -2351,7 +2476,7 @@ func init() {
         "operationId": "moveCanceler",
         "responses": {
           "200": {
-            "description": "Successfully cancelled move",
+            "description": "Successfully canceled move",
             "schema": {
               "$ref": "#/definitions/Move"
             }
@@ -2374,7 +2499,10 @@ func init() {
           "500": {
             "$ref": "#/responses/ServerError"
           }
-        }
+        },
+        "x-permissions": [
+          "update.cancelMoveFlag"
+        ]
       },
       "parameters": [
         {
@@ -4130,7 +4258,7 @@ func init() {
           },
           {
             "enum": [
-              "lastName",
+              "customerName",
               "dodID",
               "emplid",
               "branch",
@@ -4178,7 +4306,7 @@ func init() {
           {
             "type": "string",
             "description": "filters using a prefix match on the service member's last name",
-            "name": "lastName",
+            "name": "customerName",
             "in": "query"
           },
           {
@@ -4384,7 +4512,7 @@ func init() {
           },
           {
             "enum": [
-              "lastName",
+              "customerName",
               "dodID",
               "emplid",
               "branch",
@@ -4423,7 +4551,7 @@ func init() {
           },
           {
             "type": "string",
-            "name": "lastName",
+            "name": "customerName",
             "in": "query"
           },
           {
@@ -4489,6 +4617,12 @@ func init() {
             "description": "Used to return a queue for a GBLOC other than the default of the current user. Requires the HQ role. The parameter is ignored if the requesting user does not have the necessary role.\n",
             "name": "viewAsGBLOC",
             "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "Used to illustrate which user is assigned to this move.\n",
+            "name": "assignedTo",
+            "in": "query"
           }
         ],
         "responses": {
@@ -4521,7 +4655,7 @@ func init() {
         "parameters": [
           {
             "enum": [
-              "lastName",
+              "customerName",
               "locator",
               "submittedAt",
               "branch",
@@ -4529,7 +4663,8 @@ func init() {
               "dodID",
               "emplid",
               "age",
-              "originDutyLocation"
+              "originDutyLocation",
+              "assignedTo"
             ],
             "type": "string",
             "description": "field that results should be sorted by",
@@ -4577,7 +4712,7 @@ func init() {
           },
           {
             "type": "string",
-            "name": "lastName",
+            "name": "customerName",
             "in": "query"
           },
           {
@@ -4598,6 +4733,12 @@ func init() {
           {
             "type": "string",
             "name": "originDutyLocation",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "Used to illustrate which user is assigned to this payment request.\n",
+            "name": "assignedTo",
             "in": "query"
           },
           {
@@ -6115,11 +6256,13 @@ func init() {
           "example": "Anytown"
         },
         "country": {
+          "description": "Two-letter country code",
           "type": "string",
           "title": "Country",
-          "default": "USA",
+          "default": "US",
+          "pattern": "^[A-Z]{2}$",
           "x-nullable": true,
-          "example": "USA"
+          "example": "US"
         },
         "county": {
           "type": "string",
@@ -6706,6 +6849,26 @@ func init() {
         }
       }
     },
+    "CreateAppeal": {
+      "description": "Appeal status and remarks left for a violation, created by a GSR user.",
+      "type": "object",
+      "properties": {
+        "appealStatus": {
+          "description": "The status of the appeal set by the GSR user",
+          "type": "string",
+          "enum": [
+            "sustained",
+            "rejected"
+          ],
+          "example": "These are my violation appeal remarks"
+        },
+        "remarks": {
+          "description": "Remarks left by the GSR user",
+          "type": "string",
+          "example": "These are my violation appeal remarks"
+        }
+      }
+    },
     "CreateApprovedSITDurationUpdate": {
       "required": [
         "requestReason",
@@ -7208,7 +7371,7 @@ func init() {
         "destinationAddress": {
           "allOf": [
             {
-              "$ref": "#/definitions/Address"
+              "$ref": "#/definitions/PPMDestinationAddress"
             }
           ]
         },
@@ -7244,6 +7407,13 @@ func init() {
           "type": "boolean",
           "x-nullable": true,
           "x-omitempty": false
+        },
+        "isActualExpenseReimbursement": {
+          "description": "Used for PPM shipments only. Denotes if this shipment uses the Actual Expense Reimbursement method.",
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false,
+          "example": false
         },
         "pickupAddress": {
           "allOf": [
@@ -7774,10 +7944,6 @@ func init() {
       "description": "An evaluation report",
       "type": "object",
       "properties": {
-        "ReportViolations": {
-          "x-nullable": true,
-          "$ref": "#/definitions/ReportViolations"
-        },
         "createdAt": {
           "type": "string",
           "format": "date-time",
@@ -7797,6 +7963,10 @@ func init() {
           "pattern": "^(0[0-9]|1[0-9]|2[0-3]):[0-5][0-9]$",
           "x-nullable": true,
           "example": "15:00"
+        },
+        "gsrAppeals": {
+          "x-nullable": true,
+          "$ref": "#/definitions/GSRAppeals"
         },
         "id": {
           "type": "string",
@@ -7874,6 +8044,10 @@ func init() {
         "remarks": {
           "type": "string",
           "x-nullable": true
+        },
+        "reportViolations": {
+          "x-nullable": true,
+          "$ref": "#/definitions/ReportViolations"
         },
         "seriousIncident": {
           "type": "boolean",
@@ -8025,6 +8199,64 @@ func init() {
       "type": "array",
       "items": {
         "type": "string"
+      }
+    },
+    "GSRAppeal": {
+      "description": "An object associating appeals on violations and serious incidents",
+      "type": "object",
+      "properties": {
+        "appealStatus": {
+          "$ref": "#/definitions/GSRAppealStatusType"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "isSeriousIncident": {
+          "type": "boolean",
+          "example": false
+        },
+        "officeUser": {
+          "$ref": "#/definitions/EvaluationReportOfficeUser"
+        },
+        "officeUserID": {
+          "type": "string",
+          "format": "uuid",
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "remarks": {
+          "type": "string",
+          "example": "Office user remarks"
+        },
+        "reportID": {
+          "type": "string",
+          "format": "uuid",
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "violationID": {
+          "type": "string",
+          "format": "uuid",
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        }
+      }
+    },
+    "GSRAppealStatusType": {
+      "type": "string",
+      "enum": [
+        "SUSTAINED",
+        "REJECTED"
+      ]
+    },
+    "GSRAppeals": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/GSRAppeal"
       }
     },
     "Grade": {
@@ -9197,6 +9429,15 @@ func init() {
           "format": "uuid",
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
         },
+        "marketCode": {
+          "description": "Single-letter designator for domestic (d) or international (i) shipments",
+          "type": "string",
+          "enum": [
+            "d",
+            "i"
+          ],
+          "example": "d"
+        },
         "mobileHomeShipment": {
           "$ref": "#/definitions/MobileHome"
         },
@@ -9370,12 +9611,11 @@ func init() {
         "HHG",
         "HHG_INTO_NTS_DOMESTIC",
         "HHG_OUTOF_NTS_DOMESTIC",
-        "INTERNATIONAL_HHG",
-        "INTERNATIONAL_UB",
         "PPM",
         "BOAT_HAUL_AWAY",
         "BOAT_TOW_AWAY",
-        "MOBILE_HOME"
+        "MOBILE_HOME",
+        "UNACCOMPANIED_BAGGAGE"
       ],
       "x-display-value": {
         "BOAT_HAUL_AWAY": "Boat Haul-Away",
@@ -9383,10 +9623,9 @@ func init() {
         "HHG": "HHG",
         "HHG_INTO_NTS_DOMESTIC": "NTS",
         "HHG_OUTOF_NTS_DOMESTIC": "NTS Release",
-        "INTERNATIONAL_HHG": "International HHG",
-        "INTERNATIONAL_UB": "International UB",
         "MOBILE_HOME": "Mobile Home",
-        "PPM": "PPM"
+        "PPM": "PPM",
+        "UNACCOMPANIED_BAGGAGE": "Unaccompanied Baggage"
       },
       "example": "HHG"
     },
@@ -10551,7 +10790,8 @@ func init() {
         "SEPARATION",
         "WOUNDED_WARRIOR",
         "BLUEBARK",
-        "SAFETY"
+        "SAFETY",
+        "TEMPORARY_DUTY"
       ],
       "x-display-value": {
         "BLUEBARK": "BLUEBARK",
@@ -10560,6 +10800,7 @@ func init() {
         "RETIREMENT": "Retirement",
         "SAFETY": "Safety",
         "SEPARATION": "Separation",
+        "TEMPORARY_DUTY": "Temporary Duty (TDY)",
         "WOUNDED_WARRIOR": "Wounded Warrior"
       }
     },
@@ -10756,6 +10997,179 @@ func init() {
           "format": "cents",
           "x-nullable": true,
           "x-omitempty": false
+        }
+      }
+    },
+    "PPMDestinationAddress": {
+      "description": "A postal address",
+      "type": "object",
+      "required": [
+        "city",
+        "state",
+        "postalCode"
+      ],
+      "properties": {
+        "city": {
+          "type": "string",
+          "title": "City",
+          "example": "Anytown"
+        },
+        "country": {
+          "type": "string",
+          "title": "Country",
+          "default": "USA",
+          "x-nullable": true,
+          "example": "USA"
+        },
+        "county": {
+          "type": "string",
+          "title": "County",
+          "x-nullable": true,
+          "example": "LOS ANGELES"
+        },
+        "eTag": {
+          "type": "string",
+          "readOnly": true
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "postalCode": {
+          "type": "string",
+          "format": "zip",
+          "title": "ZIP",
+          "pattern": "^(\\d{5}([\\-]\\d{4})?)$",
+          "example": "90210"
+        },
+        "state": {
+          "type": "string",
+          "title": "State",
+          "enum": [
+            "AL",
+            "AK",
+            "AR",
+            "AZ",
+            "CA",
+            "CO",
+            "CT",
+            "DC",
+            "DE",
+            "FL",
+            "GA",
+            "HI",
+            "IA",
+            "ID",
+            "IL",
+            "IN",
+            "KS",
+            "KY",
+            "LA",
+            "MA",
+            "MD",
+            "ME",
+            "MI",
+            "MN",
+            "MO",
+            "MS",
+            "MT",
+            "NC",
+            "ND",
+            "NE",
+            "NH",
+            "NJ",
+            "NM",
+            "NV",
+            "NY",
+            "OH",
+            "OK",
+            "OR",
+            "PA",
+            "RI",
+            "SC",
+            "SD",
+            "TN",
+            "TX",
+            "UT",
+            "VA",
+            "VT",
+            "WA",
+            "WI",
+            "WV",
+            "WY"
+          ],
+          "x-display-value": {
+            "AK": "AK",
+            "AL": "AL",
+            "AR": "AR",
+            "AZ": "AZ",
+            "CA": "CA",
+            "CO": "CO",
+            "CT": "CT",
+            "DC": "DC",
+            "DE": "DE",
+            "FL": "FL",
+            "GA": "GA",
+            "HI": "HI",
+            "IA": "IA",
+            "ID": "ID",
+            "IL": "IL",
+            "IN": "IN",
+            "KS": "KS",
+            "KY": "KY",
+            "LA": "LA",
+            "MA": "MA",
+            "MD": "MD",
+            "ME": "ME",
+            "MI": "MI",
+            "MN": "MN",
+            "MO": "MO",
+            "MS": "MS",
+            "MT": "MT",
+            "NC": "NC",
+            "ND": "ND",
+            "NE": "NE",
+            "NH": "NH",
+            "NJ": "NJ",
+            "NM": "NM",
+            "NV": "NV",
+            "NY": "NY",
+            "OH": "OH",
+            "OK": "OK",
+            "OR": "OR",
+            "PA": "PA",
+            "RI": "RI",
+            "SC": "SC",
+            "SD": "SD",
+            "TN": "TN",
+            "TX": "TX",
+            "UT": "UT",
+            "VA": "VA",
+            "VT": "VT",
+            "WA": "WA",
+            "WI": "WI",
+            "WV": "WV",
+            "WY": "WY"
+          }
+        },
+        "streetAddress1": {
+          "type": "string",
+          "title": "Street address 1",
+          "x-nullable": true,
+          "example": "123 Main Ave"
+        },
+        "streetAddress2": {
+          "type": "string",
+          "title": "Street address 2",
+          "x-nullable": true,
+          "example": "Apartment 9000"
+        },
+        "streetAddress3": {
+          "type": "string",
+          "title": "Address Line 3",
+          "x-nullable": true,
+          "example": "Montmârtre"
         }
       }
     },
@@ -11043,6 +11457,13 @@ func init() {
           "readOnly": true,
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
         },
+        "isActualExpenseReimbursement": {
+          "description": "Used for PPM shipments only. Denotes if this shipment uses the Actual Expense Reimbursement method.",
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false,
+          "example": false
+        },
         "movingExpenses": {
           "description": "All expense documentation receipt records of this PPM shipment.",
           "type": "array",
@@ -11257,7 +11678,7 @@ func init() {
     "PPMStatus": {
       "type": "string",
       "enum": [
-        "CANCELLED",
+        "CANCELED",
         "DRAFT",
         "SUBMITTED",
         "WAITING_ON_CUSTOMER",
@@ -11740,6 +12161,9 @@ func init() {
           "format": "date-time",
           "x-nullable": true
         },
+        "assignable": {
+          "type": "boolean"
+        },
         "assignedTo": {
           "x-nullable": true,
           "$ref": "#/definitions/AssignedOfficeUser"
@@ -11758,6 +12182,11 @@ func init() {
         },
         "counselingOffice": {
           "type": "string",
+          "x-nullable": true
+        },
+        "counselingOfficeID": {
+          "type": "string",
+          "format": "uuid",
           "x-nullable": true
         },
         "customer": {
@@ -11861,6 +12290,13 @@ func init() {
           "type": "number",
           "format": "double"
         },
+        "assignable": {
+          "type": "boolean"
+        },
+        "assignedTo": {
+          "x-nullable": true,
+          "$ref": "#/definitions/AssignedOfficeUser"
+        },
         "availableOfficeUsers": {
           "$ref": "#/definitions/AvailableOfficeUsers"
         },
@@ -11958,6 +12394,10 @@ func init() {
       "description": "An object associating violations to evaluation reports",
       "type": "object",
       "properties": {
+        "gsrAppeals": {
+          "x-nullable": true,
+          "$ref": "#/definitions/GSRAppeals"
+        },
         "id": {
           "type": "string",
           "format": "uuid",
@@ -13408,7 +13848,7 @@ func init() {
         "destinationAddress": {
           "allOf": [
             {
-              "$ref": "#/definitions/Address"
+              "$ref": "#/definitions/PPMDestinationAddress"
             }
           ]
         },
@@ -13457,6 +13897,13 @@ func init() {
           "type": "boolean",
           "x-nullable": true,
           "x-omitempty": false
+        },
+        "isActualExpenseReimbursement": {
+          "description": "Used for PPM shipments only. Denotes if this shipment uses the Actual Expense Reimbursement method.",
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false,
+          "example": false
         },
         "pickupAddress": {
           "allOf": [
@@ -15253,6 +15700,79 @@ func init() {
         }
       ]
     },
+    "/evaluation-reports/{reportID}/appeal/add": {
+      "post": {
+        "description": "Adds an appeal to a serious incident on an evaluation report",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "evaluationReports"
+        ],
+        "summary": "Adds an appeal to a serious incident on an evaluation report",
+        "operationId": "addAppealToSeriousIncident",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "schema": {
+              "$ref": "#/definitions/CreateAppeal"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successfully added an appeal to a serious incident"
+          },
+          "403": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "412": {
+            "description": "Precondition failed",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "422": {
+            "description": "The payload was unprocessable.",
+            "schema": {
+              "$ref": "#/definitions/ValidationError"
+            }
+          },
+          "500": {
+            "description": "A server error occurred",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        },
+        "x-permissions": [
+          "update.evaluationReport"
+        ]
+      },
+      "parameters": [
+        {
+          "type": "string",
+          "format": "uuid",
+          "description": "the evaluation report ID",
+          "name": "reportID",
+          "in": "path",
+          "required": true
+        }
+      ]
+    },
     "/evaluation-reports/{reportID}/download": {
       "get": {
         "description": "Downloads an evaluation report as a PDF",
@@ -15374,6 +15894,87 @@ func init() {
           "format": "uuid",
           "description": "the evaluation report ID to be modified",
           "name": "reportID",
+          "in": "path",
+          "required": true
+        }
+      ]
+    },
+    "/evaluation-reports/{reportID}/{reportViolationID}/appeal/add": {
+      "post": {
+        "description": "Adds an appeal to a violation",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "evaluationReports"
+        ],
+        "summary": "Adds an appeal to a violation",
+        "operationId": "addAppealToViolation",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "schema": {
+              "$ref": "#/definitions/CreateAppeal"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successfully added an appeal to a violation"
+          },
+          "403": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "412": {
+            "description": "Precondition failed",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "422": {
+            "description": "The payload was unprocessable.",
+            "schema": {
+              "$ref": "#/definitions/ValidationError"
+            }
+          },
+          "500": {
+            "description": "A server error occurred",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        },
+        "x-permissions": [
+          "update.evaluationReport"
+        ]
+      },
+      "parameters": [
+        {
+          "type": "string",
+          "format": "uuid",
+          "description": "the evaluation report ID",
+          "name": "reportID",
+          "in": "path",
+          "required": true
+        },
+        {
+          "type": "string",
+          "format": "uuid",
+          "description": "the report violation ID",
+          "name": "reportViolationID",
           "in": "path",
           "required": true
         }
@@ -16719,7 +17320,8 @@ func init() {
                       "APPROVALS REQUESTED",
                       "APPROVED",
                       "NEEDS SERVICE COUNSELING",
-                      "SERVICE COUNSELING COMPLETED"
+                      "SERVICE COUNSELING COMPLETED",
+                      "CANCELED"
                     ]
                   }
                 }
@@ -17158,7 +17760,7 @@ func init() {
         "operationId": "moveCanceler",
         "responses": {
           "200": {
-            "description": "Successfully cancelled move",
+            "description": "Successfully canceled move",
             "schema": {
               "$ref": "#/definitions/Move"
             }
@@ -17199,7 +17801,10 @@ func init() {
               "$ref": "#/definitions/Error"
             }
           }
-        }
+        },
+        "x-permissions": [
+          "update.cancelMoveFlag"
+        ]
       },
       "parameters": [
         {
@@ -19432,7 +20037,7 @@ func init() {
           },
           {
             "enum": [
-              "lastName",
+              "customerName",
               "dodID",
               "emplid",
               "branch",
@@ -19480,7 +20085,7 @@ func init() {
           {
             "type": "string",
             "description": "filters using a prefix match on the service member's last name",
-            "name": "lastName",
+            "name": "customerName",
             "in": "query"
           },
           {
@@ -19698,7 +20303,7 @@ func init() {
           },
           {
             "enum": [
-              "lastName",
+              "customerName",
               "dodID",
               "emplid",
               "branch",
@@ -19737,7 +20342,7 @@ func init() {
           },
           {
             "type": "string",
-            "name": "lastName",
+            "name": "customerName",
             "in": "query"
           },
           {
@@ -19803,6 +20408,12 @@ func init() {
             "description": "Used to return a queue for a GBLOC other than the default of the current user. Requires the HQ role. The parameter is ignored if the requesting user does not have the necessary role.\n",
             "name": "viewAsGBLOC",
             "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "Used to illustrate which user is assigned to this move.\n",
+            "name": "assignedTo",
+            "in": "query"
           }
         ],
         "responses": {
@@ -19841,7 +20452,7 @@ func init() {
         "parameters": [
           {
             "enum": [
-              "lastName",
+              "customerName",
               "locator",
               "submittedAt",
               "branch",
@@ -19849,7 +20460,8 @@ func init() {
               "dodID",
               "emplid",
               "age",
-              "originDutyLocation"
+              "originDutyLocation",
+              "assignedTo"
             ],
             "type": "string",
             "description": "field that results should be sorted by",
@@ -19897,7 +20509,7 @@ func init() {
           },
           {
             "type": "string",
-            "name": "lastName",
+            "name": "customerName",
             "in": "query"
           },
           {
@@ -19918,6 +20530,12 @@ func init() {
           {
             "type": "string",
             "name": "originDutyLocation",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "Used to illustrate which user is assigned to this payment request.\n",
+            "name": "assignedTo",
             "in": "query"
           },
           {
@@ -21799,11 +22417,13 @@ func init() {
           "example": "Anytown"
         },
         "country": {
+          "description": "Two-letter country code",
           "type": "string",
           "title": "Country",
-          "default": "USA",
+          "default": "US",
+          "pattern": "^[A-Z]{2}$",
           "x-nullable": true,
-          "example": "USA"
+          "example": "US"
         },
         "county": {
           "type": "string",
@@ -22394,6 +23014,26 @@ func init() {
         }
       }
     },
+    "CreateAppeal": {
+      "description": "Appeal status and remarks left for a violation, created by a GSR user.",
+      "type": "object",
+      "properties": {
+        "appealStatus": {
+          "description": "The status of the appeal set by the GSR user",
+          "type": "string",
+          "enum": [
+            "sustained",
+            "rejected"
+          ],
+          "example": "These are my violation appeal remarks"
+        },
+        "remarks": {
+          "description": "Remarks left by the GSR user",
+          "type": "string",
+          "example": "These are my violation appeal remarks"
+        }
+      }
+    },
     "CreateApprovedSITDurationUpdate": {
       "required": [
         "requestReason",
@@ -22896,7 +23536,7 @@ func init() {
         "destinationAddress": {
           "allOf": [
             {
-              "$ref": "#/definitions/Address"
+              "$ref": "#/definitions/PPMDestinationAddress"
             }
           ]
         },
@@ -22932,6 +23572,13 @@ func init() {
           "type": "boolean",
           "x-nullable": true,
           "x-omitempty": false
+        },
+        "isActualExpenseReimbursement": {
+          "description": "Used for PPM shipments only. Denotes if this shipment uses the Actual Expense Reimbursement method.",
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false,
+          "example": false
         },
         "pickupAddress": {
           "allOf": [
@@ -23462,10 +24109,6 @@ func init() {
       "description": "An evaluation report",
       "type": "object",
       "properties": {
-        "ReportViolations": {
-          "x-nullable": true,
-          "$ref": "#/definitions/ReportViolations"
-        },
         "createdAt": {
           "type": "string",
           "format": "date-time",
@@ -23485,6 +24128,10 @@ func init() {
           "pattern": "^(0[0-9]|1[0-9]|2[0-3]):[0-5][0-9]$",
           "x-nullable": true,
           "example": "15:00"
+        },
+        "gsrAppeals": {
+          "x-nullable": true,
+          "$ref": "#/definitions/GSRAppeals"
         },
         "id": {
           "type": "string",
@@ -23562,6 +24209,10 @@ func init() {
         "remarks": {
           "type": "string",
           "x-nullable": true
+        },
+        "reportViolations": {
+          "x-nullable": true,
+          "$ref": "#/definitions/ReportViolations"
         },
         "seriousIncident": {
           "type": "boolean",
@@ -23713,6 +24364,64 @@ func init() {
       "type": "array",
       "items": {
         "type": "string"
+      }
+    },
+    "GSRAppeal": {
+      "description": "An object associating appeals on violations and serious incidents",
+      "type": "object",
+      "properties": {
+        "appealStatus": {
+          "$ref": "#/definitions/GSRAppealStatusType"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "isSeriousIncident": {
+          "type": "boolean",
+          "example": false
+        },
+        "officeUser": {
+          "$ref": "#/definitions/EvaluationReportOfficeUser"
+        },
+        "officeUserID": {
+          "type": "string",
+          "format": "uuid",
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "remarks": {
+          "type": "string",
+          "example": "Office user remarks"
+        },
+        "reportID": {
+          "type": "string",
+          "format": "uuid",
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "violationID": {
+          "type": "string",
+          "format": "uuid",
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        }
+      }
+    },
+    "GSRAppealStatusType": {
+      "type": "string",
+      "enum": [
+        "SUSTAINED",
+        "REJECTED"
+      ]
+    },
+    "GSRAppeals": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/GSRAppeal"
       }
     },
     "Grade": {
@@ -24885,6 +25594,15 @@ func init() {
           "format": "uuid",
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
         },
+        "marketCode": {
+          "description": "Single-letter designator for domestic (d) or international (i) shipments",
+          "type": "string",
+          "enum": [
+            "d",
+            "i"
+          ],
+          "example": "d"
+        },
         "mobileHomeShipment": {
           "$ref": "#/definitions/MobileHome"
         },
@@ -25058,12 +25776,11 @@ func init() {
         "HHG",
         "HHG_INTO_NTS_DOMESTIC",
         "HHG_OUTOF_NTS_DOMESTIC",
-        "INTERNATIONAL_HHG",
-        "INTERNATIONAL_UB",
         "PPM",
         "BOAT_HAUL_AWAY",
         "BOAT_TOW_AWAY",
-        "MOBILE_HOME"
+        "MOBILE_HOME",
+        "UNACCOMPANIED_BAGGAGE"
       ],
       "x-display-value": {
         "BOAT_HAUL_AWAY": "Boat Haul-Away",
@@ -25071,10 +25788,9 @@ func init() {
         "HHG": "HHG",
         "HHG_INTO_NTS_DOMESTIC": "NTS",
         "HHG_OUTOF_NTS_DOMESTIC": "NTS Release",
-        "INTERNATIONAL_HHG": "International HHG",
-        "INTERNATIONAL_UB": "International UB",
         "MOBILE_HOME": "Mobile Home",
-        "PPM": "PPM"
+        "PPM": "PPM",
+        "UNACCOMPANIED_BAGGAGE": "Unaccompanied Baggage"
       },
       "example": "HHG"
     },
@@ -26239,7 +26955,8 @@ func init() {
         "SEPARATION",
         "WOUNDED_WARRIOR",
         "BLUEBARK",
-        "SAFETY"
+        "SAFETY",
+        "TEMPORARY_DUTY"
       ],
       "x-display-value": {
         "BLUEBARK": "BLUEBARK",
@@ -26248,6 +26965,7 @@ func init() {
         "RETIREMENT": "Retirement",
         "SAFETY": "Safety",
         "SEPARATION": "Separation",
+        "TEMPORARY_DUTY": "Temporary Duty (TDY)",
         "WOUNDED_WARRIOR": "Wounded Warrior"
       }
     },
@@ -26445,6 +27163,179 @@ func init() {
           "format": "cents",
           "x-nullable": true,
           "x-omitempty": false
+        }
+      }
+    },
+    "PPMDestinationAddress": {
+      "description": "A postal address",
+      "type": "object",
+      "required": [
+        "city",
+        "state",
+        "postalCode"
+      ],
+      "properties": {
+        "city": {
+          "type": "string",
+          "title": "City",
+          "example": "Anytown"
+        },
+        "country": {
+          "type": "string",
+          "title": "Country",
+          "default": "USA",
+          "x-nullable": true,
+          "example": "USA"
+        },
+        "county": {
+          "type": "string",
+          "title": "County",
+          "x-nullable": true,
+          "example": "LOS ANGELES"
+        },
+        "eTag": {
+          "type": "string",
+          "readOnly": true
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "postalCode": {
+          "type": "string",
+          "format": "zip",
+          "title": "ZIP",
+          "pattern": "^(\\d{5}([\\-]\\d{4})?)$",
+          "example": "90210"
+        },
+        "state": {
+          "type": "string",
+          "title": "State",
+          "enum": [
+            "AL",
+            "AK",
+            "AR",
+            "AZ",
+            "CA",
+            "CO",
+            "CT",
+            "DC",
+            "DE",
+            "FL",
+            "GA",
+            "HI",
+            "IA",
+            "ID",
+            "IL",
+            "IN",
+            "KS",
+            "KY",
+            "LA",
+            "MA",
+            "MD",
+            "ME",
+            "MI",
+            "MN",
+            "MO",
+            "MS",
+            "MT",
+            "NC",
+            "ND",
+            "NE",
+            "NH",
+            "NJ",
+            "NM",
+            "NV",
+            "NY",
+            "OH",
+            "OK",
+            "OR",
+            "PA",
+            "RI",
+            "SC",
+            "SD",
+            "TN",
+            "TX",
+            "UT",
+            "VA",
+            "VT",
+            "WA",
+            "WI",
+            "WV",
+            "WY"
+          ],
+          "x-display-value": {
+            "AK": "AK",
+            "AL": "AL",
+            "AR": "AR",
+            "AZ": "AZ",
+            "CA": "CA",
+            "CO": "CO",
+            "CT": "CT",
+            "DC": "DC",
+            "DE": "DE",
+            "FL": "FL",
+            "GA": "GA",
+            "HI": "HI",
+            "IA": "IA",
+            "ID": "ID",
+            "IL": "IL",
+            "IN": "IN",
+            "KS": "KS",
+            "KY": "KY",
+            "LA": "LA",
+            "MA": "MA",
+            "MD": "MD",
+            "ME": "ME",
+            "MI": "MI",
+            "MN": "MN",
+            "MO": "MO",
+            "MS": "MS",
+            "MT": "MT",
+            "NC": "NC",
+            "ND": "ND",
+            "NE": "NE",
+            "NH": "NH",
+            "NJ": "NJ",
+            "NM": "NM",
+            "NV": "NV",
+            "NY": "NY",
+            "OH": "OH",
+            "OK": "OK",
+            "OR": "OR",
+            "PA": "PA",
+            "RI": "RI",
+            "SC": "SC",
+            "SD": "SD",
+            "TN": "TN",
+            "TX": "TX",
+            "UT": "UT",
+            "VA": "VA",
+            "VT": "VT",
+            "WA": "WA",
+            "WI": "WI",
+            "WV": "WV",
+            "WY": "WY"
+          }
+        },
+        "streetAddress1": {
+          "type": "string",
+          "title": "Street address 1",
+          "x-nullable": true,
+          "example": "123 Main Ave"
+        },
+        "streetAddress2": {
+          "type": "string",
+          "title": "Street address 2",
+          "x-nullable": true,
+          "example": "Apartment 9000"
+        },
+        "streetAddress3": {
+          "type": "string",
+          "title": "Address Line 3",
+          "x-nullable": true,
+          "example": "Montmârtre"
         }
       }
     },
@@ -26804,6 +27695,13 @@ func init() {
           "readOnly": true,
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
         },
+        "isActualExpenseReimbursement": {
+          "description": "Used for PPM shipments only. Denotes if this shipment uses the Actual Expense Reimbursement method.",
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false,
+          "example": false
+        },
         "movingExpenses": {
           "description": "All expense documentation receipt records of this PPM shipment.",
           "type": "array",
@@ -27018,7 +27916,7 @@ func init() {
     "PPMStatus": {
       "type": "string",
       "enum": [
-        "CANCELLED",
+        "CANCELED",
         "DRAFT",
         "SUBMITTED",
         "WAITING_ON_CUSTOMER",
@@ -27503,6 +28401,9 @@ func init() {
           "format": "date-time",
           "x-nullable": true
         },
+        "assignable": {
+          "type": "boolean"
+        },
         "assignedTo": {
           "x-nullable": true,
           "$ref": "#/definitions/AssignedOfficeUser"
@@ -27521,6 +28422,11 @@ func init() {
         },
         "counselingOffice": {
           "type": "string",
+          "x-nullable": true
+        },
+        "counselingOfficeID": {
+          "type": "string",
+          "format": "uuid",
           "x-nullable": true
         },
         "customer": {
@@ -27624,6 +28530,13 @@ func init() {
           "type": "number",
           "format": "double"
         },
+        "assignable": {
+          "type": "boolean"
+        },
+        "assignedTo": {
+          "x-nullable": true,
+          "$ref": "#/definitions/AssignedOfficeUser"
+        },
         "availableOfficeUsers": {
           "$ref": "#/definitions/AvailableOfficeUsers"
         },
@@ -27721,6 +28634,10 @@ func init() {
       "description": "An object associating violations to evaluation reports",
       "type": "object",
       "properties": {
+        "gsrAppeals": {
+          "x-nullable": true,
+          "$ref": "#/definitions/GSRAppeals"
+        },
         "id": {
           "type": "string",
           "format": "uuid",
@@ -29227,7 +30144,7 @@ func init() {
         "destinationAddress": {
           "allOf": [
             {
-              "$ref": "#/definitions/Address"
+              "$ref": "#/definitions/PPMDestinationAddress"
             }
           ]
         },
@@ -29276,6 +30193,13 @@ func init() {
           "type": "boolean",
           "x-nullable": true,
           "x-omitempty": false
+        },
+        "isActualExpenseReimbursement": {
+          "description": "Used for PPM shipments only. Denotes if this shipment uses the Actual Expense Reimbursement method.",
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false,
+          "example": false
         },
         "pickupAddress": {
           "allOf": [

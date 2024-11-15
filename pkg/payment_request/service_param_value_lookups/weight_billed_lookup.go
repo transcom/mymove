@@ -198,7 +198,7 @@ func calculateMinimumBillableWeight(appCtx appcontext.AppContext, shipment model
 func applyMinimum(code models.ReServiceCode, shipmentType models.MTOShipmentType, weight int) string {
 	result := weight
 	switch shipmentType {
-	case models.MTOShipmentTypeInternationalUB:
+	case models.MTOShipmentTypeUnaccompaniedBaggage:
 		switch code {
 		case models.ReServiceCodeIOSHUT,
 			models.ReServiceCodeIDSHUT:
@@ -227,9 +227,7 @@ func applyMinimum(code models.ReServiceCode, shipmentType models.MTOShipmentType
 			models.ReServiceCodeDUPK,
 			models.ReServiceCodeDOSHUT,
 			models.ReServiceCodeDDSHUT,
-			models.ReServiceCodeIOOLH,
-			models.ReServiceCodeICOLH,
-			models.ReServiceCodeIOCLH,
+			models.ReServiceCodeISLH,
 			models.ReServiceCodeIHPK,
 			models.ReServiceCodeIHUPK,
 			models.ReServiceCodeIOFSIT,
@@ -244,9 +242,7 @@ func applyMinimum(code models.ReServiceCode, shipmentType models.MTOShipmentType
 			if weight < 500 {
 				result = 500
 			}
-		case models.ReServiceCodeIOOUB,
-			models.ReServiceCodeICOUB,
-			models.ReServiceCodeIOCUB,
+		case models.ReServiceCodeUBP,
 			models.ReServiceCodeIUBPK,
 			models.ReServiceCodeIUBUPK:
 			if weight < 300 {

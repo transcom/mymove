@@ -71,6 +71,10 @@ describe('RequestAccountForm component', () => {
     expect(transportationOffice).toBeInstanceOf(HTMLInputElement);
     expect(transportationOffice).toHaveTextContent('');
 
+    const hqCheckbox = screen.getByTestId('headquartersCheckBox');
+    expect(hqCheckbox).toBeInstanceOf(HTMLInputElement);
+    expect(hqCheckbox).not.toBeChecked(false);
+
     const tooCheckbox = screen.getByTestId('taskOrderingOfficerCheckBox');
     expect(tooCheckbox).toBeInstanceOf(HTMLInputElement);
     expect(tooCheckbox).not.toBeChecked(false);
@@ -127,7 +131,7 @@ describe('RequestAccountForm component', () => {
 
     await userEvent.type(screen.getByLabelText('First Name'), 'Bob');
     await userEvent.type(screen.getByLabelText('Last Name'), 'Banks');
-    await userEvent.type(screen.getByLabelText('Email'), 'banks@mail.mil');
+    await userEvent.type(screen.getByLabelText('Email'), 'banks@us.navy.mil');
     await userEvent.type(screen.getByLabelText('Telephone'), '333-333-3333');
     await userEvent.type(screen.getByTestId('officeAccountRequestEdipi'), '1111111111');
     await userEvent.type(screen.getByTestId('officeAccountRequestOtherUniqueId'), '1111111111');

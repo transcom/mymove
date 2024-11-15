@@ -118,3 +118,40 @@ describe('Error when submitting', () => {
     });
   });
 });
+
+describe('Create PPM', () => {
+  it('test destination address street 1 is OPTIONAL', async () => {
+    createPrimeMTOShipmentV3.mockReturnValue({});
+
+    render(mockedComponent);
+
+    waitFor(async () => {
+      await userEvent.selectOptions(screen.getByLabelText('Shipment type'), 'PPM');
+
+      // Start controlled test case to verify everything is working.
+      let input = await document.querySelector('input[name="ppmShipment.pickupAddress.streetAddress1"]');
+      expect(input).toBeInTheDocument();
+      // enter required street 1 for pickup
+      await userEvent.type(input, '123 Street');
+      // clear
+      await userEvent.clear(input);
+      await userEvent.tab();
+      // verify Required alert is displayed
+      const requiredAlerts = screen.getByRole('alert');
+      expect(requiredAlerts).toHaveTextContent('Required');
+      // make valid again to clear alert
+      await userEvent.type(input, '123 Street');
+
+      // Verify destination address street 1 is OPTIONAL.
+      input = await document.querySelector('input[name="ppmShipment.destinationAddress.streetAddress1"]');
+      expect(input).toBeInTheDocument();
+      // enter something
+      await userEvent.type(input, '123 Street');
+      // clear
+      await userEvent.clear(input);
+      await userEvent.tab();
+      // verify no validation is displayed after clearing destination address street 1 because it's OPTIONAL
+      expect(screen.queryByRole('alert')).not.toBeInTheDocument();
+    });
+  });
+});
