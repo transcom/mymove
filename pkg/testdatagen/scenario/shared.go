@@ -1366,6 +1366,7 @@ func createApprovedMoveWithPPMCloseoutComplete(appCtx appcontext.AppContext, use
 	approvedAt := time.Date(2022, 4, 15, 12, 30, 0, 0, time.UTC)
 	address := factory.BuildAddress(appCtx.DB(), nil, nil)
 	approvedAdvanceStatus := models.PPMAdvanceStatusApproved
+	allowableWeight := unit.Pound(4000)
 
 	assertions := testdatagen.Assertions{
 		UserUploader: userUploader,
@@ -1388,6 +1389,7 @@ func createApprovedMoveWithPPMCloseoutComplete(appCtx appcontext.AppContext, use
 			HasReceivedAdvance:          models.BoolPointer(true),
 			AdvanceAmountReceived:       models.CentPointer(unit.Cents(340000)),
 			W2Address:                   &address,
+			AllowableWeight:             &allowableWeight,
 		},
 	}
 
@@ -1426,6 +1428,7 @@ func createApprovedMoveWithPPMCloseoutCompleteMultipleWeightTickets(appCtx appco
 	approvedAt := time.Date(2022, 4, 15, 12, 30, 0, 0, time.UTC)
 	address := factory.BuildAddress(appCtx.DB(), nil, nil)
 	approvedAdvanceStatus := models.PPMAdvanceStatusApproved
+	allowableWeight := unit.Pound(8000)
 
 	assertions := testdatagen.Assertions{
 		UserUploader: userUploader,
@@ -1448,6 +1451,7 @@ func createApprovedMoveWithPPMCloseoutCompleteMultipleWeightTickets(appCtx appco
 			HasReceivedAdvance:          models.BoolPointer(true),
 			AdvanceAmountReceived:       models.CentPointer(unit.Cents(340000)),
 			W2Address:                   &address,
+			AllowableWeight:             &allowableWeight,
 		},
 	}
 
@@ -1504,6 +1508,7 @@ func createApprovedMoveWithPPMCloseoutCompleteWithExpenses(appCtx appcontext.App
 	approvedAt := time.Date(2022, 4, 15, 12, 30, 0, 0, time.UTC)
 	address := factory.BuildAddress(appCtx.DB(), nil, nil)
 	approvedAdvanceStatus := models.PPMAdvanceStatusApproved
+	allowableWeight := unit.Pound(4000)
 
 	assertions := testdatagen.Assertions{
 		UserUploader: userUploader,
@@ -1526,6 +1531,7 @@ func createApprovedMoveWithPPMCloseoutCompleteWithExpenses(appCtx appcontext.App
 			HasReceivedAdvance:          models.BoolPointer(true),
 			AdvanceAmountReceived:       models.CentPointer(unit.Cents(340000)),
 			W2Address:                   &address,
+			AllowableWeight:             &allowableWeight,
 		},
 	}
 
@@ -1595,6 +1601,7 @@ func createApprovedMoveWithPPMCloseoutCompleteWithAllDocTypes(appCtx appcontext.
 	approvedAt := time.Date(2022, 4, 15, 12, 30, 0, 0, time.UTC)
 	address := factory.BuildAddress(appCtx.DB(), nil, nil)
 	approvedAdvanceStatus := models.PPMAdvanceStatusApproved
+	allowableWeight := unit.Pound(4000)
 
 	assertions := testdatagen.Assertions{
 		UserUploader: userUploader,
@@ -1617,6 +1624,7 @@ func createApprovedMoveWithPPMCloseoutCompleteWithAllDocTypes(appCtx appcontext.
 			HasReceivedAdvance:          models.BoolPointer(true),
 			AdvanceAmountReceived:       models.CentPointer(unit.Cents(340000)),
 			W2Address:                   &address,
+			AllowableWeight:             &allowableWeight,
 		},
 	}
 

@@ -344,6 +344,16 @@ func AddWeightTicketToPPMShipment(db *pop.Connection, ppmShipment *models.PPMShi
 		weightTicket.UpdatedAt = ppmShipment.UpdatedAt
 	}
 	ppmShipment.WeightTickets = append(ppmShipment.WeightTickets, weightTicket)
+
+	// if ppmShipment.Status == models.PPMShipmentStatusNeedsCloseout {
+	// 	var allowableWeight = unit.Pound(0)
+	// 	if len(ppmShipment.WeightTickets) >= 1 {
+	// 		for _, weightTicket := range ppmShipment.WeightTickets {
+	// 			allowableWeight += *weightTicket.FullWeight - *weightTicket.EmptyWeight
+	// 		}
+	// 	}
+	// 	ppmShipment.AllowableWeight = &allowableWeight
+	// }
 }
 
 // AddProgearWeightTicketToPPMShipment adds a progear weight ticket to
