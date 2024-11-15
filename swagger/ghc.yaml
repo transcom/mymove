@@ -2944,6 +2944,44 @@ paths:
           $ref: '#/responses/ServerError'
       x-permissions:
         - update.evaluationReport
+  /evaluation-reports/{reportID}/appeal/add:
+    parameters:
+      - in: path
+        description: the evaluation report ID
+        name: reportID
+        required: true
+        type: string
+        format: uuid
+    post:
+      summary: Adds an appeal to a serious incident on an evaluation report
+      description: Adds an appeal to a serious incident on an evaluation report
+      operationId: addAppealToSeriousIncident
+      tags:
+        - evaluationReports
+      produces:
+        - application/json
+      consumes:
+        - application/json
+      parameters:
+        - in: body
+          name: body
+          schema:
+            $ref: '#/definitions/CreateAppeal'
+      responses:
+        '204':
+          description: Successfully added an appeal to a serious incident
+        '403':
+          $ref: '#/responses/PermissionDenied'
+        '404':
+          $ref: '#/responses/NotFound'
+        '412':
+          $ref: '#/responses/PreconditionFailed'
+        '422':
+          $ref: '#/responses/UnprocessableEntity'
+        '500':
+          $ref: '#/responses/ServerError'
+      x-permissions:
+        - update.evaluationReport
   /evaluation-reports/{reportID}/{reportViolationID}/appeal/add:
     parameters:
       - in: path
@@ -2972,7 +3010,7 @@ paths:
         - in: body
           name: body
           schema:
-            $ref: '#/definitions/CreateViolationAppeal'
+            $ref: '#/definitions/CreateAppeal'
       responses:
         '204':
           description: Successfully added an appeal to a violation
@@ -7518,7 +7556,7 @@ definitions:
       location:
         $ref: '#/definitions/EvaluationReportLocation'
         x-nullable: true
-      ReportViolations:
+      reportViolations:
         $ref: '#/definitions/ReportViolations'
         x-nullable: true
       gsrAppeals:
@@ -7612,7 +7650,7 @@ definitions:
         example: 01b9671e-b268-4906-967b-ba661a1d3933
         format: uuid
         type: string
-  CreateViolationAppeal:
+  CreateAppeal:
     type: object
     description: Appeal status and remarks left for a violation, created by a GSR user.
     properties:
