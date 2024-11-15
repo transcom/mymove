@@ -8,12 +8,20 @@ export const initialState = {
   hasSucceeded: false,
   hasErrored: false,
   isLoading: true,
+  underMaintenance: false,
 };
 
 const authReducer = (state = initialState, action = {}) => {
   switch (action?.type) {
     case LOG_OUT: {
       return initialState;
+    }
+    case 'SET_UNDER_MAINTENANCE': {
+      return {
+        ...state,
+        isLoading: false,
+        underMaintenance: true,
+      };
     }
     case 'GET_LOGGED_IN_USER_START': {
       return {
