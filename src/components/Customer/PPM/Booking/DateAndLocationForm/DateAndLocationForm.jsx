@@ -139,7 +139,7 @@ const DateAndLocationForm = ({ mtoShipment, destinationDutyLocation, serviceMemb
       validateOnMount
       validateOnChange
     >
-      {({ isValid, isSubmitting, handleSubmit, setValues, values }) => {
+      {({ isValid, isSubmitting, handleSubmit, setValues, values, validateForm, ...formikProps }) => {
         const handleUseCurrentResidenceChange = (e) => {
           const { checked } = e.target;
           if (checked) {
@@ -201,6 +201,9 @@ const DateAndLocationForm = ({ mtoShipment, destinationDutyLocation, serviceMemb
                 <AddressFields
                   name="pickupAddress.address"
                   labelHint="Required"
+                  locationLookup
+                  validateForm={validateForm}
+                  formikProps={formikProps}
                   render={(fields) => (
                     <>
                       <p>What address are you moving from?</p>
@@ -239,7 +242,13 @@ const DateAndLocationForm = ({ mtoShipment, destinationDutyLocation, serviceMemb
                       {values.hasSecondaryPickupAddress === 'true' && (
                         <>
                           <h3>Second pickup location</h3>
-                          <AddressFields labelHint="Required" name="secondaryPickupAddress.address" />
+                          <AddressFields
+                            labelHint="Required"
+                            name="secondaryPickupAddress.address"
+                            locationLookup
+                            validateForm={validateForm}
+                            formikProps={formikProps}
+                          />
                           <Hint className={ppmStyles.hint}>
                             <p>
                               A second origin address could mean that your final incentive is lower than your estimate.
@@ -287,7 +296,13 @@ const DateAndLocationForm = ({ mtoShipment, destinationDutyLocation, serviceMemb
                         values.hasTertiaryPickupAddress === 'true' && (
                           <>
                             <h3>Third pickup location</h3>
-                            <AddressFields labelHint="Required" name="tertiaryPickupAddress.address" />
+                            <AddressFields
+                              labelHint="Required"
+                              name="tertiaryPickupAddress.address"
+                              locationLookup
+                              validateForm={validateForm}
+                              formikProps={formikProps}
+                            />
                           </>
                         )}
                     </>
@@ -299,6 +314,9 @@ const DateAndLocationForm = ({ mtoShipment, destinationDutyLocation, serviceMemb
                 <AddressFields
                   name="destinationAddress.address"
                   labelHint="Required"
+                  locationLookup
+                  validateForm={validateForm}
+                  formikProps={formikProps}
                   // White spaces are used specifically to override incoming labelHint prop
                   // not to display anything.
                   address1LabelHint=" "
@@ -340,7 +358,13 @@ const DateAndLocationForm = ({ mtoShipment, destinationDutyLocation, serviceMemb
                       {values.hasSecondaryDestinationAddress === 'true' && (
                         <>
                           <h3>Second delivery location</h3>
-                          <AddressFields name="secondaryDestinationAddress.address" labelHint="Required" />
+                          <AddressFields
+                            name="secondaryDestinationAddress.address"
+                            labelHint="Required"
+                            locationLookup
+                            validateForm={validateForm}
+                            formikProps={formikProps}
+                          />
                           <Hint className={ppmStyles.hint}>
                             <p>
                               A second destination address could mean that your final incentive is lower than your
@@ -389,7 +413,13 @@ const DateAndLocationForm = ({ mtoShipment, destinationDutyLocation, serviceMemb
                         values.hasTertiaryDestinationAddress === 'true' && (
                           <>
                             <h3>Third delivery location</h3>
-                            <AddressFields name="tertiaryDestinationAddress.address" labelHint="Required" />
+                            <AddressFields
+                              name="tertiaryDestinationAddress.address"
+                              labelHint="Required"
+                              locationLookup
+                              validateForm={validateForm}
+                              formikProps={formikProps}
+                            />
                           </>
                         )}
                     </>

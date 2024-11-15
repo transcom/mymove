@@ -40,39 +40,7 @@ const EditContactInfoForm = ({ initialValues, onSubmit, onCancel }) => {
 
   return (
     <Formik initialValues={initialValues} onSubmit={onSubmit} validateOnMount validationSchema={validationSchema}>
-      {({ isValid, isSubmitting, handleSubmit, values, setValues }) => {
-        const handleCurrentZipCityChange = (value) => {
-          setValues(
-            {
-              ...values,
-              residential_address: {
-                ...values.residential_address,
-                city: value.city ? value.city : '',
-                state: value.state ? value.state : '',
-                county: value.county ? value.county : '',
-                postalCode: value.postalCode ? value.postalCode : '',
-                usprcId: value.usPostRegionCitiesId ? value.usPostRegionCitiesId : '',
-              },
-            },
-            { shouldValidate: true },
-          );
-        };
-        const handleBackupZipCityChange = (value) => {
-          setValues(
-            {
-              ...values,
-              backup_mailing_address: {
-                ...values.backup_mailing_address,
-                city: value.city ? value.city : '',
-                state: value.state ? value.state : '',
-                county: value.county ? value.county : '',
-                postalCode: value.postalCode ? value.postalCode : '',
-                usprcId: value.usPostRegionCitiesId ? value.usPostRegionCitiesId : '',
-              },
-            },
-            { shouldValidate: true },
-          );
-        };
+      {({ isValid, isSubmitting, handleSubmit, values, ...formikProps }) => {
         return (
           <Form className={classnames(formStyles.form, editContactInfoFormStyle.form)}>
             <h1>Edit contact info</h1>
@@ -89,8 +57,9 @@ const EditContactInfoForm = ({ initialValues, onSubmit, onCancel }) => {
               <AddressFields
                 name={residentialAddressName}
                 labelHint="Required"
-                zipCityEnabled
-                handleLocationChange={handleCurrentZipCityChange}
+                locationLookup
+                values={values}
+                formikProps={formikProps}
               />
             </SectionWrapper>
 
@@ -104,8 +73,9 @@ const EditContactInfoForm = ({ initialValues, onSubmit, onCancel }) => {
               <AddressFields
                 name={backupAddressName}
                 labelHint="Required"
-                zipCityEnabled
-                handleLocationChange={handleBackupZipCityChange}
+                locationLookup
+                values={values}
+                formikProps={formikProps}
               />
             </SectionWrapper>
 

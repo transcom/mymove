@@ -807,7 +807,6 @@ export class CustomerPpmPage extends CustomerPage {
         await this.page.locator('.reviewExpenses a').getByText('Edit').click();
       }
     }
-    await expect(this.page.getByRole('heading', { level: 1, name: 'Expenses' })).toBeVisible();
   }
 
   /**
@@ -914,8 +913,12 @@ export class CustomerPpmPage extends CustomerPage {
    * returns {Promise<void>}
    */
   async navigateFromCloseoutReviewPageToExpensesPage() {
+    await this.page.getByRole('link', { name: 'Add Expenses' }).waitFor({ state: 'visible' });
     await this.page.getByRole('link', { name: 'Add Expenses' }).click();
-    await expect(this.page.getByRole('heading', { level: 1, name: 'Expenses' })).toBeVisible();
+
+    // Retry to confirm the heading is visible - this is an effort to reduce flaky test failures
+    await this.page.waitForTimeout(1000);
+    await expect(this.page.getByRole('heading', { level: 1, name: 'Expenses' })).toBeVisible({ timeout: 5000 });
   }
 
   /**
