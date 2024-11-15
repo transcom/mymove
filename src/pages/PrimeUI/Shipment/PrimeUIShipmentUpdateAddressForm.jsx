@@ -29,29 +29,13 @@ const PrimeUIShipmentUpdateAddressForm = ({
 
   return (
     <Formik initialValues={initialValues} onSubmit={onSubmit} validationSchema={updateShipmentAddressSchema}>
-      {({ isValid, isSubmitting, handleSubmit, errors, setValues }) => {
-        const handleLocationChange = (newValue) => {
-          setValues((prevValues) => {
-            return {
-              ...prevValues,
-              address: {
-                ...prevValues.address,
-                city: newValue.city,
-                state: newValue.state ? newValue.state : '',
-                county: newValue.county,
-                postalCode: newValue.postalCode,
-                usprcId: newValue.usPostRegionCitiesId ? newValue.usPostRegionCitiesId : '',
-              },
-            };
-          });
-        };
-
+      {({ isValid, isSubmitting, handleSubmit, errors, ...formikProps }) => {
         return (
           <Form className={classnames(formStyles.form)}>
             <FormGroup error={errors != null && Object.keys(errors).length > 0 ? 1 : 0}>
               <SectionWrapper className={formStyles.formSection}>
                 <h2>{addressLocation}</h2>
-                <AddressFields name={name} zipCityEnabled handleLocationChange={handleLocationChange} />
+                <AddressFields name={name} locationLookup formikProps={formikProps} />
               </SectionWrapper>
               <WizardNavigation
                 editMode

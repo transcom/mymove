@@ -66,23 +66,7 @@ const OriginSITServiceItemForm = ({ shipment, submission }) => {
 
   return (
     <Formik initialValues={initialValues} validationSchema={originSITValidationSchema} onSubmit={onSubmit}>
-      {({ isValid, isSubmitting, handleSubmit, setValues }) => {
-        const handleLocationChange = (newValue) => {
-          setValues((prevValues) => {
-            return {
-              ...prevValues,
-              sitHHGActualOrigin: {
-                ...prevValues.address,
-                city: newValue.city,
-                state: newValue.state ? newValue.state : '',
-                county: newValue.county,
-                postalCode: newValue.postalCode,
-                usprcId: newValue.usPostRegionCitiesId ? newValue.usPostRegionCitiesId : '',
-              },
-            };
-          });
-        };
-
+      {({ isValid, isSubmitting, handleSubmit, ...formikProps }) => {
         return (
           <Form data-testid="originSITServiceItemForm">
             <input type="hidden" name="moveTaskOrderID" />
@@ -102,8 +86,8 @@ const OriginSITServiceItemForm = ({ shipment, submission }) => {
             <AddressFields
               legend="SIT HHG actual origin"
               name="sitHHGActualOrigin"
-              zipCityEnabled
-              handleLocationChange={handleLocationChange}
+              locationLookup
+              formikProps={formikProps}
             />
             <Button onClick={handleSubmit} disabled={isSubmitting || !isValid} type="submit">
               Create service item

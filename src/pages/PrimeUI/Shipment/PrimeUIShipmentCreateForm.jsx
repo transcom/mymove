@@ -18,7 +18,7 @@ import { LOCATION_TYPES } from 'types/sitStatusShape';
 const sitLocationOptions = dropdownInputOptions(LOCATION_TYPES);
 
 const PrimeUIShipmentCreateForm = () => {
-  const { values, setValues } = useFormikContext();
+  const { values, setFieldTouched, setFieldValue } = useFormikContext();
   const { shipmentType } = values;
   const { sitExpected, hasProGear } = values.ppmShipment;
   const { hasTrailer } = values.boatShipment;
@@ -100,44 +100,6 @@ const PrimeUIShipmentCreateForm = () => {
     shipmentTypeOptions = shipmentTypeOptions.filter((e) => e.key !== SHIPMENT_TYPES.MOBILE_HOME);
   }
 
-  const handleLocationChange = (key1, key2) => {
-    if (key1 && key2) {
-      return (newValue) => {
-        setValues((prevValues) => {
-          const newValues = { ...prevValues };
-          newValues[key1][key2] = {
-            ...newValues[key1][key2],
-            city: newValue.city,
-            state: newValue.state ? newValue.state : '',
-            county: newValue.county,
-            postalCode: newValue.postalCode,
-            usprcId: newValue.usPostRegionCitiesId ? newValue.usPostRegionCitiesId : '',
-          };
-          return newValues;
-        });
-      };
-    }
-
-    if (key1) {
-      return (newValue) => {
-        setValues((prevValues) => {
-          const newValues = { ...prevValues };
-          newValues[key1] = {
-            ...newValues[key1],
-            city: newValue.city,
-            state: newValue.state ? newValue.state : '',
-            county: newValue.county,
-            postalCode: newValue.postalCode,
-            usprcId: newValue.usPostRegionCitiesId ? newValue.usPostRegionCitiesId : '',
-          };
-          return newValues;
-        });
-      };
-    }
-
-    return () => {};
-  };
-
   return (
     <SectionWrapper className={`${formStyles.formSection} ${styles.formSectionHeader}`}>
       <h2 className={styles.sectionHeader}>Shipment Type</h2>
@@ -155,8 +117,11 @@ const PrimeUIShipmentCreateForm = () => {
           <AddressFields
             name="ppmShipment.pickupAddress"
             legend="Pickup Address"
-            zipCityEnabled
-            handleLocationChange={handleLocationChange('ppmShipment', 'pickupAddress')}
+            locationLookup
+            formikProps={{
+              setFieldTouched,
+              setFieldValue,
+            }}
             render={(fields) => (
               <>
                 <p>What address are the movers picking up from?</p>
@@ -195,8 +160,11 @@ const PrimeUIShipmentCreateForm = () => {
                     <h5 className={styles.sectionHeader}>Second Pickup Address</h5>
                     <AddressFields
                       name="ppmShipment.secondaryPickupAddress"
-                      zipCityEnabled
-                      handleLocationChange={handleLocationChange('ppmShipment', 'secondaryPickupAddress')}
+                      locationLookup
+                      formikProps={{
+                        setFieldTouched,
+                        setFieldValue,
+                      }}
                     />
 
                     <h4>Third pickup location</h4>
@@ -235,8 +203,11 @@ const PrimeUIShipmentCreateForm = () => {
                     <h5 className={styles.sectionHeader}>Third Pickup Address</h5>
                     <AddressFields
                       name="ppmShipment.tertiaryPickupAddress"
-                      zipCityEnabled
-                      handleLocationChange={handleLocationChange('ppmShipment', 'tertiaryPickupAddress')}
+                      locationLookup
+                      formikProps={{
+                        setFieldTouched,
+                        setFieldValue,
+                      }}
                     />
                   </>
                 )}
@@ -248,8 +219,11 @@ const PrimeUIShipmentCreateForm = () => {
             name="ppmShipment.destinationAddress"
             legend="Destination Address"
             address1LabelHint="Optional"
-            zipCityEnabled
-            handleLocationChange={handleLocationChange('ppmShipment', 'destinationAddress')}
+            locationLookup
+            formikProps={{
+              setFieldTouched,
+              setFieldValue,
+            }}
             render={(fields) => (
               <>
                 {fields}
@@ -287,8 +261,11 @@ const PrimeUIShipmentCreateForm = () => {
                     <h5 className={styles.sectionHeader}>Second Destination Address</h5>
                     <AddressFields
                       name="ppmShipment.secondaryDestinationAddress"
-                      zipCityEnabled
-                      handleLocationChange={handleLocationChange('ppmShipment', 'secondaryDestinationAddress')}
+                      locationLookup
+                      formikProps={{
+                        setFieldTouched,
+                        setFieldValue,
+                      }}
                     />
 
                     <h4>Third delivery location</h4>
@@ -327,8 +304,11 @@ const PrimeUIShipmentCreateForm = () => {
                     <h5 className={styles.sectionHeader}>Third Destination Address</h5>
                     <AddressFields
                       name="ppmShipment.tertiaryDestinationAddress"
-                      zipCityEnabled
-                      handleLocationChange={handleLocationChange('ppmShipment', 'tertiaryDestinationAddress')}
+                      locationLookup
+                      formikProps={{
+                        setFieldTouched,
+                        setFieldValue,
+                      }}
                     />
                   </>
                 )}
@@ -450,8 +430,11 @@ const PrimeUIShipmentCreateForm = () => {
           <h5 className={styles.sectionHeader}>Pickup Address</h5>
           <AddressFields
             name="pickupAddress"
-            zipCityEnabled
-            handleLocationChange={handleLocationChange('pickupAddress')}
+            locationLookup
+            formikProps={{
+              setFieldTouched,
+              setFieldValue,
+            }}
             render={(fields) => (
               <>
                 {fields}
@@ -489,8 +472,11 @@ const PrimeUIShipmentCreateForm = () => {
                     <h5 className={styles.sectionHeader}>Second Pickup Address</h5>
                     <AddressFields
                       name="secondaryPickupAddress"
-                      zipCityEnabled
-                      handleLocationChange={handleLocationChange('secondaryPickupAddress')}
+                      locationLookup
+                      formikProps={{
+                        setFieldTouched,
+                        setFieldValue,
+                      }}
                     />
 
                     <h4>Third pickup location</h4>
@@ -529,8 +515,11 @@ const PrimeUIShipmentCreateForm = () => {
                     <h5 className={styles.sectionHeader}>Third Pickup Address</h5>
                     <AddressFields
                       name="tertiaryPickupAddress"
-                      zipCityEnabled
-                      handleLocationChange={handleLocationChange('tertiaryPickupAddress')}
+                      locationLookup
+                      formikProps={{
+                        setFieldTouched,
+                        setFieldValue,
+                      }}
                     />
                   </>
                 )}
@@ -542,8 +531,11 @@ const PrimeUIShipmentCreateForm = () => {
           <AddressFields
             name="destinationAddress"
             legend="Destination Address"
-            zipCityEnabled
-            handleLocationChange={handleLocationChange('destinationAddress')}
+            locationLookup
+            formikProps={{
+              setFieldTouched,
+              setFieldValue,
+            }}
             render={(fields) => (
               <>
                 {fields}
@@ -582,8 +574,11 @@ const PrimeUIShipmentCreateForm = () => {
                     <h5 className={styles.sectionHeader}>Second Destination Address</h5>
                     <AddressFields
                       name="secondaryDestinationAddress"
-                      zipCityEnabled
-                      handleLocationChange={handleLocationChange('secondaryDestinationAddress')}
+                      locationLookup
+                      formikProps={{
+                        setFieldTouched,
+                        setFieldValue,
+                      }}
                     />
 
                     <h4>Third delivery location</h4>
@@ -622,8 +617,11 @@ const PrimeUIShipmentCreateForm = () => {
                     <h5 className={styles.sectionHeader}>Third Destination Address</h5>
                     <AddressFields
                       name="tertiaryDestinationAddress"
-                      zipCityEnabled
-                      handleLocationChange={handleLocationChange('tertiaryDestinationAddress')}
+                      locationLookup
+                      formikProps={{
+                        setFieldTouched,
+                        setFieldValue,
+                      }}
                     />
                   </>
                 )}
