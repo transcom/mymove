@@ -10,6 +10,7 @@ export const shipmentTypeLabels = {
   [SHIPMENT_TYPES.BOAT_HAUL_AWAY]: 'Boat',
   [SHIPMENT_TYPES.BOAT_TOW_AWAY]: 'Boat',
   [SHIPMENT_TYPES.MOBILE_HOME]: 'Mobile Home',
+  [SHIPMENT_TYPES.UNACCOMPANIED_BAGGAGE]: 'UB',
 };
 
 export const shipmentForm = {

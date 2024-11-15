@@ -21,7 +21,7 @@ func NewTransportationOfficesFetcher() services.TransportationOfficesFetcher {
 
 func (o transportationOfficesFetcher) GetTransportationOffice(appCtx appcontext.AppContext, transportationOfficeID uuid.UUID, includeOnlyPPMCloseoutOffices bool) (*models.TransportationOffice, error) {
 	var transportationOffice models.TransportationOffice
-	err := appCtx.DB().EagerPreload("Address").
+	err := appCtx.DB().EagerPreload("Address", "Address.Country").
 		Where("provides_ppm_closeout = ?", includeOnlyPPMCloseoutOffices).
 		Find(&transportationOffice, transportationOfficeID)
 
@@ -84,7 +84,7 @@ func FindTransportationOffice(appCtx appcontext.AppContext, search string, forPp
 		}
 	}
 	for i := range officeList {
-		err := appCtx.DB().Load(&officeList[i], "Address")
+		err := appCtx.DB().Load(&officeList[i], "Address", "Address.Country")
 		if err != nil {
 			return officeList, err
 		}
@@ -138,20 +138,29 @@ func findCounselingOffice(appCtx appcontext.AppContext, dutyLocationID uuid.UUID
 	var officeList []models.TransportationOffice
 
 	sqlQuery := `
-		with counseling_offices as (
-		SELECT transportation_offices.id, transportation_offices.name
-				FROM postal_code_to_gblocs
-				JOIN addresses on postal_code_to_gblocs.postal_code = addresses.postal_code
-				JOIN duty_locations on addresses.id = duty_locations.address_id
-				JOIN transportation_offices on postal_code_to_gblocs.gbloc = transportation_offices.gbloc
-				WHERE duty_locations.provides_services_counseling = true and duty_locations.id = $1
+	with counseling_offices as (
+		SELECT transportation_offices.id, transportation_offices.name, transportation_offices.address_id as counseling_address, substring(addresses.postal_code, 1,3 ) as origin_zip, substring(a2.postal_code, 1,3 ) as dest_zip
+			FROM postal_code_to_gblocs
+			JOIN addresses on postal_code_to_gblocs.postal_code = addresses.postal_code
+			JOIN duty_locations on addresses.id = duty_locations.address_id
+			JOIN transportation_offices on postal_code_to_gblocs.gbloc = transportation_offices.gbloc
+			join addresses a2 on a2.id = transportation_offices.address_id
+			WHERE duty_locations.provides_services_counseling = true and duty_locations.id = $1
 		)
-		SELECT counseling_offices.id, counseling_offices.name
+	SELECT counseling_offices.id, counseling_offices.name
 		FROM counseling_offices
 		JOIN duty_locations duty_locations2 on counseling_offices.id = duty_locations2.transportation_office_id
+		JOIN addresses on counseling_offices.counseling_address = addresses.id
+		LEFT JOIN zip3_distances ON (
+        	(substring(addresses.postal_code,1 ,3) = zip3_distances.to_zip3
+            AND counseling_offices.origin_zip = zip3_distances.from_zip3)
+        	OR
+        	(substring(addresses.postal_code,1 ,3) = zip3_distances.from_zip3
+            AND counseling_offices.origin_zip = zip3_distances.to_zip3)
+    	)
 		WHERE duty_locations2.provides_services_counseling = true
-		GROUP BY counseling_offices.id, counseling_offices.name
-		ORDER BY counseling_offices.name asc`
+    	group by counseling_offices.id, counseling_offices.name, zip3_distances.distance_miles
+		ORDER BY coalesce(zip3_distances.distance_miles,0), counseling_offices.name asc`
 
 	query := appCtx.DB().Q().RawQuery(sqlQuery, dutyLocationID)
 	if err := query.All(&officeList); err != nil {

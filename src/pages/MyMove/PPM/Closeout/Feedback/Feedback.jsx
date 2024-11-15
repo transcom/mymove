@@ -21,6 +21,23 @@ import {
   getTotalNetWeightForWeightTickets,
 } from 'utils/shipmentWeights';
 
+export const GetTripWeight = (doc) => {
+  return doc.fullWeight - doc.emptyWeight;
+};
+
+export const FormatRow = (row) => {
+  const formattedRow = { ...row };
+  // format the values
+  if (formattedRow.format) {
+    formattedRow.value = formattedRow.format(row.value);
+    if (row.secondaryValue !== undefined) {
+      formattedRow.secondaryValue = formattedRow.format(row.secondaryValue);
+    }
+  }
+
+  return formattedRow;
+};
+
 const Feedback = () => {
   const { mtoShipmentId } = useParams();
   const mtoShipment = useSelector((state) => selectMTOShipmentById(state, mtoShipmentId));
@@ -35,20 +52,7 @@ const Feedback = () => {
   let docWasAdjusted = false;
 
   const getTripWeight = (doc) => {
-    return doc.fullWeight - doc.emptyWeight;
-  };
-
-  const formatRow = (row) => {
-    const formattedRow = { ...row };
-    // format the values
-    if (formattedRow.format) {
-      formattedRow.value = formattedRow.format(row.value);
-      if (row.secondaryValue !== undefined) {
-        formattedRow.secondaryValue = formattedRow.format(row.secondaryValue);
-      }
-    }
-
-    return formattedRow;
+    return GetTripWeight(doc);
   };
 
   // key into the passed in document and set the value of the new row
@@ -83,7 +87,7 @@ const Feedback = () => {
 
     return FEEDBACK_TEMPLATES[docType]?.map((templateRow) => {
       const row = setRowValues(doc, templateRow);
-      return formatRow(row);
+      return FormatRow(row);
     });
   };
 

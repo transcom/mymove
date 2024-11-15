@@ -27,7 +27,6 @@ func (gre *GHCRateEngineImporter) importREInternationalPrices(appCtx appcontext.
 	if err := gre.importNonStandardLocationPrices(appCtx); err != nil {
 		return fmt.Errorf("could not import non-standard location prices: %w", err)
 	}
-
 	return nil
 }
 
@@ -40,15 +39,15 @@ func (gre *GHCRateEngineImporter) importOconusToOconusPrices(appCtx appcontext.A
 	}
 
 	// Int'l O->O Shipping & LH
-	serviceIOOLH, foundService := gre.serviceToIDMap[models.ReServiceCodeIOOLH]
+	serviceISLH, foundService := gre.serviceToIDMap[models.ReServiceCodeISLH]
 	if !foundService {
-		return fmt.Errorf("missing service %s in map of services", models.ReServiceCodeIOOLH)
+		return fmt.Errorf("missing service %s in map of services", models.ReServiceCodeISLH)
 	}
 
 	// Int'l O->O UB
-	serviceIOOUB, foundService := gre.serviceToIDMap[models.ReServiceCodeIOOUB]
+	serviceUBP, foundService := gre.serviceToIDMap[models.ReServiceCodeUBP]
 	if !foundService {
-		return fmt.Errorf("missing service %s in map of services", models.ReServiceCodeIOOUB)
+		return fmt.Errorf("missing service %s in map of services", models.ReServiceCodeUBP)
 	}
 
 	// loop through the OCONUS to OCONUS data and store in db
@@ -79,25 +78,25 @@ func (gre *GHCRateEngineImporter) importOconusToOconusPrices(appCtx appcontext.A
 			return fmt.Errorf("could not process UB price [%s]: %w", stageOconusToOconusPrice.UBPrice, err)
 		}
 
-		intlPricingModelIOOLH := models.ReIntlPrice{
+		intlPricingModelISLH := models.ReIntlPrice{
 			ContractID:            gre.ContractID,
-			ServiceID:             serviceIOOLH,
+			ServiceID:             serviceISLH,
 			OriginRateAreaID:      originRateAreaID,
 			DestinationRateAreaID: destinationRateAreaID,
 			IsPeakPeriod:          peakPeriod,
 			PerUnitCents:          unit.Cents(perUnitCentsHHG),
 		}
-		intlPricingModels = append(intlPricingModels, intlPricingModelIOOLH)
+		intlPricingModels = append(intlPricingModels, intlPricingModelISLH)
 
-		intlPricingModelIOOUB := models.ReIntlPrice{
+		intlPricingModelUBP := models.ReIntlPrice{
 			ContractID:            gre.ContractID,
-			ServiceID:             serviceIOOUB,
+			ServiceID:             serviceUBP,
 			OriginRateAreaID:      originRateAreaID,
 			DestinationRateAreaID: destinationRateAreaID,
 			IsPeakPeriod:          peakPeriod,
 			PerUnitCents:          unit.Cents(perUnitCentsUB),
 		}
-		intlPricingModels = append(intlPricingModels, intlPricingModelIOOUB)
+		intlPricingModels = append(intlPricingModels, intlPricingModelUBP)
 
 		for _, model := range intlPricingModels {
 			copyOfModel := model // Make copy to avoid implicit memory aliasing of items from a range statement.
@@ -123,15 +122,15 @@ func (gre *GHCRateEngineImporter) importConusToOconusPrices(appCtx appcontext.Ap
 	}
 
 	// Int'l C->O Shipping & LH
-	serviceICOLH, foundService := gre.serviceToIDMap[models.ReServiceCodeICOLH]
+	serviceISLH, foundService := gre.serviceToIDMap[models.ReServiceCodeISLH]
 	if !foundService {
-		return fmt.Errorf("missing service %s in map of services", models.ReServiceCodeICOLH)
+		return fmt.Errorf("missing service %s in map of services", models.ReServiceCodeISLH)
 	}
 
 	// Int'l C->O UB
-	serviceICOUB, foundService := gre.serviceToIDMap[models.ReServiceCodeICOUB]
+	serviceUBP, foundService := gre.serviceToIDMap[models.ReServiceCodeUBP]
 	if !foundService {
-		return fmt.Errorf("missing service %s in map of services", models.ReServiceCodeICOUB)
+		return fmt.Errorf("missing service %s in map of services", models.ReServiceCodeUBP)
 	}
 
 	// loop through the CONUS to OCONUS data and store in db
@@ -163,25 +162,25 @@ func (gre *GHCRateEngineImporter) importConusToOconusPrices(appCtx appcontext.Ap
 			return fmt.Errorf("could not process UB price [%s]: %w", stageConusToOconusPrice.UBPrice, err)
 		}
 
-		intlPricingModelICOLH := models.ReIntlPrice{
+		intlPricingModelISLH := models.ReIntlPrice{
 			ContractID:            gre.ContractID,
-			ServiceID:             serviceICOLH,
+			ServiceID:             serviceISLH,
 			OriginRateAreaID:      originRateAreaID,
 			DestinationRateAreaID: destinationRateAreaID,
 			IsPeakPeriod:          peakPeriod,
 			PerUnitCents:          unit.Cents(perUnitCentsHHG),
 		}
-		intlPricingModels = append(intlPricingModels, intlPricingModelICOLH)
+		intlPricingModels = append(intlPricingModels, intlPricingModelISLH)
 
-		intlPricingModelICOUB := models.ReIntlPrice{
+		intlPricingModelUBP := models.ReIntlPrice{
 			ContractID:            gre.ContractID,
-			ServiceID:             serviceICOUB,
+			ServiceID:             serviceUBP,
 			OriginRateAreaID:      originRateAreaID,
 			DestinationRateAreaID: destinationRateAreaID,
 			IsPeakPeriod:          peakPeriod,
 			PerUnitCents:          unit.Cents(perUnitCentsUB),
 		}
-		intlPricingModels = append(intlPricingModels, intlPricingModelICOUB)
+		intlPricingModels = append(intlPricingModels, intlPricingModelUBP)
 
 		for _, model := range intlPricingModels {
 			copyOfModel := model // Make copy to avoid implicit memory aliasing of items from a range statement.
@@ -207,15 +206,15 @@ func (gre *GHCRateEngineImporter) importOconusToConusPrices(appCtx appcontext.Ap
 	}
 
 	// Int'l O->C Shipping & LH
-	serviceIOCLH, foundService := gre.serviceToIDMap[models.ReServiceCodeIOCLH]
+	serviceISLH, foundService := gre.serviceToIDMap[models.ReServiceCodeISLH]
 	if !foundService {
-		return fmt.Errorf("missing service %s in map of services", models.ReServiceCodeIOCLH)
+		return fmt.Errorf("missing service %s in map of services", models.ReServiceCodeISLH)
 	}
 
 	// Int'l O->C UB
-	serviceIOCUB, foundService := gre.serviceToIDMap[models.ReServiceCodeIOCUB]
+	serviceUBP, foundService := gre.serviceToIDMap[models.ReServiceCodeUBP]
 	if !foundService {
-		return fmt.Errorf("missing service %s in map of services", models.ReServiceCodeIOCUB)
+		return fmt.Errorf("missing service %s in map of services", models.ReServiceCodeUBP)
 	}
 
 	// loop through the OCONUS to CONUS data and store in db
@@ -247,25 +246,25 @@ func (gre *GHCRateEngineImporter) importOconusToConusPrices(appCtx appcontext.Ap
 			return fmt.Errorf("could not process UB price [%s]: %w", stageOconusToConusPrice.UBPrice, err)
 		}
 
-		intlPricingModelIOCLH := models.ReIntlPrice{
+		intlPricingModelISLH := models.ReIntlPrice{
 			ContractID:            gre.ContractID,
-			ServiceID:             serviceIOCLH,
+			ServiceID:             serviceISLH,
 			OriginRateAreaID:      originRateAreaID,
 			DestinationRateAreaID: destinationRateAreaID,
 			IsPeakPeriod:          isPeakPeriod,
 			PerUnitCents:          unit.Cents(perUnitCentsHHG),
 		}
-		intlPricingModels = append(intlPricingModels, intlPricingModelIOCLH)
+		intlPricingModels = append(intlPricingModels, intlPricingModelISLH)
 
-		intlPricingModelIOCUB := models.ReIntlPrice{
+		intlPricingModelUBP := models.ReIntlPrice{
 			ContractID:            gre.ContractID,
-			ServiceID:             serviceIOCUB,
+			ServiceID:             serviceUBP,
 			OriginRateAreaID:      originRateAreaID,
 			DestinationRateAreaID: destinationRateAreaID,
 			IsPeakPeriod:          isPeakPeriod,
 			PerUnitCents:          unit.Cents(perUnitCentsUB),
 		}
-		intlPricingModels = append(intlPricingModels, intlPricingModelIOCUB)
+		intlPricingModels = append(intlPricingModels, intlPricingModelUBP)
 
 		for _, model := range intlPricingModels {
 			copyOfModel := model // Make copy to avoid implicit memory aliasing of items from a range statement.
@@ -291,15 +290,15 @@ func (gre *GHCRateEngineImporter) importNonStandardLocationPrices(appCtx appcont
 	}
 
 	// Int'l non-standard HHG
-	serviceNSTH, foundService := gre.serviceToIDMap[models.ReServiceCodeNSTH]
+	serviceISLH, foundService := gre.serviceToIDMap[models.ReServiceCodeISLH]
 	if !foundService {
-		return fmt.Errorf("missing service %s in map of services", models.ReServiceCodeNSTH)
+		return fmt.Errorf("missing service %s in map of services", models.ReServiceCodeISLH)
 	}
 
 	// Int'l non-standard UB
-	serviceNSTUB, foundService := gre.serviceToIDMap[models.ReServiceCodeNSTUB]
+	serviceUBP, foundService := gre.serviceToIDMap[models.ReServiceCodeUBP]
 	if !foundService {
-		return fmt.Errorf("missing service %s in map of services", models.ReServiceCodeNSTUB)
+		return fmt.Errorf("missing service %s in map of services", models.ReServiceCodeUBP)
 	}
 
 	// loop through the non-standard location data and store in db
@@ -336,25 +335,25 @@ func (gre *GHCRateEngineImporter) importNonStandardLocationPrices(appCtx appcont
 			return fmt.Errorf("could not process UB price [%s]: %w", stageNonStandardLocnPrice.UBPrice, err)
 		}
 
-		intlPricingModelNSTH := models.ReIntlPrice{
+		intlPricingModelISLH := models.ReIntlPrice{
 			ContractID:            gre.ContractID,
-			ServiceID:             serviceNSTH,
+			ServiceID:             serviceISLH,
 			OriginRateAreaID:      originRateAreaID,
 			DestinationRateAreaID: destinationRateAreaID,
 			IsPeakPeriod:          peakPeriod,
 			PerUnitCents:          unit.Cents(perUnitCentsHHG),
 		}
-		intlPricingModels = append(intlPricingModels, intlPricingModelNSTH)
+		intlPricingModels = append(intlPricingModels, intlPricingModelISLH)
 
-		intlPricingModelNSTUB := models.ReIntlPrice{
+		intlPricingModelUBP := models.ReIntlPrice{
 			ContractID:            gre.ContractID,
-			ServiceID:             serviceNSTUB,
+			ServiceID:             serviceUBP,
 			OriginRateAreaID:      originRateAreaID,
 			DestinationRateAreaID: destinationRateAreaID,
 			IsPeakPeriod:          peakPeriod,
 			PerUnitCents:          unit.Cents(perUnitCentsUB),
 		}
-		intlPricingModels = append(intlPricingModels, intlPricingModelNSTUB)
+		intlPricingModels = append(intlPricingModels, intlPricingModelUBP)
 
 		for _, model := range intlPricingModels {
 			copyOfModel := model // Make copy to avoid implicit memory aliasing of items from a range statement.
@@ -367,10 +366,8 @@ func (gre *GHCRateEngineImporter) importNonStandardLocationPrices(appCtx appcont
 			}
 		}
 	}
-
 	return nil
 }
-
 func (gre *GHCRateEngineImporter) getRateAreaIDForKind(rateArea string, kind string) (uuid.UUID, error) {
 	switch kind {
 	case "NSRA", "OCONUS":

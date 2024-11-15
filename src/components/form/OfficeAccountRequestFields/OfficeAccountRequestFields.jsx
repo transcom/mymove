@@ -61,6 +61,12 @@ export const OfficeAccountRequestFields = ({ render }) => {
           />
           <h4>Requested Role(s)</h4>
           <CheckboxField
+            id="headquartersCheckBox"
+            data-testid="headquartersCheckBox"
+            name="headquartersCheckBox"
+            label="Headquarters"
+          />
+          <CheckboxField
             id="taskOrderingOfficerCheckBox"
             data-testid="taskOrderingOfficerCheckBox"
             name="taskOrderingOfficerCheckBox"
@@ -96,13 +102,12 @@ export const OfficeAccountRequestFields = ({ render }) => {
             name="customerSupportRepresentativeCheckBox"
             label="Customer Support Representative"
           />
-          {/* this will be uncommented in B-20809
           <CheckboxField
             id="governmentSurveillanceRepresentativeCheckbox"
             data-testid="governmentSurveillanceRepresentativeCheckbox"
             name="governmentSurveillanceRepresentativeCheckbox"
             label="Government Surveillance Representative"
-          /> */}
+          />
         </>,
       )}
     </Fieldset>

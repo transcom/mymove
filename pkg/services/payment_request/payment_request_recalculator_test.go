@@ -464,7 +464,7 @@ func (suite *PaymentRequestServiceSuite) setupRecalculateData1() (models.Move, m
 	suite.MustSave(&ghcDieselFuelPrice)
 
 	//  Domestic Origin Price Service
-	domOriginPriceService := factory.BuildReServiceByCode(suite.DB(), models.ReServiceCodeDOP)
+	domOriginPriceService := factory.FetchReServiceByCode(suite.DB(), models.ReServiceCodeDOP)
 
 	domServiceAreaPriceDOP := models.ReDomesticServiceAreaPrice{
 		ContractID:            contractYear.Contract.ID,
@@ -479,7 +479,7 @@ func (suite *PaymentRequestServiceSuite) setupRecalculateData1() (models.Move, m
 	suite.MustSave(&domServiceAreaPriceDOP)
 
 	// Domestic Pack
-	dpkService := factory.BuildReServiceByCode(suite.DB(), models.ReServiceCodeDPK)
+	dpkService := factory.FetchReServiceByCode(suite.DB(), models.ReServiceCodeDPK)
 
 	// Domestic Other Price
 	domOtherPriceDPK := models.ReDomesticOtherPrice{
