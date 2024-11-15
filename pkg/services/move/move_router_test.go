@@ -1130,6 +1130,39 @@ func (suite *MoveServiceSuite) TestApproveOrRequestApproval() {
 		suite.Equal(move.ApprovalsRequestedAt.Format(time.RFC3339), moveInDB.ApprovalsRequestedAt.Format(time.RFC3339))
 	})
 
+	suite.Run("approves move if unapproved shipment is deleted", func() {
+		move := factory.BuildAvailableToPrimeMove(suite.DB(), []factory.Customization{
+			{
+				Model: models.Move{
+					Status: models.MoveStatusAPPROVALSREQUESTED,
+				},
+			},
+		}, nil)
+
+		deletedAt := time.Now()
+		factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					DeletedAt: &deletedAt,
+				},
+			},
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+		}, nil)
+
+		updatedMove, err := moveRouter.ApproveOrRequestApproval(suite.AppContextForTest(), move)
+
+		suite.NoError(err)
+		suite.Equal(models.MoveStatusAPPROVED, updatedMove.Status)
+
+		var moveInDB models.Move
+		err = suite.DB().Find(&moveInDB, move.ID)
+		suite.NoError(err)
+		suite.Equal(models.MoveStatusAPPROVED, moveInDB.Status)
+	})
+
 	suite.Run("does not approve the move if excess weight risk exists and has not been acknowledged", func() {
 		now := time.Now()
 		move := factory.BuildApprovalsRequestedMove(suite.DB(), []factory.Customization{
