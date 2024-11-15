@@ -208,7 +208,7 @@ class MtoShipmentForm extends Component {
         validationSchema={schema}
         onSubmit={this.submitMTOShipment}
       >
-        {({ values, isValid, isSubmitting, setValues, handleSubmit }) => {
+        {({ values, isValid, isSubmitting, setValues, handleSubmit, validateForm, ...formikProps }) => {
           const {
             hasDeliveryAddress,
             hasSecondaryPickup,
@@ -351,6 +351,9 @@ class MtoShipmentForm extends Component {
                             name="pickup.address"
                             legend="Pickup location"
                             labelHint="Required"
+                            locationLookup
+                            validateForm={validateForm}
+                            formikProps={formikProps}
                             render={(fields) => (
                               <>
                                 <p>What address are the movers picking up from?</p>
@@ -392,7 +395,13 @@ class MtoShipmentForm extends Component {
                                   </div>
                                 </FormGroup>
                                 {hasSecondaryPickup === 'yes' && (
-                                  <AddressFields name="secondaryPickup.address" labelHint="Required" />
+                                  <AddressFields
+                                    name="secondaryPickup.address"
+                                    labelHint="Required"
+                                    locationLookup
+                                    validateForm={validateForm}
+                                    formikProps={formikProps}
+                                  />
                                 )}
                                 {isTertiaryAddressEnabled && hasSecondaryPickup === 'yes' && (
                                   <div>
@@ -428,7 +437,13 @@ class MtoShipmentForm extends Component {
                                   hasSecondaryPickup === 'yes' && (
                                     <>
                                       <h3>Third pickup location</h3>
-                                      <AddressFields name="tertiaryPickup.address" labelHint="Required" />
+                                      <AddressFields
+                                        name="tertiaryPickup.address"
+                                        labelHint="Required"
+                                        locationLookup
+                                        validateForm={validateForm}
+                                        formikProps={formikProps}
+                                      />
                                     </>
                                   )}
                               </>
@@ -502,6 +517,9 @@ class MtoShipmentForm extends Component {
                               <AddressFields
                                 name="delivery.address"
                                 labelHint="Required"
+                                locationLookup
+                                validateForm={validateForm}
+                                formikProps={formikProps}
                                 render={(fields) => (
                                   <>
                                     {fields}
@@ -535,7 +553,13 @@ class MtoShipmentForm extends Component {
                                       </div>
                                     </FormGroup>
                                     {hasSecondaryDelivery === 'yes' && (
-                                      <AddressFields name="secondaryDelivery.address" labelHint="Required" />
+                                      <AddressFields
+                                        name="secondaryDelivery.address"
+                                        labelHint="Required"
+                                        locationLookup
+                                        validateForm={validateForm}
+                                        formikProps={formikProps}
+                                      />
                                     )}
                                     {isTertiaryAddressEnabled && hasSecondaryDelivery === 'yes' && (
                                       <div>
@@ -571,7 +595,13 @@ class MtoShipmentForm extends Component {
                                       hasSecondaryDelivery === 'yes' && (
                                         <>
                                           <h4>Third delivery location</h4>
-                                          <AddressFields name="tertiaryDelivery.address" labelHint="Required" />
+                                          <AddressFields
+                                            name="tertiaryDelivery.address"
+                                            labelHint="Required"
+                                            locationLookup
+                                            validateForm={validateForm}
+                                            formikProps={formikProps}
+                                          />
                                         </>
                                       )}
                                   </>

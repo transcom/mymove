@@ -79,38 +79,8 @@ const EditPPMHeaderSummaryModal = ({ sectionType, sectionInfo, onClose, onSubmit
             initialValues={initialValues}
             onSubmit={onSubmit}
           >
-            {({ isValid, handleChange, setFieldTouched, values, setValues }) => {
+            {({ isValid, handleChange, setFieldTouched, values, ...formikProps }) => {
               const { isActualExpenseReimbursement } = values;
-              const handlePickupZipCityChange = (value) => {
-                setValues(
-                  {
-                    ...values,
-                    pickupAddress: {
-                      ...values.pickupAddress,
-                      city: value.city,
-                      state: value.state ? value.state : '',
-                      county: value.county,
-                      postalCode: value.postalCode,
-                    },
-                  },
-                  { shouldValidate: true },
-                );
-              };
-              const handleDestinationZipCityChange = (value) => {
-                setValues(
-                  {
-                    ...values,
-                    destinationAddress: {
-                      ...values.destinationAddress,
-                      city: value.city,
-                      state: value.state ? value.state : '',
-                      county: value.county,
-                      postalCode: value.postalCode,
-                    },
-                  },
-                  { shouldValidate: true },
-                );
-              };
               return (
                 <Form>
                   <div>
@@ -143,8 +113,8 @@ const EditPPMHeaderSummaryModal = ({ sectionType, sectionInfo, onClose, onSubmit
                         legend="Pickup Address"
                         className={styles.AddressFieldSet}
                         formikFunctionsToValidatePostalCodeOnChange={{ handleChange, setFieldTouched }}
-                        zipCityEnabled
-                        handleLocationChange={handlePickupZipCityChange}
+                        locationLookup
+                        formikProps={formikProps}
                       />
                     )}
                     {editItemName === 'destinationAddress' && (
@@ -153,8 +123,8 @@ const EditPPMHeaderSummaryModal = ({ sectionType, sectionInfo, onClose, onSubmit
                         legend="Destination Address"
                         className={styles.AddressFieldSet}
                         formikFunctionsToValidatePostalCodeOnChange={{ handleChange, setFieldTouched }}
-                        zipCityEnabled
-                        handleLocationChange={handleDestinationZipCityChange}
+                        locationLookup
+                        formikProps={formikProps}
                       />
                     )}
                     {editItemName === 'allowableWeight' && (

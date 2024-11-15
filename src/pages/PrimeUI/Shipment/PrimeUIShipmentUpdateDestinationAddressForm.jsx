@@ -27,25 +27,7 @@ const PrimeUIShipmentUpdateDestinationAddressForm = ({
 
   return (
     <Formik initialValues={initialValues} onSubmit={onSubmit} validationSchema={updateDestinationAddressSchema}>
-      {({ isValid, isSubmitting, handleSubmit, errors, setValues }) => {
-        const handleLocationChange = (newValue) => {
-          setValues((prevValues) => {
-            return {
-              ...prevValues,
-              newAddress: {
-                address: {
-                  ...prevValues.newAddress.address,
-                  city: newValue.city,
-                  state: newValue.state ? newValue.state : '',
-                  county: newValue.county,
-                  postalCode: newValue.postalCode,
-                  usprcId: newValue.usPostRegionCitiesId ? newValue.usPostRegionCitiesId : '',
-                },
-              },
-            };
-          });
-        };
-
+      {({ isValid, isSubmitting, handleSubmit, errors, ...formikProps }) => {
         return (
           <Form className={classnames(formStyles.form)}>
             <FormGroup error={errors != null && Object.keys(errors).length > 0 ? 1 : 0}>
@@ -75,7 +57,7 @@ const PrimeUIShipmentUpdateDestinationAddressForm = ({
                     If any of those change, the address change will require TOO approval.
                   </div>
                 </SectionWrapper>
-                <AddressFields name={name} zipCityEnabled handleLocationChange={handleLocationChange} />
+                <AddressFields name={name} locationLookup formikProps={formikProps} />
                 <TextField label="Contractor Remarks" id="contractorRemarks" name="contractorRemarks" />
               </SectionWrapper>
               <WizardNavigation
