@@ -2409,6 +2409,11 @@ func (suite *MTOServiceItemServiceSuite) TestUpdateMTOServiceItemPricingEstimate
 		return serviceItem, eTag
 	}
 
+	setupServiceItems := func() models.MTOServiceItems {
+		serviceItems := testdatagen.MakeMTOServiceItems(suite.DB())
+		return serviceItems
+	}
+
 	suite.Run("Validation Error", func() {
 		suite.setupServiceItemData()
 		serviceItem, eTag := setupServiceItem()
@@ -2426,14 +2431,17 @@ func (suite *MTOServiceItemServiceSuite) TestUpdateMTOServiceItemPricingEstimate
 		suite.Contains(invalidInputError.ValidationErrors.Keys(), "moveTaskOrderID")
 	})
 
-	suite.Run("Returns updated service item on success", func() {
+	suite.Run("Returns updated service item on success wihtout error", func() {
 		suite.setupServiceItemData()
-		serviceItem, eTag := setupServiceItem()
+		serviceItems := setupServiceItems()
 
-		updatedServiceItem, err := updater.UpdateMTOServiceItemPricingEstimate(suite.AppContextForTest(), &serviceItem, serviceItem.MTOShipment, eTag)
+		for _, serviceItem := range serviceItems {
+			eTag := etag.GenerateEtag(serviceItem.UpdatedAt)
+			updatedServiceItem, err := updater.UpdateMTOServiceItemPricingEstimate(suite.AppContextForTest(), &serviceItem, serviceItem.MTOShipment, eTag)
 
-		suite.NotNil(updatedServiceItem)
-		suite.Nil(err)
+			suite.NotNil(updatedServiceItem)
+			suite.Nil(err)
+		}
 	})
 }
 

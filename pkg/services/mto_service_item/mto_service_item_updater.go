@@ -149,7 +149,7 @@ func (p *mtoServiceItemUpdater) findEstimatedPrice(appCtx appcontext.AppContext,
 			if mtoShipment.PrimeEstimatedWeight != nil {
 				shipmentWeight = *mtoShipment.PrimeEstimatedWeight
 			} else {
-				shipmentWeight = 0
+				return 0, apperror.NewInvalidInputError(serviceItem.ID, nil, nil, "No estimated or actual weight exists for this service item.")
 			}
 		}
 
