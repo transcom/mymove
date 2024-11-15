@@ -19,6 +19,7 @@ func (o *requestedOfficeUserUpdater) UpdateRequestedOfficeUser(appCtx appcontext
 	var officeUser models.OfficeUser
 	filters := []services.QueryFilter{query.NewQueryFilter("id", "=", id.String())}
 	err := o.builder.FetchOne(appCtx, &officeUser, filters)
+
 	if err != nil {
 		return nil, nil, err
 	}

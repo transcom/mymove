@@ -439,7 +439,7 @@ func init() {
                   "minLength": 1,
                   "x-nullable": true
                 },
-                "dodID": {
+                "edipi": {
                   "description": "DOD ID",
                   "type": "string",
                   "maxLength": 10,
@@ -472,7 +472,7 @@ func init() {
                   "type": "string",
                   "enum": [
                     "customerName",
-                    "dodID",
+                    "edipi",
                     "emplid",
                     "branch",
                     "personalEmail",
@@ -833,6 +833,64 @@ func init() {
         }
       ]
     },
+    "/evaluation-reports/{reportID}/appeal/add": {
+      "post": {
+        "description": "Adds an appeal to a serious incident on an evaluation report",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "evaluationReports"
+        ],
+        "summary": "Adds an appeal to a serious incident on an evaluation report",
+        "operationId": "addAppealToSeriousIncident",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "schema": {
+              "$ref": "#/definitions/CreateAppeal"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successfully added an appeal to a serious incident"
+          },
+          "403": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "404": {
+            "$ref": "#/responses/NotFound"
+          },
+          "412": {
+            "$ref": "#/responses/PreconditionFailed"
+          },
+          "422": {
+            "$ref": "#/responses/UnprocessableEntity"
+          },
+          "500": {
+            "$ref": "#/responses/ServerError"
+          }
+        },
+        "x-permissions": [
+          "update.evaluationReport"
+        ]
+      },
+      "parameters": [
+        {
+          "type": "string",
+          "format": "uuid",
+          "description": "the evaluation report ID",
+          "name": "reportID",
+          "in": "path",
+          "required": true
+        }
+      ]
+    },
     "/evaluation-reports/{reportID}/download": {
       "get": {
         "description": "Downloads an evaluation report as a PDF",
@@ -954,7 +1012,7 @@ func init() {
             "name": "body",
             "in": "body",
             "schema": {
-              "$ref": "#/definitions/CreateViolationAppeal"
+              "$ref": "#/definitions/CreateAppeal"
             }
           }
         ],
@@ -1978,7 +2036,7 @@ func init() {
                   "type": "string",
                   "x-nullable": true
                 },
-                "dodID": {
+                "edipi": {
                   "description": "DOD ID",
                   "type": "string",
                   "maxLength": 10,
@@ -2036,7 +2094,7 @@ func init() {
                   "type": "string",
                   "enum": [
                     "customerName",
-                    "dodID",
+                    "edipi",
                     "emplid",
                     "branch",
                     "locator",
@@ -4201,7 +4259,7 @@ func init() {
           {
             "enum": [
               "customerName",
-              "dodID",
+              "edipi",
               "emplid",
               "branch",
               "locator",
@@ -4260,7 +4318,7 @@ func init() {
           {
             "type": "string",
             "description": "filters to match the unique service member's DoD ID",
-            "name": "dodID",
+            "name": "edipi",
             "in": "query"
           },
           {
@@ -4455,7 +4513,7 @@ func init() {
           {
             "enum": [
               "customerName",
-              "dodID",
+              "edipi",
               "emplid",
               "branch",
               "locator",
@@ -4464,7 +4522,8 @@ func init() {
               "destinationDutyLocation",
               "requestedMoveDate",
               "appearedInTooAt",
-              "assignedTo"
+              "assignedTo",
+              "counselingOffice"
             ],
             "type": "string",
             "description": "field that results should be sorted by",
@@ -4498,7 +4557,7 @@ func init() {
           },
           {
             "type": "string",
-            "name": "dodID",
+            "name": "edipi",
             "in": "query"
           },
           {
@@ -4565,6 +4624,12 @@ func init() {
             "description": "Used to illustrate which user is assigned to this move.\n",
             "name": "assignedTo",
             "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "filters using a counselingOffice name of the move",
+            "name": "counselingOffice",
+            "in": "query"
           }
         ],
         "responses": {
@@ -4602,7 +4667,7 @@ func init() {
               "submittedAt",
               "branch",
               "status",
-              "dodID",
+              "edipi",
               "emplid",
               "age",
               "originDutyLocation",
@@ -4659,7 +4724,7 @@ func init() {
           },
           {
             "type": "string",
-            "name": "dodID",
+            "name": "edipi",
             "in": "query"
           },
           {
@@ -6663,12 +6728,30 @@ func init() {
     "CounselingUpdateAllowancePayload": {
       "type": "object",
       "properties": {
+        "accompaniedTour": {
+          "description": "Indicates if the move entitlement allows dependents to travel to the new Permanent Duty Station (PDS). This is only present on OCONUS moves.",
+          "type": "boolean",
+          "x-nullable": true,
+          "example": true
+        },
         "agency": {
           "$ref": "#/definitions/Affiliation"
         },
         "dependentsAuthorized": {
           "type": "boolean",
           "x-nullable": true
+        },
+        "dependentsTwelveAndOver": {
+          "description": "Indicates the number of dependents of the age twelve or older for a move. This is only present on OCONUS moves.",
+          "type": "integer",
+          "x-nullable": true,
+          "example": 3
+        },
+        "dependentsUnderTwelve": {
+          "description": "Indicates the number of dependents under the age of twelve for a move. This is only present on OCONUS moves.",
+          "type": "integer",
+          "x-nullable": true,
+          "example": 5
         },
         "grade": {
           "$ref": "#/definitions/Grade"
@@ -6708,6 +6791,11 @@ func init() {
         "storageInTransit": {
           "description": "the number of storage in transit days that the customer is entitled to for a given shipment on their move",
           "type": "integer"
+        },
+        "ubAllowance": {
+          "type": "integer",
+          "x-nullable": true,
+          "example": 500
         }
       }
     },
@@ -6788,6 +6876,26 @@ func init() {
           "minLength": 4,
           "x-nullable": true,
           "example": "F8J1"
+        }
+      }
+    },
+    "CreateAppeal": {
+      "description": "Appeal status and remarks left for a violation, created by a GSR user.",
+      "type": "object",
+      "properties": {
+        "appealStatus": {
+          "description": "The status of the appeal set by the GSR user",
+          "type": "string",
+          "enum": [
+            "sustained",
+            "rejected"
+          ],
+          "example": "These are my violation appeal remarks"
+        },
+        "remarks": {
+          "description": "Remarks left by the GSR user",
+          "type": "string",
+          "example": "These are my violation appeal remarks"
         }
       }
     },
@@ -7212,8 +7320,26 @@ func init() {
         "newDutyLocationId"
       ],
       "properties": {
+        "accompaniedTour": {
+          "description": "Indicates if the move entitlement allows dependents to travel to the new Permanent Duty Station (PDS). This is only present on OCONUS moves.",
+          "type": "boolean",
+          "x-nullable": true,
+          "example": true
+        },
         "departmentIndicator": {
           "$ref": "#/definitions/DeptIndicator"
+        },
+        "dependentsTwelveAndOver": {
+          "description": "Indicates the number of dependents of the age twelve or older for a move. This is only present on OCONUS moves.",
+          "type": "integer",
+          "x-nullable": true,
+          "example": 3
+        },
+        "dependentsUnderTwelve": {
+          "description": "Indicates the number of dependents under the age of twelve for a move. This is only present on OCONUS moves.",
+          "type": "integer",
+          "x-nullable": true,
+          "example": 5
         },
         "grade": {
           "$ref": "#/definitions/Grade"
@@ -7407,26 +7533,6 @@ func init() {
               "$ref": "#/definitions/Address"
             }
           ]
-        }
-      }
-    },
-    "CreateViolationAppeal": {
-      "description": "Appeal status and remarks left for a violation, created by a GSR user.",
-      "type": "object",
-      "properties": {
-        "appealStatus": {
-          "description": "The status of the appeal set by the GSR user",
-          "type": "string",
-          "enum": [
-            "sustained",
-            "rejected"
-          ],
-          "example": "These are my violation appeal remarks"
-        },
-        "remarks": {
-          "description": "Remarks left by the GSR user",
-          "type": "string",
-          "example": "These are my violation appeal remarks"
         }
       }
     },
@@ -7803,6 +7909,12 @@ func init() {
     "Entitlements": {
       "type": "object",
       "properties": {
+        "accompaniedTour": {
+          "description": "Indicates if the move entitlement allows dependents to travel to the new Permanent Duty Station (PDS). This is only present on OCONUS moves.",
+          "type": "boolean",
+          "x-nullable": true,
+          "example": true
+        },
         "authorizedWeight": {
           "type": "integer",
           "x-formatting": "weight",
@@ -7813,6 +7925,18 @@ func init() {
           "type": "boolean",
           "x-nullable": true,
           "example": true
+        },
+        "dependentsTwelveAndOver": {
+          "description": "Indicates the number of dependents of the age twelve or older for a move. This is only present on OCONUS moves.",
+          "type": "integer",
+          "x-nullable": true,
+          "example": 3
+        },
+        "dependentsUnderTwelve": {
+          "description": "Indicates the number of dependents under the age of twelve for a move. This is only present on OCONUS moves.",
+          "type": "integer",
+          "x-nullable": true,
+          "example": 5
         },
         "eTag": {
           "type": "string"
@@ -7868,6 +7992,12 @@ func init() {
           "type": "integer",
           "x-formatting": "weight",
           "example": 500
+        },
+        "unaccompaniedBaggageAllowance": {
+          "description": "The amount of weight in pounds that the move is entitled for shipment types of Unaccompanied Baggage.",
+          "type": "integer",
+          "x-nullable": true,
+          "example": 3
         }
       }
     },
@@ -7886,10 +8016,6 @@ func init() {
       "description": "An evaluation report",
       "type": "object",
       "properties": {
-        "ReportViolations": {
-          "x-nullable": true,
-          "$ref": "#/definitions/ReportViolations"
-        },
         "createdAt": {
           "type": "string",
           "format": "date-time",
@@ -7990,6 +8116,10 @@ func init() {
         "remarks": {
           "type": "string",
           "x-nullable": true
+        },
+        "reportViolations": {
+          "x-nullable": true,
+          "$ref": "#/definitions/ReportViolations"
         },
         "seriousIncident": {
           "type": "boolean",
@@ -10418,6 +10548,12 @@ func init() {
         "transportationOffice": {
           "$ref": "#/definitions/TransportationOffice"
         },
+        "transportationOfficeAssignments": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/TransportationOfficeAssignment"
+          }
+        },
         "transportationOfficeId": {
           "type": "string",
           "format": "uuid"
@@ -12686,7 +12822,7 @@ func init() {
         "branch": {
           "type": "string"
         },
-        "dodID": {
+        "edipi": {
           "type": "string",
           "x-nullable": true
         },
@@ -12762,7 +12898,7 @@ func init() {
         "destinationGBLOC": {
           "$ref": "#/definitions/GBLOC"
         },
-        "dodID": {
+        "edipi": {
           "type": "string",
           "x-nullable": true,
           "example": 1234567890
@@ -13342,6 +13478,43 @@ func init() {
         }
       }
     },
+    "TransportationOfficeAssignment": {
+      "type": "object",
+      "required": [
+        "officeUserId",
+        "transportationOfficeId",
+        "primaryOffice"
+      ],
+      "properties": {
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        },
+        "officeUserId": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4780-65aa-42ec-a945-5fd87dec0538"
+        },
+        "primaryOffice": {
+          "type": "boolean",
+          "x-omitempty": false
+        },
+        "transportationOffice": {
+          "$ref": "#/definitions/TransportationOffice"
+        },
+        "transportationOfficeId": {
+          "type": "string",
+          "format": "uuid",
+          "example": "d67a4780-65aa-42ec-a945-5fd87dec0549"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        }
+      }
+    },
     "TransportationOffices": {
       "type": "array",
       "items": {
@@ -13351,12 +13524,30 @@ func init() {
     "UpdateAllowancePayload": {
       "type": "object",
       "properties": {
+        "accompaniedTour": {
+          "description": "Indicates if the move entitlement allows dependents to travel to the new Permanent Duty Station (PDS). This is only present on OCONUS moves.",
+          "type": "boolean",
+          "x-nullable": true,
+          "example": true
+        },
         "agency": {
           "$ref": "#/definitions/Affiliation"
         },
         "dependentsAuthorized": {
           "type": "boolean",
           "x-nullable": true
+        },
+        "dependentsTwelveAndOver": {
+          "description": "Indicates the number of dependents of the age twelve or older for a move. This is only present on OCONUS moves.",
+          "type": "integer",
+          "x-nullable": true,
+          "example": 3
+        },
+        "dependentsUnderTwelve": {
+          "description": "Indicates the number of dependents under the age of twelve for a move. This is only present on OCONUS moves.",
+          "type": "integer",
+          "x-nullable": true,
+          "example": 5
         },
         "grade": {
           "$ref": "#/definitions/Grade"
@@ -13396,6 +13587,11 @@ func init() {
         "storageInTransit": {
           "description": "the number of storage in transit days that the customer is entitled to for a given shipment on their move",
           "type": "integer"
+        },
+        "ubAllowance": {
+          "type": "integer",
+          "x-nullable": true,
+          "example": 500
         }
       }
     },
@@ -15134,7 +15330,7 @@ func init() {
                   "minLength": 1,
                   "x-nullable": true
                 },
-                "dodID": {
+                "edipi": {
                   "description": "DOD ID",
                   "type": "string",
                   "maxLength": 10,
@@ -15167,7 +15363,7 @@ func init() {
                   "type": "string",
                   "enum": [
                     "customerName",
-                    "dodID",
+                    "edipi",
                     "emplid",
                     "branch",
                     "personalEmail",
@@ -15645,6 +15841,79 @@ func init() {
         }
       ]
     },
+    "/evaluation-reports/{reportID}/appeal/add": {
+      "post": {
+        "description": "Adds an appeal to a serious incident on an evaluation report",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "evaluationReports"
+        ],
+        "summary": "Adds an appeal to a serious incident on an evaluation report",
+        "operationId": "addAppealToSeriousIncident",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "schema": {
+              "$ref": "#/definitions/CreateAppeal"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successfully added an appeal to a serious incident"
+          },
+          "403": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "412": {
+            "description": "Precondition failed",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "422": {
+            "description": "The payload was unprocessable.",
+            "schema": {
+              "$ref": "#/definitions/ValidationError"
+            }
+          },
+          "500": {
+            "description": "A server error occurred",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        },
+        "x-permissions": [
+          "update.evaluationReport"
+        ]
+      },
+      "parameters": [
+        {
+          "type": "string",
+          "format": "uuid",
+          "description": "the evaluation report ID",
+          "name": "reportID",
+          "in": "path",
+          "required": true
+        }
+      ]
+    },
     "/evaluation-reports/{reportID}/download": {
       "get": {
         "description": "Downloads an evaluation report as a PDF",
@@ -15790,7 +16059,7 @@ func init() {
             "name": "body",
             "in": "body",
             "schema": {
-              "$ref": "#/definitions/CreateViolationAppeal"
+              "$ref": "#/definitions/CreateAppeal"
             }
           }
         ],
@@ -17111,7 +17380,7 @@ func init() {
                   "type": "string",
                   "x-nullable": true
                 },
-                "dodID": {
+                "edipi": {
                   "description": "DOD ID",
                   "type": "string",
                   "maxLength": 10,
@@ -17169,7 +17438,7 @@ func init() {
                   "type": "string",
                   "enum": [
                     "customerName",
-                    "dodID",
+                    "edipi",
                     "emplid",
                     "branch",
                     "locator",
@@ -19910,7 +20179,7 @@ func init() {
           {
             "enum": [
               "customerName",
-              "dodID",
+              "edipi",
               "emplid",
               "branch",
               "locator",
@@ -19969,7 +20238,7 @@ func init() {
           {
             "type": "string",
             "description": "filters to match the unique service member's DoD ID",
-            "name": "dodID",
+            "name": "edipi",
             "in": "query"
           },
           {
@@ -20176,7 +20445,7 @@ func init() {
           {
             "enum": [
               "customerName",
-              "dodID",
+              "edipi",
               "emplid",
               "branch",
               "locator",
@@ -20185,7 +20454,8 @@ func init() {
               "destinationDutyLocation",
               "requestedMoveDate",
               "appearedInTooAt",
-              "assignedTo"
+              "assignedTo",
+              "counselingOffice"
             ],
             "type": "string",
             "description": "field that results should be sorted by",
@@ -20219,7 +20489,7 @@ func init() {
           },
           {
             "type": "string",
-            "name": "dodID",
+            "name": "edipi",
             "in": "query"
           },
           {
@@ -20286,6 +20556,12 @@ func init() {
             "description": "Used to illustrate which user is assigned to this move.\n",
             "name": "assignedTo",
             "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "filters using a counselingOffice name of the move",
+            "name": "counselingOffice",
+            "in": "query"
           }
         ],
         "responses": {
@@ -20329,7 +20605,7 @@ func init() {
               "submittedAt",
               "branch",
               "status",
-              "dodID",
+              "edipi",
               "emplid",
               "age",
               "originDutyLocation",
@@ -20386,7 +20662,7 @@ func init() {
           },
           {
             "type": "string",
-            "name": "dodID",
+            "name": "edipi",
             "in": "query"
           },
           {
@@ -22754,12 +23030,30 @@ func init() {
     "CounselingUpdateAllowancePayload": {
       "type": "object",
       "properties": {
+        "accompaniedTour": {
+          "description": "Indicates if the move entitlement allows dependents to travel to the new Permanent Duty Station (PDS). This is only present on OCONUS moves.",
+          "type": "boolean",
+          "x-nullable": true,
+          "example": true
+        },
         "agency": {
           "$ref": "#/definitions/Affiliation"
         },
         "dependentsAuthorized": {
           "type": "boolean",
           "x-nullable": true
+        },
+        "dependentsTwelveAndOver": {
+          "description": "Indicates the number of dependents of the age twelve or older for a move. This is only present on OCONUS moves.",
+          "type": "integer",
+          "x-nullable": true,
+          "example": 3
+        },
+        "dependentsUnderTwelve": {
+          "description": "Indicates the number of dependents under the age of twelve for a move. This is only present on OCONUS moves.",
+          "type": "integer",
+          "x-nullable": true,
+          "example": 5
         },
         "grade": {
           "$ref": "#/definitions/Grade"
@@ -22803,6 +23097,11 @@ func init() {
           "description": "the number of storage in transit days that the customer is entitled to for a given shipment on their move",
           "type": "integer",
           "minimum": 0
+        },
+        "ubAllowance": {
+          "type": "integer",
+          "x-nullable": true,
+          "example": 500
         }
       }
     },
@@ -22883,6 +23182,26 @@ func init() {
           "minLength": 4,
           "x-nullable": true,
           "example": "F8J1"
+        }
+      }
+    },
+    "CreateAppeal": {
+      "description": "Appeal status and remarks left for a violation, created by a GSR user.",
+      "type": "object",
+      "properties": {
+        "appealStatus": {
+          "description": "The status of the appeal set by the GSR user",
+          "type": "string",
+          "enum": [
+            "sustained",
+            "rejected"
+          ],
+          "example": "These are my violation appeal remarks"
+        },
+        "remarks": {
+          "description": "Remarks left by the GSR user",
+          "type": "string",
+          "example": "These are my violation appeal remarks"
         }
       }
     },
@@ -23307,8 +23626,26 @@ func init() {
         "newDutyLocationId"
       ],
       "properties": {
+        "accompaniedTour": {
+          "description": "Indicates if the move entitlement allows dependents to travel to the new Permanent Duty Station (PDS). This is only present on OCONUS moves.",
+          "type": "boolean",
+          "x-nullable": true,
+          "example": true
+        },
         "departmentIndicator": {
           "$ref": "#/definitions/DeptIndicator"
+        },
+        "dependentsTwelveAndOver": {
+          "description": "Indicates the number of dependents of the age twelve or older for a move. This is only present on OCONUS moves.",
+          "type": "integer",
+          "x-nullable": true,
+          "example": 3
+        },
+        "dependentsUnderTwelve": {
+          "description": "Indicates the number of dependents under the age of twelve for a move. This is only present on OCONUS moves.",
+          "type": "integer",
+          "x-nullable": true,
+          "example": 5
         },
         "grade": {
           "$ref": "#/definitions/Grade"
@@ -23502,26 +23839,6 @@ func init() {
               "$ref": "#/definitions/Address"
             }
           ]
-        }
-      }
-    },
-    "CreateViolationAppeal": {
-      "description": "Appeal status and remarks left for a violation, created by a GSR user.",
-      "type": "object",
-      "properties": {
-        "appealStatus": {
-          "description": "The status of the appeal set by the GSR user",
-          "type": "string",
-          "enum": [
-            "sustained",
-            "rejected"
-          ],
-          "example": "These are my violation appeal remarks"
-        },
-        "remarks": {
-          "description": "Remarks left by the GSR user",
-          "type": "string",
-          "example": "These are my violation appeal remarks"
         }
       }
     },
@@ -23898,6 +24215,12 @@ func init() {
     "Entitlements": {
       "type": "object",
       "properties": {
+        "accompaniedTour": {
+          "description": "Indicates if the move entitlement allows dependents to travel to the new Permanent Duty Station (PDS). This is only present on OCONUS moves.",
+          "type": "boolean",
+          "x-nullable": true,
+          "example": true
+        },
         "authorizedWeight": {
           "type": "integer",
           "x-formatting": "weight",
@@ -23908,6 +24231,18 @@ func init() {
           "type": "boolean",
           "x-nullable": true,
           "example": true
+        },
+        "dependentsTwelveAndOver": {
+          "description": "Indicates the number of dependents of the age twelve or older for a move. This is only present on OCONUS moves.",
+          "type": "integer",
+          "x-nullable": true,
+          "example": 3
+        },
+        "dependentsUnderTwelve": {
+          "description": "Indicates the number of dependents under the age of twelve for a move. This is only present on OCONUS moves.",
+          "type": "integer",
+          "x-nullable": true,
+          "example": 5
         },
         "eTag": {
           "type": "string"
@@ -23963,6 +24298,12 @@ func init() {
           "type": "integer",
           "x-formatting": "weight",
           "example": 500
+        },
+        "unaccompaniedBaggageAllowance": {
+          "description": "The amount of weight in pounds that the move is entitled for shipment types of Unaccompanied Baggage.",
+          "type": "integer",
+          "x-nullable": true,
+          "example": 3
         }
       }
     },
@@ -23981,10 +24322,6 @@ func init() {
       "description": "An evaluation report",
       "type": "object",
       "properties": {
-        "ReportViolations": {
-          "x-nullable": true,
-          "$ref": "#/definitions/ReportViolations"
-        },
         "createdAt": {
           "type": "string",
           "format": "date-time",
@@ -24085,6 +24422,10 @@ func init() {
         "remarks": {
           "type": "string",
           "x-nullable": true
+        },
+        "reportViolations": {
+          "x-nullable": true,
+          "$ref": "#/definitions/ReportViolations"
         },
         "seriousIncident": {
           "type": "boolean",
@@ -26513,6 +26854,12 @@ func init() {
         "transportationOffice": {
           "$ref": "#/definitions/TransportationOffice"
         },
+        "transportationOfficeAssignments": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/TransportationOfficeAssignment"
+          }
+        },
         "transportationOfficeId": {
           "type": "string",
           "format": "uuid"
@@ -28907,7 +29254,7 @@ func init() {
         "branch": {
           "type": "string"
         },
-        "dodID": {
+        "edipi": {
           "type": "string",
           "x-nullable": true
         },
@@ -28983,7 +29330,7 @@ func init() {
         "destinationGBLOC": {
           "$ref": "#/definitions/GBLOC"
         },
-        "dodID": {
+        "edipi": {
           "type": "string",
           "x-nullable": true,
           "example": 1234567890
@@ -29565,6 +29912,43 @@ func init() {
         }
       }
     },
+    "TransportationOfficeAssignment": {
+      "type": "object",
+      "required": [
+        "officeUserId",
+        "transportationOfficeId",
+        "primaryOffice"
+      ],
+      "properties": {
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        },
+        "officeUserId": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4780-65aa-42ec-a945-5fd87dec0538"
+        },
+        "primaryOffice": {
+          "type": "boolean",
+          "x-omitempty": false
+        },
+        "transportationOffice": {
+          "$ref": "#/definitions/TransportationOffice"
+        },
+        "transportationOfficeId": {
+          "type": "string",
+          "format": "uuid",
+          "example": "d67a4780-65aa-42ec-a945-5fd87dec0549"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        }
+      }
+    },
     "TransportationOffices": {
       "type": "array",
       "items": {
@@ -29574,12 +29958,30 @@ func init() {
     "UpdateAllowancePayload": {
       "type": "object",
       "properties": {
+        "accompaniedTour": {
+          "description": "Indicates if the move entitlement allows dependents to travel to the new Permanent Duty Station (PDS). This is only present on OCONUS moves.",
+          "type": "boolean",
+          "x-nullable": true,
+          "example": true
+        },
         "agency": {
           "$ref": "#/definitions/Affiliation"
         },
         "dependentsAuthorized": {
           "type": "boolean",
           "x-nullable": true
+        },
+        "dependentsTwelveAndOver": {
+          "description": "Indicates the number of dependents of the age twelve or older for a move. This is only present on OCONUS moves.",
+          "type": "integer",
+          "x-nullable": true,
+          "example": 3
+        },
+        "dependentsUnderTwelve": {
+          "description": "Indicates the number of dependents under the age of twelve for a move. This is only present on OCONUS moves.",
+          "type": "integer",
+          "x-nullable": true,
+          "example": 5
         },
         "grade": {
           "$ref": "#/definitions/Grade"
@@ -29623,6 +30025,11 @@ func init() {
           "description": "the number of storage in transit days that the customer is entitled to for a given shipment on their move",
           "type": "integer",
           "minimum": 0
+        },
+        "ubAllowance": {
+          "type": "integer",
+          "x-nullable": true,
+          "example": 500
         }
       }
     },

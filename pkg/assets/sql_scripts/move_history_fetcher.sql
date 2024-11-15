@@ -364,6 +364,16 @@ WITH move AS (
 		UNION
 		SELECT
 			audit_history.object_id,
+			'tertiaryDestinationAddress',
+			move_shipments.shipment_type,
+			move_shipments.id::TEXT,
+			NULL,
+			move_shipments.shipment_locator
+		FROM audit_history
+			JOIN move_shipments ON move_shipments.tertiary_delivery_address_id = audit_history.object_id AND audit_history."table_name" = 'addresses'
+		UNION
+		SELECT
+			audit_history.object_id,
 			'pickupAddress',
 			move_shipments.shipment_type,
 			move_shipments.id::TEXT,
@@ -381,6 +391,16 @@ WITH move AS (
 			move_shipments.shipment_locator
 		FROM audit_history
 			JOIN move_shipments ON move_shipments.secondary_pickup_address_id = audit_history.object_id AND audit_history."table_name" = 'addresses'
+		UNION
+		SELECT
+			audit_history.object_id,
+			'tertiaryPickupAddress',
+			move_shipments.shipment_type,
+			move_shipments.id::TEXT,
+			NULL,
+			move_shipments.shipment_locator
+		FROM audit_history
+			JOIN move_shipments ON move_shipments.tertiary_pickup_address_id = audit_history.object_id AND audit_history."table_name" = 'addresses'
 		UNION
 		SELECT
 			audit_history.object_id,
@@ -583,6 +603,43 @@ WITH move AS (
 	    GROUP BY
 	        document_review_items.doc_id, document_review_items.shipment_id, audit_history.id
 	),
+		gsr_appeals AS (
+		SELECT
+			gsr_appeals.id,
+			gsr_appeals.remarks,
+			gsr_appeals.appeal_status,
+			CASE
+				WHEN gsr_appeals.is_serious_incident_appeal = 'true' THEN TRUE
+				WHEN gsr_appeals.is_serious_incident_appeal = 'false' THEN FALSE
+				ELSE NULL
+			END AS is_serious_incident_appeal,
+			jsonb_agg(
+				jsonb_build_object(
+					'evaluation_report_type', evaluation_reports.type,
+					'violation_paragraph_number', pws_violations.paragraph_number,
+					'violation_title', pws_violations.title,
+					'violation_summary', pws_violations.requirement_summary
+				)
+			)::TEXT AS context
+		FROM
+			gsr_appeals
+		JOIN evaluation_reports ON gsr_appeals.evaluation_report_id = evaluation_reports.id
+		LEFT JOIN report_violations ON gsr_appeals.report_violation_id = report_violations.id
+		LEFT JOIN pws_violations ON report_violations.violation_id = pws_violations.id
+		JOIN move ON evaluation_reports.move_id = move.id
+		WHERE move.id = (SELECT move.id FROM move)
+		GROUP BY gsr_appeals.id
+	),
+	gsr_appeals_logs AS (
+		SELECT
+			audit_history.*,
+			gsr_appeals.context AS context,
+			NULL AS context_id
+		FROM
+			audit_history
+		JOIN gsr_appeals ON gsr_appeals.id = audit_history.object_id
+		WHERE audit_history.table_name = 'gsr_appeals'
+	),
 	combined_logs AS (
 		SELECT
 			*
@@ -668,6 +725,11 @@ WITH move AS (
 			*
 		FROM
 			document_review_logs
+		UNION
+		SELECT
+			*
+		FROM
+			gsr_appeals_logs
 
 
 	) SELECT DISTINCT

@@ -217,7 +217,7 @@ paths:
                 description: requested page of results
               perPage:
                 type: integer
-              dodID:
+              edipi:
                 description: DOD ID
                 type: string
                 minLength: 10
@@ -243,7 +243,7 @@ paths:
                 x-nullable: true
                 enum:
                   - customerName
-                  - dodID
+                  - edipi
                   - emplid
                   - branch
                   - personalEmail
@@ -2944,6 +2944,44 @@ paths:
           $ref: '#/responses/ServerError'
       x-permissions:
         - update.evaluationReport
+  /evaluation-reports/{reportID}/appeal/add:
+    parameters:
+      - in: path
+        description: the evaluation report ID
+        name: reportID
+        required: true
+        type: string
+        format: uuid
+    post:
+      summary: Adds an appeal to a serious incident on an evaluation report
+      description: Adds an appeal to a serious incident on an evaluation report
+      operationId: addAppealToSeriousIncident
+      tags:
+        - evaluationReports
+      produces:
+        - application/json
+      consumes:
+        - application/json
+      parameters:
+        - in: body
+          name: body
+          schema:
+            $ref: '#/definitions/CreateAppeal'
+      responses:
+        '204':
+          description: Successfully added an appeal to a serious incident
+        '403':
+          $ref: '#/responses/PermissionDenied'
+        '404':
+          $ref: '#/responses/NotFound'
+        '412':
+          $ref: '#/responses/PreconditionFailed'
+        '422':
+          $ref: '#/responses/UnprocessableEntity'
+        '500':
+          $ref: '#/responses/ServerError'
+      x-permissions:
+        - update.evaluationReport
   /evaluation-reports/{reportID}/{reportViolationID}/appeal/add:
     parameters:
       - in: path
@@ -2972,7 +3010,7 @@ paths:
         - in: body
           name: body
           schema:
-            $ref: '#/definitions/CreateViolationAppeal'
+            $ref: '#/definitions/CreateAppeal'
       responses:
         '204':
           description: Successfully added an appeal to a violation
@@ -3420,7 +3458,7 @@ paths:
           type: string
           enum:
             - customerName
-            - dodID
+            - edipi
             - emplid
             - branch
             - locator
@@ -3461,7 +3499,7 @@ paths:
           type: string
           description: filters using a counselingOffice name of the move
         - in: query
-          name: dodID
+          name: edipi
           type: string
           description: filters to match the unique service member's DoD ID
         - in: query
@@ -3679,7 +3717,7 @@ paths:
           type: string
           enum:
             - customerName
-            - dodID
+            - edipi
             - emplid
             - branch
             - locator
@@ -3689,6 +3727,7 @@ paths:
             - requestedMoveDate
             - appearedInTooAt
             - assignedTo
+            - counselingOffice
           description: field that results should be sorted by
         - in: query
           name: order
@@ -3707,7 +3746,7 @@ paths:
           name: customerName
           type: string
         - in: query
-          name: dodID
+          name: edipi
           type: string
         - in: query
           name: emplid
@@ -3757,6 +3796,10 @@ paths:
           type: string
           description: |
             Used to illustrate which user is assigned to this move.
+        - in: query
+          name: counselingOffice
+          type: string
+          description: filters using a counselingOffice name of the move
       responses:
         '200':
           description: Successfully returned all moves matching the criteria
@@ -3788,7 +3831,7 @@ paths:
             - submittedAt
             - branch
             - status
-            - dodID
+            - edipi
             - emplid
             - age
             - originDutyLocation
@@ -3826,7 +3869,7 @@ paths:
           name: customerName
           type: string
         - in: query
-          name: dodID
+          name: edipi
           type: string
         - in: query
           name: emplid
@@ -3905,7 +3948,7 @@ paths:
                 minLength: 6
                 maxLength: 6
                 x-nullable: true
-              dodID:
+              edipi:
                 description: DOD ID
                 type: string
                 minLength: 10
@@ -3965,7 +4008,7 @@ paths:
                 x-nullable: true
                 enum:
                   - customerName
-                  - dodID
+                  - edipi
                   - emplid
                   - branch
                   - locator
@@ -4577,6 +4620,10 @@ definitions:
         format: uuid
       transportationOffice:
         $ref: '#/definitions/TransportationOffice'
+      transportationOfficeAssignments:
+        type: array
+        items:
+          $ref: '#/definitions/TransportationOfficeAssignment'
       active:
         type: boolean
       roles:
@@ -4981,7 +5028,7 @@ definitions:
         type: string
         example: Doe
         x-nullable: true
-      dodID:
+      edipi:
         type: string
         x-nullable: true
       emplid:
@@ -5052,6 +5099,35 @@ definitions:
       organizationalClothingAndIndividualEquipment:
         example: true
         type: boolean
+      accompaniedTour:
+        type: boolean
+        example: true
+        x-nullable: true
+        description: >-
+          Indicates if the move entitlement allows dependents to travel to the
+          new Permanent Duty Station (PDS). This is only present on OCONUS
+          moves.
+      unaccompaniedBaggageAllowance:
+        type: integer
+        example: 3
+        x-nullable: true
+        description: >-
+          The amount of weight in pounds that the move is entitled for shipment
+          types of Unaccompanied Baggage.
+      dependentsUnderTwelve:
+        type: integer
+        example: 5
+        x-nullable: true
+        description: >-
+          Indicates the number of dependents under the age of twelve for a move.
+          This is only present on OCONUS moves.
+      dependentsTwelveAndOver:
+        type: integer
+        example: 3
+        x-nullable: true
+        description: >-
+          Indicates the number of dependents of the age twelve or older for a
+          move. This is only present on OCONUS moves.
       eTag:
         type: string
     type: object
@@ -5663,6 +5739,28 @@ definitions:
         type: string
         format: uuid
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      accompaniedTour:
+        type: boolean
+        example: true
+        x-nullable: true
+        description: >-
+          Indicates if the move entitlement allows dependents to travel to the
+          new Permanent Duty Station (PDS). This is only present on OCONUS
+          moves.
+      dependentsUnderTwelve:
+        type: integer
+        example: 5
+        x-nullable: true
+        description: >-
+          Indicates the number of dependents under the age of twelve for a move.
+          This is only present on OCONUS moves.
+      dependentsTwelveAndOver:
+        type: integer
+        example: 3
+        x-nullable: true
+        description: >-
+          Indicates the number of dependents of the age twelve or older for a
+          move. This is only present on OCONUS moves.
     required:
       - serviceMemberId
       - issueDate
@@ -5853,6 +5951,32 @@ definitions:
           their move without it being charged against their weight allowance.
         type: boolean
         x-nullable: true
+      accompaniedTour:
+        type: boolean
+        example: true
+        x-nullable: true
+        description: >-
+          Indicates if the move entitlement allows dependents to travel to the
+          new Permanent Duty Station (PDS). This is only present on OCONUS
+          moves.
+      dependentsUnderTwelve:
+        type: integer
+        example: 5
+        x-nullable: true
+        description: >-
+          Indicates the number of dependents under the age of twelve for a move.
+          This is only present on OCONUS moves.
+      dependentsTwelveAndOver:
+        type: integer
+        example: 3
+        x-nullable: true
+        description: >-
+          Indicates the number of dependents of the age twelve or older for a
+          move. This is only present on OCONUS moves.
+      ubAllowance:
+        example: 500
+        type: integer
+        x-nullable: true
   UpdateBillableWeightPayload:
     type: object
     properties:
@@ -5929,6 +6053,32 @@ definitions:
           True if user is entitled to move a gun safe (up to 500 lbs) as part of
           their move without it being charged against their weight allowance.
         type: boolean
+        x-nullable: true
+      accompaniedTour:
+        type: boolean
+        example: true
+        x-nullable: true
+        description: >-
+          Indicates if the move entitlement allows dependents to travel to the
+          new Permanent Duty Station (PDS). This is only present on OCONUS
+          moves.
+      dependentsUnderTwelve:
+        type: integer
+        example: 5
+        x-nullable: true
+        description: >-
+          Indicates the number of dependents under the age of twelve for a move.
+          This is only present on OCONUS moves.
+      dependentsTwelveAndOver:
+        type: integer
+        example: 3
+        x-nullable: true
+        description: >-
+          Indicates the number of dependents of the age twelve or older for a
+          move. This is only present on OCONUS moves.
+      ubAllowance:
+        example: 500
+        type: integer
         x-nullable: true
   MoveTaskOrder:
     description: The Move (MoveTaskOrder)
@@ -7328,7 +7478,7 @@ definitions:
         type: string
         example: Doe
         x-nullable: true
-      dodID:
+      edipi:
         type: string
         example: 1234567890
         x-nullable: true
@@ -7522,7 +7672,7 @@ definitions:
       location:
         $ref: '#/definitions/EvaluationReportLocation'
         x-nullable: true
-      ReportViolations:
+      reportViolations:
         $ref: '#/definitions/ReportViolations'
         x-nullable: true
       gsrAppeals:
@@ -7616,7 +7766,7 @@ definitions:
         example: 01b9671e-b268-4906-967b-ba661a1d3933
         format: uuid
         type: string
-  CreateViolationAppeal:
+  CreateAppeal:
     type: object
     description: Appeal status and remarks left for a violation, created by a GSR user.
     properties:
@@ -8086,6 +8236,34 @@ definitions:
       - address
       - created_at
       - updated_at
+  TransportationOfficeAssignment:
+    type: object
+    properties:
+      officeUserId:
+        type: string
+        format: uuid
+        example: c56a4780-65aa-42ec-a945-5fd87dec0538
+      transportationOfficeId:
+        type: string
+        format: uuid
+        example: d67a4780-65aa-42ec-a945-5fd87dec0549
+      transportationOffice:
+        $ref: '#/definitions/TransportationOffice'
+      primaryOffice:
+        type: boolean
+        x-omitempty: false
+      createdAt:
+        type: string
+        format: date-time
+        readOnly: true
+      updatedAt:
+        type: string
+        format: date-time
+        readOnly: true
+    required:
+      - officeUserId
+      - transportationOfficeId
+      - primaryOffice
   DutyLocation:
     type: object
     properties:

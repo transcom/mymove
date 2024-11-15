@@ -5,9 +5,11 @@ import { Button, Checkbox, Fieldset } from '@trussworks/react-uswds';
 import { generatePath, useParams, useNavigate } from 'react-router-dom';
 import { debounce } from 'lodash';
 import { connect } from 'react-redux';
+import { useQueryClient, useMutation } from '@tanstack/react-query';
 
 import styles from './RequestedShipments.module.scss';
 
+import { MTO_SHIPMENTS, PPMCLOSEOUT } from 'constants/queryKeys';
 import { hasCounseling, hasMoveManagement } from 'utils/serviceItems';
 import { isPPMOnly } from 'utils/shipments';
 import ShipmentApprovalPreview from 'components/Office/ShipmentApprovalPreview/ShipmentApprovalPreview';
@@ -25,6 +27,7 @@ import { fieldValidationShape } from 'utils/displayFlags';
 import ButtonDropdown from 'components/ButtonDropdown/ButtonDropdown';
 import { SHIPMENT_OPTIONS_URL, FEATURE_FLAG_KEYS } from 'shared/constants';
 import { setFlashMessage as setFlashMessageAction } from 'store/flash/actions';
+import { updateMTOShipment } from 'services/ghcApi';
 import { isBooleanFlagEnabled } from 'utils/featureFlags';
 
 // nts defaults show preferred pickup date and pickup address, flagged items when collapsed
@@ -56,6 +59,7 @@ const SubmittedRequestedShipments = ({
   mtoServiceItems,
   isMoveLocked,
   setFlashMessage,
+  setErrorMessage,
 }) => {
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [filteredShipments, setFilteredShipments] = useState([]);
@@ -126,65 +130,107 @@ const SubmittedRequestedShipments = ({
     );
   };
 
+  const queryClient = useQueryClient();
+  const shipmentMutation = useMutation(updateMTOShipment, {
+    onSuccess: (updatedMTOShipments) => {
+      if (filteredShipments !== null && updatedMTOShipments?.mtoShipments !== undefined) {
+        filteredShipments.forEach((shipment, key) => {
+          if (updatedMTOShipments?.mtoShipments[shipment.id] !== undefined) {
+            filteredShipments[key] = updatedMTOShipments.mtoShipments[shipment.id];
+          }
+        });
+      }
+
+      queryClient.setQueryData([MTO_SHIPMENTS, filteredShipments.moveTaskOrderID, false], filteredShipments);
+      queryClient.invalidateQueries([MTO_SHIPMENTS, filteredShipments.moveTaskOrderID]);
+      queryClient.invalidateQueries([PPMCLOSEOUT, filteredShipments?.ppmShipment?.id]);
+
+      setErrorMessage(null);
+    },
+    onError: (error) => {
+      setIsModalVisible(false);
+      setErrorMessage(error?.response?.body?.message ? error.response.body.message : 'Shipment failed to update.');
+    },
+  });
+
   const formik = useFormik({
     initialValues: {
       shipmentManagementFee: true,
       counselingFee: false,
       shipments: [],
     },
-    onSubmit: (values, { setSubmitting }) => {
+    onSubmit: async (values, { setSubmitting }) => {
       const mtoApprovalServiceItemCodes = {
         serviceCodeMS: values.shipmentManagementFee && !moveTaskOrder.availableToPrimeAt,
         serviceCodeCS: values.counselingFee,
       };
 
-      approveMTO(
-        {
-          moveTaskOrderID: moveTaskOrder.id,
-          ifMatchETag: moveTaskOrder.eTag,
-          mtoApprovalServiceItemCodes,
-          normalize: false,
-        },
-        {
-          onSuccess: async () => {
-            try {
-              await Promise.all(
-                filteredShipments.map((shipment) => {
-                  let operationPath = 'shipment.approveShipment';
+      const ppmShipmentPromise = filteredShipments.map((shipment) => {
+        if (shipment?.ppmShipment?.estimatedIncentive === 0) {
+          return shipmentMutation.mutateAsync({
+            moveTaskOrderID: shipment.moveTaskOrderID,
+            shipmentID: shipment.id,
+            ifMatchETag: shipment.eTag,
+            body: {
+              ppmShipment: shipment.ppmShipment,
+            },
+          });
+        }
 
-                  if (shipment.approvedDate && moveTaskOrder.availableToPrimeAt) {
-                    operationPath = 'shipment.approveShipmentDiversion';
-                  }
-                  return approveMTOShipment(
-                    {
-                      shipmentID: shipment.id,
-                      operationPath,
-                      ifMatchETag: shipment.eTag,
-                      normalize: false,
-                    },
-                    {
-                      onError: () => {
-                        // TODO: Decide if we want to display an error notice, log error event, or retry
-                        setSubmitting(false);
-                        setFlashMessage(null);
-                      },
-                    },
-                  );
-                }),
-              );
-              setFlashMessage('TASK_ORDER_CREATE_SUCCESS', 'success', 'Task order created successfully.');
-              handleAfterSuccess('../mto', { showMTOpostedMessage: true });
-            } catch {
-              setSubmitting(false);
-            }
-          },
-          onError: () => {
-            // TODO: Decide if we want to display an error notice, log error event, or retry
-            setSubmitting(false);
-          },
-        },
-      );
-      //
+        return Promise.resolve();
+      });
+
+      try {
+        await Promise.all(ppmShipmentPromise).then(() => {
+          approveMTO(
+            {
+              moveTaskOrderID: moveTaskOrder.id,
+              ifMatchETag: moveTaskOrder.eTag,
+              mtoApprovalServiceItemCodes,
+              normalize: false,
+            },
+            {
+              onSuccess: async () => {
+                try {
+                  await Promise.all(
+                    filteredShipments.map((shipment) => {
+                      let operationPath = 'shipment.approveShipment';
+
+                      if (shipment.approvedDate && moveTaskOrder.availableToPrimeAt) {
+                        operationPath = 'shipment.approveShipmentDiversion';
+                      }
+                      return approveMTOShipment(
+                        {
+                          shipmentID: shipment.id,
+                          operationPath,
+                          ifMatchETag: shipment.eTag,
+                          normalize: false,
+                        },
+                        {
+                          onError: () => {
+                            setSubmitting(false);
+                            setFlashMessage(null);
+                          },
+                        },
+                      );
+                    }),
+                  ).then(() => {
+                    setFlashMessage('TASK_ORDER_CREATE_SUCCESS', 'success', 'Task order created successfully.');
+                    handleAfterSuccess('../mto', { showMTOpostedMessage: true });
+                  });
+                } catch {
+                  setSubmitting(false);
+                }
+              },
+              onError: () => {
+                setSubmitting(false);
+              },
+            },
+          );
+        });
+      } catch {
+        setSubmitting(false);
+      }
     },
   });
 
@@ -209,8 +255,9 @@ const SubmittedRequestedShipments = ({
 
   const dutyLocationPostal = { postalCode: ordersInfo.newDutyLocation?.address?.postalCode };
 
-  // Hide counseling line item if prime counseling is already in the service items or if service counseling has been applied
-  const hideCounselingCheckbox = hasCounseling(mtoServiceItems) || moveTaskOrder?.serviceCounselingCompletedAt;
+  // Hide counseling line item if prime counseling is already in the service items, if service counseling has been applied, or if full PPM move
+  const hideCounselingCheckbox =
+    hasCounseling(mtoServiceItems) || moveTaskOrder?.serviceCounselingCompletedAt || isPPMOnly(mtoShipments);
 
   // Hide move management line item if it is already in the service items or for PPM only moves
   const hideMoveManagementCheckbox = hasMoveManagement(mtoServiceItems) || isPPMOnly(mtoShipments);
@@ -377,6 +424,7 @@ SubmittedRequestedShipments.propTypes = {
   }).isRequired,
   approveMTO: PropTypes.func,
   approveMTOShipment: PropTypes.func,
+  setErrorMessage: PropTypes.func.isRequired,
   moveTaskOrder: MoveTaskOrderShape,
   missingRequiredOrdersInfo: PropTypes.bool,
   handleAfterSuccess: PropTypes.func,
