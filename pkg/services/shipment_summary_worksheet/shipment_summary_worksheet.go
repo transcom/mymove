@@ -325,7 +325,12 @@ func (s *SSWPPMComputer) FormatValuesShipmentSummaryWorksheetFormPage2(data mode
 	page2.TAC = derefStringTypes(data.Order.TAC)
 	page2.SAC = derefStringTypes(data.Order.SAC)
 	if isPaymentPacket {
-		data.PPMRemainingEntitlement = CalculateRemainingPPMEntitlement(data.PPMShipment.FinalIncentive, expensesMap["StorageMemberPaid"], expensesMap["StorageGTCCPaid"], data.PPMShipment.AdvanceAmountReceived)
+		if data.IsActualExpenseReimbursement {
+			data.PPMRemainingEntitlement = 0.0
+		} else {
+			data.PPMRemainingEntitlement = CalculateRemainingPPMEntitlement(data.PPMShipment.FinalIncentive, expensesMap["StorageMemberPaid"], expensesMap["StorageGTCCPaid"], data.PPMShipment.AdvanceAmountReceived)
+		}
+
 		page2.PPMRemainingEntitlement = FormatDollars(data.PPMRemainingEntitlement)
 		page2.PreparationDate2, err = formatSSWDate(data.SignedCertifications, data.PPMShipment.ID)
 		if err != nil {
@@ -335,7 +340,12 @@ func (s *SSWPPMComputer) FormatValuesShipmentSummaryWorksheetFormPage2(data mode
 	} else {
 		page2.PreparationDate2 = formatAOADate(data.SignedCertifications, data.PPMShipment.ID)
 		page2.Disbursement = "N/A"
-		page2.PPMRemainingEntitlement = "N/A"
+
+		if data.IsActualExpenseReimbursement {
+			page2.PPMRemainingEntitlement = "$0.00"
+		} else {
+			page2.PPMRemainingEntitlement = "N/A"
+		}
 	}
 	page2.ContractedExpenseMemberPaid = FormatDollars(expensesMap["ContractedExpenseMemberPaid"])
 	page2.ContractedExpenseGTCCPaid = FormatDollars(expensesMap["ContractedExpenseGTCCPaid"])
