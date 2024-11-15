@@ -29,7 +29,6 @@ import LeftNavTag from 'components/LeftNavTag/LeftNavTag';
 import Restricted from 'components/Restricted/Restricted';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
-import { MOVE_STATUSES } from 'shared/constants';
 import { SIT_EXTENSION_STATUS } from 'constants/sitExtensions';
 import { ORDERS_TYPE } from 'constants/orders';
 import { permissionTypes } from 'constants/permissions';
@@ -37,7 +36,7 @@ import { objectIsMissingFieldWithCondition } from 'utils/displayFlags';
 import formattedCustomerName from 'utils/formattedCustomerName';
 import { calculateEstimatedWeight } from 'hooks/custom';
 import { ADVANCE_STATUSES } from 'constants/ppms';
-import { technicalHelpDeskURL } from 'shared/constants';
+import { MOVE_STATUSES, technicalHelpDeskURL } from 'shared/constants';
 
 const MoveDetails = ({
   setUnapprovedShipmentCount,
