@@ -73,6 +73,7 @@ export const AddressFields = ({
       maxLength={10}
       labelHint={labelHintProp}
       display="readonly"
+      validate={validators?.postalCode}
     />
   );
 
@@ -84,6 +85,7 @@ export const AddressFields = ({
       data-testid={`${name}.state`}
       labelHint={labelHintProp}
       display="readonly"
+      validate={validators?.state}
     />
   ) : (
     <DropdownInput
@@ -191,6 +193,7 @@ export const AddressFields = ({
                     labelHint={labelHintProp}
                     data-testid={`${name}.city`}
                     display="readonly"
+                    validate={validators?.city}
                   />
                   <TextField
                     className={styles.label}
@@ -200,6 +203,7 @@ export const AddressFields = ({
                     labelHint={labelHintProp}
                     data-testid={`${name}.county`}
                     display="readonly"
+                    validate={validators?.county}
                   />
                 </>
               )}

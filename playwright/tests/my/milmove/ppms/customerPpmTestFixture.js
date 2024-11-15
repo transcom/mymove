@@ -161,15 +161,17 @@ export class CustomerPpmPage extends CustomerPage {
     // this helps debounce the API calls that would be triggered in quick succession
     await this.page.locator('input[name="actualMoveDate"]').fill('01 Feb 2022');
 
+    const LocationLookup = 'YUMA, AZ 85369 (YUMA)';
+
     await this.page.locator('input[name="pickupAddress.streetAddress1"]').fill('1819 S Cedar Street');
-    await this.page.locator('input[name="pickupAddress.city"]').fill('Yuma');
-    await this.page.locator('select[name="pickupAddress.state"]').selectOption({ label: 'AZ' });
-    await this.page.locator('input[name="pickupAddress.postalCode"]').fill('85369');
+    await this.page.getByLabel('Location Lookup').nth(0).fill('85369');
+    await expect(this.page.getByText(LocationLookup, { exact: true })).toBeVisible();
+    await this.page.keyboard.press('Enter');
 
     await this.page.locator('input[name="destinationAddress.streetAddress1"]').fill('1819 S Cedar Street');
-    await this.page.locator('input[name="destinationAddress.city"]').fill('Yuma');
-    await this.page.locator('select[name="destinationAddress.state"]').selectOption({ label: 'AZ' });
-    await this.page.locator('input[name="destinationAddress.postalCode"]').fill('85369');
+    await this.page.getByLabel('Location Lookup').nth(1).fill('85369');
+    await expect(this.page.getByText(LocationLookup, { exact: true })).toBeVisible();
+    await this.page.keyboard.press('Enter');
 
     if (options?.selectAdvance) {
       await this.page.locator('label[for="yes-has-received-advance"]').click();
@@ -179,9 +181,9 @@ export class CustomerPpmPage extends CustomerPage {
     }
 
     await this.page.locator('input[name="w2Address.streetAddress1"]').fill('1819 S Cedar Street');
-    await this.page.locator('input[name="w2Address.city"]').fill('Yuma');
-    await this.page.locator('select[name="w2Address.state"]').selectOption({ label: 'AZ' });
-    await this.page.locator('input[name="w2Address.postalCode"]').fill('85369');
+    await this.page.getByLabel('Location Lookup').nth(2).fill('85369');
+    await expect(this.page.getByText(LocationLookup, { exact: true })).toBeVisible();
+    await this.page.keyboard.press('Enter');
 
     await this.page.getByRole('button', { name: 'Save & Continue' }).click();
   }
