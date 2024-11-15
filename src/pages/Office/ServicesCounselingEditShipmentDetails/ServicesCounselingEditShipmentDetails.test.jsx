@@ -433,7 +433,7 @@ describe('ServicesCounselingEditShipmentDetails component', () => {
       expect(screen.queryByRole('textbox', { name: 'Estimated SIT weight' })).not.toBeInTheDocument();
       expect(screen.queryByRole('textbox', { name: 'Estimated storage start' })).not.toBeInTheDocument();
       expect(screen.queryByRole('textbox', { name: 'Estimated storage end' })).not.toBeInTheDocument();
-      expect(screen.findByRole('textbox', { name: 'Estimated PPM weight' })).toHaveValue('1,111');
+      expect(await screen.findByRole('textbox', { name: 'Estimated PPM weight' })).toHaveValue('1,111');
       expect(screen.queryByRole('textbox', { name: 'Estimated pro-gear weight' })).not.toBeInTheDocument();
       expect(screen.queryByRole('textbox', { name: 'Estimated spouse pro-gear weight' })).not.toBeInTheDocument();
       expect(await screen.findByRole('button', { name: 'Save and Continue' })).toBeInTheDocument();
