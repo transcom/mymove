@@ -92,7 +92,7 @@ func (p *ppmCloseoutFetcher) GetPPMCloseout(appCtx appcontext.AppContext, ppmShi
 
 	fullWeightGCCShipment := ppmShipment
 
-	// Set pro gear werights for the GCC calculation to the max allowed before calculating GCC price
+	// Set pro gear weights for the GCC calculation to the max allowed before calculating GCC price
 	fullWeightGCCShipment.ProGearWeight = &proGearCustomerMax
 	fullWeightGCCShipment.SpouseProGearWeight = &proGearSpouseMax
 	gcc, _ := p.calculateGCC(appCtx, *fullWeightGCCShipment, fullAllowableWeight)
@@ -349,6 +349,10 @@ func (p *ppmCloseoutFetcher) getServiceItemPrices(appCtx appcontext.AppContext, 
 				totalWeight += *weightTicket.FullWeight - *weightTicket.EmptyWeight
 			}
 		}
+	}
+
+	if ppmShipment.AllowableWeight != nil && *ppmShipment.AllowableWeight < totalWeight {
+		totalWeight = *ppmShipment.AllowableWeight
 	}
 
 	if totalWeight > 0 {
