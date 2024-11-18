@@ -73,11 +73,11 @@ func MoveTaskOrderWithShipmentOconusRateArea(moveTaskOrder *models.Move, shipmen
 		// Origin/Destination RateArea will be present on root shipment level for all non-PPM shipment types
 		for _, shipment := range payload.MtoShipments {
 			if shipment.PpmShipment != nil {
-				shipment.PpmShipment.OriginRateArea = PostalCodeToRateArea(*shipment.PpmShipment.PickupAddress.PostalCode, shipmentPostalCodeRateAreaLookupMap)
-				shipment.PpmShipment.DestinationRateArea = PostalCodeToRateArea(*shipment.PpmShipment.DestinationAddress.PostalCode, shipmentPostalCodeRateAreaLookupMap)
+				shipment.PpmShipment.OriginRateArea = PostalCodeToRateArea(shipment.PpmShipment.PickupAddress.PostalCode, shipmentPostalCodeRateAreaLookupMap)
+				shipment.PpmShipment.DestinationRateArea = PostalCodeToRateArea(shipment.PpmShipment.DestinationAddress.PostalCode, shipmentPostalCodeRateAreaLookupMap)
 			} else {
-				shipment.OriginRateArea = PostalCodeToRateArea(*shipment.PickupAddress.PostalCode, shipmentPostalCodeRateAreaLookupMap)
-				shipment.DestinationRateArea = PostalCodeToRateArea(*shipment.DestinationAddress.PostalCode, shipmentPostalCodeRateAreaLookupMap)
+				shipment.OriginRateArea = PostalCodeToRateArea(shipment.PickupAddress.PostalCode, shipmentPostalCodeRateAreaLookupMap)
+				shipment.DestinationRateArea = PostalCodeToRateArea(shipment.DestinationAddress.PostalCode, shipmentPostalCodeRateAreaLookupMap)
 			}
 		}
 	}
@@ -978,8 +978,11 @@ func MTOShipment(mtoShipment *models.MTOShipment) *primev3messages.MTOShipment {
 }
 
 // PostalCodeToRateArea converts postalCode into RateArea model to payload
-func PostalCodeToRateArea(postalCode string, shipmentPostalCodeRateAreaMap map[string]services.ShipmentPostalCodeRateArea) *primev3messages.RateArea {
-	if ra, ok := shipmentPostalCodeRateAreaMap[postalCode]; ok {
+func PostalCodeToRateArea(postalCode *string, shipmentPostalCodeRateAreaMap map[string]services.ShipmentPostalCodeRateArea) *primev3messages.RateArea {
+	if postalCode == nil {
+		return nil
+	}
+	if ra, ok := shipmentPostalCodeRateAreaMap[*postalCode]; ok {
 		return &primev3messages.RateArea{ID: handlers.FmtUUID(ra.RateArea.ID), RateAreaID: &ra.RateArea.Code, RateAreaName: &ra.RateArea.Name}
 	}
 	return nil
