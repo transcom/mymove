@@ -79,7 +79,7 @@ properties:
     x-nullable: true
     x-omitempty: false
   destinationAddress:
-    $ref: '../../Address.yaml'
+    $ref: '../../PPMDestinationAddress.yaml'
   secondaryDestinationAddress:
     $ref: '../../Address.yaml'
   hasSecondaryDestinationAddress:

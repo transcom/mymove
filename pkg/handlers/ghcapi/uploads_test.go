@@ -57,7 +57,7 @@ func (suite *HandlerSuite) TestCreateUploadsHandlerSuccess() {
 		t.Fatalf("Couldn't find expected upload.")
 	}
 
-	expectedChecksum := "nOE6HwzyE4VEDXn67ULeeA=="
+	expectedChecksum := "w7rJQqzlaazDW+mxTU9Q40Qchr3DW7FPQD7f8Js2J88="
 	if upload.Checksum != expectedChecksum {
 		t.Errorf("Did not calculate the correct MD5: expected %s, got %s", expectedChecksum, upload.Checksum)
 	}

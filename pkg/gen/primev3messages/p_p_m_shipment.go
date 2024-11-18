@@ -59,7 +59,7 @@ type PPMShipment struct {
 
 	// destination address
 	// Required: true
-	DestinationAddress *Address `json:"destinationAddress"`
+	DestinationAddress *PPMDestinationAddress `json:"destinationAddress"`
 
 	// destination rate area
 	DestinationRateArea *RateArea `json:"destinationRateArea,omitempty"`

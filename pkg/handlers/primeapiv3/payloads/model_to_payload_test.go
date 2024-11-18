@@ -800,6 +800,39 @@ func (suite *PayloadsSuite) TestPPMShipment() {
 	suite.True(*ppmShipment.IsActualExpenseReimbursement)
 }
 
+func (suite *PayloadsSuite) TestPPMShipmentContainingOptionalDestinationStreet1() {
+	now := time.Now()
+	ppmShipment := &models.PPMShipment{
+		ID: uuid.Must(uuid.NewV4()),
+		DestinationAddress: &models.Address{
+			ID:             uuid.Must(uuid.NewV4()),
+			StreetAddress1: models.STREET_ADDRESS_1_NOT_PROVIDED,
+			StreetAddress2: models.StringPointer("1"),
+			StreetAddress3: models.StringPointer("2"),
+			City:           "SomeCity",
+			State:          "CA",
+			PostalCode:     "90210",
+			County:         "SomeCounty",
+			UpdatedAt:      now,
+		},
+	}
+
+	result := PPMShipment(ppmShipment)
+
+	eTag := etag.GenerateEtag(now)
+
+	suite.NotNil(result)
+	// expecting empty string on the response side to simulate nothing was provided.
+	suite.Equal(result.DestinationAddress.StreetAddress1, models.StringPointer(""))
+	suite.Equal(result.DestinationAddress.StreetAddress2, ppmShipment.DestinationAddress.StreetAddress2)
+	suite.Equal(result.DestinationAddress.StreetAddress3, ppmShipment.DestinationAddress.StreetAddress3)
+	suite.Equal(*result.DestinationAddress.City, ppmShipment.DestinationAddress.City)
+	suite.Equal(*result.DestinationAddress.State, ppmShipment.DestinationAddress.State)
+	suite.Equal(*result.DestinationAddress.PostalCode, ppmShipment.DestinationAddress.PostalCode)
+	suite.Equal(*result.DestinationAddress.County, ppmShipment.DestinationAddress.County)
+	suite.Equal(result.DestinationAddress.ETag, eTag)
+}
+
 func (suite *PayloadsSuite) TestMTOServiceItem() {
 	sitPostalCode := "55555"
 	mtoServiceItemDOFSIT := &models.MTOServiceItem{

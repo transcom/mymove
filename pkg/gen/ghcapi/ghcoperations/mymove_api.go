@@ -72,6 +72,12 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		OrderAcknowledgeExcessWeightRiskHandler: order.AcknowledgeExcessWeightRiskHandlerFunc(func(params order.AcknowledgeExcessWeightRiskParams) middleware.Responder {
 			return middleware.NotImplemented("operation order.AcknowledgeExcessWeightRisk has not yet been implemented")
 		}),
+		EvaluationReportsAddAppealToSeriousIncidentHandler: evaluation_reports.AddAppealToSeriousIncidentHandlerFunc(func(params evaluation_reports.AddAppealToSeriousIncidentParams) middleware.Responder {
+			return middleware.NotImplemented("operation evaluation_reports.AddAppealToSeriousIncident has not yet been implemented")
+		}),
+		EvaluationReportsAddAppealToViolationHandler: evaluation_reports.AddAppealToViolationHandlerFunc(func(params evaluation_reports.AddAppealToViolationParams) middleware.Responder {
+			return middleware.NotImplemented("operation evaluation_reports.AddAppealToViolation has not yet been implemented")
+		}),
 		ShipmentApproveSITExtensionHandler: shipment.ApproveSITExtensionHandlerFunc(func(params shipment.ApproveSITExtensionParams) middleware.Responder {
 			return middleware.NotImplemented("operation shipment.ApproveSITExtension has not yet been implemented")
 		}),
@@ -420,6 +426,10 @@ type MymoveAPI struct {
 
 	// OrderAcknowledgeExcessWeightRiskHandler sets the operation handler for the acknowledge excess weight risk operation
 	OrderAcknowledgeExcessWeightRiskHandler order.AcknowledgeExcessWeightRiskHandler
+	// EvaluationReportsAddAppealToSeriousIncidentHandler sets the operation handler for the add appeal to serious incident operation
+	EvaluationReportsAddAppealToSeriousIncidentHandler evaluation_reports.AddAppealToSeriousIncidentHandler
+	// EvaluationReportsAddAppealToViolationHandler sets the operation handler for the add appeal to violation operation
+	EvaluationReportsAddAppealToViolationHandler evaluation_reports.AddAppealToViolationHandler
 	// ShipmentApproveSITExtensionHandler sets the operation handler for the approve s i t extension operation
 	ShipmentApproveSITExtensionHandler shipment.ApproveSITExtensionHandler
 	// ShipmentApproveShipmentHandler sets the operation handler for the approve shipment operation
@@ -705,6 +715,12 @@ func (o *MymoveAPI) Validate() error {
 
 	if o.OrderAcknowledgeExcessWeightRiskHandler == nil {
 		unregistered = append(unregistered, "order.AcknowledgeExcessWeightRiskHandler")
+	}
+	if o.EvaluationReportsAddAppealToSeriousIncidentHandler == nil {
+		unregistered = append(unregistered, "evaluation_reports.AddAppealToSeriousIncidentHandler")
+	}
+	if o.EvaluationReportsAddAppealToViolationHandler == nil {
+		unregistered = append(unregistered, "evaluation_reports.AddAppealToViolationHandler")
 	}
 	if o.ShipmentApproveSITExtensionHandler == nil {
 		unregistered = append(unregistered, "shipment.ApproveSITExtensionHandler")
@@ -1102,6 +1118,14 @@ func (o *MymoveAPI) initHandlerCache() {
 		o.handlers["POST"] = make(map[string]http.Handler)
 	}
 	o.handlers["POST"]["/orders/{orderID}/acknowledge-excess-weight-risk"] = order.NewAcknowledgeExcessWeightRisk(o.context, o.OrderAcknowledgeExcessWeightRiskHandler)
+	if o.handlers["POST"] == nil {
+		o.handlers["POST"] = make(map[string]http.Handler)
+	}
+	o.handlers["POST"]["/evaluation-reports/{reportID}/appeal/add"] = evaluation_reports.NewAddAppealToSeriousIncident(o.context, o.EvaluationReportsAddAppealToSeriousIncidentHandler)
+	if o.handlers["POST"] == nil {
+		o.handlers["POST"] = make(map[string]http.Handler)
+	}
+	o.handlers["POST"]["/evaluation-reports/{reportID}/{reportViolationID}/appeal/add"] = evaluation_reports.NewAddAppealToViolation(o.context, o.EvaluationReportsAddAppealToViolationHandler)
 	if o.handlers["PATCH"] == nil {
 		o.handlers["PATCH"] = make(map[string]http.Handler)
 	}

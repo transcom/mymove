@@ -188,20 +188,21 @@ paths:
                 summary: Mobile Home Shipment
                 value:
                   {
-                    "mobileHomeShipment": {
-                      "heightFeet": 2,
-                      "heightInches": 2,
-                      "lengthFeet": 2,
-                      "lengthInches": 0,
-                      "make": "make",
-                      "model": "model",
-                      "widthFeet": 2,
-                      "widthInches": 2,
-                      "year": 1999
-                    },
-                    "counselorRemarks": "test",
-                    "moveTaskOrderID": "d4d95b22-2d9d-428b-9a11-284455aa87ba",
-                    "shipmentType": "MOBILE_HOME"
+                    'mobileHomeShipment':
+                      {
+                        'heightFeet': 2,
+                        'heightInches': 2,
+                        'lengthFeet': 2,
+                        'lengthInches': 0,
+                        'make': 'make',
+                        'model': 'model',
+                        'widthFeet': 2,
+                        'widthInches': 2,
+                        'year': 1999,
+                      },
+                    'counselorRemarks': 'test',
+                    'moveTaskOrderID': 'd4d95b22-2d9d-428b-9a11-284455aa87ba',
+                    'shipmentType': 'MOBILE_HOME',
                   }
       responses:
         '200':
@@ -432,6 +433,10 @@ definitions:
         x-nullable: true
       ppmShipment:
         $ref: '#/definitions/CreatePPMShipment'
+      boatShipment:
+        $ref: '#/definitions/CreateBoatShipment'
+      mobileHomeShipment:
+        $ref: '#/definitions/CreateMobileHomeShipment'
     required:
       - moveTaskOrderID
       - shipmentType

@@ -46,6 +46,12 @@ export const RequestAccount = ({ setFlashMessage }) => {
         roleType: 'task_ordering_officer',
       });
     }
+    if (values.headquartersCheckBox) {
+      requestedRoles.push({
+        name: 'Headquarters',
+        roleType: 'headquarters',
+      });
+    }
     if (values.transportationContractingOfficerCheckBox) {
       requestedRoles.push({
         name: 'Contracting Officer',
@@ -70,13 +76,12 @@ export const RequestAccount = ({ setFlashMessage }) => {
         roleType: 'customer_service_representative',
       });
     }
-    // this will be uncommented in B-20809
-    // if (values.governmentSurveillanceRepresentativeCheckbox) {
-    //   requestedRoles.push({
-    //     name: 'Government Surveillance Representative',
-    //     roleType: 'gsr',
-    //   });
-    // }
+    if (values.governmentSurveillanceRepresentativeCheckbox) {
+      requestedRoles.push({
+        name: 'Government Surveillance Representative',
+        roleType: 'gsr',
+      });
+    }
 
     let body = {
       email: values.officeAccountRequestEmail,

@@ -49,7 +49,7 @@ import {
   updateMoveCloseoutOffice,
   dateSelectionIsWeekendHoliday,
 } from 'services/ghcApi';
-import { SHIPMENT_OPTIONS, technicalHelpDeskURL } from 'shared/constants';
+import { SHIPMENT_OPTIONS, SHIPMENT_TYPES, technicalHelpDeskURL } from 'shared/constants';
 import formStyles from 'styles/form.module.scss';
 import { AccountingCodesShape } from 'types/accountingCodes';
 import { AddressShape, SimpleAddressShape } from 'types/address';
@@ -268,8 +268,8 @@ const ShipmentForm = (props) => {
   const isMobileHome = shipmentType === SHIPMENT_OPTIONS.MOBILE_HOME;
   const isBoat =
     shipmentType === SHIPMENT_OPTIONS.BOAT ||
-    shipmentType === SHIPMENT_OPTIONS.BOAT_HAUL_AWAY ||
-    shipmentType === SHIPMENT_OPTIONS.BOAT_TOW_AWAY;
+    shipmentType === SHIPMENT_TYPES.BOAT_HAUL_AWAY ||
+    shipmentType === SHIPMENT_TYPES.BOAT_TOW_AWAY;
 
   const showAccountingCodes = isNTS || isNTSR;
 
@@ -820,7 +820,7 @@ const ShipmentForm = (props) => {
               <Alert data-testid="errorMessage" type="error" headingLevel="h4" heading="An error occurred">
                 {errorCode === 400 ? (
                   <p>
-                    {errorMessage} If the error persists, please try again later, or contact the&nbsp;
+                    {errorMessage} Please try again later, or contact the&nbsp;
                     <Link to={technicalHelpDeskURL} target="_blank" rel="noreferrer">
                       Technical Help Desk
                     </Link>
@@ -1466,6 +1466,7 @@ const ShipmentForm = (props) => {
                       <AddressFields
                         name="destination.address"
                         legend="Delivery Address"
+                        address1LabelHint="Optional"
                         render={(fields) => (
                           <>
                             {fields}
