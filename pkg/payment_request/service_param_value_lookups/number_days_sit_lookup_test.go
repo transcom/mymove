@@ -69,7 +69,7 @@ func (suite *ServiceParamValueLookupsSuite) TestNumberDaysSITLookup() {
 				EndDate:   time.Now().Add(24 * time.Hour),
 			},
 		})
-		reServiceDOFSIT = factory.BuildReService(suite.DB(), []factory.Customization{
+		reServiceDOFSIT = factory.FetchReService(suite.DB(), []factory.Customization{
 			{
 				Model: models.ReService{
 					Code: models.ReServiceCodeDOFSIT,
@@ -78,7 +78,7 @@ func (suite *ServiceParamValueLookupsSuite) TestNumberDaysSITLookup() {
 			},
 		}, nil)
 
-		reServiceDOASIT = factory.BuildReService(suite.DB(), []factory.Customization{
+		reServiceDOASIT = factory.FetchReService(suite.DB(), []factory.Customization{
 			{
 				Model: models.ReService{
 					Code: models.ReServiceCodeDOASIT,
@@ -87,7 +87,7 @@ func (suite *ServiceParamValueLookupsSuite) TestNumberDaysSITLookup() {
 			},
 		}, nil)
 
-		reServiceDDFSIT := factory.BuildReService(suite.DB(), []factory.Customization{
+		reServiceDDFSIT := factory.FetchReService(suite.DB(), []factory.Customization{
 			{
 				Model: models.ReService{
 					Code: models.ReServiceCodeDDFSIT,
@@ -96,7 +96,7 @@ func (suite *ServiceParamValueLookupsSuite) TestNumberDaysSITLookup() {
 			},
 		}, nil)
 
-		reServiceDDASIT = factory.BuildReService(suite.DB(), []factory.Customization{
+		reServiceDDASIT = factory.FetchReService(suite.DB(), []factory.Customization{
 			{
 				Model: models.ReService{
 					Code: models.ReServiceCodeDDASIT,
