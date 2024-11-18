@@ -89,7 +89,7 @@ export class PpmPage extends ServiceCounselorPage {
     await this.page.locator('input[name="expectedDepartureDate"]').fill('09 Jun 2022');
 
     await this.page.locator('input[name="pickup.address.streetAddress1"]').fill('123 Street');
-    await this.page.getByLabel('Location Lookup').nth(0).fill('90210');
+    await this.page.locator('input[id="pickup.address-location-input"]').fill('90210');
     await expect(this.page.getByText(LocationLookup, { exact: true })).toBeVisible();
     await this.page.keyboard.press('Enter');
   }
@@ -105,7 +105,7 @@ export class PpmPage extends ServiceCounselorPage {
     const LocationLookup = 'FORT WORTH, TX 76127 (TARRANT)';
 
     await this.page.locator('input[name="destination.address.streetAddress1"]').fill('123 Street');
-    await this.page.getByLabel('Location Lookup').nth(1).fill('76127');
+    await this.page.locator('input[id="destination.address-location-input"]').fill('76127');
     await expect(this.page.getByText(LocationLookup, { exact: true })).toBeVisible();
     await this.page.keyboard.press('Enter');
   }

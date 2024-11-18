@@ -22,13 +22,15 @@ test.describe('NTSR', () => {
     await customerPage.navigateForward();
 
     // Fill in form to create NTS-release shipment
+    const location = 'ATCO, NJ 08004 (CAMDEN)';
+
     await customerPage.waitForPage.ntsReleaseShipment();
     await page.getByLabel('Preferred delivery date').fill('25 Dec 2022');
     await page.getByLabel('Preferred delivery date').blur();
     await page.getByLabel('Address 1').fill('7 Q St');
-    await page.getByLabel('City').fill('Atco');
-    await page.getByLabel('State').selectOption({ label: 'NJ' });
-    await page.getByLabel('ZIP').fill('08004');
+    await page.locator('input[id="delivery.address-location-input"]').fill('08004');
+    await expect(page.getByText(location, { exact: true })).toBeVisible();
+    await page.keyboard.press('Enter');
     await page.getByTestId('remarks').fill('Grandfather antique clock');
     await customerPage.navigateForward();
 

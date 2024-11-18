@@ -158,7 +158,7 @@ export const AddressFields = ({
           {locationLookup && (
             <>
               <LocationInput
-                name={`${name}-zipCity`}
+                name={`${name}-location`}
                 placeholder="Start typing a Zip or City, State Zip"
                 label="Location Lookup"
                 handleLocationChange={handleOnLocationChange}

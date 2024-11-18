@@ -159,10 +159,10 @@ export class ServiceCounselorPage extends OfficePage {
     // Storage facility address
     const StorageLocationLookup = 'ATLANTA, GA 30301 (FULTON)';
 
-    const storageAddress = await this.page.getByRole('heading', { name: 'Storage facility address' }).locator('..');
+    const storageAddress = this.page.getByRole('heading', { name: 'Storage facility address' }).locator('..');
     await storageAddress.getByLabel('Address 1').fill('148 S East St');
     await storageAddress.getByLabel('Address 2').fill('Suite 7A');
-    await storageAddress.getByLabel('Location Lookup').nth(0).fill('30301');
+    await this.page.locator('input[id="deliveryAddress-location-input"]').fill('30301');
     await expect(storageAddress.getByText(StorageLocationLookup, { exact: true })).toBeVisible();
     await this.page.keyboard.press('Enter');
     await this.page.getByLabel('Lot number').fill('1111111');
@@ -174,10 +174,10 @@ export class ServiceCounselorPage extends OfficePage {
     // Delivery location
     const DeliveryLocationLookup = 'MONTGOMERY, AL 36101 (MONTGOMERY)';
 
-    const deliveryLocation = await this.page.getByRole('group', { name: 'Delivery location' });
+    const deliveryLocation = this.page.getByRole('group', { name: 'Delivery location' });
     await deliveryLocation.getByLabel('Address 1').fill('448 Washington Blvd NE');
     await deliveryLocation.getByLabel('Address 2').fill('Apt D3');
-    await deliveryLocation.getByLabel('Location Lookup').nth(0).fill('36101');
+    await this.page.locator('input[id="deliveryAddress-location-input"]').fill('36101');
     await expect(deliveryLocation.getByText(DeliveryLocationLookup, { exact: true })).toBeVisible();
     await this.page.keyboard.press('Enter');
 

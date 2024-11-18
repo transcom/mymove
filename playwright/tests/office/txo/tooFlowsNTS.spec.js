@@ -77,7 +77,7 @@ test.describe('TOO user', () => {
       await page.locator('input[name="storageFacility.address.streetAddress1"]').blur();
       await page.locator('input[name="storageFacility.address.streetAddress2"]').fill('Suite 7A');
       await page.locator('input[name="storageFacility.address.streetAddress2"]').blur();
-      await page.getByLabel('Location Lookup').nth(2).fill('30301');
+      await page.locator('input[id="storageFacility.address-location-input"]').fill('30301');
       await expect(page.getByText(StorageLocationLookup, { exact: true })).toBeVisible();
       await page.keyboard.press('Enter');
       await page.locator('#facilityLotNumber').fill('1111111');
