@@ -1,12 +1,12 @@
 /* eslint-disable react/jsx-props-no-spreading */
 import React from 'react';
-import { render, screen } from '@testing-library/react';
+import { screen } from '@testing-library/react';
 
 import { CreateOrEditMtoShipment } from './CreateOrEditMtoShipment';
 
-import { MockProviders } from 'testUtils';
 import { customerRoutes } from 'constants/routes';
 import { SHIPMENT_OPTIONS } from 'shared/constants';
+import { renderWithRouterProp } from 'testUtils';
 import { selectCurrentMoveFromAllMoves, selectCurrentShipmentFromMove } from 'store/entities/selectors';
 import { ORDERS_TYPE } from 'constants/orders';
 
@@ -269,20 +269,15 @@ const mockPPMShipment = {
   shipmentType: 'PPM',
 };
 
-const renderComponent = (props, options) => {
-  render(
-    <MockProviders {...options}>
-      <CreateOrEditMtoShipment {...defaultProps} {...props} />
-    </MockProviders>,
-  );
-};
+const renderComponent = (props, options) =>
+  renderWithRouterProp(<CreateOrEditMtoShipment {...defaultProps} {...props} />, options);
 
 describe('CreateOrEditMtoShipment component', () => {
   selectCurrentMoveFromAllMoves.mockImplementation(() => testMove);
   it('fetches customer data on mount', () => {
     renderComponent(
       {
-        mtoShipment: { shipmentType: SHIPMENT_OPTIONS.NTSR },
+        mtoShipment: { shipmentType: SHIPMENT_OPTIONS.NTSR, includeProviders: true },
       },
       { path: mockPath, params: mockParams },
     );
@@ -306,7 +301,7 @@ describe('CreateOrEditMtoShipment component', () => {
         {
           mtoShipment: { shipmentType: SHIPMENT_OPTIONS.HHG },
         },
-        { path: mockPath, params: mockParams, search: `?type=${SHIPMENT_OPTIONS.HHG}` },
+        { path: mockPath, params: mockParams, search: `?type=${SHIPMENT_OPTIONS.HHG}`, includeProviders: true },
       );
 
       expect(await screen.findByRole('heading', { level: 1 })).toHaveTextContent(
@@ -323,7 +318,7 @@ describe('CreateOrEditMtoShipment component', () => {
       selectCurrentShipmentFromMove.mockImplementation(() => mockHHGShipment);
       renderComponent(
         { mtoShipment: mockHHGShipment },
-        { path: customerRoutes.SHIPMENT_EDIT_PATH, params: mockParams },
+        { path: customerRoutes.SHIPMENT_EDIT_PATH, params: mockParams, includeProviders: true },
       );
 
       expect(await screen.findByRole('heading', { level: 1 })).toHaveTextContent(
