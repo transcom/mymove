@@ -8000,7 +8000,7 @@ func init() {
           "x-formatting": "weight",
           "example": 500
         },
-        "ubAllowance": {
+        "unaccompaniedBaggageAllowance": {
           "description": "The amount of weight in pounds that the move is entitled for shipment types of Unaccompanied Baggage.",
           "type": "integer",
           "x-nullable": true,
@@ -24317,7 +24317,7 @@ func init() {
           "x-formatting": "weight",
           "example": 500
         },
-        "ubAllowance": {
+        "unaccompaniedBaggageAllowance": {
           "description": "The amount of weight in pounds that the move is entitled for shipment types of Unaccompanied Baggage.",
           "type": "integer",
           "x-nullable": true,

@@ -1967,6 +1967,38 @@ paths:
           description: Transportation Office not found
         '500':
           description: server error
+  /offices/{officeId}:
+    get:
+      produces:
+        - application/json
+      summary: Get Transportation Office by ID
+      description: >
+        This endpoint returns a list of Transportation Offices. Do not use this
+        endpoint
+
+        directly as it is meant to be used with the Admin UI exclusively.
+      operationId: getOfficeById
+      tags:
+        - Transportation offices
+      parameters:
+        - in: path
+          name: officeId
+          type: string
+          format: uuid
+          required: true
+      responses:
+        '200':
+          description: success
+          schema:
+            $ref: '#/definitions/TransportationOffice'
+        '400':
+          description: invalid request
+        '401':
+          description: request requires user authentication
+        '404':
+          description: Transportation Office not found
+        '500':
+          description: server error
   /electronic-orders:
     get:
       produces:

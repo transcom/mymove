@@ -25,6 +25,7 @@ import (
 	requestedofficeusers "github.com/transcom/mymove/pkg/services/requested_office_users"
 	"github.com/transcom/mymove/pkg/services/roles"
 	signedcertification "github.com/transcom/mymove/pkg/services/signed_certification"
+	transportationoffice "github.com/transcom/mymove/pkg/services/transportation_office"
 	transportationofficeassignments "github.com/transcom/mymove/pkg/services/transportation_office_assignments"
 	"github.com/transcom/mymove/pkg/services/upload"
 	user "github.com/transcom/mymove/pkg/services/user"
@@ -113,6 +114,13 @@ func NewAdminAPI(handlerConfig handlers.HandlerConfig) *adminops.MymoveAPI {
 		office.NewOfficeListFetcher(queryBuilder),
 		query.NewQueryFilter,
 		pagination.NewPagination,
+	}
+
+	transportationOfficeFetcher := transportationoffice.NewTransportationOfficesFetcher()
+	adminAPI.TransportationOfficesGetOfficeByIDHandler = GetOfficeByIdHandler{
+		handlerConfig,
+		transportationOfficeFetcher,
+		query.NewQueryFilter,
 	}
 
 	adminAPI.OrganizationsIndexOrganizationsHandler = IndexOrganizationsHandler{

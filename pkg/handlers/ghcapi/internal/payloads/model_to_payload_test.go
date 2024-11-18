@@ -449,7 +449,7 @@ func (suite *PayloadsSuite) TestEntitlement() {
 	suite.Equal(entitlement.DependentsAuthorized, returnedEntitlement.DependentsAuthorized)
 	suite.Equal(entitlement.NonTemporaryStorage, returnedEntitlement.NonTemporaryStorage)
 	suite.Equal(entitlement.PrivatelyOwnedVehicle, returnedEntitlement.PrivatelyOwnedVehicle)
-	suite.Equal(int(*returnedUBAllowance), int(*returnedEntitlement.UbAllowance))
+	suite.Equal(int(*returnedUBAllowance), int(*returnedEntitlement.UnaccompaniedBaggageAllowance))
 	suite.Equal(int64(proGearWeight), returnedEntitlement.ProGearWeight)
 	suite.Equal(int64(proGearWeightSpouse), returnedEntitlement.ProGearWeightSpouse)
 	suite.Equal(storageInTransit, int(*returnedEntitlement.StorageInTransit))
