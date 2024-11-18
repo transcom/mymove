@@ -770,7 +770,7 @@ describe('MoveDetails page', () => {
 
       const originAddressTerms = screen.getAllByText('Pickup Address');
 
-      expect(originAddressTerms.length).toBe(2);
+      expect(originAddressTerms.length).toBe(3);
 
       for (let i = 0; i < 2; i += 1) {
         const { streetAddress1, city, state, postalCode } = newMoveDetailsQuery.mtoShipments[i].pickupAddress;
