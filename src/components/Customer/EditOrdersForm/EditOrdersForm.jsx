@@ -27,6 +27,28 @@ import { formatLabelReportByDate, dropdownInputOptions, formatYesNoAPIValue } fr
 import formStyles from 'styles/form.module.scss';
 import { showCounselingOffices } from 'services/internalApi';
 
+const useFilteredOrderTypeOptions = (ordersTypeOptions) => {
+  const [filteredOptions, setFilteredOptions] = useState(ordersTypeOptions);
+
+  useEffect(() => {
+    const fetchAndFilterOptions = async () => {
+      const alaskaEnabled = await isBooleanFlagEnabled(FEATURE_FLAG_KEYS.ENABLE_ALASKA);
+      const options = alaskaEnabled
+        ? ordersTypeOptions
+        : ordersTypeOptions.filter(
+            (option) =>
+              option.key !== ORDERS_TYPE.EARLY_RETURN_OF_DEPENDENTS && option.key !== ORDERS_TYPE.STUDENT_TRAVEL,
+          );
+
+      setFilteredOptions(options);
+    };
+
+    fetchAndFilterOptions();
+  }, [ordersTypeOptions]);
+
+  return filteredOptions;
+};
+
 const EditOrdersForm = ({
   createUpload,
   onDelete,
@@ -53,7 +75,7 @@ const EditOrdersForm = ({
     initialValues.orders_type === ORDERS_TYPE.EARLY_RETURN_OF_DEPENDENTS;
   const [isHasDependentsDisabled, setHasDependentsDisabled] = useState(isInitialHasDependentsDisabled);
   const [prevOrderType, setPrevOrderType] = useState(initialValues.orders_type);
-  const [filteredOrderTypeOptions, setFilteredOrderTypeOptions] = useState(ordersTypeOptions);
+  const filteredOrderTypeOptions = useFilteredOrderTypeOptions(ordersTypeOptions);
 
   const validationSchema = Yup.object().shape({
     orders_type: Yup.mixed()
@@ -148,21 +170,6 @@ const EditOrdersForm = ({
       setIsLoading(false);
     }
   }, [currentDutyLocation, newDutyLocation, isOconusMove, hasDependents, enableUB, finishedFetchingFF, isLoading]);
-
-  useEffect(() => {
-    const fetchData = async () => {
-      const alaskaEnabled = await isBooleanFlagEnabled(FEATURE_FLAG_KEYS.ENABLE_ALASKA);
-
-      const updatedOptions = alaskaEnabled
-        ? ordersTypeOptions
-        : ordersTypeOptions.filter(
-            (e) => e.key !== ORDERS_TYPE.EARLY_RETURN_OF_DEPENDENTS && e.key !== ORDERS_TYPE.STUDENT_TRAVEL,
-          );
-
-      setFilteredOrderTypeOptions(updatedOptions);
-    };
-    fetchData();
-  }, [ordersTypeOptions]);
 
   if (isLoading) {
     return <LoadingPlaceholder />;
