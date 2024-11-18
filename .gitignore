@@ -56,6 +56,7 @@ schema.sql
 *.stamp
 
 public/static/react-file-viewer/*
+!public/static/react-file-viewer/.gitkeep
 public/swagger-ui/*
 !public/swagger-ui/api.html
 !public/swagger-ui/internal.html
