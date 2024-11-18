@@ -22,7 +22,7 @@ test.describe('The document viewer', () => {
       test.slow(); // flaky no flaky
 
       // Build a move that has a PDF document
-      const move = await officePage.testHarness.buildHHGMoveWithServiceItemsAndPaymentRequestsAndFilesForTOO();
+      const move = await officePage.testHarness.buildHHGWithAmendedOrders();
 
       // Sign in as a TOO user (Any office user works)
       await officePage.signInAsNewTOOUser();
@@ -39,7 +39,7 @@ test.describe('The document viewer', () => {
       await expect(page.getByTestId('DocViewerContent')).toBeVisible(); // This can load but the PDF still fail
 
       // Wait for the PDF canvas to load <- This is the meat and potatoes
-      const pdfCanvas = page.locator('.pdf-canvas canvas');
+      const pdfCanvas = page.locator('.pdf-canvas canvas').first();
       await pdfCanvas.waitFor({ state: 'visible', timeout: 10000 });
 
       // Verify that the canvas box has dimensions
@@ -76,7 +76,7 @@ test.describe('The document viewer', () => {
 
       // Testing the rotation degree change isn't possible within playwright so instead we verify nothing broke
       // The canvas will unload if the rotation breaks something
-      const rotatedPdfCanvas = page.locator('.pdf-canvas canvas');
+      const rotatedPdfCanvas = page.locator('.pdf-canvas canvas').first();
       await rotatedPdfCanvas.waitFor({ state: 'visible', timeout: 10000 });
     });
   });
