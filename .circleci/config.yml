@@ -1305,6 +1305,9 @@ jobs:
       - run:
           name: Install Frozen YARN dependencies
           command: yarn install --frozen-lockfile --cache-folder ~/.cache/yarn
+      - run:
+          name: Rebuild dependencies without binaries
+          command: ./scripts/rebuild-dependencies-without-binaries
       # this is so we can avoid go mod downloading and resulting in an error on a false positive
       - run: scripts/pre-commit-go-mod || exit 0
       - run:
@@ -1592,6 +1595,9 @@ jobs:
           name: Install Frozen YARN dependencies
           command: yarn install --frozen-lockfile --cache-folder ~/.cache/yarn
       - run:
+          name: Rebuild dependencies without binaries
+          command: ./scripts/rebuild-dependencies-without-binaries
+      - run:
           name: client test coverage
           command: JEST_JUNIT_OUTPUT_DIR=jest-junit-reports make client_test_coverage
       - run:
@@ -1768,7 +1774,9 @@ jobs:
       - run:
           name: Install Frozen YARN dependencies
           command: yarn install --frozen-lockfile --cache-folder ~/.cache/yarn
-
+      - run:
+          name: Rebuild dependencies without binaries
+          command: ./scripts/rebuild-dependencies-without-binaries
       # babel and terser both have a cache
       #
       # see https://webpack.js.org/loaders/babel-loader/ and look for
@@ -1926,6 +1934,9 @@ jobs:
       - run:
           name: Install Frozen YARN dependencies
           command: yarn install --frozen-lockfile
+      - run:
+          name: Rebuild dependencies without binaries
+          command: ./scripts/rebuild-dependencies-without-binaries
       - restore_cache:
           keys:
             - v1-node-modules-cache
