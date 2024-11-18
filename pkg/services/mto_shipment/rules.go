@@ -52,7 +52,7 @@ func checkAvailToPrime() validator {
 			return apperror.NewQueryError("Move", err, "Unexpected error")
 		}
 		if !availToPrime {
-			return apperror.NewNotFoundError(newer.ID, "for mtoShipment")
+			return apperror.NewNotFoundError(newer.ID, "not available to prime for mtoShipment")
 		}
 		return nil
 	})
@@ -144,6 +144,78 @@ func checkPrimeDeleteAllowed() validator {
 		}
 		if older.PPMShipment != nil && older.PPMShipment.Status == models.PPMShipmentStatusWaitingOnCustomer {
 			return apperror.NewForbiddenError(fmt.Sprintf("A PPM shipment with the status %v cannot be deleted", models.PPMShipmentStatusWaitingOnCustomer))
+		}
+		return nil
+	})
+}
+
+// helper function to check if the secondary address is empty, but the tertiary is not
+func isMTOShipmentAddressCreateSequenceValid(mtoShipmentToCheck models.MTOShipment) bool {
+	bothPickupAddressesEmpty := (models.IsAddressEmpty(mtoShipmentToCheck.SecondaryPickupAddress) && models.IsAddressEmpty(mtoShipmentToCheck.TertiaryPickupAddress))
+	bothDestinationAddressesEmpty := (models.IsAddressEmpty(mtoShipmentToCheck.SecondaryDeliveryAddress) && models.IsAddressEmpty(mtoShipmentToCheck.TertiaryDeliveryAddress))
+	bothPickupAddressesNotEmpty := !bothPickupAddressesEmpty
+	bothDestinationAddressesNotEmpty := !bothDestinationAddressesEmpty
+	hasNoSecondaryHasTertiaryPickup := (models.IsAddressEmpty(mtoShipmentToCheck.SecondaryPickupAddress) && !models.IsAddressEmpty(mtoShipmentToCheck.TertiaryPickupAddress))
+	hasNoSecondaryHasTertiaryDestination := (models.IsAddressEmpty(mtoShipmentToCheck.SecondaryDeliveryAddress) && !models.IsAddressEmpty(mtoShipmentToCheck.TertiaryDeliveryAddress))
+
+	// need an explicit case to capture when both are empty or not empty
+	if ((bothPickupAddressesEmpty && bothDestinationAddressesEmpty) || (bothPickupAddressesNotEmpty && bothDestinationAddressesNotEmpty)) && !(hasNoSecondaryHasTertiaryPickup || hasNoSecondaryHasTertiaryDestination) {
+		return true
+	}
+	if hasNoSecondaryHasTertiaryPickup || hasNoSecondaryHasTertiaryDestination {
+		return false
+	}
+	return true
+}
+
+// helper function to check if the secondary address is empty, but the tertiary is not
+func hasTertiaryWithNoSecondaryAddress(secondaryAddress *models.Address, tertiaryAddress *models.Address) bool {
+	return (models.IsAddressEmpty(secondaryAddress) && !models.IsAddressEmpty(tertiaryAddress))
+}
+
+/* Checks if a valid address sequence is being maintained. This will return false if the tertiary address is being updated while the secondary address remains empty
+*
+ */
+func isMTOAddressUpdateSequenceValid(shipmentToUpdateWith *models.MTOShipment, currentShipment *models.MTOShipment) bool {
+	// if the incoming model has both fields, then we know the model will be updated with both secondary and tertiary addresses. therefore return true
+	if !models.IsAddressEmpty(shipmentToUpdateWith.SecondaryPickupAddress) && !models.IsAddressEmpty(shipmentToUpdateWith.TertiaryPickupAddress) {
+		return true
+	}
+	if !models.IsAddressEmpty(shipmentToUpdateWith.SecondaryDeliveryAddress) && !models.IsAddressEmpty(shipmentToUpdateWith.TertiaryDeliveryAddress) {
+		return true
+	}
+	if currentShipment.SecondaryPickupAddress == nil && shipmentToUpdateWith.TertiaryPickupAddress != nil {
+		return !hasTertiaryWithNoSecondaryAddress(currentShipment.SecondaryPickupAddress, shipmentToUpdateWith.TertiaryPickupAddress)
+	}
+	if currentShipment.SecondaryDeliveryAddress == nil && shipmentToUpdateWith.TertiaryDeliveryAddress != nil {
+		return !hasTertiaryWithNoSecondaryAddress(currentShipment.SecondaryDeliveryAddress, shipmentToUpdateWith.TertiaryDeliveryAddress)
+	}
+	// no addresses are being updated, so correct address sequence is maintained, return true
+	return true
+}
+
+func MTOShipmentHasTertiaryAddressWithNoSecondaryAddressUpdate() validator {
+	return validatorFunc(func(appCtx appcontext.AppContext, newer *models.MTOShipment, older *models.MTOShipment) error {
+		verrs := validate.NewErrors()
+		if newer != nil && older != nil {
+			squenceIsValid := isMTOAddressUpdateSequenceValid(newer, older)
+			if !squenceIsValid {
+				verrs.Add("error validating mto shipment", "MTO Shipment cannot have a tertiary address without a secondary address present")
+				return apperror.NewInvalidInputError(newer.ID, nil, verrs, "mto shipment is missing a secondary pickup/destination address")
+			}
+		}
+		return nil
+	})
+}
+func MTOShipmentHasTertiaryAddressWithNoSecondaryAddressCreate() validator {
+	return validatorFunc(func(appCtx appcontext.AppContext, newer *models.MTOShipment, _ *models.MTOShipment) error {
+		verrs := validate.NewErrors()
+		if newer != nil {
+			squenceIsValid := isMTOShipmentAddressCreateSequenceValid(*newer)
+			if !squenceIsValid {
+				verrs.Add("error validating mto shipment", "MTO Shipment cannot have a tertiary address without a secondary address present")
+				return apperror.NewInvalidInputError(newer.ID, nil, verrs, "mto shipment is missing a secondary pickup/destination address")
+			}
 		}
 		return nil
 	})
