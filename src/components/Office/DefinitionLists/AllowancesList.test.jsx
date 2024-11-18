@@ -18,18 +18,21 @@ const info = {
   dependents: true,
   requiredMedicalEquipmentWeight: 1000,
   organizationalClothingAndIndividualEquipment: true,
+  ubAllowance: 400,
 };
 
 const initialValuesOconusAdditions = {
   accompaniedTour: true,
   dependentsTwelveAndOver: '2',
   dependentsUnderTwelve: '4',
+  ubAllowance: 400,
 };
 
 const oconusInfo = {
   accompaniedTour: true,
   dependentsTwelveAndOver: 2,
   dependentsUnderTwelve: 4,
+  ubAllowance: 400,
 };
 
 jest.mock('formik', () => ({
@@ -39,6 +42,7 @@ jest.mock('formik', () => ({
       accompaniedTour: true,
       dependentsTwelveAndOver: '2',
       dependentsUnderTwelve: '4',
+      ubAllowance: '400',
     };
 
     switch (field.type) {
@@ -152,6 +156,7 @@ describe('AllowancesList', () => {
     expect(screen.queryByText('Accompanied tour')).not.toBeInTheDocument();
     expect(screen.queryByLabelText(/Number of dependents under the age of 12/)).not.toBeInTheDocument();
     expect(screen.queryByLabelText(/Number of dependents of the age 12 or over/)).not.toBeInTheDocument();
+    expect(screen.queryByText('Unaccompanied baggage allowance')).not.toBeInTheDocument();
   });
 
   it('does render oconus fields when present', async () => {
@@ -167,5 +172,7 @@ describe('AllowancesList', () => {
     await waitFor(() => expect(screen.getByTestId('ordersAccompaniedTour')).toBeInTheDocument());
     expect(screen.getByTestId('ordersDependentsUnderTwelve')).toBeInTheDocument();
     expect(screen.getByTestId('ordersDependentsTwelveAndOver')).toBeInTheDocument();
+    expect(screen.getByTestId('unaccompaniedBaggageAllowance')).toBeInTheDocument();
+    expect(screen.getByTestId('unaccompaniedBaggageAllowance').textContent).toEqual('400 lbs');
   });
 });
