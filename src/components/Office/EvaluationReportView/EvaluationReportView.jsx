@@ -9,7 +9,7 @@ import { connect } from 'react-redux';
 
 import EvaluationReportList from '../DefinitionLists/EvaluationReportList';
 import PreviewRow from '../EvaluationReportPreview/PreviewRow/PreviewRow';
-import ViolationAppealModal from '../ViolationAppealModal/ViolationAppealModal';
+import AppealModal from '../AppealModals/AppealModal';
 
 import styles from './EvaluationReportView.module.scss';
 
@@ -24,9 +24,9 @@ import DataTable from 'components/DataTable';
 import { formatDate } from 'shared/dates';
 import { formatDateFromIso } from 'utils/formatters';
 import EVALUATION_REPORT_TYPE from 'constants/evaluationReports';
-import { addViolationAppeal } from 'services/ghcApi';
+import { addSeriousIncidentAppeal, addViolationAppeal } from 'services/ghcApi';
 import { milmoveLogger } from 'utils/milmoveLog';
-import { REPORT_VIOLATIONS } from 'constants/queryKeys';
+import { EVALUATION_REPORT, REPORT_VIOLATIONS } from 'constants/queryKeys';
 import { isBooleanFlagEnabled } from 'utils/featureFlags';
 import { roleTypes } from 'constants/userRoles';
 
@@ -37,9 +37,11 @@ const EvaluationReportView = ({ customerInfo, grade, destinationDutyLocationPost
   const { evaluationReport, reportViolations, mtoShipments, isLoading, isError } =
     useEvaluationReportShipmentListQueries(reportId);
 
-  const [isViolationAppealModalVisible, setIsViolationAppealModalVisible] = useState(false);
+  const [isAppealModalVisible, setIsAppealModalVisible] = useState(false);
   const [selectedReportViolation, setSelectedReportViolation] = useState(null);
   const [visibleAppeals, setVisibleAppeals] = useState({});
+  const [visibleSeriousIncidentAppeals, setVisibleSeriousIncidentAppeals] = useState({});
+  const [isSeriousIncidentAppeal, setIsSeriousIncidentAppeal] = useState(false);
   const [gsrFlag, setGsrFlag] = useState(false);
 
   useEffect(() => {
@@ -55,12 +57,19 @@ const EvaluationReportView = ({ customerInfo, grade, destinationDutyLocationPost
     }));
   };
 
-  const handleShowViolationAppealModal = () => {
-    setIsViolationAppealModalVisible(true);
+  const toggleSeriousIncidentAppealsVisibility = (id) => {
+    setVisibleSeriousIncidentAppeals((prevState) => ({
+      ...prevState,
+      [id]: !prevState[id],
+    }));
   };
 
-  const handleCancelViolationAppealModal = () => {
-    setIsViolationAppealModalVisible(false);
+  const handleShowAppealModal = () => {
+    setIsAppealModalVisible(true);
+  };
+
+  const handleCancelAppealModal = () => {
+    setIsAppealModalVisible(false);
   };
 
   const { mutate: mutateReportViolations } = useMutation(addViolationAppeal, {
@@ -70,19 +79,41 @@ const EvaluationReportView = ({ customerInfo, grade, destinationDutyLocationPost
     },
     onSuccess: () => {
       queryClient.invalidateQueries([REPORT_VIOLATIONS, reportId]);
-      setIsViolationAppealModalVisible(false);
+      setIsAppealModalVisible(false);
+      setIsSeriousIncidentAppeal(false);
     },
   });
 
-  const handleSubmitViolationAppeal = async (values) => {
-    const reportID = evaluationReport.id;
-    const reportViolationID = selectedReportViolation.id;
-    const body = {
-      remarks: values.remarks,
-      appealStatus: values.appealStatus,
-    };
+  const { mutate: mutateEvaluationReport } = useMutation(addSeriousIncidentAppeal, {
+    onError: (error) => {
+      const errorMsg = error?.response?.body;
+      milmoveLogger.error(errorMsg);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries([EVALUATION_REPORT, reportId]);
+      setIsAppealModalVisible(false);
+      setIsSeriousIncidentAppeal(false);
+    },
+  });
 
-    mutateReportViolations({ reportID, reportViolationID, body });
+  const handleSubmitAppeal = async (values) => {
+    if (isSeriousIncidentAppeal) {
+      const reportID = evaluationReport.id;
+      const body = {
+        remarks: values.remarks,
+        appealStatus: values.appealStatus,
+      };
+      mutateEvaluationReport({ reportID, body });
+    } else {
+      const reportID = evaluationReport.id;
+      const reportViolationID = selectedReportViolation.id;
+      const body = {
+        remarks: values.remarks,
+        appealStatus: values.appealStatus,
+      };
+
+      mutateReportViolations({ reportID, reportViolationID, body });
+    }
   };
 
   const isShipment = evaluationReport.type === EVALUATION_REPORT_TYPE.SHIPMENT;
@@ -115,13 +146,17 @@ const EvaluationReportView = ({ customerInfo, grade, destinationDutyLocationPost
     );
   };
 
+  const showSeriousIncidentAppeals = visibleSeriousIncidentAppeals[evaluationReport.id] || false;
+
   return (
     <div className={styles.tabContent} data-testid="EvaluationReportPreview">
-      {isViolationAppealModalVisible && (
-        <ViolationAppealModal
-          onClose={handleCancelViolationAppealModal}
-          onSubmit={handleSubmitViolationAppeal}
-          isOpen={isViolationAppealModalVisible}
+      {isAppealModalVisible && (
+        <AppealModal
+          onClose={handleCancelAppealModal}
+          onSubmit={handleSubmitAppeal}
+          isOpen={isAppealModalVisible}
+          selectedReportViolation={selectedReportViolation}
+          isSeriousIncidentAppeal={isSeriousIncidentAppeal}
         />
       )}
       <GridContainer className={styles.container}>
@@ -219,10 +254,11 @@ const EvaluationReportView = ({ customerInfo, grade, destinationDutyLocationPost
                                   unstyled
                                   className={styles.addAppealBtn}
                                   onClick={() => {
+                                    setIsSeriousIncidentAppeal(false);
                                     setSelectedReportViolation(reportViolation);
-                                    handleShowViolationAppealModal();
+                                    handleShowAppealModal();
                                   }}
-                                  data-testid="addAppealBtn"
+                                  data-testid="addViolationAppealBtn"
                                 >
                                   Leave Appeal Decision
                                 </Button>
@@ -239,7 +275,7 @@ const EvaluationReportView = ({ customerInfo, grade, destinationDutyLocationPost
                                 unstyled
                                 className={styles.addAppealBtn}
                                 onClick={() => toggleAppealsVisibility(reportViolation.id)}
-                                data-testid="showAppealBtn"
+                                data-testid="showViolationAppealBtn"
                               >
                                 {showAppeals ? 'Hide appeals' : 'Show appeals'}
                                 <FontAwesomeIcon
@@ -318,6 +354,19 @@ const EvaluationReportView = ({ customerInfo, grade, destinationDutyLocationPost
           <div className={styles.section}>
             <div className={styles.seriousIncidentHeader}>
               <h3>Serious Incident</h3>
+              {gsrFlag && activeRole === roleTypes.GSR && !evaluationReport.gsrAppeals ? (
+                <Button
+                  unstyled
+                  className={styles.addAppealBtn}
+                  onClick={() => {
+                    setIsSeriousIncidentAppeal(true);
+                    handleShowAppealModal();
+                  }}
+                  data-testid="addSeriousIncidentAppealBtn"
+                >
+                  Leave Appeal Decision
+                </Button>
+              ) : null}
             </div>
             <dl className={descriptionListStyles.descriptionList} data-testid="seriousIncidentSection">
               <div className={descriptionListStyles.row}>
@@ -332,6 +381,45 @@ const EvaluationReportView = ({ customerInfo, grade, destinationDutyLocationPost
                   <dd className={styles.seriousIncidentRemarks}>{evaluationReport?.seriousIncidentDesc}</dd>
                 </div>
               )}
+              {evaluationReport.gsrAppeals && (
+                <div className={styles.appealsSection}>
+                  <div className={styles.appealsHeader}>Appeals</div>
+                  <Button
+                    unstyled
+                    className={styles.addAppealBtn}
+                    onClick={() => toggleSeriousIncidentAppealsVisibility(evaluationReport.id)}
+                    data-testid="showSeriousIncidentAppealBtn"
+                  >
+                    {showSeriousIncidentAppeals ? 'Hide appeals' : 'Show appeals'}
+                    <FontAwesomeIcon
+                      icon={showSeriousIncidentAppeals ? 'chevron-up' : 'chevron-down'}
+                      className={styles.appealShowIcon}
+                    />
+                  </Button>
+                </div>
+              )}
+              {evaluationReport?.gsrAppeals && evaluationReport.gsrAppeals.length > 0 && showSeriousIncidentAppeals
+                ? evaluationReport.gsrAppeals.map((appeal) => (
+                    <div className={styles.appealsTable} key={appeal?.id}>
+                      <div className={styles.appealsTableHeader}>
+                        <h5>{appeal?.officeUser ? formatOfficeUser(appeal.officeUser) : 'No Office User'}</h5>
+                        <div className={`${appeal?.appealStatus === 'SUSTAINED' ? styles.sustained : styles.rejected}`}>
+                          {appeal?.appealStatus || 'No Status'}
+                        </div>
+                      </div>
+                      <div className={descriptionListStyles.row} key={`${appeal.id}-remarks`}>
+                        <dt className={styles.appealsTableLeft}>Remarks</dt>
+                        <dd className={styles.appealsTableRight}>{appeal?.remarks || 'No Remarks'}</dd>
+                      </div>
+                      <div className={descriptionListStyles.row} key={`${appeal.id}-createdAt`}>
+                        <dt className={styles.appealsTableLeft}>Created at</dt>
+                        <dd className={styles.appealsTableRight}>
+                          {appeal?.createdAt ? formatDate(appeal.createdAt) : 'No Date'}
+                        </dd>
+                      </div>
+                    </div>
+                  ))
+                : null}
             </dl>
           </div>
           <div className={styles.section} data-testid="qaeRemarks">
