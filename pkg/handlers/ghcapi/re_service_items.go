@@ -11,7 +11,7 @@ import (
 	"github.com/transcom/mymove/pkg/services"
 )
 
-// ShowAddressHandler returns an address
+// GetReServiceItemsHandler returns a list of service items
 type GetReServiceItemsHandler struct {
 	handlers.HandlerConfig
 	services.ServiceItemListFetcher
