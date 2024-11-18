@@ -59,7 +59,6 @@ func (suite *GHCRateEngineImportSuite) helperCheckIntlAccessorialPrices() {
 		isError       bool
 	}{
 		{models.ReServiceCodeICRT, "C", 2561, false},
-		{models.ReServiceCodeICRTSA, "C", 2561, false},
 		{models.ReServiceCodeIUCRT, "C", 654, false},
 		{models.ReServiceCodeIDSHUT, "C", 14529, false},
 		{models.ReServiceCodeIDSHUT, "O", 15623, false},
