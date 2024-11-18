@@ -260,29 +260,12 @@ export const closeoutColumns = (
             {`${row.customer.last_name}, ${row.customer.first_name}`}
           </div>
         );
-      }
-      return null;
-    },
-    { id: 'lock' },
-  ),
-  createHeader('ID', 'id', { id: 'id' }),
-  createHeader(
-    'Customer name',
-    (row) => {
-      return (
-        <div>
-          {CHECK_SPECIAL_ORDERS_TYPES(row.orderType) ? (
-            <span className={styles.specialMoves}>{SPECIAL_ORDERS_TYPES[`${row.orderType}`]}</span>
-          ) : null}
-          {`${row.customer.last_name}, ${row.customer.first_name}`}
-        </div>
-      );
-    },
-    {
-      id: 'customerName',
-      isFilterable: true,
-      exportValue: (row) => {
-        return `${row.customer.last_name}, ${row.customer.first_name}`;
+      },
+      {
+        id: 'customerName',
+        isFilterable: true,
+        exportValue: (row) => {
+          return `${row.customer.last_name}, ${row.customer.first_name}`;
         },
       },
     ),
