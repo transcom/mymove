@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import classNames from 'classnames';
 import propTypes from 'prop-types';
 
@@ -6,6 +6,8 @@ import styles from './ShipmentServiceItemsTable.module.scss';
 
 import { serviceItemCodes } from 'content/serviceItems';
 import { getAllReServiceItems } from 'services/ghcApi';
+import { SERVICE_ITEM_CODES } from 'constants/serviceItems';
+import { MARKET_CODES } from 'shared/constants';
 
 const shipmentTypes = {
   HHG: [
@@ -54,15 +56,16 @@ const shipmentTypes = {
 };
 
 function filterPortFuelSurcharge(shipment, autoApprovedItems) {
+  const { destinationAddress, pickupAddress } = shipment;
   let filteredPortFuelSurchargeList = autoApprovedItems;
-  if (shipment.pickupAddress.isOconus) {
+  if (pickupAddress.isOconus) {
     filteredPortFuelSurchargeList = autoApprovedItems.filter((serviceItem) => {
-      return serviceItem.serviceCode !== 'POEFSC';
+      return serviceItem.serviceCode !== SERVICE_ITEM_CODES.POEFSC;
     });
   }
-  if (shipment.destinationAddress.isOconus) {
+  if (destinationAddress.isOconus) {
     filteredPortFuelSurchargeList = autoApprovedItems.filter((serviceItem) => {
-      return serviceItem.serviceCode !== 'PODFSC';
+      return serviceItem.serviceCode !== SERVICE_ITEM_CODES.PODFSC;
     });
   }
   return filteredPortFuelSurchargeList;
@@ -90,32 +93,26 @@ function getPreapprovedServiceItems(allReServiceItems, shipment) {
 
 const ShipmentServiceItemsTable = ({ shipment, className }) => {
   const { shipmentType, marketCode } = shipment;
-  const [filteredServiceItems, setFilteredServiceItems] = React.useState([]);
-  React.useEffect(() => {
-    if (marketCode === 'i') {
-      const fetchServiceItemsFunction = async () => {
+  const [filteredServiceItems, setFilteredServiceItems] = useState([]);
+  useEffect(() => {
+    const fetchAndFilterServiceItems = async () => {
+      if (marketCode === MARKET_CODES.INTERNATIONAL) {
         const response = await getAllReServiceItems();
-        const allReServiceItems = await JSON.parse(response.data);
+        const allReServiceItems = JSON.parse(response.data);
         setFilteredServiceItems(getPreapprovedServiceItems(allReServiceItems, shipment));
-      };
-      fetchServiceItemsFunction();
-    } else {
-      let filteredServiceItemsList;
-      const destinationZip3 = shipment.destinationAddress?.postalCode.slice(0, 3);
-      const pickupZip3 = shipment.pickupAddress?.postalCode.slice(0, 3);
-      const shipmentServiceItems = shipmentTypes[`${shipmentType}`] || [];
-      const sameZip3 = destinationZip3 === pickupZip3;
-      if (sameZip3) {
-        filteredServiceItemsList = shipmentServiceItems.filter((item) => {
-          return item !== serviceItemCodes.DLH;
-        });
       } else {
-        filteredServiceItemsList = shipmentServiceItems.filter((item) => {
-          return item !== serviceItemCodes.DSH;
-        });
+        const { destinationAddress, pickupAddress } = shipment;
+        const destinationZip3 = destinationAddress?.postalCode.slice(0, 3);
+        const pickupZip3 = pickupAddress?.postalCode.slice(0, 3);
+        const sameZip3 = destinationZip3 === pickupZip3;
+        const shipmentServiceItems = shipmentTypes[shipmentType] || [];
+        const filteredServiceItemsList = shipmentServiceItems.filter(
+          (item) => item !== (sameZip3 ? serviceItemCodes.DLH : serviceItemCodes.DSH),
+        );
+        setFilteredServiceItems(filteredServiceItemsList);
       }
-      setFilteredServiceItems(filteredServiceItemsList);
-    }
+    };
+    fetchAndFilterServiceItems();
   }, [marketCode, shipmentType, shipment]);
   return (
     <div className={classNames('container', 'container--gray', className)}>
