@@ -7,6 +7,8 @@ import (
 	"github.com/stretchr/testify/mock"
 	"github.com/tiaguinho/gosoap"
 
+	"github.com/transcom/mymove/pkg/apperror"
+	"github.com/transcom/mymove/pkg/notifications"
 	"github.com/transcom/mymove/pkg/route/ghcmocks"
 )
 
@@ -89,11 +91,15 @@ func (suite *GHCTestSuite) TestDTODZip5DistanceFake() {
 				mock.Anything,
 			).Return(soapResponseForDistance(test.responseDistance), soapError)
 
-			dtod := NewDTODZip5Distance(fakeUsername, fakePassword, testSoapClient)
+			dtod := NewDTODZip5Distance(fakeUsername, fakePassword, testSoapClient, false)
 			distance, err := dtod.DTODZip5Distance(suite.AppContextForTest(), "05030", "05091")
 
 			if test.shouldError {
 				suite.Error(err)
+				switch err.(type) {
+				case apperror.EventError:
+					suite.Equal(err.Error(), notifications.DtodErrorMessage)
+				}
 			} else {
 				suite.NoError(err)
 			}

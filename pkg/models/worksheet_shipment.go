@@ -53,21 +53,22 @@ type Obligation struct {
 
 // ShipmentSummaryFormData is a container for the various objects required for the a Shipment Summary Worksheet
 type ShipmentSummaryFormData struct {
-	AllShipments             []MTOShipment
-	ServiceMember            ServiceMember
-	Order                    Order
-	Move                     Move
-	CurrentDutyLocation      DutyLocation
-	NewDutyLocation          DutyLocation
-	WeightAllotment          SSWMaxWeightEntitlement
-	PPMShipment              PPMShipment
-	PPMShipments             PPMShipments
-	PPMShipmentFinalWeight   unit.Pound
-	W2Address                *Address
-	PreparationDate          time.Time
-	Obligations              Obligations
-	MovingExpenses           MovingExpenses
-	PPMRemainingEntitlement  float64
-	SignedCertifications     []*SignedCertification
-	MaxSITStorageEntitlement int
+	AllShipments                 []MTOShipment
+	ServiceMember                ServiceMember
+	Order                        Order
+	Move                         Move
+	CurrentDutyLocation          DutyLocation
+	NewDutyLocation              DutyLocation
+	WeightAllotment              SSWMaxWeightEntitlement
+	PPMShipment                  PPMShipment
+	PPMShipments                 PPMShipments
+	PPMShipmentFinalWeight       unit.Pound
+	W2Address                    *Address
+	PreparationDate              time.Time
+	Obligations                  Obligations
+	MovingExpenses               MovingExpenses
+	PPMRemainingEntitlement      float64
+	SignedCertifications         []*SignedCertification
+	MaxSITStorageEntitlement     int
+	IsActualExpenseReimbursement bool
 }

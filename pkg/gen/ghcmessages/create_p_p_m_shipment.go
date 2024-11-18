@@ -22,7 +22,7 @@ type CreatePPMShipment struct {
 	// destination address
 	// Required: true
 	DestinationAddress struct {
-		Address
+		PPMDestinationAddress
 	} `json:"destinationAddress"`
 
 	// estimated weight
@@ -52,6 +52,10 @@ type CreatePPMShipment struct {
 
 	// has tertiary pickup address
 	HasTertiaryPickupAddress *bool `json:"hasTertiaryPickupAddress"`
+
+	// Used for PPM shipments only. Denotes if this shipment uses the Actual Expense Reimbursement method.
+	// Example: false
+	IsActualExpenseReimbursement *bool `json:"isActualExpenseReimbursement"`
 
 	// pickup address
 	// Required: true

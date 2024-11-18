@@ -1725,6 +1725,14 @@ definitions:
           in pounds.
         type: integer
         x-nullable: true
+      isActualExpenseReimbursement:
+        description: >-
+          Used for PPM shipments only. Denotes if this shipment uses the Actual
+          Expense Reimbursement method.
+        type: boolean
+        example: false
+        x-omitempty: false
+        x-nullable: true
     required:
       - expectedDepartureDate
       - sitExpected
@@ -2602,6 +2610,14 @@ definitions:
           spouse.
         type: integer
         x-nullable: true
+      isActualExpenseReimbursement:
+        description: >-
+          Used for PPM shipments only. Denotes if this shipment uses the Actual
+          Expense Reimbursement method.
+        type: boolean
+        example: false
+        x-omitempty: false
+        x-nullable: true
   UpdateMTOShipmentStatus:
     description: >-
       Contains the statuses available to the Prime when updating the state of a
@@ -2935,6 +2951,7 @@ definitions:
       - WOUNDED_WARRIOR
       - BLUEBARK
       - SAFETY
+      - TEMPORARY_DUTY
     x-display-value:
       PERMANENT_CHANGE_OF_STATION: Permanent Change Of Station
       LOCAL_MOVE: Local Move
@@ -2943,6 +2960,7 @@ definitions:
       WOUNDED_WARRIOR: Wounded Warrior
       BLUEBARK: BLUEBARK
       SAFETY: Safety
+      TEMPORARY_DUTY: Temporary Duty (TDY)
   Order:
     type: object
     required:
@@ -3823,6 +3841,14 @@ definitions:
         format: cents
         x-nullable: true
         x-omitempty: false
+      isActualExpenseReimbursement:
+        description: >-
+          Used for PPM shipments only. Denotes if this shipment uses the Actual
+          Expense Reimbursement method.
+        type: boolean
+        example: false
+        x-omitempty: false
+        x-nullable: true
       eTag:
         description: >-
           A hash unique to this shipment that should be used as the "If-Match"
