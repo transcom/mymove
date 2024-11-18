@@ -15,9 +15,6 @@ test.describe('The document viewer', () => {
       // sign in button not in header
       await expect(page.locator('#main').getByRole('button', { name: 'Sign in' })).toBeVisible();
     });
-  });
-
-  test.describe('When logged in', () => {
     test('displays a PDF file correctly', async ({ page, officePage }) => {
       test.slow(); // flaky no flaky
 
