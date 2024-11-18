@@ -472,6 +472,11 @@ commands:
           command: scripts/do-exclusively --job-name ${CIRCLE_JOB} scripts/ecs-deploy-task-container process-edis "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/app-tasks@${ECR_DIGEST}" "${APP_ENVIRONMENT}"
           no_output_timeout: 20m
       - announce_failure
+      - run:
+          name: Deploy process TPPS files service
+          command: scripts/do-exclusively --job-name ${CIRCLE_JOB} scripts/ecs-deploy-task-container process-tpps "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/app-tasks@${ECR_DIGEST}" "${APP_ENVIRONMENT}"
+          no_output_timeout: 20m
+      - announce_failure
   # Used for dp3 sites, which do not include gex/orders
   deploy_dp3_tasks_steps:
     parameters:
