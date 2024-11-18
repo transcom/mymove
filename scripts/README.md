@@ -142,6 +142,7 @@ This subset of development scripts is used primarily for building the app.
 | ----------------- | ----------------------------------------------------------------- |
 | `copy-swagger-ui` | Copies the assets (other than xxx.html) into the public directory |
 | `copy-react-file-viewer` | Copies react-file-viewer assets into the public directory to support dynamic importing of the pdfjs-dist library |
+| `rebuild-dependencies-without-binaries` | Creates binaries for installed dependencies that don't come with one |
 | `gen-server`      | generate swagger code from yaml files                             |
 | `openapi`         | invokes the openapi redoc swagger tool                            |
 

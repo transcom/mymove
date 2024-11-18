@@ -1191,6 +1191,9 @@ jobs:
           name: Install Frozen YARN dependencies
           command: yarn install --frozen-lockfile --cache-folder ~/.cache/yarn
       - run: scripts/check-generated-code yarn.lock
+      - run:
+          name: Rebuild dependencies without binaries
+          command: ./scripts/rebuild-dependencies-without-binaries
       # `v4-cache-yarn-v4-{{ checksum "yarn.lock" }}` is used to cache yarn sources
       - save_cache:
           key: v4-cache-yarn-v4-{{ checksum "yarn.lock" }}
