@@ -165,6 +165,7 @@ client_deps: .check_hosts.stamp .client_deps.stamp ## Install client dependencie
 	yarn install
 	scripts/copy-swagger-ui
 	scripts/copy-react-file-viewer
+	scripts/rebuild-dependencies-without-binaries
 	touch .client_deps.stamp
 
 .client_build.stamp: .client_deps.stamp $(shell find src -type f)
