@@ -148,7 +148,7 @@ export const useTXOMoveInfoQueries = (moveCode) => {
     },
   );
   const customerData = customer && Object.values(customer)[0];
-  const { isLoading, isError, isSuccess } = getQueriesStatus([moveQuery, orderQuery, customerQuery]);
+  const { isLoading, isError, isSuccess, errors } = getQueriesStatus([moveQuery, orderQuery, customerQuery]);
 
   return {
     move,
@@ -157,6 +157,7 @@ export const useTXOMoveInfoQueries = (moveCode) => {
     isLoading,
     isError,
     isSuccess,
+    errors,
   };
 };
 
@@ -874,7 +875,7 @@ export const useMoveDetailsQueries = (moveCode) => {
     options: { enabled: !!moveId },
   });
 
-  const { isLoading, isError, isSuccess } = getQueriesStatus([
+  const { isLoading, isError, isSuccess, errors } = getQueriesStatus([
     moveQuery,
     orderQuery,
     customerQuery,
@@ -893,6 +894,7 @@ export const useMoveDetailsQueries = (moveCode) => {
     isLoading,
     isError,
     isSuccess,
+    errors,
   };
 };
 
@@ -922,12 +924,13 @@ export const usePrimeSimulatorGetMove = (moveCode) => {
     ({ queryKey }) => getPrimeSimulatorMove(...queryKey),
   );
 
-  const { isLoading, isError, isSuccess } = getQueriesStatus([primeSimulatorGetMoveQuery]);
+  const { isLoading, isError, isSuccess, errors } = getQueriesStatus([primeSimulatorGetMoveQuery]);
   return {
     moveTaskOrder,
     isLoading,
     isError,
     isSuccess,
+    errors,
   };
 };
 

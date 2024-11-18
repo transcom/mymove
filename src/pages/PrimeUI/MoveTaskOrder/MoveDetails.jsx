@@ -32,7 +32,7 @@ const MoveDetails = ({ setFlashMessage }) => {
 
   const [documentTypeKey, setDocumentTypeKey] = useState(MoveOrderDocumentType.ALL);
 
-  const { moveTaskOrder, isLoading, isError } = usePrimeSimulatorGetMove(moveCodeOrID);
+  const { moveTaskOrder, isLoading, isError, errors } = usePrimeSimulatorGetMove(moveCodeOrID);
 
   const queryClient = useQueryClient();
   const { mutate: completeCounselingMutation } = useMutation(completeCounseling, {
@@ -153,6 +153,9 @@ const MoveDetails = ({ setFlashMessage }) => {
   };
 
   if (isLoading) return <LoadingPlaceholder />;
+  // TODO: Check actual error from "isError" and edit the messge if it is due to a user not having safety move permissions.
+  console.log(isError);
+  console.log(errors);
   if (isError) return <SomethingWentWrong />;
 
   const { mtoShipments, paymentRequests, mtoServiceItems } = moveTaskOrder;
