@@ -436,7 +436,16 @@ func (o Order) GetDestinationPostalCode(db *pop.Connection) (string, error) {
 		return "", err
 	}
 
-	err = db.Load(&shipment, "DestinationAddress.PostalCode")
+	if shipment.ShipmentType == MTOShipmentTypePPM {
+		err = db.Load(&shipment, "PPMShipment", "PPMShipment.DestinationAddress")
+		if err != nil {
+			return "", errors.WithMessage(err, "Could not load destination address for PPM shipment.")
+		}
+
+		return shipment.PPMShipment.DestinationAddress.PostalCode, nil
+	}
+
+	err = db.Load(&shipment, "DestinationAddress")
 	if err != nil {
 		return "", errors.WithMessage(err, "Could not load destination address for shipment.")
 	}
