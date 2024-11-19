@@ -1,5 +1,6 @@
 import { ADVANCE_STATUSES } from 'constants/ppms';
 import { ppmShipmentStatuses } from 'constants/shipments';
+import { SHIPMENT_TYPES } from 'shared/constants';
 
 export const mockMovesPCS = {
   currentMove: [
@@ -45,43 +46,49 @@ export const mockMovesPCS = {
       mtoShipments: [
         {
           id: 'shipment1',
-          shipmentType: 'HHG',
+          shipmentType: SHIPMENT_TYPES.HHG,
           status: 'APPROVED',
           created_at: '2024-01-03 15:28:28.468 -0600',
         },
         {
           id: 'shipment2',
-          shipmentType: 'PPM',
+          shipmentType: SHIPMENT_TYPES.PPM,
           status: 'APPROVED',
           created_at: '2024-01-05 15:28:28.468 -0600',
         },
         {
           id: 'shipment3',
-          shipmentType: 'HHG_INTO_NTS_DOMESTIC',
+          shipmentType: SHIPMENT_TYPES.NTS,
           status: 'APPROVED',
           created_at: '2024-01-05 15:28:28.468 -0600',
         },
         {
           id: 'shipment4',
-          shipmentType: 'HHG_OUTOF_NTS_DOMESTIC',
+          shipmentType: SHIPMENT_TYPES.NTSR,
           status: 'APPROVED',
           created_at: '2024-01-05 15:28:28.468 -0600',
         },
         {
           id: 'shipment5',
-          shipmentType: 'MOBILE_HOME',
+          shipmentType: SHIPMENT_TYPES.MOBILE_HOME,
           status: 'APPROVED',
           created_at: '2024-01-05 15:28:28.468 -0600',
         },
         {
           id: 'shipment6',
-          shipmentType: 'BOAT_HAUL_AWAY',
+          shipmentType: SHIPMENT_TYPES.BOAT_HAUL_AWAY,
           status: 'APPROVED',
           created_at: '2024-01-05 15:28:28.468 -0600',
         },
         {
           id: 'shipment6',
-          shipmentType: 'BOAT_TOW_AWAY',
+          shipmentType: SHIPMENT_TYPES.BOAT_TOW_AWAY,
+          status: 'APPROVED',
+          created_at: '2024-01-05 15:28:28.468 -0600',
+        },
+        {
+          id: 'shipment7',
+          shipmentType: SHIPMENT_TYPES.UNACCOMPANIED_BAGGAGE,
           status: 'APPROVED',
           created_at: '2024-01-05 15:28:28.468 -0600',
         },
