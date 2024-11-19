@@ -27,7 +27,6 @@ $$ LANGUAGE plpgsql;
 CREATE OR REPLACE PROCEDURE CreateApprovedServiceItemsForShipment(
     IN shipment_id UUID
 )
-LANGUAGE plpgsql
 AS $$
 DECLARE
     s_type mto_shipment_type;
@@ -174,19 +173,19 @@ BEGIN
         END;
     END LOOP;
 END;
-$$;
+$$ LANGUAGE plpgsql;
 
-CREATE OR REPLACE PROCEDURE CreateAccessorialServiceItems(
+CREATE
+OR REPLACE PROCEDURE CreateAccessorialServiceItems (
     IN shipment_id UUID,
-    IN service_item_codes TEXT[]
-)
-LANGUAGE plpgsql
-AS $$
+    IN service_items JSONB[] -- Changed from TEXT[] to JSONB[]
+) AS $$
 DECLARE
-    s_type mto_shipment_type;
+s_type mto_shipment_type;
     m_code market_code_enum;
     move_id UUID;
     service_item RECORD;
+    item JSONB;
 BEGIN
     -- get the shipment type, market code, and move_id based on shipment_id
     SELECT ms.shipment_type, ms.market_code, ms.move_id
@@ -198,44 +197,53 @@ BEGIN
         RAISE EXCEPTION 'Shipment with ID % not found or missing required details.', shipment_id;
     END IF;
 
-    -- loop through each provided service item code
-    FOR service_item IN
-        SELECT rsi.id,
-               rs.id AS re_service_id,
-               rs.service_location,
-               rsi.is_auto_approved,
-               rs.code AS service_code
-        FROM re_service_items rsi
-        JOIN re_services rs ON rsi.service_id = rs.id
-        WHERE rsi.shipment_type = s_type
-          AND rsi.market_code = m_code
-          AND rs.code = ANY(service_item_codes)
-          AND rsi.is_auto_approved = false
+    -- loop through each provided service item JSON object
+    FOREACH item IN ARRAY service_items
     LOOP
-        BEGIN
-            INSERT INTO mto_service_items (
-                mto_shipment_id,
-                move_id,
-                re_service_id,
-                service_location,
-                status,
-                created_at,
-                updated_at
-            )
-            VALUES (
-                shipment_id,
-                move_id,
-                service_item.re_service_id,
-                service_item.service_location,
-                'SUBMITTED'::service_item_status,
-                NOW(),
-                NOW()
-            );
-        EXCEPTION
-            WHEN OTHERS THEN
-                RAISE EXCEPTION 'Error creating accessorial service item with code % for shipment %: %',
+        FOR service_item IN
+            SELECT rsi.id,
+                   rs.id AS re_service_id,
+                   rs.service_location,
+                   rsi.is_auto_approved,
+                   rs.code AS service_code
+            FROM re_service_items rsi
+            JOIN re_services rs ON rsi.service_id = rs.id
+            WHERE rsi.shipment_type = s_type
+              AND rsi.market_code = m_code
+              AND rs.code = (item->>'code')::text
+              AND rsi.is_auto_approved = false
+        LOOP
+            BEGIN
+                INSERT INTO mto_service_items (
+                    mto_shipment_id,
+                    move_id,
+                    re_service_id,
+                    service_location,
+                    status,
+                    created_at,
+                    updated_at,
+                    sit_entry_date,
+                    sit_customer_contacted
+                    --and other sit related fields
+                )
+                VALUES (
+                    shipment_id,
+                    move_id,
+                    service_item.re_service_id,
+                    service_item.service_location,
+                    'SUBMITTED'::service_item_status,
+                    NOW(),
+                    NOW(),
+                    (item->>'sit_entry_date')::date,
+                    (item->>'sit_customer_contacted')::date
+
+                );
+            EXCEPTION
+                WHEN OTHERS THEN
+                    RAISE EXCEPTION 'Error creating accessorial service item with code % for shipment %: %',
                                 service_item.service_code, shipment_id, SQLERRM;
-        END;
+            END;
+        END LOOP;
     END LOOP;
 END;
-$$;
+$$ LANGUAGE plpgsql;
