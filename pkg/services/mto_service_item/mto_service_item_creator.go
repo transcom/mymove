@@ -930,3 +930,12 @@ func (o *mtoServiceItemCreator) validateFirstDaySITServiceItem(appCtx appcontext
 
 	return &extraServiceItems, nil
 }
+
+/*func (o *mtoServiceItemCreator) createApprovedServiceItemsForMove(appCtx appcontext.AppContext, shipment *models.MTOShipment) error {
+	err := appCtx.DB().RawQuery("CALL createapprovedserviceitemsforshipment($1)", shipment.ID).Exec()
+	if err != nil {
+		return apperror.NewQueryError("error creating approved service items", err, "")
+	}
+
+	return nil
+}*/
