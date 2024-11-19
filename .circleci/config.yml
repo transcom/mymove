@@ -884,6 +884,8 @@ commands:
 
             make db_dev_create
             bin/milmove migrate
+            # Setup frontend dependency hosting
+            scripts/fetch-react-file-viewer-from-yarn
             # playwright tests DO NOT NEED SEED DATA
             bin/milmove serve 2>&1 | fmt
       - run:
