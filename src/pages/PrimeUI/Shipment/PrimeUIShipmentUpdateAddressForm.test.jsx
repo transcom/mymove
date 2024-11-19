@@ -82,14 +82,14 @@ describe('PrimeUIShipmentUpdateAddressForm', () => {
     expect(screen.getByLabelText(/Address 1/)).toBeInTheDocument();
     expect(screen.getByLabelText(/Address 2/)).toBeInTheDocument();
     expect(screen.getByLabelText(/Address 3/)).toBeInTheDocument();
-    expect(screen.getByLabelText('City')).toBeInTheDocument();
-    expect(screen.getByLabelText('City')).toHaveValue(shipmentAddress.city);
-    expect(screen.getByLabelText('County')).toBeInTheDocument();
-    expect(screen.getByLabelText('County')).toHaveValue(shipmentAddress.county);
-    expect(screen.getByLabelText('State')).toBeInTheDocument();
-    expect(screen.getByLabelText('State')).toHaveValue(shipmentAddress.state);
-    expect(screen.getByLabelText('ZIP')).toBeInTheDocument();
-    expect(screen.getByLabelText('ZIP')).toHaveValue(shipmentAddress.postalCode);
+    expect(screen.getByText('City')).toBeInTheDocument();
+    expect(screen.getByText(shipmentAddress.city)).toBeInTheDocument();
+    expect(screen.getByText('State')).toBeInTheDocument();
+    expect(screen.getByText(shipmentAddress.state)).toBeInTheDocument();
+    expect(screen.getByText('County')).toBeInTheDocument();
+    expect(screen.getByText(shipmentAddress.county)).toBeInTheDocument();
+    expect(screen.getByText('ZIP')).toBeInTheDocument();
+    expect(screen.getByText(shipmentAddress.postalCode)).toBeInTheDocument();
 
     expect(screen.getByRole('button', { name: 'Save' })).toBeEnabled();
   });
