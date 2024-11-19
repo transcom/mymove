@@ -176,14 +176,33 @@ END;
 '
 LANGUAGE plpgsql;
 
-CREATE TYPE mto_service_item_type AS (
+DO $$
+BEGIN
+    IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'mto_service_item_type') THEN
+        CREATE TYPE  mto_service_item_type  AS (
     code TEXT,
     sit_entry_date DATE,
     sit_customer_contacted DATE,
     reason TEXT,
     estimate_weight int4,
-    actual_weight int4
+    actual_weight int4,
+    pickup_postal_code text,
+    description TEXT,
+    sit_destination_original_address_id uuid,
+    sit_destination_final_address_id uuid,
+    sit_requested_delivery DATE,
+    sit_departure_date DATE,
+    sit_origin_hhg_original_address_id uuid,
+    sit_origin_hhg_actual_address_id uuid,
+    customer_expense bool,
+    customer_expense_reason text,
+    sit_delivery_miles int4,
+    standalone_crate bool
 );
+END IF;
+END
+$$;
+
 
 CREATE OR REPLACE PROCEDURE CreateAccessorialServiceItems (
     IN shipment_id UUID,
@@ -235,7 +254,19 @@ BEGIN
                     sit_customer_contacted,
                     reason,
                     estimate_weight,
-                    actual_weight
+                    actual_weight,
+                    pickup_postal_code,
+                    description,
+                    sit_destination_original_address_id,
+                    sit_destination_final_address_id,
+                    sit_requested_delivery,
+                    sit_departure_date,
+                    sit_origin_hhg_original_address_id,
+                    sit_origin_hhg_actual_address_id,
+                    customer_expense,
+                    customer_expense_reason,
+                    sit_delivery_miles,
+                    standalone_crate
                 )
                 VALUES (
                     shipment_id,
@@ -248,8 +279,20 @@ BEGIN
                     (item->>''sit_entry_date'')::date,
                     (item->>''sit_customer_contacted'')::date,
                     (item->>''reason'')::text,
-                    (item->>''estimate_weight)::int4,
-                    (item->>''actual_weight'')::int4
+                    (item->>''estimate_weight'')::int4,
+                    (item->>''actual_weight'')::int4,
+                    (item->>''pickup_postal_code'')::text,
+                    (item->>''description'')::text,
+                    (item->>''sit_destination_original_address_id'')::uuid,
+                    (item->>''sit_destination_final_address_id'')::uuid,
+                    (item->>''sit_requested_delivery'')::date,
+                    (item->>''sit_departure_date'')::date,
+                    (item->>''sit_origin_hhg_original_address_id'')::uuid,
+                    (item->>''sit_origin_hhg_actual_address_id'')::uuid,
+                    (item->>''customer_expense'')::boolean,
+                    (item->>''customer_expense_reason'')::text,
+                    (item->>''sit_delivery_miles'')::int4,
+                    (item->>''standalone_crate'')::boolean
                 );
             EXCEPTION
                 WHEN OTHERS THEN
