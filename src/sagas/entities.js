@@ -63,6 +63,13 @@ export function* updateAllMoves(action) {
   yield put(addEntities({ serviceMemberMoves: payload }));
 }
 
+export function* unlockedMoves(action) {
+  const { payload } = action;
+
+  const normalizedData = yield call(normalizeResponse, payload, 'move');
+  yield put(addEntities(normalizedData));
+}
+
 export function* watchUpdateEntities() {
   yield all([
     takeLatest(UPDATE_SERVICE_MEMBER, updateServiceMember),

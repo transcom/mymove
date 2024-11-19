@@ -105,6 +105,11 @@ func configureAPI(api *ghcoperations.MymoveAPI) http.Handler {
 			return middleware.NotImplemented("operation payment_requests.BulkDownload has not yet been implemented")
 		})
 	}
+	if api.MoveCheckForLockedMovesAndUnlockHandler == nil {
+		api.MoveCheckForLockedMovesAndUnlockHandler = move.CheckForLockedMovesAndUnlockHandlerFunc(func(params move.CheckForLockedMovesAndUnlockParams) middleware.Responder {
+			return middleware.NotImplemented("operation move.CheckForLockedMovesAndUnlock has not yet been implemented")
+		})
+	}
 	if api.OrderCounselingUpdateAllowanceHandler == nil {
 		api.OrderCounselingUpdateAllowanceHandler = order.CounselingUpdateAllowanceHandlerFunc(func(params order.CounselingUpdateAllowanceParams) middleware.Responder {
 			return middleware.NotImplemented("operation order.CounselingUpdateAllowance has not yet been implemented")

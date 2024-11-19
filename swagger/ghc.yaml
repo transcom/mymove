@@ -4438,7 +4438,38 @@ paths:
         unassigns either a services counselor, task ordering officer, or task
         invoicing officer from the move
       operationId: deleteAssignedOfficeUser
+  /moves/{officeUserID}/CheckForLockedMovesAndUnlock:
+    parameters:
+      - description: ID of the move
+        in: path
+        name: officeUserID
+        required: true
+        format: uuid
+        type: string
+    patch:
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: Successfully unlocked officer's move(s).
+          schema:
+            $ref: '#/definitions/UnlockedMoves'
+        '500':
+          $ref: '#/responses/ServerError'
+      tags:
+        - move
+      description: Finds and unlocks any locked moves by QAE,GSR, and headquarter officers
+      operationId: checkForLockedMovesAndUnlock
 definitions:
+  UnlockedMoves:
+    type: object
+    properties:
+      successMessage:
+        type: string
+        format: string
+        x-nullable: true
   ApplicationParameters:
     type: object
     properties:
