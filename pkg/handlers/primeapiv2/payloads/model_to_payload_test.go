@@ -689,6 +689,76 @@ func (suite *PayloadsSuite) TestMTOServiceItemDCRT() {
 	suite.True(ok)
 }
 
+func (suite *PayloadsSuite) TestMTOServiceItemICRTandIUCRT() {
+	icrtReServiceCode := models.ReServiceCodeICRT
+	iucrtReServiceCode := models.ReServiceCodeIUCRT
+	reason := "reason"
+	standaloneCrate := false
+	externalCrate := false
+	dateOfContact1 := time.Now()
+	timeMilitary1 := "1500Z"
+	firstAvailableDeliveryDate1 := dateOfContact1.AddDate(0, 0, 10)
+	dateOfContact2 := time.Now().AddDate(0, 0, 5)
+	timeMilitary2 := "1300Z"
+	firstAvailableDeliveryDate2 := dateOfContact2.AddDate(0, 0, 10)
+
+	mtoServiceItemICRT := &models.MTOServiceItem{
+		ID:              uuid.Must(uuid.NewV4()),
+		ReService:       models.ReService{Code: icrtReServiceCode},
+		Reason:          &reason,
+		StandaloneCrate: &standaloneCrate,
+		ExternalCrate:   &externalCrate,
+		CustomerContacts: models.MTOServiceItemCustomerContacts{
+			models.MTOServiceItemCustomerContact{
+				DateOfContact:              dateOfContact1,
+				TimeMilitary:               timeMilitary1,
+				FirstAvailableDeliveryDate: firstAvailableDeliveryDate1,
+				Type:                       models.CustomerContactTypeFirst,
+			},
+			models.MTOServiceItemCustomerContact{
+				DateOfContact:              dateOfContact2,
+				TimeMilitary:               timeMilitary2,
+				FirstAvailableDeliveryDate: firstAvailableDeliveryDate2,
+				Type:                       models.CustomerContactTypeSecond,
+			},
+		},
+	}
+
+	mtoServiceItemIUCRT := &models.MTOServiceItem{
+		ID:              uuid.Must(uuid.NewV4()),
+		ReService:       models.ReService{Code: iucrtReServiceCode},
+		Reason:          &reason,
+		StandaloneCrate: &standaloneCrate,
+		ExternalCrate:   &externalCrate,
+		CustomerContacts: models.MTOServiceItemCustomerContacts{
+			models.MTOServiceItemCustomerContact{
+				DateOfContact:              dateOfContact1,
+				TimeMilitary:               timeMilitary1,
+				FirstAvailableDeliveryDate: firstAvailableDeliveryDate1,
+				Type:                       models.CustomerContactTypeFirst,
+			},
+			models.MTOServiceItemCustomerContact{
+				DateOfContact:              dateOfContact2,
+				TimeMilitary:               timeMilitary2,
+				FirstAvailableDeliveryDate: firstAvailableDeliveryDate2,
+				Type:                       models.CustomerContactTypeSecond,
+			},
+		},
+	}
+
+	resultICRT := MTOServiceItem(mtoServiceItemICRT)
+	resultIUCRT := MTOServiceItem(mtoServiceItemIUCRT)
+
+	suite.NotNil(resultICRT)
+	suite.NotNil(resultIUCRT)
+
+	_, ok := resultICRT.(*primev2messages.MTOServiceItemInternationalCrating)
+	suite.True(ok)
+
+	_, ok = resultIUCRT.(*primev2messages.MTOServiceItemInternationalCrating)
+	suite.True(ok)
+}
+
 func (suite *PayloadsSuite) TestMTOServiceItemDDSHUT() {
 	reServiceCode := models.ReServiceCodeDDSHUT
 	reason := "reason"

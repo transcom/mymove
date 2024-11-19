@@ -9131,6 +9131,10 @@ func init() {
           "x-nullable": true,
           "example": 2500
         },
+        "externalCrate": {
+          "type": "boolean",
+          "x-nullable": true
+        },
         "feeType": {
           "type": "string",
           "enum": [
@@ -25773,6 +25777,10 @@ func init() {
           "x-formatting": "weight",
           "x-nullable": true,
           "example": 2500
+        },
+        "externalCrate": {
+          "type": "boolean",
+          "x-nullable": true
         },
         "feeType": {
           "type": "string",
