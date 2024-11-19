@@ -97,7 +97,6 @@ const EditPPMHeaderSummaryModal = ({ sectionType, sectionInfo, onClose, onSubmit
                         name="pickupAddress"
                         legend="Pickup Address"
                         className={styles.AddressFieldSet}
-                        formikFunctionsToValidatePostalCodeOnChange={{ handleChange, setFieldTouched }}
                         locationLookup
                         formikProps={formikProps}
                       />
@@ -107,7 +106,6 @@ const EditPPMHeaderSummaryModal = ({ sectionType, sectionInfo, onClose, onSubmit
                         name="destinationAddress"
                         legend="Destination Address"
                         className={styles.AddressFieldSet}
-                        formikFunctionsToValidatePostalCodeOnChange={{ handleChange, setFieldTouched }}
                         locationLookup
                         formikProps={formikProps}
                       />
