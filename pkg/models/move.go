@@ -196,58 +196,40 @@ func FetchMove(db *pop.Connection, session *auth.Session, id uuid.UUID) (*Move, 
 	return &move, nil
 }
 
-// getShipmentCountExcludingRejected returns the count of shipments for a move excluding rejected shipments
-func (m Move) getShipmentCountExcludingRejected(db *pop.Connection) int {
-	var count int
-	err := db.RawQuery(`
-		SELECT COUNT(*) FROM mto_shipments
-		WHERE move_id = ?
-			AND status != 'REJECTED'`,
-		m.ID).First(&count)
+// GetDestinationPostalCode returns the postal code for the move. This ensures that business logic is centralized.
+func (m Move) GetDestinationPostalCode(db *pop.Connection) (string, error) {
+	// Since this requires looking up the move in the DB, the move must have an ID. This means, the move has to have been created first.
+	if uuid.UUID.IsNil(m.ID) {
+		return "", errors.WithMessage(ErrInvalidOrderID, "You must created the move in the DB before getting the destination Postal Code.")
+	}
+
+	err := db.Load(&m, "OrdersID", "Orders")
 	if err != nil {
-		return -1
+		return "", errors.WithMessage(err, "There was a problem loading the OrdersID and Orders related to the MoveID "+m.ID.String())
 	}
 
-	return count
-}
-
-/*
-* FetchDestinationGBLOC returns the GBLOC of the destination address for the first shipment of a move.
-* If there are no shipments returned, it will return the GBLOC of the new duty station address.
- */
-func (m Move) FetchDestinationGBLOC(db *pop.Connection) (string, error) {
-	var gbloc string
-	if m.getShipmentCountExcludingRejected(db) > 0 {
-		err := db.RawQuery(`
-			SELECT pctg.gbloc FROM postal_code_to_gblocs pctg
-				JOIN addresses a ON a.postal_code = pctg.postal_code
-				JOIN mto_shipments ms ON ms.destination_address_id = a.id
-			WHERE ms.move_id = ?
-				AND ms.status != 'REJECTED'
-				AND o.status != 'CANCELED'
-			ORDER BY ms.created_at
-			`, m.ID).First(&gbloc)
-		if err != nil {
-			return "", err
-		}
-
-		return gbloc, nil
-	}
-
-	err := db.RawQuery(`
-		SELECT pctg.gbloc FROM postal_code_to_gblocs pctg
-			JOIN addresses a ON a.postal_code = pctg.postal_code
-			JOIN duty_locations dl ON dl.address_id = a.id
-			JOIN orders o ON o.new_duty_location_id = dl.id
-			JOIN moves m ON m.orders_id = o.id
-		WHERE m.id = ?
-			AND o.status != 'CANCELED'
-		`, m.ID).First(&gbloc)
+	var destPostalCode string
+	destPostalCode, err = m.Orders.GetDestinationPostalCodeForAssociatedMove(db)
 	if err != nil {
 		return "", err
 	}
 
-	return gbloc, nil
+	return destPostalCode, nil
+}
+
+// GetDestinationGBLOC returns the GBLOC for the move. This ensures that business logic is centralized.
+func (m Move) GetDestinationGBLOC(db *pop.Connection) (string, error) {
+	// Since this requires looking up the move in the DB, the move must have an ID. This means, the move has to have been created first.
+	if uuid.UUID.IsNil(m.ID) {
+		return "", errors.WithMessage(ErrInvalidOrderID, "You must created the move in the DB before getting the destination GBLOC.")
+	}
+
+	destinationGbloc, err := m.GetDestinationGBLOC(db)
+	if err != nil {
+		return "", err
+	}
+
+	return destinationGbloc, nil
 }
 
 // CreateSignedCertification creates a new SignedCertification associated with this move

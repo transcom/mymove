@@ -2539,7 +2539,7 @@ func SearchMoves(appCtx appcontext.AppContext, moves models.Moves) *ghcmessages.
 
 		// populates the destination postal code of the move
 		var destinationPostalCode string
-		destinationPostalCode, err = move.Orders.GetDestinationPostalCode(appCtx.DB())
+		destinationPostalCode, err = move.Orders.GetDestinationPostalCodeForAssociatedMove(appCtx.DB())
 		if err != nil {
 			destinationPostalCode = ""
 		}

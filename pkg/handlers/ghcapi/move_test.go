@@ -327,7 +327,7 @@ func (suite *HandlerSuite) TestSearchMovesHandler() {
 		suite.NoError(payload.Validate(strfmt.Default))
 
 		payloadMove := *(*payload).SearchMoves[0]
-		moveDestinationPostalCode, errDestPostalCode := move.Orders.GetDestinationPostalCode(suite.DB())
+		moveDestinationPostalCode, errDestPostalCode := move.Orders.GetDestinationPostalCodeForAssociatedMove(suite.DB())
 		suite.NoError(errDestPostalCode)
 		payloadDestinationPostalCode := payloadMove.DestinationPostalCode
 
@@ -384,6 +384,146 @@ func (suite *HandlerSuite) TestSearchMovesHandler() {
 		suite.NoError(payload.Validate(strfmt.Default))
 
 		suite.Equal(move.ID.String(), (*payload).SearchMoves[0].ID.String())
+	})
+
+	suite.Run("Destination Postal Code and GBLOC is correct for different shipment types", func() {
+		req := setupTestData()
+		destinationAddress := factory.BuildAddress(suite.DB(), []factory.Customization{
+			{
+				Model: models.Address{
+					PostalCode: "62225",
+				},
+				Type: &factory.Addresses.DeliveryAddress,
+			},
+		}, nil)
+		ppmDestinationAddress := factory.BuildAddress(suite.DB(), []factory.Customization{
+			{
+				Model: models.Address{
+					PostalCode: "35023",
+				},
+				Type: &factory.Addresses.DeliveryAddress,
+			},
+		}, nil)
+		ppmShipment := factory.BuildPPMShipment(suite.DB(), []factory.Customization{
+			{
+				Model: &ppmDestinationAddress,
+			},
+		}, nil)
+		destinationDutyLocationAddress := factory.BuildAddress(suite.DB(), []factory.Customization{
+			{
+				Model: models.Address{
+					PostalCode: "90210",
+				},
+				Type: &factory.Addresses.DutyLocationAddress,
+			},
+		}, nil)
+		destinationDutyLocation := factory.BuildDutyLocationWithoutTransportationOffice(suite.DB(), []factory.Customization{
+			{
+				Model: &destinationDutyLocationAddress,
+				Type:  &factory.DutyLocations.NewDutyLocation,
+			},
+		}, nil)
+		move := factory.BuildMoveWithShipment(suite.DB(), []factory.Customization{
+			{
+				Model: &destinationAddress,
+			},
+			{
+				Model: &destinationDutyLocation,
+			},
+		}, nil)
+		movePPM := factory.BuildMoveWithPPMShipment(suite.DB(), []factory.Customization{
+			{
+				Model: &ppmShipment,
+			},
+		}, nil)
+		moves := models.Moves{move}
+		movesPPM := models.Moves{movePPM}
+
+		mockSearcher := mocks.MoveSearcher{}
+
+		mockUnlocker := movelocker.NewMoveUnlocker()
+		handler := SearchMovesHandler{
+			HandlerConfig: suite.HandlerConfig(),
+			MoveSearcher:  &mockSearcher,
+			MoveUnlocker:  mockUnlocker,
+		}
+		mockSearcher.On("SearchMoves",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.MatchedBy(func(params *services.SearchMovesParams) bool {
+				return *params.Locator == move.Locator
+			}),
+		).Return(moves, 1, nil)
+
+		params := moveops.SearchMovesParams{
+			HTTPRequest: req,
+			Body: moveops.SearchMovesBody{
+				Locator: &move.Locator,
+				Edipi:   nil,
+			},
+		}
+
+		// Validate incoming payload non-PPM
+		suite.NoError(params.Body.Validate(strfmt.Default))
+
+		response := handler.Handle(params)
+		suite.IsType(&moveops.SearchMovesOK{}, response)
+		payload := response.(*moveops.SearchMovesOK).Payload
+
+		// Validate outgoing payload non-PPM
+		suite.NoError(payload.Validate(strfmt.Default))
+
+		payloadMove := *(*payload).SearchMoves[0]
+		var moveDestinationPostalCode string
+		var moveDestinationGBLOC string
+		var err error
+		moveDestinationPostalCode, err = move.GetDestinationPostalCode(suite.DB())
+		suite.NoError(err)
+		moveDestinationGBLOC, err = move.GetDestinationPostalCode(suite.DB())
+		suite.NoError(err)
+
+		payloadDestinationPostalCode := payloadMove.DestinationPostalCode
+		payloadDestinationGBLOC := payloadMove.DestinationGBLOC
+
+		suite.Equal(moveDestinationPostalCode, payloadDestinationPostalCode)
+		suite.Equal(moveDestinationGBLOC, payloadDestinationGBLOC)
+
+		// Validate incoming payload PPM
+		mockSearcher.On("SearchMoves",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.MatchedBy(func(params *services.SearchMovesParams) bool {
+				return *params.Locator == move.Locator
+			}),
+		).Return(movesPPM, 1, nil)
+
+		params = moveops.SearchMovesParams{
+			HTTPRequest: req,
+			Body: moveops.SearchMovesBody{
+				Locator: &move.Locator,
+				Edipi:   nil,
+			},
+		}
+
+		// Validate incoming payload PPM
+		suite.NoError(params.Body.Validate(strfmt.Default))
+
+		response = handler.Handle(params)
+		suite.IsType(&moveops.SearchMovesOK{}, response)
+		payload = response.(*moveops.SearchMovesOK).Payload
+
+		// Validate outgoing payload
+		suite.NoError(payload.Validate(strfmt.Default))
+
+		payloadMove = *(*payload).SearchMoves[0]
+		moveDestinationPostalCode, err = move.GetDestinationPostalCode(suite.DB())
+		suite.NoError(err)
+		moveDestinationGBLOC, err = move.GetDestinationPostalCode(suite.DB())
+		suite.NoError(err)
+
+		payloadDestinationPostalCode = payloadMove.DestinationPostalCode
+		payloadDestinationGBLOC = payloadMove.DestinationGBLOC
+
+		suite.Equal(moveDestinationPostalCode, payloadDestinationPostalCode)
+		suite.Equal(moveDestinationGBLOC, payloadDestinationGBLOC)
 	})
 }
 
