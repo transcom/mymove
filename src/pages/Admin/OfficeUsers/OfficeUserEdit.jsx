@@ -137,6 +137,7 @@ const OfficeUserEdit = ({ adminUser }) => {
               <Button
                 type="button"
                 size="extrasmall"
+                data-testid="addTransportationOfficeButton"
                 sx={{
                   backgroundColor: '#1976d2',
                   '&:hover': {
@@ -151,6 +152,7 @@ const OfficeUserEdit = ({ adminUser }) => {
               <Button
                 type="button"
                 size="extrasmall"
+                data-testid="removeTransportationOfficeButton"
                 sx={{
                   backgroundColor: '#e1400a',
                   '&:hover': {
