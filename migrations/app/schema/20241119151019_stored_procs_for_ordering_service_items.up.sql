@@ -182,7 +182,7 @@ CREATE TYPE mto_service_item_type AS (
     sit_customer_contacted DATE,
     reason TEXT,
     estimate_weight int4,
-    actual_weight int4,
+    actual_weight int4
 );
 
 CREATE OR REPLACE PROCEDURE CreateAccessorialServiceItems (
