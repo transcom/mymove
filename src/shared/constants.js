@@ -86,6 +86,11 @@ export const SHIPMENT_OPTIONS = {
   UNACCOMPANIED_BAGGAGE: 'UNACCOMPANIED_BAGGAGE',
 };
 
+export const MARKET_CODES = {
+  INTERNATIONAL: 'i',
+  DOMESTIC: 'd',
+};
+
 export const SHIPMENT_TYPES = {
   HHG: 'HHG',
   PPM: 'PPM',
