@@ -226,8 +226,6 @@ executors:
     # maybe don't need xlarge, but getting many timeouts with large
     # ahobson - 2023-02-07
     resource_class: xlarge
-    # project holds the root of transcom/mymove
-    # eg, circleci/project/pkg/handlers <- API location
     working_directory: ~/project
     docker:
       - image: *playwright
@@ -806,15 +804,13 @@ commands:
           keys:
             - v4-cache-yarn-v4-{{ checksum "yarn.lock" }}
       - run:
-          name: Verify react-file-viewer exists
+          # Needed for PDF e2e
+          name: Verify react-file-viewer client dependency exists
           command: |
             if [ ! -d "/home/circleci/project/public/static/react-file-viewer" ]; then
               echo "Error: /home/circleci/project/public/static/react-file-viewer not found, the server will not be able to serve frontend dependencies"
               exit 1
             fi
-      - run:
-          name: What is here
-          command: ls
       - run:
           name: setup hosts
           command: |
@@ -1185,12 +1181,19 @@ jobs:
           name: Install dependencies
           command: for i in $(seq 1 5); do go mod download && break || s=$? && sleep 5; done; (exit $s)
       - run: scripts/check-generated-code go.sum
-      - run: scripts/fetch-react-file-viewer-from-yarn
       - run:
           name: Install go-swagger
           command: make bin/swagger
       - save_cache_for_go
       - announce_failure
+
+  # Prep the public folder for frontend dependency serving
+  pre_deps_server:
+    executor: mymove_compiler
+    steps:
+      - attach_workspace:
+          at: .
+      - run: scripts/fetch-react-file-viewer-from-yarn
       - persist_to_workspace:
           root: ~/transcom/mymove
           paths:
@@ -2315,6 +2318,10 @@ workflows:
 
       - pre_deps_golang
 
+      - pre_deps_server:
+          requires:
+            - pre_deps_golang
+
       - pre_deps_yarn
 
       - base_noop
@@ -2391,6 +2398,7 @@ workflows:
       - integration_tests_devseed:
           requires:
             - pre_deps_golang
+            - pre_deps_server
           # See comments at the top of this file for configuring/using
           # this branch config
           filters:
@@ -2469,6 +2477,7 @@ workflows:
           requires:
             - anti_virus
             - pre_deps_golang
+            - pre_deps_server
 
       - build_app:
           requires:
