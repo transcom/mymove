@@ -1186,17 +1186,13 @@ jobs:
           command: make bin/swagger
       - save_cache_for_go
       - announce_failure
-      # Persist scripts for client deps prep
-      - persist_to_workspace:
-          root: ~/transcom/mymove
-          paths:
-            - scripts
 
   # Prep the public folder for frontend dependency serving
   # This is needed for things like pdfjs-dist
   prep_server_for_client_deps:
     executor: mymove_compiler
     steps:
+      - checkout
       - attach_workspace:
           at: .
       - run: scripts/fetch-react-file-viewer-from-yarn
@@ -2324,9 +2320,7 @@ workflows:
 
       - pre_deps_golang
 
-      - prep_server_for_client_deps:
-          requires:
-            - pre_deps_golang
+      - prep_server_for_client_deps
 
       - pre_deps_yarn
 
