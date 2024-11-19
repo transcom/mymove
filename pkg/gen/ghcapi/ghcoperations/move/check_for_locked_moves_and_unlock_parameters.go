@@ -31,7 +31,7 @@ type CheckForLockedMovesAndUnlockParams struct {
 	// HTTP Request Object
 	HTTPRequest *http.Request `json:"-"`
 
-	/*ID of the move
+	/*ID of the move's officer
 	  Required: true
 	  In: path
 	*/

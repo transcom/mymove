@@ -2799,7 +2799,7 @@ func init() {
     },
     "/moves/{officeUserID}/CheckForLockedMovesAndUnlock": {
       "patch": {
-        "description": "Finds and unlocks any locked moves by QAE,GSR, and headquarter officers",
+        "description": "Finds and unlocks any locked moves by QAE,CSR, GSR, and headquarter officers",
         "consumes": [
           "application/json"
         ],
@@ -2826,7 +2826,7 @@ func init() {
         {
           "type": "string",
           "format": "uuid",
-          "description": "ID of the move",
+          "description": "ID of the move's officer",
           "name": "officeUserID",
           "in": "path",
           "required": true
@@ -18195,7 +18195,7 @@ func init() {
     },
     "/moves/{officeUserID}/CheckForLockedMovesAndUnlock": {
       "patch": {
-        "description": "Finds and unlocks any locked moves by QAE,GSR, and headquarter officers",
+        "description": "Finds and unlocks any locked moves by QAE,CSR, GSR, and headquarter officers",
         "consumes": [
           "application/json"
         ],
@@ -18225,7 +18225,7 @@ func init() {
         {
           "type": "string",
           "format": "uuid",
-          "description": "ID of the move",
+          "description": "ID of the move's officer",
           "name": "officeUserID",
           "in": "path",
           "required": true

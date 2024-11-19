@@ -12,7 +12,7 @@ import { logOut as logOutAction } from 'store/auth/actions';
 import { OfficeUserInfoShape } from 'types/index';
 import { selectLoggedInUser } from 'store/entities/selectors';
 import { roleTypes } from 'constants/userRoles';
-import { unlockOfficerUserMoves } from 'services/ghcApi';
+import { checkForLockedMovesAndUnlock } from 'services/ghcApi';
 
 const OfficeLoggedInHeader = ({ officeUser, activeRole, logOut }) => {
   const navigate = useNavigate();
@@ -35,12 +35,13 @@ const OfficeLoggedInHeader = ({ officeUser, activeRole, logOut }) => {
 
   let queueText = '';
   const location = useLocation();
+  const validUnlockingOfficers = [roleTypes.QAE, roleTypes.CSR, roleTypes.GSR, roleTypes.HQ];
   if (activeRole === roleTypes.TOO) {
     queueText = 'moves';
   } else if (activeRole === roleTypes.TIO) {
     queueText = 'payment requests';
-  } else if (activeRole === roleTypes.QAE && location.pathname === '/') {
-    unlockOfficerUserMoves('move', officeUser.id);
+  } else if (validUnlockingOfficers.includes(activeRole) && location.pathname === '/') {
+    checkForLockedMovesAndUnlock('move', officeUser.id);
   }
 
   return (

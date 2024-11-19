@@ -4478,7 +4478,7 @@ paths:
       operationId: deleteAssignedOfficeUser
   /moves/{officeUserID}/CheckForLockedMovesAndUnlock:
     parameters:
-      - description: ID of the move
+      - description: ID of the move's officer
         in: path
         name: officeUserID
         required: true
@@ -4498,7 +4498,9 @@ paths:
           $ref: '#/responses/ServerError'
       tags:
         - move
-      description: Finds and unlocks any locked moves by QAE,GSR, and headquarter officers
+      description: >-
+        Finds and unlocks any locked moves by QAE,CSR, GSR, and headquarter
+        officers
       operationId: checkForLockedMovesAndUnlock
 definitions:
   UnlockedMoves:
