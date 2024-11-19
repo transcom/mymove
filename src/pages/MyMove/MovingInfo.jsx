@@ -4,6 +4,7 @@ import { Grid, GridContainer } from '@trussworks/react-uswds';
 import { func, node, number, string } from 'prop-types';
 import { generatePath } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faSuitcase } from '@fortawesome/free-solid-svg-icons';
 
 import { isBooleanFlagEnabled } from '../../utils/featureFlags';
 import { FEATURE_FLAG_KEYS } from '../../shared/constants';
@@ -14,8 +15,8 @@ import { customerRoutes, generalRoutes } from 'constants/routes';
 import WizardNavigation from 'components/Customer/WizardNavigation/WizardNavigation';
 import SectionWrapper from 'components/Customer/SectionWrapper';
 import { fetchLatestOrders as fetchLatestOrdersAction } from 'shared/Entities/modules/orders';
-import { formatWeight } from 'utils/formatters';
-import { selectCurrentOrders, selectServiceMemberFromLoggedInUser } from 'store/entities/selectors';
+import { formatUBAllowanceWeight, formatWeight } from 'utils/formatters';
+import { selectCurrentOrders, selectServiceMemberFromLoggedInUser, selectUbAllowance } from 'store/entities/selectors';
 import withRouter from 'utils/routing';
 import { RouterShape } from 'types';
 
@@ -55,6 +56,7 @@ export class MovingInfo extends Component {
 
   render() {
     const {
+      ubAllowance,
       entitlementWeight,
       router: {
         navigate,
@@ -89,6 +91,20 @@ export class MovingInfo extends Component {
                   within your weight limit.
                 </p>
               </IconSection>
+              {ubAllowance ? (
+                <IconSection
+                  icon={faSuitcase}
+                  headline={`You can move up to ${formatUBAllowanceWeight(
+                    ubAllowance,
+                  )} of unaccompanied baggage in this move.`}
+                >
+                  <p>
+                    If you request an unaccompanied baggage (UB) shipment, keep in mind that you will need to stay under
+                    that weight allowance for your UB shipment, and that the weight of your UB shipment is also part of
+                    your overall authorized weight allowance.
+                  </p>
+                </IconSection>
+              ) : null}
               <IconSection icon="pencil-alt" headline="You don't need to get the details perfect.">
                 <p>
                   After you submit this information, you will talk to a government move counselor. They will verify your
@@ -172,8 +188,10 @@ function mapStateToProps(state) {
   const serviceMember = selectServiceMemberFromLoggedInUser(state);
   const entitlementWeight = orders.authorizedWeight;
   const serviceMemberId = serviceMember?.id;
+  const ubAllowance = selectUbAllowance(state);
 
   return {
+    ubAllowance,
     entitlementWeight,
     serviceMemberId,
   };

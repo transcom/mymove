@@ -200,7 +200,7 @@ export const counselingColumns = (moveLockFlag, originLocationList, supervisor, 
         'Assigned',
         (row) => {
           return !row?.assignable ? (
-            <div>{`${row.assignedTo?.lastName}, ${row.assignedTo?.firstName}`}</div>
+            <div>{row.assignedTo ? `${row.assignedTo?.lastName}, ${row.assignedTo?.firstName}` : ''}</div>
           ) : (
             <div data-label="assignedSelect" className={styles.assignedToCol}>
               <Dropdown
@@ -227,156 +227,200 @@ export const counselingColumns = (moveLockFlag, originLocationList, supervisor, 
 
   return cols;
 };
-export const closeoutColumns = (moveLockFlag, ppmCloseoutGBLOC, ppmCloseoutOriginLocationList, supervisor) => [
-  createHeader(
-    ' ',
-    (row) => {
-      const now = new Date();
-      // this will render a lock icon if the move is locked & if the lockExpiresAt value is after right now
-      if (row.lockedByOfficeUserID && row.lockExpiresAt && now < new Date(row.lockExpiresAt) && moveLockFlag) {
+export const closeoutColumns = (
+  moveLockFlag,
+  ppmCloseoutGBLOC,
+  ppmCloseoutOriginLocationList,
+  supervisor,
+  isQueueManagementEnabled,
+) => {
+  const cols = [
+    createHeader(
+      ' ',
+      (row) => {
+        const now = new Date();
+        // this will render a lock icon if the move is locked & if the lockExpiresAt value is after right now
+        if (row.lockedByOfficeUserID && row.lockExpiresAt && now < new Date(row.lockExpiresAt) && moveLockFlag) {
+          return (
+            <div id={row.id}>
+              <FontAwesomeIcon icon="lock" />
+            </div>
+          );
+        }
+        return null;
+      },
+      { id: 'lock' },
+    ),
+    createHeader('ID', 'id', { id: 'id' }),
+    createHeader(
+      'Customer name',
+      (row) => {
         return (
-          <div id={row.id}>
-            <FontAwesomeIcon icon="lock" />
+          <div>
+            {CHECK_SPECIAL_ORDERS_TYPES(row.orderType) ? (
+              <span className={styles.specialMoves}>{SPECIAL_ORDERS_TYPES[`${row.orderType}`]}</span>
+            ) : null}
+            {`${row.customer.last_name}, ${row.customer.first_name}`}
           </div>
         );
-      }
-      return null;
-    },
-    { id: 'lock' },
-  ),
-  createHeader('ID', 'id', { id: 'id' }),
-  createHeader(
-    'Customer name',
-    (row) => {
-      return (
-        <div>
-          {CHECK_SPECIAL_ORDERS_TYPES(row.orderType) ? (
-            <span className={styles.specialMoves}>{SPECIAL_ORDERS_TYPES[`${row.orderType}`]}</span>
-          ) : null}
-          {`${row.customer.last_name}, ${row.customer.first_name}`}
-        </div>
-      );
-    },
-    {
-      id: 'lastName',
+      },
+      {
+        id: 'lastName',
+        isFilterable: true,
+        exportValue: (row) => {
+          return `${row.customer.last_name}, ${row.customer.first_name}`;
+        },
+      },
+    ),
+    createHeader('DoD ID', 'customer.dodID', {
+      id: 'dodID',
       isFilterable: true,
       exportValue: (row) => {
-        return `${row.customer.last_name}, ${row.customer.first_name}`;
+        return row.customer.dodID;
       },
-    },
-  ),
-  createHeader('DoD ID', 'customer.edipi', {
-    id: 'edipi',
-    isFilterable: true,
-    exportValue: (row) => {
-      return row.customer.edipi;
-    },
-  }),
-  createHeader('EMPLID', 'customer.emplid', {
-    id: 'emplid',
-    isFilterable: true,
-  }),
-  createHeader('Move code', 'locator', {
-    id: 'locator',
-    isFilterable: true,
-  }),
-  createHeader(
-    'Branch',
-    (row) => {
-      return serviceMemberAgencyLabel(row.customer.agency);
-    },
-    {
-      id: 'branch',
+    }),
+    createHeader('EMPLID', 'customer.emplid', {
+      id: 'emplid',
       isFilterable: true,
-      Filter: (props) => (
+    }),
+    createHeader('Move code', 'locator', {
+      id: 'locator',
+      isFilterable: true,
+    }),
+    createHeader(
+      'Branch',
+      (row) => {
+        return serviceMemberAgencyLabel(row.customer.agency);
+      },
+      {
+        id: 'branch',
+        isFilterable: true,
+        Filter: (props) => (
+          // eslint-disable-next-line react/jsx-props-no-spreading
+          <SelectFilter options={BRANCH_OPTIONS} {...props} />
+        ),
+      },
+    ),
+    createHeader(
+      'Status',
+      (row) => {
+        return SERVICE_COUNSELING_PPM_STATUS_LABELS[`${row.ppmStatus}`];
+      },
+      {
+        id: 'ppmStatus',
+        isFilterable: true,
+        Filter: (props) => (
+          // eslint-disable-next-line react/jsx-props-no-spreading
+          <SelectFilter options={SERVICE_COUNSELING_PPM_STATUS_OPTIONS} {...props} />
+        ),
+      },
+    ),
+    createHeader(
+      'Closeout initiated',
+      (row) => {
+        return formatDateFromIso(row.closeoutInitiated, DATE_FORMAT_STRING);
+      },
+      {
+        id: 'closeoutInitiated',
+        isFilterable: true,
         // eslint-disable-next-line react/jsx-props-no-spreading
-        <SelectFilter options={BRANCH_OPTIONS} {...props} />
-      ),
-    },
-  ),
-  createHeader(
-    'Status',
-    (row) => {
-      return SERVICE_COUNSELING_PPM_STATUS_LABELS[`${row.ppmStatus}`];
-    },
-    {
-      id: 'ppmStatus',
-      isFilterable: true,
-      Filter: (props) => (
-        // eslint-disable-next-line react/jsx-props-no-spreading
-        <SelectFilter options={SERVICE_COUNSELING_PPM_STATUS_OPTIONS} {...props} />
-      ),
-    },
-  ),
-  createHeader(
-    'Closeout initiated',
-    (row) => {
-      return formatDateFromIso(row.closeoutInitiated, DATE_FORMAT_STRING);
-    },
-    {
-      id: 'closeoutInitiated',
-      isFilterable: true,
-      // eslint-disable-next-line react/jsx-props-no-spreading
-      Filter: (props) => <DateSelectFilter dateTime {...props} />,
-    },
-  ),
-  createHeader(
-    'Full or partial PPM',
-    (row) => {
-      return SERVICE_COUNSELING_PPM_TYPE_LABELS[`${row.ppmType}`];
-    },
-    {
-      id: 'ppmType',
-      isFilterable: true,
-      Filter: (props) => (
-        // eslint-disable-next-line react/jsx-props-no-spreading
-        <SelectFilter options={SERVICE_COUNSELING_PPM_TYPE_OPTIONS} {...props} />
-      ),
-    },
-  ),
-  supervisor
-    ? createHeader(
-        'Origin duty location',
-        (row) => {
-          return `${row.originDutyLocation.name}`;
-        },
-        {
+        Filter: (props) => <DateSelectFilter dateTime {...props} />,
+      },
+    ),
+    createHeader(
+      'Full or partial PPM',
+      (row) => {
+        return SERVICE_COUNSELING_PPM_TYPE_LABELS[`${row.ppmType}`];
+      },
+      {
+        id: 'ppmType',
+        isFilterable: true,
+        Filter: (props) => (
+          // eslint-disable-next-line react/jsx-props-no-spreading
+          <SelectFilter options={SERVICE_COUNSELING_PPM_TYPE_OPTIONS} {...props} />
+        ),
+      },
+    ),
+    supervisor
+      ? createHeader(
+          'Origin duty location',
+          (row) => {
+            return `${row.originDutyLocation.name}`;
+          },
+          {
+            id: 'originDutyLocation',
+            isFilterable: true,
+            exportValue: (row) => {
+              return row.originDutyLocation?.name;
+            },
+            Filter: (props) => (
+              <MultiSelectTypeAheadCheckBoxFilter
+                options={ppmCloseoutOriginLocationList}
+                placeholder="Start typing a duty location..."
+                // eslint-disable-next-line react/jsx-props-no-spreading
+                {...props}
+              />
+            ),
+          },
+        )
+      : createHeader('Origin duty location', 'originDutyLocation.name', {
           id: 'originDutyLocation',
           isFilterable: true,
           exportValue: (row) => {
             return row.originDutyLocation?.name;
           },
-          Filter: (props) => (
-            <MultiSelectTypeAheadCheckBoxFilter
-              options={ppmCloseoutOriginLocationList}
-              placeholder="Start typing a duty location..."
-              // eslint-disable-next-line react/jsx-props-no-spreading
-              {...props}
-            />
-          ),
+        }),
+    createHeader('Counseling office', 'counselingOffice', {
+      id: 'counselingOffice',
+      isFilterable: true,
+    }),
+    createHeader('Destination duty location', 'destinationDutyLocation.name', {
+      id: 'destinationDutyLocation',
+      isFilterable: true,
+      exportValue: (row) => {
+        return row.destinationDutyLocation?.name;
+      },
+    }),
+    createHeader('PPM closeout location', 'closeoutLocation', {
+      id: 'closeoutLocation',
+      // This filter only makes sense if we're not in a closeout GBLOC. Users in a closeout GBLOC will
+      // see the same value in this column for every move.
+      isFilterable: !ppmCloseoutGBLOC,
+    }),
+  ];
+  if (isQueueManagementEnabled)
+    cols.push(
+      createHeader(
+        'Assigned',
+        (row) => {
+          return !row?.assignable ? (
+            <div>{row.assignedTo ? `${row.assignedTo?.lastName}, ${row.assignedTo?.firstName}` : ''}</div>
+          ) : (
+            <div data-label="assignedSelect" className={styles.assignedToCol}>
+              <Dropdown
+                defaultValue={row.assignedTo?.officeUserId}
+                onChange={(e) => handleQueueAssignment(row.id, e.target.value, roleTypes.SERVICES_COUNSELOR)}
+                title="Assigned dropdown"
+              >
+                <option value={null}>{DEFAULT_EMPTY_VALUE}</option>
+                {row.availableOfficeUsers.map(({ lastName, firstName, officeUserId }) => (
+                  <option value={officeUserId} key={`filterOption_${officeUserId}`}>
+                    {`${lastName}, ${firstName}`}
+                  </option>
+                ))}
+              </Dropdown>
+            </div>
+          );
         },
-      )
-    : createHeader('Origin duty location', 'originDutyLocation.name', {
-        id: 'originDutyLocation',
-        isFilterable: true,
-        exportValue: (row) => {
-          return row.originDutyLocation?.name;
+        {
+          id: 'assignedTo',
+          isFilterable: true,
         },
-      }),
-  createHeader('Destination duty location', 'destinationDutyLocation.name', {
-    id: 'destinationDutyLocation',
-    isFilterable: true,
-    exportValue: (row) => {
-      return row.destinationDutyLocation?.name;
-    },
-  }),
-  createHeader('PPM closeout location', 'closeoutLocation', {
-    id: 'closeoutLocation',
-    // This filter only makes sense if we're not in a closeout GBLOC. Users in a closeout GBLOC will
-    // see the same value in this column for every move.
-    isFilterable: !ppmCloseoutGBLOC,
-  }),
-];
+      ),
+    );
+
+  return cols;
+};
 
 const ServicesCounselingQueue = ({ userPrivileges, isQueueManagementFFEnabled, officeUser }) => {
   const { queueType } = useParams();
@@ -597,7 +641,13 @@ const ServicesCounselingQueue = ({ userPrivileges, isQueueManagementFFEnabled, o
           defaultSortedColumns={[{ id: 'closeoutInitiated', desc: false }]}
           disableMultiSort
           disableSortBy={false}
-          columns={closeoutColumns(moveLockFlag, inPPMCloseoutGBLOC, ppmCloseoutOriginLocationList, supervisor)}
+          columns={closeoutColumns(
+            moveLockFlag,
+            inPPMCloseoutGBLOC,
+            ppmCloseoutOriginLocationList,
+            supervisor,
+            isQueueManagementFFEnabled,
+          )}
           title="Moves"
           handleClick={handleClick}
           useQueries={useServicesCounselingQueuePPMQueries}

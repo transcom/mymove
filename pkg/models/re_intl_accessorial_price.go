@@ -61,3 +61,14 @@ func (r *ReIntlAccessorialPrice) Validate(_ *pop.Connection) (*validate.Errors, 
 		&validators.IntIsGreaterThan{Field: r.PerUnitCents.Int(), Name: "PerUnitCents", Compared: -1},
 	), nil
 }
+
+func (m Market) FullString() string {
+	switch m {
+	case MarketConus:
+		return "CONUS"
+	case MarketOconus:
+		return "OCONUS"
+	default:
+		return ""
+	}
+}

@@ -4865,6 +4865,39 @@ func init() {
         }
       }
     },
+    "/re-service-items": {
+      "get": {
+        "description": "Get ReServiceItems",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "reServiceItems"
+        ],
+        "summary": "Returns all ReServiceItems (Service Code, Service Name, Market, Shipment Type, Auto Approved)",
+        "operationId": "getAllReServiceItems",
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved all ReServiceItems.",
+            "schema": {
+              "$ref": "#/definitions/ReServiceItems"
+            }
+          },
+          "400": {
+            "$ref": "#/responses/InvalidRequest"
+          },
+          "401": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "404": {
+            "$ref": "#/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/responses/ServerError"
+          }
+        }
+      }
+    },
     "/report-violations/{reportID}": {
       "get": {
         "description": "Fetch the report violations for an evaluation report",
@@ -6797,6 +6830,11 @@ func init() {
         "storageInTransit": {
           "description": "the number of storage in transit days that the customer is entitled to for a given shipment on their move",
           "type": "integer"
+        },
+        "ubAllowance": {
+          "type": "integer",
+          "x-nullable": true,
+          "example": 500
         }
       }
     },
@@ -7994,7 +8032,7 @@ func init() {
           "x-formatting": "weight",
           "example": 500
         },
-        "ubAllowance": {
+        "unaccompaniedBaggageAllowance": {
           "description": "The amount of weight in pounds that the move is entitled for shipment types of Unaccompanied Baggage.",
           "type": "integer",
           "x-nullable": true,
@@ -9055,6 +9093,10 @@ func init() {
           "x-formatting": "weight",
           "x-nullable": true,
           "example": 2500
+        },
+        "externalCrate": {
+          "type": "boolean",
+          "x-nullable": true
         },
         "feeType": {
           "type": "string",
@@ -12465,6 +12507,104 @@ func init() {
         }
       }
     },
+    "ReServiceItem": {
+      "description": "A Service Item which ties an ReService, Market, and Shipment Type together",
+      "type": "object",
+      "properties": {
+        "isAutoApproved": {
+          "type": "boolean",
+          "example": true
+        },
+        "marketCode": {
+          "type": "string",
+          "enum": [
+            "i",
+            "d"
+          ],
+          "example": "i (International), d (Domestic)"
+        },
+        "serviceCode": {
+          "type": "string",
+          "enum": [
+            "CS",
+            "DBHF",
+            "DBTF",
+            "DCRT",
+            "DCRTSA",
+            "DDASIT",
+            "DDDSIT",
+            "DDFSIT",
+            "DDP",
+            "DDSFSC",
+            "DDSHUT",
+            "DLH",
+            "DMHF",
+            "DNPK",
+            "DOASIT",
+            "DOFSIT",
+            "DOP",
+            "DOPSIT",
+            "DOSFSC",
+            "DOSHUT",
+            "DPK",
+            "DSH",
+            "DUCRT",
+            "DUPK",
+            "FSC",
+            "IBHF",
+            "IBTF",
+            "ICRT",
+            "ICRTSA",
+            "IDASIT",
+            "IDDSIT",
+            "IDFSIT",
+            "IDSFSC",
+            "IDSHUT",
+            "IHPK",
+            "IHUPK",
+            "INPK",
+            "IOASIT",
+            "IOFSIT",
+            "IOPSIT",
+            "IOSFSC",
+            "IOSHUT",
+            "ISLH",
+            "IUBPK",
+            "IUBUPK",
+            "IUCRT",
+            "MS",
+            "PODFSC",
+            "POEFSC",
+            "UBP"
+          ],
+          "example": "UBP"
+        },
+        "serviceName": {
+          "type": "string",
+          "example": "International UB, International Shipping \u0026 Linehaul"
+        },
+        "shipmentType": {
+          "type": "string",
+          "enum": [
+            "BOAT_HAUL_AWAY",
+            "BOAT_TOW_AWAY",
+            "HHG",
+            "HHG_INTO_NTS_DOMESTIC",
+            "HHG_OUTOF_NTS_DOMESTIC",
+            "MOBILE_HOME",
+            "PPM",
+            "UNACCOMPANIED_BAGGAGE"
+          ],
+          "example": "HHG, UNACCOMPANIED_BAGGAGE"
+        }
+      }
+    },
+    "ReServiceItems": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/ReServiceItem"
+      }
+    },
     "RejectShipment": {
       "required": [
         "rejectionReason"
@@ -13588,6 +13728,11 @@ func init() {
         "storageInTransit": {
           "description": "the number of storage in transit days that the customer is entitled to for a given shipment on their move",
           "type": "integer"
+        },
+        "ubAllowance": {
+          "type": "integer",
+          "x-nullable": true,
+          "example": 500
         }
       }
     },
@@ -14802,6 +14947,9 @@ func init() {
     },
     {
       "name": "paymentRequests"
+    },
+    {
+      "name": "reServiceItems"
     }
   ]
 }`))
@@ -20811,6 +20959,51 @@ func init() {
         }
       }
     },
+    "/re-service-items": {
+      "get": {
+        "description": "Get ReServiceItems",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "reServiceItems"
+        ],
+        "summary": "Returns all ReServiceItems (Service Code, Service Name, Market, Shipment Type, Auto Approved)",
+        "operationId": "getAllReServiceItems",
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved all ReServiceItems.",
+            "schema": {
+              "$ref": "#/definitions/ReServiceItems"
+            }
+          },
+          "400": {
+            "description": "The request payload is invalid",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "401": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "500": {
+            "description": "A server error occurred",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      }
+    },
     "/report-violations/{reportID}": {
       "get": {
         "description": "Fetch the report violations for an evaluation report",
@@ -23099,6 +23292,11 @@ func init() {
           "description": "the number of storage in transit days that the customer is entitled to for a given shipment on their move",
           "type": "integer",
           "minimum": 0
+        },
+        "ubAllowance": {
+          "type": "integer",
+          "x-nullable": true,
+          "example": 500
         }
       }
     },
@@ -24296,7 +24494,7 @@ func init() {
           "x-formatting": "weight",
           "example": 500
         },
-        "ubAllowance": {
+        "unaccompaniedBaggageAllowance": {
           "description": "The amount of weight in pounds that the move is entitled for shipment types of Unaccompanied Baggage.",
           "type": "integer",
           "x-nullable": true,
@@ -25357,6 +25555,10 @@ func init() {
           "x-formatting": "weight",
           "x-nullable": true,
           "example": 2500
+        },
+        "externalCrate": {
+          "type": "boolean",
+          "x-nullable": true
         },
         "feeType": {
           "type": "string",
@@ -28843,6 +29045,104 @@ func init() {
         }
       }
     },
+    "ReServiceItem": {
+      "description": "A Service Item which ties an ReService, Market, and Shipment Type together",
+      "type": "object",
+      "properties": {
+        "isAutoApproved": {
+          "type": "boolean",
+          "example": true
+        },
+        "marketCode": {
+          "type": "string",
+          "enum": [
+            "i",
+            "d"
+          ],
+          "example": "i (International), d (Domestic)"
+        },
+        "serviceCode": {
+          "type": "string",
+          "enum": [
+            "CS",
+            "DBHF",
+            "DBTF",
+            "DCRT",
+            "DCRTSA",
+            "DDASIT",
+            "DDDSIT",
+            "DDFSIT",
+            "DDP",
+            "DDSFSC",
+            "DDSHUT",
+            "DLH",
+            "DMHF",
+            "DNPK",
+            "DOASIT",
+            "DOFSIT",
+            "DOP",
+            "DOPSIT",
+            "DOSFSC",
+            "DOSHUT",
+            "DPK",
+            "DSH",
+            "DUCRT",
+            "DUPK",
+            "FSC",
+            "IBHF",
+            "IBTF",
+            "ICRT",
+            "ICRTSA",
+            "IDASIT",
+            "IDDSIT",
+            "IDFSIT",
+            "IDSFSC",
+            "IDSHUT",
+            "IHPK",
+            "IHUPK",
+            "INPK",
+            "IOASIT",
+            "IOFSIT",
+            "IOPSIT",
+            "IOSFSC",
+            "IOSHUT",
+            "ISLH",
+            "IUBPK",
+            "IUBUPK",
+            "IUCRT",
+            "MS",
+            "PODFSC",
+            "POEFSC",
+            "UBP"
+          ],
+          "example": "UBP"
+        },
+        "serviceName": {
+          "type": "string",
+          "example": "International UB, International Shipping \u0026 Linehaul"
+        },
+        "shipmentType": {
+          "type": "string",
+          "enum": [
+            "BOAT_HAUL_AWAY",
+            "BOAT_TOW_AWAY",
+            "HHG",
+            "HHG_INTO_NTS_DOMESTIC",
+            "HHG_OUTOF_NTS_DOMESTIC",
+            "MOBILE_HOME",
+            "PPM",
+            "UNACCOMPANIED_BAGGAGE"
+          ],
+          "example": "HHG, UNACCOMPANIED_BAGGAGE"
+        }
+      }
+    },
+    "ReServiceItems": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/ReServiceItem"
+      }
+    },
     "RejectShipment": {
       "required": [
         "rejectionReason"
@@ -30022,6 +30322,11 @@ func init() {
           "description": "the number of storage in transit days that the customer is entitled to for a given shipment on their move",
           "type": "integer",
           "minimum": 0
+        },
+        "ubAllowance": {
+          "type": "integer",
+          "x-nullable": true,
+          "example": 500
         }
       }
     },
@@ -31249,6 +31554,9 @@ func init() {
     },
     {
       "name": "paymentRequests"
+    },
+    {
+      "name": "reServiceItems"
     }
   ]
 }`))

@@ -50,18 +50,30 @@ func (h SearchDutyLocationsHandler) Handle(params locationop.SearchDutyLocations
 
 			/** Feature Flag - Alaska - Determines if AK can be included/excluded **/
 			isAlaskaEnabled := false
-			featureFlagName := "enable_alaska"
-			flag, err := h.FeatureFlagFetcher().GetBooleanFlagForUser(context.TODO(), appCtx, featureFlagName, map[string]string{})
+			akFeatureFlagName := "enable_alaska"
+			flag, err := h.FeatureFlagFetcher().GetBooleanFlagForUser(context.TODO(), appCtx, akFeatureFlagName, map[string]string{})
 			if err != nil {
-				appCtx.Logger().Error("Error fetching feature flag", zap.String("featureFlagKey", featureFlagName), zap.Error(err))
+				appCtx.Logger().Error("Error fetching feature flag", zap.String("featureFlagKey", akFeatureFlagName), zap.Error(err))
 			} else {
 				isAlaskaEnabled = flag.Match
 			}
 
+			/** Feature Flag - Hawaii - Determines if HI can be included/excluded **/
+			isHawaiiEnabled := false
+			hiFeatureFlagName := "enable_hawaii"
+			flag, err = h.FeatureFlagFetcher().GetBooleanFlagForUser(context.TODO(), appCtx, hiFeatureFlagName, map[string]string{})
+			if err != nil {
+				appCtx.Logger().Error("Error fetching feature flag", zap.String("featureFlagKey", hiFeatureFlagName), zap.Error(err))
+			} else {
+				isHawaiiEnabled = flag.Match
+			}
+
+			// build states to exlude filter list
 			statesToExclude := make([]string, 0)
 			if !isAlaskaEnabled {
-				// HI locations will also be excluded as part of AK embargo
 				statesToExclude = append(statesToExclude, "AK")
+			}
+			if !isHawaiiEnabled {
 				statesToExclude = append(statesToExclude, "HI")
 			}
 

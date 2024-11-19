@@ -27,6 +27,7 @@ func NewPPMShipmentCreator(estimator services.PPMEstimator, addressCreator servi
 			checkShipmentID(),
 			checkPPMShipmentID(),
 			checkRequiredFields(),
+			checkPPMShipmentSequenceValidForCreate(),
 		},
 	}
 }
