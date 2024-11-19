@@ -3,7 +3,8 @@ set -e
 
 YARN_LOCK_PATH="yarn.lock"
 TARGET_PACKAGE="@transcom/react-file-viewer"
-SERVER_PUBLIC_DIR="$(pwd)/public/static/react-file-viewer"
+ORIGINAL_DIR="$(pwd)"
+SERVER_PUBLIC_DIR="$ORIGINAL_DIR/public/static/react-file-viewer"
 
 # Ensure yarn.lock exists
 if [ ! -f "$YARN_LOCK_PATH" ]; then
@@ -59,7 +60,7 @@ cp -r dist/*.js "$SERVER_PUBLIC_DIR"
 echo "Copied dist/*.js to $SERVER_PUBLIC_DIR"
 
 # Remove temp
-cd
+cd "$ORIGINAL_DIR"
 rm -rf "$TEMP_DIR"
 echo "Cleaned up temporary files"
 
