@@ -53,7 +53,7 @@ describe('BackupAddressForm component', () => {
   it('renders the form inputs', async () => {
     const mockStore = configureStore({});
 
-    const { getByLabelText } = render(
+    const { getByLabelText, getByTestId } = render(
       <Provider store={mockStore.store}>
         <BackupAddressForm {...testProps} />
       </Provider>,
@@ -64,11 +64,11 @@ describe('BackupAddressForm component', () => {
 
       expect(getByLabelText(/Address 2/)).toBeInstanceOf(HTMLInputElement);
 
-      expect(getByLabelText(/City/)).toBeInstanceOf(HTMLInputElement);
+      expect(getByTestId('City')).toBeInstanceOf(HTMLLabelElement);
 
-      expect(getByLabelText(/State/)).toBeInstanceOf(HTMLInputElement);
+      expect(getByTestId('State')).toBeInstanceOf(HTMLLabelElement);
 
-      expect(getByLabelText(/ZIP/)).toBeInstanceOf(HTMLInputElement);
+      expect(getByTestId('ZIP')).toBeInstanceOf(HTMLLabelElement);
     });
   });
 

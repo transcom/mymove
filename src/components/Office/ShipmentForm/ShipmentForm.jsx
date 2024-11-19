@@ -816,7 +816,7 @@ const ShipmentForm = (props) => {
               <Alert data-testid="errorMessage" type="error" headingLevel="h4" heading="An error occurred">
                 {errorCode === 400 ? (
                   <p>
-                    {errorMessage} If the error persists, please try again later, or contact the&nbsp;
+                    {errorMessage} Please try again later, or contact the&nbsp;
                     <Link to={technicalHelpDeskURL} target="_blank" rel="noreferrer">
                       Technical Help Desk
                     </Link>
@@ -931,7 +931,6 @@ const ShipmentForm = (props) => {
                           name="pickup.address"
                           legend="Pickup location"
                           locationLookup
-                          validateForm={validateForm}
                           formikProps={formikProps}
                           render={(fields) => (
                             <>
@@ -975,7 +974,6 @@ const ShipmentForm = (props) => {
                                   <AddressFields
                                     name="secondaryPickup.address"
                                     locationLookup
-                                    validateForm={validateForm}
                                     formikProps={formikProps}
                                   />
                                   {isTertiaryAddressEnabled && (
@@ -1010,7 +1008,6 @@ const ShipmentForm = (props) => {
                                         <AddressFields
                                           name="tertiaryPickup.address"
                                           locationLookup
-                                          validateForm={validateForm}
                                           formikProps={formikProps}
                                         />
                                       )}
@@ -1092,7 +1089,6 @@ const ShipmentForm = (props) => {
                           <AddressFields
                             name="delivery.address"
                             locationLookup
-                            validateForm={validateForm}
                             formikProps={formikProps}
                             render={(fields) => {
                               return fields;
@@ -1129,7 +1125,6 @@ const ShipmentForm = (props) => {
                               <AddressFields
                                 name="secondaryDelivery.address"
                                 locationLookup
-                                validateForm={validateForm}
                                 formikProps={formikProps}
                               />
                               {isTertiaryAddressEnabled && (
@@ -1164,7 +1159,6 @@ const ShipmentForm = (props) => {
                                     <AddressFields
                                       name="tertiaryDelivery.address"
                                       locationLookup
-                                      validateForm={validateForm}
                                       formikProps={formikProps}
                                     />
                                   )}
@@ -1245,7 +1239,6 @@ const ShipmentForm = (props) => {
                             <AddressFields
                               name="delivery.address"
                               locationLookup
-                              validateForm={validateForm}
                               formikProps={formikProps}
                               render={(fields) => (
                                 <>
@@ -1289,7 +1282,6 @@ const ShipmentForm = (props) => {
                                       <AddressFields
                                         name="secondaryDelivery.address"
                                         locationLookup
-                                        validateForm={validateForm}
                                         formikProps={formikProps}
                                       />
                                       {isTertiaryAddressEnabled && (
@@ -1326,7 +1318,6 @@ const ShipmentForm = (props) => {
                                             <AddressFields
                                               name="tertiaryDelivery.address"
                                               locationLookup
-                                              validateForm={validateForm}
                                               formikProps={formikProps}
                                             />
                                           )}
@@ -1421,7 +1412,6 @@ const ShipmentForm = (props) => {
                         name="pickup.address"
                         legend="Pickup Address"
                         locationLookup
-                        validateForm={validateForm}
                         formikProps={formikProps}
                         render={(fields) => (
                           <>
@@ -1468,7 +1458,6 @@ const ShipmentForm = (props) => {
                                 <AddressFields
                                   name="secondaryPickup.address"
                                   locationLookup
-                                  validateForm={validateForm}
                                   formikProps={formikProps}
                                 />
                                 {isTertiaryAddressEnabled && (
@@ -1506,7 +1495,6 @@ const ShipmentForm = (props) => {
                                       <AddressFields
                                         name="tertiaryPickup.address"
                                         locationLookup
-                                        validateForm={validateForm}
                                         formikProps={formikProps}
                                       />
                                     )}
@@ -1521,7 +1509,6 @@ const ShipmentForm = (props) => {
                         name="destination.address"
                         legend="Delivery Address"
                         locationLookup
-                        validateForm={validateForm}
                         formikProps={formikProps}
                         address1LabelHint="Optional"
                         render={(fields) => (
@@ -1561,7 +1548,6 @@ const ShipmentForm = (props) => {
                                 <AddressFields
                                   name="secondaryDestination.address"
                                   locationLookup
-                                  validateForm={validateForm}
                                   formikProps={formikProps}
                                 />
                                 {isTertiaryAddressEnabled && (
@@ -1599,7 +1585,6 @@ const ShipmentForm = (props) => {
                                       <AddressFields
                                         name="tertiaryDestination.address"
                                         locationLookup
-                                        validateForm={validateForm}
                                         formikProps={formikProps}
                                       />
                                     )}

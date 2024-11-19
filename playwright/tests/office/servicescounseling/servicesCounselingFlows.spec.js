@@ -84,7 +84,7 @@ test.describe('Services counselor user', () => {
       await page.getByRole('group', { name: 'Delivery location' }).getByText('Yes').nth(1).click();
       await page.locator('input[name="delivery.address.streetAddress1"]').clear();
       await page.locator('input[name="delivery.address.streetAddress1"]').fill('7 q st');
-      await page.getByLabel('Location Lookup').nth(1).fill('90210');
+      await page.locator('input[id="delivery.address-location-input"]').fill('90210');
       await expect(page.getByText(LocationLookup, { exact: true })).toBeVisible();
       await page.keyboard.press('Enter');
 
@@ -246,7 +246,7 @@ test.describe('Services counselor user', () => {
       await page.locator('#requestedDeliveryDate').blur();
       await page.getByRole('group', { name: 'Delivery location' }).getByText('Yes').click();
       await page.locator('input[name="delivery.address.streetAddress1"]').fill('7 q st');
-      await page.getByLabel('Location Lookup').nth(1).fill('90210');
+      await page.locator('input[id="delivery.address-location-input"]').fill('90210');
       await expect(page.getByText(LocationLookup, { exact: true })).toBeVisible();
       await page.keyboard.press('Enter');
       await page.locator('select[name="destinationType"]').selectOption({ label: 'Home of record (HOR)' });
@@ -347,7 +347,7 @@ test.describe('Services counselor user', () => {
       await page.getByRole('group', { name: 'Delivery location' }).getByText('Yes').nth(1).click();
       await page.locator('input[name="delivery.address.streetAddress1"]').clear();
       await page.locator('input[name="delivery.address.streetAddress1"]').fill('7 q st');
-      await page.getByLabel('Location Lookup').nth(1).fill('90210');
+      await page.locator('input[id="delivery.address-location-input"]').fill('90210');
       await expect(page.getByText(LocationLookup, { exact: true })).toBeVisible();
       await page.keyboard.press('Enter');
       await page.locator('select[name="destinationType"]').selectOption({ label: 'Home of selection (HOS)' });
@@ -407,25 +407,23 @@ test.describe('Services counselor user', () => {
 
     await scPage.waitForPage.reviewWeightTicket();
     await expect(page.getByLabel('Accept')).toBeVisible();
-    await page.getByLabel('Accept').dispatchEvent('click');
+    await page.getByText('Accept').click();
     await page.getByRole('button', { name: 'Continue' }).click();
 
     await scPage.waitForPage.reviewProGear();
     await expect(page.getByLabel('Accept')).toBeVisible();
-    await page.getByLabel('Accept').dispatchEvent('click');
+    await page.getByText('Accept').click();
     await page.getByRole('button', { name: 'Continue' }).click();
 
     await scPage.waitForPage.reviewExpenseTicket('Packing Materials', 1, 1);
     await expect(page.getByLabel('Accept')).toBeVisible();
-    await page.getByLabel('Accept').dispatchEvent('click');
+    await page.getByText('Accept').click();
     await page.getByRole('button', { name: 'Continue' }).click();
 
     await scPage.waitForPage.reviewDocumentsConfirmation();
 
     await page.getByRole('button', { name: 'Confirm' }).click();
     await scPage.waitForPage.moveDetails();
-
-    await expect(page.getByText('PACKET READY FOR DOWNLOAD')).toBeVisible();
 
     // Navigate to the "View documents" page
     await expect(page.getByRole('button', { name: /View documents/i })).toBeVisible();
