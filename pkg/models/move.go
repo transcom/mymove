@@ -196,6 +196,60 @@ func FetchMove(db *pop.Connection, session *auth.Session, id uuid.UUID) (*Move, 
 	return &move, nil
 }
 
+// getShipmentCountExcludingRejected returns the count of shipments for a move excluding rejected shipments
+func (m Move) getShipmentCountExcludingRejected(db *pop.Connection) int {
+	var count int
+	err := db.RawQuery(`
+		SELECT COUNT(*) FROM mto_shipments
+		WHERE move_id = ?
+			AND status != 'REJECTED'`,
+		m.ID).First(&count)
+	if err != nil {
+		return -1
+	}
+
+	return count
+}
+
+/*
+* FetchDestinationGBLOC returns the GBLOC of the destination address for the first shipment of a move.
+* If there are no shipments returned, it will return the GBLOC of the new duty station address.
+ */
+func (m Move) FetchDestinationGBLOC(db *pop.Connection) (string, error) {
+	var gbloc string
+	if m.getShipmentCountExcludingRejected(db) > 0 {
+		err := db.RawQuery(`
+			SELECT pctg.gbloc FROM postal_code_to_gblocs pctg
+				JOIN addresses a ON a.postal_code = pctg.postal_code
+				JOIN mto_shipments ms ON ms.destination_address_id = a.id
+			WHERE ms.move_id = ?
+				AND ms.status != 'REJECTED'
+				AND o.status != 'CANCELED'
+			ORDER BY ms.created_at
+			`, m.ID).First(&gbloc)
+		if err != nil {
+			return "", err
+		}
+
+		return gbloc, nil
+	}
+
+	err := db.RawQuery(`
+		SELECT pctg.gbloc FROM postal_code_to_gblocs pctg
+			JOIN addresses a ON a.postal_code = pctg.postal_code
+			JOIN duty_locations dl ON dl.address_id = a.id
+			JOIN orders o ON o.new_duty_location_id = dl.id
+			JOIN moves m ON m.orders_id = o.id
+		WHERE m.id = ?
+			AND o.status != 'CANCELED'
+		`, m.ID).First(&gbloc)
+	if err != nil {
+		return "", err
+	}
+
+	return gbloc, nil
+}
+
 // CreateSignedCertification creates a new SignedCertification associated with this move
 func (m Move) CreateSignedCertification(db *pop.Connection,
 	submittingUserID uuid.UUID,

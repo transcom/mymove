@@ -2236,20 +2236,21 @@ func QueueMoves(moves []models.Move, officeUsers []models.OfficeUser, requestedP
 			deptIndicator = ghcmessages.DeptIndicator(*move.Orders.DepartmentIndicator)
 		}
 
-		var gbloc string
+		var originGbloc string
 		if move.Status == models.MoveStatusNeedsServiceCounseling {
-			gbloc = swag.StringValue(move.Orders.OriginDutyLocationGBLOC)
+			originGbloc = swag.StringValue(move.Orders.OriginDutyLocationGBLOC)
 		} else if len(move.ShipmentGBLOC) > 0 && move.ShipmentGBLOC[0].GBLOC != nil {
 			// There is a Pop bug that prevents us from using a has_one association for
 			// Move.ShipmentGBLOC, so we have to treat move.ShipmentGBLOC as an array, even
 			// though there can never be more than one GBLOC for a move.
-			gbloc = swag.StringValue(move.ShipmentGBLOC[0].GBLOC)
+			originGbloc = swag.StringValue(move.ShipmentGBLOC[0].GBLOC)
 		} else {
 			// If the move's first shipment doesn't have a pickup address (like with an NTS-Release),
 			// we need to fall back to the origin duty location GBLOC.  If that's not available for
 			// some reason, then we should get the empty string (no GBLOC).
-			gbloc = swag.StringValue(move.Orders.OriginDutyLocationGBLOC)
+			originGbloc = swag.StringValue(move.Orders.OriginDutyLocationGBLOC)
 		}
+
 		var closeoutLocation string
 		if move.CloseoutOffice != nil {
 			closeoutLocation = move.CloseoutOffice.Name
@@ -2316,7 +2317,7 @@ func QueueMoves(moves []models.Move, officeUsers []models.OfficeUser, requestedP
 			ShipmentsCount:          int64(len(validMTOShipments)),
 			OriginDutyLocation:      DutyLocation(move.Orders.OriginDutyLocation),
 			DestinationDutyLocation: DutyLocation(&move.Orders.NewDutyLocation), // #nosec G601 new in 1.22.2
-			OriginGBLOC:             ghcmessages.GBLOC(gbloc),
+			OriginGBLOC:             ghcmessages.GBLOC(originGbloc),
 			PpmType:                 move.PPMType,
 			CloseoutInitiated:       handlers.FmtDateTimePtr(&closeoutInitiated),
 			CloseoutLocation:        &closeoutLocation,
@@ -2524,43 +2525,44 @@ func SearchMoves(appCtx appcontext.AppContext, moves models.Moves) *ghcmessages.
 			originGBLOC = swag.StringValue(move.Orders.OriginDutyLocationGBLOC)
 		}
 
-		var destinationGBLOC ghcmessages.GBLOC
-		var PostalCodeToGBLOC models.PostalCodeToGBLOC
+		// populates the destination gbloc of the move
+		var destinationGBLOC string
 		var err error
-		if numShipments > 0 && move.MTOShipments[0].DestinationAddress != nil {
-			PostalCodeToGBLOC, err = models.FetchGBLOCForPostalCode(appCtx.DB(), move.MTOShipments[0].DestinationAddress.PostalCode)
-		} else {
-			// If the move has no shipments or the shipment has no destination address fall back to the origin duty location GBLOC
-			PostalCodeToGBLOC, err = models.FetchGBLOCForPostalCode(appCtx.DB(), move.Orders.NewDutyLocation.Address.PostalCode)
-		}
-
+		destinationGBLOC, err = move.Orders.GetDestinationGBLOC(appCtx.DB())
 		if err != nil {
-			destinationGBLOC = *ghcmessages.NewGBLOC("")
-		} else if customer.Affiliation.String() == "MARINES" {
-			destinationGBLOC = ghcmessages.GBLOC("USMC/" + PostalCodeToGBLOC.GBLOC)
-		} else {
-			destinationGBLOC = ghcmessages.GBLOC(PostalCodeToGBLOC.GBLOC)
+			destinationGBLOC = ""
+		}
+		if len(destinationGBLOC) > 0 && customer.Affiliation.String() == "MARINES" {
+			destinationGBLOC = "USMC/" + destinationGBLOC
+		}
+		destinationGblocMessage := ghcmessages.GBLOC(destinationGBLOC)
+
+		// populates the destination postal code of the move
+		var destinationPostalCode string
+		destinationPostalCode, err = move.Orders.GetDestinationPostalCode(appCtx.DB())
+		if err != nil {
+			destinationPostalCode = ""
 		}
 
 		searchMoves[i] = &ghcmessages.SearchMove{
-			FirstName:                         customer.FirstName,
-			LastName:                          customer.LastName,
-			Edipi:                             customer.Edipi,
-			Emplid:                            customer.Emplid,
-			Branch:                            customer.Affiliation.String(),
-			Status:                            ghcmessages.MoveStatus(move.Status),
-			ID:                                *handlers.FmtUUID(move.ID),
-			Locator:                           move.Locator,
-			ShipmentsCount:                    int64(numShipments),
-			OriginDutyLocationPostalCode:      move.Orders.OriginDutyLocation.Address.PostalCode,
-			DestinationDutyLocationPostalCode: move.Orders.NewDutyLocation.Address.PostalCode,
-			OrderType:                         string(move.Orders.OrdersType),
-			RequestedPickupDate:               pickupDate,
-			RequestedDeliveryDate:             deliveryDate,
-			OriginGBLOC:                       ghcmessages.GBLOC(originGBLOC),
-			DestinationGBLOC:                  destinationGBLOC,
-			LockedByOfficeUserID:              handlers.FmtUUIDPtr(move.LockedByOfficeUserID),
-			LockExpiresAt:                     handlers.FmtDateTimePtr(move.LockExpiresAt),
+			FirstName:                    customer.FirstName,
+			LastName:                     customer.LastName,
+			Edipi:                        customer.Edipi,
+			Emplid:                       customer.Emplid,
+			Branch:                       customer.Affiliation.String(),
+			Status:                       ghcmessages.MoveStatus(move.Status),
+			ID:                           *handlers.FmtUUID(move.ID),
+			Locator:                      move.Locator,
+			ShipmentsCount:               int64(numShipments),
+			OriginDutyLocationPostalCode: move.Orders.OriginDutyLocation.Address.PostalCode,
+			DestinationPostalCode:        destinationPostalCode,
+			OrderType:                    string(move.Orders.OrdersType),
+			RequestedPickupDate:          pickupDate,
+			RequestedDeliveryDate:        deliveryDate,
+			OriginGBLOC:                  ghcmessages.GBLOC(originGBLOC),
+			DestinationGBLOC:             destinationGblocMessage,
+			LockedByOfficeUserID:         handlers.FmtUUIDPtr(move.LockedByOfficeUserID),
+			LockExpiresAt:                handlers.FmtDateTimePtr(move.LockExpiresAt),
 		}
 	}
 	return &searchMoves

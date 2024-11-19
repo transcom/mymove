@@ -7500,7 +7500,7 @@ definitions:
         title: ZIP
         example: '90210'
         pattern: ^(\d{5})$
-      destinationDutyLocationPostalCode:
+      destinationPostalCode:
         format: zip
         type: string
         title: ZIP

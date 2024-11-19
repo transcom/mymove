@@ -12888,15 +12888,15 @@ func init() {
         "branch": {
           "type": "string"
         },
-        "destinationDutyLocationPostalCode": {
+        "destinationGBLOC": {
+          "$ref": "#/definitions/GBLOC"
+        },
+        "destinationPostalCode": {
           "type": "string",
           "format": "zip",
           "title": "ZIP",
           "pattern": "^(\\d{5})$",
           "example": "90210"
-        },
-        "destinationGBLOC": {
-          "$ref": "#/definitions/GBLOC"
         },
         "edipi": {
           "type": "string",
@@ -29320,15 +29320,15 @@ func init() {
         "branch": {
           "type": "string"
         },
-        "destinationDutyLocationPostalCode": {
+        "destinationGBLOC": {
+          "$ref": "#/definitions/GBLOC"
+        },
+        "destinationPostalCode": {
           "type": "string",
           "format": "zip",
           "title": "ZIP",
           "pattern": "^(\\d{5})$",
           "example": "90210"
-        },
-        "destinationGBLOC": {
-          "$ref": "#/definitions/GBLOC"
         },
         "edipi": {
           "type": "string",

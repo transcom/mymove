@@ -327,9 +327,13 @@ func (suite *HandlerSuite) TestSearchMovesHandler() {
 		suite.NoError(payload.Validate(strfmt.Default))
 
 		payloadMove := *(*payload).SearchMoves[0]
+		moveDestinationPostalCode, errDestPostalCode := move.Orders.GetDestinationPostalCode(suite.DB())
+		suite.NoError(errDestPostalCode)
+		payloadDestinationPostalCode := payloadMove.DestinationPostalCode
+
 		suite.Equal(move.ID.String(), payloadMove.ID.String())
 		suite.Equal(*move.Orders.ServiceMember.Edipi, *payloadMove.Edipi)
-		suite.Equal(move.Orders.NewDutyLocation.Address.PostalCode, payloadMove.DestinationDutyLocationPostalCode)
+		suite.Equal(moveDestinationPostalCode, payloadDestinationPostalCode)
 		suite.Equal(move.Orders.OriginDutyLocation.Address.PostalCode, payloadMove.OriginDutyLocationPostalCode)
 		suite.Equal(ghcmessages.MoveStatusDRAFT, payloadMove.Status)
 		suite.Equal("ARMY", payloadMove.Branch)

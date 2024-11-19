@@ -1,6 +1,7 @@
 package models
 
 import (
+	"sort"
 	"time"
 
 	"github.com/gobuffalo/pop/v6"
@@ -326,6 +327,142 @@ func (o *Order) IsComplete() bool {
 	}
 
 	return true
+}
+
+// fetchAllShipmentsExcludingRejected returns all the shipments associated with an order excluding rejected shipments
+func (o Order) fetchAllShipmentsExcludingRejected(db *pop.Connection) (MTOShipments, error) {
+	// Since this requires looking up the order in the DB, the order must have an ID. This means, the order has to have been created first.
+	if uuid.UUID.IsNil(o.ID) {
+		return nil, errors.WithMessage(ErrInvalidOrderID, "You must created the order in the DB before fetching associated shipments.")
+	}
+
+	var err error
+	var shipments MTOShipments
+
+	err = db.Load(&o, "Moves")
+	if err != nil {
+		return nil, errors.WithMessage(err, "Could not load moves for order.")
+	}
+
+	for _, m := range o.Moves {
+		err = db.Load(&m, "MTOShipments")
+		if err != nil {
+			return nil, errors.WithMessage(err, "Could not load shipments for move "+m.ID.String())
+		}
+
+		for _, s := range m.MTOShipments {
+			if s.Status != MTOShipmentStatusRejected {
+				err = db.Load(&s, "CreatedAt", "PickupAddress", "DestinationAddress")
+				if err != nil {
+					return nil, errors.WithMessage(err, "Could not load shipment "+s.ID.String())
+				}
+				shipments = append(shipments, s)
+			}
+		}
+	}
+
+	sort.Slice(shipments, func(i, j int) bool {
+		return shipments[i].CreatedAt.Before(shipments[j].CreatedAt)
+	})
+
+	return shipments, nil
+}
+
+// GetFirstShipmentExcludingRejected returns the first shipment from all shipments associated with an order excluding rejected shipments
+func GetFirstShipmentExcludingRejected(db *pop.Connection, o *Order) (MTOShipment, error) {
+	// Since this requires looking up the order in the DB, the order must have an ID. This means, the order has to have been created first.
+	if uuid.UUID.IsNil(o.ID) {
+		return MTOShipment{}, errors.WithMessage(ErrInvalidOrderID, "You must created the order in the DB before getting the first shipment associated with the order.")
+	}
+
+	shipments, err := o.fetchAllShipmentsExcludingRejected(db)
+	if err != nil {
+		return MTOShipment{}, err
+	}
+
+	if len(shipments) < 1 {
+		return MTOShipment{}, errors.WithMessage(ErrSqlRecordNotFound, "No shipments found associated with order.")
+	}
+
+	return shipments[0], nil
+}
+
+/*
+* GetDestinationGBLOC returns the GBLOC of the destination address for the first shipment from all of
+* the moves that are associated with an order. If there are no shipments returned, it will return the
+* GBLOC of the new duty station address.
+ */
+func (o *Order) GetDestinationGBLOC(db *pop.Connection) (string, error) {
+	// Since this requires looking up the order in the DB, the order must have an ID. This means, the order has to have been created first.
+	if uuid.UUID.IsNil(o.ID) {
+		return "", errors.WithMessage(ErrInvalidOrderID, "You must created the order in the DB before getting the destination GBLOC.")
+	}
+
+	destinationPostalCode, err := o.GetDestinationPostalCode(db)
+	if err != nil {
+		return "", err
+	}
+
+	var destinationPostalCodeToGBLOC PostalCodeToGBLOC
+	destinationPostalCodeToGBLOC, err = FetchGBLOCForPostalCode(db, destinationPostalCode)
+	if err != nil {
+		return "", errors.WithMessage(err, "Could not fetch GBLOC for postal code "+destinationPostalCode)
+	}
+
+	return destinationPostalCodeToGBLOC.GBLOC, nil
+}
+
+/*
+* GetDestinationPostalCode returns the Postal Code of the destination address for the first shipment from all of
+* the moves that are associated with an order. If there are no shipments returned, it will return the
+* Postal Code of the new duty station address.
+ */
+func (o *Order) GetDestinationPostalCode(db *pop.Connection) (string, error) {
+	// Since this requires looking up the order in the DB, the order must have an ID. This means, the order has to have been created first.
+	if uuid.UUID.IsNil(o.ID) {
+		return "", errors.WithMessage(ErrInvalidOrderID, "You must created the order in the DB before getting the destination Postal Code.")
+	}
+
+	shipment, err := GetFirstShipmentExcludingRejected(db, o)
+	if err != nil {
+		if errors.Cause(err) == ErrSqlRecordNotFound {
+			err = db.Load(&o, "NewDutyLocation.Address.PostalCode")
+			if err != nil {
+				return "", errors.WithMessage(err, "Could not load new duty location address for order.")
+			}
+			return o.NewDutyLocation.Address.PostalCode, nil
+		}
+
+		return "", err
+	}
+
+	err = db.Load(&shipment, "DestinationAddress.PostalCode")
+	if err != nil {
+		return "", errors.WithMessage(err, "Could not load destination address for shipment.")
+	}
+
+	return shipment.DestinationAddress.PostalCode, nil
+}
+
+func (o *Order) UpdateDestinationGBLOC(db *pop.Connection) error {
+	// Since this requires looking up the order in the DB, the order must have an ID. This means, the order has to have been created first.
+	if uuid.UUID.IsNil(o.ID) {
+		return errors.WithMessage(ErrInvalidOrderID, "You must created the order in the DB before updating the destination GBLOC.")
+	}
+
+	destinationGBLOC, err := o.GetDestinationGBLOC(db)
+	if err != nil {
+		return errors.WithMessage(err, "Could not get destination GBLOC.")
+	}
+
+	o.DestinationGBLOC = &destinationGBLOC
+
+	err = db.UpdateColumns(&o, "destination_gbloc")
+	if err != nil {
+		return errors.WithMessage(err, "Could not save destination GBLOC.")
+	}
+
+	return nil
 }
 
 // IsCompleteForGBL checks if orders have all fields necessary to generate a GBL
