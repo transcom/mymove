@@ -4,7 +4,7 @@ CREATE TABLE IF NOT EXISTS re_fsc_multipliers (
     high_weight int              NOT NULL,
     multiplier  decimal          NOT NULL,
     created_at  timestamp        NOT NULL DEFAULT NOW(),
-    updated_at  timestamp        NOT NULL DEFAULT NOW(),
+    updated_at  timestamp        NOT NULL DEFAULT NOW()
 );
 
 COMMENT ON TABLE re_fsc_multipliers IS 'Stores data needed to needed to calculate FSC';
