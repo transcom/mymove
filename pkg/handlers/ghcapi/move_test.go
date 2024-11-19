@@ -401,12 +401,12 @@ func (suite *HandlerSuite) TestSearchMovesHandler() {
 				Model: models.Address{
 					PostalCode: "35023",
 				},
-				Type: &factory.Addresses.DeliveryAddress,
 			},
 		}, nil)
 		ppmShipment := factory.BuildPPMShipment(suite.DB(), []factory.Customization{
 			{
 				Model: &ppmDestinationAddress,
+				Type:  &factory.Addresses.DeliveryAddress,
 			},
 		}, nil)
 		destinationDutyLocationAddress := factory.BuildAddress(suite.DB(), []factory.Customization{
