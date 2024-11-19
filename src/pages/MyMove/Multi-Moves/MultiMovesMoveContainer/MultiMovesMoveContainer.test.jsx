@@ -82,7 +82,7 @@ describe('MultiMovesMoveContainer', () => {
     expect(goToMoveButtons).toHaveLength(2);
   });
 
-  it('renders correct shipment type headings for PPMs', async () => {
+  it('renders correct shipment type headings for all shipment types when expanded', async () => {
     render(
       <MockProviders>
         <MultiMovesMoveContainer moves={mockCurrentMoves} />
