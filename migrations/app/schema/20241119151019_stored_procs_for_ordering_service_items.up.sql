@@ -27,7 +27,7 @@ $$ LANGUAGE plpgsql;
 CREATE OR REPLACE PROCEDURE CreateApprovedServiceItemsForShipment(
     IN shipment_id UUID
 )
-AS $$
+AS '
 DECLARE
     s_type mto_shipment_type;
     m_code market_code_enum;
@@ -45,7 +45,7 @@ BEGIN
     WHERE ms.id = shipment_id;
 
     IF s_type IS NULL OR m_code IS NULL THEN
-        RAISE EXCEPTION 'Shipment with ID % not found or missing required details.', shipment_id;
+        RAISE EXCEPTION ''Shipment with ID % not found or missing required details.'', shipment_id;
     END IF;
 
     -- get the is_oconus values for both pickup and destination addresses - this determines POD/POE creation
@@ -65,7 +65,7 @@ BEGIN
             JOIN re_services rs ON rsi.service_id = rs.id
             WHERE rsi.shipment_type = s_type
               AND rsi.market_code = m_code
-              AND rs.code = 'PODFSC'
+              AND rs.code = ''PODFSC''
               AND rsi.is_auto_approved = true
         LOOP
             BEGIN
@@ -83,13 +83,13 @@ BEGIN
                     move_id,
                     service_item.re_service_id,
                     service_item.service_location,
-                    'APPROVED'::service_item_status,
+                    ''APPROVED''::service_item_status,
                     NOW(),
                     NOW()
                 );
             EXCEPTION
                 WHEN OTHERS THEN
-                    RAISE EXCEPTION 'Error creating PODFSC service item for shipment %: %', shipment_id, SQLERRM;
+                    RAISE EXCEPTION ''Error creating PODFSC service item for shipment %: %'', shipment_id, SQLERRM;
             END;
         END LOOP;
     ELSIF NOT is_pickup_oconus AND is_destination_oconus THEN
@@ -103,7 +103,7 @@ BEGIN
             JOIN re_services rs ON rsi.service_id = rs.id
             WHERE rsi.shipment_type = s_type
               AND rsi.market_code = m_code
-              AND rs.code = 'POEFSC'
+              AND rs.code = ''POEFSC''
               AND rsi.is_auto_approved = true
         LOOP
             BEGIN
@@ -121,17 +121,17 @@ BEGIN
                     move_id,
                     service_item.re_service_id,
                     service_item.service_location,
-                    'APPROVED'::service_item_status,
+                    ''APPROVED''::service_item_status,
                     NOW(),
                     NOW()
                 );
             EXCEPTION
                 WHEN OTHERS THEN
-                    RAISE EXCEPTION 'Error creating POEFSC service item for shipment %: %', shipment_id, SQLERRM;
+                    RAISE EXCEPTION ''Error creating POEFSC service item for shipment %: %'', shipment_id, SQLERRM;
             END;
         END LOOP;
     ELSE
-        RAISE EXCEPTION 'Invalid shipment direction for shipment %: Pickup is %CONUS, Destination is %CONUS.',
+        RAISE EXCEPTION ''Invalid shipment direction for shipment %: Pickup is %CONUS, Destination is %CONUS.'',
                          shipment_id, is_pickup_oconus, is_destination_oconus;
     END IF;
 
@@ -146,7 +146,7 @@ BEGIN
         WHERE rsi.shipment_type = s_type
           AND rsi.market_code = m_code
           AND rsi.is_auto_approved = true
-          AND rs.code NOT IN ('POEFSC', 'PODFSC')
+          AND rs.code NOT IN (''POEFSC'', ''PODFSC'')
     LOOP
         BEGIN
             INSERT INTO mto_service_items (
@@ -163,25 +163,26 @@ BEGIN
                 move_id,
                 service_item.re_service_id,
                 service_item.service_location,
-                'APPROVED'::service_item_status,
+                ''APPROVED''::service_item_status,
                 NOW(),
                 NOW()
             );
         EXCEPTION
             WHEN OTHERS THEN
-                RAISE EXCEPTION 'Error creating other service item for shipment %: %', shipment_id, SQLERRM;
+                RAISE EXCEPTION ''Error creating other service item for shipment %: %'', shipment_id, SQLERRM;
         END;
     END LOOP;
 END;
-$$ LANGUAGE plpgsql;
+'
+LANGUAGE plpgsql;
 
-CREATE
-OR REPLACE PROCEDURE CreateAccessorialServiceItems (
+
+CREATE OR REPLACE PROCEDURE CreateAccessorialServiceItems (
     IN shipment_id UUID,
     IN service_items JSONB[] -- Changed from TEXT[] to JSONB[]
-) AS $$
+) AS '
 DECLARE
-s_type mto_shipment_type;
+    s_type mto_shipment_type;
     m_code market_code_enum;
     move_id UUID;
     service_item RECORD;
@@ -194,7 +195,7 @@ BEGIN
     WHERE ms.id = shipment_id;
 
     IF s_type IS NULL OR m_code IS NULL THEN
-        RAISE EXCEPTION 'Shipment with ID % not found or missing required details.', shipment_id;
+        RAISE EXCEPTION ''Shipment with ID % not found or missing required details.'', shipment_id;
     END IF;
 
     -- loop through each provided service item JSON object
@@ -210,7 +211,7 @@ BEGIN
             JOIN re_services rs ON rsi.service_id = rs.id
             WHERE rsi.shipment_type = s_type
               AND rsi.market_code = m_code
-              AND rs.code = (item->>'code')::text
+              AND rs.code = (item->>''code'')::text
               AND rsi.is_auto_approved = false
         LOOP
             BEGIN
@@ -224,26 +225,25 @@ BEGIN
                     updated_at,
                     sit_entry_date,
                     sit_customer_contacted
-                    --and other sit related fields
                 )
                 VALUES (
                     shipment_id,
                     move_id,
                     service_item.re_service_id,
                     service_item.service_location,
-                    'SUBMITTED'::service_item_status,
+                    ''SUBMITTED''::service_item_status,
                     NOW(),
                     NOW(),
-                    (item->>'sit_entry_date')::date,
-                    (item->>'sit_customer_contacted')::date
-
+                    (item->>''sit_entry_date'')::date,
+                    (item->>''sit_customer_contacted'')::date
                 );
             EXCEPTION
                 WHEN OTHERS THEN
-                    RAISE EXCEPTION 'Error creating accessorial service item with code % for shipment %: %',
+                    RAISE EXCEPTION ''Error creating accessorial service item with code % for shipment %: %'',
                                 service_item.service_code, shipment_id, SQLERRM;
             END;
         END LOOP;
     END LOOP;
 END;
-$$ LANGUAGE plpgsql;
+'
+LANGUAGE plpgsql;
