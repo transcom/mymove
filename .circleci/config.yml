@@ -892,8 +892,7 @@ commands:
 
             make db_dev_create
             bin/milmove migrate
-            # Setup frontend dependency hosting
-            scripts/fetch-react-file-viewer-from-yarn
+
             # playwright tests DO NOT NEED SEED DATA
             bin/milmove serve 2>&1 | fmt
       - run:
@@ -1748,9 +1747,6 @@ jobs:
     steps:
       - checkout
       - restore_cache_for_go
-      - run:
-          name: Manually setup react-file-viewer dependency for the client
-          command: scripts/fetch-react-file-viewer-from-yarn
       # make -j 4 tells make to run 4 simultaneous builds
       - run: make -j 4 server_build build_tools
       - persist_to_workspace:
