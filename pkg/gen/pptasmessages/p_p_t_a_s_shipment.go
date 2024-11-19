@@ -101,7 +101,7 @@ type PPTASShipment struct {
 	// origin price
 	OriginPrice *float64 `json:"originPrice,omitempty"`
 
-	// LoaDocID in lines_of_accounting
+	// LoaInstlAcntgActID in lines_of_accounting
 	Paa *string `json:"paa,omitempty"`
 
 	// packing price
