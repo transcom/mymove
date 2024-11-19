@@ -12,7 +12,9 @@ import {
   SimpleFormIterator,
   BooleanInput,
   useDataProvider,
+  Button,
 } from 'react-admin';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { connect } from 'react-redux';
 
 import { RolesPrivilegesCheckboxInput } from 'scenes/SystemAdmin/shared/RolesPrivilegesCheckboxes';
@@ -90,18 +92,19 @@ const OfficeUserEdit = ({ adminUser }) => {
     }
 
     if (values?.transportationOfficeAssignments.length !== gblocs.size) {
-      errors.transportationOfficeAssignments = 'Transportation offices must be in different GBLOCs.';
+      errors.transportationOfficeAssignments = 'Each assigned transportation office must be in a different GBLOC.';
     }
 
     if (values?.transportationOfficeAssignments?.filter((toa) => toa.transportationOfficeId == null)?.length > 0) {
-      errors.transportationOfficeAssignments = 'Please select a transportation office.';
+      errors.transportationOfficeAssignments =
+        'At least one of your transportation office assigmnets is blank. Please select a transportation office or remove that assignment.';
     }
 
     return errors;
   };
 
   return (
-    <Edit>
+    <Edit mutationMode="pessimistic">
       <SimpleForm
         toolbar={<OfficeUserEditToolbar />}
         sx={{ '& .MuiInputBase-input': { width: 232 } }}
@@ -126,7 +129,43 @@ const OfficeUserEdit = ({ adminUser }) => {
         />
         <RolesPrivilegesCheckboxInput source="roles" adminUser={adminUser} />
         <ArrayInput source="transportationOfficeAssignments" label="Transportation Office Assignments (Maximum: 2)">
-          <SimpleFormIterator inline>
+          <SimpleFormIterator
+            inline
+            disableClear
+            disableReordering
+            addButton={
+              <Button
+                type="button"
+                size="extrasmall"
+                data-testid="addTransportationOfficeButton"
+                sx={{
+                  backgroundColor: '#1976d2',
+                  '&:hover': {
+                    backgroundColor: '#1565c0',
+                  },
+                  color: 'white',
+                }}
+                label="Add transportation office assignment"
+              />
+            }
+            removeButton={
+              <Button
+                type="button"
+                size="extrasmall"
+                data-testid="removeTransportationOfficeButton"
+                sx={{
+                  backgroundColor: '#e1400a',
+                  '&:hover': {
+                    backgroundColor: '#d23c0f',
+                  },
+                  color: 'white',
+                }}
+                label="remove"
+              >
+                <FontAwesomeIcon icon="trash" />
+              </Button>
+            }
+          >
             <ReferenceInput
               label="Transportation Office"
               reference="offices"
