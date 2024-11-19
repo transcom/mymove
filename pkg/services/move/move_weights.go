@@ -132,8 +132,26 @@ func (w moveWeights) CheckExcessWeight(appCtx appcontext.AppContext, moveID uuid
 		}
 	}
 
+	// Checking for excess weight for ubShipments. When primeEstmiatedWeight or primeActualWeight is within 10% or greater of the baggage allowance, Then the move is placed in approvals requested status
+	ubHasExecessWeight := false
+	if updatedShipment.ShipmentType == models.MTOShipmentTypeUnaccompaniedBaggage && move.Orders.Entitlement.UBAllowance != nil {
+		ubExcessPrimeEstimatedWeight := false
+		if updatedShipment.PrimeEstimatedWeight != nil {
+			ubExcessPrimeEstimatedWeight = float64(*move.Orders.Entitlement.UBAllowance)*RiskOfExcessThreshold <= float64(*updatedShipment.PrimeEstimatedWeight)
+		}
+
+		ubExcessPrimeActualWeight := false
+		if updatedShipment.PrimeActualWeight != nil {
+			ubExcessPrimeActualWeight = float64(*move.Orders.Entitlement.UBAllowance)*RiskOfExcessThreshold <= float64(*updatedShipment.PrimeActualWeight)
+		}
+
+		if ubExcessPrimeEstimatedWeight || ubExcessPrimeActualWeight {
+			ubHasExecessWeight = true
+		}
+	}
+
 	// may need to take into account floating point precision here but should be dealing with whole numbers
-	if int(float32(weight)*RiskOfExcessThreshold) <= estimatedWeightTotal {
+	if int(float32(weight)*RiskOfExcessThreshold) <= estimatedWeightTotal || ubHasExecessWeight {
 		excessWeightQualifiedAt := time.Now()
 		move.ExcessWeightQualifiedAt = &excessWeightQualifiedAt
 

@@ -148,6 +148,9 @@ export const MoveTaskOrder = (props) => {
   const order = Object.values(orders)?.[0];
   const nonPPMShipments = mtoShipments?.filter((shipment) => shipment.shipmentType !== 'PPM');
   const onlyPPMShipments = mtoShipments?.filter((shipment) => shipment.shipmentType === 'PPM');
+  const ubShipments = mtoShipments?.filter(
+    (shipment) => shipment.shipmentType === SHIPMENT_OPTIONS.UNACCOMPANIED_BAGGAGE,
+  );
 
   const shipmentServiceItems = useMemo(() => {
     const serviceItemsForShipment = {};
@@ -841,7 +844,34 @@ export const MoveTaskOrder = (props) => {
     let excessBillableWeightCount = 0;
     const riskOfExcessAcknowledged = !!move?.excess_weight_acknowledged_at;
 
-    if (hasRiskOfExcess(estimatedWeightTotal, order?.entitlement.totalWeight) && !riskOfExcessAcknowledged) {
+    let ubShipmentExcessWeight = false;
+    if (ubShipments?.length > 0) {
+      ubShipments.forEach((shipment) => {
+        let primeEstimatedWeightExcess = false;
+        let primeActualWeightExcess = false;
+
+        if (shipment.primeEstimatedWeight) {
+          primeEstimatedWeightExcess = hasRiskOfExcess(
+            shipment.primeEstimatedWeight,
+            order.entitlement.unaccompaniedBaggageAllowance,
+          );
+        }
+        if (shipment.primeActualWeight) {
+          primeActualWeightExcess = hasRiskOfExcess(
+            shipment.primeActualWeight,
+            order.entitlement.unaccompaniedBaggageAllowance,
+          );
+        }
+        if (primeEstimatedWeightExcess || primeActualWeightExcess) {
+          ubShipmentExcessWeight = true;
+        }
+      });
+    }
+
+    if (
+      hasRiskOfExcess(estimatedWeightTotal, order?.entitlement.totalWeight) ||
+      (ubShipments?.length > 0 && ubShipmentExcessWeight && !riskOfExcessAcknowledged)
+    ) {
       excessBillableWeightCount = 1;
       setExcessWeightRiskCount(1);
     } else {
@@ -862,6 +892,8 @@ export const MoveTaskOrder = (props) => {
     setEstimatedNTSWeightTotal,
     setEstimatedNTSReleaseWeightTotal,
     setExcessWeightRiskCount,
+    ubShipments,
+    order,
   ]);
 
   /* ------------------ Update SIT extension counts ------------------------- */

@@ -52,6 +52,67 @@ func (suite *MoveServiceSuite) TestExcessWeight() {
 		suite.NotNil(approvedMove.ExcessWeightQualifiedAt)
 	})
 
+	suite.Run("qualifies move for excess weight when an approved UB shipment estimated weight is updated within threshold", func() {
+		dependentsAuthorized := true
+		dependentsUnderTwelve := 1
+		dependentsOverTwelve := 2
+		ubAllowance := 2000
+		primeEstimatedWeight := 1833
+
+		order := factory.BuildOrder(suite.DB(), []factory.Customization{
+			{
+				Model: models.Entitlement{
+					ID:                      uuid.Must(uuid.NewV4()),
+					ProGearWeight:           200,
+					UBAllowance:             &ubAllowance,
+					DependentsAuthorized:    &dependentsAuthorized,
+					DependentsUnderTwelve:   &dependentsUnderTwelve,
+					DependentsTwelveAndOver: &dependentsOverTwelve,
+				},
+			},
+		}, nil)
+
+		move := factory.BuildAvailableToPrimeMove(suite.DB(), []factory.Customization{
+			{
+				Model:    order,
+				LinkOnly: true,
+			},
+		}, nil)
+
+		now := time.Now()
+		pickupDate := now.AddDate(0, 0, 10)
+		approvedShipment := factory.BuildMTOShipmentMinimal(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					Status:               models.MTOShipmentStatusApproved,
+					ApprovedDate:         &now,
+					ScheduledPickupDate:  &pickupDate,
+					ShipmentType:         models.MTOShipmentTypeUnaccompaniedBaggage,
+					PrimeEstimatedWeight: (*unit.Pound)(&primeEstimatedWeight),
+				},
+			},
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+		}, nil)
+
+		updatedMove, verrs, err := moveWeights.CheckExcessWeight(suite.AppContextForTest(), move.ID, approvedShipment)
+
+		suite.NotNil(updatedMove)
+
+		suite.Nil(verrs)
+		suite.NoError(err)
+
+		suite.Nil(move.ExcessWeightQualifiedAt)
+		suite.NotNil(updatedMove.ExcessWeightQualifiedAt)
+
+		// refetch the move from the database not just the return value
+		err = suite.DB().Reload(&move)
+		suite.NoError(err)
+		suite.NotNil(move.ExcessWeightQualifiedAt)
+	})
+
 	suite.Run("does not flag move for excess weight when an approved shipment estimated weight is lower than threshold", func() {
 		approvedMove := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
 		now := time.Now()

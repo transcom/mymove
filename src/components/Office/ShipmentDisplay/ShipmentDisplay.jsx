@@ -188,6 +188,7 @@ ShipmentDisplay.propTypes = {
     SHIPMENT_TYPES.BOAT_HAUL_AWAY,
     SHIPMENT_TYPES.BOAT_TOW_AWAY,
     SHIPMENT_OPTIONS.MOBILE_HOME,
+    SHIPMENT_OPTIONS.UNACCOMPANIED_BAGGAGE,
   ]),
   displayInfo: PropTypes.oneOfType([
     PropTypes.shape({

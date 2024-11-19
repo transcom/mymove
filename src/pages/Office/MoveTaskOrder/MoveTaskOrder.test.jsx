@@ -18,6 +18,7 @@ import {
   sitExtensionApproved,
   allApprovedExternalVendorMTOQuery,
   riskOfExcessWeightQueryExternalShipment,
+  riskOfExcessWeightQueryExternalUBShipment,
   multiplePaymentRequests,
   moveHistoryTestData,
   actualPPMWeightQuery,
@@ -441,6 +442,25 @@ describe('MoveTaskOrder', () => {
       expect(riskOfExcessTag).toBeInTheDocument();
       const externalVendorShipmentCount = await screen.getByText(/1 shipment not moved by GHC prime./);
       expect(externalVendorShipmentCount).toBeInTheDocument();
+    });
+
+    it('displays risk of excess tag when a move has excess ub shipment weight', async () => {
+      useMoveTaskOrderQueries.mockReturnValue(riskOfExcessWeightQueryExternalUBShipment);
+
+      render(
+        <MockProviders>
+          <MoveTaskOrder
+            {...requiredProps}
+            setUnapprovedShipmentCount={setUnapprovedShipmentCount}
+            setUnapprovedServiceItemCount={setUnapprovedServiceItemCount}
+            setExcessWeightRiskCount={setExcessWeightRiskCount}
+            setUnapprovedSITExtensionCount={setUnapprovedSITExtensionCount}
+          />
+        </MockProviders>,
+      );
+
+      const riskOfExcessTag = await screen.getByText(/Risk of excess/);
+      expect(riskOfExcessTag).toBeInTheDocument();
     });
   });
 
