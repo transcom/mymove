@@ -5,12 +5,14 @@ export const SimpleAddressShape = shape({
   city: string,
   state: string,
   postalCode: string,
+  usprcId: string,
 });
 
 export const MandatorySimpleAddressShape = shape({
   city: string.isRequired,
   state: string.isRequired,
   postalCode: string.isRequired,
+  usprcId: string,
 });
 
 export const AddressShape = shape({
@@ -21,6 +23,7 @@ export const AddressShape = shape({
   streetAddress2: string,
   streetAddress3: string,
   country: string,
+  usprcId: string,
 });
 
 export const ResidentialAddressShape = shape({
@@ -29,6 +32,7 @@ export const ResidentialAddressShape = shape({
   city: string,
   state: string,
   postalCode: string,
+  usprcId: string,
 });
 
 export const W2AddressShape = shape({
@@ -37,4 +41,5 @@ export const W2AddressShape = shape({
   city: string,
   state: string,
   postalCode: string,
+  usprcId: string,
 });

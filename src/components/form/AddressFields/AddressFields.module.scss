@@ -1,0 +1,33 @@
+@import '../../../shared/styles/basics';
+
+.hint {
+  margin-top: 1em;
+  @media (max-width: 840px) {
+    margin-bottom: 1.5em;
+  }
+  flex-grow: 1;
+}
+
+.hintError {
+  margin-top: 1em;
+  @media (max-width: 840px) {
+    margin-bottom: 1.5em;
+  }
+  flex-grow: 1;
+  color: red;
+}
+
+.countyInput {
+  @media (max-width: 840px) {
+    margin-bottom: 1.5rem;
+  }
+}
+
+.label {
+  @media (max-width: 840px) {
+    margin-bottom: 1.5rem;
+  }
+  margin-top: 1em;
+  font-size: 16px;
+  flex-grow: 1;
+}

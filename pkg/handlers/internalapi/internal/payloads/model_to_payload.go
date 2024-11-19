@@ -657,3 +657,28 @@ func SignedCertification(signedCertification *models.SignedCertification) *inter
 
 	return model
 }
+
+// VLocation payload
+func VLocation(vLocation *models.VLocation) *internalmessages.VLocation {
+	if vLocation == nil || *vLocation == (models.VLocation{}) {
+		return nil
+	}
+
+	return &internalmessages.VLocation{
+		City:                 vLocation.CityName,
+		State:                vLocation.StateName,
+		PostalCode:           vLocation.UsprZipID,
+		County:               &vLocation.UsprcCountyNm,
+		UsPostRegionCitiesID: *handlers.FmtUUID(*vLocation.UprcId),
+	}
+}
+
+// VLocations payload
+func VLocations(vLocations models.VLocations) internalmessages.VLocations {
+	payload := make(internalmessages.VLocations, len(vLocations))
+	for i, vLocation := range vLocations {
+		copyOfVLocation := vLocation
+		payload[i] = VLocation(&copyOfVLocation)
+	}
+	return payload
+}

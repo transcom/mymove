@@ -21,15 +21,35 @@ func AddressModel(address *internalmessages.Address) *models.Address {
 	if address.County == nil {
 		address.County = models.StringPointer("")
 	}
+
+	usprcID := uuid.FromStringOrNil(address.UsprcID.String())
+
 	return &models.Address{
-		ID:             uuid.FromStringOrNil(address.ID.String()),
-		StreetAddress1: *address.StreetAddress1,
-		StreetAddress2: address.StreetAddress2,
-		StreetAddress3: address.StreetAddress3,
-		City:           *address.City,
-		State:          *address.State,
-		PostalCode:     *address.PostalCode,
-		County:         *address.County,
+		ID:                 uuid.FromStringOrNil(address.ID.String()),
+		StreetAddress1:     *address.StreetAddress1,
+		StreetAddress2:     address.StreetAddress2,
+		StreetAddress3:     address.StreetAddress3,
+		City:               *address.City,
+		State:              *address.State,
+		PostalCode:         *address.PostalCode,
+		County:             *address.County,
+		UsPostRegionCityId: &usprcID,
+	}
+}
+
+func VLocationModel(vLocation *internalmessages.VLocation) *models.VLocation {
+	if vLocation == nil {
+		return nil
+	}
+
+	usprcID := uuid.FromStringOrNil(vLocation.UsPostRegionCitiesID.String())
+
+	return &models.VLocation{
+		CityName:      vLocation.City,
+		StateName:     vLocation.State,
+		UsprZipID:     vLocation.PostalCode,
+		UsprcCountyNm: *vLocation.County,
+		UprcId:        &usprcID,
 	}
 }
 

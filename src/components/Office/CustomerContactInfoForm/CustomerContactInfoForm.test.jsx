@@ -1,10 +1,28 @@
 import React from 'react';
 import { render, waitFor, screen } from '@testing-library/react';
-// import userEvent from '@testing-library/user-event';
+import { Provider } from 'react-redux';
 
 import CustomerContactInfoForm from './CustomerContactInfoForm';
 
+import { roleTypes } from 'constants/userRoles';
+import { configureStore } from 'shared/store';
+
 describe('CustomerContactInfoForm Component', () => {
+  const loggedInTOOState = {
+    auth: {
+      activeRole: roleTypes.TOO,
+      isLoading: false,
+      isLoggedIn: true,
+    },
+    entities: {
+      user: {
+        userId234: {
+          id: 'userId234',
+          roles: [{ roleType: roleTypes.TIO }],
+        },
+      },
+    },
+  };
   const initialValues = {
     firstName: '',
     middleName: '',
@@ -43,6 +61,7 @@ describe('CustomerContactInfoForm Component', () => {
       city: 'Missoula',
       state: 'MT',
       postalCode: '59802',
+      county: 'MISSOULA',
     },
     name: 'joe bob',
     telephone: '855-222-1111',
@@ -56,7 +75,14 @@ describe('CustomerContactInfoForm Component', () => {
   };
 
   it('renders the form inputs', async () => {
-    render(<CustomerContactInfoForm {...testProps} />);
+    const mockStore = configureStore({
+      ...loggedInTOOState,
+    });
+    render(
+      <Provider store={mockStore.store}>
+        <CustomerContactInfoForm {...testProps} />
+      </Provider>,
+    );
 
     await waitFor(() => {
       expect(screen.getByText('Contact info')).toBeInstanceOf(HTMLHeadingElement);
@@ -82,9 +108,9 @@ describe('CustomerContactInfoForm Component', () => {
       expect(screen.getByText('Current Address')).toBeInstanceOf(HTMLHeadingElement);
       expect(screen.getByDisplayValue('123 Happy St')).toBeInstanceOf(HTMLInputElement);
       expect(screen.getByDisplayValue('Unit 4')).toBeInstanceOf(HTMLInputElement);
-      expect(screen.getByDisplayValue('Missoula')).toBeInstanceOf(HTMLInputElement);
-      expect(screen.getByDisplayValue('MT')).toBeInstanceOf(HTMLSelectElement);
-      expect(screen.getByDisplayValue('59802')).toBeInstanceOf(HTMLInputElement);
+      expect(screen.getByText('Missoula')).toBeInstanceOf(HTMLLabelElement);
+      expect(screen.getByText('MT')).toBeInstanceOf(HTMLLabelElement);
+      expect(screen.getByText('59802')).toBeInstanceOf(HTMLLabelElement);
 
       expect(screen.getByLabelText('Name')).toBeInstanceOf(HTMLInputElement);
       expect(screen.getAllByLabelText('Phone')[1]).toBeInstanceOf(HTMLInputElement);
@@ -105,7 +131,14 @@ describe('CustomerContactInfoForm Component', () => {
   });
 
   it('does not allow submission without cac_validated value', async () => {
-    render(<CustomerContactInfoForm {...testPropsCacValidated} />);
+    const mockStore = configureStore({
+      ...loggedInTOOState,
+    });
+    render(
+      <Provider store={mockStore.store}>
+        <CustomerContactInfoForm {...testPropsCacValidated} />
+      </Provider>,
+    );
 
     await waitFor(() => {
       expect(screen.getByText('CAC Validation')).toBeInstanceOf(HTMLHeadingElement);

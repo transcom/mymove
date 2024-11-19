@@ -41,12 +41,13 @@ const CustomerContactInfoForm = ({ initialValues, onSubmit, onBack }) => {
     emailIsPreferred: Yup.boolean(),
     cacUser: Yup.boolean().required('Required'),
   });
+
   return (
     <Grid row>
       <Grid col>
         <div className={styles.customerContactForm}>
           <Formik initialValues={initialValues} onSubmit={onSubmit} validationSchema={validationSchema} validateOnMount>
-            {({ isValid, handleSubmit }) => {
+            {({ isValid, handleSubmit, values, ...formikProps }) => {
               return (
                 <Form className={formStyles.form}>
                   <SectionWrapper className={`${formStyles.formSection} ${styles.formSectionHeader}`}>
@@ -65,9 +66,9 @@ const CustomerContactInfoForm = ({ initialValues, onSubmit, onBack }) => {
                       )}
                     />
                     <h3 className={styles.sectionHeader}>Current Address</h3>
-                    <AddressFields name="customerAddress" />
+                    <AddressFields name="customerAddress" locationLookup formikProps={formikProps} />
                     <h3 className={styles.sectionHeader}>Backup Address</h3>
-                    <AddressFields name="backupAddress" />
+                    <AddressFields name="backupAddress" locationLookup formikProps={formikProps} />
                   </SectionWrapper>
                   <SectionWrapper className={`${formStyles.formSection} ${styles.formSectionHeader}`}>
                     <h2 className={styles.sectionHeader}>Backup contact</h2>
