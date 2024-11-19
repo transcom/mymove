@@ -226,7 +226,9 @@ executors:
     # maybe don't need xlarge, but getting many timeouts with large
     # ahobson - 2023-02-07
     resource_class: xlarge
-    working_directory: ~/transcom/mymove
+    # project holds the root of transcom/mymove
+    # eg, circleci/project/pkg/handlers <- API location
+    working_directory: ~/project
     docker:
       - image: *playwright
         auth:
@@ -803,6 +805,16 @@ commands:
       - restore_cache:
           keys:
             - v4-cache-yarn-v4-{{ checksum "yarn.lock" }}
+      - run:
+          name: Verify react-file-viewer exists
+          command: |
+            if [ ! -d "/home/circleci/project/public/static/react-file-viewer" ]; then
+              echo "Error: /home/circleci/project/public/static/react-file-viewer not found, the server will not be able to serve frontend dependencies"
+              exit 1
+            fi
+      - run:
+          name: What is here
+          command: ls
       - run:
           name: setup hosts
           command: |
@@ -1383,13 +1395,6 @@ jobs:
     executor: milmove_playwright_tester
     parallelism: 10
     steps:
-      - run:
-          name: Verify react-file-viewer exists
-          command: |
-            if [ ! -d "public/static/react-file-viewer" ]; then
-              echo "Error: public/static/react-file-viewer not found, the server will not be able to serve frontend dependencies"
-              exit 1
-            fi
       - e2e_tests_playwright:
           path: playwright/tests/office
       - announce_failure
