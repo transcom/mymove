@@ -2619,6 +2619,30 @@ func SearchCustomers(customers models.ServiceMemberSearchResults) *ghcmessages.S
 	return &searchCustomers
 }
 
+// ReServiceItem payload
+func ReServiceItem(reServiceItem *models.ReServiceItem) *ghcmessages.ReServiceItem {
+	if reServiceItem == nil || *reServiceItem == (models.ReServiceItem{}) {
+		return nil
+	}
+	return &ghcmessages.ReServiceItem{
+		IsAutoApproved: reServiceItem.IsAutoApproved,
+		MarketCode:     string(reServiceItem.MarketCode),
+		ServiceCode:    string(reServiceItem.ReService.Code),
+		ShipmentType:   string(reServiceItem.ShipmentType),
+		ServiceName:    reServiceItem.ReService.Name,
+	}
+}
+
+// ReServiceItems payload
+func ReServiceItems(reServiceItems models.ReServiceItems) ghcmessages.ReServiceItems {
+	payload := make(ghcmessages.ReServiceItems, len(reServiceItems))
+	for i, reServiceItem := range reServiceItems {
+		copyOfReServiceItem := reServiceItem
+		payload[i] = ReServiceItem(&copyOfReServiceItem)
+	}
+	return payload
+}
+
 // VLocation payload
 func VLocation(vLocation *models.VLocation) *ghcmessages.VLocation {
 	if vLocation == nil {
