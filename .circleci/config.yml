@@ -1759,6 +1759,8 @@ jobs:
             # save scripts for deploy
             - scripts
             - swagger
+            # Client dependency for PDF enabling
+            - public/static/react-file-viewer
             - pkg/testdatagen/testdata
       - announce_failure
 
