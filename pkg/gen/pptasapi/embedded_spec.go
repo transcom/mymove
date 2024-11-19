@@ -694,7 +694,7 @@ func init() {
           "x-nullable": true
         },
         "paa": {
-          "description": "LoaDocID in lines_of_accounting",
+          "description": "LoaInstlAcntgActID in lines_of_accounting",
           "type": "string",
           "x-nullable": true
         },
@@ -1583,7 +1583,7 @@ func init() {
           "x-nullable": true
         },
         "paa": {
-          "description": "LoaDocID in lines_of_accounting",
+          "description": "LoaInstlAcntgActID in lines_of_accounting",
           "type": "string",
           "x-nullable": true
         },
