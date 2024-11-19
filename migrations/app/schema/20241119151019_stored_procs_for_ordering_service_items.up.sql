@@ -176,17 +176,23 @@ END;
 '
 LANGUAGE plpgsql;
 
+CREATE TYPE mto_service_item_type AS (
+    code TEXT,
+    sit_entry_date DATE,
+    sit_customer_contacted DATE,
+    reason TEXT
+);
 
 CREATE OR REPLACE PROCEDURE CreateAccessorialServiceItems (
     IN shipment_id UUID,
-    IN service_items JSONB[] -- Changed from TEXT[] to JSONB[]
+    IN service_items mto_service_item_type[]
 ) AS '
 DECLARE
     s_type mto_shipment_type;
     m_code market_code_enum;
     move_id UUID;
     service_item RECORD;
-    item JSONB;
+    item mto_service_item_type;
 BEGIN
     -- get the shipment type, market code, and move_id based on shipment_id
     SELECT ms.shipment_type, ms.market_code, ms.move_id
@@ -198,7 +204,7 @@ BEGIN
         RAISE EXCEPTION ''Shipment with ID % not found or missing required details.'', shipment_id;
     END IF;
 
-    -- loop through each provided service item JSON object
+    -- loop through each provided service item  object
     FOREACH item IN ARRAY service_items
     LOOP
         FOR service_item IN
@@ -224,7 +230,8 @@ BEGIN
                     created_at,
                     updated_at,
                     sit_entry_date,
-                    sit_customer_contacted
+                    sit_customer_contacted,
+                    reason
                 )
                 VALUES (
                     shipment_id,
@@ -235,7 +242,8 @@ BEGIN
                     NOW(),
                     NOW(),
                     (item->>''sit_entry_date'')::date,
-                    (item->>''sit_customer_contacted'')::date
+                    (item->>''sit_customer_contacted'')::date,
+                    (item->>''reason'')::text
                 );
             EXCEPTION
                 WHEN OTHERS THEN
