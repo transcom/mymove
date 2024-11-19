@@ -321,6 +321,7 @@ func SumWeightTickets(ppmShipment, newPPMShipment models.PPMShipment) (originalT
 func (f estimatePPM) calculatePrice(appCtx appcontext.AppContext, ppmShipment *models.PPMShipment, totalWeightFromWeightTickets unit.Pound, contract models.ReContract) (*unit.Cents, error) {
 	logger := appCtx.Logger()
 
+	zeroTotal := false
 	serviceItemsToPrice := BaseServiceItems(ppmShipment.ShipmentID)
 
 	// Replace linehaul pricer with shorthaul pricer if move is within the same Zip3
@@ -424,11 +425,20 @@ func (f estimatePPM) calculatePrice(appCtx appcontext.AppContext, ppmShipment *m
 		logger.Debug(fmt.Sprintf("Payment service item params %+v", paymentParams))
 
 		if err != nil {
-			logger.Error("unable to calculate service item price", zap.Error(err))
-			return nil, err
+			if appCtx.Session().IsServiceMember() && ppmShipment.Shipment.Distance != nil && *ppmShipment.Shipment.Distance == unit.Miles(0) {
+				zeroTotal = true
+			} else {
+				logger.Error("unable to calculate service item price", zap.Error(err))
+				return nil, err
+			}
 		}
 
 		totalPrice = totalPrice.AddCents(centsValue)
+	}
+
+	if zeroTotal {
+		totalPrice = unit.Cents(0)
+		return &totalPrice, nil
 	}
 
 	return &totalPrice, nil
