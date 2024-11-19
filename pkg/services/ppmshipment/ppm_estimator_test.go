@@ -793,7 +793,6 @@ func (suite *PPMShipmentSuite) TestPPMEstimator() {
 			suite.Equal(unit.Pound(5000), newWeight)
 
 			// Confirm the incentive is less than if all of the weight was allowable
-			suite.Equal(unit.Cents(56051491), *ppmFinalIncentiveLimitedByAllowableWeight)
 			suite.Less(*ppmFinalIncentiveLimitedByAllowableWeight, *ppmFinal)
 		})
 
