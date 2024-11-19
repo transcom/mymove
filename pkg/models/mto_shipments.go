@@ -360,3 +360,12 @@ func DetermineMarketCode(address1 *Address, address2 *Address) (MarketCode, erro
 		return MarketCodeInternational, nil
 	}
 }
+
+func CreateApprovedServiceItemsForShipment(db *pop.Connection, shipment *MTOShipment) error {
+	err := db.RawQuery("CALL createapprovedserviceitemsforshipment($1)", shipment.ID).Exec()
+	if err != nil {
+		return fmt.Errorf("error creating approved service items: %w", err)
+	}
+
+	return nil
+}
