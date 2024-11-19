@@ -54,6 +54,10 @@ func NewTPPSPaidInvoiceReportProcessor() services.SyncadaFileProcessor {
 
 // ProcessFile parses a TPPS paid invoice report response and updates the payment request status
 func (t *tppsPaidInvoiceReportProcessor) ProcessFile(appCtx appcontext.AppContext, TPPSPaidInvoiceReportFilePath string, stringTPPSPaidInvoiceReport string) error {
+
+	if TPPSPaidInvoiceReportFilePath == "" {
+		appCtx.Logger().Info("No valid filepath found to process TPPS Paid Invoice Report", zap.String("TPPSPaidInvoiceReportFilePath", TPPSPaidInvoiceReportFilePath))
+	}
 	tppsPaidInvoiceReport := tppsReponse.TPPSData{}
 
 	tppsData, err := tppsPaidInvoiceReport.Parse(TPPSPaidInvoiceReportFilePath, "")
@@ -118,6 +122,8 @@ func (t *tppsPaidInvoiceReportProcessor) ProcessFile(appCtx appcontext.AppContex
 			return transactionError
 		}
 		return nil
+	} else {
+		appCtx.Logger().Info("No TPPS Paid Invoice Report data was parsed, so no data was stored in the database")
 	}
 
 	return nil

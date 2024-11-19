@@ -25,7 +25,6 @@ const (
 )
 
 // Call this from the command line with go run ./cmd/milmove-tasks process-tpps
-
 func checkProcessTPPSConfig(v *viper.Viper, logger *zap.Logger) error {
 	logger.Debug("checking config for process-tpps")
 
@@ -38,15 +37,6 @@ func checkProcessTPPSConfig(v *viper.Viper, logger *zap.Logger) error {
 	if err != nil {
 		return err
 	}
-
-	// err = cli.CheckTPPSSFTP(v)
-	// if err != nil {
-	// 	return err
-	// }
-
-	// if err := cli.CheckSFTP(v); err != nil {
-	// 	return err
-	// }
 
 	if err := cli.CheckCert(v); err != nil {
 		return err
@@ -62,21 +52,13 @@ func initProcessTPPSFlags(flag *pflag.FlagSet) {
 	// DB Config
 	cli.InitDatabaseFlags(flag)
 
-	// TPPS SFTP
-	// cli.InitTPPSFlags(flag)
-
 	// Certificate
 	cli.InitCertFlags(flag)
 
 	// Entrust Certificates
 	cli.InitEntrustCertFlags(flag)
 
-	// TPPS SFTP Config
-	// cli.InitTPPSSFTPFlags(flag)
-
-	// maria not even sure I need this
-	flag.String(ProcessTPPSLastReadTimeFlag, "", "Files older than this RFC3339 time will not be fetched.")
-	// flag.Bool(ProcessTPPSDeleteFilesFlag, false, "If present, delete files on SFTP server that have been processed successfully")
+	cli.InitTPPSSFTPFlags(flag)
 
 	// Don't sort flags
 	flag.SortFlags = false
@@ -128,8 +110,6 @@ func processTPPS(_ *cobra.Command, _ []string) error {
 
 	appCtx := appcontext.NewAppContext(dbConnection, logger, nil)
 	dbEnv := v.GetString(cli.DbEnvFlag)
-	// tppsURL := v.GetString(cli.TPPSURLFlag)
-	// logger.Info(fmt.Sprintf("TPPS URL is %v", tppsURL))
 
 	isDevOrTest := dbEnv == "experimental" || dbEnv == "development" || dbEnv == "test"
 	if isDevOrTest {
