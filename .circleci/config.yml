@@ -1174,24 +1174,16 @@ jobs:
           name: Install dependencies
           command: for i in $(seq 1 5); do go mod download && break || s=$? && sleep 5; done; (exit $s)
       - run: scripts/check-generated-code go.sum
+      - run: scripts/fetch-react-file-viewer-from-yarn
       - run:
           name: Install go-swagger
           command: make bin/swagger
       - save_cache_for_go
       - announce_failure
-      # Persist repository to the workspace for the pre_deps_server step
       - persist_to_workspace:
           root: ~/transcom/mymove
           paths:
             - public
-
-  # Prep the public folder for frontend dependency serving
-  pre_deps_server:
-    executor: mymove_compiler
-    steps:
-      - attach_workspace:
-          at: .
-      - run: scripts/fetch-react-file-viewer-from-yarn
 
   # `pre_deps_yarn` is used to cache yarn sources
   pre_deps_yarn:
@@ -2312,10 +2304,6 @@ workflows:
 
       - pre_deps_golang
 
-      - pre_deps_server:
-          requires:
-            - pre_deps_golang
-
       - pre_deps_yarn
 
       - base_noop
@@ -2354,7 +2342,6 @@ workflows:
       - pre_test:
           requires:
             - pre_deps_golang
-            - pre_deps_server
             - pre_deps_yarn
             - check_tls_certificate_dp3
             - check_tls_certificate_stg
@@ -2393,7 +2380,6 @@ workflows:
       - integration_tests_devseed:
           requires:
             - pre_deps_golang
-            - pre_deps_server
           # See comments at the top of this file for configuring/using
           # this branch config
           filters:
@@ -2472,7 +2458,6 @@ workflows:
           requires:
             - anti_virus
             - pre_deps_golang
-            - pre_deps_server
 
       - build_app:
           requires:
@@ -2557,7 +2542,6 @@ workflows:
       - deploy_dp3_migrations:
           requires:
             - pre_deps_golang
-            - pre_deps_server
             - pre_test
             - client_test
             - server_test
@@ -2623,7 +2607,6 @@ workflows:
       - check_circle_against_stg_sha:
           requires:
             - pre_deps_golang
-            - pre_deps_server
             - pre_test
             - client_test
             - server_test
