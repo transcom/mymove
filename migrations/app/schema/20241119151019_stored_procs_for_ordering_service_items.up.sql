@@ -279,7 +279,7 @@ BEGIN
                     (item->>''sit_entry_date'')::date,
                     (item->>''sit_customer_contacted'')::date,
                     (item->>''reason'')::text,
-                    (item->>''estimate_weight'')::int4,
+                    (item->>''estimated_weight'')::int4,
                     (item->>''actual_weight'')::int4,
                     (item->>''pickup_postal_code'')::text,
                     (item->>''description'')::text,
