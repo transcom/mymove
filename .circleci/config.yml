@@ -2307,7 +2307,9 @@ workflows:
 
       - pre_deps_golang
 
-      - pre_deps_server
+      - pre_deps_server:
+          requires:
+            - pre_deps_golang
 
       - pre_deps_yarn
 
