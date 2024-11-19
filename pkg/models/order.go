@@ -369,7 +369,7 @@ func (o Order) fetchAllShipmentsExcludingRejected(db *pop.Connection) (MTOShipme
 }
 
 // GetFirstShipmentExcludingRejected returns the first shipment from all shipments associated with an order excluding rejected shipments
-func GetFirstShipmentExcludingRejected(db *pop.Connection, o *Order) (MTOShipment, error) {
+func GetFirstShipmentExcludingRejected(db *pop.Connection, o Order) (MTOShipment, error) {
 	// Since this requires looking up the order in the DB, the order must have an ID. This means, the order has to have been created first.
 	if uuid.UUID.IsNil(o.ID) {
 		return MTOShipment{}, errors.WithMessage(ErrInvalidOrderID, "You must created the order in the DB before getting the first shipment associated with the order.")
@@ -392,7 +392,7 @@ func GetFirstShipmentExcludingRejected(db *pop.Connection, o *Order) (MTOShipmen
 * the moves that are associated with an order. If there are no shipments returned, it will return the
 * GBLOC of the new duty station address.
  */
-func (o *Order) GetDestinationGBLOC(db *pop.Connection) (string, error) {
+func (o Order) GetDestinationGBLOC(db *pop.Connection) (string, error) {
 	// Since this requires looking up the order in the DB, the order must have an ID. This means, the order has to have been created first.
 	if uuid.UUID.IsNil(o.ID) {
 		return "", errors.WithMessage(ErrInvalidOrderID, "You must created the order in the DB before getting the destination GBLOC.")
@@ -417,7 +417,7 @@ func (o *Order) GetDestinationGBLOC(db *pop.Connection) (string, error) {
 * the moves that are associated with an order. If there are no shipments returned, it will return the
 * Postal Code of the new duty station address.
  */
-func (o *Order) GetDestinationPostalCode(db *pop.Connection) (string, error) {
+func (o Order) GetDestinationPostalCode(db *pop.Connection) (string, error) {
 	// Since this requires looking up the order in the DB, the order must have an ID. This means, the order has to have been created first.
 	if uuid.UUID.IsNil(o.ID) {
 		return "", errors.WithMessage(ErrInvalidOrderID, "You must created the order in the DB before getting the destination Postal Code.")
@@ -444,7 +444,7 @@ func (o *Order) GetDestinationPostalCode(db *pop.Connection) (string, error) {
 	return shipment.DestinationAddress.PostalCode, nil
 }
 
-func (o *Order) UpdateDestinationGBLOC(db *pop.Connection) error {
+func (o Order) UpdateDestinationGBLOC(db *pop.Connection) error {
 	// Since this requires looking up the order in the DB, the order must have an ID. This means, the order has to have been created first.
 	if uuid.UUID.IsNil(o.ID) {
 		return errors.WithMessage(ErrInvalidOrderID, "You must created the order in the DB before updating the destination GBLOC.")
