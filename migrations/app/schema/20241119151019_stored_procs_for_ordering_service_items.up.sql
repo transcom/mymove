@@ -180,7 +180,9 @@ CREATE TYPE mto_service_item_type AS (
     code TEXT,
     sit_entry_date DATE,
     sit_customer_contacted DATE,
-    reason TEXT
+    reason TEXT,
+    estimate_weight int4,
+    actual_weight int4,
 );
 
 CREATE OR REPLACE PROCEDURE CreateAccessorialServiceItems (
@@ -231,7 +233,9 @@ BEGIN
                     updated_at,
                     sit_entry_date,
                     sit_customer_contacted,
-                    reason
+                    reason,
+                    estimate_weight,
+                    actual_weight
                 )
                 VALUES (
                     shipment_id,
@@ -243,7 +247,9 @@ BEGIN
                     NOW(),
                     (item->>''sit_entry_date'')::date,
                     (item->>''sit_customer_contacted'')::date,
-                    (item->>''reason'')::text
+                    (item->>''reason'')::text,
+                    (item->>''estimate_weight)::int4,
+                    (item->>''actual_weight'')::int4
                 );
             EXCEPTION
                 WHEN OTHERS THEN
