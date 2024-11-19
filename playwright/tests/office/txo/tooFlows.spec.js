@@ -746,9 +746,9 @@ test.describe('TOO user', () => {
     const deliveryAddress = page.getByRole('group', { name: 'Delivery location' });
     await expect(deliveryAddress.getByTestId('delivery.address.streetAddress1')).toHaveValue('123 Any Street');
     await expect(deliveryAddress.getByTestId('delivery.address.streetAddress2')).toHaveValue('P.O. Box 12345');
-    await expect(deliveryAddress.getByTestId('delivery.address.city')).toHaveValue('Beverly Hills');
-    await expect(deliveryAddress.getByTestId('delivery.address.state')).toHaveValue('CA');
-    await expect(deliveryAddress.getByTestId('delivery.address.postalCode')).toHaveValue('90210');
+    await expect(deliveryAddress.getByTestId('City')).toHaveText('Beverly Hills');
+    await expect(deliveryAddress.getByTestId('State')).toHaveText('CA');
+    await expect(deliveryAddress.getByTestId('ZIP')).toHaveText('90210');
 
     // Click save on the page
     await page.getByRole('button', { name: 'Save' }).click();
@@ -797,9 +797,9 @@ test.describe('TOO user', () => {
     const deliveryAddress = page.getByRole('group', { name: 'Delivery location' });
     await expect(deliveryAddress.getByTestId('delivery.address.streetAddress1')).toHaveValue('123 Any Street');
     await expect(deliveryAddress.getByTestId('delivery.address.streetAddress2')).toHaveValue('P.O. Box 12345');
-    await expect(deliveryAddress.getByTestId('delivery.address.city')).toHaveValue('Beverly Hills');
-    await expect(deliveryAddress.getByTestId('delivery.address.state')).toHaveValue('CA');
-    await expect(deliveryAddress.getByTestId('delivery.address.postalCode')).toHaveValue('90210');
+    await expect(deliveryAddress.getByTestId('City')).toHaveText('Beverly Hills');
+    await expect(deliveryAddress.getByTestId('State')).toHaveText('CA');
+    await expect(deliveryAddress.getByTestId('ZIP')).toHaveText('90210');
 
     // Save the approved destination address change
     await page.getByRole('button', { name: 'Save' }).click();
