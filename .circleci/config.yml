@@ -1182,9 +1182,7 @@ jobs:
       - persist_to_workspace:
           root: ~/transcom/mymove
           paths:
-            - scripts
             - public
-            - yarn.lock
 
   # Prep the public folder for frontend dependency serving
   pre_deps_server:
