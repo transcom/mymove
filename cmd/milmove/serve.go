@@ -124,6 +124,9 @@ func initServeFlags(flag *pflag.FlagSet) {
 	// Telemetry flag config
 	cli.InitTelemetryFlags(flag)
 
+	// Maintenance Flags
+	cli.InitMaintenanceFlags(flag)
+
 	// Sort command line flags
 	flag.SortFlags = true
 }
@@ -221,6 +224,10 @@ func checkServeConfig(v *viper.Viper, logger *zap.Logger) error {
 	}
 
 	if err := cli.CheckSession(v); err != nil {
+		return err
+	}
+
+	if err := cli.CheckMaintenance(v); err != nil {
 		return err
 	}
 
@@ -728,6 +735,7 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 		go startListener(healthServer, logger, false)
 	}
 
+	maintenanceFlag := v.GetBool(cli.MaintenanceFlag)
 	noTLSEnabled := v.GetBool(cli.NoTLSListenerFlag)
 	var noTLSServer *server.NamedServer
 	if noTLSEnabled {
@@ -735,7 +743,7 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 		noTLSPort := v.GetInt(cli.NoTLSPortFlag)
 		// initialize the router
 		site, err := routing.InitRouting(serverName, appCtx, redisPool,
-			routingConfig, telemetryConfig)
+			routingConfig, telemetryConfig, maintenanceFlag)
 		if err != nil {
 			return err
 		}
@@ -760,7 +768,7 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 		tlsPort := v.GetInt(cli.TLSPortFlag)
 		// initialize the router
 		site, err := routing.InitRouting(serverName, appCtx, redisPool,
-			routingConfig, telemetryConfig)
+			routingConfig, telemetryConfig, maintenanceFlag)
 		if err != nil {
 			return err
 		}
@@ -786,7 +794,7 @@ func serveFunction(cmd *cobra.Command, args []string) error {
 		mtlsPort := v.GetInt(cli.MutualTLSPortFlag)
 		// initialize the router
 		site, err := routing.InitRouting(serverName, appCtx, redisPool,
-			routingConfig, telemetryConfig)
+			routingConfig, telemetryConfig, maintenanceFlag)
 		if err != nil {
 			return err
 		}

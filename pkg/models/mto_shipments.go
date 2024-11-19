@@ -302,6 +302,11 @@ func (m *MTOShipment) UpdateOrdersDestinationGBLOC(db *pop.Connection) error {
 	return nil
 }
 
+// Helper function to check that an MTO Shipment contains a PPM Shipment
+func (m MTOShipment) ContainsAPPMShipment() bool {
+	return m.PPMShipment != nil
+}
+
 // determining the market code for a shipment based off of address isOconus value
 // this function takes in a shipment and returns the same shipment with the updated MarketCode value
 func DetermineShipmentMarketCode(shipment *MTOShipment) *MTOShipment {
