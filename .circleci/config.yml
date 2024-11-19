@@ -1188,7 +1188,8 @@ jobs:
       - announce_failure
 
   # Prep the public folder for frontend dependency serving
-  pre_deps_server:
+  # This is needed for things like pdfjs-dist
+  prep_server_for_client_deps:
     executor: mymove_compiler
     steps:
       - attach_workspace:
@@ -2318,7 +2319,7 @@ workflows:
 
       - pre_deps_golang
 
-      - pre_deps_server:
+      - prep_server_for_client_deps:
           requires:
             - pre_deps_golang
 
@@ -2398,7 +2399,7 @@ workflows:
       - integration_tests_devseed:
           requires:
             - pre_deps_golang
-            - pre_deps_server
+            - prep_server_for_client_deps
           # See comments at the top of this file for configuring/using
           # this branch config
           filters:
@@ -2477,7 +2478,7 @@ workflows:
           requires:
             - anti_virus
             - pre_deps_golang
-            - pre_deps_server
+            - prep_server_for_client_deps
 
       - build_app:
           requires:
