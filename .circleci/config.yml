@@ -1180,9 +1180,11 @@ jobs:
       - announce_failure
       # Persist repository to the workspace for the pre_deps_server step
       - persist_to_workspace:
-          root: .
+          root: ~/transcom/mymove
           paths:
-            - .
+            - scripts
+            - public
+            - yarn.lock
 
   # Prep the public folder for frontend dependency serving
   pre_deps_server:
