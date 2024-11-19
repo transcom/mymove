@@ -73,9 +73,15 @@ describe('PrimeUIShipmentUpdateDestinationAddressForm', () => {
     );
     expect(screen.getByLabelText(/Address 1/)).toBeInTheDocument();
     expect(screen.getByLabelText(/Address 2/)).toBeInTheDocument();
-    expect(screen.getByLabelText('City')).toBeInTheDocument();
-    expect(screen.getByLabelText('State')).toBeInTheDocument();
-    expect(screen.getByLabelText('ZIP')).toBeInTheDocument();
+    expect(screen.getByLabelText(/Address 3/)).toBeInTheDocument();
+    expect(screen.getByText('City')).toBeInTheDocument();
+    expect(screen.getByText(initialValuesDestinationAddress.newAddress.address.city)).toBeInTheDocument();
+    expect(screen.getByText('State')).toBeInTheDocument();
+    expect(screen.getByText(initialValuesDestinationAddress.newAddress.address.state)).toBeInTheDocument();
+    expect(screen.getByText('County')).toBeInTheDocument();
+    expect(screen.getByText(initialValuesDestinationAddress.newAddress.address.county)).toBeInTheDocument();
+    expect(screen.getByText('ZIP')).toBeInTheDocument();
+    expect(screen.getByText(initialValuesDestinationAddress.newAddress.address.postalCode)).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Save' })).toBeEnabled();
   });
 
