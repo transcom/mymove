@@ -2,6 +2,7 @@ package shipmentaddressupdate
 
 import (
 	"database/sql"
+	"fmt"
 	"time"
 
 	"github.com/gofrs/uuid"
@@ -505,6 +506,9 @@ func (f *shipmentAddressUpdateRequester) ReviewShipmentAddressChange(appCtx appc
 			var regeneratedServiceItems models.MTOServiceItems
 
 			for i, serviceItem := range shipmentDetails.MTOServiceItems {
+				fmt.Println("    ")
+				fmt.Println("tempServiceItem: ", &serviceItem)
+				fmt.Println("    ")
 				if (serviceItem.ReService.Code == models.ReServiceCodeDSH || serviceItem.ReService.Code == models.ReServiceCodeDLH) && serviceItem.Status != models.MTOServiceItemStatusRejected {
 					// check if a payment request for the DSH or DLH service item exists and status is approved, paid, or sent to GEX
 					approvedPaymentRequestsExistsForServiceItem, err = checkForApprovedPaymentRequestOnServiceItem(appCtx, shipment)
@@ -535,6 +539,27 @@ func (f *shipmentAddressUpdateRequester) ReviewShipmentAddressChange(appCtx appc
 						break
 					}
 
+				} else if serviceItem.Status != models.MTOServiceItemStatusRejected {
+					tempServiceItem := &serviceItem
+					fmt.Println("    ")
+					fmt.Println("    ")
+					fmt.Println("    ")
+					fmt.Println("------------------------------------------------------------------------------------------------")
+					fmt.Println("appCtx: ", appCtx)
+					fmt.Println("    ")
+					fmt.Println("shipment: ", shipment)
+					fmt.Println("    ")
+					fmt.Println("tempServiceItem: ", &serviceItem)
+					fmt.Println("------------------------------------------------------------------------------------------------")
+					fmt.Println("    ")
+					fmt.Println("    ")
+					fmt.Println("    ")
+
+					serviceItemEstimatedPrice, err := f.FindEstimatedPrice(appCtx, tempServiceItem, shipment)
+					if serviceItemEstimatedPrice != 0 && err == nil {
+						serviceItem.PricingEstimate = &serviceItemEstimatedPrice
+						regeneratedServiceItems = append(regeneratedServiceItems, serviceItem)
+					}
 				}
 
 			}
