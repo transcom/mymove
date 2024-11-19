@@ -226,9 +226,7 @@ executors:
     # maybe don't need xlarge, but getting many timeouts with large
     # ahobson - 2023-02-07
     resource_class: xlarge
-    # use ~/project as that already exists in cimg/node and is owned
-    # by circleci
-    working_directory: ~/project
+    working_directory: ~/transcom/mymove
     docker:
       - image: *playwright
         auth:
@@ -1383,6 +1381,13 @@ jobs:
     executor: milmove_playwright_tester
     parallelism: 10
     steps:
+      - run:
+          name: Verify react-file-viewer exists
+          command: |
+            if [ ! -d "public/static/react-file-viewer" ]; then
+              echo "Error: public/static/react-file-viewer not found, the server will not be able to serve frontend dependencies"
+              exit 1
+            fi
       - e2e_tests_playwright:
           path: playwright/tests/office
       - announce_failure
