@@ -13,7 +13,6 @@ import { ORDERS_BRANCH_OPTIONS } from 'constants/orders';
 
 const AllowancesList = ({ info, showVisualCues }) => {
   const [enableUB, setEnableUB] = useState(false);
-
   const visualCuesStyle = classNames(descriptionListStyles.row, {
     [`${descriptionListStyles.rowWithVisualCue}`]: showVisualCues,
   });
@@ -51,7 +50,7 @@ const AllowancesList = ({ info, showVisualCues }) => {
         {/* As these fields are grouped together and only apply to OCONUS orders
         They will all be NULL for CONUS orders. If one of these fields are present,
         it will be safe to assume it is an OCONUS order. With this, if one field is present
-        we show all three. Otherwise, we show none */}
+        we show all four. Otherwise, we show none */}
         {/* Wrap in FF */}
         {enableUB && (info?.accompaniedTour || info?.dependentsTwelveAndOver || info?.dependentsUnderTwelve) && (
           <>
@@ -72,6 +71,14 @@ const AllowancesList = ({ info, showVisualCues }) => {
               </dd>
             </div>
           </>
+        )}
+        {enableUB && info?.ubAllowance >= 0 && (
+          <div className={descriptionListStyles.row}>
+            <dt>Unaccompanied baggage allowance</dt>
+            <dd data-testid="unaccompaniedBaggageAllowance">
+              {info.ubAllowance ? formatWeight(info.ubAllowance) : DEFAULT_EMPTY_VALUE}
+            </dd>
+          </div>
         )}
         {/* End OCONUS fields */}
         <div className={visualCuesStyle}>
@@ -112,6 +119,7 @@ AllowancesList.propTypes = {
     dependents: PropTypes.bool,
     requiredMedicalEquipmentWeight: PropTypes.number,
     organizationalClothingAndIndividualEquipment: PropTypes.bool,
+    ubAllowance: PropTypes.number,
   }).isRequired,
   showVisualCues: PropTypes.bool,
 };
