@@ -177,7 +177,7 @@ export class ServiceCounselorPage extends OfficePage {
     const deliveryLocation = this.page.getByRole('group', { name: 'Delivery location' });
     await deliveryLocation.getByLabel('Address 1').fill('448 Washington Blvd NE');
     await deliveryLocation.getByLabel('Address 2').fill('Apt D3');
-    await this.page.locator('input[id="storageFacility.address-location-input"]').fill('36101');
+    await this.page.locator('input[id="delivery.address-location-input"]').fill('36101');
     await expect(deliveryLocation.getByText(DeliveryLocationLookup, { exact: true })).toBeVisible();
     await this.page.keyboard.press('Enter');
 
