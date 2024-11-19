@@ -35,7 +35,7 @@ const formatOptionLabel = (option, input) => {
   );
 };
 
-const formatZipCity = (option, input) => {
+const formatLocation = (option, input) => {
   const { inputValue } = input;
   const outputLabel = `${option?.city || ''}, ${option?.state || ''} ${option?.postalCode || ''} (${
     option?.county || ''
@@ -226,7 +226,7 @@ export const LocationSearchBoxComponent = ({
           inputId={inputId}
           className={dutyInputClasses}
           cacheOptions
-          formatOptionLabel={handleLocationOnChange ? formatZipCity : formatOptionLabel}
+          formatOptionLabel={handleLocationOnChange ? formatLocation : formatOptionLabel}
           getOptionValue={getOptionName}
           loadOptions={loadOptions}
           onChange={selectOption}

@@ -50,7 +50,11 @@ const TextField = ({
       case 'textarea':
         return <Textarea id={id} name={name} disabled={isDisabled} {...fieldProps} {...inputProps} />;
       case 'readonly':
-        return <p data-testid="textFieldReadOnlyValue">{fieldProps.value}</p>;
+        return (
+          <label htmlFor={id || name} id={id} data-testid={label} aria-label={name}>
+            {fieldProps.value}
+          </label>
+        );
       default:
         return <TextInput id={id} name={name} disabled={isDisabled} {...fieldProps} {...inputProps} />;
     }

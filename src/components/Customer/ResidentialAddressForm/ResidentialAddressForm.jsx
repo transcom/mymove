@@ -28,7 +28,7 @@ const ResidentialAddressForm = ({ formFieldsName, initialValues, onSubmit, onBac
       validateOnChange
       validationSchema={validationSchema}
     >
-      {({ isValid, isSubmitting, handleSubmit, values, validateForm, ...formikProps }) => {
+      {({ isValid, isSubmitting, handleSubmit, values, ...formikProps }) => {
         return (
           <Form className={formStyles.form}>
             <h1>Current address</h1>
@@ -39,7 +39,6 @@ const ResidentialAddressForm = ({ formFieldsName, initialValues, onSubmit, onBac
                 name={formFieldsName}
                 validators={validators}
                 locationLookup
-                validateForm={validateForm}
                 formikProps={formikProps}
               />
             </SectionWrapper>

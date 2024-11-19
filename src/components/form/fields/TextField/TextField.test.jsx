@@ -210,7 +210,7 @@ describe('TextField component', () => {
   });
 
   describe('as a read only', () => {
-    it('is of type HTMLTextArea', () => {
+    it('is of type HTMLLabelElement', () => {
       useField.mockReturnValue([{}, {}]);
 
       const { queryByTestId } = render(
@@ -224,7 +224,7 @@ describe('TextField component', () => {
         />,
       );
 
-      expect(queryByTestId('textFieldReadOnlyValue')).toBeInstanceOf(HTMLParagraphElement);
+      expect(queryByTestId('First Name')).toBeInstanceOf(HTMLLabelElement);
     });
   });
 

@@ -35,7 +35,6 @@ export const AddressFields = ({
   validators,
   locationLookup,
   formikFunctionsToValidatePostalCodeOnChange,
-  validateForm,
   formikProps: { setFieldTouched, setFieldValue },
   labelHint: labelHintProp,
   address1LabelHint,
@@ -74,6 +73,7 @@ export const AddressFields = ({
       maxLength={10}
       labelHint={labelHintProp}
       display="readonly"
+      validate={validators?.postalCode}
     />
   );
 
@@ -85,6 +85,7 @@ export const AddressFields = ({
       data-testid={`${name}.state`}
       labelHint={labelHintProp}
       display="readonly"
+      validate={validators?.state}
     />
   ) : (
     <DropdownInput
@@ -112,17 +113,18 @@ export const AddressFields = ({
   };
 
   const handleOnLocationChange = (value) => {
-    setFieldValue(`${name}.city`, value.city);
-    setFieldTouched(`${name}.city`, true);
-    setFieldValue(`${name}.state`, value.state);
-    setFieldTouched(`${name}.state`, true);
-    setFieldValue(`${name}.county`, value.county);
-    setFieldTouched(`${name}.county`, true);
-    setFieldValue(`${name}.postalCode`, value.postalCode);
-    setFieldTouched(`${name}.postalCode`, true);
-    setFieldValue(`${name}.usprcId`, value.usPostRegionCitiesId);
-    setFieldTouched(`${name}.usprcId`, true);
-    validateForm();
+    setFieldValue(`${name}.city`, value.city).then(() => {
+      setFieldTouched(`${name}.city`, true);
+    });
+    setFieldValue(`${name}.state`, value.state).then(() => {
+      setFieldTouched(`${name}.state`, true);
+    });
+    setFieldValue(`${name}.county`, value.county).then(() => {
+      setFieldTouched(`${name}.county`, true);
+    });
+    setFieldValue(`${name}.postalCode`, value.postalCode).then(() => {
+      setFieldTouched(`${name}.postalCode`, true);
+    });
   };
 
   return (
@@ -156,11 +158,10 @@ export const AddressFields = ({
           {locationLookup && (
             <>
               <LocationInput
-                name={`${name}-zipCity`}
+                name={`${name}-location`}
                 placeholder="Start typing a Zip or City, State Zip"
                 label="Location Lookup"
                 handleLocationChange={handleOnLocationChange}
-                valueName={name}
               />
               <Hint className={styles.hint} id="locationInfo" data-testid="locationInfo">
                 {infoStr}
@@ -192,6 +193,7 @@ export const AddressFields = ({
                     labelHint={labelHintProp}
                     data-testid={`${name}.city`}
                     display="readonly"
+                    validate={validators?.city}
                   />
                   <TextField
                     className={styles.label}
@@ -201,6 +203,7 @@ export const AddressFields = ({
                     labelHint={labelHintProp}
                     data-testid={`${name}.county`}
                     display="readonly"
+                    validate={validators?.county}
                   />
                 </>
               )}
@@ -235,7 +238,6 @@ AddressFields.propTypes = {
     setFieldTouched: PropTypes.func,
   }),
   address1LabelHint: PropTypes.string,
-  validateForm: PropTypes.func,
   formikProps: shape({
     touched: shape({}),
     errors: shape({}),
@@ -252,7 +254,6 @@ AddressFields.defaultProps = {
   validators: {},
   formikFunctionsToValidatePostalCodeOnChange: null,
   address1LabelHint: null,
-  validateForm: {},
   formikProps: {},
 };
 

@@ -25,7 +25,7 @@ const BackupAddressForm = ({ formFieldsName, initialValues, onSubmit, onBack }) 
       validateOnMount
       validationSchema={validationSchema}
     >
-      {({ isValid, isSubmitting, handleSubmit, validateForm, ...formikProps }) => {
+      {({ isValid, isSubmitting, handleSubmit, ...formikProps }) => {
         return (
           <Form className={formStyles.form}>
             <h1>Backup address</h1>
@@ -36,13 +36,7 @@ const BackupAddressForm = ({ formFieldsName, initialValues, onSubmit, onBack }) 
             </p>
 
             <SectionWrapper className={formStyles.formSection}>
-              <AddressFields
-                labelHint="Required"
-                name={formFieldsName}
-                locationLookup
-                validateForm={validateForm}
-                formikProps={formikProps}
-              />
+              <AddressFields labelHint="Required" name={formFieldsName} locationLookup formikProps={formikProps} />
             </SectionWrapper>
 
             <div className={formStyles.formActions}>

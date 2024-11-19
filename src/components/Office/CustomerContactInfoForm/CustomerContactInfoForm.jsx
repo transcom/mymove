@@ -47,7 +47,7 @@ const CustomerContactInfoForm = ({ initialValues, onSubmit, onBack }) => {
       <Grid col>
         <div className={styles.customerContactForm}>
           <Formik initialValues={initialValues} onSubmit={onSubmit} validationSchema={validationSchema} validateOnMount>
-            {({ isValid, handleSubmit, values, validateForm, ...formikProps }) => {
+            {({ isValid, handleSubmit, values, ...formikProps }) => {
               return (
                 <Form className={formStyles.form}>
                   <SectionWrapper className={`${formStyles.formSection} ${styles.formSectionHeader}`}>
@@ -66,19 +66,9 @@ const CustomerContactInfoForm = ({ initialValues, onSubmit, onBack }) => {
                       )}
                     />
                     <h3 className={styles.sectionHeader}>Current Address</h3>
-                    <AddressFields
-                      name="customerAddress"
-                      locationLookup
-                      validateForm={validateForm}
-                      formikProps={formikProps}
-                    />
+                    <AddressFields name="customerAddress" locationLookup formikProps={formikProps} />
                     <h3 className={styles.sectionHeader}>Backup Address</h3>
-                    <AddressFields
-                      name="backupAddress"
-                      locationLookup
-                      validateForm={validateForm}
-                      formikProps={formikProps}
-                    />
+                    <AddressFields name="backupAddress" locationLookup formikProps={formikProps} />
                   </SectionWrapper>
                   <SectionWrapper className={`${formStyles.formSection} ${styles.formSectionHeader}`}>
                     <h2 className={styles.sectionHeader}>Backup contact</h2>
