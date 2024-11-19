@@ -150,9 +150,8 @@ const ServicesCounselingMoveInfo = () => {
     );
 
   if (isLoading) return <LoadingPlaceholder />;
-  console.log(errors);
   if (isError) {
-    return errors[0]?.body?.message ? <SomethingWentWrong /> : <Inaccessible />;
+    return errors[0]?.response?.body?.message ? <Inaccessible /> : <SomethingWentWrong />;
   }
 
   // this locked move banner will display if the current user is not the one who has it locked

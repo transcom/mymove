@@ -20,4 +20,6 @@ const Inaccessible = () => (
   </div>
 );
 
+export const INACCESSIBLE_API_RESPONSE = 'Page is inaccessible';
+
 export default Inaccessible;

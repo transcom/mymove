@@ -12,6 +12,7 @@ import { PRIME_SIMULATOR_MOVE } from 'constants/queryKeys';
 import Shipment from 'components/PrimeUI/Shipment/Shipment';
 import FlashGridContainer from 'containers/FlashGridContainer/FlashGridContainer';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
+import Inaccessible from 'shared/Inaccessible';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
 import SectionWrapper from 'components/Customer/SectionWrapper';
 import formStyles from 'styles/form.module.scss';
@@ -153,10 +154,9 @@ const MoveDetails = ({ setFlashMessage }) => {
   };
 
   if (isLoading) return <LoadingPlaceholder />;
-  // TODO: Check actual error from "isError" and edit the messge if it is due to a user not having safety move permissions.
-  console.log(isError);
-  console.log(errors);
-  if (isError) return <SomethingWentWrong />;
+  if (isError) {
+    return errors[0]?.response?.body?.message ? <Inaccessible /> : <SomethingWentWrong />;
+  }
 
   const { mtoShipments, paymentRequests, mtoServiceItems } = moveTaskOrder;
 
