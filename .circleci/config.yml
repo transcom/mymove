@@ -896,7 +896,7 @@ commands:
             yarn install --frozen-lockfile --cache-folder ~/.cache/yarn
             # install playwright browsers while waiting for the server to start
             ./node_modules/.bin/playwright install
-            dockerize -wait http://milmovelocal:4000 -timeout 5m
+            dockerize -wait http://milmovelocal:4000 -timeout 15m
       - run:
           name: run e2e_test playwright
           environment:
