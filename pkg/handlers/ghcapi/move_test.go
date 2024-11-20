@@ -409,8 +409,7 @@ func (suite *HandlerSuite) TestSearchMovesHandler() {
 		moveWithoutShipment := factory.BuildMove(suite.DB(), []factory.Customization{
 			{
 				Model: models.Move{
-					OrdersID:     order.ID,
-					MTOShipments: []models.MTOShipment{},
+					OrdersID: order.ID,
 				},
 			},
 		}, nil)
@@ -431,27 +430,24 @@ func (suite *HandlerSuite) TestSearchMovesHandler() {
 			},
 		}, nil)
 
-		ppmShipment := factory.BuildPPMShipment(suite.DB(), []factory.Customization{
-			{
-				Model: models.PPMShipment{
-					DestinationAddressID: &addressBGNC.ID,
-					PickupAddressID:      &defaultPickupAddress.ID,
-					Status:               models.PPMShipmentStatusSubmitted,
-				},
-			},
-		}, nil)
-
 		moveWithShipmentPPM := factory.BuildMoveWithPPMShipment(suite.DB(), []factory.Customization{
 			{
 				Model: models.Move{
+					Status:   models.MoveStatusSUBMITTED,
 					OrdersID: orderWithShipmentPPM.ID,
 				},
 			},
-		}, nil)
-		factory.BuildMove(suite.DB(), []factory.Customization{
 			{
-				Model:    ppmShipment,
-				LinkOnly: true,
+				Model: models.MTOShipment{
+					Status:               models.MTOShipmentStatusSubmitted,
+					DestinationAddressID: &addressBGNC.ID,
+					PickupAddressID:      &defaultPickupAddress.ID,
+				},
+			},
+			{
+				Model: models.PPMShipment{
+					Status: models.PPMShipmentStatusSubmitted,
+				},
 			},
 		}, nil)
 

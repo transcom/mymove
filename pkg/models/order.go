@@ -341,7 +341,10 @@ func (o Order) fetchAllShipmentsExcludingRejected(db *pop.Connection) (MTOShipme
 
 	err = db.Load(&o, "Moves")
 	if err != nil {
-		return nil, errors.WithMessage(err, "Could not load moves for order.")
+		if err.Error() == RecordNotFoundErrorString {
+			return nil, errors.WithMessage(err, "No Moves were found for the order ID "+o.ID.String())
+		}
+		return nil, errors.WithMessage(err, "Could not load moves for order ID "+o.ID.String())
 	}
 
 	for _, m := range o.Moves {
@@ -351,8 +354,8 @@ func (o Order) fetchAllShipmentsExcludingRejected(db *pop.Connection) (MTOShipme
 		}
 
 		for _, s := range m.MTOShipments {
-			if s.Status != MTOShipmentStatusRejected {
-				err = db.Load(&s, "CreatedAt", "PickupAddress", "DestinationAddress")
+			if s.Status != MTOShipmentStatusRejected && s.Status != MTOShipmentStatusCanceled && s.DeletedAt == nil {
+				err = db.Load(&s, "CreatedAt", "DestinationAddress")
 				if err != nil {
 					return nil, errors.WithMessage(err, "Could not load shipment "+s.ID.String())
 				}
@@ -451,24 +454,44 @@ func (o Order) GetDestinationPostalCodeForAssociatedMove(db *pop.Connection) (st
 	}
 
 	if shipment.ShipmentType == MTOShipmentTypePPM {
-		err = db.Load(&shipment, "DestinationAddress.PostalCode", "PPMShipment.DestinationAddress.PostalCode")
+		// Load both PPM shipment and destination address in one query
+		err = db.Load(&shipment, "PPMShipment.DestinationAddress.PostalCode")
 		if err != nil {
 			if err.Error() == RecordNotFoundErrorString {
-				return "", errors.WithMessage(err, "No Postal Code found for DestinationAddress or the PPMShipment.DestinationAddress for the MTO Shipment with Shipemnt ID of "+shipment.ID.String())
+				errDestAddressdb := db.Load(&shipment, "DestinationAddress.PostalCode")
+				if errDestAddressdb != nil && errDestAddressdb.Error() != RecordNotFoundErrorString {
+					return "", errors.New("No destination address Postal Code or PPMShipment destination address Postal Code found for shipment " + shipment.ID.String())
+				}
+				return "", errDestAddressdb
 			}
 			return "", err
 		}
-		if shipment.PPMShipment.DestinationAddress != nil {
-			if len(shipment.PPMShipment.DestinationAddress.PostalCode) > 0 {
-				return shipment.PPMShipment.DestinationAddress.PostalCode, nil
-			}
+
+		if shipment.PPMShipment.DestinationAddress != nil && len(shipment.PPMShipment.DestinationAddress.PostalCode) > 0 {
+			return shipment.PPMShipment.DestinationAddress.PostalCode, nil
 		}
+
+		// Fallback to MTO shipment destination address
+		err = db.Load(&shipment, "DestinationAddress")
+		if err != nil {
+			return "", errors.WithMessage(err, "Could not load MTO shipment destination address")
+		}
+
 		if shipment.DestinationAddress != nil {
-			if len(shipment.DestinationAddress.PostalCode) > 0 {
-				return shipment.DestinationAddress.PostalCode, nil
-			}
+			return shipment.DestinationAddress.PostalCode, nil
 		}
-		return "", errors.New("Could not load postal code for PPM destination address or MTO Shipment Destination Address for shipment with ID of " + shipment.ID.String())
+
+		return "", errors.New("No destination address found for shipment " + shipment.ID.String())
+	}
+
+	// For non-PPM shipments
+	err = db.Load(&shipment, "DestinationAddress")
+	if err != nil {
+		return "", errors.WithMessage(err, "Could not load destination address")
+	}
+
+	if shipment.DestinationAddress == nil {
+		return "", errors.New("No destination address found for shipment " + shipment.ID.String())
 	}
 
 	return shipment.DestinationAddress.PostalCode, nil
