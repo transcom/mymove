@@ -17,13 +17,13 @@ references:
   circleci-docker: &circleci-docker milmove/circleci-docker:milmove-app-3d9acdaa37c81a87b5fc1c6193a8e528dd56e4ed
 
   # the playwright image to use
-  playwright: &playwright cimg/node:18.13.0-browsers
+  playwright: &playwright cimg/node:18.19.1-browsers
 
   # the image to use for running load tests
   # see milmove_load_testing for the right config
   load_tester: &load_tester cimg/python:3.11.3
 
-  postgres: &postgres cimg/postgres:12.11
+  postgres: &postgres cimg/postgres:16.4
 
   redis: &redis redis:5.0.6
 
