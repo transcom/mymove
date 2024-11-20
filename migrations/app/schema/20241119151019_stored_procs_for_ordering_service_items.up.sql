@@ -23,7 +23,7 @@ END;
 $$ LANGUAGE plpgsql;
 
 
--- stored proc that creates auto-approved shipments based off of a shipment id
+-- stored proc that creates auto-approved service items based off of a shipment id
 CREATE OR REPLACE PROCEDURE CreateApprovedServiceItemsForShipment(
     IN shipment_id UUID
 )
@@ -76,7 +76,8 @@ BEGIN
                     service_location,
                     status,
                     created_at,
-                    updated_at
+                    updated_at,
+                    approved_at
                 )
                 VALUES (
                     shipment_id,
@@ -122,6 +123,7 @@ BEGIN
                     service_item.re_service_id,
                     service_item.service_location,
                     ''APPROVED''::service_item_status,
+                    NOW(),
                     NOW(),
                     NOW()
                 );
