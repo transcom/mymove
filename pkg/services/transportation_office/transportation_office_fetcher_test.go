@@ -283,10 +283,20 @@ func (suite *TransportationOfficeServiceSuite) Test_Oconus_AK_FindCounselingOffi
 		suite.NotNil(usprc)
 		suite.FatalNoError(err)
 
-		var oconusRateArea models.OconusRateArea
-		err = suite.DB().Where("us_post_region_cities_id = $1", usprc.ID).First(&oconusRateArea)
-		suite.Nil(err)
-		suite.NotNil(oconusRateArea)
+		oconusRateArea := models.OconusRateArea{
+			ID:                 uuid.Must(uuid.NewV4()),
+			RateAreaId:         rateArea.ID,
+			CountryId:          us_country.ID,
+			UsPostRegionCityId: usprc.ID,
+			Active:             true,
+		}
+		verrs, err = suite.DB().ValidateAndCreate(&oconusRateArea)
+		if verrs.HasAny() {
+			suite.Fail(verrs.Error())
+		}
+		if err != nil {
+			suite.Fail(err.Error())
+		}
 
 		address := models.Address{
 			StreetAddress1:     "n/a",
