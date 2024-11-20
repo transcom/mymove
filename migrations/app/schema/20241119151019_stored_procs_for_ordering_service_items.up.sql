@@ -222,7 +222,9 @@ BEGIN
             pricing_estimate int4,
             standalone_crate bool,
             locked_price_cents int4,
-            service_location public.service_location_enum
+            service_location public.service_location_enum,
+            poe_location_id uuid,
+            pod_location_id uuid
 );
 END IF;
 END
@@ -275,6 +277,7 @@ BEGIN
                     status,
                     created_at,
                     updated_at,
+                    sit_postal_code,
                     sit_entry_date,
                     sit_customer_contacted,
                     reason,
@@ -301,6 +304,7 @@ BEGIN
                     ''SUBMITTED''::service_item_status,
                     NOW(),
                     NOW(),
+                    (item).sit_postal_code,
                     (item).sit_entry_date,
                     (item).sit_customer_contacted,
                     (item).reason,
