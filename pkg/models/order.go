@@ -380,11 +380,11 @@ func GetFirstShipmentExcludingRejected(db *pop.Connection, o Order) (MTOShipment
 		return MTOShipment{}, err
 	}
 
-	if len(shipments) < 1 {
-		return MTOShipment{}, errors.WithMessage(ErrSqlRecordNotFound, "No shipments found associated with order.")
+	if len(shipments) > 0 {
+		return shipments[0], nil
 	}
 
-	return shipments[0], nil
+	return MTOShipment{}, errors.New(RecordNotFoundErrorString)
 }
 
 /*
@@ -418,36 +418,57 @@ func (o Order) GetDestinationGBLOC(db *pop.Connection) (string, error) {
 * Postal Code of the new duty station address.
  */
 func (o Order) GetDestinationPostalCodeForAssociatedMove(db *pop.Connection) (string, error) {
-	// Since this requires looking up the order in the DB, the order must have an ID. This means, the order has to have been created first.
 	if uuid.UUID.IsNil(o.ID) {
 		return "", errors.WithMessage(ErrInvalidOrderID, "You must created the order in the DB before getting the destination Postal Code.")
 	}
 
+	noShipmentsFound := false
 	shipment, err := GetFirstShipmentExcludingRejected(db, o)
 	if err != nil {
-		if errors.Cause(err) == ErrSqlRecordNotFound {
-			err = db.Load(&o, "NewDutyLocation.Address.PostalCode")
-			if err != nil {
-				return "", errors.WithMessage(err, "Could not load new duty location address for order.")
-			}
-			return o.NewDutyLocation.Address.PostalCode, nil
+		if err.Error() != RecordNotFoundErrorString {
+			return "", err
 		}
+		noShipmentsFound = true
+	}
 
+	if noShipmentsFound {
+		err = db.Load(&o, "NewDutyLocation.Address")
+		if err != nil {
+			if err.Error() != RecordNotFoundErrorString {
+				return "", err
+			}
+			return "", errors.WithMessage(err, "No shipments found for the order and no new duty location address found.")
+		}
+		if len(o.NewDutyLocation.Address.PostalCode) < 1 {
+			return "", errors.New("Whereas the address for the new duty location was found, no postal code was returned.")
+		}
+		return o.NewDutyLocation.Address.PostalCode, nil
+	}
+
+	err = db.Load(&shipment, "ShipmentType")
+	if err != nil && err.Error() != RecordNotFoundErrorString {
 		return "", err
 	}
 
 	if shipment.ShipmentType == MTOShipmentTypePPM {
-		err = db.Load(&shipment, "PPMShipment", "PPMShipment.DestinationAddress")
+		err = db.Load(&shipment, "DestinationAddress.PostalCode", "PPMShipment.DestinationAddress.PostalCode")
 		if err != nil {
-			return "", errors.WithMessage(err, "Could not load destination address for PPM shipment.")
+			if err.Error() == RecordNotFoundErrorString {
+				return "", errors.WithMessage(err, "No Postal Code found for DestinationAddress or the PPMShipment.DestinationAddress for the MTO Shipment with Shipemnt ID of "+shipment.ID.String())
+			}
+			return "", err
 		}
-
-		return shipment.PPMShipment.DestinationAddress.PostalCode, nil
-	}
-
-	err = db.Load(&shipment, "DestinationAddress")
-	if err != nil {
-		return "", errors.WithMessage(err, "Could not load destination address for shipment.")
+		if shipment.PPMShipment.DestinationAddress != nil {
+			if len(shipment.PPMShipment.DestinationAddress.PostalCode) > 0 {
+				return shipment.PPMShipment.DestinationAddress.PostalCode, nil
+			}
+		}
+		if shipment.DestinationAddress != nil {
+			if len(shipment.DestinationAddress.PostalCode) > 0 {
+				return shipment.DestinationAddress.PostalCode, nil
+			}
+		}
+		return "", errors.New("Could not load postal code for PPM destination address or MTO Shipment Destination Address for shipment with ID of " + shipment.ID.String())
 	}
 
 	return shipment.DestinationAddress.PostalCode, nil

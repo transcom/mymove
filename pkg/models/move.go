@@ -224,7 +224,12 @@ func (m Move) GetDestinationGBLOC(db *pop.Connection) (string, error) {
 		return "", errors.WithMessage(ErrInvalidOrderID, "You must created the move in the DB before getting the destination GBLOC.")
 	}
 
-	destinationGbloc, err := m.GetDestinationGBLOC(db)
+	err := db.Load(&m, "OrdersID", "Orders")
+	if err != nil {
+		return "", errors.WithMessage(err, "There was a problem loading the OrdersID and Orders related to the MoveID "+m.ID.String())
+	}
+
+	destinationGbloc, err := m.Orders.GetDestinationGBLOC(db)
 	if err != nil {
 		return "", err
 	}
