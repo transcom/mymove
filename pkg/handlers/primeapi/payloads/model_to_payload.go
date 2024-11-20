@@ -729,7 +729,7 @@ func MTOServiceItem(mtoServiceItem *models.MTOServiceItem) primemessages.MTOServ
 			Width:  crate.Width.Int32Ptr(),
 		}
 		if mtoServiceItem.ReService.Code == models.ReServiceCodeICRT && mtoServiceItem.MTOShipment.PickupAddress != nil {
-			if mtoServiceItem.MTOShipment.PickupAddress.IsOconus == models.BoolPointer(true) {
+			if *mtoServiceItem.MTOShipment.PickupAddress.IsOconus {
 				cratingSI.Market = models.MarketOconus.FullString()
 			} else {
 				cratingSI.Market = models.MarketConus.FullString()
@@ -737,7 +737,7 @@ func MTOServiceItem(mtoServiceItem *models.MTOServiceItem) primemessages.MTOServ
 		}
 
 		if mtoServiceItem.ReService.Code == models.ReServiceCodeIUCRT && mtoServiceItem.MTOShipment.DestinationAddress != nil {
-			if mtoServiceItem.MTOShipment.DestinationAddress.IsOconus == models.BoolPointer(true) {
+			if *mtoServiceItem.MTOShipment.DestinationAddress.IsOconus {
 				cratingSI.Market = models.MarketOconus.FullString()
 			} else {
 				cratingSI.Market = models.MarketConus.FullString()
