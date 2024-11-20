@@ -144,6 +144,130 @@ func (suite *PayloadsSuite) TestMTOServiceItemModel() {
 
 	})
 
+	suite.Run("Success - Returns a ICRT/IUCRT service item model", func() {
+		// ICRT
+		icrtCode := models.ReServiceCodeICRT.String()
+		externalCrate := false
+		ICRTServiceItem := &primev3messages.MTOServiceItemInternationalCrating{
+			ReServiceCode:   &icrtCode,
+			Reason:          &reason,
+			Description:     &description,
+			StandaloneCrate: &standaloneCrate,
+			ExternalCrate:   &externalCrate,
+		}
+		ICRTServiceItem.Item.MTOServiceItemDimension = *item
+		ICRTServiceItem.Crate.MTOServiceItemDimension = *crate
+
+		ICRTServiceItem.SetMoveTaskOrderID(handlers.FmtUUID(moveTaskOrderIDField))
+		ICRTServiceItem.SetMtoShipmentID(*mtoShipmentIDString)
+
+		returnedModel, verrs := MTOServiceItemModel(ICRTServiceItem)
+
+		var returnedItem, returnedCrate models.MTOServiceItemDimension
+		for _, dimension := range returnedModel.Dimensions {
+			if dimension.Type == models.DimensionTypeItem {
+				returnedItem = dimension
+			} else {
+				returnedCrate = dimension
+			}
+		}
+
+		suite.NoVerrs(verrs)
+		suite.Equal(moveTaskOrderIDField.String(), returnedModel.MoveTaskOrderID.String())
+		suite.Equal(mtoShipmentIDField.String(), returnedModel.MTOShipmentID.String())
+		suite.Equal(models.ReServiceCodeICRT, returnedModel.ReService.Code)
+		suite.Equal(ICRTServiceItem.Reason, returnedModel.Reason)
+		suite.Equal(ICRTServiceItem.Description, returnedModel.Description)
+		suite.Equal(ICRTServiceItem.StandaloneCrate, returnedModel.StandaloneCrate)
+		suite.Equal(ICRTServiceItem.ExternalCrate, returnedModel.ExternalCrate)
+		suite.Equal(unit.ThousandthInches(*ICRTServiceItem.Item.Length), returnedItem.Length)
+		suite.Equal(unit.ThousandthInches(*ICRTServiceItem.Crate.Length), returnedCrate.Length)
+
+		// IUCRT
+		iucrtCode := models.ReServiceCodeIUCRT.String()
+		IUCRTServiceItem := &primev3messages.MTOServiceItemInternationalCrating{
+			ReServiceCode: &iucrtCode,
+			Reason:        &reason,
+			Description:   &description,
+		}
+		IUCRTServiceItem.Item.MTOServiceItemDimension = *item
+		IUCRTServiceItem.Crate.MTOServiceItemDimension = *crate
+
+		IUCRTServiceItem.SetMoveTaskOrderID(handlers.FmtUUID(moveTaskOrderIDField))
+		IUCRTServiceItem.SetMtoShipmentID(*mtoShipmentIDString)
+
+		iucrtReturnedModel, verrs := MTOServiceItemModel(IUCRTServiceItem)
+
+		var icurtReturnedItem, icurtReturnedCrate models.MTOServiceItemDimension
+		for _, dimension := range iucrtReturnedModel.Dimensions {
+			if dimension.Type == models.DimensionTypeItem {
+				icurtReturnedItem = dimension
+			} else {
+				icurtReturnedCrate = dimension
+			}
+		}
+
+		suite.NoVerrs(verrs)
+		suite.Equal(moveTaskOrderIDField.String(), iucrtReturnedModel.MoveTaskOrderID.String())
+		suite.Equal(mtoShipmentIDField.String(), iucrtReturnedModel.MTOShipmentID.String())
+		suite.Equal(models.ReServiceCodeIUCRT, iucrtReturnedModel.ReService.Code)
+		suite.Equal(IUCRTServiceItem.Reason, iucrtReturnedModel.Reason)
+		suite.Equal(IUCRTServiceItem.Description, iucrtReturnedModel.Description)
+		suite.Equal(unit.ThousandthInches(*ICRTServiceItem.Item.Length), icurtReturnedItem.Length)
+		suite.Equal(unit.ThousandthInches(*ICRTServiceItem.Crate.Length), icurtReturnedCrate.Length)
+	})
+
+	suite.Run("Fail -  Returns error for ICRT/IUCRT service item because of validation error", func() {
+		// ICRT
+		icrtCode := models.ReServiceCodeICRT.String()
+		externalCrate := false
+		badCrateMeasurement := int32(200)
+		badCrate := &primev3messages.MTOServiceItemDimension{
+			Height: &badCrateMeasurement,
+			Width:  &badCrateMeasurement,
+			Length: &badCrateMeasurement,
+		}
+
+		badICRTServiceItem := &primev3messages.MTOServiceItemInternationalCrating{
+			ReServiceCode:   &icrtCode,
+			Reason:          &reason,
+			Description:     &description,
+			StandaloneCrate: &standaloneCrate,
+			ExternalCrate:   &externalCrate,
+		}
+		badICRTServiceItem.Item.MTOServiceItemDimension = *item
+		badICRTServiceItem.Crate.MTOServiceItemDimension = *badCrate
+
+		badICRTServiceItem.SetMoveTaskOrderID(handlers.FmtUUID(moveTaskOrderIDField))
+		badICRTServiceItem.SetMtoShipmentID(*mtoShipmentIDString)
+
+		returnedModel, verrs := MTOServiceItemModel(badICRTServiceItem)
+
+		suite.True(verrs.HasAny(), fmt.Sprintf("invalid crate dimensions for %s service item", models.ReServiceCodeICRT))
+		suite.Nil(returnedModel, "returned a model when erroring")
+
+		// IUCRT
+		iucrtCode := models.ReServiceCodeIUCRT.String()
+
+		badIUCRTServiceItem := &primev3messages.MTOServiceItemInternationalCrating{
+			ReServiceCode:   &iucrtCode,
+			Reason:          &reason,
+			Description:     &description,
+			StandaloneCrate: &standaloneCrate,
+			ExternalCrate:   &externalCrate,
+		}
+		badIUCRTServiceItem.Item.MTOServiceItemDimension = *item
+		badIUCRTServiceItem.Crate.MTOServiceItemDimension = *badCrate
+
+		badIUCRTServiceItem.SetMoveTaskOrderID(handlers.FmtUUID(moveTaskOrderIDField))
+		badIUCRTServiceItem.SetMtoShipmentID(*mtoShipmentIDString)
+
+		iucrtReturnedModel, verrs := MTOServiceItemModel(badIUCRTServiceItem)
+
+		suite.True(verrs.HasAny(), fmt.Sprintf("invalid crate dimensions for %s service item", models.ReServiceCodeIUCRT))
+		suite.Nil(iucrtReturnedModel, "returned a model when erroring")
+	})
+
 	suite.Run("Success - Returns SIT destination service item model", func() {
 		destSITServiceItem := &primev3messages.MTOServiceItemDestSIT{
 			ReServiceCode:               &destServiceCode,
@@ -655,6 +779,86 @@ func (suite *PayloadsSuite) TestPPMShipmentModelFromCreate() {
 	suite.NotNil(model)
 }
 
+func (suite *PayloadsSuite) TestPPMShipmentModelWithOptionalDestinationStreet1FromCreate() {
+	time := time.Now()
+	expectedDepartureDate := handlers.FmtDatePtr(&time)
+
+	country := models.Country{
+		Country:     "US",
+		CountryName: "United States",
+	}
+
+	address := models.Address{
+		StreetAddress1: "some address",
+		City:           "city",
+		State:          "state",
+		PostalCode:     "12345",
+		Country:        &country,
+	}
+
+	var pickupAddress primev3messages.Address
+	var destinationAddress primev3messages.PPMDestinationAddress
+
+	pickupAddress = primev3messages.Address{
+		City:           &address.City,
+		Country:        &address.Country.Country,
+		PostalCode:     &address.PostalCode,
+		State:          &address.State,
+		StreetAddress1: &address.StreetAddress1,
+		StreetAddress2: address.StreetAddress2,
+		StreetAddress3: address.StreetAddress3,
+	}
+	destinationAddress = primev3messages.PPMDestinationAddress{
+		City:           &address.City,
+		Country:        &address.Country.Country,
+		PostalCode:     &address.PostalCode,
+		State:          &address.State,
+		StreetAddress1: models.StringPointer(""), // empty string
+		StreetAddress2: address.StreetAddress2,
+		StreetAddress3: address.StreetAddress3,
+	}
+
+	ppmShipment := primev3messages.UpdatePPMShipment{
+		ExpectedDepartureDate: expectedDepartureDate,
+		PickupAddress:         struct{ primev3messages.Address }{pickupAddress},
+		DestinationAddress: struct {
+			primev3messages.PPMDestinationAddress
+		}{destinationAddress},
+	}
+
+	model := PPMShipmentModelFromUpdate(&ppmShipment)
+
+	suite.NotNil(model)
+	suite.Equal(model.DestinationAddress.StreetAddress1, models.STREET_ADDRESS_1_NOT_PROVIDED)
+
+	// test when street address 1 contains white spaces
+	destinationAddress.StreetAddress1 = models.StringPointer("  ")
+	ppmShipmentWhiteSpaces := primev3messages.UpdatePPMShipment{
+		ExpectedDepartureDate: expectedDepartureDate,
+		PickupAddress:         struct{ primev3messages.Address }{pickupAddress},
+		DestinationAddress: struct {
+			primev3messages.PPMDestinationAddress
+		}{destinationAddress},
+	}
+
+	model2 := PPMShipmentModelFromUpdate(&ppmShipmentWhiteSpaces)
+	suite.Equal(model2.DestinationAddress.StreetAddress1, models.STREET_ADDRESS_1_NOT_PROVIDED)
+
+	// test with valid street address 2
+	streetAddress1 := "1234 Street"
+	destinationAddress.StreetAddress1 = &streetAddress1
+	ppmShipmentValidDestinatonStreet1 := primev3messages.UpdatePPMShipment{
+		ExpectedDepartureDate: expectedDepartureDate,
+		PickupAddress:         struct{ primev3messages.Address }{pickupAddress},
+		DestinationAddress: struct {
+			primev3messages.PPMDestinationAddress
+		}{destinationAddress},
+	}
+
+	model3 := PPMShipmentModelFromUpdate(&ppmShipmentValidDestinatonStreet1)
+	suite.Equal(model3.DestinationAddress.StreetAddress1, streetAddress1)
+}
+
 func (suite *PayloadsSuite) TestPPMShipmentModelFromUpdate() {
 	time := time.Now()
 	expectedDepartureDate := handlers.FmtDatePtr(&time)
@@ -1049,79 +1253,6 @@ func (suite *PayloadsSuite) TestMTOShipmentModelFromCreate_WithOptionalFields() 
 	suite.Equal("456 Main St", result.DestinationAddress.StreetAddress1)
 	suite.NotNil(result.TertiaryDeliveryAddress)
 	suite.Equal("1010 Oak St", result.TertiaryDeliveryAddress.StreetAddress1)
-}
-
-func (suite *PayloadsSuite) TestPPMShipmentModelWithOptionalDestinationStreet1FromCreate() {
-	time := time.Now()
-	expectedDepartureDate := handlers.FmtDatePtr(&time)
-
-	address := models.Address{
-		StreetAddress1: "some address",
-		City:           "city",
-		State:          "state",
-		PostalCode:     "12345",
-	}
-
-	var pickupAddress primev3messages.Address
-	var destinationAddress primev3messages.PPMDestinationAddress
-
-	pickupAddress = primev3messages.Address{
-		City:           &address.City,
-		PostalCode:     &address.PostalCode,
-		State:          &address.State,
-		StreetAddress1: &address.StreetAddress1,
-		StreetAddress2: address.StreetAddress2,
-		StreetAddress3: address.StreetAddress3,
-	}
-	destinationAddress = primev3messages.PPMDestinationAddress{
-		City:           &address.City,
-		PostalCode:     &address.PostalCode,
-		State:          &address.State,
-		StreetAddress1: models.StringPointer(""), // empty string
-		StreetAddress2: address.StreetAddress2,
-		StreetAddress3: address.StreetAddress3,
-	}
-
-	ppmShipment := primev3messages.CreatePPMShipment{
-		ExpectedDepartureDate: expectedDepartureDate,
-		PickupAddress:         struct{ primev3messages.Address }{pickupAddress},
-		DestinationAddress: struct {
-			primev3messages.PPMDestinationAddress
-		}{destinationAddress},
-	}
-
-	model := PPMShipmentModelFromCreate(&ppmShipment)
-
-	suite.NotNil(model)
-	suite.Equal(models.PPMShipmentStatusSubmitted, model.Status)
-	suite.Equal(model.DestinationAddress.StreetAddress1, models.STREET_ADDRESS_1_NOT_PROVIDED)
-
-	// test when street address 1 contains white spaces
-	destinationAddress.StreetAddress1 = models.StringPointer("  ")
-	ppmShipmentWhiteSpaces := primev3messages.CreatePPMShipment{
-		ExpectedDepartureDate: expectedDepartureDate,
-		PickupAddress:         struct{ primev3messages.Address }{pickupAddress},
-		DestinationAddress: struct {
-			primev3messages.PPMDestinationAddress
-		}{destinationAddress},
-	}
-
-	model2 := PPMShipmentModelFromCreate(&ppmShipmentWhiteSpaces)
-	suite.Equal(model2.DestinationAddress.StreetAddress1, models.STREET_ADDRESS_1_NOT_PROVIDED)
-
-	// test with valid street address 2
-	streetAddress1 := "1234 Street"
-	destinationAddress.StreetAddress1 = &streetAddress1
-	ppmShipmentValidDestinatonStreet1 := primev3messages.CreatePPMShipment{
-		ExpectedDepartureDate: expectedDepartureDate,
-		PickupAddress:         struct{ primev3messages.Address }{pickupAddress},
-		DestinationAddress: struct {
-			primev3messages.PPMDestinationAddress
-		}{destinationAddress},
-	}
-
-	model3 := PPMShipmentModelFromCreate(&ppmShipmentValidDestinatonStreet1)
-	suite.Equal(model3.DestinationAddress.StreetAddress1, streetAddress1)
 }
 
 func (suite *PayloadsSuite) TestPPMShipmentModelWithOptionalDestinationStreet1FromUpdate() {

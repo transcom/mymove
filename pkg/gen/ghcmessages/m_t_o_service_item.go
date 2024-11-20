@@ -62,6 +62,9 @@ type MTOServiceItem struct {
 	// Example: 2500
 	EstimatedWeight *int64 `json:"estimatedWeight,omitempty"`
 
+	// external crate
+	ExternalCrate *bool `json:"externalCrate,omitempty"`
+
 	// fee type
 	// Enum: [COUNSELING CRATING TRUCKING SHUTTLE]
 	FeeType string `json:"feeType,omitempty"`
