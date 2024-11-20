@@ -168,9 +168,9 @@ func (_m *SSWPPMComputer) FormatValuesShipmentSummaryWorksheetFormPage1(data mod
 	return r0, r1
 }
 
-// FormatValuesShipmentSummaryWorksheetFormPage2 provides a mock function with given fields: data, isPaymentPacket
-func (_m *SSWPPMComputer) FormatValuesShipmentSummaryWorksheetFormPage2(data models.ShipmentSummaryFormData, isPaymentPacket bool) (services.Page2Values, error) {
-	ret := _m.Called(data, isPaymentPacket)
+// FormatValuesShipmentSummaryWorksheetFormPage2 provides a mock function with given fields: data, isPaymentPacket, expensesMap
+func (_m *SSWPPMComputer) FormatValuesShipmentSummaryWorksheetFormPage2(data models.ShipmentSummaryFormData, isPaymentPacket bool, expensesMap map[string]float64) (services.Page2Values, error) {
+	ret := _m.Called(data, isPaymentPacket, expensesMap)
 
 	if len(ret) == 0 {
 		panic("no return value specified for FormatValuesShipmentSummaryWorksheetFormPage2")
@@ -178,17 +178,17 @@ func (_m *SSWPPMComputer) FormatValuesShipmentSummaryWorksheetFormPage2(data mod
 
 	var r0 services.Page2Values
 	var r1 error
-	if rf, ok := ret.Get(0).(func(models.ShipmentSummaryFormData, bool) (services.Page2Values, error)); ok {
-		return rf(data, isPaymentPacket)
+	if rf, ok := ret.Get(0).(func(models.ShipmentSummaryFormData, bool, map[string]float64) (services.Page2Values, error)); ok {
+		return rf(data, isPaymentPacket, expensesMap)
 	}
-	if rf, ok := ret.Get(0).(func(models.ShipmentSummaryFormData, bool) services.Page2Values); ok {
-		r0 = rf(data, isPaymentPacket)
+	if rf, ok := ret.Get(0).(func(models.ShipmentSummaryFormData, bool, map[string]float64) services.Page2Values); ok {
+		r0 = rf(data, isPaymentPacket, expensesMap)
 	} else {
 		r0 = ret.Get(0).(services.Page2Values)
 	}
 
-	if rf, ok := ret.Get(1).(func(models.ShipmentSummaryFormData, bool) error); ok {
-		r1 = rf(data, isPaymentPacket)
+	if rf, ok := ret.Get(1).(func(models.ShipmentSummaryFormData, bool, map[string]float64) error); ok {
+		r1 = rf(data, isPaymentPacket, expensesMap)
 	} else {
 		r1 = ret.Error(1)
 	}
