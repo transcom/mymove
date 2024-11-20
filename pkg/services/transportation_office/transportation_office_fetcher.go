@@ -150,8 +150,7 @@ func findCounselingOffice(appCtx appcontext.AppContext, dutyLocationID uuid.UUID
                 FROM counseling_offices
                 JOIN duty_locations duty_locations2 on counseling_offices.id = duty_locations2.transportation_office_id
                 JOIN addresses on counseling_offices.counseling_address = addresses.id
-                JOIN us_post_region_cities on addresses.us_post_region_cities_id = us_post_region_cities.id
-                JOIN re_us_post_regions on us_post_region_cities.us_post_regions_id = re_us_post_regions.id
+                JOIN re_us_post_regions on addresses.postal_code = re_us_post_regions.uspr_zip_id
                 LEFT JOIN zip3_distances ON (
 		                (re_us_post_regions.zip3 = zip3_distances.to_zip3
 		            AND counseling_offices.pickup_zip = zip3_distances.from_zip3)
