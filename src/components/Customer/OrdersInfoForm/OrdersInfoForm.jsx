@@ -179,6 +179,7 @@ const OrdersInfoForm = ({ ordersTypeOptions, initialValues, onSubmit, onBack }) 
                 id="origin_duty_location"
                 onDutyLocationChange={(e) => {
                   setCurrentDutyLocation(e);
+                  setCounselingOfficeOptions(null);
                 }}
                 required
                 metaOverride={originMeta}

@@ -226,6 +226,7 @@ const EditOrdersForm = ({
                 hint="Required"
                 onDutyLocationChange={(e) => {
                   setDutyLocation(e);
+                  setOfficeOptions(null);
                 }}
                 required
                 metaOverride={originMeta}
