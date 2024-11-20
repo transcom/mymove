@@ -20,7 +20,7 @@ import { downloadPPMAOAPacket, downloadPPMPaymentPacket } from 'services/interna
 import { ppmShipmentStatuses } from 'constants/shipments';
 import { setFlashMessage as setFlashMessageAction } from 'store/flash/actions';
 import scrollToTop from 'shared/scrollToTop';
-import { MOVE_STATUSES, SHIPMENT_TYPES } from 'shared/constants';
+import { MOVE_STATUSES } from 'shared/constants';
 
 const MultiMovesMoveContainer = ({ moves, setFlashMessage }) => {
   const [expandedMoves, setExpandedMoves] = useState({});
@@ -37,28 +37,28 @@ const MultiMovesMoveContainer = ({ moves, setFlashMessage }) => {
 
   // handles the title of the shipment header below each move
   const generateShipmentTypeTitle = (shipmentType) => {
-    if (shipmentType === SHIPMENT_TYPES.HHG) {
+    if (shipmentType === 'HHG') {
       return 'Household Goods';
     }
-    if (shipmentType === SHIPMENT_TYPES.PPM) {
+    if (shipmentType === 'PPM') {
       return 'Personally Procured Move';
     }
-    if (shipmentType === SHIPMENT_TYPES.NTS) {
+    if (shipmentType === 'HHG_INTO_NTS_DOMESTIC') {
       return 'Household Goods NTS';
     }
-    if (shipmentType === SHIPMENT_TYPES.NTSR) {
+    if (shipmentType === 'HHG_OUTOF_NTS_DOMESTIC') {
       return 'Household Goods NTSR';
     }
-    if (shipmentType === SHIPMENT_TYPES.MOBILE_HOME) {
+    if (shipmentType === 'MOBILE_HOME') {
       return 'Mobile Home';
     }
-    if (shipmentType === SHIPMENT_TYPES.BOAT_HAUL_AWAY) {
+    if (shipmentType === 'BOAT_HAUL_AWAY') {
       return 'Boat Haul Away';
     }
-    if (shipmentType === SHIPMENT_TYPES.BOAT_TOW_AWAY) {
+    if (shipmentType === 'BOAT_TOW_AWAY') {
       return 'Boat Tow Away';
     }
-    if (shipmentType === SHIPMENT_TYPES.UNACCOMPANIED_BAGGAGE) {
+    if (shipmentType === 'UNACCOMPANIED_BAGGAGE') {
       return 'Unaccompanied Baggage';
     }
     return 'Shipment';
