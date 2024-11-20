@@ -25,7 +25,7 @@ $$ LANGUAGE plpgsql;
 CREATE OR REPLACE FUNCTION checkExistingServiceItem(
     service_id UUID,
     shipment_id UUID
-) RETURNS BOOLEAN AS $
+) RETURNS BOOLEAN AS $$
 BEGIN
     IF EXISTS (
         SELECT 1
@@ -37,7 +37,7 @@ BEGIN
     END IF;
     RETURN FALSE;
 END;
-$ LANGUAGE plpgsql;
+$$ LANGUAGE plpgsql;
 
 
 -- stored proc that creates auto-approved service items based off of a shipment id
@@ -274,6 +274,10 @@ BEGIN
 
     IF s_type IS NULL OR m_code IS NULL THEN
         RAISE EXCEPTION ''Shipment with ID % not found or missing required details.'', shipment_id;
+    END IF;
+
+    IF s_type <> item.shipment_type THEN
+    RAISE EXCEPTION ''Shipment type mismatch. Expected %, but got %.'', s_type, item.shipment_type;
     END IF;
 
     -- loop through each provided service item  object
