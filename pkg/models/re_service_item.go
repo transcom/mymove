@@ -20,3 +20,6 @@ type ReServiceItem struct {
 func (r ReServiceItem) TableName() string {
 	return "re_service_items"
 }
+
+// ReServiceItems is a slice of ReServiceItem
+type ReServiceItems []ReServiceItem
