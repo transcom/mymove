@@ -4,8 +4,6 @@ import { Formik, Field } from 'formik';
 import * as Yup from 'yup';
 import { Radio, FormGroup, Label, Link as USWDSLink } from '@trussworks/react-uswds';
 
-import { isBooleanFlagEnabled } from '../../../utils/featureFlags';
-
 import styles from './EditOrdersForm.module.scss';
 
 import { ORDERS_PAY_GRADE_OPTIONS, ORDERS_TYPE } from 'constants/orders';
@@ -13,7 +11,7 @@ import { Form } from 'components/form/Form';
 import FileUpload from 'components/FileUpload/FileUpload';
 import UploadsTable from 'components/UploadsTable/UploadsTable';
 import SectionWrapper from 'components/Customer/SectionWrapper';
-import { FEATURE_FLAG_KEYS, documentSizeLimitMsg } from 'shared/constants';
+import { documentSizeLimitMsg } from 'shared/constants';
 import profileImage from 'scenes/Review/images/profile.png';
 import { DropdownArrayOf } from 'types';
 import { ExistingUploadsShape } from 'types/uploads';
@@ -41,7 +39,7 @@ const EditOrdersForm = ({
     initialValues.orders_type === ORDERS_TYPE.EARLY_RETURN_OF_DEPENDENTS;
   const [isHasDependentsDisabled, setHasDependentsDisabled] = useState(isInitialHasDependentsDisabled);
   const [prevOrderType, setPrevOrderType] = useState(initialValues.orders_type);
-  const [filteredOrderTypeOptions, setFilteredOrderTypeOptions] = useState(ordersTypeOptions);
+
   const validationSchema = Yup.object().shape({
     orders_type: Yup.mixed()
       .oneOf(ordersTypeOptions.map((i) => i.key))
@@ -93,21 +91,6 @@ const EditOrdersForm = ({
       }
     });
   }, [dutyLocation]);
-
-  useEffect(() => {
-    const fetchData = async () => {
-      const alaskaEnabled = await isBooleanFlagEnabled(FEATURE_FLAG_KEYS.ENABLE_ALASKA);
-
-      const updatedOptions = alaskaEnabled
-        ? ordersTypeOptions
-        : ordersTypeOptions.filter(
-            (e) => e.key !== ORDERS_TYPE.EARLY_RETURN_OF_DEPENDENTS && e.key !== ORDERS_TYPE.STUDENT_TRAVEL,
-          );
-
-      setFilteredOrderTypeOptions(updatedOptions);
-    };
-    fetchData();
-  }, [ordersTypeOptions]);
 
   return (
     <Formik
@@ -164,7 +147,7 @@ const EditOrdersForm = ({
               <DropdownInput
                 label="Orders type"
                 name="orders_type"
-                options={filteredOrderTypeOptions}
+                options={ordersTypeOptions}
                 required
                 hint="Required"
                 onChange={(e) => {
