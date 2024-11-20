@@ -16,6 +16,8 @@ import { bulkDownloadPaymentRequest, updateUpload } from 'services/ghcApi';
 import { formatDate } from 'shared/dates';
 import { filenameFromPath } from 'utils/formatters';
 import AsyncPacketDownloadLink from 'shared/AsyncPacketDownloadLink/AsyncPacketDownloadLink';
+import { UPLOAD_DOC_STATUS } from 'shared/constants';
+import Alert from 'shared/Alert';
 
 /**
  * TODO
@@ -26,6 +28,7 @@ import AsyncPacketDownloadLink from 'shared/AsyncPacketDownloadLink/AsyncPacketD
 
 const DocumentViewer = ({ files, allowDownload, paymentRequestId }) => {
   const [selectedFileIndex, selectFile] = useState(0);
+  const [fileStatus, setFileStatus] = useState(null);
   const [disableSaveButton, setDisableSaveButton] = useState(false);
   const [menuIsOpen, setMenuOpen] = useState(false);
   const sortedFiles = files.sort((a, b) => moment(b.createdAt) - moment(a.createdAt));
@@ -36,6 +39,19 @@ const DocumentViewer = ({ files, allowDownload, paymentRequestId }) => {
   const mountedRef = useRef(true);
 
   const queryClient = useQueryClient();
+
+  const handleFileProcessingStatus = async () => {
+    setFileStatus('UPLOADING');
+    await new Promise((resolve) => {
+      setTimeout(resolve, 3000);
+    }).then(() => setFileStatus('SCANNING'));
+    await new Promise((resolve) => {
+      setTimeout(resolve, 3000);
+    }).then(() => setFileStatus('ESTABLISHING'));
+    await new Promise((resolve) => {
+      setTimeout(resolve, 3000);
+    }).then(() => setFileStatus('LOADED'));
+  };
 
   const { mutate: mutateUploads } = useMutation(updateUpload, {
     onSuccess: async (data, variables) => {
@@ -60,7 +76,7 @@ const DocumentViewer = ({ files, allowDownload, paymentRequestId }) => {
     } else {
       setDisableSaveButton(true);
     }
-  }, [rotationValue, selectedFile, selectFile]);
+  }, [rotationValue, selectedFile]);
 
   useEffect(() => {
     return () => {
@@ -74,12 +90,13 @@ const DocumentViewer = ({ files, allowDownload, paymentRequestId }) => {
 
   useEffect(() => {
     setRotationValue(selectedFile?.rotation || 0);
+    handleFileProcessingStatus();
   }, [selectedFile]);
 
   const fileType = useRef(selectedFile?.contentType);
 
-  if (!selectedFile) {
-    return <h2>File Not Found</h2>;
+  if (!selectedFile || !fileStatus) {
+    return <Alert heading="File Not Found" />;
   }
 
   const openMenu = () => {
@@ -91,8 +108,19 @@ const DocumentViewer = ({ files, allowDownload, paymentRequestId }) => {
 
   const handleSelectFile = (index) => {
     selectFile(index);
+
     closeMenu();
   };
+
+  if (fileStatus && fileStatus !== 'LOADED') {
+    return (
+      <Alert type="info" className="usa-width-one-whole" heading="Document Status">
+        {fileStatus === UPLOAD_DOC_STATUS.UPLOADING && 'Uploading'}
+        {fileStatus === UPLOAD_DOC_STATUS.SCANNING && 'Scanning'}
+        {fileStatus === UPLOAD_DOC_STATUS.ESTABLISHING && 'Establishing Document for View'}
+      </Alert>
+    );
+  }
 
   const fileTypeMap = {
     'application/pdf': 'pdf',
