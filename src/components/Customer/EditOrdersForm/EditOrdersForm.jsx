@@ -165,9 +165,16 @@ const EditOrdersForm = ({
         new_duty_location: true,
       }}
     >
-      {({ isValid, isSubmitting, handleSubmit, values, setFieldValue }) => {
+      {({ isValid, isSubmitting, handleSubmit, setValues, values, setFieldValue }) => {
         const isRetirementOrSeparation = ['RETIREMENT', 'SEPARATION'].includes(values.orders_type);
 
+        const handleCounselingOfficeChange = () => {
+          setValues({
+            ...values,
+            counseling_office_id: null,
+          });
+          setOfficeOptions(null);
+        };
         if (!values.origin_duty_location) originMeta = 'Required';
         else originMeta = null;
 
@@ -226,7 +233,7 @@ const EditOrdersForm = ({
                 hint="Required"
                 onDutyLocationChange={(e) => {
                   setDutyLocation(e);
-                  setOfficeOptions(null);
+                  handleCounselingOfficeChange();
                 }}
                 required
                 metaOverride={originMeta}
@@ -470,6 +477,7 @@ EditOrdersForm.propTypes = {
     dependents_under_twelve: PropTypes.string,
     dependents_twelve_and_over: PropTypes.string,
     accompanied_tour: PropTypes.string,
+    counseling_office_id: PropTypes.string,
     uploaded_orders: ExistingUploadsShape,
   }).isRequired,
   onCancel: PropTypes.func.isRequired,
