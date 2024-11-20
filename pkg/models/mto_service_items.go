@@ -67,9 +67,9 @@ type MTOServiceItem struct {
 	PricingEstimate                   *unit.Cents                    `db:"pricing_estimate"`
 	StandaloneCrate                   *bool                          `db:"standalone_crate"`
 	LockedPriceCents                  *unit.Cents                    `db:"locked_price_cents"`
-	POELocation                       *Port                          `belongs_to:"port" fk_id:"poe_location_id"`
+	POELocation                       *PortLocation                  `belongs_to:"port_locations" fk_id:"poe_location_id"`
 	POELocationID                     *uuid.UUID                     `db:"poe_location_id"`
-	PODLocation                       *Port                          `belongs_to:"port" fk_id:"pod_location_id"`
+	PODLocation                       *PortLocation                  `belongs_to:"port_locations" fk_id:"pod_location_id"`
 	PODLocationID                     *uuid.UUID                     `db:"pod_location_id"`
 	ServiceLocation                   *ServiceLocationType           `db:"service_location"`
 }
