@@ -197,7 +197,7 @@ describe('ServiceItemsTable', () => {
     );
 
     expect(wrapper.find('table').exists()).toBe(true);
-    expect(wrapper.find('dt').at(0).text()).toBe('Original delivery address:');
+    expect(wrapper.find('dt').at(0).text()).toBe('Original Delivery Address:');
     expect(wrapper.find('dd').at(0).text()).toBe('Destination Original Tampa, FL 33621');
 
     expect(wrapper.find('dt').at(1).text()).toBe('SIT entry date:');
@@ -247,7 +247,7 @@ describe('ServiceItemsTable', () => {
         />
       </MockProviders>,
     );
-    expect(wrapper.find('dt').at(0).contains('Original pickup address')).toBe(true);
+    expect(wrapper.find('dt').at(0).contains('Original Pickup Address')).toBe(true);
     expect(wrapper.find('dd').at(0).contains('Origin Original Tampa, FL 33621')).toBe(true);
 
     expect(wrapper.find('dt').at(1).contains('SIT entry date')).toBe(true);

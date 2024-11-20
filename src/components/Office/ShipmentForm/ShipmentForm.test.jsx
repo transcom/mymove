@@ -2135,7 +2135,7 @@ describe('ShipmentForm component', () => {
       expect(await screen.findByTestId('tag')).toHaveTextContent('PPM');
       expect(screen.getByText('Is this PPM an Actual Expense Reimbursement?')).toBeInTheDocument();
       expect(screen.getByText('What address are you moving from?')).toBeInTheDocument();
-      expect(screen.getByText('Second pickup address')).toBeInTheDocument();
+      expect(screen.getByText('Second Pickup Address')).toBeInTheDocument();
       expect(
         screen.getByText(
           'Will you move any belongings from a second address? (Must be near the pickup address. Subject to approval.)',
@@ -2143,7 +2143,7 @@ describe('ShipmentForm component', () => {
       ).toBeInTheDocument();
 
       expect(screen.getByText('Delivery Address')).toBeInTheDocument();
-      expect(screen.getByText('Second delivery address')).toBeInTheDocument();
+      expect(screen.getByText('Second Delivery Address')).toBeInTheDocument();
       expect(
         screen.getByText(
           'Will you move any belongings to a second address? (Must be near the delivery address. Subject to approval.)',
@@ -2160,9 +2160,9 @@ describe('ShipmentForm component', () => {
           userRole={roleTypes.SERVICES_COUNSELOR}
         />,
       );
-      expect(screen.queryByText('Third pickup address')).not.toBeInTheDocument();
+      expect(screen.queryByText('Third Pickup Address')).not.toBeInTheDocument();
       fireEvent.click(screen.getByTestId('has-secondary-pickup'));
-      expect(await screen.findByText('Third pickup address')).toBeInTheDocument();
+      expect(await screen.findByText('Third Pickup Address')).toBeInTheDocument();
       expect(
         await screen.findByText(
           'Will you move any belongings from a third address? (Must be near the pickup address. Subject to approval.)',
@@ -2179,9 +2179,9 @@ describe('ShipmentForm component', () => {
           userRole={roleTypes.SERVICES_COUNSELOR}
         />,
       );
-      expect(screen.queryByText('Third delivery address')).not.toBeInTheDocument();
+      expect(screen.queryByText('Third Delivery Address')).not.toBeInTheDocument();
       fireEvent.click(screen.getByTestId('has-secondary-destination'));
-      expect(await screen.findByText('Third delivery address')).toBeInTheDocument();
+      expect(await screen.findByText('Third Delivery Address')).toBeInTheDocument();
       expect(
         await screen.findByText(
           'Will you move any belongings to a third address? (Must be near the delivery address. Subject to approval.)',

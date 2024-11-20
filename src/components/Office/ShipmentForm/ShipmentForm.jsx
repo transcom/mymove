@@ -945,7 +945,7 @@ const ShipmentForm = (props) => {
                                 id="useCurrentResidenceCheckbox"
                               />
                               {fields}
-                              <h4>Second pickup address</h4>
+                              <h4>Second Pickup Address</h4>
                               <FormGroup>
                                 <p>Do you want movers to pick up any belongings from a second address?</p>
                                 <div className={formStyles.radioGroup}>
@@ -976,7 +976,7 @@ const ShipmentForm = (props) => {
                                   <AddressFields name="secondaryPickup.address" />
                                   {isTertiaryAddressEnabled && (
                                     <>
-                                      <h4>Third pickup address</h4>
+                                      <h4>Third Pickup Address</h4>
                                       <FormGroup>
                                         <p>Do you want movers to pick up any belongings from a third address?</p>
                                         <div className={formStyles.radioGroup}>
@@ -1084,7 +1084,7 @@ const ShipmentForm = (props) => {
                               return fields;
                             }}
                           />
-                          <h4>Second delivery address</h4>
+                          <h4>Second Delivery Address</h4>
                           <FormGroup>
                             <p>Do you want the movers to deliver any belongings to a second address?</p>
                             <div className={formStyles.radioGroup}>
@@ -1115,7 +1115,7 @@ const ShipmentForm = (props) => {
                               <AddressFields name="secondaryDelivery.address" />
                               {isTertiaryAddressEnabled && (
                                 <>
-                                  <h4>Third delivery address</h4>
+                                  <h4>Third Delivery Address</h4>
                                   <FormGroup>
                                     <p>Do you want the movers to deliver any belongings from a third address?</p>
                                     <div className={formStyles.radioGroup}>
@@ -1229,7 +1229,7 @@ const ShipmentForm = (props) => {
                                       id="destinationType"
                                     />
                                   )}
-                                  <h4>Second delivery address</h4>
+                                  <h4>Second Delivery Address</h4>
                                   <FormGroup>
                                     <p>Do you want the movers to deliver any belongings to a second address?</p>
                                     <div className={formStyles.radioGroup}>
@@ -1260,7 +1260,7 @@ const ShipmentForm = (props) => {
                                       <AddressFields name="secondaryDelivery.address" />
                                       {isTertiaryAddressEnabled && (
                                         <>
-                                          <h4>Third delivery address</h4>
+                                          <h4>Third Delivery Address</h4>
                                           <FormGroup>
                                             <p>
                                               Do you want the movers to deliver any belongings from a third address?
@@ -1392,7 +1392,7 @@ const ShipmentForm = (props) => {
                               id="useCurrentResidenceCheckbox"
                             />
                             {fields}
-                            <h4>Second pickup address</h4>
+                            <h4>Second Pickup Address</h4>
                             <FormGroup>
                               <p>
                                 Will you move any belongings from a second address? (Must be near the pickup address.
@@ -1426,7 +1426,7 @@ const ShipmentForm = (props) => {
                                 <AddressFields name="secondaryPickup.address" />
                                 {isTertiaryAddressEnabled && (
                                   <>
-                                    <h4>Third pickup address</h4>
+                                    <h4>Third Pickup Address</h4>
                                     <FormGroup>
                                       <p>
                                         Will you move any belongings from a third address? (Must be near the pickup
@@ -1470,7 +1470,7 @@ const ShipmentForm = (props) => {
                         render={(fields) => (
                           <>
                             {fields}
-                            <h4>Second delivery address</h4>
+                            <h4>Second Delivery Address</h4>
                             <FormGroup>
                               <p>
                                 Will you move any belongings to a second address? (Must be near the delivery address.
@@ -1504,7 +1504,7 @@ const ShipmentForm = (props) => {
                                 <AddressFields name="secondaryDestination.address" />
                                 {isTertiaryAddressEnabled && (
                                   <>
-                                    <h4>Third delivery address</h4>
+                                    <h4>Third Delivery Address</h4>
                                     <FormGroup>
                                       <p>
                                         Will you move any belongings to a third address? (Must be near the delivery

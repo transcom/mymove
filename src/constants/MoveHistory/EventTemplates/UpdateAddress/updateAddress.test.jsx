@@ -7,12 +7,12 @@ import { shipmentTypes } from 'constants/shipments';
 import { formatMoveHistoryFullAddress } from 'utils/formatters';
 
 const LABEL = {
-  backupMailingAddress: 'Backup address',
+  backupMailingAddress: 'Backup Address',
   destinationAddress: 'Delivery Address',
-  pickupAddress: 'Pickup address',
+  pickupAddress: 'Pickup Address',
   residentialAddress: 'Pickup Address',
-  secondaryDestinationAddress: 'Secondary delivery address',
-  secondaryPickupAddress: 'Second pickup address',
+  secondaryDestinationAddress: 'Second Delivery Address',
+  secondaryPickupAddress: 'Second Pickup Address',
 };
 
 describe('when given a Update basic service item address history record', () => {

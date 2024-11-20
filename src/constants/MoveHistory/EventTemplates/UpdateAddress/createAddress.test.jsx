@@ -5,12 +5,12 @@ import createAddress from 'constants/MoveHistory/EventTemplates/UpdateAddress/cr
 import ADDRESS_TYPE from 'constants/MoveHistory/Database/AddressTypes';
 
 const LABEL = {
-  backupMailingAddress: 'Backup address',
+  backupMailingAddress: 'Backup Address',
   destinationAddress: 'Delivery Address',
-  pickupAddress: 'Pickup address',
+  pickupAddress: 'Pickup Address',
   residentialAddress: 'Pickup Address',
-  secondaryDestinationAddress: 'Second delivery address',
-  secondaryPickupAddress: 'Second pickup address',
+  secondaryDestinationAddress: 'Second Delivery Address',
+  secondaryPickupAddress: 'Second Pickup Address',
 };
 
 describe('when given an insert with address table history record', () => {
