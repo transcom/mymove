@@ -155,7 +155,7 @@ const MoveDetails = ({ setFlashMessage }) => {
 
   if (isLoading) return <LoadingPlaceholder />;
   if (isError) {
-    return errors[0]?.response?.body?.message ? <Inaccessible /> : <SomethingWentWrong />;
+    return errors?.[0]?.response?.body?.message ? <Inaccessible /> : <SomethingWentWrong />;
   }
 
   const { mtoShipments, paymentRequests, mtoServiceItems } = moveTaskOrder;

@@ -113,7 +113,11 @@ const TXOMoveInfo = () => {
 
   if (isLoading) return <LoadingPlaceholder />;
   if (isError) {
-    return errors[0]?.response?.body?.message === INACCESSIBLE_API_RESPONSE ? <Inaccessible /> : <SomethingWentWrong />;
+    return errors?.[0]?.response?.body?.message === INACCESSIBLE_API_RESPONSE ? (
+      <Inaccessible />
+    ) : (
+      <SomethingWentWrong />
+    );
   }
 
   // this locked move banner will display if the current user is not the one who has it locked

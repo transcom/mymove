@@ -490,7 +490,7 @@ const ServicesCounselingMoveDetails = ({
 
   if (isLoading) return <LoadingPlaceholder />;
   if (isError) {
-    return errors[0]?.response?.body?.message ? <Inaccessible /> : <SomethingWentWrong />;
+    return errors?.[0]?.response?.body?.message ? <Inaccessible /> : <SomethingWentWrong />;
   }
 
   const handleShowSubmitMoveModal = () => {

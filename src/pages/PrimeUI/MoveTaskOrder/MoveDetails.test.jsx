@@ -4,6 +4,7 @@ import userEvent from '@testing-library/user-event';
 
 import MoveDetails from './MoveDetails';
 
+import { INACCESSIBLE_RETURN_VALUE } from 'utils/test/api';
 import { usePrimeSimulatorGetMove } from 'hooks/queries';
 import { MockProviders } from 'testUtils';
 import { completeCounseling, deleteShipment, downloadMoveOrder } from 'services/primeApi';
@@ -342,6 +343,15 @@ describe('PrimeUI MoveDetails page', () => {
       // Check for Edit buttons
       const editButtons = screen.getAllByRole('link', { name: 'Edit' });
       expect(editButtons).toHaveLength(3);
+    });
+
+    it("shows inaccessible error page when Prime user tries to access a safety move they don't have privileges to", async () => {
+      usePrimeSimulatorGetMove.mockReturnValue(INACCESSIBLE_RETURN_VALUE);
+
+      renderWithProviders(<MoveDetails />);
+
+      const errorMessage = screen.getByText(/Page is not accessible./);
+      expect(errorMessage).toBeInTheDocument();
     });
   });
 });
