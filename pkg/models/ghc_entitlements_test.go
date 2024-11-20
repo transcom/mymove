@@ -87,3 +87,83 @@ func (suite *ModelSuite) TestOconusFields() {
 		suite.NotNil(verrs.Get("dependents_twelve_and_over"))
 	})
 }
+
+func (suite *ModelSuite) TestTotalDependentsValidation() {
+	suite.Run("sets sum of total dependents when nil", func() {
+		entitlement := models.Entitlement{
+			DependentsUnderTwelve:   models.IntPointer(2),
+			DependentsTwelveAndOver: models.IntPointer(3),
+			TotalDependents:         nil,
+		}
+		verrs, err := entitlement.Validate(suite.DB())
+		suite.NoError(err)
+		suite.False(verrs.HasAny())
+		suite.NotNil(entitlement.TotalDependents)
+		suite.Equal(5, *entitlement.TotalDependents)
+	})
+
+	suite.Run("nothing breaks if sum of total dependents is already correct", func() {
+		entitlement := models.Entitlement{
+			DependentsUnderTwelve:   models.IntPointer(2),
+			DependentsTwelveAndOver: models.IntPointer(3),
+			TotalDependents:         models.IntPointer(5),
+		}
+		verrs, err := entitlement.Validate(suite.DB())
+		suite.NoError(err)
+		suite.False(verrs.HasAny())
+		suite.NotNil(entitlement.TotalDependents)
+		suite.Equal(5, *entitlement.TotalDependents)
+	})
+
+	suite.Run("fixes sum of total dependents if incorrect", func() {
+		entitlement := models.Entitlement{
+			DependentsUnderTwelve:   models.IntPointer(2),
+			DependentsTwelveAndOver: models.IntPointer(3),
+			TotalDependents:         models.IntPointer(6),
+		}
+		verrs, err := entitlement.Validate(suite.DB())
+		suite.NoError(err)
+		suite.False(verrs.HasAny())
+		suite.NotNil(entitlement.TotalDependents)
+		suite.Equal(5, *entitlement.TotalDependents)
+	})
+
+	suite.Run("handles nil DependentsUnderTwelve", func() {
+		entitlement := models.Entitlement{
+			DependentsUnderTwelve:   nil,
+			DependentsTwelveAndOver: models.IntPointer(3),
+			TotalDependents:         nil,
+		}
+		verrs, err := entitlement.Validate(suite.DB())
+		suite.NoError(err)
+		suite.False(verrs.HasAny())
+		suite.NotNil(entitlement.TotalDependents)
+		suite.Equal(3, *entitlement.TotalDependents)
+	})
+
+	suite.Run("handles nil DependentsTwelveAndOver", func() {
+		entitlement := models.Entitlement{
+			DependentsUnderTwelve:   models.IntPointer(2),
+			DependentsTwelveAndOver: nil,
+			TotalDependents:         nil,
+		}
+		verrs, err := entitlement.Validate(suite.DB())
+		suite.NoError(err)
+		suite.False(verrs.HasAny())
+		suite.NotNil(entitlement.TotalDependents)
+		suite.Equal(2, *entitlement.TotalDependents)
+	})
+
+	suite.Run("handles nil DependentsUnderTwelve and DependentsTwelveAndOver", func() {
+		entitlement := models.Entitlement{
+			DependentsUnderTwelve:   nil,
+			DependentsTwelveAndOver: nil,
+			TotalDependents:         nil,
+		}
+		verrs, err := entitlement.Validate(suite.DB())
+		suite.NoError(err)
+		suite.False(verrs.HasAny())
+		suite.NotNil(entitlement.TotalDependents)
+		suite.Equal(0, *entitlement.TotalDependents)
+	})
+}

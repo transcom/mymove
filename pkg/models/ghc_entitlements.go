@@ -43,6 +43,7 @@ func (e Entitlement) TableName() string {
 // Validate gets run every time you call a "pop.Validate*" (pop.ValidateAndSave, pop.ValidateAndCreate, pop.ValidateAndUpdate) method.
 func (e *Entitlement) Validate(*pop.Connection) (*validate.Errors, error) {
 	var vs []validate.Validator
+	var totalDependents int
 
 	vs = append(vs,
 		&validators.IntIsGreaterThan{Field: e.ProGearWeight, Compared: -1, Name: "ProGearWeight"},
@@ -53,10 +54,17 @@ func (e *Entitlement) Validate(*pop.Connection) (*validate.Errors, error) {
 
 	if e.DependentsUnderTwelve != nil {
 		vs = append(vs, &validators.IntIsGreaterThan{Field: *e.DependentsUnderTwelve, Compared: -1, Name: "DependentsUnderTwelve"})
+		totalDependents += *e.DependentsUnderTwelve
 	}
 
 	if e.DependentsTwelveAndOver != nil {
 		vs = append(vs, &validators.IntIsGreaterThan{Field: *e.DependentsTwelveAndOver, Compared: -1, Name: "DependentsTwelveAndOver"})
+		totalDependents += *e.DependentsTwelveAndOver
+	}
+
+	// Calculate sum of total dependents
+	if e.TotalDependents == nil || *e.TotalDependents != totalDependents {
+		e.TotalDependents = &totalDependents
 	}
 
 	if e.UBAllowance != nil {
