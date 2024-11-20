@@ -3,5 +3,10 @@
 # Copies the react file viewer webpack chunks to a public static directory to enable serving
 # Without this, the client will attempt to HTTP GET the chunk file, but if it cannot be found (Because it isn't served)
 # it will default to MilMove's index.html
-# This doesn't serve it, but it enables the backend to serve the static chunk fle
+# This doesn't serve it, but it enables the backend to serve the static chunk file
+# README!: CI/CD does not use this script.
+# If you are wondering the diff between this and CI/CD, it's this:
+# This script works at any point in the configuration. It enables the public folder to hold the client dependency properly
+# CI/CD needs a separate script "`fetch-react-file-viewer-from-yarn" because CI/CD must have its deps configured DURING compile
+# This script only works AFTER compile. This is a dev friendly script
 cp node_modules/@transcom/react-file-viewer/dist/*.js public/static/react-file-viewer
