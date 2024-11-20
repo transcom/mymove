@@ -345,12 +345,8 @@ func (f orderFetcher) ListAllOrderLocations(appCtx appcontext.AppContext, office
 	// If the user is associated with the USMC GBLOC we want to show them ALL the USMC moves, so let's override here.
 	// We also only want to do the gbloc filtering thing if we aren't a USMC user, which we cover with the else.
 	// var gblocQuery QueryOption
-	var gblocToFilterBy *string
 	if officeUserGbloc == "USMC" && !needsCounseling {
 		branchQuery = branchFilter(models.StringPointer(string(models.AffiliationMARINES)), needsCounseling, ppmCloseoutGblocs)
-		gblocToFilterBy = &officeUserGbloc
-	} else {
-		gblocToFilterBy = &officeUserGbloc
 	}
 
 	// We need to use three different GBLOC filter queries because:
@@ -363,13 +359,13 @@ func (f orderFetcher) ListAllOrderLocations(appCtx appcontext.AppContext, office
 	//    does not populate the pickup address field.
 	var gblocQuery QueryOption
 	if ppmCloseoutGblocs {
-		gblocQuery = gblocFilterForPPMCloseoutForNavyMarineAndCG(gblocToFilterBy)
+		gblocQuery = gblocFilterForPPMCloseoutForNavyMarineAndCG(&officeUserGbloc)
 	} else if needsCounseling {
-		gblocQuery = gblocFilterForSC(gblocToFilterBy)
+		gblocQuery = gblocFilterForSC(&officeUserGbloc)
 	} else if params.NeedsPPMCloseout != nil && *params.NeedsPPMCloseout {
-		gblocQuery = gblocFilterForSCinArmyAirForce(gblocToFilterBy)
+		gblocQuery = gblocFilterForSCinArmyAirForce(&officeUserGbloc)
 	} else {
-		gblocQuery = gblocFilterForTOO(gblocToFilterBy)
+		gblocQuery = gblocFilterForTOO(&officeUserGbloc)
 	}
 	moveStatusQuery := moveStatusFilter(params.Status)
 	// Adding to an array so we can iterate over them and apply the filters after the query structure is set below
