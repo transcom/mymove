@@ -29,7 +29,7 @@ type PPTASShipment struct {
 	// Appropriation
 	Appro *string `json:"appro,omitempty"`
 
-	// LoaSbaltmtRcpntID in lines_of_accounting
+	// LoaAlltSnID in lines_of_accounting
 	Bcn *string `json:"bcn,omitempty"`
 
 	// LoaPgmElmntID in lines_of_accounting
@@ -92,7 +92,7 @@ type PPTASShipment struct {
 	// net weight
 	NetWeight *int64 `json:"netWeight,omitempty"`
 
-	// LoaAlltSnID in lines_of_accounting
+	// LoaObjClsID in lines_of_accounting
 	ObjClass *string `json:"objClass,omitempty"`
 
 	// origin address
@@ -188,10 +188,10 @@ type PPTASShipment struct {
 	// Example: Destination
 	SitType *string `json:"sitType,omitempty"`
 
-	// LoaInstlAcntgActID in lines_of_accounting
+	// LoaSbaltmtRcpntID in lines_of_accounting
 	SubAllotCD *string `json:"subAllotCD,omitempty"`
 
-	// LoaObjClsID in lines_of_accounting
+	// LoaTrsySfxTx in lines_of_accounting
 	Subhead *string `json:"subhead,omitempty"`
 
 	// travel advance
