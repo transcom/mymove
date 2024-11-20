@@ -22,7 +22,10 @@ def total_coverage_percent(filename):
 def coverage_diff(filename1, filename2):
   if not filename1 or not filename2:
     return
-  os.system(f"git --no-pager diff --no-index -U0 '{filename1}' '{filename2}'")
+
+  # using subprocess.run with a list of arguments to avoid shell injection risks
+  # this was changed in E-05910
+  subprocess.run(["git", "--no-pager", "diff", "--no-index", "-U0", filename1, filename2], check=True)
 
 
 baseline_file = sys.argv[1]
