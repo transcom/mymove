@@ -320,7 +320,7 @@ func (suite *GHCRateEngineServiceSuite) setUpDomesticDestinationData() {
 			},
 		})
 
-	domesticDestinationService := factory.BuildReService(suite.DB(), []factory.Customization{
+	domesticDestinationService := factory.FetchReService(suite.DB(), []factory.Customization{
 		{
 			Model: models.ReService{
 				Code: models.ReServiceCodeDDP,
