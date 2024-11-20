@@ -22,6 +22,20 @@ EXCEPTION
 END;
 $$ LANGUAGE plpgsql;
 
+CREATE OR REPLACE FUNCTION checkExistingServiceItem(
+    service_id UUID,
+    shipment_id UUID
+) RETURNS BOOLEAN AS $$
+BEGIN
+    RETURN EXISTS (
+        SELECT 1
+        FROM mto_service_items
+        WHERE re_service_id = service_id
+        AND mto_shipment_id = shipment_id
+    );
+END;
+$$ LANGUAGE plpgsql;
+
 
 -- stored proc that creates auto-approved service items based off of a shipment id
 CREATE OR REPLACE PROCEDURE CreateApprovedServiceItemsForShipment(
@@ -29,7 +43,7 @@ CREATE OR REPLACE PROCEDURE CreateApprovedServiceItemsForShipment(
 )
 AS '
 DECLARE
-    s_status mto_shipmnt_status;
+    s_status mto_shipment_status;
     s_type mto_shipment_type;
     m_code market_code_enum;
     move_id UUID;
@@ -74,6 +88,7 @@ BEGIN
               AND rsi.is_auto_approved = true
         LOOP
             BEGIN
+            IF NOT checkExistingServiceItem(service_item.re_service_id, shipment_id) THEN
                 INSERT INTO mto_service_items (
                     mto_shipment_id,
                     move_id,
@@ -94,6 +109,7 @@ BEGIN
                     NOW(),
                     NOW()
                 );
+                END IF;
             EXCEPTION
                 WHEN OTHERS THEN
                     RAISE EXCEPTION ''Error creating PODFSC service item for shipment %: %'', shipment_id, SQLERRM;
@@ -114,6 +130,7 @@ BEGIN
               AND rsi.is_auto_approved = true
         LOOP
             BEGIN
+           IF NOT checkExistingServiceItem(service_item.re_service_id, shipment_id) THEN
                 INSERT INTO mto_service_items (
                     mto_shipment_id,
                     move_id,
@@ -134,6 +151,7 @@ BEGIN
                     NOW(),
                     NOW()
                 );
+                END IF;
             EXCEPTION
                 WHEN OTHERS THEN
                     RAISE EXCEPTION ''Error creating POEFSC service item for shipment %: %'', shipment_id, SQLERRM;
@@ -158,6 +176,7 @@ BEGIN
           AND rs.code NOT IN (''POEFSC'', ''PODFSC'')
     LOOP
         BEGIN
+         IF NOT checkExistingServiceItem(service_item.re_service_id, shipment_id) THEN
             INSERT INTO mto_service_items (
                 mto_shipment_id,
                 move_id,
@@ -178,6 +197,7 @@ BEGIN
                 NOW(),
                 NOW()
             );
+            End IF;
         EXCEPTION
             WHEN OTHERS THEN
                 RAISE EXCEPTION ''Error creating other service item for shipment %: %'', shipment_id, SQLERRM;
@@ -269,6 +289,7 @@ BEGIN
               AND rsi.is_auto_approved = false
         LOOP
             BEGIN
+            IF NOT checkExistingServiceItem(service_item.re_service_id, shipment_id) THEN
                 INSERT INTO mto_service_items (
                     mto_shipment_id,
                     move_id,
@@ -322,8 +343,8 @@ BEGIN
                     (item).customer_expense_reason,
                     (item).sit_delivery_miles,
                     (item).standalone_crate
-
                 );
+                END IF;
             EXCEPTION
                 WHEN OTHERS THEN
                     RAISE EXCEPTION ''Error creating accessorial service item with code % for shipment %: %'',
