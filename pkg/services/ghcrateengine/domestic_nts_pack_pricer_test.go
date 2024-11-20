@@ -115,7 +115,7 @@ func (suite *GHCRateEngineServiceSuite) setupDomesticNTSPackPrices(schedule int,
 			},
 		})
 
-	packService := factory.BuildReServiceByCode(suite.DB(), models.ReServiceCodeDPK)
+	packService := factory.FetchReServiceByCode(suite.DB(), models.ReServiceCodeDPK)
 	otherPrice := models.ReDomesticOtherPrice{
 		ContractID:   contractYear.Contract.ID,
 		ServiceID:    packService.ID,
@@ -126,7 +126,7 @@ func (suite *GHCRateEngineServiceSuite) setupDomesticNTSPackPrices(schedule int,
 
 	suite.MustSave(&otherPrice)
 
-	ntsPackService := factory.BuildReServiceByCode(suite.DB(), models.ReServiceCodeDNPK)
+	ntsPackService := factory.FetchReServiceByCode(suite.DB(), models.ReServiceCodeDNPK)
 	shipmentTypePrice := models.ReShipmentTypePrice{
 		ContractID: contractYear.Contract.ID,
 		ServiceID:  ntsPackService.ID,

@@ -25,13 +25,13 @@ func (suite *ServiceParamValueLookupsSuite) TestWeightBilledLookup() {
 		suite.Equal("1024", valueStr)
 	})
 
-	suite.Run("original is exactly 110% of estimated weight", func() {
+	suite.Run("ISLH is minimum of 500", func() {
 		// Set the original weight to exactly 110% of estimated weight
-		_, _, paramLookup := suite.setupTestMTOServiceItemWithWeight(unit.Pound(100), unit.Pound(110), models.ReServiceCodeNSTH, models.MTOShipmentTypeHHG)
+		_, _, paramLookup := suite.setupTestMTOServiceItemWithWeight(unit.Pound(100), unit.Pound(110), models.ReServiceCodeISLH, models.MTOShipmentTypeHHG)
 
 		valueStr, err := paramLookup.ServiceParamValue(suite.AppContextForTest(), key)
 		suite.FatalNoError(err)
-		suite.Equal("110", valueStr)
+		suite.Equal("500", valueStr)
 	})
 
 	suite.Run("original is 120% of estimated weight but there is no adjusted weight", func() {
@@ -94,12 +94,12 @@ func (suite *ServiceParamValueLookupsSuite) TestWeightBilledLookup() {
 		{models.ReServiceCodeDOPSIT, unit.Pound(450), "500", models.MTOShipmentTypeHHG},
 		{models.ReServiceCodeDDDSIT, unit.Pound(450), "500", models.MTOShipmentTypeHHG},
 		// International
-		{models.ReServiceCodeIOOLH, unit.Pound(450), "500", models.MTOShipmentTypeHHG},
-		{models.ReServiceCodeIOOUB, unit.Pound(250), "300", models.MTOShipmentTypeHHG},
-		{models.ReServiceCodeICOLH, unit.Pound(450), "500", models.MTOShipmentTypeHHG},
-		{models.ReServiceCodeICOUB, unit.Pound(250), "300", models.MTOShipmentTypeHHG},
-		{models.ReServiceCodeIOCLH, unit.Pound(450), "500", models.MTOShipmentTypeHHG},
-		{models.ReServiceCodeIOCUB, unit.Pound(250), "300", models.MTOShipmentTypeHHG},
+		{models.ReServiceCodeISLH, unit.Pound(450), "500", models.MTOShipmentTypeHHG},
+		{models.ReServiceCodeUBP, unit.Pound(250), "300", models.MTOShipmentTypeHHG},
+		{models.ReServiceCodeISLH, unit.Pound(450), "500", models.MTOShipmentTypeHHG},
+		{models.ReServiceCodeUBP, unit.Pound(250), "300", models.MTOShipmentTypeHHG},
+		{models.ReServiceCodeISLH, unit.Pound(450), "500", models.MTOShipmentTypeHHG},
+		{models.ReServiceCodeUBP, unit.Pound(250), "300", models.MTOShipmentTypeHHG},
 		{models.ReServiceCodeIHPK, unit.Pound(450), "500", models.MTOShipmentTypeHHG},
 		{models.ReServiceCodeIHUPK, unit.Pound(450), "500", models.MTOShipmentTypeHHG},
 		{models.ReServiceCodeIUBPK, unit.Pound(250), "300", models.MTOShipmentTypeHHG},
