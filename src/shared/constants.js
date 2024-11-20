@@ -86,6 +86,11 @@ export const SHIPMENT_OPTIONS = {
   UNACCOMPANIED_BAGGAGE: 'UNACCOMPANIED_BAGGAGE',
 };
 
+export const MARKET_CODES = {
+  INTERNATIONAL: 'i',
+  DOMESTIC: 'd',
+};
+
 export const SHIPMENT_TYPES = {
   HHG: 'HHG',
   PPM: 'PPM',
@@ -203,6 +208,7 @@ export const FEATURE_FLAG_KEYS = {
   BOAT: 'boat',
   MOBILE_HOME: 'mobile_home',
   UNACCOMPANIED_BAGGAGE: 'unaccompanied_baggage',
+  ENABLE_ALASKA: 'enable_alaska',
 };
 
 export const MOVE_DOCUMENT_TYPE = {
