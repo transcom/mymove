@@ -30,6 +30,7 @@ func TestMove(t *testing.T) {
 
 func (suite *PayloadsSuite) TestPaymentRequestQueue() {
 	officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
+	officeUserTIO := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTIO})
 
 	gbloc := "LKNQ"
 
@@ -56,54 +57,61 @@ func (suite *PayloadsSuite) TestPaymentRequestQueue() {
 	}, nil)
 
 	paymentRequests := models.PaymentRequests{pr2}
-	transportationOffice := factory.BuildTransportationOffice(suite.DB(), nil, nil)
-	paymentRequests[0].MoveTaskOrder.TIOAssignedUser = &officeUser
+	transportationOffice := factory.BuildTransportationOffice(suite.DB(), []factory.Customization{
+		{
+			Model: models.TransportationOffice{
+				Name:             "PPSO",
+				ProvidesCloseout: true,
+			},
+		},
+	}, nil)
+	var officeUsers models.OfficeUsers
+	officeUsers = append(officeUsers, officeUser)
+	var paymentRequestsQueue = QueuePaymentRequests(&paymentRequests, officeUsers, officeUser, false, false)
+
+	suite.Run("Test Payment request is assignable due to not being assigend", func() {
+		// paymentRequests := QueuePaymentRequests(&paymentRequests, officeUsers, officeUser, false, false)
+		paymentRequestCopy := *paymentRequestsQueue
+		suite.NotNil(paymentRequestsQueue)
+		suite.IsType(paymentRequestsQueue, &ghcmessages.QueuePaymentRequests{})
+		suite.Nil(paymentRequestCopy[0].AssignedTo)
+	})
+
+	suite.Run("Test Payment request has no counseling office", func() {
+		// paymentRequests := QueuePaymentRequests(&paymentRequests, officeUsers, officeUser, false, false)
+		paymentRequestCopy := *paymentRequestsQueue
+		suite.NotNil(paymentRequestsQueue)
+		suite.IsType(paymentRequestsQueue, &ghcmessages.QueuePaymentRequests{})
+		suite.Nil(paymentRequestCopy[0].CounselingOffice)
+	})
+
+	paymentRequests[0].MoveTaskOrder.TIOAssignedUser = &officeUserTIO
 	paymentRequests[0].MoveTaskOrder.CounselingOffice = &transportationOffice
 
-	var officeUsers models.OfficeUsers
-	officeUsers = append(officeUsers, officeUser)
+	paymentRequestsQueue = QueuePaymentRequests(&paymentRequests, officeUsers, officeUser, false, false)
 
-	suite.Run("Test Counseling Offices and TIO AssignedUser ", func() {
-		result := QueuePaymentRequests(&paymentRequests, officeUsers, officeUser, true, false)
-		suite.NotNil(result)
+	suite.Run("Test PaymentRequest has both Counseling Office and TIO AssignedUser ", func() {
+		// PaymentRequests := QueuePaymentRequests(&paymentRequests, officeUsers, officeUser, true, false)
+		PaymentRequestsCopy := *paymentRequestsQueue
+
+		suite.NotNil(PaymentRequests)
+		suite.IsType(&ghcmessages.QueuePaymentRequests{}, paymentRequestsQueue)
+		suite.IsType(&ghcmessages.QueuePaymentRequest{}, PaymentRequestsCopy[0])
+		suite.Equal(PaymentRequestsCopy[0].AssignedTo.FirstName, officeUserTIO.FirstName)
+		suite.Equal(PaymentRequestsCopy[0].AssignedTo.LastName, officeUserTIO.LastName)
+		suite.Equal(*PaymentRequestsCopy[0].CounselingOffice, transportationOffice.Name)
 	})
-}
 
-func (suite *PayloadsSuite) TestPaymentRequestQueueAvailableOfficeUsers() {
-	officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
+	suite.Run("Test PaymentRequest is assignable due to user Supervisor role", func() {
+		paymentRequests := QueuePaymentRequests(&paymentRequests, officeUsers, officeUser, true, false)
+		paymentRequestCopy := *paymentRequests
+		suite.Equal(paymentRequestCopy[0].Assignable, true)
+	})
 
-	gbloc := "LKNQ"
-
-	approvedMove := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
-	approvedMove.ShipmentGBLOC = append(approvedMove.ShipmentGBLOC, models.MoveToGBLOC{GBLOC: &gbloc})
-
-	pr2 := factory.BuildPaymentRequest(suite.DB(), []factory.Customization{
-		{
-			Model:    approvedMove,
-			LinkOnly: true,
-		},
-		{
-			Model: models.TransportationOffice{
-				Gbloc: "LKNQ",
-			},
-			Type: &factory.TransportationOffices.OriginDutyLocation,
-		},
-		{
-			Model: models.DutyLocation{
-				Name: "KJKJKJKJKJK",
-			},
-			Type: &factory.DutyLocations.OriginDutyLocation,
-		},
-	}, nil)
-
-	paymentRequests := models.PaymentRequests{pr2}
-
-	var officeUsers models.OfficeUsers
-	officeUsers = append(officeUsers, officeUser)
-
-	suite.Run("attach available office users if move is assignable", func() {
-		result := QueuePaymentRequests(&paymentRequests, officeUsers, officeUser, false, false)
-		suite.NotNil(result)
+	suite.Run("Test PaymentRequest is not assignable due to user HQ role", func() {
+		paymentRequests := QueuePaymentRequests(&paymentRequests, officeUsers, officeUser, false, true)
+		paymentRequestCopy := *paymentRequests
+		suite.Equal(paymentRequestCopy[0].Assignable, false)
 	})
 }
 
