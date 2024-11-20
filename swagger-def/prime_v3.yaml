@@ -904,6 +904,10 @@ definitions:
         x-nullable: true
       ppmShipment:
         $ref: '#/definitions/UpdatePPMShipment'
+      portOfEmbarkation:
+        $ref: 'definitions/Port.yaml'
+      portOfDebarkation:
+        $ref: 'definitions/Port.yaml'
   UpdateMTOShipmentStatus:
     description: Contains the statuses available to the Prime when updating the state of a shipment.
     type: object

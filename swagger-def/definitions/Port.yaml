@@ -1,0 +1,95 @@
+description: A port
+type: object
+properties:
+  id:
+    type: string
+    format: uuid
+    example: c56a4180-65aa-42ec-a945-5fd21dec0538
+  portType:
+    type: string
+    description: 'Port type A (Air), B(Border Crossing), S (Surface)'
+    enum:
+      - A
+      - P
+      - S
+  portCode:
+    type: string
+    description: '3 or 4 digit port code'
+    example: '0431'
+  portName:
+    type: string
+    description: 'Name of the port'
+    example: 'Anchorage'
+  city:
+    type: string
+    example: 'Anchorage'
+  county:
+    type: string
+    example: 'Anchorage'
+  state:
+    type: string
+    description: 'US state'
+    example: 'AK'
+    enum:
+      - AL
+      - AK
+      - AR
+      - AZ
+      - CA
+      - CO
+      - CT
+      - DC
+      - DE
+      - FL
+      - GA
+      - HI
+      - IA
+      - ID
+      - IL
+      - IN
+      - KS
+      - KY
+      - LA
+      - MA
+      - MD
+      - ME
+      - MI
+      - MN
+      - MO
+      - MS
+      - MT
+      - NC
+      - ND
+      - NE
+      - NH
+      - NJ
+      - NM
+      - NV
+      - NY
+      - OH
+      - OK
+      - OR
+      - PA
+      - RI
+      - SC
+      - SD
+      - TN
+      - TX
+      - UT
+      - VA
+      - VT
+      - WA
+      - WI
+      - WV
+      - WY
+  zip:
+    type: string
+    format: zip
+    title: ZIP
+    example: '99501'
+    pattern: '^(\d{5}([\-]\d{4})?)$'
+  country:
+    type: string
+    example: 'US'
+    pattern: '^[A-Z]{2}$'
+    description: 'Two-letter country code'

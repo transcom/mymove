@@ -181,7 +181,10 @@ func (h UpdateMTOShipmentHandler) Handle(params mtoshipmentops.UpdateMTOShipment
 				"TertiaryPickupAddress",
 				"TertiaryDeliveryAddress",
 				"StorageFacility",
-				"PPMShipment")
+				"PPMShipment",
+				"MTOServiceItems.PODLocation",
+				"MTOServiceItems.POELocation",
+			)
 			if err != nil {
 				return mtoshipmentops.NewUpdateMTOShipmentNotFound().WithPayload(
 					payloads.ClientError(handlers.NotFoundMessage, err.Error(), h.GetTraceIDFromRequest(params.HTTPRequest))), err
