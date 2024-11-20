@@ -89,6 +89,9 @@ type MTOShipmentWithoutServiceItems struct {
 		Address
 	} `json:"destinationAddress,omitempty"`
 
+	// destination rate area
+	DestinationRateArea *RateArea `json:"destinationRateArea,omitempty"`
+
 	// The SIT authorized end date for destination SIT.
 	// Format: date
 	DestinationSitAuthEndDate *strfmt.Date `json:"destinationSitAuthEndDate,omitempty"`
@@ -137,6 +140,9 @@ type MTOShipmentWithoutServiceItems struct {
 	// The previously recorded weight for the NTS Shipment. Used for NTS Release to know what the previous primeActualWeight or billable weight was.
 	// Example: 4500
 	NtsRecordedWeight *int64 `json:"ntsRecordedWeight,omitempty"`
+
+	// origin rate area
+	OriginRateArea *RateArea `json:"originRateArea,omitempty"`
 
 	// The SIT authorized end date for origin SIT.
 	// Format: date
@@ -268,6 +274,10 @@ func (m *MTOShipmentWithoutServiceItems) Validate(formats strfmt.Registry) error
 		res = append(res, err)
 	}
 
+	if err := m.validateDestinationRateArea(formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.validateDestinationSitAuthEndDate(formats); err != nil {
 		res = append(res, err)
 	}
@@ -293,6 +303,10 @@ func (m *MTOShipmentWithoutServiceItems) Validate(formats strfmt.Registry) error
 	}
 
 	if err := m.validateMoveTaskOrderID(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateOriginRateArea(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -497,6 +511,25 @@ func (m *MTOShipmentWithoutServiceItems) validateDestinationAddress(formats strf
 	return nil
 }
 
+func (m *MTOShipmentWithoutServiceItems) validateDestinationRateArea(formats strfmt.Registry) error {
+	if swag.IsZero(m.DestinationRateArea) { // not required
+		return nil
+	}
+
+	if m.DestinationRateArea != nil {
+		if err := m.DestinationRateArea.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("destinationRateArea")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("destinationRateArea")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
 func (m *MTOShipmentWithoutServiceItems) validateDestinationSitAuthEndDate(formats strfmt.Registry) error {
 	if swag.IsZero(m.DestinationSitAuthEndDate) { // not required
 		return nil
@@ -620,6 +653,25 @@ func (m *MTOShipmentWithoutServiceItems) validateMoveTaskOrderID(formats strfmt.
 
 	if err := validate.FormatOf("moveTaskOrderID", "body", "uuid", m.MoveTaskOrderID.String(), formats); err != nil {
 		return err
+	}
+
+	return nil
+}
+
+func (m *MTOShipmentWithoutServiceItems) validateOriginRateArea(formats strfmt.Registry) error {
+	if swag.IsZero(m.OriginRateArea) { // not required
+		return nil
+	}
+
+	if m.OriginRateArea != nil {
+		if err := m.OriginRateArea.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("originRateArea")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("originRateArea")
+			}
+			return err
+		}
 	}
 
 	return nil
@@ -1010,6 +1062,10 @@ func (m *MTOShipmentWithoutServiceItems) ContextValidate(ctx context.Context, fo
 		res = append(res, err)
 	}
 
+	if err := m.contextValidateDestinationRateArea(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.contextValidateDestinationType(ctx, formats); err != nil {
 		res = append(res, err)
 	}
@@ -1031,6 +1087,10 @@ func (m *MTOShipmentWithoutServiceItems) ContextValidate(ctx context.Context, fo
 	}
 
 	if err := m.contextValidateMoveTaskOrderID(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidateOriginRateArea(ctx, formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -1201,6 +1261,27 @@ func (m *MTOShipmentWithoutServiceItems) contextValidateDestinationAddress(ctx c
 	return nil
 }
 
+func (m *MTOShipmentWithoutServiceItems) contextValidateDestinationRateArea(ctx context.Context, formats strfmt.Registry) error {
+
+	if m.DestinationRateArea != nil {
+
+		if swag.IsZero(m.DestinationRateArea) { // not required
+			return nil
+		}
+
+		if err := m.DestinationRateArea.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("destinationRateArea")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("destinationRateArea")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
 func (m *MTOShipmentWithoutServiceItems) contextValidateDestinationType(ctx context.Context, formats strfmt.Registry) error {
 
 	if m.DestinationType != nil {
@@ -1274,6 +1355,27 @@ func (m *MTOShipmentWithoutServiceItems) contextValidateMoveTaskOrderID(ctx cont
 
 	if err := validate.ReadOnly(ctx, "moveTaskOrderID", "body", strfmt.UUID(m.MoveTaskOrderID)); err != nil {
 		return err
+	}
+
+	return nil
+}
+
+func (m *MTOShipmentWithoutServiceItems) contextValidateOriginRateArea(ctx context.Context, formats strfmt.Registry) error {
+
+	if m.OriginRateArea != nil {
+
+		if swag.IsZero(m.OriginRateArea) { // not required
+			return nil
+		}
+
+		if err := m.OriginRateArea.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("originRateArea")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("originRateArea")
+			}
+			return err
+		}
 	}
 
 	return nil

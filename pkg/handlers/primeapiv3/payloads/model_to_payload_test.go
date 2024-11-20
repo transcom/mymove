@@ -1,6 +1,8 @@
 package payloads
 
 import (
+	"encoding/json"
+	"slices"
 	"time"
 
 	"github.com/go-openapi/strfmt"
@@ -13,6 +15,7 @@ import (
 	"github.com/transcom/mymove/pkg/gen/primev3messages"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/unit"
 )
 
@@ -104,7 +107,275 @@ func (suite *PayloadsSuite) TestMoveTaskOrder() {
 		suite.Require().NotEmpty(returnedModel.MtoShipments)
 		suite.Equal(basicMove.MTOShipments[0].PickupAddress.County, *returnedModel.MtoShipments[0].PickupAddress.County)
 	})
+
+	suite.Run("Success - payload with RateArea", func() {
+		cloneMove := func(orig *models.Move) (*models.Move, error) {
+			origJSON, err := json.Marshal(orig)
+			if err != nil {
+				return nil, err
+			}
+
+			clone := models.Move{}
+			if err = json.Unmarshal(origJSON, &clone); err != nil {
+				return nil, err
+			}
+
+			return &clone, nil
+		}
+
+		newMove, err := cloneMove(&basicMove)
+		suite.NotNil(newMove)
+		suite.Nil(err)
+
+		const fairbanksAlaskaPostalCode = "99716"
+		const anchorageAlaskaPostalCode = "99521"
+		const wasillaAlaskaPostalCode = "99652"
+
+		//clear MTOShipment and rebuild with specifics for test
+		newMove.MTOShipments = newMove.MTOShipments[:0]
+
+		newMove.MTOShipments = append(newMove.MTOShipments, models.MTOShipment{
+			PickupAddress: &models.Address{
+				StreetAddress1: "123 Main St",
+				StreetAddress2: &streetAddress2,
+				StreetAddress3: &streetAddress3,
+				City:           "Fairbanks",
+				State:          "AK",
+				PostalCode:     fairbanksAlaskaPostalCode,
+			},
+			DestinationAddress: &models.Address{
+				StreetAddress1: "123 Main St",
+				StreetAddress2: &streetAddress2,
+				StreetAddress3: &streetAddress3,
+				City:           "Anchorage",
+				State:          "AK",
+				PostalCode:     anchorageAlaskaPostalCode,
+			},
+		})
+		newMove.MTOShipments = append(newMove.MTOShipments, models.MTOShipment{
+			PickupAddress: &models.Address{
+				StreetAddress1: "123 Main St",
+				StreetAddress2: &streetAddress2,
+				StreetAddress3: &streetAddress3,
+				City:           "Wasilla",
+				State:          "AK",
+				PostalCode:     wasillaAlaskaPostalCode,
+			},
+			DestinationAddress: &models.Address{
+				StreetAddress1: "123 Main St",
+				StreetAddress2: &streetAddress2,
+				StreetAddress3: &streetAddress3,
+				City:           "Wasilla",
+				State:          "AK",
+				PostalCode:     wasillaAlaskaPostalCode,
+			},
+		})
+		newMove.MTOShipments = append(newMove.MTOShipments, models.MTOShipment{
+			ShipmentType: models.MTOShipmentTypePPM,
+			PPMShipment: &models.PPMShipment{
+				ID:                          uuid.Must(uuid.NewV4()),
+				ApprovedAt:                  models.TimePointer(time.Now()),
+				Status:                      models.PPMShipmentStatusNeedsAdvanceApproval,
+				ActualMoveDate:              models.TimePointer(time.Now()),
+				ActualPickupPostalCode:      models.StringPointer("42444"),
+				ActualDestinationPostalCode: models.StringPointer("30813"),
+				HasReceivedAdvance:          models.BoolPointer(true),
+				AdvanceAmountReceived:       models.CentPointer(unit.Cents(340000)),
+				FinalIncentive:              models.CentPointer(50000000),
+				PickupAddress: &models.Address{
+					StreetAddress1: "123 Main St",
+					StreetAddress2: &streetAddress2,
+					StreetAddress3: &streetAddress3,
+					City:           "Wasilla",
+					State:          "AK",
+					PostalCode:     wasillaAlaskaPostalCode,
+				},
+				DestinationAddress: &models.Address{
+					StreetAddress1: "123 Main St",
+					StreetAddress2: &streetAddress2,
+					StreetAddress3: &streetAddress3,
+					City:           "Wasilla",
+					State:          "AK",
+					PostalCode:     wasillaAlaskaPostalCode,
+				},
+			},
+		})
+		newMove.MTOShipments = append(newMove.MTOShipments, models.MTOShipment{
+			PPMShipment: &models.PPMShipment{
+				ID:                          uuid.Must(uuid.NewV4()),
+				ApprovedAt:                  models.TimePointer(time.Now()),
+				Status:                      models.PPMShipmentStatusNeedsAdvanceApproval,
+				ActualMoveDate:              models.TimePointer(time.Now()),
+				ActualPickupPostalCode:      models.StringPointer("42444"),
+				ActualDestinationPostalCode: models.StringPointer("30813"),
+				HasReceivedAdvance:          models.BoolPointer(true),
+				AdvanceAmountReceived:       models.CentPointer(unit.Cents(340000)),
+				FinalIncentive:              models.CentPointer(50000000),
+				PickupAddress: &models.Address{
+					StreetAddress1: "123 Main St",
+					StreetAddress2: &streetAddress2,
+					StreetAddress3: &streetAddress3,
+					City:           "Beverly Hills",
+					State:          "CA",
+					PostalCode:     "90210",
+				},
+				DestinationAddress: &models.Address{
+					StreetAddress1: "123 Main St",
+					StreetAddress2: &streetAddress2,
+					StreetAddress3: &streetAddress3,
+					City:           "Beverly Hills",
+					State:          "CA",
+					PostalCode:     "90210",
+				},
+			},
+		})
+		newMove.MTOShipments = append(newMove.MTOShipments, models.MTOShipment{
+			PickupAddress: &models.Address{
+				StreetAddress1: "123 Main St",
+				StreetAddress2: &streetAddress2,
+				StreetAddress3: &streetAddress3,
+				City:           "Beverly Hills",
+				State:          "CA",
+				PostalCode:     "90210",
+			},
+			DestinationAddress: &models.Address{
+				StreetAddress1: "123 Main St",
+				StreetAddress2: &streetAddress2,
+				StreetAddress3: &streetAddress3,
+				City:           "Beverly Hills",
+				State:          "CA",
+				PostalCode:     "90210",
+			},
+		})
+
+		// no ShipmentPostalCodeRateArea passed in
+		returnedModel := MoveTaskOrderWithShipmentOconusRateArea(newMove, nil)
+
+		suite.IsType(&primev3messages.MoveTaskOrder{}, returnedModel)
+		suite.Equal(strfmt.UUID(newMove.ID.String()), returnedModel.ID)
+		suite.Equal(newMove.Locator, returnedModel.MoveCode)
+		suite.Equal(strfmt.DateTime(newMove.CreatedAt), returnedModel.CreatedAt)
+		suite.Equal(handlers.FmtDateTimePtr(newMove.AvailableToPrimeAt), returnedModel.AvailableToPrimeAt)
+		suite.Equal(strfmt.UUID(newMove.OrdersID.String()), returnedModel.OrderID)
+		suite.Equal(ordersType, returnedModel.Order.OrdersType)
+		suite.Equal(shipmentGBLOC, returnedModel.Order.OriginDutyLocationGBLOC)
+		suite.Equal(referenceID, returnedModel.ReferenceID)
+		suite.Equal(strfmt.DateTime(newMove.UpdatedAt), returnedModel.UpdatedAt)
+		suite.NotEmpty(returnedModel.ETag)
+		suite.True(returnedModel.ExcessWeightQualifiedAt.Equal(strfmt.DateTime(*newMove.ExcessWeightQualifiedAt)))
+		suite.True(returnedModel.ExcessWeightAcknowledgedAt.Equal(strfmt.DateTime(*newMove.ExcessWeightAcknowledgedAt)))
+		suite.Require().NotNil(returnedModel.ExcessWeightUploadID)
+		suite.Equal(strfmt.UUID(newMove.ExcessWeightUploadID.String()), *returnedModel.ExcessWeightUploadID)
+		suite.Equal(factory.DefaultContractNumber, returnedModel.ContractNumber)
+		suite.Equal(models.SupplyAndServicesCostEstimate, returnedModel.Order.SupplyAndServicesCostEstimate)
+		suite.Equal(models.MethodOfPayment, returnedModel.Order.MethodOfPayment)
+		suite.Equal(models.NAICS, returnedModel.Order.Naics)
+		suite.Equal(packingInstructions, returnedModel.Order.PackingAndShippingInstructions)
+		suite.Require().NotEmpty(returnedModel.MtoShipments)
+		suite.Equal(newMove.MTOShipments[0].PickupAddress.County, *returnedModel.MtoShipments[0].PickupAddress.County)
+
+		// verify there are no RateArea set because no ShipmentPostalCodeRateArea passed in.
+		for _, shipment := range returnedModel.MtoShipments {
+			suite.Nil(shipment.OriginRateArea)
+			suite.Nil(shipment.DestinationRateArea)
+			if shipment.PpmShipment != nil {
+				suite.Nil(shipment.PpmShipment.OriginRateArea)
+				suite.Nil(shipment.PpmShipment.DestinationRateArea)
+			}
+		}
+
+		// mock up ShipmentPostalCodeRateArea
+		shipmentPostalCodeRateArea := []services.ShipmentPostalCodeRateArea{
+			{
+				PostalCode: fairbanksAlaskaPostalCode,
+				RateArea: &models.ReRateArea{
+					ID:   uuid.Must(uuid.NewV4()),
+					Code: fairbanksAlaskaPostalCode,
+					Name: fairbanksAlaskaPostalCode,
+				},
+			},
+			{
+				PostalCode: anchorageAlaskaPostalCode,
+				RateArea: &models.ReRateArea{
+					ID:   uuid.Must(uuid.NewV4()),
+					Code: anchorageAlaskaPostalCode,
+					Name: anchorageAlaskaPostalCode,
+				},
+			},
+			{
+				PostalCode: wasillaAlaskaPostalCode,
+				RateArea: &models.ReRateArea{
+					ID:   uuid.Must(uuid.NewV4()),
+					Code: wasillaAlaskaPostalCode,
+					Name: wasillaAlaskaPostalCode,
+				},
+			},
+		}
+
+		returnedModel = MoveTaskOrderWithShipmentOconusRateArea(newMove, &shipmentPostalCodeRateArea)
+
+		var shipmentPostalCodeRateAreaLookupMap = make(map[string]services.ShipmentPostalCodeRateArea)
+		for _, i := range shipmentPostalCodeRateArea {
+			shipmentPostalCodeRateAreaLookupMap[i.PostalCode] = i
+		}
+
+		// test Alaska/Oconus PostCodes have associative RateArea for respective shipment
+		expectedAlaskaPostalCodes := []string{fairbanksAlaskaPostalCode, anchorageAlaskaPostalCode, wasillaAlaskaPostalCode}
+		for _, shipment := range returnedModel.MtoShipments {
+			if shipment.PpmShipment != nil {
+				suite.NotNil(shipment.PpmShipment.PickupAddress)
+				suite.NotNil(shipment.PpmShipment.DestinationAddress)
+				if slices.Contains(expectedAlaskaPostalCodes, *shipment.PpmShipment.PickupAddress.PostalCode) {
+					// verify mapping of RateArea is correct
+					ra, contains := shipmentPostalCodeRateAreaLookupMap[*shipment.PpmShipment.PickupAddress.PostalCode]
+					suite.True(contains)
+					suite.NotNil(shipment.PpmShipment.OriginRateArea)
+					// for testing purposes RateArea code/names are using postalCodes as value
+					suite.Equal(ra.PostalCode, *shipment.PpmShipment.PickupAddress.PostalCode)
+					suite.Equal(ra.PostalCode, *shipment.PpmShipment.OriginRateArea.RateAreaName)
+				} else {
+					suite.Nil(shipment.PpmShipment.OriginRateArea)
+				}
+				if slices.Contains(expectedAlaskaPostalCodes, *shipment.PpmShipment.DestinationAddress.PostalCode) {
+					ra, contains := shipmentPostalCodeRateAreaLookupMap[*shipment.PpmShipment.DestinationAddress.PostalCode]
+					suite.True(contains)
+					suite.NotNil(shipment.PpmShipment.DestinationRateArea)
+					suite.Equal(ra.PostalCode, *shipment.PpmShipment.DestinationAddress.PostalCode)
+					suite.Equal(ra.PostalCode, *shipment.PpmShipment.DestinationRateArea.RateAreaName)
+				} else {
+					suite.Nil(shipment.PpmShipment.DestinationRateArea)
+				}
+				// because it's PPM verify root doesnt have rateArea for org/dest
+				suite.Nil(shipment.OriginRateArea)
+				suite.Nil(shipment.DestinationRateArea)
+			} else {
+				suite.NotNil(shipment.PickupAddress)
+				suite.NotNil(shipment.DestinationAddress)
+				if slices.Contains(expectedAlaskaPostalCodes, *shipment.PickupAddress.PostalCode) {
+					ra, contains := shipmentPostalCodeRateAreaLookupMap[*shipment.PickupAddress.PostalCode]
+					suite.True(contains)
+					suite.NotNil(shipment.OriginRateArea)
+					suite.Equal(ra.PostalCode, *shipment.PickupAddress.PostalCode)
+					suite.Equal(ra.PostalCode, *shipment.OriginRateArea.RateAreaName)
+					suite.NotNil(shipment.OriginRateArea)
+				} else {
+					suite.Nil(shipment.OriginRateArea)
+				}
+				if slices.Contains(expectedAlaskaPostalCodes, *shipment.DestinationAddress.PostalCode) {
+					ra, contains := shipmentPostalCodeRateAreaLookupMap[*shipment.DestinationAddress.PostalCode]
+					suite.True(contains)
+					suite.NotNil(shipment.DestinationRateArea)
+					suite.Equal(ra.PostalCode, *shipment.DestinationAddress.PostalCode)
+					suite.Equal(ra.PostalCode, *shipment.DestinationRateArea.RateAreaName)
+					suite.NotNil(shipment.OriginRateArea)
+				} else {
+					suite.Nil(shipment.OriginRateArea)
+				}
+			}
+		}
+	})
 }
+
 func (suite *PayloadsSuite) TestReweigh() {
 	id, _ := uuid.NewV4()
 	shipmentID, _ := uuid.NewV4()
@@ -737,6 +1008,76 @@ func (suite *PayloadsSuite) TestMTOServiceItemDCRT() {
 
 	_, ok := resultDCRT.(*primev3messages.MTOServiceItemDomesticCrating)
 
+	suite.True(ok)
+}
+
+func (suite *PayloadsSuite) TestMTOServiceItemICRTandIUCRT() {
+	icrtReServiceCode := models.ReServiceCodeICRT
+	iucrtReServiceCode := models.ReServiceCodeIUCRT
+	reason := "reason"
+	standaloneCrate := false
+	externalCrate := false
+	dateOfContact1 := time.Now()
+	timeMilitary1 := "1500Z"
+	firstAvailableDeliveryDate1 := dateOfContact1.AddDate(0, 0, 10)
+	dateOfContact2 := time.Now().AddDate(0, 0, 5)
+	timeMilitary2 := "1300Z"
+	firstAvailableDeliveryDate2 := dateOfContact2.AddDate(0, 0, 10)
+
+	mtoServiceItemICRT := &models.MTOServiceItem{
+		ID:              uuid.Must(uuid.NewV4()),
+		ReService:       models.ReService{Code: icrtReServiceCode},
+		Reason:          &reason,
+		StandaloneCrate: &standaloneCrate,
+		ExternalCrate:   &externalCrate,
+		CustomerContacts: models.MTOServiceItemCustomerContacts{
+			models.MTOServiceItemCustomerContact{
+				DateOfContact:              dateOfContact1,
+				TimeMilitary:               timeMilitary1,
+				FirstAvailableDeliveryDate: firstAvailableDeliveryDate1,
+				Type:                       models.CustomerContactTypeFirst,
+			},
+			models.MTOServiceItemCustomerContact{
+				DateOfContact:              dateOfContact2,
+				TimeMilitary:               timeMilitary2,
+				FirstAvailableDeliveryDate: firstAvailableDeliveryDate2,
+				Type:                       models.CustomerContactTypeSecond,
+			},
+		},
+	}
+
+	mtoServiceItemIUCRT := &models.MTOServiceItem{
+		ID:              uuid.Must(uuid.NewV4()),
+		ReService:       models.ReService{Code: iucrtReServiceCode},
+		Reason:          &reason,
+		StandaloneCrate: &standaloneCrate,
+		ExternalCrate:   &externalCrate,
+		CustomerContacts: models.MTOServiceItemCustomerContacts{
+			models.MTOServiceItemCustomerContact{
+				DateOfContact:              dateOfContact1,
+				TimeMilitary:               timeMilitary1,
+				FirstAvailableDeliveryDate: firstAvailableDeliveryDate1,
+				Type:                       models.CustomerContactTypeFirst,
+			},
+			models.MTOServiceItemCustomerContact{
+				DateOfContact:              dateOfContact2,
+				TimeMilitary:               timeMilitary2,
+				FirstAvailableDeliveryDate: firstAvailableDeliveryDate2,
+				Type:                       models.CustomerContactTypeSecond,
+			},
+		},
+	}
+
+	resultICRT := MTOServiceItem(mtoServiceItemICRT)
+	resultIUCRT := MTOServiceItem(mtoServiceItemIUCRT)
+
+	suite.NotNil(resultICRT)
+	suite.NotNil(resultIUCRT)
+
+	_, ok := resultICRT.(*primev3messages.MTOServiceItemInternationalCrating)
+	suite.True(ok)
+
+	_, ok = resultIUCRT.(*primev3messages.MTOServiceItemInternationalCrating)
 	suite.True(ok)
 }
 
