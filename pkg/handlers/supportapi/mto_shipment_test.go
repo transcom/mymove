@@ -67,7 +67,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentStatusHandler() {
 			models.ReServiceCodeDUPK,
 		}
 		for _, serviceCode := range reServiceCodes {
-			factory.FetchOrBuildReServiceByCode(suite.DB(), serviceCode)
+			factory.FetchReServiceByCode(suite.DB(), serviceCode)
 		}
 
 		return mtoShipment
