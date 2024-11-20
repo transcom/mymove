@@ -333,6 +333,29 @@ func (h MoveCancelerHandler) Handle(params moveop.MoveCancelerParams) middleware
 		})
 }
 
+type CheckForLockedMovesAndUnlockHandler struct {
+	handlers.HandlerConfig
+	services.MoveUnlocker
+}
+
+func (h CheckForLockedMovesAndUnlockHandler) Handle(params moveop.CheckForLockedMovesAndUnlockParams) middleware.Responder {
+	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
+		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
+			// if the search move office user is accessing the queue, we need to unlock move/moves they have locked
+			err := h.CheckForLockedMovesAndUnlock(appCtx, uuid.FromStringOrNil(params.OfficeUserID.String()))
+			if err != nil {
+				return moveop.NewCheckForLockedMovesAndUnlockInternalServerError(), err
+			}
+			payloadMessage := "Successfully unlocked all move(s) for current office user"
+
+			payload := ghcmessages.UnlockedMoves{
+				SuccessMessage: &payloadMessage,
+			}
+
+			return moveop.NewCheckForLockedMovesAndUnlockOK().WithPayload(&payload), nil
+		})
+}
+
 type DeleteAssignedOfficeUserHandler struct {
 	handlers.HandlerConfig
 	services.MoveAssignedOfficeUserUpdater

@@ -708,6 +708,11 @@ func NewGhcAPIHandler(handlerConfig handlers.HandlerConfig) *ghcops.MymoveAPI {
 		assignedOfficeUserUpdater,
 	}
 
+	ghcAPI.MoveCheckForLockedMovesAndUnlockHandler = CheckForLockedMovesAndUnlockHandler{
+		HandlerConfig: handlerConfig,
+		MoveUnlocker:  movelocker.NewMoveUnlocker(),
+	}
+
 	ghcAPI.ReServiceItemsGetAllReServiceItemsHandler = GetReServiceItemsHandler{
 		handlerConfig,
 		serviceItemFetcher,

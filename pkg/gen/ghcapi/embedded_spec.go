@@ -2797,6 +2797,42 @@ func init() {
         ]
       }
     },
+    "/moves/{officeUserID}/CheckForLockedMovesAndUnlock": {
+      "patch": {
+        "description": "Finds and unlocks any locked moves by QAE,CSR, GSR, and headquarter officers",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "move"
+        ],
+        "operationId": "checkForLockedMovesAndUnlock",
+        "responses": {
+          "200": {
+            "description": "Successfully unlocked officer's move(s).",
+            "schema": {
+              "$ref": "#/definitions/UnlockedMoves"
+            }
+          },
+          "500": {
+            "$ref": "#/responses/ServerError"
+          }
+        }
+      },
+      "parameters": [
+        {
+          "type": "string",
+          "format": "uuid",
+          "description": "ID of the move's officer",
+          "name": "officeUserID",
+          "in": "path",
+          "required": true
+        }
+      ]
+    },
     "/mto-shipments": {
       "post": {
         "description": "Creates a MTO shipment for the specified Move Task Order.\nRequired fields include:\n* Shipment Type\n* Customer requested pick-up date\n* Pick-up Address\n* Delivery Address\n* Releasing / Receiving agents\nOptional fields include:\n* Delivery Address Type\n* Customer Remarks\n* Releasing / Receiving agents\n* An array of optional accessorial service item codes\n",
@@ -13656,6 +13692,16 @@ func init() {
         "$ref": "#/definitions/TransportationOffice"
       }
     },
+    "UnlockedMoves": {
+      "type": "object",
+      "properties": {
+        "successMessage": {
+          "type": "string",
+          "format": "string",
+          "x-nullable": true
+        }
+      }
+    },
     "UpdateAllowancePayload": {
       "type": "object",
       "properties": {
@@ -18425,6 +18471,45 @@ func init() {
           "create.supportingDocuments"
         ]
       }
+    },
+    "/moves/{officeUserID}/CheckForLockedMovesAndUnlock": {
+      "patch": {
+        "description": "Finds and unlocks any locked moves by QAE,CSR, GSR, and headquarter officers",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "move"
+        ],
+        "operationId": "checkForLockedMovesAndUnlock",
+        "responses": {
+          "200": {
+            "description": "Successfully unlocked officer's move(s).",
+            "schema": {
+              "$ref": "#/definitions/UnlockedMoves"
+            }
+          },
+          "500": {
+            "description": "A server error occurred",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      },
+      "parameters": [
+        {
+          "type": "string",
+          "format": "uuid",
+          "description": "ID of the move's officer",
+          "name": "officeUserID",
+          "in": "path",
+          "required": true
+        }
+      ]
     },
     "/mto-shipments": {
       "post": {
@@ -30238,6 +30323,16 @@ func init() {
       "type": "array",
       "items": {
         "$ref": "#/definitions/TransportationOffice"
+      }
+    },
+    "UnlockedMoves": {
+      "type": "object",
+      "properties": {
+        "successMessage": {
+          "type": "string",
+          "format": "string",
+          "x-nullable": true
+        }
       }
     },
     "UpdateAllowancePayload": {
