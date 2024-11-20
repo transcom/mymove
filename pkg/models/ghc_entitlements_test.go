@@ -163,7 +163,6 @@ func (suite *ModelSuite) TestTotalDependentsValidation() {
 		verrs, err := entitlement.Validate(suite.DB())
 		suite.NoError(err)
 		suite.False(verrs.HasAny())
-		suite.NotNil(entitlement.TotalDependents)
-		suite.Equal(0, *entitlement.TotalDependents)
+		suite.Nil(entitlement.TotalDependents)
 	})
 }
