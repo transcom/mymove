@@ -22,6 +22,23 @@ EXCEPTION
 END;
 $$ LANGUAGE plpgsql;
 
+CREATE OR REPLACE FUNCTION checkExistingServiceItem(
+    service_id UUID,
+    shipment_id UUID
+) RETURNS BOOLEAN AS $
+BEGIN
+    IF EXISTS (
+        SELECT 1
+        FROM mto_service_items
+        WHERE re_service_id = service_id
+        AND mto_shipment_id = shipment_id
+    ) THEN
+        RAISE EXCEPTION 'Service item already exists for service_id % and shipment_id %', service_id, shipment_id;
+    END IF;
+    RETURN FALSE;
+END;
+$ LANGUAGE plpgsql;
+
 CREATE OR REPLACE FUNCTION does_service_item_exist(
     service_id UUID,
     shipment_id UUID
