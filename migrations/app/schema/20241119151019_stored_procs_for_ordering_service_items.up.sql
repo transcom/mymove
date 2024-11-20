@@ -29,6 +29,7 @@ CREATE OR REPLACE PROCEDURE CreateApprovedServiceItemsForShipment(
 )
 AS '
 DECLARE
+    s_status mto_shipmnt_status;
     s_type mto_shipment_type;
     m_code market_code_enum;
     move_id UUID;
@@ -39,13 +40,17 @@ DECLARE
     service_item RECORD;
 BEGIN
     -- get shipment type, market code, move_id, and address IDs based on shipment_id
-    SELECT ms.shipment_type, ms.market_code, ms.move_id, ms.pickup_address_id, ms.destination_address_id
-    INTO s_type, m_code, move_id, pickup_address_id, destination_address_id
+    SELECT ms.shipment_type, ms.market_code, ms.move_id, ms.pickup_address_id, ms.destination_address_id, ms.status
+    INTO s_type, m_code, move_id, pickup_address_id, destination_address_id, s_status
     FROM mto_shipments ms
     WHERE ms.id = shipment_id;
 
     IF s_type IS NULL OR m_code IS NULL THEN
         RAISE EXCEPTION ''Shipment with ID % not found or missing required details.'', shipment_id;
+    END IF;
+
+    IF s_status  IN (''APPROVED'') THEN
+        RAISE EXCEPTION ''Shipment with ID % is already in APPROVED status'', shipment_id;
     END IF;
 
     -- get the is_oconus values for both pickup and destination addresses - this determines POD/POE creation
@@ -258,7 +263,7 @@ BEGIN
             JOIN re_services rs ON rsi.service_id = rs.id
             WHERE rsi.shipment_type = s_type
               AND rsi.market_code = m_code
-              AND rs.code = (item->>''code'')::text
+              AND rs.id = (item.re_service_id)
               AND rsi.is_auto_approved = false
         LOOP
             BEGIN
@@ -296,23 +301,24 @@ BEGIN
                     ''SUBMITTED''::service_item_status,
                     NOW(),
                     NOW(),
-                    (item->>''sit_entry_date'')::date,
-                    (item->>''sit_customer_contacted'')::date,
-                    (item->>''reason'')::text,
-                    (item->>''estimated_weight'')::int4,
-                    (item->>''actual_weight'')::int4,
-                    (item->>''pickup_postal_code'')::text,
-                    (item->>''description'')::text,
-                    (item->>''sit_destination_original_address_id'')::uuid,
-                    (item->>''sit_destination_final_address_id'')::uuid,
-                    (item->>''sit_requested_delivery'')::date,
-                    (item->>''sit_departure_date'')::date,
-                    (item->>''sit_origin_hhg_original_address_id'')::uuid,
-                    (item->>''sit_origin_hhg_actual_address_id'')::uuid,
-                    (item->>''customer_expense'')::boolean,
-                    (item->>''customer_expense_reason'')::text,
-                    (item->>''sit_delivery_miles'')::int4,
-                    (item->>''standalone_crate'')::boolean
+                    (item).sit_entry_date,
+                    (item).sit_customer_contacted,
+                    (item).reason,
+                    (item).estimated_weight,
+                    (item).actual_weight,
+                    (item).pickup_postal_code,
+                    (item).description,
+                    (item).sit_destination_original_address_id,
+                    (item).sit_destination_final_address_id,
+                    (item).sit_requested_delivery,
+                    (item).sit_departure_date,
+                    (item).sit_origin_hhg_original_address_id,
+                    (item).sit_origin_hhg_actual_address_id,
+                    (item).customer_expense,
+                    (item).customer_expense_reason,
+                    (item).sit_delivery_miles,
+                    (item).standalone_crate
+
                 );
             EXCEPTION
                 WHEN OTHERS THEN
