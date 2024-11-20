@@ -4,7 +4,6 @@ import { v4 } from 'uuid';
 import { mount } from 'enzyme';
 import { waitFor } from '@testing-library/react';
 
-import '@testing-library/jest-dom';
 import MoveHome from './MoveHome';
 
 import { MockProviders } from 'testUtils';
