@@ -247,7 +247,6 @@ const HeadquartersQueue = () => {
           csvExportQueueFetcher={getMovesQueue}
           csvExportQueueFetcherKey="queueMoves"
           sessionStorageKey={queueType}
-          // isHeadquartersUser
         />
       </div>
     );
@@ -274,7 +273,6 @@ const HeadquartersQueue = () => {
           csvExportQueueFetcher={getPaymentRequestsQueue}
           csvExportQueueFetcherKey="queuePaymentRequests"
           sessionStorageKey={queueType}
-          // isHeadquartersUser
         />
       </div>
     );
@@ -301,7 +299,6 @@ const HeadquartersQueue = () => {
           csvExportQueueFetcher={getServicesCounselingPPMQueue}
           csvExportQueueFetcherKey="queueMoves"
           sessionStorageKey={queueType}
-          // isHeadquartersUser
         />
       </div>
     );
@@ -329,7 +326,6 @@ const HeadquartersQueue = () => {
           csvExportQueueFetcher={getServicesCounselingQueue}
           csvExportQueueFetcherKey="queueMoves"
           sessionStorageKey={queueType}
-          // isHeadquartersUser
         />
       </div>
     );
