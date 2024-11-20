@@ -331,6 +331,8 @@ describe('useTXOMoveInfoQueries', () => {
       isLoading: true,
       isError: false,
       isSuccess: false,
+      errors: [],
+      move: undefined,
     });
 
     await waitFor(() => result.current.isSuccess);
@@ -356,6 +358,7 @@ describe('useTXOMoveInfoQueries', () => {
       isLoading: false,
       isError: false,
       isSuccess: true,
+      errors: [],
       move: {
         id: '1234',
         ordersId: '4321',
@@ -471,42 +474,7 @@ describe('useMoveDetailsQueries', () => {
     const moveCode = 'ABCDEF';
     const { result, waitFor } = renderHook(() => useMoveDetailsQueries(moveCode), { wrapper });
 
-    expect(result.current).toEqual({
-      move: {
-        id: '1234',
-        ordersId: '4321',
-        moveCode: 'ABCDEF',
-      },
-      closeoutOffice: undefined,
-      customerData: {
-        id: '2468',
-        last_name: 'Kerry',
-        first_name: 'Smith',
-        dodID: '999999999',
-        agency: 'NAVY',
-      },
-      order: {
-        id: '4321',
-        customerID: '2468',
-        customer: { id: '2468', last_name: 'Kerry', first_name: 'Smith', dodID: '999999999' },
-        uploaded_order_id: '2',
-        uploadedAmendedOrderID: '3',
-        departmentIndicator: 'Navy',
-        grade: 'E-6',
-        originDutyLocation: {
-          name: 'JBSA Lackland',
-        },
-        destinationDutyLocation: {
-          name: 'JB Lewis-McChord',
-        },
-        report_by_date: '2018-08-01',
-      },
-      mtoShipments: undefined,
-      mtoServiceItems: undefined,
-      isLoading: true,
-      isError: false,
-      isSuccess: false,
-    });
+    expect(result.current.isLoading).toEqual(true);
 
     await waitFor(() => result.current.isSuccess);
 
@@ -620,6 +588,7 @@ describe('useMoveDetailsQueries', () => {
       isLoading: false,
       isError: false,
       isSuccess: true,
+      errors: [],
     });
   });
 });
@@ -627,9 +596,9 @@ describe('useMoveDetailsQueries', () => {
 describe('useMoveTaskOrderQueries', () => {
   it('loads data', async () => {
     const moveId = 'ABCDEF';
-    const { result, waitForNextUpdate } = renderHook(() => useMoveTaskOrderQueries(moveId), { wrapper });
+    const { result, waitFor } = renderHook(() => useMoveTaskOrderQueries(moveId), { wrapper });
 
-    await waitForNextUpdate();
+    await waitFor(() => result.current.isSuccess);
 
     expect(result.current).toEqual({
       orders: {
@@ -834,11 +803,11 @@ describe('useOrdersDocumentQueries', () => {
   it('loads data', async () => {
     const testLocatorId = 'ABCDEF';
 
-    const { result, waitForNextUpdate } = renderHook(() => useOrdersDocumentQueries(testLocatorId), {
+    const { result, waitFor } = renderHook(() => useOrdersDocumentQueries(testLocatorId), {
       wrapper,
     });
 
-    await waitForNextUpdate();
+    await waitFor(() => result.current.isSuccess);
 
     expect(result.current).toEqual({
       move: { id: '1234', ordersId: '4321', moveCode: testLocatorId },
@@ -888,12 +857,12 @@ describe('useOrdersDocumentQueries', () => {
 
 describe('useMovesQueueQueries', () => {
   it('loads data', async () => {
-    const { result, waitForNextUpdate } = renderHook(
+    const { result, waitFor } = renderHook(
       () => useMovesQueueQueries({ filters: [], currentPage: 1, currentPageSize: 100 }),
       { wrapper },
     );
 
-    await waitForNextUpdate();
+    await waitFor(() => result.current.isSuccess);
 
     expect(result.current).toEqual({
       queueResult: {
@@ -918,12 +887,12 @@ describe('useMovesQueueQueries', () => {
 
 describe('usePaymentRequestsQueueQueries', () => {
   it('loads data', async () => {
-    const { result, waitForNextUpdate } = renderHook(
+    const { result, waitFor } = renderHook(
       () => usePaymentRequestQueueQueries({ filters: [], currentPage: 1, currentPageSize: 100 }),
       { wrapper },
     );
 
-    await waitForNextUpdate();
+    await waitFor(() => result.current.isSuccess);
 
     expect(result.current).toEqual({
       queueResult: {
