@@ -142,8 +142,8 @@ export const HelperPPMCloseoutSubmitted = () => (
       to your Finance office to finalize your acutal incentive amount and request payment.
     </p>
     <p>
-      If any documentation is unclear or inaccurate, the counselor will send it back for you to edit. When you are done
-      editing, you will submit it again and a counselor will review your changes.
+      If any documentation is unclear or inaccurate, the counselor will reach out to you to request clarification or
+      documentation updates.
     </p>
   </Helper>
 );
