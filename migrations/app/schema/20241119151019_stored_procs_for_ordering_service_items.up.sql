@@ -272,6 +272,10 @@ BEGIN
         RAISE EXCEPTION ''Shipment with ID % not found or missing required details.'', shipment_id;
     END IF;
 
+    IF s_type <> item.shipment_type THEN
+    RAISE EXCEPTION ''Shipment type mismatch. Expected %, but got %.'', s_type, item.shipment_type;
+    END IF;
+
     -- loop through each provided service item  object
     FOREACH item IN ARRAY service_items
     LOOP
