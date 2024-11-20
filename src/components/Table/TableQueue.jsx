@@ -51,7 +51,6 @@ const TableQueue = ({
   csvExportQueueFetcher,
   csvExportQueueFetcherKey,
   sessionStorageKey,
-  // isHeadquartersUser,
   officeUser,
   activeRole,
 }) => {
@@ -117,6 +116,10 @@ const TableQueue = ({
     currentPageSize,
     viewAsGBLOC: selectedGbloc,
   });
+
+  // console.log('||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||');
+  // console.log(data);
+  // console.log('||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||');
 
   // react-table setup below
   const defaultColumn = useMemo(
@@ -392,8 +395,6 @@ TableQueue.propTypes = {
   csvExportQueueFetcherKey: PropTypes.string,
   // session storage key to store search filters
   sessionStorageKey: PropTypes.string,
-  // isHeadquartersUser identifies if the active role is a headquarters user to allow switching GBLOCs
-  // isHeadquartersUser: PropTypes.bool,
 };
 
 TableQueue.defaultProps = {
@@ -412,7 +413,6 @@ TableQueue.defaultProps = {
   csvExportQueueFetcher: null,
   csvExportQueueFetcherKey: null,
   sessionStorageKey: 'default',
-  // isHeadquartersUser: false,
 };
 
 const mapStateToProps = (state) => {

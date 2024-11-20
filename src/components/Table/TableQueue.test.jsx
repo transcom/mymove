@@ -18,6 +18,7 @@ import MultiSelectCheckBoxFilter from 'components/Table/Filters/MultiSelectCheck
 import { BRANCH_OPTIONS, MOVE_STATUS_OPTIONS } from 'constants/queues';
 import SelectFilter from 'components/Table/Filters/SelectFilter';
 import DateSelectFilter from 'components/Table/Filters/DateSelectFilter';
+import { MockProviders } from 'testUtils';
 
 const localStorageMock = (() => {
   let store = {};
@@ -67,13 +68,21 @@ describe('TableQueue - react table', () => {
   };
 
   it('renders without crashing', () => {
-    const wrapper = mount(<TableQueue {...defaultProps} />);
+    const wrapper = mount(
+      <MockProviders>
+        <TableQueue {...defaultProps} />
+      </MockProviders>,
+    );
     expect(wrapper.find(TableQueue).length).toBe(1);
     expect(wrapper.find(TableCSVExportButton).length).toBe(0);
   });
 
   it('renders the CSV export button', () => {
-    const wrapper = mount(<TableQueue {...exportButtonProps} />);
+    const wrapper = mount(
+      <MockProviders>
+        <TableQueue {...exportButtonProps} />
+      </MockProviders>,
+    );
     expect(wrapper.find(TableCSVExportButton).length).toBe(1);
   });
 });
@@ -149,7 +158,11 @@ describe('SessionStorage TableQueue - react table', () => {
     const getItemSpy = jest.spyOn(window.sessionStorage, 'getItem');
     const setItemSpy = jest.spyOn(window.sessionStorage, 'setItem');
 
-    const wrapper = mount(<TableQueue {...defaultProps} />);
+    const wrapper = mount(
+      <MockProviders>
+        <TableQueue {...defaultProps} />
+      </MockProviders>,
+    );
     expect(wrapper.find(TableQueue).length).toBe(1);
     expect(setItemSpy).toBeCalledWith(
       OFFICE_TABLE_QUEUE_SESSION_STORAGE_ID,
@@ -165,7 +178,11 @@ describe('SessionStorage TableQueue - react table', () => {
     const cache = {};
     cache[testSessionStorageKey] = json;
     window.sessionStorage.setItem(OFFICE_TABLE_QUEUE_SESSION_STORAGE_ID, JSON.stringify(cache));
-    const wrapper = mount(<TableQueue {...defaultProps} />);
+    const wrapper = mount(
+      <MockProviders>
+        <TableQueue {...defaultProps} />
+      </MockProviders>,
+    );
     expect(wrapper.find('button[data-testid="remove-filters-all"]').length).toBe(1);
     expect(wrapper.find(`button[data-testid="remove-filters-col3-${MOVE_STATUS_OPTIONS[0].value}"]`).length).toBe(1);
     expect(wrapper.find(`button[data-testid="remove-filters-col3-${MOVE_STATUS_OPTIONS[0].value}"]`).text()).toContain(
@@ -184,7 +201,11 @@ describe('SessionStorage TableQueue - react table', () => {
     const cache = {};
     cache[testSessionStorageKey] = json;
     window.sessionStorage.setItem(OFFICE_TABLE_QUEUE_SESSION_STORAGE_ID, JSON.stringify(cache));
-    const wrapper = mount(<TableQueue {...defaultProps} />);
+    const wrapper = mount(
+      <MockProviders>
+        <TableQueue {...defaultProps} />
+      </MockProviders>,
+    );
     expect(wrapper.find('button[data-testid="remove-filters-all"]').length).toBe(0);
     expect(wrapper.find(`button[data-testid="remove-filters-col3-${MOVE_STATUS_OPTIONS[0].value}"]`).length).toBe(1);
     expect(wrapper.find(`button[data-testid="remove-filters-col3-${MOVE_STATUS_OPTIONS[0].value}"]`).text()).toContain(
@@ -199,7 +220,11 @@ describe('SessionStorage TableQueue - react table', () => {
     const cache = {};
     cache[testSessionStorageKey] = json;
     window.sessionStorage.setItem(OFFICE_TABLE_QUEUE_SESSION_STORAGE_ID, JSON.stringify(cache));
-    const wrapper = mount(<TableQueue {...defaultProps} />);
+    const wrapper = mount(
+      <MockProviders>
+        <TableQueue {...defaultProps} />
+      </MockProviders>,
+    );
     expect(wrapper.find('button[data-testid="remove-filters-all"]').length).toBe(0);
     expect(wrapper.find(`button[data-testid="remove-filters-col5-SPACE_FORCE"]`).length).toBe(1);
     expect(wrapper.find(`button[data-testid="remove-filters-col5-SPACE_FORCE"]`).text()).toContain('Branch');
@@ -212,7 +237,11 @@ describe('SessionStorage TableQueue - react table', () => {
     const cache = {};
     cache[testSessionStorageKey] = json;
     window.sessionStorage.setItem(OFFICE_TABLE_QUEUE_SESSION_STORAGE_ID, JSON.stringify(cache));
-    const wrapper = mount(<TableQueue {...defaultProps} />);
+    const wrapper = mount(
+      <MockProviders>
+        <TableQueue {...defaultProps} />
+      </MockProviders>,
+    );
     expect(wrapper.find('button[data-testid="remove-filters-all"]').length).toBe(0);
     expect(wrapper.find(`button[data-testid="remove-filters-col1"]`).length).toBe(1);
     expect(wrapper.find(`button[data-testid="remove-filters-col1"]`).text()).toContain('Customer name ×');
@@ -222,7 +251,11 @@ describe('SessionStorage TableQueue - react table', () => {
     window.sessionStorage.clear();
     const filters = [{ id: 'col1', value: 'Foobar' }];
     setTableQueueFilterSessionStorageValue(testSessionStorageKey, filters);
-    render(<TableQueue {...defaultProps} />);
+    render(
+      <MockProviders>
+        <TableQueue {...defaultProps} />
+      </MockProviders>,
+    );
     const pillButton = await screen.findByTestId('remove-filters-col1');
 
     await new Promise((r) => {
@@ -239,7 +272,11 @@ describe('SessionStorage TableQueue - react table', () => {
   it('test delete one of filters. verify ALL button is removed and one filter remains', async () => {
     const filters = [{ id: 'col3', value: `${MOVE_STATUS_OPTIONS[0].value},${MOVE_STATUS_OPTIONS[2].value}` }];
     setTableQueueFilterSessionStorageValue(testSessionStorageKey, filters);
-    render(<TableQueue {...defaultProps} />);
+    render(
+      <MockProviders>
+        <TableQueue {...defaultProps} />
+      </MockProviders>,
+    );
     const allFilterPillButton = await screen.findByTestId('remove-filters-all');
     expect(allFilterPillButton).toBeInTheDocument();
 

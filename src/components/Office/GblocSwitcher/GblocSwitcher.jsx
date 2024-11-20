@@ -10,9 +10,7 @@ import { selectLoggedInUser } from 'store/entities/selectors';
 import SelectedGblocContext, {
   SELECTED_GBLOC_SESSION_STORAGE_KEY,
 } from 'components/Office/GblocSwitcher/SelectedGblocContext';
-// import { user } from 'shared/Entities/schema';
 import { roleTypes } from 'constants/userRoles';
-// import { officeUser } from 'shared/Entities/schema';
 
 const GBLOCSwitcher = ({ officeUser, activeRole, ariaLabel }) => {
   const [isInitialPageLoad, setIsInitialPageLoad] = useState(true);
@@ -60,13 +58,12 @@ const GBLOCSwitcher = ({ officeUser, activeRole, ariaLabel }) => {
 };
 
 GBLOCSwitcher.defaultProps = {
-  ariaLabel: '',
+  ariaLabel: 'Switch to a different GBLOC',
 };
 
 GBLOCSwitcher.propTypes = {
   officeUser: PropTypes.object.isRequired,
   activeRole: PropTypes.string.isRequired,
-  // officeUsersDefaultGbloc: PropTypes.string.isRequired,
   ariaLabel: PropTypes.string,
 };
 
