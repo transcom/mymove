@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/go-openapi/strfmt"
+	"github.com/gofrs/uuid"
 	"github.com/stretchr/testify/mock"
 
 	"github.com/transcom/mymove/pkg/apperror"
@@ -890,17 +891,17 @@ func (suite *HandlerSuite) TestCheckForLockedMovesAndUnlockHandler() {
 	var validOfficeUser models.OfficeUser
 	var move models.Move
 
-	appCtx := suite.AppContextWithSessionForTest(&auth.Session{
-		ApplicationName: auth.OfficeApp,
-		Roles:           validOfficeUser.User.Roles,
-		OfficeUserID:    validOfficeUser.ID,
-		IDToken:         "fake_token",
-		AccessToken:     "fakeAccessToken",
-		UserID:          validOfficeUser.ID,
-	})
-
 	mockLocker := movelocker.NewMoveLocker()
 	setupLockedMove := func() {
+		appCtx := suite.AppContextWithSessionForTest(&auth.Session{
+			ApplicationName: auth.OfficeApp,
+			Roles:           validOfficeUser.User.Roles,
+			OfficeUserID:    validOfficeUser.ID,
+			IDToken:         "fake_token",
+			AccessToken:     "fakeAccessToken",
+			UserID:          validOfficeUser.ID,
+		})
+
 		validOfficeUser = factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
 		move = factory.BuildMove(suite.DB(), []factory.Customization{
 			{
@@ -951,19 +952,19 @@ func (suite *HandlerSuite) TestCheckForLockedMovesAndUnlockHandler() {
 		suite.Equal(expectedPayloadMessage, string(*actualMessage))
 	})
 
-	// suite.Run("Unsucceful unlocking of move - nil officerUserId", func() {
-	// 	req, handler := setupTestData()
+	suite.Run("Unsucceful unlocking of move - nil officerUserId", func() {
+		req, handler := setupTestData()
 
-	// 	invalidOfficeUserID := strfmt.UUID(uuid.Nil.String())
-	// 	params := moveops.CheckForLockedMovesAndUnlockParams{
-	// 		HTTPRequest:  req,
-	// 		OfficeUserID: invalidOfficeUserID,
-	// 	}
+		invalidOfficeUserID := strfmt.UUID(uuid.Nil.String())
+		params := moveops.CheckForLockedMovesAndUnlockParams{
+			HTTPRequest:  req,
+			OfficeUserID: invalidOfficeUserID,
+		}
 
-	// 	handler.Handle(params)
-	// 	response := handler.Handle(params)
-	// 	suite.IsType(&moveops.CheckForLockedMovesAndUnlockInternalServerError{}, response)
-	// 	payload := response.(*moveops.CheckForLockedMovesAndUnlockInternalServerError).Payload
-	// 	suite.Nil(payload)
-	// })
+		handler.Handle(params)
+		response := handler.Handle(params)
+		suite.IsType(&moveops.CheckForLockedMovesAndUnlockInternalServerError{}, response)
+		payload := response.(*moveops.CheckForLockedMovesAndUnlockInternalServerError).Payload
+		suite.Nil(payload)
+	})
 }
