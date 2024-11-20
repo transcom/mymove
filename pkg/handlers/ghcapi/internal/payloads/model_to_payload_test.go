@@ -29,6 +29,7 @@ func TestMove(t *testing.T) {
 
 func (suite *PayloadsSuite) TestPaymentRequestQueue() {
 	officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
+	officeUserTIO := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTIO})
 
 	gbloc := "LKNQ"
 
@@ -55,16 +56,27 @@ func (suite *PayloadsSuite) TestPaymentRequestQueue() {
 	}, nil)
 
 	paymentRequests := models.PaymentRequests{pr2}
-	transportationOffice := factory.BuildTransportationOffice(suite.DB(), nil, nil)
-	paymentRequests[0].MoveTaskOrder.TIOAssignedUser = &officeUser
+	transportationOffice := factory.BuildTransportationOffice(suite.DB(), []factory.Customization{
+		{
+			Model: models.TransportationOffice{
+				Name:             "PPSO",
+				ProvidesCloseout: true,
+			},
+		},
+	}, nil)
+	paymentRequests[0].MoveTaskOrder.TIOAssignedUser = &officeUserTIO
 	paymentRequests[0].MoveTaskOrder.CounselingOffice = &transportationOffice
 
 	var officeUsers models.OfficeUsers
 	officeUsers = append(officeUsers, officeUser)
 
 	suite.Run("Test Counseling Offices and TIO AssignedUser ", func() {
-		result := QueuePaymentRequests(&paymentRequests, officeUsers, officeUser, true, false)
-		suite.NotNil(result)
+		queuePaymentRequests := QueuePaymentRequests(&paymentRequests, officeUsers, officeUser, false, false)
+		suite.NotNil(queuePaymentRequests)
+		suite.IsType(queuePaymentRequests, &ghcmessages.QueuePaymentRequests{})
+		//unpack and check values of assigned to
+		//unpack and check values and of counseling office
+
 	})
 }
 
@@ -100,9 +112,11 @@ func (suite *PayloadsSuite) TestPaymentRequestQueueAvailableOfficeUsers() {
 	var officeUsers models.OfficeUsers
 	officeUsers = append(officeUsers, officeUser)
 
-	suite.Run("attach available office users if move is assignable", func() {
-		result := QueuePaymentRequests(&paymentRequests, officeUsers, officeUser, false, false)
-		suite.NotNil(result)
+	suite.Run("Payment request is assignable due to not assigend", func() {
+		queuePaymentRequests := QueuePaymentRequests(&paymentRequests, officeUsers, officeUser, false, false)
+		suite.NotNil(queuePaymentRequests)
+		suite.IsType(queuePaymentRequests, &ghcmessages.QueuePaymentRequests{})
+		//unpack and check values of assigned to
 	})
 }
 
