@@ -1,11 +1,12 @@
 import { isEmpty } from 'lodash';
 import moment from 'moment';
 
-import { MTOAgentType } from 'shared/constants';
+import { MTOAgentType, SHIPMENT_TYPES } from 'shared/constants';
 import { parseDate } from 'shared/dates';
 import { formatDelimitedNumber, parseSwaggerDate } from 'utils/formatters';
 import { roleTypes } from 'constants/userRoles';
 import { LOCATION_TYPES } from 'types/sitStatusShape';
+import { boatShipmentTypes } from 'constants/shipments';
 
 const formatDateForSwagger = (date) => {
   const parsedDate = parseDate(date);
@@ -128,6 +129,7 @@ export function formatPpmShipmentForDisplay({ counselorRemarks = '', ppmShipment
     advance: (ppmShipment.advanceAmountRequested / 100 || '').toString(),
     closeoutOffice,
     counselorRemarks,
+    isActualExpenseReimbursement: ppmShipment.isActualExpenseReimbursement ? 'true' : 'false',
   };
 
   if (ppmShipment.hasSecondaryPickupAddress) {
@@ -304,6 +306,7 @@ export function formatPpmShipmentForAPI(formValues) {
     hasSecondaryDestinationAddress: formValues.hasSecondaryDestination === 'true',
     hasTertiaryPickupAddress: formValues.hasTertiaryPickup === 'true',
     hasTertiaryDestinationAddress: formValues.hasTertiaryDestination === 'true',
+    isActualExpenseReimbursement: formValues.isActualExpenseReimbursement === 'true',
   };
 
   if (ppmShipmentValues.hasSecondaryPickupAddress) {
@@ -518,6 +521,104 @@ export function convertInchesToFeetAndInches(totalInches) {
   return { feet, inches };
 }
 
+// Initial values for mobile home shipment
+export function formatMobileHomeShipmentForDisplay(mobileHomeShipment, initialValues) {
+  const { year, make, model, lengthInInches, widthInInches, heightInInches } = mobileHomeShipment || {};
+
+  const length = convertInchesToFeetAndInches(lengthInInches);
+  const width = convertInchesToFeetAndInches(widthInInches);
+  const height = convertInchesToFeetAndInches(heightInInches);
+
+  const displayValues = {
+    year: year?.toString() || null,
+    make: make || '',
+    model: model || '',
+    lengthFeet: length.feet,
+    lengthInches: length.inches,
+    widthFeet: width.feet,
+    widthInches: width.inches,
+    heightFeet: height.feet,
+    heightInches: height.inches,
+    ...initialValues,
+  };
+
+  return displayValues;
+}
+
+export function formatMobileHomeShipmentForAPI(values) {
+  const totalLengthInInches = toTotalInches(values.lengthFeet, values.lengthInches);
+  const totalWidthInInches = toTotalInches(values.widthFeet, values.widthInches);
+  const totalHeightInInches = toTotalInches(values.heightFeet, values.heightInches);
+
+  const mobileHomeShipment = {
+    year: Number(values.year),
+    make: values.make,
+    model: values.model,
+    lengthInInches: totalLengthInInches,
+    widthInInches: totalWidthInInches,
+    heightInInches: totalHeightInInches,
+  };
+
+  return {
+    mobileHomeShipment,
+  };
+}
+
+// Initial values for boat shipment
+export function formatBoatShipmentForDisplay(boatShipment, initialValues) {
+  const { type, year, make, model, lengthInInches, widthInInches, heightInInches, hasTrailer, isRoadworthy } =
+    boatShipment || {};
+
+  const length = convertInchesToFeetAndInches(lengthInInches);
+  const width = convertInchesToFeetAndInches(widthInInches);
+  const height = convertInchesToFeetAndInches(heightInInches);
+
+  const displayValues = {
+    type,
+    year: year?.toString() || null,
+    make: make || '',
+    model: model || '',
+    lengthFeet: length.feet,
+    lengthInches: length.inches,
+    widthFeet: width.feet,
+    widthInches: width.inches,
+    heightFeet: height.feet,
+    heightInches: height.inches,
+    hasTrailer: hasTrailer === null ? '' : hasTrailer?.toString(),
+    isRoadworthy: isRoadworthy === null ? '' : isRoadworthy?.toString(),
+    ...initialValues,
+  };
+
+  return displayValues;
+}
+
+export function formatBoatShipmentForAPI(values) {
+  const totalLengthInInches = toTotalInches(values.lengthFeet, values.lengthInches);
+  const totalWidthInInches = toTotalInches(values.widthFeet, values.widthInches);
+  const totalHeightInInches = toTotalInches(values.heightFeet, values.heightInches);
+  const hasTrailerBool = values.hasTrailer === 'true';
+  const isRoadworthyBool = values.isRoadworthy && hasTrailerBool ? values.isRoadworthy === 'true' : null;
+
+  const boatShipment = {
+    type: values.type,
+    year: Number(values.year),
+    make: values.make,
+    model: values.model,
+    lengthInInches: totalLengthInInches,
+    widthInInches: totalWidthInInches,
+    heightInInches: totalHeightInInches,
+    hasTrailer: values.hasTrailer === 'true',
+    isRoadworthy: values.hasTrailer === 'true' ? isRoadworthyBool : null,
+  };
+  const mtoShipmentType =
+    boatShipment.type === boatShipmentTypes.TOW_AWAY ? SHIPMENT_TYPES.BOAT_TOW_AWAY : SHIPMENT_TYPES.BOAT_HAUL_AWAY;
+
+  return {
+    shipmentType: mtoShipmentType,
+    boatShipment,
+  };
+}
+
 export default {
   formatMtoShipmentForAPI,
   formatMtoShipmentForDisplay,
@@ -527,4 +628,8 @@ export default {
   getMtoShipmentLabel,
   toTotalInches,
   convertInchesToFeetAndInches,
+  formatMobileHomeShipmentForDisplay,
+  formatMobileHomeShipmentForAPI,
+  formatBoatShipmentForDisplay,
+  formatBoatShipmentForAPI,
 };

@@ -19,9 +19,6 @@ import (
 // swagger:model EvaluationReport
 type EvaluationReport struct {
 
-	// report violations
-	ReportViolations ReportViolations `json:"ReportViolations,omitempty"`
-
 	// created at
 	// Read Only: true
 	// Format: date-time
@@ -39,6 +36,9 @@ type EvaluationReport struct {
 	// Example: 15:00
 	// Pattern: ^(0[0-9]|1[0-9]|2[0-3]):[0-5][0-9]$
 	EvalStart *string `json:"evalStart,omitempty"`
+
+	// gsr appeals
+	GsrAppeals GSRAppeals `json:"gsrAppeals,omitempty"`
 
 	// id
 	// Example: 1f2270c7-7166-40ae-981e-b200ebdf3054
@@ -104,6 +104,9 @@ type EvaluationReport struct {
 	// remarks
 	Remarks *string `json:"remarks,omitempty"`
 
+	// report violations
+	ReportViolations ReportViolations `json:"reportViolations,omitempty"`
+
 	// serious incident
 	SeriousIncident *bool `json:"seriousIncident,omitempty"`
 
@@ -141,10 +144,6 @@ type EvaluationReport struct {
 func (m *EvaluationReport) Validate(formats strfmt.Registry) error {
 	var res []error
 
-	if err := m.validateReportViolations(formats); err != nil {
-		res = append(res, err)
-	}
-
 	if err := m.validateCreatedAt(formats); err != nil {
 		res = append(res, err)
 	}
@@ -154,6 +153,10 @@ func (m *EvaluationReport) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validateEvalStart(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateGsrAppeals(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -209,6 +212,10 @@ func (m *EvaluationReport) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
+	if err := m.validateReportViolations(formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.validateShipmentID(formats); err != nil {
 		res = append(res, err)
 	}
@@ -232,23 +239,6 @@ func (m *EvaluationReport) Validate(formats strfmt.Registry) error {
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
-	return nil
-}
-
-func (m *EvaluationReport) validateReportViolations(formats strfmt.Registry) error {
-	if swag.IsZero(m.ReportViolations) { // not required
-		return nil
-	}
-
-	if err := m.ReportViolations.Validate(formats); err != nil {
-		if ve, ok := err.(*errors.Validation); ok {
-			return ve.ValidateName("ReportViolations")
-		} else if ce, ok := err.(*errors.CompositeError); ok {
-			return ce.ValidateName("ReportViolations")
-		}
-		return err
-	}
-
 	return nil
 }
 
@@ -282,6 +272,23 @@ func (m *EvaluationReport) validateEvalStart(formats strfmt.Registry) error {
 	}
 
 	if err := validate.Pattern("evalStart", "body", *m.EvalStart, `^(0[0-9]|1[0-9]|2[0-3]):[0-5][0-9]$`); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *EvaluationReport) validateGsrAppeals(formats strfmt.Registry) error {
+	if swag.IsZero(m.GsrAppeals) { // not required
+		return nil
+	}
+
+	if err := m.GsrAppeals.Validate(formats); err != nil {
+		if ve, ok := err.(*errors.Validation); ok {
+			return ve.ValidateName("gsrAppeals")
+		} else if ce, ok := err.(*errors.CompositeError); ok {
+			return ce.ValidateName("gsrAppeals")
+		}
 		return err
 	}
 
@@ -465,6 +472,23 @@ func (m *EvaluationReport) validateOfficeUser(formats strfmt.Registry) error {
 	return nil
 }
 
+func (m *EvaluationReport) validateReportViolations(formats strfmt.Registry) error {
+	if swag.IsZero(m.ReportViolations) { // not required
+		return nil
+	}
+
+	if err := m.ReportViolations.Validate(formats); err != nil {
+		if ve, ok := err.(*errors.Validation); ok {
+			return ve.ValidateName("reportViolations")
+		} else if ce, ok := err.(*errors.CompositeError); ok {
+			return ce.ValidateName("reportViolations")
+		}
+		return err
+	}
+
+	return nil
+}
+
 func (m *EvaluationReport) validateShipmentID(formats strfmt.Registry) error {
 	if swag.IsZero(m.ShipmentID) { // not required
 		return nil
@@ -534,11 +558,11 @@ func (m *EvaluationReport) validateUpdatedAt(formats strfmt.Registry) error {
 func (m *EvaluationReport) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	var res []error
 
-	if err := m.contextValidateReportViolations(ctx, formats); err != nil {
+	if err := m.contextValidateCreatedAt(ctx, formats); err != nil {
 		res = append(res, err)
 	}
 
-	if err := m.contextValidateCreatedAt(ctx, formats); err != nil {
+	if err := m.contextValidateGsrAppeals(ctx, formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -566,6 +590,10 @@ func (m *EvaluationReport) ContextValidate(ctx context.Context, formats strfmt.R
 		res = append(res, err)
 	}
 
+	if err := m.contextValidateReportViolations(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.contextValidateShipmentID(ctx, formats); err != nil {
 		res = append(res, err)
 	}
@@ -584,23 +612,23 @@ func (m *EvaluationReport) ContextValidate(ctx context.Context, formats strfmt.R
 	return nil
 }
 
-func (m *EvaluationReport) contextValidateReportViolations(ctx context.Context, formats strfmt.Registry) error {
+func (m *EvaluationReport) contextValidateCreatedAt(ctx context.Context, formats strfmt.Registry) error {
 
-	if err := m.ReportViolations.ContextValidate(ctx, formats); err != nil {
-		if ve, ok := err.(*errors.Validation); ok {
-			return ve.ValidateName("ReportViolations")
-		} else if ce, ok := err.(*errors.CompositeError); ok {
-			return ce.ValidateName("ReportViolations")
-		}
+	if err := validate.ReadOnly(ctx, "createdAt", "body", strfmt.DateTime(m.CreatedAt)); err != nil {
 		return err
 	}
 
 	return nil
 }
 
-func (m *EvaluationReport) contextValidateCreatedAt(ctx context.Context, formats strfmt.Registry) error {
+func (m *EvaluationReport) contextValidateGsrAppeals(ctx context.Context, formats strfmt.Registry) error {
 
-	if err := validate.ReadOnly(ctx, "createdAt", "body", strfmt.DateTime(m.CreatedAt)); err != nil {
+	if err := m.GsrAppeals.ContextValidate(ctx, formats); err != nil {
+		if ve, ok := err.(*errors.Validation); ok {
+			return ve.ValidateName("gsrAppeals")
+		} else if ce, ok := err.(*errors.CompositeError); ok {
+			return ce.ValidateName("gsrAppeals")
+		}
 		return err
 	}
 
@@ -692,6 +720,20 @@ func (m *EvaluationReport) contextValidateOfficeUser(ctx context.Context, format
 			}
 			return err
 		}
+	}
+
+	return nil
+}
+
+func (m *EvaluationReport) contextValidateReportViolations(ctx context.Context, formats strfmt.Registry) error {
+
+	if err := m.ReportViolations.ContextValidate(ctx, formats); err != nil {
+		if ve, ok := err.(*errors.Validation); ok {
+			return ve.ValidateName("reportViolations")
+		} else if ce, ok := err.(*errors.CompositeError); ok {
+			return ce.ValidateName("reportViolations")
+		}
+		return err
 	}
 
 	return nil

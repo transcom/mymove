@@ -204,6 +204,40 @@ paths:
                     estimatedWeight: 4999
                     hasProGear: false
                     sitExpected: false
+              boat:
+                summary: Boat Shipment
+                value:
+                  boatShipment:
+                    hasTrailer: true
+                    heightFeet: 2
+                    heightInches: 2
+                    isRoadworthy: false
+                    lengthFeet: 2
+                    lengthInches: 0
+                    make: make
+                    model: model
+                    widthFeet: 2
+                    widthInches: 2
+                    year: 1999
+                  counselorRemarks: test
+                  moveTaskOrderID: d4d95b22-2d9d-428b-9a11-284455aa87ba
+                  shipmentType: HAUL_AWAY
+              mobileHome:
+                summary: Mobile Home Shipment
+                value:
+                  mobileHomeShipment:
+                    heightFeet: 2
+                    heightInches: 2
+                    lengthFeet: 2
+                    lengthInches: 0
+                    make: make
+                    model: model
+                    widthFeet: 2
+                    widthInches: 2
+                    year: 1999
+                  counselorRemarks: test
+                  moveTaskOrderID: d4d95b22-2d9d-428b-9a11-284455aa87ba
+                  shipmentType: MOBILE_HOME
       responses:
         '200':
           description: Successfully created a MTO shipment.
@@ -681,6 +715,10 @@ definitions:
         x-nullable: true
       ppmShipment:
         $ref: '#/definitions/CreatePPMShipment'
+      boatShipment:
+        $ref: '#/definitions/CreateBoatShipment'
+      mobileHomeShipment:
+        $ref: '#/definitions/CreateMobileHomeShipment'
     required:
       - moveTaskOrderID
       - shipmentType
@@ -756,11 +794,89 @@ definitions:
           in pounds.
         type: integer
         x-nullable: true
+      isActualExpenseReimbursement:
+        description: >-
+          Used for PPM shipments only. Denotes if this shipment uses the Actual
+          Expense Reimbursement method.
+        type: boolean
+        example: false
+        x-omitempty: false
+        x-nullable: true
     required:
       - expectedDepartureDate
       - sitExpected
       - estimatedWeight
       - hasProGear
+  CreateBoatShipment:
+    description: >-
+      Creation object containing the `Boat` shipmentType specific data, not used
+      for other shipment types.
+    type: object
+    properties:
+      year:
+        type: integer
+        description: Year of the Boat
+      make:
+        type: string
+        description: Make of the Boat
+      model:
+        type: string
+        description: Model of the Boat
+      lengthInInches:
+        type: integer
+        description: Length of the Boat in inches
+      widthInInches:
+        type: integer
+        description: Width of the Boat in inches
+      heightInInches:
+        type: integer
+        description: Height of the Boat in inches
+      hasTrailer:
+        type: boolean
+        description: Does the boat have a trailer
+      isRoadworthy:
+        type: boolean
+        description: Is the trailer roadworthy
+        x-nullable: true
+    required:
+      - year
+      - make
+      - model
+      - lengthInInches
+      - widthInInches
+      - heightInInches
+      - hasTrailer
+  CreateMobileHomeShipment:
+    description: >-
+      Creation object containing the `MobileHome` shipmentType specific data,
+      not used for other shipment types.
+    type: object
+    properties:
+      year:
+        type: integer
+        description: Year of the Mobile Home
+      make:
+        type: string
+        description: Make of the Mobile Home
+      model:
+        type: string
+        description: Model of the Mobile Home
+      lengthInInches:
+        type: integer
+        description: Length of the Mobile Home in inches
+      widthInInches:
+        type: integer
+        description: Width of the Mobile Home in inches
+      heightInInches:
+        type: integer
+        description: Height of the Mobile Home in inches
+    required:
+      - year
+      - make
+      - model
+      - lengthInInches
+      - widthInInches
+      - heightInInches
   MTOShipment:
     type: object
     properties:
@@ -911,6 +1027,14 @@ definitions:
           The estimated weight of the pro-gear being moved belonging to a
           spouse.
         type: integer
+        x-nullable: true
+      isActualExpenseReimbursement:
+        description: >-
+          Used for PPM shipments only. Denotes if this shipment uses the Actual
+          Expense Reimbursement method.
+        type: boolean
+        example: false
+        x-omitempty: false
         x-nullable: true
   UpdateMTOShipment:
     properties:
@@ -1367,8 +1491,10 @@ definitions:
         type: string
         title: Country
         x-nullable: true
-        example: USA
-        default: USA
+        example: US
+        default: US
+        pattern: ^[A-Z]{2}$
+        description: Two-letter country code
       county:
         type: string
         title: County
@@ -1506,6 +1632,7 @@ definitions:
       - WOUNDED_WARRIOR
       - BLUEBARK
       - SAFETY
+      - TEMPORARY_DUTY
     x-display-value:
       PERMANENT_CHANGE_OF_STATION: Permanent Change Of Station
       LOCAL_MOVE: Local Move
@@ -1514,6 +1641,7 @@ definitions:
       WOUNDED_WARRIOR: Wounded Warrior
       BLUEBARK: BLUEBARK
       SAFETY: Safety
+      TEMPORARY_DUTY: Temporary Duty (TDY)
   Order:
     type: object
     required:
@@ -2406,6 +2534,14 @@ definitions:
         format: cents
         x-nullable: true
         x-omitempty: false
+      isActualExpenseReimbursement:
+        description: >-
+          Used for PPM shipments only. Denotes if this shipment uses the Actual
+          Expense Reimbursement method.
+        type: boolean
+        example: false
+        x-omitempty: false
+        x-nullable: true
       eTag:
         description: >-
           A hash unique to this shipment that should be used as the "If-Match"
@@ -2768,6 +2904,15 @@ definitions:
         type: string
         description: The SIT authorized end date for destination SIT.
         x-nullable: true
+      marketCode:
+        type: string
+        enum:
+          - d
+          - i
+        example: d
+        description: >-
+          Single-letter designator for domestic (d) or international (i)
+          shipments
   MTOShipmentsWithoutServiceObjects:
     description: A list of shipments without their associated service items.
     items:

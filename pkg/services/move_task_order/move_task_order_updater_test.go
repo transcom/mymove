@@ -179,7 +179,6 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderUpdater_UpdateStatusSer
 					City:           "Houston",
 					State:          "TX",
 					PostalCode:     "77083",
-					Country:        models.StringPointer("US"),
 				},
 			},
 		}, nil)
@@ -632,18 +631,20 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderUpdater_MakeAvailableTo
 	setupPricerData := func() {
 		contract := testdatagen.FetchOrMakeReContract(suite.DB(), testdatagen.Assertions{})
 
+		startDate := time.Date(2020, time.January, 1, 12, 0, 0, 0, time.UTC)
+		endDate := time.Date(2020, time.December, 31, 12, 0, 0, 0, time.UTC)
 		contractYear := testdatagen.FetchOrMakeReContractYear(suite.DB(), testdatagen.Assertions{
 			ReContractYear: models.ReContractYear{
 				Contract:             contract,
 				ContractID:           contract.ID,
-				StartDate:            time.Now(),
-				EndDate:              time.Now().Add(time.Hour * 12),
+				StartDate:            startDate,
+				EndDate:              endDate,
 				Escalation:           1.0,
 				EscalationCompounded: 1.0,
 			},
 		})
 
-		service := factory.FetchOrBuildReServiceByCode(suite.DB(), "MS")
+		service := factory.FetchReServiceByCode(suite.DB(), "MS")
 		msTaskOrderFee := models.ReTaskOrderFee{
 			ContractYearID: contractYear.ID,
 			ServiceID:      service.ID,
@@ -651,7 +652,7 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderUpdater_MakeAvailableTo
 		}
 		suite.MustSave(&msTaskOrderFee)
 
-		service = factory.FetchOrBuildReServiceByCode(suite.DB(), "CS")
+		service = factory.FetchReServiceByCode(suite.DB(), "CS")
 		csTaskOrderFee := models.ReTaskOrderFee{
 			ContractYearID: contractYear.ID,
 			ServiceID:      service.ID,

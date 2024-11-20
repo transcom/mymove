@@ -36,6 +36,7 @@ const moveTaskOrder = {
       requestedPickupDate: '2021-11-26',
       pickupAddress: { streetAddress1: '100 1st Avenue', city: 'New York', state: 'NY', postalCode: '10001' },
       destinationAddress: { streetAddress1: '200 2nd Avenue', city: 'Buffalo', state: 'NY', postalCode: '1001' },
+      marketCode: 'd',
     },
     {
       id: '3',
@@ -43,6 +44,7 @@ const moveTaskOrder = {
       requestedPickupDate: '2021-12-01',
       pickupAddress: { streetAddress1: '800 Madison Avenue', city: 'New York', state: 'NY', postalCode: '10002' },
       destinationAddress: { streetAddress1: '200 2nd Avenue', city: 'Buffalo', state: 'NY', postalCode: '1001' },
+      marketCode: 'i',
     },
   ],
   mtoServiceItems: [
@@ -131,14 +133,28 @@ describe('CreatePaymentRequest page', () => {
 
       renderWithProviders();
 
+      // Verify the main shipments heading
       const shipmentsHeading = screen.getByRole('heading', { name: 'Shipments', level: 2 });
       expect(shipmentsHeading).toBeInTheDocument();
 
+      // Locate the container holding all shipment headings
       const shipmentsContainer = shipmentsHeading.parentElement;
-      const hhgHeading = within(shipmentsContainer).getByRole('heading', { name: 'HHG shipment', level: 3 });
 
-      expect(hhgHeading).toBeInTheDocument();
-      const hhgContainer = hhgHeading.parentElement.parentElement;
+      // Get all shipment headings (level 3) within the shipments container
+      const shipmentHeadings = within(shipmentsContainer).getAllByRole('heading', { level: 3 });
+      const headingTexts = shipmentHeadings.map((heading) => heading.textContent);
+
+      // Expected shipment headings (for both HHG and NTS)
+      const expectedHeadings = [`dHHG shipment`, `iNTS shipment`];
+
+      // Check that all expected headings are present, regardless of order
+      expectedHeadings.forEach((expectedHeading) => {
+        expect(headingTexts).toContain(expectedHeading);
+      });
+
+      // Check service items and checkboxes within the HHG container
+      const hhgContainer = shipmentHeadings.find((heading) => heading.textContent === expectedHeadings[0]).parentElement
+        .parentElement;
 
       expect(
         within(hhgContainer).getByRole('checkbox', { name: 'Add all service items', checked: false }),
@@ -150,9 +166,9 @@ describe('CreatePaymentRequest page', () => {
         within(hhgContainer).getByRole('checkbox', { name: 'Add to payment request', checked: false }),
       ).toBeInTheDocument();
 
-      const ntsHeading = within(shipmentsContainer).getByRole('heading', { name: 'NTS shipment', level: 3 });
-      expect(ntsHeading).toBeInTheDocument();
-      const ntsContainer = ntsHeading.parentElement.parentElement;
+      // Check service items and checkboxes within the NTS container
+      const ntsContainer = shipmentHeadings.find((heading) => heading.textContent === expectedHeadings[1]).parentElement
+        .parentElement;
 
       expect(
         within(ntsContainer).getByRole('checkbox', { name: 'Add all service items', checked: false }),

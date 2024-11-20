@@ -9,10 +9,12 @@ import styles from './PrimeUIUpdateSITForms.module.scss';
 import SectionWrapper from 'components/Customer/SectionWrapper';
 import formStyles from 'styles/form.module.scss';
 import { Form } from 'components/form/Form';
+import TextField from 'components/form/fields/TextField/TextField';
 import WizardNavigation from 'components/Customer/WizardNavigation/WizardNavigation';
 import descriptionListStyles from 'styles/descriptionList.module.scss';
 import { primeSimulatorRoutes } from 'constants/routes';
 import { DatePickerInput } from 'components/form/fields';
+import { SERVICE_ITEM_STATUSES } from 'constants/serviceItems';
 
 const PrimeUIUpdateDestSITForm = ({ initialValues, onSubmit, serviceItem }) => {
   const { moveCodeOrID } = useParams();
@@ -37,6 +39,7 @@ const PrimeUIUpdateDestSITForm = ({ initialValues, onSubmit, serviceItem }) => {
                     SIT Departure Date <br />
                     SIT Requested Delivery <br />
                     SIT Customer Contacted <br />
+                    Update Reason
                   </strong>
                   <br />
                 </div>
@@ -68,6 +71,18 @@ const PrimeUIUpdateDestSITForm = ({ initialValues, onSubmit, serviceItem }) => {
                   <DatePickerInput name="sitRequestedDelivery" label="SIT Requested Delivery" />
                   <DatePickerInput name="sitCustomerContacted" label="SIT Customer Contacted" />
                 </div>
+                {serviceItem.status === SERVICE_ITEM_STATUSES.REJECTED && (
+                  <TextField
+                    display="textarea"
+                    label="Update Reason"
+                    data-testid="updateReason"
+                    name="updateReason"
+                    className={`${formStyles.remarks}`}
+                    placeholder=""
+                    id="updateReason"
+                    maxLength={500}
+                  />
+                )}
               </SectionWrapper>
               <WizardNavigation
                 editMode

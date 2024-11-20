@@ -5,6 +5,7 @@ import { Summary } from 'components/Customer/Review/Summary/Summary';
 import { MOVE_STATUSES, SHIPMENT_OPTIONS } from 'shared/constants';
 import { MockProviders } from 'testUtils';
 import { shipmentStatuses } from 'constants/shipments';
+import { ORDERS_TYPE } from 'constants/orders';
 
 export default {
   title: 'Customer Components / Review Shipment',
@@ -35,6 +36,9 @@ const serviceMemberMoves = {
       id: mtoUuid,
       moveCode: mtoLocator,
       mtoShipments: [],
+      counselingOffice: {
+        name: 'PPPO McAlester',
+      },
       orders: {
         authorizedWeight: 11000,
         created_at: '2024-03-12T13:36:14.940Z',
@@ -62,7 +66,7 @@ const serviceMemberMoves = {
           name: 'Flagstaff, AZ 86004',
           updated_at: '2024-02-27T20:40:42.164Z',
         },
-        orders_type: 'PERMANENT_CHANGE_OF_STATION',
+        orders_type: ORDERS_TYPE.PERMANENT_CHANGE_OF_STATION,
         originDutyLocationGbloc: 'HAFC',
         origin_duty_location: {
           address: {
@@ -134,9 +138,12 @@ const defaultProps = {
     locator: mtoLocator,
     service_member_id: customerUuid,
     status: MOVE_STATUSES.DRAFT,
+    counseling_office: {
+      name: 'PPPO McAlester',
+    },
   },
   currentOrders: {
-    orders_type: 'PERMANENT_CHANGE_OF_STATION',
+    orders_type: ORDERS_TYPE.PERMANENT_CHANGE_OF_STATION,
     has_dependents: false,
     issue_date: '2020-08-11',
     grade: 'E_1',

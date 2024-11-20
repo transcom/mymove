@@ -38,10 +38,19 @@ type GetMovesQueueParams struct {
 	  In: query
 	*/
 	AppearedInTooAt *strfmt.DateTime
+	/*Used to illustrate which user is assigned to this move.
+
+	  In: query
+	*/
+	AssignedTo *string
 	/*
 	  In: query
 	*/
 	Branch *string
+	/*
+	  In: query
+	*/
+	CustomerName *string
 	/*
 	  In: query
 	*/
@@ -54,10 +63,6 @@ type GetMovesQueueParams struct {
 	  In: query
 	*/
 	Emplid *string
-	/*
-	  In: query
-	*/
-	LastName *string
 	/*
 	  In: query
 	*/
@@ -120,8 +125,18 @@ func (o *GetMovesQueueParams) BindRequest(r *http.Request, route *middleware.Mat
 		res = append(res, err)
 	}
 
+	qAssignedTo, qhkAssignedTo, _ := qs.GetOK("assignedTo")
+	if err := o.bindAssignedTo(qAssignedTo, qhkAssignedTo, route.Formats); err != nil {
+		res = append(res, err)
+	}
+
 	qBranch, qhkBranch, _ := qs.GetOK("branch")
 	if err := o.bindBranch(qBranch, qhkBranch, route.Formats); err != nil {
+		res = append(res, err)
+	}
+
+	qCustomerName, qhkCustomerName, _ := qs.GetOK("customerName")
+	if err := o.bindCustomerName(qCustomerName, qhkCustomerName, route.Formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -137,11 +152,6 @@ func (o *GetMovesQueueParams) BindRequest(r *http.Request, route *middleware.Mat
 
 	qEmplid, qhkEmplid, _ := qs.GetOK("emplid")
 	if err := o.bindEmplid(qEmplid, qhkEmplid, route.Formats); err != nil {
-		res = append(res, err)
-	}
-
-	qLastName, qhkLastName, _ := qs.GetOK("lastName")
-	if err := o.bindLastName(qLastName, qhkLastName, route.Formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -237,6 +247,24 @@ func (o *GetMovesQueueParams) validateAppearedInTooAt(formats strfmt.Registry) e
 	return nil
 }
 
+// bindAssignedTo binds and validates parameter AssignedTo from query.
+func (o *GetMovesQueueParams) bindAssignedTo(rawData []string, hasKey bool, formats strfmt.Registry) error {
+	var raw string
+	if len(rawData) > 0 {
+		raw = rawData[len(rawData)-1]
+	}
+
+	// Required: false
+	// AllowEmptyValue: false
+
+	if raw == "" { // empty values pass all other validations
+		return nil
+	}
+	o.AssignedTo = &raw
+
+	return nil
+}
+
 // bindBranch binds and validates parameter Branch from query.
 func (o *GetMovesQueueParams) bindBranch(rawData []string, hasKey bool, formats strfmt.Registry) error {
 	var raw string
@@ -251,6 +279,24 @@ func (o *GetMovesQueueParams) bindBranch(rawData []string, hasKey bool, formats 
 		return nil
 	}
 	o.Branch = &raw
+
+	return nil
+}
+
+// bindCustomerName binds and validates parameter CustomerName from query.
+func (o *GetMovesQueueParams) bindCustomerName(rawData []string, hasKey bool, formats strfmt.Registry) error {
+	var raw string
+	if len(rawData) > 0 {
+		raw = rawData[len(rawData)-1]
+	}
+
+	// Required: false
+	// AllowEmptyValue: false
+
+	if raw == "" { // empty values pass all other validations
+		return nil
+	}
+	o.CustomerName = &raw
 
 	return nil
 }
@@ -305,24 +351,6 @@ func (o *GetMovesQueueParams) bindEmplid(rawData []string, hasKey bool, formats 
 		return nil
 	}
 	o.Emplid = &raw
-
-	return nil
-}
-
-// bindLastName binds and validates parameter LastName from query.
-func (o *GetMovesQueueParams) bindLastName(rawData []string, hasKey bool, formats strfmt.Registry) error {
-	var raw string
-	if len(rawData) > 0 {
-		raw = rawData[len(rawData)-1]
-	}
-
-	// Required: false
-	// AllowEmptyValue: false
-
-	if raw == "" { // empty values pass all other validations
-		return nil
-	}
-	o.LastName = &raw
 
 	return nil
 }
@@ -519,7 +547,7 @@ func (o *GetMovesQueueParams) bindSort(rawData []string, hasKey bool, formats st
 // validateSort carries on validations for parameter Sort
 func (o *GetMovesQueueParams) validateSort(formats strfmt.Registry) error {
 
-	if err := validate.EnumCase("sort", "query", *o.Sort, []interface{}{"lastName", "dodID", "emplid", "branch", "locator", "status", "originDutyLocation", "destinationDutyLocation", "requestedMoveDate", "appearedInTooAt"}, true); err != nil {
+	if err := validate.EnumCase("sort", "query", *o.Sort, []interface{}{"customerName", "dodID", "emplid", "branch", "locator", "status", "originDutyLocation", "destinationDutyLocation", "requestedMoveDate", "appearedInTooAt", "assignedTo"}, true); err != nil {
 		return err
 	}
 

@@ -47,7 +47,7 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemHandler() {
 				LinkOnly: true,
 			},
 		}, nil)
-		factory.BuildDOFSITReService(suite.DB())
+		factory.FetchReServiceByCode(suite.DB(), models.ReServiceCodeDOFSIT)
 		req := httptest.NewRequest("POST", "/mto-service-items", nil)
 		sitEntryDate := time.Now()
 		sitPostalCode := "00000"
@@ -59,6 +59,7 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemHandler() {
 		// Do not create Address in the database (Assertions.Stub = true), because if the information is coming from the Prime
 		// via the Prime API, the address will not have a valid database ID. And tests need to ensure
 		// that we properly create the address coming in from the API.
+		factory.FetchOrBuildCountry(suite.DB(), nil, nil)
 		actualPickupAddress := factory.BuildAddress(nil, nil, []factory.Trait{factory.GetTraitAddress2})
 
 		subtestData.mtoServiceItem = models.MTOServiceItem{
@@ -124,7 +125,7 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemHandler() {
 			},
 		}, nil)
 		mtoShipment.PrimeEstimatedWeight = nil
-		factory.BuildReServiceByCode(suite.DB(), models.ReServiceCodeDOSHUT)
+		factory.FetchReServiceByCode(suite.DB(), models.ReServiceCodeDOSHUT)
 		req := httptest.NewRequest("POST", "/mto-service-items", nil)
 		reason := "lorem ipsum"
 
@@ -442,8 +443,8 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemDomesticCratingHandler() {
 				LinkOnly: true,
 			},
 		}, nil)
-		factory.BuildReServiceByCode(suite.DB(), models.ReServiceCodeDCRT)
-		factory.BuildReServiceByCode(suite.DB(), models.ReServiceCodeDUCRT)
+		factory.FetchReServiceByCode(suite.DB(), models.ReServiceCodeDCRT)
+		factory.FetchReServiceByCode(suite.DB(), models.ReServiceCodeDUCRT)
 		subtestData.req = httptest.NewRequest("POST", "/mto-service-items", nil)
 
 		subtestData.mtoServiceItem = models.MTOServiceItem{
@@ -605,7 +606,7 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemOriginSITHandler() {
 				LinkOnly: true,
 			},
 		}, nil)
-		factory.BuildDOFSITReService(suite.DB())
+		factory.FetchReServiceByCode(suite.DB(), models.ReServiceCodeDOFSIT)
 
 		sitEntryDate := time.Now()
 		sitPostalCode := "00000"
@@ -805,7 +806,7 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemOriginSITHandlerWithDOFSITNoA
 				LinkOnly: true,
 			},
 		}, nil)
-		factory.BuildDOFSITReService(suite.DB())
+		factory.FetchReServiceByCode(suite.DB(), models.ReServiceCodeDOFSIT)
 		sitEntryDate := time.Now()
 		sitPostalCode := "00000"
 
@@ -892,7 +893,7 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemOriginSITHandlerWithDOFSITWit
 				LinkOnly: true,
 			},
 		}, nil)
-		factory.BuildDOFSITReService(suite.DB())
+		factory.FetchReServiceByCode(suite.DB(), models.ReServiceCodeDOFSIT)
 		sitEntryDate := time.Now()
 		sitPostalCode := "00000"
 
@@ -1071,7 +1072,7 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemDestSITHandler() {
 				LinkOnly: true,
 			},
 		}, nil)
-		factory.BuildDDFSITReService(suite.DB())
+		factory.FetchReServiceByCode(suite.DB(), models.ReServiceCodeDDFSIT)
 
 		req := httptest.NewRequest("POST", "/mto-service-items", nil)
 		subtestData.mtoServiceItem = models.MTOServiceItem{

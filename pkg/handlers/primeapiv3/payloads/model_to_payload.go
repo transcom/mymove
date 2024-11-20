@@ -184,6 +184,14 @@ func DutyLocation(dutyLocation *models.DutyLocation) *primev3messages.DutyLocati
 	return &payload
 }
 
+// Country payload
+func Country(country *models.Country) *string {
+	if country == nil {
+		return nil
+	}
+	return &country.Country
+}
+
 // Address payload
 func Address(address *models.Address) *primev3messages.Address {
 	if address == nil {
@@ -197,10 +205,36 @@ func Address(address *models.Address) *primev3messages.Address {
 		City:           &address.City,
 		State:          &address.State,
 		PostalCode:     &address.PostalCode,
-		Country:        address.Country,
+		Country:        Country(address.Country),
 		ETag:           etag.GenerateEtag(address.UpdatedAt),
 		County:         &address.County,
 	}
+}
+
+// PPM Destination payload
+func PPMDestinationAddress(address *models.Address) *primev3messages.PPMDestinationAddress {
+	if address == nil {
+		return nil
+	}
+	payload := &primev3messages.PPMDestinationAddress{
+		ID:             strfmt.UUID(address.ID.String()),
+		StreetAddress1: &address.StreetAddress1,
+		StreetAddress2: address.StreetAddress2,
+		StreetAddress3: address.StreetAddress3,
+		City:           &address.City,
+		State:          &address.State,
+		PostalCode:     &address.PostalCode,
+		Country:        Country(address.Country),
+		ETag:           etag.GenerateEtag(address.UpdatedAt),
+		County:         &address.County,
+	}
+	// Street address 1 is optional per business rule but not nullable on the database level.
+	// Check if streetAddress 1 is using place holder value to represent 'NULL'.
+	// If so return empty string.
+	if strings.EqualFold(*payload.StreetAddress1, models.STREET_ADDRESS_1_NOT_PROVIDED) {
+		payload.StreetAddress1 = models.StringPointer("")
+	}
+	return payload
 }
 
 // StorageFacility payload
@@ -434,6 +468,7 @@ func PPMShipment(ppmShipment *models.PPMShipment) *primev3messages.PPMShipment {
 		AdvanceAmountRequested:         handlers.FmtCost(ppmShipment.AdvanceAmountRequested),
 		HasReceivedAdvance:             ppmShipment.HasReceivedAdvance,
 		AdvanceAmountReceived:          handlers.FmtCost(ppmShipment.AdvanceAmountReceived),
+		IsActualExpenseReimbursement:   ppmShipment.IsActualExpenseReimbursement,
 		ETag:                           etag.GenerateEtag(ppmShipment.UpdatedAt),
 	}
 
@@ -447,7 +482,7 @@ func PPMShipment(ppmShipment *models.PPMShipment) *primev3messages.PPMShipment {
 		payloadPPMShipment.PickupAddress = Address(ppmShipment.PickupAddress)
 	}
 	if ppmShipment.DestinationAddress != nil {
-		payloadPPMShipment.DestinationAddress = Address(ppmShipment.DestinationAddress)
+		payloadPPMShipment.DestinationAddress = PPMDestinationAddress(ppmShipment.DestinationAddress)
 	}
 	if ppmShipment.SecondaryPickupAddress != nil {
 		payloadPPMShipment.SecondaryPickupAddress = Address(ppmShipment.SecondaryPickupAddress)
@@ -456,7 +491,69 @@ func PPMShipment(ppmShipment *models.PPMShipment) *primev3messages.PPMShipment {
 		payloadPPMShipment.SecondaryDestinationAddress = Address(ppmShipment.SecondaryDestinationAddress)
 	}
 
+	if ppmShipment.IsActualExpenseReimbursement != nil {
+		payloadPPMShipment.IsActualExpenseReimbursement = ppmShipment.IsActualExpenseReimbursement
+	}
+
 	return payloadPPMShipment
+}
+
+// BoatShipment payload
+func BoatShipment(boatShipment *models.BoatShipment) *primev3messages.BoatShipment {
+	if boatShipment == nil || boatShipment.ID.IsNil() {
+		return nil
+	}
+
+	boatShipmentType := string(boatShipment.Type)
+	payloadPPMShipment := &primev3messages.BoatShipment{
+		ID:             *handlers.FmtUUID(boatShipment.ID),
+		ShipmentID:     *handlers.FmtUUID(boatShipment.ShipmentID),
+		CreatedAt:      strfmt.DateTime(boatShipment.CreatedAt),
+		UpdatedAt:      strfmt.DateTime(boatShipment.UpdatedAt),
+		Type:           &boatShipmentType,
+		Year:           handlers.FmtIntPtrToInt64(boatShipment.Year),
+		Make:           boatShipment.Make,
+		Model:          boatShipment.Model,
+		LengthInInches: handlers.FmtIntPtrToInt64(boatShipment.LengthInInches),
+		WidthInInches:  handlers.FmtIntPtrToInt64(boatShipment.WidthInInches),
+		HeightInInches: handlers.FmtIntPtrToInt64(boatShipment.HeightInInches),
+		HasTrailer:     boatShipment.HasTrailer,
+		IsRoadworthy:   boatShipment.IsRoadworthy,
+		ETag:           etag.GenerateEtag(boatShipment.UpdatedAt),
+	}
+
+	return payloadPPMShipment
+}
+
+// MobilehomeShipment payload
+func MobileHomeShipment(mobileHomeShipment *models.MobileHome) *primev3messages.MobileHome {
+	if mobileHomeShipment == nil || mobileHomeShipment.ID.IsNil() {
+		return nil
+	}
+
+	payloadMobileHomeShipment := &primev3messages.MobileHome{
+		ID:             *handlers.FmtUUID(mobileHomeShipment.ID),
+		ShipmentID:     *handlers.FmtUUID(mobileHomeShipment.ShipmentID),
+		CreatedAt:      strfmt.DateTime(mobileHomeShipment.CreatedAt),
+		UpdatedAt:      strfmt.DateTime(mobileHomeShipment.UpdatedAt),
+		Year:           *handlers.FmtIntPtrToInt64(mobileHomeShipment.Year),
+		Make:           *mobileHomeShipment.Make,
+		Model:          *mobileHomeShipment.Model,
+		LengthInInches: *handlers.FmtIntPtrToInt64(mobileHomeShipment.LengthInInches),
+		WidthInInches:  *handlers.FmtIntPtrToInt64(mobileHomeShipment.WidthInInches),
+		HeightInInches: *handlers.FmtIntPtrToInt64(mobileHomeShipment.HeightInInches),
+		ETag:           etag.GenerateEtag(mobileHomeShipment.UpdatedAt),
+	}
+
+	return payloadMobileHomeShipment
+}
+
+// MarketCode payload
+func MarketCode(marketCode *models.MarketCode) string {
+	if marketCode == nil {
+		return "" // Or a default string value
+	}
+	return string(*marketCode)
 }
 
 func MTOShipmentWithoutServiceItems(mtoShipment *models.MTOShipment) *primev3messages.MTOShipmentWithoutServiceItems {
@@ -488,6 +585,8 @@ func MTOShipmentWithoutServiceItems(mtoShipment *models.MTOShipment) *primev3mes
 		CreatedAt:                        strfmt.DateTime(mtoShipment.CreatedAt),
 		UpdatedAt:                        strfmt.DateTime(mtoShipment.UpdatedAt),
 		PpmShipment:                      PPMShipment(mtoShipment.PPMShipment),
+		BoatShipment:                     BoatShipment(mtoShipment.BoatShipment),
+		MobileHomeShipment:               MobileHomeShipment(mtoShipment.MobileHome),
 		ETag:                             etag.GenerateEtag(mtoShipment.UpdatedAt),
 		OriginSitAuthEndDate:             (*strfmt.Date)(mtoShipment.OriginSITAuthEndDate),
 		DestinationSitAuthEndDate:        (*strfmt.Date)(mtoShipment.DestinationSITAuthEndDate),
@@ -495,6 +594,7 @@ func MTOShipmentWithoutServiceItems(mtoShipment *models.MTOShipment) *primev3mes
 		SecondaryPickupAddress:           Address(mtoShipment.SecondaryPickupAddress),
 		TertiaryDeliveryAddress:          Address(mtoShipment.TertiaryDeliveryAddress),
 		TertiaryPickupAddress:            Address(mtoShipment.TertiaryPickupAddress),
+		MarketCode:                       MarketCode(&mtoShipment.MarketCode),
 	}
 
 	// Set up address payloads
@@ -536,7 +636,7 @@ func MTOShipmentWithoutServiceItems(mtoShipment *models.MTOShipment) *primev3mes
 			payload.PpmShipment.TertiaryPickupAddress = Address(mtoShipment.PPMShipment.TertiaryPickupAddress)
 		}
 		if mtoShipment.PPMShipment.DestinationAddress != nil {
-			payload.PpmShipment.DestinationAddress = Address(mtoShipment.PPMShipment.DestinationAddress)
+			payload.PpmShipment.DestinationAddress = PPMDestinationAddress(mtoShipment.PPMShipment.DestinationAddress)
 		}
 		if mtoShipment.PPMShipment.SecondaryDestinationAddress != nil {
 			payload.PpmShipment.SecondaryDestinationAddress = Address(mtoShipment.PPMShipment.SecondaryDestinationAddress)

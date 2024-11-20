@@ -28,6 +28,11 @@
     @include u-margin-bottom(3);
   }
 
+  .scCancelMoveContainer {
+    @include u-margin-top(1);
+    padding-left: 810px;
+  }
+
   .alertContainer {
     @include u-margin-bottom(4);
   }

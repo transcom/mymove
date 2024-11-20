@@ -31,7 +31,6 @@ func (suite *PPMShipmentSuite) TestPPMShipmentCreator() {
 	createSubtestData := func(ppmShipmentTemplate models.PPMShipment, mtoShipmentTemplate *models.MTOShipment) (subtestData *createShipmentSubtestData) {
 		subtestData = &createShipmentSubtestData{}
 
-		// TODO: pass customs through once we refactor this function to take in []factory.Customization instead of assertions
 		subtestData.move = factory.BuildMove(suite.DB(), nil, nil)
 
 		customMTOShipment := models.MTOShipment{
@@ -61,10 +60,10 @@ func (suite *PPMShipmentSuite) TestPPMShipmentCreator() {
 		return subtestData
 	}
 
-	suite.Run("Can successfully create a PPMShipment", func() {
+	suite.Run("Can successfully create a domestic PPMShipment", func() {
 		// Under test:	CreatePPMShipment
 		// Set up:		Established valid shipment and valid new PPM shipment
-		// Expected:	New PPM shipment successfully created
+		// Expected:	New PPM shipment successfully created, market code is "d" on the parent shipment
 		appCtx := suite.AppContextForTest()
 
 		// Set required fields for PPMShipment
@@ -78,7 +77,7 @@ func (suite *PPMShipmentSuite) TestPPMShipmentCreator() {
 				City:           "Des Moines",
 				State:          "IA",
 				PostalCode:     "50308",
-				Country:        models.StringPointer("US"),
+				County:         "POLK",
 			},
 			DestinationAddress: &models.Address{
 				StreetAddress1: "987 Other Avenue",
@@ -87,7 +86,7 @@ func (suite *PPMShipmentSuite) TestPPMShipmentCreator() {
 				City:           "Fort Eisenhower",
 				State:          "GA",
 				PostalCode:     "30183",
-				Country:        models.StringPointer("US"),
+				County:         "COLUMBIA",
 			},
 		}, nil)
 
@@ -102,6 +101,49 @@ func (suite *PPMShipmentSuite) TestPPMShipmentCreator() {
 
 		suite.Nil(err)
 		suite.NotNil(createdPPMShipment)
+		suite.Equal(createdPPMShipment.Shipment.MarketCode, models.MarketCodeDomestic)
+	})
+
+	suite.Run("Can successfully create an international PPMShipment", func() {
+		// Under test:	CreatePPMShipment
+		// Set up:		Established valid shipment and valid new PPM shipment
+		// Expected:	New PPM shipment successfully created, market code is "i" on the parent shipment
+		appCtx := suite.AppContextForTest()
+
+		// Set required fields for PPMShipment
+		subtestData := createSubtestData(models.PPMShipment{
+			ExpectedDepartureDate: testdatagen.NextValidMoveDate,
+			SITExpected:           models.BoolPointer(false),
+			PickupAddress: &models.Address{
+				StreetAddress1: "987 Other Avenue",
+				StreetAddress2: models.StringPointer("P.O. Box 1234"),
+				StreetAddress3: models.StringPointer("c/o Another Person"),
+				City:           "Fairbanks",
+				State:          "AK",
+				PostalCode:     "99507",
+			},
+			DestinationAddress: &models.Address{
+				StreetAddress1: "987 Other Avenue",
+				StreetAddress2: models.StringPointer("P.O. Box 12345"),
+				StreetAddress3: models.StringPointer("c/o Another Person"),
+				City:           "Fort Hawaiir",
+				State:          "HI",
+				PostalCode:     "96821",
+			},
+		}, nil)
+
+		ppmEstimator.On(
+			"EstimateIncentiveWithDefaultChecks",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.AnythingOfType("models.PPMShipment"),
+			mock.AnythingOfType("*models.PPMShipment"),
+		).Return(nil, nil, nil).Once()
+
+		createdPPMShipment, err := ppmShipmentCreator.CreatePPMShipmentWithDefaultCheck(appCtx, subtestData.newPPMShipment)
+
+		suite.Nil(err)
+		suite.NotNil(createdPPMShipment)
+		suite.Equal(createdPPMShipment.Shipment.MarketCode, models.MarketCodeInternational)
 	})
 
 	var invalidInputTests = []struct {

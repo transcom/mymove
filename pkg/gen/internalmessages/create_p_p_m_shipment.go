@@ -21,7 +21,7 @@ type CreatePPMShipment struct {
 
 	// destination address
 	// Required: true
-	DestinationAddress *Address `json:"destinationAddress"`
+	DestinationAddress *PPMDestinationAddress `json:"destinationAddress"`
 
 	// Date the customer expects to move.
 	//
@@ -34,6 +34,10 @@ type CreatePPMShipment struct {
 
 	// has tertiary pickup address
 	HasTertiaryPickupAddress *bool `json:"hasTertiaryPickupAddress"`
+
+	// Denotes if this PPM shipment uses the Actual Expense Reimbursement method.
+	// Example: false
+	IsActualExpenseReimbursement *bool `json:"isActualExpenseReimbursement"`
 
 	// pickup address
 	// Required: true

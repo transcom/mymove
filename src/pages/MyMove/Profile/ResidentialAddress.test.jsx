@@ -101,16 +101,16 @@ describe('ResidentialAddress page', () => {
     }));
     patchServiceMember.mockImplementation(() => Promise.resolve(expectedServiceMemberPayload));
 
-    const { getByLabelText, getByText } = render(<ResidentialAddress {...testProps} />);
+    const { getByLabelText } = render(<ResidentialAddress {...testProps} />);
 
     await userEvent.type(screen.getByLabelText(/Address 1/), fakeAddress.streetAddress1);
     await userEvent.type(screen.getByLabelText(/Address 2/), fakeAddress.streetAddress2);
     await userEvent.type(screen.getByLabelText(/City/), fakeAddress.city);
-    await userEvent.selectOptions(screen.getByLabelText(/State/), 'AK');
+    await userEvent.selectOptions(screen.getByLabelText(/State/), 'HI');
     await userEvent.type(screen.getByLabelText(/ZIP/), fakeAddress.postalCode);
     await userEvent.tab();
 
-    let msg = getByText('Moves to this state are not supported at this time.');
+    const msg = screen.getByText('Moves to this state are not supported at this time.');
     expect(msg).toBeVisible();
 
     await userEvent.selectOptions(getByLabelText(/State/), 'AL');
@@ -121,8 +121,9 @@ describe('ResidentialAddress page', () => {
     await userEvent.selectOptions(getByLabelText(/State/), 'HI');
     await userEvent.type(getByLabelText(/ZIP/), fakeAddress.postalCode);
     await userEvent.tab();
-    msg = getByText('Moves to this state are not supported at this time.');
-    expect(msg).toBeVisible();
+    await waitFor(() => {
+      screen.getByText('Moves to this state are not supported at this time.');
+    });
   });
 
   it('next button submits the form and goes to the Backup address step', async () => {

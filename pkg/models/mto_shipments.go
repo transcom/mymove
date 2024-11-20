@@ -23,6 +23,14 @@ const (
 	NTSrRaw = "HHG_OUTOF_NTS_DOMESTIC"
 )
 
+// Market code indicator of international or domestic
+type MarketCode string
+
+const (
+	MarketCodeDomestic      MarketCode = "d" // domestic
+	MarketCodeInternational MarketCode = "i" // international
+)
+
 const (
 	// MTOShipmentTypeHHG is an HHG Shipment Type default
 	MTOShipmentTypeHHG MTOShipmentType = "HHG"
@@ -158,6 +166,7 @@ type MTOShipment struct {
 	OriginSITAuthEndDate             *time.Time             `db:"origin_sit_auth_end_date"`
 	DestinationSITAuthEndDate        *time.Time             `db:"dest_sit_auth_end_date"`
 	MobileHome                       *MobileHome            `has_one:"mobile_home" fk_id:"shipment_id"`
+	MarketCode                       MarketCode             `db:"market_code"`
 }
 
 // TableName overrides the table name used by Pop.
@@ -237,6 +246,17 @@ func (m *MTOShipment) Validate(_ *pop.Connection) (*validate.Errors, error) {
 		string(DestinationTypeOtherThanAuthorized),
 	}})
 
+	if m.MarketCode != "" {
+		vs = append(vs, &validators.StringInclusion{
+			Field: string(m.MarketCode),
+			Name:  "MarketCode",
+			List: []string{
+				string(MarketCodeDomestic),
+				string(MarketCodeInternational),
+			},
+		})
+	}
+
 	return validate.Validate(vs...), nil
 }
 
@@ -253,4 +273,85 @@ func GetCustomerFromShipment(db *pop.Connection, shipmentID uuid.UUID) (*Service
 		return &serviceMember, fmt.Errorf("error fetching service member for shipment ID: %s with error %w", shipmentID, err)
 	}
 	return &serviceMember, nil
+}
+
+// determining the market code for a shipment based off of address isOconus value
+// this function takes in a shipment and returns the same shipment with the updated MarketCode value
+func DetermineShipmentMarketCode(shipment *MTOShipment) *MTOShipment {
+	// helper to check if both addresses are CONUS
+	isDomestic := func(pickupAddress, destAddress *Address) bool {
+		return pickupAddress != nil && destAddress != nil &&
+			pickupAddress.IsOconus != nil && destAddress.IsOconus != nil &&
+			!*pickupAddress.IsOconus && !*destAddress.IsOconus
+	}
+
+	// determine market code based on address and shipment type
+	switch shipment.ShipmentType {
+	case MTOShipmentTypeHHGIntoNTSDom:
+		if shipment.PickupAddress != nil && shipment.StorageFacility != nil &&
+			shipment.PickupAddress.IsOconus != nil && shipment.StorageFacility.Address.IsOconus != nil {
+			// If both pickup and storage facility are present, check if both are domestic
+			if isDomestic(shipment.PickupAddress, &shipment.StorageFacility.Address) {
+				shipment.MarketCode = MarketCodeDomestic
+			} else {
+				shipment.MarketCode = MarketCodeInternational
+			}
+		} else if shipment.PickupAddress != nil && shipment.PickupAddress.IsOconus != nil {
+			// customers only submit pickup addresses on shipment creation
+			if !*shipment.PickupAddress.IsOconus {
+				shipment.MarketCode = MarketCodeDomestic
+			} else {
+				shipment.MarketCode = MarketCodeInternational
+			}
+		}
+	case MTOShipmentTypeHHGOutOfNTSDom:
+		if shipment.StorageFacility != nil && shipment.DestinationAddress != nil &&
+			shipment.StorageFacility.Address.IsOconus != nil && shipment.DestinationAddress.IsOconus != nil {
+			if isDomestic(&shipment.StorageFacility.Address, shipment.DestinationAddress) {
+				shipment.MarketCode = MarketCodeDomestic
+			} else {
+				shipment.MarketCode = MarketCodeInternational
+			}
+		} else if shipment.DestinationAddress != nil && shipment.DestinationAddress.IsOconus != nil {
+			// customers only submit destination addresses on NTS-release shipments
+			if !*shipment.DestinationAddress.IsOconus {
+				shipment.MarketCode = MarketCodeDomestic
+			} else {
+				shipment.MarketCode = MarketCodeInternational
+			}
+		}
+	default:
+		if shipment.PickupAddress != nil && shipment.DestinationAddress != nil &&
+			shipment.PickupAddress.IsOconus != nil && shipment.DestinationAddress.IsOconus != nil {
+			if isDomestic(shipment.PickupAddress, shipment.DestinationAddress) {
+				shipment.MarketCode = MarketCodeDomestic
+			} else {
+				shipment.MarketCode = MarketCodeInternational
+			}
+		} else {
+			// set a default market code for cases where PPM logic needs to be done after shipment creation
+			shipment.MarketCode = MarketCodeDomestic
+		}
+	}
+	return shipment
+}
+
+// this function takes in two addresses and determines the market code string
+func DetermineMarketCode(address1 *Address, address2 *Address) (MarketCode, error) {
+	if address1 == nil || address2 == nil {
+		return "", fmt.Errorf("both address1 and address2 must be provided")
+	}
+
+	// helper to check if both addresses are CONUS
+	isDomestic := func(a, b *Address) bool {
+		return a != nil && b != nil &&
+			a.IsOconus != nil && b.IsOconus != nil &&
+			!*a.IsOconus && !*b.IsOconus
+	}
+
+	if isDomestic(address1, address2) {
+		return MarketCodeDomestic, nil
+	} else {
+		return MarketCodeInternational, nil
+	}
 }

@@ -28,6 +28,11 @@ jest.mock('services/primeApi', () => ({
   createPrimeMTOShipmentV3: jest.fn().mockImplementation(() => Promise.resolve()),
 }));
 
+jest.mock('utils/featureFlags', () => ({
+  ...jest.requireActual('utils/featureFlags'),
+  isBooleanFlagEnabled: jest.fn().mockImplementation(() => Promise.resolve(false)),
+}));
+
 const moveDetailsURL = generatePath(primeSimulatorRoutes.VIEW_MOVE_PATH, { moveCodeOrID: moveId });
 
 const mockedComponent = (
@@ -72,6 +77,81 @@ describe('successful submission of form', () => {
 
     await waitFor(() => {
       expect(mockNavigate).toHaveBeenCalledWith(moveDetailsURL);
+    });
+  });
+});
+
+describe('Error when submitting', () => {
+  it('Correctly displays the unexpected server error window when an unusuable api error response is returned', async () => {
+    createPrimeMTOShipmentV3.mockRejectedValue('malformed api error response');
+    render(mockedComponent);
+
+    waitFor(async () => {
+      await userEvent.selectOptions(screen.getByLabelText('Shipment type'), 'HHG');
+
+      const saveButton = await screen.getByRole('button', { name: 'Save' });
+
+      expect(saveButton).not.toBeDisabled();
+      await userEvent.click(saveButton);
+      expect(screen.getByText('Unexpected error')).toBeInTheDocument();
+      expect(
+        screen.getByText('An unknown error has occurred, please check the address values used'),
+      ).toBeInTheDocument();
+    });
+  });
+
+  it('Correctly displays the invalid fields in the error window when an api error response is returned', async () => {
+    createPrimeMTOShipmentV3.mockRejectedValue({ body: { title: 'Error', invalidFields: { someField: true } } });
+    render(mockedComponent);
+
+    waitFor(async () => {
+      await userEvent.selectOptions(screen.getByLabelText('Shipment type'), 'HHG');
+
+      const saveButton = await screen.getByRole('button', { name: 'Save' });
+
+      expect(saveButton).not.toBeDisabled();
+      await userEvent.click(saveButton);
+      expect(screen.getByText('Prime API: Error')).toBeInTheDocument();
+      expect(
+        screen.getByText('An unknown error has occurred, please check the address values used'),
+      ).toBeInTheDocument();
+    });
+  });
+});
+
+describe('Create PPM', () => {
+  it('test destination address street 1 is OPTIONAL', async () => {
+    createPrimeMTOShipmentV3.mockReturnValue({});
+
+    render(mockedComponent);
+
+    waitFor(async () => {
+      await userEvent.selectOptions(screen.getByLabelText('Shipment type'), 'PPM');
+
+      // Start controlled test case to verify everything is working.
+      let input = await document.querySelector('input[name="ppmShipment.pickupAddress.streetAddress1"]');
+      expect(input).toBeInTheDocument();
+      // enter required street 1 for pickup
+      await userEvent.type(input, '123 Street');
+      // clear
+      await userEvent.clear(input);
+      await userEvent.tab();
+      // verify Required alert is displayed
+      const requiredAlerts = screen.getByRole('alert');
+      expect(requiredAlerts).toHaveTextContent('Required');
+      // make valid again to clear alert
+      await userEvent.type(input, '123 Street');
+
+      // Verify destination address street 1 is OPTIONAL.
+      input = await document.querySelector('input[name="ppmShipment.destinationAddress.streetAddress1"]');
+      expect(input).toBeInTheDocument();
+      // enter something
+      await userEvent.type(input, '123 Street');
+      // clear
+      await userEvent.clear(input);
+      await userEvent.tab();
+      // verify no validation is displayed after clearing destination address street 1 because it's OPTIONAL
+      expect(screen.queryByRole('alert')).not.toBeInTheDocument();
     });
   });
 });

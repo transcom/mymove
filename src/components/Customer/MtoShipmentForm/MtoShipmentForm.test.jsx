@@ -17,6 +17,7 @@ import {
 import { SHIPMENT_OPTIONS } from 'shared/constants';
 import { renderWithRouter } from 'testUtils';
 import { ORDERS_TYPE } from 'constants/orders';
+import { isBooleanFlagEnabled } from 'utils/featureFlags';
 
 const mockNavigate = jest.fn();
 jest.mock('react-router-dom', () => ({
@@ -30,6 +31,11 @@ jest.mock('services/internalApi', () => ({
   getResponseError: jest.fn(),
   patchMTOShipment: jest.fn(),
   dateSelectionIsWeekendHoliday: jest.fn().mockImplementation(() => Promise.resolve()),
+}));
+
+jest.mock('utils/featureFlags', () => ({
+  ...jest.requireActual('utils/featureFlags'),
+  isBooleanFlagEnabled: jest.fn().mockImplementation(() => Promise.resolve(false)),
 }));
 
 const moveId = uuidv4();
@@ -55,7 +61,7 @@ const defaultProps = {
     streetAddress2: '',
   },
   orders: {
-    orders_type: 'PERMANENT_CHANGE_OF_STATION',
+    orders_type: ORDERS_TYPE.PERMANENT_CHANGE_OF_STATION,
     has_dependents: false,
     authorizedWeight: 5000,
   },
@@ -83,7 +89,7 @@ const ubProps = {
     streetAddress2: '',
   },
   orders: {
-    orders_type: 'PERMANENT_CHANGE_OF_STATION',
+    orders_type: ORDERS_TYPE.PERMANENT_CHANGE_OF_STATION,
     has_dependents: false,
   },
   shipmentType: SHIPMENT_OPTIONS.UNACCOMPANIED_BAGGAGE,
@@ -91,7 +97,13 @@ const ubProps = {
 
 const reviewPath = generatePath(customerRoutes.MOVE_REVIEW_PATH, { moveId });
 
-beforeEach(jest.resetAllMocks);
+beforeEach(() => {
+  isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(true));
+});
+
+afterEach(() => {
+  jest.clearAllMocks();
+});
 
 const renderMtoShipmentForm = (props) => {
   return renderWithRouter(<MtoShipmentForm {...defaultProps} {...props} />, {
@@ -205,6 +217,11 @@ describe('MtoShipmentForm component', () => {
 
     it('renders the correct helper text for Delivery Location when orders type is LOCAL_MOVE', async () => {
       renderMtoShipmentForm({ orders: { orders_type: ORDERS_TYPE.LOCAL_MOVE } });
+      await waitFor(() => expect(screen.getByText(/We can use the zip of your new duty location./).toBeInTheDocument));
+    });
+
+    it('renders the correct helper text for Delivery Location when orders type is TEMPORARY_DUTY', async () => {
+      renderMtoShipmentForm({ orders: { orders_type: ORDERS_TYPE.TEMPORARY_DUTY } });
       await waitFor(() => expect(screen.getByText(/We can use the zip of your new duty location./).toBeInTheDocument));
     });
 
@@ -1121,6 +1138,11 @@ describe('MtoShipmentForm component', () => {
 
     it('renders the correct helper text for Delivery Location when orders type is LOCAL_MOVE', async () => {
       renderUBShipmentForm({ orders: { orders_type: ORDERS_TYPE.LOCAL_MOVE } });
+      await waitFor(() => expect(screen.getByText(/We can use the zip of your new duty location./).toBeInTheDocument));
+    });
+
+    it('renders the correct helper text for Delivery Location when orders type is TEMPORARY_DUTY', async () => {
+      renderUBShipmentForm({ orders: { orders_type: ORDERS_TYPE.TEMPORARY_DUTY } });
       await waitFor(() => expect(screen.getByText(/We can use the zip of your new duty location./).toBeInTheDocument));
     });
 

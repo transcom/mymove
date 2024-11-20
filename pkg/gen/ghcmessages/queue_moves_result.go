@@ -18,9 +18,6 @@ import (
 // swagger:model QueueMovesResult
 type QueueMovesResult struct {
 
-	// available office users
-	AvailableOfficeUsers AvailableOfficeUsers `json:"availableOfficeUsers,omitempty"`
-
 	// page
 	Page int64 `json:"page,omitempty"`
 
@@ -38,10 +35,6 @@ type QueueMovesResult struct {
 func (m *QueueMovesResult) Validate(formats strfmt.Registry) error {
 	var res []error
 
-	if err := m.validateAvailableOfficeUsers(formats); err != nil {
-		res = append(res, err)
-	}
-
 	if err := m.validateQueueMoves(formats); err != nil {
 		res = append(res, err)
 	}
@@ -49,23 +42,6 @@ func (m *QueueMovesResult) Validate(formats strfmt.Registry) error {
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
-	return nil
-}
-
-func (m *QueueMovesResult) validateAvailableOfficeUsers(formats strfmt.Registry) error {
-	if swag.IsZero(m.AvailableOfficeUsers) { // not required
-		return nil
-	}
-
-	if err := m.AvailableOfficeUsers.Validate(formats); err != nil {
-		if ve, ok := err.(*errors.Validation); ok {
-			return ve.ValidateName("availableOfficeUsers")
-		} else if ce, ok := err.(*errors.CompositeError); ok {
-			return ce.ValidateName("availableOfficeUsers")
-		}
-		return err
-	}
-
 	return nil
 }
 
@@ -90,10 +66,6 @@ func (m *QueueMovesResult) validateQueueMoves(formats strfmt.Registry) error {
 func (m *QueueMovesResult) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	var res []error
 
-	if err := m.contextValidateAvailableOfficeUsers(ctx, formats); err != nil {
-		res = append(res, err)
-	}
-
 	if err := m.contextValidateQueueMoves(ctx, formats); err != nil {
 		res = append(res, err)
 	}
@@ -101,20 +73,6 @@ func (m *QueueMovesResult) ContextValidate(ctx context.Context, formats strfmt.R
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
-	return nil
-}
-
-func (m *QueueMovesResult) contextValidateAvailableOfficeUsers(ctx context.Context, formats strfmt.Registry) error {
-
-	if err := m.AvailableOfficeUsers.ContextValidate(ctx, formats); err != nil {
-		if ve, ok := err.(*errors.Validation); ok {
-			return ve.ValidateName("availableOfficeUsers")
-		} else if ce, ok := err.(*errors.CompositeError); ok {
-			return ce.ValidateName("availableOfficeUsers")
-		}
-		return err
-	}
-
 	return nil
 }
 

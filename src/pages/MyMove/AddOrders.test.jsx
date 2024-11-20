@@ -5,17 +5,32 @@ import { act } from 'react-dom/test-utils';
 
 import AddOrders from './AddOrders';
 
-import { createOrders, getServiceMember } from 'services/internalApi';
+import { createOrders, getServiceMember, showCounselingOffices } from 'services/internalApi';
 import { renderWithProviders } from 'testUtils';
 import { customerRoutes, generalRoutes } from 'constants/routes';
 import { selectCanAddOrders, selectServiceMemberFromLoggedInUser } from 'store/entities/selectors';
 import { setCanAddOrders, setMoveId } from 'store/general/actions';
+import { ORDERS_TYPE } from 'constants/orders';
 
 jest.mock('services/internalApi', () => ({
   ...jest.requireActual('services/internalApi'),
   getServiceMember: jest.fn().mockImplementation(() => Promise.resolve()),
   getResponseError: jest.fn().mockImplementation(() => Promise.resolve()),
   createOrders: jest.fn().mockImplementation(() => Promise.resolve()),
+  showCounselingOffices: jest.fn().mockImplementation(() =>
+    Promise.resolve({
+      body: [
+        {
+          id: '3e937c1f-5539-4919-954d-017989130584',
+          name: 'Albuquerque AFB',
+        },
+        {
+          id: 'fa51dab0-4553-4732-b843-1f33407f77bc',
+          name: 'Glendale Luke AFB',
+        },
+      ],
+    }),
+  ),
 }));
 
 jest.mock('store/entities/selectors', () => ({
@@ -194,6 +209,7 @@ describe('Add Orders page', () => {
   };
 
   it('renders all content of Orders component', async () => {
+    showCounselingOffices.mockImplementation(() => Promise.resolve({}));
     selectServiceMemberFromLoggedInUser.mockImplementation(() => serviceMember);
     renderWithProviders(<AddOrders {...testProps} />, {
       path: customerRoutes.ORDERS_ADD_PATH,
@@ -235,7 +251,7 @@ describe('Add Orders page', () => {
   it('next button creates the orders and updates state', async () => {
     const testOrdersValues = {
       id: 'testOrdersId',
-      orders_type: 'PERMANENT_CHANGE_OF_STATION',
+      orders_type: ORDERS_TYPE.PERMANENT_CHANGE_OF_STATION,
       issue_date: '2020-11-08',
       report_by_date: '2020-11-26',
       has_dependents: false,
@@ -275,7 +291,7 @@ describe('Add Orders page', () => {
     expect(nextBtn).toBeInTheDocument();
 
     await act(async () => {
-      await userEvent.selectOptions(screen.getByLabelText(/Orders type/), 'PERMANENT_CHANGE_OF_STATION');
+      await userEvent.selectOptions(screen.getByLabelText(/Orders type/), ORDERS_TYPE.PERMANENT_CHANGE_OF_STATION);
       await userEvent.type(screen.getByLabelText(/Orders date/), '08 Nov 2020');
       await userEvent.type(screen.getByLabelText(/Report by date/), '26 Nov 2020');
       await userEvent.click(screen.getByLabelText('No'));

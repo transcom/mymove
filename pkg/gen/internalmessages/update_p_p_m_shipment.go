@@ -48,7 +48,7 @@ type UpdatePPMShipment struct {
 	AdvanceAmountRequested *int64 `json:"advanceAmountRequested,omitempty"`
 
 	// destination address
-	DestinationAddress *Address `json:"destinationAddress,omitempty"`
+	DestinationAddress *PPMDestinationAddress `json:"destinationAddress,omitempty"`
 
 	// estimated weight
 	// Example: 4200
@@ -87,6 +87,10 @@ type UpdatePPMShipment struct {
 
 	// has tertiary pickup address
 	HasTertiaryPickupAddress *bool `json:"hasTertiaryPickupAddress"`
+
+	// Used for PPM shipments only. Denotes if this shipment uses the Actual Expense Reimbursement method.
+	// Example: false
+	IsActualExpenseReimbursement *bool `json:"isActualExpenseReimbursement"`
 
 	// pickup address
 	PickupAddress *Address `json:"pickupAddress,omitempty"`
