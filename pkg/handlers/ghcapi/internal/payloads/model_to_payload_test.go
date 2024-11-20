@@ -69,7 +69,6 @@ func (suite *PayloadsSuite) TestPaymentRequestQueue() {
 	var paymentRequestsQueue = QueuePaymentRequests(&paymentRequests, officeUsers, officeUser, false, false)
 
 	suite.Run("Test Payment request is assignable due to not being assigend", func() {
-		// paymentRequests := QueuePaymentRequests(&paymentRequests, officeUsers, officeUser, false, false)
 		paymentRequestCopy := *paymentRequestsQueue
 		suite.NotNil(paymentRequestsQueue)
 		suite.IsType(paymentRequestsQueue, &ghcmessages.QueuePaymentRequests{})
@@ -77,7 +76,6 @@ func (suite *PayloadsSuite) TestPaymentRequestQueue() {
 	})
 
 	suite.Run("Test Payment request has no counseling office", func() {
-		// paymentRequests := QueuePaymentRequests(&paymentRequests, officeUsers, officeUser, false, false)
 		paymentRequestCopy := *paymentRequestsQueue
 		suite.NotNil(paymentRequestsQueue)
 		suite.IsType(paymentRequestsQueue, &ghcmessages.QueuePaymentRequests{})
@@ -90,7 +88,6 @@ func (suite *PayloadsSuite) TestPaymentRequestQueue() {
 	paymentRequestsQueue = QueuePaymentRequests(&paymentRequests, officeUsers, officeUser, false, false)
 
 	suite.Run("Test PaymentRequest has both Counseling Office and TIO AssignedUser ", func() {
-		// PaymentRequests := QueuePaymentRequests(&paymentRequests, officeUsers, officeUser, true, false)
 		PaymentRequestsCopy := *paymentRequestsQueue
 
 		suite.NotNil(PaymentRequests)
