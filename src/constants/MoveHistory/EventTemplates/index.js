@@ -101,6 +101,8 @@ export { default as createOrder } from './CreateOrder/createOrder';
 export { default as createOrderCreateEntitlements } from './CreateOrder/createOrderCreateEntitlements';
 export { default as createOrderCreateMoves } from './CreateOrder/createOrderCreateMoves';
 export { default as updateOrderUpdateMove } from './UpdateOrder/updateOrderUpdateMove';
+export { default as addAppealToViolation } from './AddAppeal/addAppealToViolation';
+export { default as addAppealToSeriousIncident } from './AddAppeal/addAppealToSeriousIncident';
 export { default as moveCanceler } from './MoveCanceler/MoveCanceler';
 export { default as moveCancelerMTOShipments } from './MoveCanceler/MoveCancelerMTOShipments';
 export { default as moveCancelerPPMShipments } from './MoveCanceler/MoveCancelerPPMShipments';
