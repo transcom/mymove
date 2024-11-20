@@ -212,9 +212,9 @@ describe('PaymentRequestQueue', () => {
   it('renders the table with data and expected values with queue management ff', async () => {
     reactRouterDom.useParams.mockReturnValue({ queueType: tioRoutes.PAYMENT_REQUEST_QUEUE });
     render(
-      <reactRouterDom.BrowserRouter>
+      <MockProviders>
         <PaymentRequestQueue isQueueManagementFFEnabled />
-      </reactRouterDom.BrowserRouter>,
+      </MockProviders>,
     );
 
     await waitFor(() => {
@@ -465,9 +465,9 @@ describe('PaymentRequestQueue', () => {
     reactRouterDom.useParams.mockReturnValue({ queueType: tioRoutes.PAYMENT_REQUEST_QUEUE });
 
     render(
-      <reactRouterDom.BrowserRouter>
+      <MockProviders>
         <PaymentRequestQueue isQueueManagementFFEnabled />
-      </reactRouterDom.BrowserRouter>,
+      </MockProviders>,
     );
     await waitFor(() => {
       const assignedToColumn = screen.queryByText('Assigned');
@@ -478,9 +478,9 @@ describe('PaymentRequestQueue', () => {
     reactRouterDom.useParams.mockReturnValue({ queueType: tioRoutes.PAYMENT_REQUEST_QUEUE });
 
     render(
-      <reactRouterDom.BrowserRouter>
+      <MockProviders>
         <PaymentRequestQueue />
-      </reactRouterDom.BrowserRouter>,
+      </MockProviders>,
     );
     await waitFor(() => {
       const assignedToColumn = screen.queryByText('Assigned');

@@ -23,6 +23,10 @@ jest.mock('utils/featureFlags', () => ({
   isBooleanFlagEnabled: jest.fn().mockImplementation(() => Promise.resolve()),
 }));
 
+beforeEach(() => {
+  jest.clearAllMocks();
+});
+
 const moveData = [
   {
     id: 'move1',
@@ -315,9 +319,9 @@ describe('MoveQueue', () => {
   it('renders Search and Move Queue tabs', () => {
     reactRouterDom.useParams.mockReturnValue({ queueType: generalRoutes.QUEUE_SEARCH_PATH });
     render(
-      <reactRouterDom.BrowserRouter>
+      <MockProviders>
         <MoveQueue />
-      </reactRouterDom.BrowserRouter>,
+      </MockProviders>,
     );
     expect(screen.getByTestId('closeout-tab-link')).toBeInTheDocument();
     expect(screen.getByTestId('search-tab-link')).toBeInTheDocument();
@@ -327,9 +331,9 @@ describe('MoveQueue', () => {
   it('renders TableQueue when Search tab is selected', () => {
     reactRouterDom.useParams.mockReturnValue({ queueType: tooRoutes.MOVE_QUEUE });
     render(
-      <reactRouterDom.BrowserRouter>
+      <MockProviders>
         <MoveQueue />
-      </reactRouterDom.BrowserRouter>,
+      </MockProviders>,
     );
     expect(screen.queryByTestId('table-queue')).toBeInTheDocument();
     expect(screen.queryByTestId('move-search')).not.toBeInTheDocument();
@@ -337,18 +341,18 @@ describe('MoveQueue', () => {
   it('has all options for searches', async () => {
     reactRouterDom.useParams.mockReturnValue({ queueType: generalRoutes.QUEUE_SEARCH_PATH });
     render(
-      <reactRouterDom.BrowserRouter>
+      <MockProviders>
         <MoveQueue />
-      </reactRouterDom.BrowserRouter>,
+      </MockProviders>,
     );
     SEARCH_OPTIONS.forEach((option) => expect(screen.findByLabelText(option)));
   });
   it('Has all status options for move search', async () => {
     reactRouterDom.useParams.mockReturnValue({ queueType: generalRoutes.QUEUE_SEARCH_PATH });
     render(
-      <reactRouterDom.BrowserRouter>
+      <MockProviders>
         <MoveQueue />
-      </reactRouterDom.BrowserRouter>,
+      </MockProviders>,
     );
     MOVE_STATUS_OPTIONS.forEach((option) => expect(screen.findByLabelText(option)));
   });
@@ -356,18 +360,18 @@ describe('MoveQueue', () => {
   it('Has all status options for move queue', async () => {
     reactRouterDom.useParams.mockReturnValue({ queueType: tooRoutes.MOVE_QUEUE });
     render(
-      <reactRouterDom.BrowserRouter>
+      <MockProviders>
         <MoveQueue />
-      </reactRouterDom.BrowserRouter>,
+      </MockProviders>,
     );
     MOVE_STATUS_OPTIONS.forEach((option) => expect(screen.findByLabelText(option)));
   });
   it('renders a 404 if a bad route is provided', async () => {
     reactRouterDom.useParams.mockReturnValue({ queueType: 'BadRoute' });
     render(
-      <reactRouterDom.BrowserRouter>
+      <MockProviders>
         <MoveQueue />
-      </reactRouterDom.BrowserRouter>,
+      </MockProviders>,
     );
     await expect(screen.getByText('Error - 404')).toBeInTheDocument();
     await expect(screen.getByText("We can't find the page you're looking for")).toBeInTheDocument();
@@ -376,9 +380,9 @@ describe('MoveQueue', () => {
     isBooleanFlagEnabled.mockResolvedValue(true);
     reactRouterDom.useParams.mockReturnValue({ queueType: tooRoutes.MOVE_QUEUE });
     render(
-      <reactRouterDom.BrowserRouter>
+      <MockProviders>
         <MoveQueue />
-      </reactRouterDom.BrowserRouter>,
+      </MockProviders>,
     );
     await waitFor(() => {
       const lockIcon = screen.queryAllByTestId('lock-icon')[0];
@@ -389,9 +393,9 @@ describe('MoveQueue', () => {
     isBooleanFlagEnabled.mockResolvedValue(false);
     reactRouterDom.useParams.mockReturnValue({ queueType: tooRoutes.MOVE_QUEUE });
     render(
-      <reactRouterDom.BrowserRouter>
+      <MockProviders>
         <MoveQueue />
-      </reactRouterDom.BrowserRouter>,
+      </MockProviders>,
     );
     await await waitFor(() => {
       const lockIcon = screen.queryByTestId('lock-icon');
@@ -401,9 +405,9 @@ describe('MoveQueue', () => {
   it('renders an assigned column when the queue management flag is on', async () => {
     reactRouterDom.useParams.mockReturnValue({ queueType: tooRoutes.MOVE_QUEUE });
     render(
-      <reactRouterDom.BrowserRouter>
+      <MockProviders>
         <MoveQueue isQueueManagementFFEnabled />
-      </reactRouterDom.BrowserRouter>,
+      </MockProviders>,
     );
     await waitFor(() => {
       const assignedSelect = screen.queryAllByTestId('assigned-col')[0];
@@ -413,9 +417,9 @@ describe('MoveQueue', () => {
   it('renders an assigned column when the queue management flag is off', async () => {
     reactRouterDom.useParams.mockReturnValue({ queueType: tooRoutes.MOVE_QUEUE });
     render(
-      <reactRouterDom.BrowserRouter>
+      <MockProviders>
         <MoveQueue isQueueManagementFFEnabled={false} />
-      </reactRouterDom.BrowserRouter>,
+      </MockProviders>,
     );
     await waitFor(() => {
       const assignedSelect = screen.queryByTestId('assigned-col');
