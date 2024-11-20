@@ -41,7 +41,7 @@ const AddressUpdatePreview = ({ deliveryAddressUpdate }) => {
         testID="address-change-preview"
       >
         <DataTable
-          columnHeaders={['Original delivery address', 'Requested delivery address']}
+          columnHeaders={['Original Delivery Address', 'Requested Delivery Address']}
           dataRow={[formatTwoLineAddress(originalAddress), formatTwoLineAddress(newAddress)]}
           icon={<FontAwesomeIcon icon="arrow-right" />}
         />

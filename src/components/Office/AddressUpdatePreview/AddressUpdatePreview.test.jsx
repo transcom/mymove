@@ -87,11 +87,11 @@ describe('AddressUpdatePreview', () => {
     const addresses = screen.getAllByTestId('two-line-address');
     expect(addresses).toHaveLength(2);
     // Original Address
-    expect(addressChangePreview).toHaveTextContent('Original delivery address');
+    expect(addressChangePreview).toHaveTextContent('Original Delivery Address');
     expect(addresses[0]).toHaveTextContent('987 Any Avenue');
     expect(addresses[0]).toHaveTextContent('Fairfield, CA 94535');
     // New Address
-    expect(addressChangePreview).toHaveTextContent('Requested delivery address');
+    expect(addressChangePreview).toHaveTextContent('Requested Delivery Address');
     expect(addresses[1]).toHaveTextContent('123 Any Street');
     expect(addresses[1]).toHaveTextContent('Beverly Hills, CA 90210');
     // Request details (contractor remarks)

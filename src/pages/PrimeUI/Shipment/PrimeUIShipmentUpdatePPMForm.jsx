@@ -40,7 +40,7 @@ const PrimeUIShipmentUpdatePPMForm = () => {
           <>
             <p>What address are the movers picking up from?</p>
             {fields}
-            <h4>Second pickup address</h4>
+            <h4>Second Pickup Address</h4>
             <FormGroup>
               <p>
                 Will the movers pick up any belongings from a second address? (Must be near the pickup address. Subject
@@ -72,7 +72,7 @@ const PrimeUIShipmentUpdatePPMForm = () => {
             {hasSecondaryPickupAddress === 'true' && (
               <>
                 <AddressFields name="ppmShipment.secondaryPickupAddress" />
-                <h4>Third pickup address</h4>
+                <h4>Third Pickup Address</h4>
                 <FormGroup>
                   <p>
                     Will the movers pick up any belongings from a third address? (Must be near the pickup address.
@@ -115,7 +115,7 @@ const PrimeUIShipmentUpdatePPMForm = () => {
         render={(fields) => (
           <>
             {fields}
-            <h4>Second delivery address</h4>
+            <h4>Second Delivery Address</h4>
             <FormGroup>
               <p>
                 Will the movers deliver any belongings to a second address? (Must be near the delivery address. Subject

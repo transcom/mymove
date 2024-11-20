@@ -121,7 +121,7 @@ const PrimeUIShipmentCreateForm = () => {
               <>
                 <p>What address are the movers picking up from?</p>
                 {fields}
-                <h4>Second pickup address</h4>
+                <h4>Second Pickup Address</h4>
                 <FormGroup>
                   <p>
                     Will the movers pick up any belongings from a second address? (Must be near the pickup address.
@@ -155,7 +155,7 @@ const PrimeUIShipmentCreateForm = () => {
                     <h5 className={styles.sectionHeader}>Second Pickup Address</h5>
                     <AddressFields name="ppmShipment.secondaryPickupAddress" />
 
-                    <h4>Third pickup address</h4>
+                    <h4>Third Pickup Address</h4>
                     <FormGroup>
                       <p>
                         Will the movers pick up any belongings from a third address? (Must be near the pickup address.
@@ -203,7 +203,7 @@ const PrimeUIShipmentCreateForm = () => {
             render={(fields) => (
               <>
                 {fields}
-                <h4>Second delivery address</h4>
+                <h4>Second Delivery Address</h4>
                 <FormGroup>
                   <p>
                     Will the movers deliver any belongings to a second address? (Must be near the delivery address.
@@ -237,7 +237,7 @@ const PrimeUIShipmentCreateForm = () => {
                     <h5 className={styles.sectionHeader}>Second Delivery Address</h5>
                     <AddressFields name="ppmShipment.secondaryDestinationAddress" />
 
-                    <h4>Third delivery address</h4>
+                    <h4>Third Delivery Address</h4>
                     <FormGroup>
                       <p>
                         Will the movers pick up any belongings from a third address? (Must be near the pickup address.
@@ -395,7 +395,7 @@ const PrimeUIShipmentCreateForm = () => {
             render={(fields) => (
               <>
                 {fields}
-                <h4>Second pickup address</h4>
+                <h4>Second Pickup Address</h4>
                 <FormGroup>
                   <p>
                     Will the movers pick up any belongings from a second address? (Must be near the pickup address.
@@ -429,7 +429,7 @@ const PrimeUIShipmentCreateForm = () => {
                     <h5 className={styles.sectionHeader}>Second Pickup Address</h5>
                     <AddressFields name="secondaryPickupAddress" />
 
-                    <h4>Third pickup address</h4>
+                    <h4>Third Pickup Address</h4>
                     <FormGroup>
                       <p>
                         Will the movers pick up any belongings from a third address? (Must be near the pickup address.
@@ -478,7 +478,7 @@ const PrimeUIShipmentCreateForm = () => {
               <>
                 {fields}
 
-                <h4>Second delivery address</h4>
+                <h4>Second Delivery Address</h4>
                 <FormGroup>
                   <p>
                     Will the movers pick up any belongings from a second address? (Must be near the pickup address.
@@ -512,7 +512,7 @@ const PrimeUIShipmentCreateForm = () => {
                     <h5 className={styles.sectionHeader}>Second Delivery Address</h5>
                     <AddressFields name="secondaryDestinationAddress" />
 
-                    <h4>Third delivery address</h4>
+                    <h4>Third Delivery Address</h4>
                     <FormGroup>
                       <p>
                         Will the movers pick up any belongings from a third address? (Must be near the pickup address.

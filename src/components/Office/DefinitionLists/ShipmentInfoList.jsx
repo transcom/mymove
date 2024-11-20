@@ -185,7 +185,7 @@ const ShipmentInfoList = ({
   const secondaryPickupAddressElementFlags = getDisplayFlags('secondaryPickupAddress');
   const secondaryPickupAddressElement = (
     <div className={secondaryPickupAddressElementFlags.classes}>
-      <dt>Second pickup address</dt>
+      <dt>Second Pickup Address</dt>
       <dd data-testid="secondaryPickupAddress">
         {secondaryPickupAddress ? formatAddress(secondaryPickupAddress) : '—'}
       </dd>
@@ -195,7 +195,7 @@ const ShipmentInfoList = ({
   const tertiaryPickupAddressElementFlags = getDisplayFlags('tertiaryPickupAddress');
   const tertiaryPickupAddressElement = (
     <div className={tertiaryPickupAddressElementFlags.classes}>
-      <dt>Third pickup address</dt>
+      <dt>Third Pickup Address</dt>
       <dd data-testid="tertiaryPickupAddress">{tertiaryPickupAddress ? formatAddress(tertiaryPickupAddress) : '—'}</dd>
     </div>
   );
@@ -223,7 +223,7 @@ const ShipmentInfoList = ({
   const secondaryDeliveryAddressElementFlags = getDisplayFlags('secondaryDeliveryAddress');
   const secondaryDeliveryAddressElement = (
     <div className={secondaryDeliveryAddressElementFlags.classes}>
-      <dt>Second delivery address</dt>
+      <dt>Second Delivery Address</dt>
       <dd data-testid="secondaryDeliveryAddress">
         {secondaryDeliveryAddress ? formatAddress(secondaryDeliveryAddress) : '—'}
       </dd>
@@ -233,7 +233,7 @@ const ShipmentInfoList = ({
   const tertiaryDeliveryAddressElementFlags = getDisplayFlags('tertiaryDeliveryAddress');
   const tertiaryDeliveryAddressElement = (
     <div className={tertiaryDeliveryAddressElementFlags.classes}>
-      <dt>Third delivery address</dt>
+      <dt>Third Delivery Address</dt>
       <dd data-testid="tertiaryDeliveryAddress">
         {tertiaryDeliveryAddress ? formatAddress(tertiaryDeliveryAddress) : '—'}
       </dd>
