@@ -69,7 +69,6 @@ export const columns = (moveLockFlag, isQueueManagementEnabled, showBranchFilter
         },
       },
     ),
-
     createHeader('DoD ID', 'customer.dodID', {
       id: 'dodID',
       isFilterable: true,
