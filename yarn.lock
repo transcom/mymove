@@ -4753,9 +4753,9 @@
   resolved "https://registry.yarnpkg.com/@tootallnate/once/-/once-2.0.0.tgz#f544a148d3ab35801c1f633a7441fd87c2e484bf"
   integrity sha512-XCuKFP5PS55gnMVu3dty8KPatLqUoy/ZYzDzAGCQ8JNFCkLXzmI7vNHCR+XpbZaMWQK/vQubr7PkYq8g470J/A==
 
-"@transcom/react-file-viewer@git+https://github.com/transcom/react-file-viewer#b-21230-resolve-dependencies":
-  version "1.4.0"
-  resolved "git+https://github.com/transcom/react-file-viewer#161ef46e3ce9f0e39919b58519e98474d67422cc"
+"@transcom/react-file-viewer@git+https://github.com/transcom/react-file-viewer#v1.4.1":
+  version "1.4.1"
+  resolved "git+https://github.com/transcom/react-file-viewer#ac31f65d7f0338a3072ac328c6670f8f64eaad25"
   dependencies:
     "@babel/plugin-proposal-class-static-block" "^7.21.0"
     comma-separated-values "^3.6.4"
