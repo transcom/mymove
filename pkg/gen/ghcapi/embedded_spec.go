@@ -2797,6 +2797,48 @@ func init() {
         ]
       }
     },
+    "/moves/{officeUserID}/CheckForLockedMovesAndUnlock": {
+      "patch": {
+        "description": "Finds and unlocks any locked moves by an office user",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "move"
+        ],
+        "operationId": "checkForLockedMovesAndUnlock",
+        "responses": {
+          "200": {
+            "description": "Successfully unlocked officer's move(s).",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "successMessage": {
+                  "type": "string",
+                  "example": "OK"
+                }
+              }
+            }
+          },
+          "500": {
+            "$ref": "#/responses/ServerError"
+          }
+        }
+      },
+      "parameters": [
+        {
+          "type": "string",
+          "format": "uuid",
+          "description": "ID of the move's officer",
+          "name": "officeUserID",
+          "in": "path",
+          "required": true
+        }
+      ]
+    },
     "/mto-shipments": {
       "post": {
         "description": "Creates a MTO shipment for the specified Move Task Order.\nRequired fields include:\n* Shipment Type\n* Customer requested pick-up date\n* Pick-up Address\n* Delivery Address\n* Releasing / Receiving agents\nOptional fields include:\n* Delivery Address Type\n* Customer Remarks\n* Releasing / Receiving agents\n* An array of optional accessorial service item codes\n",
@@ -4671,7 +4713,8 @@ func init() {
               "emplid",
               "age",
               "originDutyLocation",
-              "assignedTo"
+              "assignedTo",
+              "counselingOffice"
             ],
             "type": "string",
             "description": "field that results should be sorted by",
@@ -4746,6 +4789,12 @@ func init() {
             "type": "string",
             "description": "Used to illustrate which user is assigned to this payment request.\n",
             "name": "assignedTo",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "filters using a counselingOffice name of the move",
+            "name": "counselingOffice",
             "in": "query"
           },
           {
@@ -9088,6 +9137,10 @@ func init() {
           "x-nullable": true,
           "example": 2500
         },
+        "externalCrate": {
+          "type": "boolean",
+          "x-nullable": true
+        },
         "feeType": {
           "type": "string",
           "enum": [
@@ -12417,6 +12470,10 @@ func init() {
         },
         "availableOfficeUsers": {
           "$ref": "#/definitions/AvailableOfficeUsers"
+        },
+        "counselingOffice": {
+          "type": "string",
+          "x-nullable": true
         },
         "customer": {
           "$ref": "#/definitions/Customer"
@@ -18422,6 +18479,51 @@ func init() {
         ]
       }
     },
+    "/moves/{officeUserID}/CheckForLockedMovesAndUnlock": {
+      "patch": {
+        "description": "Finds and unlocks any locked moves by an office user",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "move"
+        ],
+        "operationId": "checkForLockedMovesAndUnlock",
+        "responses": {
+          "200": {
+            "description": "Successfully unlocked officer's move(s).",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "successMessage": {
+                  "type": "string",
+                  "example": "OK"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "A server error occurred",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      },
+      "parameters": [
+        {
+          "type": "string",
+          "format": "uuid",
+          "description": "ID of the move's officer",
+          "name": "officeUserID",
+          "in": "path",
+          "required": true
+        }
+      ]
+    },
     "/mto-shipments": {
       "post": {
         "description": "Creates a MTO shipment for the specified Move Task Order.\nRequired fields include:\n* Shipment Type\n* Customer requested pick-up date\n* Pick-up Address\n* Delivery Address\n* Releasing / Receiving agents\nOptional fields include:\n* Delivery Address Type\n* Customer Remarks\n* Releasing / Receiving agents\n* An array of optional accessorial service item codes\n",
@@ -20743,7 +20845,8 @@ func init() {
               "emplid",
               "age",
               "originDutyLocation",
-              "assignedTo"
+              "assignedTo",
+              "counselingOffice"
             ],
             "type": "string",
             "description": "field that results should be sorted by",
@@ -20818,6 +20921,12 @@ func init() {
             "type": "string",
             "description": "Used to illustrate which user is assigned to this payment request.\n",
             "name": "assignedTo",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "filters using a counselingOffice name of the move",
+            "name": "counselingOffice",
             "in": "query"
           },
           {
@@ -25540,6 +25649,10 @@ func init() {
           "x-nullable": true,
           "example": 2500
         },
+        "externalCrate": {
+          "type": "boolean",
+          "x-nullable": true
+        },
         "feeType": {
           "type": "string",
           "enum": [
@@ -28945,6 +29058,10 @@ func init() {
         },
         "availableOfficeUsers": {
           "$ref": "#/definitions/AvailableOfficeUsers"
+        },
+        "counselingOffice": {
+          "type": "string",
+          "x-nullable": true
         },
         "customer": {
           "$ref": "#/definitions/Customer"
