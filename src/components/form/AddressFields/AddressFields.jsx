@@ -88,8 +88,8 @@ export const AddressFields = ({
     setFieldValue(`${name}.postalCode`, value.postalCode).then(() => {
       setFieldTouched(`${name}.postalCode`, true);
     });
-    setFieldValue(`${name}.usprcId`, value.usPostRegionCitiesId).then(() => {
-      setFieldTouched(`${name}.usprcId`, true);
+    setFieldValue(`${name}.usPostRegionCitiesId`, value.usPostRegionCitiesId).then(() => {
+      setFieldTouched(`${name}.usPostRegionCitiesId`, true);
     });
   };
 
