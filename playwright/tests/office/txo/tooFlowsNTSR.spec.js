@@ -171,7 +171,7 @@ test.describe('TOO user', () => {
       lastShipment = page.locator('[data-testid="ShipmentContainer"]').last();
       // delivery address header
       await expect(lastShipment.locator('[class*="ShipmentAddresses_mtoShipmentAddresses"]')).toContainText(
-        'Delivery address',
+        'Delivery Address',
       );
       // facility address header
       await expect(lastShipment.locator('[class*="ShipmentAddresses_mtoShipmentAddresses"]')).toContainText(
@@ -237,7 +237,7 @@ test.describe('TOO user', () => {
       await expect(lastShipment.locator('h2')).toContainText('Non-temp storage');
       // delivery address header
       await expect(lastShipment.locator('[class*="ShipmentAddresses_mtoShipmentAddresses"]')).toContainText(
-        'Delivery address',
+        'Delivery Address',
       );
       // facility address header
       await expect(lastShipment.locator('[class*="ShipmentAddresses_mtoShipmentAddresses"]')).toContainText(
