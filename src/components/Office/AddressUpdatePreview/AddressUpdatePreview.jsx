@@ -15,10 +15,10 @@ const AddressUpdatePreview = ({ deliveryAddressUpdate }) => {
   const newSitMileage = deliveryAddressUpdate.newSitDistanceBetween;
   return (
     <div>
-      <h3 className={styles.previewHeading}>Delivery location</h3>
+      <h3 className={styles.previewHeading}>Delivery Address</h3>
       <Alert type="warning" className={styles.alert}>
         <span className={styles.alertContent}>
-          If approved, the requested update to the delivery location will change one or all of the following:
+          If approved, the requested update to the delivery address will change one or all of the following:
           <span className={styles.listItem}>Service area.</span>
           <span className={styles.listItem}>Mileage bracket for direct delivery.</span>
           <span className={styles.listItem}>
@@ -41,7 +41,7 @@ const AddressUpdatePreview = ({ deliveryAddressUpdate }) => {
         testID="address-change-preview"
       >
         <DataTable
-          columnHeaders={['Original delivery location', 'Requested delivery location']}
+          columnHeaders={['Original Delivery Address', 'Requested Delivery Address']}
           dataRow={[formatTwoLineAddress(originalAddress), formatTwoLineAddress(newAddress)]}
           icon={<FontAwesomeIcon icon="arrow-right" />}
         />
