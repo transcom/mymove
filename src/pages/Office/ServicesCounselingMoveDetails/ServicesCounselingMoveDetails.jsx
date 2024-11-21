@@ -41,6 +41,7 @@ import shipmentCardsStyles from 'styles/shipmentCards.module.scss';
 import LeftNav from 'components/LeftNav/LeftNav';
 import LeftNavTag from 'components/LeftNavTag/LeftNavTag';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
+import Inaccessible from 'shared/Inaccessible';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
 import { AlertStateShape } from 'types/alert';
 import formattedCustomerName from 'utils/formattedCustomerName';
@@ -84,7 +85,7 @@ const ServicesCounselingMoveDetails = ({
     });
   const hasDocuments = documentsForViewer?.length > 0;
 
-  const { order, orderDocuments, customerData, move, closeoutOffice, mtoShipments, isLoading, isError } =
+  const { order, orderDocuments, customerData, move, closeoutOffice, mtoShipments, isLoading, isError, errors } =
     useMoveDetailsQueries(moveCode);
 
   const validOrdersDocuments = Object.values(orderDocuments || {})?.filter((file) => !file.deletedAt);
@@ -104,7 +105,7 @@ const ServicesCounselingMoveDetails = ({
   }, []);
 
   // nts defaults show preferred pickup date and pickup address, flagged items when collapsed
-  // ntsr defaults shows preferred delivery date, storage facility address, destination address, flagged items when collapsed
+  // ntsr defaults shows preferred delivery date, storage facility address, delivery address, flagged items when collapsed
   const showWhenCollapsed = {
     HHG_INTO_NTS_DOMESTIC: ['counselorRemarks'],
     HHG_OUTOF_NTS_DOMESTIC: ['counselorRemarks'],
@@ -373,7 +374,7 @@ const ServicesCounselingMoveDetails = ({
     dependentsUnderTwelve: allowances.dependentsUnderTwelve,
     dependentsTwelveAndOver: allowances.dependentsTwelveAndOver,
     accompaniedTour: allowances.accompaniedTour,
-    ubAllowance: allowances.ubAllowance,
+    ubAllowance: allowances.unaccompaniedBaggageAllowance,
   };
 
   const ordersInfo = {
@@ -554,7 +555,9 @@ const ServicesCounselingMoveDetails = ({
   }, [order, requiredOrdersInfo, setMissingOrdersInfoCount]);
 
   if (isLoading) return <LoadingPlaceholder />;
-  if (isError) return <SomethingWentWrong />;
+  if (isError) {
+    return errors?.[0]?.response?.body?.message ? <Inaccessible /> : <SomethingWentWrong />;
+  }
 
   const handleShowSubmitMoveModal = () => {
     setIsSubmitModalVisible(true);

@@ -192,7 +192,7 @@ describe('ShipmentAddresses', () => {
       shipmentInfo: { ...testProps.shipmentInfo, shipmentType: SHIPMENT_OPTIONS.NTS },
     };
     render(<ShipmentAddresses {...NTSProps} />);
-    expect(screen.getByText('Pickup address')).toBeInTheDocument();
+    expect(screen.getByText('Pickup Address')).toBeInTheDocument();
     expect(screen.getByText('Facility address')).toBeInTheDocument();
   });
 
@@ -203,7 +203,7 @@ describe('ShipmentAddresses', () => {
     };
     render(<ShipmentAddresses {...NTSRProps} />);
     expect(screen.getByText('Facility address')).toBeInTheDocument();
-    expect(screen.getByText('Delivery address')).toBeInTheDocument();
+    expect(screen.getByText('Delivery Address')).toBeInTheDocument();
   });
 
   it('shows correct headings for PPM', () => {
