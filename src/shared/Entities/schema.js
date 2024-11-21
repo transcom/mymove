@@ -199,3 +199,6 @@ export const searchMoves = new schema.Array(searchMove);
 export const searchMovesResult = new schema.Entity('searchMovesResult');
 
 export const officeUser = new schema.Entity('officeUser');
+
+export const reServiceItem = new schema.Entity('reServiceItems');
+export const reServiceItems = new schema.Array(reServiceItem);

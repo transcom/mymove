@@ -1,7 +1,13 @@
 import { takeLatest, put, call } from 'redux-saga/effects';
 import { normalize } from 'normalizr';
 
-import { LOAD_USER, getLoggedInUserStart, getLoggedInUserSuccess, getLoggedInUserFailure } from 'store/auth/actions';
+import {
+  LOAD_USER,
+  getLoggedInUserStart,
+  getLoggedInUserSuccess,
+  getLoggedInUserFailure,
+  setUnderMaintenance,
+} from 'store/auth/actions';
 import { setFlashMessage } from 'store/flash/actions';
 import { GetAdminUser, GetIsLoggedIn, GetLoggedInUser, GetOktaUser } from 'utils/api';
 import { loggedInUser } from 'shared/Entities/schema';
@@ -17,7 +23,12 @@ export function* fetchUser() {
 
   try {
     // The `GetIsLoggedIn` call returns a object with a parameter isLoggedIn
-    const { isLoggedIn } = yield call(GetIsLoggedIn);
+    const { isLoggedIn, underMaintenance } = yield call(GetIsLoggedIn);
+
+    if (underMaintenance) {
+      yield put(setUnderMaintenance());
+    }
+
     if (isLoggedIn) {
       try {
         const user = yield call(GetLoggedInUser); // make user API call
