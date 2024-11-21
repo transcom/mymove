@@ -7,6 +7,7 @@ import (
 	"google.golang.org/genproto/googleapis/type/decimal"
 )
 
+// Note: Multiplier is a pointer to avoid copying a struct that contains a sync.Mutex.
 type FscMultiplier struct {
 	ID         uuid.UUID        `json:"id" db:"id" rw:"r"`
 	LowWeight  int              `json:"low_weight" rw:"r"`
