@@ -47,6 +47,7 @@ CREATE OR REPLACE PROCEDURE CreateApprovedServiceItemsForShipment(
 AS '
 DECLARE
     s_status mto_shipment_status;
+    s_type mto_shipment_type;
     m_code market_code_enum;
     move_id UUID;
     pickup_address_id UUID;
