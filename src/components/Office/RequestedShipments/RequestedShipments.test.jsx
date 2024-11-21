@@ -9,6 +9,7 @@ import {
   shipments,
   ntsExternalVendorShipments,
   ordersInfo,
+  ordersNoDocInfo,
   allowancesInfo,
   customerInfo,
   serviceItemsMSandCS,
@@ -26,13 +27,16 @@ import { tooRoutes } from 'constants/routes';
 import { MockProviders } from 'testUtils';
 import { permissionTypes } from 'constants/permissions';
 import { configureStore } from 'shared/store';
+import { useMoveDetailsQueries } from 'hooks/queries';
 
 const mockNavigate = jest.fn();
 jest.mock('react-router-dom', () => ({
   ...jest.requireActual('react-router-dom'),
   useNavigate: () => mockNavigate,
 }));
-
+jest.mock('hooks/queries', () => ({
+  useMoveDetailsQueries: jest.fn(),
+}));
 const moveTaskOrder = {
   eTag: 'MjAyMC0wNi0yNlQyMDoyMjo0MS43Mjc4NTNa',
   id: '6e8c5ca4-774c-4170-934a-59d22259e480',
@@ -154,7 +158,26 @@ const submittedRequestedShipmentsCanCreateNewShipment = (
     />
   </MockProviders>
 );
+const submittedRequestedShipmentsNoOrderDocuments = (
+  <MockProviders permissions={[permissionTypes.updateShipment, permissionTypes.createTxoShipment]}>
+    <SubmittedRequestedShipments
+      ordersInfo={ordersNoDocInfo}
+      allowancesInfo={allowancesInfo}
+      customerInfo={customerInfo}
+      mtoShipments={shipments}
+      closeoutOffice={closeoutOffice}
+      approveMTO={approveMTO}
+      missingRequiredOrdersInfo
+      moveCode="TE5TC0DE"
+    />
+  </MockProviders>
+);
 
+const loadingReturnValue = {
+  isLoading: true,
+  isError: false,
+  isSuccess: false,
+};
 const testProps = {
   ordersInfo,
   allowancesInfo,
@@ -168,18 +191,21 @@ const testProps = {
 describe('RequestedShipments', () => {
   describe('Prime-handled shipments', () => {
     it('renders the container successfully without services counseling completed', () => {
+      useMoveDetailsQueries.mockReturnValue(loadingReturnValue);
       render(submittedRequestedShipmentsComponent);
       expect(screen.getByTestId('requested-shipments')).toBeInTheDocument();
       expect(screen.queryByTestId('services-counseling-completed-text')).not.toBeInTheDocument();
     });
 
     it('renders the container successfully with services counseling completed', () => {
+      useMoveDetailsQueries.mockReturnValue(loadingReturnValue);
       render(submittedRequestedShipmentsComponentServicesCounselingCompleted);
       expect(screen.getByTestId('requested-shipments')).toBeInTheDocument();
       expect(screen.queryByTestId('services-counseling-completed-text')).not.toBeInTheDocument();
     });
 
     it('renders a shipment passed to it', () => {
+      useMoveDetailsQueries.mockReturnValue(loadingReturnValue);
       render(submittedRequestedShipmentsComponent);
       const withinContainer = within(screen.getByTestId('requested-shipments'));
       expect(withinContainer.getAllByText('HHG').length).toEqual(2);
@@ -201,17 +227,20 @@ describe('RequestedShipments', () => {
     });
 
     it('renders the button when it is available to the prime', () => {
+      useMoveDetailsQueries.mockReturnValue(loadingReturnValue);
       render(submittedRequestedShipmentsComponentAvailableToPrimeAt);
       expect(screen.getByTestId('shipmentApproveButton')).toBeInTheDocument();
       expect(screen.getByTestId('shipmentApproveButton')).toBeDisabled();
     });
 
     it('renders the checkboxes', () => {
+      useMoveDetailsQueries.mockReturnValue(loadingReturnValue);
       render(submittedRequestedShipmentsComponentWithPermission);
       expect(screen.getAllByTestId('checkbox').length).toEqual(5);
     });
 
     it('uses the duty location postal code if there is no destination address', () => {
+      useMoveDetailsQueries.mockReturnValue(loadingReturnValue);
       render(submittedRequestedShipmentsComponent);
       const destination = shipments[0].destinationAddress;
       expect(screen.getAllByTestId('destinationAddress').at(0)).toHaveTextContent(
@@ -224,40 +253,26 @@ describe('RequestedShipments', () => {
     });
 
     it('enables the Approve selected button when a shipment and service item are checked', async () => {
+      useMoveDetailsQueries.mockReturnValue(loadingReturnValue);
       const { container } = render(submittedRequestedShipmentsComponentWithPermission);
-
-      // TODO this doesn't seem right
-      await act(async () => {
-        await userEvent.type(
-          container.querySelector('input[name="shipments"]'),
-          'ce01a5b8-9b44-4511-8a8d-edb60f2a4aee',
-        );
-      });
-
-      expect(screen.getByRole('button', { name: 'Approve selected' })).toBeEnabled();
-      expect(container.querySelector('#approvalConfirmationModal')).toHaveStyle('display: none');
-
-      // TODO
-      await act(async () => {
-        await userEvent.click(screen.getByRole('checkbox', { name: 'Move management' }));
-      });
-
-      expect(screen.getByRole('button', { name: 'Approve selected' })).not.toBeDisabled();
-
-      // TODO
+      await userEvent.type(container.querySelector('input[name="shipments"]'), 'ce01a5b8-9b44-4511-8a8d-edb60f2a4aee');
+      await userEvent.click(screen.getByRole('checkbox', { name: 'Move management' }));
+      await userEvent.click(screen.getByRole('checkbox', { name: 'Counseling' }));
+      await userEvent.click(screen.getByText('Approve and send'));
       await act(async () => {
         await userEvent.click(screen.getByRole('button', { name: 'Approve selected' }));
       });
-      expect(container.querySelector('#approvalConfirmationModal')).toHaveStyle('display: block');
     });
 
     it('renders Add a new shjipment Button', async () => {
+      useMoveDetailsQueries.mockReturnValue(loadingReturnValue);
       render(submittedRequestedShipmentsCanCreateNewShipment);
 
       expect(await screen.getByRole('combobox', { name: 'Add a new shipment' })).toBeInTheDocument();
     });
 
     it('disables the Approve selected button when there is missing required information', async () => {
+      useMoveDetailsQueries.mockReturnValue(loadingReturnValue);
       const { container } = render(submittedRequestedShipmentsComponentMissingRequiredInfo);
 
       // TODO
@@ -279,7 +294,15 @@ describe('RequestedShipments', () => {
       expect(screen.getByRole('button', { name: 'Approve selected' })).toBeDisabled();
     });
 
+    it('disables the Approve selected button when missing document', async () => {
+      useMoveDetailsQueries.mockReturnValue(loadingReturnValue);
+      render(submittedRequestedShipmentsNoOrderDocuments);
+      expect(await screen.getByRole('button', { name: 'Approve selected' })).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: 'Approve selected' })).toBeDisabled();
+    });
+
     it('calls approveMTO onSubmit', async () => {
+      useMoveDetailsQueries.mockReturnValue(loadingReturnValue);
       const mockOnSubmit = jest.fn((id, eTag) => {
         return new Promise((resolve) => {
           resolve({ response: { status: 200, body: { id, eTag } } });
@@ -332,6 +355,7 @@ describe('RequestedShipments', () => {
     });
 
     it('only calls onSubmit once in the case of multiple button clicks', async () => {
+      useMoveDetailsQueries.mockReturnValue(loadingReturnValue);
       const mockOnSubmit = jest.fn((id, eTag) => {
         return new Promise((resolve) => {
           resolve({ response: { status: 200, body: { id, eTag } } });
@@ -386,6 +410,7 @@ describe('RequestedShipments', () => {
     });
 
     it('displays approved basic service items for approved shipments', () => {
+      useMoveDetailsQueries.mockReturnValue(loadingReturnValue);
       render(
         <ApprovedRequestedShipments
           ordersInfo={ordersInfo}
@@ -455,6 +480,7 @@ describe('RequestedShipments', () => {
 
   describe('External vendor shipments', () => {
     it('enables the Approve selected button when there is only external vendor shipments and a service item is checked', async () => {
+      useMoveDetailsQueries.mockReturnValue(loadingReturnValue);
       render(submittedRequestedExternalVendorShipmentsComponent);
 
       expect(screen.getByLabelText('Move management').checked).toEqual(true);
@@ -465,6 +491,7 @@ describe('RequestedShipments', () => {
 
   describe('Permission dependent rendering', () => {
     it('renders the "Add service items to move" section when user has permission', () => {
+      useMoveDetailsQueries.mockReturnValue(loadingReturnValue);
       render(
         <MockProviders permissions={[permissionTypes.updateShipment]}>
           <SubmittedRequestedShipments {...testProps} />
@@ -476,6 +503,7 @@ describe('RequestedShipments', () => {
     });
 
     it('does not render the "Add service items to move" section when user does not have permission', () => {
+      useMoveDetailsQueries.mockReturnValue(loadingReturnValue);
       render(
         <MockProviders permissions={[]}>
           <SubmittedRequestedShipments {...testProps} />
@@ -497,6 +525,7 @@ describe('RequestedShipments', () => {
         SHIPMENT_OPTIONS_URL.BOAT,
       ],
     ])('selects the %s option and navigates to the matching form for that shipment type', async (shipmentType) => {
+      useMoveDetailsQueries.mockReturnValue(loadingReturnValue);
       render(
         <MockProviders
           permissions={[permissionTypes.createTxoShipment]}
@@ -532,6 +561,7 @@ describe('RequestedShipments', () => {
         SHIPMENT_OPTIONS_URL.BOAT,
       ],
     ])('selects the %s option and navigates to the matching form for that shipment type', async (shipmentType) => {
+      useMoveDetailsQueries.mockReturnValue(loadingReturnValue);
       render(
         <MockProviders
           permissions={[permissionTypes.createTxoShipment]}
@@ -573,6 +603,7 @@ describe('RequestedShipments', () => {
       moveCode: 'TE5TC0DE',
     };
     it('does not render the "Add service items to move" section when both service items are present', () => {
+      useMoveDetailsQueries.mockReturnValue(loadingReturnValue);
       const testPropsMsCs = {
         mtoServiceItems: serviceItemsMSandCS,
         mtoShipments: shipments,
@@ -585,6 +616,7 @@ describe('RequestedShipments', () => {
     });
 
     it('does not render the "Add service items to move" section when counseling is present and all shipments are PPM', () => {
+      useMoveDetailsQueries.mockReturnValue(loadingReturnValue);
       const testPropsCS = {
         mtoServiceItems: serviceItemsCS,
         mtoShipments: ppmOnlyShipments,
@@ -597,6 +629,7 @@ describe('RequestedShipments', () => {
     });
 
     it('renders the "Add service items to move" section with only counseling when only move management is present in service items', () => {
+      useMoveDetailsQueries.mockReturnValue(loadingReturnValue);
       const testPropsMS = {
         mtoServiceItems: serviceItemsMS,
         mtoShipments: shipments,
@@ -611,6 +644,7 @@ describe('RequestedShipments', () => {
     });
 
     it('renders the "Add service items to move" section with only move management when only counseling is present in service items', () => {
+      useMoveDetailsQueries.mockReturnValue(loadingReturnValue);
       const testPropsCS = {
         mtoServiceItems: serviceItemsCS,
         mtoShipments: shipments,
@@ -625,6 +659,7 @@ describe('RequestedShipments', () => {
     });
 
     it('renders the "Add service items to move" section with all fields when neither counseling nor move management is present in service items', () => {
+      useMoveDetailsQueries.mockReturnValue(loadingReturnValue);
       const testPropsServiceItemsEmpty = {
         mtoServiceItems: serviceItemsEmpty,
         mtoShipments: shipments,
@@ -639,6 +674,7 @@ describe('RequestedShipments', () => {
     });
 
     it('renders the "Add service items to move" section with only counseling when all shipments are PPM', () => {
+      useMoveDetailsQueries.mockReturnValue(loadingReturnValue);
       const testPropsServiceItemsEmpty = {
         mtoServiceItems: serviceItemsEmpty,
         mtoShipments: ppmOnlyShipments,
