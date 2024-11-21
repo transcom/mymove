@@ -183,7 +183,7 @@ const EditOrdersForm = ({
                     assist
                   </Label>
                   <DropdownInput
-                    label="Counseling Office"
+                    label="Counseling office"
                     name="counseling_office_id"
                     id="counseling_office_id"
                     hint="Required"

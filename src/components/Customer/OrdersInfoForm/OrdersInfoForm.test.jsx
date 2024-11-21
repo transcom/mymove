@@ -269,7 +269,7 @@ describe('OrdersInfoForm component', () => {
         new_duty_location: {},
         grade: '',
         origin_duty_location: {},
-        counseling_office_id: '3be2381f-f9ed-4902-bbdc-69c69e43eb86',
+        counseling_office_id: '',
       },
       onBack: jest.fn(),
       ordersTypeOptions: [
@@ -294,6 +294,8 @@ describe('OrdersInfoForm component', () => {
     const selectedOptionCurrent = await screen.findByText(/Altus/);
     await userEvent.click(selectedOptionCurrent);
 
+    const counselingOfficeId = '3be2381f-f9ed-4902-bbdc-69c69e43eb86';
+
     // Test New Duty Location Search Box interaction
     await userEvent.type(screen.getByLabelText(/New duty location/), 'AFB', { delay: 100 });
     const selectedOptionNew = await screen.findByText(/Luke/);
@@ -313,7 +315,7 @@ describe('OrdersInfoForm component', () => {
       expect(testPropsWithCounselingOffice.onSubmit).toHaveBeenCalledWith(
         expect.objectContaining({
           orders_type: ORDERS_TYPE.PERMANENT_CHANGE_OF_STATION,
-          counseling_office_id: '3be2381f-f9ed-4902-bbdc-69c69e43eb86',
+          counseling_office_id: counselingOfficeId,
           has_dependents: 'no',
           issue_date: '08 Nov 2020',
           report_by_date: '26 Nov 2020',
