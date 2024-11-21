@@ -45,7 +45,7 @@ func NewPrimeAPI(handlerConfig handlers.HandlerConfig) *primeoperations.MymoveAP
 	shipmentFetcher := mtoshipment.NewMTOShipmentFetcher()
 	moveWeights := move.NewMoveWeights(mtoshipment.NewShipmentReweighRequester())
 	uploadCreator := upload.NewUploadCreator(handlerConfig.FileStorer())
-	serviceItemUpdater := mtoserviceitem.NewMTOServiceItemUpdater(handlerConfig.HHGPlanner(), queryBuilder, moveRouter, shipmentFetcher, addressCreator)
+	serviceItemUpdater := mtoserviceitem.NewMTOServiceItemUpdater(handlerConfig.HHGPlanner(), queryBuilder, moveRouter, shipmentFetcher, addressCreator, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer(), ghcrateengine.NewDomesticDestinationSITDeliveryPricer(), ghcrateengine.NewDomesticOriginSITFuelSurchargePricer())
 
 	userUploader, err := uploader.NewUserUploader(handlerConfig.FileStorer(), uploader.MaxCustomerUserUploadFileSizeLimit)
 	if err != nil {

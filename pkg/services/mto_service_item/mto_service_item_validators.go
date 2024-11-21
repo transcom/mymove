@@ -616,6 +616,9 @@ func (v *updateMTOServiceItemData) setNewMTOServiceItem() *models.MTOServiceItem
 	newMTOServiceItem.ActualWeight = services.SetOptionalPoundField(
 		v.updatedServiceItem.ActualWeight, newMTOServiceItem.ActualWeight)
 
+	newMTOServiceItem.PricingEstimate = services.SetNoNilOptionalCentField(
+		v.updatedServiceItem.PricingEstimate, newMTOServiceItem.PricingEstimate)
+
 	return &newMTOServiceItem
 }
 
