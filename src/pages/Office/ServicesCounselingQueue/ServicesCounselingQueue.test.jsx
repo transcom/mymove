@@ -508,6 +508,7 @@ describe('ServicesCounselingQueue', () => {
           expect(screen.getByText(/Full or partial PPM/)).toBeInTheDocument();
           expect(screen.getByText(/Destination duty location/)).toBeInTheDocument();
           expect(screen.getByText(/Status/)).toBeInTheDocument();
+          expect(screen.getByText(/Assigned/)).toBeInTheDocument();
         } else {
           // Check for the "Search" tab
           const searchActive = screen.getByText('Search', { selector: '.usa-current .tab-title' });
