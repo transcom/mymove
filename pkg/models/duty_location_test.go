@@ -509,7 +509,7 @@ func (suite *ModelSuite) Test_SearchDutyLocations_Exclude_Not_Active_Oconus() {
 		}
 	})
 
-	suite.Run("two active onconus rateArea duty locations - search by zip - return match", func() {
+	suite.Run("one active and one inactive onconus rateArea duty locations - search by zip - return match", func() {
 		contract, err := createContract(suite.AppContextForTest(), testContractCode, testContractName)
 		suite.NotNil(contract)
 		suite.FatalNoError(err)
@@ -517,11 +517,11 @@ func (suite *ModelSuite) Test_SearchDutyLocations_Exclude_Not_Active_Oconus() {
 		// active duty location
 		_, oconusRateArea, _, dutyLocation1 := setupDataForOconusSearchCounselingOffice(*contract, fairbanksAlaskaPostalCode, testGbloc, testDutyLocationName, testTransportationName, true)
 
-		// active duty location
-		_, oconusRateArea2, _, dutyLocation2 := setupDataForOconusSearchCounselingOffice(*contract, anchorageAlaskaPostalCode, testGbloc, testDutyLocationName2, testTransportationName2, true)
+		// not active duty location
+		_, oconusRateArea2, _, _ := setupDataForOconusSearchCounselingOffice(*contract, anchorageAlaskaPostalCode, testGbloc, testDutyLocationName2, testTransportationName2, false)
 
 		suite.True(oconusRateArea.Active)
-		suite.True(oconusRateArea2.Active)
+		suite.False(oconusRateArea2.Active)
 
 		tests := []struct {
 			query         string
@@ -531,14 +531,18 @@ func (suite *ModelSuite) Test_SearchDutyLocations_Exclude_Not_Active_Oconus() {
 				fairbanksAlaskaPostalCode, anchorageAlaskaPostalCode}}, //search by zip
 		}
 
-		expectedDutyLocationNames := []string{dutyLocation1.Name, dutyLocation2.Name}
+		expectedDutyLocationNames := []string{dutyLocation1.Name}
 
-		for _, ts := range tests {
+		for i, ts := range tests {
 			dutyLocations, err := models.FindDutyLocationsExcludingStates(suite.DB(), ts.query, []string{})
 			suite.NoError(err)
-			suite.Require().Equal(1, len(dutyLocations), "Wrong number of duty locations returned from query: %s", ts.query)
-			for _, o := range dutyLocations {
-				suite.True(slices.Contains(expectedDutyLocationNames, o.Name))
+			if i == 0 {
+				suite.Require().Equal(1, len(dutyLocations), "Wrong number of duty locations returned from query: %s", ts.query)
+				for _, o := range dutyLocations {
+					suite.True(slices.Contains(expectedDutyLocationNames, o.Name))
+				}
+			} else {
+				suite.Require().Equal(0, len(dutyLocations), "Wrong number of duty locations returned from query: %s", ts.query)
 			}
 		}
 	})
