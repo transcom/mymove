@@ -25,10 +25,11 @@ import (
 // THIS WILL NEED TO BE UPDATED AS WE CONTINUE TO ADD MORE SERVICE ITEMS.
 // We will eventually remove this when all service items are added.
 var CreateableServiceItemMap = map[primemessages.MTOServiceItemModelType]bool{
-	primemessages.MTOServiceItemModelTypeMTOServiceItemOriginSIT:       true,
-	primemessages.MTOServiceItemModelTypeMTOServiceItemDestSIT:         true,
-	primemessages.MTOServiceItemModelTypeMTOServiceItemShuttle:         true,
-	primemessages.MTOServiceItemModelTypeMTOServiceItemDomesticCrating: true,
+	primemessages.MTOServiceItemModelTypeMTOServiceItemOriginSIT:            true,
+	primemessages.MTOServiceItemModelTypeMTOServiceItemDestSIT:              true,
+	primemessages.MTOServiceItemModelTypeMTOServiceItemShuttle:              true,
+	primemessages.MTOServiceItemModelTypeMTOServiceItemDomesticCrating:      true,
+	primemessages.MTOServiceItemModelTypeMTOServiceItemInternationalCrating: true,
 }
 
 // CreateMTOServiceItemHandler is the handler to create MTO service items
@@ -42,6 +43,21 @@ type CreateMTOServiceItemHandler struct {
 func (h CreateMTOServiceItemHandler) Handle(params mtoserviceitemops.CreateMTOServiceItemParams) middleware.Responder {
 	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
 		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
+
+			/** Feature Flag - Alaska **/
+			isAlaskaEnabled := false
+			featureFlagName := "enable_alaska"
+			flag, err := h.FeatureFlagFetcher().GetBooleanFlag(params.HTTPRequest.Context(), appCtx.Logger(), "", featureFlagName, map[string]string{})
+			if err != nil {
+				appCtx.Logger().Error("Error fetching feature flag", zap.String("featureFlagKey", featureFlagName), zap.Error(err))
+			} else {
+				isAlaskaEnabled = flag.Match
+			}
+
+			/** Turn on/off international crating/uncrating service items **/
+			if !isAlaskaEnabled {
+				delete(CreateableServiceItemMap, primemessages.MTOServiceItemModelTypeMTOServiceItemInternationalCrating)
+			}
 
 			// restrict creation to a list
 			if _, ok := CreateableServiceItemMap[params.Body.ModelType()]; !ok {

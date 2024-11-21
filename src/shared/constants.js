@@ -208,6 +208,7 @@ export const FEATURE_FLAG_KEYS = {
   BOAT: 'boat',
   MOBILE_HOME: 'mobile_home',
   UNACCOMPANIED_BAGGAGE: 'unaccompanied_baggage',
+  ENABLE_ALASKA: 'enable_alaska',
 };
 
 export const MOVE_DOCUMENT_TYPE = {
@@ -229,9 +230,9 @@ const ADDRESS_LABELS_MAP = {
   [ADDRESS_TYPES.PICKUP]: 'Pickup Address',
   [ADDRESS_TYPES.SECOND_PICKUP]: 'Second Pickup Address',
   [ADDRESS_TYPES.THIRD_PICKUP]: 'Third Pickup Address',
-  [ADDRESS_TYPES.DESTINATION]: 'Destination Address',
-  [ADDRESS_TYPES.SECOND_DESTINATION]: 'Second Destination Address',
-  [ADDRESS_TYPES.THIRD_DESTINATION]: 'Third Destination Address',
+  [ADDRESS_TYPES.DESTINATION]: 'Delivery Address',
+  [ADDRESS_TYPES.SECOND_DESTINATION]: 'Second Delivery Address',
+  [ADDRESS_TYPES.THIRD_DESTINATION]: 'Third Delivery Address',
 };
 
 export const getAddressLabel = (type) => ADDRESS_LABELS_MAP[type];

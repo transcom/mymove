@@ -1396,6 +1396,7 @@ definitions:
         * DDFSIT, DDASIT - MTOServiceItemDestSIT
         * DOSHUT, DDSHUT - MTOServiceItemShuttle
         * DCRT, DUCRT - MTOServiceItemDomesticCrating
+        * ICRT, IUCRT - MTOServiceItemInternationalCrating
 
       The documentation will then update with the supported fields.
     type: string
@@ -1405,6 +1406,7 @@ definitions:
       - MTOServiceItemDestSIT
       - MTOServiceItemShuttle
       - MTOServiceItemDomesticCrating
+      - MTOServiceItemInternationalCrating
   MTOServiceItemOriginSIT:
     description: Describes a domestic origin SIT service item. Subtype of a MTOServiceItem.
     allOf:
@@ -1755,6 +1757,8 @@ definitions:
       - WOUNDED_WARRIOR
       - BLUEBARK
       - TEMPORARY_DUTY
+      - EARLY_RETURN_OF_DEPENDENTS
+      - STUDENT_TRAVEL
     x-display-value:
       PERMANENT_CHANGE_OF_STATION: Permanent Change Of Station (PCS)
       LOCAL_MOVE: Local Move
@@ -1765,6 +1769,8 @@ definitions:
       WOUNDED_WARRIOR: Wounded Warrior
       BLUEBARK: BLUEBARK
       TEMPORARY_DUTY: Temporary Duty (TDY)
+      EARLY_RETURN_OF_DEPENDENTS: Early Return of Dependents
+      STUDENT_TRAVEL: Student Travel
   OrdersTypeDetail:
     type: string
     title: Orders type detail
@@ -2112,7 +2118,6 @@ definitions:
       - ICOLH
       - ICOUB
       - ICRT
-      - ICRTSA
       - IDASIT
       - IDDSIT
       - IDFSIT

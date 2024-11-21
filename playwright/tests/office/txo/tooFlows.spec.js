@@ -722,12 +722,12 @@ test.describe('TOO user', () => {
     await page.getByRole('button', { name: 'Edit shipment' }).click();
 
     await expect(
-      page.getByTestId('alert').getByText('Request needs review. See delivery location to proceed.'),
+      page.getByTestId('alert').getByText('Request needs review. See delivery address to proceed.'),
     ).toBeVisible();
     await expect(
       page
         .getByTestId('alert')
-        .getByText('Pending delivery location change request needs review. Review request to proceed.'),
+        .getByText('Pending delivery address change request needs review. Review request to proceed.'),
     ).toBeVisible();
 
     // click to trigger review modal
@@ -743,12 +743,12 @@ test.describe('TOO user', () => {
 
     await expect(page.getByText('Changes sent to contractor.')).toBeVisible();
 
-    const deliveryAddress = page.getByRole('group', { name: 'Delivery location' });
-    await expect(deliveryAddress.getByTestId('delivery.address.streetAddress1')).toHaveValue('123 Any Street');
-    await expect(deliveryAddress.getByTestId('delivery.address.streetAddress2')).toHaveValue('P.O. Box 12345');
-    await expect(deliveryAddress.getByTestId('City')).toHaveText('Beverly Hills');
-    await expect(deliveryAddress.getByTestId('State')).toHaveText('CA');
-    await expect(deliveryAddress.getByTestId('ZIP')).toHaveText('90210');
+    const destinationAddress = page.getByRole('group', { name: 'Delivery Address' });
+    await expect(destinationAddress.getByTestId('delivery.address.streetAddress1')).toHaveValue('123 Any Street');
+    await expect(destinationAddress.getByTestId('delivery.address.streetAddress2')).toHaveValue('P.O. Box 12345');
+    await expect(destinationAddress.getByTestId('City')).toHaveText('Beverly Hills');
+    await expect(destinationAddress.getByTestId('State')).toHaveText('CA');
+    await expect(destinationAddress.getByTestId('ZIP')).toHaveText('90210');
 
     // Click save on the page
     await page.getByRole('button', { name: 'Save' }).click();
@@ -779,12 +779,12 @@ test.describe('TOO user', () => {
     await page.getByRole('button', { name: 'Edit shipment' }).click();
 
     await expect(
-      page.getByTestId('alert').getByText('Request needs review. See delivery location to proceed.'),
+      page.getByTestId('alert').getByText('Request needs review. See delivery address to proceed.'),
     ).toBeVisible();
     await expect(
       page
         .getByTestId('alert')
-        .getByText('Pending delivery location change request needs review. Review request to proceed.'),
+        .getByText('Pending delivery address change request needs review. Review request to proceed.'),
     ).toBeVisible();
     await page.getByRole('button', { name: 'Review request' }).click();
 
@@ -794,14 +794,14 @@ test.describe('TOO user', () => {
     await expect(page.getByTestId('modal')).not.toBeVisible();
     await expect(page.getByText('Changes sent to contractor.')).toBeVisible();
 
-    const deliveryAddress = page.getByRole('group', { name: 'Delivery location' });
-    await expect(deliveryAddress.getByTestId('delivery.address.streetAddress1')).toHaveValue('123 Any Street');
-    await expect(deliveryAddress.getByTestId('delivery.address.streetAddress2')).toHaveValue('P.O. Box 12345');
-    await expect(deliveryAddress.getByTestId('City')).toHaveText('Beverly Hills');
-    await expect(deliveryAddress.getByTestId('State')).toHaveText('CA');
-    await expect(deliveryAddress.getByTestId('ZIP')).toHaveText('90210');
+    const destinationAddress = page.getByRole('group', { name: 'Delivery Address' });
+    await expect(destinationAddress.getByTestId('delivery.address.streetAddress1')).toHaveValue('123 Any Street');
+    await expect(destinationAddress.getByTestId('delivery.address.streetAddress2')).toHaveValue('P.O. Box 12345');
+    await expect(destinationAddress.getByTestId('City')).toHaveText('Beverly Hills');
+    await expect(destinationAddress.getByTestId('State')).toHaveText('CA');
+    await expect(destinationAddress.getByTestId('ZIP')).toHaveText('90210');
 
-    // Save the approved destination address change
+    // Save the approved delivery address change
     await page.getByRole('button', { name: 'Save' }).click();
 
     await expect(page.getByText('Update request details')).not.toBeVisible();

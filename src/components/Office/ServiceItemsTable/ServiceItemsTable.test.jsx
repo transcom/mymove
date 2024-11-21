@@ -197,7 +197,7 @@ describe('ServiceItemsTable', () => {
     );
 
     expect(wrapper.find('table').exists()).toBe(true);
-    expect(wrapper.find('dt').at(0).text()).toBe('Original delivery address:');
+    expect(wrapper.find('dt').at(0).text()).toBe('Original Delivery Address:');
     expect(wrapper.find('dd').at(0).text()).toBe('Destination Original Tampa, FL 33621');
 
     expect(wrapper.find('dt').at(1).text()).toBe('SIT entry date:');
@@ -247,7 +247,7 @@ describe('ServiceItemsTable', () => {
         />
       </MockProviders>,
     );
-    expect(wrapper.find('dt').at(0).contains('Original pickup address')).toBe(true);
+    expect(wrapper.find('dt').at(0).contains('Original Pickup Address')).toBe(true);
     expect(wrapper.find('dd').at(0).contains('Origin Original Tampa, FL 33621')).toBe(true);
 
     expect(wrapper.find('dt').at(1).contains('SIT entry date')).toBe(true);
@@ -382,7 +382,7 @@ describe('ServiceItemsTable', () => {
     expect(wrapper.find('button[data-testid="rejectTextButton"]').length).toBeFalsy();
   });
 
-  it('does not show accept button when DSH is rejected as a result of destination address change', () => {
+  it('does not show accept button when DSH is rejected as a result of delivery address change', () => {
     const serviceItems = [
       {
         id: 'dsh123',
@@ -392,7 +392,7 @@ describe('ServiceItemsTable', () => {
         code: 'DSH',
         details: {
           rejectionReason:
-            'Automatically rejected due to change in destination address affecting the ZIP code qualification for short haul / line haul.',
+            'Automatically rejected due to change in delivery address affecting the ZIP code qualification for short haul / line haul.',
         },
       },
     ];
@@ -415,7 +415,7 @@ describe('ServiceItemsTable', () => {
     expect(approveTextButton.at(0).contains('Approve')).toBe(false);
   });
 
-  it('does not show accept button when DLH is rejected as a result of destination address change', () => {
+  it('does not show accept button when DLH is rejected as a result of delivery address change', () => {
     const serviceItems = [
       {
         id: 'dlh123',
@@ -425,7 +425,7 @@ describe('ServiceItemsTable', () => {
         code: 'DLH',
         details: {
           rejectionReason:
-            'Automatically rejected due to change in destination address affecting the ZIP code qualification for short haul / line haul.',
+            'Automatically rejected due to change in delivery address affecting the ZIP code qualification for short haul / line haul.',
         },
       },
     ];
@@ -448,7 +448,7 @@ describe('ServiceItemsTable', () => {
     expect(approveTextButton.at(0).contains('Approve')).toBe(false);
   });
 
-  it('shows accept button when DSH is rejected but NOT as a result of destination address change', () => {
+  it('shows accept button when DSH is rejected but NOT as a result of delivery address change', () => {
     const serviceItems = [
       {
         id: 'dsh123',
@@ -458,7 +458,7 @@ describe('ServiceItemsTable', () => {
         code: 'DSH',
         details: {
           rejectionReason:
-            'Any reason other than "Automatically rejected due to change in destination address affecting the ZIP code qualification for short haul / line haul."',
+            'Any reason other than "Automatically rejected due to change in delivery address affecting the ZIP code qualification for short haul / line haul."',
         },
       },
     ];
@@ -481,7 +481,7 @@ describe('ServiceItemsTable', () => {
     expect(approveTextButton.at(0).contains('Approve')).toBe(true);
   });
 
-  it('shows accept button when DLH is rejected but NOT as a result of destination address change', () => {
+  it('shows accept button when DLH is rejected but NOT as a result of delivery address change', () => {
     const serviceItems = [
       {
         id: 'dlh123',
@@ -491,7 +491,7 @@ describe('ServiceItemsTable', () => {
         code: 'DLH',
         details: {
           rejectionReason:
-            'Any reason other than "Automatically rejected due to change in destination address affecting the ZIP code qualification for short haul / line haul."',
+            'Any reason other than "Automatically rejected due to change in delivery address affecting the ZIP code qualification for short haul / line haul."',
         },
       },
     ];
@@ -715,7 +715,7 @@ describe('ServiceItemsTable', () => {
         code: 'DLH',
         details: {
           rejectionReason:
-            'Any reason other than "Automatically rejected due to change in destination address affecting the ZIP code qualification for short haul / line haul."',
+            'Any reason other than "Automatically rejected due to change in delivery address affecting the ZIP code qualification for short haul / line haul."',
         },
       },
     ];

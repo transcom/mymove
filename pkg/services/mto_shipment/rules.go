@@ -200,8 +200,8 @@ func MTOShipmentHasTertiaryAddressWithNoSecondaryAddressUpdate() validator {
 		if newer != nil && older != nil {
 			squenceIsValid := isMTOAddressUpdateSequenceValid(newer, older)
 			if !squenceIsValid {
-				verrs.Add("error validating mto shipment", "MTO Shipment cannot have a tertiary address without a secondary address present")
-				return apperror.NewInvalidInputError(newer.ID, nil, verrs, "mto shipment is missing a secondary pickup/destination address")
+				verrs.Add("error validating mto shipment", "Shipment cannot have a third address without a second address present")
+				return apperror.NewInvalidInputError(newer.ID, nil, verrs, "Invalid input found while validating the MTO shipment")
 			}
 		}
 		return nil
@@ -213,8 +213,8 @@ func MTOShipmentHasTertiaryAddressWithNoSecondaryAddressCreate() validator {
 		if newer != nil {
 			squenceIsValid := isMTOShipmentAddressCreateSequenceValid(*newer)
 			if !squenceIsValid {
-				verrs.Add("error validating mto shipment", "MTO Shipment cannot have a tertiary address without a secondary address present")
-				return apperror.NewInvalidInputError(newer.ID, nil, verrs, "mto shipment is missing a secondary pickup/destination address")
+				verrs.Add("error validating mto shipment", "Shipment cannot have a third address without a second address present")
+				return apperror.NewInvalidInputError(newer.ID, nil, verrs, "Invalid input found while validating the MTO shipment")
 			}
 		}
 		return nil
