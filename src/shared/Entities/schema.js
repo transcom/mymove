@@ -200,5 +200,7 @@ export const searchMovesResult = new schema.Entity('searchMovesResult');
 
 export const officeUser = new schema.Entity('officeUser');
 
+export const unlockedMoves = new schema.Entity('moves', officeUser.id);
+
 export const reServiceItem = new schema.Entity('reServiceItems');
 export const reServiceItems = new schema.Array(reServiceItem);

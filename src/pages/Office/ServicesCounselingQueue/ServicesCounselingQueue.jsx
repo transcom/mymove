@@ -262,18 +262,18 @@ export const closeoutColumns = (
         );
       },
       {
-        id: 'lastName',
+        id: 'customerName',
         isFilterable: true,
         exportValue: (row) => {
           return `${row.customer.last_name}, ${row.customer.first_name}`;
         },
       },
     ),
-    createHeader('DoD ID', 'customer.dodID', {
-      id: 'dodID',
+    createHeader('DoD ID', 'customer.edipi', {
+      id: 'edipi',
       isFilterable: true,
       exportValue: (row) => {
-        return row.customer.dodID;
+        return row.customer.edipi;
       },
     }),
     createHeader('EMPLID', 'customer.emplid', {
