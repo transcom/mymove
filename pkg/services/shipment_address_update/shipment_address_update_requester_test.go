@@ -680,7 +680,7 @@ func (suite *ShipmentAddressUpdateServiceSuite) TestTOOApprovedShipmentAddressUp
 			},
 		}, nil)
 		shipment := addressChange.Shipment
-		reService := factory.BuildDDFSITReService(suite.DB())
+		reService := factory.FetchReServiceByCode(suite.DB(), models.ReServiceCodeDDFSIT)
 		sitDestinationOriginalAddress := factory.BuildAddress(suite.DB(), nil, nil)
 		factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
 			{
@@ -749,7 +749,7 @@ func (suite *ShipmentAddressUpdateServiceSuite) TestTOOApprovedShipmentAddressUp
 			},
 		}, nil)
 		shipment := addressChange.Shipment
-		reService := factory.BuildDDFSITReService(suite.DB())
+		reService := factory.FetchReServiceByCode(suite.DB(), models.ReServiceCodeDDFSIT)
 		sitDestinationOriginalAddress := factory.BuildAddress(suite.DB(), nil, nil)
 		factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
 			{
@@ -868,7 +868,7 @@ func (suite *ShipmentAddressUpdateServiceSuite) TestTOOApprovedShipmentAddressUp
 		//Generate a couple of service items to test their status changes upon approval
 		factory.BuildRealMTOServiceItemWithAllDeps(suite.DB(), models.ReServiceCodeMS, move, shipment, nil, nil)
 		factory.BuildRealMTOServiceItemWithAllDeps(suite.DB(), models.ReServiceCodeDLH, move, shipment, nil, nil)
-		factory.BuildReServiceByCode(suite.DB(), models.ReServiceCodeDSH)
+		factory.FetchReServiceByCode(suite.DB(), models.ReServiceCodeDSH)
 
 		newAddress := models.Address{
 			StreetAddress1: "123 Any St",
@@ -938,7 +938,7 @@ func (suite *ShipmentAddressUpdateServiceSuite) TestTOOApprovedShipmentAddressUp
 				},
 			},
 		}, nil)
-		factory.BuildReServiceByCode(suite.DB(), models.ReServiceCodeDSH)
+		factory.FetchReServiceByCode(suite.DB(), models.ReServiceCodeDSH)
 
 		newAddress := models.Address{
 			StreetAddress1: "123 Any St",
@@ -1031,7 +1031,7 @@ func (suite *ShipmentAddressUpdateServiceSuite) TestTOOApprovedShipmentAddressUp
 		//Generate a couple of service items to test their status changes upon approval
 		factory.BuildRealMTOServiceItemWithAllDeps(suite.DB(), models.ReServiceCodeMS, move, shipment, nil, nil)
 		factory.BuildRealMTOServiceItemWithAllDeps(suite.DB(), models.ReServiceCodeDLH, move, shipment, nil, nil)
-		factory.BuildReServiceByCode(suite.DB(), models.ReServiceCodeDSH)
+		factory.FetchReServiceByCode(suite.DB(), models.ReServiceCodeDSH)
 
 		newAddress := models.Address{
 			StreetAddress1: "123 Any St",
@@ -1098,7 +1098,7 @@ func (suite *ShipmentAddressUpdateServiceSuite) TestTOOApprovedShipmentAddressUp
 		//Generate a couple of service items to test their status changes upon approval
 		factory.BuildRealMTOServiceItemWithAllDeps(suite.DB(), models.ReServiceCodeMS, move, shipment, nil, nil)
 		factory.BuildRealMTOServiceItemWithAllDeps(suite.DB(), models.ReServiceCodeDSH, move, shipment, nil, nil)
-		factory.BuildReServiceByCode(suite.DB(), models.ReServiceCodeDLH)
+		factory.FetchReServiceByCode(suite.DB(), models.ReServiceCodeDLH)
 
 		// Trigger the prime address update to get move in correct state for DSH -> DLH
 		addressChange, _ := addressUpdateRequester.RequestShipmentDeliveryAddressUpdate(suite.AppContextForTest(), shipment.ID, newAddress, "we really need to change the address", etag.GenerateEtag(shipment.UpdatedAt))
