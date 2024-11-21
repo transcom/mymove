@@ -127,4 +127,40 @@ func (suite *ModelSuite) TestAddressFormat() {
 	formattedAddress = newAddress.LineFormat()
 
 	suite.Equal("street 1, street 2, street 3, city, state, 90210, UNITED STATES", formattedAddress)
+
+	formattedAddress = newAddress.LineDisplayFormat()
+
+	suite.Equal("street 1 street 2 street 3, city, state 90210", formattedAddress)
+}
+
+func (suite *ModelSuite) TestPartialAddressFormat() {
+	country := factory.FetchOrBuildCountry(suite.DB(), nil, nil)
+	newAddress := &m.Address{
+		StreetAddress1: "street 1",
+		StreetAddress2: nil,
+		StreetAddress3: nil,
+		City:           "city",
+		State:          "state",
+		PostalCode:     "90210",
+		County:         "County",
+		Country:        &country,
+		CountryId:      &country.ID,
+	}
+
+	verrs, err := newAddress.Validate(nil)
+
+	suite.NoError(err)
+	suite.False(verrs.HasAny(), "Error validating model")
+
+	formattedAddress := newAddress.Format()
+
+	suite.Equal("street 1\ncity, state 90210", formattedAddress)
+
+	formattedAddress = newAddress.LineFormat()
+
+	suite.Equal("street 1, city, state, 90210, UNITED STATES", formattedAddress)
+
+	formattedAddress = newAddress.LineDisplayFormat()
+
+	suite.Equal("street 1, city, state 90210", formattedAddress)
 }
