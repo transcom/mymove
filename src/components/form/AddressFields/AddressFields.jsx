@@ -39,29 +39,6 @@ export const AddressFields = ({
   const infoStr = 'If you encounter any inaccurate lookup information please contact the ';
   const assistanceStr = ' for further assistance.';
 
-  // const postalCodeField = !locationLookup ? (
-  //   <TextField
-  //     label="ZIP"
-  //     id={`zip_${addressFieldsUUID.current}`}
-  //     name={`${name}.postalCode`}
-  //     data-testid={`${name}.postalCode`}
-  //     maxLength={10}
-  //     labelHint={labelHintProp}
-  //     validate={validators?.postalCode}
-  //   />
-  // ) : (
-  //   <TextField
-  //     label="ZIP"
-  //     id={`zip_${addressFieldsUUID.current}`}
-  //     name={`${name}.postalCode`}
-  //     data-testid={`${name}.postalCode`}
-  //     maxLength={10}
-  //     labelHint={labelHintProp}
-  //     display="locationLookup ? '' : 'readonly'"
-  //     validate={validators?.postalCode}
-  //   />
-  // );
-
   const stateField = locationLookup ? (
     <TextField
       label="State"
@@ -71,6 +48,7 @@ export const AddressFields = ({
       labelHint={labelHintProp}
       display="readonly"
       validate={validators?.state}
+      styles="margin-top: 1.5em"
     />
   ) : (
     <DropdownInput
@@ -109,6 +87,9 @@ export const AddressFields = ({
     });
     setFieldValue(`${name}.postalCode`, value.postalCode).then(() => {
       setFieldTouched(`${name}.postalCode`, true);
+    });
+    setFieldValue(`${name}.usprcId`, value.usPostRegionCitiesId).then(() => {
+      setFieldTouched(`${name}.usprcId`, true);
     });
   };
 
@@ -158,7 +139,7 @@ export const AddressFields = ({
             </>
           )}
           <div className="grid-row grid-gap">
-            <div className="mobile-lg:grid-col-6">
+            <div className="mobile-lg:grid-col-6" style={{ marginBottom: '1.5em' }}>
               {!locationLookup && (
                 <TextField
                   label="City"
@@ -181,8 +162,8 @@ export const AddressFields = ({
                     validate={validators?.city}
                   />
                   <TextField
-                    className={styles.label}
                     label="County"
+                    className={styles.countyInput}
                     id={`county_${addressFieldsUUID.current}`}
                     name={`${name}.county`}
                     labelHint={labelHintProp}
