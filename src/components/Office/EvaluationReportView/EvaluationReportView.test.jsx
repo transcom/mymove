@@ -75,6 +75,47 @@ const mockEvaluationReport = {
   seriousIncidentDesc: 'there was a serious incident',
 };
 
+const mockEvaluationReportWithAppeals = {
+  id: mockReportId,
+  createdAt: '2022-09-07T15:17:37.484Z',
+  eTag: 'MjAyMi0wOS0wN1QxODowNjozNy44NjQxNDJa',
+  evalEnd: '09:00',
+  evalStart: '10:00',
+  inspectionDate: '2022-09-08',
+  inspectionType: 'VIRTUAL',
+  location: 'ORIGIN',
+  moveID: mockMoveId,
+  moveReferenceID: '4118-8295',
+  observedPickupDate: '2024-08-24',
+  officeUser: {
+    email: 'qae_role@office.mil',
+    firstName: 'Leo',
+    id: 'ef4f6d1f-4ac3-4159-a364-5403e7d958ff',
+    lastName: 'Spaceman',
+    phone: '415-555-1212',
+  },
+  remarks: 'test remarks',
+  shipmentID: mockShipmentID,
+  type: 'SHIPMENT',
+  updatedAt: '2022-09-07T18:06:37.864Z',
+  violationsObserved: true,
+  seriousIncident: true,
+  seriousIncidentDesc: 'there was a serious incident',
+  gsrAppeals: [
+    {
+      appealStatus: 'SUSTAINED',
+      createdAt: '2024-10-23T16:41:20.514Z',
+      id: '5b3fdda8-feb3-4b78-adb2-d164800aa1dc',
+      officeUser: {
+        firstName: 'Lily',
+        lastName: 'Lob',
+      },
+      remarks: 'seriously another serious incident appeal??',
+      reportID: mockReportId,
+    },
+  ],
+};
+
 const mockViolation = {
   category: 'Category 1',
   displayOrder: 1,
@@ -180,6 +221,15 @@ const mockReportViolationsWithAppeals = [
 ];
 
 const mockReturnDataWithAppeals = {
+  evaluationReport: mockEvaluationReportWithAppeals,
+  isError: false,
+  isLoading: false,
+  isSuccess: true,
+  mtoShipments: mockShipmentData,
+  reportViolations: mockReportViolationsWithAppeals,
+};
+
+const mockReturnDataWithAppealsAndSeriousIncident = {
   evaluationReport: mockEvaluationReport,
   isError: false,
   isLoading: false,
@@ -234,6 +284,27 @@ const renderForm = (props) => {
 
 const renderFormWithAppeals = (props) => {
   useEvaluationReportShipmentListQueries.mockReturnValue(mockReturnDataWithAppeals);
+  const testState = {
+    auth: {
+      activeRole: roleTypes.GSR,
+    },
+  };
+  const defaultProps = {
+    customerInfo,
+    grade: 'E_4',
+    destinationDutyLocationPostalCode: '90210',
+  };
+
+  return render(
+    <MockProviders initialState={testState}>
+      <EvaluationReportView {...defaultProps} {...props} />
+    </MockProviders>,
+    mockRoutingConfig,
+  );
+};
+
+const renderFormWithAppealsAndSeriousIncident = (props) => {
+  useEvaluationReportShipmentListQueries.mockReturnValue(mockReturnDataWithAppealsAndSeriousIncident);
   const testState = {
     auth: {
       activeRole: roleTypes.GSR,
@@ -389,32 +460,77 @@ describe('EvaluationReportView', () => {
     expect(screen.getByTestId('seriousIncidentYesNo')).toHaveTextContent('No');
   });
 
-  it('allows a GSR user to see appeals attached to a violation', async () => {
+  it('allows a GSR user to see appeals attached to a violation and should not be able to leave any more appeals', async () => {
     isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(true));
     renderFormWithAppeals();
+
+    expect(screen.queryByText('Leave Appeal Decision')).not.toBeInTheDocument();
 
     expect(screen.queryByText('Billy Bob')).not.toBeInTheDocument();
     expect(screen.queryByText('remarkable remarks')).not.toBeInTheDocument();
 
-    expect(screen.getByText('Show appeals')).toBeInTheDocument();
-    const expandBtn = await screen.findByTestId('showAppealBtn');
-    await userEvent.click(expandBtn);
+    // should be two buttons present for both violations & evaluation report appeals
+    expect(screen.getAllByText('Show appeals')).toHaveLength(2);
+    const expandViolationAppealBtn = await screen.findByTestId('showViolationAppealBtn');
+    await userEvent.click(expandViolationAppealBtn);
 
     expect(screen.queryByText('Billy Bob')).toBeInTheDocument();
     expect(screen.queryByText('remarkable remarks')).toBeInTheDocument();
+
+    await userEvent.click(expandViolationAppealBtn);
+    expect(screen.queryByText('Billy Bob')).not.toBeInTheDocument();
+    expect(screen.queryByText('remarkable remarks')).not.toBeInTheDocument();
+
+    expect(screen.queryByText('Lily Bob')).not.toBeInTheDocument();
+    expect(screen.queryByText('seriously another serious incident appeal??')).not.toBeInTheDocument();
+
+    const expandSeriousIncidentAppealBtn = await screen.findByTestId('showSeriousIncidentAppealBtn');
+    await userEvent.click(expandSeriousIncidentAppealBtn);
+
+    expect(screen.queryByText('Lily Lob')).toBeInTheDocument();
+    expect(screen.queryByText('seriously another serious incident appeal??')).toBeInTheDocument();
+
+    await userEvent.click(expandSeriousIncidentAppealBtn);
+    expect(screen.queryByText('Lily Bob')).not.toBeInTheDocument();
+    expect(screen.queryByText('seriously another serious incident appeal??')).not.toBeInTheDocument();
   });
 
-  it('allows a GSR user to add an appeal to a violation', async () => {
+  it('allows a GSR user to open the appeal modal add an appeal to a violation', async () => {
     isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(true));
     renderFormWithAppeals();
 
-    const addAppealBtn = await screen.findByTestId('addAppealBtn');
-    expect(addAppealBtn).toBeInTheDocument();
-    await userEvent.click(addAppealBtn);
+    const addViolationAppealBtn = await screen.findByTestId('addViolationAppealBtn');
+    expect(addViolationAppealBtn).toBeInTheDocument();
+    await userEvent.click(addViolationAppealBtn);
 
-    // modal heading should appear
     const addAppealModalTitle = await screen.findByTestId('appealModalTitle');
     expect(addAppealModalTitle).toBeInTheDocument();
+
+    const violationHint = await screen.findByTestId('violationModalHint');
+    expect(violationHint).toBeInTheDocument();
+
+    const appealCancelBtn = await screen.findByTestId('modalCancelButton');
+    expect(appealCancelBtn).toBeInTheDocument();
+    await userEvent.click(appealCancelBtn);
+  });
+
+  it('allows a GSR user to open the appeal modal add an appeal to a serious incident', async () => {
+    isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(true));
+    renderFormWithAppealsAndSeriousIncident();
+
+    const addViolationAppealBtn = await screen.findByTestId('addSeriousIncidentAppealBtn');
+    expect(addViolationAppealBtn).toBeInTheDocument();
+    await userEvent.click(addViolationAppealBtn);
+
+    const addAppealModalTitle = await screen.findByTestId('appealModalTitle');
+    expect(addAppealModalTitle).toBeInTheDocument();
+
+    const seriousIncidentHint = await screen.findByTestId('seriousIncidentModalHint');
+    expect(seriousIncidentHint).toBeInTheDocument();
+
+    const appealCancelBtn = await screen.findByTestId('modalCancelButton');
+    expect(appealCancelBtn).toBeInTheDocument();
+    await userEvent.click(appealCancelBtn);
   });
 
   it('non GSR users do not see the leave appeal decision button even with flag on', async () => {

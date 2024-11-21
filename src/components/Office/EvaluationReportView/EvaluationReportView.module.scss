@@ -186,7 +186,7 @@
 .appealsTable {
   @include u-margin-bottom(2);
   border: 1px solid $base-lighter;
-  width: 620px;
+  width: 100%;
 
   .appealsTableHeader {
     display: flex;

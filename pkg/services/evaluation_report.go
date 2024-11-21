@@ -30,3 +30,8 @@ type EvaluationReportUpdater interface {
 type EvaluationReportDeleter interface {
 	DeleteEvaluationReport(appCtx appcontext.AppContext, reportID uuid.UUID) error
 }
+
+//go:generate mockery --name SeriousIncidentAddAppeal
+type SeriousIncidentAddAppeal interface {
+	AddAppealToSeriousIncident(appCtx appcontext.AppContext, reportID uuid.UUID, officeUserID uuid.UUID, remarks string, appealStatus string) (models.GsrAppeal, error)
+}

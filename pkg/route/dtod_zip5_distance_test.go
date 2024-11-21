@@ -91,14 +91,14 @@ func (suite *GHCTestSuite) TestDTODZip5DistanceFake() {
 				mock.Anything,
 			).Return(soapResponseForDistance(test.responseDistance), soapError)
 
-			dtod := NewDTODZip5Distance(fakeUsername, fakePassword, testSoapClient)
+			dtod := NewDTODZip5Distance(fakeUsername, fakePassword, testSoapClient, false)
 			distance, err := dtod.DTODZip5Distance(suite.AppContextForTest(), "05030", "05091")
 
 			if test.shouldError {
 				suite.Error(err)
 				switch err.(type) {
 				case apperror.EventError:
-					suite.Equal(err.Error(), notifications.DtodErrorMessage)
+					suite.Equal(err.Error(), notifications.DTODDownErrorMessage)
 				}
 			} else {
 				suite.NoError(err)

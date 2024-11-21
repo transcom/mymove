@@ -289,6 +289,36 @@
   }
 }
 
+.usa-form {
+  max-width: none;
+
+  @include at-media("mobile-lg") {
+    max-width: none;
+  }
+
+  @media all {
+    .usa-form {
+      max-width: none;
+    }
+  }
+
+  @media all{
+    .usa-form--large{
+      max-width:none;
+    }
+  }
+
+  .usa-button {
+    margin-top: 0;
+    margin-right:0.5rem;
+  }
+}
+
+.usa-button {
+  margin-top: 0;
+  margin-right:0.5rem;
+}
+
 //Modals
 
 .modal {
@@ -316,10 +346,6 @@
 
   > * + div {
     border-top-color: white !important;
-  }
-
-  .usa-form {
-    max-width: 100%;
   }
 
   button {

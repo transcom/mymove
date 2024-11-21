@@ -3,7 +3,11 @@
 
 .ButtonDropdown {
   position: relative;
-  display: inline-block;
+  display: flex;
+  align-items: center;
+  font-weight: 600;
+  font-size:1.06rem;
+
   select {
     color: white;
     background-color: $primary;

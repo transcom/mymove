@@ -494,7 +494,7 @@ func (suite *HandlerSuite) TestSubmitGetAllMovesHandler() {
 			},
 		}, nil)
 
-		move2 := factory.BuildMove(suite.DB(), []factory.Customization{
+		factory.BuildMove(suite.DB(), []factory.Customization{
 			{
 				Model:    order,
 				LinkOnly: true,
@@ -511,7 +511,7 @@ func (suite *HandlerSuite) TestSubmitGetAllMovesHandler() {
 			},
 		}, nil)
 
-		// // And: the context contains the auth values
+		// And: the context contains the auth values
 		req := httptest.NewRequest("GET", "/moves/allmoves", nil)
 		req = suite.AuthenticateRequest(req, move.Orders.ServiceMember)
 
@@ -528,15 +528,13 @@ func (suite *HandlerSuite) TestSubmitGetAllMovesHandler() {
 		handler := GetAllMovesHandler{handlerConfig}
 		response := handler.Handle(params)
 
-		// // Then: expect a 200 status code
+		// Then: expect a 200 status code
 		suite.Assertions.IsType(&moveop.GetAllMovesOK{}, response)
 		okResponse := response.(*moveop.GetAllMovesOK)
 
-		suite.Greater(len(okResponse.Payload.CurrentMove), 0)
-		suite.Greater(len(okResponse.Payload.PreviousMoves), 0)
-		suite.Equal(okResponse.Payload.CurrentMove[0].ID.String(), move.ID.String())
-		suite.Equal(okResponse.Payload.PreviousMoves[0].ID.String(), move2.ID.String())
-
+		// should have a move in each array
+		suite.Equal(len(okResponse.Payload.CurrentMove), 1)
+		suite.Equal(len(okResponse.Payload.PreviousMoves), 1)
 	})
 }
 

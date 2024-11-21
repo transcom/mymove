@@ -7,12 +7,7 @@ import styles from './ButtonDropdown.module.scss';
 
 const ButtonDropdown = ({ children, onChange, value, ariaLabel, divClassName, testId }) => (
   <div className={classnames(styles.ButtonDropdown, divClassName)} data-testid={testId}>
-    <Dropdown
-      aria-label={ariaLabel}
-      onChange={onChange}
-      className={classnames(styles.ButtonDropdown, 'usa-button')}
-      value={value}
-    >
+    <Dropdown aria-label={ariaLabel} onChange={onChange} className={styles.ButtonDropdown} value={value}>
       {children}
     </Dropdown>
     <span className={styles.ButtonDropdownIcon} />

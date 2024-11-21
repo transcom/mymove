@@ -37,7 +37,7 @@ type AddAppealToViolationParams struct {
 	/*
 	  In: body
 	*/
-	Body *ghcmessages.CreateViolationAppeal
+	Body *ghcmessages.CreateAppeal
 	/*the evaluation report ID
 	  Required: true
 	  In: path
@@ -61,7 +61,7 @@ func (o *AddAppealToViolationParams) BindRequest(r *http.Request, route *middlew
 
 	if runtime.HasBody(r) {
 		defer r.Body.Close()
-		var body ghcmessages.CreateViolationAppeal
+		var body ghcmessages.CreateAppeal
 		if err := route.Consumer.Consume(r.Body, &body); err != nil {
 			res = append(res, errors.NewParseError("body", "body", "", err))
 		} else {

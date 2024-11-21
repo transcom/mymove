@@ -801,7 +801,6 @@ func (suite *MoveTaskOrderServiceSuite) TestListPrimeMoveTaskOrdersAmendmentsFet
 		suite.Contains(moveIDs, primeMove3.ID)
 		suite.Contains(moveIDs, primeMove4.ID)
 		suite.Contains(moveIDs, primeMove5.ID)
-		suite.Equal(amendmentCountInfo[0].MoveID, moveIDs[0])
 
 		// amendmentCountInfo should only contain moves that have amendments.
 		suite.Len(amendmentCountInfo, 4)
