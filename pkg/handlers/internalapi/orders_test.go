@@ -677,38 +677,57 @@ func (suite *HandlerSuite) TestUpdateOrdersHandler() {
 				},
 			},
 		}, nil)
-		originDutyLocation := factory.BuildDutyLocationWithoutTransportationOffice(suite.DB(), []factory.Customization{
+
+		originDutyLocation := factory.BuildDutyLocation(suite.DB(), []factory.Customization{
 			{
-				Model:    originDutyLocationAddress,
-				LinkOnly: true,
+				Model: models.DutyLocation{
+					AddressID: originDutyLocationAddress.ID,
+				},
 			},
 		}, nil)
 		newDutyLocation := factory.BuildDutyLocationWithoutTransportationOffice(suite.DB(), []factory.Customization{
 			{
-				Model:    newDutyLocationAddress,
-				LinkOnly: true,
+				Model: models.DutyLocation{
+					AddressID: newDutyLocationAddress.ID,
+				},
 			},
 		}, nil)
 		updatedOriginDutyLocation := factory.BuildDutyLocationWithoutTransportationOffice(suite.DB(), []factory.Customization{
 			{
-				Model:    updatedOriginDutyLocationAddress,
-				LinkOnly: true,
-			},
-		}, nil)
-		order := factory.BuildOrder(suite.DB(), []factory.Customization{
-			{
-				Model:    originDutyLocation,
-				Type:     &factory.DutyLocations.OriginDutyLocation,
-				LinkOnly: true,
+				Model: models.DutyLocation{
+					AddressID: updatedOriginDutyLocationAddress.ID,
+				},
 			},
 		}, nil)
 
-		fetchedDutyLocation, err := models.FetchDutyLocation(suite.DB(), order.OriginDutyLocation.ID)
+		order := factory.BuildOrder(suite.DB(), []factory.Customization{
+			{
+				Model: models.Order{
+					OriginDutyLocation: &originDutyLocation,
+				},
+			},
+		}, nil)
+
+		move := factory.BuildMove(suite.DB(), []factory.Customization{
+			{
+				Model: models.Move{
+					OrdersID: order.ID,
+				},
+			},
+		}, nil)
+
+		// Ensures that the correct GBLOC is returned
+		fetchedGbloc, err := order.GetOriginGBLOC(suite.DB())
 		suite.NoError(err)
-		var fetchedGBLOC models.PostalCodeToGBLOC
-		fetchedGBLOC, err = models.FetchGBLOCForPostalCode(suite.DB(), fetchedDutyLocation.Address.PostalCode)
+		suite.Equal("KKFA", fetchedGbloc)
+
+		// Ensures that both utility methods return the same GBLOC
+		var originGblocBasedOnOrder, originGblocBasedOnMove string
+		originGblocBasedOnOrder, err = order.GetOriginGBLOC(suite.DB())
 		suite.NoError(err)
-		suite.Equal("KKFA", fetchedGBLOC.GBLOC)
+		originGblocBasedOnMove, err = move.GetOriginGBLOC(suite.DB())
+		suite.NoError(err)
+		suite.Equal(originGblocBasedOnOrder, originGblocBasedOnMove)
 
 		payload := &internalmessages.CreateUpdateOrders{
 			OriginDutyLocationID: *handlers.FmtUUID(updatedOriginDutyLocation.ID),
@@ -742,11 +761,15 @@ func (suite *HandlerSuite) TestUpdateOrdersHandler() {
 		okResponse := response.(*ordersop.UpdateOrdersOK)
 		suite.NoError(okResponse.Payload.Validate(strfmt.Default))
 
-		fetchedDutyLocation, err = models.FetchDutyLocation(suite.DB(), order.OriginDutyLocation.ID)
+		var fetchedMove models.Move
+		fetchedMove, err = models.FetchMoveByMoveID(suite.DB(), move.ID)
 		suite.NoError(err)
-		fetchedGBLOC, err = models.FetchGBLOCForPostalCode(suite.DB(), fetchedDutyLocation.Address.PostalCode)
+
+		var fetchedUpdatedGbloc string
+		fetchedUpdatedGbloc, err = fetchedMove.GetOriginGBLOC(suite.DB())
 		suite.NoError(err)
-		suite.Equal("CNNQ", fetchedGBLOC.GBLOC)
+
+		suite.Equal("CNNQ", fetchedUpdatedGbloc)
 	})
 }
 

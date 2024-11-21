@@ -413,6 +413,32 @@ func SaveMoveDependencies(db *pop.Connection, move *Move) (*validate.Errors, err
 	return responseVErrors, responseError
 }
 
+/*
+ * GetOriginGBLOC returns the GBLOC for the postal code of the the origin duty location of the order that is on this move.
+ */
+func (m Move) GetOriginGBLOC(db *pop.Connection) (string, error) {
+	// Since this requires looking up the move in the DB, the move must have an ID. This means, the move has to have been created first.
+	if uuid.UUID.IsNil(m.ID) {
+		return "", errors.WithMessage(ErrInvalidMoveID, "You must created the move in the DB before getting the destination GBLOC.")
+	}
+
+	err := db.Load(&m, "Orders.OriginDutyLocation.Address")
+	if err != nil {
+		if err.Error() == RecordNotFoundErrorString {
+			return "", errors.WithMessage(err, "No Origin Duty Location was found for the order associated with movedID "+m.ID.String())
+		}
+		return "", err
+	}
+
+	var originGBLOC PostalCodeToGBLOC
+	originGBLOC, err = FetchGBLOCForPostalCode(db, m.Orders.OriginDutyLocation.Address.PostalCode)
+	if err != nil {
+		return "", err
+	}
+
+	return originGBLOC.GBLOC, nil
+}
+
 // FetchMoveForMoveDates returns a Move along with all the associations needed to determine
 // the move dates summary information.
 func FetchMoveForMoveDates(db *pop.Connection, moveID uuid.UUID) (Move, error) {
