@@ -12,7 +12,6 @@ import { PRIME_SIMULATOR_MOVE } from 'constants/queryKeys';
 import Shipment from 'components/PrimeUI/Shipment/Shipment';
 import FlashGridContainer from 'containers/FlashGridContainer/FlashGridContainer';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
-import Inaccessible from 'shared/Inaccessible';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
 import SectionWrapper from 'components/Customer/SectionWrapper';
 import formStyles from 'styles/form.module.scss';
@@ -33,7 +32,7 @@ const MoveDetails = ({ setFlashMessage }) => {
 
   const [documentTypeKey, setDocumentTypeKey] = useState(MoveOrderDocumentType.ALL);
 
-  const { moveTaskOrder, isLoading, isError, errors } = usePrimeSimulatorGetMove(moveCodeOrID);
+  const { moveTaskOrder, isLoading, isError } = usePrimeSimulatorGetMove(moveCodeOrID);
 
   const queryClient = useQueryClient();
   const { mutate: completeCounselingMutation } = useMutation(completeCounseling, {
@@ -154,9 +153,7 @@ const MoveDetails = ({ setFlashMessage }) => {
   };
 
   if (isLoading) return <LoadingPlaceholder />;
-  if (isError) {
-    return errors?.[0]?.response?.body?.message ? <Inaccessible /> : <SomethingWentWrong />;
-  }
+  if (isError) return <SomethingWentWrong />;
 
   const { mtoShipments, paymentRequests, mtoServiceItems } = moveTaskOrder;
 
