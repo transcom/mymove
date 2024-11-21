@@ -92,7 +92,7 @@ func (m MoveSubmitted) emails(appCtx appcontext.AppContext) ([]emailContent, err
 		originDutyLocationName = &originDutyLocation.Name
 	}
 
-	totalEntitlement := models.GetWeightAllotment(*orders.Grade)
+	totalEntitlement := models.GetWeightAllotment(*orders.Grade, orders.OrdersType)
 
 	weight := totalEntitlement.TotalWeightSelf
 	if orders.HasDependents {

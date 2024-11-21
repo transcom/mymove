@@ -236,7 +236,8 @@ func (h CreateOrderHandler) Handle(params orderop.CreateOrderParams) middleware.
 			}
 
 			grade := (internalmessages.OrderPayGrade)(*payload.Grade)
-			weightAllotment := models.GetWeightAllotment(grade)
+			ordersType := (internalmessages.OrdersType)(*payload.OrdersType)
+			weightAllotment := models.GetWeightAllotment(grade, ordersType)
 
 			weight := weightAllotment.TotalWeightSelf
 			if *payload.HasDependents {

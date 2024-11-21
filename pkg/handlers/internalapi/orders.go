@@ -171,7 +171,8 @@ func (h CreateOrdersHandler) Handle(params ordersop.CreateOrdersParams) middlewa
 			}
 
 			grade := payload.Grade
-			weightAllotment := models.GetWeightAllotment(*grade)
+			ordersType := payload.OrdersType
+			weightAllotment := models.GetWeightAllotment(*grade, *ordersType)
 
 			weight := weightAllotment.TotalWeightSelf
 			if *payload.HasDependents {
@@ -387,7 +388,7 @@ func (h UpdateOrdersHandler) Handle(params ordersop.UpdateOrdersParams) middlewa
 
 			// Check if the grade is receiving an update
 			if order.Grade != payload.Grade {
-				weightAllotment := models.GetWeightAllotment(*payload.Grade)
+				weightAllotment := models.GetWeightAllotment(*payload.Grade, *payload.OrdersType)
 				weight := weightAllotment.TotalWeightSelf
 				if *payload.HasDependents {
 					weight = weightAllotment.TotalWeightSelfPlusDependents
