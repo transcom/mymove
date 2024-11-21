@@ -449,26 +449,33 @@ func (o Order) GetDestinationPostalCodeForAssociatedMoves(db *pop.Connection) (m
 				o.Moves[i].MTOShipments[j].Status != MTOShipmentStatusCanceled &&
 				o.Moves[i].MTOShipments[j].DeletedAt == nil {
 				shipments = append(shipments, o.Moves[i].MTOShipments[j])
-
-				if len(shipments) > 1 {
-					sort.Slice(shipments, func(i, j int) bool {
-						return shipments[i].CreatedAt.Before(shipments[j].CreatedAt)
-					})
-				}
-			}
-
-			if j+1 == len(o.Moves[i].MTOShipments) {
-				if len(shipments) == 0 {
-					zipsMap[o.Moves[i].ID] = o.NewDutyLocation.Address.PostalCode
-				}
 			}
 		}
-		if i+1 == len(o.Moves) {
-			if len(zipsMap) == 0 {
-				return nil, errors.WithMessage(err, "No destination postal codes were found for the order ID "+o.ID.String())
+
+		// If we have valid shipments, use the first one's destination address
+		if len(shipments) > 0 {
+			sort.Slice(shipments, func(i, j int) bool {
+				return shipments[i].CreatedAt.Before(shipments[j].CreatedAt)
+			})
+
+			if shipments[0].DestinationAddress != nil {
+				zipsMap[o.Moves[i].ID] = shipments[0].DestinationAddress.PostalCode
+			} else if shipments[0].PPMShipment != nil && shipments[0].PPMShipment.DestinationAddress != nil {
+				zipsMap[o.Moves[i].ID] = shipments[0].PPMShipment.DestinationAddress.PostalCode
+			} else {
+				// Fallback to new duty location if no shipment destination address
+				zipsMap[o.Moves[i].ID] = o.NewDutyLocation.Address.PostalCode
 			}
+		} else {
+			// No valid shipments, use new duty location
+			zipsMap[o.Moves[i].ID] = o.NewDutyLocation.Address.PostalCode
 		}
 	}
+
+	if len(zipsMap) == 0 {
+		return nil, errors.New("No destination postal codes were found for the order ID " + o.ID.String())
+	}
+
 	return zipsMap, nil
 }
 
