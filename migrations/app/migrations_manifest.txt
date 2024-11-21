@@ -1039,3 +1039,4 @@
 20241111203514_add_external_crate_and_remove_icrtsa.up.sql
 20241111221400_add_new_order_types.up.sql
 20241111223224_change_international_sit_services_to_accessorials.up.sql
+20241120221040_change_port_location_fk_to_correct_table.up.sql
