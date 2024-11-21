@@ -812,6 +812,15 @@ commands:
               exit 1
             fi
       - run:
+          # Needed for PDF e2e
+          name: Verify react-file-viewer pdfjs chunk exists
+          command: |
+            ls -l /home/circleci/project/public/static/react-file-viewer
+            if [ ! -f "/home/circleci/project/public/static/react-file-viewer/pdfjs-dist-webpack.chunk.js" ]; then
+              echo "Error: /home/circleci/project/public/static/react-file-viewer/pdfjs-dist-webpack.chunk.js not found, the server will not be able to serve frontend dependencies"
+              exit 1
+            fi
+      - run:
           name: setup hosts
           command: |
             # futz with /etc/hosts for running in circleci
