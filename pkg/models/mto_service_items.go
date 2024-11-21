@@ -72,7 +72,6 @@ type MTOServiceItem struct {
 	POELocationID                     *uuid.UUID                     `db:"poe_location_id"`
 	PODLocation                       *Port                          `belongs_to:"port" fk_id:"pod_location_id"`
 	PODLocationID                     *uuid.UUID                     `db:"pod_location_id"`
-	FscMultiplier                     *uuid.UUID                     `db:"re_fsc_multipliers"`
 }
 
 // MTOServiceItemSingle is an object representing a single column in the service items table
@@ -107,7 +106,6 @@ type MTOServiceItemSingle struct {
 	PricingEstimate                 *unit.Cents          `db:"pricing_estimate"`
 	POELocationID                   *uuid.UUID           `db:"poe_location_id"`
 	PODLocationID                   *uuid.UUID           `db:"pod_location_id"`
-	FscMultiplier                   *uuid.UUID           `db:"re_fsc_multipliers"`
 }
 
 // TableName overrides the table name used by Pop.
