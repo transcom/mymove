@@ -68,7 +68,6 @@ type MTOServiceItem struct {
 	StandaloneCrate                   *bool                          `db:"standalone_crate"`
 	LockedPriceCents                  *unit.Cents                    `db:"locked_price_cents"`
 	ServiceLocation                   *ServiceLocationType           `db:"service_location"`
-	FscMultiplier                     *uuid.UUID                     `db:"re_fsc_multipliers"`
 }
 
 // MTOServiceItemSingle is an object representing a single column in the service items table
@@ -101,7 +100,6 @@ type MTOServiceItemSingle struct {
 	CustomerExpenseReason           *string              `db:"customer_expense_reason"`
 	SITDeliveryMiles                *unit.Miles          `db:"sit_delivery_miles"`
 	PricingEstimate                 *unit.Cents          `db:"pricing_estimate"`
-	FscMultiplier                   *uuid.UUID           `db:"re_fsc_multipliers"`
 }
 
 // TableName overrides the table name used by Pop.
