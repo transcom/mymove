@@ -145,7 +145,7 @@ describe('ServiceItemDetails Domestic Destination SIT', () => {
         serviceRequestDocs={serviceRequestDocs}
       />,
     );
-    expect(screen.getByText('Original delivery address:')).toBeInTheDocument();
+    expect(screen.getByText('Original Delivery Address:')).toBeInTheDocument();
     expect(screen.getByText('Destination Original Tampa, FL 33621')).toBeInTheDocument();
 
     expect(screen.getByText("Add'l SIT Start Date:")).toBeInTheDocument();
@@ -172,10 +172,10 @@ describe('ServiceItemDetails Domestic Destination SIT', () => {
 
   it('renders DDDSIT details', () => {
     render(<ServiceItemDetails id="1" code="DDDSIT" details={details} serviceRequestDocs={serviceRequestDocs} />);
-    expect(screen.getByText('Original delivery address:')).toBeInTheDocument();
+    expect(screen.getByText('Original Delivery Address:')).toBeInTheDocument();
     expect(screen.getByText('Destination Original Tampa, FL 33621')).toBeInTheDocument();
 
-    expect(screen.getByText('Final delivery address:')).toBeInTheDocument();
+    expect(screen.getByText('Final Delivery Address:')).toBeInTheDocument();
     expect(screen.getByText('Destination Final MacDill, FL 33621')).toBeInTheDocument();
 
     expect(screen.getByText('Delivery miles out of SIT:')).toBeInTheDocument();
@@ -203,20 +203,20 @@ describe('ServiceItemDetails Domestic Destination SIT', () => {
       />,
     );
 
-    expect(screen.getByText('Final delivery address:')).toBeInTheDocument();
+    expect(screen.getByText('Final Delivery Address:')).toBeInTheDocument();
     expect(screen.getByText('-')).toBeInTheDocument();
   });
   it('renders DDFSIT details', () => {
     render(<ServiceItemDetails id="1" code="DDFSIT" details={details} serviceRequestDocs={serviceRequestDocs} />);
-    expect(screen.getByText('Original delivery address:')).toBeInTheDocument();
+    expect(screen.getByText('Original Delivery Address:')).toBeInTheDocument();
     expect(screen.getByText('Destination Original Tampa, FL 33621')).toBeInTheDocument();
   });
   it('renders DDSFSC details', () => {
     render(<ServiceItemDetails id="1" code="DDSFSC" details={details} serviceRequestDocs={serviceRequestDocs} />);
-    expect(screen.getByText('Original delivery address:')).toBeInTheDocument();
+    expect(screen.getByText('Original Delivery Address:')).toBeInTheDocument();
     expect(screen.getByText('Destination Original Tampa, FL 33621')).toBeInTheDocument();
 
-    expect(screen.getByText('Final delivery address:')).toBeInTheDocument();
+    expect(screen.getByText('Final Delivery Address:')).toBeInTheDocument();
     expect(screen.getByText('Destination Final MacDill, FL 33621')).toBeInTheDocument();
 
     expect(screen.getByText('Delivery miles out of SIT:')).toBeInTheDocument();
@@ -232,7 +232,7 @@ describe('ServiceItemDetails Domestic Destination SIT', () => {
       />,
     );
 
-    expect(screen.getByText('Final delivery address:')).toBeInTheDocument();
+    expect(screen.getByText('Final Delivery Address:')).toBeInTheDocument();
     expect(screen.getByText('-')).toBeInTheDocument();
   });
 });
@@ -250,7 +250,7 @@ describe('ServiceItemDetails Domestic Origin SIT', () => {
       />,
     );
 
-    expect(screen.getByText('Original pickup address:')).toBeInTheDocument();
+    expect(screen.getByText('Original Pickup Address:')).toBeInTheDocument();
     expect(screen.getByText('Origin Original Tampa, FL 33621')).toBeInTheDocument();
 
     expect(screen.getByText("Add'l SIT Start Date:")).toBeInTheDocument();
@@ -275,10 +275,10 @@ describe('ServiceItemDetails Domestic Origin SIT', () => {
   it(`renders DOPSIT details`, () => {
     render(<ServiceItemDetails id="1" code="DOPSIT" details={details} serviceRequestDocs={serviceRequestDocs} />);
 
-    expect(screen.getByText('Original pickup address:')).toBeInTheDocument();
+    expect(screen.getByText('Original Pickup Address:')).toBeInTheDocument();
     expect(screen.getByText('Origin Original Tampa, FL 33621')).toBeInTheDocument();
 
-    expect(screen.getByText('Actual pickup address:')).toBeInTheDocument();
+    expect(screen.getByText('Actual Pickup Address:')).toBeInTheDocument();
     expect(screen.getByText('Origin Actual MacDill, FL 33621')).toBeInTheDocument();
 
     expect(screen.getByText('Delivery miles into SIT:')).toBeInTheDocument();
@@ -288,10 +288,10 @@ describe('ServiceItemDetails Domestic Origin SIT', () => {
   it(`renders DOSFSC details`, () => {
     render(<ServiceItemDetails id="1" code="DOSFSC" details={details} serviceRequestDocs={serviceRequestDocs} />);
 
-    expect(screen.getByText('Original pickup address:')).toBeInTheDocument();
+    expect(screen.getByText('Original Pickup Address:')).toBeInTheDocument();
     expect(screen.getByText('Origin Original Tampa, FL 33621')).toBeInTheDocument();
 
-    expect(screen.getByText('Actual pickup address:')).toBeInTheDocument();
+    expect(screen.getByText('Actual Pickup Address:')).toBeInTheDocument();
     expect(screen.getByText('Origin Actual MacDill, FL 33621')).toBeInTheDocument();
 
     expect(screen.getByText('Delivery miles into SIT:')).toBeInTheDocument();
@@ -303,7 +303,7 @@ describe('ServiceItemDetails for DOFSIT', () => {
   it('renders SIT entry date, ZIP, original pickup address, and reason', () => {
     render(<ServiceItemDetails id="1" code="DOFSIT" details={details} serviceRequestDocs={serviceRequestDocs} />);
 
-    expect(screen.getByText('Original pickup address:')).toBeInTheDocument();
+    expect(screen.getByText('Original Pickup Address:')).toBeInTheDocument();
     expect(screen.getByText('Origin Original Tampa, FL 33621')).toBeInTheDocument();
     expect(screen.getByText('SIT entry date:')).toBeInTheDocument();
     expect(screen.getByText('11 Mar 2024')).toBeInTheDocument();
