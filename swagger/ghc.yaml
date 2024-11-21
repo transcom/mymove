@@ -4528,9 +4528,7 @@ paths:
           $ref: '#/responses/ServerError'
       tags:
         - move
-      description: >-
-        Finds and unlocks any locked moves by QAE,CSR, GSR, and headquarter
-        officers
+      description: Finds and unlocks any locked moves by an office user
       operationId: checkForLockedMovesAndUnlock
 definitions:
   UnlockedMoves:

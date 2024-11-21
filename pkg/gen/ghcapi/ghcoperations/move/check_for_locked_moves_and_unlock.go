@@ -32,7 +32,7 @@ func NewCheckForLockedMovesAndUnlock(ctx *middleware.Context, handler CheckForLo
 /*
 	CheckForLockedMovesAndUnlock swagger:route PATCH /moves/{officeUserID}/CheckForLockedMovesAndUnlock move checkForLockedMovesAndUnlock
 
-Finds and unlocks any locked moves by QAE,CSR, GSR, and headquarter officers
+Finds and unlocks any locked moves by an office user
 */
 type CheckForLockedMovesAndUnlock struct {
 	Context *middleware.Context

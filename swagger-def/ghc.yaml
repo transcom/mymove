@@ -4326,7 +4326,7 @@ paths:
       tags:
         - move
       description: >-
-        Finds and unlocks any locked moves by QAE,CSR, GSR, and headquarter officers
+        Finds and unlocks any locked moves by an office user
       operationId: checkForLockedMovesAndUnlock
 definitions:
   UnlockedMoves:

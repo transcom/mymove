@@ -2799,7 +2799,7 @@ func init() {
     },
     "/moves/{officeUserID}/CheckForLockedMovesAndUnlock": {
       "patch": {
-        "description": "Finds and unlocks any locked moves by QAE,CSR, GSR, and headquarter officers",
+        "description": "Finds and unlocks any locked moves by an office user",
         "consumes": [
           "application/json"
         ],
@@ -18474,7 +18474,7 @@ func init() {
     },
     "/moves/{officeUserID}/CheckForLockedMovesAndUnlock": {
       "patch": {
-        "description": "Finds and unlocks any locked moves by QAE,CSR, GSR, and headquarter officers",
+        "description": "Finds and unlocks any locked moves by an office user",
         "consumes": [
           "application/json"
         ],
