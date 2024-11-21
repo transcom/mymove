@@ -133,17 +133,28 @@ describe('CreatePaymentRequest page', () => {
 
       renderWithProviders();
 
+      // Verify the main shipments heading
       const shipmentsHeading = screen.getByRole('heading', { name: 'Shipments', level: 2 });
       expect(shipmentsHeading).toBeInTheDocument();
 
+      // Locate the container holding all shipment headings
       const shipmentsContainer = shipmentsHeading.parentElement;
-      const hhgHeading = within(shipmentsContainer).getByRole('heading', {
-        name: `${moveTaskOrder.mtoShipments[0].marketCode}${moveTaskOrder.mtoShipments[0].shipmentType} shipment`,
-        level: 3,
+
+      // Get all shipment headings (level 3) within the shipments container
+      const shipmentHeadings = within(shipmentsContainer).getAllByRole('heading', { level: 3 });
+      const headingTexts = shipmentHeadings.map((heading) => heading.textContent);
+
+      // Expected shipment headings (for both HHG and NTS)
+      const expectedHeadings = [`dHHG shipment`, `iNTS shipment`];
+
+      // Check that all expected headings are present, regardless of order
+      expectedHeadings.forEach((expectedHeading) => {
+        expect(headingTexts).toContain(expectedHeading);
       });
 
-      expect(hhgHeading).toBeInTheDocument();
-      const hhgContainer = hhgHeading.parentElement.parentElement;
+      // Check service items and checkboxes within the HHG container
+      const hhgContainer = shipmentHeadings.find((heading) => heading.textContent === expectedHeadings[0]).parentElement
+        .parentElement;
 
       expect(
         within(hhgContainer).getByRole('checkbox', { name: 'Add all service items', checked: false }),
@@ -155,12 +166,9 @@ describe('CreatePaymentRequest page', () => {
         within(hhgContainer).getByRole('checkbox', { name: 'Add to payment request', checked: false }),
       ).toBeInTheDocument();
 
-      const ntsHeading = within(shipmentsContainer).getByRole('heading', {
-        name: `${moveTaskOrder.mtoShipments[1].marketCode}NTS shipment`,
-        level: 3,
-      });
-      expect(ntsHeading).toBeInTheDocument();
-      const ntsContainer = ntsHeading.parentElement.parentElement;
+      // Check service items and checkboxes within the NTS container
+      const ntsContainer = shipmentHeadings.find((heading) => heading.textContent === expectedHeadings[1]).parentElement
+        .parentElement;
 
       expect(
         within(ntsContainer).getByRole('checkbox', { name: 'Add all service items', checked: false }),

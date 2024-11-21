@@ -509,6 +509,63 @@ definitions:
           - item
           - crate
           - description
+  MTOServiceItemInternationalCrating:
+    description: >-
+      Describes a international crating/uncrating service item subtype of a
+      MTOServiceItem.
+    allOf:
+      - $ref: '#/definitions/MTOServiceItem'
+      - type: object
+        properties:
+          reServiceCode:
+            type: string
+            description: >-
+              A unique code for the service item. Indicates if the service is
+              for crating (ICRT) or uncrating (IUCRT).
+            enum:
+              - ICRT
+              - IUCRT
+          item:
+            description: The dimensions of the item being crated.
+            allOf:
+              - $ref: '#/definitions/MTOServiceItemDimension'
+          crate:
+            description: The dimensions for the crate the item will be shipped in.
+            allOf:
+              - $ref: '#/definitions/MTOServiceItemDimension'
+          description:
+            type: string
+            example: Decorated horse head to be crated.
+            description: A description of the item being crated.
+          reason:
+            type: string
+            example: Storage items need to be picked up
+            description: >
+              The contractor's explanation for why an item needed to be crated
+              or uncrated. Used by the TOO while deciding to approve or reject
+              the service item.
+            x-nullable: true
+            x-omitempty: false
+          standaloneCrate:
+            type: boolean
+            x-nullable: true
+          externalCrate:
+            type: boolean
+            x-nullable: true
+          market:
+            type: string
+            enum:
+              - CONUS
+              - OCONUS
+            example: CONUS
+            description: >-
+              To identify whether the service was provided within (CONUS) or
+              (OCONUS)
+        required:
+          - reServiceCode
+          - item
+          - crate
+          - description
   MTOServiceItemOriginSIT:
     description: Describes a domestic origin SIT service item. Subtype of a MTOServiceItem.
     allOf:
@@ -654,11 +711,7 @@ definitions:
         items:
           $ref: '#/definitions/MTOServiceItem'
       pickupAddress:
-        description: The address where the movers should pick up this shipment.
-        allOf:
-          - $ref: '#/definitions/Address'
-      destinationAddress:
-        description: Where the movers should deliver this shipment.
+        description: The primary address where the movers should pick up this shipment.
         allOf:
           - $ref: '#/definitions/Address'
       secondaryPickupAddress:
@@ -669,12 +722,16 @@ definitions:
         description: The third address where the movers should pick up this shipment.
         allOf:
           - $ref: '#/definitions/Address'
+      destinationAddress:
+        description: primary location the movers should deliver this shipment.
+        allOf:
+          - $ref: '#/definitions/Address'
       secondaryDestinationAddress:
-        description: The second address where the movers should deliver this shipment.
+        description: second location where the movers should deliver this shipment.
         allOf:
           - $ref: '#/definitions/Address'
       tertiaryDestinationAddress:
-        description: The third address where the movers should deliver this shipment.
+        description: third location where the movers should deliver this shipment.
         allOf:
           - $ref: '#/definitions/Address'
       shipmentType:
@@ -1191,6 +1248,18 @@ definitions:
           the customer during onboarding when they enter shipment details.
         allOf:
           - $ref: '#/definitions/Address'
+      secondaryPickupAddress:
+        description: >-
+          A second pickup address for this shipment, if the customer entered
+          one. An optional field.
+        allOf:
+          - $ref: '#/definitions/Address'
+      tertiaryPickupAddress:
+        description: >-
+          A third pickup address for this shipment, if the customer entered one.
+          An optional field.
+        allOf:
+          - $ref: '#/definitions/Address'
       destinationAddress:
         description: >
           Where the movers should deliver this shipment. Often provided by the
@@ -1205,24 +1274,10 @@ definitions:
           final destination due to the shipment being diverted or placed in SIT.
         allOf:
           - $ref: '#/definitions/Address'
-      destinationType:
-        $ref: '#/definitions/DestinationType'
-      secondaryPickupAddress:
-        description: >-
-          A second pickup address for this shipment, if the customer entered
-          one. An optional field.
-        allOf:
-          - $ref: '#/definitions/Address'
       secondaryDeliveryAddress:
         description: >-
           A second delivery address for this shipment, if the customer entered
           one. An optional field.
-        allOf:
-          - $ref: '#/definitions/Address'
-      tertiaryPickupAddress:
-        description: >-
-          A third pickup address for this shipment, if the customer entered one.
-          An optional field.
         allOf:
           - $ref: '#/definitions/Address'
       tertiaryDeliveryAddress:
@@ -1231,6 +1286,8 @@ definitions:
           one. An optional field.
         allOf:
           - $ref: '#/definitions/Address'
+      destinationType:
+        $ref: '#/definitions/DestinationType'
       storageFacility:
         allOf:
           - x-nullable: true
@@ -1643,6 +1700,13 @@ definitions:
         type: integer
         x-formatting: weight
         x-nullable: true
+      unaccompaniedBaggageAllowance:
+        type: integer
+        example: 3
+        x-nullable: true
+        description: >-
+          The amount of weight in pounds that the move is entitled for shipment
+          types of Unaccompanied Baggage.
       dependentsAuthorized:
         example: true
         type: boolean
@@ -2077,6 +2141,7 @@ definitions:
         * DDFSIT, DDASIT - MTOServiceItemDestSIT
         * DOSHUT, DDSHUT - MTOServiceItemShuttle
         * DCRT, DUCRT - MTOServiceItemDomesticCrating
+        * ICRT, IUCRT - MTOServiceItemInternationalCrating
 
       The documentation will then update with the supported fields.
     type: string
@@ -2086,6 +2151,7 @@ definitions:
       - MTOServiceItemDestSIT
       - MTOServiceItemShuttle
       - MTOServiceItemDomesticCrating
+      - MTOServiceItemInternationalCrating
   ServiceRequestDocument:
     properties:
       uploads:
@@ -2583,6 +2649,26 @@ definitions:
     enum:
       - ORIGIN
       - DESTINATION
+  RateArea:
+    type: object
+    description: Rate area info for OCONUS postal code
+    properties:
+      id:
+        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
+        format: uuid
+        type: string
+      rateAreaId:
+        description: Rate area code
+        example: US8101000
+        type: string
+      rateAreaName:
+        description: Rate area name
+        example: Alaska (Zone) I
+        type: string
+    required:
+      - id
+      - rateAreaId
+      - rateAreaName
   PPMShipment:
     description: >-
       A personally procured move is a type of shipment that a service member
@@ -2804,6 +2890,10 @@ definitions:
         format: cents
         x-nullable: true
         x-omitempty: false
+      originRateArea:
+        $ref: '#/definitions/RateArea'
+      destinationRateArea:
+        $ref: '#/definitions/RateArea'
       isActualExpenseReimbursement:
         description: >-
           Used for PPM shipments only. Denotes if this shipment uses the Actual
@@ -3308,6 +3398,10 @@ definitions:
         description: >-
           Single-letter designator for domestic (d) or international (i)
           shipments
+      originRateArea:
+        $ref: '#/definitions/RateArea'
+      destinationRateArea:
+        $ref: '#/definitions/RateArea'
   MTOShipmentsWithoutServiceObjects:
     description: A list of shipments without their associated service items.
     items:
@@ -3465,7 +3559,6 @@ definitions:
       - ICOLH
       - ICOUB
       - ICRT
-      - ICRTSA
       - IDASIT
       - IDDSIT
       - IDFSIT

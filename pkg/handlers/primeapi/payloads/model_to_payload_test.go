@@ -278,6 +278,7 @@ func (suite *PayloadsSuite) TestEntitlement() {
 			NonTemporaryStorage:            nil,
 			PrivatelyOwnedVehicle:          nil,
 			DBAuthorizedWeight:             nil,
+			UBAllowance:                    nil,
 			StorageInTransit:               nil,
 			RequiredMedicalEquipmentWeight: 0,
 			OrganizationalClothingAndIndividualEquipment: false,
@@ -306,6 +307,7 @@ func (suite *PayloadsSuite) TestEntitlement() {
 		suite.Equal(int64(0), payload.StorageInTransit)
 		suite.Equal(int64(0), payload.TotalDependents)
 		suite.Equal(int64(0), payload.TotalWeight)
+		suite.Equal(int64(0), *payload.UnaccompaniedBaggageAllowance)
 	})
 
 	suite.Run("Success - Returns the entitlement payload with all optional fields populated", func() {
@@ -316,6 +318,7 @@ func (suite *PayloadsSuite) TestEntitlement() {
 			NonTemporaryStorage:            handlers.FmtBool(true),
 			PrivatelyOwnedVehicle:          handlers.FmtBool(true),
 			DBAuthorizedWeight:             handlers.FmtInt(10000),
+			UBAllowance:                    handlers.FmtInt(400),
 			StorageInTransit:               handlers.FmtInt(45),
 			RequiredMedicalEquipmentWeight: 500,
 			OrganizationalClothingAndIndividualEquipment: true,
@@ -337,6 +340,7 @@ func (suite *PayloadsSuite) TestEntitlement() {
 		suite.True(*payload.NonTemporaryStorage)
 		suite.True(*payload.PrivatelyOwnedVehicle)
 		suite.Equal(int64(10000), *payload.AuthorizedWeight)
+		suite.Equal(int64(400), *payload.UnaccompaniedBaggageAllowance)
 		suite.Equal(int64(9000), payload.TotalWeight)
 		suite.Equal(int64(45), payload.StorageInTransit)
 		suite.Equal(int64(500), payload.RequiredMedicalEquipmentWeight)
@@ -355,6 +359,7 @@ func (suite *PayloadsSuite) TestEntitlement() {
 			NonTemporaryStorage:            handlers.FmtBool(true),
 			PrivatelyOwnedVehicle:          handlers.FmtBool(true),
 			DBAuthorizedWeight:             handlers.FmtInt(10000),
+			UBAllowance:                    handlers.FmtInt(400),
 			StorageInTransit:               handlers.FmtInt(45),
 			RequiredMedicalEquipmentWeight: 500,
 			OrganizationalClothingAndIndividualEquipment: true,
@@ -376,6 +381,7 @@ func (suite *PayloadsSuite) TestEntitlement() {
 		suite.True(*payload.NonTemporaryStorage)
 		suite.True(*payload.PrivatelyOwnedVehicle)
 		suite.Equal(int64(10000), *payload.AuthorizedWeight)
+		suite.Equal(int64(400), *payload.UnaccompaniedBaggageAllowance)
 		suite.Equal(int64(7000), payload.TotalWeight)
 		suite.Equal(int64(45), payload.StorageInTransit)
 		suite.Equal(int64(500), payload.RequiredMedicalEquipmentWeight)
@@ -625,6 +631,76 @@ func (suite *PayloadsSuite) TestMTOServiceItemDCRT() {
 
 	_, ok := resultDCRT.(*primemessages.MTOServiceItemDomesticCrating)
 
+	suite.True(ok)
+}
+
+func (suite *PayloadsSuite) TestMTOServiceItemICRTandIUCRT() {
+	icrtReServiceCode := models.ReServiceCodeICRT
+	iucrtReServiceCode := models.ReServiceCodeIUCRT
+	reason := "reason"
+	standaloneCrate := false
+	externalCrate := false
+	dateOfContact1 := time.Now()
+	timeMilitary1 := "1500Z"
+	firstAvailableDeliveryDate1 := dateOfContact1.AddDate(0, 0, 10)
+	dateOfContact2 := time.Now().AddDate(0, 0, 5)
+	timeMilitary2 := "1300Z"
+	firstAvailableDeliveryDate2 := dateOfContact2.AddDate(0, 0, 10)
+
+	mtoServiceItemICRT := &models.MTOServiceItem{
+		ID:              uuid.Must(uuid.NewV4()),
+		ReService:       models.ReService{Code: icrtReServiceCode},
+		Reason:          &reason,
+		StandaloneCrate: &standaloneCrate,
+		ExternalCrate:   &externalCrate,
+		CustomerContacts: models.MTOServiceItemCustomerContacts{
+			models.MTOServiceItemCustomerContact{
+				DateOfContact:              dateOfContact1,
+				TimeMilitary:               timeMilitary1,
+				FirstAvailableDeliveryDate: firstAvailableDeliveryDate1,
+				Type:                       models.CustomerContactTypeFirst,
+			},
+			models.MTOServiceItemCustomerContact{
+				DateOfContact:              dateOfContact2,
+				TimeMilitary:               timeMilitary2,
+				FirstAvailableDeliveryDate: firstAvailableDeliveryDate2,
+				Type:                       models.CustomerContactTypeSecond,
+			},
+		},
+	}
+
+	mtoServiceItemIUCRT := &models.MTOServiceItem{
+		ID:              uuid.Must(uuid.NewV4()),
+		ReService:       models.ReService{Code: iucrtReServiceCode},
+		Reason:          &reason,
+		StandaloneCrate: &standaloneCrate,
+		ExternalCrate:   &externalCrate,
+		CustomerContacts: models.MTOServiceItemCustomerContacts{
+			models.MTOServiceItemCustomerContact{
+				DateOfContact:              dateOfContact1,
+				TimeMilitary:               timeMilitary1,
+				FirstAvailableDeliveryDate: firstAvailableDeliveryDate1,
+				Type:                       models.CustomerContactTypeFirst,
+			},
+			models.MTOServiceItemCustomerContact{
+				DateOfContact:              dateOfContact2,
+				TimeMilitary:               timeMilitary2,
+				FirstAvailableDeliveryDate: firstAvailableDeliveryDate2,
+				Type:                       models.CustomerContactTypeSecond,
+			},
+		},
+	}
+
+	resultICRT := MTOServiceItem(mtoServiceItemICRT)
+	resultIUCRT := MTOServiceItem(mtoServiceItemIUCRT)
+
+	suite.NotNil(resultICRT)
+	suite.NotNil(resultIUCRT)
+
+	_, ok := resultICRT.(*primemessages.MTOServiceItemInternationalCrating)
+	suite.True(ok)
+
+	_, ok = resultIUCRT.(*primemessages.MTOServiceItemInternationalCrating)
 	suite.True(ok)
 }
 

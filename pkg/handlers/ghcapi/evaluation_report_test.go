@@ -1141,8 +1141,10 @@ func (suite *HandlerSuite) TestAddAppealToViolationHandler() {
 		}
 		reportID := uuid.Must(uuid.NewV4())
 		violationID := uuid.Must(uuid.NewV4())
+		officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeQae})
 		body := ghcmessages.CreateAppeal{AppealStatus: "sustained", Remarks: "Appeal submitted"}
 		request := httptest.NewRequest("POST", fmt.Sprintf("/evaluation-reports/%s/%s/appeal/add", reportID, violationID), nil)
+		request = suite.AuthenticateOfficeRequest(request, officeUser)
 		params := evaluationReportop.AddAppealToViolationParams{
 			HTTPRequest:       request,
 			ReportID:          strfmt.UUID(reportID.String()),
@@ -1150,7 +1152,7 @@ func (suite *HandlerSuite) TestAddAppealToViolationHandler() {
 			Body:              &body,
 		}
 
-		mockService.On("AddAppealToViolation", mock.Anything, reportID, violationID, mock.Anything, body.Remarks, body.AppealStatus).Return(nil, apperror.NewForbiddenError("Forbidden")).Once()
+		mockService.On("AddAppealToViolation", mock.Anything, reportID, violationID, mock.Anything, body.Remarks, body.AppealStatus).Return(models.GsrAppeal{}, apperror.NewForbiddenError("Forbidden")).Once()
 
 		response := handler.Handle(params)
 		suite.IsType(&evaluationReportop.AddAppealToViolationForbidden{}, response)
@@ -1210,15 +1212,17 @@ func (suite *HandlerSuite) TestAddAppealToSeriousIncidentHandler() {
 			SeriousIncidentAddAppeal: mockService,
 		}
 		reportID := uuid.Must(uuid.NewV4())
+		officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeQae})
 		body := ghcmessages.CreateAppeal{AppealStatus: "pending", Remarks: "Appeal submitted"}
 		request := httptest.NewRequest("POST", fmt.Sprintf("/evaluation-reports/%s/appeal/add", reportID), nil)
+		request = suite.AuthenticateOfficeRequest(request, officeUser)
 		params := evaluationReportop.AddAppealToSeriousIncidentParams{
 			HTTPRequest: request,
 			ReportID:    strfmt.UUID(reportID.String()),
 			Body:        &body,
 		}
 
-		mockService.On("AddAppealToSeriousIncident", mock.Anything, reportID, mock.Anything, body.Remarks, body.AppealStatus).Return(nil, apperror.NewForbiddenError("Forbidden")).Once()
+		mockService.On("AddAppealToSeriousIncident", mock.Anything, reportID, mock.Anything, body.Remarks, body.AppealStatus).Return(models.GsrAppeal{}, apperror.NewForbiddenError("Forbidden")).Once()
 
 		response := handler.Handle(params)
 		suite.IsType(&evaluationReportop.AddAppealToSeriousIncidentForbidden{}, response)

@@ -77,6 +77,10 @@ type Entitlement struct {
 	// total weight
 	// Example: 500
 	TotalWeight int64 `json:"totalWeight,omitempty"`
+
+	// The amount of weight in pounds that the move is entitled for shipment types of Unaccompanied Baggage.
+	// Example: 3
+	UnaccompaniedBaggageAllowance *int64 `json:"unaccompaniedBaggageAllowance,omitempty"`
 }
 
 // Validate validates this entitlement
