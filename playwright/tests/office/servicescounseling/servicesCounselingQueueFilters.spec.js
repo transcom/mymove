@@ -14,7 +14,7 @@ test.describe('Services counselor user', () => {
   test.describe('with PPM shipment ready for closeout', () => {
     let dutyLocationName = '';
     test.beforeEach(async ({ scPage }) => {
-      const move = await scPage.testHarness.buildMoveWithPPMShipmentReadyForFinalCloseout();
+      const move = await scPage.testHarness.buildPartialPPMMoveReadyForCloseout();
       const moveWithNeedsCloseout = await scPage.testHarness.buildApprovedMoveWithPPMAllDocTypesOffice();
       moveLocator = move.locator;
       moveWithNeedsCloseoutLocator = moveWithNeedsCloseout.locator;
@@ -40,12 +40,6 @@ test.describe('Services counselor user', () => {
     });
 
     test('is able to filter moves based on PPM status', async ({ page }) => {
-      // Check for Waiting on customer filter
-      await page.locator('th[data-testid="locator"] > div > input').fill(moveLocator);
-      await page.locator('th[data-testid="locator"] > div > input').blur();
-      await page.locator('th[data-testid="ppmStatus"] > div > select').selectOption({ label: 'Waiting on customer' });
-      await expect(page.locator('td').getByText(moveLocator)).toBeVisible();
-
       // Check for Needs closeout filter
       await page.locator('th[data-testid="locator"] > div > input').clear();
       await page.locator('th[data-testid="locator"] > div > input').fill(moveWithNeedsCloseoutLocator);

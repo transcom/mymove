@@ -273,7 +273,7 @@ export class OfficeApp extends Component {
                         end
                         element={
                           <PrivateRoute requiredRoles={[roleTypes.TOO]}>
-                            <MoveQueue />
+                            <MoveQueue isQueueManagementFFEnabled={queueManagementFlag} />
                           </PrivateRoute>
                         }
                       />
@@ -282,7 +282,7 @@ export class OfficeApp extends Component {
                         path="/invoicing/queue"
                         element={
                           <PrivateRoute requiredRoles={[roleTypes.TIO]}>
-                            <PaymentRequestQueue />
+                            <PaymentRequestQueue isQueueManagementFFEnabled={queueManagementFlag} />
                           </PrivateRoute>
                         }
                       />
@@ -292,7 +292,7 @@ export class OfficeApp extends Component {
                         end
                         element={
                           <PrivateRoute requiredRoles={hqRoleFlag ? [roleTypes.HQ] : [undefined]}>
-                            <HeadquartersQueues />
+                            <HeadquartersQueues isQueueManagementFFEnabled={queueManagementFlag} />
                           </PrivateRoute>
                         }
                       />
@@ -315,7 +315,6 @@ export class OfficeApp extends Component {
                             <PrivateRoute requiredRoles={[roleTypes.SERVICES_COUNSELOR]}>
                               <ServicesCounselingQueue
                                 userPrivileges={userPrivileges}
-                                currentUserId={officeUserId}
                                 isQueueManagementFFEnabled={queueManagementFlag}
                               />
                             </PrivateRoute>
@@ -344,7 +343,7 @@ export class OfficeApp extends Component {
                           end
                           element={
                             <PrivateRoute requiredRoles={[roleTypes.TIO]}>
-                              <PaymentRequestQueue />
+                              <PaymentRequestQueue isQueueManagementFFEnabled={queueManagementFlag} />
                             </PrivateRoute>
                           }
                         />
@@ -355,7 +354,7 @@ export class OfficeApp extends Component {
                           end
                           element={
                             <PrivateRoute requiredRoles={[roleTypes.TOO]}>
-                              <MoveQueue />
+                              <MoveQueue isQueueManagementFFEnabled={queueManagementFlag} />
                             </PrivateRoute>
                           }
                         />
@@ -367,7 +366,7 @@ export class OfficeApp extends Component {
                           end
                           element={
                             <PrivateRoute requiredRoles={hqRoleFlag ? [roleTypes.HQ] : [undefined]}>
-                              <HeadquartersQueues />
+                              <HeadquartersQueues isQueueManagementFFEnabled={queueManagementFlag} />
                             </PrivateRoute>
                           }
                         />
@@ -576,7 +575,13 @@ export class OfficeApp extends Component {
                       <Route end path="/select-application" element={<ConnectedSelectApplication />} />
 
                       {/* ROOT */}
-                      {activeRole === roleTypes.TIO && <Route end path="/*" element={<PaymentRequestQueue />} />}
+                      {activeRole === roleTypes.TIO && (
+                        <Route
+                          end
+                          path="/*"
+                          element={<PaymentRequestQueue isQueueManagementFFEnabled={queueManagementFlag} />}
+                        />
+                      )}
                       {activeRole === roleTypes.TOO && <Route end path="/*" element={<MoveQueue />} />}
                       {activeRole === roleTypes.HQ && !hqRoleFlag && (
                         <Route end path="/*" element={<InvalidPermissions />} />

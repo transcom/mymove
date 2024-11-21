@@ -55,6 +55,8 @@ type Page1Values struct {
 	ActualObligationSIT             string
 	MileageTotal                    string
 	MailingAddressW2                string
+	IsActualExpenseReimbursement    bool
+	GCCIsActualExpenseReimbursement string
 }
 
 // Page2Values is an object representing a Shipment Summary Worksheet
@@ -96,6 +98,8 @@ type Page2Values struct {
 	PPMRemainingEntitlement     string
 	FormattedMovingExpenses
 	FormattedOtherExpenses
+	IncentiveIsActualExpenseReimbursement string
+	HeaderIsActualExpenseReimbursement    string
 }
 
 // Page3Values is an object representing a Shipment Summary Worksheet
@@ -146,7 +150,7 @@ type SSWPPMComputer interface {
 	FormatValuesShipmentSummaryWorksheet(shipmentSummaryFormData models.ShipmentSummaryFormData, isPaymentPacket bool) (Page1Values, Page2Values, Page3Values, error)
 	FormatShipment(ppm models.PPMShipment, weightAllotment models.SSWMaxWeightEntitlement, isPaymentPacket bool) models.WorkSheetShipment
 	FormatValuesShipmentSummaryWorksheetFormPage1(data models.ShipmentSummaryFormData, isPaymentPacket bool) (Page1Values, error)
-	FormatValuesShipmentSummaryWorksheetFormPage2(data models.ShipmentSummaryFormData, isPaymentPacket bool) (Page2Values, error)
+	FormatValuesShipmentSummaryWorksheetFormPage2(data models.ShipmentSummaryFormData, isPaymentPacket bool, expensesMap map[string]float64) (Page2Values, error)
 	FormatValuesShipmentSummaryWorksheetFormPage3(data models.ShipmentSummaryFormData, isPaymentPacket bool) (Page3Values, error)
 }
 
