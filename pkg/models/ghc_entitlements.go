@@ -121,7 +121,6 @@ func (e *Entitlement) WeightAllowance() *int {
 }
 
 // UBWeightAllowance returns authorized weight for UB shipments
-// maria this is where you should add some conditonal checks in, maybe pass in all necessary values to check for
 func (e *Entitlement) UBWeightAllowance() *int {
 	switch {
 	case e.UBWeightAllotment() != nil:

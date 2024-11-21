@@ -321,7 +321,12 @@ func GetUBWeightAllowance(appCtx appcontext.AppContext, originDutyLocationIsOcon
 				}
 				return 0, err
 			}
-			return baseUBAllowance.UBAllowance, nil
+			if baseUBAllowance.UBAllowance != nil {
+				ubAllowance = *baseUBAllowance.UBAllowance
+				return ubAllowance, nil
+			} else {
+				return 0, nil
+			}
 		}
 		return ubAllowance, nil
 	} else {

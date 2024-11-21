@@ -1,9 +1,6 @@
 package models_test
 
 import (
-	"github.com/gofrs/uuid"
-
-	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/models"
 )
@@ -123,39 +120,12 @@ func (suite *ModelSuite) TestGetUBWeightAllowanceEdgeCases() {
 	dependentsUnderTwelve := 0
 	dependentsTwelveAndOver := 0
 
-	factory.BuildUBAllowance(suite.DB(), []factory.Customization{
-		{
-			Model: models.UBAllowances{
-				ID:              uuid.Must(uuid.NewV4()),
-				BranchOfService: branch.String(),
-				OrderPayGrade:   string(grade),
-				OrdersType:      string(orderType),
-				HasDependents:   dependentsAuthorized,
-				AccompaniedTour: isAccompaniedTour,
-				UBAllowance:     2000,
-			},
-		},
-	}, nil)
 	suite.Run("Air Force gets a UB allowance", func() {
 		ubAllowance, err := models.GetUBWeightAllowance(appCtx, &originDutyLocationIsOconus, &newDutyLocationIsOconus, &branch, &grade, &orderType, &dependentsAuthorized, &isAccompaniedTour, &dependentsUnderTwelve, &dependentsTwelveAndOver)
 		suite.NoError(err)
 		suite.Assertions.Equal(2000, ubAllowance)
-
 	})
 
-	factory.BuildUBAllowance(suite.DB(), []factory.Customization{
-		{
-			Model: models.UBAllowances{
-				ID:              uuid.Must(uuid.NewV4()),
-				BranchOfService: branch.String(),
-				OrderPayGrade:   string(grade),
-				OrdersType:      string(orderType),
-				HasDependents:   dependentsAuthorized,
-				AccompaniedTour: isAccompaniedTour,
-				UBAllowance:     2000,
-			},
-		},
-	}, nil)
 	branch = models.AffiliationSPACEFORCE
 	suite.Run("Space Force gets the same UB allowance as Air Force", func() {
 		ubAllowance, err := models.GetUBWeightAllowance(appCtx, &originDutyLocationIsOconus, &newDutyLocationIsOconus, &branch, &grade, &orderType, &dependentsAuthorized, &isAccompaniedTour, &dependentsUnderTwelve, &dependentsTwelveAndOver)
@@ -165,38 +135,12 @@ func (suite *ModelSuite) TestGetUBWeightAllowanceEdgeCases() {
 
 	branch = models.AffiliationNAVY
 	grade = models.ServiceMemberGradeE9
-	factory.BuildUBAllowance(suite.DB(), []factory.Customization{
-		{
-			Model: models.UBAllowances{
-				ID:              uuid.Must(uuid.NewV4()),
-				BranchOfService: branch.String(),
-				OrderPayGrade:   string(grade),
-				OrdersType:      string(orderType),
-				HasDependents:   dependentsAuthorized,
-				AccompaniedTour: isAccompaniedTour,
-				UBAllowance:     2000,
-			},
-		},
-	}, nil)
 	suite.Run("Pay grade E9 gets a UB allowance", func() {
 		ubAllowance, err := models.GetUBWeightAllowance(appCtx, &originDutyLocationIsOconus, &newDutyLocationIsOconus, &branch, &grade, &orderType, &dependentsAuthorized, &isAccompaniedTour, &dependentsUnderTwelve, &dependentsTwelveAndOver)
 		suite.NoError(err)
 		suite.Assertions.Equal(2000, ubAllowance)
 	})
 
-	factory.BuildUBAllowance(suite.DB(), []factory.Customization{
-		{
-			Model: models.UBAllowances{
-				ID:              uuid.Must(uuid.NewV4()),
-				BranchOfService: branch.String(),
-				OrderPayGrade:   string(grade),
-				OrdersType:      string(internalmessages.OrdersTypePERMANENTCHANGEOFSTATION),
-				HasDependents:   dependentsAuthorized,
-				AccompaniedTour: isAccompaniedTour,
-				UBAllowance:     2000,
-			},
-		},
-	}, nil)
 	grade = models.ServiceMemberGradeE9SPECIALSENIORENLISTED
 	suite.Run("Pay grade E9 Special Senior Enlisted and pay grade E9 get the same UB allowance", func() {
 		ubAllowance, err := models.GetUBWeightAllowance(appCtx, &originDutyLocationIsOconus, &newDutyLocationIsOconus, &branch, &grade, &orderType, &dependentsAuthorized, &isAccompaniedTour, &dependentsUnderTwelve, &dependentsTwelveAndOver)
@@ -217,19 +161,6 @@ func (suite *ModelSuite) TestGetUBWeightAllowanceWithValidValues() {
 	dependentsUnderTwelve := 2
 	dependentsTwelveAndOver := 4
 
-	factory.BuildUBAllowance(suite.DB(), []factory.Customization{
-		{
-			Model: models.UBAllowances{
-				ID:              uuid.Must(uuid.NewV4()),
-				BranchOfService: branch.String(),
-				OrderPayGrade:   string(grade),
-				OrdersType:      string(orderType),
-				HasDependents:   dependentsAuthorized,
-				AccompaniedTour: isAccompaniedTour,
-				UBAllowance:     2000,
-			},
-		},
-	}, nil)
 	suite.Run("UB allowance is calculated when origin duty location is OCONUS", func() {
 		ubAllowance, err := models.GetUBWeightAllowance(appCtx, &originDutyLocationIsOconus, &newDutyLocationIsOconus, &branch, &grade, &orderType, &dependentsAuthorized, &isAccompaniedTour, &dependentsUnderTwelve, &dependentsTwelveAndOver)
 		suite.NoError(err)
@@ -257,19 +188,6 @@ func (suite *ModelSuite) TestGetUBWeightAllowanceWithValidValues() {
 	})
 
 	branch = models.AffiliationAIRFORCE
-	factory.BuildUBAllowance(suite.DB(), []factory.Customization{
-		{
-			Model: models.UBAllowances{
-				ID:              uuid.Must(uuid.NewV4()),
-				BranchOfService: branch.String(),
-				OrderPayGrade:   string(grade),
-				OrdersType:      string(orderType),
-				HasDependents:   dependentsAuthorized,
-				AccompaniedTour: isAccompaniedTour,
-				UBAllowance:     2000,
-			},
-		},
-	}, nil)
 	suite.Run("OCONUS, Air Force, E1, PCS, dependents are authorized, is accompanied = 2000 lbs", func() {
 		ubAllowance, err := models.GetUBWeightAllowance(appCtx, &originDutyLocationIsOconus, &newDutyLocationIsOconus, &branch, &grade, &orderType, &dependentsAuthorized, &isAccompaniedTour, &dependentsUnderTwelve, &dependentsTwelveAndOver)
 		suite.NoError(err)
@@ -277,19 +195,8 @@ func (suite *ModelSuite) TestGetUBWeightAllowanceWithValidValues() {
 	})
 
 	orderType = internalmessages.OrdersTypeTEMPORARYDUTY
-	factory.BuildUBAllowance(suite.DB(), []factory.Customization{
-		{
-			Model: models.UBAllowances{
-				ID:              uuid.Must(uuid.NewV4()),
-				BranchOfService: branch.String(),
-				OrderPayGrade:   string(grade),
-				OrdersType:      string(orderType),
-				HasDependents:   dependentsAuthorized,
-				AccompaniedTour: isAccompaniedTour,
-				UBAllowance:     400,
-			},
-		},
-	}, nil)
+	dependentsAuthorized = false
+	isAccompaniedTour = false
 	suite.Run("OCONUS, Air Force, E1, Temporary Duty, dependents are NOT authorized, is NOT accompanied = 400 lbs", func() {
 		ubAllowance, err := models.GetUBWeightAllowance(appCtx, &originDutyLocationIsOconus, &newDutyLocationIsOconus, &branch, &grade, &orderType, &dependentsAuthorized, &isAccompaniedTour, &dependentsUnderTwelve, &dependentsTwelveAndOver)
 		suite.NoError(err)
@@ -297,40 +204,15 @@ func (suite *ModelSuite) TestGetUBWeightAllowanceWithValidValues() {
 	})
 
 	grade = models.ServiceMemberGradeW2
-	orderType = internalmessages.OrdersTypeRETIREMENT
-	factory.BuildUBAllowance(suite.DB(), []factory.Customization{
-		{
-			Model: models.UBAllowances{
-				ID:              uuid.Must(uuid.NewV4()),
-				BranchOfService: models.AffiliationAIRFORCE.String(),
-				OrderPayGrade:   string(grade),
-				OrdersType:      string(internalmessages.OrdersTypePERMANENTCHANGEOFSTATION),
-				HasDependents:   dependentsAuthorized,
-				AccompaniedTour: isAccompaniedTour,
-				UBAllowance:     600,
-			},
-		},
-	}, nil)
+	retirementOrderType := internalmessages.OrdersTypeRETIREMENT
+	orderType = internalmessages.OrdersTypePERMANENTCHANGEOFSTATION
 	suite.Run("Orders type of Retirement returns same entitlement value as the PCS orders type in the database", func() {
-		ubAllowance, err := models.GetUBWeightAllowance(appCtx, &originDutyLocationIsOconus, &newDutyLocationIsOconus, &branch, &grade, &orderType, &dependentsAuthorized, &isAccompaniedTour, &dependentsUnderTwelve, &dependentsTwelveAndOver)
+		ubAllowance, err := models.GetUBWeightAllowance(appCtx, &originDutyLocationIsOconus, &newDutyLocationIsOconus, &branch, &grade, &retirementOrderType, &dependentsAuthorized, &isAccompaniedTour, &dependentsUnderTwelve, &dependentsTwelveAndOver)
 		suite.NoError(err)
 		suite.Assertions.Equal(600, ubAllowance)
 	})
 
 	orderType = internalmessages.OrdersTypeTEMPORARYDUTY
-	factory.BuildUBAllowance(suite.DB(), []factory.Customization{
-		{
-			Model: models.UBAllowances{
-				ID:              uuid.Must(uuid.NewV4()),
-				BranchOfService: models.AffiliationAIRFORCE.String(),
-				OrderPayGrade:   string(grade),
-				OrdersType:      string(orderType),
-				HasDependents:   dependentsAuthorized,
-				AccompaniedTour: isAccompaniedTour,
-				UBAllowance:     600,
-			},
-		},
-	}, nil)
 	suite.Run("OCONUS, Air Force, W1, Temporary Duty, dependents are NOT authorized, is NOT accompanied = 600", func() {
 		ubAllowance, err := models.GetUBWeightAllowance(appCtx, &originDutyLocationIsOconus, &newDutyLocationIsOconus, &branch, &grade, &orderType, &dependentsAuthorized, &isAccompaniedTour, &dependentsUnderTwelve, &dependentsTwelveAndOver)
 		suite.NoError(err)
