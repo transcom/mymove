@@ -169,8 +169,8 @@ export class ServiceCounselorPage extends OfficePage {
     await this.page.getByLabel('Requested delivery date').fill('20 Mar 2022');
     await this.page.getByLabel('Requested delivery date').blur();
 
-    // Delivery location
-    const deliveryLocation = await this.page.getByRole('group', { name: 'Delivery location' });
+    // Delivery Address
+    const deliveryLocation = await this.page.getByRole('group', { name: 'Delivery Address' });
     await deliveryLocation.getByLabel('Address 1').fill('448 Washington Blvd NE');
     await deliveryLocation.getByLabel('Address 2').fill('Apt D3');
     await deliveryLocation.getByLabel('City').fill('Another City');

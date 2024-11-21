@@ -238,7 +238,7 @@ const DateAndLocationForm = ({ mtoShipment, destinationDutyLocation, serviceMemb
                       </FormGroup>
                       {values.hasSecondaryPickupAddress === 'true' && (
                         <>
-                          <h3>Second pickup location</h3>
+                          <h3>Second Pickup Address</h3>
                           <AddressFields labelHint="Required" name="secondaryPickupAddress.address" />
                           <Hint className={ppmStyles.hint}>
                             <p>
@@ -265,7 +265,7 @@ const DateAndLocationForm = ({ mtoShipment, destinationDutyLocation, serviceMemb
                                 label="Yes"
                                 name="hasTertiaryPickupAddress"
                                 value="true"
-                                title="Yes, I have a third delivery location"
+                                title="Yes, I have a third delivery address"
                                 checked={values.hasTertiaryPickupAddress === 'true'}
                               />
                               <Field
@@ -275,7 +275,7 @@ const DateAndLocationForm = ({ mtoShipment, destinationDutyLocation, serviceMemb
                                 label="No"
                                 name="hasTertiaryPickupAddress"
                                 value="false"
-                                title="No, I do not have a third delivery location"
+                                title="No, I do not have a third delivery address"
                                 checked={values.hasTertiaryPickupAddress === 'false'}
                               />
                             </Fieldset>
@@ -286,7 +286,7 @@ const DateAndLocationForm = ({ mtoShipment, destinationDutyLocation, serviceMemb
                         values.hasSecondaryPickupAddress === 'true' &&
                         values.hasTertiaryPickupAddress === 'true' && (
                           <>
-                            <h3>Third pickup location</h3>
+                            <h3>Third Pickup Address</h3>
                             <AddressFields labelHint="Required" name="tertiaryPickupAddress.address" />
                           </>
                         )}
@@ -339,7 +339,7 @@ const DateAndLocationForm = ({ mtoShipment, destinationDutyLocation, serviceMemb
                       </FormGroup>
                       {values.hasSecondaryDestinationAddress === 'true' && (
                         <>
-                          <h3>Second delivery location</h3>
+                          <h3>Second Delivery Address</h3>
                           <AddressFields name="secondaryDestinationAddress.address" labelHint="Required" />
                           <Hint className={ppmStyles.hint}>
                             <p>
@@ -367,7 +367,7 @@ const DateAndLocationForm = ({ mtoShipment, destinationDutyLocation, serviceMemb
                                 label="Yes"
                                 name="hasTertiaryDestinationAddress"
                                 value="true"
-                                title="Yes, I have a third delivery location"
+                                title="Yes, I have a third delivery address"
                                 checked={values.hasTertiaryDestinationAddress === 'true'}
                               />
                               <Field
@@ -377,7 +377,7 @@ const DateAndLocationForm = ({ mtoShipment, destinationDutyLocation, serviceMemb
                                 label="No"
                                 name="hasTertiaryDestinationAddress"
                                 value="false"
-                                title="No, I do not have a third delivery location"
+                                title="No, I do not have a third delivery address"
                                 checked={values.hasTertiaryDestinationAddress === 'false'}
                               />
                             </Fieldset>
@@ -388,7 +388,7 @@ const DateAndLocationForm = ({ mtoShipment, destinationDutyLocation, serviceMemb
                         values.hasSecondaryDestinationAddress === 'true' &&
                         values.hasTertiaryDestinationAddress === 'true' && (
                           <>
-                            <h3>Third delivery location</h3>
+                            <h3>Third Delivery Address</h3>
                             <AddressFields name="tertiaryDestinationAddress.address" labelHint="Required" />
                           </>
                         )}

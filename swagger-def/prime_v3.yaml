@@ -461,11 +461,11 @@ definitions:
         allOf:
           - $ref: 'definitions/Address.yaml'
       secondaryPickupAddress:
-        description: An optional secondary pickup location address near the origin where additional goods exist.
+        description: An optional secondary Pickup Address address near the origin where additional goods exist.
         allOf:
           - $ref: 'definitions/Address.yaml'
       tertiaryPickupAddress:
-        description: An optional tertiary pickup location address near the origin where additional goods exist.
+        description: An optional tertiary Pickup Address address near the origin where additional goods exist.
         allOf:
           - $ref: 'definitions/Address.yaml'
       destinationAddress:
@@ -700,7 +700,7 @@ definitions:
         x-nullable: true
       secondaryPickupAddress:
         description: >
-          An optional secondary pickup location near the origin where additional goods exist.
+          An optional secondary Pickup Address near the origin where additional goods exist.
         allOf:
           - $ref: 'definitions/Address.yaml'
       hasTertiaryPickupAddress:
@@ -709,7 +709,7 @@ definitions:
         x-nullable: true
       tertiaryPickupAddress:
         description: >
-          An optional third pickup location near the origin where additional goods exist.
+          An optional third Pickup Address near the origin where additional goods exist.
         allOf:
           - $ref: 'definitions/Address.yaml'
       destinationAddress:

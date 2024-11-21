@@ -80,7 +80,7 @@ test.describe('Services counselor user', () => {
       await page.locator('#requestedDeliveryDate').fill('16 May 2022');
       await page.locator('#requestedDeliveryDate').blur();
 
-      await page.getByRole('group', { name: 'Delivery location' }).getByText('Yes').nth(1).click();
+      await page.getByRole('group', { name: 'Delivery Address' }).getByText('Yes').nth(1).click();
       await page.locator('input[name="delivery.address.streetAddress1"]').clear();
       await page.locator('input[name="delivery.address.streetAddress1"]').fill('7 q st');
       await page.locator('input[name="delivery.address.city"]').clear();
@@ -90,7 +90,7 @@ test.describe('Services counselor user', () => {
       await page.locator('input[name="delivery.address.postalCode"]').fill('90210');
 
       // Select that we do not know the destination address yet
-      await page.getByRole('group', { name: 'Delivery location' }).getByText('No').nth(1).click();
+      await page.getByRole('group', { name: 'Delivery Address' }).getByText('No').nth(1).click();
       await expect(page.getByText('We can use the zip of their new duty location:')).toBeVisible();
 
       await page.locator('[data-testid="submitForm"]').click();
@@ -245,7 +245,7 @@ test.describe('Services counselor user', () => {
       await page.getByText('Use current address').click();
       await page.locator('#requestedDeliveryDate').fill('16 Mar 2022');
       await page.locator('#requestedDeliveryDate').blur();
-      await page.getByRole('group', { name: 'Delivery location' }).getByText('Yes').click();
+      await page.getByRole('group', { name: 'Delivery Address' }).getByText('Yes').click();
       await page.locator('input[name="delivery.address.streetAddress1"]').fill('7 q st');
       await page.locator('input[name="delivery.address.city"]').fill('city');
       await page.locator('select[name="delivery.address.state"]').selectOption({ label: 'OH' });
@@ -345,7 +345,7 @@ test.describe('Services counselor user', () => {
       await page.locator('#requestedDeliveryDate').clear();
       await page.locator('#requestedDeliveryDate').fill('16 May 2022');
       await page.locator('#requestedDeliveryDate').blur();
-      await page.getByRole('group', { name: 'Delivery location' }).getByText('Yes').nth(1).click();
+      await page.getByRole('group', { name: 'Delivery Address' }).getByText('Yes').nth(1).click();
       await page.locator('input[name="delivery.address.streetAddress1"]').clear();
       await page.locator('input[name="delivery.address.streetAddress1"]').fill('7 q st');
       await page.locator('input[name="delivery.address.city"]').clear();
@@ -372,7 +372,7 @@ test.describe('Services counselor user', () => {
       await page.locator('#requestedDeliveryDate').blur();
 
       // Select that we do not know the destination address yet
-      await page.getByRole('group', { name: 'Delivery location' }).getByText('No').nth(1).click();
+      await page.getByRole('group', { name: 'Delivery Address' }).getByText('No').nth(1).click();
 
       await expect(page.locator('select[name="destinationType"]')).toBeVisible();
       await expect(page.getByText('We can use the zip of their HOR, HOS or PLEAD:')).toBeVisible();

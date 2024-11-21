@@ -134,7 +134,7 @@ describe('MtoShipmentForm component', () => {
       expect(screen.getByTestId('pickupDateHint')).toHaveTextContent(
         'This is the day movers would put this shipment on their truck. Packing starts earlier. Dates will be finalized when you talk to your Customer Care Representative. Your requested pickup/load date should be your latest preferred pickup/load date, or the date you need to be out of your origin residence.',
       );
-      expect(screen.getByText('Pickup location')).toBeInstanceOf(HTMLLegendElement);
+      expect(screen.getByText('Pickup Address')).toBeInstanceOf(HTMLLegendElement);
       expect(screen.getByLabelText('Use my current address')).toBeInstanceOf(HTMLInputElement);
       expect(screen.getByLabelText(/Address 1/)).toBeInstanceOf(HTMLInputElement);
       expect(screen.getByLabelText(/Address 2/)).toBeInstanceOf(HTMLInputElement);
@@ -142,9 +142,9 @@ describe('MtoShipmentForm component', () => {
       expect(screen.getByLabelText(/State/)).toBeInstanceOf(HTMLSelectElement);
       expect(screen.getByLabelText(/ZIP/)).toBeInstanceOf(HTMLInputElement);
 
-      expect(screen.getByRole('heading', { level: 4, name: 'Second pickup location' })).toBeInTheDocument();
-      expect(screen.getByTitle('Yes, I have a second pickup location')).toBeInstanceOf(HTMLInputElement);
-      expect(screen.getByTitle('No, I do not have a second pickup location')).toBeInstanceOf(HTMLInputElement);
+      expect(screen.getByRole('heading', { level: 4, name: 'Second Pickup Address' })).toBeInTheDocument();
+      expect(screen.getByTitle('Yes, I have a second pickup address')).toBeInstanceOf(HTMLInputElement);
+      expect(screen.getByTitle('No, I do not have a second pickup address')).toBeInstanceOf(HTMLInputElement);
 
       expect(screen.getByText(/Releasing agent/).parentElement).toBeInstanceOf(HTMLLegendElement);
       expect(screen.getAllByLabelText(/First name/)[0]).toHaveAttribute('name', 'pickup.agent.firstName');
@@ -155,13 +155,13 @@ describe('MtoShipmentForm component', () => {
       expect(screen.getAllByText('Date')[1]).toBeInstanceOf(HTMLLegendElement);
       expect(screen.getByLabelText(/Preferred delivery date/)).toBeInstanceOf(HTMLInputElement);
 
-      expect(screen.getByText(/Delivery location/)).toBeInstanceOf(HTMLLegendElement);
+      expect(screen.getByText(/Delivery Address/)).toBeInstanceOf(HTMLLegendElement);
       expect(screen.getByTitle('Yes, I know my delivery address')).toBeInstanceOf(HTMLInputElement);
       expect(screen.getByTitle('No, I do not know my delivery address')).toBeInstanceOf(HTMLInputElement);
 
-      expect(screen.queryByRole('heading', { level: 4, name: 'Second Destination Location' })).not.toBeInTheDocument();
-      expect(screen.queryByTitle('Yes, I have a second destination location')).not.toBeInTheDocument();
-      expect(screen.queryByTitle('No, I do not have a second destination location')).not.toBeInTheDocument();
+      expect(screen.queryByRole('heading', { level: 4, name: 'Second Delivery Address' })).not.toBeInTheDocument();
+      expect(screen.queryByTitle('Yes, I have a second delivery address')).not.toBeInTheDocument();
+      expect(screen.queryByTitle('No, I do not have a second delivery address')).not.toBeInTheDocument();
 
       expect(screen.getByText(/Receiving agent/).parentElement).toBeInstanceOf(HTMLLegendElement);
       expect(screen.getAllByLabelText(/First name/)[1]).toHaveAttribute('name', 'delivery.agent.firstName');
@@ -190,7 +190,7 @@ describe('MtoShipmentForm component', () => {
       expect(screen.getByText(/8,000 lbs/)).toHaveClass('usa-alert__text');
     });
 
-    it('renders the correct helper text for Delivery Location when orders type is RETIREMENT', async () => {
+    it('renders the correct helper text for Delivery Address when orders type is RETIREMENT', async () => {
       renderMtoShipmentForm({ orders: { orders_type: ORDERS_TYPE.RETIREMENT } });
       await waitFor(() =>
         expect(
@@ -200,7 +200,7 @@ describe('MtoShipmentForm component', () => {
       );
     });
 
-    it('renders the correct helper text for Delivery Location when orders type is SEPARATION', async () => {
+    it('renders the correct helper text for Delivery Address when orders type is SEPARATION', async () => {
       renderMtoShipmentForm({ orders: { orders_type: ORDERS_TYPE.SEPARATION } });
       await waitFor(() =>
         expect(
@@ -210,17 +210,17 @@ describe('MtoShipmentForm component', () => {
       );
     });
 
-    it('renders the correct helper text for Delivery Location when orders type is PERMANENT_CHANGE_OF_STATION', async () => {
+    it('renders the correct helper text for Delivery Address when orders type is PERMANENT_CHANGE_OF_STATION', async () => {
       renderMtoShipmentForm({ orders: { orders_type: ORDERS_TYPE.PERMANENT_CHANGE_OF_STATION } });
       await waitFor(() => expect(screen.getByText(/We can use the zip of your new duty location./).toBeInTheDocument));
     });
 
-    it('renders the correct helper text for Delivery Location when orders type is LOCAL_MOVE', async () => {
+    it('renders the correct helper text for Delivery Address when orders type is LOCAL_MOVE', async () => {
       renderMtoShipmentForm({ orders: { orders_type: ORDERS_TYPE.LOCAL_MOVE } });
       await waitFor(() => expect(screen.getByText(/We can use the zip of your new duty location./).toBeInTheDocument));
     });
 
-    it('renders the correct helper text for Delivery Location when orders type is TEMPORARY_DUTY', async () => {
+    it('renders the correct helper text for Delivery Address when orders type is TEMPORARY_DUTY', async () => {
       renderMtoShipmentForm({ orders: { orders_type: ORDERS_TYPE.TEMPORARY_DUTY } });
       await waitFor(() => expect(screen.getByText(/We can use the zip of your new duty location./).toBeInTheDocument));
     });
@@ -250,7 +250,7 @@ describe('MtoShipmentForm component', () => {
     it('renders a second address fieldset when the user has a second pickup address', async () => {
       renderMtoShipmentForm();
 
-      await userEvent.click(screen.getByTitle('Yes, I have a second pickup location'));
+      await userEvent.click(screen.getByTitle('Yes, I have a second pickup address'));
 
       const streetAddress1 = await screen.findAllByLabelText(/Address 1/);
       expect(streetAddress1[1]).toHaveAttribute('name', 'secondaryPickup.address.streetAddress1');
@@ -297,22 +297,22 @@ describe('MtoShipmentForm component', () => {
     it('renders the secondary delivery address question once a user says they have a primary delivery address', async () => {
       renderMtoShipmentForm();
 
-      expect(screen.queryByRole('heading', { level: 4, name: 'Second Destination Location' })).not.toBeInTheDocument();
-      expect(screen.queryByTitle('Yes, I have a second destination location')).not.toBeInTheDocument();
-      expect(screen.queryByTitle('No, I do not have a second destination location')).not.toBeInTheDocument();
+      expect(screen.queryByRole('heading', { level: 4, name: 'Second Delivery Address' })).not.toBeInTheDocument();
+      expect(screen.queryByTitle('Yes, I have a second delivery address')).not.toBeInTheDocument();
+      expect(screen.queryByTitle('No, I do not have a second delivery address')).not.toBeInTheDocument();
 
       await userEvent.click(screen.getByTitle('Yes, I know my delivery address'));
 
-      expect(await screen.findByRole('heading', { level: 4, name: 'Second delivery location' })).toBeInTheDocument();
-      expect(screen.getByTitle('Yes, I have a second destination location')).toBeInstanceOf(HTMLInputElement);
-      expect(screen.getByTitle('No, I do not have a second destination location')).toBeInstanceOf(HTMLInputElement);
+      expect(await screen.findByRole('heading', { level: 4, name: 'Second delivery address' })).toBeInTheDocument();
+      expect(screen.getByTitle('Yes, I have a second delivery address')).toBeInstanceOf(HTMLInputElement);
+      expect(screen.getByTitle('No, I do not have a second delivery address')).toBeInstanceOf(HTMLInputElement);
     });
 
     it('renders another address fieldset when the user has a second delivery address', async () => {
       renderMtoShipmentForm();
 
       await userEvent.click(screen.getByTitle('Yes, I know my delivery address'));
-      await userEvent.click(screen.getByTitle('Yes, I have a second destination location'));
+      await userEvent.click(screen.getByTitle('Yes, I have a second delivery address'));
 
       const streetAddress1 = await screen.findAllByLabelText(/Address 1/);
       expect(streetAddress1.length).toBe(3);
@@ -604,8 +604,8 @@ describe('MtoShipmentForm component', () => {
       );
       renderMtoShipmentForm({ isCreatePage: false, mtoShipment: shipment });
 
-      expect(await screen.findByTitle('Yes, I have a second pickup location')).toBeChecked();
-      expect(await screen.findByTitle('Yes, I have a second destination location')).toBeChecked();
+      expect(await screen.findByTitle('Yes, I have a second pickup address')).toBeChecked();
+      expect(await screen.findByTitle('Yes, I have a second delivery address')).toBeChecked();
 
       const streetAddress1 = await screen.findAllByLabelText(/Address 1/);
       expect(streetAddress1.length).toBe(4);
@@ -660,8 +660,8 @@ describe('MtoShipmentForm component', () => {
         const saveButton = await screen.findByRole('button', { name: 'Save' });
         expect(saveButton).not.toBeDisabled();
 
-        await userEvent.click(screen.getByTitle('Yes, I have a second pickup location'));
-        await userEvent.click(screen.getByTitle('Yes, I have a second destination location'));
+        await userEvent.click(screen.getByTitle('Yes, I have a second pickup address'));
+        await userEvent.click(screen.getByTitle('Yes, I have a second delivery address'));
 
         const address = await screen.findAllByLabelText(fieldName);
         // The second instance of a field is the secondary pickup
@@ -707,8 +707,8 @@ describe('MtoShipmentForm component', () => {
       const saveButton = await screen.findByRole('button', { name: 'Save' });
       expect(saveButton).not.toBeDisabled();
 
-      await userEvent.click(screen.getByTitle('Yes, I have a second pickup location'));
-      await userEvent.click(screen.getByTitle('Yes, I have a second destination location'));
+      await userEvent.click(screen.getByTitle('Yes, I have a second pickup address'));
+      await userEvent.click(screen.getByTitle('Yes, I have a second delivery address'));
 
       const state = await screen.findAllByLabelText(/State/);
       // The second instance of a field is the secondary pickup
@@ -1063,7 +1063,7 @@ describe('MtoShipmentForm component', () => {
       expect(screen.getByTestId('pickupDateHint')).toHaveTextContent(
         'This is the day movers would put this shipment on their truck. Packing starts earlier. Dates will be finalized when you talk to your Customer Care Representative. Your requested pickup/load date should be your latest preferred pickup/load date, or the date you need to be out of your origin residence.',
       );
-      expect(screen.getByText('Pickup location')).toBeInstanceOf(HTMLLegendElement);
+      expect(screen.getByText('Pickup Address')).toBeInstanceOf(HTMLLegendElement);
       expect(screen.getByLabelText('Use my current address')).toBeInstanceOf(HTMLInputElement);
       expect(screen.getByLabelText(/Address 1/)).toBeInstanceOf(HTMLInputElement);
       expect(screen.getByLabelText(/Address 2/)).toBeInstanceOf(HTMLInputElement);
@@ -1071,9 +1071,9 @@ describe('MtoShipmentForm component', () => {
       expect(screen.getByLabelText(/State/)).toBeInstanceOf(HTMLSelectElement);
       expect(screen.getByLabelText(/ZIP/)).toBeInstanceOf(HTMLInputElement);
 
-      expect(screen.getByRole('heading', { level: 4, name: 'Second pickup location' })).toBeInTheDocument();
-      expect(screen.getByTitle('Yes, I have a second pickup location')).toBeInstanceOf(HTMLInputElement);
-      expect(screen.getByTitle('No, I do not have a second pickup location')).toBeInstanceOf(HTMLInputElement);
+      expect(screen.getByRole('heading', { level: 4, name: 'Second pickup address' })).toBeInTheDocument();
+      expect(screen.getByTitle('Yes, I have a second pickup address')).toBeInstanceOf(HTMLInputElement);
+      expect(screen.getByTitle('No, I do not have a second pickup address')).toBeInstanceOf(HTMLInputElement);
 
       expect(screen.getByText(/Releasing agent/).parentElement).toBeInstanceOf(HTMLLegendElement);
       expect(screen.getAllByLabelText(/First name/)[0]).toHaveAttribute('name', 'pickup.agent.firstName');
@@ -1084,13 +1084,13 @@ describe('MtoShipmentForm component', () => {
       expect(screen.getAllByText('Date')[1]).toBeInstanceOf(HTMLLegendElement);
       expect(screen.getByLabelText(/Preferred delivery date/)).toBeInstanceOf(HTMLInputElement);
 
-      expect(screen.getByText(/Delivery location/)).toBeInstanceOf(HTMLLegendElement);
+      expect(screen.getByText(/Delivery Address/)).toBeInstanceOf(HTMLLegendElement);
       expect(screen.getByTitle('Yes, I know my delivery address')).toBeInstanceOf(HTMLInputElement);
       expect(screen.getByTitle('No, I do not know my delivery address')).toBeInstanceOf(HTMLInputElement);
 
-      expect(screen.queryByRole('heading', { level: 4, name: 'Second Destination Location' })).not.toBeInTheDocument();
-      expect(screen.queryByTitle('Yes, I have a second destination location')).not.toBeInTheDocument();
-      expect(screen.queryByTitle('No, I do not have a second destination location')).not.toBeInTheDocument();
+      expect(screen.queryByRole('heading', { level: 4, name: 'Second Delivery Address' })).not.toBeInTheDocument();
+      expect(screen.queryByTitle('Yes, I have a second delivery address')).not.toBeInTheDocument();
+      expect(screen.queryByTitle('No, I do not have a second delivery address')).not.toBeInTheDocument();
 
       expect(screen.getByText(/Receiving agent/).parentElement).toBeInstanceOf(HTMLLegendElement);
       expect(screen.getAllByLabelText(/First name/)[1]).toHaveAttribute('name', 'delivery.agent.firstName');
@@ -1111,7 +1111,7 @@ describe('MtoShipmentForm component', () => {
       ).toBeInstanceOf(HTMLTextAreaElement);
     });
 
-    it('renders the correct helper text for Delivery Location when orders type is RETIREMENT', async () => {
+    it('renders the correct helper text for Delivery Address when orders type is RETIREMENT', async () => {
       renderUBShipmentForm({ orders: { orders_type: ORDERS_TYPE.RETIREMENT } });
       await waitFor(() =>
         expect(
@@ -1121,7 +1121,7 @@ describe('MtoShipmentForm component', () => {
       );
     });
 
-    it('renders the correct helper text for Delivery Location when orders type is SEPARATION', async () => {
+    it('renders the correct helper text for Delivery Address when orders type is SEPARATION', async () => {
       renderUBShipmentForm({ orders: { orders_type: ORDERS_TYPE.SEPARATION } });
       await waitFor(() =>
         expect(
@@ -1131,17 +1131,17 @@ describe('MtoShipmentForm component', () => {
       );
     });
 
-    it('renders the correct helper text for Delivery Location when orders type is PERMANENT_CHANGE_OF_STATION', async () => {
+    it('renders the correct helper text for Delivery Address when orders type is PERMANENT_CHANGE_OF_STATION', async () => {
       renderUBShipmentForm({ orders: { orders_type: ORDERS_TYPE.PERMANENT_CHANGE_OF_STATION } });
       await waitFor(() => expect(screen.getByText(/We can use the zip of your new duty location./).toBeInTheDocument));
     });
 
-    it('renders the correct helper text for Delivery Location when orders type is LOCAL_MOVE', async () => {
+    it('renders the correct helper text for Delivery Address when orders type is LOCAL_MOVE', async () => {
       renderUBShipmentForm({ orders: { orders_type: ORDERS_TYPE.LOCAL_MOVE } });
       await waitFor(() => expect(screen.getByText(/We can use the zip of your new duty location./).toBeInTheDocument));
     });
 
-    it('renders the correct helper text for Delivery Location when orders type is TEMPORARY_DUTY', async () => {
+    it('renders the correct helper text for Delivery Address when orders type is TEMPORARY_DUTY', async () => {
       renderUBShipmentForm({ orders: { orders_type: ORDERS_TYPE.TEMPORARY_DUTY } });
       await waitFor(() => expect(screen.getByText(/We can use the zip of your new duty location./).toBeInTheDocument));
     });
@@ -1171,7 +1171,7 @@ describe('MtoShipmentForm component', () => {
     it('renders a second address fieldset when the user has a second pickup address', async () => {
       renderUBShipmentForm();
 
-      await userEvent.click(screen.getByTitle('Yes, I have a second pickup location'));
+      await userEvent.click(screen.getByTitle('Yes, I have a second pickup address'));
 
       const streetAddress1 = await screen.findAllByLabelText(/Address 1/);
       expect(streetAddress1[1]).toHaveAttribute('name', 'secondaryPickup.address.streetAddress1');
@@ -1218,22 +1218,22 @@ describe('MtoShipmentForm component', () => {
     it('renders the secondary delivery address question once a user says they have a primary delivery address', async () => {
       renderUBShipmentForm();
 
-      expect(screen.queryByRole('heading', { level: 4, name: 'Second Destination Location' })).not.toBeInTheDocument();
-      expect(screen.queryByTitle('Yes, I have a second destination location')).not.toBeInTheDocument();
-      expect(screen.queryByTitle('No, I do not have a second destination location')).not.toBeInTheDocument();
+      expect(screen.queryByRole('heading', { level: 4, name: 'Second Delivery Address' })).not.toBeInTheDocument();
+      expect(screen.queryByTitle('Yes, I have a second delivery address')).not.toBeInTheDocument();
+      expect(screen.queryByTitle('No, I do not have a second delivery address')).not.toBeInTheDocument();
 
       await userEvent.click(screen.getByTitle('Yes, I know my delivery address'));
 
-      expect(await screen.findByRole('heading', { level: 4, name: 'Second delivery location' })).toBeInTheDocument();
-      expect(screen.getByTitle('Yes, I have a second destination location')).toBeInstanceOf(HTMLInputElement);
-      expect(screen.getByTitle('No, I do not have a second destination location')).toBeInstanceOf(HTMLInputElement);
+      expect(await screen.findByRole('heading', { level: 4, name: 'Second delivery address' })).toBeInTheDocument();
+      expect(screen.getByTitle('Yes, I have a second delivery address')).toBeInstanceOf(HTMLInputElement);
+      expect(screen.getByTitle('No, I do not have a second delivery address')).toBeInstanceOf(HTMLInputElement);
     });
 
     it('renders another address fieldset when the user has a second delivery address', async () => {
       renderUBShipmentForm();
 
       await userEvent.click(screen.getByTitle('Yes, I know my delivery address'));
-      await userEvent.click(screen.getByTitle('Yes, I have a second destination location'));
+      await userEvent.click(screen.getByTitle('Yes, I have a second delivery address'));
 
       const streetAddress1 = await screen.findAllByLabelText(/Address 1/);
       expect(streetAddress1.length).toBe(3);
@@ -1528,8 +1528,8 @@ describe('MtoShipmentForm component', () => {
       );
       renderUBShipmentForm({ isCreatePage: false, mtoShipment: shipment });
 
-      expect(await screen.findByTitle('Yes, I have a second pickup location')).toBeChecked();
-      expect(await screen.findByTitle('Yes, I have a second destination location')).toBeChecked();
+      expect(await screen.findByTitle('Yes, I have a second pickup address')).toBeChecked();
+      expect(await screen.findByTitle('Yes, I have a second delivery address')).toBeChecked();
 
       const streetAddress1 = await screen.findAllByLabelText(/Address 1/);
       expect(streetAddress1.length).toBe(4);
@@ -1584,8 +1584,8 @@ describe('MtoShipmentForm component', () => {
         const saveButton = await screen.findByRole('button', { name: 'Save' });
         expect(saveButton).not.toBeDisabled();
 
-        await userEvent.click(screen.getByTitle('Yes, I have a second pickup location'));
-        await userEvent.click(screen.getByTitle('Yes, I have a second destination location'));
+        await userEvent.click(screen.getByTitle('Yes, I have a second pickup address'));
+        await userEvent.click(screen.getByTitle('Yes, I have a second delivery address'));
 
         const address = await screen.findAllByLabelText(fieldName);
         // The second instance of a field is the secondary pickup
@@ -1631,8 +1631,8 @@ describe('MtoShipmentForm component', () => {
       const saveButton = await screen.findByRole('button', { name: 'Save' });
       expect(saveButton).not.toBeDisabled();
 
-      await userEvent.click(screen.getByTitle('Yes, I have a second pickup location'));
-      await userEvent.click(screen.getByTitle('Yes, I have a second destination location'));
+      await userEvent.click(screen.getByTitle('Yes, I have a second pickup address'));
+      await userEvent.click(screen.getByTitle('Yes, I have a second delivery address'));
 
       const state = await screen.findAllByLabelText(/State/);
       // The second instance of a field is the secondary pickup
@@ -1989,7 +1989,7 @@ describe('MtoShipmentForm component', () => {
       expect(screen.getByText('Date')).toBeInstanceOf(HTMLLegendElement);
       expect(screen.getByLabelText(/Preferred pickup date/)).toBeInstanceOf(HTMLInputElement);
 
-      expect(screen.getByText('Pickup location')).toBeInstanceOf(HTMLLegendElement);
+      expect(screen.getByText('Pickup Address')).toBeInstanceOf(HTMLLegendElement);
       expect(screen.getByLabelText('Use my current address')).toBeInstanceOf(HTMLInputElement);
       expect(screen.getByLabelText(/Address 1/)).toBeInstanceOf(HTMLInputElement);
       expect(screen.getByLabelText(/Address 2/)).toBeInstanceOf(HTMLInputElement);
@@ -2004,7 +2004,7 @@ describe('MtoShipmentForm component', () => {
       expect(screen.getByLabelText(/Email/)).toHaveAttribute('name', 'pickup.agent.email');
 
       expect(screen.getAllByText('Date')).toHaveLength(1);
-      expect(screen.getAllByText('Pickup location')).toHaveLength(1);
+      expect(screen.getAllByText('Pickup Address')).toHaveLength(1);
       expect(screen.queryByText(/Receiving agent/)).not.toBeInTheDocument();
       expect(
         screen.queryByText(
@@ -2104,12 +2104,12 @@ describe('MtoShipmentForm component', () => {
       expect(screen.queryByText(/Releasing agent/)).not.toBeInTheDocument();
 
       expect(screen.getAllByText('Date')).toHaveLength(1);
-      expect(screen.getAllByText(/Delivery location/)).toHaveLength(1);
+      expect(screen.getAllByText(/Delivery Address/)).toHaveLength(1);
 
       expect(screen.getByText('Date')).toBeInstanceOf(HTMLLegendElement);
       expect(screen.getByLabelText(/Preferred delivery date/)).toBeInstanceOf(HTMLInputElement);
 
-      expect(screen.getByText(/Delivery location/)).toBeInstanceOf(HTMLLegendElement);
+      expect(screen.getByText(/Delivery Address/)).toBeInstanceOf(HTMLLegendElement);
       expect(screen.getByLabelText('Yes')).toBeInstanceOf(HTMLInputElement);
       expect(screen.getByLabelText('No')).toBeInstanceOf(HTMLInputElement);
 

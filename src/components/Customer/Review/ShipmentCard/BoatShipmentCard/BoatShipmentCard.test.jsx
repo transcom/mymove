@@ -78,7 +78,7 @@ describe('BoatShipmentCard component', () => {
     const expectedRows = [
       ['Shipment Method', 'BTA'],
       ['Requested pickup date', '01 Jan 2020'],
-      ['Pickup location', '17 8th St New York, NY 11111'],
+      ['Pickup Address', '17 8th St New York, NY 11111'],
       ['Releasing agent', 'Jo Xi (555) 555-5555 jo.xi@email.com'],
       ['Requested delivery date', '01 Mar 2020'],
       ['Destination', '17 8th St New York, NY 73523'],

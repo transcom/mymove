@@ -938,7 +938,7 @@ func init() {
           ]
         },
         "secondaryPickupAddress": {
-          "description": "An optional secondary pickup location address near the origin where additional goods exist.",
+          "description": "An optional secondary Pickup Address address near the origin where additional goods exist.",
           "allOf": [
             {
               "$ref": "#/definitions/Address"
@@ -991,7 +991,7 @@ func init() {
           ]
         },
         "tertiaryPickupAddress": {
-          "description": "An optional tertiary pickup location address near the origin where additional goods exist.",
+          "description": "An optional tertiary Pickup Address address near the origin where additional goods exist.",
           "allOf": [
             {
               "$ref": "#/definitions/Address"
@@ -3751,7 +3751,7 @@ func init() {
           ]
         },
         "secondaryPickupAddress": {
-          "description": "An optional secondary pickup location near the origin where additional goods exist.\n",
+          "description": "An optional secondary Pickup Address near the origin where additional goods exist.\n",
           "allOf": [
             {
               "$ref": "#/definitions/Address"
@@ -3805,7 +3805,7 @@ func init() {
           ]
         },
         "tertiaryPickupAddress": {
-          "description": "An optional third pickup location near the origin where additional goods exist.\n",
+          "description": "An optional third Pickup Address near the origin where additional goods exist.\n",
           "allOf": [
             {
               "$ref": "#/definitions/Address"
@@ -4971,7 +4971,7 @@ func init() {
           ]
         },
         "secondaryPickupAddress": {
-          "description": "An optional secondary pickup location address near the origin where additional goods exist.",
+          "description": "An optional secondary Pickup Address address near the origin where additional goods exist.",
           "allOf": [
             {
               "$ref": "#/definitions/Address"
@@ -5024,7 +5024,7 @@ func init() {
           ]
         },
         "tertiaryPickupAddress": {
-          "description": "An optional tertiary pickup location address near the origin where additional goods exist.",
+          "description": "An optional tertiary Pickup Address address near the origin where additional goods exist.",
           "allOf": [
             {
               "$ref": "#/definitions/Address"
@@ -7786,7 +7786,7 @@ func init() {
           ]
         },
         "secondaryPickupAddress": {
-          "description": "An optional secondary pickup location near the origin where additional goods exist.\n",
+          "description": "An optional secondary Pickup Address near the origin where additional goods exist.\n",
           "allOf": [
             {
               "$ref": "#/definitions/Address"
@@ -7840,7 +7840,7 @@ func init() {
           ]
         },
         "tertiaryPickupAddress": {
-          "description": "An optional third pickup location near the origin where additional goods exist.\n",
+          "description": "An optional third Pickup Address near the origin where additional goods exist.\n",
           "allOf": [
             {
               "$ref": "#/definitions/Address"
