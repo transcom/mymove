@@ -7,6 +7,7 @@ import userEvent from '@testing-library/user-event';
 import ServicesCounselingMoveDetails from './ServicesCounselingMoveDetails';
 
 import MOVE_STATUSES from 'constants/moves';
+import { ERROR_RETURN_VALUE, LOADING_RETURN_VALUE, INACCESSIBLE_RETURN_VALUE } from 'utils/test/api';
 import { ORDERS_TYPE, ORDERS_TYPE_DETAILS } from 'constants/orders';
 import { servicesCounselingRoutes } from 'constants/routes';
 import { permissionTypes } from 'constants/permissions';
@@ -657,25 +658,11 @@ const renderComponent = (props, permissions = [permissionTypes.updateShipment, p
   );
 };
 
-const loadingReturnValue = {
-  ...newMoveDetailsQuery,
-  isLoading: true,
-  isError: false,
-  isSuccess: false,
-};
-
-const errorReturnValue = {
-  ...newMoveDetailsQuery,
-  isLoading: false,
-  isError: true,
-  isSuccess: false,
-};
-
 describe('MoveDetails page', () => {
   describe('check loading and error component states', () => {
     it('renders the Loading Placeholder when the query is still loading', async () => {
-      useMoveDetailsQueries.mockReturnValue(loadingReturnValue);
-      useOrdersDocumentQueries.mockReturnValue(loadingReturnValue);
+      useMoveDetailsQueries.mockReturnValue({ ...newMoveDetailsQuery, ...LOADING_RETURN_VALUE });
+      useOrdersDocumentQueries.mockReturnValue({ ...newMoveDetailsQuery, ...LOADING_RETURN_VALUE });
 
       renderComponent();
 
@@ -684,12 +671,22 @@ describe('MoveDetails page', () => {
     });
 
     it('renders the Something Went Wrong component when the query errors', async () => {
-      useMoveDetailsQueries.mockReturnValue(errorReturnValue);
-      useOrdersDocumentQueries.mockReturnValue(errorReturnValue);
+      useMoveDetailsQueries.mockReturnValue({ ...newMoveDetailsQuery, ...ERROR_RETURN_VALUE });
+      useOrdersDocumentQueries.mockReturnValue({ ...newMoveDetailsQuery, ...ERROR_RETURN_VALUE });
 
       renderComponent();
 
       const errorMessage = await screen.getByText(/Something went wrong./);
+      expect(errorMessage).toBeInTheDocument();
+    });
+
+    it('renders the Inaccessible component when the query returns an inaccessible response', async () => {
+      useMoveDetailsQueries.mockReturnValue({ ...newMoveDetailsQuery, ...INACCESSIBLE_RETURN_VALUE });
+      useOrdersDocumentQueries.mockReturnValue({ ...newMoveDetailsQuery, ...ERROR_RETURN_VALUE });
+
+      renderComponent();
+
+      const errorMessage = await screen.getByText(/Page is not accessible./);
       expect(errorMessage).toBeInTheDocument();
     });
   });
@@ -769,9 +766,9 @@ describe('MoveDetails page', () => {
         );
       }
 
-      const originAddressTerms = screen.getAllByText('Origin address');
+      const originAddressTerms = screen.getAllByText('Pickup Address');
 
-      expect(originAddressTerms.length).toBe(2);
+      expect(originAddressTerms.length).toBe(3);
 
       for (let i = 0; i < 2; i += 1) {
         const { streetAddress1, city, state, postalCode } = newMoveDetailsQuery.mtoShipments[i].pickupAddress;
@@ -784,7 +781,7 @@ describe('MoveDetails page', () => {
         expect(addressText).toContain(postalCode);
       }
 
-      const destinationAddressTerms = screen.getAllByText('Destination address');
+      const destinationAddressTerms = screen.getAllByText('Delivery Address');
 
       expect(destinationAddressTerms.length).toBe(2);
 
@@ -860,7 +857,7 @@ describe('MoveDetails page', () => {
       expect(allowanceError).toBeInTheDocument();
     });
 
-    it('renders shipments info even if destination address is missing', async () => {
+    it('renders shipments info even if delivery address is missing', async () => {
       const moveDetailsQuery = {
         ...newMoveDetailsQuery,
         mtoShipments: [
@@ -877,7 +874,7 @@ describe('MoveDetails page', () => {
 
       renderComponent();
 
-      const destinationAddressTerms = screen.getAllByText('Destination address');
+      const destinationAddressTerms = screen.getAllByText('Delivery Address');
 
       expect(destinationAddressTerms.length).toBe(2);
 
