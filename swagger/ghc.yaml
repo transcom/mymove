@@ -40,6 +40,7 @@ tags:
   - name: transportationOffice
   - name: uploads
   - name: paymentRequests
+  - name: reServiceItems
 paths:
   /customer:
     post:
@@ -3836,6 +3837,7 @@ paths:
             - age
             - originDutyLocation
             - assignedTo
+            - counselingOffice
           description: field that results should be sorted by
         - in: query
           name: order
@@ -3885,6 +3887,10 @@ paths:
           type: string
           description: |
             Used to illustrate which user is assigned to this payment request.
+        - in: query
+          name: counselingOffice
+          type: string
+          description: filters using a counselingOffice name of the move
         - in: query
           name: status
           type: array
@@ -4245,6 +4251,30 @@ paths:
           description: payload is too large
         '500':
           description: server error
+  /re-service-items:
+    get:
+      summary: >-
+        Returns all ReServiceItems (Service Code, Service Name, Market, Shipment
+        Type, Auto Approved)
+      description: Get ReServiceItems
+      produces:
+        - application/json
+      operationId: getAllReServiceItems
+      tags:
+        - reServiceItems
+      responses:
+        '200':
+          description: Successfully retrieved all ReServiceItems.
+          schema:
+            $ref: '#/definitions/ReServiceItems'
+        '400':
+          $ref: '#/responses/InvalidRequest'
+        '401':
+          $ref: '#/responses/PermissionDenied'
+        '404':
+          $ref: '#/responses/NotFound'
+        '500':
+          $ref: '#/responses/ServerError'
   /uploads/{uploadID}:
     delete:
       summary: Deletes an upload
@@ -4481,6 +4511,34 @@ paths:
         unassigns either a services counselor, task ordering officer, or task
         invoicing officer from the move
       operationId: deleteAssignedOfficeUser
+  /moves/{officeUserID}/CheckForLockedMovesAndUnlock:
+    parameters:
+      - description: ID of the move's officer
+        in: path
+        name: officeUserID
+        required: true
+        format: uuid
+        type: string
+    patch:
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: Successfully unlocked officer's move(s).
+          schema:
+            type: object
+            properties:
+              successMessage:
+                type: string
+                example: OK
+        '500':
+          $ref: '#/responses/ServerError'
+      tags:
+        - move
+      description: Finds and unlocks any locked moves by an office user
+      operationId: checkForLockedMovesAndUnlock
 definitions:
   ApplicationParameters:
     type: object
@@ -7437,6 +7495,9 @@ definitions:
         $ref: '#/definitions/AvailableOfficeUsers'
       assignable:
         type: boolean
+      counselingOffice:
+        type: string
+        x-nullable: true
   QueuePaymentRequests:
     type: array
     items:
@@ -7904,6 +7965,10 @@ definitions:
     type: array
     items:
       $ref: '#/definitions/TransportationOffice'
+  ReServiceItems:
+    type: array
+    items:
+      $ref: '#/definitions/ReServiceItem'
   GBLOCs:
     type: array
     items:
@@ -8294,6 +8359,8 @@ definitions:
       - BLUEBARK
       - SAFETY
       - TEMPORARY_DUTY
+      - EARLY_RETURN_OF_DEPENDENTS
+      - STUDENT_TRAVEL
     x-display-value:
       PERMANENT_CHANGE_OF_STATION: Permanent Change Of Station
       LOCAL_MOVE: Local Move
@@ -8303,6 +8370,8 @@ definitions:
       BLUEBARK: BLUEBARK
       SAFETY: Safety
       TEMPORARY_DUTY: Temporary Duty (TDY)
+      EARLY_RETURN_OF_DEPENDENTS: Early Return of Dependents
+      STUDENT_TRAVEL: Student Travel
   Upload:
     description: An uploaded file.
     type: object
@@ -8621,6 +8690,9 @@ definitions:
         description: Reason for updating service item.
         x-nullable: true
       standaloneCrate:
+        type: boolean
+        x-nullable: true
+      externalCrate:
         type: boolean
         x-nullable: true
       serviceRequestDocuments:
@@ -11318,6 +11390,88 @@ definitions:
       validHhgProgramCodeForLoa:
         type: boolean
         x-nullable: true
+  ReServiceItem:
+    description: A Service Item which ties an ReService, Market, and Shipment Type together
+    type: object
+    properties:
+      serviceCode:
+        type: string
+        example: UBP
+        enum:
+          - CS
+          - DBHF
+          - DBTF
+          - DCRT
+          - DCRTSA
+          - DDASIT
+          - DDDSIT
+          - DDFSIT
+          - DDP
+          - DDSFSC
+          - DDSHUT
+          - DLH
+          - DMHF
+          - DNPK
+          - DOASIT
+          - DOFSIT
+          - DOP
+          - DOPSIT
+          - DOSFSC
+          - DOSHUT
+          - DPK
+          - DSH
+          - DUCRT
+          - DUPK
+          - FSC
+          - IBHF
+          - IBTF
+          - ICRT
+          - ICRTSA
+          - IDASIT
+          - IDDSIT
+          - IDFSIT
+          - IDSFSC
+          - IDSHUT
+          - IHPK
+          - IHUPK
+          - INPK
+          - IOASIT
+          - IOFSIT
+          - IOPSIT
+          - IOSFSC
+          - IOSHUT
+          - ISLH
+          - IUBPK
+          - IUBUPK
+          - IUCRT
+          - MS
+          - PODFSC
+          - POEFSC
+          - UBP
+      serviceName:
+        type: string
+        example: International UB, International Shipping & Linehaul
+      marketCode:
+        type: string
+        example: i (International), d (Domestic)
+        enum:
+          - i
+          - d
+      shipmentType:
+        type: string
+        example: HHG, UNACCOMPANIED_BAGGAGE
+        enum:
+          - BOAT_HAUL_AWAY
+          - BOAT_TOW_AWAY
+          - HHG
+          - HHG_INTO_NTS_DOMESTIC
+          - HHG_OUTOF_NTS_DOMESTIC
+          - MOBILE_HOME
+          - PPM
+          - UNACCOMPANIED_BAGGAGE
+      isAutoApproved:
+        type: boolean
+        example: true
 responses:
   InvalidRequest:
     description: The request payload is invalid

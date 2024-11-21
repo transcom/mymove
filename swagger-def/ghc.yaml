@@ -28,6 +28,7 @@ tags:
   - name: transportationOffice
   - name: uploads
   - name: paymentRequests
+  - name: reServiceItems
 paths:
   '/customer':
     post:
@@ -3670,7 +3671,7 @@ paths:
         - in: query
           name: sort
           type: string
-          enum: [customerName, locator, submittedAt, branch, status, edipi, emplid, age, originDutyLocation, assignedTo]
+          enum: [customerName, locator, submittedAt, branch, status, edipi, emplid, age, originDutyLocation, assignedTo, counselingOffice]
           description: field that results should be sorted by
         - in: query
           name: order
@@ -3716,6 +3717,10 @@ paths:
           type: string
           description: |
             Used to illustrate which user is assigned to this payment request.
+        - in: query
+          name: counselingOffice
+          type: string
+          description: filters using a counselingOffice name of the move
         - in: query
           name: status
           type: array
@@ -4054,6 +4059,28 @@ paths:
           description: payload is too large
         '500':
           description: server error
+  /re-service-items:
+    get:
+      summary: Returns all ReServiceItems (Service Code, Service Name, Market, Shipment Type, Auto Approved)
+      description: Get ReServiceItems
+      produces:
+        - application/json
+      operationId: getAllReServiceItems
+      tags:
+        - reServiceItems
+      responses:
+        '200':
+          description: Successfully retrieved all ReServiceItems.
+          schema:
+            $ref: '#/definitions/ReServiceItems'
+        '400':
+          $ref: '#/responses/InvalidRequest'
+        '401':
+          $ref: '#/responses/PermissionDenied'
+        '404':
+          $ref: '#/responses/NotFound'
+        '500':
+          $ref: '#/responses/ServerError'
   /uploads/{uploadID}:
     delete:
       summary: Deletes an upload
@@ -4280,6 +4307,35 @@ paths:
         - move
       description: unassigns either a services counselor, task ordering officer, or task invoicing officer from the move
       operationId: deleteAssignedOfficeUser
+  /moves/{officeUserID}/CheckForLockedMovesAndUnlock:
+    parameters:
+      - description: ID of the move's officer
+        in: path
+        name: officeUserID
+        required: true
+        format: uuid
+        type: string
+    patch:
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: Successfully unlocked officer's move(s).
+          schema:
+            type: object
+            properties:
+              successMessage:
+                type: string
+                example: OK
+        '500':
+          $ref: '#/responses/ServerError'
+      tags:
+        - move
+      description: >-
+        Finds and unlocks any locked moves by an office user
+      operationId: checkForLockedMovesAndUnlock
 definitions:
   ApplicationParameters:
     type: object
@@ -7109,6 +7165,9 @@ definitions:
         $ref: '#/definitions/AvailableOfficeUsers'
       assignable:
         type: boolean
+      counselingOffice:
+        type: string
+        x-nullable: true
   QueuePaymentRequests:
     type: array
     items:
@@ -7569,6 +7628,10 @@ definitions:
     type: array
     items:
       $ref: 'definitions/TransportationOffice.yaml'
+  ReServiceItems:
+    type: array
+    items:
+      $ref: "definitions/ReServiceItem.yaml"
   GBLOCs:
     type: array
     items:

@@ -2797,6 +2797,48 @@ func init() {
         ]
       }
     },
+    "/moves/{officeUserID}/CheckForLockedMovesAndUnlock": {
+      "patch": {
+        "description": "Finds and unlocks any locked moves by an office user",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "move"
+        ],
+        "operationId": "checkForLockedMovesAndUnlock",
+        "responses": {
+          "200": {
+            "description": "Successfully unlocked officer's move(s).",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "successMessage": {
+                  "type": "string",
+                  "example": "OK"
+                }
+              }
+            }
+          },
+          "500": {
+            "$ref": "#/responses/ServerError"
+          }
+        }
+      },
+      "parameters": [
+        {
+          "type": "string",
+          "format": "uuid",
+          "description": "ID of the move's officer",
+          "name": "officeUserID",
+          "in": "path",
+          "required": true
+        }
+      ]
+    },
     "/mto-shipments": {
       "post": {
         "description": "Creates a MTO shipment for the specified Move Task Order.\nRequired fields include:\n* Shipment Type\n* Customer requested pick-up date\n* Pick-up Address\n* Delivery Address\n* Releasing / Receiving agents\nOptional fields include:\n* Delivery Address Type\n* Customer Remarks\n* Releasing / Receiving agents\n* An array of optional accessorial service item codes\n",
@@ -4671,7 +4713,8 @@ func init() {
               "emplid",
               "age",
               "originDutyLocation",
-              "assignedTo"
+              "assignedTo",
+              "counselingOffice"
             ],
             "type": "string",
             "description": "field that results should be sorted by",
@@ -4746,6 +4789,12 @@ func init() {
             "type": "string",
             "description": "Used to illustrate which user is assigned to this payment request.\n",
             "name": "assignedTo",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "filters using a counselingOffice name of the move",
+            "name": "counselingOffice",
             "in": "query"
           },
           {
@@ -4852,6 +4901,39 @@ func init() {
           },
           "403": {
             "$ref": "#/responses/PermissionDenied"
+          },
+          "500": {
+            "$ref": "#/responses/ServerError"
+          }
+        }
+      }
+    },
+    "/re-service-items": {
+      "get": {
+        "description": "Get ReServiceItems",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "reServiceItems"
+        ],
+        "summary": "Returns all ReServiceItems (Service Code, Service Name, Market, Shipment Type, Auto Approved)",
+        "operationId": "getAllReServiceItems",
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved all ReServiceItems.",
+            "schema": {
+              "$ref": "#/definitions/ReServiceItems"
+            }
+          },
+          "400": {
+            "$ref": "#/responses/InvalidRequest"
+          },
+          "401": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "404": {
+            "$ref": "#/responses/NotFound"
           },
           "500": {
             "$ref": "#/responses/ServerError"
@@ -9055,6 +9137,10 @@ func init() {
           "x-nullable": true,
           "example": 2500
         },
+        "externalCrate": {
+          "type": "boolean",
+          "x-nullable": true
+        },
         "feeType": {
           "type": "string",
           "enum": [
@@ -10869,15 +10955,19 @@ func init() {
         "WOUNDED_WARRIOR",
         "BLUEBARK",
         "SAFETY",
-        "TEMPORARY_DUTY"
+        "TEMPORARY_DUTY",
+        "EARLY_RETURN_OF_DEPENDENTS",
+        "STUDENT_TRAVEL"
       ],
       "x-display-value": {
         "BLUEBARK": "BLUEBARK",
+        "EARLY_RETURN_OF_DEPENDENTS": "Early Return of Dependents",
         "LOCAL_MOVE": "Local Move",
         "PERMANENT_CHANGE_OF_STATION": "Permanent Change Of Station",
         "RETIREMENT": "Retirement",
         "SAFETY": "Safety",
         "SEPARATION": "Separation",
+        "STUDENT_TRAVEL": "Student Travel",
         "TEMPORARY_DUTY": "Temporary Duty (TDY)",
         "WOUNDED_WARRIOR": "Wounded Warrior"
       }
@@ -12385,6 +12475,10 @@ func init() {
         "availableOfficeUsers": {
           "$ref": "#/definitions/AvailableOfficeUsers"
         },
+        "counselingOffice": {
+          "type": "string",
+          "x-nullable": true
+        },
         "customer": {
           "$ref": "#/definitions/Customer"
         },
@@ -12462,6 +12556,104 @@ func init() {
         "totalCount": {
           "type": "integer"
         }
+      }
+    },
+    "ReServiceItem": {
+      "description": "A Service Item which ties an ReService, Market, and Shipment Type together",
+      "type": "object",
+      "properties": {
+        "isAutoApproved": {
+          "type": "boolean",
+          "example": true
+        },
+        "marketCode": {
+          "type": "string",
+          "enum": [
+            "i",
+            "d"
+          ],
+          "example": "i (International), d (Domestic)"
+        },
+        "serviceCode": {
+          "type": "string",
+          "enum": [
+            "CS",
+            "DBHF",
+            "DBTF",
+            "DCRT",
+            "DCRTSA",
+            "DDASIT",
+            "DDDSIT",
+            "DDFSIT",
+            "DDP",
+            "DDSFSC",
+            "DDSHUT",
+            "DLH",
+            "DMHF",
+            "DNPK",
+            "DOASIT",
+            "DOFSIT",
+            "DOP",
+            "DOPSIT",
+            "DOSFSC",
+            "DOSHUT",
+            "DPK",
+            "DSH",
+            "DUCRT",
+            "DUPK",
+            "FSC",
+            "IBHF",
+            "IBTF",
+            "ICRT",
+            "ICRTSA",
+            "IDASIT",
+            "IDDSIT",
+            "IDFSIT",
+            "IDSFSC",
+            "IDSHUT",
+            "IHPK",
+            "IHUPK",
+            "INPK",
+            "IOASIT",
+            "IOFSIT",
+            "IOPSIT",
+            "IOSFSC",
+            "IOSHUT",
+            "ISLH",
+            "IUBPK",
+            "IUBUPK",
+            "IUCRT",
+            "MS",
+            "PODFSC",
+            "POEFSC",
+            "UBP"
+          ],
+          "example": "UBP"
+        },
+        "serviceName": {
+          "type": "string",
+          "example": "International UB, International Shipping \u0026 Linehaul"
+        },
+        "shipmentType": {
+          "type": "string",
+          "enum": [
+            "BOAT_HAUL_AWAY",
+            "BOAT_TOW_AWAY",
+            "HHG",
+            "HHG_INTO_NTS_DOMESTIC",
+            "HHG_OUTOF_NTS_DOMESTIC",
+            "MOBILE_HOME",
+            "PPM",
+            "UNACCOMPANIED_BAGGAGE"
+          ],
+          "example": "HHG, UNACCOMPANIED_BAGGAGE"
+        }
+      }
+    },
+    "ReServiceItems": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/ReServiceItem"
       }
     },
     "RejectShipment": {
@@ -14806,6 +14998,9 @@ func init() {
     },
     {
       "name": "paymentRequests"
+    },
+    {
+      "name": "reServiceItems"
     }
   ]
 }`))
@@ -18288,6 +18483,51 @@ func init() {
         ]
       }
     },
+    "/moves/{officeUserID}/CheckForLockedMovesAndUnlock": {
+      "patch": {
+        "description": "Finds and unlocks any locked moves by an office user",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "move"
+        ],
+        "operationId": "checkForLockedMovesAndUnlock",
+        "responses": {
+          "200": {
+            "description": "Successfully unlocked officer's move(s).",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "successMessage": {
+                  "type": "string",
+                  "example": "OK"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "A server error occurred",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      },
+      "parameters": [
+        {
+          "type": "string",
+          "format": "uuid",
+          "description": "ID of the move's officer",
+          "name": "officeUserID",
+          "in": "path",
+          "required": true
+        }
+      ]
+    },
     "/mto-shipments": {
       "post": {
         "description": "Creates a MTO shipment for the specified Move Task Order.\nRequired fields include:\n* Shipment Type\n* Customer requested pick-up date\n* Pick-up Address\n* Delivery Address\n* Releasing / Receiving agents\nOptional fields include:\n* Delivery Address Type\n* Customer Remarks\n* Releasing / Receiving agents\n* An array of optional accessorial service item codes\n",
@@ -20609,7 +20849,8 @@ func init() {
               "emplid",
               "age",
               "originDutyLocation",
-              "assignedTo"
+              "assignedTo",
+              "counselingOffice"
             ],
             "type": "string",
             "description": "field that results should be sorted by",
@@ -20684,6 +20925,12 @@ func init() {
             "type": "string",
             "description": "Used to illustrate which user is assigned to this payment request.\n",
             "name": "assignedTo",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "filters using a counselingOffice name of the move",
+            "name": "counselingOffice",
             "in": "query"
           },
           {
@@ -20796,6 +21043,51 @@ func init() {
           },
           "403": {
             "description": "The request was denied",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "500": {
+            "description": "A server error occurred",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      }
+    },
+    "/re-service-items": {
+      "get": {
+        "description": "Get ReServiceItems",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "reServiceItems"
+        ],
+        "summary": "Returns all ReServiceItems (Service Code, Service Name, Market, Shipment Type, Auto Approved)",
+        "operationId": "getAllReServiceItems",
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved all ReServiceItems.",
+            "schema": {
+              "$ref": "#/definitions/ReServiceItems"
+            }
+          },
+          "400": {
+            "description": "The request payload is invalid",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "401": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found",
             "schema": {
               "$ref": "#/definitions/Error"
             }
@@ -25361,6 +25653,10 @@ func init() {
           "x-nullable": true,
           "example": 2500
         },
+        "externalCrate": {
+          "type": "boolean",
+          "x-nullable": true
+        },
         "feeType": {
           "type": "string",
           "enum": [
@@ -27175,15 +27471,19 @@ func init() {
         "WOUNDED_WARRIOR",
         "BLUEBARK",
         "SAFETY",
-        "TEMPORARY_DUTY"
+        "TEMPORARY_DUTY",
+        "EARLY_RETURN_OF_DEPENDENTS",
+        "STUDENT_TRAVEL"
       ],
       "x-display-value": {
         "BLUEBARK": "BLUEBARK",
+        "EARLY_RETURN_OF_DEPENDENTS": "Early Return of Dependents",
         "LOCAL_MOVE": "Local Move",
         "PERMANENT_CHANGE_OF_STATION": "Permanent Change Of Station",
         "RETIREMENT": "Retirement",
         "SAFETY": "Safety",
         "SEPARATION": "Separation",
+        "STUDENT_TRAVEL": "Student Travel",
         "TEMPORARY_DUTY": "Temporary Duty (TDY)",
         "WOUNDED_WARRIOR": "Wounded Warrior"
       }
@@ -28767,6 +29067,10 @@ func init() {
         "availableOfficeUsers": {
           "$ref": "#/definitions/AvailableOfficeUsers"
         },
+        "counselingOffice": {
+          "type": "string",
+          "x-nullable": true
+        },
         "customer": {
           "$ref": "#/definitions/Customer"
         },
@@ -28844,6 +29148,104 @@ func init() {
         "totalCount": {
           "type": "integer"
         }
+      }
+    },
+    "ReServiceItem": {
+      "description": "A Service Item which ties an ReService, Market, and Shipment Type together",
+      "type": "object",
+      "properties": {
+        "isAutoApproved": {
+          "type": "boolean",
+          "example": true
+        },
+        "marketCode": {
+          "type": "string",
+          "enum": [
+            "i",
+            "d"
+          ],
+          "example": "i (International), d (Domestic)"
+        },
+        "serviceCode": {
+          "type": "string",
+          "enum": [
+            "CS",
+            "DBHF",
+            "DBTF",
+            "DCRT",
+            "DCRTSA",
+            "DDASIT",
+            "DDDSIT",
+            "DDFSIT",
+            "DDP",
+            "DDSFSC",
+            "DDSHUT",
+            "DLH",
+            "DMHF",
+            "DNPK",
+            "DOASIT",
+            "DOFSIT",
+            "DOP",
+            "DOPSIT",
+            "DOSFSC",
+            "DOSHUT",
+            "DPK",
+            "DSH",
+            "DUCRT",
+            "DUPK",
+            "FSC",
+            "IBHF",
+            "IBTF",
+            "ICRT",
+            "ICRTSA",
+            "IDASIT",
+            "IDDSIT",
+            "IDFSIT",
+            "IDSFSC",
+            "IDSHUT",
+            "IHPK",
+            "IHUPK",
+            "INPK",
+            "IOASIT",
+            "IOFSIT",
+            "IOPSIT",
+            "IOSFSC",
+            "IOSHUT",
+            "ISLH",
+            "IUBPK",
+            "IUBUPK",
+            "IUCRT",
+            "MS",
+            "PODFSC",
+            "POEFSC",
+            "UBP"
+          ],
+          "example": "UBP"
+        },
+        "serviceName": {
+          "type": "string",
+          "example": "International UB, International Shipping \u0026 Linehaul"
+        },
+        "shipmentType": {
+          "type": "string",
+          "enum": [
+            "BOAT_HAUL_AWAY",
+            "BOAT_TOW_AWAY",
+            "HHG",
+            "HHG_INTO_NTS_DOMESTIC",
+            "HHG_OUTOF_NTS_DOMESTIC",
+            "MOBILE_HOME",
+            "PPM",
+            "UNACCOMPANIED_BAGGAGE"
+          ],
+          "example": "HHG, UNACCOMPANIED_BAGGAGE"
+        }
+      }
+    },
+    "ReServiceItems": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/ReServiceItem"
       }
     },
     "RejectShipment": {
@@ -31257,6 +31659,9 @@ func init() {
     },
     {
       "name": "paymentRequests"
+    },
+    {
+      "name": "reServiceItems"
     }
   ]
 }`))

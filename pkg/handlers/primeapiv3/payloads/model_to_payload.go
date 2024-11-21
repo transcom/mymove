@@ -13,6 +13,7 @@ import (
 	"github.com/transcom/mymove/pkg/gen/primev3messages"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/services"
 )
 
 // MoveTaskOrder payload
@@ -55,6 +56,31 @@ func MoveTaskOrder(moveTaskOrder *models.Move) *primev3messages.MoveTaskOrder {
 		payload.Order.OriginDutyLocationGBLOC = swag.StringValue(moveTaskOrder.ShipmentGBLOC[0].GBLOC)
 	}
 
+	return payload
+}
+
+func MoveTaskOrderWithShipmentOconusRateArea(moveTaskOrder *models.Move, shipmentRateArea *[]services.ShipmentPostalCodeRateArea) *primev3messages.MoveTaskOrder {
+	// create default payload
+	var payload = MoveTaskOrder(moveTaskOrder)
+
+	// decorate payload with oconus rateArea information
+	if payload != nil && shipmentRateArea != nil {
+		// build map from incoming rateArea list to simplify rateArea lookup by postal code
+		var shipmentPostalCodeRateAreaLookupMap = make(map[string]services.ShipmentPostalCodeRateArea)
+		for _, ra := range *shipmentRateArea {
+			shipmentPostalCodeRateAreaLookupMap[ra.PostalCode] = ra
+		}
+		// Origin/Destination RateArea will be present on root shipment level for all non-PPM shipment types
+		for _, shipment := range payload.MtoShipments {
+			if shipment.PpmShipment != nil {
+				shipment.PpmShipment.OriginRateArea = PostalCodeToRateArea(shipment.PpmShipment.PickupAddress.PostalCode, shipmentPostalCodeRateAreaLookupMap)
+				shipment.PpmShipment.DestinationRateArea = PostalCodeToRateArea(shipment.PpmShipment.DestinationAddress.PostalCode, shipmentPostalCodeRateAreaLookupMap)
+			} else {
+				shipment.OriginRateArea = PostalCodeToRateArea(shipment.PickupAddress.PostalCode, shipmentPostalCodeRateAreaLookupMap)
+				shipment.DestinationRateArea = PostalCodeToRateArea(shipment.DestinationAddress.PostalCode, shipmentPostalCodeRateAreaLookupMap)
+			}
+		}
+	}
 	return payload
 }
 
@@ -754,6 +780,46 @@ func MTOServiceItem(mtoServiceItem *models.MTOServiceItem) primev3messages.MTOSe
 			Width:  crate.Width.Int32Ptr(),
 		}
 		payload = &cratingSI
+
+	case models.ReServiceCodeICRT, models.ReServiceCodeIUCRT:
+		item := GetDimension(mtoServiceItem.Dimensions, models.DimensionTypeItem)
+		crate := GetDimension(mtoServiceItem.Dimensions, models.DimensionTypeCrate)
+		cratingSI := primev3messages.MTOServiceItemInternationalCrating{
+			ReServiceCode:   handlers.FmtString(string(mtoServiceItem.ReService.Code)),
+			Description:     mtoServiceItem.Description,
+			Reason:          mtoServiceItem.Reason,
+			StandaloneCrate: mtoServiceItem.StandaloneCrate,
+			ExternalCrate:   mtoServiceItem.ExternalCrate,
+		}
+		cratingSI.Item.MTOServiceItemDimension = primev3messages.MTOServiceItemDimension{
+			ID:     strfmt.UUID(item.ID.String()),
+			Height: item.Height.Int32Ptr(),
+			Length: item.Length.Int32Ptr(),
+			Width:  item.Width.Int32Ptr(),
+		}
+		cratingSI.Crate.MTOServiceItemDimension = primev3messages.MTOServiceItemDimension{
+			ID:     strfmt.UUID(crate.ID.String()),
+			Height: crate.Height.Int32Ptr(),
+			Length: crate.Length.Int32Ptr(),
+			Width:  crate.Width.Int32Ptr(),
+		}
+		if mtoServiceItem.ReService.Code == models.ReServiceCodeICRT && mtoServiceItem.MTOShipment.PickupAddress != nil {
+			if *mtoServiceItem.MTOShipment.PickupAddress.IsOconus {
+				cratingSI.Market = models.MarketOconus.FullString()
+			} else {
+				cratingSI.Market = models.MarketConus.FullString()
+			}
+		}
+
+		if mtoServiceItem.ReService.Code == models.ReServiceCodeIUCRT && mtoServiceItem.MTOShipment.DestinationAddress != nil {
+			if *mtoServiceItem.MTOShipment.DestinationAddress.IsOconus {
+				cratingSI.Market = models.MarketOconus.FullString()
+			} else {
+				cratingSI.Market = models.MarketConus.FullString()
+			}
+		}
+		payload = &cratingSI
+
 	case models.ReServiceCodeDDSHUT, models.ReServiceCodeDOSHUT:
 		payload = &primev3messages.MTOServiceItemShuttle{
 			ReServiceCode:   handlers.FmtString(string(mtoServiceItem.ReService.Code)),
@@ -980,4 +1046,15 @@ func MTOShipment(mtoShipment *models.MTOShipment) *primev3messages.MTOShipment {
 	}
 
 	return payload
+}
+
+// PostalCodeToRateArea converts postalCode into RateArea model to payload
+func PostalCodeToRateArea(postalCode *string, shipmentPostalCodeRateAreaMap map[string]services.ShipmentPostalCodeRateArea) *primev3messages.RateArea {
+	if postalCode == nil {
+		return nil
+	}
+	if ra, ok := shipmentPostalCodeRateAreaMap[*postalCode]; ok {
+		return &primev3messages.RateArea{ID: handlers.FmtUUID(ra.RateArea.ID), RateAreaID: &ra.RateArea.Code, RateAreaName: &ra.RateArea.Name}
+	}
+	return nil
 }

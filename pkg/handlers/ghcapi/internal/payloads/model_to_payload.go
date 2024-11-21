@@ -1890,6 +1890,7 @@ func MTOServiceItemModel(s *models.MTOServiceItem, storer storage.FileStorer) *g
 		SitDeliveryMiles:              handlers.FmtIntPtrToInt64(s.SITDeliveryMiles),
 		EstimatedPrice:                handlers.FmtCost(s.PricingEstimate),
 		StandaloneCrate:               s.StandaloneCrate,
+		ExternalCrate:                 s.ExternalCrate,
 		LockedPriceCents:              handlers.FmtCost(s.LockedPriceCents),
 	}
 }
@@ -2429,6 +2430,10 @@ func QueuePaymentRequests(paymentRequests *models.PaymentRequests, officeUsers [
 			queuePaymentRequests[i].AssignedTo = AssignedOfficeUser(paymentRequest.MoveTaskOrder.TIOAssignedUser)
 		}
 
+		if paymentRequest.MoveTaskOrder.CounselingOffice != nil {
+			queuePaymentRequests[i].CounselingOffice = &paymentRequest.MoveTaskOrder.CounselingOffice.Name
+		}
+
 		isAssignable := false
 		if queuePaymentRequests[i].AssignedTo == nil {
 			isAssignable = true
@@ -2617,4 +2622,28 @@ func SearchCustomers(customers models.ServiceMemberSearchResults) *ghcmessages.S
 		}
 	}
 	return &searchCustomers
+}
+
+// ReServiceItem payload
+func ReServiceItem(reServiceItem *models.ReServiceItem) *ghcmessages.ReServiceItem {
+	if reServiceItem == nil || *reServiceItem == (models.ReServiceItem{}) {
+		return nil
+	}
+	return &ghcmessages.ReServiceItem{
+		IsAutoApproved: reServiceItem.IsAutoApproved,
+		MarketCode:     string(reServiceItem.MarketCode),
+		ServiceCode:    string(reServiceItem.ReService.Code),
+		ShipmentType:   string(reServiceItem.ShipmentType),
+		ServiceName:    reServiceItem.ReService.Name,
+	}
+}
+
+// ReServiceItems payload
+func ReServiceItems(reServiceItems models.ReServiceItems) ghcmessages.ReServiceItems {
+	payload := make(ghcmessages.ReServiceItems, len(reServiceItems))
+	for i, reServiceItem := range reServiceItems {
+		copyOfReServiceItem := reServiceItem
+		payload[i] = ReServiceItem(&copyOfReServiceItem)
+	}
+	return payload
 }

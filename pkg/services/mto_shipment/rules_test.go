@@ -42,6 +42,108 @@ func (suite *MTOShipmentServiceSuite) TestUpdateValidations() {
 		}
 	})
 
+	suite.Run("MTOShipmentHasTertiaryAddressWithNoSecondaryAddressUpdate Invalid add tertiary address without secondary", func() {
+		tertiaryDeliveryAddress := factory.BuildAddress(suite.DB(), nil, nil)
+
+		minimalMove := models.MTOShipment{
+			TertiaryDeliveryAddress: &tertiaryDeliveryAddress,
+		}
+
+		mtoShipment_ThNScndP_address_Move := factory.BuildMoveWithShipment(suite.DB(), nil, nil)
+
+		checker := MTOShipmentHasTertiaryAddressWithNoSecondaryAddressUpdate()
+		err := checker.Validate(suite.AppContextForTest(), &minimalMove, &mtoShipment_ThNScndP_address_Move.MTOShipments[0])
+		suite.Error(err)
+	})
+
+	suite.Run("MTOShipmentHasTertiaryAddressWithNoSecondaryAddressUpdate Valid add secondary address", func() {
+		secondaryPickupAddress := factory.BuildAddress(suite.DB(), nil, nil)
+
+		minimalMove := models.MTOShipment{
+			SecondaryPickupAddress: &secondaryPickupAddress,
+		}
+
+		mtoShipment_ThNScndP_address_Move := factory.BuildMoveWithShipment(suite.DB(), nil, nil)
+
+		checker := MTOShipmentHasTertiaryAddressWithNoSecondaryAddressUpdate()
+		err := checker.Validate(suite.AppContextForTest(), &mtoShipment_ThNScndP_address_Move.MTOShipments[0], &minimalMove)
+		suite.NoError(err)
+	})
+
+	suite.Run("MTOShipmentHasTertiaryAddressWithNoSecondaryAddressUpdate Valid remove secondary address", func() {
+		secondaryPickupAddress := factory.BuildAddress(suite.DB(), nil, nil)
+
+		oldMove := factory.BuildMoveWithShipment(suite.DB(), nil, nil)
+		oldMove.MTOShipments[0].SecondaryPickupAddress = &secondaryPickupAddress
+
+		newMove := factory.BuildMoveWithShipment(suite.DB(), nil, nil)
+
+		checker := MTOShipmentHasTertiaryAddressWithNoSecondaryAddressUpdate()
+		err := checker.Validate(suite.AppContextForTest(), &newMove.MTOShipments[0], &oldMove.MTOShipments[0])
+		suite.NoError(err)
+	})
+
+	suite.Run("MTOShipmentHasTertiaryAddressWithNoSecondaryAddressUpdate Valid", func() {
+		tertiaryPickupAddress := factory.BuildAddress(suite.DB(), nil, nil)
+
+		minimalMove := models.MTOShipment{
+			TertiaryPickupAddress: &tertiaryPickupAddress,
+		}
+
+		mtoShipment_ThNScndP_address_Move := factory.BuildMoveWithShipment(suite.DB(), nil, nil)
+
+		checker := MTOShipmentHasTertiaryAddressWithNoSecondaryAddressUpdate()
+		err := checker.Validate(suite.AppContextForTest(), &mtoShipment_ThNScndP_address_Move.MTOShipments[0], &minimalMove)
+		suite.NoError(err)
+	})
+
+	suite.Run("MTOShipmentHasTertiaryAddressWithNoSecondaryAddressCreate No Secondary Address With Tertiary Invalid", func() {
+		secondaryPickupAddress := factory.BuildAddress(suite.DB(), nil, nil)
+		TertiaryDestinationAddress := factory.BuildAddress(suite.DB(), nil, nil)
+		tertiaryPickupAddress := factory.BuildAddress(suite.DB(), nil, nil)
+
+		mtoShipment_Valid_address := factory.BuildMoveWithShipment(suite.DB(), nil, nil)
+		mtoShipment_Valid_address.MTOShipments[0].SecondaryPickupAddress = &secondaryPickupAddress
+		mtoShipment_Valid_address.MTOShipments[0].TertiaryPickupAddress = &tertiaryPickupAddress
+		mtoShipment_Valid_address.MTOShipments[0].TertiaryDeliveryAddress = &TertiaryDestinationAddress
+
+		checker := MTOShipmentHasTertiaryAddressWithNoSecondaryAddressCreate()
+		err := checker.Validate(suite.AppContextForTest(), &mtoShipment_Valid_address.MTOShipments[0], nil)
+		suite.Error(err)
+	})
+
+	suite.Run("MTOShipmentHasTertiaryAddressWithNoSecondaryAddressCreate with Secondary Address Valid", func() {
+		secondaryPickupAddress := factory.BuildAddress(suite.DB(), nil, nil)
+		TertiaryDestinationAddress := factory.BuildAddress(suite.DB(), nil, nil)
+		tertiaryPickupAddress := factory.BuildAddress(suite.DB(), nil, nil)
+
+		mtoShipment_Valid_address := factory.BuildMoveWithShipment(suite.DB(), nil, nil)
+		mtoShipment_Valid_address.MTOShipments[0].SecondaryPickupAddress = &secondaryPickupAddress
+		mtoShipment_Valid_address.MTOShipments[0].TertiaryPickupAddress = &tertiaryPickupAddress
+		mtoShipment_Valid_address.MTOShipments[0].TertiaryDeliveryAddress = &TertiaryDestinationAddress
+
+		checker := MTOShipmentHasTertiaryAddressWithNoSecondaryAddressCreate()
+		err := checker.Validate(suite.AppContextForTest(), &mtoShipment_Valid_address.MTOShipments[0], nil)
+		suite.Error(err)
+	})
+
+	suite.Run("MTOShipmentHasTertiaryAddressWithNoSecondaryAddressCreate Valid", func() {
+		SecondaryDestinationAddress := factory.BuildAddress(suite.DB(), nil, nil)
+		secondaryPickupAddress := factory.BuildAddress(suite.DB(), nil, nil)
+		TertiaryDestinationAddress := factory.BuildAddress(suite.DB(), nil, nil)
+		tertiaryPickupAddress := factory.BuildAddress(suite.DB(), nil, nil)
+
+		mtoShipment_Valid_address := factory.BuildMoveWithShipment(suite.DB(), nil, nil)
+		mtoShipment_Valid_address.MTOShipments[0].SecondaryPickupAddress = &secondaryPickupAddress
+		mtoShipment_Valid_address.MTOShipments[0].SecondaryDeliveryAddress = &SecondaryDestinationAddress
+		mtoShipment_Valid_address.MTOShipments[0].TertiaryPickupAddress = &tertiaryPickupAddress
+		mtoShipment_Valid_address.MTOShipments[0].TertiaryDeliveryAddress = &TertiaryDestinationAddress
+
+		checker := MTOShipmentHasTertiaryAddressWithNoSecondaryAddressCreate()
+		err := checker.Validate(suite.AppContextForTest(), &mtoShipment_Valid_address.MTOShipments[0], nil)
+		suite.NoError(err)
+	})
+
 	suite.Run("checkAvailToPrime", func() {
 		appCtx := suite.AppContextForTest()
 
