@@ -32,7 +32,7 @@ const ordersTypeDropdownOptions = dropdownInputOptions(ORDERS_TYPE_OPTIONS);
 const ordersTypeDetailsDropdownOptions = dropdownInputOptions(ORDERS_TYPE_DETAILS_OPTIONS);
 const payGradeDropdownOptions = dropdownInputOptions(ORDERS_PAY_GRADE_OPTIONS);
 
-const Orders = ({ files, amendedDocumentId, updateAmendedDocument }) => {
+const Orders = ({ files, amendedDocumentId, updateAmendedDocument, onUploadStarted, onUploadEnded }) => {
   const navigate = useNavigate();
   const { moveCode } = useParams();
   const [tacValidationState, tacValidationDispatch] = useReducer(tacReducer, null, initialTacState);
@@ -373,6 +373,8 @@ const Orders = ({ files, amendedDocumentId, updateAmendedDocument }) => {
                       documentId={documentId}
                       files={ordersDocuments}
                       documentType={MOVE_DOCUMENT_TYPE.ORDERS}
+                      onUploadStarted={onUploadStarted}
+                      onUploadEnded={onUploadEnded}
                     />
                     <DocumentViewerFileManager
                       orderId={orderId}

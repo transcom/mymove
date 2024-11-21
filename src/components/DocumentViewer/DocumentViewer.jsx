@@ -16,7 +16,7 @@ import { bulkDownloadPaymentRequest, updateUpload } from 'services/ghcApi';
 import { formatDate } from 'shared/dates';
 import { filenameFromPath } from 'utils/formatters';
 import AsyncPacketDownloadLink from 'shared/AsyncPacketDownloadLink/AsyncPacketDownloadLink';
-import { UPLOAD_DOC_STATUS } from 'shared/constants';
+import { UPLOAD_DOC_STATUS, UPLOAD_SCAN_STATUS } from 'shared/constants';
 import Alert from 'shared/Alert';
 
 /**
@@ -26,7 +26,7 @@ import Alert from 'shared/Alert';
  * - handle fetch doc errors
  */
 
-const DocumentViewer = ({ files, allowDownload, paymentRequestId }) => {
+const DocumentViewer = ({ files, isFileUploading, allowDownload, paymentRequestId }) => {
   const [selectedFileIndex, selectFile] = useState(0);
   const [fileStatus, setFileStatus] = useState(null);
   const [disableSaveButton, setDisableSaveButton] = useState(false);
@@ -40,18 +40,11 @@ const DocumentViewer = ({ files, allowDownload, paymentRequestId }) => {
 
   const queryClient = useQueryClient();
 
-  const handleFileProcessingStatus = async () => {
-    setFileStatus('UPLOADING');
-    await new Promise((resolve) => {
-      setTimeout(resolve, 3000);
-    }).then(() => setFileStatus('SCANNING'));
-    await new Promise((resolve) => {
-      setTimeout(resolve, 3000);
-    }).then(() => setFileStatus('ESTABLISHING'));
-    await new Promise((resolve) => {
-      setTimeout(resolve, 3000);
-    }).then(() => setFileStatus('LOADED'));
-  };
+  useEffect(() => {
+    if (isFileUploading) {
+      setFileStatus(UPLOAD_DOC_STATUS.UPLOADING);
+    }
+  }, [isFileUploading]);
 
   const { mutate: mutateUploads } = useMutation(updateUpload, {
     onSuccess: async (data, variables) => {
@@ -90,12 +83,27 @@ const DocumentViewer = ({ files, allowDownload, paymentRequestId }) => {
 
   useEffect(() => {
     setRotationValue(selectedFile?.rotation || 0);
+    const handleFileProcessingStatus = async () => {
+      if (selectedFile.status === UPLOAD_SCAN_STATUS.PROCESSING) {
+        await new Promise((resolve) => {
+          setTimeout(resolve, 3000);
+        }).then(() => setFileStatus(UPLOAD_DOC_STATUS.SCANNING));
+        await new Promise((resolve) => {
+          setTimeout(resolve, 3000);
+        }).then(() => setFileStatus(UPLOAD_DOC_STATUS.ESTABLISHING));
+        await new Promise((resolve) => {
+          setTimeout(resolve, 3000);
+        }).then(() => setFileStatus('LOADED'));
+      } else if (selectedFile.status === UPLOAD_SCAN_STATUS.CLEAN) {
+        setFileStatus('LOADED');
+      }
+    };
     handleFileProcessingStatus();
   }, [selectedFile]);
 
   const fileType = useRef(selectedFile?.contentType);
 
-  if (!selectedFile || !fileStatus) {
+  if (!selectedFile || !fileStatus || selectedFile?.status === UPLOAD_SCAN_STATUS.INFECTED) {
     return <Alert heading="File Not Found" />;
   }
 

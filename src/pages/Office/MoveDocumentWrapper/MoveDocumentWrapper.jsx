@@ -15,6 +15,8 @@ const MoveDocumentWrapper = () => {
   const { moveCode } = useParams();
   const { pathname } = useLocation();
 
+  const [isFileUploading, setFileUploading] = useState(false);
+
   const { upload, amendedOrderDocumentId, isLoading, isError } = useOrdersDocumentQueries(moveCode);
   // some moves do not have amendedOrderDocumentId created and is null.
   // this is to update the id when it is created to store amendedUpload data.
@@ -63,7 +65,7 @@ const MoveDocumentWrapper = () => {
     <div data-testid="doc-wrapper" className={styles.DocumentWrapper}>
       {documentsForViewer && (
         <div className={styles.embed}>
-          <DocumentViewer files={documentsForViewer} allowDownload />
+          <DocumentViewer isFileUploading={isFileUploading} files={documentsForViewer} allowDownload />
         </div>
       )}
       {showOrders ? (
@@ -72,6 +74,12 @@ const MoveDocumentWrapper = () => {
           files={documentsByTypes}
           amendedDocumentId={amendedDocumentId}
           updateAmendedDocument={updateAmendedDocument}
+          onUploadStarted={() => {
+            setFileUploading(true);
+          }}
+          onUploadEnded={() => {
+            setFileUploading(false);
+          }}
         />
       ) : (
         <MoveAllowances moveCode={moveCode} />
