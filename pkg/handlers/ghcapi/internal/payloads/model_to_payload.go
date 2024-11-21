@@ -2432,6 +2432,10 @@ func QueuePaymentRequests(paymentRequests *models.PaymentRequests, officeUsers [
 			queuePaymentRequests[i].AssignedTo = AssignedOfficeUser(paymentRequest.MoveTaskOrder.TIOAssignedUser)
 		}
 
+		if paymentRequest.MoveTaskOrder.CounselingOffice != nil {
+			queuePaymentRequests[i].CounselingOffice = &paymentRequest.MoveTaskOrder.CounselingOffice.Name
+		}
+
 		isAssignable := false
 		if queuePaymentRequests[i].AssignedTo == nil {
 			isAssignable = true
