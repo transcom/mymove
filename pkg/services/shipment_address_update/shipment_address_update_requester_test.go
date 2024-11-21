@@ -12,7 +12,10 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 	routemocks "github.com/transcom/mymove/pkg/route/mocks"
 	"github.com/transcom/mymove/pkg/services/address"
+	"github.com/transcom/mymove/pkg/services/ghcrateengine"
 	moveservices "github.com/transcom/mymove/pkg/services/move"
+	mtoserviceitem "github.com/transcom/mymove/pkg/services/mto_service_item"
+	"github.com/transcom/mymove/pkg/services/query"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
@@ -63,7 +66,10 @@ func (suite *ShipmentAddressUpdateServiceSuite) TestCreateApprovedShipmentAddres
 	addressCreator := address.NewAddressCreator()
 	mockPlanner := &routemocks.Planner{}
 	moveRouter := moveservices.NewMoveRouter()
-	addressUpdateRequester := NewShipmentAddressUpdateRequester(mockPlanner, addressCreator, moveRouter)
+
+	builder := query.NewQueryBuilder()
+	mtoServiceItemCreator := mtoserviceitem.NewMTOServiceItemCreator(mockPlanner, builder, moveRouter, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticPackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer())
+	addressUpdateRequester := NewShipmentAddressUpdateRequester(mockPlanner, addressCreator, moveRouter, mtoServiceItemCreator)
 
 	suite.Run("Successfully create ShipmentAddressUpdate", func() {
 		mockPlanner.On("ZipTransitDistance",
@@ -583,7 +589,10 @@ func (suite *ShipmentAddressUpdateServiceSuite) TestTOOApprovedShipmentAddressUp
 		mock.Anything,
 		mock.Anything,
 	).Return(400, nil)
-	addressUpdateRequester := NewShipmentAddressUpdateRequester(mockPlanner, addressCreator, moveRouter)
+
+	builder := query.NewQueryBuilder()
+	mtoServiceItemCreator := mtoserviceitem.NewMTOServiceItemCreator(mockPlanner, builder, moveRouter, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticPackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer())
+	addressUpdateRequester := NewShipmentAddressUpdateRequester(mockPlanner, addressCreator, moveRouter, mtoServiceItemCreator)
 
 	suite.Run("TOO approves address change", func() {
 
@@ -835,7 +844,10 @@ func (suite *ShipmentAddressUpdateServiceSuite) TestTOOApprovedShipmentAddressUp
 	addressCreator := address.NewAddressCreator()
 	mockPlanner := &routemocks.Planner{}
 	moveRouter := moveservices.NewMoveRouter()
-	addressUpdateRequester := NewShipmentAddressUpdateRequester(mockPlanner, addressCreator, moveRouter)
+	builder := query.NewQueryBuilder()
+
+	mtoServiceItemCreator := mtoserviceitem.NewMTOServiceItemCreator(mockPlanner, builder, moveRouter, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticPackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer())
+	addressUpdateRequester := NewShipmentAddressUpdateRequester(mockPlanner, addressCreator, moveRouter, mtoServiceItemCreator)
 
 	suite.Run("Service items are rejected and regenerated when pricing type changes post TOO approval", func() {
 		mockPlanner.On("ZipTransitDistance",

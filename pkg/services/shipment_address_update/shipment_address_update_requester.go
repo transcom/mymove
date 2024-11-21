@@ -2,7 +2,6 @@ package shipmentaddressupdate
 
 import (
 	"database/sql"
-	"fmt"
 	"time"
 
 	"github.com/gofrs/uuid"
@@ -27,14 +26,16 @@ type shipmentAddressUpdateRequester struct {
 	shipmentFetcher services.MTOShipmentFetcher
 	services.MTOServiceItemUpdater
 	services.MTOServiceItemCreator
+	mtoServiceItemCreator services.MTOServiceItemCreator
 }
 
-func NewShipmentAddressUpdateRequester(planner route.Planner, addressCreator services.AddressCreator, moveRouter services.MoveRouter) services.ShipmentAddressUpdateRequester {
+func NewShipmentAddressUpdateRequester(planner route.Planner, addressCreator services.AddressCreator, moveRouter services.MoveRouter, mtoServiceItemCreator services.MTOServiceItemCreator) services.ShipmentAddressUpdateRequester {
 
 	return &shipmentAddressUpdateRequester{
-		planner:        planner,
-		addressCreator: addressCreator,
-		moveRouter:     moveRouter,
+		planner:               planner,
+		addressCreator:        addressCreator,
+		moveRouter:            moveRouter,
+		mtoServiceItemCreator: mtoServiceItemCreator,
 	}
 }
 
@@ -504,11 +505,7 @@ func (f *shipmentAddressUpdateRequester) ReviewShipmentAddressChange(appCtx appc
 			serviceItems := shipment.MTOServiceItems
 			autoRejectionRemark := "Automatically rejected due to change in destination address affecting the ZIP code qualification for short haul / line haul."
 			var regeneratedServiceItems models.MTOServiceItems
-
 			for i, serviceItem := range shipmentDetails.MTOServiceItems {
-				fmt.Println("    ")
-				fmt.Println("tempServiceItem: ", &serviceItem)
-				fmt.Println("    ")
 				if (serviceItem.ReService.Code == models.ReServiceCodeDSH || serviceItem.ReService.Code == models.ReServiceCodeDLH) && serviceItem.Status != models.MTOServiceItemStatusRejected {
 					// check if a payment request for the DSH or DLH service item exists and status is approved, paid, or sent to GEX
 					approvedPaymentRequestsExistsForServiceItem, err = checkForApprovedPaymentRequestOnServiceItem(appCtx, shipment)
@@ -541,21 +538,7 @@ func (f *shipmentAddressUpdateRequester) ReviewShipmentAddressChange(appCtx appc
 
 				} else if serviceItem.Status != models.MTOServiceItemStatusRejected {
 					tempServiceItem := &serviceItem
-					fmt.Println("    ")
-					fmt.Println("    ")
-					fmt.Println("    ")
-					fmt.Println("------------------------------------------------------------------------------------------------")
-					fmt.Println("appCtx: ", appCtx)
-					fmt.Println("    ")
-					fmt.Println("shipment: ", shipment)
-					fmt.Println("    ")
-					fmt.Println("tempServiceItem: ", &serviceItem)
-					fmt.Println("------------------------------------------------------------------------------------------------")
-					fmt.Println("    ")
-					fmt.Println("    ")
-					fmt.Println("    ")
-
-					serviceItemEstimatedPrice, err := f.FindEstimatedPrice(appCtx, tempServiceItem, shipment)
+					serviceItemEstimatedPrice, err := f.mtoServiceItemCreator.FindEstimatedPrice(appCtx, tempServiceItem, shipment)
 					if serviceItemEstimatedPrice != 0 && err == nil {
 						serviceItem.PricingEstimate = &serviceItemEstimatedPrice
 						regeneratedServiceItems = append(regeneratedServiceItems, serviceItem)
