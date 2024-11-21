@@ -148,17 +148,17 @@ const AboutForm = ({ mtoShipment, onBack, onSubmit }) => {
                 />
                 <AddressFields
                   name="destinationAddress"
-                  legend="Destination Address"
+                  legend="Delivery Address"
                   className={styles.AddressFieldSet}
                   labelHint="Required"
                   formikFunctionsToValidatePostalCodeOnChange={{ handleChange, setFieldTouched }}
                   render={(fields) => (
                     <>
                       {fields}
-                      <h4>Second destination address</h4>
+                      <h4>Second Delivery Address</h4>
                       <FormGroup>
                         <p>
-                          Will you deliver any belongings to a second address? (Must be near the destination address.
+                          Will you deliver any belongings to a second address? (Must be near the delivery address.
                           Subject to approval.)
                         </p>
                         <div className={formStyles.radioGroup}>

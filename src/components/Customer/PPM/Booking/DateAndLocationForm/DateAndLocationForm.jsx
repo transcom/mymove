@@ -206,7 +206,7 @@ const DateAndLocationForm = ({ mtoShipment, destinationDutyLocation, serviceMemb
                       <p>What address are you moving from?</p>
                       <Checkbox
                         data-testid="useCurrentResidence"
-                        label="Use my current origin address"
+                        label="Use my current pickup address"
                         name="useCurrentResidence"
                         onChange={handleUseCurrentResidenceChange}
                         id="useCurrentResidence"
@@ -242,7 +242,7 @@ const DateAndLocationForm = ({ mtoShipment, destinationDutyLocation, serviceMemb
                           <AddressFields labelHint="Required" name="secondaryPickupAddress.address" />
                           <Hint className={ppmStyles.hint}>
                             <p>
-                              A second origin address could mean that your final incentive is lower than your estimate.
+                              A second pickup address could mean that your final incentive is lower than your estimate.
                             </p>
                             <p>
                               Get separate weight tickets for each leg of the trip to show how the weight changes. Talk
@@ -304,10 +304,10 @@ const DateAndLocationForm = ({ mtoShipment, destinationDutyLocation, serviceMemb
                   address1LabelHint=" "
                   render={(fields) => (
                     <>
-                      <p>Please input your destination address.</p>
+                      <p>Please input your delivery address.</p>
                       <Checkbox
                         data-testid="useCurrentDestinationAddress"
-                        label="Use my current destination address"
+                        label="Use my current delivery address"
                         name="useCurrentDestinationAddress"
                         onChange={handleUseDestinationAddress}
                         id="useCurrentDestinationAddress"
@@ -343,7 +343,7 @@ const DateAndLocationForm = ({ mtoShipment, destinationDutyLocation, serviceMemb
                           <AddressFields name="secondaryDestinationAddress.address" labelHint="Required" />
                           <Hint className={ppmStyles.hint}>
                             <p>
-                              A second destination address could mean that your final incentive is lower than your
+                              A second delivery address could mean that your final incentive is lower than your
                               estimate.
                             </p>
                             <p>

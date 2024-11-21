@@ -82,22 +82,22 @@ describe('DateAndLocationForm component', () => {
   });
 
   describe('displays conditional inputs', () => {
-    it('displays current address when "Use my current origin address" is selected', async () => {
+    it('displays current address when "Use my current pickup address" is selected', async () => {
       render(<DateAndLocationForm {...defaultProps} />);
       const postalCodes = screen.getAllByLabelText(/ZIP/);
       expect(postalCodes[0].value).toBe('');
       await act(async () => {
-        await userEvent.click(screen.getByLabelText('Use my current origin address'));
+        await userEvent.click(screen.getByLabelText('Use my current pickup address'));
       });
       await waitFor(() => {
         expect(postalCodes[0].value).toBe(defaultProps.serviceMember.residential_address.postalCode);
       });
     });
 
-    it('removes current Address when "Use my current origin address" is deselected', async () => {
+    it('removes current Address when "Use my current pickup address" is deselected', async () => {
       render(<DateAndLocationForm {...defaultProps} />);
       await act(async () => {
-        await userEvent.click(screen.getByLabelText('Use my current origin address'));
+        await userEvent.click(screen.getByLabelText('Use my current pickup address'));
       });
       const postalCodes = screen.getAllByLabelText(/ZIP/);
 
@@ -106,7 +106,7 @@ describe('DateAndLocationForm component', () => {
       });
 
       await act(async () => {
-        await userEvent.click(screen.getByLabelText('Use my current origin address'));
+        await userEvent.click(screen.getByLabelText('Use my current pickup address'));
       });
 
       await waitFor(() => {
@@ -135,10 +135,10 @@ describe('DateAndLocationForm component', () => {
       });
     });
 
-    it('displays destination address when "Use my current destination address" is selected', async () => {
+    it('displays delivery address when "Use my current delivery address" is selected', async () => {
       await act(async () => {
         render(<DateAndLocationForm {...defaultProps} />);
-        await userEvent.click(screen.getByLabelText('Use my current destination address'));
+        await userEvent.click(screen.getByLabelText('Use my current delivery address'));
         const postalCodes = screen.getAllByLabelText(/ZIP/);
         const address1 = screen.getAllByLabelText(/Address 1/, { exact: false });
         const address2 = screen.getAllByLabelText('Address 2', { exact: false });
@@ -153,7 +153,7 @@ describe('DateAndLocationForm component', () => {
     });
   });
 
-  it('displays secondary destination Address input when hasSecondaryDestinationAddress is true', async () => {
+  it('displays secondary delivery address input when hasSecondaryDestinationAddress is true', async () => {
     await act(async () => {
       render(<DateAndLocationForm {...defaultProps} />);
       const hasSecondaryDestinationAddress = await screen.getAllByLabelText('Yes')[1];
@@ -266,11 +266,11 @@ describe('validates form fields and displays error messages', () => {
     });
   });
 
-  it('destination address 1 is empty passes validation schema - destination street 1 is OPTIONAL', async () => {
+  it('delivery address 1 is empty passes validation schema - destination street 1 is OPTIONAL', async () => {
     await act(async () => {
       render(<DateAndLocationForm {...defaultProps} />);
 
-      // type something in for destination address 1
+      // type something in for delivery address 1
       await userEvent.type(
         document.querySelector('input[name="destinationAddress.address.streetAddress1"]'),
         '1234 Street',
@@ -289,8 +289,8 @@ describe('validates form fields and displays error messages', () => {
         // only expecting postalCode alert
         expect(requiredAlerts.length).toBe(1);
 
-        // 'Required' labelHint on address display. expecting a total of 7(2 for pickup address and 3 destination address with 2 misc).
-        // This is to verify Required labelHints are displayed correctly for PPM onboarding/edit for the destination address
+        // 'Required' labelHint on address display. expecting a total of 7(2 for pickup address and 3 delivery address with 2 misc).
+        // This is to verify Required labelHints are displayed correctly for PPM onboarding/edit for the delivery address
         // street 1 is now OPTIONAL. If this fails it means addtional labelHints have been introduced elsewhere within the control.
         const hints = document.getElementsByClassName('usa-hint');
         expect(hints.length).toBe(7);
@@ -322,7 +322,7 @@ describe('validates form fields and displays error messages', () => {
       });
     });
   });
-  it('displays tertiary destination Address input when hasTertiaryDestinationAddress is true', async () => {
+  it('displays tertiary delivery address input when hasTertiaryDestinationAddress is true', async () => {
     await act(async () => {
       render(<DateAndLocationForm {...defaultProps} />);
       const hasTertiaryDestinationAddress = await screen.getAllByLabelText('Yes')[2];

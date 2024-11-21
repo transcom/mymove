@@ -647,7 +647,7 @@ class MtoShipmentForm extends Component {
                                   </li>
                                 )}
                                 <li>Large, bulky, or fragile items</li>
-                                <li>Access info for your origin or destination address</li>
+                                <li>Access info for your pickup or delivery address</li>
                                 <li>You’re shipping weapons or alcohol</li>
                               </ul>
                             </Callout>

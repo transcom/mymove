@@ -294,7 +294,7 @@ describe('MtoShipmentForm component', () => {
       expect(zip[1]).toHaveAttribute('name', 'delivery.address.postalCode');
     });
 
-    it('renders the secondary destination address question once a user says they have a primary destination address', async () => {
+    it('renders the secondary delivery address question once a user says they have a primary delivery address', async () => {
       renderMtoShipmentForm();
 
       expect(screen.queryByRole('heading', { level: 4, name: 'Second Destination Location' })).not.toBeInTheDocument();
@@ -308,7 +308,7 @@ describe('MtoShipmentForm component', () => {
       expect(screen.getByTitle('No, I do not have a second destination location')).toBeInstanceOf(HTMLInputElement);
     });
 
-    it('renders another address fieldset when the user has a second destination address', async () => {
+    it('renders another address fieldset when the user has a second delivery address', async () => {
       renderMtoShipmentForm();
 
       await userEvent.click(screen.getByTitle('Yes, I know my delivery address'));
@@ -1215,7 +1215,7 @@ describe('MtoShipmentForm component', () => {
       expect(zip[1]).toHaveAttribute('name', 'delivery.address.postalCode');
     });
 
-    it('renders the secondary destination address question once a user says they have a primary destination address', async () => {
+    it('renders the secondary delivery address question once a user says they have a primary delivery address', async () => {
       renderUBShipmentForm();
 
       expect(screen.queryByRole('heading', { level: 4, name: 'Second Destination Location' })).not.toBeInTheDocument();
@@ -1229,7 +1229,7 @@ describe('MtoShipmentForm component', () => {
       expect(screen.getByTitle('No, I do not have a second destination location')).toBeInstanceOf(HTMLInputElement);
     });
 
-    it('renders another address fieldset when the user has a second destination address', async () => {
+    it('renders another address fieldset when the user has a second delivery address', async () => {
       renderUBShipmentForm();
 
       await userEvent.click(screen.getByTitle('Yes, I know my delivery address'));
