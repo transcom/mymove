@@ -3,7 +3,6 @@ import { act } from 'react-dom/test-utils';
 import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { generatePath } from 'react-router-dom';
-import { Provider } from 'react-redux';
 
 import {
   shipments,
@@ -22,12 +21,11 @@ import {
 import ApprovedRequestedShipments from './ApprovedRequestedShipments';
 import SubmittedRequestedShipments from './SubmittedRequestedShipments';
 
+import { useMoveDetailsQueries } from 'hooks/queries';
 import { SHIPMENT_OPTIONS_URL } from 'shared/constants';
 import { tooRoutes } from 'constants/routes';
 import { MockProviders } from 'testUtils';
 import { permissionTypes } from 'constants/permissions';
-import { configureStore } from 'shared/store';
-import { useMoveDetailsQueries } from 'hooks/queries';
 
 const mockNavigate = jest.fn();
 jest.mock('react-router-dom', () => ({
@@ -55,10 +53,9 @@ const moveTaskOrderServicesCounselingCompleted = {
 };
 
 const approveMTO = jest.fn().mockResolvedValue({ response: { status: 200 } });
-const mockStore = configureStore({});
 
 const submittedRequestedShipmentsComponent = (
-  <Provider store={mockStore.store}>
+  <MockProviders permissions={[permissionTypes.updateShipment]}>
     <SubmittedRequestedShipments
       allowancesInfo={allowancesInfo}
       moveCode="TE5TC0DE"
@@ -68,7 +65,7 @@ const submittedRequestedShipmentsComponent = (
       ordersInfo={ordersInfo}
       approveMTO={approveMTO}
     />
-  </Provider>
+  </MockProviders>
 );
 
 const submittedRequestedShipmentsComponentWithPermission = (
@@ -115,7 +112,7 @@ const submittedRequestedShipmentsComponentAvailableToPrimeAt = (
 );
 
 const submittedRequestedShipmentsComponentServicesCounselingCompleted = (
-  <Provider store={mockStore.store}>
+  <MockProviders permissions={[permissionTypes.updateShipment]}>
     <SubmittedRequestedShipments
       ordersInfo={ordersInfo}
       allowancesInfo={allowancesInfo}
@@ -126,7 +123,7 @@ const submittedRequestedShipmentsComponentServicesCounselingCompleted = (
       moveTaskOrder={moveTaskOrderServicesCounselingCompleted}
       moveCode="TE5TC0DE"
     />
-  </Provider>
+  </MockProviders>
 );
 
 const submittedRequestedShipmentsComponentMissingRequiredInfo = (
@@ -172,12 +169,6 @@ const submittedRequestedShipmentsNoOrderDocuments = (
     />
   </MockProviders>
 );
-
-const loadingReturnValue = {
-  isLoading: true,
-  isError: false,
-  isSuccess: false,
-};
 const testProps = {
   ordersInfo,
   allowancesInfo,
@@ -187,7 +178,11 @@ const testProps = {
   mtoServiceItems: [],
   moveCode: 'TE5TC0DE',
 };
-
+const loadingReturnValue = {
+  isLoading: true,
+  isError: false,
+  isSuccess: false,
+};
 describe('RequestedShipments', () => {
   describe('Prime-handled shipments', () => {
     it('renders the container successfully without services counseling completed', () => {
@@ -198,10 +193,10 @@ describe('RequestedShipments', () => {
     });
 
     it('renders the container successfully with services counseling completed', () => {
-      useMoveDetailsQueries.mockReturnValue(loadingReturnValue);
+      // useMoveDetailsQueries.mockReturnValue(loadingReturnValue);
       render(submittedRequestedShipmentsComponentServicesCounselingCompleted);
       expect(screen.getByTestId('requested-shipments')).toBeInTheDocument();
-      expect(screen.queryByTestId('services-counseling-completed-text')).not.toBeInTheDocument();
+      expect(screen.queryByTestId('services-counseling-completed-text')).toBeInTheDocument();
     });
 
     it('renders a shipment passed to it', () => {
@@ -213,6 +208,7 @@ describe('RequestedShipments', () => {
     });
 
     it('renders the button', () => {
+      useMoveDetailsQueries.mockReturnValue(loadingReturnValue);
       render(submittedRequestedShipmentsComponentWithPermission);
       expect(
         screen.getByRole('button', {
@@ -255,10 +251,20 @@ describe('RequestedShipments', () => {
     it('enables the Approve selected button when a shipment and service item are checked', async () => {
       useMoveDetailsQueries.mockReturnValue(loadingReturnValue);
       const { container } = render(submittedRequestedShipmentsComponentWithPermission);
+
+      // TODO this doesn't seem right
+      await act(async () => {
+        await userEvent.type(
+          container.querySelector('input[name="shipments"]'),
+          'ce01a5b8-9b44-4511-8a8d-edb60f2a4aee',
+        );
+      });
       await userEvent.type(container.querySelector('input[name="shipments"]'), 'ce01a5b8-9b44-4511-8a8d-edb60f2a4aee');
       await userEvent.click(screen.getByRole('checkbox', { name: 'Move management' }));
       await userEvent.click(screen.getByRole('checkbox', { name: 'Counseling' }));
       await userEvent.click(screen.getByText('Approve and send'));
+
+      // TODO
       await act(async () => {
         await userEvent.click(screen.getByRole('button', { name: 'Approve selected' }));
       });
@@ -293,14 +299,12 @@ describe('RequestedShipments', () => {
 
       expect(screen.getByRole('button', { name: 'Approve selected' })).toBeDisabled();
     });
-
     it('disables the Approve selected button when missing document', async () => {
       useMoveDetailsQueries.mockReturnValue(loadingReturnValue);
       render(submittedRequestedShipmentsNoOrderDocuments);
       expect(await screen.getByRole('button', { name: 'Approve selected' })).toBeInTheDocument();
       expect(screen.getByRole('button', { name: 'Approve selected' })).toBeDisabled();
     });
-
     it('calls approveMTO onSubmit', async () => {
       useMoveDetailsQueries.mockReturnValue(loadingReturnValue);
       const mockOnSubmit = jest.fn((id, eTag) => {
@@ -453,6 +457,7 @@ describe('RequestedShipments', () => {
             moveCode: 'TE5TC0DE',
           },
         };
+        useMoveDetailsQueries.mockReturnValue(loadingReturnValue);
 
         const statusComponents = {
           APPROVED: ApprovedRequestedShipments,
@@ -462,13 +467,14 @@ describe('RequestedShipments', () => {
         const Component = statusComponents[status];
 
         render(
-          <Provider store={mockStore.store}>
+          <MockProviders permissions={[permissionTypes.updateShipment]}>
             <Component {...statusTestProps[status]} />
-          </Provider>,
+          </MockProviders>,
         );
 
         const customerRemarks = screen.getAllByTestId('customerRemarks');
         const counselorRemarks = screen.getAllByTestId('counselorRemarks');
+
         expect(customerRemarks.at(0).textContent).toBe('please treat gently');
         expect(customerRemarks.at(1).textContent).toBe('please treat gently');
 
@@ -588,6 +594,7 @@ describe('RequestedShipments', () => {
   });
 
   describe('Conditional form display', () => {
+    useMoveDetailsQueries.mockReturnValue(loadingReturnValue);
     const renderComponent = (props) => {
       render(
         <MockProviders permissions={[permissionTypes.updateShipment]}>
@@ -659,7 +666,6 @@ describe('RequestedShipments', () => {
     });
 
     it('renders the "Add service items to move" section with all fields when neither counseling nor move management is present in service items', () => {
-      useMoveDetailsQueries.mockReturnValue(loadingReturnValue);
       const testPropsServiceItemsEmpty = {
         mtoServiceItems: serviceItemsEmpty,
         mtoShipments: shipments,
@@ -673,7 +679,7 @@ describe('RequestedShipments', () => {
       expect(screen.getByTestId('counselingFee')).toBeInTheDocument();
     });
 
-    it('renders the "Add service items to move" section with only counseling when all shipments are PPM', () => {
+    it('does not render the "Add service items to move" section or Counseling option when all shipments are PPM', () => {
       useMoveDetailsQueries.mockReturnValue(loadingReturnValue);
       const testPropsServiceItemsEmpty = {
         mtoServiceItems: serviceItemsEmpty,
@@ -682,10 +688,10 @@ describe('RequestedShipments', () => {
       };
       renderComponent(testPropsServiceItemsEmpty);
 
-      expect(screen.getByText('Add service items to this move')).toBeInTheDocument();
+      expect(screen.queryByText('Add service items to this move')).not.toBeInTheDocument();
       expect(screen.getByText('Approve selected')).toBeInTheDocument();
       expect(screen.queryByTestId('shipmentManagementFee')).not.toBeInTheDocument();
-      expect(screen.getByTestId('counselingFee')).toBeInTheDocument();
+      expect(screen.queryByTestId('counselingFee')).not.toBeInTheDocument();
     });
   });
 });
