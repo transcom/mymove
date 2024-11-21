@@ -22,7 +22,7 @@ EXCEPTION
 END;
 $$ LANGUAGE plpgsql;
 
-CREATE OR REPLACE FUNCTION checkExistingServiceItem(
+CREATE OR REPLACE FUNCTION does_service_item_exist(
     service_id UUID,
     shipment_id UUID
 ) RETURNS BOOLEAN AS $$
@@ -35,13 +35,12 @@ BEGIN
     ) THEN
         RAISE EXCEPTION 'Service item already exists for service_id % and shipment_id %', service_id, shipment_id;
     END IF;
-    RETURN FALSE;
 END;
 $$ LANGUAGE plpgsql;
 
 
 -- stored proc that creates auto-approved service items based off of a shipment id
-CREATE OR REPLACE PROCEDURE CreateApprovedServiceItemsForShipment(
+CREATE OR REPLACE PROCEDURE create_approved_service_items_for_shipment(
     IN shipment_id UUID
 )
 AS '
@@ -91,7 +90,7 @@ BEGIN
               AND rsi.is_auto_approved = true
         LOOP
             BEGIN
-            IF NOT checkExistingServiceItem(service_item.re_service_id, shipment_id) THEN
+            IF NOT does_service_item_exist(service_item.re_service_id, shipment_id) THEN
                 INSERT INTO mto_service_items (
                     mto_shipment_id,
                     move_id,
@@ -133,7 +132,7 @@ BEGIN
               AND rsi.is_auto_approved = true
         LOOP
             BEGIN
-           IF NOT checkExistingServiceItem(service_item.re_service_id, shipment_id) THEN
+           IF NOT does_service_item_exist(service_item.re_service_id, shipment_id) THEN
                 INSERT INTO mto_service_items (
                     mto_shipment_id,
                     move_id,
@@ -179,7 +178,7 @@ BEGIN
           AND rs.code NOT IN (''POEFSC'', ''PODFSC'')
     LOOP
         BEGIN
-         IF NOT checkExistingServiceItem(service_item.re_service_id, shipment_id) THEN
+         IF NOT does_service_item_exist(service_item.re_service_id, shipment_id) THEN
             INSERT INTO mto_service_items (
                 mto_shipment_id,
                 move_id,
@@ -254,7 +253,7 @@ END
 $$;
 
 
-CREATE OR REPLACE PROCEDURE CreateAccessorialServiceItemsForShipment (
+CREATE OR REPLACE PROCEDURE create_accessorial_service_items_for_shipment (
     IN shipment_id UUID,
     IN service_items mto_service_item_type[]
 ) AS '
@@ -296,7 +295,7 @@ BEGIN
               AND rsi.is_auto_approved = false
         LOOP
             BEGIN
-            IF NOT checkExistingServiceItem(service_item.re_service_id, shipment_id) THEN
+            IF NOT does_service_item_exist(service_item.re_service_id, shipment_id) THEN
                 INSERT INTO mto_service_items (
                     mto_shipment_id,
                     move_id,
