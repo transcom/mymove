@@ -622,13 +622,13 @@ func (suite *HandlerSuite) TestUpdateOrdersHandler() {
 			suite.NoError(err)
 			suite.Equal(payload.Grade, updatedOrder.Grade)
 			suite.Equal(*okResponse.Payload.AuthorizedWeight, int64(7000)) // E4 authorized weight is 7000, make sure we return that in the response
-			expectedUpdatedOrderWeightAllotment := models.GetWeightAllotment(*updatedOrder.Grade)
+			expectedUpdatedOrderWeightAllotment := models.GetWeightAllotment(*updatedOrder.Grade, updatedOrder.OrdersType)
 			expectedUpdatedOrderAuthorizedWeight := expectedUpdatedOrderWeightAllotment.TotalWeightSelf
 			if *payload.HasDependents {
 				expectedUpdatedOrderAuthorizedWeight = expectedUpdatedOrderWeightAllotment.TotalWeightSelfPlusDependents
 			}
 
-			expectedOriginalOrderWeightAllotment := models.GetWeightAllotment(*order.Grade)
+			expectedOriginalOrderWeightAllotment := models.GetWeightAllotment(*order.Grade, updatedOrder.OrdersType)
 			expectedOriginalOrderAuthorizedWeight := expectedOriginalOrderWeightAllotment.TotalWeightSelf
 			if *payload.HasDependents {
 				expectedUpdatedOrderAuthorizedWeight = expectedOriginalOrderWeightAllotment.TotalWeightSelfPlusDependents

@@ -70,8 +70,8 @@ func (e *Entitlement) Validate(*pop.Connection) (*validate.Errors, error) {
 // TODO probably want to reconsider keeping grade a string rather than enum
 // TODO and possibly consider creating ghc specific GetWeightAllotment should the two
 // TODO diverge in the future
-func (e *Entitlement) SetWeightAllotment(grade string) {
-	wa := GetWeightAllotment(internalmessages.OrderPayGrade(grade))
+func (e *Entitlement) SetWeightAllotment(grade string, ordersType internalmessages.OrdersType) {
+	wa := GetWeightAllotment(internalmessages.OrderPayGrade(grade), ordersType)
 	e.WeightAllotted = &wa
 }
 
