@@ -314,6 +314,12 @@ export const selectProGearEntitlements = (state) => {
   return orders?.entitlement || null;
 };
 
+export const selectUbAllowance = (state) => {
+  const orders = selectCurrentOrders(state);
+  if (!orders || !orders.entitlement || !orders.entitlement.ub_allowance) return null;
+  return orders.entitlement.ub_allowance || null;
+};
+
 export const selectCanAddOrders = (state) => {
   return state.generalState?.canAddOrders || false;
 };
