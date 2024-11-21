@@ -1396,8 +1396,8 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		suite.IsType(&mtoshipmentops.CreateMTOShipmentUnprocessableEntity{}, response)
 		errResponse := response.(*mtoshipmentops.CreateMTOShipmentUnprocessableEntity)
 
-		suite.Contains(*errResponse.Payload.Detail, "mto shipment is missing a secondary pickup/destination address")
-		suite.Contains(errResponse.Payload.InvalidFields["error validating mto shipment"][0], "MTO Shipment cannot have a tertiary address without a secondary address present")
+		suite.Contains(*errResponse.Payload.Detail, "Invalid input found while validating the MTO shipment")
+		suite.Contains(errResponse.Payload.InvalidFields["error validating mto shipment"][0], "Shipment cannot have a third address without a second address present")
 	})
 
 	suite.Run("POST failure - Error creating an mto shipment with ppm shipment contains tertiary pickup address no secondary pickup address.", func() {
@@ -1456,7 +1456,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		errResponse := response.(*mtoshipmentops.CreateMTOShipmentUnprocessableEntity)
 
 		suite.Contains(*errResponse.Payload.Detail, "Invalid input found while validating the PPM shipment.")
-		suite.Contains(errResponse.Payload.InvalidFields["error validating ppm shipment"][0], "PPM Shipment cannot have a tertiary address without a secondary address present")
+		suite.Contains(errResponse.Payload.InvalidFields["error validating ppm shipment"][0], "Shipment cannot have a third address without a second address present")
 	})
 
 	suite.Run("POST failure - Error creating mto shipment containing a ppm shipment contains tertiary destination address no secondary destination address.", func() {
@@ -1515,7 +1515,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		errResponse := response.(*mtoshipmentops.CreateMTOShipmentUnprocessableEntity)
 
 		suite.Contains(*errResponse.Payload.Detail, "Invalid input found while validating the PPM shipment.")
-		suite.Contains(errResponse.Payload.InvalidFields["error validating ppm shipment"][0], "PPM Shipment cannot have a tertiary address without a secondary address present")
+		suite.Contains(errResponse.Payload.InvalidFields["error validating ppm shipment"][0], "Shipment cannot have a third address without a second address present")
 	})
 	suite.Run("PATCH failure - Error updating an mto shipment contains tertiary pickup address no secondary pickup address.", func() {
 		// Under Test: UpdateMTOShipmentHandler
@@ -1587,8 +1587,8 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		}
 		patchResponse := patchHandler.Handle(patchParams)
 		errResponse := patchResponse.(*mtoshipmentops.UpdateMTOShipmentUnprocessableEntity)
-		suite.Contains(*errResponse.Payload.Detail, "mto shipment is missing a secondary pickup/destination address")
-		suite.Contains(errResponse.Payload.InvalidFields["error validating mto shipment"][0], "MTO Shipment cannot have a tertiary address without a secondary address present")
+		suite.Contains(*errResponse.Payload.Detail, "Invalid input found while validating the MTO shipment")
+		suite.Contains(errResponse.Payload.InvalidFields["error validating mto shipment"][0], "Shipment cannot have a third address without a second address present")
 
 	})
 	suite.Run("PATCH failure - Error updating an ppm shipment contains tertiary destination address no secondary destination address", func() {
@@ -1636,7 +1636,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		patchResponse := patchHandler.Handle(patchParams)
 		errResponse := patchResponse.(*mtoshipmentops.UpdateMTOShipmentUnprocessableEntity)
 		suite.Contains(*errResponse.Payload.Detail, "Invalid input found while validating the PPM shipment")
-		suite.Contains(errResponse.Payload.InvalidFields["error validating ppm shipment"][0], "PPM Shipment cannot have a tertiary address without a secondary address present")
+		suite.Contains(errResponse.Payload.InvalidFields["error validating ppm shipment"][0], "Shipment cannot have a third address without a second address present")
 
 	})
 
