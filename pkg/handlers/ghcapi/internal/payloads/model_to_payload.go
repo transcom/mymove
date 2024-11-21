@@ -2529,7 +2529,7 @@ func SearchMoves(appCtx appcontext.AppContext, moves models.Moves) *ghcmessages.
 		// populates the destination gbloc of the move
 		var destinationGBLOC string
 		var err error
-		destinationGBLOC, err = move.Orders.GetDestinationGBLOC(appCtx.DB())
+		destinationGBLOC, err = move.GetDestinationGBLOC(appCtx.DB())
 		if err != nil {
 			destinationGBLOC = ""
 		}
@@ -2540,7 +2540,7 @@ func SearchMoves(appCtx appcontext.AppContext, moves models.Moves) *ghcmessages.
 
 		// populates the destination postal code of the move
 		var destinationPostalCode string
-		destinationPostalCode, err = move.Orders.GetDestinationPostalCodeForAssociatedMove(appCtx.DB())
+		destinationPostalCode, err = move.GetDestinationPostalCode(appCtx.DB())
 		if err != nil {
 			destinationPostalCode = ""
 		}

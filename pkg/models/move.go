@@ -3,6 +3,7 @@ package models
 import (
 	"crypto/sha256"
 	"fmt"
+	"sort"
 	"strings"
 	"time"
 
@@ -203,18 +204,20 @@ func (m Move) GetDestinationPostalCode(db *pop.Connection) (string, error) {
 		return "", errors.WithMessage(ErrInvalidOrderID, "You must created the move in the DB before getting the destination Postal Code.")
 	}
 
-	err := db.Load(&m, "OrdersID", "Orders")
+	err := db.Load(&m, "Orders")
 	if err != nil {
-		return "", errors.WithMessage(err, "There was a problem loading the OrdersID and Orders related to the MoveID "+m.ID.String())
-	}
-
-	var destPostalCode string
-	destPostalCode, err = m.Orders.GetDestinationPostalCodeForAssociatedMove(db)
-	if err != nil {
+		if err.Error() == RecordNotFoundErrorString {
+			return "", errors.WithMessage(err, "No Orders found in the DB associated with moveID "+m.ID.String())
+		}
 		return "", err
 	}
 
-	return destPostalCode, nil
+	var gblocsMap map[uuid.UUID]string
+	gblocsMap, err = m.Orders.GetDestinationPostalCodeForAssociatedMoves(db)
+	if err != nil {
+		return "", err
+	}
+	return gblocsMap[m.ID], nil
 }
 
 // GetDestinationGBLOC returns the GBLOC for the move. This ensures that business logic is centralized.
@@ -224,17 +227,58 @@ func (m Move) GetDestinationGBLOC(db *pop.Connection) (string, error) {
 		return "", errors.WithMessage(ErrInvalidOrderID, "You must created the move in the DB before getting the destination GBLOC.")
 	}
 
-	err := db.Load(&m, "OrdersID", "Orders")
-	if err != nil {
-		return "", errors.WithMessage(err, "There was a problem loading the OrdersID and Orders related to the MoveID "+m.ID.String())
-	}
-
-	destinationGbloc, err := m.Orders.GetDestinationGBLOC(db)
+	postalCode, err := m.GetDestinationPostalCode(db)
 	if err != nil {
 		return "", err
 	}
 
-	return destinationGbloc, nil
+	var gblocResult PostalCodeToGBLOC
+	gblocResult, err = FetchGBLOCForPostalCode(db, postalCode)
+	if err != nil {
+		return "", err
+	}
+
+	return gblocResult.GBLOC, err
+}
+
+/* GetFirstShipmentExcludingRejected returns the first shipment from all shipments associated with an order excluding rejected
+ * shipments. It will return the first shipment associated with the moveID passed in.
+ */
+func GetFirstShipmentExcludingRejected(db *pop.Connection, moveID uuid.UUID) (MTOShipment, error) {
+	var move Move
+	var shipments MTOShipments
+	err := db.Find(&move, moveID)
+	if err != nil {
+		if err.Error() == RecordNotFoundErrorString {
+			return MTOShipment{}, errors.WithMessage(err, "No move found in the DB with ID "+moveID.String())
+		}
+		return MTOShipment{}, err
+	}
+
+	err = db.Load(&move, "MTOShipments")
+	if err != nil {
+		if err.Error() == RecordNotFoundErrorString {
+			return MTOShipment{}, errors.WithMessage(err, "No shipments found in the DB for moveID: "+moveID.String())
+		}
+		return MTOShipment{}, err
+	}
+
+	for _, s := range move.MTOShipments {
+		err = db.Load(&s, "Status", "DeletedAt", "CreatedAt", "DestinationAddress")
+		if err != nil {
+			return MTOShipment{}, errors.WithMessage(err, "Could not load shipment with ID of "+s.ID.String()+" for move ID "+move.ID.String())
+		}
+
+		if s.Status != MTOShipmentStatusRejected && s.Status != MTOShipmentStatusCanceled && s.DeletedAt == nil {
+			shipments = append(shipments, s)
+		}
+	}
+
+	sort.Slice(shipments, func(i, j int) bool {
+		return shipments[i].CreatedAt.Before(shipments[j].CreatedAt)
+	})
+
+	return shipments[0], nil
 }
 
 // CreateSignedCertification creates a new SignedCertification associated with this move

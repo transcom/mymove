@@ -446,7 +446,9 @@ func (suite *HandlerSuite) TestSearchMovesHandler() {
 			},
 			{
 				Model: models.PPMShipment{
-					Status: models.PPMShipmentStatusSubmitted,
+					Status:               models.PPMShipmentStatusSubmitted,
+					DestinationAddressID: &addressBGNC.ID,
+					PickupAddressID:      &defaultPickupAddress.ID,
 				},
 			},
 		}, nil)
@@ -677,8 +679,8 @@ func (suite *HandlerSuite) TestSearchMovesHandler() {
 		moveDestinationGBLOC, err = moveWithShipmentPPM.GetDestinationGBLOC(suite.DB())
 		suite.NoError(err)
 
-		suite.Equal("47712", moveDestinationPostalCode)
-		suite.Equal("BGNC", moveDestinationGBLOC)
+		suite.Equal(moveDestinationPostalCode, payload.SearchMoves[0].DestinationPostalCode)
+		suite.Equal(ghcmessages.GBLOC(moveDestinationGBLOC), payload.SearchMoves[0].DestinationGBLOC)
 	})
 }
 
