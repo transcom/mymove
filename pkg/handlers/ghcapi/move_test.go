@@ -949,7 +949,7 @@ func (suite *HandlerSuite) TestCheckForLockedMovesAndUnlockHandler() {
 		suite.NoError(payload.Validate(strfmt.Default))
 
 		actualMessage := payload.SuccessMessage
-		suite.Equal(expectedPayloadMessage, string(*actualMessage))
+		suite.Equal(expectedPayloadMessage, actualMessage)
 	})
 
 	suite.Run("Unsucceful unlocking of move - nil officerUserId", func() {

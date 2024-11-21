@@ -346,13 +346,11 @@ func (h CheckForLockedMovesAndUnlockHandler) Handle(params moveop.CheckForLocked
 			if err != nil {
 				return moveop.NewCheckForLockedMovesAndUnlockInternalServerError(), err
 			}
-			payloadMessage := "Successfully unlocked all move(s) for current office user"
+			var payload moveop.CheckForLockedMovesAndUnlockOK
+			payload.SetPayload(&moveop.CheckForLockedMovesAndUnlockOKBody{
+				SuccessMessage: "Successfully unlocked all move(s) for current office user"})
 
-			payload := ghcmessages.UnlockedMoves{
-				SuccessMessage: &payloadMessage,
-			}
-
-			return moveop.NewCheckForLockedMovesAndUnlockOK().WithPayload(&payload), nil
+			return &payload, nil
 		})
 }
 

@@ -4320,7 +4320,11 @@ paths:
         '200':
           description: Successfully unlocked officer's move(s).
           schema:
-            $ref: '#/definitions/UnlockedMoves'
+            type: object
+            properties:
+              successMessage:
+                type: string
+                example: OK
         '500':
           $ref: '#/responses/ServerError'
       tags:
@@ -4329,13 +4333,6 @@ paths:
         Finds and unlocks any locked moves by an office user
       operationId: checkForLockedMovesAndUnlock
 definitions:
-  UnlockedMoves:
-    type: object
-    properties:
-      successMessage:
-        type: string
-        format: string
-        x-nullable: true
   ApplicationParameters:
     type: object
     properties:

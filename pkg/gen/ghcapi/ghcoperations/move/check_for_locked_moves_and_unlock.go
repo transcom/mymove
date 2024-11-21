@@ -6,9 +6,12 @@ package move
 // Editing this file might prove futile when you re-run the generate command
 
 import (
+	"context"
 	"net/http"
 
 	"github.com/go-openapi/runtime/middleware"
+	"github.com/go-openapi/strfmt"
+	"github.com/go-openapi/swag"
 )
 
 // CheckForLockedMovesAndUnlockHandlerFunc turns a function with the right signature into a check for locked moves and unlock handler
@@ -53,4 +56,42 @@ func (o *CheckForLockedMovesAndUnlock) ServeHTTP(rw http.ResponseWriter, r *http
 	res := o.Handler.Handle(Params) // actually handle the request
 	o.Context.Respond(rw, r, route.Produces, route, res)
 
+}
+
+// CheckForLockedMovesAndUnlockOKBody check for locked moves and unlock o k body
+//
+// swagger:model CheckForLockedMovesAndUnlockOKBody
+type CheckForLockedMovesAndUnlockOKBody struct {
+
+	// success message
+	// Example: OK
+	SuccessMessage string `json:"successMessage,omitempty"`
+}
+
+// Validate validates this check for locked moves and unlock o k body
+func (o *CheckForLockedMovesAndUnlockOKBody) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this check for locked moves and unlock o k body based on context it is used
+func (o *CheckForLockedMovesAndUnlockOKBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (o *CheckForLockedMovesAndUnlockOKBody) MarshalBinary() ([]byte, error) {
+	if o == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(o)
+}
+
+// UnmarshalBinary interface implementation
+func (o *CheckForLockedMovesAndUnlockOKBody) UnmarshalBinary(b []byte) error {
+	var res CheckForLockedMovesAndUnlockOKBody
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*o = res
+	return nil
 }
