@@ -416,7 +416,7 @@ func (o Order) GetDestinationPostalCodeForAssociatedMoves(db *pop.Connection) (m
 		return nil, errors.WithMessage(ErrInvalidOrderID, "You must created the order in the DB before getting the destination Postal Code.")
 	}
 
-	err := db.Load(&o, "Moves")
+	err := db.Load(&o, "Moves", "NewDutyLocation.Address.PostalCode")
 	if err != nil {
 		if err.Error() == RecordNotFoundErrorString {
 			return nil, errors.WithMessage(err, "No Moves were found for the order ID "+o.ID.String())
@@ -427,7 +427,7 @@ func (o Order) GetDestinationPostalCodeForAssociatedMoves(db *pop.Connection) (m
 	// zipsMap is a map of key, value pairs where the key is the move id and the value is the destination postal code
 	zipsMap := make(map[uuid.UUID]string)
 	for i, m := range o.Moves {
-		err = db.Load(&m, "MTOShipments")
+		err = db.Load(&o.Moves[i], "MTOShipments")
 		if err != nil {
 			if err.Error() == RecordNotFoundErrorString {
 				return nil, errors.WithMessage(err, "Could not find shipments for move "+m.ID.String())
@@ -436,8 +436,8 @@ func (o Order) GetDestinationPostalCodeForAssociatedMoves(db *pop.Connection) (m
 		}
 
 		var shipments MTOShipments
-		for _, s := range m.MTOShipments {
-			err = db.Load(&s, "CreatedAt", "Status", "DestinationAddress", "DeletedAt", "DestinationAddress.PostalCode")
+		for j, s := range o.Moves[i].MTOShipments {
+			err = db.Load(&o.Moves[i].MTOShipments[j], "CreatedAt", "Status", "DeletedAt", "DestinationAddress")
 			if err != nil {
 				if err.Error() == RecordNotFoundErrorString {
 					return nil, errors.WithMessage(err, "Could not load shipment with ID of "+s.ID.String()+" for move ID "+m.ID.String())
@@ -445,29 +445,29 @@ func (o Order) GetDestinationPostalCodeForAssociatedMoves(db *pop.Connection) (m
 				return nil, err
 			}
 
-			if s.Status != MTOShipmentStatusRejected && s.Status != MTOShipmentStatusCanceled {
-				shipments = append(shipments, s)
-			}
-		}
+			if o.Moves[i].MTOShipments[j].Status != MTOShipmentStatusRejected &&
+				o.Moves[i].MTOShipments[j].Status != MTOShipmentStatusCanceled &&
+				o.Moves[i].MTOShipments[j].DeletedAt == nil {
+				shipments = append(shipments, o.Moves[i].MTOShipments[j])
 
-		sort.Slice(shipments, func(i, j int) bool {
-			return shipments[i].CreatedAt.Before(shipments[j].CreatedAt)
-		})
-
-		if i+1 == len(o.Moves) && len(shipments) == 0 {
-			err = db.Load(&o, "NewDutyLocation.Address.PostalCode")
-			if err != nil {
-				if err.Error() == RecordNotFoundErrorString {
-					return nil, errors.WithMessage(err, "No New Duty Location Address Postal Code was found for the order ID "+o.ID.String())
+				if len(shipments) > 1 {
+					sort.Slice(shipments, func(i, j int) bool {
+						return shipments[i].CreatedAt.Before(shipments[j].CreatedAt)
+					})
 				}
-				return nil, err
 			}
 
-			zipsMap[m.ID] = o.NewDutyLocation.Address.PostalCode
-			continue
+			if j+1 == len(o.Moves[i].MTOShipments) {
+				if len(shipments) == 0 {
+					zipsMap[o.Moves[i].ID] = o.NewDutyLocation.Address.PostalCode
+				}
+			}
 		}
-
-		zipsMap[m.ID] = shipments[0].DestinationAddress.PostalCode
+		if i+1 == len(o.Moves) {
+			if len(zipsMap) == 0 {
+				return nil, errors.WithMessage(err, "No destination postal codes were found for the order ID "+o.ID.String())
+			}
+		}
 	}
 	return zipsMap, nil
 }
