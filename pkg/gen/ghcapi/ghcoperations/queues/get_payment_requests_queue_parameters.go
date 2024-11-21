@@ -43,6 +43,10 @@ type GetPaymentRequestsQueueParams struct {
 	  In: query
 	*/
 	Branch *string
+	/*filters using a counselingOffice name of the move
+	  In: query
+	*/
+	CounselingOffice *string
 	/*
 	  In: query
 	*/
@@ -121,6 +125,11 @@ func (o *GetPaymentRequestsQueueParams) BindRequest(r *http.Request, route *midd
 
 	qBranch, qhkBranch, _ := qs.GetOK("branch")
 	if err := o.bindBranch(qBranch, qhkBranch, route.Formats); err != nil {
+		res = append(res, err)
+	}
+
+	qCounselingOffice, qhkCounselingOffice, _ := qs.GetOK("counselingOffice")
+	if err := o.bindCounselingOffice(qCounselingOffice, qhkCounselingOffice, route.Formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -231,6 +240,24 @@ func (o *GetPaymentRequestsQueueParams) bindBranch(rawData []string, hasKey bool
 		return nil
 	}
 	o.Branch = &raw
+
+	return nil
+}
+
+// bindCounselingOffice binds and validates parameter CounselingOffice from query.
+func (o *GetPaymentRequestsQueueParams) bindCounselingOffice(rawData []string, hasKey bool, formats strfmt.Registry) error {
+	var raw string
+	if len(rawData) > 0 {
+		raw = rawData[len(rawData)-1]
+	}
+
+	// Required: false
+	// AllowEmptyValue: false
+
+	if raw == "" { // empty values pass all other validations
+		return nil
+	}
+	o.CounselingOffice = &raw
 
 	return nil
 }
@@ -464,7 +491,7 @@ func (o *GetPaymentRequestsQueueParams) bindSort(rawData []string, hasKey bool, 
 // validateSort carries on validations for parameter Sort
 func (o *GetPaymentRequestsQueueParams) validateSort(formats strfmt.Registry) error {
 
-	if err := validate.EnumCase("sort", "query", *o.Sort, []interface{}{"customerName", "locator", "submittedAt", "branch", "status", "edipi", "emplid", "age", "originDutyLocation", "assignedTo"}, true); err != nil {
+	if err := validate.EnumCase("sort", "query", *o.Sort, []interface{}{"customerName", "locator", "submittedAt", "branch", "status", "edipi", "emplid", "age", "originDutyLocation", "assignedTo", "counselingOffice"}, true); err != nil {
 		return err
 	}
 

@@ -254,6 +254,7 @@ func (h GetPaymentRequestsQueueHandler) Handle(
 				OriginDutyLocation:      params.OriginDutyLocation,
 				OrderType:               params.OrderType,
 				TIOAssignedUser:         params.AssignedTo,
+				CounselingOffice:        params.CounselingOffice,
 			}
 
 			listPaymentRequestParams.Status = []string{string(models.QueuePaymentRequestPaymentRequested)}
