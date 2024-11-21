@@ -40,7 +40,7 @@ const PrimeUIShipmentUpdatePPMForm = () => {
           <>
             <p>What address are the movers picking up from?</p>
             {fields}
-            <h4>Second pickup location</h4>
+            <h4>Second Pickup Address</h4>
             <FormGroup>
               <p>
                 Will the movers pick up any belongings from a second address? (Must be near the pickup address. Subject
@@ -54,7 +54,7 @@ const PrimeUIShipmentUpdatePPMForm = () => {
                   label="Yes"
                   name="ppmShipment.hasSecondaryPickupAddress"
                   value="true"
-                  title="Yes, there is a second pickup location"
+                  title="Yes, there is a second pickup address"
                   checked={hasSecondaryPickupAddress === 'true'}
                 />
                 <Field
@@ -64,7 +64,7 @@ const PrimeUIShipmentUpdatePPMForm = () => {
                   label="No"
                   name="ppmShipment.hasSecondaryPickupAddress"
                   value="false"
-                  title="No, there is not a second pickup location"
+                  title="No, there is not a second pickup address"
                   checked={hasSecondaryPickupAddress !== 'true'}
                 />
               </div>
@@ -72,7 +72,7 @@ const PrimeUIShipmentUpdatePPMForm = () => {
             {hasSecondaryPickupAddress === 'true' && (
               <>
                 <AddressFields name="ppmShipment.secondaryPickupAddress" />
-                <h4>Third pickup location</h4>
+                <h4>Third Pickup Address</h4>
                 <FormGroup>
                   <p>
                     Will the movers pick up any belongings from a third address? (Must be near the pickup address.
@@ -86,7 +86,7 @@ const PrimeUIShipmentUpdatePPMForm = () => {
                       label="Yes"
                       name="ppmShipment.hasTertiaryPickupAddress"
                       value="true"
-                      title="Yes, there is a third pickup location"
+                      title="Yes, there is a third pickup address"
                       checked={hasTertiaryPickupAddress === 'true'}
                     />
                     <Field
@@ -96,7 +96,7 @@ const PrimeUIShipmentUpdatePPMForm = () => {
                       label="No"
                       name="ppmShipment.hasTertiaryPickupAddress"
                       value="false"
-                      title="No, there is not a third pickup location"
+                      title="No, there is not a third pickup address"
                       checked={hasTertiaryPickupAddress !== 'true'}
                     />
                   </div>
@@ -110,16 +110,16 @@ const PrimeUIShipmentUpdatePPMForm = () => {
       <h2 className={styles.sectionHeader}>Destination Info</h2>
       <AddressFields
         name="ppmShipment.destinationAddress"
-        legend="Destination Address"
+        legend="Delivery Address"
         address1LabelHint="Optional"
         render={(fields) => (
           <>
             {fields}
-            <h4>Second destination address</h4>
+            <h4>Second Delivery Address</h4>
             <FormGroup>
               <p>
-                Will the movers deliver any belongings to a second address? (Must be near the destination address.
-                Subject to approval.)
+                Will the movers deliver any belongings to a second address? (Must be near the delivery address. Subject
+                to approval.)
               </p>
               <div className={formStyles.radioGroup}>
                 <Field
@@ -150,7 +150,7 @@ const PrimeUIShipmentUpdatePPMForm = () => {
                 <h4>Third destination location</h4>
                 <FormGroup>
                   <p>
-                    Will the movers pick up any belongings from a third address? (Must be near the Destination address.
+                    Will the movers pick up any belongings from a third address? (Must be near the Delivery Address.
                     Subject to approval.)
                   </p>
                   <div className={formStyles.radioGroup}>

@@ -32,7 +32,15 @@ test.describe('Office Users List Page', () => {
     expect(page.url()).toContain('/system/office-users');
     await expect(page.locator('header')).toContainText('Office Users');
 
-    const columnLabels = ['Id', 'Email', 'First name', 'Last name', 'Transportation Office', 'User Id', 'Active'];
+    const columnLabels = [
+      'Id',
+      'Email',
+      'First name',
+      'Last name',
+      'Primary Transportation Office',
+      'User Id',
+      'Active',
+    ];
 
     await adminPage.expectRoleLabelsByText('columnheader', columnLabels);
   });
@@ -77,12 +85,17 @@ test.describe('Office User Create Page', () => {
 
     await page.getByText('Services Counselor').click();
     await page.getByText('Supervisor').click();
+
+    // Add a Transportation Office Assignment
+    await page.getByTestId('AddCircleOutlineIcon').click();
     // The autocomplete form results in multiple matching elements, so
     // pick the input element
-    await page.getByLabel('Transportation Office').fill('JPPSO Testy McTest');
+    await page.getByLabel('Transportation Office').nth(0).fill('JPPSO Testy McTest');
     // the autocomplete might return multiples because of concurrent
     // tests running that are adding offices
     await page.getByRole('option', { name: 'JPPSO Testy McTest' }).first().click();
+    // Set as primary transportation office
+    await page.getByLabel('Primary Office').click();
 
     await page.getByRole('button', { name: 'Save' }).click();
     await adminPage.waitForPage.adminPage();
@@ -135,7 +148,7 @@ test.describe('Office Users Show Page', () => {
       'Last name',
       'Telephone',
       'Active',
-      'Transportation Office',
+      'Transportation Offices',
       'Created at',
       'Updated at',
     ];
@@ -177,7 +190,20 @@ test.describe('Office Users Edit Page', () => {
 
     // The autocomplete form results in multiple matching elements, so
     // pick the input element
-    await expect(page.getByLabel('Transportation Office')).toBeEditable();
+    await expect(page.getByLabel('Transportation Office').nth(0)).toBeEditable();
+
+    // Add a Transportation Office Assignment
+    await page.getByTestId('AddCircleOutlineIcon').click();
+    await expect(page.getByLabel('Transportation Office').nth(2)).toBeEditable();
+
+    await page.getByLabel('Transportation Office').nth(2).fill('AGFM');
+    // the autocomplete might return multiples because of concurrent
+    // tests running that are adding offices
+    await page.getByRole('option', { name: 'JPPSO - North East (AGFM) - USAF' }).first().click();
+    // Set as primary transportation office
+    await page.getByLabel('Primary Office').nth(1).click();
+    await page.getByText('You cannot designate more than one primary transportation office.');
+    await page.getByLabel('Primary Office').nth(1).click();
 
     // set the user to the active status they did NOT have before
     const activeStatus = await page.locator('div:has(label :text-is("Active")) >> input[name="active"]').inputValue();

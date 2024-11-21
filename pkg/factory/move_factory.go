@@ -167,7 +167,7 @@ func BuildMoveWithShipment(db *pop.Connection, customs []Customization, traits [
 func BuildMoveWithPPMShipment(db *pop.Connection, customs []Customization, traits []Trait) models.Move {
 	move := BuildMove(db, customs, traits)
 
-	mtoShipment := buildMTOShipmentWithBuildType(db, customs, traits, mtoShipmentBuildBasic)
+	mtoShipment := buildMTOShipmentWithBuildType(db, customs, traits, mtoShipmentPPM)
 	mtoShipment.MoveTaskOrder = move
 	mtoShipment.MoveTaskOrderID = move.ID
 

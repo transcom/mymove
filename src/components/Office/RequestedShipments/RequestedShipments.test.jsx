@@ -2,6 +2,7 @@ import React from 'react';
 import { act } from 'react-dom/test-utils';
 import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { generatePath } from 'react-router-dom';
 import { Provider } from 'react-redux';
 
@@ -54,17 +55,19 @@ const approveMTO = jest.fn().mockResolvedValue({ response: { status: 200 } });
 const mockStore = configureStore({});
 
 const submittedRequestedShipmentsComponent = (
-  <Provider store={mockStore.store}>
-    <SubmittedRequestedShipments
-      allowancesInfo={allowancesInfo}
-      moveCode="TE5TC0DE"
-      mtoShipments={shipments}
-      closeoutOffice={closeoutOffice}
-      customerInfo={customerInfo}
-      ordersInfo={ordersInfo}
-      approveMTO={approveMTO}
-    />
-  </Provider>
+  <QueryClientProvider client={new QueryClient()}>
+    <Provider store={mockStore.store}>
+      <SubmittedRequestedShipments
+        allowancesInfo={allowancesInfo}
+        moveCode="TE5TC0DE"
+        mtoShipments={shipments}
+        closeoutOffice={closeoutOffice}
+        customerInfo={customerInfo}
+        ordersInfo={ordersInfo}
+        approveMTO={approveMTO}
+      />
+    </Provider>
+  </QueryClientProvider>
 );
 
 const submittedRequestedShipmentsComponentWithPermission = (
@@ -111,18 +114,20 @@ const submittedRequestedShipmentsComponentAvailableToPrimeAt = (
 );
 
 const submittedRequestedShipmentsComponentServicesCounselingCompleted = (
-  <Provider store={mockStore.store}>
-    <SubmittedRequestedShipments
-      ordersInfo={ordersInfo}
-      allowancesInfo={allowancesInfo}
-      customerInfo={customerInfo}
-      mtoShipments={shipments}
-      closeoutOffice={closeoutOffice}
-      approveMTO={approveMTO}
-      moveTaskOrder={moveTaskOrderServicesCounselingCompleted}
-      moveCode="TE5TC0DE"
-    />
-  </Provider>
+  <QueryClientProvider client={new QueryClient()}>
+    <Provider store={mockStore.store}>
+      <SubmittedRequestedShipments
+        ordersInfo={ordersInfo}
+        allowancesInfo={allowancesInfo}
+        customerInfo={customerInfo}
+        mtoShipments={shipments}
+        closeoutOffice={closeoutOffice}
+        approveMTO={approveMTO}
+        moveTaskOrder={moveTaskOrderServicesCounselingCompleted}
+        moveCode="TE5TC0DE"
+      />
+    </Provider>
+  </QueryClientProvider>
 );
 
 const submittedRequestedShipmentsComponentMissingRequiredInfo = (
@@ -211,7 +216,7 @@ describe('RequestedShipments', () => {
       expect(screen.getAllByTestId('checkbox').length).toEqual(5);
     });
 
-    it('uses the duty location postal code if there is no destination address', () => {
+    it('uses the duty location postal code if there is no delivery address', () => {
       render(submittedRequestedShipmentsComponent);
       const destination = shipments[0].destinationAddress;
       expect(screen.getAllByTestId('destinationAddress').at(0)).toHaveTextContent(
@@ -437,9 +442,11 @@ describe('RequestedShipments', () => {
         const Component = statusComponents[status];
 
         render(
-          <Provider store={mockStore.store}>
-            <Component {...statusTestProps[status]} />
-          </Provider>,
+          <QueryClientProvider client={new QueryClient()}>
+            <Provider store={mockStore.store}>
+              <Component {...statusTestProps[status]} />
+            </Provider>
+          </QueryClientProvider>,
         );
 
         const customerRemarks = screen.getAllByTestId('customerRemarks');
@@ -638,7 +645,7 @@ describe('RequestedShipments', () => {
       expect(screen.getByTestId('counselingFee')).toBeInTheDocument();
     });
 
-    it('renders the "Add service items to move" section with only counseling when all shipments are PPM', () => {
+    it('does not render the "Add service items to move" section or Counseling option when all shipments are PPM', () => {
       const testPropsServiceItemsEmpty = {
         mtoServiceItems: serviceItemsEmpty,
         mtoShipments: ppmOnlyShipments,
@@ -646,10 +653,10 @@ describe('RequestedShipments', () => {
       };
       renderComponent(testPropsServiceItemsEmpty);
 
-      expect(screen.getByText('Add service items to this move')).toBeInTheDocument();
+      expect(screen.queryByText('Add service items to this move')).not.toBeInTheDocument();
       expect(screen.getByText('Approve selected')).toBeInTheDocument();
       expect(screen.queryByTestId('shipmentManagementFee')).not.toBeInTheDocument();
-      expect(screen.getByTestId('counselingFee')).toBeInTheDocument();
+      expect(screen.queryByTestId('counselingFee')).not.toBeInTheDocument();
     });
   });
 });

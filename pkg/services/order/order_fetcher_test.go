@@ -2021,6 +2021,44 @@ func (suite *OrderServiceSuite) TestListAllOrderLocations() {
 	})
 }
 
+func (suite *OrderServiceSuite) TestOriginDutyLocationFilter() {
+	var session auth.Session
+	var expectedMove models.Move
+	var officeUser models.OfficeUser
+	orderFetcher := NewOrderFetcher()
+	suite.PreloadData(func() {
+		setupTestData := func() (models.OfficeUser, models.Move, auth.Session) {
+			officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
+			session := auth.Session{
+				ApplicationName: auth.OfficeApp,
+				Roles:           officeUser.User.Roles,
+				OfficeUserID:    officeUser.ID,
+				IDToken:         "fake_token",
+				AccessToken:     "fakeAccessToken",
+			}
+			move := factory.BuildMoveWithShipment(suite.DB(), nil, nil)
+			return officeUser, move, session
+		}
+		officeUser, expectedMove, session = setupTestData()
+	})
+	locationName := expectedMove.Orders.OriginDutyLocation.Name
+	suite.Run("Returns orders matching full originDutyLocation name filter", func() {
+		expectedMoves, _, err := orderFetcher.ListOrders(suite.AppContextWithSessionForTest(&session), officeUser.ID, roles.RoleTypeTOO, &services.ListOrderParams{OriginDutyLocation: strings.Split(locationName, " ")})
+		suite.NoError(err)
+		suite.Equal(1, len(expectedMoves))
+		suite.Equal(locationName, string(expectedMoves[0].Orders.OriginDutyLocation.Name))
+	})
+
+	suite.Run("Returns orders matching partial originDutyLocation name filter", func() {
+		//Split the location name and retrieve a substring (first string) for the search param
+		partialParamSearch := strings.Split(locationName, " ")[0]
+		expectedMoves, _, err := orderFetcher.ListOrders(suite.AppContextWithSessionForTest(&session), officeUser.ID, roles.RoleTypeTOO, &services.ListOrderParams{OriginDutyLocation: strings.Split(partialParamSearch, " ")})
+		suite.NoError(err)
+		suite.Equal(1, len(expectedMoves))
+		suite.Equal(locationName, string(expectedMoves[0].Orders.OriginDutyLocation.Name))
+	})
+}
+
 func (suite *OrderServiceSuite) TestListOrdersFilteredByCustomerName() {
 	serviceMemberFirstName := "Margaret"
 	serviceMemberLastName := "Starlight"
@@ -2145,43 +2183,5 @@ func (suite *OrderServiceSuite) TestListOrdersFilteredByCustomerName() {
 		moves, _, err := orderFetcher.ListOrders(suite.AppContextWithSessionForTest(&session), officeUser.ID, roles.RoleTypeTOO, &params)
 		suite.NoError(err)
 		suite.Equal(0, len(moves))
-	})
-}
-
-func (suite *OrderServiceSuite) TestOriginDutyLocationFilter() {
-	var session auth.Session
-	var expectedMove models.Move
-	var officeUser models.OfficeUser
-	orderFetcher := NewOrderFetcher()
-	suite.PreloadData(func() {
-		setupTestData := func() (models.OfficeUser, models.Move, auth.Session) {
-			officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
-			session := auth.Session{
-				ApplicationName: auth.OfficeApp,
-				Roles:           officeUser.User.Roles,
-				OfficeUserID:    officeUser.ID,
-				IDToken:         "fake_token",
-				AccessToken:     "fakeAccessToken",
-			}
-			move := factory.BuildMoveWithShipment(suite.DB(), nil, nil)
-			return officeUser, move, session
-		}
-		officeUser, expectedMove, session = setupTestData()
-	})
-	locationName := expectedMove.Orders.OriginDutyLocation.Name
-	suite.Run("Returns orders matching full originDutyLocation name filter", func() {
-		expectedMoves, _, err := orderFetcher.ListOrders(suite.AppContextWithSessionForTest(&session), officeUser.ID, roles.RoleTypeTOO, &services.ListOrderParams{OriginDutyLocation: strings.Split(locationName, " ")})
-		suite.NoError(err)
-		suite.Equal(1, len(expectedMoves))
-		suite.Equal(locationName, string(expectedMoves[0].Orders.OriginDutyLocation.Name))
-	})
-
-	suite.Run("Returns orders matching partial originDutyLocation name filter", func() {
-		//Split the location name and retrieve a substring (first string) for the search param
-		partialParamSearch := strings.Split(locationName, " ")[0]
-		expectedMoves, _, err := orderFetcher.ListOrders(suite.AppContextWithSessionForTest(&session), officeUser.ID, roles.RoleTypeTOO, &services.ListOrderParams{OriginDutyLocation: strings.Split(partialParamSearch, " ")})
-		suite.NoError(err)
-		suite.Equal(1, len(expectedMoves))
-		suite.Equal(locationName, string(expectedMoves[0].Orders.OriginDutyLocation.Name))
 	})
 }

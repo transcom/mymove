@@ -164,3 +164,30 @@ func (suite *ModelSuite) TestPartialAddressFormat() {
 
 	suite.Equal("street 1, city, state 90210", formattedAddress)
 }
+
+func (suite *ModelSuite) TestAddressIsEmpty() {
+	suite.Run("empty whitespace address", func() {
+		testAddress := m.Address{
+			StreetAddress1: " ",
+			State:          " ",
+			PostalCode:     " ",
+		}
+		suite.True(m.IsAddressEmpty(&testAddress))
+	})
+	suite.Run("empty n/a address", func() {
+		testAddress := m.Address{
+			StreetAddress1: "n/a",
+			State:          "n/a",
+			PostalCode:     "n/a",
+		}
+		suite.True(m.IsAddressEmpty(&testAddress))
+	})
+	suite.Run("nonempty address", func() {
+		testAddress := m.Address{
+			StreetAddress1: "street 1",
+			State:          "state",
+			PostalCode:     "90210",
+		}
+		suite.False(m.IsAddressEmpty(&testAddress))
+	})
+}

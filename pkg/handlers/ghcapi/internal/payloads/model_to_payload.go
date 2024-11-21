@@ -717,6 +717,22 @@ func Entitlement(entitlement *models.Entitlement) *ghcmessages.Entitlements {
 	}
 	requiredMedicalEquipmentWeight := int64(entitlement.RequiredMedicalEquipmentWeight)
 	gunSafe := entitlement.GunSafe
+	var accompaniedTour *bool
+	if entitlement.AccompaniedTour != nil {
+		accompaniedTour = models.BoolPointer(*entitlement.AccompaniedTour)
+	}
+	var dependentsUnderTwelve *int64
+	if entitlement.DependentsUnderTwelve != nil {
+		dependentsUnderTwelve = models.Int64Pointer(int64(*entitlement.DependentsUnderTwelve))
+	}
+	var dependentsTwelveAndOver *int64
+	if entitlement.DependentsTwelveAndOver != nil {
+		dependentsTwelveAndOver = models.Int64Pointer(int64(*entitlement.DependentsTwelveAndOver))
+	}
+	var ubAllowance *int64
+	if entitlement.UBAllowance != nil {
+		ubAllowance = models.Int64Pointer(int64(*entitlement.UBAllowance))
+	}
 	return &ghcmessages.Entitlements{
 		ID:                             strfmt.UUID(entitlement.ID.String()),
 		AuthorizedWeight:               authorizedWeight,
@@ -729,6 +745,10 @@ func Entitlement(entitlement *models.Entitlement) *ghcmessages.Entitlements {
 		TotalDependents:                totalDependents,
 		TotalWeight:                    totalWeight,
 		RequiredMedicalEquipmentWeight: requiredMedicalEquipmentWeight,
+		DependentsUnderTwelve:          dependentsUnderTwelve,
+		DependentsTwelveAndOver:        dependentsTwelveAndOver,
+		AccompaniedTour:                accompaniedTour,
+		UnaccompaniedBaggageAllowance:  ubAllowance,
 		OrganizationalClothingAndIndividualEquipment: entitlement.OrganizationalClothingAndIndividualEquipment,
 		GunSafe: gunSafe,
 		ETag:    etag.GenerateEtag(entitlement.UpdatedAt),
@@ -957,6 +977,7 @@ func PPMShipment(_ storage.FileStorer, ppmShipment *models.PPMShipment) *ghcmess
 		HasTertiaryPickupAddress:       ppmShipment.HasTertiaryPickupAddress,
 		HasTertiaryDestinationAddress:  ppmShipment.HasTertiaryDestinationAddress,
 		EstimatedWeight:                handlers.FmtPoundPtr(ppmShipment.EstimatedWeight),
+		AllowableWeight:                handlers.FmtPoundPtr(ppmShipment.AllowableWeight),
 		HasProGear:                     ppmShipment.HasProGear,
 		ProGearWeight:                  handlers.FmtPoundPtr(ppmShipment.ProGearWeight),
 		SpouseProGearWeight:            handlers.FmtPoundPtr(ppmShipment.SpouseProGearWeight),
@@ -1224,7 +1245,6 @@ func WeightTicket(storer storage.FileStorer, weightTicket *models.WeightTicket) 
 		ProofOfTrailerOwnershipDocumentID: *handlers.FmtUUID(weightTicket.ProofOfTrailerOwnershipDocumentID),
 		ProofOfTrailerOwnershipDocument:   proofOfTrailerOwnershipDocument,
 		AdjustedNetWeight:                 handlers.FmtPoundPtr(weightTicket.AdjustedNetWeight),
-		AllowableWeight:                   handlers.FmtPoundPtr(weightTicket.AllowableWeight),
 		NetWeightRemarks:                  weightTicket.NetWeightRemarks,
 		ETag:                              etag.GenerateEtag(weightTicket.UpdatedAt),
 	}
@@ -1870,6 +1890,7 @@ func MTOServiceItemModel(s *models.MTOServiceItem, storer storage.FileStorer) *g
 		SitDeliveryMiles:              handlers.FmtIntPtrToInt64(s.SITDeliveryMiles),
 		EstimatedPrice:                handlers.FmtCost(s.PricingEstimate),
 		StandaloneCrate:               s.StandaloneCrate,
+		ExternalCrate:                 s.ExternalCrate,
 		LockedPriceCents:              handlers.FmtCost(s.LockedPriceCents),
 	}
 }
@@ -2409,6 +2430,10 @@ func QueuePaymentRequests(paymentRequests *models.PaymentRequests, officeUsers [
 			queuePaymentRequests[i].AssignedTo = AssignedOfficeUser(paymentRequest.MoveTaskOrder.TIOAssignedUser)
 		}
 
+		if paymentRequest.MoveTaskOrder.CounselingOffice != nil {
+			queuePaymentRequests[i].CounselingOffice = &paymentRequest.MoveTaskOrder.CounselingOffice.Name
+		}
+
 		isAssignable := false
 		if queuePaymentRequests[i].AssignedTo == nil {
 			isAssignable = true
@@ -2525,7 +2550,7 @@ func SearchMoves(appCtx appcontext.AppContext, moves models.Moves) *ghcmessages.
 		searchMoves[i] = &ghcmessages.SearchMove{
 			FirstName:                         customer.FirstName,
 			LastName:                          customer.LastName,
-			DodID:                             customer.Edipi,
+			Edipi:                             customer.Edipi,
 			Emplid:                            customer.Emplid,
 			Branch:                            customer.Affiliation.String(),
 			Status:                            ghcmessages.MoveStatus(move.Status),
@@ -2588,7 +2613,7 @@ func SearchCustomers(customers models.ServiceMemberSearchResults) *ghcmessages.S
 		searchCustomers[i] = &ghcmessages.SearchCustomer{
 			FirstName:     customer.FirstName,
 			LastName:      customer.LastName,
-			DodID:         customer.Edipi,
+			Edipi:         customer.Edipi,
 			Emplid:        customer.Emplid,
 			Branch:        customer.Affiliation.String(),
 			ID:            *handlers.FmtUUID(customer.ID),
@@ -2597,4 +2622,28 @@ func SearchCustomers(customers models.ServiceMemberSearchResults) *ghcmessages.S
 		}
 	}
 	return &searchCustomers
+}
+
+// ReServiceItem payload
+func ReServiceItem(reServiceItem *models.ReServiceItem) *ghcmessages.ReServiceItem {
+	if reServiceItem == nil || *reServiceItem == (models.ReServiceItem{}) {
+		return nil
+	}
+	return &ghcmessages.ReServiceItem{
+		IsAutoApproved: reServiceItem.IsAutoApproved,
+		MarketCode:     string(reServiceItem.MarketCode),
+		ServiceCode:    string(reServiceItem.ReService.Code),
+		ShipmentType:   string(reServiceItem.ShipmentType),
+		ServiceName:    reServiceItem.ReService.Name,
+	}
+}
+
+// ReServiceItems payload
+func ReServiceItems(reServiceItems models.ReServiceItems) ghcmessages.ReServiceItems {
+	payload := make(ghcmessages.ReServiceItems, len(reServiceItems))
+	for i, reServiceItem := range reServiceItems {
+		copyOfReServiceItem := reServiceItem
+		payload[i] = ReServiceItem(&copyOfReServiceItem)
+	}
+	return payload
 }

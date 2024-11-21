@@ -739,7 +739,7 @@ func init() {
           "example": "handle with care"
         },
         "destinationAddress": {
-          "description": "Where the movers should deliver this shipment.",
+          "description": "primary location the movers should deliver this shipment.",
           "allOf": [
             {
               "$ref": "#/definitions/Address"
@@ -773,7 +773,7 @@ func init() {
           }
         },
         "pickupAddress": {
-          "description": "The address where the movers should pick up this shipment.",
+          "description": "The primary address where the movers should pick up this shipment.",
           "allOf": [
             {
               "$ref": "#/definitions/Address"
@@ -801,7 +801,7 @@ func init() {
           "x-nullable": true
         },
         "secondaryDestinationAddress": {
-          "description": "The second address where the movers should deliver this shipment.",
+          "description": "second location where the movers should deliver this shipment.",
           "allOf": [
             {
               "$ref": "#/definitions/Address"
@@ -820,7 +820,7 @@ func init() {
           "$ref": "#/definitions/MTOShipmentType"
         },
         "tertiaryDestinationAddress": {
-          "description": "The third address where the movers should deliver this shipment.",
+          "description": "third location where the movers should deliver this shipment.",
           "allOf": [
             {
               "$ref": "#/definitions/Address"
@@ -1188,6 +1188,12 @@ func init() {
           "type": "integer",
           "x-formatting": "weight",
           "example": 500
+        },
+        "unaccompaniedBaggageAllowance": {
+          "description": "The amount of weight in pounds that the move is entitled for shipment types of Unaccompanied Baggage.",
+          "type": "integer",
+          "x-nullable": true,
+          "example": 3
         }
       }
     },
@@ -1553,15 +1559,88 @@ func init() {
         }
       ]
     },
+    "MTOServiceItemInternationalCrating": {
+      "description": "Describes a international crating/uncrating service item subtype of a MTOServiceItem.",
+      "allOf": [
+        {
+          "$ref": "#/definitions/MTOServiceItem"
+        },
+        {
+          "type": "object",
+          "required": [
+            "reServiceCode",
+            "item",
+            "crate",
+            "description"
+          ],
+          "properties": {
+            "crate": {
+              "description": "The dimensions for the crate the item will be shipped in.",
+              "allOf": [
+                {
+                  "$ref": "#/definitions/MTOServiceItemDimension"
+                }
+              ]
+            },
+            "description": {
+              "description": "A description of the item being crated.",
+              "type": "string",
+              "example": "Decorated horse head to be crated."
+            },
+            "externalCrate": {
+              "type": "boolean",
+              "x-nullable": true
+            },
+            "item": {
+              "description": "The dimensions of the item being crated.",
+              "allOf": [
+                {
+                  "$ref": "#/definitions/MTOServiceItemDimension"
+                }
+              ]
+            },
+            "market": {
+              "description": "To identify whether the service was provided within (CONUS) or (OCONUS)",
+              "type": "string",
+              "enum": [
+                "CONUS",
+                "OCONUS"
+              ],
+              "example": "CONUS"
+            },
+            "reServiceCode": {
+              "description": "A unique code for the service item. Indicates if the service is for crating (ICRT) or uncrating (IUCRT).",
+              "type": "string",
+              "enum": [
+                "ICRT",
+                "IUCRT"
+              ]
+            },
+            "reason": {
+              "description": "The contractor's explanation for why an item needed to be crated or uncrated. Used by the TOO while deciding to approve or reject the service item.\n",
+              "type": "string",
+              "x-nullable": true,
+              "x-omitempty": false,
+              "example": "Storage items need to be picked up"
+            },
+            "standaloneCrate": {
+              "type": "boolean",
+              "x-nullable": true
+            }
+          }
+        }
+      ]
+    },
     "MTOServiceItemModelType": {
-      "description": "Describes all model sub-types for a MTOServiceItem model.\n\nUsing this list, choose the correct modelType in the dropdown, corresponding to the service item type.\n  * DOFSIT, DOASIT - MTOServiceItemOriginSIT\n  * DDFSIT, DDASIT - MTOServiceItemDestSIT\n  * DOSHUT, DDSHUT - MTOServiceItemShuttle\n  * DCRT, DUCRT - MTOServiceItemDomesticCrating\n\nThe documentation will then update with the supported fields.\n",
+      "description": "Describes all model sub-types for a MTOServiceItem model.\n\nUsing this list, choose the correct modelType in the dropdown, corresponding to the service item type.\n  * DOFSIT, DOASIT - MTOServiceItemOriginSIT\n  * DDFSIT, DDASIT - MTOServiceItemDestSIT\n  * DOSHUT, DDSHUT - MTOServiceItemShuttle\n  * DCRT, DUCRT - MTOServiceItemDomesticCrating\n  * ICRT, IUCRT - MTOServiceItemInternationalCrating\n\nThe documentation will then update with the supported fields.\n",
       "type": "string",
       "enum": [
         "MTOServiceItemBasic",
         "MTOServiceItemOriginSIT",
         "MTOServiceItemDestSIT",
         "MTOServiceItemShuttle",
-        "MTOServiceItemDomesticCrating"
+        "MTOServiceItemDomesticCrating",
+        "MTOServiceItemInternationalCrating"
       ]
     },
     "MTOServiceItemOriginSIT": {
@@ -1804,6 +1883,9 @@ func init() {
             }
           ]
         },
+        "destinationRateArea": {
+          "$ref": "#/definitions/RateArea"
+        },
         "destinationSitAuthEndDate": {
           "description": "The SIT authorized end date for destination SIT.",
           "type": "string",
@@ -1867,6 +1949,9 @@ func init() {
           "x-formatting": "weight",
           "x-nullable": true,
           "example": 4500
+        },
+        "originRateArea": {
+          "$ref": "#/definitions/RateArea"
         },
         "originSitAuthEndDate": {
           "description": "The SIT authorized end date for origin SIT.",
@@ -2264,15 +2349,19 @@ func init() {
         "WOUNDED_WARRIOR",
         "BLUEBARK",
         "SAFETY",
-        "TEMPORARY_DUTY"
+        "TEMPORARY_DUTY",
+        "EARLY_RETURN_OF_DEPENDENTS",
+        "STUDENT_TRAVEL"
       ],
       "x-display-value": {
         "BLUEBARK": "BLUEBARK",
+        "EARLY_RETURN_OF_DEPENDENTS": "Early Return of Dependents",
         "LOCAL_MOVE": "Local Move",
         "PERMANENT_CHANGE_OF_STATION": "Permanent Change Of Station",
         "RETIREMENT": "Retirement",
         "SAFETY": "Safety",
         "SEPARATION": "Separation",
+        "STUDENT_TRAVEL": "Student Travel",
         "TEMPORARY_DUTY": "Temporary Duty (TDY)",
         "WOUNDED_WARRIOR": "Wounded Warrior"
       }
@@ -2521,6 +2610,9 @@ func init() {
         "destinationAddress": {
           "$ref": "#/definitions/PPMDestinationAddress"
         },
+        "destinationRateArea": {
+          "$ref": "#/definitions/RateArea"
+        },
         "eTag": {
           "description": "A hash unique to this shipment that should be used as the \"If-Match\" header for any updates.",
           "type": "string",
@@ -2596,6 +2688,9 @@ func init() {
           "x-nullable": true,
           "x-omitempty": false,
           "example": false
+        },
+        "originRateArea": {
+          "$ref": "#/definitions/RateArea"
         },
         "pickupAddress": {
           "$ref": "#/definitions/Address"
@@ -2907,6 +3002,32 @@ func init() {
         "$ref": "#/definitions/ProofOfServiceDoc"
       }
     },
+    "RateArea": {
+      "description": "Rate area info for OCONUS postal code",
+      "type": "object",
+      "required": [
+        "id",
+        "rateAreaId",
+        "rateAreaName"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "rateAreaId": {
+          "description": "Rate area code",
+          "type": "string",
+          "example": "US8101000"
+        },
+        "rateAreaName": {
+          "description": "Rate area name",
+          "type": "string",
+          "example": "Alaska (Zone) I"
+        }
+      }
+    },
     "ReServiceCode": {
       "description": "This is the full list of service items that can be found on a shipment. Not all service items\nmay be requested by the Prime, but may be returned in a response.\n\nDocumentation of all the service items will be provided.\n",
       "type": "string",
@@ -2938,7 +3059,6 @@ func init() {
         "ICOLH",
         "ICOUB",
         "ICRT",
-        "ICRTSA",
         "IDASIT",
         "IDDSIT",
         "IDFSIT",
@@ -4772,7 +4892,7 @@ func init() {
           "example": "handle with care"
         },
         "destinationAddress": {
-          "description": "Where the movers should deliver this shipment.",
+          "description": "primary location the movers should deliver this shipment.",
           "allOf": [
             {
               "$ref": "#/definitions/Address"
@@ -4806,7 +4926,7 @@ func init() {
           }
         },
         "pickupAddress": {
-          "description": "The address where the movers should pick up this shipment.",
+          "description": "The primary address where the movers should pick up this shipment.",
           "allOf": [
             {
               "$ref": "#/definitions/Address"
@@ -4834,7 +4954,7 @@ func init() {
           "x-nullable": true
         },
         "secondaryDestinationAddress": {
-          "description": "The second address where the movers should deliver this shipment.",
+          "description": "second location where the movers should deliver this shipment.",
           "allOf": [
             {
               "$ref": "#/definitions/Address"
@@ -4853,7 +4973,7 @@ func init() {
           "$ref": "#/definitions/MTOShipmentType"
         },
         "tertiaryDestinationAddress": {
-          "description": "The third address where the movers should deliver this shipment.",
+          "description": "third location where the movers should deliver this shipment.",
           "allOf": [
             {
               "$ref": "#/definitions/Address"
@@ -5221,6 +5341,12 @@ func init() {
           "type": "integer",
           "x-formatting": "weight",
           "example": 500
+        },
+        "unaccompaniedBaggageAllowance": {
+          "description": "The amount of weight in pounds that the move is entitled for shipment types of Unaccompanied Baggage.",
+          "type": "integer",
+          "x-nullable": true,
+          "example": 3
         }
       }
     },
@@ -5586,15 +5712,88 @@ func init() {
         }
       ]
     },
+    "MTOServiceItemInternationalCrating": {
+      "description": "Describes a international crating/uncrating service item subtype of a MTOServiceItem.",
+      "allOf": [
+        {
+          "$ref": "#/definitions/MTOServiceItem"
+        },
+        {
+          "type": "object",
+          "required": [
+            "reServiceCode",
+            "item",
+            "crate",
+            "description"
+          ],
+          "properties": {
+            "crate": {
+              "description": "The dimensions for the crate the item will be shipped in.",
+              "allOf": [
+                {
+                  "$ref": "#/definitions/MTOServiceItemDimension"
+                }
+              ]
+            },
+            "description": {
+              "description": "A description of the item being crated.",
+              "type": "string",
+              "example": "Decorated horse head to be crated."
+            },
+            "externalCrate": {
+              "type": "boolean",
+              "x-nullable": true
+            },
+            "item": {
+              "description": "The dimensions of the item being crated.",
+              "allOf": [
+                {
+                  "$ref": "#/definitions/MTOServiceItemDimension"
+                }
+              ]
+            },
+            "market": {
+              "description": "To identify whether the service was provided within (CONUS) or (OCONUS)",
+              "type": "string",
+              "enum": [
+                "CONUS",
+                "OCONUS"
+              ],
+              "example": "CONUS"
+            },
+            "reServiceCode": {
+              "description": "A unique code for the service item. Indicates if the service is for crating (ICRT) or uncrating (IUCRT).",
+              "type": "string",
+              "enum": [
+                "ICRT",
+                "IUCRT"
+              ]
+            },
+            "reason": {
+              "description": "The contractor's explanation for why an item needed to be crated or uncrated. Used by the TOO while deciding to approve or reject the service item.\n",
+              "type": "string",
+              "x-nullable": true,
+              "x-omitempty": false,
+              "example": "Storage items need to be picked up"
+            },
+            "standaloneCrate": {
+              "type": "boolean",
+              "x-nullable": true
+            }
+          }
+        }
+      ]
+    },
     "MTOServiceItemModelType": {
-      "description": "Describes all model sub-types for a MTOServiceItem model.\n\nUsing this list, choose the correct modelType in the dropdown, corresponding to the service item type.\n  * DOFSIT, DOASIT - MTOServiceItemOriginSIT\n  * DDFSIT, DDASIT - MTOServiceItemDestSIT\n  * DOSHUT, DDSHUT - MTOServiceItemShuttle\n  * DCRT, DUCRT - MTOServiceItemDomesticCrating\n\nThe documentation will then update with the supported fields.\n",
+      "description": "Describes all model sub-types for a MTOServiceItem model.\n\nUsing this list, choose the correct modelType in the dropdown, corresponding to the service item type.\n  * DOFSIT, DOASIT - MTOServiceItemOriginSIT\n  * DDFSIT, DDASIT - MTOServiceItemDestSIT\n  * DOSHUT, DDSHUT - MTOServiceItemShuttle\n  * DCRT, DUCRT - MTOServiceItemDomesticCrating\n  * ICRT, IUCRT - MTOServiceItemInternationalCrating\n\nThe documentation will then update with the supported fields.\n",
       "type": "string",
       "enum": [
         "MTOServiceItemBasic",
         "MTOServiceItemOriginSIT",
         "MTOServiceItemDestSIT",
         "MTOServiceItemShuttle",
-        "MTOServiceItemDomesticCrating"
+        "MTOServiceItemDomesticCrating",
+        "MTOServiceItemInternationalCrating"
       ]
     },
     "MTOServiceItemOriginSIT": {
@@ -5837,6 +6036,9 @@ func init() {
             }
           ]
         },
+        "destinationRateArea": {
+          "$ref": "#/definitions/RateArea"
+        },
         "destinationSitAuthEndDate": {
           "description": "The SIT authorized end date for destination SIT.",
           "type": "string",
@@ -5900,6 +6102,9 @@ func init() {
           "x-formatting": "weight",
           "x-nullable": true,
           "example": 4500
+        },
+        "originRateArea": {
+          "$ref": "#/definitions/RateArea"
         },
         "originSitAuthEndDate": {
           "description": "The SIT authorized end date for origin SIT.",
@@ -6297,15 +6502,19 @@ func init() {
         "WOUNDED_WARRIOR",
         "BLUEBARK",
         "SAFETY",
-        "TEMPORARY_DUTY"
+        "TEMPORARY_DUTY",
+        "EARLY_RETURN_OF_DEPENDENTS",
+        "STUDENT_TRAVEL"
       ],
       "x-display-value": {
         "BLUEBARK": "BLUEBARK",
+        "EARLY_RETURN_OF_DEPENDENTS": "Early Return of Dependents",
         "LOCAL_MOVE": "Local Move",
         "PERMANENT_CHANGE_OF_STATION": "Permanent Change Of Station",
         "RETIREMENT": "Retirement",
         "SAFETY": "Safety",
         "SEPARATION": "Separation",
+        "STUDENT_TRAVEL": "Student Travel",
         "TEMPORARY_DUTY": "Temporary Duty (TDY)",
         "WOUNDED_WARRIOR": "Wounded Warrior"
       }
@@ -6554,6 +6763,9 @@ func init() {
         "destinationAddress": {
           "$ref": "#/definitions/PPMDestinationAddress"
         },
+        "destinationRateArea": {
+          "$ref": "#/definitions/RateArea"
+        },
         "eTag": {
           "description": "A hash unique to this shipment that should be used as the \"If-Match\" header for any updates.",
           "type": "string",
@@ -6629,6 +6841,9 @@ func init() {
           "x-nullable": true,
           "x-omitempty": false,
           "example": false
+        },
+        "originRateArea": {
+          "$ref": "#/definitions/RateArea"
         },
         "pickupAddress": {
           "$ref": "#/definitions/Address"
@@ -6940,6 +7155,32 @@ func init() {
         "$ref": "#/definitions/ProofOfServiceDoc"
       }
     },
+    "RateArea": {
+      "description": "Rate area info for OCONUS postal code",
+      "type": "object",
+      "required": [
+        "id",
+        "rateAreaId",
+        "rateAreaName"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "rateAreaId": {
+          "description": "Rate area code",
+          "type": "string",
+          "example": "US8101000"
+        },
+        "rateAreaName": {
+          "description": "Rate area name",
+          "type": "string",
+          "example": "Alaska (Zone) I"
+        }
+      }
+    },
     "ReServiceCode": {
       "description": "This is the full list of service items that can be found on a shipment. Not all service items\nmay be requested by the Prime, but may be returned in a response.\n\nDocumentation of all the service items will be provided.\n",
       "type": "string",
@@ -6971,7 +7212,6 @@ func init() {
         "ICOLH",
         "ICOUB",
         "ICRT",
-        "ICRTSA",
         "IDASIT",
         "IDDSIT",
         "IDFSIT",

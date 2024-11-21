@@ -211,6 +211,7 @@ type PPMShipment struct {
 	HasTertiaryDestinationAddress  *bool                `db:"has_tertiary_destination_address"`
 	ActualDestinationPostalCode    *string              `json:"actual_destination_postal_code" db:"actual_destination_postal_code"`
 	EstimatedWeight                *unit.Pound          `json:"estimated_weight" db:"estimated_weight"`
+	AllowableWeight                *unit.Pound          `json:"allowable_weight" db:"allowable_weight"`
 	HasProGear                     *bool                `json:"has_pro_gear" db:"has_pro_gear"`
 	ProGearWeight                  *unit.Pound          `json:"pro_gear_weight" db:"pro_gear_weight"`
 	SpouseProGearWeight            *unit.Pound          `json:"spouse_pro_gear_weight" db:"spouse_pro_gear_weight"`
@@ -273,6 +274,7 @@ func (p PPMShipment) Validate(_ *pop.Connection) (*validate.Errors, error) {
 		&OptionalUUIDIsPresent{Name: "SecondaryDestinationAddressID", Field: p.SecondaryDestinationAddressID},
 		&StringIsNilOrNotBlank{Name: "ActualDestinationPostalCode", Field: p.ActualDestinationPostalCode},
 		&OptionalPoundIsNonNegative{Name: "EstimatedWeight", Field: p.EstimatedWeight},
+		&OptionalPoundIsNonNegative{Name: "AllowableWeight", Field: p.AllowableWeight},
 		&OptionalPoundIsNonNegative{Name: "ProGearWeight", Field: p.ProGearWeight},
 		&OptionalPoundIsNonNegative{Name: "SpouseProGearWeight", Field: p.SpouseProGearWeight},
 		&OptionalCentIsNotNegative{Name: "EstimatedIncentive", Field: p.EstimatedIncentive},

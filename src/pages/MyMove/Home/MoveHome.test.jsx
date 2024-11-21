@@ -6,8 +6,8 @@ import { waitFor } from '@testing-library/react';
 
 import MoveHome from './MoveHome';
 
-import { MockProviders } from 'testUtils';
 import { customerRoutes } from 'constants/routes';
+import { MockProviders } from 'testUtils';
 import { cancelMove, downloadPPMAOAPacket } from 'services/internalApi';
 import { ORDERS_TYPE } from 'constants/orders';
 

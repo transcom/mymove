@@ -11,6 +11,8 @@ import (
 	"github.com/gofrs/uuid"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
+
+	"github.com/transcom/mymove/pkg/utils"
 )
 
 const STREET_ADDRESS_1_NOT_PROVIDED string = "n/a"
@@ -168,6 +170,15 @@ func (a *Address) Copy() *Address {
 		return &address
 	}
 	return nil
+}
+func IsAddressEmpty(a *Address) bool {
+	return a == nil || ((utils.IsNullOrWhiteSpace(&a.StreetAddress1) || IsDefaultAddressValue(a.StreetAddress1)) &&
+		(utils.IsNullOrWhiteSpace(&a.City) || IsDefaultAddressValue(a.City)) &&
+		(utils.IsNullOrWhiteSpace(&a.State) || IsDefaultAddressValue(a.State)) &&
+		(utils.IsNullOrWhiteSpace(&a.PostalCode) || IsDefaultAddressValue(a.PostalCode)))
+}
+func IsDefaultAddressValue(s string) bool {
+	return s == "n/a"
 }
 
 // Check if an address is CONUS or OCONUS
