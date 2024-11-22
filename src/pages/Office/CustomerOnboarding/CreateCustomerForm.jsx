@@ -377,7 +377,7 @@ export const CreateCustomerForm = ({ userPrivileges, setFlashMessage, setCanAddO
                     </div>
                   </SectionWrapper>
                   <SectionWrapper className={formStyles.formSection}>
-                    <h3>Current Address</h3>
+                    <h3>Pickup Address</h3>
                     <TextField
                       label="Address 1"
                       id="mailingAddress1"
