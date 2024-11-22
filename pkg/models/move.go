@@ -13,6 +13,7 @@ import (
 	"github.com/jackc/pgerrcode"
 	"github.com/pkg/errors"
 
+	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/db/dberr"
 	"github.com/transcom/mymove/pkg/db/utilities"
@@ -414,12 +415,12 @@ func SaveMoveDependencies(db *pop.Connection, move *Move) (*validate.Errors, err
 }
 
 /*
- * GetOriginGBLOC returns the GBLOC for the postal code of the the origin duty location of the order that is on this move.
+ * GetOriginPostalCode returns the Postal Code for origin duty location of the order that is on this move.
  */
-func (m Move) GetOriginGBLOC(db *pop.Connection) (string, error) {
+func (m Move) GetOriginPostalCode(db *pop.Connection) (string, error) {
 	// Since this requires looking up the move in the DB, the move must have an ID. This means, the move has to have been created first.
 	if uuid.UUID.IsNil(m.ID) {
-		return "", errors.WithMessage(ErrInvalidMoveID, "You must created the move in the DB before getting the destination GBLOC.")
+		return "", errors.WithMessage(ErrInvalidMoveID, "You must created the move in the DB before getting the Origin Postal Code.")
 	}
 
 	err := db.Load(&m, "Orders.OriginDutyLocation.Address")
@@ -430,8 +431,25 @@ func (m Move) GetOriginGBLOC(db *pop.Connection) (string, error) {
 		return "", err
 	}
 
+	return m.Orders.OriginDutyLocation.Address.PostalCode, nil
+}
+
+/*
+ * GetOriginGBLOC returns the GBLOC for the postal code of the the origin duty location of the order that is on this move.
+ */
+func (m Move) GetOriginGBLOC(appCtx appcontext.AppContext) (string, error) {
+	// Since this requires looking up the move in the DB, the move must have an ID. This means, the move has to have been created first.
+	if uuid.UUID.IsNil(m.ID) {
+		return "", errors.WithMessage(ErrInvalidMoveID, "You must created the move in the DB before getting the Origin GBLOC.")
+	}
+
+	originPostalCode, err := m.Orders.GetOriginPostalCode(appCtx)
+	if err != nil {
+		return "", err
+	}
+
 	var originGBLOC PostalCodeToGBLOC
-	originGBLOC, err = FetchGBLOCForPostalCode(db, m.Orders.OriginDutyLocation.Address.PostalCode)
+	originGBLOC, err = FetchGBLOCForPostalCode(appCtx.DB(), originPostalCode)
 	if err != nil {
 		return "", err
 	}

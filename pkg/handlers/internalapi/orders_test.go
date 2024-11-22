@@ -700,53 +700,56 @@ func (suite *HandlerSuite) TestUpdateOrdersHandler() {
 			},
 		}, nil)
 
-		order := factory.BuildOrder(suite.DB(), []factory.Customization{
-			{
-				Model: models.Order{
-					OriginDutyLocation: &originDutyLocation,
-				},
-			},
-		}, nil)
-
 		move := factory.BuildMove(suite.DB(), []factory.Customization{
 			{
-				Model: models.Move{
-					OrdersID: order.ID,
+				Model: models.Order{
+					OriginDutyLocationID: &originDutyLocation.ID,
+					NewDutyLocationID:    newDutyLocation.ID,
 				},
 			},
 		}, nil)
 
-		// Ensures that the correct GBLOC is returned
-		fetchedGbloc, err := order.GetOriginGBLOC(suite.DB())
+		// Ensures that the utility methods for Postal Code and GBLOC from the Orders model works correctly
+		fetchedPostalCode, err := move.Orders.GetOriginPostalCode(suite.AppContextForTest())
 		suite.NoError(err)
+		var fetchedGbloc string
+		fetchedGbloc, err = move.Orders.GetOriginGBLOC(suite.AppContextForTest())
+		suite.NoError(err)
+		suite.Equal("90210", fetchedPostalCode)
 		suite.Equal("KKFA", fetchedGbloc)
 
-		// Ensures that both utility methods return the same GBLOC
-		var originGblocBasedOnOrder, originGblocBasedOnMove string
-		originGblocBasedOnOrder, err = order.GetOriginGBLOC(suite.DB())
+		var fetchedMove models.Move
+		err = suite.DB().Load(&fetchedMove, "Orders")
 		suite.NoError(err)
-		originGblocBasedOnMove, err = move.GetOriginGBLOC(suite.DB())
+
+		// Ensures that the correct postal code and GBLOC are returned form the orders utility methods
+		var fetchedOriginGBLOC, fetchedOriginPostalCode string
+		fetchedOriginPostalCode, err = fetchedMove.Orders.GetOriginPostalCode(suite.AppContextForTest())
 		suite.NoError(err)
-		suite.Equal(originGblocBasedOnOrder, originGblocBasedOnMove)
+		suite.Equal("90210", fetchedOriginPostalCode)
+		fetchedOriginGBLOC, err = fetchedMove.Orders.GetOriginGBLOC(suite.AppContextForTest())
+		suite.NoError(err)
+		suite.Equal("KKFA", fetchedOriginGBLOC)
 
 		payload := &internalmessages.CreateUpdateOrders{
+			MoveID:               *handlers.FmtUUID(move.ID),
 			OriginDutyLocationID: *handlers.FmtUUID(updatedOriginDutyLocation.ID),
 			NewDutyLocationID:    handlers.FmtUUID(newDutyLocation.ID),
-			HasDependents:        handlers.FmtBool(order.HasDependents),
-			SpouseHasProGear:     handlers.FmtBool(order.SpouseHasProGear),
-			IssueDate:            handlers.FmtDate(order.IssueDate),
-			ReportByDate:         handlers.FmtDate(order.ReportByDate),
-			OrdersType:           &order.OrdersType,
-			Grade:                order.Grade,
+			HasDependents:        handlers.FmtBool(move.Orders.HasDependents),
+			SpouseHasProGear:     handlers.FmtBool(move.Orders.SpouseHasProGear),
+			IssueDate:            handlers.FmtDate(move.Orders.IssueDate),
+			ReportByDate:         handlers.FmtDate(move.Orders.ReportByDate),
+			OrdersType:           &move.Orders.OrdersType,
+			Grade:                move.Orders.Grade,
 		}
 
-		path := fmt.Sprintf("/orders/%v", order.ID.String())
+		path := fmt.Sprintf("/orders/%v", move.Orders.ID.String())
 		req := httptest.NewRequest("PUT", path, nil)
-		req = suite.AuthenticateRequest(req, order.ServiceMember)
+		req = suite.AuthenticateRequest(req, move.Orders.ServiceMember)
 
 		params := ordersop.UpdateOrdersParams{
 			HTTPRequest:  req,
-			OrdersID:     *handlers.FmtUUID(order.ID),
+			OrdersID:     *handlers.FmtUUID(move.Orders.ID),
 			UpdateOrders: payload,
 		}
 
@@ -761,15 +764,22 @@ func (suite *HandlerSuite) TestUpdateOrdersHandler() {
 		okResponse := response.(*ordersop.UpdateOrdersOK)
 		suite.NoError(okResponse.Payload.Validate(strfmt.Default))
 
-		var fetchedMove models.Move
-		fetchedMove, err = models.FetchMoveByMoveID(suite.DB(), move.ID)
+		// Reset and fetch the Move again so that we can confirm that updates were successful
+		fetchedMove = models.Move{}
+		err = suite.DB().Find(&fetchedMove, payload.MoveID)
+		suite.NoError(err)
+		err = suite.DB().Load(&fetchedMove, "Orders")
 		suite.NoError(err)
 
-		var fetchedUpdatedGbloc string
-		fetchedUpdatedGbloc, err = fetchedMove.GetOriginGBLOC(suite.DB())
+		/* Ensures that the utility methods for Postal Code and GBLOC from the Orders model
+		 * continues to work correctly after an update.
+		 */
+		fetchedPostalCode, err = move.Orders.GetOriginPostalCode(suite.AppContextForTest())
 		suite.NoError(err)
-
-		suite.Equal("CNNQ", fetchedUpdatedGbloc)
+		fetchedGbloc, err = move.Orders.GetOriginGBLOC(suite.AppContextForTest())
+		suite.NoError(err)
+		suite.Equal("35023", fetchedPostalCode)
+		suite.Equal("CNNQ", fetchedGbloc)
 	})
 }
 
