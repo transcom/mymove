@@ -46,7 +46,7 @@ describe('DateAndLocationForm component', () => {
   describe('displays form', () => {
     it('renders blank form on load', async () => {
       render(<DateAndLocationForm {...defaultProps} />);
-      expect(await screen.getByRole('heading', { level: 2, name: 'Origin' })).toBeInTheDocument();
+      expect(await screen.getByRole('heading', { level: 2, name: 'Pickup Address' })).toBeInTheDocument();
       const postalCodes = screen.getAllByLabelText(/ZIP/);
       const address1 = screen.getAllByLabelText(/Address 1/);
       const address2 = screen.getAllByLabelText('Address 2', { exact: false });
@@ -62,7 +62,7 @@ describe('DateAndLocationForm component', () => {
       expect(postalCodes[0]).toBeInstanceOf(HTMLInputElement);
       expect(screen.getAllByLabelText('Yes')[0]).toBeInstanceOf(HTMLInputElement);
       expect(screen.getAllByLabelText('No')[0]).toBeInstanceOf(HTMLInputElement);
-      expect(screen.getByRole('heading', { level: 2, name: 'Destination' })).toBeInTheDocument();
+      expect(screen.getByRole('heading', { level: 2, name: 'Delivery Address' })).toBeInTheDocument();
       expect(address1[1]).toBeInstanceOf(HTMLInputElement);
       expect(address2[1]).toBeInstanceOf(HTMLInputElement);
       expect(address3[1]).toBeInstanceOf(HTMLInputElement);

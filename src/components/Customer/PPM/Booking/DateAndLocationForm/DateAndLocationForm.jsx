@@ -197,7 +197,7 @@ const DateAndLocationForm = ({ mtoShipment, destinationDutyLocation, serviceMemb
           <div className={ppmStyles.formContainer}>
             <Form className={formStyles.form}>
               <SectionWrapper className={classnames(ppmStyles.sectionWrapper, formStyles.formSection, 'origin')}>
-                <h2>Origin</h2>
+                <h2>Pickup Address</h2>
                 <AddressFields
                   name="pickupAddress.address"
                   labelHint="Required"
@@ -295,7 +295,7 @@ const DateAndLocationForm = ({ mtoShipment, destinationDutyLocation, serviceMemb
                 />
               </SectionWrapper>
               <SectionWrapper className={classnames(ppmStyles.sectionWrapper, formStyles.formSection)}>
-                <h2>Destination</h2>
+                <h2>Delivery Address</h2>
                 <AddressFields
                   name="destinationAddress.address"
                   labelHint="Required"
