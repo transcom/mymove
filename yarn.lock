@@ -4583,9 +4583,9 @@
   resolved "https://registry.yarnpkg.com/@tootallnate/once/-/once-2.0.0.tgz#f544a148d3ab35801c1f633a7441fd87c2e484bf"
   integrity sha512-XCuKFP5PS55gnMVu3dty8KPatLqUoy/ZYzDzAGCQ8JNFCkLXzmI7vNHCR+XpbZaMWQK/vQubr7PkYq8g470J/A==
 
-"@transcom/react-file-viewer@git+https://github.com/transcom/react-file-viewer#v1.2.4":
-  version "1.2.4"
-  resolved "git+https://github.com/transcom/react-file-viewer#d4396dc8bf0acdd646e93ea82d23acf3bc0d5b0f"
+"@transcom/react-file-viewer@git+https://github.com/transcom/react-file-viewer#v1.2.5":
+  version "1.2.5"
+  resolved "git+https://github.com/transcom/react-file-viewer#4d9924ae58a6acdfcfb353235e034ff98fde5458"
   dependencies:
     pdfjs-dist "1.8.357"
     prop-types "^15.5.10"
@@ -7187,9 +7187,9 @@ cross-fetch@^3.1.5:
     node-fetch "2.6.7"
 
 cross-spawn@^7.0.0, cross-spawn@^7.0.2, cross-spawn@^7.0.3:
-  version "7.0.3"
-  resolved "https://registry.yarnpkg.com/cross-spawn/-/cross-spawn-7.0.3.tgz#f73a85b9d5d41d045551c177e2882d4ac85728a6"
-  integrity sha512-iRDPJKUPVEND7dHPO8rkbOnPpyDygcDFtWjpeWNCgy8WP2rXcxXL8TskReQl6OrB2G7+UJrags1q15Fudc7G6w==
+  version "7.0.6"
+  resolved "https://registry.yarnpkg.com/cross-spawn/-/cross-spawn-7.0.6.tgz#8a58fe78f00dcd70c370451759dfbfaf03e8ee9f"
+  integrity sha512-uV2QOWP2nWzsy2aMp8aRibhi9dlzF5Hgh5SHaB9OiTGEyDTiJJyx0uy51QXdyWbtAHNua4XJzUKca3OzKUd3vA==
   dependencies:
     path-key "^3.1.0"
     shebang-command "^2.0.0"
