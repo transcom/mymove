@@ -379,7 +379,7 @@ const approvedPPMMoveTaskOrder = {
             eTag: 'MjAyMS0xMC0xOFQxODoyNDo0MS4zNzI3NDJa',
             id: 'bfe61147-5fd7-426e-b473-54ccf77bde35',
             postalCode: '94535',
-            state: 'CA',
+            state: 'CO',
             streetAddress1: '987 Any Avenue',
             streetAddress2: 'P.O. Box 9876',
             streetAddress3: 'c/o Some Person',
@@ -675,7 +675,7 @@ expect(
     expect(screen.getByText(/90210/)).toBeInTheDocument();
 
     expect(screen.getByText(/Fairfield/)).toBeInTheDocument();
-    expect(screen.getByText(/CA/)).toBeInTheDocument();
+    expect(screen.getByText(/CO/)).toBeInTheDocument();
     expect(screen.getByText(/Solano/)).toBeInTheDocument();
     expect(screen.getByText(/94535/)).toBeInTheDocument();
   });
