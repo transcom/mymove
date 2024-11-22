@@ -144,6 +144,22 @@ jest.mock('components/LocationSearchBox/api', () => ({
         name: 'Wright-Patterson AFB',
         updated_at: '2021-02-11T16:48:20.225Z',
       },
+      {
+        address: {
+          city: '',
+          id: '1111111111',
+          postalCode: '',
+          state: '',
+          streetAddress1: '',
+        },
+        address_id: '4334640b-c35e-4293-a2f1-36c7b629f903',
+        affiliation: 'AIR_FORCE',
+        created_at: '2021-02-11T16:48:04.117Z',
+        id: '22f0755f-6f35-478b-9a75-35a69211da1c',
+        name: 'Scott AFB',
+        updated_at: '2021-02-11T16:48:04.117Z',
+        provides_services_counseling: true,
+      },
     ]),
   ),
 }));
@@ -291,10 +307,8 @@ describe('OrdersInfoForm component', () => {
 
     // Test Current Duty Location Search Box interaction
     await userEvent.type(screen.getByLabelText(/Current duty location/), 'AFB', { delay: 100 });
-    const selectedOptionCurrent = await screen.findByText(/Altus/);
+    const selectedOptionCurrent = await screen.findByText(/Scott/);
     await userEvent.click(selectedOptionCurrent);
-
-    const counselingOfficeId = '3be2381f-f9ed-4902-bbdc-69c69e43eb86';
 
     // Test New Duty Location Search Box interaction
     await userEvent.type(screen.getByLabelText(/New duty location/), 'AFB', { delay: 100 });
@@ -302,9 +316,23 @@ describe('OrdersInfoForm component', () => {
     await userEvent.click(selectedOptionNew);
 
     await waitFor(() => {
+      expect(screen.getByLabelText(/Counseling office/));
+    });
+    // await userEvent.selectOptions(screen.getByLabelText(/Counseling office/), 'Albuquerque AFB');
+    // await userEvent.selectOptions(screen.getByText(/Counseling office/), 'Albuquerque AFB');
+    await userEvent.type(screen.getByLabelText(/Counseling office/), 'Alb', { delay: 100 });
+    // const selectedtest = screen.getByText('Alb');
+
+    // await userEvent.click(selectedtest);
+    // await act(async () => {
+    //   await userEvent.selectOptions(document.querySelector('select[name="counseling_office_id"]'), 'Albuquerque AFB');
+    // });
+
+    await waitFor(() => {
       expect(screen.getByRole('form')).toHaveFormValues({
         new_duty_location: 'Luke AFB',
-        origin_duty_location: 'Altus AFB',
+        origin_duty_location: 'Scott AFB',
+        counseling_office_id: 'Albuquerque AFB',
       });
     });
 
@@ -315,7 +343,7 @@ describe('OrdersInfoForm component', () => {
       expect(testPropsWithCounselingOffice.onSubmit).toHaveBeenCalledWith(
         expect.objectContaining({
           orders_type: ORDERS_TYPE.PERMANENT_CHANGE_OF_STATION,
-          counseling_office_id: counselingOfficeId,
+          counseling_office_id: '3e937c1f-5539-4919-954d-017989130584',
           has_dependents: 'no',
           issue_date: '08 Nov 2020',
           report_by_date: '26 Nov 2020',
@@ -339,17 +367,18 @@ describe('OrdersInfoForm component', () => {
           origin_duty_location: {
             address: {
               city: '',
-              id: '00000000-0000-0000-0000-000000000000',
+              id: '1111111111',
               postalCode: '',
               state: '',
               streetAddress1: '',
             },
-            address_id: '46c4640b-c35e-4293-a2f1-36c7b629f903',
+            address_id: '4334640b-c35e-4293-a2f1-36c7b629f903',
             affiliation: 'AIR_FORCE',
             created_at: '2021-02-11T16:48:04.117Z',
-            id: '93f0755f-6f35-478b-9a75-35a69211da1c',
-            name: 'Altus AFB',
+            id: '22f0755f-6f35-478b-9a75-35a69211da1c',
+            name: 'Scott AFB',
             updated_at: '2021-02-11T16:48:04.117Z',
+            provides_services_counseling: true,
           },
         }),
         expect.anything(),
