@@ -669,7 +669,7 @@ func VLocation(vLocation *models.VLocation) *internalmessages.VLocation {
 		State:                vLocation.StateName,
 		PostalCode:           vLocation.UsprZipID,
 		County:               &vLocation.UsprcCountyNm,
-		UsPostRegionCitiesID: *handlers.FmtUUID(*vLocation.UprcId),
+		UsPostRegionCitiesID: *handlers.FmtUUID(*vLocation.UsPostRegionCitiesId),
 	}
 }
 
