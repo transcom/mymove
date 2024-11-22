@@ -84,7 +84,8 @@ func (h GetMoveHandler) Handle(params moveop.GetMoveParams) middleware.Responder
 
 			if moveOrders.OrdersType == "SAFETY" && !privileges.HasPrivilege(models.PrivilegeTypeSafety) {
 				appCtx.Logger().Error("Invalid permissions")
-				return moveop.NewGetMoveNotFound(), nil
+				errMsg := "Page is inaccessible"
+				return moveop.NewGetMoveNotFound().WithPayload(&ghcmessages.Error{Message: &errMsg}), apperror.NewNotFoundError(uuid.Nil, "Page is inaccessible")
 			} else {
 				payload, err := payloads.Move(move, h.FileStorer())
 				if err != nil {
@@ -330,6 +331,27 @@ func (h MoveCancelerHandler) Handle(params moveop.MoveCancelerParams) middleware
 				return nil, err
 			}
 			return moveop.NewMoveCancelerOK().WithPayload(payload), nil
+		})
+}
+
+type CheckForLockedMovesAndUnlockHandler struct {
+	handlers.HandlerConfig
+	services.MoveUnlocker
+}
+
+func (h CheckForLockedMovesAndUnlockHandler) Handle(params moveop.CheckForLockedMovesAndUnlockParams) middleware.Responder {
+	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
+		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
+			// if the search move office user is accessing the queue, we need to unlock move/moves they have locked
+			err := h.CheckForLockedMovesAndUnlock(appCtx, uuid.FromStringOrNil(params.OfficeUserID.String()))
+			if err != nil {
+				return moveop.NewCheckForLockedMovesAndUnlockInternalServerError(), err
+			}
+			var payload moveop.CheckForLockedMovesAndUnlockOK
+			payload.SetPayload(&moveop.CheckForLockedMovesAndUnlockOKBody{
+				SuccessMessage: "Successfully unlocked all move(s) for current office user"})
+
+			return &payload, nil
 		})
 }
 

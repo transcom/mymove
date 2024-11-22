@@ -52,7 +52,7 @@ const generateDestinationSITDetailSection = (id, serviceRequestDocUploads, detai
       <dl>
         {code === 'DDFSIT'
           ? generateDetailText({
-              'Original delivery address': originalDeliveryAddress
+              'Original Delivery Address': originalDeliveryAddress
                 ? formatCityStateAndPostalCode(originalDeliveryAddress)
                 : '-',
               'SIT entry date': details.sitEntryDate ? formatDateWithUTC(details.sitEntryDate, 'DD MMM YYYY') : '-',
@@ -62,7 +62,7 @@ const generateDestinationSITDetailSection = (id, serviceRequestDocUploads, detai
           <>
             {generateDetailText(
               {
-                'Original delivery address': originalDeliveryAddress
+                'Original Delivery Address': originalDeliveryAddress
                   ? formatCityStateAndPostalCode(originalDeliveryAddress)
                   : '-',
                 "Add'l SIT Start Date": details.sitEntryDate
@@ -90,10 +90,10 @@ const generateDestinationSITDetailSection = (id, serviceRequestDocUploads, detai
         {code === 'DDSFSC'
           ? generateDetailText(
               {
-                'Original delivery address': originalDeliveryAddress
+                'Original Delivery Address': originalDeliveryAddress
                   ? formatCityStateAndPostalCode(originalDeliveryAddress)
                   : '-',
-                'Final delivery address':
+                'Final Delivery Address':
                   details.sitDestinationFinalAddress && details.status !== 'SUBMITTED'
                     ? formatCityStateAndPostalCode(details.sitDestinationFinalAddress)
                     : '-',
@@ -106,10 +106,10 @@ const generateDestinationSITDetailSection = (id, serviceRequestDocUploads, detai
           <>
             {generateDetailText(
               {
-                'Original delivery address': originalDeliveryAddress
+                'Original Delivery Address': originalDeliveryAddress
                   ? formatCityStateAndPostalCode(originalDeliveryAddress)
                   : '-',
-                'Final delivery address':
+                'Final Delivery Address':
                   details.sitDestinationFinalAddress && details.status !== 'SUBMITTED'
                     ? formatCityStateAndPostalCode(details.sitDestinationFinalAddress)
                     : '-',
@@ -194,7 +194,7 @@ const ServiceItemDetails = ({ id, code, details, serviceRequestDocs, shipment, s
           <dl>
             {generateDetailText(
               {
-                'Original pickup address': details.sitOriginHHGOriginalAddress
+                'Original Pickup Address': details.sitOriginHHGOriginalAddress
                   ? formatCityStateAndPostalCode(details.sitOriginHHGOriginalAddress)
                   : '-',
                 'SIT entry date': details.sitEntryDate ? formatDateWithUTC(details.sitEntryDate, 'DD MMM YYYY') : '-',
@@ -233,7 +233,7 @@ const ServiceItemDetails = ({ id, code, details, serviceRequestDocs, shipment, s
           <dl>
             {generateDetailText(
               {
-                'Original pickup address': details.sitOriginHHGOriginalAddress
+                'Original Pickup Address': details.sitOriginHHGOriginalAddress
                   ? formatCityStateAndPostalCode(details.sitOriginHHGOriginalAddress)
                   : '-',
                 "Add'l SIT Start Date": details.sitEntryDate
@@ -278,10 +278,10 @@ const ServiceItemDetails = ({ id, code, details, serviceRequestDocs, shipment, s
           <dl>
             {generateDetailText(
               {
-                'Original pickup address': details.sitOriginHHGOriginalAddress
+                'Original Pickup Address': details.sitOriginHHGOriginalAddress
                   ? formatCityStateAndPostalCode(details.sitOriginHHGOriginalAddress)
                   : '-',
-                'Actual pickup address': details.sitOriginHHGActualAddress
+                'Actual Pickup Address': details.sitOriginHHGActualAddress
                   ? formatCityStateAndPostalCode(details.sitOriginHHGActualAddress)
                   : '-',
                 'Delivery miles into SIT': details.sitDeliveryMiles ? details.sitDeliveryMiles : '-',
@@ -313,10 +313,10 @@ const ServiceItemDetails = ({ id, code, details, serviceRequestDocs, shipment, s
           <dl>
             {generateDetailText(
               {
-                'Original pickup address': details.sitOriginHHGOriginalAddress
+                'Original Pickup Address': details.sitOriginHHGOriginalAddress
                   ? formatCityStateAndPostalCode(details.sitOriginHHGOriginalAddress)
                   : '-',
-                'Actual pickup address': details.sitOriginHHGActualAddress
+                'Actual Pickup Address': details.sitOriginHHGActualAddress
                   ? formatCityStateAndPostalCode(details.sitOriginHHGActualAddress)
                   : '-',
                 'Delivery miles into SIT': details.sitDeliveryMiles ? details.sitDeliveryMiles : '-',
