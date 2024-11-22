@@ -105,7 +105,7 @@ func checkPPMShipmentSequenceValidForCreate() ppmShipmentValidator {
 		verrs := validate.NewErrors()
 		squenceIsValid := isPPMShipmentAddressCreateSequenceValid(newer)
 		if !squenceIsValid {
-			verrs.Add("error validating ppm shipment", "PPM Shipment cannot have a tertiary address without a secondary address present")
+			verrs.Add("error validating ppm shipment", "Shipment cannot have a third address without a second address present")
 			return verrs
 		}
 		return nil
@@ -117,7 +117,7 @@ func checkPPMShipmentSequenceValidForUpdate() ppmShipmentValidator {
 		verrs := validate.NewErrors()
 		sequenceIsValid := isPPMAddressUpdateSequenceValid(&newer, older)
 		if !sequenceIsValid {
-			verrs.Add("error validating ppm shipment", "PPM Shipment cannot have a tertiary address without a secondary address present")
+			verrs.Add("error validating ppm shipment", "Shipment cannot have a third address without a second address present")
 			return verrs
 		}
 		return nil

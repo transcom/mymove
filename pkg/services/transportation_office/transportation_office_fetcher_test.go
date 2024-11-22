@@ -639,7 +639,6 @@ func (suite *TransportationOfficeServiceSuite) Test_Oconus_AK_FindCounselingOffi
 			}
 		}
 	})
-
 }
 
 func (suite *TransportationOfficeServiceSuite) Test_GetTransportationOffice() {
