@@ -43,7 +43,6 @@ func (e Entitlement) TableName() string {
 // Validate gets run every time you call a "pop.Validate*" (pop.ValidateAndSave, pop.ValidateAndCreate, pop.ValidateAndUpdate) method.
 func (e *Entitlement) Validate(*pop.Connection) (*validate.Errors, error) {
 	var vs []validate.Validator
-	var totalDependents *int
 
 	vs = append(vs,
 		&validators.IntIsGreaterThan{Field: e.ProGearWeight, Compared: -1, Name: "ProGearWeight"},
@@ -52,28 +51,12 @@ func (e *Entitlement) Validate(*pop.Connection) (*validate.Errors, error) {
 		&validators.IntIsLessThan{Field: e.ProGearWeightSpouse, Compared: 501, Name: "ProGearWeightSpouse"},
 	)
 
-	if e.DependentsUnderTwelve != nil || e.DependentsTwelveAndOver != nil {
-		sum := 0
-		if e.DependentsUnderTwelve != nil {
-			vs = append(vs, &validators.IntIsGreaterThan{Field: *e.DependentsUnderTwelve, Compared: -1, Name: "DependentsUnderTwelve"})
-			sum += *e.DependentsUnderTwelve
-		}
-
-		if e.DependentsTwelveAndOver != nil {
-			vs = append(vs, &validators.IntIsGreaterThan{Field: *e.DependentsTwelveAndOver, Compared: -1, Name: "DependentsTwelveAndOver"})
-			sum += *e.DependentsTwelveAndOver
-		}
-
-		if sum > 1 {
-			totalDependents = &sum
-		}
+	if e.DependentsUnderTwelve != nil {
+		vs = append(vs, &validators.IntIsGreaterThan{Field: *e.DependentsUnderTwelve, Compared: -1, Name: "DependentsUnderTwelve"})
 	}
 
-	// Update TotalDependents only if it differs from the calculated value
-	// We do this since we don't know the number of dependents under 12 or 12 and over on CONUS moves, we don't want to default to 0 total dependents. That'd be confusing for CONUS
-	// Dependents under 12 and dependents 12 and over are attributes only present on OCONUS
-	if (e.TotalDependents == nil && totalDependents != nil) || (e.TotalDependents != nil && totalDependents == nil) || (e.TotalDependents != nil && totalDependents != nil && *e.TotalDependents != *totalDependents) {
-		e.TotalDependents = totalDependents
+	if e.DependentsTwelveAndOver != nil {
+		vs = append(vs, &validators.IntIsGreaterThan{Field: *e.DependentsTwelveAndOver, Compared: -1, Name: "DependentsTwelveAndOver"})
 	}
 
 	if e.UBAllowance != nil {
