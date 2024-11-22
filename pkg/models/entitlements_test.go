@@ -87,22 +87,45 @@ func (suite *ModelSuite) TestGetUBWeightAllowanceCivilians() {
 		suite.Assertions.Equal(civilianBaseUBAllowanceTestConstant, ubAllowance)
 	})
 
+	dependentsUnderTwelve = 0
+	dependentsTwelveAndOver = 2
+	suite.Run("UB allowance is calculated for Civilian Employee pay grade when dependentsUnderTwelve is 0 and dependentsTwelveAndOver is > 0", func() {
+		ubAllowance, err := models.GetUBWeightAllowance(appCtx, &originDutyLocationIsOconus, &newDutyLocationIsOconus, &branch, &grade, &orderType, &dependentsAuthorized, &isAccompaniedTour, &dependentsUnderTwelve, &dependentsTwelveAndOver)
+		suite.NoError(err)
+		civilianPlusDependentsTotalBaggageAllowance := civilianBaseUBAllowanceTestConstant + (dependentsUnderTwelve * depedentsUnder12UBAllowanceTestConstant) + (dependentsTwelveAndOver * dependents12AndOverUBAllowanceTestConstant)
+		suite.Assertions.Equal(1050, civilianPlusDependentsTotalBaggageAllowance)
+		suite.Assertions.Equal(civilianPlusDependentsTotalBaggageAllowance, ubAllowance)
+	})
+
+	dependentsUnderTwelve = 3
+	dependentsTwelveAndOver = 0
+	suite.Run("UB allowance is calculated for Civilian Employee pay grade when dependentsUnderTwelve is > 0 and dependentsTwelveAndOver is 0", func() {
+		ubAllowance, err := models.GetUBWeightAllowance(appCtx, &originDutyLocationIsOconus, &newDutyLocationIsOconus, &branch, &grade, &orderType, &dependentsAuthorized, &isAccompaniedTour, &dependentsUnderTwelve, &dependentsTwelveAndOver)
+		suite.NoError(err)
+		civilianPlusDependentsTotalBaggageAllowance := civilianBaseUBAllowanceTestConstant + (dependentsUnderTwelve * depedentsUnder12UBAllowanceTestConstant) + (dependentsTwelveAndOver * dependents12AndOverUBAllowanceTestConstant)
+		suite.Assertions.Equal(875, civilianPlusDependentsTotalBaggageAllowance)
+		suite.Assertions.Equal(civilianPlusDependentsTotalBaggageAllowance, ubAllowance)
+	})
+
 	dependentsUnderTwelve = 2
 	dependentsTwelveAndOver = 1
 	suite.Run("UB allowance is calculated for Civilian Employee pay grade", func() {
 		ubAllowance, err := models.GetUBWeightAllowance(appCtx, &originDutyLocationIsOconus, &newDutyLocationIsOconus, &branch, &grade, &orderType, &dependentsAuthorized, &isAccompaniedTour, &dependentsUnderTwelve, &dependentsTwelveAndOver)
 		suite.NoError(err)
 		civilianPlusDependentsTotalBaggageAllowance := civilianBaseUBAllowanceTestConstant + (dependentsUnderTwelve * depedentsUnder12UBAllowanceTestConstant) + (dependentsTwelveAndOver * dependents12AndOverUBAllowanceTestConstant)
+		suite.Assertions.Equal(1050, civilianPlusDependentsTotalBaggageAllowance)
 		suite.Assertions.Equal(civilianPlusDependentsTotalBaggageAllowance, ubAllowance)
 	})
 
+	dependentsUnderTwelve = 3
 	dependentsTwelveAndOver = 4
-	// this combination of depdendents would tally up to 2100 pounds normally
+	// this combination of depdendents would tally up to 2275 pounds normally
 	// however, we limit the max ub allowance for a family to 2000
 	suite.Run("UB allowance is set to 2000 for the max weight for a family", func() {
 		ubAllowance, err := models.GetUBWeightAllowance(appCtx, &originDutyLocationIsOconus, &newDutyLocationIsOconus, &branch, &grade, &orderType, &dependentsAuthorized, &isAccompaniedTour, &dependentsUnderTwelve, &dependentsTwelveAndOver)
 		suite.NoError(err)
 		civilianPlusDependentsTotalBaggageAllowance := civilianBaseUBAllowanceTestConstant + (dependentsUnderTwelve * depedentsUnder12UBAllowanceTestConstant) + (dependentsTwelveAndOver * dependents12AndOverUBAllowanceTestConstant)
+		suite.Assertions.Equal(2275, civilianPlusDependentsTotalBaggageAllowance)
 		suite.Assertions.NotEqual(civilianPlusDependentsTotalBaggageAllowance, ubAllowance)
 		suite.Assertions.Equal(maxWholeFamilyCivilianUBAllowanceTestConstant, ubAllowance)
 	})
