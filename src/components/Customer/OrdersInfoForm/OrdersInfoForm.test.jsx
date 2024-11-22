@@ -305,12 +305,10 @@ describe('OrdersInfoForm component', () => {
     await userEvent.click(screen.getByLabelText('No'));
     await userEvent.selectOptions(screen.getByLabelText(/Pay grade/), ['E_5']);
 
-    // Test Current Duty Location Search Box interaction
     await userEvent.type(screen.getByLabelText(/Current duty location/), 'AFB', { delay: 100 });
     const selectedOptionCurrent = await screen.findByText(/Scott/);
     await userEvent.click(selectedOptionCurrent);
 
-    // Test New Duty Location Search Box interaction
     await userEvent.type(screen.getByLabelText(/New duty location/), 'AFB', { delay: 100 });
     const selectedOptionNew = await screen.findByText(/Luke/);
     await userEvent.click(selectedOptionNew);
@@ -318,6 +316,48 @@ describe('OrdersInfoForm component', () => {
     await waitFor(() => {
       expect(screen.getByLabelText(/Counseling office/));
     });
+  });
+
+  it('does not render the counseling office if current duty location does not provides services counseling', async () => {
+    const testPropsWithCounselingOffice = {
+      onSubmit: jest.fn().mockImplementation(() => Promise.resolve()),
+      initialValues: {
+        orders_type: '',
+        issue_date: '',
+        report_by_date: '',
+        has_dependents: '',
+        new_duty_location: {},
+        grade: '',
+        origin_duty_location: {},
+        counseling_office_id: '',
+      },
+      onBack: jest.fn(),
+      ordersTypeOptions: [
+        { key: 'PERMANENT_CHANGE_OF_STATION', value: 'Permanent Change Of Station (PCS)' },
+        { key: 'LOCAL_MOVE', value: 'Local Move' },
+        { key: 'RETIREMENT', value: 'Retirement' },
+        { key: 'SEPARATION', value: 'Separation' },
+        { key: 'TEMPORARY_DUTY', value: 'Temporary Duty (TDY)' },
+      ],
+    };
+
+    render(<OrdersInfoForm {...testPropsWithCounselingOffice} />);
+
+    await userEvent.selectOptions(screen.getByLabelText(/Orders type/), ORDERS_TYPE.PERMANENT_CHANGE_OF_STATION);
+    await userEvent.type(screen.getByLabelText(/Orders date/), '08 Nov 2020');
+    await userEvent.type(screen.getByLabelText(/Report by date/), '26 Nov 2020');
+    await userEvent.click(screen.getByLabelText('No'));
+    await userEvent.selectOptions(screen.getByLabelText(/Pay grade/), ['E_5']);
+
+    await userEvent.type(screen.getByLabelText(/Current duty location/), 'AFB', { delay: 100 });
+    const selectedOptionCurrent = await screen.findByText(/Altus/);
+    await userEvent.click(selectedOptionCurrent);
+
+    await userEvent.type(screen.getByLabelText(/New duty location/), 'AFB', { delay: 100 });
+    const selectedOptionNew = await screen.findByText(/Luke/);
+    await userEvent.click(selectedOptionNew);
+
+    expect(screen.queryByText(/Counseling office/)).not.toBeInTheDocument();
   });
 
   it('submits the form when its valid', async () => {
