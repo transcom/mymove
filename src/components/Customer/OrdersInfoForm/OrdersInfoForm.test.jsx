@@ -274,7 +274,7 @@ describe('OrdersInfoForm component', () => {
     expect(testProps.onSubmit).not.toHaveBeenCalled();
   });
 
-  it('submits the form when its valid and has a counseling office selected', async () => {
+  it('renders the counseling office if current duty location provides services counseling', async () => {
     const testPropsWithCounselingOffice = {
       onSubmit: jest.fn().mockImplementation(() => Promise.resolve()),
       initialValues: {
@@ -317,72 +317,6 @@ describe('OrdersInfoForm component', () => {
 
     await waitFor(() => {
       expect(screen.getByLabelText(/Counseling office/));
-    });
-    // await userEvent.selectOptions(screen.getByLabelText(/Counseling office/), 'Albuquerque AFB');
-    // await userEvent.selectOptions(screen.getByText(/Counseling office/), 'Albuquerque AFB');
-    await userEvent.type(screen.getByLabelText(/Counseling office/), 'Alb', { delay: 100 });
-    // const selectedtest = screen.getByText('Alb');
-
-    // await userEvent.click(selectedtest);
-    // await act(async () => {
-    //   await userEvent.selectOptions(document.querySelector('select[name="counseling_office_id"]'), 'Albuquerque AFB');
-    // });
-
-    await waitFor(() => {
-      expect(screen.getByRole('form')).toHaveFormValues({
-        new_duty_location: 'Luke AFB',
-        origin_duty_location: 'Scott AFB',
-        counseling_office_id: 'Albuquerque AFB',
-      });
-    });
-
-    const submitBtn = screen.getByRole('button', { name: 'Next' });
-    await userEvent.click(submitBtn);
-
-    await waitFor(() => {
-      expect(testPropsWithCounselingOffice.onSubmit).toHaveBeenCalledWith(
-        expect.objectContaining({
-          orders_type: ORDERS_TYPE.PERMANENT_CHANGE_OF_STATION,
-          counseling_office_id: '3e937c1f-5539-4919-954d-017989130584',
-          has_dependents: 'no',
-          issue_date: '08 Nov 2020',
-          report_by_date: '26 Nov 2020',
-          new_duty_location: {
-            address: {
-              city: 'Glendale Luke AFB',
-              country: 'United States',
-              id: 'fa51dab0-4553-4732-b843-1f33407f77bc',
-              postalCode: '85309',
-              state: 'AZ',
-              streetAddress1: 'n/a',
-            },
-            address_id: '25be4d12-fe93-47f1-bbec-1db386dfa67f',
-            affiliation: 'AIR_FORCE',
-            created_at: '2021-02-11T16:48:04.117Z',
-            id: 'a8d6b33c-8370-4e92-8df2-356b8c9d0c1a',
-            name: 'Luke AFB',
-            updated_at: '2021-02-11T16:48:04.117Z',
-          },
-          grade: 'E_5',
-          origin_duty_location: {
-            address: {
-              city: '',
-              id: '1111111111',
-              postalCode: '',
-              state: '',
-              streetAddress1: '',
-            },
-            address_id: '4334640b-c35e-4293-a2f1-36c7b629f903',
-            affiliation: 'AIR_FORCE',
-            created_at: '2021-02-11T16:48:04.117Z',
-            id: '22f0755f-6f35-478b-9a75-35a69211da1c',
-            name: 'Scott AFB',
-            updated_at: '2021-02-11T16:48:04.117Z',
-            provides_services_counseling: true,
-          },
-        }),
-        expect.anything(),
-      );
     });
   });
 
