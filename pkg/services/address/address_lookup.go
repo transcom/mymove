@@ -87,21 +87,17 @@ func FindLocationsByZipCity(appCtx appcontext.AppContext, search string) (models
 		isAlaskaEnabled = flag.Match
 	}
 
-	sqlQuery := ""
+	sqlQuery := `SELECT vl.city_name, vl.state, vl.usprc_county_nm, vl.uspr_zip_id, vl.uprc_id
+	FROM v_locations vl where vl.uspr_zip_id like ? AND
+	vl.city_name like upper(?) AND vl.state like upper(?) `
 
-	if isAlaskaEnabled {
-		sqlQuery = fmt.Sprintf(`
-			select vl.city_name, vl.state, vl.usprc_county_nm, vl.uspr_zip_id, vl.uprc_id
-				from v_locations vl where vl.uspr_zip_id like '%[1]s%%' and
-				vl.city_name like upper('%[2]s%%') and vl.state like upper('%[3]s%%') limit 30`, postalCode, city, state)
-	} else {
-		sqlQuery = fmt.Sprintf(`
-		select vl.city_name, vl.state, vl.usprc_county_nm, vl.uspr_zip_id, vl.uprc_id
-			from v_locations vl where vl.uspr_zip_id like '%[1]s%%' and
-			vl.city_name like upper('%[2]s%%') and vl.state like upper('%[3]s%%') and vl.state NOT in ('AK','HI') limit 30`, postalCode, city, state)
+	if !isAlaskaEnabled {
+		sqlQuery += ` AND vl.state NOT in ('AK','HI')`
 	}
 
-	query := appCtx.DB().Q().RawQuery(sqlQuery)
+	sqlQuery += ` limit 30`
+
+	query := appCtx.DB().RawQuery(sqlQuery, fmt.Sprintf("%s%%", postalCode), fmt.Sprintf("%s%%", city), fmt.Sprintf("%s%%", state))
 	if err := query.All(&locationList); err != nil {
 		if errors.Cause(err).Error() != models.RecordNotFoundErrorString {
 			return locationList, err
