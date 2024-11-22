@@ -15,7 +15,7 @@ import (
 type Entitlement struct {
 	ID                    uuid.UUID `db:"id"`
 	DependentsAuthorized  *bool     `db:"dependents_authorized"`
-	TotalDependents       *int      `db:"total_dependents"`
+	TotalDependents       *int      `db:"total_dependents" rw:"r"` // DB generated column
 	NonTemporaryStorage   *bool     `db:"non_temporary_storage"`
 	PrivatelyOwnedVehicle *bool     `db:"privately_owned_vehicle"`
 	//DBAuthorizedWeight is AuthorizedWeight when not null
