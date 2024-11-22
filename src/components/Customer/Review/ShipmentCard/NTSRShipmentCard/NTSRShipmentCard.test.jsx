@@ -104,14 +104,14 @@ describe('NTSRShipmentCard component', () => {
     expect(screen.getByRole('heading', { level: 3 })).toHaveTextContent(`${defaultProps.marketCode}NTS-release`);
   });
 
-  it('should not render a secondary destination location if not provided one', async () => {
+  it('should not render a secondary delivery address if not provided one', async () => {
     render(<NTSRShipmentCard {...defaultProps} />);
 
     const secondDestination = await screen.queryByText('Second Destination');
     expect(secondDestination).not.toBeInTheDocument();
   });
 
-  it('should render a secondary destination location if provided one', async () => {
+  it('should render a secondary delivery address if provided one', async () => {
     render(<NTSRShipmentCard {...defaultProps} {...secondaryDeliveryAddress} />);
 
     const secondDestination = await screen.getByText('Second Destination');
