@@ -21,6 +21,22 @@ test.describe('The document viewer', () => {
     test('displays a PDF file correctly', async ({ page, officePage }) => {
       test.slow(); // flaky no flaky
 
+      // Debugging, highly recommend to persist permanently due to the uniqueness of this test
+      // Log all page requests for the pdfjs-dist webpack chunk
+      page.on('request', (request) => {
+        if (request.url().includes('pdfjs-dist-webpack.chunk.js')) {
+          // eslint-disable-next-line no-console
+          console.log(`>> Outgoing chunk request: ${request.method()} ${request.url()}`);
+        }
+      });
+      // Log all page responses for the pdfjs-dist webpack chunk
+      page.on('response', (response) => {
+        if (response.url().includes('pdfjs-dist-webpack.chunk.js')) {
+          // eslint-disable-next-line no-console
+          console.log(`<< Incoming chunk response: ${response.status()} ${response.url()}`);
+        }
+      });
+
       // Build a move that has a PDF document
       const move = await officePage.testHarness.buildHHGWithAmendedOrders();
 
