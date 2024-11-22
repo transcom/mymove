@@ -100,7 +100,9 @@ test.describe('Services counselor user', () => {
 
     await page.locator('#requestedPickupDate').fill(pickupDateString);
     await page.locator('#requestedPickupDate').blur();
-    await page.getByText('Use current address').click();
+    await page.getByText('Use pickup address').click();
+    await page.locator('#requestedDeliveryDate').fill('16 Mar 2022');
+    await page.locator('#requestedDeliveryDate').blur();
 
     await page.getByLabel('Counselor remarks').fill('Sample counselor remarks');
 

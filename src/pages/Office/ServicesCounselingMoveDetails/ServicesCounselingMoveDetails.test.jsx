@@ -677,9 +677,9 @@ describe('MoveDetails page', () => {
         );
       }
 
-      const originAddressTerms = screen.getAllByText('Origin address');
+      const originAddressTerms = screen.getAllByText('Pickup Address');
 
-      expect(originAddressTerms.length).toBe(2);
+      expect(originAddressTerms.length).toBe(3);
 
       for (let i = 0; i < 2; i += 1) {
         const { streetAddress1, city, state, postalCode } = newMoveDetailsQuery.mtoShipments[i].pickupAddress;
@@ -692,7 +692,7 @@ describe('MoveDetails page', () => {
         expect(addressText).toContain(postalCode);
       }
 
-      const destinationAddressTerms = screen.getAllByText('Destination address');
+      const destinationAddressTerms = screen.getAllByText('Delivery Address');
 
       expect(destinationAddressTerms.length).toBe(2);
 
@@ -768,7 +768,7 @@ describe('MoveDetails page', () => {
       expect(allowanceError).toBeInTheDocument();
     });
 
-    it('renders shipments info even if destination address is missing', async () => {
+    it('renders shipments info even if delivery address is missing', async () => {
       const moveDetailsQuery = {
         ...newMoveDetailsQuery,
         mtoShipments: [
@@ -785,7 +785,7 @@ describe('MoveDetails page', () => {
 
       renderComponent();
 
-      const destinationAddressTerms = screen.getAllByText('Destination address');
+      const destinationAddressTerms = screen.getAllByText('Delivery Address');
 
       expect(destinationAddressTerms.length).toBe(2);
 

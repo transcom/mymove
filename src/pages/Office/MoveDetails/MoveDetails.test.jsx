@@ -1047,7 +1047,7 @@ describe('MoveDetails page', () => {
     });
   });
 
-  describe('When a shipment has a pending destination address update requested by the Prime', () => {
+  describe('When a shipment has a pending delivery address update requested by the Prime', () => {
     it('renders an alert indicator in the sidebar', async () => {
       useMoveDetailsQueries.mockReturnValue(requestedMoveDetailsMissingInfoQuery);
 

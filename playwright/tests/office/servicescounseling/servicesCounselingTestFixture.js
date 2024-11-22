@@ -133,7 +133,7 @@ export class ServiceCounselorPage extends OfficePage {
     await this.waitForPage.addNTSShipment();
     await this.page.getByLabel('Requested pickup date').fill('16 Mar 2022');
     await this.page.getByLabel('Requested pickup date').blur();
-    await this.page.getByText('Use current address').click();
+    await this.page.getByText('Use pickup address').click();
 
     await this.page.getByLabel('Counselor remarks').fill('Sample counselor remarks');
 
