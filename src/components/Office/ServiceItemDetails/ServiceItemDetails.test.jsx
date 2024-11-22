@@ -344,6 +344,116 @@ describe('ServiceItemDetails Crating', () => {
   });
 });
 
+describe('ServiceItemDetails International Crating & International Uncrating', () => {
+  const icrtDetails = {
+    description: 'some description',
+    reason: 'some reason',
+    itemDimensions: { length: 1000, width: 2500, height: 3000 },
+    crateDimensions: { length: 2000, width: 3500, height: 4000 },
+    market: 'OCONUS',
+    externalCrate: true,
+  };
+
+  const iucrtDetails = {
+    description: 'some description',
+    reason: 'some reason',
+    itemDimensions: { length: 1000, width: 2500, height: 3000 },
+    crateDimensions: { length: 2000, width: 3500, height: 4000 },
+    market: 'CONUS',
+    externalCrate: null,
+  };
+
+  it('renders description and dimensions - ICRT', () => {
+    render(<ServiceItemDetails id="1" code="ICRT" details={icrtDetails} serviceRequestDocs={serviceRequestDocs} />);
+
+    expect(screen.getByText('some description')).toBeInTheDocument();
+    expect(screen.getByText('Item size:')).toBeInTheDocument();
+    expect(screen.getByText('1"x2.5"x3"')).toBeInTheDocument();
+    expect(screen.getByText('Crate size:')).toBeInTheDocument();
+    expect(screen.getByText('2"x3.5"x4"')).toBeInTheDocument();
+    expect(screen.getByText('Market:')).toBeInTheDocument();
+    expect(screen.getByText('OCONUS')).toBeInTheDocument();
+    expect(screen.getByText('External crate:')).toBeInTheDocument();
+    expect(screen.getByText('Yes')).toBeInTheDocument();
+    expect(screen.getByText('Reason:')).toBeInTheDocument();
+    expect(screen.getByText('some reason')).toBeInTheDocument();
+    expect(screen.getByText('Download service item documentation:')).toBeInTheDocument();
+    const downloadLink = screen.getByText('receipt.pdf');
+    expect(downloadLink).toBeInstanceOf(HTMLAnchorElement);
+  });
+
+  it('renders description and dimensions - IUCRT', () => {
+    render(<ServiceItemDetails id="1" code="IUCRT" details={iucrtDetails} serviceRequestDocs={serviceRequestDocs} />);
+
+    expect(screen.getByText('some description')).toBeInTheDocument();
+    expect(screen.getByText('Item size:')).toBeInTheDocument();
+    expect(screen.getByText('1"x2.5"x3"')).toBeInTheDocument();
+    expect(screen.getByText('Crate size:')).toBeInTheDocument();
+    expect(screen.getByText('2"x3.5"x4"')).toBeInTheDocument();
+    expect(screen.getByText('Market:')).toBeInTheDocument();
+    expect(screen.getByText('CONUS')).toBeInTheDocument();
+    expect(screen.getByText('Reason:')).toBeInTheDocument();
+    expect(screen.getByText('some reason')).toBeInTheDocument();
+    expect(screen.getByText('Download service item documentation:')).toBeInTheDocument();
+    const downloadLink = screen.getByText('receipt.pdf');
+    expect(downloadLink).toBeInstanceOf(HTMLAnchorElement);
+  });
+
+  it('renders rejected description and dimensions - ICRT', () => {
+    render(
+      <ServiceItemDetails
+        id="1"
+        code="ICRT"
+        details={{ ...icrtDetails, rejectionReason: 'some rejection reason' }}
+        serviceRequestDocs={serviceRequestDocs}
+      />,
+    );
+
+    expect(screen.getByText('some description')).toBeInTheDocument();
+    expect(screen.getByText('Item size:')).toBeInTheDocument();
+    expect(screen.getByText('1"x2.5"x3"')).toBeInTheDocument();
+    expect(screen.getByText('Crate size:')).toBeInTheDocument();
+    expect(screen.getByText('2"x3.5"x4"')).toBeInTheDocument();
+    expect(screen.getByText('Market:')).toBeInTheDocument();
+    expect(screen.getByText('OCONUS')).toBeInTheDocument();
+    expect(screen.getByText('External crate:')).toBeInTheDocument();
+    expect(screen.getByText('Yes')).toBeInTheDocument();
+    expect(screen.getByText('Reason:')).toBeInTheDocument();
+    expect(screen.getByText('some reason')).toBeInTheDocument();
+    expect(screen.getByText('Rejection reason:')).toBeInTheDocument();
+    expect(screen.getByText('some rejection reason')).toBeInTheDocument();
+    expect(screen.getByText('Download service item documentation:')).toBeInTheDocument();
+    const downloadLink = screen.getByText('receipt.pdf');
+    expect(downloadLink).toBeInstanceOf(HTMLAnchorElement);
+  });
+
+  it('renders rejected description and dimensions - IUCRT', () => {
+    render(
+      <ServiceItemDetails
+        id="1"
+        code="IUCRT"
+        details={{ ...iucrtDetails, rejectionReason: 'some rejection reason' }}
+        serviceRequestDocs={serviceRequestDocs}
+      />,
+    );
+
+    expect(screen.getByText('some description')).toBeInTheDocument();
+    expect(screen.getByText('Item size:')).toBeInTheDocument();
+    expect(screen.getByText('1"x2.5"x3"')).toBeInTheDocument();
+    expect(screen.getByText('Crate size:')).toBeInTheDocument();
+    expect(screen.getByText('2"x3.5"x4"')).toBeInTheDocument();
+    expect(screen.getByText('Market:')).toBeInTheDocument();
+    expect(screen.getByText('CONUS')).toBeInTheDocument();
+    expect(screen.getByText('Reason:')).toBeInTheDocument();
+    expect(screen.getByText('some reason')).toBeInTheDocument();
+    expect(screen.getByText('Rejection reason:')).toBeInTheDocument();
+    expect(screen.getByText('some rejection reason')).toBeInTheDocument();
+    expect(screen.getByText('Download service item documentation:')).toBeInTheDocument();
+    const downloadLink = screen.getByText('receipt.pdf');
+    expect(downloadLink).toBeInstanceOf(HTMLAnchorElement);
+  });
+});
+
 describe('ServiceItemDetails Domestic Shuttling', () => {
   it.each([['DOSHUT'], ['DDSHUT']])('renders formatted estimated weight and reason', (code) => {
     render(<ServiceItemDetails id="1" code={code} details={details} serviceRequestDocs={serviceRequestDocs} />);
