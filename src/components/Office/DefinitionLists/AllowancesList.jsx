@@ -52,26 +52,27 @@ const AllowancesList = ({ info, showVisualCues }) => {
         it will be safe to assume it is an OCONUS order. With this, if one field is present
         we show all four. Otherwise, we show none */}
         {/* Wrap in FF */}
-        {enableUB && (info?.accompaniedTour || info?.dependentsTwelveAndOver || info?.dependentsUnderTwelve) && (
-          <>
-            <div className={descriptionListStyles.row}>
-              <dt>Accompanied tour</dt>
-              <dd data-testid="ordersAccompaniedTour">{info.accompaniedTour ? 'Yes' : 'No'}</dd>
-            </div>
-            <div className={descriptionListStyles.row}>
-              <dt>Dependents under age 12</dt>
-              <dd data-testid="ordersDependentsUnderTwelve">
-                {info.dependentsUnderTwelve ? info.dependentsUnderTwelve : DEFAULT_EMPTY_VALUE}
-              </dd>
-            </div>
-            <div className={descriptionListStyles.row}>
-              <dt>Dependents over age 12</dt>
-              <dd data-testid="ordersDependentsTwelveAndOver">
-                {info.dependentsTwelveAndOver ? info.dependentsTwelveAndOver : DEFAULT_EMPTY_VALUE}
-              </dd>
-            </div>
-          </>
-        )}
+        {enableUB &&
+          (info?.accompaniedTour || info?.dependentsTwelveAndOver > 0 || info?.dependentsUnderTwelve > 0) && (
+            <>
+              <div className={descriptionListStyles.row}>
+                <dt>Accompanied tour</dt>
+                <dd data-testid="ordersAccompaniedTour">{info.accompaniedTour ? 'Yes' : 'No'}</dd>
+              </div>
+              <div className={descriptionListStyles.row}>
+                <dt>Dependents under age 12</dt>
+                <dd data-testid="ordersDependentsUnderTwelve">
+                  {info.dependentsUnderTwelve ? info.dependentsUnderTwelve : DEFAULT_EMPTY_VALUE}
+                </dd>
+              </div>
+              <div className={descriptionListStyles.row}>
+                <dt>Dependents over age 12</dt>
+                <dd data-testid="ordersDependentsTwelveAndOver">
+                  {info.dependentsTwelveAndOver ? info.dependentsTwelveAndOver : DEFAULT_EMPTY_VALUE}
+                </dd>
+              </div>
+            </>
+          )}
         {enableUB && info?.ubAllowance >= 0 && (
           <div className={descriptionListStyles.row}>
             <dt>Unaccompanied baggage allowance</dt>
