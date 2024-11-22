@@ -652,3 +652,30 @@ func (suite *PayloadsSuite) TestGsrAppeal() {
 		suite.False(result.IsSeriousIncident, "Expected IsSeriousIncident to be false")
 	})
 }
+
+func (suite *PayloadsSuite) TestVLocation() {
+	suite.Run("correctly maps VLocation with all fields populated", func() {
+		city := "LOS ANGELES"
+		state := "CA"
+		postalCode := "90210"
+		county := "LOS ANGELES"
+		usPostRegionCityId := uuid.Must(uuid.NewV4())
+
+		vLocation := &models.VLocation{
+			CityName:             city,
+			StateName:            state,
+			UsprZipID:            postalCode,
+			UsprcCountyNm:        county,
+			UsPostRegionCitiesId: &usPostRegionCityId,
+		}
+
+		payload := VLocation(vLocation)
+
+		suite.IsType(payload, &ghcmessages.VLocation{})
+		suite.Equal(handlers.FmtUUID(usPostRegionCityId), &payload.UsPostRegionCitiesID, "Expected UsPostRegionCitiesID to match")
+		suite.Equal(city, payload.City, "Expected City to match")
+		suite.Equal(state, payload.State, "Expected State to match")
+		suite.Equal(postalCode, payload.PostalCode, "Expected PostalCode to match")
+		suite.Equal(county, *(payload.County), "Expected County to match")
+	})
+}

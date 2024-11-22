@@ -961,13 +961,13 @@ func VLocationModel(vLocation *ghcmessages.VLocation) *models.VLocation {
 		return nil
 	}
 
-	usprcID := uuid.FromStringOrNil(vLocation.UsPostRegionCitiesID.String())
+	usPostRegionCitiesId := uuid.FromStringOrNil(vLocation.UsPostRegionCitiesID.String())
 
 	return &models.VLocation{
-		CityName:      vLocation.City,
-		StateName:     vLocation.State,
-		UsprZipID:     vLocation.PostalCode,
-		UsprcCountyNm: *vLocation.County,
-		UprcId:        &usprcID,
+		CityName:             vLocation.City,
+		StateName:            vLocation.State,
+		UsprZipID:            vLocation.PostalCode,
+		UsprcCountyNm:        *vLocation.County,
+		UsPostRegionCitiesId: &usPostRegionCitiesId,
 	}
 }
