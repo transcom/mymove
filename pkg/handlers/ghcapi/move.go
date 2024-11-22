@@ -84,7 +84,8 @@ func (h GetMoveHandler) Handle(params moveop.GetMoveParams) middleware.Responder
 
 			if moveOrders.OrdersType == "SAFETY" && !privileges.HasPrivilege(models.PrivilegeTypeSafety) {
 				appCtx.Logger().Error("Invalid permissions")
-				return moveop.NewGetMoveNotFound(), nil
+				errMsg := "Page is inaccessible"
+				return moveop.NewGetMoveNotFound().WithPayload(&ghcmessages.Error{Message: &errMsg}), apperror.NewNotFoundError(uuid.Nil, "Page is inaccessible")
 			} else {
 				payload, err := payloads.Move(move, h.FileStorer())
 				if err != nil {
