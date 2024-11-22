@@ -211,7 +211,7 @@ const NTSRShipmentInfoList = ({
   const destinationAddressElementFlags = getDisplayFlags('destinationAddress');
   const destinationAddressElement = (
     <div className={destinationAddressElementFlags.classes}>
-      <dt>Delivery address</dt>
+      <dt>Delivery Address</dt>
       <dd data-testid="destinationAddress">
         {deliveryAddressUpdate?.status === ADDRESS_UPDATE_STATUS.REQUESTED
           ? 'Review required'
