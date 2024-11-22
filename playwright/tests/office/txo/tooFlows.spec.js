@@ -18,6 +18,8 @@ const SearchTerms = ['SITEXT', '8796353598', 'Spacemen'];
 
 const StatusFilterOptions = ['Draft', 'New Move', 'Needs Counseling', 'Service counseling completed', 'Move approved'];
 
+const alaskaEnabled = process.env.FEATURE_FLAG_ENABLE_ALASKA;
+
 test.describe('TOO user', () => {
   /** @type {TooFlowPage} */
   let tooFlowPage;
@@ -582,6 +584,7 @@ test.describe('TOO user', () => {
   });
 
   test.describe('with International HHG Moves', () => {
+    test.skip(alaskaEnabled === 'false', 'Skip if Alaska FF is disabled.');
     test('is able to approve and reject international crating/uncrating service items', async ({
       officePage,
       page,
