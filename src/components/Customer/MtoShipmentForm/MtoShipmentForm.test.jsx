@@ -155,7 +155,7 @@ describe('MtoShipmentForm component', () => {
       expect(screen.getAllByText('Date')[1]).toBeInstanceOf(HTMLLegendElement);
       expect(screen.getByLabelText(/Preferred delivery date/)).toBeInstanceOf(HTMLInputElement);
 
-      expect(screen.getByText(/Delivery Address/)).toBeInstanceOf(HTMLLegendElement);
+      expect(screen.getByText('Delivery Address')).toBeInstanceOf(HTMLLegendElement);
       expect(screen.getByTitle('Yes, I know my delivery address')).toBeInstanceOf(HTMLInputElement);
       expect(screen.getByTitle('No, I do not know my delivery address')).toBeInstanceOf(HTMLInputElement);
 
@@ -303,7 +303,7 @@ describe('MtoShipmentForm component', () => {
 
       await userEvent.click(screen.getByTitle('Yes, I know my delivery address'));
 
-      expect(await screen.findByRole('heading', { level: 4, name: 'Second delivery address' })).toBeInTheDocument();
+      expect(await screen.findByRole('heading', { level: 4, name: 'Second Delivery Address' })).toBeInTheDocument();
       expect(screen.getByTitle('Yes, I have a second delivery address')).toBeInstanceOf(HTMLInputElement);
       expect(screen.getByTitle('No, I do not have a second delivery address')).toBeInstanceOf(HTMLInputElement);
     });
@@ -1071,7 +1071,7 @@ describe('MtoShipmentForm component', () => {
       expect(screen.getByLabelText(/State/)).toBeInstanceOf(HTMLSelectElement);
       expect(screen.getByLabelText(/ZIP/)).toBeInstanceOf(HTMLInputElement);
 
-      expect(screen.getByRole('heading', { level: 4, name: 'Second pickup address' })).toBeInTheDocument();
+      expect(screen.getByRole('heading', { level: 4, name: 'Second Pickup Address' })).toBeInTheDocument();
       expect(screen.getByTitle('Yes, I have a second pickup address')).toBeInstanceOf(HTMLInputElement);
       expect(screen.getByTitle('No, I do not have a second pickup address')).toBeInstanceOf(HTMLInputElement);
 
@@ -1084,7 +1084,7 @@ describe('MtoShipmentForm component', () => {
       expect(screen.getAllByText('Date')[1]).toBeInstanceOf(HTMLLegendElement);
       expect(screen.getByLabelText(/Preferred delivery date/)).toBeInstanceOf(HTMLInputElement);
 
-      expect(screen.getByText(/Delivery Address/)).toBeInstanceOf(HTMLLegendElement);
+      expect(screen.getByText('Delivery Address')).toBeInstanceOf(HTMLLegendElement);
       expect(screen.getByTitle('Yes, I know my delivery address')).toBeInstanceOf(HTMLInputElement);
       expect(screen.getByTitle('No, I do not know my delivery address')).toBeInstanceOf(HTMLInputElement);
 
@@ -1224,7 +1224,7 @@ describe('MtoShipmentForm component', () => {
 
       await userEvent.click(screen.getByTitle('Yes, I know my delivery address'));
 
-      expect(await screen.findByRole('heading', { level: 4, name: 'Second delivery address' })).toBeInTheDocument();
+      expect(await screen.findByRole('heading', { level: 4, name: 'Second Delivery Address' })).toBeInTheDocument();
       expect(screen.getByTitle('Yes, I have a second delivery address')).toBeInstanceOf(HTMLInputElement);
       expect(screen.getByTitle('No, I do not have a second delivery address')).toBeInstanceOf(HTMLInputElement);
     });
@@ -2104,12 +2104,13 @@ describe('MtoShipmentForm component', () => {
       expect(screen.queryByText(/Releasing agent/)).not.toBeInTheDocument();
 
       expect(screen.getAllByText('Date')).toHaveLength(1);
-      expect(screen.getAllByText(/Delivery Address/)).toHaveLength(1);
+      expect(screen.getAllByText('Delivery Address')).toHaveLength(1);
+      expect(screen.getAllByText('Second Delivery Address')).toHaveLength(1);
 
       expect(screen.getByText('Date')).toBeInstanceOf(HTMLLegendElement);
       expect(screen.getByLabelText(/Preferred delivery date/)).toBeInstanceOf(HTMLInputElement);
 
-      expect(screen.getByText(/Delivery Address/)).toBeInstanceOf(HTMLLegendElement);
+      expect(screen.getByText('Delivery Address')).toBeInstanceOf(HTMLLegendElement);
       expect(screen.getByLabelText('Yes')).toBeInstanceOf(HTMLInputElement);
       expect(screen.getByLabelText('No')).toBeInstanceOf(HTMLInputElement);
 

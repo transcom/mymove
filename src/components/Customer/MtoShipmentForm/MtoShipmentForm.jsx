@@ -517,7 +517,7 @@ class MtoShipmentForm extends Component {
                                           label="Yes"
                                           name="hasSecondaryDelivery"
                                           value="yes"
-                                          title="Yes, I have a second delivery address location"
+                                          title="Yes, I have a second delivery address"
                                           checked={hasSecondaryDelivery === 'yes'}
                                         />
                                         <Field
@@ -527,7 +527,7 @@ class MtoShipmentForm extends Component {
                                           label="No"
                                           name="hasSecondaryDelivery"
                                           value="no"
-                                          title="No, I do not have a second delivery address location"
+                                          title="No, I do not have a second delivery address"
                                           checked={hasSecondaryDelivery === 'no'}
                                         />
                                       </div>

@@ -135,13 +135,13 @@ const PPMShipmentCard = ({
           </div>
           {secondaryDestinationAddress && (
             <div className={styles.row}>
-              <dt>Second delivery address</dt>
+              <dt>Second Delivery Address</dt>
               <dd>{formatCustomerContactFullAddress(secondaryDestinationAddress)}</dd>
             </div>
           )}
           {isTertiaryAddressEnabled && tertiaryDestinationAddress && secondaryDestinationAddress && (
             <div className={styles.row}>
-              <dt>Third delivery address</dt>
+              <dt>Third Delivery Address</dt>
               <dd>{formatCustomerContactFullAddress(tertiaryDestinationAddress)}</dd>
             </div>
           )}

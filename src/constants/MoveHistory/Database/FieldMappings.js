@@ -44,6 +44,7 @@ export default {
   shipment_type: 'Shipment type',
   pickup_address: 'Pickup Address',
   secondary_pickup_address: 'Second Pickup Address',
+  tertiary_pickup_address: 'Third Pickup Address',
   destination_address: 'Delivery Address',
   secondary_destination_address: 'Second Delivery Address',
   tertiary_destination_address: 'Third Delivery Address',

@@ -231,7 +231,7 @@ const NTSRShipmentInfoList = ({
   const secondaryDeliveryAddressElementFlags = getDisplayFlags('secondaryDeliveryAddress');
   const secondaryDeliveryAddressElement = (
     <div className={secondaryDeliveryAddressElementFlags.classes}>
-      <dt>Second delivery address</dt>
+      <dt>Second Delivery Address</dt>
       <dd data-testid="secondaryDeliveryAddress">
         {secondaryDeliveryAddress ? formatAddress(secondaryDeliveryAddress) : '—'}
       </dd>
@@ -241,7 +241,7 @@ const NTSRShipmentInfoList = ({
   const tertiaryDeliveryAddressElementFlags = getDisplayFlags('tertiaryDeliveryAddress');
   const tertiaryDeliveryAddressElement = (
     <div className={tertiaryDeliveryAddressElementFlags.classes}>
-      <dt>Third delivery address</dt>
+      <dt>Third Delivery Address</dt>
       <dd data-testid="tertiaryDeliveryAddress">
         {tertiaryDeliveryAddress ? formatAddress(tertiaryDeliveryAddress) : '—'}
       </dd>
