@@ -35,9 +35,9 @@ BEGIN
     ) THEN
         RAISE EXCEPTION 'Service item already exists for service_id % and shipment_id %', service_id, shipment_id;
     END IF;
+    RETURN FALSE;
 END;
 $$ LANGUAGE plpgsql;
-
 
 -- stored proc that creates auto-approved service items based off of a shipment id
 CREATE OR REPLACE PROCEDURE create_approved_service_items_for_shipment(
