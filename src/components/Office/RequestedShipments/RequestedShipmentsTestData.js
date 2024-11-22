@@ -296,6 +296,110 @@ export const ppmOnlyShipments = [
   },
 ];
 
+// export const fakeResponse = {
+//   orders: {
+//     '80ac4b6b-96a9-40d0-a897-b6ae6891854a': {
+//       agency: 'NAVY',
+//       customer: {
+//         agency: 'NAVY',
+//         backupAddress: {
+//           city: 'Missoula',
+//           eTag: 'MjAyNC0wMy0yNlQyMjoyMjowNy45MzYwNzha',
+//           id: '9859fc20-3aa7-44b6-a0c4-0409817192e5',
+//           postalCode: '59801',
+//           state: 'MT',
+//           streetAddress1: '1909 Dearborn Ave',
+//           streetAddress2: '',
+//         },
+//         backup_contact: {
+//           email: 'paul.stonebraker@caci.com',
+//           name: 'Neighbor',
+//           phone: '324-321-1234',
+//         },
+//         current_address: {
+//           city: 'Missoula',
+//           eTag: 'MjAyNC0wMy0yNlQyMjoyMjowNy45Mjc5MDla',
+//           id: '9fe2a514-5497-4bda-8e4d-b560208a84b3',
+//           postalCode: '59801',
+//           state: 'MT',
+//           streetAddress1: '325 Dearborn Ave',
+//           streetAddress2: '',
+//         },
+//         dodID: '6565655555',
+//         eTag: 'MjAyNC0wMy0yNlQyMjoyMjowNy45NDAxNzJa',
+//         email: 'tio@3hhg.com',
+//         first_name: 'TioT',
+//         id: '31e86254-5b73-4822-9e0a-cfd0c4a028f2',
+//         last_name: 'Tester',
+//         phone: '324-321-1234',
+//         phoneIsPreferred: true,
+//         userID: '2527f5ad-b89b-49aa-822e-e4094a0059f1',
+//       },
+//       customerID: '31e86254-5b73-4822-9e0a-cfd0c4a028f2',
+//       date_issued: '2024-03-01',
+//       department_indicator: '',
+//       destinationDutyLocation: {
+//         address: {
+//           city: 'Silverton',
+//           country: 'United States',
+//           eTag: 'MjAyNC0wMy0yMVQxODo0Mjo1My4zMjM5OTha',
+//           id: '74198926-358c-4944-abb4-5c2f851f9dd6',
+//           postalCode: '83867',
+//           state: 'ID',
+//           streetAddress1: 'n/a',
+//         },
+//         address_id: '74198926-358c-4944-abb4-5c2f851f9dd6',
+//         eTag: 'MjAyNC0wMy0yMVQxODo0Mjo1My4zMjM5OTha',
+//         id: '1ffa181f-8de0-46e4-b513-f8a9353de8ee',
+//         name: 'Silverton, ID 83867',
+//       },
+//       eTag: 'MjAyNC0wMy0yN1QwNToyMjo1Ni45NjMwNDFa',
+//       entitlement: {
+//         authorizedWeight: 14000,
+//         dependentsAuthorized: true,
+//         eTag: 'MjAyNC0wMy0yN1QwNToyMjo1Ni45NTg3MjVa',
+//         id: '282a8bc4-9470-4748-b727-8e86341652d8',
+//         proGearWeight: 2000,
+//         proGearWeightSpouse: 500,
+//         storageInTransit: 90,
+//         totalWeight: 14000,
+//       },
+//       first_name: 'TioT',
+//       grade: 'E_8',
+//       id: '80ac4b6b-96a9-40d0-a897-b6ae6891854a',
+//       last_name: 'Tester',
+//       methodOfPayment: 'Payment will be made using the Third-Party Payment System (TPPS) Automated Payment System',
+//       moveCode: 'MM8CXJ',
+//       moveTaskOrderID: 'ab5c867f-6274-48af-a579-116e45642b01',
+//       naics: '488510 - FREIGHT TRANSPORTATION ARRANGEMENT',
+//       order_type: 'PERMANENT_CHANGE_OF_STATION',
+//       order_type_detail: '',
+//       originDutyLocation: {
+//         address: {
+//           city: 'Salineno',
+//           country: 'United States',
+//           eTag: 'MjAyNC0wMy0yMVQxODo0Mjo1My4zMjM5OTha',
+//           id: 'fdb0fe38-c9d0-4c17-b956-454f858a0021',
+//           postalCode: '78585',
+//           state: 'TX',
+//           streetAddress1: 'n/a',
+//         },
+//         address_id: 'fdb0fe38-c9d0-4c17-b956-454f858a0021',
+//         eTag: 'MjAyNC0wMy0yMVQxODo0Mjo1My4zMjM5OTha',
+//         id: '0202254d-556a-42da-ad86-158c42ff9fb4',
+//         name: 'Salineno, TX 78585',
+//       },
+//       originDutyLocationGBLOC: 'HAFC',
+//       packingAndShippingInstructions:
+//         'Packaging, packing, and shipping instructions as identified in the Conformed Copy of HTC111-11-1-1112 Attachment 1 Performance Work Statement',
+//       report_by_date: '2024-03-31',
+//       supplyAndServicesCostEstimate:
+//         'Prices for services under this task order will be in accordance with rates provided in GHC Attachment 2 - Pricing Rate Table. It is the responsibility of the contractor to provide the estimated weight quantity to apply to services on this task order, when applicable (See Attachment 1 - Performance Work Statement).',
+//       uploaded_order_id: '814ff664-849d-4dfc-b4b2-d346a67444e3',
+//     },
+//   },
+// };
+
 export const ordersInfo = {
   newDutyLocation: {
     address: {
@@ -335,6 +439,7 @@ export const ordersInfo = {
   ordersNumber: 'ORDER3',
   ordersType: ORDERS_TYPE.PERMANENT_CHANGE_OF_STATION,
   ordersTypeDetail: 'TBD',
+  documentId: 'c0a22a98-a806-47a2-ab54-2dac938667b3',
   ordersDocuments: [
     {
       'c0a22a98-a806-47a2-ab54-2dac938667b3': {

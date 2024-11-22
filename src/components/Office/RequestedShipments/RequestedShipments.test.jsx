@@ -179,6 +179,7 @@ const testProps = {
   moveCode: 'TE5TC0DE',
 };
 const loadingReturnValue = {
+  ...ordersInfo,
   isLoading: true,
   isError: false,
   isSuccess: false,
@@ -193,7 +194,7 @@ describe('RequestedShipments', () => {
     });
 
     it('renders the container successfully with services counseling completed', () => {
-      // useMoveDetailsQueries.mockReturnValue(loadingReturnValue);
+      useMoveDetailsQueries.mockReturnValue(loadingReturnValue);
       render(submittedRequestedShipmentsComponentServicesCounselingCompleted);
       expect(screen.getByTestId('requested-shipments')).toBeInTheDocument();
       expect(screen.queryByTestId('services-counseling-completed-text')).toBeInTheDocument();

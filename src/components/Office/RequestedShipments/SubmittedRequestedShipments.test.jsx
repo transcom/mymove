@@ -111,6 +111,7 @@ const submittedRequestedShipmentsCanCreateNewShipment = (
   </MockProviders>
 );
 const loadingReturnValue = {
+  ...ordersInfo,
   isLoading: true,
   isError: false,
   isSuccess: false,

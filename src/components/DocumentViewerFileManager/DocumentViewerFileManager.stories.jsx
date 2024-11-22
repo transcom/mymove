@@ -37,3 +37,12 @@ AmendedOrdersDocument.args = {
   documentType: MOVE_DOCUMENT_TYPE.AMENDMENTS,
   updateAmendedDocument: () => {},
 };
+
+export const OrdersDocumentNoFileUpload = Template.bind({});
+OrdersDocumentNoFileUpload.args = {
+  fileUploadRequired: true,
+  orderId: 'order-id',
+  documentId: 'document-id',
+  files: [{}],
+  documentType: MOVE_DOCUMENT_TYPE.ORDERS,
+};
