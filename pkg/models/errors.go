@@ -57,3 +57,9 @@ var ErrInvalidOrderID = errors.New("INVALID_ORDER_ID")
 
 // ErrSqlRecordNotFound is used if an error is returned from the database indicating that no record was found
 var ErrSqlRecordNotFound = errors.New("RECORD_NOT_FOUND")
+
+// ErrMissingDestinationAddress is used if destination address is missing from the shipment
+var ErrMissingDestinationAddress = errors.New("DESTINATION_ADDRESS_MISSING")
+
+// ErrUnsupportedShipmentType is used if the shipment type is not supported by a method
+var ErrUnsupportedShipmentType = errors.New("UNSUPPORTED_SHIPMENT_TYPE")

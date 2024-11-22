@@ -9,6 +9,7 @@ import (
 	"github.com/gobuffalo/validate/v3"
 	"github.com/gofrs/uuid"
 
+	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/etag"
 	"github.com/transcom/mymove/pkg/gen/primev2messages"
 	"github.com/transcom/mymove/pkg/handlers"
@@ -16,13 +17,25 @@ import (
 )
 
 // MoveTaskOrder payload
-func MoveTaskOrder(moveTaskOrder *models.Move) *primev2messages.MoveTaskOrder {
+func MoveTaskOrder(appCtx appcontext.AppContext, moveTaskOrder *models.Move) *primev2messages.MoveTaskOrder {
+	db := appCtx.DB()
 	if moveTaskOrder == nil {
 		return nil
 	}
 	paymentRequests := PaymentRequests(&moveTaskOrder.PaymentRequests)
 	mtoServiceItems := MTOServiceItems(&moveTaskOrder.MTOServiceItems)
 	mtoShipments := MTOShipmentsWithoutServiceItems(&moveTaskOrder.MTOShipments)
+
+	var destGbloc, destZip string
+	var err error
+	destGbloc, err = moveTaskOrder.GetDestinationGBLOC(db)
+	if err != nil {
+		destGbloc = ""
+	}
+	destZip, err = moveTaskOrder.GetDestinationPostalCode(db)
+	if err != nil {
+		destZip = ""
+	}
 
 	payload := &primev2messages.MoveTaskOrder{
 		ID:                         strfmt.UUID(moveTaskOrder.ID.String()),
@@ -36,6 +49,8 @@ func MoveTaskOrder(moveTaskOrder *models.Move) *primev2messages.MoveTaskOrder {
 		ExcessWeightUploadID:       handlers.FmtUUIDPtr(moveTaskOrder.ExcessWeightUploadID),
 		OrderID:                    strfmt.UUID(moveTaskOrder.OrdersID.String()),
 		Order:                      Order(&moveTaskOrder.Orders),
+		DestinationGBLOC:           destGbloc,
+		DestinationPostalCode:      destZip,
 		ReferenceID:                *moveTaskOrder.ReferenceID,
 		PaymentRequests:            *paymentRequests,
 		MtoShipments:               *mtoShipments,

@@ -437,7 +437,7 @@ func (o Order) GetDestinationPostalCodeForAssociatedMoves(db *pop.Connection) (m
 
 		var shipments MTOShipments
 		for j, s := range o.Moves[i].MTOShipments {
-			err = db.Load(&o.Moves[i].MTOShipments[j], "CreatedAt", "Status", "DeletedAt", "DestinationAddress")
+			err = db.Load(&o.Moves[i].MTOShipments[j], "CreatedAt", "Status", "DeletedAt", "DestinationAddress", "ShipmentType", "PPMShipment", "PPMShipment.Status", "PPMShipment.DestinationAddress")
 			if err != nil {
 				if err.Error() == RecordNotFoundErrorString {
 					return nil, errors.WithMessage(err, "Could not load shipment with ID of "+s.ID.String()+" for move ID "+m.ID.String())
@@ -458,13 +458,19 @@ func (o Order) GetDestinationPostalCodeForAssociatedMoves(db *pop.Connection) (m
 				return shipments[i].CreatedAt.Before(shipments[j].CreatedAt)
 			})
 
-			if shipments[0].DestinationAddress != nil {
-				zipsMap[o.Moves[i].ID] = shipments[0].DestinationAddress.PostalCode
-			} else if shipments[0].PPMShipment != nil && shipments[0].PPMShipment.DestinationAddress != nil {
-				zipsMap[o.Moves[i].ID] = shipments[0].PPMShipment.DestinationAddress.PostalCode
+			var addressResult *Address
+			addressResult, err = shipments[0].GetDestinationAddress(db)
+			if err != nil {
+				if err == ErrMissingDestinationAddress || err == ErrUnsupportedShipmentType {
+					zipsMap[o.Moves[i].ID] = o.NewDutyLocation.Address.PostalCode
+				}
+				return nil, err
+			}
+
+			if addressResult != nil {
+				zipsMap[o.Moves[i].ID] = addressResult.PostalCode
 			} else {
-				// Fallback to new duty location if no shipment destination address
-				zipsMap[o.Moves[i].ID] = o.NewDutyLocation.Address.PostalCode
+				return nil, errors.WithMessage(ErrMissingDestinationAddress, "No destination address was able to be found for the order ID "+o.ID.String())
 			}
 		} else {
 			// No valid shipments, use new duty location

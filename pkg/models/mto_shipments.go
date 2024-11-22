@@ -8,6 +8,7 @@ import (
 	"github.com/gobuffalo/validate/v3"
 	"github.com/gobuffalo/validate/v3/validators"
 	"github.com/gofrs/uuid"
+	"github.com/pkg/errors"
 
 	"github.com/transcom/mymove/pkg/unit"
 )
@@ -366,6 +367,39 @@ func DetermineShipmentMarketCode(shipment *MTOShipment) *MTOShipment {
 		}
 	}
 	return shipment
+}
+
+func (s MTOShipment) GetDestinationAddress(db *pop.Connection) (*Address, error) {
+	if uuid.UUID.IsNil(s.ID) {
+		return nil, errors.New("MTOShipment ID is required to fetch destination address.")
+	}
+
+	err := db.Load(&s, "DestinationAddress", "PPMShipment.DestinationAddress")
+	if err != nil {
+		if err.Error() == RecordNotFoundErrorString {
+			return nil, errors.WithMessage(ErrSqlRecordNotFound, string(s.ShipmentType)+" ShipmentID: "+s.ID.String())
+		}
+		return nil, err
+	}
+	switch s.ShipmentType {
+	case MTOShipmentTypeBoatHaulAway,
+		MTOShipmentTypeBoatTowAway,
+		MTOShipmentTypeMobileHome,
+		MTOShipmentTypeHHG:
+		if s.DestinationAddress != nil {
+			return s.DestinationAddress, nil
+		}
+		return nil, errors.WithMessage(ErrMissingDestinationAddress, string(s.ShipmentType))
+	case MTOShipmentTypePPM:
+		if s.PPMShipment.DestinationAddress != nil {
+			return s.PPMShipment.DestinationAddress, nil
+		} else if s.DestinationAddress != nil {
+			return s.DestinationAddress, nil
+		}
+		return nil, errors.WithMessage(ErrMissingDestinationAddress, string(s.ShipmentType))
+	}
+
+	return nil, errors.WithMessage(ErrMissingDestinationAddress, string(s.ShipmentType)+" is currently unsupported for the GetDestinationAddress method")
 }
 
 // this function takes in two addresses and determines the market code string
