@@ -196,7 +196,7 @@ export const CreateCustomerForm = ({ userPrivileges, setFlashMessage, setCanAddO
     is_safety_move: isSafetyMoveFF ? Yup.boolean().required('Required') : '',
   });
 
-  const sectionStyles = classnames(formStyles.formSection, styles.formSection);
+  const sectionStyles = classnames(styles.noTopMargin, formStyles.formSection);
 
   return (
     <GridContainer>
