@@ -821,6 +821,10 @@ commands:
               exit 1
             fi
       - run:
+          name: Verify small.pdf is in workspace
+          command: |
+            ls -l ./pkg/testdatagen/testdata/bandwidth_test_docs/
+      - run:
           name: setup hosts
           command: |
             # futz with /etc/hosts for running in circleci
