@@ -145,6 +145,9 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		TransportationOfficesGetTransportationOfficesHandler: transportation_offices.GetTransportationOfficesHandlerFunc(func(params transportation_offices.GetTransportationOfficesParams) middleware.Responder {
 			return middleware.NotImplemented("operation transportation_offices.GetTransportationOffices has not yet been implemented")
 		}),
+		UploadsGetUploadStatusHandler: uploads.GetUploadStatusHandlerFunc(func(params uploads.GetUploadStatusParams) middleware.Responder {
+			return middleware.NotImplemented("operation uploads.GetUploadStatus has not yet been implemented")
+		}),
 		EntitlementsIndexEntitlementsHandler: entitlements.IndexEntitlementsHandlerFunc(func(params entitlements.IndexEntitlementsParams) middleware.Responder {
 			return middleware.NotImplemented("operation entitlements.IndexEntitlements has not yet been implemented")
 		}),
@@ -373,6 +376,8 @@ type MymoveAPI struct {
 	MovesGetAllMovesHandler moves.GetAllMovesHandler
 	// TransportationOfficesGetTransportationOfficesHandler sets the operation handler for the get transportation offices operation
 	TransportationOfficesGetTransportationOfficesHandler transportation_offices.GetTransportationOfficesHandler
+	// UploadsGetUploadStatusHandler sets the operation handler for the get upload status operation
+	UploadsGetUploadStatusHandler uploads.GetUploadStatusHandler
 	// EntitlementsIndexEntitlementsHandler sets the operation handler for the index entitlements operation
 	EntitlementsIndexEntitlementsHandler entitlements.IndexEntitlementsHandler
 	// MoveDocsIndexMoveDocumentsHandler sets the operation handler for the index move documents operation
@@ -619,6 +624,9 @@ func (o *MymoveAPI) Validate() error {
 	}
 	if o.TransportationOfficesGetTransportationOfficesHandler == nil {
 		unregistered = append(unregistered, "transportation_offices.GetTransportationOfficesHandler")
+	}
+	if o.UploadsGetUploadStatusHandler == nil {
+		unregistered = append(unregistered, "uploads.GetUploadStatusHandler")
 	}
 	if o.EntitlementsIndexEntitlementsHandler == nil {
 		unregistered = append(unregistered, "entitlements.IndexEntitlementsHandler")
@@ -945,6 +953,10 @@ func (o *MymoveAPI) initHandlerCache() {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
 	o.handlers["GET"]["/transportation-offices"] = transportation_offices.NewGetTransportationOffices(o.context, o.TransportationOfficesGetTransportationOfficesHandler)
+	if o.handlers["GET"] == nil {
+		o.handlers["GET"] = make(map[string]http.Handler)
+	}
+	o.handlers["GET"]["/uploads/{uploadId}/status"] = uploads.NewGetUploadStatus(o.context, o.UploadsGetUploadStatusHandler)
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}

@@ -447,6 +447,50 @@ func (suite *HandlerSuite) TestDeleteUploadHandlerSuccessEvenWithS3Failure() {
 	suite.NotNil(queriedUpload.DeletedAt)
 }
 
+func (suite *HandlerSuite) TestGetUploadStatusHandlerSuccess() {
+	fakeS3 := storageTest.NewFakeS3Storage(true)
+
+	move := factory.BuildMove(suite.DB(), nil, nil)
+	uploadUser1 := factory.BuildUserUpload(suite.DB(), []factory.Customization{
+		{
+			Model:    move.Orders.UploadedOrders,
+			LinkOnly: true,
+		},
+		{
+			Model: models.Upload{
+				Filename:    "FileName",
+				Bytes:       int64(15),
+				ContentType: uploader.FileTypePDF,
+			},
+		},
+	}, nil)
+
+	file := suite.Fixture(FixturePDF)
+	fakeS3.Store(uploadUser1.Upload.StorageKey, file.Data, "somehash", nil)
+
+	params := uploadop.NewGetUploadStatusParams()
+	params.UploadID = strfmt.UUID(uploadUser1.ID.String())
+
+	req := &http.Request{}
+	req = suite.AuthenticateRequest(req, uploadUser1.Document.ServiceMember)
+	params.HTTPRequest = req
+
+	handlerConfig := suite.HandlerConfig()
+	handlerConfig.SetFileStorer(fakeS3)
+	uploadInformationFetcher := upload.NewUploadInformationFetcher()
+	handler := GetUploadStatusHandler{handlerConfig, uploadInformationFetcher}
+
+	response := handler.Handle(params)
+
+	res, ok := response.(*uploadop.GetUploadStatusOK)
+	suite.True(ok)
+
+	queriedUpload := models.Upload{}
+	err := suite.DB().Find(&queriedUpload, uploadUser1.Upload.ID)
+	suite.Nil(err)
+	suite.Equal("CLEAN", res.Payload)
+}
+
 func (suite *HandlerSuite) TestCreatePPMUploadsHandlerSuccess() {
 	suite.Run("uploads .xls file", func() {
 		fakeS3 := storageTest.NewFakeS3Storage(true)

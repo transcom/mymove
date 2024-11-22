@@ -220,6 +220,7 @@ var allowedRoutes = map[string]bool{
 	"uploads.deleteUpload":                        true,
 	"users.showLoggedInUser":                      true,
 	"okta_profile.showOktaInfo":                   true,
+	"uploads.getUploadStatus":                     true,
 }
 
 // checkIfRouteIsAllowed checks to see if the route is one of the ones that should be allowed through without stricter

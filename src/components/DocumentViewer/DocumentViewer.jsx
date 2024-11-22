@@ -18,6 +18,7 @@ import { filenameFromPath } from 'utils/formatters';
 import AsyncPacketDownloadLink from 'shared/AsyncPacketDownloadLink/AsyncPacketDownloadLink';
 import { UPLOAD_DOC_STATUS, UPLOAD_SCAN_STATUS } from 'shared/constants';
 import Alert from 'shared/Alert';
+import { getUploadStatus } from 'services/internalApi';
 
 /**
  * TODO
@@ -43,6 +44,8 @@ const DocumentViewer = ({ files, isFileUploading, allowDownload, paymentRequestI
   useEffect(() => {
     if (isFileUploading) {
       setFileStatus(UPLOAD_DOC_STATUS.UPLOADING);
+    } else {
+      setFileStatus(UPLOAD_DOC_STATUS.ESTABLISHING);
     }
   }, [isFileUploading]);
 
@@ -84,7 +87,9 @@ const DocumentViewer = ({ files, isFileUploading, allowDownload, paymentRequestI
   useEffect(() => {
     setRotationValue(selectedFile?.rotation || 0);
     const handleFileProcessingStatus = async () => {
-      if (selectedFile.status === UPLOAD_SCAN_STATUS.PROCESSING) {
+      const scanStatus = await getUploadStatus(selectedFile.id);
+      setFileStatus(scanStatus);
+      if (scanStatus === UPLOAD_SCAN_STATUS.PROCESSING) {
         await new Promise((resolve) => {
           setTimeout(resolve, 3000);
         }).then(() => setFileStatus(UPLOAD_DOC_STATUS.SCANNING));
@@ -94,7 +99,7 @@ const DocumentViewer = ({ files, isFileUploading, allowDownload, paymentRequestI
         await new Promise((resolve) => {
           setTimeout(resolve, 3000);
         }).then(() => setFileStatus('LOADED'));
-      } else if (selectedFile.status === UPLOAD_SCAN_STATUS.CLEAN) {
+      } else if (scanStatus === UPLOAD_SCAN_STATUS.CLEAN) {
         setFileStatus('LOADED');
       }
     };

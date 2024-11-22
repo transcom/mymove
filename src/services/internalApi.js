@@ -207,6 +207,18 @@ export async function createUpload(file) {
   );
 }
 
+export async function getUploadStatus(uploadId) {
+  return makeInternalRequest(
+    'uploads.getUploadStatus',
+    {
+      uploadId,
+    },
+    {
+      normalize: false,
+    },
+  );
+}
+
 export async function createUploadForAmendedOrdersDocument(file, ordersId) {
   return makeInternalRequest(
     'orders.uploadAmendedOrders',

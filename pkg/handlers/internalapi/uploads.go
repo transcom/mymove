@@ -246,6 +246,25 @@ func (h DeleteUploadsHandler) Handle(params uploadop.DeleteUploadsParams) middle
 		})
 }
 
+// UploadStatusHandler returns status of an upload
+type GetUploadStatusHandler struct {
+	handlers.HandlerConfig
+	services.UploadInformationFetcher
+}
+
+// Handle returns status of an upload
+func (h GetUploadStatusHandler) Handle(params uploadop.GetUploadStatusParams) middleware.Responder {
+	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
+		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
+			// uploadID, _ := uuid.FromString(params.UploadID.String())
+			// _, err := models.FetchUserUploadFromUploadID(appCtx.DB(), appCtx.Session(), uploadID)
+			// if err != nil {
+			// 	return handlers.ResponseForError(appCtx.Logger(), err), err
+			// }
+			return uploadop.NewGetUploadStatusOK().WithPayload("CLEAN"), nil
+		})
+}
+
 func (h CreatePPMUploadHandler) Handle(params ppmop.CreatePPMUploadParams) middleware.Responder {
 	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
 		func(appCtx appcontext.AppContext) (middleware.Responder, error) {

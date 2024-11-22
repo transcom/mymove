@@ -169,6 +169,7 @@ func NewInternalAPI(handlerConfig handlers.HandlerConfig) *internalops.MymoveAPI
 	internalAPI.UploadsCreateUploadHandler = CreateUploadHandler{handlerConfig}
 	internalAPI.UploadsDeleteUploadHandler = DeleteUploadHandler{handlerConfig, upload.NewUploadInformationFetcher()}
 	internalAPI.UploadsDeleteUploadsHandler = DeleteUploadsHandler{handlerConfig}
+	internalAPI.UploadsGetUploadStatusHandler = GetUploadStatusHandler{handlerConfig, upload.NewUploadInformationFetcher()}
 
 	internalAPI.QueuesShowQueueHandler = ShowQueueHandler{handlerConfig}
 	internalAPI.OfficeApproveMoveHandler = ApproveMoveHandler{handlerConfig, moveRouter}
