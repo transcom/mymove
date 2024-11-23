@@ -375,7 +375,7 @@ func (h UpdateOrdersHandler) Handle(params ordersop.UpdateOrdersParams) middlewa
 				order.OriginDutyLocationID = &originDutyLocationID
 
 				var originGBLOC string
-				originGBLOC, err = order.GetOriginGBLOC(appCtx)
+				originGBLOC, err = order.GetOriginGBLOC(appCtx.DB())
 				if err != nil {
 					return handlers.ResponseForError(appCtx.Logger(), err), err
 				}
