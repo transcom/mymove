@@ -26,7 +26,6 @@ export const serviceItemCodes = {
   ICOLH: 'International C->O shipping & LH',
   ICOUB: 'International C->O UB',
   ICRT: 'International crating',
-  ICRTSA: 'International crating - standalone',
   IDASIT: "International destination add'l day SIT",
   IDDSIT: 'International destination SIT delivery',
   IDFSIT: 'International destination 1st day SIT',
