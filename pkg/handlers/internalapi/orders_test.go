@@ -677,6 +677,23 @@ func (suite *HandlerSuite) TestUpdateOrdersHandler() {
 }
 
 func (suite *HandlerSuite) TestUpdateOrdersHandlerOriginPostalCodeAndGBLOC() {
+	factory.BuildPostalCodeToGBLOC(suite.DB(), []factory.Customization{
+		{
+			Model: models.PostalCodeToGBLOC{
+				PostalCode: "90210",
+				GBLOC:      "KKFA",
+			},
+		},
+	}, nil)
+	factory.BuildPostalCodeToGBLOC(suite.DB(), []factory.Customization{
+		{
+			Model: models.PostalCodeToGBLOC{
+				PostalCode: "35023",
+				GBLOC:      "CNNQ",
+			},
+		},
+	}, nil)
+
 	firstAddress := factory.BuildAddress(suite.DB(), []factory.Customization{
 		{
 			Model: models.Address{
@@ -694,56 +711,56 @@ func (suite *HandlerSuite) TestUpdateOrdersHandlerOriginPostalCodeAndGBLOC() {
 	dutyLocation := factory.BuildDutyLocation(suite.DB(), []factory.Customization{
 		{
 			Model: models.DutyLocation{
-				ProvidesServicesCounseling: false,
-				AddressID:                  firstAddress.ID,
+				AddressID: firstAddress.ID,
 			},
 		},
 	}, nil)
 	updatedDutyLocation := factory.BuildDutyLocation(suite.DB(), []factory.Customization{
 		{
 			Model: models.DutyLocation{
-				ProvidesServicesCounseling: false,
-				AddressID:                  updatedAddress.ID,
+				AddressID: updatedAddress.ID,
 			},
 		},
 	}, nil)
+	newDutyLocation := factory.BuildDutyLocation(suite.DB(), nil, nil)
+
 	order := factory.BuildOrder(suite.DB(), []factory.Customization{
 		{
-			Model:    dutyLocation,
-			LinkOnly: true,
-			Type:     &factory.DutyLocations.OriginDutyLocation,
+			Model: models.Order{
+				OriginDutyLocationID: &dutyLocation.ID,
+				NewDutyLocationID:    newDutyLocation.ID,
+			},
 		},
 	}, nil)
-	move := factory.BuildMove(suite.DB(), []factory.Customization{
-		{
-			Model:    order,
-			LinkOnly: true,
-		}}, nil)
 
-	newDutyLocation := factory.BuildDutyLocation(suite.DB(), nil, nil)
-	newTransportationOffice := factory.BuildTransportationOffice(suite.DB(), nil, nil)
-	newDutyLocation.TransportationOffice = newTransportationOffice
+	fetchedOrder, err := models.FetchOrder(suite.DB(), order.ID)
+	suite.NoError(err)
+
+	var fetchedPostalCode, fetchedGBLOC string
+	fetchedPostalCode, err = fetchedOrder.GetOriginPostalCode(suite.DB())
+	suite.NoError(err)
+	fetchedGBLOC, err = fetchedOrder.GetOriginGBLOC(suite.DB())
+	suite.NoError(err)
+
+	suite.Equal("90210", fetchedPostalCode)
+	suite.Equal("KKFA", fetchedGBLOC)
 
 	newOrdersType := internalmessages.OrdersTypePERMANENTCHANGEOFSTATION
-	newOrdersNumber := "123456"
 	issueDate := time.Date(2018, time.March, 10, 0, 0, 0, 0, time.UTC)
 	reportByDate := time.Date(2018, time.August, 1, 0, 0, 0, 0, time.UTC)
 	deptIndicator := internalmessages.DeptIndicatorAIRANDSPACEFORCE
 
 	payload := &internalmessages.CreateUpdateOrders{
-		OrdersNumber:         handlers.FmtString(newOrdersNumber),
-		OrdersType:           &newOrdersType,
-		NewDutyLocationID:    handlers.FmtUUID(newDutyLocation.ID),
-		OriginDutyLocationID: *handlers.FmtUUID(*order.OriginDutyLocationID),
+		OrdersType:           &order.OrdersType,
+		NewDutyLocationID:    handlers.FmtUUID(order.NewDutyLocationID),
+		OriginDutyLocationID: *handlers.FmtUUID(updatedDutyLocation.ID),
 		IssueDate:            handlers.FmtDate(issueDate),
 		ReportByDate:         handlers.FmtDate(reportByDate),
 		DepartmentIndicator:  &deptIndicator,
 		HasDependents:        handlers.FmtBool(false),
 		SpouseHasProGear:     handlers.FmtBool(false),
-		Grade:                models.ServiceMemberGradeE4.Pointer(),
-		MoveID:               *handlers.FmtUUID(move.ID),
-		CounselingOfficeID:   handlers.FmtUUID(*newDutyLocation.TransportationOfficeID),
 		ServiceMemberID:      handlers.FmtUUID(order.ServiceMemberID),
+		Grade:                models.ServiceMemberGradeE4.Pointer(),
 	}
 
 	path := fmt.Sprintf("/orders/%v", order.ID.String())
@@ -765,55 +782,11 @@ func (suite *HandlerSuite) TestUpdateOrdersHandlerOriginPostalCodeAndGBLOC() {
 	response := handler.Handle(params)
 
 	suite.IsType(&ordersop.UpdateOrdersOK{}, response)
+
 	okResponse := response.(*ordersop.UpdateOrdersOK)
 
 	suite.NoError(okResponse.Payload.Validate(strfmt.Default))
 	suite.Equal(string(newOrdersType), string(*okResponse.Payload.OrdersType))
-	suite.Equal(newOrdersNumber, *okResponse.Payload.OrdersNumber)
-
-	fetchedOrder, err := models.FetchOrder(suite.DB(), order.ID)
-	suite.NoError(err)
-
-	var fetchedPostalCode, fetchedGBLOC string
-	fetchedPostalCode, err = fetchedOrder.GetOriginPostalCode(suite.DB())
-	suite.NoError(err)
-	fetchedGBLOC, err = fetchedOrder.GetOriginGBLOC(suite.DB())
-	suite.NoError(err)
-
-	suite.Equal("90210", fetchedPostalCode)
-	suite.Equal("KKFA", fetchedGBLOC)
-
-	// Update the origin duty location
-	payload = &internalmessages.CreateUpdateOrders{
-		OrdersNumber:         handlers.FmtString(newOrdersNumber),
-		OrdersType:           &newOrdersType,
-		NewDutyLocationID:    handlers.FmtUUID(newDutyLocation.ID),
-		OriginDutyLocationID: *handlers.FmtUUID(updatedDutyLocation.ID),
-		IssueDate:            handlers.FmtDate(issueDate),
-		ReportByDate:         handlers.FmtDate(reportByDate),
-		DepartmentIndicator:  &deptIndicator,
-		HasDependents:        handlers.FmtBool(false),
-		SpouseHasProGear:     handlers.FmtBool(false),
-		Grade:                models.ServiceMemberGradeE4.Pointer(),
-		MoveID:               *handlers.FmtUUID(move.ID),
-		CounselingOfficeID:   handlers.FmtUUID(*newDutyLocation.TransportationOfficeID),
-		ServiceMemberID:      handlers.FmtUUID(order.ServiceMemberID),
-	}
-
-	paramsUpdated := ordersop.UpdateOrdersParams{
-		HTTPRequest:  req,
-		OrdersID:     *handlers.FmtUUID(order.ID),
-		UpdateOrders: payload,
-	}
-
-	response = handler.Handle(paramsUpdated)
-
-	suite.IsType(&ordersop.UpdateOrdersOK{}, response)
-	okResponse = response.(*ordersop.UpdateOrdersOK)
-
-	suite.NoError(okResponse.Payload.Validate(strfmt.Default))
-	suite.Equal(string(newOrdersType), string(*okResponse.Payload.OrdersType))
-	suite.Equal(newOrdersNumber, *okResponse.Payload.OrdersNumber)
 
 	fetchedOrder, err = models.FetchOrder(suite.DB(), order.ID)
 	suite.NoError(err)
