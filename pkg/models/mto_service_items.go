@@ -172,129 +172,73 @@ func FetchRelatedDestinationSITFuelCharge(tx *pop.Connection, mtoServiceItemID u
 }
 
 type MTOServiceItemType struct {
-	ID                                uuid.UUID           `db_type:"id"`
-	MoveID                            uuid.UUID           `db:"move_Id"`
-	ReServiceID                       uuid.UUID           `db:"re_service_id"`
-	CreatedAt                         time.Time           `db:"created_at"`
-	UpdatedAt                         time.Time           `db:"updated_at"`
-	Reason                            string              `db:"reason"`
-	PickupPostalCode                  string              `db:"pickup_postal_code"`
-	Description                       string              `db:"description"`
-	Status                            string              `db:"status"`
-	RejectedReason                    string              `db:"rejected_reason"`
-	ApprovedAt                        time.Time           `db:"approved_at"`
-	SITPostalCode                     string              `db:"sit_postal_code"`
-	SITEntryDate                      time.Time           `db:"sit_entry_date"`
-	SITDepartureDate                  time.Time           `db:"sit_departure_date"`
-	SITDestinationFinalAddressID      uuid.UUID           `db:"sit_destination_final_address_id"`
-	SITOriginHHGOriginalAddressID     uuid.UUID           `db:"sit_origin_hhg_original_address_id"`
-	SITOriginHHGActualAddressID       uuid.UUID           `db:"sit_origin_hhg_actual_address_id"`
-	EstimatedWeight                   unit.Pound          `db:"estimated_weight"`
-	ActualWeight                      unit.Pound          `db:"actual_weight"`
-	SITDestinationOriginalAddressID   uuid.UUID           `db:"sit_destination_original_address_id"`
-	SITCustomerContacted              time.Time           `db:"sit_customer_contacted"`
-	SITRequestedDelivery              time.Time           `db:"sit_requested_delivery"`
-	RequestedApprovalsRequestedStatus bool                `db:"requested_approvals_requested_status"`
-	CustomerExpense                   bool                `db:"customer_expense"`
-	CustomerExpenseReason             string              `db:"customer_expense_reason"`
-	SITDeliveryMiles                  int                 `db:"sit_delivery_miles"`
-	PricingEstimate                   unit.Cents          `db:"pricing_estimate"`
-	StandaloneCrate                   bool                `db:"standalone_crate"`
-	LockedPriceCents                  int                 `db:"locked_price_cents"`
-	ServiceLocation                   ServiceLocationType `db:"service_location"`
-	POELocationID                     uuid.UUID           `db:"poe_location_id"`
-	PODLocationID                     uuid.UUID           `db:"pod_location_id"`
+	ID                                *uuid.UUID
+	MoveID                            *uuid.UUID
+	ReServiceID                       *uuid.UUID
+	CreatedAt                         *time.Time
+	UpdatedAt                         *time.Time
+	Reason                            *string
+	PickupPostalCode                  *string
+	Description                       *string
+	Status                            *string
+	RejectedReason                    *string
+	ApprovedAt                        *time.Time
+	SITPostalCode                     *string
+	SITEntryDate                      *time.Time
+	SITDepartureDate                  *time.Time
+	SITDestinationFinalAddressID      *uuid.UUID
+	SITOriginHHGOriginalAddressID     *uuid.UUID
+	SITOriginHHGActualAddressID       *uuid.UUID
+	EstimatedWeight                   *unit.Pound
+	ActualWeight                      *unit.Pound
+	SITDestinationOriginalAddressID   *uuid.UUID
+	SITCustomerContacted              *time.Time
+	SITRequestedDelivery              *time.Time
+	RequestedApprovalsRequestedStatus *bool
+	CustomerExpense                   *bool
+	CustomerExpenseReason             *string
+	SITDeliveryMiles                  *int
+	PricingEstimate                   *unit.Cents
+	StandaloneCrate                   *bool
+	LockedPriceCents                  *unit.Cents
+	ServiceLocation                   *ServiceLocationType
+	POELocationID                     *uuid.UUID
+	PODLocationID                     *uuid.UUID
 }
 
 func (m MTOServiceItem) GetMTOServiceItemTypeFromServiceItem() MTOServiceItemType {
 	return MTOServiceItemType{
-		ID:                                m.ID,
-		MoveID:                            m.MoveTaskOrderID,
-		ReServiceID:                       m.ReServiceID,
-		CreatedAt:                         m.CreatedAt,
-		UpdatedAt:                         m.UpdatedAt,
-		Reason:                            stringOrEmpty(m.Reason),
-		PickupPostalCode:                  stringOrEmpty(m.PickupPostalCode),
-		Description:                       stringOrEmpty(m.Description),
-		Status:                            string(m.Status),
-		RejectedReason:                    stringOrEmpty(m.RejectionReason),
-		ApprovedAt:                        timeOrZero(m.ApprovedAt),
-		SITPostalCode:                     stringOrEmpty(m.SITPostalCode),
-		SITEntryDate:                      timeOrZero(m.SITEntryDate),
-		SITDepartureDate:                  timeOrZero(m.SITDepartureDate),
-		SITDestinationFinalAddressID:      uuidOrNil(m.SITDestinationFinalAddressID),
-		SITOriginHHGOriginalAddressID:     uuidOrNil(m.SITOriginHHGOriginalAddressID),
-		SITOriginHHGActualAddressID:       uuidOrNil(m.SITOriginHHGActualAddressID),
-		EstimatedWeight:                   poundOrZero(m.EstimatedWeight),
-		ActualWeight:                      poundOrZero(m.ActualWeight),
-		SITDestinationOriginalAddressID:   uuidOrNil(m.SITDestinationOriginalAddressID),
-		SITCustomerContacted:              timeOrZero(m.SITCustomerContacted),
-		SITRequestedDelivery:              timeOrZero(m.SITRequestedDelivery),
-		RequestedApprovalsRequestedStatus: m.RequestedApprovalsRequestedStatus != nil && *m.RequestedApprovalsRequestedStatus,
-		CustomerExpense:                   m.CustomerExpense,
-		CustomerExpenseReason:             stringOrEmpty(m.CustomerExpenseReason),
-		SITDeliveryMiles:                  intOrZero(m.SITDeliveryMiles),
-		PricingEstimate:                   centsOrZero(m.PricingEstimate),
-		StandaloneCrate:                   m.StandaloneCrate != nil && *m.StandaloneCrate,
-		LockedPriceCents:                  centsToInt(m.LockedPriceCents),
-		ServiceLocation:                   serviceLocationOrEmpty(m.ServiceLocation),
-		POELocationID:                     uuidOrNil(m.POELocationID),
-		PODLocationID:                     uuidOrNil(m.PODLocationID),
+		ID:                                &m.ID,
+		MoveID:                            &m.MoveTaskOrderID,
+		ReServiceID:                       &m.ReServiceID,
+		CreatedAt:                         &m.CreatedAt,
+		UpdatedAt:                         &m.UpdatedAt,
+		Reason:                            m.Reason,
+		PickupPostalCode:                  m.PickupPostalCode,
+		Description:                       m.Description,
+		Status:                            (*string)(&m.Status),
+		RejectedReason:                    m.RejectionReason,
+		ApprovedAt:                        m.ApprovedAt,
+		SITPostalCode:                     m.SITPostalCode,
+		SITEntryDate:                      m.SITEntryDate,
+		SITDepartureDate:                  m.SITDepartureDate,
+		SITDestinationFinalAddressID:      m.SITDestinationFinalAddressID,
+		SITOriginHHGOriginalAddressID:     m.SITOriginHHGOriginalAddressID,
+		SITOriginHHGActualAddressID:       m.SITOriginHHGActualAddressID,
+		EstimatedWeight:                   m.EstimatedWeight,
+		ActualWeight:                      m.ActualWeight,
+		SITDestinationOriginalAddressID:   m.SITDestinationOriginalAddressID,
+		SITCustomerContacted:              m.SITCustomerContacted,
+		SITRequestedDelivery:              m.SITRequestedDelivery,
+		RequestedApprovalsRequestedStatus: m.RequestedApprovalsRequestedStatus,
+		CustomerExpense:                   &m.CustomerExpense,
+		CustomerExpenseReason:             m.CustomerExpenseReason,
+		SITDeliveryMiles:                  m.SITDeliveryMiles,
+		PricingEstimate:                   m.PricingEstimate,
+		StandaloneCrate:                   m.StandaloneCrate,
+		LockedPriceCents:                  m.LockedPriceCents,
+		ServiceLocation:                   m.ServiceLocation,
+		POELocationID:                     m.POELocationID,
+		PODLocationID:                     m.PODLocationID,
 	}
-}
-
-func stringOrEmpty(s *string) string {
-	if s == nil {
-		return ""
-	}
-	return *s
-}
-
-func timeOrZero(t *time.Time) time.Time {
-	if t == nil {
-		return time.Time{}
-	}
-	return *t
-}
-
-func uuidOrNil(u *uuid.UUID) uuid.UUID {
-	if u == nil {
-		return uuid.Nil
-	}
-	return *u
-}
-
-func intOrZero(i *int) int {
-	if i == nil {
-		return 0
-	}
-	return *i
-}
-
-func centsOrZero(c *unit.Cents) unit.Cents {
-	if c == nil {
-		return 0
-	}
-	return *c
-}
-
-func centsToInt(c *unit.Cents) int {
-	if c == nil {
-		return 0
-	}
-	return int(*c)
-}
-
-func serviceLocationOrEmpty(s *ServiceLocationType) ServiceLocationType {
-	if s == nil {
-		return ""
-	}
-	return *s
-}
-
-func poundOrZero(p *unit.Pound) unit.Pound {
-	if p == nil {
-		return 0
-	}
-	return *p
 }
