@@ -1468,6 +1468,13 @@ definitions:
       pointOfContact:
         type: string
         description: Email or id of a contact person for this update.
+      marketCode:
+        type: string
+        enum:
+          - 'd'
+          - 'i'
+        example: 'd'
+        description: 'Single-letter designator for domestic (d) or international (i) shipments'
   MTOShipments:
     items:
       $ref: '#/definitions/MTOShipment'
@@ -1478,12 +1485,22 @@ definitions:
     example: HHG
     enum:
       - HHG
-      - INTERNATIONAL_HHG
-      - INTERNATIONAL_UB
+      - HHG_INTO_NTS_DOMESTIC
+      - HHG_OUTOF_NTS_DOMESTIC
+      - PPM
+      - BOAT_HAUL_AWAY
+      - BOAT_TOW_AWAY
+      - MOBILE_HOME
+      - UNACCOMPANIED_BAGGAGE
     x-display-value:
       HHG: HHG
-      INTERNATIONAL_HHG: International HHG
-      INTERNATIONAL_UB: International UB
+      HHG_INTO_NTS_DOMESTIC: NTS
+      HHG_OUTOF_NTS_DOMESTIC: NTS Release
+      PPM: PPM
+      BOAT_HAUL_AWAY: Boat Haul-Away
+      BOAT_TOW_AWAY: Boat Tow-Away
+      MOBILE_HOME: Mobile Home
+      UNACCOMPANIED_BAGGAGE: Unaccompanied Baggage
   Order:
     properties:
       id:
@@ -1605,6 +1622,7 @@ definitions:
       - NTS
       - WOUNDED_WARRIOR
       - BLUEBARK
+      - TEMPORARY_DUTY
     x-display-value:
       PERMANENT_CHANGE_OF_STATION: Permanent Change Of Station (PCS)
       LOCAL_MOVE: Local Move
@@ -1614,6 +1632,7 @@ definitions:
       NTS: NTS
       WOUNDED_WARRIOR: Wounded Warrior
       BLUEBARK: BLUEBARK
+      TEMPORARY_DUTY: Temporary Duty (TDY)
   OrdersTypeDetail:
     type: string
     title: Orders type detail

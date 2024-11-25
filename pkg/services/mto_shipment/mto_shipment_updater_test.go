@@ -107,6 +107,7 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 					City:           "Des Moines",
 					State:          "IA",
 					PostalCode:     "50309",
+					County:         "POLK",
 				},
 			},
 		}, nil)
@@ -134,13 +135,14 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 			PickupAddressID:            oldMTOShipment.PickupAddressID,
 			RequestedPickupDate:        &requestedPickupDate,
 			ScheduledPickupDate:        &scheduledPickupDate,
-			ShipmentType:               "INTERNATIONAL_UB",
+			ShipmentType:               "UNACCOMPANIED_BAGGAGE",
 			PrimeActualWeight:          &primeActualWeight,
 			PrimeEstimatedWeight:       &primeEstimatedWeight,
 			FirstAvailableDeliveryDate: &firstAvailableDeliveryDate,
 			Status:                     oldMTOShipment.Status,
 			ActualPickupDate:           &actualPickupDate,
 			ApprovedDate:               &firstAvailableDeliveryDate,
+			MarketCode:                 oldMTOShipment.MarketCode,
 		}
 
 		primeEstimatedWeight = unit.Pound(9000)
@@ -193,7 +195,7 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 		suite.Require().NoError(err)
 		suite.Equal(updatedMTOShipment.ID, oldMTOShipment.ID)
 		suite.Equal(updatedMTOShipment.MoveTaskOrder.ID, oldMTOShipment.MoveTaskOrder.ID)
-		suite.Equal(updatedMTOShipment.ShipmentType, models.MTOShipmentTypeInternationalUB)
+		suite.Equal(updatedMTOShipment.ShipmentType, models.MTOShipmentTypeUnaccompaniedBaggage)
 
 		suite.Equal(updatedMTOShipment.PickupAddressID, oldMTOShipment.PickupAddressID)
 
@@ -210,7 +212,7 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 		oldMTOShipment2 := factory.BuildMTOShipment(suite.DB(), nil, nil)
 		mtoShipment2 := models.MTOShipment{
 			ID:           oldMTOShipment2.ID,
-			ShipmentType: "INTERNATIONAL_UB",
+			ShipmentType: "UNACCOMPANIED_BAGGAGE",
 		}
 
 		eTag := etag.GenerateEtag(oldMTOShipment2.UpdatedAt)
@@ -220,7 +222,7 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 		suite.Require().NoError(err)
 		suite.Equal(updatedMTOShipment.ID, oldMTOShipment2.ID)
 		suite.Equal(updatedMTOShipment.MoveTaskOrder.ID, oldMTOShipment2.MoveTaskOrder.ID)
-		suite.Equal(updatedMTOShipment.ShipmentType, models.MTOShipmentTypeInternationalUB)
+		suite.Equal(updatedMTOShipment.ShipmentType, models.MTOShipmentTypeUnaccompaniedBaggage)
 		// Verify that shipment recalculate was handled correctly
 		mockShipmentRecalculator.AssertNotCalled(suite.T(), "ShipmentRecalculatePaymentRequest", mock.AnythingOfType("*appcontext.appContext"), mock.AnythingOfType("uuid.UUID"))
 	})
@@ -371,7 +373,7 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 		suite.Nil(newShipment.TertiaryDeliveryAddress)
 	})
 
-	suite.Run("Successful update to all address fields", func() {
+	suite.Run("Successful update to all address fields for domestic shipment", func() {
 		setupTestData()
 
 		// Ensure we can update every address field on the shipment
@@ -392,13 +394,12 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 			HasSecondaryDeliveryAddress: models.BoolPointer(true),
 			SecondaryDeliveryAddress:    &secondaryDeliveryAddress,
 			SecondaryDeliveryAddressID:  &secondaryDeliveryAddress.ID,
-
-			HasTertiaryPickupAddress:   models.BoolPointer(true),
-			TertiaryPickupAddress:      &tertiaryPickupAddress,
-			TertiaryPickupAddressID:    &tertiaryPickupAddress.ID,
-			HasTertiaryDeliveryAddress: models.BoolPointer(true),
-			TertiaryDeliveryAddress:    &tertiaryDeliveryAddress,
-			TertiaryDeliveryAddressID:  &tertiaryDeliveryAddress.ID,
+			HasTertiaryPickupAddress:    models.BoolPointer(true),
+			TertiaryPickupAddress:       &tertiaryPickupAddress,
+			TertiaryPickupAddressID:     &tertiaryPickupAddress.ID,
+			HasTertiaryDeliveryAddress:  models.BoolPointer(true),
+			TertiaryDeliveryAddress:     &tertiaryDeliveryAddress,
+			TertiaryDeliveryAddressID:   &tertiaryDeliveryAddress.ID,
 		}
 		session := auth.Session{}
 		updatedShipment, err := mtoShipmentUpdaterCustomer.UpdateMTOShipment(suite.AppContextWithSessionForTest(&session), updatedShipment, eTag, "test")
@@ -417,9 +418,38 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 		suite.Equal(tertiaryPickupAddress.StreetAddress1, updatedShipment.TertiaryPickupAddress.StreetAddress1)
 		suite.Equal(tertiaryDeliveryAddress.ID, *updatedShipment.TertiaryDeliveryAddressID)
 		suite.Equal(tertiaryDeliveryAddress.StreetAddress1, updatedShipment.TertiaryDeliveryAddress.StreetAddress1)
+		suite.Equal(updatedShipment.MarketCode, models.MarketCodeDomestic)
 		// Verify that shipment recalculate was handled correctly
 		mockShipmentRecalculator.AssertNotCalled(suite.T(), "ShipmentRecalculatePaymentRequest", mock.AnythingOfType("*appcontext.appContext"), mock.AnythingOfType("uuid.UUID"))
+	})
 
+	suite.Run("Successful update to all address fields resulting in change of market code", func() {
+		setupTestData()
+
+		previousShipment := factory.BuildMTOShipment(suite.DB(), nil, nil)
+		newDestinationAddress.State = "AK"
+		newPickupAddress.State = "HI"
+		// this should be "d" since it is default
+		suite.Equal(previousShipment.MarketCode, models.MarketCodeDomestic)
+
+		eTag := etag.GenerateEtag(previousShipment.UpdatedAt)
+
+		updatedShipment := &models.MTOShipment{
+			ID:                   previousShipment.ID,
+			DestinationAddress:   &newDestinationAddress,
+			DestinationAddressID: &newDestinationAddress.ID,
+			PickupAddress:        &newPickupAddress,
+			PickupAddressID:      &newPickupAddress.ID,
+		}
+		session := auth.Session{}
+		updatedShipment, err := mtoShipmentUpdaterCustomer.UpdateMTOShipment(suite.AppContextWithSessionForTest(&session), updatedShipment, eTag, "test")
+
+		suite.NoError(err)
+		suite.Equal(newDestinationAddress.ID, *updatedShipment.DestinationAddressID)
+		suite.True(*updatedShipment.DestinationAddress.IsOconus)
+		suite.Equal(newPickupAddress.ID, *updatedShipment.PickupAddressID)
+		suite.True(*updatedShipment.PickupAddress.IsOconus)
+		suite.Equal(updatedShipment.MarketCode, models.MarketCodeInternational)
 	})
 
 	suite.Run("Successful update to a minimal MTO shipment", func() {
@@ -1644,7 +1674,7 @@ func (suite *MTOShipmentServiceSuite) TestUpdateMTOShipmentStatus() {
 
 	setupTestData := func() {
 		for i := range expectedReServiceCodes {
-			factory.BuildReServiceByCode(suite.DB(), expectedReServiceCodes[i])
+			factory.FetchReServiceByCode(suite.DB(), expectedReServiceCodes[i])
 		}
 
 		mto = factory.BuildMove(suite.DB(), []factory.Customization{
@@ -1911,7 +1941,7 @@ func (suite *MTOShipmentServiceSuite) TestUpdateMTOShipmentStatus() {
 		suite.Assert().False(verrs.HasAny())
 		suite.NoError(err)
 
-		factory.BuildReServiceByCode(appCtx.DB(), models.ReServiceCodeDNPK)
+		factory.FetchReServiceByCode(appCtx.DB(), models.ReServiceCodeDNPK)
 
 		// This is testing that the Required Delivery Date is calculated correctly.
 		// In order for the Required Delivery Date to be calculated, the following conditions must be true:
@@ -2862,7 +2892,7 @@ func (suite *MTOShipmentServiceSuite) TestUpdateStatusServiceItems() {
 
 	setupTestData := func() {
 		for i := range expectedReServiceCodes {
-			factory.BuildReServiceByCode(suite.DB(), expectedReServiceCodes[i])
+			factory.FetchReServiceByCode(suite.DB(), expectedReServiceCodes[i])
 		}
 
 		pickupAddress = factory.BuildAddress(suite.DB(), []factory.Customization{

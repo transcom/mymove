@@ -554,14 +554,17 @@ func (suite *PayloadsSuite) TestServiceRequestDocument() {
 }
 
 func (suite *PayloadsSuite) TestPPMShipment() {
+	isActualExpenseReimbursemnt := true
 	ppmShipment := &models.PPMShipment{
-		ID: uuid.Must(uuid.NewV4()),
+		ID:                           uuid.Must(uuid.NewV4()),
+		IsActualExpenseReimbursement: &isActualExpenseReimbursemnt,
 	}
 
 	result := PPMShipment(ppmShipment)
 
 	suite.NotNil(result)
 	suite.Equal(strfmt.UUID(ppmShipment.ID.String()), result.ID)
+	suite.True(*ppmShipment.IsActualExpenseReimbursement)
 }
 
 func (suite *PayloadsSuite) TestGetCustomerContact() {
@@ -731,4 +734,26 @@ func (suite *PayloadsSuite) TestStorageFacility() {
 
 	result := StorageFacility(storage)
 	suite.NotNil(result)
+}
+
+func (suite *PayloadsSuite) TestMarketCode() {
+	suite.Run("returns nil when marketCode is nil", func() {
+		var marketCode *models.MarketCode = nil
+		result := MarketCode(marketCode)
+		suite.Equal(result, "")
+	})
+
+	suite.Run("returns string when marketCode is not nil", func() {
+		marketCodeDomestic := models.MarketCodeDomestic
+		result := MarketCode(&marketCodeDomestic)
+		suite.NotNil(result, "Expected result to not be nil when marketCode is not nil")
+		suite.Equal("d", result, "Expected result to be 'd' for domestic market code")
+	})
+
+	suite.Run("returns string when marketCode is international", func() {
+		marketCodeInternational := models.MarketCodeInternational
+		result := MarketCode(&marketCodeInternational)
+		suite.NotNil(result, "Expected result to not be nil when marketCode is not nil")
+		suite.Equal("i", result, "Expected result to be 'i' for international market code")
+	})
 }

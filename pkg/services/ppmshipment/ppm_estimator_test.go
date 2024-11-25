@@ -259,7 +259,7 @@ func (suite *PPMShipmentSuite) TestPPMEstimator() {
 			},
 		})
 
-		dopService := factory.BuildReServiceByCode(suite.DB(), models.ReServiceCodeDOP)
+		dopService := factory.FetchReServiceByCode(suite.DB(), models.ReServiceCodeDOP)
 
 		testdatagen.FetchOrMakeReDomesticServiceAreaPrice(suite.DB(), testdatagen.Assertions{
 			ReDomesticServiceAreaPrice: models.ReDomesticServiceAreaPrice{
@@ -287,7 +287,7 @@ func (suite *PPMShipmentSuite) TestPPMEstimator() {
 			},
 		})
 
-		ddpService := factory.BuildReServiceByCode(suite.DB(), models.ReServiceCodeDDP)
+		ddpService := factory.FetchReServiceByCode(suite.DB(), models.ReServiceCodeDDP)
 
 		testdatagen.FetchOrMakeReDomesticServiceAreaPrice(suite.DB(), testdatagen.Assertions{
 			ReDomesticServiceAreaPrice: models.ReDomesticServiceAreaPrice{
@@ -315,7 +315,7 @@ func (suite *PPMShipmentSuite) TestPPMEstimator() {
 			},
 		})
 
-		dpkService := factory.BuildReServiceByCode(suite.DB(), models.ReServiceCodeDPK)
+		dpkService := factory.FetchReServiceByCode(suite.DB(), models.ReServiceCodeDPK)
 
 		testdatagen.FetchOrMakeReDomesticOtherPrice(suite.DB(), testdatagen.Assertions{
 			ReDomesticOtherPrice: models.ReDomesticOtherPrice{
@@ -341,7 +341,7 @@ func (suite *PPMShipmentSuite) TestPPMEstimator() {
 			},
 		})
 
-		dupkService := factory.BuildReServiceByCode(suite.DB(), models.ReServiceCodeDUPK)
+		dupkService := factory.FetchReServiceByCode(suite.DB(), models.ReServiceCodeDUPK)
 
 		testdatagen.FetchOrMakeReDomesticOtherPrice(suite.DB(), testdatagen.Assertions{
 			ReDomesticOtherPrice: models.ReDomesticOtherPrice{
@@ -367,7 +367,7 @@ func (suite *PPMShipmentSuite) TestPPMEstimator() {
 			},
 		})
 
-		dofsitService := factory.BuildReServiceByCode(suite.DB(), models.ReServiceCodeDOFSIT)
+		dofsitService := factory.FetchReServiceByCode(suite.DB(), models.ReServiceCodeDOFSIT)
 
 		testdatagen.FetchOrMakeReDomesticServiceAreaPrice(suite.DB(), testdatagen.Assertions{
 			ReDomesticServiceAreaPrice: models.ReDomesticServiceAreaPrice{
@@ -395,7 +395,7 @@ func (suite *PPMShipmentSuite) TestPPMEstimator() {
 			},
 		})
 
-		doasitService := factory.BuildReServiceByCode(suite.DB(), models.ReServiceCodeDOASIT)
+		doasitService := factory.FetchReServiceByCode(suite.DB(), models.ReServiceCodeDOASIT)
 
 		testdatagen.FetchOrMakeReDomesticServiceAreaPrice(suite.DB(), testdatagen.Assertions{
 			ReDomesticServiceAreaPrice: models.ReDomesticServiceAreaPrice{
@@ -423,7 +423,7 @@ func (suite *PPMShipmentSuite) TestPPMEstimator() {
 			},
 		})
 
-		ddfsitService := factory.BuildReServiceByCode(suite.DB(), models.ReServiceCodeDDFSIT)
+		ddfsitService := factory.FetchReServiceByCode(suite.DB(), models.ReServiceCodeDDFSIT)
 
 		testdatagen.FetchOrMakeReDomesticServiceAreaPrice(suite.DB(), testdatagen.Assertions{
 			ReDomesticServiceAreaPrice: models.ReDomesticServiceAreaPrice{
@@ -451,7 +451,7 @@ func (suite *PPMShipmentSuite) TestPPMEstimator() {
 			},
 		})
 
-		ddasitService := factory.BuildReServiceByCode(suite.DB(), models.ReServiceCodeDDASIT)
+		ddasitService := factory.FetchReServiceByCode(suite.DB(), models.ReServiceCodeDDASIT)
 
 		testdatagen.FetchOrMakeReDomesticServiceAreaPrice(suite.DB(), testdatagen.Assertions{
 			ReDomesticServiceAreaPrice: models.ReDomesticServiceAreaPrice{
@@ -1452,6 +1452,7 @@ func (suite *PPMShipmentSuite) TestPPMEstimator() {
 						City:           "Des Moines",
 						State:          "IA",
 						PostalCode:     "50309",
+						County:         "POLK",
 					},
 					Type: &factory.Addresses.PickupAddress,
 				},
@@ -1463,6 +1464,7 @@ func (suite *PPMShipmentSuite) TestPPMEstimator() {
 						City:           "Fort Eisenhower",
 						State:          "GA",
 						PostalCode:     "30813",
+						County:         "COLUMBIA",
 					},
 					Type: &factory.Addresses.DeliveryAddress,
 				},
@@ -1513,6 +1515,7 @@ func (suite *PPMShipmentSuite) TestPPMEstimator() {
 						City:           "Des Moines",
 						State:          "IA",
 						PostalCode:     "50309",
+						County:         "POLK",
 					},
 					Type: &factory.Addresses.PickupAddress,
 				},
@@ -1524,6 +1527,7 @@ func (suite *PPMShipmentSuite) TestPPMEstimator() {
 						City:           "Fort Eisenhower",
 						State:          "GA",
 						PostalCode:     "50309",
+						County:         "COLUMBIA",
 					},
 					Type: &factory.Addresses.DeliveryAddress,
 				},

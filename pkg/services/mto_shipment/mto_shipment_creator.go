@@ -157,7 +157,7 @@ func (f mtoShipmentCreator) CreateMTOShipment(appCtx appcontext.AppContext, ship
 
 	// Populate the destination address fields with the new duty location's address when
 	// we have an HHG or Boat with no destination address, but don't copy over any street fields.
-	if (shipment.ShipmentType == models.MTOShipmentTypeHHG || isBoatShipment || isMobileHomeShipment) && shipment.DestinationAddress == nil {
+	if (shipment.ShipmentType == models.MTOShipmentTypeHHG || isBoatShipment || shipment.ShipmentType == models.MTOShipmentTypeUnaccompaniedBaggage || isMobileHomeShipment) && shipment.DestinationAddress == nil {
 		err = appCtx.DB().Load(&move, "Orders.NewDutyLocation.Address")
 		if err != nil {
 			return nil, apperror.NewQueryError("Orders", err, "")
@@ -210,7 +210,7 @@ func (f mtoShipmentCreator) CreateMTOShipment(appCtx appcontext.AppContext, ship
 			shipment.PickupAddress.County = county
 
 		} else if shipment.ShipmentType != models.MTOShipmentTypeHHGOutOfNTSDom && shipment.ShipmentType != models.MTOShipmentTypePPM && !isBoatShipment && !isMobileHomeShipment {
-			return apperror.NewInvalidInputError(uuid.Nil, nil, nil, "PickupAddress is required to create an HHG or NTS type MTO shipment")
+			return apperror.NewInvalidInputError(uuid.Nil, nil, nil, "PickupAddress is required to create an HHG, NTS, or UB type MTO shipment")
 		}
 
 		if shipment.SecondaryPickupAddress != nil {
@@ -305,10 +305,12 @@ func (f mtoShipmentCreator) CreateMTOShipment(appCtx appcontext.AppContext, ship
 			// For NTS-Release set the pick up address to the storage facility
 			if shipment.ShipmentType == models.MTOShipmentTypeHHGOutOfNTSDom {
 				shipment.PickupAddressID = &shipment.StorageFacility.AddressID
+				shipment.PickupAddress = &shipment.StorageFacility.Address
 			}
 			// For NTS set the destination address to the storage facility
 			if shipment.ShipmentType == models.MTOShipmentTypeHHGIntoNTSDom {
 				shipment.DestinationAddressID = &shipment.StorageFacility.AddressID
+				shipment.DestinationAddress = &shipment.StorageFacility.Address
 			}
 		}
 
@@ -321,6 +323,9 @@ func (f mtoShipmentCreator) CreateMTOShipment(appCtx appcontext.AppContext, ship
 		// Once we introduce more, this logic will have to change.
 		defaultSITDays := int(models.DefaultServiceMemberSITDaysAllowance)
 		shipment.SITDaysAllowance = &defaultSITDays
+
+		// when populating the market_code column, it is considered domestic if both pickup & dest are CONUS addresses
+		shipment = models.DetermineShipmentMarketCode(shipment)
 
 		// create a shipment
 		verrs, err = f.builder.CreateOne(txnAppCtx, shipment)

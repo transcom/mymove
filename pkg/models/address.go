@@ -13,35 +13,30 @@ import (
 	"go.uber.org/zap/zapcore"
 )
 
+const STREET_ADDRESS_1_NOT_PROVIDED string = "n/a"
+
 // Address is an address
 type Address struct {
-	ID             uuid.UUID  `json:"id" db:"id"`
-	CreatedAt      time.Time  `json:"created_at" db:"created_at"`
-	UpdatedAt      time.Time  `json:"updated_at" db:"updated_at"`
-	StreetAddress1 string     `json:"street_address_1" db:"street_address_1"`
-	StreetAddress2 *string    `json:"street_address_2" db:"street_address_2"`
-	StreetAddress3 *string    `json:"street_address_3" db:"street_address_3"`
-	City           string     `json:"city" db:"city"`
-	State          string     `json:"state" db:"state"`
-	PostalCode     string     `json:"postal_code" db:"postal_code"`
-	CountryId      *uuid.UUID `json:"country_id" db:"country_id"`
-	Country        *Country   `belongs_to:"re_countries" fk_id:"country_id"`
-	County         string     `json:"county" db:"county"`
-	IsOconus       *bool      `json:"is_oconus" db:"is_oconus"`
+	ID                 uuid.UUID         `json:"id" db:"id"`
+	CreatedAt          time.Time         `json:"created_at" db:"created_at"`
+	UpdatedAt          time.Time         `json:"updated_at" db:"updated_at"`
+	StreetAddress1     string            `json:"street_address_1" db:"street_address_1"`
+	StreetAddress2     *string           `json:"street_address_2" db:"street_address_2"`
+	StreetAddress3     *string           `json:"street_address_3" db:"street_address_3"`
+	City               string            `json:"city" db:"city"`
+	State              string            `json:"state" db:"state"`
+	PostalCode         string            `json:"postal_code" db:"postal_code"`
+	CountryId          *uuid.UUID        `json:"country_id" db:"country_id"`
+	Country            *Country          `belongs_to:"re_countries" fk_id:"country_id"`
+	County             string            `json:"county" db:"county"`
+	IsOconus           *bool             `json:"is_oconus" db:"is_oconus"`
+	UsPostRegionCityId *uuid.UUID        `json:"us_post_region_cities_id" db:"us_post_region_cities_id"`
+	UsPostRegionCity   *UsPostRegionCity `belongs_to:"us_post_region_cities" fk_id:"us_post_region_cities_id"`
 }
 
 // TableName overrides the table name used by Pop.
 func (a Address) TableName() string {
 	return "addresses"
-}
-
-// GetAddressID facilitates grabbing the ID from an address that may be nil
-func GetAddressID(address *Address) *uuid.UUID {
-	var response *uuid.UUID
-	if address != nil {
-		response = &address.ID
-	}
-	return response
 }
 
 // FetchAddressByID returns an address model by ID
@@ -129,7 +124,7 @@ func (a *Address) LineFormat() string {
 		parts = append(parts, a.PostalCode)
 	}
 	if len(*a.CountryId) > 0 {
-		parts = append(parts, a.CountryId.String())
+		parts = append(parts, a.Country.CountryName)
 	}
 
 	return strings.Join(parts, ", ")
@@ -159,4 +154,35 @@ func (a *Address) Copy() *Address {
 		return &address
 	}
 	return nil
+}
+
+// Check if an address is CONUS or OCONUS
+func IsAddressOconus(db *pop.Connection, address Address) (bool, error) {
+	// use the data we have first, if it's not nil
+	if address.Country != nil {
+		isOconus := EvaluateIsOconus(address)
+		return isOconus, nil
+	} else if address.CountryId != nil {
+		country, err := FetchCountryByID(db, *address.CountryId)
+		if err != nil {
+			return false, err
+		}
+		address.Country = &country
+		isOconus := EvaluateIsOconus(address)
+		return isOconus, nil
+	} else {
+		if address.State == "HI" || address.State == "AK" {
+			return true, nil
+		}
+		return false, nil
+	}
+}
+
+// Conditional logic for a CONUS and OCONUS address
+func EvaluateIsOconus(address Address) bool {
+	if address.Country.Country != "US" || address.Country.Country == "US" && address.State == "AK" || address.Country.Country == "US" && address.State == "HI" {
+		return true
+	} else {
+		return false
+	}
 }

@@ -59,6 +59,7 @@ describe('Shipment Container', () => {
     [SHIPMENT_OPTIONS.HHG, 'container--accent--hhg'],
     [SHIPMENT_OPTIONS.NTS, 'container--accent--nts'],
     [SHIPMENT_OPTIONS.NTSR, 'container--accent--ntsr'],
+    [SHIPMENT_OPTIONS.UNACCOMPANIED_BAGGAGE, 'container--accent--ub'],
   ])('renders a container for a shipment (%s) with className %s ', async (shipmentType, expectedClass) => {
     const newHeadingInfo = {
       ...headingInfo,

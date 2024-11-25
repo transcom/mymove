@@ -40,6 +40,7 @@ export const ShipmentListItem = ({
     [styles[`shipment-list-item-PPM`]]: isPPM,
     [styles[`shipment-list-item-Boat`]]: isBoat,
     [styles[`shipment-list-item-MobileHome`]]: isMobileHome,
+    [styles[`shipment-list-item-UB`]]: shipment.shipmentType === SHIPMENT_OPTIONS.UNACCOMPANIED_BAGGAGE,
   });
   const estimated = 'Estimated';
   const actual = 'Actual';
@@ -61,6 +62,7 @@ export const ShipmentListItem = ({
     >
       <div className={styles['shipment-info']}>
         <strong>
+          <span className={styles.marketCodeIndicator}>{shipment.marketCode}</span>
           {getShipmentTypeLabel(shipment.shipmentType)}
           {showNumber && ` ${shipmentNumber}`}
         </strong>

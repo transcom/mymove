@@ -1725,6 +1725,14 @@ definitions:
           in pounds.
         type: integer
         x-nullable: true
+      isActualExpenseReimbursement:
+        description: >-
+          Used for PPM shipments only. Denotes if this shipment uses the Actual
+          Expense Reimbursement method.
+        type: boolean
+        example: false
+        x-omitempty: false
+        x-nullable: true
     required:
       - expectedDepartureDate
       - sitExpected
@@ -2602,6 +2610,14 @@ definitions:
           spouse.
         type: integer
         x-nullable: true
+      isActualExpenseReimbursement:
+        description: >-
+          Used for PPM shipments only. Denotes if this shipment uses the Actual
+          Expense Reimbursement method.
+        type: boolean
+        example: false
+        x-omitempty: false
+        x-nullable: true
   UpdateMTOShipmentStatus:
     description: >-
       Contains the statuses available to the Prime when updating the state of a
@@ -2935,6 +2951,7 @@ definitions:
       - WOUNDED_WARRIOR
       - BLUEBARK
       - SAFETY
+      - TEMPORARY_DUTY
     x-display-value:
       PERMANENT_CHANGE_OF_STATION: Permanent Change Of Station
       LOCAL_MOVE: Local Move
@@ -2943,6 +2960,7 @@ definitions:
       WOUNDED_WARRIOR: Wounded Warrior
       BLUEBARK: BLUEBARK
       SAFETY: Safety
+      TEMPORARY_DUTY: Temporary Duty (TDY)
   Order:
     type: object
     required:
@@ -3592,10 +3610,9 @@ definitions:
       - HHG
       - HHG_INTO_NTS_DOMESTIC
       - HHG_OUTOF_NTS_DOMESTIC
-      - INTERNATIONAL_HHG
-      - INTERNATIONAL_UB
       - MOBILE_HOME
       - PPM
+      - UNACCOMPANIED_BAGGAGE
     x-display-value:
       HHG: Household goods move (HHG)
       HHG_INTO_NTS_DOMESTIC: HHG into Non-temporary storage (NTS)
@@ -3605,6 +3622,7 @@ definitions:
         Boat shipment that requires additional equipment to haul it to it's
         destination
       BOAT_TOW_AWAY: Boat shipment that has a road-worthy trailer
+      UNACCOMPANIED_BAGGAGE: Unaccompanied Baggage
   PPMShipmentStatus:
     description: |
       Status of the PPM Shipment:
@@ -3823,6 +3841,14 @@ definitions:
         format: cents
         x-nullable: true
         x-omitempty: false
+      isActualExpenseReimbursement:
+        description: >-
+          Used for PPM shipments only. Denotes if this shipment uses the Actual
+          Expense Reimbursement method.
+        type: boolean
+        example: false
+        x-omitempty: false
+        x-nullable: true
       eTag:
         description: >-
           A hash unique to this shipment that should be used as the "If-Match"
@@ -4185,6 +4211,15 @@ definitions:
         type: string
         description: The SIT authorized end date for destination SIT.
         x-nullable: true
+      marketCode:
+        type: string
+        enum:
+          - d
+          - i
+        example: d
+        description: >-
+          Single-letter designator for domestic (d) or international (i)
+          shipments
   MTOShipmentsWithoutServiceObjects:
     description: A list of shipments without their associated service items.
     items:

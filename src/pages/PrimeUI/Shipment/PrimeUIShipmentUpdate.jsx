@@ -18,7 +18,7 @@ import styles from 'components/Office/CustomerContactInfoForm/CustomerContactInf
 import { Form } from 'components/form/Form';
 import formStyles from 'styles/form.module.scss';
 import WizardNavigation from 'components/Customer/WizardNavigation/WizardNavigation';
-import { requiredAddressSchema, addressSchema } from 'utils/validation';
+import { requiredAddressSchema, addressSchema, partialRequiredAddressSchema } from 'utils/validation';
 import { isEmpty, isValidWeight } from 'shared/utils';
 import {
   formatAddressForPrimeAPI,
@@ -308,6 +308,7 @@ const PrimeUIShipmentUpdate = ({ setFlashMessage }) => {
       },
       counselorRemarks: shipment.counselorRemarks || '',
     };
+
     validationSchema = Yup.object().shape({
       ppmShipment: Yup.object().shape({
         expectedDepartureDate: Yup.date()
@@ -316,7 +317,7 @@ const PrimeUIShipmentUpdate = ({ setFlashMessage }) => {
         pickupAddress: requiredAddressSchema.required('Required'),
         secondaryPickupAddress: OptionalAddressSchema,
         tertiaryPickupAddress: OptionalAddressSchema,
-        destinationAddress: requiredAddressSchema.required('Required'),
+        destinationAddress: partialRequiredAddressSchema.required('Required'),
         secondaryDestinationAddress: OptionalAddressSchema,
         tertiaryDestinationAddress: OptionalAddressSchema,
         sitExpected: Yup.boolean().required('Required'),

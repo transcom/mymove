@@ -35,6 +35,12 @@
       margin-right: -3vw;
     }
   }
+
+  .marketCodeIndicator {
+    font-weight: 100;
+    font-size: 16px;
+    margin-right: 2px;
+  }
 }
 
 :global(.usa-button).edit-btn {
@@ -98,6 +104,10 @@
 
 .shipment-list-item-MobileHome {
   border-left: 5px solid $accent-mobile-home;
+}
+
+.shipment-list-item-UB {
+  border-left: 5px solid $accent-ub;
 }
 
 .spaceBetween {
