@@ -3,7 +3,6 @@ package models
 import (
 	"crypto/sha256"
 	"fmt"
-	"sort"
 	"strings"
 	"time"
 
@@ -239,46 +238,6 @@ func (m Move) GetDestinationGBLOC(db *pop.Connection) (string, error) {
 	}
 
 	return gblocResult.GBLOC, err
-}
-
-/* GetFirstShipmentExcludingRejected returns the first shipment from all shipments associated with an order excluding rejected
- * shipments. It will return the first shipment associated with the moveID passed in.
- */
-func GetFirstShipmentExcludingRejected(db *pop.Connection, moveID uuid.UUID) (MTOShipment, error) {
-	var move Move
-	var shipments MTOShipments
-	err := db.Find(&move, moveID)
-	if err != nil {
-		if err.Error() == RecordNotFoundErrorString {
-			return MTOShipment{}, errors.WithMessage(err, "No move found in the DB with ID "+moveID.String())
-		}
-		return MTOShipment{}, err
-	}
-
-	err = db.Load(&move, "MTOShipments")
-	if err != nil {
-		if err.Error() == RecordNotFoundErrorString {
-			return MTOShipment{}, errors.WithMessage(err, "No shipments found in the DB for moveID: "+moveID.String())
-		}
-		return MTOShipment{}, err
-	}
-
-	for _, s := range move.MTOShipments {
-		err = db.Load(&s, "Status", "DeletedAt", "CreatedAt", "DestinationAddress")
-		if err != nil {
-			return MTOShipment{}, errors.WithMessage(err, "Could not load shipment with ID of "+s.ID.String()+" for move ID "+move.ID.String())
-		}
-
-		if s.Status != MTOShipmentStatusRejected && s.Status != MTOShipmentStatusCanceled && s.DeletedAt == nil {
-			shipments = append(shipments, s)
-		}
-	}
-
-	sort.Slice(shipments, func(i, j int) bool {
-		return shipments[i].CreatedAt.Before(shipments[j].CreatedAt)
-	})
-
-	return shipments[0], nil
 }
 
 // CreateSignedCertification creates a new SignedCertification associated with this move
