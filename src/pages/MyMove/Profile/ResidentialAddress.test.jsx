@@ -38,7 +38,6 @@ describe('ResidentialAddress page', () => {
     state: 'TX',
     postalCode: '79912',
     county: 'El Paso',
-    usprcId: '',
   };
 
   const blankAddress = Object.fromEntries(Object.keys(fakeAddress).map((k) => [k, '']));
