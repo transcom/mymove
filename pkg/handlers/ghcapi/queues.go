@@ -79,8 +79,9 @@ func (h GetMovesQueueHandler) Handle(params queues.GetMovesQueueParams) middlewa
 
 			var officeUser models.OfficeUser
 			var assignedGblocs []string
+			var err error
 			if appCtx.Session().OfficeUserID != uuid.Nil {
-				officeUser, err := h.OfficeUserFetcherPop.FetchOfficeUserByIDWithTransportationOfficeAssignments(appCtx, appCtx.Session().OfficeUserID)
+				officeUser, err = h.OfficeUserFetcherPop.FetchOfficeUserByIDWithTransportationOfficeAssignments(appCtx, appCtx.Session().OfficeUserID)
 				if err != nil {
 					appCtx.Logger().Error("Error retrieving office_user", zap.Error(err))
 					return queues.NewGetMovesQueueInternalServerError(), err
@@ -269,8 +270,9 @@ func (h GetPaymentRequestsQueueHandler) Handle(
 
 			var officeUser models.OfficeUser
 			var assignedGblocs []string
+			var err error
 			if appCtx.Session().OfficeUserID != uuid.Nil {
-				officeUser, err := h.OfficeUserFetcherPop.FetchOfficeUserByIDWithTransportationOfficeAssignments(appCtx, appCtx.Session().OfficeUserID)
+				officeUser, err = h.OfficeUserFetcherPop.FetchOfficeUserByIDWithTransportationOfficeAssignments(appCtx, appCtx.Session().OfficeUserID)
 				if err != nil {
 					appCtx.Logger().Error("Error retrieving office_user", zap.Error(err))
 					return queues.NewGetPaymentRequestsQueueInternalServerError(), err
@@ -537,9 +539,11 @@ func (h GetServicesCounselingOriginListHandler) Handle(
 				ListOrderParams.Status = []string{string(models.MoveStatusNeedsServiceCounseling)}
 			}
 
+			var officeUser models.OfficeUser
 			var assignedGblocs []string
+			var err error
 			if appCtx.Session().OfficeUserID != uuid.Nil {
-				officeUser, err := h.OfficeUserFetcherPop.FetchOfficeUserByIDWithTransportationOfficeAssignments(appCtx, appCtx.Session().OfficeUserID)
+				officeUser, err = h.OfficeUserFetcherPop.FetchOfficeUserByIDWithTransportationOfficeAssignments(appCtx, appCtx.Session().OfficeUserID)
 				if err != nil {
 					appCtx.Logger().Error("Error retrieving office_user", zap.Error(err))
 					return queues.NewGetServicesCounselingOriginListInternalServerError(), err
