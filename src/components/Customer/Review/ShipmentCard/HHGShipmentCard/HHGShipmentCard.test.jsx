@@ -107,7 +107,7 @@ describe('HHGShipmentCard component', () => {
       'Pickup Address',
       'Releasing agent',
       'Requested delivery date',
-      'Destination',
+      'Delivery Address',
       'Receiving agent',
       'Remarks',
     ];
@@ -140,7 +140,7 @@ describe('HHGShipmentCard component', () => {
 
   it('should render without releasing/receiving agents and remarks', () => {
     const wrapper = mountHHGShipmentCard({ ...defaultProps, releasingAgent: null, receivingAgent: null, remarks: '' });
-    const tableHeaders = ['Requested pickup date', 'Pickup Address', 'Requested delivery date', 'Destination'];
+    const tableHeaders = ['Requested pickup date', 'Pickup Address', 'Requested delivery date', 'Delivery Address'];
     const { streetAddress1, city, state, postalCode } = defaultProps.pickupLocation;
     const tableData = [
       formatCustomerDate(defaultProps.requestedPickupDate),
@@ -163,7 +163,7 @@ describe('HHGShipmentCard component', () => {
   it('should not render a secondary delivery address if not provided one', async () => {
     render(<HHGShipmentCard {...defaultProps} />);
 
-    const secondDestination = await screen.queryByText('Second Destination');
+    const secondDestination = await screen.queryByText('Second Delivery Address');
     expect(secondDestination).not.toBeInTheDocument();
   });
 
@@ -179,7 +179,7 @@ describe('HHGShipmentCard component', () => {
   it('should render a secondary delivery address if provided one', async () => {
     render(<HHGShipmentCard {...defaultProps} {...secondaryDeliveryAddress} />);
 
-    const secondDestination = await screen.getByText('Second Destination');
+    const secondDestination = await screen.getByText('Second Delivery Address');
     expect(secondDestination).toBeInTheDocument();
     const secondDesintationInformation = await screen.getByText(/Some Street Name/);
     expect(secondDesintationInformation).toBeInTheDocument();
@@ -301,7 +301,7 @@ describe('HHGShipmentCard component can be reused for UB shipment card', () => {
       'Pickup Address',
       'Releasing agent',
       'Requested delivery date',
-      'Destination',
+      'Delivery Address',
       'Receiving agent',
       'Remarks',
     ];
@@ -339,7 +339,7 @@ describe('HHGShipmentCard component can be reused for UB shipment card', () => {
       receivingAgent: null,
       remarks: '',
     });
-    const tableHeaders = ['Requested pickup date', 'Pickup Address', 'Requested delivery date', 'Destination'];
+    const tableHeaders = ['Requested pickup date', 'Pickup Address', 'Requested delivery date', 'Delivery Address'];
     const { streetAddress1, city, state, postalCode } = ubProps.pickupLocation;
     const tableData = [
       formatCustomerDate(ubProps.requestedPickupDate),
@@ -362,7 +362,7 @@ describe('HHGShipmentCard component can be reused for UB shipment card', () => {
   it('should not render a secondary delivery address on UB shipment card if not provided one', async () => {
     render(<HHGShipmentCard {...ubProps} />);
 
-    const secondDestination = await screen.queryByText('Second Destination');
+    const secondDestination = await screen.queryByText('Second Delivery Address');
     expect(secondDestination).not.toBeInTheDocument();
   });
 
@@ -378,7 +378,7 @@ describe('HHGShipmentCard component can be reused for UB shipment card', () => {
   it('should render a UB shipment card secondary delivery address if provided one', async () => {
     render(<HHGShipmentCard {...ubProps} {...secondaryDeliveryAddress} />);
 
-    const secondDestination = await screen.getByText('Second Destination');
+    const secondDestination = await screen.getByText('Second Delivery Address');
     expect(secondDestination).toBeInTheDocument();
     const secondDesintationInformation = await screen.getByText(/Some Street Name/);
     expect(secondDesintationInformation).toBeInTheDocument();

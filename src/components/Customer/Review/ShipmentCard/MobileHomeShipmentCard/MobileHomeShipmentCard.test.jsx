@@ -74,7 +74,7 @@ describe('MobileHomeShipmentCard component', () => {
       ['Pickup Address', '17 8th St New York, NY 11111'],
       ['Releasing agent', 'Super Mario (555) 555-5555 superMario@gmail.com'],
       ['Requested delivery date', '01 Mar 2020'],
-      ['Destination', '17 8th St New York, NY 73523'],
+      ['Delivery Address', '17 8th St New York, NY 73523'],
       ['Receiving agent', 'Princess Peach (999) 999-9999 princessPeach@gmail.com'],
       ['Mobile Home year', '2020'],
       ['Mobile Home make', 'Test Make'],
