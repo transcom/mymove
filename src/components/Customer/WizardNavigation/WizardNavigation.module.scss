@@ -6,16 +6,10 @@
   flex-wrap: wrap;
 
   button,
-  :global(.usa-button) {
-    // Reset button margins
+  :global(.usa-button){
     margin: 0;
-    flex-grow: 1;
-    flex-basis: 0;
-
-    @include at-media('tablet') {
-      flex-grow: 0;
-      flex-basis: auto;
-    }
+    flex-grow: 0;
+    flex-basis: auto;
   }
 
   > .button + .button {
