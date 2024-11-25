@@ -846,6 +846,7 @@ commands:
             export LOGIN_GOV_SECRET_KEY=$(echo $E2E_LOGIN_GOV_SECRET_KEY | base64 --decode)
             export HERE_MAPS_APP_ID=$E2E_HERE_MAPS_APP_ID
             export HERE_MAPS_APP_CODE=$E2E_HERE_MAPS_APP_CODE
+            export LOCAL_STORAGE_WEB_ROOT=storage
             # pull in review app settings here so we don't have to
             # reproduce them
             sed 's,^,export ,' config/env/review.app.env > server_env
