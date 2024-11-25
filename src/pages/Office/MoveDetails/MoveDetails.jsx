@@ -373,7 +373,7 @@ const MoveDetails = ({
     dependentsUnderTwelve: allowances.dependentsUnderTwelve,
     dependentsTwelveAndOver: allowances.dependentsTwelveAndOver,
     accompaniedTour: allowances.accompaniedTour,
-    ubAllowance: allowances.ubAllowance,
+    ubAllowance: allowances.unaccompaniedBaggageAllowance,
   };
 
   const customerInfo = {
