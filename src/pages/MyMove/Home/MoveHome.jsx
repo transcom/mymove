@@ -57,7 +57,7 @@ import {
   selectUploadsForCurrentAmendedOrders,
   selectUploadsForCurrentOrders,
 } from 'store/entities/selectors';
-import { formatCustomerDate, formatWeight } from 'utils/formatters';
+import { formatCustomerDate, formatUBAllowanceWeight, formatWeight } from 'utils/formatters';
 import {
   isPPMAboutInfoComplete,
   isPPMShipmentComplete,
@@ -99,11 +99,19 @@ const MoveHome = ({ serviceMemberMoves, isProfileComplete, serviceMember, signed
   const [showDeleteSuccessAlert, setShowDeleteSuccessAlert] = useState(false);
   const [showDeleteErrorAlert, setShowDeleteErrorAlert] = useState(false);
   const [showErrorAlert, setShowErrorAlert] = useState(false);
+  const [isUBEnabled, setIsUBEnabled] = useState(false);
   const [isManageSupportingDocsEnabled, setIsManageSupportingDocsEnabled] = useState(false);
 
   useEffect(() => {
     const fetchData = async () => {
       setIsManageSupportingDocsEnabled(await isBooleanFlagEnabled('manage_supporting_docs'));
+    };
+    fetchData();
+  }, []);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      setIsUBEnabled(await isBooleanFlagEnabled('unaccompanied_baggage'));
     };
     fetchData();
   }, []);
@@ -425,17 +433,23 @@ const MoveHome = ({ serviceMemberMoves, isProfileComplete, serviceMember, signed
       <>
         <p>
           You’re moving to <strong>{orders.new_duty_location.name}</strong> from{' '}
-          <strong>{orders.origin_duty_location?.name}.</strong>
+          <strong>{orders.origin_duty_location?.name}</strong>
           <br />
           {` ${reportByLabel()} `}
-          <strong>{moment(orders.report_by_date).format('DD MMM YYYY')}.</strong>
+          <strong>{moment(orders.report_by_date).format('DD MMM YYYY')}</strong>
         </p>
 
         <dl className={styles.subheaderContainer}>
           <div className={styles.subheaderSubsection}>
             <dt>Weight allowance</dt>
-            <dd>{formatWeight(orders.authorizedWeight)}.</dd>
+            <dd>{formatWeight(orders.authorizedWeight)}</dd>
           </div>
+          {orders?.entitlement?.ub_allowance > 0 && isUBEnabled && (
+            <div className={styles.subheaderSubsection}>
+              <dt>UB allowance</dt>
+              <dd>{formatUBAllowanceWeight(orders?.entitlement?.ub_allowance)}</dd>
+            </div>
+          )}
           {move.moveCode && (
             <div className={styles.subheaderSubsection}>
               <dt>Move code</dt>
