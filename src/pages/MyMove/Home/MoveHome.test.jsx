@@ -2,7 +2,7 @@
 import React from 'react';
 import { v4 } from 'uuid';
 import { mount } from 'enzyme';
-import { waitFor } from '@testing-library/react';
+import { act, waitFor } from '@testing-library/react';
 
 import MoveHome from './MoveHome';
 
@@ -39,7 +39,7 @@ jest.mock('services/internalApi', () => ({
 
 jest.mock('utils/featureFlags', () => ({
   ...jest.requireActual('utils/featureFlags'),
-  isBooleanFlagEnabled: jest.fn().mockImplementation(() => Promise.resolve(false)),
+  isBooleanFlagEnabled: jest.fn().mockImplementation(() => Promise.resolve()),
 }));
 
 const props = {
@@ -87,7 +87,7 @@ const defaultPropsNoOrders = {
   uploadedAmendedOrderDocuments: [],
 };
 
-const defaultPropsNoOrdersWithUBAllowance = {
+const defaultPropsOrdersWithUBAllowance = {
   ...props,
   serviceMemberMoves: {
     currentMove: [
@@ -1188,13 +1188,26 @@ afterEach(() => {
 
 describe('Home component', () => {
   describe('with default props, renders the right allowances', () => {
-    isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(true));
-    const wrapper = mountMoveHomeWithProviders(defaultPropsNoOrdersWithUBAllowance);
-    it('renders Home with the right amount of components', () => {
-      expect(wrapper.text()).toContain('Weight allowance');
-      expect(wrapper.text()).toContain('11,000 lbs');
-      expect(wrapper.text()).toContain('UB allowance');
-      expect(wrapper.text()).toContain('2,000 lbs');
+    it('renders Home with the right amount of components', async () => {
+      isBooleanFlagEnabled.mockResolvedValue(true);
+      let wrapper;
+      // wrapping rendering in act to ensure all state updates are complete
+      await act(async () => {
+        wrapper = mountMoveHomeWithProviders(defaultPropsOrdersWithUBAllowance);
+      });
+      await waitFor(() => {
+        expect(wrapper.text()).toContain('Weight allowance');
+        expect(wrapper.text()).toContain('11,000 lbs');
+        expect(wrapper.text()).toContain('UB allowance');
+        expect(wrapper.text()).toContain('2,000 lbs');
+      });
+
+      const ubToolTip = wrapper.find('ToolTip');
+      expect(ubToolTip.exists()).toBe(true);
+
+      ubToolTip.simulate('click');
+      const toolTipText = 'The weight of your UB shipment is also part of your overall authorized weight allowance.';
+      expect(ubToolTip.text()).toBe(toolTipText);
     });
   });
 
