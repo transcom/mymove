@@ -210,7 +210,7 @@ describe('ServicesCounselingAddShipment component', () => {
         expect(saveButton).toBeDisabled();
       });
 
-      expect(screen.getByLabelText('Use current address')).not.toBeChecked();
+      expect(screen.getByLabelText('Use pickup address')).not.toBeChecked();
 
       await userEvent.type(screen.getAllByLabelText('Address 1')[0], '812 S 129th St');
       await userEvent.type(screen.getAllByLabelText('City')[0], 'San Antonio');

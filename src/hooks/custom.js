@@ -32,9 +32,9 @@ const addressesMatch = (address1, address2) => {
 };
 
 // This allows us to take all shipments and identify the next one in the diversion chain easily
-// A child diversion's pickup address is the destination address of the parent
+// A child diversion's pickup address is the delivery address of the parent
 const findChildShipmentByAddress = (currentShipment, allShipments) => {
-  // Find a shipment whose pickup address matches the current shipment's destination address
+  // Find a shipment whose pickup address matches the current shipment's delivery address
   return allShipments.find(
     (shipment) => addressesMatch(shipment.pickupAddress, currentShipment.destinationAddress) && shipment.diversion,
   );
@@ -90,7 +90,7 @@ const getLowestShipmentNetWeight = (shipments) => {
  * This function calculates the total Billable Weight of the move,
  * by adding up all of the calculatedBillableWeight fields of all shipments with the required statuses.
  * It has unique calculations to also only count the lowest weight from a diverted shipment "Chain".
- * It is chained by a shipment having its diversion parameter set to true and the destination address
+ * It is chained by a shipment having its diversion parameter set to true and the delivery address
  * of the parent shipment matching the pickup address of the child shipment.
  *
  * This function does **NOT** include PPM net weights in the calculation.
