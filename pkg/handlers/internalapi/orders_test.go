@@ -145,6 +145,73 @@ func (suite *HandlerSuite) TestCreateOrder() {
 		}
 	})
 
+	suite.Run("properly handles entitlement validation", func() {
+		address := factory.BuildAddress(suite.DB(), []factory.Customization{
+			{
+				Model: models.Address{
+					IsOconus: models.BoolPointer(true),
+				},
+			},
+		}, nil)
+
+		originDutyLocation := factory.BuildDutyLocation(suite.DB(), []factory.Customization{
+			{
+				Model: models.DutyLocation{
+					Name: factory.MakeRandomString(8),
+				},
+			},
+			{
+				Model:    address,
+				LinkOnly: true,
+			},
+		}, nil)
+
+		dutyLocation := factory.FetchOrBuildCurrentDutyLocation(suite.DB())
+		factory.FetchOrBuildPostalCodeToGBLOC(suite.DB(), dutyLocation.Address.PostalCode, "KKFA")
+		factory.FetchOrBuildDefaultContractor(suite.DB(), nil, nil)
+
+		req := httptest.NewRequest("POST", "/orders", nil)
+		req = suite.AuthenticateRequest(req, sm)
+
+		hasDependents := true
+		spouseHasProGear := true
+		issueDate := time.Date(2018, time.March, 10, 0, 0, 0, 0, time.UTC)
+		reportByDate := time.Date(2018, time.August, 1, 0, 0, 0, 0, time.UTC)
+		ordersType := internalmessages.OrdersTypePERMANENTCHANGEOFSTATION
+		deptIndicator := internalmessages.DeptIndicatorAIRANDSPACEFORCE
+		payload := &internalmessages.CreateUpdateOrders{
+			HasDependents:           handlers.FmtBool(hasDependents),
+			SpouseHasProGear:        handlers.FmtBool(spouseHasProGear),
+			IssueDate:               handlers.FmtDate(issueDate),
+			ReportByDate:            handlers.FmtDate(reportByDate),
+			OrdersType:              internalmessages.NewOrdersType(ordersType),
+			OriginDutyLocationID:    *handlers.FmtUUIDPtr(&originDutyLocation.ID),
+			NewDutyLocationID:       handlers.FmtUUID(dutyLocation.ID),
+			ServiceMemberID:         handlers.FmtUUID(sm.ID),
+			OrdersNumber:            handlers.FmtString("123456"),
+			Tac:                     handlers.FmtString("E19A"),
+			Sac:                     handlers.FmtString("SacNumber"),
+			DepartmentIndicator:     internalmessages.NewDeptIndicator(deptIndicator),
+			Grade:                   models.ServiceMemberGradeE1.Pointer(),
+			DependentsTwelveAndOver: models.Int64Pointer(-2),
+		}
+
+		params := ordersop.CreateOrdersParams{
+			HTTPRequest:  req,
+			CreateOrders: payload,
+		}
+
+		fakeS3 := storageTest.NewFakeS3Storage(true)
+		handlerConfig := suite.HandlerConfig()
+		handlerConfig.SetFileStorer(fakeS3)
+		createHandler := CreateOrdersHandler{handlerConfig}
+
+		response := createHandler.Handle(params)
+		suite.IsType(&handlers.ValidationErrorsResponse{}, response)
+		verrsResponse, ok := response.(*handlers.ValidationErrorsResponse)
+		suite.True(ok)
+		suite.Contains(verrsResponse.Errors, "dependents_twelve_and_over")
+	})
 }
 
 func (suite *HandlerSuite) TestShowOrder() {
