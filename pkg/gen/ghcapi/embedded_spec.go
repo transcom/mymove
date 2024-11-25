@@ -9203,6 +9203,16 @@ func init() {
           "format": "cents",
           "x-nullable": true
         },
+        "market": {
+          "description": "To identify whether the service was provided within (CONUS) or (OCONUS)",
+          "type": "string",
+          "enum": [
+            "CONUS",
+            "OCONUS"
+          ],
+          "x-nullable": true,
+          "example": "CONUS"
+        },
         "moveTaskOrderID": {
           "type": "string",
           "format": "uuid",
@@ -25909,6 +25919,16 @@ func init() {
           "type": "integer",
           "format": "cents",
           "x-nullable": true
+        },
+        "market": {
+          "description": "To identify whether the service was provided within (CONUS) or (OCONUS)",
+          "type": "string",
+          "enum": [
+            "CONUS",
+            "OCONUS"
+          ],
+          "x-nullable": true,
+          "example": "CONUS"
         },
         "moveTaskOrderID": {
           "type": "string",
