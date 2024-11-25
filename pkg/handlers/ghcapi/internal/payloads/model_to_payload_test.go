@@ -29,7 +29,27 @@ func TestMove(t *testing.T) {
 }
 
 func (suite *PayloadsSuite) TestPaymentRequestQueue() {
-	officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
+	officeUser := factory.BuildOfficeUserWithPrivileges(suite.DB(), []factory.Customization{
+		{
+			Model: models.OfficeUser{
+				Email: "officeuser1@example.com",
+			},
+		},
+		{
+			Model: models.User{
+				Privileges: []models.Privilege{
+					{
+						PrivilegeType: models.PrivilegeTypeSupervisor,
+					},
+				},
+				Roles: []roles.Role{
+					{
+						RoleType: roles.RoleTypeTIO,
+					},
+				},
+			},
+		},
+	}, nil)
 	officeUserTIO := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTIO})
 
 	gbloc := "LKNQ"
@@ -106,8 +126,9 @@ func (suite *PayloadsSuite) TestPaymentRequestQueue() {
 		suite.Equal(paymentRequestCopy[0].Assignable, true)
 	})
 
+	officeUserHQ := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeHQ})
 	suite.Run("Test PaymentRequest is not assignable due to user HQ role", func() {
-		paymentRequests := QueuePaymentRequests(&paymentRequests, officeUsers, officeUser, officeUsersSafety)
+		paymentRequests := QueuePaymentRequests(&paymentRequests, officeUsers, officeUserHQ, officeUsersSafety)
 		paymentRequestCopy := *paymentRequests
 		suite.Equal(paymentRequestCopy[0].Assignable, false)
 	})
