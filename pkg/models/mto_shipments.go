@@ -381,16 +381,8 @@ func (s MTOShipment) GetDestinationAddress(db *pop.Connection) (*Address, error)
 		}
 		return nil, err
 	}
-	switch s.ShipmentType {
-	case MTOShipmentTypeBoatHaulAway,
-		MTOShipmentTypeBoatTowAway,
-		MTOShipmentTypeMobileHome,
-		MTOShipmentTypeHHG:
-		if s.DestinationAddress != nil {
-			return s.DestinationAddress, nil
-		}
-		return nil, errors.WithMessage(ErrMissingDestinationAddress, string(s.ShipmentType))
-	case MTOShipmentTypePPM:
+
+	if s.ShipmentType == MTOShipmentTypePPM {
 		if s.PPMShipment.DestinationAddress != nil {
 			return s.PPMShipment.DestinationAddress, nil
 		} else if s.DestinationAddress != nil {
@@ -399,7 +391,11 @@ func (s MTOShipment) GetDestinationAddress(db *pop.Connection) (*Address, error)
 		return nil, errors.WithMessage(ErrMissingDestinationAddress, string(s.ShipmentType))
 	}
 
-	return nil, errors.WithMessage(ErrMissingDestinationAddress, string(s.ShipmentType)+" is currently unsupported for the GetDestinationAddress method")
+	if s.DestinationAddress != nil {
+		return s.DestinationAddress, nil
+	}
+
+	return nil, errors.WithMessage(ErrMissingDestinationAddress, string(s.ShipmentType))
 }
 
 // this function takes in two addresses and determines the market code string
