@@ -291,7 +291,7 @@ describe('CreateCustomerForm', () => {
     await user.type(getByTestId('residential_address.streetAddress1'), fakePayload.residential_address.streetAddress1);
 
     const locationBox = screen.getAllByRole('combobox');
-    await userEvent.type(locationBox[1], 'BEVERLY HILLS', { delay: 100 });
+    await userEvent.type(locationBox[1], 'BEVERLY HILLS');
     const selectedResidentialLocation = await screen.findByText(/90210/);
     await userEvent.click(selectedResidentialLocation);
 
@@ -300,7 +300,7 @@ describe('CreateCustomerForm', () => {
       safetyPayload.backup_mailing_address.streetAddress1,
     );
 
-    await userEvent.type(locationBox[2], 'DRYDEN', { delay: 100 });
+    await userEvent.type(locationBox[2], 'DRYDEN');
     const selectedBackupLocation = await screen.findByText(/04225/);
     await userEvent.click(selectedBackupLocation);
 
@@ -375,7 +375,7 @@ describe('CreateCustomerForm', () => {
     );
 
     const locationBox = screen.getAllByRole('combobox');
-    await userEvent.type(locationBox[1], 'BEVERLY HILLS', { delay: 100 });
+    await userEvent.type(locationBox[1], 'BEVERLY HILLS');
     const selectedResidentialLocation = await screen.findByText(/90210/);
     await userEvent.click(selectedResidentialLocation);
 
@@ -384,7 +384,7 @@ describe('CreateCustomerForm', () => {
       safetyPayload.backup_mailing_address.streetAddress1,
     );
 
-    await userEvent.type(locationBox[2], 'DRYDEN', { delay: 100 });
+    await userEvent.type(locationBox[2], 'DRYDEN');
     const selectedBackupLocation = await screen.findByText(/04225/);
     await userEvent.click(selectedBackupLocation);
 
@@ -443,7 +443,7 @@ describe('CreateCustomerForm', () => {
     );
 
     const locationBox = screen.getAllByRole('combobox');
-    await userEvent.type(locationBox[1], 'BEVERLY HILLS', { delay: 100 });
+    await userEvent.type(locationBox[1], 'BEVERLY HILLS');
     const selectedResidentialLocation = await screen.findByText(/90210/);
     await userEvent.click(selectedResidentialLocation);
 
@@ -452,7 +452,7 @@ describe('CreateCustomerForm', () => {
       safetyPayload.backup_mailing_address.streetAddress1,
     );
 
-    await userEvent.type(locationBox[2], 'DRYDEN', { delay: 100 });
+    await userEvent.type(locationBox[2], 'DRYDEN');
     const selectedBackupLocation = await screen.findByText(/04225/);
     await userEvent.click(selectedBackupLocation);
 
@@ -504,7 +504,7 @@ describe('CreateCustomerForm', () => {
     );
 
     const locationBox = screen.getAllByRole('combobox');
-    await userEvent.type(locationBox[1], 'BEVERLY HILLS', { delay: 100 });
+    await userEvent.type(locationBox[1], 'BEVERLY HILLS');
     const selectedResidentialLocation = await screen.findByText(/90210/);
     await userEvent.click(selectedResidentialLocation);
 
@@ -513,7 +513,7 @@ describe('CreateCustomerForm', () => {
       safetyPayload.backup_mailing_address.streetAddress1,
     );
 
-    await userEvent.type(locationBox[2], 'DRYDEN', { delay: 100 });
+    await userEvent.type(locationBox[2], 'DRYDEN');
     const selectedBackupLocation = await screen.findByText(/04225/);
     await userEvent.click(selectedBackupLocation);
 
@@ -576,7 +576,7 @@ describe('CreateCustomerForm', () => {
     );
 
     const locationBox = screen.getAllByRole('combobox');
-    await userEvent.type(locationBox[1], 'BEVERLY HILLS', { delay: 100 });
+    await userEvent.type(locationBox[1], 'BEVERLY HILLS');
     const selectedResidentialLocation = await screen.findByText(/90210/);
     await userEvent.click(selectedResidentialLocation);
 
@@ -585,7 +585,7 @@ describe('CreateCustomerForm', () => {
       safetyPayload.backup_mailing_address.streetAddress1,
     );
 
-    await userEvent.type(locationBox[2], 'DRYDEN', { delay: 100 });
+    await userEvent.type(locationBox[2], 'DRYDEN');
     const selectedBackupLocation = await screen.findByText(/04225/);
     await userEvent.click(selectedBackupLocation);
 
