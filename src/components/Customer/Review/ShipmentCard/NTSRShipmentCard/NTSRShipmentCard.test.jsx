@@ -72,7 +72,7 @@ function mountNTSRShipmentCard(props) {
 describe('NTSRShipmentCard component', () => {
   it('renders component with all fields', () => {
     const wrapper = mountNTSRShipmentCard();
-    const tableHeaders = ['Requested delivery date', 'Destination', 'Receiving agent', 'Remarks'];
+    const tableHeaders = ['Requested delivery date', 'Delivery Address', 'Receiving agent', 'Remarks'];
     const {
       firstName: receivingFirstName,
       lastName: receivingLastName,
@@ -92,7 +92,7 @@ describe('NTSRShipmentCard component', () => {
 
   it('should render without releasing/receiving agents and remarks', () => {
     const wrapper = mountNTSRShipmentCard({ ...defaultProps, releasingAgent: null, remarks: '' });
-    const tableHeaders = ['Requested delivery date', 'Destination'];
+    const tableHeaders = ['Requested delivery date', 'Delivery Address'];
     const tableData = [formatCustomerDate(defaultProps.requestedDeliveryDate), defaultProps.destinationZIP];
     tableHeaders.forEach((label, index) => expect(wrapper.find('dt').at(index).text()).toBe(label));
     tableData.forEach((label, index) => expect(wrapper.find('dd').at(index).text()).toBe(label));
@@ -107,14 +107,14 @@ describe('NTSRShipmentCard component', () => {
   it('should not render a secondary delivery address if not provided one', async () => {
     render(<NTSRShipmentCard {...defaultProps} />);
 
-    const secondDestination = await screen.queryByText('Second Destination');
+    const secondDestination = await screen.queryByText('Second Delivery Address');
     expect(secondDestination).not.toBeInTheDocument();
   });
 
   it('should render a secondary delivery address if provided one', async () => {
     render(<NTSRShipmentCard {...defaultProps} {...secondaryDeliveryAddress} />);
 
-    const secondDestination = await screen.getByText('Second Destination');
+    const secondDestination = await screen.getByText('Second Delivery Address');
     expect(secondDestination).toBeInTheDocument();
     const secondDesintationInformation = await screen.getByText(/Some Street Name/);
     expect(secondDesintationInformation).toBeInTheDocument();

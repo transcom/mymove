@@ -81,7 +81,7 @@ describe('BoatShipmentCard component', () => {
       ['Pickup Address', '17 8th St New York, NY 11111'],
       ['Releasing agent', 'Jo Xi (555) 555-5555 jo.xi@email.com'],
       ['Requested delivery date', '01 Mar 2020'],
-      ['Destination', '17 8th St New York, NY 73523'],
+      ['Delivery Address', '17 8th St New York, NY 73523'],
       ['Receiving agent', 'Dorothy Lagomarsino (999) 999-9999 dorothy.lagomarsino@email.com'],
       ['Boat year', '2020'],
       ['Boat make', 'Test Make'],
