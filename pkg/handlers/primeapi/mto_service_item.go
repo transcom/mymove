@@ -192,6 +192,10 @@ func (h UpdateMTOServiceItemHandler) Handle(params mtoserviceitemops.UpdateMTOSe
 					verrs := validate.NewErrors()
 					return mtoserviceitemops.NewUpdateMTOServiceItemUnprocessableEntity().WithPayload(payloads.ValidationError(
 						err.Error(), h.GetTraceIDFromRequest(params.HTTPRequest), verrs)), verrs
+				case *apperror.UnsupportedPortCodeError:
+					verrs := validate.NewErrors()
+					return mtoserviceitemops.NewUpdateMTOServiceItemUnprocessableEntity().WithPayload(payloads.ValidationError(
+						err.Error(), h.GetTraceIDFromRequest(params.HTTPRequest), verrs)), verrs
 				default:
 					return mtoserviceitemops.NewUpdateMTOServiceItemInternalServerError().WithPayload(
 						payloads.InternalServerError(nil, h.GetTraceIDFromRequest(params.HTTPRequest))), err
