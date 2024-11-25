@@ -92,13 +92,13 @@ func AddressModel(address *ghcmessages.Address) *models.Address {
 		return nil
 	}
 
-	usprcID := uuid.FromStringOrNil(address.UsprcID.String())
+	usPostRegionCitiesID := uuid.FromStringOrNil(address.UsPostRegionCitiesID.String())
 
 	modelAddress := &models.Address{
 		ID:                 uuid.FromStringOrNil(address.ID.String()),
 		StreetAddress2:     address.StreetAddress2,
 		StreetAddress3:     address.StreetAddress3,
-		UsPostRegionCityId: &usprcID,
+		UsPostRegionCityId: &usPostRegionCitiesID,
 	}
 	if address.StreetAddress1 != nil {
 		modelAddress.StreetAddress1 = *address.StreetAddress1
