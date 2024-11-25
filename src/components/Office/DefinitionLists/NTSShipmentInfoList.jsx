@@ -143,7 +143,7 @@ const NTSShipmentInfoList = ({
   const pickupAddressElementFlags = getDisplayFlags('pickupAddress');
   const pickupAddressElement = (
     <div className={pickupAddressElementFlags.classes}>
-      <dt>Pickup address</dt>
+      <dt>Pickup Address</dt>
       <dd data-testid="pickupAddress">{formatAddress(pickupAddress)}</dd>
     </div>
   );
@@ -151,7 +151,7 @@ const NTSShipmentInfoList = ({
   const secondaryPickupAddressElementFlags = getDisplayFlags('secondaryPickupAddress');
   const secondaryPickupAddressElement = (
     <div className={secondaryPickupAddressElementFlags.classes}>
-      <dt>Second pickup address</dt>
+      <dt>Second Pickup Address</dt>
       <dd data-testid="secondaryPickupAddress">
         {secondaryPickupAddress ? formatAddress(secondaryPickupAddress) : '—'}
       </dd>
@@ -161,7 +161,7 @@ const NTSShipmentInfoList = ({
   const tertiaryPickupAddressElementFlags = getDisplayFlags('tertiaryPickupAddress');
   const tertiaryPickupAddressElement = (
     <div className={tertiaryPickupAddressElementFlags.classes}>
-      <dt>Third pickup address</dt>
+      <dt>Third Pickup Address</dt>
       <dd data-testid="tertiaryPickupAddress">{tertiaryPickupAddress ? formatAddress(tertiaryPickupAddress) : '—'}</dd>
     </div>
   );
