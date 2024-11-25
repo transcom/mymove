@@ -748,7 +748,7 @@ func Entitlement(entitlement *models.Entitlement) *ghcmessages.Entitlements {
 		DependentsUnderTwelve:          dependentsUnderTwelve,
 		DependentsTwelveAndOver:        dependentsTwelveAndOver,
 		AccompaniedTour:                accompaniedTour,
-		UbAllowance:                    ubAllowance,
+		UnaccompaniedBaggageAllowance:  ubAllowance,
 		OrganizationalClothingAndIndividualEquipment: entitlement.OrganizationalClothingAndIndividualEquipment,
 		GunSafe: gunSafe,
 		ETag:    etag.GenerateEtag(entitlement.UpdatedAt),
