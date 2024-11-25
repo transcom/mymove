@@ -181,7 +181,7 @@ type MTOServiceItemType struct {
 	PickupPostalCode                  *string
 	Description                       *string
 	Status                            *string
-	RejectedReason                    *string
+	RejectionReason                   *string
 	ApprovedAt                        *time.Time
 	SITPostalCode                     *string
 	SITEntryDate                      *time.Time
@@ -217,7 +217,7 @@ func (m MTOServiceItem) GetMTOServiceItemTypeFromServiceItem() MTOServiceItemTyp
 		PickupPostalCode:                  m.PickupPostalCode,
 		Description:                       m.Description,
 		Status:                            (*string)(&m.Status),
-		RejectedReason:                    m.RejectionReason,
+		RejectionReason:                   m.RejectionReason,
 		ApprovedAt:                        m.ApprovedAt,
 		SITPostalCode:                     m.SITPostalCode,
 		SITEntryDate:                      m.SITEntryDate,
