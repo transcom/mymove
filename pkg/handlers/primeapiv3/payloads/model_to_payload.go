@@ -238,7 +238,7 @@ func Address(address *models.Address) *primev3messages.Address {
 		PostalCode:     &address.PostalCode,
 		Country:        Country(address.Country),
 		ETag:           etag.GenerateEtag(address.UpdatedAt),
-		County:         &address.County,
+		County:         address.County,
 	}
 }
 
@@ -257,7 +257,7 @@ func PPMDestinationAddress(address *models.Address) *primev3messages.PPMDestinat
 		PostalCode:     &address.PostalCode,
 		Country:        Country(address.Country),
 		ETag:           etag.GenerateEtag(address.UpdatedAt),
-		County:         &address.County,
+		County:         address.County,
 	}
 	// Street address 1 is optional per business rule but not nullable on the database level.
 	// Check if streetAddress 1 is using place holder value to represent 'NULL'.
@@ -804,7 +804,7 @@ func MTOServiceItem(mtoServiceItem *models.MTOServiceItem) primev3messages.MTOSe
 			Width:  crate.Width.Int32Ptr(),
 		}
 		if mtoServiceItem.ReService.Code == models.ReServiceCodeICRT && mtoServiceItem.MTOShipment.PickupAddress != nil {
-			if mtoServiceItem.MTOShipment.PickupAddress.IsOconus == models.BoolPointer(true) {
+			if *mtoServiceItem.MTOShipment.PickupAddress.IsOconus {
 				cratingSI.Market = models.MarketOconus.FullString()
 			} else {
 				cratingSI.Market = models.MarketConus.FullString()
@@ -812,7 +812,7 @@ func MTOServiceItem(mtoServiceItem *models.MTOServiceItem) primev3messages.MTOSe
 		}
 
 		if mtoServiceItem.ReService.Code == models.ReServiceCodeIUCRT && mtoServiceItem.MTOShipment.DestinationAddress != nil {
-			if mtoServiceItem.MTOShipment.DestinationAddress.IsOconus == models.BoolPointer(true) {
+			if *mtoServiceItem.MTOShipment.DestinationAddress.IsOconus {
 				cratingSI.Market = models.MarketOconus.FullString()
 			} else {
 				cratingSI.Market = models.MarketConus.FullString()

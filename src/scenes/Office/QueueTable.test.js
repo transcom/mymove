@@ -31,6 +31,8 @@ describe('Shipments column', () => {
     setTimeout(() => {
       const move = getMove(wrapper);
       expect(move.shipments).toEqual(SHIPMENT_OPTIONS.PPM);
+
+      done();
     });
   });
 
@@ -46,6 +48,8 @@ describe('Shipments column', () => {
     setTimeout(() => {
       const move = getMove(wrapper);
       expect(move.shipments);
+
+      done();
     });
   });
 });

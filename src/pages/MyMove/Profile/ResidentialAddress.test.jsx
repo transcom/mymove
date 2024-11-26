@@ -38,7 +38,6 @@ describe('ResidentialAddress page', () => {
     state: 'TX',
     postalCode: '79912',
     county: 'El Paso',
-    usprcId: '',
   };
 
   const blankAddress = Object.fromEntries(Object.keys(fakeAddress).map((k) => [k, '']));
@@ -139,7 +138,6 @@ describe('ResidentialAddress page', () => {
 
   it('shows an error if the patchServiceMember API returns an error', async () => {
     const testProps = generateTestProps(fakeAddress);
-    const mockStore = configureStore({});
 
     ValidateZipRateData.mockImplementation(() => ({
       valid: true,
@@ -158,9 +156,9 @@ describe('ResidentialAddress page', () => {
     );
 
     render(
-      <Provider store={mockStore.store}>
+      <MockProviders>
         <ResidentialAddress {...testProps} />
-      </Provider>,
+      </MockProviders>,
     );
 
     const submitButton = screen.getByRole('button', { name: 'Next' });
@@ -171,7 +169,7 @@ describe('ResidentialAddress page', () => {
       expect(patchServiceMember).toHaveBeenCalled();
     });
 
-    expect(screen.getByText('A server error occurred saving the service member')).toBeInTheDocument();
+    expect(await screen.findByText('A server error occurred saving the service member')).toBeInTheDocument();
     expect(testProps.updateServiceMember).not.toHaveBeenCalled();
     expect(mockNavigate).not.toHaveBeenCalled();
   });
