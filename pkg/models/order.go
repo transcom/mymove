@@ -1,6 +1,7 @@
 package models
 
 import (
+	"sort"
 	"time"
 
 	"github.com/gobuffalo/pop/v6"
@@ -326,6 +327,203 @@ func (o *Order) IsComplete() bool {
 	}
 
 	return true
+}
+
+// FetchAllShipmentsExcludingRejected returns all the shipments associated with an order excluding rejected shipments
+func (o Order) FetchAllShipmentsExcludingRejected(db *pop.Connection) (map[uuid.UUID]MTOShipments, error) {
+	// Since this requires looking up the order in the DB, the order must have an ID. This means, the order has to have been created first.
+	if uuid.UUID.IsNil(o.ID) {
+		return nil, errors.WithMessage(ErrInvalidOrderID, "You must created the order in the DB before fetching associated shipments.")
+	}
+
+	var err error
+
+	err = db.Load(&o, "Moves")
+	if err != nil {
+		if err.Error() == RecordNotFoundErrorString {
+			return nil, errors.WithMessage(err, "No Moves were found for the order ID "+o.ID.String())
+		}
+		return nil, errors.WithMessage(err, "Could not load moves for order ID "+o.ID.String())
+	}
+
+	// shipmentsMap is a map of key, value pairs where the key is the move id and the value is a list of associated MTOShipments
+	shipmentsMap := make(map[uuid.UUID]MTOShipments)
+
+	for _, m := range o.Moves {
+		var shipments MTOShipments
+		err = db.Load(&m, "MTOShipments")
+		if err != nil {
+			return nil, errors.WithMessage(err, "Could not load shipments for move "+m.ID.String())
+		}
+
+		for _, s := range m.MTOShipments {
+			err = db.Load(&s, "Status", "DeletedAt", "CreatedAt", "DestinationAddress")
+			if err != nil {
+				return nil, errors.WithMessage(err, "Could not load shipment with ID of "+s.ID.String()+" for move ID "+m.ID.String())
+			}
+
+			if s.Status != MTOShipmentStatusRejected && s.Status != MTOShipmentStatusCanceled && s.DeletedAt == nil {
+				shipments = append(shipments, s)
+			}
+		}
+
+		sort.Slice(shipments, func(i, j int) bool {
+			return shipments[i].CreatedAt.Before(shipments[j].CreatedAt)
+		})
+
+		shipmentsMap[m.ID] = shipments
+	}
+
+	return shipmentsMap, nil
+}
+
+/*
+ * GetDestinationGBLOC returns a map of destination GBLOCs for the first shipments from all of
+ * the moves that are associated with an order. If there are no shipments returned on a particular move,
+ * it will return the GBLOC of the new duty station address for that move.
+ */
+func (o Order) GetDestinationGBLOC(db *pop.Connection) (map[uuid.UUID]string, error) {
+	// Since this requires looking up the order in the DB, the order must have an ID. This means, the order has to have been created first.
+	if uuid.UUID.IsNil(o.ID) {
+		return nil, errors.WithMessage(ErrInvalidOrderID, "You must created the order in the DB before getting the destination GBLOC.")
+	}
+
+	destinationPostalCodesMap, err := o.GetDestinationPostalCodeForAssociatedMoves(db)
+	if err != nil {
+		return nil, err
+	}
+
+	destinationGBLOCsMap := make(map[uuid.UUID]string)
+	for k, v := range destinationPostalCodesMap {
+		var gblocResult PostalCodeToGBLOC
+		gblocResult, err = FetchGBLOCForPostalCode(db, v)
+		if err != nil {
+			return nil, errors.WithMessage(err, "Could not get GBLOC for postal code "+v+" for move ID "+k.String())
+		}
+		destinationGBLOCsMap[k] = gblocResult.GBLOC
+	}
+
+	return destinationGBLOCsMap, nil
+}
+
+/*
+* GetDestinationPostalCodeForAssociatedMove returns a map of Postal Codes of the destination address for the first shipments from each of
+* the moves that are associated with an order. If there are no shipments returned, it will return the
+* Postal Code of the new duty station addresses.
+ */
+func (o Order) GetDestinationPostalCodeForAssociatedMoves(db *pop.Connection) (map[uuid.UUID]string, error) {
+	if uuid.UUID.IsNil(o.ID) {
+		return nil, errors.WithMessage(ErrInvalidOrderID, "You must created the order in the DB before getting the destination Postal Code.")
+	}
+
+	err := db.Load(&o, "Moves", "NewDutyLocation.Address.PostalCode")
+	if err != nil {
+		if err.Error() == RecordNotFoundErrorString {
+			return nil, errors.WithMessage(err, "No Moves were found for the order ID "+o.ID.String())
+		}
+		return nil, err
+	}
+
+	// zipsMap is a map of key, value pairs where the key is the move id and the value is the destination postal code
+	zipsMap := make(map[uuid.UUID]string)
+	for i, m := range o.Moves {
+		err = db.Load(&o.Moves[i], "MTOShipments")
+		if err != nil {
+			if err.Error() == RecordNotFoundErrorString {
+				return nil, errors.WithMessage(err, "Could not find shipments for move "+m.ID.String())
+			}
+			return nil, err
+		}
+
+		var shipments MTOShipments
+		for j, s := range o.Moves[i].MTOShipments {
+			err = db.Load(&o.Moves[i].MTOShipments[j], "CreatedAt", "Status", "DeletedAt", "DestinationAddress", "ShipmentType", "PPMShipment", "PPMShipment.Status", "PPMShipment.DestinationAddress")
+			if err != nil {
+				if err.Error() == RecordNotFoundErrorString {
+					return nil, errors.WithMessage(err, "Could not load shipment with ID of "+s.ID.String()+" for move ID "+m.ID.String())
+				}
+				return nil, err
+			}
+
+			if o.Moves[i].MTOShipments[j].Status != MTOShipmentStatusRejected &&
+				o.Moves[i].MTOShipments[j].Status != MTOShipmentStatusCanceled &&
+				o.Moves[i].MTOShipments[j].ShipmentType != MTOShipmentTypeHHGIntoNTSDom &&
+				o.Moves[i].MTOShipments[j].DeletedAt == nil {
+				shipments = append(shipments, o.Moves[i].MTOShipments[j])
+			}
+		}
+
+		// If we have valid shipments, use the first one's destination address
+		if len(shipments) > 0 {
+			sort.Slice(shipments, func(i, j int) bool {
+				return shipments[i].CreatedAt.Before(shipments[j].CreatedAt)
+			})
+
+			var addressResult *Address
+			addressResult, err = shipments[0].GetDestinationAddress(db)
+			if err != nil {
+				if err == ErrMissingDestinationAddress || err == ErrUnsupportedShipmentType {
+					zipsMap[o.Moves[i].ID] = o.NewDutyLocation.Address.PostalCode
+				}
+				return nil, err
+			}
+
+			if addressResult != nil {
+				zipsMap[o.Moves[i].ID] = addressResult.PostalCode
+			} else {
+				return nil, errors.WithMessage(ErrMissingDestinationAddress, "No destination address was able to be found for the order ID "+o.ID.String())
+			}
+		} else {
+			// No valid shipments, use new duty location
+			zipsMap[o.Moves[i].ID] = o.NewDutyLocation.Address.PostalCode
+		}
+	}
+
+	if len(zipsMap) == 0 {
+		return nil, errors.New("No destination postal codes were found for the order ID " + o.ID.String())
+	}
+
+	return zipsMap, nil
+}
+
+// UpdateDestinationGBLOC updates the destination GBLOC for the associated Order in the DB
+func (o Order) UpdateDestinationGBLOC(db *pop.Connection) error {
+	// Since this requires looking up the order in the DB, the order must have an ID. This means, the order has to have been created first.
+	if uuid.UUID.IsNil(o.ID) {
+		return errors.WithMessage(ErrInvalidOrderID, "You must created the order in the DB before updating the destination GBLOC.")
+	}
+
+	var dbOrder Order
+	err := db.Find(&dbOrder, o.ID)
+	if err != nil {
+		if err.Error() == RecordNotFoundErrorString {
+			return errors.WithMessage(err, "No Order was found for the order ID "+o.ID.String())
+		}
+		return err
+	}
+
+	err = db.Load(&o, "NewDutyLocation.Address.PostalCode")
+	if err != nil {
+		if err.Error() == RecordNotFoundErrorString {
+			return errors.WithMessage(err, "No New Duty Location Address Postal Code was found for the order ID "+o.ID.String())
+		}
+		return err
+	}
+
+	var gblocResult PostalCodeToGBLOC
+	gblocResult, err = FetchGBLOCForPostalCode(db, o.NewDutyLocation.Address.PostalCode)
+	if err != nil {
+		return errors.WithMessage(err, "Could not get GBLOC for postal code "+o.NewDutyLocation.Address.PostalCode)
+	}
+
+	dbOrder.DestinationGBLOC = &gblocResult.GBLOC
+
+	err = db.Save(&dbOrder)
+	if err != nil {
+		return errors.WithMessage(err, "Could not save the updated destination GBLOC for order ID "+o.ID.String())
+	}
+
+	return nil
 }
 
 // IsCompleteForGBL checks if orders have all fields necessary to generate a GBL
