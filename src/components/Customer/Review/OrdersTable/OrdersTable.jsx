@@ -83,7 +83,7 @@ const OrdersTable = ({
             <td>{hasDependents ? 'Yes' : 'No'}</td>
           </tr>
           {/* Group conditionally rendered OCONUS fields */}
-          {(accompaniedTour || dependentsUnderTwelve || dependentsTwelveAndOver) && (
+          {(accompaniedTour || dependentsUnderTwelve > 0 || dependentsTwelveAndOver > 0) && (
             <>
               <tr>
                 <th scope="row">Accompanied tour</th>

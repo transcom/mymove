@@ -56,6 +56,21 @@ func (o *officeUserFetcherPop) FetchOfficeUserByID(appCtx appcontext.AppContext,
 	return officeUser, err
 }
 
+func (o *officeUserFetcherPop) FetchOfficeUserByIDWithTransportationOfficeAssignments(appCtx appcontext.AppContext, id uuid.UUID) (models.OfficeUser, error) {
+	var officeUser models.OfficeUser
+	err := appCtx.DB().Eager("TransportationOffice", "TransportationOfficeAssignments", "TransportationOfficeAssignments.TransportationOffice").Find(&officeUser, id)
+	if err != nil {
+		switch err {
+		case sql.ErrNoRows:
+			return models.OfficeUser{}, apperror.NewNotFoundError(id, "looking for OfficeUser")
+		default:
+			return models.OfficeUser{}, apperror.NewQueryError("OfficeUser", err, "")
+		}
+	}
+
+	return officeUser, err
+}
+
 // Fetch office users of the same role within a gbloc, for assignment purposes
 func (o *officeUserFetcherPop) FetchOfficeUsersByRoleAndOffice(appCtx appcontext.AppContext, role roles.RoleType, officeID uuid.UUID) ([]models.OfficeUser, error) {
 	var officeUsers []models.OfficeUser
@@ -74,6 +89,37 @@ func (o *officeUserFetcherPop) FetchOfficeUsersByRoleAndOffice(appCtx appcontext
 		Where("role_type = ?", role).
 		Where("users_roles.deleted_at IS NULL").
 		Where("office_users.active = TRUE").
+		Order("last_name asc").
+		All(&officeUsers)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return officeUsers, nil
+}
+
+func (o *officeUserFetcherPop) FetchSafetyMoveOfficeUsersByRoleAndOffice(appCtx appcontext.AppContext, role roles.RoleType, officeID uuid.UUID) ([]models.OfficeUser, error) {
+	var officeUsers []models.OfficeUser
+
+	err := appCtx.DB().EagerPreload(
+		"User",
+		"User.Roles",
+		"User.Privileges",
+		"TransportationOffice",
+		"TransportationOffice.Gbloc",
+	).
+		Join("users", "users.id = office_users.user_id").
+		Join("users_roles", "users.id = users_roles.user_id").
+		Join("roles", "users_roles.role_id = roles.id").
+		LeftJoin("users_privileges", "users.id = users_privileges.user_id").
+		LeftJoin("privileges", "privileges.id = users_privileges.privilege_id").
+		Where("transportation_office_id = ?", officeID).
+		Where("role_type = ?", role).
+		Where("users_roles.deleted_at IS NULL").
+		Where("office_users.active = TRUE").
+		Where("users_privileges.deleted_at IS NULL").
+		Where("privileges.privilege_type = 'safety'").
 		Order("last_name asc").
 		All(&officeUsers)
 

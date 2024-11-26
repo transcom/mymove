@@ -35,7 +35,7 @@ func (suite *FactorySuite) TestBuildPrimaryTransportationOfficeAssignment() {
 		primaryTransportationOfficeAssignment := BuildPrimaryTransportationOfficeAssignment(suite.DB(), nil, nil)
 
 		// VALIDATE RESULTS
-		suite.Equal(true, primaryTransportationOfficeAssignment.PrimaryOffice)
+		suite.Equal(models.BoolPointer(true), primaryTransportationOfficeAssignment.PrimaryOffice)
 
 		// Associated Transportation Office is the default transportation office
 		suite.Equal(defaultOffice.Name, primaryTransportationOfficeAssignment.TransportationOffice.Name)
@@ -82,7 +82,7 @@ func (suite *FactorySuite) TestBuildPrimaryTransportationOfficeAssignment() {
 		primaryTransportationOfficeAssignment := BuildAlternateTransportationOfficeAssignment(suite.DB(), nil, nil)
 
 		// VALIDATE RESULTS
-		suite.Equal(false, primaryTransportationOfficeAssignment.PrimaryOffice)
+		suite.Equal(models.BoolPointer(false), primaryTransportationOfficeAssignment.PrimaryOffice)
 
 		// Associated Transportation Office is the default transportation office
 		suite.Equal(defaultOffice.Name, primaryTransportationOfficeAssignment.TransportationOffice.Name)
@@ -159,13 +159,13 @@ func (suite *FactorySuite) TestBuildPrimaryTransportationOfficeAssignment() {
 		suite.Equal(customOffice.Name, transportationOfficeAssignment.TransportationOffice.Name)
 		suite.Equal(customOffice.Gbloc, transportationOfficeAssignment.TransportationOffice.Gbloc)
 		suite.Equal(customOfficeUser.ID, transportationOfficeAssignment.ID)
-		suite.Equal(true, transportationOfficeAssignment.PrimaryOffice)
+		suite.Equal(models.BoolPointer(true), transportationOfficeAssignment.PrimaryOffice)
 
 		suite.Equal(secondaryCustomOffice.ID, secondaryTransportationOfficeAssignment.TransportationOffice.ID)
 		suite.Equal(secondaryCustomOffice.Name, secondaryTransportationOfficeAssignment.TransportationOffice.Name)
 		suite.Equal(secondaryCustomOffice.Gbloc, secondaryTransportationOfficeAssignment.TransportationOffice.Gbloc)
 		suite.Equal(customOfficeUser.ID, secondaryTransportationOfficeAssignment.ID)
-		suite.Equal(false, secondaryTransportationOfficeAssignment.PrimaryOffice)
+		suite.Equal(models.BoolPointer(false), secondaryTransportationOfficeAssignment.PrimaryOffice)
 
 	})
 }
