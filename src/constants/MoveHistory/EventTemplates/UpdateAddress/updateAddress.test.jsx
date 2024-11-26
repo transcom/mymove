@@ -13,6 +13,8 @@ const LABEL = {
   residentialAddress: 'Pickup Address',
   secondaryDestinationAddress: 'Second Delivery Address',
   secondaryPickupAddress: 'Second Pickup Address',
+  tertiaryDestinationAddress: 'Third Delivery Address',
+  tertiaryPickupAddress: 'Third Pickup Address',
 };
 
 describe('when given a Update basic service item address history record', () => {

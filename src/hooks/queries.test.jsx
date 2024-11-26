@@ -201,11 +201,11 @@ jest.mock('services/ghcApi', () => ({
       documents: {
         [id]: {
           id,
-          uploads: [`${id}0`],
+          uploads: [`${id}`],
         },
       },
       upload: {
-        id: `${id}0`,
+        id: `${id}`,
       },
     }),
   getMovesQueue: () =>
@@ -501,6 +501,7 @@ describe('useMoveDetailsQueries', () => {
         },
         report_by_date: '2018-08-01',
       },
+      orderDocuments: undefined,
       mtoShipments: undefined,
       mtoServiceItems: undefined,
       isLoading: true,
@@ -539,6 +540,9 @@ describe('useMoveDetailsQueries', () => {
           name: 'JB Lewis-McChord',
         },
         report_by_date: '2018-08-01',
+      },
+      orderDocuments: {
+        id: '2',
       },
       mtoShipments: [
         {
@@ -863,21 +867,21 @@ describe('useOrdersDocumentQueries', () => {
       documents: {
         2: {
           id: '2',
-          uploads: ['20'],
+          uploads: ['2'],
         },
       },
       upload: {
-        id: '20',
+        id: '2',
       },
       amendedDocuments: {
         3: {
           id: '3',
-          uploads: ['30'],
+          uploads: ['3'],
         },
       },
       amendedOrderDocumentId: '3',
       amendedUpload: {
-        id: '30',
+        id: '3',
       },
       isLoading: false,
       isError: false,

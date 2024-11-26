@@ -833,6 +833,64 @@ func init() {
         }
       ]
     },
+    "/evaluation-reports/{reportID}/appeal/add": {
+      "post": {
+        "description": "Adds an appeal to a serious incident on an evaluation report",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "evaluationReports"
+        ],
+        "summary": "Adds an appeal to a serious incident on an evaluation report",
+        "operationId": "addAppealToSeriousIncident",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "schema": {
+              "$ref": "#/definitions/CreateAppeal"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successfully added an appeal to a serious incident"
+          },
+          "403": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "404": {
+            "$ref": "#/responses/NotFound"
+          },
+          "412": {
+            "$ref": "#/responses/PreconditionFailed"
+          },
+          "422": {
+            "$ref": "#/responses/UnprocessableEntity"
+          },
+          "500": {
+            "$ref": "#/responses/ServerError"
+          }
+        },
+        "x-permissions": [
+          "update.evaluationReport"
+        ]
+      },
+      "parameters": [
+        {
+          "type": "string",
+          "format": "uuid",
+          "description": "the evaluation report ID",
+          "name": "reportID",
+          "in": "path",
+          "required": true
+        }
+      ]
+    },
     "/evaluation-reports/{reportID}/download": {
       "get": {
         "description": "Downloads an evaluation report as a PDF",
@@ -954,7 +1012,7 @@ func init() {
             "name": "body",
             "in": "body",
             "schema": {
-              "$ref": "#/definitions/CreateViolationAppeal"
+              "$ref": "#/definitions/CreateAppeal"
             }
           }
         ],
@@ -6791,6 +6849,26 @@ func init() {
         }
       }
     },
+    "CreateAppeal": {
+      "description": "Appeal status and remarks left for a violation, created by a GSR user.",
+      "type": "object",
+      "properties": {
+        "appealStatus": {
+          "description": "The status of the appeal set by the GSR user",
+          "type": "string",
+          "enum": [
+            "sustained",
+            "rejected"
+          ],
+          "example": "These are my violation appeal remarks"
+        },
+        "remarks": {
+          "description": "Remarks left by the GSR user",
+          "type": "string",
+          "example": "These are my violation appeal remarks"
+        }
+      }
+    },
     "CreateApprovedSITDurationUpdate": {
       "required": [
         "requestReason",
@@ -7410,26 +7488,6 @@ func init() {
         }
       }
     },
-    "CreateViolationAppeal": {
-      "description": "Appeal status and remarks left for a violation, created by a GSR user.",
-      "type": "object",
-      "properties": {
-        "appealStatus": {
-          "description": "The status of the appeal set by the GSR user",
-          "type": "string",
-          "enum": [
-            "sustained",
-            "rejected"
-          ],
-          "example": "These are my violation appeal remarks"
-        },
-        "remarks": {
-          "description": "Remarks left by the GSR user",
-          "type": "string",
-          "example": "These are my violation appeal remarks"
-        }
-      }
-    },
     "CreatedCustomer": {
       "type": "object",
       "properties": {
@@ -7886,10 +7944,6 @@ func init() {
       "description": "An evaluation report",
       "type": "object",
       "properties": {
-        "ReportViolations": {
-          "x-nullable": true,
-          "$ref": "#/definitions/ReportViolations"
-        },
         "createdAt": {
           "type": "string",
           "format": "date-time",
@@ -7990,6 +8044,10 @@ func init() {
         "remarks": {
           "type": "string",
           "x-nullable": true
+        },
+        "reportViolations": {
+          "x-nullable": true,
+          "$ref": "#/definitions/ReportViolations"
         },
         "seriousIncident": {
           "type": "boolean",
@@ -8925,6 +8983,10 @@ func init() {
           "x-nullable": true,
           "example": 2500
         },
+        "externalCrate": {
+          "type": "boolean",
+          "x-nullable": true
+        },
         "feeType": {
           "type": "string",
           "enum": [
@@ -8943,6 +9005,16 @@ func init() {
           "type": "integer",
           "format": "cents",
           "x-nullable": true
+        },
+        "market": {
+          "description": "To identify whether the service was provided within (CONUS) or (OCONUS)",
+          "type": "string",
+          "enum": [
+            "CONUS",
+            "OCONUS"
+          ],
+          "x-nullable": true,
+          "example": "CONUS"
         },
         "moveTaskOrderID": {
           "type": "string",
@@ -15642,6 +15714,79 @@ func init() {
         }
       ]
     },
+    "/evaluation-reports/{reportID}/appeal/add": {
+      "post": {
+        "description": "Adds an appeal to a serious incident on an evaluation report",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "evaluationReports"
+        ],
+        "summary": "Adds an appeal to a serious incident on an evaluation report",
+        "operationId": "addAppealToSeriousIncident",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "schema": {
+              "$ref": "#/definitions/CreateAppeal"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successfully added an appeal to a serious incident"
+          },
+          "403": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "412": {
+            "description": "Precondition failed",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "422": {
+            "description": "The payload was unprocessable.",
+            "schema": {
+              "$ref": "#/definitions/ValidationError"
+            }
+          },
+          "500": {
+            "description": "A server error occurred",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        },
+        "x-permissions": [
+          "update.evaluationReport"
+        ]
+      },
+      "parameters": [
+        {
+          "type": "string",
+          "format": "uuid",
+          "description": "the evaluation report ID",
+          "name": "reportID",
+          "in": "path",
+          "required": true
+        }
+      ]
+    },
     "/evaluation-reports/{reportID}/download": {
       "get": {
         "description": "Downloads an evaluation report as a PDF",
@@ -15787,7 +15932,7 @@ func init() {
             "name": "body",
             "in": "body",
             "schema": {
-              "$ref": "#/definitions/CreateViolationAppeal"
+              "$ref": "#/definitions/CreateAppeal"
             }
           }
         ],
@@ -22883,6 +23028,26 @@ func init() {
         }
       }
     },
+    "CreateAppeal": {
+      "description": "Appeal status and remarks left for a violation, created by a GSR user.",
+      "type": "object",
+      "properties": {
+        "appealStatus": {
+          "description": "The status of the appeal set by the GSR user",
+          "type": "string",
+          "enum": [
+            "sustained",
+            "rejected"
+          ],
+          "example": "These are my violation appeal remarks"
+        },
+        "remarks": {
+          "description": "Remarks left by the GSR user",
+          "type": "string",
+          "example": "These are my violation appeal remarks"
+        }
+      }
+    },
     "CreateApprovedSITDurationUpdate": {
       "required": [
         "requestReason",
@@ -23502,26 +23667,6 @@ func init() {
         }
       }
     },
-    "CreateViolationAppeal": {
-      "description": "Appeal status and remarks left for a violation, created by a GSR user.",
-      "type": "object",
-      "properties": {
-        "appealStatus": {
-          "description": "The status of the appeal set by the GSR user",
-          "type": "string",
-          "enum": [
-            "sustained",
-            "rejected"
-          ],
-          "example": "These are my violation appeal remarks"
-        },
-        "remarks": {
-          "description": "Remarks left by the GSR user",
-          "type": "string",
-          "example": "These are my violation appeal remarks"
-        }
-      }
-    },
     "CreatedCustomer": {
       "type": "object",
       "properties": {
@@ -23978,10 +24123,6 @@ func init() {
       "description": "An evaluation report",
       "type": "object",
       "properties": {
-        "ReportViolations": {
-          "x-nullable": true,
-          "$ref": "#/definitions/ReportViolations"
-        },
         "createdAt": {
           "type": "string",
           "format": "date-time",
@@ -24082,6 +24223,10 @@ func init() {
         "remarks": {
           "type": "string",
           "x-nullable": true
+        },
+        "reportViolations": {
+          "x-nullable": true,
+          "$ref": "#/definitions/ReportViolations"
         },
         "seriousIncident": {
           "type": "boolean",
@@ -25017,6 +25162,10 @@ func init() {
           "x-nullable": true,
           "example": 2500
         },
+        "externalCrate": {
+          "type": "boolean",
+          "x-nullable": true
+        },
         "feeType": {
           "type": "string",
           "enum": [
@@ -25035,6 +25184,16 @@ func init() {
           "type": "integer",
           "format": "cents",
           "x-nullable": true
+        },
+        "market": {
+          "description": "To identify whether the service was provided within (CONUS) or (OCONUS)",
+          "type": "string",
+          "enum": [
+            "CONUS",
+            "OCONUS"
+          ],
+          "x-nullable": true,
+          "example": "CONUS"
         },
         "moveTaskOrderID": {
           "type": "string",

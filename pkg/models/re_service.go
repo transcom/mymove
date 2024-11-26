@@ -77,8 +77,6 @@ const (
 	ReServiceCodeICOUB ReServiceCode = "ICOUB"
 	// ReServiceCodeICRT International crating
 	ReServiceCodeICRT ReServiceCode = "ICRT"
-	// ReServiceCodeICRTSA International crating - standalone
-	ReServiceCodeICRTSA ReServiceCode = "ICRTSA"
 	// ReServiceCodeIDASIT International destination add'l day SIT
 	ReServiceCodeIDASIT ReServiceCode = "IDASIT"
 	// ReServiceCodeIDDSIT International destination SIT delivery
@@ -121,16 +119,36 @@ const (
 	ReServiceCodeNSTH ReServiceCode = "NSTH"
 	// ReServiceCodeNSTUB Nonstandard UB
 	ReServiceCodeNSTUB ReServiceCode = "NSTUB"
+	// ReServiceCodeUBP International UB
+	ReServiceCodeUBP ReServiceCode = "UBP"
+	// ReServiceCodeISLH Shipping & Linehaul
+	ReServiceCodeISLH ReServiceCode = "ISLH"
+	// ReServiceCodePOEFSC International POE Fuel Surcharge
+	ReServiceCodePOEFSC ReServiceCode = "POEFSC"
+	// ReServiceCodePODFSC International POD Fuel Surcharge
+	ReServiceCodePODFSC ReServiceCode = "PODFSC"
+)
+
+type ServiceLocationType string
+
+const (
+	// ServiceLocationO Origin
+	ServiceLocationO ServiceLocationType = "O"
+	// ServiceLocationD Destination
+	ServiceLocationD ServiceLocationType = "D"
+	// ServiceLocationB Both
+	ServiceLocationB ServiceLocationType = "B"
 )
 
 // ReService model struct
 type ReService struct {
-	ID        uuid.UUID     `json:"id" db:"id"`
-	Code      ReServiceCode `json:"code" db:"code"`
-	Priority  int           `db:"priority"`
-	Name      string        `json:"name" db:"name"`
-	CreatedAt time.Time     `json:"created_at" db:"created_at"`
-	UpdatedAt time.Time     `json:"updated_at" db:"updated_at"`
+	ID              uuid.UUID            `json:"id" db:"id" rw:"r"`
+	Code            ReServiceCode        `json:"code" db:"code" rw:"r"`
+	Priority        int                  `db:"priority" rw:"r"`
+	Name            string               `json:"name" db:"name" rw:"r"`
+	ServiceLocation *ServiceLocationType `db:"service_location" rw:"r"`
+	CreatedAt       time.Time            `json:"created_at" db:"created_at" rw:"r"`
+	UpdatedAt       time.Time            `json:"updated_at" db:"updated_at" rw:"r"`
 }
 
 // Hold groupings of SIT for the shipment
