@@ -9562,6 +9562,20 @@ func init() {
         "eTag": {
           "type": "string"
         },
+        "excessWeightAcknowledgedAt": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true,
+          "x-omitempty": false,
+          "readOnly": true
+        },
+        "excessWeightQualifiedAt": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true,
+          "x-omitempty": false,
+          "readOnly": true
+        },
         "hasSecondaryDeliveryAddress": {
           "type": "boolean",
           "x-nullable": true,
@@ -26073,6 +26087,20 @@ func init() {
         },
         "eTag": {
           "type": "string"
+        },
+        "excessWeightAcknowledgedAt": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true,
+          "x-omitempty": false,
+          "readOnly": true
+        },
+        "excessWeightQualifiedAt": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true,
+          "x-omitempty": false,
+          "readOnly": true
         },
         "hasSecondaryDeliveryAddress": {
           "type": "boolean",

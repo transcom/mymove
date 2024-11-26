@@ -1513,6 +1513,8 @@ func MTOShipment(storer storage.FileStorer, mtoShipment *models.MTOShipment, sit
 		DeliveryAddressUpdate:       ShipmentAddressUpdate(mtoShipment.DeliveryAddressUpdate),
 		ShipmentLocator:             handlers.FmtStringPtr(mtoShipment.ShipmentLocator),
 		MarketCode:                  MarketCode(&mtoShipment.MarketCode),
+		ExcessWeightAcknowledgedAt:  (*strfmt.DateTime)(mtoShipment.ExcessWeightAcknowledgedAt),
+		ExcessWeightQualifiedAt:     (*strfmt.DateTime)(mtoShipment.ExcessWeightQualifiedAt),
 	}
 
 	if mtoShipment.Distance != nil {

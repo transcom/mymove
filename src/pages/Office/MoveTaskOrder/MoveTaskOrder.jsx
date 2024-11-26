@@ -842,8 +842,10 @@ export const MoveTaskOrder = (props) => {
     setEstimatedNTSReleaseWeightTotal(calculateEstimatedWeight(nonPPMShipments, SHIPMENT_OPTIONS.NTSR));
     setEstimatedPPMWeightTotal(calculateEstimatedWeight(onlyPPMShipments));
     let excessBillableWeightCount = 0;
+    let shipmentLevelExcessWeight = 0;
     const riskOfExcessAcknowledged = !!move?.excess_weight_acknowledged_at;
 
+    console.log(ubShipments);
     let ubShipmentExcessWeight = false;
     if (ubShipments?.length > 0) {
       ubShipments.forEach((shipment) => {
@@ -868,9 +870,12 @@ export const MoveTaskOrder = (props) => {
       });
     }
 
+    if (ubShipmentExcessWeight && !riskOfExcessAcknowledged) {
+
+    }
+
     if (
-      hasRiskOfExcess(estimatedWeightTotal, order?.entitlement.totalWeight) ||
-      (ubShipments?.length > 0 && ubShipmentExcessWeight && !riskOfExcessAcknowledged)
+      hasRiskOfExcess(estimatedWeightTotal, order?.entitlement.totalWeight)
     ) {
       excessBillableWeightCount = 1;
       setExcessWeightRiskCount(1);

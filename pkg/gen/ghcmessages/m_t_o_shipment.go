@@ -104,6 +104,16 @@ type MTOShipment struct {
 	// e tag
 	ETag string `json:"eTag,omitempty"`
 
+	// excess weight acknowledged at
+	// Read Only: true
+	// Format: date-time
+	ExcessWeightAcknowledgedAt *strfmt.DateTime `json:"excessWeightAcknowledgedAt"`
+
+	// excess weight qualified at
+	// Read Only: true
+	// Format: date-time
+	ExcessWeightQualifiedAt *strfmt.DateTime `json:"excessWeightQualifiedAt"`
+
 	// has secondary delivery address
 	HasSecondaryDeliveryAddress *bool `json:"hasSecondaryDeliveryAddress"`
 
@@ -283,6 +293,14 @@ func (m *MTOShipment) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validateDestinationType(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateExcessWeightAcknowledgedAt(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateExcessWeightQualifiedAt(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -543,6 +561,30 @@ func (m *MTOShipment) validateDestinationType(formats strfmt.Registry) error {
 			}
 			return err
 		}
+	}
+
+	return nil
+}
+
+func (m *MTOShipment) validateExcessWeightAcknowledgedAt(formats strfmt.Registry) error {
+	if swag.IsZero(m.ExcessWeightAcknowledgedAt) { // not required
+		return nil
+	}
+
+	if err := validate.FormatOf("excessWeightAcknowledgedAt", "body", "date-time", m.ExcessWeightAcknowledgedAt.String(), formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *MTOShipment) validateExcessWeightQualifiedAt(formats strfmt.Registry) error {
+	if swag.IsZero(m.ExcessWeightQualifiedAt) { // not required
+		return nil
+	}
+
+	if err := validate.FormatOf("excessWeightQualifiedAt", "body", "date-time", m.ExcessWeightQualifiedAt.String(), formats); err != nil {
+		return err
 	}
 
 	return nil
@@ -1035,6 +1077,14 @@ func (m *MTOShipment) ContextValidate(ctx context.Context, formats strfmt.Regist
 		res = append(res, err)
 	}
 
+	if err := m.contextValidateExcessWeightAcknowledgedAt(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidateExcessWeightQualifiedAt(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.contextValidateMobileHomeShipment(ctx, formats); err != nil {
 		res = append(res, err)
 	}
@@ -1201,6 +1251,24 @@ func (m *MTOShipment) contextValidateDestinationType(ctx context.Context, format
 			}
 			return err
 		}
+	}
+
+	return nil
+}
+
+func (m *MTOShipment) contextValidateExcessWeightAcknowledgedAt(ctx context.Context, formats strfmt.Registry) error {
+
+	if err := validate.ReadOnly(ctx, "excessWeightAcknowledgedAt", "body", m.ExcessWeightAcknowledgedAt); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *MTOShipment) contextValidateExcessWeightQualifiedAt(ctx context.Context, formats strfmt.Registry) error {
+
+	if err := validate.ReadOnly(ctx, "excessWeightQualifiedAt", "body", m.ExcessWeightQualifiedAt); err != nil {
+		return err
 	}
 
 	return nil

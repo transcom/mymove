@@ -737,6 +737,22 @@ func (f *mtoShipmentUpdater) updateShipmentRecord(appCtx appcontext.AppContext, 
 				return err
 			}
 
+			var ubHasExcessWeight = false
+			// check shipment level excess weight for ub shipments
+			if newShipment.ShipmentType == models.MTOShipmentTypeUnaccompaniedBaggage {
+				ubHasExcessWeight, err := checkShipmentForUBExcessWeight(txnAppCtx, dbShipment.MoveTaskOrderID, newShipment)
+				if err != nil {
+					return err
+				}
+
+				if ubHasExcessWeight {
+					excessWeightQualifiedAt := time.Now()
+					newShipment.ExcessWeightQualifiedAt = &excessWeightQualifiedAt
+				} else if newShipment.ExcessWeightQualifiedAt != nil {
+					newShipment.ExcessWeightQualifiedAt = nil
+				}
+			}
+
 			// we only want to update the authorized weight if the shipment is approved and the previous weight is nil
 			// otherwise, shipment_updater will handle updating authorized weight when a shipment is approved
 			if (dbShipment.PrimeEstimatedWeight == nil || (newShipment.ShipmentType == models.MTOShipmentTypeHHGOutOfNTSDom && newShipment.NTSRecordedWeight == nil)) && newShipment.Status == models.MTOShipmentStatusApproved {
@@ -748,7 +764,7 @@ func (f *mtoShipmentUpdater) updateShipmentRecord(appCtx appcontext.AppContext, 
 				}
 			}
 
-			if dbShipment.PrimeEstimatedWeight == nil || *newShipment.PrimeEstimatedWeight != *dbShipment.PrimeEstimatedWeight {
+			if dbShipment.PrimeEstimatedWeight == nil || *newShipment.PrimeEstimatedWeight != *dbShipment.PrimeEstimatedWeight || ubHasExcessWeight {
 				existingMoveStatus := move.Status
 				// if the move is in excess weight risk and the TOO has not acknowledge that, need to change move status to "Approvals Requested"
 				// this will trigger the TOO to acknowledged the excess right, which populates ExcessWeightAcknowledgedAt
@@ -1377,4 +1393,39 @@ func updateAuthorizedWeight(appCtx appcontext.AppContext, shipment *models.MTOSh
 	}
 
 	return nil
+}
+
+func checkShipmentForUBExcessWeight(appCtx appcontext.AppContext, moveID uuid.UUID, newShipment *models.MTOShipment) (bool, error) {
+	const RiskOfExcessThreshold = .9
+
+	db := appCtx.DB()
+	var move models.Move
+	err := db.EagerPreload("Orders.Entitlement").Find(&move, moveID)
+	if err != nil {
+		switch err {
+		case sql.ErrNoRows:
+			return false, apperror.NewNotFoundError(moveID, "looking for Move")
+		default:
+			return false, apperror.NewQueryError("Move", err, "")
+		}
+	}
+
+	ubHasExcessWeight := false
+	if move.Orders.Entitlement.UBAllowance != nil {
+		ubExcessPrimeEstimatedWeight := false
+		if newShipment.PrimeEstimatedWeight != nil {
+			ubExcessPrimeEstimatedWeight = float64(*move.Orders.Entitlement.UBAllowance)*RiskOfExcessThreshold <= float64(*newShipment.PrimeEstimatedWeight)
+		}
+
+		ubExcessPrimeActualWeight := false
+		if newShipment.PrimeActualWeight != nil {
+			ubExcessPrimeActualWeight = float64(*move.Orders.Entitlement.UBAllowance)*RiskOfExcessThreshold <= float64(*newShipment.PrimeActualWeight)
+		}
+
+		if ubExcessPrimeEstimatedWeight || ubExcessPrimeActualWeight {
+			ubHasExcessWeight = true
+		}
+	}
+
+	return ubHasExcessWeight, nil
 }

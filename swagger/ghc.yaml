@@ -10447,6 +10447,18 @@ definitions:
         type: string
         example: handle with care
         x-nullable: true
+      excessWeightQualifiedAt:
+        type: string
+        format: date-time
+        readOnly: true
+        x-omitempty: false
+        x-nullable: true
+      excessWeightAcknowledgedAt:
+        type: string
+        format: date-time
+        readOnly: true
+        x-omitempty: false
+        x-nullable: true
       counselorRemarks:
         description: >
           The counselor can use the counselor remarks field to inform the movers

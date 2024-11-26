@@ -167,6 +167,8 @@ type MTOShipment struct {
 	DestinationSITAuthEndDate        *time.Time             `db:"dest_sit_auth_end_date"`
 	MobileHome                       *MobileHome            `has_one:"mobile_home" fk_id:"shipment_id"`
 	MarketCode                       MarketCode             `db:"market_code"`
+	ExcessWeightAcknowledgedAt       *time.Time             `db:"excess_weight_acknowledged_at"`
+	ExcessWeightQualifiedAt          *time.Time             `db:"excess_weight_qualified_at"`
 }
 
 // TableName overrides the table name used by Pop.
