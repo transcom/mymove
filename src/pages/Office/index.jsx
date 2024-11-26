@@ -298,7 +298,7 @@ export class OfficeApp extends Component {
                         end
                         element={
                           <PrivateRoute requiredRoles={hqRoleFlag ? [roleTypes.HQ] : [undefined]}>
-                            <HeadquartersQueues />
+                            <HeadquartersQueues isQueueManagementFFEnabled={queueManagementFlag} />
                           </PrivateRoute>
                         }
                       />
@@ -372,7 +372,7 @@ export class OfficeApp extends Component {
                           end
                           element={
                             <PrivateRoute requiredRoles={hqRoleFlag ? [roleTypes.HQ] : [undefined]}>
-                              <HeadquartersQueues />
+                              <HeadquartersQueues isQueueManagementFFEnabled={queueManagementFlag} />
                             </PrivateRoute>
                           }
                         />
