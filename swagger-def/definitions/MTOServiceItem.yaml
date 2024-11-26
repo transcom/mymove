@@ -132,6 +132,9 @@ properties:
   standaloneCrate:
     type: boolean
     x-nullable: true
+  externalCrate:
+    type: boolean
+    x-nullable: true
   serviceRequestDocuments:
     $ref: 'ServiceRequestDocuments.yaml'
   estimatedPrice:
