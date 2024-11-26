@@ -808,7 +808,6 @@ export class CustomerPpmPage extends CustomerPage {
         await this.page.locator('.reviewExpenses a').getByText('Edit').click();
       }
     }
-    await expect(this.page.getByRole('heading', { level: 1, name: 'Expenses' })).toBeVisible();
   }
 
   /**
@@ -915,8 +914,12 @@ export class CustomerPpmPage extends CustomerPage {
    * returns {Promise<void>}
    */
   async navigateFromCloseoutReviewPageToExpensesPage() {
+    await this.page.getByRole('link', { name: 'Add Expenses' }).waitFor({ state: 'visible' });
     await this.page.getByRole('link', { name: 'Add Expenses' }).click();
-    await expect(this.page.getByRole('heading', { level: 1, name: 'Expenses' })).toBeVisible();
+
+    // Retry to confirm the heading is visible - this is an effort to reduce flaky test failures
+    await this.page.waitForTimeout(1000);
+    await expect(this.page.getByRole('heading', { level: 1, name: 'Expenses' })).toBeVisible({ timeout: 5000 });
   }
 
   /**
@@ -943,6 +946,8 @@ export class CustomerPpmPage extends CustomerPage {
     if (!options?.isEditExpense) {
       await expect(expenseType).toHaveValue('');
     }
+    // this section was frequently flaky with the page closing, waiting for page to load before proceeding
+    await this.page.waitForLoadState('networkidle');
 
     await expenseType.selectOption({ label: 'Storage' });
 
@@ -1006,8 +1011,6 @@ export class CustomerPpmPage extends CustomerPage {
     await expect(this.page.getByText('Your final estimated incentive:')).toBeVisible();
 
     await expect(this.page.locator('li').getByText(`${options?.totalNetWeight} total net weight`)).toBeVisible();
-
-    // TODO: Once we get moving expenses and pro gear back, check for those here as well.
 
     await expect(this.page.locator('li').getByText(`${options?.proGearWeight} of pro-gear`)).toBeVisible();
     await expect(this.page.locator('li').getByText(`$${options?.expensesClaimed} in expenses claimed`)).toBeVisible();

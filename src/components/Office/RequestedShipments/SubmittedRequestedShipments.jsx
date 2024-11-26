@@ -1,9 +1,10 @@
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useState, useEffect } from 'react';
 import { useFormik } from 'formik';
 import * as PropTypes from 'prop-types';
 import { Button, Checkbox, Fieldset } from '@trussworks/react-uswds';
 import { generatePath, useParams, useNavigate } from 'react-router-dom';
 import { debounce } from 'lodash';
+import { connect } from 'react-redux';
 
 import styles from './RequestedShipments.module.scss';
 
@@ -22,7 +23,9 @@ import { MoveTaskOrderShape, MTOServiceItemShape, OrdersInfoShape } from 'types/
 import { ShipmentShape } from 'types/shipment';
 import { fieldValidationShape } from 'utils/displayFlags';
 import ButtonDropdown from 'components/ButtonDropdown/ButtonDropdown';
-import { SHIPMENT_OPTIONS_URL } from 'shared/constants';
+import { SHIPMENT_OPTIONS_URL, FEATURE_FLAG_KEYS } from 'shared/constants';
+import { setFlashMessage as setFlashMessageAction } from 'store/flash/actions';
+import { isBooleanFlagEnabled } from 'utils/featureFlags';
 
 // nts defaults show preferred pickup date and pickup address, flagged items when collapsed
 // ntsr defaults shows preferred delivery date, storage facility address, destination address, flagged items when collapsed
@@ -52,9 +55,20 @@ const SubmittedRequestedShipments = ({
   displayDestinationType,
   mtoServiceItems,
   isMoveLocked,
+  setFlashMessage,
 }) => {
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [filteredShipments, setFilteredShipments] = useState([]);
+  const [enableBoat, setEnableBoat] = useState(false);
+  const [enableMobileHome, setEnableMobileHome] = useState(false);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      setEnableBoat(await isBooleanFlagEnabled(FEATURE_FLAG_KEYS.BOAT));
+      setEnableMobileHome(await isBooleanFlagEnabled(FEATURE_FLAG_KEYS.MOBILE_HOME));
+    };
+    fetchData();
+  }, []);
 
   const filterPrimeShipments = mtoShipments.filter((shipment) => !shipment.usesExternalVendor);
 
@@ -97,6 +111,21 @@ const SubmittedRequestedShipments = ({
     };
   };
 
+  const allowedShipmentOptions = () => {
+    return (
+      <>
+        <option data-testid="hhgOption" value={SHIPMENT_OPTIONS_URL.HHG}>
+          HHG
+        </option>
+        <option value={SHIPMENT_OPTIONS_URL.PPM}>PPM</option>
+        <option value={SHIPMENT_OPTIONS_URL.NTS}>NTS</option>
+        <option value={SHIPMENT_OPTIONS_URL.NTSrelease}>NTS-release</option>
+        {enableBoat && <option value={SHIPMENT_OPTIONS_URL.BOAT}>Boat</option>}
+        {enableMobileHome && <option value={SHIPMENT_OPTIONS_URL.MOBILE_HOME}>Mobile Home</option>}
+      </>
+    );
+  };
+
   const formik = useFormik({
     initialValues: {
       shipmentManagementFee: true,
@@ -137,11 +166,13 @@ const SubmittedRequestedShipments = ({
                       onError: () => {
                         // TODO: Decide if we want to display an error notice, log error event, or retry
                         setSubmitting(false);
+                        setFlashMessage(null);
                       },
                     },
                   );
                 }),
               );
+              setFlashMessage('TASK_ORDER_CREATE_SUCCESS', 'success', 'Task order created successfully.');
               handleAfterSuccess('../mto', { showMTOpostedMessage: true });
             } catch {
               setSubmitting(false);
@@ -232,18 +263,7 @@ const SubmittedRequestedShipments = ({
                   <option value="" label="Add a new shipment">
                     Add a new shipment
                   </option>
-                  <option data-testid="hhgOption" value={SHIPMENT_OPTIONS_URL.HHG}>
-                    HHG
-                  </option>
-                  <option value={SHIPMENT_OPTIONS_URL.PPM}>PPM</option>
-                  <option value={SHIPMENT_OPTIONS_URL.NTS}>NTS</option>
-                  <option value={SHIPMENT_OPTIONS_URL.NTSrelease}>NTS-release</option>
-                  <option data-testid="boatOption" value={SHIPMENT_OPTIONS_URL.BOAT}>
-                    Boat
-                  </option>
-                  <option data-testid="mobileHomeOption" value={SHIPMENT_OPTIONS_URL.MOBILE_HOME}>
-                    Mobile Home
-                  </option>
+                  {allowedShipmentOptions()}
                 </ButtonDropdown>
               </Restricted>
             )}
@@ -377,4 +397,7 @@ SubmittedRequestedShipments.defaultProps = {
   mtoServiceItems: [],
 };
 
-export default SubmittedRequestedShipments;
+const mapDispatchToProps = {
+  setFlashMessage: setFlashMessageAction,
+};
+export default connect(() => ({}), mapDispatchToProps)(SubmittedRequestedShipments);

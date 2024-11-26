@@ -16,6 +16,8 @@ export const hostname = window && window.location && window.location.hostname;
 export const isMilmoveSite = hostname.startsWith('my') || hostname.startsWith('mil') || '';
 export const isOfficeSite = hostname.startsWith('office') || '';
 export const isAdminSite = hostname.startsWith('admin') || '';
+export const technicalHelpDeskURL =
+  'https://www.militaryonesource.mil/resources/gov/customer-service-contacts-for-military-pcs/#technical-help-desk';
 
 export function serviceName() {
   if (isAdminSite) {
@@ -201,6 +203,7 @@ export const FEATURE_FLAG_KEYS = {
   BOAT: 'boat',
   MOBILE_HOME: 'mobile_home',
   UNACCOMPANIED_BAGGAGE: 'unaccompanied_baggage',
+  ENABLE_ALASKA: 'enable_alaska',
 };
 
 export const MOVE_DOCUMENT_TYPE = {

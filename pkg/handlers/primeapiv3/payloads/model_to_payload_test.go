@@ -516,14 +516,50 @@ func (suite *PayloadsSuite) TestServiceRequestDocument() {
 }
 
 func (suite *PayloadsSuite) TestPPMShipment() {
+	isActualExpenseReimbursemnt := true
 	ppmShipment := &models.PPMShipment{
-		ID: uuid.Must(uuid.NewV4()),
+		ID:                           uuid.Must(uuid.NewV4()),
+		IsActualExpenseReimbursement: &isActualExpenseReimbursemnt,
 	}
 
 	result := PPMShipment(ppmShipment)
 
 	suite.NotNil(result)
 	suite.Equal(strfmt.UUID(ppmShipment.ID.String()), result.ID)
+	suite.True(*ppmShipment.IsActualExpenseReimbursement)
+}
+
+func (suite *PayloadsSuite) TestPPMShipmentContainingOptionalDestinationStreet1() {
+	now := time.Now()
+	ppmShipment := &models.PPMShipment{
+		ID: uuid.Must(uuid.NewV4()),
+		DestinationAddress: &models.Address{
+			ID:             uuid.Must(uuid.NewV4()),
+			StreetAddress1: models.STREET_ADDRESS_1_NOT_PROVIDED,
+			StreetAddress2: models.StringPointer("1"),
+			StreetAddress3: models.StringPointer("2"),
+			City:           "SomeCity",
+			State:          "CA",
+			PostalCode:     "90210",
+			County:         "SomeCounty",
+			UpdatedAt:      now,
+		},
+	}
+
+	result := PPMShipment(ppmShipment)
+
+	eTag := etag.GenerateEtag(now)
+
+	suite.NotNil(result)
+	// expecting empty string on the response side to simulate nothing was provided.
+	suite.Equal(result.DestinationAddress.StreetAddress1, models.StringPointer(""))
+	suite.Equal(result.DestinationAddress.StreetAddress2, ppmShipment.DestinationAddress.StreetAddress2)
+	suite.Equal(result.DestinationAddress.StreetAddress3, ppmShipment.DestinationAddress.StreetAddress3)
+	suite.Equal(*result.DestinationAddress.City, ppmShipment.DestinationAddress.City)
+	suite.Equal(*result.DestinationAddress.State, ppmShipment.DestinationAddress.State)
+	suite.Equal(*result.DestinationAddress.PostalCode, ppmShipment.DestinationAddress.PostalCode)
+	suite.Equal(*result.DestinationAddress.County, ppmShipment.DestinationAddress.County)
+	suite.Equal(result.DestinationAddress.ETag, eTag)
 }
 
 func (suite *PayloadsSuite) TestMTOServiceItem() {
@@ -694,6 +730,76 @@ func (suite *PayloadsSuite) TestMTOServiceItemDCRT() {
 
 	_, ok := resultDCRT.(*primev3messages.MTOServiceItemDomesticCrating)
 
+	suite.True(ok)
+}
+
+func (suite *PayloadsSuite) TestMTOServiceItemICRTandIUCRT() {
+	icrtReServiceCode := models.ReServiceCodeICRT
+	iucrtReServiceCode := models.ReServiceCodeIUCRT
+	reason := "reason"
+	standaloneCrate := false
+	externalCrate := false
+	dateOfContact1 := time.Now()
+	timeMilitary1 := "1500Z"
+	firstAvailableDeliveryDate1 := dateOfContact1.AddDate(0, 0, 10)
+	dateOfContact2 := time.Now().AddDate(0, 0, 5)
+	timeMilitary2 := "1300Z"
+	firstAvailableDeliveryDate2 := dateOfContact2.AddDate(0, 0, 10)
+
+	mtoServiceItemICRT := &models.MTOServiceItem{
+		ID:              uuid.Must(uuid.NewV4()),
+		ReService:       models.ReService{Code: icrtReServiceCode},
+		Reason:          &reason,
+		StandaloneCrate: &standaloneCrate,
+		ExternalCrate:   &externalCrate,
+		CustomerContacts: models.MTOServiceItemCustomerContacts{
+			models.MTOServiceItemCustomerContact{
+				DateOfContact:              dateOfContact1,
+				TimeMilitary:               timeMilitary1,
+				FirstAvailableDeliveryDate: firstAvailableDeliveryDate1,
+				Type:                       models.CustomerContactTypeFirst,
+			},
+			models.MTOServiceItemCustomerContact{
+				DateOfContact:              dateOfContact2,
+				TimeMilitary:               timeMilitary2,
+				FirstAvailableDeliveryDate: firstAvailableDeliveryDate2,
+				Type:                       models.CustomerContactTypeSecond,
+			},
+		},
+	}
+
+	mtoServiceItemIUCRT := &models.MTOServiceItem{
+		ID:              uuid.Must(uuid.NewV4()),
+		ReService:       models.ReService{Code: iucrtReServiceCode},
+		Reason:          &reason,
+		StandaloneCrate: &standaloneCrate,
+		ExternalCrate:   &externalCrate,
+		CustomerContacts: models.MTOServiceItemCustomerContacts{
+			models.MTOServiceItemCustomerContact{
+				DateOfContact:              dateOfContact1,
+				TimeMilitary:               timeMilitary1,
+				FirstAvailableDeliveryDate: firstAvailableDeliveryDate1,
+				Type:                       models.CustomerContactTypeFirst,
+			},
+			models.MTOServiceItemCustomerContact{
+				DateOfContact:              dateOfContact2,
+				TimeMilitary:               timeMilitary2,
+				FirstAvailableDeliveryDate: firstAvailableDeliveryDate2,
+				Type:                       models.CustomerContactTypeSecond,
+			},
+		},
+	}
+
+	resultICRT := MTOServiceItem(mtoServiceItemICRT)
+	resultIUCRT := MTOServiceItem(mtoServiceItemIUCRT)
+
+	suite.NotNil(resultICRT)
+	suite.NotNil(resultIUCRT)
+
+	_, ok := resultICRT.(*primev3messages.MTOServiceItemInternationalCrating)
+	suite.True(ok)
+
+	_, ok = resultIUCRT.(*primev3messages.MTOServiceItemInternationalCrating)
 	suite.True(ok)
 }
 

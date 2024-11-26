@@ -38,7 +38,7 @@ import { milmoveLogger } from 'utils/milmoveLog';
 import ConnectedFlashMessage from 'containers/FlashMessage/FlashMessage';
 import CustomerSearchForm from 'components/CustomerSearchForm/CustomerSearchForm';
 
-const HeadquartersQueue = () => {
+const HeadquartersQueue = ({ isQueueManagementFFEnabled }) => {
   const navigate = useNavigate();
   const { queueType } = useParams();
   const [search, setSearch] = useState({ moveCode: null, dodID: null, customerName: null, paymentRequestCode: null });
@@ -237,7 +237,7 @@ const HeadquartersQueue = () => {
           defaultSortedColumns={[{ id: 'status', desc: false }]}
           disableMultiSort
           disableSortBy={false}
-          columns={tooQueueColumns(moveLockFlag, showBranchFilter)}
+          columns={tooQueueColumns(moveLockFlag, isQueueManagementFFEnabled, showBranchFilter)}
           title="All moves"
           handleClick={handleClickNavigateToDetails}
           useQueries={useMovesQueueQueries}
@@ -264,7 +264,7 @@ const HeadquartersQueue = () => {
           defaultSortedColumns={[{ id: 'age', desc: true }]}
           disableMultiSort
           disableSortBy={false}
-          columns={tioQueueColumns(moveLockFlag, showBranchFilter)}
+          columns={tioQueueColumns(moveLockFlag, isQueueManagementFFEnabled, showBranchFilter)}
           title="Payment requests"
           handleClick={handleClickNavigateToPaymentRequests}
           useQueries={usePaymentRequestQueueQueries}
@@ -291,7 +291,7 @@ const HeadquartersQueue = () => {
           defaultSortedColumns={[{ id: 'closeoutInitiated', desc: false }]}
           disableMultiSort
           disableSortBy={false}
-          columns={closeoutColumns(moveLockFlag, inPPMCloseoutGBLOC)}
+          columns={closeoutColumns(moveLockFlag, inPPMCloseoutGBLOC, null, null, isQueueManagementFFEnabled)}
           title="Moves"
           handleClick={handleClickNavigateToDetails}
           useQueries={useServicesCounselingQueuePPMQueries}
@@ -319,7 +319,7 @@ const HeadquartersQueue = () => {
           defaultSortedColumns={[{ id: 'submittedAt', desc: false }]}
           disableMultiSort
           disableSortBy={false}
-          columns={counselingColumns(moveLockFlag)}
+          columns={counselingColumns(moveLockFlag, null, null, isQueueManagementFFEnabled)}
           title="Moves"
           handleClick={handleClickNavigateToDetails}
           useQueries={useServicesCounselingQueueQueries}

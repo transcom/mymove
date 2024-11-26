@@ -308,7 +308,7 @@ describe('ServicesCounselingQueue', () => {
     it('formats the move data in rows', () => {
       const moves = wrapper.find('tbody tr');
       const firstMove = moves.at(0);
-      expect(firstMove.find('td.lastName').text()).toBe('test last, test first');
+      expect(firstMove.find('td.customerName').text()).toBe('test last, test first');
       expect(firstMove.find('td.dodID').text()).toBe('555555555');
       expect(firstMove.find('td.locator').text()).toBe('AB5PC');
       expect(firstMove.find('td.status').text()).toBe('Needs counseling');
@@ -320,7 +320,7 @@ describe('ServicesCounselingQueue', () => {
       expect(firstMove.find('td.assignedTo').text()).toBe('John, Jimmy');
 
       const secondMove = moves.at(1);
-      expect(secondMove.find('td.lastName').text()).toBe('test another last, test another first');
+      expect(secondMove.find('td.customerName').text()).toBe('test another last, test another first');
       expect(secondMove.find('td.dodID').text()).toBe('4444444444');
       expect(secondMove.find('td.emplid').text()).toBe('4521567');
       expect(secondMove.find('td.locator').text()).toBe('T12AR');
@@ -333,7 +333,7 @@ describe('ServicesCounselingQueue', () => {
       expect(secondMove.find('td.assignedTo').text()).toBe('Denver, John');
 
       const thirdMove = moves.at(2);
-      expect(thirdMove.find('td.lastName').text()).toBe('test third last, test third first');
+      expect(thirdMove.find('td.customerName').text()).toBe('test third last, test third first');
       expect(thirdMove.find('td.dodID').text()).toBe('4444444444');
       expect(thirdMove.find('td.locator').text()).toBe('T12MP');
       expect(thirdMove.find('td.status').text()).toBe('Needs counseling');
@@ -350,7 +350,7 @@ describe('ServicesCounselingQueue', () => {
     });
 
     it('allows sorting on certain columns', () => {
-      expect(wrapper.find('th[data-testid="lastName"][role="columnheader"]').prop('onClick')).not.toBe(undefined);
+      expect(wrapper.find('th[data-testid="customerName"][role="columnheader"]').prop('onClick')).not.toBe(undefined);
       expect(wrapper.find('th[data-testid="dodID"][role="columnheader"]').prop('onClick')).not.toBe(undefined);
       expect(wrapper.find('th[data-testid="emplid"][role="columnheader"]').prop('onClick')).not.toBe(undefined);
       expect(wrapper.find('th[data-testid="locator"][role="columnheader"]').prop('onClick')).not.toBe(undefined);
@@ -378,7 +378,7 @@ describe('ServicesCounselingQueue', () => {
   describe('verify cached filters are displayed in respective filter column header on page reload -  Service Counselor', () => {
     window.sessionStorage.setItem(
       OFFICE_TABLE_QUEUE_SESSION_STORAGE_ID,
-      '{"counseling":{"filters":[{"id":"lastName","value":"Spacemen"},{"id":"dodID","value":"7232607949"},{"id":"locator","value":"PPMADD"},{"id":"requestedMoveDate","value":"2024-06-21"},{"id":"submittedAt","value":"2024-06-20T04:00:00+00:00"},{"id":"branch","value":"ARMY"},{"id":"originDutyLocation","value":"12345"}], "sortParam":[{"id":"lastName","desc":false}], "page":3,"pageSize":10}}',
+      '{"counseling":{"filters":[{"id":"customerName","value":"Spacemen"},{"id":"dodID","value":"7232607949"},{"id":"locator","value":"PPMADD"},{"id":"requestedMoveDate","value":"2024-06-21"},{"id":"submittedAt","value":"2024-06-20T04:00:00+00:00"},{"id":"branch","value":"ARMY"},{"id":"originDutyLocation","value":"12345"}], "sortParam":[{"id":"customerName","desc":false}], "page":3,"pageSize":10}}',
     );
     useUserQueries.mockReturnValue(serviceCounselorUser);
 
@@ -414,7 +414,7 @@ describe('ServicesCounselingQueue', () => {
 
     // Verify controls are using cached data on load.
     // If any of these fail check setup data window.sessionStorage.setItem()
-    expect(wrapper.find('th[data-testid="lastName"] input').instance().value).toBe('Spacemen');
+    expect(wrapper.find('th[data-testid="customerName"] input').instance().value).toBe('Spacemen');
     expect(wrapper.find('th[data-testid="dodID"] input').instance().value).toBe('7232607949');
     expect(wrapper.find('th[data-testid="locator"] input').instance().value).toBe('PPMADD');
     expect(wrapper.find('th[data-testid="requestedMoveDate"] input').instance().value).toBe('21 Jun 2024');
@@ -423,7 +423,9 @@ describe('ServicesCounselingQueue', () => {
     expect(wrapper.find('th[data-testid="branch"] select').instance().value).toBe('ARMY');
     expect(wrapper.find('[data-testid="pagination"] select[id="table-rows-per-page"]').instance().value).toBe('10');
     expect(wrapper.find('[data-testid="pagination"] select[id="table-pagination"]').instance().value).toBe('2');
-    expect(wrapper.find('th[data-testid="lastName"][role="columnheader"]').instance().className).toBe('sortAscending');
+    expect(wrapper.find('th[data-testid="customerName"][role="columnheader"]').instance().className).toBe(
+      'sortAscending',
+    );
   });
 
   describe('filter sessionStorage filters - no cache-  Service Counselor', () => {
@@ -435,7 +437,7 @@ describe('ServicesCounselingQueue', () => {
         <ServicesCounselingQueue />
       </MockProviders>,
     );
-    expect(wrapper.find('th[data-testid="lastName"] input').instance().value).toBe('');
+    expect(wrapper.find('th[data-testid="customerName"] input').instance().value).toBe('');
     expect(wrapper.find('th[data-testid="dodID"] input').instance().value).toBe('');
     expect(wrapper.find('th[data-testid="locator"] input').instance().value).toBe('');
     expect(wrapper.find('th[data-testid="requestedMoveDate"] input').instance().value).toBe('');
@@ -506,6 +508,7 @@ describe('ServicesCounselingQueue', () => {
           expect(screen.getByText(/Full or partial PPM/)).toBeInTheDocument();
           expect(screen.getByText(/Destination duty location/)).toBeInTheDocument();
           expect(screen.getByText(/Status/)).toBeInTheDocument();
+          expect(screen.getByText(/Assigned/)).toBeInTheDocument();
         } else {
           // Check for the "Search" tab
           const searchActive = screen.getByText('Search', { selector: '.usa-current .tab-title' });
