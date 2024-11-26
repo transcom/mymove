@@ -855,25 +855,6 @@ describe('MtoShipmentForm component', () => {
       );
       renderMtoShipmentForm({ isCreatePage: false, mtoShipment: mockMtoShipment });
 
-      // const pickupAddress1Input = screen.getAllByLabelText(/Address 1/)[0];
-      // await userEvent.clear(pickupAddress1Input);
-      // await userEvent.type(pickupAddress1Input, shipmentInfo.pickupAddress.streetAddress1);
-
-      // const pickupAddress2Input = screen.getAllByLabelText(/Address 2/)[0];
-      // await userEvent.clear(pickupAddress2Input);
-      // await userEvent.type(pickupAddress2Input, shipmentInfo.pickupAddress.streetAddress2);
-
-      // const pickupCityInput = screen.getAllByLabelText(/City/)[0];
-      // await userEvent.clear(pickupCityInput);
-      // await userEvent.type(pickupCityInput, shipmentInfo.pickupAddress.city);
-
-      // const pickupStateInput = screen.getAllByLabelText(/State/)[0];
-      // await userEvent.selectOptions(pickupStateInput, shipmentInfo.pickupAddress.state);
-
-      // const pickupPostalCodeInput = screen.getAllByLabelText(/ZIP/)[0];
-      // await userEvent.clear(pickupPostalCodeInput);
-      // await userEvent.type(pickupPostalCodeInput, shipmentInfo.pickupAddress.postalCode);
-
       const saveButton = await screen.findByRole('button', { name: 'Save' });
       expect(saveButton).not.toBeDisabled();
       await userEvent.click(saveButton);

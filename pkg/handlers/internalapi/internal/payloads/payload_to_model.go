@@ -22,7 +22,7 @@ func AddressModel(address *internalmessages.Address) *models.Address {
 		address.County = models.StringPointer("")
 	}
 
-	usprcID := uuid.FromStringOrNil(address.UsprcID.String())
+	usPostRegionCitiesID := uuid.FromStringOrNil(address.UsPostRegionCitiesID.String())
 
 	return &models.Address{
 		ID:                 uuid.FromStringOrNil(address.ID.String()),
@@ -32,8 +32,8 @@ func AddressModel(address *internalmessages.Address) *models.Address {
 		City:               *address.City,
 		State:              *address.State,
 		PostalCode:         *address.PostalCode,
-		County:             *address.County,
-		UsPostRegionCityId: &usprcID,
+		County:             address.County,
+		UsPostRegionCityId: &usPostRegionCitiesID,
 	}
 }
 
@@ -67,7 +67,7 @@ func PPMDestinationAddressModel(address *internalmessages.PPMDestinationAddress)
 		City:           *address.City,
 		State:          *address.State,
 		PostalCode:     *address.PostalCode,
-		County:         *address.County,
+		County:         address.County,
 	}
 	if address.StreetAddress1 != nil && len(strings.Trim(*address.StreetAddress1, " ")) > 0 {
 		addressModel.StreetAddress1 = *address.StreetAddress1

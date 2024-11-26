@@ -87,12 +87,31 @@ func FindLocationsByZipCity(appCtx appcontext.AppContext, search string) (models
 		isAlaskaEnabled = flag.Match
 	}
 
+	isHawaiiEnabled := false
+	featureFlagName = "enable_hawaii"
+	config = cli.GetFliptFetcherConfig(viper.GetViper())
+	flagFetcher, err = featureflag.NewFeatureFlagFetcher(config)
+	if err != nil {
+		appCtx.Logger().Error("Error initializing FeatureFlagFetcher", zap.String("featureFlagKey", featureFlagName), zap.Error(err))
+	}
+
+	flag, err = flagFetcher.GetBooleanFlagForUser(context.TODO(), appCtx, featureFlagName, map[string]string{})
+	if err != nil {
+		appCtx.Logger().Error("Error fetching feature flag", zap.String("featureFlagKey", featureFlagName), zap.Error(err))
+	} else {
+		isHawaiiEnabled = flag.Match
+	}
+
 	sqlQuery := `SELECT vl.city_name, vl.state, vl.usprc_county_nm, vl.uspr_zip_id, vl.uprc_id
 	FROM v_locations vl where vl.uspr_zip_id like ? AND
 	vl.city_name like upper(?) AND vl.state like upper(?) `
 
 	if !isAlaskaEnabled {
-		sqlQuery += ` AND vl.state NOT in ('AK','HI')`
+		sqlQuery += ` AND vl.state NOT in ('AK')`
+	}
+
+	if !isHawaiiEnabled {
+		sqlQuery += ` AND vl.state NOT in ('HI')`
 	}
 
 	sqlQuery += ` limit 30`

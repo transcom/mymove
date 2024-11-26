@@ -36,13 +36,13 @@ func init() {
   },
   "basePath": "/ghc/v1",
   "paths": {
-    "/addresses/zip_city_lookup/{search}": {
+    "/addresses/zip-city-lookup/{search}": {
       "get": {
-        "description": "Find by API using full/partial Postal Code or City name that returns an us_post_region_cities json object containing city, state, county and postal code.",
+        "description": "Find by API using full/partial postal code or city name that returns an us_post_region_cities json object containing city, state, county and postal code.",
         "tags": [
           "addresses"
         ],
-        "summary": "Returns City, State, Postal Code, and County associated with the specified full/partial Postal Code or City and State string",
+        "summary": "Returns city, state, postal code, and county associated with the specified full/partial postal code or city and state string",
         "operationId": "getLocationByZipCityState",
         "parameters": [
           {
@@ -60,16 +60,16 @@ func init() {
             }
           },
           "400": {
-            "description": "invalid request"
+            "$ref": "#/responses/InvalidRequest"
           },
           "403": {
-            "description": "not authorized"
+            "$ref": "#/responses/PermissionDenied"
           },
           "404": {
-            "description": "not found"
+            "$ref": "#/responses/NotFound"
           },
           "500": {
-            "description": "server error"
+            "$ref": "#/responses/ServerError"
           }
         }
       }
@@ -6457,7 +6457,7 @@ func init() {
           "x-nullable": true,
           "example": "Montmârtre"
         },
-        "usprcId": {
+        "usPostRegionCitiesID": {
           "type": "string",
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
@@ -9025,6 +9025,10 @@ func init() {
           "x-formatting": "weight",
           "x-nullable": true,
           "example": 2500
+        },
+        "externalCrate": {
+          "type": "boolean",
+          "x-nullable": true
         },
         "feeType": {
           "type": "string",
@@ -14878,13 +14882,13 @@ func init() {
   },
   "basePath": "/ghc/v1",
   "paths": {
-    "/addresses/zip_city_lookup/{search}": {
+    "/addresses/zip-city-lookup/{search}": {
       "get": {
-        "description": "Find by API using full/partial Postal Code or City name that returns an us_post_region_cities json object containing city, state, county and postal code.",
+        "description": "Find by API using full/partial postal code or city name that returns an us_post_region_cities json object containing city, state, county and postal code.",
         "tags": [
           "addresses"
         ],
-        "summary": "Returns City, State, Postal Code, and County associated with the specified full/partial Postal Code or City and State string",
+        "summary": "Returns city, state, postal code, and county associated with the specified full/partial postal code or city and state string",
         "operationId": "getLocationByZipCityState",
         "parameters": [
           {
@@ -14902,16 +14906,28 @@ func init() {
             }
           },
           "400": {
-            "description": "invalid request"
+            "description": "The request payload is invalid",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
           },
           "403": {
-            "description": "not authorized"
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
           },
           "404": {
-            "description": "not found"
+            "description": "The requested resource wasn't found",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
           },
           "500": {
-            "description": "server error"
+            "description": "A server error occurred",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
           }
         }
       }
@@ -22809,7 +22825,7 @@ func init() {
           "x-nullable": true,
           "example": "Montmârtre"
         },
-        "usprcId": {
+        "usPostRegionCitiesID": {
           "type": "string",
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
@@ -25381,6 +25397,10 @@ func init() {
           "x-formatting": "weight",
           "x-nullable": true,
           "example": 2500
+        },
+        "externalCrate": {
+          "type": "boolean",
+          "x-nullable": true
         },
         "feeType": {
           "type": "string",

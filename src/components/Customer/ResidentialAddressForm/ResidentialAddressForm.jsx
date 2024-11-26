@@ -69,7 +69,7 @@ ResidentialAddressForm.propTypes = {
     state: PropTypes.func,
     postalCode: PropTypes.func,
     county: PropTypes.func,
-    usprcId: PropTypes.func,
+    usPostRegionCitiesID: PropTypes.func,
   }),
 };
 
