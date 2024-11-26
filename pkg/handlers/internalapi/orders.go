@@ -353,16 +353,36 @@ func (h UpdateOrdersHandler) Handle(params ordersop.UpdateOrdersParams) middlewa
 			}
 
 			payload := params.UpdateOrders
-			dutyLocationID, err := uuid.FromString(payload.NewDutyLocationID.String())
+
+			originDutyLocationID, err := uuid.FromString(payload.OriginDutyLocationID.String())
 			if err != nil {
 				return handlers.ResponseForError(appCtx.Logger(), err), err
 			}
-			dutyLocation, err := models.FetchDutyLocation(appCtx.DB(), dutyLocationID)
+			originDutyLocation, err := models.FetchDutyLocation(appCtx.DB(), originDutyLocationID)
 			if err != nil {
 				return handlers.ResponseForError(appCtx.Logger(), err), err
 			}
 
-			newDutyLocationGBLOC, err := models.FetchGBLOCForPostalCode(appCtx.DB(), dutyLocation.Address.PostalCode)
+			destinationDutyLocationID, err := uuid.FromString(payload.NewDutyLocationID.String())
+			if err != nil {
+				return handlers.ResponseForError(appCtx.Logger(), err), err
+			}
+			destinationDutyLocation, err := models.FetchDutyLocation(appCtx.DB(), destinationDutyLocationID)
+			if err != nil {
+				return handlers.ResponseForError(appCtx.Logger(), err), err
+			}
+
+			originGBLOC, originGBLOCerr := models.FetchGBLOCForPostalCode(appCtx.DB(), originDutyLocation.Address.PostalCode)
+			if originGBLOCerr != nil {
+				return handlers.ResponseForError(appCtx.Logger(), originGBLOCerr), originGBLOCerr
+			}
+
+			order.OriginDutyLocationGBLOC = &originGBLOC.GBLOC
+			if originGBLOCerr != nil {
+				return handlers.ResponseForError(appCtx.Logger(), originGBLOCerr), originGBLOCerr
+			}
+
+			newDutyLocationGBLOC, err := models.FetchGBLOCForPostalCode(appCtx.DB(), destinationDutyLocation.Address.PostalCode)
 			if err != nil {
 				err = apperror.NewBadDataError("New duty location GBLOC cannot be verified")
 				appCtx.Logger().Error(err.Error())
@@ -419,8 +439,10 @@ func (h UpdateOrdersHandler) Handle(params ordersop.UpdateOrdersParams) middlewa
 			order.OrdersTypeDetail = payload.OrdersTypeDetail
 			order.HasDependents = *payload.HasDependents
 			order.SpouseHasProGear = *payload.SpouseHasProGear
-			order.NewDutyLocationID = dutyLocation.ID
-			order.NewDutyLocation = dutyLocation
+			order.OriginDutyLocationID = &originDutyLocation.ID
+			order.OriginDutyLocation = &originDutyLocation
+			order.NewDutyLocationID = destinationDutyLocation.ID
+			order.NewDutyLocation = destinationDutyLocation
 			order.DestinationGBLOC = &newDutyLocationGBLOC.GBLOC
 			order.TAC = payload.Tac
 			order.SAC = payload.Sac
