@@ -305,7 +305,7 @@ func (suite *TransportationOfficeServiceSuite) Test_Oconus_AK_FindCounselingOffi
 			City:               "SomeCity",
 			State:              "AK",
 			PostalCode:         postalCode,
-			County:             "SomeCounty",
+			County:             models.StringPointer("SomeCounty"),
 			IsOconus:           models.BoolPointer(true),
 			UsPostRegionCityId: &usprc.ID,
 			CountryId:          models.UUIDPointer(us_country.ID),
