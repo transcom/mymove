@@ -1870,6 +1870,7 @@ func MTOServiceItemModel(s *models.MTOServiceItem, storer storage.FileStorer) *g
 		SitDeliveryMiles:              handlers.FmtIntPtrToInt64(s.SITDeliveryMiles),
 		EstimatedPrice:                handlers.FmtCost(s.PricingEstimate),
 		StandaloneCrate:               s.StandaloneCrate,
+		ExternalCrate:                 s.ExternalCrate,
 		LockedPriceCents:              handlers.FmtCost(s.LockedPriceCents),
 	}
 }
