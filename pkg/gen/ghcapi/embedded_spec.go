@@ -7529,26 +7529,6 @@ func init() {
         }
       }
     },
-    "CreateViolationAppeal": {
-      "description": "Appeal status and remarks left for a violation, created by a GSR user.",
-      "type": "object",
-      "properties": {
-        "appealStatus": {
-          "description": "The status of the appeal set by the GSR user",
-          "type": "string",
-          "enum": [
-            "sustained",
-            "rejected"
-          ],
-          "example": "These are my violation appeal remarks"
-        },
-        "remarks": {
-          "description": "Remarks left by the GSR user",
-          "type": "string",
-          "example": "These are my violation appeal remarks"
-        }
-      }
-    },
     "CreatedCustomer": {
       "type": "object",
       "properties": {
@@ -8029,10 +8009,6 @@ func init() {
       "description": "An evaluation report",
       "type": "object",
       "properties": {
-        "ReportViolations": {
-          "x-nullable": true,
-          "$ref": "#/definitions/ReportViolations"
-        },
         "createdAt": {
           "type": "string",
           "format": "date-time",
@@ -8133,6 +8109,10 @@ func init() {
         "remarks": {
           "type": "string",
           "x-nullable": true
+        },
+        "reportViolations": {
+          "x-nullable": true,
+          "$ref": "#/definitions/ReportViolations"
         },
         "seriousIncident": {
           "type": "boolean",
@@ -9067,6 +9047,10 @@ func init() {
           "x-formatting": "weight",
           "x-nullable": true,
           "example": 2500
+        },
+        "externalCrate": {
+          "type": "boolean",
+          "x-nullable": true
         },
         "feeType": {
           "type": "string",
@@ -23802,26 +23786,6 @@ func init() {
         }
       }
     },
-    "CreateViolationAppeal": {
-      "description": "Appeal status and remarks left for a violation, created by a GSR user.",
-      "type": "object",
-      "properties": {
-        "appealStatus": {
-          "description": "The status of the appeal set by the GSR user",
-          "type": "string",
-          "enum": [
-            "sustained",
-            "rejected"
-          ],
-          "example": "These are my violation appeal remarks"
-        },
-        "remarks": {
-          "description": "Remarks left by the GSR user",
-          "type": "string",
-          "example": "These are my violation appeal remarks"
-        }
-      }
-    },
     "CreatedCustomer": {
       "type": "object",
       "properties": {
@@ -24302,10 +24266,6 @@ func init() {
       "description": "An evaluation report",
       "type": "object",
       "properties": {
-        "ReportViolations": {
-          "x-nullable": true,
-          "$ref": "#/definitions/ReportViolations"
-        },
         "createdAt": {
           "type": "string",
           "format": "date-time",
@@ -24406,6 +24366,10 @@ func init() {
         "remarks": {
           "type": "string",
           "x-nullable": true
+        },
+        "reportViolations": {
+          "x-nullable": true,
+          "$ref": "#/definitions/ReportViolations"
         },
         "seriousIncident": {
           "type": "boolean",
@@ -25340,6 +25304,10 @@ func init() {
           "x-formatting": "weight",
           "x-nullable": true,
           "example": 2500
+        },
+        "externalCrate": {
+          "type": "boolean",
+          "x-nullable": true
         },
         "feeType": {
           "type": "string",
