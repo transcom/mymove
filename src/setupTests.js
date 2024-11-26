@@ -19,5 +19,5 @@ global.performance = {
 };
 
 jestPreviewConfigure({
-  autoPreview: true,
+  autoPreview: false,
 });
