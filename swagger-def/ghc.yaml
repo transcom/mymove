@@ -6962,8 +6962,6 @@ definitions:
         type: string
       firstName:
         type: string
-      hasSafetyPrivilege:
-        type: boolean
   QueueMoves:
     type: array
     items:
