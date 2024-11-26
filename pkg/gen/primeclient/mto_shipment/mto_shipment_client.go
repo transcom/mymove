@@ -319,9 +319,9 @@ func (a *Client) UpdateMTOShipment(params *UpdateMTOShipmentParams, opts ...Clie
 
 	### Functionality
 
-This endpoint is used to **update** the pickup, secondary, and destination addresses on an MTO Shipment. mto-shipments/{mtoShipmentID}/shipment-address-updates is for updating a delivery address. The address details completely replace the original, except for the UUID.
+This endpoint is used to **update** the pickup, secondary, and delivery addresses on an MTO Shipment. mto-shipments/{mtoShipmentID}/shipment-address-updates is for updating a delivery address. The address details completely replace the original, except for the UUID.
 Therefore a complete address should be sent in the request.
-When a destination address on a shipment is updated, the destination SIT service items address ID will also be updated so that shipment and service item final destinations match.
+When a delivery address on a shipment is updated, the destination SIT service items address ID will also be updated so that shipment and service item final destinations match.
 
 This endpoint **cannot create** an address.
 To create an address on an MTO shipment, the caller must use [updateMTOShipment](#operation/updateMTOShipment) as the parent shipment has to be updated with the appropriate link to the address.
@@ -464,14 +464,14 @@ func (a *Client) UpdateReweigh(params *UpdateReweighParams, opts ...ClientOption
 
 	### Functionality
 
-This endpoint is used so the Prime can request an **update** for the destination address on an MTO Shipment,
-after the destination address has already been approved.
+This endpoint is used so the Prime can request an **update** for the delivery address on an MTO Shipment,
+after the delivery address has already been approved.
 
 This endpoint and operation only supports the following shipment types:
 - HHG
 - NTSR
 
-For HHG shipments, if automatically approved or TOO approves, this will update the final destination address values for destination SIT service items to be the same as the changed destination address that was approved.
+For HHG shipments, if automatically approved or TOO approves, this will update the final delivery address values for destination SIT service items to be the same as the changed delivery address that was approved.
 
 Address updates will be automatically approved unless they change:
   - The service area
