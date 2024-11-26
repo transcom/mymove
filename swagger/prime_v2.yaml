@@ -1616,7 +1616,7 @@ definitions:
         type: integer
         x-formatting: weight
         x-nullable: true
-      ubAllowance:
+      unaccompaniedBaggageAllowance:
         type: integer
         example: 3
         x-nullable: true
