@@ -840,7 +840,7 @@ func (suite *HandlerSuite) TestUpdateOrdersHandlerOriginPostalCodeAndGBLOC() {
 
 	fetchedPostalCode, err = fetchedOrder.GetOriginPostalCode(suite.DB())
 	suite.NoError(err)
-	fetchedGBLOC, err = fetchedOrder.GetOriginGBLOC(suite.DB())
+	fetchedGBLOC = *fetchedOrder.OriginDutyLocationGBLOC
 	suite.NoError(err)
 
 	suite.Equal("35023", fetchedPostalCode)
