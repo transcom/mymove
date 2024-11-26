@@ -24,6 +24,8 @@ func MoveTaskOrder(moveTaskOrder *models.Move) *primev3messages.MoveTaskOrder {
 	mtoServiceItems := MTOServiceItems(&moveTaskOrder.MTOServiceItems)
 	mtoShipments := MTOShipmentsWithoutServiceItems(&moveTaskOrder.MTOShipments)
 
+	setPortsOnShipments(&moveTaskOrder.MTOServiceItems, mtoShipments)
+
 	payload := &primev3messages.MoveTaskOrder{
 		ID:                         strfmt.UUID(moveTaskOrder.ID.String()),
 		MoveCode:                   moveTaskOrder.Locator,
@@ -1015,4 +1017,47 @@ func MTOShipment(mtoShipment *models.MTOShipment) *primev3messages.MTOShipment {
 	}
 
 	return payload
+}
+
+// Takes the Port Location from the MTO Service item and sets it on the MTOShipmentsWithoutServiceObjects payload
+func setPortsOnShipments(mtoServiceItems *models.MTOServiceItems, mtoShipments *primev3messages.MTOShipmentsWithoutServiceObjects) {
+	shipmentPodMap := make(map[string]*models.PortLocation)
+	shipmentPoeMap := make(map[string]*models.PortLocation)
+	for _, mtoServiceItem := range *mtoServiceItems {
+		if mtoServiceItem.PODLocation != nil {
+			shipmentPodMap[mtoServiceItem.MTOShipmentID.String()] = mtoServiceItem.PODLocation
+		} else if mtoServiceItem.POELocation != nil {
+			shipmentPoeMap[mtoServiceItem.MTOShipmentID.String()] = mtoServiceItem.POELocation
+		}
+	}
+	var podMapEmpty = len(shipmentPodMap) == 0
+	var poeMapEmpty = len(shipmentPoeMap) == 0
+	if !podMapEmpty || !poeMapEmpty {
+		for _, mtoShipment := range *mtoShipments {
+			if !podMapEmpty && shipmentPodMap[string(mtoShipment.ID)] != nil {
+				podLocation := shipmentPodMap[string(mtoShipment.ID)]
+				pod := getPortMessageFromPortLocation(podLocation)
+				mtoShipment.PortOfDebarkation = pod
+			} else if !poeMapEmpty && shipmentPoeMap[string(mtoShipment.ID)] != nil {
+				poeLocation := shipmentPoeMap[string(mtoShipment.ID)]
+				poe := getPortMessageFromPortLocation(poeLocation)
+				mtoShipment.PortOfEmbarkation = poe
+			}
+		}
+	}
+}
+
+// Convert a PortLocation model to Port message
+func getPortMessageFromPortLocation(portLocation *models.PortLocation) *primev3messages.Port {
+	return &primev3messages.Port{
+		ID:       strfmt.UUID(portLocation.ID.String()),
+		PortType: portLocation.Port.PortType.String(),
+		PortCode: portLocation.Port.PortCode,
+		PortName: portLocation.Port.PortName,
+		City:     portLocation.City.CityName,
+		County:   portLocation.UsPostRegionCity.UsprcCountyNm,
+		State:    portLocation.UsPostRegionCity.UsPostRegion.State.StateName,
+		Zip:      portLocation.UsPostRegionCity.UsprZipID,
+		Country:  portLocation.Country.CountryName,
+	}
 }

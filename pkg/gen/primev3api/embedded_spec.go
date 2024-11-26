@@ -1959,6 +1959,12 @@ func init() {
           "description": "Email or ID of the person who will be contacted in the event of questions or concerns about this update. May be the person performing the update, or someone else working with the Prime contractor.\n",
           "type": "string"
         },
+        "portOfDebarkation": {
+          "$ref": "#/definitions/Port"
+        },
+        "portOfEmbarkation": {
+          "$ref": "#/definitions/Port"
+        },
         "ppmShipment": {
           "$ref": "#/definitions/PPMShipment"
         },
@@ -2997,7 +3003,7 @@ func init() {
           "example": "Anchorage"
         },
         "portType": {
-          "description": "Port type A (Air), B(Border Crossing), S (Surface)",
+          "description": "Port type A (Air), B(Border Crossing), S (Sea)",
           "type": "string",
           "enum": [
             "A",
@@ -6179,6 +6185,12 @@ func init() {
           "description": "Email or ID of the person who will be contacted in the event of questions or concerns about this update. May be the person performing the update, or someone else working with the Prime contractor.\n",
           "type": "string"
         },
+        "portOfDebarkation": {
+          "$ref": "#/definitions/Port"
+        },
+        "portOfEmbarkation": {
+          "$ref": "#/definitions/Port"
+        },
         "ppmShipment": {
           "$ref": "#/definitions/PPMShipment"
         },
@@ -7217,7 +7229,7 @@ func init() {
           "example": "Anchorage"
         },
         "portType": {
-          "description": "Port type A (Air), B(Border Crossing), S (Surface)",
+          "description": "Port type A (Air), B(Border Crossing), S (Sea)",
           "type": "string",
           "enum": [
             "A",

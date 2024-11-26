@@ -46,7 +46,7 @@ type Port struct {
 	// Example: Anchorage
 	PortName string `json:"portName,omitempty"`
 
-	// Port type A (Air), B(Border Crossing), S (Surface)
+	// Port type A (Air), B(Border Crossing), S (Sea)
 	// Enum: [A P S]
 	PortType string `json:"portType,omitempty"`
 
