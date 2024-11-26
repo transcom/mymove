@@ -35,7 +35,12 @@ const OfficeLoggedInHeader = ({ officeUser, activeRole, logOut }) => {
 
   let queueText = '';
   const location = useLocation();
-  const validUnlockingOfficers = [roleTypes.QAE, roleTypes.CSR, roleTypes.GSR, roleTypes.HQ];
+  const validUnlockingOfficers = [
+    roleTypes.QAE,
+    roleTypes.CUSTOMER_SERVICE_REPRESENTATIVE,
+    roleTypes.GSR,
+    roleTypes.HQ,
+  ];
   if (activeRole === roleTypes.TOO) {
     queueText = 'moves';
   } else if (activeRole === roleTypes.TIO) {

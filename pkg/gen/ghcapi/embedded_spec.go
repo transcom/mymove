@@ -2799,7 +2799,7 @@ func init() {
     },
     "/moves/{officeUserID}/CheckForLockedMovesAndUnlock": {
       "patch": {
-        "description": "Finds and unlocks any locked moves by QAE,CSR, GSR, and headquarter officers",
+        "description": "Finds and unlocks any locked moves by an office user",
         "consumes": [
           "application/json"
         ],
@@ -2814,7 +2814,13 @@ func init() {
           "200": {
             "description": "Successfully unlocked officer's move(s).",
             "schema": {
-              "$ref": "#/definitions/UnlockedMoves"
+              "type": "object",
+              "properties": {
+                "successMessage": {
+                  "type": "string",
+                  "example": "OK"
+                }
+              }
             }
           },
           "500": {
@@ -13439,16 +13445,6 @@ func init() {
         "$ref": "#/definitions/TransportationOffice"
       }
     },
-    "UnlockedMoves": {
-      "type": "object",
-      "properties": {
-        "successMessage": {
-          "type": "string",
-          "format": "string",
-          "x-nullable": true
-        }
-      }
-    },
     "UpdateAllowancePayload": {
       "type": "object",
       "properties": {
@@ -18199,7 +18195,7 @@ func init() {
     },
     "/moves/{officeUserID}/CheckForLockedMovesAndUnlock": {
       "patch": {
-        "description": "Finds and unlocks any locked moves by QAE,CSR, GSR, and headquarter officers",
+        "description": "Finds and unlocks any locked moves by an office user",
         "consumes": [
           "application/json"
         ],
@@ -18214,7 +18210,13 @@ func init() {
           "200": {
             "description": "Successfully unlocked officer's move(s).",
             "schema": {
-              "$ref": "#/definitions/UnlockedMoves"
+              "type": "object",
+              "properties": {
+                "successMessage": {
+                  "type": "string",
+                  "example": "OK"
+                }
+              }
             }
           },
           "500": {
@@ -29782,16 +29784,6 @@ func init() {
       "type": "array",
       "items": {
         "$ref": "#/definitions/TransportationOffice"
-      }
-    },
-    "UnlockedMoves": {
-      "type": "object",
-      "properties": {
-        "successMessage": {
-          "type": "string",
-          "format": "string",
-          "x-nullable": true
-        }
       }
     },
     "UpdateAllowancePayload": {

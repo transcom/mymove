@@ -10,7 +10,6 @@ export const roleTypes = {
   CUSTOMER_SERVICE_REPRESENTATIVE: 'customer_service_representative',
   GSR: 'gsr',
   HQ: 'headquarters',
-  CSR: 'csr',
 };
 
 export const adminOfficeRoles = [

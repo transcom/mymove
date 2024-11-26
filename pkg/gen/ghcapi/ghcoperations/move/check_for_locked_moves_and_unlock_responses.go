@@ -26,7 +26,7 @@ type CheckForLockedMovesAndUnlockOK struct {
 	/*
 	  In: Body
 	*/
-	Payload *ghcmessages.UnlockedMoves `json:"body,omitempty"`
+	Payload *CheckForLockedMovesAndUnlockOKBody `json:"body,omitempty"`
 }
 
 // NewCheckForLockedMovesAndUnlockOK creates CheckForLockedMovesAndUnlockOK with default headers values
@@ -36,13 +36,13 @@ func NewCheckForLockedMovesAndUnlockOK() *CheckForLockedMovesAndUnlockOK {
 }
 
 // WithPayload adds the payload to the check for locked moves and unlock o k response
-func (o *CheckForLockedMovesAndUnlockOK) WithPayload(payload *ghcmessages.UnlockedMoves) *CheckForLockedMovesAndUnlockOK {
+func (o *CheckForLockedMovesAndUnlockOK) WithPayload(payload *CheckForLockedMovesAndUnlockOKBody) *CheckForLockedMovesAndUnlockOK {
 	o.Payload = payload
 	return o
 }
 
 // SetPayload sets the payload to the check for locked moves and unlock o k response
-func (o *CheckForLockedMovesAndUnlockOK) SetPayload(payload *ghcmessages.UnlockedMoves) {
+func (o *CheckForLockedMovesAndUnlockOK) SetPayload(payload *CheckForLockedMovesAndUnlockOKBody) {
 	o.Payload = payload
 }
 

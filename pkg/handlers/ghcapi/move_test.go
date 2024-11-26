@@ -7,9 +7,11 @@ import (
 	"time"
 
 	"github.com/go-openapi/strfmt"
+	"github.com/gofrs/uuid"
 	"github.com/stretchr/testify/mock"
 
 	"github.com/transcom/mymove/pkg/apperror"
+	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/etag"
 	"github.com/transcom/mymove/pkg/factory"
 	moveops "github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/move"
@@ -880,5 +882,87 @@ func (suite *HandlerSuite) TestUpdateAssignedOfficeUserHandler() {
 		suite.NoError(payload.Validate(strfmt.Default))
 
 		suite.Nil(payload.TIOAssignedUser)
+	})
+}
+
+func (suite *HandlerSuite) TestCheckForLockedMovesAndUnlockHandler() {
+	var validOfficeUser models.OfficeUser
+	var move models.Move
+
+	mockLocker := movelocker.NewMoveLocker()
+	setupLockedMove := func() {
+		appCtx := suite.AppContextWithSessionForTest(&auth.Session{
+			ApplicationName: auth.OfficeApp,
+			Roles:           validOfficeUser.User.Roles,
+			OfficeUserID:    validOfficeUser.ID,
+			IDToken:         "fake_token",
+			AccessToken:     "fakeAccessToken",
+			UserID:          validOfficeUser.ID,
+		})
+
+		validOfficeUser = factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
+		move = factory.BuildMove(suite.DB(), []factory.Customization{
+			{
+				Model: models.OfficeUser{
+					ID: validOfficeUser.ID,
+				},
+			},
+		}, nil)
+
+		move, err := mockLocker.LockMove(appCtx, &move, validOfficeUser.ID)
+
+		suite.NoError(err)
+		suite.NotNil(move.LockedByOfficeUserID)
+	}
+
+	setupTestData := func() (*http.Request, CheckForLockedMovesAndUnlockHandler) {
+		req := httptest.NewRequest("GET", "/moves/{officeUserID}/CheckForLockedMovesAndUnlock", nil)
+
+		handler := CheckForLockedMovesAndUnlockHandler{
+			HandlerConfig: suite.HandlerConfig(),
+			MoveUnlocker:  movelocker.NewMoveUnlocker(),
+		}
+
+		return req, handler
+	}
+	suite.PreloadData(setupLockedMove)
+
+	suite.Run("Successful unlocking of move", func() {
+		req, handler := setupTestData()
+
+		expectedPayloadMessage := "Successfully unlocked all move(s) for current office user"
+
+		officeUserID := strfmt.UUID(validOfficeUser.ID.String())
+		params := moveops.CheckForLockedMovesAndUnlockParams{
+			HTTPRequest:  req,
+			OfficeUserID: officeUserID,
+		}
+
+		handler.Handle(params)
+		suite.NotNil(move)
+
+		response := handler.Handle(params)
+		suite.IsType(&moveops.CheckForLockedMovesAndUnlockOK{}, response)
+		payload := response.(*moveops.CheckForLockedMovesAndUnlockOK).Payload
+		suite.NoError(payload.Validate(strfmt.Default))
+
+		actualMessage := payload.SuccessMessage
+		suite.Equal(expectedPayloadMessage, actualMessage)
+	})
+
+	suite.Run("Unsucceful unlocking of move - nil officerUserId", func() {
+		req, handler := setupTestData()
+
+		invalidOfficeUserID := strfmt.UUID(uuid.Nil.String())
+		params := moveops.CheckForLockedMovesAndUnlockParams{
+			HTTPRequest:  req,
+			OfficeUserID: invalidOfficeUserID,
+		}
+
+		handler.Handle(params)
+		response := handler.Handle(params)
+		suite.IsType(&moveops.CheckForLockedMovesAndUnlockInternalServerError{}, response)
+		payload := response.(*moveops.CheckForLockedMovesAndUnlockInternalServerError).Payload
+		suite.Nil(payload)
 	})
 }
