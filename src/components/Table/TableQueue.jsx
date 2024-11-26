@@ -117,10 +117,6 @@ const TableQueue = ({
     viewAsGBLOC: selectedGbloc,
   });
 
-  // console.log('||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||');
-  // console.log(data);
-  // console.log('||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||');
-
   // react-table setup below
   const defaultColumn = useMemo(
     () => ({
