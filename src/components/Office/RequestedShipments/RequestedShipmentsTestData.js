@@ -450,6 +450,49 @@ export const ordersInfo = {
   tacMDC: '',
   sacSDN: '',
 };
+export const ordersNoDocInfo = {
+  newDutyLocation: {
+    address: {
+      city: 'Augusta',
+      country: 'United States',
+      eTag: 'MjAyMC0wOC0wNlQxNDo1Mjo0MS45NDQ0ODla',
+      id: '5ac95be8-0230-47ea-90b4-b0f6f60de364',
+      postalCode: '30813',
+      state: 'GA',
+      streetAddress1: 'Fort Gordon',
+    },
+    address_id: '5ac95be8-0230-47ea-90b4-b0f6f60de364',
+    eTag: 'MjAyMC0wOC0wNlQxNDo1Mjo0MS45NDQ0ODla',
+    id: '2d5ada83-e09a-47f8-8de6-83ec51694a86',
+    name: 'Fort Gordon',
+  },
+  currentDutyLocation: {
+    address: {
+      city: 'Des Moines',
+      country: 'US',
+      eTag: 'MjAyMC0wOC0wNlQxNDo1MzozMC42NjEwODFa',
+      id: '37880d6d-2c78-47f1-a71b-53c0ea1a0107',
+      postalCode: '50309',
+      state: 'IA',
+      streetAddress1: '987 Other Avenue',
+      streetAddress2: 'P.O. Box 1234',
+      streetAddress3: 'c/o Another Person',
+    },
+    address_id: '37880d6d-2c78-47f1-a71b-53c0ea1a0107',
+    eTag: 'MjAyMC0wOC0wNlQxNDo1MzozMC42Njg5MDFa',
+    id: '07282a8f-a496-4648-ae24-119775eef57d',
+    name: 'vC6w22RPYC',
+  },
+  issuedDate: '2018-03-15',
+  reportByDate: '2018-08-01',
+  departmentIndicator: DEPARTMENT_INDICATOR_OPTIONS.COAST_GUARD,
+  ordersNumber: 'ORDER3',
+  ordersType: ORDERS_TYPE.PERMANENT_CHANGE_OF_STATION,
+  ordersTypeDetail: 'TBD',
+  ordersDocuments: [{}],
+  tacMDC: '',
+  sacSDN: '',
+};
 
 export const allowancesInfo = {
   branch: ORDERS_BRANCH_OPTIONS.NAVY,

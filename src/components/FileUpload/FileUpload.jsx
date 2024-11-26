@@ -35,6 +35,7 @@ const FileUpload = forwardRef(
       maxParralelUploads,
       fileValidateTypeLabelExpectedTypes,
       labelFileTypeNotAllowed,
+      fileUploadRequired,
     },
     ref,
   ) => {
@@ -90,6 +91,7 @@ const FileUpload = forwardRef(
     /* eslint-disable react/jsx-props-no-spreading */
     return (
       <FilePond
+        required={fileUploadRequired}
         ref={ref}
         {...filePondProps}
         className={className}
@@ -107,6 +109,7 @@ const FileUpload = forwardRef(
 );
 
 FileUpload.propTypes = {
+  fileUploadRequired: bool,
   name: string,
   className: string,
   createUpload: func,
@@ -123,6 +126,7 @@ FileUpload.propTypes = {
 };
 
 FileUpload.defaultProps = {
+  fileUploadRequired: false,
   name: 'file',
   className: null,
   createUpload: createUploadApi,

@@ -29,7 +29,7 @@ import { SHIPMENT_OPTIONS_URL, FEATURE_FLAG_KEYS } from 'shared/constants';
 import { setFlashMessage as setFlashMessageAction } from 'store/flash/actions';
 import { updateMTOShipment } from 'services/ghcApi';
 import { isBooleanFlagEnabled } from 'utils/featureFlags';
-
+import { useOrdersDocumentQueries } from 'hooks/queries';
 // nts defaults show preferred pickup date and pickup address, flagged items when collapsed
 // ntsr defaults shows preferred delivery date, storage facility address, delivery address, flagged items when collapsed
 // Different things show when collapsed depending on if the shipment is an external vendor or not.
@@ -102,6 +102,8 @@ const SubmittedRequestedShipments = ({
 
   const { moveCode } = useParams();
   const navigate = useNavigate();
+  const { upload } = useOrdersDocumentQueries(moveCode);
+  const hasOrderDocuments = Object.values(upload || {})?.filter((file) => !file.deletedAt)?.length > 0;
   const handleButtonDropdownChange = (e) => {
     const selectedOption = e.target.value;
 
@@ -254,12 +256,13 @@ const SubmittedRequestedShipments = ({
   };
 
   // if showing service items on a move with Prime shipments, enable button when shipment and service item are selected and there is no missing required Orders information
-  // if not showing service items on a move with Prime shipments, enable button if a shipment is selected and there is no missing required Orders information
+  // if not showing service items on a move with Prime shipments, enable button if a shipment is selected and there is no missing required Orders information/Order Documents
   const primeShipmentsForApproval = moveTaskOrder.availableToPrimeAt
-    ? formik.values.shipments.length > 0 && !missingRequiredOrdersInfo
+    ? formik.values.shipments.length > 0 && !missingRequiredOrdersInfo && hasOrderDocuments
     : formik.values.shipments.length > 0 &&
       (formik.values.counselingFee || formik.values.shipmentManagementFee) &&
-      !missingRequiredOrdersInfo;
+      !missingRequiredOrdersInfo &&
+      hasOrderDocuments;
 
   // on a move with only External Vendor shipments enable button if a service item is selected
   const externalVendorShipmentsOnly = formik.values.counselingFee || formik.values.shipmentManagementFee;

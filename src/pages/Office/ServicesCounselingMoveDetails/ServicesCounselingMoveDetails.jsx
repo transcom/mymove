@@ -22,7 +22,7 @@ import FinancialReviewModal from 'components/Office/FinancialReviewModal/Financi
 import CancelMoveConfirmationModal from 'components/ConfirmationModals/CancelMoveConfirmationModal';
 import ShipmentDisplay from 'components/Office/ShipmentDisplay/ShipmentDisplay';
 import { SubmitMoveConfirmationModal } from 'components/Office/SubmitMoveConfirmationModal/SubmitMoveConfirmationModal';
-import { useMoveDetailsQueries, useOrdersDocumentQueries } from 'hooks/queries';
+import { useMoveDetailsQueries } from 'hooks/queries';
 import {
   updateMoveStatusServiceCounselingCompleted,
   cancelMove,
@@ -78,19 +78,13 @@ const ServicesCounselingMoveDetails = ({
   const [enableMobileHome, setEnableMobileHome] = useState(false);
   const [enableUB, setEnableUB] = useState(false);
   const [isOconusMove, setIsOconusMove] = useState(false);
-  const { upload, amendedUpload } = useOrdersDocumentQueries(moveCode);
   const [errorMessage, setErrorMessage] = useState(null);
-  const documentsForViewer = Object.values(upload || {})
-    .concat(Object.values(amendedUpload || {}))
-    ?.filter((file) => {
-      return !file.deletedAt;
-    });
-  const hasDocuments = documentsForViewer?.length > 0;
 
   const { order, orderDocuments, customerData, move, closeoutOffice, mtoShipments, isLoading, isError, errors } =
     useMoveDetailsQueries(moveCode);
 
   const validOrdersDocuments = Object.values(orderDocuments || {})?.filter((file) => !file.deletedAt);
+  const hasDocuments = validOrdersDocuments?.length > 0;
 
   const { customer, entitlement: allowances, originDutyLocation, destinationDutyLocation } = order;
 

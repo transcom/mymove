@@ -8,11 +8,12 @@ import { ORDERS_TYPE, ORDERS_TYPE_DETAILS } from '../../../constants/orders';
 import MoveDetails from './MoveDetails';
 
 import { MockProviders } from 'testUtils';
-import { useMoveDetailsQueries } from 'hooks/queries';
+import { useMoveDetailsQueries, useOrdersDocumentQueries } from 'hooks/queries';
 import { permissionTypes } from 'constants/permissions';
 
 jest.mock('hooks/queries', () => ({
   useMoveDetailsQueries: jest.fn(),
+  useOrdersDocumentQueries: jest.fn(),
 }));
 
 const setUnapprovedShipmentCount = jest.fn();
@@ -820,6 +821,7 @@ describe('MoveDetails page', () => {
   describe('check loading and error component states', () => {
     it('renders the Loading Placeholder when the query is still loading', async () => {
       useMoveDetailsQueries.mockReturnValue(loadingReturnValue);
+      useOrdersDocumentQueries.mockReturnValue(loadingReturnValue);
 
       render(
         <MockProviders>
@@ -841,6 +843,7 @@ describe('MoveDetails page', () => {
 
     it('renders the Something Went Wrong component when the query errors', async () => {
       useMoveDetailsQueries.mockReturnValue(errorReturnValue);
+      useOrdersDocumentQueries.mockReturnValue(errorReturnValue);
 
       render(
         <MockProviders>
@@ -862,6 +865,7 @@ describe('MoveDetails page', () => {
   });
   describe('requested shipment', () => {
     useMoveDetailsQueries.mockReturnValue(requestedMoveDetailsQuery);
+    useOrdersDocumentQueries.mockReturnValue(requestedMoveDetailsQuery);
 
     const wrapper = mount(
       <MockProviders>
@@ -931,6 +935,7 @@ describe('MoveDetails page', () => {
 
   describe('retiree move with shipment', () => {
     useMoveDetailsQueries.mockReturnValue(requestedMoveDetailsQueryRetiree);
+    useOrdersDocumentQueries.mockReturnValue(requestedMoveDetailsQueryRetiree);
 
     const wrapper = mount(
       <MockProviders>
@@ -954,6 +959,7 @@ describe('MoveDetails page', () => {
 
   describe('requested shipment with amended orders', () => {
     useMoveDetailsQueries.mockReturnValue(requestedMoveDetailsAmendedOrdersQuery);
+    useOrdersDocumentQueries.mockReturnValue(requestedMoveDetailsAmendedOrdersQuery);
 
     const wrapper = mount(
       <MockProviders>
@@ -980,6 +986,7 @@ describe('MoveDetails page', () => {
 
   describe('requested and approved shipment', () => {
     useMoveDetailsQueries.mockReturnValue(requestedAndApprovedMoveDetailsQuery);
+    useOrdersDocumentQueries.mockReturnValue(requestedAndApprovedMoveDetailsQuery);
 
     const wrapper = mount(
       <MockProviders>
@@ -1022,6 +1029,7 @@ describe('MoveDetails page', () => {
       'renders side navigation for section %s',
       async (sectionName) => {
         useMoveDetailsQueries.mockReturnValue(approvedMoveDetailsQuery);
+        useOrdersDocumentQueries.mockReturnValue(approvedMoveDetailsQuery);
 
         render(
           <MockProviders>
@@ -1044,6 +1052,7 @@ describe('MoveDetails page', () => {
 
   describe('When required Orders information (like TAC) is missing', () => {
     useMoveDetailsQueries.mockReturnValue(requestedMoveDetailsMissingInfoQuery);
+    useOrdersDocumentQueries.mockReturnValue(requestedMoveDetailsMissingInfoQuery);
 
     const wrapper = mount(
       <MockProviders>
@@ -1067,6 +1076,7 @@ describe('MoveDetails page', () => {
 
   describe('When required Orders Document is missing', () => {
     useMoveDetailsQueries.mockReturnValue(requestedMoveDetailsMissingInfoQuery);
+    useOrdersDocumentQueries.mockReturnValue(requestedMoveDetailsMissingInfoQuery);
 
     const mockSetMissingOrdersInfoCount = jest.fn();
 
@@ -1094,6 +1104,7 @@ describe('MoveDetails page', () => {
   describe('When required shipment information (like TAC) is missing', () => {
     it('renders an error indicator in the sidebar', async () => {
       useMoveDetailsQueries.mockReturnValue(requestedMoveDetailsMissingInfoQuery);
+      useOrdersDocumentQueries.mockReturnValue(requestedMoveDetailsMissingInfoQuery);
 
       render(
         <MockProviders>
@@ -1116,6 +1127,7 @@ describe('MoveDetails page', () => {
   describe('When a shipment has a pending delivery address update requested by the Prime', () => {
     it('renders an alert indicator in the sidebar', async () => {
       useMoveDetailsQueries.mockReturnValue(requestedMoveDetailsMissingInfoQuery);
+      useOrdersDocumentQueries.mockReturnValue(requestedMoveDetailsMissingInfoQuery);
 
       render(
         <MockProviders>
@@ -1136,6 +1148,8 @@ describe('MoveDetails page', () => {
   });
 
   describe('permission dependent rendering', () => {
+    useMoveDetailsQueries.mockReturnValue(loadingReturnValue);
+    useOrdersDocumentQueries.mockReturnValue(loadingReturnValue);
     const testProps = {
       setUnapprovedShipmentCount,
       setUnapprovedServiceItemCount,
@@ -1276,6 +1290,7 @@ describe('MoveDetails page', () => {
   describe('when MTO shipments are not yet defined', () => {
     it('does not show the "Something Went Wrong" error', () => {
       useMoveDetailsQueries.mockReturnValue(undefinedMTOShipmentsMoveDetailsQuery);
+      useOrdersDocumentQueries.mockReturnValue(undefinedMTOShipmentsMoveDetailsQuery);
 
       render(
         <MockProviders>
