@@ -6681,9 +6681,6 @@ func init() {
         "firstName": {
           "type": "string"
         },
-        "hasSafetyPrivilege": {
-          "type": "boolean"
-        },
         "lastName": {
           "type": "string"
         },
@@ -23393,9 +23390,6 @@ func init() {
       "properties": {
         "firstName": {
           "type": "string"
-        },
-        "hasSafetyPrivilege": {
-          "type": "boolean"
         },
         "lastName": {
           "type": "string"
