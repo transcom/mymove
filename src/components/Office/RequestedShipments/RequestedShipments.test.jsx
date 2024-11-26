@@ -22,6 +22,7 @@ import {
 import ApprovedRequestedShipments from './ApprovedRequestedShipments';
 import SubmittedRequestedShipments from './SubmittedRequestedShipments';
 
+import { LOADING_RETURN_VALUE } from 'utils/test/api';
 import { useOrdersDocumentQueries } from 'hooks/queries';
 import { SHIPMENT_OPTIONS_URL } from 'shared/constants';
 import { tooRoutes } from 'constants/routes';
@@ -184,14 +185,13 @@ const testProps = {
 
 const loadingQueryReturnValue = {
   ...ordersNoDocInfo,
-  isLoading: true,
-  isError: false,
-  isSuccess: false,
+  ...LOADING_RETURN_VALUE,
 };
 describe('RequestedShipments', () => {
   describe('Prime-handled shipments', () => {
     it('renders the container successfully without services counseling completed', () => {
       useOrdersDocumentQueries.mockReturnValue(loadingQueryReturnValue);
+
       render(submittedRequestedShipmentsComponent);
       expect(screen.getByTestId('requested-shipments')).toBeInTheDocument();
       expect(screen.queryByTestId('services-counseling-completed-text')).not.toBeInTheDocument();
