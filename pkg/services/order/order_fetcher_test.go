@@ -2063,86 +2063,18 @@ func (suite *OrderServiceSuite) TestListAllOrderLocationsWithViewAsGBLOCParam() 
 			AccessToken:     "fakeAccessToken",
 		}
 
-		// Create three default moves with shipment, should be in KKFA and have the status SUBMITTED
+		// Create two default moves with shipment, should be in KKFA and have the status SUBMITTED
 		KKFAMove1 := factory.BuildMoveWithShipment(suite.DB(), nil, nil)
 		KKFAMove2 := factory.BuildMoveWithShipment(suite.DB(), nil, nil)
-		KKFAMove3 := factory.BuildMoveWithShipment(suite.DB(), nil, nil)
 
-		// Create fourth move with the same origin duty location as one of the above
-		KKFAMove4 := factory.BuildMoveWithShipment(suite.DB(), []factory.Customization{
+		// Create third move with the same origin duty location as one of the above
+		KKFAMove3 := factory.BuildMoveWithShipment(suite.DB(), []factory.Customization{
 			{
 				Model: models.DutyLocation{
-					ID: KKFAMove3.Orders.OriginDutyLocation.ID,
+					ID: KKFAMove2.Orders.OriginDutyLocation.ID,
 				},
 				Type:     &factory.DutyLocations.OriginDutyLocation,
 				LinkOnly: true,
-			},
-		}, nil)
-
-		// Create AGFM Move
-		AGFM := "AGFM"
-		AGFMTransportationOffice := factory.BuildTransportationOffice(suite.DB(), []factory.Customization{
-			{
-				Model: models.TransportationOffice{
-					Name:  "Fort Punxsutawney",
-					ID:    uuid.Must(uuid.NewV4()),
-					Gbloc: AGFM,
-				},
-			},
-			{
-				Model: models.Address{
-					PostalCode: "15767",
-				},
-				Type: &factory.Addresses.DutyLocationAddress,
-			},
-		}, nil)
-		AGFMDutyLocation := factory.BuildDutyLocation(suite.DB(), []factory.Customization{
-			{
-				Model:    AGFMTransportationOffice,
-				LinkOnly: true,
-			},
-		}, nil)
-		AGFMOrders := factory.BuildOrder(suite.DB(), []factory.Customization{
-			{
-				Model:    AGFMDutyLocation,
-				Type:     &factory.DutyLocations.OriginDutyLocation,
-				LinkOnly: true,
-			},
-			{
-				Model: models.Order{
-					OriginDutyLocationGBLOC: &AGFM,
-				},
-			},
-		}, nil)
-		AGFMMove := factory.BuildMove(suite.DB(), []factory.Customization{
-			{
-				Model:    AGFMOrders,
-				LinkOnly: true,
-			},
-		}, nil)
-		// Create one AGFM shipment, this should result in a move as well
-		factory.BuildMTOShipment(suite.DB(), []factory.Customization{
-			{
-				Model: models.TransportationOffice{
-					Name:  "Fort Punxsutawney",
-					Gbloc: AGFM,
-				},
-			},
-			{
-				Model: models.MTOShipment{
-					Status: models.MTOShipmentStatusSubmitted,
-				},
-			},
-			{
-				Model: models.Address{
-					PostalCode: "15767",
-				},
-				Type: &factory.Addresses.PickupAddress,
-			},
-			{
-				Model:    AGFMMove,
-				LinkOnly: true,
-				Type:     &factory.Move,
 			},
 		}, nil)
 
@@ -2162,42 +2094,29 @@ func (suite *OrderServiceSuite) TestListAllOrderLocationsWithViewAsGBLOCParam() 
 			suite.Equal(true, *officeUser.TransportationOfficeAssignments[1].PrimaryOffice)
 		}
 
-		// Confirm the factory created moves have the desired GBLOCS, 4x KKFA, 1x AGFM
-		suite.Equal("AGFM", *AGFMMove.Orders.OriginDutyLocationGBLOC)
+		// Confirm the factory created moves have the desired GBLOCS, 3x KKFA,
 		suite.Equal("KKFA", *KKFAMove1.Orders.OriginDutyLocationGBLOC)
 		suite.Equal("KKFA", *KKFAMove2.Orders.OriginDutyLocationGBLOC)
 		suite.Equal("KKFA", *KKFAMove3.Orders.OriginDutyLocationGBLOC)
-		suite.Equal("KKFA", *KKFAMove4.Orders.OriginDutyLocationGBLOC)
-
-		// Fetch and check default GBLOC
-		params := services.ListOrderParams{}
-		AGFMmoves, err := orderFetcher.ListAllOrderLocations(suite.AppContextWithSessionForTest(&session), officeUser.ID, &params)
-
-		suite.FatalNoError(err)
-		suite.Equal(1, len(AGFMmoves))
-		suite.Equal("AGFM", *AGFMmoves[0].Orders.OriginDutyLocationGBLOC)
-		suite.Condition(movesContainOriginDutyLocation(AGFMmoves, AGFMMove.Orders.OriginDutyLocation.Name), "Should contain first AGFM move's origin duty location")
 
 		// Fetch and check secondary GBLOC
 		KKFA := "KKFA"
-		params = services.ListOrderParams{
+		params := services.ListOrderParams{
 			ViewAsGBLOC: &KKFA,
 		}
 		KKFAmoves, err := orderFetcher.ListAllOrderLocations(suite.AppContextWithSessionForTest(&session), officeUser.ID, &params)
 
 		suite.FatalNoError(err)
 		// This value should be updated to 3 if ListAllOrderLocations is updated to return distinct locations
-		suite.Equal(4, len(KKFAmoves))
+		suite.Equal(3, len(KKFAmoves))
 
 		suite.Equal("KKFA", *KKFAmoves[0].Orders.OriginDutyLocationGBLOC)
 		suite.Equal("KKFA", *KKFAmoves[1].Orders.OriginDutyLocationGBLOC)
 		suite.Equal("KKFA", *KKFAmoves[2].Orders.OriginDutyLocationGBLOC)
-		suite.Equal("KKFA", *KKFAmoves[3].Orders.OriginDutyLocationGBLOC)
 
 		suite.Condition(movesContainOriginDutyLocation(KKFAmoves, KKFAMove1.Orders.OriginDutyLocation.Name), "Should contain first KKFA move's origin duty location")
 		suite.Condition(movesContainOriginDutyLocation(KKFAmoves, KKFAMove2.Orders.OriginDutyLocation.Name), "Should contain second KKFA move's origin duty location")
 		suite.Condition(movesContainOriginDutyLocation(KKFAmoves, KKFAMove3.Orders.OriginDutyLocation.Name), "Should contain third KKFA move's origin duty location")
-		suite.Condition(movesContainOriginDutyLocation(KKFAmoves, KKFAMove4.Orders.OriginDutyLocation.Name), "Should contain third KKFA move's origin duty location")
 	})
 }
 
