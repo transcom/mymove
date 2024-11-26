@@ -137,6 +137,8 @@ const mockMtoShipmentSecondaryAddress = {
   customerRemarks: 'mock remarks',
   requestedPickupDate: '2021-08-01',
   requestedDeliveryDate: '2021-08-11',
+  hasSecondaryPickupAddress: true,
+  hasSecondaryDeliveryAddress: true,
   secondaryPickupAddress: {
     id: uuidv4(),
     streetAddress1: '812 S 129th St',
@@ -483,12 +485,6 @@ describe('MtoShipmentForm component', () => {
       );
       renderMtoShipmentForm({ mtoShipment: mockMtoShipmentHHG });
 
-      // const pickupDateInput = await screen.findByLabelText(/Preferred pickup date/);
-      // await userEvent.type(pickupDateInput, shipmentInfo.requestedPickupDate);
-
-      // const deliveryDateInput = await screen.findByLabelText(/Preferred delivery date/);
-      // await userEvent.type(deliveryDateInput, shipmentInfo.requestedDeliveryDate);
-
       const nextButton = await screen.findByRole('button', { name: 'Next' });
       expect(nextButton).not.toBeDisabled();
       await userEvent.click(nextButton);
@@ -529,27 +525,6 @@ describe('MtoShipmentForm component', () => {
         Promise.resolve({ data: JSON.stringify(expectedDateSelectionIsWeekendHolidayResponse) }),
       );
       renderMtoShipmentForm({ mtoShipment: shipmentInfo });
-
-      // const pickupDateInput = await screen.findByLabelText(/Preferred pickup date/);
-      // await userEvent.type(pickupDateInput, shipmentInfo.requestedPickupDate);
-
-      // const pickupAddress1Input = screen.getByLabelText(/Address 1/);
-      // await userEvent.type(pickupAddress1Input, shipmentInfo.pickupAddress.streetAddress1);
-
-      // const pickupAddress2Input = screen.getByLabelText(/Address 2/);
-      // await userEvent.type(pickupAddress2Input, shipmentInfo.pickupAddress.streetAddress2);
-
-      // const pickupCityInput = screen.getByLabelText(/City/);
-      // await userEvent.type(pickupCityInput, shipmentInfo.pickupAddress.city);
-
-      // const pickupStateInput = screen.getByLabelText(/State/);
-      // await userEvent.selectOptions(pickupStateInput, shipmentInfo.pickupAddress.state);
-
-      // const pickupPostalCodeInput = screen.getByLabelText(/ZIP/);
-      // await userEvent.type(pickupPostalCodeInput, shipmentInfo.pickupAddress.postalCode);
-
-      // const deliveryDateInput = await screen.findByLabelText(/Preferred delivery date/);
-      // await userEvent.type(deliveryDateInput, shipmentInfo.requestedDeliveryDate);
 
       const nextButton = await screen.findByRole('button', { name: 'Next' });
       expect(nextButton).not.toBeDisabled();
@@ -701,6 +676,23 @@ describe('MtoShipmentForm component', () => {
     });
 
     it('does not allow the user to save the form if the address fields on a secondary addreess is the only one filled out', async () => {
+      const shipment = {
+        ...mockMtoShipment,
+        secondaryPickupAddress: {
+          streetAddress1: '142 E Barrel Hoop Circle',
+          streetAddress2: '#4A',
+          city: 'Corpus Christi',
+          state: 'TX',
+          postalCode: '78412',
+        },
+        secondaryDeliveryAddress: {
+          streetAddress1: '3373 NW Martin Luther King Jr Blvd',
+          streetAddress2: '',
+          city: mockMtoShipment.destinationAddress.city,
+          state: mockMtoShipment.destinationAddress.state,
+          postalCode: mockMtoShipment.destinationAddress.postalCode,
+        },
+      };
       const expectedDateSelectionIsWeekendHolidayResponse = {
         country_code: 'US',
         country_name: 'United States',
@@ -710,7 +702,7 @@ describe('MtoShipmentForm component', () => {
       dateSelectionIsWeekendHoliday.mockImplementation(() =>
         Promise.resolve({ data: JSON.stringify(expectedDateSelectionIsWeekendHolidayResponse) }),
       );
-      renderMtoShipmentForm({ isCreatePage: false, mtoShipment: mockMtoShipment });
+      renderMtoShipmentForm({ isCreatePage: false, mtoShipment: shipment });
 
       // Verify that the form is good to submit by checking that the save button is not disabled.
       const saveButton = await screen.findByRole('button', { name: 'Save' });
@@ -724,24 +716,13 @@ describe('MtoShipmentForm component', () => {
       // The second instance of a field is the secondary pickup
       await userEvent.type(address[1], '6622 Airport Way S');
       await waitFor(() => {
-        expect(saveButton).toBeDisabled();
+        expect(saveButton).not.toBeDisabled();
       });
 
       // Clear the field so that the secondary delivery address can be checked
       await userEvent.clear(address[1]);
       await waitFor(() => {
-        expect(saveButton).not.toBeDisabled();
-      });
-
-      // The fourth instance found is the secondary delivery
-      await userEvent.type(address[3], '6622 Airport Way S');
-      await waitFor(() => {
         expect(saveButton).toBeDisabled();
-      });
-
-      await userEvent.clear(address[3]);
-      await waitFor(() => {
-        expect(saveButton).not.toBeDisabled();
       });
     });
 
