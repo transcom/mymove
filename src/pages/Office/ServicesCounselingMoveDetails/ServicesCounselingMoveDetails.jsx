@@ -22,7 +22,7 @@ import FinancialReviewModal from 'components/Office/FinancialReviewModal/Financi
 import CancelMoveConfirmationModal from 'components/ConfirmationModals/CancelMoveConfirmationModal';
 import ShipmentDisplay from 'components/Office/ShipmentDisplay/ShipmentDisplay';
 import { SubmitMoveConfirmationModal } from 'components/Office/SubmitMoveConfirmationModal/SubmitMoveConfirmationModal';
-import { useMoveDetailsQueries, useOrdersDocumentQueries } from 'hooks/queries';
+import { useMoveDetailsQueries } from 'hooks/queries';
 import { updateMoveStatusServiceCounselingCompleted, cancelMove, updateFinancialFlag } from 'services/ghcApi';
 import { MOVE_STATUSES, SHIPMENT_OPTIONS_URL, SHIPMENT_OPTIONS, FEATURE_FLAG_KEYS } from 'shared/constants';
 import { ppmShipmentStatuses, shipmentStatuses } from 'constants/shipments';
@@ -64,18 +64,12 @@ const ServicesCounselingMoveDetails = ({
   const [isCancelMoveModalVisible, setIsCancelMoveModalVisible] = useState(false);
   const [enableBoat, setEnableBoat] = useState(false);
   const [enableMobileHome, setEnableMobileHome] = useState(false);
-  const { upload, amendedUpload } = useOrdersDocumentQueries(moveCode);
-  const documentsForViewer = Object.values(upload || {})
-    .concat(Object.values(amendedUpload || {}))
-    ?.filter((file) => {
-      return !file.deletedAt;
-    });
-  const hasDocuments = documentsForViewer?.length > 0;
 
   const { order, orderDocuments, customerData, move, closeoutOffice, mtoShipments, isLoading, isError } =
     useMoveDetailsQueries(moveCode);
 
   const validOrdersDocuments = Object.values(orderDocuments || {})?.filter((file) => !file.deletedAt);
+  const hasDocuments = validOrdersDocuments?.length > 0;
 
   const { customer, entitlement: allowances } = order;
 

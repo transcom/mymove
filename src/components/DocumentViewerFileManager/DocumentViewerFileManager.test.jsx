@@ -96,6 +96,15 @@ describe('DocumentViewerFileManager', () => {
     updateAmendedDocument: jest.fn(),
   };
 
+  const ordersPropsNoFile = {
+    move: { id: 'move-id', locator: 'move-locator' },
+    orderId: 'order-id',
+    fileUploadRequired: true,
+    documentId: '',
+    files: [{}],
+    documentType: 'ORDERS',
+  };
+
   it('renders without crashing', () => {
     renderWithQueryClient(<DocumentViewerFileManager {...defaultProps} />);
     expect(screen.getByText('Manage Orders')).toBeInTheDocument();
@@ -286,5 +295,25 @@ describe('DocumentViewerFileManager', () => {
     }
 
     expect(await screen.findByText(/failed to upload due to server error: upload failed/i)).toBeInTheDocument();
+  });
+
+  it('should disable the Manage Orders button', () => {
+    renderWithQueryClient(<DocumentViewerFileManager {...ordersPropsNoFile} />);
+    const manageDocumentsButton = screen.getByRole('button', { name: /manage orders/i });
+    expect(manageDocumentsButton).toBeInTheDocument();
+    expect(manageDocumentsButton).toBeDisabled();
+  });
+  it('should display File upload is required alert', () => {
+    renderWithQueryClient(<DocumentViewerFileManager {...ordersPropsNoFile} />);
+
+    expect(screen.getByTestId('fileRequiredAlert')).toBeInTheDocument();
+    expect(screen.getByTestId('fileRequiredAlert')).toHaveTextContent('File upload is required');
+  });
+  it('should disable the Manage Orders Done button', () => {
+    renderWithQueryClient(<DocumentViewerFileManager {...ordersPropsNoFile} />);
+
+    const manageDocumentsDoneButton = screen.getByRole('button', { name: /done/i });
+    expect(manageDocumentsDoneButton).toBeInTheDocument();
+    expect(manageDocumentsDoneButton).toBeDisabled();
   });
 });
