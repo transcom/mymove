@@ -82,7 +82,7 @@ type Move struct {
 	FinancialReviewFlag bool `json:"financialReviewFlag,omitempty"`
 
 	// financial review remarks
-	// Example: Destination address is too far from duty location
+	// Example: Delivery Address is too far from duty location
 	// Read Only: true
 	FinancialReviewRemarks *string `json:"financialReviewRemarks,omitempty"`
 

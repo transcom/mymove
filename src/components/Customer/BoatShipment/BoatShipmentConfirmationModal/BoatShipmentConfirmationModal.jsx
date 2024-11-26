@@ -40,7 +40,7 @@ const boatConfirmationMessage = (isDimensionsMeetReq, boatShipmentType, isEditPa
         message = (
           <p>
             Your boat qualifies to move as its own shipment and has an accompanying trailer that can be used to tow it
-            to your destination, a Boat Tow-Away (BTA) shipment. Click &quot;Continue&quot; to proceed.
+            to your delivery address, a Boat Tow-Away (BTA) shipment. Click &quot;Continue&quot; to proceed.
           </p>
         );
         break;
@@ -49,7 +49,7 @@ const boatConfirmationMessage = (isDimensionsMeetReq, boatShipmentType, isEditPa
         message = (
           <p>
             Your boat qualifies to move as its own shipment and requires additional equipment to haul it to your
-            destination, a Boat Haul-Away (BHA) shipment. Click &quot;Continue&quot; to proceed.
+            delivery address, a Boat Haul-Away (BHA) shipment. Click &quot;Continue&quot; to proceed.
           </p>
         );
         break;
