@@ -128,6 +128,14 @@ func (suite *ModelSuite) TestGetUBWeightAllowanceCivilians() {
 		suite.Assertions.NotEqual(civilianPlusDependentsTotalBaggageAllowance, ubAllowance)
 		suite.Assertions.Equal(maxWholeFamilyCivilianUBAllowanceTestConstant, ubAllowance)
 	})
+
+	orderType = internalmessages.OrdersTypeSTUDENTTRAVEL
+	// This should limit the ub allowance to 350 lbs because it is a Student Travel order type
+	suite.Run("UB allowance is set to 350 for Student Travel orders", func() {
+		ubAllowance, err := models.GetUBWeightAllowance(appCtx, &originDutyLocationIsOconus, &newDutyLocationIsOconus, &branch, &grade, &orderType, &dependentsAuthorized, &isAccompaniedTour, &dependentsUnderTwelve, &dependentsTwelveAndOver)
+		suite.NoError(err)
+		suite.Assertions.Equal(350, ubAllowance)
+	})
 }
 
 func (suite *ModelSuite) TestGetUBWeightAllowanceEdgeCases() {

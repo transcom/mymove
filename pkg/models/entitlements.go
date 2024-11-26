@@ -280,9 +280,12 @@ func GetUBWeightAllowance(appCtx appcontext.AppContext, originDutyLocationIsOcon
 		const dependents12AndOverUBAllowance = 350
 		const depedentsUnder12UBAllowance = 175
 		const maxWholeFamilyCivilianUBAllowance = 2000
+		const studentTravelMaxAllowance = 350
 		ubAllowance := 0
 
-		if orderPayGrade == string(internalmessages.OrderPayGradeCIVILIANEMPLOYEE) && dependentsAreAuthorized && underTwelveDependents == 0 && twelveAndOverDependents == 0 {
+		if *orderType == internalmessages.OrdersTypeSTUDENTTRAVEL {
+			ubAllowance = studentTravelMaxAllowance
+		} else if orderPayGrade == string(internalmessages.OrderPayGradeCIVILIANEMPLOYEE) && dependentsAreAuthorized && underTwelveDependents == 0 && twelveAndOverDependents == 0 {
 			ubAllowance = civilianBaseUBAllowance
 		} else if orderPayGrade == string(internalmessages.OrderPayGradeCIVILIANEMPLOYEE) && dependentsAreAuthorized && (underTwelveDependents > 0 || twelveAndOverDependents > 0) {
 			ubAllowance = civilianBaseUBAllowance
