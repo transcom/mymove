@@ -468,15 +468,7 @@ func (h UpdateOrdersHandler) Handle(params ordersop.UpdateOrdersParams) middlewa
 
 				// Calculate UB allowance for the order entitlement
 				if order.Entitlement != nil {
-					unaccompaniedBaggageAllowance, err := models.GetUBWeightAllowance(appCtx,
-						order.OriginDutyLocation.Address.IsOconus,
-						order.NewDutyLocation.Address.IsOconus,
-						serviceMember.Affiliation,
-						grade, payload.OrdersType,
-						payload.HasDependents,
-						payload.AccompaniedTour,
-						dependentsUnderTwelve,
-						dependentsTwelveAndOver)
+					unaccompaniedBaggageAllowance, err := models.GetUBWeightAllowance(appCtx, order.OriginDutyLocation.Address.IsOconus, order.NewDutyLocation.Address.IsOconus, serviceMember.Affiliation, grade, payload.OrdersType, payload.HasDependents, payload.AccompaniedTour, dependentsUnderTwelve, dependentsTwelveAndOver)
 					if err == nil {
 						weightAllotment.UnaccompaniedBaggageAllowance = unaccompaniedBaggageAllowance
 					}
