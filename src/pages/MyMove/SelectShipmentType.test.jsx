@@ -21,7 +21,56 @@ describe('SelectShipmentType', () => {
     loadMTOShipments: jest.fn(),
     move: { id: 'mockId', status: MOVE_STATUSES.DRAFT },
     mtoShipments: [],
+    orders: [],
   };
+
+  const oconusOriginDutyLocationProps = {
+    updateMove: jest.fn(),
+    router: { navigate: jest.fn() },
+
+    loadMTOShipments: jest.fn(),
+    move: { id: 'mockId', status: MOVE_STATUSES.DRAFT },
+    mtoShipments: [],
+    orders: [
+      {
+        origin_duty_location: {
+          address: {
+            isOconus: true,
+          },
+        },
+        new_duty_location: {
+          address: {
+            isOconus: false,
+          },
+        },
+      },
+    ],
+  };
+
+  const oconusNewDutyLocationProps = {
+    updateMove: jest.fn(),
+    router: { navigate: jest.fn() },
+
+    loadMTOShipments: jest.fn(),
+    move: { id: 'mockId', status: MOVE_STATUSES.DRAFT },
+    mtoShipments: [],
+    orders: [
+      {
+        origin_duty_location: {
+          address: {
+            isOconus: false,
+          },
+        },
+        new_duty_location: {
+          address: {
+            isOconus: true,
+          },
+        },
+      },
+    ],
+  };
+
+  // selectOrdersForLoggedInUser.mockImplementation(() => originOconusDutyLocationProps.orders);
 
   const getWrapper = (props = {}) => {
     return mount(<SelectShipmentType {...defaultProps} {...props} />);
@@ -122,14 +171,18 @@ describe('SelectShipmentType', () => {
       expect(ntsCard.length).toBe(0);
       const ntsrCard = wrapper.find(`SelectableCard[id="${SHIPMENT_OPTIONS.NTSR}"]`);
       expect(ntsrCard.length).toBe(0);
+      const ubCard = wrapper.find(`SelectableCard[id="${SHIPMENT_OPTIONS.UNACCOMPANIED_BAGGAGE}"]`);
+      expect(ubCard.length).toBe(0);
 
       expect(wrapper.state('enablePPM')).toEqual(false);
       expect(wrapper.state('enableNTS')).toEqual(false);
       expect(wrapper.state('enableNTSR')).toEqual(false);
+      expect(wrapper.state('enableUB')).toEqual(false);
 
       expect(isBooleanFlagEnabled).toBeCalledWith(FEATURE_FLAG_KEYS.PPM);
       expect(isBooleanFlagEnabled).toBeCalledWith(FEATURE_FLAG_KEYS.NTS);
       expect(isBooleanFlagEnabled).toBeCalledWith(FEATURE_FLAG_KEYS.NTSR);
+      expect(isBooleanFlagEnabled).toBeCalledWith(FEATURE_FLAG_KEYS.UNACCOMPANIED_BAGGAGE);
     });
 
     it('feature flags for shipment types show SelectableCard', async () => {
@@ -154,6 +207,97 @@ describe('SelectShipmentType', () => {
       expect(isBooleanFlagEnabled).toBeCalledWith(FEATURE_FLAG_KEYS.PPM);
       expect(isBooleanFlagEnabled).toBeCalledWith(FEATURE_FLAG_KEYS.NTS);
       expect(isBooleanFlagEnabled).toBeCalledWith(FEATURE_FLAG_KEYS.NTSR);
+    });
+
+    it('UB feature flag on does NOT show UB SelectableCard if no OCONUS origin or destination duty location', async () => {
+      isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(true));
+
+      const props = {};
+      const wrapper = shallow(<SelectShipmentType {...defaultProps} {...props} />);
+      await wrapper;
+      const hhgCard = wrapper.find(`SelectableCard[id="${SHIPMENT_OPTIONS.HHG}"]`);
+      expect(hhgCard.length).toBe(1);
+      const ppmCard = wrapper.find(`SelectableCard[id="${SHIPMENT_OPTIONS.PPM}"]`);
+      expect(ppmCard.length).toBe(1);
+      const ntsCard = wrapper.find(`SelectableCard[id="${SHIPMENT_OPTIONS.NTS}"]`);
+      expect(ntsCard.length).toBe(1);
+      const ntsrCard = wrapper.find(`SelectableCard[id="${SHIPMENT_OPTIONS.NTSR}"]`);
+      expect(ntsrCard.length).toBe(1);
+
+      // even though the UB FF flag is on, we still don't want to show it as selectable
+      // unless we have an OCONUS origin or destination duty location
+      const ubCard = wrapper.find(`SelectableCard[id="${SHIPMENT_OPTIONS.UNACCOMPANIED_BAGGAGE}"]`);
+      expect(ubCard.length).toBe(0);
+
+      expect(wrapper.state('enablePPM')).toEqual(true);
+      expect(wrapper.state('enableNTS')).toEqual(true);
+      expect(wrapper.state('enableNTSR')).toEqual(true);
+      expect(wrapper.state('enableUB')).toEqual(true);
+
+      expect(isBooleanFlagEnabled).toBeCalledWith(FEATURE_FLAG_KEYS.PPM);
+      expect(isBooleanFlagEnabled).toBeCalledWith(FEATURE_FLAG_KEYS.NTS);
+      expect(isBooleanFlagEnabled).toBeCalledWith(FEATURE_FLAG_KEYS.NTSR);
+      expect(isBooleanFlagEnabled).toBeCalledWith(FEATURE_FLAG_KEYS.UNACCOMPANIED_BAGGAGE);
+    });
+
+    it('UB feature flag on DOES show UB SelectableCard if OCONUS origin duty location', async () => {
+      isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(true));
+
+      const props = {};
+      const wrapper = shallow(<SelectShipmentType {...oconusOriginDutyLocationProps} {...props} />);
+      await wrapper;
+      const hhgCard = wrapper.find(`SelectableCard[id="${SHIPMENT_OPTIONS.HHG}"]`);
+      expect(hhgCard.length).toBe(1);
+      const ppmCard = wrapper.find(`SelectableCard[id="${SHIPMENT_OPTIONS.PPM}"]`);
+      expect(ppmCard.length).toBe(1);
+      const ntsCard = wrapper.find(`SelectableCard[id="${SHIPMENT_OPTIONS.NTS}"]`);
+      expect(ntsCard.length).toBe(1);
+      const ntsrCard = wrapper.find(`SelectableCard[id="${SHIPMENT_OPTIONS.NTSR}"]`);
+      expect(ntsrCard.length).toBe(1);
+
+      // since origin duty location has isOconus as true, now we can select UBs
+      const ubCard = wrapper.find(`SelectableCard[id="${SHIPMENT_OPTIONS.UNACCOMPANIED_BAGGAGE}"]`);
+      expect(ubCard.length).toBe(1);
+
+      expect(wrapper.state('enablePPM')).toEqual(true);
+      expect(wrapper.state('enableNTS')).toEqual(true);
+      expect(wrapper.state('enableNTSR')).toEqual(true);
+      expect(wrapper.state('enableUB')).toEqual(true);
+
+      expect(isBooleanFlagEnabled).toBeCalledWith(FEATURE_FLAG_KEYS.PPM);
+      expect(isBooleanFlagEnabled).toBeCalledWith(FEATURE_FLAG_KEYS.NTS);
+      expect(isBooleanFlagEnabled).toBeCalledWith(FEATURE_FLAG_KEYS.NTSR);
+      expect(isBooleanFlagEnabled).toBeCalledWith(FEATURE_FLAG_KEYS.UNACCOMPANIED_BAGGAGE);
+    });
+
+    it('UB feature flag on DOES show UB SelectableCard if OCONUS new duty location', async () => {
+      isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(true));
+
+      const props = {};
+      const wrapper = shallow(<SelectShipmentType {...oconusNewDutyLocationProps} {...props} />);
+      await wrapper;
+      const hhgCard = wrapper.find(`SelectableCard[id="${SHIPMENT_OPTIONS.HHG}"]`);
+      expect(hhgCard.length).toBe(1);
+      const ppmCard = wrapper.find(`SelectableCard[id="${SHIPMENT_OPTIONS.PPM}"]`);
+      expect(ppmCard.length).toBe(1);
+      const ntsCard = wrapper.find(`SelectableCard[id="${SHIPMENT_OPTIONS.NTS}"]`);
+      expect(ntsCard.length).toBe(1);
+      const ntsrCard = wrapper.find(`SelectableCard[id="${SHIPMENT_OPTIONS.NTSR}"]`);
+      expect(ntsrCard.length).toBe(1);
+
+      // since new duty location has isOconus as true, now we can select UBs
+      const ubCard = wrapper.find(`SelectableCard[id="${SHIPMENT_OPTIONS.UNACCOMPANIED_BAGGAGE}"]`);
+      expect(ubCard.length).toBe(1);
+
+      expect(wrapper.state('enablePPM')).toEqual(true);
+      expect(wrapper.state('enableNTS')).toEqual(true);
+      expect(wrapper.state('enableNTSR')).toEqual(true);
+      expect(wrapper.state('enableUB')).toEqual(true);
+
+      expect(isBooleanFlagEnabled).toBeCalledWith(FEATURE_FLAG_KEYS.PPM);
+      expect(isBooleanFlagEnabled).toBeCalledWith(FEATURE_FLAG_KEYS.NTS);
+      expect(isBooleanFlagEnabled).toBeCalledWith(FEATURE_FLAG_KEYS.NTSR);
+      expect(isBooleanFlagEnabled).toBeCalledWith(FEATURE_FLAG_KEYS.UNACCOMPANIED_BAGGAGE);
     });
   });
 
@@ -233,6 +377,7 @@ describe('SelectShipmentType', () => {
     wrapper.setState({ enablePPM: true });
     wrapper.setState({ enableNTS: true });
     wrapper.setState({ enableNTSR: true });
+    wrapper.setState({ enableUB: true });
     it('should render the correct text', () => {
       expect(wrapper.find('.usa-checkbox__label-description').at(0).text()).toContain(
         'Talk with your movers directly if you want to add or change shipments.',
