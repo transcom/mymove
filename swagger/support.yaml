@@ -1389,6 +1389,7 @@ definitions:
         * DDFSIT, DDASIT - MTOServiceItemDestSIT
         * DOSHUT, DDSHUT - MTOServiceItemShuttle
         * DCRT, DUCRT - MTOServiceItemDomesticCrating
+        * ICRT, IUCRT - MTOServiceItemInternationalCrating
 
       The documentation will then update with the supported fields.
     type: string
@@ -1398,6 +1399,7 @@ definitions:
       - MTOServiceItemDestSIT
       - MTOServiceItemShuttle
       - MTOServiceItemDomesticCrating
+      - MTOServiceItemInternationalCrating
   MTOServiceItemOriginSIT:
     description: Describes a domestic origin SIT service item. Subtype of a MTOServiceItem.
     allOf:
@@ -2109,7 +2111,6 @@ definitions:
       - ICOLH
       - ICOUB
       - ICRT
-      - ICRTSA
       - IDASIT
       - IDDSIT
       - IDFSIT

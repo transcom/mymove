@@ -8485,6 +8485,9 @@ definitions:
       standaloneCrate:
         type: boolean
         x-nullable: true
+      externalCrate:
+        type: boolean
+        x-nullable: true
       serviceRequestDocuments:
         $ref: '#/definitions/ServiceRequestDocuments'
       estimatedPrice:
