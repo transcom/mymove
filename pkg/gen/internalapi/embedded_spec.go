@@ -5356,14 +5356,7 @@ func init() {
           "example": "2018-04-25"
         },
         "orders_type": {
-          "type": "string",
-          "title": "Move Type",
-          "enum": [
-            "PCS - OCONUS",
-            "PCS - CONUS",
-            "PCS + TDY - OCONUS",
-            "PCS + TDY - CONUS"
-          ]
+          "$ref": "#/definitions/OrdersType"
         },
         "origin_duty_location_name": {
           "type": "string",
@@ -14274,14 +14267,7 @@ func init() {
           "example": "2018-04-25"
         },
         "orders_type": {
-          "type": "string",
-          "title": "Move Type",
-          "enum": [
-            "PCS - OCONUS",
-            "PCS - CONUS",
-            "PCS + TDY - OCONUS",
-            "PCS + TDY - CONUS"
-          ]
+          "$ref": "#/definitions/OrdersType"
         },
         "origin_duty_location_name": {
           "type": "string",
