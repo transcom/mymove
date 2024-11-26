@@ -847,6 +847,8 @@ commands:
             export HERE_MAPS_APP_ID=$E2E_HERE_MAPS_APP_ID
             export HERE_MAPS_APP_CODE=$E2E_HERE_MAPS_APP_CODE
             export LOCAL_STORAGE_WEB_ROOT=storage
+            # override local_storage_root to be tmp, not /tmp
+            export LOCAL_STORAGE_ROOT=tmp
             # pull in review app settings here so we don't have to
             # reproduce them
             sed 's,^,export ,' config/env/review.app.env > server_env
