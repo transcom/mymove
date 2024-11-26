@@ -40,7 +40,7 @@ func (o *GetLocationByZipCityStateURL) SetBasePath(bp string) {
 func (o *GetLocationByZipCityStateURL) Build() (*url.URL, error) {
 	var _result url.URL
 
-	var _path = "/addresses/zip_city_lookup/{search}"
+	var _path = "/addresses/zip-city-lookup/{search}"
 
 	search := o.Search
 	if search != "" {
