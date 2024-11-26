@@ -34,7 +34,7 @@ func (f *addressUpdater) UpdateAddress(appCtx appcontext.AppContext, address *mo
 	}
 
 	// Fetch new county if postal code has been modified from its original
-	if originalAddress.PostalCode != address.PostalCode || address.County == nil && *address.County != "" {
+	if originalAddress.PostalCode != address.PostalCode || address.County == nil {
 		county, err := models.FindCountyByZipCode(appCtx.DB(), address.PostalCode)
 		if err != nil {
 			return nil, err
