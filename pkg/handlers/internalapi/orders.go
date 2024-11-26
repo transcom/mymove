@@ -425,8 +425,18 @@ func (h UpdateOrdersHandler) Handle(params ordersop.UpdateOrdersParams) middlewa
 			order.TAC = payload.Tac
 			order.SAC = payload.Sac
 
-			// Check if the grade is receiving an update
-			if order.Grade != payload.Grade {
+			serviceMemberID, err := uuid.FromString(payload.ServiceMemberID.String())
+			if err != nil {
+				return handlers.ResponseForError(appCtx.Logger(), err), err
+			}
+
+			serviceMember, err := models.FetchServiceMemberForUser(appCtx.DB(), appCtx.Session(), serviceMemberID)
+			if err != nil {
+				return handlers.ResponseForError(appCtx.Logger(), err), err
+			}
+
+			// Check if the grade or dependents are receiving an update
+			if hasEntitlementChanged(order, payload.OrdersType, payload.Grade, payload.DependentsUnderTwelve, payload.DependentsTwelveAndOver, payload.AccompaniedTour) {
 				weightAllotment := models.GetWeightAllotment(*payload.Grade)
 				weight := weightAllotment.TotalWeightSelf
 				if *payload.HasDependents {
@@ -437,12 +447,51 @@ func (h UpdateOrdersHandler) Handle(params ordersop.UpdateOrdersParams) middlewa
 				// We only have service members right now, but once we introduce more, this logic will have to change.
 				sitDaysAllowance := models.DefaultServiceMemberSITDaysAllowance
 
+				var dependentsTwelveAndOver *int
+				var dependentsUnderTwelve *int
+				if payload.DependentsTwelveAndOver != nil {
+					// Convert from int64 to int
+					dependentsTwelveAndOver = models.IntPointer(int(*payload.DependentsTwelveAndOver))
+				}
+
+				if payload.DependentsUnderTwelve != nil {
+					// Convert from int64 to int
+					dependentsUnderTwelve = models.IntPointer(int(*payload.DependentsUnderTwelve))
+				}
+
+				var grade *internalmessages.OrderPayGrade
+				if payload.Grade != nil {
+					grade = payload.Grade
+				} else {
+					grade = order.Grade
+				}
+
+				// Calculate UB allowance for the order entitlement
+				if order.Entitlement != nil {
+					unaccompaniedBaggageAllowance, err := models.GetUBWeightAllowance(appCtx,
+						order.OriginDutyLocation.Address.IsOconus,
+						order.NewDutyLocation.Address.IsOconus,
+						serviceMember.Affiliation,
+						grade, payload.OrdersType,
+						payload.HasDependents,
+						payload.AccompaniedTour,
+						dependentsUnderTwelve,
+						dependentsTwelveAndOver)
+					if err == nil {
+						weightAllotment.UnaccompaniedBaggageAllowance = unaccompaniedBaggageAllowance
+					}
+				}
+
 				entitlement := models.Entitlement{
-					DependentsAuthorized: payload.HasDependents,
-					DBAuthorizedWeight:   models.IntPointer(weight),
-					StorageInTransit:     models.IntPointer(sitDaysAllowance),
-					ProGearWeight:        weightAllotment.ProGearWeight,
-					ProGearWeightSpouse:  weightAllotment.ProGearWeightSpouse,
+					DependentsAuthorized:    payload.HasDependents,
+					DBAuthorizedWeight:      models.IntPointer(weight),
+					StorageInTransit:        models.IntPointer(sitDaysAllowance),
+					ProGearWeight:           weightAllotment.ProGearWeight,
+					ProGearWeightSpouse:     weightAllotment.ProGearWeightSpouse,
+					DependentsUnderTwelve:   dependentsUnderTwelve,
+					DependentsTwelveAndOver: dependentsTwelveAndOver,
+					AccompaniedTour:         payload.AccompaniedTour,
+					UBAllowance:             &weightAllotment.UnaccompaniedBaggageAllowance,
 				}
 
 				/*

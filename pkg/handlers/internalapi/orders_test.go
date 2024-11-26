@@ -637,27 +637,42 @@ func (suite *HandlerSuite) TestUpdateOrdersHandler() {
 			reportByDate := time.Date(2018, time.August, 1, 0, 0, 0, 0, time.UTC)
 			deptIndicator := internalmessages.DeptIndicatorAIRANDSPACEFORCE
 
-			payload := &internalmessages.CreateUpdateOrders{
-				OrdersNumber:         handlers.FmtString(newOrdersNumber),
-				OrdersType:           &newOrdersType,
-				NewDutyLocationID:    handlers.FmtUUID(newDutyLocation.ID),
-				OriginDutyLocationID: *handlers.FmtUUID(*order.OriginDutyLocationID),
-				IssueDate:            handlers.FmtDate(issueDate),
-				ReportByDate:         handlers.FmtDate(reportByDate),
-				DepartmentIndicator:  &deptIndicator,
-				HasDependents:        handlers.FmtBool(false),
-				SpouseHasProGear:     handlers.FmtBool(false),
-				Grade:                models.ServiceMemberGradeE4.Pointer(),
-				MoveID:               *handlers.FmtUUID(move.ID),
-				CounselingOfficeID:   handlers.FmtUUID(*newDutyLocation.TransportationOfficeID),
-				ServiceMemberID:      handlers.FmtUUID(order.ServiceMemberID),
-			}
-			// The default move factory does not include OCONUS fields, set these
-			// new fields conditionally for the update
-			if tc.isOconus {
-				payload.AccompaniedTour = models.BoolPointer(true)
-				payload.DependentsTwelveAndOver = models.Int64Pointer(5)
-				payload.DependentsUnderTwelve = models.Int64Pointer(5)
+			var payload *internalmessages.CreateUpdateOrders
+			if tc.isOconus != true {
+				payload = &internalmessages.CreateUpdateOrders{
+					OrdersNumber:         handlers.FmtString(newOrdersNumber),
+					OrdersType:           &newOrdersType,
+					NewDutyLocationID:    handlers.FmtUUID(newDutyLocation.ID),
+					OriginDutyLocationID: *handlers.FmtUUID(*order.OriginDutyLocationID),
+					IssueDate:            handlers.FmtDate(issueDate),
+					ReportByDate:         handlers.FmtDate(reportByDate),
+					DepartmentIndicator:  &deptIndicator,
+					HasDependents:        handlers.FmtBool(false),
+					SpouseHasProGear:     handlers.FmtBool(false),
+					Grade:                models.ServiceMemberGradeE5.Pointer(),
+					MoveID:               *handlers.FmtUUID(move.ID),
+					CounselingOfficeID:   handlers.FmtUUID(*newDutyLocation.TransportationOfficeID),
+					ServiceMemberID:      handlers.FmtUUID(order.ServiceMemberID),
+				}
+			} else {
+				payload = &internalmessages.CreateUpdateOrders{
+					OrdersNumber:            handlers.FmtString(newOrdersNumber),
+					OrdersType:              &newOrdersType,
+					NewDutyLocationID:       handlers.FmtUUID(newDutyLocation.ID),
+					OriginDutyLocationID:    *handlers.FmtUUID(*order.OriginDutyLocationID),
+					IssueDate:               handlers.FmtDate(issueDate),
+					ReportByDate:            handlers.FmtDate(reportByDate),
+					DepartmentIndicator:     &deptIndicator,
+					HasDependents:           handlers.FmtBool(false),
+					SpouseHasProGear:        handlers.FmtBool(false),
+					Grade:                   models.ServiceMemberGradeE4.Pointer(),
+					MoveID:                  *handlers.FmtUUID(move.ID),
+					CounselingOfficeID:      handlers.FmtUUID(*newDutyLocation.TransportationOfficeID),
+					ServiceMemberID:         handlers.FmtUUID(order.ServiceMemberID),
+					AccompaniedTour:         models.BoolPointer(true),
+					DependentsTwelveAndOver: models.Int64Pointer(5),
+					DependentsUnderTwelve:   models.Int64Pointer(5),
+				}
 			}
 
 			path := fmt.Sprintf("/orders/%v", order.ID.String())
