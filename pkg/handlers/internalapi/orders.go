@@ -354,36 +354,16 @@ func (h UpdateOrdersHandler) Handle(params ordersop.UpdateOrdersParams) middlewa
 			}
 
 			payload := params.UpdateOrders
-
-			originDutyLocationID, err := uuid.FromString(payload.OriginDutyLocationID.String())
+			dutyLocationID, err := uuid.FromString(payload.NewDutyLocationID.String())
 			if err != nil {
 				return handlers.ResponseForError(appCtx.Logger(), err), err
 			}
-			originDutyLocation, err := models.FetchDutyLocation(appCtx.DB(), originDutyLocationID)
-			if err != nil {
-				return handlers.ResponseForError(appCtx.Logger(), err), err
-			}
-
-			destinationDutyLocationID, err := uuid.FromString(payload.NewDutyLocationID.String())
-			if err != nil {
-				return handlers.ResponseForError(appCtx.Logger(), err), err
-			}
-			destinationDutyLocation, err := models.FetchDutyLocation(appCtx.DB(), destinationDutyLocationID)
+			dutyLocation, err := models.FetchDutyLocation(appCtx.DB(), dutyLocationID)
 			if err != nil {
 				return handlers.ResponseForError(appCtx.Logger(), err), err
 			}
 
-			originGBLOC, originGBLOCerr := models.FetchGBLOCForPostalCode(appCtx.DB(), originDutyLocation.Address.PostalCode)
-			if originGBLOCerr != nil {
-				return handlers.ResponseForError(appCtx.Logger(), originGBLOCerr), originGBLOCerr
-			}
-
-			order.OriginDutyLocationGBLOC = &originGBLOC.GBLOC
-			if originGBLOCerr != nil {
-				return handlers.ResponseForError(appCtx.Logger(), originGBLOCerr), originGBLOCerr
-			}
-
-			newDutyLocationGBLOC, err := models.FetchGBLOCForPostalCode(appCtx.DB(), destinationDutyLocation.Address.PostalCode)
+			newDutyLocationGBLOC, err := models.FetchGBLOCForPostalCode(appCtx.DB(), dutyLocation.Address.PostalCode)
 			if err != nil {
 				err = apperror.NewBadDataError("New duty location GBLOC cannot be verified")
 				appCtx.Logger().Error(err.Error())
@@ -399,18 +379,10 @@ func (h UpdateOrdersHandler) Handle(params ordersop.UpdateOrdersParams) middlewa
 				if errorOrigin != nil {
 					return handlers.ResponseForError(appCtx.Logger(), errorOrigin), errorOrigin
 				}
-
-				originGBLOC, originGBLOCerr := models.FetchGBLOCForPostalCode(appCtx.DB(), originDutyLocation.Address.PostalCode)
-				if originGBLOCerr != nil {
-					return handlers.ResponseForError(appCtx.Logger(), originGBLOCerr), originGBLOCerr
-				}
-
-				order.OriginDutyLocationGBLOC = &originGBLOC.GBLOC
 				order.OriginDutyLocation = &originDutyLocation
 				order.OriginDutyLocationID = &originDutyLocationID
 
 				if payload.MoveID != "" {
-
 					moveID, err := uuid.FromString(payload.MoveID.String())
 					if err != nil {
 						return handlers.ResponseForError(appCtx.Logger(), err), err
@@ -428,6 +400,11 @@ func (h UpdateOrdersHandler) Handle(params ordersop.UpdateOrdersParams) middlewa
 					} else {
 						move.CounselingOfficeID = nil
 					}
+					originGBLOC, originGBLOCerr := models.FetchGBLOCForPostalCode(appCtx.DB(), originDutyLocation.Address.PostalCode)
+					if originGBLOCerr != nil {
+						return handlers.ResponseForError(appCtx.Logger(), originGBLOCerr), originGBLOCerr
+					}
+					order.OriginDutyLocationGBLOC = &originGBLOC.GBLOC
 					verrs, err := models.SaveMoveDependencies(appCtx.DB(), move)
 					if err != nil || verrs.HasAny() {
 						return handlers.ResponseForError(appCtx.Logger(), err), err
@@ -447,8 +424,8 @@ func (h UpdateOrdersHandler) Handle(params ordersop.UpdateOrdersParams) middlewa
 			order.OrdersTypeDetail = payload.OrdersTypeDetail
 			order.HasDependents = *payload.HasDependents
 			order.SpouseHasProGear = *payload.SpouseHasProGear
-			order.NewDutyLocationID = destinationDutyLocation.ID
-			order.NewDutyLocation = destinationDutyLocation
+			order.NewDutyLocationID = dutyLocation.ID
+			order.NewDutyLocation = dutyLocation
 			order.DestinationGBLOC = &newDutyLocationGBLOC.GBLOC
 			order.TAC = payload.Tac
 			order.SAC = payload.Sac
@@ -457,7 +434,6 @@ func (h UpdateOrdersHandler) Handle(params ordersop.UpdateOrdersParams) middlewa
 			if err != nil {
 				return handlers.ResponseForError(appCtx.Logger(), err), err
 			}
-
 			serviceMember, err := models.FetchServiceMemberForUser(appCtx.DB(), appCtx.Session(), serviceMemberID)
 			if err != nil {
 				return handlers.ResponseForError(appCtx.Logger(), err), err
@@ -474,19 +450,16 @@ func (h UpdateOrdersHandler) Handle(params ordersop.UpdateOrdersParams) middlewa
 				// Assign default SIT allowance based on customer type.
 				// We only have service members right now, but once we introduce more, this logic will have to change.
 				sitDaysAllowance := models.DefaultServiceMemberSITDaysAllowance
-
 				var dependentsTwelveAndOver *int
 				var dependentsUnderTwelve *int
 				if payload.DependentsTwelveAndOver != nil {
 					// Convert from int64 to int
 					dependentsTwelveAndOver = models.IntPointer(int(*payload.DependentsTwelveAndOver))
 				}
-
 				if payload.DependentsUnderTwelve != nil {
 					// Convert from int64 to int
 					dependentsUnderTwelve = models.IntPointer(int(*payload.DependentsUnderTwelve))
 				}
-
 				var grade *internalmessages.OrderPayGrade
 				if payload.Grade != nil {
 					grade = payload.Grade
