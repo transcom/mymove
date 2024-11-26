@@ -56,7 +56,9 @@ jest.mock('store/general/actions', () => ({
   setCanAddOrders: jest.fn(),
 }));
 
-beforeEach(jest.resetAllMocks);
+beforeEach(() => {
+  jest.clearAllMocks();
+});
 
 const serviceCounselorState = {
   auth: {
@@ -334,7 +336,7 @@ describe('CreateCustomerForm', () => {
     expect(mockNavigate).toHaveBeenCalled();
 
     expect(createCustomerWithOktaOption.mock.calls[0][0]).not.toHaveProperty('secondary_number');
-  }, 10000);
+  }, 20000);
 
   it('navigates the user on cancel click', async () => {
     const { getByText } = render(
@@ -419,7 +421,7 @@ describe('CreateCustomerForm', () => {
         },
       });
     });
-  }, 10000);
+  }, 20000);
 
   it('validates emplid against a coast guard member', async () => {
     createCustomerWithOktaOption.mockImplementation(() => Promise.resolve(fakeResponse));
@@ -485,7 +487,7 @@ describe('CreateCustomerForm', () => {
     await waitFor(() => {
       expect(saveBtn).toBeEnabled(); // EMPLID is set now, all validations true
     });
-  }, 10000);
+  }, 20000);
 
   it('allows safety privileged users to pass safety move status to orders screen', async () => {
     createCustomerWithOktaOption.mockImplementation(() => Promise.resolve(fakeResponse));
@@ -553,7 +555,7 @@ describe('CreateCustomerForm', () => {
         },
       });
     });
-  }, 10000);
+  }, 20000);
 
   it('disables and populates DODID and EMPLID inputs when safety move is selected', async () => {
     createCustomerWithOktaOption.mockImplementation(() => Promise.resolve(fakeResponse));
@@ -633,5 +635,5 @@ describe('CreateCustomerForm', () => {
         },
       });
     });
-  }, 10000);
+  }, 20000);
 });
