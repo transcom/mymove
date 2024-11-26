@@ -349,7 +349,7 @@ class MtoShipmentForm extends Component {
 
                           <AddressFields
                             name="pickup.address"
-                            legend="Pickup location"
+                            legend="Pickup Address"
                             labelHint="Required"
                             render={(fields) => (
                               <>
@@ -362,7 +362,7 @@ class MtoShipmentForm extends Component {
                                   id="useCurrentResidenceCheckbox"
                                 />
                                 {fields}
-                                <h4>Second pickup location</h4>
+                                <h4>Second Pickup Address</h4>
                                 <FormGroup>
                                   <p>
                                     Do you want movers to pick up any belongings from a second address? (Must be near
@@ -376,7 +376,7 @@ class MtoShipmentForm extends Component {
                                       label="Yes"
                                       name="hasSecondaryPickup"
                                       value="yes"
-                                      title="Yes, I have a second pickup location"
+                                      title="Yes, I have a second pickup address"
                                       checked={hasSecondaryPickup === 'yes'}
                                     />
                                     <Field
@@ -386,7 +386,7 @@ class MtoShipmentForm extends Component {
                                       label="No"
                                       name="hasSecondaryPickup"
                                       value="no"
-                                      title="No, I do not have a second pickup location"
+                                      title="No, I do not have a second pickup address"
                                       checked={hasSecondaryPickup !== 'yes'}
                                     />
                                   </div>
@@ -406,7 +406,7 @@ class MtoShipmentForm extends Component {
                                           label="Yes"
                                           name="hasTertiaryPickup"
                                           value="yes"
-                                          title="Yes, I have a third pickup location"
+                                          title="Yes, I have a third pickup address"
                                           checked={hasTertiaryPickup === 'yes'}
                                         />
                                         <Field
@@ -416,7 +416,7 @@ class MtoShipmentForm extends Component {
                                           label="No"
                                           name="hasTertiaryPickup"
                                           value="no"
-                                          title="No, I do not have a third pickup location"
+                                          title="No, I do not have a third pickup address"
                                           checked={hasTertiaryPickup !== 'yes'}
                                         />
                                       </div>
@@ -427,7 +427,7 @@ class MtoShipmentForm extends Component {
                                   hasTertiaryPickup === 'yes' &&
                                   hasSecondaryPickup === 'yes' && (
                                     <>
-                                      <h3>Third pickup location</h3>
+                                      <h3>Third Pickup Address</h3>
                                       <AddressFields name="tertiaryPickup.address" labelHint="Required" />
                                     </>
                                   )}
@@ -450,7 +450,7 @@ class MtoShipmentForm extends Component {
 
                       {showDeliveryFields && (
                         <SectionWrapper className={formStyles.formSection}>
-                          {showPickupFields && <h2>Destination info</h2>}
+                          {showPickupFields && <h2>Delivery Address info</h2>}
                           <Fieldset legend="Date">
                             <Hint>
                               You will finalize an actual delivery date later by talking with your Customer Care
@@ -470,7 +470,7 @@ class MtoShipmentForm extends Component {
                             />
                           </Fieldset>
 
-                          <Fieldset legend="Delivery location">
+                          <Fieldset legend="Delivery Address">
                             {!isNTSR && (
                               <FormGroup>
                                 <Label hint="Required" htmlFor="hasDeliveryAddress">
@@ -505,7 +505,7 @@ class MtoShipmentForm extends Component {
                                 render={(fields) => (
                                   <>
                                     {fields}
-                                    <h4>Second delivery location</h4>
+                                    <h4>Second Delivery Address</h4>
                                     <FormGroup>
                                       <p>
                                         Do you want the movers to deliver any belongings to a second address? (Must be
@@ -519,7 +519,7 @@ class MtoShipmentForm extends Component {
                                           label="Yes"
                                           name="hasSecondaryDelivery"
                                           value="yes"
-                                          title="Yes, I have a second destination location"
+                                          title="Yes, I have a second delivery address"
                                           checked={hasSecondaryDelivery === 'yes'}
                                         />
                                         <Field
@@ -529,7 +529,7 @@ class MtoShipmentForm extends Component {
                                           label="No"
                                           name="hasSecondaryDelivery"
                                           value="no"
-                                          title="No, I do not have a second destination location"
+                                          title="No, I do not have a second delivery address"
                                           checked={hasSecondaryDelivery === 'no'}
                                         />
                                       </div>
@@ -549,7 +549,7 @@ class MtoShipmentForm extends Component {
                                               label="Yes"
                                               name="hasTertiaryDelivery"
                                               value="yes"
-                                              title="Yes, I have a third delivery location"
+                                              title="Yes, I have a third delivery address"
                                               checked={hasTertiaryDelivery === 'yes'}
                                             />
                                             <Field
@@ -559,7 +559,7 @@ class MtoShipmentForm extends Component {
                                               label="No"
                                               name="hasTertiaryDelivery"
                                               value="no"
-                                              title="No, I do not have a third delivery location"
+                                              title="No, I do not have a third delivery address"
                                               checked={hasTertiaryDelivery === 'no'}
                                             />
                                           </div>
@@ -570,7 +570,7 @@ class MtoShipmentForm extends Component {
                                       hasTertiaryDelivery === 'yes' &&
                                       hasSecondaryDelivery === 'yes' && (
                                         <>
-                                          <h4>Third delivery location</h4>
+                                          <h4>Third Delivery Address</h4>
                                           <AddressFields name="tertiaryDelivery.address" labelHint="Required" />
                                         </>
                                       )}
@@ -649,7 +649,7 @@ class MtoShipmentForm extends Component {
                                   </li>
                                 )}
                                 <li>Large, bulky, or fragile items</li>
-                                <li>Access info for your origin or destination address</li>
+                                <li>Access info for your pickup or delivery address</li>
                                 <li>You’re shipping weapons or alcohol</li>
                               </ul>
                             </Callout>
