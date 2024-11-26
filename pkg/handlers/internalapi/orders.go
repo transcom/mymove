@@ -399,6 +399,13 @@ func (h UpdateOrdersHandler) Handle(params ordersop.UpdateOrdersParams) middlewa
 				if errorOrigin != nil {
 					return handlers.ResponseForError(appCtx.Logger(), errorOrigin), errorOrigin
 				}
+
+				originGBLOC, originGBLOCerr := models.FetchGBLOCForPostalCode(appCtx.DB(), originDutyLocation.Address.PostalCode)
+				if originGBLOCerr != nil {
+					return handlers.ResponseForError(appCtx.Logger(), originGBLOCerr), originGBLOCerr
+				}
+
+				order.OriginDutyLocationGBLOC = &originGBLOC.GBLOC
 				order.OriginDutyLocation = &originDutyLocation
 				order.OriginDutyLocationID = &originDutyLocationID
 
@@ -440,8 +447,6 @@ func (h UpdateOrdersHandler) Handle(params ordersop.UpdateOrdersParams) middlewa
 			order.OrdersTypeDetail = payload.OrdersTypeDetail
 			order.HasDependents = *payload.HasDependents
 			order.SpouseHasProGear = *payload.SpouseHasProGear
-			order.OriginDutyLocationID = &originDutyLocation.ID
-			order.OriginDutyLocation = &originDutyLocation
 			order.NewDutyLocationID = destinationDutyLocation.ID
 			order.NewDutyLocation = destinationDutyLocation
 			order.DestinationGBLOC = &newDutyLocationGBLOC.GBLOC
