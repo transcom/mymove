@@ -113,27 +113,120 @@ func FindDutyLocationsExcludingStates(tx *pop.Connection, search string, exclusi
 	}
 
 	sql_builder := strings.Builder{}
-	sql_builder.WriteString(`with names as (
-		(select id as duty_location_id, name, similarity(name, $1) as sim
-		from duty_locations
-		where name % $1
-		order by sim desc
-		limit 5)
-		union
-		(select duty_location_id, name, similarity(name, $1) as sim
-		from duty_location_names
-		where name % $1
-		order by sim desc
-		limit 5)
-		union
-		(select dl.id as duty_location_id, dl.name as name, 1 as sim
-		from duty_locations as dl
-		inner join addresses a2 on dl.address_id = a2.id  and dl.affiliation is null
-		where a2.postal_code ILIKE $1
-		limit 5)
+	sql_builder.WriteString(`with names as
+	(
+		(
+	        -- search against duty_locations table
+			(
+				select
+					id as duty_location_id,
+					name,
+					similarity(name, $1) as sim
+				from
+					duty_locations
+				where
+					name % $1
+				order by sim desc limit 5
+			)
+			-- exclude OCONUS locations that are not active
+			except
+			(
+				select
+					d.id as duty_location_id,
+					d.name,
+					similarity(d.name, $1) as sim
+				from
+					duty_locations d,
+					addresses a,
+					re_oconus_rate_areas o,
+					re_rate_areas r
+				where d.name % $1
+				and d.address_id = a.id
+				and a.us_post_region_cities_id = o.us_post_region_cities_id
+				and o.rate_area_id = r.id
+				and o.active = false
+			)
 		)
-		select dl.*
-		from names n
+		union
+		(
+		    -- search against duty_location_names table for alternative names
+			(
+				select
+					duty_location_id,
+					name,
+					similarity(name, $1) as sim
+				from
+					duty_location_names
+				where
+					name % $1
+				order by sim desc limit 5
+			)
+			-- exclude OCONUS locations that are not active
+			except
+			(
+				select
+					dn.duty_location_id,
+					dn.name,
+					similarity(dn.name, $1) as sim
+				from
+					duty_location_names dn,
+					duty_locations d,
+					addresses a,
+					re_oconus_rate_areas o,
+					re_rate_areas r
+				where
+					dn.name % $1
+					and dn.duty_location_id = d.id
+					and d.address_id = a.id
+					and a.us_post_region_cities_id = o.us_post_region_cities_id
+					and o.rate_area_id = r.id
+					and o.active = false
+				order by sim desc limit 5
+			)
+		)
+		union
+		(
+		    -- search against duty_locations table if postal code
+			(
+				select
+					dl.id as duty_location_id,
+					dl.name as name,
+					1 as sim
+				from
+					duty_locations as dl
+					inner join addresses a2 on dl.address_id = a2.id
+					and dl.affiliation is null
+				where
+					a2.postal_code ILIKE $1
+				limit 5
+			)
+			-- exclude OCONUS locations that are not active
+			except
+			(
+				select
+					dl.id as duty_location_id,
+					dl.name as name,
+					1 as sim
+				from
+					duty_locations dl,
+					addresses a,
+					re_oconus_rate_areas o,
+					re_rate_areas r
+				where
+					dl.address_id = a.id
+					and a.us_post_region_cities_id = o.us_post_region_cities_id
+					and o.rate_area_id = r.id
+					and o.active = false
+					and a.postal_code ILIKE $1
+					and dl.affiliation is null
+				limit 5
+			)
+		)
+	)
+	select
+		dl.*
+	from
+		names n
 		inner join duty_locations dl on n.duty_location_id = dl.id`)
 
 	// apply filter to exclude specific states if provided

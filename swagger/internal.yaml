@@ -1626,13 +1626,7 @@ definitions:
       grade:
         $ref: '#/definitions/OrderPayGrade'
       orders_type:
-        type: string
-        title: Move Type
-        enum:
-          - PCS - OCONUS
-          - PCS - CONUS
-          - PCS + TDY - OCONUS
-          - PCS + TDY - CONUS
+        $ref: '#/definitions/OrdersType'
       move_date:
         type: string
         format: date
@@ -2579,6 +2573,8 @@ definitions:
       - BLUEBARK
       - SAFETY
       - TEMPORARY_DUTY
+      - EARLY_RETURN_OF_DEPENDENTS
+      - STUDENT_TRAVEL
     x-display-value:
       PERMANENT_CHANGE_OF_STATION: Permanent Change Of Station
       LOCAL_MOVE: Local Move
@@ -2588,6 +2584,8 @@ definitions:
       BLUEBARK: BLUEBARK
       SAFETY: Safety
       TEMPORARY_DUTY: Temporary Duty (TDY)
+      EARLY_RETURN_OF_DEPENDENTS: Early Return of Dependents
+      STUDENT_TRAVEL: Student Travel
   Address:
     description: A postal address
     type: object
