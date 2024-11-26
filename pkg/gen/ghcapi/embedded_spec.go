@@ -8895,6 +8895,14 @@ func init() {
           "format": "date-time",
           "readOnly": true
         },
+        "destinationGBLOC": {
+          "type": "string",
+          "example": "AGFM"
+        },
+        "destinationPostalCode": {
+          "type": "string",
+          "example": "90210"
+        },
         "eTag": {
           "type": "string",
           "readOnly": true
@@ -13087,15 +13095,15 @@ func init() {
         "branch": {
           "type": "string"
         },
-        "destinationDutyLocationPostalCode": {
+        "destinationGBLOC": {
+          "$ref": "#/definitions/GBLOC"
+        },
+        "destinationPostalCode": {
           "type": "string",
           "format": "zip",
           "title": "ZIP",
           "pattern": "^(\\d{5})$",
           "example": "90210"
-        },
-        "destinationGBLOC": {
-          "$ref": "#/definitions/GBLOC"
         },
         "edipi": {
           "type": "string",
@@ -25418,6 +25426,14 @@ func init() {
           "format": "date-time",
           "readOnly": true
         },
+        "destinationGBLOC": {
+          "type": "string",
+          "example": "AGFM"
+        },
+        "destinationPostalCode": {
+          "type": "string",
+          "example": "90210"
+        },
         "eTag": {
           "type": "string",
           "readOnly": true
@@ -29736,15 +29752,15 @@ func init() {
         "branch": {
           "type": "string"
         },
-        "destinationDutyLocationPostalCode": {
+        "destinationGBLOC": {
+          "$ref": "#/definitions/GBLOC"
+        },
+        "destinationPostalCode": {
           "type": "string",
           "format": "zip",
           "title": "ZIP",
           "pattern": "^(\\d{5})$",
           "example": "90210"
-        },
-        "destinationGBLOC": {
-          "$ref": "#/definitions/GBLOC"
         },
         "edipi": {
           "type": "string",
