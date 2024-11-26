@@ -3063,7 +3063,7 @@ paths:
         format: uuid
     post:
       summary: Flags a move for financial office review
-      description: This sets a flag which indicates that the move should be reviewed by a fincancial office. For example, if the origin or destination address of a shipment is far from the duty location and may incur excess costs to the customer.
+      description: This sets a flag which indicates that the move should be reviewed by a fincancial office. For example, if the origin or delivery address of a shipment is far from the duty location and may incur excess costs to the customer.
       operationId: setFinancialReviewFlag
       tags:
         - move
@@ -5136,7 +5136,7 @@ definitions:
         readOnly: true
       financialReviewRemarks:
         type: string
-        example: Destination address is too far from duty location
+        example: Delivery Address is too far from duty location
         x-nullable: true
         readOnly: true
       closeoutOffice:
@@ -7101,6 +7101,12 @@ definitions:
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
         format: uuid
         type: string
+      destinationGBLOC:
+        example: 'AGFM'
+        type: string
+      destinationPostalCode:
+        example: '90210'
+        type: string
       referenceId:
         example: 1001-3456
         type: string
@@ -7255,7 +7261,7 @@ definitions:
         title: ZIP
         example: '90210'
         pattern: ^(\d{5})$
-      destinationDutyLocationPostalCode:
+      destinationPostalCode:
         format: zip
         type: string
         title: ZIP

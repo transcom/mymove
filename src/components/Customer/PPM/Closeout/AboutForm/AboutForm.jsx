@@ -108,7 +108,7 @@ const AboutForm = ({ mtoShipment, onBack, onSubmit }) => {
                   render={(fields) => (
                     <>
                       {fields}
-                      <h4>Second pickup location</h4>
+                      <h4>Second Pickup Address</h4>
                       <FormGroup>
                         <p>
                           Will you pick up any belongings from a second address? (Must be near the pickup address.
@@ -122,7 +122,7 @@ const AboutForm = ({ mtoShipment, onBack, onSubmit }) => {
                             label="Yes"
                             name="hasSecondaryPickupAddress"
                             value="true"
-                            title="Yes, there is a second pickup location"
+                            title="Yes, there is a second pickup address"
                             checked={values.hasSecondaryPickupAddress === 'true'}
                           />
                           <Field
@@ -132,7 +132,7 @@ const AboutForm = ({ mtoShipment, onBack, onSubmit }) => {
                             label="No"
                             name="hasSecondaryPickupAddress"
                             value="false"
-                            title="No, there is not a second pickup location"
+                            title="No, there is not a second pickup address"
                             checked={values.hasSecondaryPickupAddress !== 'true'}
                           />
                         </div>
@@ -150,7 +150,7 @@ const AboutForm = ({ mtoShipment, onBack, onSubmit }) => {
                 />
                 <AddressFields
                   name="destinationAddress"
-                  legend="Destination Address"
+                  legend="Delivery Address"
                   className={styles.AddressFieldSet}
                   labelHint="Required"
                   locationLookup
@@ -158,10 +158,10 @@ const AboutForm = ({ mtoShipment, onBack, onSubmit }) => {
                   render={(fields) => (
                     <>
                       {fields}
-                      <h4>Second destination address</h4>
+                      <h4>Second Delivery Address</h4>
                       <FormGroup>
                         <p>
-                          Will you deliver any belongings to a second address? (Must be near the destination address.
+                          Will you deliver any belongings to a second address? (Must be near the delivery address.
                           Subject to approval.)
                         </p>
                         <div className={formStyles.radioGroup}>
@@ -172,7 +172,7 @@ const AboutForm = ({ mtoShipment, onBack, onSubmit }) => {
                             label="Yes"
                             name="hasSecondaryDestinationAddress"
                             value="true"
-                            title="Yes, there is a second destination location"
+                            title="Yes, there is a second delivery address"
                             checked={values.hasSecondaryDestinationAddress === 'true'}
                           />
                           <Field
@@ -182,7 +182,7 @@ const AboutForm = ({ mtoShipment, onBack, onSubmit }) => {
                             label="No"
                             name="hasSecondaryDestinationAddress"
                             value="false"
-                            title="No, there is not a second destination location"
+                            title="No, there is not a second delivery address"
                             checked={values.hasSecondaryDestinationAddress !== 'true'}
                           />
                         </div>

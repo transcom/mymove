@@ -875,7 +875,7 @@ const ShipmentForm = (props) => {
                 {isUB ? (
                   <p data-testid="ubWeightAllowance">
                     <strong>UB Weight allowance: </strong>
-                    {formatWeight(serviceMember.weightAllotment.ubAllowance)}
+                    {formatWeight(serviceMember.weightAllotment.unaccompaniedBaggageAllowance)}
                   </p>
                 ) : (
                   <p data-testid="weightAllowance">
