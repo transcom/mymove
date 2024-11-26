@@ -213,6 +213,7 @@ const initialValues = {
     updated_at: '2020-10-19T17:01:16.114Z',
     provides_services_counseling: true,
   },
+  counseling_office_id: '3e937c1f-5539-4919-954d-017989130584',
   new_duty_location: {
     address: {
       city: 'Des Moines',
@@ -381,7 +382,9 @@ describe('EditOrdersForm component', () => {
         {...testProps}
         initialValues={{
           origin_duty_location: {
+            name: 'Altus AFB',
             provides_services_counseling: true,
+            address: { isOconus: false },
           },
           counseling_office_id: '3e937c1f-5539-4919-954d-017989130584',
           uploaded_orders: [
@@ -406,15 +409,12 @@ describe('EditOrdersForm component', () => {
     await userEvent.click(screen.getByLabelText('No'));
     await userEvent.selectOptions(screen.getByLabelText(/Pay grade/), ['E_5']);
 
-    // Test Current Duty Location Search Box interaction
-    await userEvent.type(screen.getByLabelText(/Current duty location/), 'AFB', { delay: 100 });
-    const selectedOptionCurrent = await screen.findByText(/Altus/);
-    await userEvent.click(selectedOptionCurrent);
-
     // Test New Duty Location Search Box interaction
     await userEvent.type(screen.getByLabelText(/New duty location/), 'AFB', { delay: 100 });
     const selectedOptionNew = await screen.findByText(/Luke/);
     await userEvent.click(selectedOptionNew);
+
+    expect(screen.getByLabelText(/Counseling office/));
 
     await waitFor(() =>
       expect(screen.getByRole('form')).toHaveFormValues({
@@ -645,8 +645,11 @@ describe('EditOrdersForm component', () => {
         {...testProps}
         initialValues={{
           origin_duty_location: {
+            name: 'Altus AFB',
             provides_services_counseling: true,
+            address: { isOconus: false },
           },
+          counseling_office_id: '3e937c1f-5539-4919-954d-017989130584',
           uploaded_orders: [
             {
               id: '123',
@@ -657,7 +660,6 @@ describe('EditOrdersForm component', () => {
               contentType: 'application/pdf',
             },
           ],
-          counseling_office_id: '3e937c1f-5539-4919-954d-017989130584',
         }}
       />,
     );
@@ -669,11 +671,6 @@ describe('EditOrdersForm component', () => {
     await userEvent.type(screen.getByLabelText(/Report by date/), '28 Oct 2024');
     await userEvent.click(screen.getByLabelText('No'));
     await userEvent.selectOptions(screen.getByLabelText(/Pay grade/), ['E_8']);
-
-    // Test Current Duty Location Search Box interaction
-    await userEvent.type(screen.getByLabelText(/Current duty location/), 'AFB', { delay: 200 });
-    const selectedOptionCurrent = await screen.findByText(/Altus/);
-    await userEvent.click(selectedOptionCurrent);
 
     // Test New Duty Location Search Box interaction
     await userEvent.type(screen.getByLabelText(/New duty location/), 'AFB', { delay: 200 });
