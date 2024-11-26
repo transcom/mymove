@@ -108,7 +108,7 @@ func (suite *HandlerSuite) TestRequestOfficeUserHandler() {
 			models.TransportationOfficeAssignment{
 				ID:                     officeUser.ID,
 				TransportationOfficeID: officeUser.TransportationOfficeID,
-				PrimaryOffice:          true,
+				PrimaryOffice:          models.BoolPointer(true),
 				CreatedAt:              time.Now(),
 				UpdatedAt:              time.Now(),
 			},
