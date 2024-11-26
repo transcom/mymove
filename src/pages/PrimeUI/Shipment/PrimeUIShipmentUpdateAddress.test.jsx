@@ -117,7 +117,7 @@ describe('PrimeUIShipmentUpdateAddress page', () => {
   });
 
   describe('displaying shipment address information', () => {
-    it('displays shipment pickup and destination address', async () => {
+    it('displays shipment pickup and delivery address', async () => {
       usePrimeSimulatorGetMove.mockReturnValue(moveReturnValue);
 
       renderComponent();

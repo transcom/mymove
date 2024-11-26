@@ -84,6 +84,37 @@ func (o *officeUserFetcherPop) FetchOfficeUsersByRoleAndOffice(appCtx appcontext
 	return officeUsers, nil
 }
 
+func (o *officeUserFetcherPop) FetchSafetyMoveOfficeUsersByRoleAndOffice(appCtx appcontext.AppContext, role roles.RoleType, officeID uuid.UUID) ([]models.OfficeUser, error) {
+	var officeUsers []models.OfficeUser
+
+	err := appCtx.DB().EagerPreload(
+		"User",
+		"User.Roles",
+		"User.Privileges",
+		"TransportationOffice",
+		"TransportationOffice.Gbloc",
+	).
+		Join("users", "users.id = office_users.user_id").
+		Join("users_roles", "users.id = users_roles.user_id").
+		Join("roles", "users_roles.role_id = roles.id").
+		LeftJoin("users_privileges", "users.id = users_privileges.user_id").
+		LeftJoin("privileges", "privileges.id = users_privileges.privilege_id").
+		Where("transportation_office_id = ?", officeID).
+		Where("role_type = ?", role).
+		Where("users_roles.deleted_at IS NULL").
+		Where("office_users.active = TRUE").
+		Where("users_privileges.deleted_at IS NULL").
+		Where("privileges.privilege_type = 'safety'").
+		Order("last_name asc").
+		All(&officeUsers)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return officeUsers, nil
+}
+
 // NewOfficeUserFetcherPop return an implementation of the OfficeUserFetcherPop interface
 func NewOfficeUserFetcherPop() services.OfficeUserFetcherPop {
 	return &officeUserFetcherPop{}
