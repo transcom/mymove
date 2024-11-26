@@ -172,38 +172,38 @@ func FetchRelatedDestinationSITFuelCharge(tx *pop.Connection, mtoServiceItemID u
 }
 
 type MTOServiceItemType struct {
-	ID                                *uuid.UUID
-	MoveID                            *uuid.UUID
-	ReServiceID                       *uuid.UUID
-	CreatedAt                         *time.Time
-	UpdatedAt                         *time.Time
-	Reason                            *string
-	PickupPostalCode                  *string
-	Description                       *string
-	Status                            *string
-	RejectionReason                   *string
-	ApprovedAt                        *time.Time
-	SITPostalCode                     *string
-	SITEntryDate                      *time.Time
-	SITDepartureDate                  *time.Time
-	SITDestinationFinalAddressID      *uuid.UUID
-	SITOriginHHGOriginalAddressID     *uuid.UUID
-	SITOriginHHGActualAddressID       *uuid.UUID
-	EstimatedWeight                   *unit.Pound
-	ActualWeight                      *unit.Pound
-	SITDestinationOriginalAddressID   *uuid.UUID
-	SITCustomerContacted              *time.Time
-	SITRequestedDelivery              *time.Time
-	RequestedApprovalsRequestedStatus *bool
-	CustomerExpense                   *bool
-	CustomerExpenseReason             *string
-	SITDeliveryMiles                  *int
-	PricingEstimate                   *unit.Cents
-	StandaloneCrate                   *bool
-	LockedPriceCents                  *unit.Cents
-	ServiceLocation                   *ServiceLocationType
-	POELocationID                     *uuid.UUID
-	PODLocationID                     *uuid.UUID
+	ID                                *uuid.UUID           `json:"id"`
+	MoveID                            *uuid.UUID           `json:"move_Id"`
+	ReServiceID                       *uuid.UUID           `json:"re_service_id"`
+	CreatedAt                         *time.Time           `json:"created_at"`
+	UpdatedAt                         *time.Time           `json:"updated_at"`
+	Reason                            *string              `json:"reason"`
+	PickupPostalCode                  *string              `json:"pickup_postal_code"`
+	Description                       *string              `json:"description"`
+	Status                            *string              `json:"status"`
+	RejectionReason                   *string              `json:"rejected_reason"`
+	ApprovedAt                        *time.Time           `json:"approved_at"`
+	SITPostalCode                     *string              `json:"sit_postal_code"`
+	SITEntryDate                      *time.Time           `json:"sit_entry_date"`
+	SITDepartureDate                  *time.Time           `json:"sit_departure_date"`
+	SITDestinationFinalAddressID      *uuid.UUID           `json:"sit_destination_final_address_id"`
+	SITOriginHHGOriginalAddressID     *uuid.UUID           `json:"sit_origin_hhg_original_address_id"`
+	SITOriginHHGActualAddressID       *uuid.UUID           `json:"sit_origin_hhg_actual_address_id"`
+	EstimatedWeight                   *unit.Pound          `json:"estimated_weight"`
+	ActualWeight                      *unit.Pound          `json:"actual_weight"`
+	SITDestinationOriginalAddressID   *uuid.UUID           `json:"sit_destination_original_address_id"`
+	SITCustomerContacted              *time.Time           `json:"sit_customer_contacted"`
+	SITRequestedDelivery              *time.Time           `json:"sit_requested_delivery"`
+	RequestedApprovalsRequestedStatus *bool                `json:"requested_approvals_requested_status"`
+	CustomerExpense                   *bool                `json:"customer_expense"`
+	CustomerExpenseReason             *string              `json:"customer_expense_reason"`
+	SITDeliveryMiles                  *int                 `json:"sit_delivery_miles"`
+	PricingEstimate                   *unit.Cents          `json:"pricing_estimate"`
+	StandaloneCrate                   *bool                `json:"standalone_crate"`
+	LockedPriceCents                  *unit.Cents          `json:"locked_price_cents"`
+	ServiceLocation                   *ServiceLocationType `json:"service_location"`
+	POELocationID                     *uuid.UUID           `json:"poe_location_id"`
+	PODLocationID                     *uuid.UUID           `json:"pod_location_id"`
 }
 
 func (m MTOServiceItem) GetMTOServiceItemTypeFromServiceItem() MTOServiceItemType {
