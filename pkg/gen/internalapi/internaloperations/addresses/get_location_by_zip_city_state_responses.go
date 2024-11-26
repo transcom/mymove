@@ -65,11 +65,16 @@ func (o *GetLocationByZipCityStateOK) WriteResponse(rw http.ResponseWriter, prod
 const GetLocationByZipCityStateBadRequestCode int = 400
 
 /*
-GetLocationByZipCityStateBadRequest invalid request
+GetLocationByZipCityStateBadRequest The request payload is invalid.
 
 swagger:response getLocationByZipCityStateBadRequest
 */
 type GetLocationByZipCityStateBadRequest struct {
+
+	/*
+	  In: Body
+	*/
+	Payload *internalmessages.ClientError `json:"body,omitempty"`
 }
 
 // NewGetLocationByZipCityStateBadRequest creates GetLocationByZipCityStateBadRequest with default headers values
@@ -78,23 +83,43 @@ func NewGetLocationByZipCityStateBadRequest() *GetLocationByZipCityStateBadReque
 	return &GetLocationByZipCityStateBadRequest{}
 }
 
+// WithPayload adds the payload to the get location by zip city state bad request response
+func (o *GetLocationByZipCityStateBadRequest) WithPayload(payload *internalmessages.ClientError) *GetLocationByZipCityStateBadRequest {
+	o.Payload = payload
+	return o
+}
+
+// SetPayload sets the payload to the get location by zip city state bad request response
+func (o *GetLocationByZipCityStateBadRequest) SetPayload(payload *internalmessages.ClientError) {
+	o.Payload = payload
+}
+
 // WriteResponse to the client
 func (o *GetLocationByZipCityStateBadRequest) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
 
-	rw.Header().Del(runtime.HeaderContentType) //Remove Content-Type on empty responses
-
 	rw.WriteHeader(400)
+	if o.Payload != nil {
+		payload := o.Payload
+		if err := producer.Produce(rw, payload); err != nil {
+			panic(err) // let the recovery middleware deal with this
+		}
+	}
 }
 
 // GetLocationByZipCityStateForbiddenCode is the HTTP code returned for type GetLocationByZipCityStateForbidden
 const GetLocationByZipCityStateForbiddenCode int = 403
 
 /*
-GetLocationByZipCityStateForbidden not authorized
+GetLocationByZipCityStateForbidden The request was denied.
 
 swagger:response getLocationByZipCityStateForbidden
 */
 type GetLocationByZipCityStateForbidden struct {
+
+	/*
+	  In: Body
+	*/
+	Payload *internalmessages.ClientError `json:"body,omitempty"`
 }
 
 // NewGetLocationByZipCityStateForbidden creates GetLocationByZipCityStateForbidden with default headers values
@@ -103,23 +128,43 @@ func NewGetLocationByZipCityStateForbidden() *GetLocationByZipCityStateForbidden
 	return &GetLocationByZipCityStateForbidden{}
 }
 
+// WithPayload adds the payload to the get location by zip city state forbidden response
+func (o *GetLocationByZipCityStateForbidden) WithPayload(payload *internalmessages.ClientError) *GetLocationByZipCityStateForbidden {
+	o.Payload = payload
+	return o
+}
+
+// SetPayload sets the payload to the get location by zip city state forbidden response
+func (o *GetLocationByZipCityStateForbidden) SetPayload(payload *internalmessages.ClientError) {
+	o.Payload = payload
+}
+
 // WriteResponse to the client
 func (o *GetLocationByZipCityStateForbidden) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
 
-	rw.Header().Del(runtime.HeaderContentType) //Remove Content-Type on empty responses
-
 	rw.WriteHeader(403)
+	if o.Payload != nil {
+		payload := o.Payload
+		if err := producer.Produce(rw, payload); err != nil {
+			panic(err) // let the recovery middleware deal with this
+		}
+	}
 }
 
 // GetLocationByZipCityStateNotFoundCode is the HTTP code returned for type GetLocationByZipCityStateNotFound
 const GetLocationByZipCityStateNotFoundCode int = 404
 
 /*
-GetLocationByZipCityStateNotFound not found
+GetLocationByZipCityStateNotFound The requested resource wasn't found.
 
 swagger:response getLocationByZipCityStateNotFound
 */
 type GetLocationByZipCityStateNotFound struct {
+
+	/*
+	  In: Body
+	*/
+	Payload *internalmessages.ClientError `json:"body,omitempty"`
 }
 
 // NewGetLocationByZipCityStateNotFound creates GetLocationByZipCityStateNotFound with default headers values
@@ -128,23 +173,43 @@ func NewGetLocationByZipCityStateNotFound() *GetLocationByZipCityStateNotFound {
 	return &GetLocationByZipCityStateNotFound{}
 }
 
+// WithPayload adds the payload to the get location by zip city state not found response
+func (o *GetLocationByZipCityStateNotFound) WithPayload(payload *internalmessages.ClientError) *GetLocationByZipCityStateNotFound {
+	o.Payload = payload
+	return o
+}
+
+// SetPayload sets the payload to the get location by zip city state not found response
+func (o *GetLocationByZipCityStateNotFound) SetPayload(payload *internalmessages.ClientError) {
+	o.Payload = payload
+}
+
 // WriteResponse to the client
 func (o *GetLocationByZipCityStateNotFound) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
 
-	rw.Header().Del(runtime.HeaderContentType) //Remove Content-Type on empty responses
-
 	rw.WriteHeader(404)
+	if o.Payload != nil {
+		payload := o.Payload
+		if err := producer.Produce(rw, payload); err != nil {
+			panic(err) // let the recovery middleware deal with this
+		}
+	}
 }
 
 // GetLocationByZipCityStateInternalServerErrorCode is the HTTP code returned for type GetLocationByZipCityStateInternalServerError
 const GetLocationByZipCityStateInternalServerErrorCode int = 500
 
 /*
-GetLocationByZipCityStateInternalServerError server error
+GetLocationByZipCityStateInternalServerError A server error occurred.
 
 swagger:response getLocationByZipCityStateInternalServerError
 */
 type GetLocationByZipCityStateInternalServerError struct {
+
+	/*
+	  In: Body
+	*/
+	Payload *internalmessages.Error `json:"body,omitempty"`
 }
 
 // NewGetLocationByZipCityStateInternalServerError creates GetLocationByZipCityStateInternalServerError with default headers values
@@ -153,10 +218,25 @@ func NewGetLocationByZipCityStateInternalServerError() *GetLocationByZipCityStat
 	return &GetLocationByZipCityStateInternalServerError{}
 }
 
+// WithPayload adds the payload to the get location by zip city state internal server error response
+func (o *GetLocationByZipCityStateInternalServerError) WithPayload(payload *internalmessages.Error) *GetLocationByZipCityStateInternalServerError {
+	o.Payload = payload
+	return o
+}
+
+// SetPayload sets the payload to the get location by zip city state internal server error response
+func (o *GetLocationByZipCityStateInternalServerError) SetPayload(payload *internalmessages.Error) {
+	o.Payload = payload
+}
+
 // WriteResponse to the client
 func (o *GetLocationByZipCityStateInternalServerError) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
 
-	rw.Header().Del(runtime.HeaderContentType) //Remove Content-Type on empty responses
-
 	rw.WriteHeader(500)
+	if o.Payload != nil {
+		payload := o.Payload
+		if err := producer.Produce(rw, payload); err != nil {
+			panic(err) // let the recovery middleware deal with this
+		}
+	}
 }

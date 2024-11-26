@@ -35,7 +35,7 @@ func (suite *HandlerSuite) TestShowAddressHandler() {
 			City:           "city",
 			State:          "state",
 			PostalCode:     "12345",
-			County:         "JESSAMINE",
+			County:         models.StringPointer("JESSAMINE"),
 			IsOconus:       models.BoolPointer(false),
 		}
 		suite.MustSave(&address)

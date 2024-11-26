@@ -180,14 +180,14 @@ func (f mtoShipmentCreator) CreateMTOShipment(appCtx appcontext.AppContext, ship
 	}
 
 	// Populate address county information
-	if shipment.PickupAddress != nil && shipment.PickupAddress.County == "" {
+	if shipment.PickupAddress != nil && shipment.PickupAddress.County == nil || *shipment.PickupAddress.County == "" {
 		shipment.PickupAddress.County, err = models.FindCountyByZipCode(appCtx.DB(), shipment.PickupAddress.PostalCode)
 		if err != nil {
 			return nil, err
 		}
 	}
 
-	if shipment.DestinationAddress != nil && shipment.DestinationAddress.County == "" {
+	if shipment.DestinationAddress != nil && shipment.DestinationAddress.County == nil && *shipment.DestinationAddress.County == "" {
 		shipment.DestinationAddress.County, err = models.FindCountyByZipCode(appCtx.DB(), shipment.DestinationAddress.PostalCode)
 		if err != nil {
 			return nil, err
