@@ -77,8 +77,6 @@ const (
 	ReServiceCodeICOUB ReServiceCode = "ICOUB"
 	// ReServiceCodeICRT International crating
 	ReServiceCodeICRT ReServiceCode = "ICRT"
-	// ReServiceCodeICRTSA International crating - standalone
-	ReServiceCodeICRTSA ReServiceCode = "ICRTSA"
 	// ReServiceCodeIDASIT International destination add'l day SIT
 	ReServiceCodeIDASIT ReServiceCode = "IDASIT"
 	// ReServiceCodeIDDSIT International destination SIT delivery
