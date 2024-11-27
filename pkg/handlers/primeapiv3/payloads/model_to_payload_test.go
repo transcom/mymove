@@ -957,3 +957,145 @@ func (suite *PayloadsSuite) TestMarketCode() {
 		suite.Equal("i", result, "Expected result to be 'i' for international market code")
 	})
 }
+
+func (suite *PayloadsSuite) TestMTOServiceItemPOEFSC() {
+	portType := models.PortTypeAir
+	portCode := "PDX"
+	portName := "PORTLAND INTL"
+	city := "PORTLAND"
+	county := "MULTNOMAH"
+	state := "Oregon"
+	zip := "97220"
+	country := "US"
+	reServiceCode := models.ReServiceCodePOEFSC
+	mtoShipmentId := uuid.Must(uuid.NewV4())
+	mtoReferenceId := uuid.Must(uuid.NewV4()).String()
+
+	portLocation := models.PortLocation{
+		Port: models.Port{
+			PortType: portType,
+			PortCode: portCode,
+			PortName: portName,
+		},
+		City: models.City{
+			CityName: city,
+		},
+		UsPostRegionCity: models.UsPostRegionCity{
+			UsprcCountyNm: county,
+			UsprZipID:     zip,
+			UsPostRegion: models.UsPostRegion{
+				State: models.State{
+					StateName: state,
+				},
+			},
+		},
+		Country: models.Country{
+			CountryName: country,
+		},
+	}
+
+	mtoServiceItemPOEFSC := &models.MTOServiceItem{
+		ID:            uuid.Must(uuid.NewV4()),
+		MTOShipmentID: &mtoShipmentId,
+		ReService:     models.ReService{Code: reServiceCode},
+		POELocation:   &portLocation,
+	}
+	mtoServiceItems := [...]models.MTOServiceItem{*mtoServiceItemPOEFSC}
+
+	mtoShipment := models.MTOShipment{
+		ID: mtoShipmentId,
+	}
+	mtoShipments := [...]models.MTOShipment{mtoShipment}
+
+	//move
+	move := models.Move{
+		MTOShipments:    mtoShipments[:],
+		MTOServiceItems: mtoServiceItems[:],
+		ReferenceID:     &mtoReferenceId,
+		Contractor: &models.Contractor{
+			ContractNumber: factory.DefaultContractNumber,
+		},
+	}
+
+	mtoPayload := MoveTaskOrder(&move)
+	suite.NotNil(mtoPayload)
+	suite.Equal(mtoPayload.MtoShipments[0].PortOfEmbarkation.PortType, portType.String())
+	suite.Equal(mtoPayload.MtoShipments[0].PortOfEmbarkation.PortCode, portCode)
+	suite.Equal(mtoPayload.MtoShipments[0].PortOfEmbarkation.PortName, portName)
+	suite.Equal(mtoPayload.MtoShipments[0].PortOfEmbarkation.City, city)
+	suite.Equal(mtoPayload.MtoShipments[0].PortOfEmbarkation.County, county)
+	suite.Equal(mtoPayload.MtoShipments[0].PortOfEmbarkation.State, state)
+	suite.Equal(mtoPayload.MtoShipments[0].PortOfEmbarkation.Zip, zip)
+	suite.Equal(mtoPayload.MtoShipments[0].PortOfEmbarkation.Country, country)
+}
+
+func (suite *PayloadsSuite) TestMTOServiceItemPODFSC() {
+	portType := models.PortTypeAir
+	portCode := "PDX"
+	portName := "PORTLAND INTL"
+	city := "PORTLAND"
+	county := "MULTNOMAH"
+	state := "Oregon"
+	zip := "97220"
+	country := "US"
+	reServiceCode := models.ReServiceCodePODFSC
+	mtoShipmentId := uuid.Must(uuid.NewV4())
+	mtoReferenceId := uuid.Must(uuid.NewV4()).String()
+
+	portLocation := models.PortLocation{
+		Port: models.Port{
+			PortType: portType,
+			PortCode: portCode,
+			PortName: portName,
+		},
+		City: models.City{
+			CityName: city,
+		},
+		UsPostRegionCity: models.UsPostRegionCity{
+			UsprcCountyNm: county,
+			UsprZipID:     zip,
+			UsPostRegion: models.UsPostRegion{
+				State: models.State{
+					StateName: state,
+				},
+			},
+		},
+		Country: models.Country{
+			CountryName: country,
+		},
+	}
+
+	mtoServiceItemPODFSC := &models.MTOServiceItem{
+		ID:            uuid.Must(uuid.NewV4()),
+		MTOShipmentID: &mtoShipmentId,
+		ReService:     models.ReService{Code: reServiceCode},
+		PODLocation:   &portLocation,
+	}
+	mtoServiceItems := [...]models.MTOServiceItem{*mtoServiceItemPODFSC}
+
+	mtoShipment := models.MTOShipment{
+		ID: mtoShipmentId,
+	}
+	mtoShipments := [...]models.MTOShipment{mtoShipment}
+
+	//move
+	move := models.Move{
+		MTOShipments:    mtoShipments[:],
+		MTOServiceItems: mtoServiceItems[:],
+		ReferenceID:     &mtoReferenceId,
+		Contractor: &models.Contractor{
+			ContractNumber: factory.DefaultContractNumber,
+		},
+	}
+
+	mtoPayload := MoveTaskOrder(&move)
+	suite.NotNil(mtoPayload)
+	suite.Equal(mtoPayload.MtoShipments[0].PortOfDebarkation.PortType, portType.String())
+	suite.Equal(mtoPayload.MtoShipments[0].PortOfDebarkation.PortCode, portCode)
+	suite.Equal(mtoPayload.MtoShipments[0].PortOfDebarkation.PortName, portName)
+	suite.Equal(mtoPayload.MtoShipments[0].PortOfDebarkation.City, city)
+	suite.Equal(mtoPayload.MtoShipments[0].PortOfDebarkation.County, county)
+	suite.Equal(mtoPayload.MtoShipments[0].PortOfDebarkation.State, state)
+	suite.Equal(mtoPayload.MtoShipments[0].PortOfDebarkation.Zip, zip)
+	suite.Equal(mtoPayload.MtoShipments[0].PortOfDebarkation.Country, country)
+}
