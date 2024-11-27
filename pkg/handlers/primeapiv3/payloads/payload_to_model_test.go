@@ -762,8 +762,9 @@ func (suite *PayloadsSuite) TestPPMShipmentModelFromCreate() {
 		IsActualExpenseReimbursement: models.BoolPointer(true),
 	}
 
-	model := PPMShipmentModelFromCreate(&ppmShipment)
+	model, err := PPMShipmentModelFromCreate(&ppmShipment)
 
+	suite.NoError(err)
 	suite.NotNil(model)
 	suite.Equal(models.PPMShipmentStatusSubmitted, model.Status)
 	suite.True(*model.SITExpected)
@@ -1214,8 +1215,9 @@ func (suite *PayloadsSuite) TestPPMShipmentModelWithOptionalDestinationStreet1Fr
 		}{destinationAddress},
 	}
 
-	model := PPMShipmentModelFromCreate(&ppmShipment)
+	model, err := PPMShipmentModelFromCreate(&ppmShipment)
 
+	suite.NoError(err)
 	suite.NotNil(model)
 	suite.Equal(models.PPMShipmentStatusSubmitted, model.Status)
 	suite.Equal(model.DestinationAddress.StreetAddress1, models.STREET_ADDRESS_1_NOT_PROVIDED)
@@ -1230,7 +1232,8 @@ func (suite *PayloadsSuite) TestPPMShipmentModelWithOptionalDestinationStreet1Fr
 		}{destinationAddress},
 	}
 
-	model2 := PPMShipmentModelFromCreate(&ppmShipmentWhiteSpaces)
+	model2, err := PPMShipmentModelFromCreate(&ppmShipmentWhiteSpaces)
+	suite.NoError(err)
 	suite.Equal(model2.DestinationAddress.StreetAddress1, models.STREET_ADDRESS_1_NOT_PROVIDED)
 
 	// test with valid street address 2
@@ -1244,7 +1247,8 @@ func (suite *PayloadsSuite) TestPPMShipmentModelWithOptionalDestinationStreet1Fr
 		}{destinationAddress},
 	}
 
-	model3 := PPMShipmentModelFromCreate(&ppmShipmentValidDestinatonStreet1)
+	model3, err := PPMShipmentModelFromCreate(&ppmShipmentValidDestinatonStreet1)
+	suite.NoError(err)
 	suite.Equal(model3.DestinationAddress.StreetAddress1, streetAddress1)
 }
 
