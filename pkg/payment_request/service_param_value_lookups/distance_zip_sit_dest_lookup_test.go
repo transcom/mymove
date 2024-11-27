@@ -34,7 +34,7 @@ func (suite *ServiceParamValueLookupsSuite) TestDistanceZipSITDestLookup() {
 			},
 		})
 
-		reService := factory.BuildReServiceByCode(suite.DB(), models.ReServiceCodeDDDSIT)
+		reService := factory.FetchReServiceByCode(suite.DB(), models.ReServiceCodeDDDSIT)
 
 		destAddress = factory.BuildAddress(suite.DB(),
 			[]factory.Customization{

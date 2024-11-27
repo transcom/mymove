@@ -268,6 +268,14 @@ export class TestHarness {
   }
 
   /**
+   * Use testharness to build hhg move with international crating service items for TOO
+   * @returns {Promise<Move>}
+   */
+  async buildHHGMoveWithIntlCratingServiceItemsTOO() {
+    return this.buildDefault('HHGMoveWithIntlCratingServiceItemsTOO');
+  }
+
+  /**
    * Use testharness to build hhg move for TOO with actualPickupDate in the past
    * @returns {Promise<Move>}
    */
@@ -409,6 +417,14 @@ export class TestHarness {
    */
   async buildHHGMoveWithNTSAndNeedsSC() {
     return this.buildDefault('HHGMoveWithNTSAndNeedsSC');
+  }
+
+  /**
+   * Use testharness to build Mobile move
+   * @returns {Promise<Move>}
+   */
+  async buildMobileHomeMoveNeedsSC() {
+    return this.buildDefault('MobileHomeMoveNeedsSC');
   }
 
   /**
