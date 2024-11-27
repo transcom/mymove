@@ -1,5 +1,5 @@
 /* eslint-disable camelcase */
-import React, { useEffect, useReducer } from 'react';
+import React, { useEffect, useReducer, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { Button } from '@trussworks/react-uswds';
 import { Formik } from 'formik';
@@ -8,6 +8,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 import ordersFormValidationSchema from '../Orders/ordersFormValidationSchema';
 
+import { isBooleanFlagEnabled } from 'utils/featureFlags';
 import styles from 'styles/documentViewerWithSidebar.module.scss';
 import { milmoveLogger } from 'utils/milmoveLog';
 import OrdersDetailForm from 'components/Office/OrdersDetailForm/OrdersDetailForm';
@@ -23,11 +24,10 @@ import SomethingWentWrong from 'shared/SomethingWentWrong';
 import { LineOfAccountingDfasElementOrder } from 'types/lineOfAccounting';
 import { LOA_VALIDATION_ACTIONS, reducer as loaReducer, initialState as initialLoaState } from 'reducers/loaValidation';
 import { TAC_VALIDATION_ACTIONS, reducer as tacReducer, initialState as initialTacState } from 'reducers/tacValidation';
-import { LOA_TYPE, MOVE_DOCUMENT_TYPE } from 'shared/constants';
+import { LOA_TYPE, MOVE_DOCUMENT_TYPE, FEATURE_FLAG_KEYS } from 'shared/constants';
 import DocumentViewerFileManager from 'components/DocumentViewerFileManager/DocumentViewerFileManager';
 
 const deptIndicatorDropdownOptions = dropdownInputOptions(DEPARTMENT_INDICATOR_OPTIONS);
-const ordersTypeDropdownOptions = dropdownInputOptions(ORDERS_TYPE_OPTIONS);
 const ordersTypeDetailsDropdownOptions = dropdownInputOptions(ORDERS_TYPE_DETAILS_OPTIONS);
 const payGradeDropdownOptions = dropdownInputOptions(ORDERS_PAY_GRADE_OPTIONS);
 
@@ -38,6 +38,7 @@ const ServicesCounselingOrders = ({ files, amendedDocumentId, updateAmendedDocum
   const [tacValidationState, tacValidationDispatch] = useReducer(tacReducer, null, initialTacState);
   const [loaValidationState, loaValidationDispatch] = useReducer(loaReducer, null, initialLoaState);
   const { move, orders, isLoading, isError } = useOrdersDocumentQueries(moveCode);
+  const [orderTypeOptions, setOrderTypeOptions] = useState(ORDERS_TYPE_OPTIONS);
 
   const orderId = move?.ordersId;
   const orderDocumentId = orders[orderId]?.uploaded_order_id;
@@ -246,6 +247,19 @@ const ServicesCounselingOrders = ({ files, amendedDocumentId, updateAmendedDocum
     validateLoa,
   ]);
 
+  useEffect(() => {
+    const checkAlaskaFeatureFlag = async () => {
+      const isAlaskaEnabled = await isBooleanFlagEnabled(FEATURE_FLAG_KEYS.ENABLE_ALASKA);
+      if (!isAlaskaEnabled) {
+        const options = orderTypeOptions;
+        delete orderTypeOptions.EARLY_RETURN_OF_DEPENDENTS;
+        delete orderTypeOptions.STUDENT_TRAVEL;
+        setOrderTypeOptions(options);
+      }
+    };
+    checkAlaskaFeatureFlag();
+  }, [orderTypeOptions]);
+
   if (isLoading) return <LoadingPlaceholder />;
   if (isError) return <SomethingWentWrong />;
 
@@ -290,6 +304,8 @@ const ServicesCounselingOrders = ({ files, amendedDocumentId, updateAmendedDocum
   const ntsLoaMissingWarningMsg =
     'Unable to find a LOA based on the provided details. Please ensure a department indicator and TAC are present on this form.';
   const loaInvalidWarningMsg = 'The LOA identified based on the provided details appears to be invalid.';
+
+  const ordersTypeDropdownOptions = dropdownInputOptions(orderTypeOptions);
 
   return (
     <div className={styles.sidebar}>
