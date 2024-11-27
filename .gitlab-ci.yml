@@ -260,7 +260,6 @@ compile_app_client:
     KUBERNETES_MEMORY_REQUEST: "4Gi"
     KUBERNETES_MEMORY_LIMIT: "4Gi"
   script:
-    - ls /builds/milmove/mymove/bin
     - make client_build
     - echo "Skipping actual build steps."
     - sleep 60
@@ -492,12 +491,12 @@ deploy_dp3_migrations:
     - push_tasks_dp3
     - push_migrations_dp3
   script:
-    - echo "Getting Digest from filesystem"
-    - export ECR_DIGEST=$(cat images/sha/ECR_DIGEST_app-migrations_demo)
+    - echo "Getting Digest from AWS"
+    - export ECR_DIGEST=$(aws ecr describe-images --repository-name app-migrations --image-ids imageTag=$CI_COMMIT_SHORT_SHA --query 'imageDetails[0].imageDigest' --output text)
     - echo "Snapshotting database"
-    - ./scripts/do-exclusively --job-name $CI_JOB_NAME ./scripts/rds-snapshot-app-db $APP_ENVIRONMENT
+    - ./scripts/rds-snapshot-app-db $APP_ENVIRONMENT
     - echo "Running migrations"
-    - ./scripts/do-exclusively --job-name $CI_JOB_NAME ./scripts/ecs-run-app-migrations-container ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/app-migrations@${ECR_DIGEST} $APP_ENVIRONMENT
+    - ./scripts/ecs-run-app-migrations-container ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/app-migrations@${ECR_DIGEST} $APP_ENVIRONMENT
  # Run failure announcement only if on the main branch (./scripts/announce-broken-branch)
     - |
       if [[ "$CI_COMMIT_BRANCH" == "main" && "$CI_JOB_STATUS" == "failed" ]]; then
@@ -513,12 +512,12 @@ deploy_dp3_tasks:
   needs:
     - deploy_dp3_migrations
   script:
-    - echo "Getting Digest from filesystem"
-    - export ECR_DIGEST=$(cat images/sha/ECR_DIGEST_app-tasks_demo)
+    - echo "Getting Digest from AWS"
+    - export ECR_DIGEST=$(aws ecr describe-images --repository-name app-tasks --image-ids imageTag=$CI_COMMIT_SHORT_SHA --query 'imageDetails[0].imageDigest' --output text)
     - echo "Deploying GHC fuel price data task service"
-    - ./scripts/do-exclusively --job-name $CI_JOB_NAME ./scripts/ecs-deploy-task-container save-ghc-fuel-price-data "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/app-tasks@${ECR_DIGEST}" "${APP_ENVIRONMENT}"
+    - ./scripts/ecs-deploy-task-container save-ghc-fuel-price-data "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/app-tasks@${ECR_DIGEST}" "${APP_ENVIRONMENT}"
     - echo "Deploying payment reminder email task service"
-    - ./scripts/do-exclusively --job-name $CI_JOB_NAME ./scripts/ecs-deploy-task-container send-payment-reminder "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/app-tasks@${ECR_DIGEST}" "${APP_ENVIRONMENT}"
+    - ./scripts/ecs-deploy-task-container send-payment-reminder "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/app-tasks@${ECR_DIGEST}" "${APP_ENVIRONMENT}"
   # Run failure announcement only if on the main branch
     - |
       if [[ "$CI_COMMIT_BRANCH" == "main" && "$CI_JOB_STATUS" == "failed" ]]; then
@@ -539,13 +538,13 @@ deploy_dp3_app_client_tls:
   script:
     - echo "Comparing against deployed commit"
     - ./scripts/compare-deployed-commit "" $CI_COMMIT_SHA ${TLS_KEY} ${TLS_CERT} ${TLS_CA}
-    - echo "Getting Digest from filesystem"
-    - export ECR_DIGEST=$(cat images/sha/ECR_DIGEST_app_demo)
-    - echo "Getting otel collector digest from filesystem"
-    - export OTEL_ECR_DIGEST=$(cat images/sha/ECR_DIGEST_otel-collector_demo)
+    - echo "Getting Digest from AWS"
+    - export ECR_DIGEST=$(aws ecr describe-images --repository-name app --image-ids imageTag=$CI_COMMIT_SHORT_SHA --query 'imageDetails[0].imageDigest' --output text)
+    - echo "Getting otel collector Digest from AWS"
+    - export OTEL_ECR_DIGEST=$(aws ecr describe-images --repository-name otel-collector --image-ids imageTag=$CI_COMMIT_SHORT_SHA --query 'imageDetails[0].imageDigest' --output text)
     - export OTEL_COLLECTOR_IMAGE="${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/otel-collector@${OTEL_ECR_DIGEST}"
     - echo "Deploying app-client-tls service"
-    - ./scripts/do-exclusively --job-name $CI_JOB_NAME ./scripts/ecs-deploy-service-container app-client-tls "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/app@${ECR_DIGEST}" "${APP_ENVIRONMENT}" "/bin/milmove serve"
+    - ./scripts/ecs-deploy-service-container app-client-tls "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/app@${ECR_DIGEST}" "${APP_ENVIRONMENT}" "/bin/milmove serve"
     - echo "Running Health Check"
     - bin/health-checker --schemes https --hosts api.demo.dp3.us --key ${TLS_KEY} --cert ${TLS_CERT} --ca ${TLS_CA} --tries 10 --backoff 3 --log-level info --timeout 5m
     - echo "Running TLS Check"
@@ -583,13 +582,13 @@ deploy_dp3_app:
         echo "Creating .go-version using version ${GO_VERSION}"
         echo $GO_VERSION > .go-version
       fi
-    - echo "Getting Digest from filesystem"
-    - export ECR_DIGEST=$(cat images/sha/ECR_DIGEST_app_demo)
-    - echo "Getting otel collector digest from filesystem"
-    - export OTEL_ECR_DIGEST=$(cat images/sha/ECR_DIGEST_otel-collector_demo)
+    - echo "Getting Digest from AWS"
+    - export ECR_DIGEST=$(aws ecr describe-images --repository-name app --image-ids imageTag=$CI_COMMIT_SHORT_SHA --query 'imageDetails[0].imageDigest' --output text)
+    - echo "Getting otel collector Digest from AWS"
+    - export OTEL_ECR_DIGEST=$(aws ecr describe-images --repository-name otel-collector --image-ids imageTag=$CI_COMMIT_SHORT_SHA --query 'imageDetails[0].imageDigest' --output text)
     - export OTEL_COLLECTOR_IMAGE="${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/otel-collector@${OTEL_ECR_DIGEST}"
     - echo "Deploying app service"
-    - ./scripts/do-exclusively --job-name $CI_JOB_NAME ./scripts/ecs-deploy-service-container app "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/app@${ECR_DIGEST}" "${APP_ENVIRONMENT}" "/bin/milmove serve"
+    - ./scripts/ecs-deploy-service-container app "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/app@${ECR_DIGEST}" "${APP_ENVIRONMENT}" "/bin/milmove serve"
     - echo "Running Health Check"
     - bin/health-checker --schemes https --hosts my.demo.dp3.us,office.demo.dp3.us,admin.demo.dp3.us --tries 10 --backoff 3 --log-level info --timeout 5m
     - echo "Running TLS Check"
@@ -602,7 +601,4 @@ deploy_dp3_app:
         ./scripts/circleci-announce-broken-branch
       fi
   timeout: 20m
-
-
-
 
