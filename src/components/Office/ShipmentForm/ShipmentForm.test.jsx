@@ -212,7 +212,7 @@ const defaultProps = {
   serviceMember: {
     weightAllotment: {
       totalWeightSelf: 5000,
-      ubAllowance: 400,
+      unaccompaniedBaggageAllowance: 400,
     },
     agency: '',
   },

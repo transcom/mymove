@@ -81,3 +81,12 @@ func FetchOfficeUserByID(tx *pop.Connection, id uuid.UUID) (*OfficeUser, error) 
 	err := tx.Find(&user, id)
 	return &user, err
 }
+
+// FetchOfficeUserByID fetches an office user by ID
+func GetAssignedGBLOCs(o OfficeUser) []string {
+	var assignedGblocs []string
+	for _, toa := range o.TransportationOfficeAssignments {
+		assignedGblocs = append(assignedGblocs, toa.TransportationOffice.Gbloc)
+	}
+	return assignedGblocs
+}

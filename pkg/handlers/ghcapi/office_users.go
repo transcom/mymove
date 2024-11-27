@@ -93,7 +93,7 @@ func payloadForTransportationOfficeAssignments(toas models.TransportationOfficeA
 		payload = append(payload, &ghcmessages.TransportationOfficeAssignment{
 			OfficeUserID:           handlers.FmtUUID(toa.ID),
 			TransportationOfficeID: handlers.FmtUUID(toa.TransportationOfficeID),
-			PrimaryOffice:          handlers.FmtBool(toa.PrimaryOffice),
+			PrimaryOffice:          handlers.FmtBool(*toa.PrimaryOffice),
 		})
 	}
 	return payload
@@ -198,7 +198,7 @@ func (h RequestOfficeUserHandler) Handle(params officeuserop.CreateRequestedOffi
 			transportationOfficeAssignments := models.TransportationOfficeAssignments{
 				{
 					TransportationOfficeID: transportationOfficeID,
-					PrimaryOffice:          true,
+					PrimaryOffice:          models.BoolPointer(true),
 				},
 			}
 
