@@ -8494,6 +8494,16 @@ definitions:
         type: integer
         format: cents
         x-nullable: true
+      market:
+        type: string
+        enum:
+          - CONUS
+          - OCONUS
+        example: CONUS
+        description: >-
+          To identify whether the service was provided within (CONUS) or
+          (OCONUS)
+        x-nullable: true
   MTOServiceItems:
     description: A list of service items connected to this shipment.
     type: array
