@@ -43,7 +43,7 @@ stages:
 - pre_checks
 #- test_builds
 - build
-- push 
+- push
 - deploy
 
 # sast:
@@ -61,7 +61,7 @@ stages:
 # base_noop:
 #   stage: pre_checks
 #   image: $DOCKER_APP_IMAGE
-#   script: 
+#   script:
 # - echo "noop"
 
 # anti_virus:
@@ -109,6 +109,7 @@ pre_deps_golang:
 pre_deps_yarn:
   stage: pre_checks
   image: $DOCKER_APP_IMAGE
+  before_script: *setup_milmove_env
   needs:
     - pre_deps_golang
   script:
@@ -178,7 +179,7 @@ pre_deps_yarn:
 # pre_test:
 #   stage: test_builds
 #   image: $DOCKER_APP_IMAGE
-#   needs: 
+#   needs:
 #     - pre_deps_golang
 #   script:
 #     - rm -f /builds/*/*/.git/index.lock
@@ -227,8 +228,8 @@ pre_deps_yarn:
 
 # build_storybook:
 #   stage: build
-#   image: $DOCKER_APP_IMAGE 
-#   needs: 
+#   image: $DOCKER_APP_IMAGE
+#   needs:
 #     - pre_deps_yarn
 #   cache:
 #     - key: "v3-cache-yarn-v3-$(echo yarn.lock | md5sum)" # Adjust as necessary for GitLab CI
@@ -259,12 +260,12 @@ compile_app_client:
     KUBERNETES_MEMORY_REQUEST: "4Gi"
     KUBERNETES_MEMORY_LIMIT: "4Gi"
   script:
-    #- ls bin
+    - ls /builds/milmove/mymove/bin
     - make client_build
     - echo "Skipping actual build steps."
     - sleep 60
   rules:
-    - if: '$CI_COMMIT_BRANCH == "B-18585-gitlab-deploy" || $CI_COMMIT_BRANCH == "main"'
+    - if: '$CI_COMMIT_BRANCH == "B-18585-gitlab-jz" || $CI_COMMIT_BRANCH == "main"'
   # cache:
   #   key: "yarn-cache-v3-$(echo $(md5sum yarn.lock) | cut -d ' ' -f 1)"
   #   paths:
@@ -322,7 +323,7 @@ compile_app_server:
   #     - pkg/testdatagen/testdata
     expire_in: 1 week
   rules:
-    - if: '$CI_COMMIT_BRANCH == "B-18585-gitlab-deploy" || $CI_COMMIT_BRANCH == "main"'
+    - if: '$CI_COMMIT_BRANCH == "B-18585-gitlab-jz" || $CI_COMMIT_BRANCH == "main"'
 
 build_app:
   stage: build
@@ -455,26 +456,26 @@ push_tasks_dp3:
 
 push_otel_collector_image_dp3:
   stage: push
-  image: 
+  image:
     name: $DOCKER_BASE_IMAGE
     entrypoint: [""]
-  needs: 
+  needs:
     - compile_app_server
   script:
     - echo "Logging in to Amazon ECR with Crane..."
     - aws ecr get-login-password --region us-gov-west-1 | crane auth login 447641181206.dkr.ecr.us-gov-west-1.amazonaws.com -u AWS --password-stdin
-    
+
     - echo "Pulling the AWS OTel Collector image from the public registry with Crane..."
     - crane pull --insecure public.ecr.aws/aws-observability/aws-otel-collector:v0.31.0 image.tar
-    
+
     - echo "Pushing the image to our private ECR using Crane..."
     - crane push --insecure image.tar 447641181206.dkr.ecr.us-gov-west-1.amazonaws.com/otel-collector:${CI_COMMIT_SHORT_SHA}
-    
+
     - echo "Cleaning up the temporary image file..."
     - rm image.tar
   allow_failure: false
   rules:
-    - if: '$CI_COMMIT_BRANCH == "B-18585-gitlab-deploy" || $CI_COMMIT_BRANCH == "main"'
+    - if: '$CI_COMMIT_BRANCH == "B-18585-gitlab-jz" || $CI_COMMIT_BRANCH == "main"'
 
 deploy_dp3_migrations:
   stage: deploy
@@ -510,7 +511,7 @@ deploy_dp3_tasks:
     name: $DOCKER_APP_IMAGE
     entrypoint: [""]
   needs:
-    - deploy_dp3_migrations  
+    - deploy_dp3_migrations
   script:
     - echo "Getting Digest from filesystem"
     - export ECR_DIGEST=$(cat images/sha/ECR_DIGEST_app-tasks_demo)
@@ -531,7 +532,7 @@ deploy_dp3_app_client_tls:
     name: $DOCKER_APP_IMAGE
     entrypoint: [""]
   needs:
-    - deploy_dp3_migrations  
+    - deploy_dp3_migrations
   variables:
     OPEN_TELEMETRY_SIDECAR: "true"
     HEALTH_CHECK: "true"
@@ -565,7 +566,7 @@ deploy_dp3_app:
     name: $DOCKER_APP_IMAGE
     entrypoint: [""]
   needs:
-    - deploy_dp3_migrations  
+    - deploy_dp3_migrations
   variables:
     APP_ENVIRONMENT: "demo"
     OPEN_TELEMETRY_SIDECAR: "true"
