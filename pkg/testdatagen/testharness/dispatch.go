@@ -35,6 +35,9 @@ var actionDispatcher = map[string]actionFunc{
 	"HHGMoveWithNTSAndNeedsSC": func(appCtx appcontext.AppContext) testHarnessResponse {
 		return MakeHHGMoveWithNTSAndNeedsSC(appCtx)
 	},
+	"MobileHomeMoveNeedsSC": func(appCtx appcontext.AppContext) testHarnessResponse {
+		return MakeMobileHomeMoveNeedsSC(appCtx)
+	},
 	"GoodTACAndLoaCombination": func(appCtx appcontext.AppContext) testHarnessResponse {
 		return MakeGoodTACAndLoaCombination(appCtx)
 	},
@@ -91,6 +94,9 @@ var actionDispatcher = map[string]actionFunc{
 	},
 	"HHGMoveWithServiceItemsAndPaymentRequestsAndFilesForTOO": func(appCtx appcontext.AppContext) testHarnessResponse {
 		return MakeHHGMoveWithServiceItemsAndPaymentRequestsAndFilesForTOO(appCtx)
+	},
+	"HHGMoveWithIntlCratingServiceItemsTOO": func(appCtx appcontext.AppContext) testHarnessResponse {
+		return MakeHHGMoveWithIntlCratingServiceItemsTOO(appCtx)
 	},
 	"HHGMoveForTOOAfterActualPickupDate": func(appCtx appcontext.AppContext) testHarnessResponse {
 		return MakeHHGMoveForTOOAfterActualPickupDate(appCtx)

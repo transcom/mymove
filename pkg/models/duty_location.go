@@ -2,6 +2,8 @@ package models
 
 import (
 	"database/sql"
+	"fmt"
+	"strings"
 	"time"
 
 	"github.com/gobuffalo/pop/v6"
@@ -100,8 +102,8 @@ func FetchDutyLocationWithTransportationOffice(tx *pop.Connection, id uuid.UUID)
 	return dutyLocation, err
 }
 
-// FindDutyLocations returns all duty locations matching a search query
-func FindDutyLocations(tx *pop.Connection, search string) (DutyLocations, error) {
+// FindDutyLocations returns all duty locations matching a search query while excluding certain location by specified states.
+func FindDutyLocationsExcludingStates(tx *pop.Connection, search string, exclusionStateFilters []string) (DutyLocations, error) {
 	var locations DutyLocations
 
 	// The % operator filters out strings that are below this similarity threshold
@@ -110,34 +112,45 @@ func FindDutyLocations(tx *pop.Connection, search string) (DutyLocations, error)
 		return locations, err
 	}
 
-	sqlQuery := `
-with names as (
-(select id as duty_location_id, name, similarity(name, $1) as sim
-from duty_locations
-where name % $1
-order by sim desc
-limit 5)
-union
-(select duty_location_id, name, similarity(name, $1) as sim
-from duty_location_names
-where name % $1
-order by sim desc
-limit 5)
-union
-(select dl.id as duty_location_id, dl.name as name, 1 as sim
-from duty_locations as dl
-inner join addresses a2 on dl.address_id = a2.id  and dl.affiliation is null
-where a2.postal_code ILIKE $1
-limit 5)
-)
-select dl.*
-from names n
-inner join duty_locations dl on n.duty_location_id = dl.id
-group by dl.id, dl.name, dl.affiliation, dl.address_id, dl.created_at, dl.updated_at, dl.transportation_office_id, dl.provides_services_counseling
-order by max(n.sim) desc, dl.name
-limit 7`
+	sql_builder := strings.Builder{}
+	sql_builder.WriteString(`with names as (
+		(select id as duty_location_id, name, similarity(name, $1) as sim
+		from duty_locations
+		where name % $1
+		order by sim desc
+		limit 5)
+		union
+		(select duty_location_id, name, similarity(name, $1) as sim
+		from duty_location_names
+		where name % $1
+		order by sim desc
+		limit 5)
+		union
+		(select dl.id as duty_location_id, dl.name as name, 1 as sim
+		from duty_locations as dl
+		inner join addresses a2 on dl.address_id = a2.id  and dl.affiliation is null
+		where a2.postal_code ILIKE $1
+		limit 5)
+		)
+		select dl.*
+		from names n
+		inner join duty_locations dl on n.duty_location_id = dl.id`)
 
-	query := tx.Q().RawQuery(sqlQuery, search)
+	// apply filter to exclude specific states if provided
+	if len(exclusionStateFilters) > 0 {
+		exclusionStateParams := make([]string, 0)
+		for _, value := range exclusionStateFilters {
+			exclusionStateParams = append(exclusionStateParams, fmt.Sprintf("'%s'", value))
+		}
+		sql_builder.WriteString(fmt.Sprintf(" inner join addresses on dl.address_id = addresses.id and addresses.state not in (%s)", strings.Join(exclusionStateParams, ",")))
+	}
+
+	sql_builder.WriteString(`
+	group by dl.id, dl.name, dl.affiliation, dl.address_id, dl.created_at, dl.updated_at, dl.transportation_office_id, dl.provides_services_counseling
+	order by max(n.sim) desc, dl.name
+	limit 7`)
+
+	query := tx.Q().RawQuery(sql_builder.String(), search)
 	if err := query.All(&locations); err != nil {
 		if errors.Cause(err).Error() != RecordNotFoundErrorString {
 			return locations, err
@@ -145,6 +158,12 @@ limit 7`
 	}
 
 	return locations, nil
+
+}
+
+// FindDutyLocations returns all duty locations matching a search query
+func FindDutyLocations(tx *pop.Connection, search string) (DutyLocations, error) {
+	return FindDutyLocationsExcludingStates(tx, search, []string{})
 }
 
 // FetchDutyLocationTransportationOffice returns a transportation office for a duty location

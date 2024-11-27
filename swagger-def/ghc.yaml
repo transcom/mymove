@@ -2850,6 +2850,88 @@ paths:
           $ref: '#/responses/ServerError'
       x-permissions:
         - update.evaluationReport
+  '/evaluation-reports/{reportID}/appeal/add':
+    parameters:
+      - in: path
+        description: the evaluation report ID
+        name: reportID
+        required: true
+        type: string
+        format: uuid
+    post:
+      summary: Adds an appeal to a serious incident on an evaluation report
+      description: Adds an appeal to a serious incident on an evaluation report
+      operationId: addAppealToSeriousIncident
+      tags:
+        - evaluationReports
+      produces:
+        - application/json
+      consumes:
+        - application/json
+      parameters:
+        - in: body
+          name: body
+          schema:
+            $ref: '#/definitions/CreateAppeal'
+      responses:
+        '204':
+          description: Successfully added an appeal to a serious incident
+        '403':
+          $ref: '#/responses/PermissionDenied'
+        '404':
+          $ref: '#/responses/NotFound'
+        '412':
+          $ref: '#/responses/PreconditionFailed'
+        '422':
+          $ref: '#/responses/UnprocessableEntity'
+        '500':
+          $ref: '#/responses/ServerError'
+      x-permissions:
+        - update.evaluationReport
+  '/evaluation-reports/{reportID}/{reportViolationID}/appeal/add':
+    parameters:
+      - in: path
+        description: the evaluation report ID
+        name: reportID
+        required: true
+        type: string
+        format: uuid
+      - in: path
+        description: the report violation ID
+        name: reportViolationID
+        required: true
+        type: string
+        format: uuid
+    post:
+      summary: Adds an appeal to a violation
+      description: Adds an appeal to a violation
+      operationId: addAppealToViolation
+      tags:
+        - evaluationReports
+      produces:
+        - application/json
+      consumes:
+        - application/json
+      parameters:
+        - in: body
+          name: body
+          schema:
+            $ref: '#/definitions/CreateAppeal'
+      responses:
+        '204':
+          description: Successfully added an appeal to a violation
+        '403':
+          $ref: '#/responses/PermissionDenied'
+        '404':
+          $ref: '#/responses/NotFound'
+        '412':
+          $ref: '#/responses/PreconditionFailed'
+        '422':
+          $ref: '#/responses/UnprocessableEntity'
+        '500':
+          $ref: '#/responses/ServerError'
+      x-permissions:
+        - update.evaluationReport
   '/pws-violations':
     get:
       summary: Fetch the possible PWS violations for an evaluation report
@@ -7182,8 +7264,11 @@ definitions:
       location:
         $ref: '#/definitions/EvaluationReportLocation'
         x-nullable: true
-      ReportViolations:
+      reportViolations:
         $ref: '#/definitions/ReportViolations'
+        x-nullable: true
+      gsrAppeals:
+        $ref: '#/definitions/GSRAppeals'
         x-nullable: true
       locationDescription:
         type: string
@@ -7271,6 +7356,19 @@ definitions:
         example: 01b9671e-b268-4906-967b-ba661a1d3933
         format: uuid
         type: string
+  CreateAppeal:
+    type: object
+    description: Appeal status and remarks left for a violation, created by a GSR user.
+    properties:
+      remarks:
+        description: Remarks left by the GSR user
+        example: These are my violation appeal remarks
+        type: string
+      appealStatus:
+        description: The status of the appeal set by the GSR user
+        example: These are my violation appeal remarks
+        type: string
+        enum: [sustained, rejected]
   PWSViolation:
     type: object
     description: A PWS violation for an evaluation report
@@ -7332,18 +7430,62 @@ definitions:
         example: 1f2270c7-7166-40ae-981e-b200ebdf3054
         format: uuid
         type: string
-      # report:
-      #   $ref: '#/definitions/EvaluationReport'
       violationID:
         example: 1f2270c7-7166-40ae-981e-b200ebdf3054
         format: uuid
         type: string
       violation:
         $ref: '#/definitions/PWSViolation'
+      gsrAppeals:
+        $ref: '#/definitions/GSRAppeals'
+        x-nullable: true
   ReportViolations:
     type: array
     items:
       $ref: '#/definitions/ReportViolation'
+  GSRAppealStatusType:
+    type: string
+    enum:
+      - SUSTAINED
+      - REJECTED
+  GSRAppeals:
+    type: array
+    items:
+      $ref: '#/definitions/GSRAppeal'
+  GSRAppeal:
+    type: object
+    description: An object associating appeals on violations and serious incidents
+    properties:
+      id:
+        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
+        format: uuid
+        type: string
+      reportID:
+        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
+        format: uuid
+        type: string
+      violationID:
+        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
+        format: uuid
+        type: string
+      officeUserID:
+        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
+        format: uuid
+        type: string
+      officeUser:
+        $ref: '#/definitions/EvaluationReportOfficeUser'
+      isSeriousIncident:
+        type: boolean
+        example: false
+      appealStatus:
+        $ref: '#/definitions/GSRAppealStatusType'
+      remarks:
+        type: string
+        example: Office user remarks
+      createdAt:
+        type: string
+        format: date-time
+        readOnly: true
   TransportationOffices:
     type: array
     items:

@@ -1284,6 +1284,7 @@ definitions:
         * DDFSIT, DDASIT - MTOServiceItemDestSIT
         * DOSHUT, DDSHUT - MTOServiceItemShuttle
         * DCRT, DUCRT - MTOServiceItemDomesticCrating
+        * ICRT, IUCRT - MTOServiceItemInternationalCrating
 
       The documentation will then update with the supported fields.
 
@@ -1294,6 +1295,7 @@ definitions:
       - MTOServiceItemDestSIT
       - MTOServiceItemShuttle
       - MTOServiceItemDomesticCrating
+      - MTOServiceItemInternationalCrating
   MTOServiceItemOriginSIT: # spectral oas2-unused-definition is OK here due to polymorphism
     description: Describes a domestic origin SIT service item. Subtype of a MTOServiceItem.
     allOf:
@@ -1622,6 +1624,7 @@ definitions:
       - NTS
       - WOUNDED_WARRIOR
       - BLUEBARK
+      - TEMPORARY_DUTY
     x-display-value:
       PERMANENT_CHANGE_OF_STATION: Permanent Change Of Station (PCS)
       LOCAL_MOVE: Local Move
@@ -1631,6 +1634,7 @@ definitions:
       NTS: NTS
       WOUNDED_WARRIOR: Wounded Warrior
       BLUEBARK: BLUEBARK
+      TEMPORARY_DUTY: Temporary Duty (TDY)
   OrdersTypeDetail:
     type: string
     title: Orders type detail
