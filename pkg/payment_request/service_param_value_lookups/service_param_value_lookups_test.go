@@ -727,7 +727,7 @@ func (suite *ServiceParamValueLookupsSuite) TestServiceParamValueLookup() {
 		})
 		// Make a move and service for reuse.
 		move := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
-		reService := factory.BuildReServiceByCode(suite.DB(), models.ReServiceCodeDLH)
+		reService := factory.FetchReServiceByCode(suite.DB(), models.ReServiceCodeDLH)
 
 		// NTS should have a pickup address and storage facility address.
 		pickupPostalCode := "29212"

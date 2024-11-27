@@ -4,6 +4,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/go-openapi/strfmt"
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/factory"
@@ -514,5 +515,246 @@ func (suite *PayloadsSuite) TestMarketCode() {
 		result := MarketCode(&marketCodeInternational)
 		suite.NotNil(result, "Expected result to not be nil when marketCode is not nil")
 		suite.Equal("i", result, "Expected result to be 'i' for international market code")
+	})
+}
+
+func (suite *PayloadsSuite) TestGsrAppeal() {
+	officeUser := factory.BuildOfficeUser(suite.DB(), nil, nil)
+
+	suite.Run("returns nil when gsrAppeal is nil", func() {
+		var gsrAppeal *models.GsrAppeal = nil
+		result := GsrAppeal(gsrAppeal)
+		suite.Nil(result, "Expected result to be nil when gsrAppeal is nil")
+	})
+
+	suite.Run("correctly maps GsrAppeal with all fields populated", func() {
+		gsrAppealID := uuid.Must(uuid.NewV4())
+		reportViolationID := uuid.Must(uuid.NewV4())
+		evaluationReportID := uuid.Must(uuid.NewV4())
+		appealStatus := models.AppealStatusSustained
+		isSeriousIncident := true
+		remarks := "Sample remarks"
+		createdAt := time.Now()
+
+		gsrAppeal := &models.GsrAppeal{
+			ID:                      gsrAppealID,
+			ReportViolationID:       &reportViolationID,
+			EvaluationReportID:      evaluationReportID,
+			OfficeUser:              &officeUser,
+			OfficeUserID:            officeUser.ID,
+			IsSeriousIncidentAppeal: &isSeriousIncident,
+			AppealStatus:            appealStatus,
+			Remarks:                 remarks,
+			CreatedAt:               createdAt,
+		}
+
+		result := GsrAppeal(gsrAppeal)
+
+		suite.NotNil(result, "Expected result to not be nil when gsrAppeal has values")
+		suite.Equal(handlers.FmtUUID(gsrAppealID), &result.ID, "Expected ID to match")
+		suite.Equal(handlers.FmtUUID(reportViolationID), &result.ViolationID, "Expected ViolationID to match")
+		suite.Equal(handlers.FmtUUID(evaluationReportID), &result.ReportID, "Expected ReportID to match")
+		suite.Equal(handlers.FmtUUID(officeUser.ID), &result.OfficeUserID, "Expected OfficeUserID to match")
+		suite.Equal(ghcmessages.GSRAppealStatusType(appealStatus), result.AppealStatus, "Expected AppealStatus to match")
+		suite.Equal(remarks, result.Remarks, "Expected Remarks to match")
+		suite.Equal(strfmt.DateTime(createdAt), result.CreatedAt, "Expected CreatedAt to match")
+		suite.True(result.IsSeriousIncident, "Expected IsSeriousIncident to be true")
+	})
+
+	suite.Run("handles nil ReportViolationID without panic", func() {
+		gsrAppealID := uuid.Must(uuid.NewV4())
+		evaluationReportID := uuid.Must(uuid.NewV4())
+		isSeriousIncident := false
+		appealStatus := models.AppealStatusRejected
+		remarks := "Sample remarks"
+		createdAt := time.Now()
+
+		gsrAppeal := &models.GsrAppeal{
+			ID:                      gsrAppealID,
+			ReportViolationID:       nil,
+			EvaluationReportID:      evaluationReportID,
+			OfficeUser:              &officeUser,
+			OfficeUserID:            officeUser.ID,
+			IsSeriousIncidentAppeal: &isSeriousIncident,
+			AppealStatus:            appealStatus,
+			Remarks:                 remarks,
+			CreatedAt:               createdAt,
+		}
+
+		result := GsrAppeal(gsrAppeal)
+
+		suite.NotNil(result, "Expected result to not be nil when gsrAppeal has values")
+		suite.Equal(handlers.FmtUUID(gsrAppealID), &result.ID, "Expected ID to match")
+		suite.Equal(strfmt.UUID(""), result.ViolationID, "Expected ViolationID to be nil when ReportViolationID is nil")
+		suite.Equal(handlers.FmtUUID(evaluationReportID), &result.ReportID, "Expected ReportID to match")
+		suite.Equal(handlers.FmtUUID(officeUser.ID), &result.OfficeUserID, "Expected OfficeUserID to match")
+		suite.Equal(ghcmessages.GSRAppealStatusType(appealStatus), result.AppealStatus, "Expected AppealStatus to match")
+		suite.Equal(remarks, result.Remarks, "Expected Remarks to match")
+		suite.Equal(strfmt.DateTime(createdAt), result.CreatedAt, "Expected CreatedAt to match")
+		suite.False(result.IsSeriousIncident, "Expected IsSeriousIncident to be false")
+	})
+}
+
+func (suite *PayloadsSuite) TestMTOServiceItemModel() {
+	suite.Run("returns nil when MTOServiceItem is nil", func() {
+		var serviceItem *models.MTOServiceItem = nil
+		result := MTOServiceItemModel(serviceItem, suite.storer)
+		suite.Nil(result, "Expected result to be nil when MTOServiceItem is nil")
+	})
+
+	suite.Run("successfully converts MTOServiceItem to payload", func() {
+		serviceID := uuid.Must(uuid.NewV4())
+		moveID := uuid.Must(uuid.NewV4())
+		shipID := uuid.Must(uuid.NewV4())
+		reServiceID := uuid.Must(uuid.NewV4())
+		now := time.Now()
+
+		mockReService := models.ReService{
+			ID:   reServiceID,
+			Code: models.ReServiceCodeICRT,
+			Name: "Some ReService",
+		}
+
+		mockPickupAddress := models.Address{
+			ID:        uuid.Must(uuid.NewV4()),
+			IsOconus:  models.BoolPointer(false),
+			CreatedAt: now,
+			UpdatedAt: now,
+		}
+
+		mockMTOShipment := models.MTOShipment{
+			ID:            shipID,
+			PickupAddress: &mockPickupAddress,
+		}
+
+		mockServiceItem := models.MTOServiceItem{
+			ID:              serviceID,
+			MoveTaskOrderID: moveID,
+			MTOShipmentID:   &shipID,
+			MTOShipment:     mockMTOShipment,
+			ReServiceID:     reServiceID,
+			ReService:       mockReService,
+			CreatedAt:       now,
+			UpdatedAt:       now,
+		}
+
+		result := MTOServiceItemModel(&mockServiceItem, suite.storer)
+		suite.NotNil(result, "Expected result to not be nil when MTOServiceItem is valid")
+		suite.Equal(handlers.FmtUUID(serviceID), result.ID, "Expected ID to match")
+		suite.Equal(handlers.FmtUUID(moveID), result.MoveTaskOrderID, "Expected MoveTaskOrderID to match")
+		suite.Equal(handlers.FmtUUIDPtr(&shipID), result.MtoShipmentID, "Expected MtoShipmentID to match")
+		suite.Equal(handlers.FmtString(models.MarketConus.FullString()), result.Market, "Expected Market to be CONUS")
+	})
+
+	suite.Run("sets Market to OCONUS when PickupAddress.IsOconus is true for ICRT", func() {
+		reServiceID := uuid.Must(uuid.NewV4())
+
+		mockReService := models.ReService{
+			ID:   reServiceID,
+			Code: models.ReServiceCodeICRT,
+			Name: "Test ReService",
+		}
+
+		mockPickupAddress := models.Address{
+			ID:       uuid.Must(uuid.NewV4()),
+			IsOconus: models.BoolPointer(true),
+		}
+
+		mockMTOShipment := models.MTOShipment{
+			PickupAddress: &mockPickupAddress,
+		}
+
+		mockServiceItem := models.MTOServiceItem{
+			ReService:   mockReService,
+			MTOShipment: mockMTOShipment,
+		}
+
+		result := MTOServiceItemModel(&mockServiceItem, suite.storer)
+		suite.NotNil(result, "Expected result to not be nil for valid MTOServiceItem")
+		suite.Equal(handlers.FmtString(models.MarketOconus.FullString()), result.Market, "Expected Market to be OCONUS")
+	})
+
+	suite.Run("sets Market to CONUS when PickupAddress.IsOconus is false for ICRT", func() {
+		reServiceID := uuid.Must(uuid.NewV4())
+
+		mockReService := models.ReService{
+			ID:   reServiceID,
+			Code: models.ReServiceCodeICRT,
+			Name: "Test ReService",
+		}
+
+		mockPickupAddress := models.Address{
+			ID:       uuid.Must(uuid.NewV4()),
+			IsOconus: models.BoolPointer(false),
+		}
+
+		mockMTOShipment := models.MTOShipment{
+			PickupAddress: &mockPickupAddress,
+		}
+
+		mockServiceItem := models.MTOServiceItem{
+			ReService:   mockReService,
+			MTOShipment: mockMTOShipment,
+		}
+
+		result := MTOServiceItemModel(&mockServiceItem, suite.storer)
+		suite.NotNil(result, "Expected result to not be nil for valid MTOServiceItem")
+		suite.Equal(handlers.FmtString(models.MarketConus.FullString()), result.Market, "Expected Market to be CONUS")
+	})
+
+	suite.Run("sets Market to CONUS when DestinationAddress.IsOconus is false for IUCRT", func() {
+		reServiceID := uuid.Must(uuid.NewV4())
+
+		mockReService := models.ReService{
+			ID:   reServiceID,
+			Code: models.ReServiceCodeIUCRT,
+			Name: "Test ReService",
+		}
+
+		mockDestinationAddress := models.Address{
+			ID:       uuid.Must(uuid.NewV4()),
+			IsOconus: models.BoolPointer(false),
+		}
+
+		mockMTOShipment := models.MTOShipment{
+			DestinationAddress: &mockDestinationAddress,
+		}
+
+		mockServiceItem := models.MTOServiceItem{
+			ReService:   mockReService,
+			MTOShipment: mockMTOShipment,
+		}
+
+		result := MTOServiceItemModel(&mockServiceItem, suite.storer)
+		suite.NotNil(result, "Expected result to not be nil for valid MTOServiceItem")
+		suite.Equal(handlers.FmtString(models.MarketConus.FullString()), result.Market, "Expected Market to be CONUS")
+	})
+
+	suite.Run("sets Market to OCONUS when DestinationAddress.IsOconus is true for IUCRT", func() {
+		reServiceID := uuid.Must(uuid.NewV4())
+
+		mockReService := models.ReService{
+			ID:   reServiceID,
+			Code: models.ReServiceCodeIUCRT,
+			Name: "Test ReService",
+		}
+
+		mockDestinationAddress := models.Address{
+			ID:       uuid.Must(uuid.NewV4()),
+			IsOconus: models.BoolPointer(true),
+		}
+
+		mockMTOShipment := models.MTOShipment{
+			DestinationAddress: &mockDestinationAddress,
+		}
+
+		mockServiceItem := models.MTOServiceItem{
+			ReService:   mockReService,
+			MTOShipment: mockMTOShipment,
+		}
+
+		result := MTOServiceItemModel(&mockServiceItem, suite.storer)
+		suite.NotNil(result, "Expected result to not be nil for valid MTOServiceItem")
+		suite.Equal(handlers.FmtString(models.MarketOconus.FullString()), result.Market, "Expected Market to be OCONUS")
 	})
 }

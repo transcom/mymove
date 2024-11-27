@@ -509,6 +509,85 @@ const ServiceItemDetails = ({ id, code, details, serviceRequestDocs, shipment, s
       );
       break;
     }
+    case 'ICRT': {
+      const { description, itemDimensions, crateDimensions, market, externalCrate } = details;
+      const itemDimensionFormat = `${convertFromThousandthInchToInch(
+        itemDimensions?.length,
+      )}"x${convertFromThousandthInchToInch(itemDimensions?.width)}"x${convertFromThousandthInchToInch(
+        itemDimensions?.height,
+      )}"`;
+      const crateDimensionFormat = `${convertFromThousandthInchToInch(
+        crateDimensions?.length,
+      )}"x${convertFromThousandthInchToInch(crateDimensions?.width)}"x${convertFromThousandthInchToInch(
+        crateDimensions?.height,
+      )}"`;
+      detailSection = (
+        <div className={styles.detailCrating}>
+          <dl>
+            {description && generateDetailText({ Description: description }, id)}
+            {itemDimensions && generateDetailText({ 'Item size': itemDimensionFormat }, id)}
+            {crateDimensions && generateDetailText({ 'Crate size': crateDimensionFormat }, id)}
+            {externalCrate && generateDetailText({ 'External crate': 'Yes' }, id)}
+            {market && generateDetailText({ Market: market }, id)}
+            {generateDetailText({ Reason: details.reason ? details.reason : '-' })}
+            {details.rejectionReason &&
+              generateDetailText({ 'Rejection reason': details.rejectionReason }, id, 'margin-top-2')}
+            {!isEmpty(serviceRequestDocUploads) ? (
+              <div className={styles.uploads}>
+                <p className={styles.detailType}>Download service item documentation:</p>
+                {serviceRequestDocUploads.map((file) => (
+                  <div className={styles.uploads}>
+                    <a href={file.url} download>
+                      {trimFileName(file.filename)}
+                    </a>
+                  </div>
+                ))}
+              </div>
+            ) : null}
+          </dl>
+        </div>
+      );
+      break;
+    }
+    case 'IUCRT': {
+      const { description, itemDimensions, crateDimensions, market } = details;
+      const itemDimensionFormat = `${convertFromThousandthInchToInch(
+        itemDimensions?.length,
+      )}"x${convertFromThousandthInchToInch(itemDimensions?.width)}"x${convertFromThousandthInchToInch(
+        itemDimensions?.height,
+      )}"`;
+      const crateDimensionFormat = `${convertFromThousandthInchToInch(
+        crateDimensions?.length,
+      )}"x${convertFromThousandthInchToInch(crateDimensions?.width)}"x${convertFromThousandthInchToInch(
+        crateDimensions?.height,
+      )}"`;
+      detailSection = (
+        <div className={styles.detailCrating}>
+          <dl>
+            {description && generateDetailText({ Description: description }, id)}
+            {itemDimensions && generateDetailText({ 'Item size': itemDimensionFormat }, id)}
+            {crateDimensions && generateDetailText({ 'Crate size': crateDimensionFormat }, id)}
+            {market && generateDetailText({ Market: market }, id)}
+            {generateDetailText({ Reason: details.reason ? details.reason : '-' })}
+            {details.rejectionReason &&
+              generateDetailText({ 'Rejection reason': details.rejectionReason }, id, 'margin-top-2')}
+            {!isEmpty(serviceRequestDocUploads) ? (
+              <div className={styles.uploads}>
+                <p className={styles.detailType}>Download service item documentation:</p>
+                {serviceRequestDocUploads.map((file) => (
+                  <div className={styles.uploads}>
+                    <a href={file.url} download>
+                      {trimFileName(file.filename)}
+                    </a>
+                  </div>
+                ))}
+              </div>
+            ) : null}
+          </dl>
+        </div>
+      );
+      break;
+    }
     default:
       detailSection = (
         <div>
