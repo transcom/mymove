@@ -4522,7 +4522,8 @@ func init() {
               "destinationDutyLocation",
               "requestedMoveDate",
               "appearedInTooAt",
-              "assignedTo"
+              "assignedTo",
+              "counselingOffice"
             ],
             "type": "string",
             "description": "field that results should be sorted by",
@@ -4622,6 +4623,12 @@ func init() {
             "type": "string",
             "description": "Used to illustrate which user is assigned to this move.\n",
             "name": "assignedTo",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "filters using a counselingOffice name of the move",
+            "name": "counselingOffice",
             "in": "query"
           }
         ],
@@ -20327,7 +20334,8 @@ func init() {
               "destinationDutyLocation",
               "requestedMoveDate",
               "appearedInTooAt",
-              "assignedTo"
+              "assignedTo",
+              "counselingOffice"
             ],
             "type": "string",
             "description": "field that results should be sorted by",
@@ -20427,6 +20435,12 @@ func init() {
             "type": "string",
             "description": "Used to illustrate which user is assigned to this move.\n",
             "name": "assignedTo",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "filters using a counselingOffice name of the move",
+            "name": "counselingOffice",
             "in": "query"
           }
         ],
