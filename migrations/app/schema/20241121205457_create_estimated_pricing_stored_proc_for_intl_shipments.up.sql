@@ -177,8 +177,6 @@ END;
 $$ LANGUAGE plpgsql;
 
 
-
-DROP FUNCTION get_fsc_multiplier(integer);
 -- querying the re_fsc_multiplier table and getting the multiplier value
 CREATE OR REPLACE FUNCTION get_fsc_multiplier(estimated_weight INT)
 RETURNS DECIMAL AS $$
