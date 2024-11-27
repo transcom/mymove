@@ -1044,3 +1044,4 @@
 20241119163933_set_inactive_NSRA15_oconus_rate_areas.up.sql
 20241120221040_change_port_location_fk_to_correct_table.up.sql
 20241122155416_total_dependents_calculation.up.sql
+20241127125545_add_excess_ub_weight_columns_to_move.up.sql
