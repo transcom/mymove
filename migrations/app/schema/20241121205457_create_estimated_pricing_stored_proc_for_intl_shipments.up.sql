@@ -235,6 +235,10 @@ $$ LANGUAGE plpgsql;
 CREATE OR REPLACE FUNCTION calculate_price_difference(fuel_price DECIMAL)
 RETURNS DECIMAL AS $$
 BEGIN
+    IF fuel_price < 2.50 THEN
+        RETURN fuel_price;
+    END IF;
+
     RETURN ABS(fuel_price - 2.50);
 END;
 $$ LANGUAGE plpgsql;
@@ -429,10 +433,10 @@ BEGIN
 
                 RAISE NOTICE ''Received estimated price data for service_code: %. o_zip_code: %, d_zip_code: %, distance: %, estimated_fsc_multiplier: %, fuel_price: %, price_difference: %'', service_code, o_zip_code, d_zip_code, distance, estimated_fsc_multiplier, fuel_price, price_difference;
 
-                -- calculate estimated price
+                -- calculate estimated price, return as cents
                 IF estimated_fsc_multiplier IS NOT NULL AND distance IS NOT NULL THEN
-                    estimated_price := ROUND(distance * estimated_fsc_multiplier * price_difference, 2);
-                    RAISE NOTICE ''Received estimated price of % for service_code: %.'', estimated_price, service_code;
+                    estimated_price := ROUND(distance * estimated_fsc_multiplier * price_difference * 100);
+                    RAISE NOTICE ''Received estimated price of % cents for service_code: %.'', estimated_price, service_code;
                 END IF;
         END CASE;
 
