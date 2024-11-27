@@ -4564,7 +4564,8 @@ func init() {
               "destinationDutyLocation",
               "requestedMoveDate",
               "appearedInTooAt",
-              "assignedTo"
+              "assignedTo",
+              "counselingOffice"
             ],
             "type": "string",
             "description": "field that results should be sorted by",
@@ -4664,6 +4665,12 @@ func init() {
             "type": "string",
             "description": "Used to illustrate which user is assigned to this move.\n",
             "name": "assignedTo",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "filters using a counselingOffice name of the move",
+            "name": "counselingOffice",
             "in": "query"
           }
         ],
@@ -9047,6 +9054,16 @@ func init() {
           "type": "integer",
           "format": "cents",
           "x-nullable": true
+        },
+        "market": {
+          "description": "To identify whether the service was provided within (CONUS) or (OCONUS)",
+          "type": "string",
+          "enum": [
+            "CONUS",
+            "OCONUS"
+          ],
+          "x-nullable": true,
+          "example": "CONUS"
         },
         "moveTaskOrderID": {
           "type": "string",
@@ -20404,7 +20421,8 @@ func init() {
               "destinationDutyLocation",
               "requestedMoveDate",
               "appearedInTooAt",
-              "assignedTo"
+              "assignedTo",
+              "counselingOffice"
             ],
             "type": "string",
             "description": "field that results should be sorted by",
@@ -20504,6 +20522,12 @@ func init() {
             "type": "string",
             "description": "Used to illustrate which user is assigned to this move.\n",
             "name": "assignedTo",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "filters using a counselingOffice name of the move",
+            "name": "counselingOffice",
             "in": "query"
           }
         ],
@@ -25261,6 +25285,16 @@ func init() {
           "type": "integer",
           "format": "cents",
           "x-nullable": true
+        },
+        "market": {
+          "description": "To identify whether the service was provided within (CONUS) or (OCONUS)",
+          "type": "string",
+          "enum": [
+            "CONUS",
+            "OCONUS"
+          ],
+          "x-nullable": true,
+          "example": "CONUS"
         },
         "moveTaskOrderID": {
           "type": "string",

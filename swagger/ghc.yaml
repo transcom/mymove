@@ -3727,6 +3727,7 @@ paths:
             - requestedMoveDate
             - appearedInTooAt
             - assignedTo
+            - counselingOffice
           description: field that results should be sorted by
         - in: query
           name: order
@@ -3795,6 +3796,10 @@ paths:
           type: string
           description: |
             Used to illustrate which user is assigned to this move.
+        - in: query
+          name: counselingOffice
+          type: string
+          description: filters using a counselingOffice name of the move
       responses:
         '200':
           description: Successfully returned all moves matching the criteria
@@ -8521,6 +8526,16 @@ definitions:
       lockedPriceCents:
         type: integer
         format: cents
+        x-nullable: true
+      market:
+        type: string
+        enum:
+          - CONUS
+          - OCONUS
+        example: CONUS
+        description: >-
+          To identify whether the service was provided within (CONUS) or
+          (OCONUS)
         x-nullable: true
   MTOServiceItems:
     description: A list of service items connected to this shipment.
