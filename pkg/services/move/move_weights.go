@@ -98,53 +98,42 @@ func (w moveWeights) CheckExcessWeight(appCtx appcontext.AppContext, moveID uuid
 		return nil, nil, errors.New("could not determine excess weight entitlement without dependents authorization value")
 	}
 
+	var isHHGAtRiskOfExcessWeight bool
+	var isUBAtRiskOfExcessWeight bool
+
 	totalWeightAllowance := models.GetWeightAllotment(*move.Orders.Grade, move.Orders.OrdersType)
 
-	weight := totalWeightAllowance.TotalWeightSelf
+	overallWeightAllowance := totalWeightAllowance.TotalWeightSelf
 	if *move.Orders.Entitlement.DependentsAuthorized {
-		weight = totalWeightAllowance.TotalWeightSelfPlusDependents
+		overallWeightAllowance = totalWeightAllowance.TotalWeightSelfPlusDependents
 	}
+	ubWeightAllowance := totalWeightAllowance.UnaccompaniedBaggageAllowance
 
-	// the shipment being updated/created potentially has not yet been saved in the database so use the weight in the
-	// incoming payload that will be saved after
-	estimatedWeightTotal := 0
-	if updatedShipment.Status == models.MTOShipmentStatusApproved {
-		if updatedShipment.PrimeEstimatedWeight != nil {
-			estimatedWeightTotal += updatedShipment.PrimeEstimatedWeight.Int()
-		}
-		if updatedShipment.PPMShipment != nil && updatedShipment.PPMShipment.EstimatedWeight != nil {
-			estimatedWeightTotal += updatedShipment.PPMShipment.EstimatedWeight.Int()
-		}
-	}
+	sumOfWeights := calculateSumOfWeights(move, &updatedShipment)
+	now := time.Now() // Prepare a shared time for risk excess flagging
 
-	for _, shipment := range move.MTOShipments {
-		// We should avoid counting shipments that haven't been approved yet and will need to account for diversions
-		// and cancellations factoring into the estimated weight total.
-		if shipment.Status == models.MTOShipmentStatusApproved && shipment.PrimeEstimatedWeight != nil {
-			if shipment.ID != updatedShipment.ID {
-				if shipment.PrimeEstimatedWeight != nil {
-					estimatedWeightTotal += shipment.PrimeEstimatedWeight.Int()
-				}
-				if shipment.PPMShipment != nil && shipment.PPMShipment.EstimatedWeight != nil {
-					estimatedWeightTotal += shipment.PPMShipment.EstimatedWeight.Int()
-				}
-			}
-		}
-	}
-
-	// may need to take into account floating point precision here but should be dealing with whole numbers
-	if int(float32(weight)*RiskOfExcessThreshold) <= estimatedWeightTotal {
-		excessWeightQualifiedAt := time.Now()
+	// Check for risk of excess of the total move allowance (HHG and PPM)
+	if int(float32(overallWeightAllowance)*RiskOfExcessThreshold) <= sumOfWeights.SumEstimatedWeightOfMove {
+		isHHGAtRiskOfExcessWeight = true
+		excessWeightQualifiedAt := now
 		move.ExcessWeightQualifiedAt = &excessWeightQualifiedAt
-
-		verrs, err := validateAndSave(appCtx, &move)
-		if (verrs != nil && verrs.HasAny()) || err != nil {
-			return nil, verrs, err
-		}
 	} else if move.ExcessWeightQualifiedAt != nil {
-		// the move had previously qualified for excess weight but does not any longer so reset the value
+		// Reset qualified at
 		move.ExcessWeightQualifiedAt = nil
+	}
 
+	// Check for risk of excess of UB allowance
+	if (int(float32(ubWeightAllowance)*RiskOfExcessThreshold) <= sumOfWeights.SumEstimatedWeightOfUbShipments) || (int(float32(ubWeightAllowance)*RiskOfExcessThreshold) <= sumOfWeights.SumActualWeightOfUbShipments) {
+		isUBAtRiskOfExcessWeight = true
+		excessUbWeightQualifiedAt := now
+		move.ExcessUnaccompaniedBaggageWeightQualifiedAt = &excessUbWeightQualifiedAt
+	} else if move.ExcessUnaccompaniedBaggageWeightQualifiedAt != nil {
+		// Reset qualified at
+		move.ExcessUnaccompaniedBaggageWeightQualifiedAt = nil
+	}
+
+	if isHHGAtRiskOfExcessWeight || isUBAtRiskOfExcessWeight {
+		// Save risk excess flags
 		verrs, err := validateAndSave(appCtx, &move)
 		if (verrs != nil && verrs.HasAny()) || err != nil {
 			return nil, verrs, err
@@ -152,6 +141,79 @@ func (w moveWeights) CheckExcessWeight(appCtx appcontext.AppContext, moveID uuid
 	}
 
 	return &move, nil, nil
+}
+
+type SumOfWeights struct {
+	SumEstimatedWeightOfMove        int
+	SumEstimatedWeightOfUbShipments int
+	SumActualWeightOfUbShipments    int
+}
+
+func sumWeightsFromShipment(shipment models.MTOShipment) SumOfWeights {
+	var sumEstimatedWeightOfMove int
+	var sumEstimatedWeightOfUbShipments int
+	var sumActualWeightOfUbShipments int
+
+	if shipment.Status != models.MTOShipmentStatusApproved {
+		return SumOfWeights{}
+	}
+
+	// Sum the prime estimated weights
+	if shipment.PrimeEstimatedWeight != nil {
+		primeEstimatedWeightInt := shipment.PrimeEstimatedWeight.Int()
+		sumEstimatedWeightOfMove += primeEstimatedWeightInt
+		if shipment.ShipmentType == models.MTOShipmentTypeUnaccompaniedBaggage {
+			// Sum the UB estimated weight separately
+			sumEstimatedWeightOfUbShipments += primeEstimatedWeightInt
+		}
+	}
+
+	if shipment.PPMShipment != nil && shipment.PPMShipment.EstimatedWeight != nil {
+		// Sum the PPM estimated weight into the overall sum
+		sumEstimatedWeightOfMove += shipment.PPMShipment.EstimatedWeight.Int()
+	}
+
+	if shipment.PrimeActualWeight != nil && shipment.ShipmentType == models.MTOShipmentTypeUnaccompaniedBaggage {
+		// Sum the actual weight of UB, we don't sum the actual weight of HHG or PPM at this time for determining if a move is at risk of excess
+		sumActualWeightOfUbShipments += shipment.PrimeActualWeight.Int()
+	}
+
+	return SumOfWeights{
+		SumEstimatedWeightOfMove:        sumEstimatedWeightOfMove,
+		SumEstimatedWeightOfUbShipments: sumEstimatedWeightOfUbShipments,
+		SumActualWeightOfUbShipments:    sumActualWeightOfUbShipments,
+	}
+}
+
+// Calculates the sum of weights for a move, including an optional updated shipment that may not be persisted to the database yet
+// If updatedShipment is nil, it calculates sums for the move as is
+// If updatedShipment is provided, it excludes it from the existing shipments and adds its weights separately since we don't want to include it
+//
+//	in the normal sum (Since the normal sum won't accurately reflect the not-saved shipment being updated)
+func calculateSumOfWeights(move models.Move, updatedShipment *models.MTOShipment) SumOfWeights {
+	sumOfWeights := SumOfWeights{}
+
+	// Sum weights from existing shipments
+	for _, shipment := range move.MTOShipments {
+		if updatedShipment != nil && shipment.ID == updatedShipment.ID {
+			// Skip shipments that are not approved
+			continue
+		}
+		shipmentWeights := sumWeightsFromShipment(shipment)
+		sumOfWeights.SumEstimatedWeightOfMove += shipmentWeights.SumEstimatedWeightOfMove
+		sumOfWeights.SumEstimatedWeightOfUbShipments += shipmentWeights.SumEstimatedWeightOfUbShipments
+		sumOfWeights.SumActualWeightOfUbShipments += shipmentWeights.SumActualWeightOfUbShipments
+	}
+
+	// Sum weights from the updated shipment
+	if updatedShipment != nil {
+		updatedWeights := sumWeightsFromShipment(*updatedShipment)
+		sumOfWeights.SumEstimatedWeightOfMove += updatedWeights.SumEstimatedWeightOfMove
+		sumOfWeights.SumEstimatedWeightOfUbShipments += updatedWeights.SumEstimatedWeightOfUbShipments
+		sumOfWeights.SumActualWeightOfUbShipments += updatedWeights.SumActualWeightOfUbShipments
+	}
+
+	return sumOfWeights
 }
 
 func (w moveWeights) CheckAutoReweigh(appCtx appcontext.AppContext, moveID uuid.UUID, updatedShipment *models.MTOShipment) (models.MTOShipments, error) {
@@ -177,9 +239,9 @@ func (w moveWeights) CheckAutoReweigh(appCtx appcontext.AppContext, moveID uuid.
 
 	totalWeightAllowance := models.GetWeightAllotment(*move.Orders.Grade, move.Orders.OrdersType)
 
-	weight := totalWeightAllowance.TotalWeightSelf
+	overallWeightAllowance := totalWeightAllowance.TotalWeightSelf
 	if *move.Orders.Entitlement.DependentsAuthorized {
-		weight = totalWeightAllowance.TotalWeightSelfPlusDependents
+		overallWeightAllowance = totalWeightAllowance.TotalWeightSelfPlusDependents
 	}
 
 	moveWeightTotal := 0
@@ -199,7 +261,7 @@ func (w moveWeights) CheckAutoReweigh(appCtx appcontext.AppContext, moveID uuid.
 
 	autoReweighShipments := models.MTOShipments{}
 	// may need to take into account floating point precision here but should be dealing with whole numbers
-	if int(float32(weight)*AutoReweighRequestThreshold) <= moveWeightTotal {
+	if int(float32(overallWeightAllowance)*AutoReweighRequestThreshold) <= moveWeightTotal {
 		for _, shipment := range move.MTOShipments {
 			// We should avoid counting shipments that haven't been approved yet and will need to account for diversions
 			// and cancellations factoring into the weight total.
