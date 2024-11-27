@@ -1,4 +1,4 @@
-ALTER TABLE re_service_items ADD sort int;
+ALTER TABLE re_service_items ADD COLUMN IF NOT EXISTS sort int;
 
 COMMENT ON COLUMN re_service_items.sort IS 'Sort order for service items to be displayed for a given shipment type.';
 
