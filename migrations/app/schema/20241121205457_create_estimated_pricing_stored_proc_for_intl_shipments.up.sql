@@ -139,6 +139,10 @@ RETURNS INT AS $$
         WHERE si.mto_shipment_id = shipment_id;
     END IF;
 
+    IF zip_code IS NULL THEN
+        RAISE EXCEPTION 'zip_code not found for shipment id: % and address type of: %', shipment_id, address_type;
+    END IF;
+
     RETURN zip_code;
 END;
 $$ LANGUAGE plpgsql;
@@ -146,16 +150,24 @@ $$ LANGUAGE plpgsql;
 -- getting the distance between two ZIPs
 CREATE OR REPLACE FUNCTION get_distance(o_zip_code VARCHAR, d_zip_code VARCHAR)
 RETURNS INT AS $$
-    DECLARE dist INT;
-    BEGIN
-
+DECLARE
+    dist INT;
+BEGIN
+    -- get the last 3 characters from both zip codes
     SELECT zd.distance_miles
     INTO dist
     FROM zip3_distances zd
-    WHERE (zd.from_zip3 = o_zip_code AND zd.to_zip3 = d_zip_code)
-       OR (zd.from_zip3 = d_zip_code AND zd.to_zip3 = o_zip_code);
+    WHERE (zd.from_zip3 = RIGHT(o_zip_code, 3) AND zd.to_zip3 = RIGHT(d_zip_code, 3))
+       OR (zd.from_zip3 = RIGHT(d_zip_code, 3) AND zd.to_zip3 = RIGHT(o_zip_code, 3));
 
-    -- if no distance found, return 0 (or you could handle calling DTOD here)
+    IF dist IS NOT NULL THEN
+        RAISE NOTICE 'Distance found between o_zip_code % and d_zip_code %: % miles', o_zip_code, d_zip_code, dist;
+    ELSE
+        RAISE NOTICE 'No distance found for o_zip_code: % and d_zip_code: %', o_zip_code, d_zip_code;
+        RETURN 0;
+    END IF;
+
+    -- If no distance found, return 0 - we will have the backend call DTOD
     IF dist IS NULL THEN
         RETURN 0;
     END IF;
@@ -165,8 +177,10 @@ END;
 $$ LANGUAGE plpgsql;
 
 
+
+DROP FUNCTION get_fsc_multiplier(integer);
 -- querying the re_fsc_multiplier table and getting the multiplier value
-CREATE OR REPLACE FUNCTION get_fsc_multiplier(weight INT, rate_area_id uuid)
+CREATE OR REPLACE FUNCTION get_fsc_multiplier(estimated_weight INT)
 RETURNS DECIMAL AS $$
     DECLARE m NUMERIC;
     BEGIN
@@ -174,8 +188,13 @@ RETURNS DECIMAL AS $$
     SELECT multiplier
     INTO m
     FROM re_fsc_multipliers
-    WHERE weight >= low_weight AND weight <= high_weight
-      AND rate_area_id = rate_area_id;
+    WHERE estimated_weight >= low_weight AND estimated_weight <= high_weight;
+
+    RAISE NOTICE 'Received FSC multiplier for estimated_weight: %', m;
+
+    IF m IS NULL THEN
+        RAISE EXCEPTION 'multipler not found for weight of %', estimated_weight;
+    END IF;
 
     RETURN m;
 END;
@@ -185,13 +204,29 @@ $$ LANGUAGE plpgsql;
 -- getting the fuel price from the ghc_diesel_fuel_prices table
 CREATE OR REPLACE FUNCTION get_fuel_price(requested_pickup_date DATE)
 RETURNS DECIMAL AS $$
-    DECLARE fuel_price DECIMAL;
-    BEGIN
+DECLARE
+    fuel_price DECIMAL;
+BEGIN
 
     SELECT fuel_price_in_millicents / 100000
     INTO fuel_price
     FROM ghc_diesel_fuel_prices
     WHERE requested_pickup_date BETWEEN effective_date AND end_date;
+
+    -- if no results, fallback to the most recent fuel price
+    IF fuel_price IS NULL THEN
+        SELECT fuel_price_in_millicents / 100000
+        INTO fuel_price
+        FROM ghc_diesel_fuel_prices
+        ORDER BY publication_date DESC
+        LIMIT 1;
+    END IF;
+
+    RAISE NOTICE 'Received fuel price of % for requested_pickup_date: %', fuel_price, requested_pickup_date;
+
+    IF fuel_price IS NULL THEN
+        RAISE EXCEPTION 'No fuel price found for requested_pickup_date: %', requested_pickup_date;
+    END IF;
 
     RETURN fuel_price;
 END;
@@ -202,7 +237,7 @@ $$ LANGUAGE plpgsql;
 CREATE OR REPLACE FUNCTION calculate_price_difference(fuel_price DECIMAL)
 RETURNS DECIMAL AS $$
 BEGIN
-    RETURN (fuel_price - 2.50);
+    RETURN ABS(fuel_price - 2.50);
 END;
 $$ LANGUAGE plpgsql;
 
@@ -388,15 +423,18 @@ BEGIN
                 distance := get_distance(o_zip_code, d_zip_code);
 
                 -- getting FSC multiplier from re_fsc_multipliers
-                estimated_fsc_multiplier := get_fsc_multiplier(shipment.prime_estimated_weight, o_rate_area_id);
+                estimated_fsc_multiplier := get_fsc_multiplier(shipment.prime_estimated_weight);
 
                 fuel_price := get_fuel_price(shipment.requested_pickup_date);
 
                 price_difference := calculate_price_difference(fuel_price);
 
+                RAISE NOTICE ''Received estimated price data for service_code: %. o_zip_code: %, d_zip_code: %, distance: %, estimated_fsc_multiplier: %, fuel_price: %, price_difference: %'', service_code, o_zip_code, d_zip_code, distance, estimated_fsc_multiplier, fuel_price, price_difference;
+
                 -- calculate estimated price
                 IF estimated_fsc_multiplier IS NOT NULL AND distance IS NOT NULL THEN
                     estimated_price := ROUND(distance * estimated_fsc_multiplier * price_difference, 2);
+                    RAISE NOTICE ''Received estimated price of % for service_code: %.'', estimated_price, service_code;
                 END IF;
         END CASE;
 
