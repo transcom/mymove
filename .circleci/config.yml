@@ -838,7 +838,6 @@ commands:
           environment:
             MIGRATION_MANIFEST: '/home/circleci/project/migrations/app/migrations_manifest.txt'
             MIGRATION_PATH: 'file:///home/circleci/project/migrations/app/schema;file:///home/circleci/project/migrations/app/secure'
-            LOCAL_STORAGE_ROOT: 'tmp'
           command: |
             export MOVE_MIL_DOD_CA_CERT=$(cat config/tls/devlocal-ca.pem)
             export MOVE_MIL_DOD_TLS_CERT=$(cat config/tls/devlocal-https.pem)
