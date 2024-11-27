@@ -838,6 +838,7 @@ commands:
           environment:
             MIGRATION_MANIFEST: '/home/circleci/project/migrations/app/migrations_manifest.txt'
             MIGRATION_PATH: 'file:///home/circleci/project/migrations/app/schema;file:///home/circleci/project/migrations/app/secure'
+            LOCAL_STORAGE_ROOT: 'tmp'
           command: |
             export MOVE_MIL_DOD_CA_CERT=$(cat config/tls/devlocal-ca.pem)
             export MOVE_MIL_DOD_TLS_CERT=$(cat config/tls/devlocal-https.pem)
@@ -847,8 +848,6 @@ commands:
             export HERE_MAPS_APP_ID=$E2E_HERE_MAPS_APP_ID
             export HERE_MAPS_APP_CODE=$E2E_HERE_MAPS_APP_CODE
             export LOCAL_STORAGE_WEB_ROOT=storage
-            # override local_storage_root to be tmp, not /tmp
-            export LOCAL_STORAGE_ROOT=tmp
             # pull in review app settings here so we don't have to
             # reproduce them
             sed 's,^,export ,' config/env/review.app.env > server_env
