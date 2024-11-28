@@ -75,6 +75,7 @@ const AboutForm = ({ mtoShipment, onBack, onSubmit }) => {
       city: mtoShipment?.ppmShipment?.w2Address?.city || '',
       state: mtoShipment?.ppmShipment?.w2Address?.state || '',
       postalCode: mtoShipment?.ppmShipment?.w2Address?.postalCode || '',
+      usPostRegionCitiesID: mtoShipment?.ppmShipment?.w2Address?.usPostRegionCitiesID || '',
     },
   };
 

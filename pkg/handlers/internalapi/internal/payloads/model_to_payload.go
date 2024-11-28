@@ -31,7 +31,8 @@ func Address(address *models.Address) *internalmessages.Address {
 	if *address == (models.Address{}) {
 		return nil
 	}
-	return &internalmessages.Address{
+
+	payloadAddress := &internalmessages.Address{
 		ID:             strfmt.UUID(address.ID.String()),
 		StreetAddress1: &address.StreetAddress1,
 		StreetAddress2: address.StreetAddress2,
@@ -43,6 +44,13 @@ func Address(address *models.Address) *internalmessages.Address {
 		County:         address.County,
 		IsOconus:       address.IsOconus,
 	}
+
+	if address.UsPostRegionCityID != nil {
+		usPostRegionCitiesID := *address.UsPostRegionCityID
+		payloadAddress.UsPostRegionCitiesID = strfmt.UUID(usPostRegionCitiesID.String())
+	}
+
+	return payloadAddress
 }
 
 // PPM Destination Address payload
@@ -696,7 +704,7 @@ func VLocation(vLocation *models.VLocation) *internalmessages.VLocation {
 		State:                vLocation.StateName,
 		PostalCode:           vLocation.UsprZipID,
 		County:               &vLocation.UsprcCountyNm,
-		UsPostRegionCitiesID: *handlers.FmtUUID(*vLocation.UsPostRegionCitiesId),
+		UsPostRegionCitiesID: *handlers.FmtUUID(*vLocation.UsPostRegionCitiesID),
 	}
 }
 

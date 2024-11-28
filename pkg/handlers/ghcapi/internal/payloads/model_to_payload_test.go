@@ -766,20 +766,20 @@ func (suite *PayloadsSuite) TestVLocation() {
 		state := "CA"
 		postalCode := "90210"
 		county := "LOS ANGELES"
-		usPostRegionCityId := uuid.Must(uuid.NewV4())
+		usPostRegionCityID := uuid.Must(uuid.NewV4())
 
 		vLocation := &models.VLocation{
 			CityName:             city,
 			StateName:            state,
 			UsprZipID:            postalCode,
 			UsprcCountyNm:        county,
-			UsPostRegionCitiesId: &usPostRegionCityId,
+			UsPostRegionCitiesID: &usPostRegionCityID,
 		}
 
 		payload := VLocation(vLocation)
 
 		suite.IsType(payload, &ghcmessages.VLocation{})
-		suite.Equal(handlers.FmtUUID(usPostRegionCityId), &payload.UsPostRegionCitiesID, "Expected UsPostRegionCitiesID to match")
+		suite.Equal(handlers.FmtUUID(usPostRegionCityID), &payload.UsPostRegionCitiesID, "Expected UsPostRegionCitiesID to match")
 		suite.Equal(city, payload.City, "Expected City to match")
 		suite.Equal(state, payload.State, "Expected State to match")
 		suite.Equal(postalCode, payload.PostalCode, "Expected PostalCode to match")

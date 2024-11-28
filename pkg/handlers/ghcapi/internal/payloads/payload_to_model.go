@@ -98,7 +98,7 @@ func AddressModel(address *ghcmessages.Address) *models.Address {
 		ID:                 uuid.FromStringOrNil(address.ID.String()),
 		StreetAddress2:     address.StreetAddress2,
 		StreetAddress3:     address.StreetAddress3,
-		UsPostRegionCityId: &usPostRegionCitiesID,
+		UsPostRegionCityID: &usPostRegionCitiesID,
 	}
 	if address.StreetAddress1 != nil {
 		modelAddress.StreetAddress1 = *address.StreetAddress1
@@ -125,11 +125,13 @@ func PPMDestinationAddressModel(address *ghcmessages.PPMDestinationAddress) *mod
 	if address == nil || (address.ID == blankSwaggerID && address.City == nil && address.State == nil && address.PostalCode == nil) {
 		return nil
 	}
+	usPostRegionCitiesID := uuid.FromStringOrNil(address.UsPostRegionCitiesID.String())
 
 	modelAddress := &models.Address{
-		ID:             uuid.FromStringOrNil(address.ID.String()),
-		StreetAddress2: address.StreetAddress2,
-		StreetAddress3: address.StreetAddress3,
+		ID:                 uuid.FromStringOrNil(address.ID.String()),
+		StreetAddress2:     address.StreetAddress2,
+		StreetAddress3:     address.StreetAddress3,
+		UsPostRegionCityID: &usPostRegionCitiesID,
 	}
 
 	if address.StreetAddress1 != nil && len(strings.Trim(*address.StreetAddress1, " ")) > 0 {
@@ -961,13 +963,13 @@ func VLocationModel(vLocation *ghcmessages.VLocation) *models.VLocation {
 		return nil
 	}
 
-	usPostRegionCitiesId := uuid.FromStringOrNil(vLocation.UsPostRegionCitiesID.String())
+	usPostRegionCitiesID := uuid.FromStringOrNil(vLocation.UsPostRegionCitiesID.String())
 
 	return &models.VLocation{
 		CityName:             vLocation.City,
 		StateName:            vLocation.State,
 		UsprZipID:            vLocation.PostalCode,
 		UsprcCountyNm:        *vLocation.County,
-		UsPostRegionCitiesId: &usPostRegionCitiesId,
+		UsPostRegionCitiesID: &usPostRegionCitiesID,
 	}
 }

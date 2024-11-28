@@ -32,7 +32,7 @@ type Address struct {
 	Country            *Country          `belongs_to:"re_countries" fk_id:"country_id"`
 	County             *string           `json:"county" db:"county"`
 	IsOconus           *bool             `json:"is_oconus" db:"is_oconus"`
-	UsPostRegionCityId *uuid.UUID        `json:"us_post_region_cities_id" db:"us_post_region_cities_id"`
+	UsPostRegionCityID *uuid.UUID        `json:"us_post_region_cities_id" db:"us_post_region_cities_id"`
 	UsPostRegionCity   *UsPostRegionCity `belongs_to:"us_post_region_cities" fk_id:"us_post_region_cities_id"`
 }
 

@@ -161,6 +161,7 @@ const DateAndLocationForm = ({ mtoShipment, destinationDutyLocation, serviceMemb
                   city: '',
                   state: '',
                   postalCode: '',
+                  usPostRegionCitiesID: '',
                 },
               },
             });
@@ -188,6 +189,7 @@ const DateAndLocationForm = ({ mtoShipment, destinationDutyLocation, serviceMemb
                   city: '',
                   state: '',
                   postalCode: '',
+                  usPostRegionCitiesID: '',
                 },
               },
             });
