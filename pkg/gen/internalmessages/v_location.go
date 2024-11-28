@@ -37,10 +37,10 @@ type VLocation struct {
 	// Enum: [AL AK AR AZ CA CO CT DC DE FL GA HI IA ID IL IN KS KY LA MA MD ME MI MN MO MS MT NC ND NE NH NJ NM NV NY OH OK OR PA RI SC SD TN TX UT VA VT WA WI WV WY]
 	State string `json:"state,omitempty"`
 
-	// us post region cities Id
+	// us post region cities ID
 	// Example: c56a4180-65aa-42ec-a945-5fd21dec0538
 	// Format: uuid
-	UsPostRegionCitiesID strfmt.UUID `json:"usPostRegionCitiesId,omitempty"`
+	UsPostRegionCitiesID strfmt.UUID `json:"usPostRegionCitiesID,omitempty"`
 }
 
 // Validate validates this v location
@@ -271,7 +271,7 @@ func (m *VLocation) validateUsPostRegionCitiesID(formats strfmt.Registry) error 
 		return nil
 	}
 
-	if err := validate.FormatOf("usPostRegionCitiesId", "body", "uuid", m.UsPostRegionCitiesID.String(), formats); err != nil {
+	if err := validate.FormatOf("usPostRegionCitiesID", "body", "uuid", m.UsPostRegionCitiesID.String(), formats); err != nil {
 		return err
 	}
 

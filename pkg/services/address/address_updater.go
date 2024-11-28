@@ -111,6 +111,9 @@ func mergeAddress(address, originalAddress models.Address) models.Address {
 	if address.County != nil && *address.County != "" {
 		mergedAddress.County = address.County
 	}
+	if address.UsPostRegionCityID != nil {
+		mergedAddress.UsPostRegionCityID = address.UsPostRegionCityID
+	}
 
 	mergedAddress.StreetAddress2 = services.SetOptionalStringField(address.StreetAddress2, mergedAddress.StreetAddress2)
 	mergedAddress.StreetAddress3 = services.SetOptionalStringField(address.StreetAddress3, mergedAddress.StreetAddress3)
