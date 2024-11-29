@@ -398,8 +398,8 @@ describe('ShipmentForm component', () => {
 
       expect(screen.getByLabelText('Requested pickup date')).toBeInstanceOf(HTMLInputElement);
 
-      expect(screen.getByText('Pickup location')).toBeInstanceOf(HTMLLegendElement);
-      expect(screen.getByLabelText('Use current address')).toBeInstanceOf(HTMLInputElement);
+      expect(screen.getByText('Pickup Address')).toBeInstanceOf(HTMLLegendElement);
+      expect(screen.getByLabelText('Use pickup address')).toBeInstanceOf(HTMLInputElement);
       expect(screen.getByLabelText(/Address 1/)).toBeInstanceOf(HTMLInputElement);
       expect(screen.getByLabelText(/Address 2/)).toBeInstanceOf(HTMLInputElement);
       expect(screen.getByLabelText('City')).toBeInstanceOf(HTMLInputElement);
@@ -414,7 +414,7 @@ describe('ShipmentForm component', () => {
 
       expect(screen.getByLabelText('Requested delivery date')).toBeInstanceOf(HTMLInputElement);
 
-      const deliveryLocationSectionHeadings = screen.getAllByText('Delivery location');
+      const deliveryLocationSectionHeadings = screen.getAllByText('Delivery Address');
       expect(deliveryLocationSectionHeadings).toHaveLength(2);
       expect(deliveryLocationSectionHeadings[0]).toBeInstanceOf(HTMLParagraphElement);
       expect(deliveryLocationSectionHeadings[1]).toBeInstanceOf(HTMLLegendElement);
@@ -468,7 +468,7 @@ describe('ShipmentForm component', () => {
       renderWithRouter(<ShipmentForm {...defaultProps} shipmentType={SHIPMENT_OPTIONS.HHG} />);
 
       await act(async () => {
-        await user.click(screen.getByLabelText('Use current address'));
+        await user.click(screen.getByLabelText('Use pickup address'));
       });
 
       expect((await screen.findAllByLabelText('Address 1'))[0]).toHaveValue(
@@ -578,7 +578,7 @@ describe('ShipmentForm component', () => {
       );
 
       expect(await screen.findByLabelText('Requested pickup date')).toHaveValue('01 Mar 2020');
-      expect(screen.getByLabelText('Use current address')).not.toBeChecked();
+      expect(screen.getByLabelText('Use pickup address')).not.toBeChecked();
       expect(screen.getAllByLabelText('Address 1')[0]).toHaveValue('812 S 129th St');
       expect(screen.getAllByLabelText(/Address 2/)[0]).toHaveValue('');
       expect(screen.getAllByLabelText('City')[0]).toHaveValue('San Antonio');
@@ -626,7 +626,7 @@ describe('ShipmentForm component', () => {
       );
 
       expect(await screen.findByLabelText('Requested pickup date')).toHaveValue('01 Mar 2020');
-      expect(screen.getByLabelText('Use current address')).not.toBeChecked();
+      expect(screen.getByLabelText('Use pickup address')).not.toBeChecked();
       expect(screen.getAllByLabelText('Address 1')[0]).toHaveValue('812 S 129th St');
       expect(screen.getAllByLabelText(/Address 2/)[0]).toHaveValue('');
       expect(screen.getAllByLabelText('City')[0]).toHaveValue('San Antonio');
@@ -674,9 +674,9 @@ describe('ShipmentForm component', () => {
 
       const alerts = await screen.findAllByTestId('alert');
       expect(alerts).toHaveLength(2); // Should have 2 alerts shown due to the address update request
-      expect(alerts[0]).toHaveTextContent('Request needs review. See delivery location to proceed.');
+      expect(alerts[0]).toHaveTextContent('Request needs review. See delivery address to proceed.');
       expect(alerts[1]).toHaveTextContent(
-        'Pending delivery location change request needs review. Review request to proceed.',
+        'Pending delivery address change request needs review. Review request to proceed.',
       );
     };
 
@@ -804,8 +804,8 @@ describe('ShipmentForm component', () => {
 
       expect(screen.getByLabelText('Requested pickup date')).toBeInstanceOf(HTMLInputElement);
 
-      expect(screen.getByText('Pickup location')).toBeInstanceOf(HTMLLegendElement);
-      expect(screen.getByLabelText('Use current address')).toBeInstanceOf(HTMLInputElement);
+      expect(screen.getByText('Pickup Address')).toBeInstanceOf(HTMLLegendElement);
+      expect(screen.getByLabelText('Use pickup address')).toBeInstanceOf(HTMLInputElement);
       expect(screen.getByLabelText(/Address 1/)).toBeInstanceOf(HTMLInputElement);
       expect(screen.getByLabelText(/Address 2/)).toBeInstanceOf(HTMLInputElement);
       expect(screen.getByLabelText('City')).toBeInstanceOf(HTMLInputElement);
@@ -818,7 +818,7 @@ describe('ShipmentForm component', () => {
       expect(screen.getByLabelText('Phone')).toHaveAttribute('name', 'pickup.agent.phone');
       expect(screen.getByLabelText('Email')).toHaveAttribute('name', 'pickup.agent.email');
 
-      expect(screen.queryByText('Delivery location')).not.toBeInTheDocument();
+      expect(screen.queryByText('Delivery Address')).not.toBeInTheDocument();
       expect(screen.queryByText(/Receiving agent/)).not.toBeInTheDocument();
 
       expect(screen.getByText('Customer remarks')).toBeTruthy();
@@ -958,12 +958,12 @@ describe('ShipmentForm component', () => {
 
       expect(await screen.findByText('NTS-release')).toHaveClass('usa-tag');
 
-      expect(screen.queryByText('Pickup location')).not.toBeInTheDocument();
+      expect(screen.queryByText('Pickup Address')).not.toBeInTheDocument();
       expect(screen.queryByText(/Releasing agent/)).not.toBeInTheDocument();
 
       expect(screen.getByLabelText('Requested delivery date')).toBeInstanceOf(HTMLInputElement);
 
-      expect(screen.getByText('Delivery location')).toBeInstanceOf(HTMLLegendElement);
+      expect(screen.getByText('Delivery Address')).toBeInstanceOf(HTMLLegendElement);
 
       expect(screen.getByText(/Receiving agent/).parentElement).toBeInstanceOf(HTMLLegendElement);
       expect(screen.getByLabelText('First name')).toHaveAttribute('name', 'delivery.agent.firstName');
@@ -1130,7 +1130,7 @@ describe('ShipmentForm component', () => {
       expect(await screen.findByText('HHG')).toHaveClass('usa-tag');
       expect(screen.queryByRole('heading', { level: 2, name: 'Vendor' })).not.toBeInTheDocument();
       expect(screen.getByLabelText('Requested pickup date')).toBeInTheDocument();
-      expect(screen.getByText('Pickup location')).toBeInTheDocument();
+      expect(screen.getByText('Pickup Address')).toBeInTheDocument();
       expect(screen.getByLabelText('Requested delivery date')).toBeInTheDocument();
       expect(screen.getByText(/Receiving agent/).parentElement).toBeInTheDocument();
       expect(screen.getByText('Customer remarks')).toBeInTheDocument();
@@ -1561,7 +1561,7 @@ describe('ShipmentForm component', () => {
       expect(await screen.findByTestId('tag')).toHaveTextContent('PPM');
     });
 
-    it('PPM - destination address street 1 is OPTIONAL', async () => {
+    it('PPM - delivery address street 1 is OPTIONAL', async () => {
       renderWithRouter(
         <ShipmentForm
           {...defaultProps}
@@ -1589,7 +1589,7 @@ describe('ShipmentForm component', () => {
         expect(screen.queryByRole('alert')).not.toBeInTheDocument();
       });
 
-      // test that destination address street1 is OPTIONAL and not raise any required alert
+      // test that delivery address street1 is OPTIONAL and not raise any required alert
       await userEvent.type(document.querySelector('input[name="destination.address.streetAddress1"]'), '  ');
       await userEvent.tab();
       await waitFor(() => {
@@ -1806,7 +1806,7 @@ describe('ShipmentForm component', () => {
         expect(screen.getAllByLabelText('No')[3]).not.toBeChecked();
       });
 
-      it('test destination address street 1 is OPTIONAL', async () => {
+      it('test delivery address street 1 is OPTIONAL', async () => {
         isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(true));
         renderWithRouter(
           <ShipmentForm
@@ -1831,15 +1831,15 @@ describe('ShipmentForm component', () => {
           expect(screen.queryByRole('alert')).not.toBeInTheDocument();
         });
 
-        // test that destination address street1 is OPTIONAL and not raise any required alert
+        // test that delivery address street1 is OPTIONAL and not raise any required alert
         await userEvent.clear(document.querySelector('input[name="destination.address.streetAddress1"]'));
         await userEvent.tab();
         await waitFor(() => {
           // verify required alert was not raised
           expect(screen.queryByRole('alert')).not.toBeInTheDocument();
 
-          // 'Optional' labelHint on address display. expecting a total of 9(2 for pickup address and 3 destination address, 4 for secondary addrs).
-          // This is to verify Optional labelHints are displayed correctly for PPM onboarding/edit for the destination address
+          // 'Optional' labelHint on address display. expecting a total of 9(2 for pickup address and 3 delivery address, 4 for secondary addrs).
+          // This is to verify Optional labelHints are displayed correctly for PPM onboarding/edit for the delivery address
           // street 1 is now OPTIONAL. If this fails it means addtional labelHints have been introduced elsewhere within the control.
           const hints = document.getElementsByClassName('usa-hint');
           expect(hints.length).toBe(9);
@@ -2135,7 +2135,7 @@ describe('ShipmentForm component', () => {
       expect(await screen.findByTestId('tag')).toHaveTextContent('PPM');
       expect(screen.getByText('Is this PPM an Actual Expense Reimbursement?')).toBeInTheDocument();
       expect(screen.getByText('What address are you moving from?')).toBeInTheDocument();
-      expect(screen.getByText('Second pickup address')).toBeInTheDocument();
+      expect(screen.getByText('Second Pickup Address')).toBeInTheDocument();
       expect(
         screen.getByText(
           'Will you move any belongings from a second address? (Must be near the pickup address. Subject to approval.)',
@@ -2143,7 +2143,7 @@ describe('ShipmentForm component', () => {
       ).toBeInTheDocument();
 
       expect(screen.getByText('Delivery Address')).toBeInTheDocument();
-      expect(screen.getByText('Second delivery address')).toBeInTheDocument();
+      expect(screen.getByText('Second Delivery Address')).toBeInTheDocument();
       expect(
         screen.getByText(
           'Will you move any belongings to a second address? (Must be near the delivery address. Subject to approval.)',
@@ -2160,9 +2160,9 @@ describe('ShipmentForm component', () => {
           userRole={roleTypes.SERVICES_COUNSELOR}
         />,
       );
-      expect(screen.queryByText('Third pickup address')).not.toBeInTheDocument();
+      expect(screen.queryByText('Third Pickup Address')).not.toBeInTheDocument();
       fireEvent.click(screen.getByTestId('has-secondary-pickup'));
-      expect(await screen.findByText('Third pickup address')).toBeInTheDocument();
+      expect(await screen.findByText('Third Pickup Address')).toBeInTheDocument();
       expect(
         await screen.findByText(
           'Will you move any belongings from a third address? (Must be near the pickup address. Subject to approval.)',
@@ -2179,9 +2179,9 @@ describe('ShipmentForm component', () => {
           userRole={roleTypes.SERVICES_COUNSELOR}
         />,
       );
-      expect(screen.queryByText('Third delivery address')).not.toBeInTheDocument();
+      expect(screen.queryByText('Third Delivery Address')).not.toBeInTheDocument();
       fireEvent.click(screen.getByTestId('has-secondary-destination'));
-      expect(await screen.findByText('Third delivery address')).toBeInTheDocument();
+      expect(await screen.findByText('Third Delivery Address')).toBeInTheDocument();
       expect(
         await screen.findByText(
           'Will you move any belongings to a third address? (Must be near the delivery address. Subject to approval.)',
