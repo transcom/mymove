@@ -78,7 +78,7 @@ func (f *shipmentApprover) ApproveShipment(appCtx appcontext.AppContext, shipmen
 	}
 
 	// create international shipment service items
-	if shipment.MarketCode == models.MarketCodeInternational {
+	if shipment.ShipmentType == models.MTOShipmentTypeHHG && shipment.MarketCode == models.MarketCodeInternational {
 		err := models.CreateApprovedServiceItemsForShipment(appCtx.DB(), shipment)
 		if err != nil {
 			return shipment, err
