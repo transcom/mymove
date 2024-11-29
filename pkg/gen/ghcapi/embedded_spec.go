@@ -3129,6 +3129,66 @@ func init() {
         }
       ]
     },
+    "/orders/{orderID}/acknowledge-excess-unaccompanied-baggage-weight-risk": {
+      "post": {
+        "description": "Saves the date and time a TOO acknowledged the excess unaccompanied baggage weight risk by dismissing the alert",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "order"
+        ],
+        "summary": "Saves the date and time a TOO acknowledged the excess unaccompanied baggage weight risk by dismissing the alert",
+        "operationId": "acknowledgeExcessUnaccompaniedBaggageWeightRisk",
+        "parameters": [
+          {
+            "type": "string",
+            "name": "If-Match",
+            "in": "header",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "updated Move",
+            "schema": {
+              "$ref": "#/definitions/Move"
+            }
+          },
+          "403": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "404": {
+            "$ref": "#/responses/NotFound"
+          },
+          "412": {
+            "$ref": "#/responses/PreconditionFailed"
+          },
+          "422": {
+            "$ref": "#/responses/UnprocessableEntity"
+          },
+          "500": {
+            "$ref": "#/responses/ServerError"
+          }
+        },
+        "x-permissions": [
+          "update.excessWeightRisk"
+        ]
+      },
+      "parameters": [
+        {
+          "type": "string",
+          "format": "uuid",
+          "description": "ID of order to use",
+          "name": "orderID",
+          "in": "path",
+          "required": true
+        }
+      ]
+    },
     "/orders/{orderID}/acknowledge-excess-weight-risk": {
       "post": {
         "description": "Saves the date and time a TOO acknowledged the excess weight risk by dismissing the alert",
@@ -18904,6 +18964,81 @@ func init() {
         },
         "x-permissions": [
           "update.orders"
+        ]
+      },
+      "parameters": [
+        {
+          "type": "string",
+          "format": "uuid",
+          "description": "ID of order to use",
+          "name": "orderID",
+          "in": "path",
+          "required": true
+        }
+      ]
+    },
+    "/orders/{orderID}/acknowledge-excess-unaccompanied-baggage-weight-risk": {
+      "post": {
+        "description": "Saves the date and time a TOO acknowledged the excess unaccompanied baggage weight risk by dismissing the alert",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "order"
+        ],
+        "summary": "Saves the date and time a TOO acknowledged the excess unaccompanied baggage weight risk by dismissing the alert",
+        "operationId": "acknowledgeExcessUnaccompaniedBaggageWeightRisk",
+        "parameters": [
+          {
+            "type": "string",
+            "name": "If-Match",
+            "in": "header",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "updated Move",
+            "schema": {
+              "$ref": "#/definitions/Move"
+            }
+          },
+          "403": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "412": {
+            "description": "Precondition failed",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "422": {
+            "description": "The payload was unprocessable.",
+            "schema": {
+              "$ref": "#/definitions/ValidationError"
+            }
+          },
+          "500": {
+            "description": "A server error occurred",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        },
+        "x-permissions": [
+          "update.excessWeightRisk"
         ]
       },
       "parameters": [
