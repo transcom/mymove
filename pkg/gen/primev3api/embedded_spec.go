@@ -2193,6 +2193,20 @@ func init() {
           "type": "string",
           "readOnly": true
         },
+        "excessUnaccompaniedBaggageWeightAcknowledgedAt": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true,
+          "x-omitempty": false,
+          "readOnly": true
+        },
+        "excessUnaccompaniedBaggageWeightQualifiedAt": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true,
+          "x-omitempty": false,
+          "readOnly": true
+        },
         "excessWeightAcknowledgedAt": {
           "type": "string",
           "format": "date-time",
@@ -6354,6 +6368,20 @@ func init() {
         },
         "eTag": {
           "type": "string",
+          "readOnly": true
+        },
+        "excessUnaccompaniedBaggageWeightAcknowledgedAt": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true,
+          "x-omitempty": false,
+          "readOnly": true
+        },
+        "excessUnaccompaniedBaggageWeightQualifiedAt": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true,
+          "x-omitempty": false,
           "readOnly": true
         },
         "excessWeightAcknowledgedAt": {

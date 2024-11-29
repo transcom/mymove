@@ -5314,6 +5314,21 @@ definitions:
         x-nullable: true
       status:
         $ref: '#/definitions/MoveStatus'
+      excessUnaccompaniedBaggageWeightQualifiedAt:
+        type: string
+        format: date-time
+        description: >-
+          Timestamp of when the sum of estimated or actual unaccompanied baggage
+          shipment weights of the move reached 90% of the weight allowance
+        x-nullable: true
+      excessUnaccompaniedBaggageWeightAcknowledgedAt:
+        type: string
+        format: date-time
+        description: >-
+          Timestamp of when the TOO acknowledged the excess unaccompanied
+          baggage weight risk by either dismissing the alert or updating the max
+          billable weight
+        x-nullable: true
       excess_weight_qualified_at:
         type: string
         format: date-time
