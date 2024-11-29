@@ -80,7 +80,7 @@ func lowerShipmentWeight(shipment models.MTOShipment) int {
 func (w moveWeights) CheckExcessWeight(appCtx appcontext.AppContext, moveID uuid.UUID, updatedShipment models.MTOShipment) (*models.Move, *validate.Errors, error) {
 	db := appCtx.DB()
 	var move models.Move
-	err := db.EagerPreload("MTOShipments", "Orders.Entitlement").Find(&move, moveID)
+	err := db.EagerPreload("MTOShipments", "Orders.Entitlement", "Orders.OriginDutyLocation.Address", "Orders.NewDutyLocation.Address", "Orders.ServiceMember").Find(&move, moveID)
 	if err != nil {
 		switch err {
 		case sql.ErrNoRows:
@@ -98,49 +98,63 @@ func (w moveWeights) CheckExcessWeight(appCtx appcontext.AppContext, moveID uuid
 		return nil, nil, errors.New("could not determine excess weight entitlement without dependents authorization value")
 	}
 
-	var isHHGAtRiskOfExcessWeight bool
-	var isUBAtRiskOfExcessWeight bool
-
 	totalWeightAllowance := models.GetWeightAllotment(*move.Orders.Grade, move.Orders.OrdersType)
 
 	overallWeightAllowance := totalWeightAllowance.TotalWeightSelf
 	if *move.Orders.Entitlement.DependentsAuthorized {
 		overallWeightAllowance = totalWeightAllowance.TotalWeightSelfPlusDependents
 	}
-	ubWeightAllowance := totalWeightAllowance.UnaccompaniedBaggageAllowance
-
+	ubWeightAllowance, err := models.GetUBWeightAllowance(appCtx, move.Orders.OriginDutyLocation.Address.IsOconus, move.Orders.NewDutyLocation.Address.IsOconus, move.Orders.ServiceMember.Affiliation, move.Orders.Grade, &move.Orders.OrdersType, move.Orders.Entitlement.DependentsAuthorized, move.Orders.Entitlement.AccompaniedTour, move.Orders.Entitlement.DependentsUnderTwelve, move.Orders.Entitlement.DependentsTwelveAndOver)
+	if err != nil {
+		return nil, nil, err
+	}
 	sumOfWeights := calculateSumOfWeights(move, &updatedShipment)
+	verrs, err := saveMoveExcessWeightValues(appCtx, &move, overallWeightAllowance, ubWeightAllowance, sumOfWeights)
+	if (verrs != nil && verrs.HasAny()) || err != nil {
+		return nil, verrs, err
+	}
+	return &move, nil, nil
+}
+
+// Handle move excess weight values by updating
+// the move in place. This handles setting when the move qualified
+// for risk of excess weight as well as resetting it if the weight has been
+// updated to a new weight not at risk of excess
+func saveMoveExcessWeightValues(appCtx appcontext.AppContext, move *models.Move, overallWeightAllowance int, ubWeightAllowance int, sumOfWeights SumOfWeights) (*validate.Errors, error) {
 	now := time.Now() // Prepare a shared time for risk excess flagging
+
+	var isTheMoveBeingUpdated bool
 
 	// Check for risk of excess of the total move allowance (HHG and PPM)
 	if int(float32(overallWeightAllowance)*RiskOfExcessThreshold) <= sumOfWeights.SumEstimatedWeightOfMove {
-		isHHGAtRiskOfExcessWeight = true
+		isTheMoveBeingUpdated = true
 		excessWeightQualifiedAt := now
 		move.ExcessWeightQualifiedAt = &excessWeightQualifiedAt
 	} else if move.ExcessWeightQualifiedAt != nil {
 		// Reset qualified at
+		isTheMoveBeingUpdated = true
 		move.ExcessWeightQualifiedAt = nil
 	}
 
 	// Check for risk of excess of UB allowance
 	if (int(float32(ubWeightAllowance)*RiskOfExcessThreshold) <= sumOfWeights.SumEstimatedWeightOfUbShipments) || (int(float32(ubWeightAllowance)*RiskOfExcessThreshold) <= sumOfWeights.SumActualWeightOfUbShipments) {
-		isUBAtRiskOfExcessWeight = true
+		isTheMoveBeingUpdated = true
 		excessUbWeightQualifiedAt := now
 		move.ExcessUnaccompaniedBaggageWeightQualifiedAt = &excessUbWeightQualifiedAt
 	} else if move.ExcessUnaccompaniedBaggageWeightQualifiedAt != nil {
 		// Reset qualified at
+		isTheMoveBeingUpdated = true
 		move.ExcessUnaccompaniedBaggageWeightQualifiedAt = nil
 	}
 
-	if isHHGAtRiskOfExcessWeight || isUBAtRiskOfExcessWeight {
+	if isTheMoveBeingUpdated {
 		// Save risk excess flags
-		verrs, err := validateAndSave(appCtx, &move)
+		verrs, err := validateAndSave(appCtx, move)
 		if (verrs != nil && verrs.HasAny()) || err != nil {
-			return nil, verrs, err
+			return verrs, err
 		}
 	}
-
-	return &move, nil, nil
+	return nil, nil
 }
 
 type SumOfWeights struct {
