@@ -9966,6 +9966,18 @@ func init() {
         "eTag": {
           "type": "string"
         },
+        "excessUnaccompaniedBaggageWeightAcknowledgedAt": {
+          "description": "Timestamp of when the TOO acknowledged the excess unaccompanied baggage weight risk by either dismissing the alert or updating the max billable weight",
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true
+        },
+        "excessUnaccompaniedBaggageWeightQualifiedAt": {
+          "description": "Timestamp of when the sum of estimated or actual unaccompanied baggage shipment weights of the move reached 90% of the weight allowance",
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true
+        },
         "excess_weight_acknowledged_at": {
           "description": "Timestamp of when the TOO acknowledged the excess weight risk by either dismissing the alert or updating the max billable weight",
           "type": "string",
@@ -26709,6 +26721,18 @@ func init() {
         },
         "eTag": {
           "type": "string"
+        },
+        "excessUnaccompaniedBaggageWeightAcknowledgedAt": {
+          "description": "Timestamp of when the TOO acknowledged the excess unaccompanied baggage weight risk by either dismissing the alert or updating the max billable weight",
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true
+        },
+        "excessUnaccompaniedBaggageWeightQualifiedAt": {
+          "description": "Timestamp of when the sum of estimated or actual unaccompanied baggage shipment weights of the move reached 90% of the weight allowance",
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true
         },
         "excess_weight_acknowledged_at": {
           "description": "Timestamp of when the TOO acknowledged the excess weight risk by either dismissing the alert or updating the max billable weight",
