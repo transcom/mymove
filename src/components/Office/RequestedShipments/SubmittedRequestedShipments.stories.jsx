@@ -1,5 +1,6 @@
 import React from 'react';
 import { Provider } from 'react-redux';
+import { QueryClientProvider, QueryClient } from '@tanstack/react-query';
 
 import {
   shipments,
@@ -25,7 +26,9 @@ export default {
         return (
           <Provider store={store}>
             <MockRouterProvider>
-              <Story />
+              <QueryClientProvider client={new QueryClient()}>
+                <Story />
+              </QueryClientProvider>
             </MockRouterProvider>
           </Provider>
         );
@@ -35,7 +38,9 @@ export default {
       return (
         <Provider store={store}>
           <MockProviders permissions={[permissionTypes.updateShipment]}>
-            <Story />
+            <QueryClientProvider client={new QueryClient()}>
+              <Story />
+            </QueryClientProvider>
           </MockProviders>
         </Provider>
       );
