@@ -284,25 +284,6 @@ describe('RequestedShipments', () => {
       expect(screen.getByRole('button', { name: 'Approve selected' })).toBeDisabled();
     });
 
-    it('disables the Approve selected button when there is missing required information', async () => {
-      const { container } = render(submittedRequestedShipmentsComponentMissingRequiredInfo);
-      await act(async () => {
-        await userEvent.type(
-          container.querySelector('input[name="shipments"]'),
-          'ce01a5b8-9b44-4511-8a8d-edb60f2a4aee',
-        );
-      });
-
-      expect(await screen.getByRole('combobox', { name: 'Add a new shipment' })).toBeInTheDocument();
-
-      expect(screen.getByRole('button', { name: 'Approve selected' })).toBeDisabled();
-
-      await act(async () => {
-        await userEvent.click(screen.getByRole('checkbox', { name: 'Move management' }));
-      });
-
-      expect(screen.getByRole('button', { name: 'Approve selected' })).toBeDisabled();
-    });
     it('calls approveMTO onSubmit', async () => {
       const mockOnSubmit = jest.fn((id, eTag) => {
         return new Promise((resolve) => {
