@@ -400,7 +400,7 @@ export async function acknowledgeExcessWeightRisk({ orderID, ifMatchETag }) {
 }
 
 export async function acknowledgeExcessUnaccompaniedBaggageWeightRisk({ orderID, ifMatchETag }) {
-  const operationPath = 'order.acknowledgeUnaccompaniedBaggageExcessWeightRisk';
+  const operationPath = 'order.acknowledgeExcessUnaccompaniedBaggageWeightRisk';
   return makeGHCRequest(operationPath, { orderID, 'If-Match': ifMatchETag });
 }
 

@@ -2178,7 +2178,7 @@ func (suite *HandlerSuite) TestAcknowledgeExcessWeightRiskHandler() {
 	})
 }
 
-func (suite *HandlerSuite) TestAcknowledgeUnaccompaniedBaggageExcessWeightRiskHandler() {
+func (suite *HandlerSuite) TestacknowledgeExcessUnaccompaniedBaggageWeightRiskHandler() {
 	request := httptest.NewRequest("POST", "/orders/{orderID}/acknowledge-excess-unaccompanied-baggage-weight-risk", nil)
 
 	suite.Run("Returns 200 when all validations pass", func() {
