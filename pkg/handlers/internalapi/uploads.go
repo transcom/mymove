@@ -3,9 +3,12 @@ package internalapi
 import (
 	"fmt"
 	"io"
+	"net/http"
 	"path/filepath"
 	"regexp"
+	"strconv"
 	"strings"
+	"time"
 
 	"github.com/go-openapi/runtime"
 	"github.com/go-openapi/runtime/middleware"
@@ -252,6 +255,30 @@ type GetUploadStatusHandler struct {
 	services.UploadInformationFetcher
 }
 
+type CustomNewUploadStatusOK struct{}
+
+func (o *CustomNewUploadStatusOK) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
+	id_counter := 0
+
+	for range 2 {
+		resProcess := []byte("id: " + strconv.Itoa(id_counter) + "\nevent: message\ndata: PROCESSING\n\n")
+		if err := producer.Produce(rw, resProcess); err != nil {
+			panic(err) // let the recovery middleware deal with this
+		}
+		if f, ok := rw.(http.Flusher); ok {
+			f.Flush()
+		}
+
+		time.Sleep(4 * time.Second)
+		id_counter++
+	}
+
+	resClean := []byte("id: " + strconv.Itoa(id_counter) + "\nevent: message\ndata: CLEAN\n\n")
+	if err := producer.Produce(rw, resClean); err != nil {
+		panic(err) // let the recovery middleware deal with this
+	}
+}
+
 // Handle returns status of an upload
 func (h GetUploadStatusHandler) Handle(params uploadop.GetUploadStatusParams) middleware.Responder {
 	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
@@ -261,7 +288,8 @@ func (h GetUploadStatusHandler) Handle(params uploadop.GetUploadStatusParams) mi
 			// if err != nil {
 			// 	return handlers.ResponseForError(appCtx.Logger(), err), err
 			// }
-			return uploadop.NewGetUploadStatusOK().WithPayload("CLEAN"), nil
+
+			return &CustomNewUploadStatusOK{}, nil
 		})
 }
 

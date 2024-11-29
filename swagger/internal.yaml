@@ -5111,6 +5111,8 @@ paths:
       summary: Returns status of an upload
       description: Returns status of an upload based on antivirus run
       operationId: getUploadStatus
+      produces:
+        - text/event-stream
       tags:
         - uploads
       parameters:

@@ -3237,6 +3237,9 @@ func init() {
     "/uploads/{uploadId}/status": {
       "get": {
         "description": "Returns status of an upload based on antivirus run",
+        "produces": [
+          "text/event-stream"
+        ],
         "tags": [
           "uploads"
         ],
@@ -12114,6 +12117,9 @@ func init() {
     "/uploads/{uploadId}/status": {
       "get": {
         "description": "Returns status of an upload based on antivirus run",
+        "produces": [
+          "text/event-stream"
+        ],
         "tags": [
           "uploads"
         ],

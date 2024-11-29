@@ -60,6 +60,7 @@ func configureAPI(api *internaloperations.MymoveAPI) http.Handler {
 
 	api.BinProducer = runtime.ByteStreamProducer()
 	api.JSONProducer = runtime.JSONProducer()
+	api.TextEventStreamProducer = runtime.ByteStreamProducer()
 
 	// You may change here the memory limit for this multipart form parser. Below is the default (32 MB).
 	// ppm.CreatePPMUploadMaxParseMemory = 32 << 20

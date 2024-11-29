@@ -66,6 +66,7 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 
 		BinProducer:  runtime.ByteStreamProducer(),
 		JSONProducer: runtime.JSONProducer(),
+		TextEventStreamProducer: runtime.ByteStreamProducer(),
 
 		OfficeApproveMoveHandler: office.ApproveMoveHandlerFunc(func(params office.ApproveMoveParams) middleware.Responder {
 			return middleware.NotImplemented("operation office.ApproveMove has not yet been implemented")
@@ -323,6 +324,9 @@ type MymoveAPI struct {
 	// JSONProducer registers a producer for the following mime types:
 	//   - application/json
 	JSONProducer runtime.Producer
+	// TextEventStreamProducer registers a producer for the following mime types:
+	//   - text/event-stream
+	TextEventStreamProducer runtime.Producer
 
 	// OfficeApproveMoveHandler sets the operation handler for the approve move operation
 	OfficeApproveMoveHandler office.ApproveMoveHandler
@@ -545,6 +549,9 @@ func (o *MymoveAPI) Validate() error {
 	}
 	if o.JSONProducer == nil {
 		unregistered = append(unregistered, "JSONProducer")
+	}
+	if o.TextEventStreamProducer == nil {
+		unregistered = append(unregistered, "TextEventStreamProducer")
 	}
 
 	if o.OfficeApproveMoveHandler == nil {
@@ -809,6 +816,8 @@ func (o *MymoveAPI) ProducersFor(mediaTypes []string) map[string]runtime.Produce
 			result["application/pdf"] = o.BinProducer
 		case "application/json":
 			result["application/json"] = o.JSONProducer
+		case "text/event-stream":
+			result["text/event-stream"] = o.TextEventStreamProducer
 		}
 
 		if p, ok := o.customProducers[mt]; ok {

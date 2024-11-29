@@ -18,7 +18,6 @@ import { filenameFromPath } from 'utils/formatters';
 import AsyncPacketDownloadLink from 'shared/AsyncPacketDownloadLink/AsyncPacketDownloadLink';
 import { UPLOAD_DOC_STATUS, UPLOAD_SCAN_STATUS } from 'shared/constants';
 import Alert from 'shared/Alert';
-import { getUploadStatus } from 'services/internalApi';
 
 /**
  * TODO
@@ -86,25 +85,44 @@ const DocumentViewer = ({ files, isFileUploading, allowDownload, paymentRequestI
 
   useEffect(() => {
     setRotationValue(selectedFile?.rotation || 0);
-    const handleFileProcessingStatus = async () => {
-      const scanStatus = await getUploadStatus(selectedFile.id);
-      setFileStatus(scanStatus);
-      if (scanStatus === UPLOAD_SCAN_STATUS.PROCESSING) {
-        await new Promise((resolve) => {
-          setTimeout(resolve, 3000);
-        }).then(() => setFileStatus(UPLOAD_DOC_STATUS.SCANNING));
-        await new Promise((resolve) => {
-          setTimeout(resolve, 3000);
-        }).then(() => setFileStatus(UPLOAD_DOC_STATUS.ESTABLISHING));
-        await new Promise((resolve) => {
-          setTimeout(resolve, 3000);
-        }).then(() => setFileStatus('LOADED'));
-      } else if (scanStatus === UPLOAD_SCAN_STATUS.CLEAN) {
-        setFileStatus('LOADED');
+
+    if (isFileUploading) return undefined;
+
+    const handleFileProcessing = async (newStatus) => {
+      if (newStatus === UPLOAD_SCAN_STATUS.PROCESSING) {
+        setFileStatus(UPLOAD_DOC_STATUS.SCANNING);
+      } else if (newStatus === UPLOAD_SCAN_STATUS.CLEAN) {
+        setFileStatus(UPLOAD_DOC_STATUS.ESTABLISHING);
+      } else if (newStatus === UPLOAD_SCAN_STATUS.INFECTED) {
+        setFileStatus(UPLOAD_DOC_STATUS.INFECTED);
+      } else {
+        setFileStatus(null);
       }
     };
-    handleFileProcessingStatus();
-  }, [selectedFile]);
+
+    const sse = new EventSource(`/internal/uploads/${selectedFile.id}/status`, { withCredentials: true });
+    sse.onmessage = (event) => {
+      if (event.data === UPLOAD_SCAN_STATUS.CLEAN || event.data === UPLOAD_SCAN_STATUS.INFECTED) {
+        sse.close();
+      }
+      handleFileProcessing(event.data);
+    };
+    sse.onerror = () => {
+      setFileStatus(null);
+    };
+
+    return () => {
+      sse.close();
+    };
+  }, [selectedFile, isFileUploading]);
+
+  useEffect(() => {
+    if (fileStatus === 'ESTABLISHING') {
+      new Promise((resolve) => {
+        setTimeout(resolve, 3000);
+      }).then(() => setFileStatus(UPLOAD_DOC_STATUS.LOADED));
+    }
+  }, [fileStatus]);
 
   const fileType = useRef(selectedFile?.contentType);
 

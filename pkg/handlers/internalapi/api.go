@@ -183,6 +183,7 @@ func NewInternalAPI(handlerConfig handlers.HandlerConfig) *internalops.MymoveAPI
 	internalAPI.PpmShowAOAPacketHandler = showAOAPacketHandler{handlerConfig, SSWPPMComputer, SSWPPMGenerator, AOAPacketCreator}
 
 	internalAPI.RegisterProducer(uploader.FileTypePDF, PDFProducer())
+	internalAPI.TextEventStreamProducer = runtime.ByteStreamProducer()
 
 	internalAPI.PostalCodesValidatePostalCodeWithRateDataHandler = ValidatePostalCodeWithRateDataHandler{
 		handlerConfig,
