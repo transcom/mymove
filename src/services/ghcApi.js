@@ -399,6 +399,11 @@ export async function acknowledgeExcessWeightRisk({ orderID, ifMatchETag }) {
   return makeGHCRequest(operationPath, { orderID, 'If-Match': ifMatchETag });
 }
 
+export async function acknowledgeExcessUnaccompaniedBaggageWeightRisk({ orderID, ifMatchETag }) {
+  const operationPath = 'order.acknowledgeUnaccompaniedBaggageExcessWeightRisk';
+  return makeGHCRequest(operationPath, { orderID, 'If-Match': ifMatchETag });
+}
+
 export async function createCustomerWithOktaOption({ body }) {
   const operationPath = 'customer.createCustomerWithOktaOption';
   return makeGHCRequest(operationPath, { body });
