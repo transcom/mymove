@@ -846,7 +846,7 @@ func (h AcknowledgeExcessUnaccompaniedBaggageWeightRiskHandler) triggerAcknowled
 	})
 	// If the event trigger fails, just log the error.
 	if err != nil {
-		appCtx.Logger().Error("ghcapi.acknowledgeUnaccompaniedBaggageExcessWeightRisk could not generate the event")
+		appCtx.Logger().Error("ghcapi.acknowledgeExcessUnaccompaniedBaggageWeightRisk could not generate the event")
 	}
 }
 

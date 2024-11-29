@@ -18,6 +18,7 @@ import {
   sitExtensionApproved,
   allApprovedExternalVendorMTOQuery,
   riskOfExcessWeightQueryExternalShipment,
+  riskOfExcessWeightQueryExternalUBShipment,
   multiplePaymentRequests,
   moveHistoryTestData,
   actualPPMWeightQuery,
@@ -283,6 +284,25 @@ describe('MoveTaskOrder', () => {
 
       const riskOfExcessTag = await screen.getByText(/Risk of excess/);
       expect(riskOfExcessTag).toBeInTheDocument();
+    });
+
+    it('displays risk of excess unaccompanied baggage tag when a move has excess ub shipment weight', async () => {
+      useMoveTaskOrderQueries.mockReturnValue(riskOfExcessWeightQueryExternalUBShipment);
+
+      render(
+        <MockProviders>
+          <MoveTaskOrder
+            {...requiredProps}
+            setUnapprovedShipmentCount={setUnapprovedShipmentCount}
+            setUnapprovedServiceItemCount={setUnapprovedServiceItemCount}
+            setExcessWeightRiskCount={setExcessWeightRiskCount}
+            setUnapprovedSITExtensionCount={setUnapprovedSITExtensionCount}
+          />
+        </MockProviders>,
+      );
+
+      const acknowledgeUbExcessButton = await screen.findByTestId(/acknowledgeExcessUnaccompaniedBaggageWeightBtn/);
+      expect(acknowledgeUbExcessButton).toBeInTheDocument();
     });
 
     it('displays the estimated total weight', async () => {
