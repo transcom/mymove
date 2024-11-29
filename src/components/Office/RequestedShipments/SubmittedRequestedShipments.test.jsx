@@ -4,7 +4,6 @@ import { render, screen, within } from '@testing-library/react';
 import {
   shipments,
   ordersInfo,
-  ordersNoDocInfo,
   allowancesInfo,
   customerInfo,
   serviceItemsEmpty,
@@ -15,15 +14,11 @@ import SubmittedRequestedShipments from './SubmittedRequestedShipments';
 
 import { MockProviders } from 'testUtils';
 import { permissionTypes } from 'constants/permissions';
-import { useOrdersDocumentQueries } from 'hooks/queries';
 
 const mockNavigate = jest.fn();
 jest.mock('react-router-dom', () => ({
   ...jest.requireActual('react-router-dom'),
   useNavigate: () => mockNavigate,
-}));
-jest.mock('hooks/queries', () => ({
-  useOrdersDocumentQueries: jest.fn(),
 }));
 const moveTaskOrderAvailableToPrimeAt = {
   eTag: 'MjAyMC0wNi0yNlQyMDoyMjo0MS43Mjc4NTNa',
@@ -112,30 +107,21 @@ const submittedRequestedShipmentsCanCreateNewShipment = (
   </MockProviders>
 );
 
-const loadingQueryReturnValue = {
-  ...ordersNoDocInfo,
-  isLoading: true,
-  isError: false,
-  isSuccess: false,
-};
 describe('RequestedShipments', () => {
   describe('Prime-handled shipments', () => {
     it('renders the container successfully without services counseling completed', () => {
-      useOrdersDocumentQueries.mockReturnValue(loadingQueryReturnValue);
       render(submittedRequestedShipmentsComponent);
       expect(screen.getByTestId('requested-shipments')).toBeInTheDocument();
       expect(screen.queryByTestId('services-counseling-completed-text')).not.toBeInTheDocument();
     });
 
     it('renders the container successfully with services counseling completed', () => {
-      useOrdersDocumentQueries.mockReturnValue(loadingQueryReturnValue);
       render(submittedRequestedShipmentsComponentServicesCounselingCompleted);
       expect(screen.getByTestId('requested-shipments')).toBeInTheDocument();
       expect(screen.queryByTestId('services-counseling-completed-text')).toBeInTheDocument();
     });
 
     it('renders a shipment passed to it', () => {
-      useOrdersDocumentQueries.mockReturnValue(loadingQueryReturnValue);
       render(submittedRequestedShipmentsComponent);
       const withinContainer = within(screen.getByTestId('requested-shipments'));
       expect(withinContainer.getAllByText('HHG').length).toEqual(2);
@@ -143,7 +129,6 @@ describe('RequestedShipments', () => {
     });
 
     it('renders the button', () => {
-      useOrdersDocumentQueries.mockReturnValue(loadingQueryReturnValue);
       render(submittedRequestedShipmentsComponentWithPermission);
       expect(
         screen.getByRole('button', {
@@ -158,20 +143,17 @@ describe('RequestedShipments', () => {
     });
 
     it('renders the button when it is available to the prime', () => {
-      useOrdersDocumentQueries.mockReturnValue(loadingQueryReturnValue);
       render(submittedRequestedShipmentsComponentAvailableToPrimeAt);
       expect(screen.getByTestId('shipmentApproveButton')).toBeInTheDocument();
       expect(screen.getByTestId('shipmentApproveButton')).toBeDisabled();
     });
 
     it('renders the checkboxes', () => {
-      useOrdersDocumentQueries.mockReturnValue(loadingQueryReturnValue);
       render(submittedRequestedShipmentsComponentWithPermission);
       expect(screen.getAllByTestId('checkbox').length).toEqual(5);
     });
 
     it('renders Add a new shipment Button', async () => {
-      useOrdersDocumentQueries.mockReturnValue(loadingQueryReturnValue);
       render(submittedRequestedShipmentsCanCreateNewShipment);
 
       expect(await screen.getByRole('combobox', { name: 'Add a new shipment' })).toBeInTheDocument();
@@ -179,7 +161,6 @@ describe('RequestedShipments', () => {
   });
 
   describe('Conditional form display', () => {
-    useOrdersDocumentQueries.mockReturnValue(loadingQueryReturnValue);
     const renderComponent = (props) => {
       render(
         <MockProviders permissions={[permissionTypes.updateShipment]}>
@@ -196,7 +177,6 @@ describe('RequestedShipments', () => {
     };
 
     it('does not render the "Add service items to move" section or Counseling option when all shipments are PPM', () => {
-      useOrdersDocumentQueries.mockReturnValue(loadingQueryReturnValue);
       const testPropsServiceItemsEmpty = {
         mtoServiceItems: serviceItemsEmpty,
         mtoShipments: ppmOnlyShipments,

@@ -370,7 +370,7 @@ const Orders = ({ files, amendedDocumentId, updateAmendedDocument }) => {
                   </div>
                   <Restricted to={permissionTypes.updateOrders}>
                     <DocumentViewerFileManager
-                      fileUploadRequired={!hasOrdersDocuments}
+                      required={!hasOrdersDocuments}
                       orderId={orderId}
                       documentId={documentId}
                       files={ordersDocuments}

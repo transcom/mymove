@@ -99,7 +99,7 @@ describe('DocumentViewerFileManager', () => {
   const ordersPropsNoFile = {
     move: { id: 'move-id', locator: 'move-locator' },
     orderId: 'order-id',
-    fileUploadRequired: true,
+    required: true,
     documentId: '',
     files: [{}],
     documentType: 'ORDERS',

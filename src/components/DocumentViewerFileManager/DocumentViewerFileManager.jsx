@@ -28,7 +28,7 @@ const DocumentViewerFileManager = ({
   files,
   documentType,
   updateAmendedDocument,
-  fileUploadRequired,
+  required,
 }) => {
   const queryClient = useQueryClient();
   const filePondEl = useRef();
@@ -70,10 +70,10 @@ const DocumentViewerFileManager = ({
       setShowUpload(true);
       setIsExpandedView(true);
     }
-    if (fileUploadRequired) {
+    if (required) {
       setShowUpload(true);
     }
-  }, [documentType, fileUploadRequired]);
+  }, [documentType, required]);
 
   const closeDeleteFileModal = () => {
     setCurrentFile(null);
@@ -221,7 +221,7 @@ const DocumentViewerFileManager = ({
         />
       )}
       {!isExpandedView && (
-        <Button disabled={isFileProcessing || fileUploadRequired} onClick={toggleUploadVisibility}>
+        <Button disabled={isFileProcessing || required} onClick={toggleUploadVisibility}>
           {buttonHeaderText}
         </Button>
       )}
@@ -236,13 +236,13 @@ const DocumentViewerFileManager = ({
             )}
             <UploadsTable className={styles.sectionWrapper} uploads={files} onDelete={openDeleteFileModal} />
             <div className={classnames(styles.upload, className)}>
-              {fileUploadRequired && (
+              {required && (
                 <Alert type="error" id="fileRequiredAlert" data-testid="fileRequiredAlert">
                   File upload is required
                 </Alert>
               )}
               <FileUpload
-                fileUploadRequired
+                required={documentId}
                 ref={filePondEl}
                 createUpload={handleUpload}
                 onChange={handleChange}
@@ -250,7 +250,7 @@ const DocumentViewerFileManager = ({
               />
               <Hint>PDF, JPG, or PNG only. Maximum file size 25MB. Each page must be clear and legible</Hint>
               {!isExpandedView && (
-                <Button disabled={isFileProcessing || fileUploadRequired} onClick={toggleUploadVisibility}>
+                <Button disabled={isFileProcessing || required} onClick={toggleUploadVisibility}>
                   Done
                 </Button>
               )}
@@ -267,9 +267,9 @@ DocumentViewerFileManager.propTypes = {
   documentId: PropTypes.string.isRequired,
   files: PropTypes.array.isRequired,
   documentType: PropTypes.string.isRequired,
-  fileUploadRequired: PropTypes.bool,
+  required: PropTypes.bool,
 };
 DocumentViewerFileManager.defaultProps = {
-  fileUploadRequired: false,
+  required: false,
 };
 export default DocumentViewerFileManager;

@@ -26,7 +26,6 @@ import ButtonDropdown from 'components/ButtonDropdown/ButtonDropdown';
 import { SHIPMENT_OPTIONS_URL, FEATURE_FLAG_KEYS } from 'shared/constants';
 import { setFlashMessage as setFlashMessageAction } from 'store/flash/actions';
 import { isBooleanFlagEnabled } from 'utils/featureFlags';
-import { useOrdersDocumentQueries } from 'hooks/queries';
 // nts defaults show preferred pickup date and pickup address, flagged items when collapsed
 // ntsr defaults shows preferred delivery date, storage facility address, destination address, flagged items when collapsed
 // Different things show when collapsed depending on if the shipment is an external vendor or not.
@@ -85,8 +84,7 @@ const SubmittedRequestedShipments = ({
 
   const { moveCode } = useParams();
   const navigate = useNavigate();
-  const { upload } = useOrdersDocumentQueries(moveCode);
-  const hasOrderDocuments = Object.values(upload || {})?.filter((file) => !file.deletedAt)?.length > 0;
+  const hasOrderDocuments = ordersInfo.ordersDocuments?.length > 0;
   const handleButtonDropdownChange = (e) => {
     const selectedOption = e.target.value;
 
