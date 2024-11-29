@@ -403,7 +403,28 @@ describe('RequestedShipments', () => {
         },
       ]);
     });
-
+    it('should disable the Approve selected button when order document upload is missing', async () => {
+      const { container } = render(
+        <MockProviders permissions={[permissionTypes.updateShipment]}>
+          <SubmittedRequestedShipments
+            mtoShipments={shipments}
+            ordersInfo={{ ...ordersInfo, ordersDocuments: ordersInfo.ordersDocuments[{}] }}
+            allowancesInfo={allowancesInfo}
+            customerInfo={customerInfo}
+            moveTaskOrder={moveTaskOrder}
+            moveCode="TE5TC0DE"
+          />
+        </MockProviders>,
+      );
+      await act(async () => {
+        await userEvent.type(
+          container.querySelector('input[name="shipments"]'),
+          'ce01a5b8-9b44-4511-8a8d-edb60f2a4aee',
+        );
+      });
+      expect(screen.getByLabelText('Move management').checked).toEqual(true);
+      expect(screen.getByRole('button', { name: 'Approve selected' })).toBeDisabled();
+    });
     it('displays approved basic service items for approved shipments', () => {
       render(
         <ApprovedRequestedShipments
