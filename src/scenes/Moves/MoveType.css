@@ -3,13 +3,13 @@
 }
 .grey-title {
   font-size: 0.8em;
-  color: #525252;
+  color: #269a67;
 }
 .smaller-text {
   font-size: 0.8em;
 }
 .move-type-button {
-  text-align: left;
+  text-align: right;
   min-height: 630px;
 }
 .move-type-button p,
