@@ -1063,76 +1063,79 @@ func reServiceCodesForShipment(shipment models.MTOShipment) []models.ReServiceCo
 	// default service items that we want created as a side effect.
 	// More info in MB-1140: https://dp3.atlassian.net/browse/MB-1140
 
-	switch shipment.ShipmentType {
-	case models.MTOShipmentTypeHHG:
+	// international shipment service items are created in the shipment_approver
+	if shipment.MarketCode != models.MarketCodeInternational {
+		switch shipment.ShipmentType {
+		case models.MTOShipmentTypeHHG:
 
-		originZIP3 := shipment.PickupAddress.PostalCode[0:3]
-		destinationZIP3 := shipment.DestinationAddress.PostalCode[0:3]
+			originZIP3 := shipment.PickupAddress.PostalCode[0:3]
+			destinationZIP3 := shipment.DestinationAddress.PostalCode[0:3]
 
-		if originZIP3 == destinationZIP3 {
+			if originZIP3 == destinationZIP3 {
+				return []models.ReServiceCode{
+					models.ReServiceCodeDSH,
+					models.ReServiceCodeFSC,
+					models.ReServiceCodeDOP,
+					models.ReServiceCodeDDP,
+					models.ReServiceCodeDPK,
+					models.ReServiceCodeDUPK,
+				}
+			}
+
+			// Need to create: Dom Linehaul, Fuel Surcharge, Dom Origin Price, Dom Destination Price, Dom Packing, and Dom Unpacking.
 			return []models.ReServiceCode{
-				models.ReServiceCodeDSH,
+				models.ReServiceCodeDLH,
 				models.ReServiceCodeFSC,
 				models.ReServiceCodeDOP,
 				models.ReServiceCodeDDP,
 				models.ReServiceCodeDPK,
 				models.ReServiceCodeDUPK,
 			}
-		}
-
-		// Need to create: Dom Linehaul, Fuel Surcharge, Dom Origin Price, Dom Destination Price, Dom Packing, and Dom Unpacking.
-		return []models.ReServiceCode{
-			models.ReServiceCodeDLH,
-			models.ReServiceCodeFSC,
-			models.ReServiceCodeDOP,
-			models.ReServiceCodeDDP,
-			models.ReServiceCodeDPK,
-			models.ReServiceCodeDUPK,
-		}
-	case models.MTOShipmentTypeHHGIntoNTSDom:
-		// Need to create: Dom Linehaul, Fuel Surcharge, Dom Origin Price, Dom Destination Price, Dom NTS Packing
-		return []models.ReServiceCode{
-			models.ReServiceCodeDLH,
-			models.ReServiceCodeFSC,
-			models.ReServiceCodeDOP,
-			models.ReServiceCodeDDP,
-			models.ReServiceCodeDNPK,
-		}
-	case models.MTOShipmentTypeHHGOutOfNTSDom:
-		// Need to create: Dom Linehaul, Fuel Surcharge, Dom Origin Price, Dom Destination Price, Dom Unpacking
-		return []models.ReServiceCode{
-			models.ReServiceCodeDLH,
-			models.ReServiceCodeFSC,
-			models.ReServiceCodeDOP,
-			models.ReServiceCodeDDP,
-			models.ReServiceCodeDUPK,
-		}
-	case models.MTOShipmentTypeMobileHome:
-		// Need to create: Dom Linehaul, Fuel Surcharge, Dom Origin Price, Dom Destination Price, Dom Mobile Home Factor
-		return []models.ReServiceCode{
-			models.ReServiceCodeDLH,
-			models.ReServiceCodeFSC,
-			models.ReServiceCodeDOP,
-			models.ReServiceCodeDDP,
-			models.ReServiceCodeDMHF,
-		}
-	case models.MTOShipmentTypeBoatHaulAway:
-		// Need to create: Dom Linehaul, Fuel Surcharge, Dom Origin Price, Dom Destination Price, Dom Haul Away Boat Factor
-		return []models.ReServiceCode{
-			models.ReServiceCodeDLH,
-			models.ReServiceCodeFSC,
-			models.ReServiceCodeDOP,
-			models.ReServiceCodeDDP,
-			models.ReServiceCodeDBHF,
-		}
-	case models.MTOShipmentTypeBoatTowAway:
-		// Need to create: Dom Linehaul, Fuel Surcharge, Dom Origin Price, Dom Destination Price, Dom Tow Away Boat Factor
-		return []models.ReServiceCode{
-			models.ReServiceCodeDLH,
-			models.ReServiceCodeFSC,
-			models.ReServiceCodeDOP,
-			models.ReServiceCodeDDP,
-			models.ReServiceCodeDBTF,
+		case models.MTOShipmentTypeHHGIntoNTSDom:
+			// Need to create: Dom Linehaul, Fuel Surcharge, Dom Origin Price, Dom Destination Price, Dom NTS Packing
+			return []models.ReServiceCode{
+				models.ReServiceCodeDLH,
+				models.ReServiceCodeFSC,
+				models.ReServiceCodeDOP,
+				models.ReServiceCodeDDP,
+				models.ReServiceCodeDNPK,
+			}
+		case models.MTOShipmentTypeHHGOutOfNTSDom:
+			// Need to create: Dom Linehaul, Fuel Surcharge, Dom Origin Price, Dom Destination Price, Dom Unpacking
+			return []models.ReServiceCode{
+				models.ReServiceCodeDLH,
+				models.ReServiceCodeFSC,
+				models.ReServiceCodeDOP,
+				models.ReServiceCodeDDP,
+				models.ReServiceCodeDUPK,
+			}
+		case models.MTOShipmentTypeMobileHome:
+			// Need to create: Dom Linehaul, Fuel Surcharge, Dom Origin Price, Dom Destination Price, Dom Mobile Home Factor
+			return []models.ReServiceCode{
+				models.ReServiceCodeDLH,
+				models.ReServiceCodeFSC,
+				models.ReServiceCodeDOP,
+				models.ReServiceCodeDDP,
+				models.ReServiceCodeDMHF,
+			}
+		case models.MTOShipmentTypeBoatHaulAway:
+			// Need to create: Dom Linehaul, Fuel Surcharge, Dom Origin Price, Dom Destination Price, Dom Haul Away Boat Factor
+			return []models.ReServiceCode{
+				models.ReServiceCodeDLH,
+				models.ReServiceCodeFSC,
+				models.ReServiceCodeDOP,
+				models.ReServiceCodeDDP,
+				models.ReServiceCodeDBHF,
+			}
+		case models.MTOShipmentTypeBoatTowAway:
+			// Need to create: Dom Linehaul, Fuel Surcharge, Dom Origin Price, Dom Destination Price, Dom Tow Away Boat Factor
+			return []models.ReServiceCode{
+				models.ReServiceCodeDLH,
+				models.ReServiceCodeFSC,
+				models.ReServiceCodeDOP,
+				models.ReServiceCodeDDP,
+				models.ReServiceCodeDBTF,
+			}
 		}
 	}
 

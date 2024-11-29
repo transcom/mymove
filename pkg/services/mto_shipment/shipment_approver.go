@@ -77,6 +77,13 @@ func (f *shipmentApprover) ApproveShipment(appCtx appcontext.AppContext, shipmen
 		}
 	}
 
+	// create international shipment service items
+	if shipment.MarketCode == models.MarketCodeInternational {
+		err := models.CreateApprovedServiceItemsForShipment(appCtx.DB(), shipment)
+		if err != nil {
+			return shipment, err
+		}
+	}
 	transactionError := appCtx.NewTransaction(func(txnAppCtx appcontext.AppContext) error {
 		verrs, err := txnAppCtx.DB().ValidateAndSave(shipment)
 		if verrs != nil && verrs.HasAny() {
