@@ -762,9 +762,8 @@ func (suite *PayloadsSuite) TestPPMShipmentModelFromCreate() {
 		IsActualExpenseReimbursement: models.BoolPointer(true),
 	}
 
-	model, err := PPMShipmentModelFromCreate(&ppmShipment)
+	model, _ := PPMShipmentModelFromCreate(&ppmShipment)
 
-	suite.NoError(err)
 	suite.NotNil(model)
 	suite.Equal(models.PPMShipmentStatusSubmitted, model.Status)
 	suite.True(*model.SITExpected)
@@ -1215,9 +1214,8 @@ func (suite *PayloadsSuite) TestPPMShipmentModelWithOptionalDestinationStreet1Fr
 		}{destinationAddress},
 	}
 
-	model, err := PPMShipmentModelFromCreate(&ppmShipment)
+	model, _ := PPMShipmentModelFromCreate(&ppmShipment)
 
-	suite.NoError(err)
 	suite.NotNil(model)
 	suite.Equal(models.PPMShipmentStatusSubmitted, model.Status)
 	suite.Equal(model.DestinationAddress.StreetAddress1, models.STREET_ADDRESS_1_NOT_PROVIDED)
@@ -1232,8 +1230,7 @@ func (suite *PayloadsSuite) TestPPMShipmentModelWithOptionalDestinationStreet1Fr
 		}{destinationAddress},
 	}
 
-	model2, err := PPMShipmentModelFromCreate(&ppmShipmentWhiteSpaces)
-	suite.NoError(err)
+	model2, _ := PPMShipmentModelFromCreate(&ppmShipmentWhiteSpaces)
 	suite.Equal(model2.DestinationAddress.StreetAddress1, models.STREET_ADDRESS_1_NOT_PROVIDED)
 
 	// test with valid street address 2
@@ -1247,8 +1244,7 @@ func (suite *PayloadsSuite) TestPPMShipmentModelWithOptionalDestinationStreet1Fr
 		}{destinationAddress},
 	}
 
-	model3, err := PPMShipmentModelFromCreate(&ppmShipmentValidDestinatonStreet1)
-	suite.NoError(err)
+	model3, _ := PPMShipmentModelFromCreate(&ppmShipmentValidDestinatonStreet1)
 	suite.Equal(model3.DestinationAddress.StreetAddress1, streetAddress1)
 }
 
@@ -1322,4 +1318,59 @@ func (suite *PayloadsSuite) TestPPMShipmentModelWithOptionalDestinationStreet1Fr
 
 	model3 := PPMShipmentModelFromUpdate(&ppmShipmentValidDestinatonStreet1)
 	suite.Equal(model3.DestinationAddress.StreetAddress1, streetAddress1)
+}
+
+func (suite *PayloadsSuite) TestPPMShipmentModelWithThirdDestinationWithoutSecond() {
+	time := time.Now()
+	expectedDepartureDate := handlers.FmtDatePtr(&time)
+
+	address := models.Address{
+		StreetAddress1: "some address",
+		City:           "city",
+		State:          "state",
+		PostalCode:     "12345",
+	}
+
+	var pickupAddress primev3messages.Address
+	var destinationAddress primev3messages.PPMDestinationAddress
+	var thirdDestinationAddress primev3messages.Address
+
+	pickupAddress = primev3messages.Address{
+		City:           &address.City,
+		PostalCode:     &address.PostalCode,
+		State:          &address.State,
+		StreetAddress1: &address.StreetAddress1,
+		StreetAddress2: address.StreetAddress2,
+		StreetAddress3: address.StreetAddress3,
+	}
+	destinationAddress = primev3messages.PPMDestinationAddress{
+		City:           &address.City,
+		PostalCode:     &address.PostalCode,
+		State:          &address.State,
+		StreetAddress1: models.StringPointer(""), // empty string
+		StreetAddress2: address.StreetAddress2,
+		StreetAddress3: address.StreetAddress3,
+	}
+	thirdDestinationAddress = primev3messages.Address{
+		City:           &address.City,
+		PostalCode:     &address.PostalCode,
+		State:          &address.State,
+		StreetAddress1: models.StringPointer(""), // empty string
+		StreetAddress2: address.StreetAddress2,
+		StreetAddress3: address.StreetAddress3,
+	}
+
+	ppmShipment := primev3messages.CreatePPMShipment{
+		ExpectedDepartureDate: expectedDepartureDate,
+		PickupAddress:         struct{ primev3messages.Address }{pickupAddress},
+		DestinationAddress: struct {
+			primev3messages.PPMDestinationAddress
+		}{destinationAddress},
+		TertiaryDestinationAddress: struct{ primev3messages.Address }{thirdDestinationAddress},
+	}
+
+	model, err := PPMShipmentModelFromCreate(&ppmShipment)
+
+	suite.Error(err)
+	suite.Nil(model)
 }

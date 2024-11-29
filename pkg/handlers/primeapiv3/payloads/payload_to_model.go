@@ -346,7 +346,7 @@ func PPMShipmentModelFromCreate(ppmShipment *primev3messages.CreatePPMShipment) 
 
 	addressModel = AddressModel(&ppmShipment.TertiaryPickupAddress.Address)
 	if addressModel != nil {
-		if model.HasSecondaryPickupAddress != handlers.FmtBool(true) {
+		if AddressModel(&ppmShipment.SecondaryPickupAddress.Address) == nil {
 			verrs.Add("ppmShipment", "Shipment cannot have a third pickup address without a second pickup address present")
 			return nil, verrs
 		}
@@ -367,7 +367,7 @@ func PPMShipmentModelFromCreate(ppmShipment *primev3messages.CreatePPMShipment) 
 
 	addressModel = AddressModel(&ppmShipment.TertiaryDestinationAddress.Address)
 	if addressModel != nil {
-		if model.HasSecondaryDestinationAddress != handlers.FmtBool(true) {
+		if AddressModel(&ppmShipment.SecondaryDestinationAddress.Address) == nil {
 			verrs.Add("ppmShipment", "Shipment cannot have a third destination address without a second destination address present")
 			return nil, verrs
 		}
