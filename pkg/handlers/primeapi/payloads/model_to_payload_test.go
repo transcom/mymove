@@ -24,31 +24,35 @@ func (suite *PayloadsSuite) TestMoveTaskOrder() {
 	primeTime := time.Now()
 	submittedAt := time.Now()
 	excessWeightQualifiedAt := time.Now()
+	excessUnaccompaniedBaggageWeightQualifiedAt := time.Now()
 	excessWeightAcknowledgedAt := time.Now()
+	excessUnaccompaniedBaggageWeightAcknowledgedAt := time.Now()
 	excessWeightUploadID := uuid.Must(uuid.NewV4())
 	ordersType := primemessages.OrdersTypeRETIREMENT
 	originDutyGBLOC := "KKFA"
 	shipmentGBLOC := "AGFM"
 
 	basicMove := models.Move{
-		ID:                         moveTaskOrderID,
-		Locator:                    "TESTTEST",
-		CreatedAt:                  time.Now(),
-		AvailableToPrimeAt:         &primeTime,
-		ApprovedAt:                 &primeTime,
-		OrdersID:                   ordersID,
-		Orders:                     models.Order{OrdersType: internalmessages.OrdersType(ordersType), OriginDutyLocationGBLOC: &originDutyGBLOC},
-		ReferenceID:                &referenceID,
-		PaymentRequests:            models.PaymentRequests{},
-		SubmittedAt:                &submittedAt,
-		UpdatedAt:                  time.Now(),
-		Status:                     models.MoveStatusAPPROVED,
-		SignedCertifications:       models.SignedCertifications{},
-		MTOServiceItems:            models.MTOServiceItems{},
-		MTOShipments:               models.MTOShipments{},
-		ExcessWeightQualifiedAt:    &excessWeightQualifiedAt,
-		ExcessWeightAcknowledgedAt: &excessWeightAcknowledgedAt,
-		ExcessWeightUploadID:       &excessWeightUploadID,
+		ID:                      moveTaskOrderID,
+		Locator:                 "TESTTEST",
+		CreatedAt:               time.Now(),
+		AvailableToPrimeAt:      &primeTime,
+		ApprovedAt:              &primeTime,
+		OrdersID:                ordersID,
+		Orders:                  models.Order{OrdersType: internalmessages.OrdersType(ordersType), OriginDutyLocationGBLOC: &originDutyGBLOC},
+		ReferenceID:             &referenceID,
+		PaymentRequests:         models.PaymentRequests{},
+		SubmittedAt:             &submittedAt,
+		UpdatedAt:               time.Now(),
+		Status:                  models.MoveStatusAPPROVED,
+		SignedCertifications:    models.SignedCertifications{},
+		MTOServiceItems:         models.MTOServiceItems{},
+		MTOShipments:            models.MTOShipments{},
+		ExcessWeightQualifiedAt: &excessWeightQualifiedAt,
+		ExcessUnaccompaniedBaggageWeightQualifiedAt:    &excessUnaccompaniedBaggageWeightQualifiedAt,
+		ExcessWeightAcknowledgedAt:                     &excessWeightAcknowledgedAt,
+		ExcessUnaccompaniedBaggageWeightAcknowledgedAt: &excessUnaccompaniedBaggageWeightAcknowledgedAt,
+		ExcessWeightUploadID:                           &excessWeightUploadID,
 		ShipmentGBLOC: models.MoveToGBLOCs{
 			models.MoveToGBLOC{GBLOC: &shipmentGBLOC},
 		},
@@ -70,7 +74,9 @@ func (suite *PayloadsSuite) TestMoveTaskOrder() {
 		suite.Equal(strfmt.DateTime(basicMove.UpdatedAt), returnedModel.UpdatedAt)
 		suite.NotEmpty(returnedModel.ETag)
 		suite.True(returnedModel.ExcessWeightQualifiedAt.Equal(strfmt.DateTime(*basicMove.ExcessWeightQualifiedAt)))
+		suite.True(returnedModel.ExcessUnaccompaniedBaggageWeightQualifiedAt.Equal(strfmt.DateTime(*basicMove.ExcessUnaccompaniedBaggageWeightQualifiedAt)))
 		suite.True(returnedModel.ExcessWeightAcknowledgedAt.Equal(strfmt.DateTime(*basicMove.ExcessWeightAcknowledgedAt)))
+		suite.True(returnedModel.ExcessUnaccompaniedBaggageWeightAcknowledgedAt.Equal(strfmt.DateTime(*basicMove.ExcessUnaccompaniedBaggageWeightAcknowledgedAt)))
 		suite.Require().NotNil(returnedModel.ExcessWeightUploadID)
 		suite.Equal(strfmt.UUID(basicMove.ExcessWeightUploadID.String()), *returnedModel.ExcessWeightUploadID)
 	})
@@ -153,17 +159,21 @@ func (suite *PayloadsSuite) TestExcessWeightRecord() {
 		}, []factory.Trait{factory.GetTraitTimestampedUpload})
 
 		move := models.Move{
-			ID:                         id,
-			ExcessWeightQualifiedAt:    &now,
-			ExcessWeightAcknowledgedAt: &now,
-			ExcessWeightUploadID:       &upload.ID,
-			ExcessWeightUpload:         &upload,
+			ID:                      id,
+			ExcessWeightQualifiedAt: &now,
+			ExcessUnaccompaniedBaggageWeightQualifiedAt:    &now,
+			ExcessWeightAcknowledgedAt:                     &now,
+			ExcessUnaccompaniedBaggageWeightAcknowledgedAt: &now,
+			ExcessWeightUploadID:                           &upload.ID,
+			ExcessWeightUpload:                             &upload,
 		}
 
 		excessWeightRecord := ExcessWeightRecord(suite.AppContextForTest(), fakeFileStorer, &move)
 		suite.Equal(move.ID.String(), excessWeightRecord.MoveID.String())
 		suite.Equal(strfmt.DateTime(*move.ExcessWeightQualifiedAt).String(), excessWeightRecord.MoveExcessWeightQualifiedAt.String())
+		suite.Equal(strfmt.DateTime(*move.ExcessUnaccompaniedBaggageWeightQualifiedAt).String(), excessWeightRecord.MoveExcessUnaccompaniedBaggageWeightQualifiedAt.String())
 		suite.Equal(strfmt.DateTime(*move.ExcessWeightAcknowledgedAt).String(), excessWeightRecord.MoveExcessWeightAcknowledgedAt.String())
+		suite.Equal(strfmt.DateTime(*move.ExcessUnaccompaniedBaggageWeightAcknowledgedAt).String(), excessWeightRecord.MoveExcessUnaccompaniedBaggageWeightAcknowledgedAt.String())
 
 		suite.Equal(move.ExcessWeightUploadID.String(), excessWeightRecord.ID.String())
 		suite.Equal(move.ExcessWeightUpload.ID.String(), excessWeightRecord.ID.String())
