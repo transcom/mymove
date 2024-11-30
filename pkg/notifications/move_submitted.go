@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"fmt"
 	html "html/template"
+	"strconv"
 	text "text/template"
 
 	"github.com/dustin/go-humanize"
@@ -55,14 +56,23 @@ func (m MoveSubmitted) emails(appCtx appcontext.AppContext) ([]emailContent, err
 
 	destinationAddress := orders.NewDutyLocation.Name
 	isSeparateeRetiree := orders.OrdersType == internalmessages.OrdersTypeRETIREMENT || orders.OrdersType == internalmessages.OrdersTypeSEPARATION
-	if isSeparateeRetiree && len(move.MTOShipments) > 0 {
-		isPpmWithDestination := move.MTOShipments[0].PPMShipment != nil && move.MTOShipments[0].PPMShipment.DestinationAddress != nil
-		if isPpmWithDestination {
-			destAddr := *move.MTOShipments[0].PPMShipment.DestinationAddress
+	if isSeparateeRetiree {
+		appCtx.Logger().Debug("MTOShipments: " + strconv.Itoa(len(move.MTOShipments)))
+		if len(move.MTOShipments) > 0 && move.MTOShipments[0].DestinationAddress != nil {
+			destAddr := move.MTOShipments[0].DestinationAddress
 			destinationAddress = destAddr.LineDisplayFormat()
-		} else if move.MTOShipments[0].DestinationAddress != nil {
-			destAddr := *move.MTOShipments[0].DestinationAddress
-			destinationAddress = destAddr.LineDisplayFormat()
+		} else if len(*move.PPMType) > 0 { // TODO: use mtoShipment.ShipmentType == models.MTOShipmentTypePPM
+			destAddr, err := GetPpmDestinationAddress(appCtx, m.moveID)
+			if err != nil {
+				return emails, err
+			}
+			if len(destAddr) > 0 {
+				destinationAddress = destAddr[0].LineDisplayFormat()
+			}
+
+			// TODO: use FetchAddressByID instead of custom SQL
+			//destAddr := models.FetchAddressByID(appCtx.DB(), move.MTOShipments[0].PPMShipment.DestinationAddressID)
+			//destinationAddress = destAddr.LineDisplayFormat()
 		}
 	}
 

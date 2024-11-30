@@ -149,6 +149,74 @@ func (suite *NotificationSuite) TestMoveSubmittedDestinationIsDutyStationForPcsT
 	suite.NotContains(email.textBody, *move.MTOShipments[0].DestinationAddress.StreetAddress3)
 }
 
+func (suite *NotificationSuite) TestMoveSubmittedDestinationIsShipmentForPpmSeparatee() {
+	appCtx := suite.AppContextForTest()
+
+	// TODO: move PPM build
+	//move := factory.BuildMoveWithPPMShipment(suite.DB(), []factory.Customization{
+	builtPpmShipment := factory.BuildPPMShipment(suite.DB(), []factory.Customization{
+		{
+			Model: models.Move{
+				//SubmittedAt: &now,
+				//Status:      models.MoveStatusSUBMITTED,
+				PPMType: models.StringPointer("FULL"),
+			},
+		},
+		{
+			Model: models.Order{
+				OrdersType: internalmessages.OrdersTypeSEPARATION,
+			},
+		},
+	}, nil)
+
+	//ppmShipment := BuildPPMShipment(db, customs, traits)
+	builtMtoShipment := builtPpmShipment.Shipment
+	move := builtMtoShipment.MoveTaskOrder
+	move.MTOShipments = append(move.MTOShipments, builtMtoShipment)
+
+	appCtx.Logger().Debug("moveID: " + move.ID.String())
+	appCtx.Logger().Debug("MTO MoveID: " + move.MTOShipments[0].MoveTaskOrderID.String())
+	appCtx.Logger().Debug("MTO ShipmentID: " + move.MTOShipments[0].ID.String())
+	appCtx.Logger().Debug("PPM ShipmentID: " + move.MTOShipments[0].PPMShipment.ShipmentID.String())
+	isSeparateeRetiree := move.Orders.OrdersType == internalmessages.OrdersTypeRETIREMENT || move.Orders.OrdersType == internalmessages.OrdersTypeSEPARATION
+	if isSeparateeRetiree {
+		appCtx.Logger().Debug("is SeparateeRetiree")
+	} else {
+		appCtx.Logger().Debug("NOT SeparateeRetiree")
+	}
+	notification := NewMoveSubmitted(move.ID)
+
+	emails, err := notification.emails(suite.AppContextWithSessionForTest(&auth.Session{
+		ServiceMemberID: move.Orders.ServiceMember.ID,
+		ApplicationName: auth.MilApp,
+	}))
+	subject := "Thank you for submitting your move details"
+
+	suite.NoError(err)
+	suite.Equal(len(emails), 1)
+
+	email := emails[0]
+	sm := move.Orders.ServiceMember
+	mtoShipment := move.MTOShipments[0]
+	ppmShipment := mtoShipment.PPMShipment
+	destinationAddress := ppmShipment.DestinationAddress
+	suite.Equal(email.recipientEmail, *sm.PersonalEmail)
+	suite.Equal(email.subject, subject)
+	suite.NotEmpty(email.htmlBody)
+	suite.NotEmpty(email.textBody)
+	appCtx.Logger().Debug("Looking for destinationAddress: " + destinationAddress.LineDisplayFormat())
+	suite.Contains(email.textBody, "details for your move from "+move.Orders.OriginDutyLocation.Name+" to "+destinationAddress.LineDisplayFormat()+".")
+}
+
+func (suite *NotificationSuite) TestMoveSubmittedDestinationIsShipmentForPpmRetiree() {
+}
+
+func (suite *NotificationSuite) TestMoveSubmittedDestinationIsDutyStationForPpmRetireeWithoutAddress() {
+}
+
+func (suite *NotificationSuite) TestMoveSubmittedDestinationIsDutyStationForPpmPcsType() {
+}
+
 func (suite *NotificationSuite) TestMoveSubmittedHTMLTemplateRenderWithGovCounseling() {
 	approver := factory.BuildUser(nil, nil, nil)
 	move := factory.BuildMove(suite.DB(), nil, nil)
