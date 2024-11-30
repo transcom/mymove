@@ -8,6 +8,7 @@ import (
 	"github.com/gobuffalo/validate/v3"
 	"github.com/gobuffalo/validate/v3/validators"
 	"github.com/gofrs/uuid"
+	"github.com/pkg/errors"
 
 	"github.com/transcom/mymove/pkg/unit"
 )
@@ -275,6 +276,38 @@ func GetCustomerFromShipment(db *pop.Connection, shipmentID uuid.UUID) (*Service
 	return &serviceMember, nil
 }
 
+func (m *MTOShipment) UpdateOrdersDestinationGBLOC(db *pop.Connection) error {
+	// Since this requires looking up the order in the DB, the order must have an ID. This means, the order has to have been created first.
+	if uuid.UUID.IsNil(m.ID) {
+		return fmt.Errorf("error updating orders destination GBLOC for shipment due to no shipment ID provided")
+	}
+
+	var err error
+	var order Order
+
+	err = db.Load(&m, "MoveTaskOrder.OrdersID")
+	if err != nil {
+		return fmt.Errorf("error loading orders for shipment ID: %s with error %w", m.ID, err)
+	}
+
+	order, err = FetchOrder(db, m.MoveTaskOrder.OrdersID)
+	if err != nil {
+		return fmt.Errorf("error fetching order for shipment ID: %s with error %w", m.ID, err)
+	}
+
+	err = order.UpdateDestinationGBLOC(db)
+	if err != nil {
+		return fmt.Errorf("error fetching GBLOC for postal code with error %w", err)
+	}
+
+	return nil
+}
+
+// Helper function to check that an MTO Shipment contains a PPM Shipment
+func (m MTOShipment) ContainsAPPMShipment() bool {
+	return m.PPMShipment != nil
+}
+
 // determining the market code for a shipment based off of address isOconus value
 // this function takes in a shipment and returns the same shipment with the updated MarketCode value
 func DetermineShipmentMarketCode(shipment *MTOShipment) *MTOShipment {
@@ -334,6 +367,35 @@ func DetermineShipmentMarketCode(shipment *MTOShipment) *MTOShipment {
 		}
 	}
 	return shipment
+}
+
+func (s MTOShipment) GetDestinationAddress(db *pop.Connection) (*Address, error) {
+	if uuid.UUID.IsNil(s.ID) {
+		return nil, errors.New("MTOShipment ID is required to fetch destination address.")
+	}
+
+	err := db.Load(&s, "DestinationAddress", "PPMShipment.DestinationAddress")
+	if err != nil {
+		if err.Error() == RecordNotFoundErrorString {
+			return nil, errors.WithMessage(ErrSqlRecordNotFound, string(s.ShipmentType)+" ShipmentID: "+s.ID.String())
+		}
+		return nil, err
+	}
+
+	if s.ShipmentType == MTOShipmentTypePPM {
+		if s.PPMShipment.DestinationAddress != nil {
+			return s.PPMShipment.DestinationAddress, nil
+		} else if s.DestinationAddress != nil {
+			return s.DestinationAddress, nil
+		}
+		return nil, errors.WithMessage(ErrMissingDestinationAddress, string(s.ShipmentType))
+	}
+
+	if s.DestinationAddress != nil {
+		return s.DestinationAddress, nil
+	}
+
+	return nil, errors.WithMessage(ErrMissingDestinationAddress, string(s.ShipmentType))
 }
 
 // this function takes in two addresses and determines the market code string

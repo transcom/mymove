@@ -1468,6 +1468,14 @@ definitions:
         format: date-time
         type: string
         readOnly: true
+      destinationGBLOC:
+        type: string
+        example: 'JFK'
+        readOnly: true
+      destinationPostalCode:
+        type: string
+        example: '90210'
+        readOnly: true
       orderID:
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
         format: uuid

@@ -22,13 +22,13 @@ type SearchMove struct {
 	// branch
 	Branch string `json:"branch,omitempty"`
 
+	// destination g b l o c
+	DestinationGBLOC GBLOC `json:"destinationGBLOC,omitempty"`
+
 	// ZIP
 	// Example: 90210
 	// Pattern: ^(\d{5})$
-	DestinationDutyLocationPostalCode string `json:"destinationDutyLocationPostalCode,omitempty"`
-
-	// destination g b l o c
-	DestinationGBLOC GBLOC `json:"destinationGBLOC,omitempty"`
+	DestinationPostalCode string `json:"destinationPostalCode,omitempty"`
 
 	// dod ID
 	// Example: 1234567890
@@ -94,11 +94,11 @@ type SearchMove struct {
 func (m *SearchMove) Validate(formats strfmt.Registry) error {
 	var res []error
 
-	if err := m.validateDestinationDutyLocationPostalCode(formats); err != nil {
+	if err := m.validateDestinationGBLOC(formats); err != nil {
 		res = append(res, err)
 	}
 
-	if err := m.validateDestinationGBLOC(formats); err != nil {
+	if err := m.validateDestinationPostalCode(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -140,18 +140,6 @@ func (m *SearchMove) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
-func (m *SearchMove) validateDestinationDutyLocationPostalCode(formats strfmt.Registry) error {
-	if swag.IsZero(m.DestinationDutyLocationPostalCode) { // not required
-		return nil
-	}
-
-	if err := validate.Pattern("destinationDutyLocationPostalCode", "body", m.DestinationDutyLocationPostalCode, `^(\d{5})$`); err != nil {
-		return err
-	}
-
-	return nil
-}
-
 func (m *SearchMove) validateDestinationGBLOC(formats strfmt.Registry) error {
 	if swag.IsZero(m.DestinationGBLOC) { // not required
 		return nil
@@ -163,6 +151,18 @@ func (m *SearchMove) validateDestinationGBLOC(formats strfmt.Registry) error {
 		} else if ce, ok := err.(*errors.CompositeError); ok {
 			return ce.ValidateName("destinationGBLOC")
 		}
+		return err
+	}
+
+	return nil
+}
+
+func (m *SearchMove) validateDestinationPostalCode(formats strfmt.Registry) error {
+	if swag.IsZero(m.DestinationPostalCode) { // not required
+		return nil
+	}
+
+	if err := validate.Pattern("destinationPostalCode", "body", m.DestinationPostalCode, `^(\d{5})$`); err != nil {
 		return err
 	}
 

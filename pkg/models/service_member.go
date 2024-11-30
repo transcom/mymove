@@ -365,7 +365,7 @@ func (s ServiceMember) CreateOrder(appCtx appcontext.AppContext,
 	entitlement *Entitlement,
 	originDutyLocationGBLOC *string,
 	packingAndShippingInstructions string,
-	newDutyLocationGBLOC *string) (Order, *validate.Errors, error) {
+	destinationGBLOC *string) (Order, *validate.Errors, error) {
 
 	var newOrders Order
 	responseVErrors := validate.NewErrors()
@@ -394,7 +394,7 @@ func (s ServiceMember) CreateOrder(appCtx appcontext.AppContext,
 			SpouseHasProGear:               spouseHasProGear,
 			NewDutyLocationID:              newDutyLocation.ID,
 			NewDutyLocation:                newDutyLocation,
-			DestinationGBLOC:               newDutyLocationGBLOC,
+			DestinationGBLOC:               destinationGBLOC,
 			UploadedOrders:                 uploadedOrders,
 			UploadedOrdersID:               uploadedOrders.ID,
 			Status:                         OrderStatusDRAFT,
