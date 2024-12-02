@@ -79,7 +79,7 @@ type SearchCustomersBody struct {
 	// DOD ID
 	// Max Length: 10
 	// Min Length: 10
-	DodID *string `json:"dodID,omitempty"`
+	Edipi *string `json:"edipi,omitempty"`
 
 	// EMPLID
 	// Max Length: 7
@@ -97,7 +97,7 @@ type SearchCustomersBody struct {
 	PerPage int64 `json:"perPage,omitempty"`
 
 	// sort
-	// Enum: [customerName dodID emplid branch personalEmail telephone]
+	// Enum: [customerName edipi emplid branch personalEmail telephone]
 	Sort *string `json:"sort,omitempty"`
 }
 
@@ -113,7 +113,7 @@ func (o *SearchCustomersBody) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
-	if err := o.validateDodID(formats); err != nil {
+	if err := o.validateEdipi(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -159,16 +159,16 @@ func (o *SearchCustomersBody) validateCustomerName(formats strfmt.Registry) erro
 	return nil
 }
 
-func (o *SearchCustomersBody) validateDodID(formats strfmt.Registry) error {
-	if swag.IsZero(o.DodID) { // not required
+func (o *SearchCustomersBody) validateEdipi(formats strfmt.Registry) error {
+	if swag.IsZero(o.Edipi) { // not required
 		return nil
 	}
 
-	if err := validate.MinLength("body"+"."+"dodID", "body", *o.DodID, 10); err != nil {
+	if err := validate.MinLength("body"+"."+"edipi", "body", *o.Edipi, 10); err != nil {
 		return err
 	}
 
-	if err := validate.MaxLength("body"+"."+"dodID", "body", *o.DodID, 10); err != nil {
+	if err := validate.MaxLength("body"+"."+"edipi", "body", *o.Edipi, 10); err != nil {
 		return err
 	}
 
@@ -237,7 +237,7 @@ var searchCustomersBodyTypeSortPropEnum []interface{}
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["customerName","dodID","emplid","branch","personalEmail","telephone"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["customerName","edipi","emplid","branch","personalEmail","telephone"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -250,8 +250,8 @@ const (
 	// SearchCustomersBodySortCustomerName captures enum value "customerName"
 	SearchCustomersBodySortCustomerName string = "customerName"
 
-	// SearchCustomersBodySortDodID captures enum value "dodID"
-	SearchCustomersBodySortDodID string = "dodID"
+	// SearchCustomersBodySortEdipi captures enum value "edipi"
+	SearchCustomersBodySortEdipi string = "edipi"
 
 	// SearchCustomersBodySortEmplid captures enum value "emplid"
 	SearchCustomersBodySortEmplid string = "emplid"
