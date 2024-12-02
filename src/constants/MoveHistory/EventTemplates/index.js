@@ -1,4 +1,5 @@
 export { default as acknowledgeExcessWeightRisk } from './AcknowledgeExcessWeightRisk/acknowledgeExcessWeightRisk';
+export { default as acknowledgeExcessUnaccompaniedBaggageWeightRisk } from './AcknowledgeExcessUnaccompaniedBaggageWeightRisk/acknowledgeExcessUnaccompaniedBaggageWeightRisk';
 export { default as approveShipment } from './ApproveShipment/approveShipment';
 export { default as approveShipmentDiversion } from './ApproveShipmentDiversion/approveShipmentDiversion';
 export { default as createBasicServiceItem } from './UpdateMoveTaskOrderStatus/createBasicServiceItem';
