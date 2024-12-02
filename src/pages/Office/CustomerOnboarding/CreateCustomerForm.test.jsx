@@ -240,7 +240,7 @@ describe('CreateCustomerForm', () => {
     expect(screen.getByText('Customer Affiliation')).toBeInTheDocument();
     expect(screen.getByText('Customer Name')).toBeInTheDocument();
     expect(screen.getByText('Contact Info')).toBeInTheDocument();
-    expect(screen.getByText('Current Address')).toBeInTheDocument();
+    expect(screen.getByText('Pickup Address')).toBeInTheDocument();
     expect(screen.getByText('Backup Address')).toBeInTheDocument();
     expect(screen.getByText('Backup Contact')).toBeInTheDocument();
     expect(screen.getByText('Okta Account')).toBeInTheDocument();
