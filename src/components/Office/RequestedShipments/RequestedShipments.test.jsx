@@ -502,6 +502,7 @@ describe('RequestedShipments', () => {
         SHIPMENT_OPTIONS_URL.NTSrelease,
         SHIPMENT_OPTIONS_URL.MOBILE_HOME,
         SHIPMENT_OPTIONS_URL.BOAT,
+        SHIPMENT_OPTIONS_URL.UNACCOMPANIED_BAGGAGE,
       ],
     ])('selects the %s option and navigates to the matching form for that shipment type', async (shipmentType) => {
       render(

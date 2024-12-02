@@ -60,7 +60,7 @@ func (h ShowLoggedInUserHandler) Handle(params userop.ShowLoggedInUserParams) mi
 				var officeUser models.OfficeUser
 				var err error
 				if appCtx.Session().OfficeUserID != uuid.Nil {
-					officeUser, err = h.officeUserFetcherPop.FetchOfficeUserByID(appCtx, appCtx.Session().OfficeUserID)
+					officeUser, err = h.officeUserFetcherPop.FetchOfficeUserByIDWithTransportationOfficeAssignments(appCtx, appCtx.Session().OfficeUserID)
 					if err != nil {
 						appCtx.Logger().Error("Error retrieving office_user", zap.Error(err))
 						return userop.NewIsLoggedInUserInternalServerError(), err
@@ -73,6 +73,7 @@ func (h ShowLoggedInUserHandler) Handle(params userop.ShowLoggedInUserParams) mi
 					Email:      appCtx.Session().Email,
 					OfficeUser: payloads.OfficeUser(&officeUser),
 				}
+
 				decoratePayloadWithRoles(appCtx.Session(), &userPayload)
 				decoratePayloadWithPermissions(appCtx.Session(), &userPayload)
 				decoratePayloadWithPrivileges(appCtx, &userPayload)
