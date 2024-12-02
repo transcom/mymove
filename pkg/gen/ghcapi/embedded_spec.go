@@ -439,7 +439,7 @@ func init() {
                   "minLength": 1,
                   "x-nullable": true
                 },
-                "dodID": {
+                "edipi": {
                   "description": "DOD ID",
                   "type": "string",
                   "maxLength": 10,
@@ -472,7 +472,7 @@ func init() {
                   "type": "string",
                   "enum": [
                     "customerName",
-                    "dodID",
+                    "edipi",
                     "emplid",
                     "branch",
                     "personalEmail",
@@ -2036,7 +2036,7 @@ func init() {
                   "type": "string",
                   "x-nullable": true
                 },
-                "dodID": {
+                "edipi": {
                   "description": "DOD ID",
                   "type": "string",
                   "maxLength": 10,
@@ -2094,7 +2094,7 @@ func init() {
                   "type": "string",
                   "enum": [
                     "customerName",
-                    "dodID",
+                    "edipi",
                     "emplid",
                     "branch",
                     "locator",
@@ -2796,6 +2796,48 @@ func init() {
           "create.supportingDocuments"
         ]
       }
+    },
+    "/moves/{officeUserID}/CheckForLockedMovesAndUnlock": {
+      "patch": {
+        "description": "Finds and unlocks any locked moves by an office user",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "move"
+        ],
+        "operationId": "checkForLockedMovesAndUnlock",
+        "responses": {
+          "200": {
+            "description": "Successfully unlocked officer's move(s).",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "successMessage": {
+                  "type": "string",
+                  "example": "OK"
+                }
+              }
+            }
+          },
+          "500": {
+            "$ref": "#/responses/ServerError"
+          }
+        }
+      },
+      "parameters": [
+        {
+          "type": "string",
+          "format": "uuid",
+          "description": "ID of the move's officer",
+          "name": "officeUserID",
+          "in": "path",
+          "required": true
+        }
+      ]
     },
     "/mto-shipments": {
       "post": {
@@ -4259,7 +4301,7 @@ func init() {
           {
             "enum": [
               "customerName",
-              "dodID",
+              "edipi",
               "emplid",
               "branch",
               "locator",
@@ -4318,7 +4360,7 @@ func init() {
           {
             "type": "string",
             "description": "filters to match the unique service member's DoD ID",
-            "name": "dodID",
+            "name": "edipi",
             "in": "query"
           },
           {
@@ -4513,7 +4555,7 @@ func init() {
           {
             "enum": [
               "customerName",
-              "dodID",
+              "edipi",
               "emplid",
               "branch",
               "locator",
@@ -4522,7 +4564,8 @@ func init() {
               "destinationDutyLocation",
               "requestedMoveDate",
               "appearedInTooAt",
-              "assignedTo"
+              "assignedTo",
+              "counselingOffice"
             ],
             "type": "string",
             "description": "field that results should be sorted by",
@@ -4556,7 +4599,7 @@ func init() {
           },
           {
             "type": "string",
-            "name": "dodID",
+            "name": "edipi",
             "in": "query"
           },
           {
@@ -4623,6 +4666,12 @@ func init() {
             "description": "Used to illustrate which user is assigned to this move.\n",
             "name": "assignedTo",
             "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "filters using a counselingOffice name of the move",
+            "name": "counselingOffice",
+            "in": "query"
           }
         ],
         "responses": {
@@ -4660,11 +4709,12 @@ func init() {
               "submittedAt",
               "branch",
               "status",
-              "dodID",
+              "edipi",
               "emplid",
               "age",
               "originDutyLocation",
-              "assignedTo"
+              "assignedTo",
+              "counselingOffice"
             ],
             "type": "string",
             "description": "field that results should be sorted by",
@@ -4717,7 +4767,7 @@ func init() {
           },
           {
             "type": "string",
-            "name": "dodID",
+            "name": "edipi",
             "in": "query"
           },
           {
@@ -4739,6 +4789,12 @@ func init() {
             "type": "string",
             "description": "Used to illustrate which user is assigned to this payment request.\n",
             "name": "assignedTo",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "filters using a counselingOffice name of the move",
+            "name": "counselingOffice",
             "in": "query"
           },
           {
@@ -12314,6 +12370,10 @@ func init() {
         "availableOfficeUsers": {
           "$ref": "#/definitions/AvailableOfficeUsers"
         },
+        "counselingOffice": {
+          "type": "string",
+          "x-nullable": true
+        },
         "customer": {
           "$ref": "#/definitions/Customer"
         },
@@ -12751,7 +12811,7 @@ func init() {
         "branch": {
           "type": "string"
         },
-        "dodID": {
+        "edipi": {
           "type": "string",
           "x-nullable": true
         },
@@ -12827,7 +12887,7 @@ func init() {
         "destinationGBLOC": {
           "$ref": "#/definitions/GBLOC"
         },
-        "dodID": {
+        "edipi": {
           "type": "string",
           "x-nullable": true,
           "example": 1234567890
@@ -15203,7 +15263,7 @@ func init() {
                   "minLength": 1,
                   "x-nullable": true
                 },
-                "dodID": {
+                "edipi": {
                   "description": "DOD ID",
                   "type": "string",
                   "maxLength": 10,
@@ -15236,7 +15296,7 @@ func init() {
                   "type": "string",
                   "enum": [
                     "customerName",
-                    "dodID",
+                    "edipi",
                     "emplid",
                     "branch",
                     "personalEmail",
@@ -17253,7 +17313,7 @@ func init() {
                   "type": "string",
                   "x-nullable": true
                 },
-                "dodID": {
+                "edipi": {
                   "description": "DOD ID",
                   "type": "string",
                   "maxLength": 10,
@@ -17311,7 +17371,7 @@ func init() {
                   "type": "string",
                   "enum": [
                     "customerName",
-                    "dodID",
+                    "edipi",
                     "emplid",
                     "branch",
                     "locator",
@@ -18160,6 +18220,51 @@ func init() {
           "create.supportingDocuments"
         ]
       }
+    },
+    "/moves/{officeUserID}/CheckForLockedMovesAndUnlock": {
+      "patch": {
+        "description": "Finds and unlocks any locked moves by an office user",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "move"
+        ],
+        "operationId": "checkForLockedMovesAndUnlock",
+        "responses": {
+          "200": {
+            "description": "Successfully unlocked officer's move(s).",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "successMessage": {
+                  "type": "string",
+                  "example": "OK"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "A server error occurred",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      },
+      "parameters": [
+        {
+          "type": "string",
+          "format": "uuid",
+          "description": "ID of the move's officer",
+          "name": "officeUserID",
+          "in": "path",
+          "required": true
+        }
+      ]
     },
     "/mto-shipments": {
       "post": {
@@ -20052,7 +20157,7 @@ func init() {
           {
             "enum": [
               "customerName",
-              "dodID",
+              "edipi",
               "emplid",
               "branch",
               "locator",
@@ -20111,7 +20216,7 @@ func init() {
           {
             "type": "string",
             "description": "filters to match the unique service member's DoD ID",
-            "name": "dodID",
+            "name": "edipi",
             "in": "query"
           },
           {
@@ -20318,7 +20423,7 @@ func init() {
           {
             "enum": [
               "customerName",
-              "dodID",
+              "edipi",
               "emplid",
               "branch",
               "locator",
@@ -20327,7 +20432,8 @@ func init() {
               "destinationDutyLocation",
               "requestedMoveDate",
               "appearedInTooAt",
-              "assignedTo"
+              "assignedTo",
+              "counselingOffice"
             ],
             "type": "string",
             "description": "field that results should be sorted by",
@@ -20361,7 +20467,7 @@ func init() {
           },
           {
             "type": "string",
-            "name": "dodID",
+            "name": "edipi",
             "in": "query"
           },
           {
@@ -20428,6 +20534,12 @@ func init() {
             "description": "Used to illustrate which user is assigned to this move.\n",
             "name": "assignedTo",
             "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "filters using a counselingOffice name of the move",
+            "name": "counselingOffice",
+            "in": "query"
           }
         ],
         "responses": {
@@ -20471,11 +20583,12 @@ func init() {
               "submittedAt",
               "branch",
               "status",
-              "dodID",
+              "edipi",
               "emplid",
               "age",
               "originDutyLocation",
-              "assignedTo"
+              "assignedTo",
+              "counselingOffice"
             ],
             "type": "string",
             "description": "field that results should be sorted by",
@@ -20528,7 +20641,7 @@ func init() {
           },
           {
             "type": "string",
-            "name": "dodID",
+            "name": "edipi",
             "in": "query"
           },
           {
@@ -20550,6 +20663,12 @@ func init() {
             "type": "string",
             "description": "Used to illustrate which user is assigned to this payment request.\n",
             "name": "assignedTo",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "filters using a counselingOffice name of the move",
+            "name": "counselingOffice",
             "in": "query"
           },
           {
@@ -28568,6 +28687,10 @@ func init() {
         "availableOfficeUsers": {
           "$ref": "#/definitions/AvailableOfficeUsers"
         },
+        "counselingOffice": {
+          "type": "string",
+          "x-nullable": true
+        },
         "customer": {
           "$ref": "#/definitions/Customer"
         },
@@ -29055,7 +29178,7 @@ func init() {
         "branch": {
           "type": "string"
         },
-        "dodID": {
+        "edipi": {
           "type": "string",
           "x-nullable": true
         },
@@ -29131,7 +29254,7 @@ func init() {
         "destinationGBLOC": {
           "$ref": "#/definitions/GBLOC"
         },
-        "dodID": {
+        "edipi": {
           "type": "string",
           "x-nullable": true,
           "example": 1234567890
