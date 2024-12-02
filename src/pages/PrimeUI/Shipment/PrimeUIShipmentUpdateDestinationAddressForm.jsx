@@ -31,15 +31,15 @@ const PrimeUIShipmentUpdateDestinationAddressForm = ({
         <Form className={classnames(formStyles.form)}>
           <FormGroup error={errors != null && Object.keys(errors).length > 0 ? 1 : 0}>
             <SectionWrapper className={formStyles.formSection}>
-              <h2>Update Shipment Destination Address</h2>
+              <h2>Update Shipment Delivery Address</h2>
               <SectionWrapper className={formStyles.formSection}>
                 <div data-testid="destination-form-details">
-                  This is used to <strong>update</strong> the destination address on an{' '}
-                  <strong>already approved</strong> shipment. <br />
-                  This also updates the final destination address for destination SIT service items in the shipment.
+                  This is used to <strong>update</strong> the delivery address on an <strong>already approved</strong>{' '}
+                  shipment. <br />
+                  This also updates the final delivery address for destination SIT service items in the shipment.
                   <br />
                   <br />
-                  This endpoint should be used for changing the destination address of HHG & NTSR shipments.
+                  This endpoint should be used for changing the delivery address of HHG & NTSR shipments.
                   <br />
                   <br />
                   The address update will be automatically approved unless it changes any of the following:
@@ -62,7 +62,7 @@ const PrimeUIShipmentUpdateDestinationAddressForm = ({
             <WizardNavigation
               editMode
               className={formStyles.formActions}
-              aria-label="Update Shipment Destination Address"
+              aria-label="Update Shipment Delivery Address"
               type="submit"
               disableNext={isSubmitting || !isValid}
               onCancelClick={handleClose}

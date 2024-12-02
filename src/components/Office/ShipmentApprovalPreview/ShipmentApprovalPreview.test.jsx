@@ -373,7 +373,7 @@ describe('Shipment preview modal', () => {
     expect(cancelClicked).toHaveBeenCalledTimes(2);
   });
 
-  it('renders a postal only destination address', () => {
+  it('renders a postal only delivery address', () => {
     const wrapper = mount(
       <ShipmentApprovalPreview
         ordersInfo={ordersInfo}
