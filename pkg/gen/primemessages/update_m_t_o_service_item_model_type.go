@@ -25,6 +25,8 @@ import (
 //   - DDSFSC - UpdateMTOServiceItemSIT
 //   - DDSHUT - UpdateMTOServiceItemShuttle
 //   - DOSHUT - UpdateMTOServiceItemShuttle
+//   - PODFSC - UpdateMTOServiceItemInternationalPortFSC
+//   - POEFSC - UpdateMTOServiceItemInternationalPortFSC
 //
 // The documentation will then update with the supported fields.
 //
