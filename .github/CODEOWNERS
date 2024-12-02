@@ -41,3 +41,4 @@ Brewfile* @transcom/codeowners
 package.json @transcom/codeowners
 go.mod @transcom/codeowners
 /github/ @transcom/codeowners
+docker-compose* @transcom/codeowners
