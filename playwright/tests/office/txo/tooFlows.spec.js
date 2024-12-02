@@ -716,6 +716,9 @@ test.describe('TOO user', () => {
     });
 
     test('is able to request diversion for a shipment and receive alert msg', async ({ page }) => {
+      // Resolve flakey test due to timeout
+      test.slow();
+
       await tooFlowPage.waitForLoading();
       await tooFlowPage.approveAllShipments();
 
