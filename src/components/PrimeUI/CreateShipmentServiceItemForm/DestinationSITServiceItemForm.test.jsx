@@ -97,7 +97,7 @@ describe('DestinationSITServiceItemForm component', () => {
     expect(hintInfo).toHaveTextContent('DDDSIT (Destination SIT delivery)');
     expect(hintInfo).toHaveTextContent('DDSFSC (Destination SIT fuel surcharge)');
     expect(hintInfo).toHaveTextContent(
-      'NOTE: The above service items will use the current destination address of the shipment as their final destination address. Ensure the shipment address is accurate before creating these service items.',
+      'NOTE: The above service items will use the current delivery address of the shipment as their final delivery address. Ensure the shipment address is accurate before creating these service items.',
     );
   });
 
