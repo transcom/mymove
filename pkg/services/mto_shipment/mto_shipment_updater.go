@@ -748,6 +748,16 @@ func (f *mtoShipmentUpdater) updateShipmentRecord(appCtx appcontext.AppContext, 
 				}
 			}
 
+			if newShipment.PrimeActualWeight != nil {
+				if dbShipment.PrimeActualWeight == nil || *newShipment.PrimeActualWeight != *dbShipment.PrimeActualWeight {
+					var err error
+					autoReweighShipments, err = f.moveWeights.CheckAutoReweigh(txnAppCtx, dbShipment.MoveTaskOrderID, newShipment)
+					if err != nil {
+						return err
+					}
+				}
+			}
+
 			if dbShipment.PrimeEstimatedWeight == nil || *newShipment.PrimeEstimatedWeight != *dbShipment.PrimeEstimatedWeight {
 				existingMoveStatus := move.Status
 				// if the move is in excess weight risk and the TOO has not acknowledge that, need to change move status to "Approvals Requested"
@@ -765,15 +775,17 @@ func (f *mtoShipmentUpdater) updateShipmentRecord(appCtx appcontext.AppContext, 
 						return err
 					}
 				}
-			}
-		}
-
-		if newShipment.PrimeActualWeight != nil {
-			if dbShipment.PrimeActualWeight == nil || *newShipment.PrimeActualWeight != *dbShipment.PrimeActualWeight {
-				var err error
-				autoReweighShipments, err = f.moveWeights.CheckAutoReweigh(txnAppCtx, dbShipment.MoveTaskOrderID, newShipment)
+			} else if dbShipment.PrimeEstimatedWeight != nil {
+				needsReweigh, err := move.NeedsReweigh(txnAppCtx)
 				if err != nil {
 					return err
+				}
+
+				if needsReweigh == models.BoolPointer(true) {
+					autoReweighShipments, err = f.moveWeights.CheckAutoReweigh(txnAppCtx, dbShipment.MoveTaskOrderID, newShipment)
+					if err != nil {
+						return err
+					}
 				}
 			}
 		}

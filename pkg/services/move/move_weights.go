@@ -3,6 +3,7 @@ package move
 import (
 	"database/sql"
 	"errors"
+	"math"
 	"time"
 
 	"github.com/gobuffalo/validate/v3"
@@ -61,7 +62,7 @@ func shipmentHasReweighWeight(shipment models.MTOShipment) bool {
 }
 
 // return the lower weight of a shipment's actual weight and the reweighed weight
-func lowerShipmentWeight(shipment models.MTOShipment) int {
+func lowerShipmentActualWeight(shipment models.MTOShipment) int {
 	actualWeight := 0
 	if shipment.PrimeActualWeight != nil {
 		actualWeight = shipment.PrimeActualWeight.Int()
@@ -75,6 +76,23 @@ func lowerShipmentWeight(shipment models.MTOShipment) int {
 	}
 
 	return actualWeight
+}
+
+// return the lower weight of a shipment's estimated weight and the reweighed weight
+func lowerShipmentEstimatedWeight(shipment models.MTOShipment) int {
+	estimatedWeight := 0
+	if shipment.PrimeEstimatedWeight != nil {
+		estimatedWeight = shipment.PrimeEstimatedWeight.Int()
+	}
+
+	if shipmentHasReweighWeight(shipment) {
+		reweighWeight := shipment.Reweigh.Weight.Int()
+		if reweighWeight < estimatedWeight {
+			return reweighWeight
+		}
+	}
+
+	return estimatedWeight
 }
 
 func (w moveWeights) CheckExcessWeight(appCtx appcontext.AppContext, moveID uuid.UUID, updatedShipment models.MTOShipment) (*models.Move, *validate.Errors, error) {
@@ -182,28 +200,31 @@ func (w moveWeights) CheckAutoReweigh(appCtx appcontext.AppContext, moveID uuid.
 		weight = totalWeightAllowance.TotalWeightSelfPlusDependents
 	}
 
-	moveWeightTotal := 0
+	moveEstimatedWeightTotal := 0
+	moveActualWeightTotal := 0
 	for _, shipment := range move.MTOShipments {
 		// We should avoid counting shipments that haven't been approved yet and will need to account for diversions
 		// and cancellations factoring into the weight total.
 		if availableShipmentStatus(shipment.Status) {
 			if shipment.ID != updatedShipment.ID {
-				moveWeightTotal += lowerShipmentWeight(shipment)
+				moveActualWeightTotal += lowerShipmentActualWeight(shipment)
+				moveEstimatedWeightTotal += lowerShipmentEstimatedWeight(shipment)
 			} else {
 				// the shipment being updated might have a reweigh that wasn't loaded
 				updatedShipment.Reweigh = shipment.Reweigh
-				moveWeightTotal += lowerShipmentWeight(*updatedShipment)
+				moveActualWeightTotal += lowerShipmentActualWeight(*updatedShipment)
+				moveEstimatedWeightTotal += lowerShipmentEstimatedWeight(shipment)
 			}
 		}
 	}
 
 	autoReweighShipments := models.MTOShipments{}
-	// may need to take into account floating point precision here but should be dealing with whole numbers
-	if int(float32(weight)*AutoReweighRequestThreshold) <= moveWeightTotal {
+	if int(math.Round(float64(weight)*AutoReweighRequestThreshold)) <= moveActualWeightTotal ||
+		int(math.Round(float64(weight)*AutoReweighRequestThreshold)) <= moveEstimatedWeightTotal {
 		for _, shipment := range move.MTOShipments {
 			// We should avoid counting shipments that haven't been approved yet and will need to account for diversions
 			// and cancellations factoring into the weight total.
-			if availableShipmentStatus(shipment.Status) && (shipment.Reweigh == nil || shipment.Reweigh.ID == uuid.Nil) {
+			if availableShipmentStatus(shipment.Status) && (shipment.Reweigh == nil || uuid.UUID.IsNil(shipment.Reweigh.ID)) {
 				reweigh, err := w.ReweighRequestor.RequestShipmentReweigh(appCtx, shipment.ID, models.ReweighRequesterSystem)
 				if err != nil {
 					return nil, err
