@@ -40,3 +40,4 @@ Brewfile* @transcom/codeowners
 /Makefile @transcom/codeowners
 package.json @transcom/codeowners
 go.mod @transcom/codeowners
+/github/ @transcom/codeowners
