@@ -217,7 +217,7 @@ paths:
                 description: requested page of results
               perPage:
                 type: integer
-              dodID:
+              edipi:
                 description: DOD ID
                 type: string
                 minLength: 10
@@ -243,7 +243,7 @@ paths:
                 x-nullable: true
                 enum:
                   - customerName
-                  - dodID
+                  - edipi
                   - emplid
                   - branch
                   - personalEmail
@@ -3458,7 +3458,7 @@ paths:
           type: string
           enum:
             - customerName
-            - dodID
+            - edipi
             - emplid
             - branch
             - locator
@@ -3499,7 +3499,7 @@ paths:
           type: string
           description: filters using a counselingOffice name of the move
         - in: query
-          name: dodID
+          name: edipi
           type: string
           description: filters to match the unique service member's DoD ID
         - in: query
@@ -3717,7 +3717,7 @@ paths:
           type: string
           enum:
             - customerName
-            - dodID
+            - edipi
             - emplid
             - branch
             - locator
@@ -3746,7 +3746,7 @@ paths:
           name: customerName
           type: string
         - in: query
-          name: dodID
+          name: edipi
           type: string
         - in: query
           name: emplid
@@ -3831,7 +3831,7 @@ paths:
             - submittedAt
             - branch
             - status
-            - dodID
+            - edipi
             - emplid
             - age
             - originDutyLocation
@@ -3869,7 +3869,7 @@ paths:
           name: customerName
           type: string
         - in: query
-          name: dodID
+          name: edipi
           type: string
         - in: query
           name: emplid
@@ -3948,7 +3948,7 @@ paths:
                 minLength: 6
                 maxLength: 6
                 x-nullable: true
-              dodID:
+              edipi:
                 description: DOD ID
                 type: string
                 minLength: 10
@@ -4008,7 +4008,7 @@ paths:
                 x-nullable: true
                 enum:
                   - customerName
-                  - dodID
+                  - edipi
                   - emplid
                   - branch
                   - locator
@@ -5052,7 +5052,7 @@ definitions:
         type: string
         example: Doe
         x-nullable: true
-      dodID:
+      edipi:
         type: string
         x-nullable: true
       emplid:
@@ -7403,7 +7403,7 @@ definitions:
         type: string
         example: Doe
         x-nullable: true
-      dodID:
+      edipi:
         type: string
         example: 1234567890
         x-nullable: true

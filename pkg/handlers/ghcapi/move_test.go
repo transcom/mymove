@@ -482,7 +482,7 @@ func (suite *HandlerSuite) TestSearchMovesHandler() {
 			HTTPRequest: req,
 			Body: moveops.SearchMovesBody{
 				Locator: &move.Locator,
-				DodID:   nil,
+				Edipi:   nil,
 			},
 		}
 
@@ -498,8 +498,8 @@ func (suite *HandlerSuite) TestSearchMovesHandler() {
 
 		payloadMove := *(*payload).SearchMoves[0]
 		suite.Equal(move.ID.String(), payloadMove.ID.String())
-		suite.Equal(*move.Orders.ServiceMember.Edipi, *payloadMove.DodID)
-		suite.Equal(move.Orders.NewDutyLocation.Address.PostalCode, payloadMove.DestinationPostalCode)
+		suite.Equal(*move.Orders.ServiceMember.Edipi, *payloadMove.Edipi)
+		suite.Equal(move.Orders.NewDutyLocation.Address.PostalCode, payloadMove.DestinationDutyLocationPostalCode)
 		suite.Equal(move.Orders.OriginDutyLocation.Address.PostalCode, payloadMove.OriginDutyLocationPostalCode)
 		suite.Equal(ghcmessages.MoveStatusDRAFT, payloadMove.Status)
 		suite.Equal("ARMY", payloadMove.Branch)
@@ -535,7 +535,7 @@ func (suite *HandlerSuite) TestSearchMovesHandler() {
 			HTTPRequest: req,
 			Body: moveops.SearchMovesBody{
 				Locator: nil,
-				DodID:   move.Orders.ServiceMember.Edipi,
+				Edipi:   move.Orders.ServiceMember.Edipi,
 			},
 		}
 

@@ -47,7 +47,7 @@ func (h GetMovesQueueHandler) Handle(params queues.GetMovesQueueParams) middlewa
 			ListOrderParams := services.ListOrderParams{
 				Branch:                  params.Branch,
 				Locator:                 params.Locator,
-				DodID:                   params.DodID,
+				Edipi:                   params.Edipi,
 				Emplid:                  params.Emplid,
 				CustomerName:            params.CustomerName,
 				DestinationDutyLocation: params.DestinationDutyLocation,
@@ -238,7 +238,7 @@ func (h GetPaymentRequestsQueueHandler) Handle(
 			listPaymentRequestParams := services.FetchPaymentRequestListParams{
 				Branch:                  params.Branch,
 				Locator:                 params.Locator,
-				DodID:                   params.DodID,
+				Edipi:                   params.Edipi,
 				Emplid:                  params.Emplid,
 				CustomerName:            params.CustomerName,
 				DestinationDutyLocation: params.DestinationDutyLocation,
@@ -369,7 +369,7 @@ func (h GetServicesCounselingQueueHandler) Handle(
 			ListOrderParams := services.ListOrderParams{
 				Branch:                  params.Branch,
 				Locator:                 params.Locator,
-				DodID:                   params.DodID,
+				Edipi:                   params.Edipi,
 				Emplid:                  params.Emplid,
 				CustomerName:            params.CustomerName,
 				OriginDutyLocation:      params.OriginDutyLocation,

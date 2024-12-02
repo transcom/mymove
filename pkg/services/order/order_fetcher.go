@@ -104,7 +104,7 @@ func (f orderFetcher) ListOrders(appCtx appcontext.AppContext, officeUserID uuid
 		gblocQuery = gblocFilterForTOO(gblocToFilterBy)
 	}
 	locatorQuery := locatorFilter(params.Locator)
-	dodIDQuery := dodIDFilter(params.DodID)
+	dodIDQuery := dodIDFilter(params.Edipi)
 	emplidQuery := emplidFilter(params.Emplid)
 	customerNameQuery := customerNameFilter(params.CustomerName)
 	originDutyLocationQuery := originDutyLocationFilter(params.OriginDutyLocation)
@@ -729,7 +729,7 @@ func gblocFilterForPPMCloseoutForNavyMarineAndCG(gbloc *string) QueryOption {
 func sortOrder(sort *string, order *string, ppmCloseoutGblocs bool) QueryOption {
 	parameters := map[string]string{
 		"customerName":            "(service_members.last_name || ' ' || service_members.first_name)",
-		"dodID":                   "service_members.edipi",
+		"edipi":                   "service_members.edipi",
 		"emplid":                  "service_members.emplid",
 		"branch":                  "service_members.affiliation",
 		"locator":                 "moves.locator",

@@ -439,7 +439,7 @@ func init() {
                   "minLength": 1,
                   "x-nullable": true
                 },
-                "dodID": {
+                "edipi": {
                   "description": "DOD ID",
                   "type": "string",
                   "maxLength": 10,
@@ -472,7 +472,7 @@ func init() {
                   "type": "string",
                   "enum": [
                     "customerName",
-                    "dodID",
+                    "edipi",
                     "emplid",
                     "branch",
                     "personalEmail",
@@ -2036,7 +2036,7 @@ func init() {
                   "type": "string",
                   "x-nullable": true
                 },
-                "dodID": {
+                "edipi": {
                   "description": "DOD ID",
                   "type": "string",
                   "maxLength": 10,
@@ -2094,7 +2094,7 @@ func init() {
                   "type": "string",
                   "enum": [
                     "customerName",
-                    "dodID",
+                    "edipi",
                     "emplid",
                     "branch",
                     "locator",
@@ -4301,7 +4301,7 @@ func init() {
           {
             "enum": [
               "customerName",
-              "dodID",
+              "edipi",
               "emplid",
               "branch",
               "locator",
@@ -4360,7 +4360,7 @@ func init() {
           {
             "type": "string",
             "description": "filters to match the unique service member's DoD ID",
-            "name": "dodID",
+            "name": "edipi",
             "in": "query"
           },
           {
@@ -4555,7 +4555,7 @@ func init() {
           {
             "enum": [
               "customerName",
-              "dodID",
+              "edipi",
               "emplid",
               "branch",
               "locator",
@@ -4599,7 +4599,7 @@ func init() {
           },
           {
             "type": "string",
-            "name": "dodID",
+            "name": "edipi",
             "in": "query"
           },
           {
@@ -4709,7 +4709,7 @@ func init() {
               "submittedAt",
               "branch",
               "status",
-              "dodID",
+              "edipi",
               "emplid",
               "age",
               "originDutyLocation",
@@ -4766,7 +4766,7 @@ func init() {
           },
           {
             "type": "string",
-            "name": "dodID",
+            "name": "edipi",
             "in": "query"
           },
           {
@@ -12808,7 +12808,7 @@ func init() {
         "branch": {
           "type": "string"
         },
-        "dodID": {
+        "edipi": {
           "type": "string",
           "x-nullable": true
         },
@@ -12884,7 +12884,10 @@ func init() {
           "pattern": "^(\\d{5})$",
           "example": "90210"
         },
-        "dodID": {
+        "destinationGBLOC": {
+          "$ref": "#/definitions/GBLOC"
+        },
+        "edipi": {
           "type": "string",
           "x-nullable": true,
           "example": 1234567890
@@ -15260,7 +15263,7 @@ func init() {
                   "minLength": 1,
                   "x-nullable": true
                 },
-                "dodID": {
+                "edipi": {
                   "description": "DOD ID",
                   "type": "string",
                   "maxLength": 10,
@@ -15293,7 +15296,7 @@ func init() {
                   "type": "string",
                   "enum": [
                     "customerName",
-                    "dodID",
+                    "edipi",
                     "emplid",
                     "branch",
                     "personalEmail",
@@ -17310,7 +17313,7 @@ func init() {
                   "type": "string",
                   "x-nullable": true
                 },
-                "dodID": {
+                "edipi": {
                   "description": "DOD ID",
                   "type": "string",
                   "maxLength": 10,
@@ -17368,7 +17371,7 @@ func init() {
                   "type": "string",
                   "enum": [
                     "customerName",
-                    "dodID",
+                    "edipi",
                     "emplid",
                     "branch",
                     "locator",
@@ -20154,7 +20157,7 @@ func init() {
           {
             "enum": [
               "customerName",
-              "dodID",
+              "edipi",
               "emplid",
               "branch",
               "locator",
@@ -20213,7 +20216,7 @@ func init() {
           {
             "type": "string",
             "description": "filters to match the unique service member's DoD ID",
-            "name": "dodID",
+            "name": "edipi",
             "in": "query"
           },
           {
@@ -20420,7 +20423,7 @@ func init() {
           {
             "enum": [
               "customerName",
-              "dodID",
+              "edipi",
               "emplid",
               "branch",
               "locator",
@@ -20464,7 +20467,7 @@ func init() {
           },
           {
             "type": "string",
-            "name": "dodID",
+            "name": "edipi",
             "in": "query"
           },
           {
@@ -20580,7 +20583,7 @@ func init() {
               "submittedAt",
               "branch",
               "status",
-              "dodID",
+              "edipi",
               "emplid",
               "age",
               "originDutyLocation",
@@ -20637,7 +20640,7 @@ func init() {
           },
           {
             "type": "string",
-            "name": "dodID",
+            "name": "edipi",
             "in": "query"
           },
           {
@@ -29172,7 +29175,7 @@ func init() {
         "branch": {
           "type": "string"
         },
-        "dodID": {
+        "edipi": {
           "type": "string",
           "x-nullable": true
         },
@@ -29248,7 +29251,10 @@ func init() {
           "pattern": "^(\\d{5})$",
           "example": "90210"
         },
-        "dodID": {
+        "destinationGBLOC": {
+          "$ref": "#/definitions/GBLOC"
+        },
+        "edipi": {
           "type": "string",
           "x-nullable": true,
           "example": 1234567890

@@ -30,9 +30,9 @@ type SearchMove struct {
 	// Pattern: ^(\d{5})$
 	DestinationPostalCode string `json:"destinationPostalCode,omitempty"`
 
-	// dod ID
+	// edipi
 	// Example: 1234567890
-	DodID *string `json:"dodID,omitempty"`
+	Edipi *string `json:"edipi,omitempty"`
 
 	// emplid
 	Emplid *string `json:"emplid,omitempty"`
