@@ -36,6 +36,7 @@ COPY config/tls/devlocal-ca.pem /config/tls/devlocal-ca.pem
 
 COPY swagger/* /swagger/
 COPY build /build
+COPY public/static/react-file-viewer /public/static/react-file-viewer
 
 ENTRYPOINT ["/bin/milmove"]
 
