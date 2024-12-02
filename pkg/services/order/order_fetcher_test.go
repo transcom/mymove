@@ -12,6 +12,7 @@ import (
 	"github.com/transcom/mymove/pkg/models/roles"
 	"github.com/transcom/mymove/pkg/services"
 	moveservice "github.com/transcom/mymove/pkg/services/move"
+	officeuserservice "github.com/transcom/mymove/pkg/services/office_user"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
@@ -1747,7 +1748,7 @@ func (suite *OrderServiceSuite) TestListOrdersForTOOWithPPM() {
 	suite.Len(moves, 1)
 }
 
-func (suite *OrderServiceSuite) TestListOrdersForHQWithViewAsParam() {
+func (suite *OrderServiceSuite) TestListOrdersWithViewAsGBLOCParam() {
 	var hqOfficeUser models.OfficeUser
 	var hqOfficeUserAGFM models.OfficeUser
 
@@ -1845,7 +1846,7 @@ func (suite *OrderServiceSuite) TestListOrdersForHQWithViewAsParam() {
 		suite.Equal(expectedMove1.Locator, moves[0].Locator)
 		suite.Equal(expectedMove2.Locator, moves[1].Locator)
 
-		// Expect the same results with a ViewAsGBLOC that equals the user's default GBLOC
+		// Expect the same results with a ViewAsGBLOC that equals the user's default GBLOC, KKFA
 		params = services.ListOrderParams{Sort: models.StringPointer("locator"), Order: models.StringPointer("asc"), ViewAsGBLOC: models.StringPointer("KKFA")}
 		moves, _, err = orderFetcher.ListOrders(suite.AppContextWithSessionForTest(&hqSession), hqOfficeUser.ID, roles.RoleTypeTOO, &params)
 		suite.NoError(err)
@@ -2018,6 +2019,104 @@ func (suite *OrderServiceSuite) TestListAllOrderLocations() {
 
 		suite.FatalNoError(err)
 		suite.Equal(0, len(moves))
+	})
+}
+
+func (suite *OrderServiceSuite) TestListAllOrderLocationsWithViewAsGBLOCParam() {
+	suite.Run("returns a list of all order locations in the current users queue", func() {
+		orderFetcher := NewOrderFetcher()
+		officeUserFetcher := officeuserservice.NewOfficeUserFetcherPop()
+		movesContainOriginDutyLocation := func(moves models.Moves, keyword string) func() (success bool) {
+			return func() (success bool) {
+				for _, record := range moves {
+					if strings.Contains(record.Orders.OriginDutyLocation.Name, keyword) {
+						return true
+					}
+				}
+				return false
+			}
+		}
+
+		// Create SC office user with a default transportation office in the AGFM GBLOC
+		officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), []factory.Customization{
+			{
+				Model: models.TransportationOffice{
+					Name:  "Fort Punxsutawney",
+					Gbloc: "AGFM",
+				},
+			},
+		}, []roles.RoleType{roles.RoleTypeServicesCounselor})
+		// Add a secondary GBLOC to the above office user, this should default to KKFA
+		factory.BuildAlternateTransportationOfficeAssignment(suite.DB(), []factory.Customization{
+			{
+				Model: models.OfficeUser{
+					ID: officeUser.ID,
+				},
+				LinkOnly: true,
+			},
+		}, nil)
+		session := auth.Session{
+			ApplicationName: auth.OfficeApp,
+			Roles:           officeUser.User.Roles,
+			OfficeUserID:    officeUser.ID,
+			IDToken:         "fake_token",
+			AccessToken:     "fakeAccessToken",
+		}
+
+		// Create two default moves with shipment, should be in KKFA and have the status SUBMITTED
+		KKFAMove1 := factory.BuildMoveWithShipment(suite.DB(), nil, nil)
+		KKFAMove2 := factory.BuildMoveWithShipment(suite.DB(), nil, nil)
+
+		// Create third move with the same origin duty location as one of the above
+		KKFAMove3 := factory.BuildMoveWithShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.DutyLocation{
+					ID: KKFAMove2.Orders.OriginDutyLocation.ID,
+				},
+				Type:     &factory.DutyLocations.OriginDutyLocation,
+				LinkOnly: true,
+			},
+		}, nil)
+
+		officeUser, _ = officeUserFetcher.FetchOfficeUserByIDWithTransportationOfficeAssignments(suite.AppContextForTest(), officeUser.ID)
+
+		// Confirm office user has the desired transportation office assignments
+		suite.Equal("AGFM", officeUser.TransportationOffice.Gbloc)
+		if officeUser.TransportationOfficeAssignments[0].TransportationOffice.Gbloc == "AGFM" {
+			suite.Equal("AGFM", officeUser.TransportationOfficeAssignments[0].TransportationOffice.Gbloc)
+			suite.Equal(true, *officeUser.TransportationOfficeAssignments[0].PrimaryOffice)
+			suite.Equal("KKFA", officeUser.TransportationOfficeAssignments[1].TransportationOffice.Gbloc)
+			suite.Equal(false, *officeUser.TransportationOfficeAssignments[1].PrimaryOffice)
+		} else {
+			suite.Equal("KKFA", officeUser.TransportationOfficeAssignments[0].TransportationOffice.Gbloc)
+			suite.Equal(false, *officeUser.TransportationOfficeAssignments[0].PrimaryOffice)
+			suite.Equal("AGFM", officeUser.TransportationOfficeAssignments[1].TransportationOffice.Gbloc)
+			suite.Equal(true, *officeUser.TransportationOfficeAssignments[1].PrimaryOffice)
+		}
+
+		// Confirm the factory created moves have the desired GBLOCS, 3x KKFA,
+		suite.Equal("KKFA", *KKFAMove1.Orders.OriginDutyLocationGBLOC)
+		suite.Equal("KKFA", *KKFAMove2.Orders.OriginDutyLocationGBLOC)
+		suite.Equal("KKFA", *KKFAMove3.Orders.OriginDutyLocationGBLOC)
+
+		// Fetch and check secondary GBLOC
+		KKFA := "KKFA"
+		params := services.ListOrderParams{
+			ViewAsGBLOC: &KKFA,
+		}
+		KKFAmoves, err := orderFetcher.ListAllOrderLocations(suite.AppContextWithSessionForTest(&session), officeUser.ID, &params)
+
+		suite.FatalNoError(err)
+		// This value should be updated to 3 if ListAllOrderLocations is updated to return distinct locations
+		suite.Equal(3, len(KKFAmoves))
+
+		suite.Equal("KKFA", *KKFAmoves[0].Orders.OriginDutyLocationGBLOC)
+		suite.Equal("KKFA", *KKFAmoves[1].Orders.OriginDutyLocationGBLOC)
+		suite.Equal("KKFA", *KKFAmoves[2].Orders.OriginDutyLocationGBLOC)
+
+		suite.Condition(movesContainOriginDutyLocation(KKFAmoves, KKFAMove1.Orders.OriginDutyLocation.Name), "Should contain first KKFA move's origin duty location")
+		suite.Condition(movesContainOriginDutyLocation(KKFAmoves, KKFAMove2.Orders.OriginDutyLocation.Name), "Should contain second KKFA move's origin duty location")
+		suite.Condition(movesContainOriginDutyLocation(KKFAmoves, KKFAMove3.Orders.OriginDutyLocation.Name), "Should contain third KKFA move's origin duty location")
 	})
 }
 

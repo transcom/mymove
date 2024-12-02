@@ -3582,8 +3582,9 @@ paths:
           type: string
           description: >
             Used to return a queue for a GBLOC other than the default of the
-            current user. Requires the HQ role. The parameter is ignored if the
-            requesting user does not have the necessary role.
+            current user. Requires the HQ role or a secondary transportation
+            office assignment. The parameter is ignored if the requesting user
+            does not have the necessary role or assignment.
         - in: query
           name: assignedTo
           type: string
@@ -3619,6 +3620,14 @@ paths:
             Only used for Services Counseling queue. If true, show PPM moves
             origin locations that are ready for closeout. Otherwise, show all
             other moves origin locations.
+        - in: query
+          name: viewAsGBLOC
+          type: string
+          description: >-
+            Used to return an origins list for a GBLOC other than the default of
+            the current user. Requires the HQ role or a secondary transportation
+            office assignment. The parameter is ignored if the requesting user
+            does not have the necessary role or assignment.
       responses:
         '200':
           description: Successfully returned all moves matching the criteria
@@ -3790,8 +3799,9 @@ paths:
           type: string
           description: >
             Used to return a queue for a GBLOC other than the default of the
-            current user. Requires the HQ role. The parameter is ignored if the
-            requesting user does not have the necessary role.
+            current user. Requires the HQ role or a secondary transportation
+            office assignment. The parameter is ignored if the requesting user
+            does not have the necessary role or assignment.
         - in: query
           name: assignedTo
           type: string
@@ -3914,8 +3924,9 @@ paths:
           type: string
           description: >
             Used to return a queue for a GBLOC other than the default of the
-            current user. Requires the HQ role. The parameter is ignored if the
-            requesting user does not have the necessary role.
+            current user. Requires the HQ role or a secondary transportation
+            office assignment. The parameter is ignored if the requesting user
+            does not have the necessary role or assignment.
       responses:
         '200':
           description: Successfully returned all moves matching the criteria
@@ -7403,6 +7414,12 @@ definitions:
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
         format: uuid
         type: string
+      destinationGBLOC:
+        example: AGFM
+        type: string
+      destinationPostalCode:
+        example: '90210'
+        type: string
       referenceId:
         example: 1001-3456
         type: string
@@ -7559,7 +7576,7 @@ definitions:
         title: ZIP
         example: '90210'
         pattern: ^(\d{5})$
-      destinationDutyLocationPostalCode:
+      destinationPostalCode:
         format: zip
         type: string
         title: ZIP
