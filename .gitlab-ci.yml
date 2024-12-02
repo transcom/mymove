@@ -597,7 +597,3 @@ deploy_dp3_app:
         ./scripts/circleci-announce-broken-branch
       fi
   timeout: 20m
-
-
-
-
