@@ -1,6 +1,7 @@
 import { test, expect } from './servicesCounselingTestFixture';
 
 test('A service counselor can approve/reject moving expenses', async ({ page, scPage }) => {
+  test.slow();
   // Create a move with TestHarness, and then navigate to the move details page for it
   const move = await scPage.testHarness.buildApprovedMoveWithPPMMovingExpenseOffice();
   await scPage.navigateToCloseoutMove(move.locator);
@@ -94,6 +95,7 @@ test('A service counselor can approve/reject moving expenses', async ({ page, sc
 });
 
 test('Review documents page displays correct value for Total days in SIT', async ({ page, scPage }) => {
+  test.slow();
   // Create a move with TestHarness, and then navigate to the move details page for it
   const move = await scPage.testHarness.buildApprovedMoveWithPPMMovingExpenseOffice();
   await scPage.navigateToCloseoutMove(move.locator);
