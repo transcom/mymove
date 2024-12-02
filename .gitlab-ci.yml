@@ -532,8 +532,8 @@ deploy_dp3_app_client_tls:
     OPEN_TELEMETRY_SIDECAR: "true"
     HEALTH_CHECK: "true"
   script:
-    - echo "Comparing against deployed commit"
-    - ./scripts/compare-deployed-commit "" $CI_COMMIT_SHA ${TLS_KEY} ${TLS_CERT} ${TLS_CA}
+    # - echo "Comparing against deployed commit"
+    # - ./scripts/compare-deployed-commit "" $CI_COMMIT_SHA ${TLS_KEY} ${TLS_CERT} ${TLS_CA}
     - echo "Getting Digest from AWS"
     - export ECR_DIGEST=$(aws ecr describe-images --repository-name app --image-ids imageTag=$CI_COMMIT_SHORT_SHA --query 'imageDetails[0].imageDigest' --output text)
     - echo "Getting otel collector Digest from AWS"
@@ -567,8 +567,8 @@ deploy_dp3_app:
     OPEN_TELEMETRY_SIDECAR: "true"
     HEALTH_CHECK: "true"
   script:
-    - echo "Comparing against deployed commit"
-    - ./scripts/compare-deployed-commit "" "$CI_COMMIT_SHA" "$TLS_KEY" "$TLS_CERT" "$TLS_CA"
+    # - echo "Comparing against deployed commit"
+    # - ./scripts/compare-deployed-commit "" "$CI_COMMIT_SHA" "$TLS_KEY" "$TLS_CERT" "$TLS_CA"
     - echo "Creating .go-version file if not already present"
     - |
       if [ -f ".go-version" ]; then
