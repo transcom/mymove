@@ -6,4 +6,26 @@
 # owners will be requested for a review.
 # Add language specific code owners if it becomes relevant
 
+# database team
 /migrations/ @transcom/cacidatabaseteam
+/pkg/assets/sql_scripts/ @transcom/cacidatabaseteam
+
+# backend team
+/pkg/ @transcom/cacibackendteam
+/swagger-def/ @transcom/cacibackendteam
+
+# frontend team
+/src/ @transcom/cacifrontendteam
+
+## not required for team specific review as prime UI is not deployed to production app
+src/components/PrimeUI/
+src/pages/PrimeUI/
+
+
+# Require tech lead review for changes to the following files
+.golangci.yml @transcom/codeowners
+.pre-commit-config.yaml @transcom/codeowners
+.eslintrc.js @transcom/codeowners
+/eslint-plugin-ato/ @transcom/codeowners
+/pkg/ato-linter/ @transcom/codeowners
+/scripts/ @transcom/codeowners
