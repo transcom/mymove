@@ -216,7 +216,7 @@ describe('RequestedShipments', () => {
       expect(screen.getAllByTestId('checkbox').length).toEqual(5);
     });
 
-    it('uses the duty location postal code if there is no destination address', () => {
+    it('uses the duty location postal code if there is no delivery address', () => {
       render(submittedRequestedShipmentsComponent);
       const destination = shipments[0].destinationAddress;
       expect(screen.getAllByTestId('destinationAddress').at(0)).toHaveTextContent(
