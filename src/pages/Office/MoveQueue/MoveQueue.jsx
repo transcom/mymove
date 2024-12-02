@@ -143,6 +143,10 @@ export const columns = (moveLockFlag, isQueueManagementEnabled, showBranchFilter
       },
     }),
     createHeader('Origin GBLOC', 'originGBLOC', { disableSortBy: true }),
+    createHeader('Counseling office', 'counselingOffice', {
+      id: 'counselingOffice',
+      isFilterable: true,
+    }),
   ];
   if (isQueueManagementEnabled)
     cols.push(
