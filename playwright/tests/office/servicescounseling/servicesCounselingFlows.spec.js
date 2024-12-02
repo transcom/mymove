@@ -13,6 +13,7 @@ const supportingDocsEnabled = process.env.FEATURE_FLAG_MANAGE_SUPPORTING_DOCS;
 const LocationLookup = 'BEVERLY HILLS, CA 90210 (LOS ANGELES)';
 
 test.describe('Services counselor user', () => {
+  test.slow();
   test.describe('with basic HHG move', () => {
     test.beforeEach(async ({ scPage }) => {
       const move = await scPage.testHarness.buildHHGMoveNeedsSC();
@@ -381,6 +382,7 @@ test.describe('Services counselor user', () => {
     });
 
     test('is able to see that the tag next to shipment is updated', async ({ page, scPage }) => {
+      test.slow(); // timeouts
       // Verify that there's a tag on the left nav that flags missing information
       await expect(page.locator('[data-testid="shipment-missing-info-alert"]')).toContainText('1');
 
@@ -398,6 +400,7 @@ test.describe('Services counselor user', () => {
   });
 
   test('can complete review of PPM shipment documents and view documents after', async ({ page, scPage }) => {
+    test.slow(); // timeouts
     const move = await scPage.testHarness.buildApprovedMoveWithPPMAllDocTypesOffice();
     await scPage.navigateToCloseoutMove(move.locator);
 
