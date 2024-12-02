@@ -1045,3 +1045,4 @@
 20241120221040_change_port_location_fk_to_correct_table.up.sql
 20241122155416_total_dependents_calculation.up.sql
 20241122220314_create_port_and_port_location_test_data.up.sql
+20241202163059_create_test_sequence_dev_env.up.sql
