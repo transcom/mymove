@@ -1,4 +1,4 @@
-description: A port
+description: A port that is used to move an international shipment.
 type: object
 properties:
   id:
@@ -19,17 +19,17 @@ properties:
   portName:
     type: string
     description: 'Name of the port'
-    example: 'Anchorage'
+    example: 'PORTLAND INTL'
   city:
     type: string
-    example: 'Anchorage'
+    example: 'PORTLAND'
   county:
     type: string
-    example: 'Anchorage'
+    example: 'MULTNOMAH'
   state:
     type: string
     description: 'US state'
-    example: 'AK'
+    example: 'OR'
     enum:
       - AL
       - AK
