@@ -75,6 +75,11 @@ func configureAPI(api *ghcoperations.MymoveAPI) http.Handler {
 			return middleware.NotImplemented("operation order.AcknowledgeExcessWeightRisk has not yet been implemented")
 		})
 	}
+	if api.EvaluationReportsAddAppealToSeriousIncidentHandler == nil {
+		api.EvaluationReportsAddAppealToSeriousIncidentHandler = evaluation_reports.AddAppealToSeriousIncidentHandlerFunc(func(params evaluation_reports.AddAppealToSeriousIncidentParams) middleware.Responder {
+			return middleware.NotImplemented("operation evaluation_reports.AddAppealToSeriousIncident has not yet been implemented")
+		})
+	}
 	if api.EvaluationReportsAddAppealToViolationHandler == nil {
 		api.EvaluationReportsAddAppealToViolationHandler = evaluation_reports.AddAppealToViolationHandlerFunc(func(params evaluation_reports.AddAppealToViolationParams) middleware.Responder {
 			return middleware.NotImplemented("operation evaluation_reports.AddAppealToViolation has not yet been implemented")
@@ -103,6 +108,11 @@ func configureAPI(api *ghcoperations.MymoveAPI) http.Handler {
 	if api.PaymentRequestsBulkDownloadHandler == nil {
 		api.PaymentRequestsBulkDownloadHandler = payment_requests.BulkDownloadHandlerFunc(func(params payment_requests.BulkDownloadParams) middleware.Responder {
 			return middleware.NotImplemented("operation payment_requests.BulkDownload has not yet been implemented")
+		})
+	}
+	if api.MoveCheckForLockedMovesAndUnlockHandler == nil {
+		api.MoveCheckForLockedMovesAndUnlockHandler = move.CheckForLockedMovesAndUnlockHandlerFunc(func(params move.CheckForLockedMovesAndUnlockParams) middleware.Responder {
+			return middleware.NotImplemented("operation move.CheckForLockedMovesAndUnlock has not yet been implemented")
 		})
 	}
 	if api.OrderCounselingUpdateAllowanceHandler == nil {

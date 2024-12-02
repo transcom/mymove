@@ -560,6 +560,44 @@ func MTOServiceItemModel(mtoServiceItem primemessages.MTOServiceItem) (*models.M
 				Width:  unit.ThousandthInches(*domesticCrating.Crate.Width),
 			},
 		}
+	case primemessages.MTOServiceItemModelTypeMTOServiceItemInternationalCrating:
+		internationalCrating := mtoServiceItem.(*primemessages.MTOServiceItemInternationalCrating)
+
+		// additional validation for this specific service item type
+		verrs := validateInternationalCrating(*internationalCrating)
+		if verrs.HasAny() {
+			return nil, verrs
+		}
+
+		// have to get code from payload
+		model.ReService.Code = models.ReServiceCode(*internationalCrating.ReServiceCode)
+		model.Description = internationalCrating.Description
+		model.Reason = internationalCrating.Reason
+		model.StandaloneCrate = internationalCrating.StandaloneCrate
+		model.ExternalCrate = internationalCrating.ExternalCrate
+
+		if model.ReService.Code == models.ReServiceCodeICRT {
+			if internationalCrating.StandaloneCrate == nil {
+				model.StandaloneCrate = models.BoolPointer(false)
+			}
+			if internationalCrating.ExternalCrate == nil {
+				model.ExternalCrate = models.BoolPointer(false)
+			}
+		}
+		model.Dimensions = models.MTOServiceItemDimensions{
+			models.MTOServiceItemDimension{
+				Type:   models.DimensionTypeItem,
+				Length: unit.ThousandthInches(*internationalCrating.Item.Length),
+				Height: unit.ThousandthInches(*internationalCrating.Item.Height),
+				Width:  unit.ThousandthInches(*internationalCrating.Item.Width),
+			},
+			models.MTOServiceItemDimension{
+				Type:   models.DimensionTypeCrate,
+				Length: unit.ThousandthInches(*internationalCrating.Crate.Length),
+				Height: unit.ThousandthInches(*internationalCrating.Crate.Height),
+				Width:  unit.ThousandthInches(*internationalCrating.Crate.Width),
+			},
+		}
 	default:
 		// assume basic service item, take in provided re service code
 		basic := mtoServiceItem.(*primemessages.MTOServiceItemBasic)
@@ -720,6 +758,18 @@ func SITExtensionModel(sitExtension *primemessages.CreateSITExtension, mtoShipme
 
 // validateDomesticCrating validates this mto service item domestic crating
 func validateDomesticCrating(m primemessages.MTOServiceItemDomesticCrating) *validate.Errors {
+	return validate.Validate(
+		&models.ItemCanFitInsideCrate{
+			Name:         "Item",
+			NameCompared: "Crate",
+			Item:         &m.Item.MTOServiceItemDimension,
+			Crate:        &m.Crate.MTOServiceItemDimension,
+		},
+	)
+}
+
+// validateInternationalCrating validates this mto service item international crating
+func validateInternationalCrating(m primemessages.MTOServiceItemInternationalCrating) *validate.Errors {
 	return validate.Validate(
 		&models.ItemCanFitInsideCrate{
 			Name:         "Item",

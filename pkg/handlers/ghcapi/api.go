@@ -188,6 +188,11 @@ func NewGhcAPIHandler(handlerConfig handlers.HandlerConfig) *ghcops.MymoveAPI {
 		ReportViolationsAddAppeal: reportviolation.NewReportViolationsAddAppeal(),
 	}
 
+	ghcAPI.EvaluationReportsAddAppealToSeriousIncidentHandler = AddAppealToSeriousIncidentHandler{
+		HandlerConfig:            handlerConfig,
+		SeriousIncidentAddAppeal: evaluationreport.NewEvaluationReportSeriousIncidentAddAppeal(),
+	}
+
 	ghcAPI.MtoServiceItemGetMTOServiceItemHandler = GetMTOServiceItemHandler{
 		HandlerConfig:         handlerConfig,
 		mtoServiceItemFetcher: mtoserviceitem.NewMTOServiceItemFetcher(),
@@ -466,6 +471,7 @@ func NewGhcAPIHandler(handlerConfig handlers.HandlerConfig) *ghcops.MymoveAPI {
 	ghcAPI.MoveSearchMovesHandler = SearchMovesHandler{
 		HandlerConfig: handlerConfig,
 		MoveSearcher:  move.NewMoveSearcher(),
+		MoveUnlocker:  movelocker.NewMoveUnlocker(),
 	}
 
 	ghcAPI.MtoShipmentUpdateMTOShipmentHandler = UpdateShipmentHandler{
@@ -694,6 +700,11 @@ func NewGhcAPIHandler(handlerConfig handlers.HandlerConfig) *ghcops.MymoveAPI {
 	ghcAPI.MoveDeleteAssignedOfficeUserHandler = DeleteAssignedOfficeUserHandler{
 		handlerConfig,
 		assignedOfficeUserUpdater,
+	}
+
+	ghcAPI.MoveCheckForLockedMovesAndUnlockHandler = CheckForLockedMovesAndUnlockHandler{
+		HandlerConfig: handlerConfig,
+		MoveUnlocker:  movelocker.NewMoveUnlocker(),
 	}
 
 	return ghcAPI

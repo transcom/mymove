@@ -49,7 +49,7 @@ describe('Move details tag rendering', () => {
     expect(within(moveDetailsTab).getByTestId('tag')).toHaveTextContent('5');
   });
 
-  it('should render the move details tab container with a tag that shows the count of items that need attention when there are approved shipments with a destination address update requiring TXO review', () => {
+  it('should render the move details tab container with a tag that shows the count of items that need attention when there are approved shipments with a delivery address update requiring TXO review', () => {
     const moveDetailsOneShipment = {
       ...basicNavProps,
       shipmentsWithDeliveryAddressUpdateRequestedCount: 1,

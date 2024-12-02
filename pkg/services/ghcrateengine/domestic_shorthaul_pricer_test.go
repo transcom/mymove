@@ -318,7 +318,7 @@ func (suite *GHCRateEngineServiceSuite) setUpDomesticShorthaulData() {
 			},
 		})
 
-	domesticShorthaulService := factory.BuildReService(suite.DB(), []factory.Customization{
+	domesticShorthaulService := factory.FetchReService(suite.DB(), []factory.Customization{
 		{
 			Model: models.ReService{
 				Code: models.ReServiceCodeDSH,
