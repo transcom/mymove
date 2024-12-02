@@ -876,7 +876,12 @@ func MapPPMShipmentEstimatedFields(appCtx appcontext.AppContext, ppmShipment mod
 	ppmShipment.Shipment.RequestedPickupDate = &ppmShipment.ExpectedDepartureDate
 	ppmShipment.Shipment.PickupAddress = &models.Address{PostalCode: ppmShipment.PickupAddress.PostalCode}
 	ppmShipment.Shipment.DestinationAddress = &models.Address{PostalCode: ppmShipment.DestinationAddress.PostalCode}
-	ppmShipment.Shipment.PrimeActualWeight = (*unit.Pound)(orders.Entitlement.DBAuthorizedWeight)
+	// checking for status because PPM closeout uses the entitlement weight and the estimated incentive uses the estimated weight
+	if ppmShipment.Status == models.PPMShipmentStatusDraft || ppmShipment.Status == models.PPMShipmentStatusSubmitted {
+		ppmShipment.Shipment.PrimeActualWeight = ppmShipment.EstimatedWeight
+	} else {
+		ppmShipment.Shipment.PrimeActualWeight = (*unit.Pound)(orders.Entitlement.DBAuthorizedWeight)
+	}
 
 	return ppmShipment.Shipment, nil
 }
