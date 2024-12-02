@@ -19,6 +19,7 @@ type GetMovesQueueURL struct {
 	AppearedInTooAt         *strfmt.DateTime
 	AssignedTo              *string
 	Branch                  *string
+	CounselingOffice        *string
 	CustomerName            *string
 	DestinationDutyLocation *string
 	DodID                   *string
@@ -90,6 +91,14 @@ func (o *GetMovesQueueURL) Build() (*url.URL, error) {
 	}
 	if branchQ != "" {
 		qs.Set("branch", branchQ)
+	}
+
+	var counselingOfficeQ string
+	if o.CounselingOffice != nil {
+		counselingOfficeQ = *o.CounselingOffice
+	}
+	if counselingOfficeQ != "" {
+		qs.Set("counselingOffice", counselingOfficeQ)
 	}
 
 	var customerNameQ string
