@@ -3002,12 +3002,12 @@ func init() {
       }
     },
     "Port": {
-      "description": "A port",
+      "description": "A port that is used to move an international shipment.",
       "type": "object",
       "properties": {
         "city": {
           "type": "string",
-          "example": "Anchorage"
+          "example": "PORTLAND"
         },
         "country": {
           "description": "Two-letter country code",
@@ -3017,7 +3017,7 @@ func init() {
         },
         "county": {
           "type": "string",
-          "example": "Anchorage"
+          "example": "MULTNOMAH"
         },
         "id": {
           "type": "string",
@@ -3032,7 +3032,7 @@ func init() {
         "portName": {
           "description": "Name of the port",
           "type": "string",
-          "example": "Anchorage"
+          "example": "PORTLAND INTL"
         },
         "portType": {
           "description": "Port type A (Air), B(Border Crossing), S (Sea)",
@@ -3099,7 +3099,7 @@ func init() {
             "WV",
             "WY"
           ],
-          "example": "AK"
+          "example": "OR"
         },
         "zip": {
           "type": "string",
@@ -7286,12 +7286,12 @@ func init() {
       }
     },
     "Port": {
-      "description": "A port",
+      "description": "A port that is used to move an international shipment.",
       "type": "object",
       "properties": {
         "city": {
           "type": "string",
-          "example": "Anchorage"
+          "example": "PORTLAND"
         },
         "country": {
           "description": "Two-letter country code",
@@ -7301,7 +7301,7 @@ func init() {
         },
         "county": {
           "type": "string",
-          "example": "Anchorage"
+          "example": "MULTNOMAH"
         },
         "id": {
           "type": "string",
@@ -7316,7 +7316,7 @@ func init() {
         "portName": {
           "description": "Name of the port",
           "type": "string",
-          "example": "Anchorage"
+          "example": "PORTLAND INTL"
         },
         "portType": {
           "description": "Port type A (Air), B(Border Crossing), S (Sea)",
@@ -7383,7 +7383,7 @@ func init() {
             "WV",
             "WY"
           ],
-          "example": "AK"
+          "example": "OR"
         },
         "zip": {
           "type": "string",

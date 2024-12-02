@@ -15,13 +15,13 @@ import (
 	"github.com/go-openapi/validate"
 )
 
-// Port A port
+// Port A port that is used to move an international shipment.
 //
 // swagger:model Port
 type Port struct {
 
 	// city
-	// Example: Anchorage
+	// Example: PORTLAND
 	City string `json:"city,omitempty"`
 
 	// Two-letter country code
@@ -30,7 +30,7 @@ type Port struct {
 	Country string `json:"country,omitempty"`
 
 	// county
-	// Example: Anchorage
+	// Example: MULTNOMAH
 	County string `json:"county,omitempty"`
 
 	// id
@@ -43,7 +43,7 @@ type Port struct {
 	PortCode string `json:"portCode,omitempty"`
 
 	// Name of the port
-	// Example: Anchorage
+	// Example: PORTLAND INTL
 	PortName string `json:"portName,omitempty"`
 
 	// Port type A (Air), B(Border Crossing), S (Sea)
@@ -51,7 +51,7 @@ type Port struct {
 	PortType string `json:"portType,omitempty"`
 
 	// US state
-	// Example: AK
+	// Example: OR
 	// Enum: [AL AK AR AZ CA CO CT DC DE FL GA HI IA ID IL IN KS KY LA MA MD ME MI MN MO MS MT NC ND NE NH NJ NM NV NY OH OK OR PA RI SC SD TN TX UT VA VT WA WI WV WY]
 	State string `json:"state,omitempty"`
 
