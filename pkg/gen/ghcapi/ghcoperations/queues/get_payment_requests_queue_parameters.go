@@ -58,7 +58,7 @@ type GetPaymentRequestsQueueParams struct {
 	/*
 	  In: query
 	*/
-	DodID *string
+	Edipi *string
 	/*
 	  In: query
 	*/
@@ -143,8 +143,8 @@ func (o *GetPaymentRequestsQueueParams) BindRequest(r *http.Request, route *midd
 		res = append(res, err)
 	}
 
-	qDodID, qhkDodID, _ := qs.GetOK("dodID")
-	if err := o.bindDodID(qDodID, qhkDodID, route.Formats); err != nil {
+	qEdipi, qhkEdipi, _ := qs.GetOK("edipi")
+	if err := o.bindEdipi(qEdipi, qhkEdipi, route.Formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -298,8 +298,8 @@ func (o *GetPaymentRequestsQueueParams) bindDestinationDutyLocation(rawData []st
 	return nil
 }
 
-// bindDodID binds and validates parameter DodID from query.
-func (o *GetPaymentRequestsQueueParams) bindDodID(rawData []string, hasKey bool, formats strfmt.Registry) error {
+// bindEdipi binds and validates parameter Edipi from query.
+func (o *GetPaymentRequestsQueueParams) bindEdipi(rawData []string, hasKey bool, formats strfmt.Registry) error {
 	var raw string
 	if len(rawData) > 0 {
 		raw = rawData[len(rawData)-1]
@@ -311,7 +311,7 @@ func (o *GetPaymentRequestsQueueParams) bindDodID(rawData []string, hasKey bool,
 	if raw == "" { // empty values pass all other validations
 		return nil
 	}
-	o.DodID = &raw
+	o.Edipi = &raw
 
 	return nil
 }

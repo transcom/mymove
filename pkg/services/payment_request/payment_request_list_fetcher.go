@@ -21,7 +21,7 @@ type paymentRequestListFetcher struct {
 
 var parameters = map[string]string{
 	"customerName":       "(service_members.last_name || ' ' || service_members.first_name)",
-	"dodID":              "service_members.edipi",
+	"edipi":              "service_members.edipi",
 	"emplid":             "service_members.emplid",
 	"submittedAt":        "payment_requests.created_at",
 	"branch":             "service_members.affiliation",
@@ -97,7 +97,7 @@ func (f *paymentRequestListFetcher) FetchPaymentRequestList(appCtx appcontext.Ap
 		gblocQuery = shipmentGBLOCFilter(&gbloc)
 	}
 	locatorQuery := locatorFilter(params.Locator)
-	dodIDQuery := dodIDFilter(params.DodID)
+	dodIDQuery := dodIDFilter(params.Edipi)
 	emplidQuery := emplidFilter(params.Emplid)
 	customerNameQuery := customerNameFilter(params.CustomerName)
 	dutyLocationQuery := destinationDutyLocationFilter(params.DestinationDutyLocation)
