@@ -13,6 +13,8 @@
 # backend team
 /pkg/ @transcom/cacibackendteam
 /swagger-def/ @transcom/cacibackendteam
+*.go @transcom/cacibackendteam
+
 
 # frontend team
 /src/ @transcom/cacifrontendteam
@@ -31,3 +33,4 @@ src/pages/PrimeUI/
 /pkg/ato-linter/ @transcom/codeowners
 /scripts/ @transcom/codeowners
 /.circleci/config.yml @transcom/codeowners
+/config/ @transcom/codeowners
