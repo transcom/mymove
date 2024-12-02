@@ -142,6 +142,9 @@ func (h CreateMTOShipmentHandler) Handle(params mtoshipmentops.CreateMTOShipment
 				case apperror.NotFoundError:
 					return mtoshipmentops.NewCreateMTOShipmentNotFound().WithPayload(
 						payloads.ClientError(handlers.NotFoundMessage, err.Error(), h.GetTraceIDFromRequest(params.HTTPRequest))), err
+				case apperror.EventError:
+					return mtoshipmentops.NewUpdateMTOShipmentBadRequest().WithPayload(
+						payloads.ClientError(handlers.InternalServerErrMessage, err.Error(), h.GetTraceIDFromRequest(params.HTTPRequest))), err
 				case apperror.InvalidInputError:
 					return mtoshipmentops.NewCreateMTOShipmentUnprocessableEntity().WithPayload(
 						payloads.ValidationError(err.Error(), h.GetTraceIDFromRequest(params.HTTPRequest), e.ValidationErrors)), err
@@ -209,6 +212,9 @@ func (h UpdateMTOShipmentHandler) Handle(params mtoshipmentops.UpdateMTOShipment
 				case apperror.NotFoundError:
 					return mtoshipmentops.NewUpdateMTOShipmentNotFound().WithPayload(
 						payloads.ClientError(handlers.NotFoundMessage, err.Error(), h.GetTraceIDFromRequest(params.HTTPRequest))), err
+				case apperror.EventError:
+					return mtoshipmentops.NewUpdateMTOShipmentBadRequest().WithPayload(
+						payloads.ClientError(handlers.InternalServerErrMessage, err.Error(), h.GetTraceIDFromRequest(params.HTTPRequest))), err
 				case apperror.InvalidInputError:
 					payload := payloads.ValidationError(err.Error(), h.GetTraceIDFromRequest(params.HTTPRequest), e.ValidationErrors)
 					return mtoshipmentops.NewUpdateMTOShipmentUnprocessableEntity().WithPayload(payload), err

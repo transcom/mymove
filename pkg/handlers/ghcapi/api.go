@@ -473,6 +473,7 @@ func NewGhcAPIHandler(handlerConfig handlers.HandlerConfig) *ghcops.MymoveAPI {
 	ghcAPI.MoveSearchMovesHandler = SearchMovesHandler{
 		HandlerConfig: handlerConfig,
 		MoveSearcher:  move.NewMoveSearcher(),
+		MoveUnlocker:  movelocker.NewMoveUnlocker(),
 	}
 
 	ghcAPI.MtoShipmentUpdateMTOShipmentHandler = UpdateShipmentHandler{
@@ -701,6 +702,11 @@ func NewGhcAPIHandler(handlerConfig handlers.HandlerConfig) *ghcops.MymoveAPI {
 	ghcAPI.MoveDeleteAssignedOfficeUserHandler = DeleteAssignedOfficeUserHandler{
 		handlerConfig,
 		assignedOfficeUserUpdater,
+	}
+
+	ghcAPI.MoveCheckForLockedMovesAndUnlockHandler = CheckForLockedMovesAndUnlockHandler{
+		HandlerConfig: handlerConfig,
+		MoveUnlocker:  movelocker.NewMoveUnlocker(),
 	}
 
 	return ghcAPI
