@@ -3670,7 +3670,7 @@ paths:
         - in: query
           name: sort
           type: string
-          enum: [customerName, locator, submittedAt, branch, status, dodID, emplid, age, originDutyLocation, assignedTo, counselingOffice]
+          enum: [customerName, locator, submittedAt, branch, status, edipi, emplid, age, originDutyLocation, assignedTo, counselingOffice]
           description: field that results should be sorted by
         - in: query
           name: order
