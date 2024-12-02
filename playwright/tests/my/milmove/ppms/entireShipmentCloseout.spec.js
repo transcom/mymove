@@ -11,9 +11,10 @@ const multiMoveEnabled = process.env.FEATURE_FLAG_MULTI_MOVE;
 
 test.describe('Entire PPM closeout flow', () => {
   test.skip(multiMoveEnabled === 'true', 'Skip if MultiMove workflow is enabled.');
-  test.slow();
+
   forEachViewport(async () => {
     test(`flows through happy path for existing shipment`, async ({ customerPpmPage }) => {
+      test.slow();
       const move = await customerPpmPage.testHarness.buildApprovedMoveWithPPM();
 
       await customerPpmPage.signInForPPMWithMove(move);
@@ -33,6 +34,7 @@ test.describe('Entire PPM closeout flow', () => {
     });
 
     test(`happy path with edits and backs`, async ({ customerPpmPage }) => {
+      test.slow();
       const move = await customerPpmPage.testHarness.buildMoveWithPPMShipmentReadyForFinalCloseout();
 
       await customerPpmPage.signInForPPMWithMove(move);
@@ -55,6 +57,7 @@ test.describe('Entire PPM closeout flow', () => {
     });
 
     test(`delete complete and incomplete line items`, async ({ customerPpmPage }) => {
+      test.slow();
       const move = await customerPpmPage.testHarness.buildMoveWithPPMShipmentReadyForFinalCloseout();
 
       await customerPpmPage.signInForPPMWithMove(move);
@@ -95,6 +98,7 @@ test.describe('Entire PPM closeout flow', () => {
     });
 
     test(`deleting weight tickets updates final incentive`, async ({ customerPpmPage }) => {
+      test.slow();
       const move = await customerPpmPage.testHarness.buildMoveWithPPMShipmentReadyForFinalCloseout();
 
       await customerPpmPage.signInForPPMWithMove(move);
@@ -127,9 +131,10 @@ test.describe('Entire PPM closeout flow', () => {
 
 test.describe('(MultiMove) Entire PPM closeout flow (MultiMove Workflow)', () => {
   test.skip(multiMoveEnabled === 'false', 'Skip if MultiMove workflow is not enabled.');
-  test.slow();
+
   forEachViewport(async () => {
     test(`flows through happy path for existing shipment`, async ({ customerPpmPage }) => {
+      test.slow();
       const move = await customerPpmPage.testHarness.buildApprovedMoveWithPPM();
 
       await customerPpmPage.signInForPPMWithMove(move);
@@ -150,6 +155,7 @@ test.describe('(MultiMove) Entire PPM closeout flow (MultiMove Workflow)', () =>
     });
 
     test(`happy path with edits and backs`, async ({ customerPpmPage }) => {
+      test.slow();
       const move = await customerPpmPage.testHarness.buildMoveWithPPMShipmentReadyForFinalCloseout();
 
       await customerPpmPage.signInForPPMWithMove(move);
@@ -176,6 +182,7 @@ test.describe('(MultiMove) Entire PPM closeout flow (MultiMove Workflow)', () =>
     });
 
     test(`delete complete and incomplete line items`, async ({ customerPpmPage }) => {
+      test.slow();
       const move = await customerPpmPage.testHarness.buildMoveWithPPMShipmentReadyForFinalCloseout();
 
       await customerPpmPage.signInForPPMWithMove(move);
@@ -223,6 +230,7 @@ test.describe('(MultiMove) Entire PPM closeout flow (MultiMove Workflow)', () =>
     });
 
     test(`deleting weight tickets updates final incentive`, async ({ customerPpmPage }) => {
+      test.slow();
       const move = await customerPpmPage.testHarness.buildMoveWithPPMShipmentReadyForFinalCloseout();
 
       await customerPpmPage.signInForPPMWithMove(move);
