@@ -20,6 +20,7 @@
 /src/ @transcom/cacifrontendteam
 /playwright/tests/ @transcom/cacifrontendteam
 
+
 ## not required for team specific review as prime UI is not deployed to production app
 src/components/PrimeUI/
 src/pages/PrimeUI/
@@ -34,3 +35,7 @@ src/pages/PrimeUI/
 /scripts/ @transcom/codeowners
 /.circleci/config.yml @transcom/codeowners
 /config/ @transcom/codeowners
+Dockerfile* @transcom/codeowners
+Brewfile* @transcom/codeowners
+/Makefile @transcom/codeowners
+package.json @transcom/codeowners
