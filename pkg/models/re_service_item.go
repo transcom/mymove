@@ -13,6 +13,7 @@ type ReServiceItem struct {
 	ShipmentType   MTOShipmentType `db:"shipment_type" rw:"r"`
 	MarketCode     MarketCode      `db:"market_code" rw:"r"`
 	IsAutoApproved bool            `db:"is_auto_approved" rw:"r"`
+	Sort           *string         `db:"sort" rw:"r"`
 	CreatedAt      time.Time       `db:"created_at" rw:"r"`
 	UpdatedAt      time.Time       `db:"updated_at" rw:"r"`
 }
