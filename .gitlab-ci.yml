@@ -478,14 +478,7 @@ deploy_dp3_migrations:
     name: $DOCKER_APP_IMAGE
     entrypoint: [""]
   needs:
-    - pre_deps_golang
-    #- pre_test
-    - push_app_dp3
-    - push_otel_collector_image_dp3
-    - compile_app_server
-    - compile_app_client
-    - push_tasks_dp3
-    - push_migrations_dp3
+    - deploy_dp3_app_client_tls
   script:
     - echo "Getting Digest from AWS"
     - export ECR_DIGEST=$(aws ecr describe-images --repository-name app-migrations --image-ids imageTag=$CI_COMMIT_SHORT_SHA --query 'imageDetails[0].imageDigest' --output text)
@@ -527,7 +520,7 @@ deploy_dp3_app_client_tls:
     name: $DOCKER_APP_IMAGE
     entrypoint: [""]
   needs:
-    - deploy_dp3_migrations
+    - build_ap
   variables:
     OPEN_TELEMETRY_SIDECAR: "true"
     HEALTH_CHECK: "true"
@@ -561,7 +554,7 @@ deploy_dp3_app:
     name: $DOCKER_APP_IMAGE
     entrypoint: [""]
   needs:
-    - deploy_dp3_migrations
+    - build_ap
   variables:
     APP_ENVIRONMENT: "demo"
     OPEN_TELEMETRY_SIDECAR: "true"
@@ -569,6 +562,8 @@ deploy_dp3_app:
   script:
     # - echo "Comparing against deployed commit"
     # - ./scripts/compare-deployed-commit "" "$CI_COMMIT_SHA" "$TLS_KEY" "$TLS_CERT" "$TLS_CA"
+    - ls bin
+    - pwd
     - echo "Creating .go-version file if not already present"
     - |
       if [ -f ".go-version" ]; then
