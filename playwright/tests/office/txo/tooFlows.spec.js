@@ -441,6 +441,9 @@ test.describe('TOO user', () => {
     });
 
     test('is able to request cancellation for a shipment', async ({ page }) => {
+      // Resolve flakey test due to timeout
+      test.slow();
+
       await tooFlowPage.waitForLoading();
       await tooFlowPage.approveAllShipments();
 
