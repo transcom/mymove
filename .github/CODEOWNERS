@@ -16,6 +16,7 @@
 
 # frontend team
 /src/ @transcom/cacifrontendteam
+/playwright/tests/ @transcom/cacifrontendteam
 
 ## not required for team specific review as prime UI is not deployed to production app
 src/components/PrimeUI/
