@@ -68,6 +68,7 @@ import {
 import withRouter from 'utils/routing';
 import { ADVANCE_STATUSES } from 'constants/ppms';
 import { isBooleanFlagEnabled } from 'utils/featureFlags';
+import ToolTip from 'shared/ToolTip/ToolTip';
 
 const Description = ({ className, children, dataTestId }) => (
   <p className={`${styles.description} ${className}`} data-testid={dataTestId}>
@@ -99,19 +100,11 @@ const MoveHome = ({ serviceMemberMoves, isProfileComplete, serviceMember, signed
   const [showDeleteSuccessAlert, setShowDeleteSuccessAlert] = useState(false);
   const [showDeleteErrorAlert, setShowDeleteErrorAlert] = useState(false);
   const [showErrorAlert, setShowErrorAlert] = useState(false);
-  const [isUBEnabled, setIsUBEnabled] = useState(false);
   const [isManageSupportingDocsEnabled, setIsManageSupportingDocsEnabled] = useState(false);
 
   useEffect(() => {
     const fetchData = async () => {
       setIsManageSupportingDocsEnabled(await isBooleanFlagEnabled('manage_supporting_docs'));
-    };
-    fetchData();
-  }, []);
-
-  useEffect(() => {
-    const fetchData = async () => {
-      setIsUBEnabled(await isBooleanFlagEnabled('unaccompanied_baggage'));
     };
     fetchData();
   }, []);
@@ -444,10 +437,17 @@ const MoveHome = ({ serviceMemberMoves, isProfileComplete, serviceMember, signed
             <dt>Weight allowance</dt>
             <dd>{formatWeight(orders.authorizedWeight)}</dd>
           </div>
-          {orders?.entitlement?.ub_allowance > 0 && isUBEnabled && (
+          {orders?.entitlement?.ub_allowance > 0 && (
             <div className={styles.subheaderSubsection}>
               <dt>UB allowance</dt>
-              <dd>{formatUBAllowanceWeight(orders?.entitlement?.ub_allowance)}</dd>
+              <dd>
+                {formatUBAllowanceWeight(orders?.entitlement?.ub_allowance)}{' '}
+                <ToolTip
+                  color="#8cafea"
+                  text="The weight of your UB shipment is also part of your overall authorized weight allowance."
+                  data-testid="ubAllowanceToolTip"
+                />
+              </dd>
             </div>
           )}
           {move.moveCode && (

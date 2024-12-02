@@ -879,7 +879,7 @@ const ShipmentForm = (props) => {
                 {isUB ? (
                   <p data-testid="ubWeightAllowance">
                     <strong>UB Weight allowance: </strong>
-                    {formatWeight(serviceMember.weightAllotment.ubAllowance)}
+                    {formatWeight(serviceMember.weightAllotment.unaccompaniedBaggageAllowance)}
                   </p>
                 ) : (
                   <p data-testid="weightAllowance">
@@ -890,7 +890,7 @@ const ShipmentForm = (props) => {
               </SectionWrapper>
 
               <Form className={formStyles.form}>
-                {isTOO && !isHHG && !isPPM && !isBoat && !isMobileHome && <ShipmentVendor />}
+                {isTOO && !isHHG && !isPPM && !isBoat && !isMobileHome && !isUB && <ShipmentVendor />}
 
                 {isNTSR && <ShipmentWeightInput userRole={userRole} />}
 

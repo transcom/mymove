@@ -91,7 +91,7 @@ func (f *pptasReportListFetcher) BuildPPTASReportsFromMoves(appCtx appcontext.Ap
 		report.Address = orders.ServiceMember.ResidentialAddress
 
 		if orders.Grade != nil && orders.Entitlement != nil {
-			orders.Entitlement.SetWeightAllotment(string(*orders.Grade))
+			orders.Entitlement.SetWeightAllotment(string(*orders.Grade), orders.OrdersType)
 		}
 
 		weightAllotment := orders.Entitlement.WeightAllotment()

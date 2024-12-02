@@ -2563,7 +2563,7 @@ func init() {
     },
     "/moves/{moveID}/financial-review-flag": {
       "post": {
-        "description": "This sets a flag which indicates that the move should be reviewed by a fincancial office. For example, if the origin or destination address of a shipment is far from the duty location and may incur excess costs to the customer.",
+        "description": "This sets a flag which indicates that the move should be reviewed by a fincancial office. For example, if the origin or delivery address of a shipment is far from the duty location and may incur excess costs to the customer.",
         "consumes": [
           "application/json"
         ],
@@ -4466,7 +4466,7 @@ func init() {
           },
           {
             "type": "string",
-            "description": "Used to return a queue for a GBLOC other than the default of the current user. Requires the HQ role. The parameter is ignored if the requesting user does not have the necessary role.\n",
+            "description": "Used to return a queue for a GBLOC other than the default of the current user. Requires the HQ role or a secondary transportation office assignment. The parameter is ignored if the requesting user does not have the necessary role or assignment.\n",
             "name": "viewAsGBLOC",
             "in": "query"
           },
@@ -4509,6 +4509,12 @@ func init() {
             "type": "boolean",
             "description": "Only used for Services Counseling queue. If true, show PPM moves origin locations that are ready for closeout. Otherwise, show all other moves origin locations.",
             "name": "needsPPMCloseout",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "Used to return an origins list for a GBLOC other than the default of the current user. Requires the HQ role or a secondary transportation office assignment. The parameter is ignored if the requesting user does not have the necessary role or assignment.",
+            "name": "viewAsGBLOC",
             "in": "query"
           }
         ],
@@ -4657,7 +4663,7 @@ func init() {
           },
           {
             "type": "string",
-            "description": "Used to return a queue for a GBLOC other than the default of the current user. Requires the HQ role. The parameter is ignored if the requesting user does not have the necessary role.\n",
+            "description": "Used to return a queue for a GBLOC other than the default of the current user. Requires the HQ role or a secondary transportation office assignment. The parameter is ignored if the requesting user does not have the necessary role or assignment.\n",
             "name": "viewAsGBLOC",
             "in": "query"
           },
@@ -4823,7 +4829,7 @@ func init() {
           },
           {
             "type": "string",
-            "description": "Used to return a queue for a GBLOC other than the default of the current user. Requires the HQ role. The parameter is ignored if the requesting user does not have the necessary role.\n",
+            "description": "Used to return a queue for a GBLOC other than the default of the current user. Requires the HQ role or a secondary transportation office assignment. The parameter is ignored if the requesting user does not have the necessary role or assignment.\n",
             "name": "viewAsGBLOC",
             "in": "query"
           }
@@ -6637,9 +6643,6 @@ func init() {
       "properties": {
         "firstName": {
           "type": "string"
-        },
-        "hasSafetyPrivilege": {
-          "type": "boolean"
         },
         "lastName": {
           "type": "string"
@@ -8898,6 +8901,14 @@ func init() {
           "format": "date-time",
           "readOnly": true
         },
+        "destinationGBLOC": {
+          "type": "string",
+          "example": "AGFM"
+        },
+        "destinationPostalCode": {
+          "type": "string",
+          "example": "90210"
+        },
         "eTag": {
           "type": "string",
           "readOnly": true
@@ -9159,6 +9170,16 @@ func init() {
           "type": "integer",
           "format": "cents",
           "x-nullable": true
+        },
+        "market": {
+          "description": "To identify whether the service was provided within (CONUS) or (OCONUS)",
+          "type": "string",
+          "enum": [
+            "CONUS",
+            "OCONUS"
+          ],
+          "x-nullable": true,
+          "example": "CONUS"
         },
         "moveTaskOrderID": {
           "type": "string",
@@ -9465,7 +9486,7 @@ func init() {
     "MTOShipment": {
       "properties": {
         "actualDeliveryDate": {
-          "description": "The actual date that the shipment was delivered to the destination address by the Prime",
+          "description": "The actual date that the shipment was delivered to the delivery address by the Prime",
           "type": "string",
           "format": "date",
           "x-nullable": true
@@ -9933,7 +9954,7 @@ func init() {
           "type": "string",
           "x-nullable": true,
           "readOnly": true,
-          "example": "Destination address is too far from duty location"
+          "example": "Delivery Address is too far from duty location"
         },
         "id": {
           "type": "string",
@@ -13080,15 +13101,15 @@ func init() {
         "branch": {
           "type": "string"
         },
-        "destinationDutyLocationPostalCode": {
+        "destinationGBLOC": {
+          "$ref": "#/definitions/GBLOC"
+        },
+        "destinationPostalCode": {
           "type": "string",
           "format": "zip",
           "title": "ZIP",
           "pattern": "^(\\d{5})$",
           "example": "90210"
-        },
-        "destinationGBLOC": {
-          "$ref": "#/definitions/GBLOC"
         },
         "edipi": {
           "type": "string",
@@ -13319,7 +13340,7 @@ func init() {
       }
     },
     "ShipmentAddressUpdate": {
-      "description": "This represents a destination address change request made by the Prime that is either auto-approved or requires review if the pricing criteria has changed. If criteria has changed, then it must be approved or rejected by a TOO.\n",
+      "description": "This represents a delivery address change request made by the Prime that is either auto-approved or requires review if the pricing criteria has changed. If criteria has changed, then it must be approved or rejected by a TOO.\n",
       "type": "object",
       "required": [
         "id",
@@ -13347,7 +13368,7 @@ func init() {
           "$ref": "#/definitions/Address"
         },
         "newSitDistanceBetween": {
-          "description": "The distance between the original SIT address and requested new destination address of shipment",
+          "description": "The distance between the original SIT address and requested new delivery address of shipment",
           "type": "integer",
           "example": 88
         },
@@ -13359,7 +13380,7 @@ func init() {
           "example": "This is an office remark"
         },
         "oldSitDistanceBetween": {
-          "description": "The distance between the original SIT address and the previous/old destination address of shipment",
+          "description": "The distance between the original SIT address and the previous/old delivery address of shipment",
           "type": "integer",
           "example": 50
         },
@@ -18216,7 +18237,7 @@ func init() {
     },
     "/moves/{moveID}/financial-review-flag": {
       "post": {
-        "description": "This sets a flag which indicates that the move should be reviewed by a fincancial office. For example, if the origin or destination address of a shipment is far from the duty location and may incur excess costs to the customer.",
+        "description": "This sets a flag which indicates that the move should be reviewed by a fincancial office. For example, if the origin or delivery address of a shipment is far from the duty location and may incur excess costs to the customer.",
         "consumes": [
           "application/json"
         ],
@@ -20584,7 +20605,7 @@ func init() {
           },
           {
             "type": "string",
-            "description": "Used to return a queue for a GBLOC other than the default of the current user. Requires the HQ role. The parameter is ignored if the requesting user does not have the necessary role.\n",
+            "description": "Used to return a queue for a GBLOC other than the default of the current user. Requires the HQ role or a secondary transportation office assignment. The parameter is ignored if the requesting user does not have the necessary role or assignment.\n",
             "name": "viewAsGBLOC",
             "in": "query"
           },
@@ -20633,6 +20654,12 @@ func init() {
             "type": "boolean",
             "description": "Only used for Services Counseling queue. If true, show PPM moves origin locations that are ready for closeout. Otherwise, show all other moves origin locations.",
             "name": "needsPPMCloseout",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "Used to return an origins list for a GBLOC other than the default of the current user. Requires the HQ role or a secondary transportation office assignment. The parameter is ignored if the requesting user does not have the necessary role or assignment.",
+            "name": "viewAsGBLOC",
             "in": "query"
           }
         ],
@@ -20787,7 +20814,7 @@ func init() {
           },
           {
             "type": "string",
-            "description": "Used to return a queue for a GBLOC other than the default of the current user. Requires the HQ role. The parameter is ignored if the requesting user does not have the necessary role.\n",
+            "description": "Used to return a queue for a GBLOC other than the default of the current user. Requires the HQ role or a secondary transportation office assignment. The parameter is ignored if the requesting user does not have the necessary role or assignment.\n",
             "name": "viewAsGBLOC",
             "in": "query"
           },
@@ -20959,7 +20986,7 @@ func init() {
           },
           {
             "type": "string",
-            "description": "Used to return a queue for a GBLOC other than the default of the current user. Requires the HQ role. The parameter is ignored if the requesting user does not have the necessary role.\n",
+            "description": "Used to return a queue for a GBLOC other than the default of the current user. Requires the HQ role or a secondary transportation office assignment. The parameter is ignored if the requesting user does not have the necessary role or assignment.\n",
             "name": "viewAsGBLOC",
             "in": "query"
           }
@@ -23149,9 +23176,6 @@ func init() {
       "properties": {
         "firstName": {
           "type": "string"
-        },
-        "hasSafetyPrivilege": {
-          "type": "boolean"
         },
         "lastName": {
           "type": "string"
@@ -25414,6 +25438,14 @@ func init() {
           "format": "date-time",
           "readOnly": true
         },
+        "destinationGBLOC": {
+          "type": "string",
+          "example": "AGFM"
+        },
+        "destinationPostalCode": {
+          "type": "string",
+          "example": "90210"
+        },
         "eTag": {
           "type": "string",
           "readOnly": true
@@ -25675,6 +25707,16 @@ func init() {
           "type": "integer",
           "format": "cents",
           "x-nullable": true
+        },
+        "market": {
+          "description": "To identify whether the service was provided within (CONUS) or (OCONUS)",
+          "type": "string",
+          "enum": [
+            "CONUS",
+            "OCONUS"
+          ],
+          "x-nullable": true,
+          "example": "CONUS"
         },
         "moveTaskOrderID": {
           "type": "string",
@@ -25981,7 +26023,7 @@ func init() {
     "MTOShipment": {
       "properties": {
         "actualDeliveryDate": {
-          "description": "The actual date that the shipment was delivered to the destination address by the Prime",
+          "description": "The actual date that the shipment was delivered to the delivery address by the Prime",
           "type": "string",
           "format": "date",
           "x-nullable": true
@@ -26449,7 +26491,7 @@ func init() {
           "type": "string",
           "x-nullable": true,
           "readOnly": true,
-          "example": "Destination address is too far from duty location"
+          "example": "Delivery Address is too far from duty location"
         },
         "id": {
           "type": "string",
@@ -29722,15 +29764,15 @@ func init() {
         "branch": {
           "type": "string"
         },
-        "destinationDutyLocationPostalCode": {
+        "destinationGBLOC": {
+          "$ref": "#/definitions/GBLOC"
+        },
+        "destinationPostalCode": {
           "type": "string",
           "format": "zip",
           "title": "ZIP",
           "pattern": "^(\\d{5})$",
           "example": "90210"
-        },
-        "destinationGBLOC": {
-          "$ref": "#/definitions/GBLOC"
         },
         "edipi": {
           "type": "string",
@@ -29961,7 +30003,7 @@ func init() {
       }
     },
     "ShipmentAddressUpdate": {
-      "description": "This represents a destination address change request made by the Prime that is either auto-approved or requires review if the pricing criteria has changed. If criteria has changed, then it must be approved or rejected by a TOO.\n",
+      "description": "This represents a delivery address change request made by the Prime that is either auto-approved or requires review if the pricing criteria has changed. If criteria has changed, then it must be approved or rejected by a TOO.\n",
       "type": "object",
       "required": [
         "id",
@@ -29989,7 +30031,7 @@ func init() {
           "$ref": "#/definitions/Address"
         },
         "newSitDistanceBetween": {
-          "description": "The distance between the original SIT address and requested new destination address of shipment",
+          "description": "The distance between the original SIT address and requested new delivery address of shipment",
           "type": "integer",
           "minimum": 0,
           "example": 88
@@ -30002,7 +30044,7 @@ func init() {
           "example": "This is an office remark"
         },
         "oldSitDistanceBetween": {
-          "description": "The distance between the original SIT address and the previous/old destination address of shipment",
+          "description": "The distance between the original SIT address and the previous/old delivery address of shipment",
           "type": "integer",
           "minimum": 0,
           "example": 50
