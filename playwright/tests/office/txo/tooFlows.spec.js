@@ -51,7 +51,7 @@ test.describe('TOO user', () => {
       await page.getByTestId('searchTextSubmit').click();
 
       await expect(page.getByText('Results (1)')).toBeVisible();
-      await expect(page.getByTestId('dodID-0')).toContainText(testMove.Orders.ServiceMember.edipi);
+      await expect(page.getByTestId('edipi-0')).toContainText(testMove.Orders.ServiceMember.edipi);
     });
     test('can search for moves using Customer Name', async ({ page }) => {
       const CustomerName = `${testMove.Orders.ServiceMember.last_name}, ${testMove.Orders.ServiceMember.first_name}`;
@@ -846,12 +846,12 @@ test.describe('TOO user', () => {
     await page.getByRole('button', { name: 'Edit shipment' }).click();
 
     await expect(
-      page.getByTestId('alert').getByText('Request needs review. See delivery location to proceed.'),
+      page.getByTestId('alert').getByText('Request needs review. See delivery address to proceed.'),
     ).toBeVisible();
     await expect(
       page
         .getByTestId('alert')
-        .getByText('Pending delivery location change request needs review. Review request to proceed.'),
+        .getByText('Pending delivery address change request needs review. Review request to proceed.'),
     ).toBeVisible();
 
     // click to trigger review modal
@@ -867,7 +867,7 @@ test.describe('TOO user', () => {
 
     await expect(page.getByText('Changes sent to contractor.')).toBeVisible();
 
-    const destinationAddress = page.getByRole('group', { name: 'Delivery location' });
+    const destinationAddress = page.getByRole('group', { name: 'Delivery Address' });
     await expect(destinationAddress.getByLabel('Address 1')).toHaveValue('123 Any Street');
     await expect(destinationAddress.getByLabel('Address 2')).toHaveValue('P.O. Box 12345');
     await expect(destinationAddress.getByLabel('City')).toHaveValue('Beverly Hills');
@@ -903,12 +903,12 @@ test.describe('TOO user', () => {
     await page.getByRole('button', { name: 'Edit shipment' }).click();
 
     await expect(
-      page.getByTestId('alert').getByText('Request needs review. See delivery location to proceed.'),
+      page.getByTestId('alert').getByText('Request needs review. See delivery address to proceed.'),
     ).toBeVisible();
     await expect(
       page
         .getByTestId('alert')
-        .getByText('Pending delivery location change request needs review. Review request to proceed.'),
+        .getByText('Pending delivery address change request needs review. Review request to proceed.'),
     ).toBeVisible();
     await page.getByRole('button', { name: 'Review request' }).click();
 
@@ -918,14 +918,14 @@ test.describe('TOO user', () => {
     await expect(page.getByTestId('modal')).not.toBeVisible();
     await expect(page.getByText('Changes sent to contractor.')).toBeVisible();
 
-    const destinationAddress = page.getByRole('group', { name: 'Delivery location' });
+    const destinationAddress = page.getByRole('group', { name: 'Delivery Address' });
     await expect(destinationAddress.getByLabel('Address 1')).toHaveValue('123 Any Street');
     await expect(destinationAddress.getByLabel('Address 2')).toHaveValue('P.O. Box 12345');
     await expect(destinationAddress.getByLabel('City')).toHaveValue('Beverly Hills');
     await expect(destinationAddress.getByLabel('State')).toHaveValue('CA');
     await expect(destinationAddress.getByLabel('ZIP')).toHaveValue('90210');
 
-    // Save the approved destination address change
+    // Save the approved delivery address change
     await page.getByRole('button', { name: 'Save' }).click();
 
     await expect(page.getByText('Update request details')).not.toBeVisible();

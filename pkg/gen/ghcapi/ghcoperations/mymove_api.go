@@ -93,6 +93,9 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		PaymentRequestsBulkDownloadHandler: payment_requests.BulkDownloadHandlerFunc(func(params payment_requests.BulkDownloadParams) middleware.Responder {
 			return middleware.NotImplemented("operation payment_requests.BulkDownload has not yet been implemented")
 		}),
+		MoveCheckForLockedMovesAndUnlockHandler: move.CheckForLockedMovesAndUnlockHandlerFunc(func(params move.CheckForLockedMovesAndUnlockParams) middleware.Responder {
+			return middleware.NotImplemented("operation move.CheckForLockedMovesAndUnlock has not yet been implemented")
+		}),
 		OrderCounselingUpdateAllowanceHandler: order.CounselingUpdateAllowanceHandlerFunc(func(params order.CounselingUpdateAllowanceParams) middleware.Responder {
 			return middleware.NotImplemented("operation order.CounselingUpdateAllowance has not yet been implemented")
 		}),
@@ -440,6 +443,8 @@ type MymoveAPI struct {
 	ReportViolationsAssociateReportViolationsHandler report_violations.AssociateReportViolationsHandler
 	// PaymentRequestsBulkDownloadHandler sets the operation handler for the bulk download operation
 	PaymentRequestsBulkDownloadHandler payment_requests.BulkDownloadHandler
+	// MoveCheckForLockedMovesAndUnlockHandler sets the operation handler for the check for locked moves and unlock operation
+	MoveCheckForLockedMovesAndUnlockHandler move.CheckForLockedMovesAndUnlockHandler
 	// OrderCounselingUpdateAllowanceHandler sets the operation handler for the counseling update allowance operation
 	OrderCounselingUpdateAllowanceHandler order.CounselingUpdateAllowanceHandler
 	// OrderCounselingUpdateOrderHandler sets the operation handler for the counseling update order operation
@@ -736,6 +741,9 @@ func (o *MymoveAPI) Validate() error {
 	}
 	if o.PaymentRequestsBulkDownloadHandler == nil {
 		unregistered = append(unregistered, "payment_requests.BulkDownloadHandler")
+	}
+	if o.MoveCheckForLockedMovesAndUnlockHandler == nil {
+		unregistered = append(unregistered, "move.CheckForLockedMovesAndUnlockHandler")
 	}
 	if o.OrderCounselingUpdateAllowanceHandler == nil {
 		unregistered = append(unregistered, "order.CounselingUpdateAllowanceHandler")
@@ -1146,6 +1154,10 @@ func (o *MymoveAPI) initHandlerCache() {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
 	o.handlers["GET"]["/payment-requests/{paymentRequestID}/bulkDownload"] = payment_requests.NewBulkDownload(o.context, o.PaymentRequestsBulkDownloadHandler)
+	if o.handlers["PATCH"] == nil {
+		o.handlers["PATCH"] = make(map[string]http.Handler)
+	}
+	o.handlers["PATCH"]["/moves/{officeUserID}/CheckForLockedMovesAndUnlock"] = move.NewCheckForLockedMovesAndUnlock(o.context, o.MoveCheckForLockedMovesAndUnlockHandler)
 	if o.handlers["PATCH"] == nil {
 		o.handlers["PATCH"] = make(map[string]http.Handler)
 	}
