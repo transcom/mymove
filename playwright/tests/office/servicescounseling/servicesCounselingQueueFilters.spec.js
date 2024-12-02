@@ -10,7 +10,7 @@ import { test, expect } from './servicesCounselingTestFixture';
 test.describe('Services counselor user', () => {
   let moveLocator = '';
   let moveWithNeedsCloseoutLocator = '';
-
+  test.slow();
   test.describe('with PPM shipment ready for closeout', () => {
     let dutyLocationName = '';
     test.beforeEach(async ({ scPage }) => {
