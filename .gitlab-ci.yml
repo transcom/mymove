@@ -52,6 +52,7 @@ stages:
 - push 
 - deploy
 
+
 # sast:
 #   stage: security-testing
 # include:
@@ -270,15 +271,9 @@ compile_app_client:
      #- ls bin
      - make client_build
      - echo "Skipping actual build steps."
-     - sleep 5
     # - sleep 60
   rules:
     - if: '$CI_COMMIT_BRANCH == "B-18585-gitlab-deploy" || $CI_COMMIT_BRANCH == "main"'
-  # cache:
-  #   key: "yarn-cache-v3-$(echo $(md5sum yarn.lock) | cut -d ' ' -f 1)"
-  #   paths:
-  #     - .yarn/cache
-  #     - /builds/milmove/mymove/build
   artifacts:
     paths:
       - ~/.cache/yarn
@@ -335,8 +330,8 @@ compile_app_server:
   rules:
     - if: '$CI_COMMIT_BRANCH == "B-18585-gitlab-deploy" || $CI_COMMIT_BRANCH == "main"'
 
-build_app:
-  stage: build
+build_push_app:
+  stage: push
   image:
     name: gcr.io/kaniko-project/executor:v1.14.0-debug
     entrypoint: [""]
@@ -346,105 +341,50 @@ build_app:
   before_script:
     - ls bin
     - mkdir -p /kaniko/.docker
-    - echo "Building app Docker image..."
     - echo "Simulating Docker image build setup..."
     - echo "{\"credHelpers\":{\"447641181206.dkr.ecr.us-gov-west-1.amazonaws.com\":\"ecr-login\"}}" > /kaniko/.docker/config.json
-    - echo "Checking Docker credential config:"
-    #- cat /kaniko/.docker/config.json
   script:
-    - echo "Skipping app Docker image build for speed."
-    - /kaniko/executor --context "${CI_PROJECT_DIR}/" --dockerfile "${CI_PROJECT_DIR}/Dockerfile" --no-push
+    - echo "Building and Pushing app Docker image..."
+    - /kaniko/executor --context "${CI_PROJECT_DIR}/" --dockerfile "${CI_PROJECT_DIR}/Dockerfile" --destination "${ECR_REPOSITORY_URI}/app:$CI_COMMIT_SHORT_SHA"
   after_script:
     - echo "Build_complete"
 
-build_migrations:
-  stage: build
+build_push_migrations:
+  stage: push
   image:
     name: gcr.io/kaniko-project/executor:v1.14.0-debug
     entrypoint: [""]
   needs:
     - compile_app_server
-    - build_app  # Added dependency on build_app to use Kaniko for building images
+    - compile_app_client
   before_script:
     - mkdir -p /kaniko/.docker
     - echo "Simulating migrations Docker image build..."
-    #- echo "Building migrations Docker image..."
     - echo "{\"credHelpers\":{\"${ECR_REPOSITORY_URI}\":\"ecr-login\"}}" > /kaniko/.docker/config.json
   script:
-    - echo "Skipping actual migrations Docker image build for speed."
-    - /kaniko/executor --context "${CI_PROJECT_DIR}/" --dockerfile "${CI_PROJECT_DIR}/Dockerfile.migrations" --no-push
-    - sleep 5 
+    - echo "Building and Pushing migrations Docker image..."
+    - /kaniko/executor --context "${CI_PROJECT_DIR}/" --dockerfile "${CI_PROJECT_DIR}/Dockerfile.migrations" --destination "${ECR_REPOSITORY_URI}/app-migrations:$CI_COMMIT_SHORT_SHA"
   after_script:
-    - echo "Migrations image built successfully."
+    - echo "Migrations image built and pushed successfully."
 
-build_dp3_tasks:
-  stage: build
+build_push_dp3_tasks:
+  stage: push
   image:
     name: gcr.io/kaniko-project/executor:v1.14.0-debug
     entrypoint: [""]
   needs:
     - compile_app_server
     - compile_app_client
-    - build_app  #Added dependency on build_app to use Kaniko for building images
   before_script:
     - mkdir -p /kaniko/.docker
-    - echo "{\"credHelpers\":{\"${ECR_REPOSITORY_URI}\":\"ecr-login\"}}" > /kaniko/.docker/config.
     - echo "Simulating tasks Docker image build..."
-    # - echo "Building tasks Docker image..."
+    - echo "{\"credHelpers\":{\"${ECR_REPOSITORY_URI}\":\"ecr-login\"}}" > /kaniko/.docker/config.
     # - ls -la /builds/milmove/mymove/bin/
   script:
-    - echo "Skipping actual tasks Docker image build for speed."
-    - sleep 5
-    # - /kaniko/executor --context "${CI_PROJECT_DIR}/" --dockerfile "${CI_PROJECT_DIR}/Dockerfile.tasks" --no-push
+    - echo "Building tasks Docker image..."
+    - /kaniko/executor --context "${CI_PROJECT_DIR}/" --dockerfile "${CI_PROJECT_DIR}/Dockerfile.tasks" --destination "${ECR_REPOSITORY_URI}/app-tasks:$CI_COMMIT_SHORT_SHA"
   after_script:
     - echo "Tasks image built successfully."
-
-push_migrations_dp3:
-  stage: push
-  image: gcr.io/kaniko-project/executor:v1.14.0-debug # Uncomment and use the correct image if needed
-  needs:
-    - build_migrations
-    - compile_app_client
-    - compile_app_server
-  before_script:
-    - mkdir -p /kaniko/.docker
-    - echo "{\"credHelpers\":{\"${ECR_REPOSITORY_URI}\":\"ecr-login\"}}" > /kaniko/.docker/config.json
-  script:
-    # Push the migrations Docker image to ECR
-    - echo "Skipping migrations Docker image push for speed."
-    - sleep 5
-    - /kaniko/executor --context "${CI_PROJECT_DIR}/" --dockerfile "${CI_PROJECT_DIR}/Dockerfile.migrations" --destination "${ECR_REPOSITORY_URI}/app-migrations:$CI_COMMIT_SHORT_SHA"
-    - echo "Migrations image pushed successfully."
-
-push_app_dp3:
-  stage: push
-  image: gcr.io/kaniko-project/executor:v1.14.0-debug
-  needs:
-    - build_app
-    - compile_app_client
-    - compile_app_server
-  before_script:
-    - mkdir -p /kaniko/.docker
-    - echo "{\"credHelpers\":{\"${ECR_REPOSITORY_URI}\":\"ecr-login\"}}" > /kaniko/.docker/config.json
-  script:
-    - echo "Skipping migrations Docker image push for speed."
-    - sleep 5
-    # - /kaniko/executor --context "${CI_PROJECT_DIR}/" --dockerfile "${CI_PROJECT_DIR}/Dockerfile" --destination "${ECR_REPOSITORY_URI}/app:$CI_COMMIT_SHORT_SHA"
-    - echo "App image pushed successfully."
-
-push_tasks_dp3:
-  stage: push
-  image: gcr.io/kaniko-project/executor:v1.14.0-debug
-  needs:
-    - build_dp3_tasks
-    - compile_app_client
-    - compile_app_server
-  before_script:
-     - mkdir -p /kaniko/.docker
-     - echo "{\"credHelpers\":{\"${ECR_REPOSITORY_URI}\":\"ecr-login\"}}" > /kaniko/.docker/config.json
-  script:
-    - /kaniko/executor --context "${CI_PROJECT_DIR}/" --dockerfile "${CI_PROJECT_DIR}/Dockerfile.tasks" --destination "${ECR_REPOSITORY_URI}/app-tasks:$CI_COMMIT_SHORT_SHA"
-    - echo "Tasks image pushed successfully."
 
 push_otel_collector_image_dp3:
   stage: push
@@ -475,7 +415,7 @@ deploy_dp3_migrations:
     name: $DOCKER_APP_IMAGE
     entrypoint: [""]
   needs:
-    - push_migrations_dp3
+    - build_push_migrations
   before_script:
     - export APP_ENVIRONMENT="demo"
     - export AWS_DEFAULT_REGION="us-gov-west-1"
@@ -506,7 +446,7 @@ deploy_dp3_tasks:
     name: $DOCKER_APP_IMAGE
     entrypoint: [""]
   needs:
-    - push_tasks_dp3
+    - build_push_dp3_tasks
   script:
     - echo "Getting Digest from filesystem"
     - export ECR_DIGEST=$(cat images/sha/ECR_DIGEST_app-tasks_demo)
