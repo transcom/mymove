@@ -340,7 +340,7 @@ describe('DateAndLocation component', () => {
       });
 
       await act(async () => {
-        await userEvent.click(screen.getByLabelText('Use my current delivery address'));
+        await userEvent.click(screen.getByLabelText('Use my current destination address'));
       });
 
       const radioElements = screen.getAllByLabelText('Yes');
