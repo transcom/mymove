@@ -1136,7 +1136,6 @@ export const MoveTaskOrder = (props) => {
                   <Restricted to={permissionTypes.updateMTOPage}>
                     <span className={styles.rightAlignButtonWrapper}>
                       <Button
-                        data-testid="acknowledgeExcessUnaccompaniedBaggageWeightBtn"
                         type="button"
                         onClick={handleHideUnaccompaniedBaggageWeightAlert}
                         unstyled
