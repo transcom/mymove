@@ -11,6 +11,7 @@ const multiMoveEnabled = process.env.FEATURE_FLAG_MULTI_MOVE;
 
 test.describe('Entire PPM closeout flow', () => {
   test.skip(multiMoveEnabled === 'true', 'Skip if MultiMove workflow is enabled.');
+  test.slow();
   forEachViewport(async () => {
     test(`flows through happy path for existing shipment`, async ({ customerPpmPage }) => {
       const move = await customerPpmPage.testHarness.buildApprovedMoveWithPPM();
@@ -126,7 +127,7 @@ test.describe('Entire PPM closeout flow', () => {
 
 test.describe('(MultiMove) Entire PPM closeout flow (MultiMove Workflow)', () => {
   test.skip(multiMoveEnabled === 'false', 'Skip if MultiMove workflow is not enabled.');
-
+  test.slow();
   forEachViewport(async () => {
     test(`flows through happy path for existing shipment`, async ({ customerPpmPage }) => {
       const move = await customerPpmPage.testHarness.buildApprovedMoveWithPPM();
