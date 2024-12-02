@@ -520,6 +520,7 @@ export const allApprovedExternalVendorMTOQuery = {
     id: '2',
     status: MOVE_STATUSES.APPROVALS_REQUESTED,
     availableToPrimeAt: '2020-03-01T00:00:00.000Z',
+    excessUnaccompaniedBaggageWeightQualifiedAt: '2020-03-01T00:00:00.000Z',
   },
   mtoShipments: [
     {
