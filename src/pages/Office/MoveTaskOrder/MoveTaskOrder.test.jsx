@@ -301,7 +301,7 @@ describe('MoveTaskOrder', () => {
         </MockProviders>,
       );
 
-      const acknowledgeUbExcessButton = await screen.findByTestId(/acknowledgeExcessUnaccompaniedBaggageWeightBtn/);
+      const acknowledgeUbExcessButton = await screen.findByTestId(/excessUnaccompaniedBaggageWeightAlertButton/);
       expect(acknowledgeUbExcessButton).toBeInTheDocument();
     });
 
