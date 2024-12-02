@@ -10,7 +10,7 @@ import { test, expect } from './servicesCounselingTestFixture';
 test.describe('Services counselor user', () => {
   let moveLocator = '';
   let moveWithNeedsCloseoutLocator = '';
-  test.slow();
+
   test.describe('with PPM shipment ready for closeout', () => {
     let dutyLocationName = '';
     test.beforeEach(async ({ scPage }) => {
@@ -23,6 +23,7 @@ test.describe('Services counselor user', () => {
     });
 
     test('is able to filter partial vs full moves based on ppm type', async ({ page }) => {
+      test.slow();
       // closeout tab
 
       // Created a single Partial PPM move, so when we search for
@@ -40,6 +41,7 @@ test.describe('Services counselor user', () => {
     });
 
     test('is able to filter moves based on PPM status', async ({ page }) => {
+      test.slow();
       // Check for Needs closeout filter
       await page.locator('th[data-testid="locator"] > div > input').clear();
       await page.locator('th[data-testid="locator"] > div > input').fill(moveWithNeedsCloseoutLocator);
@@ -49,6 +51,7 @@ test.describe('Services counselor user', () => {
     });
 
     test('is able to filter moves based on destination duty location', async ({ page }) => {
+      test.slow();
       // add filter for move code (PPM closeout that has Fort Gordon as
       // its destination duty location)
 
@@ -80,6 +83,7 @@ test.describe('Services counselor user', () => {
     });
 
     test('is able to filter moves based on PPM Closeout initiated', async ({ page }) => {
+      test.slow();
       const closeoutDate = new Date().toLocaleDateString('en-US');
 
       // first test with bogus date and no moves are found
@@ -108,6 +112,7 @@ test.describe('Services counselor user', () => {
     });
 
     test('is able to filter moves based on PPM Closeout location', async ({ page }) => {
+      test.slow();
       await page.locator('th[data-testid="locator"] > div > input').fill(moveLocator);
       await page.locator('th[data-testid="locator"] > div > input').blur();
       // add another filter for the closeout office column checking
