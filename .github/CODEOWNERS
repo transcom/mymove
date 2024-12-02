@@ -29,3 +29,4 @@ src/pages/PrimeUI/
 /eslint-plugin-ato/ @transcom/codeowners
 /pkg/ato-linter/ @transcom/codeowners
 /scripts/ @transcom/codeowners
+/.circleci/config.yml @transcom/codeowners
