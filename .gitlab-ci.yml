@@ -42,6 +42,7 @@ stages:
 - build
 - push
 - deploy
+- postdeploy
 # sast:
 #   stage: security-testing
 # include:
@@ -472,7 +473,7 @@ push_otel_collector_image_dp3:
     - if: '$CI_COMMIT_BRANCH == "B-18585-gitlab-jz" || $CI_COMMIT_BRANCH == "main"'
 
 deploy_dp3_migrations:
-  stage: deploy
+  stage: postdeploy
   image:
     name: $DOCKER_APP_IMAGE
     entrypoint: [""]
@@ -500,7 +501,7 @@ deploy_dp3_migrations:
   timeout: 20m
 
 deploy_dp3_tasks:
-  stage: deploy
+  stage: postdeploy
   image:
     name: $DOCKER_APP_IMAGE
     entrypoint: [""]
