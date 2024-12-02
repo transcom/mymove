@@ -378,8 +378,8 @@ export const CreateCustomerForm = ({ userPrivileges, setFlashMessage, setCanAddO
                       <CheckboxField id="emailIsPreferred" label="Email" name="email_is_preferred" />
                     </div>
                   </SectionWrapper>
-                  <SectionWrapper className={sectionStyles}>
-                    <h3>Current Address</h3>
+                  <SectionWrapper className={formStyles.formSection}>
+                    <h3>Pickup Address</h3>
                     <AddressFields
                       name={residentialAddressName}
                       labelHint="Required"

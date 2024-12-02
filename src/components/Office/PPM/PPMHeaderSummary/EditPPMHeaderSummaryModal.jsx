@@ -104,7 +104,7 @@ const EditPPMHeaderSummaryModal = ({ sectionType, sectionInfo, onClose, onSubmit
                     {editItemName === 'destinationAddress' && (
                       <AddressFields
                         name="destinationAddress"
-                        legend="Destination Address"
+                        legend="Delivery Address"
                         className={styles.AddressFieldSet}
                         locationLookup
                         formikProps={formikProps}

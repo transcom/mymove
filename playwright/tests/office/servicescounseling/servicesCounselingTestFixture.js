@@ -133,7 +133,7 @@ export class ServiceCounselorPage extends OfficePage {
     await this.waitForPage.addNTSShipment();
     await this.page.getByLabel('Requested pickup date').fill('16 Mar 2022');
     await this.page.getByLabel('Requested pickup date').blur();
-    await this.page.getByText('Use current address').click();
+    await this.page.getByText('Use pickup address').click();
 
     await this.page.getByLabel('Counselor remarks').fill('Sample counselor remarks');
 
@@ -174,7 +174,7 @@ export class ServiceCounselorPage extends OfficePage {
     // Delivery location
     const DeliveryLocationLookup = 'MONTGOMERY, AL 36101 (MONTGOMERY)';
 
-    const deliveryLocation = this.page.getByRole('group', { name: 'Delivery location' });
+    const deliveryLocation = this.page.getByRole('group', { name: 'Delivery Address' });
     await deliveryLocation.getByLabel('Address 1').fill('448 Washington Blvd NE');
     await deliveryLocation.getByLabel('Address 2').fill('Apt D3');
     await this.page.locator('input[id="delivery.address-location-input"]').fill('36101');

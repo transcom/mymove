@@ -138,13 +138,13 @@ describe('PrimeUIShipmentUpdateAddress page', () => {
   });
 
   describe('displaying shipment address information', () => {
-    it('displays the destination address form', async () => {
+    it('displays the delivery address form', async () => {
       usePrimeSimulatorGetMove.mockReturnValue(testShipmentReturnValue);
 
       renderComponent();
 
       const pageHeading = await screen.getByRole('heading', {
-        name: 'Update Shipment Destination Address',
+        name: 'Update Shipment Delivery Address',
         level: 2,
       });
       expect(pageHeading).toBeInTheDocument();
