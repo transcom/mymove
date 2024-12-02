@@ -1093,11 +1093,11 @@ func setPortsOnShipments(mtoServiceItems *models.MTOServiceItems, mtoShipments *
 		for _, mtoShipment := range *mtoShipments {
 			if !podMapEmpty && shipmentPodMap[string(mtoShipment.ID)] != nil {
 				podLocation := shipmentPodMap[string(mtoShipment.ID)]
-				pod := getPortMessageFromPortLocation(podLocation)
+				pod := Port(podLocation)
 				mtoShipment.PortOfDebarkation = pod
 			} else if !poeMapEmpty && shipmentPoeMap[string(mtoShipment.ID)] != nil {
 				poeLocation := shipmentPoeMap[string(mtoShipment.ID)]
-				poe := getPortMessageFromPortLocation(poeLocation)
+				poe := Port(poeLocation)
 				mtoShipment.PortOfEmbarkation = poe
 			}
 		}
@@ -1105,7 +1105,7 @@ func setPortsOnShipments(mtoServiceItems *models.MTOServiceItems, mtoShipments *
 }
 
 // Convert a PortLocation model to Port message
-func getPortMessageFromPortLocation(portLocation *models.PortLocation) *primev3messages.Port {
+func Port(portLocation *models.PortLocation) *primev3messages.Port {
 	return &primev3messages.Port{
 		ID:       strfmt.UUID(portLocation.ID.String()),
 		PortType: portLocation.Port.PortType.String(),

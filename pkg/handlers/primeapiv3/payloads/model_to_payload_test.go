@@ -1405,7 +1405,6 @@ func (suite *PayloadsSuite) TestMTOServiceItemPODFSC() {
 	}
 	mtoShipments := [...]models.MTOShipment{mtoShipment}
 
-	//move
 	move := models.Move{
 		MTOShipments:    mtoShipments[:],
 		MTOServiceItems: mtoServiceItems[:],
