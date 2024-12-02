@@ -4,7 +4,6 @@
 # Container Scanning customization: https://docs.gitlab.com/ee/user/application_security/container_scanning/#customizing-the-container-scanning-settings
 # Note that environment variables can be set in several places
 # See https://docs.gitlab.com/ee/ci/variables/#cicd-variable-precedence
-
 variables:
   DOCKER_AUTH_CONFIG: "{\"auths\":{\"https://index.docker.io/v1/\":{\"auth\":\"$CI_REGISTRY_USER:$CI_REGISTRY_PASSWORD\"}}}"
   #circleci_docker: milmove/circleci-docker:milmove-app-726bfe44bd27d3b41da41acbe3eb231811a993f7
@@ -36,8 +35,6 @@ variables:
   #EIA_KEY: db2522a43820268a41a802a16ae9fd26 # Consider storing sensitive keys as CI/CD variables instead
   #GIT_CLONE_PATH: '$CI_BUILDS_DIR/milmove/$CI_PROJECT_NAME/$CI_PIPELINE_ID'
   #add dependency to each step
-
-
 stages:
 #- security-testing
 - pre_checks
@@ -45,25 +42,21 @@ stages:
 - build
 - push
 - deploy
-
 # sast:
 #   stage: security-testing
 # include:
 # - template: Jobs/SAST.gitlab-ci.yml
 # - template: Jobs/Dependency-Scanning.gitlab-ci.yml
 # - template: Jobs/Secret-Detection.gitlab-ci.yml
-
 .setup_milmove_env: &setup_milmove_env
     - git config --global --add safe.directory /builds/milmove/mymove
     - export PATH=${PATH}:${GOPATH}/bin:~/transcom/mymove/builds/milmove/mymove
     - export REACT_APP_ERROR_LOGGING=otel
-
 # base_noop:
 #   stage: pre_checks
 #   image: $DOCKER_APP_IMAGE
 #   script:
 # - echo "noop"
-
 # anti_virus:
 #   stage: pre_checks
 #   image: milmove/clamav-ci # This can reB-18585-gitlab-pipeline-work as is, or use any lightweight image since we're skipping the actual work.
@@ -113,8 +106,6 @@ pre_deps_yarn:
   needs:
     - pre_deps_golang
   script:
-     - pwd
-     - ls bin
      - yarn config set "strict-ssl" false
      - yarn install --frozen-lockfile --cache-folder ~/.cache/yarn
      - scripts/check-generated-code yarn.lock
@@ -298,6 +289,10 @@ compile_app_server:
     - /builds/milmove/mymove/bin/milmove
     - /builds/milmove/mymove/bin/rds-ca-rsa4096-g1.pem
     - /builds/milmove/mymove/bin/rds-ca-2019-root.pem
+    - /builds/milmove/mymove/bin/tls-checker
+    - /builds/milmove/mymove/bin/health-checker
+    - /builds/milmove/mymove/bin/*
+    - /builds/milmove/mymove/bin/ecs-deploy
     - /builds/milmove/mymove/config/tls/milmove-cert-bundle.p7b
     - /builds/milmove/mymove/config/tls/dod-sw-ca-66.pem
     - /builds/milmove/mymove/swagger/*
@@ -462,13 +457,13 @@ push_otel_collector_image_dp3:
     - compile_app_server
   script:
     - echo "Logging in to Amazon ECR with Crane..."
-    - aws ecr get-login-password --region us-gov-west-1 | crane auth login 447641181206.dkr.ecr.us-gov-west-1.amazonaws.com -u AWS --password-stdin
+    - aws ecr get-login-password --region ${AWS_DEFAULT_REGION} | crane auth login ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com -u AWS --password-stdin
 
     - echo "Pulling the AWS OTel Collector image from the public registry with Crane..."
     - crane pull --insecure public.ecr.aws/aws-observability/aws-otel-collector:v0.31.0 image.tar
 
     - echo "Pushing the image to our private ECR using Crane..."
-    - crane push --insecure image.tar 447641181206.dkr.ecr.us-gov-west-1.amazonaws.com/otel-collector:${CI_COMMIT_SHORT_SHA}
+    - crane push --insecure image.tar ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/otel-collector:${CI_COMMIT_SHORT_SHA}
 
     - echo "Cleaning up the temporary image file..."
     - rm image.tar
@@ -601,4 +596,3 @@ deploy_dp3_app:
         ./scripts/circleci-announce-broken-branch
       fi
   timeout: 20m
-
