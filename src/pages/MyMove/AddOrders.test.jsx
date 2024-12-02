@@ -12,6 +12,9 @@ import { selectCanAddOrders, selectServiceMemberFromLoggedInUser } from 'store/e
 import { setCanAddOrders, setMoveId } from 'store/general/actions';
 import { ORDERS_TYPE } from 'constants/orders';
 
+// Tests are timing out. High assumption it is due to service counseling office drop-down choice not being loaded on initial form load. It's another API call
+jest.setTimeout(60000);
+
 jest.mock('services/internalApi', () => ({
   ...jest.requireActual('services/internalApi'),
   getServiceMember: jest.fn().mockImplementation(() => Promise.resolve()),
