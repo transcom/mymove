@@ -51,16 +51,17 @@ type mtoServiceItemUpdater struct {
 	fuelSurchargePricer    services.FuelSurchargePricer
 	sitFuelSurchargePricer services.DomesticDestinationSITFuelSurchargePricer
 	sitDeliverPricer       services.DomesticDestinationSITDeliveryPricer
+	portLocationFetcher    services.PortLocationFetcher
 }
 
 // NewMTOServiceItemUpdater returns a new mto service item updater
-func NewMTOServiceItemUpdater(planner route.Planner, builder mtoServiceItemQueryBuilder, moveRouter services.MoveRouter, shipmentFetcher services.MTOShipmentFetcher, addressCreator services.AddressCreator, unpackPricer services.DomesticUnpackPricer, linehaulPricer services.DomesticLinehaulPricer, destinationPricer services.DomesticDestinationPricer, fuelSurchargePricer services.FuelSurchargePricer, domesticDestinationSITDeliveryPricer services.DomesticDestinationSITDeliveryPricer, domesticDestinationSITFuelSurchargePricer services.DomesticDestinationSITFuelSurchargePricer) services.MTOServiceItemUpdater {
+func NewMTOServiceItemUpdater(planner route.Planner, builder mtoServiceItemQueryBuilder, moveRouter services.MoveRouter, shipmentFetcher services.MTOShipmentFetcher, addressCreator services.AddressCreator, unpackPricer services.DomesticUnpackPricer, linehaulPricer services.DomesticLinehaulPricer, destinationPricer services.DomesticDestinationPricer, fuelSurchargePricer services.FuelSurchargePricer, domesticDestinationSITDeliveryPricer services.DomesticDestinationSITDeliveryPricer, domesticDestinationSITFuelSurchargePricer services.DomesticDestinationSITFuelSurchargePricer, portLocationFetcher services.PortLocationFetcher) services.MTOServiceItemUpdater {
 	// used inside a transaction and mocking		return &mtoServiceItemUpdater{builder: builder}
 	createNewBuilder := func() mtoServiceItemQueryBuilder {
 		return query.NewQueryBuilder()
 	}
 
-	return &mtoServiceItemUpdater{planner, builder, createNewBuilder, moveRouter, shipmentFetcher, addressCreator, unpackPricer, linehaulPricer, destinationPricer, fuelSurchargePricer, domesticDestinationSITFuelSurchargePricer, domesticDestinationSITDeliveryPricer}
+	return &mtoServiceItemUpdater{planner, builder, createNewBuilder, moveRouter, shipmentFetcher, addressCreator, unpackPricer, linehaulPricer, destinationPricer, fuelSurchargePricer, domesticDestinationSITFuelSurchargePricer, domesticDestinationSITDeliveryPricer, portLocationFetcher}
 }
 
 func (p *mtoServiceItemUpdater) ApproveOrRejectServiceItem(
@@ -735,6 +736,14 @@ func (p *mtoServiceItemUpdater) UpdateMTOServiceItem(
 		}
 	}
 
+	// Populate port location info for POEFSC, PODFSC service item updates
+	if (mtoServiceItem.PODLocation != nil || mtoServiceItem.POELocation != nil) && (mtoServiceItem.ReService.Code == models.ReServiceCodePODFSC || mtoServiceItem.ReService.Code == models.ReServiceCodePOEFSC) {
+		err = populatePortLocation(mtoServiceItem, p, appCtx)
+		if err != nil {
+			return nil, err
+		}
+	}
+
 	checker := movetaskorder.NewMoveTaskOrderChecker()
 	serviceItemData := updateMTOServiceItemData{
 		updatedServiceItem:  *mtoServiceItem,
@@ -818,6 +827,26 @@ func (p *mtoServiceItemUpdater) UpdateMTOServiceItem(
 	}
 
 	return validServiceItem, nil
+}
+
+func populatePortLocation(mtoServiceItem *models.MTOServiceItem, p *mtoServiceItemUpdater, appCtx appcontext.AppContext) error {
+	var reServiceCode = mtoServiceItem.ReService.Code
+	var portCode string
+	if reServiceCode == models.ReServiceCodePODFSC {
+		portCode = mtoServiceItem.PODLocation.Port.PortCode
+	} else if reServiceCode == models.ReServiceCodePOEFSC {
+		portCode = mtoServiceItem.POELocation.Port.PortCode
+	}
+	portLocation, err := p.portLocationFetcher.FetchPortLocationByPortCode(appCtx, portCode)
+	if err != nil {
+		return apperror.NewUnsupportedPortCodeError(portCode, "No port location found for port code "+portCode)
+	}
+	if reServiceCode == models.ReServiceCodePODFSC {
+		mtoServiceItem.PODLocationID = &portLocation.ID
+	} else if reServiceCode == models.ReServiceCodePOEFSC {
+		mtoServiceItem.POELocationID = &portLocation.ID
+	}
+	return nil
 }
 
 // ValidateUpdateMTOServiceItem checks the provided serviceItemData struct against the validator indicated by validatorKey.

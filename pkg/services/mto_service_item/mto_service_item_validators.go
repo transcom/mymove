@@ -52,6 +52,11 @@ var destSITServiceItems = []models.ReServiceCode{
 	models.ReServiceCodeDDSFSC,
 }
 
+var portServiceItems = []models.ReServiceCode{
+	models.ReServiceCodePODFSC,
+	models.ReServiceCodePOEFSC,
+}
+
 type updateMTOServiceItemValidator interface {
 	validate(appCtx appcontext.AppContext, serviceItemData *updateMTOServiceItemData) error
 }
@@ -164,6 +169,12 @@ func (v *primeUpdateMTOServiceItemValidator) validate(appCtx appcontext.AppConte
 
 	// Check to see if the updated service item is different than the old one
 	err = serviceItemData.checkReasonWasUpdatedOnRejectedSIT(appCtx)
+	if err != nil {
+		return err
+	}
+
+	//Check that port location is only updated for valid services
+	err = serviceItemData.checkPortLocation(appCtx)
 	if err != nil {
 		return err
 	}
@@ -385,6 +396,27 @@ func (v *updateMTOServiceItemData) checkNonPrimeFields(_ appcontext.AppContext) 
 
 	if v.updatedServiceItem.RejectedAt != nil && v.updatedServiceItem.RejectedAt != v.oldServiceItem.RejectedAt {
 		v.verrs.Add("rejectedAt", "cannot be updated")
+	}
+
+	return nil
+}
+
+func (v *updateMTOServiceItemData) checkPortLocation(_ appcontext.AppContext) error {
+	if v.updatedServiceItem.PODLocation == nil && v.updatedServiceItem.POELocation == nil {
+		return nil // No updates to port locations, so we're good.
+	}
+
+	if !slices.Contains(portServiceItems, v.oldServiceItem.ReService.Code) {
+		return apperror.NewConflictError(v.updatedServiceItem.ID,
+			fmt.Sprintf("- Port Location may only be manually updated for the following service items: %s, %s", portServiceItems[0], portServiceItems[1]))
+	}
+
+	if v.updatedServiceItem.PODLocation != nil && v.oldServiceItem.ReService.Code != models.ReServiceCodePODFSC {
+		return apperror.NewConflictError(v.updatedServiceItem.ID, "POD Location can only be updated for service item "+string(models.ReServiceCodePODFSC))
+	}
+
+	if v.updatedServiceItem.POELocation != nil && v.oldServiceItem.ReService.Code != models.ReServiceCodePOEFSC {
+		return apperror.NewConflictError(v.updatedServiceItem.ID, "POE Location can only be updated for service item "+string(models.ReServiceCodePOEFSC))
 	}
 
 	return nil
@@ -618,6 +650,15 @@ func (v *updateMTOServiceItemData) setNewMTOServiceItem() *models.MTOServiceItem
 
 	newMTOServiceItem.PricingEstimate = services.SetNoNilOptionalCentField(
 		v.updatedServiceItem.PricingEstimate, newMTOServiceItem.PricingEstimate)
+
+	// Set POD Location
+	if v.updatedServiceItem.PODLocationID != nil {
+		newMTOServiceItem.PODLocationID = v.updatedServiceItem.PODLocationID
+	}
+	// Set POE Location
+	if v.updatedServiceItem.POELocationID != nil {
+		newMTOServiceItem.POELocationID = v.updatedServiceItem.POELocationID
+	}
 
 	return &newMTOServiceItem
 }
