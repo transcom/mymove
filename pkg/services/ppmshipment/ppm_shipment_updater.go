@@ -125,11 +125,17 @@ func (f *ppmShipmentUpdater) updatePPMShipment(appCtx appcontext.AppContext, ppm
 		updatedPPMShipment.EstimatedIncentive = estimatedIncentive
 		updatedPPMShipment.SITEstimatedCost = estimatedSITCost
 
-		maxIncentive, err := f.estimator.MaxIncentive(appCtx, *oldPPMShipment, updatedPPMShipment)
-		if err != nil {
-			return err
+		// if the PPM shipment is past closeout then we should not calculate the max incentive, it is already set in stone
+		if oldPPMShipment.Status != models.PPMShipmentStatusWaitingOnCustomer &&
+			oldPPMShipment.Status != models.PPMShipmentStatusCloseoutComplete &&
+			oldPPMShipment.Status != models.PPMShipmentStatusComplete &&
+			oldPPMShipment.Status != models.PPMShipmentStatusNeedsCloseout {
+			maxIncentive, err := f.estimator.MaxIncentive(appCtx, *oldPPMShipment, updatedPPMShipment)
+			if err != nil {
+				return err
+			}
+			updatedPPMShipment.MaxIncentive = maxIncentive
 		}
-		updatedPPMShipment.MaxIncentive = maxIncentive
 
 		if appCtx.Session() != nil {
 			if appCtx.Session().IsOfficeUser() {
