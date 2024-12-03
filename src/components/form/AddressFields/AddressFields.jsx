@@ -77,16 +77,16 @@ export const AddressFields = ({
 
   const handleOnLocationChange = (value) => {
     setFieldValue(`${name}.city`, value.city).then(() => {
-      setFieldTouched(`${name}.city`, true);
+      setFieldTouched(`${name}.city`, false);
     });
     setFieldValue(`${name}.state`, value.state).then(() => {
-      setFieldTouched(`${name}.state`, true);
+      setFieldTouched(`${name}.state`, false);
     });
     setFieldValue(`${name}.county`, value.county).then(() => {
-      setFieldTouched(`${name}.county`, true);
+      setFieldTouched(`${name}.county`, false);
     });
     setFieldValue(`${name}.postalCode`, value.postalCode).then(() => {
-      setFieldTouched(`${name}.postalCode`, true);
+      setFieldTouched(`${name}.postalCode`, false);
     });
     setFieldValue(`${name}.usPostRegionCitiesID`, value.usPostRegionCitiesID).then(() => {
       setFieldTouched(`${name}.usPostRegionCitiesID`, true);
