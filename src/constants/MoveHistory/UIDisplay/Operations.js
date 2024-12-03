@@ -64,4 +64,5 @@ export default {
   moveCanceler: 'moveCanceler', // ghc.yaml
   addAppealToViolation: 'addAppealToViolation', // ghc.yaml
   addAppealToSeriousIncident: 'addAppealToSeriousIncident', // ghc.yaml
+  cancelMove: 'cancelMove', // internal.yaml
 };
