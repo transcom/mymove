@@ -28,7 +28,7 @@ const DocumentViewerFileManager = ({
   files,
   documentType,
   updateAmendedDocument,
-  required,
+  fileUploadrequired,
 }) => {
   const queryClient = useQueryClient();
   const filePondEl = useRef();
@@ -70,10 +70,10 @@ const DocumentViewerFileManager = ({
       setShowUpload(true);
       setIsExpandedView(true);
     }
-    if (required) {
+    if (fileUploadrequired) {
       setShowUpload(true);
     }
-  }, [documentType, required]);
+  }, [documentType, fileUploadrequired]);
 
   const closeDeleteFileModal = () => {
     setCurrentFile(null);
@@ -221,7 +221,7 @@ const DocumentViewerFileManager = ({
         />
       )}
       {!isExpandedView && (
-        <Button disabled={isFileProcessing || required} onClick={toggleUploadVisibility}>
+        <Button disabled={isFileProcessing || fileUploadrequired} onClick={toggleUploadVisibility}>
           {buttonHeaderText}
         </Button>
       )}
@@ -236,13 +236,13 @@ const DocumentViewerFileManager = ({
             )}
             <UploadsTable className={styles.sectionWrapper} uploads={files} onDelete={openDeleteFileModal} />
             <div className={classnames(styles.upload, className)}>
-              {required && (
+              {fileUploadrequired && (
                 <Alert type="error" id="fileRequiredAlert" data-testid="fileRequiredAlert">
                   File upload is required
                 </Alert>
               )}
               <FileUpload
-                required={required}
+                required={fileUploadrequired}
                 ref={filePondEl}
                 createUpload={handleUpload}
                 onChange={handleChange}
@@ -250,7 +250,7 @@ const DocumentViewerFileManager = ({
               />
               <Hint>PDF, JPG, or PNG only. Maximum file size 25MB. Each page must be clear and legible</Hint>
               {!isExpandedView && (
-                <Button disabled={isFileProcessing || required} onClick={toggleUploadVisibility}>
+                <Button disabled={isFileProcessing || fileUploadrequired} onClick={toggleUploadVisibility}>
                   Done
                 </Button>
               )}

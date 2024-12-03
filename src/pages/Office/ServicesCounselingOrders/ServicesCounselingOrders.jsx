@@ -340,7 +340,7 @@ const ServicesCounselingOrders = ({ files, amendedDocumentId, updateAmendedDocum
                     </Link>
                   </div>
                   <DocumentViewerFileManager
-                    required={!hasOrdersDocuments}
+                    fileUploadrequired={!hasOrdersDocuments}
                     orderId={orderId}
                     documentId={orderDocumentId}
                     files={ordersDocuments}
