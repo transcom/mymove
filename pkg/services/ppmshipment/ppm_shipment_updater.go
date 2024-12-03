@@ -126,6 +126,12 @@ func (f *ppmShipmentUpdater) updatePPMShipment(appCtx appcontext.AppContext, ppm
 		updatedPPMShipment.EstimatedIncentive = estimatedIncentive
 		updatedPPMShipment.SITEstimatedCost = estimatedSITCost
 
+		maxIncentive, err := f.estimator.MaxIncentive(appCtx, *oldPPMShipment, updatedPPMShipment)
+		if err != nil {
+			return err
+		}
+		updatedPPMShipment.MaxIncentive = maxIncentive
+
 		if appCtx.Session() != nil {
 			if appCtx.Session().IsOfficeUser() {
 				edited := models.PPMAdvanceStatusEdited
