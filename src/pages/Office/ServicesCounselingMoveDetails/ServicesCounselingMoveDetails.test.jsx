@@ -422,13 +422,13 @@ const zeroIncentiveMoveDetailsQuery = {
         status: 'SUBMITTED',
         submittedAt: null,
         updatedAt: '2022-11-08T23:44:58.226Z',
-        weightTickets: [{ emptyWeight: 0, fullWeight: 20000 }],
+        weightTickets: [{ emptyWeight: 0, fullWeight: 200 }],
       },
       primeActualWeight: 980,
-      requestedDeliveryDate: '0001-01-01',
-      requestedPickupDate: '0001-01-01',
+      requestedDeliveryDate: '2023-01-10',
+      requestedPickupDate: '2023-01-10',
       shipmentType: 'PPM',
-      status: 'APPROVED',
+      status: 'SUBMITTED',
       updatedAt: '2022-11-08T23:44:58.217Z',
     },
   ],
@@ -1086,7 +1086,7 @@ describe('MoveDetails page', () => {
 
       it('allows the service counselor to submit details for ppm with zero incentive', async () => {
         useMoveDetailsQueries.mockReturnValue(zeroIncentiveMoveDetailsQuery);
-        useOrdersDocumentQueries.mockReturnValue(zeroIncentiveMoveDetailsQuery);
+        useOrdersDocumentQueries.mockReturnValue(newOrdersDocumentQuery);
         updateMTOShipment.mockImplementation(() => Promise.resolve({}));
         updateMoveStatusServiceCounselingCompleted.mockImplementation(() => Promise.resolve({}));
 
