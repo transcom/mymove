@@ -218,7 +218,7 @@ paths:
                 description: requested page of results
               perPage:
                 type: integer
-              dodID:
+              edipi:
                 description: DOD ID
                 type: string
                 minLength: 10
@@ -244,7 +244,7 @@ paths:
                 x-nullable: true
                 enum:
                   - customerName
-                  - dodID
+                  - edipi
                   - emplid
                   - branch
                   - personalEmail
@@ -3459,7 +3459,7 @@ paths:
           type: string
           enum:
             - customerName
-            - dodID
+            - edipi
             - emplid
             - branch
             - locator
@@ -3500,7 +3500,7 @@ paths:
           type: string
           description: filters using a counselingOffice name of the move
         - in: query
-          name: dodID
+          name: edipi
           type: string
           description: filters to match the unique service member's DoD ID
         - in: query
@@ -3718,7 +3718,7 @@ paths:
           type: string
           enum:
             - customerName
-            - dodID
+            - edipi
             - emplid
             - branch
             - locator
@@ -3747,7 +3747,7 @@ paths:
           name: customerName
           type: string
         - in: query
-          name: dodID
+          name: edipi
           type: string
         - in: query
           name: emplid
@@ -3832,11 +3832,12 @@ paths:
             - submittedAt
             - branch
             - status
-            - dodID
+            - edipi
             - emplid
             - age
             - originDutyLocation
             - assignedTo
+            - counselingOffice
           description: field that results should be sorted by
         - in: query
           name: order
@@ -3870,7 +3871,7 @@ paths:
           name: customerName
           type: string
         - in: query
-          name: dodID
+          name: edipi
           type: string
         - in: query
           name: emplid
@@ -3886,6 +3887,10 @@ paths:
           type: string
           description: |
             Used to illustrate which user is assigned to this payment request.
+        - in: query
+          name: counselingOffice
+          type: string
+          description: filters using a counselingOffice name of the move
         - in: query
           name: status
           type: array
@@ -3949,7 +3954,7 @@ paths:
                 minLength: 6
                 maxLength: 6
                 x-nullable: true
-              dodID:
+              edipi:
                 description: DOD ID
                 type: string
                 minLength: 10
@@ -4009,7 +4014,7 @@ paths:
                 x-nullable: true
                 enum:
                   - customerName
-                  - dodID
+                  - edipi
                   - emplid
                   - branch
                   - locator
@@ -5083,7 +5088,7 @@ definitions:
         type: string
         example: Doe
         x-nullable: true
-      dodID:
+      edipi:
         type: string
         x-nullable: true
       emplid:
@@ -7387,6 +7392,9 @@ definitions:
         $ref: '#/definitions/AvailableOfficeUsers'
       assignable:
         type: boolean
+      counselingOffice:
+        type: string
+        x-nullable: true
   QueuePaymentRequests:
     type: array
     items:
@@ -7428,7 +7436,7 @@ definitions:
         type: string
         example: Doe
         x-nullable: true
-      dodID:
+      edipi:
         type: string
         example: 1234567890
         x-nullable: true
@@ -9885,6 +9893,15 @@ definitions:
           The estimated amount the government will pay the service member to
           move their belongings based on the moving date, locations, and
           shipment weight.
+        type: integer
+        format: cents
+        x-nullable: true
+        x-omitempty: false
+      maxIncentive:
+        description: >-
+          The max amount the government will pay the service member to move
+          their belongings based on the moving date, locations, and shipment
+          weight.
         type: integer
         format: cents
         x-nullable: true
