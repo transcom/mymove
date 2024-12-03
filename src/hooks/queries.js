@@ -148,7 +148,7 @@ export const useTXOMoveInfoQueries = (moveCode) => {
     },
   );
   const customerData = customer && Object.values(customer)[0];
-  const { isLoading, isError, isSuccess } = getQueriesStatus([moveQuery, orderQuery, customerQuery]);
+  const { isLoading, isError, isSuccess, errors } = getQueriesStatus([moveQuery, orderQuery, customerQuery]);
 
   return {
     move,
@@ -157,6 +157,7 @@ export const useTXOMoveInfoQueries = (moveCode) => {
     isLoading,
     isError,
     isSuccess,
+    errors,
   };
 };
 
@@ -438,7 +439,7 @@ export const useMoveTaskOrderQueries = (moveCode) => {
 export const useGetDocumentQuery = (documentId) => {
   const staleTime = 15 * 60000; // 15 * 60000 milliseconds = 15 mins
   const cacheTime = staleTime;
-  const { data: { documents, uploads } = {}, ...documentsQuery } = useQuery(
+  const { data: { documents, upload } = {}, ...documentsQuery } = useQuery(
     [ORDERS_DOCUMENTS, documentId],
     ({ queryKey }) => getDocument(...queryKey),
     {
@@ -453,7 +454,7 @@ export const useGetDocumentQuery = (documentId) => {
 
   return {
     documents,
-    uploads,
+    upload,
     isLoading,
     isError,
     isSuccess,
@@ -845,6 +846,8 @@ export const useMoveDetailsQueries = (moveCode) => {
 
   const order = Object.values(orders || {})?.[0];
 
+  const { upload: orderDocuments, ...documentQuery } = useGetDocumentQuery(order.uploaded_order_id);
+
   const { data: mtoShipments, ...mtoShipmentQuery } = useQuery({
     queryKey: [MTO_SHIPMENTS, moveId, false],
     queryFn: ({ queryKey }) => getMTOShipments(...queryKey),
@@ -874,9 +877,10 @@ export const useMoveDetailsQueries = (moveCode) => {
     options: { enabled: !!moveId },
   });
 
-  const { isLoading, isError, isSuccess } = getQueriesStatus([
+  const { isLoading, isError, isSuccess, errors } = getQueriesStatus([
     moveQuery,
     orderQuery,
+    documentQuery,
     customerQuery,
     mtoShipmentQuery,
     mtoServiceItemQuery,
@@ -886,6 +890,7 @@ export const useMoveDetailsQueries = (moveCode) => {
   return {
     move,
     order,
+    orderDocuments,
     customerData,
     closeoutOffice,
     mtoShipments,
@@ -893,6 +898,7 @@ export const useMoveDetailsQueries = (moveCode) => {
     isLoading,
     isError,
     isSuccess,
+    errors,
   };
 };
 
@@ -922,12 +928,13 @@ export const usePrimeSimulatorGetMove = (moveCode) => {
     ({ queryKey }) => getPrimeSimulatorMove(...queryKey),
   );
 
-  const { isLoading, isError, isSuccess } = getQueriesStatus([primeSimulatorGetMoveQuery]);
+  const { isLoading, isError, isSuccess, errors } = getQueriesStatus([primeSimulatorGetMoveQuery]);
   return {
     moveTaskOrder,
     isLoading,
     isError,
     isSuccess,
+    errors,
   };
 };
 

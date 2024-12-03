@@ -40,7 +40,7 @@ const CustomerInfoList = ({ customerInfo }) => {
           <dd data-testid="email">{customerInfo.email}</dd>
         </div>
         <div className={descriptionListStyles.row}>
-          <dt>Current address</dt>
+          <dt>Pickup Address</dt>
           <dd data-testid="currentAddress">
             {customerInfo.currentAddress?.streetAddress1
               ? formatCustomerContactFullAddress(customerInfo.currentAddress)
