@@ -91,7 +91,7 @@ describe('EditPPMHeaderSummaryModal', () => {
     expect(screen.getByLabelText('Close')).toBeInstanceOf(HTMLButtonElement);
   });
 
-  it('renders destination address', async () => {
+  it('renders delivery address', async () => {
     const mockStore = configureStore({});
 
     await act(async () => {
@@ -109,7 +109,7 @@ describe('EditPPMHeaderSummaryModal', () => {
     });
 
     expect(await screen.findByRole('heading', { level: 3, name: 'Edit Shipment Info' })).toBeInTheDocument();
-    expect(screen.getByText('Destination Address')).toBeInTheDocument();
+    expect(screen.getByText('Delivery Address')).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Save' })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Cancel' })).toBeInTheDocument();
     expect(screen.getByLabelText('Close')).toBeInstanceOf(HTMLButtonElement);

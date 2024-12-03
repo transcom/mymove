@@ -201,7 +201,7 @@ const ServiceItemsTable = ({
     if (
       (serviceItem.code === 'DLH' || serviceItem.code === 'DSH') &&
       serviceItem.details.rejectionReason ===
-        'Automatically rejected due to change in destination address affecting the ZIP code qualification for short haul / line haul.'
+        'Automatically rejected due to change in delivery address affecting the ZIP code qualification for short haul / line haul.'
     ) {
       rejectedDSHorDLHServiceItem = true;
     }
@@ -212,7 +212,7 @@ const ServiceItemsTable = ({
           <td className={styles.nameAndDate}>
             <div className={styles.codeName}>
               <span className={styles.serviceItemName}>{serviceItem.serviceItem}</span>
-              {code === 'DCRT' && serviceItem.details.standaloneCrate && ' - Standalone'}
+              {(code === 'DCRT' || code === 'ICRT') && serviceItem.details.standaloneCrate && ' - Standalone'}
               {ALLOWED_RESUBMISSION_SI_CODES.includes(code) && resubmittedToolTip.isResubmitted ? (
                 <ToolTip
                   data-testid="toolTipResubmission"

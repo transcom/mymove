@@ -66,6 +66,7 @@ const mockMTOShipment = {
       city: 'San Antonio',
       state: 'TX',
       postalCode: '78234',
+      usPostRegionCitiesID: '',
     },
     destinationAddress: {
       streetAddress1: '441 SW Rio de la Plata Drive',
@@ -74,6 +75,7 @@ const mockMTOShipment = {
       city: 'Tacoma',
       state: 'WA',
       postalCode: '98421',
+      usPostRegionCitiesID: '',
     },
     w2Address: {
       streetAddress1: '11 NE Elm Road',
@@ -82,6 +84,7 @@ const mockMTOShipment = {
       city: 'Jacksonville',
       state: 'FL',
       postalCode: '32217',
+      usPostRegionCitiesID: '',
     },
   },
   createdAt: mtoShipmentCreatedDate.toISOString(),
@@ -100,6 +103,7 @@ const partialPayload = {
     city: 'San Antonio',
     state: 'TX',
     postalCode: '78234',
+    usPostRegionCitiesID: '',
   },
   destinationAddress: {
     streetAddress1: '441 SW Rio de la Plata Drive',
@@ -108,6 +112,7 @@ const partialPayload = {
     city: 'Tacoma',
     state: 'WA',
     postalCode: '98421',
+    usPostRegionCitiesID: '',
   },
   secondaryPickupAddress: null,
   secondaryDestinationAddress: null,
@@ -122,6 +127,7 @@ const partialPayload = {
     city: 'Jacksonville',
     state: 'FL',
     postalCode: '32217',
+    usPostRegionCitiesID: '',
   },
 };
 

@@ -209,7 +209,7 @@ export const LocationSearchBoxComponent = ({
     onChange(null);
   };
 
-  const noOptionsMessage = () => (inputValue.length ? 'No Options' : 'No Options');
+  const noOptionsMessage = () => (inputValue.length ? 'No Options' : '');
   const hasLocation = !!value && !!value.address;
 
   return (

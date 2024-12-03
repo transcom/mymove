@@ -469,7 +469,7 @@ func (suite *PayloadsSuite) TestVLocationModel() {
 	payload := VLocationModel(vLocation)
 
 	suite.IsType(payload, &models.VLocation{})
-	suite.Equal(usPostRegionCityId.String(), payload.UsPostRegionCitiesId.String(), "Expected UsPostRegionCitiesID to match")
+	suite.Equal(usPostRegionCityId.String(), payload.UsPostRegionCitiesID.String(), "Expected UsPostRegionCitiesID to match")
 	suite.Equal(city, payload.CityName, "Expected City to match")
 	suite.Equal(state, payload.StateName, "Expected State to match")
 	suite.Equal(postalCode, payload.UsprZipID, "Expected PostalCode to match")

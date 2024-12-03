@@ -88,8 +88,8 @@ export const AddressFields = ({
     setFieldValue(`${name}.postalCode`, value.postalCode).then(() => {
       setFieldTouched(`${name}.postalCode`, true);
     });
-    setFieldValue(`${name}.usPostRegionCitiesId`, value.usPostRegionCitiesId).then(() => {
-      setFieldTouched(`${name}.usPostRegionCitiesId`, true);
+    setFieldValue(`${name}.usPostRegionCitiesID`, value.usPostRegionCitiesID).then(() => {
+      setFieldTouched(`${name}.usPostRegionCitiesID`, true);
     });
   };
 
@@ -207,6 +207,7 @@ AddressFields.propTypes = {
     state: PropTypes.func,
     postalCode: PropTypes.func,
     county: PropTypes.func,
+    usPostRegionCitiesID: PropTypes.func,
   }),
   address1LabelHint: PropTypes.string,
   formikProps: shape({

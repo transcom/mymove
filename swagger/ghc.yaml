@@ -3728,6 +3728,7 @@ paths:
             - requestedMoveDate
             - appearedInTooAt
             - assignedTo
+            - counselingOffice
           description: field that results should be sorted by
         - in: query
           name: order
@@ -3796,6 +3797,10 @@ paths:
           type: string
           description: |
             Used to illustrate which user is assigned to this move.
+        - in: query
+          name: counselingOffice
+          type: string
+          description: filters using a counselingOffice name of the move
       responses:
         '200':
           description: Successfully returned all moves matching the criteria
@@ -4507,6 +4512,34 @@ paths:
         unassigns either a services counselor, task ordering officer, or task
         invoicing officer from the move
       operationId: deleteAssignedOfficeUser
+  /moves/{officeUserID}/CheckForLockedMovesAndUnlock:
+    parameters:
+      - description: ID of the move's officer
+        in: path
+        name: officeUserID
+        required: true
+        format: uuid
+        type: string
+    patch:
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: Successfully unlocked officer's move(s).
+          schema:
+            type: object
+            properties:
+              successMessage:
+                type: string
+                example: OK
+        '500':
+          $ref: '#/responses/ServerError'
+      tags:
+        - move
+      description: Finds and unlocks any locked moves by an office user
+      operationId: checkForLockedMovesAndUnlock
 definitions:
   ApplicationParameters:
     type: object
@@ -8533,6 +8566,16 @@ definitions:
         type: integer
         format: cents
         x-nullable: true
+      market:
+        type: string
+        enum:
+          - CONUS
+          - OCONUS
+        example: CONUS
+        description: >-
+          To identify whether the service was provided within (CONUS) or
+          (OCONUS)
+        x-nullable: true
   MTOServiceItems:
     description: A list of service items connected to this shipment.
     type: array
@@ -8803,6 +8846,10 @@ definitions:
         title: County
         x-nullable: true
         example: LOS ANGELES
+      usPostRegionCitiesID:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
     required:
       - city
       - state
@@ -11343,7 +11390,7 @@ definitions:
         title: County
         x-nullable: true
         example: LOS ANGELES
-      usPostRegionCitiesId:
+      usPostRegionCitiesID:
         type: string
         format: uuid
         example: c56a4180-65aa-42ec-a945-5fd21dec0538

@@ -210,7 +210,7 @@ describe('AddShipment component', () => {
       const user = userEvent.setup();
 
       await act(async () => {
-        await user.click(screen.getByLabelText('Use current address'));
+        await user.click(screen.getByLabelText('Use pickup address'));
       });
 
       await userEvent.type(screen.getByLabelText('Requested pickup date'), '01 Nov 2020');
