@@ -113,7 +113,6 @@ func (f *estimatePPM) CalculatePPMSITEstimatedCostBreakdown(appCtx appcontext.Ap
 	return ppmSITEstimatedCostInfoData, nil
 }
 
-// EstimateIncentiveWithDefaultChecks func that returns the estimate hard coded to 12K (because it'll be clear that the value is coming from the service)
 func (f *estimatePPM) EstimateIncentiveWithDefaultChecks(appCtx appcontext.AppContext, oldPPMShipment models.PPMShipment, newPPMShipment *models.PPMShipment) (*unit.Cents, *unit.Cents, error) {
 	return f.estimateIncentive(appCtx, oldPPMShipment, newPPMShipment, f.checks...)
 }
@@ -369,6 +368,7 @@ func SumWeightTickets(ppmShipment, newPPMShipment models.PPMShipment) (originalT
 // calculatePrice returns an incentive value for the ppm shipment as if we were pricing the service items for
 // an HHG shipment with the same values for a payment request.  In this case we're not persisting service items,
 // MTOServiceItems or PaymentRequestServiceItems, to the database to avoid unnecessary work and get a quicker result.
+// we use this when calculating the estimated, final, and max incentive values
 func (f estimatePPM) calculatePrice(appCtx appcontext.AppContext, ppmShipment *models.PPMShipment, totalWeight unit.Pound, contract models.ReContract, isMaxIncentiveCheck bool) (*unit.Cents, error) {
 	logger := appCtx.Logger()
 
