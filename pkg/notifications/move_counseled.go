@@ -81,13 +81,8 @@ func (m MoveCounseled) emails(appCtx appcontext.AppContext) ([]emailContent, err
 			destAddr := move.MTOShipments[0].DestinationAddress
 			destinationAddress = destAddr.LineDisplayFormat()
 		} else if len(*move.PPMType) > 0 { // TODO: use mtoShipment.ShipmentType == models.MTOShipmentTypePPM
-			destAddr, err := GetPpmDestinationAddress(appCtx, m.moveID)
-			if err != nil {
-				return emails, err
-			}
-			if len(destAddr) > 0 {
-				destinationAddress = destAddr[0].LineDisplayFormat()
-			}
+			destAddr := models.FetchAddressByID(appCtx.DB(), move.MTOShipments[0].PPMShipment.DestinationAddressID)
+			destinationAddress = destAddr.LineDisplayFormat()
 		}
 	}
 
@@ -139,26 +134,6 @@ type MoveCounseledEmailData struct {
 	Locator                    string
 	MyMoveLink                 string
 	ActualExpenseReimbursement bool
-}
-
-func GetPpmDestinationAddress(appCtx appcontext.AppContext, moveId uuid.UUID) ([]models.Address, error) {
-	query := `SELECT
-	da.street_address_1,
-	da.street_address_2,
-	da.street_address_3,
-	da.city,
-	da.state,
-	da.postal_code
-FROM mto_shipments ms
-	JOIN ppm_shipments ps on ms.id = ps.shipment_id
-	JOIN addresses da ON ps.destination_postal_address_id = da.id
-	WHERE ms.move_id = $1
-    `
-
-	destinationAddresses := []models.Address{}
-	err := appCtx.DB().RawQuery(query, moveId).All(&destinationAddresses)
-
-	return destinationAddresses, err
 }
 
 // RenderHTML renders the html for the email

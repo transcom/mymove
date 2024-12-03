@@ -62,17 +62,8 @@ func (m MoveSubmitted) emails(appCtx appcontext.AppContext) ([]emailContent, err
 			destAddr := move.MTOShipments[0].DestinationAddress
 			destinationAddress = destAddr.LineDisplayFormat()
 		} else if len(*move.PPMType) > 0 { // TODO: use mtoShipment.ShipmentType == models.MTOShipmentTypePPM
-			destAddr, err := GetPpmDestinationAddress(appCtx, m.moveID)
-			if err != nil {
-				return emails, err
-			}
-			if len(destAddr) > 0 {
-				destinationAddress = destAddr[0].LineDisplayFormat()
-			}
-
-			// TODO: use FetchAddressByID instead of custom SQL
-			//destAddr := models.FetchAddressByID(appCtx.DB(), move.MTOShipments[0].PPMShipment.DestinationAddressID)
-			//destinationAddress = destAddr.LineDisplayFormat()
+			destAddr := models.FetchAddressByID(appCtx.DB(), move.MTOShipments[0].PPMShipment.DestinationAddressID)
+			destinationAddress = destAddr.LineDisplayFormat()
 		}
 	}
 
