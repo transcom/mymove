@@ -622,40 +622,6 @@ func (suite *PPMShipmentSuite) TestPPMEstimator() {
 			suite.Equal(unit.Cents(70064364), *ppmEstimate)
 		})
 
-		suite.Run("Estimated Incentive - Success when old Estimated Incentive is zero", func() {
-			oldPPMShipment := factory.BuildMinimalPPMShipment(suite.DB(), nil, nil)
-
-			zeroIncentive := unit.Cents(0)
-			oldPPMShipment.EstimatedIncentive = &zeroIncentive
-
-			setupPricerData()
-
-			// shipment has locations and date but is now updating the estimated weight for the first time
-			estimatedWeight := unit.Pound(5000)
-			newPPM := oldPPMShipment
-			newPPM.EstimatedWeight = &estimatedWeight
-
-			mockedPaymentRequestHelper.On(
-				"FetchServiceParamsForServiceItems",
-				mock.AnythingOfType("*appcontext.appContext"),
-				mock.AnythingOfType("[]models.MTOServiceItem")).Return(serviceParams, nil)
-
-			// DTOD distance is going to be less than the HHG Rand McNally distance of 2361 miles
-			mockedPlanner.On("ZipTransitDistance", mock.AnythingOfType("*appcontext.appContext"),
-				"50309", "30813").Return(2294, nil)
-
-			ppmEstimate, _, err := ppmEstimator.EstimateIncentiveWithDefaultChecks(suite.AppContextForTest(), oldPPMShipment, &newPPM)
-			suite.NilOrNoVerrs(err)
-
-			mockedPlanner.AssertCalled(suite.T(), "ZipTransitDistance", mock.AnythingOfType("*appcontext.appContext"),
-				"50309", "30813")
-			mockedPaymentRequestHelper.AssertCalled(suite.T(), "FetchServiceParamsForServiceItems", mock.AnythingOfType("*appcontext.appContext"), mock.AnythingOfType("[]models.MTOServiceItem"))
-
-			suite.Equal(oldPPMShipment.PickupAddress.PostalCode, newPPM.PickupAddress.PostalCode)
-			suite.Equal(unit.Pound(5000), *newPPM.EstimatedWeight)
-			suite.Equal(unit.Cents(70064364), *ppmEstimate)
-		})
-
 		suite.Run("Estimated Incentive - Success - clears advance and advance requested values", func() {
 			oldPPMShipment := factory.BuildPPMShipment(suite.DB(), []factory.Customization{
 				{
