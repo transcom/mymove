@@ -1042,7 +1042,7 @@ export const MoveTaskOrder = (props) => {
       unstyled
       disabled={isMoveLocked}
     >
-      <FontAwesomeIcon icon="times" />
+      <FontAwesomeIcon title="hideUbExcessWeightAlert" icon="times" />
     </Button>
   );
 
