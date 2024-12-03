@@ -43,10 +43,10 @@ const DocumentViewer = ({ files, isFileUploading, allowDownload, paymentRequestI
   useEffect(() => {
     if (isFileUploading) {
       setFileStatus(UPLOAD_DOC_STATUS.UPLOADING);
-    } else {
-      setFileStatus(UPLOAD_DOC_STATUS.ESTABLISHING);
+    } else if (selectedFile) {
+      setFileStatus(null);
     }
-  }, [isFileUploading]);
+  }, [isFileUploading, selectedFile]);
 
   const { mutate: mutateUploads } = useMutation(updateUpload, {
     onSuccess: async (data, variables) => {
@@ -95,31 +95,33 @@ const DocumentViewer = ({ files, isFileUploading, allowDownload, paymentRequestI
         setFileStatus(UPLOAD_DOC_STATUS.ESTABLISHING);
       } else if (newStatus === UPLOAD_SCAN_STATUS.INFECTED) {
         setFileStatus(UPLOAD_DOC_STATUS.INFECTED);
-      } else {
-        setFileStatus(null);
       }
     };
 
-    const sse = new EventSource(`/internal/uploads/${selectedFile.id}/status`, { withCredentials: true });
-    sse.onmessage = (event) => {
-      if (event.data === UPLOAD_SCAN_STATUS.CLEAN || event.data === UPLOAD_SCAN_STATUS.INFECTED) {
+    let sse;
+    if (selectedFile) {
+      sse = new EventSource(`/internal/uploads/${selectedFile.id}/status`, { withCredentials: true });
+      sse.onmessage = (event) => {
+        handleFileProcessing(event.data);
+        if (event.data === UPLOAD_SCAN_STATUS.CLEAN || event.data === UPLOAD_SCAN_STATUS.INFECTED) {
+          sse.close();
+        }
+      };
+      sse.onerror = () => {
         sse.close();
-      }
-      handleFileProcessing(event.data);
-    };
-    sse.onerror = () => {
-      setFileStatus(null);
-    };
+        setFileStatus(null);
+      };
+    }
 
     return () => {
-      sse.close();
+      sse?.close();
     };
   }, [selectedFile, isFileUploading]);
 
   useEffect(() => {
     if (fileStatus === 'ESTABLISHING') {
       new Promise((resolve) => {
-        setTimeout(resolve, 3000);
+        setTimeout(resolve, 5000);
       }).then(() => setFileStatus(UPLOAD_DOC_STATUS.LOADED));
     }
   }, [fileStatus]);
@@ -143,7 +145,7 @@ const DocumentViewer = ({ files, isFileUploading, allowDownload, paymentRequestI
     closeMenu();
   };
 
-  if (fileStatus && fileStatus !== 'LOADED') {
+  if (fileStatus !== 'LOADED') {
     return (
       <Alert type="info" className="usa-width-one-whole" heading="Document Status">
         {fileStatus === UPLOAD_DOC_STATUS.UPLOADING && 'Uploading'}

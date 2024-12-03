@@ -7,6 +7,7 @@ package internaloperations
 
 import (
 	"fmt"
+	"io"
 	"net/http"
 	"strings"
 
@@ -66,7 +67,9 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 
 		BinProducer:  runtime.ByteStreamProducer(),
 		JSONProducer: runtime.JSONProducer(),
-		TextEventStreamProducer: runtime.ByteStreamProducer(),
+		TextEventStreamProducer: runtime.ProducerFunc(func(w io.Writer, data interface{}) error {
+			return errors.NotImplemented("textEventStream producer has not yet been implemented")
+		}),
 
 		OfficeApproveMoveHandler: office.ApproveMoveHandlerFunc(func(params office.ApproveMoveParams) middleware.Responder {
 			return middleware.NotImplemented("operation office.ApproveMove has not yet been implemented")
