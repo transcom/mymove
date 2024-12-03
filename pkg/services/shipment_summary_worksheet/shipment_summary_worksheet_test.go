@@ -376,7 +376,7 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestFormatValuesShipmentSumma
 	suite.Equal("4,000 lbs - Estimated", sswPage1.ShipmentWeights)
 	suite.Equal("Waiting On Customer", sswPage1.ShipmentCurrentShipmentStatuses)
 	suite.Equal("17,500", sswPage1.TotalWeightAllotmentRepeat)
-	suite.Equal("15,000 lbs; $10,000.00", sswPage1.MaxObligationGCC100)
+	suite.Equal("15,000 lbs; $20,000.00", sswPage1.MaxObligationGCC100)
 	suite.True(sswPage1.IsActualExpenseReimbursement)
 	suite.Equal("Actual Expense Reimbursement", sswPage1.GCCIsActualExpenseReimbursement)
 
