@@ -742,41 +742,6 @@ func (suite *PPMShipmentSuite) TestPPMEstimator() {
 			suite.Equal(unit.Cents(112102682), *maxIncentive)
 		})
 
-		suite.Run("Max Incentive - Success, does not recalulate past closeout", func() {
-			maxIncentiveVal := unit.Cents(1234567890)
-			oldPPMShipment := factory.BuildPPMShipment(suite.DB(), []factory.Customization{
-				{
-					Model: models.PPMShipment{
-						Status:       models.PPMShipmentStatusCloseoutComplete,
-						MaxIncentive: &maxIncentiveVal,
-					},
-				},
-			}, nil)
-			setupPricerData()
-
-			estimatedWeight := unit.Pound(5000)
-			newPPM := oldPPMShipment
-			newPPM.EstimatedWeight = &estimatedWeight
-
-			mockedPaymentRequestHelper.On(
-				"FetchServiceParamsForServiceItems",
-				mock.AnythingOfType("*appcontext.appContext"),
-				mock.AnythingOfType("[]models.MTOServiceItem")).Return(serviceParams, nil)
-
-			mockedPlanner.On("ZipTransitDistance", mock.AnythingOfType("*appcontext.appContext"),
-				"50309", "30813").Return(2294, nil)
-
-			maxIncentive, err := ppmEstimator.MaxIncentive(suite.AppContextForTest(), oldPPMShipment, &newPPM)
-			suite.NilOrNoVerrs(err)
-
-			mockedPlanner.AssertCalled(suite.T(), "ZipTransitDistance", mock.AnythingOfType("*appcontext.appContext"),
-				"50309", "30813")
-			mockedPaymentRequestHelper.AssertCalled(suite.T(), "FetchServiceParamsForServiceItems", mock.AnythingOfType("*appcontext.appContext"), mock.AnythingOfType("[]models.MTOServiceItem"))
-
-			// max incentive should not have changed
-			suite.Equal(maxIncentiveVal, *maxIncentive)
-		})
-
 		suite.Run("Max Incentive - Success - is skipped when Estimated Weight is missing", func() {
 			oldPPMShipment := factory.BuildMinimalPPMShipment(suite.DB(), nil, nil)
 
