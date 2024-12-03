@@ -40,7 +40,7 @@ references:
 
   # In addition, it's common practice to disable acceptance tests and
   # ignore tests for dp3 deploys. See the branch settings below.
-  dp3-branch: &dp3-branch B-18585-gitlab-deploy
+  dp3-branch: &dp3-branch B-18585-gitlab-jz
   # MUST BE ONE OF: loadtest, demo, exp.
   # These are used to pull in env vars so the spelling matters!
   dp3-env: &dp3-env demo
@@ -48,22 +48,22 @@ references:
   # set integration-ignore-branch to the branch if you want to IGNORE
   # integration tests, or `placeholder_branch_name` if you do want to
   # run them
-  integration-ignore-branch: &integration-ignore-branch B-18585-gitlab-deploy
+  integration-ignore-branch: &integration-ignore-branch B-18585-gitlab-jz
 
   # set integration-mtls-ignore-branch to the branch if you want to
   # IGNORE mtls integration tests, or `placeholder_branch_name` if you
   # do want to run them
-  integration-mtls-ignore-branch: &integration-mtls-ignore-branch B-18585-gitlab-deploy
+  integration-mtls-ignore-branch: &integration-mtls-ignore-branch B-18585-gitlab-jz
 
   # set client-ignore-branch to the branch if you want to IGNORE
   # client tests, or `placeholder_branch_name` if you do want to run
   # them
-  client-ignore-branch: &client-ignore-branch B-18585-gitlab-deploy
+  client-ignore-branch: &client-ignore-branch B-18585-gitlab-jz
 
   # set server-ignore-branch to the branch if you want to IGNORE
   # server tests, or `placeholder_branch_name` if you do want to run
   # them
-  server-ignore-branch: &server-ignore-branch B-18585-gitlab-deploy
+  server-ignore-branch: &server-ignore-branch B-18585-gitlab-jz
 
 executors:
   base_small:
