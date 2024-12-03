@@ -76,12 +76,13 @@ func (m MoveCounseled) emails(appCtx appcontext.AppContext) ([]emailContent, err
 
 	destinationAddress := orders.NewDutyLocation.Name
 	isSeparateeRetiree := orders.OrdersType == internalmessages.OrdersTypeRETIREMENT || orders.OrdersType == internalmessages.OrdersTypeSEPARATION
-	if isSeparateeRetiree {
-		if len(move.MTOShipments) > 0 && move.MTOShipments[0].DestinationAddress != nil {
-			destAddr := move.MTOShipments[0].DestinationAddress
+	if isSeparateeRetiree && len(move.MTOShipments) > 0 {
+		mtoShipment := move.MTOShipments[0]
+		if mtoShipment.DestinationAddress != nil {
+			destAddr := mtoShipment.DestinationAddress
 			destinationAddress = destAddr.LineDisplayFormat()
-		} else if len(*move.PPMType) > 0 { // TODO: use mtoShipment.ShipmentType == models.MTOShipmentTypePPM
-			destAddr := models.FetchAddressByID(appCtx.DB(), move.MTOShipments[0].PPMShipment.DestinationAddressID)
+		} else if mtoShipment.ShipmentType == models.MTOShipmentTypePPM {
+			destAddr := models.FetchAddressByID(appCtx.DB(), mtoShipment.PPMShipment.DestinationAddressID)
 			destinationAddress = destAddr.LineDisplayFormat()
 		}
 	}
