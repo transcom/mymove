@@ -715,6 +715,44 @@ func (suite *PPMShipmentSuite) TestPPMEstimator() {
 		})
 	})
 
+	suite.Run("Max Incentive", func() {
+		suite.Run("Max Incentive - Success", func() {
+			oldPPMShipment := factory.BuildPPMShipment(suite.DB(), nil, nil)
+			setupPricerData()
+
+			estimatedWeight := unit.Pound(5000)
+			newPPM := oldPPMShipment
+			newPPM.EstimatedWeight = &estimatedWeight
+
+			mockedPaymentRequestHelper.On(
+				"FetchServiceParamsForServiceItems",
+				mock.AnythingOfType("*appcontext.appContext"),
+				mock.AnythingOfType("[]models.MTOServiceItem")).Return(serviceParams, nil)
+
+			mockedPlanner.On("ZipTransitDistance", mock.AnythingOfType("*appcontext.appContext"),
+				"50309", "30813").Return(2294, nil)
+
+			maxIncentive, err := ppmEstimator.MaxIncentive(suite.AppContextForTest(), oldPPMShipment, &newPPM)
+			suite.NilOrNoVerrs(err)
+
+			mockedPlanner.AssertCalled(suite.T(), "ZipTransitDistance", mock.AnythingOfType("*appcontext.appContext"),
+				"50309", "30813")
+			mockedPaymentRequestHelper.AssertCalled(suite.T(), "FetchServiceParamsForServiceItems", mock.AnythingOfType("*appcontext.appContext"), mock.AnythingOfType("[]models.MTOServiceItem"))
+
+			suite.Equal(unit.Cents(112102682), *maxIncentive)
+		})
+
+		suite.Run("Max Incentive - Success - is skipped when Estimated Weight is missing", func() {
+			oldPPMShipment := factory.BuildMinimalPPMShipment(suite.DB(), nil, nil)
+
+			newPPM := oldPPMShipment
+			newPPM.DestinationAddress.PostalCode = "94040"
+			_, err := ppmEstimator.MaxIncentive(suite.AppContextForTest(), oldPPMShipment, &newPPM)
+			suite.NoError(err)
+			suite.Nil(newPPM.MaxIncentive)
+		})
+	})
+
 	suite.Run("Final Incentive", func() {
 		actualMoveDate := time.Date(2020, time.March, 14, 0, 0, 0, 0, time.UTC)
 
