@@ -383,18 +383,31 @@ func (f estimatePPM) calculatePrice(appCtx appcontext.AppContext, ppmShipment *m
 	// Replace linehaul pricer with shorthaul pricer if move is within the same Zip3
 	var pickupPostal, destPostal string
 
-	// Check different address values for a postal code
-	if orders.OriginDutyLocation.Address.PostalCode != "" {
-		pickupPostal = orders.OriginDutyLocation.Address.PostalCode
-	} else {
-		return nil, apperror.NewNotFoundError(ppmShipment.ID, " No postal code for origin duty location on orders when comparing postal codes")
-	}
+	// if we are getting the max incentive, we want to use the addresses on the orders, else use what's on the shipment
+	if isMaxIncentiveCheck {
+		if orders.OriginDutyLocation.Address.PostalCode != "" {
+			pickupPostal = orders.OriginDutyLocation.Address.PostalCode
+		} else {
+			return nil, apperror.NewNotFoundError(ppmShipment.ID, " No postal code for origin duty location on orders when comparing postal codes")
+		}
 
-	// Same for destination
-	if orders.NewDutyLocation.Address.PostalCode != "" {
-		destPostal = orders.NewDutyLocation.Address.PostalCode
+		if orders.NewDutyLocation.Address.PostalCode != "" {
+			destPostal = orders.NewDutyLocation.Address.PostalCode
+		} else {
+			return nil, apperror.NewNotFoundError(ppmShipment.ID, " No postal code for destination duty location on orders when comparing postal codes")
+		}
 	} else {
-		return nil, apperror.NewNotFoundError(ppmShipment.ID, " No postal code for destination duty location on orders when comparing postal codes")
+		if ppmShipment.ActualPickupPostalCode != nil {
+			pickupPostal = *ppmShipment.ActualPickupPostalCode
+		} else if ppmShipment.PickupAddress.PostalCode != "" {
+			pickupPostal = ppmShipment.PickupAddress.PostalCode
+		}
+
+		if ppmShipment.ActualDestinationPostalCode != nil {
+			destPostal = *ppmShipment.ActualDestinationPostalCode
+		} else if ppmShipment.DestinationAddress.PostalCode != "" {
+			destPostal = ppmShipment.DestinationAddress.PostalCode
+		}
 	}
 
 	if pickupPostal[0:3] == destPostal[0:3] {
