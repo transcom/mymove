@@ -262,7 +262,7 @@ export const closeoutColumns = (
         );
       },
       {
-        id: 'lastName',
+        id: 'customerName',
         isFilterable: true,
         exportValue: (row) => {
           return `${row.customer.last_name}, ${row.customer.first_name}`;
@@ -367,6 +367,10 @@ export const closeoutColumns = (
             return row.originDutyLocation?.name;
           },
         }),
+    createHeader('Counseling office', 'counselingOffice', {
+      id: 'counselingOffice',
+      isFilterable: true,
+    }),
     createHeader('Destination duty location', 'destinationDutyLocation.name', {
       id: 'destinationDutyLocation',
       isFilterable: true,
