@@ -376,4 +376,21 @@ describe('Office App', () => {
       await waitFor(() => expect(screen.getByText('Mock Invalid Permissions Component')));
     });
   });
+
+  it('renders the Maintenance page flag is true', async () => {
+    const mockMaintenanceOfficeProps = {
+      loadUser: jest.fn(),
+      loadInternalSchema: jest.fn(),
+      loadPublicSchema: jest.fn(),
+      logOut: jest.fn(),
+      underMaintenance: true,
+      hasRecentError: false,
+      traceId: '',
+    };
+
+    const wrapper = shallow(<OfficeApp {...mockMaintenanceOfficeProps} router={{ location: { pathname: '/' } }} />);
+
+    // maintenance page should be rendered
+    expect(wrapper.find('MaintenancePage')).toHaveLength(1);
+  });
 });
