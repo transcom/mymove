@@ -441,9 +441,6 @@ test.describe('TOO user', () => {
     });
 
     test('is able to request cancellation for a shipment', async ({ page }) => {
-      // Resolve flakey test due to timeout
-      test.slow();
-
       await tooFlowPage.waitForLoading();
       await tooFlowPage.approveAllShipments();
 
@@ -464,17 +461,14 @@ test.describe('TOO user', () => {
       // After updating, the button is disabeld and an alert is shown
       await expect(page.getByTestId('modal')).not.toBeVisible();
       await expect(page.locator('.shipment-heading')).toContainText('Cancellation Requested');
-      await expect(
-        page
-          .locator('[data-testid="alert"]')
-          .first()
-          .getByText('The request to cancel that shipment has been sent to the movers.'),
-      ).toBeVisible();
+
+      const cancelAlert = page.getByText(/The request to cancel that shipment has been sent to the movers./);
+      await expect(cancelAlert).toBeVisible();
 
       // Alert should disappear if focus changes
       await page.locator('[data-testid="rejectTextButton"]').first().click();
       await page.locator('[data-testid="closeRejectServiceItem"]').click();
-      await expect(page.locator('[data-testid="alert"]')).not.toBeVisible();
+      await expect(cancelAlert).not.toBeVisible();
     });
 
     /**
@@ -717,9 +711,6 @@ test.describe('TOO user', () => {
     });
 
     test('is able to request diversion for a shipment and receive alert msg', async ({ page }) => {
-      // Resolve flakey test due to timeout
-      test.slow();
-
       await tooFlowPage.waitForLoading();
       await tooFlowPage.approveAllShipments();
 
@@ -743,15 +734,16 @@ test.describe('TOO user', () => {
       await expect(page.locator('.shipment-heading')).toContainText('diversion requested');
 
       // Check the alert message with shipment locator
-      const alertText = await page.locator('[data-testid="alert"]').textContent();
+      const diversionAlert = page.getByText(/Diversion successfully requested for Shipment/);
+      const diversionAlertText = await diversionAlert.textContent();
       const shipmentNumberPattern = /^Diversion successfully requested for Shipment #([A-Za-z0-9]{6}-\d{2})$/;
-      const hasValidShipmentNumber = shipmentNumberPattern.test(alertText);
+      const hasValidShipmentNumber = shipmentNumberPattern.test(diversionAlertText);
       expect(hasValidShipmentNumber).toBeTruthy();
 
       // Alert should disappear if focus changes
       await page.locator('[data-testid="rejectTextButton"]').first().click();
       await page.locator('[data-testid="closeRejectServiceItem"]').click();
-      await expect(page.locator('[data-testid="alert"]').first()).not.toBeVisible();
+      await expect(diversionAlert).not.toBeVisible();
     });
   });
 
