@@ -1,8 +1,9 @@
 // @ts-check
 // import { test, expect } from '../../utils/my/customerTest';
-import { test } from '../../utils/my/customerTest';
+import { test, expect } from '../../utils/my/customerTest';
 
 const multiMoveEnabled = process.env.FEATURE_FLAG_MULTI_MOVE;
+const LocationLookup = 'ATCO, NJ 08004 (CAMDEN)';
 
 test.describe('Onboarding', () => {
   test.skip(multiMoveEnabled === 'true', 'Skip if MultiMove workflow is enabled.');
@@ -35,19 +36,17 @@ test.describe('Onboarding', () => {
     // Current address section
     await customerPage.waitForPage.onboardingCurrentAddress();
     await page.getByLabel('Address 1').fill('7 Q St');
-    await page.getByLabel('City').fill('Atco');
-    await page.getByLabel('State').selectOption({ label: 'NJ' });
-    await page.getByLabel('ZIP').fill('08004');
-    await page.getByLabel('ZIP').blur();
+    await page.locator('input[id="current_residence-location-input"]').fill('08004');
+    await expect(page.getByText(LocationLookup, { exact: true })).toBeVisible();
+    await page.keyboard.press('Enter');
     await customerPage.navigateForward();
 
     // Backup mailing address section
     await customerPage.waitForPage.onboardingBackupAddress();
     await page.getByLabel('Address 1').fill('7 Q St');
-    await page.getByLabel('City').fill('Atco');
-    await page.getByLabel('State').selectOption({ label: 'NJ' });
-    await page.getByLabel('ZIP').fill('08004');
-    await page.getByLabel('ZIP').blur();
+    await page.locator('input[id="backup_mailing_address-location-input"]').fill('08004');
+    await expect(page.getByText(LocationLookup, { exact: true })).toBeVisible();
+    await page.keyboard.press('Enter');
     await customerPage.navigateForward();
 
     // Backup contact info section
@@ -95,19 +94,19 @@ test.describe('(MultiMove) Onboarding', () => {
     // Current address section
     await customerPage.waitForPage.onboardingCurrentAddress();
     await page.getByLabel('Address 1').fill('7 Q St');
-    await page.getByLabel('City').fill('Atco');
-    await page.getByLabel('State').selectOption({ label: 'NJ' });
-    await page.getByLabel('ZIP').fill('08004');
-    await page.getByLabel('ZIP').blur();
+    await page.getByLabel('Address 1').blur();
+    await page.locator('input[id="current_residence-location-input"]').fill('08004');
+    await expect(page.getByText(LocationLookup, { exact: true })).toBeVisible();
+    await page.keyboard.press('Enter');
     await customerPage.navigateForward();
 
     // Backup mailing address section
     await customerPage.waitForPage.onboardingBackupAddress();
     await page.getByLabel('Address 1').fill('7 Q St');
-    await page.getByLabel('City').fill('Atco');
-    await page.getByLabel('State').selectOption({ label: 'NJ' });
-    await page.getByLabel('ZIP').fill('08004');
-    await page.getByLabel('ZIP').blur();
+    await page.getByLabel('Address 1').blur();
+    await page.locator('input[id="backup_mailing_address-location-input"]').fill('08004');
+    await expect(page.getByText(LocationLookup, { exact: true })).toBeVisible();
+    await page.keyboard.press('Enter');
     await customerPage.navigateForward();
 
     // Backup contact info section

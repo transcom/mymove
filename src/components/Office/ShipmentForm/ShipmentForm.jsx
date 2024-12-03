@@ -646,18 +646,7 @@ const ShipmentForm = (props) => {
       validationSchema={schema}
       onSubmit={submitMTOShipment}
     >
-      {({
-        values,
-        isValid,
-        isSubmitting,
-        setValues,
-        handleSubmit,
-        errors,
-        touched,
-        setFieldTouched,
-        setFieldError,
-        validateForm,
-      }) => {
+      {({ values, isValid, isSubmitting, setValues, handleSubmit, setFieldError, validateForm, ...formikProps }) => {
         const {
           hasSecondaryDestination,
           hasTertiaryDestination,
@@ -670,32 +659,32 @@ const ShipmentForm = (props) => {
         } = values;
 
         const lengthHasError = !!(
-          (touched.lengthFeet && errors.lengthFeet === 'Required') ||
-          (touched.lengthInches && errors.lengthFeet === 'Required')
+          (formikProps.touched.lengthFeet && formikProps.errors.lengthFeet === 'Required') ||
+          (formikProps.touched.lengthInches && formikProps.errors.lengthFeet === 'Required')
         );
         const widthHasError = !!(
-          (touched.widthFeet && errors.widthFeet === 'Required') ||
-          (touched.widthInches && errors.widthFeet === 'Required')
+          (formikProps.touched.widthFeet && formikProps.errors.widthFeet === 'Required') ||
+          (formikProps.touched.widthInches && formikProps.errors.widthFeet === 'Required')
         );
         const heightHasError = !!(
-          (touched.heightFeet && errors.heightFeet === 'Required') ||
-          (touched.heightInches && errors.heightFeet === 'Required')
+          (formikProps.touched.heightFeet && formikProps.errors.heightFeet === 'Required') ||
+          (formikProps.touched.heightInches && formikProps.errors.heightFeet === 'Required')
         );
         const dimensionError = !!(
-          (touched.lengthFeet && errors.lengthFeet?.includes('Dimensions')) ||
-          (touched.lengthInches && errors.lengthFeet?.includes('Dimensions'))
+          (formikProps.touched.lengthFeet && formikProps.errors.lengthFeet?.includes('Dimensions')) ||
+          (formikProps.touched.lengthInches && formikProps.errors.lengthFeet?.includes('Dimensions'))
         );
-        if (touched.lengthInches && !touched.lengthFeet) {
-          setFieldTouched('lengthFeet', true);
+        if (formikProps.touched.lengthInches && !formikProps.touched.lengthFeet) {
+          formikProps.setFieldTouched('lengthFeet', true);
         }
-        if (touched.widthInches && !touched.widthFeet) {
-          setFieldTouched('widthFeet', true);
+        if (formikProps.touched.widthInches && !formikProps.touched.widthFeet) {
+          formikProps.setFieldTouched('widthFeet', true);
         }
-        if (touched.heightInches && !touched.heightFeet) {
-          setFieldTouched('heightFeet', true);
+        if (formikProps.touched.heightInches && !formikProps.touched.heightFeet) {
+          formikProps.setFieldTouched('heightFeet', true);
         }
         // manually turn off 'required' error when page loads if field is empty.
-        if (values.year === null && !touched.year && errors.year === 'Required') {
+        if (values.year === null && !formikProps.touched.year && formikProps.errors.year === 'Required') {
           setFieldError('year', null);
         }
 
@@ -703,29 +692,36 @@ const ShipmentForm = (props) => {
           const { checked } = e.target;
           if (checked) {
             // use current residence
-            setValues({
-              ...values,
-              pickup: {
-                ...values.pickup,
-                address: currentResidence,
-              },
-            });
-          } else {
-            // Revert address
-            setValues({
-              ...values,
-              pickup: {
-                ...values.pickup,
-                address: {
-                  streetAddress1: '',
-                  streetAddress2: '',
-                  streetAddress3: '',
-                  city: '',
-                  state: '',
-                  postalCode: '',
+            setValues(
+              {
+                ...values,
+                pickup: {
+                  ...values.pickup,
+                  address: currentResidence,
                 },
               },
-            });
+              { shouldValidate: true },
+            );
+          } else {
+            // Revert address
+            setValues(
+              {
+                ...values,
+                pickup: {
+                  ...values.pickup,
+                  address: {
+                    streetAddress1: '',
+                    streetAddress2: '',
+                    streetAddress3: '',
+                    city: '',
+                    state: '',
+                    postalCode: '',
+                    county: '',
+                  },
+                },
+              },
+              { shouldValidate: true },
+            );
           }
         };
 
@@ -762,7 +758,7 @@ const ShipmentForm = (props) => {
           });
           const onErrorHandler = (errResponse) => {
             const { response } = errResponse;
-            setErrorMessage(response?.body?.detail);
+            setDatesErrorMessage(response?.body?.detail);
           };
           dateSelectionWeekendHolidayCheck(
             dateSelectionIsWeekendHoliday,
@@ -900,7 +896,7 @@ const ShipmentForm = (props) => {
                     widthHasError={widthHasError}
                     heightHasError={heightHasError}
                     values={values}
-                    setFieldTouched={setFieldTouched}
+                    setFieldTouched={formikProps.setFieldTouched}
                     setFieldError={setFieldError}
                     validateForm={validateForm}
                     dimensionError={dimensionError}
@@ -913,7 +909,7 @@ const ShipmentForm = (props) => {
                     widthHasError={widthHasError}
                     heightHasError={heightHasError}
                     values={values}
-                    setFieldTouched={setFieldTouched}
+                    setFieldTouched={formikProps.setFieldTouched}
                     setFieldError={setFieldError}
                     validateForm={validateForm}
                     dimensionError={dimensionError}
@@ -942,6 +938,8 @@ const ShipmentForm = (props) => {
                         <AddressFields
                           name="pickup.address"
                           legend="Pickup Address"
+                          locationLookup
+                          formikProps={formikProps}
                           render={(fields) => (
                             <>
                               <p>What address are the movers picking up from?</p>
@@ -981,7 +979,11 @@ const ShipmentForm = (props) => {
                               </FormGroup>
                               {hasSecondaryPickup === 'yes' && (
                                 <>
-                                  <AddressFields name="secondaryPickup.address" />
+                                  <AddressFields
+                                    name="secondaryPickup.address"
+                                    locationLookup
+                                    formikProps={formikProps}
+                                  />
                                   {isTertiaryAddressEnabled && (
                                     <>
                                       <h4>Third Pickup Address</h4>
@@ -1010,7 +1012,13 @@ const ShipmentForm = (props) => {
                                           />
                                         </div>
                                       </FormGroup>
-                                      {hasTertiaryPickup === 'yes' && <AddressFields name="tertiaryPickup.address" />}
+                                      {hasTertiaryPickup === 'yes' && (
+                                        <AddressFields
+                                          name="tertiaryPickup.address"
+                                          locationLookup
+                                          formikProps={formikProps}
+                                        />
+                                      )}
                                     </>
                                   )}
                                 </>
@@ -1034,14 +1042,14 @@ const ShipmentForm = (props) => {
                 {isTOO && (isNTS || isNTSR) && (
                   <>
                     <StorageFacilityInfo userRole={userRole} />
-                    <StorageFacilityAddress />
+                    <StorageFacilityAddress values={values} formikProps={formikProps} />
                   </>
                 )}
 
                 {isServiceCounselor && isNTSR && (
                   <>
                     <StorageFacilityInfo userRole={userRole} />
-                    <StorageFacilityAddress />
+                    <StorageFacilityAddress values={values} formikProps={formikProps} />
                   </>
                 )}
 
@@ -1088,6 +1096,8 @@ const ShipmentForm = (props) => {
                         >
                           <AddressFields
                             name="delivery.address"
+                            locationLookup
+                            formikProps={formikProps}
                             render={(fields) => {
                               return fields;
                             }}
@@ -1120,7 +1130,11 @@ const ShipmentForm = (props) => {
                           </FormGroup>
                           {hasSecondaryDelivery === 'yes' && (
                             <>
-                              <AddressFields name="secondaryDelivery.address" />
+                              <AddressFields
+                                name="secondaryDelivery.address"
+                                locationLookup
+                                formikProps={formikProps}
+                              />
                               {isTertiaryAddressEnabled && (
                                 <>
                                   <h4>Third Delivery Address</h4>
@@ -1149,7 +1163,13 @@ const ShipmentForm = (props) => {
                                       />
                                     </div>
                                   </FormGroup>
-                                  {hasTertiaryDelivery === 'yes' && <AddressFields name="tertiaryDelivery.address" />}
+                                  {hasTertiaryDelivery === 'yes' && (
+                                    <AddressFields
+                                      name="tertiaryDelivery.address"
+                                      locationLookup
+                                      formikProps={formikProps}
+                                    />
+                                  )}
                                 </>
                               )}
                             </>
@@ -1226,6 +1246,8 @@ const ShipmentForm = (props) => {
                           {hasDeliveryAddress === 'yes' ? (
                             <AddressFields
                               name="delivery.address"
+                              locationLookup
+                              formikProps={formikProps}
                               render={(fields) => (
                                 <>
                                   {fields}
@@ -1265,7 +1287,11 @@ const ShipmentForm = (props) => {
                                   </FormGroup>
                                   {hasSecondaryDelivery === 'yes' && (
                                     <>
-                                      <AddressFields name="secondaryDelivery.address" />
+                                      <AddressFields
+                                        name="secondaryDelivery.address"
+                                        locationLookup
+                                        formikProps={formikProps}
+                                      />
                                       {isTertiaryAddressEnabled && (
                                         <>
                                           <h4>Third Delivery Address</h4>
@@ -1297,7 +1323,11 @@ const ShipmentForm = (props) => {
                                             </div>
                                           </FormGroup>
                                           {hasTertiaryDelivery === 'yes' && (
-                                            <AddressFields name="tertiaryDelivery.address" />
+                                            <AddressFields
+                                              name="tertiaryDelivery.address"
+                                              locationLookup
+                                              formikProps={formikProps}
+                                            />
                                           )}
                                         </>
                                       )}
@@ -1389,6 +1419,8 @@ const ShipmentForm = (props) => {
                       <AddressFields
                         name="pickup.address"
                         legend="Pickup Address"
+                        locationLookup
+                        formikProps={formikProps}
                         render={(fields) => (
                           <>
                             <p>What address are you moving from?</p>
@@ -1431,7 +1463,11 @@ const ShipmentForm = (props) => {
                             </FormGroup>
                             {hasSecondaryPickup === 'true' && (
                               <>
-                                <AddressFields name="secondaryPickup.address" />
+                                <AddressFields
+                                  name="secondaryPickup.address"
+                                  locationLookup
+                                  formikProps={formikProps}
+                                />
                                 {isTertiaryAddressEnabled && (
                                   <>
                                     <h4>Third Pickup Address</h4>
@@ -1463,7 +1499,13 @@ const ShipmentForm = (props) => {
                                         />
                                       </div>
                                     </FormGroup>
-                                    {hasTertiaryPickup === 'true' && <AddressFields name="tertiaryPickup.address" />}
+                                    {hasTertiaryPickup === 'true' && (
+                                      <AddressFields
+                                        name="tertiaryPickup.address"
+                                        locationLookup
+                                        formikProps={formikProps}
+                                      />
+                                    )}
                                   </>
                                 )}
                               </>
@@ -1474,6 +1516,8 @@ const ShipmentForm = (props) => {
                       <AddressFields
                         name="destination.address"
                         legend="Delivery Address"
+                        locationLookup
+                        formikProps={formikProps}
                         address1LabelHint="Optional"
                         render={(fields) => (
                           <>
@@ -1509,7 +1553,11 @@ const ShipmentForm = (props) => {
                             </FormGroup>
                             {hasSecondaryDestination === 'true' && (
                               <>
-                                <AddressFields name="secondaryDestination.address" />
+                                <AddressFields
+                                  name="secondaryDestination.address"
+                                  locationLookup
+                                  formikProps={formikProps}
+                                />
                                 {isTertiaryAddressEnabled && (
                                   <>
                                     <h4>Third Delivery Address</h4>
@@ -1542,7 +1590,11 @@ const ShipmentForm = (props) => {
                                       </div>
                                     </FormGroup>
                                     {hasTertiaryDestination === 'true' && (
-                                      <AddressFields name="tertiaryDestination.address" />
+                                      <AddressFields
+                                        name="tertiaryDestination.address"
+                                        locationLookup
+                                        formikProps={formikProps}
+                                      />
                                     )}
                                   </>
                                 )}
@@ -1604,7 +1656,7 @@ const ShipmentForm = (props) => {
                     counselorRemarks={mtoShipment.counselorRemarks}
                     showHint={false}
                     error={
-                      errors.counselorRemarks &&
+                      formikProps.errors.counselorRemarks &&
                       (values.advanceRequested !== mtoShipment.ppmShipment?.hasRequestedAdvance ||
                         values.advance !== mtoShipment.ppmShipment?.advanceAmountRequested)
                     }
