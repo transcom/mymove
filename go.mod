@@ -49,7 +49,7 @@ require (
 	github.com/gobuffalo/validate/v3 v3.3.3
 	github.com/gocarina/gocsv v0.0.0-20221216233619-1fea7ae8d380
 	github.com/gofrs/uuid v4.4.0+incompatible
-	github.com/golang-jwt/jwt/v4 v4.5.0
+	github.com/golang-jwt/jwt/v4 v4.5.1
 	github.com/gomodule/redigo v1.9.2
 	github.com/google/go-github/v31 v31.0.0
 	github.com/gorilla/csrf v1.7.2
@@ -64,7 +64,7 @@ require (
 	github.com/namsral/flag v1.7.4-pre
 	github.com/pdfcpu/pdfcpu v0.6.0
 	github.com/pkg/errors v0.9.1
-	github.com/pkg/sftp v1.13.6
+	github.com/pkg/sftp v1.13.7
 	github.com/pterm/pterm v0.12.79
 	github.com/rickar/cal/v2 v2.1.13
 	github.com/spf13/afero v1.11.0
@@ -84,23 +84,23 @@ require (
 	go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp v0.55.0
 	go.opentelemetry.io/contrib/instrumentation/runtime v0.53.0
 	go.opentelemetry.io/contrib/propagators/aws v1.18.0
-	go.opentelemetry.io/otel v1.30.0
+	go.opentelemetry.io/otel v1.31.0
 	go.opentelemetry.io/otel/exporters/otlp/otlpmetric/otlpmetricgrpc v1.28.0
 	go.opentelemetry.io/otel/exporters/otlp/otlptrace v1.29.0
 	go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracegrpc v1.18.0
 	go.opentelemetry.io/otel/exporters/stdout/stdoutmetric v0.40.0
 	go.opentelemetry.io/otel/exporters/stdout/stdouttrace v1.28.0
-	go.opentelemetry.io/otel/metric v1.30.0
+	go.opentelemetry.io/otel/metric v1.31.0
 	go.opentelemetry.io/otel/sdk v1.29.0
 	go.opentelemetry.io/otel/sdk/metric v1.28.0
-	go.opentelemetry.io/otel/trace v1.30.0
+	go.opentelemetry.io/otel/trace v1.31.0
 	go.uber.org/zap v1.27.0
-	golang.org/x/crypto v0.26.0
-	golang.org/x/net v0.28.0
-	golang.org/x/oauth2 v0.22.0
+	golang.org/x/crypto v0.27.0
+	golang.org/x/net v0.29.0
+	golang.org/x/oauth2 v0.23.0
 	golang.org/x/text v0.18.0
 	golang.org/x/tools v0.24.0
-	google.golang.org/grpc v1.65.0
+	google.golang.org/grpc v1.68.0
 	gopkg.in/dnaeon/go-vcr.v3 v3.2.0
 	gotest.tools/gotestsum v1.12.0
 	pault.ag/go/pksigner v1.0.2
@@ -262,11 +262,11 @@ require (
 	golang.org/x/image v0.18.0 // indirect
 	golang.org/x/mod v0.20.0 // indirect
 	golang.org/x/sync v0.8.0 // indirect
-	golang.org/x/sys v0.24.0 // indirect
-	golang.org/x/term v0.23.0 // indirect
+	golang.org/x/sys v0.25.0 // indirect
+	golang.org/x/term v0.24.0 // indirect
 	google.golang.org/genproto v0.0.0-20240401170217-c3f982113cda // indirect
-	google.golang.org/genproto/googleapis/api v0.0.0-20240701130421-f6361c86f094 // indirect
-	google.golang.org/genproto/googleapis/rpc v0.0.0-20240701130421-f6361c86f094 // indirect
+	google.golang.org/genproto/googleapis/api v0.0.0-20240903143218-8af14fe29dc1 // indirect
+	google.golang.org/genproto/googleapis/rpc v0.0.0-20240903143218-8af14fe29dc1 // indirect
 	google.golang.org/protobuf v1.34.2 // indirect
 	gopkg.in/alexcesaro/quotedprintable.v3 v3.0.0-20150716171945-2caba252f4dc // indirect
 	gopkg.in/gomail.v2 v2.0.0-20160411212932-81ebce5c23df // indirect

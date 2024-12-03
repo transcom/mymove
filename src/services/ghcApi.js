@@ -192,6 +192,18 @@ export async function submitEvaluationReport({ reportID, ifMatchETag }) {
   );
 }
 
+export async function addSeriousIncidentAppeal({ reportID, body }) {
+  return makeGHCRequest('evaluationReports.addAppealToSeriousIncident', { reportID, body }, { normalize: false });
+}
+
+export async function addViolationAppeal({ reportID, reportViolationID, body }) {
+  return makeGHCRequest(
+    'evaluationReports.addAppealToViolation',
+    { reportID, reportViolationID, body },
+    { normalize: false },
+  );
+}
+
 export async function associateReportViolations({ reportID, body }) {
   return makeGHCRequest('reportViolations.associateReportViolations', { reportID, body }, { normalize: false });
 }
@@ -427,6 +439,17 @@ export function updateMoveStatusServiceCounselingCompleted({ moveTaskOrderID, if
     {
       moveTaskOrderID,
       'If-Match': ifMatchETag,
+    },
+    { normalize },
+  );
+}
+
+export function cancelMove({ moveID, normalize = false }) {
+  const operationPath = 'move.moveCanceler';
+  return makeGHCRequest(
+    operationPath,
+    {
+      moveID,
     },
     { normalize },
   );
@@ -863,6 +886,12 @@ export async function updateAssignedOfficeUserForMove({ moveID, officeUserId, ro
   return makeGHCRequest('move.updateAssignedOfficeUser', {
     moveID,
     body: { officeUserId, roleType },
+  });
+}
+
+export async function checkForLockedMovesAndUnlock(key, officeUserID) {
+  return makeGHCRequest('move.checkForLockedMovesAndUnlock', {
+    officeUserID,
   });
 }
 

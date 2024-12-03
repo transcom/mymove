@@ -110,6 +110,7 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 					City:           "Des Moines",
 					State:          "IA",
 					PostalCode:     "50309",
+					County:         "POLK",
 				},
 			},
 		}, nil)
@@ -1676,7 +1677,7 @@ func (suite *MTOShipmentServiceSuite) TestUpdateMTOShipmentStatus() {
 
 	setupTestData := func() {
 		for i := range expectedReServiceCodes {
-			factory.BuildReServiceByCode(suite.DB(), expectedReServiceCodes[i])
+			factory.FetchReServiceByCode(suite.DB(), expectedReServiceCodes[i])
 		}
 
 		mto = factory.BuildMove(suite.DB(), []factory.Customization{
@@ -1944,7 +1945,7 @@ func (suite *MTOShipmentServiceSuite) TestUpdateMTOShipmentStatus() {
 		suite.Assert().False(verrs.HasAny())
 		suite.NoError(err)
 
-		factory.BuildReServiceByCode(appCtx.DB(), models.ReServiceCodeDNPK)
+		factory.FetchReServiceByCode(appCtx.DB(), models.ReServiceCodeDNPK)
 
 		// This is testing that the Required Delivery Date is calculated correctly.
 		// In order for the Required Delivery Date to be calculated, the following conditions must be true:
@@ -2895,7 +2896,7 @@ func (suite *MTOShipmentServiceSuite) TestUpdateStatusServiceItems() {
 
 	setupTestData := func() {
 		for i := range expectedReServiceCodes {
-			factory.BuildReServiceByCode(suite.DB(), expectedReServiceCodes[i])
+			factory.FetchReServiceByCode(suite.DB(), expectedReServiceCodes[i])
 		}
 
 		pickupAddress = factory.BuildAddress(suite.DB(), []factory.Customization{

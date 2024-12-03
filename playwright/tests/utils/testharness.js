@@ -186,7 +186,7 @@ export class TestHarness {
   }
 
   /**
-   *    * Use testharness to build a move with an hhg shipment in SIT without destination address
+   *    * Use testharness to build a move with an hhg shipment in SIT without delivery address
    * @returns {Promise<Move>}
    */
 
@@ -265,6 +265,14 @@ export class TestHarness {
    */
   async buildHHGMoveWithServiceItemsAndPaymentRequestsAndFilesForTOO() {
     return this.buildDefault('HHGMoveWithServiceItemsAndPaymentRequestsAndFilesForTOO');
+  }
+
+  /**
+   * Use testharness to build hhg move with international crating service items for TOO
+   * @returns {Promise<Move>}
+   */
+  async buildHHGMoveWithIntlCratingServiceItemsTOO() {
+    return this.buildDefault('HHGMoveWithIntlCratingServiceItemsTOO');
   }
 
   /**
@@ -412,6 +420,14 @@ export class TestHarness {
   }
 
   /**
+   * Use testharness to build Mobile move
+   * @returns {Promise<Move>}
+   */
+  async buildMobileHomeMoveNeedsSC() {
+    return this.buildDefault('MobileHomeMoveNeedsSC');
+  }
+
+  /**
    * Use testharness to build a good TAC and LOA combination, return the TAC
    * so that office users can input the TAC, and preview the LOA (If the
    * form params are good for the lookup. Eg, service member branch,
@@ -476,6 +492,14 @@ export class TestHarness {
    */
   async buildApprovedMoveWithPPMProgearWeightTicketOffice() {
     return this.buildDefault('ApprovedMoveWithPPMProgearWeightTicketOffice');
+  }
+
+  /**
+   * Use testharness to build Use testharness to build submitted move with ppm and pro-gear - civilian
+   * @returns {Promise<Move>}
+   */
+  async buildApprovedMoveWithPPMProgearWeightTicketOfficeCivilian() {
+    return this.buildDefault('ApprovedMoveWithPPMProgearWeightTicketOfficeCivilian');
   }
 
   /**

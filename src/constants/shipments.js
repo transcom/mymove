@@ -6,7 +6,7 @@ export const shipmentTypes = {
   [SHIPMENT_OPTIONS.PPM]: 'PPM',
   [SHIPMENT_OPTIONS.NTS]: 'NTS',
   [SHIPMENT_OPTIONS.NTSR]: 'NTS-release',
-  [SHIPMENT_OPTIONS.MOBILE_HOME]: 'MobileHome',
+  [SHIPMENT_OPTIONS.MOBILE_HOME]: 'Mobile Home',
   [SHIPMENT_OPTIONS.BOAT]: 'Boat',
   [SHIPMENT_TYPES.BOAT_HAUL_AWAY]: 'Boat',
   [SHIPMENT_TYPES.BOAT_TOW_AWAY]: 'Boat',
@@ -26,6 +26,7 @@ export const mtoShipmentTypes = {
   [SHIPMENT_TYPES.BOAT_HAUL_AWAY]: 'Boat haul-away',
   [SHIPMENT_TYPES.BOAT_TOW_AWAY]: 'Boat tow-away',
   [SHIPMENT_OPTIONS.UNACCOMPANIED_BAGGAGE]: 'Unaccompanied baggage',
+  [SHIPMENT_OPTIONS.MOBILE_HOME]: 'Mobile Home',
 };
 
 export const shipmentStatuses = {
@@ -45,6 +46,7 @@ export const ppmShipmentStatuses = {
   NEEDS_ADVANCE_APPROVAL: 'NEEDS_ADVANCE_APPROVAL',
   NEEDS_CLOSEOUT: 'NEEDS_CLOSEOUT',
   CLOSEOUT_COMPLETE: 'CLOSEOUT_COMPLETE',
+  CANCELED: 'CANCELED',
 };
 
 export const boatShipmentTypes = {

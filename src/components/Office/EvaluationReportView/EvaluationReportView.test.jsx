@@ -1,16 +1,25 @@
 import React from 'react';
 import { render, screen } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
+import userEvent from '@testing-library/user-event';
 
 import EvaluationReportView from './EvaluationReportView';
 
 import { useEvaluationReportShipmentListQueries } from 'hooks/queries';
 import { qaeCSRRoutes } from 'constants/routes';
-import { renderWithProviders } from 'testUtils';
+import { MockProviders } from 'testUtils';
+import { isBooleanFlagEnabled } from 'utils/featureFlags';
+import { roleTypes } from 'constants/userRoles';
+
+jest.mock('utils/featureFlags', () => ({
+  ...jest.requireActual('utils/featureFlags'),
+  isBooleanFlagEnabled: jest.fn().mockImplementation(() => Promise.resolve(false)),
+}));
 
 const mockReportId = 'db30c135-1d6d-4a0d-a6d5-f408474f6ee2';
 const mockMoveId = '551dd01f-90cf-44d6-addb-ff919433dd61';
 const mockViolationID = '9cdc8dc3-6cf4-46fb-b272-1468ef40796f';
+const mockViolationID2 = '9cdc8dc3-6cf4-46fb-b272-1468ef40796g';
 const mockShipmentID = '319e0751-1337-4ed9-b4b5-a15d4e6d272c';
 
 const customerInfo = {
@@ -66,6 +75,47 @@ const mockEvaluationReport = {
   seriousIncidentDesc: 'there was a serious incident',
 };
 
+const mockEvaluationReportWithAppeals = {
+  id: mockReportId,
+  createdAt: '2022-09-07T15:17:37.484Z',
+  eTag: 'MjAyMi0wOS0wN1QxODowNjozNy44NjQxNDJa',
+  evalEnd: '09:00',
+  evalStart: '10:00',
+  inspectionDate: '2022-09-08',
+  inspectionType: 'VIRTUAL',
+  location: 'ORIGIN',
+  moveID: mockMoveId,
+  moveReferenceID: '4118-8295',
+  observedPickupDate: '2024-08-24',
+  officeUser: {
+    email: 'qae_role@office.mil',
+    firstName: 'Leo',
+    id: 'ef4f6d1f-4ac3-4159-a364-5403e7d958ff',
+    lastName: 'Spaceman',
+    phone: '415-555-1212',
+  },
+  remarks: 'test remarks',
+  shipmentID: mockShipmentID,
+  type: 'SHIPMENT',
+  updatedAt: '2022-09-07T18:06:37.864Z',
+  violationsObserved: true,
+  seriousIncident: true,
+  seriousIncidentDesc: 'there was a serious incident',
+  gsrAppeals: [
+    {
+      appealStatus: 'SUSTAINED',
+      createdAt: '2024-10-23T16:41:20.514Z',
+      id: '5b3fdda8-feb3-4b78-adb2-d164800aa1dc',
+      officeUser: {
+        firstName: 'Lily',
+        lastName: 'Lob',
+      },
+      remarks: 'seriously another serious incident appeal??',
+      reportID: mockReportId,
+    },
+  ],
+};
+
 const mockViolation = {
   category: 'Category 1',
   displayOrder: 1,
@@ -75,6 +125,17 @@ const mockViolation = {
   requirementSummary: 'Test requirement summary for violation 1',
   subCategory: 'SubCategory 1',
   title: 'Title for violation 1',
+};
+
+const mockViolation2 = {
+  category: 'Category 1',
+  displayOrder: 2,
+  id: mockViolationID2,
+  paragraphNumber: '1.2.4',
+  requirementStatement: 'Test requirement statement for violation 2',
+  requirementSummary: 'Test requirement summary for violation 2',
+  subCategory: 'SubCategory 2',
+  title: 'Title for violation 2',
 };
 
 const mockReportViolations = [
@@ -130,6 +191,53 @@ const mockShipmentData = [
   },
 ];
 
+const mockReportViolationsWithAppeals = [
+  {
+    id: 'superUniqueID',
+    reportId: mockReportId,
+    violationId: mockViolationID,
+    violation: mockViolation,
+    gsrAppeals: [
+      {
+        appealStatus: 'SUSTAINED',
+        createdAt: '2024-10-23T16:41:20.514Z',
+        id: '5b3fdda8-feb3-4b78-adb2-d164800aa1dc',
+        officeUser: {
+          firstName: 'Billy',
+          lastName: 'Bob',
+        },
+        remarks: 'remarkable remarks',
+        reportID: mockReportId,
+        violationID: mockViolationID,
+      },
+    ],
+  },
+  {
+    id: 'superUniqueID2',
+    reportId: mockReportId,
+    violationId: mockViolationID2,
+    violation: mockViolation2,
+  },
+];
+
+const mockReturnDataWithAppeals = {
+  evaluationReport: mockEvaluationReportWithAppeals,
+  isError: false,
+  isLoading: false,
+  isSuccess: true,
+  mtoShipments: mockShipmentData,
+  reportViolations: mockReportViolationsWithAppeals,
+};
+
+const mockReturnDataWithAppealsAndSeriousIncident = {
+  evaluationReport: mockEvaluationReport,
+  isError: false,
+  isLoading: false,
+  isSuccess: true,
+  mtoShipments: mockShipmentData,
+  reportViolations: mockReportViolationsWithAppeals,
+};
+
 const mockReturnData = {
   evaluationReport: mockEvaluationReport,
   isError: false,
@@ -154,13 +262,87 @@ jest.mock('hooks/queries', () => ({
 
 const renderForm = (props) => {
   useEvaluationReportShipmentListQueries.mockReturnValue(mockReturnData);
+  const testState = {
+    auth: {
+      activeRole: roleTypes.QAE,
+    },
+  };
+  const defaultProps = {
+    customerInfo,
+    grade: 'E_4',
+    destinationDutyLocationPostalCode: '90210',
+    activeRole: roleTypes.QAE,
+  };
+
+  return render(
+    <MockProviders initialState={testState}>
+      <EvaluationReportView {...defaultProps} {...props} />
+    </MockProviders>,
+    mockRoutingConfig,
+  );
+};
+
+const renderFormWithAppeals = (props) => {
+  useEvaluationReportShipmentListQueries.mockReturnValue(mockReturnDataWithAppeals);
+  const testState = {
+    auth: {
+      activeRole: roleTypes.GSR,
+    },
+  };
   const defaultProps = {
     customerInfo,
     grade: 'E_4',
     destinationDutyLocationPostalCode: '90210',
   };
 
-  return renderWithProviders(<EvaluationReportView {...defaultProps} {...props} />, mockRoutingConfig);
+  return render(
+    <MockProviders initialState={testState}>
+      <EvaluationReportView {...defaultProps} {...props} />
+    </MockProviders>,
+    mockRoutingConfig,
+  );
+};
+
+const renderFormWithAppealsAndSeriousIncident = (props) => {
+  useEvaluationReportShipmentListQueries.mockReturnValue(mockReturnDataWithAppealsAndSeriousIncident);
+  const testState = {
+    auth: {
+      activeRole: roleTypes.GSR,
+    },
+  };
+  const defaultProps = {
+    customerInfo,
+    grade: 'E_4',
+    destinationDutyLocationPostalCode: '90210',
+  };
+
+  return render(
+    <MockProviders initialState={testState}>
+      <EvaluationReportView {...defaultProps} {...props} />
+    </MockProviders>,
+    mockRoutingConfig,
+  );
+};
+
+const renderFormWithAppealsNonGSRUser = (props) => {
+  useEvaluationReportShipmentListQueries.mockReturnValue(mockReturnDataWithAppeals);
+  const testState = {
+    auth: {
+      activeRole: roleTypes.QAE,
+    },
+  };
+  const defaultProps = {
+    customerInfo,
+    grade: 'E_4',
+    destinationDutyLocationPostalCode: '90210',
+  };
+
+  return render(
+    <MockProviders initialState={testState}>
+      <EvaluationReportView {...defaultProps} {...props} />
+    </MockProviders>,
+    mockRoutingConfig,
+  );
 };
 
 describe('EvaluationReportView', () => {
@@ -174,7 +356,11 @@ describe('EvaluationReportView', () => {
       mtoShipments: [],
     });
 
-    render(<EvaluationReportView customerInfo={{}} grade="E-5" destinationDutyLocationPostalCode="12345" />);
+    render(
+      <MockProviders>
+        <EvaluationReportView customerInfo={{}} grade="E-5" destinationDutyLocationPostalCode="12345" />
+      </MockProviders>,
+    );
 
     expect(screen.getByText('Loading, please wait...')).toBeInTheDocument();
   });
@@ -189,7 +375,11 @@ describe('EvaluationReportView', () => {
       mtoShipments: [],
     });
 
-    render(<EvaluationReportView customerInfo={{}} grade="E-5" destinationDutyLocationPostalCode="12345" />);
+    render(
+      <MockProviders>
+        <EvaluationReportView customerInfo={{}} grade="E-5" destinationDutyLocationPostalCode="12345" />
+      </MockProviders>,
+    );
 
     const errorMessage = screen.getByText(/Something went wrong./);
     expect(errorMessage).toBeInTheDocument();
@@ -240,7 +430,11 @@ describe('EvaluationReportView', () => {
       mtoShipments: [],
     });
 
-    render(<EvaluationReportView customerInfo={{}} grade="E-5" destinationDutyLocationPostalCode="12345" />);
+    render(
+      <MockProviders>
+        <EvaluationReportView customerInfo={{}} grade="E-5" destinationDutyLocationPostalCode="12345" />
+      </MockProviders>,
+    );
 
     expect(screen.getByTestId('noViolationsObserved')).toHaveTextContent('No');
   });
@@ -257,8 +451,92 @@ describe('EvaluationReportView', () => {
       mtoShipments: [],
     });
 
-    render(<EvaluationReportView customerInfo={{}} grade="E-5" destinationDutyLocationPostalCode="12345" />);
+    render(
+      <MockProviders>
+        <EvaluationReportView customerInfo={{}} grade="E-5" destinationDutyLocationPostalCode="12345" />
+      </MockProviders>,
+    );
 
     expect(screen.getByTestId('seriousIncidentYesNo')).toHaveTextContent('No');
+  });
+
+  it('allows a GSR user to see appeals attached to a violation and should not be able to leave any more appeals', async () => {
+    isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(true));
+    renderFormWithAppeals();
+
+    expect(screen.queryByText('Leave Appeal Decision')).not.toBeInTheDocument();
+
+    expect(screen.queryByText('Billy Bob')).not.toBeInTheDocument();
+    expect(screen.queryByText('remarkable remarks')).not.toBeInTheDocument();
+
+    // should be two buttons present for both violations & evaluation report appeals
+    expect(screen.getAllByText('Show appeals')).toHaveLength(2);
+    const expandViolationAppealBtn = await screen.findByTestId('showViolationAppealBtn');
+    await userEvent.click(expandViolationAppealBtn);
+
+    expect(screen.queryByText('Billy Bob')).toBeInTheDocument();
+    expect(screen.queryByText('remarkable remarks')).toBeInTheDocument();
+
+    await userEvent.click(expandViolationAppealBtn);
+    expect(screen.queryByText('Billy Bob')).not.toBeInTheDocument();
+    expect(screen.queryByText('remarkable remarks')).not.toBeInTheDocument();
+
+    expect(screen.queryByText('Lily Bob')).not.toBeInTheDocument();
+    expect(screen.queryByText('seriously another serious incident appeal??')).not.toBeInTheDocument();
+
+    const expandSeriousIncidentAppealBtn = await screen.findByTestId('showSeriousIncidentAppealBtn');
+    await userEvent.click(expandSeriousIncidentAppealBtn);
+
+    expect(screen.queryByText('Lily Lob')).toBeInTheDocument();
+    expect(screen.queryByText('seriously another serious incident appeal??')).toBeInTheDocument();
+
+    await userEvent.click(expandSeriousIncidentAppealBtn);
+    expect(screen.queryByText('Lily Bob')).not.toBeInTheDocument();
+    expect(screen.queryByText('seriously another serious incident appeal??')).not.toBeInTheDocument();
+  });
+
+  it('allows a GSR user to open the appeal modal add an appeal to a violation', async () => {
+    isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(true));
+    renderFormWithAppeals();
+
+    const addViolationAppealBtn = await screen.findByTestId('addViolationAppealBtn');
+    expect(addViolationAppealBtn).toBeInTheDocument();
+    await userEvent.click(addViolationAppealBtn);
+
+    const addAppealModalTitle = await screen.findByTestId('appealModalTitle');
+    expect(addAppealModalTitle).toBeInTheDocument();
+
+    const violationHint = await screen.findByTestId('violationModalHint');
+    expect(violationHint).toBeInTheDocument();
+
+    const appealCancelBtn = await screen.findByTestId('modalCancelButton');
+    expect(appealCancelBtn).toBeInTheDocument();
+    await userEvent.click(appealCancelBtn);
+  });
+
+  it('allows a GSR user to open the appeal modal add an appeal to a serious incident', async () => {
+    isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(true));
+    renderFormWithAppealsAndSeriousIncident();
+
+    const addViolationAppealBtn = await screen.findByTestId('addSeriousIncidentAppealBtn');
+    expect(addViolationAppealBtn).toBeInTheDocument();
+    await userEvent.click(addViolationAppealBtn);
+
+    const addAppealModalTitle = await screen.findByTestId('appealModalTitle');
+    expect(addAppealModalTitle).toBeInTheDocument();
+
+    const seriousIncidentHint = await screen.findByTestId('seriousIncidentModalHint');
+    expect(seriousIncidentHint).toBeInTheDocument();
+
+    const appealCancelBtn = await screen.findByTestId('modalCancelButton');
+    expect(appealCancelBtn).toBeInTheDocument();
+    await userEvent.click(appealCancelBtn);
+  });
+
+  it('non GSR users do not see the leave appeal decision button even with flag on', async () => {
+    isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(true));
+    renderFormWithAppealsNonGSRUser();
+
+    expect(screen.queryByText('Leave Appeal Decision')).not.toBeInTheDocument();
   });
 });

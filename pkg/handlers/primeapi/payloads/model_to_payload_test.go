@@ -554,14 +554,17 @@ func (suite *PayloadsSuite) TestServiceRequestDocument() {
 }
 
 func (suite *PayloadsSuite) TestPPMShipment() {
+	isActualExpenseReimbursemnt := true
 	ppmShipment := &models.PPMShipment{
-		ID: uuid.Must(uuid.NewV4()),
+		ID:                           uuid.Must(uuid.NewV4()),
+		IsActualExpenseReimbursement: &isActualExpenseReimbursemnt,
 	}
 
 	result := PPMShipment(ppmShipment)
 
 	suite.NotNil(result)
 	suite.Equal(strfmt.UUID(ppmShipment.ID.String()), result.ID)
+	suite.True(*ppmShipment.IsActualExpenseReimbursement)
 }
 
 func (suite *PayloadsSuite) TestGetCustomerContact() {
@@ -622,6 +625,76 @@ func (suite *PayloadsSuite) TestMTOServiceItemDCRT() {
 
 	_, ok := resultDCRT.(*primemessages.MTOServiceItemDomesticCrating)
 
+	suite.True(ok)
+}
+
+func (suite *PayloadsSuite) TestMTOServiceItemICRTandIUCRT() {
+	icrtReServiceCode := models.ReServiceCodeICRT
+	iucrtReServiceCode := models.ReServiceCodeIUCRT
+	reason := "reason"
+	standaloneCrate := false
+	externalCrate := false
+	dateOfContact1 := time.Now()
+	timeMilitary1 := "1500Z"
+	firstAvailableDeliveryDate1 := dateOfContact1.AddDate(0, 0, 10)
+	dateOfContact2 := time.Now().AddDate(0, 0, 5)
+	timeMilitary2 := "1300Z"
+	firstAvailableDeliveryDate2 := dateOfContact2.AddDate(0, 0, 10)
+
+	mtoServiceItemICRT := &models.MTOServiceItem{
+		ID:              uuid.Must(uuid.NewV4()),
+		ReService:       models.ReService{Code: icrtReServiceCode},
+		Reason:          &reason,
+		StandaloneCrate: &standaloneCrate,
+		ExternalCrate:   &externalCrate,
+		CustomerContacts: models.MTOServiceItemCustomerContacts{
+			models.MTOServiceItemCustomerContact{
+				DateOfContact:              dateOfContact1,
+				TimeMilitary:               timeMilitary1,
+				FirstAvailableDeliveryDate: firstAvailableDeliveryDate1,
+				Type:                       models.CustomerContactTypeFirst,
+			},
+			models.MTOServiceItemCustomerContact{
+				DateOfContact:              dateOfContact2,
+				TimeMilitary:               timeMilitary2,
+				FirstAvailableDeliveryDate: firstAvailableDeliveryDate2,
+				Type:                       models.CustomerContactTypeSecond,
+			},
+		},
+	}
+
+	mtoServiceItemIUCRT := &models.MTOServiceItem{
+		ID:              uuid.Must(uuid.NewV4()),
+		ReService:       models.ReService{Code: iucrtReServiceCode},
+		Reason:          &reason,
+		StandaloneCrate: &standaloneCrate,
+		ExternalCrate:   &externalCrate,
+		CustomerContacts: models.MTOServiceItemCustomerContacts{
+			models.MTOServiceItemCustomerContact{
+				DateOfContact:              dateOfContact1,
+				TimeMilitary:               timeMilitary1,
+				FirstAvailableDeliveryDate: firstAvailableDeliveryDate1,
+				Type:                       models.CustomerContactTypeFirst,
+			},
+			models.MTOServiceItemCustomerContact{
+				DateOfContact:              dateOfContact2,
+				TimeMilitary:               timeMilitary2,
+				FirstAvailableDeliveryDate: firstAvailableDeliveryDate2,
+				Type:                       models.CustomerContactTypeSecond,
+			},
+		},
+	}
+
+	resultICRT := MTOServiceItem(mtoServiceItemICRT)
+	resultIUCRT := MTOServiceItem(mtoServiceItemIUCRT)
+
+	suite.NotNil(resultICRT)
+	suite.NotNil(resultIUCRT)
+
+	_, ok := resultICRT.(*primemessages.MTOServiceItemInternationalCrating)
+	suite.True(ok)
+
+	_, ok = resultIUCRT.(*primemessages.MTOServiceItemInternationalCrating)
 	suite.True(ok)
 }
 

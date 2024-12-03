@@ -163,6 +163,23 @@ func initDTODPlannerMileage(appCtx appcontext.AppContext, v *viper.Viper, tlsCon
 	if dtodUseMock {
 		appCtx.Logger().Info(fmt.Sprintf("Using mocked DTOD for %s route planner", plannerType))
 		dtodPlannerMileage = NewMockDTODZip5Distance()
+	} else {
+		appCtx.Logger().Info(fmt.Sprintf("Using real DTOD for %s route planner", plannerType))
+		tr := &http.Transport{TLSClientConfig: tlsConfig}
+		httpClient := &http.Client{Transport: tr, Timeout: time.Duration(30) * time.Second}
+
+		dtodWSDL := v.GetString(cli.DTODApiWSDLFlag)
+		dtodURL := v.GetString(cli.DTODApiURLFlag)
+		dtodAPIUsername := v.GetString(cli.DTODApiUsernameFlag)
+		dtodAPIPassword := v.GetString(cli.DTODApiPasswordFlag)
+
+		soapClient, err := gosoap.SoapClient(dtodWSDL, httpClient)
+		if err != nil {
+			return nil, fmt.Errorf("unable to create SOAP client: %w", err)
+		}
+		soapClient.URL = dtodURL
+
+		dtodPlannerMileage = NewDTODZip5Distance(dtodAPIUsername, dtodAPIPassword, soapClient, v.GetBool(cli.DTODSimulateOutageFlag))
 	}
 
 	return dtodPlannerMileage, nil

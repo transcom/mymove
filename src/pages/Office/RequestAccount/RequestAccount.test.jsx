@@ -79,7 +79,7 @@ describe('RequestAccount page', () => {
 
     await userEvent.type(screen.getByLabelText('First Name'), 'Bob');
     await userEvent.type(screen.getByLabelText('Last Name'), 'Banks');
-    await userEvent.type(screen.getByLabelText('Email'), 'banks@test.mil');
+    await userEvent.type(screen.getByLabelText('Email'), 'banks@us.af.mil');
     await userEvent.type(screen.getByLabelText('Telephone'), '333-333-3333');
     await userEvent.type(screen.getByTestId('officeAccountRequestEdipi'), '1111111111');
     await userEvent.type(screen.getByTestId('officeAccountRequestOtherUniqueId'), '1111111111');
@@ -138,6 +138,9 @@ describe('RequestAccount page', () => {
 
     const qsaCheckbox = screen.getByTestId('qualityAssuranceEvaluatorCheckBox');
     await userEvent.click(qsaCheckbox);
+
+    const gsrCheckbox = screen.getByTestId('governmentSurveillanceRepresentativeCheckbox');
+    await userEvent.click(gsrCheckbox);
 
     const saveBtn = screen.getByTestId('requestOfficeAccountSubmitButton');
     await userEvent.click(saveBtn);

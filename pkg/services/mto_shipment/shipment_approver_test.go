@@ -76,7 +76,7 @@ func (suite *MTOShipmentServiceSuite) createApproveShipmentSubtestData() (subtes
 	}
 
 	for _, serviceCode := range subtestData.reServiceCodes {
-		factory.BuildReServiceByCode(suite.DB(), serviceCode)
+		factory.FetchReServiceByCode(suite.DB(), serviceCode)
 	}
 
 	subtestData.mockedShipmentRouter = &shipmentmocks.ShipmentRouter{}
@@ -161,7 +161,7 @@ func (suite *MTOShipmentServiceSuite) createApproveShipmentSubtestData() (subtes
 		},
 	})
 
-	domesticOriginService := factory.FetchOrBuildReService(suite.DB(), []factory.Customization{
+	domesticOriginService := factory.FetchReService(suite.DB(), []factory.Customization{
 		{
 			Model: models.ReService{
 				Code: models.ReServiceCodeDOP,
@@ -516,7 +516,7 @@ func (suite *MTOShipmentServiceSuite) TestApproveShipment() {
 		}
 
 		for _, serviceCode := range expectedReServiceCodes {
-			factory.FetchOrBuildReServiceByCode(appCtx.DB(), serviceCode)
+			factory.FetchReServiceByCode(appCtx.DB(), serviceCode)
 		}
 
 		// This is testing that the Required Delivery Date is calculated correctly.

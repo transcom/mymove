@@ -47,7 +47,7 @@ jest.mock('hooks/queries', () => ({
               agency: 'AIR_FORCE',
               first_name: 'test first',
               last_name: 'test last',
-              dodID: '555555555',
+              edipi: '555555555',
             },
             locator: 'AB5P',
             departmentIndicator: 'ARMY',
@@ -68,7 +68,7 @@ jest.mock('hooks/queries', () => ({
               agency: 'MARINES',
               first_name: 'test another first',
               last_name: 'test another last',
-              dodID: '4444444444',
+              edipi: '4444444444',
             },
             locator: 'T12A',
             departmentIndicator: 'NAVY_AND_MARINES',
@@ -98,7 +98,7 @@ jest.mock('hooks/queries', () => ({
               agency: 'ARMY',
               first_name: 'test first',
               last_name: 'test last',
-              dodID: '555555555',
+              edipi: '555555555',
             },
             locator: 'AB5PC',
             requestedMoveDate: '2021-03-01T00:00:00.000Z',
@@ -115,7 +115,7 @@ jest.mock('hooks/queries', () => ({
               agency: 'COAST_GUARD',
               first_name: 'test another first',
               last_name: 'test another last',
-              dodID: '4444444444',
+              edipi: '4444444444',
             },
             locator: 'T12AR',
             requestedMoveDate: '2021-04-15T00:00:00.000Z',
@@ -132,7 +132,7 @@ jest.mock('hooks/queries', () => ({
               agency: 'MARINES',
               first_name: 'test third first',
               last_name: 'test third last',
-              dodID: '4444444444',
+              edipi: '4444444444',
             },
             locator: 'T12MP',
             requestedMoveDate: '2021-04-15T00:00:00.000Z',
@@ -179,7 +179,7 @@ const GetMountedComponent = (queueTypeToMount) => {
   return wrapper;
 };
 
-const SEARCH_OPTIONS = ['Move Code', 'DoD ID', 'Customer Name', 'Payment Request Number'];
+const SEARCH_OPTIONS = ['Move Code', 'edipi', 'Customer Name', 'Payment Request Number'];
 
 describe('HeadquartersQueue', () => {
   afterEach(() => {
@@ -198,8 +198,8 @@ describe('HeadquartersQueue', () => {
     const moves = GetMountedComponent(hqRoutes.MOVE_QUEUE).find('tbody tr');
 
     const firstMove = moves.at(0);
-    expect(firstMove.find({ 'data-testid': 'lastName-0' }).text()).toBe('test last, test first');
-    expect(firstMove.find({ 'data-testid': 'dodID-0' }).text()).toBe('555555555');
+    expect(firstMove.find({ 'data-testid': 'customerName-0' }).text()).toBe('test last, test first');
+    expect(firstMove.find({ 'data-testid': 'edipi-0' }).text()).toBe('555555555');
     expect(firstMove.find({ 'data-testid': 'status-0' }).text()).toBe('New move');
     expect(firstMove.find({ 'data-testid': 'locator-0' }).text()).toBe('AB5P');
     expect(firstMove.find({ 'data-testid': 'branch-0' }).text()).toBe('Air Force');
@@ -210,8 +210,8 @@ describe('HeadquartersQueue', () => {
     expect(firstMove.find({ 'data-testid': 'appearedInTooAt-0' }).text()).toBe('10 Feb 2023');
 
     const secondMove = moves.at(1);
-    expect(secondMove.find({ 'data-testid': 'lastName-1' }).text()).toBe('test another last, test another first');
-    expect(secondMove.find({ 'data-testid': 'dodID-1' }).text()).toBe('4444444444');
+    expect(secondMove.find({ 'data-testid': 'customerName-1' }).text()).toBe('test another last, test another first');
+    expect(secondMove.find({ 'data-testid': 'edipi-1' }).text()).toBe('4444444444');
     expect(secondMove.find({ 'data-testid': 'status-1' }).text()).toBe('Move approved');
     expect(secondMove.find({ 'data-testid': 'locator-1' }).text()).toBe('T12A');
     expect(secondMove.find({ 'data-testid': 'branch-1' }).text()).toBe('Marine Corps');
@@ -247,11 +247,11 @@ describe('HeadquartersQueue', () => {
     expect(wrapper.find({ 'data-testid': 'status' }).at(0).hasClass('sortAscending')).toBe(false);
     expect(wrapper.find({ 'data-testid': 'status' }).at(0).hasClass('sortDescending')).toBe(false);
 
-    const nameHeading = wrapper.find({ 'data-testid': 'lastName' }).at(0);
+    const nameHeading = wrapper.find({ 'data-testid': 'customerName' }).at(0);
     nameHeading.simulate('click');
     wrapper.update();
 
-    expect(wrapper.find({ 'data-testid': 'lastName' }).at(0).hasClass('sortAscending')).toBe(true);
+    expect(wrapper.find({ 'data-testid': 'customerName' }).at(0).hasClass('sortAscending')).toBe(true);
   });
 
   it('filters the queue', () => {
