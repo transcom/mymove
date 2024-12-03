@@ -401,6 +401,7 @@ export const formatAddressForPrimeAPI = (address) => {
     streetAddress2: address.streetAddress2,
     streetAddress3: address.streetAddress3,
     city: address.city,
+    county: address.county,
     state: address.state,
     postalCode: address.postalCode,
   };
@@ -414,6 +415,7 @@ export const formatExtraAddressForPrimeAPI = (address) => {
     streetAddress2: address.streetAddress2,
     streetAddress3: address.streetAddress3,
     city: address.city,
+    county: address.county,
     state: address.state,
     postalCode: address.postalCode,
   };
@@ -423,6 +425,7 @@ const emptyAddress = {
   streetAddress1: '',
   streetAddress2: '',
   city: '',
+  county: '',
   state: '',
   postalCode: '',
 };
@@ -436,6 +439,7 @@ export function fromPrimeAPIAddressFormat(address) {
     streetAddress2: address.streetAddress2,
     streetAddress3: address.streetAddress3,
     city: address.city,
+    county: address.county,
     state: address.state,
     postalCode: address.postalCode,
   };
