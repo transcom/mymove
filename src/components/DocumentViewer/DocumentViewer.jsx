@@ -43,10 +43,8 @@ const DocumentViewer = ({ files, isFileUploading, allowDownload, paymentRequestI
   useEffect(() => {
     if (isFileUploading) {
       setFileStatus(UPLOAD_DOC_STATUS.UPLOADING);
-    } else if (selectedFile) {
-      setFileStatus(null);
     }
-  }, [isFileUploading, selectedFile]);
+  }, [isFileUploading]);
 
   const { mutate: mutateUploads } = useMutation(updateUpload, {
     onSuccess: async (data, variables) => {
@@ -128,7 +126,11 @@ const DocumentViewer = ({ files, isFileUploading, allowDownload, paymentRequestI
 
   const fileType = useRef(selectedFile?.contentType);
 
-  if (!selectedFile || !fileStatus || selectedFile?.status === UPLOAD_SCAN_STATUS.INFECTED) {
+  if (
+    (!selectedFile && fileStatus !== UPLOAD_DOC_STATUS.UPLOADING) ||
+    !fileStatus ||
+    selectedFile?.status === UPLOAD_SCAN_STATUS.INFECTED
+  ) {
     return <Alert heading="File Not Found" />;
   }
 
@@ -141,7 +143,6 @@ const DocumentViewer = ({ files, isFileUploading, allowDownload, paymentRequestI
 
   const handleSelectFile = (index) => {
     selectFile(index);
-
     closeMenu();
   };
 
