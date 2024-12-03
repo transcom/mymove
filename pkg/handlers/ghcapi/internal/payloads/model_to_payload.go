@@ -1855,8 +1855,7 @@ func MTOServiceItemModel(s *models.MTOServiceItem, storer storage.FileStorer) *g
 			serviceRequestDocs[i] = payload
 		}
 	}
-
-	return &ghcmessages.MTOServiceItem{
+	payload := &ghcmessages.MTOServiceItem{
 		ID:                            handlers.FmtUUID(s.ID),
 		MoveTaskOrderID:               handlers.FmtUUID(s.MoveTaskOrderID),
 		MtoShipmentID:                 handlers.FmtUUIDPtr(s.MTOShipmentID),
@@ -1893,6 +1892,24 @@ func MTOServiceItemModel(s *models.MTOServiceItem, storer storage.FileStorer) *g
 		ExternalCrate:                 s.ExternalCrate,
 		LockedPriceCents:              handlers.FmtCost(s.LockedPriceCents),
 	}
+
+	if s.ReService.Code == models.ReServiceCodeICRT && s.MTOShipment.PickupAddress != nil {
+		if *s.MTOShipment.PickupAddress.IsOconus {
+			payload.Market = handlers.FmtString(models.MarketOconus.FullString())
+		} else {
+			payload.Market = handlers.FmtString(models.MarketConus.FullString())
+		}
+	}
+
+	if s.ReService.Code == models.ReServiceCodeIUCRT && s.MTOShipment.DestinationAddress != nil {
+		if *s.MTOShipment.DestinationAddress.IsOconus {
+			payload.Market = handlers.FmtString(models.MarketOconus.FullString())
+		} else {
+			payload.Market = handlers.FmtString(models.MarketConus.FullString())
+		}
+	}
+
+	return payload
 }
 
 // SITServiceItemGrouping payload
@@ -2430,6 +2447,10 @@ func QueuePaymentRequests(paymentRequests *models.PaymentRequests, officeUsers [
 			queuePaymentRequests[i].AssignedTo = AssignedOfficeUser(paymentRequest.MoveTaskOrder.TIOAssignedUser)
 		}
 
+		if paymentRequest.MoveTaskOrder.CounselingOffice != nil {
+			queuePaymentRequests[i].CounselingOffice = &paymentRequest.MoveTaskOrder.CounselingOffice.Name
+		}
+
 		isAssignable := false
 		if queuePaymentRequests[i].AssignedTo == nil {
 			isAssignable = true
@@ -2546,7 +2567,7 @@ func SearchMoves(appCtx appcontext.AppContext, moves models.Moves) *ghcmessages.
 		searchMoves[i] = &ghcmessages.SearchMove{
 			FirstName:                         customer.FirstName,
 			LastName:                          customer.LastName,
-			DodID:                             customer.Edipi,
+			Edipi:                             customer.Edipi,
 			Emplid:                            customer.Emplid,
 			Branch:                            customer.Affiliation.String(),
 			Status:                            ghcmessages.MoveStatus(move.Status),
@@ -2609,7 +2630,7 @@ func SearchCustomers(customers models.ServiceMemberSearchResults) *ghcmessages.S
 		searchCustomers[i] = &ghcmessages.SearchCustomer{
 			FirstName:     customer.FirstName,
 			LastName:      customer.LastName,
-			DodID:         customer.Edipi,
+			Edipi:         customer.Edipi,
 			Emplid:        customer.Emplid,
 			Branch:        customer.Affiliation.String(),
 			ID:            *handlers.FmtUUID(customer.ID),
