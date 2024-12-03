@@ -479,6 +479,8 @@ deploy_dp3_migrations:
     entrypoint: [""]
   needs:
     - deploy_dp3_app_client_tls
+    - compile_app_client
+    - compile_app_server
   script:
     - echo "Getting Digest from AWS"
     - export ECR_DIGEST=$(aws ecr describe-images --repository-name app-migrations --image-ids imageTag=$CI_COMMIT_SHORT_SHA --query 'imageDetails[0].imageDigest' --output text)
@@ -500,6 +502,9 @@ deploy_dp3_tasks:
     entrypoint: [""]
   needs:
     - deploy_dp3_migrations
+    - build_app
+    - compile_app_client
+    - compile_app_server
   script:
     - echo "Getting Digest from AWS"
     - export ECR_DIGEST=$(aws ecr describe-images --repository-name app-tasks --image-ids imageTag=$CI_COMMIT_SHORT_SHA --query 'imageDetails[0].imageDigest' --output text)
@@ -520,7 +525,9 @@ deploy_dp3_app_client_tls:
     name: $DOCKER_APP_IMAGE
     entrypoint: [""]
   needs:
-    - build_ap
+    - build_app
+    - compile_app_client
+    - compile_app_server
   variables:
     OPEN_TELEMETRY_SIDECAR: "true"
     HEALTH_CHECK: "true"
@@ -554,7 +561,9 @@ deploy_dp3_app:
     name: $DOCKER_APP_IMAGE
     entrypoint: [""]
   needs:
-    - build_ap
+    - build_app
+    - compile_app_client
+    - compile_app_server
   variables:
     APP_ENVIRONMENT: "demo"
     OPEN_TELEMETRY_SIDECAR: "true"
