@@ -273,12 +273,11 @@ func (f *estimatePPM) maxIncentive(appCtx appcontext.AppContext, oldPPMShipment 
 		return nil, err
 	}
 
-	maxIncentive := oldPPMShipment.MaxIncentive
-	if maxIncentive == nil {
-		maxIncentive, err = f.calculatePrice(appCtx, newPPMShipment, unit.Pound(*orders.Entitlement.DBAuthorizedWeight), contract, true)
-		if err != nil {
-			return nil, err
-		}
+	// since the max incentive is based off of the authorized weight entitlement and that value CAN change
+	// we will calculate the max incentive each time it is called
+	maxIncentive, err := f.calculatePrice(appCtx, newPPMShipment, unit.Pound(*orders.Entitlement.DBAuthorizedWeight), contract, true)
+	if err != nil {
+		return nil, err
 	}
 
 	return maxIncentive, nil
