@@ -246,6 +246,11 @@ func (f *estimatePPM) estimateIncentive(appCtx appcontext.AppContext, oldPPMShip
 }
 
 func (f *estimatePPM) maxIncentive(appCtx appcontext.AppContext, oldPPMShipment models.PPMShipment, newPPMShipment *models.PPMShipment, checks ...ppmShipmentValidator) (*unit.Cents, error) {
+	// if the PPM shipment is past closeout then we should not calculate the max incentive, it is already set in stone
+	if newPPMShipment.Status == models.PPMShipmentStatusCloseoutComplete || newPPMShipment.Status == models.PPMShipmentStatusComplete {
+		return oldPPMShipment.MaxIncentive, nil
+	}
+
 	// Check that all the required fields we need are present.
 	err := validatePPMShipment(appCtx, *newPPMShipment, &oldPPMShipment, &oldPPMShipment.Shipment, checks...)
 	// If a field does not pass validation return nil as error handling is happening in the validator
