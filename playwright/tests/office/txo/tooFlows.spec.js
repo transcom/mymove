@@ -467,6 +467,7 @@ test.describe('TOO user', () => {
       await expect(
         page
           .locator('[data-testid="alert"]')
+          .first()
           .getByText('The request to cancel that shipment has been sent to the movers.'),
       ).toBeVisible();
 
@@ -750,7 +751,7 @@ test.describe('TOO user', () => {
       // Alert should disappear if focus changes
       await page.locator('[data-testid="rejectTextButton"]').first().click();
       await page.locator('[data-testid="closeRejectServiceItem"]').click();
-      await expect(page.locator('[data-testid="alert"]')).not.toBeVisible();
+      await expect(page.locator('[data-testid="alert"]').first()).not.toBeVisible();
     });
   });
 
