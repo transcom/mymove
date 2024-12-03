@@ -938,25 +938,11 @@ func priceAdditionalDaySIT(appCtx appcontext.AppContext, pricer services.ParamsP
 // mapPPMShipmentEstimatedFields remaps our PPMShipment specific information into the fields where the service param lookups
 // expect to find them on the MTOShipment model.  This is only in-memory and shouldn't get saved to the database.
 func MapPPMShipmentEstimatedFields(appCtx appcontext.AppContext, ppmShipment models.PPMShipment) (models.MTOShipment, error) {
-	// we have access to the MoveTaskOrderID in the ppmShipment object so we can use that to get the customer's maximum weight entitlement
-	var move models.Move
-	err := appCtx.DB().Q().Eager(
-		"Orders.Entitlement",
-		"Orders.OriginDutyLocation.Address",
-		"Orders.NewDutyLocation.Address",
-	).Where("show = TRUE").Find(&move, ppmShipment.Shipment.MoveTaskOrderID)
-	if err != nil {
-		return models.MTOShipment{}, apperror.NewNotFoundError(ppmShipment.ID, " error querying move")
-	}
-	orders := move.Orders
-	if orders.Entitlement.DBAuthorizedWeight == nil {
-		return models.MTOShipment{}, apperror.NewNotFoundError(ppmShipment.ID, " DB authorized weight cannot be nil")
-	}
 
 	ppmShipment.Shipment.ActualPickupDate = &ppmShipment.ExpectedDepartureDate
 	ppmShipment.Shipment.RequestedPickupDate = &ppmShipment.ExpectedDepartureDate
-	ppmShipment.Shipment.PickupAddress = &models.Address{PostalCode: orders.OriginDutyLocation.Address.PostalCode}
-	ppmShipment.Shipment.DestinationAddress = &models.Address{PostalCode: orders.NewDutyLocation.Address.PostalCode}
+	ppmShipment.Shipment.PickupAddress = &models.Address{PostalCode: ppmShipment.PickupAddress.PostalCode}
+	ppmShipment.Shipment.DestinationAddress = &models.Address{PostalCode: ppmShipment.DestinationAddress.PostalCode}
 	ppmShipment.Shipment.PrimeActualWeight = ppmShipment.EstimatedWeight
 
 	return ppmShipment.Shipment, nil
