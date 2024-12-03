@@ -419,6 +419,12 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 			mock.AnythingOfType("*models.PPMShipment")).
 			Return(models.CentPointer(unit.Cents(estimatedIncentive)), models.CentPointer(unit.Cents(sitEstimatedCost)), nil).Once()
 
+		ppmEstimator.On("MaxIncentive",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.AnythingOfType("models.PPMShipment"),
+			mock.AnythingOfType("*models.PPMShipment")).
+			Return(nil, nil)
+
 		// Validate incoming payload
 		suite.NoError(params.Body.Validate(strfmt.Default))
 
@@ -466,6 +472,12 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 			mock.AnythingOfType("models.PPMShipment"),
 			mock.AnythingOfType("*models.PPMShipment")).
 			Return(models.CentPointer(unit.Cents(estimatedIncentive)), models.CentPointer(unit.Cents(sitEstimatedCost)), nil).Times(2)
+
+		ppmEstimator.On("MaxIncentive",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.AnythingOfType("models.PPMShipment"),
+			mock.AnythingOfType("*models.PPMShipment")).
+			Return(nil, nil)
 
 		ppmEstimator.On("FinalIncentiveWithDefaultChecks",
 			mock.AnythingOfType("*appcontext.appContext"),
@@ -640,6 +652,12 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 			mock.AnythingOfType("*models.PPMShipment")).
 			Return(models.CentPointer(unit.Cents(estimatedIncentive)), models.CentPointer(unit.Cents(sitEstimatedCost)), nil).Once()
 
+		ppmEstimator.On("MaxIncentive",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.AnythingOfType("models.PPMShipment"),
+			mock.AnythingOfType("*models.PPMShipment")).
+			Return(nil, nil)
+
 		// Validate incoming payload
 		suite.NoError(params.Body.Validate(strfmt.Default))
 
@@ -669,6 +687,12 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 			mock.AnythingOfType("models.PPMShipment"),
 			mock.AnythingOfType("*models.PPMShipment")).
 			Return(models.CentPointer(unit.Cents(estimatedIncentive)), models.CentPointer(unit.Cents(sitEstimatedCost)), nil).Times(2)
+
+		ppmEstimator.On("MaxIncentive",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.AnythingOfType("models.PPMShipment"),
+			mock.AnythingOfType("*models.PPMShipment")).
+			Return(nil, nil)
 
 		ppmEstimator.On("FinalIncentiveWithDefaultChecks",
 			mock.AnythingOfType("*appcontext.appContext"),
@@ -1003,6 +1027,42 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		suite.NoError(typedResponse.Payload.Validate(strfmt.Default))
 
 		suite.Contains(*typedResponse.Payload.Detail, unavailableMove.ID.String())
+	})
+
+	suite.Run("POST failure - 500 - App Event Internal DTOD Server Error", func() {
+		// Under Test: CreateMTOShipmentHandler
+		// Setup:      Create a shipment with DTOD outage simulated or bad zip
+		// Expected:   500 Internal Server Error returned
+
+		handler, move := setupTestData(true, false)
+		req := httptest.NewRequest("POST", "/mto-shipments", nil)
+		handler.ShipmentCreator = &mockCreator
+
+		err := apperror.EventError{}
+
+		mockCreator.On("CreateShipment",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.Anything,
+		).Return(nil, nil, err)
+
+		params := mtoshipmentops.CreateMTOShipmentParams{
+			HTTPRequest: req,
+			Body: &primev3messages.CreateMTOShipment{
+				MoveTaskOrderID:     handlers.FmtUUID(move.ID),
+				Agents:              nil,
+				CustomerRemarks:     nil,
+				PointOfContact:      "John Doe",
+				RequestedPickupDate: handlers.FmtDatePtr(models.TimePointer(time.Now())),
+				ShipmentType:        primev3messages.NewMTOShipmentType(primev3messages.MTOShipmentTypeHHG),
+				PickupAddress:       struct{ primev3messages.Address }{pickupAddress},
+				DestinationAddress:  struct{ primev3messages.Address }{destinationAddress},
+			},
+		}
+
+		response := handler.Handle(params)
+		suite.IsType(&mtoshipmentops.CreateMTOShipmentInternalServerError{}, response)
+		typedResponse := response.(*mtoshipmentops.CreateMTOShipmentInternalServerError)
+		suite.Contains(*typedResponse.Payload.Detail, "An internal server error has occurred")
 	})
 
 	suite.Run("POST failure - 422 - MTO Shipment object not formatted correctly", func() {

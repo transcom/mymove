@@ -30,6 +30,7 @@ import shipmentCardsStyles from 'styles/shipmentCards.module.scss';
 import LeftNav from 'components/LeftNav/LeftNav';
 import LeftNavTag from 'components/LeftNavTag/LeftNavTag';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
+import Inaccessible from 'shared/Inaccessible';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
 import { AlertStateShape } from 'types/alert';
 import formattedCustomerName from 'utils/formattedCustomerName';
@@ -72,8 +73,11 @@ const ServicesCounselingMoveDetails = ({
     });
   const hasDocuments = documentsForViewer?.length > 0;
 
-  const { order, customerData, move, closeoutOffice, mtoShipments, isLoading, isError } =
+  const { order, orderDocuments, customerData, move, closeoutOffice, mtoShipments, isLoading, isError, errors } =
     useMoveDetailsQueries(moveCode);
+
+  const validOrdersDocuments = Object.values(orderDocuments || {})?.filter((file) => !file.deletedAt);
+
   const { customer, entitlement: allowances } = order;
 
   const moveWeightTotal = calculateWeightRequested(mtoShipments);
@@ -334,7 +338,7 @@ const ServicesCounselingMoveDetails = ({
   const customerInfo = {
     name: formattedCustomerName(customer.last_name, customer.first_name, customer.suffix, customer.middle_name),
     agency: customer.agency,
-    dodId: customer.dodID,
+    edipi: customer.edipi,
     emplid: customer.emplid,
     phone: customer.phone,
     altPhone: customer.secondaryTelephone,
@@ -366,6 +370,7 @@ const ServicesCounselingMoveDetails = ({
     ordersType: order.order_type,
     ordersNumber: order.order_number,
     ordersTypeDetail: order.order_type_detail,
+    ordersDocuments: validOrdersDocuments?.length ? validOrdersDocuments : null,
     tacMDC: order.tac,
     sacSDN: order.sac,
     NTStac: order.ntsTac,
@@ -383,16 +388,17 @@ const ServicesCounselingMoveDetails = ({
 
   // using useMemo here due to this being used in a useEffect
   // using useMemo prevents the useEffect from being rendered on ever render by memoizing the object
-  // so that it only recognizes the change when the orders object changes
+  // so that it only recognizes the change when the orders or validOrdersDocuments objects change
   const requiredOrdersInfo = useMemo(
     () => ({
       ordersNumber: order?.order_number || '',
       ordersType: order?.order_type || '',
       ordersTypeDetail: order?.order_type_detail || '',
+      ordersDocuments: validOrdersDocuments?.length ? validOrdersDocuments : null,
       tacMDC: order?.tac || '',
       departmentIndicator: order?.department_indicator || '',
     }),
-    [order],
+    [order, validOrdersDocuments],
   );
 
   const handleButtonDropdownChange = (e) => {
@@ -488,7 +494,9 @@ const ServicesCounselingMoveDetails = ({
   }, [order, requiredOrdersInfo, setMissingOrdersInfoCount]);
 
   if (isLoading) return <LoadingPlaceholder />;
-  if (isError) return <SomethingWentWrong />;
+  if (isError) {
+    return errors?.[0]?.response?.body?.message ? <Inaccessible /> : <SomethingWentWrong />;
+  }
 
   const handleShowSubmitMoveModal = () => {
     setIsSubmitModalVisible(true);

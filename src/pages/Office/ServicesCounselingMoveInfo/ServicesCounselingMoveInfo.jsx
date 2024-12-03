@@ -11,6 +11,7 @@ import { servicesCounselingRoutes } from 'constants/routes';
 import { useTXOMoveInfoQueries, useUserQueries } from 'hooks/queries';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
+import Inaccessible from 'shared/Inaccessible';
 import { roleTypes } from 'constants/userRoles';
 import LockedMoveBanner from 'components/LockedMoveBanner/LockedMoveBanner';
 import { isBooleanFlagEnabled } from 'utils/featureFlags';
@@ -65,7 +66,7 @@ const ServicesCounselingMoveInfo = () => {
   // Clear the alert when route changes
   const location = useLocation();
   const { moveCode } = useParams();
-  const { move, order, customerData, isLoading, isError } = useTXOMoveInfoQueries(moveCode);
+  const { move, order, customerData, isLoading, isError, errors } = useTXOMoveInfoQueries(moveCode);
   const { data } = useUserQueries();
   const officeUserID = data?.office_user?.id;
 
@@ -149,7 +150,9 @@ const ServicesCounselingMoveInfo = () => {
     );
 
   if (isLoading) return <LoadingPlaceholder />;
-  if (isError) return <SomethingWentWrong />;
+  if (isError) {
+    return errors?.[0]?.response?.body?.message ? <Inaccessible /> : <SomethingWentWrong />;
+  }
 
   // this locked move banner will display if the current user is not the one who has it locked
   // if the current user is the one who has it locked, it will not display
