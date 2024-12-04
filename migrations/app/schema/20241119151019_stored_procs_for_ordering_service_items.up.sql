@@ -159,10 +159,7 @@ BEGIN
                     RAISE EXCEPTION ''Error creating POEFSC service item for shipment %: %'', shipment_id, SQLERRM;
             END;
         END LOOP;
-    ELSE
-        RAISE EXCEPTION ''Invalid shipment direction for shipment %: Pickup is %CONUS, Destination is %CONUS.'',
-                         shipment_id, is_pickup_oconus, is_destination_oconus;
-    END IF;
+   END IF;
 
     -- create all other auto-approved service items, filtering out the POEFSC or PODFSC service items
     FOR service_item IN
