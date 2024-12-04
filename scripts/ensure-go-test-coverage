@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 import os.path
+import subprocess
 import sys
 
 HELP_URL = "https://transcom.github.io/mymove-docs/docs/about/development/test-coverage-reports"
