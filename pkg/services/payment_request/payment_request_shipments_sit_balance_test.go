@@ -970,4 +970,311 @@ func (suite *PaymentRequestServiceSuite) TestListShipmentPaymentSITBalance() {
 		suite.NoError(err)
 		suite.Nil(sitBalances)
 	})
+
+	suite.Run("returns SIT balance for payment request when there is only a future SIT no current SIT", func() {
+
+		// Set up a move with a shipment that has a 120 days of authorized SIT
+		move, shipment := setUpShipmentWith120DaysOfAuthorizedSIT(suite.DB())
+
+		year, month, day := time.Now().Date()
+		// originEntryDate := time.Date(year, month, day-90, 0, 0, 0, 0, time.UTC)
+		originEntryDate := time.Date(year, month, day+90, 0, 0, 0, 0, time.UTC)
+
+		shipment.OriginSITAuthEndDate = &originEntryDate
+
+		// Attach origin SIT service items to the reviewed payment request.
+		// Create the accompanying dates that uses up 30 of the 120 authorized days of SIT.
+		doasit := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOServiceItem{
+					Status:       models.MTOServiceItemStatusApproved,
+					SITEntryDate: &originEntryDate,
+				},
+			},
+			{
+				Model: models.ReService{
+					Code: models.ReServiceCodeDOASIT,
+				},
+			},
+			{
+				Model:    shipment,
+				LinkOnly: true,
+			},
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+		}, nil)
+
+		// Create a reviewed payment request
+		reviewedPaymentRequest := factory.BuildPaymentRequest(suite.DB(), []factory.Customization{
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+			{
+				Model: models.PaymentRequest{
+					Status: models.PaymentRequestStatusReviewed,
+				},
+			},
+			{
+				Model:    doasit,
+				LinkOnly: true,
+			},
+		}, nil)
+
+		// Creates the payment service item for DOASIT w/ SIT start date param
+		doasitParam := factory.BuildPaymentServiceItemParam(suite.DB(), []factory.Customization{
+			{
+				Model: models.PaymentServiceItemParam{
+					Value: originEntryDate.Format("2006-01-02"),
+				},
+			},
+			{
+				Model: models.PaymentServiceItem{
+					Status: models.PaymentServiceItemStatusApproved,
+				},
+			},
+			{
+				Model: models.ServiceItemParamKey{
+					Key: models.ServiceItemParamNameSITPaymentRequestStart,
+				},
+			},
+			{
+				Model:    reviewedPaymentRequest,
+				LinkOnly: true,
+			},
+			{
+				Model:    doasit,
+				LinkOnly: true,
+			},
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+		}, nil)
+
+		paymentEndDate := originEntryDate.Add(time.Hour * 24 * 30)
+		// Creates the SIT end date param for existing DOASIT payment request service item
+		factory.BuildPaymentServiceItemParam(suite.DB(), []factory.Customization{
+			{
+				Model: models.PaymentServiceItemParam{
+					Value: paymentEndDate.Format("2006-01-02"),
+				},
+			},
+			{
+				Model: models.ServiceItemParamKey{
+					Key: models.ServiceItemParamNameSITPaymentRequestEnd,
+				},
+			},
+			{
+				Model:    doasitParam.PaymentServiceItem,
+				LinkOnly: true,
+			},
+			{
+				Model:    reviewedPaymentRequest,
+				LinkOnly: true,
+			},
+			{
+				Model:    doasit,
+				LinkOnly: true,
+			},
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+		}, nil)
+
+		// Creates the NumberDaysSIT param for existing DOASIT payment request service item
+		factory.BuildPaymentServiceItemParam(suite.DB(), []factory.Customization{
+			{
+				Model: models.PaymentServiceItemParam{
+					Value: "30",
+				},
+			},
+			{
+				Model: models.ServiceItemParamKey{
+					Key: models.ServiceItemParamNameNumberDaysSIT,
+				},
+			},
+			{
+				Model:    doasitParam.PaymentServiceItem,
+				LinkOnly: true,
+			},
+			{
+				Model:    reviewedPaymentRequest,
+				LinkOnly: true,
+			},
+			{
+				Model:    doasit,
+				LinkOnly: true,
+			},
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+		}, nil)
+
+		sitBalances, err := service.ListShipmentPaymentSITBalance(suite.AppContextForTest(), reviewedPaymentRequest.ID)
+		suite.NoError(err)
+
+		suite.Len(sitBalances, 1)
+
+		pendingSITBalance := sitBalances[0]
+		suite.Equal(shipment.ID.String(), pendingSITBalance.ShipmentID.String())
+	})
+
+	suite.Run("returns SIT balance for payment request when there is only a past SIT no current SIT", func() {
+
+		// Set up a move with a shipment that has a 120 days of authorized SIT
+		move, shipment := setUpShipmentWith120DaysOfAuthorizedSIT(suite.DB())
+
+		year, month, day := time.Now().Date()
+		sitDepartureDate := time.Date(year, month, day-50, 0, 0, 0, 0, time.UTC)
+		originEntryDate := time.Date(year, month, day-90, 0, 0, 0, 0, time.UTC)
+
+		shipment.OriginSITAuthEndDate = &sitDepartureDate
+
+		// Attach origin SIT service items to the reviewed payment request.
+		// Create the accompanying dates that uses up 30 of the 120 authorized days of SIT.
+		doasit := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOServiceItem{
+					Status:           models.MTOServiceItemStatusApproved,
+					SITEntryDate:     &originEntryDate,
+					SITDepartureDate: &sitDepartureDate,
+				},
+			},
+			{
+				Model: models.ReService{
+					Code: models.ReServiceCodeDOASIT,
+				},
+			},
+			{
+				Model:    shipment,
+				LinkOnly: true,
+			},
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+		}, nil)
+
+		// Create a reviewed payment request
+		reviewedPaymentRequest := factory.BuildPaymentRequest(suite.DB(), []factory.Customization{
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+			{
+				Model: models.PaymentRequest{
+					Status: models.PaymentRequestStatusReviewed,
+				},
+			},
+			{
+				Model:    doasit,
+				LinkOnly: true,
+			},
+		}, nil)
+
+		// Creates the payment service item for DOASIT w/ SIT start date param
+		doasitParam := factory.BuildPaymentServiceItemParam(suite.DB(), []factory.Customization{
+			{
+				Model: models.PaymentServiceItemParam{
+					Value: originEntryDate.Format("2006-01-02"),
+				},
+			},
+			{
+				Model: models.PaymentServiceItem{
+					Status: models.PaymentServiceItemStatusApproved,
+				},
+			},
+			{
+				Model: models.ServiceItemParamKey{
+					Key: models.ServiceItemParamNameSITPaymentRequestStart,
+				},
+			},
+			{
+				Model:    reviewedPaymentRequest,
+				LinkOnly: true,
+			},
+			{
+				Model:    doasit,
+				LinkOnly: true,
+			},
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+		}, nil)
+
+		paymentEndDate := originEntryDate.Add(time.Hour * 24 * 30)
+		// Creates the SIT end date param for existing DOASIT payment request service item
+		factory.BuildPaymentServiceItemParam(suite.DB(), []factory.Customization{
+			{
+				Model: models.PaymentServiceItemParam{
+					Value: paymentEndDate.Format("2006-01-02"),
+				},
+			},
+			{
+				Model: models.ServiceItemParamKey{
+					Key: models.ServiceItemParamNameSITPaymentRequestEnd,
+				},
+			},
+			{
+				Model:    doasitParam.PaymentServiceItem,
+				LinkOnly: true,
+			},
+			{
+				Model:    reviewedPaymentRequest,
+				LinkOnly: true,
+			},
+			{
+				Model:    doasit,
+				LinkOnly: true,
+			},
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+		}, nil)
+
+		// Creates the NumberDaysSIT param for existing DOASIT payment request service item
+		factory.BuildPaymentServiceItemParam(suite.DB(), []factory.Customization{
+			{
+				Model: models.PaymentServiceItemParam{
+					Value: "30",
+				},
+			},
+			{
+				Model: models.ServiceItemParamKey{
+					Key: models.ServiceItemParamNameNumberDaysSIT,
+				},
+			},
+			{
+				Model:    doasitParam.PaymentServiceItem,
+				LinkOnly: true,
+			},
+			{
+				Model:    reviewedPaymentRequest,
+				LinkOnly: true,
+			},
+			{
+				Model:    doasit,
+				LinkOnly: true,
+			},
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+		}, nil)
+
+		sitBalances, err := service.ListShipmentPaymentSITBalance(suite.AppContextForTest(), reviewedPaymentRequest.ID)
+		suite.NoError(err)
+
+		suite.Len(sitBalances, 1)
+
+		pendingSITBalance := sitBalances[0]
+		suite.Equal(shipment.ID.String(), pendingSITBalance.ShipmentID.String())
+	})
 }
