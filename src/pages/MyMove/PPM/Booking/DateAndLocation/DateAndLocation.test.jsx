@@ -225,11 +225,11 @@ describe('DateAndLocation component', () => {
       renderDateAndLocation();
 
       await act(async () => {
-        await userEvent.click(screen.getByLabelText('Use my current origin address'));
+        await userEvent.click(screen.getByLabelText('Use my current pickup address'));
       });
 
       await act(async () => {
-        await userEvent.click(screen.getByLabelText('Use my current destination address'));
+        await userEvent.click(screen.getByLabelText('Use my current delivery address'));
       });
 
       await userEvent.type(screen.getByLabelText(/When do you plan to start moving your PPM?/), '04 Jul 2022');
@@ -281,11 +281,11 @@ describe('DateAndLocation component', () => {
 
       // Fill in form
       await act(async () => {
-        await userEvent.click(screen.getByLabelText('Use my current origin address'));
+        await userEvent.click(screen.getByLabelText('Use my current pickup address'));
       });
 
       await act(async () => {
-        await userEvent.click(screen.getByLabelText('Use my current destination address'));
+        await userEvent.click(screen.getByLabelText('Use my current delivery address'));
       });
 
       await userEvent.type(screen.getByLabelText(/When do you plan to start moving your PPM?/), '04 Jul 2022');
@@ -336,11 +336,11 @@ describe('DateAndLocation component', () => {
       });
 
       await act(async () => {
-        await userEvent.click(screen.getByLabelText('Use my current origin address'));
+        await userEvent.click(screen.getByLabelText('Use my current pickup address'));
       });
 
       await act(async () => {
-        await userEvent.click(screen.getByLabelText('Use my current destination address'));
+        await userEvent.click(screen.getByLabelText('Use my current delivery address'));
       });
 
       const radioElements = screen.getAllByLabelText('Yes');
@@ -454,11 +454,11 @@ describe('DateAndLocation component', () => {
 
       // Fill in form
       await act(async () => {
-        await userEvent.click(screen.getByLabelText('Use my current origin address'));
+        await userEvent.click(screen.getByLabelText('Use my current pickup address'));
       });
 
       await act(async () => {
-        await userEvent.click(screen.getByLabelText('Use my current destination address'));
+        await userEvent.click(screen.getByLabelText('Use my current delivery address'));
       });
 
       await userEvent.type(screen.getByLabelText(/When do you plan to start moving your PPM?/), '04 Jul 2022');

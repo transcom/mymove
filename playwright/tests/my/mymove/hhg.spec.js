@@ -43,7 +43,7 @@ test.describe('HHG', () => {
 
     // Update form (adding pickup and delivery address)
     const pickupLocation = 'BEVERLY HILLS, CA 90212 (LOS ANGELES)';
-    const pickupAddress = page.getByRole('group', { name: 'Pickup location' });
+    const pickupAddress = page.getByRole('group', { name: 'Pickup Address' });
     await pickupAddress.getByLabel('Address 1').fill('7 Q St');
     await pickupAddress.getByLabel('Address 2').clear();
     await page.locator('input[id="pickupAddress-location-input"]').fill('90212');
@@ -59,7 +59,7 @@ test.describe('HHG', () => {
     await page.keyboard.press('Enter');
 
     const deliveryLocation = 'HOLLYWOOD, MD 20636 (SAINT MARYS)';
-    const deliveryAddress = page.getByRole('group', { name: 'Delivery location' });
+    const deliveryAddress = page.getByRole('group', { name: 'Delivery Address' });
     await deliveryAddress.getByText('Yes').nth(0).click();
     await deliveryAddress.getByLabel('Address 1').nth(0).fill('9 W 2nd Ave');
     await deliveryAddress.getByLabel('Address 2').nth(0).fill('P.O. Box 456');
@@ -153,7 +153,7 @@ test.describe('(MultiMove) HHG', () => {
 
     // Update form (adding pickup and delivery address)
     const location = 'ATCO, NJ 08004 (CAMDEN)';
-    const pickupAddress = page.getByRole('group', { name: 'Pickup location' });
+    const pickupAddress = page.getByRole('group', { name: 'Pickup Address' });
     await pickupAddress.getByLabel('Address 1').fill('7 Q St');
     await pickupAddress.getByLabel('Address 2').clear();
     await page.locator('input[id="pickup.address-location-input"]').fill('08004');
@@ -170,7 +170,7 @@ test.describe('(MultiMove) HHG', () => {
 
     // Delivery address
     const deliveryLocation = 'HOLLYWOOD, MD 20636 (SAINT MARYS)';
-    const deliveryAddress = page.getByRole('group', { name: 'Delivery location' });
+    const deliveryAddress = page.getByRole('group', { name: 'Delivery Address' });
     await deliveryAddress.getByText('Yes').nth(0).click();
     await deliveryAddress.getByLabel('Address 1').nth(0).fill('9 W 2nd Ave');
     await deliveryAddress.getByLabel('Address 2').nth(0).fill('P.O. Box 456');
