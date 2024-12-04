@@ -7,6 +7,7 @@ import userEvent from '@testing-library/user-event';
 import ServicesCounselingMoveDetails from './ServicesCounselingMoveDetails';
 
 import MOVE_STATUSES from 'constants/moves';
+import { ERROR_RETURN_VALUE, LOADING_RETURN_VALUE, INACCESSIBLE_RETURN_VALUE } from 'utils/test/api';
 import { ORDERS_TYPE, ORDERS_TYPE_DETAILS } from 'constants/orders';
 import { servicesCounselingRoutes } from 'constants/routes';
 import { permissionTypes } from 'constants/permissions';
@@ -14,7 +15,7 @@ import { SHIPMENT_OPTIONS_URL } from 'shared/constants';
 import { useMoveDetailsQueries, useOrdersDocumentQueries } from 'hooks/queries';
 import { formatDateWithUTC } from 'shared/dates';
 import { MockProviders } from 'testUtils';
-import { updateMoveStatusServiceCounselingCompleted } from 'services/ghcApi';
+import { updateMTOShipment, updateMoveStatusServiceCounselingCompleted } from 'services/ghcApi';
 
 const mockRequestedMoveCode = 'LR4T8V';
 const mockRoutingParams = { moveCode: mockRequestedMoveCode };
@@ -33,6 +34,7 @@ jest.mock('hooks/queries', () => ({
 
 jest.mock('services/ghcApi', () => ({
   ...jest.requireActual('services/ghcApi'),
+  updateMTOShipment: jest.fn(),
   updateMoveStatusServiceCounselingCompleted: jest.fn(),
 }));
 
@@ -342,6 +344,96 @@ const newOrdersDocumentQuery = {
   },
 };
 
+const zeroIncentiveMoveDetailsQuery = {
+  ...newMoveDetailsQuery,
+  move: {
+    id: '9c7b255c-2981-4bf8-839f-61c7458e2b4d',
+    ordersId: '1',
+    status: MOVE_STATUSES.NEEDS_SERVICE_COUNSELING,
+  },
+  mtoShipments: [
+    {
+      customerRemarks: 'Please treat gently',
+      eTag: 'MjAyMi0xMS0wOFQyMzo0NDo1OC4yMTc4MVo=',
+      id: '167985a7-6d47-4412-b620-d4b7f98a09ed',
+      moveTaskOrderID: 'ddf94b4f-db77-4916-83ff-0d6bc68c8b42',
+      ppmShipment: {
+        actualDestinationPostalCode: null,
+        actualMoveDate: null,
+        actualPickupPostalCode: null,
+        advanceAmountReceived: null,
+        advanceAmountRequested: null,
+        approvedAt: null,
+        createdAt: '2022-11-08T23:44:58.226Z',
+        eTag: 'MjAyMi0xMS0wOFQyMzo0NDo1OC4yMjY0NTNa',
+        estimatedIncentive: 0,
+        estimatedWeight: 400,
+        expectedDepartureDate: '2020-03-15',
+        finalIncentive: null,
+        hasProGear: false,
+        hasReceivedAdvance: null,
+        hasRequestedAdvance: false,
+        id: '79b98a71-158d-4b04-9a6c-25543c52183d',
+        movingExpenses: null,
+        proGearWeight: null,
+        proGearWeightTickets: null,
+        reviewedAt: null,
+        hasSecondaryPickupAddress: false,
+        hasSecondaryDestinationAddress: false,
+        pickupAddress: {
+          streetAddress1: '111 Test Street',
+          streetAddress2: '222 Test Street',
+          streetAddress3: 'Test Man',
+          city: 'Test City',
+          state: 'KY',
+          postalCode: '42701',
+        },
+        secondaryPickupAddress: {
+          streetAddress1: '777 Test Street',
+          streetAddress2: '888 Test Street',
+          streetAddress3: 'Test Man',
+          city: 'Test City',
+          state: 'KY',
+          postalCode: '42702',
+        },
+        destinationAddress: {
+          streetAddress1: '222 Test Street',
+          streetAddress2: '333 Test Street',
+          streetAddress3: 'Test Man',
+          city: 'Test City',
+          state: 'KY',
+          postalCode: '42703',
+        },
+        secondaryDestinationAddress: {
+          streetAddress1: '444 Test Street',
+          streetAddress2: '555 Test Street',
+          streetAddress3: 'Test Man',
+          city: 'Test City',
+          state: 'KY',
+          postalCode: '42701',
+        },
+        shipmentId: '167985a7-6d47-4412-b620-d4b7f98a09ed',
+        sitEstimatedCost: null,
+        sitEstimatedDepartureDate: null,
+        sitEstimatedEntryDate: null,
+        sitEstimatedWeight: null,
+        sitExpected: false,
+        spouseProGearWeight: null,
+        status: 'SUBMITTED',
+        submittedAt: null,
+        updatedAt: '2022-11-08T23:44:58.226Z',
+        weightTickets: [{ emptyWeight: 0, fullWeight: 200 }],
+      },
+      primeActualWeight: 980,
+      requestedDeliveryDate: '2023-01-10',
+      requestedPickupDate: '2023-01-10',
+      shipmentType: 'PPM',
+      status: 'SUBMITTED',
+      updatedAt: '2022-11-08T23:44:58.217Z',
+    },
+  ],
+};
+
 const counselingCompletedMoveDetailsQuery = {
   ...newMoveDetailsQuery,
   move: {
@@ -566,25 +658,11 @@ const renderComponent = (props, permissions = [permissionTypes.updateShipment, p
   );
 };
 
-const loadingReturnValue = {
-  ...newMoveDetailsQuery,
-  isLoading: true,
-  isError: false,
-  isSuccess: false,
-};
-
-const errorReturnValue = {
-  ...newMoveDetailsQuery,
-  isLoading: false,
-  isError: true,
-  isSuccess: false,
-};
-
 describe('MoveDetails page', () => {
   describe('check loading and error component states', () => {
     it('renders the Loading Placeholder when the query is still loading', async () => {
-      useMoveDetailsQueries.mockReturnValue(loadingReturnValue);
-      useOrdersDocumentQueries.mockReturnValue(loadingReturnValue);
+      useMoveDetailsQueries.mockReturnValue({ ...newMoveDetailsQuery, ...LOADING_RETURN_VALUE });
+      useOrdersDocumentQueries.mockReturnValue({ ...newMoveDetailsQuery, ...LOADING_RETURN_VALUE });
 
       renderComponent();
 
@@ -593,12 +671,22 @@ describe('MoveDetails page', () => {
     });
 
     it('renders the Something Went Wrong component when the query errors', async () => {
-      useMoveDetailsQueries.mockReturnValue(errorReturnValue);
-      useOrdersDocumentQueries.mockReturnValue(errorReturnValue);
+      useMoveDetailsQueries.mockReturnValue({ ...newMoveDetailsQuery, ...ERROR_RETURN_VALUE });
+      useOrdersDocumentQueries.mockReturnValue({ ...newMoveDetailsQuery, ...ERROR_RETURN_VALUE });
 
       renderComponent();
 
       const errorMessage = await screen.getByText(/Something went wrong./);
+      expect(errorMessage).toBeInTheDocument();
+    });
+
+    it('renders the Inaccessible component when the query returns an inaccessible response', async () => {
+      useMoveDetailsQueries.mockReturnValue({ ...newMoveDetailsQuery, ...INACCESSIBLE_RETURN_VALUE });
+      useOrdersDocumentQueries.mockReturnValue({ ...newMoveDetailsQuery, ...ERROR_RETURN_VALUE });
+
+      renderComponent();
+
+      const errorMessage = await screen.getByText(/Page is not accessible./);
       expect(errorMessage).toBeInTheDocument();
     });
   });
@@ -678,9 +766,9 @@ describe('MoveDetails page', () => {
         );
       }
 
-      const originAddressTerms = screen.getAllByText('Origin address');
+      const originAddressTerms = screen.getAllByText('Pickup Address');
 
-      expect(originAddressTerms.length).toBe(2);
+      expect(originAddressTerms.length).toBe(3);
 
       for (let i = 0; i < 2; i += 1) {
         const { streetAddress1, city, state, postalCode } = newMoveDetailsQuery.mtoShipments[i].pickupAddress;
@@ -693,7 +781,7 @@ describe('MoveDetails page', () => {
         expect(addressText).toContain(postalCode);
       }
 
-      const destinationAddressTerms = screen.getAllByText('Destination address');
+      const destinationAddressTerms = screen.getAllByText('Delivery Address');
 
       expect(destinationAddressTerms.length).toBe(2);
 
@@ -769,7 +857,7 @@ describe('MoveDetails page', () => {
       expect(allowanceError).toBeInTheDocument();
     });
 
-    it('renders shipments info even if destination address is missing', async () => {
+    it('renders shipments info even if delivery address is missing', async () => {
       const moveDetailsQuery = {
         ...newMoveDetailsQuery,
         mtoShipments: [
@@ -786,7 +874,7 @@ describe('MoveDetails page', () => {
 
       renderComponent();
 
-      const destinationAddressTerms = screen.getAllByText('Destination address');
+      const destinationAddressTerms = screen.getAllByText('Delivery Address');
 
       expect(destinationAddressTerms.length).toBe(2);
 
@@ -977,6 +1065,29 @@ describe('MoveDetails page', () => {
       it('allows the service counselor to use the modal as expected', async () => {
         useMoveDetailsQueries.mockReturnValue(newMoveDetailsQuery);
         useOrdersDocumentQueries.mockReturnValue(newOrdersDocumentQuery);
+        updateMoveStatusServiceCounselingCompleted.mockImplementation(() => Promise.resolve({}));
+
+        renderComponent();
+
+        const submitButton = await screen.findByRole('button', { name: 'Submit move details' });
+
+        await userEvent.click(submitButton);
+
+        expect(await screen.findByRole('heading', { name: 'Are you sure?', level: 2 })).toBeInTheDocument();
+
+        const modalSubmitButton = screen.getByRole('button', { name: 'Yes, submit' });
+
+        await userEvent.click(modalSubmitButton);
+
+        await waitFor(() => {
+          expect(screen.queryByRole('heading', { name: 'Are you sure?', level: 2 })).not.toBeInTheDocument();
+        });
+      });
+
+      it('allows the service counselor to submit details for ppm with zero incentive', async () => {
+        useMoveDetailsQueries.mockReturnValue(zeroIncentiveMoveDetailsQuery);
+        useOrdersDocumentQueries.mockReturnValue(newOrdersDocumentQuery);
+        updateMTOShipment.mockImplementation(() => Promise.resolve({}));
         updateMoveStatusServiceCounselingCompleted.mockImplementation(() => Promise.resolve({}));
 
         renderComponent();

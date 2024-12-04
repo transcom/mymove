@@ -116,8 +116,8 @@ const DestinationSITServiceItemForm = ({ shipment, submission }) => {
           DDDSIT (Destination SIT delivery) <br />
           DDSFSC (Destination SIT fuel surcharge) <br />
           <br />
-          <strong>NOTE:</strong> The above service items will use the current destination address of the shipment as
-          their final destination address. Ensure the shipment address is accurate before creating these service items.
+          <strong>NOTE:</strong> The above service items will use the current delivery address of the shipment as their
+          final delivery address. Ensure the shipment address is accurate before creating these service items.
         </Hint>
         <Button type="submit">Create service item</Button>
       </Form>
