@@ -70,10 +70,10 @@ describe('AddressUpdatePreview', () => {
   it('renders all of the address preview information', async () => {
     render(<AddressUpdatePreview deliveryAddressUpdate={mockDeliveryAddressUpdateWithoutSIT} />);
     // Heading and alert present
-    expect(screen.getByRole('heading', { name: 'Delivery location' })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'Delivery Address' })).toBeInTheDocument();
     expect(screen.getByTestId('alert')).toBeInTheDocument();
     expect(screen.getByTestId('alert')).toHaveTextContent(
-      'If approved, the requested update to the delivery location will change one or all of the following:' +
+      'If approved, the requested update to the delivery address will change one or all of the following:' +
         'Service area.' +
         'Mileage bracket for direct delivery.' +
         'ZIP3 resulting in Domestic Shorthaul (DSH) changing to Domestic Linehaul (DLH) or vice versa.' +
@@ -87,11 +87,11 @@ describe('AddressUpdatePreview', () => {
     const addresses = screen.getAllByTestId('two-line-address');
     expect(addresses).toHaveLength(2);
     // Original Address
-    expect(addressChangePreview).toHaveTextContent('Original delivery location');
+    expect(addressChangePreview).toHaveTextContent('Original Delivery Address');
     expect(addresses[0]).toHaveTextContent('987 Any Avenue');
     expect(addresses[0]).toHaveTextContent('Fairfield, CA 94535');
     // New Address
-    expect(addressChangePreview).toHaveTextContent('Requested delivery location');
+    expect(addressChangePreview).toHaveTextContent('Requested Delivery Address');
     expect(addresses[1]).toHaveTextContent('123 Any Street');
     expect(addresses[1]).toHaveTextContent('Beverly Hills, CA 90210');
     // Request details (contractor remarks)
@@ -105,7 +105,7 @@ describe('AddressUpdatePreview', () => {
   it('renders the destination SIT alert when shipment contains dest SIT service items', () => {
     render(<AddressUpdatePreview deliveryAddressUpdate={mockDeliveryAddressUpdateWithSIT} />);
     // Heading and alert present
-    expect(screen.getByRole('heading', { name: 'Delivery location' })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'Delivery Address' })).toBeInTheDocument();
     expect(screen.getByTestId('destSitAlert')).toBeInTheDocument();
     expect(screen.getByTestId('destSitAlert')).toHaveTextContent(
       'Approval of this address change request will result in SIT Delivery > 50 Miles.' +
