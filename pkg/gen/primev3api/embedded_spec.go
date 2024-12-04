@@ -744,7 +744,7 @@ func init() {
           "example": "handle with care"
         },
         "destinationAddress": {
-          "description": "Where the movers should deliver this shipment.",
+          "description": "primary location the movers should deliver this shipment.",
           "allOf": [
             {
               "$ref": "#/definitions/Address"
@@ -778,7 +778,7 @@ func init() {
           }
         },
         "pickupAddress": {
-          "description": "The address where the movers should pick up this shipment.",
+          "description": "The primary address where the movers should pick up this shipment.",
           "allOf": [
             {
               "$ref": "#/definitions/Address"
@@ -806,7 +806,7 @@ func init() {
           "x-nullable": true
         },
         "secondaryDestinationAddress": {
-          "description": "The second address where the movers should deliver this shipment.",
+          "description": "second location where the movers should deliver this shipment.",
           "allOf": [
             {
               "$ref": "#/definitions/Address"
@@ -825,7 +825,7 @@ func init() {
           "$ref": "#/definitions/MTOShipmentType"
         },
         "tertiaryDestinationAddress": {
-          "description": "The third address where the movers should deliver this shipment.",
+          "description": "third location where the movers should deliver this shipment.",
           "allOf": [
             {
               "$ref": "#/definitions/Address"
@@ -4866,7 +4866,7 @@ func init() {
           "example": "handle with care"
         },
         "destinationAddress": {
-          "description": "Where the movers should deliver this shipment.",
+          "description": "primary location the movers should deliver this shipment.",
           "allOf": [
             {
               "$ref": "#/definitions/Address"
@@ -4900,7 +4900,7 @@ func init() {
           }
         },
         "pickupAddress": {
-          "description": "The address where the movers should pick up this shipment.",
+          "description": "The primary address where the movers should pick up this shipment.",
           "allOf": [
             {
               "$ref": "#/definitions/Address"
@@ -4928,7 +4928,7 @@ func init() {
           "x-nullable": true
         },
         "secondaryDestinationAddress": {
-          "description": "The second address where the movers should deliver this shipment.",
+          "description": "second location where the movers should deliver this shipment.",
           "allOf": [
             {
               "$ref": "#/definitions/Address"
@@ -4947,7 +4947,7 @@ func init() {
           "$ref": "#/definitions/MTOShipmentType"
         },
         "tertiaryDestinationAddress": {
-          "description": "The third address where the movers should deliver this shipment.",
+          "description": "third location where the movers should deliver this shipment.",
           "allOf": [
             {
               "$ref": "#/definitions/Address"
