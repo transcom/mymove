@@ -113,9 +113,12 @@ func (f *estimatePPM) CalculatePPMSITEstimatedCostBreakdown(appCtx appcontext.Ap
 	return ppmSITEstimatedCostInfoData, nil
 }
 
-// EstimateIncentiveWithDefaultChecks func that returns the estimate hard coded to 12K (because it'll be clear that the value is coming from the service)
 func (f *estimatePPM) EstimateIncentiveWithDefaultChecks(appCtx appcontext.AppContext, oldPPMShipment models.PPMShipment, newPPMShipment *models.PPMShipment) (*unit.Cents, *unit.Cents, error) {
 	return f.estimateIncentive(appCtx, oldPPMShipment, newPPMShipment, f.checks...)
+}
+
+func (f *estimatePPM) MaxIncentive(appCtx appcontext.AppContext, oldPPMShipment models.PPMShipment, newPPMShipment *models.PPMShipment) (*unit.Cents, error) {
+	return f.maxIncentive(appCtx, oldPPMShipment, newPPMShipment, f.checks...)
 }
 
 func (f *estimatePPM) FinalIncentiveWithDefaultChecks(appCtx appcontext.AppContext, oldPPMShipment models.PPMShipment, newPPMShipment *models.PPMShipment) (*unit.Cents, error) {
@@ -221,7 +224,7 @@ func (f *estimatePPM) estimateIncentive(appCtx appcontext.AppContext, oldPPMShip
 		newPPMShipment.HasRequestedAdvance = nil
 		newPPMShipment.AdvanceAmountRequested = nil
 
-		estimatedIncentive, err = f.calculatePrice(appCtx, newPPMShipment, 0, contract)
+		estimatedIncentive, err = f.calculatePrice(appCtx, newPPMShipment, 0, contract, false)
 		if err != nil {
 			return nil, nil, err
 		}
@@ -236,6 +239,48 @@ func (f *estimatePPM) estimateIncentive(appCtx appcontext.AppContext, oldPPMShip
 	}
 
 	return estimatedIncentive, estimatedSITCost, nil
+}
+
+func (f *estimatePPM) maxIncentive(appCtx appcontext.AppContext, oldPPMShipment models.PPMShipment, newPPMShipment *models.PPMShipment, checks ...ppmShipmentValidator) (*unit.Cents, error) {
+	// Check that all the required fields we need are present.
+	err := validatePPMShipment(appCtx, *newPPMShipment, &oldPPMShipment, &oldPPMShipment.Shipment, checks...)
+	// If a field does not pass validation return nil as error handling is happening in the validator
+	if err != nil {
+		switch err.(type) {
+		case apperror.InvalidInputError:
+			return nil, nil
+		default:
+			return nil, err
+		}
+	}
+
+	// we have access to the MoveTaskOrderID in the ppmShipment object so we can use that to get the customer's maximum weight entitlement
+	var move models.Move
+	err = appCtx.DB().Q().Eager(
+		"Orders.Entitlement",
+	).Where("show = TRUE").Find(&move, newPPMShipment.Shipment.MoveTaskOrderID)
+	if err != nil {
+		return nil, apperror.NewNotFoundError(newPPMShipment.ID, " error querying move")
+	}
+	orders := move.Orders
+	if orders.Entitlement.DBAuthorizedWeight == nil {
+		return nil, apperror.NewNotFoundError(newPPMShipment.ID, " DB authorized weight cannot be nil")
+	}
+
+	contractDate := newPPMShipment.ExpectedDepartureDate
+	contract, err := serviceparamvaluelookups.FetchContract(appCtx, contractDate)
+	if err != nil {
+		return nil, err
+	}
+
+	// since the max incentive is based off of the authorized weight entitlement and that value CAN change
+	// we will calculate the max incentive each time it is called
+	maxIncentive, err := f.calculatePrice(appCtx, newPPMShipment, unit.Pound(*orders.Entitlement.DBAuthorizedWeight), contract, true)
+	if err != nil {
+		return nil, err
+	}
+
+	return maxIncentive, nil
 }
 
 func (f *estimatePPM) finalIncentive(appCtx appcontext.AppContext, oldPPMShipment models.PPMShipment, newPPMShipment *models.PPMShipment, checks ...ppmShipmentValidator) (*unit.Cents, error) {
@@ -270,7 +315,7 @@ func (f *estimatePPM) finalIncentive(appCtx appcontext.AppContext, oldPPMShipmen
 				return nil, err
 			}
 
-			finalIncentive, err = f.calculatePrice(appCtx, newPPMShipment, newTotalWeight, contract)
+			finalIncentive, err = f.calculatePrice(appCtx, newPPMShipment, newTotalWeight, contract, false)
 			if err != nil {
 				return nil, err
 			}
@@ -314,27 +359,55 @@ func SumWeightTickets(ppmShipment, newPPMShipment models.PPMShipment) (originalT
 // calculatePrice returns an incentive value for the ppm shipment as if we were pricing the service items for
 // an HHG shipment with the same values for a payment request.  In this case we're not persisting service items,
 // MTOServiceItems or PaymentRequestServiceItems, to the database to avoid unnecessary work and get a quicker result.
-func (f estimatePPM) calculatePrice(appCtx appcontext.AppContext, ppmShipment *models.PPMShipment, totalWeightFromWeightTickets unit.Pound, contract models.ReContract) (*unit.Cents, error) {
+// we use this when calculating the estimated, final, and max incentive values
+func (f estimatePPM) calculatePrice(appCtx appcontext.AppContext, ppmShipment *models.PPMShipment, totalWeight unit.Pound, contract models.ReContract, isMaxIncentiveCheck bool) (*unit.Cents, error) {
 	logger := appCtx.Logger()
 
 	zeroTotal := false
 	serviceItemsToPrice := BaseServiceItems(ppmShipment.ShipmentID)
 
+	var move models.Move
+	err := appCtx.DB().Q().Eager(
+		"Orders.Entitlement",
+		"Orders.OriginDutyLocation.Address",
+		"Orders.NewDutyLocation.Address",
+	).Where("show = TRUE").Find(&move, ppmShipment.Shipment.MoveTaskOrderID)
+	if err != nil {
+		return nil, apperror.NewNotFoundError(ppmShipment.ID, " error querying move")
+	}
+	orders := move.Orders
+	if orders.Entitlement.DBAuthorizedWeight == nil {
+		return nil, apperror.NewNotFoundError(ppmShipment.ID, " DB authorized weight cannot be nil")
+	}
+
 	// Replace linehaul pricer with shorthaul pricer if move is within the same Zip3
 	var pickupPostal, destPostal string
 
-	// Check different address values for a postal code
-	if ppmShipment.ActualPickupPostalCode != nil {
-		pickupPostal = *ppmShipment.ActualPickupPostalCode
-	} else if ppmShipment.PickupAddress.PostalCode != "" {
-		pickupPostal = ppmShipment.PickupAddress.PostalCode
-	}
+	// if we are getting the max incentive, we want to use the addresses on the orders, else use what's on the shipment
+	if isMaxIncentiveCheck {
+		if orders.OriginDutyLocation.Address.PostalCode != "" {
+			pickupPostal = orders.OriginDutyLocation.Address.PostalCode
+		} else {
+			return nil, apperror.NewNotFoundError(ppmShipment.ID, " No postal code for origin duty location on orders when comparing postal codes")
+		}
 
-	// Same for destination
-	if ppmShipment.ActualDestinationPostalCode != nil {
-		destPostal = *ppmShipment.ActualDestinationPostalCode
-	} else if ppmShipment.DestinationAddress.PostalCode != "" {
-		destPostal = ppmShipment.DestinationAddress.PostalCode
+		if orders.NewDutyLocation.Address.PostalCode != "" {
+			destPostal = orders.NewDutyLocation.Address.PostalCode
+		} else {
+			return nil, apperror.NewNotFoundError(ppmShipment.ID, " No postal code for destination duty location on orders when comparing postal codes")
+		}
+	} else {
+		if ppmShipment.ActualPickupPostalCode != nil {
+			pickupPostal = *ppmShipment.ActualPickupPostalCode
+		} else if ppmShipment.PickupAddress.PostalCode != "" {
+			pickupPostal = ppmShipment.PickupAddress.PostalCode
+		}
+
+		if ppmShipment.ActualDestinationPostalCode != nil {
+			destPostal = *ppmShipment.ActualDestinationPostalCode
+		} else if ppmShipment.DestinationAddress.PostalCode != "" {
+			destPostal = ppmShipment.DestinationAddress.PostalCode
+		}
 	}
 
 	if pickupPostal[0:3] == destPostal[0:3] {
@@ -349,9 +422,15 @@ func (f estimatePPM) calculatePrice(appCtx appcontext.AppContext, ppmShipment *m
 	}
 
 	var mtoShipment models.MTOShipment
-	if totalWeightFromWeightTickets > 0 {
+	if totalWeight > 0 && !isMaxIncentiveCheck {
 		// Reassign ppm shipment fields to their expected location on the mto shipment for dates, addresses, weights ...
-		mtoShipment = MapPPMShipmentFinalFields(*ppmShipment, totalWeightFromWeightTickets)
+		mtoShipment = MapPPMShipmentFinalFields(*ppmShipment, totalWeight)
+	} else if totalWeight > 0 && isMaxIncentiveCheck {
+		mtoShipment, err = MapPPMShipmentMaxIncentiveFields(appCtx, *ppmShipment, totalWeight)
+		if err != nil {
+			logger.Error("unable to map PPM fields for max incentive", zap.Error(err))
+			return nil, err
+		}
 	} else {
 		// Reassign ppm shipment fields to their expected location on the mto shipment for dates, addresses, weights ...
 		mtoShipment, err = MapPPMShipmentEstimatedFields(appCtx, *ppmShipment)
@@ -859,10 +938,24 @@ func priceAdditionalDaySIT(appCtx appcontext.AppContext, pricer services.ParamsP
 // mapPPMShipmentEstimatedFields remaps our PPMShipment specific information into the fields where the service param lookups
 // expect to find them on the MTOShipment model.  This is only in-memory and shouldn't get saved to the database.
 func MapPPMShipmentEstimatedFields(appCtx appcontext.AppContext, ppmShipment models.PPMShipment) (models.MTOShipment, error) {
-	// we have access to the MoveTaskOrderID in the ppmShipment object so we can use that to get the customer's maximum weight entitlement
+
+	ppmShipment.Shipment.ActualPickupDate = &ppmShipment.ExpectedDepartureDate
+	ppmShipment.Shipment.RequestedPickupDate = &ppmShipment.ExpectedDepartureDate
+	ppmShipment.Shipment.PickupAddress = &models.Address{PostalCode: ppmShipment.PickupAddress.PostalCode}
+	ppmShipment.Shipment.DestinationAddress = &models.Address{PostalCode: ppmShipment.DestinationAddress.PostalCode}
+	ppmShipment.Shipment.PrimeActualWeight = ppmShipment.EstimatedWeight
+
+	return ppmShipment.Shipment, nil
+}
+
+// MapPPMShipmentMaxIncentiveFields remaps our PPMShipment specific information into the fields where the service param lookups
+// expect to find them on the MTOShipment model.  This is only in-memory and shouldn't get saved to the database.
+func MapPPMShipmentMaxIncentiveFields(appCtx appcontext.AppContext, ppmShipment models.PPMShipment, totalWeight unit.Pound) (models.MTOShipment, error) {
 	var move models.Move
 	err := appCtx.DB().Q().Eager(
 		"Orders.Entitlement",
+		"Orders.OriginDutyLocation.Address",
+		"Orders.NewDutyLocation.Address",
 	).Where("show = TRUE").Find(&move, ppmShipment.Shipment.MoveTaskOrderID)
 	if err != nil {
 		return models.MTOShipment{}, apperror.NewNotFoundError(ppmShipment.ID, " error querying move")
@@ -874,9 +967,9 @@ func MapPPMShipmentEstimatedFields(appCtx appcontext.AppContext, ppmShipment mod
 
 	ppmShipment.Shipment.ActualPickupDate = &ppmShipment.ExpectedDepartureDate
 	ppmShipment.Shipment.RequestedPickupDate = &ppmShipment.ExpectedDepartureDate
-	ppmShipment.Shipment.PickupAddress = &models.Address{PostalCode: ppmShipment.PickupAddress.PostalCode}
-	ppmShipment.Shipment.DestinationAddress = &models.Address{PostalCode: ppmShipment.DestinationAddress.PostalCode}
-	ppmShipment.Shipment.PrimeActualWeight = (*unit.Pound)(orders.Entitlement.DBAuthorizedWeight)
+	ppmShipment.Shipment.PickupAddress = &models.Address{PostalCode: orders.OriginDutyLocation.Address.PostalCode}
+	ppmShipment.Shipment.DestinationAddress = &models.Address{PostalCode: orders.NewDutyLocation.Address.PostalCode}
+	ppmShipment.Shipment.PrimeActualWeight = &totalWeight
 
 	return ppmShipment.Shipment, nil
 }

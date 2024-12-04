@@ -296,7 +296,7 @@ describe('Shipment Container', () => {
             />
           </MockProviders>,
         );
-        expect(screen.getByTestId('tag', { name: 'packet ready for download' })).toBeInTheDocument();
+        expect(screen.getByTestId('ppmStatusTag')).toBeInTheDocument();
       });
       it('renders with canceled tag', () => {
         render(<ShipmentDisplay shipmentId="1" displayInfo={canceledInfo} onChange={jest.fn()} isSubmitted={false} />);
@@ -316,7 +316,7 @@ describe('Shipment Container', () => {
             />
           </MockProviders>,
         );
-        expect(screen.getByTestId('tag', { name: 'packet ready for download' })).toBeInTheDocument();
+        expect(screen.getByTestId('ppmStatusTag')).toBeInTheDocument();
       });
       it('rejected', () => {
         render(
@@ -332,10 +332,10 @@ describe('Shipment Container', () => {
             />
           </MockProviders>,
         );
-        expect(screen.getByTestId('tag', { name: 'packet ready for download' })).toBeInTheDocument();
+        expect(screen.getByTestId('ppmStatusTag')).toBeInTheDocument();
       });
     });
-    it('renders the Actual Expense Reimbursement tag', () => {
+    it('renders the Actual Expense Reimbursement & PPM status tags', () => {
       render(
         <MockProviders permissions={[permissionTypes.updateShipment]}>
           <ShipmentDisplay
@@ -349,7 +349,8 @@ describe('Shipment Container', () => {
           />
         </MockProviders>,
       );
-      expect(screen.getByTestId('tag', { name: 'actual expense reimbursement' })).toBeInTheDocument();
+      expect(screen.getByTestId('actualReimbursementTag')).toBeInTheDocument();
+      expect(screen.getByTestId('ppmStatusTag')).toBeInTheDocument();
     });
   });
 });

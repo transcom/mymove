@@ -439,7 +439,7 @@ func init() {
                   "minLength": 1,
                   "x-nullable": true
                 },
-                "dodID": {
+                "edipi": {
                   "description": "DOD ID",
                   "type": "string",
                   "maxLength": 10,
@@ -472,7 +472,7 @@ func init() {
                   "type": "string",
                   "enum": [
                     "customerName",
-                    "dodID",
+                    "edipi",
                     "emplid",
                     "branch",
                     "personalEmail",
@@ -2036,7 +2036,7 @@ func init() {
                   "type": "string",
                   "x-nullable": true
                 },
-                "dodID": {
+                "edipi": {
                   "description": "DOD ID",
                   "type": "string",
                   "maxLength": 10,
@@ -2094,7 +2094,7 @@ func init() {
                   "type": "string",
                   "enum": [
                     "customerName",
-                    "dodID",
+                    "edipi",
                     "emplid",
                     "branch",
                     "locator",
@@ -2563,7 +2563,7 @@ func init() {
     },
     "/moves/{moveID}/financial-review-flag": {
       "post": {
-        "description": "This sets a flag which indicates that the move should be reviewed by a fincancial office. For example, if the origin or destination address of a shipment is far from the duty location and may incur excess costs to the customer.",
+        "description": "This sets a flag which indicates that the move should be reviewed by a fincancial office. For example, if the origin or delivery address of a shipment is far from the duty location and may incur excess costs to the customer.",
         "consumes": [
           "application/json"
         ],
@@ -4301,7 +4301,7 @@ func init() {
           {
             "enum": [
               "customerName",
-              "dodID",
+              "edipi",
               "emplid",
               "branch",
               "locator",
@@ -4360,7 +4360,7 @@ func init() {
           {
             "type": "string",
             "description": "filters to match the unique service member's DoD ID",
-            "name": "dodID",
+            "name": "edipi",
             "in": "query"
           },
           {
@@ -4555,7 +4555,7 @@ func init() {
           {
             "enum": [
               "customerName",
-              "dodID",
+              "edipi",
               "emplid",
               "branch",
               "locator",
@@ -4599,7 +4599,7 @@ func init() {
           },
           {
             "type": "string",
-            "name": "dodID",
+            "name": "edipi",
             "in": "query"
           },
           {
@@ -4709,11 +4709,12 @@ func init() {
               "submittedAt",
               "branch",
               "status",
-              "dodID",
+              "edipi",
               "emplid",
               "age",
               "originDutyLocation",
-              "assignedTo"
+              "assignedTo",
+              "counselingOffice"
             ],
             "type": "string",
             "description": "field that results should be sorted by",
@@ -4766,7 +4767,7 @@ func init() {
           },
           {
             "type": "string",
-            "name": "dodID",
+            "name": "edipi",
             "in": "query"
           },
           {
@@ -4788,6 +4789,12 @@ func init() {
             "type": "string",
             "description": "Used to illustrate which user is assigned to this payment request.\n",
             "name": "assignedTo",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "filters using a counselingOffice name of the move",
+            "name": "counselingOffice",
             "in": "query"
           },
           {
@@ -9370,7 +9377,7 @@ func init() {
     "MTOShipment": {
       "properties": {
         "actualDeliveryDate": {
-          "description": "The actual date that the shipment was delivered to the destination address by the Prime",
+          "description": "The actual date that the shipment was delivered to the delivery address by the Prime",
           "type": "string",
           "format": "date",
           "x-nullable": true
@@ -9838,7 +9845,7 @@ func init() {
           "type": "string",
           "x-nullable": true,
           "readOnly": true,
-          "example": "Destination address is too far from duty location"
+          "example": "Delivery Address is too far from duty location"
         },
         "id": {
           "type": "string",
@@ -11527,6 +11534,13 @@ func init() {
           "x-omitempty": false,
           "example": false
         },
+        "maxIncentive": {
+          "description": "The max amount the government will pay the service member to move their belongings based on the moving date, locations, and shipment weight.",
+          "type": "integer",
+          "format": "cents",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
         "movingExpenses": {
           "description": "All expense documentation receipt records of this PPM shipment.",
           "type": "array",
@@ -12363,6 +12377,10 @@ func init() {
         "availableOfficeUsers": {
           "$ref": "#/definitions/AvailableOfficeUsers"
         },
+        "counselingOffice": {
+          "type": "string",
+          "x-nullable": true
+        },
         "customer": {
           "$ref": "#/definitions/Customer"
         },
@@ -12800,7 +12818,7 @@ func init() {
         "branch": {
           "type": "string"
         },
-        "dodID": {
+        "edipi": {
           "type": "string",
           "x-nullable": true
         },
@@ -12876,7 +12894,7 @@ func init() {
         "destinationGBLOC": {
           "$ref": "#/definitions/GBLOC"
         },
-        "dodID": {
+        "edipi": {
           "type": "string",
           "x-nullable": true,
           "example": 1234567890
@@ -13105,7 +13123,7 @@ func init() {
       }
     },
     "ShipmentAddressUpdate": {
-      "description": "This represents a destination address change request made by the Prime that is either auto-approved or requires review if the pricing criteria has changed. If criteria has changed, then it must be approved or rejected by a TOO.\n",
+      "description": "This represents a delivery address change request made by the Prime that is either auto-approved or requires review if the pricing criteria has changed. If criteria has changed, then it must be approved or rejected by a TOO.\n",
       "type": "object",
       "required": [
         "id",
@@ -13133,7 +13151,7 @@ func init() {
           "$ref": "#/definitions/Address"
         },
         "newSitDistanceBetween": {
-          "description": "The distance between the original SIT address and requested new destination address of shipment",
+          "description": "The distance between the original SIT address and requested new delivery address of shipment",
           "type": "integer",
           "example": 88
         },
@@ -13145,7 +13163,7 @@ func init() {
           "example": "This is an office remark"
         },
         "oldSitDistanceBetween": {
-          "description": "The distance between the original SIT address and the previous/old destination address of shipment",
+          "description": "The distance between the original SIT address and the previous/old delivery address of shipment",
           "type": "integer",
           "example": 50
         },
@@ -15252,7 +15270,7 @@ func init() {
                   "minLength": 1,
                   "x-nullable": true
                 },
-                "dodID": {
+                "edipi": {
                   "description": "DOD ID",
                   "type": "string",
                   "maxLength": 10,
@@ -15285,7 +15303,7 @@ func init() {
                   "type": "string",
                   "enum": [
                     "customerName",
-                    "dodID",
+                    "edipi",
                     "emplid",
                     "branch",
                     "personalEmail",
@@ -17302,7 +17320,7 @@ func init() {
                   "type": "string",
                   "x-nullable": true
                 },
-                "dodID": {
+                "edipi": {
                   "description": "DOD ID",
                   "type": "string",
                   "maxLength": 10,
@@ -17360,7 +17378,7 @@ func init() {
                   "type": "string",
                   "enum": [
                     "customerName",
-                    "dodID",
+                    "edipi",
                     "emplid",
                     "branch",
                     "locator",
@@ -17943,7 +17961,7 @@ func init() {
     },
     "/moves/{moveID}/financial-review-flag": {
       "post": {
-        "description": "This sets a flag which indicates that the move should be reviewed by a fincancial office. For example, if the origin or destination address of a shipment is far from the duty location and may incur excess costs to the customer.",
+        "description": "This sets a flag which indicates that the move should be reviewed by a fincancial office. For example, if the origin or delivery address of a shipment is far from the duty location and may incur excess costs to the customer.",
         "consumes": [
           "application/json"
         ],
@@ -20146,7 +20164,7 @@ func init() {
           {
             "enum": [
               "customerName",
-              "dodID",
+              "edipi",
               "emplid",
               "branch",
               "locator",
@@ -20205,7 +20223,7 @@ func init() {
           {
             "type": "string",
             "description": "filters to match the unique service member's DoD ID",
-            "name": "dodID",
+            "name": "edipi",
             "in": "query"
           },
           {
@@ -20412,7 +20430,7 @@ func init() {
           {
             "enum": [
               "customerName",
-              "dodID",
+              "edipi",
               "emplid",
               "branch",
               "locator",
@@ -20456,7 +20474,7 @@ func init() {
           },
           {
             "type": "string",
-            "name": "dodID",
+            "name": "edipi",
             "in": "query"
           },
           {
@@ -20572,11 +20590,12 @@ func init() {
               "submittedAt",
               "branch",
               "status",
-              "dodID",
+              "edipi",
               "emplid",
               "age",
               "originDutyLocation",
-              "assignedTo"
+              "assignedTo",
+              "counselingOffice"
             ],
             "type": "string",
             "description": "field that results should be sorted by",
@@ -20629,7 +20648,7 @@ func init() {
           },
           {
             "type": "string",
-            "name": "dodID",
+            "name": "edipi",
             "in": "query"
           },
           {
@@ -20651,6 +20670,12 @@ func init() {
             "type": "string",
             "description": "Used to illustrate which user is assigned to this payment request.\n",
             "name": "assignedTo",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "filters using a counselingOffice name of the move",
+            "name": "counselingOffice",
             "in": "query"
           },
           {
@@ -25601,7 +25626,7 @@ func init() {
     "MTOShipment": {
       "properties": {
         "actualDeliveryDate": {
-          "description": "The actual date that the shipment was delivered to the destination address by the Prime",
+          "description": "The actual date that the shipment was delivered to the delivery address by the Prime",
           "type": "string",
           "format": "date",
           "x-nullable": true
@@ -26069,7 +26094,7 @@ func init() {
           "type": "string",
           "x-nullable": true,
           "readOnly": true,
-          "example": "Destination address is too far from duty location"
+          "example": "Delivery Address is too far from duty location"
         },
         "id": {
           "type": "string",
@@ -27831,6 +27856,13 @@ func init() {
           "x-omitempty": false,
           "example": false
         },
+        "maxIncentive": {
+          "description": "The max amount the government will pay the service member to move their belongings based on the moving date, locations, and shipment weight.",
+          "type": "integer",
+          "format": "cents",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
         "movingExpenses": {
           "description": "All expense documentation receipt records of this PPM shipment.",
           "type": "array",
@@ -28669,6 +28701,10 @@ func init() {
         "availableOfficeUsers": {
           "$ref": "#/definitions/AvailableOfficeUsers"
         },
+        "counselingOffice": {
+          "type": "string",
+          "x-nullable": true
+        },
         "customer": {
           "$ref": "#/definitions/Customer"
         },
@@ -29156,7 +29192,7 @@ func init() {
         "branch": {
           "type": "string"
         },
-        "dodID": {
+        "edipi": {
           "type": "string",
           "x-nullable": true
         },
@@ -29232,7 +29268,7 @@ func init() {
         "destinationGBLOC": {
           "$ref": "#/definitions/GBLOC"
         },
-        "dodID": {
+        "edipi": {
           "type": "string",
           "x-nullable": true,
           "example": 1234567890
@@ -29461,7 +29497,7 @@ func init() {
       }
     },
     "ShipmentAddressUpdate": {
-      "description": "This represents a destination address change request made by the Prime that is either auto-approved or requires review if the pricing criteria has changed. If criteria has changed, then it must be approved or rejected by a TOO.\n",
+      "description": "This represents a delivery address change request made by the Prime that is either auto-approved or requires review if the pricing criteria has changed. If criteria has changed, then it must be approved or rejected by a TOO.\n",
       "type": "object",
       "required": [
         "id",
@@ -29489,7 +29525,7 @@ func init() {
           "$ref": "#/definitions/Address"
         },
         "newSitDistanceBetween": {
-          "description": "The distance between the original SIT address and requested new destination address of shipment",
+          "description": "The distance between the original SIT address and requested new delivery address of shipment",
           "type": "integer",
           "minimum": 0,
           "example": 88
@@ -29502,7 +29538,7 @@ func init() {
           "example": "This is an office remark"
         },
         "oldSitDistanceBetween": {
-          "description": "The distance between the original SIT address and the previous/old destination address of shipment",
+          "description": "The distance between the original SIT address and the previous/old delivery address of shipment",
           "type": "integer",
           "minimum": 0,
           "example": 50
