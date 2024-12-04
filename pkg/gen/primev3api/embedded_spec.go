@@ -3042,7 +3042,7 @@ func init() {
           "example": "PORTLAND INTL"
         },
         "portType": {
-          "description": "Port type A (Air), B(Border Crossing), S (Sea)",
+          "description": "Port type A (Air), B (Border Crossing), S (Sea)",
           "type": "string",
           "enum": [
             "A",
@@ -7333,7 +7333,7 @@ func init() {
           "example": "PORTLAND INTL"
         },
         "portType": {
-          "description": "Port type A (Air), B(Border Crossing), S (Sea)",
+          "description": "Port type A (Air), B (Border Crossing), S (Sea)",
           "type": "string",
           "enum": [
             "A",
