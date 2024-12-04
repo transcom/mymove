@@ -1084,7 +1084,7 @@ const ShipmentForm = (props) => {
                         <Fieldset
                           legend="Delivery Address"
                           disabled={deliveryAddressUpdateRequested}
-                          className={classNames('usa-legend', styles.mockLegend)}
+                          className={classNames('usa-legend')}
                         >
                           <AddressFields
                             name="delivery.address"
