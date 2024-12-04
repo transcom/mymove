@@ -500,7 +500,7 @@ func (f *shipmentAddressUpdateRequester) ReviewShipmentAddressChange(appCtx appc
 		shipmentHasApprovedDestSIT := f.doesShipmentContainApprovedDestinationSIT(shipmentDetails)
 
 		for i, serviceItem := range shipmentDetails.MTOServiceItems {
-			if serviceItem.MTOShipment.PrimeEstimatedWeight != nil || serviceItem.MTOShipment.PrimeActualWeight != nil {
+			if shipment.PrimeEstimatedWeight != nil || shipment.PrimeActualWeight != nil {
 				var updatedServiceItem *models.MTOServiceItem
 				if serviceItem.ReService.Code == models.ReServiceCodeDDP || serviceItem.ReService.Code == models.ReServiceCodeDUPK {
 					updatedServiceItem, err = serviceItemUpdater.UpdateMTOServiceItemPricingEstimate(appCtx, &serviceItem, shipment, etag.GenerateEtag(serviceItem.UpdatedAt))
