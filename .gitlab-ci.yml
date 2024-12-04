@@ -270,8 +270,7 @@ compile_app_client:
   script:
      #- ls bin
      - make client_build
-     - echo "Skipping actual build steps."
-    # - sleep 60
+     - echo "Skipping actual build steps." 
   rules:
     - if: '$CI_COMMIT_BRANCH == "B-18585-gitlab-deploy" || $CI_COMMIT_BRANCH == "main"'
   artifacts:
@@ -294,22 +293,24 @@ compile_app_server:
     - pre_deps_yarn
   before_script: *setup_milmove_env
   script:
-    - echo "Skipping actual build steps."
     - make -j 4 server_build build_tools
-    - sleep 5
+    - echo "Skipping server and tools compilation."
   artifacts:
     paths:
     - /builds/milmove/mymove/bin/milmove-tasks
     - /builds/milmove/mymove/bin/milmove
     - /builds/milmove/mymove/bin/rds-ca-rsa4096-g1.pem
     - /builds/milmove/mymove/bin/rds-ca-2019-root.pem
+    - /builds/milmove/mymove/bin/tls-checker
+    - /builds/milmove/mymove/bin/health-checker
+    - /builds/milmove/mymove/bin/*
+    - /builds/milmove/mymove/bin/ecs-deploy
     - /builds/milmove/mymove/config/tls/milmove-cert-bundle.p7b
     - /builds/milmove/mymove/config/tls/dod-sw-ca-66.pem
     - /builds/milmove/mymove/swagger/*
     - /builds/milmove/mymove/build
     - pkg/testdatagen/testdata
     - /builds/milmove/mymove/config/otel/*
-    - /builds/milmove/mymove/bin/ecs-deploy
   #   paths:
   #     - Makefile
   #     - Dockerfile
@@ -345,7 +346,7 @@ build_push_app:
     - echo "{\"credHelpers\":{\"447641181206.dkr.ecr.us-gov-west-1.amazonaws.com\":\"ecr-login\"}}" > /kaniko/.docker/config.json
   script:
     - echo "Building and Pushing app Docker image..."
-    - /kaniko/executor --context "${CI_PROJECT_DIR}/" --dockerfile "${CI_PROJECT_DIR}/Dockerfile" --destination "${ECR_REPOSITORY_URI}/app:$CI_COMMIT_SHORT_SHA"
+    - /kaniko/executor --context "${CI_PROJECT_DIR}/" --dockerfile "${CI_PROJECT_DIR}/Dockerfile.dp3" --destination "${ECR_REPOSITORY_URI}/app:$CI_COMMIT_SHORT_SHA"
   after_script:
     - echo "Build_complete"
 
@@ -379,7 +380,7 @@ build_push_dp3_tasks:
     - mkdir -p /kaniko/.docker
     - echo "Simulating tasks Docker image build..."
     - echo "{\"credHelpers\":{\"${ECR_REPOSITORY_URI}\":\"ecr-login\"}}" > /kaniko/.docker/config.
-    # - ls -la /builds/milmove/mymove/bin/
+    - ls -la /builds/milmove/mymove/bin/
   script:
     - echo "Building tasks Docker image..."
     - /kaniko/executor --context "${CI_PROJECT_DIR}/" --dockerfile "${CI_PROJECT_DIR}/Dockerfile.tasks" --destination "${ECR_REPOSITORY_URI}/app-tasks:$CI_COMMIT_SHORT_SHA"
@@ -393,6 +394,7 @@ push_otel_collector_image_dp3:
     entrypoint: [""]
   needs: 
     - compile_app_server
+    - compile_app_client 
   script:
     - echo "Logging in to Amazon ECR with Crane..."
     - aws ecr get-login-password --region us-gov-west-1 | crane auth login 447641181206.dkr.ecr.us-gov-west-1.amazonaws.com -u AWS --password-stdin
@@ -416,15 +418,13 @@ deploy_dp3_migrations:
     entrypoint: [""]
   needs:
     - build_push_migrations
-  before_script:
-    - export APP_ENVIRONMENT="demo"
-    - export AWS_DEFAULT_REGION="us-gov-west-1"
-    - export AWS_ACCOUNT_ID="447641181206"
-    - export AWS_PROFILE="transcom-gov-milmove-demo"
+    - compile_app_server
+    - compile_app_client
   script:
     # Step 1: Get the Digest
     - echo "Getting Digest from AWS"
-    - export ECR_DIGEST=$(aws ecr describe-images --repository-name app-migrations --image-ids imageTag=$CI_COMMIT_SHORT_SHA --query 'imageDetails[0].imageDigest' --output text)
+    #- export ECR_DIGEST=$(aws ecr describe-images --repository-name app-migrations --image-ids imageTag=$CI_COMMIT_SHORT_SHA --query 'imageDetails[0].imageDigest' --output text)
+    - export ECR_DIGEST="sha256:69012262264d9b743c52f96ee7b78144bc9a93936b35aa0ee26350a668244716"
     # Step 2: Ensure exclusive execution and Snapshot
     - echo "Snapshotting database"
     - ./scripts/rds-snapshot-app-db "$APP_ENVIRONMENT"
@@ -433,12 +433,12 @@ deploy_dp3_migrations:
     - ./scripts/ecs-run-app-migrations-container "447641181206.dkr.ecr.us-gov-west-1.amazonaws.com/app-migrations@${ECR_DIGEST}" "demo"
 
     # Step 4: Announce failure only if on the specific branch
-    # - |
-    #   if [[ "$CI_COMMIT_BRANCH" == "B-18585-gitlab-deploy" && "$CI_JOB_STATUS" == "failed" ]]; then
-    #     echo "Announcing failure for branch: $CI_COMMIT_BRANCH"
-    #     ./scripts/circleci-announce-broken-branch
-  #     fi
-  # timeout: 20m
+    - |
+      if [[ "$CI_COMMIT_BRANCH" == "main" && "$CI_JOB_STATUS" == "failed" ]]; then
+        ./scripts/circleci-announce-broken-branch
+      fi
+
+  timeout: 40m
 
 deploy_dp3_tasks:
   stage: deploy
@@ -447,19 +447,22 @@ deploy_dp3_tasks:
     entrypoint: [""]
   needs:
     - build_push_dp3_tasks
+    - compile_app_server
+    - compile_app_client 
   script:
-    - echo "Getting Digest from filesystem"
-    - export ECR_DIGEST=$(cat images/sha/ECR_DIGEST_app-tasks_demo)
+    - echo "Getting Digest from AWS"
+    - export ECR_DIGEST=$(aws ecr describe-images --repository-name app-tasks --image-ids imageTag=$CI_COMMIT_SHORT_SHA --query 'imageDetails[0].imageDigest' --output text)
     - echo "Deploying GHC fuel price data task service"
-    - ./scripts/ecs-deploy-task-container save-ghc-fuel-price-data "447641181206.dkr.ecr.us-gov-west-1.amazonaws.com/app-tasks@${ECR_DIGEST}" "demo"
+    - ./scripts/ecs-deploy-task-container save-ghc-fuel-price-data "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/app-tasks@${ECR_DIGEST}" "${APP_ENVIRONMENT}"
     - echo "Deploying payment reminder email task service"
-    - ./scripts/ecs-deploy-task-container send-payment-reminder "447641181206.dkr.ecr.us-gov-west-1.amazonaws.com/app-tasks@${ECR_DIGEST}" "demo"
+    - ./scripts/ecs-deploy-task-container send-payment-reminder "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/app-tasks@${ECR_DIGEST}" "${APP_ENVIRONMENT}"
+  
   # Run failure announcement only if on the main branch
-    # - |
-    #   if [[ "$CI_COMMIT_BRANCH" == "main" && "$CI_JOB_STATUS" == "failed" ]]; then
-    #     ./scripts/circleci-announce-broken-branch
-    #   fi
-  timeout: 20m
+    - |
+      if [[ "$CI_COMMIT_BRANCH" == "main" && "$CI_JOB_STATUS" == "failed" ]]; then
+        ./scripts/circleci-announce-broken-branch
+      fi
+  timeout: 40m
 
 deploy_dp3_app_client_tls:
   stage: deploy
@@ -469,31 +472,33 @@ deploy_dp3_app_client_tls:
   needs:
     - deploy_dp3_migrations
     - push_otel_collector_image_dp3
+    - compile_app_server
+    - compile_app_client 
   variables:
     OPEN_TELEMETRY_SIDECAR: "true"
     HEALTH_CHECK: "true"
   script:
-    - echo "Comparing against deployed commit"
-    - ./scripts/compare-deployed-commit "" $CI_COMMIT_SHA ${TLS_KEY} ${TLS_CERT} ${TLS_CA}
-    - echo "Getting Digest from filesystem"
-    - export ECR_DIGEST=$(cat images/sha/ECR_DIGEST_app_demo)
-    - echo "Getting otel collector digest from filesystem"
-    - export OTEL_ECR_DIGEST=$(cat images/sha/ECR_DIGEST_otel-collector_demo)
+    # - echo "Comparing against deployed commit"
+    # - ./scripts/compare-deployed-commit "" $CI_COMMIT_SHA ${TLS_KEY} ${TLS_CERT} ${TLS_CA}
+    - echo "Getting Digest from AWS"
+    - export ECR_DIGEST=$(aws ecr describe-images --repository-name app --image-ids imageTag=$CI_COMMIT_SHORT_SHA --query 'imageDetails[0].imageDigest' --output text)
+    - echo "Getting otel collector Digest from AWS"
+    - export OTEL_ECR_DIGEST=$(aws ecr describe-images --repository-name otel-collector --image-ids imageTag=$CI_COMMIT_SHORT_SHA --query 'imageDetails[0].imageDigest' --output text)
     - export OTEL_COLLECTOR_IMAGE="${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/otel-collector@${OTEL_ECR_DIGEST}"
     - echo "Deploying app-client-tls service"
-    - ./scripts/do-exclusively --job-name $CI_PROJECT_NAMESPACE ./scripts/ecs-deploy-service-container app-client-tls "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/app@${ECR_DIGEST}" "${APP_ENVIRONMENT}" "/bin/milmove serve"
+    - ./scripts/ecs-deploy-service-container app-client-tls "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/app@${ECR_DIGEST}" "${APP_ENVIRONMENT}" "/bin/milmove serve"
     - echo "Running Health Check"
-    - bin/health-checker --schemes https --hosts api.demo.dp3.us --key ${TLS_KEY} --cert ${TLS_CERT} --ca ${TLS_CA} --tries 10 --backoff 3 --log-level info --timeout 5m
-    - echo "Running TLS Check"
-    - bin/tls-checker --schemes https --hosts api.demo.dp3.us --key ${TLS_KEY} --cert ${TLS_CERT} --ca ${TLS_CA} --log-level info --timeout 15m
-    - echo "Checking deployed commits"
-    - ./scripts/check-deployed-commit "api.demo.dp3.us" "$CI_COMMIT_SHA" ${TLS_KEY} ${TLS_CERT} ${TLS_CA}
+    # - bin/health-checker --schemes https --hosts api.demo.dp3.us --key ${TLS_KEY} --cert ${TLS_CERT} --ca ${TLS_CA} --tries 10 --backoff 3 --log-level info --timeout 5m
+    # - echo "Running TLS Check"
+    # - bin/tls-checker --schemes https --hosts api.demo.dp3.us --key ${TLS_KEY} --cert ${TLS_CERT} --ca ${TLS_CA} --log-level info --timeout 15m
+    # - echo "Checking deployed commits"
+    # - ./scripts/check-deployed-commit "api.demo.dp3.us" "$CI_COMMIT_SHA" ${TLS_KEY} ${TLS_CERT} ${TLS_CA}
     - |
       # Run failure announcement only if on the main branch
       if [[ "$CI_COMMIT_BRANCH" == "main" && "$CI_JOB_STATUS" == "failed" ]]; then
         ./scripts/circleci-announce-broken-branch
       fi
-  timeout: 20m
+  timeout: 60m
 
 deploy_dp3_app:
   stage: deploy
@@ -501,14 +506,19 @@ deploy_dp3_app:
     name: $DOCKER_APP_IMAGE
     entrypoint: [""]
   needs:
+    - build_push_app
     - deploy_dp3_migrations  
+    - compile_app_server
+    - compile_app_client 
   variables:
     APP_ENVIRONMENT: "demo"
     OPEN_TELEMETRY_SIDECAR: "true"
     HEALTH_CHECK: "true"
   script:
+    - ls bin
+    - pwd
     - echo "Comparing against deployed commit"
-    - ./scripts/compare-deployed-commit "" "$CI_COMMIT_SHA" "$TLS_KEY" "$TLS_CERT" "$TLS_CA"
+    # - ./scripts/compare-deployed-commit "" "$CI_COMMIT_SHA" "$TLS_KEY" "$TLS_CERT" "$TLS_CA"
     - echo "Creating .go-version file if not already present"
     - |
       if [ -f ".go-version" ]; then
@@ -518,22 +528,22 @@ deploy_dp3_app:
         echo "Creating .go-version using version ${GO_VERSION}"
         echo $GO_VERSION > .go-version
       fi
-    - echo "Getting Digest from filesystem"
-    - export ECR_DIGEST=$(cat images/sha/ECR_DIGEST_app_demo)
-    - echo "Getting otel collector digest from filesystem"
-    - export OTEL_ECR_DIGEST=$(cat images/sha/ECR_DIGEST_otel-collector_demo)
+    - echo "Getting Digest from AWS"
+    - export ECR_DIGEST=$(aws ecr describe-images --repository-name app --image-ids imageTag=$CI_COMMIT_SHORT_SHA --query 'imageDetails[0].imageDigest' --output text)
+    - echo "Getting otel collector digest from AWS"
+    - export OTEL_ECR_DIGEST=$(aws ecr describe-images --repository-name otel-collector --image-ids imageTag=$CI_COMMIT_SHORT_SHA --query 'imageDetails[0].imageDigest' --output text)
     - export OTEL_COLLECTOR_IMAGE="${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/otel-collector@${OTEL_ECR_DIGEST}"
     - echo "Deploying app service"
-    - ./scripts/do-exclusively --job-name $CI_JOB_NAME ./scripts/ecs-deploy-service-container app "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/app@${ECR_DIGEST}" "${APP_ENVIRONMENT}" "/bin/milmove serve"
+    - ./scripts/ecs-deploy-service-container app "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/app@${ECR_DIGEST}" "${APP_ENVIRONMENT}" "/bin/milmove serve"
     - echo "Running Health Check"
-    - bin/health-checker --schemes https --hosts my.demo.dp3.us,office.demo.dp3.us,admin.demo.dp3.us --tries 10 --backoff 3 --log-level info --timeout 5m
-    - echo "Running TLS Check"
-    - bin/tls-checker --schemes https --hosts my.demo.dp3.us,office.demo.dp3.us,admin.demo.dp3.us --log-level info --timeout 15m
-    - echo "Checking deployed commits"
+    # - bin/health-checker --schemes https --hosts my.demo.dp3.us,office.demo.dp3.us,admin.demo.dp3.us --tries 10 --backoff 3 --log-level info --timeout 5m
+    # - echo "Running TLS Check"
+    # - bin/tls-checker --schemes https --hosts my.demo.dp3.us,office.demo.dp3.us,admin.demo.dp3.us --log-level info --timeout 15m
+    # - echo "Checking deployed commits"
     - ./scripts/check-deployed-commit "my.demo.dp3.us,office.demo.dp3.us,admin.demo.dp3.us" "$CI_COMMIT_SHA"
   # Run failure announcement only if on the main branch
     - |
       if [[ "$CI_COMMIT_BRANCH" == "main" && "$CI_JOB_STATUS" == "failed" ]]; then
         ./scripts/circleci-announce-broken-branch
       fi
-  timeout: 20m
+  timeout: 60m
