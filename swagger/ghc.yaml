@@ -3158,9 +3158,9 @@ paths:
       summary: Flags a move for financial office review
       description: >-
         This sets a flag which indicates that the move should be reviewed by a
-        fincancial office. For example, if the origin or destination address of
-        a shipment is far from the duty location and may incur excess costs to
-        the customer.
+        fincancial office. For example, if the origin or delivery address of a
+        shipment is far from the duty location and may incur excess costs to the
+        customer.
       operationId: setFinancialReviewFlag
       tags:
         - move
@@ -3582,8 +3582,9 @@ paths:
           type: string
           description: >
             Used to return a queue for a GBLOC other than the default of the
-            current user. Requires the HQ role. The parameter is ignored if the
-            requesting user does not have the necessary role.
+            current user. Requires the HQ role or a secondary transportation
+            office assignment. The parameter is ignored if the requesting user
+            does not have the necessary role or assignment.
         - in: query
           name: assignedTo
           type: string
@@ -3619,6 +3620,14 @@ paths:
             Only used for Services Counseling queue. If true, show PPM moves
             origin locations that are ready for closeout. Otherwise, show all
             other moves origin locations.
+        - in: query
+          name: viewAsGBLOC
+          type: string
+          description: >-
+            Used to return an origins list for a GBLOC other than the default of
+            the current user. Requires the HQ role or a secondary transportation
+            office assignment. The parameter is ignored if the requesting user
+            does not have the necessary role or assignment.
       responses:
         '200':
           description: Successfully returned all moves matching the criteria
@@ -3790,8 +3799,9 @@ paths:
           type: string
           description: >
             Used to return a queue for a GBLOC other than the default of the
-            current user. Requires the HQ role. The parameter is ignored if the
-            requesting user does not have the necessary role.
+            current user. Requires the HQ role or a secondary transportation
+            office assignment. The parameter is ignored if the requesting user
+            does not have the necessary role or assignment.
         - in: query
           name: assignedTo
           type: string
@@ -3914,8 +3924,9 @@ paths:
           type: string
           description: >
             Used to return a queue for a GBLOC other than the default of the
-            current user. Requires the HQ role. The parameter is ignored if the
-            requesting user does not have the necessary role.
+            current user. Requires the HQ role or a secondary transportation
+            office assignment. The parameter is ignored if the requesting user
+            does not have the necessary role or assignment.
       responses:
         '200':
           description: Successfully returned all moves matching the criteria
@@ -5331,7 +5342,7 @@ definitions:
         readOnly: true
       financialReviewRemarks:
         type: string
-        example: Destination address is too far from duty location
+        example: Delivery Address is too far from duty location
         x-nullable: true
         readOnly: true
       closeoutOffice:
@@ -7403,6 +7414,12 @@ definitions:
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
         format: uuid
         type: string
+      destinationGBLOC:
+        example: AGFM
+        type: string
+      destinationPostalCode:
+        example: '90210'
+        type: string
       referenceId:
         example: 1001-3456
         type: string
@@ -7559,7 +7576,7 @@ definitions:
         title: ZIP
         example: '90210'
         pattern: ^(\d{5})$
-      destinationDutyLocationPostalCode:
+      destinationPostalCode:
         format: zip
         type: string
         title: ZIP
@@ -10023,6 +10040,15 @@ definitions:
         format: cents
         x-nullable: true
         x-omitempty: false
+      maxIncentive:
+        description: >-
+          The max amount the government will pay the service member to move
+          their belongings based on the moving date, locations, and shipment
+          weight.
+        type: integer
+        format: cents
+        x-nullable: true
+        x-omitempty: false
       finalIncentive:
         description: >
           The final calculated incentive for the PPM shipment. This does not
@@ -10266,10 +10292,10 @@ definitions:
       - APPROVED
   ShipmentAddressUpdate:
     description: >
-      This represents a destination address change request made by the Prime
-      that is either auto-approved or requires review if the pricing criteria
-      has changed. If criteria has changed, then it must be approved or rejected
-      by a TOO.
+      This represents a delivery address change request made by the Prime that
+      is either auto-approved or requires review if the pricing criteria has
+      changed. If criteria has changed, then it must be approved or rejected by
+      a TOO.
     type: object
     properties:
       id:
@@ -10305,14 +10331,14 @@ definitions:
       oldSitDistanceBetween:
         description: >-
           The distance between the original SIT address and the previous/old
-          destination address of shipment
+          delivery address of shipment
         example: 50
         minimum: 0
         type: integer
       newSitDistanceBetween:
         description: >-
           The distance between the original SIT address and requested new
-          destination address of shipment
+          delivery address of shipment
         example: 88
         minimum: 0
         type: integer
@@ -10384,7 +10410,7 @@ definitions:
       actualDeliveryDate:
         x-nullable: true
         description: >-
-          The actual date that the shipment was delivered to the destination
+          The actual date that the shipment was delivered to the delivery
           address by the Prime
         format: date
         type: string

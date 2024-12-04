@@ -629,6 +629,10 @@ definitions:
         title: Best contact phone
       transportation_office:
         $ref: 'definitions/TransportationOffice.yaml'
+      transportation_office_assignments:
+         type: array
+         items:
+          $ref: 'definitions/TransportationOfficeAssignment.yaml'
       created_at:
         type: string
         format: date-time
@@ -1583,13 +1587,7 @@ definitions:
       grade:
         $ref: '#/definitions/OrderPayGrade'
       orders_type:
-        type: string
-        title: Move Type
-        enum:
-          - PCS - OCONUS
-          - PCS - CONUS
-          - PCS + TDY - OCONUS
-          - PCS + TDY - CONUS
+        $ref: 'definitions/OrdersType.yaml'
       move_date:
         type: string
         format: date
