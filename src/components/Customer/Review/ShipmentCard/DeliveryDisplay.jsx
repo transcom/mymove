@@ -34,18 +34,18 @@ const DeliveryDisplay = ({
         <dd>{formatCustomerDate(requestedDeliveryDate)}</dd>
       </div>
       <div className={styles.row}>
-        <dt>Destination</dt>
+        <dt>Delivery Address</dt>
         <dd>{formatCustomerDestination(destinationLocation, destinationZIP)}</dd>
       </div>
       {secondaryDeliveryAddress && (
         <div className={styles.row}>
-          <dt>Second Destination</dt>
+          <dt>Second Delivery Address</dt>
           <dd>{formatCustomerDestination(secondaryDeliveryAddress)}</dd>
         </div>
       )}
       {isTertiaryAddressEnabled && secondaryDeliveryAddress && tertiaryDeliveryAddress && (
         <div className={styles.row}>
-          <dt>Third Destination</dt>
+          <dt>Third Delivery Address</dt>
           <dd>{formatCustomerDestination(tertiaryDeliveryAddress)}</dd>
         </div>
       )}

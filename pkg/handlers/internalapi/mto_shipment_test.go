@@ -366,6 +366,12 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandlerV1() {
 			mock.AnythingOfType("*models.PPMShipment")).
 			Return(nil, nil, nil).Once()
 
+		ppmEstimator.On("MaxIncentive",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.AnythingOfType("models.PPMShipment"),
+			mock.AnythingOfType("*models.PPMShipment")).
+			Return(nil, nil)
+
 		suite.Nil(params.Body.Validate(strfmt.Default))
 
 		response := subtestData.handler.Handle(params)
@@ -448,6 +454,12 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandlerV1() {
 			mock.AnythingOfType("models.PPMShipment"),
 			mock.AnythingOfType("*models.PPMShipment")).
 			Return(nil, nil, nil).Once()
+
+		ppmEstimator.On("MaxIncentive",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.AnythingOfType("models.PPMShipment"),
+			mock.AnythingOfType("*models.PPMShipment")).
+			Return(nil, nil)
 
 		suite.Nil(params.Body.Validate(strfmt.Default))
 
@@ -1321,6 +1333,12 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 					mock.AnythingOfType("models.PPMShipment"),
 					mock.AnythingOfType("*models.PPMShipment")).
 					Return(tc.estimatedIncentive, nil, nil).Once()
+
+				ppmEstimator.On("MaxIncentive",
+					mock.AnythingOfType("*appcontext.appContext"),
+					mock.AnythingOfType("models.PPMShipment"),
+					mock.AnythingOfType("*models.PPMShipment")).
+					Return(nil, nil)
 
 				ppmEstimator.On("FinalIncentiveWithDefaultChecks",
 					mock.AnythingOfType("*appcontext.appContext"),

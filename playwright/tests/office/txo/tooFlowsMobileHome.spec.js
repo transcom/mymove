@@ -110,7 +110,7 @@ test.describe('TOO user', () => {
 
     await page.locator('#requestedPickupDate').fill(deliveryDate);
     await page.locator('#requestedPickupDate').blur();
-    await page.getByText('Use current address').click();
+    await page.getByText('Use pickup address').click();
     await page.locator('#requestedDeliveryDate').fill('16 Mar 2022');
     await page.locator('#requestedDeliveryDate').blur();
 
@@ -177,7 +177,7 @@ test.describe('TOO user', () => {
     await page.locator('#requestedDeliveryDate').blur();
 
     // Update form (adding pickup and delivery address)
-    const pickupAddressGroup = await page.getByRole('group', { name: 'Pickup location' });
+    const pickupAddressGroup = await page.getByRole('group', { name: 'Pickup Address' });
     await pickupAddressGroup.getByText('Yes').click();
     await pickupAddressGroup.getByLabel('Address 1').nth(0).fill(pickupAddress.Address1);
     await pickupAddressGroup.getByLabel('Address 2').nth(0).clear();
@@ -201,7 +201,7 @@ test.describe('TOO user', () => {
     await page.locator(`[name='pickup.agent.phone']`).fill(releasingAgent.phone);
     await page.locator(`[name='pickup.agent.email']`).fill(releasingAgent.email);
 
-    const deliveryAddressGroup = await page.getByRole('group', { name: 'Delivery location' });
+    const deliveryAddressGroup = await page.getByRole('group', { name: 'Delivery Address' });
     await deliveryAddressGroup.getByText('Yes').nth(0).click();
     await deliveryAddressGroup.getByLabel('Address 1').nth(0).fill(deliveryAddress.Address1);
     await deliveryAddressGroup.getByLabel('Address 2').nth(0).fill(deliveryAddress.Address2);
