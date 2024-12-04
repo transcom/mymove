@@ -1,5 +1,6 @@
 import React from 'react';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+
+import { QueryClientProvider, QueryClient } from '@tanstack/react-query';
 
 import DocumentViewer from './DocumentViewer';
 import pdf from './sample.pdf';
@@ -67,18 +68,24 @@ const testImageFiles = [
 
 export const PDFViewer = () => (
   <div style={{ display: 'flex', flexDirection: 'column', height: '100vh' }}>
-    <DocumentViewer files={testPDFFiles} />
+    <QueryClientProvider client={new QueryClient()}>
+      <DocumentViewer files={testPDFFiles} />
+    </QueryClientProvider>
   </div>
 );
 
 export const ImageViewer = () => (
   <div style={{ display: 'flex', flexDirection: 'column', height: '100vh' }}>
-    <DocumentViewer files={testImageFiles} />
+    <QueryClientProvider client={new QueryClient()}>
+      <DocumentViewer files={testImageFiles} />
+    </QueryClientProvider>
   </div>
 );
 
 export const DisplayDownloadOption = () => (
   <div style={{ display: 'flex', flexDirection: 'column', height: '100vh' }}>
-    <DocumentViewer files={testImageFiles} allowDownload />
+    <QueryClientProvider client={new QueryClient()}>
+      <DocumentViewer files={testImageFiles} allowDownload />
+    </QueryClientProvider>
   </div>
 );
