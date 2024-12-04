@@ -18,6 +18,7 @@ const defaultProps = {
   shipmentId: '#ABC123K',
   requestedDeliveryDate: new Date('03/01/2020').toISOString(),
   destinationZIP: '73523',
+  marketCode: 'd',
   receivingAgent: {
     firstName: 'Dorothy',
     lastName: 'Lagomarsino',
@@ -38,6 +39,7 @@ const completeProps = {
   shipmentId: 'ABC123K',
   shipmentLocator: 'ABC123K-01',
   status: shipmentStatuses.SUBMITTED,
+  marketCode: 'd',
 };
 
 const mockedOnIncompleteClickFunction = jest.fn();
@@ -51,6 +53,7 @@ const incompleteProps = {
   shipmentId: 'ABC123K',
   shipmentLocator: 'ABC123K-01',
   status: shipmentStatuses.DRAFT,
+  marketCode: 'd',
 };
 
 const secondaryDeliveryAddress = {
@@ -69,7 +72,7 @@ function mountNTSRShipmentCard(props) {
 describe('NTSRShipmentCard component', () => {
   it('renders component with all fields', () => {
     const wrapper = mountNTSRShipmentCard();
-    const tableHeaders = ['Requested delivery date', 'Destination', 'Receiving agent', 'Remarks'];
+    const tableHeaders = ['Requested delivery date', 'Delivery Address', 'Receiving agent', 'Remarks'];
     const {
       firstName: receivingFirstName,
       lastName: receivingLastName,
@@ -89,24 +92,29 @@ describe('NTSRShipmentCard component', () => {
 
   it('should render without releasing/receiving agents and remarks', () => {
     const wrapper = mountNTSRShipmentCard({ ...defaultProps, releasingAgent: null, remarks: '' });
-    const tableHeaders = ['Requested delivery date', 'Destination'];
+    const tableHeaders = ['Requested delivery date', 'Delivery Address'];
     const tableData = [formatCustomerDate(defaultProps.requestedDeliveryDate), defaultProps.destinationZIP];
     tableHeaders.forEach((label, index) => expect(wrapper.find('dt').at(index).text()).toBe(label));
     tableData.forEach((label, index) => expect(wrapper.find('dd').at(index).text()).toBe(label));
     expect(wrapper.find('.remarksCell').at(0).text()).toBe('—');
   });
 
-  it('should not render a secondary destination location if not provided one', async () => {
+  it('renders NTSRShipmentCard with a heading that has a market code and shipment type', async () => {
+    render(<NTSRShipmentCard {...defaultProps} />);
+    expect(screen.getByRole('heading', { level: 3 })).toHaveTextContent(`${defaultProps.marketCode}NTS-release`);
+  });
+
+  it('should not render a secondary delivery address if not provided one', async () => {
     render(<NTSRShipmentCard {...defaultProps} />);
 
-    const secondDestination = await screen.queryByText('Second Destination');
+    const secondDestination = await screen.queryByText('Second Delivery Address');
     expect(secondDestination).not.toBeInTheDocument();
   });
 
-  it('should render a secondary destination location if provided one', async () => {
+  it('should render a secondary delivery address if provided one', async () => {
     render(<NTSRShipmentCard {...defaultProps} {...secondaryDeliveryAddress} />);
 
-    const secondDestination = await screen.getByText('Second Destination');
+    const secondDestination = await screen.getByText('Second Delivery Address');
     expect(secondDestination).toBeInTheDocument();
     const secondDesintationInformation = await screen.getByText(/Some Street Name/);
     expect(secondDesintationInformation).toBeInTheDocument();
@@ -119,6 +127,11 @@ describe('NTSRShipmentCard component', () => {
     expect(screen.getByText(/^#ABC123K-01$/, { selector: 'p' })).toBeInTheDocument();
 
     expect(screen.queryByText('Incomplete')).toBeNull();
+  });
+
+  it('renders a complete NTSRShipmentCard with a heading that has a market code and shipment type', async () => {
+    render(<NTSRShipmentCard {...completeProps} />);
+    expect(screen.getByRole('heading', { level: 3 })).toHaveTextContent(`${completeProps.marketCode}NTS-release`);
   });
 
   it('renders incomplete label and tooltip icon for incomplete HHG shipment with DRAFT status', async () => {
@@ -134,5 +147,10 @@ describe('NTSRShipmentCard component', () => {
 
     // verify onclick is getting json string as parameter
     expect(mockedOnIncompleteClickFunction).toHaveBeenCalledWith('NTS-release', 'ABC123K-01', 'NTS-release');
+  });
+
+  it('renders a incomplete NTSRShipmentCard with a heading that has a market code and shipment type', async () => {
+    render(<NTSRShipmentCard {...incompleteProps} />);
+    expect(screen.getByRole('heading', { level: 3 })).toHaveTextContent(`${incompleteProps.marketCode}NTS-release`);
   });
 });

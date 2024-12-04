@@ -24,6 +24,7 @@ var PPMShipmentUpdaterChecks = []ppmShipmentValidator{
 	checkPPMShipmentID(),
 	checkRequiredFields(),
 	checkAdvanceAmountRequested(),
+	checkPPMShipmentSequenceValidForUpdate(),
 }
 
 func NewPPMShipmentUpdater(ppmEstimator services.PPMEstimator, addressCreator services.AddressCreator, addressUpdater services.AddressUpdater) services.PPMShipmentUpdater {
@@ -124,6 +125,18 @@ func (f *ppmShipmentUpdater) updatePPMShipment(appCtx appcontext.AppContext, ppm
 
 		updatedPPMShipment.EstimatedIncentive = estimatedIncentive
 		updatedPPMShipment.SITEstimatedCost = estimatedSITCost
+
+		// if the PPM shipment is past closeout then we should not calculate the max incentive, it is already set in stone
+		if oldPPMShipment.Status != models.PPMShipmentStatusWaitingOnCustomer &&
+			oldPPMShipment.Status != models.PPMShipmentStatusCloseoutComplete &&
+			oldPPMShipment.Status != models.PPMShipmentStatusComplete &&
+			oldPPMShipment.Status != models.PPMShipmentStatusNeedsCloseout {
+			maxIncentive, err := f.estimator.MaxIncentive(appCtx, *oldPPMShipment, updatedPPMShipment)
+			if err != nil {
+				return err
+			}
+			updatedPPMShipment.MaxIncentive = maxIncentive
+		}
 
 		if appCtx.Session() != nil {
 			if appCtx.Session().IsOfficeUser() {
@@ -270,12 +283,33 @@ func (f *ppmShipmentUpdater) updatePPMShipment(appCtx appcontext.AppContext, ppm
 		}
 
 		verrs, err := appCtx.DB().ValidateAndUpdate(updatedPPMShipment)
-
 		if verrs != nil && verrs.HasAny() {
 			return apperror.NewInvalidInputError(updatedPPMShipment.ID, err, verrs, "Invalid input found while updating the PPMShipments.")
 		} else if err != nil {
 			return apperror.NewQueryError("PPMShipments", err, "")
 		}
+
+		// updating the shipment after PPM creation due to addresses not being created until PPM shipment is created
+		// when populating the market_code column, it is considered domestic if both pickup & dest on the PPM are CONUS addresses
+		var mtoShipment models.MTOShipment
+		if err := txnAppCtx.DB().Find(&mtoShipment, updatedPPMShipment.ShipmentID); err != nil {
+			return err
+		}
+		if updatedPPMShipment.PickupAddress != nil && updatedPPMShipment.DestinationAddress != nil &&
+			updatedPPMShipment.PickupAddress.IsOconus != nil && updatedPPMShipment.DestinationAddress.IsOconus != nil {
+			pickupAddress := updatedPPMShipment.PickupAddress
+			destAddress := updatedPPMShipment.DestinationAddress
+			marketCode, err := models.DetermineMarketCode(pickupAddress, destAddress)
+			if err != nil {
+				return err
+			}
+			mtoShipment.MarketCode = marketCode
+			if err := txnAppCtx.DB().Update(&mtoShipment); err != nil {
+				return err
+			}
+			ppmShipment.Shipment = mtoShipment
+		}
+
 		return nil
 	})
 

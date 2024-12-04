@@ -6010,7 +6010,8 @@ func init() {
         "SEPARATION",
         "WOUNDED_WARRIOR",
         "BLUEBARK",
-        "SAFETY"
+        "SAFETY",
+        "TEMPORARY_DUTY"
       ],
       "x-display-value": {
         "BLUEBARK": "BLUEBARK",
@@ -6019,6 +6020,7 @@ func init() {
         "RETIREMENT": "Retirement",
         "SAFETY": "Safety",
         "SEPARATION": "Separation",
+        "TEMPORARY_DUTY": "Temporary Duty (TDY)",
         "WOUNDED_WARRIOR": "Wounded Warrior"
       }
     },
@@ -6409,6 +6411,13 @@ func init() {
           "x-nullable": true,
           "x-omitempty": false,
           "example": false
+        },
+        "maxIncentive": {
+          "description": "The max amount the government will pay the service member to move their belongings based on the moving date, locations, and shipment weight.",
+          "type": "integer",
+          "format": "cents",
+          "x-nullable": true,
+          "x-omitempty": false
         },
         "movingExpenses": {
           "description": "All expense documentation receipt records of this PPM shipment.",
@@ -14876,7 +14885,8 @@ func init() {
         "SEPARATION",
         "WOUNDED_WARRIOR",
         "BLUEBARK",
-        "SAFETY"
+        "SAFETY",
+        "TEMPORARY_DUTY"
       ],
       "x-display-value": {
         "BLUEBARK": "BLUEBARK",
@@ -14885,6 +14895,7 @@ func init() {
         "RETIREMENT": "Retirement",
         "SAFETY": "Safety",
         "SEPARATION": "Separation",
+        "TEMPORARY_DUTY": "Temporary Duty (TDY)",
         "WOUNDED_WARRIOR": "Wounded Warrior"
       }
     },
@@ -15275,6 +15286,13 @@ func init() {
           "x-nullable": true,
           "x-omitempty": false,
           "example": false
+        },
+        "maxIncentive": {
+          "description": "The max amount the government will pay the service member to move their belongings based on the moving date, locations, and shipment weight.",
+          "type": "integer",
+          "format": "cents",
+          "x-nullable": true,
+          "x-omitempty": false
         },
         "movingExpenses": {
           "description": "All expense documentation receipt records of this PPM shipment.",

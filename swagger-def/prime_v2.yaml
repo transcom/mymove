@@ -188,20 +188,21 @@ paths:
                 summary: Mobile Home Shipment
                 value:
                   {
-                    "mobileHomeShipment": {
-                      "heightFeet": 2,
-                      "heightInches": 2,
-                      "lengthFeet": 2,
-                      "lengthInches": 0,
-                      "make": "make",
-                      "model": "model",
-                      "widthFeet": 2,
-                      "widthInches": 2,
-                      "year": 1999
-                    },
-                    "counselorRemarks": "test",
-                    "moveTaskOrderID": "d4d95b22-2d9d-428b-9a11-284455aa87ba",
-                    "shipmentType": "MOBILE_HOME"
+                    'mobileHomeShipment':
+                      {
+                        'heightFeet': 2,
+                        'heightInches': 2,
+                        'lengthFeet': 2,
+                        'lengthInches': 0,
+                        'make': 'make',
+                        'model': 'model',
+                        'widthFeet': 2,
+                        'widthInches': 2,
+                        'year': 1999,
+                      },
+                    'counselorRemarks': 'test',
+                    'moveTaskOrderID': 'd4d95b22-2d9d-428b-9a11-284455aa87ba',
+                    'shipmentType': 'MOBILE_HOME',
                   }
       responses:
         '200':
@@ -350,6 +351,8 @@ definitions:
     $ref: 'definitions/prime/MTOServiceItemDestSIT.yaml'
   MTOServiceItemDomesticCrating: # spectral oas2-unused-definition is OK here due to polymorphism
     $ref: 'definitions/prime/MTOServiceItemDomesticCrating.yaml'
+  MTOServiceItemInternationalCrating: # spectral oas2-unused-definition is OK here due to polymorphism
+    $ref: 'definitions/prime/MTOServiceItemInternationalCrating.yaml'
   MTOServiceItemOriginSIT: # spectral oas2-unused-definition is OK here due to polymorphism
     $ref: 'definitions/prime/MTOServiceItemOriginSIT.yaml'
   MTOServiceItemShuttle: # spectral oas2-unused-definition is OK here due to polymorphism
@@ -432,6 +435,10 @@ definitions:
         x-nullable: true
       ppmShipment:
         $ref: '#/definitions/CreatePPMShipment'
+      boatShipment:
+        $ref: '#/definitions/CreateBoatShipment'
+      mobileHomeShipment:
+        $ref: '#/definitions/CreateMobileHomeShipment'
     required:
       - moveTaskOrderID
       - shipmentType
@@ -846,7 +853,7 @@ definitions:
         x-nullable: true
         x-omitempty: false
   UpdateShipmentDestinationAddress:
-    description: UpdateShipmentDestinationAddress contains the fields required for the prime to request an update for the destination address on an MTO Shipment.
+    description: UpdateShipmentDestinationAddress contains the fields required for the prime to request an update for the delivery address on an MTO Shipment.
     type: object
     properties:
       newAddress:

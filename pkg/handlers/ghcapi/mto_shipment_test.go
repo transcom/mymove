@@ -591,19 +591,6 @@ func (suite *HandlerSuite) TestApproveShipmentHandler() {
 				},
 			},
 		}, nil)
-		// Populate the reServices table with codes needed by the
-		// HHG_LONGHAUL_DOMESTIC shipment type
-		reServiceCodes := []models.ReServiceCode{
-			models.ReServiceCodeDLH,
-			models.ReServiceCodeFSC,
-			models.ReServiceCodeDOP,
-			models.ReServiceCodeDDP,
-			models.ReServiceCodeDPK,
-			models.ReServiceCodeDUPK,
-		}
-		for _, serviceCode := range reServiceCodes {
-			factory.BuildReServiceByCode(suite.DB(), serviceCode)
-		}
 
 		eTag := etag.GenerateEtag(shipment.UpdatedAt)
 		officeUser := factory.BuildOfficeUserWithRoles(nil, nil, []roles.RoleType{roles.RoleTypeTOO})
@@ -3606,6 +3593,12 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandlerUsingPPM() {
 			mock.AnythingOfType("*models.PPMShipment")).
 			Return(models.CentPointer(unit.Cents(estimatedIncentive)), models.CentPointer(unit.Cents(sitEstimatedCost)), nil).Once()
 
+		ppmEstimator.On("MaxIncentive",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.AnythingOfType("models.PPMShipment"),
+			mock.AnythingOfType("*models.PPMShipment")).
+			Return(nil, nil)
+
 		// Validate incoming payload
 		suite.NoError(params.Body.Validate(strfmt.Default))
 
@@ -3760,6 +3753,12 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandlerUsingPPM() {
 			mock.AnythingOfType("*models.PPMShipment")).
 			Return(models.CentPointer(unit.Cents(estimatedIncentive)), nil, nil).Once()
 
+		ppmEstimator.On("MaxIncentive",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.AnythingOfType("models.PPMShipment"),
+			mock.AnythingOfType("*models.PPMShipment")).
+			Return(nil, nil)
+
 		// Validate incoming payload
 		suite.NoError(params.Body.Validate(strfmt.Default))
 
@@ -3903,6 +3902,12 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandlerUsingPPM() {
 			mock.AnythingOfType("models.PPMShipment"),
 			mock.AnythingOfType("*models.PPMShipment")).
 			Return(models.CentPointer(unit.Cents(estimatedIncentive)), nil, nil).Once()
+
+		ppmEstimator.On("MaxIncentive",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.AnythingOfType("models.PPMShipment"),
+			mock.AnythingOfType("*models.PPMShipment")).
+			Return(nil, nil)
 
 		// Validate incoming payload
 		suite.NoError(params.Body.Validate(strfmt.Default))
@@ -4234,6 +4239,12 @@ func (suite *HandlerSuite) TestUpdateShipmentHandler() {
 			mock.AnythingOfType("*models.PPMShipment")).
 			Return(models.CentPointer(unit.Cents(estimatedIncentive)), models.CentPointer(unit.Cents(sitEstimatedCost)), nil).Once()
 
+		ppmEstimator.On("MaxIncentive",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.AnythingOfType("models.PPMShipment"),
+			mock.AnythingOfType("*models.PPMShipment")).
+			Return(nil, nil)
+
 		ppmEstimator.On("FinalIncentiveWithDefaultChecks",
 			mock.AnythingOfType("*appcontext.appContext"),
 			mock.AnythingOfType("models.PPMShipment"),
@@ -4328,6 +4339,12 @@ func (suite *HandlerSuite) TestUpdateShipmentHandler() {
 			mock.AnythingOfType("*models.PPMShipment")).
 			Return(models.CentPointer(unit.Cents(estimatedIncentive)), models.CentPointer(unit.Cents(sitEstimatedCost)), nil).Once()
 
+		ppmEstimator.On("MaxIncentive",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.AnythingOfType("models.PPMShipment"),
+			mock.AnythingOfType("*models.PPMShipment")).
+			Return(nil, nil)
+
 		ppmEstimator.On("FinalIncentiveWithDefaultChecks",
 			mock.AnythingOfType("*appcontext.appContext"),
 			mock.AnythingOfType("models.PPMShipment"),
@@ -4400,6 +4417,12 @@ func (suite *HandlerSuite) TestUpdateShipmentHandler() {
 			mock.AnythingOfType("models.PPMShipment"),
 			mock.AnythingOfType("*models.PPMShipment")).
 			Return(models.CentPointer(unit.Cents(estimatedIncentive)), models.CentPointer(unit.Cents(sitEstimatedCost)), nil).Once()
+
+		ppmEstimator.On("MaxIncentive",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.AnythingOfType("models.PPMShipment"),
+			mock.AnythingOfType("*models.PPMShipment")).
+			Return(nil, nil)
 
 		ppmEstimator.On("FinalIncentiveWithDefaultChecks",
 			mock.AnythingOfType("*appcontext.appContext"),

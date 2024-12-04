@@ -31,7 +31,6 @@ func (suite *PPMShipmentSuite) TestPPMShipmentCreator() {
 	createSubtestData := func(ppmShipmentTemplate models.PPMShipment, mtoShipmentTemplate *models.MTOShipment) (subtestData *createShipmentSubtestData) {
 		subtestData = &createShipmentSubtestData{}
 
-		// TODO: pass customs through once we refactor this function to take in []factory.Customization instead of assertions
 		subtestData.move = factory.BuildMove(suite.DB(), nil, nil)
 
 		customMTOShipment := models.MTOShipment{
@@ -98,6 +97,13 @@ func (suite *PPMShipmentSuite) TestPPMShipmentCreator() {
 			mock.AnythingOfType("*models.PPMShipment"),
 		).Return(nil, nil, nil).Once()
 
+		ppmEstimator.On(
+			"MaxIncentive",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.AnythingOfType("models.PPMShipment"),
+			mock.AnythingOfType("*models.PPMShipment"),
+		).Return(nil, nil).Once()
+
 		createdPPMShipment, err := ppmShipmentCreator.CreatePPMShipmentWithDefaultCheck(appCtx, subtestData.newPPMShipment)
 
 		suite.Nil(err)
@@ -139,6 +145,13 @@ func (suite *PPMShipmentSuite) TestPPMShipmentCreator() {
 			mock.AnythingOfType("models.PPMShipment"),
 			mock.AnythingOfType("*models.PPMShipment"),
 		).Return(nil, nil, nil).Once()
+
+		ppmEstimator.On(
+			"MaxIncentive",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.AnythingOfType("models.PPMShipment"),
+			mock.AnythingOfType("*models.PPMShipment"),
+		).Return(nil, nil).Once()
 
 		createdPPMShipment, err := ppmShipmentCreator.CreatePPMShipmentWithDefaultCheck(appCtx, subtestData.newPPMShipment)
 
@@ -223,6 +236,7 @@ func (suite *PPMShipmentSuite) TestPPMShipmentCreator() {
 		estimatedWeight := unit.Pound(2450)
 		hasProGear := false
 		estimatedIncentive := unit.Cents(123456)
+		maxIncentive := unit.Cents(123456)
 
 		pickupAddress := models.Address{
 			StreetAddress1: "123 Any Pickup Street",
@@ -286,6 +300,13 @@ func (suite *PPMShipmentSuite) TestPPMShipmentCreator() {
 			mock.AnythingOfType("*models.PPMShipment"),
 		).Return(&estimatedIncentive, nil, nil).Once()
 
+		ppmEstimator.On(
+			"MaxIncentive",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.AnythingOfType("models.PPMShipment"),
+			mock.AnythingOfType("*models.PPMShipment"),
+		).Return(&maxIncentive, nil).Once()
+
 		createdPPMShipment, err := ppmShipmentCreator.CreatePPMShipmentWithDefaultCheck(appCtx, subtestData.newPPMShipment)
 
 		suite.Nil(err)
@@ -298,6 +319,7 @@ func (suite *PPMShipmentSuite) TestPPMShipmentCreator() {
 			suite.Equal(&hasProGear, createdPPMShipment.HasProGear)
 			suite.Equal(models.PPMShipmentStatusSubmitted, createdPPMShipment.Status)
 			suite.Equal(&estimatedIncentive, createdPPMShipment.EstimatedIncentive)
+			suite.Equal(&maxIncentive, createdPPMShipment.MaxIncentive)
 			suite.NotZero(createdPPMShipment.CreatedAt)
 			suite.NotZero(createdPPMShipment.UpdatedAt)
 			suite.Equal(pickupAddress.StreetAddress1, createdPPMShipment.PickupAddress.StreetAddress1)

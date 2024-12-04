@@ -139,6 +139,9 @@ describe('RequestAccount page', () => {
     const qsaCheckbox = screen.getByTestId('qualityAssuranceEvaluatorCheckBox');
     await userEvent.click(qsaCheckbox);
 
+    const gsrCheckbox = screen.getByTestId('governmentSurveillanceRepresentativeCheckbox');
+    await userEvent.click(gsrCheckbox);
+
     const saveBtn = screen.getByTestId('requestOfficeAccountSubmitButton');
     await userEvent.click(saveBtn);
 

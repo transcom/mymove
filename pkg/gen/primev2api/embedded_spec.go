@@ -628,6 +628,9 @@ func init() {
         "agents": {
           "$ref": "#/definitions/MTOAgents"
         },
+        "boatShipment": {
+          "$ref": "#/definitions/CreateBoatShipment"
+        },
         "counselorRemarks": {
           "type": "string",
           "x-nullable": true,
@@ -656,6 +659,9 @@ func init() {
           "type": "string",
           "format": "uuid",
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "mobileHomeShipment": {
+          "$ref": "#/definitions/CreateMobileHomeShipment"
         },
         "moveTaskOrderID": {
           "description": "The ID of the move this new shipment is for.",
@@ -1385,15 +1391,88 @@ func init() {
         }
       ]
     },
+    "MTOServiceItemInternationalCrating": {
+      "description": "Describes a international crating/uncrating service item subtype of a MTOServiceItem.",
+      "allOf": [
+        {
+          "$ref": "#/definitions/MTOServiceItem"
+        },
+        {
+          "type": "object",
+          "required": [
+            "reServiceCode",
+            "item",
+            "crate",
+            "description"
+          ],
+          "properties": {
+            "crate": {
+              "description": "The dimensions for the crate the item will be shipped in.",
+              "allOf": [
+                {
+                  "$ref": "#/definitions/MTOServiceItemDimension"
+                }
+              ]
+            },
+            "description": {
+              "description": "A description of the item being crated.",
+              "type": "string",
+              "example": "Decorated horse head to be crated."
+            },
+            "externalCrate": {
+              "type": "boolean",
+              "x-nullable": true
+            },
+            "item": {
+              "description": "The dimensions of the item being crated.",
+              "allOf": [
+                {
+                  "$ref": "#/definitions/MTOServiceItemDimension"
+                }
+              ]
+            },
+            "market": {
+              "description": "To identify whether the service was provided within (CONUS) or (OCONUS)",
+              "type": "string",
+              "enum": [
+                "CONUS",
+                "OCONUS"
+              ],
+              "example": "CONUS"
+            },
+            "reServiceCode": {
+              "description": "A unique code for the service item. Indicates if the service is for crating (ICRT) or uncrating (IUCRT).",
+              "type": "string",
+              "enum": [
+                "ICRT",
+                "IUCRT"
+              ]
+            },
+            "reason": {
+              "description": "The contractor's explanation for why an item needed to be crated or uncrated. Used by the TOO while deciding to approve or reject the service item.\n",
+              "type": "string",
+              "x-nullable": true,
+              "x-omitempty": false,
+              "example": "Storage items need to be picked up"
+            },
+            "standaloneCrate": {
+              "type": "boolean",
+              "x-nullable": true
+            }
+          }
+        }
+      ]
+    },
     "MTOServiceItemModelType": {
-      "description": "Describes all model sub-types for a MTOServiceItem model.\n\nUsing this list, choose the correct modelType in the dropdown, corresponding to the service item type.\n  * DOFSIT, DOASIT - MTOServiceItemOriginSIT\n  * DDFSIT, DDASIT - MTOServiceItemDestSIT\n  * DOSHUT, DDSHUT - MTOServiceItemShuttle\n  * DCRT, DUCRT - MTOServiceItemDomesticCrating\n\nThe documentation will then update with the supported fields.\n",
+      "description": "Describes all model sub-types for a MTOServiceItem model.\n\nUsing this list, choose the correct modelType in the dropdown, corresponding to the service item type.\n  * DOFSIT, DOASIT - MTOServiceItemOriginSIT\n  * DDFSIT, DDASIT - MTOServiceItemDestSIT\n  * DOSHUT, DDSHUT - MTOServiceItemShuttle\n  * DCRT, DUCRT - MTOServiceItemDomesticCrating\n  * ICRT, IUCRT - MTOServiceItemInternationalCrating\n\nThe documentation will then update with the supported fields.\n",
       "type": "string",
       "enum": [
         "MTOServiceItemBasic",
         "MTOServiceItemOriginSIT",
         "MTOServiceItemDestSIT",
         "MTOServiceItemShuttle",
-        "MTOServiceItemDomesticCrating"
+        "MTOServiceItemDomesticCrating",
+        "MTOServiceItemInternationalCrating"
       ]
     },
     "MTOServiceItemOriginSIT": {
@@ -2035,7 +2114,8 @@ func init() {
         "SEPARATION",
         "WOUNDED_WARRIOR",
         "BLUEBARK",
-        "SAFETY"
+        "SAFETY",
+        "TEMPORARY_DUTY"
       ],
       "x-display-value": {
         "BLUEBARK": "BLUEBARK",
@@ -2044,6 +2124,7 @@ func init() {
         "RETIREMENT": "Retirement",
         "SAFETY": "Safety",
         "SEPARATION": "Separation",
+        "TEMPORARY_DUTY": "Temporary Duty (TDY)",
         "WOUNDED_WARRIOR": "Wounded Warrior"
       }
     },
@@ -2168,6 +2249,13 @@ func init() {
           "x-nullable": true,
           "x-omitempty": false,
           "example": false
+        },
+        "maxIncentive": {
+          "description": "The max amount the government will pay the service member to move their belongings based on the moving date, locations, and shipment weight.",
+          "type": "integer",
+          "format": "cents",
+          "x-nullable": true,
+          "x-omitempty": false
         },
         "proGearWeight": {
           "description": "The estimated weight of the pro-gear being moved belonging to the service member in pounds.",
@@ -2495,7 +2583,6 @@ func init() {
         "ICOLH",
         "ICOUB",
         "ICRT",
-        "ICRTSA",
         "IDASIT",
         "IDDSIT",
         "IDFSIT",
@@ -2787,7 +2874,7 @@ func init() {
       }
     },
     "ShipmentAddressUpdate": {
-      "description": "This represents a destination address change request made by the Prime that is either auto-approved or requires review if the pricing criteria has changed. If criteria has changed, then it must be approved or rejected by a TOO.\n",
+      "description": "This represents a delivery address change request made by the Prime that is either auto-approved or requires review if the pricing criteria has changed. If criteria has changed, then it must be approved or rejected by a TOO.\n",
       "type": "object",
       "required": [
         "id",
@@ -2815,7 +2902,7 @@ func init() {
           "$ref": "#/definitions/Address"
         },
         "newSitDistanceBetween": {
-          "description": "The distance between the original SIT address and requested new destination address of shipment",
+          "description": "The distance between the original SIT address and requested new delivery address of shipment",
           "type": "integer",
           "example": 88
         },
@@ -2827,7 +2914,7 @@ func init() {
           "example": "This is an office remark"
         },
         "oldSitDistanceBetween": {
-          "description": "The distance between the original SIT address and the previous/old destination address of shipment",
+          "description": "The distance between the original SIT address and the previous/old delivery address of shipment",
           "type": "integer",
           "example": 50
         },
@@ -3308,7 +3395,7 @@ func init() {
       }
     },
     "UpdateShipmentDestinationAddress": {
-      "description": "UpdateShipmentDestinationAddress contains the fields required for the prime to request an update for the destination address on an MTO Shipment.",
+      "description": "UpdateShipmentDestinationAddress contains the fields required for the prime to request an update for the delivery address on an MTO Shipment.",
       "type": "object",
       "required": [
         "contractorRemarks",
@@ -4132,6 +4219,9 @@ func init() {
         "agents": {
           "$ref": "#/definitions/MTOAgents"
         },
+        "boatShipment": {
+          "$ref": "#/definitions/CreateBoatShipment"
+        },
         "counselorRemarks": {
           "type": "string",
           "x-nullable": true,
@@ -4160,6 +4250,9 @@ func init() {
           "type": "string",
           "format": "uuid",
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "mobileHomeShipment": {
+          "$ref": "#/definitions/CreateMobileHomeShipment"
         },
         "moveTaskOrderID": {
           "description": "The ID of the move this new shipment is for.",
@@ -4889,15 +4982,88 @@ func init() {
         }
       ]
     },
+    "MTOServiceItemInternationalCrating": {
+      "description": "Describes a international crating/uncrating service item subtype of a MTOServiceItem.",
+      "allOf": [
+        {
+          "$ref": "#/definitions/MTOServiceItem"
+        },
+        {
+          "type": "object",
+          "required": [
+            "reServiceCode",
+            "item",
+            "crate",
+            "description"
+          ],
+          "properties": {
+            "crate": {
+              "description": "The dimensions for the crate the item will be shipped in.",
+              "allOf": [
+                {
+                  "$ref": "#/definitions/MTOServiceItemDimension"
+                }
+              ]
+            },
+            "description": {
+              "description": "A description of the item being crated.",
+              "type": "string",
+              "example": "Decorated horse head to be crated."
+            },
+            "externalCrate": {
+              "type": "boolean",
+              "x-nullable": true
+            },
+            "item": {
+              "description": "The dimensions of the item being crated.",
+              "allOf": [
+                {
+                  "$ref": "#/definitions/MTOServiceItemDimension"
+                }
+              ]
+            },
+            "market": {
+              "description": "To identify whether the service was provided within (CONUS) or (OCONUS)",
+              "type": "string",
+              "enum": [
+                "CONUS",
+                "OCONUS"
+              ],
+              "example": "CONUS"
+            },
+            "reServiceCode": {
+              "description": "A unique code for the service item. Indicates if the service is for crating (ICRT) or uncrating (IUCRT).",
+              "type": "string",
+              "enum": [
+                "ICRT",
+                "IUCRT"
+              ]
+            },
+            "reason": {
+              "description": "The contractor's explanation for why an item needed to be crated or uncrated. Used by the TOO while deciding to approve or reject the service item.\n",
+              "type": "string",
+              "x-nullable": true,
+              "x-omitempty": false,
+              "example": "Storage items need to be picked up"
+            },
+            "standaloneCrate": {
+              "type": "boolean",
+              "x-nullable": true
+            }
+          }
+        }
+      ]
+    },
     "MTOServiceItemModelType": {
-      "description": "Describes all model sub-types for a MTOServiceItem model.\n\nUsing this list, choose the correct modelType in the dropdown, corresponding to the service item type.\n  * DOFSIT, DOASIT - MTOServiceItemOriginSIT\n  * DDFSIT, DDASIT - MTOServiceItemDestSIT\n  * DOSHUT, DDSHUT - MTOServiceItemShuttle\n  * DCRT, DUCRT - MTOServiceItemDomesticCrating\n\nThe documentation will then update with the supported fields.\n",
+      "description": "Describes all model sub-types for a MTOServiceItem model.\n\nUsing this list, choose the correct modelType in the dropdown, corresponding to the service item type.\n  * DOFSIT, DOASIT - MTOServiceItemOriginSIT\n  * DDFSIT, DDASIT - MTOServiceItemDestSIT\n  * DOSHUT, DDSHUT - MTOServiceItemShuttle\n  * DCRT, DUCRT - MTOServiceItemDomesticCrating\n  * ICRT, IUCRT - MTOServiceItemInternationalCrating\n\nThe documentation will then update with the supported fields.\n",
       "type": "string",
       "enum": [
         "MTOServiceItemBasic",
         "MTOServiceItemOriginSIT",
         "MTOServiceItemDestSIT",
         "MTOServiceItemShuttle",
-        "MTOServiceItemDomesticCrating"
+        "MTOServiceItemDomesticCrating",
+        "MTOServiceItemInternationalCrating"
       ]
     },
     "MTOServiceItemOriginSIT": {
@@ -5539,7 +5705,8 @@ func init() {
         "SEPARATION",
         "WOUNDED_WARRIOR",
         "BLUEBARK",
-        "SAFETY"
+        "SAFETY",
+        "TEMPORARY_DUTY"
       ],
       "x-display-value": {
         "BLUEBARK": "BLUEBARK",
@@ -5548,6 +5715,7 @@ func init() {
         "RETIREMENT": "Retirement",
         "SAFETY": "Safety",
         "SEPARATION": "Separation",
+        "TEMPORARY_DUTY": "Temporary Duty (TDY)",
         "WOUNDED_WARRIOR": "Wounded Warrior"
       }
     },
@@ -5672,6 +5840,13 @@ func init() {
           "x-nullable": true,
           "x-omitempty": false,
           "example": false
+        },
+        "maxIncentive": {
+          "description": "The max amount the government will pay the service member to move their belongings based on the moving date, locations, and shipment weight.",
+          "type": "integer",
+          "format": "cents",
+          "x-nullable": true,
+          "x-omitempty": false
         },
         "proGearWeight": {
           "description": "The estimated weight of the pro-gear being moved belonging to the service member in pounds.",
@@ -5999,7 +6174,6 @@ func init() {
         "ICOLH",
         "ICOUB",
         "ICRT",
-        "ICRTSA",
         "IDASIT",
         "IDDSIT",
         "IDFSIT",
@@ -6291,7 +6465,7 @@ func init() {
       }
     },
     "ShipmentAddressUpdate": {
-      "description": "This represents a destination address change request made by the Prime that is either auto-approved or requires review if the pricing criteria has changed. If criteria has changed, then it must be approved or rejected by a TOO.\n",
+      "description": "This represents a delivery address change request made by the Prime that is either auto-approved or requires review if the pricing criteria has changed. If criteria has changed, then it must be approved or rejected by a TOO.\n",
       "type": "object",
       "required": [
         "id",
@@ -6319,7 +6493,7 @@ func init() {
           "$ref": "#/definitions/Address"
         },
         "newSitDistanceBetween": {
-          "description": "The distance between the original SIT address and requested new destination address of shipment",
+          "description": "The distance between the original SIT address and requested new delivery address of shipment",
           "type": "integer",
           "minimum": 0,
           "example": 88
@@ -6332,7 +6506,7 @@ func init() {
           "example": "This is an office remark"
         },
         "oldSitDistanceBetween": {
-          "description": "The distance between the original SIT address and the previous/old destination address of shipment",
+          "description": "The distance between the original SIT address and the previous/old delivery address of shipment",
           "type": "integer",
           "minimum": 0,
           "example": 50
@@ -6814,7 +6988,7 @@ func init() {
       }
     },
     "UpdateShipmentDestinationAddress": {
-      "description": "UpdateShipmentDestinationAddress contains the fields required for the prime to request an update for the destination address on an MTO Shipment.",
+      "description": "UpdateShipmentDestinationAddress contains the fields required for the prime to request an update for the delivery address on an MTO Shipment.",
       "type": "object",
       "required": [
         "contractorRemarks",
