@@ -165,6 +165,13 @@ func (p *mtoServiceItemUpdater) approveOrRejectServiceItem(
 
 		returnedServiceItem = *updatedServiceItem
 
+		//When updating a service item - remove the TOO assigned user
+		move.TOOAssignedID = nil
+		verrs, err := models.SaveMoveDependencies(appCtx.DB(), &move)
+		if err != nil || verrs.HasAny() {
+			return err
+		}
+
 		return nil
 	})
 
