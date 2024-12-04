@@ -368,6 +368,7 @@ describe('EditOrdersForm component', () => {
             provides_services_counseling: true,
             address: { isOconus: false },
           },
+          counseling_office_id: '3e937c1f-5539-4919-954d-017989130584',
           uploaded_orders: [
             {
               id: '123',
