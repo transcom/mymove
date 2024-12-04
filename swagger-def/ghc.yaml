@@ -197,7 +197,7 @@ paths:
                 description: requested page of results
               perPage:
                 type: integer
-              dodID:
+              edipi:
                 description: DOD ID
                 type: string
                 minLength: 10
@@ -221,7 +221,7 @@ paths:
               sort:
                 type: string
                 x-nullable: true
-                enum: [customerName, dodID, emplid, branch, personalEmail, telephone]
+                enum: [customerName, edipi, emplid, branch, personalEmail, telephone]
               order:
                 type: string
                 x-nullable: true
@@ -3061,7 +3061,7 @@ paths:
         format: uuid
     post:
       summary: Flags a move for financial office review
-      description: This sets a flag which indicates that the move should be reviewed by a fincancial office. For example, if the origin or destination address of a shipment is far from the duty location and may incur excess costs to the customer.
+      description: This sets a flag which indicates that the move should be reviewed by a fincancial office. For example, if the origin or delivery address of a shipment is far from the duty location and may incur excess costs to the customer.
       operationId: setFinancialReviewFlag
       tags:
         - move
@@ -3337,7 +3337,7 @@ paths:
           enum:
             [
               customerName,
-              dodID,
+              edipi,
               emplid,
               branch,
               locator,
@@ -3377,7 +3377,7 @@ paths:
           type: string
           description: filters using a counselingOffice name of the move
         - in: query
-          name: dodID
+          name: edipi
           type: string
           description: filters to match the unique service member's DoD ID
         - in: query
@@ -3567,7 +3567,7 @@ paths:
           enum:
             [
               customerName,
-              dodID,
+              edipi,
               emplid,
               branch,
               locator,
@@ -3577,6 +3577,7 @@ paths:
               requestedMoveDate,
               appearedInTooAt,
               assignedTo,
+              counselingOffice,
             ]
           description: field that results should be sorted by
         - in: query
@@ -3594,7 +3595,7 @@ paths:
           name: customerName
           type: string
         - in: query
-          name: dodID
+          name: edipi
           type: string
         - in: query
           name: emplid
@@ -3642,6 +3643,10 @@ paths:
           type: string
           description: |
             Used to illustrate which user is assigned to this move.
+        - in: query
+          name: counselingOffice
+          type: string
+          description: filters using a counselingOffice name of the move
       responses:
         '200':
           description: Successfully returned all moves matching the criteria
@@ -3665,7 +3670,7 @@ paths:
         - in: query
           name: sort
           type: string
-          enum: [customerName, locator, submittedAt, branch, status, dodID, emplid, age, originDutyLocation, assignedTo]
+          enum: [customerName, locator, submittedAt, branch, status, edipi, emplid, age, originDutyLocation, assignedTo, counselingOffice]
           description: field that results should be sorted by
         - in: query
           name: order
@@ -3695,7 +3700,7 @@ paths:
           name: customerName
           type: string
         - in: query
-          name: dodID
+          name: edipi
           type: string
         - in: query
           name: emplid
@@ -3711,6 +3716,10 @@ paths:
           type: string
           description: |
             Used to illustrate which user is assigned to this payment request.
+        - in: query
+          name: counselingOffice
+          type: string
+          description: filters using a counselingOffice name of the move
         - in: query
           name: status
           type: array
@@ -3771,7 +3780,7 @@ paths:
                 minLength: 6
                 maxLength: 6
                 x-nullable: true
-              dodID:
+              edipi:
                 description: DOD ID
                 type: string
                 minLength: 10
@@ -3832,7 +3841,7 @@ paths:
                 enum:
                   [
                     customerName,
-                    dodID,
+                    edipi,
                     emplid,
                     branch,
                     locator,
@@ -4275,6 +4284,35 @@ paths:
         - move
       description: unassigns either a services counselor, task ordering officer, or task invoicing officer from the move
       operationId: deleteAssignedOfficeUser
+  /moves/{officeUserID}/CheckForLockedMovesAndUnlock:
+    parameters:
+      - description: ID of the move's officer
+        in: path
+        name: officeUserID
+        required: true
+        format: uuid
+        type: string
+    patch:
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: Successfully unlocked officer's move(s).
+          schema:
+            type: object
+            properties:
+              successMessage:
+                type: string
+                example: OK
+        '500':
+          $ref: '#/responses/ServerError'
+      tags:
+        - move
+      description: >-
+        Finds and unlocks any locked moves by an office user
+      operationId: checkForLockedMovesAndUnlock
 definitions:
   ApplicationParameters:
     type: object
@@ -4815,7 +4853,7 @@ definitions:
         type: string
         example: Doe
         x-nullable: true
-      dodID:
+      edipi:
         type: string
         x-nullable: true
       emplid:
@@ -5025,7 +5063,7 @@ definitions:
         readOnly: true
       financialReviewRemarks:
         type: string
-        example: Destination address is too far from duty location
+        example: Delivery Address is too far from duty location
         x-nullable: true
         readOnly: true
       closeoutOffice:
@@ -7027,6 +7065,9 @@ definitions:
         $ref: '#/definitions/AvailableOfficeUsers'
       assignable:
         type: boolean
+      counselingOffice:
+        type: string
+        x-nullable: true
   QueuePaymentRequests:
     type: array
     items:
@@ -7068,7 +7109,7 @@ definitions:
         type: string
         example: Doe
         x-nullable: true
-      dodID:
+      edipi:
         type: string
         example: 1234567890
         x-nullable: true
