@@ -146,6 +146,12 @@ func (f *ppmShipmentCreator) createPPMShipment(appCtx appcontext.AppContext, ppm
 		ppmShipment.EstimatedIncentive = estimatedIncentive
 		ppmShipment.SITEstimatedCost = estimatedSITCost
 
+		maxIncentive, err := f.estimator.MaxIncentive(appCtx, models.PPMShipment{}, ppmShipment)
+		if err != nil {
+			return err
+		}
+		ppmShipment.MaxIncentive = maxIncentive
+
 		// Validate ppm shipment model object and save it to DB
 		verrs, err := txnAppCtx.DB().ValidateAndCreate(ppmShipment)
 		// Check validation errors
