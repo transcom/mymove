@@ -66,6 +66,7 @@ type MTOServiceItem struct {
 	SITDeliveryMiles                  *int                           `db:"sit_delivery_miles"`
 	PricingEstimate                   *unit.Cents                    `db:"pricing_estimate"`
 	StandaloneCrate                   *bool                          `db:"standalone_crate"`
+	ExternalCrate                     *bool                          `db:"external_crate"`
 	LockedPriceCents                  *unit.Cents                    `db:"locked_price_cents"`
 	ServiceLocation                   *ServiceLocationType           `db:"service_location"`
 }

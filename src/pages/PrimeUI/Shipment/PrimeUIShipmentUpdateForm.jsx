@@ -164,7 +164,7 @@ const PrimeUIShipmentUpdateForm = ({
           {!editableTertiaryPickupAddress && formatAddress(tertiaryPickupAddress)}
         </>
       )}
-      <h5 className={styles.sectionHeader}>Destination Address</h5>
+      <h5 className={styles.sectionHeader}>Delivery Address</h5>
       {editableDestinationAddress && <AddressFields name="destinationAddress" />}
       {!editableDestinationAddress && formatAddress(destinationAddress)}
       {!isNTS && (

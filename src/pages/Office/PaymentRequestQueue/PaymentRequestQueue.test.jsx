@@ -44,7 +44,7 @@ jest.mock('hooks/queries', () => ({
             },
             customer: {
               agency: 'COAST_GUARD',
-              dodID: '3305957632',
+              edipi: '3305957632',
               emplid: '1253694',
               eTag: 'MjAyMC0xMC0xNVQyMzo0ODozNC41ODQxOTZa',
               email: 'leo_spaceman_sm@example.com',
@@ -59,6 +59,7 @@ jest.mock('hooks/queries', () => ({
             locator: 'R993T7',
             moveID: '5d4b25bb-eb04-4c03-9a81-ee0398cb779e',
             originGBLOC: 'LKNQ',
+            counselingOffice: '67592323-fc7e-4b35-83a7-57faa53b7acf',
             status: 'PENDING',
             submittedAt: '2020-10-15T23:48:35.420Z',
             originDutyLocation: {
@@ -80,7 +81,6 @@ jest.mock('hooks/queries', () => ({
               agency: 'NAVY',
               cacValidated: true,
               eTag: 'MjAyNC0xMC0xMFQyMjoyNDo1My4xNjYxNjNa',
-              dodID: '1234567890',
               edipi: '1234567',
               email: '20241010222310-ae019978709c@example.com',
               first_name: 'Ooga',
@@ -98,6 +98,7 @@ jest.mock('hooks/queries', () => ({
             locator: '0OOGAB',
             moveID: '8f29e53d-e816-4476-bfee-f38d07b94f2d',
             originGBLOC: 'LKNQ',
+            counselingOffice: '67592323-fc7e-4b35-83a7-57faa53b7acf',
             status: 'PENDING',
             submittedAt: '2020-10-17T23:48:35.420Z',
             originDutyLocation: {
@@ -122,7 +123,7 @@ jest.mock('hooks/queries', () => ({
             age: 0.8477863,
             customer: {
               agency: 'ARMY',
-              dodID: '3305957632',
+              edipi: '3305957632',
               eTag: 'MjAyMC0xMC0xNVQyMzo0ODozNC41ODQxOTZa',
               email: 'leo_spaceman_sm@example.com',
               first_name: 'Leo',
@@ -186,7 +187,7 @@ describe('PaymentRequestQueue', () => {
     const firstPaymentRequest = paymentRequests.at(0);
 
     expect(firstPaymentRequest.find('td.customerName').text()).toBe('Spacemen, Leo');
-    expect(firstPaymentRequest.find('td.dodID').text()).toBe('3305957632');
+    expect(firstPaymentRequest.find('td.edipi').text()).toBe('3305957632');
     expect(firstPaymentRequest.find('td.emplid').text()).toBe('1253694');
     expect(firstPaymentRequest.find('td.status').text()).toBe('Payment requested');
     expect(firstPaymentRequest.find('td.age').text()).toBe('Less than 1 day');
@@ -195,10 +196,11 @@ describe('PaymentRequestQueue', () => {
     expect(firstPaymentRequest.find('td.branch').text()).toBe('Coast Guard');
     expect(firstPaymentRequest.find('td.originGBLOC').text()).toBe('LKNQ');
     expect(firstPaymentRequest.find('td.originDutyLocation').text()).toBe('Scott AFB');
+    expect(firstPaymentRequest.find('td.counselingOffice').text()).toBe('67592323-fc7e-4b35-83a7-57faa53b7acf');
 
     const secondPaymentRequest = paymentRequests.at(1);
     expect(secondPaymentRequest.find('td.customerName').text()).toBe('Booga, Ooga');
-    expect(secondPaymentRequest.find('td.dodID').text()).toBe('1234567890');
+    expect(secondPaymentRequest.find('td.edipi').text()).toBe('1234567');
     expect(secondPaymentRequest.find('td.emplid').text()).toBe('');
     expect(secondPaymentRequest.find('td.status').text()).toBe('Payment requested');
     expect(secondPaymentRequest.find('td.age').text()).toBe('Less than 1 day');
@@ -207,6 +209,7 @@ describe('PaymentRequestQueue', () => {
     expect(secondPaymentRequest.find('td.branch').text()).toBe('Navy');
     expect(secondPaymentRequest.find('td.originGBLOC').text()).toBe('LKNQ');
     expect(secondPaymentRequest.find('td.originDutyLocation').text()).toBe('Scott AFB');
+    expect(secondPaymentRequest.find('td.counselingOffice').text()).toBe('67592323-fc7e-4b35-83a7-57faa53b7acf');
   });
 
   it('renders the table with data and expected values with queue management ff', async () => {
