@@ -210,3 +210,79 @@ func (suite *NotificationSuite) TestCounselorApprovedMoveForRetiree() {
 	suite.Contains(email.textBody, move.MTOShipments[0].DestinationAddress.State)
 	suite.Contains(email.textBody, move.MTOShipments[0].DestinationAddress.PostalCode)
 }
+
+func (suite *NotificationSuite) TestMoveCounseledDestinationIsShipmentForPpmSeparatee() {
+	move := SetupPpmMove(suite, internalmessages.OrdersTypeSEPARATION)
+	notification := NewMoveCounseled(move.ID)
+	expectedSubject := "Your counselor has approved your move details"
+
+	emails, err := notification.emails(suite.AppContextWithSessionForTest(&auth.Session{
+		ServiceMemberID: move.Orders.ServiceMember.ID,
+		ApplicationName: auth.MilApp,
+	}))
+
+	suite.NoError(err)
+	suite.Equal(len(emails), 1)
+
+	email := emails[0]
+	sm := move.Orders.ServiceMember
+	mtoShipment := move.MTOShipments[0]
+	ppmShipment := mtoShipment.PPMShipment
+	destinationAddress := ppmShipment.DestinationAddress
+	suite.Equal(email.recipientEmail, *sm.PersonalEmail)
+	suite.Equal(email.subject, expectedSubject)
+	suite.Contains(email.htmlBody, "from "+move.Orders.OriginDutyLocation.Name+" to "+destinationAddress.LineDisplayFormat()+" in the ")
+	suite.Contains(email.textBody, "from "+move.Orders.OriginDutyLocation.Name+" to "+destinationAddress.LineDisplayFormat()+" in the ")
+}
+
+func (suite *NotificationSuite) TestMoveCounseledDestinationIsShipmentForPpmRetiree() {
+	move := SetupPpmMove(suite, internalmessages.OrdersTypeRETIREMENT)
+	notification := NewMoveCounseled(move.ID)
+	expectedSubject := "Your counselor has approved your move details"
+
+	emails, err := notification.emails(suite.AppContextWithSessionForTest(&auth.Session{
+		ServiceMemberID: move.Orders.ServiceMember.ID,
+		ApplicationName: auth.MilApp,
+	}))
+
+	suite.NoError(err)
+	suite.Equal(len(emails), 1)
+
+	email := emails[0]
+	sm := move.Orders.ServiceMember
+	mtoShipment := move.MTOShipments[0]
+	ppmShipment := mtoShipment.PPMShipment
+	destinationAddress := ppmShipment.DestinationAddress
+	suite.Equal(email.recipientEmail, *sm.PersonalEmail)
+	suite.Equal(email.subject, expectedSubject)
+	suite.NotEmpty(email.htmlBody)
+	suite.Contains(email.htmlBody, "from "+move.Orders.OriginDutyLocation.Name+" to "+destinationAddress.LineDisplayFormat()+" in the ")
+	suite.Contains(email.textBody, "from "+move.Orders.OriginDutyLocation.Name+" to "+destinationAddress.LineDisplayFormat()+" in the ")
+}
+
+func (suite *NotificationSuite) TestMoveCounseledDestinationIsDutyStationForPpmPcsType() {
+	move := SetupPpmMove(suite, internalmessages.OrdersTypePERMANENTCHANGEOFSTATION)
+	notification := NewMoveCounseled(move.ID)
+	expectedSubject := "Your counselor has approved your move details"
+
+	emails, err := notification.emails(suite.AppContextWithSessionForTest(&auth.Session{
+		ServiceMemberID: move.Orders.ServiceMember.ID,
+		ApplicationName: auth.MilApp,
+	}))
+
+	suite.NoError(err)
+	suite.Equal(len(emails), 1)
+
+	email := emails[0]
+	sm := move.Orders.ServiceMember
+	mtoShipment := move.MTOShipments[0]
+	ppmShipment := mtoShipment.PPMShipment
+	destinationAddress := ppmShipment.DestinationAddress
+	suite.Equal(email.recipientEmail, *sm.PersonalEmail)
+	suite.Equal(email.subject, expectedSubject)
+	suite.NotEmpty(email.htmlBody)
+	suite.NotContains(email.htmlBody, destinationAddress.LineDisplayFormat())
+	suite.NotContains(email.textBody, destinationAddress.LineDisplayFormat())
+	suite.Contains(email.htmlBody, "from "+move.Orders.OriginDutyLocation.Name+" to "+move.Orders.NewDutyLocation.Name+" in the ")
+	suite.Contains(email.textBody, "from "+move.Orders.OriginDutyLocation.Name+" to "+move.Orders.NewDutyLocation.Name+" in the ")
+}
