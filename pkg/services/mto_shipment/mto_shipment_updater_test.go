@@ -310,6 +310,11 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 				},
 			},
 			{
+				Model:    secondaryPickupAddress,
+				LinkOnly: true,
+				Type:     &factory.Addresses.SecondaryPickupAddress,
+			},
+			{
 				Model:    tertiaryPickupAddress,
 				LinkOnly: true,
 				Type:     &factory.Addresses.TertiaryPickupAddress,
