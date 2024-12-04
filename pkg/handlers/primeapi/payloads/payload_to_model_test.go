@@ -576,8 +576,9 @@ func (suite *PayloadsSuite) TestMTOServiceItemModelFromUpdate() {
 			PortCode:      &portCode,
 		}
 
-		model, _ := MTOServiceItemModelFromUpdate(mtoServiceItemID, &updateMTOServiceInternationalPortFsc)
+		model, errs := MTOServiceItemModelFromUpdate(mtoServiceItemID, &updateMTOServiceInternationalPortFsc)
 
+		suite.Empty(errs)
 		suite.NotNil(model)
 		suite.Equal(model.PODLocation.Port.PortCode, portCode)
 	})
@@ -591,8 +592,9 @@ func (suite *PayloadsSuite) TestMTOServiceItemModelFromUpdate() {
 			PortCode:      &portCode,
 		}
 
-		model, _ := MTOServiceItemModelFromUpdate(mtoServiceItemID, &updateMTOServiceInternationalPortFsc)
+		model, errs := MTOServiceItemModelFromUpdate(mtoServiceItemID, &updateMTOServiceInternationalPortFsc)
 
+		suite.Empty(errs)
 		suite.NotNil(model)
 		suite.Equal(model.POELocation.Port.PortCode, portCode)
 	})

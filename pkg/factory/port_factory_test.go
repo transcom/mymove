@@ -10,7 +10,7 @@ func (suite *FactorySuite) TestFetchPort() {
 
 	suite.Run("Successful fetch of default Port", func() {
 
-		defaultPortLocation := FetchPort(nil, nil, nil)
+		defaultPortLocation := FetchPort(suite.DB(), nil, nil)
 
 		suite.Equal(defaultPortLocation.PortType, defaultPortType)
 		suite.Equal(defaultPortLocation.PortCode, defaultPortCode)
