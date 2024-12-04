@@ -12,20 +12,25 @@ import SelectedGblocContext, {
 } from 'components/Office/GblocSwitcher/SelectedGblocContext';
 import { roleTypes } from 'constants/userRoles';
 
-const GBLOCSwitcher = ({ officeUser, activeRole, ariaLabel }) => {
+const GBLOCSwitcher = ({ officeUser, activeRole, ariaLabel, ...props }) => {
   const [isInitialPageLoad, setIsInitialPageLoad] = useState(true);
   const { selectedGbloc, handleGblocChange } = useContext(SelectedGblocContext);
 
   let { result: gblocs } = useListGBLOCsQueries();
   if (activeRole !== roleTypes.HQ) {
-    gblocs = officeUser?.transportation_office_assignments.map((toa) => {
+    gblocs = officeUser?.transportation_office_assignments?.map((toa) => {
       return toa?.transportationOffice?.gbloc;
     });
   }
 
-  const officeUsersDefaultGbloc = officeUser.transportation_office.gbloc;
-  if (gblocs.indexOf(officeUsersDefaultGbloc) === -1) {
+  let officeUsersDefaultGbloc = officeUser.transportation_office?.gbloc;
+  if (gblocs?.indexOf(officeUsersDefaultGbloc) === -1) {
     gblocs.push(officeUsersDefaultGbloc);
+  }
+
+  if (props.gblocsOverride) {
+    gblocs = props.gblocsOverride;
+    [officeUsersDefaultGbloc] = gblocs;
   }
 
   useEffect(() => {
@@ -48,7 +53,7 @@ const GBLOCSwitcher = ({ officeUser, activeRole, ariaLabel }) => {
       divClassName={styles.switchGblocButton}
       testId="gbloc_switcher"
     >
-      {gblocs.map((gbloc) => (
+      {gblocs?.map((gbloc) => (
         <option value={gbloc} key={`filterOption_${gbloc}`}>
           {gbloc}
         </option>
