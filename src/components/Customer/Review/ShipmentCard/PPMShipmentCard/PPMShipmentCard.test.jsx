@@ -151,10 +151,10 @@ describe('PPMShipmentCard component', () => {
 
     const expectedRows = [
       ['Expected departure', '01 Jan 2020'],
-      ['Origin address', '111 Test Street, 222 Test Street, Test Man, Test City, NY 10001'],
-      ['Second origin address', '111 Test Street, 222 Test Street, Test Man, Test City, NY 10002'],
-      ['Destination address', '111 Test Street, 222 Test Street, Test Man, Test City, NY 11111'],
-      ['Second destination address', '111 Test Street, 222 Test Street, Test Man, Test City, NY 22222'],
+      ['Pickup Address', '111 Test Street, 222 Test Street, Test Man, Test City, NY 10001'],
+      ['Second Pickup Address', '111 Test Street, 222 Test Street, Test Man, Test City, NY 10002'],
+      ['Delivery Address', '111 Test Street, 222 Test Street, Test Man, Test City, NY 11111'],
+      ['Second Delivery Address', '111 Test Street, 222 Test Street, Test Man, Test City, NY 22222'],
       ['Storage expected? (SIT)', 'Yes'],
       ['Estimated weight', '5,999 lbs'],
       ['Pro-gear', 'Yes, 1,250 lbs'],
@@ -193,8 +193,8 @@ describe('PPMShipmentCard component', () => {
 
     const expectedRows = [
       ['Expected departure', '01 Jan 2020'],
-      ['Origin address', '111 Test Street, 222 Test Street, Test Man, Test City, NY 10001'],
-      ['Destination address', '111 Test Street, 222 Test Street, Test Man, Test City, NY 11111'],
+      ['Pickup Address', '111 Test Street, 222 Test Street, Test Man, Test City, NY 10001'],
+      ['Delivery Address', '111 Test Street, 222 Test Street, Test Man, Test City, NY 11111'],
       ['Storage expected? (SIT)', 'No'],
       ['Estimated weight', '0 lbs'],
       ['Pro-gear', 'No'],
@@ -248,10 +248,10 @@ describe('PPMShipmentCard component', () => {
 
     const expectedRows = [
       ['Expected departure', '01 Jan 2020'],
-      ['Origin address', '111 Test Street, 222 Test Street, Test Man, Test City, NY 10001'],
-      ['Second origin address', '111 Test Street, 222 Test Street, Test Man, Test City, NY 10002'],
-      ['Destination address', '111 Test Street, 222 Test Street, Test Man, Test City, NY 11111'],
-      ['Second destination address', '111 Test Street, 222 Test Street, Test Man, Test City, NY 22222'],
+      ['Pickup Address', '111 Test Street, 222 Test Street, Test Man, Test City, NY 10001'],
+      ['Second Pickup Address', '111 Test Street, 222 Test Street, Test Man, Test City, NY 10002'],
+      ['Delivery Address', '111 Test Street, 222 Test Street, Test Man, Test City, NY 11111'],
+      ['Second Delivery Address', '111 Test Street, 222 Test Street, Test Man, Test City, NY 22222'],
       ['Closeout office', move.closeoutOffice.name],
       ['Storage expected? (SIT)', 'Yes'],
       ['Estimated weight', '5,999 lbs'],
@@ -282,10 +282,10 @@ describe('PPMShipmentCard component', () => {
 
     const expectedRows = [
       ['Expected departure', '01 Jan 2020'],
-      ['Origin address', '111 Test Street, 222 Test Street, Test Man, Test City, NY 10001'],
-      ['Second origin address', '111 Test Street, 222 Test Street, Test Man, Test City, NY 10002'],
-      ['Destination address', '111 Test Street, 222 Test Street, Test Man, Test City, NY 11111'],
-      ['Second destination address', '111 Test Street, 222 Test Street, Test Man, Test City, NY 22222'],
+      ['Pickup Address', '111 Test Street, 222 Test Street, Test Man, Test City, NY 10001'],
+      ['Second Pickup Address', '111 Test Street, 222 Test Street, Test Man, Test City, NY 10002'],
+      ['Delivery Address', '111 Test Street, 222 Test Street, Test Man, Test City, NY 11111'],
+      ['Second Delivery Address', '111 Test Street, 222 Test Street, Test Man, Test City, NY 22222'],
       ['Closeout office', move.closeoutOffice.name],
       ['Storage expected? (SIT)', 'Yes'],
       ['Estimated weight', '5,999 lbs'],

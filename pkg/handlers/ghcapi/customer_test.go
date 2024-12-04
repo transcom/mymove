@@ -398,7 +398,7 @@ func (suite *HandlerSuite) TestSearchCustomersHandler() {
 		mockSearcher.On("SearchCustomers",
 			mock.AnythingOfType("*appcontext.appContext"),
 			mock.MatchedBy(func(params *services.SearchCustomersParams) bool {
-				return *params.DodID == *customer.Edipi &&
+				return *params.Edipi == *customer.Edipi &&
 					params.CustomerName == nil
 			}),
 		).Return(customers, 1, nil)
@@ -406,7 +406,7 @@ func (suite *HandlerSuite) TestSearchCustomersHandler() {
 		params := customerops.SearchCustomersParams{
 			HTTPRequest: req,
 			Body: customerops.SearchCustomersBody{
-				DodID: customer.Edipi,
+				Edipi: customer.Edipi,
 			},
 		}
 
@@ -434,7 +434,7 @@ func (suite *HandlerSuite) TestSearchCustomersHandler() {
 			mock.AnythingOfType("*appcontext.appContext"),
 			mock.MatchedBy(func(params *services.SearchCustomersParams) bool {
 				return *params.CustomerName == *customer.FirstName &&
-					params.DodID == nil
+					params.Edipi == nil
 			}),
 		).Return(customers, 1, nil)
 

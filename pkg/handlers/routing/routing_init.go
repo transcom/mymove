@@ -461,9 +461,9 @@ func mountDebugRoutes(appCtx appcontext.AppContext, routingConfig *Config, site 
 	}
 }
 
-func mountInternalAPI(appCtx appcontext.AppContext, routingConfig *Config, site chi.Router) {
+func mountInternalAPI(appCtx appcontext.AppContext, routingConfig *Config, site chi.Router, maintenanceFlag bool) {
 	if routingConfig.ServeAPIInternal {
-		isLoggedInMiddleware := authentication.IsLoggedInMiddleware(appCtx.Logger())
+		isLoggedInMiddleware := authentication.IsLoggedInMiddleware(appCtx.Logger(), maintenanceFlag)
 		userAuthMiddleware := authentication.UserAuthMiddleware(appCtx.Logger())
 		addAuditUserToRequestContextMiddleware := authentication.AddAuditUserIDToRequestContextMiddleware(appCtx)
 		site.Route("/internal", func(r chi.Router) {
@@ -744,7 +744,7 @@ func mountSessionRoutes(appCtx appcontext.AppContext, routingConfig *Config, bas
 }
 
 func newMilRouter(appCtx appcontext.AppContext, redisPool *redis.Pool,
-	routingConfig *Config, telemetryConfig *telemetry.Config, serverName string) chi.Router {
+	routingConfig *Config, telemetryConfig *telemetry.Config, serverName string, maintenanceFlag bool) chi.Router {
 
 	site := newBaseRouter(appCtx, routingConfig, telemetryConfig, serverName)
 
@@ -757,7 +757,7 @@ func newMilRouter(appCtx appcontext.AppContext, redisPool *redis.Pool,
 	milSessionManager := routingConfig.HandlerConfig.SessionManagers().Mil
 	mountSessionRoutes(appCtx, routingConfig, site, milSessionManager,
 		func(sessionRoute chi.Router) {
-			mountInternalAPI(appCtx, routingConfig, sessionRoute)
+			mountInternalAPI(appCtx, routingConfig, sessionRoute, maintenanceFlag)
 		},
 	)
 
@@ -767,7 +767,7 @@ func newMilRouter(appCtx appcontext.AppContext, redisPool *redis.Pool,
 }
 
 func newOfficeRouter(appCtx appcontext.AppContext, redisPool *redis.Pool,
-	routingConfig *Config, telemetryConfig *telemetry.Config, serverName string) chi.Router {
+	routingConfig *Config, telemetryConfig *telemetry.Config, serverName string, maintenanceFlag bool) chi.Router {
 
 	site := newBaseRouter(appCtx, routingConfig, telemetryConfig, serverName)
 
@@ -780,7 +780,7 @@ func newOfficeRouter(appCtx appcontext.AppContext, redisPool *redis.Pool,
 	officeSessionManager := routingConfig.HandlerConfig.SessionManagers().Office
 	mountSessionRoutes(appCtx, routingConfig, site, officeSessionManager,
 		func(sessionRoute chi.Router) {
-			mountInternalAPI(appCtx, routingConfig, sessionRoute)
+			mountInternalAPI(appCtx, routingConfig, sessionRoute, maintenanceFlag)
 			mountPrimeSimulatorAPI(appCtx, routingConfig, sessionRoute)
 			mountGHCAPI(appCtx, routingConfig, sessionRoute)
 		},
@@ -792,7 +792,7 @@ func newOfficeRouter(appCtx appcontext.AppContext, redisPool *redis.Pool,
 }
 
 func newAdminRouter(appCtx appcontext.AppContext, redisPool *redis.Pool,
-	routingConfig *Config, telemetryConfig *telemetry.Config, serverName string) chi.Router {
+	routingConfig *Config, telemetryConfig *telemetry.Config, serverName string, maintenanceFlag bool) chi.Router {
 
 	site := newBaseRouter(appCtx, routingConfig, telemetryConfig, serverName)
 
@@ -804,7 +804,7 @@ func newAdminRouter(appCtx appcontext.AppContext, redisPool *redis.Pool,
 	adminSessionManager := routingConfig.HandlerConfig.SessionManagers().Admin
 	mountSessionRoutes(appCtx, routingConfig, site, adminSessionManager,
 		func(sessionRoute chi.Router) {
-			mountInternalAPI(appCtx, routingConfig, sessionRoute)
+			mountInternalAPI(appCtx, routingConfig, sessionRoute, maintenanceFlag)
 			mountAdminAPI(appCtx, routingConfig, sessionRoute)
 			// debug routes can go anywhere, but the admin site seems most appropriate
 			mountDebugRoutes(appCtx, routingConfig, sessionRoute)
@@ -834,7 +834,7 @@ func newPrimeRouter(appCtx appcontext.AppContext, redisPool *redis.Pool,
 // InitRouting sets up the routing for all the hosts (mil, office,
 // admin, api)
 func InitRouting(serverName string, appCtx appcontext.AppContext, redisPool *redis.Pool,
-	routingConfig *Config, telemetryConfig *telemetry.Config) (http.Handler, error) {
+	routingConfig *Config, telemetryConfig *telemetry.Config, maintenanceFlag bool) (http.Handler, error) {
 
 	// check for missing CSRF middleware ASAP
 	if routingConfig.CSRFMiddleware == nil {
@@ -850,15 +850,15 @@ func InitRouting(serverName string, appCtx appcontext.AppContext, redisPool *red
 	hostRouter := NewHostRouter()
 
 	milServerName := routingConfig.HandlerConfig.AppNames().MilServername
-	milRouter := newMilRouter(appCtx, redisPool, routingConfig, telemetryConfig, serverName)
+	milRouter := newMilRouter(appCtx, redisPool, routingConfig, telemetryConfig, serverName, maintenanceFlag)
 	hostRouter.Map(milServerName, milRouter)
 
 	officeServerName := routingConfig.HandlerConfig.AppNames().OfficeServername
-	officeRouter := newOfficeRouter(appCtx, redisPool, routingConfig, telemetryConfig, serverName)
+	officeRouter := newOfficeRouter(appCtx, redisPool, routingConfig, telemetryConfig, serverName, maintenanceFlag)
 	hostRouter.Map(officeServerName, officeRouter)
 
 	adminServerName := routingConfig.HandlerConfig.AppNames().AdminServername
-	adminRouter := newAdminRouter(appCtx, redisPool, routingConfig, telemetryConfig, serverName)
+	adminRouter := newAdminRouter(appCtx, redisPool, routingConfig, telemetryConfig, serverName, maintenanceFlag)
 	hostRouter.Map(adminServerName, adminRouter)
 
 	primeServerName := routingConfig.HandlerConfig.AppNames().PrimeServername
