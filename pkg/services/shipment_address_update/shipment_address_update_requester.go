@@ -500,32 +500,34 @@ func (f *shipmentAddressUpdateRequester) ReviewShipmentAddressChange(appCtx appc
 		shipmentHasApprovedDestSIT := f.doesShipmentContainApprovedDestinationSIT(shipmentDetails)
 
 		for i, serviceItem := range shipmentDetails.MTOServiceItems {
-			var updatedServiceItem *models.MTOServiceItem
-			if serviceItem.ReService.Code == models.ReServiceCodeDDP || serviceItem.ReService.Code == models.ReServiceCodeDUPK {
-				updatedServiceItem, err = serviceItemUpdater.UpdateMTOServiceItemPricingEstimate(appCtx, &serviceItem, shipment, etag.GenerateEtag(serviceItem.UpdatedAt))
-				if err != nil {
-					return nil, apperror.NewUpdateError(serviceItem.ReServiceID, err.Error())
-				}
-			}
-
-			if !shipmentHasApprovedDestSIT {
-				if serviceItem.ReService.Code == models.ReServiceCodeDLH || serviceItem.ReService.Code == models.ReServiceCodeFSC {
+			if shipment.PrimeEstimatedWeight != nil || shipment.PrimeActualWeight != nil {
+				var updatedServiceItem *models.MTOServiceItem
+				if serviceItem.ReService.Code == models.ReServiceCodeDDP || serviceItem.ReService.Code == models.ReServiceCodeDUPK {
 					updatedServiceItem, err = serviceItemUpdater.UpdateMTOServiceItemPricingEstimate(appCtx, &serviceItem, shipment, etag.GenerateEtag(serviceItem.UpdatedAt))
 					if err != nil {
 						return nil, apperror.NewUpdateError(serviceItem.ReServiceID, err.Error())
 					}
 				}
-			} else {
-				if serviceItem.ReService.Code == models.ReServiceCodeDDSFSC || serviceItem.ReService.Code == models.ReServiceCodeDDDSIT {
-					updatedServiceItem, err = serviceItemUpdater.UpdateMTOServiceItemPricingEstimate(appCtx, &serviceItem, shipment, etag.GenerateEtag(serviceItem.UpdatedAt))
-					if err != nil {
-						return nil, apperror.NewUpdateError(serviceItem.ReServiceID, err.Error())
+
+				if !shipmentHasApprovedDestSIT {
+					if serviceItem.ReService.Code == models.ReServiceCodeDLH || serviceItem.ReService.Code == models.ReServiceCodeFSC {
+						updatedServiceItem, err = serviceItemUpdater.UpdateMTOServiceItemPricingEstimate(appCtx, &serviceItem, shipment, etag.GenerateEtag(serviceItem.UpdatedAt))
+						if err != nil {
+							return nil, apperror.NewUpdateError(serviceItem.ReServiceID, err.Error())
+						}
+					}
+				} else {
+					if serviceItem.ReService.Code == models.ReServiceCodeDDSFSC || serviceItem.ReService.Code == models.ReServiceCodeDDDSIT {
+						updatedServiceItem, err = serviceItemUpdater.UpdateMTOServiceItemPricingEstimate(appCtx, &serviceItem, shipment, etag.GenerateEtag(serviceItem.UpdatedAt))
+						if err != nil {
+							return nil, apperror.NewUpdateError(serviceItem.ReServiceID, err.Error())
+						}
 					}
 				}
-			}
 
-			if updatedServiceItem != nil {
-				shipmentDetails.MTOServiceItems[i] = *updatedServiceItem
+				if updatedServiceItem != nil {
+					shipmentDetails.MTOServiceItems[i] = *updatedServiceItem
+				}
 			}
 		}
 

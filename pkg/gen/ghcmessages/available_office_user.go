@@ -22,9 +22,6 @@ type AvailableOfficeUser struct {
 	// first name
 	FirstName string `json:"firstName,omitempty"`
 
-	// has safety privilege
-	HasSafetyPrivilege bool `json:"hasSafetyPrivilege,omitempty"`
-
 	// last name
 	LastName string `json:"lastName,omitempty"`
 

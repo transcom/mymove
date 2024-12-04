@@ -16,7 +16,7 @@ type TransportationOfficeAssignment struct {
 	TransportationOffice   TransportationOffice `belongs_to:"transportation_office" fk_id:"transportation_office_id"`
 	CreatedAt              time.Time            `json:"created_at" db:"created_at"`
 	UpdatedAt              time.Time            `json:"updated_at" db:"updated_at"`
-	PrimaryOffice          bool                 `json:"primary_office" db:"primary_office"`
+	PrimaryOffice          *bool                `json:"primary_office" db:"primary_office"`
 }
 
 // TableName overrides the table name used by Pop.

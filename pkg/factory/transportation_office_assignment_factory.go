@@ -37,7 +37,7 @@ func BuildPrimaryTransportationOfficeAssignment(db *pop.Connection, customs []Cu
 		ID:                     officeUser.ID,
 		TransportationOfficeID: transportationOffice.ID,
 		TransportationOffice:   transportationOffice,
-		PrimaryOffice:          true,
+		PrimaryOffice:          models.BoolPointer(true),
 	}
 
 	// Overwrite values with those from customizations
@@ -80,7 +80,7 @@ func BuildAlternateTransportationOfficeAssignment(db *pop.Connection, customs []
 		ID:                     officeUser.ID,
 		TransportationOfficeID: transportationOffice.ID,
 		TransportationOffice:   transportationOffice,
-		PrimaryOffice:          false,
+		PrimaryOffice:          models.BoolPointer(false),
 	}
 
 	// Overwrite values with those from customizations
