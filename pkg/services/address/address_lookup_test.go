@@ -45,4 +45,17 @@ func (suite *AddressSuite) TestAddressLookup() {
 		suite.Contains((*address)[0].CityName, city)
 		suite.Contains((*address)[0].StateName, state)
 	})
+
+	suite.Run("Successfully search for location by city, state postalCode", func() {
+		search := city + ", " + state + " " + postalCode
+		appCtx := appcontext.NewAppContext(suite.AppContextForTest().DB(), suite.AppContextForTest().Logger(), &auth.Session{})
+		addressLookup := NewVLocation()
+		address, err := addressLookup.GetLocationsByZipCityState(appCtx, search)
+
+		suite.Nil(err)
+		suite.NotNil(address)
+		suite.Contains((*address)[0].CityName, city)
+		suite.Contains((*address)[0].StateName, state)
+		suite.Contains((*address)[0].UsprZipID, postalCode)
+	})
 }
