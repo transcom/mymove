@@ -392,11 +392,7 @@ definitions:
         items:
           $ref: 'definitions/prime/MTOServiceItem.yaml'
       pickupAddress:
-        description: The address where the movers should pick up this shipment.
-        allOf:
-          - $ref: 'definitions/Address.yaml'
-      destinationAddress:
-        description: Where the movers should deliver this shipment.
+        description: The primary address where the movers should pick up this shipment.
         allOf:
           - $ref: 'definitions/Address.yaml'
       secondaryPickupAddress:
@@ -407,12 +403,16 @@ definitions:
         description: The third address where the movers should pick up this shipment.
         allOf:
           - $ref: 'definitions/Address.yaml'
+      destinationAddress:
+        description: primary location the movers should deliver this shipment.
+        allOf:
+          - $ref: 'definitions/Address.yaml'
       secondaryDestinationAddress:
-        description: The second address where the movers should deliver this shipment.
+        description: second location where the movers should deliver this shipment.
         allOf:
           - $ref: 'definitions/Address.yaml'
       tertiaryDestinationAddress:
-        description: The third address where the movers should deliver this shipment.
+        description: third location where the movers should deliver this shipment.
         allOf:
           - $ref: 'definitions/Address.yaml'
       shipmentType:
@@ -858,6 +858,14 @@ definitions:
           when they enter shipment details.
         allOf:
           - $ref: 'definitions/Address.yaml'
+      secondaryPickupAddress:
+        description: A second pickup address for this shipment, if the customer entered one. An optional field.
+        allOf:
+          - $ref: 'definitions/Address.yaml'
+      tertiaryPickupAddress:
+        description: A third pickup address for this shipment, if the customer entered one. An optional field.
+        allOf:
+          - $ref: 'definitions/Address.yaml'
       destinationAddress:
         description: |
           Where the movers should deliver this shipment. Often provided by the customer when they enter shipment details
@@ -867,24 +875,16 @@ definitions:
           final destination due to the shipment being diverted or placed in SIT.
         allOf:
           - $ref: 'definitions/Address.yaml'
-      destinationType:
-        $ref: 'definitions/DestinationType.yaml'
-      secondaryPickupAddress:
-        description: A second pickup address for this shipment, if the customer entered one. An optional field.
-        allOf:
-          - $ref: 'definitions/Address.yaml'
       secondaryDeliveryAddress:
         description: A second delivery address for this shipment, if the customer entered one. An optional field.
-        allOf:
-          - $ref: 'definitions/Address.yaml'
-      tertiaryPickupAddress:
-        description: A third pickup address for this shipment, if the customer entered one. An optional field.
         allOf:
           - $ref: 'definitions/Address.yaml'
       tertiaryDeliveryAddress:
         description: A third delivery address for this shipment, if the customer entered one. An optional field.
         allOf:
           - $ref: 'definitions/Address.yaml'
+      destinationType:
+        $ref: 'definitions/DestinationType.yaml'
       storageFacility:
         allOf:
           - x-nullable: true
