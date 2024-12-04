@@ -499,7 +499,7 @@ describe('DateAndLocation component', () => {
         );
       });
 
-      // tertiary destination address
+      // tertiary delivery address
 
       await act(async () => {
         await userEvent.type(

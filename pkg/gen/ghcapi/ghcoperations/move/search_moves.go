@@ -86,7 +86,7 @@ type SearchMovesBody struct {
 	// DOD ID
 	// Max Length: 10
 	// Min Length: 10
-	DodID *string `json:"dodID,omitempty"`
+	Edipi *string `json:"edipi,omitempty"`
 
 	// EMPLID
 	// Max Length: 7
@@ -123,7 +123,7 @@ type SearchMovesBody struct {
 	ShipmentsCount *int64 `json:"shipmentsCount,omitempty"`
 
 	// sort
-	// Enum: [customerName dodID emplid branch locator status originPostalCode destinationPostalCode shipmentsCount]
+	// Enum: [customerName edipi emplid branch locator status originPostalCode destinationPostalCode shipmentsCount]
 	Sort *string `json:"sort,omitempty"`
 
 	// Filtering for the status.
@@ -143,7 +143,7 @@ func (o *SearchMovesBody) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
-	if err := o.validateDodID(formats); err != nil {
+	if err := o.validateEdipi(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -201,16 +201,16 @@ func (o *SearchMovesBody) validateDeliveryDate(formats strfmt.Registry) error {
 	return nil
 }
 
-func (o *SearchMovesBody) validateDodID(formats strfmt.Registry) error {
-	if swag.IsZero(o.DodID) { // not required
+func (o *SearchMovesBody) validateEdipi(formats strfmt.Registry) error {
+	if swag.IsZero(o.Edipi) { // not required
 		return nil
 	}
 
-	if err := validate.MinLength("body"+"."+"dodID", "body", *o.DodID, 10); err != nil {
+	if err := validate.MinLength("body"+"."+"edipi", "body", *o.Edipi, 10); err != nil {
 		return err
 	}
 
-	if err := validate.MaxLength("body"+"."+"dodID", "body", *o.DodID, 10); err != nil {
+	if err := validate.MaxLength("body"+"."+"edipi", "body", *o.Edipi, 10); err != nil {
 		return err
 	}
 
@@ -307,7 +307,7 @@ var searchMovesBodyTypeSortPropEnum []interface{}
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["customerName","dodID","emplid","branch","locator","status","originPostalCode","destinationPostalCode","shipmentsCount"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["customerName","edipi","emplid","branch","locator","status","originPostalCode","destinationPostalCode","shipmentsCount"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -320,8 +320,8 @@ const (
 	// SearchMovesBodySortCustomerName captures enum value "customerName"
 	SearchMovesBodySortCustomerName string = "customerName"
 
-	// SearchMovesBodySortDodID captures enum value "dodID"
-	SearchMovesBodySortDodID string = "dodID"
+	// SearchMovesBodySortEdipi captures enum value "edipi"
+	SearchMovesBodySortEdipi string = "edipi"
 
 	// SearchMovesBodySortEmplid captures enum value "emplid"
 	SearchMovesBodySortEmplid string = "emplid"

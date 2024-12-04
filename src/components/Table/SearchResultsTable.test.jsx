@@ -52,7 +52,7 @@ const mockTableData = [
 const mockCustomerTableData = [
   {
     branch: 'MARINES',
-    dodID: '6585626513',
+    edipi: '6585626513',
     firstName: 'Ted',
     id: '8604447b-cbfc-4d59-a9a1-dec219eb2046',
     lastName: 'Marine',
@@ -147,8 +147,8 @@ describe('SearchResultsTable', () => {
     expect(results).toBeInTheDocument();
     const branch = screen.queryByText('Marine Corps');
     expect(branch).toBeInTheDocument();
-    const dodID = screen.queryByText('6585626513');
-    expect(dodID).toBeInTheDocument();
+    const edipi = screen.queryByText('6585626513');
+    expect(edipi).toBeInTheDocument();
     const name = screen.queryByText('Marine, Ted');
     expect(name).toBeInTheDocument();
     const email = screen.queryByText('leo_spaceman_sm@example.com');
