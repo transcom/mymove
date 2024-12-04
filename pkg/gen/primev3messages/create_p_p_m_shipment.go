@@ -59,7 +59,7 @@ type CreatePPMShipment struct {
 		Address
 	} `json:"secondaryDestinationAddress,omitempty"`
 
-	// An optional secondary pickup location address near the origin where additional goods exist.
+	// An optional secondary Pickup Address address near the origin where additional goods exist.
 	SecondaryPickupAddress struct {
 		Address
 	} `json:"secondaryPickupAddress,omitempty"`
@@ -94,7 +94,7 @@ type CreatePPMShipment struct {
 		Address
 	} `json:"tertiaryDestinationAddress,omitempty"`
 
-	// An optional tertiary pickup location address near the origin where additional goods exist.
+	// An optional tertiary Pickup Address address near the origin where additional goods exist.
 	TertiaryPickupAddress struct {
 		Address
 	} `json:"tertiaryPickupAddress,omitempty"`

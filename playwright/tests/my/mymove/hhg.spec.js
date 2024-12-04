@@ -42,7 +42,7 @@ test.describe('HHG', () => {
     await customerPage.waitForPage.hhgShipment();
 
     // Update form (adding pickup and delivery address)
-    const pickupAddress = await page.getByRole('group', { name: 'Pickup location' });
+    const pickupAddress = await page.getByRole('group', { name: 'Pickup Address' });
     await pickupAddress.getByLabel('Address 1').fill('7 Q St');
     await pickupAddress.getByLabel('Address 2').clear();
     await pickupAddress.getByLabel('City').fill('Atco');
@@ -56,7 +56,7 @@ test.describe('HHG', () => {
     await pickupAddress.getByLabel('State').nth(1).selectOption({ label: 'NJ' });
     await pickupAddress.getByLabel('ZIP').nth(1).fill('08004');
 
-    const deliveryAddress = await page.getByRole('group', { name: 'Delivery location' });
+    const deliveryAddress = await page.getByRole('group', { name: 'Delivery Address' });
     await deliveryAddress.getByText('Yes').nth(0).click();
     await deliveryAddress.getByLabel('Address 1').nth(0).fill('9 W 2nd Ave');
     await deliveryAddress.getByLabel('Address 2').nth(0).fill('P.O. Box 456');
@@ -147,7 +147,7 @@ test.describe('(MultiMove) HHG', () => {
     await customerPage.waitForPage.hhgShipment();
 
     // Update form (adding pickup and delivery address)
-    const pickupAddress = await page.getByRole('group', { name: 'Pickup location' });
+    const pickupAddress = await page.getByRole('group', { name: 'Pickup Address' });
     await pickupAddress.getByLabel('Address 1').fill('7 Q St');
     await pickupAddress.getByLabel('Address 2').clear();
     await pickupAddress.getByLabel('City').fill('Atco');
@@ -161,7 +161,7 @@ test.describe('(MultiMove) HHG', () => {
     await pickupAddress.getByLabel('State').nth(1).selectOption({ label: 'NJ' });
     await pickupAddress.getByLabel('ZIP').nth(1).fill('08004');
 
-    const deliveryAddress = await page.getByRole('group', { name: 'Delivery location' });
+    const deliveryAddress = await page.getByRole('group', { name: 'Delivery Address' });
     await deliveryAddress.getByText('Yes').nth(0).click();
     await deliveryAddress.getByLabel('Address 1').nth(0).fill('9 W 2nd Ave');
     await deliveryAddress.getByLabel('Address 2').nth(0).fill('P.O. Box 456');
