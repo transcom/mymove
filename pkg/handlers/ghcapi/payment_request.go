@@ -186,7 +186,6 @@ func (h UpdatePaymentRequestStatusHandler) Handle(
 				&existingPaymentRequest,
 				params.IfMatch,
 			)
-
 			if err != nil {
 				switch err.(type) {
 				case apperror.NotFoundError:
@@ -221,7 +220,6 @@ func (h UpdatePaymentRequestStatusHandler) Handle(
 			}
 
 			//When approving a Payment request - remove the TIO assigned user
-
 			move, err := models.FetchMove(appCtx.DB(), appCtx.Session(), existingPaymentRequest.MoveTaskOrderID)
 			if err != nil {
 				return paymentrequestop.NewUpdatePaymentRequestStatusInternalServerError(), err
