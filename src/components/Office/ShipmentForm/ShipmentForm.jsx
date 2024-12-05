@@ -846,7 +846,7 @@ const ShipmentForm = (props) => {
             )}
             {deliveryAddressUpdateRequested && (
               <Alert type="error" className={styles.alert}>
-                Request needs review. <a href="#delivery-location">See delivery location to proceed.</a>
+                Request needs review. <a href="#delivery-location">See delivery address to proceed.</a>
               </Alert>
             )}
 
@@ -941,19 +941,19 @@ const ShipmentForm = (props) => {
                       <>
                         <AddressFields
                           name="pickup.address"
-                          legend="Pickup location"
+                          legend="Pickup Address"
                           render={(fields) => (
                             <>
                               <p>What address are the movers picking up from?</p>
                               <Checkbox
                                 data-testid="useCurrentResidence"
-                                label="Use current address"
+                                label="Use pickup address"
                                 name="useCurrentResidence"
                                 onChange={handleUseCurrentResidenceChange}
                                 id="useCurrentResidenceCheckbox"
                               />
                               {fields}
-                              <h4>Second pickup location</h4>
+                              <h4>Second Pickup Address</h4>
                               <FormGroup>
                                 <p>Do you want movers to pick up any belongings from a second address?</p>
                                 <div className={formStyles.radioGroup}>
@@ -964,7 +964,7 @@ const ShipmentForm = (props) => {
                                     label="Yes"
                                     name="hasSecondaryPickup"
                                     value="yes"
-                                    title="Yes, I have a second pickup location"
+                                    title="Yes, I have a second pickup address"
                                     checked={hasSecondaryPickup === 'yes'}
                                   />
                                   <Field
@@ -974,7 +974,7 @@ const ShipmentForm = (props) => {
                                     label="No"
                                     name="hasSecondaryPickup"
                                     value="no"
-                                    title="No, I do not have a second pickup location"
+                                    title="No, I do not have a second pickup address"
                                     checked={hasSecondaryPickup !== 'yes'}
                                   />
                                 </div>
@@ -984,7 +984,7 @@ const ShipmentForm = (props) => {
                                   <AddressFields name="secondaryPickup.address" />
                                   {isTertiaryAddressEnabled && (
                                     <>
-                                      <h4>Third pickup location</h4>
+                                      <h4>Third Pickup Address</h4>
                                       <FormGroup>
                                         <p>Do you want movers to pick up any belongings from a third address?</p>
                                         <div className={formStyles.radioGroup}>
@@ -995,7 +995,7 @@ const ShipmentForm = (props) => {
                                             label="Yes"
                                             name="hasTertiaryPickup"
                                             value="yes"
-                                            title="Yes, I have a third pickup location"
+                                            title="Yes, I have a third pickup address"
                                             checked={hasTertiaryPickup === 'yes'}
                                           />
                                           <Field
@@ -1005,7 +1005,7 @@ const ShipmentForm = (props) => {
                                             label="No"
                                             name="hasTertiaryPickup"
                                             value="no"
-                                            title="No, I do not have a third pickup location"
+                                            title="No, I do not have a third pickup address"
                                             checked={hasTertiaryPickup !== 'yes'}
                                           />
                                         </div>
@@ -1067,7 +1067,7 @@ const ShipmentForm = (props) => {
                         {deliveryAddressUpdateRequested && (
                           <Alert type="error" slim className={styles.deliveryAddressUpdateAlert} id="delivery-location">
                             <span className={styles.deliveryAddressUpdateAlertContent}>
-                              Pending delivery location change request needs review.{' '}
+                              Pending delivery address change request needs review.{' '}
                               <Button
                                 className={styles.reviewRequestLink}
                                 type="button"
@@ -1082,7 +1082,7 @@ const ShipmentForm = (props) => {
                           </Alert>
                         )}
                         <Fieldset
-                          legend="Delivery location"
+                          legend="Delivery Address"
                           disabled={deliveryAddressUpdateRequested}
                           className={classNames('usa-legend', styles.mockLegend)}
                         >
@@ -1092,7 +1092,7 @@ const ShipmentForm = (props) => {
                               return fields;
                             }}
                           />
-                          <h4>Second delivery location</h4>
+                          <h4>Second Delivery Address</h4>
                           <FormGroup>
                             <p>Do you want the movers to deliver any belongings to a second address?</p>
                             <div className={formStyles.radioGroup}>
@@ -1123,7 +1123,7 @@ const ShipmentForm = (props) => {
                               <AddressFields name="secondaryDelivery.address" />
                               {isTertiaryAddressEnabled && (
                                 <>
-                                  <h4>Third delivery location</h4>
+                                  <h4>Third Delivery Address</h4>
                                   <FormGroup>
                                     <p>Do you want the movers to deliver any belongings from a third address?</p>
                                     <div className={formStyles.radioGroup}>
@@ -1134,7 +1134,7 @@ const ShipmentForm = (props) => {
                                         label="Yes"
                                         name="hasTertiaryDelivery"
                                         value="yes"
-                                        title="Yes, I have a third delivery location"
+                                        title="Yes, I have a third delivery address"
                                         checked={hasTertiaryDelivery === 'yes'}
                                       />
                                       <Field
@@ -1144,7 +1144,7 @@ const ShipmentForm = (props) => {
                                         label="No"
                                         name="hasTertiaryDelivery"
                                         value="no"
-                                        title="No, I do not have a third delivery location"
+                                        title="No, I do not have a third delivery address"
                                         checked={hasTertiaryDelivery !== 'yes'}
                                       />
                                     </div>
@@ -1176,12 +1176,12 @@ const ShipmentForm = (props) => {
                     {!isNTS && !isNTSR && (
                       <>
                         <p className={classNames('usa-legend', styles.mockLegend)} id="delivery-location">
-                          Delivery location
+                          Delivery Address
                         </p>
                         {deliveryAddressUpdateRequested && (
                           <Alert type="error" slim className={styles.deliveryAddressUpdateAlert}>
                             <span className={styles.deliveryAddressUpdateAlertContent}>
-                              Pending delivery location change request needs review.{' '}
+                              Pending delivery address change request needs review.{' '}
                               <Button
                                 className={styles.reviewRequestLink}
                                 type="button"
@@ -1197,7 +1197,7 @@ const ShipmentForm = (props) => {
                         )}
                         <Fieldset
                           legendStyle="srOnly"
-                          legend="Delivery location"
+                          legend="Delivery Address"
                           disabled={deliveryAddressUpdateRequested}
                         >
                           <FormGroup>
@@ -1237,7 +1237,7 @@ const ShipmentForm = (props) => {
                                       id="destinationType"
                                     />
                                   )}
-                                  <h4>Second delivery location</h4>
+                                  <h4>Second Delivery Address</h4>
                                   <FormGroup>
                                     <p>Do you want the movers to deliver any belongings to a second address?</p>
                                     <div className={formStyles.radioGroup}>
@@ -1268,7 +1268,7 @@ const ShipmentForm = (props) => {
                                       <AddressFields name="secondaryDelivery.address" />
                                       {isTertiaryAddressEnabled && (
                                         <>
-                                          <h4>Third delivery location</h4>
+                                          <h4>Third Delivery Address</h4>
                                           <FormGroup>
                                             <p>
                                               Do you want the movers to deliver any belongings from a third address?
@@ -1281,7 +1281,7 @@ const ShipmentForm = (props) => {
                                                 label="Yes"
                                                 name="hasTertiaryDelivery"
                                                 value="yes"
-                                                title="Yes, I have a third delivery location"
+                                                title="Yes, I have a third delivery address"
                                                 checked={hasTertiaryDelivery === 'yes'}
                                               />
                                               <Field
@@ -1291,7 +1291,7 @@ const ShipmentForm = (props) => {
                                                 label="No"
                                                 name="hasTertiaryDelivery"
                                                 value="no"
-                                                title="No, I do not have a third delivery location"
+                                                title="No, I do not have a third delivery address"
                                                 checked={hasTertiaryDelivery !== 'yes'}
                                               />
                                             </div>
@@ -1394,13 +1394,13 @@ const ShipmentForm = (props) => {
                             <p>What address are you moving from?</p>
                             <Checkbox
                               data-testid="useCurrentResidence"
-                              label="Use Current Address"
+                              label="Use Pickup Address"
                               name="useCurrentResidence"
                               onChange={handleUseCurrentResidenceChange}
                               id="useCurrentResidenceCheckbox"
                             />
                             {fields}
-                            <h4>Second pickup address</h4>
+                            <h4>Second Pickup Address</h4>
                             <FormGroup>
                               <p>
                                 Will you move any belongings from a second address? (Must be near the pickup address.
@@ -1414,7 +1414,7 @@ const ShipmentForm = (props) => {
                                   label="Yes"
                                   name="hasSecondaryPickup"
                                   value="true"
-                                  title="Yes, there is a second pickup location"
+                                  title="Yes, there is a second pickup address"
                                   checked={hasSecondaryPickup === 'true'}
                                 />
                                 <Field
@@ -1424,7 +1424,7 @@ const ShipmentForm = (props) => {
                                   label="No"
                                   name="hasSecondaryPickup"
                                   value="false"
-                                  title="No, there is not a second pickup location"
+                                  title="No, there is not a second pickup address"
                                   checked={hasSecondaryPickup !== 'true'}
                                 />
                               </div>
@@ -1434,7 +1434,7 @@ const ShipmentForm = (props) => {
                                 <AddressFields name="secondaryPickup.address" />
                                 {isTertiaryAddressEnabled && (
                                   <>
-                                    <h4>Third pickup address</h4>
+                                    <h4>Third Pickup Address</h4>
                                     <FormGroup>
                                       <p>
                                         Will you move any belongings from a third address? (Must be near the pickup
@@ -1448,7 +1448,7 @@ const ShipmentForm = (props) => {
                                           label="Yes"
                                           name="hasTertiaryPickup"
                                           value="true"
-                                          title="Yes, there is a third pickup location"
+                                          title="Yes, there is a third pickup address"
                                           checked={hasTertiaryPickup === 'true'}
                                         />
                                         <Field
@@ -1458,7 +1458,7 @@ const ShipmentForm = (props) => {
                                           label="No"
                                           name="hasTertiaryPickup"
                                           value="false"
-                                          title="No, there is not a third pickup location"
+                                          title="No, there is not a third pickup address"
                                           checked={hasTertiaryPickup !== 'true'}
                                         />
                                       </div>
@@ -1478,7 +1478,7 @@ const ShipmentForm = (props) => {
                         render={(fields) => (
                           <>
                             {fields}
-                            <h4>Second delivery address</h4>
+                            <h4>Second Delivery Address</h4>
                             <FormGroup>
                               <p>
                                 Will you move any belongings to a second address? (Must be near the delivery address.
@@ -1512,7 +1512,7 @@ const ShipmentForm = (props) => {
                                 <AddressFields name="secondaryDestination.address" />
                                 {isTertiaryAddressEnabled && (
                                   <>
-                                    <h4>Third delivery address</h4>
+                                    <h4>Third Delivery Address</h4>
                                     <FormGroup>
                                       <p>
                                         Will you move any belongings to a third address? (Must be near the delivery
@@ -1526,7 +1526,7 @@ const ShipmentForm = (props) => {
                                           label="Yes"
                                           name="hasTertiaryDestination"
                                           value="true"
-                                          title="Yes, I have a third delivery location"
+                                          title="Yes, I have a third delivery address"
                                           checked={hasTertiaryDestination === 'true'}
                                         />
                                         <Field
@@ -1536,7 +1536,7 @@ const ShipmentForm = (props) => {
                                           label="No"
                                           name="hasTertiaryDestination"
                                           value="false"
-                                          title="No, I do not have a third delivery location"
+                                          title="No, I do not have a third delivery address"
                                           checked={hasTertiaryDestination !== 'true'}
                                         />
                                       </div>

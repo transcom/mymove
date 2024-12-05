@@ -24,6 +24,7 @@ var PPMShipmentUpdaterChecks = []ppmShipmentValidator{
 	checkPPMShipmentID(),
 	checkRequiredFields(),
 	checkAdvanceAmountRequested(),
+	checkPPMShipmentSequenceValidForUpdate(),
 }
 
 func NewPPMShipmentUpdater(ppmEstimator services.PPMEstimator, addressCreator services.AddressCreator, addressUpdater services.AddressUpdater) services.PPMShipmentUpdater {
@@ -124,6 +125,18 @@ func (f *ppmShipmentUpdater) updatePPMShipment(appCtx appcontext.AppContext, ppm
 
 		updatedPPMShipment.EstimatedIncentive = estimatedIncentive
 		updatedPPMShipment.SITEstimatedCost = estimatedSITCost
+
+		// if the PPM shipment is past closeout then we should not calculate the max incentive, it is already set in stone
+		if oldPPMShipment.Status != models.PPMShipmentStatusWaitingOnCustomer &&
+			oldPPMShipment.Status != models.PPMShipmentStatusCloseoutComplete &&
+			oldPPMShipment.Status != models.PPMShipmentStatusComplete &&
+			oldPPMShipment.Status != models.PPMShipmentStatusNeedsCloseout {
+			maxIncentive, err := f.estimator.MaxIncentive(appCtx, *oldPPMShipment, updatedPPMShipment)
+			if err != nil {
+				return err
+			}
+			updatedPPMShipment.MaxIncentive = maxIncentive
+		}
 
 		if appCtx.Session() != nil {
 			if appCtx.Session().IsOfficeUser() {

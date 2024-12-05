@@ -739,7 +739,7 @@ func init() {
           "example": "handle with care"
         },
         "destinationAddress": {
-          "description": "Where the movers should deliver this shipment.",
+          "description": "primary location the movers should deliver this shipment.",
           "allOf": [
             {
               "$ref": "#/definitions/Address"
@@ -773,7 +773,7 @@ func init() {
           }
         },
         "pickupAddress": {
-          "description": "The address where the movers should pick up this shipment.",
+          "description": "The primary address where the movers should pick up this shipment.",
           "allOf": [
             {
               "$ref": "#/definitions/Address"
@@ -801,7 +801,7 @@ func init() {
           "x-nullable": true
         },
         "secondaryDestinationAddress": {
-          "description": "The second address where the movers should deliver this shipment.",
+          "description": "second location where the movers should deliver this shipment.",
           "allOf": [
             {
               "$ref": "#/definitions/Address"
@@ -820,7 +820,7 @@ func init() {
           "$ref": "#/definitions/MTOShipmentType"
         },
         "tertiaryDestinationAddress": {
-          "description": "The third address where the movers should deliver this shipment.",
+          "description": "third location where the movers should deliver this shipment.",
           "allOf": [
             {
               "$ref": "#/definitions/Address"
@@ -938,7 +938,7 @@ func init() {
           ]
         },
         "secondaryPickupAddress": {
-          "description": "An optional secondary pickup location address near the origin where additional goods exist.",
+          "description": "An optional secondary Pickup Address address near the origin where additional goods exist.",
           "allOf": [
             {
               "$ref": "#/definitions/Address"
@@ -991,7 +991,7 @@ func init() {
           ]
         },
         "tertiaryPickupAddress": {
-          "description": "An optional tertiary pickup location address near the origin where additional goods exist.",
+          "description": "An optional tertiary Pickup Address address near the origin where additional goods exist.",
           "allOf": [
             {
               "$ref": "#/definitions/Address"
@@ -2676,6 +2676,13 @@ func init() {
           "x-omitempty": false,
           "example": false
         },
+        "maxIncentive": {
+          "description": "The max amount the government will pay the service member to move their belongings based on the moving date, locations, and shipment weight.",
+          "type": "integer",
+          "format": "cents",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
         "pickupAddress": {
           "$ref": "#/definitions/Address"
         },
@@ -3308,7 +3315,7 @@ func init() {
       }
     },
     "ShipmentAddressUpdate": {
-      "description": "This represents a destination address change request made by the Prime that is either auto-approved or requires review if the pricing criteria has changed. If criteria has changed, then it must be approved or rejected by a TOO.\n",
+      "description": "This represents a delivery address change request made by the Prime that is either auto-approved or requires review if the pricing criteria has changed. If criteria has changed, then it must be approved or rejected by a TOO.\n",
       "type": "object",
       "required": [
         "id",
@@ -3336,7 +3343,7 @@ func init() {
           "$ref": "#/definitions/Address"
         },
         "newSitDistanceBetween": {
-          "description": "The distance between the original SIT address and requested new destination address of shipment",
+          "description": "The distance between the original SIT address and requested new delivery address of shipment",
           "type": "integer",
           "example": 88
         },
@@ -3348,7 +3355,7 @@ func init() {
           "example": "This is an office remark"
         },
         "oldSitDistanceBetween": {
-          "description": "The distance between the original SIT address and the previous/old destination address of shipment",
+          "description": "The distance between the original SIT address and the previous/old delivery address of shipment",
           "type": "integer",
           "example": 50
         },
@@ -3829,7 +3836,7 @@ func init() {
           ]
         },
         "secondaryPickupAddress": {
-          "description": "An optional secondary pickup location near the origin where additional goods exist.\n",
+          "description": "An optional secondary Pickup Address near the origin where additional goods exist.\n",
           "allOf": [
             {
               "$ref": "#/definitions/Address"
@@ -3883,7 +3890,7 @@ func init() {
           ]
         },
         "tertiaryPickupAddress": {
-          "description": "An optional third pickup location near the origin where additional goods exist.\n",
+          "description": "An optional third Pickup Address near the origin where additional goods exist.\n",
           "allOf": [
             {
               "$ref": "#/definitions/Address"
@@ -3915,7 +3922,7 @@ func init() {
       }
     },
     "UpdateShipmentDestinationAddress": {
-      "description": "UpdateShipmentDestinationAddress contains the fields required for the prime to request an update for the destination address on an MTO Shipment.",
+      "description": "UpdateShipmentDestinationAddress contains the fields required for the prime to request an update for the delivery address on an MTO Shipment.",
       "type": "object",
       "required": [
         "contractorRemarks",
@@ -4850,7 +4857,7 @@ func init() {
           "example": "handle with care"
         },
         "destinationAddress": {
-          "description": "Where the movers should deliver this shipment.",
+          "description": "primary location the movers should deliver this shipment.",
           "allOf": [
             {
               "$ref": "#/definitions/Address"
@@ -4884,7 +4891,7 @@ func init() {
           }
         },
         "pickupAddress": {
-          "description": "The address where the movers should pick up this shipment.",
+          "description": "The primary address where the movers should pick up this shipment.",
           "allOf": [
             {
               "$ref": "#/definitions/Address"
@@ -4912,7 +4919,7 @@ func init() {
           "x-nullable": true
         },
         "secondaryDestinationAddress": {
-          "description": "The second address where the movers should deliver this shipment.",
+          "description": "second location where the movers should deliver this shipment.",
           "allOf": [
             {
               "$ref": "#/definitions/Address"
@@ -4931,7 +4938,7 @@ func init() {
           "$ref": "#/definitions/MTOShipmentType"
         },
         "tertiaryDestinationAddress": {
-          "description": "The third address where the movers should deliver this shipment.",
+          "description": "third location where the movers should deliver this shipment.",
           "allOf": [
             {
               "$ref": "#/definitions/Address"
@@ -5049,7 +5056,7 @@ func init() {
           ]
         },
         "secondaryPickupAddress": {
-          "description": "An optional secondary pickup location address near the origin where additional goods exist.",
+          "description": "An optional secondary Pickup Address address near the origin where additional goods exist.",
           "allOf": [
             {
               "$ref": "#/definitions/Address"
@@ -5102,7 +5109,7 @@ func init() {
           ]
         },
         "tertiaryPickupAddress": {
-          "description": "An optional tertiary pickup location address near the origin where additional goods exist.",
+          "description": "An optional tertiary Pickup Address address near the origin where additional goods exist.",
           "allOf": [
             {
               "$ref": "#/definitions/Address"
@@ -6787,6 +6794,13 @@ func init() {
           "x-omitempty": false,
           "example": false
         },
+        "maxIncentive": {
+          "description": "The max amount the government will pay the service member to move their belongings based on the moving date, locations, and shipment weight.",
+          "type": "integer",
+          "format": "cents",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
         "pickupAddress": {
           "$ref": "#/definitions/Address"
         },
@@ -7419,7 +7433,7 @@ func init() {
       }
     },
     "ShipmentAddressUpdate": {
-      "description": "This represents a destination address change request made by the Prime that is either auto-approved or requires review if the pricing criteria has changed. If criteria has changed, then it must be approved or rejected by a TOO.\n",
+      "description": "This represents a delivery address change request made by the Prime that is either auto-approved or requires review if the pricing criteria has changed. If criteria has changed, then it must be approved or rejected by a TOO.\n",
       "type": "object",
       "required": [
         "id",
@@ -7447,7 +7461,7 @@ func init() {
           "$ref": "#/definitions/Address"
         },
         "newSitDistanceBetween": {
-          "description": "The distance between the original SIT address and requested new destination address of shipment",
+          "description": "The distance between the original SIT address and requested new delivery address of shipment",
           "type": "integer",
           "minimum": 0,
           "example": 88
@@ -7460,7 +7474,7 @@ func init() {
           "example": "This is an office remark"
         },
         "oldSitDistanceBetween": {
-          "description": "The distance between the original SIT address and the previous/old destination address of shipment",
+          "description": "The distance between the original SIT address and the previous/old delivery address of shipment",
           "type": "integer",
           "minimum": 0,
           "example": 50
@@ -7942,7 +7956,7 @@ func init() {
           ]
         },
         "secondaryPickupAddress": {
-          "description": "An optional secondary pickup location near the origin where additional goods exist.\n",
+          "description": "An optional secondary Pickup Address near the origin where additional goods exist.\n",
           "allOf": [
             {
               "$ref": "#/definitions/Address"
@@ -7996,7 +8010,7 @@ func init() {
           ]
         },
         "tertiaryPickupAddress": {
-          "description": "An optional third pickup location near the origin where additional goods exist.\n",
+          "description": "An optional third Pickup Address near the origin where additional goods exist.\n",
           "allOf": [
             {
               "$ref": "#/definitions/Address"
@@ -8028,7 +8042,7 @@ func init() {
       }
     },
     "UpdateShipmentDestinationAddress": {
-      "description": "UpdateShipmentDestinationAddress contains the fields required for the prime to request an update for the destination address on an MTO Shipment.",
+      "description": "UpdateShipmentDestinationAddress contains the fields required for the prime to request an update for the delivery address on an MTO Shipment.",
       "type": "object",
       "required": [
         "contractorRemarks",

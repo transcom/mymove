@@ -10,7 +10,7 @@ import styles from '../ServicesCounselingMoveInfo/ServicesCounselingTab.module.s
 
 import scMoveDetailsStyles from './ServicesCounselingMoveDetails.module.scss';
 
-import { MOVES, MTO_SHIPMENTS } from 'constants/queryKeys';
+import { MOVES, MTO_SHIPMENTS, PPMCLOSEOUT } from 'constants/queryKeys';
 import { ORDERS_TYPE } from 'constants/orders';
 import { servicesCounselingRoutes } from 'constants/routes';
 import AllowancesList from 'components/Office/DefinitionLists/AllowancesList';
@@ -23,13 +23,25 @@ import CancelMoveConfirmationModal from 'components/ConfirmationModals/CancelMov
 import ShipmentDisplay from 'components/Office/ShipmentDisplay/ShipmentDisplay';
 import { SubmitMoveConfirmationModal } from 'components/Office/SubmitMoveConfirmationModal/SubmitMoveConfirmationModal';
 import { useMoveDetailsQueries, useOrdersDocumentQueries } from 'hooks/queries';
-import { updateMoveStatusServiceCounselingCompleted, cancelMove, updateFinancialFlag } from 'services/ghcApi';
-import { MOVE_STATUSES, SHIPMENT_OPTIONS_URL, SHIPMENT_OPTIONS, FEATURE_FLAG_KEYS } from 'shared/constants';
+import {
+  updateMoveStatusServiceCounselingCompleted,
+  cancelMove,
+  updateFinancialFlag,
+  updateMTOShipment,
+} from 'services/ghcApi';
+import {
+  MOVE_STATUSES,
+  SHIPMENT_OPTIONS_URL,
+  SHIPMENT_OPTIONS,
+  FEATURE_FLAG_KEYS,
+  technicalHelpDeskURL,
+} from 'shared/constants';
 import { ppmShipmentStatuses, shipmentStatuses } from 'constants/shipments';
 import shipmentCardsStyles from 'styles/shipmentCards.module.scss';
 import LeftNav from 'components/LeftNav/LeftNav';
 import LeftNavTag from 'components/LeftNavTag/LeftNavTag';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
+import Inaccessible from 'shared/Inaccessible';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
 import { AlertStateShape } from 'types/alert';
 import formattedCustomerName from 'utils/formattedCustomerName';
@@ -65,6 +77,7 @@ const ServicesCounselingMoveDetails = ({
   const [enableBoat, setEnableBoat] = useState(false);
   const [enableMobileHome, setEnableMobileHome] = useState(false);
   const { upload, amendedUpload } = useOrdersDocumentQueries(moveCode);
+  const [errorMessage, setErrorMessage] = useState(null);
   const documentsForViewer = Object.values(upload || {})
     .concat(Object.values(amendedUpload || {}))
     ?.filter((file) => {
@@ -72,7 +85,7 @@ const ServicesCounselingMoveDetails = ({
     });
   const hasDocuments = documentsForViewer?.length > 0;
 
-  const { order, orderDocuments, customerData, move, closeoutOffice, mtoShipments, isLoading, isError } =
+  const { order, orderDocuments, customerData, move, closeoutOffice, mtoShipments, isLoading, isError, errors } =
     useMoveDetailsQueries(moveCode);
 
   const validOrdersDocuments = Object.values(orderDocuments || {})?.filter((file) => !file.deletedAt);
@@ -92,7 +105,7 @@ const ServicesCounselingMoveDetails = ({
   }, []);
 
   // nts defaults show preferred pickup date and pickup address, flagged items when collapsed
-  // ntsr defaults shows preferred delivery date, storage facility address, destination address, flagged items when collapsed
+  // ntsr defaults shows preferred delivery date, storage facility address, delivery address, flagged items when collapsed
   const showWhenCollapsed = {
     HHG_INTO_NTS_DOMESTIC: ['counselorRemarks'],
     HHG_OUTOF_NTS_DOMESTIC: ['counselorRemarks'],
@@ -337,7 +350,7 @@ const ServicesCounselingMoveDetails = ({
   const customerInfo = {
     name: formattedCustomerName(customer.last_name, customer.first_name, customer.suffix, customer.middle_name),
     agency: customer.agency,
-    dodId: customer.dodID,
+    edipi: customer.edipi,
     emplid: customer.emplid,
     phone: customer.phone,
     altPhone: customer.secondaryTelephone,
@@ -424,6 +437,7 @@ const ServicesCounselingMoveDetails = ({
     onSuccess: (data) => {
       queryClient.setQueryData([MOVES, data.locator], data);
       queryClient.invalidateQueries([MOVES, data.locator]);
+      queryClient.invalidateQueries({ queryKey: [MTO_SHIPMENTS] });
       setAlertMessage('Move submitted.');
       setAlertType('success');
     },
@@ -466,6 +480,51 @@ const ServicesCounselingMoveDetails = ({
     },
   });
 
+  const shipmentMutation = useMutation(updateMTOShipment, {
+    onSuccess: (updatedMTOShipments) => {
+      if (mtoShipments !== null && updatedMTOShipments?.mtoShipments !== undefined) {
+        mtoShipments?.forEach((shipment, key) => {
+          if (updatedMTOShipments?.mtoShipments[shipment.id] !== undefined) {
+            mtoShipments[key] = updatedMTOShipments.mtoShipments[shipment.id];
+          }
+        });
+      }
+
+      queryClient.setQueryData([MTO_SHIPMENTS, mtoShipments.moveTaskOrderID, false], mtoShipments);
+      queryClient.invalidateQueries([MTO_SHIPMENTS, mtoShipments.moveTaskOrderID]);
+      queryClient.invalidateQueries([PPMCLOSEOUT, mtoShipments?.ppmShipment?.id]);
+      setErrorMessage(null);
+    },
+    onError: (error) => {
+      setErrorMessage(error?.response?.body?.message ? error.response.body.message : 'Shipment failed to update.');
+    },
+  });
+
+  const handleConfirmSubmitMoveDetails = async () => {
+    const shipmentPromise = await mtoShipments.map((shipment) => {
+      if (shipment?.ppmShipment?.estimatedIncentive === 0) {
+        return shipmentMutation.mutateAsync({
+          moveTaskOrderID: shipment.moveTaskOrderID,
+          shipmentID: shipment.id,
+          ifMatchETag: shipment.eTag,
+          body: {
+            ppmShipment: shipment.ppmShipment,
+          },
+        });
+      }
+
+      return Promise.resolve();
+    });
+
+    Promise.all(shipmentPromise)
+      .then(() => {
+        mutateMoveStatus({ moveTaskOrderID: move.id, ifMatchETag: move.eTag });
+      })
+      .finally(() => {
+        setIsSubmitModalVisible(false);
+      });
+  };
+
   useEffect(() => {
     setMoveHasExcessWeight(moveWeightTotal > order.entitlement.totalWeight);
   }, [moveWeightTotal, order.entitlement.totalWeight]);
@@ -497,15 +556,12 @@ const ServicesCounselingMoveDetails = ({
   }, [order, requiredOrdersInfo, setMissingOrdersInfoCount]);
 
   if (isLoading) return <LoadingPlaceholder />;
-  if (isError) return <SomethingWentWrong />;
+  if (isError) {
+    return errors?.[0]?.response?.body?.message ? <Inaccessible /> : <SomethingWentWrong />;
+  }
 
   const handleShowSubmitMoveModal = () => {
     setIsSubmitModalVisible(true);
-  };
-
-  const handleConfirmSubmitMoveDetails = () => {
-    mutateMoveStatus({ moveTaskOrderID: move.id, ifMatchETag: move.eTag });
-    setIsSubmitModalVisible(false);
   };
 
   const handleShowFinancialReviewModal = () => {
@@ -627,6 +683,18 @@ const ServicesCounselingMoveDetails = ({
         />
         <GridContainer className={classnames(styles.gridContainer, scMoveDetailsStyles.ServicesCounselingMoveDetails)}>
           <NotificationScrollToTop dependency={alertMessage || infoSavedAlert} />
+          <NotificationScrollToTop dependency={errorMessage} />
+          {errorMessage && (
+            <Alert data-testid="errorMessage" type="error" headingLevel="h4" heading="An error occurred">
+              <p>
+                {errorMessage} Please try again later, or contact the&nbsp;
+                <Link to={technicalHelpDeskURL} target="_blank" rel="noreferrer">
+                  Technical Help Desk
+                </Link>
+                .
+              </p>
+            </Alert>
+          )}
           <Grid row className={scMoveDetailsStyles.pageHeader}>
             {alertMessage && (
               <Grid col={12} className={scMoveDetailsStyles.alertContainer}>
