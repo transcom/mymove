@@ -612,7 +612,7 @@ test.describe('Services counselor user', () => {
         await page.getByTestId('submitForm').click();
 
         await expect(page.getByTestId('payGrade')).toContainText('E-1');
-        await expect(page.getByTestId('ShipmentContainer').getByTestId('tag')).toContainText(
+        await expect(page.getByTestId('ShipmentContainer').getByTestId('actualReimbursementTag')).toContainText(
           'actual expense reimbursement',
         );
 

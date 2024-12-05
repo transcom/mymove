@@ -18,7 +18,7 @@ func NewServiceItemFetcher() services.ServiceItemListFetcher {
 func (s *serviceItemFetcher) FetchServiceItemList(appCtx appcontext.AppContext) (*models.ReServiceItems, error) {
 
 	var serviceItems models.ReServiceItems
-	err := appCtx.DB().Eager("ReService").All(&serviceItems)
+	err := appCtx.DB().Order("sort asc").Eager("ReService").All(&serviceItems)
 	if err != nil {
 		return nil, apperror.NewQueryError("ReServiceItems", err, "")
 	}
