@@ -436,6 +436,7 @@ const ServicesCounselingMoveDetails = ({
     onSuccess: (data) => {
       queryClient.setQueryData([MOVES, data.locator], data);
       queryClient.invalidateQueries([MOVES, data.locator]);
+      queryClient.invalidateQueries({ queryKey: [MTO_SHIPMENTS] });
       setAlertMessage('Move submitted.');
       setAlertType('success');
     },
