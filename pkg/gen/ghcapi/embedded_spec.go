@@ -12902,9 +12902,6 @@ func init() {
           "pattern": "^(\\d{5})$",
           "example": "90210"
         },
-        "destinationGBLOC": {
-          "$ref": "#/definitions/GBLOC"
-        },
         "edipi": {
           "type": "string",
           "x-nullable": true,
@@ -29286,9 +29283,6 @@ func init() {
           "title": "ZIP",
           "pattern": "^(\\d{5})$",
           "example": "90210"
-        },
-        "destinationGBLOC": {
-          "$ref": "#/definitions/GBLOC"
         },
         "edipi": {
           "type": "string",
