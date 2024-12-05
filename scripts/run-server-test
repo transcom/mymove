@@ -95,7 +95,7 @@ function server_report_cleanup()
     cp coverage.out "${test_dir}"
     # parse out the total coverage percentage which is on the line with (statements) and strip off the % sign
     # https://unix.stackexchange.com/questions/305190/remove-last-character-from-string-captured-with-awk
-    percent=$(grep '(statements)' "${test_dir}/go-coverage.txt" | awk '{printf "%.2f", substr($NF, 1, length($NF)-1)}')
+    percent=$(grep '(statements)' "${test_dir}/go-coverage.txt" | awk '{print substr($NF, 1, length($NF)-1)}')
     goal_percent=50
     # using a oneline python function to test if percent is less than goal and return a proper exit code
     if python -c "exit(1) if ${percent} < ${goal_percent} else exit()"; then
