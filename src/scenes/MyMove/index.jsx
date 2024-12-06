@@ -28,7 +28,12 @@ import { no_op } from 'shared/utils';
 import { generatePageTitle } from 'hooks/custom';
 import { loadUser as loadUserAction } from 'store/auth/actions';
 import { initOnboarding as initOnboardingAction } from 'store/onboarding/actions';
-import { selectCacValidated, selectGetCurrentUserIsLoading, selectIsLoggedIn } from 'store/auth/selectors';
+import {
+  selectCacValidated,
+  selectGetCurrentUserIsLoading,
+  selectIsLoggedIn,
+  selectUnderMaintenance,
+} from 'store/auth/selectors';
 import { selectConusStatus } from 'store/onboarding/selectors';
 import {
   selectServiceMemberFromLoggedInUser,
@@ -53,6 +58,7 @@ import AddOrders from 'pages/MyMove/AddOrders';
 import UploadOrders from 'pages/MyMove/UploadOrders';
 import SmartCardRedirect from 'shared/SmartCardRedirect/SmartCardRedirect';
 import OktaErrorBanner from 'components/OktaErrorBanner/OktaErrorBanner';
+import MaintenancePage from 'pages/Maintenance/MaintenancePage';
 // Pages should be lazy-loaded (they correspond to unique routes & only need to be loaded when that URL is accessed)
 const SignIn = lazy(() => import('pages/SignIn/SignIn'));
 const InvalidPermissions = lazy(() => import('pages/InvalidPermissions/InvalidPermissions'));
@@ -145,13 +151,17 @@ export class CustomerApp extends Component {
 
   render() {
     const { props } = this;
-    const { userIsLoggedIn, loginIsLoading, cacValidated } = props;
+    const { userIsLoggedIn, loginIsLoading, cacValidated, underMaintenance } = props;
     const { hasError, multiMoveFeatureFlag, cacValidatedFeatureFlag, oktaErrorBanner } = this.state;
     const script = document.createElement('script');
 
     script.src = '//rum-static.pingdom.net/pa-6567b05deff3250012000426.js';
     script.async = true;
     document.body.appendChild(script);
+
+    if (underMaintenance) {
+      return <MaintenancePage />;
+    }
 
     return (
       <>
@@ -476,6 +486,7 @@ const mapStateToProps = (state) => {
     moveId: move?.id,
     conusStatus: selectConusStatus(state),
     swaggerError: state.swaggerInternal.hasErrored,
+    underMaintenance: selectUnderMaintenance(state),
   };
 };
 const mapDispatchToProps = {

@@ -23,7 +23,6 @@ import Alert from 'shared/Alert';
  * TODO
  * - implement next/previous pages instead of scroll through pages
  * - implement rotate left/right
- * - handle fetch doc errors
  */
 
 const DocumentViewer = ({ files, isFileUploading, allowDownload, paymentRequestId }) => {
@@ -31,6 +30,7 @@ const DocumentViewer = ({ files, isFileUploading, allowDownload, paymentRequestI
   const [fileStatus, setFileStatus] = useState(null);
   const [disableSaveButton, setDisableSaveButton] = useState(false);
   const [menuIsOpen, setMenuOpen] = useState(false);
+  const [showContentError, setShowContentError] = useState(false);
   const sortedFiles = files.sort((a, b) => moment(b.createdAt) - moment(a.createdAt));
   const selectedFile = sortedFiles[parseInt(selectedFileIndex, 10)];
 
@@ -82,6 +82,7 @@ const DocumentViewer = ({ files, isFileUploading, allowDownload, paymentRequestI
   }, [files.length]);
 
   useEffect(() => {
+    setShowContentError(false);
     setRotationValue(selectedFile?.rotation || 0);
 
     if (isFileUploading) return undefined;
@@ -170,6 +171,11 @@ const DocumentViewer = ({ files, isFileUploading, allowDownload, paymentRequestI
 
   const selectedFileDate = formatDate(moment(selectedFile?.createdAt), 'DD MMM YYYY');
 
+  const onContentError = (errorObject) => {
+    setShowContentError(true);
+    milmoveLogger.error(errorObject);
+  };
+
   const saveRotation = () => {
     if (fileType.current !== 'pdf' && mountedRef.current === true) {
       const uploadBody = {
@@ -212,6 +218,9 @@ const DocumentViewer = ({ files, isFileUploading, allowDownload, paymentRequestI
         )}
         {paymentRequestId !== undefined ? paymentPacketDownload : null}
       </div>
+      {showContentError && (
+        <div className={styles.errorMessage}>If your document does not display, please refresh your browser.</div>
+      )}
       <Content
         fileType={fileType.current}
         filePath={selectedFile?.url}
@@ -219,6 +228,7 @@ const DocumentViewer = ({ files, isFileUploading, allowDownload, paymentRequestI
         disableSaveButton={disableSaveButton}
         setRotationValue={setRotationValue}
         saveRotation={saveRotation}
+        onError={onContentError}
       />
       {menuIsOpen && <div className={styles.overlay} />}
       <Menu

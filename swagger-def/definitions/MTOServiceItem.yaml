@@ -132,6 +132,9 @@ properties:
   standaloneCrate:
     type: boolean
     x-nullable: true
+  externalCrate:
+    type: boolean
+    x-nullable: true
   serviceRequestDocuments:
     $ref: 'ServiceRequestDocuments.yaml'
   estimatedPrice:
@@ -141,4 +144,12 @@ properties:
   lockedPriceCents:
     type: integer
     format: cents
+    x-nullable: true
+  market:
+    type: string
+    enum:
+      - CONUS
+      - OCONUS
+    example: CONUS
+    description: 'To identify whether the service was provided within (CONUS) or (OCONUS)'
     x-nullable: true

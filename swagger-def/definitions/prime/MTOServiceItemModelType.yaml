@@ -8,6 +8,7 @@ description: >
     * DDFSIT, DDASIT - MTOServiceItemDestSIT
     * DOSHUT, DDSHUT - MTOServiceItemShuttle
     * DCRT, DUCRT - MTOServiceItemDomesticCrating
+    * ICRT, IUCRT - MTOServiceItemInternationalCrating
 
   The documentation will then update with the supported fields.
 type: string
@@ -17,3 +18,4 @@ enum:
   - MTOServiceItemDestSIT
   - MTOServiceItemShuttle
   - MTOServiceItemDomesticCrating
+  - MTOServiceItemInternationalCrating
