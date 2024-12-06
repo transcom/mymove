@@ -118,9 +118,10 @@ BEGIN
     IF escalation_factor IS NULL THEN
         RAISE EXCEPTION 'Escalation factor not found for contract_id %', c_id;
     END IF;
-
-    -- calculate the escalated price
+    -- calculate the escalated price, return in dollars (dividing by 100)
     escalated_price := ROUND(per_unit_cents * escalation_factor::NUMERIC / 100, 2);
+
+    RAISE NOTICE '% escalated price: $% (% * % / 100)', service_code, escalated_price, per_unit_cents, escalation_factor;
 
     RETURN escalated_price;
 END;
@@ -213,11 +214,11 @@ RETURNS DECIMAL AS $$
     FROM re_fsc_multipliers
     WHERE estimated_weight >= low_weight AND estimated_weight <= high_weight;
 
-    RAISE NOTICE 'Received FSC multiplier for estimated_weight: %', m;
-
     IF m IS NULL THEN
         RAISE EXCEPTION 'multipler not found for weight of %', estimated_weight;
     END IF;
+
+    RAISE NOTICE 'Received FSC multiplier for estimated_weight: %', m;
 
     RETURN m;
 END;
@@ -245,11 +246,11 @@ BEGIN
         LIMIT 1;
     END IF;
 
-    RAISE NOTICE 'Received fuel price of $% for requested_pickup_date: %', fuel_price, requested_pickup_date;
-
     IF fuel_price IS NULL THEN
         RAISE EXCEPTION 'No fuel price found for requested_pickup_date: %', requested_pickup_date;
     END IF;
+
+    RAISE NOTICE 'Received fuel price of $% for requested_pickup_date: %', fuel_price, requested_pickup_date;
 
     RETURN fuel_price;
 END;
@@ -409,7 +410,8 @@ BEGIN
                 escalated_price := calculate_escalated_price(o_rate_area_id, d_rate_area_id, service_item.re_service_id, contract_id, service_code);
 
                 IF shipment.prime_estimated_weight IS NOT NULL THEN
-                    estimated_price := ROUND(escalated_price * (shipment.prime_estimated_weight / 100)::NUMERIC, 2);
+                    estimated_price := ROUND((escalated_price * (shipment.prime_estimated_weight / 100)::NUMERIC) * 100, 0);
+                    RAISE NOTICE ''%: Received estimated price of % (% * (% / 100)) cents'', service_code, estimated_price, escalated_price, shipment.prime_estimated_weight;
                 END IF;
 
             WHEN service_code IN (''IHPK'', ''IUBPK'') THEN
@@ -419,7 +421,8 @@ BEGIN
                 escalated_price := calculate_escalated_price(o_rate_area_id, NULL, service_item.re_service_id, contract_id, service_code);
 
                 IF shipment.prime_estimated_weight IS NOT NULL THEN
-                    estimated_price := ROUND(escalated_price * (shipment.prime_estimated_weight / 100)::NUMERIC, 2);
+                    estimated_price := ROUND((escalated_price * (shipment.prime_estimated_weight / 100)::NUMERIC) * 100, 0);
+                    RAISE NOTICE ''%: Received estimated price of % (% * (% / 100)) cents'', service_code, estimated_price, escalated_price, shipment.prime_estimated_weight;
                 END IF;
 
             WHEN service_code IN (''IHUPK'', ''IUBUPK'') THEN
@@ -429,7 +432,8 @@ BEGIN
                 escalated_price := calculate_escalated_price(NULL, d_rate_area_id, service_item.re_service_id, contract_id, service_code);
 
                 IF shipment.prime_estimated_weight IS NOT NULL THEN
-                    estimated_price := ROUND(escalated_price * (shipment.prime_estimated_weight / 100)::NUMERIC, 2);
+                    estimated_price := ROUND((escalated_price * (shipment.prime_estimated_weight / 100)::NUMERIC) * 100, 0);
+                    RAISE NOTICE ''%: Received estimated price of % (% * (% / 100)) cents'', service_code, estimated_price, escalated_price, shipment.prime_estimated_weight;
                 END IF;
 
             WHEN service_code IN (''POEFSC'', ''PODFSC'') THEN
