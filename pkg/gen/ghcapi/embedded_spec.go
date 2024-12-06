@@ -3167,6 +3167,66 @@ func init() {
         }
       ]
     },
+    "/orders/{orderID}/acknowledge-excess-unaccompanied-baggage-weight-risk": {
+      "post": {
+        "description": "Saves the date and time a TOO acknowledged the excess unaccompanied baggage weight risk by dismissing the alert",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "order"
+        ],
+        "summary": "Saves the date and time a TOO acknowledged the excess unaccompanied baggage weight risk by dismissing the alert",
+        "operationId": "acknowledgeExcessUnaccompaniedBaggageWeightRisk",
+        "parameters": [
+          {
+            "type": "string",
+            "name": "If-Match",
+            "in": "header",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "updated Move",
+            "schema": {
+              "$ref": "#/definitions/Move"
+            }
+          },
+          "403": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "404": {
+            "$ref": "#/responses/NotFound"
+          },
+          "412": {
+            "$ref": "#/responses/PreconditionFailed"
+          },
+          "422": {
+            "$ref": "#/responses/UnprocessableEntity"
+          },
+          "500": {
+            "$ref": "#/responses/ServerError"
+          }
+        },
+        "x-permissions": [
+          "update.excessWeightRisk"
+        ]
+      },
+      "parameters": [
+        {
+          "type": "string",
+          "format": "uuid",
+          "description": "ID of order to use",
+          "name": "orderID",
+          "in": "path",
+          "required": true
+        }
+      ]
+    },
     "/orders/{orderID}/acknowledge-excess-weight-risk": {
       "post": {
         "description": "Saves the date and time a TOO acknowledged the excess weight risk by dismissing the alert",
@@ -9973,6 +10033,18 @@ func init() {
         },
         "eTag": {
           "type": "string"
+        },
+        "excessUnaccompaniedBaggageWeightAcknowledgedAt": {
+          "description": "Timestamp of when the TOO acknowledged the excess unaccompanied baggage weight risk by either dismissing the alert or updating the max billable weight",
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true
+        },
+        "excessUnaccompaniedBaggageWeightQualifiedAt": {
+          "description": "Timestamp of when the sum of estimated or actual unaccompanied baggage shipment weights of the move reached 90% of the weight allowance",
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true
         },
         "excess_weight_acknowledged_at": {
           "description": "Timestamp of when the TOO acknowledged the excess weight risk by either dismissing the alert or updating the max billable weight",
@@ -19158,6 +19230,81 @@ func init() {
         }
       ]
     },
+    "/orders/{orderID}/acknowledge-excess-unaccompanied-baggage-weight-risk": {
+      "post": {
+        "description": "Saves the date and time a TOO acknowledged the excess unaccompanied baggage weight risk by dismissing the alert",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "order"
+        ],
+        "summary": "Saves the date and time a TOO acknowledged the excess unaccompanied baggage weight risk by dismissing the alert",
+        "operationId": "acknowledgeExcessUnaccompaniedBaggageWeightRisk",
+        "parameters": [
+          {
+            "type": "string",
+            "name": "If-Match",
+            "in": "header",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "updated Move",
+            "schema": {
+              "$ref": "#/definitions/Move"
+            }
+          },
+          "403": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "412": {
+            "description": "Precondition failed",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "422": {
+            "description": "The payload was unprocessable.",
+            "schema": {
+              "$ref": "#/definitions/ValidationError"
+            }
+          },
+          "500": {
+            "description": "A server error occurred",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        },
+        "x-permissions": [
+          "update.excessWeightRisk"
+        ]
+      },
+      "parameters": [
+        {
+          "type": "string",
+          "format": "uuid",
+          "description": "ID of order to use",
+          "name": "orderID",
+          "in": "path",
+          "required": true
+        }
+      ]
+    },
     "/orders/{orderID}/acknowledge-excess-weight-risk": {
       "post": {
         "description": "Saves the date and time a TOO acknowledged the excess weight risk by dismissing the alert",
@@ -26725,6 +26872,18 @@ func init() {
         },
         "eTag": {
           "type": "string"
+        },
+        "excessUnaccompaniedBaggageWeightAcknowledgedAt": {
+          "description": "Timestamp of when the TOO acknowledged the excess unaccompanied baggage weight risk by either dismissing the alert or updating the max billable weight",
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true
+        },
+        "excessUnaccompaniedBaggageWeightQualifiedAt": {
+          "description": "Timestamp of when the sum of estimated or actual unaccompanied baggage shipment weights of the move reached 90% of the weight allowance",
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true
         },
         "excess_weight_acknowledged_at": {
           "description": "Timestamp of when the TOO acknowledged the excess weight risk by either dismissing the alert or updating the max billable weight",

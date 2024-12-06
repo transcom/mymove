@@ -1942,6 +1942,18 @@ definitions:
         readOnly: true
         x-omitempty: false
         x-nullable: true
+      excessUnaccompaniedBaggageWeightQualifiedAt:
+        type: string
+        format: date-time
+        readOnly: true
+        x-omitempty: false
+        x-nullable: true
+      excessUnaccompaniedBaggageWeightAcknowledgedAt:
+        type: string
+        format: date-time
+        readOnly: true
+        x-omitempty: false
+        x-nullable: true
       excessWeightUploadId:
         type: string
         format: uuid
@@ -4352,6 +4364,28 @@ definitions:
               alert, either by dismissing the risk or updating the max billable
               weight. This will occur after the excess weight record has been
               uploaded.
+            type: string
+            format: date-time
+            readOnly: true
+            x-nullable: true
+            x-omitempty: false
+          moveExcessUnaccompaniedBaggageWeightQualifiedAt:
+            description: >
+              The date and time when the sum of all the move's unaccompanied
+              baggage shipments met the excess weight qualification threshold.
+              The system monitors these weights and will update this field
+              automatically.
+            type: string
+            format: date-time
+            readOnly: true
+            x-nullable: true
+            x-omitempty: false
+          moveExcessUnaccompaniedBaggageWeightAcknowledgedAt:
+            description: >
+              The date and time when the TOO acknowledged the excess
+              unaccompanied baggage weight alert, either by dismissing the risk
+              or updating the max billable weight. This will occur after the
+              excess weight record has been uploaded.
             type: string
             format: date-time
             readOnly: true

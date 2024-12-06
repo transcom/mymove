@@ -339,6 +339,11 @@ func NewGhcAPIHandler(handlerConfig handlers.HandlerConfig) *ghcops.MymoveAPI {
 		order.NewExcessWeightRiskManager(moveRouter),
 	}
 
+	ghcAPI.OrderAcknowledgeExcessUnaccompaniedBaggageWeightRiskHandler = AcknowledgeExcessUnaccompaniedBaggageWeightRiskHandler{
+		handlerConfig,
+		order.NewExcessWeightRiskManager(moveRouter),
+	}
+
 	ghcAPI.MoveTaskOrderUpdateMoveTaskOrderStatusHandler = UpdateMoveTaskOrderStatusHandlerFunc{
 		handlerConfig,
 		moveTaskOrderUpdater,
