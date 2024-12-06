@@ -65,11 +65,15 @@ const SubmittedRequestedShipments = ({
   const [filteredShipments, setFilteredShipments] = useState([]);
   const [enableBoat, setEnableBoat] = useState(false);
   const [enableMobileHome, setEnableMobileHome] = useState(false);
+  const [enableNTS, setEnableNTS] = useState(false);
+  const [enableNTSR, setEnableNTSR] = useState(false);
 
   useEffect(() => {
     const fetchData = async () => {
       setEnableBoat(await isBooleanFlagEnabled(FEATURE_FLAG_KEYS.BOAT));
       setEnableMobileHome(await isBooleanFlagEnabled(FEATURE_FLAG_KEYS.MOBILE_HOME));
+      setEnableNTS(await isBooleanFlagEnabled(FEATURE_FLAG_KEYS.NTS));
+      setEnableNTSR(await isBooleanFlagEnabled(FEATURE_FLAG_KEYS.NTSR));
     };
     fetchData();
   }, []);
@@ -122,8 +126,8 @@ const SubmittedRequestedShipments = ({
           HHG
         </option>
         <option value={SHIPMENT_OPTIONS_URL.PPM}>PPM</option>
-        <option value={SHIPMENT_OPTIONS_URL.NTS}>NTS</option>
-        <option value={SHIPMENT_OPTIONS_URL.NTSrelease}>NTS-release</option>
+        {enableNTS && <option value={SHIPMENT_OPTIONS_URL.NTS}>NTS</option>}
+        {enableNTSR && <option value={SHIPMENT_OPTIONS_URL.NTSrelease}>NTS-release</option>}
         {enableBoat && <option value={SHIPMENT_OPTIONS_URL.BOAT}>Boat</option>}
         {enableMobileHome && <option value={SHIPMENT_OPTIONS_URL.MOBILE_HOME}>Mobile Home</option>}
       </>
