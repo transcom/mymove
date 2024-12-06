@@ -381,8 +381,8 @@ const MoveDetails = ({
     fetchData();
   }, []);
 
-  const newDutyLocation = order.destinationDutyLocation;
-  const currentDutyLocation = order.originDutyLocation;
+  const newDutyLocation = order?.destinationDutyLocation;
+  const currentDutyLocation = order?.originDutyLocation;
   useEffect(() => {
     // Check if duty locations on the orders qualify as OCONUS to conditionally render the UB shipment option
     if (currentDutyLocation?.address?.isOconus || newDutyLocation?.address?.isOconus) {
