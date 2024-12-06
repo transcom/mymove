@@ -489,7 +489,7 @@ func (f *shipmentAddressUpdateRequester) ReviewShipmentAddressChange(appCtx appc
 		}
 
 		var shipmentDetails models.MTOShipment
-		err = appCtx.DB().EagerPreload("MoveTaskOrder", "MTOServiceItems.ReService").Find(&shipmentDetails, shipmentID)
+		err = appCtx.DB().EagerPreload("MoveTaskOrder", "MTOServiceItems.ReService", "MTOServiceItems.SITDestinationOriginalAddress", "MTOServiceItems.SITDestinationFinalAddress").Find(&shipmentDetails, shipmentID)
 		if err != nil {
 			if err == sql.ErrNoRows {
 				return nil, apperror.NewNotFoundError(shipmentID, "looking for shipment")
