@@ -12,7 +12,7 @@ import SelectedGblocContext, {
 } from 'components/Office/GblocSwitcher/SelectedGblocContext';
 import { roleTypes } from 'constants/userRoles';
 
-const GBLOCSwitcher = ({ officeUser, activeRole, ariaLabel, ...props }) => {
+const GBLOCSwitcher = ({ officeUser, activeRole, ariaLabel }) => {
   const [isInitialPageLoad, setIsInitialPageLoad] = useState(true);
   const { selectedGbloc, handleGblocChange } = useContext(SelectedGblocContext);
 
@@ -23,14 +23,9 @@ const GBLOCSwitcher = ({ officeUser, activeRole, ariaLabel, ...props }) => {
     });
   }
 
-  let officeUsersDefaultGbloc = officeUser.transportation_office?.gbloc;
+  const officeUsersDefaultGbloc = officeUser.transportation_office?.gbloc;
   if (gblocs?.indexOf(officeUsersDefaultGbloc) === -1) {
     gblocs.push(officeUsersDefaultGbloc);
-  }
-
-  if (props.gblocsOverride) {
-    gblocs = props.gblocsOverride;
-    [officeUsersDefaultGbloc] = gblocs;
   }
 
   useEffect(() => {
