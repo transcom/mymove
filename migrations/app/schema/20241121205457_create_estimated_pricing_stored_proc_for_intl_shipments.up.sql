@@ -2,23 +2,48 @@ ALTER TABLE addresses
 	ADD CONSTRAINT us_post_region_cities_id_fkey
 	FOREIGN KEY (us_post_region_cities_id) REFERENCES us_post_region_cities (id);
 
--- function to get the rate area id
+-- function to get the rate area id for any address
 CREATE OR REPLACE FUNCTION get_rate_area_id(
     address_id UUID,
     service_item_id UUID,
     OUT o_rate_area_id UUID
 )
 RETURNS UUID AS $$
+DECLARE
+    is_oconus BOOLEAN;
+    zip3_value TEXT;
 BEGIN
-    SELECT ro.rate_area_id
-    INTO o_rate_area_id
-    FROM addresses a
-    JOIN re_oconus_rate_areas ro
-    ON a.us_post_region_cities_id = ro.us_post_region_cities_id
-    WHERE a.id = address_id;
+    is_oconus := get_is_oconus(address_id);
 
+    IF is_oconus THEN
+        -- re_oconus_rate_areas if is_oconus is TRUE
+        SELECT ro.rate_area_id
+        INTO o_rate_area_id
+        FROM addresses a
+        JOIN re_oconus_rate_areas ro
+        ON a.us_post_region_cities_id = ro.us_post_region_cities_id
+        WHERE a.id = address_id;
+    ELSE
+        -- re_zip3s if is_oconus is FALSE
+        SELECT rupr.zip3
+        INTO zip3_value
+        FROM addresses a
+        JOIN us_post_region_cities uprc
+        ON a.us_post_region_cities_id = uprc.id
+        JOIN re_us_post_regions rupr
+        ON uprc.us_post_regions_id = rupr.id
+        WHERE a.id = address_id;
+
+        -- use the zip3 value to find the rate_area_id in re_zip3s
+        SELECT rz.rate_area_id
+        INTO o_rate_area_id
+        FROM re_zip3s rz
+        WHERE rz.zip3 = zip3_value;
+    END IF;
+
+    -- Raise an exception if no rate area is found
     IF o_rate_area_id IS NULL THEN
-        RAISE EXCEPTION 'Rate area not found for address % for service item id %', address_id, service_item_id;
+        RAISE EXCEPTION 'Rate area not found for address % for service item ID %', address_id, service_item_id;
     END IF;
 END;
 $$ LANGUAGE plpgsql;
@@ -157,8 +182,8 @@ BEGIN
     SELECT zd.distance_miles
     INTO dist
     FROM zip3_distances zd
-    WHERE (zd.from_zip3 = RIGHT(o_zip_code, 3) AND zd.to_zip3 = RIGHT(d_zip_code, 3))
-       OR (zd.from_zip3 = RIGHT(d_zip_code, 3) AND zd.to_zip3 = RIGHT(o_zip_code, 3));
+    WHERE (zd.from_zip3 = LEFT(o_zip_code, 3) AND zd.to_zip3 = LEFT(d_zip_code, 3))
+       OR (zd.from_zip3 = LEFT(d_zip_code, 3) AND zd.to_zip3 = LEFT(o_zip_code, 3));
 
     IF dist IS NOT NULL THEN
         RAISE NOTICE 'Distance found between o_zip_code % and d_zip_code %: % miles', o_zip_code, d_zip_code, dist;
@@ -206,21 +231,21 @@ DECLARE
     fuel_price DECIMAL;
 BEGIN
 
-    SELECT fuel_price_in_millicents / 100000
+    SELECT ROUND(fuel_price_in_millicents::DECIMAL / 100000, 2)
     INTO fuel_price
     FROM ghc_diesel_fuel_prices
     WHERE requested_pickup_date BETWEEN effective_date AND end_date;
 
     -- if no results, fallback to the most recent fuel price
     IF fuel_price IS NULL THEN
-        SELECT fuel_price_in_millicents / 100000
+        SELECT ROUND(fuel_price_in_millicents::DECIMAL / 100000, 2)
         INTO fuel_price
         FROM ghc_diesel_fuel_prices
         ORDER BY publication_date DESC
         LIMIT 1;
     END IF;
 
-    RAISE NOTICE 'Received fuel price of % for requested_pickup_date: %', fuel_price, requested_pickup_date;
+    RAISE NOTICE 'Received fuel price of $% for requested_pickup_date: %', fuel_price, requested_pickup_date;
 
     IF fuel_price IS NULL THEN
         RAISE EXCEPTION 'No fuel price found for requested_pickup_date: %', requested_pickup_date;
@@ -231,15 +256,11 @@ END;
 $$ LANGUAGE plpgsql;
 
 
--- calculating difference from fuel price from base price
+-- calculating difference from fuel price from base price, return in cents
 CREATE OR REPLACE FUNCTION calculate_price_difference(fuel_price DECIMAL)
 RETURNS DECIMAL AS $$
 BEGIN
-    IF fuel_price < 2.50 THEN
-        RETURN fuel_price;
-    END IF;
-
-    RETURN ABS(fuel_price - 2.50);
+    RETURN (fuel_price - 2.50) * 100;
 END;
 $$ LANGUAGE plpgsql;
 
@@ -351,6 +372,7 @@ DECLARE
     distance NUMERIC;
     estimated_fsc_multiplier NUMERIC;
     fuel_price NUMERIC;
+    cents_above_baseline NUMERIC;
     price_difference NUMERIC;
 BEGIN
     SELECT ms.id, ms.pickup_address_id, ms.destination_address_id, ms.requested_pickup_date, ms.prime_estimated_weight
@@ -431,11 +453,12 @@ BEGIN
 
                 price_difference := calculate_price_difference(fuel_price);
 
-                RAISE NOTICE ''Received estimated price data for service_code: %. o_zip_code: %, d_zip_code: %, distance: %, estimated_fsc_multiplier: %, fuel_price: %, price_difference: %'', service_code, o_zip_code, d_zip_code, distance, estimated_fsc_multiplier, fuel_price, price_difference;
-
                 -- calculate estimated price, return as cents
                 IF estimated_fsc_multiplier IS NOT NULL AND distance IS NOT NULL THEN
-                    estimated_price := ROUND(distance * estimated_fsc_multiplier * price_difference * 100);
+                    cents_above_baseline := distance * estimated_fsc_multiplier;
+                    RAISE NOTICE ''Distance: % * FSC Multipler: % = $% cents above baseline of $2.50'', distance, estimated_fsc_multiplier, cents_above_baseline;
+                    RAISE NOTICE ''The fuel price is % cents above the baseline ($% - $2.50 baseline)'', price_difference, fuel_price;
+                    estimated_price := ROUND(cents_above_baseline * price_difference) * 100;
                     RAISE NOTICE ''Received estimated price of % cents for service_code: %.'', estimated_price, service_code;
                 END IF;
         END CASE;
