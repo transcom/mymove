@@ -891,14 +891,17 @@ describe('MoveDetails page', () => {
       expect(navLinks.at(0).contains(1)).toBe(true);
       expect(navLinks.at(0).prop('href')).toBe('#requested-shipments');
 
-      expect(navLinks.at(1).contains('Orders')).toBe(true);
-      expect(navLinks.at(1).prop('href')).toBe('#orders');
+      expect(navLinks.at(1).contains('Shipments')).toBe(true);
+      expect(navLinks.at(1).prop('href')).toBe('#shipments');
 
-      expect(navLinks.at(2).contains('Allowances')).toBe(true);
-      expect(navLinks.at(2).prop('href')).toBe('#allowances');
+      expect(navLinks.at(2).contains('Orders')).toBe(true);
+      expect(navLinks.at(2).prop('href')).toBe('#orders');
 
-      expect(navLinks.at(3).contains('Customer info')).toBe(true);
-      expect(navLinks.at(3).prop('href')).toBe('#customer-info');
+      expect(navLinks.at(3).contains('Allowances')).toBe(true);
+      expect(navLinks.at(3).prop('href')).toBe('#allowances');
+
+      expect(navLinks.at(4).contains('Customer info')).toBe(true);
+      expect(navLinks.at(4).prop('href')).toBe('#customer-info');
     });
 
     it('renders the Submitted Requested Shipments component', () => {
@@ -1006,14 +1009,17 @@ describe('MoveDetails page', () => {
       expect(navLinks.at(1).contains('Approved shipments')).toBe(true);
       expect(navLinks.at(1).prop('href')).toBe('#approved-shipments');
 
-      expect(navLinks.at(2).contains('Orders')).toBe(true);
-      expect(navLinks.at(2).prop('href')).toBe('#orders');
+      expect(navLinks.at(2).contains('Shipments')).toBe(true);
+      expect(navLinks.at(2).prop('href')).toBe('#shipments');
 
-      expect(navLinks.at(3).contains('Allowances')).toBe(true);
-      expect(navLinks.at(3).prop('href')).toBe('#allowances');
+      expect(navLinks.at(3).contains('Orders')).toBe(true);
+      expect(navLinks.at(3).prop('href')).toBe('#orders');
 
-      expect(navLinks.at(4).contains('Customer info')).toBe(true);
-      expect(navLinks.at(4).prop('href')).toBe('#customer-info');
+      expect(navLinks.at(4).contains('Allowances')).toBe(true);
+      expect(navLinks.at(4).prop('href')).toBe('#allowances');
+
+      expect(navLinks.at(5).contains('Customer info')).toBe(true);
+      expect(navLinks.at(5).prop('href')).toBe('#customer-info');
     });
   });
 

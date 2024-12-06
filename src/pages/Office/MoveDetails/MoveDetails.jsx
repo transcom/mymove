@@ -212,6 +212,17 @@ const MoveDetails = ({
     setIsCancelMoveModalVisible(false);
   };
 
+  const handleButtonDropdownChange = (e) => {
+    const selectedOption = e.target.value;
+
+    const addShipmentPath = `${generatePath(tooRoutes.SHIPMENT_ADD_PATH, {
+      moveCode,
+      shipmentType: selectedOption,
+    })}`;
+
+    navigate(addShipmentPath);
+  };
+
   const submittedShipments = mtoShipments?.filter(
     (shipment) => shipment.status === shipmentStatuses.SUBMITTED && !shipment.deletedAt,
   );
@@ -357,22 +368,6 @@ const MoveDetails = ({
     }
   }, [currentDutyLocation, newDutyLocation, isOconusMove, enableUB]);
 
-  const allowedShipmentOptions = () => {
-    return (
-      <>
-        <option data-testid="hhgOption" value={SHIPMENT_OPTIONS_URL.HHG}>
-          HHG
-        </option>
-        <option value={SHIPMENT_OPTIONS_URL.PPM}>PPM</option>
-        <option value={SHIPMENT_OPTIONS_URL.NTS}>NTS</option>
-        <option value={SHIPMENT_OPTIONS_URL.NTSrelease}>NTS-release</option>
-        {enableBoat && <option value={SHIPMENT_OPTIONS_URL.BOAT}>Boat</option>}
-        {enableMobileHome && <option value={SHIPMENT_OPTIONS_URL.MOBILE_HOME}>Mobile Home</option>}
-        {enableUB && isOconusMove && <option value={SHIPMENT_OPTIONS_URL.UNACCOMPANIED_BAGGAGE}>UB</option>}
-      </>
-    );
-  };
-
   if (isLoading) return <LoadingPlaceholder />;
   if (isError) return <SomethingWentWrong />;
 
@@ -436,15 +431,20 @@ const MoveDetails = ({
     shipmentWithDestinationAddressChangeRequest && shipmentWithDestinationAddressChangeRequest.length > 0;
   const tooCanCancelMove = move.status !== MOVE_STATUSES.CANCELED && numberOfShipmentsNotAllowedForCancel === 0;
 
-  const handleButtonDropdownChange = (e) => {
-    const selectedOption = e.target.value;
-
-    const addShipmentPath = `${generatePath(tooRoutes.SHIPMENT_ADD_PATH, {
-      moveCode,
-      shipmentType: selectedOption,
-    })}`;
-
-    navigate(addShipmentPath);
+  const allowedShipmentOptions = () => {
+    return (
+      <>
+        <option data-testid="hhgOption" value={SHIPMENT_OPTIONS_URL.HHG}>
+          HHG
+        </option>
+        <option value={SHIPMENT_OPTIONS_URL.PPM}>PPM</option>
+        <option value={SHIPMENT_OPTIONS_URL.NTS}>NTS</option>
+        <option value={SHIPMENT_OPTIONS_URL.NTSrelease}>NTS-release</option>
+        {enableBoat && <option value={SHIPMENT_OPTIONS_URL.BOAT}>Boat</option>}
+        {enableMobileHome && <option value={SHIPMENT_OPTIONS_URL.MOBILE_HOME}>Mobile Home</option>}
+        {enableUB && isOconusMove && <option value={SHIPMENT_OPTIONS_URL.UNACCOMPANIED_BAGGAGE}>UB</option>}
+      </>
+    );
   };
 
   return (
