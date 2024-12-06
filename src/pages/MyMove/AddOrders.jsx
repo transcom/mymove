@@ -102,6 +102,7 @@ const AddOrders = ({
       origin_duty_location_id: values.origin_duty_location.id,
       spouse_has_pro_gear: false,
       ...oconusFields,
+      counseling_office_id: values.counseling_office_id,
     };
     if (!values.origin_duty_location.provides_services_counseling) {
       pendingValues.counseling_office_id = null;
@@ -136,6 +137,7 @@ const AddOrders = ({
     accompanied_tour: '',
     dependents_under_twelve: '',
     dependents_twelve_and_over: '',
+    counseling_office_id: '',
   };
 
   // Only allow PCS unless feature flag is on
