@@ -123,7 +123,7 @@ const MoveDetails = ({
   }
 
   let sections = useMemo(() => {
-    return ['orders', 'allowances', 'customer-info'];
+    return ['shipments', 'orders', 'allowances', 'customer-info'];
   }, []);
 
   // use mutation calls
@@ -382,8 +382,6 @@ const MoveDetails = ({
     sections = ['requested-shipments', 'approved-shipments', ...sections];
   } else if (approvedOrCanceledShipments?.length > 0) {
     sections = ['approved-shipments', ...sections];
-  } else if (submittedShipments?.length === 0 && approvedOrCanceledShipments?.length === 0) {
-    sections = ['shipments-no-requested-or-approved', ...sections];
   } else if (submittedShipments?.length > 0) {
     sections = ['requested-shipments', ...sections];
   }
@@ -590,6 +588,7 @@ const MoveDetails = ({
           {approvedOrCanceledShipments?.length === 0 && submittedShipments?.length === 0 && (
             <div className={styles.section} id="shipments-no-requested-or-approved">
               <DetailsPanel
+                id="shipments"
                 title="Shipments"
                 editButton={
                   !isMoveLocked && (
