@@ -67,6 +67,18 @@ properties:
       - FULL
   ppmEstimatedWeight:
     type: integer
+  excessUnaccompaniedBaggageWeightQualifiedAt:
+    type: string
+    format: date-time
+    readOnly: true
+    x-omitempty: false
+    x-nullable: true
+  excessUnaccompaniedBaggageWeightAcknowledgedAt:
+    type: string
+    format: date-time
+    readOnly: true
+    x-omitempty: false
+    x-nullable: true
   excessWeightQualifiedAt:
     type: string
     format: date-time
