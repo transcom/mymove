@@ -255,7 +255,6 @@ func (suite *NotificationSuite) TestMoveCounseledDestinationIsShipmentForPpmReti
 	destinationAddress := ppmShipment.DestinationAddress
 	suite.Equal(email.recipientEmail, *sm.PersonalEmail)
 	suite.Equal(email.subject, expectedSubject)
-	suite.NotEmpty(email.htmlBody)
 	suite.Contains(email.htmlBody, "from "+move.Orders.OriginDutyLocation.Name+" to "+destinationAddress.LineDisplayFormat()+" in the ")
 	suite.Contains(email.textBody, "from "+move.Orders.OriginDutyLocation.Name+" to "+destinationAddress.LineDisplayFormat()+" in the ")
 }
@@ -280,7 +279,6 @@ func (suite *NotificationSuite) TestMoveCounseledDestinationIsDutyStationForPpmP
 	destinationAddress := ppmShipment.DestinationAddress
 	suite.Equal(email.recipientEmail, *sm.PersonalEmail)
 	suite.Equal(email.subject, expectedSubject)
-	suite.NotEmpty(email.htmlBody)
 	suite.NotContains(email.htmlBody, destinationAddress.LineDisplayFormat())
 	suite.NotContains(email.textBody, destinationAddress.LineDisplayFormat())
 	suite.Contains(email.htmlBody, "from "+move.Orders.OriginDutyLocation.Name+" to "+move.Orders.NewDutyLocation.Name+" in the ")
