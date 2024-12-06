@@ -138,8 +138,8 @@ export const AddressFields = ({
               </Hint>
             </>
           )}
-          <div className="grid-row grid-gap">
-            <div className="mobile-lg:grid-col-6" style={{ marginBottom: '1.5em' }}>
+          <div className={styles.container}>
+            <div className={styles.column}>
               {!locationLookup && (
                 <TextField
                   label="City"
@@ -161,21 +161,11 @@ export const AddressFields = ({
                     display="readonly"
                     validate={validators?.city}
                   />
-                  <TextField
-                    label="County"
-                    className={styles.countyInput}
-                    id={`county_${addressFieldsUUID.current}`}
-                    name={`${name}.county`}
-                    labelHint={labelHintProp}
-                    data-testid={`${name}.county`}
-                    display="readonly"
-                    validate={validators?.county}
-                  />
+                  {stateField}
                 </>
               )}
             </div>
-            <div className="mobile-lg:grid-col-6">
-              {stateField}
+            <div className={styles.column}>
               <TextField
                 label="ZIP"
                 id={`zip_${addressFieldsUUID.current}`}
@@ -185,6 +175,15 @@ export const AddressFields = ({
                 labelHint={labelHintProp}
                 display={!locationLookup ? '' : 'readonly'}
                 validate={validators?.postalCode}
+              />
+              <TextField
+                label="County"
+                id={`county_${addressFieldsUUID.current}`}
+                name={`${name}.county`}
+                labelHint={labelHintProp}
+                data-testid={`${name}.county`}
+                display="readonly"
+                validate={validators?.county}
               />
             </div>
           </div>
