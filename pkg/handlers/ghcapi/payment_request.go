@@ -219,6 +219,17 @@ func (h UpdatePaymentRequestStatusHandler) Handle(
 				return paymentrequestop.NewGetPaymentRequestInternalServerError(), err
 			}
 
+			//When approving a Payment request - remove the TIO assigned user
+			move, err := models.FetchMove(appCtx.DB(), appCtx.Session(), existingPaymentRequest.MoveTaskOrderID)
+			if err != nil {
+				return paymentrequestop.NewUpdatePaymentRequestStatusInternalServerError(), err
+			}
+			move.TIOAssignedID = nil
+			verrs, err := models.SaveMoveDependencies(appCtx.DB(), move)
+			if err != nil || verrs.HasAny() {
+				return paymentrequestop.NewUpdatePaymentRequestStatusInternalServerError(), err
+			}
+
 			return paymentrequestop.NewUpdatePaymentRequestStatusOK().WithPayload(returnPayload), nil
 		})
 }
