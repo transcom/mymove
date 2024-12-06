@@ -46,6 +46,19 @@ describe('Shipment Container', () => {
       expect(screen.getByTestId('ShipmentContainer')).toHaveTextContent(hhgInfo.shipmentLocator);
     });
 
+    it('renders the container with a heading that has a market code and shipment type', () => {
+      render(
+        <ShipmentDisplay
+          shipmentId="1"
+          displayInfo={hhgInfo}
+          ordersLOA={ordersLOA}
+          onChange={jest.fn()}
+          isSubmitted={false}
+        />,
+      );
+      expect(screen.getByTestId('shipment-display')).toHaveTextContent(`${hhgInfo.marketCode}HHG`);
+    });
+
     it('renders the container successfully with postal only address', () => {
       render(<ShipmentDisplay shipmentId="1" displayInfo={postalOnlyInfo} onChange={jest.fn()} isSubmitted={false} />);
       expect(screen.getByTestId('shipment-display')).toBeInTheDocument();
@@ -283,7 +296,7 @@ describe('Shipment Container', () => {
             />
           </MockProviders>,
         );
-        expect(screen.getByTestId('tag', { name: 'packet ready for download' })).toBeInTheDocument();
+        expect(screen.getByTestId('ppmStatusTag')).toBeInTheDocument();
       });
       it('renders with canceled tag', () => {
         render(<ShipmentDisplay shipmentId="1" displayInfo={canceledInfo} onChange={jest.fn()} isSubmitted={false} />);
@@ -303,7 +316,7 @@ describe('Shipment Container', () => {
             />
           </MockProviders>,
         );
-        expect(screen.getByTestId('tag', { name: 'packet ready for download' })).toBeInTheDocument();
+        expect(screen.getByTestId('ppmStatusTag')).toBeInTheDocument();
       });
       it('rejected', () => {
         render(
@@ -319,10 +332,10 @@ describe('Shipment Container', () => {
             />
           </MockProviders>,
         );
-        expect(screen.getByTestId('tag', { name: 'packet ready for download' })).toBeInTheDocument();
+        expect(screen.getByTestId('ppmStatusTag')).toBeInTheDocument();
       });
     });
-    it('renders the Actual Expense Reimbursement tag', () => {
+    it('renders the Actual Expense Reimbursement & PPM status tags', () => {
       render(
         <MockProviders permissions={[permissionTypes.updateShipment]}>
           <ShipmentDisplay
@@ -336,7 +349,8 @@ describe('Shipment Container', () => {
           />
         </MockProviders>,
       );
-      expect(screen.getByTestId('tag', { name: 'actual expense reimbursement' })).toBeInTheDocument();
+      expect(screen.getByTestId('actualReimbursementTag')).toBeInTheDocument();
+      expect(screen.getByTestId('ppmStatusTag')).toBeInTheDocument();
     });
   });
 });

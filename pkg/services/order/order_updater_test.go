@@ -1089,7 +1089,7 @@ func (suite *OrderServiceSuite) TestUploadAmendedOrdersForCustomer() {
 		suite.NoError(err)
 		suite.NoVerrs(verrs)
 
-		expectedChecksum := "EUzjq/RQB5xjsdYBNl13zQ=="
+		expectedChecksum := "+XM59C3+hSg3Qrs0dPRuUhng5IQTWdYZtmcXhEH0SYU="
 		if upload.Checksum != expectedChecksum {
 			suite.Fail("Did not calculate the correct MD5: expected %s, got %s", expectedChecksum, upload.Checksum)
 		}

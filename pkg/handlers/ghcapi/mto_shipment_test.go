@@ -591,19 +591,6 @@ func (suite *HandlerSuite) TestApproveShipmentHandler() {
 				},
 			},
 		}, nil)
-		// Populate the reServices table with codes needed by the
-		// HHG_LONGHAUL_DOMESTIC shipment type
-		reServiceCodes := []models.ReServiceCode{
-			models.ReServiceCodeDLH,
-			models.ReServiceCodeFSC,
-			models.ReServiceCodeDOP,
-			models.ReServiceCodeDDP,
-			models.ReServiceCodeDPK,
-			models.ReServiceCodeDUPK,
-		}
-		for _, serviceCode := range reServiceCodes {
-			factory.BuildReServiceByCode(suite.DB(), serviceCode)
-		}
 
 		eTag := etag.GenerateEtag(shipment.UpdatedAt)
 		officeUser := factory.BuildOfficeUserWithRoles(nil, nil, []roles.RoleType{roles.RoleTypeTOO})
@@ -3155,7 +3142,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		moveTaskOrderUpdater := movetaskorder.NewMoveTaskOrderUpdater(
 			builder,
 			mtoserviceitem.NewMTOServiceItemCreator(planner, builder, moveRouter, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticPackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer()),
-			moveRouter, setUpSignedCertificationCreatorMock(nil, nil), setUpSignedCertificationUpdaterMock(nil, nil),
+			moveRouter, setUpSignedCertificationCreatorMock(nil, nil), setUpSignedCertificationUpdaterMock(nil, nil), &ppmEstimator,
 		)
 		shipmentCreator := shipmentorchestrator.NewShipmentCreator(creator, ppmCreator, boatCreator, mobileHomeCreator, shipmentRouter, moveTaskOrderUpdater)
 		sitStatus := sitstatus.NewShipmentSITStatus()
@@ -3239,7 +3226,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		moveTaskOrderUpdater := movetaskorder.NewMoveTaskOrderUpdater(
 			builder,
 			mtoserviceitem.NewMTOServiceItemCreator(planner, builder, moveRouter, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticPackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer()),
-			moveRouter, setUpSignedCertificationCreatorMock(nil, nil), setUpSignedCertificationUpdaterMock(nil, nil),
+			moveRouter, setUpSignedCertificationCreatorMock(nil, nil), setUpSignedCertificationUpdaterMock(nil, nil), &ppmEstimator,
 		)
 		shipmentCreator := shipmentorchestrator.NewShipmentCreator(creator, ppmCreator, boatCreator, mobileHomeCreator, shipmentRouter, moveTaskOrderUpdater)
 		sitStatus := sitstatus.NewShipmentSITStatus()
@@ -3295,7 +3282,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		moveTaskOrderUpdater := movetaskorder.NewMoveTaskOrderUpdater(
 			builder,
 			mtoserviceitem.NewMTOServiceItemCreator(planner, builder, moveRouter, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticPackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer()),
-			moveRouter, setUpSignedCertificationCreatorMock(nil, nil), setUpSignedCertificationUpdaterMock(nil, nil),
+			moveRouter, setUpSignedCertificationCreatorMock(nil, nil), setUpSignedCertificationUpdaterMock(nil, nil), &ppmEstimator,
 		)
 		shipmentCreator := shipmentorchestrator.NewShipmentCreator(creator, ppmCreator, boatCreator, mobileHomeCreator, shipmentRouter, moveTaskOrderUpdater)
 		sitStatus := sitstatus.NewShipmentSITStatus()
@@ -3347,7 +3334,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		moveTaskOrderUpdater := movetaskorder.NewMoveTaskOrderUpdater(
 			builder,
 			mtoserviceitem.NewMTOServiceItemCreator(planner, builder, moveRouter, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticPackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer()),
-			moveRouter, setUpSignedCertificationCreatorMock(nil, nil), setUpSignedCertificationUpdaterMock(nil, nil),
+			moveRouter, setUpSignedCertificationCreatorMock(nil, nil), setUpSignedCertificationUpdaterMock(nil, nil), &ppmEstimator,
 		)
 		shipmentCreator := shipmentorchestrator.NewShipmentCreator(creator, ppmCreator, boatCreator, mobileHomeCreator, shipmentRouter, moveTaskOrderUpdater)
 		sitStatus := sitstatus.NewShipmentSITStatus()
@@ -3394,7 +3381,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		moveTaskOrderUpdater := movetaskorder.NewMoveTaskOrderUpdater(
 			builder,
 			mtoserviceitem.NewMTOServiceItemCreator(planner, builder, moveRouter, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticPackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer()),
-			moveRouter, setUpSignedCertificationCreatorMock(nil, nil), setUpSignedCertificationUpdaterMock(nil, nil),
+			moveRouter, setUpSignedCertificationCreatorMock(nil, nil), setUpSignedCertificationUpdaterMock(nil, nil), &ppmEstimator,
 		)
 		shipmentCreator := shipmentorchestrator.NewShipmentCreator(creator, ppmCreator, boatCreator, mobileHomeCreator, shipmentRouter, moveTaskOrderUpdater)
 		sitStatus := sitstatus.NewShipmentSITStatus()
@@ -3479,7 +3466,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandlerUsingPPM() {
 		moveTaskOrderUpdater := movetaskorder.NewMoveTaskOrderUpdater(
 			builder,
 			mtoserviceitem.NewMTOServiceItemCreator(planner, builder, moveservices.NewMoveRouter(), ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticPackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer()),
-			moveservices.NewMoveRouter(), setUpSignedCertificationCreatorMock(nil, nil), setUpSignedCertificationUpdaterMock(nil, nil),
+			moveservices.NewMoveRouter(), setUpSignedCertificationCreatorMock(nil, nil), setUpSignedCertificationUpdaterMock(nil, nil), &ppmEstimator,
 		)
 		shipmentCreator := shipmentorchestrator.NewShipmentCreator(creator, ppmCreator, boatCreator, mobileHomeCreator, shipmentRouter, moveTaskOrderUpdater)
 		sitStatus := sitstatus.NewShipmentSITStatus()
@@ -3606,6 +3593,12 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandlerUsingPPM() {
 			mock.AnythingOfType("*models.PPMShipment")).
 			Return(models.CentPointer(unit.Cents(estimatedIncentive)), models.CentPointer(unit.Cents(sitEstimatedCost)), nil).Once()
 
+		ppmEstimator.On("MaxIncentive",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.AnythingOfType("models.PPMShipment"),
+			mock.AnythingOfType("*models.PPMShipment")).
+			Return(nil, nil)
+
 		// Validate incoming payload
 		suite.NoError(params.Body.Validate(strfmt.Default))
 
@@ -3683,7 +3676,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandlerUsingPPM() {
 		moveTaskOrderUpdater := movetaskorder.NewMoveTaskOrderUpdater(
 			builder,
 			mtoserviceitem.NewMTOServiceItemCreator(planner, builder, moveservices.NewMoveRouter(), ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticPackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer()),
-			moveservices.NewMoveRouter(), setUpSignedCertificationCreatorMock(nil, nil), setUpSignedCertificationUpdaterMock(nil, nil),
+			moveservices.NewMoveRouter(), setUpSignedCertificationCreatorMock(nil, nil), setUpSignedCertificationUpdaterMock(nil, nil), &ppmEstimator,
 		)
 		shipmentCreator := shipmentorchestrator.NewShipmentCreator(creator, ppmshipment.NewPPMShipmentCreator(&ppmEstimator, addressCreator), boatCreator, mobileHomeCreator, shipmentRouter, moveTaskOrderUpdater)
 		handler := CreateMTOShipmentHandler{
@@ -3759,6 +3752,12 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandlerUsingPPM() {
 			mock.AnythingOfType("models.PPMShipment"),
 			mock.AnythingOfType("*models.PPMShipment")).
 			Return(models.CentPointer(unit.Cents(estimatedIncentive)), nil, nil).Once()
+
+		ppmEstimator.On("MaxIncentive",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.AnythingOfType("models.PPMShipment"),
+			mock.AnythingOfType("*models.PPMShipment")).
+			Return(nil, nil)
 
 		// Validate incoming payload
 		suite.NoError(params.Body.Validate(strfmt.Default))
@@ -3827,7 +3826,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandlerUsingPPM() {
 		moveTaskOrderUpdater := movetaskorder.NewMoveTaskOrderUpdater(
 			builder,
 			mtoserviceitem.NewMTOServiceItemCreator(planner, builder, moveservices.NewMoveRouter(), ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticPackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer()),
-			moveservices.NewMoveRouter(), setUpSignedCertificationCreatorMock(nil, nil), setUpSignedCertificationUpdaterMock(nil, nil),
+			moveservices.NewMoveRouter(), setUpSignedCertificationCreatorMock(nil, nil), setUpSignedCertificationUpdaterMock(nil, nil), &ppmEstimator,
 		)
 		shipmentCreator := shipmentorchestrator.NewShipmentCreator(creator, ppmshipment.NewPPMShipmentCreator(&ppmEstimator, addressCreator), boatCreator, mobileHomeCreator, shipmentRouter, moveTaskOrderUpdater)
 		handler := CreateMTOShipmentHandler{
@@ -3903,6 +3902,12 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandlerUsingPPM() {
 			mock.AnythingOfType("models.PPMShipment"),
 			mock.AnythingOfType("*models.PPMShipment")).
 			Return(models.CentPointer(unit.Cents(estimatedIncentive)), nil, nil).Once()
+
+		ppmEstimator.On("MaxIncentive",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.AnythingOfType("models.PPMShipment"),
+			mock.AnythingOfType("*models.PPMShipment")).
+			Return(nil, nil)
 
 		// Validate incoming payload
 		suite.NoError(params.Body.Validate(strfmt.Default))
@@ -4234,6 +4239,12 @@ func (suite *HandlerSuite) TestUpdateShipmentHandler() {
 			mock.AnythingOfType("*models.PPMShipment")).
 			Return(models.CentPointer(unit.Cents(estimatedIncentive)), models.CentPointer(unit.Cents(sitEstimatedCost)), nil).Once()
 
+		ppmEstimator.On("MaxIncentive",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.AnythingOfType("models.PPMShipment"),
+			mock.AnythingOfType("*models.PPMShipment")).
+			Return(nil, nil)
+
 		ppmEstimator.On("FinalIncentiveWithDefaultChecks",
 			mock.AnythingOfType("*appcontext.appContext"),
 			mock.AnythingOfType("models.PPMShipment"),
@@ -4328,6 +4339,12 @@ func (suite *HandlerSuite) TestUpdateShipmentHandler() {
 			mock.AnythingOfType("*models.PPMShipment")).
 			Return(models.CentPointer(unit.Cents(estimatedIncentive)), models.CentPointer(unit.Cents(sitEstimatedCost)), nil).Once()
 
+		ppmEstimator.On("MaxIncentive",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.AnythingOfType("models.PPMShipment"),
+			mock.AnythingOfType("*models.PPMShipment")).
+			Return(nil, nil)
+
 		ppmEstimator.On("FinalIncentiveWithDefaultChecks",
 			mock.AnythingOfType("*appcontext.appContext"),
 			mock.AnythingOfType("models.PPMShipment"),
@@ -4400,6 +4417,12 @@ func (suite *HandlerSuite) TestUpdateShipmentHandler() {
 			mock.AnythingOfType("models.PPMShipment"),
 			mock.AnythingOfType("*models.PPMShipment")).
 			Return(models.CentPointer(unit.Cents(estimatedIncentive)), models.CentPointer(unit.Cents(sitEstimatedCost)), nil).Once()
+
+		ppmEstimator.On("MaxIncentive",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.AnythingOfType("models.PPMShipment"),
+			mock.AnythingOfType("*models.PPMShipment")).
+			Return(nil, nil)
 
 		ppmEstimator.On("FinalIncentiveWithDefaultChecks",
 			mock.AnythingOfType("*appcontext.appContext"),

@@ -14,7 +14,7 @@ import { SHIPMENT_OPTIONS, SHIPMENT_TYPES } from 'shared/constants';
 import { AddressShape } from 'types/address';
 import { AgentShape } from 'types/agent';
 import { OrdersLOAShape } from 'types/order';
-import { shipmentStatuses, ppmShipmentStatuses } from 'constants/shipments';
+import { shipmentStatuses, ppmShipmentStatuses, ppmShipmentStatusLabels } from 'constants/shipments';
 import { ShipmentStatusesOneOf } from 'types/shipment';
 import { retrieveSAC, retrieveTAC } from 'utils/shipmentDisplay';
 import Restricted from 'components/Restricted/Restricted';
@@ -90,10 +90,15 @@ const ShipmentDisplay = ({
           <div className={styles.headerContainer}>
             <div className={styles.shipmentTypeHeader}>
               <h3>
-                <label id={`shipment-display-label-${shipmentId}`}>{displayInfo.heading}</label>
+                <label id={`shipment-display-label-${shipmentId}`}>
+                  <span className={styles.marketCodeIndicator}>{displayInfo.marketCode}</span>
+                  {displayInfo.heading}
+                </label>
               </h3>
               <div>
-                {displayInfo.isActualExpenseReimbursement && <Tag>actual expense reimbursement</Tag>}
+                {displayInfo.isActualExpenseReimbursement && (
+                  <Tag data-testid="actualReimbursementTag">actual expense reimbursement</Tag>
+                )}
                 {displayInfo.isDiversion && <Tag>diversion</Tag>}
                 {(displayInfo.shipmentStatus === shipmentStatuses.CANCELED ||
                   displayInfo.status === shipmentStatuses.CANCELED ||
@@ -105,9 +110,10 @@ const ShipmentDisplay = ({
                   <Tag>cancellation requested</Tag>
                 )}
                 {displayInfo.usesExternalVendor && <Tag>external vendor</Tag>}
-                {(displayInfo.ppmShipment?.status === ppmShipmentStatuses.CLOSEOUT_COMPLETE ||
-                  displayInfo.ppmShipment?.status === ppmShipmentStatuses.WAITING_ON_CUSTOMER) && (
-                  <Tag className={styles.ppmStatus}>packet ready for download</Tag>
+                {displayInfo.ppmShipment?.status && (
+                  <Tag className={styles.ppmStatus} data-testid="ppmStatusTag">
+                    {ppmShipmentStatusLabels[displayInfo.ppmShipment?.status]}
+                  </Tag>
                 )}
               </div>
             </div>
@@ -184,6 +190,7 @@ ShipmentDisplay.propTypes = {
     SHIPMENT_OPTIONS.PPM,
     SHIPMENT_TYPES.BOAT_HAUL_AWAY,
     SHIPMENT_TYPES.BOAT_TOW_AWAY,
+    SHIPMENT_OPTIONS.MOBILE_HOME,
   ]),
   displayInfo: PropTypes.oneOfType([
     PropTypes.shape({

@@ -47,9 +47,9 @@ func (h GetMovesQueueHandler) Handle(params queues.GetMovesQueueParams) middlewa
 			ListOrderParams := services.ListOrderParams{
 				Branch:                  params.Branch,
 				Locator:                 params.Locator,
-				DodID:                   params.DodID,
+				Edipi:                   params.Edipi,
 				Emplid:                  params.Emplid,
-				LastName:                params.LastName,
+				CustomerName:            params.CustomerName,
 				DestinationDutyLocation: params.DestinationDutyLocation,
 				OriginDutyLocation:      params.OriginDutyLocation,
 				AppearedInTOOAt:         handlers.FmtDateTimePtrToPopPtr(params.AppearedInTooAt),
@@ -61,6 +61,7 @@ func (h GetMovesQueueHandler) Handle(params queues.GetMovesQueueParams) middlewa
 				Order:                   params.Order,
 				OrderType:               params.OrderType,
 				TOOAssignedUser:         params.AssignedTo,
+				CounselingOffice:        params.CounselingOffice,
 			}
 
 			// When no status filter applied, TOO should only see moves with status of New Move, Service Counseling Completed, or Approvals Requested
@@ -237,9 +238,9 @@ func (h GetPaymentRequestsQueueHandler) Handle(
 			listPaymentRequestParams := services.FetchPaymentRequestListParams{
 				Branch:                  params.Branch,
 				Locator:                 params.Locator,
-				DodID:                   params.DodID,
+				Edipi:                   params.Edipi,
 				Emplid:                  params.Emplid,
-				LastName:                params.LastName,
+				CustomerName:            params.CustomerName,
 				DestinationDutyLocation: params.DestinationDutyLocation,
 				Status:                  params.Status,
 				Page:                    params.Page,
@@ -250,6 +251,7 @@ func (h GetPaymentRequestsQueueHandler) Handle(
 				OriginDutyLocation:      params.OriginDutyLocation,
 				OrderType:               params.OrderType,
 				TIOAssignedUser:         params.AssignedTo,
+				CounselingOffice:        params.CounselingOffice,
 			}
 
 			listPaymentRequestParams.Status = []string{string(models.QueuePaymentRequestPaymentRequested)}
@@ -368,9 +370,9 @@ func (h GetServicesCounselingQueueHandler) Handle(
 			ListOrderParams := services.ListOrderParams{
 				Branch:                  params.Branch,
 				Locator:                 params.Locator,
-				DodID:                   params.DodID,
+				Edipi:                   params.Edipi,
 				Emplid:                  params.Emplid,
-				LastName:                params.LastName,
+				CustomerName:            params.CustomerName,
 				OriginDutyLocation:      params.OriginDutyLocation,
 				DestinationDutyLocation: params.DestinationDutyLocation,
 				OriginGBLOC:             params.OriginGBLOC,

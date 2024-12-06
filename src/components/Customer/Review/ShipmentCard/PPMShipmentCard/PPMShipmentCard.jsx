@@ -30,6 +30,7 @@ const PPMShipmentCard = ({
   onEditClick,
   onDeleteClick,
   onIncompleteClick,
+  marketCode,
 }) => {
   const { moveTaskOrderID, id, shipmentType, shipmentLocator } = shipment;
   const {
@@ -88,7 +89,10 @@ const PPMShipmentCard = ({
         )}
         <div className={styles.ShipmentCardHeader}>
           <div className={styles.shipmentTypeNumber}>
-            <h3 data-testid="ShipmentCardNumber">{shipmentLabel}</h3>
+            <h3 data-testid="ShipmentCardNumber">
+              <span className={styles.marketCodeIndicator}>{marketCode}</span>
+              {shipmentLabel}
+            </h3>
             <p>#{moveCodeLabel}</p>
           </div>
           {showEditAndDeleteBtn && (
@@ -110,34 +114,34 @@ const PPMShipmentCard = ({
             <dd>{formatCustomerDate(expectedDepartureDate)}</dd>
           </div>
           <div className={styles.row}>
-            <dt>Origin address</dt>
+            <dt>Pickup Address</dt>
             <dd>{pickupAddress ? formatCustomerContactFullAddress(pickupAddress) : '—'}</dd>
           </div>
           {secondaryPickupAddress && (
             <div className={styles.row}>
-              <dt>Second origin address</dt>
+              <dt>Second Pickup Address</dt>
               <dd>{formatCustomerContactFullAddress(secondaryPickupAddress)}</dd>
             </div>
           )}
           {isTertiaryAddressEnabled && tertiaryPickupAddress && secondaryPickupAddress && (
             <div className={styles.row}>
-              <dt>Third origin address</dt>
+              <dt>Third Pickup Address</dt>
               <dd>{formatCustomerContactFullAddress(tertiaryPickupAddress)}</dd>
             </div>
           )}
           <div className={styles.row}>
-            <dt>Destination address</dt>
+            <dt>Delivery Address</dt>
             <dd>{destinationAddress ? formatCustomerContactFullAddress(destinationAddress) : '—'}</dd>
           </div>
           {secondaryDestinationAddress && (
             <div className={styles.row}>
-              <dt>Second destination address</dt>
+              <dt>Second Delivery Address</dt>
               <dd>{formatCustomerContactFullAddress(secondaryDestinationAddress)}</dd>
             </div>
           )}
           {isTertiaryAddressEnabled && tertiaryDestinationAddress && secondaryDestinationAddress && (
             <div className={styles.row}>
-              <dt>Third destination address</dt>
+              <dt>Third Delivery Address</dt>
               <dd>{formatCustomerContactFullAddress(tertiaryDestinationAddress)}</dd>
             </div>
           )}

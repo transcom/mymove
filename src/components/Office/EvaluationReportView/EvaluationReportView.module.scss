@@ -141,7 +141,7 @@
   @include u-padding-x(2);
   border: 1px solid $base-light;
   border-radius: 2px;
-  max-width: 648px;
+  width: 648px;
 
   .violationHeader {
     display: flex;
@@ -167,4 +167,66 @@
 .seriousIncidentRemarks {
   flex-grow: 1;
   max-width: 648px;
+}
+
+.appealsSection {
+  display: flex;
+  justify-content: space-between;
+
+  .appealShowIcon {
+    margin-left: 5px;
+  }
+}
+
+.appealsHeader {
+  margin-top: 1vh;
+  margin-bottom: 1vh;
+}
+
+.appealsTable {
+  @include u-margin-bottom(2);
+  border: 1px solid $base-lighter;
+  width: 100%;
+
+  .appealsTableHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-left: 1vw;
+    margin-right: 1vw;
+    margin-top: -1vh;
+    margin-bottom: -1vh;
+  }
+
+  .appealsTableLeft {
+    flex: 1;
+    font-size: 14px;
+  }
+
+  .appealsTableRight {
+    flex: 5;
+    font-size: 14px;
+  }
+
+  .sustained {
+    font-size: 12px;
+    padding: 5px;
+    border-radius: 7px;
+    background-color: $success;
+    font-weight: 500;
+    color: white;
+}
+
+.rejected {
+    font-size: 12px;
+    padding: 5px;
+    border-radius: 7px;
+    background-color: $error-dark;
+    font-weight: 500;
+    color: white;
+  }
+}
+
+.officeUserDetails {
+  margin-left: 1.5vw;
 }

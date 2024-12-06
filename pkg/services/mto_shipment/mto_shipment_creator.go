@@ -36,19 +36,19 @@ func NewMTOShipmentCreatorV1(builder createMTOShipmentQueryBuilder, fetcher serv
 		fetcher,
 		moveRouter,
 		addressCreator,
-		[]validator{protectV1Diversion()},
+		[]validator{protectV1Diversion(), MTOShipmentHasTertiaryAddressWithNoSecondaryAddressCreate()},
 	}
 }
 
 // NewMTOShipmentCreator creates a new struct with the service dependencies
-// This is utilized in Prime API V2
+// This is utilized in Prime API V2 and Prime API V3
 func NewMTOShipmentCreatorV2(builder createMTOShipmentQueryBuilder, fetcher services.Fetcher, moveRouter services.MoveRouter, addressCreator services.AddressCreator) services.MTOShipmentCreator {
 	return &mtoShipmentCreator{
 		builder,
 		fetcher,
 		moveRouter,
 		addressCreator,
-		[]validator{checkDiversionValid(), childDiversionPrimeWeightRule()},
+		[]validator{checkDiversionValid(), childDiversionPrimeWeightRule(), MTOShipmentHasTertiaryAddressWithNoSecondaryAddressCreate()},
 	}
 }
 
@@ -325,22 +325,7 @@ func (f mtoShipmentCreator) CreateMTOShipment(appCtx appcontext.AppContext, ship
 		shipment.SITDaysAllowance = &defaultSITDays
 
 		// when populating the market_code column, it is considered domestic if both pickup & dest are CONUS addresses
-		if shipment.PickupAddress != nil && shipment.DestinationAddress != nil &&
-			shipment.PickupAddress.IsOconus != nil && shipment.DestinationAddress.IsOconus != nil {
-			pickupAddress := shipment.PickupAddress
-			destAddress := shipment.DestinationAddress
-			if !*pickupAddress.IsOconus && !*destAddress.IsOconus {
-				marketCodeDomestic := models.MarketCodeDomestic
-				shipment.MarketCode = marketCodeDomestic
-			} else {
-				marketCodeInternational := models.MarketCodeInternational
-				shipment.MarketCode = marketCodeInternational
-			}
-		} else {
-			// if the conditions aren't met then it is a PPM and this logic will be changed after PPM creation
-			// market code can't be null so we will set it here
-			shipment.MarketCode = models.MarketCodeDomestic
-		}
+		shipment = models.DetermineShipmentMarketCode(shipment)
 
 		// create a shipment
 		verrs, err = f.builder.CreateOne(txnAppCtx, shipment)

@@ -1,6 +1,7 @@
 package scenario
 
 import (
+	"errors"
 	"fmt"
 	"log"
 	"sort"
@@ -16,8 +17,10 @@ import (
 	"github.com/transcom/mymove/pkg/factory"
 	fakedata "github.com/transcom/mymove/pkg/fakedata_approved"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
+	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/models/roles"
+	paymentrequesthelper "github.com/transcom/mymove/pkg/payment_request"
 	"github.com/transcom/mymove/pkg/random"
 	routemocks "github.com/transcom/mymove/pkg/route/mocks"
 	"github.com/transcom/mymove/pkg/services"
@@ -27,6 +30,7 @@ import (
 	mtoserviceitem "github.com/transcom/mymove/pkg/services/mto_service_item"
 	mtoshipment "github.com/transcom/mymove/pkg/services/mto_shipment"
 	paymentrequest "github.com/transcom/mymove/pkg/services/payment_request"
+	"github.com/transcom/mymove/pkg/services/ppmshipment"
 	"github.com/transcom/mymove/pkg/services/query"
 	signedcertification "github.com/transcom/mymove/pkg/services/signed_certification"
 	"github.com/transcom/mymove/pkg/testdatagen"
@@ -4204,7 +4208,9 @@ func createHHGWithOriginSITServiceItems(
 
 	signedCertificationCreator := signedcertification.NewSignedCertificationCreator()
 	signedCertificationUpdater := signedcertification.NewSignedCertificationUpdater()
-	mtoUpdater := movetaskorder.NewMoveTaskOrderUpdater(queryBuilder, serviceItemCreator, moveRouter, signedCertificationCreator, signedCertificationUpdater)
+	handlerConfig := handlers.Config{}
+	ppmEstimator := ppmshipment.NewEstimatePPM(handlerConfig.DTODPlanner(), &paymentrequesthelper.RequestPaymentHelper{})
+	mtoUpdater := movetaskorder.NewMoveTaskOrderUpdater(queryBuilder, serviceItemCreator, moveRouter, signedCertificationCreator, signedCertificationUpdater, ppmEstimator)
 	_, approveErr := mtoUpdater.MakeAvailableToPrime(appCtx, move.ID, etag.GenerateEtag(move.UpdatedAt), true, true)
 
 	if approveErr != nil {
@@ -4470,7 +4476,9 @@ func createHHGWithDestinationSITServiceItems(appCtx appcontext.AppContext, prime
 	//////////////////////////////////////////////////
 	signedCertificationCreator := signedcertification.NewSignedCertificationCreator()
 	signedCertificationUpdater := signedcertification.NewSignedCertificationUpdater()
-	mtoUpdater := movetaskorder.NewMoveTaskOrderUpdater(queryBuilder, serviceItemCreator, moveRouter, signedCertificationCreator, signedCertificationUpdater)
+	handlerConfig := handlers.Config{}
+	ppmEstimator := ppmshipment.NewEstimatePPM(handlerConfig.DTODPlanner(), &paymentrequesthelper.RequestPaymentHelper{})
+	mtoUpdater := movetaskorder.NewMoveTaskOrderUpdater(queryBuilder, serviceItemCreator, moveRouter, signedCertificationCreator, signedCertificationUpdater, ppmEstimator)
 	_, approveErr := mtoUpdater.MakeAvailableToPrime(appCtx, move.ID, etag.GenerateEtag(move.UpdatedAt), true, true)
 
 	// AvailableToPrimeAt is set to the current time when a move is approved, we need to update it to fall within the
@@ -4876,7 +4884,9 @@ func createHHGWithPaymentServiceItems(
 	//////////////////////////////////////////////////
 	signedCertificationCreator := signedcertification.NewSignedCertificationCreator()
 	signedCertificationUpdater := signedcertification.NewSignedCertificationUpdater()
-	mtoUpdater := movetaskorder.NewMoveTaskOrderUpdater(queryBuilder, serviceItemCreator, moveRouter, signedCertificationCreator, signedCertificationUpdater)
+	handlerConfig := handlers.Config{}
+	ppmEstimator := ppmshipment.NewEstimatePPM(handlerConfig.DTODPlanner(), &paymentrequesthelper.RequestPaymentHelper{})
+	mtoUpdater := movetaskorder.NewMoveTaskOrderUpdater(queryBuilder, serviceItemCreator, moveRouter, signedCertificationCreator, signedCertificationUpdater, ppmEstimator)
 	_, approveErr := mtoUpdater.MakeAvailableToPrime(appCtx, move.ID, etag.GenerateEtag(move.UpdatedAt), true, true)
 
 	// AvailableToPrimeAt is set to the current time when a move is approved, we need to update it to fall within the
@@ -10170,6 +10180,167 @@ func createMoveWithUniqueDestinationAddress(appCtx appcontext.AppContext) {
 }
 
 /*
+Generic helper function that lets you create a move with any staus and with any shipment type
+*/
+func CreateMoveWithMTOShipment(appCtx appcontext.AppContext, ordersType internalmessages.OrdersType, shipmentType models.MTOShipmentType, destinationType *models.DestinationType, locator string, moveStatus models.MoveStatus) models.Move {
+	if shipmentType == models.MTOShipmentTypeBoatHaulAway || shipmentType == models.MTOShipmentTypeBoatTowAway { // Add boat specific fields in relevant PR
+		log.Panic(fmt.Errorf("Unable to generate random integer for submitted move date"), zap.Error(errors.New("Not yet implemented")))
+	}
+
+	db := appCtx.DB()
+	submittedAt := time.Now()
+	hhgPermitted := internalmessages.OrdersTypeDetailHHGPERMITTED
+	ordersNumber := "8675309"
+	departmentIndicator := "ARMY"
+	tac := "E19A"
+	newDutyLocation := factory.FetchOrBuildCurrentDutyLocation(db)
+	newDutyLocation.Address.PostalCode = "52549"
+	orders := factory.BuildOrderWithoutDefaults(db, []factory.Customization{
+		{
+			Model: models.DutyLocation{
+				ProvidesServicesCounseling: true,
+			},
+			Type: &factory.DutyLocations.OriginDutyLocation,
+		},
+		{
+			Model:    newDutyLocation,
+			LinkOnly: true,
+			Type:     &factory.DutyLocations.NewDutyLocation,
+		},
+		{
+			Model: models.Order{
+				OrdersType:          ordersType,
+				OrdersTypeDetail:    &hhgPermitted,
+				OrdersNumber:        &ordersNumber,
+				DepartmentIndicator: &departmentIndicator,
+				TAC:                 &tac,
+			},
+		},
+	}, nil)
+	move := factory.BuildMove(db, []factory.Customization{
+		{
+			Model:    orders,
+			LinkOnly: true,
+		},
+		{
+			Model: models.Move{
+				Locator:     locator,
+				Status:      moveStatus,
+				SubmittedAt: &submittedAt,
+			},
+		},
+	}, nil)
+	requestedPickupDate := submittedAt.Add(60 * 24 * time.Hour)
+	requestedDeliveryDate := requestedPickupDate.Add(7 * 24 * time.Hour)
+	destinationAddress := factory.BuildAddress(db, nil, nil)
+
+	if destinationType != nil { // Destination type is only used for retirement moves
+		retirementMTOShipment := factory.BuildMTOShipment(db, []factory.Customization{
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+			{
+				Model: models.MTOShipment{
+					ShipmentType:          shipmentType,
+					Status:                models.MTOShipmentStatusSubmitted,
+					RequestedPickupDate:   &requestedPickupDate,
+					RequestedDeliveryDate: &requestedDeliveryDate,
+					DestinationType:       destinationType,
+				},
+			},
+			{
+				Model:    destinationAddress,
+				LinkOnly: true,
+				Type:     &factory.Addresses.DeliveryAddress,
+			},
+		}, nil)
+
+		if shipmentType == models.MTOShipmentTypeMobileHome {
+			factory.BuildMobileHomeShipment(appCtx.DB(), []factory.Customization{
+				{
+					Model: models.MobileHome{
+						Year:           models.IntPointer(2000),
+						Make:           models.StringPointer("Boat Make"),
+						Model:          models.StringPointer("Boat Model"),
+						LengthInInches: models.IntPointer(300),
+						WidthInInches:  models.IntPointer(108),
+						HeightInInches: models.IntPointer(72),
+					},
+				},
+				{
+					Model:    move,
+					LinkOnly: true,
+				},
+				{
+					Model:    retirementMTOShipment,
+					LinkOnly: true,
+				},
+			}, nil)
+		}
+	}
+
+	requestedPickupDate = submittedAt.Add(30 * 24 * time.Hour)
+	requestedDeliveryDate = requestedPickupDate.Add(7 * 24 * time.Hour)
+	regularMTOShipment := factory.BuildMTOShipment(db, []factory.Customization{
+		{
+			Model:    move,
+			LinkOnly: true,
+		},
+		{
+			Model: models.MTOShipment{
+				ShipmentType:          shipmentType,
+				Status:                models.MTOShipmentStatusSubmitted,
+				RequestedPickupDate:   &requestedPickupDate,
+				RequestedDeliveryDate: &requestedDeliveryDate,
+			},
+		},
+	}, nil)
+
+	if shipmentType == models.MTOShipmentTypeMobileHome {
+		factory.BuildMobileHomeShipment(appCtx.DB(), []factory.Customization{
+			{
+				Model: models.MobileHome{
+					Year:           models.IntPointer(2000),
+					Make:           models.StringPointer("Boat Make"),
+					Model:          models.StringPointer("Boat Model"),
+					LengthInInches: models.IntPointer(300),
+					WidthInInches:  models.IntPointer(108),
+					HeightInInches: models.IntPointer(72),
+				},
+			},
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+			{
+				Model:    regularMTOShipment,
+				LinkOnly: true,
+			},
+		}, nil)
+	}
+
+	officeUser := factory.BuildOfficeUserWithRoles(db, nil, []roles.RoleType{roles.RoleTypeTOO})
+	factory.BuildCustomerSupportRemark(db, []factory.Customization{
+		{
+			Model:    move,
+			LinkOnly: true,
+		},
+		{
+			Model:    officeUser,
+			LinkOnly: true,
+		},
+		{
+			Model: models.CustomerSupportRemark{
+				Content: "The customer mentioned that they need to provide some more complex instructions for pickup and drop off.",
+			},
+		},
+	}, nil)
+
+	return move
+}
+
+/*
 Create Needs Service Counseling - pass in orders with all required information, shipment type, destination type, locator
 */
 func CreateNeedsServicesCounseling(appCtx appcontext.AppContext, ordersType internalmessages.OrdersType, shipmentType models.MTOShipmentType, destinationType *models.DestinationType, locator string) models.Move {
@@ -10219,7 +10390,7 @@ func CreateNeedsServicesCounseling(appCtx appcontext.AppContext, ordersType inte
 	requestedPickupDate := submittedAt.Add(60 * 24 * time.Hour)
 	requestedDeliveryDate := requestedPickupDate.Add(7 * 24 * time.Hour)
 	destinationAddress := factory.BuildAddress(db, nil, nil)
-	factory.BuildMTOShipment(db, []factory.Customization{
+	retirementMTOShipment := factory.BuildMTOShipment(db, []factory.Customization{
 		{
 			Model:    move,
 			LinkOnly: true,
@@ -10240,9 +10411,32 @@ func CreateNeedsServicesCounseling(appCtx appcontext.AppContext, ordersType inte
 		},
 	}, nil)
 
+	if shipmentType == models.MTOShipmentTypeMobileHome {
+		factory.BuildMobileHomeShipment(appCtx.DB(), []factory.Customization{
+			{
+				Model: models.MobileHome{
+					Year:           models.IntPointer(2000),
+					Make:           models.StringPointer("Boat Make"),
+					Model:          models.StringPointer("Boat Model"),
+					LengthInInches: models.IntPointer(300),
+					WidthInInches:  models.IntPointer(108),
+					HeightInInches: models.IntPointer(72),
+				},
+			},
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+			{
+				Model:    retirementMTOShipment,
+				LinkOnly: true,
+			},
+		}, nil)
+	}
+
 	requestedPickupDate = submittedAt.Add(30 * 24 * time.Hour)
 	requestedDeliveryDate = requestedPickupDate.Add(7 * 24 * time.Hour)
-	factory.BuildMTOShipment(db, []factory.Customization{
+	regularMTOShipment := factory.BuildMTOShipment(db, []factory.Customization{
 		{
 			Model:    move,
 			LinkOnly: true,
@@ -10256,6 +10450,7 @@ func CreateNeedsServicesCounseling(appCtx appcontext.AppContext, ordersType inte
 			},
 		},
 	}, nil)
+
 	officeUser := factory.BuildOfficeUserWithRoles(db, nil, []roles.RoleType{roles.RoleTypeTOO})
 	factory.BuildCustomerSupportRemark(db, []factory.Customization{
 		{
@@ -10272,6 +10467,29 @@ func CreateNeedsServicesCounseling(appCtx appcontext.AppContext, ordersType inte
 			},
 		},
 	}, nil)
+
+	if shipmentType == models.MTOShipmentTypeMobileHome {
+		factory.BuildMobileHomeShipment(appCtx.DB(), []factory.Customization{
+			{
+				Model: models.MobileHome{
+					Year:           models.IntPointer(2000),
+					Make:           models.StringPointer("Boat Make"),
+					Model:          models.StringPointer("Boat Model"),
+					LengthInInches: models.IntPointer(300),
+					WidthInInches:  models.IntPointer(108),
+					HeightInInches: models.IntPointer(72),
+				},
+			},
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+			{
+				Model:    regularMTOShipment,
+				LinkOnly: true,
+			},
+		}, nil)
+	}
 
 	return move
 }

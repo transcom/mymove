@@ -33,7 +33,13 @@ const moveTaskOrder = {
       id: '2',
       shipmentType: 'HHG',
       requestedPickupDate: '2021-11-26',
-      pickupAddress: { streetAddress1: '100 1st Avenue', city: 'New York', state: 'NY', postalCode: '10001' },
+      pickupAddress: {
+        streetAddress1: '100 1st Avenue',
+        city: 'New York',
+        state: 'NY',
+        postalCode: '10001',
+      },
+      marketCode: 'd',
     },
   ],
   mtoServiceItems: [
@@ -108,7 +114,10 @@ describe('CreateSITExtensionRequest page', () => {
       expect(shipmentsHeading).toBeInTheDocument();
 
       const shipmentsContainer = shipmentsHeading.parentElement;
-      const hhgHeading = within(shipmentsContainer).getByRole('heading', { name: 'HHG shipment', level: 3 });
+      const hhgHeading = within(shipmentsContainer).getByRole('heading', {
+        name: `${moveTaskOrder.mtoShipments[0].marketCode}HHG shipment`,
+        level: 3,
+      });
 
       expect(hhgHeading).toBeInTheDocument();
     });

@@ -186,7 +186,7 @@ export class TestHarness {
   }
 
   /**
-   *    * Use testharness to build a move with an hhg shipment in SIT without destination address
+   *    * Use testharness to build a move with an hhg shipment in SIT without delivery address
    * @returns {Promise<Move>}
    */
 
@@ -265,6 +265,14 @@ export class TestHarness {
    */
   async buildHHGMoveWithServiceItemsAndPaymentRequestsAndFilesForTOO() {
     return this.buildDefault('HHGMoveWithServiceItemsAndPaymentRequestsAndFilesForTOO');
+  }
+
+  /**
+   * Use testharness to build hhg move with international crating service items for TOO
+   * @returns {Promise<Move>}
+   */
+  async buildHHGMoveWithIntlCratingServiceItemsTOO() {
+    return this.buildDefault('HHGMoveWithIntlCratingServiceItemsTOO');
   }
 
   /**
@@ -409,6 +417,14 @@ export class TestHarness {
    */
   async buildHHGMoveWithNTSAndNeedsSC() {
     return this.buildDefault('HHGMoveWithNTSAndNeedsSC');
+  }
+
+  /**
+   * Use testharness to build Mobile move
+   * @returns {Promise<Move>}
+   */
+  async buildMobileHomeMoveNeedsSC() {
+    return this.buildDefault('MobileHomeMoveNeedsSC');
   }
 
   /**
