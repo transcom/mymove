@@ -36,6 +36,7 @@ const PPMShipmentInfoList = ({
     status,
     destinationAddress,
     estimatedIncentive,
+    maxIncentive,
     estimatedWeight,
     expectedDepartureDate,
     actualMoveDate,
@@ -208,6 +209,14 @@ const PPMShipmentInfoList = ({
     </div>
   );
 
+  const maxIncentiveElementFlags = getDisplayFlags('estimatedIncentive');
+  const maxIncentiveElement = (
+    <div className={maxIncentiveElementFlags.classes}>
+      <dt>Max Incentive</dt>
+      <dd data-testid="maxIncentive">{maxIncentive ? `$${formatCentsTruncateWhole(maxIncentive)}` : '-'}</dd>
+    </div>
+  );
+
   const hasRequestedAdvanceElementFlags = getDisplayFlags('hasRequestedAdvance');
   const hasRequestedAdvanceElement = (
     <div className={hasRequestedAdvanceElementFlags.classes}>
@@ -292,6 +301,7 @@ const PPMShipmentInfoList = ({
       {showElement(proGearWeightElementFlags) && proGearWeightElement}
       {showElement(spouseProGearElementFlags) && spouseProGearElement}
       {showElement(estimatedIncentiveElementFlags) && estimatedIncentiveElement}
+      {showElement(maxIncentiveElementFlags) && maxIncentiveElement}
       {hasRequestedAdvanceElement}
       {hasRequestedAdvance === true && advanceStatusElement}
       {(advanceStatus === ADVANCE_STATUSES.APPROVED.apiValue || advanceStatus === ADVANCE_STATUSES.EDITED.apiValue) &&
