@@ -159,18 +159,18 @@ func (p *mtoServiceItemUpdater) approveOrRejectServiceItem(
 		}
 		move := serviceItem.MoveTaskOrder
 
+		//When updating a service item - remove the TOO assigned user
+		move.TOOAssignedID = nil
+		_, err = models.SaveMoveDependencies(appCtx.DB(), &move)
+		if err != nil {
+			return err
+		}
+
 		if _, err = p.moveRouter.ApproveOrRequestApproval(txnAppCtx, move); err != nil {
 			return err
 		}
 
 		returnedServiceItem = *updatedServiceItem
-
-		//When updating a service item - remove the TOO assigned user
-		move.TOOAssignedID = nil
-		verrs, err := models.SaveMoveDependencies(appCtx.DB(), &move)
-		if err != nil || verrs.HasAny() {
-			return err
-		}
 
 		return nil
 	})
