@@ -28,6 +28,7 @@ const DocumentViewerFileManager = ({
   files,
   documentType,
   updateAmendedDocument,
+  fileUploadRequired,
 }) => {
   const queryClient = useQueryClient();
   const filePondEl = useRef();
@@ -69,7 +70,10 @@ const DocumentViewerFileManager = ({
       setShowUpload(true);
       setIsExpandedView(true);
     }
-  }, [documentType]);
+    if (fileUploadRequired) {
+      setShowUpload(true);
+    }
+  }, [documentType, fileUploadRequired]);
 
   const closeDeleteFileModal = () => {
     setCurrentFile(null);
@@ -217,7 +221,7 @@ const DocumentViewerFileManager = ({
         />
       )}
       {!isExpandedView && (
-        <Button disabled={isFileProcessing} onClick={toggleUploadVisibility}>
+        <Button disabled={isFileProcessing || fileUploadRequired} onClick={toggleUploadVisibility}>
           {buttonHeaderText}
         </Button>
       )}
@@ -232,7 +236,13 @@ const DocumentViewerFileManager = ({
             )}
             <UploadsTable className={styles.sectionWrapper} uploads={files} onDelete={openDeleteFileModal} />
             <div className={classnames(styles.upload, className)}>
+              {fileUploadRequired && (
+                <Alert type="error" id="fileRequiredAlert" data-testid="fileRequiredAlert">
+                  File upload is required
+                </Alert>
+              )}
               <FileUpload
+                required={fileUploadRequired}
                 ref={filePondEl}
                 createUpload={handleUpload}
                 onChange={handleChange}
@@ -240,7 +250,7 @@ const DocumentViewerFileManager = ({
               />
               <Hint>PDF, JPG, or PNG only. Maximum file size 25MB. Each page must be clear and legible</Hint>
               {!isExpandedView && (
-                <Button disabled={isFileProcessing} onClick={toggleUploadVisibility}>
+                <Button disabled={isFileProcessing || fileUploadRequired} onClick={toggleUploadVisibility}>
                   Done
                 </Button>
               )}
