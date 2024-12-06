@@ -1,5 +1,4 @@
 import React from 'react';
-
 import { QueryClientProvider, QueryClient } from '@tanstack/react-query';
 
 import DocumentViewer from './DocumentViewer';
