@@ -4,6 +4,7 @@ import { Alert, Grid, GridContainer, Button } from '@trussworks/react-uswds';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { useQueryClient, useMutation } from '@tanstack/react-query';
 import { func } from 'prop-types';
+import { generatePath } from 'react-router';
 
 import styles from '../TXOMoveInfo/TXOTab.module.scss';
 
@@ -36,7 +37,9 @@ import { objectIsMissingFieldWithCondition } from 'utils/displayFlags';
 import formattedCustomerName from 'utils/formattedCustomerName';
 import { calculateEstimatedWeight } from 'hooks/custom';
 import { ADVANCE_STATUSES } from 'constants/ppms';
-import { MOVE_STATUSES, technicalHelpDeskURL } from 'shared/constants';
+import { FEATURE_FLAG_KEYS, MOVE_STATUSES, SHIPMENT_OPTIONS_URL, technicalHelpDeskURL } from 'shared/constants';
+import ButtonDropdown from 'components/ButtonDropdown/ButtonDropdown';
+import { isBooleanFlagEnabled } from 'utils/featureFlags';
 
 const MoveDetails = ({
   setUnapprovedShipmentCount,
@@ -56,6 +59,10 @@ const MoveDetails = ({
   const [isCancelMoveModalVisible, setIsCancelMoveModalVisible] = useState(false);
   const [alertMessage, setAlertMessage] = useState(null);
   const [alertType, setAlertType] = useState('success');
+  const [enableBoat, setEnableBoat] = useState(false);
+  const [enableMobileHome, setEnableMobileHome] = useState(false);
+  const [enableUB, setEnableUB] = useState(false);
+  const [isOconusMove, setIsOconusMove] = useState(false);
 
   // RA Summary: eslint-disable-next-line react-hooks/exhaustive-deps
   // RA: This rule is used to enforce correct dependency arrays in hooks like useEffect, useCallback, and useMemo.
@@ -116,7 +123,7 @@ const MoveDetails = ({
   }
 
   let sections = useMemo(() => {
-    return ['orders', 'allowances', 'customer-info'];
+    return ['shipments', 'orders', 'allowances', 'customer-info'];
   }, []);
 
   // use mutation calls
@@ -203,6 +210,17 @@ const MoveDetails = ({
 
   const handleCloseCancelMoveModal = () => {
     setIsCancelMoveModalVisible(false);
+  };
+
+  const handleButtonDropdownChange = (e) => {
+    const selectedOption = e.target.value;
+
+    const addShipmentPath = `${generatePath(tooRoutes.SHIPMENT_ADD_PATH, {
+      moveCode,
+      shipmentType: selectedOption,
+    })}`;
+
+    navigate(addShipmentPath);
   };
 
   const submittedShipments = mtoShipments?.filter(
@@ -354,6 +372,26 @@ const MoveDetails = ({
     setMissingOrdersInfoCount(ordersInfoCount);
   }, [order, requiredOrdersInfo, setMissingOrdersInfoCount]);
 
+  useEffect(() => {
+    const fetchData = async () => {
+      setEnableBoat(await isBooleanFlagEnabled(FEATURE_FLAG_KEYS.BOAT));
+      setEnableMobileHome(await isBooleanFlagEnabled(FEATURE_FLAG_KEYS.MOBILE_HOME));
+      setEnableUB(await isBooleanFlagEnabled(FEATURE_FLAG_KEYS.UNACCOMPANIED_BAGGAGE));
+    };
+    fetchData();
+  }, []);
+
+  const newDutyLocation = order.destinationDutyLocation;
+  const currentDutyLocation = order.originDutyLocation;
+  useEffect(() => {
+    // Check if duty locations on the orders qualify as OCONUS to conditionally render the UB shipment option
+    if (currentDutyLocation?.address?.isOconus || newDutyLocation?.address?.isOconus) {
+      setIsOconusMove(true);
+    } else {
+      setIsOconusMove(false);
+    }
+  }, [currentDutyLocation, newDutyLocation, isOconusMove, enableUB]);
+
   if (isLoading) return <LoadingPlaceholder />;
   if (isError) return <SomethingWentWrong />;
 
@@ -420,6 +458,22 @@ const MoveDetails = ({
   const hasDestinationAddressUpdate =
     shipmentWithDestinationAddressChangeRequest && shipmentWithDestinationAddressChangeRequest.length > 0;
   const tooCanCancelMove = move.status !== MOVE_STATUSES.CANCELED && numberOfShipmentsNotAllowedForCancel === 0;
+
+  const allowedShipmentOptions = () => {
+    return (
+      <>
+        <option data-testid="hhgOption" value={SHIPMENT_OPTIONS_URL.HHG}>
+          HHG
+        </option>
+        <option value={SHIPMENT_OPTIONS_URL.PPM}>PPM</option>
+        <option value={SHIPMENT_OPTIONS_URL.NTS}>NTS</option>
+        <option value={SHIPMENT_OPTIONS_URL.NTSrelease}>NTS-release</option>
+        {enableBoat && <option value={SHIPMENT_OPTIONS_URL.BOAT}>Boat</option>}
+        {enableMobileHome && <option value={SHIPMENT_OPTIONS_URL.MOBILE_HOME}>Mobile Home</option>}
+        {enableUB && isOconusMove && <option value={SHIPMENT_OPTIONS_URL.UNACCOMPANIED_BAGGAGE}>UB</option>}
+      </>
+    );
+  };
 
   return (
     <div className={styles.tabContent}>
@@ -559,6 +613,33 @@ const MoveDetails = ({
               />
             </div>
           )}
+          {approvedOrCanceledShipments?.length === 0 && submittedShipments?.length === 0 && (
+            <div className={styles.section} id="shipments-no-requested-or-approved">
+              <DetailsPanel
+                id="shipments"
+                title="Shipments"
+                editButton={
+                  !isMoveLocked && (
+                    <Restricted to={permissionTypes.createTxoShipment}>
+                      <ButtonDropdown
+                        ariaLabel="Add a new shipment"
+                        data-testid="addShipmentButton"
+                        onChange={handleButtonDropdownChange}
+                      >
+                        <option value="" label="Add a new shipment">
+                          Add a new shipment
+                        </option>
+                        {allowedShipmentOptions()}
+                      </ButtonDropdown>
+                    </Restricted>
+                  )
+                }
+              >
+                {}
+              </DetailsPanel>
+            </div>
+          )}
+
           <div className={styles.section} id="orders">
             <DetailsPanel
               title="Orders"
