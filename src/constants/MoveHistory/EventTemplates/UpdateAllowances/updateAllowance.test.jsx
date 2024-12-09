@@ -24,7 +24,7 @@ describe('When a service counselor updates shipping allowances', () => {
   });
   describe('it correctly renders the details component', () => {
     it.each([
-      ['Authorized weight', ': 4,000 lbs'],
+      ['Max Billable Weight', ': 4,000 lbs'],
       ['Storage in transit (SIT)', ': 80 days'],
       ['Dependents', ': Yes'],
       ['Pro-gear weight', ': 10 lbs'],

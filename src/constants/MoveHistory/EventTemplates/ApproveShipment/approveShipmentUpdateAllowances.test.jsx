@@ -18,7 +18,7 @@ describe('when given an Approved shipment, Updated allowances history record', (
   it('displays the proper value in the details field', () => {
     const template = getTemplate(historyRecord);
     render(template.getDetails(historyRecord));
-    expect(screen.getByText('Authorized weight')).toBeInTheDocument();
+    expect(screen.getByText('Max Billable Weight')).toBeInTheDocument();
     expect(screen.getByText(': 13,230 lbs')).toBeInTheDocument();
   });
 });

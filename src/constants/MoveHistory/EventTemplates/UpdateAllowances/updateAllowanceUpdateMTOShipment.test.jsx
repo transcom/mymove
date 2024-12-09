@@ -26,7 +26,7 @@ describe('when given a update allowance, update MTO shipment history record', ()
   it('displays the proper update MTO shipment record', () => {
     const template = getTemplate(historyRecord);
     render(template.getDetails(historyRecord));
-    expect(screen.getByText('Authorized weight')).toBeInTheDocument();
+    expect(screen.getByText('Max Billable Weight')).toBeInTheDocument();
     expect(screen.getByText(': 1,650 lbs')).toBeInTheDocument();
   });
 });
