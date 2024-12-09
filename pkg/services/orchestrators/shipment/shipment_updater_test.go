@@ -2,6 +2,7 @@ package shipment
 
 import (
 	"fmt"
+	"time"
 
 	"github.com/gofrs/uuid"
 	"github.com/stretchr/testify/mock"
@@ -11,8 +12,14 @@ import (
 	"github.com/transcom/mymove/pkg/etag"
 	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
+	routemocks "github.com/transcom/mymove/pkg/route/mocks"
 	"github.com/transcom/mymove/pkg/services"
+	"github.com/transcom/mymove/pkg/services/ghcrateengine"
 	"github.com/transcom/mymove/pkg/services/mocks"
+	moverouter "github.com/transcom/mymove/pkg/services/move"
+	mtoserviceitem "github.com/transcom/mymove/pkg/services/mto_service_item"
+	"github.com/transcom/mymove/pkg/services/query"
+	"github.com/transcom/mymove/pkg/testdatagen"
 	"github.com/transcom/mymove/pkg/unit"
 )
 
@@ -25,18 +32,22 @@ func (suite *ShipmentSuite) TestUpdateShipment() {
 	updatePPMShipmentMethodName := "UpdatePPMShipmentWithDefaultCheck"
 	updateBoatShipmentMethodName := "UpdateBoatShipmentWithDefaultCheck"
 	updateMobileHomeShipmentMethodName := "UpdateMobileHomeShipmentWithDefaultCheck"
+	createMtoServiceItemMethodName := "FindEstimatedPrice"
+	updateMtoServiceItemMethodName := "UpdateMTOServiceItemBasic"
 
 	type subtestDataObjects struct {
 		mockMTOShipmentUpdater        *mocks.MTOShipmentUpdater
 		mockPPMShipmentUpdater        *mocks.PPMShipmentUpdater
 		mockBoatShipmentUpdater       *mocks.BoatShipmentUpdater
 		mockMobileHomeShipmentUpdater *mocks.MobileHomeShipmentUpdater
+		mockMTOServiceItemCreator     *mocks.MTOServiceItemCreator
+		mockMTOServiceItemUpdater     *mocks.MTOServiceItemUpdater
 		shipmentUpdaterOrchestrator   services.ShipmentUpdater
 
 		fakeError error
 	}
 
-	makeSubtestData := func(returnErrorForMTOShipment bool, returnErrorForPPMShipment bool, returnErrorForBoatShipment bool, returnErrorForMobileHomeShipment bool) (subtestData subtestDataObjects) {
+	makeSubtestData := func(returnErrorForMTOShipment bool, returnErrorForPPMShipment bool, returnErrorForBoatShipment bool, returnErrorForMobileHomeShipment bool, returnErrorForPricingServiceItem bool, returnErrorForMTOServiceItemUpdate bool, mockedReturnPrice unit.Cents) (subtestData subtestDataObjects) {
 		mockMTOShipmentUpdater := mocks.MTOShipmentUpdater{}
 		subtestData.mockMTOShipmentUpdater = &mockMTOShipmentUpdater
 
@@ -49,9 +60,14 @@ func (suite *ShipmentSuite) TestUpdateShipment() {
 		mockMobileHomeShipmentUpdater := mocks.MobileHomeShipmentUpdater{}
 		subtestData.mockMobileHomeShipmentUpdater = &mockMobileHomeShipmentUpdater
 
-		subtestData.shipmentUpdaterOrchestrator = NewShipmentUpdater(subtestData.mockMTOShipmentUpdater, subtestData.mockPPMShipmentUpdater, subtestData.mockBoatShipmentUpdater, subtestData.mockMobileHomeShipmentUpdater)
+		mockMTOServiceItemCreator := mocks.MTOServiceItemCreator{}
+		mockMTOServiceItemUpdater := mocks.MTOServiceItemUpdater{}
+		subtestData.mockMTOServiceItemCreator = &mockMTOServiceItemCreator
+		subtestData.mockMTOServiceItemUpdater = &mockMTOServiceItemUpdater
 
-		subtestData.shipmentUpdaterOrchestrator = NewShipmentUpdater(subtestData.mockMTOShipmentUpdater, subtestData.mockPPMShipmentUpdater, subtestData.mockBoatShipmentUpdater, subtestData.mockMobileHomeShipmentUpdater)
+		subtestData.shipmentUpdaterOrchestrator = NewShipmentUpdater(subtestData.mockMTOShipmentUpdater, subtestData.mockPPMShipmentUpdater, subtestData.mockBoatShipmentUpdater, subtestData.mockMobileHomeShipmentUpdater, subtestData.mockMTOServiceItemCreator)
+
+		var returnCents = mockedReturnPrice
 
 		if returnErrorForMTOShipment {
 			subtestData.fakeError = apperror.NewInvalidInputError(uuid.Nil, nil, nil, "Pickup date missing")
@@ -174,6 +190,42 @@ func (suite *ShipmentSuite) TestUpdateShipment() {
 					},
 				)
 		}
+		if returnErrorForMTOServiceItemUpdate {
+			subtestData.mockMTOServiceItemUpdater.On(
+				updateMtoServiceItemMethodName,
+				mock.AnythingOfType("*appcontext.appContext"),
+				mock.AnythingOfType("*models.MTOServiceItem"),
+				mock.AnythingOfType("string"),
+			).Return(
+				&models.MTOShipment{
+					ID: uuid.Must(uuid.FromString("a5e95c1d-97c3-4f79-8097-c12dd2557ac7")),
+				}, nil)
+		} else {
+			subtestData.mockMTOServiceItemUpdater.On(
+				updateMtoServiceItemMethodName,
+				mock.AnythingOfType("*appcontext.appContext"),
+				mock.AnythingOfType("*models.MTOServiceItem"),
+				mock.AnythingOfType("string"),
+			).Return(
+				&models.MTOShipment{
+					ID: uuid.Must(uuid.FromString("a5e95c1d-97c3-4f79-8097-c12dd2557ac7")),
+				}, nil)
+		}
+		if returnErrorForPricingServiceItem {
+			subtestData.mockMTOServiceItemCreator.On(
+				createMtoServiceItemMethodName,
+				mock.AnythingOfType("*appcontext.appContext"),
+				mock.AnythingOfType("*models.MTOServiceItem"),
+				mock.AnythingOfType("models.MTOShipment"),
+			).Return(nil, subtestData.fakeError)
+		} else {
+			subtestData.mockMTOServiceItemCreator.On(
+				createMtoServiceItemMethodName,
+				mock.AnythingOfType("*appcontext.appContext"),
+				mock.AnythingOfType("*models.MTOServiceItem"),
+				mock.AnythingOfType("models.MTOShipment"),
+			).Return(returnCents, nil)
+		}
 
 		return subtestData
 	}
@@ -181,7 +233,7 @@ func (suite *ShipmentSuite) TestUpdateShipment() {
 	suite.Run("Returns an InvalidInputError if there is an error with the shipment info that was input", func() {
 		appCtx := suite.AppContextForTest()
 
-		subtestData := makeSubtestData(false, false, false, false)
+		subtestData := makeSubtestData(false, false, false, false, false, false, 0)
 
 		shipment := factory.BuildMTOShipment(appCtx.DB(), nil, nil)
 
@@ -211,7 +263,7 @@ func (suite *ShipmentSuite) TestUpdateShipment() {
 		suite.Run(fmt.Sprintf("Calls necessary service objects for %s shipments", shipmentType), func() {
 			appCtx := suite.AppContextForTest()
 
-			subtestData := makeSubtestData(false, false, false, false)
+			subtestData := makeSubtestData(false, false, false, false, false, false, 0)
 
 			var shipment models.MTOShipment
 
@@ -279,7 +331,7 @@ func (suite *ShipmentSuite) TestUpdateShipment() {
 	suite.Run("Sets MTOShipment info on PPMShipment and updated PPMShipment back on MTOShipment", func() {
 		appCtx := suite.AppContextForTest()
 
-		subtestData := makeSubtestData(false, false, false, false)
+		subtestData := makeSubtestData(false, false, false, false, false, false, 0)
 
 		ppmShipment := factory.BuildPPMShipment(appCtx.DB(), []factory.Customization{
 			{
@@ -314,7 +366,7 @@ func (suite *ShipmentSuite) TestUpdateShipment() {
 	suite.Run("Sets MTOShipment info on BoatShipment and updated BoatShipment back on MTOShipment", func() {
 		appCtx := suite.AppContextForTest()
 
-		subtestData := makeSubtestData(false, false, false, false)
+		subtestData := makeSubtestData(false, false, false, false, false, false, 0)
 
 		boatShipment := factory.BuildBoatShipment(appCtx.DB(), []factory.Customization{
 			{
@@ -389,7 +441,7 @@ func (suite *ShipmentSuite) TestUpdateShipment() {
 		suite.Run(fmt.Sprintf("Returns transaction error if there is an %s", name), func() {
 			appCtx := suite.AppContextForTest()
 
-			subtestData := makeSubtestData(tc.returnErrorForMTOShipment, tc.returnErrorForPPMShipment, tc.returnErrorForBoatShipment, tc.returnErrorForMobileHomeShipment)
+			subtestData := makeSubtestData(tc.returnErrorForMTOShipment, tc.returnErrorForPPMShipment, tc.returnErrorForBoatShipment, tc.returnErrorForMobileHomeShipment, false, false, 0)
 
 			var shipment models.MTOShipment
 
@@ -429,7 +481,7 @@ func (suite *ShipmentSuite) TestUpdateShipment() {
 	suite.Run("Returns error early if MTOShipment can't be updated", func() {
 		appCtx := suite.AppContextForTest()
 
-		subtestData := makeSubtestData(true, false, false, false)
+		subtestData := makeSubtestData(true, false, false, false, false, false, 0)
 
 		shipment := factory.BuildMTOShipment(appCtx.DB(), []factory.Customization{
 			{
@@ -464,5 +516,907 @@ func (suite *ShipmentSuite) TestUpdateShipment() {
 			mock.AnythingOfType("*models.PPMShipment"),
 			mock.AnythingOfType("uuid.UUID"),
 		)
+	})
+
+	/* suite.Run("Calcuating price estimated on update for NTS shipment ", func() {
+		appCtx := suite.AppContextForTest()
+		setupTestShipment := func() models.MTOShipment {
+			// Set up data to use for all Origin SIT Service Item tests
+
+			move := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
+			pickupDate := time.Date(2024, time.July, 31, 12, 0, 0, 0, time.UTC)
+			pickupAddress := factory.BuildAddress(suite.DB(), nil, []factory.Trait{factory.GetTraitAddress2})
+			deliveryAddress := factory.BuildAddress(suite.DB(), nil, []factory.Trait{factory.GetTraitAddress3})
+
+			mtoShipment := factory.BuildMTOShipmentMinimal(suite.DB(), []factory.Customization{
+				{
+					Model:    move,
+					LinkOnly: true,
+				},
+				{
+					Model:    pickupAddress,
+					LinkOnly: true,
+					Type:     &factory.Addresses.PickupAddress,
+				},
+				{
+					Model:    deliveryAddress,
+					LinkOnly: true,
+					Type:     &factory.Addresses.DeliveryAddress,
+				},
+				{
+					Model: models.MTOShipment{
+						RequestedPickupDate: &pickupDate,
+						ShipmentType:        models.MTOShipmentTypeHHGOutOfNTSDom,
+						Status:              models.MTOShipmentStatusApproved,
+					},
+				},
+			}, nil)
+
+			return mtoShipment
+		}
+
+		startDate := time.Now().AddDate(-1, 0, 0)
+		endDate := startDate.AddDate(1, 1, 1)
+		sitEntryDate := time.Date(2020, time.October, 24, 0, 0, 0, 0, time.UTC)
+		sitPostalCode := "99999"
+		reason := "lorem ipsum"
+		reServiceCodeDOP := factory.FetchReServiceByCode(suite.DB(), models.ReServiceCodeDOP)
+		reServiceCodeDPK := factory.FetchReServiceByCode(suite.DB(), models.ReServiceCodeDPK)
+		reServiceCodeDDP := factory.FetchReServiceByCode(suite.DB(), models.ReServiceCodeDDP)
+		reServiceCodeDUPK := factory.FetchReServiceByCode(suite.DB(), models.ReServiceCodeDUPK)
+		reServiceCodeDLH := factory.FetchReServiceByCode(suite.DB(), models.ReServiceCodeDLH)
+		reServiceCodeDSH := factory.FetchReServiceByCode(suite.DB(), models.ReServiceCodeDSH)
+		reServiceCodeFSC := factory.FetchReServiceByCode(suite.DB(), models.ReServiceCodeFSC)
+		actualPickupAddress := factory.BuildAddress(suite.DB(), nil, []factory.Trait{factory.GetTraitAddress2})
+
+		contract := testdatagen.FetchOrMakeReContract(suite.DB(), testdatagen.Assertions{})
+		contractYear := testdatagen.MakeReContractYear(suite.DB(),
+			testdatagen.Assertions{
+				ReContractYear: models.ReContractYear{
+					Name:                 "Test Contract Year",
+					EscalationCompounded: 1.125,
+					StartDate:            startDate,
+					EndDate:              endDate,
+				},
+			})
+
+		serviceArea := testdatagen.MakeReDomesticServiceArea(suite.DB(),
+			testdatagen.Assertions{
+				ReDomesticServiceArea: models.ReDomesticServiceArea{
+					Contract:         contractYear.Contract,
+					ServiceArea:      "945",
+					ServicesSchedule: 1,
+				},
+			})
+
+		serviceAreaDest := testdatagen.MakeReDomesticServiceArea(suite.DB(),
+			testdatagen.Assertions{
+				ReDomesticServiceArea: models.ReDomesticServiceArea{
+					Contract:         contractYear.Contract,
+					ServiceArea:      "503",
+					ServicesSchedule: 1,
+				},
+			})
+
+		serviceAreaPriceDOP := models.ReDomesticServiceAreaPrice{
+			ContractID:            contractYear.Contract.ID,
+			ServiceID:             reServiceCodeDOP.ID,
+			IsPeakPeriod:          true,
+			DomesticServiceAreaID: serviceArea.ID,
+			PriceCents:            unit.Cents(1234),
+		}
+
+		serviceAreaPriceDPK := models.ReDomesticOtherPrice{
+			ContractID:   contractYear.Contract.ID,
+			ServiceID:    reServiceCodeDPK.ID,
+			IsPeakPeriod: true,
+			Schedule:     1,
+			PriceCents:   unit.Cents(121),
+		}
+
+		serviceAreaPriceDDP := models.ReDomesticServiceAreaPrice{
+			ContractID:            contractYear.Contract.ID,
+			ServiceID:             reServiceCodeDDP.ID,
+			IsPeakPeriod:          true,
+			DomesticServiceAreaID: serviceAreaDest.ID,
+			PriceCents:            unit.Cents(482),
+		}
+
+		serviceAreaPriceDUPK := models.ReDomesticOtherPrice{
+			ContractID:   contractYear.Contract.ID,
+			ServiceID:    reServiceCodeDUPK.ID,
+			IsPeakPeriod: true,
+			Schedule:     1,
+			PriceCents:   unit.Cents(945),
+		}
+
+		serviceAreaPriceDLH := models.ReDomesticLinehaulPrice{
+			ContractID:            contractYear.Contract.ID,
+			WeightLower:           500,
+			WeightUpper:           10000,
+			MilesLower:            1,
+			MilesUpper:            10000,
+			IsPeakPeriod:          true,
+			DomesticServiceAreaID: serviceArea.ID,
+			PriceMillicents:       unit.Millicents(482),
+		}
+
+		serviceAreaPriceDSH := models.ReDomesticServiceAreaPrice{
+			ContractID:            contractYear.Contract.ID,
+			ServiceID:             reServiceCodeDSH.ID,
+			IsPeakPeriod:          true,
+			DomesticServiceAreaID: serviceArea.ID,
+			PriceCents:            unit.Cents(999),
+		}
+
+		testdatagen.MakeGHCDieselFuelPrice(suite.DB(), testdatagen.Assertions{
+			GHCDieselFuelPrice: models.GHCDieselFuelPrice{
+				FuelPriceInMillicents: unit.Millicents(281400),
+				PublicationDate:       time.Date(2020, time.March, 9, 0, 0, 0, 0, time.UTC),
+				EffectiveDate:         time.Date(2020, time.March, 10, 0, 0, 0, 0, time.UTC),
+				EndDate:               time.Date(2025, time.March, 17, 0, 0, 0, 0, time.UTC),
+			},
+		})
+
+		suite.MustSave(&serviceAreaPriceDOP)
+		suite.MustSave(&serviceAreaPriceDPK)
+		suite.MustSave(&serviceAreaPriceDDP)
+		suite.MustSave(&serviceAreaPriceDUPK)
+		suite.MustSave(&serviceAreaPriceDLH)
+		suite.MustSave(&serviceAreaPriceDSH)
+
+		testMtoShipment := setupTestShipment()
+
+		serviceItemDOP := models.MTOServiceItem{
+			MoveTaskOrder:             testMtoShipment.MoveTaskOrder,
+			MoveTaskOrderID:           testMtoShipment.MoveTaskOrderID,
+			MTOShipment:               testMtoShipment,
+			MTOShipmentID:             &testMtoShipment.ID,
+			ReService:                 reServiceCodeDOP,
+			SITEntryDate:              &sitEntryDate,
+			SITPostalCode:             &sitPostalCode,
+			Reason:                    &reason,
+			SITOriginHHGActualAddress: &actualPickupAddress,
+			Status:                    models.MTOServiceItemStatusSubmitted,
+		}
+
+		serviceItemDPK := models.MTOServiceItem{
+			MoveTaskOrder:             testMtoShipment.MoveTaskOrder,
+			MoveTaskOrderID:           testMtoShipment.MoveTaskOrderID,
+			MTOShipment:               testMtoShipment,
+			MTOShipmentID:             &testMtoShipment.ID,
+			ReService:                 reServiceCodeDPK,
+			SITEntryDate:              &sitEntryDate,
+			SITPostalCode:             &sitPostalCode,
+			Reason:                    &reason,
+			SITOriginHHGActualAddress: &actualPickupAddress,
+			Status:                    models.MTOServiceItemStatusSubmitted,
+		}
+
+		serviceItemDDP := models.MTOServiceItem{
+			MoveTaskOrder:             testMtoShipment.MoveTaskOrder,
+			MoveTaskOrderID:           testMtoShipment.MoveTaskOrderID,
+			MTOShipment:               testMtoShipment,
+			MTOShipmentID:             &testMtoShipment.ID,
+			ReService:                 reServiceCodeDDP,
+			SITEntryDate:              &sitEntryDate,
+			SITPostalCode:             &sitPostalCode,
+			Reason:                    &reason,
+			SITOriginHHGActualAddress: &actualPickupAddress,
+			Status:                    models.MTOServiceItemStatusSubmitted,
+		}
+
+		serviceItemDUPK := models.MTOServiceItem{
+			MoveTaskOrder:             testMtoShipment.MoveTaskOrder,
+			MoveTaskOrderID:           testMtoShipment.MoveTaskOrderID,
+			MTOShipment:               testMtoShipment,
+			MTOShipmentID:             &testMtoShipment.ID,
+			ReService:                 reServiceCodeDUPK,
+			SITEntryDate:              &sitEntryDate,
+			SITPostalCode:             &sitPostalCode,
+			Reason:                    &reason,
+			SITOriginHHGActualAddress: &actualPickupAddress,
+			Status:                    models.MTOServiceItemStatusSubmitted,
+		}
+
+		serviceItemDLH := models.MTOServiceItem{
+			MoveTaskOrder:             testMtoShipment.MoveTaskOrder,
+			MoveTaskOrderID:           testMtoShipment.MoveTaskOrderID,
+			MTOShipment:               testMtoShipment,
+			MTOShipmentID:             &testMtoShipment.ID,
+			ReService:                 reServiceCodeDLH,
+			SITEntryDate:              &sitEntryDate,
+			SITPostalCode:             &sitPostalCode,
+			Reason:                    &reason,
+			SITOriginHHGActualAddress: &actualPickupAddress,
+			Status:                    models.MTOServiceItemStatusSubmitted,
+		}
+
+		serviceItemDSH := models.MTOServiceItem{
+			MoveTaskOrder:             testMtoShipment.MoveTaskOrder,
+			MoveTaskOrderID:           testMtoShipment.MoveTaskOrderID,
+			MTOShipment:               testMtoShipment,
+			MTOShipmentID:             &testMtoShipment.ID,
+			ReService:                 reServiceCodeDSH,
+			SITEntryDate:              &sitEntryDate,
+			SITPostalCode:             &sitPostalCode,
+			Reason:                    &reason,
+			SITOriginHHGActualAddress: &actualPickupAddress,
+			Status:                    models.MTOServiceItemStatusSubmitted,
+		}
+
+		serviceItemFSC := models.MTOServiceItem{
+			MoveTaskOrder:             testMtoShipment.MoveTaskOrder,
+			MoveTaskOrderID:           testMtoShipment.MoveTaskOrderID,
+			MTOShipment:               testMtoShipment,
+			MTOShipmentID:             &testMtoShipment.ID,
+			ReService:                 reServiceCodeFSC,
+			SITEntryDate:              &sitEntryDate,
+			SITPostalCode:             &sitPostalCode,
+			Reason:                    &reason,
+			SITOriginHHGActualAddress: &actualPickupAddress,
+			Status:                    models.MTOServiceItemStatusSubmitted,
+		}
+
+		testdatagen.MakeReZip3(suite.DB(), testdatagen.Assertions{
+			ReZip3: models.ReZip3{
+				Contract:            contract,
+				ContractID:          contract.ID,
+				DomesticServiceArea: serviceArea,
+				Zip3:                "945",
+			},
+		})
+
+		testdatagen.MakeReZip3(suite.DB(), testdatagen.Assertions{
+			ReZip3: models.ReZip3{
+				Contract:            contract,
+				ContractID:          contract.ID,
+				DomesticServiceArea: serviceAreaDest,
+				Zip3:                "503",
+			},
+		})
+		var mtoServiceItems models.MTOServiceItems
+
+		var testShipment models.MTOShipment
+		err := suite.DB().EagerPreload("MTOServiceItems").Find(&testShipment, testMtoShipment.ID)
+		suite.NoError(err)
+		mtoServiceItems = append(mtoServiceItems, serviceItemFSC, serviceItemDUPK, serviceItemDSH, serviceItemDPK, serviceItemDOP, serviceItemDLH, serviceItemDDP)
+		testMtoShipment.MTOServiceItems = mtoServiceItems
+		err = suite.DB().Save(&testShipment)
+		suite.NoError(err)
+
+		// Weight update w/ address
+		estimatedPrimeWeight := unit.Pound(6000)
+		testMtoShipment.PrimeEstimatedWeight = &estimatedPrimeWeight
+		testMtoShipment.UpdatedAt = time.Now()
+
+		subtestData := makeSubtestData(false, false, false, false, false, false, 120)
+		_, mtoErr := subtestData.shipmentUpdaterOrchestrator.UpdateShipment(appCtx, &testMtoShipment, etag.GenerateEtag(testMtoShipment.UpdatedAt), "test")
+
+		suite.NoError(mtoErr)
+
+
+	}) */
+}
+
+func (suite *ShipmentSuite) TestPriceEstimator() {
+	suite.Run("Calcuating price estimated on creation for HHG ", func() {
+		setupTestData := func() models.MTOShipment {
+			// Set up data to use for all Origin SIT Service Item tests
+
+			move := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
+			estimatedPrimeWeight := unit.Pound(6000)
+			pickupDate := time.Date(2024, time.July, 31, 12, 0, 0, 0, time.UTC)
+			pickupAddress := factory.BuildAddress(suite.DB(), nil, []factory.Trait{factory.GetTraitAddress2})
+			deliveryAddress := factory.BuildAddress(suite.DB(), nil, []factory.Trait{factory.GetTraitAddress3})
+
+			mtoShipment := factory.BuildMTOShipmentMinimal(suite.DB(), []factory.Customization{
+				{
+					Model:    move,
+					LinkOnly: true,
+				},
+				{
+					Model:    pickupAddress,
+					LinkOnly: true,
+					Type:     &factory.Addresses.PickupAddress,
+				},
+				{
+					Model:    deliveryAddress,
+					LinkOnly: true,
+					Type:     &factory.Addresses.DeliveryAddress,
+				},
+				{
+					Model: models.MTOShipment{
+						PrimeEstimatedWeight: &estimatedPrimeWeight,
+						RequestedPickupDate:  &pickupDate,
+					},
+				},
+			}, nil)
+
+			return mtoShipment
+		}
+
+		reServiceCodeDOP := factory.FetchReServiceByCode(suite.DB(), models.ReServiceCodeDOP)
+		reServiceCodeDPK := factory.FetchReServiceByCode(suite.DB(), models.ReServiceCodeDPK)
+		reServiceCodeDDP := factory.FetchReServiceByCode(suite.DB(), models.ReServiceCodeDDP)
+		reServiceCodeDUPK := factory.FetchReServiceByCode(suite.DB(), models.ReServiceCodeDUPK)
+		reServiceCodeDLH := factory.FetchReServiceByCode(suite.DB(), models.ReServiceCodeDLH)
+		reServiceCodeDSH := factory.FetchReServiceByCode(suite.DB(), models.ReServiceCodeDSH)
+		reServiceCodeFSC := factory.FetchReServiceByCode(suite.DB(), models.ReServiceCodeFSC)
+
+		startDate := time.Now().AddDate(-1, 0, 0)
+		endDate := startDate.AddDate(1, 1, 1)
+		sitEntryDate := time.Date(2020, time.October, 24, 0, 0, 0, 0, time.UTC)
+		sitPostalCode := "99999"
+		reason := "lorem ipsum"
+
+		contract := testdatagen.FetchOrMakeReContract(suite.DB(), testdatagen.Assertions{})
+		contractYear := testdatagen.MakeReContractYear(suite.DB(),
+			testdatagen.Assertions{
+				ReContractYear: models.ReContractYear{
+					Name:                 "Test Contract Year",
+					EscalationCompounded: 1.125,
+					StartDate:            startDate,
+					EndDate:              endDate,
+				},
+			})
+
+		serviceArea := testdatagen.MakeReDomesticServiceArea(suite.DB(),
+			testdatagen.Assertions{
+				ReDomesticServiceArea: models.ReDomesticServiceArea{
+					Contract:         contractYear.Contract,
+					ServiceArea:      "945",
+					ServicesSchedule: 1,
+				},
+			})
+
+		serviceAreaDest := testdatagen.MakeReDomesticServiceArea(suite.DB(),
+			testdatagen.Assertions{
+				ReDomesticServiceArea: models.ReDomesticServiceArea{
+					Contract:         contractYear.Contract,
+					ServiceArea:      "503",
+					ServicesSchedule: 1,
+				},
+			})
+
+		serviceAreaPriceDOP := models.ReDomesticServiceAreaPrice{
+			ContractID:            contractYear.Contract.ID,
+			ServiceID:             reServiceCodeDOP.ID,
+			IsPeakPeriod:          true,
+			DomesticServiceAreaID: serviceArea.ID,
+			PriceCents:            unit.Cents(1234),
+		}
+
+		serviceAreaPriceDPK := models.ReDomesticOtherPrice{
+			ContractID:   contractYear.Contract.ID,
+			ServiceID:    reServiceCodeDPK.ID,
+			IsPeakPeriod: true,
+			Schedule:     1,
+			PriceCents:   unit.Cents(121),
+		}
+
+		serviceAreaPriceDDP := models.ReDomesticServiceAreaPrice{
+			ContractID:            contractYear.Contract.ID,
+			ServiceID:             reServiceCodeDDP.ID,
+			IsPeakPeriod:          true,
+			DomesticServiceAreaID: serviceAreaDest.ID,
+			PriceCents:            unit.Cents(482),
+		}
+
+		serviceAreaPriceDUPK := models.ReDomesticOtherPrice{
+			ContractID:   contractYear.Contract.ID,
+			ServiceID:    reServiceCodeDUPK.ID,
+			IsPeakPeriod: true,
+			Schedule:     1,
+			PriceCents:   unit.Cents(945),
+		}
+
+		serviceAreaPriceDLH := models.ReDomesticLinehaulPrice{
+			ContractID:            contractYear.Contract.ID,
+			WeightLower:           500,
+			WeightUpper:           10000,
+			MilesLower:            1,
+			MilesUpper:            10000,
+			IsPeakPeriod:          true,
+			DomesticServiceAreaID: serviceArea.ID,
+			PriceMillicents:       unit.Millicents(482),
+		}
+
+		serviceAreaPriceDSH := models.ReDomesticServiceAreaPrice{
+			ContractID:            contractYear.Contract.ID,
+			ServiceID:             reServiceCodeDSH.ID,
+			IsPeakPeriod:          true,
+			DomesticServiceAreaID: serviceArea.ID,
+			PriceCents:            unit.Cents(999),
+		}
+
+		testdatagen.MakeGHCDieselFuelPrice(suite.DB(), testdatagen.Assertions{
+			GHCDieselFuelPrice: models.GHCDieselFuelPrice{
+				FuelPriceInMillicents: unit.Millicents(281400),
+				PublicationDate:       time.Date(2020, time.March, 9, 0, 0, 0, 0, time.UTC),
+				EffectiveDate:         time.Date(2020, time.March, 10, 0, 0, 0, 0, time.UTC),
+				EndDate:               time.Date(2025, time.March, 17, 0, 0, 0, 0, time.UTC),
+			},
+		})
+
+		suite.MustSave(&serviceAreaPriceDOP)
+		suite.MustSave(&serviceAreaPriceDPK)
+		suite.MustSave(&serviceAreaPriceDDP)
+		suite.MustSave(&serviceAreaPriceDUPK)
+		suite.MustSave(&serviceAreaPriceDLH)
+		suite.MustSave(&serviceAreaPriceDSH)
+
+		testdatagen.MakeReZip3(suite.DB(), testdatagen.Assertions{
+			ReZip3: models.ReZip3{
+				Contract:            contract,
+				ContractID:          contract.ID,
+				DomesticServiceArea: serviceArea,
+				Zip3:                "945",
+			},
+		})
+
+		testdatagen.MakeReZip3(suite.DB(), testdatagen.Assertions{
+			ReZip3: models.ReZip3{
+				Contract:            contract,
+				ContractID:          contract.ID,
+				DomesticServiceArea: serviceAreaDest,
+				Zip3:                "503",
+			},
+		})
+
+		shipment := setupTestData()
+		actualPickupAddress := factory.BuildAddress(suite.DB(), nil, []factory.Trait{factory.GetTraitAddress2})
+		serviceItemDOP := models.MTOServiceItem{
+			MoveTaskOrder:             shipment.MoveTaskOrder,
+			MoveTaskOrderID:           shipment.MoveTaskOrderID,
+			MTOShipment:               shipment,
+			MTOShipmentID:             &shipment.ID,
+			ReService:                 reServiceCodeDOP,
+			SITEntryDate:              &sitEntryDate,
+			SITPostalCode:             &sitPostalCode,
+			Reason:                    &reason,
+			SITOriginHHGActualAddress: &actualPickupAddress,
+			Status:                    models.MTOServiceItemStatusSubmitted,
+		}
+
+		serviceItemDPK := models.MTOServiceItem{
+			MoveTaskOrder:             shipment.MoveTaskOrder,
+			MoveTaskOrderID:           shipment.MoveTaskOrderID,
+			MTOShipment:               shipment,
+			MTOShipmentID:             &shipment.ID,
+			ReService:                 reServiceCodeDPK,
+			SITEntryDate:              &sitEntryDate,
+			SITPostalCode:             &sitPostalCode,
+			Reason:                    &reason,
+			SITOriginHHGActualAddress: &actualPickupAddress,
+			Status:                    models.MTOServiceItemStatusSubmitted,
+		}
+
+		serviceItemDDP := models.MTOServiceItem{
+			MoveTaskOrder:             shipment.MoveTaskOrder,
+			MoveTaskOrderID:           shipment.MoveTaskOrderID,
+			MTOShipment:               shipment,
+			MTOShipmentID:             &shipment.ID,
+			ReService:                 reServiceCodeDDP,
+			SITEntryDate:              &sitEntryDate,
+			SITPostalCode:             &sitPostalCode,
+			Reason:                    &reason,
+			SITOriginHHGActualAddress: &actualPickupAddress,
+			Status:                    models.MTOServiceItemStatusSubmitted,
+		}
+
+		serviceItemDUPK := models.MTOServiceItem{
+			MoveTaskOrder:             shipment.MoveTaskOrder,
+			MoveTaskOrderID:           shipment.MoveTaskOrderID,
+			MTOShipment:               shipment,
+			MTOShipmentID:             &shipment.ID,
+			ReService:                 reServiceCodeDUPK,
+			SITEntryDate:              &sitEntryDate,
+			SITPostalCode:             &sitPostalCode,
+			Reason:                    &reason,
+			SITOriginHHGActualAddress: &actualPickupAddress,
+			Status:                    models.MTOServiceItemStatusSubmitted,
+		}
+
+		serviceItemDLH := models.MTOServiceItem{
+			MoveTaskOrder:             shipment.MoveTaskOrder,
+			MoveTaskOrderID:           shipment.MoveTaskOrderID,
+			MTOShipment:               shipment,
+			MTOShipmentID:             &shipment.ID,
+			ReService:                 reServiceCodeDLH,
+			SITEntryDate:              &sitEntryDate,
+			SITPostalCode:             &sitPostalCode,
+			Reason:                    &reason,
+			SITOriginHHGActualAddress: &actualPickupAddress,
+			Status:                    models.MTOServiceItemStatusSubmitted,
+		}
+
+		serviceItemDSH := models.MTOServiceItem{
+			MoveTaskOrder:             shipment.MoveTaskOrder,
+			MoveTaskOrderID:           shipment.MoveTaskOrderID,
+			MTOShipment:               shipment,
+			MTOShipmentID:             &shipment.ID,
+			ReService:                 reServiceCodeDSH,
+			SITEntryDate:              &sitEntryDate,
+			SITPostalCode:             &sitPostalCode,
+			Reason:                    &reason,
+			SITOriginHHGActualAddress: &actualPickupAddress,
+			Status:                    models.MTOServiceItemStatusSubmitted,
+		}
+
+		serviceItemFSC := models.MTOServiceItem{
+			MoveTaskOrder:             shipment.MoveTaskOrder,
+			MoveTaskOrderID:           shipment.MoveTaskOrderID,
+			MTOShipment:               shipment,
+			MTOShipmentID:             &shipment.ID,
+			ReService:                 reServiceCodeFSC,
+			SITEntryDate:              &sitEntryDate,
+			SITPostalCode:             &sitPostalCode,
+			Reason:                    &reason,
+			SITOriginHHGActualAddress: &actualPickupAddress,
+			Status:                    models.MTOServiceItemStatusSubmitted,
+		}
+
+		builder := query.NewQueryBuilder()
+
+		moveRouter := moverouter.NewMoveRouter()
+		planner := &routemocks.Planner{}
+		planner.On("ZipTransitDistance",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.Anything,
+			mock.Anything,
+		).Return(400, nil)
+		creator := mtoserviceitem.NewMTOServiceItemCreator(planner, builder, moveRouter, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticPackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer())
+
+		dopEstimatedPriceInCents, _ := creator.FindEstimatedPrice(suite.AppContextForTest(), &serviceItemDOP, shipment)
+		suite.Equal(unit.Cents(83280), dopEstimatedPriceInCents)
+
+		dpkEstimatedPriceInCents, _ := creator.FindEstimatedPrice(suite.AppContextForTest(), &serviceItemDPK, shipment)
+		suite.Equal(unit.Cents(8160), dpkEstimatedPriceInCents)
+
+		ddpEstimatedPriceInCents, _ := creator.FindEstimatedPrice(suite.AppContextForTest(), &serviceItemDDP, shipment)
+		suite.Equal(unit.Cents(32520), ddpEstimatedPriceInCents)
+
+		dupkEstimatedPriceInCents, _ := creator.FindEstimatedPrice(suite.AppContextForTest(), &serviceItemDUPK, shipment)
+		suite.Equal(unit.Cents(63780), dupkEstimatedPriceInCents)
+
+		dlhEstimatedPriceInCents, _ := creator.FindEstimatedPrice(suite.AppContextForTest(), &serviceItemDLH, shipment)
+		suite.Equal(unit.Cents(14400), dlhEstimatedPriceInCents)
+
+		dshEstimatedPriceInCents, _ := creator.FindEstimatedPrice(suite.AppContextForTest(), &serviceItemDSH, shipment)
+		suite.Equal(unit.Cents(26976000), dshEstimatedPriceInCents)
+
+		fscEstimatedPriceInCents, _ := creator.FindEstimatedPrice(suite.AppContextForTest(), &serviceItemFSC, shipment)
+		suite.Equal(unit.Cents(786), fscEstimatedPriceInCents)
+	})
+
+	suite.Run("Calcuating price estimated on creation for NTS shipment ", func() {
+		setupTestData := func() models.MTOShipment {
+			// Set up data to use for all Origin SIT Service Item tests
+
+			move := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
+			estimatedPrimeWeight := unit.Pound(6000)
+			pickupDate := time.Date(2024, time.July, 31, 12, 0, 0, 0, time.UTC)
+			pickupAddress := factory.BuildAddress(suite.DB(), nil, []factory.Trait{factory.GetTraitAddress2})
+			deliveryAddress := factory.BuildAddress(suite.DB(), nil, []factory.Trait{factory.GetTraitAddress3})
+
+			mtoShipment := factory.BuildMTOShipmentMinimal(suite.DB(), []factory.Customization{
+				{
+					Model:    move,
+					LinkOnly: true,
+				},
+				{
+					Model:    pickupAddress,
+					LinkOnly: true,
+					Type:     &factory.Addresses.PickupAddress,
+				},
+				{
+					Model:    deliveryAddress,
+					LinkOnly: true,
+					Type:     &factory.Addresses.DeliveryAddress,
+				},
+				{
+					Model: models.MTOShipment{
+						PrimeEstimatedWeight: &estimatedPrimeWeight,
+						RequestedPickupDate:  &pickupDate,
+						ShipmentType:         models.MTOShipmentTypeHHGOutOfNTSDom,
+						Status:               models.MTOShipmentStatusApproved,
+					},
+				},
+			}, nil)
+
+			return mtoShipment
+		}
+
+		reServiceCodeDOP := factory.FetchReServiceByCode(suite.DB(), models.ReServiceCodeDOP)
+		reServiceCodeDPK := factory.FetchReServiceByCode(suite.DB(), models.ReServiceCodeDPK)
+		reServiceCodeDDP := factory.FetchReServiceByCode(suite.DB(), models.ReServiceCodeDDP)
+		reServiceCodeDUPK := factory.FetchReServiceByCode(suite.DB(), models.ReServiceCodeDUPK)
+		reServiceCodeDLH := factory.FetchReServiceByCode(suite.DB(), models.ReServiceCodeDLH)
+		reServiceCodeDSH := factory.FetchReServiceByCode(suite.DB(), models.ReServiceCodeDSH)
+		reServiceCodeFSC := factory.FetchReServiceByCode(suite.DB(), models.ReServiceCodeFSC)
+
+		startDate := time.Now().AddDate(-1, 0, 0)
+		endDate := startDate.AddDate(1, 1, 1)
+		sitEntryDate := time.Date(2020, time.October, 24, 0, 0, 0, 0, time.UTC)
+		sitPostalCode := "99999"
+		reason := "lorem ipsum"
+
+		contract := testdatagen.FetchOrMakeReContract(suite.DB(), testdatagen.Assertions{})
+		contractYear := testdatagen.MakeReContractYear(suite.DB(),
+			testdatagen.Assertions{
+				ReContractYear: models.ReContractYear{
+					Name:                 "Test Contract Year",
+					EscalationCompounded: 1.125,
+					StartDate:            startDate,
+					EndDate:              endDate,
+				},
+			})
+
+		serviceArea := testdatagen.MakeReDomesticServiceArea(suite.DB(),
+			testdatagen.Assertions{
+				ReDomesticServiceArea: models.ReDomesticServiceArea{
+					Contract:         contractYear.Contract,
+					ServiceArea:      "945",
+					ServicesSchedule: 1,
+				},
+			})
+
+		serviceAreaDest := testdatagen.MakeReDomesticServiceArea(suite.DB(),
+			testdatagen.Assertions{
+				ReDomesticServiceArea: models.ReDomesticServiceArea{
+					Contract:         contractYear.Contract,
+					ServiceArea:      "503",
+					ServicesSchedule: 1,
+				},
+			})
+
+		serviceAreaPriceDOP := models.ReDomesticServiceAreaPrice{
+			ContractID:            contractYear.Contract.ID,
+			ServiceID:             reServiceCodeDOP.ID,
+			IsPeakPeriod:          true,
+			DomesticServiceAreaID: serviceArea.ID,
+			PriceCents:            unit.Cents(1234),
+		}
+
+		serviceAreaPriceDPK := models.ReDomesticOtherPrice{
+			ContractID:   contractYear.Contract.ID,
+			ServiceID:    reServiceCodeDPK.ID,
+			IsPeakPeriod: true,
+			Schedule:     1,
+			PriceCents:   unit.Cents(121),
+		}
+
+		serviceAreaPriceDDP := models.ReDomesticServiceAreaPrice{
+			ContractID:            contractYear.Contract.ID,
+			ServiceID:             reServiceCodeDDP.ID,
+			IsPeakPeriod:          true,
+			DomesticServiceAreaID: serviceAreaDest.ID,
+			PriceCents:            unit.Cents(482),
+		}
+
+		serviceAreaPriceDUPK := models.ReDomesticOtherPrice{
+			ContractID:   contractYear.Contract.ID,
+			ServiceID:    reServiceCodeDUPK.ID,
+			IsPeakPeriod: true,
+			Schedule:     1,
+			PriceCents:   unit.Cents(945),
+		}
+
+		serviceAreaPriceDLH := models.ReDomesticLinehaulPrice{
+			ContractID:            contractYear.Contract.ID,
+			WeightLower:           500,
+			WeightUpper:           10000,
+			MilesLower:            1,
+			MilesUpper:            10000,
+			IsPeakPeriod:          true,
+			DomesticServiceAreaID: serviceArea.ID,
+			PriceMillicents:       unit.Millicents(482),
+		}
+
+		serviceAreaPriceDSH := models.ReDomesticServiceAreaPrice{
+			ContractID:            contractYear.Contract.ID,
+			ServiceID:             reServiceCodeDSH.ID,
+			IsPeakPeriod:          true,
+			DomesticServiceAreaID: serviceArea.ID,
+			PriceCents:            unit.Cents(999),
+		}
+
+		testdatagen.MakeGHCDieselFuelPrice(suite.DB(), testdatagen.Assertions{
+			GHCDieselFuelPrice: models.GHCDieselFuelPrice{
+				FuelPriceInMillicents: unit.Millicents(281400),
+				PublicationDate:       time.Date(2020, time.March, 9, 0, 0, 0, 0, time.UTC),
+				EffectiveDate:         time.Date(2020, time.March, 10, 0, 0, 0, 0, time.UTC),
+				EndDate:               time.Date(2025, time.March, 17, 0, 0, 0, 0, time.UTC),
+			},
+		})
+
+		suite.MustSave(&serviceAreaPriceDOP)
+		suite.MustSave(&serviceAreaPriceDPK)
+		suite.MustSave(&serviceAreaPriceDDP)
+		suite.MustSave(&serviceAreaPriceDUPK)
+		suite.MustSave(&serviceAreaPriceDLH)
+		suite.MustSave(&serviceAreaPriceDSH)
+
+		testdatagen.MakeReZip3(suite.DB(), testdatagen.Assertions{
+			ReZip3: models.ReZip3{
+				Contract:            contract,
+				ContractID:          contract.ID,
+				DomesticServiceArea: serviceArea,
+				Zip3:                "945",
+			},
+		})
+
+		testdatagen.MakeReZip3(suite.DB(), testdatagen.Assertions{
+			ReZip3: models.ReZip3{
+				Contract:            contract,
+				ContractID:          contract.ID,
+				DomesticServiceArea: serviceAreaDest,
+				Zip3:                "503",
+			},
+		})
+
+		shipment := setupTestData()
+		actualPickupAddress := factory.BuildAddress(suite.DB(), nil, []factory.Trait{factory.GetTraitAddress2})
+		serviceItemDOP := models.MTOServiceItem{
+			MoveTaskOrder:             shipment.MoveTaskOrder,
+			MoveTaskOrderID:           shipment.MoveTaskOrderID,
+			MTOShipment:               shipment,
+			MTOShipmentID:             &shipment.ID,
+			ReService:                 reServiceCodeDOP,
+			SITEntryDate:              &sitEntryDate,
+			SITPostalCode:             &sitPostalCode,
+			Reason:                    &reason,
+			SITOriginHHGActualAddress: &actualPickupAddress,
+			Status:                    models.MTOServiceItemStatusSubmitted,
+		}
+
+		serviceItemDPK := models.MTOServiceItem{
+			MoveTaskOrder:             shipment.MoveTaskOrder,
+			MoveTaskOrderID:           shipment.MoveTaskOrderID,
+			MTOShipment:               shipment,
+			MTOShipmentID:             &shipment.ID,
+			ReService:                 reServiceCodeDPK,
+			SITEntryDate:              &sitEntryDate,
+			SITPostalCode:             &sitPostalCode,
+			Reason:                    &reason,
+			SITOriginHHGActualAddress: &actualPickupAddress,
+			Status:                    models.MTOServiceItemStatusSubmitted,
+		}
+
+		serviceItemDDP := models.MTOServiceItem{
+			MoveTaskOrder:             shipment.MoveTaskOrder,
+			MoveTaskOrderID:           shipment.MoveTaskOrderID,
+			MTOShipment:               shipment,
+			MTOShipmentID:             &shipment.ID,
+			ReService:                 reServiceCodeDDP,
+			SITEntryDate:              &sitEntryDate,
+			SITPostalCode:             &sitPostalCode,
+			Reason:                    &reason,
+			SITOriginHHGActualAddress: &actualPickupAddress,
+			Status:                    models.MTOServiceItemStatusSubmitted,
+		}
+
+		serviceItemDUPK := models.MTOServiceItem{
+			MoveTaskOrder:             shipment.MoveTaskOrder,
+			MoveTaskOrderID:           shipment.MoveTaskOrderID,
+			MTOShipment:               shipment,
+			MTOShipmentID:             &shipment.ID,
+			ReService:                 reServiceCodeDUPK,
+			SITEntryDate:              &sitEntryDate,
+			SITPostalCode:             &sitPostalCode,
+			Reason:                    &reason,
+			SITOriginHHGActualAddress: &actualPickupAddress,
+			Status:                    models.MTOServiceItemStatusSubmitted,
+		}
+
+		serviceItemDLH := models.MTOServiceItem{
+			MoveTaskOrder:             shipment.MoveTaskOrder,
+			MoveTaskOrderID:           shipment.MoveTaskOrderID,
+			MTOShipment:               shipment,
+			MTOShipmentID:             &shipment.ID,
+			ReService:                 reServiceCodeDLH,
+			SITEntryDate:              &sitEntryDate,
+			SITPostalCode:             &sitPostalCode,
+			Reason:                    &reason,
+			SITOriginHHGActualAddress: &actualPickupAddress,
+			Status:                    models.MTOServiceItemStatusSubmitted,
+		}
+
+		serviceItemDSH := models.MTOServiceItem{
+			MoveTaskOrder:             shipment.MoveTaskOrder,
+			MoveTaskOrderID:           shipment.MoveTaskOrderID,
+			MTOShipment:               shipment,
+			MTOShipmentID:             &shipment.ID,
+			ReService:                 reServiceCodeDSH,
+			SITEntryDate:              &sitEntryDate,
+			SITPostalCode:             &sitPostalCode,
+			Reason:                    &reason,
+			SITOriginHHGActualAddress: &actualPickupAddress,
+			Status:                    models.MTOServiceItemStatusSubmitted,
+		}
+
+		serviceItemFSC := models.MTOServiceItem{
+			MoveTaskOrder:             shipment.MoveTaskOrder,
+			MoveTaskOrderID:           shipment.MoveTaskOrderID,
+			MTOShipment:               shipment,
+			MTOShipmentID:             &shipment.ID,
+			ReService:                 reServiceCodeFSC,
+			SITEntryDate:              &sitEntryDate,
+			SITPostalCode:             &sitPostalCode,
+			Reason:                    &reason,
+			SITOriginHHGActualAddress: &actualPickupAddress,
+			Status:                    models.MTOServiceItemStatusSubmitted,
+		}
+
+		shipment.MTOServiceItems = append(shipment.MTOServiceItems, serviceItemDOP, serviceItemDPK, serviceItemDSH, serviceItemDUPK, serviceItemFSC, serviceItemDLH, serviceItemDDP)
+
+		err := suite.DB().Save(&shipment)
+		suite.NoError(err)
+		shipmentEtag := etag.GenerateEtag(shipment.UpdatedAt)
+		planner := &routemocks.Planner{}
+		planner.On("ZipTransitDistance",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.Anything,
+			mock.Anything,
+		).Return(400, nil)
+
+		mockMTOShipmentUpdater := mocks.MTOShipmentUpdater{}
+
+		returnShipment := &shipment
+
+		mockMTOShipmentUpdater.On(
+			"UpdateMTOShipment",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.AnythingOfType("*models.MTOShipment"),
+			mock.AnythingOfType("string"),
+			mock.AnythingOfType("string")).
+			Return(returnShipment, nil)
+
+		mockPPMShipmentUpdater := mocks.PPMShipmentUpdater{}
+
+		mockBoatShipmentUpdater := mocks.BoatShipmentUpdater{}
+
+		mockMobileHomeShipmentUpdater := mocks.MobileHomeShipmentUpdater{}
+
+		mockMTOServiceItemCreator := mocks.MTOServiceItemCreator{}
+
+		mockMTOShipmentUpdater.On(
+			"FindEstimatedPrice",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.AnythingOfType("models.MTOServiceItem"),
+			mock.AnythingOfType("*models.MTOShipment")).
+			Return(returnShipment, nil)
+
+		appCtx := suite.AppContextForTest()
+		shipmentUpdater := NewShipmentUpdater(&mockMTOShipmentUpdater, &mockPPMShipmentUpdater, &mockBoatShipmentUpdater, &mockMobileHomeShipmentUpdater, &mockMTOServiceItemCreator)
+		mtoShipment, err := shipmentUpdater.UpdateShipment(appCtx, &shipment, shipmentEtag, "test")
+
+		suite.NoError(err)
+
+		for _, serviceItem := range mtoShipment.MTOServiceItems {
+			suite.Equal(0, serviceItem.PricingEstimate)
+		}
+
+		/* dopEstimatedPriceInCents, _ := creator.FindEstimatedPrice(suite.AppContextForTest(), &serviceItemDOP, shipment)
+		suite.Equal(unit.Cents(91608), dopEstimatedPriceInCents)
+
+		dpkEstimatedPriceInCents, _ := creator.FindEstimatedPrice(suite.AppContextForTest(), &serviceItemDPK, shipment)
+		suite.Equal(unit.Cents(8976), dpkEstimatedPriceInCents)
+
+		ddpEstimatedPriceInCents, _ := creator.FindEstimatedPrice(suite.AppContextForTest(), &serviceItemDDP, shipment)
+		suite.Equal(unit.Cents(35772), ddpEstimatedPriceInCents)
+
+		dupkEstimatedPriceInCents, _ := creator.FindEstimatedPrice(suite.AppContextForTest(), &serviceItemDUPK, shipment)
+		suite.Equal(unit.Cents(70158), dupkEstimatedPriceInCents)
+
+		dlhEstimatedPriceInCents, _ := creator.FindEstimatedPrice(suite.AppContextForTest(), &serviceItemDLH, shipment)
+		suite.Equal(unit.Cents(15840), dlhEstimatedPriceInCents)
+
+		dshEstimatedPriceInCents, _ := creator.FindEstimatedPrice(suite.AppContextForTest(), &serviceItemDSH, shipment)
+		suite.Equal(unit.Cents(29673600), dshEstimatedPriceInCents)
+
+		fscEstimatedPriceInCents, _ := creator.FindEstimatedPrice(suite.AppContextForTest(), &serviceItemFSC, shipment)
+		suite.Equal(unit.Cents(786), fscEstimatedPriceInCents) */
 	})
 }

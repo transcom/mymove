@@ -6,6 +6,7 @@ import (
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
+	"github.com/transcom/mymove/pkg/unit"
 )
 
 // shipmentUpdater is the concrete struct implementing the services.ShipmentUpdater interface
@@ -15,16 +16,18 @@ type shipmentUpdater struct {
 	ppmShipmentUpdater        services.PPMShipmentUpdater
 	boatShipmentUpdater       services.BoatShipmentUpdater
 	mobileHomeShipmentUpdater services.MobileHomeShipmentUpdater
+	mtoServiceItemCreator     services.MTOServiceItemCreator
 }
 
 // NewShipmentUpdater creates a new shipmentUpdater struct with the basic checks and service dependencies.
-func NewShipmentUpdater(mtoShipmentUpdater services.MTOShipmentUpdater, ppmShipmentUpdater services.PPMShipmentUpdater, boatShipmentUpdater services.BoatShipmentUpdater, mobileHomeShipmentUpdater services.MobileHomeShipmentUpdater) services.ShipmentUpdater {
+func NewShipmentUpdater(mtoShipmentUpdater services.MTOShipmentUpdater, ppmShipmentUpdater services.PPMShipmentUpdater, boatShipmentUpdater services.BoatShipmentUpdater, mobileHomeShipmentUpdater services.MobileHomeShipmentUpdater, mtoServiceItemCreator services.MTOServiceItemCreator) services.ShipmentUpdater {
 	return &shipmentUpdater{
 		checks:                    basicShipmentChecks(),
 		mtoShipmentUpdater:        mtoShipmentUpdater,
 		ppmShipmentUpdater:        ppmShipmentUpdater,
 		boatShipmentUpdater:       boatShipmentUpdater,
 		mobileHomeShipmentUpdater: mobileHomeShipmentUpdater,
+		mtoServiceItemCreator:     mtoServiceItemCreator,
 	}
 }
 
@@ -39,8 +42,32 @@ func (s *shipmentUpdater) UpdateShipment(appCtx appcontext.AppContext, shipment 
 	txErr := appCtx.NewTransaction(func(txnAppCtx appcontext.AppContext) (err error) {
 		mtoShipment, err = s.mtoShipmentUpdater.UpdateMTOShipment(txnAppCtx, shipment, eTag, api)
 
+		if mtoShipment.ShipmentType != models.MTOShipmentTypePPM && (shipment.PrimeEstimatedWeight != nil || mtoShipment.PrimeEstimatedWeight != nil) && mtoShipment.Status == models.MTOShipmentStatusApproved {
+			for index, serviceItem := range mtoShipment.MTOServiceItems {
+				var estimatedWeightToUse unit.Pound
+				if shipment.PrimeEstimatedWeight != nil {
+					estimatedWeightToUse = *shipment.PrimeEstimatedWeight
+				} else {
+					estimatedWeightToUse = *mtoShipment.PrimeEstimatedWeight
+				}
+				mtoShipment.MTOServiceItems[index].EstimatedWeight = &estimatedWeightToUse
+				serviceItemEstimatedPrice, err := s.mtoServiceItemCreator.FindEstimatedPrice(appCtx, &serviceItem, *mtoShipment)
+				if serviceItemEstimatedPrice != 0 && err == nil {
+					mtoShipment.MTOServiceItems[index].PricingEstimate = &serviceItemEstimatedPrice
+
+				}
+			}
+		}
+
 		if err != nil {
 			return err
+		}
+
+		if mtoShipment.MTOServiceItems != nil {
+			_, mtoErr := appCtx.DB().ValidateAndUpdate(&mtoShipment.MTOServiceItems)
+			if mtoErr != nil {
+				return mtoErr
+			}
 		}
 
 		isBoatShipment := shipment.ShipmentType == models.MTOShipmentTypeBoatHaulAway || shipment.ShipmentType == models.MTOShipmentTypeBoatTowAway
