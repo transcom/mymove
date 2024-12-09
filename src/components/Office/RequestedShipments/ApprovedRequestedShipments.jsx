@@ -89,8 +89,8 @@ const ApprovedRequestedShipments = ({
   const [enableBoat, setEnableBoat] = useState(false);
   const [enableMobileHome, setEnableMobileHome] = useState(false);
   const [enableUB, setEnableUB] = useState(false);
-  const [enableNTS, setEnableNTS] = React.useState(false);
-  const [enableNTSR, setEnableNTSR] = React.useState(false);
+  const [enableNTS, setEnableNTS] = useState(false);
+  const [enableNTSR, setEnableNTSR] = useState(false);
   const [isOconusMove, setIsOconusMove] = useState(false);
 
   useEffect(() => {
