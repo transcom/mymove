@@ -78,9 +78,16 @@ const OrdersInfoForm = ({ ordersTypeOptions, initialValues, onSubmit, onBack }) 
 
   return (
     <Formik initialValues={initialValues} validateOnMount validationSchema={validationSchema} onSubmit={onSubmit}>
-      {({ isValid, isSubmitting, handleSubmit, handleChange, values, touched, setFieldValue }) => {
+      {({ isValid, isSubmitting, handleSubmit, handleChange, setValues, values, touched, setFieldValue }) => {
         const isRetirementOrSeparation = ['RETIREMENT', 'SEPARATION'].includes(values.orders_type);
 
+        const handleCounselingOfficeChange = () => {
+          setValues({
+            ...values,
+            counseling_office_id: null,
+          });
+          setCounselingOfficeOptions(null);
+        };
         if (!values.origin_duty_location && touched.origin_duty_location) originMeta = 'Required';
         else originMeta = null;
 
@@ -173,6 +180,7 @@ const OrdersInfoForm = ({ ordersTypeOptions, initialValues, onSubmit, onBack }) 
                 id="origin_duty_location"
                 onDutyLocationChange={(e) => {
                   setDutyLocation(e);
+                  handleCounselingOfficeChange();
                 }}
                 required
                 metaOverride={originMeta}
@@ -185,7 +193,7 @@ const OrdersInfoForm = ({ ordersTypeOptions, initialValues, onSubmit, onBack }) 
                     assist you.
                   </Label>
                   <DropdownInput
-                    label="Counseling Office"
+                    label="Counseling office"
                     name="counseling_office_id"
                     id="counseling_office_id"
                     hint="Required"
@@ -270,6 +278,7 @@ OrdersInfoForm.propTypes = {
     new_duty_location: PropTypes.shape({}),
     grade: PropTypes.string,
     origin_duty_location: DutyLocationShape,
+    counseling_office_id: PropTypes.string,
   }).isRequired,
   onSubmit: PropTypes.func.isRequired,
   onBack: PropTypes.func.isRequired,
