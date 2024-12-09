@@ -17,7 +17,8 @@ import (
 // GetMoveTaskOrderHandler returns the details for a particular move
 type GetMoveTaskOrderHandler struct {
 	handlers.HandlerConfig
-	moveTaskOrderFetcher services.MoveTaskOrderFetcher
+	moveTaskOrderFetcher   services.MoveTaskOrderFetcher
+	shipmentRateAreaFinder services.ShipmentRateAreaFinder
 }
 
 // Handle fetches a move from the database using its UUID or move code
@@ -53,7 +54,7 @@ func (h GetMoveTaskOrderHandler) Handle(params movetaskorderops.GetMoveTaskOrder
 			/** Feature Flag - Boat Shipment **/
 			const featureFlagName = "boat"
 			isBoatFeatureOn := false
-			flag, err := h.FeatureFlagFetcher().GetBooleanFlagForUser(params.HTTPRequest.Context(), appCtx, featureFlagName, map[string]string{})
+			flag, err := h.FeatureFlagFetcher().GetBooleanFlag(params.HTTPRequest.Context(), appCtx.Logger(), "", featureFlagName, map[string]string{})
 			if err != nil {
 				appCtx.Logger().Error("Error fetching feature flag", zap.String("featureFlagKey", featureFlagName), zap.Error(err))
 			} else {
@@ -80,7 +81,7 @@ func (h GetMoveTaskOrderHandler) Handle(params movetaskorderops.GetMoveTaskOrder
 			/** Feature Flag - Mobile Home Shipment **/
 			isMobileHomeFeatureOn := false
 			const featureFlagNameMH = "mobile_home"
-			flagMH, err := h.FeatureFlagFetcher().GetBooleanFlagForUser(params.HTTPRequest.Context(), appCtx, featureFlagNameMH, map[string]string{})
+			flagMH, err := h.FeatureFlagFetcher().GetBooleanFlag(params.HTTPRequest.Context(), appCtx.Logger(), "", featureFlagNameMH, map[string]string{})
 			if err != nil {
 				appCtx.Logger().Error("Error fetching feature flagMH", zap.String("featureFlagKey", featureFlagNameMH), zap.Error(err))
 			} else {
@@ -104,7 +105,15 @@ func (h GetMoveTaskOrderHandler) Handle(params movetaskorderops.GetMoveTaskOrder
 			}
 			/** End of Feature Flag **/
 
-			moveTaskOrderPayload := payloads.MoveTaskOrder(mto)
+			// Add oconus rate area information to payload
+			shipmentPostalCodeRateArea, err := h.shipmentRateAreaFinder.GetPrimeMoveShipmentOconusRateArea(appCtx, *mto)
+			if err != nil {
+				appCtx.Logger().Error("primeapi.GetMoveTaskOrderHandler error", zap.Error(err))
+				return movetaskorderops.NewGetMoveTaskOrderInternalServerError().WithPayload(
+					payloads.InternalServerError(handlers.FmtString(err.Error()), h.GetTraceIDFromRequest(params.HTTPRequest))), err
+			}
+
+			moveTaskOrderPayload := payloads.MoveTaskOrderWithShipmentOconusRateArea(appCtx, mto, shipmentPostalCodeRateArea)
 
 			return movetaskorderops.NewGetMoveTaskOrderOK().WithPayload(moveTaskOrderPayload), nil
 		})

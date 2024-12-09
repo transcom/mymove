@@ -15,7 +15,8 @@ import (
 )
 
 func (suite *SitExtensionServiceSuite) TestDenySITExtension() {
-	moveRouter := moverouter.NewMoveRouter()
+	moveRouter, err := moverouter.NewMoveRouter()
+	suite.FatalNoError(err)
 	sitExtensionDenier := NewSITExtensionDenier(moveRouter)
 
 	suite.Run("Returns an error when shipment is not found", func() {
@@ -165,7 +166,7 @@ func (suite *SitExtensionServiceSuite) TestDenySITExtension() {
 		today := time.Now()
 
 		// Test data needed to ensure that conversion sets the correct flags in both sit_extensions and mto_service_items table.
-		testdatagen.FetchOrMakeReService(suite.DB(), testdatagen.Assertions{ReService: models.ReService{Code: "DOFSIT"}})
+		testdatagen.FetchReService(suite.DB(), testdatagen.Assertions{ReService: models.ReService{Code: "DOFSIT"}})
 		testdatagen.MakeMTOServiceItem(suite.DB(), testdatagen.Assertions{
 			ReService: models.ReService{
 				Code: models.ReServiceCodeDOFSIT,

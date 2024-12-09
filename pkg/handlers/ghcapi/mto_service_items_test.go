@@ -45,7 +45,7 @@ func (suite *HandlerSuite) TestListMTOServiceItemHandler() {
 	setupTestData := func() (models.User, models.MTOServiceItems) {
 		mto := factory.BuildMove(suite.DB(), nil, nil)
 		mtoID = mto.ID
-		reService := factory.BuildReService(suite.DB(), []factory.Customization{
+		reService := factory.FetchReService(suite.DB(), []factory.Customization{
 			{
 				Model: models.ReService{
 					ID:   reServiceID,
@@ -322,7 +322,8 @@ func (suite *HandlerSuite) TestUpdateMTOServiceItemStatusHandler() {
 	mockSender := suite.TestNotificationSender()
 	addressUpdater := address.NewAddressUpdater()
 	addressCreator := address.NewAddressCreator()
-	moveRouter := moveservices.NewMoveRouter()
+	moveRouter, err := moveservices.NewMoveRouter()
+	suite.FatalNoError(err)
 
 	noCheckUpdater := mtoshipment.NewMTOShipmentUpdater(builder, fetcher, planner, moveRouter, moveWeights, mockSender, paymentRequestShipmentRecalculator, addressUpdater, addressCreator)
 	ppmEstimator := mocks.PPMEstimator{}
@@ -554,7 +555,8 @@ func (suite *HandlerSuite) TestUpdateMTOServiceItemStatusHandler() {
 		}
 
 		fetcher := fetch.NewFetcher(queryBuilder)
-		moveRouter := moveservices.NewMoveRouter()
+		moveRouter, err := moveservices.NewMoveRouter()
+		suite.FatalNoError(err)
 		shipmentFetcher := mtoshipment.NewMTOShipmentFetcher()
 		addressCreator := address.NewAddressCreator()
 		planner := &routemocks.Planner{}
@@ -563,7 +565,7 @@ func (suite *HandlerSuite) TestUpdateMTOServiceItemStatusHandler() {
 			mock.Anything,
 			mock.Anything,
 		).Return(400, nil)
-		mtoServiceItemStatusUpdater := mtoserviceitem.NewMTOServiceItemUpdater(planner, queryBuilder, moveRouter, shipmentFetcher, addressCreator)
+		mtoServiceItemStatusUpdater := mtoserviceitem.NewMTOServiceItemUpdater(planner, queryBuilder, moveRouter, shipmentFetcher, addressCreator, ghcrateengine.NewDomesticUnpackPricer(moveRouter.FeatureFlagFetcher()), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticDestinationPricer(mockFeatureFlagFetcher), ghcrateengine.NewFuelSurchargePricer(), ghcrateengine.NewDomesticDestinationSITDeliveryPricer(), ghcrateengine.NewDomesticOriginSITFuelSurchargePricer(), mockFeatureFlagFetcher)
 
 		handler := UpdateMTOServiceItemStatusHandler{
 			HandlerConfig:         suite.HandlerConfig(),
@@ -593,7 +595,8 @@ func (suite *HandlerSuite) TestUpdateMTOServiceItemStatusHandler() {
 	// by the handler is working as expected.
 	suite.Run("Successful status update of MTO service item and event trigger", func() {
 		queryBuilder := query.NewQueryBuilder()
-		moveRouter := moveservices.NewMoveRouter()
+		moveRouter, err := moveservices.NewMoveRouter()
+		suite.FatalNoError(err)
 		shipmentFetcher := mtoshipment.NewMTOShipmentFetcher()
 		mtoServiceItem, availableMove := suite.createServiceItem()
 		requestUser := factory.BuildUser(nil, nil, nil)
@@ -623,7 +626,7 @@ func (suite *HandlerSuite) TestUpdateMTOServiceItemStatusHandler() {
 			mock.Anything,
 			mock.Anything,
 		).Return(400, nil)
-		mtoServiceItemStatusUpdater := mtoserviceitem.NewMTOServiceItemUpdater(planner, queryBuilder, moveRouter, shipmentFetcher, addressCreator)
+		mtoServiceItemStatusUpdater := mtoserviceitem.NewMTOServiceItemUpdater(planner, queryBuilder, moveRouter, shipmentFetcher, addressCreator, ghcrateengine.NewDomesticUnpackPricer(moveRouter.FeatureFlagFetcher()), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticDestinationPricer(moveRouter.FeatureFlagFetcher()), ghcrateengine.NewFuelSurchargePricer(), ghcrateengine.NewDomesticDestinationSITDeliveryPricer(), ghcrateengine.NewDomesticOriginSITFuelSurchargePricer(), mockFeatureFlagFetcher)
 
 		handler := UpdateMTOServiceItemStatusHandler{
 			HandlerConfig:         suite.HandlerConfig(),
@@ -767,7 +770,8 @@ func (suite *HandlerSuite) TestUpdateServiceItemSitEntryDateHandler() {
 	mockSender := suite.TestNotificationSender()
 	addressUpdater := address.NewAddressUpdater()
 	addressCreator := address.NewAddressCreator()
-	moveRouter := moveservices.NewMoveRouter()
+	moveRouter, err := moveservices.NewMoveRouter()
+	suite.FatalNoError(err)
 
 	noCheckUpdater := mtoshipment.NewMTOShipmentUpdater(builder, fetcher, planner, moveRouter, moveWeights, mockSender, paymentRequestShipmentRecalculator, addressUpdater, addressCreator)
 	ppmEstimator := mocks.PPMEstimator{}
@@ -840,5 +844,189 @@ func (suite *HandlerSuite) TestUpdateServiceItemSitEntryDateHandler() {
 
 		// Validate outgoing payload: nil payload
 		suite.IsType(payload, &ghcmessages.ValidationError{})
+	})
+}
+
+func (suite *HandlerSuite) TestListMTOServiceItemsHandlerWithICRTandIUCRT() {
+	reServiceID, _ := uuid.NewV4()
+	serviceItemID, _ := uuid.NewV4()
+	serviceItemID2, _ := uuid.NewV4()
+	mtoShipmentID, _ := uuid.NewV4()
+	var mtoID uuid.UUID
+
+	setupTestData := func() (models.User, models.MTOServiceItems) {
+		mto := factory.BuildMove(suite.DB(), nil, nil)
+		mtoID = mto.ID
+		reServiceICRT := factory.FetchReService(suite.DB(), []factory.Customization{
+			{
+				Model: models.ReService{
+					ID:   reServiceID,
+					Code: models.ReServiceCodeICRT,
+				},
+			},
+		}, nil)
+		reServiceIUCRT := factory.FetchReService(suite.DB(), []factory.Customization{
+			{
+				Model: models.ReService{
+					ID:   reServiceID,
+					Code: models.ReServiceCodeIUCRT,
+				},
+			},
+		}, nil)
+		mtoShipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOShipment{ID: mtoShipmentID},
+			},
+		}, nil)
+		requestUser := factory.BuildUser(nil, nil, nil)
+		serviceItem := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOServiceItem{
+					ID: serviceItemID,
+				},
+			},
+			{
+				Model:    mto,
+				LinkOnly: true,
+			},
+			{
+				Model:    reServiceICRT,
+				LinkOnly: true,
+			},
+			{
+				Model:    mtoShipment,
+				LinkOnly: true,
+			},
+		}, nil)
+		serviceItem2 := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOServiceItem{
+					ID: serviceItemID2,
+				},
+			},
+			{
+				Model:    mto,
+				LinkOnly: true,
+			},
+			{
+				Model:    reServiceIUCRT,
+				LinkOnly: true,
+			},
+			{
+				Model:    mtoShipment,
+				LinkOnly: true,
+			},
+		}, nil)
+
+		serviceItems := models.MTOServiceItems{serviceItem, serviceItem2}
+
+		return requestUser, serviceItems
+	}
+
+	suite.Run("200 - successfully loads PickupAddress and DestinationAddress for intl crating", func() {
+		requestUser, serviceItem := setupTestData()
+		req := httptest.NewRequest("GET", fmt.Sprintf("/move_task_orders/%s/mto_service_items", mtoID.String()), nil)
+		req = suite.AuthenticateUserRequest(req, requestUser)
+
+		params := mtoserviceitemop.ListMTOServiceItemsParams{
+			HTTPRequest:     req,
+			MoveTaskOrderID: *handlers.FmtUUID(serviceItem[0].MoveTaskOrderID),
+		}
+
+		// Create the addresses
+		pickupAddress := factory.BuildAddress(suite.DB(), nil, nil)
+		destinationAddress := factory.BuildAddress(suite.DB(), nil, nil)
+
+		// Create the MTOShipment with populated PickupAddress and DestinationAddress
+		mtoShipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					PickupAddressID:      &pickupAddress.ID,
+					DestinationAddressID: &destinationAddress.ID,
+				},
+			},
+		}, nil)
+
+		// Create service items with references to the MTOShipment
+		serviceItems := models.MTOServiceItems{
+			{
+				ID:            uuid.Must(uuid.NewV4()),
+				ReService:     models.ReService{Code: models.ReServiceCodeICRT},
+				MTOShipmentID: &mtoShipment.ID,
+				MTOShipment:   mtoShipment,
+			},
+			{
+				ID:            uuid.Must(uuid.NewV4()),
+				ReService:     models.ReService{Code: models.ReServiceCodeIUCRT},
+				MTOShipmentID: &mtoShipment.ID,
+				MTOShipment:   mtoShipment,
+			},
+		}
+
+		// Mock Load function for PickupAddress and DestinationAddress
+		mockLoad := func(item interface{}, associations ...string) error {
+			mtoServiceItem, ok := item.(*models.MTOServiceItem)
+			if !ok {
+				return fmt.Errorf("unexpected type for item: %T", item)
+			}
+			if len(associations) == 2 && associations[0] == "MTOShipment.PickupAddress" && associations[1] == "MTOShipment.DestinationAddress" {
+				mtoServiceItem.MTOShipment.PickupAddress = &pickupAddress
+				mtoServiceItem.MTOShipment.DestinationAddress = &destinationAddress
+				return nil
+			}
+			return fmt.Errorf("unexpected association: %v", associations)
+		}
+
+		// Inject mockLoad behavior
+		for i := range serviceItems {
+			if serviceItems[i].ReService.Code == models.ReServiceCodeICRT || serviceItems[i].ReService.Code == models.ReServiceCodeIUCRT {
+				err := mockLoad(&serviceItems[i], "MTOShipment.PickupAddress", "MTOShipment.DestinationAddress")
+				suite.NoError(err, "Expected no error when loading Pickup and Destination Addresses for ICRT/IUCRT codes")
+			}
+		}
+
+		// Mock ListFetcher
+		listFetcherMock := mocks.ListFetcher{}
+		listFetcherMock.On("FetchRecordList",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.Anything,
+			mock.Anything,
+			mock.Anything,
+			mock.Anything,
+			mock.Anything,
+		).Run(func(args mock.Arguments) {
+			arg := args.Get(1).(*models.MTOServiceItems)
+			*arg = serviceItems
+		}).Return(nil)
+
+		queryBuilder := query.NewQueryBuilder()
+		listFetcher := fetch.NewListFetcher(queryBuilder)
+		fetcher := fetch.NewFetcher(queryBuilder)
+		counselingPricer := ghcrateengine.NewCounselingServicesPricer()
+		moveManagementPricer := ghcrateengine.NewManagementServicesPricer()
+
+		// Configure the handler with mocks
+		handler := ListMTOServiceItemsHandler{
+			suite.createS3HandlerConfig(),
+			listFetcher,
+			fetcher,
+			counselingPricer,
+			moveManagementPricer,
+		}
+
+		// Run the handler
+		response := handler.Handle(params)
+		suite.IsType(&mtoserviceitemop.ListMTOServiceItemsOK{}, response)
+		okResponse := response.(*mtoserviceitemop.ListMTOServiceItemsOK)
+
+		// Validate the response
+		suite.Len(okResponse.Payload, len(serviceItems))
+		for _, payload := range okResponse.Payload {
+			if *payload.ReServiceCode == string(models.ReServiceCodeICRT) {
+				suite.NotNil(payload.Market, "Expected Market to be set for ICRT")
+			} else if *payload.ReServiceCode == string(models.ReServiceCodeIUCRT) {
+				suite.NotNil(payload.Market, "Expected Market to be set for IUCRT")
+			}
+		}
 	})
 }

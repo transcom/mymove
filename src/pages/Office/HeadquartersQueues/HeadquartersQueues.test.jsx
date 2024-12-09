@@ -10,7 +10,6 @@ import { MockProviders } from 'testUtils';
 import { MOVE_STATUS_OPTIONS } from 'constants/queues';
 import { generalRoutes, hqRoutes } from 'constants/routes';
 import { isBooleanFlagEnabled } from 'utils/featureFlags';
-import SelectedGblocProvider from 'components/Office/GblocSwitcher/SelectedGblocProvider';
 
 jest.mock('react-router-dom', () => ({
   ...jest.requireActual('react-router-dom'), // this line preserves the non-hook exports
@@ -47,7 +46,7 @@ jest.mock('hooks/queries', () => ({
               agency: 'AIR_FORCE',
               first_name: 'test first',
               last_name: 'test last',
-              dodID: '555555555',
+              edipi: '555555555',
             },
             locator: 'AB5P',
             departmentIndicator: 'ARMY',
@@ -68,7 +67,7 @@ jest.mock('hooks/queries', () => ({
               agency: 'MARINES',
               first_name: 'test another first',
               last_name: 'test another last',
-              dodID: '4444444444',
+              edipi: '4444444444',
             },
             locator: 'T12A',
             departmentIndicator: 'NAVY_AND_MARINES',
@@ -98,7 +97,7 @@ jest.mock('hooks/queries', () => ({
               agency: 'ARMY',
               first_name: 'test first',
               last_name: 'test last',
-              dodID: '555555555',
+              edipi: '555555555',
             },
             locator: 'AB5PC',
             requestedMoveDate: '2021-03-01T00:00:00.000Z',
@@ -115,7 +114,7 @@ jest.mock('hooks/queries', () => ({
               agency: 'COAST_GUARD',
               first_name: 'test another first',
               last_name: 'test another last',
-              dodID: '4444444444',
+              edipi: '4444444444',
             },
             locator: 'T12AR',
             requestedMoveDate: '2021-04-15T00:00:00.000Z',
@@ -132,7 +131,7 @@ jest.mock('hooks/queries', () => ({
               agency: 'MARINES',
               first_name: 'test third first',
               last_name: 'test third last',
-              dodID: '4444444444',
+              edipi: '4444444444',
             },
             locator: 'T12MP',
             requestedMoveDate: '2021-04-15T00:00:00.000Z',
@@ -179,7 +178,7 @@ const GetMountedComponent = (queueTypeToMount) => {
   return wrapper;
 };
 
-const SEARCH_OPTIONS = ['Move Code', 'DoD ID', 'Customer Name', 'Payment Request Number'];
+const SEARCH_OPTIONS = ['Move Code', 'edipi', 'Customer Name', 'Payment Request Number'];
 
 describe('HeadquartersQueue', () => {
   afterEach(() => {
@@ -198,8 +197,8 @@ describe('HeadquartersQueue', () => {
     const moves = GetMountedComponent(hqRoutes.MOVE_QUEUE).find('tbody tr');
 
     const firstMove = moves.at(0);
-    expect(firstMove.find({ 'data-testid': 'lastName-0' }).text()).toBe('test last, test first');
-    expect(firstMove.find({ 'data-testid': 'dodID-0' }).text()).toBe('555555555');
+    expect(firstMove.find({ 'data-testid': 'customerName-0' }).text()).toBe('test last, test first');
+    expect(firstMove.find({ 'data-testid': 'edipi-0' }).text()).toBe('555555555');
     expect(firstMove.find({ 'data-testid': 'status-0' }).text()).toBe('New move');
     expect(firstMove.find({ 'data-testid': 'locator-0' }).text()).toBe('AB5P');
     expect(firstMove.find({ 'data-testid': 'branch-0' }).text()).toBe('Air Force');
@@ -210,8 +209,8 @@ describe('HeadquartersQueue', () => {
     expect(firstMove.find({ 'data-testid': 'appearedInTooAt-0' }).text()).toBe('10 Feb 2023');
 
     const secondMove = moves.at(1);
-    expect(secondMove.find({ 'data-testid': 'lastName-1' }).text()).toBe('test another last, test another first');
-    expect(secondMove.find({ 'data-testid': 'dodID-1' }).text()).toBe('4444444444');
+    expect(secondMove.find({ 'data-testid': 'customerName-1' }).text()).toBe('test another last, test another first');
+    expect(secondMove.find({ 'data-testid': 'edipi-1' }).text()).toBe('4444444444');
     expect(secondMove.find({ 'data-testid': 'status-1' }).text()).toBe('Move approved');
     expect(secondMove.find({ 'data-testid': 'locator-1' }).text()).toBe('T12A');
     expect(secondMove.find({ 'data-testid': 'branch-1' }).text()).toBe('Marine Corps');
@@ -247,11 +246,11 @@ describe('HeadquartersQueue', () => {
     expect(wrapper.find({ 'data-testid': 'status' }).at(0).hasClass('sortAscending')).toBe(false);
     expect(wrapper.find({ 'data-testid': 'status' }).at(0).hasClass('sortDescending')).toBe(false);
 
-    const nameHeading = wrapper.find({ 'data-testid': 'lastName' }).at(0);
+    const nameHeading = wrapper.find({ 'data-testid': 'customerName' }).at(0);
     nameHeading.simulate('click');
     wrapper.update();
 
-    expect(wrapper.find({ 'data-testid': 'lastName' }).at(0).hasClass('sortAscending')).toBe(true);
+    expect(wrapper.find({ 'data-testid': 'customerName' }).at(0).hasClass('sortAscending')).toBe(true);
   });
 
   it('filters the queue', () => {
@@ -268,9 +267,7 @@ describe('HeadquartersQueue', () => {
     reactRouterDom.useParams.mockReturnValue({ queueType: generalRoutes.QUEUE_SEARCH_PATH });
     render(
       <reactRouterDom.BrowserRouter>
-        <SelectedGblocProvider>
-          <HeadquartersQueue />
-        </SelectedGblocProvider>
+        <HeadquartersQueue />
       </reactRouterDom.BrowserRouter>,
     );
     expect(screen.getByTestId('task-order-queue-tab-link')).toBeInTheDocument();
@@ -291,11 +288,9 @@ describe('HeadquartersQueue', () => {
   it('renders Move Search when Move Search is selected', () => {
     reactRouterDom.useParams.mockReturnValue({ queueType: generalRoutes.QUEUE_SEARCH_PATH });
     render(
-      <reactRouterDom.BrowserRouter>
-        <SelectedGblocProvider>
-          <HeadquartersQueue />
-        </SelectedGblocProvider>
-      </reactRouterDom.BrowserRouter>,
+      <MockProviders>
+        <HeadquartersQueue />
+      </MockProviders>,
     );
     expect(screen.queryByTestId('table-queue')).not.toBeInTheDocument();
     expect(screen.queryByTestId('move-search-form')).not.toBeInTheDocument();
@@ -305,11 +300,9 @@ describe('HeadquartersQueue', () => {
   it('renders Counseling Queue when Counseling Queue is selected', () => {
     reactRouterDom.useParams.mockReturnValue({ queueType: hqRoutes.COUNSELING_QUEUE });
     render(
-      <reactRouterDom.BrowserRouter>
-        <SelectedGblocProvider>
-          <HeadquartersQueue />
-        </SelectedGblocProvider>
-      </reactRouterDom.BrowserRouter>,
+      <MockProviders>
+        <HeadquartersQueue />
+      </MockProviders>,
     );
     expect(screen.queryByTestId('table-queue')).toBeInTheDocument();
     expect(screen.getByText(/Moves/, { selector: 'h1' })).toBeInTheDocument();
@@ -318,11 +311,9 @@ describe('HeadquartersQueue', () => {
   it('renders PPM Closeout Queue when PPM Closeout Queue is selected', () => {
     reactRouterDom.useParams.mockReturnValue({ queueType: hqRoutes.CLOSEOUT_QUEUE });
     render(
-      <reactRouterDom.BrowserRouter>
-        <SelectedGblocProvider>
-          <HeadquartersQueue />
-        </SelectedGblocProvider>
-      </reactRouterDom.BrowserRouter>,
+      <MockProviders>
+        <HeadquartersQueue />
+      </MockProviders>,
     );
     expect(screen.queryByTestId('table-queue')).toBeInTheDocument();
     expect(screen.getByText('Closeout initiated', { selector: 'th' })).toBeInTheDocument();
@@ -332,11 +323,9 @@ describe('HeadquartersQueue', () => {
   it('renders Payment Requests Queue when Payment Requests Queue is selected', () => {
     reactRouterDom.useParams.mockReturnValue({ queueType: hqRoutes.PAYMENT_REQUEST_QUEUE });
     render(
-      <reactRouterDom.BrowserRouter>
-        <SelectedGblocProvider>
-          <HeadquartersQueue />
-        </SelectedGblocProvider>
-      </reactRouterDom.BrowserRouter>,
+      <MockProviders>
+        <HeadquartersQueue />
+      </MockProviders>,
     );
     expect(screen.queryByTestId('table-queue')).toBeInTheDocument();
     expect(screen.getByText(/Payment requests/, { selector: 'h1' })).toBeInTheDocument();
@@ -345,11 +334,9 @@ describe('HeadquartersQueue', () => {
   it('has all options for searches', async () => {
     reactRouterDom.useParams.mockReturnValue({ queueType: generalRoutes.QUEUE_SEARCH_PATH });
     render(
-      <reactRouterDom.BrowserRouter>
-        <SelectedGblocProvider>
-          <HeadquartersQueue />
-        </SelectedGblocProvider>
-      </reactRouterDom.BrowserRouter>,
+      <MockProviders>
+        <HeadquartersQueue />
+      </MockProviders>,
     );
     SEARCH_OPTIONS.forEach((option) => expect(screen.findByLabelText(option)));
   });
@@ -357,11 +344,9 @@ describe('HeadquartersQueue', () => {
   it('Has all status options for move search', async () => {
     reactRouterDom.useParams.mockReturnValue({ queueType: generalRoutes.QUEUE_SEARCH_PATH });
     render(
-      <reactRouterDom.BrowserRouter>
-        <SelectedGblocProvider>
-          <HeadquartersQueue />
-        </SelectedGblocProvider>
-      </reactRouterDom.BrowserRouter>,
+      <MockProviders>
+        <HeadquartersQueue />
+      </MockProviders>,
     );
     MOVE_STATUS_OPTIONS.forEach((option) => expect(screen.findByLabelText(option)));
   });
@@ -369,11 +354,9 @@ describe('HeadquartersQueue', () => {
   it('Has all status options for move queue', async () => {
     reactRouterDom.useParams.mockReturnValue({ queueType: hqRoutes.MOVE_QUEUE });
     render(
-      <reactRouterDom.BrowserRouter>
-        <SelectedGblocProvider>
-          <HeadquartersQueue />
-        </SelectedGblocProvider>
-      </reactRouterDom.BrowserRouter>,
+      <MockProviders>
+        <HeadquartersQueue />
+      </MockProviders>,
     );
     MOVE_STATUS_OPTIONS.forEach((option) => expect(screen.findByLabelText(option)));
   });
@@ -381,11 +364,9 @@ describe('HeadquartersQueue', () => {
   it('renders a 404 if a bad route is provided', async () => {
     reactRouterDom.useParams.mockReturnValue({ queueType: 'BadRoute' });
     render(
-      <reactRouterDom.BrowserRouter>
-        <SelectedGblocProvider>
-          <HeadquartersQueue />
-        </SelectedGblocProvider>
-      </reactRouterDom.BrowserRouter>,
+      <MockProviders>
+        <HeadquartersQueue />
+      </MockProviders>,
     );
     await expect(screen.getByText('Error - 404')).toBeInTheDocument();
     await expect(screen.getByText("We can't find the page you're looking for")).toBeInTheDocument();
@@ -395,11 +376,9 @@ describe('HeadquartersQueue', () => {
     isBooleanFlagEnabled.mockResolvedValue(true);
     reactRouterDom.useParams.mockReturnValue({ queueType: hqRoutes.MOVE_QUEUE });
     render(
-      <reactRouterDom.BrowserRouter>
-        <SelectedGblocProvider>
-          <HeadquartersQueue />
-        </SelectedGblocProvider>
-      </reactRouterDom.BrowserRouter>,
+      <MockProviders>
+        <HeadquartersQueue />
+      </MockProviders>,
     );
     await waitFor(() => {
       const lockIcon = screen.queryByTestId('lock-icon');
@@ -411,11 +390,9 @@ describe('HeadquartersQueue', () => {
     isBooleanFlagEnabled.mockResolvedValue(false);
     reactRouterDom.useParams.mockReturnValue({ queueType: hqRoutes.MOVE_QUEUE });
     render(
-      <reactRouterDom.BrowserRouter>
-        <SelectedGblocProvider>
-          <HeadquartersQueue />
-        </SelectedGblocProvider>
-      </reactRouterDom.BrowserRouter>,
+      <MockProviders>
+        <HeadquartersQueue />
+      </MockProviders>,
     );
     await await waitFor(() => {
       const lockIcon = screen.queryByTestId('lock-icon');

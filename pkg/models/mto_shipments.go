@@ -8,6 +8,7 @@ import (
 	"github.com/gobuffalo/validate/v3"
 	"github.com/gobuffalo/validate/v3/validators"
 	"github.com/gofrs/uuid"
+	"github.com/pkg/errors"
 
 	"github.com/transcom/mymove/pkg/unit"
 )
@@ -273,4 +274,155 @@ func GetCustomerFromShipment(db *pop.Connection, shipmentID uuid.UUID) (*Service
 		return &serviceMember, fmt.Errorf("error fetching service member for shipment ID: %s with error %w", shipmentID, err)
 	}
 	return &serviceMember, nil
+}
+
+func (m *MTOShipment) UpdateOrdersDestinationGBLOC(db *pop.Connection) error {
+	// Since this requires looking up the order in the DB, the order must have an ID. This means, the order has to have been created first.
+	if uuid.UUID.IsNil(m.ID) {
+		return fmt.Errorf("error updating orders destination GBLOC for shipment due to no shipment ID provided")
+	}
+
+	var err error
+	var order Order
+
+	err = db.Load(&m, "MoveTaskOrder.OrdersID")
+	if err != nil {
+		return fmt.Errorf("error loading orders for shipment ID: %s with error %w", m.ID, err)
+	}
+
+	order, err = FetchOrder(db, m.MoveTaskOrder.OrdersID)
+	if err != nil {
+		return fmt.Errorf("error fetching order for shipment ID: %s with error %w", m.ID, err)
+	}
+
+	err = order.UpdateDestinationGBLOC(db)
+	if err != nil {
+		return fmt.Errorf("error fetching GBLOC for postal code with error %w", err)
+	}
+
+	return nil
+}
+
+// Helper function to check that an MTO Shipment contains a PPM Shipment
+func (m MTOShipment) ContainsAPPMShipment() bool {
+	return m.PPMShipment != nil
+}
+
+// determining the market code for a shipment based off of address isOconus value
+// this function takes in a shipment and returns the same shipment with the updated MarketCode value
+func DetermineShipmentMarketCode(shipment *MTOShipment) *MTOShipment {
+	// helper to check if both addresses are CONUS
+	isDomestic := func(pickupAddress, destAddress *Address) bool {
+		return pickupAddress != nil && destAddress != nil &&
+			pickupAddress.IsOconus != nil && destAddress.IsOconus != nil &&
+			!*pickupAddress.IsOconus && !*destAddress.IsOconus
+	}
+
+	// determine market code based on address and shipment type
+	switch shipment.ShipmentType {
+	case MTOShipmentTypeHHGIntoNTSDom:
+		if shipment.PickupAddress != nil && shipment.StorageFacility != nil &&
+			shipment.PickupAddress.IsOconus != nil && shipment.StorageFacility.Address.IsOconus != nil {
+			// If both pickup and storage facility are present, check if both are domestic
+			if isDomestic(shipment.PickupAddress, &shipment.StorageFacility.Address) {
+				shipment.MarketCode = MarketCodeDomestic
+			} else {
+				shipment.MarketCode = MarketCodeInternational
+			}
+		} else if shipment.PickupAddress != nil && shipment.PickupAddress.IsOconus != nil {
+			// customers only submit pickup addresses on shipment creation
+			if !*shipment.PickupAddress.IsOconus {
+				shipment.MarketCode = MarketCodeDomestic
+			} else {
+				shipment.MarketCode = MarketCodeInternational
+			}
+		}
+	case MTOShipmentTypeHHGOutOfNTSDom:
+		if shipment.StorageFacility != nil && shipment.DestinationAddress != nil &&
+			shipment.StorageFacility.Address.IsOconus != nil && shipment.DestinationAddress.IsOconus != nil {
+			if isDomestic(&shipment.StorageFacility.Address, shipment.DestinationAddress) {
+				shipment.MarketCode = MarketCodeDomestic
+			} else {
+				shipment.MarketCode = MarketCodeInternational
+			}
+		} else if shipment.DestinationAddress != nil && shipment.DestinationAddress.IsOconus != nil {
+			// customers only submit destination addresses on NTS-release shipments
+			if !*shipment.DestinationAddress.IsOconus {
+				shipment.MarketCode = MarketCodeDomestic
+			} else {
+				shipment.MarketCode = MarketCodeInternational
+			}
+		}
+	default:
+		if shipment.PickupAddress != nil && shipment.DestinationAddress != nil &&
+			shipment.PickupAddress.IsOconus != nil && shipment.DestinationAddress.IsOconus != nil {
+			if isDomestic(shipment.PickupAddress, shipment.DestinationAddress) {
+				shipment.MarketCode = MarketCodeDomestic
+			} else {
+				shipment.MarketCode = MarketCodeInternational
+			}
+		} else {
+			// set a default market code for cases where PPM logic needs to be done after shipment creation
+			shipment.MarketCode = MarketCodeDomestic
+		}
+	}
+	return shipment
+}
+
+func (s MTOShipment) GetDestinationAddress(db *pop.Connection) (*Address, error) {
+	if uuid.UUID.IsNil(s.ID) {
+		return nil, errors.New("MTOShipment ID is required to fetch destination address.")
+	}
+
+	err := db.Load(&s, "DestinationAddress", "PPMShipment.DestinationAddress")
+	if err != nil {
+		if err.Error() == RecordNotFoundErrorString {
+			return nil, errors.WithMessage(ErrSqlRecordNotFound, string(s.ShipmentType)+" ShipmentID: "+s.ID.String())
+		}
+		return nil, err
+	}
+
+	if s.ShipmentType == MTOShipmentTypePPM {
+		if s.PPMShipment.DestinationAddress != nil {
+			return s.PPMShipment.DestinationAddress, nil
+		} else if s.DestinationAddress != nil {
+			return s.DestinationAddress, nil
+		}
+		return nil, errors.WithMessage(ErrMissingDestinationAddress, string(s.ShipmentType))
+	}
+
+	if s.DestinationAddress != nil {
+		return s.DestinationAddress, nil
+	}
+
+	return nil, errors.WithMessage(ErrMissingDestinationAddress, string(s.ShipmentType))
+}
+
+// this function takes in two addresses and determines the market code string
+func DetermineMarketCode(address1 *Address, address2 *Address) (MarketCode, error) {
+	if address1 == nil || address2 == nil {
+		return "", fmt.Errorf("both address1 and address2 must be provided")
+	}
+
+	// helper to check if both addresses are CONUS
+	isDomestic := func(a, b *Address) bool {
+		return a != nil && b != nil &&
+			a.IsOconus != nil && b.IsOconus != nil &&
+			!*a.IsOconus && !*b.IsOconus
+	}
+
+	if isDomestic(address1, address2) {
+		return MarketCodeDomestic, nil
+	} else {
+		return MarketCodeInternational, nil
+	}
+}
+
+func CreateApprovedServiceItemsForShipment(db *pop.Connection, shipment *MTOShipment) error {
+	err := db.RawQuery("CALL create_approved_service_items_for_shipment($1)", shipment.ID).Exec()
+	if err != nil {
+		return fmt.Errorf("error creating approved service items: %w", err)
+	}
+
+	return nil
 }

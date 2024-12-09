@@ -18,8 +18,14 @@ COPY config/tls/api.loadtest.dp3.us.crt /config/tls/api.loadtest.dp3.us.crt
 COPY config/tls/api.exp.dp3.us.chain.der.p7b /config/tls/api.exp.dp3.us.chain.der.p7b
 COPY config/tls/api.exp.dp3.us.crt /config/tls/api.exp.dp3.us.crt
 
+#copy dod certs
+COPY config/tls/milmove-cert-bundle.p7b /config/tls/milmove-cert-bundle.p7b
+COPY config/tls/dod-sw-ca-75.pem /config/tls/dod-sw-ca-75.pem
+COPY config/tls/dod-sw-ca-66.pem /config/tls/dod-sw-ca-66.pem
+
 COPY swagger/* /swagger/
 COPY build /build
+COPY public/static/react-file-viewer /public/static/react-file-viewer
 
 ENTRYPOINT ["/bin/milmove"]
 

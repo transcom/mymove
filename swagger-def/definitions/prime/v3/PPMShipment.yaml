@@ -136,6 +136,12 @@ properties:
     format: cents
     x-nullable: true
     x-omitempty: false
+  maxIncentive:
+    description: The max amount the government will pay the service member to move their belongings based on the moving date, locations, and shipment weight.
+    type: integer
+    format: cents
+    x-nullable: true
+    x-omitempty: false
   hasRequestedAdvance:
     description: >
       Indicates whether an advance has been requested for the PPM shipment.
@@ -191,6 +197,16 @@ properties:
     format: cents
     x-nullable: true
     x-omitempty: false
+  originRateArea:
+    $ref: 'RateArea.yaml'
+  destinationRateArea:
+    $ref: 'RateArea.yaml'
+  isActualExpenseReimbursement:
+    description: Used for PPM shipments only. Denotes if this shipment uses the Actual Expense Reimbursement method.
+    type: boolean
+    example: false
+    x-omitempty: false
+    x-nullable: true
   eTag:
     description: A hash unique to this shipment that should be used as the "If-Match" header for any updates.
     type: string

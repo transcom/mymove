@@ -8,13 +8,12 @@ import (
 	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services/upload"
-	"github.com/transcom/mymove/pkg/storage/test"
 	storageTest "github.com/transcom/mymove/pkg/storage/test"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
 func (suite *MoveServiceSuite) TestAdditionalDocumentUploader() {
-	fakeFileStorer := test.NewFakeS3Storage(true)
+	fakeFileStorer := storageTest.NewFakeS3Storage(true)
 	uploadCreator := upload.NewUploadCreator(fakeFileStorer)
 
 	additionalDocumentUploader := NewMoveAdditionalDocumentsUploader(uploadCreator)
@@ -77,7 +76,7 @@ func (suite *MoveServiceSuite) TestAdditionalDocumentUploader() {
 		suite.NoError(err)
 		suite.NoVerrs(verrs)
 
-		expectedChecksum := "EUzjq/RQB5xjsdYBNl13zQ=="
+		expectedChecksum := "+XM59C3+hSg3Qrs0dPRuUhng5IQTWdYZtmcXhEH0SYU="
 		if upload.Checksum != expectedChecksum {
 			suite.Fail("Did not calculate the correct MD5: expected %s, got %s", expectedChecksum, upload.Checksum)
 		}

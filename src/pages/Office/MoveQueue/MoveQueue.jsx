@@ -62,18 +62,18 @@ export const columns = (moveLockFlag, isQueueManagementEnabled, showBranchFilter
         );
       },
       {
-        id: 'lastName',
+        id: 'customerName',
         isFilterable: true,
         exportValue: (row) => {
           return `${row.customer.last_name}, ${row.customer.first_name}`;
         },
       },
     ),
-    createHeader('DoD ID', 'customer.dodID', {
-      id: 'dodID',
+    createHeader('DoD ID', 'customer.edipi', {
+      id: 'edipi',
       isFilterable: true,
       exportValue: (row) => {
-        return row.customer.dodID;
+        return row.customer.edipi;
       },
     }),
     createHeader('EMPLID', 'customer.emplid', {
@@ -143,6 +143,10 @@ export const columns = (moveLockFlag, isQueueManagementEnabled, showBranchFilter
       },
     }),
     createHeader('Origin GBLOC', 'originGBLOC', { disableSortBy: true }),
+    createHeader('Counseling office', 'counselingOffice', {
+      id: 'counselingOffice',
+      isFilterable: true,
+    }),
   ];
   if (isQueueManagementEnabled)
     cols.push(
@@ -150,7 +154,9 @@ export const columns = (moveLockFlag, isQueueManagementEnabled, showBranchFilter
         'Assigned',
         (row) => {
           return !row?.assignable ? (
-            <div data-testid="assigned-col">{`${row.assignedTo?.lastName}, ${row.assignedTo?.firstName}`}</div>
+            <div data-testid="assigned-col">
+              {row.assignedTo ? `${row.assignedTo?.lastName}, ${row.assignedTo?.firstName}` : ''}
+            </div>
           ) : (
             <div data-label="assignedSelect" data-testid="assigned-col" className={styles.assignedToCol}>
               <Dropdown
@@ -159,7 +165,7 @@ export const columns = (moveLockFlag, isQueueManagementEnabled, showBranchFilter
                 title="Assigned dropdown"
               >
                 <option value={null}>{DEFAULT_EMPTY_VALUE}</option>
-                {row.availableOfficeUsers.map(({ lastName, firstName, officeUserId }) => (
+                {row.availableOfficeUsers?.map(({ lastName, firstName, officeUserId }) => (
                   <option value={officeUserId} key={`filterOption_${officeUserId}`}>
                     {`${lastName}, ${firstName}`}
                   </option>

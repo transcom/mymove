@@ -59,7 +59,7 @@ test.describe('TOO user', () => {
       // Basic info
       await page.locator('#requestedPickupDate').clear();
       await page.locator('#requestedPickupDate').fill('16 Mar 2022');
-      await page.getByText('Use current address').click();
+      await page.getByText('Use pickup address').click();
 
       // Storage facility info
       await page.locator('#facilityName').fill('Sample Facility Name');
@@ -155,7 +155,7 @@ test.describe('TOO user', () => {
       lastShipment = page.locator('[data-testid="ShipmentContainer"]').last();
       // pickup address header
       await expect(lastShipment.locator('[class*="ShipmentAddresses_mtoShipmentAddresses"]')).toContainText(
-        'Pickup address',
+        'Pickup Address',
       );
       // facility address header
       await expect(lastShipment.locator('[class*="ShipmentAddresses_mtoShipmentAddresses"]')).toContainText(
@@ -257,7 +257,7 @@ test.describe('TOO user', () => {
       await expect(lastShipment.locator('h2')).toContainText('Non-temp storage');
       // pickup address header
       await expect(lastShipment.locator('[class*="ShipmentAddresses_mtoShipmentAddresses"]')).toContainText(
-        'Pickup address',
+        'Pickup Address',
       );
       // facility address header
       await expect(lastShipment.locator('[class*="ShipmentAddresses_mtoShipmentAddresses"]')).toContainText(

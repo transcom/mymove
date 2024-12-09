@@ -113,7 +113,8 @@ func (suite *HandlerSuite) TestUpdateMoveHandler() {
 	}
 	setupHandler := func() UpdateMoveHandler {
 		builder := query.NewQueryBuilder()
-		moveRouter := move.NewMoveRouter()
+		moveRouter, err := move.NewMoveRouter()
+		suite.FatalNoError(err)
 		planner := &routemocks.Planner{}
 		planner.On("ZipTransitDistance",
 			mock.AnythingOfType("*appcontext.appContext"),

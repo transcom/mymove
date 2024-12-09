@@ -10,7 +10,7 @@ import styles from '../ServicesCounselingMoveInfo/ServicesCounselingTab.module.s
 
 import scMoveDetailsStyles from './ServicesCounselingMoveDetails.module.scss';
 
-import { MOVES } from 'constants/queryKeys';
+import { MOVES, MTO_SHIPMENTS, PPMCLOSEOUT } from 'constants/queryKeys';
 import { ORDERS_TYPE } from 'constants/orders';
 import { servicesCounselingRoutes } from 'constants/routes';
 import AllowancesList from 'components/Office/DefinitionLists/AllowancesList';
@@ -19,16 +19,29 @@ import OrdersList from 'components/Office/DefinitionLists/OrdersList';
 import DetailsPanel from 'components/Office/DetailsPanel/DetailsPanel';
 import FinancialReviewButton from 'components/Office/FinancialReviewButton/FinancialReviewButton';
 import FinancialReviewModal from 'components/Office/FinancialReviewModal/FinancialReviewModal';
+import CancelMoveConfirmationModal from 'components/ConfirmationModals/CancelMoveConfirmationModal';
 import ShipmentDisplay from 'components/Office/ShipmentDisplay/ShipmentDisplay';
 import { SubmitMoveConfirmationModal } from 'components/Office/SubmitMoveConfirmationModal/SubmitMoveConfirmationModal';
 import { useMoveDetailsQueries, useOrdersDocumentQueries } from 'hooks/queries';
-import { updateMoveStatusServiceCounselingCompleted, updateFinancialFlag } from 'services/ghcApi';
-import { MOVE_STATUSES, SHIPMENT_OPTIONS_URL, SHIPMENT_OPTIONS } from 'shared/constants';
-import { ppmShipmentStatuses } from 'constants/shipments';
+import {
+  updateMoveStatusServiceCounselingCompleted,
+  cancelMove,
+  updateFinancialFlag,
+  updateMTOShipment,
+} from 'services/ghcApi';
+import {
+  MOVE_STATUSES,
+  SHIPMENT_OPTIONS_URL,
+  SHIPMENT_OPTIONS,
+  FEATURE_FLAG_KEYS,
+  technicalHelpDeskURL,
+} from 'shared/constants';
+import { ppmShipmentStatuses, shipmentStatuses } from 'constants/shipments';
 import shipmentCardsStyles from 'styles/shipmentCards.module.scss';
 import LeftNav from 'components/LeftNav/LeftNav';
 import LeftNavTag from 'components/LeftNavTag/LeftNavTag';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
+import Inaccessible from 'shared/Inaccessible';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
 import { AlertStateShape } from 'types/alert';
 import formattedCustomerName from 'utils/formattedCustomerName';
@@ -40,6 +53,7 @@ import NotificationScrollToTop from 'components/NotificationScrollToTop';
 import { objectIsMissingFieldWithCondition } from 'utils/displayFlags';
 import { ReviewButton } from 'components/form/IconButtons';
 import { calculateWeightRequested } from 'hooks/custom';
+import { isBooleanFlagEnabled } from 'utils/featureFlags';
 import { ADVANCE_STATUSES } from 'constants/ppms';
 
 const ServicesCounselingMoveDetails = ({
@@ -59,7 +73,13 @@ const ServicesCounselingMoveDetails = ({
   const [moveHasExcessWeight, setMoveHasExcessWeight] = useState(false);
   const [isSubmitModalVisible, setIsSubmitModalVisible] = useState(false);
   const [isFinancialModalVisible, setIsFinancialModalVisible] = useState(false);
+  const [isCancelMoveModalVisible, setIsCancelMoveModalVisible] = useState(false);
+  const [enableBoat, setEnableBoat] = useState(false);
+  const [enableMobileHome, setEnableMobileHome] = useState(false);
+  const [enableUB, setEnableUB] = useState(false);
+  const [isOconusMove, setIsOconusMove] = useState(false);
   const { upload, amendedUpload } = useOrdersDocumentQueries(moveCode);
+  const [errorMessage, setErrorMessage] = useState(null);
   const documentsForViewer = Object.values(upload || {})
     .concat(Object.values(amendedUpload || {}))
     ?.filter((file) => {
@@ -67,15 +87,19 @@ const ServicesCounselingMoveDetails = ({
     });
   const hasDocuments = documentsForViewer?.length > 0;
 
-  const { order, customerData, move, closeoutOffice, mtoShipments, isLoading, isError } =
+  const { order, orderDocuments, customerData, move, closeoutOffice, mtoShipments, isLoading, isError, errors } =
     useMoveDetailsQueries(moveCode);
-  const { customer, entitlement: allowances } = order;
+
+  const validOrdersDocuments = Object.values(orderDocuments || {})?.filter((file) => !file.deletedAt);
+
+  const { customer, entitlement: allowances, originDutyLocation, destinationDutyLocation } = order;
 
   const moveWeightTotal = calculateWeightRequested(mtoShipments);
 
   let counselorCanReview;
   let reviewWeightsURL;
   let counselorCanEdit;
+  let counselorCanCancelMove;
   let counselorCanEditNonPPM;
 
   const sections = useMemo(() => {
@@ -83,7 +107,7 @@ const ServicesCounselingMoveDetails = ({
   }, []);
 
   // nts defaults show preferred pickup date and pickup address, flagged items when collapsed
-  // ntsr defaults shows preferred delivery date, storage facility address, destination address, flagged items when collapsed
+  // ntsr defaults shows preferred delivery date, storage facility address, delivery address, flagged items when collapsed
   const showWhenCollapsed = {
     HHG_INTO_NTS_DOMESTIC: ['counselorRemarks'],
     HHG_OUTOF_NTS_DOMESTIC: ['counselorRemarks'],
@@ -116,6 +140,7 @@ const ServicesCounselingMoveDetails = ({
   let shipmentsInfo = [];
   let ppmShipmentsInfoNeedsApproval = [];
   let ppmShipmentsOtherStatuses = [];
+  let numberOfShipmentsNotAllowedForCancel = 0;
   let disableSubmit = false;
   let disableSubmitDueToMissingOrderInfo = false;
   let numberOfErrorIfMissingForAllShipments = 0;
@@ -142,6 +167,24 @@ const ServicesCounselingMoveDetails = ({
     checkProGearAllowances();
   });
 
+  useEffect(() => {
+    const fetchData = async () => {
+      setEnableBoat(await isBooleanFlagEnabled(FEATURE_FLAG_KEYS.BOAT));
+      setEnableMobileHome(await isBooleanFlagEnabled(FEATURE_FLAG_KEYS.MOBILE_HOME));
+      setEnableUB(await isBooleanFlagEnabled(FEATURE_FLAG_KEYS.UNACCOMPANIED_BAGGAGE));
+    };
+    fetchData();
+  }, []);
+
+  useEffect(() => {
+    // Check if either currentDutyLocation or newDutyLocation is OCONUS to conditionally render the UB shipment option
+    if (originDutyLocation?.address?.isOconus || destinationDutyLocation?.address?.isOconus) {
+      setIsOconusMove(true);
+    } else {
+      setIsOconusMove(false);
+    }
+  }, [originDutyLocation, destinationDutyLocation, isOconusMove, enableUB]);
+
   // for now we are only showing dest type on retiree and separatee orders
   const isRetirementOrSeparation =
     order.order_type === ORDERS_TYPE.RETIREMENT || order.order_type === ORDERS_TYPE.SEPARATION;
@@ -167,6 +210,15 @@ const ServicesCounselingMoveDetails = ({
     ppmShipmentsOtherStatuses = onlyPpmShipments.filter(
       (shipment) => shipment.ppmShipment?.status !== ppmShipmentStatuses.NEEDS_CLOSEOUT,
     );
+
+    const nonPpmShipments = submittedShipments.filter((shipment) => shipment.shipmentType !== 'PPM');
+    const nonPpmApprovedShipments = nonPpmShipments.filter(
+      (shipment) => shipment?.status === shipmentStatuses.APPROVED,
+    );
+    const ppmCloseoutCompleteShipments = onlyPpmShipments.filter(
+      (shipment) => shipment.ppmShipment?.status === ppmShipmentStatuses.CLOSEOUT_COMPLETE,
+    );
+    numberOfShipmentsNotAllowedForCancel = nonPpmApprovedShipments.length + ppmCloseoutCompleteShipments.length;
 
     ppmShipmentsInfoNeedsApproval = ppmNeedsApprovalShipments.map((shipment) => {
       const reviewURL = `../${generatePath(servicesCounselingRoutes.SHIPMENT_REVIEW_PATH, {
@@ -229,6 +281,7 @@ const ServicesCounselingMoveDetails = ({
     counselorCanReview = ppmShipmentsInfoNeedsApproval.length > 0;
     reviewWeightsURL = generatePath(servicesCounselingRoutes.BASE_REVIEW_SHIPMENT_WEIGHTS_PATH, { moveCode });
     counselorCanEdit = move.status === MOVE_STATUSES.NEEDS_SERVICE_COUNSELING && ppmShipmentsOtherStatuses.length > 0;
+    counselorCanCancelMove = move.status !== MOVE_STATUSES.CANCELED && numberOfShipmentsNotAllowedForCancel === 0;
     counselorCanEditNonPPM =
       move.status === MOVE_STATUSES.NEEDS_SERVICE_COUNSELING && shipmentsInfo.shipmentType !== 'PPM';
 
@@ -290,6 +343,10 @@ const ServicesCounselingMoveDetails = ({
         });
       }
 
+      if (shipment.marketCode) {
+        displayInfo.marketCode = shipment.marketCode;
+      }
+
       disableSubmit = numberOfErrorIfMissingForAllShipments !== 0;
 
       return {
@@ -305,7 +362,7 @@ const ServicesCounselingMoveDetails = ({
   const customerInfo = {
     name: formattedCustomerName(customer.last_name, customer.first_name, customer.suffix, customer.middle_name),
     agency: customer.agency,
-    dodId: customer.dodID,
+    edipi: customer.edipi,
     emplid: customer.emplid,
     phone: customer.phone,
     altPhone: customer.secondaryTelephone,
@@ -326,6 +383,10 @@ const ServicesCounselingMoveDetails = ({
     requiredMedicalEquipmentWeight: allowances.requiredMedicalEquipmentWeight,
     organizationalClothingAndIndividualEquipment: allowances.organizationalClothingAndIndividualEquipment,
     gunSafe: allowances.gunSafe,
+    dependentsUnderTwelve: allowances.dependentsUnderTwelve,
+    dependentsTwelveAndOver: allowances.dependentsTwelveAndOver,
+    accompaniedTour: allowances.accompaniedTour,
+    ubAllowance: allowances.unaccompaniedBaggageAllowance,
   };
 
   const ordersInfo = {
@@ -337,6 +398,7 @@ const ServicesCounselingMoveDetails = ({
     ordersType: order.order_type,
     ordersNumber: order.order_number,
     ordersTypeDetail: order.order_type_detail,
+    ordersDocuments: validOrdersDocuments?.length ? validOrdersDocuments : null,
     tacMDC: order.tac,
     sacSDN: order.sac,
     NTStac: order.ntsTac,
@@ -354,16 +416,17 @@ const ServicesCounselingMoveDetails = ({
 
   // using useMemo here due to this being used in a useEffect
   // using useMemo prevents the useEffect from being rendered on ever render by memoizing the object
-  // so that it only recognizes the change when the orders object changes
+  // so that it only recognizes the change when the orders or validOrdersDocuments objects change
   const requiredOrdersInfo = useMemo(
     () => ({
       ordersNumber: order?.order_number || '',
       ordersType: order?.order_type || '',
       ordersTypeDetail: order?.order_type_detail || '',
+      ordersDocuments: validOrdersDocuments?.length ? validOrdersDocuments : null,
       tacMDC: order?.tac || '',
       departmentIndicator: order?.department_indicator || '',
     }),
-    [order],
+    [order, validOrdersDocuments],
   );
 
   const handleButtonDropdownChange = (e) => {
@@ -395,6 +458,20 @@ const ServicesCounselingMoveDetails = ({
     },
   });
 
+  const { mutate: mutateCancelMove } = useMutation(cancelMove, {
+    onSuccess: (data) => {
+      queryClient.setQueryData([MOVES, data.locator], data);
+      queryClient.invalidateQueries([MOVES, data.locator]);
+      queryClient.invalidateQueries({ queryKey: [MTO_SHIPMENTS] });
+      setAlertMessage('Move canceled.');
+      setAlertType('success');
+    },
+    onError: () => {
+      setAlertMessage('There was a problem cancelling the move. Please try again later.');
+      setAlertType('error');
+    },
+  });
+
   const { mutate: mutateFinancialReview } = useMutation(updateFinancialFlag, {
     onSuccess: (data) => {
       queryClient.setQueryData([MOVES, data.locator], data);
@@ -413,6 +490,51 @@ const ServicesCounselingMoveDetails = ({
       setAlertType('error');
     },
   });
+
+  const shipmentMutation = useMutation(updateMTOShipment, {
+    onSuccess: (updatedMTOShipments) => {
+      if (mtoShipments !== null && updatedMTOShipments?.mtoShipments !== undefined) {
+        mtoShipments?.forEach((shipment, key) => {
+          if (updatedMTOShipments?.mtoShipments[shipment.id] !== undefined) {
+            mtoShipments[key] = updatedMTOShipments.mtoShipments[shipment.id];
+          }
+        });
+      }
+
+      queryClient.setQueryData([MTO_SHIPMENTS, mtoShipments.moveTaskOrderID, false], mtoShipments);
+      queryClient.invalidateQueries([MTO_SHIPMENTS, mtoShipments.moveTaskOrderID]);
+      queryClient.invalidateQueries([PPMCLOSEOUT, mtoShipments?.ppmShipment?.id]);
+      setErrorMessage(null);
+    },
+    onError: (error) => {
+      setErrorMessage(error?.response?.body?.message ? error.response.body.message : 'Shipment failed to update.');
+    },
+  });
+
+  const handleConfirmSubmitMoveDetails = async () => {
+    const shipmentPromise = await mtoShipments.map((shipment) => {
+      if (shipment?.ppmShipment?.estimatedIncentive === 0) {
+        return shipmentMutation.mutateAsync({
+          moveTaskOrderID: shipment.moveTaskOrderID,
+          shipmentID: shipment.id,
+          ifMatchETag: shipment.eTag,
+          body: {
+            ppmShipment: shipment.ppmShipment,
+          },
+        });
+      }
+
+      return Promise.resolve();
+    });
+
+    Promise.all(shipmentPromise)
+      .then(() => {
+        mutateMoveStatus({ moveTaskOrderID: move.id, ifMatchETag: move.eTag });
+      })
+      .finally(() => {
+        setIsSubmitModalVisible(false);
+      });
+  };
 
   useEffect(() => {
     setMoveHasExcessWeight(moveWeightTotal > order.entitlement.totalWeight);
@@ -445,15 +567,12 @@ const ServicesCounselingMoveDetails = ({
   }, [order, requiredOrdersInfo, setMissingOrdersInfoCount]);
 
   if (isLoading) return <LoadingPlaceholder />;
-  if (isError) return <SomethingWentWrong />;
+  if (isError) {
+    return errors?.[0]?.response?.body?.message ? <Inaccessible /> : <SomethingWentWrong />;
+  }
 
-  const handleShowCancellationModal = () => {
+  const handleShowSubmitMoveModal = () => {
     setIsSubmitModalVisible(true);
-  };
-
-  const handleConfirmSubmitMoveDetails = () => {
-    mutateMoveStatus({ moveTaskOrderID: move.id, ifMatchETag: move.eTag });
-    setIsSubmitModalVisible(false);
   };
 
   const handleShowFinancialReviewModal = () => {
@@ -474,6 +593,21 @@ const ServicesCounselingMoveDetails = ({
     setIsFinancialModalVisible(false);
   };
 
+  const handleShowCancelMoveModal = () => {
+    setIsCancelMoveModalVisible(true);
+  };
+
+  const handleCancelMove = () => {
+    mutateCancelMove({
+      moveID: move.id,
+    });
+    setIsCancelMoveModalVisible(false);
+  };
+
+  const handleCloseCancelMoveModal = () => {
+    setIsCancelMoveModalVisible(false);
+  };
+
   const counselorCanEditOrdersAndAllowances = () => {
     if (counselorCanEdit || counselorCanEditNonPPM) return true;
     if (
@@ -489,6 +623,22 @@ const ServicesCounselingMoveDetails = ({
   const allShipmentsDeleted = mtoShipments.every((shipment) => !!shipment.deletedAt);
   const hasMissingOrdersRequiredInfo = Object.values(requiredOrdersInfo).some((value) => !value || value === '');
   const hasAmendedOrders = ordersInfo.uploadedAmendedOrderID && !ordersInfo.amendedOrdersAcknowledgedAt;
+
+  const allowedShipmentOptions = () => {
+    return (
+      <>
+        <option data-testid="hhgOption" value={SHIPMENT_OPTIONS_URL.HHG}>
+          HHG
+        </option>
+        <option value={SHIPMENT_OPTIONS_URL.PPM}>PPM</option>
+        <option value={SHIPMENT_OPTIONS_URL.NTS}>NTS</option>
+        <option value={SHIPMENT_OPTIONS_URL.NTSrelease}>NTS-release</option>
+        {enableBoat && <option value={SHIPMENT_OPTIONS_URL.BOAT}>Boat</option>}
+        {enableMobileHome && <option value={SHIPMENT_OPTIONS_URL.MOBILE_HOME}>Mobile Home</option>}
+        {enableUB && isOconusMove && <option value={SHIPMENT_OPTIONS_URL.UNACCOMPANIED_BAGGAGE}>UB</option>}
+      </>
+    );
+  };
 
   return (
     <div className={styles.tabContent}>
@@ -538,8 +688,25 @@ const ServicesCounselingMoveDetails = ({
             initialSelection={move?.financialReviewFlag}
           />
         )}
+        <CancelMoveConfirmationModal
+          isOpen={isCancelMoveModalVisible}
+          onClose={handleCloseCancelMoveModal}
+          onSubmit={handleCancelMove}
+        />
         <GridContainer className={classnames(styles.gridContainer, scMoveDetailsStyles.ServicesCounselingMoveDetails)}>
           <NotificationScrollToTop dependency={alertMessage || infoSavedAlert} />
+          <NotificationScrollToTop dependency={errorMessage} />
+          {errorMessage && (
+            <Alert data-testid="errorMessage" type="error" headingLevel="h4" heading="An error occurred">
+              <p>
+                {errorMessage} Please try again later, or contact the&nbsp;
+                <Link to={technicalHelpDeskURL} target="_blank" rel="noreferrer">
+                  Technical Help Desk
+                </Link>
+                .
+              </p>
+            </Alert>
+          )}
           <Grid row className={scMoveDetailsStyles.pageHeader}>
             {alertMessage && (
               <Grid col={12} className={scMoveDetailsStyles.alertContainer}>
@@ -577,13 +744,24 @@ const ServicesCounselingMoveDetails = ({
                         isMoveLocked
                       }
                       type="button"
-                      onClick={handleShowCancellationModal}
+                      onClick={handleShowSubmitMoveModal}
                     >
                       Submit move details
                     </Button>
                   )}
                 </div>
               )}
+            </Grid>
+            <Grid col={12}>
+              <Restricted to={permissionTypes.cancelMoveFlag}>
+                <div className={scMoveDetailsStyles.scCancelMoveContainer}>
+                  {counselorCanCancelMove && !isMoveLocked && (
+                    <Button type="button" unstyled onClick={handleShowCancelMoveModal}>
+                      Cancel move
+                    </Button>
+                  )}
+                </div>
+              </Restricted>
             </Grid>
           </Grid>
 
@@ -607,18 +785,7 @@ const ServicesCounselingMoveDetails = ({
                     <option value="" label="Add a new shipment">
                       Add a new shipment
                     </option>
-                    <option data-testid="hhgOption" value={SHIPMENT_OPTIONS_URL.HHG}>
-                      HHG
-                    </option>
-                    <option value={SHIPMENT_OPTIONS_URL.PPM}>PPM</option>
-                    <option value={SHIPMENT_OPTIONS_URL.NTS}>NTS</option>
-                    <option value={SHIPMENT_OPTIONS_URL.NTSrelease}>NTS-release</option>
-                    <option data-testid="boatOption" value={SHIPMENT_OPTIONS_URL.BOAT}>
-                      Boat
-                    </option>
-                    <option data-testid="mobileHomeOption" value={SHIPMENT_OPTIONS_URL.MOBILE_HOME}>
-                      Mobile Home
-                    </option>
+                    {allowedShipmentOptions()}
                   </ButtonDropdown>
                 )
               }

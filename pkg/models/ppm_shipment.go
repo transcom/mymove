@@ -216,6 +216,7 @@ type PPMShipment struct {
 	ProGearWeight                  *unit.Pound          `json:"pro_gear_weight" db:"pro_gear_weight"`
 	SpouseProGearWeight            *unit.Pound          `json:"spouse_pro_gear_weight" db:"spouse_pro_gear_weight"`
 	EstimatedIncentive             *unit.Cents          `json:"estimated_incentive" db:"estimated_incentive"`
+	MaxIncentive                   *unit.Cents          `json:"max_incentive" db:"max_incentive"`
 	FinalIncentive                 *unit.Cents          `json:"final_incentive" db:"final_incentive"`
 	HasRequestedAdvance            *bool                `json:"has_requested_advance" db:"has_requested_advance"`
 	AdvanceAmountRequested         *unit.Cents          `json:"advance_amount_requested" db:"advance_amount_requested"`
@@ -236,6 +237,7 @@ type PPMShipment struct {
 	AOAPacket                      *Document            `belongs_to:"documents" fk_id:"aoa_packet_id"`
 	PaymentPacketID                *uuid.UUID           `json:"payment_packet_id" db:"payment_packet_id"`
 	PaymentPacket                  *Document            `belongs_to:"documents" fk_id:"payment_packet_id"`
+	IsActualExpenseReimbursement   *bool                `json:"is_actual_expense_reimbursement" db:"is_actual_expense_reimbursement"`
 }
 
 // TableName overrides the table name used by Pop.
@@ -276,9 +278,10 @@ func (p PPMShipment) Validate(_ *pop.Connection) (*validate.Errors, error) {
 		&OptionalPoundIsNonNegative{Name: "AllowableWeight", Field: p.AllowableWeight},
 		&OptionalPoundIsNonNegative{Name: "ProGearWeight", Field: p.ProGearWeight},
 		&OptionalPoundIsNonNegative{Name: "SpouseProGearWeight", Field: p.SpouseProGearWeight},
-		&OptionalCentIsPositive{Name: "EstimatedIncentive", Field: p.EstimatedIncentive},
+		&OptionalCentIsNotNegative{Name: "EstimatedIncentive", Field: p.EstimatedIncentive},
+		&OptionalCentIsNotNegative{Name: "MaxIncentive", Field: p.MaxIncentive},
 		&OptionalCentIsPositive{Name: "FinalIncentive", Field: p.FinalIncentive},
-		&OptionalCentIsPositive{Name: "AdvanceAmountRequested", Field: p.AdvanceAmountRequested},
+		&OptionalCentIsNotNegative{Name: "AdvanceAmountRequested", Field: p.AdvanceAmountRequested},
 		&OptionalStringInclusion{Name: "AdvanceStatus", List: AllowedPPMAdvanceStatuses, Field: (*string)(p.AdvanceStatus)},
 		&OptionalCentIsPositive{Name: "AdvanceAmountReceived", Field: p.AdvanceAmountReceived},
 		&OptionalStringInclusion{Name: "SITLocation", List: AllowedSITLocationTypes, Field: (*string)(p.SITLocation)},

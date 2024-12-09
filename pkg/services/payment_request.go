@@ -80,9 +80,9 @@ type PaymentRequestReviewedProcessor interface {
 type FetchPaymentRequestListParams struct {
 	Branch                  *string
 	Locator                 *string
-	DodID                   *string
+	Edipi                   *string
 	Emplid                  *string
-	LastName                *string
+	CustomerName            *string
 	DestinationDutyLocation *string
 	Status                  []string
 	Page                    *int64
@@ -93,6 +93,8 @@ type FetchPaymentRequestListParams struct {
 	OriginDutyLocation      *string
 	OrderType               *string
 	ViewAsGBLOC             *string
+	TIOAssignedUser         *string
+	CounselingOffice        *string
 }
 
 // ShipmentPaymentSITBalance is a public struct that's used to return current SIT balances to the TIO for a payment

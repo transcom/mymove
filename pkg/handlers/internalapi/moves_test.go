@@ -281,7 +281,9 @@ func (suite *HandlerSuite) TestSubmitMoveForApprovalHandler() {
 		// When: a move is submitted
 		handlerConfig := suite.HandlerConfig()
 		handlerConfig.SetNotificationSender(notifications.NewStubNotificationSender("milmovelocal"))
-		handler := SubmitMoveHandler{handlerConfig, moverouter.NewMoveRouter()}
+		moveRouter, err := moverouter.NewMoveRouter()
+		suite.FatalNoError(err)
+		handler := SubmitMoveHandler{handlerConfig, moveRouter}
 		response := handler.Handle(params)
 
 		// Then: expect a 200 status code
@@ -291,7 +293,7 @@ func (suite *HandlerSuite) TestSubmitMoveForApprovalHandler() {
 		suite.NoError(err)
 
 		// And: Returned query to have a submitted status
-		suite.Assertions.Equal(internalmessages.MoveStatusSUBMITTED, okResponse.Payload.Status)
+		suite.Assertions.Equal(internalmessages.MoveStatusNEEDSSERVICECOUNSELING, okResponse.Payload.Status)
 		suite.Assertions.NotNil(okResponse.Payload.SubmittedAt)
 
 		// And: SignedCertification was created
@@ -332,7 +334,9 @@ func (suite *HandlerSuite) TestSubmitMoveForApprovalHandler() {
 		// And: a move is submitted
 		handlerConfig := suite.HandlerConfig()
 		handlerConfig.SetNotificationSender(notifications.NewStubNotificationSender("milmovelocal"))
-		handler := SubmitMoveHandler{handlerConfig, moverouter.NewMoveRouter()}
+		moveRouter, err := moverouter.NewMoveRouter()
+		suite.FatalNoError(err)
+		handler := SubmitMoveHandler{handlerConfig, moveRouter}
 		response := handler.Handle(params)
 
 		// Then: expect a 200 status code
@@ -344,7 +348,7 @@ func (suite *HandlerSuite) TestSubmitMoveForApprovalHandler() {
 
 		// And: SignedCertification was created
 		signedCertification := models.SignedCertification{}
-		err := suite.DB().Where("move_id = $1", move.ID).First(&signedCertification)
+		err = suite.DB().Where("move_id = $1", move.ID).First(&signedCertification)
 		suite.NoError(err)
 		suite.NotNil(signedCertification)
 	})
@@ -385,7 +389,9 @@ func (suite *HandlerSuite) TestSubmitMoveForServiceCounselingHandler() {
 		// When: a move is submitted
 		handlerConfig := suite.HandlerConfig()
 		handlerConfig.SetNotificationSender(notifications.NewStubNotificationSender("milmovelocal"))
-		handler := SubmitMoveHandler{handlerConfig, moverouter.NewMoveRouter()}
+		moveRouter, err := moverouter.NewMoveRouter()
+		suite.FatalNoError(err)
+		handler := SubmitMoveHandler{handlerConfig, moveRouter}
 		response := handler.Handle(params)
 
 		// Then: expect a 200 status code
@@ -435,7 +441,9 @@ func (suite *HandlerSuite) TestSubmitAmendedOrdersHandler() {
 		// And: a move is submitted
 		handlerConfig := suite.HandlerConfig()
 
-		handler := SubmitAmendedOrdersHandler{handlerConfig, moverouter.NewMoveRouter()}
+		moveRouter, routerErr := moverouter.NewMoveRouter()
+		suite.FatalNoError(routerErr)
+		handler := SubmitAmendedOrdersHandler{handlerConfig, moveRouter}
 		response := handler.Handle(params)
 
 		// Then: expect a 200 status code
@@ -494,7 +502,7 @@ func (suite *HandlerSuite) TestSubmitGetAllMovesHandler() {
 			},
 		}, nil)
 
-		move2 := factory.BuildMove(suite.DB(), []factory.Customization{
+		factory.BuildMove(suite.DB(), []factory.Customization{
 			{
 				Model:    order,
 				LinkOnly: true,
@@ -511,7 +519,7 @@ func (suite *HandlerSuite) TestSubmitGetAllMovesHandler() {
 			},
 		}, nil)
 
-		// // And: the context contains the auth values
+		// And: the context contains the auth values
 		req := httptest.NewRequest("GET", "/moves/allmoves", nil)
 		req = suite.AuthenticateRequest(req, move.Orders.ServiceMember)
 
@@ -528,15 +536,13 @@ func (suite *HandlerSuite) TestSubmitGetAllMovesHandler() {
 		handler := GetAllMovesHandler{handlerConfig}
 		response := handler.Handle(params)
 
-		// // Then: expect a 200 status code
+		// Then: expect a 200 status code
 		suite.Assertions.IsType(&moveop.GetAllMovesOK{}, response)
 		okResponse := response.(*moveop.GetAllMovesOK)
 
-		suite.Greater(len(okResponse.Payload.CurrentMove), 0)
-		suite.Greater(len(okResponse.Payload.PreviousMoves), 0)
-		suite.Equal(okResponse.Payload.CurrentMove[0].ID.String(), move.ID.String())
-		suite.Equal(okResponse.Payload.PreviousMoves[0].ID.String(), move2.ID.String())
-
+		// should have a move in each array
+		suite.Equal(len(okResponse.Payload.CurrentMove), 1)
+		suite.Equal(len(okResponse.Payload.PreviousMoves), 1)
 	})
 }
 

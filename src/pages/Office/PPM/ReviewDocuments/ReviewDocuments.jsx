@@ -283,6 +283,7 @@ export const ReviewDocuments = ({ readOnly }) => {
                 formRef={formRef}
                 allowableWeight={currentAllowableWeight}
                 readOnly={readOnly}
+                order={order}
               />
             ) : (
               <>
@@ -291,7 +292,7 @@ export const ReviewDocuments = ({ readOnly }) => {
                     key={documentSetIndex}
                     weightTicket={currentDocumentSet.documentSet}
                     ppmShipmentInfo={ppmShipmentInfo}
-                    ppmNumber={1}
+                    ppmNumber="1"
                     tripNumber={currentTripNumber}
                     mtoShipment={mtoShipment}
                     order={order}
@@ -310,13 +311,14 @@ export const ReviewDocuments = ({ readOnly }) => {
                   <ReviewProGear
                     proGear={currentDocumentSet.documentSet}
                     ppmShipmentInfo={ppmShipmentInfo}
-                    ppmNumber={1}
+                    ppmNumber="1"
                     tripNumber={currentTripNumber}
                     mtoShipment={mtoShipment}
                     onError={onError}
                     onSuccess={onSuccess}
                     formRef={formRef}
                     readOnly={readOnly}
+                    order={order}
                   />
                 )}
                 {currentDocumentSet.documentSetType === DOCUMENT_TYPES.MOVING_EXPENSE && (
@@ -327,13 +329,14 @@ export const ReviewDocuments = ({ readOnly }) => {
                     documentSets={documentSets}
                     documentSetIndex={documentSetIndex}
                     categoryIndex={currentDocumentCategoryIndex}
-                    ppmNumber={1}
+                    ppmNumber="1"
                     tripNumber={currentTripNumber}
                     mtoShipment={mtoShipment}
                     onError={onErrorMessage}
                     onSuccess={onSuccess}
                     formRef={formRef}
                     readOnly={readOnly}
+                    order={order}
                   />
                 )}
               </>

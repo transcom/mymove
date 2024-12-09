@@ -39,6 +39,9 @@ type FeatureFlagFetcher interface {
 }
 
 const (
+	// Checks if the mobile home FF is enabled
+	DomesticMobileHome string = "mobile_home"
+
 	// Toggles service items on/off completely for mobile home shipments
 	DomesticMobileHomeDOPEnabled       string = "domestic_mobile_home_origin_price_enabled"
 	DomesticMobileHomeDDPEnabled       string = "domestic_mobile_home_destination_price_enabled"

@@ -8,20 +8,29 @@ import (
 	"github.com/gobuffalo/validate/v3"
 	"github.com/gofrs/uuid"
 	"github.com/pkg/errors"
+	"github.com/spf13/viper"
 	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/apperror"
+	"github.com/transcom/mymove/pkg/cli"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
+	"github.com/transcom/mymove/pkg/services/featureflag"
 )
 
 type moveRouter struct {
+	featureFlagFetcher services.FeatureFlagFetcher
 }
 
 // NewMoveRouter creates a new moveRouter service
-func NewMoveRouter() services.MoveRouter {
-	return &moveRouter{}
+func NewMoveRouter() (services.MoveRouter, error) {
+	v := viper.New()
+	featureFlagFetcher, err := featureflag.NewFeatureFlagFetcher(cli.GetFliptFetcherConfig(v))
+	if err != nil {
+		return nil, err
+	}
+	return &moveRouter{featureFlagFetcher}, nil
 }
 
 // Submit is called when the customer submits amended orders or submits their move. It determines whether
@@ -163,11 +172,31 @@ func (router moveRouter) needsServiceCounseling(appCtx appcontext.AppContext, mo
 		return false, nil
 	}
 
+	if move.IsPPMOnly() {
+		return true, nil
+	}
+
 	return originDutyLocation.ProvidesServicesCounseling, nil
 }
 
 // sendToServiceCounselor makes the move available for a Service Counselor to review
 func (router moveRouter) sendToServiceCounselor(appCtx appcontext.AppContext, move *models.Move) error {
+	var orders models.Order
+	err := appCtx.DB().Q().
+		Where("orders.id = ?", move.OrdersID).
+		First(&orders)
+
+	if err != nil {
+		switch err {
+		case sql.ErrNoRows:
+			appCtx.Logger().Error("failure finding move", zap.Error(err))
+			return apperror.NewNotFoundError(move.OrdersID, "looking for move.OrdersID")
+		default:
+			appCtx.Logger().Error("failure encountered querying for orders associated with the move", zap.Error(err))
+			return apperror.NewQueryError("Order", err, fmt.Sprintf("failure encountered querying for orders associated with the move, %s, id: %s", err.Error(), move.ID))
+		}
+	}
+
 	if move.Status == models.MoveStatusNeedsServiceCounseling {
 		return nil
 	}
@@ -186,6 +215,7 @@ func (router moveRouter) sendToServiceCounselor(appCtx appcontext.AppContext, mo
 		)
 	}
 
+	isCivilian := orders.Grade != nil && *orders.Grade == models.ServiceMemberGradeCIVILIANEMPLOYEE
 	move.Status = models.MoveStatusNeedsServiceCounseling
 	now := time.Now()
 	move.SubmittedAt = &now
@@ -195,6 +225,8 @@ func (router moveRouter) sendToServiceCounselor(appCtx appcontext.AppContext, mo
 		if move.MTOShipments[i].ShipmentType == models.MTOShipmentTypePPM {
 			move.MTOShipments[i].Status = models.MTOShipmentStatusSubmitted
 			move.MTOShipments[i].PPMShipment.Status = models.PPMShipmentStatusSubmitted
+			// actual expense reimbursement is always true for civilian moves
+			move.MTOShipments[i].PPMShipment.IsActualExpenseReimbursement = models.BoolPointer(isCivilian)
 
 			if verrs, err := appCtx.DB().ValidateAndUpdate(&move.MTOShipments[i]); verrs.HasAny() || err != nil {
 				msg := "failure saving shipment when routing move submission"
@@ -207,6 +239,7 @@ func (router moveRouter) sendToServiceCounselor(appCtx appcontext.AppContext, mo
 				return apperror.NewInvalidInputError(move.MTOShipments[i].PPMShipment.ID, err, verrs, msg)
 			}
 		}
+
 		// update status for boat or mobile home shipment
 		if move.MTOShipments[i].ShipmentType == models.MTOShipmentTypeBoatHaulAway ||
 			move.MTOShipments[i].ShipmentType == models.MTOShipmentTypeBoatTowAway ||
@@ -214,19 +247,25 @@ func (router moveRouter) sendToServiceCounselor(appCtx appcontext.AppContext, mo
 			move.MTOShipments[i].Status = models.MTOShipmentStatusSubmitted
 
 			if verrs, err := appCtx.DB().ValidateAndUpdate(&move.MTOShipments[i]); verrs.HasAny() || err != nil {
-				msg := "failure saving shipment when routing move submission"
+				msg := "failure saving parent MTO shipment object for boat/mobile home shipment when routing move submission"
 				appCtx.Logger().Error(msg, zap.Error(err))
 				return apperror.NewInvalidInputError(move.MTOShipments[i].ID, err, verrs, msg)
 			}
-		}
-		// update status for mobile home shipment
-		if move.MTOShipments[i].ShipmentType == models.MTOShipmentTypeMobileHome {
-			move.MTOShipments[i].Status = models.MTOShipmentStatusSubmitted
 
-			if verrs, err := appCtx.DB().ValidateAndUpdate(&move.MTOShipments[i]); verrs.HasAny() || err != nil {
-				msg := "failure saving shipment when routing move submission"
-				appCtx.Logger().Error(msg, zap.Error(err))
-				return apperror.NewInvalidInputError(move.MTOShipments[i].ID, err, verrs, msg)
+			if move.MTOShipments[i].BoatShipment != nil {
+				if verrs, err := appCtx.DB().ValidateAndUpdate(move.MTOShipments[i].BoatShipment); verrs.HasAny() || err != nil {
+					msg := "failure saving boat shipment when routing move submission"
+					appCtx.Logger().Error(msg, zap.Error(err))
+					return apperror.NewInvalidInputError(move.MTOShipments[i].ID, err, verrs, msg)
+				}
+			}
+
+			if move.MTOShipments[i].MobileHome != nil {
+				if verrs, err := appCtx.DB().ValidateAndUpdate(move.MTOShipments[i].MobileHome); verrs.HasAny() || err != nil {
+					msg := "failure saving mobile home shipment when routing move submission"
+					appCtx.Logger().Error(msg, zap.Error(err))
+					return apperror.NewInvalidInputError(move.MTOShipments[i].ID, err, verrs, msg)
+				}
 			}
 		}
 	}
@@ -236,7 +275,6 @@ func (router moveRouter) sendToServiceCounselor(appCtx appcontext.AppContext, mo
 		appCtx.Logger().Error(msg, zap.Error(err))
 		return apperror.NewInvalidInputError(move.ID, err, verrs, msg)
 	}
-
 	return nil
 }
 
@@ -386,7 +424,8 @@ func allSITExtensionsAreReviewed(move models.Move) bool {
 
 func allShipmentsAreApproved(move models.Move) bool {
 	for _, shipment := range move.MTOShipments {
-		if shipment.Status == models.MTOShipmentStatusSubmitted {
+		// ignores deleted shipments
+		if shipment.Status == models.MTOShipmentStatusSubmitted && shipment.DeletedAt == nil {
 			return false
 		}
 	}
@@ -433,39 +472,63 @@ func (router moveRouter) SendToOfficeUser(appCtx appcontext.AppContext, move *mo
 }
 
 // Cancel cancels the Move and its associated PPMs
-func (router moveRouter) Cancel(appCtx appcontext.AppContext, reason string, move *models.Move) error {
-	router.logMove(appCtx, move)
-	// We can cancel any move that isn't already complete.
-	// TODO: What does complete mean? How do we determine when a move is complete?
-	if move.Status == models.MoveStatusCANCELED {
-		return errors.Wrap(models.ErrInvalidTransition, "cannot cancel a move that is already canceled")
-	}
+func (router moveRouter) Cancel(appCtx appcontext.AppContext, move *models.Move) error {
+	moveDelta := move
+	moveDelta.Status = models.MoveStatusCANCELED
 
-	move.Status = models.MoveStatusCANCELED
-
-	// If a reason was submitted, add it to the move record.
-	if reason != "" {
-		move.CancelReason = &reason
-	}
-
-	// This will work only if you use the PPM in question rather than a var representing it
-	// i.e. you can't use _, ppm := range PPMs, has to be PPMS[i] as below
-	for i := range move.MTOShipments {
-		err := move.MTOShipments[i].PPMShipment.CancelShipment()
-		if err != nil {
-			return err
-		}
-	}
-
-	// TODO: Orders can exist after related moves are canceled
-	err := move.Orders.Cancel()
+	// get all shipments in move for cancellation
+	var shipments []models.MTOShipment
+	err := appCtx.DB().EagerPreload("Status", "PPMShipment", "PPMShipment.Status").Where("mto_shipments.move_id = $1", move.ID).All(&shipments)
 	if err != nil {
-		return err
+		return apperror.NewNotFoundError(move.ID, "while looking for shipments")
 	}
 
-	appCtx.Logger().Info("SUCCESS: Move Canceled")
-	return nil
+	txnErr := appCtx.NewTransaction(func(txnAppCtx appcontext.AppContext) error {
+		for _, shipment := range shipments {
+			shipmentDelta := shipment
+			shipmentDelta.Status = models.MTOShipmentStatusCanceled
 
+			if shipment.PPMShipment != nil {
+				var ppmshipment models.PPMShipment
+				qerr := appCtx.DB().Where("id = ?", shipment.PPMShipment.ID).First(&ppmshipment)
+				if qerr != nil {
+					return apperror.NewNotFoundError(ppmshipment.ID, "while looking for ppm shipment")
+				}
+
+				ppmshipment.Status = models.PPMShipmentStatusCanceled
+
+				verrs, err := txnAppCtx.DB().ValidateAndUpdate(&ppmshipment)
+				if verrs != nil && verrs.HasAny() {
+					return apperror.NewInvalidInputError(shipment.ID, err, verrs, "Validation errors found while setting shipment status")
+				} else if err != nil {
+					return apperror.NewQueryError("PPM Shipment", err, "Failed to update status for ppm shipment")
+				}
+			}
+
+			verrs, err := txnAppCtx.DB().ValidateAndUpdate(&shipmentDelta)
+			if verrs != nil && verrs.HasAny() {
+				return apperror.NewInvalidInputError(shipment.ID, err, verrs, "Validation errors found while setting shipment status")
+			} else if err != nil {
+				return apperror.NewQueryError("Shipment", err, "Failed to update status for shipment")
+			}
+		}
+
+		verrs, err := txnAppCtx.DB().ValidateAndUpdate(moveDelta)
+		if verrs != nil && verrs.HasAny() {
+			return apperror.NewInvalidInputError(
+				move.ID, err, verrs, "Validation errors found while setting move status")
+		} else if err != nil {
+			return apperror.NewQueryError("Move", err, "Failed to update status for move")
+		}
+
+		return nil
+	})
+
+	if txnErr != nil {
+		return txnErr
+	}
+
+	return nil
 }
 
 // CompleteServiceCounseling sets the move status to:
@@ -559,4 +622,8 @@ func (router moveRouter) logMove(appCtx appcontext.AppContext, move *models.Move
 		zap.String("Move.Status", string(move.Status)),
 		zap.String("Move.OrdersID", move.OrdersID.String()),
 	)
+}
+
+func (router moveRouter) FeatureFlagFetcher() services.FeatureFlagFetcher {
+	return router.featureFlagFetcher
 }

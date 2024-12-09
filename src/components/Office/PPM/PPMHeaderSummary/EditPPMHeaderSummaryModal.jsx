@@ -1,8 +1,8 @@
 import React from 'react';
-import { Formik } from 'formik';
+import { Formik, Field } from 'formik';
 import PropTypes from 'prop-types';
 import * as Yup from 'yup';
-import { Button } from '@trussworks/react-uswds';
+import { Button, FormGroup, Radio, Label } from '@trussworks/react-uswds';
 
 import styles from './EditPPMHeaderSummaryModal.module.scss';
 
@@ -31,6 +31,7 @@ const EditPPMHeaderSummaryModal = ({ sectionType, sectionInfo, onClose, onSubmit
     allowableWeight: formatWeight(allowableWeight),
     pickupAddress: pickupAddressObj,
     destinationAddress: destinationAddressObj,
+    isActualExpenseReimbursement: sectionInfo.isActualExpenseReimbursement ? 'true' : 'false',
   };
 
   const validationSchema = Yup.object().shape({
@@ -78,7 +79,8 @@ const EditPPMHeaderSummaryModal = ({ sectionType, sectionInfo, onClose, onSubmit
             initialValues={initialValues}
             onSubmit={onSubmit}
           >
-            {({ isValid, handleChange, setFieldTouched }) => {
+            {({ isValid, handleChange, setFieldTouched, values }) => {
+              const { isActualExpenseReimbursement } = values;
               return (
                 <Form>
                   <div>
@@ -116,7 +118,7 @@ const EditPPMHeaderSummaryModal = ({ sectionType, sectionInfo, onClose, onSubmit
                     {editItemName === 'destinationAddress' && (
                       <AddressFields
                         name="destinationAddress"
-                        legend="Destination Address"
+                        legend="Delivery Address"
                         className={styles.AddressFieldSet}
                         formikFunctionsToValidatePostalCodeOnChange={{ handleChange, setFieldTouched }}
                       />
@@ -135,6 +137,33 @@ const EditPPMHeaderSummaryModal = ({ sectionType, sectionInfo, onClose, onSubmit
                         suffix="lbs"
                         data-testid="editAllowableWeightInput"
                       />
+                    )}
+                    {editItemName === 'isActualExpenseReimbursement' && (
+                      <FormGroup>
+                        <Label className={styles.Label} htmlFor="isActualExpenseReimbursement">
+                          Is this PPM an Actual Expense Reimbursement?
+                        </Label>
+                        <Field
+                          as={Radio}
+                          id="isActualExpenseReimbursementYes"
+                          label="Yes"
+                          name="isActualExpenseReimbursement"
+                          value="true"
+                          title="Yes"
+                          checked={isActualExpenseReimbursement === 'true'}
+                          className={styles.buttonGroup}
+                        />
+                        <Field
+                          as={Radio}
+                          id="isActualExpenseReimbursementNo"
+                          label="No"
+                          name="isActualExpenseReimbursement"
+                          value="false"
+                          title="No"
+                          checked={isActualExpenseReimbursement !== 'true'}
+                          className={styles.buttonGroup}
+                        />
+                      </FormGroup>
                     )}
                   </div>
                   <ModalActions>

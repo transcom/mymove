@@ -50,7 +50,7 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemHandler() {
 				LinkOnly: true,
 			},
 		}, nil)
-		factory.BuildDOFSITReService(suite.DB())
+		factory.FetchReServiceByCode(suite.DB(), models.ReServiceCodeDOFSIT)
 		req := httptest.NewRequest("POST", "/mto-service-items", nil)
 		sitEntryDate := time.Now()
 		sitPostalCode := "00000"
@@ -92,7 +92,8 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemHandler() {
 			mock.Anything,
 		).Return(400, nil)
 		subtestData := makeSubtestData()
-		moveRouter := moverouter.NewMoveRouter()
+		moveRouter, err := moverouter.NewMoveRouter()
+		suite.FatalNoError(err)
 		creator := mtoserviceitem.NewMTOServiceItemCreator(planner, builder, moveRouter, ghcrateengine.NewDomesticUnpackPricer(suite.HandlerConfig().FeatureFlagFetcher()), ghcrateengine.NewDomesticPackPricer(suite.HandlerConfig().FeatureFlagFetcher()), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(suite.HandlerConfig().FeatureFlagFetcher()), ghcrateengine.NewDomesticDestinationPricer(suite.HandlerConfig().FeatureFlagFetcher()), ghcrateengine.NewFuelSurchargePricer(), mockFeatureFlagFetcher)
 		handler := CreateMTOServiceItemHandler{
 			suite.HandlerConfig(),
@@ -128,7 +129,7 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemHandler() {
 			},
 		}, nil)
 		mtoShipment.PrimeEstimatedWeight = nil
-		factory.BuildReServiceByCode(suite.DB(), models.ReServiceCodeDOSHUT)
+		factory.FetchReServiceByCode(suite.DB(), models.ReServiceCodeDOSHUT)
 		req := httptest.NewRequest("POST", "/mto-service-items", nil)
 		reason := "lorem ipsum"
 
@@ -144,7 +145,8 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemHandler() {
 			Body:        payloads.MTOServiceItem(&mtoServiceItem),
 		}
 
-		moveRouter := moverouter.NewMoveRouter()
+		moveRouter, err := moverouter.NewMoveRouter()
+		suite.FatalNoError(err)
 		planner := &routemocks.Planner{}
 		planner.On("ZipTransitDistance",
 			mock.AnythingOfType("*appcontext.appContext"),
@@ -282,7 +284,8 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemHandler() {
 	suite.Run("POST failure - 404 - MTO is not available to Prime", func() {
 		subtestData := makeSubtestData()
 		mtoNotAvailable := factory.BuildMove(suite.DB(), nil, nil)
-		moveRouter := moverouter.NewMoveRouter()
+		moveRouter, err := moverouter.NewMoveRouter()
+		suite.FatalNoError(err)
 		planner := &routemocks.Planner{}
 		planner.On("ZipTransitDistance",
 			mock.AnythingOfType("*appcontext.appContext"),
@@ -326,7 +329,8 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemHandler() {
 				LinkOnly: true,
 			},
 		}, nil)
-		moveRouter := moverouter.NewMoveRouter()
+		moveRouter, err := moverouter.NewMoveRouter()
+		suite.FatalNoError(err)
 		planner := &routemocks.Planner{}
 		planner.On("ZipTransitDistance",
 			mock.AnythingOfType("*appcontext.appContext"),
@@ -446,8 +450,8 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemDomesticCratingHandler() {
 				LinkOnly: true,
 			},
 		}, nil)
-		factory.BuildReServiceByCode(suite.DB(), models.ReServiceCodeDCRT)
-		factory.BuildReServiceByCode(suite.DB(), models.ReServiceCodeDUCRT)
+		factory.FetchReServiceByCode(suite.DB(), models.ReServiceCodeDCRT)
+		factory.FetchReServiceByCode(suite.DB(), models.ReServiceCodeDUCRT)
 		subtestData.req = httptest.NewRequest("POST", "/mto-service-items", nil)
 
 		subtestData.mtoServiceItem = models.MTOServiceItem{
@@ -477,7 +481,8 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemDomesticCratingHandler() {
 
 	suite.Run("Successful POST - Integration Test - Domestic Crating", func() {
 		subtestData := makeSubtestData()
-		moveRouter := moverouter.NewMoveRouter()
+		moveRouter, err := moverouter.NewMoveRouter()
+		suite.FatalNoError(err)
 		planner := &routemocks.Planner{}
 		planner.On("ZipTransitDistance",
 			mock.AnythingOfType("*appcontext.appContext"),
@@ -514,7 +519,8 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemDomesticCratingHandler() {
 
 	suite.Run("Successful POST - Integration Test - Domestic Uncrating", func() {
 		subtestData := makeSubtestData()
-		moveRouter := moverouter.NewMoveRouter()
+		moveRouter, err := moverouter.NewMoveRouter()
+		suite.FatalNoError(err)
 		planner := &routemocks.Planner{}
 		planner.On("ZipTransitDistance",
 			mock.AnythingOfType("*appcontext.appContext"),
@@ -609,7 +615,7 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemOriginSITHandler() {
 				LinkOnly: true,
 			},
 		}, nil)
-		factory.BuildDOFSITReService(suite.DB())
+		factory.FetchReServiceByCode(suite.DB(), models.ReServiceCodeDOFSIT)
 
 		sitEntryDate := time.Now()
 		sitPostalCode := "00000"
@@ -637,7 +643,8 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemOriginSITHandler() {
 		requestApprovalRequestedStatus := false
 		subtestData.mtoServiceItem.RequestedApprovalsRequestedStatus = &requestApprovalRequestedStatus
 		subtestData.mtoServiceItem.ReService.Code = models.ReServiceCodeDOPSIT
-		moveRouter := moverouter.NewMoveRouter()
+		moveRouter, err := moverouter.NewMoveRouter()
+		suite.FatalNoError(err)
 		planner := &routemocks.Planner{}
 		planner.On("ZipTransitDistance",
 			mock.AnythingOfType("*appcontext.appContext"),
@@ -683,7 +690,8 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemOriginSITHandler() {
 		requestApprovalRequestedStatus := false
 		subtestData.mtoServiceItem.RequestedApprovalsRequestedStatus = &requestApprovalRequestedStatus
 
-		moveRouter := moverouter.NewMoveRouter()
+		moveRouter, err := moverouter.NewMoveRouter()
+		suite.FatalNoError(err)
 		planner := &routemocks.Planner{}
 		planner.On("ZipTransitDistance",
 			mock.AnythingOfType("*appcontext.appContext"),
@@ -752,7 +760,8 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemOriginSITHandler() {
 		}, nil)
 
 		subtestData.mtoServiceItem.ReService.Code = models.ReServiceCodeDOASIT
-		moveRouter := moverouter.NewMoveRouter()
+		moveRouter, err := moverouter.NewMoveRouter()
+		suite.FatalNoError(err)
 		planner := &routemocks.Planner{}
 		planner.On("ZipTransitDistance",
 			mock.AnythingOfType("*appcontext.appContext"),
@@ -809,7 +818,7 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemOriginSITHandlerWithDOFSITNoA
 				LinkOnly: true,
 			},
 		}, nil)
-		factory.BuildDOFSITReService(suite.DB())
+		factory.FetchReServiceByCode(suite.DB(), models.ReServiceCodeDOFSIT)
 		sitEntryDate := time.Now()
 		sitPostalCode := "00000"
 
@@ -836,7 +845,8 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemOriginSITHandlerWithDOFSITNoA
 		requstedApprovalsRequestedStatus := false
 		subtestData.mtoServiceItem.RequestedApprovalsRequestedStatus = &requstedApprovalsRequestedStatus
 		subtestData.mtoServiceItem.ReService.Code = models.ReServiceCodeDOFSIT
-		moveRouter := moverouter.NewMoveRouter()
+		moveRouter, err := moverouter.NewMoveRouter()
+		suite.FatalNoError(err)
 		planner := &routemocks.Planner{}
 		planner.On("ZipTransitDistance",
 			mock.AnythingOfType("*appcontext.appContext"),
@@ -896,7 +906,7 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemOriginSITHandlerWithDOFSITWit
 				LinkOnly: true,
 			},
 		}, nil)
-		factory.BuildDOFSITReService(suite.DB())
+		factory.FetchReServiceByCode(suite.DB(), models.ReServiceCodeDOFSIT)
 		sitEntryDate := time.Now()
 		sitPostalCode := "00000"
 
@@ -944,7 +954,8 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemOriginSITHandlerWithDOFSITWit
 		requestedApprovalsRequestedStatus := false
 		subtestData.mtoServiceItem.RequestedApprovalsRequestedStatus = &requestedApprovalsRequestedStatus
 		subtestData.mtoServiceItem.ReService.Code = models.ReServiceCodeDOFSIT
-		moveRouter := moverouter.NewMoveRouter()
+		moveRouter, err := moverouter.NewMoveRouter()
+		suite.FatalNoError(err)
 		planner := &routemocks.Planner{}
 		planner.On("ZipTransitDistance",
 			mock.AnythingOfType("*appcontext.appContext"),
@@ -1075,7 +1086,7 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemDestSITHandler() {
 				LinkOnly: true,
 			},
 		}, nil)
-		factory.BuildDDFSITReService(suite.DB())
+		factory.FetchReServiceByCode(suite.DB(), models.ReServiceCodeDDFSIT)
 
 		req := httptest.NewRequest("POST", "/mto-service-items", nil)
 		subtestData.mtoServiceItem = models.MTOServiceItem{
@@ -1111,7 +1122,8 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemDestSITHandler() {
 
 	suite.Run("Successful POST - Integration Test", func() {
 		subtestData := makeSubtestData()
-		moveRouter := moverouter.NewMoveRouter()
+		moveRouter, err := moverouter.NewMoveRouter()
+		suite.FatalNoError(err)
 		planner := &routemocks.Planner{}
 		planner.On("ZipTransitDistance",
 			mock.AnythingOfType("*appcontext.appContext"),
@@ -1185,7 +1197,8 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemDestSITHandler() {
 			SITEntryDate:    &sitEntryDate,
 			Reason:          models.StringPointer("lorem ipsum"),
 		}
-		moveRouter := moverouter.NewMoveRouter()
+		moveRouter, err := moverouter.NewMoveRouter()
+		suite.FatalNoError(err)
 		planner := &routemocks.Planner{}
 		planner.On("ZipTransitDistance",
 			mock.AnythingOfType("*appcontext.appContext"),
@@ -1218,7 +1231,8 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemDestSITHandler() {
 
 	suite.Run("Failure POST - Integration Test - Missing reason", func() {
 		subtestData := makeSubtestData()
-		moveRouter := moverouter.NewMoveRouter()
+		moveRouter, err := moverouter.NewMoveRouter()
+		suite.FatalNoError(err)
 		planner := &routemocks.Planner{}
 		planner.On("ZipTransitDistance",
 			mock.AnythingOfType("*appcontext.appContext"),
@@ -1274,7 +1288,8 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemDestSITHandler() {
 			HTTPRequest: subtestData.params.HTTPRequest,
 			Body:        payloads.MTOServiceItem(&subtestData.mtoServiceItem),
 		}
-		moveRouter := moverouter.NewMoveRouter()
+		moveRouter, err := moverouter.NewMoveRouter()
+		suite.FatalNoError(err)
 		planner := &routemocks.Planner{}
 		planner.On("ZipTransitDistance",
 			mock.AnythingOfType("*appcontext.appContext"),
@@ -1338,7 +1353,8 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemDestSITHandler() {
 			HTTPRequest: subtestData.params.HTTPRequest,
 			Body:        payloads.MTOServiceItem(&subtestData.mtoServiceItem),
 		}
-		moveRouter := moverouter.NewMoveRouter()
+		moveRouter, err := moverouter.NewMoveRouter()
+		suite.FatalNoError(err)
 		planner := &routemocks.Planner{}
 		planner.On("ZipTransitDistance",
 			mock.AnythingOfType("*appcontext.appContext"),
@@ -1374,7 +1390,8 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemDestSITHandler() {
 		// SETUP
 		// Create the payload
 		subtestData.mtoServiceItem.ReService.Code = models.ReServiceCodeDDDSIT
-		moveRouter := moverouter.NewMoveRouter()
+		moveRouter, err := moverouter.NewMoveRouter()
+		suite.FatalNoError(err)
 		planner := &routemocks.Planner{}
 		planner.On("ZipTransitDistance",
 			mock.AnythingOfType("*appcontext.appContext"),

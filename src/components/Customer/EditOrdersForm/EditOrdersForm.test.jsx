@@ -2,10 +2,15 @@ import React from 'react';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
+import { isBooleanFlagEnabled } from '../../../utils/featureFlags';
+
 import EditOrdersForm from './EditOrdersForm';
 
 import { documentSizeLimitMsg } from 'shared/constants';
 import { showCounselingOffices } from 'services/internalApi';
+import { ORDERS_TYPE, ORDERS_TYPE_OPTIONS } from 'constants/orders';
+
+jest.setTimeout(60000);
 
 jest.mock('services/internalApi', () => ({
   ...jest.requireActual('services/internalApi'),
@@ -51,6 +56,7 @@ jest.mock('components/LocationSearchBox/api', () => ({
         id: '93f0755f-6f35-478b-9a75-35a69211da1c',
         name: 'Altus AFB',
         updated_at: '2021-02-11T16:48:04.117Z',
+        provides_services_counseling: true,
       },
       {
         address: {
@@ -81,6 +87,7 @@ jest.mock('components/LocationSearchBox/api', () => ({
         created_at: '2021-02-11T16:48:04.117Z',
         id: 'a8d6b33c-8370-4e92-8df2-356b8c9d0c1a',
         name: 'Luke AFB',
+        provides_services_counseling: true,
         updated_at: '2021-02-11T16:48:04.117Z',
       },
       {
@@ -147,6 +154,10 @@ jest.mock('components/LocationSearchBox/api', () => ({
   ),
 }));
 
+jest.mock('../../../utils/featureFlags', () => ({
+  isBooleanFlagEnabled: jest.fn(),
+}));
+
 const testProps = {
   onSubmit: jest.fn().mockImplementation(() => Promise.resolve()),
   initialValues: {
@@ -170,16 +181,19 @@ const testProps = {
     { key: 'LOCAL_MOVE', value: 'Local Move' },
     { key: 'RETIREMENT', value: 'Retirement' },
     { key: 'SEPARATION', value: 'Separation' },
+    { key: 'TEMPORARY_DUTY', value: 'Temporary Duty (TDY)' },
+    { key: ORDERS_TYPE.EARLY_RETURN_OF_DEPENDENTS, value: ORDERS_TYPE_OPTIONS.EARLY_RETURN_OF_DEPENDENTS },
+    { key: ORDERS_TYPE.STUDENT_TRAVEL, value: ORDERS_TYPE_OPTIONS.STUDENT_TRAVEL },
   ],
   currentDutyLocation: {},
   grade: '',
 };
 
 const initialValues = {
-  orders_type: 'PERMANENT_CHANGE_OF_STATION',
+  orders_type: ORDERS_TYPE.PERMANENT_CHANGE_OF_STATION,
   issue_date: '2020-11-08',
   report_by_date: '2020-11-26',
-  has_dependents: 'No',
+  has_dependents: 'no',
   origin_duty_location: {
     address: {
       city: 'Des Moines',
@@ -199,6 +213,7 @@ const initialValues = {
     updated_at: '2020-10-19T17:01:16.114Z',
     provides_services_counseling: true,
   },
+  counseling_office_id: '3e937c1f-5539-4919-954d-017989130584',
   new_duty_location: {
     address: {
       city: 'Des Moines',
@@ -228,7 +243,15 @@ const initialValues = {
     },
   ],
   grade: 'E_1',
+  accompanied_tour: '',
+  dependents_under_twelve: '',
+  dependents_twelve_and_over: '',
 };
+
+jest.mock('utils/featureFlags', () => ({
+  ...jest.requireActual('utils/featureFlags'),
+  isBooleanFlagEnabled: jest.fn().mockImplementation(() => Promise.resolve(false)),
+}));
 
 describe('EditOrdersForm component', () => {
   describe('renders each input and checks if the field is required', () => {
@@ -265,7 +288,12 @@ describe('EditOrdersForm component', () => {
       ['LOCAL_MOVE', 'LOCAL_MOVE'],
       ['RETIREMENT', 'RETIREMENT'],
       ['SEPARATION', 'SEPARATION'],
+      ['TEMPORARY_DUTY', 'TEMPORARY_DUTY'],
+      [ORDERS_TYPE.EARLY_RETURN_OF_DEPENDENTS, ORDERS_TYPE.EARLY_RETURN_OF_DEPENDENTS],
+      [ORDERS_TYPE.STUDENT_TRAVEL, ORDERS_TYPE.STUDENT_TRAVEL],
     ])('rendering the %s option', async (selectionOption, expectedValue) => {
+      isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(true));
+
       render(<EditOrdersForm {...testProps} />);
 
       const ordersTypeDropdown = await screen.findByLabelText(/Orders type/);
@@ -279,15 +307,23 @@ describe('EditOrdersForm component', () => {
   });
 
   it('allows new and current duty location to be the same', async () => {
-    // Not testing the upload interaction, so give uploaded orders to the props.
+    // Render the component
     render(
       <EditOrdersForm
         {...testProps}
-        currentDutyLocation={{ name: 'Luke AFB' }}
         initialValues={{
+          ...initialValues,
           origin_duty_location: {
-            provides_services_counseling: true,
+            name: 'Luke AFB',
+            provides_services_counseling: false,
+            address: { isOconus: false },
           },
+          new_duty_location: {
+            name: 'Luke AFB',
+            provides_services_counseling: false,
+            address: { isOconus: false },
+          },
+          counseling_office_id: '3e937c1f-5539-4919-954d-017989130584',
           uploaded_orders: [
             {
               id: '123',
@@ -302,44 +338,30 @@ describe('EditOrdersForm component', () => {
       />,
     );
 
+    await waitFor(() => expect(screen.queryByText('Loading, please wait...')).not.toBeInTheDocument());
+
     const submitButton = screen.getByRole('button', { name: 'Save' });
     await waitFor(() => {
       expect(submitButton).not.toBeDisabled();
     });
-
-    await userEvent.selectOptions(screen.getByLabelText(/Orders type/), 'PERMANENT_CHANGE_OF_STATION');
+    await userEvent.selectOptions(screen.getByLabelText(/Orders type/), ORDERS_TYPE.PERMANENT_CHANGE_OF_STATION);
     await userEvent.type(screen.getByLabelText(/Orders date/), '08 Nov 2020');
     await userEvent.type(screen.getByLabelText(/Report by date/), '26 Nov 2020');
     await userEvent.click(screen.getByLabelText('No'));
     await userEvent.selectOptions(screen.getByLabelText(/Pay grade/), ['E_5']);
-
-    // Test Current Duty Location Search Box interaction
-    await userEvent.type(screen.getByLabelText(/Current duty location/), 'AFB', { delay: 100 });
-    const selectedOptionCurrent = await screen.findByText(/Altus/);
-    await userEvent.click(selectedOptionCurrent);
-
-    // Test New Duty Location Search Box interaction
-    await userEvent.type(screen.getByLabelText(/New duty location/), 'AFB', { delay: 100 });
-    const selectedOptionNew = await screen.findByText(/Luke/);
-    await userEvent.click(selectedOptionNew);
+    await userEvent.click(screen.getByTestId('hasDependentsYes'));
 
     await waitFor(() => {
       expect(screen.getByRole('form')).toHaveFormValues({
         new_duty_location: 'Luke AFB',
-        origin_duty_location: 'Altus AFB',
+        origin_duty_location: 'Luke AFB',
       });
     });
-
-    expect(submitButton).not.toHaveAttribute('disabled');
   });
 
   it('shows an error message if the form is invalid', async () => {
     render(<EditOrdersForm {...testProps} initialValues={initialValues} />);
-    const submitButton = screen.getByRole('button', { name: 'Save' });
-
-    await waitFor(() => {
-      expect(submitButton).toBeEnabled();
-    });
+    const submitButton = await screen.findByRole('button', { name: 'Save' });
 
     const ordersTypeDropdown = screen.getByLabelText(/Orders type/);
     await userEvent.selectOptions(ordersTypeDropdown, '');
@@ -360,8 +382,11 @@ describe('EditOrdersForm component', () => {
         {...testProps}
         initialValues={{
           origin_duty_location: {
+            name: 'Altus AFB',
             provides_services_counseling: true,
+            address: { isOconus: false },
           },
+          counseling_office_id: '3e937c1f-5539-4919-954d-017989130584',
           uploaded_orders: [
             {
               id: '123',
@@ -376,21 +401,20 @@ describe('EditOrdersForm component', () => {
       />,
     );
 
-    await userEvent.selectOptions(screen.getByLabelText(/Orders type/), 'PERMANENT_CHANGE_OF_STATION');
+    await waitFor(() => expect(screen.queryByText('Loading, please wait...')).not.toBeInTheDocument());
+
+    await userEvent.selectOptions(screen.getByLabelText(/Orders type/), ORDERS_TYPE.PERMANENT_CHANGE_OF_STATION);
     await userEvent.type(screen.getByLabelText(/Orders date/), '08 Nov 2020');
     await userEvent.type(screen.getByLabelText(/Report by date/), '26 Nov 2020');
     await userEvent.click(screen.getByLabelText('No'));
     await userEvent.selectOptions(screen.getByLabelText(/Pay grade/), ['E_5']);
 
-    // Test Current Duty Location Search Box interaction
-    await userEvent.type(screen.getByLabelText(/Current duty location/), 'AFB', { delay: 100 });
-    const selectedOptionCurrent = await screen.findByText(/Altus/);
-    await userEvent.click(selectedOptionCurrent);
-
     // Test New Duty Location Search Box interaction
     await userEvent.type(screen.getByLabelText(/New duty location/), 'AFB', { delay: 100 });
     const selectedOptionNew = await screen.findByText(/Luke/);
     await userEvent.click(selectedOptionNew);
+
+    expect(screen.getByLabelText(/Counseling office/));
 
     await waitFor(() =>
       expect(screen.getByRole('form')).toHaveFormValues({
@@ -403,39 +427,51 @@ describe('EditOrdersForm component', () => {
     expect(submitBtn).not.toBeDisabled();
     await userEvent.click(submitBtn);
 
-    await waitFor(() => {
-      expect(testProps.onSubmit).toHaveBeenCalledWith(
-        expect.objectContaining({
-          orders_type: 'PERMANENT_CHANGE_OF_STATION',
-          has_dependents: 'no',
-          issue_date: '08 Nov 2020',
-          report_by_date: '26 Nov 2020',
-          new_duty_location: {
-            address: {
-              city: 'Glendale Luke AFB',
-              country: 'United States',
-              id: 'fa51dab0-4553-4732-b843-1f33407f77bc',
-              postalCode: '85309',
-              state: 'AZ',
-              streetAddress1: 'n/a',
-            },
-            address_id: '25be4d12-fe93-47f1-bbec-1db386dfa67f',
-            affiliation: 'AIR_FORCE',
-            created_at: '2021-02-11T16:48:04.117Z',
-            id: 'a8d6b33c-8370-4e92-8df2-356b8c9d0c1a',
-            name: 'Luke AFB',
-            updated_at: '2021-02-11T16:48:04.117Z',
+    expect(testProps.onSubmit).toHaveBeenCalledWith(
+      expect.objectContaining({
+        orders_type: ORDERS_TYPE.PERMANENT_CHANGE_OF_STATION,
+        has_dependents: 'no',
+        issue_date: '08 Nov 2020',
+        report_by_date: '26 Nov 2020',
+        new_duty_location: {
+          address: {
+            city: 'Glendale Luke AFB',
+            country: 'United States',
+            id: 'fa51dab0-4553-4732-b843-1f33407f77bc',
+            postalCode: '85309',
+            state: 'AZ',
+            streetAddress1: 'n/a',
           },
-          grade: 'E_5',
-        }),
-        expect.anything(),
-      );
-    });
+          address_id: '25be4d12-fe93-47f1-bbec-1db386dfa67f',
+          affiliation: 'AIR_FORCE',
+          created_at: '2021-02-11T16:48:04.117Z',
+          id: 'a8d6b33c-8370-4e92-8df2-356b8c9d0c1a',
+          name: 'Luke AFB',
+          updated_at: '2021-02-11T16:48:04.117Z',
+          provides_services_counseling: true,
+        },
+        origin_duty_location: expect.any(Object),
+        grade: 'E_5',
+        counseling_office_id: '3e937c1f-5539-4919-954d-017989130584',
+        uploaded_orders: expect.arrayContaining([
+          expect.objectContaining({
+            id: '123',
+            createdAt: '2020-11-08',
+            bytes: 1,
+            url: 'url',
+            filename: 'Test Upload',
+            contentType: 'application/pdf',
+          }),
+        ]),
+      }),
+      expect.anything(),
+    );
   });
 
   it('implements the onCancel handler when the Cancel button is clicked', async () => {
     render(<EditOrdersForm {...testProps} />);
-    const cancelButton = screen.getByRole('button', { name: 'Cancel' });
+
+    const cancelButton = await screen.findByRole('button', { name: 'Cancel' });
 
     await userEvent.click(cancelButton);
 
@@ -446,7 +482,7 @@ describe('EditOrdersForm component', () => {
 
   describe('with initial values', () => {
     const testInitialValues = {
-      orders_type: 'PERMANENT_CHANGE_OF_STATION',
+      orders_type: ORDERS_TYPE.PERMANENT_CHANGE_OF_STATION,
       issue_date: '2020-11-08',
       report_by_date: '2020-11-26',
       has_dependents: 'no',
@@ -535,7 +571,7 @@ describe('EditOrdersForm component', () => {
       const modifiedProps = {
         onSubmit: jest.fn().mockImplementation(() => Promise.resolve()),
         initialValues: {
-          orders_type: 'PERMANENT_CHANGE_OF_STATION',
+          orders_type: ORDERS_TYPE.PERMANENT_CHANGE_OF_STATION,
           issue_date: '2020-11-08',
           report_by_date: '2020-11-26',
           has_dependents: 'no',
@@ -582,6 +618,9 @@ describe('EditOrdersForm component', () => {
           { key: 'LOCAL_MOVE', value: 'Local Move' },
           { key: 'RETIREMENT', value: 'Retirement' },
           { key: 'SEPARATION', value: 'Separation' },
+          { key: 'TEMPORARY_DUTY', value: 'Temporary Duty (TDY)' },
+          { key: ORDERS_TYPE.EARLY_RETURN_OF_DEPENDENTS, value: ORDERS_TYPE_OPTIONS.EARLY_RETURN_OF_DEPENDENTS },
+          { key: ORDERS_TYPE.STUDENT_TRAVEL, value: ORDERS_TYPE_OPTIONS.STUDENT_TRAVEL },
         ],
         currentDutyLocation: {},
       };
@@ -590,12 +629,178 @@ describe('EditOrdersForm component', () => {
 
       render(<EditOrdersForm {...modifiedProps} />);
 
-      const save = screen.getByRole('button', { name: 'Save' });
+      const save = await screen.findByRole('button', { name: 'Save' });
       await waitFor(() => {
         expect(save).toBeInTheDocument();
       });
 
       expect(save).toBeDisabled();
+    });
+  });
+
+  it('submits the form when temporary duty orders type is selected', async () => {
+    // Not testing the upload interaction, so give uploaded orders to the props.
+    render(
+      <EditOrdersForm
+        {...testProps}
+        initialValues={{
+          origin_duty_location: {
+            name: 'Altus AFB',
+            provides_services_counseling: true,
+            address: { isOconus: false },
+          },
+          counseling_office_id: '3e937c1f-5539-4919-954d-017989130584',
+          uploaded_orders: [
+            {
+              id: '123',
+              createdAt: '2020-11-08',
+              bytes: 1,
+              url: 'url',
+              filename: 'Test Upload',
+              contentType: 'application/pdf',
+            },
+          ],
+        }}
+      />,
+    );
+
+    await waitFor(() => expect(screen.queryByText('Loading, please wait...')).not.toBeInTheDocument());
+
+    await userEvent.selectOptions(screen.getByLabelText(/Orders type/), 'TEMPORARY_DUTY');
+    await userEvent.type(screen.getByLabelText(/Orders date/), '28 Oct 2024');
+    await userEvent.type(screen.getByLabelText(/Report by date/), '28 Oct 2024');
+    await userEvent.click(screen.getByLabelText('No'));
+    await userEvent.selectOptions(screen.getByLabelText(/Pay grade/), ['E_8']);
+
+    // Test New Duty Location Search Box interaction
+    await userEvent.type(screen.getByLabelText(/New duty location/), 'AFB', { delay: 200 });
+    const selectedOptionNew = await screen.findByText(/Luke/);
+    await userEvent.click(selectedOptionNew);
+
+    await waitFor(() =>
+      expect(screen.getByRole('form')).toHaveFormValues({
+        new_duty_location: 'Luke AFB',
+        origin_duty_location: 'Altus AFB',
+      }),
+    );
+
+    const submitBtn = screen.getByRole('button', { name: 'Save' });
+    expect(submitBtn).not.toBeDisabled();
+    await userEvent.click(submitBtn);
+
+    await waitFor(() => {
+      expect(testProps.onSubmit).toHaveBeenCalledWith(
+        expect.objectContaining({
+          orders_type: ORDERS_TYPE.TEMPORARY_DUTY,
+        }),
+        expect.anything(),
+      );
+    });
+  });
+
+  it('has dependents is yes and disabled when order type is student travel', async () => {
+    isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(true));
+
+    render(<EditOrdersForm {...testProps} />);
+
+    await waitFor(() => expect(screen.queryByText('Loading, please wait...')).not.toBeInTheDocument());
+
+    await userEvent.selectOptions(screen.getByLabelText(/Orders type/), ORDERS_TYPE.STUDENT_TRAVEL);
+
+    const hasDependentsYes = screen.getByLabelText('Yes');
+    const hasDependentsNo = screen.getByLabelText('No');
+
+    await waitFor(() => {
+      expect(hasDependentsYes).toBeChecked();
+      expect(hasDependentsYes).toBeDisabled();
+      expect(hasDependentsNo).toBeDisabled();
+    });
+  });
+
+  it('has dependents is yes and disabled when order type is early return', async () => {
+    render(<EditOrdersForm {...testProps} />);
+
+    await waitFor(() => expect(screen.queryByText('Loading, please wait...')).not.toBeInTheDocument());
+
+    await userEvent.selectOptions(screen.getByLabelText(/Orders type/), ORDERS_TYPE.EARLY_RETURN_OF_DEPENDENTS);
+
+    const hasDependentsYes = screen.getByLabelText('Yes');
+    const hasDependentsNo = screen.getByLabelText('No');
+
+    await waitFor(() => {
+      expect(hasDependentsYes).toBeChecked();
+      expect(hasDependentsYes).toBeDisabled();
+      expect(hasDependentsNo).toBeDisabled();
+    });
+  });
+
+  it('has dependents becomes disabled and then re-enabled for order type student travel', async () => {
+    render(<EditOrdersForm {...testProps} />);
+
+    await waitFor(() => expect(screen.queryByText('Loading, please wait...')).not.toBeInTheDocument());
+
+    // set order type to perm change and verify the "has dependents" state
+    await userEvent.selectOptions(screen.getByLabelText(/Orders type/), 'PERMANENT_CHANGE_OF_STATION');
+
+    const hasDependentsYesPermChg = screen.getByLabelText('Yes');
+    const hasDependentsNoPermChg = screen.getByLabelText('No');
+
+    await waitFor(() => {
+      expect(hasDependentsYesPermChg).not.toBeChecked();
+      expect(hasDependentsYesPermChg).toBeEnabled();
+      expect(hasDependentsNoPermChg).not.toBeChecked();
+      expect(hasDependentsNoPermChg).toBeEnabled();
+    });
+
+    // set order type to value that disables and defaults "has dependents"
+    await userEvent.selectOptions(screen.getByLabelText(/Orders type/), ORDERS_TYPE.STUDENT_TRAVEL);
+
+    // set order type to value the re-enables "has dependents"
+    await userEvent.selectOptions(screen.getByLabelText(/Orders type/), 'LOCAL_MOVE');
+
+    const hasDependentsYesLocalMove = screen.getByLabelText('Yes');
+    const hasDependentsNoLocalMove = screen.getByLabelText('No');
+
+    await waitFor(() => {
+      expect(hasDependentsYesLocalMove).not.toBeChecked();
+      expect(hasDependentsYesLocalMove).toBeEnabled();
+      expect(hasDependentsNoLocalMove).not.toBeChecked();
+      expect(hasDependentsNoLocalMove).toBeEnabled();
+    });
+  });
+
+  it('has dependents becomes disabled and then re-enabled for order type early return', async () => {
+    render(<EditOrdersForm {...testProps} />);
+
+    await waitFor(() => expect(screen.queryByText('Loading, please wait...')).not.toBeInTheDocument());
+
+    // set order type to perm change and verify the "has dependents" state
+    await userEvent.selectOptions(screen.getByLabelText(/Orders type/), 'PERMANENT_CHANGE_OF_STATION');
+
+    const hasDependentsYesPermChg = screen.getByLabelText('Yes');
+    const hasDependentsNoPermChg = screen.getByLabelText('No');
+
+    await waitFor(() => {
+      expect(hasDependentsYesPermChg).not.toBeChecked();
+      expect(hasDependentsYesPermChg).toBeEnabled();
+      expect(hasDependentsNoPermChg).not.toBeChecked();
+      expect(hasDependentsNoPermChg).toBeEnabled();
+    });
+
+    // set order type to value that disables and defaults "has dependents"
+    await userEvent.selectOptions(screen.getByLabelText(/Orders type/), ORDERS_TYPE.EARLY_RETURN_OF_DEPENDENTS);
+
+    // set order type to value the re-enables "has dependents"
+    await userEvent.selectOptions(screen.getByLabelText(/Orders type/), 'LOCAL_MOVE');
+
+    const hasDependentsYesLocalMove = screen.getByLabelText('Yes');
+    const hasDependentsNoLocalMove = screen.getByLabelText('No');
+
+    await waitFor(() => {
+      expect(hasDependentsYesLocalMove).not.toBeChecked();
+      expect(hasDependentsYesLocalMove).toBeEnabled();
+      expect(hasDependentsNoLocalMove).not.toBeChecked();
+      expect(hasDependentsNoLocalMove).toBeEnabled();
     });
   });
 

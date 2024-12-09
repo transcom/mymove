@@ -27,6 +27,7 @@ const approvedMoveTaskOrder = {
         actualProGearWeight: null,
         actualSpouseProGearWeight: 117,
         agents: [],
+        marketCode: 'd',
         approvedDate: '2021-10-20',
         counselorRemarks: 'These are counselor remarks for an HHG.',
         createdAt: '2021-10-21',
@@ -119,7 +120,10 @@ const mockedComponent = (
 describe('Shipment details component', () => {
   it('renders the component headings and links without errors', () => {
     render(mockedComponent);
-    const shipmentLevelHeader = screen.getByRole('heading', { name: 'HHG shipment', level: 3 });
+    const shipmentLevelHeader = screen.getByRole('heading', {
+      name: `${approvedMoveTaskOrder.moveTaskOrder.mtoShipments[0].marketCode}HHG shipment`,
+      level: 3,
+    });
     expect(shipmentLevelHeader).toBeInTheDocument();
 
     const updateShipmentLink = screen.getAllByText(/Update Shipment/, { selector: 'a.usa-button' })[0];
@@ -131,6 +135,13 @@ describe('Shipment details component', () => {
     expect(addServiceItemLink.getAttribute('href')).toBe(`/shipments/${shipmentId}/service-items/new`);
 
     expect(screen.queryAllByRole('link', { name: 'Edit' })).toHaveLength(7);
+  });
+
+  it('renders HHGShipmentCard with a heading that has a market code and shipment type', async () => {
+    render(mockedComponent);
+    expect(screen.getByRole('heading', { level: 3 })).toHaveTextContent(
+      `${approvedMoveTaskOrder.moveTaskOrder.mtoShipments[0].marketCode}HHG shipment`,
+    );
   });
 
   it('renders the shipment address values', async () => {
@@ -206,7 +217,7 @@ describe('Shipment details component', () => {
     expect(field.nextElementSibling.textContent).toContain(shipment.pickupAddress.streetAddress2);
     expect(field.nextElementSibling.textContent).toContain(shipment.pickupAddress.postalCode);
 
-    field = screen.getByText('Destination Address:');
+    field = screen.getByText('Delivery Address:');
     expect(field).toBeInTheDocument();
     expect(field.nextElementSibling.textContent).toContain(shipment.destinationAddress.city);
     expect(field.nextElementSibling.textContent).toContain(shipment.destinationAddress.state);
@@ -578,6 +589,151 @@ describe('PPM shipments are handled', () => {
     render(
       <MockProviders>
         <Shipment shipment={ppmShipmentMissingObject} moveId={moveId} />
+      </MockProviders>,
+    );
+
+    const deleteShipmentButton = screen.queryByText(/Delete Shipment/, { selector: 'button' });
+    expect(deleteShipmentButton).not.toBeInTheDocument();
+  });
+});
+
+const boatShipment = {
+  actualPickupDate: null,
+  approvedDate: null,
+  counselorRemarks: 'These are counselor remarks for a PPM.',
+  createdAt: '2022-07-01T13:41:33.261Z',
+  destinationAddress: {
+    city: null,
+    postalCode: null,
+    state: null,
+    streetAddress1: null,
+  },
+  eTag: 'MjAyMi0wNy0wMVQxNDoyMzoxOS43MzgzODla',
+  firstAvailableDeliveryDate: null,
+  id: '1b695b60-c3ed-401b-b2e3-808d095eb8cc',
+  moveTaskOrderID: '7024c8c5-52ca-4639-bf69-dd8238308c98',
+  pickupAddress: {
+    city: null,
+    postalCode: null,
+    state: null,
+    streetAddress1: null,
+  },
+  boatShipment: {
+    type: 'HAUL_AWAY',
+    year: '2022',
+    make: 'Yamaha',
+    model: '242X',
+    lengthInInches: 288, // 24 feet
+    widthInInches: 102, // 8 feet 6 inches
+    heightInInches: 84, // 7 feet
+    hasTrailer: true,
+    isRoadworthy: true,
+  },
+  primeEstimatedWeightRecordedDate: null,
+  requestedPickupDate: null,
+  requiredDeliveryDate: null,
+  scheduledPickupDate: null,
+  secondaryDeliveryAddress: {
+    city: null,
+    postalCode: null,
+    state: null,
+    streetAddress1: null,
+  },
+  secondaryPickupAddress: {
+    city: null,
+    postalCode: null,
+    state: null,
+    streetAddress1: null,
+  },
+  shipmentType: 'PPM',
+  status: 'APPROVED',
+  updatedAt: '2022-07-01T14:23:19.738Z',
+  mtoServiceItems: [],
+};
+
+const boatShipmentWaitingOnCustomer = {
+  ...boatShipment,
+  boatShipment: {
+    ...boatShipment.ppmShipment,
+    status: 'WAITING_ON_CUSTOMER',
+  },
+};
+
+const boatShipmentMissingObject = {
+  ...boatShipment,
+  boatShipment: null,
+};
+
+const boatShipmentFields = boatShipment.boatShipment;
+
+describe('Boat Shipments are handled', () => {
+  it('Boat Shipment fields header is present', () => {
+    render(
+      <MockProviders>
+        <Shipment shipment={boatShipment} moveId={moveId} />
+      </MockProviders>,
+    );
+
+    const ppmFieldsHeader = screen.getByRole('heading', { name: 'Boat-Shipment Specific Fields', level: 4 });
+    expect(ppmFieldsHeader).toBeInTheDocument();
+  });
+
+  it.each([
+    ['Shipment Type:', boatShipmentFields.type],
+    ['Year:', boatShipmentFields.year],
+    ['Make:', boatShipmentFields.make],
+    ['Model:', boatShipmentFields.model],
+    ['Length:', `Length: ${boatShipmentFields.lengthInInches}`],
+    ['Width:', `Width: ${boatShipmentFields.widthInInches}`],
+    ['Height:', `Height: ${boatShipmentFields.heightInInches}`],
+    ['Has Trailer:', 'Yes'],
+    ['Trailer is Roadworthy:', 'Yes'],
+  ])('Boat shipment field %s with value %s is present', async (boatShipmentField, boatShipmentFieldValue) => {
+    render(
+      <MockProviders>
+        <Shipment shipment={boatShipment} moveId={moveId} />
+      </MockProviders>,
+    );
+    const dimensionValues = ['Length:', 'Width:', 'Height:'];
+    const field = screen.getByText(boatShipmentField, { exact: false });
+    await expect(field).toBeInTheDocument();
+
+    // Don't skip to nextElementSibling if getting a dimension value (different HTML markup)
+    if (dimensionValues.includes(boatShipmentField)) await expect(field.textContent).toBe(boatShipmentFieldValue);
+    else await expect(field.nextElementSibling.textContent).toBe(boatShipmentFieldValue);
+  });
+
+  it("Trailer field does not show up if Boat Shipment doesn't have a trailer", () => {
+    const boatShipmentWithoutTrailer = boatShipment;
+    boatShipmentWithoutTrailer.boatShipment.hasTrailer = false;
+    render(
+      <MockProviders>
+        <Shipment shipment={boatShipment} moveId={moveId} />
+      </MockProviders>,
+    );
+
+    const boatTrailerField = screen.getByText('Has Trailer:');
+    expect(boatTrailerField).toBeInTheDocument();
+    expect(boatTrailerField.nextElementSibling.textContent).toBe('No');
+
+    expect(screen.queryByText('Trailer is Roadworthy:')).not.toBeInTheDocument();
+  });
+
+  it('Boat status does not allow deletion', () => {
+    render(
+      <MockProviders>
+        <Shipment shipment={boatShipmentWaitingOnCustomer} moveId={moveId} />
+      </MockProviders>,
+    );
+
+    const deleteShipmentButton = screen.queryByText(/Delete Shipment/, { selector: 'button' });
+    expect(deleteShipmentButton).not.toBeInTheDocument();
+  });
+
+  it('Boat shipment is missing boatShipment object', () => {
+    render(
+      <MockProviders>
+        <Shipment shipment={boatShipmentMissingObject} moveId={moveId} />
       </MockProviders>,
     );
 

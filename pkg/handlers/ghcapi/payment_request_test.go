@@ -24,7 +24,7 @@ import (
 )
 
 func (suite *HandlerSuite) TestFetchPaymentRequestHandler() {
-	expectedServiceItemName := "Test Service"
+	expectedServiceItemName := "Domestic linehaul"
 	expectedShipmentType := models.MTOShipmentTypeHHG
 
 	setupTestData := func() (models.PaymentServiceItemParam, models.OfficeUser) {
@@ -125,7 +125,7 @@ func (suite *HandlerSuite) TestFetchPaymentRequestHandler() {
 }
 
 func (suite *HandlerSuite) TestGetPaymentRequestsForMoveHandler() {
-	expectedServiceItemName := "Test Service"
+	expectedServiceItemName := "Domestic linehaul"
 	expectedShipmentType := models.MTOShipmentTypeHHG
 	var moveLocator string
 

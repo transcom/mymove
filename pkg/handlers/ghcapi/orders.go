@@ -218,7 +218,7 @@ func (h CreateOrderHandler) Handle(params orderop.CreateOrderParams) middleware.
 				return orderop.NewCreateOrderUnprocessableEntity(), err
 			}
 
-			newDutyLocationGBLOC, err := models.FetchGBLOCForPostalCode(appCtx.DB(), newDutyLocation.Address.PostalCode)
+			destinationGBLOC, err := models.FetchGBLOCForPostalCode(appCtx.DB(), newDutyLocation.Address.PostalCode)
 			if err != nil {
 				err = apperror.NewBadDataError("New duty location GBLOC cannot be verified")
 				appCtx.Logger().Error(err.Error())
@@ -236,8 +236,8 @@ func (h CreateOrderHandler) Handle(params orderop.CreateOrderParams) middleware.
 			}
 
 			grade := (internalmessages.OrderPayGrade)(*payload.Grade)
-			weightAllotment := models.GetWeightAllotment(grade)
-
+			ordersType := (internalmessages.OrdersType)(*payload.OrdersType)
+			weightAllotment := models.GetWeightAllotment(grade, ordersType)
 			weight := weightAllotment.TotalWeightSelf
 			if *payload.HasDependents {
 				weight = weightAllotment.TotalWeightSelfPlusDependents
@@ -245,12 +245,30 @@ func (h CreateOrderHandler) Handle(params orderop.CreateOrderParams) middleware.
 
 			sitDaysAllowance := models.DefaultServiceMemberSITDaysAllowance
 
+			var dependentsTwelveAndOver *int
+			var dependentsUnderTwelve *int
+			if payload.DependentsTwelveAndOver != nil {
+				dependentsTwelveAndOver = models.IntPointer(int(*payload.DependentsTwelveAndOver))
+			}
+			if payload.DependentsUnderTwelve != nil {
+				dependentsUnderTwelve = models.IntPointer(int(*payload.DependentsUnderTwelve))
+			}
+			// Calculate UB allowance for the order entitlement
+			unaccompaniedBaggageAllowance, err := models.GetUBWeightAllowance(appCtx, originDutyLocation.Address.IsOconus, newDutyLocation.Address.IsOconus, serviceMember.Affiliation, &grade, (*internalmessages.OrdersType)(payload.OrdersType), payload.HasDependents, payload.AccompaniedTour, dependentsUnderTwelve, dependentsTwelveAndOver)
+			if err == nil {
+				weightAllotment.UnaccompaniedBaggageAllowance = unaccompaniedBaggageAllowance
+			}
+
 			entitlement := models.Entitlement{
-				DependentsAuthorized: payload.HasDependents,
-				DBAuthorizedWeight:   models.IntPointer(weight),
-				StorageInTransit:     models.IntPointer(sitDaysAllowance),
-				ProGearWeight:        weightAllotment.ProGearWeight,
-				ProGearWeightSpouse:  weightAllotment.ProGearWeightSpouse,
+				DependentsAuthorized:    payload.HasDependents,
+				DBAuthorizedWeight:      models.IntPointer(weight),
+				StorageInTransit:        models.IntPointer(sitDaysAllowance),
+				ProGearWeight:           weightAllotment.ProGearWeight,
+				ProGearWeightSpouse:     weightAllotment.ProGearWeightSpouse,
+				AccompaniedTour:         payload.AccompaniedTour,
+				DependentsUnderTwelve:   dependentsUnderTwelve,
+				DependentsTwelveAndOver: dependentsTwelveAndOver,
+				UBAllowance:             &weightAllotment.UnaccompaniedBaggageAllowance,
 			}
 
 			if saveEntitlementErr := appCtx.DB().Save(&entitlement); saveEntitlementErr != nil {
@@ -295,7 +313,7 @@ func (h CreateOrderHandler) Handle(params orderop.CreateOrderParams) middleware.
 				&entitlement,
 				&originDutyLocationGBLOC.GBLOC,
 				packingAndShippingInstructions,
-				&newDutyLocationGBLOC.GBLOC,
+				&destinationGBLOC.GBLOC,
 			)
 			if err != nil || verrs.HasAny() {
 				return handlers.ResponseForVErrors(appCtx.Logger(), verrs, err), err

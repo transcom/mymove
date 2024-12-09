@@ -54,7 +54,8 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 		mock.Anything,
 		mock.Anything,
 	).Return(1000, nil)
-	moveRouter := moveservices.NewMoveRouter()
+	moveRouter, err := moveservices.NewMoveRouter()
+	suite.FatalNoError(err)
 	moveWeights := moveservices.NewMoveWeights(NewShipmentReweighRequester())
 	mockShipmentRecalculator := mockservices.PaymentRequestShipmentRecalculator{}
 	mockShipmentRecalculator.On("ShipmentRecalculatePaymentRequest",
@@ -110,6 +111,7 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 					City:           "Des Moines",
 					State:          "IA",
 					PostalCode:     "50309",
+					County:         "POLK",
 				},
 			},
 		}, nil)
@@ -310,6 +312,11 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 				Model: models.MTOShipment{
 					ShipmentType: models.MTOShipmentTypeHHG,
 				},
+			},
+			{
+				Model:    secondaryPickupAddress,
+				LinkOnly: true,
+				Type:     &factory.Addresses.SecondaryPickupAddress,
 			},
 			{
 				Model:    tertiaryPickupAddress,
@@ -1676,7 +1683,7 @@ func (suite *MTOShipmentServiceSuite) TestUpdateMTOShipmentStatus() {
 
 	setupTestData := func() {
 		for i := range expectedReServiceCodes {
-			factory.BuildReServiceByCode(suite.DB(), expectedReServiceCodes[i])
+			factory.FetchReServiceByCode(suite.DB(), expectedReServiceCodes[i])
 		}
 
 		mto = factory.BuildMove(suite.DB(), []factory.Customization{
@@ -1784,7 +1791,8 @@ func (suite *MTOShipmentServiceSuite) TestUpdateMTOShipmentStatus() {
 	}
 
 	builder := query.NewQueryBuilder()
-	moveRouter := moveservices.NewMoveRouter()
+	moveRouter, err := moveservices.NewMoveRouter()
+	suite.FatalNoError(err)
 	planner := &mocks.Planner{}
 	featureFlagFetcher := mockservices.NewFeatureFlagFetcher(suite.T())
 	var TransitDistancePickupArg string
@@ -1944,7 +1952,7 @@ func (suite *MTOShipmentServiceSuite) TestUpdateMTOShipmentStatus() {
 		suite.Assert().False(verrs.HasAny())
 		suite.NoError(err)
 
-		factory.BuildReServiceByCode(appCtx.DB(), models.ReServiceCodeDNPK)
+		factory.FetchReServiceByCode(appCtx.DB(), models.ReServiceCodeDNPK)
 
 		// This is testing that the Required Delivery Date is calculated correctly.
 		// In order for the Required Delivery Date to be calculated, the following conditions must be true:
@@ -2399,7 +2407,8 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentsMTOAvailableToPrime() {
 	builder := query.NewQueryBuilder()
 	fetcher := fetch.NewFetcher(builder)
 	planner := &mocks.Planner{}
-	moveRouter := moveservices.NewMoveRouter()
+	moveRouter, err := moveservices.NewMoveRouter()
+	suite.FatalNoError(err)
 	moveWeights := moveservices.NewMoveWeights(NewShipmentReweighRequester())
 	mockShipmentRecalculator := mockservices.PaymentRequestShipmentRecalculator{}
 	mockShipmentRecalculator.On("ShipmentRecalculatePaymentRequest",
@@ -2468,7 +2477,8 @@ func (suite *MTOShipmentServiceSuite) TestUpdateShipmentEstimatedWeightMoveExces
 	builder := query.NewQueryBuilder()
 	fetcher := fetch.NewFetcher(builder)
 	planner := &mocks.Planner{}
-	moveRouter := moveservices.NewMoveRouter()
+	moveRouter, err := moveservices.NewMoveRouter()
+	suite.FatalNoError(err)
 	moveWeights := moveservices.NewMoveWeights(NewShipmentReweighRequester())
 	mockShipmentRecalculator := mockservices.PaymentRequestShipmentRecalculator{}
 	mockShipmentRecalculator.On("ShipmentRecalculatePaymentRequest",
@@ -2651,7 +2661,8 @@ func (suite *MTOShipmentServiceSuite) TestUpdateShipmentActualWeightAutoReweigh(
 	builder := query.NewQueryBuilder()
 	fetcher := fetch.NewFetcher(builder)
 	planner := &mocks.Planner{}
-	moveRouter := moveservices.NewMoveRouter()
+	moveRouter, err := moveservices.NewMoveRouter()
+	suite.FatalNoError(err)
 	moveWeights := moveservices.NewMoveWeights(NewShipmentReweighRequester())
 	mockShipmentRecalculator := mockservices.PaymentRequestShipmentRecalculator{}
 	mockShipmentRecalculator.On("ShipmentRecalculatePaymentRequest",
@@ -2790,7 +2801,8 @@ func (suite *MTOShipmentServiceSuite) TestUpdateShipmentNullableFields() {
 	builder := query.NewQueryBuilder()
 	fetcher := fetch.NewFetcher(builder)
 	planner := &mocks.Planner{}
-	moveRouter := moveservices.NewMoveRouter()
+	moveRouter, err := moveservices.NewMoveRouter()
+	suite.FatalNoError(err)
 	mockShipmentRecalculator := mockservices.PaymentRequestShipmentRecalculator{}
 	mockShipmentRecalculator.On("ShipmentRecalculatePaymentRequest",
 		mock.AnythingOfType("*appcontext.appContext"),
@@ -2895,7 +2907,7 @@ func (suite *MTOShipmentServiceSuite) TestUpdateStatusServiceItems() {
 
 	setupTestData := func() {
 		for i := range expectedReServiceCodes {
-			factory.BuildReServiceByCode(suite.DB(), expectedReServiceCodes[i])
+			factory.FetchReServiceByCode(suite.DB(), expectedReServiceCodes[i])
 		}
 
 		pickupAddress = factory.BuildAddress(suite.DB(), []factory.Customization{
@@ -2941,7 +2953,8 @@ func (suite *MTOShipmentServiceSuite) TestUpdateStatusServiceItems() {
 	}
 
 	builder := query.NewQueryBuilder()
-	moveRouter := moveservices.NewMoveRouter()
+	moveRouter, err := moveservices.NewMoveRouter()
+	suite.FatalNoError(err)
 	planner := &mocks.Planner{}
 	featureFlagFetcher := mockservices.NewFeatureFlagFetcher(suite.T())
 	planner.On("ZipTransitDistance",

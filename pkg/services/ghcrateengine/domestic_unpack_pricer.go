@@ -26,7 +26,7 @@ func (p domesticUnpackPricer) Price(appCtx appcontext.AppContext, contractCode s
 
 // Determines if this DUPK item should actually be added to the payment request by checking for relevant feature flags
 func (p domesticUnpackPricer) ShouldPrice(appCtx appcontext.AppContext) (bool, error) {
-	isOn, err := getFeatureFlagValue(appCtx, p.FeatureFlagFetcher, services.DomesticMobileHomeUnpackingEnabled) // This should be edited later to also include the Boat Shipment FFs
+	isOn, err := GetFeatureFlagValue(appCtx, p.FeatureFlagFetcher, services.DomesticMobileHomeUnpackingEnabled) // This should be edited later to also include the Boat Shipment FFs
 	if err != nil {
 		return false, fmt.Errorf("could not fetch feature flag to determine unpack pricing formula: %w", err)
 	}
@@ -64,7 +64,7 @@ func (p domesticUnpackPricer) PriceUsingParams(appCtx appcontext.AppContext, par
 	}
 
 	// Check if unpacking service items have been enabled for Mobile Home shipments
-	isMobileHomePackingItemOn, err := getFeatureFlagValue(appCtx, p.FeatureFlagFetcher, "domestic_mobile_home_unpacking_enabled")
+	isMobileHomePackingItemOn, err := GetFeatureFlagValue(appCtx, p.FeatureFlagFetcher, "domestic_mobile_home_unpacking_enabled")
 	if err != nil {
 		return unit.Cents(0), nil, err
 	}

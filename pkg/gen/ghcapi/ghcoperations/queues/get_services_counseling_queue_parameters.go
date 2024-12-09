@@ -55,6 +55,10 @@ type GetServicesCounselingQueueParams struct {
 	  In: query
 	*/
 	CounselingOffice *string
+	/*filters using a prefix match on the service member's last name
+	  In: query
+	*/
+	CustomerName *string
 	/*filters the name of the destination duty location on the orders
 	  In: query
 	*/
@@ -62,15 +66,11 @@ type GetServicesCounselingQueueParams struct {
 	/*filters to match the unique service member's DoD ID
 	  In: query
 	*/
-	DodID *string
+	Edipi *string
 	/*filters to match the unique service member's EMPLID
 	  In: query
 	*/
 	Emplid *string
-	/*filters using a prefix match on the service member's last name
-	  In: query
-	*/
-	LastName *string
 	/*filters to match the unique move code locator
 	  In: query
 	*/
@@ -130,7 +130,7 @@ type GetServicesCounselingQueueParams struct {
 	  In: query
 	*/
 	SubmittedAt *strfmt.DateTime
-	/*Used to return a queue for a GBLOC other than the default of the current user. Requires the HQ role. The parameter is ignored if the requesting user does not have the necessary role.
+	/*Used to return a queue for a GBLOC other than the default of the current user. Requires the HQ role or a secondary transportation office assignment. The parameter is ignored if the requesting user does not have the necessary role or assignment.
 
 	  In: query
 	*/
@@ -173,23 +173,23 @@ func (o *GetServicesCounselingQueueParams) BindRequest(r *http.Request, route *m
 		res = append(res, err)
 	}
 
+	qCustomerName, qhkCustomerName, _ := qs.GetOK("customerName")
+	if err := o.bindCustomerName(qCustomerName, qhkCustomerName, route.Formats); err != nil {
+		res = append(res, err)
+	}
+
 	qDestinationDutyLocation, qhkDestinationDutyLocation, _ := qs.GetOK("destinationDutyLocation")
 	if err := o.bindDestinationDutyLocation(qDestinationDutyLocation, qhkDestinationDutyLocation, route.Formats); err != nil {
 		res = append(res, err)
 	}
 
-	qDodID, qhkDodID, _ := qs.GetOK("dodID")
-	if err := o.bindDodID(qDodID, qhkDodID, route.Formats); err != nil {
+	qEdipi, qhkEdipi, _ := qs.GetOK("edipi")
+	if err := o.bindEdipi(qEdipi, qhkEdipi, route.Formats); err != nil {
 		res = append(res, err)
 	}
 
 	qEmplid, qhkEmplid, _ := qs.GetOK("emplid")
 	if err := o.bindEmplid(qEmplid, qhkEmplid, route.Formats); err != nil {
-		res = append(res, err)
-	}
-
-	qLastName, qhkLastName, _ := qs.GetOK("lastName")
-	if err := o.bindLastName(qLastName, qhkLastName, route.Formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -382,6 +382,24 @@ func (o *GetServicesCounselingQueueParams) bindCounselingOffice(rawData []string
 	return nil
 }
 
+// bindCustomerName binds and validates parameter CustomerName from query.
+func (o *GetServicesCounselingQueueParams) bindCustomerName(rawData []string, hasKey bool, formats strfmt.Registry) error {
+	var raw string
+	if len(rawData) > 0 {
+		raw = rawData[len(rawData)-1]
+	}
+
+	// Required: false
+	// AllowEmptyValue: false
+
+	if raw == "" { // empty values pass all other validations
+		return nil
+	}
+	o.CustomerName = &raw
+
+	return nil
+}
+
 // bindDestinationDutyLocation binds and validates parameter DestinationDutyLocation from query.
 func (o *GetServicesCounselingQueueParams) bindDestinationDutyLocation(rawData []string, hasKey bool, formats strfmt.Registry) error {
 	var raw string
@@ -400,8 +418,8 @@ func (o *GetServicesCounselingQueueParams) bindDestinationDutyLocation(rawData [
 	return nil
 }
 
-// bindDodID binds and validates parameter DodID from query.
-func (o *GetServicesCounselingQueueParams) bindDodID(rawData []string, hasKey bool, formats strfmt.Registry) error {
+// bindEdipi binds and validates parameter Edipi from query.
+func (o *GetServicesCounselingQueueParams) bindEdipi(rawData []string, hasKey bool, formats strfmt.Registry) error {
 	var raw string
 	if len(rawData) > 0 {
 		raw = rawData[len(rawData)-1]
@@ -413,7 +431,7 @@ func (o *GetServicesCounselingQueueParams) bindDodID(rawData []string, hasKey bo
 	if raw == "" { // empty values pass all other validations
 		return nil
 	}
-	o.DodID = &raw
+	o.Edipi = &raw
 
 	return nil
 }
@@ -432,24 +450,6 @@ func (o *GetServicesCounselingQueueParams) bindEmplid(rawData []string, hasKey b
 		return nil
 	}
 	o.Emplid = &raw
-
-	return nil
-}
-
-// bindLastName binds and validates parameter LastName from query.
-func (o *GetServicesCounselingQueueParams) bindLastName(rawData []string, hasKey bool, formats strfmt.Registry) error {
-	var raw string
-	if len(rawData) > 0 {
-		raw = rawData[len(rawData)-1]
-	}
-
-	// Required: false
-	// AllowEmptyValue: false
-
-	if raw == "" { // empty values pass all other validations
-		return nil
-	}
-	o.LastName = &raw
 
 	return nil
 }
@@ -751,7 +751,7 @@ func (o *GetServicesCounselingQueueParams) bindSort(rawData []string, hasKey boo
 // validateSort carries on validations for parameter Sort
 func (o *GetServicesCounselingQueueParams) validateSort(formats strfmt.Registry) error {
 
-	if err := validate.EnumCase("sort", "query", *o.Sort, []interface{}{"lastName", "dodID", "emplid", "branch", "locator", "status", "requestedMoveDate", "submittedAt", "originGBLOC", "originDutyLocation", "destinationDutyLocation", "ppmType", "closeoutInitiated", "closeoutLocation", "ppmStatus", "counselingOffice", "assignedTo"}, true); err != nil {
+	if err := validate.EnumCase("sort", "query", *o.Sort, []interface{}{"customerName", "edipi", "emplid", "branch", "locator", "status", "requestedMoveDate", "submittedAt", "originGBLOC", "originDutyLocation", "destinationDutyLocation", "ppmType", "closeoutInitiated", "closeoutLocation", "ppmStatus", "counselingOffice", "assignedTo"}, true); err != nil {
 		return err
 	}
 

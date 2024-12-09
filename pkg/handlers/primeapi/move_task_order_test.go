@@ -1704,7 +1704,8 @@ func (suite *HandlerSuite) TestUpdateMTOPostCounselingInfo() {
 
 		queryBuilder := query.NewQueryBuilder()
 		fetcher := fetch.NewFetcher(queryBuilder)
-		moveRouter := moverouter.NewMoveRouter()
+		moveRouter, err := moverouter.NewMoveRouter()
+		suite.FatalNoError(err)
 		planner := &routemocks.Planner{}
 		planner.On("ZipTransitDistance",
 			mock.AnythingOfType("*appcontext.appContext"),
@@ -1786,7 +1787,8 @@ func (suite *HandlerSuite) TestUpdateMTOPostCounselingInfo() {
 
 		mtoChecker := movetaskorder.NewMoveTaskOrderChecker()
 		queryBuilder := query.NewQueryBuilder()
-		moveRouter := moverouter.NewMoveRouter()
+		moveRouter, err := moverouter.NewMoveRouter()
+		suite.FatalNoError(err)
 		fetcher := fetch.NewFetcher(queryBuilder)
 		planner := &routemocks.Planner{}
 		planner.On("ZipTransitDistance",

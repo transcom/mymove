@@ -192,6 +192,18 @@ export async function submitEvaluationReport({ reportID, ifMatchETag }) {
   );
 }
 
+export async function addSeriousIncidentAppeal({ reportID, body }) {
+  return makeGHCRequest('evaluationReports.addAppealToSeriousIncident', { reportID, body }, { normalize: false });
+}
+
+export async function addViolationAppeal({ reportID, reportViolationID, body }) {
+  return makeGHCRequest(
+    'evaluationReports.addAppealToViolation',
+    { reportID, reportViolationID, body },
+    { normalize: false },
+  );
+}
+
 export async function associateReportViolations({ reportID, body }) {
   return makeGHCRequest('reportViolations.associateReportViolations', { reportID, body }, { normalize: false });
 }
@@ -432,6 +444,17 @@ export function updateMoveStatusServiceCounselingCompleted({ moveTaskOrderID, if
   );
 }
 
+export function cancelMove({ moveID, normalize = false }) {
+  const operationPath = 'move.moveCanceler';
+  return makeGHCRequest(
+    operationPath,
+    {
+      moveID,
+    },
+    { normalize },
+  );
+}
+
 export function updateMTOShipmentStatus({
   shipmentID,
   diversionReason,
@@ -626,13 +649,14 @@ export async function getServicesCounselingQueue(
   );
 }
 
-export async function getServicesCounselingOriginLocations(needsPPMCloseout) {
+export async function getServicesCounselingOriginLocations(needsPPMCloseout, viewAsGBLOC) {
   const operationPath = 'queues.getServicesCounselingOriginList';
 
   return makeGHCRequest(
     operationPath,
     {
       needsPPMCloseout,
+      viewAsGBLOC,
     },
 
     { schemaKey: 'Locations', normalize: false },
@@ -866,9 +890,19 @@ export async function updateAssignedOfficeUserForMove({ moveID, officeUserId, ro
   });
 }
 
+export async function checkForLockedMovesAndUnlock(key, officeUserID) {
+  return makeGHCRequestRaw('move.checkForLockedMovesAndUnlock', {
+    officeUserID,
+  });
+}
+
 export async function deleteAssignedOfficeUserForMove({ moveID, roleType }) {
   return makeGHCRequest('move.deleteAssignedOfficeUser', {
     moveID,
     body: { roleType },
   });
+}
+
+export async function getAllReServiceItems() {
+  return makeGHCRequestRaw('reServiceItems.getAllReServiceItems', {}, { normalize: false });
 }

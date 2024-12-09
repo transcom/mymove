@@ -2,6 +2,7 @@ package mtoshipment
 
 import (
 	"math"
+	"slices"
 	"time"
 
 	"github.com/gofrs/uuid"
@@ -13,6 +14,7 @@ import (
 	"github.com/transcom/mymove/pkg/etag"
 	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/route"
 	"github.com/transcom/mymove/pkg/route/mocks"
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/services/ghcrateengine"
@@ -76,7 +78,7 @@ func (suite *MTOShipmentServiceSuite) createApproveShipmentSubtestData() (subtes
 	}
 
 	for _, serviceCode := range subtestData.reServiceCodes {
-		factory.BuildReServiceByCode(suite.DB(), serviceCode)
+		factory.FetchReServiceByCode(suite.DB(), serviceCode)
 	}
 
 	subtestData.mockedShipmentRouter = &shipmentmocks.ShipmentRouter{}
@@ -84,7 +86,8 @@ func (suite *MTOShipmentServiceSuite) createApproveShipmentSubtestData() (subtes
 	router := NewShipmentRouter()
 
 	builder := query.NewQueryBuilder()
-	moveRouter := moverouter.NewMoveRouter()
+	moveRouter, err := moverouter.NewMoveRouter()
+	suite.FatalNoError(err)
 	planner := &mocks.Planner{}
 	planner.On("ZipTransitDistance",
 		mock.AnythingOfType("*appcontext.appContext"),
@@ -161,7 +164,7 @@ func (suite *MTOShipmentServiceSuite) createApproveShipmentSubtestData() (subtes
 		},
 	})
 
-	domesticOriginService := factory.FetchOrBuildReService(suite.DB(), []factory.Customization{
+	domesticOriginService := factory.FetchReService(suite.DB(), []factory.Customization{
 		{
 			Model: models.ReService{
 				Code: models.ReServiceCodeDOP,
@@ -189,6 +192,71 @@ func (suite *MTOShipmentServiceSuite) createApproveShipmentSubtestData() (subtes
 }
 
 func (suite *MTOShipmentServiceSuite) TestApproveShipment() {
+	suite.Run("If the international mtoShipment is approved successfully it should create pre approved mtoServiceItems", func() {
+		internationalShipment := factory.BuildMTOShipment(suite.AppContextForTest().DB(), []factory.Customization{
+			{
+				Model: models.Move{
+					Status: models.MoveStatusAPPROVED,
+				},
+			},
+			{
+				Model: models.Address{
+					StreetAddress1: "Tester Address",
+					City:           "Des Moines",
+					State:          "IA",
+					PostalCode:     "50314",
+					IsOconus:       models.BoolPointer(false),
+				},
+				Type: &factory.Addresses.PickupAddress,
+			},
+			{
+				Model: models.MTOShipment{
+					MarketCode: "i",
+					Status:     models.MTOShipmentStatusSubmitted,
+				},
+			},
+			{
+				Model: models.Address{
+					StreetAddress1: "JBER",
+					City:           "Anchorage",
+					State:          "AK",
+					PostalCode:     "99505",
+					IsOconus:       models.BoolPointer(true),
+				},
+				Type: &factory.Addresses.DeliveryAddress,
+			},
+		}, nil)
+		internationalShipmentEtag := etag.GenerateEtag(internationalShipment.UpdatedAt)
+
+		shipmentRouter := NewShipmentRouter()
+		var serviceItemCreator services.MTOServiceItemCreator
+		var planner route.Planner
+		var moveWeights services.MoveWeights
+
+		// Approve international shipment
+		shipmentApprover := NewShipmentApprover(shipmentRouter, serviceItemCreator, planner, moveWeights, mockFeatureFlagFetcher)
+		_, err := shipmentApprover.ApproveShipment(suite.AppContextForTest(), internationalShipment.ID, internationalShipmentEtag)
+		suite.NoError(err)
+
+		// Get created pre approved service items
+		var serviceItems []models.MTOServiceItem
+		err2 := suite.AppContextForTest().DB().EagerPreload("ReService").Where("mto_shipment_id = ?", internationalShipment.ID).Order("created_at asc").All(&serviceItems)
+		suite.NoError(err2)
+
+		expectedReserviceCodes := []models.ReServiceCode{
+			models.ReServiceCodePOEFSC,
+			models.ReServiceCodeISLH,
+			models.ReServiceCodeIHPK,
+			models.ReServiceCodeIHUPK,
+		}
+
+		suite.Equal(4, len(serviceItems))
+		for i := 0; i < len(serviceItems); i++ {
+			actualReServiceCode := serviceItems[i].ReService.Code
+			suite.True(slices.Contains(expectedReserviceCodes, actualReServiceCode))
+		}
+	})
+
 	suite.Run("If the mtoShipment is approved successfully it should create approved mtoServiceItems", func() {
 		subtestData := suite.createApproveShipmentSubtestData()
 		appCtx := subtestData.appCtx
@@ -516,7 +584,7 @@ func (suite *MTOShipmentServiceSuite) TestApproveShipment() {
 		}
 
 		for _, serviceCode := range expectedReServiceCodes {
-			factory.FetchOrBuildReServiceByCode(appCtx.DB(), serviceCode)
+			factory.FetchReServiceByCode(appCtx.DB(), serviceCode)
 		}
 
 		// This is testing that the Required Delivery Date is calculated correctly.

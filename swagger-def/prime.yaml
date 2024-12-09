@@ -269,9 +269,9 @@ paths:
       summary: updateMTOShipmentAddress
       description: |
         ### Functionality
-        This endpoint is used to **update** the pickup, secondary, and destination addresses on an MTO Shipment. mto-shipments/{mtoShipmentID}/shipment-address-updates is for updating a delivery address. The address details completely replace the original, except for the UUID.
+        This endpoint is used to **update** the pickup, secondary, and delivery addresses on an MTO Shipment. mto-shipments/{mtoShipmentID}/shipment-address-updates is for updating a delivery address. The address details completely replace the original, except for the UUID.
         Therefore a complete address should be sent in the request.
-        When a destination address on a shipment is updated, the destination SIT service items address ID will also be updated so that shipment and service item final destinations match.
+        When a delivery address on a shipment is updated, the destination SIT service items address ID will also be updated so that shipment and service item final destinations match.
 
         This endpoint **cannot create** an address.
         To create an address on an MTO shipment, the caller must use [updateMTOShipment](#operation/updateMTOShipment) as the parent shipment has to be updated with the appropriate link to the address.
@@ -336,14 +336,14 @@ paths:
       summary: updateShipmentDestinationAddress
       description: |
         ### Functionality
-        This endpoint is used so the Prime can request an **update** for the destination address on an MTO Shipment,
-        after the destination address has already been approved.
+        This endpoint is used so the Prime can request an **update** for the delivery address on an MTO Shipment,
+        after the delivery address has already been approved.
 
         This endpoint and operation only supports the following shipment types:
         - HHG
         - NTSR
 
-        For HHG shipments, if automatically approved or TOO approves, this will update the final destination address values for destination SIT service items to be the same as the changed destination address that was approved.
+        For HHG shipments, if automatically approved or TOO approves, this will update the final delivery address values for destination SIT service items to be the same as the changed delivery address that was approved.
 
         Address updates will be automatically approved unless they change:
           - The service area
@@ -798,7 +798,7 @@ paths:
         This endpoint supports different body definitions. In the modelType field below, select the modelType corresponding
          to the service item you wish to update and the documentation will update with the new definition.
 
-        * Addresses: To update a destination service item's SIT destination final address, update the shipment destination address.
+        * Addresses: To update a destination service item's SIT destination final address, update the shipment delivery address.
         For approved shipments, please use [updateShipmentDestinationAddress](#mtoShipment/updateShipmentDestinationAddress).
         For shipments not yet approved, please use [updateMTOShipmentAddress](#mtoShipment/updateMTOShipmentAddress).
 
@@ -1380,6 +1380,12 @@ definitions:
         description: The estimated weight of the pro-gear being moved belonging to a spouse in pounds.
         type: integer
         x-nullable: true
+      isActualExpenseReimbursement:
+        description: Used for PPM shipments only. Denotes if this shipment uses the Actual Expense Reimbursement method.
+        type: boolean
+        example: false
+        x-omitempty: false
+        x-nullable: true
     required:
       - expectedDepartureDate
       - sitExpected
@@ -1462,6 +1468,14 @@ definitions:
         format: date-time
         type: string
         readOnly: true
+      destinationGBLOC:
+        type: string
+        example: 'JFK'
+        readOnly: true
+      destinationPostalCode:
+        type: string
+        example: '90210'
+        readOnly: true
       orderID:
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
         format: uuid
@@ -1505,6 +1519,8 @@ definitions:
     $ref: 'definitions/prime/MTOServiceItemDestSIT.yaml'
   MTOServiceItemDomesticCrating: # spectral oas2-unused-definition is OK here due to polymorphism
     $ref: 'definitions/prime/MTOServiceItemDomesticCrating.yaml'
+  MTOServiceItemInternationalCrating: # spectral oas2-unused-definition is OK here due to polymorphism
+    $ref: 'definitions/prime/MTOServiceItemInternationalCrating.yaml'
   MTOServiceItemOriginSIT: # spectral oas2-unused-definition is OK here due to polymorphism
     $ref: 'definitions/prime/MTOServiceItemOriginSIT.yaml'
   MTOServiceItemShuttle: # spectral oas2-unused-definition is OK here due to polymorphism
@@ -1521,7 +1537,7 @@ definitions:
     allOf:
       - $ref: 'definitions/prime/MTOShipmentWithoutServiceItems.yaml'
   UpdateShipmentDestinationAddress:
-    description: UpdateShipmentDestinationAddress contains the fields required for the prime to request an update for the destination address on an MTO Shipment.
+    description: UpdateShipmentDestinationAddress contains the fields required for the prime to request an update for the delivery address on an MTO Shipment.
     type: object
     properties:
       newAddress:
@@ -1875,6 +1891,12 @@ definitions:
       spouseProGearWeight:
         description: The estimated weight of the pro-gear being moved belonging to a spouse.
         type: integer
+        x-nullable: true
+      isActualExpenseReimbursement:
+        description: Used for PPM shipments only. Denotes if this shipment uses the Actual Expense Reimbursement method.
+        type: boolean
+        example: false
+        x-omitempty: false
         x-nullable: true
   UpdateMTOShipmentStatus:
     description: Contains the statuses available to the Prime when updating the state of a shipment.

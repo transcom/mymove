@@ -3,6 +3,8 @@ package ghcrateengine
 import (
 	"fmt"
 	"math"
+	"slices"
+	"strconv"
 	"time"
 
 	"github.com/gofrs/uuid"
@@ -61,7 +63,7 @@ func priceDomesticPackUnpack(appCtx appcontext.AppContext, packUnpackCode models
 
 	isFactorToggleOn := false // Track whether DMHF Factor FF toggle is on for this Pack or Unpack item
 	if domOtherPriceCode == models.ReServiceCodeDPK {
-		isOn, err := getFeatureFlagValue(appCtx, featureFlagFetcher, "domestic_mobile_home_packing_enabled")
+		isOn, err := GetFeatureFlagValue(appCtx, featureFlagFetcher, "domestic_mobile_home_packing_enabled")
 		if err != nil {
 			return 0, nil, fmt.Errorf("could not fetch feature flag to determine pack pricing formula: %w", err)
 		}
@@ -69,7 +71,7 @@ func priceDomesticPackUnpack(appCtx appcontext.AppContext, packUnpackCode models
 			isFactorToggleOn = true
 		}
 	} else if domOtherPriceCode == models.ReServiceCodeDUPK {
-		isOn, err := getFeatureFlagValue(appCtx, featureFlagFetcher, "domestic_mobile_home_unpacking_enabled")
+		isOn, err := GetFeatureFlagValue(appCtx, featureFlagFetcher, "domestic_mobile_home_unpacking_enabled")
 		if err != nil {
 			return 0, nil, fmt.Errorf("could not fetch feature flag to determine unpack pricing formula: %w", err)
 		}
@@ -519,9 +521,77 @@ func escalatePriceForContractYear(appCtx appcontext.AppContext, contractID uuid.
 	}
 
 	escalatedPrice = roundToPrecision(escalatedPrice, precision)
-	escalatedPrice = escalatedPrice * contractYear.EscalationCompounded
+
+	if slices.Contains(models.ContractYears, contractYear.Name) {
+		escalatedPrice, err = compoundEscalationFactors(appCtx, contractID, contractYear, escalatedPrice)
+		if err != nil {
+			return 0, contractYear, err
+		}
+	} else {
+		escalatedPrice = escalatedPrice * contractYear.EscalationCompounded
+	}
+
 	escalatedPrice = roundToPrecision(escalatedPrice, precision)
 	return escalatedPrice, contractYear, nil
+}
+
+func compoundEscalationFactors(appCtx appcontext.AppContext, contractID uuid.UUID, contractYear models.ReContractYear, escalatedPrice float64) (float64, error) {
+	// Get all contracts based on contract Id
+	contractYearsFromDB, err := fetchContractsByContractId(appCtx, contractID)
+	if err != nil {
+		return escalatedPrice, fmt.Errorf("could not lookup contracts by Id: %w", err)
+	}
+
+	// A contract may have Option Year 3 but it is not guaranteed. Need to know if it does or not
+	contractsYearsFromDBMap := make(map[string]models.ReContractYear)
+	for _, contract := range contractYearsFromDB {
+		// Add re_contract_years record to map
+		contractsYearsFromDBMap[contract.Name] = contract
+	}
+
+	// Get expectations for price escalations calculations
+	expectations, err := models.GetExpectedEscalationPriceContractsCount(contractYear.Name)
+	if err != nil {
+		return escalatedPrice, err
+	}
+
+	// Adding contracts that are expected to be in the calculations based on the contract year to a map
+	contractYearsForCalculation := make(map[string]models.ReContractYear)
+	if expectations.ExpectedAmountOfAwardTermsForCalculation > 0 {
+		contractYearsForCalculation, err = addContractsForEscalationCalculation(contractYearsForCalculation, contractsYearsFromDBMap, expectations.ExpectedAmountOfAwardTermsForCalculation, models.AwardTerm)
+		if err != nil {
+			return escalatedPrice, err
+		}
+	}
+	if expectations.ExpectedAmountOfOptionPeriodYearsForCalculation > 0 {
+		contractYearsForCalculation, err = addContractsForEscalationCalculation(contractYearsForCalculation, contractsYearsFromDBMap, expectations.ExpectedAmountOfOptionPeriodYearsForCalculation, models.OptionPeriod)
+		if err != nil {
+			return escalatedPrice, err
+		}
+	}
+	if expectations.ExpectedAmountOfBasePeriodYearsForCalculation > 0 {
+		contractYearsForCalculation, err = addContractsForEscalationCalculation(contractYearsForCalculation, contractsYearsFromDBMap, expectations.ExpectedAmountOfBasePeriodYearsForCalculation, models.BasePeriodYear)
+		if err != nil {
+			return escalatedPrice, err
+		}
+	}
+
+	// Make sure the expected amount of contracts are being used in the escalated Price calculation
+	if expectations.ExpectedAmountOfContractYearsForCalculation > 0 && len(contractYearsForCalculation) != expectations.ExpectedAmountOfContractYearsForCalculation {
+		err := apperror.NewInternalServerError("Unexpected amount of contract years being used in escalated price calculation")
+		return escalatedPrice, err
+	}
+
+	// Multiply the escalated price by each re_contract_years record escalation factor. EscalatedPrice = EscalatedPrice * ContractEscalationFactor
+	var compoundedEscalatedPrice = escalatedPrice
+
+	if expectations.ExpectedAmountOfContractYearsForCalculation > 0 {
+		for _, contract := range contractYearsForCalculation {
+			compoundedEscalatedPrice = compoundedEscalatedPrice * contract.Escalation
+		}
+	}
+
+	return compoundedEscalatedPrice, nil
 }
 
 // roundToPrecision rounds a float64 value to the number of decimal points indicated by the precision.
@@ -531,7 +601,23 @@ func roundToPrecision(value float64, precision int) float64 {
 	return math.Round(value*ratio) / ratio
 }
 
-func getFeatureFlagValue(appCtx appcontext.AppContext, featureFlagFetcher services.FeatureFlagFetcher, featureFlagName string) (bool, error) {
+func addContractsForEscalationCalculation(contractsMap map[string]models.ReContractYear, contractsMapDB map[string]models.ReContractYear, contractsAmount int, contractName string) (map[string]models.ReContractYear, error) {
+	if contractsAmount > 0 {
+		for i := contractsAmount; i != 0; i-- {
+			name := fmt.Sprintf("%s %s", contractName, strconv.FormatInt(int64(i), 10))
+			// If a contract that is expected to be used in the calculations is not found then return error
+			if _, exist := contractsMapDB[name]; exist {
+				contractsMap[contractsMapDB[name].Name] = contractsMapDB[name]
+			} else {
+				err := fmt.Errorf("expected contract %s not found", name)
+				return contractsMap, err
+			}
+		}
+	}
+	return contractsMap, nil
+}
+
+func GetFeatureFlagValue(appCtx appcontext.AppContext, featureFlagFetcher services.FeatureFlagFetcher, featureFlagName string) (bool, error) {
 	flagValue := false
 	flag, err := featureFlagFetcher.GetBooleanFlagForUser(appCtx.DB().Context(), appCtx, featureFlagName, map[string]string{})
 	if err != nil {

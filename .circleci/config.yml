@@ -226,8 +226,6 @@ executors:
     # maybe don't need xlarge, but getting many timeouts with large
     # ahobson - 2023-02-07
     resource_class: xlarge
-    # use ~/project as that already exists in cimg/node and is owned
-    # by circleci
     working_directory: ~/project
     docker:
       - image: *playwright
@@ -806,6 +804,27 @@ commands:
           keys:
             - v4-cache-yarn-v4-{{ checksum "yarn.lock" }}
       - run:
+          # Needed for PDF e2e
+          name: Verify react-file-viewer client dependency exists
+          command: |
+            if [ ! -d "/home/circleci/project/public/static/react-file-viewer" ]; then
+              echo "Error: /home/circleci/project/public/static/react-file-viewer not found, the server will not be able to serve frontend dependencies"
+              exit 1
+            fi
+      - run:
+          # Needed for PDF e2e
+          name: Verify react-file-viewer pdfjs chunk exists
+          command: |
+            ls -l /home/circleci/project/public/static/react-file-viewer
+            if [ ! -f "/home/circleci/project/public/static/react-file-viewer/pdfjs-dist-webpack.chunk.js" ]; then
+              echo "Error: /home/circleci/project/public/static/react-file-viewer/pdfjs-dist-webpack.chunk.js not found, the server will not be able to serve frontend dependencies"
+              exit 1
+            fi
+      - run:
+          name: Verify small.pdf is in workspace
+          command: |
+            ls -l ./pkg/testdatagen/testdata/bandwidth_test_docs/
+      - run:
           name: setup hosts
           command: |
             # futz with /etc/hosts for running in circleci
@@ -827,6 +846,7 @@ commands:
             export LOGIN_GOV_SECRET_KEY=$(echo $E2E_LOGIN_GOV_SECRET_KEY | base64 --decode)
             export HERE_MAPS_APP_ID=$E2E_HERE_MAPS_APP_ID
             export HERE_MAPS_APP_CODE=$E2E_HERE_MAPS_APP_CODE
+            export LOCAL_STORAGE_WEB_ROOT=storage
             # pull in review app settings here so we don't have to
             # reproduce them
             sed 's,^,export ,' config/env/review.app.env > server_env
@@ -885,14 +905,16 @@ commands:
             export FEATURE_FLAG_MANAGE_SUPPORTING_DOCS=false
             export FEATURE_FLAG_THIRD_ADDRESS_AVAILABLE=false
             export FEATURE_FLAG_QUEUE_MANAGEMENT=false
-            export FEATURE_FLAG_UNACCOMPANIED_BAGGAGE=false
             export FEATURE_FLAG_ENABLE_ALASKA=false
+            export FEATURE_FLAG_UNACCOMPANIED_BAGGAGE=false
+            export FEATURE_FLAG_ENABLE_HAWAII=false
 
             # disable for speed, playwright tests can fail otherwise
             export DB_DEBUG=false
 
             make db_dev_create
             bin/milmove migrate
+
             # playwright tests DO NOT NEED SEED DATA
             bin/milmove serve 2>&1 | fmt
       - run:
@@ -1195,6 +1217,20 @@ jobs:
       - save_cache_for_go
       - announce_failure
 
+  # Prep the public folder for frontend dependency serving
+  # This is needed for things like pdfjs-dist
+  prep_server_hosted_client_deps:
+    executor: mymove_compiler
+    steps:
+      - checkout
+      - attach_workspace:
+          at: .
+      - run: scripts/fetch-react-file-viewer-from-yarn
+      - persist_to_workspace:
+          root: ~/transcom/mymove
+          paths:
+            - public
+
   # `pre_deps_yarn` is used to cache yarn sources
   pre_deps_yarn:
     executor: mymove_compiler
@@ -1207,6 +1243,9 @@ jobs:
           name: Install Frozen YARN dependencies
           command: yarn install --frozen-lockfile --cache-folder ~/.cache/yarn
       - run: scripts/check-generated-code yarn.lock
+      - run:
+          name: Rebuild dependencies without binaries
+          command: ./scripts/rebuild-dependencies-without-binaries
       # `v4-cache-yarn-v4-{{ checksum "yarn.lock" }}` is used to cache yarn sources
       - save_cache:
           key: v4-cache-yarn-v4-{{ checksum "yarn.lock" }}
@@ -1317,6 +1356,9 @@ jobs:
       - run:
           name: Install Frozen YARN dependencies
           command: yarn install --frozen-lockfile --cache-folder ~/.cache/yarn
+      - run:
+          name: Rebuild dependencies without binaries
+          command: ./scripts/rebuild-dependencies-without-binaries
       # this is so we can avoid go mod downloading and resulting in an error on a false positive
       - run: scripts/pre-commit-go-mod || exit 0
       - run:
@@ -1518,7 +1560,7 @@ jobs:
             #
             # The trailing hyphen in restore_cache seems important
             # according to the page linked above
-            - v9-server-tests-coverage-
+            - v10-server-tests-coverage-
       - run:
           name: Ensure Test Coverage Increasing
           command: |
@@ -1574,7 +1616,7 @@ jobs:
             # Use the BuildNum to update the cache key so that the
             # coverage cache is always updated
             - save_cache:
-                key: v9-server-tests-coverage-{{ .BuildNum }}
+                key: v10-server-tests-coverage-{{ .BuildNum }}
                 paths:
                   - ~/transcom/mymove/tmp/baseline-go-coverage
                 when: always
@@ -1603,6 +1645,9 @@ jobs:
       - run:
           name: Install Frozen YARN dependencies
           command: yarn install --frozen-lockfile --cache-folder ~/.cache/yarn
+      - run:
+          name: Rebuild dependencies without binaries
+          command: ./scripts/rebuild-dependencies-without-binaries
       - run:
           name: client test coverage
           command: JEST_JUNIT_OUTPUT_DIR=jest-junit-reports make client_test_coverage
@@ -1652,7 +1697,7 @@ jobs:
           # The trailing hyphen in restore_cache seems important
           # according to the page linked above
           keys:
-            - v7-client-tests-coverage-
+            - v8-client-tests-coverage-
       - run:
           name: Ensure Test Coverage Increasing
           command: |
@@ -1704,7 +1749,7 @@ jobs:
             # Use the BuildNum to update the cache key so that the
             # coverage cache is always updated
             - save_cache:
-                key: v7-client-tests-coverage-{{ .BuildNum }}
+                key: v8-client-tests-coverage-{{ .BuildNum }}
                 paths:
                   - ~/transcom/mymove/tmp/baseline-jest-coverage
                 when: always
@@ -1753,6 +1798,8 @@ jobs:
             # save scripts for deploy
             - scripts
             - swagger
+            # Client dependency for PDF enabling
+            - public/static/react-file-viewer
             - pkg/testdatagen/testdata
       - announce_failure
 
@@ -1780,7 +1827,9 @@ jobs:
       - run:
           name: Install Frozen YARN dependencies
           command: yarn install --frozen-lockfile --cache-folder ~/.cache/yarn
-
+      - run:
+          name: Rebuild dependencies without binaries
+          command: ./scripts/rebuild-dependencies-without-binaries
       # babel and terser both have a cache
       #
       # see https://webpack.js.org/loaders/babel-loader/ and look for
@@ -1938,6 +1987,9 @@ jobs:
       - run:
           name: Install Frozen YARN dependencies
           command: yarn install --frozen-lockfile
+      - run:
+          name: Rebuild dependencies without binaries
+          command: ./scripts/rebuild-dependencies-without-binaries
       - restore_cache:
           keys:
             - v1-node-modules-cache
@@ -2295,6 +2347,8 @@ workflows:
 
       - pre_deps_golang
 
+      - prep_server_hosted_client_deps
+
       - pre_deps_yarn
 
       - base_noop
@@ -2371,6 +2425,7 @@ workflows:
       - integration_tests_devseed:
           requires:
             - pre_deps_golang
+            - prep_server_hosted_client_deps
           # See comments at the top of this file for configuring/using
           # this branch config
           filters:
@@ -2449,6 +2504,7 @@ workflows:
           requires:
             - anti_virus
             - pre_deps_golang
+            - prep_server_hosted_client_deps
 
       - build_app:
           requires:

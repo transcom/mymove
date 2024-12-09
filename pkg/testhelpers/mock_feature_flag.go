@@ -32,6 +32,16 @@ func SetupMockFeatureFlagFetcher(flagValue bool) *mocks.FeatureFlagFetcher {
 		return MockGetFlagFunc(ctx, appCtx.Logger(), "user@example.com", key, flagContext, "", flagValue)
 	})
 
+	mockFeatureFlagFetcher.On("GetBooleanFlag",
+		mock.Anything,
+		mock.AnythingOfType("*zap.Logger"),
+		mock.AnythingOfType("string"),
+		mock.AnythingOfType("string"),
+		mock.Anything,
+	).Return(func(ctx context.Context, appCtx appcontext.AppContext, key string, flagContext map[string]string) (services.FeatureFlag, error) {
+		return MockGetFlagFunc(ctx, appCtx.Logger(), "user@example.com", key, flagContext, "", flagValue)
+	})
+
 	return mockFeatureFlagFetcher
 }
 

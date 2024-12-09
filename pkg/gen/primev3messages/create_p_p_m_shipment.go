@@ -41,6 +41,10 @@ type CreatePPMShipment struct {
 	// Required: true
 	HasProGear *bool `json:"hasProGear"`
 
+	// Used for PPM shipments only. Denotes if this shipment uses the Actual Expense Reimbursement method.
+	// Example: false
+	IsActualExpenseReimbursement *bool `json:"isActualExpenseReimbursement"`
+
 	// The address of the origin location where goods are being moved from.
 	// Required: true
 	PickupAddress struct {
@@ -55,7 +59,7 @@ type CreatePPMShipment struct {
 		Address
 	} `json:"secondaryDestinationAddress,omitempty"`
 
-	// An optional secondary pickup location address near the origin where additional goods exist.
+	// An optional secondary Pickup Address address near the origin where additional goods exist.
 	SecondaryPickupAddress struct {
 		Address
 	} `json:"secondaryPickupAddress,omitempty"`
@@ -90,7 +94,7 @@ type CreatePPMShipment struct {
 		Address
 	} `json:"tertiaryDestinationAddress,omitempty"`
 
-	// An optional tertiary pickup location address near the origin where additional goods exist.
+	// An optional tertiary Pickup Address address near the origin where additional goods exist.
 	TertiaryPickupAddress struct {
 		Address
 	} `json:"tertiaryPickupAddress,omitempty"`

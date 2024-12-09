@@ -50,6 +50,10 @@ type UpdatePPMShipment struct {
 	// has tertiary pickup address
 	HasTertiaryPickupAddress *bool `json:"hasTertiaryPickupAddress"`
 
+	// Used for PPM shipments only. Denotes if this shipment uses the Actual Expense Reimbursement method.
+	// Example: false
+	IsActualExpenseReimbursement *bool `json:"isActualExpenseReimbursement"`
+
 	// The address of the origin location where goods are being moved from.
 	//
 	PickupAddress struct {
@@ -65,7 +69,7 @@ type UpdatePPMShipment struct {
 		Address
 	} `json:"secondaryDestinationAddress,omitempty"`
 
-	// An optional secondary pickup location near the origin where additional goods exist.
+	// An optional secondary Pickup Address near the origin where additional goods exist.
 	//
 	SecondaryPickupAddress struct {
 		Address
@@ -101,7 +105,7 @@ type UpdatePPMShipment struct {
 		Address
 	} `json:"tertiaryDestinationAddress,omitempty"`
 
-	// An optional third pickup location near the origin where additional goods exist.
+	// An optional third Pickup Address near the origin where additional goods exist.
 	//
 	TertiaryPickupAddress struct {
 		Address

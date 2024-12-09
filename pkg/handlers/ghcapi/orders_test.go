@@ -24,7 +24,6 @@ import (
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/services/ghcrateengine"
 	"github.com/transcom/mymove/pkg/services/mocks"
-	"github.com/transcom/mymove/pkg/services/move"
 	moverouter "github.com/transcom/mymove/pkg/services/move"
 	movetaskorder "github.com/transcom/mymove/pkg/services/move_task_order"
 	mtoserviceitem "github.com/transcom/mymove/pkg/services/mto_service_item"
@@ -99,6 +98,85 @@ func (suite *HandlerSuite) TestCreateOrder() {
 	suite.Assertions.Equal(handlers.FmtString("E19A"), okResponse.Payload.Tac)
 	suite.Assertions.Equal(handlers.FmtString("SacNumber"), okResponse.Payload.Sac)
 	suite.Assertions.Equal(&deptIndicator, okResponse.Payload.DepartmentIndicator)
+	suite.NotNil(&createdOrder.Entitlement)
+	suite.NotEmpty(createdOrder.SupplyAndServicesCostEstimate)
+	suite.NotEmpty(createdOrder.PackingAndShippingInstructions)
+	suite.NotEmpty(createdOrder.MethodOfPayment)
+	suite.NotEmpty(createdOrder.NAICS)
+}
+
+func (suite *HandlerSuite) TestCreateOrderWithOCONUSValues() {
+	sm := factory.BuildExtendedServiceMember(suite.AppContextForTest().DB(), nil, nil)
+	officeUser := factory.BuildOfficeUserWithRoles(suite.AppContextForTest().DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
+
+	originDutyLocation := factory.BuildDutyLocation(suite.AppContextForTest().DB(), []factory.Customization{
+		{
+			Model: models.DutyLocation{
+				Name: "Not Yuma AFB",
+			},
+		},
+	}, nil)
+	dutyLocation := factory.FetchOrBuildCurrentDutyLocation(suite.AppContextForTest().DB())
+	factory.FetchOrBuildPostalCodeToGBLOC(suite.AppContextForTest().DB(), dutyLocation.Address.PostalCode, "KKFA")
+	factory.FetchOrBuildDefaultContractor(suite.AppContextForTest().DB(), nil, nil)
+
+	req := httptest.NewRequest("POST", "/orders", nil)
+	req = suite.AuthenticateOfficeRequest(req, officeUser)
+
+	hasDependents := true
+	spouseHasProGear := true
+	issueDate := time.Date(2018, time.March, 10, 0, 0, 0, 0, time.UTC)
+	reportByDate := time.Date(2018, time.August, 1, 0, 0, 0, 0, time.UTC)
+	ordersType := ghcmessages.OrdersTypePERMANENTCHANGEOFSTATION
+	deptIndicator := ghcmessages.DeptIndicatorAIRANDSPACEFORCE
+	dependentsTwelveAndOver := 2
+	dependentsUnderTwelve := 4
+	accompaniedTour := true
+	payload := &ghcmessages.CreateOrders{
+		HasDependents:           handlers.FmtBool(hasDependents),
+		SpouseHasProGear:        handlers.FmtBool(spouseHasProGear),
+		IssueDate:               handlers.FmtDate(issueDate),
+		ReportByDate:            handlers.FmtDate(reportByDate),
+		OrdersType:              ghcmessages.NewOrdersType(ordersType),
+		OriginDutyLocationID:    *handlers.FmtUUIDPtr(&originDutyLocation.ID),
+		NewDutyLocationID:       handlers.FmtUUID(dutyLocation.ID),
+		ServiceMemberID:         handlers.FmtUUID(sm.ID),
+		OrdersNumber:            handlers.FmtString("123456"),
+		Tac:                     handlers.FmtString("E19A"),
+		Sac:                     handlers.FmtString("SacNumber"),
+		DepartmentIndicator:     ghcmessages.NewDeptIndicator(deptIndicator),
+		Grade:                   ghcmessages.GradeE1.Pointer(),
+		AccompaniedTour:         &accompaniedTour,
+		DependentsTwelveAndOver: models.Int64Pointer(int64(dependentsTwelveAndOver)),
+		DependentsUnderTwelve:   models.Int64Pointer(int64(dependentsUnderTwelve)),
+	}
+
+	params := orderop.CreateOrderParams{
+		HTTPRequest:  req,
+		CreateOrders: payload,
+	}
+
+	fakeS3 := storageTest.NewFakeS3Storage(true)
+	handlerConfig := suite.HandlerConfig()
+	handlerConfig.SetFileStorer(fakeS3)
+	createHandler := CreateOrderHandler{handlerConfig}
+
+	response := createHandler.Handle(params)
+
+	suite.Assertions.IsType(&orderop.CreateOrderOK{}, response)
+	okResponse := response.(*orderop.CreateOrderOK)
+	orderID := okResponse.Payload.ID.String()
+	createdOrder, _ := models.FetchOrder(suite.DB(), uuid.FromStringOrNil(orderID))
+
+	suite.Assertions.Equal(sm.ID.String(), okResponse.Payload.CustomerID.String())
+	suite.Assertions.Equal(ordersType, okResponse.Payload.OrderType)
+	suite.Assertions.Equal(handlers.FmtString("123456"), okResponse.Payload.OrderNumber)
+	suite.Assertions.Equal(handlers.FmtString("E19A"), okResponse.Payload.Tac)
+	suite.Assertions.Equal(handlers.FmtString("SacNumber"), okResponse.Payload.Sac)
+	suite.Assertions.Equal(&deptIndicator, okResponse.Payload.DepartmentIndicator)
+	suite.Assertions.Equal(*okResponse.Payload.Entitlement.AccompaniedTour, accompaniedTour)
+	suite.Assertions.Equal(*okResponse.Payload.Entitlement.DependentsTwelveAndOver, int64(dependentsTwelveAndOver))
+	suite.Assertions.Equal(*okResponse.Payload.Entitlement.DependentsUnderTwelve, int64(dependentsUnderTwelve))
 	suite.NotNil(&createdOrder.Entitlement)
 	suite.NotEmpty(createdOrder.SupplyAndServicesCostEstimate)
 	suite.NotEmpty(createdOrder.PackingAndShippingInstructions)
@@ -314,7 +392,8 @@ func (suite *HandlerSuite) makeUpdateOrderHandlerAmendedUploadSubtestData() (sub
 func (suite *HandlerSuite) TestUpdateOrderHandlerWithAmendedUploads() {
 
 	queryBuilder := query.NewQueryBuilder()
-	moveRouter := moverouter.NewMoveRouter()
+	moveRouter, err := moverouter.NewMoveRouter()
+	suite.FatalNoError(err)
 	planner := &routemocks.Planner{}
 	planner.On("ZipTransitDistance",
 		mock.AnythingOfType("*appcontext.appContext"),
@@ -646,7 +725,8 @@ func (suite *HandlerSuite) TestUpdateOrderHandler() {
 		}
 
 		moveTaskOrderUpdater := mocks.MoveTaskOrderUpdater{}
-		moveRouter := moverouter.NewMoveRouter()
+		moveRouter, err := moverouter.NewMoveRouter()
+		suite.FatalNoError(err)
 		handler := UpdateOrderHandler{
 			handlerConfig,
 			orderservice.NewOrderUpdater(moveRouter),
@@ -938,7 +1018,8 @@ func (suite *HandlerSuite) TestCounselingUpdateOrderHandler() {
 			Body:        body,
 		}
 
-		moveRouter := moverouter.NewMoveRouter()
+		moveRouter, err := moverouter.NewMoveRouter()
+		suite.FatalNoError(err)
 		handler := CounselingUpdateOrderHandler{
 			handlerConfig,
 			orderservice.NewOrderUpdater(moveRouter),
@@ -1186,7 +1267,8 @@ func (suite *HandlerSuite) TestUpdateAllowanceHandler() {
 			Body:        body,
 		}
 
-		moveRouter := moverouter.NewMoveRouter()
+		moveRouter, err := moverouter.NewMoveRouter()
+		suite.FatalNoError(err)
 		handler := UpdateAllowanceHandler{
 			handlerConfig,
 			orderservice.NewOrderUpdater(moveRouter),
@@ -1414,7 +1496,8 @@ func (suite *HandlerSuite) TestCounselingUpdateAllowanceHandler() {
 			Body:        body,
 		}
 
-		moveRouter := moverouter.NewMoveRouter()
+		moveRouter, err := moverouter.NewMoveRouter()
+		suite.FatalNoError(err)
 		handler := CounselingUpdateAllowanceHandler{
 			handlerConfig,
 			orderservice.NewOrderUpdater(moveRouter),
@@ -1572,7 +1655,8 @@ func (suite *HandlerSuite) TestUpdateMaxBillableWeightAsTIOHandler() {
 			Body:        body,
 		}
 
-		router := moverouter.NewMoveRouter()
+		router, err := moverouter.NewMoveRouter()
+		suite.FatalNoError(err)
 		handler := UpdateMaxBillableWeightAsTIOHandler{
 			handlerConfig,
 			orderservice.NewExcessWeightRiskManager(router),
@@ -1735,7 +1819,8 @@ func (suite *HandlerSuite) TestUpdateBillableWeightHandler() {
 			Body:        body,
 		}
 
-		router := moverouter.NewMoveRouter()
+		router, err := moverouter.NewMoveRouter()
+		suite.FatalNoError(err)
 		handler := UpdateBillableWeightHandler{
 			handlerConfig,
 			orderservice.NewExcessWeightRiskManager(router),
@@ -1951,7 +2036,8 @@ func (suite *HandlerSuite) TestAcknowledgeExcessWeightRiskHandler() {
 			IfMatch:     etag.GenerateEtag(move.UpdatedAt),
 		}
 
-		router := moverouter.NewMoveRouter()
+		router, err := moverouter.NewMoveRouter()
+		suite.FatalNoError(err)
 		handler := AcknowledgeExcessWeightRiskHandler{
 			handlerConfig,
 			orderservice.NewExcessWeightRiskManager(router),
@@ -2361,7 +2447,9 @@ func (suite *HandlerSuite) TestUploadAmendedOrdersHandlerUnit() {
 }
 
 func (suite *HandlerSuite) TestUploadAmendedOrdersHandlerIntegration() {
-	orderUpdater := orderservice.NewOrderUpdater(move.NewMoveRouter())
+	moveRouter, err := moverouter.NewMoveRouter()
+	suite.FatalNoError(err)
+	orderUpdater := orderservice.NewOrderUpdater(moveRouter)
 
 	setUpRequestAndParams := func(orders models.Order) *orderop.UploadAmendedOrdersParams {
 		endpoint := fmt.Sprintf("/orders/%v/upload_amended_orders", orders.ID.String())

@@ -75,7 +75,7 @@ func NewCustomerMTOShipmentUpdater(builder UpdateMTOShipmentQueryBuilder, _ serv
 		moveWeights,
 		sender,
 		recalculator,
-		[]validator{checkStatus()},
+		[]validator{checkStatus(), MTOShipmentHasTertiaryAddressWithNoSecondaryAddressUpdate()},
 	}
 }
 
@@ -90,7 +90,7 @@ func NewOfficeMTOShipmentUpdater(builder UpdateMTOShipmentQueryBuilder, _ servic
 		moveWeights,
 		sender,
 		recalculator,
-		[]validator{checkStatus(), checkUpdateAllowed()},
+		[]validator{checkStatus(), checkUpdateAllowed(), MTOShipmentHasTertiaryAddressWithNoSecondaryAddressUpdate()},
 	}
 }
 
@@ -107,7 +107,7 @@ func NewPrimeMTOShipmentUpdater(builder UpdateMTOShipmentQueryBuilder, _ service
 		moveWeights,
 		sender,
 		recalculator,
-		[]validator{checkStatus(), checkAvailToPrime(), checkPrimeValidationsOnModel(planner)},
+		[]validator{checkStatus(), checkAvailToPrime(), checkPrimeValidationsOnModel(planner), MTOShipmentHasTertiaryAddressWithNoSecondaryAddressUpdate()},
 	}
 }
 
@@ -844,18 +844,7 @@ func (f *mtoShipmentUpdater) updateShipmentRecord(appCtx appcontext.AppContext, 
 		}
 
 		// when populating the market_code column, it is considered domestic if both pickup & dest are CONUS addresses
-		if newShipment.PickupAddress != nil && newShipment.DestinationAddress != nil &&
-			newShipment.PickupAddress.IsOconus != nil && newShipment.DestinationAddress.IsOconus != nil {
-			pickupAddress := newShipment.PickupAddress
-			destAddress := newShipment.DestinationAddress
-			if !*pickupAddress.IsOconus && !*destAddress.IsOconus {
-				marketCodeDomestic := models.MarketCodeDomestic
-				newShipment.MarketCode = marketCodeDomestic
-			} else {
-				marketCodeInternational := models.MarketCodeInternational
-				newShipment.MarketCode = marketCodeInternational
-			}
-		}
+		newShipment = models.DetermineShipmentMarketCode(newShipment)
 
 		if err := txnAppCtx.DB().Update(newShipment); err != nil {
 			return err
@@ -1075,31 +1064,33 @@ func reServiceCodesForShipment(flagFetcher services.FeatureFlagFetcher, shipment
 	// default service items that we want created as a side effect.
 	// More info in MB-1140: https://dp3.atlassian.net/browse/MB-1140
 
+	// international shipment service items are created in the shipment_approver
 	switch shipment.ShipmentType {
 	case models.MTOShipmentTypeHHG:
+		if shipment.MarketCode != models.MarketCodeInternational {
+			originZIP3 := shipment.PickupAddress.PostalCode[0:3]
+			destinationZIP3 := shipment.DestinationAddress.PostalCode[0:3]
 
-		originZIP3 := shipment.PickupAddress.PostalCode[0:3]
-		destinationZIP3 := shipment.DestinationAddress.PostalCode[0:3]
+			if originZIP3 == destinationZIP3 {
+				return []models.ReServiceCode{
+					models.ReServiceCodeDSH,
+					models.ReServiceCodeFSC,
+					models.ReServiceCodeDOP,
+					models.ReServiceCodeDDP,
+					models.ReServiceCodeDPK,
+					models.ReServiceCodeDUPK,
+				}
+			}
 
-		if originZIP3 == destinationZIP3 {
+			// Need to create: Dom Linehaul, Fuel Surcharge, Dom Origin Price, Dom Destination Price, Dom Packing, and Dom Unpacking.
 			return []models.ReServiceCode{
-				models.ReServiceCodeDSH,
+				models.ReServiceCodeDLH,
 				models.ReServiceCodeFSC,
 				models.ReServiceCodeDOP,
 				models.ReServiceCodeDDP,
 				models.ReServiceCodeDPK,
 				models.ReServiceCodeDUPK,
 			}
-		}
-
-		// Need to create: Dom Linehaul, Fuel Surcharge, Dom Origin Price, Dom Destination Price, Dom Packing, and Dom Unpacking.
-		return []models.ReServiceCode{
-			models.ReServiceCodeDLH,
-			models.ReServiceCodeFSC,
-			models.ReServiceCodeDOP,
-			models.ReServiceCodeDDP,
-			models.ReServiceCodeDPK,
-			models.ReServiceCodeDUPK,
 		}
 	case models.MTOShipmentTypeHHGIntoNTSDom:
 		// Need to create: Dom Linehaul, Fuel Surcharge, Dom Origin Price, Dom Destination Price, Dom NTS Packing

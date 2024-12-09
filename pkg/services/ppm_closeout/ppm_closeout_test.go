@@ -113,7 +113,7 @@ func (suite *PPMCloseoutSuite) TestPPMShipmentCreator() {
 			},
 		})
 
-		dopService := factory.BuildReServiceByCode(suite.AppContextForTest().DB(), models.ReServiceCodeDOP)
+		dopService := factory.FetchReServiceByCode(suite.AppContextForTest().DB(), models.ReServiceCodeDOP)
 
 		testdatagen.FetchOrMakeReDomesticServiceAreaPrice(suite.AppContextForTest().DB(), testdatagen.Assertions{
 			ReDomesticServiceAreaPrice: models.ReDomesticServiceAreaPrice{
@@ -157,7 +157,7 @@ func (suite *PPMCloseoutSuite) TestPPMShipmentCreator() {
 			},
 		})
 
-		ddpService := factory.BuildReServiceByCode(suite.AppContextForTest().DB(), models.ReServiceCodeDDP)
+		ddpService := factory.FetchReServiceByCode(suite.AppContextForTest().DB(), models.ReServiceCodeDDP)
 
 		testdatagen.FetchOrMakeReDomesticServiceAreaPrice(suite.AppContextForTest().DB(), testdatagen.Assertions{
 			ReDomesticServiceAreaPrice: models.ReDomesticServiceAreaPrice{
@@ -184,7 +184,7 @@ func (suite *PPMCloseoutSuite) TestPPMShipmentCreator() {
 			},
 		})
 
-		dpkService := factory.BuildReServiceByCode(suite.AppContextForTest().DB(), models.ReServiceCodeDPK)
+		dpkService := factory.FetchReServiceByCode(suite.AppContextForTest().DB(), models.ReServiceCodeDPK)
 
 		testdatagen.FetchOrMakeReDomesticOtherPrice(suite.AppContextForTest().DB(), testdatagen.Assertions{
 			ReDomesticOtherPrice: models.ReDomesticOtherPrice{
@@ -209,7 +209,7 @@ func (suite *PPMCloseoutSuite) TestPPMShipmentCreator() {
 			},
 		})
 
-		dupkService := factory.BuildReServiceByCode(suite.AppContextForTest().DB(), models.ReServiceCodeDUPK)
+		dupkService := factory.FetchReServiceByCode(suite.AppContextForTest().DB(), models.ReServiceCodeDUPK)
 
 		testdatagen.FetchOrMakeReDomesticOtherPrice(suite.AppContextForTest().DB(), testdatagen.Assertions{
 			ReDomesticOtherPrice: models.ReDomesticOtherPrice{
@@ -234,7 +234,7 @@ func (suite *PPMCloseoutSuite) TestPPMShipmentCreator() {
 			},
 		})
 
-		dofsitService := factory.BuildReServiceByCode(suite.AppContextForTest().DB(), models.ReServiceCodeDOFSIT)
+		dofsitService := factory.FetchReServiceByCode(suite.AppContextForTest().DB(), models.ReServiceCodeDOFSIT)
 
 		testdatagen.FetchOrMakeReDomesticServiceAreaPrice(suite.AppContextForTest().DB(), testdatagen.Assertions{
 			ReDomesticServiceAreaPrice: models.ReDomesticServiceAreaPrice{
@@ -261,7 +261,7 @@ func (suite *PPMCloseoutSuite) TestPPMShipmentCreator() {
 			},
 		})
 
-		doasitService := factory.BuildReServiceByCode(suite.AppContextForTest().DB(), models.ReServiceCodeDOASIT)
+		doasitService := factory.FetchReServiceByCode(suite.AppContextForTest().DB(), models.ReServiceCodeDOASIT)
 
 		testdatagen.FetchOrMakeReDomesticServiceAreaPrice(suite.AppContextForTest().DB(), testdatagen.Assertions{
 			ReDomesticServiceAreaPrice: models.ReDomesticServiceAreaPrice{
@@ -288,7 +288,7 @@ func (suite *PPMCloseoutSuite) TestPPMShipmentCreator() {
 			},
 		})
 
-		ddfsitService := factory.BuildReServiceByCode(suite.AppContextForTest().DB(), models.ReServiceCodeDDFSIT)
+		ddfsitService := factory.FetchReServiceByCode(suite.AppContextForTest().DB(), models.ReServiceCodeDDFSIT)
 
 		testdatagen.FetchOrMakeReDomesticServiceAreaPrice(suite.AppContextForTest().DB(), testdatagen.Assertions{
 			ReDomesticServiceAreaPrice: models.ReDomesticServiceAreaPrice{
@@ -315,7 +315,7 @@ func (suite *PPMCloseoutSuite) TestPPMShipmentCreator() {
 			},
 		})
 
-		ddasitService := factory.BuildReServiceByCode(suite.AppContextForTest().DB(), models.ReServiceCodeDDASIT)
+		ddasitService := factory.FetchReServiceByCode(suite.AppContextForTest().DB(), models.ReServiceCodeDDASIT)
 
 		testdatagen.FetchOrMakeReDomesticServiceAreaPrice(suite.AppContextForTest().DB(), testdatagen.Assertions{
 			ReDomesticServiceAreaPrice: models.ReDomesticServiceAreaPrice{
@@ -397,6 +397,39 @@ func (suite *PPMCloseoutSuite) TestPPMShipmentCreator() {
 		suite.Nil(ppmCloseoutObj)
 		appCtx.Logger().Debug("+%v", zap.Error(err))
 		suite.IsType(err, apperror.PPMNotReadyForCloseoutError{})
+	})
+
+	suite.Run("Can successfully GET a PPMCloseout Object when the allowable weight is less than the net weight", func() {
+		// Under test:	GetPPMCloseout
+		// Set up:		Established ZIPs, ReServices, and all pricing data
+		// Expected:	PPMCloseout Object successfully retrieved
+		appCtx := suite.AppContextForTest()
+
+		mockedPlanner.On("ZipTransitDistance", mock.AnythingOfType("*appcontext.appContext"),
+			"50309", "30813").Return(2294, nil)
+
+		mockedPaymentRequestHelper.On(
+			"FetchServiceParamsForServiceItems",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.AnythingOfType("[]models.MTOServiceItem")).Return(serviceParams, nil)
+
+		mockIncentiveValue := unit.Cents(100000)
+		mockPpmEstimator.On(
+			"FinalIncentiveWithDefaultChecks",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.AnythingOfType("models.PPMShipment"),
+			mock.AnythingOfType("*models.PPMShipment")).Return(&mockIncentiveValue, nil)
+
+		ppmShipment := suite.mockPPMShipmentForCloseoutWithAllowableWeightTest()
+
+		ppmCloseoutObj, err := ppmCloseoutFetcher.GetPPMCloseout(appCtx, ppmShipment.ID)
+		if err != nil {
+			appCtx.Logger().Error("Error getting PPM closeout object: ", zap.Error(err))
+		}
+
+		suite.Nil(err)
+		suite.NotNil(ppmCloseoutObj)
+		suite.NotEmpty(ppmCloseoutObj)
 	})
 }
 
@@ -605,6 +638,62 @@ func (suite *PPMCloseoutSuite) mockPPMShipmentForCloseoutTest(buildType ppmBuild
 	} else if buildType == ppmBuildWaitingOnCustomer {
 		ppmShipment = factory.BuildPPMShipment(suite.AppContextForTest().DB(), ppmShipmentCustomization, nil)
 	}
+
+	return ppmShipment
+}
+
+func (suite *PPMCloseoutSuite) mockPPMShipmentForCloseoutWithAllowableWeightTest() models.PPMShipment {
+	ppmID, _ := uuid.FromString("00000000-0000-0000-0000-000000000000")
+	estWeight := unit.Pound(2000)
+	actualMoveDate := time.Now()
+	expectedDepartureDate := &actualMoveDate
+	miles := unit.Miles(200)
+	emptyWeight1 := unit.Pound(1000)
+	emptyWeight2 := unit.Pound(1500)
+	fullWeight1 := unit.Pound(7000)
+	fullWeight2 := unit.Pound(4500) // Net weight sums to 9000
+	finalIncentive := unit.Cents(20000)
+	allowableWeight := unit.Pound(8000)
+
+	weightTickets := models.WeightTickets{
+		models.WeightTicket{
+			EmptyWeight: &emptyWeight1,
+			FullWeight:  &fullWeight1,
+		},
+		models.WeightTicket{
+			EmptyWeight: &emptyWeight2,
+			FullWeight:  &fullWeight2,
+		},
+	}
+
+	sitDaysAllowance := 20
+	sitLocation := models.SITLocationTypeOrigin
+	date := time.Now()
+
+	ppmShipmentCustomization := []factory.Customization{
+		{
+			Model: models.MTOShipment{
+				Distance:         &miles,
+				SITDaysAllowance: &sitDaysAllowance,
+			},
+		},
+		{
+			Model: models.PPMShipment{
+				ID:                        ppmID,
+				ExpectedDepartureDate:     *expectedDepartureDate,
+				ActualMoveDate:            &actualMoveDate,
+				EstimatedWeight:           &estWeight,
+				WeightTickets:             weightTickets,
+				FinalIncentive:            &finalIncentive,
+				SITLocation:               &sitLocation,
+				SITEstimatedEntryDate:     &date,
+				SITEstimatedDepartureDate: &date,
+				AllowableWeight:           &allowableWeight,
+			},
+		},
+	}
+
+	ppmShipment := factory.BuildPPMShipmentThatNeedsCloseout(suite.AppContextForTest().DB(), nil, ppmShipmentCustomization)
 
 	return ppmShipment
 }

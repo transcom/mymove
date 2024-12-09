@@ -24,21 +24,23 @@ import (
 
 func (suite *OrderServiceSuite) TestUpdateOrderAsTOO() {
 	suite.Run("Returns an error when order is not found", func() {
-		moveRouter := move.NewMoveRouter()
+		moveRouter, err := move.NewMoveRouter()
+		suite.FatalNoError(err)
 		orderUpdater := NewOrderUpdater(moveRouter)
 		nonexistentUUID := uuid.Must(uuid.NewV4())
 
 		payload := ghcmessages.UpdateOrderPayload{}
 		eTag := ""
 
-		_, _, err := orderUpdater.UpdateOrderAsTOO(suite.AppContextForTest(), nonexistentUUID, payload, eTag)
+		_, _, err = orderUpdater.UpdateOrderAsTOO(suite.AppContextForTest(), nonexistentUUID, payload, eTag)
 
 		suite.Error(err)
 		suite.IsType(apperror.NotFoundError{}, err)
 	})
 
 	suite.Run("Returns an error when origin duty location is not found", func() {
-		moveRouter := move.NewMoveRouter()
+		moveRouter, err := move.NewMoveRouter()
+		suite.FatalNoError(err)
 		orderUpdater := NewOrderUpdater(moveRouter)
 		order := factory.BuildMove(suite.DB(), nil, nil).Orders
 		newDutyLocation := factory.BuildDutyLocation(suite.DB(), nil, nil)
@@ -50,14 +52,15 @@ func (suite *OrderServiceSuite) TestUpdateOrderAsTOO() {
 		}
 		eTag := etag.GenerateEtag(order.UpdatedAt)
 
-		_, _, err := orderUpdater.UpdateOrderAsTOO(suite.AppContextForTest(), order.ID, payload, eTag)
+		_, _, err = orderUpdater.UpdateOrderAsTOO(suite.AppContextForTest(), order.ID, payload, eTag)
 
 		suite.Error(err)
 		suite.IsType(apperror.NotFoundError{}, err)
 	})
 
 	suite.Run("Returns an error when new duty location is not found", func() {
-		moveRouter := move.NewMoveRouter()
+		moveRouter, err := move.NewMoveRouter()
+		suite.FatalNoError(err)
 		orderUpdater := NewOrderUpdater(moveRouter)
 		order := factory.BuildMove(suite.DB(), nil, nil).Orders
 		originDutyLocation := factory.BuildDutyLocation(suite.DB(), nil, nil)
@@ -69,28 +72,30 @@ func (suite *OrderServiceSuite) TestUpdateOrderAsTOO() {
 		}
 		eTag := etag.GenerateEtag(order.UpdatedAt)
 
-		_, _, err := orderUpdater.UpdateOrderAsTOO(suite.AppContextForTest(), order.ID, payload, eTag)
+		_, _, err = orderUpdater.UpdateOrderAsTOO(suite.AppContextForTest(), order.ID, payload, eTag)
 
 		suite.Error(err)
 		suite.IsType(apperror.NotFoundError{}, err)
 	})
 
 	suite.Run("Returns an error when the etag does not match", func() {
-		moveRouter := move.NewMoveRouter()
+		moveRouter, err := move.NewMoveRouter()
+		suite.FatalNoError(err)
 		orderUpdater := NewOrderUpdater(moveRouter)
 		order := factory.BuildMove(suite.DB(), nil, nil).Orders
 
 		payload := ghcmessages.UpdateOrderPayload{}
 		eTag := ""
 
-		_, _, err := orderUpdater.UpdateOrderAsTOO(suite.AppContextForTest(), order.ID, payload, eTag)
+		_, _, err = orderUpdater.UpdateOrderAsTOO(suite.AppContextForTest(), order.ID, payload, eTag)
 
 		suite.Error(err)
 		suite.IsType(apperror.PreconditionFailedError{}, err)
 	})
 
 	suite.Run("Updates the order when all fields are valid", func() {
-		moveRouter := move.NewMoveRouter()
+		moveRouter, err := move.NewMoveRouter()
+		suite.FatalNoError(err)
 		orderUpdater := NewOrderUpdater(moveRouter)
 		move := factory.BuildServiceCounselingCompletedMove(suite.DB(), nil, nil)
 		order := move.Orders
@@ -154,7 +159,8 @@ func (suite *OrderServiceSuite) TestUpdateOrderAsTOO() {
 	})
 
 	suite.Run("Rolls back transaction if Order is invalid", func() {
-		moveRouter := move.NewMoveRouter()
+		moveRouter, err := move.NewMoveRouter()
+		suite.FatalNoError(err)
 		orderUpdater := NewOrderUpdater(moveRouter)
 		order := factory.BuildServiceCounselingCompletedMove(suite.DB(), nil, nil).Orders
 
@@ -188,7 +194,8 @@ func (suite *OrderServiceSuite) TestUpdateOrderAsTOO() {
 	})
 
 	suite.Run("Allow Order update to have a missing HHG SAC", func() {
-		moveRouter := move.NewMoveRouter()
+		moveRouter, err := move.NewMoveRouter()
+		suite.FatalNoError(err)
 		orderUpdater := NewOrderUpdater(moveRouter)
 		order := factory.BuildServiceCounselingCompletedMove(suite.DB(), nil, nil).Orders
 
@@ -232,7 +239,8 @@ func (suite *OrderServiceSuite) TestUpdateOrderAsTOO() {
 	})
 
 	suite.Run("Allow Order update to have a missing NTS SAC", func() {
-		moveRouter := move.NewMoveRouter()
+		moveRouter, err := move.NewMoveRouter()
+		suite.FatalNoError(err)
 		orderUpdater := NewOrderUpdater(moveRouter)
 		order := factory.BuildServiceCounselingCompletedMove(suite.DB(), nil, nil).Orders
 
@@ -276,7 +284,8 @@ func (suite *OrderServiceSuite) TestUpdateOrderAsTOO() {
 	})
 
 	suite.Run("Allow Order update to have a missing NTS TAC", func() {
-		moveRouter := move.NewMoveRouter()
+		moveRouter, err := move.NewMoveRouter()
+		suite.FatalNoError(err)
 		orderUpdater := NewOrderUpdater(moveRouter)
 		order := factory.BuildServiceCounselingCompletedMove(suite.DB(), nil, nil).Orders
 
@@ -320,7 +329,8 @@ func (suite *OrderServiceSuite) TestUpdateOrderAsTOO() {
 	})
 
 	suite.Run("Rolls back transaction if Order is invalid", func() {
-		moveRouter := move.NewMoveRouter()
+		moveRouter, err := move.NewMoveRouter()
+		suite.FatalNoError(err)
 		orderUpdater := NewOrderUpdater(moveRouter)
 		order := factory.BuildServiceCounselingCompletedMove(suite.DB(), nil, nil).Orders
 
@@ -355,7 +365,8 @@ func (suite *OrderServiceSuite) TestUpdateOrderAsTOO() {
 	})
 
 	suite.Run("Rolls back transaction if Order is missing required fields", func() {
-		moveRouter := move.NewMoveRouter()
+		moveRouter, err := move.NewMoveRouter()
+		suite.FatalNoError(err)
 		orderUpdater := NewOrderUpdater(moveRouter)
 		orderWithoutDefaults := factory.BuildOrderWithoutDefaults(suite.DB(), nil, nil)
 
@@ -398,35 +409,38 @@ func (suite *OrderServiceSuite) TestUpdateOrderAsTOO() {
 
 func (suite *OrderServiceSuite) TestUpdateOrderAsCounselor() {
 	suite.Run("Returns an error when order is not found", func() {
-		moveRouter := move.NewMoveRouter()
+		moveRouter, err := move.NewMoveRouter()
+		suite.FatalNoError(err)
 		orderUpdater := NewOrderUpdater(moveRouter)
 		nonexistentUUID := uuid.Must(uuid.NewV4())
 
 		payload := ghcmessages.CounselingUpdateOrderPayload{}
 		eTag := ""
 
-		_, _, err := orderUpdater.UpdateOrderAsCounselor(suite.AppContextForTest(), nonexistentUUID, payload, eTag)
+		_, _, err = orderUpdater.UpdateOrderAsCounselor(suite.AppContextForTest(), nonexistentUUID, payload, eTag)
 
 		suite.Error(err)
 		suite.IsType(apperror.NotFoundError{}, err)
 	})
 
 	suite.Run("Returns an error when the etag does not match", func() {
-		moveRouter := move.NewMoveRouter()
+		moveRouter, err := move.NewMoveRouter()
+		suite.FatalNoError(err)
 		orderUpdater := NewOrderUpdater(moveRouter)
 		order := factory.BuildMove(suite.DB(), nil, nil).Orders
 
 		payload := ghcmessages.CounselingUpdateOrderPayload{}
 		eTag := ""
 
-		_, _, err := orderUpdater.UpdateOrderAsCounselor(suite.AppContextForTest(), order.ID, payload, eTag)
+		_, _, err = orderUpdater.UpdateOrderAsCounselor(suite.AppContextForTest(), order.ID, payload, eTag)
 
 		suite.Error(err)
 		suite.IsType(apperror.PreconditionFailedError{}, err)
 	})
 
 	suite.Run("Updates the order when it is found", func() {
-		moveRouter := move.NewMoveRouter()
+		moveRouter, err := move.NewMoveRouter()
+		suite.FatalNoError(err)
 		orderUpdater := NewOrderUpdater(moveRouter)
 		order := factory.BuildNeedsServiceCounselingMove(suite.DB(), nil, nil).Orders
 
@@ -476,8 +490,38 @@ func (suite *OrderServiceSuite) TestUpdateOrderAsCounselor() {
 		suite.Equal(*updatedOrder.Entitlement.DBAuthorizedWeight, 16000)
 	})
 
+	suite.Run("Updates the PPM actual expense reimbursement when pay grade is civilian", func() {
+		moveRouter, err := move.NewMoveRouter()
+		suite.FatalNoError(err)
+		orderUpdater := NewOrderUpdater(moveRouter)
+
+		ppmShipment := factory.BuildPPMShipmentThatNeedsCloseout(suite.DB(), nil, nil)
+		move := ppmShipment.Shipment.MoveTaskOrder
+
+		order := move.Orders
+		grade := ghcmessages.GradeCIVILIANEMPLOYEE
+		body := ghcmessages.CounselingUpdateOrderPayload{
+			Grade: &grade,
+		}
+		eTag := etag.GenerateEtag(order.UpdatedAt)
+
+		var moved models.Move
+		err = suite.DB().Find(&moved, move.ID)
+		suite.NoError(err)
+
+		_, _, errs := orderUpdater.UpdateOrderAsCounselor(suite.AppContextForTest(), order.ID, body, eTag)
+		suite.NoError(errs)
+
+		var updatedPPMShipment models.PPMShipment
+		err = suite.DB().Find(&updatedPPMShipment, ppmShipment.ID)
+
+		suite.NoError(err)
+		suite.EqualValues(true, *updatedPPMShipment.IsActualExpenseReimbursement)
+	})
+
 	suite.Run("Rolls back transaction if Order is invalid", func() {
-		moveRouter := move.NewMoveRouter()
+		moveRouter, err := move.NewMoveRouter()
+		suite.FatalNoError(err)
 		orderUpdater := NewOrderUpdater(moveRouter)
 		order := factory.BuildOrderWithoutDefaults(suite.DB(), nil, nil)
 
@@ -512,35 +556,38 @@ func (suite *OrderServiceSuite) TestUpdateOrderAsCounselor() {
 
 func (suite *OrderServiceSuite) TestUpdateAllowanceAsTOO() {
 	suite.Run("Returns an error when order is not found", func() {
-		moveRouter := move.NewMoveRouter()
+		moveRouter, err := move.NewMoveRouter()
+		suite.FatalNoError(err)
 		orderUpdater := NewOrderUpdater(moveRouter)
 		nonexistentUUID := uuid.Must(uuid.NewV4())
 
 		payload := ghcmessages.UpdateAllowancePayload{}
 		eTag := ""
 
-		_, _, err := orderUpdater.UpdateAllowanceAsTOO(suite.AppContextForTest(), nonexistentUUID, payload, eTag)
+		_, _, err = orderUpdater.UpdateAllowanceAsTOO(suite.AppContextForTest(), nonexistentUUID, payload, eTag)
 
 		suite.Error(err)
 		suite.IsType(apperror.NotFoundError{}, err)
 	})
 
 	suite.Run("Returns an error when the etag does not match", func() {
-		moveRouter := move.NewMoveRouter()
+		moveRouter, err := move.NewMoveRouter()
+		suite.FatalNoError(err)
 		orderUpdater := NewOrderUpdater(moveRouter)
 		order := factory.BuildMove(suite.DB(), nil, nil).Orders
 
 		payload := ghcmessages.UpdateAllowancePayload{}
 		eTag := ""
 
-		_, _, err := orderUpdater.UpdateAllowanceAsTOO(suite.AppContextForTest(), order.ID, payload, eTag)
+		_, _, err = orderUpdater.UpdateAllowanceAsTOO(suite.AppContextForTest(), order.ID, payload, eTag)
 
 		suite.Error(err)
 		suite.IsType(apperror.PreconditionFailedError{}, err)
 	})
 
 	suite.Run("Updates the allowance when all fields are valid and no dependents", func() {
-		moveRouter := move.NewMoveRouter()
+		moveRouter, err := move.NewMoveRouter()
+		suite.FatalNoError(err)
 		orderUpdater := NewOrderUpdater(moveRouter)
 		order := factory.BuildServiceCounselingCompletedMove(suite.DB(), nil, nil).Orders
 
@@ -578,8 +625,55 @@ func (suite *OrderServiceSuite) TestUpdateAllowanceAsTOO() {
 		suite.Equal(*updatedOrder.Entitlement.DBAuthorizedWeight, 16000)
 	})
 
+	suite.Run("Updates the allowance when all OCONUS fields are valid with dependents", func() {
+		moveRouter, err := move.NewMoveRouter()
+		suite.FatalNoError(err)
+		orderUpdater := NewOrderUpdater(moveRouter)
+		order := factory.BuildServiceCounselingCompletedMove(suite.DB(), nil, nil).Orders
+
+		grade := ghcmessages.GradeO5
+		affiliation := ghcmessages.AffiliationAIRFORCE
+		ocie := false
+		proGearWeight := models.Int64Pointer(100)
+		proGearWeightSpouse := models.Int64Pointer(10)
+		rmeWeight := models.Int64Pointer(10000)
+		eTag := etag.GenerateEtag(order.UpdatedAt)
+
+		payload := ghcmessages.UpdateAllowancePayload{
+			Agency:               &affiliation,
+			DependentsAuthorized: models.BoolPointer(true),
+			Grade:                &grade,
+			OrganizationalClothingAndIndividualEquipment: &ocie,
+			ProGearWeight:                  proGearWeight,
+			ProGearWeightSpouse:            proGearWeightSpouse,
+			RequiredMedicalEquipmentWeight: rmeWeight,
+			AccompaniedTour:                models.BoolPointer(true),
+			DependentsTwelveAndOver:        models.Int64Pointer(2),
+			DependentsUnderTwelve:          models.Int64Pointer(4),
+		}
+
+		updatedOrder, _, err := orderUpdater.UpdateAllowanceAsTOO(suite.AppContextForTest(), order.ID, payload, eTag)
+		suite.NoError(err)
+
+		var orderInDB models.Order
+		err = suite.DB().Find(&orderInDB, order.ID)
+
+		suite.NoError(err)
+		suite.Equal(order.ID.String(), updatedOrder.ID.String())
+		suite.Equal(payload.DependentsAuthorized, updatedOrder.Entitlement.DependentsAuthorized)
+		suite.Equal(*payload.ProGearWeight, int64(updatedOrder.Entitlement.ProGearWeight))
+		suite.Equal(*payload.ProGearWeightSpouse, int64(updatedOrder.Entitlement.ProGearWeightSpouse))
+		suite.Equal(*payload.RequiredMedicalEquipmentWeight, int64(updatedOrder.Entitlement.RequiredMedicalEquipmentWeight))
+		suite.Equal(*payload.OrganizationalClothingAndIndividualEquipment, updatedOrder.Entitlement.OrganizationalClothingAndIndividualEquipment)
+		suite.Equal(*updatedOrder.Entitlement.DBAuthorizedWeight, 16000)
+		suite.Equal(*payload.DependentsTwelveAndOver, int64(*updatedOrder.Entitlement.DependentsTwelveAndOver))
+		suite.Equal(*payload.AccompaniedTour, *updatedOrder.Entitlement.AccompaniedTour)
+		suite.Equal(*payload.DependentsUnderTwelve, int64(*updatedOrder.Entitlement.DependentsUnderTwelve))
+	})
+
 	suite.Run("Updates the allowance when all fields are valid with dependents", func() {
-		moveRouter := move.NewMoveRouter()
+		moveRouter, err := move.NewMoveRouter()
+		suite.FatalNoError(err)
 		orderUpdater := NewOrderUpdater(moveRouter)
 		// Build with dependents trait
 		order := factory.BuildServiceCounselingCompletedMove(suite.DB(), nil, []factory.Trait{
@@ -623,35 +717,79 @@ func (suite *OrderServiceSuite) TestUpdateAllowanceAsTOO() {
 
 func (suite *OrderServiceSuite) TestUpdateAllowanceAsCounselor() {
 	suite.Run("Returns an error when order is not found", func() {
-		moveRouter := move.NewMoveRouter()
+		moveRouter, err := move.NewMoveRouter()
+		suite.FatalNoError(err)
 		orderUpdater := NewOrderUpdater(moveRouter)
 		nonexistentUUID := uuid.Must(uuid.NewV4())
 
 		payload := ghcmessages.CounselingUpdateAllowancePayload{}
 		eTag := ""
 
-		_, _, err := orderUpdater.UpdateAllowanceAsCounselor(suite.AppContextForTest(), nonexistentUUID, payload, eTag)
+		_, _, err = orderUpdater.UpdateAllowanceAsCounselor(suite.AppContextForTest(), nonexistentUUID, payload, eTag)
 
 		suite.Error(err)
 		suite.IsType(apperror.NotFoundError{}, err)
 	})
 
 	suite.Run("Returns an error when the etag does not match", func() {
-		moveRouter := move.NewMoveRouter()
+		moveRouter, err := move.NewMoveRouter()
+		suite.FatalNoError(err)
 		orderUpdater := NewOrderUpdater(moveRouter)
 		order := factory.BuildMove(suite.DB(), nil, nil).Orders
 
 		payload := ghcmessages.CounselingUpdateAllowancePayload{}
 		eTag := ""
 
-		_, _, err := orderUpdater.UpdateAllowanceAsCounselor(suite.AppContextForTest(), order.ID, payload, eTag)
+		_, _, err = orderUpdater.UpdateAllowanceAsCounselor(suite.AppContextForTest(), order.ID, payload, eTag)
 
 		suite.Error(err)
 		suite.IsType(apperror.PreconditionFailedError{}, err)
 	})
 
+	suite.Run("Updates the entitlement of OCONUS fields", func() {
+		moveRouter, err := move.NewMoveRouter()
+		suite.FatalNoError(err)
+		orderUpdater := NewOrderUpdater(moveRouter)
+		order := factory.BuildNeedsServiceCounselingMove(suite.DB(), nil, nil).Orders
+
+		grade := ghcmessages.GradeO5
+		affiliation := ghcmessages.AffiliationAIRFORCE
+		ocie := false
+		proGearWeight := models.Int64Pointer(100)
+		proGearWeightSpouse := models.Int64Pointer(10)
+		rmeWeight := models.Int64Pointer(10000)
+		eTag := etag.GenerateEtag(order.UpdatedAt)
+
+		payload := ghcmessages.CounselingUpdateAllowancePayload{
+			Agency:               &affiliation,
+			DependentsAuthorized: models.BoolPointer(true),
+			Grade:                &grade,
+			OrganizationalClothingAndIndividualEquipment: &ocie,
+			ProGearWeight:                  proGearWeight,
+			ProGearWeightSpouse:            proGearWeightSpouse,
+			RequiredMedicalEquipmentWeight: rmeWeight,
+			AccompaniedTour:                models.BoolPointer(true),
+			DependentsTwelveAndOver:        models.Int64Pointer(1),
+			DependentsUnderTwelve:          models.Int64Pointer(2),
+		}
+
+		updatedOrder, _, err := orderUpdater.UpdateAllowanceAsCounselor(suite.AppContextForTest(), order.ID, payload, eTag)
+		suite.NoError(err)
+
+		suite.Equal(order.ID.String(), updatedOrder.ID.String())
+		suite.Equal(payload.DependentsAuthorized, updatedOrder.Entitlement.DependentsAuthorized)
+		suite.Equal(*payload.ProGearWeight, int64(updatedOrder.Entitlement.ProGearWeight))
+		suite.Equal(*payload.ProGearWeightSpouse, int64(updatedOrder.Entitlement.ProGearWeightSpouse))
+		suite.Equal(*payload.RequiredMedicalEquipmentWeight, int64(updatedOrder.Entitlement.RequiredMedicalEquipmentWeight))
+		suite.Equal(*payload.OrganizationalClothingAndIndividualEquipment, updatedOrder.Entitlement.OrganizationalClothingAndIndividualEquipment)
+		suite.Equal(*payload.AccompaniedTour, *updatedOrder.Entitlement.AccompaniedTour)
+		suite.Equal(*payload.DependentsUnderTwelve, int64(*updatedOrder.Entitlement.DependentsUnderTwelve))
+		suite.Equal(*payload.DependentsTwelveAndOver, int64(*updatedOrder.Entitlement.DependentsTwelveAndOver))
+	})
+
 	suite.Run("Updates the allowance when all fields are valid with dependents authorized but not present", func() {
-		moveRouter := move.NewMoveRouter()
+		moveRouter, err := move.NewMoveRouter()
+		suite.FatalNoError(err)
 		orderUpdater := NewOrderUpdater(moveRouter)
 		order := factory.BuildNeedsServiceCounselingMove(suite.DB(), nil, nil).Orders
 
@@ -694,7 +832,8 @@ func (suite *OrderServiceSuite) TestUpdateAllowanceAsCounselor() {
 	})
 
 	suite.Run("Updates the allowance when all fields are valid with dependents present and authorized", func() {
-		moveRouter := move.NewMoveRouter()
+		moveRouter, err := move.NewMoveRouter()
+		suite.FatalNoError(err)
 		orderUpdater := NewOrderUpdater(moveRouter)
 		order := factory.BuildNeedsServiceCounselingMove(suite.DB(), nil, []factory.Trait{
 			factory.GetTraitHasDependents,
@@ -739,7 +878,8 @@ func (suite *OrderServiceSuite) TestUpdateAllowanceAsCounselor() {
 	})
 
 	suite.Run("Updates the allowance when move needs service counseling and order fields are missing", func() {
-		moveRouter := move.NewMoveRouter()
+		moveRouter, err := move.NewMoveRouter()
+		suite.FatalNoError(err)
 		orderUpdater := NewOrderUpdater(moveRouter)
 		orderWithoutDefaults := factory.BuildOrderWithoutDefaults(suite.DB(), nil, nil)
 		move := factory.BuildNeedsServiceCounselingMove(suite.DB(), []factory.Customization{
@@ -796,7 +936,8 @@ func (suite *OrderServiceSuite) TestUpdateAllowanceAsCounselor() {
 	})
 
 	suite.Run("Entire update is aborted when ProGearWeight is over max amount", func() {
-		moveRouter := move.NewMoveRouter()
+		moveRouter, err := move.NewMoveRouter()
+		suite.FatalNoError(err)
 		orderUpdater := NewOrderUpdater(moveRouter)
 		order := factory.BuildNeedsServiceCounselingMove(suite.DB(), nil, nil).Orders
 
@@ -832,7 +973,8 @@ func (suite *OrderServiceSuite) TestUpdateAllowanceAsCounselor() {
 	})
 
 	suite.Run("Entire update is aborted when ProGearWeightSpouse is over max amount", func() {
-		moveRouter := move.NewMoveRouter()
+		moveRouter, err := move.NewMoveRouter()
+		suite.FatalNoError(err)
 		orderUpdater := NewOrderUpdater(moveRouter)
 		order := factory.BuildNeedsServiceCounselingMove(suite.DB(), nil, nil).Orders
 
@@ -869,7 +1011,8 @@ func (suite *OrderServiceSuite) TestUpdateAllowanceAsCounselor() {
 }
 
 func (suite *OrderServiceSuite) TestUploadAmendedOrdersForCustomer() {
-	moveRouter := move.NewMoveRouter()
+	moveRouter, err := move.NewMoveRouter()
+	suite.FatalNoError(err)
 	orderUpdater := NewOrderUpdater(moveRouter)
 
 	setUpOrders := func(setUpPreExistingAmendedOrders bool) *models.Order {
@@ -976,7 +1119,7 @@ func (suite *OrderServiceSuite) TestUploadAmendedOrdersForCustomer() {
 		suite.NoError(err)
 		suite.NoVerrs(verrs)
 
-		expectedChecksum := "EUzjq/RQB5xjsdYBNl13zQ=="
+		expectedChecksum := "+XM59C3+hSg3Qrs0dPRuUhng5IQTWdYZtmcXhEH0SYU="
 		if upload.Checksum != expectedChecksum {
 			suite.Fail("Did not calculate the correct MD5: expected %s, got %s", expectedChecksum, upload.Checksum)
 		}

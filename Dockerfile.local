@@ -27,7 +27,8 @@ COPY --from=builder --chown=root:root /home/circleci/project/bin/rds-ca-2019-roo
 COPY --from=builder --chown=root:root /home/circleci/project/bin/milmove /bin/milmove
 
 COPY config/tls/milmove-cert-bundle.p7b /config/tls/milmove-cert-bundle.p7b
-COPY config/tls/dod-sw-ca-66.pem /config/tls/dod-sw-ca-75.pem
+COPY config/tls/dod-sw-ca-75.pem /config/tls/dod-sw-ca-75.pem
+COPY config/tls/dod-sw-ca-66.pem /config/tls/dod-sw-ca-66.pem
 
 # While it's ok to have these certs copied locally, they should never be copied into Dockerfile.
 COPY config/tls/devlocal-ca.key /config/tls/devlocal-ca.key
@@ -35,6 +36,7 @@ COPY config/tls/devlocal-ca.pem /config/tls/devlocal-ca.pem
 
 COPY swagger/* /swagger/
 COPY build /build
+COPY public/static/react-file-viewer /public/static/react-file-viewer
 
 ENTRYPOINT ["/bin/milmove"]
 

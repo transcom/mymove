@@ -33,7 +33,7 @@ const PickupDisplay = ({
       </div>
       {pickupLocation && (
         <div className={styles.row}>
-          <dt>Pickup location</dt>
+          <dt>Pickup Address</dt>
           <dd>
             {pickupLocation.streetAddress1} {pickupLocation.streetAddress2}
             <br />
@@ -43,7 +43,7 @@ const PickupDisplay = ({
       )}
       {secondaryPickupAddress && (
         <div className={styles.row}>
-          <dt>Second pickup location</dt>
+          <dt>Second Pickup Address</dt>
           <dd>
             {secondaryPickupAddress.streetAddress1} {secondaryPickupAddress.streetAddress2}
             <br />
@@ -53,7 +53,7 @@ const PickupDisplay = ({
       )}
       {isTertiaryAddressEnabled && tertiaryPickupAddress && secondaryPickupAddress && (
         <div className={styles.row}>
-          <dt>Third pickup location</dt>
+          <dt>Third Pickup Address</dt>
           <dd>
             {tertiaryPickupAddress.streetAddress1} {tertiaryPickupAddress.streetAddress2}
             <br />

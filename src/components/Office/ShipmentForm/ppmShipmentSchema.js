@@ -109,7 +109,7 @@ const ppmShipmentSchema = ({
       )
       .min(1, 'Enter an amount $1 or more.')
       .when('advanceRequested', {
-        is: true,
+        is: (advanceRequested) => (isAdvancePage && advanceRequested) === true,
         then: (schema) => schema.required('Required'),
       }),
 
@@ -126,6 +126,7 @@ const ppmShipmentSchema = ({
         (isAdvancePage && ADVANCE_STATUSES[advanceStatus] === ADVANCE_STATUSES.REJECTED),
       then: (schema) => schema.required('Required'),
     }),
+    isActualExpenseReimbursement: Yup.boolean().required('Required'),
   });
 
   return formSchema;

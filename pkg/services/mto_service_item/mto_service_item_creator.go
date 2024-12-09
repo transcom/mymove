@@ -40,7 +40,7 @@ type mtoServiceItemCreator struct {
 	featureFlagFetcher  services.FeatureFlagFetcher
 }
 
-func (o *mtoServiceItemCreator) findEstimatedPrice(appCtx appcontext.AppContext, serviceItem *models.MTOServiceItem, mtoShipment models.MTOShipment) (unit.Cents, error) {
+func (o *mtoServiceItemCreator) FindEstimatedPrice(appCtx appcontext.AppContext, serviceItem *models.MTOServiceItem, mtoShipment models.MTOShipment) (unit.Cents, error) {
 	if serviceItem.ReService.Code == models.ReServiceCodeDOP ||
 		serviceItem.ReService.Code == models.ReServiceCodeDPK ||
 		serviceItem.ReService.Code == models.ReServiceCodeDDP ||
@@ -75,7 +75,11 @@ func (o *mtoServiceItemCreator) findEstimatedPrice(appCtx appcontext.AppContext,
 		requestedPickupDate := *mtoShipment.RequestedPickupDate
 		currTime := time.Now()
 		var distance int
-		primeEstimatedWeight := *mtoShipment.PrimeEstimatedWeight
+		primeEstimatedWeight := mtoShipment.PrimeEstimatedWeight
+		if mtoShipment.ShipmentType == models.MTOShipmentTypeHHGOutOfNTSDom {
+			newWeight := int(primeEstimatedWeight.Float64() * 1.1)
+			primeEstimatedWeight = (*unit.Pound)(&newWeight)
+		}
 
 		contractCode, err := FetchContractCode(appCtx, currTime)
 		if err != nil {
@@ -94,7 +98,7 @@ func (o *mtoServiceItemCreator) findEstimatedPrice(appCtx appcontext.AppContext,
 				return 0, err
 			}
 
-			price, _, err = o.originPricer.Price(appCtx, contractCode, requestedPickupDate, *mtoShipment.PrimeEstimatedWeight, domesticServiceArea.ServiceArea, isPPM, isMobileHome)
+			price, _, err = o.originPricer.Price(appCtx, contractCode, requestedPickupDate, *primeEstimatedWeight, domesticServiceArea.ServiceArea, isPPM, isMobileHome)
 			if err != nil {
 				return 0, err
 			}
@@ -107,7 +111,7 @@ func (o *mtoServiceItemCreator) findEstimatedPrice(appCtx appcontext.AppContext,
 
 			servicesScheduleOrigin := domesticServiceArea.ServicesSchedule
 
-			price, _, err = o.packPricer.Price(appCtx, contractCode, requestedPickupDate, *mtoShipment.PrimeEstimatedWeight, servicesScheduleOrigin, isPPM, isMobileHome)
+			price, _, err = o.packPricer.Price(appCtx, contractCode, requestedPickupDate, *primeEstimatedWeight, servicesScheduleOrigin, isPPM, isMobileHome)
 			if err != nil {
 				return 0, err
 			}
@@ -122,7 +126,7 @@ func (o *mtoServiceItemCreator) findEstimatedPrice(appCtx appcontext.AppContext,
 				}
 			}
 
-			price, _, err = o.destinationPricer.Price(appCtx, contractCode, requestedPickupDate, *mtoShipment.PrimeEstimatedWeight, domesticServiceArea.ServiceArea, isPPM, isMobileHome)
+			price, _, err = o.destinationPricer.Price(appCtx, contractCode, requestedPickupDate, *primeEstimatedWeight, domesticServiceArea.ServiceArea, isPPM, isMobileHome)
 			if err != nil {
 				return 0, err
 			}
@@ -135,7 +139,7 @@ func (o *mtoServiceItemCreator) findEstimatedPrice(appCtx appcontext.AppContext,
 
 			serviceScheduleDestination := domesticServiceArea.ServicesSchedule
 
-			price, _, err = o.unpackPricer.Price(appCtx, contractCode, requestedPickupDate, *mtoShipment.PrimeEstimatedWeight, serviceScheduleDestination, isPPM, isMobileHome)
+			price, _, err = o.unpackPricer.Price(appCtx, contractCode, requestedPickupDate, *primeEstimatedWeight, serviceScheduleDestination, isPPM, isMobileHome)
 			if err != nil {
 				return 0, err
 			}
@@ -153,7 +157,7 @@ func (o *mtoServiceItemCreator) findEstimatedPrice(appCtx appcontext.AppContext,
 					return 0, err
 				}
 			}
-			price, _, err = o.linehaulPricer.Price(appCtx, contractCode, requestedPickupDate, unit.Miles(distance), *mtoShipment.PrimeEstimatedWeight, domesticServiceArea.ServiceArea, isPPM, isMobileHome)
+			price, _, err = o.linehaulPricer.Price(appCtx, contractCode, requestedPickupDate, unit.Miles(distance), *primeEstimatedWeight, domesticServiceArea.ServiceArea, isPPM, isMobileHome)
 			if err != nil {
 				return 0, err
 			}
@@ -169,7 +173,7 @@ func (o *mtoServiceItemCreator) findEstimatedPrice(appCtx appcontext.AppContext,
 					return 0, err
 				}
 			}
-			price, _, err = o.shorthaulPricer.Price(appCtx, contractCode, requestedPickupDate, unit.Miles(distance), *mtoShipment.PrimeEstimatedWeight, domesticServiceArea.ServiceArea, isMobileHome)
+			price, _, err = o.shorthaulPricer.Price(appCtx, contractCode, requestedPickupDate, unit.Miles(distance), *primeEstimatedWeight, domesticServiceArea.ServiceArea, isMobileHome)
 			if err != nil {
 				return 0, err
 			}
@@ -193,7 +197,7 @@ func (o *mtoServiceItemCreator) findEstimatedPrice(appCtx appcontext.AppContext,
 				}
 			}
 
-			fscWeightBasedDistanceMultiplier, err := LookupFSCWeightBasedDistanceMultiplier(appCtx, primeEstimatedWeight)
+			fscWeightBasedDistanceMultiplier, err := LookupFSCWeightBasedDistanceMultiplier(appCtx, *primeEstimatedWeight)
 			if err != nil {
 				return 0, err
 			}
@@ -205,7 +209,7 @@ func (o *mtoServiceItemCreator) findEstimatedPrice(appCtx appcontext.AppContext,
 			if err != nil {
 				return 0, err
 			}
-			price, _, err = o.fuelSurchargePricer.Price(appCtx, pickupDateForFSC, unit.Miles(distance), primeEstimatedWeight, fscWeightBasedDistanceMultiplierFloat, eiaFuelPrice, isPPM)
+			price, _, err = o.fuelSurchargePricer.Price(appCtx, pickupDateForFSC, unit.Miles(distance), *primeEstimatedWeight, fscWeightBasedDistanceMultiplierFloat, eiaFuelPrice, isPPM)
 			if err != nil {
 				return 0, err
 			}
@@ -216,9 +220,8 @@ func (o *mtoServiceItemCreator) findEstimatedPrice(appCtx appcontext.AppContext,
 	return 0, nil
 }
 
-func fetchCurrentTaskOrderFee(appCtx appcontext.AppContext, serviceCode models.ReServiceCode) (models.ReTaskOrderFee, error) {
-	currTime := time.Now()
-	contractCode, err := FetchContractCode(appCtx, currTime)
+func fetchCurrentTaskOrderFee(appCtx appcontext.AppContext, serviceCode models.ReServiceCode, requestedPickupDate time.Time) (models.ReTaskOrderFee, error) {
+	contractCode, err := FetchContractCode(appCtx, requestedPickupDate)
 	if err != nil {
 		return models.ReTaskOrderFee{}, err
 	}
@@ -229,7 +232,7 @@ func fetchCurrentTaskOrderFee(appCtx appcontext.AppContext, serviceCode models.R
 		Join("re_services s", "re_task_order_fees.service_id = s.id").
 		Where("c.code = $1", contractCode).
 		Where("s.code = $2", serviceCode).
-		Where("$3 between cy.start_date and cy.end_date", currTime).
+		Where("$3 between cy.start_date and cy.end_date", requestedPickupDate).
 		First(&taskOrderFee)
 
 	if err != nil {
@@ -350,11 +353,9 @@ func (o *mtoServiceItemCreator) CreateMTOServiceItem(appCtx appcontext.AppContex
 
 	var move models.Move
 	moveID := serviceItem.MoveTaskOrderID
-	queryFilters := []services.QueryFilter{
-		query.NewQueryFilter("id", "=", moveID),
-	}
-	// check if Move exists
-	err = o.builder.FetchOne(appCtx, &move, queryFilters)
+	err = appCtx.DB().Q().EagerPreload(
+		"MTOShipments.PPMShipment",
+	).Find(&move, moveID)
 	if err != nil {
 		switch err {
 		case sql.ErrNoRows:
@@ -376,7 +377,7 @@ func (o *mtoServiceItemCreator) CreateMTOServiceItem(appCtx appcontext.AppContex
 	// find the re service code id
 	var reService models.ReService
 	reServiceCode := serviceItem.ReService.Code
-	queryFilters = []services.QueryFilter{
+	queryFilters := []services.QueryFilter{
 		query.NewQueryFilter("code", "=", reServiceCode),
 	}
 	err = o.builder.FetchOne(appCtx, &reService, queryFilters)
@@ -392,13 +393,40 @@ func (o *mtoServiceItemCreator) CreateMTOServiceItem(appCtx appcontext.AppContex
 	serviceItem.ReServiceID = reService.ID
 	serviceItem.ReService.Name = reService.Name
 
+	if serviceItem.ReService.Code == models.ReServiceCodeMS {
+		// check if the MS exists already for the move
+		err := o.checkDuplicateServiceCodes(appCtx, serviceItem)
+		if err != nil {
+			appCtx.Logger().Error(fmt.Sprintf("Error trying to create a duplicate MS service item for move ID: %s", move.ID), zap.Error(err))
+			return nil, nil, err
+		}
+	}
+
 	// We can have two service items that come in from a MTO approval that do not have an MTOShipmentID
 	// they are MTO level service items. This should capture that and create them accordingly, they are thankfully
 	// also rather basic.
 	if serviceItem.MTOShipmentID == nil {
 		if serviceItem.ReService.Code == models.ReServiceCodeMS || serviceItem.ReService.Code == models.ReServiceCodeCS {
+			// we need to know the first shipment's requested pickup date OR a PPM's expected departure date to establish the correct base year for the fee
+			// Loop through shipments to find the first requested pickup date
+			var feeDate *time.Time
+			for _, shipment := range move.MTOShipments {
+				if shipment.RequestedPickupDate != nil {
+					feeDate = shipment.RequestedPickupDate
+					break
+				}
+				var nilTime time.Time
+				if shipment.PPMShipment != nil && shipment.PPMShipment.ExpectedDepartureDate != nilTime {
+					feeDate = &shipment.PPMShipment.ExpectedDepartureDate
+				}
+			}
+			if feeDate == nil {
+				return nil, nil, apperror.NewNotFoundError(moveID, fmt.Sprintf(
+					"cannot create fee for service item %s: missing requested pickup date (non-PPMs) or expected departure date (PPMs) for shipment in move %s",
+					serviceItem.ReService.Code, moveID.String()))
+			}
 			serviceItem.Status = "APPROVED"
-			taskOrderFee, err := fetchCurrentTaskOrderFee(appCtx, serviceItem.ReService.Code)
+			taskOrderFee, err := fetchCurrentTaskOrderFee(appCtx, serviceItem.ReService.Code, *feeDate)
 			if err != nil {
 				return nil, nil, err
 			}
@@ -599,10 +627,8 @@ func (o *mtoServiceItemCreator) CreateMTOServiceItem(appCtx appcontext.AppContex
 
 	// if estimated weight for shipment provided by the prime, calculate the estimated prices for
 	// DLH, DPK, DOP, DDP, DUPK
-
-	// NTS-release requested pickup dates are for handle out, their pricing is handled differently as their locations are based on storage facilities, not pickup locations
-	if mtoShipment.PrimeEstimatedWeight != nil && mtoShipment.RequestedPickupDate != nil && mtoShipment.ShipmentType != models.MTOShipmentTypeHHGOutOfNTSDom {
-		serviceItemEstimatedPrice, err := o.findEstimatedPrice(appCtx, serviceItem, mtoShipment)
+	if mtoShipment.PrimeEstimatedWeight != nil && mtoShipment.RequestedPickupDate != nil {
+		serviceItemEstimatedPrice, err := o.FindEstimatedPrice(appCtx, serviceItem, mtoShipment)
 		if serviceItemEstimatedPrice != 0 && err == nil {
 			serviceItem.PricingEstimate = &serviceItemEstimatedPrice
 		}
@@ -670,6 +696,11 @@ func (o *mtoServiceItemCreator) CreateMTOServiceItem(appCtx appcontext.AppContex
 			verrs, err = o.builder.CreateOne(txnAppCtx, requestedServiceItem)
 			if verrs != nil || err != nil {
 				return fmt.Errorf("%#v %e", verrs, err)
+			}
+
+			// need isOconus information for InternationalCrates in model_to_payload
+			if requestedServiceItem.ReService.Code == models.ReServiceCodeICRT || requestedServiceItem.ReService.Code == models.ReServiceCodeIUCRT {
+				requestedServiceItem.MTOShipment = mtoShipment
 			}
 
 			createdServiceItems = append(createdServiceItems, *requestedServiceItem)

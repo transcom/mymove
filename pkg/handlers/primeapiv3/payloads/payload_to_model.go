@@ -383,6 +383,10 @@ func PPMShipmentModelFromCreate(ppmShipment *primev3messages.CreatePPMShipment) 
 		model.SpouseProGearWeight = handlers.PoundPtrFromInt64Ptr(ppmShipment.SpouseProGearWeight)
 	}
 
+	if ppmShipment.IsActualExpenseReimbursement != nil {
+		model.IsActualExpenseReimbursement = ppmShipment.IsActualExpenseReimbursement
+	}
+
 	return model
 }
 
@@ -553,6 +557,8 @@ func PPMShipmentModelFromUpdate(ppmShipment *primev3messages.UpdatePPMShipment) 
 		SpouseProGearWeight:            handlers.PoundPtrFromInt64Ptr(ppmShipment.SpouseProGearWeight),
 		HasSecondaryPickupAddress:      ppmShipment.HasSecondaryPickupAddress,
 		HasSecondaryDestinationAddress: ppmShipment.HasSecondaryDestinationAddress,
+		HasTertiaryPickupAddress:       ppmShipment.HasTertiaryPickupAddress,
+		HasTertiaryDestinationAddress:  ppmShipment.HasTertiaryDestinationAddress,
 	}
 
 	// Set up address models
@@ -625,6 +631,10 @@ func PPMShipmentModelFromUpdate(ppmShipment *primev3messages.UpdatePPMShipment) 
 	sitEstimatedDepartureDate := handlers.FmtDatePtrToPopPtr(ppmShipment.SitEstimatedDepartureDate)
 	if sitEstimatedDepartureDate != nil && !sitEstimatedDepartureDate.IsZero() {
 		model.SITEstimatedDepartureDate = sitEstimatedDepartureDate
+	}
+
+	if ppmShipment.IsActualExpenseReimbursement != nil {
+		model.IsActualExpenseReimbursement = ppmShipment.IsActualExpenseReimbursement
 	}
 
 	return model
@@ -787,6 +797,44 @@ func MTOServiceItemModel(mtoServiceItem primev3messages.MTOServiceItem) (*models
 				Width:  unit.ThousandthInches(*domesticCrating.Crate.Width),
 			},
 		}
+	case primev3messages.MTOServiceItemModelTypeMTOServiceItemInternationalCrating:
+		internationalCrating := mtoServiceItem.(*primev3messages.MTOServiceItemInternationalCrating)
+
+		// additional validation for this specific service item type
+		verrs := validateInternationalCrating(*internationalCrating)
+		if verrs.HasAny() {
+			return nil, verrs
+		}
+
+		// have to get code from payload
+		model.ReService.Code = models.ReServiceCode(*internationalCrating.ReServiceCode)
+		model.Description = internationalCrating.Description
+		model.Reason = internationalCrating.Reason
+		model.StandaloneCrate = internationalCrating.StandaloneCrate
+		model.ExternalCrate = internationalCrating.ExternalCrate
+
+		if model.ReService.Code == models.ReServiceCodeICRT {
+			if internationalCrating.StandaloneCrate == nil {
+				model.StandaloneCrate = models.BoolPointer(false)
+			}
+			if internationalCrating.ExternalCrate == nil {
+				model.ExternalCrate = models.BoolPointer(false)
+			}
+		}
+		model.Dimensions = models.MTOServiceItemDimensions{
+			models.MTOServiceItemDimension{
+				Type:   models.DimensionTypeItem,
+				Length: unit.ThousandthInches(*internationalCrating.Item.Length),
+				Height: unit.ThousandthInches(*internationalCrating.Item.Height),
+				Width:  unit.ThousandthInches(*internationalCrating.Item.Width),
+			},
+			models.MTOServiceItemDimension{
+				Type:   models.DimensionTypeCrate,
+				Length: unit.ThousandthInches(*internationalCrating.Crate.Length),
+				Height: unit.ThousandthInches(*internationalCrating.Crate.Height),
+				Width:  unit.ThousandthInches(*internationalCrating.Crate.Width),
+			},
+		}
 	default:
 		// assume basic service item, take in provided re service code
 		basic := mtoServiceItem.(*primev3messages.MTOServiceItemBasic)
@@ -946,6 +994,18 @@ func SITExtensionModel(sitExtension *primev3messages.CreateSITExtension, mtoShip
 }
 
 func validateDomesticCrating(m primev3messages.MTOServiceItemDomesticCrating) *validate.Errors {
+	return validate.Validate(
+		&models.ItemCanFitInsideCrateV3{
+			Name:         "Item",
+			NameCompared: "Crate",
+			Item:         &m.Item.MTOServiceItemDimension,
+			Crate:        &m.Crate.MTOServiceItemDimension,
+		},
+	)
+}
+
+// validateInternationalCrating validates this mto service item international crating
+func validateInternationalCrating(m primev3messages.MTOServiceItemInternationalCrating) *validate.Errors {
 	return validate.Validate(
 		&models.ItemCanFitInsideCrateV3{
 			Name:         "Item",

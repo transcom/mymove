@@ -4,7 +4,7 @@ import { Form } from '@trussworks/react-uswds';
 import { Formik } from 'formik';
 import classnames from 'classnames';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { arrayOf, func, number, object } from 'prop-types';
+import { arrayOf, bool, func, string, object } from 'prop-types';
 import moment from 'moment';
 
 import PPMHeaderSummary from '../PPMHeaderSummary/PPMHeaderSummary';
@@ -12,6 +12,7 @@ import PPMHeaderSummary from '../PPMHeaderSummary/PPMHeaderSummary';
 import styles from './ReviewDocumentsSidePanel.module.scss';
 
 import { expenseTypes } from 'constants/ppmExpenseTypes';
+import { OrderShape } from 'types/order';
 import { patchPPMDocumentsSetStatus } from 'services/ghcApi';
 import { ExpenseShape, PPMShipmentShape, ProGearTicketShape, WeightTicketShape } from 'types/shipment';
 import formStyles from 'styles/form.module.scss';
@@ -30,9 +31,12 @@ export default function ReviewDocumentsSidePanel({
   proGearTickets,
   weightTickets,
   readOnly,
+  showAllFields,
+  order,
 }) {
   let status;
   let showReason;
+  const showAllFieldsBool = showAllFields;
 
   const { mutate: patchDocumentsSetStatusMutation } = useMutation(patchPPMDocumentsSetStatus, {
     onSuccess,
@@ -66,11 +70,19 @@ export default function ReviewDocumentsSidePanel({
         </div>
       );
       showReason = true;
-    } else {
+    } else if (ticket.status === PPMDocumentsStatus.REJECTED) {
       status = (
         <div className={styles.iconRow}>
           <FontAwesomeIcon icon="times" />
           <span>Reject</span>
+        </div>
+      );
+      showReason = true;
+    } else {
+      status = (
+        <div className={styles.iconRow}>
+          <FontAwesomeIcon icon="rotate-right" />
+          <span>Pending</span>
         </div>
       );
       showReason = true;
@@ -100,10 +112,16 @@ export default function ReviewDocumentsSidePanel({
   return (
     <Formik initialValues innerRef={formRef} onSubmit={handleSubmit}>
       <div className={classnames(styles.container, 'container--accent--ppm')}>
-        <div className={classnames(formStyles.form, styles.ReviewDocumentsSidePanel, styles.PPMHeaderSummary)}>
-          <PPMHeaderSummary ppmShipmentInfo={ppmShipmentInfo} ppmNumber={ppmNumber} showAllFields readOnly={readOnly} />
+        <div className={classnames(styles.ReviewDocumentsSidePanel, formStyles.form, styles.PPMHeaderSummary)}>
+          <PPMHeaderSummary
+            ppmShipmentInfo={ppmShipmentInfo}
+            order={order}
+            ppmNumber={ppmNumber}
+            showAllFields={showAllFieldsBool}
+            readOnly={readOnly}
+          />
         </div>
-        <Form className={classnames(formStyles.form, styles.ReviewDocumentsSidePanel)}>
+        <Form style={{ maxWidth: 'none' }} className={classnames(formStyles.form, styles.ReviewDocumentsSidePanel)}>
           <hr />
           <h3 className={styles.send}>{readOnly ? 'Sent to customer' : 'Send to customer?'}</h3>
           <DocumentViewerSidebar.Content className={styles.sideBar}>
@@ -256,22 +274,25 @@ export default function ReviewDocumentsSidePanel({
 
 ReviewDocumentsSidePanel.propTypes = {
   ppmShipment: PPMShipmentShape,
-  ppmNumber: number,
+  ppmNumber: string,
   formRef: object,
   onSuccess: func,
   onError: func,
   expenseTickets: arrayOf(ExpenseShape),
   proGearTickets: arrayOf(ProGearTicketShape),
   weightTickets: arrayOf(WeightTicketShape),
+  showAllFields: bool,
+  order: OrderShape.isRequired,
 };
 
 ReviewDocumentsSidePanel.defaultProps = {
   ppmShipment: undefined,
-  ppmNumber: 1,
+  ppmNumber: '1',
   formRef: null,
   onSuccess: () => {},
   onError: () => {},
   expenseTickets: [],
   proGearTickets: [],
   weightTickets: [],
+  showAllFields: true,
 };

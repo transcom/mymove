@@ -58,13 +58,14 @@ const defaultProps = {
       isRoadworthy: true,
     },
   },
+  marketCode: 'd',
 };
 
 describe('BoatShipmentCard component', () => {
   it('renders component with all fields', () => {
     render(<BoatShipmentCard {...defaultProps} />);
 
-    expect(screen.getByRole('heading', { level: 3 })).toHaveTextContent('Boat 1');
+    expect(screen.getByRole('heading', { level: 3 })).toHaveTextContent(`${defaultProps.marketCode}Boat 1`);
     expect(screen.getByText(/^#testMove123-01$/, { selector: 'p' })).toBeInTheDocument();
 
     expect(screen.getByRole('button', { name: 'Edit' })).toBeInTheDocument();
@@ -77,10 +78,10 @@ describe('BoatShipmentCard component', () => {
     const expectedRows = [
       ['Shipment Method', 'BTA'],
       ['Requested pickup date', '01 Jan 2020'],
-      ['Pickup location', '17 8th St New York, NY 11111'],
+      ['Pickup Address', '17 8th St New York, NY 11111'],
       ['Releasing agent', 'Jo Xi (555) 555-5555 jo.xi@email.com'],
       ['Requested delivery date', '01 Mar 2020'],
-      ['Destination', '17 8th St New York, NY 73523'],
+      ['Delivery Address', '17 8th St New York, NY 73523'],
       ['Receiving agent', 'Dorothy Lagomarsino (999) 999-9999 dorothy.lagomarsino@email.com'],
       ['Boat year', '2020'],
       ['Boat make', 'Test Make'],

@@ -115,9 +115,16 @@ func MTOAgentsModel(mtoAgents *primev2messages.MTOAgents) *models.MTOAgents {
 
 // MTOServiceItemModelListFromCreate model
 func MTOServiceItemModelListFromCreate(mtoShipment *primev2messages.CreateMTOShipment) (models.MTOServiceItems, *validate.Errors) {
+	verrs := validate.NewErrors()
 
 	if mtoShipment == nil {
-		return nil, nil
+		verrs.Add("mtoShipment", "mtoShipment object is nil.")
+		return nil, verrs
+	}
+
+	if mtoShipment.MoveTaskOrderID == nil {
+		verrs.Add("mtoShipment", "MoveTaskOrderID is nil.")
+		return nil, verrs
 	}
 
 	serviceItemsListFromPayload := mtoShipment.MtoServiceItems()
@@ -137,9 +144,21 @@ func MTOServiceItemModelListFromCreate(mtoShipment *primev2messages.CreateMTOShi
 }
 
 // MTOShipmentModelFromCreate model
-func MTOShipmentModelFromCreate(mtoShipment *primev2messages.CreateMTOShipment) *models.MTOShipment {
+func MTOShipmentModelFromCreate(mtoShipment *primev2messages.CreateMTOShipment) (*models.MTOShipment, *validate.Errors) {
+	verrs := validate.NewErrors()
 	if mtoShipment == nil {
-		return nil
+		verrs.Add("mtoShipment", "mtoShipment object is nil.")
+		return nil, verrs
+	}
+
+	if mtoShipment == nil {
+		verrs.Add("mtoShipment", "mtoShipment object is nil.")
+		return nil, verrs
+	}
+
+	if mtoShipment.MoveTaskOrderID == nil {
+		verrs.Add("mtoShipment", "MoveTaskOrderID is nil.")
+		return nil, verrs
 	}
 
 	var divertedFromShipmentID *uuid.UUID
@@ -196,7 +215,23 @@ func MTOShipmentModelFromCreate(mtoShipment *primev2messages.CreateMTOShipment) 
 		model.PPMShipment.Shipment = *model
 	}
 
-	return model
+	if mtoShipment.BoatShipment != nil {
+		model.BoatShipment, verrs = BoatShipmentModelFromCreate(mtoShipment)
+		if verrs != nil && verrs.HasAny() {
+			return nil, verrs
+		}
+		model.BoatShipment.Shipment = *model
+	}
+
+	if mtoShipment.MobileHomeShipment != nil {
+		model.MobileHome, verrs = MobileHomeShipmentModelFromCreate(mtoShipment)
+		if verrs != nil && verrs.HasAny() {
+			return nil, verrs
+		}
+		model.MobileHome.Shipment = *model
+	}
+
+	return model, nil
 }
 
 // Non SIT Address update Model
@@ -273,7 +308,63 @@ func PPMShipmentModelFromCreate(ppmShipment *primev2messages.CreatePPMShipment) 
 		model.SpouseProGearWeight = handlers.PoundPtrFromInt64Ptr(ppmShipment.SpouseProGearWeight)
 	}
 
+	if ppmShipment.IsActualExpenseReimbursement != nil {
+		model.IsActualExpenseReimbursement = ppmShipment.IsActualExpenseReimbursement
+	}
+
 	return model
+}
+
+// BoatShipmentModelFromCreate model
+func BoatShipmentModelFromCreate(mtoShipment *primev2messages.CreateMTOShipment) (*models.BoatShipment, *validate.Errors) {
+	reasonVerrs := validateBoatShipmentType(*mtoShipment.ShipmentType)
+	if reasonVerrs.HasAny() {
+		return nil, reasonVerrs
+	}
+
+	var shipmentType models.BoatShipmentType
+
+	if *mtoShipment.ShipmentType == primev2messages.MTOShipmentTypeBOATHAULAWAY {
+		shipmentType = models.BoatShipmentTypeHaulAway
+	} else if *mtoShipment.ShipmentType == primev2messages.MTOShipmentTypeBOATTOWAWAY {
+		shipmentType = models.BoatShipmentTypeTowAway
+	}
+
+	year := int(*mtoShipment.BoatShipment.Year)
+	lengthInInches := int(*mtoShipment.BoatShipment.LengthInInches)
+	widthInInches := int(*mtoShipment.BoatShipment.WidthInInches)
+	heightInInches := int(*mtoShipment.BoatShipment.HeightInInches)
+	model := &models.BoatShipment{
+		Type:           shipmentType,
+		Year:           &year,
+		Make:           mtoShipment.BoatShipment.Make,
+		Model:          mtoShipment.BoatShipment.Model,
+		LengthInInches: &lengthInInches,
+		WidthInInches:  &widthInInches,
+		HeightInInches: &heightInInches,
+		HasTrailer:     mtoShipment.BoatShipment.HasTrailer,
+		IsRoadworthy:   mtoShipment.BoatShipment.IsRoadworthy,
+	}
+
+	return model, nil
+}
+
+// MobileHomeShipmentModelFromCreate model
+func MobileHomeShipmentModelFromCreate(mtoShipment *primev2messages.CreateMTOShipment) (*models.MobileHome, *validate.Errors) {
+	year := int(*mtoShipment.MobileHomeShipment.Year)
+	lengthInInches := int(*mtoShipment.MobileHomeShipment.LengthInInches)
+	widthInInches := int(*mtoShipment.MobileHomeShipment.WidthInInches)
+	heightInInches := int(*mtoShipment.MobileHomeShipment.HeightInInches)
+	model := &models.MobileHome{
+		Year:           &year,
+		Make:           mtoShipment.MobileHomeShipment.Make,
+		Model:          mtoShipment.MobileHomeShipment.Model,
+		LengthInInches: &lengthInInches,
+		WidthInInches:  &widthInInches,
+		HeightInInches: &heightInInches,
+	}
+
+	return model, nil
 }
 
 // MTOShipmentModelFromUpdate model
@@ -396,6 +487,10 @@ func PPMShipmentModelFromUpdate(ppmShipment *primev2messages.UpdatePPMShipment) 
 	sitEstimatedDepartureDate := handlers.FmtDatePtrToPopPtr(ppmShipment.SitEstimatedDepartureDate)
 	if sitEstimatedDepartureDate != nil && !sitEstimatedDepartureDate.IsZero() {
 		model.SITEstimatedDepartureDate = sitEstimatedDepartureDate
+	}
+
+	if ppmShipment.IsActualExpenseReimbursement != nil {
+		model.IsActualExpenseReimbursement = ppmShipment.IsActualExpenseReimbursement
 	}
 
 	return model
@@ -556,6 +651,44 @@ func MTOServiceItemModel(mtoServiceItem primev2messages.MTOServiceItem) (*models
 				Length: unit.ThousandthInches(*domesticCrating.Crate.Length),
 				Height: unit.ThousandthInches(*domesticCrating.Crate.Height),
 				Width:  unit.ThousandthInches(*domesticCrating.Crate.Width),
+			},
+		}
+	case primev2messages.MTOServiceItemModelTypeMTOServiceItemInternationalCrating:
+		internationalCrating := mtoServiceItem.(*primev2messages.MTOServiceItemInternationalCrating)
+
+		// additional validation for this specific service item type
+		verrs := validateInternationalCrating(*internationalCrating)
+		if verrs.HasAny() {
+			return nil, verrs
+		}
+
+		// have to get code from payload
+		model.ReService.Code = models.ReServiceCode(*internationalCrating.ReServiceCode)
+		model.Description = internationalCrating.Description
+		model.Reason = internationalCrating.Reason
+		model.StandaloneCrate = internationalCrating.StandaloneCrate
+		model.ExternalCrate = internationalCrating.ExternalCrate
+
+		if model.ReService.Code == models.ReServiceCodeICRT {
+			if internationalCrating.StandaloneCrate == nil {
+				model.StandaloneCrate = models.BoolPointer(false)
+			}
+			if internationalCrating.ExternalCrate == nil {
+				model.ExternalCrate = models.BoolPointer(false)
+			}
+		}
+		model.Dimensions = models.MTOServiceItemDimensions{
+			models.MTOServiceItemDimension{
+				Type:   models.DimensionTypeItem,
+				Length: unit.ThousandthInches(*internationalCrating.Item.Length),
+				Height: unit.ThousandthInches(*internationalCrating.Item.Height),
+				Width:  unit.ThousandthInches(*internationalCrating.Item.Width),
+			},
+			models.MTOServiceItemDimension{
+				Type:   models.DimensionTypeCrate,
+				Length: unit.ThousandthInches(*internationalCrating.Crate.Length),
+				Height: unit.ThousandthInches(*internationalCrating.Crate.Height),
+				Width:  unit.ThousandthInches(*internationalCrating.Crate.Width),
 			},
 		}
 	default:
@@ -728,6 +861,18 @@ func validateDomesticCrating(m primev2messages.MTOServiceItemDomesticCrating) *v
 	)
 }
 
+// validateInternationalCrating validates this mto service item international crating
+func validateInternationalCrating(m primev2messages.MTOServiceItemInternationalCrating) *validate.Errors {
+	return validate.Validate(
+		&models.ItemCanFitInsideCrateV2{
+			Name:         "Item",
+			NameCompared: "Crate",
+			Item:         &m.Item.MTOServiceItemDimension,
+			Crate:        &m.Crate.MTOServiceItemDimension,
+		},
+	)
+}
+
 // validateDDFSITForCreate validates DDFSIT service item has all required fields
 func validateDDFSITForCreate(m primev2messages.MTOServiceItemDestSIT) *validate.Errors {
 	verrs := validate.NewErrors()
@@ -795,5 +940,16 @@ func validateReasonOriginSIT(m primev2messages.MTOServiceItemOriginSIT) *validat
 	if m.Reason == nil || m.Reason == models.StringPointer("") {
 		verrs.Add("reason", "reason is required in body.")
 	}
+	return verrs
+}
+
+// validateBoatShipmentType validates that the shipment type is a valid boat type, and is not nil.
+func validateBoatShipmentType(s primev2messages.MTOShipmentType) *validate.Errors {
+	verrs := validate.NewErrors()
+
+	if s != primev2messages.MTOShipmentTypeBOATHAULAWAY && s != primev2messages.MTOShipmentTypeBOATTOWAWAY {
+		verrs.Add("Boat Shipment Type (mtoShipment.shipmentType)", "shipmentType must be either "+string(primev2messages.MTOShipmentTypeBOATTOWAWAY)+" or "+string(primev2messages.MTOShipmentTypeBOATHAULAWAY))
+	}
+
 	return verrs
 }

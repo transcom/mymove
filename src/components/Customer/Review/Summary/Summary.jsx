@@ -196,6 +196,7 @@ export class Summary extends Component {
             onEditClick={this.handleEditClick}
             onDeleteClick={this.handleDeleteClick}
             onIncompleteClick={this.toggleIncompleteShipmentModal}
+            marketCode={shipment.marketCode}
           />
         );
       }
@@ -222,6 +223,7 @@ export class Summary extends Component {
             status={shipment.status}
             onIncompleteClick={this.toggleIncompleteShipmentModal}
             shipmentLocator={shipment.shipmentLocator}
+            marketCode={shipment.marketCode}
           />
         );
       }
@@ -245,6 +247,7 @@ export class Summary extends Component {
             status={shipment.status}
             onIncompleteClick={this.toggleIncompleteShipmentModal}
             shipmentLocator={shipment.shipmentLocator}
+            marketCode={shipment.marketCode}
           />
         );
       }
@@ -277,6 +280,7 @@ export class Summary extends Component {
             showEditAndDeleteBtn={showEditAndDeleteBtn}
             status={shipment.status}
             onIncompleteClick={this.toggleIncompleteShipmentModal}
+            marketCode={shipment.marketCode}
           />
         );
       }
@@ -306,6 +310,7 @@ export class Summary extends Component {
             showEditAndDeleteBtn={showEditAndDeleteBtn}
             status={shipment.status}
             onIncompleteClick={this.toggleIncompleteShipmentModal}
+            marketCode={shipment.marketCode}
           />
         );
       }
@@ -336,6 +341,7 @@ export class Summary extends Component {
             showEditAndDeleteBtn={showEditAndDeleteBtn}
             status={shipment.status}
             onIncompleteClick={this.toggleIncompleteShipmentModal}
+            marketCode={shipment.marketCode}
           />
         );
       }
@@ -365,6 +371,7 @@ export class Summary extends Component {
           showEditAndDeleteBtn={showEditAndDeleteBtn}
           status={shipment.status}
           onIncompleteClick={this.toggleIncompleteShipmentModal}
+          marketCode={shipment.marketCode}
         />
       );
     });
@@ -494,6 +501,9 @@ export class Summary extends Component {
             originDutyLocationName={currentOrders.origin_duty_location.name}
             orderId={currentOrders.id}
             counselingOfficeName={currentMove.counselingOffice?.name || ''}
+            accompaniedTour={currentOrders.entitlement?.accompanied_tour}
+            dependentsUnderTwelve={currentOrders.entitlement?.dependents_under_twelve}
+            dependentsTwelveAndOver={currentOrders.entitlement?.dependents_twelve_and_over}
           />
         </SectionWrapper>
         {thirdSectionHasContent && (

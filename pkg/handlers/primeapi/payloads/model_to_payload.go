@@ -20,13 +20,25 @@ import (
 )
 
 // MoveTaskOrder payload
-func MoveTaskOrder(moveTaskOrder *models.Move) *primemessages.MoveTaskOrder {
+func MoveTaskOrder(appCtx appcontext.AppContext, moveTaskOrder *models.Move) *primemessages.MoveTaskOrder {
+	db := appCtx.DB()
 	if moveTaskOrder == nil {
 		return nil
 	}
 	paymentRequests := PaymentRequests(&moveTaskOrder.PaymentRequests)
 	mtoServiceItems := MTOServiceItems(&moveTaskOrder.MTOServiceItems)
 	mtoShipments := MTOShipmentsWithoutServiceItems(&moveTaskOrder.MTOShipments)
+
+	var destGbloc, destZip string
+	var err error
+	destGbloc, err = moveTaskOrder.GetDestinationGBLOC(db)
+	if err != nil {
+		destGbloc = ""
+	}
+	destZip, err = moveTaskOrder.GetDestinationPostalCode(db)
+	if err != nil {
+		destZip = ""
+	}
 
 	payload := &primemessages.MoveTaskOrder{
 		ID:                         strfmt.UUID(moveTaskOrder.ID.String()),
@@ -40,6 +52,8 @@ func MoveTaskOrder(moveTaskOrder *models.Move) *primemessages.MoveTaskOrder {
 		ExcessWeightUploadID:       handlers.FmtUUIDPtr(moveTaskOrder.ExcessWeightUploadID),
 		OrderID:                    strfmt.UUID(moveTaskOrder.OrdersID.String()),
 		Order:                      Order(&moveTaskOrder.Orders),
+		DestinationGBLOC:           destGbloc,
+		DestinationPostalCode:      destZip,
 		ReferenceID:                *moveTaskOrder.ReferenceID,
 		PaymentRequests:            *paymentRequests,
 		MtoShipments:               *mtoShipments,
@@ -63,21 +77,36 @@ func MoveTaskOrder(moveTaskOrder *models.Move) *primemessages.MoveTaskOrder {
 }
 
 // ListMove payload
-func ListMove(move *models.Move, moveOrderAmendmentsCount *services.MoveOrderAmendmentAvailableSinceCount) *primemessages.ListMove {
+func ListMove(move *models.Move, appCtx appcontext.AppContext, moveOrderAmendmentsCount *services.MoveOrderAmendmentAvailableSinceCount) *primemessages.ListMove {
 	if move == nil {
 		return nil
 	}
 
+	db := appCtx.DB()
+
+	var destGbloc, destZip string
+	var err error
+	destGbloc, err = move.GetDestinationGBLOC(db)
+	if err != nil {
+		destGbloc = ""
+	}
+	destZip, err = move.GetDestinationPostalCode(db)
+	if err != nil {
+		destZip = ""
+	}
+
 	payload := &primemessages.ListMove{
-		ID:                 strfmt.UUID(move.ID.String()),
-		MoveCode:           move.Locator,
-		CreatedAt:          strfmt.DateTime(move.CreatedAt),
-		AvailableToPrimeAt: handlers.FmtDateTimePtr(move.AvailableToPrimeAt),
-		ApprovedAt:         handlers.FmtDateTimePtr(move.ApprovedAt),
-		OrderID:            strfmt.UUID(move.OrdersID.String()),
-		ReferenceID:        *move.ReferenceID,
-		UpdatedAt:          strfmt.DateTime(move.UpdatedAt),
-		ETag:               etag.GenerateEtag(move.UpdatedAt),
+		ID:                    strfmt.UUID(move.ID.String()),
+		MoveCode:              move.Locator,
+		CreatedAt:             strfmt.DateTime(move.CreatedAt),
+		AvailableToPrimeAt:    handlers.FmtDateTimePtr(move.AvailableToPrimeAt),
+		ApprovedAt:            handlers.FmtDateTimePtr(move.ApprovedAt),
+		DestinationGBLOC:      destGbloc,
+		DestinationPostalCode: destZip,
+		OrderID:               strfmt.UUID(move.OrdersID.String()),
+		ReferenceID:           *move.ReferenceID,
+		UpdatedAt:             strfmt.DateTime(move.UpdatedAt),
+		ETag:                  etag.GenerateEtag(move.UpdatedAt),
 		Amendments: &primemessages.Amendments{
 			Total:          handlers.FmtInt64(0),
 			AvailableSince: handlers.FmtInt64(0),
@@ -97,7 +126,7 @@ func ListMove(move *models.Move, moveOrderAmendmentsCount *services.MoveOrderAme
 }
 
 // ListMoves payload
-func ListMoves(moves *models.Moves, moveOrderAmendmentAvailableSinceCounts services.MoveOrderAmendmentAvailableSinceCounts) []*primemessages.ListMove {
+func ListMoves(moves *models.Moves, appCtx appcontext.AppContext, moveOrderAmendmentAvailableSinceCounts services.MoveOrderAmendmentAvailableSinceCounts) []*primemessages.ListMove {
 	payload := make(primemessages.ListMoves, len(*moves))
 
 	moveOrderAmendmentsFilterCountMap := make(map[uuid.UUID]services.MoveOrderAmendmentAvailableSinceCount, len(*moves))
@@ -108,9 +137,9 @@ func ListMoves(moves *models.Moves, moveOrderAmendmentAvailableSinceCounts servi
 	for i, m := range *moves {
 		copyOfM := m // Make copy to avoid implicit memory aliasing of items from a range statement.
 		if value, ok := moveOrderAmendmentsFilterCountMap[m.ID]; ok {
-			payload[i] = ListMove(&copyOfM, &value)
+			payload[i] = ListMove(&copyOfM, appCtx, &value)
 		} else {
-			payload[i] = ListMove(&copyOfM, nil)
+			payload[i] = ListMove(&copyOfM, appCtx, nil)
 		}
 	}
 
@@ -152,7 +181,7 @@ func Order(order *models.Order) *primemessages.Order {
 	destinationDutyLocation := DutyLocation(&order.NewDutyLocation)
 	originDutyLocation := DutyLocation(order.OriginDutyLocation)
 	if order.Grade != nil && order.Entitlement != nil {
-		order.Entitlement.SetWeightAllotment(string(*order.Grade))
+		order.Entitlement.SetWeightAllotment(string(*order.Grade), order.OrdersType)
 	}
 
 	var grade string
@@ -207,9 +236,14 @@ func Entitlement(entitlement *models.Entitlement) *primemessages.Entitlements {
 	if entitlement.TotalDependents != nil {
 		totalDependents = int64(*entitlement.TotalDependents)
 	}
+	var ubAllowance int64
+	if entitlement.UBAllowance != nil {
+		ubAllowance = int64(*entitlement.UBAllowance)
+	}
 	return &primemessages.Entitlements{
 		ID:                             strfmt.UUID(entitlement.ID.String()),
 		AuthorizedWeight:               authorizedWeight,
+		UnaccompaniedBaggageAllowance:  &ubAllowance,
 		DependentsAuthorized:           entitlement.DependentsAuthorized,
 		GunSafe:                        entitlement.GunSafe,
 		NonTemporaryStorage:            entitlement.NonTemporaryStorage,
@@ -471,38 +505,43 @@ func PPMShipment(ppmShipment *models.PPMShipment) *primemessages.PPMShipment {
 	}
 
 	payloadPPMShipment := &primemessages.PPMShipment{
-		ID:                          *handlers.FmtUUID(ppmShipment.ID),
-		ShipmentID:                  *handlers.FmtUUID(ppmShipment.ShipmentID),
-		CreatedAt:                   strfmt.DateTime(ppmShipment.CreatedAt),
-		UpdatedAt:                   strfmt.DateTime(ppmShipment.UpdatedAt),
-		Status:                      primemessages.PPMShipmentStatus(ppmShipment.Status),
-		ExpectedDepartureDate:       handlers.FmtDate(ppmShipment.ExpectedDepartureDate),
-		ActualMoveDate:              handlers.FmtDatePtr(ppmShipment.ActualMoveDate),
-		SubmittedAt:                 handlers.FmtDateTimePtr(ppmShipment.SubmittedAt),
-		ReviewedAt:                  handlers.FmtDateTimePtr(ppmShipment.ReviewedAt),
-		ApprovedAt:                  handlers.FmtDateTimePtr(ppmShipment.ApprovedAt),
-		ActualPickupPostalCode:      ppmShipment.ActualPickupPostalCode,
-		ActualDestinationPostalCode: ppmShipment.ActualDestinationPostalCode,
-		SitExpected:                 ppmShipment.SITExpected,
-		SitEstimatedWeight:          handlers.FmtPoundPtr(ppmShipment.SITEstimatedWeight),
-		SitEstimatedEntryDate:       handlers.FmtDatePtr(ppmShipment.SITEstimatedEntryDate),
-		SitEstimatedDepartureDate:   handlers.FmtDatePtr(ppmShipment.SITEstimatedDepartureDate),
-		SitEstimatedCost:            handlers.FmtCost(ppmShipment.SITEstimatedCost),
-		EstimatedWeight:             handlers.FmtPoundPtr(ppmShipment.EstimatedWeight),
-		EstimatedIncentive:          handlers.FmtCost(ppmShipment.EstimatedIncentive),
-		HasProGear:                  ppmShipment.HasProGear,
-		ProGearWeight:               handlers.FmtPoundPtr(ppmShipment.ProGearWeight),
-		SpouseProGearWeight:         handlers.FmtPoundPtr(ppmShipment.SpouseProGearWeight),
-		HasRequestedAdvance:         ppmShipment.HasRequestedAdvance,
-		AdvanceAmountRequested:      handlers.FmtCost(ppmShipment.AdvanceAmountRequested),
-		HasReceivedAdvance:          ppmShipment.HasReceivedAdvance,
-		AdvanceAmountReceived:       handlers.FmtCost(ppmShipment.AdvanceAmountReceived),
-		ETag:                        etag.GenerateEtag(ppmShipment.UpdatedAt),
+		ID:                           *handlers.FmtUUID(ppmShipment.ID),
+		ShipmentID:                   *handlers.FmtUUID(ppmShipment.ShipmentID),
+		CreatedAt:                    strfmt.DateTime(ppmShipment.CreatedAt),
+		UpdatedAt:                    strfmt.DateTime(ppmShipment.UpdatedAt),
+		Status:                       primemessages.PPMShipmentStatus(ppmShipment.Status),
+		ExpectedDepartureDate:        handlers.FmtDate(ppmShipment.ExpectedDepartureDate),
+		ActualMoveDate:               handlers.FmtDatePtr(ppmShipment.ActualMoveDate),
+		SubmittedAt:                  handlers.FmtDateTimePtr(ppmShipment.SubmittedAt),
+		ReviewedAt:                   handlers.FmtDateTimePtr(ppmShipment.ReviewedAt),
+		ApprovedAt:                   handlers.FmtDateTimePtr(ppmShipment.ApprovedAt),
+		ActualPickupPostalCode:       ppmShipment.ActualPickupPostalCode,
+		ActualDestinationPostalCode:  ppmShipment.ActualDestinationPostalCode,
+		SitExpected:                  ppmShipment.SITExpected,
+		SitEstimatedWeight:           handlers.FmtPoundPtr(ppmShipment.SITEstimatedWeight),
+		SitEstimatedEntryDate:        handlers.FmtDatePtr(ppmShipment.SITEstimatedEntryDate),
+		SitEstimatedDepartureDate:    handlers.FmtDatePtr(ppmShipment.SITEstimatedDepartureDate),
+		SitEstimatedCost:             handlers.FmtCost(ppmShipment.SITEstimatedCost),
+		EstimatedWeight:              handlers.FmtPoundPtr(ppmShipment.EstimatedWeight),
+		EstimatedIncentive:           handlers.FmtCost(ppmShipment.EstimatedIncentive),
+		HasProGear:                   ppmShipment.HasProGear,
+		ProGearWeight:                handlers.FmtPoundPtr(ppmShipment.ProGearWeight),
+		SpouseProGearWeight:          handlers.FmtPoundPtr(ppmShipment.SpouseProGearWeight),
+		HasRequestedAdvance:          ppmShipment.HasRequestedAdvance,
+		AdvanceAmountRequested:       handlers.FmtCost(ppmShipment.AdvanceAmountRequested),
+		HasReceivedAdvance:           ppmShipment.HasReceivedAdvance,
+		AdvanceAmountReceived:        handlers.FmtCost(ppmShipment.AdvanceAmountReceived),
+		IsActualExpenseReimbursement: ppmShipment.IsActualExpenseReimbursement,
+		ETag:                         etag.GenerateEtag(ppmShipment.UpdatedAt),
 	}
 
 	if ppmShipment.SITLocation != nil {
 		sitLocation := primemessages.SITLocationType(*ppmShipment.SITLocation)
 		payloadPPMShipment.SitLocation = &sitLocation
+	}
+
+	if ppmShipment.IsActualExpenseReimbursement != nil {
+		payloadPPMShipment.IsActualExpenseReimbursement = ppmShipment.IsActualExpenseReimbursement
 	}
 
 	return payloadPPMShipment
@@ -700,6 +739,46 @@ func MTOServiceItem(mtoServiceItem *models.MTOServiceItem) primemessages.MTOServ
 			Width:  crate.Width.Int32Ptr(),
 		}
 		payload = &cratingSI
+
+	case models.ReServiceCodeICRT, models.ReServiceCodeIUCRT:
+		item := GetDimension(mtoServiceItem.Dimensions, models.DimensionTypeItem)
+		crate := GetDimension(mtoServiceItem.Dimensions, models.DimensionTypeCrate)
+		cratingSI := primemessages.MTOServiceItemInternationalCrating{
+			ReServiceCode:   handlers.FmtString(string(mtoServiceItem.ReService.Code)),
+			Description:     mtoServiceItem.Description,
+			Reason:          mtoServiceItem.Reason,
+			StandaloneCrate: mtoServiceItem.StandaloneCrate,
+			ExternalCrate:   mtoServiceItem.ExternalCrate,
+		}
+		cratingSI.Item.MTOServiceItemDimension = primemessages.MTOServiceItemDimension{
+			ID:     strfmt.UUID(item.ID.String()),
+			Height: item.Height.Int32Ptr(),
+			Length: item.Length.Int32Ptr(),
+			Width:  item.Width.Int32Ptr(),
+		}
+		cratingSI.Crate.MTOServiceItemDimension = primemessages.MTOServiceItemDimension{
+			ID:     strfmt.UUID(crate.ID.String()),
+			Height: crate.Height.Int32Ptr(),
+			Length: crate.Length.Int32Ptr(),
+			Width:  crate.Width.Int32Ptr(),
+		}
+		if mtoServiceItem.ReService.Code == models.ReServiceCodeICRT && mtoServiceItem.MTOShipment.PickupAddress != nil {
+			if *mtoServiceItem.MTOShipment.PickupAddress.IsOconus {
+				cratingSI.Market = models.MarketOconus.FullString()
+			} else {
+				cratingSI.Market = models.MarketConus.FullString()
+			}
+		}
+
+		if mtoServiceItem.ReService.Code == models.ReServiceCodeIUCRT && mtoServiceItem.MTOShipment.DestinationAddress != nil {
+			if *mtoServiceItem.MTOShipment.DestinationAddress.IsOconus {
+				cratingSI.Market = models.MarketOconus.FullString()
+			} else {
+				cratingSI.Market = models.MarketConus.FullString()
+			}
+		}
+		payload = &cratingSI
+
 	case models.ReServiceCodeDDSHUT, models.ReServiceCodeDOSHUT:
 		payload = &primemessages.MTOServiceItemShuttle{
 			ReServiceCode:   handlers.FmtString(string(mtoServiceItem.ReService.Code)),

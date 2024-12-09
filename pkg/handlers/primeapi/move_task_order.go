@@ -45,7 +45,7 @@ func (h ListMovesHandler) Handle(params movetaskorderops.ListMovesParams) middle
 				return movetaskorderops.NewListMovesInternalServerError().WithPayload(payloads.InternalServerError(nil, h.GetTraceIDFromRequest(params.HTTPRequest))), err
 			}
 
-			payload := payloads.ListMoves(&mtos, amendmentCountInfo)
+			payload := payloads.ListMoves(&mtos, appCtx, amendmentCountInfo)
 
 			return movetaskorderops.NewListMovesOK().WithPayload(payload), nil
 		})
@@ -90,7 +90,7 @@ func (h GetMoveTaskOrderHandler) Handle(params movetaskorderops.GetMoveTaskOrder
 			/** Feature Flag - Boat Shipment **/
 			isBoatFeatureOn := false
 			const featureFlagName = "boat"
-			flag, err := h.FeatureFlagFetcher().GetBooleanFlagForUser(params.HTTPRequest.Context(), appCtx, featureFlagName, map[string]string{})
+			flag, err := h.FeatureFlagFetcher().GetBooleanFlag(params.HTTPRequest.Context(), appCtx.Logger(), "", featureFlagName, map[string]string{})
 			if err != nil {
 				appCtx.Logger().Error("Error fetching feature flag", zap.String("featureFlagKey", featureFlagName), zap.Error(err))
 			} else {
@@ -117,7 +117,7 @@ func (h GetMoveTaskOrderHandler) Handle(params movetaskorderops.GetMoveTaskOrder
 			/** Feature Flag - Mobile Home Shipment **/
 			isMobileHomeFeatureOn := false
 			const featureFlagNameMH = "mobile_home"
-			flagMH, err := h.FeatureFlagFetcher().GetBooleanFlagForUser(params.HTTPRequest.Context(), appCtx, featureFlagNameMH, map[string]string{})
+			flagMH, err := h.FeatureFlagFetcher().GetBooleanFlag(params.HTTPRequest.Context(), appCtx.Logger(), "", featureFlagNameMH, map[string]string{})
 			if err != nil {
 				appCtx.Logger().Error("Error fetching feature flagMH", zap.String("featureFlagKey", featureFlagNameMH), zap.Error(err))
 			} else {
@@ -141,7 +141,7 @@ func (h GetMoveTaskOrderHandler) Handle(params movetaskorderops.GetMoveTaskOrder
 			}
 			/** End of Feature Flag **/
 
-			moveTaskOrderPayload := payloads.MoveTaskOrder(mto)
+			moveTaskOrderPayload := payloads.MoveTaskOrder(appCtx, mto)
 
 			return movetaskorderops.NewGetMoveTaskOrderOK().WithPayload(moveTaskOrderPayload), nil
 		})
@@ -250,7 +250,7 @@ func (h UpdateMTOPostCounselingInformationHandler) Handle(params movetaskorderop
 				}
 			}
 
-			mtoPayload := payloads.MoveTaskOrder(mto)
+			mtoPayload := payloads.MoveTaskOrder(appCtx, mto)
 
 			/* Don't send prime related emails on BLUEBARK moves */
 			if mto.Orders.CanSendEmailWithOrdersType() {

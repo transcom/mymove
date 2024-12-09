@@ -61,6 +61,9 @@ type PPMShipment struct {
 	// Required: true
 	DestinationAddress *PPMDestinationAddress `json:"destinationAddress"`
 
+	// destination rate area
+	DestinationRateArea *RateArea `json:"destinationRateArea,omitempty"`
+
 	// A hash unique to this shipment that should be used as the "If-Match" header for any updates.
 	// Required: true
 	// Read Only: true
@@ -109,6 +112,16 @@ type PPMShipment struct {
 	// Read Only: true
 	// Format: uuid
 	ID strfmt.UUID `json:"id"`
+
+	// Used for PPM shipments only. Denotes if this shipment uses the Actual Expense Reimbursement method.
+	// Example: false
+	IsActualExpenseReimbursement *bool `json:"isActualExpenseReimbursement"`
+
+	// The max amount the government will pay the service member to move their belongings based on the moving date, locations, and shipment weight.
+	MaxIncentive *int64 `json:"maxIncentive"`
+
+	// origin rate area
+	OriginRateArea *RateArea `json:"originRateArea,omitempty"`
 
 	// pickup address
 	// Required: true
@@ -210,6 +223,10 @@ func (m *PPMShipment) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
+	if err := m.validateDestinationRateArea(formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.validateETag(formats); err != nil {
 		res = append(res, err)
 	}
@@ -219,6 +236,10 @@ func (m *PPMShipment) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validateID(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateOriginRateArea(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -365,6 +386,25 @@ func (m *PPMShipment) validateDestinationAddress(formats strfmt.Registry) error 
 	return nil
 }
 
+func (m *PPMShipment) validateDestinationRateArea(formats strfmt.Registry) error {
+	if swag.IsZero(m.DestinationRateArea) { // not required
+		return nil
+	}
+
+	if m.DestinationRateArea != nil {
+		if err := m.DestinationRateArea.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("destinationRateArea")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("destinationRateArea")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
 func (m *PPMShipment) validateETag(formats strfmt.Registry) error {
 
 	if err := validate.RequiredString("eTag", "body", m.ETag); err != nil {
@@ -395,6 +435,25 @@ func (m *PPMShipment) validateID(formats strfmt.Registry) error {
 
 	if err := validate.FormatOf("id", "body", "uuid", m.ID.String(), formats); err != nil {
 		return err
+	}
+
+	return nil
+}
+
+func (m *PPMShipment) validateOriginRateArea(formats strfmt.Registry) error {
+	if swag.IsZero(m.OriginRateArea) { // not required
+		return nil
+	}
+
+	if m.OriginRateArea != nil {
+		if err := m.OriginRateArea.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("originRateArea")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("originRateArea")
+			}
+			return err
+		}
 	}
 
 	return nil
@@ -627,11 +686,19 @@ func (m *PPMShipment) ContextValidate(ctx context.Context, formats strfmt.Regist
 		res = append(res, err)
 	}
 
+	if err := m.contextValidateDestinationRateArea(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.contextValidateETag(ctx, formats); err != nil {
 		res = append(res, err)
 	}
 
 	if err := m.contextValidateID(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidateOriginRateArea(ctx, formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -703,6 +770,27 @@ func (m *PPMShipment) contextValidateDestinationAddress(ctx context.Context, for
 	return nil
 }
 
+func (m *PPMShipment) contextValidateDestinationRateArea(ctx context.Context, formats strfmt.Registry) error {
+
+	if m.DestinationRateArea != nil {
+
+		if swag.IsZero(m.DestinationRateArea) { // not required
+			return nil
+		}
+
+		if err := m.DestinationRateArea.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("destinationRateArea")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("destinationRateArea")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
 func (m *PPMShipment) contextValidateETag(ctx context.Context, formats strfmt.Registry) error {
 
 	if err := validate.ReadOnly(ctx, "eTag", "body", string(m.ETag)); err != nil {
@@ -716,6 +804,27 @@ func (m *PPMShipment) contextValidateID(ctx context.Context, formats strfmt.Regi
 
 	if err := validate.ReadOnly(ctx, "id", "body", strfmt.UUID(m.ID)); err != nil {
 		return err
+	}
+
+	return nil
+}
+
+func (m *PPMShipment) contextValidateOriginRateArea(ctx context.Context, formats strfmt.Registry) error {
+
+	if m.OriginRateArea != nil {
+
+		if swag.IsZero(m.OriginRateArea) { // not required
+			return nil
+		}
+
+		if err := m.OriginRateArea.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("originRateArea")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("originRateArea")
+			}
+			return err
+		}
 	}
 
 	return nil

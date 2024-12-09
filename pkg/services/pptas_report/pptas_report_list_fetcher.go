@@ -91,7 +91,7 @@ func (f *pptasReportListFetcher) BuildPPTASReportsFromMoves(appCtx appcontext.Ap
 		report.Address = orders.ServiceMember.ResidentialAddress
 
 		if orders.Grade != nil && orders.Entitlement != nil {
-			orders.Entitlement.SetWeightAllotment(string(*orders.Grade))
+			orders.Entitlement.SetWeightAllotment(string(*orders.Grade), orders.OrdersType)
 		}
 
 		weightAllotment := orders.Entitlement.WeightAllotment()
@@ -117,10 +117,6 @@ func (f *pptasReportListFetcher) BuildPPTASReportsFromMoves(appCtx appcontext.Ap
 
 		if orders.OrdersTypeDetail != nil {
 			report.TravelType = (*string)(orders.OrdersTypeDetail)
-		}
-
-		if orders.SAC != nil {
-			report.OrderNumber = orders.SAC
 		}
 
 		err := populateShipmentFields(&report, appCtx, move, orders, f.tacFetcher, f.loaFetcher, f.estimator)
@@ -177,7 +173,7 @@ func populateShipmentFields(
 		}
 
 		// populate TGET data
-		tacErr := inputReportTAC(&pptasShipment, orders, appCtx, tacFetcher, loaFetcher)
+		tacErr := inputReportTAC(report, &pptasShipment, orders, appCtx, tacFetcher, loaFetcher)
 		if tacErr != nil {
 			return tacErr
 		}
@@ -516,7 +512,7 @@ func buildServiceItemCrate(serviceItem models.MTOServiceItem) pptasmessages.Crat
 }
 
 // inputs all TAC related fields and builds full line of accounting string
-func inputReportTAC(pptasShipment *pptasmessages.PPTASShipment, orders models.Order, appCtx appcontext.AppContext, tacFetcher services.TransportationAccountingCodeFetcher, loa services.LineOfAccountingFetcher) error {
+func inputReportTAC(report *models.PPTASReport, pptasShipment *pptasmessages.PPTASShipment, orders models.Order, appCtx appcontext.AppContext, tacFetcher services.TransportationAccountingCodeFetcher, loa services.LineOfAccountingFetcher) error {
 	tac, err := tacFetcher.FetchOrderTransportationAccountingCodes(models.DepartmentIndicator(*orders.DepartmentIndicator), orders.IssueDate, *orders.TAC, appCtx)
 	if err != nil {
 		return err
@@ -530,15 +526,19 @@ func inputReportTAC(pptasShipment *pptasmessages.PPTASShipment, orders models.Or
 		pptasShipment.Loa = &longLoa
 		pptasShipment.FiscalYear = tac[0].TacFyTxt
 		pptasShipment.Appro = tac[0].LineOfAccounting.LoaBafID
-		pptasShipment.Subhead = tac[0].LineOfAccounting.LoaObjClsID
-		pptasShipment.ObjClass = tac[0].LineOfAccounting.LoaAlltSnID
-		pptasShipment.Bcn = tac[0].LineOfAccounting.LoaSbaltmtRcpntID
-		pptasShipment.SubAllotCD = tac[0].LineOfAccounting.LoaInstlAcntgActID
+		pptasShipment.Subhead = tac[0].LineOfAccounting.LoaTrsySfxTx
+		pptasShipment.ObjClass = tac[0].LineOfAccounting.LoaObjClsID
+		pptasShipment.Bcn = tac[0].LineOfAccounting.LoaAlltSnID
+		pptasShipment.SubAllotCD = tac[0].LineOfAccounting.LoaSbaltmtRcpntID
 		pptasShipment.Aaa = tac[0].LineOfAccounting.LoaTrnsnID
 		pptasShipment.TypeCD = tac[0].LineOfAccounting.LoaJbOrdNm
-		pptasShipment.Paa = tac[0].LineOfAccounting.LoaDocID
+		pptasShipment.Paa = tac[0].LineOfAccounting.LoaInstlAcntgActID
 		pptasShipment.CostCD = tac[0].LineOfAccounting.LoaPgmElmntID
 		pptasShipment.Ddcd = tac[0].LineOfAccounting.LoaDptID
+
+		if report.OrderNumber == nil {
+			report.OrderNumber = tac[0].LineOfAccounting.LoaDocID
+		}
 	}
 
 	return nil

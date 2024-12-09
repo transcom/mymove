@@ -30,7 +30,8 @@ func (suite *HandlerSuite) CreateSITExtensionHandler() {
 	}
 
 	// Create move router for SitExtension Createor
-	moveRouter := moverouter.NewMoveRouter()
+	moveRouter, err := moverouter.NewMoveRouter()
+	suite.FatalNoError(err)
 	setupTestData := func() (CreateSITExtensionHandler, models.MTOShipment) {
 
 		// Make an available move

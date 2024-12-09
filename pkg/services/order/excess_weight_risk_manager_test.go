@@ -16,26 +16,28 @@ import (
 
 func (suite *OrderServiceSuite) TestUpdateBillableWeightAsTOO() {
 	suite.Run("Returns an error when order is not found", func() {
-		moveRouter := moverouter.NewMoveRouter()
+		moveRouter, err := moverouter.NewMoveRouter()
+		suite.FatalNoError(err)
 		excessWeightRiskManager := NewExcessWeightRiskManager(moveRouter)
 		nonexistentUUID := uuid.Must(uuid.NewV4())
 		newAuthorizedWeight := int(10000)
 		eTag := ""
 
-		_, _, err := excessWeightRiskManager.UpdateBillableWeightAsTOO(suite.AppContextForTest(), nonexistentUUID, &newAuthorizedWeight, eTag)
+		_, _, err = excessWeightRiskManager.UpdateBillableWeightAsTOO(suite.AppContextForTest(), nonexistentUUID, &newAuthorizedWeight, eTag)
 
 		suite.Error(err)
 		suite.IsType(apperror.NotFoundError{}, err)
 	})
 
 	suite.Run("Returns an error when the etag does not match", func() {
-		moveRouter := moverouter.NewMoveRouter()
+		moveRouter, err := moverouter.NewMoveRouter()
+		suite.FatalNoError(err)
 		excessWeightRiskManager := NewExcessWeightRiskManager(moveRouter)
 		order := factory.BuildMove(suite.DB(), nil, nil).Orders
 		newAuthorizedWeight := int(10000)
 		eTag := ""
 
-		_, _, err := excessWeightRiskManager.UpdateBillableWeightAsTOO(suite.AppContextForTest(), order.ID, &newAuthorizedWeight, eTag)
+		_, _, err = excessWeightRiskManager.UpdateBillableWeightAsTOO(suite.AppContextForTest(), order.ID, &newAuthorizedWeight, eTag)
 
 		suite.Error(err)
 		suite.IsType(apperror.PreconditionFailedError{}, err)
@@ -43,7 +45,8 @@ func (suite *OrderServiceSuite) TestUpdateBillableWeightAsTOO() {
 	})
 
 	suite.Run("Updates the BillableWeight and approves the move when all fields are valid", func() {
-		moveRouter := moverouter.NewMoveRouter()
+		moveRouter, err := moverouter.NewMoveRouter()
+		suite.FatalNoError(err)
 		excessWeightRiskManager := NewExcessWeightRiskManager(moveRouter)
 		now := time.Now()
 		move := factory.BuildApprovalsRequestedMove(suite.DB(), []factory.Customization{
@@ -76,7 +79,8 @@ func (suite *OrderServiceSuite) TestUpdateBillableWeightAsTOO() {
 	})
 
 	suite.Run("Updates the BillableWeight but does not approve the move if unacknowledged amended orders exist", func() {
-		moveRouter := moverouter.NewMoveRouter()
+		moveRouter, err := moverouter.NewMoveRouter()
+		suite.FatalNoError(err)
 		excessWeightRiskManager := NewExcessWeightRiskManager(moveRouter)
 		storer := storageTest.NewFakeS3Storage(true)
 		userUploader, err := uploader.NewUserUploader(storer, 100*uploader.MB)
@@ -137,7 +141,8 @@ func (suite *OrderServiceSuite) TestUpdateBillableWeightAsTOO() {
 	})
 
 	suite.Run("Updates the BillableWeight but does not approve the move if unreviewed service items exist", func() {
-		moveRouter := moverouter.NewMoveRouter()
+		moveRouter, err := moverouter.NewMoveRouter()
+		suite.FatalNoError(err)
 		excessWeightRiskManager := NewExcessWeightRiskManager(moveRouter)
 
 		_, _, move := suite.createServiceItem()
@@ -164,7 +169,8 @@ func (suite *OrderServiceSuite) TestUpdateBillableWeightAsTOO() {
 	})
 
 	suite.Run("Updates the BillableWeight but does not acknowledge the risk if there is no excess weight risk", func() {
-		moveRouter := moverouter.NewMoveRouter()
+		moveRouter, err := moverouter.NewMoveRouter()
+		suite.FatalNoError(err)
 		excessWeightRiskManager := NewExcessWeightRiskManager(moveRouter)
 		move := factory.BuildApprovalsRequestedMove(suite.DB(), nil, nil)
 		order := move.Orders
@@ -189,7 +195,8 @@ func (suite *OrderServiceSuite) TestUpdateBillableWeightAsTOO() {
 	})
 
 	suite.Run("Updates the BillableWeight but does not acknowledge the risk if the risk was already acknowledged", func() {
-		moveRouter := moverouter.NewMoveRouter()
+		moveRouter, err := moverouter.NewMoveRouter()
+		suite.FatalNoError(err)
 		excessWeightRiskManager := NewExcessWeightRiskManager(moveRouter)
 		now := time.Now()
 		move := factory.BuildApprovalsRequestedMove(suite.DB(), []factory.Customization{
@@ -223,28 +230,30 @@ func (suite *OrderServiceSuite) TestUpdateBillableWeightAsTOO() {
 
 func (suite *OrderServiceSuite) TestUpdateBillableWeightAsTIO() {
 	suite.Run("Returns an error when order is not found", func() {
-		moveRouter := moverouter.NewMoveRouter()
+		moveRouter, err := moverouter.NewMoveRouter()
+		suite.FatalNoError(err)
 		excessWeightRiskManager := NewExcessWeightRiskManager(moveRouter)
 		nonexistentUUID := uuid.Must(uuid.NewV4())
 		newAuthorizedWeight := int(10000)
 		newTIOremarks := "TIO remarks"
 		eTag := ""
 
-		_, _, err := excessWeightRiskManager.UpdateMaxBillableWeightAsTIO(suite.AppContextForTest(), nonexistentUUID, &newAuthorizedWeight, &newTIOremarks, eTag)
+		_, _, err = excessWeightRiskManager.UpdateMaxBillableWeightAsTIO(suite.AppContextForTest(), nonexistentUUID, &newAuthorizedWeight, &newTIOremarks, eTag)
 
 		suite.Error(err)
 		suite.IsType(apperror.NotFoundError{}, err)
 	})
 
 	suite.Run("Returns an error when the etag does not match", func() {
-		moveRouter := moverouter.NewMoveRouter()
+		moveRouter, err := moverouter.NewMoveRouter()
+		suite.FatalNoError(err)
 		excessWeightRiskManager := NewExcessWeightRiskManager(moveRouter)
 		order := factory.BuildMove(suite.DB(), nil, nil).Orders
 		newAuthorizedWeight := int(10000)
 		newTIOremarks := "TIO remarks"
 		eTag := ""
 
-		_, _, err := excessWeightRiskManager.UpdateMaxBillableWeightAsTIO(suite.AppContextForTest(), order.ID, &newAuthorizedWeight, &newTIOremarks, eTag)
+		_, _, err = excessWeightRiskManager.UpdateMaxBillableWeightAsTIO(suite.AppContextForTest(), order.ID, &newAuthorizedWeight, &newTIOremarks, eTag)
 
 		suite.Error(err)
 		suite.IsType(apperror.PreconditionFailedError{}, err)
@@ -252,7 +261,8 @@ func (suite *OrderServiceSuite) TestUpdateBillableWeightAsTIO() {
 	})
 
 	suite.Run("Updates the MaxBillableWeight and TIO remarks and approves the move when all fields are valid", func() {
-		moveRouter := moverouter.NewMoveRouter()
+		moveRouter, err := moverouter.NewMoveRouter()
+		suite.FatalNoError(err)
 		excessWeightRiskManager := NewExcessWeightRiskManager(moveRouter)
 		now := time.Now()
 		move := factory.BuildApprovalsRequestedMove(suite.DB(), []factory.Customization{
@@ -287,7 +297,8 @@ func (suite *OrderServiceSuite) TestUpdateBillableWeightAsTIO() {
 	})
 
 	suite.Run("Updates the MaxBillableWeight and TIO remarks but does not approve the move if unacknowledged amended orders exist", func() {
-		moveRouter := moverouter.NewMoveRouter()
+		moveRouter, err := moverouter.NewMoveRouter()
+		suite.FatalNoError(err)
 		excessWeightRiskManager := NewExcessWeightRiskManager(moveRouter)
 		storer := storageTest.NewFakeS3Storage(true)
 		userUploader, err := uploader.NewUserUploader(storer, 100*uploader.MB)
@@ -350,7 +361,8 @@ func (suite *OrderServiceSuite) TestUpdateBillableWeightAsTIO() {
 	})
 
 	suite.Run("Updates the MaxBillableWeight and TIO remarks but does not approve the move if unreviewed service items exist", func() {
-		moveRouter := moverouter.NewMoveRouter()
+		moveRouter, err := moverouter.NewMoveRouter()
+		suite.FatalNoError(err)
 		excessWeightRiskManager := NewExcessWeightRiskManager(moveRouter)
 
 		_, _, move := suite.createServiceItem()
@@ -379,7 +391,8 @@ func (suite *OrderServiceSuite) TestUpdateBillableWeightAsTIO() {
 	})
 
 	suite.Run("Updates the MaxBillableWeight and TIO remarks but does not acknowledge the risk if there is no excess weight risk", func() {
-		moveRouter := moverouter.NewMoveRouter()
+		moveRouter, err := moverouter.NewMoveRouter()
+		suite.FatalNoError(err)
 		excessWeightRiskManager := NewExcessWeightRiskManager(moveRouter)
 		move := factory.BuildApprovalsRequestedMove(suite.DB(), nil, nil)
 		order := move.Orders
@@ -406,7 +419,8 @@ func (suite *OrderServiceSuite) TestUpdateBillableWeightAsTIO() {
 	})
 
 	suite.Run("Updates the MaxBillableWeight and TIO remarks but does not acknowledge the risk if the risk was already acknowledged", func() {
-		moveRouter := moverouter.NewMoveRouter()
+		moveRouter, err := moverouter.NewMoveRouter()
+		suite.FatalNoError(err)
 		excessWeightRiskManager := NewExcessWeightRiskManager(moveRouter)
 		now := time.Now()
 		move := factory.BuildApprovalsRequestedMove(suite.DB(), []factory.Customization{
@@ -442,25 +456,27 @@ func (suite *OrderServiceSuite) TestUpdateBillableWeightAsTIO() {
 
 func (suite *OrderServiceSuite) TestAcknowledgeExcessWeightRisk() {
 	suite.Run("Returns an error when move is not found", func() {
-		moveRouter := moverouter.NewMoveRouter()
+		moveRouter, err := moverouter.NewMoveRouter()
+		suite.FatalNoError(err)
 		excessWeightRiskManager := NewExcessWeightRiskManager(moveRouter)
 		nonexistentUUID := uuid.Must(uuid.NewV4())
 		eTag := ""
 
-		_, err := excessWeightRiskManager.AcknowledgeExcessWeightRisk(suite.AppContextForTest(), nonexistentUUID, eTag)
+		_, err = excessWeightRiskManager.AcknowledgeExcessWeightRisk(suite.AppContextForTest(), nonexistentUUID, eTag)
 
 		suite.Error(err)
 		suite.IsType(apperror.NotFoundError{}, err)
 	})
 
 	suite.Run("Returns an error when the etag does not match", func() {
-		moveRouter := moverouter.NewMoveRouter()
+		moveRouter, err := moverouter.NewMoveRouter()
+		suite.FatalNoError(err)
 		excessWeightRiskManager := NewExcessWeightRiskManager(moveRouter)
 		move := factory.BuildMove(suite.DB(), nil, nil)
 		order := move.Orders
 		eTag := ""
 
-		_, err := excessWeightRiskManager.AcknowledgeExcessWeightRisk(suite.AppContextForTest(), order.ID, eTag)
+		_, err = excessWeightRiskManager.AcknowledgeExcessWeightRisk(suite.AppContextForTest(), order.ID, eTag)
 
 		suite.Error(err)
 		suite.IsType(apperror.PreconditionFailedError{}, err)
@@ -468,7 +484,8 @@ func (suite *OrderServiceSuite) TestAcknowledgeExcessWeightRisk() {
 	})
 
 	suite.Run("Updates the ExcessWeightAcknowledgedAt field and approves the move when all fields are valid", func() {
-		moveRouter := moverouter.NewMoveRouter()
+		moveRouter, err := moverouter.NewMoveRouter()
+		suite.FatalNoError(err)
 		excessWeightRiskManager := NewExcessWeightRiskManager(moveRouter)
 		now := time.Now()
 		move := factory.BuildApprovalsRequestedMove(suite.DB(), []factory.Customization{
@@ -496,7 +513,8 @@ func (suite *OrderServiceSuite) TestAcknowledgeExcessWeightRisk() {
 	})
 
 	suite.Run("Updates the ExcessWeightAcknowledgedAt field but does not approve the move if unacknowledged amended orders exist", func() {
-		moveRouter := moverouter.NewMoveRouter()
+		moveRouter, err := moverouter.NewMoveRouter()
+		suite.FatalNoError(err)
 		excessWeightRiskManager := NewExcessWeightRiskManager(moveRouter)
 		storer := storageTest.NewFakeS3Storage(true)
 		userUploader, err := uploader.NewUserUploader(storer, 100*uploader.MB)
@@ -550,7 +568,8 @@ func (suite *OrderServiceSuite) TestAcknowledgeExcessWeightRisk() {
 	})
 
 	suite.Run("Updates the ExcessWeightAcknowledgedAt field but does not approve the move if unreviewed service items exist", func() {
-		moveRouter := moverouter.NewMoveRouter()
+		moveRouter, err := moverouter.NewMoveRouter()
+		suite.FatalNoError(err)
 		excessWeightRiskManager := NewExcessWeightRiskManager(moveRouter)
 
 		_, _, move := suite.createServiceItem()
@@ -570,7 +589,8 @@ func (suite *OrderServiceSuite) TestAcknowledgeExcessWeightRisk() {
 	})
 
 	suite.Run("Does not update the ExcessWeightAcknowledgedAt field if there is no risk of excess weight", func() {
-		moveRouter := moverouter.NewMoveRouter()
+		moveRouter, err := moverouter.NewMoveRouter()
+		suite.FatalNoError(err)
 		excessWeightRiskManager := NewExcessWeightRiskManager(moveRouter)
 
 		move := factory.BuildApprovalsRequestedMove(suite.DB(), nil, nil)
@@ -591,7 +611,8 @@ func (suite *OrderServiceSuite) TestAcknowledgeExcessWeightRisk() {
 	})
 
 	suite.Run("Does not update the ExcessWeightAcknowledgedAt field if the risk was already acknowledged", func() {
-		moveRouter := moverouter.NewMoveRouter()
+		moveRouter, err := moverouter.NewMoveRouter()
+		suite.FatalNoError(err)
 		excessWeightRiskManager := NewExcessWeightRiskManager(moveRouter)
 
 		date := time.Now().Add(30 * time.Minute)

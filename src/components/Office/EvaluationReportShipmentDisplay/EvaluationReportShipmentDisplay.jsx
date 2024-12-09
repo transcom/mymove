@@ -54,7 +54,7 @@ const EvaluationReportShipmentDisplay = ({
               <label id={`shipment-display-label-${shipmentId}`}>{displayInfo.heading}</label>
             </h5>
             {displayInfo.isDiversion && <Tag>diversion</Tag>}
-            {displayInfo.shipmentStatus === shipmentStatuses.CANCELED && <Tag className="usa-tag--red">cancelled</Tag>}
+            {displayInfo.shipmentStatus === shipmentStatuses.CANCELED && <Tag className="usa-tag--red">canceled</Tag>}
             {displayInfo.shipmentStatus === shipmentStatuses.DIVERSION_REQUESTED && <Tag>diversion requested</Tag>}
             {displayInfo.shipmentStatus === shipmentStatuses.CANCELLATION_REQUESTED && (
               <Tag>cancellation requested</Tag>
@@ -66,7 +66,7 @@ const EvaluationReportShipmentDisplay = ({
         </div>
         {isExpanded && displayInfo.shipmentType === SHIPMENT_OPTIONS.NTS && (
           <div className={styles.ntsHeaderText}>
-            <h6 className={styles.ntsHeaderTextField}>Pickup address</h6>
+            <h6 className={styles.ntsHeaderTextField}>Pickup Address</h6>
             <h6 className={classnames(styles.ntsHeaderTextField, styles.ntsHeaderTextRight)}>
               {displayInfo?.storageFacility ? displayInfo.storageFacility.facilityName : ''}
             </h6>
@@ -77,7 +77,7 @@ const EvaluationReportShipmentDisplay = ({
             <h6 className={styles.ntsHeaderTextField}>
               {displayInfo?.storageFacility ? displayInfo.storageFacility.facilityName : ''}
             </h6>
-            <h6 className={classnames(styles.ntsHeaderTextField, styles.ntsHeaderTextRight)}>Delivery address</h6>
+            <h6 className={classnames(styles.ntsHeaderTextField, styles.ntsHeaderTextRight)}>Delivery Address</h6>
           </div>
         )}
         {isExpanded && (

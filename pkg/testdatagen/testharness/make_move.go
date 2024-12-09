@@ -509,6 +509,229 @@ func MakeHHGMoveWithServiceItemsAndPaymentRequestsAndFilesForTOO(appCtx appconte
 	return *newmove
 }
 
+// MakeHHGMoveWithIntlCratingServiceItemsTOO is a function
+// that creates an HHG move with international service items
+// from the Prime for review by the TOO
+func MakeHHGMoveWithIntlCratingServiceItemsTOO(appCtx appcontext.AppContext) models.Move {
+	userUploader := newUserUploader(appCtx)
+	primeUploader := newPrimeUploader(appCtx)
+	userInfo := newUserInfo("customer")
+
+	user := factory.BuildUser(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.User{
+				OktaEmail: userInfo.email,
+				Active:    true,
+			},
+		},
+	}, nil)
+	customer := factory.BuildExtendedServiceMember(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.ServiceMember{
+				PersonalEmail: &userInfo.email,
+				FirstName:     &userInfo.firstName,
+				LastName:      &userInfo.lastName,
+				CacValidated:  true,
+			},
+		},
+		{
+			Model:    user,
+			LinkOnly: true,
+		},
+	}, nil)
+	dependentsAuthorized := true
+	entitlements := factory.BuildEntitlement(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.Entitlement{
+				DependentsAuthorized: &dependentsAuthorized,
+			},
+		},
+	}, nil)
+	orders := factory.BuildOrder(appCtx.DB(), []factory.Customization{
+		{
+			Model:    customer,
+			LinkOnly: true,
+		},
+		{
+			Model:    entitlements,
+			LinkOnly: true,
+		},
+		{
+			Model: models.UserUpload{},
+			ExtendedParams: &factory.UserUploadExtendedParams{
+				UserUploader: userUploader,
+				AppContext:   appCtx,
+			},
+		},
+	}, nil)
+	mto := factory.BuildMove(appCtx.DB(), []factory.Customization{
+		{
+			Model:    orders,
+			LinkOnly: true,
+		},
+		{
+			Model: models.Move{
+				Status: models.MoveStatusSUBMITTED,
+			},
+		},
+	}, nil)
+	estimatedWeight := unit.Pound(1400)
+	actualWeight := unit.Pound(2000)
+	actualPickupDate := time.Now().AddDate(0, 0, 1)
+
+	MTOShipment := factory.BuildMTOShipment(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.MTOShipment{
+				PrimeEstimatedWeight: &estimatedWeight,
+				PrimeActualWeight:    &actualWeight,
+				ShipmentType:         models.MTOShipmentTypeHHG,
+				Status:               models.MTOShipmentStatusSubmitted,
+				ActualPickupDate:     &actualPickupDate,
+			},
+		},
+		{
+			Model:    mto,
+			LinkOnly: true,
+		},
+	}, nil)
+
+	agentUserInfo := newUserInfo("agent")
+	factory.BuildMTOAgent(appCtx.DB(), []factory.Customization{
+		{
+			Model:    MTOShipment,
+			LinkOnly: true,
+		},
+		{
+			Model: models.MTOAgent{
+				FirstName:    &agentUserInfo.firstName,
+				LastName:     &agentUserInfo.lastName,
+				Email:        &agentUserInfo.email,
+				MTOAgentType: models.MTOAgentReleasing,
+			},
+		},
+	}, nil)
+
+	paymentRequest := factory.BuildPaymentRequest(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.PaymentRequest{
+				IsFinal: false,
+				Status:  models.PaymentRequestStatusPending,
+			},
+		},
+		{
+			Model:    mto,
+			LinkOnly: true,
+		},
+	}, nil)
+
+	_ = factory.BuildMTOServiceItem(appCtx.DB(), []factory.Customization{
+		{
+			Model:    mto,
+			LinkOnly: true,
+		},
+		{
+			Model:    MTOShipment,
+			LinkOnly: true,
+		},
+		{
+			Model: models.ReService{
+				ID: uuid.FromStringOrNil("86203d72-7f7c-49ff-82f0-5b95e4958f60"), // ICRT - Domestic uncrating
+			},
+		},
+	}, nil)
+
+	_ = factory.BuildMTOServiceItem(appCtx.DB(), []factory.Customization{
+		{
+			Model:    mto,
+			LinkOnly: true,
+		},
+		{
+			Model:    MTOShipment,
+			LinkOnly: true,
+		},
+		{
+			Model: models.ReService{
+				ID: uuid.FromStringOrNil("4132416b-b1aa-42e7-98f2-0ac0a03e8a31"), // IUCRT - Domestic uncrating
+			},
+		},
+	}, nil)
+
+	_ = factory.BuildMTOServiceItem(appCtx.DB(), []factory.Customization{
+		{
+			Model:    mto,
+			LinkOnly: true,
+		},
+		{
+			Model:    MTOShipment,
+			LinkOnly: true,
+		},
+		{
+			Model: models.ReService{
+				ID: uuid.FromStringOrNil("86203d72-7f7c-49ff-82f0-5b95e4958f60"), // ICRT - Domestic uncrating
+			},
+		},
+	}, nil)
+
+	_ = factory.BuildMTOServiceItem(appCtx.DB(), []factory.Customization{
+		{
+			Model:    mto,
+			LinkOnly: true,
+		},
+		{
+			Model:    MTOShipment,
+			LinkOnly: true,
+		},
+		{
+			Model: models.ReService{
+				ID: uuid.FromStringOrNil("4132416b-b1aa-42e7-98f2-0ac0a03e8a31"), // IUCRT - Domestic uncrating
+			},
+		},
+	}, nil)
+
+	factory.BuildPrimeUpload(appCtx.DB(), []factory.Customization{
+		{
+			Model:    paymentRequest,
+			LinkOnly: true,
+		},
+	}, nil)
+	posImage := factory.BuildProofOfServiceDoc(appCtx.DB(), []factory.Customization{
+		{
+			Model:    paymentRequest,
+			LinkOnly: true,
+		},
+	}, nil)
+	primeContractor := uuid.FromStringOrNil("5db13bb4-6d29-4bdb-bc81-262f4513ecf6")
+
+	// Creates custom test.jpg prime upload
+	file := testdatagen.Fixture("test.jpg")
+	_, verrs, err := primeUploader.CreatePrimeUploadForDocument(appCtx, &posImage.ID, primeContractor, uploader.File{File: file}, uploader.AllowedTypesPaymentRequest)
+	if verrs.HasAny() || err != nil {
+		appCtx.Logger().Error("errors encountered saving test.jpg prime upload", zap.Error(err))
+	}
+
+	// Creates custom test.png prime upload
+	file = testdatagen.Fixture("test.png")
+	_, verrs, err = primeUploader.CreatePrimeUploadForDocument(appCtx, &posImage.ID, primeContractor, uploader.File{File: file}, uploader.AllowedTypesPaymentRequest)
+	if verrs.HasAny() || err != nil {
+		appCtx.Logger().Error("errors encountered saving test.png prime upload", zap.Error(err))
+	}
+
+	// re-fetch the move so that we ensure we have exactly what is in
+	// the db
+	newmove, err := models.FetchMove(appCtx.DB(), &auth.Session{}, mto.ID)
+	if err != nil {
+		log.Panic(fmt.Errorf("failed to fetch move: %w", err))
+	}
+
+	// load payment requests so tests can confirm
+	err = appCtx.DB().Load(newmove, "PaymentRequests")
+	if err != nil {
+		log.Panic(fmt.Errorf("failed to fetch move payment requestse: %w", err))
+	}
+
+	return *newmove
+}
+
 // MakeHHGMoveForTOOAfterActualPickupDate is a function
 // that creates an HHG move with an actual pickup date in the past for diversion testing
 // copied almost verbatim from e2ebasic createHHGMoveWithServiceItemsAndPaymentRequestsAndFiles
@@ -3571,9 +3794,11 @@ func MakeHHGMoveWithExternalNTSShipmentsForTOO(appCtx appcontext.AppContext) mod
 func MakeHHGMoveWithApprovedNTSShipmentsForTOO(appCtx appcontext.AppContext) models.Move {
 	locator := models.GenerateLocator()
 	move := scenario.CreateMoveWithHHGAndNTSShipments(appCtx, locator, false)
-
-	moveRouter := moverouter.NewMoveRouter()
-	err := moveRouter.Approve(appCtx, &move)
+	moveRouter, err := moverouter.NewMoveRouter()
+	if err != nil {
+		log.Panic("Failed to instantiate move router: %w", err)
+	}
+	err = moveRouter.Approve(appCtx, &move)
 	if err != nil {
 		log.Panic("Failed to approve move: %w", err)
 	}
@@ -3607,8 +3832,8 @@ func MakeHHGMoveWithApprovedNTSShipmentsForTOO(appCtx appcontext.AppContext) mod
 
 	queryBuilder := query.NewQueryBuilder()
 	v := viper.New()
-	featureFlagFetcher, err := featureflag.NewFeatureFlagFetcher(cli.GetFliptFetcherConfig(v))
-	if err != nil {
+	featureFlagFetcher, ffErr := featureflag.NewFeatureFlagFetcher(cli.GetFliptFetcherConfig(v))
+	if ffErr != nil {
 		log.Panic(fmt.Errorf("Error setting up feature flag fetcher: %s", err))
 	}
 	serviceItemCreator := mtoserviceitem.NewMTOServiceItemCreator(planner, queryBuilder, moveRouter, ghcrateengine.NewDomesticUnpackPricer(featureFlagFetcher), ghcrateengine.NewDomesticPackPricer(featureFlagFetcher), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(featureFlagFetcher), ghcrateengine.NewDomesticDestinationPricer(featureFlagFetcher), ghcrateengine.NewFuelSurchargePricer(), featureFlagFetcher)
@@ -3681,8 +3906,13 @@ func MakeHHGMoveWithApprovedNTSRShipmentsForTOO(appCtx appcontext.AppContext) mo
 	locator := models.GenerateLocator()
 	move := scenario.CreateMoveWithHHGAndNTSRShipments(appCtx, locator, false)
 
-	moveRouter := moverouter.NewMoveRouter()
-	err := moveRouter.Approve(appCtx, &move)
+	logger := appCtx.Logger()
+	moveRouter, err := moverouter.NewMoveRouter()
+	if err != nil {
+		logger.Panic(fmt.Sprintf("Error setting up feature flag fetcher: %s", err))
+	}
+
+	err = moveRouter.Approve(appCtx, &move)
 	if err != nil {
 		log.Panic("Failed to approve move: %w", err)
 	}
@@ -3715,8 +3945,8 @@ func MakeHHGMoveWithApprovedNTSRShipmentsForTOO(appCtx appcontext.AppContext) mo
 	planner.On("ZipTransitDistance", mock.AnythingOfType("*appcontext.appContext"), mock.Anything, mock.Anything).Return(2361, nil)
 	queryBuilder := query.NewQueryBuilder()
 	v := viper.New()
-	featureFlagFetcher, err := featureflag.NewFeatureFlagFetcher(cli.GetFliptFetcherConfig(v))
-	if err != nil {
+	featureFlagFetcher, ffErr := featureflag.NewFeatureFlagFetcher(cli.GetFliptFetcherConfig(v))
+	if ffErr != nil {
 		log.Panic(fmt.Errorf("Error setting up feature flag fetcher: %s", err))
 	}
 	serviceItemCreator := mtoserviceitem.NewMTOServiceItemCreator(planner, queryBuilder, moveRouter, ghcrateengine.NewDomesticUnpackPricer(featureFlagFetcher), ghcrateengine.NewDomesticPackPricer(featureFlagFetcher), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(featureFlagFetcher), ghcrateengine.NewDomesticDestinationPricer(featureFlagFetcher), ghcrateengine.NewFuelSurchargePricer(), featureFlagFetcher)
@@ -3817,7 +4047,11 @@ func MakeBoatHaulAwayMoveNeedsSC(appCtx appcontext.AppContext) models.Move {
 		MoveLocator: models.GenerateLocator(),
 	}
 
-	moveRouter := moverouter.NewMoveRouter()
+	logger := appCtx.Logger()
+	moveRouter, err := moverouter.NewMoveRouter()
+	if err != nil {
+		logger.Panic(fmt.Sprintf("Error setting up feature flag fetcher: %s", err))
+	}
 
 	move := scenario.CreateBoatHaulAwayMoveForSC(appCtx, userUploader, moveRouter, moveInfo)
 
@@ -3846,7 +4080,11 @@ func MakeBoatHaulAwayMoveNeedsTOOApproval(appCtx appcontext.AppContext) models.M
 		MoveLocator: models.GenerateLocator(),
 	}
 
-	moveRouter := moverouter.NewMoveRouter()
+	logger := appCtx.Logger()
+	moveRouter, err := moverouter.NewMoveRouter()
+	if err != nil {
+		logger.Panic(fmt.Sprintf("Error setting up feature flag fetcher: %s", err))
+	}
 
 	move := scenario.CreateBoatHaulAwayMoveForTOO(appCtx, userUploader, moveRouter, moveInfo)
 
@@ -3857,6 +4095,49 @@ func MakeBoatHaulAwayMoveNeedsTOOApproval(appCtx appcontext.AppContext) models.M
 		log.Panic(fmt.Errorf("failed to fetch move: %w", err))
 	}
 
+	return *newmove
+}
+
+// MakeHHGMoveNeedsSC creates an fully ready move needing SC approval
+func MakeMobileHomeMoveNeedsSC(appCtx appcontext.AppContext) models.Move {
+	locator := models.GenerateLocator()
+	move := scenario.CreateMoveWithMTOShipment(appCtx, internalmessages.OrdersTypePERMANENTCHANGEOFSTATION, models.MTOShipmentTypeMobileHome, nil, locator, models.MoveStatusNeedsServiceCounseling)
+
+	// re-fetch the move so that we ensure we have exactly what is in
+	// the db
+	newmove, err := models.FetchMove(appCtx.DB(), &auth.Session{}, move.ID)
+	if err != nil {
+		log.Panic(fmt.Errorf("failed to fetch move: %w", err))
+	}
+	return *newmove
+}
+
+func MakeMobileHomeMoveForTOO(appCtx appcontext.AppContext) models.Move {
+	hhg := models.MTOShipmentTypeHHG
+	hor := models.DestinationTypeHomeOfRecord
+	originDutyLocation := factory.FetchOrBuildCurrentDutyLocation(appCtx.DB())
+	move := scenario.CreateMoveWithOptions(appCtx, testdatagen.Assertions{
+		Order: models.Order{
+			OriginDutyLocation: &originDutyLocation,
+		},
+		MTOShipment: models.MTOShipment{
+			ShipmentType:    hhg,
+			DestinationType: &hor,
+		},
+		Move: models.Move{
+			Status: models.MoveStatusSUBMITTED,
+		},
+		DutyLocation: models.DutyLocation{
+			ProvidesServicesCounseling: false,
+		},
+	})
+
+	// re-fetch the move so that we ensure we have exactly what is in
+	// the db
+	newmove, err := models.FetchMove(appCtx.DB(), &auth.Session{}, move.ID)
+	if err != nil {
+		log.Panic(fmt.Errorf("failed to fetch move: %w", err))
+	}
 	return *newmove
 }
 
@@ -4313,7 +4594,11 @@ func MakeSubmittedMoveWithPPMShipmentForSC(appCtx appcontext.AppContext) models.
 		MoveLocator: models.GenerateLocator(),
 	}
 
-	moveRouter := moverouter.NewMoveRouter()
+	logger := appCtx.Logger()
+	moveRouter, err := moverouter.NewMoveRouter()
+	if err != nil {
+		logger.Panic(fmt.Sprintf("Error setting up feature flag fetcher: %s", err))
+	}
 
 	move := scenario.CreateSubmittedMoveWithPPMShipmentForSC(appCtx, userUploader, moveRouter, moveInfo)
 
@@ -4612,6 +4897,95 @@ func MakeApprovedMoveWithPPMProgearWeightTicketOffice(appCtx appcontext.AppConte
 			HasReceivedAdvance:          models.BoolPointer(true),
 			AdvanceAmountReceived:       models.CentPointer(unit.Cents(340000)),
 			W2Address:                   &address,
+		},
+	}
+
+	move, shipment := scenario.CreateGenericMoveWithPPMShipment(appCtx, moveInfo, false, userUploader, &assertions.MTOShipment, &assertions.Move, assertions.PPMShipment)
+
+	factory.BuildWeightTicket(appCtx.DB(), []factory.Customization{
+		{
+			Model:    shipment,
+			LinkOnly: true,
+		},
+		{
+			Model:    move.Orders.ServiceMember,
+			LinkOnly: true,
+		},
+	}, nil)
+	factory.BuildProgearWeightTicket(appCtx.DB(), []factory.Customization{
+		{
+			Model:    shipment,
+			LinkOnly: true,
+		},
+		{
+			Model:    move.Orders.ServiceMember,
+			LinkOnly: true,
+		},
+	}, nil)
+
+	// re-fetch the move so that we ensure we have exactly what is in
+	// the db
+	newmove, err := models.FetchMove(appCtx.DB(), &auth.Session{}, move.ID)
+	if err != nil {
+		log.Panic(fmt.Errorf("failed to fetch move: %w", err))
+	}
+
+	return *newmove
+}
+
+func MakeApprovedMoveWithPPMProgearWeightTicketOfficeCivilian(appCtx appcontext.AppContext) models.Move {
+	userUploader := newUserUploader(appCtx)
+	closeoutOffice := factory.BuildTransportationOffice(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.TransportationOffice{Gbloc: "KKFA", ProvidesCloseout: true},
+		},
+	}, nil)
+
+	userInfo := newUserInfo("customer")
+	moveInfo := scenario.MoveCreatorInfo{
+		UserID:           uuid.Must(uuid.NewV4()),
+		Email:            userInfo.email,
+		SmID:             uuid.Must(uuid.NewV4()),
+		FirstName:        userInfo.firstName,
+		LastName:         userInfo.lastName,
+		MoveID:           uuid.Must(uuid.NewV4()),
+		MoveLocator:      models.GenerateLocator(),
+		CloseoutOfficeID: &closeoutOffice.ID,
+	}
+
+	approvedAt := time.Date(2022, 4, 15, 12, 30, 0, 0, time.UTC)
+	address := factory.BuildAddress(appCtx.DB(), nil, nil)
+
+	order := factory.BuildOrder(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.Order{
+				Grade: models.ServiceMemberGradeCIVILIANEMPLOYEE.Pointer(),
+			},
+		},
+	}, nil)
+
+	move := models.Move{
+		Status:   models.MoveStatusAPPROVED,
+		OrdersID: order.ID,
+	}
+
+	assertions := testdatagen.Assertions{
+		UserUploader: userUploader,
+		Move:         move,
+		MTOShipment: models.MTOShipment{
+			Status: models.MTOShipmentStatusApproved,
+		},
+		PPMShipment: models.PPMShipment{
+			ID:                           uuid.Must(uuid.NewV4()),
+			ApprovedAt:                   &approvedAt,
+			Status:                       models.PPMShipmentStatusNeedsCloseout,
+			ActualMoveDate:               models.TimePointer(time.Date(testdatagen.GHCTestYear, time.March, 16, 0, 0, 0, 0, time.UTC)),
+			ActualPickupPostalCode:       models.StringPointer("42444"),
+			ActualDestinationPostalCode:  models.StringPointer("30813"),
+			HasReceivedAdvance:           models.BoolPointer(true),
+			AdvanceAmountReceived:        models.CentPointer(unit.Cents(340000)),
+			W2Address:                    &address,
+			IsActualExpenseReimbursement: models.BoolPointer(true),
 		},
 	}
 

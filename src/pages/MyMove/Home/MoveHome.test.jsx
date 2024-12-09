@@ -2,13 +2,15 @@
 import React from 'react';
 import { v4 } from 'uuid';
 import { mount } from 'enzyme';
-import { waitFor } from '@testing-library/react';
+import { act, waitFor } from '@testing-library/react';
 
 import MoveHome from './MoveHome';
 
 import { customerRoutes } from 'constants/routes';
 import { MockProviders } from 'testUtils';
-import { downloadPPMAOAPacket } from 'services/internalApi';
+import { cancelMove, downloadPPMAOAPacket } from 'services/internalApi';
+import { ORDERS_TYPE } from 'constants/orders';
+import { isBooleanFlagEnabled } from 'utils/featureFlags';
 
 jest.mock('containers/FlashMessage/FlashMessage', () => {
   const MockFlash = () => <div>Flash message</div>;
@@ -32,11 +34,12 @@ jest.mock('services/internalApi', () => ({
   getMTOShipmentsForMove: jest.fn(),
   getAllMoves: jest.fn().mockImplementation(() => Promise.resolve()),
   downloadPPMAOAPacket: jest.fn().mockImplementation(() => Promise.resolve()),
+  cancelMove: jest.fn(),
 }));
 
 jest.mock('utils/featureFlags', () => ({
   ...jest.requireActual('utils/featureFlags'),
-  isBooleanFlagEnabled: jest.fn().mockImplementation(() => Promise.resolve(false)),
+  isBooleanFlagEnabled: jest.fn().mockImplementation(() => Promise.resolve()),
 }));
 
 const props = {
@@ -73,6 +76,130 @@ const defaultPropsNoOrders = {
         id: '6dad799c-4567-4a7d-9419-1a686797768f',
         moveCode: '4H8VCD',
         orders: {},
+        status: 'DRAFT',
+        submittedAt: '0001-01-01T00:00:00.000Z',
+        updatedAt: '0001-01-01T00:00:00.000Z',
+      },
+    ],
+    previousMoves: [],
+  },
+  uploadedOrderDocuments: [],
+  uploadedAmendedOrderDocuments: [],
+};
+
+const defaultPropsOrdersWithUBAllowance = {
+  ...props,
+  serviceMemberMoves: {
+    currentMove: [
+      {
+        createdAt: '2024-02-16T15:55:20.639Z',
+        eTag: 'MjAyNC0wMi0xNlQxNTo1NToyMC42Mzk5MDRa',
+        id: '6dad799c-4567-4a7d-9419-1a686797768f',
+        moveCode: '4H8VCD',
+        orders: {
+          authorizedWeight: 11000,
+          created_at: '2024-02-16T15:55:20.634Z',
+          entitlement: {
+            proGear: 2000,
+            proGearSpouse: 500,
+            ub_allowance: 2000,
+          },
+          grade: 'E_7',
+          has_dependents: false,
+          id: '667b1ca7-f904-43c4-8f2d-a2ea2375d7d3',
+          issue_date: '2024-02-22',
+          new_duty_location: {
+            address: {
+              city: 'Fort Knox',
+              country: 'United States',
+              id: '31ed530d-4b59-42d7-9ea9-88ccc2978723',
+              postalCode: '40121',
+              state: 'KY',
+              streetAddress1: 'n/a',
+            },
+            address_id: '31ed530d-4b59-42d7-9ea9-88ccc2978723',
+            affiliation: 'ARMY',
+            created_at: '2024-02-15T14:42:58.875Z',
+            id: '866ac8f6-94f5-4fa0-b7d1-be7fcf9d51e9',
+            name: 'Fort Knox, KY 40121',
+            transportation_office: {
+              address: {
+                city: 'Fort Knox',
+                country: 'United States',
+                id: 'ca758d13-b3b7-48a5-93bd-64912f0e2434',
+                postalCode: '40121',
+                state: 'KY',
+                streetAddress1: 'LRC 25 W. Chaffee Ave',
+                streetAddress2: 'Bldg 1384, 2nd Floor',
+              },
+              created_at: '2018-05-28T14:27:36.193Z',
+              gbloc: 'BGAC',
+              id: '0357f830-2f32-41f3-9ca2-268dd70df5cb',
+              name: 'PPPO Fort Knox - USA',
+              phone_lines: [],
+              updated_at: '2018-05-28T14:27:36.193Z',
+            },
+            transportation_office_id: '0357f830-2f32-41f3-9ca2-268dd70df5cb',
+            updated_at: '2024-02-15T14:42:58.875Z',
+          },
+          orders_type: ORDERS_TYPE.PERMANENT_CHANGE_OF_STATION,
+          originDutyLocationGbloc: 'HAFC',
+          origin_duty_location: {
+            address: {
+              city: 'Tinker AFB',
+              country: 'United States',
+              id: '7e3ea97c-da9f-4fa1-8a11-87063c857635',
+              postalCode: '73145',
+              state: 'OK',
+              streetAddress1: 'n/a',
+            },
+            address_id: '7e3ea97c-da9f-4fa1-8a11-87063c857635',
+            affiliation: 'AIR_FORCE',
+            created_at: '2024-02-15T14:42:58.875Z',
+            id: '2d6eab7d-1a21-4f29-933e-ee8fa7dbc314',
+            name: 'Tinker AFB, OK 73145',
+            transportation_office: {
+              address: {
+                city: 'Tinker AFB',
+                country: 'United States',
+                id: '410b18bc-b270-4b52-9211-532fffc6f59e',
+                postalCode: '73145',
+                state: 'OK',
+                streetAddress1: '7330 Century Blvd',
+                streetAddress2: 'Bldg 469',
+              },
+              created_at: '2018-05-28T14:27:40.605Z',
+              gbloc: 'HAFC',
+              id: '7876373d-57e4-4cde-b11f-c26a8feee9e8',
+              name: 'PPPO Tinker AFB - USAF',
+              phone_lines: [],
+              updated_at: '2018-05-28T14:27:40.605Z',
+            },
+            transportation_office_id: '7876373d-57e4-4cde-b11f-c26a8feee9e8',
+            updated_at: '2024-02-15T14:42:58.875Z',
+          },
+          report_by_date: '2024-02-29',
+          service_member_id: '856fec24-a70b-4860-9ba8-98d25676317e',
+          spouse_has_pro_gear: false,
+          status: 'DRAFT',
+          updated_at: '2024-02-16T15:55:20.634Z',
+          uploaded_orders: {
+            id: '573a2d22-8edf-467c-90dc-3885de10e2d2',
+            service_member_id: '856fec24-a70b-4860-9ba8-98d25676317e',
+            uploads: [
+              {
+                bytes: 84847,
+                contentType: 'image/png',
+                createdAt: '2024-02-20T17:12:56.328Z',
+                filename: 'myUpload.png',
+                id: '99fab296-ad63-4e34-8724-a8b73e357480',
+                status: 'PROCESSING',
+                updatedAt: '2024-02-20T17:12:56.328Z',
+                url: '/storage/user/9e16e5d7-4548-4f70-8a2a-b87d34ab3067/uploads/99fab296-ad63-4e34-8724-a8b73e357480?contentType=image%2Fpng',
+              },
+            ],
+          },
+        },
         status: 'DRAFT',
         submittedAt: '0001-01-01T00:00:00.000Z',
         updatedAt: '0001-01-01T00:00:00.000Z',
@@ -138,7 +265,7 @@ const defaultPropsOrdersWithUploads = {
             transportation_office_id: '0357f830-2f32-41f3-9ca2-268dd70df5cb',
             updated_at: '2024-02-15T14:42:58.875Z',
           },
-          orders_type: 'PERMANENT_CHANGE_OF_STATION',
+          orders_type: ORDERS_TYPE.PERMANENT_CHANGE_OF_STATION,
           originDutyLocationGbloc: 'HAFC',
           origin_duty_location: {
             address: {
@@ -353,7 +480,7 @@ const defaultPropsOrdersWithUnsubmittedShipments = {
             transportation_office_id: '0357f830-2f32-41f3-9ca2-268dd70df5cb',
             updated_at: '2024-02-15T14:42:58.875Z',
           },
-          orders_type: 'PERMANENT_CHANGE_OF_STATION',
+          orders_type: ORDERS_TYPE.PERMANENT_CHANGE_OF_STATION,
           originDutyLocationGbloc: 'HAFC',
           origin_duty_location: {
             address: {
@@ -568,7 +695,7 @@ const defaultPropsOrdersWithSubmittedShipments = {
             transportation_office_id: '0357f830-2f32-41f3-9ca2-268dd70df5cb',
             updated_at: '2024-02-15T14:42:58.875Z',
           },
-          orders_type: 'PERMANENT_CHANGE_OF_STATION',
+          orders_type: ORDERS_TYPE.PERMANENT_CHANGE_OF_STATION,
           originDutyLocationGbloc: 'HAFC',
           origin_duty_location: {
             address: {
@@ -753,7 +880,7 @@ const defaultPropsAmendedOrdersWithAdvanceRequested = {
             transportation_office_id: '7f5b64b8-979c-4cbd-890b-bffd6fdf56d9',
             updated_at: '2024-02-15T14:42:58.875Z',
           },
-          orders_type: 'PERMANENT_CHANGE_OF_STATION',
+          orders_type: ORDERS_TYPE.PERMANENT_CHANGE_OF_STATION,
           originDutyLocationGbloc: 'HAFC',
           origin_duty_location: {
             address: {
@@ -959,7 +1086,7 @@ const defaultPropsWithAdvanceAndPPMApproved = {
             updated_at: '2024-02-15T14:42:58.875Z',
           },
           orders_number: '12345678901234',
-          orders_type: 'PERMANENT_CHANGE_OF_STATION',
+          orders_type: ORDERS_TYPE.PERMANENT_CHANGE_OF_STATION,
           orders_type_detail: 'PCS_TDY',
           originDutyLocationGbloc: 'HAFC',
           origin_duty_location: {
@@ -1060,6 +1187,30 @@ afterEach(() => {
 });
 
 describe('Home component', () => {
+  describe('with default props, renders the right allowances', () => {
+    it('renders Home with the right amount of components', async () => {
+      isBooleanFlagEnabled.mockResolvedValue(true);
+      let wrapper;
+      // wrapping rendering in act to ensure all state updates are complete
+      await act(async () => {
+        wrapper = mountMoveHomeWithProviders(defaultPropsOrdersWithUBAllowance);
+      });
+      await waitFor(() => {
+        expect(wrapper.text()).toContain('Weight allowance');
+        expect(wrapper.text()).toContain('11,000 lbs');
+        expect(wrapper.text()).toContain('UB allowance');
+        expect(wrapper.text()).toContain('2,000 lbs');
+      });
+
+      const ubToolTip = wrapper.find('ToolTip');
+      expect(ubToolTip.exists()).toBe(true);
+
+      ubToolTip.simulate('click');
+      const toolTipText = 'The weight of your UB shipment is also part of your overall authorized weight allowance.';
+      expect(ubToolTip.text()).toBe(toolTipText);
+    });
+  });
+
   describe('with default props, orders but no uploads', () => {
     const wrapper = mountMoveHomeWithProviders(defaultPropsNoOrders);
 
@@ -1178,6 +1329,21 @@ describe('Home component', () => {
       const confirmMoveRequest = wrapper.find('Step[step="4"]');
       expect(confirmMoveRequest.prop('actionBtnDisabled')).toBeFalsy();
     });
+
+    it('cancel move button is visible', async () => {
+      const cancelMoveButtonId = `button[data-testid="cancel-move-button"]`;
+      expect(wrapper.find(cancelMoveButtonId).length).toBe(1);
+
+      const mockResponse = {
+        status: 'CANCELED',
+      };
+      cancelMove.mockImplementation(() => Promise.resolve(mockResponse));
+      await wrapper.find(cancelMoveButtonId).simulate('click');
+      await waitFor(() => {
+        wrapper.find(`button[data-testid="modalSubmitButton"]`).simulate('click');
+        expect(cancelMove).toHaveBeenCalledTimes(1);
+      });
+    });
   });
 
   describe('with default props, orders with HHG & PPM shipments and NEEDS_SERVICE_COUNSELING move status', () => {
@@ -1194,7 +1360,7 @@ describe('Home component', () => {
       const profileStep = wrapper.find('Step[step="1"]');
       expect(profileStep.prop('editBtnLabel')).toEqual('Edit');
       const orderStep = wrapper.find('Step[step="2"]');
-      expect(orderStep.prop('editBtnLabel')).toEqual('Upload documents');
+      expect(orderStep.prop('editBtnLabel')).toEqual('Upload/Manage Orders Documentation');
     });
 
     it('has appropriate step headers for orders with shipments', () => {
@@ -1217,6 +1383,11 @@ describe('Home component', () => {
       expect(confirmMoveRequest.prop('actionBtnDisabled')).toBeFalsy();
       expect(confirmMoveRequest.prop('actionBtnLabel')).toBe('Review your request');
     });
+
+    it('cancel move button is not visible', () => {
+      const cancelMoveButton = wrapper.find('button[data-testid="cancel-move-button"]');
+      expect(cancelMoveButton.length).toBe(0);
+    });
   });
 
   describe('with default props, with amended orders and advance requested', () => {
@@ -1233,7 +1404,7 @@ describe('Home component', () => {
       const profileStep = wrapper.find('Step[step="1"]');
       expect(profileStep.prop('editBtnLabel')).toEqual('Edit');
       const orderStep = wrapper.find('Step[step="2"]');
-      expect(orderStep.prop('editBtnLabel')).toEqual('Upload documents');
+      expect(orderStep.prop('editBtnLabel')).toEqual('Upload/Manage Orders Documentation');
     });
 
     it('has appropriate step headers for orders with shipments', () => {
@@ -1277,7 +1448,7 @@ describe('Home component', () => {
       const profileStep = wrapper.find('Step[step="1"]');
       expect(profileStep.prop('editBtnLabel')).toEqual('Edit');
       const orderStep = wrapper.find('Step[step="2"]');
-      expect(orderStep.prop('editBtnLabel')).toEqual('Upload documents');
+      expect(orderStep.prop('editBtnLabel')).toEqual('Upload/Manage Orders Documentation');
       const advanceStep = wrapper.find('Step[step="5"]');
       expect(advanceStep.prop('completedHeaderText')).toEqual('Advance request reviewed');
     });
@@ -1459,7 +1630,7 @@ describe('Home component', () => {
               updated_at: '2024-02-15T14:42:58.875Z',
             },
             orders_number: '12345678901234',
-            orders_type: 'PERMANENT_CHANGE_OF_STATION',
+            orders_type: ORDERS_TYPE.PERMANENT_CHANGE_OF_STATION,
             orders_type_detail: 'PCS_TDY',
             originDutyLocationGbloc: 'HAFC',
             origin_duty_location: {
@@ -1560,7 +1731,7 @@ describe('Home component', () => {
       const profileStep = wrapper.find('Step[step="1"]');
       expect(profileStep.prop('editBtnLabel')).toEqual('Edit');
       const orderStep = wrapper.find('Step[step="2"]');
-      expect(orderStep.prop('editBtnLabel')).toEqual('Upload documents');
+      expect(orderStep.prop('editBtnLabel')).toEqual('Upload/Manage Orders Documentation');
       const advanceStep = wrapper.find('Step[step="5"]');
       expect(advanceStep.prop('completedHeaderText')).toEqual('Advance request reviewed');
     });

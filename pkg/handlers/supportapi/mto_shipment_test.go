@@ -68,7 +68,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentStatusHandler() {
 			models.ReServiceCodeDUPK,
 		}
 		for _, serviceCode := range reServiceCodes {
-			factory.FetchOrBuildReServiceByCode(suite.DB(), serviceCode)
+			factory.FetchReServiceByCode(suite.DB(), serviceCode)
 		}
 
 		return mtoShipment
@@ -92,7 +92,8 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentStatusHandler() {
 	// Used for all tests except 500 error:
 	queryBuilder := query.NewQueryBuilder()
 	fetcher := fetch.NewFetcher(queryBuilder)
-	moveRouter := moverouter.NewMoveRouter()
+	moveRouter, err := moverouter.NewMoveRouter()
+	suite.FatalNoError(err)
 	planner := &routemocks.Planner{}
 	mockFeatureFlagFetcher := testhelpers.SetupMockFeatureFlagFetcher(true)
 	planner.On("ZipTransitDistance",

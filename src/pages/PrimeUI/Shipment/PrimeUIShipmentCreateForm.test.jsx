@@ -284,7 +284,7 @@ describe('PrimeUIShipmentCreateForm', () => {
 
   it.each(
     ['BOAT_HAUL_AWAY', 'BOAT_TOW_AWAY', 'MOBILE_HOME'],
-    'renders the initial form, selects a Boat or Mobile Home  shipment type, and shows correct fields',
+    'renders the initial form, selects a Boat or Mobile Home shipment type, and shows correct fields',
     async (shipmentType) => {
       isBooleanFlagEnabled.mockResolvedValue(true); // Allow for testing of boats and mobile homes
       const shipmentTypeInput = await screen.findByLabelText('Shipment type');
@@ -414,7 +414,7 @@ describe('PrimeUIShipmentCreateForm', () => {
       expect(await screen.findByText('Pickup Address')).toBeInTheDocument();
       expect(screen.getAllByLabelText('Address 1')[0]).toHaveValue('');
 
-      expect(await screen.findByText('Destination Address')).toBeInTheDocument();
+      expect(await screen.findByText('Delivery Address')).toBeInTheDocument();
       expect(screen.getAllByLabelText('Address 1')[1]).toHaveValue('');
     },
   );
@@ -452,7 +452,7 @@ describe('PrimeUIShipmentCreateForm', () => {
     await userEvent.click(hasTertiaryPickup);
     expect(screen.getAllByLabelText('Address 1')[2]).toHaveValue('');
 
-    expect(await screen.findByText('Destination Address')).toBeInTheDocument();
+    expect(await screen.findByText('Delivery Address')).toBeInTheDocument();
     expect(screen.getAllByLabelText('Address 1')[3]).toHaveValue('');
 
     const hasSecondaryDestination = await screen.findByTestId('has-secondary-destination');
@@ -486,5 +486,11 @@ describe('PrimeUIShipmentCreateForm', () => {
 
     // now the text input should be visible
     expect(await screen.findByTestId('divertedFromShipmentIdInput')).toBeInTheDocument();
+
+    // Uncheck
+    await userEvent.click(diversionCheckbox);
+
+    // now the text input should be invisible
+    expect(await screen.queryByTestId('divertedFromShipmentIdInput')).toBeNull();
   });
 });

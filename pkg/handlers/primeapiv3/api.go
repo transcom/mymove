@@ -30,7 +30,10 @@ func NewPrimeAPI(handlerConfig handlers.HandlerConfig) *primev3operations.Mymove
 	builder := query.NewQueryBuilder()
 	fetcher := fetch.NewFetcher(builder)
 	queryBuilder := query.NewQueryBuilder()
-	moveRouter := move.NewMoveRouter()
+	moveRouter, err := move.NewMoveRouter()
+	if err != nil {
+		log.Fatalln(err)
+	}
 
 	primeSpec, err := loads.Analyzed(primev3api.SwaggerJSON, "")
 	if err != nil {
@@ -46,6 +49,7 @@ func NewPrimeAPI(handlerConfig handlers.HandlerConfig) *primev3operations.Mymove
 	primeAPIV3.MoveTaskOrderGetMoveTaskOrderHandler = GetMoveTaskOrderHandler{
 		handlerConfig,
 		movetaskorder.NewMoveTaskOrderFetcher(),
+		mtoshipment.NewMTOShipmentRateAreaFetcher(),
 	}
 
 	signedCertificationCreator := signedcertification.NewSignedCertificationCreator()
