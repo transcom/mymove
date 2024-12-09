@@ -62,13 +62,6 @@ const RolesPrivilegesCheckboxInput = (props) => {
           input.splice(index, 1);
         }
       }
-    } else if (isHeadquartersRoleFF && privilegesSelected.includes(elevatedPrivilegeTypes.SAFETY)) {
-      if (input.includes(roleTypes.HQ)) {
-        index = input.indexOf(roleTypes.HQ);
-        if (index !== -1) {
-          input.splice(index, 1);
-        }
-      }
     }
 
     return input.reduce((rolesArray, role) => {
@@ -102,15 +95,6 @@ const RolesPrivilegesCheckboxInput = (props) => {
         }
       }
 
-      if (input.includes(elevatedPrivilegeTypes.SAFETY)) {
-        index = input.indexOf(elevatedPrivilegeTypes.SAFETY);
-        if (index !== -1) {
-          input.splice(index, 1);
-        }
-      }
-    }
-
-    if (isHeadquartersRoleFF && rolesSelected.includes(roleTypes.HQ)) {
       if (input.includes(elevatedPrivilegeTypes.SAFETY)) {
         index = input.indexOf(elevatedPrivilegeTypes.SAFETY);
         if (index !== -1) {
