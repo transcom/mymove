@@ -23,7 +23,9 @@ func (suite *PayloadsSuite) TestMoveTaskOrder() {
 	primeTime := time.Now()
 	submittedAt := time.Now()
 	excessWeightQualifiedAt := time.Now()
+	excessUnaccompaniedBaggageWeightQualifiedAt := time.Now()
 	excessWeightAcknowledgedAt := time.Now()
+	excessUnaccompaniedBaggageWeightAcknowledgedAt := time.Now()
 	excessWeightUploadID := uuid.Must(uuid.NewV4())
 	ordersType := primev2messages.OrdersTypeRETIREMENT
 	originDutyGBLOC := "KKFA"
@@ -44,17 +46,19 @@ func (suite *PayloadsSuite) TestMoveTaskOrder() {
 			NAICS:                          models.NAICS,
 			PackingAndShippingInstructions: packingInstructions,
 		},
-		ReferenceID:                &referenceID,
-		PaymentRequests:            models.PaymentRequests{},
-		SubmittedAt:                &submittedAt,
-		UpdatedAt:                  time.Now(),
-		Status:                     models.MoveStatusAPPROVED,
-		SignedCertifications:       models.SignedCertifications{},
-		MTOServiceItems:            models.MTOServiceItems{},
-		MTOShipments:               models.MTOShipments{},
-		ExcessWeightQualifiedAt:    &excessWeightQualifiedAt,
-		ExcessWeightAcknowledgedAt: &excessWeightAcknowledgedAt,
-		ExcessWeightUploadID:       &excessWeightUploadID,
+		ReferenceID:             &referenceID,
+		PaymentRequests:         models.PaymentRequests{},
+		SubmittedAt:             &submittedAt,
+		UpdatedAt:               time.Now(),
+		Status:                  models.MoveStatusAPPROVED,
+		SignedCertifications:    models.SignedCertifications{},
+		MTOServiceItems:         models.MTOServiceItems{},
+		MTOShipments:            models.MTOShipments{},
+		ExcessWeightQualifiedAt: &excessWeightQualifiedAt,
+		ExcessUnaccompaniedBaggageWeightQualifiedAt:    &excessUnaccompaniedBaggageWeightQualifiedAt,
+		ExcessWeightAcknowledgedAt:                     &excessWeightAcknowledgedAt,
+		ExcessUnaccompaniedBaggageWeightAcknowledgedAt: &excessUnaccompaniedBaggageWeightAcknowledgedAt,
+		ExcessWeightUploadID:                           &excessWeightUploadID,
 		Contractor: &models.Contractor{
 			ContractNumber: factory.DefaultContractNumber,
 		},
@@ -78,7 +82,9 @@ func (suite *PayloadsSuite) TestMoveTaskOrder() {
 		suite.Equal(strfmt.DateTime(basicMove.UpdatedAt), returnedModel.UpdatedAt)
 		suite.NotEmpty(returnedModel.ETag)
 		suite.True(returnedModel.ExcessWeightQualifiedAt.Equal(strfmt.DateTime(*basicMove.ExcessWeightQualifiedAt)))
+		suite.True(returnedModel.ExcessUnaccompaniedBaggageWeightQualifiedAt.Equal(strfmt.DateTime(*basicMove.ExcessUnaccompaniedBaggageWeightQualifiedAt)))
 		suite.True(returnedModel.ExcessWeightAcknowledgedAt.Equal(strfmt.DateTime(*basicMove.ExcessWeightAcknowledgedAt)))
+		suite.True(returnedModel.ExcessUnaccompaniedBaggageWeightAcknowledgedAt.Equal(strfmt.DateTime(*basicMove.ExcessUnaccompaniedBaggageWeightAcknowledgedAt)))
 		suite.Require().NotNil(returnedModel.ExcessWeightUploadID)
 		suite.Equal(strfmt.UUID(basicMove.ExcessWeightUploadID.String()), *returnedModel.ExcessWeightUploadID)
 		suite.Equal(factory.DefaultContractNumber, returnedModel.ContractNumber)
