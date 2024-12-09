@@ -15,7 +15,7 @@ export default {
   service_order_number: 'Service order number',
   tac_type: 'TAC type',
   sac_type: 'SAC type',
-  authorized_weight: 'Authorized weight',
+  authorized_weight: 'Max Billable Weight',
   report_by_date: 'Report by date',
   issue_date: 'Orders date',
   orders_type: 'Orders type',

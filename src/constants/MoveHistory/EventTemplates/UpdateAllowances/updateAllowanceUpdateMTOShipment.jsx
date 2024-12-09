@@ -9,6 +9,6 @@ export default {
   action: a.UPDATE,
   eventName: o.updateMTOShipment,
   tableName: t.entitlements,
-  getEventNameDisplay: () => 'Updated allowances',
+  getEventNameDisplay: () => 'Updated shipment',
   getDetails: (historyRecord) => <LabeledDetails historyRecord={historyRecord} />,
 };
