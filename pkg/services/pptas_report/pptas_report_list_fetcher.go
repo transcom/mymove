@@ -196,7 +196,7 @@ func populateShipmentFields(
 			pptasShipment.ActualOriginNetWeight = &originActualWeight
 		}
 
-		if shipment.Reweigh != nil && shipment.Reweigh.Weight != nil {
+		if shipment.Reweigh != nil {
 			reweigh := shipment.Reweigh.Weight.Float64()
 			pptasShipment.DestinationReweighNetWeight = &reweigh
 		}
