@@ -18,7 +18,7 @@ import { ORDERS } from 'constants/queryKeys';
 import { servicesCounselingRoutes } from 'constants/routes';
 import { useOrdersDocumentQueries } from 'hooks/queries';
 import { getTacValid, getLoa, counselingUpdateOrder, getOrder } from 'services/ghcApi';
-import { formatSwaggerDate, dropdownInputOptions } from 'utils/formatters';
+import { formatSwaggerDate, dropdownInputOptions, formatYesNoAPIValue } from 'utils/formatters';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
 import { LineOfAccountingDfasElementOrder } from 'types/lineOfAccounting';
@@ -277,6 +277,7 @@ const ServicesCounselingOrders = ({ files, amendedDocumentId, updateAmendedDocum
       reportByDate: formatSwaggerDate(values.reportByDate),
       ordersType: values.ordersType,
       grade: values.payGrade,
+      has_dependents: formatYesNoAPIValue('no'),
     };
     mutateOrders({ orderID: orderId, ifMatchETag: newOrderEtag, body: orderBody });
   };

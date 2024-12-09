@@ -5805,6 +5805,10 @@ definitions:
         $ref: '#/definitions/NullableString'
       grade:
         $ref: '#/definitions/Grade'
+      hasDependents:
+        type: boolean
+        title: Are dependents included in your orders?
+        x-nullable: true
     required:
       - issueDate
       - reportByDate
