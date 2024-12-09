@@ -35,9 +35,9 @@ func NewUpdateMTOShipmentAddress(ctx *middleware.Context, handler UpdateMTOShipm
 updateMTOShipmentAddress
 
 ### Functionality
-This endpoint is used to **update** the pickup, secondary, and destination addresses on an MTO Shipment. mto-shipments/{mtoShipmentID}/shipment-address-updates is for updating a delivery address. The address details completely replace the original, except for the UUID.
+This endpoint is used to **update** the pickup, secondary, and delivery addresses on an MTO Shipment. mto-shipments/{mtoShipmentID}/shipment-address-updates is for updating a delivery address. The address details completely replace the original, except for the UUID.
 Therefore a complete address should be sent in the request.
-When a destination address on a shipment is updated, the destination SIT service items address ID will also be updated so that shipment and service item final destinations match.
+When a delivery address on a shipment is updated, the destination SIT service items address ID will also be updated so that shipment and service item final destinations match.
 
 This endpoint **cannot create** an address.
 To create an address on an MTO shipment, the caller must use [updateMTOShipment](#operation/updateMTOShipment) as the parent shipment has to be updated with the appropriate link to the address.

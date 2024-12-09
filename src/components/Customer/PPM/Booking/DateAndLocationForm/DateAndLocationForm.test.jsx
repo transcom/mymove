@@ -54,7 +54,7 @@ describe('DateAndLocationForm component', () => {
           <DateAndLocationForm {...defaultProps} />
         </Provider>,
       );
-      expect(screen.getByRole('heading', { level: 2, name: 'Origin' })).toBeInTheDocument();
+      expect(screen.getByRole('heading', { level: 2, name: 'Pickup Address' })).toBeInTheDocument();
       const postalCodes = screen.getAllByTestId('ZIP');
       const address1 = screen.getAllByLabelText(/Address 1/);
       const address2 = screen.getAllByLabelText('Address 2', { exact: false });
@@ -70,7 +70,7 @@ describe('DateAndLocationForm component', () => {
       expect(postalCodes[0]).toBeInstanceOf(HTMLLabelElement);
       expect(screen.getAllByLabelText('Yes')[0]).toBeInstanceOf(HTMLInputElement);
       expect(screen.getAllByLabelText('No')[0]).toBeInstanceOf(HTMLInputElement);
-      expect(screen.getByRole('heading', { level: 2, name: 'Destination' })).toBeInTheDocument();
+      expect(screen.getByRole('heading', { level: 2, name: 'Delivery Address' })).toBeInTheDocument();
       expect(address1[1]).toBeInstanceOf(HTMLInputElement);
       expect(address2[1]).toBeInstanceOf(HTMLInputElement);
       expect(address3[1]).toBeInstanceOf(HTMLInputElement);
@@ -90,7 +90,7 @@ describe('DateAndLocationForm component', () => {
   });
 
   describe('displays conditional inputs', () => {
-    it('displays current address when "Use my current origin address" is selected', async () => {
+    it('displays current address when "Use my current pickup address" is selected', async () => {
       render(
         <Provider store={mockStore.store}>
           <DateAndLocationForm {...defaultProps} />
@@ -99,21 +99,21 @@ describe('DateAndLocationForm component', () => {
       const postalCodes = screen.getAllByTestId(/ZIP/);
       expect(postalCodes[0]).toHaveTextContent('');
       await act(async () => {
-        await userEvent.click(screen.getByLabelText('Use my current origin address'));
+        await userEvent.click(screen.getByLabelText('Use my current pickup address'));
       });
       await waitFor(() => {
         expect(postalCodes[0]).toHaveTextContent(defaultProps.serviceMember.residential_address.postalCode);
       });
     });
 
-    it('removes current Address when "Use my current origin address" is deselected', async () => {
+    it('removes current Address when "Use my current pickup address" is deselected', async () => {
       render(
         <Provider store={mockStore.store}>
           <DateAndLocationForm {...defaultProps} />
         </Provider>,
       );
       await act(async () => {
-        await userEvent.click(screen.getByLabelText('Use my current origin address'));
+        await userEvent.click(screen.getByLabelText('Use my current pickup address'));
       });
       const postalCodes = screen.getAllByTestId(/ZIP/);
 
@@ -122,7 +122,7 @@ describe('DateAndLocationForm component', () => {
       });
 
       await act(async () => {
-        await userEvent.click(screen.getByLabelText('Use my current origin address'));
+        await userEvent.click(screen.getByLabelText('Use my current pickup address'));
       });
 
       await waitFor(() => {
@@ -155,14 +155,14 @@ describe('DateAndLocationForm component', () => {
       });
     });
 
-    it('displays destination address when "Use my current destination address" is selected', async () => {
+    it('displays delivery address when "Use my current delivery address" is selected', async () => {
       await act(async () => {
         render(
           <Provider store={mockStore.store}>
             <DateAndLocationForm {...defaultProps} />
           </Provider>,
         );
-        await userEvent.click(screen.getByLabelText('Use my current destination address'));
+        await userEvent.click(screen.getByLabelText('Use my current delivery address'));
         const postalCodes = screen.getAllByTestId(/ZIP/);
         const address1 = screen.getAllByLabelText(/Address 1/, { exact: false });
         const address2 = screen.getAllByLabelText('Address 2', { exact: false });
@@ -177,7 +177,7 @@ describe('DateAndLocationForm component', () => {
     });
   });
 
-  it('displays secondary destination Address input when hasSecondaryDestinationAddress is true', async () => {
+  it('displays secondary delivery address input when hasSecondaryDestinationAddress is true', async () => {
     await act(async () => {
       render(
         <Provider store={mockStore.store}>
@@ -309,7 +309,7 @@ describe('validates form fields and displays error messages', () => {
     });
   });
 
-  it('destination address 1 is empty passes validation schema - destination street 1 is OPTIONAL', async () => {
+  it('delivery address 1 is empty passes validation schema - destination street 1 is OPTIONAL', async () => {
     await act(async () => {
       render(
         <Provider store={mockStore.store}>
@@ -317,7 +317,7 @@ describe('validates form fields and displays error messages', () => {
         </Provider>,
       );
 
-      // type something in for destination address 1
+      // type something in for delivery address 1
       await userEvent.type(
         document.querySelector('input[name="destinationAddress.address.streetAddress1"]'),
         '1234 Street',
@@ -330,8 +330,8 @@ describe('validates form fields and displays error messages', () => {
       await waitFor(() => {
         expect(screen.getByRole('button', { name: 'Save & Continue' })).toBeDisabled();
 
-        // 'Required' labelHint on address display. expecting a total of 7(2 for pickup address and 3 destination address with 2 misc).
-        // This is to verify Required labelHints are displayed correctly for PPM onboarding/edit for the destination address
+        // 'Required' labelHint on address display. expecting a total of 7(2 for pickup address and 3 delivery address with 2 misc).
+        // This is to verify Required labelHints are displayed correctly for PPM onboarding/edit for the delivery address
         // street 1 is now OPTIONAL. If this fails it means addtional labelHints have been introduced elsewhere within the control.
         const hints = document.getElementsByClassName('usa-hint');
         expect(hints.length).toBe(11);
@@ -368,7 +368,7 @@ describe('validates form fields and displays error messages', () => {
       });
     });
   });
-  it('displays tertiary destination Address input when hasTertiaryDestinationAddress is true', async () => {
+  it('displays tertiary delivery address input when hasTertiaryDestinationAddress is true', async () => {
     await act(async () => {
       render(
         <Provider store={mockStore.store}>

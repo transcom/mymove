@@ -968,6 +968,7 @@ func PPMShipment(_ storage.FileStorer, ppmShipment *models.PPMShipment) *ghcmess
 		ProGearWeight:                  handlers.FmtPoundPtr(ppmShipment.ProGearWeight),
 		SpouseProGearWeight:            handlers.FmtPoundPtr(ppmShipment.SpouseProGearWeight),
 		EstimatedIncentive:             handlers.FmtCost(ppmShipment.EstimatedIncentive),
+		MaxIncentive:                   handlers.FmtCost(ppmShipment.MaxIncentive),
 		HasRequestedAdvance:            ppmShipment.HasRequestedAdvance,
 		AdvanceAmountRequested:         handlers.FmtCost(ppmShipment.AdvanceAmountRequested),
 		HasReceivedAdvance:             ppmShipment.HasReceivedAdvance,
@@ -2434,6 +2435,10 @@ func QueuePaymentRequests(paymentRequests *models.PaymentRequests, officeUsers [
 			queuePaymentRequests[i].AssignedTo = AssignedOfficeUser(paymentRequest.MoveTaskOrder.TIOAssignedUser)
 		}
 
+		if paymentRequest.MoveTaskOrder.CounselingOffice != nil {
+			queuePaymentRequests[i].CounselingOffice = &paymentRequest.MoveTaskOrder.CounselingOffice.Name
+		}
+
 		isAssignable := false
 		if queuePaymentRequests[i].AssignedTo == nil {
 			isAssignable = true
@@ -2550,7 +2555,7 @@ func SearchMoves(appCtx appcontext.AppContext, moves models.Moves) *ghcmessages.
 		searchMoves[i] = &ghcmessages.SearchMove{
 			FirstName:                         customer.FirstName,
 			LastName:                          customer.LastName,
-			DodID:                             customer.Edipi,
+			Edipi:                             customer.Edipi,
 			Emplid:                            customer.Emplid,
 			Branch:                            customer.Affiliation.String(),
 			Status:                            ghcmessages.MoveStatus(move.Status),
@@ -2613,7 +2618,7 @@ func SearchCustomers(customers models.ServiceMemberSearchResults) *ghcmessages.S
 		searchCustomers[i] = &ghcmessages.SearchCustomer{
 			FirstName:     customer.FirstName,
 			LastName:      customer.LastName,
-			DodID:         customer.Edipi,
+			Edipi:         customer.Edipi,
 			Emplid:        customer.Emplid,
 			Branch:        customer.Affiliation.String(),
 			ID:            *handlers.FmtUUID(customer.ID),

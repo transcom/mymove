@@ -199,7 +199,7 @@ const DateAndLocationForm = ({ mtoShipment, destinationDutyLocation, serviceMemb
           <div className={ppmStyles.formContainer}>
             <Form className={formStyles.form}>
               <SectionWrapper className={classnames(ppmStyles.sectionWrapper, formStyles.formSection, 'origin')}>
-                <h2>Origin</h2>
+                <h2>Pickup Address</h2>
                 <AddressFields
                   name="pickupAddress.address"
                   labelHint="Required"
@@ -210,7 +210,7 @@ const DateAndLocationForm = ({ mtoShipment, destinationDutyLocation, serviceMemb
                       <p>What address are you moving from?</p>
                       <Checkbox
                         data-testid="useCurrentResidence"
-                        label="Use my current origin address"
+                        label="Use my current pickup address"
                         name="useCurrentResidence"
                         onChange={handleUseCurrentResidenceChange}
                         id="useCurrentResidence"
@@ -242,7 +242,7 @@ const DateAndLocationForm = ({ mtoShipment, destinationDutyLocation, serviceMemb
                       </FormGroup>
                       {values.hasSecondaryPickupAddress === 'true' && (
                         <>
-                          <h3>Second pickup location</h3>
+                          <h3>Second Pickup Address</h3>
                           <AddressFields
                             labelHint="Required"
                             name="secondaryPickupAddress.address"
@@ -251,7 +251,7 @@ const DateAndLocationForm = ({ mtoShipment, destinationDutyLocation, serviceMemb
                           />
                           <Hint className={ppmStyles.hint}>
                             <p>
-                              A second origin address could mean that your final incentive is lower than your estimate.
+                              A second pickup address could mean that your final incentive is lower than your estimate.
                             </p>
                             <p>
                               Get separate weight tickets for each leg of the trip to show how the weight changes. Talk
@@ -274,7 +274,7 @@ const DateAndLocationForm = ({ mtoShipment, destinationDutyLocation, serviceMemb
                                 label="Yes"
                                 name="hasTertiaryPickupAddress"
                                 value="true"
-                                title="Yes, I have a third delivery location"
+                                title="Yes, I have a third delivery address"
                                 checked={values.hasTertiaryPickupAddress === 'true'}
                               />
                               <Field
@@ -284,7 +284,7 @@ const DateAndLocationForm = ({ mtoShipment, destinationDutyLocation, serviceMemb
                                 label="No"
                                 name="hasTertiaryPickupAddress"
                                 value="false"
-                                title="No, I do not have a third delivery location"
+                                title="No, I do not have a third delivery address"
                                 checked={values.hasTertiaryPickupAddress === 'false'}
                               />
                             </Fieldset>
@@ -295,7 +295,7 @@ const DateAndLocationForm = ({ mtoShipment, destinationDutyLocation, serviceMemb
                         values.hasSecondaryPickupAddress === 'true' &&
                         values.hasTertiaryPickupAddress === 'true' && (
                           <>
-                            <h3>Third pickup location</h3>
+                            <h3>Third Pickup Address</h3>
                             <AddressFields
                               labelHint="Required"
                               name="tertiaryPickupAddress.address"
@@ -309,7 +309,7 @@ const DateAndLocationForm = ({ mtoShipment, destinationDutyLocation, serviceMemb
                 />
               </SectionWrapper>
               <SectionWrapper className={classnames(ppmStyles.sectionWrapper, formStyles.formSection)}>
-                <h2>Destination</h2>
+                <h2>Delivery Address</h2>
                 <AddressFields
                   name="destinationAddress.address"
                   labelHint="Required"
@@ -320,10 +320,10 @@ const DateAndLocationForm = ({ mtoShipment, destinationDutyLocation, serviceMemb
                   address1LabelHint=" "
                   render={(fields) => (
                     <>
-                      <p>Please input your destination address.</p>
+                      <p>Please input your delivery address.</p>
                       <Checkbox
                         data-testid="useCurrentDestinationAddress"
-                        label="Use my current destination address"
+                        label="Use my current delivery address"
                         name="useCurrentDestinationAddress"
                         onChange={handleUseDestinationAddress}
                         id="useCurrentDestinationAddress"
@@ -355,7 +355,7 @@ const DateAndLocationForm = ({ mtoShipment, destinationDutyLocation, serviceMemb
                       </FormGroup>
                       {values.hasSecondaryDestinationAddress === 'true' && (
                         <>
-                          <h3>Second delivery location</h3>
+                          <h3>Second Delivery Address</h3>
                           <AddressFields
                             name="secondaryDestinationAddress.address"
                             labelHint="Required"
@@ -364,7 +364,7 @@ const DateAndLocationForm = ({ mtoShipment, destinationDutyLocation, serviceMemb
                           />
                           <Hint className={ppmStyles.hint}>
                             <p>
-                              A second destination address could mean that your final incentive is lower than your
+                              A second delivery address could mean that your final incentive is lower than your
                               estimate.
                             </p>
                             <p>
@@ -388,7 +388,7 @@ const DateAndLocationForm = ({ mtoShipment, destinationDutyLocation, serviceMemb
                                 label="Yes"
                                 name="hasTertiaryDestinationAddress"
                                 value="true"
-                                title="Yes, I have a third delivery location"
+                                title="Yes, I have a third delivery address"
                                 checked={values.hasTertiaryDestinationAddress === 'true'}
                               />
                               <Field
@@ -398,7 +398,7 @@ const DateAndLocationForm = ({ mtoShipment, destinationDutyLocation, serviceMemb
                                 label="No"
                                 name="hasTertiaryDestinationAddress"
                                 value="false"
-                                title="No, I do not have a third delivery location"
+                                title="No, I do not have a third delivery address"
                                 checked={values.hasTertiaryDestinationAddress === 'false'}
                               />
                             </Fieldset>
@@ -409,7 +409,7 @@ const DateAndLocationForm = ({ mtoShipment, destinationDutyLocation, serviceMemb
                         values.hasSecondaryDestinationAddress === 'true' &&
                         values.hasTertiaryDestinationAddress === 'true' && (
                           <>
-                            <h3>Third delivery location</h3>
+                            <h3>Third Delivery Address</h3>
                             <AddressFields
                               name="tertiaryDestinationAddress.address"
                               labelHint="Required"

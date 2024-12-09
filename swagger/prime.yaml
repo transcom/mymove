@@ -357,15 +357,15 @@ paths:
       description: >
         ### Functionality
 
-        This endpoint is used to **update** the pickup, secondary, and
-        destination addresses on an MTO Shipment.
+        This endpoint is used to **update** the pickup, secondary, and delivery
+        addresses on an MTO Shipment.
         mto-shipments/{mtoShipmentID}/shipment-address-updates is for updating a
         delivery address. The address details completely replace the original,
         except for the UUID.
 
         Therefore a complete address should be sent in the request.
 
-        When a destination address on a shipment is updated, the destination SIT
+        When a delivery address on a shipment is updated, the destination SIT
         service items address ID will also be updated so that shipment and
         service item final destinations match.
 
@@ -447,9 +447,9 @@ paths:
         ### Functionality
 
         This endpoint is used so the Prime can request an **update** for the
-        destination address on an MTO Shipment,
+        delivery address on an MTO Shipment,
 
-        after the destination address has already been approved.
+        after the delivery address has already been approved.
 
 
         This endpoint and operation only supports the following shipment types:
@@ -460,9 +460,8 @@ paths:
 
 
         For HHG shipments, if automatically approved or TOO approves, this will
-        update the final destination address values for destination SIT service
-        items to be the same as the changed destination address that was
-        approved.
+        update the final delivery address values for destination SIT service
+        items to be the same as the changed delivery address that was approved.
 
 
         Address updates will be automatically approved unless they change:
@@ -1003,7 +1002,7 @@ paths:
          to the service item you wish to update and the documentation will update with the new definition.
 
         * Addresses: To update a destination service item's SIT destination
-        final address, update the shipment destination address.
+        final address, update the shipment delivery address.
 
         For approved shipments, please use
         [updateShipmentDestinationAddress](#mtoShipment/updateShipmentDestinationAddress).
@@ -2249,7 +2248,7 @@ definitions:
   UpdateShipmentDestinationAddress:
     description: >-
       UpdateShipmentDestinationAddress contains the fields required for the
-      prime to request an update for the destination address on an MTO Shipment.
+      prime to request an update for the delivery address on an MTO Shipment.
     type: object
     properties:
       newAddress:
@@ -3845,6 +3844,15 @@ definitions:
         format: cents
         x-nullable: true
         x-omitempty: false
+      maxIncentive:
+        description: >-
+          The max amount the government will pay the service member to move
+          their belongings based on the moving date, locations, and shipment
+          weight.
+        type: integer
+        format: cents
+        x-nullable: true
+        x-omitempty: false
       hasRequestedAdvance:
         description: |
           Indicates whether an advance has been requested for the PPM shipment.
@@ -3940,10 +3948,10 @@ definitions:
       - APPROVED
   ShipmentAddressUpdate:
     description: >
-      This represents a destination address change request made by the Prime
-      that is either auto-approved or requires review if the pricing criteria
-      has changed. If criteria has changed, then it must be approved or rejected
-      by a TOO.
+      This represents a delivery address change request made by the Prime that
+      is either auto-approved or requires review if the pricing criteria has
+      changed. If criteria has changed, then it must be approved or rejected by
+      a TOO.
     type: object
     properties:
       id:
@@ -3979,14 +3987,14 @@ definitions:
       oldSitDistanceBetween:
         description: >-
           The distance between the original SIT address and the previous/old
-          destination address of shipment
+          delivery address of shipment
         example: 50
         minimum: 0
         type: integer
       newSitDistanceBetween:
         description: >-
           The distance between the original SIT address and requested new
-          destination address of shipment
+          delivery address of shipment
         example: 88
         minimum: 0
         type: integer

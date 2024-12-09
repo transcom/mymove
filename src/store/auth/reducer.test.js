@@ -1,6 +1,6 @@
 import authReducer, { initialState } from './reducer';
 import { setActiveRole, logOut } from './actions';
-import { selectIsLoggedIn } from './selectors';
+import { selectIsLoggedIn, selectUnderMaintenance } from './selectors';
 
 import { roleTypes } from 'constants/userRoles';
 
@@ -94,5 +94,15 @@ describe('selectIsLoggedIn', () => {
     };
 
     expect(selectIsLoggedIn(testState)).toEqual(testState.auth.isLoggedIn);
+  });
+});
+
+describe('setUnderMaintenance', () => {
+  it('returns boolean as to whether or not app is under maintenance', () => {
+    const testState = {
+      auth: { underMaintenance: true },
+    };
+
+    expect(selectUnderMaintenance(testState)).toEqual(testState.auth.underMaintenance);
   });
 });

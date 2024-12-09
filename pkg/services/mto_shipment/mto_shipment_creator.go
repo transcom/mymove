@@ -36,19 +36,19 @@ func NewMTOShipmentCreatorV1(builder createMTOShipmentQueryBuilder, fetcher serv
 		fetcher,
 		moveRouter,
 		addressCreator,
-		[]validator{protectV1Diversion()},
+		[]validator{protectV1Diversion(), MTOShipmentHasTertiaryAddressWithNoSecondaryAddressCreate()},
 	}
 }
 
 // NewMTOShipmentCreator creates a new struct with the service dependencies
-// This is utilized in Prime API V2
+// This is utilized in Prime API V2 and Prime API V3
 func NewMTOShipmentCreatorV2(builder createMTOShipmentQueryBuilder, fetcher services.Fetcher, moveRouter services.MoveRouter, addressCreator services.AddressCreator) services.MTOShipmentCreator {
 	return &mtoShipmentCreator{
 		builder,
 		fetcher,
 		moveRouter,
 		addressCreator,
-		[]validator{checkDiversionValid(), childDiversionPrimeWeightRule()},
+		[]validator{checkDiversionValid(), childDiversionPrimeWeightRule(), MTOShipmentHasTertiaryAddressWithNoSecondaryAddressCreate()},
 	}
 }
 
