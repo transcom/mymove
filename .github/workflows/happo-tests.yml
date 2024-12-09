@@ -50,5 +50,6 @@ jobs:
       - name: Start Happo run
         run: yarn happo-ci-github-actions
         env:
+          BASE_BRAHCH: origin/integrationTesting
           HAPPO_API_KEY: ${{ secrets.HAPPO_API_KEY }}
           HAPPO_API_SECRET: ${{ secrets.HAPPO_API_SECRET }}
