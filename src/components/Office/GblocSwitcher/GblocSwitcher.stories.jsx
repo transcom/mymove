@@ -32,7 +32,7 @@ export const defaultGblocSwitcher = () => {
   return (
     <SelectedGblocProvider>
       <div style={{ width: '110px' }}>
-        <GblocSwitcher officeUsersDefaultGbloc="KKFA" />
+        <GblocSwitcher officeUsersDefaultGbloc="AGFM" />
       </div>
 
       <SelectedGblocDisplayer />
