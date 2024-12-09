@@ -162,6 +162,7 @@ const EditOrders = ({
       report_by_date: formatDateForSwagger(fieldValues.report_by_date),
       grade: newPayGrade,
       origin_duty_location_id: newOriginDutyLocationId,
+      counseling_office_id: fieldValues.counseling_office_id,
       // spouse_has_pro_gear is not updated by this form but is a required value because the endpoint is shared with the
       // ppm office edit orders
       spouse_has_pro_gear: currentOrder.spouse_has_pro_gear,
