@@ -48,7 +48,7 @@ type ExcessWeightRiskManager interface {
 type ListOrderParams struct {
 	Branch                  *string
 	Locator                 *string
-	DodID                   *string
+	Edipi                   *string
 	Emplid                  *string
 	CustomerName            *string
 	DestinationDutyLocation *string
