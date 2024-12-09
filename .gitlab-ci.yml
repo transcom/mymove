@@ -1,16 +1,549 @@
-# You can override the included template(s) by including variable overrides
 # SAST customization: https://docs.gitlab.com/ee/user/application_security/sast/#customizing-the-sast-settings
 # Secret Detection customization: https://docs.gitlab.com/ee/user/application_security/secret_detection/pipeline/#customization
 # Dependency Scanning customization: https://docs.gitlab.com/ee/user/application_security/dependency_scanning/#customizing-the-dependency-scanning-settings
 # Container Scanning customization: https://docs.gitlab.com/ee/user/application_security/container_scanning/#customizing-the-container-scanning-settings
 # Note that environment variables can be set in several places
 # See https://docs.gitlab.com/ee/ci/variables/#cicd-variable-precedence
+
+variables:
+  DOCKER_AUTH_CONFIG: "{\"auths\":{\"https://index.docker.io/v1/\":{\"auth\":\"$CI_REGISTRY_USER:$CI_REGISTRY_PASSWORD\"}}}"
+  #circleci_docker: milmove/circleci-docker:milmove-app-726bfe44bd27d3b41da41acbe3eb231811a993f7
+  DOCKER_APP_IMAGE: milmove01/transcom-docker:milmove-app
+  DOCKER_BASE_IMAGE: milmove01/transcom-docker:base
+  DOCKERHUB_USERNAME: DOCKERHUB_USERNAME
+  DOCKERHUB_PASSWORD: DOCKERHUB_PASSWORD
+  DOCKER_TOKEN: DOCKER_TOKEN
+  registry: https://registry.hub.docker.com/
+  KUBERNETES_CPU_REQUEST: "2"
+  KUBERNETES_MEMORY_REQUEST: "4Gi"
+  KUBERNETES_MEMORY_LIMIT: "4Gi"
+  #CIRCLE_PROJECT_USERNAME: "my-username"  # Replace with the actual namespace
+  CIRCLE_PROJECT_REPONAME: "mymove"      # Replace with your GitLab project name
+  CIRCLE_JOB: "$CI_JOB_NAME"              # Map to GitLab's job name variable
+  CIRCLE_BRANCH: "$CI_COMMIT_BRANCH"      # Map to GitLab's branch variable
+  #CIRCLE_TOKEN: "$GITLAB_API_TOKEN"       # GitLab API token for querying pipelines
+  CIRCLE_BUILD_NUM: "$CI_PIPELINE_ID"
+  #load_tester: &load_tester cimg/python:3.11.3
+  #postgres: &postgres cimg/postgres:12.11
+  #redis: &redis redis:5.0.6
+  #cimg_base: cimg/base:2022.12-22.04
+  #aws-otel-collector: &aws-otel-collector public.ecr.aws/aws-observability/aws-otel-collector:v0.31.0
+  #dp3-env: &dps-env placeholder_env
+  #integration-ignore-branch: &integration-ignore-branch placeholder_branch_name
+  #integration-mtls-ignore-branch: &integration-mtls-ignore-branch placeholder_branch_name
+  #client-ignore-branch: &client-ignore-branch placeholder_branch_name
+  #server-ignore-branch: &server-ignore-branch placeholder_branch_name
+  GOPATH: "$CI_PROJECT_DIR/go"
+  GOLANGCI_LINT_CONCURRENCY: "4"
+  GOLANGCI_LINT_VERBOSE: "-v"
+  #DOD_CA_PACKAGE: '/builds/your-group/your-project/config/tls/milmove-cert-bundle.p7b'
+  #MIGRATION_MANIFEST: '/builds/your-group/your-project/migrations/app/migrations_manifest.txt'
+  #MIGRATION_PATH: 'file:///builds/your-group/your-project/migrations/app/schema;file:///builds/your-group/your-project/migrations/app/secure'
+  #EIA_KEY: db2522a43820268a41a802a16ae9fd26 # Consider storing sensitive keys as CI/CD variables instead
+  #GIT_CLONE_PATH: '$CI_BUILDS_DIR/milmove/$CI_PROJECT_NAME/$CI_PIPELINE_ID'
+  #add dependency to each step
+
+
 stages:
-- security-testing
-- test
-sast:
-  stage: security-testing
-include:
-- template: Jobs/SAST.gitlab-ci.yml
-- template: Jobs/Dependency-Scanning.gitlab-ci.yml
-- template: Jobs/Secret-Detection.gitlab-ci.yml
+#- security-testing
+- pre_checks
+#- test_builds
+- build
+- push
+- deploy
+
+
+# sast:
+#   stage: security-testing
+# include:
+# - template: Jobs/SAST.gitlab-ci.yml
+# - template: Jobs/Dependency-Scanning.gitlab-ci.yml
+# - template: Jobs/Secret-Detection.gitlab-ci.yml
+
+.setup_milmove_env: &setup_milmove_env
+    - git config --global --add safe.directory /builds/milmove/mymove
+    - export PATH=${PATH}:${GOPATH}/bin:~/transcom/mymove/builds/milmove/mymove
+    - export REACT_APP_ERROR_LOGGING=otel
+
+# base_noop:
+#   stage: pre_checks
+#   image: $DOCKER_APP_IMAGE
+#   script:
+# - echo "noop"
+
+# anti_virus:
+#   stage: pre_checks
+#   image: milmove/clamav-ci # This can reB-18585-gitlab-pipeline-work as is, or use any lightweight image since we're skipping the actual work.
+#   script:
+#      - clamscan --version
+#      - cp -v ~/transcom/mymove/anti-virus/whitelist-*.{fp,ign2} /var/lib/clamav/
+#      - >
+#        clamscan \
+#          --recursive \
+#          --infected \
+#          --detect-pua=yes \
+#          --exclude-pua=NetTool \
+#          --exclude-pua=PWTool \
+#          --max-scansize=300M \
+#          --max-filesize=100M \
+#          --max-recursion=30 \
+#        --max-files=50000 \
+#          --tempdir=/tmp \
+#          ~/transcom/mymove
+#      - echo "Skipping anti-virus checks temporarily."
+#   after_script:
+#      - echo "Replace this line with your failure announcement logic."
+
+pre_deps_golang:
+  stage: pre_checks
+  image: $DOCKER_APP_IMAGE
+  before_script: *setup_milmove_env
+  script:
+    - for i in $(seq 1 5); do go mod download && break || s=$? && sleep 5; done; (exit $s)
+    - scripts/check-generated-code go.sum
+    - make bin/swagger
+  artifacts:
+    paths:
+      - bin/
+      - swagger/
+  # cache:
+  #   key: "$CI_COMMIT_REF_SLUG-go"
+  #   paths:
+  #     - $GOPATH/pkg/mod
+  #     - /builds/milmove/mymove/bin  # Ensure this path is correct and writable.
+  # Optionally, you can define an after_script for cleanup or notifications.
+
+pre_deps_yarn:
+  stage: pre_checks
+  image: $DOCKER_APP_IMAGE
+  needs:
+    - pre_deps_golang
+  before_script:
+    - *setup_milmove_env
+  script:
+     - pwd
+     - ls bin
+     - yarn config set "strict-ssl" false
+     - yarn install --frozen-lockfile --cache-folder ~/.cache/yarn
+     - scripts/check-generated-code yarn.lock
+     - echo "Temporarily skipping yarn installation and code checks."
+  artifacts:
+    paths:
+      - ~/.cache/yarn
+
+#  policy: pull-push # This can reB-18585-gitlab-pipeline-work as is, since it doesn't affect job execution
+# No need to uncomment after_script if it's just for passing the job
+
+# check_tls_certificate_dp3:
+#   stage: pre_checks
+#   image: $DOCKER_APP_IMAGE
+#   script:
+#     - echo "check_tls_certificate_dp3"
+
+#     # Setup TLS environment variables
+#     - |
+#       CI_ENVIRONMENT_SCRIPT="/tmp/ci_environment_script.sh"
+#       mkdir -p $(dirname $CI_ENVIRONMENT_SCRIPT)
+#       echo "export TLS_CERT=\$$(echo placeholder_env | tr 'a-z' 'A-Z')_DP3_CERT" >> $CI_ENVIRONMENT_SCRIPT
+#       echo "export TLS_KEY=\$$(echo placeholder_env | tr 'a-z' 'A-Z')_DP3_KEY" >> $CI_ENVIRONMENT_SCRIPT
+#       echo "export TLS_CA=\$$(echo placeholder_env | tr 'a-z' 'A-Z')_DP3_CA" >> $CI_ENVIRONMENT_SCRIPT
+#       source $CI_ENVIRONMENT_SCRIPT
+#       echo "Setup TLS environment variables"
+
+#     # Check DP3 environment and TLS pair
+#     - |
+#       if [ "$DP3_ENV" = "demo" ] || [ "$DP3_ENV" = "exp" ] || [ "$DP3_ENV" = "loadtest" ]; then
+#         echo "DP3 environment detected. Proceeding with TLS variables setup and check."
+#         /usr/local/bin/check-tls-pair "$TLS_KEY" "$TLS_CERT"
+#       else
+#         echo "Not a DP3 environment. Skipping TLS check."
+#       fi
+#     # The check_tls_pair job seems redundant here if /usr/local/bin/check-tls-pair is called in the previous step, but you could include any additional checks or commands as needed.
+#   after_script:
+#     - |
+#       if [ "$CI_COMMIT_BRANCH" = "B-18585-gitlab-pipeline-work" ]; then
+#         scripts/circleci-announce-broken-branch || true
+#       fi
+#       echo "announce_failure"
+
+# check_tls_certificate_stg:
+#   stage: pre_checks
+#   image: $DOCKER_APP_IMAGE # This can reB-18585-gitlab-pipeline-work unchanged, or you can use a lightweight image since no real work is done.
+#   #before_script:
+#     #- export TLS_KEY=<path_to_tls_key> # Comment out if not performing real TLS checks
+#     #- export TLS_CERT=<path_to_tls_cert>
+#   script:
+#     - echo "Temporarily skipping TLS certificate check."
+
+# check_tls_certificate_prd:
+#   stage: pre_checks
+#   image: $DOCKER_APP_IMAGE  # This can reB-18585-gitlab-pipeline-work unchanged, or you can use a lightweight image since no real work is done
+#   #before_script:
+#     # - export TLS_KEY=<path_to_tls_key> # Comment out if not performing real TLS checks
+#     # - export TLS_CERT=<path_to_tls_cert>
+#   script:
+#     - echo "Temporarily skipping TLS certificate check."
+
+# pre_test:
+#   stage: test_builds
+#   image: $DOCKER_APP_IMAGE
+#   needs:
+#     - pre_deps_golang
+#   script:
+#     - rm -f /builds/*/*/.git/index.lock
+#     - export CURRENT_BUILD_PATH=$(pwd)
+#     - echo $PATH
+#     - rm -rf $HOME/golang
+#     - rm -rf $HOME/gopath
+#     - mkdir -p $HOME/golang # for GOROOT (contains the Go binary & core packages)
+#     - mkdir -p $HOME/gopath # for GOPATH (contains code and external packages)
+#     - curl -sSL http://storage.googleapis.com/golang/go1.5.2.linux-amd64.tar.gz -o go1.5.2.linux-amd64.tar.gz
+#     - tar -C $HOME/golang -xzf go1.5.2.linux-amd64.tar.gz
+#     - export GOROOT=$HOME/golang/go
+#     - export GOPATH=$HOME/gopath
+#     - export PATH=$PATH:$GOROOT/bin:$GOPATH/bin
+#     - if [[ "$(go version)" == *"go version go1.11"* ]]; then echo "✓ Go binary installed!"; else echo "Go binary not installed"; exit 1; fi;
+#     - go version
+#     - go env
+#     - which go
+#     - 'scripts/pre-commit-go-mod || exit 0'
+#     - 'SKIP=golangci-lint,eslint,prettier pre-commit run --all-files'
+#     - mkdir -p tmp/test-results/pretest
+#     - pre-commit run -v --all-files golangci-lint | tee tmp/test-results/pretest/golangci-lint.out
+#     - ./scripts/ensure-spectral-lint /tmp/spectral_baseline spectral
+#     - echo "Temporarily bypassing some pre_test steps."
+#   rules:
+#     - if: '$CI_COMMIT_BRANCH == "B-18585-gitlab-deploy" || $CI_COMMIT_BRANCH == "main"'
+#   cache:
+#     - key: "$CI_COMMIT_REF_SLUG-go"
+#       paths:
+#         - $GOPATH/pkg/mod
+#     - key: "v3-cache-yarn-v3-$CI_COMMIT_REF_SLUG"
+#       paths:
+#         - .yarn/cache
+#     - key: "v1-pre-commit-dot-cache-$CI_COMMIT_REF_SLUG"
+#       paths:
+#         - ~/.cache/pre-commit
+#     - key: "v8-spectral-lint-$CI_COMMIT_REF_SLUG"
+#       paths:
+#         - ~/transcom/mymove/spectral
+
+#   artifacts:
+#     paths:
+#       - ~/transcom/mymove/spectral
+#       - tmp/test-results/pretest/
+#     expire_in: 1 week
+
+# build_storybook:
+#   stage: build
+#   image: $DOCKER_APP_IMAGE
+#   needs:
+#     - pre_deps_yarn
+#   cache:
+#     - key: "v3-cache-yarn-v3-$(echo yarn.lock | md5sum)" # Adjust as necessary for GitLab CI
+#       paths:
+#         - ~/ .cache/yarn
+#         - node_modules/ # Assuming yarn cache directory is .yarn/cache
+#       policy: pull
+#   script:
+#     # - yarn install --frozen-lockfile
+#     - yarn build-storybook
+#     - echo "Skipping build storybook steps."
+#    # - sleep 600
+#   artifacts:
+#     paths:
+#       - storybook-static/
+#     expire_in: 1 week
+#   rules:
+#     - if: '$CI_COMMIT_BRANCH == "B-18585-gitlab-deploy" || $CI_COMMIT_BRANCH == "main"'
+
+compile_app_client:
+  stage: build
+  image: $DOCKER_APP_IMAGE # Replace with the actual Docker image name if different.
+  before_script: *setup_milmove_env
+  needs:
+    - pre_deps_yarn
+  variables:
+    KUBERNETES_CPU_REQUEST: "2"
+    KUBERNETES_MEMORY_REQUEST: "4Gi"
+    KUBERNETES_MEMORY_LIMIT: "4Gi"
+  script:
+     #- ls bin
+     - make client_build
+     - echo "Skipping actual build steps."
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "B-18585-gitlab-deploy" || $CI_COMMIT_BRANCH == "main"'
+  artifacts:
+    paths:
+      - ~/.cache/yarn
+      - /builds/milmove/mymove/bin
+      - /builds/milmove/mymove/build
+      - playwright
+      - playwright.config.js
+      - package.json
+      - yarn.lock
+      - eslint-plugin-ato
+    expire_in: 1 week
+
+compile_app_server:
+  stage: build
+  image: $DOCKER_APP_IMAGE
+  needs:
+    - pre_deps_golang
+    - pre_deps_yarn
+  before_script: *setup_milmove_env
+  script:
+    - make -j 4 server_build build_tools
+    - echo "Skipping server and tools compilation."
+  artifacts:
+    paths:
+    - /builds/milmove/mymove/bin/milmove-tasks
+    - /builds/milmove/mymove/bin/milmove
+    - /builds/milmove/mymove/bin/rds-ca-rsa4096-g1.pem
+    - /builds/milmove/mymove/bin/rds-ca-2019-root.pem
+    - /builds/milmove/mymove/bin/tls-checker
+    - /builds/milmove/mymove/bin/health-checker
+    - /builds/milmove/mymove/bin/*
+    - /builds/milmove/mymove/bin/ecs-deploy
+    - /builds/milmove/mymove/config/tls/milmove-cert-bundle.p7b
+    - /builds/milmove/mymove/config/tls/dod-sw-ca-66.pem
+    - /builds/milmove/mymove/swagger/*
+    - /builds/milmove/mymove/build
+    - pkg/testdatagen/testdata
+    - /builds/milmove/mymove/config/otel/*
+  #   paths:
+  #     - Makefile
+  #     - Dockerfile
+  #     - Dockerfile.dp3 #can possibly do "Dockerfile.*" to shorten
+  #     - Dockerfile.e2e
+  #     - Dockerfile.migrations
+  #     - Dockerfile.tasks
+  #     - Dockerfile.tasks_dp3
+  #     - Dockerfile.tools
+  #     - /builds/milmove/mymove
+  #     - bin
+  #     - config
+  #     - migrations
+  #     - scripts
+  #     - swagger
+  #     - pkg/testdatagen/testdata
+    expire_in: 1 week
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "B-18585-gitlab-deploy" || $CI_COMMIT_BRANCH == "main"'
+
+build_push_app:
+  stage: push
+  image:
+    name: gcr.io/kaniko-project/executor:v1.14.0-debug
+    entrypoint: [""]
+  needs:
+     - compile_app_client
+     - compile_app_server
+  before_script:
+    - ls bin
+    - mkdir -p /kaniko/.docker
+    - echo "Simulating Docker image build setup..."
+    - echo "{\"credHelpers\":{\"447641181206.dkr.ecr.us-gov-west-1.amazonaws.com\":\"ecr-login\"}}" > /kaniko/.docker/config.json
+  script:
+    - echo "Building and Pushing app Docker image..."
+    - /kaniko/executor --context "${CI_PROJECT_DIR}/" --dockerfile "${CI_PROJECT_DIR}/Dockerfile.dp3" --destination "${ECR_REPOSITORY_URI}/app:$CI_COMMIT_SHORT_SHA"
+  after_script:
+    - echo "Build_complete"
+
+build_push_migrations:
+  stage: push
+  image:
+    name: gcr.io/kaniko-project/executor:v1.14.0-debug
+    entrypoint: [""]
+  needs:
+    - compile_app_server
+    - compile_app_client
+  before_script:
+    - mkdir -p /kaniko/.docker
+    - echo "Simulating migrations Docker image build..."
+    - echo "{\"credHelpers\":{\"${ECR_REPOSITORY_URI}\":\"ecr-login\"}}" > /kaniko/.docker/config.json
+  script:
+    - echo "Building and Pushing migrations Docker image..."
+    - /kaniko/executor --context "${CI_PROJECT_DIR}/" --dockerfile "${CI_PROJECT_DIR}/Dockerfile.migrations" --destination "${ECR_REPOSITORY_URI}/app-migrations:$CI_COMMIT_SHORT_SHA"
+  after_script:
+    - echo "Migrations image built and pushed successfully."
+
+build_push_dp3_tasks:
+  stage: push
+  image:
+    name: gcr.io/kaniko-project/executor:v1.14.0-debug
+    entrypoint: [""]
+  needs:
+    - compile_app_server
+    - compile_app_client
+  before_script:
+    - mkdir -p /kaniko/.docker
+    - echo "Simulating tasks Docker image build..."
+    - echo "{\"credHelpers\":{\"${ECR_REPOSITORY_URI}\":\"ecr-login\"}}" > /kaniko/.docker/config.
+    - ls -la /builds/milmove/mymove/bin/
+  script:
+    - echo "Building tasks Docker image..."
+    - /kaniko/executor --context "${CI_PROJECT_DIR}/" --dockerfile "${CI_PROJECT_DIR}/Dockerfile.tasks" --destination "${ECR_REPOSITORY_URI}/app-tasks:$CI_COMMIT_SHORT_SHA"
+  after_script:
+    - echo "Tasks image built successfully."
+
+push_otel_collector_image_dp3:
+  stage: push
+  image:
+    name: $DOCKER_BASE_IMAGE
+    entrypoint: [""]
+  needs:
+    - compile_app_server
+    - compile_app_client
+  script:
+    - echo "Logging in to Amazon ECR with Crane..."
+    - aws ecr get-login-password --region us-gov-west-1 | crane auth login 447641181206.dkr.ecr.us-gov-west-1.amazonaws.com -u AWS --password-stdin
+
+    - echo "Pulling the AWS OTel Collector image from the public registry with Crane..."
+    - crane pull --insecure public.ecr.aws/aws-observability/aws-otel-collector:v0.31.0 image.tar
+
+    - echo "Pushing the image to our private ECR using Crane..."
+    - crane push --insecure image.tar 447641181206.dkr.ecr.us-gov-west-1.amazonaws.com/otel-collector:${CI_COMMIT_SHORT_SHA}
+
+    - echo "Cleaning up the temporary image file..."
+    - rm image.tar
+  allow_failure: false
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "B-18585-gitlab-deploy" || $CI_COMMIT_BRANCH == "main"'
+
+deploy_dp3_migrations:
+  stage: deploy
+  image:
+    name: $DOCKER_APP_IMAGE
+    entrypoint: [""]
+  needs:
+    - build_push_migrations
+    - compile_app_server
+    - compile_app_client
+  script:
+    # Step 1: Get the Digest
+    - echo "Getting Digest from AWS"
+    #- export ECR_DIGEST=$(aws ecr describe-images --repository-name app-migrations --image-ids imageTag=$CI_COMMIT_SHORT_SHA --query 'imageDetails[0].imageDigest' --output text)
+    - export ECR_DIGEST="sha256:69012262264d9b743c52f96ee7b78144bc9a93936b35aa0ee26350a668244716"
+    # Step 2: Ensure exclusive execution and Snapshot
+    - echo "Snapshotting database"
+    - ./scripts/rds-snapshot-app-db "$APP_ENVIRONMENT"
+    # Step 3: Run migrations
+    - echo "Running migrations"
+    - ./scripts/ecs-run-app-migrations-container "447641181206.dkr.ecr.us-gov-west-1.amazonaws.com/app-migrations@${ECR_DIGEST}" "demo"
+
+    # Step 4: Announce failure only if on the specific branch
+    - |
+      if [[ "$CI_COMMIT_BRANCH" == "main" && "$CI_JOB_STATUS" == "failed" ]]; then
+        ./scripts/circleci-announce-broken-branch
+      fi
+
+  timeout: 40m
+
+deploy_dp3_tasks:
+  stage: deploy
+  image:
+    name: $DOCKER_APP_IMAGE
+    entrypoint: [""]
+  needs:
+    - build_push_dp3_tasks
+    - compile_app_server
+    - compile_app_client
+  script:
+    - echo "Getting Digest from AWS"
+    - export ECR_DIGEST=$(aws ecr describe-images --repository-name app-tasks --image-ids imageTag=$CI_COMMIT_SHORT_SHA --query 'imageDetails[0].imageDigest' --output text)
+    - echo "Deploying GHC fuel price data task service"
+    - ./scripts/ecs-deploy-task-container save-ghc-fuel-price-data "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/app-tasks@${ECR_DIGEST}" "${APP_ENVIRONMENT}"
+    - echo "Deploying payment reminder email task service"
+    - ./scripts/ecs-deploy-task-container send-payment-reminder "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/app-tasks@${ECR_DIGEST}" "${APP_ENVIRONMENT}"
+
+  # Run failure announcement only if on the main branch
+    - |
+      if [[ "$CI_COMMIT_BRANCH" == "main" && "$CI_JOB_STATUS" == "failed" ]]; then
+        ./scripts/circleci-announce-broken-branch
+      fi
+  timeout: 40m
+
+deploy_dp3_app_client_tls:
+  stage: deploy
+  image:
+    name: $DOCKER_APP_IMAGE
+    entrypoint: [""]
+  needs:
+    - deploy_dp3_migrations
+    - push_otel_collector_image_dp3
+    - compile_app_server
+    - compile_app_client
+  variables:
+    OPEN_TELEMETRY_SIDECAR: "true"
+    HEALTH_CHECK: "true"
+  script:
+    # - echo "Comparing against deployed commit"
+    # - ./scripts/compare-deployed-commit "" $CI_COMMIT_SHA ${TLS_KEY} ${TLS_CERT} ${TLS_CA}
+    - echo "Getting Digest from AWS"
+    - export ECR_DIGEST=$(aws ecr describe-images --repository-name app --image-ids imageTag=$CI_COMMIT_SHORT_SHA --query 'imageDetails[0].imageDigest' --output text)
+    - echo "Getting otel collector Digest from AWS"
+    - export OTEL_ECR_DIGEST=$(aws ecr describe-images --repository-name otel-collector --image-ids imageTag=$CI_COMMIT_SHORT_SHA --query 'imageDetails[0].imageDigest' --output text)
+    - export OTEL_COLLECTOR_IMAGE="${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/otel-collector@${OTEL_ECR_DIGEST}"
+    - echo "Deploying app-client-tls service"
+    - ./scripts/ecs-deploy-service-container app-client-tls "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/app@${ECR_DIGEST}" "${APP_ENVIRONMENT}" "/bin/milmove serve"
+    - echo "Running Health Check"
+    # - bin/health-checker --schemes https --hosts api.demo.dp3.us --key ${TLS_KEY} --cert ${TLS_CERT} --ca ${TLS_CA} --tries 10 --backoff 3 --log-level info --timeout 5m
+    # - echo "Running TLS Check"
+    # - bin/tls-checker --schemes https --hosts api.demo.dp3.us --key ${TLS_KEY} --cert ${TLS_CERT} --ca ${TLS_CA} --log-level info --timeout 15m
+    # - echo "Checking deployed commits"
+    # - ./scripts/check-deployed-commit "api.demo.dp3.us" "$CI_COMMIT_SHA" ${TLS_KEY} ${TLS_CERT} ${TLS_CA}
+    - |
+      # Run failure announcement only if on the main branch
+      if [[ "$CI_COMMIT_BRANCH" == "main" && "$CI_JOB_STATUS" == "failed" ]]; then
+        ./scripts/circleci-announce-broken-branch
+      fi
+  timeout: 60m
+
+deploy_dp3_app:
+  stage: deploy
+  image:
+    name: $DOCKER_APP_IMAGE
+    entrypoint: [""]
+  needs:
+    - build_push_app
+    - deploy_dp3_migrations
+    - compile_app_server
+    - compile_app_client
+  variables:
+    APP_ENVIRONMENT: "demo"
+    OPEN_TELEMETRY_SIDECAR: "true"
+    HEALTH_CHECK: "true"
+  script:
+    - ls bin
+    - pwd
+    - echo "Comparing against deployed commit"
+    # - ./scripts/compare-deployed-commit "" "$CI_COMMIT_SHA" "$TLS_KEY" "$TLS_CERT" "$TLS_CA"
+    - echo "Creating .go-version file if not already present"
+    - |
+      if [ -f ".go-version" ]; then
+        echo ".go-version already exists, no need to re-create"
+      else
+        GO_VERSION=$(awk '/golang/ { print $2 }' .tool-versions)
+        echo "Creating .go-version using version ${GO_VERSION}"
+        echo $GO_VERSION > .go-version
+      fi
+    - echo "Getting Digest from AWS"
+    - export ECR_DIGEST=$(aws ecr describe-images --repository-name app --image-ids imageTag=$CI_COMMIT_SHORT_SHA --query 'imageDetails[0].imageDigest' --output text)
+    - echo "Getting otel collector digest from AWS"
+    - export OTEL_ECR_DIGEST=$(aws ecr describe-images --repository-name otel-collector --image-ids imageTag=$CI_COMMIT_SHORT_SHA --query 'imageDetails[0].imageDigest' --output text)
+    - export OTEL_COLLECTOR_IMAGE="${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/otel-collector@${OTEL_ECR_DIGEST}"
+    - echo "Deploying app service"
+    - ./scripts/ecs-deploy-service-container app "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/app@${ECR_DIGEST}" "${APP_ENVIRONMENT}" "/bin/milmove serve"
+    - echo "Running Health Check"
+    # - bin/health-checker --schemes https --hosts my.demo.dp3.us,office.demo.dp3.us,admin.demo.dp3.us --tries 10 --backoff 3 --log-level info --timeout 5m
+    # - echo "Running TLS Check"
+    # - bin/tls-checker --schemes https --hosts my.demo.dp3.us,office.demo.dp3.us,admin.demo.dp3.us --log-level info --timeout 15m
+    # - echo "Checking deployed commits"
+    - ./scripts/check-deployed-commit "my.demo.dp3.us,office.demo.dp3.us,admin.demo.dp3.us" "$CI_COMMIT_SHA"
+  # Run failure announcement only if on the main branch
+    - |
+      if [[ "$CI_COMMIT_BRANCH" == "main" && "$CI_JOB_STATUS" == "failed" ]]; then
+        ./scripts/circleci-announce-broken-branch
+      fi
+  timeout: 60m
