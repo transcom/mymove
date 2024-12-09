@@ -2326,12 +2326,15 @@ definitions:
         * DDSFSC - UpdateMTOServiceItemSIT
         * DDSHUT - UpdateMTOServiceItemShuttle
         * DOSHUT - UpdateMTOServiceItemShuttle
+        * PODFSC - UpdateMTOServiceItemInternationalPortFSC
+        * POEFSC - UpdateMTOServiceItemInternationalPortFSC
 
       The documentation will then update with the supported fields.
     type: string
     enum:
       - UpdateMTOServiceItemSIT
       - UpdateMTOServiceItemShuttle
+      - UpdateMTOServiceItemInternationalPortFSC
   UpdateMTOServiceItemShuttle:
     description: >
       Subtype used to provide the estimated weight and actual weight for
@@ -2463,6 +2466,28 @@ definitions:
             description: Indicates if "Approvals Requested" status is being requested.
             type: boolean
             x-nullable: true
+  UpdateMTOServiceItemInternationalPortFSC:
+    description: >
+      Subtype used to provide the port for fuel surcharge. This is not creating
+      a new service item but rather updating an existing service item.
+    allOf:
+      - $ref: '#/definitions/UpdateMTOServiceItem'
+      - type: object
+        properties:
+          portCode:
+            type: string
+            example: PDX
+            description: >-
+              Port used for the shipment. Relevant for moving (PODFSC & POEFSC)
+              service items.
+            x-nullable: true
+            x-omitempty: false
+          reServiceCode:
+            type: string
+            description: Service code allowed for this model type.
+            enum:
+              - PODFSC
+              - POEFSC
   UpdateMTOShipment:
     properties:
       actualProGearWeight:
