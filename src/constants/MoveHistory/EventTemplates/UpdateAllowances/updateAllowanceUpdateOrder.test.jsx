@@ -19,7 +19,7 @@ describe('when given a update allowance, update order history record', () => {
   it('displays the proper update order record', () => {
     const template = getTemplate(historyRecord);
     render(template.getDetails(historyRecord));
-    expect(screen.getByText('Max Billable Weight')).toBeInTheDocument();
+    expect(screen.getByText('Authorized weight')).toBeInTheDocument();
     expect(screen.getByText(': 11,000 lbs')).toBeInTheDocument();
   });
 });
