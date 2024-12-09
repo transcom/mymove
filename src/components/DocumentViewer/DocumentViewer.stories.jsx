@@ -9,8 +9,17 @@ import jpg from './sample.jpg';
 import png from './sample2.png';
 import gif from './sample3.gif';
 
+const queryClient = new QueryClient();
+
+const withQueryClient = (Story) => (
+  <QueryClientProvider client={queryClient}>
+    <Story />
+  </QueryClientProvider>
+);
+
 export default {
   title: 'Components/Document Viewer/Document Viewer',
+  decorators: [withQueryClient],
 };
 
 const testPDFFiles = [
