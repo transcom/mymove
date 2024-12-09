@@ -53,6 +53,18 @@ const RolesPrivilegesCheckboxInput = (props) => {
           input.splice(index, 1);
         }
       }
+      if (input.includes(roleTypes.GSR)) {
+        index = input.indexOf(roleTypes.GSR);
+        if (index !== -1) {
+          input.splice(index, 1);
+        }
+      }
+      if (input.includes(roleTypes.PRIME_SIMULATOR)) {
+        index = input.indexOf(roleTypes.PRIME_SIMULATOR);
+        if (index !== -1) {
+          input.splice(index, 1);
+        }
+      }
     }
 
     if (!isHeadquartersRoleFF && input.includes(roleTypes.HQ)) {
@@ -139,6 +151,10 @@ const RolesPrivilegesCheckboxInput = (props) => {
       />
       <span style={{ marginTop: '-20px', marginBottom: '20px', fontWeight: 'bold' }}>
         Privileges cannot be selected with Customer or Contracting Officer roles.
+      </span>
+      <span style={{ marginTop: '-20px', marginBottom: '20px', fontWeight: 'bold', whiteSpace: 'pre-wrap' }}>
+        The Safety Moves privilege can only be selected for the following roles: Task Ordering Officer, Task Invoicing
+        Officer, Services Counselor, Quality Assurance Evaluator, Customer Service Representative, and Headquarters.
       </span>
     </>
   );
