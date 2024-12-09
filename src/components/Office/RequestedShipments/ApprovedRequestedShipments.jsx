@@ -89,6 +89,8 @@ const ApprovedRequestedShipments = ({
   const [enableBoat, setEnableBoat] = useState(false);
   const [enableMobileHome, setEnableMobileHome] = useState(false);
   const [enableUB, setEnableUB] = useState(false);
+  const [enableNTS, setEnableNTS] = React.useState(false);
+  const [enableNTSR, setEnableNTSR] = React.useState(false);
   const [isOconusMove, setIsOconusMove] = useState(false);
 
   useEffect(() => {
@@ -96,6 +98,8 @@ const ApprovedRequestedShipments = ({
       setEnableBoat(await isBooleanFlagEnabled(FEATURE_FLAG_KEYS.BOAT));
       setEnableMobileHome(await isBooleanFlagEnabled(FEATURE_FLAG_KEYS.MOBILE_HOME));
       setEnableUB(await isBooleanFlagEnabled(FEATURE_FLAG_KEYS.UNACCOMPANIED_BAGGAGE));
+      setEnableNTS(await isBooleanFlagEnabled(FEATURE_FLAG_KEYS.NTS));
+      setEnableNTSR(await isBooleanFlagEnabled(FEATURE_FLAG_KEYS.NTSR));
     };
     fetchData();
   }, []);
@@ -117,8 +121,8 @@ const ApprovedRequestedShipments = ({
           HHG
         </option>
         <option value={SHIPMENT_OPTIONS_URL.PPM}>PPM</option>
-        <option value={SHIPMENT_OPTIONS_URL.NTS}>NTS</option>
-        <option value={SHIPMENT_OPTIONS_URL.NTSrelease}>NTS-release</option>
+        {enableNTS && <option value={SHIPMENT_OPTIONS_URL.NTS}>NTS</option>}
+        {enableNTSR && <option value={SHIPMENT_OPTIONS_URL.NTSrelease}>NTS-release</option>}
         {enableBoat && <option value={SHIPMENT_OPTIONS_URL.BOAT}>Boat</option>}
         {enableMobileHome && <option value={SHIPMENT_OPTIONS_URL.MOBILE_HOME}>Mobile Home</option>}
         {enableUB && isOconusMove && <option value={SHIPMENT_OPTIONS_URL.UNACCOMPANIED_BAGGAGE}>UB</option>}
