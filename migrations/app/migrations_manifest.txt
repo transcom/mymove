@@ -1036,3 +1036,4 @@
 20241202163059_create_test_sequence_dev_env.up.sql
 20241203024453_add_ppm_max_incentive_column.up.sql
 20241204210208_retroactive_update_of_ppm_max_and_estimated_incentives_prd.up.sql
+20241209121924_entitlements_refactor.up.sql
