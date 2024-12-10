@@ -1,9 +1,9 @@
 import { render, screen } from '@testing-library/react';
 
 import getTemplate from 'constants/MoveHistory/TemplateManager';
-import e from 'constants/MoveHistory/EventTemplates/UpdateAllowances/updateAllowanceUpdateMTOShipment';
+import e from 'constants/MoveHistory/EventTemplates/UpdateMTOShipment/updateEntitlementUpdateMTOShipment';
 
-describe('when given a update allowance, update MTO shipment history record', () => {
+describe('when given an update to entitlement, update MTO shipment history record', () => {
   const historyRecord = {
     action: 'UPDATE',
     eventName: 'updateMTOShipment',
@@ -18,7 +18,7 @@ describe('when given a update allowance, update MTO shipment history record', ()
     changedValues: { authorized_weight: 1650 },
   };
 
-  it('correctly matches the update allowance, update MTO shipment event', () => {
+  it('correctly matches the update to entitlement, update MTO shipment event', () => {
     const template = getTemplate(historyRecord);
     expect(template).toMatchObject(e);
   });
