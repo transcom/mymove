@@ -83,6 +83,10 @@ SELECT add_audit_history_table(
 	ignored_cols := ARRAY[
 		'created_at',
 		'updated_at',
+		'destination_address_id',
+		'secondary_pickup_address_id',
+		'secondary_delivery_address_id',
+		'pickup_address_id',
 		'move_id',
 		'storage_facility_id'
 	]
