@@ -33,6 +33,7 @@ const mockTransportationOffice = [
       postalCode: '',
       state: '',
       streetAddress1: '',
+      county: '',
     },
     address_id: '46c4640b-c35e-4293-a2f1-36c7b629f903',
     affiliation: 'AIR_FORCE',
@@ -69,6 +70,7 @@ jest.mock('components/LocationSearchBox/api', () => ({
       postalCode: '85309',
       state: 'AZ',
       streetAddress1: 'n/a',
+      county: 'MARICOPA',
     }),
   ),
 }));
@@ -87,6 +89,7 @@ const useEditShipmentQueriesReturnValue = {
         city: 'Fort Knox',
         state: 'KY',
         postalCode: '40121',
+        county: 'HARDIN',
       },
     },
     destinationDutyLocation: {
@@ -95,6 +98,7 @@ const useEditShipmentQueriesReturnValue = {
         city: 'Fort Irwin',
         state: 'CA',
         postalCode: '92310',
+        county: 'SAN BERNARDINO',
       },
     },
     customer: {
@@ -114,6 +118,7 @@ const useEditShipmentQueriesReturnValue = {
         streetAddress1: '123 Any Street',
         streetAddress2: 'P.O. Box 12345',
         streetAddress3: 'c/o Some Person',
+        county: 'LOS ANGELES',
       },
       dodID: '6833908165',
       eTag: 'MjAyMS0wMS0yMVQxNTo0MTozNS41NjAzNTJa',
@@ -153,6 +158,7 @@ const useEditShipmentQueriesReturnValue = {
         streetAddress1: '987 Any Avenue',
         streetAddress2: 'P.O. Box 9876',
         streetAddress3: 'c/o Some Person',
+        county: 'SOLANO',
       },
       eTag: 'MjAyMC0wNi0xMFQxNTo1ODowMi40MDQwMzFa',
       id: 'shipment123',
@@ -167,6 +173,7 @@ const useEditShipmentQueriesReturnValue = {
         streetAddress1: '123 Any Street',
         streetAddress2: 'P.O. Box 12345',
         streetAddress3: 'c/o Some Person',
+        county: 'LOS ANGELES',
       },
       requestedPickupDate: '2018-03-15',
       scheduledPickupDate: '2018-03-16',
@@ -199,6 +206,7 @@ const ppmShipment = {
       city: 'Test City',
       state: 'KY',
       postalCode: '42701',
+      county: 'HARDIN',
     },
     secondaryPickupAddress: {
       streetAddress1: '777 Test Street',
@@ -207,6 +215,7 @@ const ppmShipment = {
       city: 'Test City',
       state: 'KY',
       postalCode: '42702',
+      county: 'HARDIN',
     },
     destinationAddress: {
       streetAddress1: '222 Test Street',
@@ -215,6 +224,7 @@ const ppmShipment = {
       city: 'Test City',
       state: 'KY',
       postalCode: '42703',
+      county: 'HARDIN',
     },
     secondaryDestinationAddress: {
       streetAddress1: '444 Test Street',
@@ -223,6 +233,7 @@ const ppmShipment = {
       city: 'Test City',
       state: 'KY',
       postalCode: '42701',
+      county: 'HARDIN',
     },
     sitExpected: false,
     estimatedWeight: 1111,
@@ -368,68 +379,63 @@ describe('ServicesCounselingEditShipmentDetails component', () => {
       renderWithProviders(<ServicesCounselingEditShipmentDetails {...props} />, mockRoutingConfig);
 
       expect(await screen.findByTestId('tag')).toHaveTextContent('PPM');
-      expect(await screen.getByRole('textbox', { name: 'Planned Departure Date' })).toHaveValue('28 Jun 2022');
+      expect(screen.getByRole('textbox', { name: 'Planned Departure Date' })).toHaveValue('28 Jun 2022');
 
-      expect(await screen.getAllByLabelText('Address 1')[0]).toHaveValue(
+      expect(screen.getAllByLabelText('Address 1')[0]).toHaveValue(
         ppmShipment.ppmShipment.pickupAddress.streetAddress1,
       );
-      expect(await screen.getAllByLabelText(/Address 2/)[0]).toHaveValue(
+      expect(screen.getAllByLabelText(/Address 2/)[0]).toHaveValue(
         ppmShipment.ppmShipment.pickupAddress.streetAddress2,
       );
-      expect(await screen.getAllByLabelText('City')[0]).toHaveValue(ppmShipment.ppmShipment.pickupAddress.city);
-      expect(await screen.getAllByLabelText('State')[0]).toHaveValue(ppmShipment.ppmShipment.pickupAddress.state);
-      expect(await screen.getAllByLabelText('ZIP')[0]).toHaveValue(ppmShipment.ppmShipment.pickupAddress.postalCode);
 
-      expect(await screen.getAllByLabelText('Address 1')[1]).toHaveValue(
+      expect(screen.getAllByTestId('City')[0]).toHaveTextContent(ppmShipment.ppmShipment.pickupAddress.city);
+      expect(screen.getAllByTestId('State')[0]).toHaveTextContent(ppmShipment.ppmShipment.pickupAddress.state);
+      expect(screen.getAllByTestId('ZIP')[0]).toHaveTextContent(ppmShipment.ppmShipment.pickupAddress.postalCode);
+
+      expect(screen.getAllByLabelText('Address 1')[1]).toHaveValue(
         ppmShipment.ppmShipment.secondaryPickupAddress.streetAddress1,
       );
-      expect(await screen.getAllByLabelText(/Address 2/)[1]).toHaveValue(
+      expect(screen.getAllByLabelText(/Address 2/)[1]).toHaveValue(
         ppmShipment.ppmShipment.secondaryPickupAddress.streetAddress2,
       );
-      expect(await screen.getAllByLabelText('City')[1]).toHaveValue(
-        ppmShipment.ppmShipment.secondaryPickupAddress.city,
-      );
-      expect(await screen.getAllByLabelText('State')[1]).toHaveValue(
-        ppmShipment.ppmShipment.secondaryPickupAddress.state,
-      );
-      expect(await screen.getAllByLabelText('ZIP')[1]).toHaveValue(
+      expect(screen.getAllByTestId('City')[1]).toHaveTextContent(ppmShipment.ppmShipment.secondaryPickupAddress.city);
+      expect(screen.getAllByTestId('State')[1]).toHaveTextContent(ppmShipment.ppmShipment.secondaryPickupAddress.state);
+      expect(screen.getAllByTestId('ZIP')[1]).toHaveTextContent(
         ppmShipment.ppmShipment.secondaryPickupAddress.postalCode,
       );
 
-      expect(await screen.getAllByLabelText(/Address 1/)[2]).toHaveValue(
+      expect(screen.getAllByLabelText(/Address 1/)[2]).toHaveValue(
         ppmShipment.ppmShipment.destinationAddress.streetAddress1,
       );
-      expect(await screen.getAllByLabelText(/Address 2/)[2]).toHaveValue(
+      expect(screen.getAllByLabelText(/Address 2/)[2]).toHaveValue(
         ppmShipment.ppmShipment.destinationAddress.streetAddress2,
       );
-      expect(await screen.getAllByLabelText('City')[2]).toHaveValue(ppmShipment.ppmShipment.destinationAddress.city);
-      expect(await screen.getAllByLabelText('State')[2]).toHaveValue(ppmShipment.ppmShipment.destinationAddress.state);
-      expect(await screen.getAllByLabelText(/ZIP/)[2]).toHaveValue(
-        ppmShipment.ppmShipment.destinationAddress.postalCode,
-      );
+      expect(screen.getAllByTestId('City')[2]).toHaveTextContent(ppmShipment.ppmShipment.destinationAddress.city);
+      expect(screen.getAllByTestId('State')[2]).toHaveTextContent(ppmShipment.ppmShipment.destinationAddress.state);
+      expect(screen.getAllByTestId(/ZIP/)[2]).toHaveTextContent(ppmShipment.ppmShipment.destinationAddress.postalCode);
 
-      expect(await screen.getAllByLabelText(/Address 1/)[3]).toHaveValue(
+      expect(screen.getAllByLabelText(/Address 1/)[3]).toHaveValue(
         ppmShipment.ppmShipment.secondaryDestinationAddress.streetAddress1,
       );
-      expect(await screen.getAllByLabelText(/Address 2/)[3]).toHaveValue(
+      expect(screen.getAllByLabelText(/Address 2/)[3]).toHaveValue(
         ppmShipment.ppmShipment.secondaryDestinationAddress.streetAddress2,
       );
-      expect(await screen.getAllByLabelText(/City/)[3]).toHaveValue(
+      expect(screen.getAllByTestId(/City/)[3]).toHaveTextContent(
         ppmShipment.ppmShipment.secondaryDestinationAddress.city,
       );
-      expect(await screen.getAllByLabelText('State')[3]).toHaveValue(
+      expect(screen.getAllByTestId('State')[3]).toHaveTextContent(
         ppmShipment.ppmShipment.secondaryDestinationAddress.state,
       );
-      expect(await screen.getAllByLabelText(/ZIP/)[3]).toHaveValue(
+      expect(screen.getAllByTestId(/ZIP/)[3]).toHaveTextContent(
         ppmShipment.ppmShipment.secondaryDestinationAddress.postalCode,
       );
 
-      expect(await screen.queryByRole('textbox', { name: 'Estimated SIT weight' })).not.toBeInTheDocument();
-      expect(await screen.queryByRole('textbox', { name: 'Estimated storage start' })).not.toBeInTheDocument();
-      expect(await screen.queryByRole('textbox', { name: 'Estimated storage end' })).not.toBeInTheDocument();
+      expect(screen.queryByRole('textbox', { name: 'Estimated SIT weight' })).not.toBeInTheDocument();
+      expect(screen.queryByRole('textbox', { name: 'Estimated storage start' })).not.toBeInTheDocument();
+      expect(screen.queryByRole('textbox', { name: 'Estimated storage end' })).not.toBeInTheDocument();
       expect(await screen.findByRole('textbox', { name: 'Estimated PPM weight' })).toHaveValue('1,111');
-      expect(await screen.queryByRole('textbox', { name: 'Estimated pro-gear weight' })).not.toBeInTheDocument();
-      expect(await screen.queryByRole('textbox', { name: 'Estimated spouse pro-gear weight' })).not.toBeInTheDocument();
+      expect(screen.queryByRole('textbox', { name: 'Estimated pro-gear weight' })).not.toBeInTheDocument();
+      expect(screen.queryByRole('textbox', { name: 'Estimated spouse pro-gear weight' })).not.toBeInTheDocument();
       expect(await screen.findByRole('button', { name: 'Save and Continue' })).toBeInTheDocument();
     });
 
