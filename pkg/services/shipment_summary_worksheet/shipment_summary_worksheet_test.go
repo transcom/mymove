@@ -321,6 +321,7 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestFormatValuesShipmentSumma
 	cents := unit.Cents(1000)
 	locator := "ABCDEF-01"
 	estIncentive := unit.Cents(1000000)
+	maxIncentive := unit.Cents(2000000)
 	PPMShipments := models.PPMShipment{
 		ExpectedDepartureDate:  expectedPickupDate,
 		ActualMoveDate:         &actualPickupDate,
@@ -328,6 +329,7 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestFormatValuesShipmentSumma
 		EstimatedWeight:        &netWeight,
 		AdvanceAmountRequested: &cents,
 		EstimatedIncentive:     &estIncentive,
+		MaxIncentive:           &maxIncentive,
 		Shipment: models.MTOShipment{
 			ShipmentLocator: &locator,
 		},
@@ -374,7 +376,7 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestFormatValuesShipmentSumma
 	suite.Equal("4,000 lbs - Estimated", sswPage1.ShipmentWeights)
 	suite.Equal("Waiting On Customer", sswPage1.ShipmentCurrentShipmentStatuses)
 	suite.Equal("17,500", sswPage1.TotalWeightAllotmentRepeat)
-	suite.Equal("15,000 lbs; $10,000.00", sswPage1.MaxObligationGCC100)
+	suite.Equal("15,000 lbs; $20,000.00", sswPage1.MaxObligationGCC100)
 	suite.True(sswPage1.IsActualExpenseReimbursement)
 	suite.Equal("Actual Expense Reimbursement", sswPage1.GCCIsActualExpenseReimbursement)
 
@@ -1538,6 +1540,7 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestFormatShipment() {
 	exampleValue1 := unit.Cents(5000)
 	exampleValue2 := unit.Cents(3000)
 	exampleValue3 := unit.Cents(1000)
+	maxIncentive := unit.Cents(1000)
 	exampleValue4 := models.PPMAdvanceStatusReceived
 	exampleValue5 := true
 	locator := "ABCDEF-01"
@@ -1560,6 +1563,7 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestFormatShipment() {
 			shipment: models.PPMShipment{
 				FinalIncentive:        &exampleValue1, // Example value
 				EstimatedIncentive:    &exampleValue2, // Example value
+				MaxIncentive:          &maxIncentive,
 				AdvanceAmountReceived: &exampleValue3, // Example value
 				AdvanceStatus:         &exampleValue4,
 				HasRequestedAdvance:   &exampleValue5,
@@ -1569,6 +1573,7 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestFormatShipment() {
 			},
 			expectedResult: models.WorkSheetShipment{
 				FinalIncentive:         "$50.00",                     // Example expected result
+				MaxIncentive:           "$500.00",                    // Example expected result
 				MaxAdvance:             "$18.00",                     // Assuming formatMaxAdvance correctly formats
 				EstimatedIncentive:     "$30.00",                     // Example expected result
 				AdvanceAmountReceived:  "$10.00 Requested, Received", // Example expected result
@@ -1581,6 +1586,7 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestFormatShipment() {
 			shipment: models.PPMShipment{
 				FinalIncentive:        nil,
 				EstimatedIncentive:    &exampleValue2, // Example value
+				MaxIncentive:          &maxIncentive,
 				AdvanceAmountReceived: &exampleValue3, // Example value
 				AdvanceStatus:         &exampleValue4,
 				HasRequestedAdvance:   &exampleValue5,
@@ -1590,6 +1596,7 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestFormatShipment() {
 			},
 			expectedResult: models.WorkSheetShipment{
 				FinalIncentive:         "No final incentive.",
+				MaxIncentive:           "$500.00",
 				MaxAdvance:             "$18.00",                     // Assuming formatMaxAdvance correctly formats
 				EstimatedIncentive:     "$30.00",                     // Example expected result
 				AdvanceAmountReceived:  "$10.00 Requested, Received", // Example expected result

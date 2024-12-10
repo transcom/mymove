@@ -539,3 +539,38 @@ export function formatTimeUnitDays(days) {
 export function formatDistanceUnitMiles(distance) {
   return `${distance} miles`;
 }
+
+export const constructSCOrderOconusFields = (values) => {
+  const isOconus = values.originDutyLocation?.address?.isOconus || values.newDutyLocation?.address?.isOconus;
+  const dependents = values.hasDependents;
+  // The `hasDependents` check within accompanied tour is due to
+  // the dependents section being possible to conditionally render
+  // and then un-render while still being OCONUS
+  // The detailed comments make this nested ternary readable
+  /* eslint-disable no-nested-ternary */
+  return {
+    accompaniedTour:
+      isOconus && dependents
+        ? // If OCONUS and dependents are present, fetch the value from the form.
+          // Otherwise, default to false if OCONUS and dependents are not present
+          dependents
+          ? formatYesNoAPIValue(values.accompaniedTour) // Dependents are present
+          : false // Dependents are not present
+        : // If CONUS or no dependents, omit this field altogether
+          null,
+    dependentsUnderTwelve:
+      isOconus && dependents
+        ? // If OCONUS and dependents are present
+          // then provide the number of dependents under 12. Default to 0 if not present
+          Number(values.dependentsUnderTwelve) ?? 0
+        : // If CONUS or no dependents, omit ths field altogether
+          null,
+    dependentsTwelveAndOver:
+      isOconus && dependents
+        ? // If OCONUS and dependents are present
+          // then provide the number of dependents over 12. Default to 0 if not present
+          Number(values.dependentsTwelveAndOver) ?? 0
+        : // If CONUS or no dependents, omit this field altogether
+          null,
+  };
+};

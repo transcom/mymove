@@ -23,13 +23,13 @@ func NewCustomerSearcher() services.CustomerSearcher {
 type QueryOption func(*pop.Query)
 
 func (s customerSearcher) SearchCustomers(appCtx appcontext.AppContext, params *services.SearchCustomersParams) (models.ServiceMemberSearchResults, int, error) {
-	if params.DodID == nil && params.CustomerName == nil {
+	if params.Edipi == nil && params.CustomerName == nil {
 		verrs := validate.NewErrors()
 		verrs.Add("search key", "DOD ID or customer name must be provided")
 		return models.ServiceMemberSearchResults{}, 0, apperror.NewInvalidInputError(uuid.Nil, nil, verrs, "")
 	}
 
-	if params.CustomerName != nil && params.DodID != nil {
+	if params.CustomerName != nil && params.Edipi != nil {
 		verrs := validate.NewErrors()
 		verrs.Add("search key", "search by multiple keys is not supported")
 		return models.ServiceMemberSearchResults{}, 0, apperror.NewInvalidInputError(uuid.Nil, nil, verrs, "")
@@ -82,7 +82,7 @@ func (s customerSearcher) SearchCustomers(appCtx appcontext.AppContext, params *
 		rawquery += ` WHERE (`
 	}
 
-	if params.DodID != nil {
+	if params.Edipi != nil {
 		rawquery += ` service_members.edipi = $1) ) distinct_customers`
 		if params.Sort != nil && params.Order != nil {
 			sortTerm := parameters[*params.Sort]
@@ -90,7 +90,7 @@ func (s customerSearcher) SearchCustomers(appCtx appcontext.AppContext, params *
 		} else {
 			rawquery += ` ORDER BY distinct_customers.last_name ASC`
 		}
-		query = appCtx.DB().RawQuery(rawquery, params.DodID)
+		query = appCtx.DB().RawQuery(rawquery, params.Edipi)
 	} else {
 		rawquery += ` f_unaccent(lower($1)) % searchable_full_name(first_name, last_name)) ) distinct_customers ORDER BY total_sim DESC`
 		if params.Sort != nil && params.Order != nil {
@@ -101,7 +101,7 @@ func (s customerSearcher) SearchCustomers(appCtx appcontext.AppContext, params *
 	}
 
 	customerNameQuery := customerNameSearch(params.CustomerName)
-	dodIDQuery := dodIDSearch(params.DodID)
+	dodIDQuery := dodIDSearch(params.Edipi)
 	options := [2]QueryOption{customerNameQuery, dodIDQuery}
 
 	for _, option := range options {

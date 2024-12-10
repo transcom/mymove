@@ -3,6 +3,7 @@ package models_test
 import (
 	"github.com/gofrs/uuid"
 
+	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/unit"
 )
@@ -90,6 +91,15 @@ func (suite *ModelSuite) TestMTOShipmentValidation() {
 			"market_code":                   {"MarketCode is not in the list [d, i]."},
 		}
 		suite.verifyValidationErrors(&invalidMTOShipment, expErrors)
+	})
+	suite.Run("test MTO Shipment has a PPM Shipment", func() {
+		ppmShipment := factory.BuildPPMShipment(suite.DB(), nil, nil)
+		mtoShipment := factory.BuildMTOShipmentMinimal(suite.DB(), nil, nil)
+
+		mtoShipment.PPMShipment = &ppmShipment
+		result := mtoShipment.ContainsAPPMShipment()
+
+		suite.True(result, "Expected mtoShipment to cotain a PPM Shipment")
 	})
 }
 

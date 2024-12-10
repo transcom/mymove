@@ -86,6 +86,11 @@ export const SHIPMENT_OPTIONS = {
   UNACCOMPANIED_BAGGAGE: 'UNACCOMPANIED_BAGGAGE',
 };
 
+export const MARKET_CODES = {
+  INTERNATIONAL: 'i',
+  DOMESTIC: 'd',
+};
+
 export const SHIPMENT_TYPES = {
   HHG: 'HHG',
   PPM: 'PPM',
@@ -225,9 +230,9 @@ const ADDRESS_LABELS_MAP = {
   [ADDRESS_TYPES.PICKUP]: 'Pickup Address',
   [ADDRESS_TYPES.SECOND_PICKUP]: 'Second Pickup Address',
   [ADDRESS_TYPES.THIRD_PICKUP]: 'Third Pickup Address',
-  [ADDRESS_TYPES.DESTINATION]: 'Destination Address',
-  [ADDRESS_TYPES.SECOND_DESTINATION]: 'Second Destination Address',
-  [ADDRESS_TYPES.THIRD_DESTINATION]: 'Third Destination Address',
+  [ADDRESS_TYPES.DESTINATION]: 'Delivery Address',
+  [ADDRESS_TYPES.SECOND_DESTINATION]: 'Second Delivery Address',
+  [ADDRESS_TYPES.THIRD_DESTINATION]: 'Third Delivery Address',
 };
 
 export const getAddressLabel = (type) => ADDRESS_LABELS_MAP[type];

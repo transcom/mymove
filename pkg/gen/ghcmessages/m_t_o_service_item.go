@@ -78,6 +78,11 @@ type MTOServiceItem struct {
 	// locked price cents
 	LockedPriceCents *int64 `json:"lockedPriceCents,omitempty"`
 
+	// To identify whether the service was provided within (CONUS) or (OCONUS)
+	// Example: CONUS
+	// Enum: [CONUS OCONUS]
+	Market *string `json:"market,omitempty"`
+
 	// move task order ID
 	// Example: 1f2270c7-7166-40ae-981e-b200ebdf3054
 	// Required: true
@@ -206,6 +211,10 @@ func (m *MTOServiceItem) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validateID(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateMarket(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -412,6 +421,48 @@ func (m *MTOServiceItem) validateID(formats strfmt.Registry) error {
 	}
 
 	if err := validate.FormatOf("id", "body", "uuid", m.ID.String(), formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+var mTOServiceItemTypeMarketPropEnum []interface{}
+
+func init() {
+	var res []string
+	if err := json.Unmarshal([]byte(`["CONUS","OCONUS"]`), &res); err != nil {
+		panic(err)
+	}
+	for _, v := range res {
+		mTOServiceItemTypeMarketPropEnum = append(mTOServiceItemTypeMarketPropEnum, v)
+	}
+}
+
+const (
+
+	// MTOServiceItemMarketCONUS captures enum value "CONUS"
+	MTOServiceItemMarketCONUS string = "CONUS"
+
+	// MTOServiceItemMarketOCONUS captures enum value "OCONUS"
+	MTOServiceItemMarketOCONUS string = "OCONUS"
+)
+
+// prop value enum
+func (m *MTOServiceItem) validateMarketEnum(path, location string, value string) error {
+	if err := validate.EnumCase(path, location, value, mTOServiceItemTypeMarketPropEnum, true); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (m *MTOServiceItem) validateMarket(formats strfmt.Registry) error {
+	if swag.IsZero(m.Market) { // not required
+		return nil
+	}
+
+	// value enum
+	if err := m.validateMarketEnum("market", "body", *m.Market); err != nil {
 		return err
 	}
 
