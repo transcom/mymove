@@ -29,6 +29,27 @@ func TestMove(t *testing.T) {
 	}
 }
 
+func (suite *PayloadsSuite) TestExcessWeightInMovePayload() {
+	now := time.Now()
+
+	suite.Run("successfully converts excess weight in model to payload", func() {
+		move := models.Move{
+
+			ExcessWeightQualifiedAt:                        &now,
+			ExcessUnaccompaniedBaggageWeightQualifiedAt:    &now,
+			ExcessUnaccompaniedBaggageWeightAcknowledgedAt: &now,
+			ExcessWeightAcknowledgedAt:                     &now,
+		}
+
+		payload, err := Move(&move, &test.FakeS3Storage{})
+		suite.NoError(err)
+		suite.Equal(handlers.FmtDateTimePtr(move.ExcessWeightQualifiedAt), payload.ExcessWeightQualifiedAt)
+		suite.Equal(handlers.FmtDateTimePtr(move.ExcessUnaccompaniedBaggageWeightQualifiedAt), payload.ExcessUnaccompaniedBaggageWeightQualifiedAt)
+		suite.Equal(handlers.FmtDateTimePtr(move.ExcessUnaccompaniedBaggageWeightAcknowledgedAt), payload.ExcessUnaccompaniedBaggageWeightAcknowledgedAt)
+		suite.Equal(handlers.FmtDateTimePtr(move.ExcessWeightAcknowledgedAt), payload.ExcessWeightAcknowledgedAt)
+	})
+}
+
 func (suite *PayloadsSuite) TestPaymentRequestQueue() {
 	officeUser := factory.BuildOfficeUserWithPrivileges(suite.DB(), []factory.Customization{
 		{
