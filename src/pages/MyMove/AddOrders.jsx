@@ -54,6 +54,43 @@ const AddOrders = ({
 
   const submitOrders = async (values) => {
     setHasSubmitted(true);
+    const constructOconusFields = () => {
+      const isOconus = values.origin_duty_location?.address?.isOconus || values.new_duty_location?.address?.isOconus;
+      const hasDependents = values.has_dependents;
+      // The `hasDependents` check within accompanied tour is due to
+      // the dependents section being possible to conditionally render
+      // and then un-render while still being OCONUS
+      // The detailed comments make this nested ternary readable
+      /* eslint-disable no-nested-ternary */
+      return {
+        // Nested ternary
+        accompanied_tour:
+          isOconus && hasDependents
+            ? // If OCONUS and dependents are present, fetch the value from the form.
+              // Otherwise, default to false if OCONUS and dependents are not present
+              hasDependents
+              ? formatYesNoAPIValue(values.accompanied_tour) // Dependents are present
+              : false // Dependents are not present
+            : // If CONUS or no dependents, omit this field altogether
+              null,
+        dependents_under_twelve:
+          isOconus && hasDependents
+            ? // If OCONUS and dependents are present
+              // then provide the number of dependents under 12. Default to 0 if not present
+              Number(values.dependents_under_twelve) ?? 0
+            : // If CONUS or no dependents, omit ths field altogether
+              null,
+        dependents_twelve_and_over:
+          isOconus && hasDependents
+            ? // If OCONUS and dependents are present
+              // then provide the number of dependents over 12. Default to 0 if not present
+              Number(values.dependents_twelve_and_over) ?? 0
+            : // If CONUS or no dependents, omit this field altogether
+              null,
+      };
+      /* eslint-enable no-nested-ternary */
+    };
+    const oconusFields = constructOconusFields();
     const pendingValues = {
       ...values,
       service_member_id: serviceMemberId,
@@ -64,6 +101,7 @@ const AddOrders = ({
       grade: values.grade,
       origin_duty_location_id: values.origin_duty_location.id,
       spouse_has_pro_gear: false,
+      ...oconusFields,
       counseling_office_id: values.counseling_office_id,
     };
     if (!values.origin_duty_location.provides_services_counseling) {
@@ -96,6 +134,9 @@ const AddOrders = ({
     new_duty_location: '',
     grade: '',
     origin_duty_location: '',
+    accompanied_tour: '',
+    dependents_under_twelve: '',
+    dependents_twelve_and_over: '',
     counseling_office_id: '',
   };
 
