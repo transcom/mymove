@@ -68,6 +68,10 @@ type MTOServiceItem struct {
 	StandaloneCrate                   *bool                          `db:"standalone_crate"`
 	ExternalCrate                     *bool                          `db:"external_crate"`
 	LockedPriceCents                  *unit.Cents                    `db:"locked_price_cents"`
+	POELocation                       *PortLocation                  `belongs_to:"port_locations" fk_id:"poe_location_id"`
+	POELocationID                     *uuid.UUID                     `db:"poe_location_id"`
+	PODLocation                       *PortLocation                  `belongs_to:"port_locations" fk_id:"pod_location_id"`
+	PODLocationID                     *uuid.UUID                     `db:"pod_location_id"`
 	ServiceLocation                   *ServiceLocationType           `db:"service_location"`
 }
 
@@ -101,6 +105,8 @@ type MTOServiceItemSingle struct {
 	CustomerExpenseReason           *string              `db:"customer_expense_reason"`
 	SITDeliveryMiles                *unit.Miles          `db:"sit_delivery_miles"`
 	PricingEstimate                 *unit.Cents          `db:"pricing_estimate"`
+	POELocationID                   *uuid.UUID           `db:"poe_location_id"`
+	PODLocationID                   *uuid.UUID           `db:"pod_location_id"`
 }
 
 // TableName overrides the table name used by Pop.
