@@ -21,19 +21,19 @@ properties:
     type: string
     x-nullable: true
   subhead:
-    description: LoaTrsySfxTx in lines_of_accounting
-    type: string
-    x-nullable: true
-  objClass:
     description: LoaObjClsID in lines_of_accounting
     type: string
     x-nullable: true
-  bcn:
+  objClass:
     description: LoaAlltSnID in lines_of_accounting
     type: string
     x-nullable: true
-  subAllotCD:
+  bcn:
     description: LoaSbaltmtRcpntID in lines_of_accounting
+    type: string
+    x-nullable: true
+  subAllotCD:
+    description: LoaInstlAcntgActID in lines_of_accounting
     type: string
     x-nullable: true
   aaa:
@@ -45,7 +45,7 @@ properties:
     type: string
     x-nullable: true
   paa:
-    description: LoaInstlAcntgActID in lines_of_accounting
+    description: LoaDocID in lines_of_accounting
     type: string
     x-nullable: true
   costCD:
