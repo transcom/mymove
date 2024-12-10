@@ -131,7 +131,7 @@ $$ LANGUAGE plpgsql;
 -- get ZIP code by passing in a shipment ID and the address type
 -- used for PODFSC & POEFSC service item types
 CREATE OR REPLACE FUNCTION get_zip_code(shipment_id uuid, address_type VARCHAR)
-RETURNS INT AS $$
+RETURNS VARCHAR AS $$
     DECLARE zip_code VARCHAR;
     BEGIN
 
