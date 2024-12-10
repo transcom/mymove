@@ -73,6 +73,7 @@ const fakePayload = {
   create_okta_account: 'true',
   cac_user: 'false',
   is_safety_move: false,
+  is_bluebark: 'false',
 };
 
 const fakeResponse = {
@@ -160,6 +161,46 @@ const safetyPayload = {
   create_okta_account: 'true',
   cac_user: 'false',
   is_safety_move: 'true',
+  is_bluebark: 'false',
+};
+
+const bluebarkPayload = {
+  affiliation: 'Army',
+  edipi: '1234567890',
+  first_name: 'Shish',
+  middle_name: 'Ka',
+  last_name: 'Bob',
+  suffix: 'Mr.',
+  telephone: '555-555-5555',
+  secondary_telephone: '999-867-5309',
+  personal_email: 'tastyAndDelicious@mail.mil',
+  phone_is_preferred: true,
+  email_is_preferred: '',
+  residential_address: {
+    streetAddress1: '8711 S Hungry Ave.',
+    streetAddress2: '',
+    streetAddress3: '',
+    city: 'Starving',
+    state: 'OK',
+    postalCode: '74133',
+  },
+  backup_mailing_address: {
+    streetAddress1: '420 S. Munchies Lane',
+    streetAddress2: '',
+    streetAddress3: '',
+    city: 'Mustang',
+    state: 'KS',
+    postalCode: '73064',
+  },
+  backup_contact: {
+    name: 'Silly String',
+    telephone: '666-666-6666',
+    email: 'allOverDaPlace@mail.com',
+  },
+  create_okta_account: 'falseQA!`',
+  cac_user: 'false',
+  is_safety_move: 'false',
+  is_bluebark: 'true',
 };
 
 const mockUserPrivileges = [
@@ -269,6 +310,7 @@ describe('CreateCustomerForm', () => {
       expect(mockNavigate).toHaveBeenCalledWith(ordersPath, {
         state: {
           isSafetyMoveSelected: false,
+          isBluebarkMoveSelected: false,
         },
       });
     });
@@ -345,6 +387,7 @@ describe('CreateCustomerForm', () => {
       expect(mockNavigate).toHaveBeenCalledWith(ordersPath, {
         state: {
           isSafetyMoveSelected: false,
+          isBluebarkMoveSelected: false,
         },
       });
     });
@@ -417,6 +460,7 @@ describe('CreateCustomerForm', () => {
     expect(saveBtn).toBeInTheDocument();
 
     await userEvent.type(getByTestId('is-safety-move-yes'), safetyPayload.is_safety_move);
+    await userEvent.type(getByTestId('is-bluebark-no'), safetyPayload.is_bluebark);
     await user.selectOptions(getByLabelText('Branch of service'), [safetyPayload.affiliation]);
 
     await user.type(getByLabelText('First name'), safetyPayload.first_name);
@@ -449,6 +493,7 @@ describe('CreateCustomerForm', () => {
       expect(mockNavigate).toHaveBeenCalledWith(ordersPath, {
         state: {
           isSafetyMoveSelected: true,
+          isBluebarkMoveSelected: false,
         },
       });
     });
@@ -471,7 +516,7 @@ describe('CreateCustomerForm', () => {
 
     // check the safety move box
     await userEvent.type(getByTestId('is-safety-move-yes'), safetyPayload.is_safety_move);
-
+    await userEvent.type(getByTestId('is-bluebark-no'), safetyPayload.is_bluebark);
     expect(await screen.findByTestId('safetyMoveHint')).toBeInTheDocument();
 
     await user.selectOptions(getByLabelText('Branch of service'), ['COAST_GUARD']);
@@ -514,6 +559,7 @@ describe('CreateCustomerForm', () => {
       expect(mockNavigate).toHaveBeenCalledWith(ordersPath, {
         state: {
           isSafetyMoveSelected: true,
+          isBluebarkMoveSelected: false,
         },
       });
     });
@@ -585,6 +631,67 @@ describe('CreateCustomerForm', () => {
       expect(mockNavigate).toHaveBeenCalledWith(ordersPath, {
         state: {
           isSafetyMoveSelected: false,
+          isBluebarkMoveSelected: false,
+        },
+      });
+    });
+  }, 10000);
+
+  it('disables and populates DODID and EMPLID inputs when bluebark move is selected', async () => {
+    createCustomerWithOktaOption.mockImplementation(() => Promise.resolve(fakeResponse));
+    isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(true));
+
+    const { getByLabelText, getByTestId, getByRole } = render(
+      <MockProviders>
+        <CreateCustomerForm {...testProps} />
+      </MockProviders>,
+    );
+
+    const user = userEvent.setup();
+
+    const bluebark = await screen.findByTestId('is-bluebark-no');
+    expect(bluebark).toBeChecked();
+
+    await user.click(getByTestId('is-bluebark-yes'));
+
+    await user.selectOptions(getByLabelText('Branch of service'), [bluebarkPayload.affiliation]);
+
+    await user.type(getByTestId('edipiInput'), bluebarkPayload.edipi);
+    // should be able to submit the form
+    await user.type(getByLabelText('First name'), bluebarkPayload.first_name);
+    await user.type(getByLabelText('Last name'), bluebarkPayload.last_name);
+
+    await user.type(getByLabelText('Best contact phone'), bluebarkPayload.telephone);
+    await user.type(getByLabelText('Personal email'), bluebarkPayload.personal_email);
+
+    await user.type(getByTestId('res-add-street1'), bluebarkPayload.residential_address.streetAddress1);
+    await user.type(getByTestId('res-add-city'), bluebarkPayload.residential_address.city);
+    await user.selectOptions(getByTestId('res-add-state'), bluebarkPayload.residential_address.state);
+    await user.type(getByTestId('res-add-zip'), bluebarkPayload.residential_address.postalCode);
+
+    await user.type(getByTestId('backup-add-street1'), bluebarkPayload.backup_mailing_address.streetAddress1);
+    await user.type(getByTestId('backup-add-city'), bluebarkPayload.backup_mailing_address.city);
+    await user.selectOptions(getByTestId('backup-add-state'), bluebarkPayload.backup_mailing_address.state);
+    await user.type(getByTestId('backup-add-zip'), bluebarkPayload.backup_mailing_address.postalCode);
+
+    await user.type(getByLabelText('Name'), bluebarkPayload.backup_contact.name);
+    await user.type(getByRole('textbox', { name: 'Email' }), bluebarkPayload.backup_contact.email);
+    await user.type(getByRole('textbox', { name: 'Phone' }), bluebarkPayload.backup_contact.telephone);
+
+    const saveBtn = await screen.findByRole('button', { name: 'Save' });
+    expect(saveBtn).toBeInTheDocument();
+
+    await waitFor(() => {
+      expect(saveBtn).toBeEnabled();
+    });
+    await user.click(saveBtn);
+
+    await waitFor(() => {
+      expect(createCustomerWithOktaOption).toHaveBeenCalled();
+      expect(mockNavigate).toHaveBeenCalledWith(ordersPath, {
+        state: {
+          isSafetyMoveSelected: false,
+          isBluebarkMoveSelected: true,
         },
       });
     });

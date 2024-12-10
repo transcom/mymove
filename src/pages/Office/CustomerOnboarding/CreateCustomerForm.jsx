@@ -36,6 +36,7 @@ export const CreateCustomerForm = ({ userPrivileges, setFlashMessage, setCanAddO
   const [showEmplid, setShowEmplid] = useState(false);
   const [isSafetyMove, setIsSafetyMove] = useState(false);
   const [showSafetyMoveHint, setShowSafetyMoveHint] = useState(false);
+  const [isBluebarkMove, setIsBluebarkMove] = useState(false);
   const navigate = useNavigate();
 
   const branchOptions = dropdownInputOptions(SERVICE_MEMBER_AGENCY_LABELS);
@@ -96,6 +97,7 @@ export const CreateCustomerForm = ({ userPrivileges, setFlashMessage, setCanAddO
     create_okta_account: '',
     cac_user: '',
     is_safety_move: 'false',
+    is_bluebark: 'false',
   };
 
   const handleBack = () => {
@@ -140,7 +142,7 @@ export const CreateCustomerForm = ({ userPrivileges, setFlashMessage, setCanAddO
           generatePath(servicesCounselingRoutes.BASE_CUSTOMERS_ORDERS_ADD_PATH, {
             customerId,
           }),
-          { state: { isSafetyMoveSelected: isSafetyMove } },
+          { state: { isSafetyMoveSelected: isSafetyMove, isBluebarkMoveSelected: isBluebarkMove } },
         );
       })
       .catch((e) => {
@@ -225,6 +227,7 @@ export const CreateCustomerForm = ({ userPrivileges, setFlashMessage, setCanAddO
                     create_okta_account: '',
                     cac_user: 'true',
                     is_safety_move: 'true',
+                    is_bluebark: 'false',
                   });
                 } else if (value === 'false') {
                   setIsSafetyMove(false);
@@ -273,6 +276,28 @@ export const CreateCustomerForm = ({ userPrivileges, setFlashMessage, setCanAddO
                   });
                 }
               };
+              const handleBluebarkChange = (e) => {
+                if (e.target.value === 'true') {
+                  setIsBluebarkMove(true);
+                  setShowEmplid(true);
+                  setValues({
+                    ...values,
+                    affiliation: e.target.value,
+                    create_okta_account: 'false',
+                    cac_user: 'false',
+                    is_bluebark: 'true',
+                    is_safety_move: 'false',
+                  });
+                } else {
+                  setIsBluebarkMove(false);
+                  setShowEmplid(false);
+                  setValues({
+                    ...values,
+                    affiliation: e.target.value,
+                    is_bluebark: 'false',
+                  });
+                }
+              };
               return (
                 <Form className={formStyles.form}>
                   <h1 className={styles.header}>Create Customer Profile</h1>
@@ -305,10 +330,36 @@ export const CreateCustomerForm = ({ userPrivileges, setFlashMessage, setCanAddO
                         </div>
                       </Fieldset>
                     )}
+                    <Fieldset className={styles.trailerOwnershipFieldset}>
+                      <legend className="usa-label">Is this a Bluebark Move?</legend>
+                      <div className="grid-row grid-gap">
+                        <Field
+                          as={Radio}
+                          id="isBluebarkYes"
+                          label="Yes"
+                          name="is_bluebark"
+                          value="true"
+                          data-testid="is-bluebark-yes"
+                          onChange={handleBluebarkChange}
+                          checked={values.is_bluebark === 'true'}
+                        />
+                        <Field
+                          as={Radio}
+                          id="isBluebarkNo"
+                          label="No"
+                          name="is_bluebark"
+                          value="false"
+                          data-testid="is-bluebark-no"
+                          onChange={handleBluebarkChange}
+                          checked={values.is_bluebark === 'false'}
+                        />
+                      </div>
+                    </Fieldset>
                     <DropdownInput
                       label="Branch of service"
                       name="affiliation"
                       id="affiliation"
+                      data-testid="affiliationInput"
                       required
                       onChange={(e) => {
                         handleChange(e);
@@ -485,7 +536,7 @@ export const CreateCustomerForm = ({ userPrivileges, setFlashMessage, setCanAddO
                       required
                     />
                   </SectionWrapper>
-                  {values.is_safety_move !== 'true' && (
+                  {values.is_safety_move !== 'true' && values.is_bluebark !== 'true' && (
                     <SectionWrapper className={formStyles.formSection}>
                       <h3>Okta Account</h3>
                       <Fieldset className={styles.trailerOwnershipFieldset}>
@@ -511,7 +562,7 @@ export const CreateCustomerForm = ({ userPrivileges, setFlashMessage, setCanAddO
                       </Fieldset>
                     </SectionWrapper>
                   )}
-                  {values.is_safety_move !== 'true' && (
+                  {values.is_safety_move !== 'true' && values.is_bluebark !== 'true' && (
                     <SectionWrapper className={formStyles.formSection}>
                       <h3>Non-CAC Users</h3>
                       <Fieldset className={styles.trailerOwnershipFieldset}>

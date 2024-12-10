@@ -25,6 +25,7 @@ const ServicesCounselingAddOrders = ({ userPrivileges, canAddOrders, setCanAddOr
   const { customerId } = useParams();
   const { state } = useLocation();
   const isSafetyMoveSelected = state?.isSafetyMoveSelected;
+  const isBluebarkMoveSelected = state?.isBluebarkMoveSelected;
   const navigate = useNavigate();
   const [isSafetyMoveFF, setSafetyMoveFF] = useState(false);
   const [hasSubmitted, setHasSubmitted] = useState(false);
@@ -82,13 +83,25 @@ const ServicesCounselingAddOrders = ({ userPrivileges, canAddOrders, setCanAddOr
       ? userPrivileges?.some((privilege) => privilege.privilegeType === elevatedPrivilegeTypes.SAFETY)
       : false;
 
-  const allowedOrdersTypes = isSafetyPrivileged
-    ? { ...ORDERS_TYPE_OPTIONS, ...{ SAFETY: 'Safety' } }
-    : ORDERS_TYPE_OPTIONS;
+  const allowedOrdersTypes = {
+    ...ORDERS_TYPE_OPTIONS,
+    ...(isSafetyPrivileged ? { SAFETY: 'Safety' } : {}),
+    ...(isBluebarkMoveSelected ? { BLUEBARK: 'BLUEBARK' } : {}),
+  };
   const ordersTypeOptions = dropdownInputOptions(allowedOrdersTypes);
 
+  const getInitialOrdersType = () => {
+    if (isSafetyMoveSelected) {
+      return 'SAFETY';
+    }
+    if (isBluebarkMoveSelected) {
+      return 'BLUEBARK';
+    }
+    return '';
+  };
+
   const initialValues = {
-    ordersType: isSafetyMoveSelected ? 'SAFETY' : '',
+    ordersType: getInitialOrdersType(),
     issueDate: '',
     reportByDate: '',
     hasDependents: '',
@@ -123,13 +136,13 @@ const ServicesCounselingAddOrders = ({ userPrivileges, canAddOrders, setCanAddOr
             initialValues={initialValues}
             onBack={handleBack}
             isSafetyMoveSelected={isSafetyMoveSelected}
+            isBluebarkMoveSelected={isBluebarkMoveSelected}
           />
         </Grid>
       </Grid>
     </GridContainer>
   );
 };
-
 const mapStateToProps = (state) => {
   const canAddOrders = selectCanAddOrders(state);
 
