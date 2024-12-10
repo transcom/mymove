@@ -1024,10 +1024,12 @@
 20241009210749_create_view_v_locations.up.sql
 20241011201326_changes_for_actual_expense_reimbursement_field.up.sql
 20241017183144_add_AK_HI_duty_locations.up.sql
+20241018091722_oconus-entitlements-enhancement.up.sql
 20241023130404_create_re_service_items.up.sql
 20241024114748_create_gbloc_aors.up.sql
 20241029125015_add_orders_type_enum.up.sql
 20241029144404_hdt-614-adjust-accomack-county.up.sql
+20241031163018_create_ub_allowances_table.up.sql
 20241107180705_add_alternative_AK_HI_duty_location_names.up.sql
 20241109002854_add_gsr_table_to_move_history.up.sql
 20241111203514_add_external_crate_and_remove_icrtsa.up.sql
