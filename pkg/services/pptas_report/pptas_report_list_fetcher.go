@@ -566,7 +566,7 @@ func Address(address *models.Address) *pptasmessages.Address {
 		State:          &address.State,
 		PostalCode:     &address.PostalCode,
 		Country:        Country(address.Country),
-		County:         &address.County,
+		County:         address.County,
 		ETag:           etag.GenerateEtag(address.UpdatedAt),
 	}
 }
