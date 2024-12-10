@@ -90,9 +90,7 @@ const ShipmentApprovalPreview = ({
                       />
                       <ShipmentServiceItemsTable
                         className={classNames(styles.shipmentServiceItems)}
-                        shipmentType={shipment.shipmentType}
-                        destinationZip3={shipment.destinationAddress?.postalCode.slice(0, 3)}
-                        pickupZip3={shipment.pickupAddress?.postalCode.slice(0, 3)}
+                        shipment={shipment}
                       />
                     </div>
                   </div>

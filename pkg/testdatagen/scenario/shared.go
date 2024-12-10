@@ -17,8 +17,10 @@ import (
 	"github.com/transcom/mymove/pkg/factory"
 	fakedata "github.com/transcom/mymove/pkg/fakedata_approved"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
+	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/models/roles"
+	paymentrequesthelper "github.com/transcom/mymove/pkg/payment_request"
 	"github.com/transcom/mymove/pkg/random"
 	routemocks "github.com/transcom/mymove/pkg/route/mocks"
 	"github.com/transcom/mymove/pkg/services"
@@ -29,6 +31,7 @@ import (
 	mtoshipment "github.com/transcom/mymove/pkg/services/mto_shipment"
 	paymentrequest "github.com/transcom/mymove/pkg/services/payment_request"
 	portlocation "github.com/transcom/mymove/pkg/services/port_location"
+	"github.com/transcom/mymove/pkg/services/ppmshipment"
 	"github.com/transcom/mymove/pkg/services/query"
 	signedcertification "github.com/transcom/mymove/pkg/services/signed_certification"
 	"github.com/transcom/mymove/pkg/testdatagen"
@@ -4206,7 +4209,9 @@ func createHHGWithOriginSITServiceItems(
 
 	signedCertificationCreator := signedcertification.NewSignedCertificationCreator()
 	signedCertificationUpdater := signedcertification.NewSignedCertificationUpdater()
-	mtoUpdater := movetaskorder.NewMoveTaskOrderUpdater(queryBuilder, serviceItemCreator, moveRouter, signedCertificationCreator, signedCertificationUpdater)
+	handlerConfig := handlers.Config{}
+	ppmEstimator := ppmshipment.NewEstimatePPM(handlerConfig.DTODPlanner(), &paymentrequesthelper.RequestPaymentHelper{})
+	mtoUpdater := movetaskorder.NewMoveTaskOrderUpdater(queryBuilder, serviceItemCreator, moveRouter, signedCertificationCreator, signedCertificationUpdater, ppmEstimator)
 	_, approveErr := mtoUpdater.MakeAvailableToPrime(appCtx, move.ID, etag.GenerateEtag(move.UpdatedAt), true, true)
 
 	if approveErr != nil {
@@ -4473,7 +4478,9 @@ func createHHGWithDestinationSITServiceItems(appCtx appcontext.AppContext, prime
 	//////////////////////////////////////////////////
 	signedCertificationCreator := signedcertification.NewSignedCertificationCreator()
 	signedCertificationUpdater := signedcertification.NewSignedCertificationUpdater()
-	mtoUpdater := movetaskorder.NewMoveTaskOrderUpdater(queryBuilder, serviceItemCreator, moveRouter, signedCertificationCreator, signedCertificationUpdater)
+	handlerConfig := handlers.Config{}
+	ppmEstimator := ppmshipment.NewEstimatePPM(handlerConfig.DTODPlanner(), &paymentrequesthelper.RequestPaymentHelper{})
+	mtoUpdater := movetaskorder.NewMoveTaskOrderUpdater(queryBuilder, serviceItemCreator, moveRouter, signedCertificationCreator, signedCertificationUpdater, ppmEstimator)
 	_, approveErr := mtoUpdater.MakeAvailableToPrime(appCtx, move.ID, etag.GenerateEtag(move.UpdatedAt), true, true)
 
 	// AvailableToPrimeAt is set to the current time when a move is approved, we need to update it to fall within the
@@ -4880,7 +4887,9 @@ func createHHGWithPaymentServiceItems(
 	//////////////////////////////////////////////////
 	signedCertificationCreator := signedcertification.NewSignedCertificationCreator()
 	signedCertificationUpdater := signedcertification.NewSignedCertificationUpdater()
-	mtoUpdater := movetaskorder.NewMoveTaskOrderUpdater(queryBuilder, serviceItemCreator, moveRouter, signedCertificationCreator, signedCertificationUpdater)
+	handlerConfig := handlers.Config{}
+	ppmEstimator := ppmshipment.NewEstimatePPM(handlerConfig.DTODPlanner(), &paymentrequesthelper.RequestPaymentHelper{})
+	mtoUpdater := movetaskorder.NewMoveTaskOrderUpdater(queryBuilder, serviceItemCreator, moveRouter, signedCertificationCreator, signedCertificationUpdater, ppmEstimator)
 	_, approveErr := mtoUpdater.MakeAvailableToPrime(appCtx, move.ID, etag.GenerateEtag(move.UpdatedAt), true, true)
 
 	// AvailableToPrimeAt is set to the current time when a move is approved, we need to update it to fall within the

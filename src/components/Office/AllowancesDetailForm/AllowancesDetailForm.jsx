@@ -1,5 +1,8 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
+
+import { isBooleanFlagEnabled } from '../../../utils/featureFlags';
+import { FEATURE_FLAG_KEYS } from '../../../shared/constants';
 
 import styles from './AllowancesDetailForm.module.scss';
 
@@ -11,9 +14,68 @@ import { formatWeight } from 'utils/formatters';
 import Hint from 'components/Hint';
 
 const AllowancesDetailForm = ({ header, entitlements, branchOptions, formIsDisabled }) => {
+  const [enableUB, setEnableUB] = useState(false);
+  const renderOconusFields = !!(
+    entitlements?.accompaniedTour ||
+    entitlements?.dependentsTwelveAndOver ||
+    entitlements?.dependentsUnderTwelve
+  );
+  useEffect(() => {
+    // Functional component version of "componentDidMount"
+    // By leaving the dependency array empty this will only run once
+    const checkUBFeatureFlag = async () => {
+      const enabled = await isBooleanFlagEnabled(FEATURE_FLAG_KEYS.UNACCOMPANIED_BAGGAGE);
+      if (enabled) {
+        setEnableUB(true);
+      }
+    };
+    checkUBFeatureFlag();
+  }, []);
+
   return (
     <div className={styles.AllowancesDetailForm}>
       {header && <h3 data-testid="header">{header}</h3>}
+      {enableUB && renderOconusFields && (
+        <>
+          <MaskedTextField
+            data-testid="dependentsUnderTwelveInput"
+            defaultValue="0"
+            name="dependentsUnderTwelve"
+            label="Number of dependents under the age of 12"
+            id="dependentsUnderTwelveInput"
+            mask={Number}
+            scale={0}
+            signed={false}
+            thousandsSeparator=","
+            lazy={false}
+            isDisabled={formIsDisabled}
+          />
+
+          <MaskedTextField
+            data-testid="dependentsTwelveAndOverInput"
+            defaultValue="0"
+            name="dependentsTwelveAndOver"
+            label="Number of dependents of the age 12 or over"
+            id="dependentsTwelveAndOverInput"
+            mask={Number}
+            scale={0}
+            signed={false}
+            thousandsSeparator=","
+            lazy={false}
+            isDisabled={formIsDisabled}
+          />
+          <div className={styles.wrappedCheckbox}>
+            <CheckboxField
+              id="accompaniedTourInput"
+              data-testid="accompaniedTourInput"
+              name="accompaniedTour"
+              label="Accompanied tour"
+              isDisabled={formIsDisabled}
+            />
+          </div>
+        </>
+      )}
+
       <MaskedTextField
         data-testid="proGearWeightInput"
         defaultValue="0"
