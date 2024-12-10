@@ -902,3 +902,7 @@ export async function deleteAssignedOfficeUserForMove({ moveID, roleType }) {
     body: { roleType },
   });
 }
+
+export async function getAllReServiceItems() {
+  return makeGHCRequestRaw('reServiceItems.getAllReServiceItems', {}, { normalize: false });
+}
