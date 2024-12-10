@@ -488,7 +488,7 @@ func createUser(h devlocalAuthHandler, w http.ResponseWriter, r *http.Request) (
 		return nil, userType
 	}
 
-	usPostRegionCityID := uuid.Must(uuid.NewV4())
+	usPostRegionCityID := uuid.Must(uuid.FromString("4524dc9b-8097-41c7-83ca-a2a8237ae4aa"))
 
 	address := models.Address{
 		StreetAddress1:     "1333 Minna St",
