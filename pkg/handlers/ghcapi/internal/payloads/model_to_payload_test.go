@@ -410,6 +410,57 @@ func (suite *PayloadsSuite) TestCustomer() {
 	})
 }
 
+func (suite *PayloadsSuite) TestEntitlement() {
+	entitlementID, _ := uuid.NewV4()
+	dependentsAuthorized := true
+	nonTemporaryStorage := true
+	privatelyOwnedVehicle := true
+	proGearWeight := 1000
+	proGearWeightSpouse := 500
+	storageInTransit := 90
+	totalDependents := 2
+	requiredMedicalEquipmentWeight := 200
+	accompaniedTour := true
+	dependentsUnderTwelve := 1
+	dependentsTwelveAndOver := 1
+	authorizedWeight := 8000
+
+	entitlement := &models.Entitlement{
+		ID:                             entitlementID,
+		DBAuthorizedWeight:             &authorizedWeight,
+		DependentsAuthorized:           &dependentsAuthorized,
+		NonTemporaryStorage:            &nonTemporaryStorage,
+		PrivatelyOwnedVehicle:          &privatelyOwnedVehicle,
+		ProGearWeight:                  proGearWeight,
+		ProGearWeightSpouse:            proGearWeightSpouse,
+		StorageInTransit:               &storageInTransit,
+		TotalDependents:                &totalDependents,
+		RequiredMedicalEquipmentWeight: requiredMedicalEquipmentWeight,
+		AccompaniedTour:                &accompaniedTour,
+		DependentsUnderTwelve:          &dependentsUnderTwelve,
+		DependentsTwelveAndOver:        &dependentsTwelveAndOver,
+		UpdatedAt:                      time.Now(),
+	}
+
+	returnedEntitlement := Entitlement(entitlement)
+
+	suite.IsType(&ghcmessages.Entitlements{}, returnedEntitlement)
+
+	suite.Equal(strfmt.UUID(entitlementID.String()), returnedEntitlement.ID)
+	suite.Equal(authorizedWeight, int(*returnedEntitlement.AuthorizedWeight))
+	suite.Equal(entitlement.DependentsAuthorized, returnedEntitlement.DependentsAuthorized)
+	suite.Equal(entitlement.NonTemporaryStorage, returnedEntitlement.NonTemporaryStorage)
+	suite.Equal(entitlement.PrivatelyOwnedVehicle, returnedEntitlement.PrivatelyOwnedVehicle)
+	suite.Equal(int64(proGearWeight), returnedEntitlement.ProGearWeight)
+	suite.Equal(int64(proGearWeightSpouse), returnedEntitlement.ProGearWeightSpouse)
+	suite.Equal(storageInTransit, int(*returnedEntitlement.StorageInTransit))
+	suite.Equal(totalDependents, int(returnedEntitlement.TotalDependents))
+	suite.Equal(int64(requiredMedicalEquipmentWeight), returnedEntitlement.RequiredMedicalEquipmentWeight)
+	suite.Equal(models.BoolPointer(accompaniedTour), returnedEntitlement.AccompaniedTour)
+	suite.Equal(dependentsUnderTwelve, int(*returnedEntitlement.DependentsUnderTwelve))
+	suite.Equal(dependentsTwelveAndOver, int(*returnedEntitlement.DependentsTwelveAndOver))
+}
+
 func (suite *PayloadsSuite) TestCreateCustomer() {
 	id, _ := uuid.NewV4()
 	id2, _ := uuid.NewV4()

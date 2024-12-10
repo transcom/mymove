@@ -4122,6 +4122,12 @@ func init() {
         "new_duty_location_id"
       ],
       "properties": {
+        "accompanied_tour": {
+          "description": "Indicates if the move entitlement allows dependents to travel to the new Permanent Duty Station (PDS). This is only present on OCONUS moves.",
+          "type": "boolean",
+          "x-nullable": true,
+          "example": true
+        },
         "counseling_office_id": {
           "type": "string",
           "format": "uuid",
@@ -4130,6 +4136,18 @@ func init() {
         },
         "department_indicator": {
           "$ref": "#/definitions/DeptIndicator"
+        },
+        "dependents_twelve_and_over": {
+          "description": "Indicates the number of dependents of the age twelve or older for a move. This is only present on OCONUS moves.",
+          "type": "integer",
+          "x-nullable": true,
+          "example": 3
+        },
+        "dependents_under_twelve": {
+          "description": "Indicates the number of dependents under the age of twelve for a move. This is only present on OCONUS moves.",
+          "type": "integer",
+          "x-nullable": true,
+          "example": 5
         },
         "grade": {
           "$ref": "#/definitions/OrderPayGrade"
@@ -4382,6 +4400,24 @@ func init() {
     "Entitlement": {
       "type": "object",
       "properties": {
+        "accompanied_tour": {
+          "description": "Indicates if the move entitlement allows dependents to travel to the new Permanent Duty Station (PDS). This is only present on OCONUS moves.",
+          "type": "boolean",
+          "x-nullable": true,
+          "example": true
+        },
+        "dependents_twelve_and_over": {
+          "description": "Indicates the number of dependents of the age twelve or older for a move. This is only present on OCONUS moves.",
+          "type": "integer",
+          "x-nullable": true,
+          "example": 3
+        },
+        "dependents_under_twelve": {
+          "description": "Indicates the number of dependents under the age of twelve for a move. This is only present on OCONUS moves.",
+          "type": "integer",
+          "x-nullable": true,
+          "example": 5
+        },
         "proGear": {
           "description": "Pro-gear weight limit as set by an Office user, distinct from the service member's default weight allotment determined by pay grade\n",
           "type": "integer",
@@ -12957,6 +12993,12 @@ func init() {
         "new_duty_location_id"
       ],
       "properties": {
+        "accompanied_tour": {
+          "description": "Indicates if the move entitlement allows dependents to travel to the new Permanent Duty Station (PDS). This is only present on OCONUS moves.",
+          "type": "boolean",
+          "x-nullable": true,
+          "example": true
+        },
         "counseling_office_id": {
           "type": "string",
           "format": "uuid",
@@ -12965,6 +13007,18 @@ func init() {
         },
         "department_indicator": {
           "$ref": "#/definitions/DeptIndicator"
+        },
+        "dependents_twelve_and_over": {
+          "description": "Indicates the number of dependents of the age twelve or older for a move. This is only present on OCONUS moves.",
+          "type": "integer",
+          "x-nullable": true,
+          "example": 3
+        },
+        "dependents_under_twelve": {
+          "description": "Indicates the number of dependents under the age of twelve for a move. This is only present on OCONUS moves.",
+          "type": "integer",
+          "x-nullable": true,
+          "example": 5
         },
         "grade": {
           "$ref": "#/definitions/OrderPayGrade"
@@ -13219,6 +13273,24 @@ func init() {
     "Entitlement": {
       "type": "object",
       "properties": {
+        "accompanied_tour": {
+          "description": "Indicates if the move entitlement allows dependents to travel to the new Permanent Duty Station (PDS). This is only present on OCONUS moves.",
+          "type": "boolean",
+          "x-nullable": true,
+          "example": true
+        },
+        "dependents_twelve_and_over": {
+          "description": "Indicates the number of dependents of the age twelve or older for a move. This is only present on OCONUS moves.",
+          "type": "integer",
+          "x-nullable": true,
+          "example": 3
+        },
+        "dependents_under_twelve": {
+          "description": "Indicates the number of dependents under the age of twelve for a move. This is only present on OCONUS moves.",
+          "type": "integer",
+          "x-nullable": true,
+          "example": 5
+        },
         "proGear": {
           "description": "Pro-gear weight limit as set by an Office user, distinct from the service member's default weight allotment determined by pay grade\n",
           "type": "integer",
