@@ -7,6 +7,7 @@ import { func } from 'prop-types';
 
 import styles from '../TXOMoveInfo/TXOTab.module.scss';
 
+import NotificationScrollToTop from 'components/NotificationScrollToTop';
 import hasRiskOfExcess from 'utils/hasRiskOfExcess';
 import { MOVES, MTO_SERVICE_ITEMS, MTO_SHIPMENTS } from 'constants/queryKeys';
 import { tooRoutes } from 'constants/routes';
@@ -28,7 +29,6 @@ import LeftNavTag from 'components/LeftNavTag/LeftNavTag';
 import Restricted from 'components/Restricted/Restricted';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
-import { MOVE_STATUSES } from 'shared/constants';
 import { SIT_EXTENSION_STATUS } from 'constants/sitExtensions';
 import { ORDERS_TYPE } from 'constants/orders';
 import { permissionTypes } from 'constants/permissions';
@@ -36,6 +36,7 @@ import { objectIsMissingFieldWithCondition } from 'utils/displayFlags';
 import formattedCustomerName from 'utils/formattedCustomerName';
 import { calculateEstimatedWeight } from 'hooks/custom';
 import { ADVANCE_STATUSES } from 'constants/ppms';
+import { MOVE_STATUSES, technicalHelpDeskURL } from 'shared/constants';
 
 const MoveDetails = ({
   setUnapprovedShipmentCount,
@@ -52,6 +53,7 @@ const MoveDetails = ({
   const { moveCode } = useParams();
   const [isFinancialModalVisible, setIsFinancialModalVisible] = useState(false);
   const [isCancelMoveModalVisible, setIsCancelMoveModalVisible] = useState(false);
+  const [errorMessage, setErrorMessage] = useState(null);
   const [alertMessage, setAlertMessage] = useState(null);
   const [alertType, setAlertType] = useState('success');
 
@@ -86,8 +88,19 @@ const MoveDetails = ({
 
   const navigate = useNavigate();
 
-  const { move, customerData, order, closeoutOffice, mtoShipments, mtoServiceItems, isLoading, isError } =
-    useMoveDetailsQueries(moveCode);
+  const {
+    move,
+    customerData,
+    order,
+    orderDocuments,
+    closeoutOffice,
+    mtoShipments,
+    mtoServiceItems,
+    isLoading,
+    isError,
+  } = useMoveDetailsQueries(moveCode);
+
+  const validOrdersDocuments = Object.values(orderDocuments || {})?.filter((file) => !file.deletedAt);
 
   // for now we are only showing dest type on retiree and separatee orders
   let isRetirementOrSeparation = false;
@@ -296,16 +309,17 @@ const MoveDetails = ({
 
   // using useMemo here due to this being used in a useEffect
   // using useMemo prevents the useEffect from being rendered on ever render by memoizing the object
-  // so that it only recognizes the change when the orders object changes
+  // so that it only recognizes the change when the orders or validOrdersDocuments objects change
   const requiredOrdersInfo = useMemo(
     () => ({
       ordersNumber: order?.order_number || '',
       ordersType: order?.order_type || '',
       ordersTypeDetail: order?.order_type_detail || '',
+      ordersDocuments: validOrdersDocuments?.length ? validOrdersDocuments : null,
       tacMDC: order?.tac || '',
       departmentIndicator: order?.department_indicator || '',
     }),
-    [order],
+    [order, validOrdersDocuments],
   );
 
   // Keep num of missing orders info synced up
@@ -338,6 +352,7 @@ const MoveDetails = ({
     ordersNumber: order.order_number,
     ordersType: order.order_type,
     ordersTypeDetail: order.order_type_detail,
+    ordersDocuments: validOrdersDocuments?.length ? validOrdersDocuments : null,
     uploadedAmendedOrderID: order.uploadedAmendedOrderID,
     amendedOrdersAcknowledgedAt: order.amendedOrdersAcknowledgedAt,
     tacMDC: order.tac,
@@ -357,6 +372,9 @@ const MoveDetails = ({
     requiredMedicalEquipmentWeight: allowances.requiredMedicalEquipmentWeight,
     organizationalClothingAndIndividualEquipment: allowances.organizationalClothingAndIndividualEquipment,
     gunSafe: allowances.gunSafe,
+    dependentsUnderTwelve: allowances.dependentsUnderTwelve,
+    dependentsTwelveAndOver: allowances.dependentsTwelveAndOver,
+    accompaniedTour: allowances.accompaniedTour,
   };
 
   const customerInfo = {
@@ -453,6 +471,18 @@ const MoveDetails = ({
               initialSelection={move?.financialReviewFlag}
             />
           )}
+          <NotificationScrollToTop dependency={errorMessage} />
+          {errorMessage && (
+            <Alert data-testid="errorMessage" type="error" headingLevel="h4" heading="An error occurred">
+              <p>
+                {errorMessage} Please try again later, or contact the&nbsp;
+                <Link to={technicalHelpDeskURL} target="_blank" rel="noreferrer">
+                  Technical Help Desk
+                </Link>
+                .
+              </p>
+            </Alert>
+          )}
           <Grid row col={12}>
             <Restricted to={permissionTypes.cancelMoveFlag}>
               <div className={styles.tooCancelMoveContainer}>
@@ -487,6 +517,7 @@ const MoveDetails = ({
                 displayDestinationType={isRetirementOrSeparation}
                 mtoServiceItems={mtoServiceItems}
                 isMoveLocked={isMoveLocked}
+                setErrorMessage={setErrorMessage}
               />
             </div>
           )}

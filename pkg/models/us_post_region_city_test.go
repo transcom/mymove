@@ -17,3 +17,12 @@ func (suite *ModelSuite) TestFindCountyByZipCode() {
 	_, err = models.FindCountyByZipCode(suite.DB(), "99999")
 	suite.Error(err)
 }
+
+func (suite *ModelSuite) TestFindByZipCode() {
+
+	// Attempt to gather 90210's County from the 90210 zip code
+	usPostRegionCity, err := models.FindByZipCode(suite.DB(), "90210")
+	suite.NotNil(usPostRegionCity)
+	suite.NoError(err)
+	suite.Equal("LOS ANGELES", usPostRegionCity.UsprcCountyNm)
+}

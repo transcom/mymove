@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import classnames from 'classnames';
 
 import GblocSwitcher from 'components/Office/GblocSwitcher/GblocSwitcher';
@@ -12,6 +12,7 @@ import { logOut as logOutAction } from 'store/auth/actions';
 import { OfficeUserInfoShape } from 'types/index';
 import { selectLoggedInUser } from 'store/entities/selectors';
 import { roleTypes } from 'constants/userRoles';
+import { checkForLockedMovesAndUnlock } from 'services/ghcApi';
 
 const OfficeLoggedInHeader = ({ officeUser, activeRole, logOut }) => {
   const navigate = useNavigate();
@@ -33,10 +34,19 @@ const OfficeLoggedInHeader = ({ officeUser, activeRole, logOut }) => {
   };
 
   let queueText = '';
+  const location = useLocation();
+  const validUnlockingOfficers = [
+    roleTypes.QAE,
+    roleTypes.CUSTOMER_SERVICE_REPRESENTATIVE,
+    roleTypes.GSR,
+    roleTypes.HQ,
+  ];
   if (activeRole === roleTypes.TOO) {
     queueText = 'moves';
   } else if (activeRole === roleTypes.TIO) {
     queueText = 'payment requests';
+  } else if (validUnlockingOfficers.includes(activeRole) && location.pathname === '/') {
+    checkForLockedMovesAndUnlock('move', officeUser.id);
   }
 
   return (
