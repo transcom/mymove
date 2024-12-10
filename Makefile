@@ -344,7 +344,8 @@ endif
 	./scripts/openapi bundle -o swagger/ ## Bundles the API definition files into a complete specification
 	touch .swagger_build.stamp
 
-server_generate: .server_generate.stamp
+.PHONY: server_generate
+server_generate: .server_generate.stamp ## generate the server code from swagger files
 
 .server_generate.stamp: .check_go_version.stamp .check_gopath.stamp .swagger_build.stamp bin/swagger $(wildcard swagger/*.yaml) ## Generate golang server code from Swagger files
 	scripts/gen-server
