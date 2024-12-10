@@ -75,8 +75,8 @@ test.describe('Office User Create Page', () => {
     await phone.focus();
     await phone.fill('222-555-1234');
 
-    await page.getByText('Services Counselor').click();
-    await page.getByText('Supervisor').click();
+    await page.getByLabel('Services Counselor').click();
+    await page.getByLabel('Supervisor').click();
     // The autocomplete form results in multiple matching elements, so
     // pick the input element
     await page.getByLabel('Transportation Office').fill('JPPSO Testy McTest');
