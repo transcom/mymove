@@ -977,7 +977,6 @@ func (suite *PaymentRequestServiceSuite) TestListShipmentPaymentSITBalance() {
 		move, shipment := setUpShipmentWith120DaysOfAuthorizedSIT(suite.DB())
 
 		year, month, day := time.Now().Date()
-		// originEntryDate := time.Date(year, month, day-90, 0, 0, 0, 0, time.UTC)
 		originEntryDate := time.Date(year, month, day+90, 0, 0, 0, 0, time.UTC)
 
 		shipment.OriginSITAuthEndDate = &originEntryDate
@@ -1436,7 +1435,6 @@ func (suite *PaymentRequestServiceSuite) TestListShipmentPaymentSITBalance() {
 		move, shipment := setUpShipmentWith120DaysOfAuthorizedSIT(suite.DB())
 
 		year, month, day := time.Now().Date()
-		// originEntryDate := time.Date(year, month, day-90, 0, 0, 0, 0, time.UTC)
 		originEntryDate := time.Date(year, month, day+90, 0, 0, 0, 0, time.UTC)
 
 		shipment.OriginSITAuthEndDate = &originEntryDate
