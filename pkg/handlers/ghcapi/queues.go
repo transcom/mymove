@@ -107,10 +107,24 @@ func (h GetMovesQueueHandler) Handle(params queues.GetMovesQueueParams) middlewa
 			if err != nil {
 				appCtx.Logger().Error("Error retreiving user privileges", zap.Error(err))
 			}
+			officeUser.User.Privileges = privileges
+			officeUser.User.Roles = appCtx.Session().Roles
 
-			isSupervisor := privileges.HasPrivilege(models.PrivilegeTypeSupervisor)
 			var officeUsers models.OfficeUsers
-			if isSupervisor {
+			var officeUsersSafety models.OfficeUsers
+			if privileges.HasPrivilege(models.PrivilegeTypeSupervisor) {
+				if privileges.HasPrivilege(models.PrivilegeTypeSafety) {
+					officeUsersSafety, err = h.OfficeUserFetcherPop.FetchSafetyMoveOfficeUsersByRoleAndOffice(
+						appCtx,
+						roles.RoleTypeTOO,
+						officeUser.TransportationOfficeID,
+					)
+					if err != nil {
+						appCtx.Logger().
+							Error("error fetching safety move office users", zap.Error(err))
+						return queues.NewGetMovesQueueInternalServerError(), err
+					}
+				}
 				officeUsers, err = h.OfficeUserFetcherPop.FetchOfficeUsersByRoleAndOffice(
 					appCtx,
 					roles.RoleTypeTOO,
@@ -146,9 +160,8 @@ func (h GetMovesQueueHandler) Handle(params queues.GetMovesQueueParams) middlewa
 					appCtx.Logger().Error(fmt.Sprintf("failed to unlock moves for office user ID: %s", officeUserID), zap.Error(err))
 				}
 			}
-			isHQrole := appCtx.Session().Roles.HasRole(roles.RoleTypeHQ)
 
-			queueMoves := payloads.QueueMoves(moves, officeUsers, nil, roles.RoleTypeTOO, officeUser, isSupervisor, isHQrole)
+			queueMoves := payloads.QueueMoves(moves, officeUsers, nil, officeUser, officeUsersSafety)
 
 			result := &ghcmessages.QueueMovesResult{
 				Page:       *ListOrderParams.Page,
@@ -283,9 +296,8 @@ func (h GetDestinationRequestsQueueHandler) Handle(params queues.GetDestinationR
 					appCtx.Logger().Error(fmt.Sprintf("failed to unlock moves for office user ID: %s", officeUserID), zap.Error(err))
 				}
 			}
-			isHQrole := appCtx.Session().Roles.HasRole(roles.RoleTypeHQ)
 
-			queueMoves := payloads.QueueMoves(moves, officeUsers, nil, roles.RoleTypeTOO, officeUser, isSupervisor, isHQrole)
+			queueMoves := payloads.QueueMoves(moves, officeUsers, nil, officeUser, nil)
 
 			result := &ghcmessages.QueueMovesResult{
 				Page:       *ListOrderParams.Page,
@@ -427,11 +439,35 @@ func (h GetPaymentRequestsQueueHandler) Handle(
 				}
 			}
 
-			officeUsers, err := h.OfficeUserFetcherPop.FetchOfficeUsersByRoleAndOffice(
-				appCtx,
-				roles.RoleTypeTIO,
-				officeUser.TransportationOfficeID,
-			)
+			privileges, err := models.FetchPrivilegesForUser(appCtx.DB(), appCtx.Session().UserID)
+			if err != nil {
+				appCtx.Logger().Error("Error retreiving user privileges", zap.Error(err))
+			}
+			officeUser.User.Privileges = privileges
+			officeUser.User.Roles = appCtx.Session().Roles
+
+			var officeUsers models.OfficeUsers
+			var officeUsersSafety models.OfficeUsers
+
+			if privileges.HasPrivilege(models.PrivilegeTypeSupervisor) {
+				if privileges.HasPrivilege(models.PrivilegeTypeSafety) {
+					officeUsersSafety, err = h.OfficeUserFetcherPop.FetchSafetyMoveOfficeUsersByRoleAndOffice(
+						appCtx,
+						roles.RoleTypeTIO,
+						officeUser.TransportationOfficeID,
+					)
+					if err != nil {
+						appCtx.Logger().
+							Error("error fetching safety move office users", zap.Error(err))
+						return queues.NewGetMovesQueueInternalServerError(), err
+					}
+				}
+				officeUsers, err = h.OfficeUserFetcherPop.FetchOfficeUsersByRoleAndOffice(
+					appCtx,
+					roles.RoleTypeTIO,
+					officeUser.TransportationOfficeID,
+				)
+			}
 
 			if err != nil {
 				appCtx.Logger().
@@ -460,15 +496,7 @@ func (h GetPaymentRequestsQueueHandler) Handle(
 				}
 			}
 
-			privileges, err := models.FetchPrivilegesForUser(appCtx.DB(), appCtx.Session().UserID)
-			if err != nil {
-				appCtx.Logger().Error("Error retreiving user privileges", zap.Error(err))
-			}
-
-			isHQrole := appCtx.Session().Roles.HasRole(roles.RoleTypeHQ)
-
-			isSupervisor := privileges.HasPrivilege(models.PrivilegeTypeSupervisor)
-			queuePaymentRequests := payloads.QueuePaymentRequests(paymentRequests, officeUsers, officeUser, isSupervisor, isHQrole)
+			queuePaymentRequests := payloads.QueuePaymentRequests(paymentRequests, officeUsers, officeUser, officeUsersSafety)
 
 			result := &ghcmessages.QueuePaymentRequestsResult{
 				TotalCount:           int64(count),
@@ -578,11 +606,25 @@ func (h GetServicesCounselingQueueHandler) Handle(
 			if err != nil {
 				appCtx.Logger().Error("Error retreiving user privileges", zap.Error(err))
 			}
+			officeUser.User.Privileges = privileges
+			officeUser.User.Roles = appCtx.Session().Roles
 
-			isSupervisor := privileges.HasPrivilege(models.PrivilegeTypeSupervisor)
 			var officeUsers models.OfficeUsers
+			var officeUsersSafety models.OfficeUsers
 
-			if isSupervisor {
+			if privileges.HasPrivilege(models.PrivilegeTypeSupervisor) {
+				if privileges.HasPrivilege(models.PrivilegeTypeSafety) {
+					officeUsersSafety, err = h.OfficeUserFetcherPop.FetchSafetyMoveOfficeUsersByRoleAndOffice(
+						appCtx,
+						roles.RoleTypeServicesCounselor,
+						officeUser.TransportationOfficeID,
+					)
+					if err != nil {
+						appCtx.Logger().
+							Error("error fetching safety move office users", zap.Error(err))
+						return queues.NewGetMovesQueueInternalServerError(), err
+					}
+				}
 				officeUsers, err = h.OfficeUserFetcherPop.FetchOfficeUsersByRoleAndOffice(
 					appCtx,
 					roles.RoleTypeServicesCounselor,
@@ -618,9 +660,8 @@ func (h GetServicesCounselingQueueHandler) Handle(
 					appCtx.Logger().Error(fmt.Sprintf("failed to unlock moves for office user ID: %s", officeUserID), zap.Error(err))
 				}
 			}
-			isHQrole := appCtx.Session().Roles.HasRole(roles.RoleTypeHQ)
 
-			queueMoves := payloads.QueueMoves(moves, officeUsers, &requestedPpmStatus, roles.RoleTypeServicesCounselor, officeUser, isSupervisor, isHQrole)
+			queueMoves := payloads.QueueMoves(moves, officeUsers, &requestedPpmStatus, officeUser, officeUsersSafety)
 
 			result := &ghcmessages.QueueMovesResult{
 				Page:       *ListOrderParams.Page,

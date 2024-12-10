@@ -321,46 +321,32 @@ func (f orderFetcher) ListDestinationRequestsOrders(appCtx appcontext.AppContext
 		}
 	}
 
-	ppmCloseoutGblocs := officeUserGbloc == "NAVY" || officeUserGbloc == "TVCB" || officeUserGbloc == "USCG"
-
-	branchQuery := branchFilter(params.Branch, false, ppmCloseoutGblocs)
-
+	branchQuery := branchFilter(params.Branch, false, false)
 	// If the user is associated with the USMC GBLOC we want to show them ALL the USMC moves, so let's override here.
 	// We also only want to do the gbloc filtering thing if we aren't a USMC user, which we cover with the else.
 	// var gblocQuery QueryOption
-	var gblocToFilterBy *string
 	if officeUserGbloc == "USMC" {
-		branchQuery = branchFilter(models.StringPointer(string(models.AffiliationMARINES)), false, ppmCloseoutGblocs)
-		gblocToFilterBy = params.OriginGBLOC
-	} else {
-		gblocToFilterBy = &officeUserGbloc
+		branchQuery = branchFilter(models.StringPointer(string(models.AffiliationMARINES)), false, false)
 	}
-
-	gblocQuery := gblocFilterForTOO(gblocToFilterBy)
-
 	locatorQuery := locatorFilter(params.Locator)
 	dodIDQuery := dodIDFilter(params.Edipi)
 	emplidQuery := emplidFilter(params.Emplid)
 	customerNameQuery := customerNameFilter(params.CustomerName)
 	originDutyLocationQuery := originDutyLocationFilter(params.OriginDutyLocation)
-	destinationDutyLocationQuery := destinationDutyLocationFilter(params.DestinationDutyLocation)
 	moveStatusQuery := moveStatusFilter(params.Status)
 	submittedAtQuery := submittedAtFilter(params.SubmittedAt)
 	appearedInTOOAtQuery := appearedInTOOAtFilter(params.AppearedInTOOAt)
 	requestedMoveDateQuery := requestedMoveDateFilter(params.RequestedMoveDate)
-	closeoutInitiatedQuery := closeoutInitiatedFilter(params.CloseoutInitiated)
-	closeoutLocationQuery := closeoutLocationFilter(params.CloseoutLocation, ppmCloseoutGblocs)
-	ppmTypeQuery := ppmTypeFilter(params.PPMType)
-	ppmStatusQuery := ppmStatusFilter(params.PPMStatus)
 	scAssignedUserQuery := scAssignedUserFilter(params.SCAssignedUser)
 	tooAssignedUserQuery := tooAssignedUserFilter(params.TOOAssignedUser)
-	sortOrderQuery := sortOrder(params.Sort, params.Order, ppmCloseoutGblocs)
+	sortOrderQuery := sortOrder(params.Sort, params.Order, false)
 	counselingQuery := counselingOfficeFilter(params.CounselingOffice)
 
 	// Adding to an array so we can iterate over them and apply the filters after the query structure is set below
-	options := [20]QueryOption{branchQuery, locatorQuery, dodIDQuery, emplidQuery, customerNameQuery, originDutyLocationQuery, destinationDutyLocationQuery, moveStatusQuery, gblocQuery, submittedAtQuery, appearedInTOOAtQuery, requestedMoveDateQuery, ppmTypeQuery, closeoutInitiatedQuery, closeoutLocationQuery, ppmStatusQuery, sortOrderQuery, scAssignedUserQuery, tooAssignedUserQuery, counselingQuery}
+	options := [20]QueryOption{branchQuery, locatorQuery, dodIDQuery, emplidQuery, customerNameQuery, originDutyLocationQuery, moveStatusQuery, submittedAtQuery, appearedInTOOAtQuery, requestedMoveDateQuery, sortOrderQuery, scAssignedUserQuery, tooAssignedUserQuery, counselingQuery}
 
-	// we want to set the query up to where it only shows moves that have orders.destination_gbloc that are in the office user's GBLOC (some exclusions apply)
+	// for destination requests we want to show moves that have requests on the shipment destination address GBLOC
+	// this applies to SIT & Shuttle service items, as well as destination address requests that have yet to be approved
 	query := appCtx.DB().Q().Scope(utilities.ExcludeDeletedScope(models.MTOShipment{})).EagerPreload(
 		"Orders.ServiceMember",
 		"Orders.NewDutyLocation.Address",
@@ -375,26 +361,28 @@ func (f orderFetcher) ListDestinationRequestsOrders(appCtx appcontext.AppContext
 		"CounselingOffice",
 		"SCAssignedUser",
 		"TOOAssignedUser",
-	).InnerJoin("orders", "orders.id = moves.orders_id").
+	).
+		InnerJoin("orders", "orders.id = moves.orders_id").
 		InnerJoin("service_members", "orders.service_member_id = service_members.id").
-		InnerJoin("mto_shipments", "moves.id = mto_shipments.move_id").
-		InnerJoin("mto_service_items", "mto_shipments.id = mto_service_items.mto_shipment_id").
-		InnerJoin("re_services", "mto_service_items.re_service_id = re_services.id").
 		InnerJoin("duty_locations as origin_dl", "orders.origin_duty_location_id = origin_dl.id").
-		LeftJoin("transportation_offices as origin_to", "origin_dl.transportation_office_id = origin_to.id").
-		LeftJoin("move_to_gbloc", "move_to_gbloc.move_id = moves.id").
+		LeftJoin("mto_shipments", "moves.id = mto_shipments.move_id").
+		LeftJoin("mto_service_items", "mto_shipments.id = mto_service_items.mto_shipment_id").
+		LeftJoin("re_services", "mto_service_items.re_service_id = re_services.id").
 		LeftJoin("duty_locations as dest_dl", "dest_dl.id = orders.new_duty_location_id").
 		LeftJoin("office_users", "office_users.id = moves.locked_by").
 		LeftJoin("transportation_offices", "moves.counseling_transportation_office_id = transportation_offices.id").
-		LeftJoin("office_users as assigned_user", "moves.too_assigned_id = assigned_user.id").
 		LeftJoin("ppm_shipments", "ppm_shipments.shipment_id = mto_shipments.id").
+		LeftJoin("office_users as assigned_user", "moves.too_assigned_id = assigned_user.id").
 		LeftJoin("shipment_address_updates", "shipment_address_updates.shipment_id = mto_shipments.id").
-		Where("moves.status = 'APPROVALS REQUESTED' "+
-			"AND mto_service_items.status = 'SUBMITTED' "+
-			"AND re_services.code IN ('DDFSIT', 'DDASIT', 'DDDSIT', 'DDSHUT', 'DDSFSC') "+
-			"OR shipment_address_updates.status = 'REQUESTED'").
-		Where("orders.destination_gbloc = ?", officeUserGbloc).
-		Where("moves.show = ?", models.BoolPointer(true))
+		LeftJoin("addresses", "mto_shipments.destination_address_id = addresses.id").
+		LeftJoin("postal_code_to_gblocs", "addresses.postal_code = postal_code_to_gblocs.postal_code").
+		Where("postal_code_to_gblocs.gbloc = ?", officeUserGbloc).
+		Where("moves.show = ?", models.BoolPointer(true)).
+		Where(
+			"(shipment_address_updates.status = 'REQUESTED' "+
+				"OR (mto_service_items.status = 'SUBMITTED' AND re_services.code IN ('DDFSIT', 'DDASIT', 'DDDSIT', 'DDSHUT', 'DDSFSC')))",
+		).
+		Where("moves.status = ?", "APPROVALS REQUESTED")
 
 	for _, option := range options {
 		if option != nil {
