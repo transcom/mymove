@@ -315,7 +315,7 @@ func (o *Order) CreateNewMove(db *pop.Connection, moveOptions MoveOptions) (*Mov
 func (o Order) GetOriginPostalCode(db *pop.Connection) (string, error) {
 	// Since this requires looking up the order in the DB, the order must have an ID. This means, the order has to have been created first.
 	if uuid.UUID.IsNil(o.ID) {
-		return "", errors.WithMessage(ErrInvalidOrderID, "You must created the order in the DB before getting the origin GBLOC.")
+		return "", errors.WithMessage(ErrInvalidOrderID, "You must create the order in the DB before getting the origin GBLOC.")
 	}
 
 	err := db.Load(&o, "OriginDutyLocation.Address")
