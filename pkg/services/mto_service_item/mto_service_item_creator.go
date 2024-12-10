@@ -41,7 +41,7 @@ type mtoServiceItemCreator struct {
 }
 
 func (o *mtoServiceItemCreator) FindEstimatedPrice(appCtx appcontext.AppContext, serviceItem *models.MTOServiceItem, mtoShipment models.MTOShipment) (unit.Cents, error) {
-	return pricing.FetchServiceItemPrice(appCtx, serviceItem, mtoShipment)
+	return pricing.FetchServiceItemPrice(appCtx, serviceItem, mtoShipment, o.planner)
 }
 
 func fetchCurrentTaskOrderFee(appCtx appcontext.AppContext, serviceCode models.ReServiceCode, requestedPickupDate time.Time) (models.ReTaskOrderFee, error) {
