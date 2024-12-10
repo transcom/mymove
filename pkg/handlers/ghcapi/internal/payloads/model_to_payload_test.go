@@ -410,6 +410,57 @@ func (suite *PayloadsSuite) TestCustomer() {
 	})
 }
 
+func (suite *PayloadsSuite) TestEntitlement() {
+	entitlementID, _ := uuid.NewV4()
+	dependentsAuthorized := true
+	nonTemporaryStorage := true
+	privatelyOwnedVehicle := true
+	proGearWeight := 1000
+	proGearWeightSpouse := 500
+	storageInTransit := 90
+	totalDependents := 2
+	requiredMedicalEquipmentWeight := 200
+	accompaniedTour := true
+	dependentsUnderTwelve := 1
+	dependentsTwelveAndOver := 1
+	authorizedWeight := 8000
+
+	entitlement := &models.Entitlement{
+		ID:                             entitlementID,
+		DBAuthorizedWeight:             &authorizedWeight,
+		DependentsAuthorized:           &dependentsAuthorized,
+		NonTemporaryStorage:            &nonTemporaryStorage,
+		PrivatelyOwnedVehicle:          &privatelyOwnedVehicle,
+		ProGearWeight:                  proGearWeight,
+		ProGearWeightSpouse:            proGearWeightSpouse,
+		StorageInTransit:               &storageInTransit,
+		TotalDependents:                &totalDependents,
+		RequiredMedicalEquipmentWeight: requiredMedicalEquipmentWeight,
+		AccompaniedTour:                &accompaniedTour,
+		DependentsUnderTwelve:          &dependentsUnderTwelve,
+		DependentsTwelveAndOver:        &dependentsTwelveAndOver,
+		UpdatedAt:                      time.Now(),
+	}
+
+	returnedEntitlement := Entitlement(entitlement)
+
+	suite.IsType(&ghcmessages.Entitlements{}, returnedEntitlement)
+
+	suite.Equal(strfmt.UUID(entitlementID.String()), returnedEntitlement.ID)
+	suite.Equal(authorizedWeight, int(*returnedEntitlement.AuthorizedWeight))
+	suite.Equal(entitlement.DependentsAuthorized, returnedEntitlement.DependentsAuthorized)
+	suite.Equal(entitlement.NonTemporaryStorage, returnedEntitlement.NonTemporaryStorage)
+	suite.Equal(entitlement.PrivatelyOwnedVehicle, returnedEntitlement.PrivatelyOwnedVehicle)
+	suite.Equal(int64(proGearWeight), returnedEntitlement.ProGearWeight)
+	suite.Equal(int64(proGearWeightSpouse), returnedEntitlement.ProGearWeightSpouse)
+	suite.Equal(storageInTransit, int(*returnedEntitlement.StorageInTransit))
+	suite.Equal(totalDependents, int(returnedEntitlement.TotalDependents))
+	suite.Equal(int64(requiredMedicalEquipmentWeight), returnedEntitlement.RequiredMedicalEquipmentWeight)
+	suite.Equal(models.BoolPointer(accompaniedTour), returnedEntitlement.AccompaniedTour)
+	suite.Equal(dependentsUnderTwelve, int(*returnedEntitlement.DependentsUnderTwelve))
+	suite.Equal(dependentsTwelveAndOver, int(*returnedEntitlement.DependentsTwelveAndOver))
+}
+
 func (suite *PayloadsSuite) TestCreateCustomer() {
 	id, _ := uuid.NewV4()
 	id2, _ := uuid.NewV4()
@@ -515,6 +566,94 @@ func (suite *PayloadsSuite) TestMarketCode() {
 		result := MarketCode(&marketCodeInternational)
 		suite.NotNil(result, "Expected result to not be nil when marketCode is not nil")
 		suite.Equal("i", result, "Expected result to be 'i' for international market code")
+	})
+}
+
+func (suite *PayloadsSuite) TestReServiceItem() {
+	suite.Run("returns nil when reServiceItem is nil", func() {
+		var reServiceItem *models.ReServiceItem = nil
+		result := ReServiceItem(reServiceItem)
+		suite.Nil(result, "Expected result to be nil when reServiceItem is nil")
+	})
+
+	suite.Run("correctly maps ReServiceItem with all fields populated", func() {
+		isAutoApproved := true
+		marketCodeInternational := models.MarketCodeInternational
+		reServiceCode := models.ReServiceCodePOEFSC
+		poefscServiceName := "International POE Fuel Surcharge"
+		reService := models.ReService{
+			Code: reServiceCode,
+			Name: poefscServiceName,
+		}
+		ubShipmentType := models.MTOShipmentTypeUnaccompaniedBaggage
+		reServiceItem := &models.ReServiceItem{
+			IsAutoApproved: isAutoApproved,
+			MarketCode:     marketCodeInternational,
+			ReService:      reService,
+			ShipmentType:   ubShipmentType,
+		}
+		result := ReServiceItem(reServiceItem)
+
+		suite.NotNil(result, "Expected result to not be nil when reServiceItem has values")
+		suite.Equal(isAutoApproved, result.IsAutoApproved, "Expected IsAutoApproved to match")
+		suite.True(result.IsAutoApproved, "Expected IsAutoApproved to be true")
+		suite.Equal(string(marketCodeInternational), result.MarketCode, "Expected MarketCode to match")
+		suite.Equal(string(reServiceItem.ReService.Code), result.ServiceCode, "Expected ServiceCode to match")
+		suite.Equal(string(reServiceItem.ReService.Name), result.ServiceName, "Expected ServiceName to match")
+		suite.Equal(string(ubShipmentType), result.ShipmentType, "Expected ShipmentType to match")
+	})
+}
+
+func (suite *PayloadsSuite) TestReServiceItems() {
+	suite.Run("Correctly maps ReServiceItems with all fields populated", func() {
+		isAutoApprovedTrue := true
+		isAutoApprovedFalse := false
+		marketCodeInternational := models.MarketCodeInternational
+		marketCodeDomestic := models.MarketCodeDomestic
+		poefscReServiceCode := models.ReServiceCodePOEFSC
+		poedscReServiceCode := models.ReServiceCodePODFSC
+		poefscServiceName := "International POE Fuel Surcharge"
+		poedscServiceName := "International POD Fuel Surcharge"
+		poefscService := models.ReService{
+			Code: poefscReServiceCode,
+			Name: poefscServiceName,
+		}
+		podfscService := models.ReService{
+			Code: poedscReServiceCode,
+			Name: poedscServiceName,
+		}
+		hhgShipmentType := models.MTOShipmentTypeHHG
+		ubShipmentType := models.MTOShipmentTypeUnaccompaniedBaggage
+		poefscServiceItem := models.ReServiceItem{
+			IsAutoApproved: isAutoApprovedTrue,
+			MarketCode:     marketCodeInternational,
+			ReService:      poefscService,
+			ShipmentType:   ubShipmentType,
+		}
+		podfscServiceItem := models.ReServiceItem{
+			IsAutoApproved: isAutoApprovedFalse,
+			MarketCode:     marketCodeDomestic,
+			ReService:      podfscService,
+			ShipmentType:   hhgShipmentType,
+		}
+		reServiceItems := make(models.ReServiceItems, 2)
+		reServiceItems[0] = poefscServiceItem
+		reServiceItems[1] = podfscServiceItem
+		result := ReServiceItems(reServiceItems)
+
+		suite.NotNil(result, "Expected result to not be nil when reServiceItems has values")
+		suite.Equal(poefscServiceItem.IsAutoApproved, result[0].IsAutoApproved, "Expected IsAutoApproved to match")
+		suite.True(result[0].IsAutoApproved, "Expected IsAutoApproved to be true")
+		suite.Equal(string(marketCodeInternational), result[0].MarketCode, "Expected MarketCode to match")
+		suite.Equal(string(poefscServiceItem.ReService.Code), result[0].ServiceCode, "Expected ServiceCode to match")
+		suite.Equal(string(poefscServiceItem.ReService.Name), result[0].ServiceName, "Expected ServiceName to match")
+		suite.Equal(string(ubShipmentType), result[0].ShipmentType, "Expected ShipmentType to match")
+		suite.Equal(podfscServiceItem.IsAutoApproved, result[1].IsAutoApproved, "Expected IsAutoApproved to match")
+		suite.False(result[1].IsAutoApproved, "Expected IsAutoApproved to be false")
+		suite.Equal(string(marketCodeDomestic), result[1].MarketCode, "Expected MarketCode to match")
+		suite.Equal(string(podfscServiceItem.ReService.Code), result[1].ServiceCode, "Expected ServiceCode to match")
+		suite.Equal(string(podfscServiceItem.ReService.Name), result[1].ServiceName, "Expected ServiceName to match")
+		suite.Equal(string(hhgShipmentType), result[1].ShipmentType, "Expected ShipmentType to match")
 	})
 }
 
