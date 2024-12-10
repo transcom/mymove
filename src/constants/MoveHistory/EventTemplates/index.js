@@ -92,7 +92,7 @@ export { default as updateServiceItemStatusUpdateMove } from './UpdateServiceIte
 export { default as approveShipmentUpdateMove } from './ApproveShipment/approveShipmentUpdateMove';
 export { default as createSITExtension } from './CreateSITExtension/createSITExtension';
 export { default as updateAllowanceUpdateOrder } from './UpdateAllowances/updateAllowanceUpdateOrder';
-export { default as updateEntitlementUpdateMTOShipment } from './UpdateMTOShipment/updateEntitlementUpdateMTOShipment';
+export { default as updateMTOShipmentUpdateAllowance } from './UpdateMTOShipment/updateMTOShipmentUpdateAllowance';
 export { default as approveShipmentUpdateAllowances } from './ApproveShipment/approveShipmentUpdateAllowances';
 export { default as updateOrderUpdateAllowances } from './UpdateOrders/updateOrderUpdateAllowances';
 export { default as patchMTOShipment } from './UpdateMTOShipment/patchMTOShipment';
