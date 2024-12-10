@@ -27,14 +27,14 @@ func FetchPortLocation(db *pop.Connection, customs []Customization, traits []Tra
 			port = FetchPort(db, customs, nil)
 		}
 
-		// Find the port location based on the port code
-		err := db.EagerPreload("Port", "City", "Country", "UsPostRegionCity.UsPostRegion.State").Where("is_active = TRUE").InnerJoin("ports p", "port_id = p.id").Where("p.port_code = $1", port.PortCode).First(&portLocation)
-		if err == nil {
-			return portLocation
+		var err error
+		if port.PortCode != "" {
+			// Find the port location based on the port code
+			err = db.EagerPreload("Port", "City", "Country", "UsPostRegionCity.UsPostRegion.State").Where("is_active = TRUE").InnerJoin("ports p", "port_id = p.id").Where("p.port_code = $1", port.PortCode).First(&portLocation)
+		} else {
+			// Port code is empty, so use the default port code.
+			err = db.EagerPreload("Port", "City", "Country", "UsPostRegionCity.UsPostRegion.State").Where("is_active = TRUE").InnerJoin("ports p", "port_id = p.id").Where("p.port_code = 'PDX'").First(&portLocation)
 		}
-
-		// Didn't find a port location based on the custom port code, so grab the default port location
-		err = db.EagerPreload("Port", "City", "Country", "UsPostRegionCity.UsPostRegion.State").Where("is_active = TRUE").InnerJoin("ports p", "port_id = p.id").Where("p.port_code = 'PDX'").First(&portLocation)
 		if err == nil {
 			return portLocation
 		}
