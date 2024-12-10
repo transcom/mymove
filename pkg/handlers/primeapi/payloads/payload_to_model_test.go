@@ -566,6 +566,38 @@ func (suite *PayloadsSuite) TestMTOServiceItemModelFromUpdate() {
 
 		suite.NotNil(model)
 	})
+
+	suite.Run("PODFSC", func() {
+		mtoServiceItemID := uuid.Must(uuid.NewV4()).String()
+		portCode := "PDX"
+		reServiceCode := string(models.ReServiceCodePODFSC)
+		updateMTOServiceInternationalPortFsc := primemessages.UpdateMTOServiceItemInternationalPortFSC{
+			ReServiceCode: reServiceCode,
+			PortCode:      &portCode,
+		}
+
+		model, errs := MTOServiceItemModelFromUpdate(mtoServiceItemID, &updateMTOServiceInternationalPortFsc)
+
+		suite.Empty(errs)
+		suite.NotNil(model)
+		suite.Equal(model.PODLocation.Port.PortCode, portCode)
+	})
+
+	suite.Run("POEFSC", func() {
+		mtoServiceItemID := uuid.Must(uuid.NewV4()).String()
+		portCode := "PDX"
+		reServiceCode := string(models.ReServiceCodePOEFSC)
+		updateMTOServiceInternationalPortFsc := primemessages.UpdateMTOServiceItemInternationalPortFSC{
+			ReServiceCode: reServiceCode,
+			PortCode:      &portCode,
+		}
+
+		model, errs := MTOServiceItemModelFromUpdate(mtoServiceItemID, &updateMTOServiceInternationalPortFsc)
+
+		suite.Empty(errs)
+		suite.NotNil(model)
+		suite.Equal(model.POELocation.Port.PortCode, portCode)
+	})
 }
 
 func (suite *PayloadsSuite) TestValidateReasonOriginSIT() {

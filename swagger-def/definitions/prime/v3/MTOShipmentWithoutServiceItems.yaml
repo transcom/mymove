@@ -245,3 +245,7 @@ properties:
       - 'i'
     example: 'd'
     description: 'Single-letter designator for domestic (d) or international (i) shipments'
+  portOfDebarkation:
+    $ref: '../../Port.yaml'
+  portOfEmbarkation:
+    $ref: '../../Port.yaml'

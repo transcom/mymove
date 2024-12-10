@@ -354,6 +354,86 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderFetcher() {
 		suite.Error(err)
 	})
 
+	suite.Run("Success - found move with Port of Embarkation", func() {
+		expectedMTO, _ := setupTestData()
+		searchParams := services.MoveTaskOrderFetcherParams{
+			IncludeHidden:   false,
+			MoveTaskOrderID: expectedMTO.ID,
+		}
+
+		poeId := uuid.FromStringOrNil("b6e94f5b-33c0-43f3-b960-7c7b2a4ee5fc")
+		factory.BuildMTOServiceItemBasic(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOServiceItem{
+					POELocationID: &poeId,
+					Status:        models.MTOServiceItemStatusApproved,
+				},
+			},
+			{
+				Model:    expectedMTO,
+				LinkOnly: true,
+			},
+			{
+				Model: models.ReService{
+					Code: models.ReServiceCodePOEFSC, // POEFSC, International POE Fuel Surcharge
+				},
+			},
+		}, nil)
+
+		actualMTO, err := mtoFetcher.FetchMoveTaskOrder(suite.AppContextForTest(), &searchParams)
+		suite.NoError(err)
+		found := false
+		for _, serviceItem := range actualMTO.MTOServiceItems {
+			if serviceItem.ReService.Code == models.ReServiceCodePOEFSC {
+				suite.Equal(poeId, serviceItem.POELocation.ID)
+				found = true
+				break
+			}
+		}
+		// Verify that the expected service item was found
+		suite.True(found, "Expected service item ReServiceCodePOEFSC")
+	})
+
+	suite.Run("Success - found move with Port of Debarkation", func() {
+		expectedMTO, _ := setupTestData()
+		searchParams := services.MoveTaskOrderFetcherParams{
+			IncludeHidden:   false,
+			MoveTaskOrderID: expectedMTO.ID,
+		}
+
+		podId := uuid.FromStringOrNil("b6e94f5b-33c0-43f3-b960-7c7b2a4ee5fc")
+		factory.BuildMTOServiceItemBasic(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOServiceItem{
+					PODLocationID: &podId,
+					Status:        models.MTOServiceItemStatusApproved,
+				},
+			},
+			{
+				Model:    expectedMTO,
+				LinkOnly: true,
+			},
+			{
+				Model: models.ReService{
+					Code: models.ReServiceCodePODFSC, // PODFSC, International POD Fuel Surcharge
+				},
+			},
+		}, nil)
+
+		actualMTO, err := mtoFetcher.FetchMoveTaskOrder(suite.AppContextForTest(), &searchParams)
+		suite.NoError(err)
+		found := false
+		for _, serviceItem := range actualMTO.MTOServiceItems {
+			if serviceItem.ReService.Code == models.ReServiceCodePODFSC {
+				suite.Equal(podId, serviceItem.PODLocation.ID)
+				found = true
+				break
+			}
+		}
+		// Verify that the expected service item was found
+		suite.True(found, "Expected service item ReServiceCodePOEFSC")
+	})
+
 }
 
 func (suite *MoveTaskOrderServiceSuite) TestGetMoveTaskOrderFetcher() {

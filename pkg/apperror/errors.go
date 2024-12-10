@@ -202,6 +202,30 @@ func (e *UnsupportedPostalCodeError) Error() string {
 	return fmt.Sprintf("Unsupported postal code (%s): %s", e.postalCode, e.reason)
 }
 
+// UnsupportedPortCode happens when we don't have the data to support a given postal code.
+const UnsupportedPortCode ErrorCode = "UNSUPPORTED_PORT_CODE"
+
+// UnsupportedPortCodeError is the custom error type (exported for type checking)
+type UnsupportedPortCodeError struct {
+	baseError
+	portCode string
+	reason   string
+}
+
+// NewUnsupportedPostalCodeError creates an error for when we don't have the data to support a given
+// postal code.
+func NewUnsupportedPortCodeError(portCode string, reason string) *UnsupportedPortCodeError {
+	return &UnsupportedPortCodeError{
+		baseError{UnsupportedPortCode},
+		portCode,
+		reason,
+	}
+}
+
+func (e *UnsupportedPortCodeError) Error() string {
+	return fmt.Sprintf("Unsupported port code (%s): %s", e.portCode, e.reason)
+}
+
 // InvalidInputError is returned when an update fails a validation rule
 type InvalidInputError struct {
 	id               uuid.UUID
