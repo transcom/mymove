@@ -1,7 +1,3 @@
-ALTER TABLE addresses
-	ADD CONSTRAINT us_post_region_cities_id_fkey
-	FOREIGN KEY (us_post_region_cities_id) REFERENCES us_post_region_cities (id);
-
 -- function to get the rate area id for any address
 CREATE OR REPLACE FUNCTION get_rate_area_id(
     address_id UUID,
