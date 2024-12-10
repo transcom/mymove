@@ -193,7 +193,7 @@ const initialValues = {
   orders_type: ORDERS_TYPE.PERMANENT_CHANGE_OF_STATION,
   issue_date: '2020-11-08',
   report_by_date: '2020-11-26',
-  has_dependents: 'No',
+  has_dependents: 'no',
   origin_duty_location: {
     address: {
       city: 'Des Moines',
