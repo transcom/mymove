@@ -1479,8 +1479,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		suite.IsType(&mtoshipmentops.CreateMTOShipmentUnprocessableEntity{}, response)
 		errResponse := response.(*mtoshipmentops.CreateMTOShipmentUnprocessableEntity)
 
-		suite.Contains(*errResponse.Payload.Detail, "Invalid input found while validating the PPM shipment.")
-		suite.Contains(errResponse.Payload.InvalidFields["error validating ppm shipment"][0], "Shipment cannot have a third address without a second address present")
+		suite.Contains(*errResponse.Payload.Detail, "The MTO shipment object is invalid. Shipment cannot have a third pickup address without a second pickup address present")
 	})
 
 	suite.Run("POST failure - Error creating mto shipment containing a ppm shipment contains tertiary destination address no secondary destination address.", func() {
@@ -1538,8 +1537,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		suite.IsType(&mtoshipmentops.CreateMTOShipmentUnprocessableEntity{}, response)
 		errResponse := response.(*mtoshipmentops.CreateMTOShipmentUnprocessableEntity)
 
-		suite.Contains(*errResponse.Payload.Detail, "Invalid input found while validating the PPM shipment.")
-		suite.Contains(errResponse.Payload.InvalidFields["error validating ppm shipment"][0], "Shipment cannot have a third address without a second address present")
+		suite.Contains(*errResponse.Payload.Detail, "The MTO shipment object is invalid. Shipment cannot have a third destination address without a second destination address present")
 	})
 	suite.Run("PATCH failure - Error updating an mto shipment contains tertiary pickup address no secondary pickup address.", func() {
 		// Under Test: UpdateMTOShipmentHandler
