@@ -462,7 +462,7 @@ BEGIN
                     cents_above_baseline := distance * estimated_fsc_multiplier;
                     RAISE NOTICE ''Distance: % * FSC Multipler: % = $% cents above baseline of $2.50'', distance, estimated_fsc_multiplier, cents_above_baseline;
                     RAISE NOTICE ''The fuel price is % cents above the baseline ($% - $2.50 baseline)'', price_difference, fuel_price;
-                    estimated_price := ROUND(cents_above_baseline * price_difference) * 100;
+                    estimated_price := ROUND((cents_above_baseline * price_difference) * 100);
                     RAISE NOTICE ''Received estimated price of % cents for service_code: %.'', estimated_price, service_code;
                 END IF;
         END CASE;
