@@ -287,9 +287,9 @@ func (suite *ModelSuite) Test_SearchDutyLocations_Exclude_Not_Active_Oconus() {
 			City:               "SomeCity",
 			State:              "AK",
 			PostalCode:         postalCode,
-			County:             "SomeCounty",
+			County:             models.StringPointer("SomeCounty"),
 			IsOconus:           models.BoolPointer(true),
-			UsPostRegionCityId: &usprc.ID,
+			UsPostRegionCityID: &usprc.ID,
 			CountryId:          models.UUIDPointer(us_country.ID),
 		}
 		suite.MustSave(&address)

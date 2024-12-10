@@ -123,9 +123,9 @@ describe('CustomerInfo', () => {
         mockCustomer.backup_contact.email,
       );
       expect(screen.getByDisplayValue('123 Any Street').value).toEqual(mockCustomer.current_address.streetAddress1);
-      expect(screen.getByDisplayValue('Beverly Hills').value).toEqual(mockCustomer.current_address.city);
-      expect(screen.getByDisplayValue('CA').value).toEqual(mockCustomer.current_address.state);
-      expect(screen.getByDisplayValue('90210').value).toEqual(mockCustomer.current_address.postalCode);
+      expect(screen.getByText('Beverly Hills')).toHaveTextContent(mockCustomer.current_address.city);
+      expect(screen.getByText('CA')).toHaveTextContent(mockCustomer.current_address.state);
+      expect(screen.getByText('90210')).toHaveTextContent(mockCustomer.current_address.postalCode);
       expect(screen.getByDisplayValue('Jane Backup').value).toEqual(mockCustomer.backup_contact.name);
     });
   });

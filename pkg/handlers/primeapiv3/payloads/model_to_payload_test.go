@@ -68,7 +68,7 @@ func (suite *PayloadsSuite) TestMoveTaskOrder() {
 					City:           "Washington",
 					State:          "DC",
 					PostalCode:     "20001",
-					County:         "my county",
+					County:         models.StringPointer("my county"),
 				},
 			},
 		},
@@ -111,7 +111,7 @@ func (suite *PayloadsSuite) TestMoveTaskOrder() {
 		suite.Equal(models.NAICS, returnedModel.Order.Naics)
 		suite.Equal(packingInstructions, returnedModel.Order.PackingAndShippingInstructions)
 		suite.Require().NotEmpty(returnedModel.MtoShipments)
-		suite.Equal(basicMove.MTOShipments[0].PickupAddress.County, *returnedModel.MtoShipments[0].PickupAddress.County)
+		suite.Equal(basicMove.MTOShipments[0].PickupAddress.County, returnedModel.MtoShipments[0].PickupAddress.County)
 	})
 
 	suite.Run("Success - payload with RateArea", func() {
@@ -278,7 +278,7 @@ func (suite *PayloadsSuite) TestMoveTaskOrder() {
 		suite.Equal(models.NAICS, returnedModel.Order.Naics)
 		suite.Equal(packingInstructions, returnedModel.Order.PackingAndShippingInstructions)
 		suite.Require().NotEmpty(returnedModel.MtoShipments)
-		suite.Equal(newMove.MTOShipments[0].PickupAddress.County, *returnedModel.MtoShipments[0].PickupAddress.County)
+		suite.Equal(newMove.MTOShipments[0].PickupAddress.County, returnedModel.MtoShipments[0].PickupAddress.County)
 
 		// verify there are no RateArea set because no ShipmentPostalCodeRateArea passed in.
 		for _, shipment := range returnedModel.MtoShipments {
@@ -825,7 +825,7 @@ func (suite *PayloadsSuite) TestPPMShipmentContainingOptionalDestinationStreet1(
 			City:           "SomeCity",
 			State:          "CA",
 			PostalCode:     "90210",
-			County:         "SomeCounty",
+			County:         models.StringPointer("SomeCounty"),
 			UpdatedAt:      now,
 		},
 	}
@@ -842,7 +842,7 @@ func (suite *PayloadsSuite) TestPPMShipmentContainingOptionalDestinationStreet1(
 	suite.Equal(*result.DestinationAddress.City, ppmShipment.DestinationAddress.City)
 	suite.Equal(*result.DestinationAddress.State, ppmShipment.DestinationAddress.State)
 	suite.Equal(*result.DestinationAddress.PostalCode, ppmShipment.DestinationAddress.PostalCode)
-	suite.Equal(*result.DestinationAddress.County, ppmShipment.DestinationAddress.County)
+	suite.Equal(result.DestinationAddress.County, ppmShipment.DestinationAddress.County)
 	suite.Equal(result.DestinationAddress.ETag, eTag)
 }
 
