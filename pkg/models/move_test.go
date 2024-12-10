@@ -20,6 +20,7 @@ import (
 	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/factory"
 	m "github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/unit"
 )
 
 func (suite *ModelSuite) TestBasicMoveInstantiation() {
@@ -50,6 +51,143 @@ func (suite *ModelSuite) TestCreateNewMoveValidLocatorString() {
 	suite.Regexp("^[346789BCDFGHJKMPQRTVWXY]+$", move.Locator)
 	// Verify invalid items are not in locator - this should produce "non-word" locators
 	suite.NotRegexp("[0125AEIOULNSZ]", move.Locator)
+}
+
+func (suite *ModelSuite) TestNeedsReweighFollowsBusinessLogic() {
+	suite.Run("Prime estimated weights trigger reweigh", func() {
+		maxWeight := 7000
+
+		order := factory.BuildOrder(suite.DB(), []factory.Customization{
+			{
+				Model: m.Entitlement{
+					DBAuthorizedWeight: &maxWeight,
+				},
+			},
+		}, nil)
+
+		now := time.Now()
+
+		moveNeedsReweigh := factory.BuildMove(suite.DB(), []factory.Customization{
+			{
+				Model: m.Move{
+					AvailableToPrimeAt: &now,
+				},
+			},
+			{
+				Model:    order,
+				LinkOnly: true,
+			},
+		}, nil)
+
+		testWeightsNeedsReweigh := []unit.Pound{3500, 3460}
+		for i := range testWeightsNeedsReweigh {
+			factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+				{
+					Model: m.MTOShipment{
+						PrimeEstimatedWeight: &testWeightsNeedsReweigh[i],
+					},
+				},
+				{
+					Model:    moveNeedsReweigh,
+					LinkOnly: true,
+				},
+			}, nil)
+		}
+
+		needsReweigh, err := moveNeedsReweigh.NeedsReweigh(suite.AppContextForTest())
+		suite.NoError(err)
+		suite.Equal(true, *needsReweigh)
+	})
+
+	suite.Run("Prime actual weights trigger reweigh", func() {
+		maxWeight := 7000
+
+		order := factory.BuildOrder(suite.DB(), []factory.Customization{
+			{
+				Model: m.Entitlement{
+					DBAuthorizedWeight: &maxWeight,
+				},
+			},
+		}, nil)
+
+		now := time.Now()
+
+		moveNeedsReweigh := factory.BuildMove(suite.DB(), []factory.Customization{
+			{
+				Model: m.Move{
+					AvailableToPrimeAt: &now,
+				},
+			},
+			{
+				Model:    order,
+				LinkOnly: true,
+			},
+		}, nil)
+
+		testWeightsNeedsReweigh := []unit.Pound{3500, 3460}
+		for i := range testWeightsNeedsReweigh {
+			factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+				{
+					Model: m.MTOShipment{
+						PrimeEstimatedWeight: &testWeightsNeedsReweigh[i],
+					},
+				},
+				{
+					Model:    moveNeedsReweigh,
+					LinkOnly: true,
+				},
+			}, nil)
+		}
+
+		needsReweigh, err := moveNeedsReweigh.NeedsReweigh(suite.AppContextForTest())
+		suite.NoError(err)
+		suite.Equal(true, *needsReweigh)
+	})
+
+	suite.Run("Reweigh does not trigger when it should not trigger", func() {
+		maxWeight := 7000
+
+		order := factory.BuildOrder(suite.DB(), []factory.Customization{
+			{
+				Model: m.Entitlement{
+					DBAuthorizedWeight: &maxWeight,
+				},
+			},
+		}, nil)
+
+		now := time.Now()
+
+		moveNeedsReweigh := factory.BuildMove(suite.DB(), []factory.Customization{
+			{
+				Model: m.Move{
+					AvailableToPrimeAt: &now,
+				},
+			},
+			{
+				Model:    order,
+				LinkOnly: true,
+			},
+		}, nil)
+
+		testWeightsDoesNotNeedReweigh := []unit.Pound{2500, 2000}
+		for i := range testWeightsDoesNotNeedReweigh {
+			factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+				{
+					Model: m.MTOShipment{
+						PrimeEstimatedWeight: &testWeightsDoesNotNeedReweigh[i],
+					},
+				},
+				{
+					Model:    moveNeedsReweigh,
+					LinkOnly: true,
+				},
+			}, nil)
+		}
+
+		needsReweigh, err := moveNeedsReweigh.NeedsReweigh(suite.AppContextForTest())
+		suite.NoError(err)
+		suite.Equal(false, *needsReweigh)
+	})
 }
 
 func (suite *ModelSuite) TestGenerateReferenceID() {

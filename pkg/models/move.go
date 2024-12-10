@@ -3,6 +3,7 @@ package models
 import (
 	"crypto/sha256"
 	"fmt"
+	"math"
 	"strings"
 	"time"
 
@@ -13,6 +14,7 @@ import (
 	"github.com/jackc/pgerrcode"
 	"github.com/pkg/errors"
 
+	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/db/dberr"
 	"github.com/transcom/mymove/pkg/db/utilities"
@@ -658,8 +660,61 @@ func GetTotalNetWeightForMove(m Move) unit.Pound {
 			totalNetWeight += GetPPMNetWeight(*shipment.PPMShipment)
 		}
 	}
-	return totalNetWeight
 
+	return totalNetWeight
+}
+
+func (move Move) NeedsReweigh(appCtx appcontext.AppContext) (*bool, error) {
+	move, err := FetchMoveByMoveID(appCtx.DB(), move.ID)
+	if err != nil {
+		if err == ErrFetchNotFound {
+			return nil, errors.WithMessage(ErrFetchNotFound, "Unable to check if move needs reweigh for move ID "+move.ID.String())
+		}
+		return nil, err
+	} else if move.AvailableToPrimeAt == nil {
+		return nil, errors.WithMessage(ErrSqlRecordNotFound, "Move is in an incorrect state for move ID "+move.ID.String())
+	}
+
+	err = appCtx.DB().Load(&move, "MTOShipments", "Orders.Entitlement.DBAuthorizedWeight")
+	if err != nil {
+		if err == ErrFetchNotFound {
+			return nil, errors.WithMessage(ErrFetchNotFound, "Unable to fetch shipments for move ID "+move.ID.String())
+		}
+		return nil, err
+	}
+
+	weightLimit := unit.Pound(*move.Orders.Entitlement.DBAuthorizedWeight)
+
+	totalActualWeight := unit.Pound(0)
+	totalEstimatedWeight := unit.Pound(0)
+	for i := range move.MTOShipments {
+		err = appCtx.DB().Load(&move.MTOShipments[i], "MTOServiceItems", "ShipmentType", "Status", "DeletedAt")
+		if err != nil {
+			if err == ErrFetchNotFound {
+				return nil, errors.WithMessage(ErrFetchNotFound, "Unable to fetch service items for shipment ID "+move.MTOShipments[i].ID.String()+
+					" when checking if move needs reweigh for move ID "+move.ID.String())
+			}
+			return nil, err
+		}
+
+		if move.MTOShipments[i].ShipmentType != MTOShipmentTypePPM &&
+			move.MTOShipments[i].Status != MTOShipmentStatusCanceled &&
+			move.MTOShipments[i].Status != MTOShipmentStatusRejected &&
+			move.MTOShipments[i].DeletedAt == nil {
+			totalActualWeight += *move.MTOShipments[i].PrimeActualWeight
+			totalEstimatedWeight += *move.MTOShipments[i].PrimeEstimatedWeight
+		}
+	}
+
+	if int(totalActualWeight) >= int(math.Round(float64(weightLimit)*0.9)) {
+		return BoolPointer(true), nil
+	}
+
+	if int(totalEstimatedWeight) >= int(math.Round(float64(weightLimit)*0.9)) {
+		return BoolPointer(true), nil
+	}
+
+	return BoolPointer(false), nil
 }
 
 // gets total weight from all ppm and hhg shipments within a move

@@ -765,6 +765,18 @@ func (f *mtoShipmentUpdater) updateShipmentRecord(appCtx appcontext.AppContext, 
 						return err
 					}
 				}
+			} else if dbShipment.PrimeEstimatedWeight != nil {
+				needsReweigh, err := move.NeedsReweigh(txnAppCtx)
+				if err != nil {
+					return err
+				}
+
+				if needsReweigh == models.BoolPointer(true) {
+					autoReweighShipments, err = f.moveWeights.CheckAutoReweigh(txnAppCtx, dbShipment.MoveTaskOrderID, newShipment)
+					if err != nil {
+						return err
+					}
+				}
 			}
 		}
 
