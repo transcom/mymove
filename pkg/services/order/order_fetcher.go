@@ -321,13 +321,14 @@ func (f orderFetcher) ListDestinationRequestsOrders(appCtx appcontext.AppContext
 		}
 	}
 
+	var gblocQuery QueryOption
 	branchQuery := branchFilter(params.Branch, false, false)
-	// If the user is associated with the USMC GBLOC we want to show them ALL the USMC moves, so let's override here.
-	// We also only want to do the gbloc filtering thing if we aren't a USMC user, which we cover with the else.
-	// var gblocQuery QueryOption
 	if officeUserGbloc == "USMC" {
 		branchQuery = branchFilter(models.StringPointer(string(models.AffiliationMARINES)), false, false)
+	} else {
+		gblocQuery = destinationGBLOCFilter(&officeUserGbloc)
 	}
+
 	locatorQuery := locatorFilter(params.Locator)
 	dodIDQuery := dodIDFilter(params.Edipi)
 	emplidQuery := emplidFilter(params.Emplid)
@@ -343,7 +344,7 @@ func (f orderFetcher) ListDestinationRequestsOrders(appCtx appcontext.AppContext
 	counselingQuery := counselingOfficeFilter(params.CounselingOffice)
 
 	// Adding to an array so we can iterate over them and apply the filters after the query structure is set below
-	options := [20]QueryOption{branchQuery, locatorQuery, dodIDQuery, emplidQuery, customerNameQuery, originDutyLocationQuery, moveStatusQuery, submittedAtQuery, appearedInTOOAtQuery, requestedMoveDateQuery, sortOrderQuery, scAssignedUserQuery, tooAssignedUserQuery, counselingQuery}
+	options := [20]QueryOption{gblocQuery, branchQuery, locatorQuery, dodIDQuery, emplidQuery, customerNameQuery, originDutyLocationQuery, moveStatusQuery, submittedAtQuery, appearedInTOOAtQuery, requestedMoveDateQuery, sortOrderQuery, scAssignedUserQuery, tooAssignedUserQuery, counselingQuery}
 
 	// for destination requests we want to show moves that have requests on the shipment destination address GBLOC
 	// this applies to SIT & Shuttle service items, as well as destination address requests that have yet to be approved
@@ -376,7 +377,6 @@ func (f orderFetcher) ListDestinationRequestsOrders(appCtx appcontext.AppContext
 		LeftJoin("shipment_address_updates", "shipment_address_updates.shipment_id = mto_shipments.id").
 		LeftJoin("addresses", "mto_shipments.destination_address_id = addresses.id").
 		LeftJoin("postal_code_to_gblocs", "addresses.postal_code = postal_code_to_gblocs.postal_code").
-		Where("postal_code_to_gblocs.gbloc = ?", officeUserGbloc).
 		Where("moves.show = ?", models.BoolPointer(true)).
 		Where(
 			"(shipment_address_updates.status = 'REQUESTED' "+
@@ -779,6 +779,14 @@ func ppmStatusFilter(ppmStatus *string) QueryOption {
 	return func(query *pop.Query) {
 		if ppmStatus != nil {
 			query.Where("ppm_shipments.status = ?", *ppmStatus)
+		}
+	}
+}
+
+func destinationGBLOCFilter(gbloc *string) QueryOption {
+	return func(query *pop.Query) {
+		if gbloc != nil {
+			query.Where("postal_code_to_gblocs.gbloc = ?", gbloc)
 		}
 	}
 }
