@@ -89,11 +89,11 @@ export const counselingColumns = (moveLockFlag, originLocationList, supervisor, 
         },
       },
     ),
-    createHeader('DoD ID', 'customer.dodID', {
-      id: 'dodID',
+    createHeader('DoD ID', 'customer.edipi', {
+      id: 'edipi',
       isFilterable: true,
       exportValue: (row) => {
-        return row.customer.dodID;
+        return row.customer.edipi;
       },
     }),
     createHeader('EMPLID', 'customer.emplid', {
@@ -262,18 +262,18 @@ export const closeoutColumns = (
         );
       },
       {
-        id: 'lastName',
+        id: 'customerName',
         isFilterable: true,
         exportValue: (row) => {
           return `${row.customer.last_name}, ${row.customer.first_name}`;
         },
       },
     ),
-    createHeader('DoD ID', 'customer.dodID', {
-      id: 'dodID',
+    createHeader('DoD ID', 'customer.edipi', {
+      id: 'edipi',
       isFilterable: true,
       exportValue: (row) => {
-        return row.customer.dodID;
+        return row.customer.edipi;
       },
     }),
     createHeader('EMPLID', 'customer.emplid', {
@@ -367,6 +367,10 @@ export const closeoutColumns = (
             return row.originDutyLocation?.name;
           },
         }),
+    createHeader('Counseling office', 'counselingOffice', {
+      id: 'counselingOffice',
+      isFilterable: true,
+    }),
     createHeader('Destination duty location', 'destinationDutyLocation.name', {
       id: 'destinationDutyLocation',
       isFilterable: true,

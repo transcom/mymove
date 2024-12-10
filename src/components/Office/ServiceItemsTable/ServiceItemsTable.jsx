@@ -201,7 +201,7 @@ const ServiceItemsTable = ({
     if (
       (serviceItem.code === 'DLH' || serviceItem.code === 'DSH') &&
       serviceItem.details.rejectionReason ===
-        'Automatically rejected due to change in destination address affecting the ZIP code qualification for short haul / line haul.'
+        'Automatically rejected due to change in delivery address affecting the ZIP code qualification for short haul / line haul.'
     ) {
       rejectedDSHorDLHServiceItem = true;
     }
