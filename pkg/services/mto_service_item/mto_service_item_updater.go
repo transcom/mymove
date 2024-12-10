@@ -39,28 +39,26 @@ type mtoServiceItemQueryBuilder interface {
 }
 
 type mtoServiceItemUpdater struct {
-	planner                route.Planner
-	builder                mtoServiceItemQueryBuilder
-	createNewBuilder       func() mtoServiceItemQueryBuilder
-	moveRouter             services.MoveRouter
-	shipmentFetcher        services.MTOShipmentFetcher
-	addressCreator         services.AddressCreator
-	unpackPricer           services.DomesticUnpackPricer
-	linehaulPricer         services.DomesticLinehaulPricer
-	destinationPricer      services.DomesticDestinationPricer
-	fuelSurchargePricer    services.FuelSurchargePricer
-	sitFuelSurchargePricer services.DomesticDestinationSITFuelSurchargePricer
-	sitDeliverPricer       services.DomesticDestinationSITDeliveryPricer
+	planner             route.Planner
+	builder             mtoServiceItemQueryBuilder
+	createNewBuilder    func() mtoServiceItemQueryBuilder
+	moveRouter          services.MoveRouter
+	shipmentFetcher     services.MTOShipmentFetcher
+	addressCreator      services.AddressCreator
+	unpackPricer        services.DomesticUnpackPricer
+	linehaulPricer      services.DomesticLinehaulPricer
+	destinationPricer   services.DomesticDestinationPricer
+	fuelSurchargePricer services.FuelSurchargePricer
 }
 
 // NewMTOServiceItemUpdater returns a new mto service item updater
-func NewMTOServiceItemUpdater(planner route.Planner, builder mtoServiceItemQueryBuilder, moveRouter services.MoveRouter, shipmentFetcher services.MTOShipmentFetcher, addressCreator services.AddressCreator, unpackPricer services.DomesticUnpackPricer, linehaulPricer services.DomesticLinehaulPricer, destinationPricer services.DomesticDestinationPricer, fuelSurchargePricer services.FuelSurchargePricer, domesticDestinationSITDeliveryPricer services.DomesticDestinationSITDeliveryPricer, domesticDestinationSITFuelSurchargePricer services.DomesticDestinationSITFuelSurchargePricer) services.MTOServiceItemUpdater {
+func NewMTOServiceItemUpdater(planner route.Planner, builder mtoServiceItemQueryBuilder, moveRouter services.MoveRouter, shipmentFetcher services.MTOShipmentFetcher, addressCreator services.AddressCreator, unpackPricer services.DomesticUnpackPricer, linehaulPricer services.DomesticLinehaulPricer, destinationPricer services.DomesticDestinationPricer, fuelSurchargePricer services.FuelSurchargePricer) services.MTOServiceItemUpdater {
 	// used inside a transaction and mocking		return &mtoServiceItemUpdater{builder: builder}
 	createNewBuilder := func() mtoServiceItemQueryBuilder {
 		return query.NewQueryBuilder()
 	}
 
-	return &mtoServiceItemUpdater{planner, builder, createNewBuilder, moveRouter, shipmentFetcher, addressCreator, unpackPricer, linehaulPricer, destinationPricer, fuelSurchargePricer, domesticDestinationSITFuelSurchargePricer, domesticDestinationSITDeliveryPricer}
+	return &mtoServiceItemUpdater{planner, builder, createNewBuilder, moveRouter, shipmentFetcher, addressCreator, unpackPricer, linehaulPricer, destinationPricer, fuelSurchargePricer}
 }
 
 func (p *mtoServiceItemUpdater) ApproveOrRejectServiceItem(
@@ -225,48 +223,6 @@ func (p *mtoServiceItemUpdater) findEstimatedPrice(appCtx appcontext.AppContext,
 				return 0, err
 			}
 			price, _, err = p.unpackPricer.Price(appCtx, contractCode, *pickupDate, shipmentWeight, domesticServiceArea.ServicesSchedule, isPPM)
-			if err != nil {
-				return 0, err
-			}
-		}
-		// destination sit delivery
-		if serviceItem.ReService.Code == models.ReServiceCodeDDDSIT && serviceItem.SITDestinationFinalAddress != nil {
-			domesticServiceArea, err := fetchDomesticServiceArea(appCtx, contractCode, mtoShipment.DestinationAddress.PostalCode)
-			if err != nil {
-				return 0, err
-			}
-			if mtoShipment.DestinationAddress != nil {
-				distance, err = p.planner.ZipTransitDistance(appCtx, serviceItem.SITDestinationFinalAddress.PostalCode, mtoShipment.DestinationAddress.PostalCode)
-				if err != nil {
-					return 0, err
-				}
-			}
-			price, _, err = p.sitDeliverPricer.Price(appCtx, contractCode, *pickupDate, shipmentWeight, domesticServiceArea.ServiceArea, domesticServiceArea.SITPDSchedule, mtoShipment.DestinationAddress.PostalCode, serviceItem.SITDestinationFinalAddress.PostalCode, unit.Miles(distance))
-			if err != nil {
-				return 0, err
-			}
-		}
-		// destination sit fuel surcharge
-		if serviceItem.ReService.Code == models.ReServiceCodeDDSFSC && serviceItem.SITDestinationFinalAddress != nil {
-			if mtoShipment.DestinationAddress != nil {
-				distance, err = p.planner.ZipTransitDistance(appCtx, serviceItem.SITDestinationFinalAddress.PostalCode, mtoShipment.DestinationAddress.PostalCode)
-				if err != nil {
-					return 0, err
-				}
-			}
-			fscWeightBasedDistanceMultiplier, err := LookupFSCWeightBasedDistanceMultiplier(appCtx, shipmentWeight)
-			if err != nil {
-				return 0, err
-			}
-			fscWeightBasedDistanceMultiplierFloat, err := strconv.ParseFloat(fscWeightBasedDistanceMultiplier, 64)
-			if err != nil {
-				return 0, err
-			}
-			eiaFuelPrice, err := LookupEIAFuelPrice(appCtx, *pickupDate)
-			if err != nil {
-				return 0, err
-			}
-			price, _, err = p.sitFuelSurchargePricer.Price(appCtx, *mtoShipment.ActualPickupDate, unit.Miles(distance), shipmentWeight, fscWeightBasedDistanceMultiplierFloat, eiaFuelPrice, isPPM)
 			if err != nil {
 				return 0, err
 			}
