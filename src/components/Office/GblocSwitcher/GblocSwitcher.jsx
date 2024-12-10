@@ -18,13 +18,13 @@ const GBLOCSwitcher = ({ officeUser, activeRole, ariaLabel }) => {
 
   let { result: gblocs } = useListGBLOCsQueries();
   if (activeRole !== roleTypes.HQ) {
-    gblocs = officeUser?.transportation_office_assignments.map((toa) => {
+    gblocs = officeUser?.transportation_office_assignments?.map((toa) => {
       return toa?.transportationOffice?.gbloc;
     });
   }
 
-  const officeUsersDefaultGbloc = officeUser.transportation_office.gbloc;
-  if (gblocs.indexOf(officeUsersDefaultGbloc) === -1) {
+  const officeUsersDefaultGbloc = officeUser.transportation_office?.gbloc;
+  if (gblocs?.indexOf(officeUsersDefaultGbloc) === -1) {
     gblocs.push(officeUsersDefaultGbloc);
   }
 
@@ -48,7 +48,7 @@ const GBLOCSwitcher = ({ officeUser, activeRole, ariaLabel }) => {
       divClassName={styles.switchGblocButton}
       testId="gbloc_switcher"
     >
-      {gblocs.map((gbloc) => (
+      {gblocs?.map((gbloc) => (
         <option value={gbloc} key={`filterOption_${gbloc}`}>
           {gbloc}
         </option>

@@ -67,22 +67,13 @@ class CustomerPpmOnboardingPage extends CustomerPpmPage {
    *
    */
   async submitAndVerifyUpdateDateAndLocation() {
+    const pickupLocation = 'BEVERLY HILLS, CA 90212 (LOS ANGELES)';
     await this.page.locator('label[for="yes-secondary-pickup-address"]').click();
-    await this.page.locator('input[name="pickupAddress.address.postalCode"]').clear();
-    await this.page.locator('input[name="pickupAddress.address.postalCode"]').fill('90210');
-    await this.page.locator('input[name="pickupAddress.address.postalCode"]').blur();
 
     await this.page.locator('input[name="secondaryPickupAddress.address.streetAddress1"]').fill('1234 Street');
-    await this.page.locator('input[name="secondaryPickupAddress.address.city"]').fill('SomeCity');
-    await this.page.locator('select[name="secondaryPickupAddress.address.state"]').selectOption({ label: 'CA' });
-
-    await this.page.locator('input[name="secondaryPickupAddress.address.postalCode"]').clear();
-    await this.page.locator('input[name="secondaryPickupAddress.address.postalCode"]').fill('90212');
-    await this.page.locator('input[name="secondaryPickupAddress.address.postalCode"]').blur();
-
-    await this.page.locator('input[name="destinationAddress.address.postalCode"]').clear();
-    await this.page.locator('input[name="destinationAddress.address.postalCode"]').fill('76127');
-    await this.page.locator('input[name="destinationAddress.address.postalCode"]').blur();
+    await this.page.locator('input[id="secondaryPickupAddress.address-location-input"]').fill('90212');
+    await expect(this.page.getByText(pickupLocation, { exact: true })).toBeVisible();
+    await this.page.keyboard.press('Enter');
 
     // TODO: The user has secondary destination zips. We should test clearing this value by selecting the no radio btn. This doesn't work atm
     await this.page.locator('label[for="sitExpectedNo"]').click();
