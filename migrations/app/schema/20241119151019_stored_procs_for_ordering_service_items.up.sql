@@ -22,6 +22,23 @@ EXCEPTION
 END;
 $$ LANGUAGE plpgsql;
 
+CREATE OR REPLACE FUNCTION checkExistingServiceItem(
+    service_id UUID,
+    shipment_id UUID
+) RETURNS BOOLEAN AS $
+BEGIN
+    IF EXISTS (
+        SELECT 1
+        FROM mto_service_items
+        WHERE re_service_id = service_id
+        AND mto_shipment_id = shipment_id
+    ) THEN
+        RAISE EXCEPTION 'Service item already exists for service_id % and shipment_id %', service_id, shipment_id;
+    END IF;
+    RETURN FALSE;
+END;
+$ LANGUAGE plpgsql;
+
 CREATE OR REPLACE FUNCTION does_service_item_exist(
     service_id UUID,
     shipment_id UUID
@@ -45,6 +62,7 @@ CREATE OR REPLACE PROCEDURE create_approved_service_items_for_shipment(
 )
 AS '
 DECLARE
+    s_status mto_shipment_status;
     s_status mto_shipment_status;
     s_type mto_shipment_type;
     m_code market_code_enum;
@@ -90,7 +108,6 @@ BEGIN
               AND rsi.is_auto_approved = true
         LOOP
             BEGIN
-            IF NOT does_service_item_exist(service_item.re_service_id, shipment_id) THEN
                 INSERT INTO mto_service_items (
                     mto_shipment_id,
                     move_id,
@@ -132,7 +149,6 @@ BEGIN
               AND rsi.is_auto_approved = true
         LOOP
             BEGIN
-           IF NOT does_service_item_exist(service_item.re_service_id, shipment_id) THEN
                 INSERT INTO mto_service_items (
                     mto_shipment_id,
                     move_id,
@@ -178,7 +194,6 @@ BEGIN
           AND rs.code NOT IN (''POEFSC'', ''PODFSC'')
     LOOP
         BEGIN
-         IF NOT does_service_item_exist(service_item.re_service_id, shipment_id) THEN
             INSERT INTO mto_service_items (
                 mto_shipment_id,
                 move_id,
@@ -295,7 +310,6 @@ BEGIN
               AND rsi.is_auto_approved = false
         LOOP
             BEGIN
-            IF NOT does_service_item_exist(service_item.re_service_id, shipment_id) THEN
                 INSERT INTO mto_service_items (
                     mto_shipment_id,
                     move_id,
