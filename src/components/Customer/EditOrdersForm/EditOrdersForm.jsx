@@ -165,7 +165,7 @@ const EditOrdersForm = ({
         new_duty_location: true,
       }}
     >
-      {({ isValid, isSubmitting, handleSubmit, setValues, values, setFieldValue }) => {
+      {({ isValid, isSubmitting, handleSubmit, setValues, setFieldValue, values }) => {
         const isRetirementOrSeparation = ['RETIREMENT', 'SEPARATION'].includes(values.orders_type);
 
         const handleCounselingOfficeChange = () => {
@@ -474,10 +474,10 @@ EditOrdersForm.propTypes = {
     origin_duty_location: PropTypes.shape({
       name: PropTypes.string,
     }),
-    counseling_office_id: PropTypes.string,
     dependents_under_twelve: PropTypes.string,
     dependents_twelve_and_over: PropTypes.string,
     accompanied_tour: PropTypes.string,
+    counseling_office_id: PropTypes.string,
     uploaded_orders: ExistingUploadsShape,
   }).isRequired,
   onCancel: PropTypes.func.isRequired,
