@@ -20,16 +20,19 @@ func FetchPort(db *pop.Connection, customs []Customization, traits []Trait) mode
 
 	var port models.Port
 	if db != nil {
-		err := db.Where("port_code = ?", cPort.PortCode).First(&port)
+
+		var err error
+		if cPort.PortCode != "" {
+			// Find the port based off the port code
+			err = db.Where("port_code = ?", cPort.PortCode).First(&port)
+		} else {
+			//No port code provided, so find the default port
+			err = db.Where("port_code = 'PDX'").First(&port)
+		}
 		if err == nil {
 			return port
 		}
 
-		// Didn't find a port based on the custom port code, so grab the default port
-		err = db.Where("port_code = 'PDX'").First(&port)
-		if err == nil {
-			return port
-		}
 	}
 
 	// Overwrite values with those from customizations
