@@ -101,7 +101,7 @@ test.describe('Prime simulator user', () => {
     await expect(page.getByText(`Actual Delivery Date:${formatNumericDate(actualDeliveryDate)}`)).toBeVisible();
     await expect(page.getByText('Estimated Weight:7500')).toBeVisible();
     await expect(page.getByText('Actual Weight:8000')).toBeVisible();
-    await expect(page.getByText('Destination Address:142 E Barrel Hoop Circle, Joshua Tree, CA 92252')).toBeVisible();
+    await expect(page.getByText('Delivery Address:142 E Barrel Hoop Circle, Joshua Tree, CA 92252')).toBeVisible();
   });
 
   test('is able to create payment requests for shipment-level service items', async ({ page, officePage }) => {
@@ -160,7 +160,7 @@ test.describe('Prime simulator user', () => {
     await expect(page.getByText(`Actual Delivery Date:${formatNumericDate(actualDeliveryDate)}`)).toBeVisible();
     await expect(page.getByText('Estimated Weight:7500')).toBeVisible();
     await expect(page.getByText('Actual Weight:8000')).toBeVisible();
-    await expect(page.getByText('Destination Address:142 E Barrel Hoop Circle, Joshua Tree, CA 92252')).toBeVisible();
+    await expect(page.getByText('Delivery Address:142 E Barrel Hoop Circle, Joshua Tree, CA 92252')).toBeVisible();
 
     // Can only create a payment request if there is a destination
     // waits for the create page to load

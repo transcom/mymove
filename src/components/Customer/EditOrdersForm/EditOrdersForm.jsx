@@ -165,9 +165,16 @@ const EditOrdersForm = ({
         new_duty_location: true,
       }}
     >
-      {({ isValid, isSubmitting, handleSubmit, values, setFieldValue }) => {
+      {({ isValid, isSubmitting, handleSubmit, setValues, values, setFieldValue }) => {
         const isRetirementOrSeparation = ['RETIREMENT', 'SEPARATION'].includes(values.orders_type);
 
+        const handleCounselingOfficeChange = () => {
+          setValues({
+            ...values,
+            counseling_office_id: null,
+          });
+          setOfficeOptions(null);
+        };
         if (!values.origin_duty_location) originMeta = 'Required';
         else originMeta = null;
 
@@ -226,6 +233,7 @@ const EditOrdersForm = ({
                 hint="Required"
                 onDutyLocationChange={(e) => {
                   setDutyLocation(e);
+                  handleCounselingOfficeChange();
                 }}
                 required
                 metaOverride={originMeta}
@@ -238,7 +246,7 @@ const EditOrdersForm = ({
                     assist
                   </Label>
                   <DropdownInput
-                    label="Counseling Office"
+                    label="Counseling office"
                     name="counseling_office_id"
                     id="counseling_office_id"
                     hint="Required"
@@ -274,7 +282,7 @@ const EditOrdersForm = ({
                     name="new_duty_location"
                     label="HOR, PLEAD or HOS"
                     displayAddress={false}
-                    hint="Enter the option closest to your destination. Your move counselor will identify if there might be a cost to you."
+                    hint="Enter the option closest to your delivery address. Your move counselor will identify if there might be a cost to you."
                     placeholder="Enter a city or ZIP"
                     metaOverride={newDutyMeta}
                     onDutyLocationChange={(e) => {
@@ -466,6 +474,7 @@ EditOrdersForm.propTypes = {
     origin_duty_location: PropTypes.shape({
       name: PropTypes.string,
     }),
+    counseling_office_id: PropTypes.string,
     dependents_under_twelve: PropTypes.string,
     dependents_twelve_and_over: PropTypes.string,
     accompanied_tour: PropTypes.string,

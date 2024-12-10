@@ -101,6 +101,7 @@ const AddOrders = ({
       grade: values.grade,
       origin_duty_location_id: values.origin_duty_location.id,
       spouse_has_pro_gear: false,
+      counseling_office_id: values.counseling_office_id,
       ...oconusFields,
     };
     if (!values.origin_duty_location.provides_services_counseling) {
@@ -133,6 +134,7 @@ const AddOrders = ({
     new_duty_location: '',
     grade: '',
     origin_duty_location: '',
+    counseling_office_id: '',
     accompanied_tour: '',
     dependents_under_twelve: '',
     dependents_twelve_and_over: '',

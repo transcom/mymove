@@ -17,3 +17,7 @@ export function selectGetCurrentUserIsError(state) {
 export const selectCacValidated = (serviceMember) => {
   return serviceMember?.cac_validated || false;
 };
+
+export const selectUnderMaintenance = (state) => {
+  return state.auth.underMaintenance;
+};
