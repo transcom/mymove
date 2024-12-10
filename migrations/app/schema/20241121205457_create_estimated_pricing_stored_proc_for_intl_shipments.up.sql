@@ -302,7 +302,7 @@ BEGIN
     WHERE rcy.contract_id = c_id;
 
     IF escalation_factor IS NULL THEN
-        RAISE EXCEPTION 'Escalation factor not found for contract_id %', contract_id;
+        RAISE EXCEPTION 'Escalation factor not found for contract_id %', c_id;
     END IF;
 
     escalated_price := ROUND(per_unit_cents * escalation_factor / 100, 2);
