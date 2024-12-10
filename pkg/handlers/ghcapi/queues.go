@@ -161,6 +161,143 @@ func (h GetMovesQueueHandler) Handle(params queues.GetMovesQueueParams) middlewa
 		})
 }
 
+// GetDestinationRequestsQueueHandler returns the moves for the TOO queue user via GET /queues/moves
+type GetDestinationRequestsQueueHandler struct {
+	handlers.HandlerConfig
+	services.OrderFetcher
+	services.MoveUnlocker
+	services.OfficeUserFetcherPop
+}
+
+// Handle returns the paginated list of moves with destination requests for a TOO user
+func (h GetDestinationRequestsQueueHandler) Handle(params queues.GetDestinationRequestsQueueParams) middleware.Responder {
+	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
+		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
+			if !appCtx.Session().IsOfficeUser() ||
+				(!appCtx.Session().Roles.HasRole(roles.RoleTypeTOO) && !appCtx.Session().Roles.HasRole(roles.RoleTypeHQ)) {
+				forbiddenErr := apperror.NewForbiddenError(
+					"user is not authenticated with TOO or HQ office role",
+				)
+				appCtx.Logger().Error(forbiddenErr.Error())
+				return queues.NewGetDestinationRequestsQueueForbidden(), forbiddenErr
+			}
+
+			ListOrderParams := services.ListOrderParams{
+				Branch:                  params.Branch,
+				Locator:                 params.Locator,
+				Edipi:                   params.Edipi,
+				Emplid:                  params.Emplid,
+				CustomerName:            params.CustomerName,
+				DestinationDutyLocation: params.DestinationDutyLocation,
+				OriginDutyLocation:      params.OriginDutyLocation,
+				AppearedInTOOAt:         handlers.FmtDateTimePtrToPopPtr(params.AppearedInTooAt),
+				RequestedMoveDate:       params.RequestedMoveDate,
+				Status:                  params.Status,
+				Page:                    params.Page,
+				PerPage:                 params.PerPage,
+				Sort:                    params.Sort,
+				Order:                   params.Order,
+				OrderType:               params.OrderType,
+				TOOAssignedUser:         params.AssignedTo,
+				CounselingOffice:        params.CounselingOffice,
+			}
+
+			if params.Status == nil {
+				ListOrderParams.Status = []string{string(models.MoveStatusAPPROVALSREQUESTED)}
+			}
+
+			// Let's set default values for page and perPage if we don't get arguments for them. We'll use 1 for page and 20 for perPage.
+			if params.Page == nil {
+				ListOrderParams.Page = models.Int64Pointer(1)
+			}
+			// Same for perPage
+			if params.PerPage == nil {
+				ListOrderParams.PerPage = models.Int64Pointer(20)
+			}
+
+			if params.ViewAsGBLOC != nil && appCtx.Session().Roles.HasRole(roles.RoleTypeHQ) {
+				ListOrderParams.ViewAsGBLOC = params.ViewAsGBLOC
+			}
+
+			moves, count, err := h.OrderFetcher.ListDestinationRequestsOrders(
+				appCtx,
+				appCtx.Session().OfficeUserID,
+				roles.RoleTypeTOO,
+				&ListOrderParams,
+			)
+			if err != nil {
+				appCtx.Logger().
+					Error("error fetching list of moves for office user", zap.Error(err))
+				return queues.NewGetDestinationRequestsQueueInternalServerError(), err
+			}
+
+			var officeUser models.OfficeUser
+			if appCtx.Session().OfficeUserID != uuid.Nil {
+				officeUser, err = h.OfficeUserFetcherPop.FetchOfficeUserByID(appCtx, appCtx.Session().OfficeUserID)
+				if err != nil {
+					appCtx.Logger().Error("Error retrieving office_user", zap.Error(err))
+					return queues.NewGetDestinationRequestsQueueInternalServerError(), err
+				}
+			}
+
+			privileges, err := models.FetchPrivilegesForUser(appCtx.DB(), appCtx.Session().UserID)
+			if err != nil {
+				appCtx.Logger().Error("Error retreiving user privileges", zap.Error(err))
+			}
+
+			isSupervisor := privileges.HasPrivilege(models.PrivilegeTypeSupervisor)
+			var officeUsers models.OfficeUsers
+			if isSupervisor {
+				officeUsers, err = h.OfficeUserFetcherPop.FetchOfficeUsersByRoleAndOffice(
+					appCtx,
+					roles.RoleTypeTOO,
+					officeUser.TransportationOfficeID,
+				)
+			} else {
+				officeUsers = models.OfficeUsers{officeUser}
+			}
+
+			if err != nil {
+				appCtx.Logger().
+					Error("error fetching office users", zap.Error(err))
+				return queues.NewGetDestinationRequestsQueueInternalServerError(), err
+			}
+
+			// if the TOO/office user is accessing the queue, we need to unlock move/moves they have locked
+			if appCtx.Session().IsOfficeUser() {
+				officeUserID := appCtx.Session().OfficeUserID
+				for i, move := range moves {
+					lockedOfficeUserID := move.LockedByOfficeUserID
+					if lockedOfficeUserID != nil && *lockedOfficeUserID == officeUserID {
+						copyOfMove := move
+						unlockedMove, err := h.UnlockMove(appCtx, &copyOfMove, officeUserID)
+						if err != nil {
+							return queues.NewGetDestinationRequestsQueueInternalServerError(), err
+						}
+						moves[i] = *unlockedMove
+					}
+				}
+				// checking if moves that are NOT in their queue are locked by the user (using search, etc)
+				err := h.CheckForLockedMovesAndUnlock(appCtx, officeUserID)
+				if err != nil {
+					appCtx.Logger().Error(fmt.Sprintf("failed to unlock moves for office user ID: %s", officeUserID), zap.Error(err))
+				}
+			}
+			isHQrole := appCtx.Session().Roles.HasRole(roles.RoleTypeHQ)
+
+			queueMoves := payloads.QueueMoves(moves, officeUsers, nil, roles.RoleTypeTOO, officeUser, isSupervisor, isHQrole)
+
+			result := &ghcmessages.QueueMovesResult{
+				Page:       *ListOrderParams.Page,
+				PerPage:    *ListOrderParams.PerPage,
+				TotalCount: int64(count),
+				QueueMoves: *queueMoves,
+			}
+
+			return queues.NewGetDestinationRequestsQueueOK().WithPayload(result), nil
+		})
+}
+
 // ListMovesHandler lists moves with the option to filter since a particular date. Optimized ver.
 type ListPrimeMovesHandler struct {
 	handlers.HandlerConfig

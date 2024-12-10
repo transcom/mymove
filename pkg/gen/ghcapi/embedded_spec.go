@@ -4528,6 +4528,166 @@ func init() {
         }
       }
     },
+    "/queues/destination-requests": {
+      "get": {
+        "description": "A TOO will view this queue when they have destination requests tied to their GBLOC. This includes unapproved destination SIT service items (including shuttle) and destination address requests that are not approved.\n",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "queues"
+        ],
+        "summary": "Gets queued list of all customer moves by GBLOC that have destination requests (destination SIT, shuttle, address requests)",
+        "operationId": "getDestinationRequestsQueue",
+        "parameters": [
+          {
+            "type": "integer",
+            "description": "requested page of results",
+            "name": "page",
+            "in": "query"
+          },
+          {
+            "type": "integer",
+            "description": "results per page",
+            "name": "perPage",
+            "in": "query"
+          },
+          {
+            "enum": [
+              "customerName",
+              "edipi",
+              "emplid",
+              "branch",
+              "locator",
+              "status",
+              "originDutyLocation",
+              "destinationDutyLocation",
+              "requestedMoveDate",
+              "appearedInTooAt",
+              "assignedTo",
+              "counselingOffice"
+            ],
+            "type": "string",
+            "description": "field that results should be sorted by",
+            "name": "sort",
+            "in": "query"
+          },
+          {
+            "enum": [
+              "asc",
+              "desc"
+            ],
+            "type": "string",
+            "description": "direction of sort order if applied",
+            "name": "order",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "name": "branch",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "name": "locator",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "name": "customerName",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "name": "edipi",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "name": "emplid",
+            "in": "query"
+          },
+          {
+            "uniqueItems": true,
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "collectionFormat": "multi",
+            "name": "originDutyLocation",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "name": "destinationDutyLocation",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "format": "date-time",
+            "name": "appearedInTooAt",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "filters the requested pickup date of a shipment on the move",
+            "name": "requestedMoveDate",
+            "in": "query"
+          },
+          {
+            "uniqueItems": true,
+            "type": "array",
+            "items": {
+              "enum": [
+                "APPROVALS REQUESTED"
+              ],
+              "type": "string"
+            },
+            "description": "Filtering for the status.",
+            "name": "status",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "order type",
+            "name": "orderType",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "Used to return a queue for a GBLOC other than the default of the current user. Requires the HQ role. The parameter is ignored if the requesting user does not have the necessary role.\n",
+            "name": "viewAsGBLOC",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "Used to illustrate which user is assigned to this move.\n",
+            "name": "assignedTo",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "filters using a counselingOffice name of the move",
+            "name": "counselingOffice",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully returned all moves matching the criteria",
+            "schema": {
+              "$ref": "#/definitions/QueueMovesResult"
+            }
+          },
+          "403": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "500": {
+            "$ref": "#/responses/ServerError"
+          }
+        }
+      }
+    },
     "/queues/moves": {
       "get": {
         "description": "An office TOO user will be assigned a transportation office that will determine which moves are displayed in their queue based on the origin duty location.  GHC moves will show up here onced they have reached the submitted status sent by the customer and have move task orders, shipments, and service items to approve.\n",
@@ -20386,6 +20546,172 @@ func init() {
             "description": "Successfully returned all moves matching the criteria",
             "schema": {
               "$ref": "#/definitions/Locations"
+            }
+          },
+          "403": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "500": {
+            "description": "A server error occurred",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      }
+    },
+    "/queues/destination-requests": {
+      "get": {
+        "description": "A TOO will view this queue when they have destination requests tied to their GBLOC. This includes unapproved destination SIT service items (including shuttle) and destination address requests that are not approved.\n",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "queues"
+        ],
+        "summary": "Gets queued list of all customer moves by GBLOC that have destination requests (destination SIT, shuttle, address requests)",
+        "operationId": "getDestinationRequestsQueue",
+        "parameters": [
+          {
+            "type": "integer",
+            "description": "requested page of results",
+            "name": "page",
+            "in": "query"
+          },
+          {
+            "type": "integer",
+            "description": "results per page",
+            "name": "perPage",
+            "in": "query"
+          },
+          {
+            "enum": [
+              "customerName",
+              "edipi",
+              "emplid",
+              "branch",
+              "locator",
+              "status",
+              "originDutyLocation",
+              "destinationDutyLocation",
+              "requestedMoveDate",
+              "appearedInTooAt",
+              "assignedTo",
+              "counselingOffice"
+            ],
+            "type": "string",
+            "description": "field that results should be sorted by",
+            "name": "sort",
+            "in": "query"
+          },
+          {
+            "enum": [
+              "asc",
+              "desc"
+            ],
+            "type": "string",
+            "description": "direction of sort order if applied",
+            "name": "order",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "name": "branch",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "name": "locator",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "name": "customerName",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "name": "edipi",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "name": "emplid",
+            "in": "query"
+          },
+          {
+            "uniqueItems": true,
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "collectionFormat": "multi",
+            "name": "originDutyLocation",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "name": "destinationDutyLocation",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "format": "date-time",
+            "name": "appearedInTooAt",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "filters the requested pickup date of a shipment on the move",
+            "name": "requestedMoveDate",
+            "in": "query"
+          },
+          {
+            "uniqueItems": true,
+            "type": "array",
+            "items": {
+              "enum": [
+                "APPROVALS REQUESTED"
+              ],
+              "type": "string"
+            },
+            "description": "Filtering for the status.",
+            "name": "status",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "order type",
+            "name": "orderType",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "Used to return a queue for a GBLOC other than the default of the current user. Requires the HQ role. The parameter is ignored if the requesting user does not have the necessary role.\n",
+            "name": "viewAsGBLOC",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "Used to illustrate which user is assigned to this move.\n",
+            "name": "assignedTo",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "filters using a counselingOffice name of the move",
+            "name": "counselingOffice",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully returned all moves matching the criteria",
+            "schema": {
+              "$ref": "#/definitions/QueueMovesResult"
             }
           },
           "403": {
