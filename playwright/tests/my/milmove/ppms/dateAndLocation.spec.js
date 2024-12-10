@@ -30,40 +30,27 @@ test.describe('PPM Onboarding - Add dates and location flow', () => {
     await page.locator('input[name="expectedDepartureDate"]').blur();
     await expect(errorMessage).not.toBeVisible();
 
-    // missing pickup postal code
+    // missing pickup address
     await page.locator('input[name="pickupAddress.address.streetAddress1"]').fill('123 Street');
-    await page.locator('input[name="pickupAddress.address.city"]').fill('SomeCity - Secondary');
-    await page.locator('select[name="pickupAddress.address.state"]').selectOption({ label: 'CA' });
-    await page.locator('input[name="pickupAddress.address.postalCode"]').clear();
-    await page.locator('input[name="pickupAddress.address.postalCode"]').blur();
+    await page.locator('input[name="pickupAddress.address.streetAddress1"]').clear();
+    await page.locator('input[name="pickupAddress.address.streetAddress1"]').blur();
     await expect(errorMessage).toContainText('Required');
-    await page.locator('input[name="pickupAddress.address.postalCode"]').fill('90210');
-    await page.locator('input[name="pickupAddress.address.postalCode"]').blur();
+    await page.locator('input[name="pickupAddress.address.streetAddress1"]').fill('123 Street');
     await expect(errorMessage).not.toBeVisible();
 
-    // missing secondary pickup postal code
+    // missing secondary pickup address
     await page.locator('label[for="yes-secondary-pickup-address"]').click();
     await page.locator('input[name="secondaryPickupAddress.address.streetAddress1"]').fill('123 Street');
-    await page.locator('input[name="secondaryPickupAddress.address.city"]').fill('SomeCity - Secondary');
-    await page.locator('select[name="secondaryPickupAddress.address.state"]').selectOption({ label: 'CA' });
-    await page.locator('input[name="secondaryPickupAddress.address.postalCode"]').clear();
-    await page.locator('input[name="secondaryPickupAddress.address.postalCode"]').blur();
-    await expect(errorMessage).toContainText('Required');
-    await page.locator('input[name="secondaryPickupAddress.address.postalCode"]').fill('90210');
-    await page.locator('input[name="secondaryPickupAddress.address.postalCode"]').blur();
+    await page.locator('input[name="secondaryPickupAddress.address.streetAddress1"]').clear();
+    await page.locator('input[name="secondaryPickupAddress.address.streetAddress1"]').blur();
     await expect(errorMessage).not.toBeVisible();
 
-    // missing secondary destination postal code
+    // missing secondary destination address
     await page.locator('label[for="hasSecondaryDestinationAddressYes"]').click();
     await page.locator('input[name="secondaryDestinationAddress.address.streetAddress1"]').fill('123 Street');
-    await page.locator('input[name="secondaryDestinationAddress.address.city"]').fill('SomeCity - Secondary');
-    await page.locator('select[name="secondaryDestinationAddress.address.state"]').selectOption({ label: 'CA' });
-    await page.locator('input[name="secondaryDestinationAddress.address.postalCode"]').clear();
-    await page.locator('input[name="secondaryDestinationAddress.address.postalCode"]').blur();
-    await expect(errorMessage).toContainText('Required');
-    await page.locator('input[name="secondaryDestinationAddress.address.postalCode"]').fill('90210');
-    await page.locator('input[name="secondaryDestinationAddress.address.postalCode"]').blur();
-    await expect(errorMessage).not.toBeVisible();
+    await page.locator('input[name="secondaryDestinationAddress.address.streetAddress1"]').clear();
+    await page.locator('input[name="secondaryDestinationAddress.address.streetAddress1"]').blur();
+
     await expect(page.getByText('Save & Continue')).toBeDisabled();
   });
 

@@ -74,8 +74,8 @@ const mockMTOShipment = {
   requestedPickupDate: '2021-08-01',
   requestedDeliveryDate: '2021-08-11',
   pickupAddress: {
-    id: uuidv4(),
     streetAddress1: '812 S 129th St',
+    streetAddress2: '',
     city: 'San Antonio',
     state: 'TX',
     postalCode: '78234',
@@ -151,16 +151,16 @@ describe('Pickup info page', () => {
       expect(screen.getByLabelText('Use my current address')).not.toBeChecked();
       expect(screen.getAllByLabelText(/Address 1/)[0]).toHaveValue('812 S 129th St');
       expect(screen.getAllByLabelText(/Address 2/)[0]).toHaveValue('');
-      expect(screen.getAllByLabelText(/City/)[0]).toHaveValue('San Antonio');
-      expect(screen.getAllByLabelText(/State/)[0]).toHaveValue('TX');
-      expect(screen.getAllByLabelText(/ZIP/)[0]).toHaveValue('78234');
+      expect(screen.getAllByTestId(/City/)[0]).toHaveTextContent('San Antonio');
+      expect(screen.getAllByTestId(/State/)[0]).toHaveTextContent('TX');
+      expect(screen.getAllByTestId(/ZIP/)[0]).toHaveTextContent('78234');
       expect(screen.getByLabelText(/Preferred delivery date/)).toHaveValue('11 Aug 2021');
       expect(screen.getByTitle('Yes, I know my delivery address')).toBeChecked();
       expect(screen.getAllByLabelText(/Address 1/)[1]).toHaveValue('441 SW Rio de la Plata Drive');
       expect(screen.getAllByLabelText(/Address 2/)[1]).toHaveValue('');
-      expect(screen.getAllByLabelText(/City/)[1]).toHaveValue('Tacoma');
-      expect(screen.getAllByLabelText(/State/)[1]).toHaveValue('WA');
-      expect(screen.getAllByLabelText(/ZIP/)[1]).toHaveValue('98421');
+      expect(screen.getAllByTestId(/City/)[1]).toHaveTextContent('Tacoma');
+      expect(screen.getAllByTestId(/State/)[1]).toHaveTextContent('WA');
+      expect(screen.getAllByTestId(/ZIP/)[1]).toHaveTextContent('98421');
     },
   );
 
@@ -175,32 +175,19 @@ describe('Pickup info page', () => {
   });
 
   it('can submit with pickup information successfully', async () => {
-    const shipmentInfo = {
-      pickupAddress: {
-        streetAddress1: '6622 Airport Way S',
-        streetAddress2: '#1430',
-        city: 'San Marcos',
-        state: 'TX',
-        postalCode: '78666',
-      },
-    };
-
     const expectedPayload = {
       moveTaskOrderID: mockMoveId,
       shipmentType: SHIPMENT_TYPES.MOBILE_HOME,
-      pickupAddress: { ...shipmentInfo.pickupAddress },
+      pickupAddress: { ...mockMTOShipment.pickupAddress },
       customerRemarks: mockMTOShipment.customerRemarks,
       requestedPickupDate: mockMTOShipment.requestedPickupDate,
       requestedDeliveryDate: mockMTOShipment.requestedDeliveryDate,
       destinationAddress: { ...mockMTOShipment.destinationAddress, streetAddress2: '' },
-      secondaryDeliveryAddress: undefined,
       hasSecondaryDeliveryAddress: false,
-      secondaryPickupAddress: undefined,
       hasSecondaryPickupAddress: false,
-      tertiaryDeliveryAddress: undefined,
       hasTertiaryDeliveryAddress: false,
-      tertiaryPickupAddress: undefined,
       hasTertiaryPickupAddress: false,
+      destinationType: undefined,
       agents: [
         { agentType: 'RELEASING_AGENT', email: '', firstName: '', lastName: '', phone: '' },
         { agentType: 'RECEIVING_AGENT', email: '', firstName: '', lastName: '', phone: '' },
@@ -212,7 +199,6 @@ describe('Pickup info page', () => {
     const newUpdatedAt = '2021-06-11T21:20:22.150Z';
     const expectedUpdateResponse = {
       ...mockMTOShipment,
-      pickupAddress: { ...shipmentInfo.pickupAddress },
       shipmentType: SHIPMENT_OPTIONS.HHG,
       eTag: window.btoa(newUpdatedAt),
       status: 'SUBMITTED',
@@ -221,25 +207,6 @@ describe('Pickup info page', () => {
     patchMTOShipment.mockImplementation(() => Promise.resolve(expectedUpdateResponse));
 
     renderMobileHomeShipmentLocationInfo({ isCreatePage: false, mtoShipment: mockMTOShipment });
-
-    const pickupAddress1Input = screen.getAllByLabelText(/Address 1/)[0];
-    await userEvent.clear(pickupAddress1Input);
-    await userEvent.type(pickupAddress1Input, shipmentInfo.pickupAddress.streetAddress1);
-
-    const pickupAddress2Input = screen.getAllByLabelText(/Address 2/)[0];
-    await userEvent.clear(pickupAddress2Input);
-    await userEvent.type(pickupAddress2Input, shipmentInfo.pickupAddress.streetAddress2);
-
-    const pickupCityInput = screen.getAllByLabelText(/City/)[0];
-    await userEvent.clear(pickupCityInput);
-    await userEvent.type(pickupCityInput, shipmentInfo.pickupAddress.city);
-
-    const pickupStateInput = screen.getAllByLabelText(/State/)[0];
-    await userEvent.selectOptions(pickupStateInput, shipmentInfo.pickupAddress.state);
-
-    const pickupPostalCodeInput = screen.getAllByLabelText(/ZIP/)[0];
-    await userEvent.clear(pickupPostalCodeInput);
-    await userEvent.type(pickupPostalCodeInput, shipmentInfo.pickupAddress.postalCode);
 
     const saveButton = await screen.findByRole('button', { name: 'Save & Continue' });
     expect(saveButton).not.toBeDisabled();
