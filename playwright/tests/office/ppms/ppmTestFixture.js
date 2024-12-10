@@ -84,12 +84,14 @@ export class PpmPage extends ServiceCounselorPage {
    * @returns Promise<void>
    */
   async fillOutOriginInfo() {
+    const LocationLookup = 'BEVERLY HILLS, CA 90210 (LOS ANGELES)';
+
     await this.page.locator('input[name="expectedDepartureDate"]').fill('09 Jun 2022');
 
     await this.page.locator('input[name="pickup.address.streetAddress1"]').fill('123 Street');
-    await this.page.locator('input[name="pickup.address.city"]').fill('SomeCity - Secondary');
-    await this.page.locator('select[name="pickup.address.state"]').selectOption({ label: 'CA' });
-    await this.page.locator('input[name="pickup.address.postalCode"]').fill('90210');
+    await this.page.locator('input[id="pickup.address-location-input"]').fill('90210');
+    await expect(this.page.getByText(LocationLookup, { exact: true })).toBeVisible();
+    await this.page.keyboard.press('Enter');
   }
 
   /**
@@ -100,10 +102,12 @@ export class PpmPage extends ServiceCounselorPage {
    * @returns Promise<void>
    */
   async fillOutDestinationInfo() {
-    await this.page.locator('input[name="destination.address.postalCode"]').fill('76127');
+    const LocationLookup = 'FORT WORTH, TX 76127 (TARRANT)';
+
     await this.page.locator('input[name="destination.address.streetAddress1"]').fill('123 Street');
-    await this.page.locator('input[name="destination.address.city"]').fill('SomeCity');
-    await this.page.locator('select[name="destination.address.state"]').selectOption({ label: 'TX' });
+    await this.page.locator('input[id="destination.address-location-input"]').fill('76127');
+    await expect(this.page.getByText(LocationLookup, { exact: true })).toBeVisible();
+    await this.page.keyboard.press('Enter');
   }
 
   /**
