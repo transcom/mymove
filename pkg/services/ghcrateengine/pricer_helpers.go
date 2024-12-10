@@ -619,7 +619,7 @@ func addContractsForEscalationCalculation(contractsMap map[string]models.ReContr
 
 func GetFeatureFlagValue(appCtx appcontext.AppContext, featureFlagFetcher services.FeatureFlagFetcher, featureFlagName string) (bool, error) {
 	flagValue := false
-	flag, err := featureFlagFetcher.GetBooleanFlagForUser(appCtx.DB().Context(), appCtx, featureFlagName, map[string]string{})
+	flag, err := featureFlagFetcher.GetBooleanFlag(appCtx.DB().Context(), appCtx.Logger(), "", featureFlagName, map[string]string{})
 	if err != nil {
 		appCtx.Logger().Error("Error fetching feature flag", zap.String("featureFlagKey", featureFlagName), zap.Error(err))
 		return flagValue, err
