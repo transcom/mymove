@@ -752,7 +752,7 @@ func (f *mtoShipmentUpdater) updateShipmentRecord(appCtx appcontext.AppContext, 
 				existingMoveStatus := move.Status
 				// if the move is in excess weight risk and the TOO has not acknowledge that, need to change move status to "Approvals Requested"
 				// this will trigger the TOO to acknowledged the excess right, which populates ExcessWeightAcknowledgedAt
-				if move.ExcessWeightQualifiedAt != nil && move.ExcessWeightAcknowledgedAt == nil {
+				if move.ExcessWeightQualifiedAt != nil && move.ExcessWeightAcknowledgedAt == nil || move.ExcessUnaccompaniedBaggageWeightQualifiedAt != nil && move.ExcessUnaccompaniedBaggageWeightAcknowledgedAt == nil {
 					err = f.moveRouter.SendToOfficeUser(txnAppCtx, move)
 					if err != nil {
 						return err
@@ -1063,31 +1063,33 @@ func reServiceCodesForShipment(shipment models.MTOShipment) []models.ReServiceCo
 	// default service items that we want created as a side effect.
 	// More info in MB-1140: https://dp3.atlassian.net/browse/MB-1140
 
+	// international shipment service items are created in the shipment_approver
 	switch shipment.ShipmentType {
 	case models.MTOShipmentTypeHHG:
+		if shipment.MarketCode != models.MarketCodeInternational {
+			originZIP3 := shipment.PickupAddress.PostalCode[0:3]
+			destinationZIP3 := shipment.DestinationAddress.PostalCode[0:3]
 
-		originZIP3 := shipment.PickupAddress.PostalCode[0:3]
-		destinationZIP3 := shipment.DestinationAddress.PostalCode[0:3]
+			if originZIP3 == destinationZIP3 {
+				return []models.ReServiceCode{
+					models.ReServiceCodeDSH,
+					models.ReServiceCodeFSC,
+					models.ReServiceCodeDOP,
+					models.ReServiceCodeDDP,
+					models.ReServiceCodeDPK,
+					models.ReServiceCodeDUPK,
+				}
+			}
 
-		if originZIP3 == destinationZIP3 {
+			// Need to create: Dom Linehaul, Fuel Surcharge, Dom Origin Price, Dom Destination Price, Dom Packing, and Dom Unpacking.
 			return []models.ReServiceCode{
-				models.ReServiceCodeDSH,
+				models.ReServiceCodeDLH,
 				models.ReServiceCodeFSC,
 				models.ReServiceCodeDOP,
 				models.ReServiceCodeDDP,
 				models.ReServiceCodeDPK,
 				models.ReServiceCodeDUPK,
 			}
-		}
-
-		// Need to create: Dom Linehaul, Fuel Surcharge, Dom Origin Price, Dom Destination Price, Dom Packing, and Dom Unpacking.
-		return []models.ReServiceCode{
-			models.ReServiceCodeDLH,
-			models.ReServiceCodeFSC,
-			models.ReServiceCodeDOP,
-			models.ReServiceCodeDDP,
-			models.ReServiceCodeDPK,
-			models.ReServiceCodeDUPK,
 		}
 	case models.MTOShipmentTypeHHGIntoNTSDom:
 		// Need to create: Dom Linehaul, Fuel Surcharge, Dom Origin Price, Dom Destination Price, Dom NTS Packing

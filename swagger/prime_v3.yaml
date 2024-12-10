@@ -2835,6 +2835,15 @@ definitions:
         format: cents
         x-nullable: true
         x-omitempty: false
+      maxIncentive:
+        description: >-
+          The max amount the government will pay the service member to move
+          their belongings based on the moving date, locations, and shipment
+          weight.
+        type: integer
+        format: cents
+        x-nullable: true
+        x-omitempty: false
       hasRequestedAdvance:
         description: |
           Indicates whether an advance has been requested for the PPM shipment.
@@ -3481,6 +3490,18 @@ definitions:
           - FULL
       ppmEstimatedWeight:
         type: integer
+      excessUnaccompaniedBaggageWeightQualifiedAt:
+        type: string
+        format: date-time
+        readOnly: true
+        x-omitempty: false
+        x-nullable: true
+      excessUnaccompaniedBaggageWeightAcknowledgedAt:
+        type: string
+        format: date-time
+        readOnly: true
+        x-omitempty: false
+        x-nullable: true
       excessWeightQualifiedAt:
         type: string
         format: date-time

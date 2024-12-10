@@ -49,6 +49,16 @@ export const ppmShipmentStatuses = {
   CANCELED: 'CANCELED',
 };
 
+export const ppmShipmentStatusLabels = {
+  [ppmShipmentStatuses.CANCELED]: 'Canceled',
+  [ppmShipmentStatuses.DRAFT]: 'Draft',
+  [ppmShipmentStatuses.NEEDS_CLOSEOUT]: 'Needs Closeout',
+  [ppmShipmentStatuses.NEEDS_ADVANCE_APPROVAL]: 'Needs Advance Approval',
+  [ppmShipmentStatuses.SUBMITTED]: 'Submitted',
+  [ppmShipmentStatuses.WAITING_ON_CUSTOMER]: 'Waiting on customer',
+  [ppmShipmentStatuses.CLOSEOUT_COMPLETE]: 'packet ready for download',
+};
+
 export const boatShipmentTypes = {
   HAUL_AWAY: 'HAUL_AWAY',
   TOW_AWAY: 'TOW_AWAY',

@@ -1830,6 +1830,22 @@ func init() {
             "moveId"
           ],
           "properties": {
+            "moveExcessUnaccompaniedBaggageWeightAcknowledgedAt": {
+              "description": "The date and time when the TOO acknowledged the excess unaccompanied baggage weight alert, either by dismissing the risk or updating the max billable weight. This will occur after the excess weight record has been uploaded.\n",
+              "type": "string",
+              "format": "date-time",
+              "x-nullable": true,
+              "x-omitempty": false,
+              "readOnly": true
+            },
+            "moveExcessUnaccompaniedBaggageWeightQualifiedAt": {
+              "description": "The date and time when the sum of all the move's unaccompanied baggage shipments met the excess weight qualification threshold. The system monitors these weights and will update this field automatically.\n",
+              "type": "string",
+              "format": "date-time",
+              "x-nullable": true,
+              "x-omitempty": false,
+              "readOnly": true
+            },
             "moveExcessWeightAcknowledgedAt": {
               "description": "The date and time when the TOO acknowledged the excess weight alert, either by dismissing the risk or updating the max billable weight. This will occur after the excess weight record has been uploaded.\n",
               "type": "string",
@@ -2840,6 +2856,20 @@ func init() {
           "type": "string",
           "readOnly": true
         },
+        "excessUnaccompaniedBaggageWeightAcknowledgedAt": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true,
+          "x-omitempty": false,
+          "readOnly": true
+        },
+        "excessUnaccompaniedBaggageWeightQualifiedAt": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true,
+          "x-omitempty": false,
+          "readOnly": true
+        },
         "excessWeightAcknowledgedAt": {
           "type": "string",
           "format": "date-time",
@@ -3128,6 +3158,13 @@ func init() {
           "x-nullable": true,
           "x-omitempty": false,
           "example": false
+        },
+        "maxIncentive": {
+          "description": "The max amount the government will pay the service member to move their belongings based on the moving date, locations, and shipment weight.",
+          "type": "integer",
+          "format": "cents",
+          "x-nullable": true,
+          "x-omitempty": false
         },
         "proGearWeight": {
           "description": "The estimated weight of the pro-gear being moved belonging to the service member in pounds.",
@@ -6677,6 +6714,22 @@ func init() {
             "moveId"
           ],
           "properties": {
+            "moveExcessUnaccompaniedBaggageWeightAcknowledgedAt": {
+              "description": "The date and time when the TOO acknowledged the excess unaccompanied baggage weight alert, either by dismissing the risk or updating the max billable weight. This will occur after the excess weight record has been uploaded.\n",
+              "type": "string",
+              "format": "date-time",
+              "x-nullable": true,
+              "x-omitempty": false,
+              "readOnly": true
+            },
+            "moveExcessUnaccompaniedBaggageWeightQualifiedAt": {
+              "description": "The date and time when the sum of all the move's unaccompanied baggage shipments met the excess weight qualification threshold. The system monitors these weights and will update this field automatically.\n",
+              "type": "string",
+              "format": "date-time",
+              "x-nullable": true,
+              "x-omitempty": false,
+              "readOnly": true
+            },
             "moveExcessWeightAcknowledgedAt": {
               "description": "The date and time when the TOO acknowledged the excess weight alert, either by dismissing the risk or updating the max billable weight. This will occur after the excess weight record has been uploaded.\n",
               "type": "string",
@@ -7687,6 +7740,20 @@ func init() {
           "type": "string",
           "readOnly": true
         },
+        "excessUnaccompaniedBaggageWeightAcknowledgedAt": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true,
+          "x-omitempty": false,
+          "readOnly": true
+        },
+        "excessUnaccompaniedBaggageWeightQualifiedAt": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true,
+          "x-omitempty": false,
+          "readOnly": true
+        },
         "excessWeightAcknowledgedAt": {
           "type": "string",
           "format": "date-time",
@@ -7975,6 +8042,13 @@ func init() {
           "x-nullable": true,
           "x-omitempty": false,
           "example": false
+        },
+        "maxIncentive": {
+          "description": "The max amount the government will pay the service member to move their belongings based on the moving date, locations, and shipment weight.",
+          "type": "integer",
+          "format": "cents",
+          "x-nullable": true,
+          "x-omitempty": false
         },
         "proGearWeight": {
           "description": "The estimated weight of the pro-gear being moved belonging to the service member in pounds.",
