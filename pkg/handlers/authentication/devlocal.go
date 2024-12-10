@@ -488,13 +488,16 @@ func createUser(h devlocalAuthHandler, w http.ResponseWriter, r *http.Request) (
 		return nil, userType
 	}
 
+	usPostRegionCityID := uuid.Must(uuid.FromString("4524dc9b-8097-41c7-83ca-a2a8237ae4aa"))
+
 	address := models.Address{
-		StreetAddress1: "1333 Minna St",
-		City:           "San Francisco",
-		State:          "CA",
-		PostalCode:     "94115",
-		County:         "SAINT CLAIR",
-		IsOconus:       models.BoolPointer(false),
+		StreetAddress1:     "1333 Minna St",
+		City:               "San Francisco",
+		State:              "CA",
+		PostalCode:         "94115",
+		County:             models.StringPointer("San Francisco"),
+		IsOconus:           models.BoolPointer(false),
+		UsPostRegionCityID: &usPostRegionCityID,
 	}
 
 	// Evaluate address and populate addresses isOconus value

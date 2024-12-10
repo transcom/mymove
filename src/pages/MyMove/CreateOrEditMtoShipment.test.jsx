@@ -277,7 +277,7 @@ describe('CreateOrEditMtoShipment component', () => {
   it('fetches customer data on mount', () => {
     renderComponent(
       {
-        mtoShipment: { shipmentType: SHIPMENT_OPTIONS.NTSR },
+        mtoShipment: { shipmentType: SHIPMENT_OPTIONS.NTSR, includeProviders: true },
       },
       { path: mockPath, params: mockParams },
     );
@@ -301,7 +301,7 @@ describe('CreateOrEditMtoShipment component', () => {
         {
           mtoShipment: { shipmentType: SHIPMENT_OPTIONS.HHG },
         },
-        { path: mockPath, params: mockParams, search: `?type=${SHIPMENT_OPTIONS.HHG}` },
+        { path: mockPath, params: mockParams, search: `?type=${SHIPMENT_OPTIONS.HHG}`, includeProviders: true },
       );
 
       expect(await screen.findByRole('heading', { level: 1 })).toHaveTextContent(
@@ -318,7 +318,7 @@ describe('CreateOrEditMtoShipment component', () => {
       selectCurrentShipmentFromMove.mockImplementation(() => mockHHGShipment);
       renderComponent(
         { mtoShipment: mockHHGShipment },
-        { path: customerRoutes.SHIPMENT_EDIT_PATH, params: mockParams },
+        { path: customerRoutes.SHIPMENT_EDIT_PATH, params: mockParams, includeProviders: true },
       );
 
       expect(await screen.findByRole('heading', { level: 1 })).toHaveTextContent(
