@@ -23,7 +23,7 @@ import {
   selectAllMoves,
 } from 'store/entities/selectors';
 import EditOrdersForm from 'components/Customer/EditOrdersForm/EditOrdersForm';
-import { formatWeight, formatYesNoInputValue, dropdownInputOptions } from 'utils/formatters';
+import { formatWeight, formatYesNoInputValue, formatYesNoAPIValue, dropdownInputOptions } from 'utils/formatters';
 import { ORDERS_TYPE_OPTIONS } from 'constants/orders';
 import { FEATURE_FLAG_KEYS } from 'shared/constants';
 import { formatDateForSwagger } from 'shared/dates';
@@ -45,6 +45,7 @@ const EditOrders = ({
   const [orderTypes, setOrderTypes] = useState(ORDERS_TYPE_OPTIONS);
 
   const currentOrder = orders.find((order) => order.moves[0] === moveId);
+  const { entitlement: allowances } = currentOrder;
 
   const checkIfMoveStatusIsApproved = (status) => {
     return status === 'APPROVED';
@@ -95,6 +96,11 @@ const EditOrders = ({
     grade: currentOrder?.grade || null,
     origin_duty_location: currentOrder?.origin_duty_location || {},
     counseling_office_id: move?.counselingOffice?.id || undefined,
+    accompanied_tour: formatYesNoInputValue(allowances.accompanied_tour) || '',
+    dependents_under_twelve:
+      allowances.dependents_under_twelve !== undefined ? `${allowances.dependents_under_twelve}` : '',
+    dependents_twelve_and_over:
+      allowances.dependents_twelve_and_over !== undefined ? `${allowances.dependents_twelve_and_over}` : '',
   };
 
   const showAllOrdersTypes = context.flags?.allOrdersTypes;
@@ -151,6 +157,43 @@ const EditOrders = ({
     const newDutyLocationId = fieldValues.new_duty_location.id;
     const newPayGrade = fieldValues.grade;
     const newOriginDutyLocationId = fieldValues.origin_duty_location.id;
+    const constructOconusFields = () => {
+      const isOconus =
+        fieldValues.origin_duty_location?.address?.isOconus || fieldValues.new_duty_location?.address?.isOconus;
+      // The `hasDependents` check within accompanied tour is due to
+      // the dependents section being possible to conditionally render
+      // and then un-render while still being OCONUS
+      // The detailed comments make this nested ternary readable
+      /* eslint-disable no-nested-ternary */
+      return {
+        // Nested ternary
+        accompanied_tour:
+          isOconus && hasDependents
+            ? // If OCONUS and dependents are present, fetch the value from the form.
+              // Otherwise, default to false if OCONUS and dependents are not present
+              hasDependents
+              ? formatYesNoAPIValue(fieldValues.accompanied_tour) // Dependents are present
+              : false // Dependents are not present
+            : // If CONUS or no dependents, omit this field altogether
+              null,
+        dependents_under_twelve:
+          isOconus && hasDependents
+            ? // If OCONUS and dependents are present
+              // then provide the number of dependents under 12. Default to 0 if not present
+              Number(fieldValues.dependents_under_twelve) ?? 0
+            : // If CONUS or no dependents, omit ths field altogether
+              null,
+        dependents_twelve_and_over:
+          isOconus && hasDependents
+            ? // If OCONUS and dependents are present
+              // then provide the number of dependents over 12. Default to 0 if not present
+              Number(fieldValues.dependents_twelve_and_over) ?? 0
+            : // If CONUS or no dependents, omit this field altogether
+              null,
+      };
+      /* eslint-enable no-nested-ternary */
+    };
+    const oconusFields = constructOconusFields();
 
     const pendingValues = {
       ...fieldValues,
@@ -167,6 +210,7 @@ const EditOrders = ({
       // ppm office edit orders
       spouse_has_pro_gear: currentOrder.spouse_has_pro_gear,
       move_id: move.id,
+      ...oconusFields,
     };
     if (fieldValues.counseling_office_id === '') {
       pendingValues.counseling_office_id = null;
