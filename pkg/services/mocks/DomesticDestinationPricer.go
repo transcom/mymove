@@ -94,6 +94,34 @@ func (_m *DomesticDestinationPricer) PriceUsingParams(appCtx appcontext.AppConte
 	return r0, r1, r2
 }
 
+// ShouldPrice provides a mock function with given fields: appCtx
+func (_m *DomesticDestinationPricer) ShouldPrice(appCtx appcontext.AppContext) (bool, error) {
+	ret := _m.Called(appCtx)
+
+	if len(ret) == 0 {
+		panic("no return value specified for ShouldPrice")
+	}
+
+	var r0 bool
+	var r1 error
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext) (bool, error)); ok {
+		return rf(appCtx)
+	}
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext) bool); ok {
+		r0 = rf(appCtx)
+	} else {
+		r0 = ret.Get(0).(bool)
+	}
+
+	if rf, ok := ret.Get(1).(func(appcontext.AppContext) error); ok {
+		r1 = rf(appCtx)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
 // NewDomesticDestinationPricer creates a new instance of DomesticDestinationPricer. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
 // The first argument is typically a *testing.T value.
 func NewDomesticDestinationPricer(t interface {

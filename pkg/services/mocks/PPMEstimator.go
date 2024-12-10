@@ -80,6 +80,10 @@ func (_m *PPMEstimator) CalculatePPMSITEstimatedCostBreakdown(appCtx appcontext.
 func (_m *PPMEstimator) CalculateSITCost(appCtx appcontext.AppContext, ppmShipment *models.PPMShipment, contract models.ReContract) (*unit.Cents, error) {
 	ret := _m.Called(appCtx, ppmShipment, contract)
 
+	if len(ret) == 0 {
+		panic("no return value specified for CalculateSITCost")
+	}
+
 	var r0 *unit.Cents
 	var r1 error
 	if rf, ok := ret.Get(0).(func(appcontext.AppContext, *models.PPMShipment, models.ReContract) (*unit.Cents, error)); ok {
