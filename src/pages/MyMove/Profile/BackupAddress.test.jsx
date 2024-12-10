@@ -1,11 +1,14 @@
 import React from 'react';
-import { render, waitFor, screen } from '@testing-library/react';
+import { render, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { Provider } from 'react-redux';
 
 import { MockProviders } from 'testUtils';
 import ConnectedBackupAddress, { BackupAddress } from 'pages/MyMove/Profile/BackupAddress';
 import { customerRoutes } from 'constants/routes';
 import { patchServiceMember } from 'services/internalApi';
+import { roleTypes } from 'constants/userRoles';
+import { configureStore } from 'shared/store';
 
 const mockNavigate = jest.fn();
 jest.mock('react-router-dom', () => ({
@@ -22,6 +25,22 @@ beforeEach(() => {
   jest.resetAllMocks();
 });
 
+const loggedInTOOState = {
+  auth: {
+    activeRole: roleTypes.TOO,
+    isLoading: false,
+    isLoggedIn: true,
+  },
+  entities: {
+    user: {
+      userId234: {
+        id: 'userId234',
+        roles: [{ roleType: roleTypes.TIO }],
+      },
+    },
+  },
+};
+
 describe('BackupAddress page', () => {
   const fakeAddress = {
     streetAddress1: '235 Prospect Valley Road SE',
@@ -29,6 +48,8 @@ describe('BackupAddress page', () => {
     city: 'El Paso',
     state: 'TX',
     postalCode: '79912',
+    county: 'El Paso',
+    usPostRegionCitiesID: '',
   };
 
   const blankAddress = Object.fromEntries(Object.keys(fakeAddress).map((k) => [k, '']));
@@ -43,8 +64,14 @@ describe('BackupAddress page', () => {
 
   it('renders the BackupAddressForm', async () => {
     const testProps = generateTestProps(blankAddress);
-
-    const { queryByRole } = render(<BackupAddress {...testProps} />);
+    const mockStore = configureStore({
+      ...loggedInTOOState,
+    });
+    const { queryByRole } = render(
+      <Provider store={mockStore.store}>
+        <BackupAddress {...testProps} />
+      </Provider>,
+    );
 
     await waitFor(() => {
       expect(queryByRole('heading', { name: 'Backup address', level: 1 })).toBeInTheDocument();
@@ -53,8 +80,14 @@ describe('BackupAddress page', () => {
 
   it('back button goes to the Residential address step', async () => {
     const testProps = generateTestProps(blankAddress);
-
-    const { findByRole } = render(<BackupAddress {...testProps} />);
+    const mockStore = configureStore({
+      ...loggedInTOOState,
+    });
+    const { findByRole } = render(
+      <Provider store={mockStore.store}>
+        <BackupAddress {...testProps} />
+      </Provider>,
+    );
 
     const backButton = await findByRole('button', { name: 'Back' });
     expect(backButton).toBeInTheDocument();
@@ -64,20 +97,19 @@ describe('BackupAddress page', () => {
   });
 
   it('next button submits the form and goes to the Backup contact step', async () => {
-    const testProps = generateTestProps(blankAddress);
-
+    const testProps = generateTestProps(fakeAddress);
+    const mockStore = configureStore({
+      ...loggedInTOOState,
+    });
     const expectedServiceMemberPayload = { ...testProps.serviceMember, backup_mailing_address: fakeAddress };
 
     patchServiceMember.mockImplementation(() => Promise.resolve(expectedServiceMemberPayload));
 
-    const { getByRole, getByLabelText } = render(<BackupAddress {...testProps} />);
-
-    await userEvent.type(getByLabelText(/Address 1/), fakeAddress.streetAddress1);
-    await userEvent.type(getByLabelText(/Address 2/), fakeAddress.streetAddress2);
-    await userEvent.type(getByLabelText(/City/), fakeAddress.city);
-    await userEvent.selectOptions(getByLabelText(/State/), [fakeAddress.state]);
-    await userEvent.type(getByLabelText(/ZIP/), fakeAddress.postalCode);
-    await userEvent.tab();
+    const { getByRole } = render(
+      <Provider store={mockStore.store}>
+        <BackupAddress {...testProps} />
+      </Provider>,
+    );
 
     const submitButton = getByRole('button', { name: 'Next' });
     expect(submitButton).toBeInTheDocument();
@@ -95,44 +127,11 @@ describe('BackupAddress page', () => {
     expect(mockNavigate).toHaveBeenCalledWith(customerRoutes.BACKUP_CONTACTS_PATH);
   });
 
-  it('Selecting an unsupported state should display an unsupported state message', async () => {
-    const testProps = generateTestProps(blankAddress);
-
-    const expectedServiceMemberPayload = { ...testProps.serviceMember, backup_mailing_address: fakeAddress };
-
-    patchServiceMember.mockImplementation(() => Promise.resolve(expectedServiceMemberPayload));
-
-    const { getByLabelText } = render(<BackupAddress {...testProps} />);
-
-    await userEvent.type(getByLabelText(/Address 1/), fakeAddress.streetAddress1);
-    await userEvent.type(getByLabelText(/Address 2/), fakeAddress.streetAddress2);
-    await userEvent.type(getByLabelText(/City/), fakeAddress.city);
-    await userEvent.selectOptions(getByLabelText(/State/), 'HI');
-    await userEvent.type(getByLabelText(/ZIP/), fakeAddress.postalCode);
-    await userEvent.tab();
-
-    await waitFor(() => {
-      expect(screen.getByText('Moves to this state are not supported at this time.')).toBeInTheDocument();
-    });
-
-    await userEvent.selectOptions(getByLabelText(/State/), 'AL');
-    await userEvent.type(getByLabelText(/ZIP/), fakeAddress.postalCode);
-    await userEvent.tab();
-    await waitFor(() => {
-      expect(screen.queryByText('Moves to this state are not supported at this time.')).not.toBeInTheDocument();
-    });
-
-    await userEvent.selectOptions(getByLabelText(/State/), 'HI');
-    await userEvent.type(getByLabelText(/ZIP/), fakeAddress.postalCode);
-    await userEvent.tab();
-    await waitFor(() => {
-      expect(screen.queryByText('Moves to this state are not supported at this time.')).toBeInTheDocument();
-    });
-  });
-
   it('shows an error if the patchServiceMember API returns an error', async () => {
     const testProps = generateTestProps(fakeAddress);
-
+    const mockStore = configureStore({
+      ...loggedInTOOState,
+    });
     patchServiceMember.mockImplementation(() =>
       // Disable this rule because makeSwaggerRequest does not throw an error if the API call fails
       // eslint-disable-next-line prefer-promise-reject-errors
@@ -146,7 +145,11 @@ describe('BackupAddress page', () => {
       }),
     );
 
-    const { getByRole, queryByText } = render(<BackupAddress {...testProps} />);
+    const { getByRole, queryByText } = render(
+      <Provider store={mockStore.store}>
+        <BackupAddress {...testProps} />
+      </Provider>,
+    );
 
     const submitButton = getByRole('button', { name: 'Next' });
     expect(submitButton).toBeInTheDocument();

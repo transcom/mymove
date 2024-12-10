@@ -109,6 +109,7 @@ func NewGhcAPIHandler(handlerConfig handlers.HandlerConfig) *ghcops.MymoveAPI {
 	transportationOfficeFetcher := transportationoffice.NewTransportationOfficesFetcher()
 	closeoutOfficeUpdater := move.NewCloseoutOfficeUpdater(move.NewMoveFetcher(), transportationOfficeFetcher)
 	assignedOfficeUserUpdater := move.NewAssignedOfficeUserUpdater(move.NewMoveFetcher())
+	vLocation := address.NewVLocation()
 
 	shipmentSITStatus := sitstatus.NewShipmentSITStatus()
 
@@ -334,6 +335,11 @@ func NewGhcAPIHandler(handlerConfig handlers.HandlerConfig) *ghcops.MymoveAPI {
 	}
 
 	ghcAPI.OrderAcknowledgeExcessWeightRiskHandler = AcknowledgeExcessWeightRiskHandler{
+		handlerConfig,
+		order.NewExcessWeightRiskManager(moveRouter),
+	}
+
+	ghcAPI.OrderAcknowledgeExcessUnaccompaniedBaggageWeightRiskHandler = AcknowledgeExcessUnaccompaniedBaggageWeightRiskHandler{
 		handlerConfig,
 		order.NewExcessWeightRiskManager(moveRouter),
 	}
@@ -644,6 +650,11 @@ func NewGhcAPIHandler(handlerConfig handlers.HandlerConfig) *ghcops.MymoveAPI {
 	ghcAPI.MoveUpdateCloseoutOfficeHandler = UpdateMoveCloseoutOfficeHandler{
 		handlerConfig,
 		closeoutOfficeUpdater,
+	}
+
+	ghcAPI.AddressesGetLocationByZipCityStateHandler = GetLocationByZipCityStateHandler{
+		handlerConfig,
+		vLocation,
 	}
 
 	ghcAPI.OfficeUsersCreateRequestedOfficeUserHandler = RequestOfficeUserHandler{

@@ -45,18 +45,20 @@ func MoveTaskOrder(appCtx appcontext.AppContext, moveTaskOrder *models.Move) *pr
 		AvailableToPrimeAt:         handlers.FmtDateTimePtr(moveTaskOrder.AvailableToPrimeAt),
 		PrimeCounselingCompletedAt: handlers.FmtDateTimePtr(moveTaskOrder.PrimeCounselingCompletedAt),
 		ExcessWeightQualifiedAt:    handlers.FmtDateTimePtr(moveTaskOrder.ExcessWeightQualifiedAt),
-		ExcessWeightAcknowledgedAt: handlers.FmtDateTimePtr(moveTaskOrder.ExcessWeightAcknowledgedAt),
-		ExcessWeightUploadID:       handlers.FmtUUIDPtr(moveTaskOrder.ExcessWeightUploadID),
-		OrderID:                    strfmt.UUID(moveTaskOrder.OrdersID.String()),
-		Order:                      Order(&moveTaskOrder.Orders),
-		DestinationGBLOC:           destGbloc,
-		DestinationPostalCode:      destZip,
-		ReferenceID:                *moveTaskOrder.ReferenceID,
-		PaymentRequests:            *paymentRequests,
-		MtoShipments:               *mtoShipments,
-		ContractNumber:             moveTaskOrder.Contractor.ContractNumber,
-		UpdatedAt:                  strfmt.DateTime(moveTaskOrder.UpdatedAt),
-		ETag:                       etag.GenerateEtag(moveTaskOrder.UpdatedAt),
+		ExcessUnaccompaniedBaggageWeightQualifiedAt:    handlers.FmtDateTimePtr(moveTaskOrder.ExcessUnaccompaniedBaggageWeightQualifiedAt),
+		ExcessUnaccompaniedBaggageWeightAcknowledgedAt: handlers.FmtDateTimePtr(moveTaskOrder.ExcessUnaccompaniedBaggageWeightAcknowledgedAt),
+		ExcessWeightAcknowledgedAt:                     handlers.FmtDateTimePtr(moveTaskOrder.ExcessWeightAcknowledgedAt),
+		ExcessWeightUploadID:                           handlers.FmtUUIDPtr(moveTaskOrder.ExcessWeightUploadID),
+		OrderID:                                        strfmt.UUID(moveTaskOrder.OrdersID.String()),
+		Order:                                          Order(&moveTaskOrder.Orders),
+		DestinationGBLOC:                               destGbloc,
+		DestinationPostalCode:                          destZip,
+		ReferenceID:                                    *moveTaskOrder.ReferenceID,
+		PaymentRequests:                                *paymentRequests,
+		MtoShipments:                                   *mtoShipments,
+		ContractNumber:                                 moveTaskOrder.Contractor.ContractNumber,
+		UpdatedAt:                                      strfmt.DateTime(moveTaskOrder.UpdatedAt),
+		ETag:                                           etag.GenerateEtag(moveTaskOrder.UpdatedAt),
 	}
 
 	if moveTaskOrder.PPMType != nil {
@@ -253,7 +255,7 @@ func Address(address *models.Address) *primev3messages.Address {
 		PostalCode:     &address.PostalCode,
 		Country:        Country(address.Country),
 		ETag:           etag.GenerateEtag(address.UpdatedAt),
-		County:         &address.County,
+		County:         address.County,
 	}
 }
 
@@ -272,7 +274,7 @@ func PPMDestinationAddress(address *models.Address) *primev3messages.PPMDestinat
 		PostalCode:     &address.PostalCode,
 		Country:        Country(address.Country),
 		ETag:           etag.GenerateEtag(address.UpdatedAt),
-		County:         &address.County,
+		County:         address.County,
 	}
 	// Street address 1 is optional per business rule but not nullable on the database level.
 	// Check if streetAddress 1 is using place holder value to represent 'NULL'.

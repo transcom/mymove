@@ -547,6 +547,11 @@ func init() {
           "title": "Address Line 3",
           "x-nullable": true,
           "example": "Montmârtre"
+        },
+        "usPostRegionCitiesID": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         }
       }
     },
@@ -1963,6 +1968,20 @@ func init() {
         },
         "eTag": {
           "type": "string",
+          "readOnly": true
+        },
+        "excessUnaccompaniedBaggageWeightAcknowledgedAt": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true,
+          "x-omitempty": false,
+          "readOnly": true
+        },
+        "excessUnaccompaniedBaggageWeightQualifiedAt": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true,
+          "x-omitempty": false,
           "readOnly": true
         },
         "excessWeightAcknowledgedAt": {
@@ -4158,6 +4177,11 @@ func init() {
           "title": "Address Line 3",
           "x-nullable": true,
           "example": "Montmârtre"
+        },
+        "usPostRegionCitiesID": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         }
       }
     },
@@ -5574,6 +5598,20 @@ func init() {
         },
         "eTag": {
           "type": "string",
+          "readOnly": true
+        },
+        "excessUnaccompaniedBaggageWeightAcknowledgedAt": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true,
+          "x-omitempty": false,
+          "readOnly": true
+        },
+        "excessUnaccompaniedBaggageWeightQualifiedAt": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true,
+          "x-omitempty": false,
           "readOnly": true
         },
         "excessWeightAcknowledgedAt": {

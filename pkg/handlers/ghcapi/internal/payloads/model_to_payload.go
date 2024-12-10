@@ -88,38 +88,40 @@ func Move(move *models.Move, storer storage.FileStorer) (*ghcmessages.Move, erro
 	}
 
 	payload := &ghcmessages.Move{
-		ID:                           strfmt.UUID(move.ID.String()),
-		AvailableToPrimeAt:           handlers.FmtDateTimePtr(move.AvailableToPrimeAt),
-		ApprovedAt:                   handlers.FmtDateTimePtr(move.ApprovedAt),
-		ContractorID:                 handlers.FmtUUIDPtr(move.ContractorID),
-		Contractor:                   Contractor(move.Contractor),
-		Locator:                      move.Locator,
-		OrdersID:                     strfmt.UUID(move.OrdersID.String()),
-		Orders:                       Order(&move.Orders),
-		ReferenceID:                  handlers.FmtStringPtr(move.ReferenceID),
-		Status:                       ghcmessages.MoveStatus(move.Status),
-		ExcessWeightQualifiedAt:      handlers.FmtDateTimePtr(move.ExcessWeightQualifiedAt),
-		BillableWeightsReviewedAt:    handlers.FmtDateTimePtr(move.BillableWeightsReviewedAt),
-		CreatedAt:                    strfmt.DateTime(move.CreatedAt),
-		SubmittedAt:                  handlers.FmtDateTimePtr(move.SubmittedAt),
-		ApprovalsRequestedAt:         handlers.FmtDateTimePtr(move.ApprovalsRequestedAt),
-		UpdatedAt:                    strfmt.DateTime(move.UpdatedAt),
-		ETag:                         etag.GenerateEtag(move.UpdatedAt),
-		ServiceCounselingCompletedAt: handlers.FmtDateTimePtr(move.ServiceCounselingCompletedAt),
-		ExcessWeightAcknowledgedAt:   handlers.FmtDateTimePtr(move.ExcessWeightAcknowledgedAt),
-		TioRemarks:                   handlers.FmtStringPtr(move.TIORemarks),
-		FinancialReviewFlag:          move.FinancialReviewFlag,
-		FinancialReviewRemarks:       move.FinancialReviewRemarks,
-		CloseoutOfficeID:             handlers.FmtUUIDPtr(move.CloseoutOfficeID),
-		CloseoutOffice:               TransportationOffice(move.CloseoutOffice),
-		ShipmentGBLOC:                gbloc,
-		LockedByOfficeUserID:         handlers.FmtUUIDPtr(move.LockedByOfficeUserID),
-		LockedByOfficeUser:           OfficeUser(move.LockedByOfficeUser),
-		LockExpiresAt:                handlers.FmtDateTimePtr(move.LockExpiresAt),
-		AdditionalDocuments:          additionalDocumentsPayload,
-		SCAssignedUser:               AssignedOfficeUser(move.SCAssignedUser),
-		TOOAssignedUser:              AssignedOfficeUser(move.TOOAssignedUser),
-		TIOAssignedUser:              AssignedOfficeUser(move.TIOAssignedUser),
+		ID:                      strfmt.UUID(move.ID.String()),
+		AvailableToPrimeAt:      handlers.FmtDateTimePtr(move.AvailableToPrimeAt),
+		ApprovedAt:              handlers.FmtDateTimePtr(move.ApprovedAt),
+		ContractorID:            handlers.FmtUUIDPtr(move.ContractorID),
+		Contractor:              Contractor(move.Contractor),
+		Locator:                 move.Locator,
+		OrdersID:                strfmt.UUID(move.OrdersID.String()),
+		Orders:                  Order(&move.Orders),
+		ReferenceID:             handlers.FmtStringPtr(move.ReferenceID),
+		Status:                  ghcmessages.MoveStatus(move.Status),
+		ExcessWeightQualifiedAt: handlers.FmtDateTimePtr(move.ExcessWeightQualifiedAt),
+		ExcessUnaccompaniedBaggageWeightQualifiedAt: handlers.FmtDateTimePtr(move.ExcessUnaccompaniedBaggageWeightQualifiedAt),
+		BillableWeightsReviewedAt:                   handlers.FmtDateTimePtr(move.BillableWeightsReviewedAt),
+		CreatedAt:                                   strfmt.DateTime(move.CreatedAt),
+		SubmittedAt:                                 handlers.FmtDateTimePtr(move.SubmittedAt),
+		ApprovalsRequestedAt:                        handlers.FmtDateTimePtr(move.ApprovalsRequestedAt),
+		UpdatedAt:                                   strfmt.DateTime(move.UpdatedAt),
+		ETag:                                        etag.GenerateEtag(move.UpdatedAt),
+		ServiceCounselingCompletedAt:                handlers.FmtDateTimePtr(move.ServiceCounselingCompletedAt),
+		ExcessUnaccompaniedBaggageWeightAcknowledgedAt: handlers.FmtDateTimePtr(move.ExcessUnaccompaniedBaggageWeightAcknowledgedAt),
+		ExcessWeightAcknowledgedAt:                     handlers.FmtDateTimePtr(move.ExcessWeightAcknowledgedAt),
+		TioRemarks:                                     handlers.FmtStringPtr(move.TIORemarks),
+		FinancialReviewFlag:                            move.FinancialReviewFlag,
+		FinancialReviewRemarks:                         move.FinancialReviewRemarks,
+		CloseoutOfficeID:                               handlers.FmtUUIDPtr(move.CloseoutOfficeID),
+		CloseoutOffice:                                 TransportationOffice(move.CloseoutOffice),
+		ShipmentGBLOC:                                  gbloc,
+		LockedByOfficeUserID:                           handlers.FmtUUIDPtr(move.LockedByOfficeUserID),
+		LockedByOfficeUser:                             OfficeUser(move.LockedByOfficeUser),
+		LockExpiresAt:                                  handlers.FmtDateTimePtr(move.LockExpiresAt),
+		AdditionalDocuments:                            additionalDocumentsPayload,
+		SCAssignedUser:                                 AssignedOfficeUser(move.SCAssignedUser),
+		TOOAssignedUser:                                AssignedOfficeUser(move.TOOAssignedUser),
+		TIOAssignedUser:                                AssignedOfficeUser(move.TIOAssignedUser),
 	}
 
 	return payload, nil
@@ -784,7 +786,8 @@ func Address(address *models.Address) *ghcmessages.Address {
 	if address == nil {
 		return nil
 	}
-	return &ghcmessages.Address{
+
+	payloadAddress := &ghcmessages.Address{
 		ID:             strfmt.UUID(address.ID.String()),
 		StreetAddress1: &address.StreetAddress1,
 		StreetAddress2: address.StreetAddress2,
@@ -793,10 +796,16 @@ func Address(address *models.Address) *ghcmessages.Address {
 		State:          &address.State,
 		PostalCode:     &address.PostalCode,
 		Country:        Country(address.Country),
-		County:         &address.County,
+		County:         address.County,
 		ETag:           etag.GenerateEtag(address.UpdatedAt),
 		IsOconus:       address.IsOconus,
 	}
+
+	if address.UsPostRegionCityID != nil {
+		payloadAddress.UsPostRegionCitiesID = strfmt.UUID(address.UsPostRegionCityID.String())
+	}
+
+	return payloadAddress
 }
 
 // PPM destination Address payload
@@ -2670,6 +2679,34 @@ func ReServiceItems(reServiceItems models.ReServiceItems) ghcmessages.ReServiceI
 	for i, reServiceItem := range reServiceItems {
 		copyOfReServiceItem := reServiceItem
 		payload[i] = ReServiceItem(&copyOfReServiceItem)
+	}
+	return payload
+}
+
+// VLocation payload
+func VLocation(vLocation *models.VLocation) *ghcmessages.VLocation {
+	if vLocation == nil {
+		return nil
+	}
+	if *vLocation == (models.VLocation{}) {
+		return nil
+	}
+
+	return &ghcmessages.VLocation{
+		City:                 vLocation.CityName,
+		State:                vLocation.StateName,
+		PostalCode:           vLocation.UsprZipID,
+		County:               &vLocation.UsprcCountyNm,
+		UsPostRegionCitiesID: *handlers.FmtUUID(*vLocation.UsPostRegionCitiesID),
+	}
+}
+
+// VLocations payload
+func VLocations(vLocations models.VLocations) ghcmessages.VLocations {
+	payload := make(ghcmessages.VLocations, len(vLocations))
+	for i, vLocation := range vLocations {
+		copyOfVLocation := vLocation
+		payload[i] = VLocation(&copyOfVLocation)
 	}
 	return payload
 }
