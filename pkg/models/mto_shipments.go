@@ -430,7 +430,7 @@ func CreateApprovedServiceItemsForShipment(db *pop.Connection, shipment *MTOShip
 // a db stored proc that will handle updating the pricing_estimate columns of basic service items for shipment types:
 // iHHG
 // iUB
-func UpdateEstimatedPricingForShimpentBasicServiceItems(db *pop.Connection, shipment *MTOShipment) error {
+func UpdateEstimatedPricingForShipmentBasicServiceItems(db *pop.Connection, shipment *MTOShipment) error {
 	err := db.RawQuery("CALL update_service_item_pricing($1)", shipment.ID).Exec()
 	if err != nil {
 		return fmt.Errorf("error updating estimated pricing for shipment's service items: %w", err)
