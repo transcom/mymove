@@ -1,0 +1,276 @@
+package pricing
+
+import (
+	"database/sql"
+	"fmt"
+	"strconv"
+	"time"
+
+	"github.com/gofrs/uuid"
+
+	"github.com/transcom/mymove/pkg/appcontext"
+	"github.com/transcom/mymove/pkg/apperror"
+	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/route"
+	"github.com/transcom/mymove/pkg/services/ghcrateengine"
+	"github.com/transcom/mymove/pkg/unit"
+)
+
+const weightBasedDistanceMultiplierLevelOne = "0.000417"
+const weightBasedDistanceMultiplierLevelTwo = "0.0006255"
+const weightBasedDistanceMultiplierLevelThree = "0.000834"
+const weightBasedDistanceMultiplierLevelFour = "0.00139"
+
+func FetchServiceItemPrice(appCtx appcontext.AppContext, serviceItem *models.MTOServiceItem, mtoShipment models.MTOShipment) (unit.Cents, error) {
+	if isServiceItemCodeValid(serviceItem) {
+
+		var planner route.Planner
+
+		isPPM := false
+		if mtoShipment.ShipmentType == models.MTOShipmentTypePPM {
+			isPPM = true
+		}
+		requestedPickupDate := *mtoShipment.RequestedPickupDate
+		currTime := time.Now()
+		var distance int
+		primeEstimatedWeight := mtoShipment.PrimeEstimatedWeight
+
+		if mtoShipment.ShipmentType == models.MTOShipmentTypeHHGOutOfNTSDom {
+			newWeight := int(primeEstimatedWeight.Float64() * 1.1)
+			primeEstimatedWeight = (*unit.Pound)(&newWeight)
+		}
+
+		contractCode, err := FetchContractCode(appCtx, currTime)
+		if err != nil {
+			contractCode, err = FetchContractCode(appCtx, requestedPickupDate)
+			if err != nil {
+				return 0, err
+			}
+		}
+
+		var price unit.Cents
+		//var errorFound error
+		switch serviceItem.ReService.Code {
+		case models.ReServiceCodeDOP:
+			originPricer := ghcrateengine.NewDomesticOriginPricer()
+			domesticServiceArea, err := fetchDomesticServiceArea(appCtx, contractCode, mtoShipment.PickupAddress.PostalCode)
+			if err != nil {
+				return 0, err
+			}
+
+			price, _, err = originPricer.Price(appCtx, contractCode, requestedPickupDate, *primeEstimatedWeight, domesticServiceArea.ServiceArea, isPPM)
+			if err != nil {
+				return 0, err
+			}
+		case models.ReServiceCodeDPK:
+			packPricer := ghcrateengine.NewDomesticPackPricer()
+			domesticServiceArea, err := fetchDomesticServiceArea(appCtx, contractCode, mtoShipment.PickupAddress.PostalCode)
+			if err != nil {
+				return 0, err
+			}
+
+			servicesScheduleOrigin := domesticServiceArea.ServicesSchedule
+
+			price, _, err = packPricer.Price(appCtx, contractCode, requestedPickupDate, *primeEstimatedWeight, servicesScheduleOrigin, isPPM)
+			if err != nil {
+				return 0, err
+			}
+		case models.ReServiceCodeDDP:
+			destinationPricer := ghcrateengine.NewDomesticDestinationPricer()
+			var domesticServiceArea models.ReDomesticServiceArea
+			if mtoShipment.DestinationAddress != nil {
+				domesticServiceArea, err = fetchDomesticServiceArea(appCtx, contractCode, mtoShipment.DestinationAddress.PostalCode)
+				if err != nil {
+					return 0, err
+				}
+			}
+
+			price, _, err = destinationPricer.Price(appCtx, contractCode, requestedPickupDate, *primeEstimatedWeight, domesticServiceArea.ServiceArea, isPPM)
+			if err != nil {
+				return 0, err
+			}
+		case models.ReServiceCodeDUPK:
+			unpackPricer := ghcrateengine.NewDomesticUnpackPricer()
+			domesticServiceArea, err := fetchDomesticServiceArea(appCtx, contractCode, mtoShipment.DestinationAddress.PostalCode)
+			if err != nil {
+				return 0, err
+			}
+
+			serviceScheduleDestination := domesticServiceArea.ServicesSchedule
+
+			price, _, err = unpackPricer.Price(appCtx, contractCode, requestedPickupDate, *primeEstimatedWeight, serviceScheduleDestination, isPPM)
+		case models.ReServiceCodeDLH:
+			linehaulPricer := ghcrateengine.NewDomesticLinehaulPricer()
+			domesticServiceArea, err := fetchDomesticServiceArea(appCtx, contractCode, mtoShipment.PickupAddress.PostalCode)
+			if err != nil {
+				return 0, err
+			}
+			if mtoShipment.PickupAddress != nil && mtoShipment.DestinationAddress != nil {
+				distance, err = planner.ZipTransitDistance(appCtx, mtoShipment.PickupAddress.PostalCode, mtoShipment.DestinationAddress.PostalCode)
+				if err != nil {
+					return 0, err
+				}
+			}
+			price, _, err = linehaulPricer.Price(appCtx, contractCode, requestedPickupDate, unit.Miles(distance), *primeEstimatedWeight, domesticServiceArea.ServiceArea, isPPM)
+			if err != nil {
+				return 0, err
+			}
+		case models.ReServiceCodeDSH:
+			shorthaulPricer := ghcrateengine.NewDomesticShorthaulPricer()
+			domesticServiceArea, err := fetchDomesticServiceArea(appCtx, contractCode, mtoShipment.PickupAddress.PostalCode)
+			if err != nil {
+				return 0, err
+			}
+			if mtoShipment.PickupAddress != nil && mtoShipment.DestinationAddress != nil {
+				distance, err = planner.ZipTransitDistance(appCtx, mtoShipment.PickupAddress.PostalCode, mtoShipment.DestinationAddress.PostalCode)
+				if err != nil {
+					return 0, err
+				}
+			}
+			price, _, err = shorthaulPricer.Price(appCtx, contractCode, requestedPickupDate, unit.Miles(distance), *primeEstimatedWeight, domesticServiceArea.ServiceArea)
+			if err != nil {
+				return 0, err
+			}
+		case models.ReServiceCodeFSC:
+			fuelSurchargePricer := ghcrateengine.NewFuelSurchargePricer()
+			var pickupDateForFSC time.Time
+
+			// actual pickup date likely won't exist at the time of service item creation, but it could
+			// use requested pickup date if no actual date exists
+			if mtoShipment.ActualPickupDate != nil {
+				pickupDateForFSC = *mtoShipment.ActualPickupDate
+			} else {
+				pickupDateForFSC = requestedPickupDate
+			}
+
+			if mtoShipment.PickupAddress != nil && mtoShipment.DestinationAddress != nil {
+				distance, err = planner.ZipTransitDistance(appCtx, mtoShipment.PickupAddress.PostalCode, mtoShipment.DestinationAddress.PostalCode)
+				if err != nil {
+					return 0, err
+				}
+			}
+
+			fscWeightBasedDistanceMultiplier, err := LookupFSCWeightBasedDistanceMultiplier(appCtx, *primeEstimatedWeight)
+			if err != nil {
+				return 0, err
+			}
+			fscWeightBasedDistanceMultiplierFloat, err := strconv.ParseFloat(fscWeightBasedDistanceMultiplier, 64)
+			if err != nil {
+				return 0, err
+			}
+			eiaFuelPrice, err := LookupEIAFuelPrice(appCtx, pickupDateForFSC)
+			if err != nil {
+				return 0, err
+			}
+			price, _, err = fuelSurchargePricer.Price(appCtx, pickupDateForFSC, unit.Miles(distance), *primeEstimatedWeight, fscWeightBasedDistanceMultiplierFloat, eiaFuelPrice, isPPM)
+			if err != nil {
+				return 0, err
+			}
+		default:
+			// this is an invalid codd, return an error
+			return 0, err
+		}
+		return price, nil
+	}
+	return 0, nil
+}
+
+func isServiceItemCodeValid(serviceItem *models.MTOServiceItem) bool {
+	return (serviceItem.ReService.Code == models.ReServiceCodeDOP ||
+		serviceItem.ReService.Code == models.ReServiceCodeDPK ||
+		serviceItem.ReService.Code == models.ReServiceCodeDDP ||
+		serviceItem.ReService.Code == models.ReServiceCodeDUPK ||
+		serviceItem.ReService.Code == models.ReServiceCodeDLH ||
+		serviceItem.ReService.Code == models.ReServiceCodeDSH ||
+		serviceItem.ReService.Code == models.ReServiceCodeFSC)
+}
+
+func fetchCurrentTaskOrderFee(appCtx appcontext.AppContext, serviceCode models.ReServiceCode, requestedPickupDate time.Time) (models.ReTaskOrderFee, error) {
+	contractCode, err := FetchContractCode(appCtx, requestedPickupDate)
+	if err != nil {
+		return models.ReTaskOrderFee{}, err
+	}
+	var taskOrderFee models.ReTaskOrderFee
+	err = appCtx.DB().Q().
+		Join("re_contract_years cy", "re_task_order_fees.contract_year_id = cy.id").
+		Join("re_contracts c", "cy.contract_id = c.id").
+		Join("re_services s", "re_task_order_fees.service_id = s.id").
+		Where("c.code = $1", contractCode).
+		Where("s.code = $2", serviceCode).
+		Where("$3 between cy.start_date and cy.end_date", requestedPickupDate).
+		First(&taskOrderFee)
+
+	if err != nil {
+		return models.ReTaskOrderFee{}, err
+	}
+
+	return taskOrderFee, nil
+}
+
+func FetchContractCode(appCtx appcontext.AppContext, date time.Time) (string, error) {
+	var contractYear models.ReContractYear
+	err := appCtx.DB().EagerPreload("Contract").Where("? between start_date and end_date", date).
+		First(&contractYear)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return "", apperror.NewNotFoundError(uuid.Nil, fmt.Sprintf("no contract year found for %s", date.String()))
+		}
+		return "", err
+	}
+
+	contract := contractYear.Contract
+
+	contractCode := contract.Code
+	return contractCode, nil
+}
+
+func fetchDomesticServiceArea(appCtx appcontext.AppContext, contractCode string, shipmentPostalCode string) (models.ReDomesticServiceArea, error) {
+	// find the service area by querying for the service area associated with the zip3
+	zip := shipmentPostalCode
+	zip3 := zip[0:3]
+	var domesticServiceArea models.ReDomesticServiceArea
+	err := appCtx.DB().Q().
+		Join("re_zip3s", "re_zip3s.domestic_service_area_id = re_domestic_service_areas.id").
+		Join("re_contracts", "re_contracts.id = re_domestic_service_areas.contract_id").
+		Where("re_zip3s.zip3 = ?", zip3).
+		Where("re_contracts.code = ?", contractCode).
+		First(&domesticServiceArea)
+	if err != nil {
+		return domesticServiceArea, fmt.Errorf("unable to find domestic service area for %s under contract code %s", zip3, contractCode)
+	}
+
+	return domesticServiceArea, nil
+}
+
+func LookupFSCWeightBasedDistanceMultiplier(appCtx appcontext.AppContext, primeEstimatedWeight unit.Pound) (string, error) {
+	weight := primeEstimatedWeight.Int()
+
+	if weight <= 5000 {
+		return weightBasedDistanceMultiplierLevelOne, nil
+	} else if weight <= 10000 {
+		return weightBasedDistanceMultiplierLevelTwo, nil
+	} else if weight <= 24000 {
+		return weightBasedDistanceMultiplierLevelThree, nil
+		//nolint:revive
+	} else {
+		return weightBasedDistanceMultiplierLevelFour, nil
+	}
+}
+
+func LookupEIAFuelPrice(appCtx appcontext.AppContext, pickupDate time.Time) (unit.Millicents, error) {
+	db := appCtx.DB()
+
+	// Find the GHCDieselFuelPrice object with the closest prior PublicationDate to the ActualPickupDate of the MTOShipment in question
+	var ghcDieselFuelPrice models.GHCDieselFuelPrice
+	err := db.Where("publication_date <= ?", pickupDate).Order("publication_date DESC").Last(&ghcDieselFuelPrice)
+	if err != nil {
+		switch err {
+		case sql.ErrNoRows:
+			return 0, apperror.NewNotFoundError(uuid.Nil, "Looking for GHCDieselFuelPrice")
+		default:
+			return 0, apperror.NewQueryError("GHCDieselFuelPrice", err, "")
+		}
+	}
+
+	return ghcDieselFuelPrice.FuelPriceInMillicents, nil
+}

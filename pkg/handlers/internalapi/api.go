@@ -221,7 +221,6 @@ func NewInternalAPI(handlerConfig handlers.HandlerConfig) *internalops.MymoveAPI
 		mock.Anything,
 		mock.Anything,
 	).Return(400, nil)
-	mtoServiceItemCreator := mtoserviceitem.NewMTOServiceItemCreator(planner, query.NewQueryBuilder(), moveRouter, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticPackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer())
 
 	shipmentUpdater := shipment.NewShipmentUpdater(
 		mtoshipment.NewCustomerMTOShipmentUpdater(
@@ -238,7 +237,6 @@ func NewInternalAPI(handlerConfig handlers.HandlerConfig) *internalops.MymoveAPI
 		ppmShipmentUpdater,
 		boatShipmentUpdater,
 		mobileHomeShipmentUpdater,
-		mtoServiceItemCreator,
 	)
 
 	internalAPI.MtoShipmentUpdateMTOShipmentHandler = UpdateMTOShipmentHandler{

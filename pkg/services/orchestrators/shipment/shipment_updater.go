@@ -5,6 +5,7 @@ import (
 
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/pricing"
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/unit"
 )
@@ -16,18 +17,16 @@ type shipmentUpdater struct {
 	ppmShipmentUpdater        services.PPMShipmentUpdater
 	boatShipmentUpdater       services.BoatShipmentUpdater
 	mobileHomeShipmentUpdater services.MobileHomeShipmentUpdater
-	mtoServiceItemCreator     services.MTOServiceItemCreator
 }
 
 // NewShipmentUpdater creates a new shipmentUpdater struct with the basic checks and service dependencies.
-func NewShipmentUpdater(mtoShipmentUpdater services.MTOShipmentUpdater, ppmShipmentUpdater services.PPMShipmentUpdater, boatShipmentUpdater services.BoatShipmentUpdater, mobileHomeShipmentUpdater services.MobileHomeShipmentUpdater, mtoServiceItemCreator services.MTOServiceItemCreator) services.ShipmentUpdater {
+func NewShipmentUpdater(mtoShipmentUpdater services.MTOShipmentUpdater, ppmShipmentUpdater services.PPMShipmentUpdater, boatShipmentUpdater services.BoatShipmentUpdater, mobileHomeShipmentUpdater services.MobileHomeShipmentUpdater) services.ShipmentUpdater {
 	return &shipmentUpdater{
 		checks:                    basicShipmentChecks(),
 		mtoShipmentUpdater:        mtoShipmentUpdater,
 		ppmShipmentUpdater:        ppmShipmentUpdater,
 		boatShipmentUpdater:       boatShipmentUpdater,
 		mobileHomeShipmentUpdater: mobileHomeShipmentUpdater,
-		mtoServiceItemCreator:     mtoServiceItemCreator,
 	}
 }
 
@@ -51,7 +50,7 @@ func (s *shipmentUpdater) UpdateShipment(appCtx appcontext.AppContext, shipment 
 					estimatedWeightToUse = *mtoShipment.PrimeEstimatedWeight
 				}
 				mtoShipment.MTOServiceItems[index].EstimatedWeight = &estimatedWeightToUse
-				serviceItemEstimatedPrice, err := s.mtoServiceItemCreator.FindEstimatedPrice(appCtx, &serviceItem, *mtoShipment)
+				serviceItemEstimatedPrice, err := pricing.FetchServiceItemPrice(appCtx, &serviceItem, *mtoShipment)
 				if serviceItemEstimatedPrice != 0 && err == nil {
 					mtoShipment.MTOServiceItems[index].PricingEstimate = &serviceItemEstimatedPrice
 
