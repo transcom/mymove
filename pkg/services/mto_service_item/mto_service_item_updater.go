@@ -244,7 +244,7 @@ func (p *mtoServiceItemUpdater) findEstimatedPrice(appCtx appcontext.AppContext,
 			}
 		}
 		// destination sit delivery
-		if serviceItem.ReService.Code == models.ReServiceCodeDDDSIT {
+		if serviceItem.ReService.Code == models.ReServiceCodeDDDSIT && serviceItem.SITDestinationFinalAddress != nil {
 			domesticServiceArea, err := fetchDomesticServiceArea(appCtx, contractCode, mtoShipment.DestinationAddress.PostalCode)
 			if err != nil {
 				return 0, err
@@ -261,7 +261,7 @@ func (p *mtoServiceItemUpdater) findEstimatedPrice(appCtx appcontext.AppContext,
 			}
 		}
 		// destination sit fuel surcharge
-		if serviceItem.ReService.Code == models.ReServiceCodeDDSFSC {
+		if serviceItem.ReService.Code == models.ReServiceCodeDDSFSC && serviceItem.SITDestinationFinalAddress != nil {
 			if mtoShipment.DestinationAddress != nil {
 				distance, err = p.planner.ZipTransitDistance(appCtx, serviceItem.SITDestinationFinalAddress.PostalCode, mtoShipment.DestinationAddress.PostalCode)
 				if err != nil {

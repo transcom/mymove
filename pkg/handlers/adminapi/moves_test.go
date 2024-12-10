@@ -111,6 +111,7 @@ func (suite *HandlerSuite) TestUpdateMoveHandler() {
 
 		return mockUpdater
 	}
+	ppmEstimator := &mocks.PPMEstimator{}
 	setupHandler := func() UpdateMoveHandler {
 		builder := query.NewQueryBuilder()
 		moveRouter, err := move.NewMoveRouter()
@@ -126,7 +127,7 @@ func (suite *HandlerSuite) TestUpdateMoveHandler() {
 			movetaskorder.NewMoveTaskOrderUpdater(
 				builder,
 				mtoserviceitem.NewMTOServiceItemCreator(planner, builder, moveRouter, ghcrateengine.NewDomesticUnpackPricer(suite.HandlerConfig().FeatureFlagFetcher()), ghcrateengine.NewDomesticPackPricer(suite.HandlerConfig().FeatureFlagFetcher()), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(suite.HandlerConfig().FeatureFlagFetcher()), ghcrateengine.NewDomesticDestinationPricer(suite.HandlerConfig().FeatureFlagFetcher()), ghcrateengine.NewFuelSurchargePricer(), mockFeatureFlagFetcher),
-				moveRouter, setUpSignedCertificationCreatorMock(nil, nil), setUpSignedCertificationUpdaterMock(nil, nil),
+				moveRouter, setUpSignedCertificationCreatorMock(nil, nil), setUpSignedCertificationUpdaterMock(nil, nil), ppmEstimator,
 			),
 		}
 	}

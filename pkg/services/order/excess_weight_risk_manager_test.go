@@ -567,6 +567,35 @@ func (suite *OrderServiceSuite) TestAcknowledgeExcessWeightRisk() {
 		suite.NotNil(moveInDB.ExcessWeightAcknowledgedAt)
 	})
 
+	suite.Run("Updates the ExcessUnaccompaniedBaggageWeightAcknowledgedAt field and approves the move when all fields are valid", func() {
+		moveRouter, err := moverouter.NewMoveRouter()
+		suite.FatalNoError(err)
+		excessWeightRiskManager := NewExcessWeightRiskManager(moveRouter)
+		now := time.Now()
+		move := factory.BuildApprovalsRequestedMove(suite.DB(), []factory.Customization{
+			{
+				Model: models.Move{
+					ExcessUnaccompaniedBaggageWeightQualifiedAt: &now,
+				},
+			},
+		}, nil)
+		order := move.Orders
+		eTag := etag.GenerateEtag(move.UpdatedAt)
+
+		updatedMove, err := excessWeightRiskManager.AcknowledgeExcessUnaccompaniedBaggageWeightRisk(suite.AppContextForTest(), order.ID, eTag)
+		suite.NoError(err)
+
+		var moveInDB models.Move
+		err = suite.DB().Find(&moveInDB, move.ID)
+		suite.NoError(err)
+
+		suite.Equal(move.ID.String(), updatedMove.ID.String())
+		suite.Equal(models.MoveStatusAPPROVED, moveInDB.Status)
+		suite.Equal(models.MoveStatusAPPROVED, updatedMove.Status)
+		suite.NotNil(moveInDB.ExcessUnaccompaniedBaggageWeightAcknowledgedAt)
+		suite.NotNil(updatedMove.ExcessUnaccompaniedBaggageWeightAcknowledgedAt)
+	})
+
 	suite.Run("Updates the ExcessWeightAcknowledgedAt field but does not approve the move if unreviewed service items exist", func() {
 		moveRouter, err := moverouter.NewMoveRouter()
 		suite.FatalNoError(err)
