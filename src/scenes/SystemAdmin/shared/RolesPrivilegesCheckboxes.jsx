@@ -50,36 +50,6 @@ const RolesPrivilegesCheckboxInput = (props) => {
           input.splice(index, 1);
         }
       }
-      if (input.includes(roleTypes.PRIME_SIMULATOR)) {
-        index = input.indexOf(roleTypes.PRIME_SIMULATOR);
-        if (index !== -1) {
-          input.splice(index, 1);
-        }
-      }
-      if (input.includes(roleTypes.QAE)) {
-        index = input.indexOf(roleTypes.QAE);
-        if (index !== -1) {
-          input.splice(index, 1);
-        }
-      }
-      if (input.includes(roleTypes.CUSTOMER_SERVICE_REPRESENTATIVE)) {
-        index = input.indexOf(roleTypes.CUSTOMER_SERVICE_REPRESENTATIVE);
-        if (index !== -1) {
-          input.splice(index, 1);
-        }
-      }
-      if (input.includes(roleTypes.GSR)) {
-        index = input.indexOf(roleTypes.GSR);
-        if (index !== -1) {
-          input.splice(index, 1);
-        }
-      }
-      if (input.includes(roleTypes.HQ)) {
-        index = input.indexOf(roleTypes.HQ);
-        if (index !== -1) {
-          input.splice(index, 1);
-        }
-      }
     }
 
     if (privilegesSelected.includes(elevatedPrivilegeTypes.SAFETY)) {
@@ -141,15 +111,7 @@ const RolesPrivilegesCheckboxInput = (props) => {
 
   const parsePrivilegesCheckboxInput = (input) => {
     var index;
-    if (
-      rolesSelected.includes(roleTypes.CUSTOMER) ||
-      rolesSelected.includes(roleTypes.CONTRACTING_OFFICER) ||
-      rolesSelected.includes(roleTypes.PRIME_SIMULATOR) ||
-      rolesSelected.includes(roleTypes.QAE) ||
-      rolesSelected.includes(roleTypes.CUSTOMER_SERVICE_REPRESENTATIVE) ||
-      rolesSelected.includes(roleTypes.GSR) ||
-      rolesSelected.includes(roleTypes.HQ)
-    ) {
+    if (rolesSelected.includes(roleTypes.CUSTOMER) || rolesSelected.includes(roleTypes.CONTRACTING_OFFICER)) {
       if (input.includes(elevatedPrivilegeTypes.SUPERVISOR)) {
         index = input.indexOf(elevatedPrivilegeTypes.SUPERVISOR);
         if (index !== -1) {
