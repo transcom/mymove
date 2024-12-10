@@ -114,6 +114,7 @@ type UpdatePaymentRequestStatusHandler struct {
 	handlers.HandlerConfig
 	services.PaymentRequestStatusUpdater
 	services.PaymentRequestFetcher
+	services.PaymentRequestListFetcher
 }
 
 // Handle updates payment requests status
@@ -224,10 +225,24 @@ func (h UpdatePaymentRequestStatusHandler) Handle(
 			if err != nil {
 				return paymentrequestop.NewUpdatePaymentRequestStatusInternalServerError(), err
 			}
-			move.TIOAssignedID = nil
-			verrs, err := models.SaveMoveDependencies(appCtx.DB(), move)
-			if err != nil || verrs.HasAny() {
+			requestList, err := h.FetchPaymentRequestListByMove(appCtx, move.Locator)
+			if err != nil {
 				return paymentrequestop.NewUpdatePaymentRequestStatusInternalServerError(), err
+			}
+
+			openPr := false
+			for _, request := range *requestList {
+				if request.Status != "REVIEWED" {
+					openPr = true
+				}
+			}
+
+			if !openPr {
+				move.TIOAssignedID = nil
+				verrs, err := models.SaveMoveDependencies(appCtx.DB(), move)
+				if err != nil || verrs.HasAny() {
+					return paymentrequestop.NewUpdatePaymentRequestStatusInternalServerError(), err
+				}
 			}
 
 			return paymentrequestop.NewUpdatePaymentRequestStatusOK().WithPayload(returnPayload), nil
