@@ -232,7 +232,7 @@ func (h UpdatePaymentRequestStatusHandler) Handle(
 
 			openPr := false
 			for _, request := range *requestList {
-				if request.Status != "REVIEWED" {
+				if request.Status != "REVIEWED" && request.Status != "REVIEWED_AND_ALL_SERVICE_ITEMS_REJECTED" {
 					openPr = true
 				}
 			}
