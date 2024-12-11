@@ -1597,7 +1597,7 @@ func (suite *MTOServiceItemServiceSuite) TestValidateUpdateMTOServiceItem() {
 		suite.Equal(oldServiceItemPrime.PODLocationID, updatedServiceItem.PODLocationID)
 	})
 
-	// Test failure Prime validation for Port of Embarkation
+	// Test failure Prime validation for Port of Debarkation
 	suite.Run("UpdateMTOServiceItemPrimeValidator - Update Port of Debarkation - Port not updated wrong service code is supplied", func() {
 		oldServiceItemPrime := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
 			{

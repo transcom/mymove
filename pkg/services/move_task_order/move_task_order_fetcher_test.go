@@ -431,7 +431,7 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderFetcher() {
 			}
 		}
 		// Verify that the expected service item was found
-		suite.True(found, "Expected service item ReServiceCodePOEFSC")
+		suite.True(found, "Expected service item ReServiceCodePODFSC")
 	})
 
 }
