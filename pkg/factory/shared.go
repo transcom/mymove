@@ -53,6 +53,8 @@ var CustomerSupportRemark CustomType = "CustomerSupportRemark"
 var Document CustomType = "Document"
 var DutyLocation CustomType = "DutyLocation"
 var Entitlement CustomType = "Entitlement"
+var HHGAllowance CustomType = "HHGAllowance"
+var PayGrade CustomType = "PayGrade"
 var EvaluationReport CustomType = "EvaluationReport"
 var LineOfAccounting CustomType = "LineOfAccounting"
 var MobileHome CustomType = "MobileHome"
@@ -115,6 +117,8 @@ var defaultTypesMap = map[string]CustomType{
 	"models.Document":                                 Document,
 	"models.DutyLocation":                             DutyLocation,
 	"models.Entitlement":                              Entitlement,
+	"models.PayGrade":                                 PayGrade,
+	"models.HHGAllowance":                             HHGAllowance,
 	"models.EvaluationReport":                         EvaluationReport,
 	"models.LineOfAccounting":                         LineOfAccounting,
 	"models.MobileHome":                               MobileHome,

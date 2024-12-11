@@ -149,3 +149,112 @@ func (suite *FactorySuite) TestBuildEntitlement() {
 	})
 
 }
+
+func (suite *FactorySuite) TestBuildPayGrade() {
+	suite.Run("Successful creation of PayGrade with default values", func() {
+		// Default grade should be "E-5"
+		payGrade := BuildPayGrade(suite.DB(), nil, nil)
+
+		suite.NotNil(payGrade.ID)
+		suite.Equal("E-5", payGrade.Grade)
+		suite.Equal("Enlisted Grade E-5", *payGrade.GradeDescription)
+
+		pgCount, err := suite.DB().Count(models.PayGrade{})
+		suite.NoError(err)
+		suite.True(pgCount > 0)
+	})
+
+	suite.Run("BuildPayGrade with customization", func() {
+		customGrade := "X-5"
+		customDescription := "Custom Grade X-5"
+		customPayGrade := models.PayGrade{
+			Grade:            customGrade,
+			GradeDescription: &customDescription,
+		}
+
+		payGrade := BuildPayGrade(
+			suite.DB(),
+			[]Customization{
+				{Model: customPayGrade},
+			},
+			nil,
+		)
+
+		suite.Equal(customGrade, payGrade.Grade)
+		suite.Equal(customDescription, *payGrade.GradeDescription)
+	})
+
+	suite.Run("Finds existing record", func() {
+
+		persistedPayGrade := BuildPayGrade(suite.DB(), nil, nil)
+
+		pg := BuildPayGrade(suite.DB(), []Customization{
+			{
+				Model:    persistedPayGrade,
+				LinkOnly: true,
+			},
+		}, nil)
+
+		suite.Equal(persistedPayGrade.ID, pg.ID)
+		suite.Equal(persistedPayGrade.Grade, pg.Grade)
+
+	})
+}
+
+func (suite *FactorySuite) TestBuildHHGAllowance() {
+	suite.Run("Successful creation of HHGAllowance with default values", func() {
+		// Default allowance and grade of E-5
+		hhgAllowance := BuildHHGAllowance(suite.DB(), nil, nil)
+		suite.NotNil(hhgAllowance.PayGradeID)
+		suite.NotEmpty(hhgAllowance.PayGrade)
+		suite.NotEmpty(hhgAllowance.ProGearWeight)
+		suite.NotEmpty(hhgAllowance.ProGearWeightSpouse)
+		suite.NotEmpty(hhgAllowance.TotalWeightSelf)
+		suite.NotEmpty(hhgAllowance.TotalWeightSelfPlusDependents)
+	})
+
+	suite.Run("BuildHHGAllowance with customization", func() {
+		hhgAllowance := BuildHHGAllowance(
+			suite.DB(),
+			[]Customization{
+				{Model: models.HHGAllowance{
+					TotalWeightSelf:               8000,
+					TotalWeightSelfPlusDependents: 12000,
+					ProGearWeight:                 3000,
+					ProGearWeightSpouse:           600,
+				}},
+			},
+			nil,
+		)
+
+		// E-5 default allowances
+		suite.Equal(8000, hhgAllowance.TotalWeightSelf)
+		suite.Equal(12000, hhgAllowance.TotalWeightSelfPlusDependents)
+		suite.Equal(3000, hhgAllowance.ProGearWeight)
+		suite.Equal(600, hhgAllowance.ProGearWeightSpouse)
+	})
+
+	suite.Run("Finds existing record", func() {
+		pg := BuildPayGrade(suite.DB(), nil, nil)
+
+		existingHhg := models.HHGAllowance{
+			PayGradeID:                    pg.ID,
+			TotalWeightSelf:               8000,
+			TotalWeightSelfPlusDependents: 12000,
+			ProGearWeight:                 3000,
+			ProGearWeightSpouse:           600,
+		}
+		suite.MustCreate(&existingHhg)
+
+		newHhg := BuildHHGAllowance(
+			suite.DB(),
+			[]Customization{
+				{Model: models.HHGAllowance{PayGradeID: pg.ID}},
+			},
+			nil,
+		)
+
+		suite.Equal(existingHhg.ID, newHhg.ID)
+		suite.Equal(3000, newHhg.ProGearWeight)
+	})
+}

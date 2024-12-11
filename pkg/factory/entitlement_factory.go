@@ -73,3 +73,136 @@ func BuildEntitlement(db *pop.Connection, customs []Customization, traits []Trai
 
 	return entitlement
 }
+
+func BuildPayGrade(db *pop.Connection, customs []Customization, traits []Trait) models.PayGrade {
+	customs = setupCustomizations(customs, traits)
+
+	// Find Pay Grade Customization and extract the custom Pay Grade
+	var cPayGrade models.PayGrade
+	if result := findValidCustomization(customs, PayGrade); result != nil {
+		cPayGrade = result.Model.(models.PayGrade)
+		if result.LinkOnly {
+			return cPayGrade
+		}
+	}
+
+	// Check if the Grade already exists
+	var existingPayGrade models.PayGrade
+	if db != nil {
+		err := db.Where("grade = ?", cPayGrade.Grade).First(&existingPayGrade)
+		if err == nil {
+			return existingPayGrade
+		}
+	}
+
+	// Create default Pay Grade
+	payGrade := models.PayGrade{
+		Grade:            "E-5",
+		GradeDescription: models.StringPointer("Enlisted Grade E-5"),
+	}
+
+	// Overwrite default values with those from custom Pay Grade
+	testdatagen.MergeModels(&payGrade, cPayGrade)
+
+	if db != nil {
+		mustCreate(db, &payGrade)
+	}
+
+	return payGrade
+}
+
+func BuildHHGAllowance(db *pop.Connection, customs []Customization, traits []Trait) models.HHGAllowance {
+	customs = setupCustomizations(customs, traits)
+
+	// Find HHG Allowance Customization and extract the custom HHG Allowance
+	var cHHGAllowance models.HHGAllowance
+	if result := findValidCustomization(customs, HHGAllowance); result != nil {
+		cHHGAllowance = result.Model.(models.HHGAllowance)
+		if result.LinkOnly {
+			return cHHGAllowance
+		}
+	}
+
+	// Check if Allowance with this Grade already exists
+	var existingHHGAllowance models.HHGAllowance
+	if db != nil {
+		err := db.Where("pay_grade_id = ?", cHHGAllowance.PayGradeID).First(&existingHHGAllowance)
+		if err == nil {
+			return existingHHGAllowance
+		}
+	}
+
+	// Create a default HHG Allowance with default pay grade
+	payGrade := BuildPayGrade(db, customs, traits)
+	defaultWeightData := getDefaultWeightData(payGrade.Grade)
+
+	hhgAllowance := models.HHGAllowance{
+		PayGradeID:                    payGrade.ID,
+		PayGrade:                      payGrade,
+		TotalWeightSelf:               defaultWeightData.TotalWeightSelf,
+		TotalWeightSelfPlusDependents: defaultWeightData.TotalWeightSelfPlusDependents,
+		ProGearWeight:                 defaultWeightData.ProGearWeight,
+		ProGearWeightSpouse:           defaultWeightData.ProGearWeightSpouse,
+	}
+
+	// Overwrite default values with those from custom HHG Allowance
+	testdatagen.MergeModels(&hhgAllowance, cHHGAllowance)
+
+	if db != nil {
+		mustCreate(db, &hhgAllowance)
+	}
+
+	return hhgAllowance
+}
+
+// Helper function to retrieve default weight data by grade
+func getDefaultWeightData(grade string) struct {
+	TotalWeightSelf               int
+	TotalWeightSelfPlusDependents int
+	ProGearWeight                 int
+	ProGearWeightSpouse           int
+} {
+	if data, ok := knownAllowances[grade]; ok {
+		return data
+	}
+	return knownAllowances["EMPTY"] // Default to EMPTY if grade not found. This is just dummy default data
+}
+
+// Default allowances CAO December 2024
+var knownAllowances = map[string]struct {
+	TotalWeightSelf               int
+	TotalWeightSelfPlusDependents int
+	ProGearWeight                 int
+	ProGearWeightSpouse           int
+}{
+	"EMPTY":                    {0, 0, 0, 0},
+	"ACADEMY_CADET":            {350, 350, 0, 0},
+	"MIDSHIPMAN":               {350, 350, 0, 0},
+	"AVIATION_CADET":           {7000, 8000, 2000, 500},
+	"E-1":                      {5000, 8000, 2000, 500},
+	"E-2":                      {5000, 8000, 2000, 500},
+	"E-3":                      {5000, 8000, 2000, 500},
+	"E-4":                      {7000, 8000, 2000, 500},
+	"E-5":                      {7000, 9000, 2000, 500},
+	"E-6":                      {8000, 11000, 2000, 500},
+	"E-7":                      {11000, 13000, 2000, 500},
+	"E-8":                      {12000, 14000, 2000, 500},
+	"E-9":                      {13000, 15000, 2000, 500},
+	"E-9SPECIALSENIORENLISTED": {14000, 17000, 2000, 500},
+	"O-1ACADEMYGRADUATE":       {10000, 12000, 2000, 500},
+	"O-2":                      {12500, 13500, 2000, 500},
+	"O-3":                      {13000, 14500, 2000, 500},
+	"O-4":                      {14000, 17000, 2000, 500},
+	"O-5":                      {16000, 17500, 2000, 500},
+	"O-6":                      {18000, 18000, 2000, 500},
+	"O-7":                      {18000, 18000, 2000, 500},
+	"O-8":                      {18000, 18000, 2000, 500},
+	"O-9":                      {18000, 18000, 2000, 500},
+	"O-10":                     {18000, 18000, 2000, 500},
+	"W-1":                      {10000, 12000, 2000, 500},
+	"W-2":                      {12500, 13500, 2000, 500},
+	"W-3":                      {13000, 14500, 2000, 500},
+	"W-4":                      {14000, 17000, 2000, 500},
+	"W-5":                      {16000, 17500, 2000, 500},
+	"CIVILIAN_EMPLOYEE":        {18000, 18000, 2000, 500},
+}
