@@ -38,8 +38,8 @@ func SetupMockFeatureFlagFetcher(flagValue bool) *mocks.FeatureFlagFetcher {
 		mock.AnythingOfType("string"),
 		mock.AnythingOfType("string"),
 		mock.Anything,
-	).Return(func(ctx context.Context, appCtx appcontext.AppContext, key string, flagContext map[string]string) (services.FeatureFlag, error) {
-		return MockGetFlagFunc(ctx, appCtx.Logger(), "user@example.com", key, flagContext, "", flagValue)
+	).Return(func(ctx context.Context, logger *zap.Logger, entityID string, key string, flagContext map[string]string) (services.FeatureFlag, error) {
+		return MockGetFlagFunc(ctx, nil, "user@example.com", key, flagContext, "", flagValue)
 	})
 
 	return mockFeatureFlagFetcher
