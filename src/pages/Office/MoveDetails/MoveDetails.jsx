@@ -390,7 +390,7 @@ const MoveDetails = ({
     } else {
       setIsOconusMove(false);
     }
-  }, [currentDutyLocation, newDutyLocation, isOconusMove, enableUB]);
+  }, [currentDutyLocation, newDutyLocation]);
 
   if (isLoading) return <LoadingPlaceholder />;
   if (isError) return <SomethingWentWrong />;
