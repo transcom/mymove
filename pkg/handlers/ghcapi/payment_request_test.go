@@ -272,6 +272,7 @@ func (suite *HandlerSuite) TestUpdatePaymentRequestStatusHandler() {
 			HandlerConfig:               suite.HandlerConfig(),
 			PaymentRequestStatusUpdater: statusUpdater,
 			PaymentRequestFetcher:       paymentRequestFetcher,
+			PaymentRequestListFetcher:   paymentrequest.NewPaymentRequestListFetcher(),
 		}
 
 		// Validate incoming payload
@@ -310,6 +311,7 @@ func (suite *HandlerSuite) TestUpdatePaymentRequestStatusHandler() {
 			HandlerConfig:               suite.HandlerConfig(),
 			PaymentRequestStatusUpdater: statusUpdater,
 			PaymentRequestFetcher:       paymentRequestFetcher,
+			PaymentRequestListFetcher:   paymentrequest.NewPaymentRequestListFetcher(),
 		}
 
 		// Validate incoming payload
@@ -407,6 +409,7 @@ func (suite *HandlerSuite) TestUpdatePaymentRequestStatusHandler() {
 			HandlerConfig:               suite.HandlerConfig(),
 			PaymentRequestStatusUpdater: paymentRequestStatusUpdater,
 			PaymentRequestFetcher:       paymentRequestFetcher,
+			PaymentRequestListFetcher:   paymentrequest.NewPaymentRequestListFetcher(),
 		}
 
 		// Validate incoming payload
