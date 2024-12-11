@@ -47,7 +47,6 @@ const EditOrdersForm = ({
   const [enableUB, setEnableUB] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [finishedFetchingFF, setFinishedFetchingFF] = useState(false);
-
   const isInitialHasDependentsDisabled =
     initialValues.orders_type === ORDERS_TYPE.STUDENT_TRAVEL ||
     initialValues.orders_type === ORDERS_TYPE.EARLY_RETURN_OF_DEPENDENTS;
