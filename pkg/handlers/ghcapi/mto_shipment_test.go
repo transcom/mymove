@@ -4047,6 +4047,7 @@ func (suite *HandlerSuite) TestUpdateShipmentHandler() {
 		ppmShipmentUpdater := ppmshipment.NewPPMShipmentUpdater(&ppmEstimator, addressCreator, addressUpdater)
 		boatShipmentUpdater := boatshipment.NewBoatShipmentUpdater()
 		mobileHomeShipmentUpdater := mobilehomeshipment.NewMobileHomeShipmentUpdater()
+
 		shipmentUpdater := shipmentorchestrator.NewShipmentUpdater(mtoShipmentUpdater, ppmShipmentUpdater, boatShipmentUpdater, mobileHomeShipmentUpdater)
 		handler := UpdateShipmentHandler{
 			suite.HandlerConfig(),
@@ -4115,6 +4116,7 @@ func (suite *HandlerSuite) TestUpdateShipmentHandler() {
 
 		boatShipmentUpdater := boatshipment.NewBoatShipmentUpdater()
 		mobileHomeShipmentUpdater := mobilehomeshipment.NewMobileHomeShipmentUpdater()
+
 		shipmentUpdater := shipmentorchestrator.NewShipmentUpdater(mtoShipmentUpdater, ppmShipmentUpdater, boatShipmentUpdater, mobileHomeShipmentUpdater)
 		handler := UpdateShipmentHandler{
 			suite.HandlerConfig(),
@@ -4303,6 +4305,7 @@ func (suite *HandlerSuite) TestUpdateShipmentHandler() {
 
 		boatShipmentUpdater := boatshipment.NewBoatShipmentUpdater()
 		mobileHomeShipmentUpdater := mobilehomeshipment.NewMobileHomeShipmentUpdater()
+
 		shipmentUpdater := shipmentorchestrator.NewShipmentUpdater(mtoShipmentUpdater, ppmShipmentUpdater, boatShipmentUpdater, mobileHomeShipmentUpdater)
 		handler := UpdateShipmentHandler{
 			suite.HandlerConfig(),
@@ -4383,6 +4386,7 @@ func (suite *HandlerSuite) TestUpdateShipmentHandler() {
 
 		boatShipmentUpdater := boatshipment.NewBoatShipmentUpdater()
 		mobileHomeShipmentUpdater := mobilehomeshipment.NewMobileHomeShipmentUpdater()
+
 		shipmentUpdater := shipmentorchestrator.NewShipmentUpdater(mtoShipmentUpdater, ppmShipmentUpdater, boatShipmentUpdater, mobileHomeShipmentUpdater)
 		handler := UpdateShipmentHandler{
 			suite.HandlerConfig(),
@@ -4463,6 +4467,7 @@ func (suite *HandlerSuite) TestUpdateShipmentHandler() {
 
 		boatShipmentUpdater := boatshipment.NewBoatShipmentUpdater()
 		mobileHomeShipmentUpdater := mobilehomeshipment.NewMobileHomeShipmentUpdater()
+
 		shipmentUpdater := shipmentorchestrator.NewShipmentUpdater(mtoShipmentUpdater, ppmShipmentUpdater, boatShipmentUpdater, mobileHomeShipmentUpdater)
 		handler := UpdateShipmentHandler{
 			suite.HandlerConfig(),
@@ -4501,6 +4506,7 @@ func (suite *HandlerSuite) TestUpdateShipmentHandler() {
 
 		boatShipmentUpdater := boatshipment.NewBoatShipmentUpdater()
 		mobileHomeShipmentUpdater := mobilehomeshipment.NewMobileHomeShipmentUpdater()
+
 		shipmentUpdater := shipmentorchestrator.NewShipmentUpdater(mtoShipmentUpdater, ppmShipmentUpdater, boatShipmentUpdater, mobileHomeShipmentUpdater)
 		handler := UpdateShipmentHandler{
 			suite.HandlerConfig(),
@@ -4541,6 +4547,7 @@ func (suite *HandlerSuite) TestUpdateShipmentHandler() {
 
 		boatShipmentUpdater := boatshipment.NewBoatShipmentUpdater()
 		mobileHomeShipmentUpdater := mobilehomeshipment.NewMobileHomeShipmentUpdater()
+
 		shipmentUpdater := shipmentorchestrator.NewShipmentUpdater(mtoShipmentUpdater, ppmShipmentUpdater, boatShipmentUpdater, mobileHomeShipmentUpdater)
 		handler := UpdateShipmentHandler{
 			suite.HandlerConfig(),
@@ -4582,6 +4589,7 @@ func (suite *HandlerSuite) TestUpdateShipmentHandler() {
 
 		boatShipmentUpdater := boatshipment.NewBoatShipmentUpdater()
 		mobileHomeShipmentUpdater := mobilehomeshipment.NewMobileHomeShipmentUpdater()
+
 		shipmentUpdater := shipmentorchestrator.NewShipmentUpdater(mtoShipmentUpdater, ppmShipmentUpdater, boatShipmentUpdater, mobileHomeShipmentUpdater)
 		handler := UpdateShipmentHandler{
 			suite.HandlerConfig(),

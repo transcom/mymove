@@ -5,7 +5,10 @@ import (
 
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/pricing"
+	"github.com/transcom/mymove/pkg/route"
 	"github.com/transcom/mymove/pkg/services"
+	"github.com/transcom/mymove/pkg/unit"
 )
 
 // shipmentUpdater is the concrete struct implementing the services.ShipmentUpdater interface
@@ -29,7 +32,7 @@ func NewShipmentUpdater(mtoShipmentUpdater services.MTOShipmentUpdater, ppmShipm
 }
 
 // UpdateShipment updates a shipment, taking into account different shipment types and their needs.
-func (s *shipmentUpdater) UpdateShipment(appCtx appcontext.AppContext, shipment *models.MTOShipment, eTag string, api string) (*models.MTOShipment, error) {
+func (s *shipmentUpdater) UpdateShipment(appCtx appcontext.AppContext, shipment *models.MTOShipment, eTag string, api string, planner route.Planner) (*models.MTOShipment, error) {
 	if err := validateShipment(appCtx, *shipment, s.checks...); err != nil {
 		return nil, err
 	}
@@ -39,8 +42,32 @@ func (s *shipmentUpdater) UpdateShipment(appCtx appcontext.AppContext, shipment 
 	txErr := appCtx.NewTransaction(func(txnAppCtx appcontext.AppContext) (err error) {
 		mtoShipment, err = s.mtoShipmentUpdater.UpdateMTOShipment(txnAppCtx, shipment, eTag, api)
 
+		if mtoShipment.ShipmentType != models.MTOShipmentTypePPM && (shipment.PrimeEstimatedWeight != nil || mtoShipment.PrimeEstimatedWeight != nil) && mtoShipment.Status == models.MTOShipmentStatusApproved {
+			for index, serviceItem := range mtoShipment.MTOServiceItems {
+				var estimatedWeightToUse unit.Pound
+				if shipment.PrimeEstimatedWeight != nil {
+					estimatedWeightToUse = *shipment.PrimeEstimatedWeight
+				} else {
+					estimatedWeightToUse = *mtoShipment.PrimeEstimatedWeight
+				}
+				mtoShipment.MTOServiceItems[index].EstimatedWeight = &estimatedWeightToUse
+				serviceItemEstimatedPrice, err := pricing.FetchServiceItemPrice(appCtx, &serviceItem, *mtoShipment, planner)
+				if serviceItemEstimatedPrice != 0 && err == nil {
+					mtoShipment.MTOServiceItems[index].PricingEstimate = &serviceItemEstimatedPrice
+
+				}
+			}
+		}
+
 		if err != nil {
 			return err
+		}
+
+		if mtoShipment.MTOServiceItems != nil {
+			_, mtoErr := appCtx.DB().ValidateAndUpdate(&mtoShipment.MTOServiceItems)
+			if mtoErr != nil {
+				return mtoErr
+			}
 		}
 
 		isBoatShipment := shipment.ShipmentType == models.MTOShipmentTypeBoatHaulAway || shipment.ShipmentType == models.MTOShipmentTypeBoatTowAway

@@ -5,6 +5,7 @@ package mocks
 import (
 	mock "github.com/stretchr/testify/mock"
 	appcontext "github.com/transcom/mymove/pkg/appcontext"
+	"github.com/transcom/mymove/pkg/route"
 
 	models "github.com/transcom/mymove/pkg/models"
 )
@@ -15,7 +16,7 @@ type ShipmentUpdater struct {
 }
 
 // UpdateShipment provides a mock function with given fields: appCtx, shipment, eTag, api
-func (_m *ShipmentUpdater) UpdateShipment(appCtx appcontext.AppContext, shipment *models.MTOShipment, eTag string, api string) (*models.MTOShipment, error) {
+func (_m *ShipmentUpdater) UpdateShipment(appCtx appcontext.AppContext, shipment *models.MTOShipment, eTag string, api string, planner route.Planner) (*models.MTOShipment, error) {
 	ret := _m.Called(appCtx, shipment, eTag, api)
 
 	if len(ret) == 0 {
