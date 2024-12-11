@@ -156,7 +156,7 @@ const OrdersInfoForm = ({ ordersTypeOptions, initialValues, onSubmit, onBack }) 
           // for the form to prevent state race conditions
           if (e.target.value === '') {
             setFieldValue('has_dependents', '');
-          } else {          
+          } else {
             const fieldValueHasDependents = e.target.value === 'yes';
             setHasDependents(e.target.value === 'yes');
             setFieldValue('has_dependents', fieldValueHasDependents ? 'yes' : 'no');
