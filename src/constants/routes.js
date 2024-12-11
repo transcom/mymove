@@ -4,8 +4,8 @@ export const generalRoutes = {
   REQUEST_ACCOUNT: '/request-account',
   PRIVACY_SECURITY_POLICY_PATH: '/privacy-and-security-policy',
   ACCESSIBILITY_PATH: '/accessibility',
-  QUEUE_SEARCH_PATH: 'Search',
-  BASE_QUEUE_SEARCH_PATH: '/Search',
+  QUEUE_SEARCH_PATH: 'search',
+  BASE_QUEUE_SEARCH_PATH: '/search',
 };
 
 export const customerRoutes = {
@@ -120,6 +120,8 @@ export const tooRoutes = {
   BASE_SHIPMENT_EDIT_PATH: `${BASE_MOVES_PATH}/shipments/:shipmentId`,
   MOVE_QUEUE: `move-queue`,
   BASE_MOVE_QUEUE: `/move-queue`,
+  BASE_DESTINATION_REQUESTS_QUEUE: `/destination-requests`,
+  DESTINATION_REQUESTS_QUEUE: `destination-requests`,
   SHIPMENT_EDIT_PATH: 'shipments/:shipmentId',
   BASE_MOVE_VIEW_PATH: `${BASE_MOVES_PATH}/details`,
   MOVE_VIEW_PATH: 'details',

@@ -5,12 +5,14 @@ import (
 	"time"
 
 	"github.com/gofrs/uuid"
+	"github.com/stretchr/testify/mock"
 
 	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/models/roles"
 	"github.com/transcom/mymove/pkg/services"
+	"github.com/transcom/mymove/pkg/services/mocks"
 	moveservice "github.com/transcom/mymove/pkg/services/move"
 	officeuserservice "github.com/transcom/mymove/pkg/services/office_user"
 	"github.com/transcom/mymove/pkg/testdatagen"
@@ -579,6 +581,449 @@ func (suite *OrderServiceSuite) TestListOrders() {
 		suite.Equal(createdPPM.Shipment.MoveTaskOrder.Locator, moves[0].Locator)
 	})
 }
+
+func (suite *OrderServiceSuite) TestListDestinationRequestsOrders() {
+	setupTestData := func(officeUserGBLOC string) (models.OfficeUser, auth.Session) {
+
+		officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), []factory.Customization{
+			{
+				Model: models.TransportationOffice{
+					Gbloc: officeUserGBLOC,
+				},
+			},
+		}, []roles.RoleType{roles.RoleTypeTOO})
+
+		factory.FetchOrBuildPostalCodeToGBLOC(suite.DB(), "99501", officeUser.TransportationOffice.Gbloc)
+
+		fetcher := &mocks.OfficeUserGblocFetcher{}
+		fetcher.On("FetchGblocForOfficeUser",
+			mock.AnythingOfType("*appcontext.appContext"),
+			officeUser.ID,
+		).Return(officeUserGBLOC, nil)
+
+		session := auth.Session{
+			ApplicationName: auth.OfficeApp,
+			Roles:           officeUser.User.Roles,
+			OfficeUserID:    officeUser.ID,
+			IDToken:         "fake_token",
+			AccessToken:     "fakeAccessToken",
+		}
+
+		return officeUser, session
+	}
+
+	orderFetcher := NewOrderFetcher()
+
+	suite.Run("returns moves for KKFA GBLOC when destination address is in KKFA GBLOC", func() {
+		officeUser, session := setupTestData("KKFA")
+
+		postalCode := "90210"
+		factory.FetchOrBuildPostalCodeToGBLOC(suite.DB(), "90210", "KKFA")
+
+		// setting up two moves, each with requested destination SIT service items
+		destinationAddress := factory.BuildAddress(suite.DB(), []factory.Customization{
+			{
+				Model: models.Address{PostalCode: postalCode},
+			},
+		}, nil)
+
+		move := factory.BuildAvailableToPrimeMove(suite.DB(), []factory.Customization{
+			{
+				Model: models.Move{
+					Status: models.MoveStatusAPPROVALSREQUESTED,
+					Show:   models.BoolPointer(true),
+				},
+			}}, nil)
+
+		shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					Status: models.MTOShipmentStatusApproved,
+				},
+			},
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+			{
+				Model:    destinationAddress,
+				LinkOnly: true,
+			},
+		}, nil)
+
+		// destination service item in SUBMITTED status
+		factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model: models.ReService{
+					Code: models.ReServiceCodeDDFSIT,
+				},
+			},
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+			{
+				Model:    shipment,
+				LinkOnly: true,
+			},
+			{
+				Model: models.MTOServiceItem{
+					Status: models.MTOServiceItemStatusSubmitted,
+				},
+			},
+		}, nil)
+
+		destinationAddress2 := factory.BuildAddress(suite.DB(), []factory.Customization{
+			{
+				Model: models.Address{PostalCode: postalCode},
+			},
+		}, nil)
+		move2 := factory.BuildAvailableToPrimeMove(suite.DB(), []factory.Customization{
+			{
+				Model: models.Move{
+					Status: models.MoveStatusAPPROVALSREQUESTED,
+					Show:   models.BoolPointer(true),
+				},
+			}}, nil)
+
+		shipment2 := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					Status: models.MTOShipmentStatusApproved,
+				},
+			},
+			{
+				Model:    move2,
+				LinkOnly: true,
+			},
+			{
+				Model:    destinationAddress2,
+				LinkOnly: true,
+			},
+		}, nil)
+
+		// destination shuttle
+		factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model: models.ReService{
+					Code: models.ReServiceCodeDDSHUT,
+				},
+			},
+			{
+				Model:    move2,
+				LinkOnly: true,
+			},
+			{
+				Model:    shipment2,
+				LinkOnly: true,
+			},
+			{
+				Model: models.MTOServiceItem{
+					Status: models.MTOServiceItemStatusSubmitted,
+				},
+			},
+		}, nil)
+
+		moves, moveCount, err := orderFetcher.ListDestinationRequestsOrders(
+			suite.AppContextWithSessionForTest(&session), officeUser.ID, roles.RoleTypeTOO, &services.ListOrderParams{},
+		)
+
+		suite.FatalNoError(err)
+		suite.Equal(2, moveCount)
+		suite.Len(moves, 2)
+	})
+
+	suite.Run("returns moves for MBFL GBLOC including USAF/SF in Alaska Zone II", func() {
+		officeUser, session := setupTestData("MBFL")
+
+		// Create a USAF move in Alaska Zone II
+		// this is a hard coded uuid that is a us_post_region_cities_id within AK Zone II
+		zone2UUID, err := uuid.FromString("66768964-e0de-41f3-b9be-7ef32e4ae2b4")
+		suite.FatalNoError(err)
+		zone4UUID, err := uuid.FromString("78a6f230-9a3a-46ed-aa48-2e3decfe70ff")
+		suite.FatalNoError(err)
+		airForce := models.AffiliationAIRFORCE
+		spaceForce := models.AffiliationSPACEFORCE
+		postalCode := "99501"
+
+		// setting up two moves, each with requested destination SIT service items
+		destinationAddress := factory.BuildAddress(suite.DB(), []factory.Customization{
+			{
+				Model: models.Address{
+					PostalCode:         postalCode,
+					UsPostRegionCityID: &zone2UUID,
+				},
+			},
+		}, nil)
+
+		destinationAddress2 := factory.BuildAddress(suite.DB(), []factory.Customization{
+			{
+				Model: models.Address{
+					PostalCode:         postalCode,
+					UsPostRegionCityID: &zone4UUID,
+				},
+			},
+		}, nil)
+
+		// a move associated with an air force customer
+		move := factory.BuildAvailableToPrimeMove(suite.DB(), []factory.Customization{
+			{
+				Model: models.Move{
+					Status: models.MoveStatusAPPROVALSREQUESTED,
+					Show:   models.BoolPointer(true),
+				},
+			}, {
+				Model: models.ServiceMember{
+					Affiliation: &airForce,
+				},
+			},
+		}, nil)
+
+		shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					Status: models.MTOShipmentStatusApproved,
+				},
+			},
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+			{
+				Model:    destinationAddress,
+				LinkOnly: true,
+			},
+		}, nil)
+
+		// destination service item in SUBMITTED status
+		factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model: models.ReService{
+					Code: models.ReServiceCodeDDFSIT,
+				},
+			},
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+			{
+				Model:    shipment,
+				LinkOnly: true,
+			},
+			{
+				Model: models.MTOServiceItem{
+					Status: models.MTOServiceItemStatusSubmitted,
+				},
+			},
+		}, nil)
+
+		// Create a move outside Alaska Zone II
+		move2 := factory.BuildAvailableToPrimeMove(suite.DB(), []factory.Customization{
+			{
+				Model: models.Move{
+					Status: models.MoveStatusAPPROVALSREQUESTED,
+					Show:   models.BoolPointer(true),
+				},
+			}, {
+				Model: models.ServiceMember{
+					Affiliation: &spaceForce,
+				},
+			},
+		}, nil)
+
+		shipment2 := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					Status: models.MTOShipmentStatusApproved,
+				},
+			},
+			{
+				Model:    move2,
+				LinkOnly: true,
+			},
+			{
+				Model:    destinationAddress2,
+				LinkOnly: true,
+			},
+		}, nil)
+
+		// destination service item in SUBMITTED status
+		factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model: models.ReService{
+					Code: models.ReServiceCodeDDFSIT,
+				},
+			},
+			{
+				Model:    move2,
+				LinkOnly: true,
+			},
+			{
+				Model:    shipment2,
+				LinkOnly: true,
+			},
+			{
+				Model: models.MTOServiceItem{
+					Status: models.MTOServiceItemStatusSubmitted,
+				},
+			},
+		}, nil)
+
+		moves, moveCount, err := orderFetcher.ListDestinationRequestsOrders(
+			suite.AppContextWithSessionForTest(&session), officeUser.ID, roles.RoleTypeTOO, &services.ListOrderParams{},
+		)
+
+		// we should get both moves back because one is in Zone II & the other is within the postal code GBLOC
+		suite.FatalNoError(err)
+		suite.Equal(2, moveCount)
+		suite.Len(moves, 2)
+	})
+
+	suite.Run("returns moves for JEAT GBLOC excluding USAF/SF in Alaska Zone II", func() {
+		officeUser, session := setupTestData("JEAT")
+
+		// Create a USAF move in Alaska Zone II
+		zone2UUID, err := uuid.FromString("66768964-e0de-41f3-b9be-7ef32e4ae2b4")
+		suite.FatalNoError(err)
+		army := models.AffiliationARMY
+		airForce := models.AffiliationAIRFORCE
+		postalCode := "99501"
+		postalCode2 := "99703"
+
+		// setting up two moves, each with requested destination SIT service items
+		destinationAddress := factory.BuildAddress(suite.DB(), []factory.Customization{
+			{
+				Model: models.Address{
+					PostalCode:         postalCode2,
+					UsPostRegionCityID: &zone2UUID,
+				},
+			},
+		}, nil)
+
+		destinationAddress2 := factory.BuildAddress(suite.DB(), []factory.Customization{
+			{
+				Model: models.Address{
+					PostalCode:         postalCode,
+					UsPostRegionCityID: &zone2UUID,
+				},
+			},
+		}, nil)
+
+		// a move associated with an air force customer within Alaska Zone II
+		move := factory.BuildAvailableToPrimeMove(suite.DB(), []factory.Customization{
+			{
+				Model: models.Move{
+					Status: models.MoveStatusAPPROVALSREQUESTED,
+					Show:   models.BoolPointer(true),
+				},
+			}, {
+				Model: models.ServiceMember{
+					Affiliation: &airForce,
+				},
+			},
+		}, nil)
+
+		shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					Status: models.MTOShipmentStatusApproved,
+				},
+			},
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+			{
+				Model:    destinationAddress,
+				LinkOnly: true,
+			},
+		}, nil)
+
+		// destination service item in SUBMITTED status
+		factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model: models.ReService{
+					Code: models.ReServiceCodeDDFSIT,
+				},
+			},
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+			{
+				Model:    shipment,
+				LinkOnly: true,
+			},
+			{
+				Model: models.MTOServiceItem{
+					Status: models.MTOServiceItemStatusSubmitted,
+				},
+			},
+		}, nil)
+
+		// Create a move in Zone II, but not an air force or space force service member
+		move2 := factory.BuildAvailableToPrimeMove(suite.DB(), []factory.Customization{
+			{
+				Model: models.Move{
+					Status: models.MoveStatusAPPROVALSREQUESTED,
+					Show:   models.BoolPointer(true),
+				},
+			}, {
+				Model: models.ServiceMember{
+					Affiliation: &army,
+				},
+			},
+		}, nil)
+
+		shipment2 := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					Status: models.MTOShipmentStatusApproved,
+				},
+			},
+			{
+				Model:    move2,
+				LinkOnly: true,
+			},
+			{
+				Model:    destinationAddress2,
+				LinkOnly: true,
+			},
+		}, nil)
+
+		// destination service item in SUBMITTED status
+		factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model: models.ReService{
+					Code: models.ReServiceCodeDDFSIT,
+				},
+			},
+			{
+				Model:    move2,
+				LinkOnly: true,
+			},
+			{
+				Model:    shipment2,
+				LinkOnly: true,
+			},
+			{
+				Model: models.MTOServiceItem{
+					Status: models.MTOServiceItemStatusSubmitted,
+				},
+			},
+		}, nil)
+
+		moves, moveCount, err := orderFetcher.ListDestinationRequestsOrders(
+			suite.AppContextWithSessionForTest(&session), officeUser.ID, roles.RoleTypeTOO, &services.ListOrderParams{},
+		)
+
+		// we should only get one move back because the AF move is in Zone II which goes into the MBFL queue NOT the JEAT
+		suite.FatalNoError(err)
+		suite.Equal(1, moveCount)
+		suite.Len(moves, 1)
+	})
+}
+
 func (suite *OrderServiceSuite) TestListOrderWithAssignedUserSingle() {
 	// Under test: ListOrders
 	// Set up:           Make a move, assign one to an SC office user
