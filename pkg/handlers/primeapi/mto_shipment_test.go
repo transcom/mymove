@@ -34,6 +34,8 @@ import (
 	"github.com/transcom/mymove/pkg/testhelpers"
 )
 
+var handlerConfig *handlers.Config
+
 func (suite *HandlerSuite) TestUpdateShipmentDestinationAddressHandler() {
 	req := httptest.NewRequest("POST", "/mto-shipments/{mtoShipmentID}/shipment-address-updates", nil)
 
@@ -61,7 +63,7 @@ func (suite *HandlerSuite) TestUpdateShipmentDestinationAddressHandler() {
 		subtestData := makeSubtestData()
 		mockCreator := mocks.ShipmentAddressUpdateRequester{}
 		handler := UpdateShipmentDestinationAddressHandler{
-			suite.HandlerConfig(),
+			handlerConfig,
 			&mockCreator,
 		}
 		// InvalidInputError should generate an UnprocessableEntity response error
@@ -93,7 +95,7 @@ func (suite *HandlerSuite) TestUpdateShipmentDestinationAddressHandler() {
 		subtestData := makeSubtestData()
 		mockCreator := mocks.ShipmentAddressUpdateRequester{}
 		handler := UpdateShipmentDestinationAddressHandler{
-			suite.HandlerConfig(),
+			handlerConfig,
 			&mockCreator,
 		}
 		// NewConflictError should generate a RequestConflict response error
@@ -123,7 +125,7 @@ func (suite *HandlerSuite) TestUpdateShipmentDestinationAddressHandler() {
 		subtestData := makeSubtestData()
 		mockCreator := mocks.ShipmentAddressUpdateRequester{}
 		handler := UpdateShipmentDestinationAddressHandler{
-			suite.HandlerConfig(),
+			handlerConfig,
 			&mockCreator,
 		}
 		// NewNotFoundError should generate a RequestNotFound response error
@@ -153,7 +155,7 @@ func (suite *HandlerSuite) TestUpdateShipmentDestinationAddressHandler() {
 		subtestData := makeSubtestData()
 		mockCreator := mocks.ShipmentAddressUpdateRequester{}
 		handler := UpdateShipmentDestinationAddressHandler{
-			suite.HandlerConfig(),
+			handlerConfig,
 			&mockCreator,
 		}
 		// NewQueryError should generate an InternalServerError response error
@@ -197,6 +199,7 @@ func ClearNonUpdateFields(mtoShipment *models.MTOShipment) *primemessages.MTOShi
 }
 
 func (suite *HandlerSuite) TestUpdateMTOShipmentStatusHandler() {
+	db := suite.DB()
 	builder := query.NewQueryBuilder()
 	fetcher := fetch.NewFetcher(builder)
 	planner := &routemocks.Planner{}
@@ -211,14 +214,14 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentStatusHandler() {
 	addressCreator := address.NewAddressCreator()
 	moveWeights := moveservices.NewMoveWeights(mtoshipment.NewShipmentReweighRequester())
 	mockFeatureFlagFetcher := testhelpers.SetupMockFeatureFlagFetcher(true)
-	creator := paymentrequest.NewPaymentRequestCreator(planner, ghcrateengine.NewServiceItemPricer(suite.HandlerConfig().FeatureFlagFetcher()))
+	handlerConfig = suite.HandlerConfig()
+	creator := paymentrequest.NewPaymentRequestCreator(planner, ghcrateengine.NewServiceItemPricer(handlerConfig.FeatureFlagFetcher()))
 	statusUpdater := paymentrequest.NewPaymentRequestStatusUpdater(query.NewQueryBuilder())
 	recalculator := paymentrequest.NewPaymentRequestRecalculator(creator, statusUpdater)
 	paymentRequestShipmentRecalculator := paymentrequest.NewPaymentRequestShipmentRecalculator(recalculator)
 	req := httptest.NewRequest("PATCH", fmt.Sprintf("/mto_shipments/%s/status", uuid.Nil.String()), nil)
 
 	setupTestData := func() (UpdateMTOShipmentStatusHandler, models.MTOShipment) {
-		handlerConfig := suite.HandlerConfig()
 		handlerConfig.SetHHGPlanner(planner)
 		planner := &routemocks.Planner{}
 		planner.On("ZipTransitDistance",
@@ -230,12 +233,12 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentStatusHandler() {
 			handlerConfig,
 			mtoshipment.NewPrimeMTOShipmentUpdater(builder, fetcher, planner, moveRouter, moveWeights, suite.TestNotificationSender(), paymentRequestShipmentRecalculator, addressUpdater, addressCreator),
 			mtoshipment.NewMTOShipmentStatusUpdater(builder,
-				mtoserviceitem.NewMTOServiceItemCreator(planner, builder, moveRouter, ghcrateengine.NewDomesticUnpackPricer(suite.HandlerConfig().FeatureFlagFetcher()), ghcrateengine.NewDomesticPackPricer(suite.HandlerConfig().FeatureFlagFetcher()), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(suite.HandlerConfig().FeatureFlagFetcher()), ghcrateengine.NewDomesticDestinationPricer(suite.HandlerConfig().FeatureFlagFetcher()), ghcrateengine.NewFuelSurchargePricer(), mockFeatureFlagFetcher), planner, handlerConfig.FeatureFlagFetcher()),
+				mtoserviceitem.NewMTOServiceItemCreator(planner, builder, moveRouter, ghcrateengine.NewDomesticUnpackPricer(handlerConfig.FeatureFlagFetcher()), ghcrateengine.NewDomesticPackPricer(handlerConfig.FeatureFlagFetcher()), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(handlerConfig.FeatureFlagFetcher()), ghcrateengine.NewDomesticDestinationPricer(handlerConfig.FeatureFlagFetcher()), ghcrateengine.NewFuelSurchargePricer(), mockFeatureFlagFetcher), planner, handlerConfig.FeatureFlagFetcher()),
 		}
 
 		// Set up Prime-available move
-		move := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
-		shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+		move := factory.BuildAvailableToPrimeMove(db, nil, nil)
+		shipment := factory.BuildMTOShipment(db, []factory.Customization{
 			{
 				Model: models.MTOShipment{
 					Status: models.MTOShipmentStatusCancellationRequested,
@@ -302,7 +305,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentStatusHandler() {
 	suite.Run("404 FAIL - Shipment was not Prime-available", func() {
 		handler, _ := setupTestData()
 
-		nonPrimeShipment := factory.BuildMTOShipment(suite.DB(), nil, nil) // default is non-Prime available
+		nonPrimeShipment := factory.BuildMTOShipment(db, nil, nil) // default is non-Prime available
 		params := mtoshipmentops.UpdateMTOShipmentStatusParams{
 			HTTPRequest:   req,
 			MtoShipmentID: *handlers.FmtUUID(nonPrimeShipment.ID),
@@ -327,7 +330,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentStatusHandler() {
 	suite.Run("412 FAIL - Stale eTag", func() {
 		handler, shipment := setupTestData()
 
-		staleShipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+		staleShipment := factory.BuildMTOShipment(db, []factory.Customization{
 			{
 				Model: models.MTOShipment{
 					MoveTaskOrderID: shipment.MoveTaskOrderID,
@@ -362,7 +365,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentStatusHandler() {
 		handler, shipment := setupTestData()
 
 		// Create a shipment in Canceled Status
-		staleShipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+		staleShipment := factory.BuildMTOShipment(db, []factory.Customization{
 			{
 				Model: models.MTOShipment{
 					MoveTaskOrderID: shipment.MoveTaskOrderID,
@@ -408,6 +411,8 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentStatusHandler() {
 }
 
 func (suite *HandlerSuite) TestDeleteMTOShipmentHandler() {
+	db := suite.DB()
+	handlerConfig = suite.HandlerConfig()
 	setupTestData := func() DeleteMTOShipmentHandler {
 		builder := query.NewQueryBuilder()
 		moveRouter, err := moveservices.NewMoveRouter()
@@ -447,11 +452,10 @@ func (suite *HandlerSuite) TestDeleteMTOShipmentHandler() {
 		ppmEstimator := &mocks.PPMEstimator{}
 		moveTaskOrderUpdater := movetaskorder.NewMoveTaskOrderUpdater(
 			builder,
-			mtoserviceitem.NewMTOServiceItemCreator(planner, builder, moveRouter, ghcrateengine.NewDomesticUnpackPricer(suite.HandlerConfig().FeatureFlagFetcher()), ghcrateengine.NewDomesticPackPricer(suite.HandlerConfig().FeatureFlagFetcher()), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(suite.HandlerConfig().FeatureFlagFetcher()), ghcrateengine.NewDomesticDestinationPricer(suite.HandlerConfig().FeatureFlagFetcher()), ghcrateengine.NewFuelSurchargePricer(), mockFeatureFlagFetcher),
+			mtoserviceitem.NewMTOServiceItemCreator(planner, builder, moveRouter, ghcrateengine.NewDomesticUnpackPricer(handlerConfig.FeatureFlagFetcher()), ghcrateengine.NewDomesticPackPricer(handlerConfig.FeatureFlagFetcher()), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(handlerConfig.FeatureFlagFetcher()), ghcrateengine.NewDomesticDestinationPricer(handlerConfig.FeatureFlagFetcher()), ghcrateengine.NewFuelSurchargePricer(), mockFeatureFlagFetcher),
 			moveRouter, setUpSignedCertificationCreatorMock(nil, nil), setUpSignedCertificationUpdaterMock(nil, nil), ppmEstimator,
 		)
 		deleter := mtoshipment.NewPrimeShipmentDeleter(moveTaskOrderUpdater)
-		handlerConfig := suite.HandlerConfig()
 		handler := DeleteMTOShipmentHandler{
 			handlerConfig,
 			deleter,
@@ -463,7 +467,7 @@ func (suite *HandlerSuite) TestDeleteMTOShipmentHandler() {
 	suite.Run("Returns 204 when all validations pass", func() {
 		handler := setupTestData()
 		now := time.Now()
-		ppmShipment := factory.BuildPPMShipment(suite.DB(), []factory.Customization{
+		ppmShipment := factory.BuildPPMShipment(db, []factory.Customization{
 			{
 				Model: models.Move{
 					AvailableToPrimeAt: &now,
@@ -493,7 +497,7 @@ func (suite *HandlerSuite) TestDeleteMTOShipmentHandler() {
 	suite.Run("Returns a 403 when deleting a non-PPM shipment", func() {
 		handler := setupTestData()
 		now := time.Now()
-		shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+		shipment := factory.BuildMTOShipment(db, []factory.Customization{
 			{
 				Model: models.Move{
 					AvailableToPrimeAt: &now,
@@ -520,7 +524,7 @@ func (suite *HandlerSuite) TestDeleteMTOShipmentHandler() {
 
 	suite.Run("Returns 404 when deleting a move not available to prime", func() {
 		handler := setupTestData()
-		ppmShipment := factory.BuildPPMShipment(suite.DB(), []factory.Customization{
+		ppmShipment := factory.BuildPPMShipment(db, []factory.Customization{
 			{
 				Model: models.Move{
 					AvailableToPrimeAt: nil,
@@ -553,7 +557,6 @@ func (suite *HandlerSuite) TestDeleteMTOShipmentHandler() {
 		}, nil)
 		deleter := &mocks.ShipmentDeleter{}
 		deleter.On("DeleteShipment", mock.AnythingOfType("*appcontext.appContext"), shipment.ID).Return(uuid.Nil, apperror.ConflictError{})
-		handlerConfig := suite.HandlerConfig()
 		handler := DeleteMTOShipmentHandler{
 			handlerConfig,
 			deleter,
@@ -583,7 +586,6 @@ func (suite *HandlerSuite) TestDeleteMTOShipmentHandler() {
 		}, nil)
 		deleter := &mocks.ShipmentDeleter{}
 		deleter.On("DeleteShipment", mock.AnythingOfType("*appcontext.appContext"), shipment.ID).Return(uuid.Nil, apperror.UnprocessableEntityError{})
-		handlerConfig := suite.HandlerConfig()
 		handler := DeleteMTOShipmentHandler{
 			handlerConfig,
 			deleter,
@@ -613,7 +615,6 @@ func (suite *HandlerSuite) TestDeleteMTOShipmentHandler() {
 		}, nil)
 		deleter := &mocks.ShipmentDeleter{}
 		deleter.On("DeleteShipment", mock.AnythingOfType("*appcontext.appContext"), shipment.ID).Return(uuid.Nil, apperror.EventError{})
-		handlerConfig := suite.HandlerConfig()
 		handler := DeleteMTOShipmentHandler{
 			handlerConfig,
 			deleter,
