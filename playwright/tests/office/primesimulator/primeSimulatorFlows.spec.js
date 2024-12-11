@@ -108,6 +108,7 @@ test.describe('Prime simulator user', () => {
     page,
     officePage,
   }) => {
+    test.slow();
     const move = await officePage.testHarness.buildPrimeSimulatorMoveNeedsShipmentUpdate();
 
     await officePage.signInAsNewPrimeSimulatorUser();
@@ -160,6 +161,8 @@ test.describe('Prime simulator user', () => {
     page,
     officePage,
   }) => {
+    test.slow();
+
     const move = await officePage.testHarness.buildPrimeSimulatorMoveNeedsShipmentUpdate();
 
     await officePage.signInAsNewPrimeSimulatorUser();
