@@ -25,6 +25,7 @@ func (suite *EntitlementsServiceSuite) TestGetWeightAllotment() {
 		suite.Equal(hhgAllowance.TotalWeightSelfPlusDependents, allotment.TotalWeightSelfPlusDependents)
 		suite.Equal(hhgAllowance.ProGearWeight, allotment.ProGearWeight)
 		suite.Equal(hhgAllowance.ProGearWeightSpouse, allotment.ProGearWeightSpouse)
+		suite.Equal(hhgAllowance.PayGrade.Grade, pg.Grade)
 	})
 
 	suite.Run("If pay grade does not exist, return an error", func() {
