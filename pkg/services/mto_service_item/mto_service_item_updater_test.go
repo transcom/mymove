@@ -2345,50 +2345,6 @@ func (suite *MTOServiceItemServiceSuite) TestUpdateMTOServiceItemStatus() {
 	})
 }
 
-func (suite *MTOServiceItemServiceSuite) setupServiceItemData() {
-	startDate := time.Date(2020, time.January, 1, 12, 0, 0, 0, time.UTC)
-	endDate := time.Date(2020, time.December, 31, 12, 0, 0, 0, time.UTC)
-
-	testdatagen.FetchOrMakeReContractYear(suite.DB(), testdatagen.Assertions{
-		ReContractYear: models.ReContractYear{
-			StartDate: startDate,
-			EndDate:   endDate,
-		},
-	})
-
-	originalDomesticServiceArea := testdatagen.FetchOrMakeReDomesticServiceArea(suite.DB(), testdatagen.Assertions{
-		ReDomesticServiceArea: models.ReDomesticServiceArea{
-			ServiceArea:      "004",
-			ServicesSchedule: 2,
-		},
-		ReContract: testdatagen.FetchOrMakeReContract(suite.DB(), testdatagen.Assertions{}),
-	})
-
-	testdatagen.FetchOrMakeReZip3(suite.DB(), testdatagen.Assertions{
-		ReZip3: models.ReZip3{
-			Contract:            originalDomesticServiceArea.Contract,
-			ContractID:          originalDomesticServiceArea.ContractID,
-			DomesticServiceArea: originalDomesticServiceArea,
-			Zip3:                "902",
-		},
-	})
-
-	testdatagen.FetchOrMakeReDomesticLinehaulPrice(suite.DB(), testdatagen.Assertions{
-		ReDomesticLinehaulPrice: models.ReDomesticLinehaulPrice{
-			Contract:              originalDomesticServiceArea.Contract,
-			ContractID:            originalDomesticServiceArea.ContractID,
-			DomesticServiceArea:   originalDomesticServiceArea,
-			DomesticServiceAreaID: originalDomesticServiceArea.ID,
-			WeightLower:           unit.Pound(500),
-			WeightUpper:           unit.Pound(9999),
-			MilesLower:            250,
-			MilesUpper:            9999,
-			PriceMillicents:       unit.Millicents(606800),
-			IsPeakPeriod:          false,
-		},
-	})
-}
-
 // Helper function to create a rejected service item
 func buildRejectedServiceItem(suite *MTOServiceItemServiceSuite, reServiceCode models.ReServiceCode, reason string, contactDatePlusGracePeriod, aMonthAgo, now, sitRequestedDelivery time.Time, requestApprovalsRequestedStatus bool) models.MTOServiceItem {
 	return factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
