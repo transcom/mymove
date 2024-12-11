@@ -28,6 +28,7 @@ func TestEntitlement(t *testing.T) {
 			NonTemporaryStorage:            nil,
 			PrivatelyOwnedVehicle:          nil,
 			DBAuthorizedWeight:             nil,
+			UBAllowance:                    nil,
 			StorageInTransit:               nil,
 			RequiredMedicalEquipmentWeight: 0,
 			OrganizationalClothingAndIndividualEquipment: false,
@@ -56,6 +57,7 @@ func TestEntitlement(t *testing.T) {
 		assert.Equal(t, int64(0), payload.StorageInTransit)
 		assert.Equal(t, int64(0), payload.TotalDependents)
 		assert.Equal(t, int64(0), payload.TotalWeight)
+		assert.Equal(t, int64(0), *payload.UnaccompaniedBaggageAllowance)
 	})
 
 	t.Run("Success - Returns the entitlement payload with all optional fields populated", func(t *testing.T) {
@@ -66,6 +68,7 @@ func TestEntitlement(t *testing.T) {
 			NonTemporaryStorage:            handlers.FmtBool(true),
 			PrivatelyOwnedVehicle:          handlers.FmtBool(true),
 			DBAuthorizedWeight:             handlers.FmtInt(10000),
+			UBAllowance:                    handlers.FmtInt(400),
 			StorageInTransit:               handlers.FmtInt(45),
 			RequiredMedicalEquipmentWeight: 500,
 			OrganizationalClothingAndIndividualEquipment: true,
@@ -87,6 +90,7 @@ func TestEntitlement(t *testing.T) {
 		assert.True(t, *payload.NonTemporaryStorage)
 		assert.True(t, *payload.PrivatelyOwnedVehicle)
 		assert.Equal(t, int64(10000), *payload.AuthorizedWeight)
+		assert.Equal(t, int64(400), *payload.UnaccompaniedBaggageAllowance)
 		assert.Equal(t, int64(9000), payload.TotalWeight)
 		assert.Equal(t, int64(45), payload.StorageInTransit)
 		assert.Equal(t, int64(500), payload.RequiredMedicalEquipmentWeight)
@@ -105,6 +109,7 @@ func TestEntitlement(t *testing.T) {
 			NonTemporaryStorage:            handlers.FmtBool(true),
 			PrivatelyOwnedVehicle:          handlers.FmtBool(true),
 			DBAuthorizedWeight:             handlers.FmtInt(10000),
+			UBAllowance:                    handlers.FmtInt(400),
 			StorageInTransit:               handlers.FmtInt(45),
 			RequiredMedicalEquipmentWeight: 500,
 			OrganizationalClothingAndIndividualEquipment: true,
@@ -126,6 +131,7 @@ func TestEntitlement(t *testing.T) {
 		assert.True(t, *payload.NonTemporaryStorage)
 		assert.True(t, *payload.PrivatelyOwnedVehicle)
 		assert.Equal(t, int64(10000), *payload.AuthorizedWeight)
+		assert.Equal(t, int64(400), *payload.UnaccompaniedBaggageAllowance)
 		assert.Equal(t, int64(7000), payload.TotalWeight)
 		assert.Equal(t, int64(45), payload.StorageInTransit)
 		assert.Equal(t, int64(500), payload.RequiredMedicalEquipmentWeight)
