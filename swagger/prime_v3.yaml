@@ -711,11 +711,7 @@ definitions:
         items:
           $ref: '#/definitions/MTOServiceItem'
       pickupAddress:
-        description: The address where the movers should pick up this shipment.
-        allOf:
-          - $ref: '#/definitions/Address'
-      destinationAddress:
-        description: Where the movers should deliver this shipment.
+        description: The primary address where the movers should pick up this shipment.
         allOf:
           - $ref: '#/definitions/Address'
       secondaryPickupAddress:
@@ -726,12 +722,16 @@ definitions:
         description: The third address where the movers should pick up this shipment.
         allOf:
           - $ref: '#/definitions/Address'
+      destinationAddress:
+        description: primary location the movers should deliver this shipment.
+        allOf:
+          - $ref: '#/definitions/Address'
       secondaryDestinationAddress:
-        description: The second address where the movers should deliver this shipment.
+        description: second location where the movers should deliver this shipment.
         allOf:
           - $ref: '#/definitions/Address'
       tertiaryDestinationAddress:
-        description: The third address where the movers should deliver this shipment.
+        description: third location where the movers should deliver this shipment.
         allOf:
           - $ref: '#/definitions/Address'
       shipmentType:
@@ -789,13 +789,13 @@ definitions:
           - $ref: '#/definitions/Address'
       secondaryPickupAddress:
         description: >-
-          An optional secondary pickup location address near the origin where
+          An optional secondary Pickup Address address near the origin where
           additional goods exist.
         allOf:
           - $ref: '#/definitions/Address'
       tertiaryPickupAddress:
         description: >-
-          An optional tertiary pickup location address near the origin where
+          An optional tertiary Pickup Address address near the origin where
           additional goods exist.
         allOf:
           - $ref: '#/definitions/Address'
@@ -1061,7 +1061,7 @@ definitions:
         x-nullable: true
       secondaryPickupAddress:
         description: >
-          An optional secondary pickup location near the origin where additional
+          An optional secondary Pickup Address near the origin where additional
           goods exist.
         allOf:
           - $ref: '#/definitions/Address'
@@ -1071,7 +1071,7 @@ definitions:
         x-nullable: true
       tertiaryPickupAddress:
         description: >
-          An optional third pickup location near the origin where additional
+          An optional third Pickup Address near the origin where additional
           goods exist.
         allOf:
           - $ref: '#/definitions/Address'
@@ -1248,6 +1248,18 @@ definitions:
           the customer during onboarding when they enter shipment details.
         allOf:
           - $ref: '#/definitions/Address'
+      secondaryPickupAddress:
+        description: >-
+          A second pickup address for this shipment, if the customer entered
+          one. An optional field.
+        allOf:
+          - $ref: '#/definitions/Address'
+      tertiaryPickupAddress:
+        description: >-
+          A third pickup address for this shipment, if the customer entered one.
+          An optional field.
+        allOf:
+          - $ref: '#/definitions/Address'
       destinationAddress:
         description: >
           Where the movers should deliver this shipment. Often provided by the
@@ -1262,24 +1274,10 @@ definitions:
           final destination due to the shipment being diverted or placed in SIT.
         allOf:
           - $ref: '#/definitions/Address'
-      destinationType:
-        $ref: '#/definitions/DestinationType'
-      secondaryPickupAddress:
-        description: >-
-          A second pickup address for this shipment, if the customer entered
-          one. An optional field.
-        allOf:
-          - $ref: '#/definitions/Address'
       secondaryDeliveryAddress:
         description: >-
           A second delivery address for this shipment, if the customer entered
           one. An optional field.
-        allOf:
-          - $ref: '#/definitions/Address'
-      tertiaryPickupAddress:
-        description: >-
-          A third pickup address for this shipment, if the customer entered one.
-          An optional field.
         allOf:
           - $ref: '#/definitions/Address'
       tertiaryDeliveryAddress:
@@ -1288,6 +1286,8 @@ definitions:
           one. An optional field.
         allOf:
           - $ref: '#/definitions/Address'
+      destinationType:
+        $ref: '#/definitions/DestinationType'
       storageFacility:
         allOf:
           - x-nullable: true
@@ -1347,7 +1347,7 @@ definitions:
   UpdateShipmentDestinationAddress:
     description: >-
       UpdateShipmentDestinationAddress contains the fields required for the
-      prime to request an update for the destination address on an MTO Shipment.
+      prime to request an update for the delivery address on an MTO Shipment.
     type: object
     properties:
       newAddress:
@@ -1646,6 +1646,10 @@ definitions:
         title: isOconus
         x-nullable: true
         example: false
+      usPostRegionCitiesID:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
     required:
       - streetAddress1
       - city
@@ -2632,6 +2636,10 @@ definitions:
         title: County
         x-nullable: true
         example: LOS ANGELES
+      usPostRegionCitiesID:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
     required:
       - city
       - state
@@ -3033,10 +3041,10 @@ definitions:
       - APPROVED
   ShipmentAddressUpdate:
     description: >
-      This represents a destination address change request made by the Prime
-      that is either auto-approved or requires review if the pricing criteria
-      has changed. If criteria has changed, then it must be approved or rejected
-      by a TOO.
+      This represents a delivery address change request made by the Prime that
+      is either auto-approved or requires review if the pricing criteria has
+      changed. If criteria has changed, then it must be approved or rejected by
+      a TOO.
     type: object
     properties:
       id:
@@ -3072,14 +3080,14 @@ definitions:
       oldSitDistanceBetween:
         description: >-
           The distance between the original SIT address and the previous/old
-          destination address of shipment
+          delivery address of shipment
         example: 50
         minimum: 0
         type: integer
       newSitDistanceBetween:
         description: >-
           The distance between the original SIT address and requested new
-          destination address of shipment
+          delivery address of shipment
         example: 88
         minimum: 0
         type: integer

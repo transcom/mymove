@@ -7,6 +7,7 @@ import (
 	"github.com/gobuffalo/validate/v3"
 	"github.com/gofrs/uuid"
 
+	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/unit"
 )
@@ -86,6 +87,110 @@ func (suite *PPMShipmentSuite) TestValidationRules() {
 		})
 	})
 
+	suite.Run("checkPPMShipmentSequenceValidForUpdate add tertiary address without secondary Invalid", func() {
+		tertiaryDestinationAddress := factory.BuildAddress(suite.DB(), nil, nil)
+
+		ppmShipmentToUpdateWith := models.PPMShipment{
+			TertiaryDestinationAddress: &tertiaryDestinationAddress,
+		}
+
+		olderPPMShipment := factory.BuildPPMShipment(suite.DB(), nil, nil)
+
+		checker := checkPPMShipmentSequenceValidForUpdate()
+		err := checker.Validate(suite.AppContextForTest(), ppmShipmentToUpdateWith, &olderPPMShipment, nil)
+		suite.Error(err)
+	})
+
+	suite.Run("checkPPMShipmentSequenceValidForUpdate add secondary address Valid", func() {
+		secondaryPickupAddress := factory.BuildAddress(suite.DB(), nil, nil)
+
+		ppmShipmentToUpdateWith := models.PPMShipment{
+			SecondaryPickupAddress: &secondaryPickupAddress,
+		}
+
+		olderPPMShipment := factory.BuildPPMShipment(suite.DB(), nil, nil)
+
+		checker := checkPPMShipmentSequenceValidForUpdate()
+		err := checker.Validate(suite.AppContextForTest(), ppmShipmentToUpdateWith, &olderPPMShipment, nil)
+		suite.NoError(err)
+	})
+
+	suite.Run("checkPPMShipmentSequenceValidForUpdate remove secondary address Valid", func() {
+		secondaryPickupAddress := factory.BuildAddress(suite.DB(), nil, nil)
+
+		ppmShipmentToUpdateWith := models.PPMShipment{
+			SecondaryPickupAddress: &secondaryPickupAddress,
+		}
+
+		olderPPMShipment := factory.BuildPPMShipment(suite.DB(), nil, nil)
+
+		checker := checkPPMShipmentSequenceValidForUpdate()
+		err := checker.Validate(suite.AppContextForTest(), ppmShipmentToUpdateWith, &olderPPMShipment, nil)
+		suite.NoError(err)
+	})
+
+	suite.Run("checkPPMShipmentSequenceValidForUpdate Valid", func() {
+		tertiaryPickupAddress := factory.BuildAddress(suite.DB(), nil, nil)
+
+		ppmShipmentToUpdateWith := models.PPMShipment{
+			SecondaryPickupAddress: &tertiaryPickupAddress,
+		}
+
+		olderPPMShipment := factory.BuildPPMShipment(suite.DB(), nil, nil)
+
+		checker := checkPPMShipmentSequenceValidForUpdate()
+		err := checker.Validate(suite.AppContextForTest(), ppmShipmentToUpdateWith, &olderPPMShipment, nil)
+		suite.NoError(err)
+	})
+
+	suite.Run("checkPPMShipmentSequenceValidForCreate No Secondary Address With Tertiary Invalid", func() {
+		tertiaryPickupAddress := factory.BuildAddress(suite.DB(), nil, nil)
+
+		newPPMShipment := factory.BuildPPMShipment(suite.DB(), nil, nil)
+		newPPMShipment.TertiaryPickupAddress = &tertiaryPickupAddress
+
+		checker := checkPPMShipmentSequenceValidForCreate()
+		err := checker.Validate(suite.AppContextForTest(), newPPMShipment, nil, nil)
+		suite.Error(err)
+	})
+
+	suite.Run("checkPPMShipmentSequenceValidForCreate Primary Address Only Valid", func() {
+
+		newPPMShipment := factory.BuildPPMShipment(suite.DB(), nil, nil)
+
+		checker := checkPPMShipmentSequenceValidForCreate()
+		err := checker.Validate(suite.AppContextForTest(), newPPMShipment, nil, nil)
+		suite.NoError(err)
+	})
+
+	suite.Run("checkPPMShipmentSequenceValidForCreate with Secondary Address Only Valid", func() {
+		secondaryPickupAddress := factory.BuildAddress(suite.DB(), nil, nil)
+
+		newPPMShipment := factory.BuildPPMShipment(suite.DB(), nil, nil)
+		newPPMShipment.SecondaryPickupAddress = &secondaryPickupAddress
+
+		checker := checkPPMShipmentSequenceValidForCreate()
+		err := checker.Validate(suite.AppContextForTest(), newPPMShipment, nil, nil)
+		suite.NoError(err)
+	})
+
+	suite.Run("checkPPMShipmentSequenceValidForCreate AllFields Valid", func() {
+		secondaryPickupAddress := factory.BuildAddress(suite.DB(), nil, nil)
+		secondaryDestinationAddress := factory.BuildAddress(suite.DB(), nil, nil)
+		TertiaryDestinationAddress := factory.BuildAddress(suite.DB(), nil, nil)
+		tertiaryPickupAddress := factory.BuildAddress(suite.DB(), nil, nil)
+
+		newPPMShipment := factory.BuildPPMShipment(suite.DB(), nil, nil)
+		newPPMShipment.SecondaryPickupAddress = &secondaryPickupAddress
+		newPPMShipment.TertiaryPickupAddress = &tertiaryPickupAddress
+		newPPMShipment.SecondaryDestinationAddress = &secondaryDestinationAddress
+		newPPMShipment.TertiaryDestinationAddress = &TertiaryDestinationAddress
+
+		checker := checkPPMShipmentSequenceValidForCreate()
+		err := checker.Validate(suite.AppContextForTest(), newPPMShipment, nil, nil)
+		suite.NoError(err)
+	})
+
 	suite.Run("checkPPMShipmentID", func() {
 		suite.Run("success", func() {
 			id := uuid.Must(uuid.NewV4())
@@ -158,7 +263,7 @@ func (suite *PPMShipmentSuite) TestValidationRules() {
 			City:           "Des Moines",
 			State:          "IA",
 			PostalCode:     "50309",
-			County:         "POLK",
+			County:         models.StringPointer("POLK"),
 		}
 		destinationAddress := &models.Address{
 			StreetAddress1: "987 Other Avenue",
@@ -167,7 +272,7 @@ func (suite *PPMShipmentSuite) TestValidationRules() {
 			City:           "Fort Eisenhower",
 			State:          "GA",
 			PostalCode:     "50309",
-			County:         "COLUMBIA",
+			County:         models.StringPointer("COLUMBIA"),
 		}
 
 		suite.Run("success", func() {

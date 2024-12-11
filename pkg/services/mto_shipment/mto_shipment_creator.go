@@ -36,19 +36,19 @@ func NewMTOShipmentCreatorV1(builder createMTOShipmentQueryBuilder, fetcher serv
 		fetcher,
 		moveRouter,
 		addressCreator,
-		[]validator{protectV1Diversion()},
+		[]validator{protectV1Diversion(), MTOShipmentHasTertiaryAddressWithNoSecondaryAddressCreate()},
 	}
 }
 
 // NewMTOShipmentCreator creates a new struct with the service dependencies
-// This is utilized in Prime API V2
+// This is utilized in Prime API V2 and Prime API V3
 func NewMTOShipmentCreatorV2(builder createMTOShipmentQueryBuilder, fetcher services.Fetcher, moveRouter services.MoveRouter, addressCreator services.AddressCreator) services.MTOShipmentCreator {
 	return &mtoShipmentCreator{
 		builder,
 		fetcher,
 		moveRouter,
 		addressCreator,
-		[]validator{checkDiversionValid(), childDiversionPrimeWeightRule()},
+		[]validator{checkDiversionValid(), childDiversionPrimeWeightRule(), MTOShipmentHasTertiaryAddressWithNoSecondaryAddressCreate()},
 	}
 }
 
@@ -170,24 +170,25 @@ func (f mtoShipmentCreator) CreateMTOShipment(appCtx appcontext.AppContext, ship
 		}
 
 		shipment.DestinationAddress = &models.Address{
-			StreetAddress1: "N/A", // can't use an empty string given the model validations
-			City:           newDutyLocationAddress.City,
-			State:          newDutyLocationAddress.State,
-			PostalCode:     newDutyLocationAddress.PostalCode,
-			Country:        newDutyLocationAddress.Country,
-			County:         county,
+			StreetAddress1:     "N/A", // can't use an empty string given the model validations
+			City:               newDutyLocationAddress.City,
+			State:              newDutyLocationAddress.State,
+			PostalCode:         newDutyLocationAddress.PostalCode,
+			Country:            newDutyLocationAddress.Country,
+			County:             county,
+			UsPostRegionCityID: newDutyLocationAddress.UsPostRegionCityID,
 		}
 	}
 
 	// Populate address county information
-	if shipment.PickupAddress != nil && shipment.PickupAddress.County == "" {
+	if shipment.PickupAddress != nil && shipment.PickupAddress.County == nil {
 		shipment.PickupAddress.County, err = models.FindCountyByZipCode(appCtx.DB(), shipment.PickupAddress.PostalCode)
 		if err != nil {
 			return nil, err
 		}
 	}
 
-	if shipment.DestinationAddress != nil && shipment.DestinationAddress.County == "" {
+	if shipment.DestinationAddress != nil && shipment.DestinationAddress.County == nil {
 		shipment.DestinationAddress.County, err = models.FindCountyByZipCode(appCtx.DB(), shipment.DestinationAddress.PostalCode)
 		if err != nil {
 			return nil, err

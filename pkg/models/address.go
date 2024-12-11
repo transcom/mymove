@@ -11,6 +11,8 @@ import (
 	"github.com/gofrs/uuid"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
+
+	"github.com/transcom/mymove/pkg/utils"
 )
 
 const STREET_ADDRESS_1_NOT_PROVIDED string = "n/a"
@@ -28,9 +30,9 @@ type Address struct {
 	PostalCode         string            `json:"postal_code" db:"postal_code"`
 	CountryId          *uuid.UUID        `json:"country_id" db:"country_id"`
 	Country            *Country          `belongs_to:"re_countries" fk_id:"country_id"`
-	County             string            `json:"county" db:"county"`
+	County             *string           `json:"county" db:"county"`
 	IsOconus           *bool             `json:"is_oconus" db:"is_oconus"`
-	UsPostRegionCityId *uuid.UUID        `json:"us_post_region_cities_id" db:"us_post_region_cities_id"`
+	UsPostRegionCityID *uuid.UUID        `json:"us_post_region_cities_id" db:"us_post_region_cities_id"`
 	UsPostRegionCity   *UsPostRegionCity `belongs_to:"us_post_region_cities" fk_id:"us_post_region_cities_id"`
 }
 
@@ -65,7 +67,6 @@ func (a *Address) Validate(_ *pop.Connection) (*validate.Errors, error) {
 		&validators.StringIsPresent{Field: a.City, Name: "City"},
 		&validators.StringIsPresent{Field: a.State, Name: "State"},
 		&validators.StringIsPresent{Field: a.PostalCode, Name: "PostalCode"},
-		&validators.StringIsPresent{Field: a.County, Name: "County"},
 	), nil
 }
 
@@ -168,6 +169,15 @@ func (a *Address) Copy() *Address {
 		return &address
 	}
 	return nil
+}
+func IsAddressEmpty(a *Address) bool {
+	return a == nil || ((utils.IsNullOrWhiteSpace(&a.StreetAddress1) || IsDefaultAddressValue(a.StreetAddress1)) &&
+		(utils.IsNullOrWhiteSpace(&a.City) || IsDefaultAddressValue(a.City)) &&
+		(utils.IsNullOrWhiteSpace(&a.State) || IsDefaultAddressValue(a.State)) &&
+		(utils.IsNullOrWhiteSpace(&a.PostalCode) || IsDefaultAddressValue(a.PostalCode)))
+}
+func IsDefaultAddressValue(s string) bool {
+	return s == "n/a"
 }
 
 // Check if an address is CONUS or OCONUS

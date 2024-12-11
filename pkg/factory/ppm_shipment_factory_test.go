@@ -24,6 +24,7 @@ func (suite *FactorySuite) TestBuildPPMShipment() {
 			ProGearWeight:          models.PoundPointer(unit.Pound(1987)),
 			SpouseProGearWeight:    models.PoundPointer(unit.Pound(498)),
 			EstimatedIncentive:     models.CentPointer(unit.Cents(1000000)),
+			MaxIncentive:           models.CentPointer(unit.Cents(2000000)),
 			HasRequestedAdvance:    models.BoolPointer(true),
 			AdvanceAmountRequested: models.CentPointer(unit.Cents(598700)),
 			PickupAddress: &models.Address{
@@ -31,28 +32,14 @@ func (suite *FactorySuite) TestBuildPPMShipment() {
 				City:           "Des Moines",
 				State:          "IA",
 				PostalCode:     "50309",
-				County:         "POLK",
-			},
-			SecondaryPickupAddress: &models.Address{
-				StreetAddress1: "123 Main Street",
-				City:           "Des Moines",
-				State:          "IA",
-				PostalCode:     "50309",
-				County:         "POLK",
+				County:         models.StringPointer("POLK"),
 			},
 			DestinationAddress: &models.Address{
 				StreetAddress1: "123 New Street",
 				City:           "Fort Eisenhower",
 				State:          "GA",
 				PostalCode:     "30813",
-				County:         "COLUMBIA",
-			},
-			SecondaryDestinationAddress: &models.Address{
-				StreetAddress1: "1234 Main Street",
-				City:           "Fort Eisenhower",
-				State:          "GA",
-				PostalCode:     "30813",
-				County:         "COLUMBIA",
+				County:         models.StringPointer("COLUMBIA"),
 			},
 		}
 
@@ -76,6 +63,7 @@ func (suite *FactorySuite) TestBuildPPMShipment() {
 		suite.Equal(defaultPPM.ProGearWeight, ppmShipment.ProGearWeight)
 		suite.Equal(defaultPPM.SpouseProGearWeight, ppmShipment.SpouseProGearWeight)
 		suite.Equal(defaultPPM.EstimatedIncentive, ppmShipment.EstimatedIncentive)
+		suite.Equal(defaultPPM.MaxIncentive, ppmShipment.MaxIncentive)
 		suite.Equal(defaultPPM.HasRequestedAdvance, ppmShipment.HasRequestedAdvance)
 		suite.Equal(defaultPPM.AdvanceAmountRequested, ppmShipment.AdvanceAmountRequested)
 	})
@@ -103,6 +91,7 @@ func (suite *FactorySuite) TestBuildPPMShipment() {
 		suite.Nil(ppmShipment.ProGearWeight)
 		suite.Nil(ppmShipment.SpouseProGearWeight)
 		suite.Nil(ppmShipment.EstimatedIncentive)
+		suite.Nil(ppmShipment.MaxIncentive)
 		suite.Nil(ppmShipment.HasRequestedAdvance)
 		suite.Nil(ppmShipment.AdvanceAmountRequested)
 	})
@@ -122,6 +111,7 @@ func (suite *FactorySuite) TestBuildPPMShipment() {
 			EstimatedWeight:        models.PoundPointer(unit.Pound(3000)),
 			SpouseProGearWeight:    models.PoundPointer(unit.Pound(123)),
 			EstimatedIncentive:     models.CentPointer(unit.Cents(1005000)),
+			MaxIncentive:           models.CentPointer(unit.Cents(2005000)),
 			HasRequestedAdvance:    models.BoolPointer(true),
 			AdvanceAmountRequested: models.CentPointer(unit.Cents(600000)),
 			SITExpected:            models.BoolPointer(true),
@@ -150,6 +140,7 @@ func (suite *FactorySuite) TestBuildPPMShipment() {
 		suite.Equal(customPPM.ProGearWeight, ppmShipment.ProGearWeight)
 		suite.Equal(customPPM.SpouseProGearWeight, ppmShipment.SpouseProGearWeight)
 		suite.Equal(customPPM.EstimatedIncentive, ppmShipment.EstimatedIncentive)
+		suite.Equal(customPPM.MaxIncentive, ppmShipment.MaxIncentive)
 		suite.Equal(customPPM.HasRequestedAdvance, ppmShipment.HasRequestedAdvance)
 		suite.Equal(customPPM.AdvanceAmountRequested, ppmShipment.AdvanceAmountRequested)
 		// Check that the address and phoneline were customized

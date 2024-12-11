@@ -65,7 +65,7 @@ const EditPPMHeaderSummaryModal = ({ sectionType, sectionInfo, onClose, onSubmit
             <h3>{title}</h3>
           </ModalTitle>
           <Formik validationSchema={validationSchema} initialValues={initialValues} onSubmit={onSubmit}>
-            {({ isValid, handleChange, setFieldTouched, values }) => {
+            {({ isValid, handleChange, setFieldTouched, values, ...formikProps }) => {
               const { isActualExpenseReimbursement } = values;
               return (
                 <Form>
@@ -97,7 +97,8 @@ const EditPPMHeaderSummaryModal = ({ sectionType, sectionInfo, onClose, onSubmit
                         name="pickupAddress"
                         legend="Pickup Address"
                         className={styles.AddressFieldSet}
-                        formikFunctionsToValidatePostalCodeOnChange={{ handleChange, setFieldTouched }}
+                        locationLookup
+                        formikProps={formikProps}
                       />
                     )}
                     {editItemName === 'destinationAddress' && (
@@ -105,7 +106,8 @@ const EditPPMHeaderSummaryModal = ({ sectionType, sectionInfo, onClose, onSubmit
                         name="destinationAddress"
                         legend="Delivery Address"
                         className={styles.AddressFieldSet}
-                        formikFunctionsToValidatePostalCodeOnChange={{ handleChange, setFieldTouched }}
+                        locationLookup
+                        formikProps={formikProps}
                       />
                     )}
                     {editItemName === 'isActualExpenseReimbursement' && (

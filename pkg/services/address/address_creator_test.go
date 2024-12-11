@@ -138,12 +138,11 @@ func (suite *AddressSuite) TestAddressCreator() {
 		suite.IsType(apperror.InvalidInputError{}, err)
 		suite.Equal("error creating an address", err.Error())
 		errors := err.(apperror.InvalidInputError)
-		suite.Len(errors.ValidationErrors.Errors, 5)
+		suite.Len(errors.ValidationErrors.Errors, 4)
 		suite.Contains(errors.ValidationErrors.Keys(), "street_address1")
 		suite.Contains(errors.ValidationErrors.Keys(), "city")
 		suite.Contains(errors.ValidationErrors.Keys(), "state")
 		suite.Contains(errors.ValidationErrors.Keys(), "postal_code")
-		suite.Contains(errors.ValidationErrors.Keys(), "county")
 	})
 
 	suite.Run("Fails when zip code is invalid", func() {

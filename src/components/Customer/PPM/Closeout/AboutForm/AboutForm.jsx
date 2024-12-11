@@ -75,12 +75,13 @@ const AboutForm = ({ mtoShipment, onBack, onSubmit }) => {
       city: mtoShipment?.ppmShipment?.w2Address?.city || '',
       state: mtoShipment?.ppmShipment?.w2Address?.state || '',
       postalCode: mtoShipment?.ppmShipment?.w2Address?.postalCode || '',
+      usPostRegionCitiesID: mtoShipment?.ppmShipment?.w2Address?.usPostRegionCitiesID || '',
     },
   };
 
   return (
     <Formik initialValues={initialValues} validationSchema={validationSchema} onSubmit={onSubmit}>
-      {({ isValid, isSubmitting, handleChange, handleSubmit, setFieldTouched, values }) => {
+      {({ isValid, isSubmitting, handleSubmit, values, ...formikProps }) => {
         return (
           <div className={classnames(ppmStyles.formContainer, styles.AboutForm)}>
             <Form className={classnames(formStyles.form, ppmStyles.form, styles.W2Address)} data-testid="aboutForm">
@@ -102,12 +103,13 @@ const AboutForm = ({ mtoShipment, onBack, onSubmit }) => {
                   name="pickupAddress"
                   legend="Pickup Address"
                   labelHint="Required"
+                  locationLookup
+                  formikProps={formikProps}
                   className={styles.AddressFieldSet}
-                  formikFunctionsToValidatePostalCodeOnChange={{ handleChange, setFieldTouched }}
                   render={(fields) => (
                     <>
                       {fields}
-                      <h4>Second pickup location</h4>
+                      <h4>Second Pickup Address</h4>
                       <FormGroup>
                         <p>
                           Will you pick up any belongings from a second address? (Must be near the pickup address.
@@ -121,7 +123,7 @@ const AboutForm = ({ mtoShipment, onBack, onSubmit }) => {
                             label="Yes"
                             name="hasSecondaryPickupAddress"
                             value="true"
-                            title="Yes, there is a second pickup location"
+                            title="Yes, there is a second pickup address"
                             checked={values.hasSecondaryPickupAddress === 'true'}
                           />
                           <Field
@@ -131,7 +133,7 @@ const AboutForm = ({ mtoShipment, onBack, onSubmit }) => {
                             label="No"
                             name="hasSecondaryPickupAddress"
                             value="false"
-                            title="No, there is not a second pickup location"
+                            title="No, there is not a second pickup address"
                             checked={values.hasSecondaryPickupAddress !== 'true'}
                           />
                         </div>
@@ -140,7 +142,8 @@ const AboutForm = ({ mtoShipment, onBack, onSubmit }) => {
                         <AddressFields
                           name="secondaryPickupAddress"
                           labelHint="Required"
-                          formikFunctionsToValidatePostalCodeOnChange={{ handleChange, setFieldTouched }}
+                          locationLookup
+                          formikProps={formikProps}
                         />
                       )}
                     </>
@@ -148,17 +151,18 @@ const AboutForm = ({ mtoShipment, onBack, onSubmit }) => {
                 />
                 <AddressFields
                   name="destinationAddress"
-                  legend="Destination Address"
+                  legend="Delivery Address"
                   className={styles.AddressFieldSet}
                   labelHint="Required"
-                  formikFunctionsToValidatePostalCodeOnChange={{ handleChange, setFieldTouched }}
+                  locationLookup
+                  formikProps={formikProps}
                   render={(fields) => (
                     <>
                       {fields}
-                      <h4>Second destination address</h4>
+                      <h4>Second Delivery Address</h4>
                       <FormGroup>
                         <p>
-                          Will you deliver any belongings to a second address? (Must be near the destination address.
+                          Will you deliver any belongings to a second address? (Must be near the delivery address.
                           Subject to approval.)
                         </p>
                         <div className={formStyles.radioGroup}>
@@ -169,7 +173,7 @@ const AboutForm = ({ mtoShipment, onBack, onSubmit }) => {
                             label="Yes"
                             name="hasSecondaryDestinationAddress"
                             value="true"
-                            title="Yes, there is a second destination location"
+                            title="Yes, there is a second delivery address"
                             checked={values.hasSecondaryDestinationAddress === 'true'}
                           />
                           <Field
@@ -179,7 +183,7 @@ const AboutForm = ({ mtoShipment, onBack, onSubmit }) => {
                             label="No"
                             name="hasSecondaryDestinationAddress"
                             value="false"
-                            title="No, there is not a second destination location"
+                            title="No, there is not a second delivery address"
                             checked={values.hasSecondaryDestinationAddress !== 'true'}
                           />
                         </div>
@@ -187,8 +191,9 @@ const AboutForm = ({ mtoShipment, onBack, onSubmit }) => {
                       {values.hasSecondaryDestinationAddress === 'true' && (
                         <AddressFields
                           name="secondaryDestinationAddress"
-                          formikFunctionsToValidatePostalCodeOnChange={{ handleChange, setFieldTouched }}
                           labelHint="Required"
+                          locationLookup
+                          formikProps={formikProps}
                         />
                       )}
                     </>
@@ -238,7 +243,13 @@ const AboutForm = ({ mtoShipment, onBack, onSubmit }) => {
                 </FormGroup>
                 <h2>W-2 address</h2>
                 <p>What is the address on your W-2?</p>
-                <AddressFields name={formFieldsName} className={styles.AddressFieldSet} labelHint="Required" />
+                <AddressFields
+                  name={formFieldsName}
+                  className={styles.AddressFieldSet}
+                  labelHint="Required"
+                  locationLookup
+                  formikProps={formikProps}
+                />
               </SectionWrapper>
               <div className={ppmStyles.buttonContainer}>
                 <Button className={ppmStyles.backButton} type="button" onClick={onBack} secondary outline>
