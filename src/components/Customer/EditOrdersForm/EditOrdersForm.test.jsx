@@ -700,7 +700,11 @@ describe('EditOrdersForm component', () => {
   });
 
   it('has dependents is yes and disabled when order type is student travel', async () => {
+    isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(true));
+
     render(<EditOrdersForm {...testProps} />);
+
+    await waitFor(() => expect(screen.queryByText('Loading, please wait...')).not.toBeInTheDocument());
 
     await userEvent.selectOptions(screen.getByLabelText(/Orders type/), ORDERS_TYPE.STUDENT_TRAVEL);
 
@@ -717,6 +721,8 @@ describe('EditOrdersForm component', () => {
   it('has dependents is yes and disabled when order type is early return', async () => {
     render(<EditOrdersForm {...testProps} />);
 
+    await waitFor(() => expect(screen.queryByText('Loading, please wait...')).not.toBeInTheDocument());
+
     await userEvent.selectOptions(screen.getByLabelText(/Orders type/), ORDERS_TYPE.EARLY_RETURN_OF_DEPENDENTS);
 
     const hasDependentsYes = screen.getByLabelText('Yes');
@@ -731,6 +737,8 @@ describe('EditOrdersForm component', () => {
 
   it('has dependents becomes disabled and then re-enabled for order type student travel', async () => {
     render(<EditOrdersForm {...testProps} />);
+
+    await waitFor(() => expect(screen.queryByText('Loading, please wait...')).not.toBeInTheDocument());
 
     // set order type to perm change and verify the "has dependents" state
     await userEvent.selectOptions(screen.getByLabelText(/Orders type/), 'PERMANENT_CHANGE_OF_STATION');
@@ -764,6 +772,8 @@ describe('EditOrdersForm component', () => {
 
   it('has dependents becomes disabled and then re-enabled for order type early return', async () => {
     render(<EditOrdersForm {...testProps} />);
+
+    await waitFor(() => expect(screen.queryByText('Loading, please wait...')).not.toBeInTheDocument());
 
     // set order type to perm change and verify the "has dependents" state
     await userEvent.selectOptions(screen.getByLabelText(/Orders type/), 'PERMANENT_CHANGE_OF_STATION');
