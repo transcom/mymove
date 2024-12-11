@@ -185,6 +185,14 @@ func DutyLocation(dutyLocation *models.DutyLocation) *primev2messages.DutyLocati
 	return &payload
 }
 
+// Country payload
+func Country(country *models.Country) *string {
+	if country == nil {
+		return nil
+	}
+	return &country.Country
+}
+
 // Address payload
 func Address(address *models.Address) *primev2messages.Address {
 	if address == nil {
@@ -198,7 +206,7 @@ func Address(address *models.Address) *primev2messages.Address {
 		City:           &address.City,
 		State:          &address.State,
 		PostalCode:     &address.PostalCode,
-		Country:        address.Country,
+		Country:        Country(address.Country),
 		County:         &address.County,
 		ETag:           etag.GenerateEtag(address.UpdatedAt),
 	}
@@ -407,33 +415,34 @@ func PPMShipment(ppmShipment *models.PPMShipment) *primev2messages.PPMShipment {
 	}
 
 	payloadPPMShipment := &primev2messages.PPMShipment{
-		ID:                          *handlers.FmtUUID(ppmShipment.ID),
-		ShipmentID:                  *handlers.FmtUUID(ppmShipment.ShipmentID),
-		CreatedAt:                   strfmt.DateTime(ppmShipment.CreatedAt),
-		UpdatedAt:                   strfmt.DateTime(ppmShipment.UpdatedAt),
-		Status:                      primev2messages.PPMShipmentStatus(ppmShipment.Status),
-		ExpectedDepartureDate:       handlers.FmtDate(ppmShipment.ExpectedDepartureDate),
-		ActualMoveDate:              handlers.FmtDatePtr(ppmShipment.ActualMoveDate),
-		SubmittedAt:                 handlers.FmtDateTimePtr(ppmShipment.SubmittedAt),
-		ReviewedAt:                  handlers.FmtDateTimePtr(ppmShipment.ReviewedAt),
-		ApprovedAt:                  handlers.FmtDateTimePtr(ppmShipment.ApprovedAt),
-		ActualPickupPostalCode:      ppmShipment.ActualPickupPostalCode,
-		ActualDestinationPostalCode: ppmShipment.ActualDestinationPostalCode,
-		SitExpected:                 ppmShipment.SITExpected,
-		SitEstimatedWeight:          handlers.FmtPoundPtr(ppmShipment.SITEstimatedWeight),
-		SitEstimatedEntryDate:       handlers.FmtDatePtr(ppmShipment.SITEstimatedEntryDate),
-		SitEstimatedDepartureDate:   handlers.FmtDatePtr(ppmShipment.SITEstimatedDepartureDate),
-		SitEstimatedCost:            handlers.FmtCost(ppmShipment.SITEstimatedCost),
-		EstimatedWeight:             handlers.FmtPoundPtr(ppmShipment.EstimatedWeight),
-		EstimatedIncentive:          handlers.FmtCost(ppmShipment.EstimatedIncentive),
-		HasProGear:                  ppmShipment.HasProGear,
-		ProGearWeight:               handlers.FmtPoundPtr(ppmShipment.ProGearWeight),
-		SpouseProGearWeight:         handlers.FmtPoundPtr(ppmShipment.SpouseProGearWeight),
-		HasRequestedAdvance:         ppmShipment.HasRequestedAdvance,
-		AdvanceAmountRequested:      handlers.FmtCost(ppmShipment.AdvanceAmountRequested),
-		HasReceivedAdvance:          ppmShipment.HasReceivedAdvance,
-		AdvanceAmountReceived:       handlers.FmtCost(ppmShipment.AdvanceAmountReceived),
-		ETag:                        etag.GenerateEtag(ppmShipment.UpdatedAt),
+		ID:                           *handlers.FmtUUID(ppmShipment.ID),
+		ShipmentID:                   *handlers.FmtUUID(ppmShipment.ShipmentID),
+		CreatedAt:                    strfmt.DateTime(ppmShipment.CreatedAt),
+		UpdatedAt:                    strfmt.DateTime(ppmShipment.UpdatedAt),
+		Status:                       primev2messages.PPMShipmentStatus(ppmShipment.Status),
+		ExpectedDepartureDate:        handlers.FmtDate(ppmShipment.ExpectedDepartureDate),
+		ActualMoveDate:               handlers.FmtDatePtr(ppmShipment.ActualMoveDate),
+		SubmittedAt:                  handlers.FmtDateTimePtr(ppmShipment.SubmittedAt),
+		ReviewedAt:                   handlers.FmtDateTimePtr(ppmShipment.ReviewedAt),
+		ApprovedAt:                   handlers.FmtDateTimePtr(ppmShipment.ApprovedAt),
+		ActualPickupPostalCode:       ppmShipment.ActualPickupPostalCode,
+		ActualDestinationPostalCode:  ppmShipment.ActualDestinationPostalCode,
+		SitExpected:                  ppmShipment.SITExpected,
+		SitEstimatedWeight:           handlers.FmtPoundPtr(ppmShipment.SITEstimatedWeight),
+		SitEstimatedEntryDate:        handlers.FmtDatePtr(ppmShipment.SITEstimatedEntryDate),
+		SitEstimatedDepartureDate:    handlers.FmtDatePtr(ppmShipment.SITEstimatedDepartureDate),
+		SitEstimatedCost:             handlers.FmtCost(ppmShipment.SITEstimatedCost),
+		EstimatedWeight:              handlers.FmtPoundPtr(ppmShipment.EstimatedWeight),
+		EstimatedIncentive:           handlers.FmtCost(ppmShipment.EstimatedIncentive),
+		HasProGear:                   ppmShipment.HasProGear,
+		ProGearWeight:                handlers.FmtPoundPtr(ppmShipment.ProGearWeight),
+		SpouseProGearWeight:          handlers.FmtPoundPtr(ppmShipment.SpouseProGearWeight),
+		HasRequestedAdvance:          ppmShipment.HasRequestedAdvance,
+		AdvanceAmountRequested:       handlers.FmtCost(ppmShipment.AdvanceAmountRequested),
+		HasReceivedAdvance:           ppmShipment.HasReceivedAdvance,
+		AdvanceAmountReceived:        handlers.FmtCost(ppmShipment.AdvanceAmountReceived),
+		IsActualExpenseReimbursement: ppmShipment.IsActualExpenseReimbursement,
+		ETag:                         etag.GenerateEtag(ppmShipment.UpdatedAt),
 	}
 
 	if ppmShipment.SITLocation != nil {
@@ -441,7 +450,19 @@ func PPMShipment(ppmShipment *models.PPMShipment) *primev2messages.PPMShipment {
 		payloadPPMShipment.SitLocation = &sitLocation
 	}
 
+	if ppmShipment.IsActualExpenseReimbursement != nil {
+		payloadPPMShipment.IsActualExpenseReimbursement = ppmShipment.IsActualExpenseReimbursement
+	}
+
 	return payloadPPMShipment
+}
+
+// MarketCode payload
+func MarketCode(marketCode *models.MarketCode) string {
+	if marketCode == nil {
+		return "" // Or a default string value
+	}
+	return string(*marketCode)
 }
 
 func MTOShipmentWithoutServiceItems(mtoShipment *models.MTOShipment) *primev2messages.MTOShipmentWithoutServiceItems {
@@ -476,6 +497,7 @@ func MTOShipmentWithoutServiceItems(mtoShipment *models.MTOShipment) *primev2mes
 		ETag:                             etag.GenerateEtag(mtoShipment.UpdatedAt),
 		OriginSitAuthEndDate:             (*strfmt.Date)(mtoShipment.OriginSITAuthEndDate),
 		DestinationSitAuthEndDate:        (*strfmt.Date)(mtoShipment.DestinationSITAuthEndDate),
+		MarketCode:                       MarketCode(&mtoShipment.MarketCode),
 	}
 
 	// Set up address payloads
@@ -611,6 +633,46 @@ func MTOServiceItem(mtoServiceItem *models.MTOServiceItem) primev2messages.MTOSe
 			Width:  crate.Width.Int32Ptr(),
 		}
 		payload = &cratingSI
+
+	case models.ReServiceCodeICRT, models.ReServiceCodeIUCRT:
+		item := GetDimension(mtoServiceItem.Dimensions, models.DimensionTypeItem)
+		crate := GetDimension(mtoServiceItem.Dimensions, models.DimensionTypeCrate)
+		cratingSI := primev2messages.MTOServiceItemInternationalCrating{
+			ReServiceCode:   handlers.FmtString(string(mtoServiceItem.ReService.Code)),
+			Description:     mtoServiceItem.Description,
+			Reason:          mtoServiceItem.Reason,
+			StandaloneCrate: mtoServiceItem.StandaloneCrate,
+			ExternalCrate:   mtoServiceItem.ExternalCrate,
+		}
+		cratingSI.Item.MTOServiceItemDimension = primev2messages.MTOServiceItemDimension{
+			ID:     strfmt.UUID(item.ID.String()),
+			Height: item.Height.Int32Ptr(),
+			Length: item.Length.Int32Ptr(),
+			Width:  item.Width.Int32Ptr(),
+		}
+		cratingSI.Crate.MTOServiceItemDimension = primev2messages.MTOServiceItemDimension{
+			ID:     strfmt.UUID(crate.ID.String()),
+			Height: crate.Height.Int32Ptr(),
+			Length: crate.Length.Int32Ptr(),
+			Width:  crate.Width.Int32Ptr(),
+		}
+		if mtoServiceItem.ReService.Code == models.ReServiceCodeICRT && mtoServiceItem.MTOShipment.PickupAddress != nil {
+			if *mtoServiceItem.MTOShipment.PickupAddress.IsOconus {
+				cratingSI.Market = models.MarketOconus.FullString()
+			} else {
+				cratingSI.Market = models.MarketConus.FullString()
+			}
+		}
+
+		if mtoServiceItem.ReService.Code == models.ReServiceCodeIUCRT && mtoServiceItem.MTOShipment.DestinationAddress != nil {
+			if *mtoServiceItem.MTOShipment.DestinationAddress.IsOconus {
+				cratingSI.Market = models.MarketOconus.FullString()
+			} else {
+				cratingSI.Market = models.MarketConus.FullString()
+			}
+		}
+		payload = &cratingSI
+
 	case models.ReServiceCodeDDSHUT, models.ReServiceCodeDOSHUT:
 		payload = &primev2messages.MTOServiceItemShuttle{
 			ReServiceCode:   handlers.FmtString(string(mtoServiceItem.ReService.Code)),

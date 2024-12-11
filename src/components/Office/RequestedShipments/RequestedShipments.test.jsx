@@ -2,6 +2,9 @@ import React from 'react';
 import { act } from 'react-dom/test-utils';
 import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { generatePath } from 'react-router-dom';
+import { Provider } from 'react-redux';
 
 import {
   shipments,
@@ -19,12 +22,16 @@ import {
 import ApprovedRequestedShipments from './ApprovedRequestedShipments';
 import SubmittedRequestedShipments from './SubmittedRequestedShipments';
 
+import { SHIPMENT_OPTIONS_URL } from 'shared/constants';
+import { tooRoutes } from 'constants/routes';
 import { MockProviders } from 'testUtils';
 import { permissionTypes } from 'constants/permissions';
+import { configureStore } from 'shared/store';
 
+const mockNavigate = jest.fn();
 jest.mock('react-router-dom', () => ({
   ...jest.requireActual('react-router-dom'),
-  useNavigate: () => jest.fn(),
+  useNavigate: () => mockNavigate,
 }));
 
 const moveTaskOrder = {
@@ -45,17 +52,22 @@ const moveTaskOrderServicesCounselingCompleted = {
 };
 
 const approveMTO = jest.fn().mockResolvedValue({ response: { status: 200 } });
+const mockStore = configureStore({});
 
 const submittedRequestedShipmentsComponent = (
-  <SubmittedRequestedShipments
-    allowancesInfo={allowancesInfo}
-    moveCode="TE5TC0DE"
-    mtoShipments={shipments}
-    closeoutOffice={closeoutOffice}
-    customerInfo={customerInfo}
-    ordersInfo={ordersInfo}
-    approveMTO={approveMTO}
-  />
+  <QueryClientProvider client={new QueryClient()}>
+    <Provider store={mockStore.store}>
+      <SubmittedRequestedShipments
+        allowancesInfo={allowancesInfo}
+        moveCode="TE5TC0DE"
+        mtoShipments={shipments}
+        closeoutOffice={closeoutOffice}
+        customerInfo={customerInfo}
+        ordersInfo={ordersInfo}
+        approveMTO={approveMTO}
+      />
+    </Provider>
+  </QueryClientProvider>
 );
 
 const submittedRequestedShipmentsComponentWithPermission = (
@@ -102,20 +114,24 @@ const submittedRequestedShipmentsComponentAvailableToPrimeAt = (
 );
 
 const submittedRequestedShipmentsComponentServicesCounselingCompleted = (
-  <SubmittedRequestedShipments
-    ordersInfo={ordersInfo}
-    allowancesInfo={allowancesInfo}
-    customerInfo={customerInfo}
-    mtoShipments={shipments}
-    closeoutOffice={closeoutOffice}
-    approveMTO={approveMTO}
-    moveTaskOrder={moveTaskOrderServicesCounselingCompleted}
-    moveCode="TE5TC0DE"
-  />
+  <QueryClientProvider client={new QueryClient()}>
+    <Provider store={mockStore.store}>
+      <SubmittedRequestedShipments
+        ordersInfo={ordersInfo}
+        allowancesInfo={allowancesInfo}
+        customerInfo={customerInfo}
+        mtoShipments={shipments}
+        closeoutOffice={closeoutOffice}
+        approveMTO={approveMTO}
+        moveTaskOrder={moveTaskOrderServicesCounselingCompleted}
+        moveCode="TE5TC0DE"
+      />
+    </Provider>
+  </QueryClientProvider>
 );
 
 const submittedRequestedShipmentsComponentMissingRequiredInfo = (
-  <MockProviders permissions={[permissionTypes.updateShipment]}>
+  <MockProviders permissions={[permissionTypes.updateShipment, permissionTypes.createTxoShipment]}>
     <SubmittedRequestedShipments
       ordersInfo={ordersInfo}
       allowancesInfo={allowancesInfo}
@@ -128,6 +144,31 @@ const submittedRequestedShipmentsComponentMissingRequiredInfo = (
     />
   </MockProviders>
 );
+
+const submittedRequestedShipmentsCanCreateNewShipment = (
+  <MockProviders permissions={[permissionTypes.createTxoShipment]}>
+    <SubmittedRequestedShipments
+      ordersInfo={ordersInfo}
+      allowancesInfo={allowancesInfo}
+      customerInfo={customerInfo}
+      mtoShipments={shipments}
+      closeoutOffice={closeoutOffice}
+      approveMTO={approveMTO}
+      moveTaskOrder={moveTaskOrderServicesCounselingCompleted}
+      moveCode="TE5TC0DE"
+    />
+  </MockProviders>
+);
+
+const testProps = {
+  ordersInfo,
+  allowancesInfo,
+  customerInfo,
+  mtoShipments: shipments,
+  approveMTO,
+  mtoServiceItems: [],
+  moveCode: 'TE5TC0DE',
+};
 
 describe('RequestedShipments', () => {
   describe('Prime-handled shipments', () => {
@@ -175,7 +216,7 @@ describe('RequestedShipments', () => {
       expect(screen.getAllByTestId('checkbox').length).toEqual(5);
     });
 
-    it('uses the duty location postal code if there is no destination address', () => {
+    it('uses the duty location postal code if there is no delivery address', () => {
       render(submittedRequestedShipmentsComponent);
       const destination = shipments[0].destinationAddress;
       expect(screen.getAllByTestId('destinationAddress').at(0)).toHaveTextContent(
@@ -215,6 +256,12 @@ describe('RequestedShipments', () => {
       expect(container.querySelector('#approvalConfirmationModal')).toHaveStyle('display: block');
     });
 
+    it('renders Add a new shjipment Button', async () => {
+      render(submittedRequestedShipmentsCanCreateNewShipment);
+
+      expect(await screen.getByRole('combobox', { name: 'Add a new shipment' })).toBeInTheDocument();
+    });
+
     it('disables the Approve selected button when there is missing required information', async () => {
       const { container } = render(submittedRequestedShipmentsComponentMissingRequiredInfo);
 
@@ -225,6 +272,8 @@ describe('RequestedShipments', () => {
           'ce01a5b8-9b44-4511-8a8d-edb60f2a4aee',
         );
       });
+
+      expect(await screen.getByRole('combobox', { name: 'Add a new shipment' })).toBeInTheDocument();
 
       expect(screen.getByRole('button', { name: 'Approve selected' })).toBeDisabled();
 
@@ -392,11 +441,16 @@ describe('RequestedShipments', () => {
 
         const Component = statusComponents[status];
 
-        render(<Component {...statusTestProps[status]} />);
+        render(
+          <QueryClientProvider client={new QueryClient()}>
+            <Provider store={mockStore.store}>
+              <Component {...statusTestProps[status]} />
+            </Provider>
+          </QueryClientProvider>,
+        );
 
         const customerRemarks = screen.getAllByTestId('customerRemarks');
         const counselorRemarks = screen.getAllByTestId('counselorRemarks');
-
         expect(customerRemarks.at(0).textContent).toBe('please treat gently');
         expect(customerRemarks.at(1).textContent).toBe('please treat gently');
 
@@ -417,15 +471,6 @@ describe('RequestedShipments', () => {
   });
 
   describe('Permission dependent rendering', () => {
-    const testProps = {
-      ordersInfo,
-      allowancesInfo,
-      customerInfo,
-      mtoShipments: shipments,
-      approveMTO,
-      mtoServiceItems: [],
-      moveCode: 'TE5TC0DE',
-    };
     it('renders the "Add service items to move" section when user has permission', () => {
       render(
         <MockProviders permissions={[permissionTypes.updateShipment]}>
@@ -449,6 +494,76 @@ describe('RequestedShipments', () => {
     });
   });
 
+  describe('shows the dropdown and navigates to each option when mtoshipments are submitted', () => {
+    it.each([
+      [
+        SHIPMENT_OPTIONS_URL.HHG,
+        SHIPMENT_OPTIONS_URL.NTS,
+        SHIPMENT_OPTIONS_URL.NTSrelease,
+        SHIPMENT_OPTIONS_URL.MOBILE_HOME,
+        SHIPMENT_OPTIONS_URL.BOAT,
+      ],
+    ])('selects the %s option and navigates to the matching form for that shipment type', async (shipmentType) => {
+      render(
+        <MockProviders
+          permissions={[permissionTypes.createTxoShipment]}
+          path={tooRoutes.SHIPMENT_ADD_PATH}
+          params={{ moveCode: 'TE5TC0DE', shipmentType }}
+        >
+          <SubmittedRequestedShipments {...testProps} />,
+        </MockProviders>,
+      );
+
+      const path = `${generatePath(tooRoutes.SHIPMENT_ADD_PATH, {
+        moveCode: 'TE5TC0DE',
+        shipmentType,
+      })}`;
+
+      const buttonDropdown = await screen.findByRole('combobox');
+
+      expect(buttonDropdown).toBeInTheDocument();
+
+      await userEvent.selectOptions(buttonDropdown, shipmentType);
+
+      expect(mockNavigate).toHaveBeenCalledWith(path);
+    });
+  });
+
+  describe('shows the dropdown and navigates to each option when mtoshipments are approved', () => {
+    it.each([
+      [
+        SHIPMENT_OPTIONS_URL.HHG,
+        SHIPMENT_OPTIONS_URL.NTS,
+        SHIPMENT_OPTIONS_URL.NTSrelease,
+        SHIPMENT_OPTIONS_URL.MOBILE_HOME,
+        SHIPMENT_OPTIONS_URL.BOAT,
+      ],
+    ])('selects the %s option and navigates to the matching form for that shipment type', async (shipmentType) => {
+      render(
+        <MockProviders
+          permissions={[permissionTypes.createTxoShipment]}
+          path={tooRoutes.SHIPMENT_ADD_PATH}
+          params={{ moveCode: 'TE5TC0DE', shipmentType }}
+        >
+          <ApprovedRequestedShipments {...testProps} />,
+        </MockProviders>,
+      );
+
+      const path = `${generatePath(tooRoutes.SHIPMENT_ADD_PATH, {
+        moveCode: 'TE5TC0DE',
+        shipmentType,
+      })}`;
+
+      const buttonDropdown = await screen.findByRole('combobox');
+
+      expect(buttonDropdown).toBeInTheDocument();
+
+      await userEvent.selectOptions(buttonDropdown, shipmentType);
+
+      expect(mockNavigate).toHaveBeenCalledWith(path);
+    });
+  });
+
   describe('Conditional form display', () => {
     const renderComponent = (props) => {
       render(
@@ -465,36 +580,36 @@ describe('RequestedShipments', () => {
       moveCode: 'TE5TC0DE',
     };
     it('does not render the "Add service items to move" section when both service items are present', () => {
-      const testProps = {
+      const testPropsMsCs = {
         mtoServiceItems: serviceItemsMSandCS,
         mtoShipments: shipments,
         ...conditionalFormTestProps,
       };
-      renderComponent(testProps);
+      renderComponent(testPropsMsCs);
 
       expect(screen.queryByText('Add service items to this move')).not.toBeInTheDocument();
       expect(screen.getByText('Approve selected')).toBeInTheDocument();
     });
 
     it('does not render the "Add service items to move" section when counseling is present and all shipments are PPM', () => {
-      const testProps = {
+      const testPropsCS = {
         mtoServiceItems: serviceItemsCS,
         mtoShipments: ppmOnlyShipments,
         ...conditionalFormTestProps,
       };
-      renderComponent(testProps);
+      renderComponent(testPropsCS);
 
       expect(screen.queryByText('Add service items to this move')).not.toBeInTheDocument();
       expect(screen.getByText('Approve selected')).toBeInTheDocument();
     });
 
     it('renders the "Add service items to move" section with only counseling when only move management is present in service items', () => {
-      const testProps = {
+      const testPropsMS = {
         mtoServiceItems: serviceItemsMS,
         mtoShipments: shipments,
         ...conditionalFormTestProps,
       };
-      renderComponent(testProps);
+      renderComponent(testPropsMS);
 
       expect(screen.getByText('Add service items to this move')).toBeInTheDocument();
       expect(screen.getByText('Approve selected')).toBeInTheDocument();
@@ -503,12 +618,12 @@ describe('RequestedShipments', () => {
     });
 
     it('renders the "Add service items to move" section with only move management when only counseling is present in service items', () => {
-      const testProps = {
+      const testPropsCS = {
         mtoServiceItems: serviceItemsCS,
         mtoShipments: shipments,
         ...conditionalFormTestProps,
       };
-      renderComponent(testProps);
+      renderComponent(testPropsCS);
 
       expect(screen.getByText('Add service items to this move')).toBeInTheDocument();
       expect(screen.getByText('Approve selected')).toBeInTheDocument();
@@ -517,12 +632,12 @@ describe('RequestedShipments', () => {
     });
 
     it('renders the "Add service items to move" section with all fields when neither counseling nor move management is present in service items', () => {
-      const testProps = {
+      const testPropsServiceItemsEmpty = {
         mtoServiceItems: serviceItemsEmpty,
         mtoShipments: shipments,
         ...conditionalFormTestProps,
       };
-      renderComponent(testProps);
+      renderComponent(testPropsServiceItemsEmpty);
 
       expect(screen.getByText('Add service items to this move')).toBeInTheDocument();
       expect(screen.getByText('Approve selected')).toBeInTheDocument();
@@ -531,12 +646,12 @@ describe('RequestedShipments', () => {
     });
 
     it('renders the "Add service items to move" section with only counseling when all shipments are PPM', () => {
-      const testProps = {
+      const testPropsServiceItemsEmpty = {
         mtoServiceItems: serviceItemsEmpty,
         mtoShipments: ppmOnlyShipments,
         ...conditionalFormTestProps,
       };
-      renderComponent(testProps);
+      renderComponent(testPropsServiceItemsEmpty);
 
       expect(screen.getByText('Add service items to this move')).toBeInTheDocument();
       expect(screen.getByText('Approve selected')).toBeInTheDocument();

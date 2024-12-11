@@ -439,7 +439,7 @@ func init() {
                   "minLength": 1,
                   "x-nullable": true
                 },
-                "dodID": {
+                "edipi": {
                   "description": "DOD ID",
                   "type": "string",
                   "maxLength": 10,
@@ -472,7 +472,7 @@ func init() {
                   "type": "string",
                   "enum": [
                     "customerName",
-                    "dodID",
+                    "edipi",
                     "emplid",
                     "branch",
                     "personalEmail",
@@ -833,6 +833,64 @@ func init() {
         }
       ]
     },
+    "/evaluation-reports/{reportID}/appeal/add": {
+      "post": {
+        "description": "Adds an appeal to a serious incident on an evaluation report",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "evaluationReports"
+        ],
+        "summary": "Adds an appeal to a serious incident on an evaluation report",
+        "operationId": "addAppealToSeriousIncident",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "schema": {
+              "$ref": "#/definitions/CreateAppeal"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successfully added an appeal to a serious incident"
+          },
+          "403": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "404": {
+            "$ref": "#/responses/NotFound"
+          },
+          "412": {
+            "$ref": "#/responses/PreconditionFailed"
+          },
+          "422": {
+            "$ref": "#/responses/UnprocessableEntity"
+          },
+          "500": {
+            "$ref": "#/responses/ServerError"
+          }
+        },
+        "x-permissions": [
+          "update.evaluationReport"
+        ]
+      },
+      "parameters": [
+        {
+          "type": "string",
+          "format": "uuid",
+          "description": "the evaluation report ID",
+          "name": "reportID",
+          "in": "path",
+          "required": true
+        }
+      ]
+    },
     "/evaluation-reports/{reportID}/download": {
       "get": {
         "description": "Downloads an evaluation report as a PDF",
@@ -930,6 +988,72 @@ func init() {
           "format": "uuid",
           "description": "the evaluation report ID to be modified",
           "name": "reportID",
+          "in": "path",
+          "required": true
+        }
+      ]
+    },
+    "/evaluation-reports/{reportID}/{reportViolationID}/appeal/add": {
+      "post": {
+        "description": "Adds an appeal to a violation",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "evaluationReports"
+        ],
+        "summary": "Adds an appeal to a violation",
+        "operationId": "addAppealToViolation",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "schema": {
+              "$ref": "#/definitions/CreateAppeal"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successfully added an appeal to a violation"
+          },
+          "403": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "404": {
+            "$ref": "#/responses/NotFound"
+          },
+          "412": {
+            "$ref": "#/responses/PreconditionFailed"
+          },
+          "422": {
+            "$ref": "#/responses/UnprocessableEntity"
+          },
+          "500": {
+            "$ref": "#/responses/ServerError"
+          }
+        },
+        "x-permissions": [
+          "update.evaluationReport"
+        ]
+      },
+      "parameters": [
+        {
+          "type": "string",
+          "format": "uuid",
+          "description": "the evaluation report ID",
+          "name": "reportID",
+          "in": "path",
+          "required": true
+        },
+        {
+          "type": "string",
+          "format": "uuid",
+          "description": "the report violation ID",
+          "name": "reportViolationID",
           "in": "path",
           "required": true
         }
@@ -1912,7 +2036,7 @@ func init() {
                   "type": "string",
                   "x-nullable": true
                 },
-                "dodID": {
+                "edipi": {
                   "description": "DOD ID",
                   "type": "string",
                   "maxLength": 10,
@@ -1970,7 +2094,7 @@ func init() {
                   "type": "string",
                   "enum": [
                     "customerName",
-                    "dodID",
+                    "edipi",
                     "emplid",
                     "branch",
                     "locator",
@@ -1993,7 +2117,8 @@ func init() {
                       "APPROVALS REQUESTED",
                       "APPROVED",
                       "NEEDS SERVICE COUNSELING",
-                      "SERVICE COUNSELING COMPLETED"
+                      "SERVICE COUNSELING COMPLETED",
+                      "CANCELED"
                     ]
                   }
                 }
@@ -2351,7 +2476,7 @@ func init() {
         "operationId": "moveCanceler",
         "responses": {
           "200": {
-            "description": "Successfully cancelled move",
+            "description": "Successfully canceled move",
             "schema": {
               "$ref": "#/definitions/Move"
             }
@@ -2374,7 +2499,10 @@ func init() {
           "500": {
             "$ref": "#/responses/ServerError"
           }
-        }
+        },
+        "x-permissions": [
+          "update.cancelMoveFlag"
+        ]
       },
       "parameters": [
         {
@@ -2435,7 +2563,7 @@ func init() {
     },
     "/moves/{moveID}/financial-review-flag": {
       "post": {
-        "description": "This sets a flag which indicates that the move should be reviewed by a fincancial office. For example, if the origin or destination address of a shipment is far from the duty location and may incur excess costs to the customer.",
+        "description": "This sets a flag which indicates that the move should be reviewed by a fincancial office. For example, if the origin or delivery address of a shipment is far from the duty location and may incur excess costs to the customer.",
         "consumes": [
           "application/json"
         ],
@@ -2668,6 +2796,48 @@ func init() {
           "create.supportingDocuments"
         ]
       }
+    },
+    "/moves/{officeUserID}/CheckForLockedMovesAndUnlock": {
+      "patch": {
+        "description": "Finds and unlocks any locked moves by an office user",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "move"
+        ],
+        "operationId": "checkForLockedMovesAndUnlock",
+        "responses": {
+          "200": {
+            "description": "Successfully unlocked officer's move(s).",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "successMessage": {
+                  "type": "string",
+                  "example": "OK"
+                }
+              }
+            }
+          },
+          "500": {
+            "$ref": "#/responses/ServerError"
+          }
+        }
+      },
+      "parameters": [
+        {
+          "type": "string",
+          "format": "uuid",
+          "description": "ID of the move's officer",
+          "name": "officeUserID",
+          "in": "path",
+          "required": true
+        }
+      ]
     },
     "/mto-shipments": {
       "post": {
@@ -4130,8 +4300,8 @@ func init() {
           },
           {
             "enum": [
-              "lastName",
-              "dodID",
+              "customerName",
+              "edipi",
               "emplid",
               "branch",
               "locator",
@@ -4145,7 +4315,8 @@ func init() {
               "closeoutInitiated",
               "closeoutLocation",
               "ppmStatus",
-              "counselingOffice"
+              "counselingOffice",
+              "assignedTo"
             ],
             "type": "string",
             "description": "field that results should be sorted by",
@@ -4177,7 +4348,7 @@ func init() {
           {
             "type": "string",
             "description": "filters using a prefix match on the service member's last name",
-            "name": "lastName",
+            "name": "customerName",
             "in": "query"
           },
           {
@@ -4189,7 +4360,7 @@ func init() {
           {
             "type": "string",
             "description": "filters to match the unique service member's DoD ID",
-            "name": "dodID",
+            "name": "edipi",
             "in": "query"
           },
           {
@@ -4298,6 +4469,12 @@ func init() {
             "description": "Used to return a queue for a GBLOC other than the default of the current user. Requires the HQ role. The parameter is ignored if the requesting user does not have the necessary role.\n",
             "name": "viewAsGBLOC",
             "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "Used to illustrate which user is assigned to this payment request.\n",
+            "name": "assignedTo",
+            "in": "query"
           }
         ],
         "responses": {
@@ -4377,8 +4554,8 @@ func init() {
           },
           {
             "enum": [
-              "lastName",
-              "dodID",
+              "customerName",
+              "edipi",
               "emplid",
               "branch",
               "locator",
@@ -4386,7 +4563,9 @@ func init() {
               "originDutyLocation",
               "destinationDutyLocation",
               "requestedMoveDate",
-              "appearedInTooAt"
+              "appearedInTooAt",
+              "assignedTo",
+              "counselingOffice"
             ],
             "type": "string",
             "description": "field that results should be sorted by",
@@ -4415,12 +4594,12 @@ func init() {
           },
           {
             "type": "string",
-            "name": "lastName",
+            "name": "customerName",
             "in": "query"
           },
           {
             "type": "string",
-            "name": "dodID",
+            "name": "edipi",
             "in": "query"
           },
           {
@@ -4481,6 +4660,18 @@ func init() {
             "description": "Used to return a queue for a GBLOC other than the default of the current user. Requires the HQ role. The parameter is ignored if the requesting user does not have the necessary role.\n",
             "name": "viewAsGBLOC",
             "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "Used to illustrate which user is assigned to this move.\n",
+            "name": "assignedTo",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "filters using a counselingOffice name of the move",
+            "name": "counselingOffice",
+            "in": "query"
           }
         ],
         "responses": {
@@ -4513,15 +4704,17 @@ func init() {
         "parameters": [
           {
             "enum": [
-              "lastName",
+              "customerName",
               "locator",
               "submittedAt",
               "branch",
               "status",
-              "dodID",
+              "edipi",
               "emplid",
               "age",
-              "originDutyLocation"
+              "originDutyLocation",
+              "assignedTo",
+              "counselingOffice"
             ],
             "type": "string",
             "description": "field that results should be sorted by",
@@ -4569,12 +4762,12 @@ func init() {
           },
           {
             "type": "string",
-            "name": "lastName",
+            "name": "customerName",
             "in": "query"
           },
           {
             "type": "string",
-            "name": "dodID",
+            "name": "edipi",
             "in": "query"
           },
           {
@@ -4590,6 +4783,18 @@ func init() {
           {
             "type": "string",
             "name": "originDutyLocation",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "Used to illustrate which user is assigned to this payment request.\n",
+            "name": "assignedTo",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "filters using a counselingOffice name of the move",
+            "name": "counselingOffice",
             "in": "query"
           },
           {
@@ -4696,6 +4901,39 @@ func init() {
           },
           "403": {
             "$ref": "#/responses/PermissionDenied"
+          },
+          "500": {
+            "$ref": "#/responses/ServerError"
+          }
+        }
+      }
+    },
+    "/re-service-items": {
+      "get": {
+        "description": "Get ReServiceItems",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "reServiceItems"
+        ],
+        "summary": "Returns all ReServiceItems (Service Code, Service Name, Market, Shipment Type, Auto Approved)",
+        "operationId": "getAllReServiceItems",
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved all ReServiceItems.",
+            "schema": {
+              "$ref": "#/definitions/ReServiceItems"
+            }
+          },
+          "400": {
+            "$ref": "#/responses/InvalidRequest"
+          },
+          "401": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "404": {
+            "$ref": "#/responses/NotFound"
           },
           "500": {
             "$ref": "#/responses/ServerError"
@@ -6107,11 +6345,13 @@ func init() {
           "example": "Anytown"
         },
         "country": {
+          "description": "Two-letter country code",
           "type": "string",
           "title": "Country",
-          "default": "USA",
+          "default": "US",
+          "pattern": "^[A-Z]{2}$",
           "x-nullable": true,
-          "example": "USA"
+          "example": "US"
         },
         "county": {
           "type": "string",
@@ -6281,8 +6521,6 @@ func init() {
         "AIR_FORCE",
         "COAST_GUARD",
         "SPACE_FORCE",
-        "NAVY_AND_MARINES",
-        "AIR_AND_SPACE_FORCE",
         "OTHER"
       ],
       "x-display-value": {
@@ -6371,13 +6609,13 @@ func init() {
         "firstName": {
           "type": "string"
         },
-        "id": {
+        "lastName": {
+          "type": "string"
+        },
+        "officeUserId": {
           "type": "string",
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
-        },
-        "lastName": {
-          "type": "string"
         }
       }
     },
@@ -6399,9 +6637,6 @@ func init() {
       "properties": {
         "firstName": {
           "type": "string"
-        },
-        "hasSafetyPrivilege": {
-          "type": "boolean"
         },
         "lastName": {
           "type": "string"
@@ -6572,12 +6807,30 @@ func init() {
     "CounselingUpdateAllowancePayload": {
       "type": "object",
       "properties": {
+        "accompaniedTour": {
+          "description": "Indicates if the move entitlement allows dependents to travel to the new Permanent Duty Station (PDS). This is only present on OCONUS moves.",
+          "type": "boolean",
+          "x-nullable": true,
+          "example": true
+        },
         "agency": {
           "$ref": "#/definitions/Affiliation"
         },
         "dependentsAuthorized": {
           "type": "boolean",
           "x-nullable": true
+        },
+        "dependentsTwelveAndOver": {
+          "description": "Indicates the number of dependents of the age twelve or older for a move. This is only present on OCONUS moves.",
+          "type": "integer",
+          "x-nullable": true,
+          "example": 3
+        },
+        "dependentsUnderTwelve": {
+          "description": "Indicates the number of dependents under the age of twelve for a move. This is only present on OCONUS moves.",
+          "type": "integer",
+          "x-nullable": true,
+          "example": 5
         },
         "grade": {
           "$ref": "#/definitions/Grade"
@@ -6617,6 +6870,11 @@ func init() {
         "storageInTransit": {
           "description": "the number of storage in transit days that the customer is entitled to for a given shipment on their move",
           "type": "integer"
+        },
+        "ubAllowance": {
+          "type": "integer",
+          "x-nullable": true,
+          "example": 500
         }
       }
     },
@@ -6697,6 +6955,26 @@ func init() {
           "minLength": 4,
           "x-nullable": true,
           "example": "F8J1"
+        }
+      }
+    },
+    "CreateAppeal": {
+      "description": "Appeal status and remarks left for a violation, created by a GSR user.",
+      "type": "object",
+      "properties": {
+        "appealStatus": {
+          "description": "The status of the appeal set by the GSR user",
+          "type": "string",
+          "enum": [
+            "sustained",
+            "rejected"
+          ],
+          "example": "These are my violation appeal remarks"
+        },
+        "remarks": {
+          "description": "Remarks left by the GSR user",
+          "type": "string",
+          "example": "These are my violation appeal remarks"
         }
       }
     },
@@ -7121,8 +7399,26 @@ func init() {
         "newDutyLocationId"
       ],
       "properties": {
+        "accompaniedTour": {
+          "description": "Indicates if the move entitlement allows dependents to travel to the new Permanent Duty Station (PDS). This is only present on OCONUS moves.",
+          "type": "boolean",
+          "x-nullable": true,
+          "example": true
+        },
         "departmentIndicator": {
           "$ref": "#/definitions/DeptIndicator"
+        },
+        "dependentsTwelveAndOver": {
+          "description": "Indicates the number of dependents of the age twelve or older for a move. This is only present on OCONUS moves.",
+          "type": "integer",
+          "x-nullable": true,
+          "example": 3
+        },
+        "dependentsUnderTwelve": {
+          "description": "Indicates the number of dependents under the age of twelve for a move. This is only present on OCONUS moves.",
+          "type": "integer",
+          "x-nullable": true,
+          "example": 5
         },
         "grade": {
           "$ref": "#/definitions/Grade"
@@ -7238,6 +7534,13 @@ func init() {
           "type": "boolean",
           "x-nullable": true,
           "x-omitempty": false
+        },
+        "isActualExpenseReimbursement": {
+          "description": "Used for PPM shipments only. Denotes if this shipment uses the Actual Expense Reimbursement method.",
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false,
+          "example": false
         },
         "pickupAddress": {
           "allOf": [
@@ -7568,6 +7871,28 @@ func init() {
         }
       }
     },
+    "DepartmentIndicator": {
+      "description": "Military branch of service indicator for orders",
+      "type": "string",
+      "title": "Department indicator",
+      "enum": [
+        "ARMY",
+        "ARMY_CORPS_OF_ENGINEERS",
+        "COAST_GUARD",
+        "NAVY_AND_MARINES",
+        "AIR_AND_SPACE_FORCE",
+        "OFFICE_OF_SECRETARY_OF_DEFENSE"
+      ],
+      "x-display-value": {
+        "AIR_AND_SPACE_FORCE": "57 Air Force and Space Force",
+        "ARMY": "21 Army",
+        "ARMY_CORPS_OF_ENGINEERS": "96 Army Corps of Engineers",
+        "COAST_GUARD": "70 Coast Guard",
+        "NAVY_AND_MARINES": "17 Navy and Marine Corps",
+        "OFFICE_OF_SECRETARY_OF_DEFENSE": "97 Office of Secretary of Defense"
+      },
+      "x-nullable": true
+    },
     "DeptIndicator": {
       "type": "string",
       "title": "Dept. indicator",
@@ -7663,6 +7988,12 @@ func init() {
     "Entitlements": {
       "type": "object",
       "properties": {
+        "accompaniedTour": {
+          "description": "Indicates if the move entitlement allows dependents to travel to the new Permanent Duty Station (PDS). This is only present on OCONUS moves.",
+          "type": "boolean",
+          "x-nullable": true,
+          "example": true
+        },
         "authorizedWeight": {
           "type": "integer",
           "x-formatting": "weight",
@@ -7673,6 +8004,18 @@ func init() {
           "type": "boolean",
           "x-nullable": true,
           "example": true
+        },
+        "dependentsTwelveAndOver": {
+          "description": "Indicates the number of dependents of the age twelve or older for a move. This is only present on OCONUS moves.",
+          "type": "integer",
+          "x-nullable": true,
+          "example": 3
+        },
+        "dependentsUnderTwelve": {
+          "description": "Indicates the number of dependents under the age of twelve for a move. This is only present on OCONUS moves.",
+          "type": "integer",
+          "x-nullable": true,
+          "example": 5
         },
         "eTag": {
           "type": "string"
@@ -7728,6 +8071,12 @@ func init() {
           "type": "integer",
           "x-formatting": "weight",
           "example": 500
+        },
+        "ubAllowance": {
+          "description": "The amount of weight in pounds that the move is entitled for shipment types of Unaccompanied Baggage.",
+          "type": "integer",
+          "x-nullable": true,
+          "example": 3
         }
       }
     },
@@ -7746,10 +8095,6 @@ func init() {
       "description": "An evaluation report",
       "type": "object",
       "properties": {
-        "ReportViolations": {
-          "x-nullable": true,
-          "$ref": "#/definitions/ReportViolations"
-        },
         "createdAt": {
           "type": "string",
           "format": "date-time",
@@ -7769,6 +8114,10 @@ func init() {
           "pattern": "^(0[0-9]|1[0-9]|2[0-3]):[0-5][0-9]$",
           "x-nullable": true,
           "example": "15:00"
+        },
+        "gsrAppeals": {
+          "x-nullable": true,
+          "$ref": "#/definitions/GSRAppeals"
         },
         "id": {
           "type": "string",
@@ -7846,6 +8195,10 @@ func init() {
         "remarks": {
           "type": "string",
           "x-nullable": true
+        },
+        "reportViolations": {
+          "x-nullable": true,
+          "$ref": "#/definitions/ReportViolations"
         },
         "seriousIncident": {
           "type": "boolean",
@@ -7949,14 +8302,14 @@ func init() {
     "FetchLineOfAccountingPayload": {
       "type": "object",
       "properties": {
+        "departmentIndicator": {
+          "$ref": "#/definitions/DepartmentIndicator"
+        },
         "effectiveDate": {
           "description": "The effective date for the Line Of Accounting (LOA) being fetched. Eg, the orders issue date or the Non-Temporary Storage (NTS) Move Task Order (MTO) approval date. Effective date is used to find \"Active\" TGET data by searching for the TACs and LOAs with begin and end dates containing this date. The 'Effective Date' is the date that can be either the orders issued date (For HHG shipments), MTO approval date (For NTS shipments), or even the current date for NTS shipments with no approval yet (Just providing a preview to the office users per customer request).\n",
           "type": "string",
           "format": "date",
           "example": "2023-01-01"
-        },
-        "serviceMemberAffiliation": {
-          "$ref": "#/definitions/Affiliation"
         },
         "tacCode": {
           "type": "string",
@@ -7997,6 +8350,64 @@ func init() {
       "type": "array",
       "items": {
         "type": "string"
+      }
+    },
+    "GSRAppeal": {
+      "description": "An object associating appeals on violations and serious incidents",
+      "type": "object",
+      "properties": {
+        "appealStatus": {
+          "$ref": "#/definitions/GSRAppealStatusType"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "isSeriousIncident": {
+          "type": "boolean",
+          "example": false
+        },
+        "officeUser": {
+          "$ref": "#/definitions/EvaluationReportOfficeUser"
+        },
+        "officeUserID": {
+          "type": "string",
+          "format": "uuid",
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "remarks": {
+          "type": "string",
+          "example": "Office user remarks"
+        },
+        "reportID": {
+          "type": "string",
+          "format": "uuid",
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "violationID": {
+          "type": "string",
+          "format": "uuid",
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        }
+      }
+    },
+    "GSRAppealStatusType": {
+      "type": "string",
+      "enum": [
+        "SUSTAINED",
+        "REJECTED"
+      ]
+    },
+    "GSRAppeals": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/GSRAppeal"
       }
     },
     "Grade": {
@@ -8723,6 +9134,10 @@ func init() {
           "x-nullable": true,
           "example": 2500
         },
+        "externalCrate": {
+          "type": "boolean",
+          "x-nullable": true
+        },
         "feeType": {
           "type": "string",
           "enum": [
@@ -8741,6 +9156,16 @@ func init() {
           "type": "integer",
           "format": "cents",
           "x-nullable": true
+        },
+        "market": {
+          "description": "To identify whether the service was provided within (CONUS) or (OCONUS)",
+          "type": "string",
+          "enum": [
+            "CONUS",
+            "OCONUS"
+          ],
+          "x-nullable": true,
+          "example": "CONUS"
         },
         "moveTaskOrderID": {
           "type": "string",
@@ -9047,7 +9472,7 @@ func init() {
     "MTOShipment": {
       "properties": {
         "actualDeliveryDate": {
-          "description": "The actual date that the shipment was delivered to the destination address by the Prime",
+          "description": "The actual date that the shipment was delivered to the delivery address by the Prime",
           "type": "string",
           "format": "date",
           "x-nullable": true
@@ -9168,6 +9593,15 @@ func init() {
           "type": "string",
           "format": "uuid",
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "marketCode": {
+          "description": "Single-letter designator for domestic (d) or international (i) shipments",
+          "type": "string",
+          "enum": [
+            "d",
+            "i"
+          ],
+          "example": "d"
         },
         "mobileHomeShipment": {
           "$ref": "#/definitions/MobileHome"
@@ -9342,12 +9776,11 @@ func init() {
         "HHG",
         "HHG_INTO_NTS_DOMESTIC",
         "HHG_OUTOF_NTS_DOMESTIC",
-        "INTERNATIONAL_HHG",
-        "INTERNATIONAL_UB",
         "PPM",
         "BOAT_HAUL_AWAY",
         "BOAT_TOW_AWAY",
-        "MOBILE_HOME"
+        "MOBILE_HOME",
+        "UNACCOMPANIED_BAGGAGE"
       ],
       "x-display-value": {
         "BOAT_HAUL_AWAY": "Boat Haul-Away",
@@ -9355,10 +9788,9 @@ func init() {
         "HHG": "HHG",
         "HHG_INTO_NTS_DOMESTIC": "NTS",
         "HHG_OUTOF_NTS_DOMESTIC": "NTS Release",
-        "INTERNATIONAL_HHG": "International HHG",
-        "INTERNATIONAL_UB": "International UB",
         "MOBILE_HOME": "Mobile Home",
-        "PPM": "PPM"
+        "PPM": "PPM",
+        "UNACCOMPANIED_BAGGAGE": "Unaccompanied Baggage"
       },
       "example": "HHG"
     },
@@ -9508,7 +9940,7 @@ func init() {
           "type": "string",
           "x-nullable": true,
           "readOnly": true,
-          "example": "Destination address is too far from duty location"
+          "example": "Delivery Address is too far from duty location"
         },
         "id": {
           "type": "string",
@@ -10523,7 +10955,8 @@ func init() {
         "SEPARATION",
         "WOUNDED_WARRIOR",
         "BLUEBARK",
-        "SAFETY"
+        "SAFETY",
+        "TEMPORARY_DUTY"
       ],
       "x-display-value": {
         "BLUEBARK": "BLUEBARK",
@@ -10532,6 +10965,7 @@ func init() {
         "RETIREMENT": "Retirement",
         "SAFETY": "Safety",
         "SEPARATION": "Separation",
+        "TEMPORARY_DUTY": "Temporary Duty (TDY)",
         "WOUNDED_WARRIOR": "Wounded Warrior"
       }
     },
@@ -11195,6 +11629,20 @@ func init() {
           "readOnly": true,
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
         },
+        "isActualExpenseReimbursement": {
+          "description": "Used for PPM shipments only. Denotes if this shipment uses the Actual Expense Reimbursement method.",
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false,
+          "example": false
+        },
+        "maxIncentive": {
+          "description": "The max amount the government will pay the service member to move their belongings based on the moving date, locations, and shipment weight.",
+          "type": "integer",
+          "format": "cents",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
         "movingExpenses": {
           "description": "All expense documentation receipt records of this PPM shipment.",
           "type": "array",
@@ -11409,7 +11857,7 @@ func init() {
     "PPMStatus": {
       "type": "string",
       "enum": [
-        "CANCELLED",
+        "CANCELED",
         "DRAFT",
         "SUBMITTED",
         "WAITING_ON_CUSTOMER",
@@ -11892,9 +12340,15 @@ func init() {
           "format": "date-time",
           "x-nullable": true
         },
+        "assignable": {
+          "type": "boolean"
+        },
         "assignedTo": {
           "x-nullable": true,
           "$ref": "#/definitions/AssignedOfficeUser"
+        },
+        "availableOfficeUsers": {
+          "$ref": "#/definitions/AvailableOfficeUsers"
         },
         "closeoutInitiated": {
           "type": "string",
@@ -11907,6 +12361,11 @@ func init() {
         },
         "counselingOffice": {
           "type": "string",
+          "x-nullable": true
+        },
+        "counselingOfficeID": {
+          "type": "string",
+          "format": "uuid",
           "x-nullable": true
         },
         "customer": {
@@ -11988,9 +12447,6 @@ func init() {
     "QueueMovesResult": {
       "type": "object",
       "properties": {
-        "availableOfficeUsers": {
-          "$ref": "#/definitions/AvailableOfficeUsers"
-        },
         "page": {
           "type": "integer"
         },
@@ -12012,6 +12468,20 @@ func init() {
           "description": "Days since the payment request has been requested.  Decimal representation will allow more accurate sorting.",
           "type": "number",
           "format": "double"
+        },
+        "assignable": {
+          "type": "boolean"
+        },
+        "assignedTo": {
+          "x-nullable": true,
+          "$ref": "#/definitions/AssignedOfficeUser"
+        },
+        "availableOfficeUsers": {
+          "$ref": "#/definitions/AvailableOfficeUsers"
+        },
+        "counselingOffice": {
+          "type": "string",
+          "x-nullable": true
         },
         "customer": {
           "$ref": "#/definitions/Customer"
@@ -12078,9 +12548,6 @@ func init() {
     "QueuePaymentRequestsResult": {
       "type": "object",
       "properties": {
-        "availableOfficeUsers": {
-          "$ref": "#/definitions/AvailableOfficeUsers"
-        },
         "page": {
           "type": "integer"
         },
@@ -12093,6 +12560,104 @@ func init() {
         "totalCount": {
           "type": "integer"
         }
+      }
+    },
+    "ReServiceItem": {
+      "description": "A Service Item which ties an ReService, Market, and Shipment Type together",
+      "type": "object",
+      "properties": {
+        "isAutoApproved": {
+          "type": "boolean",
+          "example": true
+        },
+        "marketCode": {
+          "type": "string",
+          "enum": [
+            "i",
+            "d"
+          ],
+          "example": "i (International), d (Domestic)"
+        },
+        "serviceCode": {
+          "type": "string",
+          "enum": [
+            "CS",
+            "DBHF",
+            "DBTF",
+            "DCRT",
+            "DCRTSA",
+            "DDASIT",
+            "DDDSIT",
+            "DDFSIT",
+            "DDP",
+            "DDSFSC",
+            "DDSHUT",
+            "DLH",
+            "DMHF",
+            "DNPK",
+            "DOASIT",
+            "DOFSIT",
+            "DOP",
+            "DOPSIT",
+            "DOSFSC",
+            "DOSHUT",
+            "DPK",
+            "DSH",
+            "DUCRT",
+            "DUPK",
+            "FSC",
+            "IBHF",
+            "IBTF",
+            "ICRT",
+            "ICRTSA",
+            "IDASIT",
+            "IDDSIT",
+            "IDFSIT",
+            "IDSFSC",
+            "IDSHUT",
+            "IHPK",
+            "IHUPK",
+            "INPK",
+            "IOASIT",
+            "IOFSIT",
+            "IOPSIT",
+            "IOSFSC",
+            "IOSHUT",
+            "ISLH",
+            "IUBPK",
+            "IUBUPK",
+            "IUCRT",
+            "MS",
+            "PODFSC",
+            "POEFSC",
+            "UBP"
+          ],
+          "example": "UBP"
+        },
+        "serviceName": {
+          "type": "string",
+          "example": "International UB, International Shipping \u0026 Linehaul"
+        },
+        "shipmentType": {
+          "type": "string",
+          "enum": [
+            "BOAT_HAUL_AWAY",
+            "BOAT_TOW_AWAY",
+            "HHG",
+            "HHG_INTO_NTS_DOMESTIC",
+            "HHG_OUTOF_NTS_DOMESTIC",
+            "MOBILE_HOME",
+            "PPM",
+            "UNACCOMPANIED_BAGGAGE"
+          ],
+          "example": "HHG, UNACCOMPANIED_BAGGAGE"
+        }
+      }
+    },
+    "ReServiceItems": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/ReServiceItem"
       }
     },
     "RejectShipment": {
@@ -12110,6 +12675,10 @@ func init() {
       "description": "An object associating violations to evaluation reports",
       "type": "object",
       "properties": {
+        "gsrAppeals": {
+          "x-nullable": true,
+          "$ref": "#/definitions/GSRAppeals"
+        },
         "id": {
           "type": "string",
           "format": "uuid",
@@ -12449,7 +13018,7 @@ func init() {
         "branch": {
           "type": "string"
         },
-        "dodID": {
+        "edipi": {
           "type": "string",
           "x-nullable": true
         },
@@ -12525,7 +13094,7 @@ func init() {
         "destinationGBLOC": {
           "$ref": "#/definitions/GBLOC"
         },
-        "dodID": {
+        "edipi": {
           "type": "string",
           "x-nullable": true,
           "example": 1234567890
@@ -12754,7 +13323,7 @@ func init() {
       }
     },
     "ShipmentAddressUpdate": {
-      "description": "This represents a destination address change request made by the Prime that is either auto-approved or requires review if the pricing criteria has changed. If criteria has changed, then it must be approved or rejected by a TOO.\n",
+      "description": "This represents a delivery address change request made by the Prime that is either auto-approved or requires review if the pricing criteria has changed. If criteria has changed, then it must be approved or rejected by a TOO.\n",
       "type": "object",
       "required": [
         "id",
@@ -12782,7 +13351,7 @@ func init() {
           "$ref": "#/definitions/Address"
         },
         "newSitDistanceBetween": {
-          "description": "The distance between the original SIT address and requested new destination address of shipment",
+          "description": "The distance between the original SIT address and requested new delivery address of shipment",
           "type": "integer",
           "example": 88
         },
@@ -12794,7 +13363,7 @@ func init() {
           "example": "This is an office remark"
         },
         "oldSitDistanceBetween": {
-          "description": "The distance between the original SIT address and the previous/old destination address of shipment",
+          "description": "The distance between the original SIT address and the previous/old delivery address of shipment",
           "type": "integer",
           "example": 50
         },
@@ -13114,12 +13683,30 @@ func init() {
     "UpdateAllowancePayload": {
       "type": "object",
       "properties": {
+        "accompaniedTour": {
+          "description": "Indicates if the move entitlement allows dependents to travel to the new Permanent Duty Station (PDS). This is only present on OCONUS moves.",
+          "type": "boolean",
+          "x-nullable": true,
+          "example": true
+        },
         "agency": {
           "$ref": "#/definitions/Affiliation"
         },
         "dependentsAuthorized": {
           "type": "boolean",
           "x-nullable": true
+        },
+        "dependentsTwelveAndOver": {
+          "description": "Indicates the number of dependents of the age twelve or older for a move. This is only present on OCONUS moves.",
+          "type": "integer",
+          "x-nullable": true,
+          "example": 3
+        },
+        "dependentsUnderTwelve": {
+          "description": "Indicates the number of dependents under the age of twelve for a move. This is only present on OCONUS moves.",
+          "type": "integer",
+          "x-nullable": true,
+          "example": 5
         },
         "grade": {
           "$ref": "#/definitions/Grade"
@@ -13159,6 +13746,11 @@ func init() {
         "storageInTransit": {
           "description": "the number of storage in transit days that the customer is entitled to for a given shipment on their move",
           "type": "integer"
+        },
+        "ubAllowance": {
+          "type": "integer",
+          "x-nullable": true,
+          "example": 500
         }
       }
     },
@@ -13615,6 +14207,13 @@ func init() {
           "type": "boolean",
           "x-nullable": true,
           "x-omitempty": false
+        },
+        "isActualExpenseReimbursement": {
+          "description": "Used for PPM shipments only. Denotes if this shipment uses the Actual Expense Reimbursement method.",
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false,
+          "example": false
         },
         "pickupAddress": {
           "allOf": [
@@ -14366,6 +14965,9 @@ func init() {
     },
     {
       "name": "paymentRequests"
+    },
+    {
+      "name": "reServiceItems"
     }
   ]
 }`))
@@ -14890,7 +15492,7 @@ func init() {
                   "minLength": 1,
                   "x-nullable": true
                 },
-                "dodID": {
+                "edipi": {
                   "description": "DOD ID",
                   "type": "string",
                   "maxLength": 10,
@@ -14923,7 +15525,7 @@ func init() {
                   "type": "string",
                   "enum": [
                     "customerName",
-                    "dodID",
+                    "edipi",
                     "emplid",
                     "branch",
                     "personalEmail",
@@ -15401,6 +16003,79 @@ func init() {
         }
       ]
     },
+    "/evaluation-reports/{reportID}/appeal/add": {
+      "post": {
+        "description": "Adds an appeal to a serious incident on an evaluation report",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "evaluationReports"
+        ],
+        "summary": "Adds an appeal to a serious incident on an evaluation report",
+        "operationId": "addAppealToSeriousIncident",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "schema": {
+              "$ref": "#/definitions/CreateAppeal"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successfully added an appeal to a serious incident"
+          },
+          "403": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "412": {
+            "description": "Precondition failed",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "422": {
+            "description": "The payload was unprocessable.",
+            "schema": {
+              "$ref": "#/definitions/ValidationError"
+            }
+          },
+          "500": {
+            "description": "A server error occurred",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        },
+        "x-permissions": [
+          "update.evaluationReport"
+        ]
+      },
+      "parameters": [
+        {
+          "type": "string",
+          "format": "uuid",
+          "description": "the evaluation report ID",
+          "name": "reportID",
+          "in": "path",
+          "required": true
+        }
+      ]
+    },
     "/evaluation-reports/{reportID}/download": {
       "get": {
         "description": "Downloads an evaluation report as a PDF",
@@ -15522,6 +16197,87 @@ func init() {
           "format": "uuid",
           "description": "the evaluation report ID to be modified",
           "name": "reportID",
+          "in": "path",
+          "required": true
+        }
+      ]
+    },
+    "/evaluation-reports/{reportID}/{reportViolationID}/appeal/add": {
+      "post": {
+        "description": "Adds an appeal to a violation",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "evaluationReports"
+        ],
+        "summary": "Adds an appeal to a violation",
+        "operationId": "addAppealToViolation",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "schema": {
+              "$ref": "#/definitions/CreateAppeal"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successfully added an appeal to a violation"
+          },
+          "403": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "412": {
+            "description": "Precondition failed",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "422": {
+            "description": "The payload was unprocessable.",
+            "schema": {
+              "$ref": "#/definitions/ValidationError"
+            }
+          },
+          "500": {
+            "description": "A server error occurred",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        },
+        "x-permissions": [
+          "update.evaluationReport"
+        ]
+      },
+      "parameters": [
+        {
+          "type": "string",
+          "format": "uuid",
+          "description": "the evaluation report ID",
+          "name": "reportID",
+          "in": "path",
+          "required": true
+        },
+        {
+          "type": "string",
+          "format": "uuid",
+          "description": "the report violation ID",
+          "name": "reportViolationID",
           "in": "path",
           "required": true
         }
@@ -16786,7 +17542,7 @@ func init() {
                   "type": "string",
                   "x-nullable": true
                 },
-                "dodID": {
+                "edipi": {
                   "description": "DOD ID",
                   "type": "string",
                   "maxLength": 10,
@@ -16844,7 +17600,7 @@ func init() {
                   "type": "string",
                   "enum": [
                     "customerName",
-                    "dodID",
+                    "edipi",
                     "emplid",
                     "branch",
                     "locator",
@@ -16867,7 +17623,8 @@ func init() {
                       "APPROVALS REQUESTED",
                       "APPROVED",
                       "NEEDS SERVICE COUNSELING",
-                      "SERVICE COUNSELING COMPLETED"
+                      "SERVICE COUNSELING COMPLETED",
+                      "CANCELED"
                     ]
                   }
                 }
@@ -17306,7 +18063,7 @@ func init() {
         "operationId": "moveCanceler",
         "responses": {
           "200": {
-            "description": "Successfully cancelled move",
+            "description": "Successfully canceled move",
             "schema": {
               "$ref": "#/definitions/Move"
             }
@@ -17347,7 +18104,10 @@ func init() {
               "$ref": "#/definitions/Error"
             }
           }
-        }
+        },
+        "x-permissions": [
+          "update.cancelMoveFlag"
+        ]
       },
       "parameters": [
         {
@@ -17423,7 +18183,7 @@ func init() {
     },
     "/moves/{moveID}/financial-review-flag": {
       "post": {
-        "description": "This sets a flag which indicates that the move should be reviewed by a fincancial office. For example, if the origin or destination address of a shipment is far from the duty location and may incur excess costs to the customer.",
+        "description": "This sets a flag which indicates that the move should be reviewed by a fincancial office. For example, if the origin or delivery address of a shipment is far from the duty location and may incur excess costs to the customer.",
         "consumes": [
           "application/json"
         ],
@@ -17689,6 +18449,51 @@ func init() {
           "create.supportingDocuments"
         ]
       }
+    },
+    "/moves/{officeUserID}/CheckForLockedMovesAndUnlock": {
+      "patch": {
+        "description": "Finds and unlocks any locked moves by an office user",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "move"
+        ],
+        "operationId": "checkForLockedMovesAndUnlock",
+        "responses": {
+          "200": {
+            "description": "Successfully unlocked officer's move(s).",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "successMessage": {
+                  "type": "string",
+                  "example": "OK"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "A server error occurred",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      },
+      "parameters": [
+        {
+          "type": "string",
+          "format": "uuid",
+          "description": "ID of the move's officer",
+          "name": "officeUserID",
+          "in": "path",
+          "required": true
+        }
+      ]
     },
     "/mto-shipments": {
       "post": {
@@ -19580,8 +20385,8 @@ func init() {
           },
           {
             "enum": [
-              "lastName",
-              "dodID",
+              "customerName",
+              "edipi",
               "emplid",
               "branch",
               "locator",
@@ -19595,7 +20400,8 @@ func init() {
               "closeoutInitiated",
               "closeoutLocation",
               "ppmStatus",
-              "counselingOffice"
+              "counselingOffice",
+              "assignedTo"
             ],
             "type": "string",
             "description": "field that results should be sorted by",
@@ -19627,7 +20433,7 @@ func init() {
           {
             "type": "string",
             "description": "filters using a prefix match on the service member's last name",
-            "name": "lastName",
+            "name": "customerName",
             "in": "query"
           },
           {
@@ -19639,7 +20445,7 @@ func init() {
           {
             "type": "string",
             "description": "filters to match the unique service member's DoD ID",
-            "name": "dodID",
+            "name": "edipi",
             "in": "query"
           },
           {
@@ -19748,6 +20554,12 @@ func init() {
             "description": "Used to return a queue for a GBLOC other than the default of the current user. Requires the HQ role. The parameter is ignored if the requesting user does not have the necessary role.\n",
             "name": "viewAsGBLOC",
             "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "Used to illustrate which user is assigned to this payment request.\n",
+            "name": "assignedTo",
+            "in": "query"
           }
         ],
         "responses": {
@@ -19839,8 +20651,8 @@ func init() {
           },
           {
             "enum": [
-              "lastName",
-              "dodID",
+              "customerName",
+              "edipi",
               "emplid",
               "branch",
               "locator",
@@ -19848,7 +20660,9 @@ func init() {
               "originDutyLocation",
               "destinationDutyLocation",
               "requestedMoveDate",
-              "appearedInTooAt"
+              "appearedInTooAt",
+              "assignedTo",
+              "counselingOffice"
             ],
             "type": "string",
             "description": "field that results should be sorted by",
@@ -19877,12 +20691,12 @@ func init() {
           },
           {
             "type": "string",
-            "name": "lastName",
+            "name": "customerName",
             "in": "query"
           },
           {
             "type": "string",
-            "name": "dodID",
+            "name": "edipi",
             "in": "query"
           },
           {
@@ -19943,6 +20757,18 @@ func init() {
             "description": "Used to return a queue for a GBLOC other than the default of the current user. Requires the HQ role. The parameter is ignored if the requesting user does not have the necessary role.\n",
             "name": "viewAsGBLOC",
             "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "Used to illustrate which user is assigned to this move.\n",
+            "name": "assignedTo",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "filters using a counselingOffice name of the move",
+            "name": "counselingOffice",
+            "in": "query"
           }
         ],
         "responses": {
@@ -19981,15 +20807,17 @@ func init() {
         "parameters": [
           {
             "enum": [
-              "lastName",
+              "customerName",
               "locator",
               "submittedAt",
               "branch",
               "status",
-              "dodID",
+              "edipi",
               "emplid",
               "age",
-              "originDutyLocation"
+              "originDutyLocation",
+              "assignedTo",
+              "counselingOffice"
             ],
             "type": "string",
             "description": "field that results should be sorted by",
@@ -20037,12 +20865,12 @@ func init() {
           },
           {
             "type": "string",
-            "name": "lastName",
+            "name": "customerName",
             "in": "query"
           },
           {
             "type": "string",
-            "name": "dodID",
+            "name": "edipi",
             "in": "query"
           },
           {
@@ -20058,6 +20886,18 @@ func init() {
           {
             "type": "string",
             "name": "originDutyLocation",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "Used to illustrate which user is assigned to this payment request.\n",
+            "name": "assignedTo",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "filters using a counselingOffice name of the move",
+            "name": "counselingOffice",
             "in": "query"
           },
           {
@@ -20170,6 +21010,51 @@ func init() {
           },
           "403": {
             "description": "The request was denied",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "500": {
+            "description": "A server error occurred",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      }
+    },
+    "/re-service-items": {
+      "get": {
+        "description": "Get ReServiceItems",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "reServiceItems"
+        ],
+        "summary": "Returns all ReServiceItems (Service Code, Service Name, Market, Shipment Type, Auto Approved)",
+        "operationId": "getAllReServiceItems",
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved all ReServiceItems.",
+            "schema": {
+              "$ref": "#/definitions/ReServiceItems"
+            }
+          },
+          "400": {
+            "description": "The request payload is invalid",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "401": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found",
             "schema": {
               "$ref": "#/definitions/Error"
             }
@@ -21939,11 +22824,13 @@ func init() {
           "example": "Anytown"
         },
         "country": {
+          "description": "Two-letter country code",
           "type": "string",
           "title": "Country",
-          "default": "USA",
+          "default": "US",
+          "pattern": "^[A-Z]{2}$",
           "x-nullable": true,
-          "example": "USA"
+          "example": "US"
         },
         "county": {
           "type": "string",
@@ -22113,8 +23000,6 @@ func init() {
         "AIR_FORCE",
         "COAST_GUARD",
         "SPACE_FORCE",
-        "NAVY_AND_MARINES",
-        "AIR_AND_SPACE_FORCE",
         "OTHER"
       ],
       "x-display-value": {
@@ -22203,13 +23088,13 @@ func init() {
         "firstName": {
           "type": "string"
         },
-        "id": {
+        "lastName": {
+          "type": "string"
+        },
+        "officeUserId": {
           "type": "string",
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
-        },
-        "lastName": {
-          "type": "string"
         }
       }
     },
@@ -22231,9 +23116,6 @@ func init() {
       "properties": {
         "firstName": {
           "type": "string"
-        },
-        "hasSafetyPrivilege": {
-          "type": "boolean"
         },
         "lastName": {
           "type": "string"
@@ -22404,12 +23286,30 @@ func init() {
     "CounselingUpdateAllowancePayload": {
       "type": "object",
       "properties": {
+        "accompaniedTour": {
+          "description": "Indicates if the move entitlement allows dependents to travel to the new Permanent Duty Station (PDS). This is only present on OCONUS moves.",
+          "type": "boolean",
+          "x-nullable": true,
+          "example": true
+        },
         "agency": {
           "$ref": "#/definitions/Affiliation"
         },
         "dependentsAuthorized": {
           "type": "boolean",
           "x-nullable": true
+        },
+        "dependentsTwelveAndOver": {
+          "description": "Indicates the number of dependents of the age twelve or older for a move. This is only present on OCONUS moves.",
+          "type": "integer",
+          "x-nullable": true,
+          "example": 3
+        },
+        "dependentsUnderTwelve": {
+          "description": "Indicates the number of dependents under the age of twelve for a move. This is only present on OCONUS moves.",
+          "type": "integer",
+          "x-nullable": true,
+          "example": 5
         },
         "grade": {
           "$ref": "#/definitions/Grade"
@@ -22453,6 +23353,11 @@ func init() {
           "description": "the number of storage in transit days that the customer is entitled to for a given shipment on their move",
           "type": "integer",
           "minimum": 0
+        },
+        "ubAllowance": {
+          "type": "integer",
+          "x-nullable": true,
+          "example": 500
         }
       }
     },
@@ -22533,6 +23438,26 @@ func init() {
           "minLength": 4,
           "x-nullable": true,
           "example": "F8J1"
+        }
+      }
+    },
+    "CreateAppeal": {
+      "description": "Appeal status and remarks left for a violation, created by a GSR user.",
+      "type": "object",
+      "properties": {
+        "appealStatus": {
+          "description": "The status of the appeal set by the GSR user",
+          "type": "string",
+          "enum": [
+            "sustained",
+            "rejected"
+          ],
+          "example": "These are my violation appeal remarks"
+        },
+        "remarks": {
+          "description": "Remarks left by the GSR user",
+          "type": "string",
+          "example": "These are my violation appeal remarks"
         }
       }
     },
@@ -22957,8 +23882,26 @@ func init() {
         "newDutyLocationId"
       ],
       "properties": {
+        "accompaniedTour": {
+          "description": "Indicates if the move entitlement allows dependents to travel to the new Permanent Duty Station (PDS). This is only present on OCONUS moves.",
+          "type": "boolean",
+          "x-nullable": true,
+          "example": true
+        },
         "departmentIndicator": {
           "$ref": "#/definitions/DeptIndicator"
+        },
+        "dependentsTwelveAndOver": {
+          "description": "Indicates the number of dependents of the age twelve or older for a move. This is only present on OCONUS moves.",
+          "type": "integer",
+          "x-nullable": true,
+          "example": 3
+        },
+        "dependentsUnderTwelve": {
+          "description": "Indicates the number of dependents under the age of twelve for a move. This is only present on OCONUS moves.",
+          "type": "integer",
+          "x-nullable": true,
+          "example": 5
         },
         "grade": {
           "$ref": "#/definitions/Grade"
@@ -23074,6 +24017,13 @@ func init() {
           "type": "boolean",
           "x-nullable": true,
           "x-omitempty": false
+        },
+        "isActualExpenseReimbursement": {
+          "description": "Used for PPM shipments only. Denotes if this shipment uses the Actual Expense Reimbursement method.",
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false,
+          "example": false
         },
         "pickupAddress": {
           "allOf": [
@@ -23404,6 +24354,28 @@ func init() {
         }
       }
     },
+    "DepartmentIndicator": {
+      "description": "Military branch of service indicator for orders",
+      "type": "string",
+      "title": "Department indicator",
+      "enum": [
+        "ARMY",
+        "ARMY_CORPS_OF_ENGINEERS",
+        "COAST_GUARD",
+        "NAVY_AND_MARINES",
+        "AIR_AND_SPACE_FORCE",
+        "OFFICE_OF_SECRETARY_OF_DEFENSE"
+      ],
+      "x-display-value": {
+        "AIR_AND_SPACE_FORCE": "57 Air Force and Space Force",
+        "ARMY": "21 Army",
+        "ARMY_CORPS_OF_ENGINEERS": "96 Army Corps of Engineers",
+        "COAST_GUARD": "70 Coast Guard",
+        "NAVY_AND_MARINES": "17 Navy and Marine Corps",
+        "OFFICE_OF_SECRETARY_OF_DEFENSE": "97 Office of Secretary of Defense"
+      },
+      "x-nullable": true
+    },
     "DeptIndicator": {
       "type": "string",
       "title": "Dept. indicator",
@@ -23499,6 +24471,12 @@ func init() {
     "Entitlements": {
       "type": "object",
       "properties": {
+        "accompaniedTour": {
+          "description": "Indicates if the move entitlement allows dependents to travel to the new Permanent Duty Station (PDS). This is only present on OCONUS moves.",
+          "type": "boolean",
+          "x-nullable": true,
+          "example": true
+        },
         "authorizedWeight": {
           "type": "integer",
           "x-formatting": "weight",
@@ -23509,6 +24487,18 @@ func init() {
           "type": "boolean",
           "x-nullable": true,
           "example": true
+        },
+        "dependentsTwelveAndOver": {
+          "description": "Indicates the number of dependents of the age twelve or older for a move. This is only present on OCONUS moves.",
+          "type": "integer",
+          "x-nullable": true,
+          "example": 3
+        },
+        "dependentsUnderTwelve": {
+          "description": "Indicates the number of dependents under the age of twelve for a move. This is only present on OCONUS moves.",
+          "type": "integer",
+          "x-nullable": true,
+          "example": 5
         },
         "eTag": {
           "type": "string"
@@ -23564,6 +24554,12 @@ func init() {
           "type": "integer",
           "x-formatting": "weight",
           "example": 500
+        },
+        "ubAllowance": {
+          "description": "The amount of weight in pounds that the move is entitled for shipment types of Unaccompanied Baggage.",
+          "type": "integer",
+          "x-nullable": true,
+          "example": 3
         }
       }
     },
@@ -23582,10 +24578,6 @@ func init() {
       "description": "An evaluation report",
       "type": "object",
       "properties": {
-        "ReportViolations": {
-          "x-nullable": true,
-          "$ref": "#/definitions/ReportViolations"
-        },
         "createdAt": {
           "type": "string",
           "format": "date-time",
@@ -23605,6 +24597,10 @@ func init() {
           "pattern": "^(0[0-9]|1[0-9]|2[0-3]):[0-5][0-9]$",
           "x-nullable": true,
           "example": "15:00"
+        },
+        "gsrAppeals": {
+          "x-nullable": true,
+          "$ref": "#/definitions/GSRAppeals"
         },
         "id": {
           "type": "string",
@@ -23682,6 +24678,10 @@ func init() {
         "remarks": {
           "type": "string",
           "x-nullable": true
+        },
+        "reportViolations": {
+          "x-nullable": true,
+          "$ref": "#/definitions/ReportViolations"
         },
         "seriousIncident": {
           "type": "boolean",
@@ -23785,14 +24785,14 @@ func init() {
     "FetchLineOfAccountingPayload": {
       "type": "object",
       "properties": {
+        "departmentIndicator": {
+          "$ref": "#/definitions/DepartmentIndicator"
+        },
         "effectiveDate": {
           "description": "The effective date for the Line Of Accounting (LOA) being fetched. Eg, the orders issue date or the Non-Temporary Storage (NTS) Move Task Order (MTO) approval date. Effective date is used to find \"Active\" TGET data by searching for the TACs and LOAs with begin and end dates containing this date. The 'Effective Date' is the date that can be either the orders issued date (For HHG shipments), MTO approval date (For NTS shipments), or even the current date for NTS shipments with no approval yet (Just providing a preview to the office users per customer request).\n",
           "type": "string",
           "format": "date",
           "example": "2023-01-01"
-        },
-        "serviceMemberAffiliation": {
-          "$ref": "#/definitions/Affiliation"
         },
         "tacCode": {
           "type": "string",
@@ -23833,6 +24833,64 @@ func init() {
       "type": "array",
       "items": {
         "type": "string"
+      }
+    },
+    "GSRAppeal": {
+      "description": "An object associating appeals on violations and serious incidents",
+      "type": "object",
+      "properties": {
+        "appealStatus": {
+          "$ref": "#/definitions/GSRAppealStatusType"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "isSeriousIncident": {
+          "type": "boolean",
+          "example": false
+        },
+        "officeUser": {
+          "$ref": "#/definitions/EvaluationReportOfficeUser"
+        },
+        "officeUserID": {
+          "type": "string",
+          "format": "uuid",
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "remarks": {
+          "type": "string",
+          "example": "Office user remarks"
+        },
+        "reportID": {
+          "type": "string",
+          "format": "uuid",
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "violationID": {
+          "type": "string",
+          "format": "uuid",
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        }
+      }
+    },
+    "GSRAppealStatusType": {
+      "type": "string",
+      "enum": [
+        "SUSTAINED",
+        "REJECTED"
+      ]
+    },
+    "GSRAppeals": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/GSRAppeal"
       }
     },
     "Grade": {
@@ -24559,6 +25617,10 @@ func init() {
           "x-nullable": true,
           "example": 2500
         },
+        "externalCrate": {
+          "type": "boolean",
+          "x-nullable": true
+        },
         "feeType": {
           "type": "string",
           "enum": [
@@ -24577,6 +25639,16 @@ func init() {
           "type": "integer",
           "format": "cents",
           "x-nullable": true
+        },
+        "market": {
+          "description": "To identify whether the service was provided within (CONUS) or (OCONUS)",
+          "type": "string",
+          "enum": [
+            "CONUS",
+            "OCONUS"
+          ],
+          "x-nullable": true,
+          "example": "CONUS"
         },
         "moveTaskOrderID": {
           "type": "string",
@@ -24883,7 +25955,7 @@ func init() {
     "MTOShipment": {
       "properties": {
         "actualDeliveryDate": {
-          "description": "The actual date that the shipment was delivered to the destination address by the Prime",
+          "description": "The actual date that the shipment was delivered to the delivery address by the Prime",
           "type": "string",
           "format": "date",
           "x-nullable": true
@@ -25004,6 +26076,15 @@ func init() {
           "type": "string",
           "format": "uuid",
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "marketCode": {
+          "description": "Single-letter designator for domestic (d) or international (i) shipments",
+          "type": "string",
+          "enum": [
+            "d",
+            "i"
+          ],
+          "example": "d"
         },
         "mobileHomeShipment": {
           "$ref": "#/definitions/MobileHome"
@@ -25178,12 +26259,11 @@ func init() {
         "HHG",
         "HHG_INTO_NTS_DOMESTIC",
         "HHG_OUTOF_NTS_DOMESTIC",
-        "INTERNATIONAL_HHG",
-        "INTERNATIONAL_UB",
         "PPM",
         "BOAT_HAUL_AWAY",
         "BOAT_TOW_AWAY",
-        "MOBILE_HOME"
+        "MOBILE_HOME",
+        "UNACCOMPANIED_BAGGAGE"
       ],
       "x-display-value": {
         "BOAT_HAUL_AWAY": "Boat Haul-Away",
@@ -25191,10 +26271,9 @@ func init() {
         "HHG": "HHG",
         "HHG_INTO_NTS_DOMESTIC": "NTS",
         "HHG_OUTOF_NTS_DOMESTIC": "NTS Release",
-        "INTERNATIONAL_HHG": "International HHG",
-        "INTERNATIONAL_UB": "International UB",
         "MOBILE_HOME": "Mobile Home",
-        "PPM": "PPM"
+        "PPM": "PPM",
+        "UNACCOMPANIED_BAGGAGE": "Unaccompanied Baggage"
       },
       "example": "HHG"
     },
@@ -25344,7 +26423,7 @@ func init() {
           "type": "string",
           "x-nullable": true,
           "readOnly": true,
-          "example": "Destination address is too far from duty location"
+          "example": "Delivery Address is too far from duty location"
         },
         "id": {
           "type": "string",
@@ -26359,7 +27438,8 @@ func init() {
         "SEPARATION",
         "WOUNDED_WARRIOR",
         "BLUEBARK",
-        "SAFETY"
+        "SAFETY",
+        "TEMPORARY_DUTY"
       ],
       "x-display-value": {
         "BLUEBARK": "BLUEBARK",
@@ -26368,6 +27448,7 @@ func init() {
         "RETIREMENT": "Retirement",
         "SAFETY": "Safety",
         "SEPARATION": "Separation",
+        "TEMPORARY_DUTY": "Temporary Duty (TDY)",
         "WOUNDED_WARRIOR": "Wounded Warrior"
       }
     },
@@ -27105,6 +28186,20 @@ func init() {
           "readOnly": true,
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
         },
+        "isActualExpenseReimbursement": {
+          "description": "Used for PPM shipments only. Denotes if this shipment uses the Actual Expense Reimbursement method.",
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false,
+          "example": false
+        },
+        "maxIncentive": {
+          "description": "The max amount the government will pay the service member to move their belongings based on the moving date, locations, and shipment weight.",
+          "type": "integer",
+          "format": "cents",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
         "movingExpenses": {
           "description": "All expense documentation receipt records of this PPM shipment.",
           "type": "array",
@@ -27319,7 +28414,7 @@ func init() {
     "PPMStatus": {
       "type": "string",
       "enum": [
-        "CANCELLED",
+        "CANCELED",
         "DRAFT",
         "SUBMITTED",
         "WAITING_ON_CUSTOMER",
@@ -27804,9 +28899,15 @@ func init() {
           "format": "date-time",
           "x-nullable": true
         },
+        "assignable": {
+          "type": "boolean"
+        },
         "assignedTo": {
           "x-nullable": true,
           "$ref": "#/definitions/AssignedOfficeUser"
+        },
+        "availableOfficeUsers": {
+          "$ref": "#/definitions/AvailableOfficeUsers"
         },
         "closeoutInitiated": {
           "type": "string",
@@ -27819,6 +28920,11 @@ func init() {
         },
         "counselingOffice": {
           "type": "string",
+          "x-nullable": true
+        },
+        "counselingOfficeID": {
+          "type": "string",
+          "format": "uuid",
           "x-nullable": true
         },
         "customer": {
@@ -27900,9 +29006,6 @@ func init() {
     "QueueMovesResult": {
       "type": "object",
       "properties": {
-        "availableOfficeUsers": {
-          "$ref": "#/definitions/AvailableOfficeUsers"
-        },
         "page": {
           "type": "integer"
         },
@@ -27924,6 +29027,20 @@ func init() {
           "description": "Days since the payment request has been requested.  Decimal representation will allow more accurate sorting.",
           "type": "number",
           "format": "double"
+        },
+        "assignable": {
+          "type": "boolean"
+        },
+        "assignedTo": {
+          "x-nullable": true,
+          "$ref": "#/definitions/AssignedOfficeUser"
+        },
+        "availableOfficeUsers": {
+          "$ref": "#/definitions/AvailableOfficeUsers"
+        },
+        "counselingOffice": {
+          "type": "string",
+          "x-nullable": true
         },
         "customer": {
           "$ref": "#/definitions/Customer"
@@ -27990,9 +29107,6 @@ func init() {
     "QueuePaymentRequestsResult": {
       "type": "object",
       "properties": {
-        "availableOfficeUsers": {
-          "$ref": "#/definitions/AvailableOfficeUsers"
-        },
         "page": {
           "type": "integer"
         },
@@ -28005,6 +29119,104 @@ func init() {
         "totalCount": {
           "type": "integer"
         }
+      }
+    },
+    "ReServiceItem": {
+      "description": "A Service Item which ties an ReService, Market, and Shipment Type together",
+      "type": "object",
+      "properties": {
+        "isAutoApproved": {
+          "type": "boolean",
+          "example": true
+        },
+        "marketCode": {
+          "type": "string",
+          "enum": [
+            "i",
+            "d"
+          ],
+          "example": "i (International), d (Domestic)"
+        },
+        "serviceCode": {
+          "type": "string",
+          "enum": [
+            "CS",
+            "DBHF",
+            "DBTF",
+            "DCRT",
+            "DCRTSA",
+            "DDASIT",
+            "DDDSIT",
+            "DDFSIT",
+            "DDP",
+            "DDSFSC",
+            "DDSHUT",
+            "DLH",
+            "DMHF",
+            "DNPK",
+            "DOASIT",
+            "DOFSIT",
+            "DOP",
+            "DOPSIT",
+            "DOSFSC",
+            "DOSHUT",
+            "DPK",
+            "DSH",
+            "DUCRT",
+            "DUPK",
+            "FSC",
+            "IBHF",
+            "IBTF",
+            "ICRT",
+            "ICRTSA",
+            "IDASIT",
+            "IDDSIT",
+            "IDFSIT",
+            "IDSFSC",
+            "IDSHUT",
+            "IHPK",
+            "IHUPK",
+            "INPK",
+            "IOASIT",
+            "IOFSIT",
+            "IOPSIT",
+            "IOSFSC",
+            "IOSHUT",
+            "ISLH",
+            "IUBPK",
+            "IUBUPK",
+            "IUCRT",
+            "MS",
+            "PODFSC",
+            "POEFSC",
+            "UBP"
+          ],
+          "example": "UBP"
+        },
+        "serviceName": {
+          "type": "string",
+          "example": "International UB, International Shipping \u0026 Linehaul"
+        },
+        "shipmentType": {
+          "type": "string",
+          "enum": [
+            "BOAT_HAUL_AWAY",
+            "BOAT_TOW_AWAY",
+            "HHG",
+            "HHG_INTO_NTS_DOMESTIC",
+            "HHG_OUTOF_NTS_DOMESTIC",
+            "MOBILE_HOME",
+            "PPM",
+            "UNACCOMPANIED_BAGGAGE"
+          ],
+          "example": "HHG, UNACCOMPANIED_BAGGAGE"
+        }
+      }
+    },
+    "ReServiceItems": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/ReServiceItem"
       }
     },
     "RejectShipment": {
@@ -28022,6 +29234,10 @@ func init() {
       "description": "An object associating violations to evaluation reports",
       "type": "object",
       "properties": {
+        "gsrAppeals": {
+          "x-nullable": true,
+          "$ref": "#/definitions/GSRAppeals"
+        },
         "id": {
           "type": "string",
           "format": "uuid",
@@ -28411,7 +29627,7 @@ func init() {
         "branch": {
           "type": "string"
         },
-        "dodID": {
+        "edipi": {
           "type": "string",
           "x-nullable": true
         },
@@ -28487,7 +29703,7 @@ func init() {
         "destinationGBLOC": {
           "$ref": "#/definitions/GBLOC"
         },
-        "dodID": {
+        "edipi": {
           "type": "string",
           "x-nullable": true,
           "example": 1234567890
@@ -28716,7 +29932,7 @@ func init() {
       }
     },
     "ShipmentAddressUpdate": {
-      "description": "This represents a destination address change request made by the Prime that is either auto-approved or requires review if the pricing criteria has changed. If criteria has changed, then it must be approved or rejected by a TOO.\n",
+      "description": "This represents a delivery address change request made by the Prime that is either auto-approved or requires review if the pricing criteria has changed. If criteria has changed, then it must be approved or rejected by a TOO.\n",
       "type": "object",
       "required": [
         "id",
@@ -28744,7 +29960,7 @@ func init() {
           "$ref": "#/definitions/Address"
         },
         "newSitDistanceBetween": {
-          "description": "The distance between the original SIT address and requested new destination address of shipment",
+          "description": "The distance between the original SIT address and requested new delivery address of shipment",
           "type": "integer",
           "minimum": 0,
           "example": 88
@@ -28757,7 +29973,7 @@ func init() {
           "example": "This is an office remark"
         },
         "oldSitDistanceBetween": {
-          "description": "The distance between the original SIT address and the previous/old destination address of shipment",
+          "description": "The distance between the original SIT address and the previous/old delivery address of shipment",
           "type": "integer",
           "minimum": 0,
           "example": 50
@@ -29078,12 +30294,30 @@ func init() {
     "UpdateAllowancePayload": {
       "type": "object",
       "properties": {
+        "accompaniedTour": {
+          "description": "Indicates if the move entitlement allows dependents to travel to the new Permanent Duty Station (PDS). This is only present on OCONUS moves.",
+          "type": "boolean",
+          "x-nullable": true,
+          "example": true
+        },
         "agency": {
           "$ref": "#/definitions/Affiliation"
         },
         "dependentsAuthorized": {
           "type": "boolean",
           "x-nullable": true
+        },
+        "dependentsTwelveAndOver": {
+          "description": "Indicates the number of dependents of the age twelve or older for a move. This is only present on OCONUS moves.",
+          "type": "integer",
+          "x-nullable": true,
+          "example": 3
+        },
+        "dependentsUnderTwelve": {
+          "description": "Indicates the number of dependents under the age of twelve for a move. This is only present on OCONUS moves.",
+          "type": "integer",
+          "x-nullable": true,
+          "example": 5
         },
         "grade": {
           "$ref": "#/definitions/Grade"
@@ -29127,6 +30361,11 @@ func init() {
           "description": "the number of storage in transit days that the customer is entitled to for a given shipment on their move",
           "type": "integer",
           "minimum": 0
+        },
+        "ubAllowance": {
+          "type": "integer",
+          "x-nullable": true,
+          "example": 500
         }
       }
     },
@@ -29584,6 +30823,13 @@ func init() {
           "type": "boolean",
           "x-nullable": true,
           "x-omitempty": false
+        },
+        "isActualExpenseReimbursement": {
+          "description": "Used for PPM shipments only. Denotes if this shipment uses the Actual Expense Reimbursement method.",
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false,
+          "example": false
         },
         "pickupAddress": {
           "allOf": [
@@ -30347,6 +31593,9 @@ func init() {
     },
     {
       "name": "paymentRequests"
+    },
+    {
+      "name": "reServiceItems"
     }
   ]
 }`))

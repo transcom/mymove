@@ -1,18 +1,22 @@
 package movetaskorder
 
 import (
+	"context"
 	"database/sql"
 	"errors"
 	"strings"
 
 	"github.com/gobuffalo/pop/v6"
 	"github.com/gofrs/uuid"
+	"github.com/spf13/viper"
 	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/apperror"
+	"github.com/transcom/mymove/pkg/cli"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
+	"github.com/transcom/mymove/pkg/services/featureflag"
 )
 
 type moveTaskOrderFetcher struct {
@@ -101,6 +105,38 @@ func (f moveTaskOrderFetcher) ListAllMoveTaskOrders(appCtx appcontext.AppContext
 func (f moveTaskOrderFetcher) FetchMoveTaskOrder(appCtx appcontext.AppContext, searchParams *services.MoveTaskOrderFetcherParams) (*models.Move, error) {
 	mto := &models.Move{}
 
+	/** Feature Flag - Boat Shipment **/
+	isBoatFeatureOn := false
+	featureFlagName := "boat"
+	config := cli.GetFliptFetcherConfig(viper.GetViper())
+	flagFetcher, err := featureflag.NewFeatureFlagFetcher(config)
+	if err != nil {
+		appCtx.Logger().Error("Error initializing FeatureFlagFetcher", zap.String("featureFlagKey", featureFlagName), zap.Error(err))
+	}
+
+	flag, err := flagFetcher.GetBooleanFlagForUser(context.TODO(), appCtx, featureFlagName, map[string]string{})
+	if err != nil {
+		appCtx.Logger().Error("Error fetching feature flag", zap.String("featureFlagKey", featureFlagName), zap.Error(err))
+	} else {
+		isBoatFeatureOn = flag.Match
+	}
+
+	/** Feature Flag - Mobile Home Shipment **/
+	isMobileHomeFeatureOn := false
+	featureFlagMH := "mobile_home"
+	configMH := cli.GetFliptFetcherConfig(viper.GetViper())
+	flagFetcherMH, err := featureflag.NewFeatureFlagFetcher(configMH)
+	if err != nil {
+		appCtx.Logger().Error("Error initializing FeatureFlagFetcherMH", zap.String("featureFlagKey", featureFlagMH), zap.Error(err))
+	}
+
+	flagMH, err := flagFetcherMH.GetBooleanFlagForUser(context.TODO(), appCtx, featureFlagMH, map[string]string{})
+	if err != nil {
+		appCtx.Logger().Error("Error fetching feature flag", zap.String("featureFlagKey", featureFlagMH), zap.Error(err))
+	} else {
+		isMobileHomeFeatureOn = flagMH.Match
+	}
+
 	query := appCtx.DB().EagerPreload(
 		"Contractor",
 		"PaymentRequests.PaymentServiceItems.PaymentServiceItemParams.ServiceItemParamKey",
@@ -111,24 +147,25 @@ func (f moveTaskOrderFetcher) FetchMoveTaskOrder(appCtx appcontext.AppContext, s
 		"MTOServiceItems.SITOriginHHGOriginalAddress",
 		"MTOServiceItems.SITOriginHHGActualAddress",
 		"MTOServiceItems.ServiceRequestDocuments.ServiceRequestDocumentUploads",
-		"MTOShipments.DestinationAddress",
-		"MTOShipments.PickupAddress",
-		"MTOShipments.SecondaryDeliveryAddress",
-		"MTOShipments.SecondaryPickupAddress",
-		"MTOShipments.TertiaryDeliveryAddress",
-		"MTOShipments.TertiaryPickupAddress",
+		"MTOShipments.DestinationAddress.Country",
+		"MTOShipments.PickupAddress.Country",
+		"MTOShipments.SecondaryDeliveryAddress.Country",
+		"MTOShipments.SecondaryPickupAddress.Country",
+		"MTOShipments.TertiaryDeliveryAddress.Country",
+		"MTOShipments.TertiaryPickupAddress.Country",
 		"MTOShipments.MTOAgents",
 		"MTOShipments.SITDurationUpdates",
 		"MTOShipments.StorageFacility",
 		"MTOShipments.StorageFacility.Address",
 		"MTOShipments.DeliveryAddressUpdate",
-		"MTOShipments.DeliveryAddressUpdate.OriginalAddress",
+		"MTOShipments.DeliveryAddressUpdate.OriginalAddress.Country",
+		"MTOShipments.PPMShipment",
 		"Orders.ServiceMember",
-		"Orders.ServiceMember.ResidentialAddress",
+		"Orders.ServiceMember.ResidentialAddress.Country",
 		"Orders.Entitlement",
 		"Orders.DestinationGBLOC",
-		"Orders.NewDutyLocation.Address",
-		"Orders.OriginDutyLocation.Address", // this line breaks Eager, but works with EagerPreload
+		"Orders.NewDutyLocation.Address.Country",
+		"Orders.OriginDutyLocation.Address.Country", // this line breaks Eager, but works with EagerPreload
 		"ShipmentGBLOC",
 	)
 
@@ -147,7 +184,7 @@ func (f moveTaskOrderFetcher) FetchMoveTaskOrder(appCtx appcontext.AppContext, s
 
 	setMTOQueryFilters(query, searchParams)
 
-	err := query.First(mto)
+	err = query.First(mto)
 	if err != nil {
 		switch err {
 		case sql.ErrNoRows:
@@ -197,18 +234,31 @@ func (f moveTaskOrderFetcher) FetchMoveTaskOrder(appCtx appcontext.AppContext, s
 		if mto.MTOShipments[i].ShipmentType == models.MTOShipmentTypePPM {
 			loadErr := appCtx.DB().Load(&mto.MTOShipments[i],
 				"PPMShipment",
-				"PPMShipment.PickupAddress",
-				"PPMShipment.DestinationAddress",
-				"PPMShipment.SecondaryPickupAddress",
-				"PPMShipment.SecondaryDestinationAddress",
-				"PPMShipment.TertiaryPickupAddress",
-				"PPMShipment.TertiaryDestinationAddress",
+				"PPMShipment.PickupAddress.Country",
+				"PPMShipment.DestinationAddress.Country",
+				"PPMShipment.SecondaryPickupAddress.Country",
+				"PPMShipment.SecondaryDestinationAddress.Country",
+				"PPMShipment.TertiaryPickupAddress.Country",
+				"PPMShipment.TertiaryDestinationAddress.Country",
 			)
 			if loadErr != nil {
 				return &models.Move{}, apperror.NewQueryError("PPMShipment", loadErr, "")
 			}
+		} else if isBoatFeatureOn && (mto.MTOShipments[i].ShipmentType == models.MTOShipmentTypeBoatHaulAway || mto.MTOShipments[i].ShipmentType == models.MTOShipmentTypeBoatTowAway) {
+			loadErr := appCtx.DB().Load(&mto.MTOShipments[i],
+				"BoatShipment",
+			)
+			if loadErr != nil {
+				return &models.Move{}, apperror.NewQueryError("BoatShipment", loadErr, "")
+			}
+		} else if isMobileHomeFeatureOn && (mto.MTOShipments[i].ShipmentType == models.MTOShipmentTypeMobileHome) {
+			loadErrMH := appCtx.DB().Load(&mto.MTOShipments[i],
+				"MobileHome",
+			)
+			if loadErrMH != nil {
+				return &models.Move{}, apperror.NewQueryError("MobileHomeShipment", loadErrMH, "")
+			}
 		}
-
 		filteredShipments = append(filteredShipments, mto.MTOShipments[i])
 	}
 	mto.MTOShipments = filteredShipments

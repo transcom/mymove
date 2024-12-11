@@ -355,7 +355,7 @@ func init() {
     },
     "/mto-service-items/{mtoServiceItemID}": {
       "patch": {
-        "description": "Updates MTOServiceItems after creation. Not all service items or fields may be updated, please see details below.\n\nThis endpoint supports different body definitions. In the modelType field below, select the modelType corresponding\n to the service item you wish to update and the documentation will update with the new definition.\n\n* Addresses: To update a destination service item's SIT destination final address, update the shipment destination address.\nFor approved shipments, please use [updateShipmentDestinationAddress](#mtoShipment/updateShipmentDestinationAddress).\nFor shipments not yet approved, please use [updateMTOShipmentAddress](#mtoShipment/updateMTOShipmentAddress).\n\n* SIT Service Items: Take note that when updating ` + "`" + `sitCustomerContacted` + "`" + `, ` + "`" + `sitDepartureDate` + "`" + `, or ` + "`" + `sitRequestedDelivery` + "`" + `, we want\nthose to be updated on ` + "`" + `DOASIT` + "`" + ` (for origin SIT) and ` + "`" + `DDASIT` + "`" + ` (for destination SIT). If updating those values in other service\nitems, the office users will not have as much attention to those values.\n\nTo create a service item, please use [createMTOServiceItem](#mtoServiceItem/createMTOServiceItem)) endpoint.\n\n* Resubmitting rejected SIT service items: This endpoint will handle the logic of changing the status of rejected SIT service items from\nREJECTED to SUBMITTED. Please provide the ` + "`" + `requestedApprovalsRequestedStatus: true` + "`" + ` when resubmitting as this will give attention to the TOO to\nreview the resubmitted SIT service item. Another note, ` + "`" + `updateReason` + "`" + ` must have a different value than the current ` + "`" + `reason` + "`" + ` value on the service item.\nIf this value is not updated, then an error will be sent back.\n\nThe following SIT service items can be resubmitted following a rejection:\n- DDASIT\n- DDDSIT\n- DDFSIT\n- DOASIT\n- DOPSIT\n- DOFSIT\n- DDSFSC\n- DOSFSC\n\nAt a MINIMUM, the payload for resubmitting a rejected SIT service item must look like this:\n` + "`" + `` + "`" + `` + "`" + `json\n{\n  \"reServiceCode\": \"DDFSIT\",\n  \"updateReason\": \"A reason that differs from the previous reason\",\n  \"modelType\": \"UpdateMTOServiceItemSIT\",\n  \"requestApprovalsRequestedStatus\": true\n}\n` + "`" + `` + "`" + `` + "`" + `\n",
+        "description": "Updates MTOServiceItems after creation. Not all service items or fields may be updated, please see details below.\n\nThis endpoint supports different body definitions. In the modelType field below, select the modelType corresponding\n to the service item you wish to update and the documentation will update with the new definition.\n\n* Addresses: To update a destination service item's SIT destination final address, update the shipment delivery address.\nFor approved shipments, please use [updateShipmentDestinationAddress](#mtoShipment/updateShipmentDestinationAddress).\nFor shipments not yet approved, please use [updateMTOShipmentAddress](#mtoShipment/updateMTOShipmentAddress).\n\n* SIT Service Items: Take note that when updating ` + "`" + `sitCustomerContacted` + "`" + `, ` + "`" + `sitDepartureDate` + "`" + `, or ` + "`" + `sitRequestedDelivery` + "`" + `, we want\nthose to be updated on ` + "`" + `DOASIT` + "`" + ` (for origin SIT) and ` + "`" + `DDASIT` + "`" + ` (for destination SIT). If updating those values in other service\nitems, the office users will not have as much attention to those values.\n\nTo create a service item, please use [createMTOServiceItem](#mtoServiceItem/createMTOServiceItem)) endpoint.\n\n* Resubmitting rejected SIT service items: This endpoint will handle the logic of changing the status of rejected SIT service items from\nREJECTED to SUBMITTED. Please provide the ` + "`" + `requestedApprovalsRequestedStatus: true` + "`" + ` when resubmitting as this will give attention to the TOO to\nreview the resubmitted SIT service item. Another note, ` + "`" + `updateReason` + "`" + ` must have a different value than the current ` + "`" + `reason` + "`" + ` value on the service item.\nIf this value is not updated, then an error will be sent back.\n\nThe following SIT service items can be resubmitted following a rejection:\n- DDASIT\n- DDDSIT\n- DDFSIT\n- DOASIT\n- DOPSIT\n- DOFSIT\n- DDSFSC\n- DOSFSC\n\nAt a MINIMUM, the payload for resubmitting a rejected SIT service item must look like this:\n` + "`" + `` + "`" + `` + "`" + `json\n{\n  \"reServiceCode\": \"DDFSIT\",\n  \"updateReason\": \"A reason that differs from the previous reason\",\n  \"modelType\": \"UpdateMTOServiceItemSIT\",\n  \"requestApprovalsRequestedStatus\": true\n}\n` + "`" + `` + "`" + `` + "`" + `\n",
         "consumes": [
           "application/json"
         ],
@@ -567,7 +567,7 @@ func init() {
     },
     "/mto-shipments/{mtoShipmentID}/addresses/{addressID}": {
       "put": {
-        "description": "### Functionality\nThis endpoint is used to **update** the pickup, secondary, and destination addresses on an MTO Shipment. mto-shipments/{mtoShipmentID}/shipment-address-updates is for updating a delivery address. The address details completely replace the original, except for the UUID.\nTherefore a complete address should be sent in the request.\nWhen a destination address on a shipment is updated, the destination SIT service items address ID will also be updated so that shipment and service item final destinations match.\n\nThis endpoint **cannot create** an address.\nTo create an address on an MTO shipment, the caller must use [updateMTOShipment](#operation/updateMTOShipment) as the parent shipment has to be updated with the appropriate link to the address.\n\n### Errors\nThe address must be associated with the mtoShipment passed in the url.\nIn other words, it should be listed as pickupAddress, destinationAddress, secondaryPickupAddress or secondaryDeliveryAddress on the mtoShipment provided.\nIf it is not, caller will receive a **Conflict** Error.\n\nThe mtoShipment should be associated with an MTO that is available to prime.\nIf the caller requests an update to an address, and the shipment is not on an available MTO, the caller will receive a **NotFound** Error.\n",
+        "description": "### Functionality\nThis endpoint is used to **update** the pickup, secondary, and delivery addresses on an MTO Shipment. mto-shipments/{mtoShipmentID}/shipment-address-updates is for updating a delivery address. The address details completely replace the original, except for the UUID.\nTherefore a complete address should be sent in the request.\nWhen a delivery address on a shipment is updated, the destination SIT service items address ID will also be updated so that shipment and service item final destinations match.\n\nThis endpoint **cannot create** an address.\nTo create an address on an MTO shipment, the caller must use [updateMTOShipment](#operation/updateMTOShipment) as the parent shipment has to be updated with the appropriate link to the address.\n\n### Errors\nThe address must be associated with the mtoShipment passed in the url.\nIn other words, it should be listed as pickupAddress, destinationAddress, secondaryPickupAddress or secondaryDeliveryAddress on the mtoShipment provided.\nIf it is not, caller will receive a **Conflict** Error.\n\nThe mtoShipment should be associated with an MTO that is available to prime.\nIf the caller requests an update to an address, and the shipment is not on an available MTO, the caller will receive a **NotFound** Error.\n",
         "consumes": [
           "application/json"
         ],
@@ -858,7 +858,7 @@ func init() {
     },
     "/mto-shipments/{mtoShipmentID}/shipment-address-updates": {
       "post": {
-        "description": "### Functionality\nThis endpoint is used so the Prime can request an **update** for the destination address on an MTO Shipment,\nafter the destination address has already been approved.\n\nThis endpoint and operation only supports the following shipment types:\n- HHG\n- NTSR\n\nFor HHG shipments, if automatically approved or TOO approves, this will update the final destination address values for destination SIT service items to be the same as the changed destination address that was approved.\n\nAddress updates will be automatically approved unless they change:\n  - The service area\n  - Mileage bracket for direct delivery\n  - the address and the distance between the old and new address is \u003e 50\n  - Domestic Short Haul to Domestic Line Haul or vice versa\n      - Shipments that start and end in one ZIP3 use Short Haul pricing\n      - Shipments that start and end in different ZIP3s use Line Haul pricing\n\nFor those, changes will require TOO approval.\n",
+        "description": "### Functionality\nThis endpoint is used so the Prime can request an **update** for the delivery address on an MTO Shipment,\nafter the delivery address has already been approved.\n\nThis endpoint and operation only supports the following shipment types:\n- HHG\n- NTSR\n\nFor HHG shipments, if automatically approved or TOO approves, this will update the final delivery address values for destination SIT service items to be the same as the changed delivery address that was approved.\n\nAddress updates will be automatically approved unless they change:\n  - The service area\n  - Mileage bracket for direct delivery\n  - the address and the distance between the old and new address is \u003e 50\n  - Domestic Short Haul to Domestic Line Haul or vice versa\n      - Shipments that start and end in one ZIP3 use Short Haul pricing\n      - Shipments that start and end in different ZIP3s use Line Haul pricing\n\nFor those, changes will require TOO approval.\n",
         "consumes": [
           "application/json"
         ],
@@ -1200,11 +1200,13 @@ func init() {
           "example": "Anytown"
         },
         "country": {
+          "description": "Two-letter country code",
           "type": "string",
           "title": "Country",
-          "default": "USA",
+          "default": "US",
+          "pattern": "^[A-Z]{2}$",
           "x-nullable": true,
-          "example": "USA"
+          "example": "US"
         },
         "county": {
           "type": "string",
@@ -1512,6 +1514,13 @@ func init() {
           "description": "Indicates whether PPM shipment has pro gear for themselves or their spouse.\n",
           "type": "boolean"
         },
+        "isActualExpenseReimbursement": {
+          "description": "Used for PPM shipments only. Denotes if this shipment uses the Actual Expense Reimbursement method.",
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false,
+          "example": false
+        },
         "pickupAddress": {
           "description": "The address of the origin location where goods are being moved from.",
           "allOf": [
@@ -1781,6 +1790,12 @@ func init() {
           "type": "integer",
           "x-formatting": "weight",
           "example": 500
+        },
+        "ubAllowance": {
+          "description": "The amount of weight in pounds that the move is entitled for shipment types of Unaccompanied Baggage.",
+          "type": "integer",
+          "x-nullable": true,
+          "example": 3
         }
       }
     },
@@ -2251,15 +2266,88 @@ func init() {
         }
       ]
     },
+    "MTOServiceItemInternationalCrating": {
+      "description": "Describes a international crating/uncrating service item subtype of a MTOServiceItem.",
+      "allOf": [
+        {
+          "$ref": "#/definitions/MTOServiceItem"
+        },
+        {
+          "type": "object",
+          "required": [
+            "reServiceCode",
+            "item",
+            "crate",
+            "description"
+          ],
+          "properties": {
+            "crate": {
+              "description": "The dimensions for the crate the item will be shipped in.",
+              "allOf": [
+                {
+                  "$ref": "#/definitions/MTOServiceItemDimension"
+                }
+              ]
+            },
+            "description": {
+              "description": "A description of the item being crated.",
+              "type": "string",
+              "example": "Decorated horse head to be crated."
+            },
+            "externalCrate": {
+              "type": "boolean",
+              "x-nullable": true
+            },
+            "item": {
+              "description": "The dimensions of the item being crated.",
+              "allOf": [
+                {
+                  "$ref": "#/definitions/MTOServiceItemDimension"
+                }
+              ]
+            },
+            "market": {
+              "description": "To identify whether the service was provided within (CONUS) or (OCONUS)",
+              "type": "string",
+              "enum": [
+                "CONUS",
+                "OCONUS"
+              ],
+              "example": "CONUS"
+            },
+            "reServiceCode": {
+              "description": "A unique code for the service item. Indicates if the service is for crating (ICRT) or uncrating (IUCRT).",
+              "type": "string",
+              "enum": [
+                "ICRT",
+                "IUCRT"
+              ]
+            },
+            "reason": {
+              "description": "The contractor's explanation for why an item needed to be crated or uncrated. Used by the TOO while deciding to approve or reject the service item.\n",
+              "type": "string",
+              "x-nullable": true,
+              "x-omitempty": false,
+              "example": "Storage items need to be picked up"
+            },
+            "standaloneCrate": {
+              "type": "boolean",
+              "x-nullable": true
+            }
+          }
+        }
+      ]
+    },
     "MTOServiceItemModelType": {
-      "description": "Describes all model sub-types for a MTOServiceItem model.\n\nUsing this list, choose the correct modelType in the dropdown, corresponding to the service item type.\n  * DOFSIT, DOASIT - MTOServiceItemOriginSIT\n  * DDFSIT, DDASIT - MTOServiceItemDestSIT\n  * DOSHUT, DDSHUT - MTOServiceItemShuttle\n  * DCRT, DUCRT - MTOServiceItemDomesticCrating\n\nThe documentation will then update with the supported fields.\n",
+      "description": "Describes all model sub-types for a MTOServiceItem model.\n\nUsing this list, choose the correct modelType in the dropdown, corresponding to the service item type.\n  * DOFSIT, DOASIT - MTOServiceItemOriginSIT\n  * DDFSIT, DDASIT - MTOServiceItemDestSIT\n  * DOSHUT, DDSHUT - MTOServiceItemShuttle\n  * DCRT, DUCRT - MTOServiceItemDomesticCrating\n  * ICRT, IUCRT - MTOServiceItemInternationalCrating\n\nThe documentation will then update with the supported fields.\n",
       "type": "string",
       "enum": [
         "MTOServiceItemBasic",
         "MTOServiceItemOriginSIT",
         "MTOServiceItemDestSIT",
         "MTOServiceItemShuttle",
-        "MTOServiceItemDomesticCrating"
+        "MTOServiceItemDomesticCrating",
+        "MTOServiceItemInternationalCrating"
       ]
     },
     "MTOServiceItemOriginSIT": {
@@ -2414,10 +2502,9 @@ func init() {
         "HHG",
         "HHG_INTO_NTS_DOMESTIC",
         "HHG_OUTOF_NTS_DOMESTIC",
-        "INTERNATIONAL_HHG",
-        "INTERNATIONAL_UB",
         "MOBILE_HOME",
-        "PPM"
+        "PPM",
+        "UNACCOMPANIED_BAGGAGE"
       ],
       "x-display-value": {
         "BOAT_HAUL_AWAY": "Boat shipment that requires additional equipment to haul it to it's destination",
@@ -2425,7 +2512,8 @@ func init() {
         "HHG": "Household goods move (HHG)",
         "HHG_INTO_NTS_DOMESTIC": "HHG into Non-temporary storage (NTS)",
         "HHG_OUTOF_NTS_DOMESTIC": "HHG out of Non-temporary storage (NTS Release)",
-        "PPM": "Personally Procured Move also known as Do It Yourself (DITY)"
+        "PPM": "Personally Procured Move also known as Do It Yourself (DITY)",
+        "UNACCOMPANIED_BAGGAGE": "Unaccompanied Baggage"
       },
       "example": "HHG"
     },
@@ -2536,6 +2624,15 @@ func init() {
           "format": "uuid",
           "readOnly": true,
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "marketCode": {
+          "description": "Single-letter designator for domestic (d) or international (i) shipments",
+          "type": "string",
+          "enum": [
+            "d",
+            "i"
+          ],
+          "example": "d"
         },
         "moveTaskOrderID": {
           "description": "The ID of the move for this shipment.",
@@ -2872,7 +2969,8 @@ func init() {
         "SEPARATION",
         "WOUNDED_WARRIOR",
         "BLUEBARK",
-        "SAFETY"
+        "SAFETY",
+        "TEMPORARY_DUTY"
       ],
       "x-display-value": {
         "BLUEBARK": "BLUEBARK",
@@ -2881,6 +2979,7 @@ func init() {
         "RETIREMENT": "Retirement",
         "SAFETY": "Safety",
         "SEPARATION": "Separation",
+        "TEMPORARY_DUTY": "Temporary Duty (TDY)",
         "WOUNDED_WARRIOR": "Wounded Warrior"
       }
     },
@@ -2998,6 +3097,20 @@ func init() {
           "format": "uuid",
           "readOnly": true,
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "isActualExpenseReimbursement": {
+          "description": "Used for PPM shipments only. Denotes if this shipment uses the Actual Expense Reimbursement method.",
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false,
+          "example": false
+        },
+        "maxIncentive": {
+          "description": "The max amount the government will pay the service member to move their belongings based on the moving date, locations, and shipment weight.",
+          "type": "integer",
+          "format": "cents",
+          "x-nullable": true,
+          "x-omitempty": false
         },
         "proGearWeight": {
           "description": "The estimated weight of the pro-gear being moved belonging to the service member in pounds.",
@@ -3325,7 +3438,6 @@ func init() {
         "ICOLH",
         "ICOUB",
         "ICRT",
-        "ICRTSA",
         "IDASIT",
         "IDDSIT",
         "IDFSIT",
@@ -3648,7 +3760,7 @@ func init() {
       }
     },
     "ShipmentAddressUpdate": {
-      "description": "This represents a destination address change request made by the Prime that is either auto-approved or requires review if the pricing criteria has changed. If criteria has changed, then it must be approved or rejected by a TOO.\n",
+      "description": "This represents a delivery address change request made by the Prime that is either auto-approved or requires review if the pricing criteria has changed. If criteria has changed, then it must be approved or rejected by a TOO.\n",
       "type": "object",
       "required": [
         "id",
@@ -3676,7 +3788,7 @@ func init() {
           "$ref": "#/definitions/Address"
         },
         "newSitDistanceBetween": {
-          "description": "The distance between the original SIT address and requested new destination address of shipment",
+          "description": "The distance between the original SIT address and requested new delivery address of shipment",
           "type": "integer",
           "example": 88
         },
@@ -3688,7 +3800,7 @@ func init() {
           "example": "This is an office remark"
         },
         "oldSitDistanceBetween": {
-          "description": "The distance between the original SIT address and the previous/old destination address of shipment",
+          "description": "The distance between the original SIT address and the previous/old delivery address of shipment",
           "type": "integer",
           "example": 50
         },
@@ -4102,6 +4214,13 @@ func init() {
           "type": "boolean",
           "x-nullable": true
         },
+        "isActualExpenseReimbursement": {
+          "description": "Used for PPM shipments only. Denotes if this shipment uses the Actual Expense Reimbursement method.",
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false,
+          "example": false
+        },
         "proGearWeight": {
           "description": "The estimated weight of the pro-gear being moved belonging to the service member.",
           "type": "integer",
@@ -4170,7 +4289,7 @@ func init() {
       }
     },
     "UpdateShipmentDestinationAddress": {
-      "description": "UpdateShipmentDestinationAddress contains the fields required for the prime to request an update for the destination address on an MTO Shipment.",
+      "description": "UpdateShipmentDestinationAddress contains the fields required for the prime to request an update for the delivery address on an MTO Shipment.",
       "type": "object",
       "required": [
         "contractorRemarks",
@@ -4791,7 +4910,7 @@ func init() {
     },
     "/mto-service-items/{mtoServiceItemID}": {
       "patch": {
-        "description": "Updates MTOServiceItems after creation. Not all service items or fields may be updated, please see details below.\n\nThis endpoint supports different body definitions. In the modelType field below, select the modelType corresponding\n to the service item you wish to update and the documentation will update with the new definition.\n\n* Addresses: To update a destination service item's SIT destination final address, update the shipment destination address.\nFor approved shipments, please use [updateShipmentDestinationAddress](#mtoShipment/updateShipmentDestinationAddress).\nFor shipments not yet approved, please use [updateMTOShipmentAddress](#mtoShipment/updateMTOShipmentAddress).\n\n* SIT Service Items: Take note that when updating ` + "`" + `sitCustomerContacted` + "`" + `, ` + "`" + `sitDepartureDate` + "`" + `, or ` + "`" + `sitRequestedDelivery` + "`" + `, we want\nthose to be updated on ` + "`" + `DOASIT` + "`" + ` (for origin SIT) and ` + "`" + `DDASIT` + "`" + ` (for destination SIT). If updating those values in other service\nitems, the office users will not have as much attention to those values.\n\nTo create a service item, please use [createMTOServiceItem](#mtoServiceItem/createMTOServiceItem)) endpoint.\n\n* Resubmitting rejected SIT service items: This endpoint will handle the logic of changing the status of rejected SIT service items from\nREJECTED to SUBMITTED. Please provide the ` + "`" + `requestedApprovalsRequestedStatus: true` + "`" + ` when resubmitting as this will give attention to the TOO to\nreview the resubmitted SIT service item. Another note, ` + "`" + `updateReason` + "`" + ` must have a different value than the current ` + "`" + `reason` + "`" + ` value on the service item.\nIf this value is not updated, then an error will be sent back.\n\nThe following SIT service items can be resubmitted following a rejection:\n- DDASIT\n- DDDSIT\n- DDFSIT\n- DOASIT\n- DOPSIT\n- DOFSIT\n- DDSFSC\n- DOSFSC\n\nAt a MINIMUM, the payload for resubmitting a rejected SIT service item must look like this:\n` + "`" + `` + "`" + `` + "`" + `json\n{\n  \"reServiceCode\": \"DDFSIT\",\n  \"updateReason\": \"A reason that differs from the previous reason\",\n  \"modelType\": \"UpdateMTOServiceItemSIT\",\n  \"requestApprovalsRequestedStatus\": true\n}\n` + "`" + `` + "`" + `` + "`" + `\n",
+        "description": "Updates MTOServiceItems after creation. Not all service items or fields may be updated, please see details below.\n\nThis endpoint supports different body definitions. In the modelType field below, select the modelType corresponding\n to the service item you wish to update and the documentation will update with the new definition.\n\n* Addresses: To update a destination service item's SIT destination final address, update the shipment delivery address.\nFor approved shipments, please use [updateShipmentDestinationAddress](#mtoShipment/updateShipmentDestinationAddress).\nFor shipments not yet approved, please use [updateMTOShipmentAddress](#mtoShipment/updateMTOShipmentAddress).\n\n* SIT Service Items: Take note that when updating ` + "`" + `sitCustomerContacted` + "`" + `, ` + "`" + `sitDepartureDate` + "`" + `, or ` + "`" + `sitRequestedDelivery` + "`" + `, we want\nthose to be updated on ` + "`" + `DOASIT` + "`" + ` (for origin SIT) and ` + "`" + `DDASIT` + "`" + ` (for destination SIT). If updating those values in other service\nitems, the office users will not have as much attention to those values.\n\nTo create a service item, please use [createMTOServiceItem](#mtoServiceItem/createMTOServiceItem)) endpoint.\n\n* Resubmitting rejected SIT service items: This endpoint will handle the logic of changing the status of rejected SIT service items from\nREJECTED to SUBMITTED. Please provide the ` + "`" + `requestedApprovalsRequestedStatus: true` + "`" + ` when resubmitting as this will give attention to the TOO to\nreview the resubmitted SIT service item. Another note, ` + "`" + `updateReason` + "`" + ` must have a different value than the current ` + "`" + `reason` + "`" + ` value on the service item.\nIf this value is not updated, then an error will be sent back.\n\nThe following SIT service items can be resubmitted following a rejection:\n- DDASIT\n- DDDSIT\n- DDFSIT\n- DOASIT\n- DOPSIT\n- DOFSIT\n- DDSFSC\n- DOSFSC\n\nAt a MINIMUM, the payload for resubmitting a rejected SIT service item must look like this:\n` + "`" + `` + "`" + `` + "`" + `json\n{\n  \"reServiceCode\": \"DDFSIT\",\n  \"updateReason\": \"A reason that differs from the previous reason\",\n  \"modelType\": \"UpdateMTOServiceItemSIT\",\n  \"requestApprovalsRequestedStatus\": true\n}\n` + "`" + `` + "`" + `` + "`" + `\n",
         "consumes": [
           "application/json"
         ],
@@ -5067,7 +5186,7 @@ func init() {
     },
     "/mto-shipments/{mtoShipmentID}/addresses/{addressID}": {
       "put": {
-        "description": "### Functionality\nThis endpoint is used to **update** the pickup, secondary, and destination addresses on an MTO Shipment. mto-shipments/{mtoShipmentID}/shipment-address-updates is for updating a delivery address. The address details completely replace the original, except for the UUID.\nTherefore a complete address should be sent in the request.\nWhen a destination address on a shipment is updated, the destination SIT service items address ID will also be updated so that shipment and service item final destinations match.\n\nThis endpoint **cannot create** an address.\nTo create an address on an MTO shipment, the caller must use [updateMTOShipment](#operation/updateMTOShipment) as the parent shipment has to be updated with the appropriate link to the address.\n\n### Errors\nThe address must be associated with the mtoShipment passed in the url.\nIn other words, it should be listed as pickupAddress, destinationAddress, secondaryPickupAddress or secondaryDeliveryAddress on the mtoShipment provided.\nIf it is not, caller will receive a **Conflict** Error.\n\nThe mtoShipment should be associated with an MTO that is available to prime.\nIf the caller requests an update to an address, and the shipment is not on an available MTO, the caller will receive a **NotFound** Error.\n",
+        "description": "### Functionality\nThis endpoint is used to **update** the pickup, secondary, and delivery addresses on an MTO Shipment. mto-shipments/{mtoShipmentID}/shipment-address-updates is for updating a delivery address. The address details completely replace the original, except for the UUID.\nTherefore a complete address should be sent in the request.\nWhen a delivery address on a shipment is updated, the destination SIT service items address ID will also be updated so that shipment and service item final destinations match.\n\nThis endpoint **cannot create** an address.\nTo create an address on an MTO shipment, the caller must use [updateMTOShipment](#operation/updateMTOShipment) as the parent shipment has to be updated with the appropriate link to the address.\n\n### Errors\nThe address must be associated with the mtoShipment passed in the url.\nIn other words, it should be listed as pickupAddress, destinationAddress, secondaryPickupAddress or secondaryDeliveryAddress on the mtoShipment provided.\nIf it is not, caller will receive a **Conflict** Error.\n\nThe mtoShipment should be associated with an MTO that is available to prime.\nIf the caller requests an update to an address, and the shipment is not on an available MTO, the caller will receive a **NotFound** Error.\n",
         "consumes": [
           "application/json"
         ],
@@ -5460,7 +5579,7 @@ func init() {
     },
     "/mto-shipments/{mtoShipmentID}/shipment-address-updates": {
       "post": {
-        "description": "### Functionality\nThis endpoint is used so the Prime can request an **update** for the destination address on an MTO Shipment,\nafter the destination address has already been approved.\n\nThis endpoint and operation only supports the following shipment types:\n- HHG\n- NTSR\n\nFor HHG shipments, if automatically approved or TOO approves, this will update the final destination address values for destination SIT service items to be the same as the changed destination address that was approved.\n\nAddress updates will be automatically approved unless they change:\n  - The service area\n  - Mileage bracket for direct delivery\n  - the address and the distance between the old and new address is \u003e 50\n  - Domestic Short Haul to Domestic Line Haul or vice versa\n      - Shipments that start and end in one ZIP3 use Short Haul pricing\n      - Shipments that start and end in different ZIP3s use Line Haul pricing\n\nFor those, changes will require TOO approval.\n",
+        "description": "### Functionality\nThis endpoint is used so the Prime can request an **update** for the delivery address on an MTO Shipment,\nafter the delivery address has already been approved.\n\nThis endpoint and operation only supports the following shipment types:\n- HHG\n- NTSR\n\nFor HHG shipments, if automatically approved or TOO approves, this will update the final delivery address values for destination SIT service items to be the same as the changed delivery address that was approved.\n\nAddress updates will be automatically approved unless they change:\n  - The service area\n  - Mileage bracket for direct delivery\n  - the address and the distance between the old and new address is \u003e 50\n  - Domestic Short Haul to Domestic Line Haul or vice versa\n      - Shipments that start and end in one ZIP3 use Short Haul pricing\n      - Shipments that start and end in different ZIP3s use Line Haul pricing\n\nFor those, changes will require TOO approval.\n",
         "consumes": [
           "application/json"
         ],
@@ -5911,11 +6030,13 @@ func init() {
           "example": "Anytown"
         },
         "country": {
+          "description": "Two-letter country code",
           "type": "string",
           "title": "Country",
-          "default": "USA",
+          "default": "US",
+          "pattern": "^[A-Z]{2}$",
           "x-nullable": true,
-          "example": "USA"
+          "example": "US"
         },
         "county": {
           "type": "string",
@@ -6223,6 +6344,13 @@ func init() {
           "description": "Indicates whether PPM shipment has pro gear for themselves or their spouse.\n",
           "type": "boolean"
         },
+        "isActualExpenseReimbursement": {
+          "description": "Used for PPM shipments only. Denotes if this shipment uses the Actual Expense Reimbursement method.",
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false,
+          "example": false
+        },
         "pickupAddress": {
           "description": "The address of the origin location where goods are being moved from.",
           "allOf": [
@@ -6492,6 +6620,12 @@ func init() {
           "type": "integer",
           "x-formatting": "weight",
           "example": 500
+        },
+        "ubAllowance": {
+          "description": "The amount of weight in pounds that the move is entitled for shipment types of Unaccompanied Baggage.",
+          "type": "integer",
+          "x-nullable": true,
+          "example": 3
         }
       }
     },
@@ -6962,15 +7096,88 @@ func init() {
         }
       ]
     },
+    "MTOServiceItemInternationalCrating": {
+      "description": "Describes a international crating/uncrating service item subtype of a MTOServiceItem.",
+      "allOf": [
+        {
+          "$ref": "#/definitions/MTOServiceItem"
+        },
+        {
+          "type": "object",
+          "required": [
+            "reServiceCode",
+            "item",
+            "crate",
+            "description"
+          ],
+          "properties": {
+            "crate": {
+              "description": "The dimensions for the crate the item will be shipped in.",
+              "allOf": [
+                {
+                  "$ref": "#/definitions/MTOServiceItemDimension"
+                }
+              ]
+            },
+            "description": {
+              "description": "A description of the item being crated.",
+              "type": "string",
+              "example": "Decorated horse head to be crated."
+            },
+            "externalCrate": {
+              "type": "boolean",
+              "x-nullable": true
+            },
+            "item": {
+              "description": "The dimensions of the item being crated.",
+              "allOf": [
+                {
+                  "$ref": "#/definitions/MTOServiceItemDimension"
+                }
+              ]
+            },
+            "market": {
+              "description": "To identify whether the service was provided within (CONUS) or (OCONUS)",
+              "type": "string",
+              "enum": [
+                "CONUS",
+                "OCONUS"
+              ],
+              "example": "CONUS"
+            },
+            "reServiceCode": {
+              "description": "A unique code for the service item. Indicates if the service is for crating (ICRT) or uncrating (IUCRT).",
+              "type": "string",
+              "enum": [
+                "ICRT",
+                "IUCRT"
+              ]
+            },
+            "reason": {
+              "description": "The contractor's explanation for why an item needed to be crated or uncrated. Used by the TOO while deciding to approve or reject the service item.\n",
+              "type": "string",
+              "x-nullable": true,
+              "x-omitempty": false,
+              "example": "Storage items need to be picked up"
+            },
+            "standaloneCrate": {
+              "type": "boolean",
+              "x-nullable": true
+            }
+          }
+        }
+      ]
+    },
     "MTOServiceItemModelType": {
-      "description": "Describes all model sub-types for a MTOServiceItem model.\n\nUsing this list, choose the correct modelType in the dropdown, corresponding to the service item type.\n  * DOFSIT, DOASIT - MTOServiceItemOriginSIT\n  * DDFSIT, DDASIT - MTOServiceItemDestSIT\n  * DOSHUT, DDSHUT - MTOServiceItemShuttle\n  * DCRT, DUCRT - MTOServiceItemDomesticCrating\n\nThe documentation will then update with the supported fields.\n",
+      "description": "Describes all model sub-types for a MTOServiceItem model.\n\nUsing this list, choose the correct modelType in the dropdown, corresponding to the service item type.\n  * DOFSIT, DOASIT - MTOServiceItemOriginSIT\n  * DDFSIT, DDASIT - MTOServiceItemDestSIT\n  * DOSHUT, DDSHUT - MTOServiceItemShuttle\n  * DCRT, DUCRT - MTOServiceItemDomesticCrating\n  * ICRT, IUCRT - MTOServiceItemInternationalCrating\n\nThe documentation will then update with the supported fields.\n",
       "type": "string",
       "enum": [
         "MTOServiceItemBasic",
         "MTOServiceItemOriginSIT",
         "MTOServiceItemDestSIT",
         "MTOServiceItemShuttle",
-        "MTOServiceItemDomesticCrating"
+        "MTOServiceItemDomesticCrating",
+        "MTOServiceItemInternationalCrating"
       ]
     },
     "MTOServiceItemOriginSIT": {
@@ -7125,10 +7332,9 @@ func init() {
         "HHG",
         "HHG_INTO_NTS_DOMESTIC",
         "HHG_OUTOF_NTS_DOMESTIC",
-        "INTERNATIONAL_HHG",
-        "INTERNATIONAL_UB",
         "MOBILE_HOME",
-        "PPM"
+        "PPM",
+        "UNACCOMPANIED_BAGGAGE"
       ],
       "x-display-value": {
         "BOAT_HAUL_AWAY": "Boat shipment that requires additional equipment to haul it to it's destination",
@@ -7136,7 +7342,8 @@ func init() {
         "HHG": "Household goods move (HHG)",
         "HHG_INTO_NTS_DOMESTIC": "HHG into Non-temporary storage (NTS)",
         "HHG_OUTOF_NTS_DOMESTIC": "HHG out of Non-temporary storage (NTS Release)",
-        "PPM": "Personally Procured Move also known as Do It Yourself (DITY)"
+        "PPM": "Personally Procured Move also known as Do It Yourself (DITY)",
+        "UNACCOMPANIED_BAGGAGE": "Unaccompanied Baggage"
       },
       "example": "HHG"
     },
@@ -7247,6 +7454,15 @@ func init() {
           "format": "uuid",
           "readOnly": true,
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "marketCode": {
+          "description": "Single-letter designator for domestic (d) or international (i) shipments",
+          "type": "string",
+          "enum": [
+            "d",
+            "i"
+          ],
+          "example": "d"
         },
         "moveTaskOrderID": {
           "description": "The ID of the move for this shipment.",
@@ -7583,7 +7799,8 @@ func init() {
         "SEPARATION",
         "WOUNDED_WARRIOR",
         "BLUEBARK",
-        "SAFETY"
+        "SAFETY",
+        "TEMPORARY_DUTY"
       ],
       "x-display-value": {
         "BLUEBARK": "BLUEBARK",
@@ -7592,6 +7809,7 @@ func init() {
         "RETIREMENT": "Retirement",
         "SAFETY": "Safety",
         "SEPARATION": "Separation",
+        "TEMPORARY_DUTY": "Temporary Duty (TDY)",
         "WOUNDED_WARRIOR": "Wounded Warrior"
       }
     },
@@ -7709,6 +7927,20 @@ func init() {
           "format": "uuid",
           "readOnly": true,
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "isActualExpenseReimbursement": {
+          "description": "Used for PPM shipments only. Denotes if this shipment uses the Actual Expense Reimbursement method.",
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false,
+          "example": false
+        },
+        "maxIncentive": {
+          "description": "The max amount the government will pay the service member to move their belongings based on the moving date, locations, and shipment weight.",
+          "type": "integer",
+          "format": "cents",
+          "x-nullable": true,
+          "x-omitempty": false
         },
         "proGearWeight": {
           "description": "The estimated weight of the pro-gear being moved belonging to the service member in pounds.",
@@ -8036,7 +8268,6 @@ func init() {
         "ICOLH",
         "ICOUB",
         "ICRT",
-        "ICRTSA",
         "IDASIT",
         "IDDSIT",
         "IDFSIT",
@@ -8362,7 +8593,7 @@ func init() {
       }
     },
     "ShipmentAddressUpdate": {
-      "description": "This represents a destination address change request made by the Prime that is either auto-approved or requires review if the pricing criteria has changed. If criteria has changed, then it must be approved or rejected by a TOO.\n",
+      "description": "This represents a delivery address change request made by the Prime that is either auto-approved or requires review if the pricing criteria has changed. If criteria has changed, then it must be approved or rejected by a TOO.\n",
       "type": "object",
       "required": [
         "id",
@@ -8390,7 +8621,7 @@ func init() {
           "$ref": "#/definitions/Address"
         },
         "newSitDistanceBetween": {
-          "description": "The distance between the original SIT address and requested new destination address of shipment",
+          "description": "The distance between the original SIT address and requested new delivery address of shipment",
           "type": "integer",
           "minimum": 0,
           "example": 88
@@ -8403,7 +8634,7 @@ func init() {
           "example": "This is an office remark"
         },
         "oldSitDistanceBetween": {
-          "description": "The distance between the original SIT address and the previous/old destination address of shipment",
+          "description": "The distance between the original SIT address and the previous/old delivery address of shipment",
           "type": "integer",
           "minimum": 0,
           "example": 50
@@ -8818,6 +9049,13 @@ func init() {
           "type": "boolean",
           "x-nullable": true
         },
+        "isActualExpenseReimbursement": {
+          "description": "Used for PPM shipments only. Denotes if this shipment uses the Actual Expense Reimbursement method.",
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false,
+          "example": false
+        },
         "proGearWeight": {
           "description": "The estimated weight of the pro-gear being moved belonging to the service member.",
           "type": "integer",
@@ -8886,7 +9124,7 @@ func init() {
       }
     },
     "UpdateShipmentDestinationAddress": {
-      "description": "UpdateShipmentDestinationAddress contains the fields required for the prime to request an update for the destination address on an MTO Shipment.",
+      "description": "UpdateShipmentDestinationAddress contains the fields required for the prime to request an update for the delivery address on an MTO Shipment.",
       "type": "object",
       "required": [
         "contractorRemarks",

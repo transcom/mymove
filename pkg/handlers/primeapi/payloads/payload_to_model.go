@@ -13,6 +13,20 @@ import (
 	"github.com/transcom/mymove/pkg/unit"
 )
 
+// CountryModel model
+func CountryModel(country *string) *models.Country {
+	// The prime doesn't know the uuids of our countries, so for now we are going to just populate the name so we can query that
+	// when creating the address IF it is provided - else this will be nil and a US country will be created
+	if country == nil {
+		return nil
+	}
+
+	modelCountry := &models.Country{
+		Country: *country,
+	}
+	return modelCountry
+}
+
 // AddressModel model
 func AddressModel(address *primemessages.Address) *models.Address {
 	// To check if the model is intended to be blank, we'll look at both ID and StreetAddress1
@@ -26,7 +40,6 @@ func AddressModel(address *primemessages.Address) *models.Address {
 		ID:             uuid.FromStringOrNil(address.ID.String()),
 		StreetAddress2: address.StreetAddress2,
 		StreetAddress3: address.StreetAddress3,
-		Country:        address.Country,
 	}
 	if address.StreetAddress1 != nil {
 		modelAddress.StreetAddress1 = *address.StreetAddress1
@@ -39,6 +52,9 @@ func AddressModel(address *primemessages.Address) *models.Address {
 	}
 	if address.PostalCode != nil {
 		modelAddress.PostalCode = *address.PostalCode
+	}
+	if address.Country != nil {
+		modelAddress.Country = CountryModel(address.Country)
 	}
 	return modelAddress
 }
@@ -215,7 +231,6 @@ func PPMShipmentModelFromCreate(ppmShipment *primemessages.CreatePPMShipment) *m
 		City:           "DEPV2",
 		State:          "CA",
 		PostalCode:     "90210",
-		Country:        models.StringPointer("US"),
 	}
 
 	model.PickupAddress = addressModel
@@ -248,6 +263,10 @@ func PPMShipmentModelFromCreate(ppmShipment *primemessages.CreatePPMShipment) *m
 	if model.HasProGear != nil && *model.HasProGear {
 		model.ProGearWeight = handlers.PoundPtrFromInt64Ptr(ppmShipment.ProGearWeight)
 		model.SpouseProGearWeight = handlers.PoundPtrFromInt64Ptr(ppmShipment.SpouseProGearWeight)
+	}
+
+	if ppmShipment.IsActualExpenseReimbursement != nil {
+		model.IsActualExpenseReimbursement = ppmShipment.IsActualExpenseReimbursement
 	}
 
 	return model
@@ -371,6 +390,10 @@ func PPMShipmentModelFromUpdate(ppmShipment *primemessages.UpdatePPMShipment) *m
 	sitEstimatedDepartureDate := handlers.FmtDatePtrToPopPtr(ppmShipment.SitEstimatedDepartureDate)
 	if sitEstimatedDepartureDate != nil && !sitEstimatedDepartureDate.IsZero() {
 		model.SITEstimatedDepartureDate = sitEstimatedDepartureDate
+	}
+
+	if ppmShipment.IsActualExpenseReimbursement != nil {
+		model.IsActualExpenseReimbursement = ppmShipment.IsActualExpenseReimbursement
 	}
 
 	return model
@@ -537,6 +560,44 @@ func MTOServiceItemModel(mtoServiceItem primemessages.MTOServiceItem) (*models.M
 				Width:  unit.ThousandthInches(*domesticCrating.Crate.Width),
 			},
 		}
+	case primemessages.MTOServiceItemModelTypeMTOServiceItemInternationalCrating:
+		internationalCrating := mtoServiceItem.(*primemessages.MTOServiceItemInternationalCrating)
+
+		// additional validation for this specific service item type
+		verrs := validateInternationalCrating(*internationalCrating)
+		if verrs.HasAny() {
+			return nil, verrs
+		}
+
+		// have to get code from payload
+		model.ReService.Code = models.ReServiceCode(*internationalCrating.ReServiceCode)
+		model.Description = internationalCrating.Description
+		model.Reason = internationalCrating.Reason
+		model.StandaloneCrate = internationalCrating.StandaloneCrate
+		model.ExternalCrate = internationalCrating.ExternalCrate
+
+		if model.ReService.Code == models.ReServiceCodeICRT {
+			if internationalCrating.StandaloneCrate == nil {
+				model.StandaloneCrate = models.BoolPointer(false)
+			}
+			if internationalCrating.ExternalCrate == nil {
+				model.ExternalCrate = models.BoolPointer(false)
+			}
+		}
+		model.Dimensions = models.MTOServiceItemDimensions{
+			models.MTOServiceItemDimension{
+				Type:   models.DimensionTypeItem,
+				Length: unit.ThousandthInches(*internationalCrating.Item.Length),
+				Height: unit.ThousandthInches(*internationalCrating.Item.Height),
+				Width:  unit.ThousandthInches(*internationalCrating.Item.Width),
+			},
+			models.MTOServiceItemDimension{
+				Type:   models.DimensionTypeCrate,
+				Length: unit.ThousandthInches(*internationalCrating.Crate.Length),
+				Height: unit.ThousandthInches(*internationalCrating.Crate.Height),
+				Width:  unit.ThousandthInches(*internationalCrating.Crate.Width),
+			},
+		}
 	default:
 		// assume basic service item, take in provided re service code
 		basic := mtoServiceItem.(*primemessages.MTOServiceItemBasic)
@@ -697,6 +758,18 @@ func SITExtensionModel(sitExtension *primemessages.CreateSITExtension, mtoShipme
 
 // validateDomesticCrating validates this mto service item domestic crating
 func validateDomesticCrating(m primemessages.MTOServiceItemDomesticCrating) *validate.Errors {
+	return validate.Validate(
+		&models.ItemCanFitInsideCrate{
+			Name:         "Item",
+			NameCompared: "Crate",
+			Item:         &m.Item.MTOServiceItemDimension,
+			Crate:        &m.Crate.MTOServiceItemDimension,
+		},
+	)
+}
+
+// validateInternationalCrating validates this mto service item international crating
+func validateInternationalCrating(m primemessages.MTOServiceItemInternationalCrating) *validate.Errors {
 	return validate.Validate(
 		&models.ItemCanFitInsideCrate{
 			Name:         "Item",

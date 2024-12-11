@@ -801,11 +801,13 @@ func init() {
           "example": "Anytown"
         },
         "country": {
+          "description": "Two-letter country code",
           "type": "string",
           "title": "Country",
-          "default": "USA",
+          "default": "US",
+          "pattern": "^[A-Z]{2}$",
           "x-nullable": true,
-          "example": "USA"
+          "example": "US"
         },
         "county": {
           "type": "string",
@@ -1524,14 +1526,15 @@ func init() {
       ]
     },
     "MTOServiceItemModelType": {
-      "description": "Describes all model sub-types for a MTOServiceItem model.\n\nUsing this list, choose the correct modelType in the dropdown, corresponding to the service item type.\n  * DOFSIT, DOASIT - MTOServiceItemOriginSIT\n  * DDFSIT, DDASIT - MTOServiceItemDestSIT\n  * DOSHUT, DDSHUT - MTOServiceItemShuttle\n  * DCRT, DUCRT - MTOServiceItemDomesticCrating\n\nThe documentation will then update with the supported fields.\n",
+      "description": "Describes all model sub-types for a MTOServiceItem model.\n\nUsing this list, choose the correct modelType in the dropdown, corresponding to the service item type.\n  * DOFSIT, DOASIT - MTOServiceItemOriginSIT\n  * DDFSIT, DDASIT - MTOServiceItemDestSIT\n  * DOSHUT, DDSHUT - MTOServiceItemShuttle\n  * DCRT, DUCRT - MTOServiceItemDomesticCrating\n  * ICRT, IUCRT - MTOServiceItemInternationalCrating\n\nThe documentation will then update with the supported fields.\n",
       "type": "string",
       "enum": [
         "MTOServiceItemBasic",
         "MTOServiceItemOriginSIT",
         "MTOServiceItemDestSIT",
         "MTOServiceItemShuttle",
-        "MTOServiceItemDomesticCrating"
+        "MTOServiceItemDomesticCrating",
+        "MTOServiceItemInternationalCrating"
       ]
     },
     "MTOServiceItemOriginSIT": {
@@ -1683,6 +1686,15 @@ func init() {
           "readOnly": true,
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
         },
+        "marketCode": {
+          "description": "Single-letter designator for domestic (d) or international (i) shipments",
+          "type": "string",
+          "enum": [
+            "d",
+            "i"
+          ],
+          "example": "d"
+        },
         "moveTaskOrderID": {
           "type": "string",
           "format": "uuid",
@@ -1774,13 +1786,23 @@ func init() {
       "title": "Shipment Type",
       "enum": [
         "HHG",
-        "INTERNATIONAL_HHG",
-        "INTERNATIONAL_UB"
+        "HHG_INTO_NTS_DOMESTIC",
+        "HHG_OUTOF_NTS_DOMESTIC",
+        "PPM",
+        "BOAT_HAUL_AWAY",
+        "BOAT_TOW_AWAY",
+        "MOBILE_HOME",
+        "UNACCOMPANIED_BAGGAGE"
       ],
       "x-display-value": {
+        "BOAT_HAUL_AWAY": "Boat Haul-Away",
+        "BOAT_TOW_AWAY": "Boat Tow-Away",
         "HHG": "HHG",
-        "INTERNATIONAL_HHG": "International HHG",
-        "INTERNATIONAL_UB": "International UB"
+        "HHG_INTO_NTS_DOMESTIC": "NTS",
+        "HHG_OUTOF_NTS_DOMESTIC": "NTS Release",
+        "MOBILE_HOME": "Mobile Home",
+        "PPM": "PPM",
+        "UNACCOMPANIED_BAGGAGE": "Unaccompanied Baggage"
       },
       "example": "HHG"
     },
@@ -2045,7 +2067,8 @@ func init() {
         "GHC",
         "NTS",
         "WOUNDED_WARRIOR",
-        "BLUEBARK"
+        "BLUEBARK",
+        "TEMPORARY_DUTY"
       ],
       "x-display-value": {
         "BLUEBARK": "BLUEBARK",
@@ -2055,6 +2078,7 @@ func init() {
         "PERMANENT_CHANGE_OF_STATION": "Permanent Change Of Station (PCS)",
         "RETIREMENT": "Retirement",
         "SEPARATION": "Separation",
+        "TEMPORARY_DUTY": "Temporary Duty (TDY)",
         "WOUNDED_WARRIOR": "Wounded Warrior"
       }
     },
@@ -2278,7 +2302,6 @@ func init() {
         "ICOLH",
         "ICOUB",
         "ICRT",
-        "ICRTSA",
         "IDASIT",
         "IDDSIT",
         "IDFSIT",
@@ -3635,11 +3658,13 @@ func init() {
           "example": "Anytown"
         },
         "country": {
+          "description": "Two-letter country code",
           "type": "string",
           "title": "Country",
-          "default": "USA",
+          "default": "US",
+          "pattern": "^[A-Z]{2}$",
           "x-nullable": true,
-          "example": "USA"
+          "example": "US"
         },
         "county": {
           "type": "string",
@@ -4358,14 +4383,15 @@ func init() {
       ]
     },
     "MTOServiceItemModelType": {
-      "description": "Describes all model sub-types for a MTOServiceItem model.\n\nUsing this list, choose the correct modelType in the dropdown, corresponding to the service item type.\n  * DOFSIT, DOASIT - MTOServiceItemOriginSIT\n  * DDFSIT, DDASIT - MTOServiceItemDestSIT\n  * DOSHUT, DDSHUT - MTOServiceItemShuttle\n  * DCRT, DUCRT - MTOServiceItemDomesticCrating\n\nThe documentation will then update with the supported fields.\n",
+      "description": "Describes all model sub-types for a MTOServiceItem model.\n\nUsing this list, choose the correct modelType in the dropdown, corresponding to the service item type.\n  * DOFSIT, DOASIT - MTOServiceItemOriginSIT\n  * DDFSIT, DDASIT - MTOServiceItemDestSIT\n  * DOSHUT, DDSHUT - MTOServiceItemShuttle\n  * DCRT, DUCRT - MTOServiceItemDomesticCrating\n  * ICRT, IUCRT - MTOServiceItemInternationalCrating\n\nThe documentation will then update with the supported fields.\n",
       "type": "string",
       "enum": [
         "MTOServiceItemBasic",
         "MTOServiceItemOriginSIT",
         "MTOServiceItemDestSIT",
         "MTOServiceItemShuttle",
-        "MTOServiceItemDomesticCrating"
+        "MTOServiceItemDomesticCrating",
+        "MTOServiceItemInternationalCrating"
       ]
     },
     "MTOServiceItemOriginSIT": {
@@ -4517,6 +4543,15 @@ func init() {
           "readOnly": true,
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
         },
+        "marketCode": {
+          "description": "Single-letter designator for domestic (d) or international (i) shipments",
+          "type": "string",
+          "enum": [
+            "d",
+            "i"
+          ],
+          "example": "d"
+        },
         "moveTaskOrderID": {
           "type": "string",
           "format": "uuid",
@@ -4608,13 +4643,23 @@ func init() {
       "title": "Shipment Type",
       "enum": [
         "HHG",
-        "INTERNATIONAL_HHG",
-        "INTERNATIONAL_UB"
+        "HHG_INTO_NTS_DOMESTIC",
+        "HHG_OUTOF_NTS_DOMESTIC",
+        "PPM",
+        "BOAT_HAUL_AWAY",
+        "BOAT_TOW_AWAY",
+        "MOBILE_HOME",
+        "UNACCOMPANIED_BAGGAGE"
       ],
       "x-display-value": {
+        "BOAT_HAUL_AWAY": "Boat Haul-Away",
+        "BOAT_TOW_AWAY": "Boat Tow-Away",
         "HHG": "HHG",
-        "INTERNATIONAL_HHG": "International HHG",
-        "INTERNATIONAL_UB": "International UB"
+        "HHG_INTO_NTS_DOMESTIC": "NTS",
+        "HHG_OUTOF_NTS_DOMESTIC": "NTS Release",
+        "MOBILE_HOME": "Mobile Home",
+        "PPM": "PPM",
+        "UNACCOMPANIED_BAGGAGE": "Unaccompanied Baggage"
       },
       "example": "HHG"
     },
@@ -4879,7 +4924,8 @@ func init() {
         "GHC",
         "NTS",
         "WOUNDED_WARRIOR",
-        "BLUEBARK"
+        "BLUEBARK",
+        "TEMPORARY_DUTY"
       ],
       "x-display-value": {
         "BLUEBARK": "BLUEBARK",
@@ -4889,6 +4935,7 @@ func init() {
         "PERMANENT_CHANGE_OF_STATION": "Permanent Change Of Station (PCS)",
         "RETIREMENT": "Retirement",
         "SEPARATION": "Separation",
+        "TEMPORARY_DUTY": "Temporary Duty (TDY)",
         "WOUNDED_WARRIOR": "Wounded Warrior"
       }
     },
@@ -5112,7 +5159,6 @@ func init() {
         "ICOLH",
         "ICOUB",
         "ICRT",
-        "ICRTSA",
         "IDASIT",
         "IDDSIT",
         "IDFSIT",

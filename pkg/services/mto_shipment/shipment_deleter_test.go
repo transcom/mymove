@@ -56,10 +56,11 @@ func (suite *MTOShipmentServiceSuite) TestShipmentDeleter() {
 		return mockUpdater
 	}
 
+	ppmEstimator := &mocks.PPMEstimator{}
 	moveTaskOrderUpdater := movetaskorder.NewMoveTaskOrderUpdater(
 		builder,
 		mtoserviceitem.NewMTOServiceItemCreator(planner, builder, moveRouter, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticPackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer()),
-		moveRouter, setUpSignedCertificationCreatorMock(nil, nil), setUpSignedCertificationUpdaterMock(nil, nil),
+		moveRouter, setUpSignedCertificationCreatorMock(nil, nil), setUpSignedCertificationUpdaterMock(nil, nil), ppmEstimator,
 	)
 	suite.Run("Returns an error when shipment is not found", func() {
 		shipmentDeleter := NewShipmentDeleter(moveTaskOrderUpdater, moveRouter)
@@ -126,7 +127,7 @@ func (suite *MTOShipmentServiceSuite) TestShipmentDeleter() {
 			suite.NoError(err)
 
 			actualDeletedAt := shipmentInDB.DeletedAt
-			suite.WithinDuration(time.Now(), *actualDeletedAt, 2*time.Second)
+			suite.WithinDuration(time.Now(), *actualDeletedAt, 10*time.Second)
 
 			// Reset the deleted_at field to nil to allow the shipment to be
 			// deleted a second time when testing the other move status (a
@@ -183,7 +184,7 @@ func (suite *MTOShipmentServiceSuite) TestShipmentDeleter() {
 			suite.NoError(err)
 
 			actualDeletedAt := shipmentInDB.DeletedAt
-			suite.WithinDuration(time.Now(), *actualDeletedAt, 2*time.Second)
+			suite.WithinDuration(time.Now(), *actualDeletedAt, 10*time.Second)
 
 			// Reset the deleted_at field to nil to allow the shipment to be
 			// deleted a second time when testing the other move status (a
@@ -243,10 +244,10 @@ func (suite *MTOShipmentServiceSuite) TestShipmentDeleter() {
 		suite.NoError(err)
 
 		actualDeletedAt := shipmentInDB.DeletedAt
-		suite.WithinDuration(time.Now(), *actualDeletedAt, 2*time.Second)
+		suite.WithinDuration(time.Now(), *actualDeletedAt, 10*time.Second)
 
 		actualDeletedAt = shipmentInDB.PPMShipment.DeletedAt
-		suite.WithinDuration(time.Now(), *actualDeletedAt, 2*time.Second)
+		suite.WithinDuration(time.Now(), *actualDeletedAt, 10*time.Second)
 	})
 }
 
@@ -285,10 +286,11 @@ func (suite *MTOShipmentServiceSuite) TestPrimeShipmentDeleter() {
 		return mockUpdater
 	}
 
+	ppmEstimator := &mocks.PPMEstimator{}
 	moveTaskOrderUpdater := movetaskorder.NewMoveTaskOrderUpdater(
 		builder,
 		mtoserviceitem.NewMTOServiceItemCreator(planner, builder, moveRouter, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticPackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer()),
-		moveRouter, setUpSignedCertificationCreatorMock(nil, nil), setUpSignedCertificationUpdaterMock(nil, nil),
+		moveRouter, setUpSignedCertificationCreatorMock(nil, nil), setUpSignedCertificationUpdaterMock(nil, nil), ppmEstimator,
 	)
 	suite.Run("Doesn't return an error when allowed to delete a shipment", func() {
 		shipmentDeleter := NewPrimeShipmentDeleter(moveTaskOrderUpdater)

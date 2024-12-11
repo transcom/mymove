@@ -32,7 +32,6 @@ func (suite *PayloadsSuite) TestMoveTaskOrder() {
 
 	streetAddress2 := "Apt 1"
 	streetAddress3 := "Apt 1"
-	country := "USA"
 
 	basicMove := models.Move{
 		ID:                 moveTaskOrderID,
@@ -64,7 +63,6 @@ func (suite *PayloadsSuite) TestMoveTaskOrder() {
 					City:           "Washington",
 					State:          "DC",
 					PostalCode:     "20001",
-					Country:        &country,
 					County:         "my county",
 				},
 			},
@@ -518,14 +516,17 @@ func (suite *PayloadsSuite) TestServiceRequestDocument() {
 }
 
 func (suite *PayloadsSuite) TestPPMShipment() {
+	isActualExpenseReimbursemnt := true
 	ppmShipment := &models.PPMShipment{
-		ID: uuid.Must(uuid.NewV4()),
+		ID:                           uuid.Must(uuid.NewV4()),
+		IsActualExpenseReimbursement: &isActualExpenseReimbursemnt,
 	}
 
 	result := PPMShipment(ppmShipment)
 
 	suite.NotNil(result)
 	suite.Equal(strfmt.UUID(ppmShipment.ID.String()), result.ID)
+	suite.True(*ppmShipment.IsActualExpenseReimbursement)
 }
 
 func (suite *PayloadsSuite) TestPPMShipmentContainingOptionalDestinationStreet1() {
@@ -540,7 +541,6 @@ func (suite *PayloadsSuite) TestPPMShipmentContainingOptionalDestinationStreet1(
 			City:           "SomeCity",
 			State:          "CA",
 			PostalCode:     "90210",
-			Country:        models.StringPointer("USA"),
 			County:         "SomeCounty",
 			UpdatedAt:      now,
 		},
@@ -558,7 +558,6 @@ func (suite *PayloadsSuite) TestPPMShipmentContainingOptionalDestinationStreet1(
 	suite.Equal(*result.DestinationAddress.City, ppmShipment.DestinationAddress.City)
 	suite.Equal(*result.DestinationAddress.State, ppmShipment.DestinationAddress.State)
 	suite.Equal(*result.DestinationAddress.PostalCode, ppmShipment.DestinationAddress.PostalCode)
-	suite.Equal(result.DestinationAddress.Country, ppmShipment.DestinationAddress.Country)
 	suite.Equal(*result.DestinationAddress.County, ppmShipment.DestinationAddress.County)
 	suite.Equal(result.DestinationAddress.ETag, eTag)
 }
@@ -734,6 +733,76 @@ func (suite *PayloadsSuite) TestMTOServiceItemDCRT() {
 	suite.True(ok)
 }
 
+func (suite *PayloadsSuite) TestMTOServiceItemICRTandIUCRT() {
+	icrtReServiceCode := models.ReServiceCodeICRT
+	iucrtReServiceCode := models.ReServiceCodeIUCRT
+	reason := "reason"
+	standaloneCrate := false
+	externalCrate := false
+	dateOfContact1 := time.Now()
+	timeMilitary1 := "1500Z"
+	firstAvailableDeliveryDate1 := dateOfContact1.AddDate(0, 0, 10)
+	dateOfContact2 := time.Now().AddDate(0, 0, 5)
+	timeMilitary2 := "1300Z"
+	firstAvailableDeliveryDate2 := dateOfContact2.AddDate(0, 0, 10)
+
+	mtoServiceItemICRT := &models.MTOServiceItem{
+		ID:              uuid.Must(uuid.NewV4()),
+		ReService:       models.ReService{Code: icrtReServiceCode},
+		Reason:          &reason,
+		StandaloneCrate: &standaloneCrate,
+		ExternalCrate:   &externalCrate,
+		CustomerContacts: models.MTOServiceItemCustomerContacts{
+			models.MTOServiceItemCustomerContact{
+				DateOfContact:              dateOfContact1,
+				TimeMilitary:               timeMilitary1,
+				FirstAvailableDeliveryDate: firstAvailableDeliveryDate1,
+				Type:                       models.CustomerContactTypeFirst,
+			},
+			models.MTOServiceItemCustomerContact{
+				DateOfContact:              dateOfContact2,
+				TimeMilitary:               timeMilitary2,
+				FirstAvailableDeliveryDate: firstAvailableDeliveryDate2,
+				Type:                       models.CustomerContactTypeSecond,
+			},
+		},
+	}
+
+	mtoServiceItemIUCRT := &models.MTOServiceItem{
+		ID:              uuid.Must(uuid.NewV4()),
+		ReService:       models.ReService{Code: iucrtReServiceCode},
+		Reason:          &reason,
+		StandaloneCrate: &standaloneCrate,
+		ExternalCrate:   &externalCrate,
+		CustomerContacts: models.MTOServiceItemCustomerContacts{
+			models.MTOServiceItemCustomerContact{
+				DateOfContact:              dateOfContact1,
+				TimeMilitary:               timeMilitary1,
+				FirstAvailableDeliveryDate: firstAvailableDeliveryDate1,
+				Type:                       models.CustomerContactTypeFirst,
+			},
+			models.MTOServiceItemCustomerContact{
+				DateOfContact:              dateOfContact2,
+				TimeMilitary:               timeMilitary2,
+				FirstAvailableDeliveryDate: firstAvailableDeliveryDate2,
+				Type:                       models.CustomerContactTypeSecond,
+			},
+		},
+	}
+
+	resultICRT := MTOServiceItem(mtoServiceItemICRT)
+	resultIUCRT := MTOServiceItem(mtoServiceItemIUCRT)
+
+	suite.NotNil(resultICRT)
+	suite.NotNil(resultIUCRT)
+
+	_, ok := resultICRT.(*primev3messages.MTOServiceItemInternationalCrating)
+	suite.True(ok)
+
+	_, ok = resultIUCRT.(*primev3messages.MTOServiceItemInternationalCrating)
+	suite.True(ok)
+}
+
 func (suite *PayloadsSuite) TestMTOServiceItemDDSHUT() {
 	reServiceCode := models.ReServiceCodeDDSHUT
 	reason := "reason"
@@ -828,7 +897,6 @@ func (suite *PayloadsSuite) TestStorageFacility() {
 			City:           dummy,
 			State:          dummy,
 			PostalCode:     dummy,
-			Country:        &dummy,
 		},
 		Email:        &email,
 		FacilityName: facilityName,
@@ -839,4 +907,53 @@ func (suite *PayloadsSuite) TestStorageFacility() {
 
 	result := StorageFacility(storage)
 	suite.NotNil(result)
+}
+
+func (suite *PayloadsSuite) TestBoatShipment() {
+	id, _ := uuid.NewV4()
+	year := 2000
+	make := "Test Make"
+	model := "Test Model"
+	lengthInInches := 400
+	widthInInches := 320
+	heightInInches := 300
+	hasTrailer := true
+	IsRoadworthy := false
+	boatShipment := &models.BoatShipment{
+		ID:             id,
+		Type:           models.BoatShipmentTypeHaulAway,
+		Year:           &year,
+		Make:           &make,
+		Model:          &model,
+		LengthInInches: &lengthInInches,
+		WidthInInches:  &widthInInches,
+		HeightInInches: &heightInInches,
+		HasTrailer:     &hasTrailer,
+		IsRoadworthy:   &IsRoadworthy,
+	}
+
+	result := BoatShipment(boatShipment)
+	suite.NotNil(result)
+}
+
+func (suite *PayloadsSuite) TestMarketCode() {
+	suite.Run("returns nil when marketCode is nil", func() {
+		var marketCode *models.MarketCode = nil
+		result := MarketCode(marketCode)
+		suite.Equal(result, "")
+	})
+
+	suite.Run("returns string when marketCode is not nil", func() {
+		marketCodeDomestic := models.MarketCodeDomestic
+		result := MarketCode(&marketCodeDomestic)
+		suite.NotNil(result, "Expected result to not be nil when marketCode is not nil")
+		suite.Equal("d", result, "Expected result to be 'd' for domestic market code")
+	})
+
+	suite.Run("returns string when marketCode is international", func() {
+		marketCodeInternational := models.MarketCodeInternational
+		result := MarketCode(&marketCodeInternational)
+		suite.NotNil(result, "Expected result to not be nil when marketCode is not nil")
+		suite.Equal("i", result, "Expected result to be 'i' for international market code")
+	})
 }

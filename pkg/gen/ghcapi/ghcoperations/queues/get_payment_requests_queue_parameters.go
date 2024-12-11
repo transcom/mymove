@@ -34,10 +34,23 @@ type GetPaymentRequestsQueueParams struct {
 	// HTTP Request Object
 	HTTPRequest *http.Request `json:"-"`
 
+	/*Used to illustrate which user is assigned to this payment request.
+
+	  In: query
+	*/
+	AssignedTo *string
 	/*
 	  In: query
 	*/
 	Branch *string
+	/*filters using a counselingOffice name of the move
+	  In: query
+	*/
+	CounselingOffice *string
+	/*
+	  In: query
+	*/
+	CustomerName *string
 	/*
 	  In: query
 	*/
@@ -45,15 +58,11 @@ type GetPaymentRequestsQueueParams struct {
 	/*
 	  In: query
 	*/
-	DodID *string
+	Edipi *string
 	/*
 	  In: query
 	*/
 	Emplid *string
-	/*
-	  In: query
-	*/
-	LastName *string
 	/*
 	  In: query
 	*/
@@ -109,8 +118,23 @@ func (o *GetPaymentRequestsQueueParams) BindRequest(r *http.Request, route *midd
 
 	qs := runtime.Values(r.URL.Query())
 
+	qAssignedTo, qhkAssignedTo, _ := qs.GetOK("assignedTo")
+	if err := o.bindAssignedTo(qAssignedTo, qhkAssignedTo, route.Formats); err != nil {
+		res = append(res, err)
+	}
+
 	qBranch, qhkBranch, _ := qs.GetOK("branch")
 	if err := o.bindBranch(qBranch, qhkBranch, route.Formats); err != nil {
+		res = append(res, err)
+	}
+
+	qCounselingOffice, qhkCounselingOffice, _ := qs.GetOK("counselingOffice")
+	if err := o.bindCounselingOffice(qCounselingOffice, qhkCounselingOffice, route.Formats); err != nil {
+		res = append(res, err)
+	}
+
+	qCustomerName, qhkCustomerName, _ := qs.GetOK("customerName")
+	if err := o.bindCustomerName(qCustomerName, qhkCustomerName, route.Formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -119,18 +143,13 @@ func (o *GetPaymentRequestsQueueParams) BindRequest(r *http.Request, route *midd
 		res = append(res, err)
 	}
 
-	qDodID, qhkDodID, _ := qs.GetOK("dodID")
-	if err := o.bindDodID(qDodID, qhkDodID, route.Formats); err != nil {
+	qEdipi, qhkEdipi, _ := qs.GetOK("edipi")
+	if err := o.bindEdipi(qEdipi, qhkEdipi, route.Formats); err != nil {
 		res = append(res, err)
 	}
 
 	qEmplid, qhkEmplid, _ := qs.GetOK("emplid")
 	if err := o.bindEmplid(qEmplid, qhkEmplid, route.Formats); err != nil {
-		res = append(res, err)
-	}
-
-	qLastName, qhkLastName, _ := qs.GetOK("lastName")
-	if err := o.bindLastName(qLastName, qhkLastName, route.Formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -189,6 +208,24 @@ func (o *GetPaymentRequestsQueueParams) BindRequest(r *http.Request, route *midd
 	return nil
 }
 
+// bindAssignedTo binds and validates parameter AssignedTo from query.
+func (o *GetPaymentRequestsQueueParams) bindAssignedTo(rawData []string, hasKey bool, formats strfmt.Registry) error {
+	var raw string
+	if len(rawData) > 0 {
+		raw = rawData[len(rawData)-1]
+	}
+
+	// Required: false
+	// AllowEmptyValue: false
+
+	if raw == "" { // empty values pass all other validations
+		return nil
+	}
+	o.AssignedTo = &raw
+
+	return nil
+}
+
 // bindBranch binds and validates parameter Branch from query.
 func (o *GetPaymentRequestsQueueParams) bindBranch(rawData []string, hasKey bool, formats strfmt.Registry) error {
 	var raw string
@@ -203,6 +240,42 @@ func (o *GetPaymentRequestsQueueParams) bindBranch(rawData []string, hasKey bool
 		return nil
 	}
 	o.Branch = &raw
+
+	return nil
+}
+
+// bindCounselingOffice binds and validates parameter CounselingOffice from query.
+func (o *GetPaymentRequestsQueueParams) bindCounselingOffice(rawData []string, hasKey bool, formats strfmt.Registry) error {
+	var raw string
+	if len(rawData) > 0 {
+		raw = rawData[len(rawData)-1]
+	}
+
+	// Required: false
+	// AllowEmptyValue: false
+
+	if raw == "" { // empty values pass all other validations
+		return nil
+	}
+	o.CounselingOffice = &raw
+
+	return nil
+}
+
+// bindCustomerName binds and validates parameter CustomerName from query.
+func (o *GetPaymentRequestsQueueParams) bindCustomerName(rawData []string, hasKey bool, formats strfmt.Registry) error {
+	var raw string
+	if len(rawData) > 0 {
+		raw = rawData[len(rawData)-1]
+	}
+
+	// Required: false
+	// AllowEmptyValue: false
+
+	if raw == "" { // empty values pass all other validations
+		return nil
+	}
+	o.CustomerName = &raw
 
 	return nil
 }
@@ -225,8 +298,8 @@ func (o *GetPaymentRequestsQueueParams) bindDestinationDutyLocation(rawData []st
 	return nil
 }
 
-// bindDodID binds and validates parameter DodID from query.
-func (o *GetPaymentRequestsQueueParams) bindDodID(rawData []string, hasKey bool, formats strfmt.Registry) error {
+// bindEdipi binds and validates parameter Edipi from query.
+func (o *GetPaymentRequestsQueueParams) bindEdipi(rawData []string, hasKey bool, formats strfmt.Registry) error {
 	var raw string
 	if len(rawData) > 0 {
 		raw = rawData[len(rawData)-1]
@@ -238,7 +311,7 @@ func (o *GetPaymentRequestsQueueParams) bindDodID(rawData []string, hasKey bool,
 	if raw == "" { // empty values pass all other validations
 		return nil
 	}
-	o.DodID = &raw
+	o.Edipi = &raw
 
 	return nil
 }
@@ -257,24 +330,6 @@ func (o *GetPaymentRequestsQueueParams) bindEmplid(rawData []string, hasKey bool
 		return nil
 	}
 	o.Emplid = &raw
-
-	return nil
-}
-
-// bindLastName binds and validates parameter LastName from query.
-func (o *GetPaymentRequestsQueueParams) bindLastName(rawData []string, hasKey bool, formats strfmt.Registry) error {
-	var raw string
-	if len(rawData) > 0 {
-		raw = rawData[len(rawData)-1]
-	}
-
-	// Required: false
-	// AllowEmptyValue: false
-
-	if raw == "" { // empty values pass all other validations
-		return nil
-	}
-	o.LastName = &raw
 
 	return nil
 }
@@ -436,7 +491,7 @@ func (o *GetPaymentRequestsQueueParams) bindSort(rawData []string, hasKey bool, 
 // validateSort carries on validations for parameter Sort
 func (o *GetPaymentRequestsQueueParams) validateSort(formats strfmt.Registry) error {
 
-	if err := validate.EnumCase("sort", "query", *o.Sort, []interface{}{"lastName", "locator", "submittedAt", "branch", "status", "dodID", "emplid", "age", "originDutyLocation"}, true); err != nil {
+	if err := validate.EnumCase("sort", "query", *o.Sort, []interface{}{"customerName", "locator", "submittedAt", "branch", "status", "edipi", "emplid", "age", "originDutyLocation", "assignedTo", "counselingOffice"}, true); err != nil {
 		return err
 	}
 

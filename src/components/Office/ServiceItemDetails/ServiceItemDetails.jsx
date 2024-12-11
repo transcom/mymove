@@ -52,16 +52,17 @@ const generateDestinationSITDetailSection = (id, serviceRequestDocUploads, detai
       <dl>
         {code === 'DDFSIT'
           ? generateDetailText({
-              'Original delivery address': originalDeliveryAddress
+              'Original Delivery Address': originalDeliveryAddress
                 ? formatCityStateAndPostalCode(originalDeliveryAddress)
                 : '-',
               'SIT entry date': details.sitEntryDate ? formatDateWithUTC(details.sitEntryDate, 'DD MMM YYYY') : '-',
             })
           : null}
-        {code === 'DDASIT'
-          ? generateDetailText(
+        {code === 'DDASIT' && (
+          <>
+            {generateDetailText(
               {
-                'Original delivery address': originalDeliveryAddress
+                'Original Delivery Address': originalDeliveryAddress
                   ? formatCityStateAndPostalCode(originalDeliveryAddress)
                   : '-',
                 "Add'l SIT Start Date": details.sitEntryDate
@@ -71,15 +72,28 @@ const generateDestinationSITDetailSection = (id, serviceRequestDocUploads, detai
                 'SIT expiration date': sitEndDate || '-',
               },
               id,
-            )
-          : null}
+            )}
+            {!isEmpty(serviceRequestDocUploads) ? (
+              <div className={styles.uploads}>
+                <p className={styles.detailType}>Download service item documentation:</p>
+                {serviceRequestDocUploads.map((file) => (
+                  <div className={styles.uploads}>
+                    <a href={file.url} download>
+                      {trimFileName(file.filename)}
+                    </a>
+                  </div>
+                ))}
+              </div>
+            ) : null}
+          </>
+        )}
         {code === 'DDSFSC'
           ? generateDetailText(
               {
-                'Original delivery address': originalDeliveryAddress
+                'Original Delivery Address': originalDeliveryAddress
                   ? formatCityStateAndPostalCode(originalDeliveryAddress)
                   : '-',
-                'Final delivery address':
+                'Final Delivery Address':
                   details.sitDestinationFinalAddress && details.status !== 'SUBMITTED'
                     ? formatCityStateAndPostalCode(details.sitDestinationFinalAddress)
                     : '-',
@@ -88,13 +102,14 @@ const generateDestinationSITDetailSection = (id, serviceRequestDocUploads, detai
               id,
             )
           : null}
-        {code === 'DDDSIT'
-          ? generateDetailText(
+        {code === 'DDDSIT' && (
+          <>
+            {generateDetailText(
               {
-                'Original delivery address': originalDeliveryAddress
+                'Original Delivery Address': originalDeliveryAddress
                   ? formatCityStateAndPostalCode(originalDeliveryAddress)
                   : '-',
-                'Final delivery address':
+                'Final Delivery Address':
                   details.sitDestinationFinalAddress && details.status !== 'SUBMITTED'
                     ? formatCityStateAndPostalCode(details.sitDestinationFinalAddress)
                     : '-',
@@ -110,8 +125,21 @@ const generateDestinationSITDetailSection = (id, serviceRequestDocUploads, detai
                   : '-',
               },
               id,
-            )
-          : null}
+            )}
+            {!isEmpty(serviceRequestDocUploads) ? (
+              <div className={styles.uploads}>
+                <p className={styles.detailType}>Download service item documentation:</p>
+                {serviceRequestDocUploads.map((file) => (
+                  <div className={styles.uploads}>
+                    <a href={file.url} download>
+                      {trimFileName(file.filename)}
+                    </a>
+                  </div>
+                ))}
+              </div>
+            ) : null}
+          </>
+        )}
         {code === 'DDFSIT' && (
           <>
             {!isEmpty(sortedCustomerContacts)
@@ -166,7 +194,7 @@ const ServiceItemDetails = ({ id, code, details, serviceRequestDocs, shipment, s
           <dl>
             {generateDetailText(
               {
-                'Original pickup address': details.sitOriginHHGOriginalAddress
+                'Original Pickup Address': details.sitOriginHHGOriginalAddress
                   ? formatCityStateAndPostalCode(details.sitOriginHHGOriginalAddress)
                   : '-',
                 'SIT entry date': details.sitEntryDate ? formatDateWithUTC(details.sitEntryDate, 'DD MMM YYYY') : '-',
@@ -205,7 +233,7 @@ const ServiceItemDetails = ({ id, code, details, serviceRequestDocs, shipment, s
           <dl>
             {generateDetailText(
               {
-                'Original pickup address': details.sitOriginHHGOriginalAddress
+                'Original Pickup Address': details.sitOriginHHGOriginalAddress
                   ? formatCityStateAndPostalCode(details.sitOriginHHGOriginalAddress)
                   : '-',
                 "Add'l SIT Start Date": details.sitEntryDate
@@ -250,10 +278,10 @@ const ServiceItemDetails = ({ id, code, details, serviceRequestDocs, shipment, s
           <dl>
             {generateDetailText(
               {
-                'Original pickup address': details.sitOriginHHGOriginalAddress
+                'Original Pickup Address': details.sitOriginHHGOriginalAddress
                   ? formatCityStateAndPostalCode(details.sitOriginHHGOriginalAddress)
                   : '-',
-                'Actual pickup address': details.sitOriginHHGActualAddress
+                'Actual Pickup Address': details.sitOriginHHGActualAddress
                   ? formatCityStateAndPostalCode(details.sitOriginHHGActualAddress)
                   : '-',
                 'Delivery miles into SIT': details.sitDeliveryMiles ? details.sitDeliveryMiles : '-',
@@ -285,10 +313,10 @@ const ServiceItemDetails = ({ id, code, details, serviceRequestDocs, shipment, s
           <dl>
             {generateDetailText(
               {
-                'Original pickup address': details.sitOriginHHGOriginalAddress
+                'Original Pickup Address': details.sitOriginHHGOriginalAddress
                   ? formatCityStateAndPostalCode(details.sitOriginHHGOriginalAddress)
                   : '-',
-                'Actual pickup address': details.sitOriginHHGActualAddress
+                'Actual Pickup Address': details.sitOriginHHGActualAddress
                   ? formatCityStateAndPostalCode(details.sitOriginHHGActualAddress)
                   : '-',
                 'Delivery miles into SIT': details.sitDeliveryMiles ? details.sitDeliveryMiles : '-',
@@ -477,6 +505,85 @@ const ServiceItemDetails = ({ id, code, details, serviceRequestDocs, shipment, s
       detailSection = (
         <div>
           <dl>{estimatedPrice && generateDetailText({ Price: `$${formatCents(estimatedPrice)}` }, id)}</dl>
+        </div>
+      );
+      break;
+    }
+    case 'ICRT': {
+      const { description, itemDimensions, crateDimensions, market, externalCrate } = details;
+      const itemDimensionFormat = `${convertFromThousandthInchToInch(
+        itemDimensions?.length,
+      )}"x${convertFromThousandthInchToInch(itemDimensions?.width)}"x${convertFromThousandthInchToInch(
+        itemDimensions?.height,
+      )}"`;
+      const crateDimensionFormat = `${convertFromThousandthInchToInch(
+        crateDimensions?.length,
+      )}"x${convertFromThousandthInchToInch(crateDimensions?.width)}"x${convertFromThousandthInchToInch(
+        crateDimensions?.height,
+      )}"`;
+      detailSection = (
+        <div className={styles.detailCrating}>
+          <dl>
+            {description && generateDetailText({ Description: description }, id)}
+            {itemDimensions && generateDetailText({ 'Item size': itemDimensionFormat }, id)}
+            {crateDimensions && generateDetailText({ 'Crate size': crateDimensionFormat }, id)}
+            {externalCrate && generateDetailText({ 'External crate': 'Yes' }, id)}
+            {market && generateDetailText({ Market: market }, id)}
+            {generateDetailText({ Reason: details.reason ? details.reason : '-' })}
+            {details.rejectionReason &&
+              generateDetailText({ 'Rejection reason': details.rejectionReason }, id, 'margin-top-2')}
+            {!isEmpty(serviceRequestDocUploads) ? (
+              <div className={styles.uploads}>
+                <p className={styles.detailType}>Download service item documentation:</p>
+                {serviceRequestDocUploads.map((file) => (
+                  <div className={styles.uploads}>
+                    <a href={file.url} download>
+                      {trimFileName(file.filename)}
+                    </a>
+                  </div>
+                ))}
+              </div>
+            ) : null}
+          </dl>
+        </div>
+      );
+      break;
+    }
+    case 'IUCRT': {
+      const { description, itemDimensions, crateDimensions, market } = details;
+      const itemDimensionFormat = `${convertFromThousandthInchToInch(
+        itemDimensions?.length,
+      )}"x${convertFromThousandthInchToInch(itemDimensions?.width)}"x${convertFromThousandthInchToInch(
+        itemDimensions?.height,
+      )}"`;
+      const crateDimensionFormat = `${convertFromThousandthInchToInch(
+        crateDimensions?.length,
+      )}"x${convertFromThousandthInchToInch(crateDimensions?.width)}"x${convertFromThousandthInchToInch(
+        crateDimensions?.height,
+      )}"`;
+      detailSection = (
+        <div className={styles.detailCrating}>
+          <dl>
+            {description && generateDetailText({ Description: description }, id)}
+            {itemDimensions && generateDetailText({ 'Item size': itemDimensionFormat }, id)}
+            {crateDimensions && generateDetailText({ 'Crate size': crateDimensionFormat }, id)}
+            {market && generateDetailText({ Market: market }, id)}
+            {generateDetailText({ Reason: details.reason ? details.reason : '-' })}
+            {details.rejectionReason &&
+              generateDetailText({ 'Rejection reason': details.rejectionReason }, id, 'margin-top-2')}
+            {!isEmpty(serviceRequestDocUploads) ? (
+              <div className={styles.uploads}>
+                <p className={styles.detailType}>Download service item documentation:</p>
+                {serviceRequestDocUploads.map((file) => (
+                  <div className={styles.uploads}>
+                    <a href={file.url} download>
+                      {trimFileName(file.filename)}
+                    </a>
+                  </div>
+                ))}
+              </div>
+            ) : null}
+          </dl>
         </div>
       );
       break;

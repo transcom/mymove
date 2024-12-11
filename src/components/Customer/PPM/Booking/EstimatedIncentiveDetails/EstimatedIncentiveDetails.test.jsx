@@ -30,6 +30,33 @@ const defaultProps = {
   },
 };
 
+const zeroIncentiveProps = {
+  shipment: {
+    id: '1234',
+    ppmShipment: {
+      pickupAddress: {
+        streetAddress1: '812 S 129th St',
+        streetAddress2: '#123',
+        city: 'San Antonio',
+        state: 'TX',
+        postalCode: '10001',
+      },
+      destinationAddress: {
+        streetAddress1: '813 S 129th St',
+        streetAddress2: '#124',
+        city: 'San Antonio',
+        state: 'TX',
+        postalCode: '10002',
+      },
+      expectedDepartureDate: '2022-07-04',
+      estimatedWeight: 3456,
+      proGearWeight: 1333,
+      proGearWeightSpouse: 425,
+      estimatedIncentive: 0,
+    },
+  },
+};
+
 const optionalSecondaryProps = {
   shipment: {
     id: '1234',
@@ -104,6 +131,16 @@ describe('EstimatedIncentiveDetails component', () => {
         'You must get certified weight tickets to document the weight you move. You are responsible for uploading them to MilMove.',
       ),
     );
+  });
+
+  it('renders the DTOD unavailable when estimated incentive is', async () => {
+    render(<EstimatedIncentiveDetails {...zeroIncentiveProps} />);
+
+    expect(
+      screen.getByText(
+        'The Defense Table of Distances (DTOD) was unavailable during your PPM creation, so we are currently unable to provide your estimated incentive. Your estimated incentive information will be updated and provided to you during your counseling session.',
+      ),
+    ).toBeInTheDocument();
   });
 
   it('conditionally renders secondary postal codes', () => {

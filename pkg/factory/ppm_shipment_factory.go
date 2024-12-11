@@ -71,6 +71,7 @@ func buildPPMShipmentWithBuildType(db *pop.Connection, customs []Customization, 
 		ppmShipment.ProGearWeight = models.PoundPointer(unit.Pound(1987))
 		ppmShipment.SpouseProGearWeight = models.PoundPointer(unit.Pound(498))
 		ppmShipment.EstimatedIncentive = models.CentPointer(unit.Cents(1000000))
+		ppmShipment.MaxIncentive = models.CentPointer(unit.Cents(2000000))
 		ppmShipment.HasRequestedAdvance = models.BoolPointer(true)
 		ppmShipment.AdvanceAmountRequested = models.CentPointer(unit.Cents(598700))
 	}
@@ -572,49 +573,17 @@ func BuildPPMShipmentThatNeedsCloseout(db *pop.Connection, userUploader *uploade
 
 	ppmShipment.SignedCertification = &signedCert
 
+	if ppmShipment.AllowableWeight == nil {
+		var allowableWeight = unit.Pound(0)
+		if len(ppmShipment.WeightTickets) >= 1 {
+			for _, weightTicket := range ppmShipment.WeightTickets {
+				allowableWeight += *weightTicket.FullWeight - *weightTicket.EmptyWeight
+			}
+		}
+		ppmShipment.AllowableWeight = &allowableWeight
+	}
+
 	ppmShipment.Status = models.PPMShipmentStatusNeedsCloseout
-	if ppmShipment.SubmittedAt == nil {
-		ppmShipment.SubmittedAt = models.TimePointer(time.Now())
-	}
-
-	if db != nil {
-		mustSave(db, &ppmShipment)
-	}
-
-	// Because of the way we're working with the PPMShipment, the
-	// changes we've made to it aren't reflected in the pointer
-	// reference that the MTOShipment has, so we'll need to update it
-	// to point at the latest version.
-	ppmShipment.Shipment.PPMShipment = &ppmShipment
-
-	return ppmShipment
-}
-
-func BuildPPMShipmentWaitingOnCustomer(db *pop.Connection, userUploader *uploader.UserUploader, customs []Customization) models.PPMShipment {
-	// It's easier to use some of the data from other downstream
-	// functions if we have them go first and then make our changes on
-	// top of those changes.
-	ppmShipment := buildPPMShipmentReadyForFinalCustomerCloseOutWithCustoms(db, userUploader, customs)
-
-	move := ppmShipment.Shipment.MoveTaskOrder
-	certType := models.SignedCertificationTypePPMPAYMENT
-
-	signedCert := BuildSignedCertification(db, []Customization{
-		{
-			Model:    move,
-			LinkOnly: true,
-		},
-		{
-			Model: models.SignedCertification{
-				PpmID:             &ppmShipment.ID,
-				CertificationType: &certType,
-			},
-		},
-	}, nil)
-
-	ppmShipment.SignedCertification = &signedCert
-
-	ppmShipment.Status = models.PPMShipmentStatusWaitingOnCustomer
 	if ppmShipment.SubmittedAt == nil {
 		ppmShipment.SubmittedAt = models.TimePointer(time.Now())
 	}
@@ -901,12 +870,14 @@ func AddSignedCertificationToPPMShipment(db *pop.Connection, ppmShipment *models
 func GetTraitPPMShipmentReadyForPaymentRequest() []Customization {
 	estimatedWeight := unit.Pound(200)
 	estimateIncentive := unit.Cents(1000)
+	maxIncentive := unit.Cents(2000)
 	return []Customization{
 		{
 			Model: models.PPMShipment{
 				Status:             models.PPMShipmentStatusWaitingOnCustomer,
 				EstimatedWeight:    &estimatedWeight,
 				EstimatedIncentive: &estimateIncentive,
+				MaxIncentive:       &maxIncentive,
 			},
 		},
 		{

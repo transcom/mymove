@@ -54,7 +54,7 @@ properties:
     type: string
   actualDeliveryDate:
     x-nullable: true
-    description: The actual date that the shipment was delivered to the destination address by the Prime
+    description: The actual date that the shipment was delivered to the delivery address by the Prime
     format: date
     type: string
   requestedDeliveryDate:
@@ -210,3 +210,10 @@ properties:
   destinationSitAuthEndDate:
     format: date-time
     type: string
+  marketCode:
+    type: string
+    enum:
+      - 'd'
+      - 'i'
+    example: 'd'
+    description: 'Single-letter designator for domestic (d) or international (i) shipments'

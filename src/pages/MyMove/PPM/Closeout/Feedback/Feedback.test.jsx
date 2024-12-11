@@ -2,7 +2,7 @@ import React from 'react';
 import { render, screen } from '@testing-library/react';
 import { v4 } from 'uuid';
 
-import Feedback from './Feedback';
+import Feedback, { GetTripWeight, FormatRow } from './Feedback';
 
 import { MockProviders } from 'testUtils';
 import { selectMTOShipmentById } from 'store/entities/selectors';
@@ -40,7 +40,12 @@ const mockMTOShipment = {
       state: 'MT',
       streetAddress1: '422 Dearborn Ave',
     },
-    weightTickets: [],
+    weightTickets: [
+      {
+        emptyWeight: 1999,
+        fullWeight: 5844,
+      },
+    ],
   },
 };
 
@@ -74,6 +79,13 @@ describe('Feedback page', () => {
     expect(screen.getByTestId('w-2Address')).toHaveTextContent('W-2 address: 422 Dearborn AveMissoula, MT 59801');
   });
 
+  it('formats and displays trip weight', () => {
+    renderFeedbackPage();
+
+    expect(screen.getByText('Trip weight:')).toBeInTheDocument();
+    expect(screen.getByText('3,845 lbs')).toBeInTheDocument();
+  });
+
   it('does not display pro-gear if no pro-gear documents are present', () => {
     renderFeedbackPage();
 
@@ -84,5 +96,16 @@ describe('Feedback page', () => {
     renderFeedbackPage();
 
     expect(screen.queryByTestId('expenses-items')).not.toBeInTheDocument();
+  });
+
+  it('returns correct trip weight', () => {
+    const doc = { fullWeight: 5844, emptyWeight: 1999 };
+    expect(GetTripWeight(doc)).toBe(3845);
+  });
+
+  it('formats row correctly', () => {
+    const row = { value: 1000, format: (val) => `$${val}` };
+    const formattedRow = FormatRow(row);
+    expect(formattedRow.value).toBe('$1000');
   });
 });

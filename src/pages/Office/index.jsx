@@ -12,7 +12,7 @@ import 'scenes/Office/office.scss';
 import { milmoveLogger } from 'utils/milmoveLog';
 import { retryPageLoading } from 'utils/retryPageLoading';
 // API / Redux actions
-import { selectGetCurrentUserIsLoading, selectIsLoggedIn } from 'store/auth/selectors';
+import { selectGetCurrentUserIsLoading, selectIsLoggedIn, selectUnderMaintenance } from 'store/auth/selectors';
 import { loadUser as loadUserAction } from 'store/auth/actions';
 import { selectLoggedInUser } from 'store/entities/selectors';
 import {
@@ -43,6 +43,7 @@ import PermissionProvider from 'components/Restricted/PermissionProvider';
 import withRouter from 'utils/routing';
 import { OktaLoggedOutBanner, OktaNeedsLoggedOutBanner } from 'components/OktaLogoutBanner';
 import SelectedGblocProvider from 'components/Office/GblocSwitcher/SelectedGblocProvider';
+import MaintenancePage from 'pages/Maintenance/MaintenancePage';
 
 // Lazy load these dependencies (they correspond to unique routes & only need to be loaded when that URL is accessed)
 const SignIn = lazy(() => import('pages/SignIn/SignIn'));
@@ -112,6 +113,7 @@ export class OfficeApp extends Component {
       oktaNeedsLoggedOut: undefined,
       hqRoleFlag: !!props.hqRoleFlag,
       gsrRoleFlag: undefined,
+      queueManagementFlag: undefined,
     };
   }
 
@@ -152,6 +154,10 @@ export class OfficeApp extends Component {
         this.setState({
           gsrRoleFlag: gsrRoleFlagValue,
         });
+        const isQueueManagementFlagValue = await isBooleanFlagEnabled('queue_management');
+        this.setState({
+          queueManagementFlag: isQueueManagementFlagValue,
+        });
       } catch (error) {
         retryPageLoading(error);
       }
@@ -171,7 +177,8 @@ export class OfficeApp extends Component {
   }
 
   render() {
-    const { hasError, error, info, oktaLoggedOut, oktaNeedsLoggedOut, hqRoleFlag, gsrRoleFlag } = this.state;
+    const { hasError, error, info, oktaLoggedOut, oktaNeedsLoggedOut, hqRoleFlag, gsrRoleFlag, queueManagementFlag } =
+      this.state;
     const {
       activeRole,
       officeUserId,
@@ -186,6 +193,7 @@ export class OfficeApp extends Component {
       hasRecentError,
       traceId,
       userPrivileges,
+      underMaintenance,
     } = this.props;
 
     const displayChangeRole =
@@ -205,6 +213,10 @@ export class OfficeApp extends Component {
       },
       pathname,
     );
+
+    if (underMaintenance) {
+      return <MaintenancePage />;
+    }
 
     const siteClasses = classnames('site', {
       [`site--fullscreen`]: isFullscreenPage,
@@ -267,7 +279,7 @@ export class OfficeApp extends Component {
                         end
                         element={
                           <PrivateRoute requiredRoles={[roleTypes.TOO]}>
-                            <MoveQueue />
+                            <MoveQueue isQueueManagementFFEnabled={queueManagementFlag} />
                           </PrivateRoute>
                         }
                       />
@@ -276,7 +288,7 @@ export class OfficeApp extends Component {
                         path="/invoicing/queue"
                         element={
                           <PrivateRoute requiredRoles={[roleTypes.TIO]}>
-                            <PaymentRequestQueue />
+                            <PaymentRequestQueue isQueueManagementFFEnabled={queueManagementFlag} />
                           </PrivateRoute>
                         }
                       />
@@ -286,7 +298,7 @@ export class OfficeApp extends Component {
                         end
                         element={
                           <PrivateRoute requiredRoles={hqRoleFlag ? [roleTypes.HQ] : [undefined]}>
-                            <HeadquartersQueues />
+                            <HeadquartersQueues isQueueManagementFFEnabled={queueManagementFlag} />
                           </PrivateRoute>
                         }
                       />
@@ -307,7 +319,10 @@ export class OfficeApp extends Component {
                           end
                           element={
                             <PrivateRoute requiredRoles={[roleTypes.SERVICES_COUNSELOR]}>
-                              <ServicesCounselingQueue userPrivileges={userPrivileges} currentUserId={officeUserId} />
+                              <ServicesCounselingQueue
+                                userPrivileges={userPrivileges}
+                                isQueueManagementFFEnabled={queueManagementFlag}
+                              />
                             </PrivateRoute>
                           }
                         />
@@ -334,7 +349,7 @@ export class OfficeApp extends Component {
                           end
                           element={
                             <PrivateRoute requiredRoles={[roleTypes.TIO]}>
-                              <PaymentRequestQueue />
+                              <PaymentRequestQueue isQueueManagementFFEnabled={queueManagementFlag} />
                             </PrivateRoute>
                           }
                         />
@@ -345,7 +360,7 @@ export class OfficeApp extends Component {
                           end
                           element={
                             <PrivateRoute requiredRoles={[roleTypes.TOO]}>
-                              <MoveQueue />
+                              <MoveQueue isQueueManagementFFEnabled={queueManagementFlag} />
                             </PrivateRoute>
                           }
                         />
@@ -357,7 +372,7 @@ export class OfficeApp extends Component {
                           end
                           element={
                             <PrivateRoute requiredRoles={hqRoleFlag ? [roleTypes.HQ] : [undefined]}>
-                              <HeadquartersQueues />
+                              <HeadquartersQueues isQueueManagementFFEnabled={queueManagementFlag} />
                             </PrivateRoute>
                           }
                         />
@@ -566,7 +581,13 @@ export class OfficeApp extends Component {
                       <Route end path="/select-application" element={<ConnectedSelectApplication />} />
 
                       {/* ROOT */}
-                      {activeRole === roleTypes.TIO && <Route end path="/*" element={<PaymentRequestQueue />} />}
+                      {activeRole === roleTypes.TIO && (
+                        <Route
+                          end
+                          path="/*"
+                          element={<PaymentRequestQueue isQueueManagementFFEnabled={queueManagementFlag} />}
+                        />
+                      )}
                       {activeRole === roleTypes.TOO && <Route end path="/*" element={<MoveQueue />} />}
                       {activeRole === roleTypes.HQ && !hqRoleFlag && (
                         <Route end path="/*" element={<InvalidPermissions />} />
@@ -642,6 +663,7 @@ const mapStateToProps = (state) => {
     hasRecentError: state.interceptor.hasRecentError,
     traceId: state.interceptor.traceId,
     userPrivileges: user?.privileges || null,
+    underMaintenance: selectUnderMaintenance(state),
   };
 };
 

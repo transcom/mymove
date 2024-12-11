@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { arrayOf, bool, func, number, shape, string, oneOf } from 'prop-types';
 import { Field, Formik } from 'formik';
-import { generatePath, useNavigate, useParams } from 'react-router-dom';
+import { generatePath, useNavigate, useParams, Link } from 'react-router-dom';
 import { useQueryClient, useMutation } from '@tanstack/react-query';
-import { Alert, Button, Checkbox, Fieldset, FormGroup, Radio } from '@trussworks/react-uswds';
+import { Alert, Button, Checkbox, Fieldset, FormGroup, Radio, Label, Tag } from '@trussworks/react-uswds';
 import classNames from 'classnames';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
@@ -12,6 +12,10 @@ import { CloseoutOfficeInput } from '../../form/fields/CloseoutOfficeInput';
 
 import ppmShipmentSchema from './ppmShipmentSchema';
 import styles from './ShipmentForm.module.scss';
+import MobileHomeShipmentForm from './MobileHomeShipmentForm/MobileHomeShipmentForm';
+import mobileHomeShipmentSchema from './MobileHomeShipmentForm/mobileHomeShipmentSchema';
+import BoatShipmentForm from './BoatShipmentForm/BoatShipmentForm';
+import boatShipmentSchema from './BoatShipmentForm/boatShipmentSchema';
 
 import ppmStyles from 'components/Customer/PPM/PPM.module.scss';
 import SERVICE_MEMBER_AGENCIES from 'content/serviceMemberAgencies';
@@ -45,7 +49,7 @@ import {
   updateMoveCloseoutOffice,
   dateSelectionIsWeekendHoliday,
 } from 'services/ghcApi';
-import { SHIPMENT_OPTIONS } from 'shared/constants';
+import { SHIPMENT_OPTIONS, SHIPMENT_TYPES, technicalHelpDeskURL } from 'shared/constants';
 import formStyles from 'styles/form.module.scss';
 import { AccountingCodesShape } from 'types/accountingCodes';
 import { AddressShape, SimpleAddressShape } from 'types/address';
@@ -56,6 +60,10 @@ import {
   formatMtoShipmentForDisplay,
   formatPpmShipmentForAPI,
   formatPpmShipmentForDisplay,
+  formatMobileHomeShipmentForDisplay,
+  formatMobileHomeShipmentForAPI,
+  formatBoatShipmentForDisplay,
+  formatBoatShipmentForAPI,
 } from 'utils/formatMtoShipment';
 import { formatWeight, dropdownInputOptions } from 'utils/formatters';
 import { validateDate } from 'utils/validation';
@@ -95,6 +103,7 @@ const ShipmentForm = (props) => {
 
   const [datesErrorMessage, setDatesErrorMessage] = useState(null);
   const [errorMessage, setErrorMessage] = useState(null);
+  const [errorCode, setErrorCode] = useState(null);
   const [successMessage, setSuccessMessage] = useState(null);
   const [shipmentAddressUpdateReviewErrorMessage, setShipmentAddressUpdateReviewErrorMessage] = useState(null);
 
@@ -177,6 +186,17 @@ const ShipmentForm = (props) => {
     });
   };
 
+  const handleSetError = (error, defaultError) => {
+    if (error?.response?.body?.message !== null && error?.response?.body?.message !== undefined) {
+      if (error?.statusCode !== null && error?.statusCode !== undefined) {
+        setErrorCode(error.statusCode);
+      }
+      setErrorMessage(`${error?.response?.body?.message}`);
+    } else {
+      setErrorMessage(defaultError);
+    }
+  };
+
   const handleSubmitShipmentAddressUpdateReview = async (
     shipmentID,
     shipmentETag,
@@ -245,6 +265,11 @@ const ShipmentForm = (props) => {
   const isNTS = shipmentType === SHIPMENT_OPTIONS.NTS;
   const isNTSR = shipmentType === SHIPMENT_OPTIONS.NTSR;
   const isPPM = shipmentType === SHIPMENT_OPTIONS.PPM;
+  const isMobileHome = shipmentType === SHIPMENT_OPTIONS.MOBILE_HOME;
+  const isBoat =
+    shipmentType === SHIPMENT_OPTIONS.BOAT ||
+    shipmentType === SHIPMENT_TYPES.BOAT_HAUL_AWAY ||
+    shipmentType === SHIPMENT_TYPES.BOAT_TOW_AWAY;
 
   const showAccountingCodes = isNTS || isNTSR;
 
@@ -260,21 +285,36 @@ const ShipmentForm = (props) => {
   const shipmentDestinationAddressOptions = dropdownInputOptions(shipmentDestinationTypes);
 
   const shipmentNumber = isHHG ? getShipmentNumber() : null;
-  const initialValues = isPPM
-    ? formatPpmShipmentForDisplay(
-        isCreatePage
-          ? { closeoutOffice: move.closeoutOffice }
-          : {
-              counselorRemarks: mtoShipment.counselorRemarks,
-              ppmShipment: mtoShipment.ppmShipment,
-              closeoutOffice: move.closeoutOffice,
-            },
-      )
-    : formatMtoShipmentForDisplay(
-        isCreatePage
-          ? { userRole, shipmentType }
-          : { userRole, shipmentType, agents: mtoShipment.mtoAgents, ...mtoShipment },
-      );
+  let initialValues = {};
+  if (isPPM) {
+    initialValues = formatPpmShipmentForDisplay(
+      isCreatePage
+        ? { closeoutOffice: move.closeoutOffice }
+        : {
+            counselorRemarks: mtoShipment.counselorRemarks,
+            ppmShipment: mtoShipment.ppmShipment,
+            closeoutOffice: move.closeoutOffice,
+          },
+    );
+    if (isCreatePage && serviceMember?.grade === 'CIVILIAN_EMPLOYEE')
+      initialValues.isActualExpenseReimbursement = 'true';
+  } else if (isMobileHome) {
+    const hhgInitialValues = formatMtoShipmentForDisplay(
+      isCreatePage ? { userRole } : { userRole, shipmentType, agents: mtoShipment.mtoAgents, ...mtoShipment },
+    );
+    initialValues = formatMobileHomeShipmentForDisplay(mtoShipment?.mobileHomeShipment, hhgInitialValues);
+  } else if (isBoat) {
+    const hhgInitialValues = formatMtoShipmentForDisplay(
+      isCreatePage ? { userRole } : { userRole, shipmentType, agents: mtoShipment.mtoAgents, ...mtoShipment },
+    );
+    initialValues = formatBoatShipmentForDisplay(mtoShipment?.boatShipment, hhgInitialValues);
+  } else {
+    initialValues = formatMtoShipmentForDisplay(
+      isCreatePage
+        ? { userRole, shipmentType }
+        : { userRole, shipmentType, agents: mtoShipment.mtoAgents, ...mtoShipment },
+    );
+  }
 
   let showDeliveryFields;
   let showPickupFields;
@@ -290,6 +330,14 @@ const ShipmentForm = (props) => {
       showCloseoutOffice,
       sitEstimatedWeightMax: estimatedWeightValue || 0,
     });
+  } else if (isMobileHome) {
+    schema = mobileHomeShipmentSchema();
+    showDeliveryFields = true;
+    showPickupFields = true;
+  } else if (isBoat) {
+    schema = boatShipmentSchema();
+    showDeliveryFields = true;
+    showPickupFields = true;
   } else {
     const shipmentOptions = getShipmentOptions(shipmentType, userRole);
 
@@ -364,9 +412,9 @@ const ShipmentForm = (props) => {
                       setErrorMessage(null);
                       onUpdate('success');
                     },
-                    onError: () => {
+                    onError: (error) => {
                       actions.setSubmitting(false);
-                      setErrorMessage(`Something went wrong, and your changes were not saved. Please try again.`);
+                      handleSetError(error, `Something went wrong, and your changes were not saved. Please try again.`);
                     },
                   },
                 );
@@ -379,9 +427,9 @@ const ShipmentForm = (props) => {
                 }
               }
             },
-            onError: () => {
+            onError: (error) => {
               actions.setSubmitting(false);
-              setErrorMessage(`Something went wrong, and your changes were not saved. Please try again.`);
+              handleSetError(error, `Something went wrong, and your changes were not saved. Please try again.`);
             },
           },
         );
@@ -427,9 +475,9 @@ const ShipmentForm = (props) => {
                   navigate(advancePath);
                   onUpdate('success');
                 },
-                onError: () => {
+                onError: (error) => {
                   actions.setSubmitting(false);
-                  setErrorMessage(`Something went wrong, and your changes were not saved. Please try again.`);
+                  handleSetError(error, `Something went wrong, and your changes were not saved. Please try again.`);
                 },
               },
             );
@@ -452,9 +500,9 @@ const ShipmentForm = (props) => {
             onUpdate('success');
           }
         },
-        onError: () => {
+        onError: (error) => {
           actions.setSubmitting(false);
-          setErrorMessage(`Something went wrong, and your changes were not saved. Please try again.`);
+          handleSetError(error, `Something went wrong, and your changes were not saved. Please try again.`);
         },
       });
       return;
@@ -497,7 +545,7 @@ const ShipmentForm = (props) => {
       nullableSacType = typeof sacType === 'undefined' ? '' : sacType;
     }
 
-    const pendingMtoShipment = formatMtoShipmentForAPI({
+    let pendingMtoShipment = formatMtoShipmentForAPI({
       shipmentType,
       moveCode,
       customerRemarks,
@@ -521,6 +569,24 @@ const ShipmentForm = (props) => {
       tertiaryDelivery: hasTertiaryDelivery === 'yes' ? tertiaryDelivery : {},
     });
 
+    // Mobile Home Shipment
+    if (isMobileHome) {
+      const mobileHomeShipmentBody = formatMobileHomeShipmentForAPI(formValues);
+      pendingMtoShipment = {
+        ...pendingMtoShipment,
+        ...mobileHomeShipmentBody,
+      };
+    }
+
+    // Boat Shipment
+    if (isBoat) {
+      const boatShipmentBody = formatBoatShipmentForAPI(formValues);
+      pendingMtoShipment = {
+        ...pendingMtoShipment,
+        ...boatShipmentBody,
+      };
+    }
+
     const updateMTOShipmentPayload = {
       moveTaskOrderID,
       shipmentID: mtoShipment.id,
@@ -538,8 +604,8 @@ const ShipmentForm = (props) => {
           onSuccess: () => {
             navigate(moveDetailsPath);
           },
-          onError: () => {
-            setErrorMessage(`Something went wrong, and your changes were not saved. Please try again.`);
+          onError: (error) => {
+            handleSetError(error, `Something went wrong, and your changes were not saved. Please try again.`);
           },
         },
       );
@@ -552,8 +618,8 @@ const ShipmentForm = (props) => {
           navigate(moveDetailsPath);
           onUpdate('success');
         },
-        onError: () => {
-          setErrorMessage(`Something went wrong, and your changes were not saved. Please try again.`);
+        onError: (error) => {
+          handleSetError(error, `Something went wrong, and your changes were not saved. Please try again.`);
         },
       });
     }
@@ -563,8 +629,8 @@ const ShipmentForm = (props) => {
         onSuccess: () => {
           navigate(moveDetailsPath);
         },
-        onError: () => {
-          setErrorMessage(`Something went wrong, and your changes were not saved. Please try again.`);
+        onError: (error) => {
+          handleSetError(error, `Something went wrong, and your changes were not saved. Please try again.`);
         },
       });
     }
@@ -575,10 +641,22 @@ const ShipmentForm = (props) => {
       initialValues={initialValues}
       validateOnMount
       validateOnBlur
+      validateOnChange
       validationSchema={schema}
       onSubmit={submitMTOShipment}
     >
-      {({ values, isValid, isSubmitting, setValues, handleSubmit, errors }) => {
+      {({
+        values,
+        isValid,
+        isSubmitting,
+        setValues,
+        handleSubmit,
+        errors,
+        touched,
+        setFieldTouched,
+        setFieldError,
+        validateForm,
+      }) => {
         const {
           hasSecondaryDestination,
           hasTertiaryDestination,
@@ -587,7 +665,38 @@ const ShipmentForm = (props) => {
           hasSecondaryDelivery,
           hasTertiaryPickup,
           hasTertiaryDelivery,
+          isActualExpenseReimbursement,
         } = values;
+
+        const lengthHasError = !!(
+          (touched.lengthFeet && errors.lengthFeet === 'Required') ||
+          (touched.lengthInches && errors.lengthFeet === 'Required')
+        );
+        const widthHasError = !!(
+          (touched.widthFeet && errors.widthFeet === 'Required') ||
+          (touched.widthInches && errors.widthFeet === 'Required')
+        );
+        const heightHasError = !!(
+          (touched.heightFeet && errors.heightFeet === 'Required') ||
+          (touched.heightInches && errors.heightFeet === 'Required')
+        );
+        const dimensionError = !!(
+          (touched.lengthFeet && errors.lengthFeet?.includes('Dimensions')) ||
+          (touched.lengthInches && errors.lengthFeet?.includes('Dimensions'))
+        );
+        if (touched.lengthInches && !touched.lengthFeet) {
+          setFieldTouched('lengthFeet', true);
+        }
+        if (touched.widthInches && !touched.widthFeet) {
+          setFieldTouched('widthFeet', true);
+        }
+        if (touched.heightInches && !touched.heightFeet) {
+          setFieldTouched('heightFeet', true);
+        }
+        // manually turn off 'required' error when page loads if field is empty.
+        if (values.year === null && !touched.year && errors.year === 'Required') {
+          setFieldError('year', null);
+        }
 
         const handleUseCurrentResidenceChange = (e) => {
           const { checked } = e.target;
@@ -709,7 +818,17 @@ const ShipmentForm = (props) => {
             <NotificationScrollToTop dependency={errorMessage} />
             {errorMessage && (
               <Alert data-testid="errorMessage" type="error" headingLevel="h4" heading="An error occurred">
-                {errorMessage}
+                {errorCode === 400 ? (
+                  <p>
+                    {errorMessage} Please try again later, or contact the&nbsp;
+                    <Link to={technicalHelpDeskURL} target="_blank" rel="noreferrer">
+                      Technical Help Desk
+                    </Link>
+                    .
+                  </p>
+                ) : (
+                  <p>{errorMessage}</p>
+                )}
               </Alert>
             )}
             <NotificationScrollToTop dependency={successMessage} />
@@ -726,7 +845,7 @@ const ShipmentForm = (props) => {
             )}
             {deliveryAddressUpdateRequested && (
               <Alert type="error" className={styles.alert}>
-                Request needs review. <a href="#delivery-location">See delivery location to proceed.</a>
+                Request needs review. <a href="#delivery-location">See delivery address to proceed.</a>
               </Alert>
             )}
 
@@ -734,6 +853,11 @@ const ShipmentForm = (props) => {
               <div className={styles.headerWrapper}>
                 <div>
                   <ShipmentTag shipmentType={shipmentType} shipmentNumber={shipmentNumber} />
+                  {isActualExpenseReimbursement === 'true' && (
+                    <Tag className={styles.tagInfo} data-testid="actualExpenseReimbursementTag">
+                      Actual Expense Reimbursement
+                    </Tag>
+                  )}
 
                   <h1>{isCreatePage ? 'Add' : 'Edit'} shipment details</h1>
                 </div>
@@ -758,9 +882,35 @@ const ShipmentForm = (props) => {
               </SectionWrapper>
 
               <Form className={formStyles.form}>
-                {isTOO && !isHHG && !isPPM && <ShipmentVendor />}
+                {isTOO && !isHHG && !isPPM && !isBoat && !isMobileHome && <ShipmentVendor />}
 
                 {isNTSR && <ShipmentWeightInput userRole={userRole} />}
+
+                {isMobileHome && (
+                  <MobileHomeShipmentForm
+                    lengthHasError={lengthHasError}
+                    widthHasError={widthHasError}
+                    heightHasError={heightHasError}
+                    values={values}
+                    setFieldTouched={setFieldTouched}
+                    setFieldError={setFieldError}
+                    validateForm={validateForm}
+                    dimensionError={dimensionError}
+                  />
+                )}
+
+                {isBoat && (
+                  <BoatShipmentForm
+                    lengthHasError={lengthHasError}
+                    widthHasError={widthHasError}
+                    heightHasError={heightHasError}
+                    values={values}
+                    setFieldTouched={setFieldTouched}
+                    setFieldError={setFieldError}
+                    validateForm={validateForm}
+                    dimensionError={dimensionError}
+                  />
+                )}
 
                 {showPickupFields && (
                   <SectionWrapper className={formStyles.formSection}>
@@ -783,19 +933,19 @@ const ShipmentForm = (props) => {
                       <>
                         <AddressFields
                           name="pickup.address"
-                          legend="Pickup location"
+                          legend="Pickup Address"
                           render={(fields) => (
                             <>
                               <p>What address are the movers picking up from?</p>
                               <Checkbox
                                 data-testid="useCurrentResidence"
-                                label="Use current address"
+                                label="Use pickup address"
                                 name="useCurrentResidence"
                                 onChange={handleUseCurrentResidenceChange}
                                 id="useCurrentResidenceCheckbox"
                               />
                               {fields}
-                              <h4>Second pickup location</h4>
+                              <h4>Second Pickup Address</h4>
                               <FormGroup>
                                 <p>Do you want movers to pick up any belongings from a second address?</p>
                                 <div className={formStyles.radioGroup}>
@@ -806,7 +956,7 @@ const ShipmentForm = (props) => {
                                     label="Yes"
                                     name="hasSecondaryPickup"
                                     value="yes"
-                                    title="Yes, I have a second pickup location"
+                                    title="Yes, I have a second pickup address"
                                     checked={hasSecondaryPickup === 'yes'}
                                   />
                                   <Field
@@ -816,7 +966,7 @@ const ShipmentForm = (props) => {
                                     label="No"
                                     name="hasSecondaryPickup"
                                     value="no"
-                                    title="No, I do not have a second pickup location"
+                                    title="No, I do not have a second pickup address"
                                     checked={hasSecondaryPickup !== 'yes'}
                                   />
                                 </div>
@@ -826,7 +976,7 @@ const ShipmentForm = (props) => {
                                   <AddressFields name="secondaryPickup.address" />
                                   {isTertiaryAddressEnabled && (
                                     <>
-                                      <h4>Third pickup location</h4>
+                                      <h4>Third Pickup Address</h4>
                                       <FormGroup>
                                         <p>Do you want movers to pick up any belongings from a third address?</p>
                                         <div className={formStyles.radioGroup}>
@@ -837,7 +987,7 @@ const ShipmentForm = (props) => {
                                             label="Yes"
                                             name="hasTertiaryPickup"
                                             value="yes"
-                                            title="Yes, I have a third pickup location"
+                                            title="Yes, I have a third pickup address"
                                             checked={hasTertiaryPickup === 'yes'}
                                           />
                                           <Field
@@ -847,7 +997,7 @@ const ShipmentForm = (props) => {
                                             label="No"
                                             name="hasTertiaryPickup"
                                             value="no"
-                                            title="No, I do not have a third pickup location"
+                                            title="No, I do not have a third pickup address"
                                             checked={hasTertiaryPickup !== 'yes'}
                                           />
                                         </div>
@@ -909,7 +1059,7 @@ const ShipmentForm = (props) => {
                         {deliveryAddressUpdateRequested && (
                           <Alert type="error" slim className={styles.deliveryAddressUpdateAlert} id="delivery-location">
                             <span className={styles.deliveryAddressUpdateAlertContent}>
-                              Pending delivery location change request needs review.{' '}
+                              Pending delivery address change request needs review.{' '}
                               <Button
                                 className={styles.reviewRequestLink}
                                 type="button"
@@ -924,7 +1074,7 @@ const ShipmentForm = (props) => {
                           </Alert>
                         )}
                         <Fieldset
-                          legend="Delivery location"
+                          legend="Delivery Address"
                           disabled={deliveryAddressUpdateRequested}
                           className={classNames('usa-legend', styles.mockLegend)}
                         >
@@ -934,7 +1084,7 @@ const ShipmentForm = (props) => {
                               return fields;
                             }}
                           />
-                          <h4>Second delivery location</h4>
+                          <h4>Second Delivery Address</h4>
                           <FormGroup>
                             <p>Do you want the movers to deliver any belongings to a second address?</p>
                             <div className={formStyles.radioGroup}>
@@ -965,7 +1115,7 @@ const ShipmentForm = (props) => {
                               <AddressFields name="secondaryDelivery.address" />
                               {isTertiaryAddressEnabled && (
                                 <>
-                                  <h4>Third delivery location</h4>
+                                  <h4>Third Delivery Address</h4>
                                   <FormGroup>
                                     <p>Do you want the movers to deliver any belongings from a third address?</p>
                                     <div className={formStyles.radioGroup}>
@@ -976,7 +1126,7 @@ const ShipmentForm = (props) => {
                                         label="Yes"
                                         name="hasTertiaryDelivery"
                                         value="yes"
-                                        title="Yes, I have a third delivery location"
+                                        title="Yes, I have a third delivery address"
                                         checked={hasTertiaryDelivery === 'yes'}
                                       />
                                       <Field
@@ -986,7 +1136,7 @@ const ShipmentForm = (props) => {
                                         label="No"
                                         name="hasTertiaryDelivery"
                                         value="no"
-                                        title="No, I do not have a third delivery location"
+                                        title="No, I do not have a third delivery address"
                                         checked={hasTertiaryDelivery !== 'yes'}
                                       />
                                     </div>
@@ -1018,12 +1168,12 @@ const ShipmentForm = (props) => {
                     {!isNTS && !isNTSR && (
                       <>
                         <p className={classNames('usa-legend', styles.mockLegend)} id="delivery-location">
-                          Delivery location
+                          Delivery Address
                         </p>
                         {deliveryAddressUpdateRequested && (
                           <Alert type="error" slim className={styles.deliveryAddressUpdateAlert}>
                             <span className={styles.deliveryAddressUpdateAlertContent}>
-                              Pending delivery location change request needs review.{' '}
+                              Pending delivery address change request needs review.{' '}
                               <Button
                                 className={styles.reviewRequestLink}
                                 type="button"
@@ -1039,7 +1189,7 @@ const ShipmentForm = (props) => {
                         )}
                         <Fieldset
                           legendStyle="srOnly"
-                          legend="Delivery location"
+                          legend="Delivery Address"
                           disabled={deliveryAddressUpdateRequested}
                         >
                           <FormGroup>
@@ -1079,7 +1229,7 @@ const ShipmentForm = (props) => {
                                       id="destinationType"
                                     />
                                   )}
-                                  <h4>Second delivery location</h4>
+                                  <h4>Second Delivery Address</h4>
                                   <FormGroup>
                                     <p>Do you want the movers to deliver any belongings to a second address?</p>
                                     <div className={formStyles.radioGroup}>
@@ -1110,7 +1260,7 @@ const ShipmentForm = (props) => {
                                       <AddressFields name="secondaryDelivery.address" />
                                       {isTertiaryAddressEnabled && (
                                         <>
-                                          <h4>Third delivery location</h4>
+                                          <h4>Third Delivery Address</h4>
                                           <FormGroup>
                                             <p>
                                               Do you want the movers to deliver any belongings from a third address?
@@ -1123,7 +1273,7 @@ const ShipmentForm = (props) => {
                                                 label="Yes"
                                                 name="hasTertiaryDelivery"
                                                 value="yes"
-                                                title="Yes, I have a third delivery location"
+                                                title="Yes, I have a third delivery address"
                                                 checked={hasTertiaryDelivery === 'yes'}
                                               />
                                               <Field
@@ -1133,7 +1283,7 @@ const ShipmentForm = (props) => {
                                                 label="No"
                                                 name="hasTertiaryDelivery"
                                                 value="no"
-                                                title="No, I do not have a third delivery location"
+                                                title="No, I do not have a third delivery address"
                                                 checked={hasTertiaryDelivery !== 'yes'}
                                               />
                                             </div>
@@ -1185,6 +1335,40 @@ const ShipmentForm = (props) => {
 
                 {isPPM && !isAdvancePage && (
                   <>
+                    {isServiceCounselor && (
+                      <SectionWrapper className={classNames(ppmStyles.sectionWrapper, formStyles.formSection)}>
+                        <h2>Actual Expense Reimbursement</h2>
+                        <FormGroup>
+                          <Label className={styles.Label} htmlFor="isActualExpenseReimbursement">
+                            Is this PPM an Actual Expense Reimbursement?
+                          </Label>
+                          <Field
+                            as={Radio}
+                            id="isActualExpenseReimbursementYes"
+                            label="Yes"
+                            name="isActualExpenseReimbursement"
+                            value="true"
+                            title="Yes"
+                            checked={isActualExpenseReimbursement === 'true'}
+                            disabled={serviceMember?.grade === 'CIVILIAN_EMPLOYEE'}
+                            className={styles.buttonGroup}
+                            data-testid="isActualExpenseReimbursementYes"
+                          />
+                          <Field
+                            as={Radio}
+                            id="isActualExpenseReimbursementNo"
+                            label="No"
+                            name="isActualExpenseReimbursement"
+                            value="false"
+                            title="No"
+                            checked={isActualExpenseReimbursement !== 'true'}
+                            disabled={serviceMember?.grade === 'CIVILIAN_EMPLOYEE'}
+                            className={styles.buttonGroup}
+                            data-testid="isActualExpenseReimbursementNo"
+                          />
+                        </FormGroup>
+                      </SectionWrapper>
+                    )}
                     <SectionWrapper className={classNames(ppmStyles.sectionWrapper, formStyles.formSection)}>
                       <h2>Departure date</h2>
                       <DatePickerInput name="expectedDepartureDate" label="Planned Departure Date" />
@@ -1199,20 +1383,20 @@ const ShipmentForm = (props) => {
                         legend="Pickup Address"
                         render={(fields) => (
                           <>
-                            <p>What address are the movers picking up from?</p>
+                            <p>What address are you moving from?</p>
                             <Checkbox
                               data-testid="useCurrentResidence"
-                              label="Use Current Address"
+                              label="Use Pickup Address"
                               name="useCurrentResidence"
                               onChange={handleUseCurrentResidenceChange}
                               id="useCurrentResidenceCheckbox"
                             />
                             {fields}
-                            <h4>Second pickup location</h4>
+                            <h4>Second Pickup Address</h4>
                             <FormGroup>
                               <p>
-                                Will the movers pick up any belongings from a second address? (Must be near the pickup
-                                address. Subject to approval.)
+                                Will you move any belongings from a second address? (Must be near the pickup address.
+                                Subject to approval.)
                               </p>
                               <div className={formStyles.radioGroup}>
                                 <Field
@@ -1222,7 +1406,7 @@ const ShipmentForm = (props) => {
                                   label="Yes"
                                   name="hasSecondaryPickup"
                                   value="true"
-                                  title="Yes, there is a second pickup location"
+                                  title="Yes, there is a second pickup address"
                                   checked={hasSecondaryPickup === 'true'}
                                 />
                                 <Field
@@ -1232,7 +1416,7 @@ const ShipmentForm = (props) => {
                                   label="No"
                                   name="hasSecondaryPickup"
                                   value="false"
-                                  title="No, there is not a second pickup location"
+                                  title="No, there is not a second pickup address"
                                   checked={hasSecondaryPickup !== 'true'}
                                 />
                               </div>
@@ -1242,11 +1426,11 @@ const ShipmentForm = (props) => {
                                 <AddressFields name="secondaryPickup.address" />
                                 {isTertiaryAddressEnabled && (
                                   <>
-                                    <h4>Third pickup location</h4>
+                                    <h4>Third Pickup Address</h4>
                                     <FormGroup>
                                       <p>
-                                        Will the movers pick up any belongings from a third address? (Must be near the
-                                        pickup address. Subject to approval.)
+                                        Will you move any belongings from a third address? (Must be near the pickup
+                                        address. Subject to approval.)
                                       </p>
                                       <div className={formStyles.radioGroup}>
                                         <Field
@@ -1256,7 +1440,7 @@ const ShipmentForm = (props) => {
                                           label="Yes"
                                           name="hasTertiaryPickup"
                                           value="true"
-                                          title="Yes, there is a third pickup location"
+                                          title="Yes, there is a third pickup address"
                                           checked={hasTertiaryPickup === 'true'}
                                         />
                                         <Field
@@ -1266,7 +1450,7 @@ const ShipmentForm = (props) => {
                                           label="No"
                                           name="hasTertiaryPickup"
                                           value="false"
-                                          title="No, there is not a third pickup location"
+                                          title="No, there is not a third pickup address"
                                           checked={hasTertiaryPickup !== 'true'}
                                         />
                                       </div>
@@ -1281,16 +1465,16 @@ const ShipmentForm = (props) => {
                       />
                       <AddressFields
                         name="destination.address"
-                        legend="Destination Address"
+                        legend="Delivery Address"
                         address1LabelHint="Optional"
                         render={(fields) => (
                           <>
                             {fields}
-                            <h4>Second destination address</h4>
+                            <h4>Second Delivery Address</h4>
                             <FormGroup>
                               <p>
-                                Will the movers deliver any belongings to a second address? (Must be near the
-                                destination address. Subject to approval.)
+                                Will you move any belongings to a second address? (Must be near the delivery address.
+                                Subject to approval.)
                               </p>
                               <div className={formStyles.radioGroup}>
                                 <Field
@@ -1320,11 +1504,11 @@ const ShipmentForm = (props) => {
                                 <AddressFields name="secondaryDestination.address" />
                                 {isTertiaryAddressEnabled && (
                                   <>
-                                    <h4>Third destination address</h4>
+                                    <h4>Third Delivery Address</h4>
                                     <FormGroup>
                                       <p>
-                                        Will the movers deliver any belongings to a third address? (Must be near the
-                                        destination address. Subject to approval.)
+                                        Will you move any belongings to a third address? (Must be near the delivery
+                                        address. Subject to approval.)
                                       </p>
                                       <div className={formStyles.radioGroup}>
                                         <Field
@@ -1334,7 +1518,7 @@ const ShipmentForm = (props) => {
                                           label="Yes"
                                           name="hasTertiaryDestination"
                                           value="true"
-                                          title="Yes, I have a third delivery location"
+                                          title="Yes, I have a third delivery address"
                                           checked={hasTertiaryDestination === 'true'}
                                         />
                                         <Field
@@ -1344,7 +1528,7 @@ const ShipmentForm = (props) => {
                                           label="No"
                                           name="hasTertiaryDestination"
                                           value="false"
-                                          title="No, I do not have a third delivery location"
+                                          title="No, I do not have a third delivery address"
                                           checked={hasTertiaryDestination !== 'true'}
                                         />
                                       </div>

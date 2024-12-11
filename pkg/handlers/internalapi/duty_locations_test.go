@@ -1,16 +1,24 @@
 package internalapi
 
 import (
+	"context"
 	"net/http/httptest"
 
 	"github.com/go-openapi/strfmt"
 	"github.com/gofrs/uuid"
+	"github.com/pkg/errors"
+	"github.com/stretchr/testify/mock"
+	"go.uber.org/zap"
 
+	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/auth"
+	"github.com/transcom/mymove/pkg/factory"
 	locationop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/duty_locations"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/services/address"
+	"github.com/transcom/mymove/pkg/services/mocks"
 )
 
 func (suite *HandlerSuite) TestSearchDutyLocationHandler() {
@@ -24,33 +32,80 @@ func (suite *HandlerSuite) TestSearchDutyLocationHandler() {
 	}
 	suite.MustSave(&user)
 
-	newAddress := models.Address{
+	newAKAddress := models.Address{
 		StreetAddress1: "some address",
 		City:           "city",
-		State:          "CA",
+		State:          "AK",
 		PostalCode:     "12345",
 		County:         "County",
 	}
+
+	newHIAddress := models.Address{
+		StreetAddress1: "some address",
+		City:           "city",
+		State:          "HI",
+		PostalCode:     "12345",
+		County:         "County",
+	}
+	factory.FetchOrBuildCountry(suite.AppContextForTest().DB(), nil, nil)
 	addressCreator := address.NewAddressCreator()
-	createdAddress, err := addressCreator.CreateAddress(suite.AppContextForTest(), &newAddress)
+	createdAKAddress, err := addressCreator.CreateAddress(suite.AppContextForTest(), &newAKAddress)
 	suite.NoError(err)
 
-	location1 := models.DutyLocation{
-		Name:        "First Location",
-		AddressID:   createdAddress.ID,
-		Affiliation: internalmessages.NewAffiliation(internalmessages.AffiliationAIRFORCE),
-	}
-	suite.MustSave(&location1)
+	createdHIAddress, err := addressCreator.CreateAddress(suite.AppContextForTest(), &newHIAddress)
+	suite.NoError(err)
 
-	location2 := models.DutyLocation{
-		Name:        "Second Location",
-		AddressID:   createdAddress.ID,
+	dutylocationAK := models.DutyLocation{
+		Name:        "HELLOWORLD 1",
+		AddressID:   createdAKAddress.ID,
 		Affiliation: internalmessages.NewAffiliation(internalmessages.AffiliationAIRFORCE),
 	}
-	suite.MustSave(&location2)
+	suite.MustSave(&dutylocationAK)
+
+	dutylocationHI := models.DutyLocation{
+		Name:        "HELLOWORLD 2",
+		AddressID:   createdHIAddress.ID,
+		Affiliation: internalmessages.NewAffiliation(internalmessages.AffiliationAIRFORCE),
+	}
+	suite.MustSave(&dutylocationHI)
+
+	setupTestHandler := func(isAlaskaEnabled bool, isSimulateFeatureFlagError bool) SearchDutyLocationsHandler {
+		handlerConfig := suite.HandlerConfig()
+		mockFeatureFlagFetcher := &mocks.FeatureFlagFetcher{}
+
+		mockGetFlagFunc := func(_ context.Context, _ *zap.Logger, entityID string, key string, _ map[string]string, mockVariant string) (services.FeatureFlag, error) {
+			return services.FeatureFlag{
+				Entity:    entityID,
+				Key:       key,
+				Match:     isAlaskaEnabled,
+				Variant:   mockVariant,
+				Namespace: "test",
+			}, nil
+		}
+		if isSimulateFeatureFlagError {
+			mockFeatureFlagFetcher.On("GetBooleanFlagForUser",
+				mock.Anything,
+				mock.AnythingOfType("*appcontext.appContext"),
+				mock.AnythingOfType("string"),
+				mock.Anything,
+			).Return(services.FeatureFlag{}, errors.New("Some error"))
+			handlerConfig.SetFeatureFlagFetcher(mockFeatureFlagFetcher)
+		} else {
+			mockFeatureFlagFetcher.On("GetBooleanFlagForUser",
+				mock.Anything,
+				mock.AnythingOfType("*appcontext.appContext"),
+				mock.AnythingOfType("string"),
+				mock.Anything,
+			).Return(func(ctx context.Context, appCtx appcontext.AppContext, key string, flagContext map[string]string) (services.FeatureFlag, error) {
+				return mockGetFlagFunc(ctx, appCtx.Logger(), "user@example.com", key, flagContext, "")
+			})
+		}
+		handlerConfig.SetFeatureFlagFetcher(mockFeatureFlagFetcher)
+		handler := SearchDutyLocationsHandler{handlerConfig}
+		return handler
+	}
 
 	req := httptest.NewRequest("GET", "/duty_locations", nil)
-
 	// Make sure the context contains the auth values
 	session := &auth.Session{
 		ApplicationName: auth.MilApp,
@@ -58,27 +113,61 @@ func (suite *HandlerSuite) TestSearchDutyLocationHandler() {
 		IDToken:         "fake token",
 	}
 	ctx := auth.SetSessionInRequestContext(req, session)
-
 	newSearchParams := locationop.SearchDutyLocationsParams{
 		HTTPRequest: req.WithContext(ctx),
-		Search:      "first",
+		Search:      "helloworld",
 	}
 
-	handler := SearchDutyLocationsHandler{suite.HandlerConfig()}
-	response := handler.Handle(newSearchParams)
+	//////////////////////////////////////////////////////////////
+	// test when alaska is enabled
+	//////////////////////////////////////////////////////////////
+	var handlerAlaska = setupTestHandler(true, false)
+
+	var responseAlaska = handlerAlaska.Handle(newSearchParams)
 
 	// Assert we got back the 201 response
-	searchResponse := response.(*locationop.SearchDutyLocationsOK)
-	locationPayloads := searchResponse.Payload
+	var searchResponseAlaska = responseAlaska.(*locationop.SearchDutyLocationsOK)
+	var locationPayloadsAlaska = searchResponseAlaska.Payload
 
-	suite.NoError(locationPayloads.Validate(strfmt.Default))
+	suite.NoError(locationPayloadsAlaska.Validate(strfmt.Default))
 
-	if len(locationPayloads) != 1 {
-		t.Errorf("Should have 1 responses, got %v", len(locationPayloads))
+	if len(locationPayloadsAlaska) != 2 {
+		t.Errorf("Should have 2 responses, got %v", len(locationPayloadsAlaska))
 	}
 
-	if *locationPayloads[0].Name != "First Location" {
-		t.Errorf("Location name should have been \"First Location \", got %v", locationPayloads[0].Name)
+	//////////////////////////////////////////////////////////////
+	// test when alaska is not enabled
+	//////////////////////////////////////////////////////////////
+	handlerAlaska = setupTestHandler(false, false)
+
+	responseAlaska = handlerAlaska.Handle(newSearchParams)
+
+	searchResponseAlaska = responseAlaska.(*locationop.SearchDutyLocationsOK)
+	locationPayloadsAlaska = searchResponseAlaska.Payload
+
+	suite.NoError(locationPayloadsAlaska.Validate(strfmt.Default))
+
+	// should return zero matches
+	if len(locationPayloadsAlaska) != 0 {
+		t.Errorf("Should have 0 responses, got %v", len(locationPayloadsAlaska))
 	}
 
+	//////////////////////////////////////////////////////////////
+	// test when FF retrieval throws an error
+	//////////////////////////////////////////////////////////////
+	handlerAlaska = setupTestHandler(true, true)
+
+	responseAlaska = handlerAlaska.Handle(newSearchParams)
+
+	// Assert we got back the 201 response
+	searchResponseAlaska = responseAlaska.(*locationop.SearchDutyLocationsOK)
+	locationPayloadsAlaska = searchResponseAlaska.Payload
+
+	suite.NoError(locationPayloadsAlaska.Validate(strfmt.Default))
+
+	// simulating FeatureFlagFetcher().GetBooleanFlagForUser
+	// throws error, defaults to FALSE returning 0 matches.
+	if len(locationPayloadsAlaska) != 0 {
+		t.Errorf("Should have 0 responses because error sets flag to false, got %v", len(locationPayloadsAlaska))
+	}
 }

@@ -17,11 +17,13 @@ import (
 // GetMovesQueueURL generates an URL for the get moves queue operation
 type GetMovesQueueURL struct {
 	AppearedInTooAt         *strfmt.DateTime
+	AssignedTo              *string
 	Branch                  *string
+	CounselingOffice        *string
+	CustomerName            *string
 	DestinationDutyLocation *string
-	DodID                   *string
+	Edipi                   *string
 	Emplid                  *string
-	LastName                *string
 	Locator                 *string
 	Order                   *string
 	OrderType               *string
@@ -75,12 +77,36 @@ func (o *GetMovesQueueURL) Build() (*url.URL, error) {
 		qs.Set("appearedInTooAt", appearedInTooAtQ)
 	}
 
+	var assignedToQ string
+	if o.AssignedTo != nil {
+		assignedToQ = *o.AssignedTo
+	}
+	if assignedToQ != "" {
+		qs.Set("assignedTo", assignedToQ)
+	}
+
 	var branchQ string
 	if o.Branch != nil {
 		branchQ = *o.Branch
 	}
 	if branchQ != "" {
 		qs.Set("branch", branchQ)
+	}
+
+	var counselingOfficeQ string
+	if o.CounselingOffice != nil {
+		counselingOfficeQ = *o.CounselingOffice
+	}
+	if counselingOfficeQ != "" {
+		qs.Set("counselingOffice", counselingOfficeQ)
+	}
+
+	var customerNameQ string
+	if o.CustomerName != nil {
+		customerNameQ = *o.CustomerName
+	}
+	if customerNameQ != "" {
+		qs.Set("customerName", customerNameQ)
 	}
 
 	var destinationDutyLocationQ string
@@ -91,12 +117,12 @@ func (o *GetMovesQueueURL) Build() (*url.URL, error) {
 		qs.Set("destinationDutyLocation", destinationDutyLocationQ)
 	}
 
-	var dodIDQ string
-	if o.DodID != nil {
-		dodIDQ = *o.DodID
+	var edipiQ string
+	if o.Edipi != nil {
+		edipiQ = *o.Edipi
 	}
-	if dodIDQ != "" {
-		qs.Set("dodID", dodIDQ)
+	if edipiQ != "" {
+		qs.Set("edipi", edipiQ)
 	}
 
 	var emplidQ string
@@ -105,14 +131,6 @@ func (o *GetMovesQueueURL) Build() (*url.URL, error) {
 	}
 	if emplidQ != "" {
 		qs.Set("emplid", emplidQ)
-	}
-
-	var lastNameQ string
-	if o.LastName != nil {
-		lastNameQ = *o.LastName
-	}
-	if lastNameQ != "" {
-		qs.Set("lastName", lastNameQ)
 	}
 
 	var locatorQ string

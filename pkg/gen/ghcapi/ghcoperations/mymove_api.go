@@ -38,6 +38,7 @@ import (
 	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/ppm"
 	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/pws_violations"
 	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/queues"
+	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/re_service_items"
 	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/report_violations"
 	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/shipment"
 	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/tac"
@@ -72,6 +73,12 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		OrderAcknowledgeExcessWeightRiskHandler: order.AcknowledgeExcessWeightRiskHandlerFunc(func(params order.AcknowledgeExcessWeightRiskParams) middleware.Responder {
 			return middleware.NotImplemented("operation order.AcknowledgeExcessWeightRisk has not yet been implemented")
 		}),
+		EvaluationReportsAddAppealToSeriousIncidentHandler: evaluation_reports.AddAppealToSeriousIncidentHandlerFunc(func(params evaluation_reports.AddAppealToSeriousIncidentParams) middleware.Responder {
+			return middleware.NotImplemented("operation evaluation_reports.AddAppealToSeriousIncident has not yet been implemented")
+		}),
+		EvaluationReportsAddAppealToViolationHandler: evaluation_reports.AddAppealToViolationHandlerFunc(func(params evaluation_reports.AddAppealToViolationParams) middleware.Responder {
+			return middleware.NotImplemented("operation evaluation_reports.AddAppealToViolation has not yet been implemented")
+		}),
 		ShipmentApproveSITExtensionHandler: shipment.ApproveSITExtensionHandlerFunc(func(params shipment.ApproveSITExtensionParams) middleware.Responder {
 			return middleware.NotImplemented("operation shipment.ApproveSITExtension has not yet been implemented")
 		}),
@@ -86,6 +93,9 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		}),
 		PaymentRequestsBulkDownloadHandler: payment_requests.BulkDownloadHandlerFunc(func(params payment_requests.BulkDownloadParams) middleware.Responder {
 			return middleware.NotImplemented("operation payment_requests.BulkDownload has not yet been implemented")
+		}),
+		MoveCheckForLockedMovesAndUnlockHandler: move.CheckForLockedMovesAndUnlockHandlerFunc(func(params move.CheckForLockedMovesAndUnlockParams) middleware.Responder {
+			return middleware.NotImplemented("operation move.CheckForLockedMovesAndUnlock has not yet been implemented")
 		}),
 		OrderCounselingUpdateAllowanceHandler: order.CounselingUpdateAllowanceHandlerFunc(func(params order.CounselingUpdateAllowanceParams) middleware.Responder {
 			return middleware.NotImplemented("operation order.CounselingUpdateAllowance has not yet been implemented")
@@ -146,6 +156,9 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		}),
 		PpmFinishDocumentReviewHandler: ppm.FinishDocumentReviewHandlerFunc(func(params ppm.FinishDocumentReviewParams) middleware.Responder {
 			return middleware.NotImplemented("operation ppm.FinishDocumentReview has not yet been implemented")
+		}),
+		ReServiceItemsGetAllReServiceItemsHandler: re_service_items.GetAllReServiceItemsHandlerFunc(func(params re_service_items.GetAllReServiceItemsParams) middleware.Responder {
+			return middleware.NotImplemented("operation re_service_items.GetAllReServiceItems has not yet been implemented")
 		}),
 		CustomerGetCustomerHandler: customer.GetCustomerHandlerFunc(func(params customer.GetCustomerParams) middleware.Responder {
 			return middleware.NotImplemented("operation customer.GetCustomer has not yet been implemented")
@@ -420,6 +433,10 @@ type MymoveAPI struct {
 
 	// OrderAcknowledgeExcessWeightRiskHandler sets the operation handler for the acknowledge excess weight risk operation
 	OrderAcknowledgeExcessWeightRiskHandler order.AcknowledgeExcessWeightRiskHandler
+	// EvaluationReportsAddAppealToSeriousIncidentHandler sets the operation handler for the add appeal to serious incident operation
+	EvaluationReportsAddAppealToSeriousIncidentHandler evaluation_reports.AddAppealToSeriousIncidentHandler
+	// EvaluationReportsAddAppealToViolationHandler sets the operation handler for the add appeal to violation operation
+	EvaluationReportsAddAppealToViolationHandler evaluation_reports.AddAppealToViolationHandler
 	// ShipmentApproveSITExtensionHandler sets the operation handler for the approve s i t extension operation
 	ShipmentApproveSITExtensionHandler shipment.ApproveSITExtensionHandler
 	// ShipmentApproveShipmentHandler sets the operation handler for the approve shipment operation
@@ -430,6 +447,8 @@ type MymoveAPI struct {
 	ReportViolationsAssociateReportViolationsHandler report_violations.AssociateReportViolationsHandler
 	// PaymentRequestsBulkDownloadHandler sets the operation handler for the bulk download operation
 	PaymentRequestsBulkDownloadHandler payment_requests.BulkDownloadHandler
+	// MoveCheckForLockedMovesAndUnlockHandler sets the operation handler for the check for locked moves and unlock operation
+	MoveCheckForLockedMovesAndUnlockHandler move.CheckForLockedMovesAndUnlockHandler
 	// OrderCounselingUpdateAllowanceHandler sets the operation handler for the counseling update allowance operation
 	OrderCounselingUpdateAllowanceHandler order.CounselingUpdateAllowanceHandler
 	// OrderCounselingUpdateOrderHandler sets the operation handler for the counseling update order operation
@@ -470,6 +489,8 @@ type MymoveAPI struct {
 	MtoAgentFetchMTOAgentListHandler mto_agent.FetchMTOAgentListHandler
 	// PpmFinishDocumentReviewHandler sets the operation handler for the finish document review operation
 	PpmFinishDocumentReviewHandler ppm.FinishDocumentReviewHandler
+	// ReServiceItemsGetAllReServiceItemsHandler sets the operation handler for the get all re service items operation
+	ReServiceItemsGetAllReServiceItemsHandler re_service_items.GetAllReServiceItemsHandler
 	// CustomerGetCustomerHandler sets the operation handler for the get customer operation
 	CustomerGetCustomerHandler customer.GetCustomerHandler
 	// CustomerSupportRemarksGetCustomerSupportRemarksForMoveHandler sets the operation handler for the get customer support remarks for move operation
@@ -706,6 +727,12 @@ func (o *MymoveAPI) Validate() error {
 	if o.OrderAcknowledgeExcessWeightRiskHandler == nil {
 		unregistered = append(unregistered, "order.AcknowledgeExcessWeightRiskHandler")
 	}
+	if o.EvaluationReportsAddAppealToSeriousIncidentHandler == nil {
+		unregistered = append(unregistered, "evaluation_reports.AddAppealToSeriousIncidentHandler")
+	}
+	if o.EvaluationReportsAddAppealToViolationHandler == nil {
+		unregistered = append(unregistered, "evaluation_reports.AddAppealToViolationHandler")
+	}
 	if o.ShipmentApproveSITExtensionHandler == nil {
 		unregistered = append(unregistered, "shipment.ApproveSITExtensionHandler")
 	}
@@ -720,6 +747,9 @@ func (o *MymoveAPI) Validate() error {
 	}
 	if o.PaymentRequestsBulkDownloadHandler == nil {
 		unregistered = append(unregistered, "payment_requests.BulkDownloadHandler")
+	}
+	if o.MoveCheckForLockedMovesAndUnlockHandler == nil {
+		unregistered = append(unregistered, "move.CheckForLockedMovesAndUnlockHandler")
 	}
 	if o.OrderCounselingUpdateAllowanceHandler == nil {
 		unregistered = append(unregistered, "order.CounselingUpdateAllowanceHandler")
@@ -780,6 +810,9 @@ func (o *MymoveAPI) Validate() error {
 	}
 	if o.PpmFinishDocumentReviewHandler == nil {
 		unregistered = append(unregistered, "ppm.FinishDocumentReviewHandler")
+	}
+	if o.ReServiceItemsGetAllReServiceItemsHandler == nil {
+		unregistered = append(unregistered, "re_service_items.GetAllReServiceItemsHandler")
 	}
 	if o.CustomerGetCustomerHandler == nil {
 		unregistered = append(unregistered, "customer.GetCustomerHandler")
@@ -1102,6 +1135,14 @@ func (o *MymoveAPI) initHandlerCache() {
 		o.handlers["POST"] = make(map[string]http.Handler)
 	}
 	o.handlers["POST"]["/orders/{orderID}/acknowledge-excess-weight-risk"] = order.NewAcknowledgeExcessWeightRisk(o.context, o.OrderAcknowledgeExcessWeightRiskHandler)
+	if o.handlers["POST"] == nil {
+		o.handlers["POST"] = make(map[string]http.Handler)
+	}
+	o.handlers["POST"]["/evaluation-reports/{reportID}/appeal/add"] = evaluation_reports.NewAddAppealToSeriousIncident(o.context, o.EvaluationReportsAddAppealToSeriousIncidentHandler)
+	if o.handlers["POST"] == nil {
+		o.handlers["POST"] = make(map[string]http.Handler)
+	}
+	o.handlers["POST"]["/evaluation-reports/{reportID}/{reportViolationID}/appeal/add"] = evaluation_reports.NewAddAppealToViolation(o.context, o.EvaluationReportsAddAppealToViolationHandler)
 	if o.handlers["PATCH"] == nil {
 		o.handlers["PATCH"] = make(map[string]http.Handler)
 	}
@@ -1122,6 +1163,10 @@ func (o *MymoveAPI) initHandlerCache() {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
 	o.handlers["GET"]["/payment-requests/{paymentRequestID}/bulkDownload"] = payment_requests.NewBulkDownload(o.context, o.PaymentRequestsBulkDownloadHandler)
+	if o.handlers["PATCH"] == nil {
+		o.handlers["PATCH"] = make(map[string]http.Handler)
+	}
+	o.handlers["PATCH"]["/moves/{officeUserID}/CheckForLockedMovesAndUnlock"] = move.NewCheckForLockedMovesAndUnlock(o.context, o.MoveCheckForLockedMovesAndUnlockHandler)
 	if o.handlers["PATCH"] == nil {
 		o.handlers["PATCH"] = make(map[string]http.Handler)
 	}
@@ -1202,6 +1247,10 @@ func (o *MymoveAPI) initHandlerCache() {
 		o.handlers["PATCH"] = make(map[string]http.Handler)
 	}
 	o.handlers["PATCH"]["/ppm-shipments/{ppmShipmentId}/finish-document-review"] = ppm.NewFinishDocumentReview(o.context, o.PpmFinishDocumentReviewHandler)
+	if o.handlers["GET"] == nil {
+		o.handlers["GET"] = make(map[string]http.Handler)
+	}
+	o.handlers["GET"]["/re-service-items"] = re_service_items.NewGetAllReServiceItems(o.context, o.ReServiceItemsGetAllReServiceItemsHandler)
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}

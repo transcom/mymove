@@ -96,6 +96,27 @@ func init() {
           {
             "x-examples": {
               "application/json": {
+                "boat": {
+                  "summary": "Boat Shipment",
+                  "value": {
+                    "boatShipment": {
+                      "hasTrailer": true,
+                      "heightFeet": 2,
+                      "heightInches": 2,
+                      "isRoadworthy": false,
+                      "lengthFeet": 2,
+                      "lengthInches": 0,
+                      "make": "make",
+                      "model": "model",
+                      "widthFeet": 2,
+                      "widthInches": 2,
+                      "year": 1999
+                    },
+                    "counselorRemarks": "test",
+                    "moveTaskOrderID": "d4d95b22-2d9d-428b-9a11-284455aa87ba",
+                    "shipmentType": "HAUL_AWAY"
+                  }
+                },
                 "hhg": {
                   "summary": "HHG",
                   "value": {
@@ -108,6 +129,25 @@ func init() {
                     },
                     "requestedPickupDate": "2022-12-31",
                     "shipmentType": "HHG"
+                  }
+                },
+                "mobileHome": {
+                  "summary": "Mobile Home Shipment",
+                  "value": {
+                    "counselorRemarks": "test",
+                    "mobileHomeShipment": {
+                      "heightFeet": 2,
+                      "heightInches": 2,
+                      "lengthFeet": 2,
+                      "lengthInches": 0,
+                      "make": "make",
+                      "model": "model",
+                      "widthFeet": 2,
+                      "widthInches": 2,
+                      "year": 1999
+                    },
+                    "moveTaskOrderID": "d4d95b22-2d9d-428b-9a11-284455aa87ba",
+                    "shipmentType": "MOBILE_HOME"
                   }
                 },
                 "nts": {
@@ -351,11 +391,13 @@ func init() {
           "example": "Anytown"
         },
         "country": {
+          "description": "Two-letter country code",
           "type": "string",
           "title": "Country",
-          "default": "USA",
+          "default": "US",
+          "pattern": "^[A-Z]{2}$",
           "x-nullable": true,
-          "example": "USA"
+          "example": "US"
         },
         "county": {
           "type": "string",
@@ -514,6 +556,96 @@ func init() {
         }
       }
     },
+    "BoatShipment": {
+      "required": [
+        "id",
+        "shipmentId",
+        "createdAt",
+        "type",
+        "year",
+        "make",
+        "model",
+        "lengthInInches",
+        "widthInInches",
+        "heightInInches",
+        "hasTrailer",
+        "eTag"
+      ],
+      "properties": {
+        "createdAt": {
+          "description": "Timestamp of when the Boat Shipment was initially created (UTC)",
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        },
+        "eTag": {
+          "description": "A hash unique to this shipment that should be used as the \"If-Match\" header for any updates.",
+          "type": "string",
+          "readOnly": true
+        },
+        "hasTrailer": {
+          "description": "Does the boat have a trailer",
+          "type": "boolean"
+        },
+        "heightInInches": {
+          "description": "Height of the Boat in inches",
+          "type": "integer"
+        },
+        "id": {
+          "description": "Primary auto-generated unique identifier of the Boat shipment object",
+          "type": "string",
+          "format": "uuid",
+          "readOnly": true,
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "isRoadworthy": {
+          "description": "Is the trailer roadworthy",
+          "type": "boolean",
+          "x-nullable": true
+        },
+        "lengthInInches": {
+          "description": "Length of the Boat in inches",
+          "type": "integer"
+        },
+        "make": {
+          "description": "Make of the Boat",
+          "type": "string"
+        },
+        "model": {
+          "description": "Model of the Boat",
+          "type": "string"
+        },
+        "shipmentId": {
+          "description": "The id of the parent MTOShipment object",
+          "type": "string",
+          "format": "uuid",
+          "readOnly": true,
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "type": {
+          "type": "string",
+          "enum": [
+            "HAUL_AWAY",
+            "TOW_AWAY"
+          ]
+        },
+        "updatedAt": {
+          "description": "Timestamp of when a property of this object was last updated (UTC)",
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        },
+        "widthInInches": {
+          "description": "Width of the Boat in inches",
+          "type": "integer"
+        },
+        "year": {
+          "description": "Year of the Boat",
+          "type": "integer"
+        }
+      },
+      "x-nullable": true
+    },
     "ClientError": {
       "type": "object",
       "required": [
@@ -534,6 +666,54 @@ func init() {
         }
       }
     },
+    "CreateBoatShipment": {
+      "description": "Creation object containing the ` + "`" + `Boat` + "`" + ` shipmentType specific data, not used for other shipment types.",
+      "type": "object",
+      "required": [
+        "year",
+        "make",
+        "model",
+        "lengthInInches",
+        "widthInInches",
+        "heightInInches",
+        "hasTrailer"
+      ],
+      "properties": {
+        "hasTrailer": {
+          "description": "Does the boat have a trailer",
+          "type": "boolean"
+        },
+        "heightInInches": {
+          "description": "Height of the Boat in inches",
+          "type": "integer"
+        },
+        "isRoadworthy": {
+          "description": "Is the trailer roadworthy",
+          "type": "boolean",
+          "x-nullable": true
+        },
+        "lengthInInches": {
+          "description": "Length of the Boat in inches",
+          "type": "integer"
+        },
+        "make": {
+          "description": "Make of the Boat",
+          "type": "string"
+        },
+        "model": {
+          "description": "Model of the Boat",
+          "type": "string"
+        },
+        "widthInInches": {
+          "description": "Width of the Boat in inches",
+          "type": "integer"
+        },
+        "year": {
+          "description": "Year of the Boat",
+          "type": "integer"
+        }
+      }
+    },
     "CreateMTOShipment": {
       "type": "object",
       "required": [
@@ -543,6 +723,9 @@ func init() {
       "properties": {
         "agents": {
           "$ref": "#/definitions/MTOAgents"
+        },
+        "boatShipment": {
+          "$ref": "#/definitions/CreateBoatShipment"
         },
         "counselorRemarks": {
           "type": "string",
@@ -556,7 +739,7 @@ func init() {
           "example": "handle with care"
         },
         "destinationAddress": {
-          "description": "Where the movers should deliver this shipment.",
+          "description": "primary location the movers should deliver this shipment.",
           "allOf": [
             {
               "$ref": "#/definitions/Address"
@@ -573,6 +756,9 @@ func init() {
           "format": "uuid",
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
         },
+        "mobileHomeShipment": {
+          "$ref": "#/definitions/CreateMobileHomeShipment"
+        },
         "moveTaskOrderID": {
           "description": "The ID of the move this new shipment is for.",
           "type": "string",
@@ -587,7 +773,7 @@ func init() {
           }
         },
         "pickupAddress": {
-          "description": "The address where the movers should pick up this shipment.",
+          "description": "The primary address where the movers should pick up this shipment.",
           "allOf": [
             {
               "$ref": "#/definitions/Address"
@@ -614,8 +800,78 @@ func init() {
           "format": "date",
           "x-nullable": true
         },
+        "secondaryDestinationAddress": {
+          "description": "second location where the movers should deliver this shipment.",
+          "allOf": [
+            {
+              "$ref": "#/definitions/Address"
+            }
+          ]
+        },
+        "secondaryPickupAddress": {
+          "description": "The second address where the movers should pick up this shipment.",
+          "allOf": [
+            {
+              "$ref": "#/definitions/Address"
+            }
+          ]
+        },
         "shipmentType": {
           "$ref": "#/definitions/MTOShipmentType"
+        },
+        "tertiaryDestinationAddress": {
+          "description": "third location where the movers should deliver this shipment.",
+          "allOf": [
+            {
+              "$ref": "#/definitions/Address"
+            }
+          ]
+        },
+        "tertiaryPickupAddress": {
+          "description": "The third address where the movers should pick up this shipment.",
+          "allOf": [
+            {
+              "$ref": "#/definitions/Address"
+            }
+          ]
+        }
+      }
+    },
+    "CreateMobileHomeShipment": {
+      "description": "Creation object containing the ` + "`" + `MobileHome` + "`" + ` shipmentType specific data, not used for other shipment types.",
+      "type": "object",
+      "required": [
+        "year",
+        "make",
+        "model",
+        "lengthInInches",
+        "widthInInches",
+        "heightInInches"
+      ],
+      "properties": {
+        "heightInInches": {
+          "description": "Height of the Mobile Home in inches",
+          "type": "integer"
+        },
+        "lengthInInches": {
+          "description": "Length of the Mobile Home in inches",
+          "type": "integer"
+        },
+        "make": {
+          "description": "Make of the Mobile Home",
+          "type": "string"
+        },
+        "model": {
+          "description": "Model of the Mobile Home",
+          "type": "string"
+        },
+        "widthInInches": {
+          "description": "Width of the Mobile Home in inches",
+          "type": "integer"
+        },
+        "year": {
+          "description": "Year of the Mobile Home",
+          "type": "integer"
         }
       }
     },
@@ -653,6 +909,13 @@ func init() {
           "description": "Indicates whether PPM shipment has pro gear for themselves or their spouse.\n",
           "type": "boolean"
         },
+        "isActualExpenseReimbursement": {
+          "description": "Used for PPM shipments only. Denotes if this shipment uses the Actual Expense Reimbursement method.",
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false,
+          "example": false
+        },
         "pickupAddress": {
           "description": "The address of the origin location where goods are being moved from.",
           "allOf": [
@@ -675,7 +938,7 @@ func init() {
           ]
         },
         "secondaryPickupAddress": {
-          "description": "An optional secondary pickup location address near the origin where additional goods exist.",
+          "description": "An optional secondary Pickup Address address near the origin where additional goods exist.",
           "allOf": [
             {
               "$ref": "#/definitions/Address"
@@ -718,6 +981,22 @@ func init() {
           "description": "The estimated weight of the pro-gear being moved belonging to a spouse in pounds.",
           "type": "integer",
           "x-nullable": true
+        },
+        "tertiaryDestinationAddress": {
+          "description": "An optional tertiary address near the destination where goods will be dropped off.",
+          "allOf": [
+            {
+              "$ref": "#/definitions/Address"
+            }
+          ]
+        },
+        "tertiaryPickupAddress": {
+          "description": "An optional tertiary Pickup Address address near the origin where additional goods exist.",
+          "allOf": [
+            {
+              "$ref": "#/definitions/Address"
+            }
+          ]
         }
       }
     },
@@ -909,6 +1188,12 @@ func init() {
           "type": "integer",
           "x-formatting": "weight",
           "example": 500
+        },
+        "ubAllowance": {
+          "description": "The amount of weight in pounds that the move is entitled for shipment types of Unaccompanied Baggage.",
+          "type": "integer",
+          "x-nullable": true,
+          "example": 3
         }
       }
     },
@@ -1274,15 +1559,88 @@ func init() {
         }
       ]
     },
+    "MTOServiceItemInternationalCrating": {
+      "description": "Describes a international crating/uncrating service item subtype of a MTOServiceItem.",
+      "allOf": [
+        {
+          "$ref": "#/definitions/MTOServiceItem"
+        },
+        {
+          "type": "object",
+          "required": [
+            "reServiceCode",
+            "item",
+            "crate",
+            "description"
+          ],
+          "properties": {
+            "crate": {
+              "description": "The dimensions for the crate the item will be shipped in.",
+              "allOf": [
+                {
+                  "$ref": "#/definitions/MTOServiceItemDimension"
+                }
+              ]
+            },
+            "description": {
+              "description": "A description of the item being crated.",
+              "type": "string",
+              "example": "Decorated horse head to be crated."
+            },
+            "externalCrate": {
+              "type": "boolean",
+              "x-nullable": true
+            },
+            "item": {
+              "description": "The dimensions of the item being crated.",
+              "allOf": [
+                {
+                  "$ref": "#/definitions/MTOServiceItemDimension"
+                }
+              ]
+            },
+            "market": {
+              "description": "To identify whether the service was provided within (CONUS) or (OCONUS)",
+              "type": "string",
+              "enum": [
+                "CONUS",
+                "OCONUS"
+              ],
+              "example": "CONUS"
+            },
+            "reServiceCode": {
+              "description": "A unique code for the service item. Indicates if the service is for crating (ICRT) or uncrating (IUCRT).",
+              "type": "string",
+              "enum": [
+                "ICRT",
+                "IUCRT"
+              ]
+            },
+            "reason": {
+              "description": "The contractor's explanation for why an item needed to be crated or uncrated. Used by the TOO while deciding to approve or reject the service item.\n",
+              "type": "string",
+              "x-nullable": true,
+              "x-omitempty": false,
+              "example": "Storage items need to be picked up"
+            },
+            "standaloneCrate": {
+              "type": "boolean",
+              "x-nullable": true
+            }
+          }
+        }
+      ]
+    },
     "MTOServiceItemModelType": {
-      "description": "Describes all model sub-types for a MTOServiceItem model.\n\nUsing this list, choose the correct modelType in the dropdown, corresponding to the service item type.\n  * DOFSIT, DOASIT - MTOServiceItemOriginSIT\n  * DDFSIT, DDASIT - MTOServiceItemDestSIT\n  * DOSHUT, DDSHUT - MTOServiceItemShuttle\n  * DCRT, DUCRT - MTOServiceItemDomesticCrating\n\nThe documentation will then update with the supported fields.\n",
+      "description": "Describes all model sub-types for a MTOServiceItem model.\n\nUsing this list, choose the correct modelType in the dropdown, corresponding to the service item type.\n  * DOFSIT, DOASIT - MTOServiceItemOriginSIT\n  * DDFSIT, DDASIT - MTOServiceItemDestSIT\n  * DOSHUT, DDSHUT - MTOServiceItemShuttle\n  * DCRT, DUCRT - MTOServiceItemDomesticCrating\n  * ICRT, IUCRT - MTOServiceItemInternationalCrating\n\nThe documentation will then update with the supported fields.\n",
       "type": "string",
       "enum": [
         "MTOServiceItemBasic",
         "MTOServiceItemOriginSIT",
         "MTOServiceItemDestSIT",
         "MTOServiceItemShuttle",
-        "MTOServiceItemDomesticCrating"
+        "MTOServiceItemDomesticCrating",
+        "MTOServiceItemInternationalCrating"
       ]
     },
     "MTOServiceItemOriginSIT": {
@@ -1437,10 +1795,9 @@ func init() {
         "HHG",
         "HHG_INTO_NTS_DOMESTIC",
         "HHG_OUTOF_NTS_DOMESTIC",
-        "INTERNATIONAL_HHG",
-        "INTERNATIONAL_UB",
         "MOBILE_HOME",
-        "PPM"
+        "PPM",
+        "UNACCOMPANIED_BAGGAGE"
       ],
       "x-display-value": {
         "BOAT_HAUL_AWAY": "Boat shipment that requires additional equipment to haul it to it's destination",
@@ -1448,7 +1805,8 @@ func init() {
         "HHG": "Household goods move (HHG)",
         "HHG_INTO_NTS_DOMESTIC": "HHG into Non-temporary storage (NTS)",
         "HHG_OUTOF_NTS_DOMESTIC": "HHG out of Non-temporary storage (NTS Release)",
-        "PPM": "Personally Procured Move also known as Do It Yourself (DITY)"
+        "PPM": "Personally Procured Move also known as Do It Yourself (DITY)",
+        "UNACCOMPANIED_BAGGAGE": "Unaccompanied Baggage"
       },
       "example": "HHG"
     },
@@ -1491,6 +1849,9 @@ func init() {
           "x-nullable": true,
           "x-omitempty": false,
           "readOnly": true
+        },
+        "boatShipment": {
+          "$ref": "#/definitions/BoatShipment"
         },
         "counselorRemarks": {
           "description": "The counselor can use the counselor remarks field to inform the movers about any\nspecial circumstances for this shipment. Typical examples:\n  * bulky or fragile items,\n  * weapons,\n  * access info for their address.\n\nCounselors enters this information when creating or editing an MTO Shipment. Optional field.\n",
@@ -1559,6 +1920,18 @@ func init() {
           "format": "uuid",
           "readOnly": true,
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "marketCode": {
+          "description": "Single-letter designator for domestic (d) or international (i) shipments",
+          "type": "string",
+          "enum": [
+            "d",
+            "i"
+          ],
+          "example": "d"
+        },
+        "mobileHomeShipment": {
+          "$ref": "#/definitions/MobileHome"
         },
         "moveTaskOrderID": {
           "description": "The ID of the move for this shipment.",
@@ -1712,6 +2085,64 @@ func init() {
       "items": {
         "$ref": "#/definitions/MTOShipmentWithoutServiceItems"
       }
+    },
+    "MobileHome": {
+      "description": "A mobile home is a type of shipment that a service member moves a mobile home.",
+      "properties": {
+        "createdAt": {
+          "description": "Timestamp of when a property of this object was created (UTC)",
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        },
+        "eTag": {
+          "description": "A hash unique to this shipment that should be used as the \"If-Match\" header for any updates.",
+          "type": "string",
+          "readOnly": true
+        },
+        "heightInInches": {
+          "type": "integer"
+        },
+        "id": {
+          "description": "Primary auto-generated unique identifier of the Mobile Home object",
+          "type": "string",
+          "format": "uuid",
+          "readOnly": true,
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "lengthInInches": {
+          "type": "integer"
+        },
+        "make": {
+          "description": "The make of the mobile home",
+          "type": "string"
+        },
+        "model": {
+          "description": "The model of the mobile home.",
+          "type": "string"
+        },
+        "shipmentId": {
+          "description": "The id of the parent MTOShipment object",
+          "type": "string",
+          "format": "uuid",
+          "readOnly": true,
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "updatedAt": {
+          "description": "Timestamp of when a property of this object was last updated (UTC)",
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        },
+        "widthInInches": {
+          "type": "integer"
+        },
+        "year": {
+          "description": "The year the mobile home was made.",
+          "type": "integer"
+        }
+      },
+      "x-nullable": true
     },
     "MoveTaskOrder": {
       "type": "object",
@@ -1911,7 +2342,8 @@ func init() {
         "SEPARATION",
         "WOUNDED_WARRIOR",
         "BLUEBARK",
-        "SAFETY"
+        "SAFETY",
+        "TEMPORARY_DUTY"
       ],
       "x-display-value": {
         "BLUEBARK": "BLUEBARK",
@@ -1920,6 +2352,7 @@ func init() {
         "RETIREMENT": "Retirement",
         "SAFETY": "Safety",
         "SEPARATION": "Separation",
+        "TEMPORARY_DUTY": "Temporary Duty (TDY)",
         "WOUNDED_WARRIOR": "Wounded Warrior"
       }
     },
@@ -2235,6 +2668,20 @@ func init() {
           "format": "uuid",
           "readOnly": true,
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "isActualExpenseReimbursement": {
+          "description": "Used for PPM shipments only. Denotes if this shipment uses the Actual Expense Reimbursement method.",
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false,
+          "example": false
+        },
+        "maxIncentive": {
+          "description": "The max amount the government will pay the service member to move their belongings based on the moving date, locations, and shipment weight.",
+          "type": "integer",
+          "format": "cents",
+          "x-nullable": true,
+          "x-omitempty": false
         },
         "pickupAddress": {
           "$ref": "#/definitions/Address"
@@ -2577,7 +3024,6 @@ func init() {
         "ICOLH",
         "ICOUB",
         "ICRT",
-        "ICRTSA",
         "IDASIT",
         "IDDSIT",
         "IDFSIT",
@@ -2869,7 +3315,7 @@ func init() {
       }
     },
     "ShipmentAddressUpdate": {
-      "description": "This represents a destination address change request made by the Prime that is either auto-approved or requires review if the pricing criteria has changed. If criteria has changed, then it must be approved or rejected by a TOO.\n",
+      "description": "This represents a delivery address change request made by the Prime that is either auto-approved or requires review if the pricing criteria has changed. If criteria has changed, then it must be approved or rejected by a TOO.\n",
       "type": "object",
       "required": [
         "id",
@@ -2897,7 +3343,7 @@ func init() {
           "$ref": "#/definitions/Address"
         },
         "newSitDistanceBetween": {
-          "description": "The distance between the original SIT address and requested new destination address of shipment",
+          "description": "The distance between the original SIT address and requested new delivery address of shipment",
           "type": "integer",
           "example": 88
         },
@@ -2909,7 +3355,7 @@ func init() {
           "example": "This is an office remark"
         },
         "oldSitDistanceBetween": {
-          "description": "The distance between the original SIT address and the previous/old destination address of shipment",
+          "description": "The distance between the original SIT address and the previous/old delivery address of shipment",
           "type": "integer",
           "example": 50
         },
@@ -3361,6 +3807,13 @@ func init() {
           "x-nullable": true,
           "x-omitempty": false
         },
+        "isActualExpenseReimbursement": {
+          "description": "Used for PPM shipments only. Denotes if this shipment uses the Actual Expense Reimbursement method.",
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false,
+          "example": false
+        },
         "pickupAddress": {
           "description": "The address of the origin location where goods are being moved from.\n",
           "allOf": [
@@ -3383,7 +3836,7 @@ func init() {
           ]
         },
         "secondaryPickupAddress": {
-          "description": "An optional secondary pickup location near the origin where additional goods exist.\n",
+          "description": "An optional secondary Pickup Address near the origin where additional goods exist.\n",
           "allOf": [
             {
               "$ref": "#/definitions/Address"
@@ -3437,7 +3890,7 @@ func init() {
           ]
         },
         "tertiaryPickupAddress": {
-          "description": "An optional third pickup location near the origin where additional goods exist.\n",
+          "description": "An optional third Pickup Address near the origin where additional goods exist.\n",
           "allOf": [
             {
               "$ref": "#/definitions/Address"
@@ -3469,7 +3922,7 @@ func init() {
       }
     },
     "UpdateShipmentDestinationAddress": {
-      "description": "UpdateShipmentDestinationAddress contains the fields required for the prime to request an update for the destination address on an MTO Shipment.",
+      "description": "UpdateShipmentDestinationAddress contains the fields required for the prime to request an update for the delivery address on an MTO Shipment.",
       "type": "object",
       "required": [
         "contractorRemarks",
@@ -3724,6 +4177,27 @@ func init() {
           {
             "x-examples": {
               "application/json": {
+                "boat": {
+                  "summary": "Boat Shipment",
+                  "value": {
+                    "boatShipment": {
+                      "hasTrailer": true,
+                      "heightFeet": 2,
+                      "heightInches": 2,
+                      "isRoadworthy": false,
+                      "lengthFeet": 2,
+                      "lengthInches": 0,
+                      "make": "make",
+                      "model": "model",
+                      "widthFeet": 2,
+                      "widthInches": 2,
+                      "year": 1999
+                    },
+                    "counselorRemarks": "test",
+                    "moveTaskOrderID": "d4d95b22-2d9d-428b-9a11-284455aa87ba",
+                    "shipmentType": "HAUL_AWAY"
+                  }
+                },
                 "hhg": {
                   "summary": "HHG",
                   "value": {
@@ -3736,6 +4210,25 @@ func init() {
                     },
                     "requestedPickupDate": "2022-12-31",
                     "shipmentType": "HHG"
+                  }
+                },
+                "mobileHome": {
+                  "summary": "Mobile Home Shipment",
+                  "value": {
+                    "counselorRemarks": "test",
+                    "mobileHomeShipment": {
+                      "heightFeet": 2,
+                      "heightInches": 2,
+                      "lengthFeet": 2,
+                      "lengthInches": 0,
+                      "make": "make",
+                      "model": "model",
+                      "widthFeet": 2,
+                      "widthInches": 2,
+                      "year": 1999
+                    },
+                    "moveTaskOrderID": "d4d95b22-2d9d-428b-9a11-284455aa87ba",
+                    "shipmentType": "MOBILE_HOME"
                   }
                 },
                 "nts": {
@@ -4016,11 +4509,13 @@ func init() {
           "example": "Anytown"
         },
         "country": {
+          "description": "Two-letter country code",
           "type": "string",
           "title": "Country",
-          "default": "USA",
+          "default": "US",
+          "pattern": "^[A-Z]{2}$",
           "x-nullable": true,
-          "example": "USA"
+          "example": "US"
         },
         "county": {
           "type": "string",
@@ -4179,6 +4674,96 @@ func init() {
         }
       }
     },
+    "BoatShipment": {
+      "required": [
+        "id",
+        "shipmentId",
+        "createdAt",
+        "type",
+        "year",
+        "make",
+        "model",
+        "lengthInInches",
+        "widthInInches",
+        "heightInInches",
+        "hasTrailer",
+        "eTag"
+      ],
+      "properties": {
+        "createdAt": {
+          "description": "Timestamp of when the Boat Shipment was initially created (UTC)",
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        },
+        "eTag": {
+          "description": "A hash unique to this shipment that should be used as the \"If-Match\" header for any updates.",
+          "type": "string",
+          "readOnly": true
+        },
+        "hasTrailer": {
+          "description": "Does the boat have a trailer",
+          "type": "boolean"
+        },
+        "heightInInches": {
+          "description": "Height of the Boat in inches",
+          "type": "integer"
+        },
+        "id": {
+          "description": "Primary auto-generated unique identifier of the Boat shipment object",
+          "type": "string",
+          "format": "uuid",
+          "readOnly": true,
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "isRoadworthy": {
+          "description": "Is the trailer roadworthy",
+          "type": "boolean",
+          "x-nullable": true
+        },
+        "lengthInInches": {
+          "description": "Length of the Boat in inches",
+          "type": "integer"
+        },
+        "make": {
+          "description": "Make of the Boat",
+          "type": "string"
+        },
+        "model": {
+          "description": "Model of the Boat",
+          "type": "string"
+        },
+        "shipmentId": {
+          "description": "The id of the parent MTOShipment object",
+          "type": "string",
+          "format": "uuid",
+          "readOnly": true,
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "type": {
+          "type": "string",
+          "enum": [
+            "HAUL_AWAY",
+            "TOW_AWAY"
+          ]
+        },
+        "updatedAt": {
+          "description": "Timestamp of when a property of this object was last updated (UTC)",
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        },
+        "widthInInches": {
+          "description": "Width of the Boat in inches",
+          "type": "integer"
+        },
+        "year": {
+          "description": "Year of the Boat",
+          "type": "integer"
+        }
+      },
+      "x-nullable": true
+    },
     "ClientError": {
       "type": "object",
       "required": [
@@ -4199,6 +4784,54 @@ func init() {
         }
       }
     },
+    "CreateBoatShipment": {
+      "description": "Creation object containing the ` + "`" + `Boat` + "`" + ` shipmentType specific data, not used for other shipment types.",
+      "type": "object",
+      "required": [
+        "year",
+        "make",
+        "model",
+        "lengthInInches",
+        "widthInInches",
+        "heightInInches",
+        "hasTrailer"
+      ],
+      "properties": {
+        "hasTrailer": {
+          "description": "Does the boat have a trailer",
+          "type": "boolean"
+        },
+        "heightInInches": {
+          "description": "Height of the Boat in inches",
+          "type": "integer"
+        },
+        "isRoadworthy": {
+          "description": "Is the trailer roadworthy",
+          "type": "boolean",
+          "x-nullable": true
+        },
+        "lengthInInches": {
+          "description": "Length of the Boat in inches",
+          "type": "integer"
+        },
+        "make": {
+          "description": "Make of the Boat",
+          "type": "string"
+        },
+        "model": {
+          "description": "Model of the Boat",
+          "type": "string"
+        },
+        "widthInInches": {
+          "description": "Width of the Boat in inches",
+          "type": "integer"
+        },
+        "year": {
+          "description": "Year of the Boat",
+          "type": "integer"
+        }
+      }
+    },
     "CreateMTOShipment": {
       "type": "object",
       "required": [
@@ -4208,6 +4841,9 @@ func init() {
       "properties": {
         "agents": {
           "$ref": "#/definitions/MTOAgents"
+        },
+        "boatShipment": {
+          "$ref": "#/definitions/CreateBoatShipment"
         },
         "counselorRemarks": {
           "type": "string",
@@ -4221,7 +4857,7 @@ func init() {
           "example": "handle with care"
         },
         "destinationAddress": {
-          "description": "Where the movers should deliver this shipment.",
+          "description": "primary location the movers should deliver this shipment.",
           "allOf": [
             {
               "$ref": "#/definitions/Address"
@@ -4238,6 +4874,9 @@ func init() {
           "format": "uuid",
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
         },
+        "mobileHomeShipment": {
+          "$ref": "#/definitions/CreateMobileHomeShipment"
+        },
         "moveTaskOrderID": {
           "description": "The ID of the move this new shipment is for.",
           "type": "string",
@@ -4252,7 +4891,7 @@ func init() {
           }
         },
         "pickupAddress": {
-          "description": "The address where the movers should pick up this shipment.",
+          "description": "The primary address where the movers should pick up this shipment.",
           "allOf": [
             {
               "$ref": "#/definitions/Address"
@@ -4279,8 +4918,78 @@ func init() {
           "format": "date",
           "x-nullable": true
         },
+        "secondaryDestinationAddress": {
+          "description": "second location where the movers should deliver this shipment.",
+          "allOf": [
+            {
+              "$ref": "#/definitions/Address"
+            }
+          ]
+        },
+        "secondaryPickupAddress": {
+          "description": "The second address where the movers should pick up this shipment.",
+          "allOf": [
+            {
+              "$ref": "#/definitions/Address"
+            }
+          ]
+        },
         "shipmentType": {
           "$ref": "#/definitions/MTOShipmentType"
+        },
+        "tertiaryDestinationAddress": {
+          "description": "third location where the movers should deliver this shipment.",
+          "allOf": [
+            {
+              "$ref": "#/definitions/Address"
+            }
+          ]
+        },
+        "tertiaryPickupAddress": {
+          "description": "The third address where the movers should pick up this shipment.",
+          "allOf": [
+            {
+              "$ref": "#/definitions/Address"
+            }
+          ]
+        }
+      }
+    },
+    "CreateMobileHomeShipment": {
+      "description": "Creation object containing the ` + "`" + `MobileHome` + "`" + ` shipmentType specific data, not used for other shipment types.",
+      "type": "object",
+      "required": [
+        "year",
+        "make",
+        "model",
+        "lengthInInches",
+        "widthInInches",
+        "heightInInches"
+      ],
+      "properties": {
+        "heightInInches": {
+          "description": "Height of the Mobile Home in inches",
+          "type": "integer"
+        },
+        "lengthInInches": {
+          "description": "Length of the Mobile Home in inches",
+          "type": "integer"
+        },
+        "make": {
+          "description": "Make of the Mobile Home",
+          "type": "string"
+        },
+        "model": {
+          "description": "Model of the Mobile Home",
+          "type": "string"
+        },
+        "widthInInches": {
+          "description": "Width of the Mobile Home in inches",
+          "type": "integer"
+        },
+        "year": {
+          "description": "Year of the Mobile Home",
+          "type": "integer"
         }
       }
     },
@@ -4318,6 +5027,13 @@ func init() {
           "description": "Indicates whether PPM shipment has pro gear for themselves or their spouse.\n",
           "type": "boolean"
         },
+        "isActualExpenseReimbursement": {
+          "description": "Used for PPM shipments only. Denotes if this shipment uses the Actual Expense Reimbursement method.",
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false,
+          "example": false
+        },
         "pickupAddress": {
           "description": "The address of the origin location where goods are being moved from.",
           "allOf": [
@@ -4340,7 +5056,7 @@ func init() {
           ]
         },
         "secondaryPickupAddress": {
-          "description": "An optional secondary pickup location address near the origin where additional goods exist.",
+          "description": "An optional secondary Pickup Address address near the origin where additional goods exist.",
           "allOf": [
             {
               "$ref": "#/definitions/Address"
@@ -4383,6 +5099,22 @@ func init() {
           "description": "The estimated weight of the pro-gear being moved belonging to a spouse in pounds.",
           "type": "integer",
           "x-nullable": true
+        },
+        "tertiaryDestinationAddress": {
+          "description": "An optional tertiary address near the destination where goods will be dropped off.",
+          "allOf": [
+            {
+              "$ref": "#/definitions/Address"
+            }
+          ]
+        },
+        "tertiaryPickupAddress": {
+          "description": "An optional tertiary Pickup Address address near the origin where additional goods exist.",
+          "allOf": [
+            {
+              "$ref": "#/definitions/Address"
+            }
+          ]
         }
       }
     },
@@ -4574,6 +5306,12 @@ func init() {
           "type": "integer",
           "x-formatting": "weight",
           "example": 500
+        },
+        "ubAllowance": {
+          "description": "The amount of weight in pounds that the move is entitled for shipment types of Unaccompanied Baggage.",
+          "type": "integer",
+          "x-nullable": true,
+          "example": 3
         }
       }
     },
@@ -4939,15 +5677,88 @@ func init() {
         }
       ]
     },
+    "MTOServiceItemInternationalCrating": {
+      "description": "Describes a international crating/uncrating service item subtype of a MTOServiceItem.",
+      "allOf": [
+        {
+          "$ref": "#/definitions/MTOServiceItem"
+        },
+        {
+          "type": "object",
+          "required": [
+            "reServiceCode",
+            "item",
+            "crate",
+            "description"
+          ],
+          "properties": {
+            "crate": {
+              "description": "The dimensions for the crate the item will be shipped in.",
+              "allOf": [
+                {
+                  "$ref": "#/definitions/MTOServiceItemDimension"
+                }
+              ]
+            },
+            "description": {
+              "description": "A description of the item being crated.",
+              "type": "string",
+              "example": "Decorated horse head to be crated."
+            },
+            "externalCrate": {
+              "type": "boolean",
+              "x-nullable": true
+            },
+            "item": {
+              "description": "The dimensions of the item being crated.",
+              "allOf": [
+                {
+                  "$ref": "#/definitions/MTOServiceItemDimension"
+                }
+              ]
+            },
+            "market": {
+              "description": "To identify whether the service was provided within (CONUS) or (OCONUS)",
+              "type": "string",
+              "enum": [
+                "CONUS",
+                "OCONUS"
+              ],
+              "example": "CONUS"
+            },
+            "reServiceCode": {
+              "description": "A unique code for the service item. Indicates if the service is for crating (ICRT) or uncrating (IUCRT).",
+              "type": "string",
+              "enum": [
+                "ICRT",
+                "IUCRT"
+              ]
+            },
+            "reason": {
+              "description": "The contractor's explanation for why an item needed to be crated or uncrated. Used by the TOO while deciding to approve or reject the service item.\n",
+              "type": "string",
+              "x-nullable": true,
+              "x-omitempty": false,
+              "example": "Storage items need to be picked up"
+            },
+            "standaloneCrate": {
+              "type": "boolean",
+              "x-nullable": true
+            }
+          }
+        }
+      ]
+    },
     "MTOServiceItemModelType": {
-      "description": "Describes all model sub-types for a MTOServiceItem model.\n\nUsing this list, choose the correct modelType in the dropdown, corresponding to the service item type.\n  * DOFSIT, DOASIT - MTOServiceItemOriginSIT\n  * DDFSIT, DDASIT - MTOServiceItemDestSIT\n  * DOSHUT, DDSHUT - MTOServiceItemShuttle\n  * DCRT, DUCRT - MTOServiceItemDomesticCrating\n\nThe documentation will then update with the supported fields.\n",
+      "description": "Describes all model sub-types for a MTOServiceItem model.\n\nUsing this list, choose the correct modelType in the dropdown, corresponding to the service item type.\n  * DOFSIT, DOASIT - MTOServiceItemOriginSIT\n  * DDFSIT, DDASIT - MTOServiceItemDestSIT\n  * DOSHUT, DDSHUT - MTOServiceItemShuttle\n  * DCRT, DUCRT - MTOServiceItemDomesticCrating\n  * ICRT, IUCRT - MTOServiceItemInternationalCrating\n\nThe documentation will then update with the supported fields.\n",
       "type": "string",
       "enum": [
         "MTOServiceItemBasic",
         "MTOServiceItemOriginSIT",
         "MTOServiceItemDestSIT",
         "MTOServiceItemShuttle",
-        "MTOServiceItemDomesticCrating"
+        "MTOServiceItemDomesticCrating",
+        "MTOServiceItemInternationalCrating"
       ]
     },
     "MTOServiceItemOriginSIT": {
@@ -5102,10 +5913,9 @@ func init() {
         "HHG",
         "HHG_INTO_NTS_DOMESTIC",
         "HHG_OUTOF_NTS_DOMESTIC",
-        "INTERNATIONAL_HHG",
-        "INTERNATIONAL_UB",
         "MOBILE_HOME",
-        "PPM"
+        "PPM",
+        "UNACCOMPANIED_BAGGAGE"
       ],
       "x-display-value": {
         "BOAT_HAUL_AWAY": "Boat shipment that requires additional equipment to haul it to it's destination",
@@ -5113,7 +5923,8 @@ func init() {
         "HHG": "Household goods move (HHG)",
         "HHG_INTO_NTS_DOMESTIC": "HHG into Non-temporary storage (NTS)",
         "HHG_OUTOF_NTS_DOMESTIC": "HHG out of Non-temporary storage (NTS Release)",
-        "PPM": "Personally Procured Move also known as Do It Yourself (DITY)"
+        "PPM": "Personally Procured Move also known as Do It Yourself (DITY)",
+        "UNACCOMPANIED_BAGGAGE": "Unaccompanied Baggage"
       },
       "example": "HHG"
     },
@@ -5156,6 +5967,9 @@ func init() {
           "x-nullable": true,
           "x-omitempty": false,
           "readOnly": true
+        },
+        "boatShipment": {
+          "$ref": "#/definitions/BoatShipment"
         },
         "counselorRemarks": {
           "description": "The counselor can use the counselor remarks field to inform the movers about any\nspecial circumstances for this shipment. Typical examples:\n  * bulky or fragile items,\n  * weapons,\n  * access info for their address.\n\nCounselors enters this information when creating or editing an MTO Shipment. Optional field.\n",
@@ -5224,6 +6038,18 @@ func init() {
           "format": "uuid",
           "readOnly": true,
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "marketCode": {
+          "description": "Single-letter designator for domestic (d) or international (i) shipments",
+          "type": "string",
+          "enum": [
+            "d",
+            "i"
+          ],
+          "example": "d"
+        },
+        "mobileHomeShipment": {
+          "$ref": "#/definitions/MobileHome"
         },
         "moveTaskOrderID": {
           "description": "The ID of the move for this shipment.",
@@ -5377,6 +6203,64 @@ func init() {
       "items": {
         "$ref": "#/definitions/MTOShipmentWithoutServiceItems"
       }
+    },
+    "MobileHome": {
+      "description": "A mobile home is a type of shipment that a service member moves a mobile home.",
+      "properties": {
+        "createdAt": {
+          "description": "Timestamp of when a property of this object was created (UTC)",
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        },
+        "eTag": {
+          "description": "A hash unique to this shipment that should be used as the \"If-Match\" header for any updates.",
+          "type": "string",
+          "readOnly": true
+        },
+        "heightInInches": {
+          "type": "integer"
+        },
+        "id": {
+          "description": "Primary auto-generated unique identifier of the Mobile Home object",
+          "type": "string",
+          "format": "uuid",
+          "readOnly": true,
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "lengthInInches": {
+          "type": "integer"
+        },
+        "make": {
+          "description": "The make of the mobile home",
+          "type": "string"
+        },
+        "model": {
+          "description": "The model of the mobile home.",
+          "type": "string"
+        },
+        "shipmentId": {
+          "description": "The id of the parent MTOShipment object",
+          "type": "string",
+          "format": "uuid",
+          "readOnly": true,
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "updatedAt": {
+          "description": "Timestamp of when a property of this object was last updated (UTC)",
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        },
+        "widthInInches": {
+          "type": "integer"
+        },
+        "year": {
+          "description": "The year the mobile home was made.",
+          "type": "integer"
+        }
+      },
+      "x-nullable": true
     },
     "MoveTaskOrder": {
       "type": "object",
@@ -5576,7 +6460,8 @@ func init() {
         "SEPARATION",
         "WOUNDED_WARRIOR",
         "BLUEBARK",
-        "SAFETY"
+        "SAFETY",
+        "TEMPORARY_DUTY"
       ],
       "x-display-value": {
         "BLUEBARK": "BLUEBARK",
@@ -5585,6 +6470,7 @@ func init() {
         "RETIREMENT": "Retirement",
         "SAFETY": "Safety",
         "SEPARATION": "Separation",
+        "TEMPORARY_DUTY": "Temporary Duty (TDY)",
         "WOUNDED_WARRIOR": "Wounded Warrior"
       }
     },
@@ -5900,6 +6786,20 @@ func init() {
           "format": "uuid",
           "readOnly": true,
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "isActualExpenseReimbursement": {
+          "description": "Used for PPM shipments only. Denotes if this shipment uses the Actual Expense Reimbursement method.",
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false,
+          "example": false
+        },
+        "maxIncentive": {
+          "description": "The max amount the government will pay the service member to move their belongings based on the moving date, locations, and shipment weight.",
+          "type": "integer",
+          "format": "cents",
+          "x-nullable": true,
+          "x-omitempty": false
         },
         "pickupAddress": {
           "$ref": "#/definitions/Address"
@@ -6242,7 +7142,6 @@ func init() {
         "ICOLH",
         "ICOUB",
         "ICRT",
-        "ICRTSA",
         "IDASIT",
         "IDDSIT",
         "IDFSIT",
@@ -6534,7 +7433,7 @@ func init() {
       }
     },
     "ShipmentAddressUpdate": {
-      "description": "This represents a destination address change request made by the Prime that is either auto-approved or requires review if the pricing criteria has changed. If criteria has changed, then it must be approved or rejected by a TOO.\n",
+      "description": "This represents a delivery address change request made by the Prime that is either auto-approved or requires review if the pricing criteria has changed. If criteria has changed, then it must be approved or rejected by a TOO.\n",
       "type": "object",
       "required": [
         "id",
@@ -6562,7 +7461,7 @@ func init() {
           "$ref": "#/definitions/Address"
         },
         "newSitDistanceBetween": {
-          "description": "The distance between the original SIT address and requested new destination address of shipment",
+          "description": "The distance between the original SIT address and requested new delivery address of shipment",
           "type": "integer",
           "minimum": 0,
           "example": 88
@@ -6575,7 +7474,7 @@ func init() {
           "example": "This is an office remark"
         },
         "oldSitDistanceBetween": {
-          "description": "The distance between the original SIT address and the previous/old destination address of shipment",
+          "description": "The distance between the original SIT address and the previous/old delivery address of shipment",
           "type": "integer",
           "minimum": 0,
           "example": 50
@@ -7028,6 +7927,13 @@ func init() {
           "x-nullable": true,
           "x-omitempty": false
         },
+        "isActualExpenseReimbursement": {
+          "description": "Used for PPM shipments only. Denotes if this shipment uses the Actual Expense Reimbursement method.",
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false,
+          "example": false
+        },
         "pickupAddress": {
           "description": "The address of the origin location where goods are being moved from.\n",
           "allOf": [
@@ -7050,7 +7956,7 @@ func init() {
           ]
         },
         "secondaryPickupAddress": {
-          "description": "An optional secondary pickup location near the origin where additional goods exist.\n",
+          "description": "An optional secondary Pickup Address near the origin where additional goods exist.\n",
           "allOf": [
             {
               "$ref": "#/definitions/Address"
@@ -7104,7 +8010,7 @@ func init() {
           ]
         },
         "tertiaryPickupAddress": {
-          "description": "An optional third pickup location near the origin where additional goods exist.\n",
+          "description": "An optional third Pickup Address near the origin where additional goods exist.\n",
           "allOf": [
             {
               "$ref": "#/definitions/Address"
@@ -7136,7 +8042,7 @@ func init() {
       }
     },
     "UpdateShipmentDestinationAddress": {
-      "description": "UpdateShipmentDestinationAddress contains the fields required for the prime to request an update for the destination address on an MTO Shipment.",
+      "description": "UpdateShipmentDestinationAddress contains the fields required for the prime to request an update for the delivery address on an MTO Shipment.",
       "type": "object",
       "required": [
         "contractorRemarks",

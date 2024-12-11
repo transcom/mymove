@@ -23,13 +23,16 @@ jest.mock('services/ghcApi', () => ({
 }));
 
 jest.mock('store/flash/actions', () => ({
-  ...jest.requireActual('store/flash/actions'),
   setFlashMessage: jest.fn(),
 }));
 
 jest.mock('utils/featureFlags', () => ({
   ...jest.requireActual('utils/featureFlags'),
   isBooleanFlagEnabled: jest.fn().mockImplementation(() => Promise.resolve(false)),
+}));
+
+jest.mock('store/general/actions', () => ({
+  setCanAddOrders: jest.fn(),
 }));
 
 beforeEach(jest.resetAllMocks);
@@ -169,6 +172,7 @@ const mockUserPrivileges = [
 
 const testProps = {
   setFlashMessage: jest.fn(),
+  setCanAddOrders: jest.fn(),
   userPrivileges: mockUserPrivileges,
 };
 
@@ -189,7 +193,7 @@ describe('CreateCustomerForm', () => {
     expect(screen.getByText('Customer Affiliation')).toBeInTheDocument();
     expect(screen.getByText('Customer Name')).toBeInTheDocument();
     expect(screen.getByText('Contact Info')).toBeInTheDocument();
-    expect(screen.getByText('Current Address')).toBeInTheDocument();
+    expect(screen.getByText('Pickup Address')).toBeInTheDocument();
     expect(screen.getByText('Backup Address')).toBeInTheDocument();
     expect(screen.getByText('Backup Contact')).toBeInTheDocument();
     expect(screen.getByText('Okta Account')).toBeInTheDocument();
@@ -337,6 +341,7 @@ describe('CreateCustomerForm', () => {
 
     await waitFor(() => {
       expect(createCustomerWithOktaOption).toHaveBeenCalled();
+      expect(testProps.setCanAddOrders).toHaveBeenCalledWith(true);
       expect(mockNavigate).toHaveBeenCalledWith(ordersPath, {
         state: {
           isSafetyMoveSelected: false,
@@ -517,7 +522,7 @@ describe('CreateCustomerForm', () => {
   it('submits the form and tests for unsupported state validation', async () => {
     createCustomerWithOktaOption.mockImplementation(() => Promise.resolve(fakeResponse));
 
-    const { getByLabelText, getByTestId, getByRole, getByText } = render(
+    const { getByLabelText, getByTestId, getByRole } = render(
       <MockProviders>
         <CreateCustomerForm {...testProps} />
       </MockProviders>,
@@ -562,7 +567,7 @@ describe('CreateCustomerForm', () => {
     await userEvent.selectOptions(getByTestId('backup-add-state'), 'HI');
     await userEvent.tab();
 
-    const msg = getByText('Moves to this state are not supported at this time.');
+    const msg = screen.getByText('Moves to this state are not supported at this time.');
     expect(msg).toBeVisible();
 
     await userEvent.selectOptions(getByTestId('backup-add-state'), [fakePayload.residential_address.state]);

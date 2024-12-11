@@ -38,7 +38,6 @@ func addressModelFromPayload(rawAddress *ghcmessages.Address) *models.Address {
 		City:           *rawAddress.City,
 		State:          *rawAddress.State,
 		PostalCode:     *rawAddress.PostalCode,
-		Country:        rawAddress.Country,
 	}
 }
 
@@ -78,7 +77,7 @@ func (h SearchCustomersHandler) Handle(params customercodeop.SearchCustomersPara
 	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
 		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
 			searchCustomersParams := services.SearchCustomersParams{
-				DodID:        params.Body.DodID,
+				Edipi:        params.Body.Edipi,
 				CustomerName: params.Body.CustomerName,
 				Page:         params.Body.Page,
 				PerPage:      params.Body.PerPage,

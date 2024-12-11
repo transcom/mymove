@@ -42,8 +42,8 @@ import (
 
 func (suite *HandlerSuite) TestGetMoveTaskOrderHandlerIntegration() {
 	moveTaskOrder := factory.BuildMove(suite.DB(), nil, nil)
-	factory.BuildReServiceByCode(suite.DB(), models.ReServiceCodeMS)
-	factory.BuildReServiceByCode(suite.DB(), models.ReServiceCodeCS)
+	factory.FetchReServiceByCode(suite.DB(), models.ReServiceCodeMS)
+	factory.FetchReServiceByCode(suite.DB(), models.ReServiceCodeCS)
 
 	request := httptest.NewRequest("GET", "/move-task-orders/{moveTaskOrderID}", nil)
 	params := movetaskorderops.GetMoveTaskOrderParams{
@@ -70,13 +70,12 @@ func (suite *HandlerSuite) TestGetMoveTaskOrderHandlerIntegration() {
 	suite.Equal(strfmt.UUID(moveTaskOrder.ID.String()), moveTaskOrderPayload.ID)
 	suite.Nil(moveTaskOrderPayload.AvailableToPrimeAt)
 	suite.Nil(moveTaskOrderPayload.ApprovedAt)
-	// TODO: Check that the *moveTaskOrderPayload.Status is not "canceled"
-	// suite.False(*moveTaskOrderPayload.IsCanceled)
 	suite.Equal(strfmt.UUID(moveTaskOrder.OrdersID.String()), moveTaskOrderPayload.OrderID)
 	suite.NotNil(moveTaskOrderPayload.ReferenceID)
 }
 
 func (suite *HandlerSuite) TestUpdateMoveTaskOrderHandlerIntegrationSuccess() {
+	ppmEstimator := &mocks.PPMEstimator{}
 	setupPricerData := func() {
 		contract := testdatagen.FetchOrMakeReContract(suite.DB(), testdatagen.Assertions{})
 
@@ -91,7 +90,7 @@ func (suite *HandlerSuite) TestUpdateMoveTaskOrderHandlerIntegrationSuccess() {
 			},
 		})
 
-		service := factory.FetchOrBuildReServiceByCode(suite.DB(), "MS")
+		service := factory.FetchReServiceByCode(suite.DB(), "MS")
 		msTaskOrderFee := models.ReTaskOrderFee{
 			ContractYearID: contractYear.ID,
 			ServiceID:      service.ID,
@@ -99,7 +98,7 @@ func (suite *HandlerSuite) TestUpdateMoveTaskOrderHandlerIntegrationSuccess() {
 		}
 		suite.MustSave(&msTaskOrderFee)
 
-		service = factory.FetchOrBuildReServiceByCode(suite.DB(), "CS")
+		service = factory.FetchReServiceByCode(suite.DB(), "CS")
 		csTaskOrderFee := models.ReTaskOrderFee{
 			ContractYearID: contractYear.ID,
 			ServiceID:      service.ID,
@@ -150,6 +149,18 @@ func (suite *HandlerSuite) TestUpdateMoveTaskOrderHandlerIntegrationSuccess() {
 				},
 			},
 		}, nil)
+		pickupDate := time.Now()
+		factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+			{
+				Model: models.MTOShipment{
+					RequestedPickupDate: &pickupDate,
+				},
+			},
+		}, nil)
 
 		request := httptest.NewRequest("PATCH", "/move-task-orders/{moveID}/status", nil)
 		requestUser := factory.BuildOfficeUser(nil, nil, nil)
@@ -183,7 +194,7 @@ func (suite *HandlerSuite) TestUpdateMoveTaskOrderHandlerIntegrationSuccess() {
 
 		// setup the handler
 		handler := UpdateMoveTaskOrderStatusHandlerFunc{handlerConfig,
-			movetaskorder.NewMoveTaskOrderUpdater(queryBuilder, siCreator, moveRouter, setUpSignedCertificationCreatorMock(nil, nil), setUpSignedCertificationUpdaterMock(nil, nil)),
+			movetaskorder.NewMoveTaskOrderUpdater(queryBuilder, siCreator, moveRouter, setUpSignedCertificationCreatorMock(nil, nil), setUpSignedCertificationUpdaterMock(nil, nil), ppmEstimator),
 		}
 
 		// Validate incoming payload: no body to validate
@@ -296,6 +307,7 @@ func (suite *HandlerSuite) TestUpdateMoveTaskOrderHandlerIntegrationWithIncomple
 	handlerConfig := suite.HandlerConfig()
 	queryBuilder := query.NewQueryBuilder()
 	moveRouter := moverouter.NewMoveRouter()
+	ppmEstimator := &mocks.PPMEstimator{}
 	planner := &routemocks.Planner{}
 	planner.On("ZipTransitDistance",
 		mock.AnythingOfType("*appcontext.appContext"),
@@ -332,7 +344,7 @@ func (suite *HandlerSuite) TestUpdateMoveTaskOrderHandlerIntegrationWithIncomple
 
 	// make the request
 	handler := UpdateMoveTaskOrderStatusHandlerFunc{handlerConfig,
-		movetaskorder.NewMoveTaskOrderUpdater(queryBuilder, siCreator, moveRouter, setUpSignedCertificationCreatorMock(nil, nil), setUpSignedCertificationUpdaterMock(nil, nil)),
+		movetaskorder.NewMoveTaskOrderUpdater(queryBuilder, siCreator, moveRouter, setUpSignedCertificationCreatorMock(nil, nil), setUpSignedCertificationUpdaterMock(nil, nil), ppmEstimator),
 	}
 
 	// Validate incoming payload: no body to validate
@@ -354,6 +366,7 @@ func (suite *HandlerSuite) TestUpdateMoveTaskOrderHandlerIntegrationWithIncomple
 }
 
 func (suite *HandlerSuite) TestUpdateMTOStatusServiceCounselingCompletedHandler() {
+	ppmEstimator := &mocks.PPMEstimator{}
 	setUpSignedCertificationCreatorMock := func(returnValue ...interface{}) services.SignedCertificationCreator {
 		mockCreator := &mocks.SignedCertificationCreator{}
 
@@ -392,7 +405,7 @@ func (suite *HandlerSuite) TestUpdateMTOStatusServiceCounselingCompletedHandler(
 		siCreator := mtoserviceitem.NewMTOServiceItemCreator(planner, queryBuilder, moveRouter, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticPackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer())
 		handler := UpdateMTOStatusServiceCounselingCompletedHandlerFunc{
 			handlerConfig,
-			movetaskorder.NewMoveTaskOrderUpdater(queryBuilder, siCreator, moveRouter, setUpSignedCertificationCreatorMock(nil, nil), setUpSignedCertificationUpdaterMock(nil, nil)),
+			movetaskorder.NewMoveTaskOrderUpdater(queryBuilder, siCreator, moveRouter, setUpSignedCertificationCreatorMock(nil, nil), setUpSignedCertificationUpdaterMock(nil, nil), ppmEstimator),
 		}
 		return handler
 	}
@@ -589,6 +602,7 @@ func (suite *HandlerSuite) TestUpdateMTOStatusServiceCounselingCompletedHandler(
 }
 
 func (suite *HandlerSuite) TestUpdateMoveTIORemarksHandler() {
+	ppmEstimator := &mocks.PPMEstimator{}
 	setupTestData := func() (models.Move, UpdateMoveTIORemarksHandlerFunc, models.User) {
 		moveTaskOrder := factory.BuildMove(suite.DB(), []factory.Customization{
 			{
@@ -636,7 +650,7 @@ func (suite *HandlerSuite) TestUpdateMoveTIORemarksHandler() {
 		siCreator := mtoserviceitem.NewMTOServiceItemCreator(planner, queryBuilder, moveRouter, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticPackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer())
 		handler := UpdateMoveTIORemarksHandlerFunc{
 			handlerConfig,
-			movetaskorder.NewMoveTaskOrderUpdater(queryBuilder, siCreator, moveRouter, setUpSignedCertificationCreatorMock(nil, nil), setUpSignedCertificationUpdaterMock(nil, nil)),
+			movetaskorder.NewMoveTaskOrderUpdater(queryBuilder, siCreator, moveRouter, setUpSignedCertificationCreatorMock(nil, nil), setUpSignedCertificationUpdaterMock(nil, nil), ppmEstimator),
 		}
 		return moveTaskOrder, handler, requestUser
 	}

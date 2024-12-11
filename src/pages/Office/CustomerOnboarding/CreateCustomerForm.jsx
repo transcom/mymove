@@ -29,8 +29,9 @@ import { isBooleanFlagEnabled } from 'utils/featureFlags';
 import departmentIndicators from 'constants/departmentIndicators';
 import { generateUniqueDodid, generateUniqueEmplid } from 'utils/customer';
 import Hint from 'components/Hint';
+import { setCanAddOrders as setCanAddOrdersAction } from 'store/general/actions';
 
-export const CreateCustomerForm = ({ userPrivileges, setFlashMessage }) => {
+export const CreateCustomerForm = ({ userPrivileges, setFlashMessage, setCanAddOrders }) => {
   const [serverError, setServerError] = useState(null);
   const [showEmplid, setShowEmplid] = useState(false);
   const [isSafetyMove, setIsSafetyMove] = useState(false);
@@ -133,6 +134,7 @@ export const CreateCustomerForm = ({ userPrivileges, setFlashMessage }) => {
     return createCustomerWithOktaOption({ body })
       .then((res) => {
         const customerId = Object.keys(res.createdCustomer)[0];
+        setCanAddOrders(true);
         setFlashMessage('CUSTOMER_CREATE_SUCCESS', 'success', `Customer created successfully.`);
         navigate(
           generatePath(servicesCounselingRoutes.BASE_CUSTOMERS_ORDERS_ADD_PATH, {
@@ -375,7 +377,7 @@ export const CreateCustomerForm = ({ userPrivileges, setFlashMessage }) => {
                     </div>
                   </SectionWrapper>
                   <SectionWrapper className={formStyles.formSection}>
-                    <h3>Current Address</h3>
+                    <h3>Pickup Address</h3>
                     <TextField
                       label="Address 1"
                       id="mailingAddress1"
@@ -555,6 +557,7 @@ export const CreateCustomerForm = ({ userPrivileges, setFlashMessage }) => {
 
 const mapDispatchToProps = {
   setFlashMessage: setFlashMessageAction,
+  setCanAddOrders: setCanAddOrdersAction,
 };
 
 export default connect(() => ({}), mapDispatchToProps)(CreateCustomerForm);

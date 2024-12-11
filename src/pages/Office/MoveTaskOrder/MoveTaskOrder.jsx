@@ -177,7 +177,9 @@ export const MoveTaskOrder = (props) => {
         status: item.status,
         estimatedPrice: item.estimatedPrice,
         standaloneCrate: item.standaloneCrate,
+        externalCrate: item.externalCrate,
         lockedPricedCents: item.lockedPriceCents,
+        market: item.market,
       };
 
       if (serviceItemsForShipment[`${newItem.mtoShipmentID}`]) {
@@ -1219,10 +1221,11 @@ export const MoveTaskOrder = (props) => {
                     originPostalCode: pickupAddress?.postalCode || '',
                     destinationAddress: destinationAddress || dutyLocationPostal,
                     scheduledPickupDate: formattedScheduledPickup,
-                    shipmentStatus: mtoShipment.status,
+                    shipmentStatus: mtoShipment.ppmShipment?.status || mtoShipment.status,
                     ifMatchEtag: mtoShipment.eTag,
                     moveTaskOrderID: mtoShipment.moveTaskOrderID,
                     shipmentLocator: mtoShipment.shipmentLocator,
+                    marketCode: mtoShipment.marketCode,
                   }}
                   handleShowCancellationModal={handleShowCancellationModal}
                   isMoveLocked={isMoveLocked}

@@ -184,6 +184,14 @@ func DutyLocation(dutyLocation *models.DutyLocation) *primev3messages.DutyLocati
 	return &payload
 }
 
+// Country payload
+func Country(country *models.Country) *string {
+	if country == nil {
+		return nil
+	}
+	return &country.Country
+}
+
 // Address payload
 func Address(address *models.Address) *primev3messages.Address {
 	if address == nil {
@@ -197,7 +205,7 @@ func Address(address *models.Address) *primev3messages.Address {
 		City:           &address.City,
 		State:          &address.State,
 		PostalCode:     &address.PostalCode,
-		Country:        address.Country,
+		Country:        Country(address.Country),
 		ETag:           etag.GenerateEtag(address.UpdatedAt),
 		County:         &address.County,
 	}
@@ -216,7 +224,7 @@ func PPMDestinationAddress(address *models.Address) *primev3messages.PPMDestinat
 		City:           &address.City,
 		State:          &address.State,
 		PostalCode:     &address.PostalCode,
-		Country:        address.Country,
+		Country:        Country(address.Country),
 		ETag:           etag.GenerateEtag(address.UpdatedAt),
 		County:         &address.County,
 	}
@@ -460,6 +468,7 @@ func PPMShipment(ppmShipment *models.PPMShipment) *primev3messages.PPMShipment {
 		AdvanceAmountRequested:         handlers.FmtCost(ppmShipment.AdvanceAmountRequested),
 		HasReceivedAdvance:             ppmShipment.HasReceivedAdvance,
 		AdvanceAmountReceived:          handlers.FmtCost(ppmShipment.AdvanceAmountReceived),
+		IsActualExpenseReimbursement:   ppmShipment.IsActualExpenseReimbursement,
 		ETag:                           etag.GenerateEtag(ppmShipment.UpdatedAt),
 	}
 
@@ -482,7 +491,69 @@ func PPMShipment(ppmShipment *models.PPMShipment) *primev3messages.PPMShipment {
 		payloadPPMShipment.SecondaryDestinationAddress = Address(ppmShipment.SecondaryDestinationAddress)
 	}
 
+	if ppmShipment.IsActualExpenseReimbursement != nil {
+		payloadPPMShipment.IsActualExpenseReimbursement = ppmShipment.IsActualExpenseReimbursement
+	}
+
 	return payloadPPMShipment
+}
+
+// BoatShipment payload
+func BoatShipment(boatShipment *models.BoatShipment) *primev3messages.BoatShipment {
+	if boatShipment == nil || boatShipment.ID.IsNil() {
+		return nil
+	}
+
+	boatShipmentType := string(boatShipment.Type)
+	payloadPPMShipment := &primev3messages.BoatShipment{
+		ID:             *handlers.FmtUUID(boatShipment.ID),
+		ShipmentID:     *handlers.FmtUUID(boatShipment.ShipmentID),
+		CreatedAt:      strfmt.DateTime(boatShipment.CreatedAt),
+		UpdatedAt:      strfmt.DateTime(boatShipment.UpdatedAt),
+		Type:           &boatShipmentType,
+		Year:           handlers.FmtIntPtrToInt64(boatShipment.Year),
+		Make:           boatShipment.Make,
+		Model:          boatShipment.Model,
+		LengthInInches: handlers.FmtIntPtrToInt64(boatShipment.LengthInInches),
+		WidthInInches:  handlers.FmtIntPtrToInt64(boatShipment.WidthInInches),
+		HeightInInches: handlers.FmtIntPtrToInt64(boatShipment.HeightInInches),
+		HasTrailer:     boatShipment.HasTrailer,
+		IsRoadworthy:   boatShipment.IsRoadworthy,
+		ETag:           etag.GenerateEtag(boatShipment.UpdatedAt),
+	}
+
+	return payloadPPMShipment
+}
+
+// MobilehomeShipment payload
+func MobileHomeShipment(mobileHomeShipment *models.MobileHome) *primev3messages.MobileHome {
+	if mobileHomeShipment == nil || mobileHomeShipment.ID.IsNil() {
+		return nil
+	}
+
+	payloadMobileHomeShipment := &primev3messages.MobileHome{
+		ID:             *handlers.FmtUUID(mobileHomeShipment.ID),
+		ShipmentID:     *handlers.FmtUUID(mobileHomeShipment.ShipmentID),
+		CreatedAt:      strfmt.DateTime(mobileHomeShipment.CreatedAt),
+		UpdatedAt:      strfmt.DateTime(mobileHomeShipment.UpdatedAt),
+		Year:           *handlers.FmtIntPtrToInt64(mobileHomeShipment.Year),
+		Make:           *mobileHomeShipment.Make,
+		Model:          *mobileHomeShipment.Model,
+		LengthInInches: *handlers.FmtIntPtrToInt64(mobileHomeShipment.LengthInInches),
+		WidthInInches:  *handlers.FmtIntPtrToInt64(mobileHomeShipment.WidthInInches),
+		HeightInInches: *handlers.FmtIntPtrToInt64(mobileHomeShipment.HeightInInches),
+		ETag:           etag.GenerateEtag(mobileHomeShipment.UpdatedAt),
+	}
+
+	return payloadMobileHomeShipment
+}
+
+// MarketCode payload
+func MarketCode(marketCode *models.MarketCode) string {
+	if marketCode == nil {
+		return "" // Or a default string value
+	}
+	return string(*marketCode)
 }
 
 func MTOShipmentWithoutServiceItems(mtoShipment *models.MTOShipment) *primev3messages.MTOShipmentWithoutServiceItems {
@@ -514,6 +585,8 @@ func MTOShipmentWithoutServiceItems(mtoShipment *models.MTOShipment) *primev3mes
 		CreatedAt:                        strfmt.DateTime(mtoShipment.CreatedAt),
 		UpdatedAt:                        strfmt.DateTime(mtoShipment.UpdatedAt),
 		PpmShipment:                      PPMShipment(mtoShipment.PPMShipment),
+		BoatShipment:                     BoatShipment(mtoShipment.BoatShipment),
+		MobileHomeShipment:               MobileHomeShipment(mtoShipment.MobileHome),
 		ETag:                             etag.GenerateEtag(mtoShipment.UpdatedAt),
 		OriginSitAuthEndDate:             (*strfmt.Date)(mtoShipment.OriginSITAuthEndDate),
 		DestinationSitAuthEndDate:        (*strfmt.Date)(mtoShipment.DestinationSITAuthEndDate),
@@ -521,6 +594,7 @@ func MTOShipmentWithoutServiceItems(mtoShipment *models.MTOShipment) *primev3mes
 		SecondaryPickupAddress:           Address(mtoShipment.SecondaryPickupAddress),
 		TertiaryDeliveryAddress:          Address(mtoShipment.TertiaryDeliveryAddress),
 		TertiaryPickupAddress:            Address(mtoShipment.TertiaryPickupAddress),
+		MarketCode:                       MarketCode(&mtoShipment.MarketCode),
 	}
 
 	// Set up address payloads
@@ -675,6 +749,46 @@ func MTOServiceItem(mtoServiceItem *models.MTOServiceItem) primev3messages.MTOSe
 			Width:  crate.Width.Int32Ptr(),
 		}
 		payload = &cratingSI
+
+	case models.ReServiceCodeICRT, models.ReServiceCodeIUCRT:
+		item := GetDimension(mtoServiceItem.Dimensions, models.DimensionTypeItem)
+		crate := GetDimension(mtoServiceItem.Dimensions, models.DimensionTypeCrate)
+		cratingSI := primev3messages.MTOServiceItemInternationalCrating{
+			ReServiceCode:   handlers.FmtString(string(mtoServiceItem.ReService.Code)),
+			Description:     mtoServiceItem.Description,
+			Reason:          mtoServiceItem.Reason,
+			StandaloneCrate: mtoServiceItem.StandaloneCrate,
+			ExternalCrate:   mtoServiceItem.ExternalCrate,
+		}
+		cratingSI.Item.MTOServiceItemDimension = primev3messages.MTOServiceItemDimension{
+			ID:     strfmt.UUID(item.ID.String()),
+			Height: item.Height.Int32Ptr(),
+			Length: item.Length.Int32Ptr(),
+			Width:  item.Width.Int32Ptr(),
+		}
+		cratingSI.Crate.MTOServiceItemDimension = primev3messages.MTOServiceItemDimension{
+			ID:     strfmt.UUID(crate.ID.String()),
+			Height: crate.Height.Int32Ptr(),
+			Length: crate.Length.Int32Ptr(),
+			Width:  crate.Width.Int32Ptr(),
+		}
+		if mtoServiceItem.ReService.Code == models.ReServiceCodeICRT && mtoServiceItem.MTOShipment.PickupAddress != nil {
+			if *mtoServiceItem.MTOShipment.PickupAddress.IsOconus {
+				cratingSI.Market = models.MarketOconus.FullString()
+			} else {
+				cratingSI.Market = models.MarketConus.FullString()
+			}
+		}
+
+		if mtoServiceItem.ReService.Code == models.ReServiceCodeIUCRT && mtoServiceItem.MTOShipment.DestinationAddress != nil {
+			if *mtoServiceItem.MTOShipment.DestinationAddress.IsOconus {
+				cratingSI.Market = models.MarketOconus.FullString()
+			} else {
+				cratingSI.Market = models.MarketConus.FullString()
+			}
+		}
+		payload = &cratingSI
+
 	case models.ReServiceCodeDDSHUT, models.ReServiceCodeDOSHUT:
 		payload = &primev3messages.MTOServiceItemShuttle{
 			ReServiceCode:   handlers.FmtString(string(mtoServiceItem.ReService.Code)),

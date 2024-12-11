@@ -58,6 +58,7 @@ export class Summary extends Component {
       enableNTSR: true,
       enableBoat: true,
       enableMobileHome: true,
+      enableUB: true,
     };
   }
 
@@ -95,6 +96,11 @@ export class Summary extends Component {
     isBooleanFlagEnabled(FEATURE_FLAG_KEYS.MOBILE_HOME).then((enabled) => {
       this.setState({
         enableMobileHome: enabled,
+      });
+    });
+    isBooleanFlagEnabled(FEATURE_FLAG_KEYS.UNACCOMPANIED_BAGGAGE).then((enabled) => {
+      this.setState({
+        enableUB: enabled,
       });
     });
   }
@@ -172,6 +178,7 @@ export class Summary extends Component {
     let ppmShipmentNumber = 0;
     let boatShipmentNumber = 0;
     let mobileHomeShipmentNumber = 0;
+    let ubShipmentNumber = 0;
     return sortedShipments.map((shipment) => {
       let receivingAgent;
       let releasingAgent;
@@ -189,6 +196,7 @@ export class Summary extends Component {
             onEditClick={this.handleEditClick}
             onDeleteClick={this.handleDeleteClick}
             onIncompleteClick={this.toggleIncompleteShipmentModal}
+            marketCode={shipment.marketCode}
           />
         );
       }
@@ -215,6 +223,7 @@ export class Summary extends Component {
             status={shipment.status}
             onIncompleteClick={this.toggleIncompleteShipmentModal}
             shipmentLocator={shipment.shipmentLocator}
+            marketCode={shipment.marketCode}
           />
         );
       }
@@ -238,6 +247,7 @@ export class Summary extends Component {
             status={shipment.status}
             onIncompleteClick={this.toggleIncompleteShipmentModal}
             shipmentLocator={shipment.shipmentLocator}
+            marketCode={shipment.marketCode}
           />
         );
       }
@@ -270,6 +280,7 @@ export class Summary extends Component {
             showEditAndDeleteBtn={showEditAndDeleteBtn}
             status={shipment.status}
             onIncompleteClick={this.toggleIncompleteShipmentModal}
+            marketCode={shipment.marketCode}
           />
         );
       }
@@ -299,6 +310,38 @@ export class Summary extends Component {
             showEditAndDeleteBtn={showEditAndDeleteBtn}
             status={shipment.status}
             onIncompleteClick={this.toggleIncompleteShipmentModal}
+            marketCode={shipment.marketCode}
+          />
+        );
+      }
+      if (shipment.shipmentType === SHIPMENT_TYPES.UNACCOMPANIED_BAGGAGE) {
+        ubShipmentNumber += 1;
+        return (
+          <HHGShipmentCard
+            key={shipment.id}
+            destinationZIP={currentOrders.new_duty_location.address.postalCode}
+            secondaryDeliveryAddress={shipment?.secondaryDeliveryAddress}
+            tertiaryDeliveryAddress={shipment?.tertiaryDeliveryAddress}
+            secondaryPickupAddress={shipment?.secondaryPickupAddress}
+            tertiaryPickupAddress={shipment?.tertiaryPickupAddress}
+            destinationLocation={shipment?.destinationAddress}
+            moveId={moveId}
+            onEditClick={this.handleEditClick}
+            onDeleteClick={this.handleDeleteClick}
+            pickupLocation={shipment.pickupAddress}
+            receivingAgent={receivingAgent}
+            releasingAgent={releasingAgent}
+            remarks={shipment.customerRemarks}
+            requestedDeliveryDate={shipment.requestedDeliveryDate}
+            requestedPickupDate={shipment.requestedPickupDate}
+            shipmentId={shipment.id}
+            shipmentLocator={shipment.shipmentLocator}
+            shipmentNumber={ubShipmentNumber}
+            shipmentType={shipment.shipmentType}
+            showEditAndDeleteBtn={showEditAndDeleteBtn}
+            status={shipment.status}
+            onIncompleteClick={this.toggleIncompleteShipmentModal}
+            marketCode={shipment.marketCode}
           />
         );
       }
@@ -328,6 +371,7 @@ export class Summary extends Component {
           showEditAndDeleteBtn={showEditAndDeleteBtn}
           status={shipment.status}
           onIncompleteClick={this.toggleIncompleteShipmentModal}
+          marketCode={shipment.marketCode}
         />
       );
     });
@@ -456,6 +500,10 @@ export class Summary extends Component {
             payGrade={ORDERS_PAY_GRADE_OPTIONS[currentOrders?.grade] || ''}
             originDutyLocationName={currentOrders.origin_duty_location.name}
             orderId={currentOrders.id}
+            counselingOfficeName={currentMove.counselingOffice?.name || ''}
+            accompaniedTour={currentOrders.entitlement?.accompanied_tour}
+            dependentsUnderTwelve={currentOrders.entitlement?.dependents_under_twelve}
+            dependentsTwelveAndOver={currentOrders.entitlement?.dependents_twelve_and_over}
           />
         </SectionWrapper>
         {thirdSectionHasContent && (

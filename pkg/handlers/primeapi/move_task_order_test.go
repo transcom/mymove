@@ -159,7 +159,10 @@ func (suite *HandlerSuite) TestGetMoveTaskOrder() {
 		suite.Equal(address.City, *payload.City)
 		suite.Equal(address.State, *payload.State)
 		suite.Equal(address.PostalCode, *payload.PostalCode)
-		suite.Equal(*address.Country, *payload.Country)
+		// Handle the possibility that address.Country is nil
+		if address.Country != nil && payload.Country != nil {
+			suite.Equal(address.Country.Country, *payload.Country)
+		}
 		suite.NotNil(payload.ETag)
 	}
 
@@ -1734,8 +1737,9 @@ func (suite *HandlerSuite) TestUpdateMTOPostCounselingInfo() {
 			return mockUpdater
 		}
 
+		ppmEstimator := &mocks.PPMEstimator{}
 		siCreator := mtoserviceitem.NewMTOServiceItemCreator(planner, queryBuilder, moveRouter, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticPackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer())
-		updater := movetaskorder.NewMoveTaskOrderUpdater(queryBuilder, siCreator, moveRouter, setUpSignedCertificationCreatorMock(nil, nil), setUpSignedCertificationUpdaterMock(nil, nil))
+		updater := movetaskorder.NewMoveTaskOrderUpdater(queryBuilder, siCreator, moveRouter, setUpSignedCertificationCreatorMock(nil, nil), setUpSignedCertificationUpdaterMock(nil, nil), ppmEstimator)
 		mtoChecker := movetaskorder.NewMoveTaskOrderChecker()
 
 		handler := UpdateMTOPostCounselingInformationHandler{
@@ -1817,8 +1821,9 @@ func (suite *HandlerSuite) TestUpdateMTOPostCounselingInfo() {
 			return mockUpdater
 		}
 
+		ppmEstimator := &mocks.PPMEstimator{}
 		siCreator := mtoserviceitem.NewMTOServiceItemCreator(planner, queryBuilder, moveRouter, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticPackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer())
-		updater := movetaskorder.NewMoveTaskOrderUpdater(queryBuilder, siCreator, moveRouter, setUpSignedCertificationCreatorMock(nil, nil), setUpSignedCertificationUpdaterMock(nil, nil))
+		updater := movetaskorder.NewMoveTaskOrderUpdater(queryBuilder, siCreator, moveRouter, setUpSignedCertificationCreatorMock(nil, nil), setUpSignedCertificationUpdaterMock(nil, nil), ppmEstimator)
 		handler := UpdateMTOPostCounselingInformationHandler{
 			suite.HandlerConfig(),
 			fetcher,

@@ -79,7 +79,7 @@ const BoatShipmentForm = ({ mtoShipment, onBack, onSubmit }) => {
     widthInches: width.inches,
     heightFeet: height.feet,
     heightInches: height.inches,
-    hasTrailer: hasTrailer ? 'true' : 'false',
+    hasTrailer: hasTrailer === null ? '' : hasTrailer?.toString(),
     isRoadworthy: isRoadworthy === null ? '' : isRoadworthy?.toString(),
     customerRemarks: mtoShipment?.customerRemarks,
   };
@@ -333,11 +333,11 @@ const BoatShipmentForm = ({ mtoShipment, onBack, onSubmit }) => {
                     Examples
                     <ul>
                       <li>
-                        Dimensions of the boat on the trailer are signigicantly different than one would expect given
+                        Dimensions of the boat on the trailer are significantly different than one would expect given
                         their individual dimensions
                       </li>
 
-                      <li>Access info for your origin or destination address/marina</li>
+                      <li>Access info for your pickup or delivery address/marina</li>
                     </ul>
                   </Callout>
 

@@ -163,6 +163,128 @@ func (suite *PayloadsSuite) TestMTOServiceItemModel() {
 
 	})
 
+	suite.Run("Success - Returns a ICRT/IUCRT service item model", func() {
+		// ICRT
+		icrtCode := models.ReServiceCodeICRT.String()
+		externalCrate := false
+		ICRTServiceItem := &primemessages.MTOServiceItemInternationalCrating{
+			ReServiceCode:   &icrtCode,
+			Reason:          &reason,
+			Description:     &description,
+			StandaloneCrate: &standaloneCrate,
+			ExternalCrate:   &externalCrate,
+		}
+		ICRTServiceItem.Item.MTOServiceItemDimension = *item
+		ICRTServiceItem.Crate.MTOServiceItemDimension = *crate
+
+		ICRTServiceItem.SetMoveTaskOrderID(handlers.FmtUUID(moveTaskOrderIDField))
+		ICRTServiceItem.SetMtoShipmentID(*mtoShipmentIDString)
+
+		returnedModel, verrs := MTOServiceItemModel(ICRTServiceItem)
+
+		var returnedItem, returnedCrate models.MTOServiceItemDimension
+		for _, dimension := range returnedModel.Dimensions {
+			if dimension.Type == models.DimensionTypeItem {
+				returnedItem = dimension
+			} else {
+				returnedCrate = dimension
+			}
+		}
+
+		suite.NoVerrs(verrs)
+		suite.Equal(moveTaskOrderIDField.String(), returnedModel.MoveTaskOrderID.String())
+		suite.Equal(mtoShipmentIDField.String(), returnedModel.MTOShipmentID.String())
+		suite.Equal(models.ReServiceCodeICRT, returnedModel.ReService.Code)
+		suite.Equal(ICRTServiceItem.Reason, returnedModel.Reason)
+		suite.Equal(ICRTServiceItem.Description, returnedModel.Description)
+		suite.Equal(ICRTServiceItem.StandaloneCrate, returnedModel.StandaloneCrate)
+		suite.Equal(ICRTServiceItem.ExternalCrate, returnedModel.ExternalCrate)
+		suite.Equal(unit.ThousandthInches(*ICRTServiceItem.Item.Length), returnedItem.Length)
+		suite.Equal(unit.ThousandthInches(*ICRTServiceItem.Crate.Length), returnedCrate.Length)
+
+		// IUCRT
+		iucrtCode := models.ReServiceCodeIUCRT.String()
+		IUCRTServiceItem := &primemessages.MTOServiceItemInternationalCrating{
+			ReServiceCode: &iucrtCode,
+			Reason:        &reason,
+			Description:   &description,
+		}
+		IUCRTServiceItem.Item.MTOServiceItemDimension = *item
+		IUCRTServiceItem.Crate.MTOServiceItemDimension = *crate
+
+		IUCRTServiceItem.SetMoveTaskOrderID(handlers.FmtUUID(moveTaskOrderIDField))
+		IUCRTServiceItem.SetMtoShipmentID(*mtoShipmentIDString)
+
+		iucrtReturnedModel, verrs := MTOServiceItemModel(IUCRTServiceItem)
+
+		var icurtReturnedItem, icurtReturnedCrate models.MTOServiceItemDimension
+		for _, dimension := range iucrtReturnedModel.Dimensions {
+			if dimension.Type == models.DimensionTypeItem {
+				icurtReturnedItem = dimension
+			} else {
+				icurtReturnedCrate = dimension
+			}
+		}
+
+		suite.NoVerrs(verrs)
+		suite.Equal(moveTaskOrderIDField.String(), iucrtReturnedModel.MoveTaskOrderID.String())
+		suite.Equal(mtoShipmentIDField.String(), iucrtReturnedModel.MTOShipmentID.String())
+		suite.Equal(models.ReServiceCodeIUCRT, iucrtReturnedModel.ReService.Code)
+		suite.Equal(IUCRTServiceItem.Reason, iucrtReturnedModel.Reason)
+		suite.Equal(IUCRTServiceItem.Description, iucrtReturnedModel.Description)
+		suite.Equal(unit.ThousandthInches(*ICRTServiceItem.Item.Length), icurtReturnedItem.Length)
+		suite.Equal(unit.ThousandthInches(*ICRTServiceItem.Crate.Length), icurtReturnedCrate.Length)
+	})
+
+	suite.Run("Fail -  Returns error for ICRT/IUCRT service item because of validation error", func() {
+		// ICRT
+		icrtCode := models.ReServiceCodeICRT.String()
+		externalCrate := false
+		badCrateMeasurement := int32(200)
+		badCrate := &primemessages.MTOServiceItemDimension{
+			Height: &badCrateMeasurement,
+			Width:  &badCrateMeasurement,
+			Length: &badCrateMeasurement,
+		}
+
+		badICRTServiceItem := &primemessages.MTOServiceItemInternationalCrating{
+			ReServiceCode:   &icrtCode,
+			Reason:          &reason,
+			Description:     &description,
+			StandaloneCrate: &standaloneCrate,
+			ExternalCrate:   &externalCrate,
+		}
+		badICRTServiceItem.Item.MTOServiceItemDimension = *item
+		badICRTServiceItem.Crate.MTOServiceItemDimension = *badCrate
+
+		badICRTServiceItem.SetMoveTaskOrderID(handlers.FmtUUID(moveTaskOrderIDField))
+		badICRTServiceItem.SetMtoShipmentID(*mtoShipmentIDString)
+
+		returnedModel, verrs := MTOServiceItemModel(badICRTServiceItem)
+
+		suite.True(verrs.HasAny(), fmt.Sprintf("invalid crate dimensions for %s service item", models.ReServiceCodeICRT))
+		suite.Nil(returnedModel, "returned a model when erroring")
+
+		// IUCRT
+		iucrtCode := models.ReServiceCodeIUCRT.String()
+
+		badIUCRTServiceItem := &primemessages.MTOServiceItemInternationalCrating{
+			ReServiceCode: &iucrtCode,
+			Reason:        &reason,
+			Description:   &description,
+		}
+		badIUCRTServiceItem.Item.MTOServiceItemDimension = *item
+		badIUCRTServiceItem.Crate.MTOServiceItemDimension = *badCrate
+
+		badIUCRTServiceItem.SetMoveTaskOrderID(handlers.FmtUUID(moveTaskOrderIDField))
+		badIUCRTServiceItem.SetMtoShipmentID(*mtoShipmentIDString)
+
+		iucrtReturnedModel, verrs := MTOServiceItemModel(badIUCRTServiceItem)
+
+		suite.True(verrs.HasAny(), fmt.Sprintf("invalid crate dimensions for %s service item", models.ReServiceCodeIUCRT))
+		suite.Nil(iucrtReturnedModel, "returned a model when erroring")
+	})
+
 	suite.Run("Success - Returns SIT origin service item model", func() {
 		originSITServiceItem := &primemessages.MTOServiceItemOriginSIT{
 			ReServiceCode:      &originServiceCode,
@@ -501,12 +623,13 @@ func (suite *PayloadsSuite) TestPPMShipmentModelFromCreate() {
 	spouseProGearWeight := int64(50)
 
 	ppmShipment := primemessages.CreatePPMShipment{
-		ExpectedDepartureDate: expectedDepartureDate,
-		SitExpected:           &sitExpected,
-		EstimatedWeight:       &estimatedWeight,
-		HasProGear:            &hasProGear,
-		ProGearWeight:         &proGearWeight,
-		SpouseProGearWeight:   &spouseProGearWeight,
+		ExpectedDepartureDate:        expectedDepartureDate,
+		SitExpected:                  &sitExpected,
+		EstimatedWeight:              &estimatedWeight,
+		HasProGear:                   &hasProGear,
+		ProGearWeight:                &proGearWeight,
+		SpouseProGearWeight:          &spouseProGearWeight,
+		IsActualExpenseReimbursement: models.BoolPointer(true),
 	}
 
 	model := PPMShipmentModelFromCreate(&ppmShipment)
@@ -518,4 +641,119 @@ func (suite *PayloadsSuite) TestPPMShipmentModelFromCreate() {
 	suite.True(*model.HasProGear)
 	suite.Equal(unit.Pound(proGearWeight), *model.ProGearWeight)
 	suite.Equal(unit.Pound(spouseProGearWeight), *model.SpouseProGearWeight)
+	suite.True(*model.IsActualExpenseReimbursement)
+}
+
+func (suite *PayloadsSuite) TestPPMShipmentModelFromUpdate() {
+	time := time.Now()
+	expectedDepartureDate := handlers.FmtDatePtr(&time)
+	estimatedWeight := int64(5000)
+	proGearWeight := int64(500)
+	spouseProGearWeight := int64(50)
+
+	ppmShipment := primemessages.UpdatePPMShipment{
+		ExpectedDepartureDate:        expectedDepartureDate,
+		SitExpected:                  models.BoolPointer(true),
+		EstimatedWeight:              &estimatedWeight,
+		HasProGear:                   models.BoolPointer(true),
+		ProGearWeight:                &proGearWeight,
+		SpouseProGearWeight:          &spouseProGearWeight,
+		IsActualExpenseReimbursement: models.BoolPointer(true),
+	}
+
+	model := PPMShipmentModelFromUpdate(&ppmShipment)
+
+	suite.NotNil(model)
+	suite.True(*model.SITExpected)
+	suite.Equal(unit.Pound(estimatedWeight), *model.EstimatedWeight)
+	suite.True(*model.HasProGear)
+	suite.Equal(unit.Pound(proGearWeight), *model.ProGearWeight)
+	suite.Equal(unit.Pound(spouseProGearWeight), *model.SpouseProGearWeight)
+	suite.True(*model.IsActualExpenseReimbursement)
+	suite.NotNil(model)
+}
+
+func (suite *PayloadsSuite) TestCountryModel_WithValidCountry() {
+	countryName := "US"
+	result := CountryModel(&countryName)
+
+	suite.NotNil(result)
+	suite.Equal(countryName, result.Country)
+}
+
+func (suite *PayloadsSuite) TestCountryModel_WithNilCountry() {
+	var countryName *string = nil
+	result := CountryModel(countryName)
+
+	suite.Nil(result)
+}
+
+func (suite *PayloadsSuite) TestMTOShipmentModelFromCreate_WithNilInput() {
+	result := MTOShipmentModelFromCreate(nil)
+	suite.Nil(result)
+}
+
+func (suite *PayloadsSuite) TestMTOShipmentModelFromCreate_WithValidInput() {
+	moveTaskOrderID := strfmt.UUID(uuid.Must(uuid.NewV4()).String())
+	mtoShipment := primemessages.CreateMTOShipment{
+		MoveTaskOrderID: &moveTaskOrderID,
+	}
+
+	result := MTOShipmentModelFromCreate(&mtoShipment)
+
+	suite.NotNil(result)
+	suite.Equal(mtoShipment.MoveTaskOrderID.String(), result.MoveTaskOrderID.String())
+	suite.Nil(result.PrimeEstimatedWeight)
+	suite.Nil(result.PickupAddress)
+	suite.Nil(result.DestinationAddress)
+	suite.Empty(result.MTOAgents)
+}
+
+func (suite *PayloadsSuite) TestMTOShipmentModelFromCreate_WithOptionalFields() {
+	moveTaskOrderID := strfmt.UUID(uuid.Must(uuid.NewV4()).String())
+	primeEstimatedWeight := int64(3000)
+	requestedPickupDate := strfmt.Date(time.Now())
+
+	var pickupAddress primemessages.Address
+	var destinationAddress primemessages.Address
+
+	pickupAddress = primemessages.Address{
+		City:           handlers.FmtString("Tulsa"),
+		PostalCode:     handlers.FmtString("90210"),
+		State:          handlers.FmtString("OK"),
+		StreetAddress1: handlers.FmtString("123 Main St"),
+	}
+	destinationAddress = primemessages.Address{
+		City:           handlers.FmtString("Tulsa"),
+		PostalCode:     handlers.FmtString("90210"),
+		State:          handlers.FmtString("OK"),
+		StreetAddress1: handlers.FmtString("456 Main St"),
+	}
+
+	remarks := "customer wants fast delivery"
+	mtoShipment := &primemessages.CreateMTOShipment{
+		MoveTaskOrderID:      &moveTaskOrderID,
+		CustomerRemarks:      &remarks,
+		CounselorRemarks:     handlers.FmtString("Approved for special handling"),
+		PrimeEstimatedWeight: &primeEstimatedWeight,
+		RequestedPickupDate:  &requestedPickupDate,
+		PickupAddress:        struct{ primemessages.Address }{pickupAddress},
+		DestinationAddress:   struct{ primemessages.Address }{destinationAddress},
+	}
+
+	result := MTOShipmentModelFromCreate(mtoShipment)
+
+	suite.NotNil(result)
+	suite.Equal(mtoShipment.MoveTaskOrderID.String(), result.MoveTaskOrderID.String())
+	suite.Equal(*mtoShipment.CustomerRemarks, *result.CustomerRemarks)
+
+	suite.NotNil(result.PrimeEstimatedWeight)
+	suite.Equal(unit.Pound(primeEstimatedWeight), *result.PrimeEstimatedWeight)
+	suite.NotNil(result.PrimeEstimatedWeightRecordedDate)
+	suite.WithinDuration(time.Now(), *result.PrimeEstimatedWeightRecordedDate, time.Second)
+
+	suite.NotNil(result.PickupAddress)
+	suite.Equal("123 Main St", result.PickupAddress.StreetAddress1)
+	suite.NotNil(result.DestinationAddress)
+	suite.Equal("456 Main St", result.DestinationAddress.StreetAddress1)
 }

@@ -145,7 +145,7 @@ describe('ServiceItemDetails Domestic Destination SIT', () => {
         serviceRequestDocs={serviceRequestDocs}
       />,
     );
-    expect(screen.getByText('Original delivery address:')).toBeInTheDocument();
+    expect(screen.getByText('Original Delivery Address:')).toBeInTheDocument();
     expect(screen.getByText('Destination Original Tampa, FL 33621')).toBeInTheDocument();
 
     expect(screen.getByText("Add'l SIT Start Date:")).toBeInTheDocument();
@@ -165,14 +165,17 @@ describe('ServiceItemDetails Domestic Destination SIT', () => {
 
     expect(screen.queryByText('SIT departure date:')).not.toBeInTheDocument();
     expect(screen.queryByText('16 Mar 2024')).not.toBeInTheDocument();
+    expect(screen.getByText('Download service item documentation:')).toBeInTheDocument();
+    const downloadLink = screen.getByText('receipt.pdf');
+    expect(downloadLink).toBeInstanceOf(HTMLAnchorElement);
   });
 
   it('renders DDDSIT details', () => {
     render(<ServiceItemDetails id="1" code="DDDSIT" details={details} serviceRequestDocs={serviceRequestDocs} />);
-    expect(screen.getByText('Original delivery address:')).toBeInTheDocument();
+    expect(screen.getByText('Original Delivery Address:')).toBeInTheDocument();
     expect(screen.getByText('Destination Original Tampa, FL 33621')).toBeInTheDocument();
 
-    expect(screen.getByText('Final delivery address:')).toBeInTheDocument();
+    expect(screen.getByText('Final Delivery Address:')).toBeInTheDocument();
     expect(screen.getByText('Destination Final MacDill, FL 33621')).toBeInTheDocument();
 
     expect(screen.getByText('Delivery miles out of SIT:')).toBeInTheDocument();
@@ -186,6 +189,9 @@ describe('ServiceItemDetails Domestic Destination SIT', () => {
 
     expect(screen.getByText('SIT departure date:')).toBeInTheDocument();
     expect(screen.getByText('16 Mar 2024')).toBeInTheDocument();
+    expect(screen.getByText('Download service item documentation:')).toBeInTheDocument();
+    const downloadLink = screen.getByText('receipt.pdf');
+    expect(downloadLink).toBeInstanceOf(HTMLAnchorElement);
   });
   it('renders DDDSIT details with - for the final delivery address is service item is in submitted state', () => {
     render(
@@ -197,20 +203,20 @@ describe('ServiceItemDetails Domestic Destination SIT', () => {
       />,
     );
 
-    expect(screen.getByText('Final delivery address:')).toBeInTheDocument();
+    expect(screen.getByText('Final Delivery Address:')).toBeInTheDocument();
     expect(screen.getByText('-')).toBeInTheDocument();
   });
   it('renders DDFSIT details', () => {
     render(<ServiceItemDetails id="1" code="DDFSIT" details={details} serviceRequestDocs={serviceRequestDocs} />);
-    expect(screen.getByText('Original delivery address:')).toBeInTheDocument();
+    expect(screen.getByText('Original Delivery Address:')).toBeInTheDocument();
     expect(screen.getByText('Destination Original Tampa, FL 33621')).toBeInTheDocument();
   });
   it('renders DDSFSC details', () => {
     render(<ServiceItemDetails id="1" code="DDSFSC" details={details} serviceRequestDocs={serviceRequestDocs} />);
-    expect(screen.getByText('Original delivery address:')).toBeInTheDocument();
+    expect(screen.getByText('Original Delivery Address:')).toBeInTheDocument();
     expect(screen.getByText('Destination Original Tampa, FL 33621')).toBeInTheDocument();
 
-    expect(screen.getByText('Final delivery address:')).toBeInTheDocument();
+    expect(screen.getByText('Final Delivery Address:')).toBeInTheDocument();
     expect(screen.getByText('Destination Final MacDill, FL 33621')).toBeInTheDocument();
 
     expect(screen.getByText('Delivery miles out of SIT:')).toBeInTheDocument();
@@ -226,7 +232,7 @@ describe('ServiceItemDetails Domestic Destination SIT', () => {
       />,
     );
 
-    expect(screen.getByText('Final delivery address:')).toBeInTheDocument();
+    expect(screen.getByText('Final Delivery Address:')).toBeInTheDocument();
     expect(screen.getByText('-')).toBeInTheDocument();
   });
 });
@@ -244,7 +250,7 @@ describe('ServiceItemDetails Domestic Origin SIT', () => {
       />,
     );
 
-    expect(screen.getByText('Original pickup address:')).toBeInTheDocument();
+    expect(screen.getByText('Original Pickup Address:')).toBeInTheDocument();
     expect(screen.getByText('Origin Original Tampa, FL 33621')).toBeInTheDocument();
 
     expect(screen.getByText("Add'l SIT Start Date:")).toBeInTheDocument();
@@ -269,10 +275,10 @@ describe('ServiceItemDetails Domestic Origin SIT', () => {
   it(`renders DOPSIT details`, () => {
     render(<ServiceItemDetails id="1" code="DOPSIT" details={details} serviceRequestDocs={serviceRequestDocs} />);
 
-    expect(screen.getByText('Original pickup address:')).toBeInTheDocument();
+    expect(screen.getByText('Original Pickup Address:')).toBeInTheDocument();
     expect(screen.getByText('Origin Original Tampa, FL 33621')).toBeInTheDocument();
 
-    expect(screen.getByText('Actual pickup address:')).toBeInTheDocument();
+    expect(screen.getByText('Actual Pickup Address:')).toBeInTheDocument();
     expect(screen.getByText('Origin Actual MacDill, FL 33621')).toBeInTheDocument();
 
     expect(screen.getByText('Delivery miles into SIT:')).toBeInTheDocument();
@@ -282,10 +288,10 @@ describe('ServiceItemDetails Domestic Origin SIT', () => {
   it(`renders DOSFSC details`, () => {
     render(<ServiceItemDetails id="1" code="DOSFSC" details={details} serviceRequestDocs={serviceRequestDocs} />);
 
-    expect(screen.getByText('Original pickup address:')).toBeInTheDocument();
+    expect(screen.getByText('Original Pickup Address:')).toBeInTheDocument();
     expect(screen.getByText('Origin Original Tampa, FL 33621')).toBeInTheDocument();
 
-    expect(screen.getByText('Actual pickup address:')).toBeInTheDocument();
+    expect(screen.getByText('Actual Pickup Address:')).toBeInTheDocument();
     expect(screen.getByText('Origin Actual MacDill, FL 33621')).toBeInTheDocument();
 
     expect(screen.getByText('Delivery miles into SIT:')).toBeInTheDocument();
@@ -297,7 +303,7 @@ describe('ServiceItemDetails for DOFSIT', () => {
   it('renders SIT entry date, ZIP, original pickup address, and reason', () => {
     render(<ServiceItemDetails id="1" code="DOFSIT" details={details} serviceRequestDocs={serviceRequestDocs} />);
 
-    expect(screen.getByText('Original pickup address:')).toBeInTheDocument();
+    expect(screen.getByText('Original Pickup Address:')).toBeInTheDocument();
     expect(screen.getByText('Origin Original Tampa, FL 33621')).toBeInTheDocument();
     expect(screen.getByText('SIT entry date:')).toBeInTheDocument();
     expect(screen.getByText('11 Mar 2024')).toBeInTheDocument();
@@ -332,6 +338,116 @@ describe('ServiceItemDetails Crating', () => {
     expect(screen.getByText('1"x2.5"x3"')).toBeInTheDocument();
     expect(screen.getByText('Crate size:')).toBeInTheDocument();
     expect(screen.getByText('2"x3.5"x4"')).toBeInTheDocument();
+    expect(screen.getByText('Download service item documentation:')).toBeInTheDocument();
+    const downloadLink = screen.getByText('receipt.pdf');
+    expect(downloadLink).toBeInstanceOf(HTMLAnchorElement);
+  });
+});
+
+describe('ServiceItemDetails International Crating & International Uncrating', () => {
+  const icrtDetails = {
+    description: 'some description',
+    reason: 'some reason',
+    itemDimensions: { length: 1000, width: 2500, height: 3000 },
+    crateDimensions: { length: 2000, width: 3500, height: 4000 },
+    market: 'OCONUS',
+    externalCrate: true,
+  };
+
+  const iucrtDetails = {
+    description: 'some description',
+    reason: 'some reason',
+    itemDimensions: { length: 1000, width: 2500, height: 3000 },
+    crateDimensions: { length: 2000, width: 3500, height: 4000 },
+    market: 'CONUS',
+    externalCrate: null,
+  };
+
+  it('renders description and dimensions - ICRT', () => {
+    render(<ServiceItemDetails id="1" code="ICRT" details={icrtDetails} serviceRequestDocs={serviceRequestDocs} />);
+
+    expect(screen.getByText('some description')).toBeInTheDocument();
+    expect(screen.getByText('Item size:')).toBeInTheDocument();
+    expect(screen.getByText('1"x2.5"x3"')).toBeInTheDocument();
+    expect(screen.getByText('Crate size:')).toBeInTheDocument();
+    expect(screen.getByText('2"x3.5"x4"')).toBeInTheDocument();
+    expect(screen.getByText('Market:')).toBeInTheDocument();
+    expect(screen.getByText('OCONUS')).toBeInTheDocument();
+    expect(screen.getByText('External crate:')).toBeInTheDocument();
+    expect(screen.getByText('Yes')).toBeInTheDocument();
+    expect(screen.getByText('Reason:')).toBeInTheDocument();
+    expect(screen.getByText('some reason')).toBeInTheDocument();
+    expect(screen.getByText('Download service item documentation:')).toBeInTheDocument();
+    const downloadLink = screen.getByText('receipt.pdf');
+    expect(downloadLink).toBeInstanceOf(HTMLAnchorElement);
+  });
+
+  it('renders description and dimensions - IUCRT', () => {
+    render(<ServiceItemDetails id="1" code="IUCRT" details={iucrtDetails} serviceRequestDocs={serviceRequestDocs} />);
+
+    expect(screen.getByText('some description')).toBeInTheDocument();
+    expect(screen.getByText('Item size:')).toBeInTheDocument();
+    expect(screen.getByText('1"x2.5"x3"')).toBeInTheDocument();
+    expect(screen.getByText('Crate size:')).toBeInTheDocument();
+    expect(screen.getByText('2"x3.5"x4"')).toBeInTheDocument();
+    expect(screen.getByText('Market:')).toBeInTheDocument();
+    expect(screen.getByText('CONUS')).toBeInTheDocument();
+    expect(screen.getByText('Reason:')).toBeInTheDocument();
+    expect(screen.getByText('some reason')).toBeInTheDocument();
+    expect(screen.getByText('Download service item documentation:')).toBeInTheDocument();
+    const downloadLink = screen.getByText('receipt.pdf');
+    expect(downloadLink).toBeInstanceOf(HTMLAnchorElement);
+  });
+
+  it('renders rejected description and dimensions - ICRT', () => {
+    render(
+      <ServiceItemDetails
+        id="1"
+        code="ICRT"
+        details={{ ...icrtDetails, rejectionReason: 'some rejection reason' }}
+        serviceRequestDocs={serviceRequestDocs}
+      />,
+    );
+
+    expect(screen.getByText('some description')).toBeInTheDocument();
+    expect(screen.getByText('Item size:')).toBeInTheDocument();
+    expect(screen.getByText('1"x2.5"x3"')).toBeInTheDocument();
+    expect(screen.getByText('Crate size:')).toBeInTheDocument();
+    expect(screen.getByText('2"x3.5"x4"')).toBeInTheDocument();
+    expect(screen.getByText('Market:')).toBeInTheDocument();
+    expect(screen.getByText('OCONUS')).toBeInTheDocument();
+    expect(screen.getByText('External crate:')).toBeInTheDocument();
+    expect(screen.getByText('Yes')).toBeInTheDocument();
+    expect(screen.getByText('Reason:')).toBeInTheDocument();
+    expect(screen.getByText('some reason')).toBeInTheDocument();
+    expect(screen.getByText('Rejection reason:')).toBeInTheDocument();
+    expect(screen.getByText('some rejection reason')).toBeInTheDocument();
+    expect(screen.getByText('Download service item documentation:')).toBeInTheDocument();
+    const downloadLink = screen.getByText('receipt.pdf');
+    expect(downloadLink).toBeInstanceOf(HTMLAnchorElement);
+  });
+
+  it('renders rejected description and dimensions - IUCRT', () => {
+    render(
+      <ServiceItemDetails
+        id="1"
+        code="IUCRT"
+        details={{ ...iucrtDetails, rejectionReason: 'some rejection reason' }}
+        serviceRequestDocs={serviceRequestDocs}
+      />,
+    );
+
+    expect(screen.getByText('some description')).toBeInTheDocument();
+    expect(screen.getByText('Item size:')).toBeInTheDocument();
+    expect(screen.getByText('1"x2.5"x3"')).toBeInTheDocument();
+    expect(screen.getByText('Crate size:')).toBeInTheDocument();
+    expect(screen.getByText('2"x3.5"x4"')).toBeInTheDocument();
+    expect(screen.getByText('Market:')).toBeInTheDocument();
+    expect(screen.getByText('CONUS')).toBeInTheDocument();
+    expect(screen.getByText('Reason:')).toBeInTheDocument();
+    expect(screen.getByText('some reason')).toBeInTheDocument();
+    expect(screen.getByText('Rejection reason:')).toBeInTheDocument();
+    expect(screen.getByText('some rejection reason')).toBeInTheDocument();
     expect(screen.getByText('Download service item documentation:')).toBeInTheDocument();
     const downloadLink = screen.getByText('receipt.pdf');
     expect(downloadLink).toBeInstanceOf(HTMLAnchorElement);

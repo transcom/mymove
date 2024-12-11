@@ -56,7 +56,7 @@ const Shipment = ({ shipment, moveId, onDelete, mtoServiceItems }) => {
 
   return (
     <dl className={descriptionListStyles.descriptionList}>
-      <h3>{`${shipmentTypeLabels[shipment.shipmentType]} shipment`}</h3>
+      <h3>{`${shipment.marketCode}${shipmentTypeLabels[shipment.shipmentType]} shipment`}</h3>
       <div className={classnames(descriptionListStyles.row, styles.shipmentHeader)}>
         {moveId && (
           <>
@@ -78,7 +78,7 @@ const Shipment = ({ shipment, moveId, onDelete, mtoServiceItems }) => {
                 relative="path"
                 className="usa-button usa-button-secondary"
               >
-                Update Shipment Destination Address
+                Update Shipment Delivery Address
               </Link>
             )}
             {shipment.shipmentType === SHIPMENT_OPTIONS.PPM &&
@@ -219,7 +219,7 @@ const Shipment = ({ shipment, moveId, onDelete, mtoServiceItems }) => {
         </dd>
       </div>
       <div className={descriptionListStyles.row}>
-        <dt>Destination Address:</dt>
+        <dt>Delivery Address:</dt>
         <dd>{formatPrimeAPIShipmentAddress(shipment.destinationAddress)}</dd>
         <dd>
           {shipment.destinationAddress?.id && moveId && (
@@ -230,7 +230,7 @@ const Shipment = ({ shipment, moveId, onDelete, mtoServiceItems }) => {
         </dd>
       </div>
       <div className={descriptionListStyles.row}>
-        <dt>Second Destination Address:</dt>
+        <dt>Second Delivery Address:</dt>
         <dd>{formatPrimeAPIShipmentAddress(shipment.secondaryDeliveryAddress)}</dd>
         <dd>
           {shipment.secondaryDeliveryAddress?.id && moveId && (
@@ -241,7 +241,7 @@ const Shipment = ({ shipment, moveId, onDelete, mtoServiceItems }) => {
         </dd>
       </div>
       <div className={descriptionListStyles.row}>
-        <dt>Third Destination Address:</dt>
+        <dt>Third Delivery Address:</dt>
         <dd>{formatPrimeAPIShipmentAddress(shipment.tertiaryDeliveryAddress)}</dd>
         <dd>
           {shipment.tertiaryDeliveryAddress?.id && moveId && (
@@ -335,15 +335,15 @@ const Shipment = ({ shipment, moveId, onDelete, mtoServiceItems }) => {
             <dd>{formatPrimeAPIShipmentAddress(shipment.ppmShipment.tertiaryPickupAddress)}</dd>
           </div>
           <div className={descriptionListStyles.row}>
-            <dt>Destination Address:</dt>
+            <dt>Delivery Address:</dt>
             <dd>{formatPrimeAPIShipmentAddress(shipment.ppmShipment.destinationAddress)}</dd>
           </div>
           <div className={descriptionListStyles.row}>
-            <dt>Second Destination Address:</dt>
+            <dt>Second Delivery Address:</dt>
             <dd>{formatPrimeAPIShipmentAddress(shipment.ppmShipment.secondaryDestinationAddress)}</dd>
           </div>
           <div className={descriptionListStyles.row}>
-            <dt>Third Destination Address:</dt>
+            <dt>Third Delivery Address:</dt>
             <dd>{formatPrimeAPIShipmentAddress(shipment.ppmShipment.tertiaryDestinationAddress)}</dd>
           </div>
           <div className={descriptionListStyles.row}>
@@ -441,6 +441,66 @@ const Shipment = ({ shipment, moveId, onDelete, mtoServiceItems }) => {
                 ? ''
                 : toDollarString(formatCents(shipment.ppmShipment.advanceAmountReceived))}
             </dd>
+          </div>
+        </>
+      )}
+      {shipment.boatShipment && (
+        <>
+          <h4>Boat-Shipment Specific Fields</h4>
+          <div className={descriptionListStyles.row}>
+            <dt>Shipment Type:</dt>
+            <dd>{shipment.boatShipment.type}</dd>
+          </div>
+          <div className={descriptionListStyles.row}>
+            <dt>Boat Year:</dt>
+            <dd>{shipment.boatShipment.year}</dd>
+          </div>
+          <div className={descriptionListStyles.row}>
+            <dt>Boat Make:</dt>
+            <dd>{shipment.boatShipment.make}</dd>
+          </div>
+          <div className={descriptionListStyles.row}>
+            <dt>Boat Model:</dt>
+            <dd>{shipment.boatShipment.model}</dd>
+          </div>
+          <div className={descriptionListStyles.row}>
+            <dt>Boat Dimensions (Inches):</dt>
+            <dd>Length: {shipment.boatShipment.lengthInInches}</dd>
+            <dd>Width: {shipment.boatShipment.widthInInches}</dd>
+            <dd>Height: {shipment.boatShipment.heightInInches}</dd>
+          </div>
+          <div className={descriptionListStyles.row}>
+            <dt>Has Trailer:</dt>
+            <dd>{shipment.boatShipment.hasTrailer ? 'Yes' : 'No'}</dd>
+          </div>
+          {shipment.boatShipment.hasTrailer && (
+            <div className={descriptionListStyles.row}>
+              <dt>Trailer is Roadworthy:</dt>
+              <dd>{shipment.boatShipment.isRoadworthy ? 'Yes' : 'No'}</dd>
+            </div>
+          )}
+        </>
+      )}
+      {shipment.mobileHomeShipment && (
+        <>
+          <h4>Mobile-Home-Shipment Specific Fields</h4>
+          <div className={descriptionListStyles.row}>
+            <dt>Mobile Home Year:</dt>
+            <dd>{shipment.mobileHomeShipment.year}</dd>
+          </div>
+          <div className={descriptionListStyles.row}>
+            <dt>Mobile Home Make:</dt>
+            <dd>{shipment.mobileHomeShipment.make}</dd>
+          </div>
+          <div className={descriptionListStyles.row}>
+            <dt>Mobile Home Model:</dt>
+            <dd>{shipment.mobileHomeShipment.model}</dd>
+          </div>
+          <div className={descriptionListStyles.row}>
+            <dt>Mobile Home Dimensions (Inches):</dt>
+            <dd>Length: {shipment.mobileHomeShipment.lengthInInches}</dd>
+            <dd>Width: {shipment.mobileHomeShipment.widthInInches}</dd>
+            <dd>Height: {shipment.mobileHomeShipment.heightInInches}</dd>
           </div>
         </>
       )}

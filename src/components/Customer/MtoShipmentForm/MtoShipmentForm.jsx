@@ -45,7 +45,7 @@ import { AddressShape, SimpleAddressShape } from 'types/address';
 import { OrdersShape } from 'types/customerShapes';
 import { ShipmentShape } from 'types/shipment';
 import { formatMtoShipmentForAPI, formatMtoShipmentForDisplay } from 'utils/formatMtoShipment';
-import { formatWeight } from 'utils/formatters';
+import { formatUBAllowanceWeight, formatWeight } from 'utils/formatters';
 import { validateDate } from 'utils/validation';
 import withRouter from 'utils/routing';
 import { ORDERS_TYPE } from 'constants/orders';
@@ -190,8 +190,9 @@ class MtoShipmentForm extends Component {
     const isNTSR = shipmentType === SHIPMENT_OPTIONS.NTSR;
     const isBoat = shipmentType === SHIPMENT_TYPES.BOAT_HAUL_AWAY || shipmentType === SHIPMENT_TYPES.BOAT_TOW_AWAY;
     const isMobileHome = shipmentType === SHIPMENT_TYPES.MOBILE_HOME;
+    const isUB = shipmentType === SHIPMENT_OPTIONS.UNACCOMPANIED_BAGGAGE;
     const shipmentNumber =
-      shipmentType === SHIPMENT_OPTIONS.HHG || isBoat || isMobileHome ? this.getShipmentNumber() : null;
+      shipmentType === SHIPMENT_OPTIONS.HHG || isBoat || isMobileHome || isUB ? this.getShipmentNumber() : null;
     const isRetireeSeparatee =
       orders.orders_type === ORDERS_TYPE.RETIREMENT || orders.orders_type === ORDERS_TYPE.SEPARATION;
 
@@ -311,14 +312,16 @@ class MtoShipmentForm extends Component {
 
                   <div className={styles.MTOShipmentForm}>
                     <ShipmentTag shipmentType={shipmentType} shipmentNumber={shipmentNumber} />
-
                     <h1>{shipmentForm.header[`${shipmentType}`]}</h1>
-
                     <Alert headingLevel="h4" type="info" noIcon>
-                      Remember: You can move {formatWeight(orders.authorizedWeight)} total. You’ll be billed for any
-                      excess weight you move.
+                      Remember: You can move
+                      {isUB
+                        ? ` up to ${formatUBAllowanceWeight(
+                            orders?.entitlement?.ub_allowance,
+                          )} for this UB shipment. The weight of your UB is part of your authorized weight allowance`
+                        : ` ${formatWeight(orders.authorizedWeight)} total`}
+                      . You’ll be billed for any excess weight you move.
                     </Alert>
-
                     <Form className={formStyles.form}>
                       {showPickupFields && (
                         <SectionWrapper className={formStyles.formSection}>
@@ -346,7 +349,7 @@ class MtoShipmentForm extends Component {
 
                           <AddressFields
                             name="pickup.address"
-                            legend="Pickup location"
+                            legend="Pickup Address"
                             labelHint="Required"
                             render={(fields) => (
                               <>
@@ -359,7 +362,7 @@ class MtoShipmentForm extends Component {
                                   id="useCurrentResidenceCheckbox"
                                 />
                                 {fields}
-                                <h4>Second pickup location</h4>
+                                <h4>Second Pickup Address</h4>
                                 <FormGroup>
                                   <p>
                                     Do you want movers to pick up any belongings from a second address? (Must be near
@@ -373,7 +376,7 @@ class MtoShipmentForm extends Component {
                                       label="Yes"
                                       name="hasSecondaryPickup"
                                       value="yes"
-                                      title="Yes, I have a second pickup location"
+                                      title="Yes, I have a second pickup address"
                                       checked={hasSecondaryPickup === 'yes'}
                                     />
                                     <Field
@@ -383,7 +386,7 @@ class MtoShipmentForm extends Component {
                                       label="No"
                                       name="hasSecondaryPickup"
                                       value="no"
-                                      title="No, I do not have a second pickup location"
+                                      title="No, I do not have a second pickup address"
                                       checked={hasSecondaryPickup !== 'yes'}
                                     />
                                   </div>
@@ -403,7 +406,7 @@ class MtoShipmentForm extends Component {
                                           label="Yes"
                                           name="hasTertiaryPickup"
                                           value="yes"
-                                          title="Yes, I have a third pickup location"
+                                          title="Yes, I have a third pickup address"
                                           checked={hasTertiaryPickup === 'yes'}
                                         />
                                         <Field
@@ -413,7 +416,7 @@ class MtoShipmentForm extends Component {
                                           label="No"
                                           name="hasTertiaryPickup"
                                           value="no"
-                                          title="No, I do not have a third pickup location"
+                                          title="No, I do not have a third pickup address"
                                           checked={hasTertiaryPickup !== 'yes'}
                                         />
                                       </div>
@@ -424,7 +427,7 @@ class MtoShipmentForm extends Component {
                                   hasTertiaryPickup === 'yes' &&
                                   hasSecondaryPickup === 'yes' && (
                                     <>
-                                      <h3>Third pickup location</h3>
+                                      <h3>Third Pickup Address</h3>
                                       <AddressFields name="tertiaryPickup.address" labelHint="Required" />
                                     </>
                                   )}
@@ -447,7 +450,7 @@ class MtoShipmentForm extends Component {
 
                       {showDeliveryFields && (
                         <SectionWrapper className={formStyles.formSection}>
-                          {showPickupFields && <h2>Destination info</h2>}
+                          {showPickupFields && <h2>Delivery Address info</h2>}
                           <Fieldset legend="Date">
                             <Hint>
                               You will finalize an actual delivery date later by talking with your Customer Care
@@ -467,7 +470,7 @@ class MtoShipmentForm extends Component {
                             />
                           </Fieldset>
 
-                          <Fieldset legend="Delivery location">
+                          <Fieldset legend="Delivery Address">
                             {!isNTSR && (
                               <FormGroup>
                                 <Label hint="Required" htmlFor="hasDeliveryAddress">
@@ -502,7 +505,7 @@ class MtoShipmentForm extends Component {
                                 render={(fields) => (
                                   <>
                                     {fields}
-                                    <h4>Second delivery location</h4>
+                                    <h4>Second Delivery Address</h4>
                                     <FormGroup>
                                       <p>
                                         Do you want the movers to deliver any belongings to a second address? (Must be
@@ -516,7 +519,7 @@ class MtoShipmentForm extends Component {
                                           label="Yes"
                                           name="hasSecondaryDelivery"
                                           value="yes"
-                                          title="Yes, I have a second destination location"
+                                          title="Yes, I have a second delivery address"
                                           checked={hasSecondaryDelivery === 'yes'}
                                         />
                                         <Field
@@ -526,7 +529,7 @@ class MtoShipmentForm extends Component {
                                           label="No"
                                           name="hasSecondaryDelivery"
                                           value="no"
-                                          title="No, I do not have a second destination location"
+                                          title="No, I do not have a second delivery address"
                                           checked={hasSecondaryDelivery === 'no'}
                                         />
                                       </div>
@@ -546,7 +549,7 @@ class MtoShipmentForm extends Component {
                                               label="Yes"
                                               name="hasTertiaryDelivery"
                                               value="yes"
-                                              title="Yes, I have a third delivery location"
+                                              title="Yes, I have a third delivery address"
                                               checked={hasTertiaryDelivery === 'yes'}
                                             />
                                             <Field
@@ -556,7 +559,7 @@ class MtoShipmentForm extends Component {
                                               label="No"
                                               name="hasTertiaryDelivery"
                                               value="no"
-                                              title="No, I do not have a third delivery location"
+                                              title="No, I do not have a third delivery address"
                                               checked={hasTertiaryDelivery === 'no'}
                                             />
                                           </div>
@@ -567,7 +570,7 @@ class MtoShipmentForm extends Component {
                                       hasTertiaryDelivery === 'yes' &&
                                       hasSecondaryDelivery === 'yes' && (
                                         <>
-                                          <h4>Third delivery location</h4>
+                                          <h4>Third Delivery Address</h4>
                                           <AddressFields name="tertiaryDelivery.address" labelHint="Required" />
                                         </>
                                       )}
@@ -628,7 +631,7 @@ class MtoShipmentForm extends Component {
                         </SectionWrapper>
                       )}
 
-                      {!isBoat && (
+                      {!isBoat && !isMobileHome && (
                         <SectionWrapper className={formStyles.formSection}>
                           <Fieldset legend={<div className={formStyles.legendContent}>Remarks</div>}>
                             <Label htmlFor="customerRemarks">
@@ -646,7 +649,7 @@ class MtoShipmentForm extends Component {
                                   </li>
                                 )}
                                 <li>Large, bulky, or fragile items</li>
-                                <li>Access info for your origin or destination address</li>
+                                <li>Access info for your pickup or delivery address</li>
                                 <li>You’re shipping weapons or alcohol</li>
                               </ul>
                             </Callout>

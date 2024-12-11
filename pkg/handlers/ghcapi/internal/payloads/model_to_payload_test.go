@@ -4,11 +4,14 @@ import (
 	"testing"
 	"time"
 
+	"github.com/go-openapi/strfmt"
 	"github.com/gofrs/uuid"
 
+	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/gen/ghcmessages"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/models/roles"
 	"github.com/transcom/mymove/pkg/storage/test"
 )
 
@@ -25,6 +28,112 @@ func TestMove(t *testing.T) {
 	}
 }
 
+func (suite *PayloadsSuite) TestPaymentRequestQueue() {
+	officeUser := factory.BuildOfficeUserWithPrivileges(suite.DB(), []factory.Customization{
+		{
+			Model: models.OfficeUser{
+				Email: "officeuser1@example.com",
+			},
+		},
+		{
+			Model: models.User{
+				Privileges: []models.Privilege{
+					{
+						PrivilegeType: models.PrivilegeTypeSupervisor,
+					},
+				},
+				Roles: []roles.Role{
+					{
+						RoleType: roles.RoleTypeTIO,
+					},
+				},
+			},
+		},
+	}, nil)
+	officeUserTIO := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTIO})
+
+	gbloc := "LKNQ"
+
+	approvedMove := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
+	approvedMove.ShipmentGBLOC = append(approvedMove.ShipmentGBLOC, models.MoveToGBLOC{GBLOC: &gbloc})
+
+	pr2 := factory.BuildPaymentRequest(suite.DB(), []factory.Customization{
+		{
+			Model:    approvedMove,
+			LinkOnly: true,
+		},
+		{
+			Model: models.TransportationOffice{
+				Gbloc: "LKNQ",
+			},
+			Type: &factory.TransportationOffices.OriginDutyLocation,
+		},
+		{
+			Model: models.DutyLocation{
+				Name: "KJKJKJKJKJK",
+			},
+			Type: &factory.DutyLocations.OriginDutyLocation,
+		},
+	}, nil)
+
+	paymentRequests := models.PaymentRequests{pr2}
+	transportationOffice := factory.BuildTransportationOffice(suite.DB(), []factory.Customization{
+		{
+			Model: models.TransportationOffice{
+				Name:             "PPSO",
+				ProvidesCloseout: true,
+			},
+		},
+	}, nil)
+	var officeUsers models.OfficeUsers
+	var officeUsersSafety models.OfficeUsers
+	officeUsers = append(officeUsers, officeUser)
+	var paymentRequestsQueue = QueuePaymentRequests(&paymentRequests, officeUsers, officeUser, officeUsersSafety)
+
+	suite.Run("Test Payment request is assignable due to not being assigend", func() {
+		paymentRequestCopy := *paymentRequestsQueue
+		suite.NotNil(paymentRequestsQueue)
+		suite.IsType(paymentRequestsQueue, &ghcmessages.QueuePaymentRequests{})
+		suite.Nil(paymentRequestCopy[0].AssignedTo)
+	})
+
+	suite.Run("Test Payment request has no counseling office", func() {
+		paymentRequestCopy := *paymentRequestsQueue
+		suite.NotNil(paymentRequestsQueue)
+		suite.IsType(paymentRequestsQueue, &ghcmessages.QueuePaymentRequests{})
+		suite.Nil(paymentRequestCopy[0].CounselingOffice)
+	})
+
+	paymentRequests[0].MoveTaskOrder.TIOAssignedUser = &officeUserTIO
+	paymentRequests[0].MoveTaskOrder.CounselingOffice = &transportationOffice
+
+	paymentRequestsQueue = QueuePaymentRequests(&paymentRequests, officeUsers, officeUser, officeUsersSafety)
+
+	suite.Run("Test PaymentRequest has both Counseling Office and TIO AssignedUser ", func() {
+		PaymentRequestsCopy := *paymentRequestsQueue
+
+		suite.NotNil(PaymentRequests)
+		suite.IsType(&ghcmessages.QueuePaymentRequests{}, paymentRequestsQueue)
+		suite.IsType(&ghcmessages.QueuePaymentRequest{}, PaymentRequestsCopy[0])
+		suite.Equal(PaymentRequestsCopy[0].AssignedTo.FirstName, officeUserTIO.FirstName)
+		suite.Equal(PaymentRequestsCopy[0].AssignedTo.LastName, officeUserTIO.LastName)
+		suite.Equal(*PaymentRequestsCopy[0].CounselingOffice, transportationOffice.Name)
+	})
+
+	suite.Run("Test PaymentRequest is assignable due to user Supervisor role", func() {
+		paymentRequests := QueuePaymentRequests(&paymentRequests, officeUsers, officeUser, officeUsersSafety)
+		paymentRequestCopy := *paymentRequests
+		suite.Equal(paymentRequestCopy[0].Assignable, true)
+	})
+
+	officeUserHQ := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeHQ})
+	suite.Run("Test PaymentRequest is not assignable due to user HQ role", func() {
+		paymentRequests := QueuePaymentRequests(&paymentRequests, officeUsers, officeUserHQ, officeUsersSafety)
+		paymentRequestCopy := *paymentRequests
+		suite.Equal(paymentRequestCopy[0].Assignable, false)
+	})
+}
+
 func (suite *PayloadsSuite) TestFetchPPMShipment() {
 
 	ppmShipmentID, _ := uuid.NewV4()
@@ -33,8 +142,11 @@ func (suite *PayloadsSuite) TestFetchPPMShipment() {
 	city := "Tampa"
 	state := "FL"
 	postalcode := "33621"
-	country := "US"
 	county := "HILLSBOROUGH"
+
+	country := models.Country{
+		Country: "US",
+	}
 
 	expectedAddress := models.Address{
 		StreetAddress1: streetAddress1,
@@ -47,10 +159,13 @@ func (suite *PayloadsSuite) TestFetchPPMShipment() {
 		County:         county,
 	}
 
+	isActualExpenseReimbursement := true
+
 	expectedPPMShipment := models.PPMShipment{
-		ID:                 ppmShipmentID,
-		PickupAddress:      &expectedAddress,
-		DestinationAddress: &expectedAddress,
+		ID:                           ppmShipmentID,
+		PickupAddress:                &expectedAddress,
+		DestinationAddress:           &expectedAddress,
+		IsActualExpenseReimbursement: &isActualExpenseReimbursement,
 	}
 
 	suite.Run("Success -", func() {
@@ -63,7 +178,7 @@ func (suite *PayloadsSuite) TestFetchPPMShipment() {
 		suite.Equal(&postalcode, returnedPPMShipment.PickupAddress.PostalCode)
 		suite.Equal(&city, returnedPPMShipment.PickupAddress.City)
 		suite.Equal(&state, returnedPPMShipment.PickupAddress.State)
-		suite.Equal(&country, returnedPPMShipment.PickupAddress.Country)
+		suite.Equal(&country.Country, returnedPPMShipment.PickupAddress.Country)
 		suite.Equal(&county, returnedPPMShipment.PickupAddress.County)
 
 		suite.Equal(&streetAddress1, returnedPPMShipment.DestinationAddress.StreetAddress1)
@@ -72,8 +187,9 @@ func (suite *PayloadsSuite) TestFetchPPMShipment() {
 		suite.Equal(&postalcode, returnedPPMShipment.DestinationAddress.PostalCode)
 		suite.Equal(&city, returnedPPMShipment.DestinationAddress.City)
 		suite.Equal(&state, returnedPPMShipment.DestinationAddress.State)
-		suite.Equal(&country, returnedPPMShipment.DestinationAddress.Country)
+		suite.Equal(&country.Country, returnedPPMShipment.DestinationAddress.Country)
 		suite.Equal(&county, returnedPPMShipment.DestinationAddress.County)
+		suite.True(*returnedPPMShipment.IsActualExpenseReimbursement)
 	})
 
 	suite.Run("Destination street address 1 returns empty string to convey OPTIONAL state ", func() {
@@ -103,7 +219,6 @@ func (suite *PayloadsSuite) TestFetchPPMShipment() {
 		suite.Equal(&postalcode, returnedPPMShipment.PickupAddress.PostalCode)
 		suite.Equal(&city, returnedPPMShipment.PickupAddress.City)
 		suite.Equal(&state, returnedPPMShipment.PickupAddress.State)
-		suite.Equal(&country, returnedPPMShipment.PickupAddress.Country)
 		suite.Equal(&county, returnedPPMShipment.PickupAddress.County)
 
 		suite.Equal(&expected_street_address_1, returnedPPMShipment.DestinationAddress.StreetAddress1)
@@ -112,7 +227,6 @@ func (suite *PayloadsSuite) TestFetchPPMShipment() {
 		suite.Equal(&postalcode, returnedPPMShipment.DestinationAddress.PostalCode)
 		suite.Equal(&city, returnedPPMShipment.DestinationAddress.City)
 		suite.Equal(&state, returnedPPMShipment.DestinationAddress.State)
-		suite.Equal(&country, returnedPPMShipment.DestinationAddress.Country)
 		suite.Equal(&county, returnedPPMShipment.DestinationAddress.County)
 	})
 }
@@ -152,7 +266,6 @@ func (suite *PayloadsSuite) TestShipmentAddressUpdate() {
 		City:           "Beverly Hills",
 		State:          "CA",
 		PostalCode:     "89503",
-		Country:        models.StringPointer("United States"),
 		County:         *models.StringPointer("WASHOE"),
 	}
 
@@ -161,7 +274,6 @@ func (suite *PayloadsSuite) TestShipmentAddressUpdate() {
 		City:           "Beverly Hills",
 		State:          "CA",
 		PostalCode:     "89502",
-		Country:        models.StringPointer("United States"),
 		County:         *models.StringPointer("WASHOE"),
 	}
 
@@ -170,7 +282,6 @@ func (suite *PayloadsSuite) TestShipmentAddressUpdate() {
 		City:           "Beverly Hills",
 		State:          "CA",
 		PostalCode:     "89501",
-		Country:        models.StringPointer("United States"),
 		County:         *models.StringPointer("WASHOE"),
 	}
 	officeRemarks := "some office remarks"
@@ -283,7 +394,6 @@ func (suite *PayloadsSuite) TestCustomer() {
 		City:           "Beverly Hills",
 		State:          "CA",
 		PostalCode:     "89503",
-		Country:        models.StringPointer("United States"),
 		County:         *models.StringPointer("WASHOE"),
 	}
 
@@ -292,7 +402,6 @@ func (suite *PayloadsSuite) TestCustomer() {
 		City:           "Beverly Hills",
 		State:          "CA",
 		PostalCode:     "89502",
-		Country:        models.StringPointer("United States"),
 		County:         *models.StringPointer("WASHOE"),
 	}
 
@@ -323,6 +432,61 @@ func (suite *PayloadsSuite) TestCustomer() {
 	})
 }
 
+func (suite *PayloadsSuite) TestEntitlement() {
+	entitlementID, _ := uuid.NewV4()
+	dependentsAuthorized := true
+	nonTemporaryStorage := true
+	privatelyOwnedVehicle := true
+	proGearWeight := 1000
+	proGearWeightSpouse := 500
+	storageInTransit := 90
+	totalDependents := 2
+	requiredMedicalEquipmentWeight := 200
+	accompaniedTour := true
+	dependentsUnderTwelve := 1
+	dependentsTwelveAndOver := 1
+	authorizedWeight := 8000
+	ubAllowance := 300
+
+	entitlement := &models.Entitlement{
+		ID:                             entitlementID,
+		DBAuthorizedWeight:             &authorizedWeight,
+		DependentsAuthorized:           &dependentsAuthorized,
+		NonTemporaryStorage:            &nonTemporaryStorage,
+		PrivatelyOwnedVehicle:          &privatelyOwnedVehicle,
+		ProGearWeight:                  proGearWeight,
+		ProGearWeightSpouse:            proGearWeightSpouse,
+		StorageInTransit:               &storageInTransit,
+		TotalDependents:                &totalDependents,
+		RequiredMedicalEquipmentWeight: requiredMedicalEquipmentWeight,
+		AccompaniedTour:                &accompaniedTour,
+		DependentsUnderTwelve:          &dependentsUnderTwelve,
+		DependentsTwelveAndOver:        &dependentsTwelveAndOver,
+		UpdatedAt:                      time.Now(),
+		UBAllowance:                    &ubAllowance,
+	}
+
+	returnedEntitlement := Entitlement(entitlement)
+	returnedUBAllowance := entitlement.UBAllowance
+
+	suite.IsType(&ghcmessages.Entitlements{}, returnedEntitlement)
+
+	suite.Equal(strfmt.UUID(entitlementID.String()), returnedEntitlement.ID)
+	suite.Equal(authorizedWeight, int(*returnedEntitlement.AuthorizedWeight))
+	suite.Equal(entitlement.DependentsAuthorized, returnedEntitlement.DependentsAuthorized)
+	suite.Equal(entitlement.NonTemporaryStorage, returnedEntitlement.NonTemporaryStorage)
+	suite.Equal(entitlement.PrivatelyOwnedVehicle, returnedEntitlement.PrivatelyOwnedVehicle)
+	suite.Equal(int(*returnedUBAllowance), int(*returnedEntitlement.UbAllowance))
+	suite.Equal(int64(proGearWeight), returnedEntitlement.ProGearWeight)
+	suite.Equal(int64(proGearWeightSpouse), returnedEntitlement.ProGearWeightSpouse)
+	suite.Equal(storageInTransit, int(*returnedEntitlement.StorageInTransit))
+	suite.Equal(totalDependents, int(returnedEntitlement.TotalDependents))
+	suite.Equal(int64(requiredMedicalEquipmentWeight), returnedEntitlement.RequiredMedicalEquipmentWeight)
+	suite.Equal(models.BoolPointer(accompaniedTour), returnedEntitlement.AccompaniedTour)
+	suite.Equal(dependentsUnderTwelve, int(*returnedEntitlement.DependentsUnderTwelve))
+	suite.Equal(dependentsTwelveAndOver, int(*returnedEntitlement.DependentsTwelveAndOver))
+}
+
 func (suite *PayloadsSuite) TestCreateCustomer() {
 	id, _ := uuid.NewV4()
 	id2, _ := uuid.NewV4()
@@ -347,7 +511,6 @@ func (suite *PayloadsSuite) TestCreateCustomer() {
 		City:           "Beverly Hills",
 		State:          "CA",
 		PostalCode:     "89503",
-		Country:        models.StringPointer("United States"),
 		County:         *models.StringPointer("WASHOE"),
 	}
 
@@ -356,7 +519,6 @@ func (suite *PayloadsSuite) TestCreateCustomer() {
 		City:           "Beverly Hills",
 		State:          "CA",
 		PostalCode:     "89502",
-		Country:        models.StringPointer("United States"),
 		County:         *models.StringPointer("WASHOE"),
 	}
 
@@ -387,5 +549,377 @@ func (suite *PayloadsSuite) TestCreateCustomer() {
 		returnedShipmentAddressUpdate := CreatedCustomer(&sm, &oktaUser, &backupContact)
 
 		suite.IsType(returnedShipmentAddressUpdate, &ghcmessages.CreatedCustomer{})
+	})
+}
+
+func (suite *PayloadsSuite) TestSearchMoves() {
+	appCtx := suite.AppContextForTest()
+
+	marines := models.AffiliationMARINES
+	moveUSMC := factory.BuildMove(suite.DB(), []factory.Customization{
+		{
+			Model: models.ServiceMember{
+				Affiliation: &marines,
+			},
+		},
+	}, nil)
+
+	moves := models.Moves{moveUSMC}
+	suite.Run("Success - Returns a ghcmessages Upload payload from Upload Struct", func() {
+		payload := SearchMoves(appCtx, moves)
+
+		suite.IsType(payload, &ghcmessages.SearchMoves{})
+		suite.NotNil(payload)
+	})
+}
+
+func (suite *PayloadsSuite) TestMarketCode() {
+	suite.Run("returns nil when marketCode is nil", func() {
+		var marketCode *models.MarketCode = nil
+		result := MarketCode(marketCode)
+		suite.Equal(result, "")
+	})
+
+	suite.Run("returns string when marketCode is not nil", func() {
+		marketCodeDomestic := models.MarketCodeDomestic
+		result := MarketCode(&marketCodeDomestic)
+		suite.NotNil(result, "Expected result to not be nil when marketCode is not nil")
+		suite.Equal("d", result, "Expected result to be 'd' for domestic market code")
+	})
+
+	suite.Run("returns string when marketCode is international", func() {
+		marketCodeInternational := models.MarketCodeInternational
+		result := MarketCode(&marketCodeInternational)
+		suite.NotNil(result, "Expected result to not be nil when marketCode is not nil")
+		suite.Equal("i", result, "Expected result to be 'i' for international market code")
+	})
+}
+
+func (suite *PayloadsSuite) TestReServiceItem() {
+	suite.Run("returns nil when reServiceItem is nil", func() {
+		var reServiceItem *models.ReServiceItem = nil
+		result := ReServiceItem(reServiceItem)
+		suite.Nil(result, "Expected result to be nil when reServiceItem is nil")
+	})
+
+	suite.Run("correctly maps ReServiceItem with all fields populated", func() {
+		isAutoApproved := true
+		marketCodeInternational := models.MarketCodeInternational
+		reServiceCode := models.ReServiceCodePOEFSC
+		poefscServiceName := "International POE Fuel Surcharge"
+		reService := models.ReService{
+			Code: reServiceCode,
+			Name: poefscServiceName,
+		}
+		ubShipmentType := models.MTOShipmentTypeUnaccompaniedBaggage
+		reServiceItem := &models.ReServiceItem{
+			IsAutoApproved: isAutoApproved,
+			MarketCode:     marketCodeInternational,
+			ReService:      reService,
+			ShipmentType:   ubShipmentType,
+		}
+		result := ReServiceItem(reServiceItem)
+
+		suite.NotNil(result, "Expected result to not be nil when reServiceItem has values")
+		suite.Equal(isAutoApproved, result.IsAutoApproved, "Expected IsAutoApproved to match")
+		suite.True(result.IsAutoApproved, "Expected IsAutoApproved to be true")
+		suite.Equal(string(marketCodeInternational), result.MarketCode, "Expected MarketCode to match")
+		suite.Equal(string(reServiceItem.ReService.Code), result.ServiceCode, "Expected ServiceCode to match")
+		suite.Equal(string(reServiceItem.ReService.Name), result.ServiceName, "Expected ServiceName to match")
+		suite.Equal(string(ubShipmentType), result.ShipmentType, "Expected ShipmentType to match")
+	})
+}
+
+func (suite *PayloadsSuite) TestReServiceItems() {
+	suite.Run("Correctly maps ReServiceItems with all fields populated", func() {
+		isAutoApprovedTrue := true
+		isAutoApprovedFalse := false
+		marketCodeInternational := models.MarketCodeInternational
+		marketCodeDomestic := models.MarketCodeDomestic
+		poefscReServiceCode := models.ReServiceCodePOEFSC
+		poedscReServiceCode := models.ReServiceCodePODFSC
+		poefscServiceName := "International POE Fuel Surcharge"
+		poedscServiceName := "International POD Fuel Surcharge"
+		poefscService := models.ReService{
+			Code: poefscReServiceCode,
+			Name: poefscServiceName,
+		}
+		podfscService := models.ReService{
+			Code: poedscReServiceCode,
+			Name: poedscServiceName,
+		}
+		hhgShipmentType := models.MTOShipmentTypeHHG
+		ubShipmentType := models.MTOShipmentTypeUnaccompaniedBaggage
+		poefscServiceItem := models.ReServiceItem{
+			IsAutoApproved: isAutoApprovedTrue,
+			MarketCode:     marketCodeInternational,
+			ReService:      poefscService,
+			ShipmentType:   ubShipmentType,
+		}
+		podfscServiceItem := models.ReServiceItem{
+			IsAutoApproved: isAutoApprovedFalse,
+			MarketCode:     marketCodeDomestic,
+			ReService:      podfscService,
+			ShipmentType:   hhgShipmentType,
+		}
+		reServiceItems := make(models.ReServiceItems, 2)
+		reServiceItems[0] = poefscServiceItem
+		reServiceItems[1] = podfscServiceItem
+		result := ReServiceItems(reServiceItems)
+
+		suite.NotNil(result, "Expected result to not be nil when reServiceItems has values")
+		suite.Equal(poefscServiceItem.IsAutoApproved, result[0].IsAutoApproved, "Expected IsAutoApproved to match")
+		suite.True(result[0].IsAutoApproved, "Expected IsAutoApproved to be true")
+		suite.Equal(string(marketCodeInternational), result[0].MarketCode, "Expected MarketCode to match")
+		suite.Equal(string(poefscServiceItem.ReService.Code), result[0].ServiceCode, "Expected ServiceCode to match")
+		suite.Equal(string(poefscServiceItem.ReService.Name), result[0].ServiceName, "Expected ServiceName to match")
+		suite.Equal(string(ubShipmentType), result[0].ShipmentType, "Expected ShipmentType to match")
+		suite.Equal(podfscServiceItem.IsAutoApproved, result[1].IsAutoApproved, "Expected IsAutoApproved to match")
+		suite.False(result[1].IsAutoApproved, "Expected IsAutoApproved to be false")
+		suite.Equal(string(marketCodeDomestic), result[1].MarketCode, "Expected MarketCode to match")
+		suite.Equal(string(podfscServiceItem.ReService.Code), result[1].ServiceCode, "Expected ServiceCode to match")
+		suite.Equal(string(podfscServiceItem.ReService.Name), result[1].ServiceName, "Expected ServiceName to match")
+		suite.Equal(string(hhgShipmentType), result[1].ShipmentType, "Expected ShipmentType to match")
+	})
+}
+
+func (suite *PayloadsSuite) TestGsrAppeal() {
+	officeUser := factory.BuildOfficeUser(suite.DB(), nil, nil)
+
+	suite.Run("returns nil when gsrAppeal is nil", func() {
+		var gsrAppeal *models.GsrAppeal = nil
+		result := GsrAppeal(gsrAppeal)
+		suite.Nil(result, "Expected result to be nil when gsrAppeal is nil")
+	})
+
+	suite.Run("correctly maps GsrAppeal with all fields populated", func() {
+		gsrAppealID := uuid.Must(uuid.NewV4())
+		reportViolationID := uuid.Must(uuid.NewV4())
+		evaluationReportID := uuid.Must(uuid.NewV4())
+		appealStatus := models.AppealStatusSustained
+		isSeriousIncident := true
+		remarks := "Sample remarks"
+		createdAt := time.Now()
+
+		gsrAppeal := &models.GsrAppeal{
+			ID:                      gsrAppealID,
+			ReportViolationID:       &reportViolationID,
+			EvaluationReportID:      evaluationReportID,
+			OfficeUser:              &officeUser,
+			OfficeUserID:            officeUser.ID,
+			IsSeriousIncidentAppeal: &isSeriousIncident,
+			AppealStatus:            appealStatus,
+			Remarks:                 remarks,
+			CreatedAt:               createdAt,
+		}
+
+		result := GsrAppeal(gsrAppeal)
+
+		suite.NotNil(result, "Expected result to not be nil when gsrAppeal has values")
+		suite.Equal(handlers.FmtUUID(gsrAppealID), &result.ID, "Expected ID to match")
+		suite.Equal(handlers.FmtUUID(reportViolationID), &result.ViolationID, "Expected ViolationID to match")
+		suite.Equal(handlers.FmtUUID(evaluationReportID), &result.ReportID, "Expected ReportID to match")
+		suite.Equal(handlers.FmtUUID(officeUser.ID), &result.OfficeUserID, "Expected OfficeUserID to match")
+		suite.Equal(ghcmessages.GSRAppealStatusType(appealStatus), result.AppealStatus, "Expected AppealStatus to match")
+		suite.Equal(remarks, result.Remarks, "Expected Remarks to match")
+		suite.Equal(strfmt.DateTime(createdAt), result.CreatedAt, "Expected CreatedAt to match")
+		suite.True(result.IsSeriousIncident, "Expected IsSeriousIncident to be true")
+	})
+
+	suite.Run("handles nil ReportViolationID without panic", func() {
+		gsrAppealID := uuid.Must(uuid.NewV4())
+		evaluationReportID := uuid.Must(uuid.NewV4())
+		isSeriousIncident := false
+		appealStatus := models.AppealStatusRejected
+		remarks := "Sample remarks"
+		createdAt := time.Now()
+
+		gsrAppeal := &models.GsrAppeal{
+			ID:                      gsrAppealID,
+			ReportViolationID:       nil,
+			EvaluationReportID:      evaluationReportID,
+			OfficeUser:              &officeUser,
+			OfficeUserID:            officeUser.ID,
+			IsSeriousIncidentAppeal: &isSeriousIncident,
+			AppealStatus:            appealStatus,
+			Remarks:                 remarks,
+			CreatedAt:               createdAt,
+		}
+
+		result := GsrAppeal(gsrAppeal)
+
+		suite.NotNil(result, "Expected result to not be nil when gsrAppeal has values")
+		suite.Equal(handlers.FmtUUID(gsrAppealID), &result.ID, "Expected ID to match")
+		suite.Equal(strfmt.UUID(""), result.ViolationID, "Expected ViolationID to be nil when ReportViolationID is nil")
+		suite.Equal(handlers.FmtUUID(evaluationReportID), &result.ReportID, "Expected ReportID to match")
+		suite.Equal(handlers.FmtUUID(officeUser.ID), &result.OfficeUserID, "Expected OfficeUserID to match")
+		suite.Equal(ghcmessages.GSRAppealStatusType(appealStatus), result.AppealStatus, "Expected AppealStatus to match")
+		suite.Equal(remarks, result.Remarks, "Expected Remarks to match")
+		suite.Equal(strfmt.DateTime(createdAt), result.CreatedAt, "Expected CreatedAt to match")
+		suite.False(result.IsSeriousIncident, "Expected IsSeriousIncident to be false")
+	})
+}
+
+func (suite *PayloadsSuite) TestMTOServiceItemModel() {
+	suite.Run("returns nil when MTOServiceItem is nil", func() {
+		var serviceItem *models.MTOServiceItem = nil
+		result := MTOServiceItemModel(serviceItem, suite.storer)
+		suite.Nil(result, "Expected result to be nil when MTOServiceItem is nil")
+	})
+
+	suite.Run("successfully converts MTOServiceItem to payload", func() {
+		serviceID := uuid.Must(uuid.NewV4())
+		moveID := uuid.Must(uuid.NewV4())
+		shipID := uuid.Must(uuid.NewV4())
+		reServiceID := uuid.Must(uuid.NewV4())
+		now := time.Now()
+
+		mockReService := models.ReService{
+			ID:   reServiceID,
+			Code: models.ReServiceCodeICRT,
+			Name: "Some ReService",
+		}
+
+		mockPickupAddress := models.Address{
+			ID:        uuid.Must(uuid.NewV4()),
+			IsOconus:  models.BoolPointer(false),
+			CreatedAt: now,
+			UpdatedAt: now,
+		}
+
+		mockMTOShipment := models.MTOShipment{
+			ID:            shipID,
+			PickupAddress: &mockPickupAddress,
+		}
+
+		mockServiceItem := models.MTOServiceItem{
+			ID:              serviceID,
+			MoveTaskOrderID: moveID,
+			MTOShipmentID:   &shipID,
+			MTOShipment:     mockMTOShipment,
+			ReServiceID:     reServiceID,
+			ReService:       mockReService,
+			CreatedAt:       now,
+			UpdatedAt:       now,
+		}
+
+		result := MTOServiceItemModel(&mockServiceItem, suite.storer)
+		suite.NotNil(result, "Expected result to not be nil when MTOServiceItem is valid")
+		suite.Equal(handlers.FmtUUID(serviceID), result.ID, "Expected ID to match")
+		suite.Equal(handlers.FmtUUID(moveID), result.MoveTaskOrderID, "Expected MoveTaskOrderID to match")
+		suite.Equal(handlers.FmtUUIDPtr(&shipID), result.MtoShipmentID, "Expected MtoShipmentID to match")
+		suite.Equal(handlers.FmtString(models.MarketConus.FullString()), result.Market, "Expected Market to be CONUS")
+	})
+
+	suite.Run("sets Market to OCONUS when PickupAddress.IsOconus is true for ICRT", func() {
+		reServiceID := uuid.Must(uuid.NewV4())
+
+		mockReService := models.ReService{
+			ID:   reServiceID,
+			Code: models.ReServiceCodeICRT,
+			Name: "Test ReService",
+		}
+
+		mockPickupAddress := models.Address{
+			ID:       uuid.Must(uuid.NewV4()),
+			IsOconus: models.BoolPointer(true),
+		}
+
+		mockMTOShipment := models.MTOShipment{
+			PickupAddress: &mockPickupAddress,
+		}
+
+		mockServiceItem := models.MTOServiceItem{
+			ReService:   mockReService,
+			MTOShipment: mockMTOShipment,
+		}
+
+		result := MTOServiceItemModel(&mockServiceItem, suite.storer)
+		suite.NotNil(result, "Expected result to not be nil for valid MTOServiceItem")
+		suite.Equal(handlers.FmtString(models.MarketOconus.FullString()), result.Market, "Expected Market to be OCONUS")
+	})
+
+	suite.Run("sets Market to CONUS when PickupAddress.IsOconus is false for ICRT", func() {
+		reServiceID := uuid.Must(uuid.NewV4())
+
+		mockReService := models.ReService{
+			ID:   reServiceID,
+			Code: models.ReServiceCodeICRT,
+			Name: "Test ReService",
+		}
+
+		mockPickupAddress := models.Address{
+			ID:       uuid.Must(uuid.NewV4()),
+			IsOconus: models.BoolPointer(false),
+		}
+
+		mockMTOShipment := models.MTOShipment{
+			PickupAddress: &mockPickupAddress,
+		}
+
+		mockServiceItem := models.MTOServiceItem{
+			ReService:   mockReService,
+			MTOShipment: mockMTOShipment,
+		}
+
+		result := MTOServiceItemModel(&mockServiceItem, suite.storer)
+		suite.NotNil(result, "Expected result to not be nil for valid MTOServiceItem")
+		suite.Equal(handlers.FmtString(models.MarketConus.FullString()), result.Market, "Expected Market to be CONUS")
+	})
+
+	suite.Run("sets Market to CONUS when DestinationAddress.IsOconus is false for IUCRT", func() {
+		reServiceID := uuid.Must(uuid.NewV4())
+
+		mockReService := models.ReService{
+			ID:   reServiceID,
+			Code: models.ReServiceCodeIUCRT,
+			Name: "Test ReService",
+		}
+
+		mockDestinationAddress := models.Address{
+			ID:       uuid.Must(uuid.NewV4()),
+			IsOconus: models.BoolPointer(false),
+		}
+
+		mockMTOShipment := models.MTOShipment{
+			DestinationAddress: &mockDestinationAddress,
+		}
+
+		mockServiceItem := models.MTOServiceItem{
+			ReService:   mockReService,
+			MTOShipment: mockMTOShipment,
+		}
+
+		result := MTOServiceItemModel(&mockServiceItem, suite.storer)
+		suite.NotNil(result, "Expected result to not be nil for valid MTOServiceItem")
+		suite.Equal(handlers.FmtString(models.MarketConus.FullString()), result.Market, "Expected Market to be CONUS")
+	})
+
+	suite.Run("sets Market to OCONUS when DestinationAddress.IsOconus is true for IUCRT", func() {
+		reServiceID := uuid.Must(uuid.NewV4())
+
+		mockReService := models.ReService{
+			ID:   reServiceID,
+			Code: models.ReServiceCodeIUCRT,
+			Name: "Test ReService",
+		}
+
+		mockDestinationAddress := models.Address{
+			ID:       uuid.Must(uuid.NewV4()),
+			IsOconus: models.BoolPointer(true),
+		}
+
+		mockMTOShipment := models.MTOShipment{
+			DestinationAddress: &mockDestinationAddress,
+		}
+
+		mockServiceItem := models.MTOServiceItem{
+			ReService:   mockReService,
+			MTOShipment: mockMTOShipment,
+		}
+
+		result := MTOServiceItemModel(&mockServiceItem, suite.storer)
+		suite.NotNil(result, "Expected result to not be nil for valid MTOServiceItem")
+		suite.Equal(handlers.FmtString(models.MarketOconus.FullString()), result.Market, "Expected Market to be OCONUS")
 	})
 }

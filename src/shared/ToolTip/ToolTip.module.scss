@@ -7,40 +7,142 @@
   .tooltipTextLeft,
   .tooltipTextBottom {
     position: absolute;
-    background-color: rgba($color: #000000, $alpha: 0.8);
-    color: white;
-    padding: 10px;
+    background-color: white;
+    border: 1px solid rgba(0, 0, 0, 0.2);
+    color: #333;
+    padding: 0;
     border-radius: 4px;
-    width: 200px;
-    text-align: center;
-    white-space: pre-wrap;
-    overflow: auto;
-    height: 80px;
+    width: 220px;
     z-index: 1;
-    text-align: center;
+    box-shadow: 0px 5px 10px rgba(0, 0, 0, 0.1);
+    text-align: left;
+    display: flex;
+    flex-direction: column;
+
+    &::before,
+    &::after {
+      content: '';
+      position: absolute;
+      width: 0;
+      height: 0;
+      border-style: solid;
+    }
+
+    /* The shadow or outline for the arrow */
+    &::before {
+      z-index: -1;
+      border-color: rgba(0, 0, 0, 0.1);
+    }
+
+    /* The visible arrow */
+    &::after {
+      z-index: 1;
+      border-color: white;
+    }
 
     &.tooltipTextTop {
-      top: calc(-100% - 65px);
+      bottom: calc(100% + 10px);
+      left: 50%;
       transform: translateX(-50%);
+
+      &::before {
+        top: 100%;
+        left: 50%;
+        transform: translateX(-50%);
+        border-width: 12px 12px 0 12px;
+        border-color: rgba(0, 0, 0, 0.1) transparent transparent transparent;
+      }
+
+      &::after {
+        top: 100%;
+        left: 50%;
+        transform: translateX(-50%);
+        border-width: 10px 10px 0 10px;
+        border-color: white transparent transparent transparent;
+      }
     }
 
     &.tooltipTextRight {
       top: 50%;
       left: calc(100% + 10px);
       transform: translateY(-50%);
+
+      &::before {
+        top: 50%;
+        left: -12px;
+        transform: translateY(-50%);
+        border-width: 12px 12px 12px 0;
+        border-color: transparent rgba(0, 0, 0, 0.1) transparent transparent;
+      }
+
+      &::after {
+        top: 50%;
+        left: -10px;
+        transform: translateY(-50%);
+        border-width: 10px 10px 10px 0;
+        border-color: transparent white transparent transparent;
+      }
     }
 
     &.tooltipTextLeft {
       top: 50%;
       right: calc(100% + 10px);
       transform: translateY(-50%);
+
+      &::before {
+        top: 50%;
+        right: -12px;
+        transform: translateY(-50%);
+        border-width: 12px 0 12px 12px;
+        border-color: transparent transparent transparent rgba(0, 0, 0, 0.1);
+      }
+
+      &::after {
+        top: 50%;
+        right: -10px;
+        transform: translateY(-50%);
+        border-width: 10px 0 10px 10px;
+        border-color: transparent transparent transparent white;
+      }
     }
 
     &.tooltipTextBottom {
-      top: calc(100% + 6px);
+      top: calc(100% + 10px);
       left: 50%;
       transform: translateX(-50%);
+
+      &::before {
+        bottom: 100%;
+        left: 50%;
+        transform: translateX(-50%);
+        border-width: 0 12px 12px 12px;
+        border-color: transparent transparent rgba(0, 0, 0, 0.1) transparent;
+      }
+
+      &::after {
+        bottom: 100%;
+        left: 50%;
+        transform: translateX(-50%);
+        border-width: 0 10px 10px 10px;
+        border-color: transparent transparent white transparent;
+      }
     }
+  }
+
+  .popoverHeader {
+    background-color: #f7f7f7;
+    padding: 8px 10px;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+    font-weight: bold;
+    font-size: 14px;
+    border-top-left-radius: 4px;
+    border-top-right-radius: 4px;
+  }
+
+  .popoverBody {
+    padding: 10px;
+    font-size: 14px;
+    white-space: pre-wrap;
   }
 
   .toolTipTextAreaLarge {

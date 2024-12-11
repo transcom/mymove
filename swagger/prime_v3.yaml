@@ -196,6 +196,40 @@ paths:
                     estimatedWeight: 4999
                     hasProGear: false
                     sitExpected: false
+              boat:
+                summary: Boat Shipment
+                value:
+                  boatShipment:
+                    hasTrailer: true
+                    heightFeet: 2
+                    heightInches: 2
+                    isRoadworthy: false
+                    lengthFeet: 2
+                    lengthInches: 0
+                    make: make
+                    model: model
+                    widthFeet: 2
+                    widthInches: 2
+                    year: 1999
+                  counselorRemarks: test
+                  moveTaskOrderID: d4d95b22-2d9d-428b-9a11-284455aa87ba
+                  shipmentType: HAUL_AWAY
+              mobileHome:
+                summary: Mobile Home Shipment
+                value:
+                  mobileHomeShipment:
+                    heightFeet: 2
+                    heightInches: 2
+                    lengthFeet: 2
+                    lengthInches: 0
+                    make: make
+                    model: model
+                    widthFeet: 2
+                    widthInches: 2
+                    year: 1999
+                  counselorRemarks: test
+                  moveTaskOrderID: d4d95b22-2d9d-428b-9a11-284455aa87ba
+                  shipmentType: MOBILE_HOME
       responses:
         '200':
           description: Successfully created a MTO shipment.
@@ -475,6 +509,63 @@ definitions:
           - item
           - crate
           - description
+  MTOServiceItemInternationalCrating:
+    description: >-
+      Describes a international crating/uncrating service item subtype of a
+      MTOServiceItem.
+    allOf:
+      - $ref: '#/definitions/MTOServiceItem'
+      - type: object
+        properties:
+          reServiceCode:
+            type: string
+            description: >-
+              A unique code for the service item. Indicates if the service is
+              for crating (ICRT) or uncrating (IUCRT).
+            enum:
+              - ICRT
+              - IUCRT
+          item:
+            description: The dimensions of the item being crated.
+            allOf:
+              - $ref: '#/definitions/MTOServiceItemDimension'
+          crate:
+            description: The dimensions for the crate the item will be shipped in.
+            allOf:
+              - $ref: '#/definitions/MTOServiceItemDimension'
+          description:
+            type: string
+            example: Decorated horse head to be crated.
+            description: A description of the item being crated.
+          reason:
+            type: string
+            example: Storage items need to be picked up
+            description: >
+              The contractor's explanation for why an item needed to be crated
+              or uncrated. Used by the TOO while deciding to approve or reject
+              the service item.
+            x-nullable: true
+            x-omitempty: false
+          standaloneCrate:
+            type: boolean
+            x-nullable: true
+          externalCrate:
+            type: boolean
+            x-nullable: true
+          market:
+            type: string
+            enum:
+              - CONUS
+              - OCONUS
+            example: CONUS
+            description: >-
+              To identify whether the service was provided within (CONUS) or
+              (OCONUS)
+        required:
+          - reServiceCode
+          - item
+          - crate
+          - description
   MTOServiceItemOriginSIT:
     description: Describes a domestic origin SIT service item. Subtype of a MTOServiceItem.
     allOf:
@@ -620,11 +711,27 @@ definitions:
         items:
           $ref: '#/definitions/MTOServiceItem'
       pickupAddress:
-        description: The address where the movers should pick up this shipment.
+        description: The primary address where the movers should pick up this shipment.
+        allOf:
+          - $ref: '#/definitions/Address'
+      secondaryPickupAddress:
+        description: The second address where the movers should pick up this shipment.
+        allOf:
+          - $ref: '#/definitions/Address'
+      tertiaryPickupAddress:
+        description: The third address where the movers should pick up this shipment.
         allOf:
           - $ref: '#/definitions/Address'
       destinationAddress:
-        description: Where the movers should deliver this shipment.
+        description: primary location the movers should deliver this shipment.
+        allOf:
+          - $ref: '#/definitions/Address'
+      secondaryDestinationAddress:
+        description: second location where the movers should deliver this shipment.
+        allOf:
+          - $ref: '#/definitions/Address'
+      tertiaryDestinationAddress:
+        description: third location where the movers should deliver this shipment.
         allOf:
           - $ref: '#/definitions/Address'
       shipmentType:
@@ -658,6 +765,10 @@ definitions:
         x-nullable: true
       ppmShipment:
         $ref: '#/definitions/CreatePPMShipment'
+      boatShipment:
+        $ref: '#/definitions/CreateBoatShipment'
+      mobileHomeShipment:
+        $ref: '#/definitions/CreateMobileHomeShipment'
     required:
       - moveTaskOrderID
       - shipmentType
@@ -678,7 +789,13 @@ definitions:
           - $ref: '#/definitions/Address'
       secondaryPickupAddress:
         description: >-
-          An optional secondary pickup location address near the origin where
+          An optional secondary Pickup Address address near the origin where
+          additional goods exist.
+        allOf:
+          - $ref: '#/definitions/Address'
+      tertiaryPickupAddress:
+        description: >-
+          An optional tertiary Pickup Address address near the origin where
           additional goods exist.
         allOf:
           - $ref: '#/definitions/Address'
@@ -691,6 +808,12 @@ definitions:
       secondaryDestinationAddress:
         description: >-
           An optional secondary address near the destination where goods will be
+          dropped off.
+        allOf:
+          - $ref: '#/definitions/Address'
+      tertiaryDestinationAddress:
+        description: >-
+          An optional tertiary address near the destination where goods will be
           dropped off.
         allOf:
           - $ref: '#/definitions/Address'
@@ -745,6 +868,14 @@ definitions:
           in pounds.
         type: integer
         x-nullable: true
+      isActualExpenseReimbursement:
+        description: >-
+          Used for PPM shipments only. Denotes if this shipment uses the Actual
+          Expense Reimbursement method.
+        type: boolean
+        example: false
+        x-omitempty: false
+        x-nullable: true
     required:
       - expectedDepartureDate
       - pickupAddress
@@ -752,6 +883,76 @@ definitions:
       - sitExpected
       - estimatedWeight
       - hasProGear
+  CreateBoatShipment:
+    description: >-
+      Creation object containing the `Boat` shipmentType specific data, not used
+      for other shipment types.
+    type: object
+    properties:
+      year:
+        type: integer
+        description: Year of the Boat
+      make:
+        type: string
+        description: Make of the Boat
+      model:
+        type: string
+        description: Model of the Boat
+      lengthInInches:
+        type: integer
+        description: Length of the Boat in inches
+      widthInInches:
+        type: integer
+        description: Width of the Boat in inches
+      heightInInches:
+        type: integer
+        description: Height of the Boat in inches
+      hasTrailer:
+        type: boolean
+        description: Does the boat have a trailer
+      isRoadworthy:
+        type: boolean
+        description: Is the trailer roadworthy
+        x-nullable: true
+    required:
+      - year
+      - make
+      - model
+      - lengthInInches
+      - widthInInches
+      - heightInInches
+      - hasTrailer
+  CreateMobileHomeShipment:
+    description: >-
+      Creation object containing the `MobileHome` shipmentType specific data,
+      not used for other shipment types.
+    type: object
+    properties:
+      year:
+        type: integer
+        description: Year of the Mobile Home
+      make:
+        type: string
+        description: Make of the Mobile Home
+      model:
+        type: string
+        description: Model of the Mobile Home
+      lengthInInches:
+        type: integer
+        description: Length of the Mobile Home in inches
+      widthInInches:
+        type: integer
+        description: Width of the Mobile Home in inches
+      heightInInches:
+        type: integer
+        description: Height of the Mobile Home in inches
+    required:
+      - year
+      - make
+      - model
+      - lengthInInches
+      - widthInInches
+      - heightInInches
   MTOShipment:
     type: object
     properties:
@@ -860,7 +1061,7 @@ definitions:
         x-nullable: true
       secondaryPickupAddress:
         description: >
-          An optional secondary pickup location near the origin where additional
+          An optional secondary Pickup Address near the origin where additional
           goods exist.
         allOf:
           - $ref: '#/definitions/Address'
@@ -870,7 +1071,7 @@ definitions:
         x-nullable: true
       tertiaryPickupAddress:
         description: >
-          An optional third pickup location near the origin where additional
+          An optional third Pickup Address near the origin where additional
           goods exist.
         allOf:
           - $ref: '#/definitions/Address'
@@ -953,6 +1154,14 @@ definitions:
           The estimated weight of the pro-gear being moved belonging to a
           spouse.
         type: integer
+        x-nullable: true
+      isActualExpenseReimbursement:
+        description: >-
+          Used for PPM shipments only. Denotes if this shipment uses the Actual
+          Expense Reimbursement method.
+        type: boolean
+        example: false
+        x-omitempty: false
         x-nullable: true
   UpdateMTOShipment:
     properties:
@@ -1039,6 +1248,18 @@ definitions:
           the customer during onboarding when they enter shipment details.
         allOf:
           - $ref: '#/definitions/Address'
+      secondaryPickupAddress:
+        description: >-
+          A second pickup address for this shipment, if the customer entered
+          one. An optional field.
+        allOf:
+          - $ref: '#/definitions/Address'
+      tertiaryPickupAddress:
+        description: >-
+          A third pickup address for this shipment, if the customer entered one.
+          An optional field.
+        allOf:
+          - $ref: '#/definitions/Address'
       destinationAddress:
         description: >
           Where the movers should deliver this shipment. Often provided by the
@@ -1053,24 +1274,10 @@ definitions:
           final destination due to the shipment being diverted or placed in SIT.
         allOf:
           - $ref: '#/definitions/Address'
-      destinationType:
-        $ref: '#/definitions/DestinationType'
-      secondaryPickupAddress:
-        description: >-
-          A second pickup address for this shipment, if the customer entered
-          one. An optional field.
-        allOf:
-          - $ref: '#/definitions/Address'
       secondaryDeliveryAddress:
         description: >-
           A second delivery address for this shipment, if the customer entered
           one. An optional field.
-        allOf:
-          - $ref: '#/definitions/Address'
-      tertiaryPickupAddress:
-        description: >-
-          A third pickup address for this shipment, if the customer entered one.
-          An optional field.
         allOf:
           - $ref: '#/definitions/Address'
       tertiaryDeliveryAddress:
@@ -1079,6 +1286,8 @@ definitions:
           one. An optional field.
         allOf:
           - $ref: '#/definitions/Address'
+      destinationType:
+        $ref: '#/definitions/DestinationType'
       storageFacility:
         allOf:
           - x-nullable: true
@@ -1138,7 +1347,7 @@ definitions:
   UpdateShipmentDestinationAddress:
     description: >-
       UpdateShipmentDestinationAddress contains the fields required for the
-      prime to request an update for the destination address on an MTO Shipment.
+      prime to request an update for the delivery address on an MTO Shipment.
     type: object
     properties:
       newAddress:
@@ -1423,8 +1632,10 @@ definitions:
         type: string
         title: Country
         x-nullable: true
-        example: USA
-        default: USA
+        example: US
+        default: US
+        pattern: ^[A-Z]{2}$
+        description: Two-letter country code
       county:
         type: string
         title: County
@@ -1489,6 +1700,13 @@ definitions:
         type: integer
         x-formatting: weight
         x-nullable: true
+      ubAllowance:
+        type: integer
+        example: 3
+        x-nullable: true
+        description: >-
+          The amount of weight in pounds that the move is entitled for shipment
+          types of Unaccompanied Baggage.
       dependentsAuthorized:
         example: true
         type: boolean
@@ -1562,6 +1780,7 @@ definitions:
       - WOUNDED_WARRIOR
       - BLUEBARK
       - SAFETY
+      - TEMPORARY_DUTY
     x-display-value:
       PERMANENT_CHANGE_OF_STATION: Permanent Change Of Station
       LOCAL_MOVE: Local Move
@@ -1570,6 +1789,7 @@ definitions:
       WOUNDED_WARRIOR: Wounded Warrior
       BLUEBARK: BLUEBARK
       SAFETY: Safety
+      TEMPORARY_DUTY: Temporary Duty (TDY)
   Order:
     type: object
     required:
@@ -1921,6 +2141,7 @@ definitions:
         * DDFSIT, DDASIT - MTOServiceItemDestSIT
         * DOSHUT, DDSHUT - MTOServiceItemShuttle
         * DCRT, DUCRT - MTOServiceItemDomesticCrating
+        * ICRT, IUCRT - MTOServiceItemInternationalCrating
 
       The documentation will then update with the supported fields.
     type: string
@@ -1930,6 +2151,7 @@ definitions:
       - MTOServiceItemDestSIT
       - MTOServiceItemShuttle
       - MTOServiceItemDomesticCrating
+      - MTOServiceItemInternationalCrating
   ServiceRequestDocument:
     properties:
       uploads:
@@ -2231,10 +2453,9 @@ definitions:
       - HHG
       - HHG_INTO_NTS_DOMESTIC
       - HHG_OUTOF_NTS_DOMESTIC
-      - INTERNATIONAL_HHG
-      - INTERNATIONAL_UB
       - MOBILE_HOME
       - PPM
+      - UNACCOMPANIED_BAGGAGE
     x-display-value:
       HHG: Household goods move (HHG)
       HHG_INTO_NTS_DOMESTIC: HHG into Non-temporary storage (NTS)
@@ -2244,6 +2465,7 @@ definitions:
         Boat shipment that requires additional equipment to haul it to it's
         destination
       BOAT_TOW_AWAY: Boat shipment that has a road-worthy trailer
+      UNACCOMPANIED_BAGGAGE: Unaccompanied Baggage
   PPMShipmentStatus:
     description: |
       Status of the PPM Shipment:
@@ -2589,6 +2811,15 @@ definitions:
         format: cents
         x-nullable: true
         x-omitempty: false
+      maxIncentive:
+        description: >-
+          The max amount the government will pay the service member to move
+          their belongings based on the moving date, locations, and shipment
+          weight.
+        type: integer
+        format: cents
+        x-nullable: true
+        x-omitempty: false
       hasRequestedAdvance:
         description: |
           Indicates whether an advance has been requested for the PPM shipment.
@@ -2648,6 +2879,14 @@ definitions:
         format: cents
         x-nullable: true
         x-omitempty: false
+      isActualExpenseReimbursement:
+        description: >-
+          Used for PPM shipments only. Denotes if this shipment uses the Actual
+          Expense Reimbursement method.
+        type: boolean
+        example: false
+        x-omitempty: false
+        x-nullable: true
       eTag:
         description: >-
           A hash unique to this shipment that should be used as the "If-Match"
@@ -2664,6 +2903,129 @@ definitions:
       - destinationAddress
       - sitExpected
       - eTag
+  BoatShipment:
+    x-nullable: true
+    properties:
+      id:
+        description: Primary auto-generated unique identifier of the Boat shipment object
+        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
+        format: uuid
+        type: string
+        readOnly: true
+      shipmentId:
+        description: The id of the parent MTOShipment object
+        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
+        format: uuid
+        type: string
+        readOnly: true
+      createdAt:
+        description: Timestamp of when the Boat Shipment was initially created (UTC)
+        format: date-time
+        type: string
+        readOnly: true
+      updatedAt:
+        description: Timestamp of when a property of this object was last updated (UTC)
+        format: date-time
+        type: string
+        readOnly: true
+      type:
+        type: string
+        enum:
+          - HAUL_AWAY
+          - TOW_AWAY
+      year:
+        type: integer
+        description: Year of the Boat
+      make:
+        type: string
+        description: Make of the Boat
+      model:
+        type: string
+        description: Model of the Boat
+      lengthInInches:
+        type: integer
+        description: Length of the Boat in inches
+      widthInInches:
+        type: integer
+        description: Width of the Boat in inches
+      heightInInches:
+        type: integer
+        description: Height of the Boat in inches
+      hasTrailer:
+        type: boolean
+        description: Does the boat have a trailer
+      isRoadworthy:
+        type: boolean
+        description: Is the trailer roadworthy
+        x-nullable: true
+      eTag:
+        description: >-
+          A hash unique to this shipment that should be used as the "If-Match"
+          header for any updates.
+        type: string
+        readOnly: true
+    required:
+      - id
+      - shipmentId
+      - createdAt
+      - type
+      - year
+      - make
+      - model
+      - lengthInInches
+      - widthInInches
+      - heightInInches
+      - hasTrailer
+      - eTag
+  MobileHome:
+    description: >-
+      A mobile home is a type of shipment that a service member moves a mobile
+      home.
+    x-nullable: true
+    properties:
+      id:
+        description: Primary auto-generated unique identifier of the Mobile Home object
+        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
+        format: uuid
+        type: string
+        readOnly: true
+      shipmentId:
+        description: The id of the parent MTOShipment object
+        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
+        format: uuid
+        type: string
+        readOnly: true
+      make:
+        description: The make of the mobile home
+        type: string
+      model:
+        description: The model of the mobile home.
+        type: string
+      year:
+        description: The year the mobile home was made.
+        type: integer
+      lengthInInches:
+        type: integer
+      widthInInches:
+        type: integer
+      heightInInches:
+        type: integer
+      updatedAt:
+        description: Timestamp of when a property of this object was last updated (UTC)
+        format: date-time
+        type: string
+        readOnly: true
+      createdAt:
+        description: Timestamp of when a property of this object was created (UTC)
+        format: date-time
+        type: string
+        readOnly: true
+      eTag:
+        description: >-
+          A hash unique to this shipment that should be used as the "If-Match"
+          header for any updates.
+        type: string
+        readOnly: true
   ShipmentAddressUpdateStatus:
     type: string
     title: Status
@@ -2678,10 +3040,10 @@ definitions:
       - APPROVED
   ShipmentAddressUpdate:
     description: >
-      This represents a destination address change request made by the Prime
-      that is either auto-approved or requires review if the pricing criteria
-      has changed. If criteria has changed, then it must be approved or rejected
-      by a TOO.
+      This represents a delivery address change request made by the Prime that
+      is either auto-approved or requires review if the pricing criteria has
+      changed. If criteria has changed, then it must be approved or rejected by
+      a TOO.
     type: object
     properties:
       id:
@@ -2717,14 +3079,14 @@ definitions:
       oldSitDistanceBetween:
         description: >-
           The distance between the original SIT address and the previous/old
-          destination address of shipment
+          delivery address of shipment
         example: 50
         minimum: 0
         type: integer
       newSitDistanceBetween:
         description: >-
           The distance between the original SIT address and requested new
-          destination address of shipment
+          delivery address of shipment
         example: 88
         minimum: 0
         type: integer
@@ -2976,6 +3338,10 @@ definitions:
           - DIVERSION_REQUESTED
       ppmShipment:
         $ref: '#/definitions/PPMShipment'
+      boatShipment:
+        $ref: '#/definitions/BoatShipment'
+      mobileHomeShipment:
+        $ref: '#/definitions/MobileHome'
       deliveryAddressUpdate:
         $ref: '#/definitions/ShipmentAddressUpdate'
       eTag:
@@ -3008,6 +3374,15 @@ definitions:
         type: string
         description: The SIT authorized end date for destination SIT.
         x-nullable: true
+      marketCode:
+        type: string
+        enum:
+          - d
+          - i
+        example: d
+        description: >-
+          Single-letter designator for domestic (d) or international (i)
+          shipments
   MTOShipmentsWithoutServiceObjects:
     description: A list of shipments without their associated service items.
     items:
@@ -3165,7 +3540,6 @@ definitions:
       - ICOLH
       - ICOUB
       - ICRT
-      - ICRTSA
       - IDASIT
       - IDDSIT
       - IDFSIT

@@ -7,6 +7,7 @@ import MtoShipmentForm from './MtoShipmentForm';
 import { SHIPMENT_OPTIONS } from 'shared/constants';
 import { store } from 'shared/store';
 import { MockRouterProvider } from 'testUtils';
+import { ORDERS_TYPE } from 'constants/orders';
 
 const defaultProps = {
   pageList: ['page1', 'anotherPage/:foo/:bar'],
@@ -29,7 +30,7 @@ const defaultProps = {
     destinationAddress: undefined,
   },
   orders: {
-    orders_type: 'PERMANENT_CHANGE_OF_STATION',
+    orders_type: ORDERS_TYPE.PERMANENT_CHANGE_OF_STATION,
     authorizedWeight: 5000,
     entitlement: {
       proGear: 1000,
@@ -92,9 +93,13 @@ function renderStory(props) {
 // create shipment stories (form should not prefill customer data)
 export const HHGShipment = () => renderStory({ shipmentType: SHIPMENT_OPTIONS.HHG });
 export const HHGShipmentRetiree = () =>
-  renderStory({ shipmentType: SHIPMENT_OPTIONS.HHG, orders: { orders_type: 'RETIREMENT', authorizedWeight: 5000 } });
+  renderStory({
+    shipmentType: SHIPMENT_OPTIONS.HHG,
+    orders: { orders_type: ORDERS_TYPE.RETIREMENT, authorizedWeight: 5000 },
+  });
 export const NTSReleaseShipment = () => renderStory({ shipmentType: SHIPMENT_OPTIONS.NTSR });
 export const NTSShipment = () => renderStory({ shipmentType: SHIPMENT_OPTIONS.NTS });
+export const UBShipment = () => renderStory({ shipmentType: SHIPMENT_OPTIONS.UNACCOMPANIED_BAGGAGE });
 
 // edit shipment stories (form should prefill)
 export const EditHHGShipment = () =>
@@ -115,13 +120,19 @@ export const EditNTSShipment = () =>
     isCreatePage: false,
     mtoShipment: mockMtoShipment,
   });
+export const EditUBShipment = () =>
+  renderStory({
+    shipmentType: SHIPMENT_OPTIONS.UNACCOMPANIED_BAGGAGE,
+    isCreatePage: false,
+    mtoShipment: mockMtoShipment,
+  });
 
 export const EditShipmentAsSeparatee = () =>
   renderStory({
     shipmentType: SHIPMENT_OPTIONS.HHG,
     isCreatePage: false,
     mtoShipment: mockMtoShipment,
-    orders: { orders_type: 'SEPARATION', authorizedWeight: 5000 },
+    orders: { orders_type: ORDERS_TYPE.SEPARATION, authorizedWeight: 5000 },
   });
 
 export const EditHHGShipmentWithSecondaryAddresses = () => {

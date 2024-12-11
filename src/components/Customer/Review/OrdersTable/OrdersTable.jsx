@@ -19,6 +19,10 @@ const OrdersTable = ({
   originDutyLocationName,
   payGrade,
   orderId,
+  counselingOfficeName,
+  accompaniedTour,
+  dependentsUnderTwelve,
+  dependentsTwelveAndOver,
 }) => {
   const isRetirementOrSeparation = ['RETIREMENT', 'SEPARATION'].includes(orderType);
   const editPath = `/move/${moveId}/review/edit-orders/${orderId}`;
@@ -63,6 +67,14 @@ const OrdersTable = ({
             </td>
           </tr>
           <tr>
+            <th className={reviewStyles['table-divider-top']} scope="row" style={{ borderBottom: 'none' }}>
+              Counseling office
+            </th>
+            <td className={reviewStyles['table-divider-top']} style={{ borderBottom: 'none' }}>
+              {counselingOfficeName}
+            </td>
+          </tr>
+          <tr>
             <th scope="row">{isRetirementOrSeparation ? 'HOR, PLEAD or HOS' : 'New duty location'}</th>
             <td>{newDutyLocationName}</td>
           </tr>
@@ -70,6 +82,24 @@ const OrdersTable = ({
             <th scope="row">Dependents</th>
             <td>{hasDependents ? 'Yes' : 'No'}</td>
           </tr>
+          {/* Group conditionally rendered OCONUS fields */}
+          {(accompaniedTour || dependentsUnderTwelve > 0 || dependentsTwelveAndOver > 0) && (
+            <>
+              <tr>
+                <th scope="row">Accompanied tour</th>
+                <td>{accompaniedTour ? 'Yes' : 'No'}</td>
+              </tr>
+              <tr>
+                <th scope="row">Dependents under twelve</th>
+                <td>{dependentsUnderTwelve || 0}</td>
+              </tr>
+              <tr>
+                <th scope="row">Dependents twelve and over</th>
+                <td>{dependentsTwelveAndOver || 0}</td>
+              </tr>
+            </>
+          )}
+          {/* End grouping of UB fields */}
           <tr>
             <th scope="row">Orders</th>
             <td>

@@ -46,7 +46,7 @@ type MoveFetcherParams struct {
 type MoveRouter interface {
 	Approve(appCtx appcontext.AppContext, move *models.Move) error
 	ApproveOrRequestApproval(appCtx appcontext.AppContext, move models.Move) (*models.Move, error)
-	Cancel(appCtx appcontext.AppContext, reason string, move *models.Move) error
+	Cancel(appCtx appcontext.AppContext, move *models.Move) error
 	CompleteServiceCounseling(appCtx appcontext.AppContext, move *models.Move) error
 	RouteAfterAmendingOrders(appCtx appcontext.AppContext, move *models.Move) error
 	SendToOfficeUser(appCtx appcontext.AppContext, move *models.Move) error
@@ -124,4 +124,8 @@ type MoveCanceler interface {
 type MoveAssignedOfficeUserUpdater interface {
 	UpdateAssignedOfficeUser(appCtx appcontext.AppContext, moveID uuid.UUID, officeUser *models.OfficeUser, role roles.RoleType) (*models.Move, error)
 	DeleteAssignedOfficeUser(appCtx appcontext.AppContext, moveID uuid.UUID, role roles.RoleType) (*models.Move, error)
+}
+
+type CheckForLockedMovesAndUnlockHandler interface {
+	CheckForLockedMovesAndUnlock(appCtx appcontext.AppContext, officeUserID uuid.UUID) error
 }

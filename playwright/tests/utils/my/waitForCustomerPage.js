@@ -58,7 +58,7 @@ export class WaitForCustomerPage extends WaitForPage {
    */
   async onboardingCurrentAddress() {
     await this.runAccessibilityAudit();
-    await base.expect(this.page.getByRole('heading', { name: 'Current address' })).toBeVisible();
+    await base.expect(this.page.getByRole('heading', { name: 'Current Address' })).toBeVisible();
     await this.runAccessibilityAudit();
   }
 
@@ -190,6 +190,15 @@ export class WaitForCustomerPage extends WaitForPage {
   async boatShipment() {
     await this.runAccessibilityAudit();
     await base.expect(this.page.getByRole('heading', { level: 1 })).toHaveText('Boat details and measurements');
+    await this.runAccessibilityAudit();
+  }
+
+  /**
+   * @returns {Promise<void>}
+   */
+  async mobileHomeShipment() {
+    await this.runAccessibilityAudit();
+    await base.expect(this.page.getByRole('heading', { level: 1 })).toHaveText('Mobile Home details and measurements');
     await this.runAccessibilityAudit();
   }
 

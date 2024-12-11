@@ -22,7 +22,7 @@
   .heading {
     display: flex;
     align-items: center;
-    justify-content: space-between;
+    justify-content: space-evenly;
     @include u-text('base-darkest');
     @include u-margin(0);
     @include u-border('1px');
@@ -35,6 +35,7 @@
     }
 
     h3 {
+      width: 100px;
       display: inline;
       font-weight: bold;
       @include u-margin(0);

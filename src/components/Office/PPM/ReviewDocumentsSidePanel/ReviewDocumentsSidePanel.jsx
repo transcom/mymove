@@ -12,6 +12,7 @@ import PPMHeaderSummary from '../PPMHeaderSummary/PPMHeaderSummary';
 import styles from './ReviewDocumentsSidePanel.module.scss';
 
 import { expenseTypes } from 'constants/ppmExpenseTypes';
+import { OrderShape } from 'types/order';
 import { patchPPMDocumentsSetStatus } from 'services/ghcApi';
 import { ExpenseShape, PPMShipmentShape, ProGearTicketShape, WeightTicketShape } from 'types/shipment';
 import formStyles from 'styles/form.module.scss';
@@ -31,6 +32,7 @@ export default function ReviewDocumentsSidePanel({
   weightTickets,
   readOnly,
   showAllFields,
+  order,
 }) {
   let status;
   let showReason;
@@ -110,9 +112,10 @@ export default function ReviewDocumentsSidePanel({
   return (
     <Formik initialValues innerRef={formRef} onSubmit={handleSubmit}>
       <div className={classnames(styles.container, 'container--accent--ppm')}>
-        <div className={classnames(styles.ReviewDocumentsSidePanel, formStyles.form, styles.PPMHeaderSummary)}>
+        <div className={classnames(formStyles.form, styles.ReviewDocumentsSidePanel, styles.PPMHeaderSummary)}>
           <PPMHeaderSummary
             ppmShipmentInfo={ppmShipmentInfo}
+            order={order}
             ppmNumber={ppmNumber}
             showAllFields={showAllFieldsBool}
             readOnly={readOnly}
@@ -279,6 +282,7 @@ ReviewDocumentsSidePanel.propTypes = {
   proGearTickets: arrayOf(ProGearTicketShape),
   weightTickets: arrayOf(WeightTicketShape),
   showAllFields: bool,
+  order: OrderShape.isRequired,
 };
 
 ReviewDocumentsSidePanel.defaultProps = {

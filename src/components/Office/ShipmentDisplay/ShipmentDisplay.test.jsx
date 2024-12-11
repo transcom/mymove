@@ -8,7 +8,7 @@ import {
   ntsMissingInfo,
   postalOnlyInfo,
   diversionInfo,
-  cancelledInfo,
+  canceledInfo,
   ntsReleaseInfo,
   ntsReleaseMissingInfo,
   ordersLOA,
@@ -46,6 +46,19 @@ describe('Shipment Container', () => {
       expect(screen.getByTestId('ShipmentContainer')).toHaveTextContent(hhgInfo.shipmentLocator);
     });
 
+    it('renders the container with a heading that has a market code and shipment type', () => {
+      render(
+        <ShipmentDisplay
+          shipmentId="1"
+          displayInfo={hhgInfo}
+          ordersLOA={ordersLOA}
+          onChange={jest.fn()}
+          isSubmitted={false}
+        />,
+      );
+      expect(screen.getByTestId('shipment-display')).toHaveTextContent(`${hhgInfo.marketCode}HHG`);
+    });
+
     it('renders the container successfully with postal only address', () => {
       render(<ShipmentDisplay shipmentId="1" displayInfo={postalOnlyInfo} onChange={jest.fn()} isSubmitted={false} />);
       expect(screen.getByTestId('shipment-display')).toBeInTheDocument();
@@ -78,9 +91,9 @@ describe('Shipment Container', () => {
       render(<ShipmentDisplay shipmentId="1" displayInfo={diversionInfo} onChange={jest.fn()} isSubmitted={false} />);
       expect(screen.getByText('diversion')).toBeInTheDocument();
     });
-    it('renders with cancelled tag', () => {
-      render(<ShipmentDisplay shipmentId="1" displayInfo={cancelledInfo} onChange={jest.fn()} isSubmitted={false} />);
-      expect(screen.getByText('cancelled')).toBeInTheDocument();
+    it('renders with canceled tag', () => {
+      render(<ShipmentDisplay shipmentId="1" displayInfo={canceledInfo} onChange={jest.fn()} isSubmitted={false} />);
+      expect(screen.getByText('canceled')).toBeInTheDocument();
     });
     it('renders a disabled button when move is locked', () => {
       render(
@@ -140,6 +153,10 @@ describe('Shipment Container', () => {
       );
       expect(screen.getByTestId('shipment-display-checkbox')).toBeDisabled();
     });
+    it('renders with canceled tag', () => {
+      render(<ShipmentDisplay shipmentId="1" displayInfo={canceledInfo} onChange={jest.fn()} isSubmitted={false} />);
+      expect(screen.getByText('canceled')).toBeInTheDocument();
+    });
   });
 
   describe('NTS-release shipment', () => {
@@ -177,6 +194,10 @@ describe('Shipment Container', () => {
       expect(screen.getByText('external vendor')).toBeInTheDocument();
     });
 
+    it('renders with canceled tag', () => {
+      render(<ShipmentDisplay shipmentId="1" displayInfo={canceledInfo} onChange={jest.fn()} isSubmitted={false} />);
+      expect(screen.getByText('canceled')).toBeInTheDocument();
+    });
     it('renders with external vendor tag', () => {
       render(
         <ShipmentDisplay
@@ -275,7 +296,11 @@ describe('Shipment Container', () => {
             />
           </MockProviders>,
         );
-        expect(screen.getByTestId('tag', { name: 'packet ready for download' })).toBeInTheDocument();
+        expect(screen.getByTestId('ppmStatusTag')).toBeInTheDocument();
+      });
+      it('renders with canceled tag', () => {
+        render(<ShipmentDisplay shipmentId="1" displayInfo={canceledInfo} onChange={jest.fn()} isSubmitted={false} />);
+        expect(screen.getByText('canceled')).toBeInTheDocument();
       });
       it('excluded', () => {
         render(
@@ -291,7 +316,7 @@ describe('Shipment Container', () => {
             />
           </MockProviders>,
         );
-        expect(screen.getByTestId('tag', { name: 'packet ready for download' })).toBeInTheDocument();
+        expect(screen.getByTestId('ppmStatusTag')).toBeInTheDocument();
       });
       it('rejected', () => {
         render(
@@ -307,8 +332,25 @@ describe('Shipment Container', () => {
             />
           </MockProviders>,
         );
-        expect(screen.getByTestId('tag', { name: 'packet ready for download' })).toBeInTheDocument();
+        expect(screen.getByTestId('ppmStatusTag')).toBeInTheDocument();
       });
+    });
+    it('renders the Actual Expense Reimbursement & PPM status tags', () => {
+      render(
+        <MockProviders permissions={[permissionTypes.updateShipment]}>
+          <ShipmentDisplay
+            displayInfo={{ isActualExpenseReimbursement: true, ...ppmInfo }}
+            ordersLOA={ordersLOA}
+            shipmentType={SHIPMENT_OPTIONS.PPM}
+            isSubmitted
+            allowApproval={false}
+            warnIfMissing={['counselorRemarks']}
+            reviewURL="/"
+          />
+        </MockProviders>,
+      );
+      expect(screen.getByTestId('actualReimbursementTag')).toBeInTheDocument();
+      expect(screen.getByTestId('ppmStatusTag')).toBeInTheDocument();
     });
   });
 });

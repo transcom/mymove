@@ -22,7 +22,7 @@ import {
   selectAllMoves,
 } from 'store/entities/selectors';
 import EditOrdersForm from 'components/Customer/EditOrdersForm/EditOrdersForm';
-import { formatWeight, formatYesNoInputValue, dropdownInputOptions } from 'utils/formatters';
+import { formatWeight, formatYesNoInputValue, formatYesNoAPIValue, dropdownInputOptions } from 'utils/formatters';
 import { ORDERS_TYPE_OPTIONS } from 'constants/orders';
 import { formatDateForSwagger } from 'shared/dates';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
@@ -42,6 +42,7 @@ const EditOrders = ({
   const [serverError, setServerError] = useState('');
 
   const currentOrder = orders.find((order) => order.moves[0] === moveId);
+  const { entitlement: allowances } = currentOrder;
 
   const checkIfMoveStatusIsApproved = (status) => {
     return status === 'APPROVED';
@@ -78,9 +79,14 @@ const EditOrders = ({
     move_status: move?.status,
     grade: currentOrder?.grade || null,
     origin_duty_location: currentOrder?.origin_duty_location || {},
+    counseling_office_id: move?.counselingOffice?.id || undefined,
+    accompanied_tour: formatYesNoInputValue(allowances.accompanied_tour) || '',
+    dependents_under_twelve:
+      allowances.dependents_under_twelve !== undefined ? `${allowances.dependents_under_twelve}` : '',
+    dependents_twelve_and_over:
+      allowances.dependents_twelve_and_over !== undefined ? `${allowances.dependents_twelve_and_over}` : '',
   };
 
-  // Only allow PCS unless feature flag is on
   const showAllOrdersTypes = context.flags?.allOrdersTypes;
   const allowedOrdersTypes = showAllOrdersTypes
     ? ORDERS_TYPE_OPTIONS
@@ -89,7 +95,24 @@ const EditOrders = ({
 
   const handleUploadFile = (file) => {
     const documentId = currentOrder?.uploaded_orders?.id;
-    return createUploadForDocument(file, documentId);
+
+    // Create a date-time stamp in the format "yyyymmddhh24miss"
+    const now = new Date();
+    const timestamp =
+      now.getFullYear().toString() +
+      (now.getMonth() + 1).toString().padStart(2, '0') +
+      now.getDate().toString().padStart(2, '0') +
+      now.getHours().toString().padStart(2, '0') +
+      now.getMinutes().toString().padStart(2, '0') +
+      now.getSeconds().toString().padStart(2, '0');
+
+    // Create a new filename with the timestamp prepended
+    const newFileName = `${file.name}-${timestamp}`;
+
+    // Create and return a new File object with the new filename
+    const newFile = new File([file], newFileName, { type: file.type });
+
+    return createUploadForDocument(newFile, documentId);
   };
 
   const handleUploadComplete = async () => {
@@ -118,8 +141,45 @@ const EditOrders = ({
     const newDutyLocationId = fieldValues.new_duty_location.id;
     const newPayGrade = fieldValues.grade;
     const newOriginDutyLocationId = fieldValues.origin_duty_location.id;
+    const constructOconusFields = () => {
+      const isOconus =
+        fieldValues.origin_duty_location?.address?.isOconus || fieldValues.new_duty_location?.address?.isOconus;
+      // The `hasDependents` check within accompanied tour is due to
+      // the dependents section being possible to conditionally render
+      // and then un-render while still being OCONUS
+      // The detailed comments make this nested ternary readable
+      /* eslint-disable no-nested-ternary */
+      return {
+        // Nested ternary
+        accompanied_tour:
+          isOconus && hasDependents
+            ? // If OCONUS and dependents are present, fetch the value from the form.
+              // Otherwise, default to false if OCONUS and dependents are not present
+              hasDependents
+              ? formatYesNoAPIValue(fieldValues.accompanied_tour) // Dependents are present
+              : false // Dependents are not present
+            : // If CONUS or no dependents, omit this field altogether
+              null,
+        dependents_under_twelve:
+          isOconus && hasDependents
+            ? // If OCONUS and dependents are present
+              // then provide the number of dependents under 12. Default to 0 if not present
+              Number(fieldValues.dependents_under_twelve) ?? 0
+            : // If CONUS or no dependents, omit ths field altogether
+              null,
+        dependents_twelve_and_over:
+          isOconus && hasDependents
+            ? // If OCONUS and dependents are present
+              // then provide the number of dependents over 12. Default to 0 if not present
+              Number(fieldValues.dependents_twelve_and_over) ?? 0
+            : // If CONUS or no dependents, omit this field altogether
+              null,
+      };
+      /* eslint-enable no-nested-ternary */
+    };
+    const oconusFields = constructOconusFields();
 
-    return patchOrders({
+    const pendingValues = {
       ...fieldValues,
       id: currentOrder.id,
       service_member_id: serviceMemberId,
@@ -129,10 +189,17 @@ const EditOrders = ({
       report_by_date: formatDateForSwagger(fieldValues.report_by_date),
       grade: newPayGrade,
       origin_duty_location_id: newOriginDutyLocationId,
+      counseling_office_id: fieldValues.counseling_office_id,
       // spouse_has_pro_gear is not updated by this form but is a required value because the endpoint is shared with the
       // ppm office edit orders
       spouse_has_pro_gear: currentOrder.spouse_has_pro_gear,
-    })
+      move_id: move.id,
+      ...oconusFields,
+    };
+    if (fieldValues.counseling_office_id === '') {
+      pendingValues.counseling_office_id = null;
+    }
+    return patchOrders(pendingValues)
       .then((response) => {
         updateOrders(response);
         if (entitlementCouldChange) {

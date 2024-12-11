@@ -591,19 +591,6 @@ func (suite *HandlerSuite) TestApproveShipmentHandler() {
 				},
 			},
 		}, nil)
-		// Populate the reServices table with codes needed by the
-		// HHG_LONGHAUL_DOMESTIC shipment type
-		reServiceCodes := []models.ReServiceCode{
-			models.ReServiceCodeDLH,
-			models.ReServiceCodeFSC,
-			models.ReServiceCodeDOP,
-			models.ReServiceCodeDDP,
-			models.ReServiceCodeDPK,
-			models.ReServiceCodeDUPK,
-		}
-		for _, serviceCode := range reServiceCodes {
-			factory.BuildReServiceByCode(suite.DB(), serviceCode)
-		}
 
 		eTag := etag.GenerateEtag(shipment.UpdatedAt)
 		officeUser := factory.BuildOfficeUserWithRoles(nil, nil, []roles.RoleType{roles.RoleTypeTOO})
@@ -3085,7 +3072,6 @@ func (suite *HandlerSuite) makeCreateMTOShipmentSubtestData() (subtestData *crea
 	}
 	subtestData.params.Body.DestinationAddress.Address = ghcmessages.Address{
 		City:           &destinationAddress.City,
-		Country:        destinationAddress.Country,
 		PostalCode:     &destinationAddress.PostalCode,
 		State:          &destinationAddress.State,
 		StreetAddress1: &destinationAddress.StreetAddress1,
@@ -3094,7 +3080,6 @@ func (suite *HandlerSuite) makeCreateMTOShipmentSubtestData() (subtestData *crea
 	}
 	subtestData.params.Body.PickupAddress.Address = ghcmessages.Address{
 		City:           &pickupAddress.City,
-		Country:        pickupAddress.Country,
 		PostalCode:     &pickupAddress.PostalCode,
 		State:          &pickupAddress.State,
 		StreetAddress1: &pickupAddress.StreetAddress1,
@@ -3157,7 +3142,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		moveTaskOrderUpdater := movetaskorder.NewMoveTaskOrderUpdater(
 			builder,
 			mtoserviceitem.NewMTOServiceItemCreator(planner, builder, moveRouter, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticPackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer()),
-			moveRouter, setUpSignedCertificationCreatorMock(nil, nil), setUpSignedCertificationUpdaterMock(nil, nil),
+			moveRouter, setUpSignedCertificationCreatorMock(nil, nil), setUpSignedCertificationUpdaterMock(nil, nil), &ppmEstimator,
 		)
 		shipmentCreator := shipmentorchestrator.NewShipmentCreator(creator, ppmCreator, boatCreator, mobileHomeCreator, shipmentRouter, moveTaskOrderUpdater)
 		sitStatus := sitstatus.NewShipmentSITStatus()
@@ -3241,7 +3226,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		moveTaskOrderUpdater := movetaskorder.NewMoveTaskOrderUpdater(
 			builder,
 			mtoserviceitem.NewMTOServiceItemCreator(planner, builder, moveRouter, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticPackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer()),
-			moveRouter, setUpSignedCertificationCreatorMock(nil, nil), setUpSignedCertificationUpdaterMock(nil, nil),
+			moveRouter, setUpSignedCertificationCreatorMock(nil, nil), setUpSignedCertificationUpdaterMock(nil, nil), &ppmEstimator,
 		)
 		shipmentCreator := shipmentorchestrator.NewShipmentCreator(creator, ppmCreator, boatCreator, mobileHomeCreator, shipmentRouter, moveTaskOrderUpdater)
 		sitStatus := sitstatus.NewShipmentSITStatus()
@@ -3297,7 +3282,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		moveTaskOrderUpdater := movetaskorder.NewMoveTaskOrderUpdater(
 			builder,
 			mtoserviceitem.NewMTOServiceItemCreator(planner, builder, moveRouter, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticPackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer()),
-			moveRouter, setUpSignedCertificationCreatorMock(nil, nil), setUpSignedCertificationUpdaterMock(nil, nil),
+			moveRouter, setUpSignedCertificationCreatorMock(nil, nil), setUpSignedCertificationUpdaterMock(nil, nil), &ppmEstimator,
 		)
 		shipmentCreator := shipmentorchestrator.NewShipmentCreator(creator, ppmCreator, boatCreator, mobileHomeCreator, shipmentRouter, moveTaskOrderUpdater)
 		sitStatus := sitstatus.NewShipmentSITStatus()
@@ -3349,7 +3334,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		moveTaskOrderUpdater := movetaskorder.NewMoveTaskOrderUpdater(
 			builder,
 			mtoserviceitem.NewMTOServiceItemCreator(planner, builder, moveRouter, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticPackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer()),
-			moveRouter, setUpSignedCertificationCreatorMock(nil, nil), setUpSignedCertificationUpdaterMock(nil, nil),
+			moveRouter, setUpSignedCertificationCreatorMock(nil, nil), setUpSignedCertificationUpdaterMock(nil, nil), &ppmEstimator,
 		)
 		shipmentCreator := shipmentorchestrator.NewShipmentCreator(creator, ppmCreator, boatCreator, mobileHomeCreator, shipmentRouter, moveTaskOrderUpdater)
 		sitStatus := sitstatus.NewShipmentSITStatus()
@@ -3396,7 +3381,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		moveTaskOrderUpdater := movetaskorder.NewMoveTaskOrderUpdater(
 			builder,
 			mtoserviceitem.NewMTOServiceItemCreator(planner, builder, moveRouter, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticPackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer()),
-			moveRouter, setUpSignedCertificationCreatorMock(nil, nil), setUpSignedCertificationUpdaterMock(nil, nil),
+			moveRouter, setUpSignedCertificationCreatorMock(nil, nil), setUpSignedCertificationUpdaterMock(nil, nil), &ppmEstimator,
 		)
 		shipmentCreator := shipmentorchestrator.NewShipmentCreator(creator, ppmCreator, boatCreator, mobileHomeCreator, shipmentRouter, moveTaskOrderUpdater)
 		sitStatus := sitstatus.NewShipmentSITStatus()
@@ -3481,7 +3466,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandlerUsingPPM() {
 		moveTaskOrderUpdater := movetaskorder.NewMoveTaskOrderUpdater(
 			builder,
 			mtoserviceitem.NewMTOServiceItemCreator(planner, builder, moveservices.NewMoveRouter(), ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticPackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer()),
-			moveservices.NewMoveRouter(), setUpSignedCertificationCreatorMock(nil, nil), setUpSignedCertificationUpdaterMock(nil, nil),
+			moveservices.NewMoveRouter(), setUpSignedCertificationCreatorMock(nil, nil), setUpSignedCertificationUpdaterMock(nil, nil), &ppmEstimator,
 		)
 		shipmentCreator := shipmentorchestrator.NewShipmentCreator(creator, ppmCreator, boatCreator, mobileHomeCreator, shipmentRouter, moveTaskOrderUpdater)
 		sitStatus := sitstatus.NewShipmentSITStatus()
@@ -3521,7 +3506,6 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandlerUsingPPM() {
 		}, nil)
 		pickupAddress = ghcmessages.Address{
 			City:           &expectedPickupAddress.City,
-			Country:        expectedPickupAddress.Country,
 			PostalCode:     &expectedPickupAddress.PostalCode,
 			State:          &expectedPickupAddress.State,
 			StreetAddress1: &expectedPickupAddress.StreetAddress1,
@@ -3538,7 +3522,6 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandlerUsingPPM() {
 		}, nil)
 		secondaryPickupAddress = ghcmessages.Address{
 			City:           &expectedSecondaryPickupAddress.City,
-			Country:        expectedSecondaryPickupAddress.Country,
 			PostalCode:     &expectedSecondaryPickupAddress.PostalCode,
 			State:          &expectedSecondaryPickupAddress.State,
 			StreetAddress1: &expectedSecondaryPickupAddress.StreetAddress1,
@@ -3555,7 +3538,6 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandlerUsingPPM() {
 		}, nil)
 		destinationAddress = ghcmessages.PPMDestinationAddress{
 			City:           &expectedDestinationAddress.City,
-			Country:        expectedDestinationAddress.Country,
 			PostalCode:     &expectedDestinationAddress.PostalCode,
 			State:          &expectedDestinationAddress.State,
 			StreetAddress1: &expectedDestinationAddress.StreetAddress1,
@@ -3572,7 +3554,6 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandlerUsingPPM() {
 		}, nil)
 		secondaryDestinationAddress = ghcmessages.Address{
 			City:           &expectedSecondaryDestinationAddress.City,
-			Country:        expectedSecondaryDestinationAddress.Country,
 			PostalCode:     &expectedSecondaryDestinationAddress.PostalCode,
 			State:          &expectedSecondaryDestinationAddress.State,
 			StreetAddress1: &expectedSecondaryDestinationAddress.StreetAddress1,
@@ -3611,6 +3592,12 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandlerUsingPPM() {
 			mock.AnythingOfType("models.PPMShipment"),
 			mock.AnythingOfType("*models.PPMShipment")).
 			Return(models.CentPointer(unit.Cents(estimatedIncentive)), models.CentPointer(unit.Cents(sitEstimatedCost)), nil).Once()
+
+		ppmEstimator.On("MaxIncentive",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.AnythingOfType("models.PPMShipment"),
+			mock.AnythingOfType("*models.PPMShipment")).
+			Return(nil, nil)
 
 		// Validate incoming payload
 		suite.NoError(params.Body.Validate(strfmt.Default))
@@ -3689,7 +3676,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandlerUsingPPM() {
 		moveTaskOrderUpdater := movetaskorder.NewMoveTaskOrderUpdater(
 			builder,
 			mtoserviceitem.NewMTOServiceItemCreator(planner, builder, moveservices.NewMoveRouter(), ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticPackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer()),
-			moveservices.NewMoveRouter(), setUpSignedCertificationCreatorMock(nil, nil), setUpSignedCertificationUpdaterMock(nil, nil),
+			moveservices.NewMoveRouter(), setUpSignedCertificationCreatorMock(nil, nil), setUpSignedCertificationUpdaterMock(nil, nil), &ppmEstimator,
 		)
 		shipmentCreator := shipmentorchestrator.NewShipmentCreator(creator, ppmshipment.NewPPMShipmentCreator(&ppmEstimator, addressCreator), boatCreator, mobileHomeCreator, shipmentRouter, moveTaskOrderUpdater)
 		handler := CreateMTOShipmentHandler{
@@ -3717,7 +3704,6 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandlerUsingPPM() {
 		}, nil)
 		pickupAddress = ghcmessages.Address{
 			City:           &expectedPickupAddress.City,
-			Country:        expectedPickupAddress.Country,
 			PostalCode:     &expectedPickupAddress.PostalCode,
 			State:          &expectedPickupAddress.State,
 			StreetAddress1: &expectedPickupAddress.StreetAddress1,
@@ -3734,7 +3720,6 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandlerUsingPPM() {
 		}, nil)
 		destinationAddress = ghcmessages.PPMDestinationAddress{
 			City:           &expectedDestinationAddress.City,
-			Country:        expectedDestinationAddress.Country,
 			PostalCode:     &expectedDestinationAddress.PostalCode,
 			State:          &expectedDestinationAddress.State,
 			StreetAddress1: &expectedDestinationAddress.StreetAddress1,
@@ -3767,6 +3752,12 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandlerUsingPPM() {
 			mock.AnythingOfType("models.PPMShipment"),
 			mock.AnythingOfType("*models.PPMShipment")).
 			Return(models.CentPointer(unit.Cents(estimatedIncentive)), nil, nil).Once()
+
+		ppmEstimator.On("MaxIncentive",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.AnythingOfType("models.PPMShipment"),
+			mock.AnythingOfType("*models.PPMShipment")).
+			Return(nil, nil)
 
 		// Validate incoming payload
 		suite.NoError(params.Body.Validate(strfmt.Default))
@@ -3835,7 +3826,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandlerUsingPPM() {
 		moveTaskOrderUpdater := movetaskorder.NewMoveTaskOrderUpdater(
 			builder,
 			mtoserviceitem.NewMTOServiceItemCreator(planner, builder, moveservices.NewMoveRouter(), ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticPackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer()),
-			moveservices.NewMoveRouter(), setUpSignedCertificationCreatorMock(nil, nil), setUpSignedCertificationUpdaterMock(nil, nil),
+			moveservices.NewMoveRouter(), setUpSignedCertificationCreatorMock(nil, nil), setUpSignedCertificationUpdaterMock(nil, nil), &ppmEstimator,
 		)
 		shipmentCreator := shipmentorchestrator.NewShipmentCreator(creator, ppmshipment.NewPPMShipmentCreator(&ppmEstimator, addressCreator), boatCreator, mobileHomeCreator, shipmentRouter, moveTaskOrderUpdater)
 		handler := CreateMTOShipmentHandler{
@@ -3863,7 +3854,6 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandlerUsingPPM() {
 		}, nil)
 		pickupAddress = ghcmessages.Address{
 			City:           &expectedPickupAddress.City,
-			Country:        expectedPickupAddress.Country,
 			PostalCode:     &expectedPickupAddress.PostalCode,
 			State:          &expectedPickupAddress.State,
 			StreetAddress1: &expectedPickupAddress.StreetAddress1,
@@ -3880,7 +3870,6 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandlerUsingPPM() {
 		}, nil)
 		destinationAddress = ghcmessages.PPMDestinationAddress{
 			City:           &expectedDestinationAddress.City,
-			Country:        expectedDestinationAddress.Country,
 			PostalCode:     &expectedDestinationAddress.PostalCode,
 			State:          &expectedDestinationAddress.State,
 			StreetAddress1: &expectedDestinationAddress.StreetAddress1,
@@ -3913,6 +3902,12 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandlerUsingPPM() {
 			mock.AnythingOfType("models.PPMShipment"),
 			mock.AnythingOfType("*models.PPMShipment")).
 			Return(models.CentPointer(unit.Cents(estimatedIncentive)), nil, nil).Once()
+
+		ppmEstimator.On("MaxIncentive",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.AnythingOfType("models.PPMShipment"),
+			mock.AnythingOfType("*models.PPMShipment")).
+			Return(nil, nil)
 
 		// Validate incoming payload
 		suite.NoError(params.Body.Validate(strfmt.Default))
@@ -3998,7 +3993,6 @@ func (suite *HandlerSuite) getUpdateShipmentParams(originalShipment models.MTOSh
 	}
 	payload.DestinationAddress.Address = ghcmessages.Address{
 		City:           &destinationAddress.City,
-		Country:        destinationAddress.Country,
 		PostalCode:     &destinationAddress.PostalCode,
 		State:          &destinationAddress.State,
 		StreetAddress1: &destinationAddress.StreetAddress1,
@@ -4007,7 +4001,6 @@ func (suite *HandlerSuite) getUpdateShipmentParams(originalShipment models.MTOSh
 	}
 	payload.PickupAddress.Address = ghcmessages.Address{
 		City:           &pickupAddress.City,
-		Country:        pickupAddress.Country,
 		PostalCode:     &pickupAddress.PostalCode,
 		State:          &pickupAddress.State,
 		StreetAddress1: &pickupAddress.StreetAddress1,
@@ -4158,7 +4151,6 @@ func (suite *HandlerSuite) TestUpdateShipmentHandler() {
 		expectedPickupAddress := ppmShipment.PickupAddress
 		pickupAddress = ghcmessages.Address{
 			City:           &expectedPickupAddress.City,
-			Country:        expectedPickupAddress.Country,
 			PostalCode:     &expectedPickupAddress.PostalCode,
 			State:          &expectedPickupAddress.State,
 			StreetAddress1: &expectedPickupAddress.StreetAddress1,
@@ -4175,7 +4167,6 @@ func (suite *HandlerSuite) TestUpdateShipmentHandler() {
 		}, nil)
 		secondaryPickupAddress = ghcmessages.Address{
 			City:           &expectedSecondaryPickupAddress.City,
-			Country:        expectedSecondaryPickupAddress.Country,
 			PostalCode:     &expectedSecondaryPickupAddress.PostalCode,
 			State:          &expectedSecondaryPickupAddress.State,
 			StreetAddress1: &expectedSecondaryPickupAddress.StreetAddress1,
@@ -4186,7 +4177,6 @@ func (suite *HandlerSuite) TestUpdateShipmentHandler() {
 		expectedDestinationAddress := ppmShipment.DestinationAddress
 		destinationAddress = ghcmessages.PPMDestinationAddress{
 			City:           &expectedDestinationAddress.City,
-			Country:        expectedDestinationAddress.Country,
 			PostalCode:     &expectedDestinationAddress.PostalCode,
 			State:          &expectedDestinationAddress.State,
 			StreetAddress1: &expectedDestinationAddress.StreetAddress1,
@@ -4203,7 +4193,6 @@ func (suite *HandlerSuite) TestUpdateShipmentHandler() {
 		}, nil)
 		secondaryDestinationAddress = ghcmessages.Address{
 			City:           &expectedSecondaryDestinationAddress.City,
-			Country:        expectedSecondaryDestinationAddress.Country,
 			PostalCode:     &expectedSecondaryDestinationAddress.PostalCode,
 			State:          &expectedSecondaryDestinationAddress.State,
 			StreetAddress1: &expectedSecondaryDestinationAddress.StreetAddress1,
@@ -4249,6 +4238,12 @@ func (suite *HandlerSuite) TestUpdateShipmentHandler() {
 			mock.AnythingOfType("models.PPMShipment"),
 			mock.AnythingOfType("*models.PPMShipment")).
 			Return(models.CentPointer(unit.Cents(estimatedIncentive)), models.CentPointer(unit.Cents(sitEstimatedCost)), nil).Once()
+
+		ppmEstimator.On("MaxIncentive",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.AnythingOfType("models.PPMShipment"),
+			mock.AnythingOfType("*models.PPMShipment")).
+			Return(nil, nil)
 
 		ppmEstimator.On("FinalIncentiveWithDefaultChecks",
 			mock.AnythingOfType("*appcontext.appContext"),
@@ -4344,6 +4339,12 @@ func (suite *HandlerSuite) TestUpdateShipmentHandler() {
 			mock.AnythingOfType("*models.PPMShipment")).
 			Return(models.CentPointer(unit.Cents(estimatedIncentive)), models.CentPointer(unit.Cents(sitEstimatedCost)), nil).Once()
 
+		ppmEstimator.On("MaxIncentive",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.AnythingOfType("models.PPMShipment"),
+			mock.AnythingOfType("*models.PPMShipment")).
+			Return(nil, nil)
+
 		ppmEstimator.On("FinalIncentiveWithDefaultChecks",
 			mock.AnythingOfType("*appcontext.appContext"),
 			mock.AnythingOfType("models.PPMShipment"),
@@ -4416,6 +4417,12 @@ func (suite *HandlerSuite) TestUpdateShipmentHandler() {
 			mock.AnythingOfType("models.PPMShipment"),
 			mock.AnythingOfType("*models.PPMShipment")).
 			Return(models.CentPointer(unit.Cents(estimatedIncentive)), models.CentPointer(unit.Cents(sitEstimatedCost)), nil).Once()
+
+		ppmEstimator.On("MaxIncentive",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.AnythingOfType("models.PPMShipment"),
+			mock.AnythingOfType("*models.PPMShipment")).
+			Return(nil, nil)
 
 		ppmEstimator.On("FinalIncentiveWithDefaultChecks",
 			mock.AnythingOfType("*appcontext.appContext"),

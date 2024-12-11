@@ -881,14 +881,6 @@ func init() {
             "name": "moveId",
             "in": "path",
             "required": true
-          },
-          {
-            "name": "cancelMove",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "$ref": "#/definitions/CancelMove"
-            }
           }
         ],
         "responses": {
@@ -3319,11 +3311,13 @@ func init() {
           "example": "Anytown"
         },
         "country": {
+          "description": "Two-letter country code",
           "type": "string",
           "title": "Country",
-          "default": "USA",
+          "default": "US",
+          "pattern": "^[A-Z]{2}$",
           "x-nullable": true,
-          "example": "USA"
+          "example": "US"
         },
         "county": {
           "type": "string",
@@ -3493,8 +3487,6 @@ func init() {
         "AIR_FORCE",
         "COAST_GUARD",
         "SPACE_FORCE",
-        "NAVY_AND_MARINES",
-        "AIR_AND_SPACE_FORCE",
         "OTHER"
       ],
       "x-display-value": {
@@ -3867,6 +3859,13 @@ func init() {
           "x-nullable": true,
           "x-omitempty": false
         },
+        "isActualExpenseReimbursement": {
+          "description": "Denotes if this PPM shipment uses the Actual Expense Reimbursement method.",
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false,
+          "example": false
+        },
         "pickupAddress": {
           "$ref": "#/definitions/Address"
         },
@@ -4123,8 +4122,32 @@ func init() {
         "new_duty_location_id"
       ],
       "properties": {
+        "accompanied_tour": {
+          "description": "Indicates if the move entitlement allows dependents to travel to the new Permanent Duty Station (PDS). This is only present on OCONUS moves.",
+          "type": "boolean",
+          "x-nullable": true,
+          "example": true
+        },
+        "counseling_office_id": {
+          "type": "string",
+          "format": "uuid",
+          "x-nullable": true,
+          "example": "cf1addea-a4f9-4173-8506-2bb82a064cb7"
+        },
         "department_indicator": {
           "$ref": "#/definitions/DeptIndicator"
+        },
+        "dependents_twelve_and_over": {
+          "description": "Indicates the number of dependents of the age twelve or older for a move. This is only present on OCONUS moves.",
+          "type": "integer",
+          "x-nullable": true,
+          "example": 3
+        },
+        "dependents_under_twelve": {
+          "description": "Indicates the number of dependents under the age of twelve for a move. This is only present on OCONUS moves.",
+          "type": "integer",
+          "x-nullable": true,
+          "example": 5
         },
         "grade": {
           "$ref": "#/definitions/OrderPayGrade"
@@ -4139,6 +4162,11 @@ func init() {
           "format": "date",
           "title": "Orders date",
           "example": "2018-04-26"
+        },
+        "move_id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "cf1addea-a4f9-4173-8506-2bb82a064cb7"
         },
         "new_duty_location_id": {
           "type": "string",
@@ -4344,6 +4372,10 @@ func init() {
           "type": "string",
           "example": "Fort Bragg North Station"
         },
+        "provides_services_counseling": {
+          "type": "boolean",
+          "x-nullable": false
+        },
         "transportation_office": {
           "$ref": "#/definitions/TransportationOffice"
         },
@@ -4368,6 +4400,24 @@ func init() {
     "Entitlement": {
       "type": "object",
       "properties": {
+        "accompanied_tour": {
+          "description": "Indicates if the move entitlement allows dependents to travel to the new Permanent Duty Station (PDS). This is only present on OCONUS moves.",
+          "type": "boolean",
+          "x-nullable": true,
+          "example": true
+        },
+        "dependents_twelve_and_over": {
+          "description": "Indicates the number of dependents of the age twelve or older for a move. This is only present on OCONUS moves.",
+          "type": "integer",
+          "x-nullable": true,
+          "example": 3
+        },
+        "dependents_under_twelve": {
+          "description": "Indicates the number of dependents under the age of twelve for a move. This is only present on OCONUS moves.",
+          "type": "integer",
+          "x-nullable": true,
+          "example": 5
+        },
         "proGear": {
           "description": "Pro-gear weight limit as set by an Office user, distinct from the service member's default weight allotment determined by pay grade\n",
           "type": "integer",
@@ -4379,6 +4429,12 @@ func init() {
           "type": "integer",
           "x-nullable": true,
           "example": 500
+        },
+        "ub_allowance": {
+          "description": "The amount of weight in pounds that the move is entitled for shipment types of Unaccompanied Baggage.",
+          "type": "integer",
+          "x-nullable": true,
+          "example": 3
         }
       }
     },
@@ -4484,6 +4540,9 @@ func init() {
       "type": "object",
       "properties": {
         "closeoutOffice": {
+          "$ref": "#/definitions/TransportationOffice"
+        },
+        "counselingOffice": {
           "$ref": "#/definitions/TransportationOffice"
         },
         "createdAt": {
@@ -4756,6 +4815,15 @@ func init() {
           "readOnly": true,
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
         },
+        "marketCode": {
+          "description": "Single-letter designator for domestic (d) or international (i) shipments",
+          "type": "string",
+          "enum": [
+            "d",
+            "i"
+          ],
+          "example": "d"
+        },
         "mobileHomeShipment": {
           "$ref": "#/definitions/MobileHome"
         },
@@ -4834,16 +4902,18 @@ func init() {
         "PPM",
         "BOAT_HAUL_AWAY",
         "BOAT_TOW_AWAY",
-        "MOBILE_HOME"
+        "MOBILE_HOME",
+        "UNACCOMPANIED_BAGGAGE"
       ],
       "x-display-value": {
         "BOAT_HAUL_AWAY": "Boat Haul-Away",
         "BOAT_TOW_AWAY": "Boat Tow-Away",
         "HHG": "HHG",
-        "INTERNATIONAL_HHG": "International HHG",
-        "INTERNATIONAL_UB": "International UB",
+        "HHG_INTO_NTS_DOMESTIC": "NTS",
+        "HHG_OUTOF_NTS_DOMESTIC": "NTS Release",
         "MOBILE_HOME": "Mobile Home",
-        "PPM": "PPM"
+        "PPM": "PPM",
+        "UNACCOMPANIED_BAGGAGE": "Unaccompanied Baggage"
       },
       "example": "HHG"
     },
@@ -5131,6 +5201,9 @@ func init() {
           "example": "Change of orders"
         },
         "closeout_office": {
+          "$ref": "#/definitions/TransportationOffice"
+        },
+        "counseling_office": {
           "$ref": "#/definitions/TransportationOffice"
         },
         "created_at": {
@@ -5943,7 +6016,8 @@ func init() {
         "SEPARATION",
         "WOUNDED_WARRIOR",
         "BLUEBARK",
-        "SAFETY"
+        "SAFETY",
+        "TEMPORARY_DUTY"
       ],
       "x-display-value": {
         "BLUEBARK": "BLUEBARK",
@@ -5952,6 +6026,7 @@ func init() {
         "RETIREMENT": "Retirement",
         "SAFETY": "Safety",
         "SEPARATION": "Separation",
+        "TEMPORARY_DUTY": "Temporary Duty (TDY)",
         "WOUNDED_WARRIOR": "Wounded Warrior"
       }
     },
@@ -6342,6 +6417,20 @@ func init() {
           "format": "uuid",
           "readOnly": true,
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "isActualExpenseReimbursement": {
+          "description": "Used for PPM shipments only. Denotes if this shipment uses the Actual Expense Reimbursement method.",
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false,
+          "example": false
+        },
+        "maxIncentive": {
+          "description": "The max amount the government will pay the service member to move their belongings based on the moving date, locations, and shipment weight.",
+          "type": "integer",
+          "format": "cents",
+          "x-nullable": true,
+          "x-omitempty": false
         },
         "movingExpenses": {
           "description": "All expense documentation receipt records of this PPM shipment.",
@@ -7631,6 +7720,13 @@ func init() {
           "type": "boolean",
           "x-nullable": true,
           "x-omitempty": false
+        },
+        "isActualExpenseReimbursement": {
+          "description": "Used for PPM shipments only. Denotes if this shipment uses the Actual Expense Reimbursement method.",
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false,
+          "example": false
         },
         "pickupAddress": {
           "$ref": "#/definitions/Address"
@@ -9231,14 +9327,6 @@ func init() {
             "name": "moveId",
             "in": "path",
             "required": true
-          },
-          {
-            "name": "cancelMove",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "$ref": "#/definitions/CancelMove"
-            }
           }
         ],
         "responses": {
@@ -12097,11 +12185,13 @@ func init() {
           "example": "Anytown"
         },
         "country": {
+          "description": "Two-letter country code",
           "type": "string",
           "title": "Country",
-          "default": "USA",
+          "default": "US",
+          "pattern": "^[A-Z]{2}$",
           "x-nullable": true,
-          "example": "USA"
+          "example": "US"
         },
         "county": {
           "type": "string",
@@ -12271,8 +12361,6 @@ func init() {
         "AIR_FORCE",
         "COAST_GUARD",
         "SPACE_FORCE",
-        "NAVY_AND_MARINES",
-        "AIR_AND_SPACE_FORCE",
         "OTHER"
       ],
       "x-display-value": {
@@ -12645,6 +12733,13 @@ func init() {
           "x-nullable": true,
           "x-omitempty": false
         },
+        "isActualExpenseReimbursement": {
+          "description": "Denotes if this PPM shipment uses the Actual Expense Reimbursement method.",
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false,
+          "example": false
+        },
         "pickupAddress": {
           "$ref": "#/definitions/Address"
         },
@@ -12901,8 +12996,32 @@ func init() {
         "new_duty_location_id"
       ],
       "properties": {
+        "accompanied_tour": {
+          "description": "Indicates if the move entitlement allows dependents to travel to the new Permanent Duty Station (PDS). This is only present on OCONUS moves.",
+          "type": "boolean",
+          "x-nullable": true,
+          "example": true
+        },
+        "counseling_office_id": {
+          "type": "string",
+          "format": "uuid",
+          "x-nullable": true,
+          "example": "cf1addea-a4f9-4173-8506-2bb82a064cb7"
+        },
         "department_indicator": {
           "$ref": "#/definitions/DeptIndicator"
+        },
+        "dependents_twelve_and_over": {
+          "description": "Indicates the number of dependents of the age twelve or older for a move. This is only present on OCONUS moves.",
+          "type": "integer",
+          "x-nullable": true,
+          "example": 3
+        },
+        "dependents_under_twelve": {
+          "description": "Indicates the number of dependents under the age of twelve for a move. This is only present on OCONUS moves.",
+          "type": "integer",
+          "x-nullable": true,
+          "example": 5
         },
         "grade": {
           "$ref": "#/definitions/OrderPayGrade"
@@ -12917,6 +13036,11 @@ func init() {
           "format": "date",
           "title": "Orders date",
           "example": "2018-04-26"
+        },
+        "move_id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "cf1addea-a4f9-4173-8506-2bb82a064cb7"
         },
         "new_duty_location_id": {
           "type": "string",
@@ -13124,6 +13248,10 @@ func init() {
           "type": "string",
           "example": "Fort Bragg North Station"
         },
+        "provides_services_counseling": {
+          "type": "boolean",
+          "x-nullable": false
+        },
         "transportation_office": {
           "$ref": "#/definitions/TransportationOffice"
         },
@@ -13148,6 +13276,24 @@ func init() {
     "Entitlement": {
       "type": "object",
       "properties": {
+        "accompanied_tour": {
+          "description": "Indicates if the move entitlement allows dependents to travel to the new Permanent Duty Station (PDS). This is only present on OCONUS moves.",
+          "type": "boolean",
+          "x-nullable": true,
+          "example": true
+        },
+        "dependents_twelve_and_over": {
+          "description": "Indicates the number of dependents of the age twelve or older for a move. This is only present on OCONUS moves.",
+          "type": "integer",
+          "x-nullable": true,
+          "example": 3
+        },
+        "dependents_under_twelve": {
+          "description": "Indicates the number of dependents under the age of twelve for a move. This is only present on OCONUS moves.",
+          "type": "integer",
+          "x-nullable": true,
+          "example": 5
+        },
         "proGear": {
           "description": "Pro-gear weight limit as set by an Office user, distinct from the service member's default weight allotment determined by pay grade\n",
           "type": "integer",
@@ -13159,6 +13305,12 @@ func init() {
           "type": "integer",
           "x-nullable": true,
           "example": 500
+        },
+        "ub_allowance": {
+          "description": "The amount of weight in pounds that the move is entitled for shipment types of Unaccompanied Baggage.",
+          "type": "integer",
+          "x-nullable": true,
+          "example": 3
         }
       }
     },
@@ -13264,6 +13416,9 @@ func init() {
       "type": "object",
       "properties": {
         "closeoutOffice": {
+          "$ref": "#/definitions/TransportationOffice"
+        },
+        "counselingOffice": {
           "$ref": "#/definitions/TransportationOffice"
         },
         "createdAt": {
@@ -13536,6 +13691,15 @@ func init() {
           "readOnly": true,
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
         },
+        "marketCode": {
+          "description": "Single-letter designator for domestic (d) or international (i) shipments",
+          "type": "string",
+          "enum": [
+            "d",
+            "i"
+          ],
+          "example": "d"
+        },
         "mobileHomeShipment": {
           "$ref": "#/definitions/MobileHome"
         },
@@ -13614,16 +13778,18 @@ func init() {
         "PPM",
         "BOAT_HAUL_AWAY",
         "BOAT_TOW_AWAY",
-        "MOBILE_HOME"
+        "MOBILE_HOME",
+        "UNACCOMPANIED_BAGGAGE"
       ],
       "x-display-value": {
         "BOAT_HAUL_AWAY": "Boat Haul-Away",
         "BOAT_TOW_AWAY": "Boat Tow-Away",
         "HHG": "HHG",
-        "INTERNATIONAL_HHG": "International HHG",
-        "INTERNATIONAL_UB": "International UB",
+        "HHG_INTO_NTS_DOMESTIC": "NTS",
+        "HHG_OUTOF_NTS_DOMESTIC": "NTS Release",
         "MOBILE_HOME": "Mobile Home",
-        "PPM": "PPM"
+        "PPM": "PPM",
+        "UNACCOMPANIED_BAGGAGE": "Unaccompanied Baggage"
       },
       "example": "HHG"
     },
@@ -13913,6 +14079,9 @@ func init() {
           "example": "Change of orders"
         },
         "closeout_office": {
+          "$ref": "#/definitions/TransportationOffice"
+        },
+        "counseling_office": {
           "$ref": "#/definitions/TransportationOffice"
         },
         "created_at": {
@@ -14725,7 +14894,8 @@ func init() {
         "SEPARATION",
         "WOUNDED_WARRIOR",
         "BLUEBARK",
-        "SAFETY"
+        "SAFETY",
+        "TEMPORARY_DUTY"
       ],
       "x-display-value": {
         "BLUEBARK": "BLUEBARK",
@@ -14734,6 +14904,7 @@ func init() {
         "RETIREMENT": "Retirement",
         "SAFETY": "Safety",
         "SEPARATION": "Separation",
+        "TEMPORARY_DUTY": "Temporary Duty (TDY)",
         "WOUNDED_WARRIOR": "Wounded Warrior"
       }
     },
@@ -15125,6 +15296,20 @@ func init() {
           "format": "uuid",
           "readOnly": true,
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "isActualExpenseReimbursement": {
+          "description": "Used for PPM shipments only. Denotes if this shipment uses the Actual Expense Reimbursement method.",
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false,
+          "example": false
+        },
+        "maxIncentive": {
+          "description": "The max amount the government will pay the service member to move their belongings based on the moving date, locations, and shipment weight.",
+          "type": "integer",
+          "format": "cents",
+          "x-nullable": true,
+          "x-omitempty": false
         },
         "movingExpenses": {
           "description": "All expense documentation receipt records of this PPM shipment.",
@@ -16416,6 +16601,13 @@ func init() {
           "type": "boolean",
           "x-nullable": true,
           "x-omitempty": false
+        },
+        "isActualExpenseReimbursement": {
+          "description": "Used for PPM shipments only. Denotes if this shipment uses the Actual Expense Reimbursement method.",
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false,
+          "example": false
         },
         "pickupAddress": {
           "$ref": "#/definitions/Address"

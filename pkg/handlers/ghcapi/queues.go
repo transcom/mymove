@@ -47,9 +47,9 @@ func (h GetMovesQueueHandler) Handle(params queues.GetMovesQueueParams) middlewa
 			ListOrderParams := services.ListOrderParams{
 				Branch:                  params.Branch,
 				Locator:                 params.Locator,
-				DodID:                   params.DodID,
+				Edipi:                   params.Edipi,
 				Emplid:                  params.Emplid,
-				LastName:                params.LastName,
+				CustomerName:            params.CustomerName,
 				DestinationDutyLocation: params.DestinationDutyLocation,
 				OriginDutyLocation:      params.OriginDutyLocation,
 				AppearedInTOOAt:         handlers.FmtDateTimePtrToPopPtr(params.AppearedInTooAt),
@@ -60,6 +60,8 @@ func (h GetMovesQueueHandler) Handle(params queues.GetMovesQueueParams) middlewa
 				Sort:                    params.Sort,
 				Order:                   params.Order,
 				OrderType:               params.OrderType,
+				TOOAssignedUser:         params.AssignedTo,
+				CounselingOffice:        params.CounselingOffice,
 			}
 
 			// When no status filter applied, TOO should only see moves with status of New Move, Service Counseling Completed, or Approvals Requested
@@ -83,6 +85,7 @@ func (h GetMovesQueueHandler) Handle(params queues.GetMovesQueueParams) middlewa
 			moves, count, err := h.OrderFetcher.ListOrders(
 				appCtx,
 				appCtx.Session().OfficeUserID,
+				roles.RoleTypeTOO,
 				&ListOrderParams,
 			)
 			if err != nil {
@@ -100,11 +103,36 @@ func (h GetMovesQueueHandler) Handle(params queues.GetMovesQueueParams) middlewa
 				}
 			}
 
-			officeUsers, err := h.OfficeUserFetcherPop.FetchOfficeUsersByRoleAndOffice(
-				appCtx,
-				roles.RoleTypeTOO,
-				officeUser.TransportationOfficeID,
-			)
+			privileges, err := models.FetchPrivilegesForUser(appCtx.DB(), appCtx.Session().UserID)
+			if err != nil {
+				appCtx.Logger().Error("Error retreiving user privileges", zap.Error(err))
+			}
+			officeUser.User.Privileges = privileges
+			officeUser.User.Roles = appCtx.Session().Roles
+
+			var officeUsers models.OfficeUsers
+			var officeUsersSafety models.OfficeUsers
+			if privileges.HasPrivilege(models.PrivilegeTypeSupervisor) {
+				if privileges.HasPrivilege(models.PrivilegeTypeSafety) {
+					officeUsersSafety, err = h.OfficeUserFetcherPop.FetchSafetyMoveOfficeUsersByRoleAndOffice(
+						appCtx,
+						roles.RoleTypeTOO,
+						officeUser.TransportationOfficeID,
+					)
+					if err != nil {
+						appCtx.Logger().
+							Error("error fetching safety move office users", zap.Error(err))
+						return queues.NewGetMovesQueueInternalServerError(), err
+					}
+				}
+				officeUsers, err = h.OfficeUserFetcherPop.FetchOfficeUsersByRoleAndOffice(
+					appCtx,
+					roles.RoleTypeTOO,
+					officeUser.TransportationOfficeID,
+				)
+			} else {
+				officeUsers = models.OfficeUsers{officeUser}
+			}
 
 			if err != nil {
 				appCtx.Logger().
@@ -133,15 +161,13 @@ func (h GetMovesQueueHandler) Handle(params queues.GetMovesQueueParams) middlewa
 				}
 			}
 
-			queueMoves := payloads.QueueMoves(moves)
-			availableOfficeUsers := payloads.QueueAvailableOfficeUsers(officeUsers)
+			queueMoves := payloads.QueueMoves(moves, officeUsers, nil, officeUser, officeUsersSafety)
 
 			result := &ghcmessages.QueueMovesResult{
-				Page:                 *ListOrderParams.Page,
-				PerPage:              *ListOrderParams.PerPage,
-				TotalCount:           int64(count),
-				QueueMoves:           *queueMoves,
-				AvailableOfficeUsers: *availableOfficeUsers,
+				Page:       *ListOrderParams.Page,
+				PerPage:    *ListOrderParams.PerPage,
+				TotalCount: int64(count),
+				QueueMoves: *queueMoves,
 			}
 
 			return queues.NewGetMovesQueueOK().WithPayload(result), nil
@@ -225,9 +251,9 @@ func (h GetPaymentRequestsQueueHandler) Handle(
 			listPaymentRequestParams := services.FetchPaymentRequestListParams{
 				Branch:                  params.Branch,
 				Locator:                 params.Locator,
-				DodID:                   params.DodID,
+				Edipi:                   params.Edipi,
 				Emplid:                  params.Emplid,
-				LastName:                params.LastName,
+				CustomerName:            params.CustomerName,
 				DestinationDutyLocation: params.DestinationDutyLocation,
 				Status:                  params.Status,
 				Page:                    params.Page,
@@ -237,6 +263,8 @@ func (h GetPaymentRequestsQueueHandler) Handle(
 				Order:                   params.Order,
 				OriginDutyLocation:      params.OriginDutyLocation,
 				OrderType:               params.OrderType,
+				TIOAssignedUser:         params.AssignedTo,
+				CounselingOffice:        params.CounselingOffice,
 			}
 
 			listPaymentRequestParams.Status = []string{string(models.QueuePaymentRequestPaymentRequested)}
@@ -275,11 +303,35 @@ func (h GetPaymentRequestsQueueHandler) Handle(
 				}
 			}
 
-			officeUsers, err := h.OfficeUserFetcherPop.FetchOfficeUsersByRoleAndOffice(
-				appCtx,
-				roles.RoleTypeTIO,
-				officeUser.TransportationOfficeID,
-			)
+			privileges, err := models.FetchPrivilegesForUser(appCtx.DB(), appCtx.Session().UserID)
+			if err != nil {
+				appCtx.Logger().Error("Error retreiving user privileges", zap.Error(err))
+			}
+			officeUser.User.Privileges = privileges
+			officeUser.User.Roles = appCtx.Session().Roles
+
+			var officeUsers models.OfficeUsers
+			var officeUsersSafety models.OfficeUsers
+
+			if privileges.HasPrivilege(models.PrivilegeTypeSupervisor) {
+				if privileges.HasPrivilege(models.PrivilegeTypeSafety) {
+					officeUsersSafety, err = h.OfficeUserFetcherPop.FetchSafetyMoveOfficeUsersByRoleAndOffice(
+						appCtx,
+						roles.RoleTypeTIO,
+						officeUser.TransportationOfficeID,
+					)
+					if err != nil {
+						appCtx.Logger().
+							Error("error fetching safety move office users", zap.Error(err))
+						return queues.NewGetMovesQueueInternalServerError(), err
+					}
+				}
+				officeUsers, err = h.OfficeUserFetcherPop.FetchOfficeUsersByRoleAndOffice(
+					appCtx,
+					roles.RoleTypeTIO,
+					officeUser.TransportationOfficeID,
+				)
+			}
 
 			if err != nil {
 				appCtx.Logger().
@@ -308,15 +360,13 @@ func (h GetPaymentRequestsQueueHandler) Handle(
 				}
 			}
 
-			queuePaymentRequests := payloads.QueuePaymentRequests(paymentRequests)
-			availableOfficeUsers := payloads.QueueAvailableOfficeUsers(officeUsers)
+			queuePaymentRequests := payloads.QueuePaymentRequests(paymentRequests, officeUsers, officeUser, officeUsersSafety)
 
 			result := &ghcmessages.QueuePaymentRequestsResult{
 				TotalCount:           int64(count),
 				Page:                 int64(*listPaymentRequestParams.Page),
 				PerPage:              int64(*listPaymentRequestParams.PerPage),
 				QueuePaymentRequests: *queuePaymentRequests,
-				AvailableOfficeUsers: *availableOfficeUsers,
 			}
 
 			return queues.NewGetPaymentRequestsQueueOK().WithPayload(result), nil
@@ -349,9 +399,9 @@ func (h GetServicesCounselingQueueHandler) Handle(
 			ListOrderParams := services.ListOrderParams{
 				Branch:                  params.Branch,
 				Locator:                 params.Locator,
-				DodID:                   params.DodID,
+				Edipi:                   params.Edipi,
 				Emplid:                  params.Emplid,
-				LastName:                params.LastName,
+				CustomerName:            params.CustomerName,
 				OriginDutyLocation:      params.OriginDutyLocation,
 				DestinationDutyLocation: params.DestinationDutyLocation,
 				OriginGBLOC:             params.OriginGBLOC,
@@ -368,9 +418,12 @@ func (h GetServicesCounselingQueueHandler) Handle(
 				OrderType:               params.OrderType,
 				PPMStatus:               params.PpmStatus,
 				CounselingOffice:        params.CounselingOffice,
+				SCAssignedUser:          params.AssignedTo,
 			}
 
+			var requestedPpmStatus models.PPMShipmentStatus
 			if params.NeedsPPMCloseout != nil && *params.NeedsPPMCloseout {
+				requestedPpmStatus = models.PPMShipmentStatusNeedsCloseout
 				ListOrderParams.Status = []string{string(models.MoveStatusAPPROVED), string(models.MoveStatusServiceCounselingCompleted)}
 			} else if len(params.Status) == 0 {
 				ListOrderParams.Status = []string{string(models.MoveStatusNeedsServiceCounseling)}
@@ -395,6 +448,7 @@ func (h GetServicesCounselingQueueHandler) Handle(
 			moves, count, err := h.OrderFetcher.ListOrders(
 				appCtx,
 				appCtx.Session().OfficeUserID,
+				roles.RoleTypeServicesCounselor,
 				&ListOrderParams,
 			)
 			if err != nil {
@@ -412,11 +466,37 @@ func (h GetServicesCounselingQueueHandler) Handle(
 				}
 			}
 
-			officeUsers, err := h.OfficeUserFetcherPop.FetchOfficeUsersByRoleAndOffice(
-				appCtx,
-				roles.RoleTypeServicesCounselor,
-				officeUser.TransportationOfficeID,
-			)
+			privileges, err := models.FetchPrivilegesForUser(appCtx.DB(), appCtx.Session().UserID)
+			if err != nil {
+				appCtx.Logger().Error("Error retreiving user privileges", zap.Error(err))
+			}
+			officeUser.User.Privileges = privileges
+			officeUser.User.Roles = appCtx.Session().Roles
+
+			var officeUsers models.OfficeUsers
+			var officeUsersSafety models.OfficeUsers
+
+			if privileges.HasPrivilege(models.PrivilegeTypeSupervisor) {
+				if privileges.HasPrivilege(models.PrivilegeTypeSafety) {
+					officeUsersSafety, err = h.OfficeUserFetcherPop.FetchSafetyMoveOfficeUsersByRoleAndOffice(
+						appCtx,
+						roles.RoleTypeServicesCounselor,
+						officeUser.TransportationOfficeID,
+					)
+					if err != nil {
+						appCtx.Logger().
+							Error("error fetching safety move office users", zap.Error(err))
+						return queues.NewGetMovesQueueInternalServerError(), err
+					}
+				}
+				officeUsers, err = h.OfficeUserFetcherPop.FetchOfficeUsersByRoleAndOffice(
+					appCtx,
+					roles.RoleTypeServicesCounselor,
+					officeUser.TransportationOfficeID,
+				)
+			} else {
+				officeUsers = models.OfficeUsers{officeUser}
+			}
 
 			if err != nil {
 				appCtx.Logger().
@@ -445,15 +525,13 @@ func (h GetServicesCounselingQueueHandler) Handle(
 				}
 			}
 
-			queueMoves := payloads.QueueMoves(moves)
-			availableOfficeUsers := payloads.QueueAvailableOfficeUsers(officeUsers)
+			queueMoves := payloads.QueueMoves(moves, officeUsers, &requestedPpmStatus, officeUser, officeUsersSafety)
 
 			result := &ghcmessages.QueueMovesResult{
-				Page:                 *ListOrderParams.Page,
-				PerPage:              *ListOrderParams.PerPage,
-				TotalCount:           int64(count),
-				QueueMoves:           *queueMoves,
-				AvailableOfficeUsers: *availableOfficeUsers,
+				Page:       *ListOrderParams.Page,
+				PerPage:    *ListOrderParams.PerPage,
+				TotalCount: int64(count),
+				QueueMoves: *queueMoves,
 			}
 
 			return queues.NewGetServicesCounselingQueueOK().WithPayload(result), nil

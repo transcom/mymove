@@ -4,7 +4,7 @@ import userEvent from '@testing-library/user-event';
 
 import Orders from './Orders';
 
-import { getOrders, patchOrders } from 'services/internalApi';
+import { getOrders, patchOrders, showCounselingOffices } from 'services/internalApi';
 import { renderWithProviders } from 'testUtils';
 import { customerRoutes } from 'constants/routes';
 import {
@@ -12,11 +12,26 @@ import {
   selectOrdersForLoggedInUser,
   selectServiceMemberFromLoggedInUser,
 } from 'store/entities/selectors';
+import { ORDERS_TYPE } from 'constants/orders';
 
 jest.mock('services/internalApi', () => ({
   ...jest.requireActual('services/internalApi'),
   patchOrders: jest.fn().mockImplementation(() => Promise.resolve()),
   getOrders: jest.fn().mockImplementation(() => Promise.resolve()),
+  showCounselingOffices: jest.fn().mockImplementation(() =>
+    Promise.resolve({
+      body: [
+        {
+          id: '3e937c1f-5539-4919-954d-017989130584',
+          name: 'Albuquerque AFB',
+        },
+        {
+          id: 'fa51dab0-4553-4732-b843-1f33407f77bc',
+          name: 'Glendale Luke AFB',
+        },
+      ],
+    }),
+  ),
 }));
 
 jest.mock('components/LocationSearchBox/api', () => ({
@@ -160,7 +175,7 @@ afterEach(() => {
 
 const testPropsWithUploads = {
   id: 'testOrderId',
-  orders_type: 'PERMANENT_CHANGE_OF_STATION',
+  orders_type: ORDERS_TYPE.PERMANENT_CHANGE_OF_STATION,
   issue_date: '2020-11-08',
   report_by_date: '2020-11-26',
   has_dependents: false,
@@ -219,7 +234,7 @@ const testPropsWithUploads = {
 
 const testPropsNoUploads = {
   id: 'testOrderId2',
-  orders_type: 'PERMANENT_CHANGE_OF_STATION',
+  orders_type: ORDERS_TYPE.PERMANENT_CHANGE_OF_STATION,
   issue_date: '2020-11-08',
   report_by_date: '2020-11-26',
   has_dependents: false,
@@ -328,7 +343,7 @@ describe('Orders page', () => {
               transportation_office_id: 'd00e3ee8-baba-4991-8f3b-86c2e370d1be',
               updated_at: '2024-02-22T21:34:21.449Z',
             },
-            orders_type: 'PERMANENT_CHANGE_OF_STATION',
+            orders_type: ORDERS_TYPE.PERMANENT_CHANGE_OF_STATION,
             originDutyLocationGbloc: 'BGAC',
             origin_duty_location: {
               address: {
@@ -415,6 +430,7 @@ describe('Orders page', () => {
   });
 
   it('renders appropriate order data on load', async () => {
+    showCounselingOffices.mockImplementation(() => Promise.resolve({}));
     selectServiceMemberFromLoggedInUser.mockImplementation(() => serviceMember);
     selectOrdersForLoggedInUser.mockImplementation(() => testProps.orders);
     selectAllMoves.mockImplementation(() => testProps.serviceMemberMoves);
@@ -435,12 +451,13 @@ describe('Orders page', () => {
   });
 
   it('next button patches the orders updates state', async () => {
+    showCounselingOffices.mockImplementation(() => Promise.resolve({}));
     selectServiceMemberFromLoggedInUser.mockImplementation(() => serviceMember);
     selectOrdersForLoggedInUser.mockImplementation(() => testProps.orders);
     selectAllMoves.mockImplementation(() => testProps.serviceMemberMoves);
     const testOrdersValues = {
       id: 'testOrdersId',
-      orders_type: 'PERMANENT_CHANGE_OF_STATION',
+      orders_type: ORDERS_TYPE.PERMANENT_CHANGE_OF_STATION,
       issue_date: '2020-11-08',
       report_by_date: '2020-11-26',
       has_dependents: false,
@@ -484,6 +501,7 @@ describe('Orders page', () => {
   });
 
   it('shows an error if the API returns an error', async () => {
+    showCounselingOffices.mockImplementation(() => Promise.resolve({}));
     selectServiceMemberFromLoggedInUser.mockImplementation(() => serviceMember);
     selectOrdersForLoggedInUser.mockImplementation(() => testProps.orders);
     selectAllMoves.mockImplementation(() => testProps.serviceMemberMoves);

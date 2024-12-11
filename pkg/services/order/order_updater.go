@@ -8,6 +8,7 @@ import (
 
 	"github.com/gobuffalo/validate/v3"
 	"github.com/gofrs/uuid"
+	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/apperror"
@@ -86,7 +87,7 @@ func (f *orderUpdater) UpdateAllowanceAsTOO(appCtx appcontext.AppContext, orderI
 		return &models.Order{}, uuid.Nil, apperror.NewPreconditionFailedError(orderID, query.StaleIdentifierError{StaleIdentifier: eTag})
 	}
 
-	orderToUpdate := allowanceFromTOOPayload(*order, payload)
+	orderToUpdate := allowanceFromTOOPayload(appCtx, *order, payload)
 
 	return f.updateOrder(appCtx, orderToUpdate)
 }
@@ -103,7 +104,7 @@ func (f *orderUpdater) UpdateAllowanceAsCounselor(appCtx appcontext.AppContext, 
 		return &models.Order{}, uuid.Nil, apperror.NewPreconditionFailedError(orderID, query.StaleIdentifierError{StaleIdentifier: eTag})
 	}
 
-	orderToUpdate := allowanceFromCounselingPayload(*order, payload)
+	orderToUpdate := allowanceFromCounselingPayload(appCtx, *order, payload)
 
 	return f.updateOrder(appCtx, orderToUpdate)
 }
@@ -176,7 +177,7 @@ func (f *orderUpdater) findOrderWithAmendedOrders(appCtx appcontext.AppContext, 
 	return &order, nil
 }
 
-func orderFromTOOPayload(_ appcontext.AppContext, existingOrder models.Order, payload ghcmessages.UpdateOrderPayload) models.Order {
+func orderFromTOOPayload(appCtx appcontext.AppContext, existingOrder models.Order, payload ghcmessages.UpdateOrderPayload) models.Order {
 	order := existingOrder
 
 	// update order origin duty location
@@ -402,7 +403,7 @@ func orderFromCounselingPayload(existingOrder models.Order, payload ghcmessages.
 	return order
 }
 
-func allowanceFromTOOPayload(existingOrder models.Order, payload ghcmessages.UpdateAllowancePayload) models.Order {
+func allowanceFromTOOPayload(appCtx appcontext.AppContext, existingOrder models.Order, payload ghcmessages.UpdateAllowancePayload) models.Order {
 	order := existingOrder
 
 	if payload.ProGearWeight != nil {
@@ -453,12 +454,56 @@ func allowanceFromTOOPayload(existingOrder models.Order, payload ghcmessages.Upd
 
 	if payload.GunSafe != nil {
 		order.Entitlement.GunSafe = *payload.GunSafe
+	}
+
+	if payload.AccompaniedTour != nil {
+		order.Entitlement.AccompaniedTour = payload.AccompaniedTour
+	}
+
+	if payload.DependentsUnderTwelve != nil {
+		order.Entitlement.DependentsUnderTwelve = models.IntPointer(int(*payload.DependentsUnderTwelve))
+	}
+
+	if payload.DependentsTwelveAndOver != nil {
+		order.Entitlement.DependentsTwelveAndOver = models.IntPointer(int(*payload.DependentsTwelveAndOver))
+	}
+
+	if order.OriginDutyLocationID != nil {
+		var originDutyLocation models.DutyLocation
+		originDutyLocation, err := models.FetchDutyLocation(appCtx.DB(), *order.OriginDutyLocationID)
+		if err == nil {
+			order.OriginDutyLocationID = &originDutyLocation.ID
+			order.OriginDutyLocation = &originDutyLocation
+		}
+	}
+
+	if order.NewDutyLocationID != uuid.Nil {
+		var newDutyLocation models.DutyLocation
+		newDutyLocation, err := models.FetchDutyLocation(appCtx.DB(), order.NewDutyLocationID)
+		if err == nil {
+			order.NewDutyLocationID = newDutyLocation.ID
+			order.NewDutyLocation = newDutyLocation
+		}
+	}
+
+	// Recalculate UB allowance of order entitlement
+	hasDepedents := false
+	if order.Entitlement != nil && order.Entitlement.DependentsAuthorized != nil && *order.Entitlement.DependentsAuthorized {
+		hasDepedents = true
+	} else if order.HasDependents {
+		hasDepedents = true
+	}
+	if order.Entitlement != nil {
+		unaccompaniedBaggageAllowance, err := models.GetUBWeightAllowance(appCtx, order.OriginDutyLocation.Address.IsOconus, order.NewDutyLocation.Address.IsOconus, order.ServiceMember.Affiliation, order.Grade, &order.OrdersType, &hasDepedents, order.Entitlement.AccompaniedTour, order.Entitlement.DependentsUnderTwelve, order.Entitlement.DependentsTwelveAndOver)
+		if err == nil {
+			weightAllotment.UnaccompaniedBaggageAllowance = unaccompaniedBaggageAllowance
+		}
 	}
 
 	return order
 }
 
-func allowanceFromCounselingPayload(existingOrder models.Order, payload ghcmessages.CounselingUpdateAllowancePayload) models.Order {
+func allowanceFromCounselingPayload(appCtx appcontext.AppContext, existingOrder models.Order, payload ghcmessages.CounselingUpdateAllowancePayload) models.Order {
 	order := existingOrder
 
 	if payload.ProGearWeight != nil {
@@ -509,6 +554,44 @@ func allowanceFromCounselingPayload(existingOrder models.Order, payload ghcmessa
 
 	if payload.GunSafe != nil {
 		order.Entitlement.GunSafe = *payload.GunSafe
+	}
+
+	if payload.AccompaniedTour != nil {
+		order.Entitlement.AccompaniedTour = payload.AccompaniedTour
+	}
+
+	if payload.DependentsUnderTwelve != nil {
+		order.Entitlement.DependentsUnderTwelve = models.IntPointer(int(*payload.DependentsUnderTwelve))
+	}
+
+	if payload.DependentsTwelveAndOver != nil {
+		order.Entitlement.DependentsTwelveAndOver = models.IntPointer(int(*payload.DependentsTwelveAndOver))
+	}
+
+	if order.OriginDutyLocationID != nil {
+		var originDutyLocation models.DutyLocation
+		originDutyLocation, err := models.FetchDutyLocation(appCtx.DB(), *order.OriginDutyLocationID)
+		if err == nil {
+			order.OriginDutyLocationID = &originDutyLocation.ID
+			order.OriginDutyLocation = &originDutyLocation
+		}
+	}
+
+	if order.NewDutyLocationID != uuid.Nil {
+		var newDutyLocation models.DutyLocation
+		newDutyLocation, err := models.FetchDutyLocation(appCtx.DB(), order.NewDutyLocationID)
+		if err == nil {
+			order.NewDutyLocationID = newDutyLocation.ID
+			order.NewDutyLocation = newDutyLocation
+		}
+	}
+
+	// Recalculate UB allowance of order entitlement
+	if order.Entitlement != nil {
+		unaccompaniedBaggageAllowance, err := models.GetUBWeightAllowance(appCtx, order.OriginDutyLocation.Address.IsOconus, order.NewDutyLocation.Address.IsOconus, order.ServiceMember.Affiliation, order.Grade, &order.OrdersType, payload.DependentsAuthorized, order.Entitlement.AccompaniedTour, order.Entitlement.DependentsUnderTwelve, order.Entitlement.DependentsTwelveAndOver)
+		if err == nil {
+			weightAllotment.UnaccompaniedBaggageAllowance = unaccompaniedBaggageAllowance
+		}
 	}
 
 	return order
@@ -631,14 +714,6 @@ func updateOrderInTx(appCtx appcontext.AppContext, order models.Order, checks ..
 		}
 	}
 
-	// update entitlement
-	if order.Entitlement != nil {
-		verrs, err = appCtx.DB().ValidateAndUpdate(order.Entitlement)
-		if e := handleError(order.ID, verrs, err); e != nil {
-			return nil, e
-		}
-	}
-
 	if order.NewDutyLocationID != uuid.Nil {
 		// TODO refactor to use service objects to fetch duty location
 		var newDutyLocation models.DutyLocation
@@ -667,9 +742,51 @@ func updateOrderInTx(appCtx appcontext.AppContext, order models.Order, checks ..
 		order.DestinationGBLOC = &newDestinationGBLOC.GBLOC
 	}
 
+	// Recalculate UB allowance of order entitlement
+	if order.Entitlement != nil {
+		unaccompaniedBaggageAllowance, err := models.GetUBWeightAllowance(appCtx, order.OriginDutyLocation.Address.IsOconus, order.NewDutyLocation.Address.IsOconus, order.ServiceMember.Affiliation, order.Grade, &order.OrdersType, order.Entitlement.DependentsAuthorized, order.Entitlement.AccompaniedTour, order.Entitlement.DependentsUnderTwelve, order.Entitlement.DependentsTwelveAndOver)
+		if err == nil {
+			order.Entitlement.UBAllowance = &unaccompaniedBaggageAllowance
+		}
+	}
+
+	// update entitlement
+	if order.Entitlement != nil {
+		verrs, err = appCtx.DB().ValidateAndUpdate(order.Entitlement)
+		if e := handleError(order.ID, verrs, err); e != nil {
+			return nil, e
+		}
+	}
+
 	verrs, err = appCtx.DB().ValidateAndUpdate(&order)
 	if e := handleError(order.ID, verrs, err); e != nil {
 		return nil, e
+	}
+
+	// change actual expense reimbursement to 'true' for all PPM shipments if pay grade is civilian
+	if order.Grade != nil && *order.Grade == models.ServiceMemberGradeCIVILIANEMPLOYEE {
+		moves, fetchErr := models.FetchMovesByOrderID(appCtx.DB(), order.ID)
+		if fetchErr != nil || len(moves) == 0 {
+			appCtx.Logger().Error("failure encountered querying for move associated with the order", zap.Error(err))
+		} else {
+			move := moves[0]
+			for i := range move.MTOShipments {
+				shipment := &move.MTOShipments[i]
+
+				if shipment.ShipmentType == models.MTOShipmentTypePPM {
+					if shipment.PPMShipment == nil {
+						appCtx.Logger().Warn("PPM shipment not found for MTO shipment", zap.String("shipmentID", shipment.ID.String()))
+						continue
+					}
+					shipment.PPMShipment.IsActualExpenseReimbursement = models.BoolPointer(true)
+
+					if verrs, err := appCtx.DB().ValidateAndUpdate(shipment.PPMShipment); verrs.HasAny() || err != nil {
+						msg := "failure saving PPM shipment when updating orders"
+						appCtx.Logger().Error(msg, zap.Error(err))
+					}
+				}
+			}
+		}
 	}
 
 	return &order, nil

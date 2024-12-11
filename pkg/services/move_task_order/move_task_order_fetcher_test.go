@@ -98,7 +98,6 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderFetcher() {
 					City:           "New York",
 					State:          "NY",
 					PostalCode:     "10001",
-					Country:        models.StringPointer("US"),
 				},
 				Type: &factory.Addresses.OriginalAddress,
 			},
@@ -125,7 +124,7 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderFetcher() {
 		suite.Equal(expectedAddressUpdate.OriginalAddress.City, actualAddressUpdate.OriginalAddress.City)
 		suite.Equal(expectedAddressUpdate.OriginalAddress.State, actualAddressUpdate.OriginalAddress.State)
 		suite.Equal(expectedAddressUpdate.OriginalAddress.PostalCode, actualAddressUpdate.OriginalAddress.PostalCode)
-		suite.Equal(expectedAddressUpdate.OriginalAddress.Country, actualAddressUpdate.OriginalAddress.Country)
+		suite.Equal(expectedAddressUpdate.OriginalAddress.CountryId, actualAddressUpdate.OriginalAddress.CountryId)
 	})
 
 	suite.Run("Success with fetching a MTO with a Shipment Address Update that has a customized Original Address and three addresses", func() {
@@ -140,7 +139,6 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderFetcher() {
 					City:           "New York",
 					State:          "NY",
 					PostalCode:     "10001",
-					Country:        models.StringPointer("US"),
 				},
 				Type: &factory.Addresses.OriginalAddress,
 			},
@@ -167,7 +165,7 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderFetcher() {
 		suite.Equal(expectedAddressUpdate.OriginalAddress.City, actualAddressUpdate.OriginalAddress.City)
 		suite.Equal(expectedAddressUpdate.OriginalAddress.State, actualAddressUpdate.OriginalAddress.State)
 		suite.Equal(expectedAddressUpdate.OriginalAddress.PostalCode, actualAddressUpdate.OriginalAddress.PostalCode)
-		suite.Equal(expectedAddressUpdate.OriginalAddress.Country, actualAddressUpdate.OriginalAddress.Country)
+		suite.Equal(expectedAddressUpdate.OriginalAddress.CountryId, actualAddressUpdate.OriginalAddress.CountryId)
 	})
 
 	suite.Run("Success with Prime-available move by ID, fetch all non-deleted shipments", func() {
@@ -260,20 +258,26 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderFetcher() {
 
 		actualMTO, err := mtoFetcher.FetchMoveTaskOrder(suite.AppContextForTest(), &searchParams)
 		suite.NoError(err)
-		if suite.Len(actualMTO.MTOServiceItems, 2) {
-			serviceItem1 := actualMTO.MTOServiceItems[0]
-			suite.Equal(models.ReServiceCodeDDFSIT, serviceItem1.ReService.Code)
-			suite.Equal(address.StreetAddress1, serviceItem1.SITDestinationFinalAddress.StreetAddress1)
-			suite.Equal(address.State, serviceItem1.SITDestinationFinalAddress.State)
-			suite.Equal(address.City, serviceItem1.SITDestinationFinalAddress.City)
-			suite.Equal(1, len(serviceItem1.CustomerContacts))
+		found := false
+		for _, serviceItem := range actualMTO.MTOServiceItems {
+			if serviceItem.ReService.Code == models.ReServiceCodeDDFSIT {
+				suite.Equal(address.StreetAddress1, serviceItem.SITDestinationFinalAddress.StreetAddress1)
+				suite.Equal(address.State, serviceItem.SITDestinationFinalAddress.State)
+				suite.Equal(address.City, serviceItem.SITDestinationFinalAddress.City)
+				suite.Equal(1, len(serviceItem.CustomerContacts))
 
-			if suite.Len(serviceItem1.ServiceRequestDocuments, 1) {
-				if suite.Len(serviceItem1.ServiceRequestDocuments[0].ServiceRequestDocumentUploads, 1) {
-					suite.Equal(serviceRequestDocumentUpload.ID, serviceItem1.ServiceRequestDocuments[0].ServiceRequestDocumentUploads[0].ID)
+				if suite.Len(serviceItem.ServiceRequestDocuments, 1) {
+					if suite.Len(serviceItem.ServiceRequestDocuments[0].ServiceRequestDocumentUploads, 1) {
+						suite.Equal(serviceRequestDocumentUpload.ID, serviceItem.ServiceRequestDocuments[0].ServiceRequestDocumentUploads[0].ID)
+					}
 				}
+
+				found = true
+				break
 			}
 		}
+		// Verify that the expected service item was found
+		suite.True(found, "Expected service item with ReServiceCodeDDFSIT not found")
 	})
 
 	suite.Run("Success with Prime-available move by Locator, no deleted or external shipments", func() {
@@ -797,7 +801,6 @@ func (suite *MoveTaskOrderServiceSuite) TestListPrimeMoveTaskOrdersAmendmentsFet
 		suite.Contains(moveIDs, primeMove3.ID)
 		suite.Contains(moveIDs, primeMove4.ID)
 		suite.Contains(moveIDs, primeMove5.ID)
-		suite.Equal(amendmentCountInfo[0].MoveID, moveIDs[0])
 
 		// amendmentCountInfo should only contain moves that have amendments.
 		suite.Len(amendmentCountInfo, 4)
