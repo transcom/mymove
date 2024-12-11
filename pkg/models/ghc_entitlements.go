@@ -15,13 +15,17 @@ import (
 type Entitlement struct {
 	ID                    uuid.UUID `db:"id"`
 	DependentsAuthorized  *bool     `db:"dependents_authorized"`
-	TotalDependents       *int      `db:"total_dependents"`
+	TotalDependents       *int      `db:"total_dependents" rw:"r"` // DB generated column
 	NonTemporaryStorage   *bool     `db:"non_temporary_storage"`
 	PrivatelyOwnedVehicle *bool     `db:"privately_owned_vehicle"`
 	//DBAuthorizedWeight is AuthorizedWeight when not null
 	DBAuthorizedWeight                           *int             `db:"authorized_weight"`
 	WeightAllotted                               *WeightAllotment `db:"-"`
 	StorageInTransit                             *int             `db:"storage_in_transit"`
+	AccompaniedTour                              *bool            `db:"accompanied_tour"`
+	DependentsUnderTwelve                        *int             `db:"dependents_under_twelve"`
+	DependentsTwelveAndOver                      *int             `db:"dependents_twelve_and_over"`
+	UBAllowance                                  *int             `db:"ub_allowance"`
 	GunSafe                                      bool             `db:"gun_safe"`
 	RequiredMedicalEquipmentWeight               int              `db:"required_medical_equipment_weight"`
 	OrganizationalClothingAndIndividualEquipment bool             `db:"organizational_clothing_and_individual_equipment"`
@@ -38,12 +42,28 @@ func (e Entitlement) TableName() string {
 
 // Validate gets run every time you call a "pop.Validate*" (pop.ValidateAndSave, pop.ValidateAndCreate, pop.ValidateAndUpdate) method.
 func (e *Entitlement) Validate(*pop.Connection) (*validate.Errors, error) {
-	return validate.Validate(
+	var vs []validate.Validator
+
+	vs = append(vs,
 		&validators.IntIsGreaterThan{Field: e.ProGearWeight, Compared: -1, Name: "ProGearWeight"},
 		&validators.IntIsLessThan{Field: e.ProGearWeight, Compared: 2001, Name: "ProGearWeight"},
 		&validators.IntIsGreaterThan{Field: e.ProGearWeightSpouse, Compared: -1, Name: "ProGearWeightSpouse"},
 		&validators.IntIsLessThan{Field: e.ProGearWeightSpouse, Compared: 501, Name: "ProGearWeightSpouse"},
-	), nil
+	)
+
+	if e.DependentsUnderTwelve != nil {
+		vs = append(vs, &validators.IntIsGreaterThan{Field: *e.DependentsUnderTwelve, Compared: -1, Name: "DependentsUnderTwelve"})
+	}
+
+	if e.DependentsTwelveAndOver != nil {
+		vs = append(vs, &validators.IntIsGreaterThan{Field: *e.DependentsTwelveAndOver, Compared: -1, Name: "DependentsTwelveAndOver"})
+	}
+
+	if e.UBAllowance != nil {
+		vs = append(vs, &validators.IntIsGreaterThan{Field: *e.UBAllowance, Compared: -1, Name: "UBAllowance"})
+	}
+
+	return validate.Validate(vs...), nil
 }
 
 // SetWeightAllotment sets the weight allotment
@@ -58,6 +78,16 @@ func (e *Entitlement) SetWeightAllotment(grade string) {
 // WeightAllotment returns the weight allotment
 func (e *Entitlement) WeightAllotment() *WeightAllotment {
 	return e.WeightAllotted
+}
+
+// UBWeightAllotment returns the UB weight allotment
+func (e *Entitlement) UBWeightAllotment() *int {
+	if e.WeightAllotment() != nil {
+		if e.WeightAllotment().UnaccompaniedBaggageAllowance >= 0 {
+			return &e.WeightAllotment().UnaccompaniedBaggageAllowance
+		}
+	}
+	return nil
 }
 
 // AuthorizedWeight returns authorized weight. If authorized weight has not been
@@ -88,4 +118,14 @@ func (e *Entitlement) WeightAllowance() *int {
 	}
 
 	return nil
+}
+
+// UBWeightAllowance returns authorized weight for UB shipments
+func (e *Entitlement) UBWeightAllowance() *int {
+	switch {
+	case e.UBWeightAllotment() != nil:
+		return e.UBAllowance
+	default:
+		return nil
+	}
 }

@@ -1737,8 +1737,9 @@ func (suite *HandlerSuite) TestUpdateMTOPostCounselingInfo() {
 			return mockUpdater
 		}
 
+		ppmEstimator := &mocks.PPMEstimator{}
 		siCreator := mtoserviceitem.NewMTOServiceItemCreator(planner, queryBuilder, moveRouter, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticPackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer())
-		updater := movetaskorder.NewMoveTaskOrderUpdater(queryBuilder, siCreator, moveRouter, setUpSignedCertificationCreatorMock(nil, nil), setUpSignedCertificationUpdaterMock(nil, nil))
+		updater := movetaskorder.NewMoveTaskOrderUpdater(queryBuilder, siCreator, moveRouter, setUpSignedCertificationCreatorMock(nil, nil), setUpSignedCertificationUpdaterMock(nil, nil), ppmEstimator)
 		mtoChecker := movetaskorder.NewMoveTaskOrderChecker()
 
 		handler := UpdateMTOPostCounselingInformationHandler{
@@ -1820,8 +1821,9 @@ func (suite *HandlerSuite) TestUpdateMTOPostCounselingInfo() {
 			return mockUpdater
 		}
 
+		ppmEstimator := &mocks.PPMEstimator{}
 		siCreator := mtoserviceitem.NewMTOServiceItemCreator(planner, queryBuilder, moveRouter, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticPackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer())
-		updater := movetaskorder.NewMoveTaskOrderUpdater(queryBuilder, siCreator, moveRouter, setUpSignedCertificationCreatorMock(nil, nil), setUpSignedCertificationUpdaterMock(nil, nil))
+		updater := movetaskorder.NewMoveTaskOrderUpdater(queryBuilder, siCreator, moveRouter, setUpSignedCertificationCreatorMock(nil, nil), setUpSignedCertificationUpdaterMock(nil, nil), ppmEstimator)
 		handler := UpdateMTOPostCounselingInformationHandler{
 			suite.HandlerConfig(),
 			fetcher,
