@@ -20,6 +20,7 @@ COPY config/tls/api.exp.dp3.us.crt /config/tls/api.exp.dp3.us.crt
 
 COPY swagger/* /swagger/
 COPY build /build
+COPY public/static/react-file-viewer /public/static/react-file-viewer
 
 ENTRYPOINT ["/bin/milmove"]
 

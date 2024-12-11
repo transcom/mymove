@@ -1026,6 +1026,9 @@
 20241017183144_add_AK_HI_duty_locations.up.sql
 20241018091722_oconus-entitlements-enhancement.up.sql
 20241023130404_create_re_service_items.up.sql
+20241023184337_create_ports_table.up.sql
+20241023184350_create_port_locations_table.up.sql
+20241023184437_insert_ports.up.sql
 20241024114748_create_gbloc_aors.up.sql
 20241029125015_add_orders_type_enum.up.sql
 20241029144404_hdt-614-adjust-accomack-county.up.sql
@@ -1034,6 +1037,10 @@
 20241109002854_add_gsr_table_to_move_history.up.sql
 20241111203514_add_external_crate_and_remove_icrtsa.up.sql
 20241111223224_change_international_sit_services_to_accessorials.up.sql
+20241115214553_create_re_fsc_multipliers_table.up.sql
+20241120221040_change_port_location_fk_to_correct_table.up.sql
+20241122155416_total_dependents_calculation.up.sql
+20241126222026_add_sort_column_to_re_service_items.up.sql
 20241127133504_add_indexes_speed_up_counseling_offices.up.sql
 20241202163059_create_test_sequence_dev_env.up.sql
 20241203024453_add_ppm_max_incentive_column.up.sql

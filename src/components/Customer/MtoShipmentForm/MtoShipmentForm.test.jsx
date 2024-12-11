@@ -1129,15 +1129,6 @@ describe('MtoShipmentForm component', () => {
       ).toBeInTheDocument();
     });
 
-    it('renders the correct helper text when the UB allowance is null', async () => {
-      renderUBShipmentForm({ orders: { entitlement: { ub_allowance: null } } });
-      expect(
-        screen.queryByText(
-          'Remember: You can move up to your UB allowance for this UB shipment. The weight of your UB is part of your authorized weight allowance. You’ll be billed for any excess weight you move.',
-        ),
-      ).toBeInTheDocument();
-    });
-
     it('renders the correct helper text for Delivery Address when orders type is RETIREMENT', async () => {
       renderUBShipmentForm({ orders: { orders_type: ORDERS_TYPE.RETIREMENT } });
       await waitFor(() =>

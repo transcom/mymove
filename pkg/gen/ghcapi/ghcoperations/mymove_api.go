@@ -38,6 +38,7 @@ import (
 	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/ppm"
 	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/pws_violations"
 	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/queues"
+	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/re_service_items"
 	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/report_violations"
 	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/shipment"
 	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/tac"
@@ -155,6 +156,9 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		}),
 		PpmFinishDocumentReviewHandler: ppm.FinishDocumentReviewHandlerFunc(func(params ppm.FinishDocumentReviewParams) middleware.Responder {
 			return middleware.NotImplemented("operation ppm.FinishDocumentReview has not yet been implemented")
+		}),
+		ReServiceItemsGetAllReServiceItemsHandler: re_service_items.GetAllReServiceItemsHandlerFunc(func(params re_service_items.GetAllReServiceItemsParams) middleware.Responder {
+			return middleware.NotImplemented("operation re_service_items.GetAllReServiceItems has not yet been implemented")
 		}),
 		CustomerGetCustomerHandler: customer.GetCustomerHandlerFunc(func(params customer.GetCustomerParams) middleware.Responder {
 			return middleware.NotImplemented("operation customer.GetCustomer has not yet been implemented")
@@ -485,6 +489,8 @@ type MymoveAPI struct {
 	MtoAgentFetchMTOAgentListHandler mto_agent.FetchMTOAgentListHandler
 	// PpmFinishDocumentReviewHandler sets the operation handler for the finish document review operation
 	PpmFinishDocumentReviewHandler ppm.FinishDocumentReviewHandler
+	// ReServiceItemsGetAllReServiceItemsHandler sets the operation handler for the get all re service items operation
+	ReServiceItemsGetAllReServiceItemsHandler re_service_items.GetAllReServiceItemsHandler
 	// CustomerGetCustomerHandler sets the operation handler for the get customer operation
 	CustomerGetCustomerHandler customer.GetCustomerHandler
 	// CustomerSupportRemarksGetCustomerSupportRemarksForMoveHandler sets the operation handler for the get customer support remarks for move operation
@@ -804,6 +810,9 @@ func (o *MymoveAPI) Validate() error {
 	}
 	if o.PpmFinishDocumentReviewHandler == nil {
 		unregistered = append(unregistered, "ppm.FinishDocumentReviewHandler")
+	}
+	if o.ReServiceItemsGetAllReServiceItemsHandler == nil {
+		unregistered = append(unregistered, "re_service_items.GetAllReServiceItemsHandler")
 	}
 	if o.CustomerGetCustomerHandler == nil {
 		unregistered = append(unregistered, "customer.GetCustomerHandler")
@@ -1238,6 +1247,10 @@ func (o *MymoveAPI) initHandlerCache() {
 		o.handlers["PATCH"] = make(map[string]http.Handler)
 	}
 	o.handlers["PATCH"]["/ppm-shipments/{ppmShipmentId}/finish-document-review"] = ppm.NewFinishDocumentReview(o.context, o.PpmFinishDocumentReviewHandler)
+	if o.handlers["GET"] == nil {
+		o.handlers["GET"] = make(map[string]http.Handler)
+	}
+	o.handlers["GET"]["/re-service-items"] = re_service_items.NewGetAllReServiceItems(o.context, o.ReServiceItemsGetAllReServiceItemsHandler)
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}

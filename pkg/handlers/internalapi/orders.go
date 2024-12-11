@@ -229,8 +229,15 @@ func (h CreateOrdersHandler) Handle(params ordersop.CreateOrdersParams) middlewa
 				in move_dats.go, move_weights, and move_submitted, etc
 			*/
 
-			if saveEntitlementErr := appCtx.DB().Save(&entitlement); saveEntitlementErr != nil {
-				return handlers.ResponseForError(appCtx.Logger(), saveEntitlementErr), saveEntitlementErr
+			verrs, err := appCtx.DB().ValidateAndSave(&entitlement)
+			if err != nil {
+				appCtx.Logger().Error("Error saving customer entitlement", zap.Error(err))
+				return handlers.ResponseForError(appCtx.Logger(), err), err
+			}
+
+			if verrs.HasAny() {
+				appCtx.Logger().Error("Validation error saving customer entitlement", zap.Any("errors", verrs.Errors))
+				return handlers.ResponseForVErrors(appCtx.Logger(), verrs, nil), nil
 			}
 
 			var deptIndicator *string
