@@ -3,10 +3,12 @@ package entitlements
 import (
 	"fmt"
 
-	"github.com/gofrs/uuid"
+	"github.com/pkg/errors"
 
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/apperror"
+	"github.com/transcom/mymove/pkg/etag"
+	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
 )
 
@@ -17,47 +19,75 @@ func NewWeightRestrictor() services.WeightRestrictor {
 	return &weightRestrictor{}
 }
 
-func (wr *weightRestrictor) ApplyWeightRestrictionToEntitlement(appCtx appcontext.AppContext, entitlementID uuid.UUID, weightRestriction int) error {
+func (wr *weightRestrictor) ApplyWeightRestrictionToEntitlement(appCtx appcontext.AppContext, entitlement models.Entitlement, weightRestriction int, eTag string) (*models.Entitlement, error) {
+	// First, fetch the latest version of the entitlement for etag check
+	var originalEntitlement models.Entitlement
+	err := appCtx.DB().Find(&originalEntitlement, entitlement.ID)
+	if err != nil {
+		return nil, apperror.NewQueryError("Entitlements", err, "error fetching entitlement")
+	}
+
+	// verify ETag
+	if etag.GenerateEtag(originalEntitlement.UpdatedAt) != eTag {
+		return nil, apperror.NewPreconditionFailedError(originalEntitlement.ID, nil)
+	}
 
 	maxHhgAllowance, err := wr.fetchMaxHhgAllowance(appCtx)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	// Don't allow applying a weight restriction above teh max allowance, that's silly
 	if weightRestriction > maxHhgAllowance {
-		return apperror.NewInvalidInputError(entitlementID, fmt.Errorf("weight restriction %d exceeds max HHG allowance %d", weightRestriction, maxHhgAllowance), nil, "error applying weight restriction")
+		return nil, apperror.NewInvalidInputError(entitlement.ID,
+			fmt.Errorf("weight restriction %d exceeds max HHG allowance %d", weightRestriction, maxHhgAllowance),
+			nil, "error applying weight restriction")
 	}
 
-	// If we reached this spot we're good to apply the restriction to the entitlement
-	err = appCtx.DB().
-		RawQuery(`
-            UPDATE entitlements
-            SET weight_restriction = $1, is_weight_restricted = true
-            WHERE id = $2
-        `, weightRestriction, entitlementID).
-		Exec()
+	// Update the restriction fields
+	originalEntitlement.IsWeightRestricted = true
+	originalEntitlement.WeightRestriction = &weightRestriction
+
+	verrs, err := appCtx.DB().ValidateAndUpdate(&originalEntitlement)
 	if err != nil {
-		return apperror.NewQueryError("Entitlements", err, "error updating weight restriction for entitlement")
+		return nil, apperror.NewQueryError("Entitlements", err, "error updating weight restriction for entitlement")
+	}
+	if verrs != nil && verrs.HasAny() {
+		return nil, apperror.NewInvalidInputError(originalEntitlement.ID, err, verrs, "invalid input while updating entitlement")
 	}
 
-	return nil
+	return &originalEntitlement, nil
 }
 
-func (wr *weightRestrictor) RemoveWeightRestrictionFromEntitlement(appCtx appcontext.AppContext, entitlementID uuid.UUID) error {
-	// Remove the restriction by setting weight_restriction = NULL and is_weight_restricted = false
-	err := appCtx.DB().
-		RawQuery(`
-            UPDATE entitlements
-            SET weight_restriction = NULL, is_weight_restricted = false
-            WHERE id = $1
-        `, entitlementID).
-		Exec()
+func (wr *weightRestrictor) RemoveWeightRestrictionFromEntitlement(appCtx appcontext.AppContext, entitlement models.Entitlement, eTag string) (*models.Entitlement, error) {
+	// Fetch the latest version of the entitlement for etag check
+	var originalEntitlement models.Entitlement
+	err := appCtx.DB().Find(&originalEntitlement, entitlement.ID)
 	if err != nil {
-		return apperror.NewQueryError("Entitlements", err, "error removing weight restriction for entitlement")
+		if errors.Cause(err).Error() == models.RecordNotFoundErrorString {
+			return nil, apperror.NewNotFoundError(entitlement.ID, "entitlement not found")
+		}
+		return nil, apperror.NewQueryError("Entitlements", err, "error fetching entitlement")
 	}
 
-	return nil
+	// verify ETag
+	if etag.GenerateEtag(originalEntitlement.UpdatedAt) != eTag {
+		return nil, apperror.NewPreconditionFailedError(originalEntitlement.ID, nil)
+	}
+
+	// Update the restriction fields
+	originalEntitlement.IsWeightRestricted = false
+	originalEntitlement.WeightRestriction = nil
+
+	verrs, err := appCtx.DB().ValidateAndUpdate(&originalEntitlement)
+	if err != nil {
+		return nil, apperror.NewQueryError("Entitlements", err, "error removing weight restriction for entitlement")
+	}
+	if verrs != nil && verrs.HasAny() {
+		return nil, apperror.NewInvalidInputError(originalEntitlement.ID, err, verrs, "invalid input while updating entitlement")
+	}
+
+	return &originalEntitlement, nil
 }
 
 func (wr *weightRestrictor) fetchMaxHhgAllowance(appCtx appcontext.AppContext) (int, error) {

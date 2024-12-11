@@ -4,11 +4,11 @@ import (
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/apperror"
+	"github.com/transcom/mymove/pkg/etag"
 	"github.com/transcom/mymove/pkg/models"
 )
 
 func (suite *EntitlementsServiceSuite) TestWeightRestrictor() {
-
 	setupHhgAllowanceParameter := func() {
 		parameter := models.ApplicationParameters{
 			ParameterName:  models.StringPointer("maxHhgAllowance"),
@@ -27,13 +27,9 @@ func (suite *EntitlementsServiceSuite) TestWeightRestrictor() {
 
 		// Set a weight restriction within allowance
 		restrictor := NewWeightRestrictor()
-		err := restrictor.ApplyWeightRestrictionToEntitlement(suite.AppContextForTest(), entitlement.ID, 10000)
+		updatedEntitlement, err := restrictor.ApplyWeightRestrictionToEntitlement(suite.AppContextForTest(), entitlement, 10000, etag.GenerateEtag(entitlement.UpdatedAt))
 		suite.NoError(err)
-
-		// Fetch updated entitlement
-		var updatedEntitlement models.Entitlement
-		err = suite.DB().Find(&updatedEntitlement, entitlement.ID)
-		suite.NoError(err)
+		suite.NotNil(updatedEntitlement)
 		suite.True(updatedEntitlement.IsWeightRestricted)
 		suite.NotNil(updatedEntitlement.WeightRestriction)
 		suite.Equal(10000, *updatedEntitlement.WeightRestriction)
@@ -49,21 +45,22 @@ func (suite *EntitlementsServiceSuite) TestWeightRestrictor() {
 
 		// Set an impossible weight restriction
 		restrictor := NewWeightRestrictor()
-		err := restrictor.ApplyWeightRestrictionToEntitlement(suite.AppContextForTest(), entitlement.ID, 20000)
+		updatedEntitlement, err := restrictor.ApplyWeightRestrictionToEntitlement(suite.AppContextForTest(), entitlement, 20000, etag.GenerateEtag(entitlement.UpdatedAt))
 		suite.Error(err)
+		suite.Nil(updatedEntitlement)
 		suite.IsType(apperror.InvalidInputError{}, err)
 	})
 
 	suite.Run("No maxHhgAllowance parameter found returns error", func() {
-		// Ensure no parameter with maxHhgAllowance exists
 		entitlement := models.Entitlement{
 			ID: uuid.Must(uuid.NewV4()),
 		}
 		suite.MustCreate(&entitlement)
 
 		restrictor := NewWeightRestrictor()
-		err := restrictor.ApplyWeightRestrictionToEntitlement(suite.AppContextForTest(), entitlement.ID, 10000)
+		updatedEntitlement, err := restrictor.ApplyWeightRestrictionToEntitlement(suite.AppContextForTest(), entitlement, 10000, etag.GenerateEtag(entitlement.UpdatedAt))
 		suite.Error(err)
+		suite.Nil(updatedEntitlement)
 		suite.IsType(apperror.QueryError{}, err)
 	})
 
@@ -80,15 +77,9 @@ func (suite *EntitlementsServiceSuite) TestWeightRestrictor() {
 		suite.MustCreate(&entitlement)
 
 		restrictor := NewWeightRestrictor()
-
-		// Remove the restriction
-		err := restrictor.RemoveWeightRestrictionFromEntitlement(suite.AppContextForTest(), entitlement.ID)
+		updatedEntitlement, err := restrictor.RemoveWeightRestrictionFromEntitlement(suite.AppContextForTest(), entitlement, etag.GenerateEtag(entitlement.UpdatedAt))
 		suite.NoError(err)
-
-		// Fetch updated entitlement
-		var updatedEntitlement models.Entitlement
-		err = suite.DB().Find(&updatedEntitlement, entitlement.ID)
-		suite.NoError(err)
+		suite.NotNil(updatedEntitlement)
 		suite.False(updatedEntitlement.IsWeightRestricted)
 		suite.Nil(updatedEntitlement.WeightRestriction)
 	})
@@ -96,9 +87,14 @@ func (suite *EntitlementsServiceSuite) TestWeightRestrictor() {
 	suite.Run("Fails on removing a weight restriction for an entitlement that does not exist", func() {
 		setupHhgAllowanceParameter()
 
-		restrictor := NewWeightRestrictor()
+		entitlement := models.Entitlement{
+			ID: uuid.Must(uuid.NewV4()),
+		}
 
-		err := restrictor.RemoveWeightRestrictionFromEntitlement(suite.AppContextForTest(), uuid.Must(uuid.NewV4()))
+		restrictor := NewWeightRestrictor()
+		updatedEntitlement, err := restrictor.RemoveWeightRestrictionFromEntitlement(suite.AppContextForTest(), entitlement, etag.GenerateEtag(entitlement.UpdatedAt))
 		suite.Error(err)
+		suite.Nil(updatedEntitlement)
+		suite.IsType(apperror.NotFoundError{}, err)
 	})
 }

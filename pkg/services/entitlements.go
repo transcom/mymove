@@ -1,8 +1,6 @@
 package services
 
 import (
-	"github.com/gofrs/uuid"
-
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/models"
 )
@@ -18,6 +16,6 @@ type WeightAllotmentFetcher interface {
 //
 //go:generate mockery --name WeightRestrictor
 type WeightRestrictor interface {
-	ApplyWeightRestrictionToEntitlement(appCtx appcontext.AppContext, entitlementID uuid.UUID, weightRestriction int) error
-	RemoveWeightRestrictionFromEntitlement(appCtx appcontext.AppContext, entitlementID uuid.UUID) error
+	ApplyWeightRestrictionToEntitlement(appCtx appcontext.AppContext, entitlement models.Entitlement, weightRestriction int, eTag string) (*models.Entitlement, error)
+	RemoveWeightRestrictionFromEntitlement(appCtx appcontext.AppContext, entitlement models.Entitlement, eTag string) (*models.Entitlement, error)
 }
