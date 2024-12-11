@@ -27,6 +27,7 @@ func TestTransportationOfficeAssignmentsServiceSuite(t *testing.T) {
 }
 
 func (suite *TransportationOfficeAssignmentsServiceSuite) Test_FetchTransportaionOfficeAssignmentsByOfficeUserID() {
+	suite.toaFetcher = NewTransportaionOfficeAssignmentFetcher()
 	officeUser := factory.BuildOfficeUser(suite.DB(), nil, nil)
 	assignments, err := suite.toaFetcher.FetchTransportaionOfficeAssignmentsByOfficeUserID(suite.AppContextForTest(), officeUser.ID)
 
