@@ -485,3 +485,31 @@ func (suite *ModelSuite) TestSaveOrderWithoutPPM() {
 	suite.Equal(location.ID, orderUpdated.NewDutyLocationID, "Wrong order new_duty_location_id")
 	suite.Equal(newPostalCode, order.NewDutyLocation.Address.PostalCode, "Wrong orig postal code")
 }
+
+func (suite *ModelSuite) TestOrderCanSendEmailWithOrdersType() {
+	suite.Run("Non safety or BB orders can send email", func() {
+		order := factory.BuildOrder(suite.DB(), []factory.Customization{
+			{
+				Model: m.Order{
+					OrdersType: internalmessages.OrdersTypePERMANENTCHANGEOFSTATION,
+				},
+			},
+		}, nil)
+
+		canSendEmail := order.CanSendEmailWithOrdersType()
+		suite.True(canSendEmail)
+	})
+
+	suite.Run("Safety and BB orders cannot send email", func() {
+		order := factory.BuildOrder(suite.DB(), []factory.Customization{
+			{
+				Model: m.Order{
+					OrdersType: internalmessages.OrdersTypeBLUEBARK,
+				},
+			},
+		}, nil)
+
+		canSendEmail := order.CanSendEmailWithOrdersType()
+		suite.False(canSendEmail)
+	})
+}
