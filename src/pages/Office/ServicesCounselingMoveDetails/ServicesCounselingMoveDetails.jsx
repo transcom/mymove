@@ -76,6 +76,8 @@ const ServicesCounselingMoveDetails = ({
   const [isCancelMoveModalVisible, setIsCancelMoveModalVisible] = useState(false);
   const [enableBoat, setEnableBoat] = useState(false);
   const [enableMobileHome, setEnableMobileHome] = useState(false);
+  const [enableUB, setEnableUB] = useState(false);
+  const [isOconusMove, setIsOconusMove] = useState(false);
   const { upload, amendedUpload } = useOrdersDocumentQueries(moveCode);
   const [errorMessage, setErrorMessage] = useState(null);
   const documentsForViewer = Object.values(upload || {})
@@ -90,7 +92,7 @@ const ServicesCounselingMoveDetails = ({
 
   const validOrdersDocuments = Object.values(orderDocuments || {})?.filter((file) => !file.deletedAt);
 
-  const { customer, entitlement: allowances } = order;
+  const { customer, entitlement: allowances, originDutyLocation, destinationDutyLocation } = order;
 
   const moveWeightTotal = calculateWeightRequested(mtoShipments);
 
@@ -169,9 +171,19 @@ const ServicesCounselingMoveDetails = ({
     const fetchData = async () => {
       setEnableBoat(await isBooleanFlagEnabled(FEATURE_FLAG_KEYS.BOAT));
       setEnableMobileHome(await isBooleanFlagEnabled(FEATURE_FLAG_KEYS.MOBILE_HOME));
+      setEnableUB(await isBooleanFlagEnabled(FEATURE_FLAG_KEYS.UNACCOMPANIED_BAGGAGE));
     };
     fetchData();
   }, []);
+
+  useEffect(() => {
+    // Check if either currentDutyLocation or newDutyLocation is OCONUS to conditionally render the UB shipment option
+    if (originDutyLocation?.address?.isOconus || destinationDutyLocation?.address?.isOconus) {
+      setIsOconusMove(true);
+    } else {
+      setIsOconusMove(false);
+    }
+  }, [originDutyLocation, destinationDutyLocation, isOconusMove, enableUB]);
 
   // for now we are only showing dest type on retiree and separatee orders
   const isRetirementOrSeparation =
@@ -624,6 +636,7 @@ const ServicesCounselingMoveDetails = ({
         <option value={SHIPMENT_OPTIONS_URL.NTSrelease}>NTS-release</option>
         {enableBoat && <option value={SHIPMENT_OPTIONS_URL.BOAT}>Boat</option>}
         {enableMobileHome && <option value={SHIPMENT_OPTIONS_URL.MOBILE_HOME}>Mobile Home</option>}
+        {enableUB && isOconusMove && <option value={SHIPMENT_OPTIONS_URL.UNACCOMPANIED_BAGGAGE}>UB</option>}
       </>
     );
   };
