@@ -360,6 +360,7 @@ func (f orderFetcher) ListDestinationRequestsOrders(appCtx appcontext.AppContext
 		"Orders.OriginDutyLocation.Address",
 		"Orders.Entitlement",
 		"MTOShipments.DeliveryAddressUpdate",
+		"MTOShipments.DestinationAddress",
 		"MTOServiceItems.ReService.Code",
 		"ShipmentGBLOC",
 		"MTOShipments.PPMShipment",
