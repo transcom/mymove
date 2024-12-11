@@ -604,10 +604,6 @@ definitions:
       netWeightRemarks:
         description: Remarks explaining any edits made to the net weight
         type: string
-      allowableWeight:
-        description: Indicates the maximum reimbursable weight of the shipment
-        type: integer
-        minimum: 0
   TransportationOffices:
     type: array
     items:
@@ -3164,12 +3160,6 @@ definitions:
         description: A hash that should be used as the "If-Match" header for any updates.
         type: string
         readOnly: true
-      allowableWeight:
-        description: Maximum reimbursable weight.
-        type: integer
-        minimum: 0
-        x-nullable: true
-        x-omitempty: false
     required:
       - ppmShipmentId
       - createdAt
@@ -3725,6 +3715,13 @@ definitions:
         description: The estimated weight of the PPM shipment goods being moved.
         type: integer
         example: 4200
+        x-nullable: true
+        x-omitempty: false
+      allowableWeight:
+        description: The allowable weight of the PPM shipment goods being moved.
+        type: integer
+        example: 4300
+        minimum: 0
         x-nullable: true
         x-omitempty: false
       hasProGear:
