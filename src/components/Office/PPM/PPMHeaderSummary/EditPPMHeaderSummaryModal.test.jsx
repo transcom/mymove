@@ -19,6 +19,7 @@ describe('EditPPMHeaderSummaryModal', () => {
   const sectionInfo = {
     actualMoveDate: '2022-01-01',
     advanceAmountReceived: 50000,
+    allowableWeight: 1750,
     destinationAddressObj: {
       city: 'Fairfield',
       country: 'US',
@@ -117,6 +118,27 @@ describe('EditPPMHeaderSummaryModal', () => {
 
     expect(await screen.findByRole('heading', { level: 3, name: 'Edit Shipment Info' })).toBeInTheDocument();
     expect(screen.getByText('Is this PPM an Actual Expense Reimbursement?')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Save' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Cancel' })).toBeInTheDocument();
+    expect(screen.getByLabelText('Close')).toBeInstanceOf(HTMLButtonElement);
+  });
+
+  it('renders allowable weight', async () => {
+    await act(async () => {
+      render(
+        <EditPPMHeaderSummaryModal
+          sectionType="shipmentInfo"
+          sectionInfo={sectionInfo}
+          onClose={onClose}
+          onSubmit={onSubmit}
+          editItemName="allowableWeight"
+        />,
+      );
+    });
+
+    expect(await screen.findByRole('heading', { level: 3, name: 'Edit Shipment Info' })).toBeInTheDocument();
+    expect(screen.getByText('Allowable Weight')).toBeInTheDocument();
+    expect(screen.getByTestId('editAllowableWeightInput')).toHaveValue('1,750');
     expect(screen.getByRole('button', { name: 'Save' })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Cancel' })).toBeInTheDocument();
     expect(screen.getByLabelText('Close')).toBeInstanceOf(HTMLButtonElement);
@@ -229,6 +251,35 @@ describe('EditPPMHeaderSummaryModal', () => {
     });
 
     expect(await screen.findByText('Required')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Save' })).toHaveAttribute('disabled');
+  });
+
+  it('displays required validation error when allowable weight is empty', async () => {
+    await act(async () => {
+      render(
+        <EditPPMHeaderSummaryModal
+          sectionType="shipmentInfo"
+          sectionInfo={{ allowableWeight: '' }}
+          onClose={onClose}
+          onSubmit={onSubmit}
+          editItemName="allowableWeight"
+        />,
+      );
+    });
+
+    await act(async () => {
+      await userEvent.clear(await screen.getByLabelText('Allowable Weight'));
+    });
+
+    expect(await screen.findByText('Required')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Save' })).toHaveAttribute('disabled');
+
+    await act(async () => {
+      await userEvent.clear(await screen.getByLabelText('Allowable Weight'));
+      await userEvent.type(await screen.getByLabelText('Allowable Weight'), '-100');
+    });
+
+    expect(await screen.findByText('Allowable weight must be greater than or equal to zero')).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Save' })).toHaveAttribute('disabled');
   });
 });
