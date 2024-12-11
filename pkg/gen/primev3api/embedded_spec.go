@@ -3750,12 +3750,14 @@ func init() {
         "primeActualWeight": {
           "description": "The actual weight of the shipment, provided after the Prime packs, picks up, and weighs a customer's shipment.",
           "type": "integer",
+          "minimum": 1,
           "x-nullable": true,
           "example": 4500
         },
         "primeEstimatedWeight": {
           "description": "The estimated weight of this shipment, determined by the movers during the pre-move survey. This value **can only be updated once.** If there was an issue with estimating the weight and a mistake was made, the Prime contracter will need to contact the TOO to change it.\n",
           "type": "integer",
+          "minimum": 1,
           "x-nullable": true,
           "example": 4500
         },
@@ -7944,14 +7946,14 @@ func init() {
         "primeActualWeight": {
           "description": "The actual weight of the shipment, provided after the Prime packs, picks up, and weighs a customer's shipment.",
           "type": "integer",
-          "minimum": 0,
+          "minimum": 1,
           "x-nullable": true,
           "example": 4500
         },
         "primeEstimatedWeight": {
           "description": "The estimated weight of this shipment, determined by the movers during the pre-move survey. This value **can only be updated once.** If there was an issue with estimating the weight and a mistake was made, the Prime contracter will need to contact the TOO to change it.\n",
           "type": "integer",
-          "minimum": 0,
+          "minimum": 1,
           "x-nullable": true,
           "example": 4500
         },
