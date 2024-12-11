@@ -1,11 +1,14 @@
 package move
 
 import (
+	"fmt"
 	"time"
 
 	"github.com/transcom/mymove/pkg/apperror"
 	"github.com/transcom/mymove/pkg/factory"
+	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/models/roles"
 	"github.com/transcom/mymove/pkg/services"
 )
 
@@ -101,4 +104,321 @@ func (suite *MoveServiceSuite) TestMoveFetcher() {
 		suite.Equal(expectedMove.ID, actualMove.ID)
 		suite.Equal(expectedMove.Locator, actualMove.Locator)
 	})
+}
+
+func (suite *MoveServiceSuite) TestMoveFetcherBulkAssignment() {
+	setupTestData := func() (services.MoveFetcherBulkAssignment, models.Move, models.TransportationOffice, models.OfficeUser) {
+		moveFetcher := NewMoveFetcherBulkAssignment()
+		transportationOffice := factory.BuildTransportationOffice(suite.DB(), []factory.Customization{
+			{
+				Model: models.TransportationOffice{
+					ProvidesCloseout: true,
+				},
+			},
+		}, nil)
+		// requestedPickupDate := time.Date(2021, 04, 01, 0, 0, 0, 0, time.UTC)
+
+		// this move has a transportation office associated with it that matches
+		// the SC's transportation office and should be found
+		move := factory.BuildMoveWithShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.Move{
+					Status: models.MoveStatusNeedsServiceCounseling,
+				},
+			},
+			{
+				Model:    transportationOffice,
+				LinkOnly: true,
+				Type:     &factory.TransportationOffices.CloseoutOffice,
+			},
+			// {
+			// 	Model: models.MTOShipment{
+			// 		RequestedPickupDate:   &requestedPickupDate,
+			// 		RequestedDeliveryDate: &requestedPickupDate,
+			// 		Status:                models.MTOShipmentStatusSubmitted,
+			// 	},
+			// },
+			// {
+			// 	Model: models.PPMShipment{
+			// 		Status: models.PPMShipmentStatusNeedsAdvanceApproval,
+			// 	},
+			// },
+		}, nil)
+		factory.BuildMoveWithShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.Move{
+					Status: models.MoveStatusNeedsServiceCounseling,
+				},
+			},
+			{
+				Model:    transportationOffice,
+				LinkOnly: true,
+				Type:     &factory.TransportationOffices.CloseoutOffice,
+			},
+			// {
+			// 	Model: models.MTOShipment{
+			// 		RequestedPickupDate:   &requestedPickupDate,
+			// 		RequestedDeliveryDate: &requestedPickupDate,
+			// 		Status:                models.MTOShipmentStatusSubmitted,
+			// 	},
+			// },
+			// {
+			// 	Model: models.PPMShipment{
+			// 		Status: models.PPMShipmentStatusNeedsAdvanceApproval,
+			// 	},
+			// },
+		}, nil)
+		// factory.BuildMove(suite.DB(), nil, nil)
+		officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), []factory.Customization{
+			{
+				Model:    transportationOffice,
+				LinkOnly: true,
+				Type:     &factory.TransportationOffices.CloseoutOffice,
+			},
+		}, []roles.RoleType{roles.RoleTypeServicesCounselor})
+
+		return moveFetcher, move, transportationOffice, officeUser
+	}
+
+	suite.Run("Returns moves that fulfill the query's criteria", func() {
+		moveFetcher, _, _, officeUser := setupTestData()
+		moves, err := moveFetcher.FetchMovesForBulkAssignmentCounseling(suite.AppContextForTest(), "KKFA", officeUser.TransportationOffice.ID)
+		suite.FatalNoError(err)
+		suite.Equal(len(moves), 2)
+	})
+
+	suite.Run("Does not return moves that are counseled by a different counseling office", func() {
+		moveFetcher, _, _, officeUser := setupTestData()
+		transportationOffice := factory.BuildTransportationOffice(suite.DB(), []factory.Customization{
+			{
+				Model: models.TransportationOffice{
+					ProvidesCloseout: true,
+				},
+			},
+		}, nil)
+
+		factory.BuildMoveWithShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.Move{
+					Status: models.MoveStatusNeedsServiceCounseling,
+				},
+			},
+			{
+				Model:    transportationOffice,
+				LinkOnly: true,
+				Type:     &factory.TransportationOffices.CloseoutOffice,
+			},
+		}, nil)
+
+		moves, err := moveFetcher.FetchMovesForBulkAssignmentCounseling(suite.AppContextForTest(), "KKFA", officeUser.TransportationOffice.ID)
+		suite.FatalNoError(err)
+		suite.Equal(len(moves), 2)
+	})
+
+	suite.Run("Does not return moves with safety, bluebark, or wounded warrior order types", func() {
+		moveFetcher, _, transportationOffice, officeUser := setupTestData()
+		factory.BuildMoveWithShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.Order{
+					OrdersType: internalmessages.OrdersTypeSAFETY,
+				},
+			},
+			{
+				Model: models.Move{
+					Status: models.MoveStatusNeedsServiceCounseling,
+				},
+			},
+			{
+				Model:    transportationOffice,
+				LinkOnly: true,
+				Type:     &factory.TransportationOffices.CloseoutOffice,
+			},
+		}, nil)
+		factory.BuildMoveWithShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.Order{
+					OrdersType: internalmessages.OrdersTypeBLUEBARK,
+				},
+			},
+			{
+				Model: models.Move{
+					Status: models.MoveStatusNeedsServiceCounseling,
+				},
+			},
+			{
+				Model:    transportationOffice,
+				LinkOnly: true,
+				Type:     &factory.TransportationOffices.CloseoutOffice,
+			},
+		}, nil)
+		factory.BuildMoveWithShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.Order{
+					OrdersType: internalmessages.OrdersTypeWOUNDEDWARRIOR,
+				},
+			},
+			{
+				Model: models.Move{
+					Status: models.MoveStatusNeedsServiceCounseling,
+				},
+			},
+			{
+				Model:    transportationOffice,
+				LinkOnly: true,
+				Type:     &factory.TransportationOffices.CloseoutOffice,
+			},
+		}, nil)
+
+		moves, err := moveFetcher.FetchMovesForBulkAssignmentCounseling(suite.AppContextForTest(), "KKFA", officeUser.TransportationOffice.ID)
+		suite.FatalNoError(err)
+		suite.Equal(len(moves), 2)
+	})
+
+	suite.Run("Does not return moves with PPMs in waiting on customer, needs closeout, or closeout compelte status", func() {
+		moveFetcher, _, transportationOffice, officeUser := setupTestData()
+		move2 := factory.BuildMoveWithPPMShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.Move{
+					Status: models.MoveStatusNeedsServiceCounseling,
+				},
+			},
+			{
+				Model:    transportationOffice,
+				LinkOnly: true,
+				Type:     &factory.TransportationOffices.CloseoutOffice,
+			},
+			{
+				Model: models.PPMShipment{
+					Status: models.PPMShipmentStatusWaitingOnCustomer,
+				},
+			},
+		}, nil)
+		factory.BuildMoveWithPPMShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.Move{
+					Status: models.MoveStatusNeedsServiceCounseling,
+				},
+			},
+			{
+				Model:    transportationOffice,
+				LinkOnly: true,
+				Type:     &factory.TransportationOffices.CloseoutOffice,
+			},
+			{
+				Model: models.PPMShipment{
+					Status: models.PPMShipmentStatusNeedsCloseout,
+				},
+			},
+		}, nil)
+		fmt.Println("move2")
+		fmt.Println(len(move2.MTOShipments))
+		fmt.Println(move2.ID)
+		// factory.BuildMoveWithShipment(suite.DB(), []factory.Customization{
+		// 	{
+		// 		Model: models.Move{
+		// 			Status: models.MoveStatusNeedsServiceCounseling,
+		// 		},
+		// 	},
+		// 	{
+		// 		Model:    transportationOffice,
+		// 		LinkOnly: true,
+		// 		Type:     &factory.TransportationOffices.CloseoutOffice,
+		// 	},
+		// }, nil)
+
+		moves, err := moveFetcher.FetchMovesForBulkAssignmentCounseling(suite.AppContextForTest(), "KKFA", officeUser.TransportationOffice.ID)
+		suite.FatalNoError(err)
+		suite.Equal(len(moves), 2)
+		for _, move := range moves {
+			fmt.Println("move.ID")
+			fmt.Println(move.ID)
+		}
+	})
+
+	suite.Run("Does not return moves that are already assigned", func() {
+		moveFetcher, _, transOffice, officeUser := setupTestData()
+		// transportationOffice := factory.BuildTransportationOffice(suite.DB(), []factory.Customization{
+		// 	{
+		// 		Model: models.TransportationOffice{
+		// 			ProvidesCloseout: true,
+		// 		},
+		// 	},
+		// }, nil)
+
+		// assignedOfficeUser := factory.BuildOfficeUserWithRoles(suite.DB(), []factory.Customization{
+		// 	{
+		// 		Model:    transOffice,
+		// 		LinkOnly: true,
+		// 		Type:     &factory.TransportationOffices.CloseoutOffice,
+		// 	},
+		// }, []roles.RoleType{roles.RoleTypeServicesCounselor})
+
+		factory.BuildAssignedMoveWithPPMShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.Move{
+					Status: models.MoveStatusNeedsServiceCounseling,
+				},
+			},
+			{
+				Model:    transOffice,
+				LinkOnly: true,
+				Type:     &factory.TransportationOffices.CloseoutOffice,
+			},
+		}, nil)
+
+		moves, err := moveFetcher.FetchMovesForBulkAssignmentCounseling(suite.AppContextForTest(), "KKFA", officeUser.TransportationOffice.ID)
+		suite.FatalNoError(err)
+		suite.Equal(len(moves), 2)
+	})
+
+	// moveFetcher := NewMoveFetcherBulkAssignment()
+	// transportationOffice := factory.BuildTransportationOffice(suite.DB(), []factory.Customization{
+	// 	{
+	// 		Model: models.TransportationOffice{
+	// 			ProvidesCloseout: true,
+	// 		},
+	// 	},
+	// }, nil)
+	// requestedPickupDate := time.Date(2021, 04, 01, 0, 0, 0, 0, time.UTC)
+
+	// // this move has a transportation office associated with it that matches
+	// // the SC's transportation office and should be found
+	// factory.BuildMoveWithShipment(suite.DB(), []factory.Customization{
+	// 	{
+	// 		Model: models.Move{
+	// 			Status: models.MoveStatusNeedsServiceCounseling,
+	// 		},
+	// 	},
+	// 	{
+	// 		Model:    transportationOffice,
+	// 		LinkOnly: true,
+	// 		Type:     &factory.TransportationOffices.CloseoutOffice,
+	// 	},
+	// 	{
+	// 		Model: models.MTOShipment{
+	// 			RequestedPickupDate:   &requestedPickupDate,
+	// 			RequestedDeliveryDate: &requestedPickupDate,
+	// 			Status:                models.MTOShipmentStatusSubmitted,
+	// 		},
+	// 	},
+	// 	{
+	// 		Model: models.PPMShipment{
+	// 			Status: models.PPMShipmentStatusNeedsAdvanceApproval,
+	// 		},
+	// 	},
+	// }, nil)
+	// officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), []factory.Customization{
+	// 	{
+	// 		Model:    transportationOffice,
+	// 		LinkOnly: true,
+	// 		Type:     &factory.TransportationOffices.CloseoutOffice,
+	// 	},
+	// }, []roles.RoleType{roles.RoleTypeServicesCounselor})
+
+	// moves, err := moveFetcher.FetchMovesForBulkAssignmentCounseling(suite.AppContextForTest(), "KKFA", officeUser.TransportationOffice.ID)
+	// suite.FatalNoError(err)
+	// suite.Equal(len(moves), 1)
+	// suite.Run("Returns moves that fulfill the queries criteria", func() {
+	// })
+
 }

@@ -9,6 +9,15 @@ import (
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 )
 
+type QueueType string
+
+const (
+	QueueTypeCounseling     QueueType = "COUNSELING"
+	QueueTypeCloseout       QueueType = "CLOSEOUT"
+	QueueTypeTaskOrder      QueueType = "TASK_ORDER"
+	QueueTypePaymentRequest QueueType = "PAYMENT_REQUEST"
+)
+
 // MoveQueueItem represents a single move queue item within a queue.
 type MoveQueueItem struct {
 	ID                          uuid.UUID                       `json:"id" db:"id"`

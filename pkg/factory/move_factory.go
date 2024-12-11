@@ -1,6 +1,7 @@
 package factory
 
 import (
+	"fmt"
 	"log"
 	"time"
 
@@ -71,6 +72,8 @@ func BuildMove(db *pop.Connection, customs []Customization, traits []Trait) mode
 	if closeoutOfficeResult != nil {
 		move.CloseoutOffice = &closeoutOffice
 		move.CloseoutOfficeID = &closeoutOffice.ID
+		move.CounselingOffice = &closeoutOffice
+		move.CounselingOfficeID = &closeoutOffice.ID
 	}
 
 	// Overwrite values with those from assertions
@@ -181,7 +184,34 @@ func BuildMoveWithPPMShipment(db *pop.Connection, customs []Customization, trait
 	if db != nil {
 		mustSave(db, &move)
 	}
+	fmt.Println("move in factory")
+	fmt.Println(move.ID)
 
+	return move
+}
+func BuildAssignedMoveWithPPMShipment(db *pop.Connection, customs []Customization, traits []Trait) models.Move {
+	move := BuildMove(db, customs, traits)
+
+	mtoShipment := buildMTOShipmentWithBuildType(db, customs, traits, mtoShipmentPPM)
+	mtoShipment.MoveTaskOrder = move
+	mtoShipment.MoveTaskOrderID = move.ID
+
+	ppmShipment := BuildPPMShipment(db, customs, traits)
+	ppmShipment.ShipmentID = mtoShipment.ID
+
+	mtoShipment.PPMShipment = &ppmShipment
+	mtoShipment.ShipmentType = models.MTOShipmentTypePPM
+	move.MTOShipments = append(move.MTOShipments, mtoShipment)
+
+	officeUser := BuildOfficeUser(db, customs, traits)
+	move.SCAssignedUser = &officeUser
+	move.SCAssignedID = &officeUser.ID
+
+	if db != nil {
+		mustSave(db, &move)
+	}
+	fmt.Println("move")
+	fmt.Println(move.SCAssignedUser)
 	return move
 }
 

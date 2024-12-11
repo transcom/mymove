@@ -34,6 +34,7 @@ import {
   getPPMActualWeight,
   searchCustomers,
   getGBLOCs,
+  getBulkAssignmentData,
 } from 'services/ghcApi';
 import { getLoggedInUserQueries } from 'services/internalApi';
 import { getPrimeSimulatorMove } from 'services/primeApi';
@@ -212,6 +213,19 @@ export const useCustomerSupportRemarksQueries = (moveCode) => {
   const { isLoading, isError, isSuccess } = getQueriesStatus([customerSupportRemarksQuery]);
   return {
     customerSupportRemarks,
+    isLoading,
+    isError,
+    isSuccess,
+  };
+};
+
+export const useBulkAssignmentQueries = (queueType) => {
+  const { data: bulkAssignmentData, ...bulkAssignmentDataQuery } = useQuery([queueType], ({ queryKey }) =>
+    getBulkAssignmentData(queryKey),
+  );
+  const { isLoading, isError, isSuccess } = getQueriesStatus([bulkAssignmentDataQuery]);
+  return {
+    bulkAssignmentData,
     isLoading,
     isError,
     isSuccess,

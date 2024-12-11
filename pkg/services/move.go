@@ -27,6 +27,11 @@ type MoveListFetcher interface {
 type MoveFetcher interface {
 	FetchMove(appCtx appcontext.AppContext, locator string, searchParams *MoveFetcherParams) (*models.Move, error)
 	FetchMovesForPPTASReports(appCtx appcontext.AppContext, params *MoveTaskOrderFetcherParams) (models.Moves, error)
+	// FetchMovesForBulkAssignmentCounseling(appCtx appcontext.AppContext, queueType *string, gbloc string, officeId uuid.UUID) ([]models.MoveWithEarliestDate, error)
+}
+
+type MoveFetcherBulkAssignment interface {
+	FetchMovesForBulkAssignmentCounseling(appCtx appcontext.AppContext, gbloc string, officeId uuid.UUID) ([]models.MoveWithEarliestDate, error)
 }
 
 //go:generate mockery --name MoveSearcher
