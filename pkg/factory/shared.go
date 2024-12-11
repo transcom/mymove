@@ -55,6 +55,7 @@ var DutyLocation CustomType = "DutyLocation"
 var Entitlement CustomType = "Entitlement"
 var HHGAllowance CustomType = "HHGAllowance"
 var PayGrade CustomType = "PayGrade"
+var UBAllowance CustomType = "UBAllowances"
 var EvaluationReport CustomType = "EvaluationReport"
 var LineOfAccounting CustomType = "LineOfAccounting"
 var MobileHome CustomType = "MobileHome"
@@ -119,6 +120,7 @@ var defaultTypesMap = map[string]CustomType{
 	"models.Entitlement":                              Entitlement,
 	"models.PayGrade":                                 PayGrade,
 	"models.HHGAllowance":                             HHGAllowance,
+	"models.UBAllowances":                             UBAllowance,
 	"models.EvaluationReport":                         EvaluationReport,
 	"models.LineOfAccounting":                         LineOfAccounting,
 	"models.MobileHome":                               MobileHome,

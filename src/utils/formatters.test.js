@@ -77,6 +77,23 @@ describe('formatters', () => {
     });
   });
 
+  describe('formatUBAllowanceWeight', () => {
+    describe('when formatting a integer weight', () => {
+      const weight = 500;
+      const formattedUBAllowanceWeight = formatters.formatUBAllowanceWeight(weight);
+      it('should be be formatted as expected', () => {
+        expect(formattedUBAllowanceWeight).toEqual('500 lbs');
+      });
+    });
+    describe('when formatting a null value', () => {
+      const weight = null;
+      const formattedUBAllowanceWeight = formatters.formatUBAllowanceWeight(weight);
+      it('should be be formatted as expected', () => {
+        expect(formattedUBAllowanceWeight).toEqual('your UB allowance');
+      });
+    });
+  });
+
   describe('formatDollarFromMillicents', () => {
     it('returns expected value', () => {
       expect(formatters.formatDollarFromMillicents('80000')).toBe('$0.80');
@@ -324,6 +341,95 @@ describe('formatters', () => {
       expect(formatters.formatCustomerContactFullAddress(addressWithLine2And3)).toEqual(
         '12345 Any Street, Apt 12B, c/o Leo Spaceman, Beverly Hills, CA 90210',
       );
+    });
+  });
+});
+
+describe('constructSCOrderOconusFields', () => {
+  it('returns null for all fields if not OCONUS and no dependents', () => {
+    const values = {
+      originDutyLocation: { address: { isOconus: false } },
+      newDutyLocation: { address: { isOconus: false } },
+      hasDependents: false,
+    };
+
+    const result = formatters.constructSCOrderOconusFields(values);
+
+    expect(result).toEqual({
+      accompaniedTour: null,
+      dependentsUnderTwelve: null,
+      dependentsTwelveAndOver: null,
+    });
+  });
+
+  it('returns accompaniedTour as null if OCONUS but no dependents', () => {
+    const values = {
+      originDutyLocation: { address: { isOconus: true } },
+      newDutyLocation: { address: { isOconus: false } },
+      hasDependents: false,
+    };
+
+    const result = formatters.constructSCOrderOconusFields(values);
+
+    expect(result).toEqual({
+      accompaniedTour: null,
+      dependentsUnderTwelve: null,
+      dependentsTwelveAndOver: null,
+    });
+  });
+
+  it('returns fields with values if OCONUS and has dependents', () => {
+    const values = {
+      originDutyLocation: { address: { isOconus: true } },
+      newDutyLocation: { address: { isOconus: false } },
+      hasDependents: true,
+      accompaniedTour: 'yes',
+      dependentsUnderTwelve: '3',
+      dependentsTwelveAndOver: '2',
+    };
+
+    const result = formatters.constructSCOrderOconusFields(values);
+
+    expect(result).toEqual({
+      accompaniedTour: true,
+      dependentsUnderTwelve: 3,
+      dependentsTwelveAndOver: 2,
+    });
+  });
+
+  it('handles newDutyLocation as OCONUS when originDutyLocation is CONUS', () => {
+    const values = {
+      originDutyLocation: { address: { isOconus: false } },
+      newDutyLocation: { address: { isOconus: true } },
+      hasDependents: true,
+      accompaniedTour: 'yes',
+      dependentsUnderTwelve: '5',
+      dependentsTwelveAndOver: '1',
+    };
+
+    const result = formatters.constructSCOrderOconusFields(values);
+
+    expect(result).toEqual({
+      accompaniedTour: true,
+      dependentsUnderTwelve: 5,
+      dependentsTwelveAndOver: 1,
+    });
+  });
+
+  it('returns fields as null if both locations are missing', () => {
+    const values = {
+      hasDependents: true,
+      accompaniedTour: 'yes',
+      dependentsUnderTwelve: '3',
+      dependentsTwelveAndOver: '2',
+    };
+
+    const result = formatters.constructSCOrderOconusFields(values);
+
+    expect(result).toEqual({
+      accompaniedTour: null,
+      dependentsUnderTwelve: null,
+      dependentsTwelveAndOver: null,
     });
   });
 });
