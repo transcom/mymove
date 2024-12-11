@@ -321,10 +321,16 @@ func (f orderFetcher) ListDestinationRequestsOrders(appCtx appcontext.AppContext
 		}
 	}
 
+	// if the user is in the USMC GBLOC, then we want to show them all the USMC moves
+	// if the user is in MBFL, we need to send them USAF/SF moves that are in Alaska Zone II
+	// if the user is in JEAT, we need to exclude Alaska Zone II, but send them all USAF/SF
+	// else, we'll look at their GBLOC that matches the shipment's destination address
 	var gblocQuery QueryOption
 	branchQuery := branchFilter(params.Branch, false, false)
 	if officeUserGbloc == "USMC" {
 		branchQuery = branchFilter(models.StringPointer(string(models.AffiliationMARINES)), false, false)
+	} else if officeUserGbloc == "MBFL" || officeUserGbloc == "JEAT" {
+		gblocQuery = alaskaZoneIIFilter(officeUserGbloc)
 	} else {
 		gblocQuery = destinationGBLOCFilter(&officeUserGbloc)
 	}
@@ -787,6 +793,75 @@ func destinationGBLOCFilter(gbloc *string) QueryOption {
 	return func(query *pop.Query) {
 		if gbloc != nil {
 			query.Where("postal_code_to_gblocs.gbloc = ?", gbloc)
+		}
+	}
+}
+
+// if the user is in MBFL GBLOC, we want to include USAF/SF moves in Alaska Zone II but exclude all other branches (while also including postal_code_to_gbloc)
+// since Alaska Zone II can only be for OCONUS addresses, we need to query the re_oconus_rate_areas table
+// if the user is in JEAT GBLOC, we want to include all other branches within Alaska Zone II but NOT show USAF/SF in Zone II or USMC
+func alaskaZoneIIFilter(gbloc string) QueryOption {
+	return func(query *pop.Query) {
+		if gbloc == "MBFL" {
+			query.Where(`
+			(
+				postal_code_to_gblocs.gbloc = ?
+				OR EXISTS (
+					SELECT 1
+					FROM addresses a
+					JOIN re_oconus_rate_areas ro
+						ON a.us_post_region_cities_id = ro.us_post_region_cities_id
+					JOIN re_rate_areas ra
+						ON ro.rate_area_id = ra.id
+					WHERE a.id = mto_shipments.destination_address_id
+					  AND ra.code = ?
+					  AND a.is_oconus = true
+					  AND service_members.affiliation IN (?, ?)
+				)
+			)
+			AND NOT EXISTS (
+				SELECT 1
+				FROM addresses a
+				JOIN re_oconus_rate_areas ro
+					ON a.us_post_region_cities_id = ro.us_post_region_cities_id
+				JOIN re_rate_areas ra
+					ON ro.rate_area_id = ra.id
+				WHERE a.id = mto_shipments.destination_address_id
+				  AND ra.code = ?
+				  AND a.is_oconus = true
+				  AND service_members.affiliation NOT IN (?, ?)
+			)
+		`, gbloc, "US8190100", models.AffiliationAIRFORCE, models.AffiliationSPACEFORCE, "US8190100", models.AffiliationAIRFORCE, models.AffiliationSPACEFORCE)
+		} else if gbloc == "JEAT" {
+			query.Where(`
+			(
+				postal_code_to_gblocs.gbloc = ?
+				OR EXISTS (
+					SELECT 1
+					FROM addresses a
+					JOIN re_oconus_rate_areas ro
+						ON a.us_post_region_cities_id = ro.us_post_region_cities_id
+					JOIN re_rate_areas ra
+						ON ro.rate_area_id = ra.id
+					WHERE a.id = mto_shipments.destination_address_id
+					  AND ra.code = ?
+					  AND a.is_oconus = true
+					  AND service_members.affiliation NOT IN (?, ?)
+				)
+			)
+			AND NOT EXISTS (
+				SELECT 1
+				FROM addresses a
+				JOIN re_oconus_rate_areas ro
+					ON a.us_post_region_cities_id = ro.us_post_region_cities_id
+				JOIN re_rate_areas ra
+					ON ro.rate_area_id = ra.id
+				WHERE a.id = mto_shipments.destination_address_id
+				  AND ra.code = ?
+				  AND a.is_oconus = true
+				  AND service_members.affiliation IN (?, ?)
+			)
+		`, gbloc, "US8190100", models.AffiliationAIRFORCE, models.AffiliationSPACEFORCE, "US8190100", models.AffiliationAIRFORCE, models.AffiliationSPACEFORCE)
 		}
 	}
 }
