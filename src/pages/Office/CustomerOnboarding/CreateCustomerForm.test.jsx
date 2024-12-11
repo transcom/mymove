@@ -165,40 +165,6 @@ const safetyPayload = {
 };
 
 const bluebarkPayload = {
-  affiliation: 'Army',
-  edipi: '1234567890',
-  first_name: 'Shish',
-  middle_name: 'Ka',
-  last_name: 'Bob',
-  suffix: 'Mr.',
-  telephone: '555-555-5555',
-  secondary_telephone: '999-867-5309',
-  personal_email: 'tastyAndDelicious@mail.mil',
-  phone_is_preferred: true,
-  email_is_preferred: '',
-  residential_address: {
-    streetAddress1: '8711 S Hungry Ave.',
-    streetAddress2: '',
-    streetAddress3: '',
-    city: 'Starving',
-    state: 'OK',
-    postalCode: '74133',
-  },
-  backup_mailing_address: {
-    streetAddress1: '420 S. Munchies Lane',
-    streetAddress2: '',
-    streetAddress3: '',
-    city: 'Mustang',
-    state: 'KS',
-    postalCode: '73064',
-  },
-  backup_contact: {
-    name: 'Silly String',
-    telephone: '666-666-6666',
-    email: 'allOverDaPlace@mail.com',
-  },
-  create_okta_account: 'falseQA!`',
-  cac_user: 'false',
   is_safety_move: 'false',
   is_bluebark: 'true',
 };
@@ -649,34 +615,36 @@ describe('CreateCustomerForm', () => {
 
     const user = userEvent.setup();
 
-    const bluebark = await screen.findByTestId('is-bluebark-no');
-    expect(bluebark).toBeChecked();
+    const safetyMove = await screen.findByTestId('is-safety-move-no');
+    expect(safetyMove).toBeChecked();
 
-    await user.click(getByTestId('is-bluebark-yes'));
+    // check the safety move box
+    await userEvent.type(getByTestId('is-safety-move-no'), bluebarkPayload.is_safety_move);
+    await userEvent.type(getByTestId('is-bluebark-yes'), bluebarkPayload.is_bluebark);
 
-    await user.selectOptions(getByLabelText('Branch of service'), [bluebarkPayload.affiliation]);
+    await user.selectOptions(getByLabelText('Branch of service'), ['ARMY']);
+    await user.type(getByTestId('edipiInput'), safetyPayload.edipi);
 
-    await user.type(getByTestId('edipiInput'), bluebarkPayload.edipi);
     // should be able to submit the form
-    await user.type(getByLabelText('First name'), bluebarkPayload.first_name);
-    await user.type(getByLabelText('Last name'), bluebarkPayload.last_name);
+    await user.type(getByLabelText('First name'), safetyPayload.first_name);
+    await user.type(getByLabelText('Last name'), safetyPayload.last_name);
 
-    await user.type(getByLabelText('Best contact phone'), bluebarkPayload.telephone);
-    await user.type(getByLabelText('Personal email'), bluebarkPayload.personal_email);
+    await user.type(getByLabelText('Best contact phone'), safetyPayload.telephone);
+    await user.type(getByLabelText('Personal email'), safetyPayload.personal_email);
 
-    await user.type(getByTestId('res-add-street1'), bluebarkPayload.residential_address.streetAddress1);
-    await user.type(getByTestId('res-add-city'), bluebarkPayload.residential_address.city);
-    await user.selectOptions(getByTestId('res-add-state'), bluebarkPayload.residential_address.state);
-    await user.type(getByTestId('res-add-zip'), bluebarkPayload.residential_address.postalCode);
+    await userEvent.type(getByTestId('res-add-street1'), safetyPayload.residential_address.streetAddress1);
+    await userEvent.type(getByTestId('res-add-city'), safetyPayload.residential_address.city);
+    await userEvent.selectOptions(getByTestId('res-add-state'), [safetyPayload.residential_address.state]);
+    await userEvent.type(getByTestId('res-add-zip'), safetyPayload.residential_address.postalCode);
 
-    await user.type(getByTestId('backup-add-street1'), bluebarkPayload.backup_mailing_address.streetAddress1);
-    await user.type(getByTestId('backup-add-city'), bluebarkPayload.backup_mailing_address.city);
-    await user.selectOptions(getByTestId('backup-add-state'), bluebarkPayload.backup_mailing_address.state);
-    await user.type(getByTestId('backup-add-zip'), bluebarkPayload.backup_mailing_address.postalCode);
+    await userEvent.type(getByTestId('backup-add-street1'), safetyPayload.backup_mailing_address.streetAddress1);
+    await userEvent.type(getByTestId('backup-add-city'), safetyPayload.backup_mailing_address.city);
+    await userEvent.selectOptions(getByTestId('backup-add-state'), [safetyPayload.backup_mailing_address.state]);
+    await userEvent.type(getByTestId('backup-add-zip'), safetyPayload.backup_mailing_address.postalCode);
 
-    await user.type(getByLabelText('Name'), bluebarkPayload.backup_contact.name);
-    await user.type(getByRole('textbox', { name: 'Email' }), bluebarkPayload.backup_contact.email);
-    await user.type(getByRole('textbox', { name: 'Phone' }), bluebarkPayload.backup_contact.telephone);
+    await userEvent.type(getByLabelText('Name'), safetyPayload.backup_contact.name);
+    await userEvent.type(getByRole('textbox', { name: 'Email' }), safetyPayload.backup_contact.email);
+    await userEvent.type(getByRole('textbox', { name: 'Phone' }), safetyPayload.backup_contact.telephone);
 
     const saveBtn = await screen.findByRole('button', { name: 'Save' });
     expect(saveBtn).toBeInTheDocument();
@@ -684,7 +652,7 @@ describe('CreateCustomerForm', () => {
     await waitFor(() => {
       expect(saveBtn).toBeEnabled();
     });
-    await user.click(saveBtn);
+    await userEvent.click(saveBtn);
 
     await waitFor(() => {
       expect(createCustomerWithOktaOption).toHaveBeenCalled();
