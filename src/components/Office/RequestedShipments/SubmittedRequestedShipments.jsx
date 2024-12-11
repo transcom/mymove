@@ -222,9 +222,9 @@ const SubmittedRequestedShipments = ({
                           normalize: false,
                         },
                         {
-                          onError: () => {
+                          onError: (error) => {
                             setSubmitting(false);
-                            setFlashMessage(null);
+                            setErrorMessage(error?.message); // ('Shipment failed to update.');
                           },
                         },
                       );
