@@ -34,3 +34,20 @@ func (waf *weightAllotmentFetcher) GetWeightAllotment(appCtx appcontext.AppConte
 
 	return &hhgAllowance, nil
 }
+
+func (waf *weightAllotmentFetcher) GetAllWeightAllotments(appCtx appcontext.AppContext) (models.HHGAllowances, error) {
+	var hhgAllowances models.HHGAllowances
+	err := appCtx.DB().
+		RawQuery(`
+          SELECT hhg_allowances.*
+          FROM hhg_allowances
+          INNER JOIN pay_grades ON hhg_allowances.pay_grade_id = pay_grades.id
+          ORDER BY pay_grades.grade ASC
+        `).
+		All(&hhgAllowances)
+	if err != nil {
+		return nil, apperror.NewQueryError("HHGAllowances", err, "Error retrieving all HHG allowances")
+	}
+
+	return hhgAllowances, nil
+}
