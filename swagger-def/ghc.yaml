@@ -6316,6 +6316,12 @@ definitions:
         type: integer
         example: 4200
         x-nullable: true
+      allowableWeight:
+        description: The allowable weight of the PPM shipment goods being moved.
+        type: integer
+        minimum: 0
+        example: 4300
+        x-nullable: true
       hasProGear:
         description: >
           Indicates whether PPM shipment has pro gear.
@@ -6455,10 +6461,6 @@ definitions:
       netWeightRemarks:
         description: Remarks explaining any edits made to the net weight
         type: string
-      allowableWeight:
-        description: Indicates the maximum reimbursable weight of the shipment
-        type: integer
-        minimum: 0
   UpdateMovingExpense:
     type: object
     properties:

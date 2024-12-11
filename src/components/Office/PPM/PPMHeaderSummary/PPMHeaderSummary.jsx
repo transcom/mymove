@@ -80,6 +80,7 @@ export default function PPMHeaderSummary({ ppmShipmentInfo, order, ppmNumber, sh
     estimatedWeight: ppmShipmentInfo.estimatedWeight,
     actualWeight: ppmShipmentInfo.actualWeight,
     isActualExpenseReimbursement: ppmShipmentInfo.isActualExpenseReimbursement,
+    allowableWeight: ppmShipmentInfo.allowableWeight,
   };
 
   return (
@@ -101,6 +102,7 @@ export default function PPMHeaderSummary({ ppmShipmentInfo, order, ppmNumber, sh
             setUpdatedItemName={setUpdatedItemName}
             readOnly={readOnly}
             grade={order?.grade}
+            expanded
           />
         </section>
         {showAllFields && (
