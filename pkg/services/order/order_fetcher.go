@@ -322,8 +322,8 @@ func (f orderFetcher) ListDestinationRequestsOrders(appCtx appcontext.AppContext
 	}
 
 	// if the user is in the USMC GBLOC, then we want to show them all the USMC moves
-	// if the user is in MBFL, we need to send them USAF/SF moves that are in Alaska Zone II
-	// if the user is in JEAT, we need to exclude Alaska Zone II, but send them all USAF/SF
+	// if the user is in MBFL, we need to send them USAF/SF moves that are in Alaska Zone II as well as other MBFL moves
+	// if the user is in JEAT, we need to exclude Alaska Zone II USAF/SF moves (which go to MBFL) and include all other branches in Zone II
 	// else, we'll look at their GBLOC that matches the shipment's destination address
 	var gblocQuery QueryOption
 	branchQuery := branchFilter(params.Branch, false, false)
@@ -349,7 +349,7 @@ func (f orderFetcher) ListDestinationRequestsOrders(appCtx appcontext.AppContext
 	sortOrderQuery := sortOrder(params.Sort, params.Order, false)
 	counselingQuery := counselingOfficeFilter(params.CounselingOffice)
 
-	// Adding to an array so we can iterate over them and apply the filters after the query structure is set below
+	// adding each filter here so we can append the big fat query below
 	options := [20]QueryOption{gblocQuery, branchQuery, locatorQuery, dodIDQuery, emplidQuery, customerNameQuery, originDutyLocationQuery, moveStatusQuery, submittedAtQuery, appearedInTOOAtQuery, requestedMoveDateQuery, sortOrderQuery, scAssignedUserQuery, tooAssignedUserQuery, counselingQuery}
 
 	// for destination requests we want to show moves that have requests on the shipment destination address GBLOC
