@@ -168,8 +168,7 @@ const RolesPrivilegesCheckboxInput = (props) => {
         optionValue="privilegeType"
       />
       <span style={{ marginTop: '-20px', marginBottom: '20px', fontWeight: 'bold' }}>
-        The Supervisor privilege can only be selected for the following roles: Task Ordering Officer, Task Invoicing
-        Officer, Services Counselor
+        Privileges cannot be selected with Customer or Contracting Officer roles.
       </span>
       <span style={{ marginTop: '-20px', marginBottom: '20px', fontWeight: 'bold', whiteSpace: 'pre-wrap' }}>
         The Safety Moves privilege can only be selected for the following roles: Task Ordering Officer, Task Invoicing
