@@ -123,20 +123,20 @@ func (f moveFetcherBulkAssignment) FetchMovesForBulkAssignmentCounseling(appCtx 
 	var moves []models.MoveWithEarliestDate
 
 	err := appCtx.DB().
-		RawQuery(`SELECT 
-					moves.id, 
+		RawQuery(`SELECT
+					moves.id,
 					MIN(LEAST(
-						COALESCE(mto_shipments.requested_pickup_date, '9999-12-31'), 
-						COALESCE(mto_shipments.requested_delivery_date, '9999-12-31'), 
+						COALESCE(mto_shipments.requested_pickup_date, '9999-12-31'),
+						COALESCE(mto_shipments.requested_delivery_date, '9999-12-31'),
 						COALESCE(ppm_shipments.expected_departure_date, '9999-12-31')
 					)) AS earliest_date
 				FROM moves
 				INNER JOIN orders ON orders.id = moves.orders_id
 				INNER JOIN mto_shipments ON mto_shipments.move_id = moves.id
 				LEFT JOIN ppm_shipments ON ppm_shipments.shipment_id = mto_shipments.id
-				WHERE 
-					moves.status = 'NEEDS SERVICE COUNSELING' 
-					AND orders.gbloc = $1 
+				WHERE
+					moves.status = 'NEEDS SERVICE COUNSELING'
+					AND orders.gbloc = $1
 					AND moves.show = $2
 					AND moves.sc_assigned_id IS NULL
 					AND moves.counseling_transportation_office_id = $3
