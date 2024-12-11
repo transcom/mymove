@@ -183,7 +183,7 @@ const ServicesCounselingMoveDetails = ({
     } else {
       setIsOconusMove(false);
     }
-  }, [originDutyLocation, destinationDutyLocation, isOconusMove, enableUB]);
+  }, [originDutyLocation, destinationDutyLocation]);
 
   // for now we are only showing dest type on retiree and separatee orders
   const isRetirementOrSeparation =
