@@ -80,13 +80,13 @@ type UpdateMTOShipment struct {
 
 	// The actual weight of the shipment, provided after the Prime packs, picks up, and weighs a customer's shipment.
 	// Example: 4500
-	// Minimum: 1
+	// Minimum: 0
 	PrimeActualWeight *int64 `json:"primeActualWeight,omitempty"`
 
 	// The estimated weight of this shipment, determined by the movers during the pre-move survey. This value **can only be updated once.** If there was an issue with estimating the weight and a mistake was made, the Prime contracter will need to contact the TOO to change it.
 	//
 	// Example: 4500
-	// Minimum: 1
+	// Minimum: 0
 	PrimeEstimatedWeight *int64 `json:"primeEstimatedWeight,omitempty"`
 
 	// The date the Prime contractor scheduled to deliver this shipment after consultation with the customer.
@@ -297,7 +297,7 @@ func (m *UpdateMTOShipment) validatePrimeActualWeight(formats strfmt.Registry) e
 		return nil
 	}
 
-	if err := validate.MinimumInt("primeActualWeight", "body", *m.PrimeActualWeight, 1, false); err != nil {
+	if err := validate.MinimumInt("primeActualWeight", "body", *m.PrimeActualWeight, 0, false); err != nil {
 		return err
 	}
 
@@ -309,7 +309,7 @@ func (m *UpdateMTOShipment) validatePrimeEstimatedWeight(formats strfmt.Registry
 		return nil
 	}
 
-	if err := validate.MinimumInt("primeEstimatedWeight", "body", *m.PrimeEstimatedWeight, 1, false); err != nil {
+	if err := validate.MinimumInt("primeEstimatedWeight", "body", *m.PrimeEstimatedWeight, 0, false); err != nil {
 		return err
 	}
 
