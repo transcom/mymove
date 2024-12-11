@@ -76,6 +76,36 @@ func (_m *OfficeUserFetcherPop) FetchOfficeUsersByRoleAndOffice(appCtx appcontex
 	return r0, r1
 }
 
+// FetchSafetyMoveOfficeUsersByRoleAndOffice provides a mock function with given fields: appCtx, role, officeID
+func (_m *OfficeUserFetcherPop) FetchSafetyMoveOfficeUsersByRoleAndOffice(appCtx appcontext.AppContext, role roles.RoleType, officeID uuid.UUID) ([]models.OfficeUser, error) {
+	ret := _m.Called(appCtx, role, officeID)
+
+	if len(ret) == 0 {
+		panic("no return value specified for FetchSafetyMoveOfficeUsersByRoleAndOffice")
+	}
+
+	var r0 []models.OfficeUser
+	var r1 error
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, roles.RoleType, uuid.UUID) ([]models.OfficeUser, error)); ok {
+		return rf(appCtx, role, officeID)
+	}
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, roles.RoleType, uuid.UUID) []models.OfficeUser); ok {
+		r0 = rf(appCtx, role, officeID)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).([]models.OfficeUser)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(appcontext.AppContext, roles.RoleType, uuid.UUID) error); ok {
+		r1 = rf(appCtx, role, officeID)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
 // NewOfficeUserFetcherPop creates a new instance of OfficeUserFetcherPop. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
 // The first argument is typically a *testing.T value.
 func NewOfficeUserFetcherPop(t interface {

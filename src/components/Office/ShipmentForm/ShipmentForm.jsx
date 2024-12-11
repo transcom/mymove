@@ -270,6 +270,7 @@ const ShipmentForm = (props) => {
     shipmentType === SHIPMENT_OPTIONS.BOAT ||
     shipmentType === SHIPMENT_TYPES.BOAT_HAUL_AWAY ||
     shipmentType === SHIPMENT_TYPES.BOAT_TOW_AWAY;
+  const isUB = shipmentType === SHIPMENT_OPTIONS.UNACCOMPANIED_BAGGAGE;
 
   const showAccountingCodes = isNTS || isNTSR;
 
@@ -871,14 +872,21 @@ const ShipmentForm = (props) => {
               </div>
 
               <SectionWrapper className={styles.weightAllowance}>
-                <p>
-                  <strong>Weight allowance: </strong>
-                  {formatWeight(serviceMember.weightAllotment.totalWeightSelf)}
-                </p>
+                {isUB ? (
+                  <p data-testid="ubWeightAllowance">
+                    <strong>UB Weight allowance: </strong>
+                    {formatWeight(serviceMember.weightAllotment.unaccompaniedBaggageAllowance)}
+                  </p>
+                ) : (
+                  <p data-testid="weightAllowance">
+                    <strong>Weight allowance: </strong>
+                    {formatWeight(serviceMember.weightAllotment.totalWeightSelf)}
+                  </p>
+                )}
               </SectionWrapper>
 
               <Form className={formStyles.form}>
-                {isTOO && !isHHG && !isPPM && !isBoat && !isMobileHome && <ShipmentVendor />}
+                {isTOO && !isHHG && !isPPM && !isBoat && !isMobileHome && !isUB && <ShipmentVendor />}
 
                 {isNTSR && <ShipmentWeightInput userRole={userRole} />}
 
@@ -1718,6 +1726,7 @@ ShipmentForm.propTypes = {
   serviceMember: shape({
     weightAllotment: shape({
       totalWeightSelf: number,
+      ubAllowance: number,
     }),
     agency: string.isRequired,
   }).isRequired,
