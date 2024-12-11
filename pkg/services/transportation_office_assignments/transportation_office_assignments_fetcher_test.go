@@ -12,13 +12,13 @@ import (
 	"github.com/transcom/mymove/pkg/testingsuite"
 )
 
-type TransportationOfficeAssignmentsServiceSuite struct {
+type TransportationOfficeAssignmentsFetcherServiceSuite struct {
 	*testingsuite.PopTestSuite
 	toaFetcher services.TransportaionOfficeAssignmentFetcher
 }
 
-func TestTransportationOfficeAssignmentsServiceSuite(t *testing.T) {
-	ts := &TransportationOfficeAssignmentsServiceSuite{
+func TestTransportationOfficeAssignmentsFetcherServiceSuite(t *testing.T) {
+	ts := &TransportationOfficeAssignmentsFetcherServiceSuite{
 		PopTestSuite: testingsuite.NewPopTestSuite(
 			testingsuite.CurrentPackage(),
 			testingsuite.WithPerTestTransaction(),
@@ -28,7 +28,7 @@ func TestTransportationOfficeAssignmentsServiceSuite(t *testing.T) {
 	ts.PopTestSuite.TearDown()
 }
 
-func (suite *TransportationOfficeAssignmentsServiceSuite) Test_FetchTransportaionOfficeAssignmentByOfficeUserID() {
+func (suite *TransportationOfficeAssignmentsFetcherServiceSuite) Test_FetchTransportaionOfficeAssignmentByOfficeUserID() {
 	suite.toaFetcher = NewTransportaionOfficeAssignmentFetcher()
 
 	// Creating an office user requires creating a transportation office assignment and we will need the office user's ID
@@ -41,7 +41,7 @@ func (suite *TransportationOfficeAssignmentsServiceSuite) Test_FetchTransportaio
 	suite.Equal(true, *assignments[0].PrimaryOffice)
 }
 
-func (suite *TransportationOfficeAssignmentsServiceSuite) Test_FetchTransportaionOfficeAssignmentsByOfficeUserID() {
+func (suite *TransportationOfficeAssignmentsFetcherServiceSuite) Test_FetchTransportaionOfficeAssignmentsByOfficeUserID() {
 	suite.toaFetcher = NewTransportaionOfficeAssignmentFetcher()
 
 	// Creating an office user requires creating a transportation office assignment and we will need the office user's ID
