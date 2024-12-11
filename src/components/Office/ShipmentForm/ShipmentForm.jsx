@@ -606,7 +606,7 @@ const ShipmentForm = (props) => {
             navigate(moveDetailsPath);
           },
           onError: (error) => {
-            handleSetError(error.message, `Something went wrong, and your changes were not saved. Please try again.`);
+            handleSetError(error, `Something went wrong, and your changes were not saved. Please try again.`);
           },
         },
       );
