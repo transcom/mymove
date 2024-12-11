@@ -27,7 +27,7 @@ CREATE OR REPLACE FUNCTION does_service_item_exist(
     shipment_id UUID
 ) RETURNS BOOLEAN AS $$
 BEGIN
-    RETURN EXISTS (
+    IF EXISTS (
         SELECT 1
         FROM mto_service_items
         WHERE re_service_id = service_id
