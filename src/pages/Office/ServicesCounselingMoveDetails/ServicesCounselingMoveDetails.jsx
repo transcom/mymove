@@ -374,6 +374,7 @@ const ServicesCounselingMoveDetails = ({
     dependentsUnderTwelve: allowances.dependentsUnderTwelve,
     dependentsTwelveAndOver: allowances.dependentsTwelveAndOver,
     accompaniedTour: allowances.accompaniedTour,
+    ubAllowance: allowances.unaccompaniedBaggageAllowance,
   };
 
   const ordersInfo = {
