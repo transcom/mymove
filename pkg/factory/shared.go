@@ -279,7 +279,7 @@ var Uploads = uploadGroup{
 	UploadTypeUser:  "UploadTypeUser",
 }
 
-// portGroup is a grouping of all the port related fields
+// portLocationGroup is a grouping of all the port related fields
 type portLocationGroup struct {
 	PortOfDebarkation CustomType
 	PortOfEmbarkation CustomType
