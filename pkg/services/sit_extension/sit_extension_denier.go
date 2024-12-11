@@ -15,7 +15,6 @@ import (
 	routemocks "github.com/transcom/mymove/pkg/route/mocks"
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/services/address"
-	"github.com/transcom/mymove/pkg/services/ghcrateengine"
 	mtoserviceitem "github.com/transcom/mymove/pkg/services/mto_service_item"
 	mtoshipment "github.com/transcom/mymove/pkg/services/mto_shipment"
 	"github.com/transcom/mymove/pkg/services/query"
@@ -34,7 +33,7 @@ func NewSITExtensionDenier(moveRouter services.MoveRouter) services.SITExtension
 		mock.Anything,
 		mock.Anything,
 	).Return(400, nil)
-	return &sitExtensionDenier{moveRouter, mtoserviceitem.NewMTOServiceItemUpdater(planner, query.NewQueryBuilder(), moveRouter, mtoshipment.NewMTOShipmentFetcher(), address.NewAddressCreator(), ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer())}
+	return &sitExtensionDenier{moveRouter, mtoserviceitem.NewMTOServiceItemUpdater(planner, query.NewQueryBuilder(), moveRouter, mtoshipment.NewMTOShipmentFetcher(), address.NewAddressCreator())}
 }
 
 // DenySITExtension denies the SIT Extension

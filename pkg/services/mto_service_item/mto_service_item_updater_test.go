@@ -23,7 +23,6 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 	mocks "github.com/transcom/mymove/pkg/route/mocks"
 	"github.com/transcom/mymove/pkg/services/address"
-	"github.com/transcom/mymove/pkg/services/ghcrateengine"
 	moverouter "github.com/transcom/mymove/pkg/services/move"
 	movetaskorder "github.com/transcom/mymove/pkg/services/move_task_order"
 	mtoshipment "github.com/transcom/mymove/pkg/services/mto_shipment"
@@ -49,7 +48,7 @@ func (suite *MTOServiceItemServiceSuite) TestMTOServiceItemUpdater() {
 		mock.Anything,
 		mock.Anything,
 	).Return(400, nil)
-	updater := NewMTOServiceItemUpdater(planner, builder, moveRouter, shipmentFetcher, addressCreator, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer())
+	updater := NewMTOServiceItemUpdater(planner, builder, moveRouter, shipmentFetcher, addressCreator)
 
 	setupServiceItem := func() (models.MTOServiceItem, string) {
 		serviceItem := testdatagen.MakeDefaultMTOServiceItem(suite.DB())
@@ -1758,7 +1757,7 @@ func (suite *MTOServiceItemServiceSuite) TestUpdateMTOServiceItemStatus() {
 		mock.Anything,
 		mock.Anything,
 	).Return(400, nil)
-	updater := NewMTOServiceItemUpdater(planner, builder, moveRouter, shipmentFetcher, addressCreator, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer())
+	updater := NewMTOServiceItemUpdater(planner, builder, moveRouter, shipmentFetcher, addressCreator)
 
 	rejectionReason := models.StringPointer("")
 
@@ -2387,61 +2386,6 @@ func (suite *MTOServiceItemServiceSuite) setupServiceItemData() {
 			PriceMillicents:       unit.Millicents(606800),
 			IsPeakPeriod:          false,
 		},
-	})
-}
-
-func (suite *MTOServiceItemServiceSuite) TestUpdateMTOServiceItemPricingEstimate() {
-	builder := query.NewQueryBuilder()
-	moveRouter := moverouter.NewMoveRouter()
-	shipmentFetcher := mtoshipment.NewMTOShipmentFetcher()
-	addressCreator := address.NewAddressCreator()
-	planner := &mocks.Planner{}
-	planner.On("ZipTransitDistance",
-		mock.AnythingOfType("*appcontext.appContext"),
-		mock.Anything,
-		mock.Anything,
-	).Return(400, nil)
-	updater := NewMTOServiceItemUpdater(planner, builder, moveRouter, shipmentFetcher, addressCreator, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer())
-
-	setupServiceItem := func() (models.MTOServiceItem, string) {
-		serviceItem := testdatagen.MakeDefaultMTOServiceItem(suite.DB())
-		eTag := etag.GenerateEtag(serviceItem.UpdatedAt)
-		return serviceItem, eTag
-	}
-
-	setupServiceItems := func() models.MTOServiceItems {
-		serviceItems := testdatagen.MakeMTOServiceItems(suite.DB())
-		return serviceItems
-	}
-
-	suite.Run("Validation Error", func() {
-		suite.setupServiceItemData()
-		serviceItem, eTag := setupServiceItem()
-		invalidServiceItem := serviceItem
-		invalidServiceItem.MoveTaskOrderID = serviceItem.ID // invalid Move ID
-
-		updatedServiceItem, err := updater.UpdateMTOServiceItemPricingEstimate(suite.AppContextForTest(), &invalidServiceItem, serviceItem.MTOShipment, eTag)
-
-		suite.Nil(updatedServiceItem)
-		suite.Error(err)
-		suite.IsType(apperror.InvalidInputError{}, err)
-
-		invalidInputError := err.(apperror.InvalidInputError)
-		suite.True(invalidInputError.ValidationErrors.HasAny())
-		suite.Contains(invalidInputError.ValidationErrors.Keys(), "moveTaskOrderID")
-	})
-
-	suite.Run("Returns updated service item on success wihtout error", func() {
-		suite.setupServiceItemData()
-		serviceItems := setupServiceItems()
-
-		for _, serviceItem := range serviceItems {
-			eTag := etag.GenerateEtag(serviceItem.UpdatedAt)
-			updatedServiceItem, err := updater.UpdateMTOServiceItemPricingEstimate(suite.AppContextForTest(), &serviceItem, serviceItem.MTOShipment, eTag)
-
-			suite.NotNil(updatedServiceItem)
-			suite.Nil(err)
-		}
 	})
 }
 
