@@ -15,6 +15,8 @@ module.exports = {
     config.resolve.fallback = {
       // This is the Node polyfill for process/browser
       http: require.resolve('stream-http'),
+      https: false,
+      fs: false,
     };
     config.plugins.push(
       new webpack.ProvidePlugin({
