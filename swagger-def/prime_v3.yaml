@@ -838,13 +838,13 @@ definitions:
           the Prime contracter will need to contact the TOO to change it.
         type: integer
         example: 4500
-        minimum: 1
+        minimum: 0
         x-nullable: true
       primeActualWeight:
         description: The actual weight of the shipment, provided after the Prime packs, picks up, and weighs a customer's shipment.
         type: integer
         example: 4500
-        minimum: 1
+        minimum: 0
         x-nullable: true
       ntsRecordedWeight:
         description: The previously recorded weight for the NTS Shipment. Used for NTS Release to know what the previous primeActualWeight or billable weight was.
