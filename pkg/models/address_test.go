@@ -141,7 +141,7 @@ func (suite *ModelSuite) TestPartialAddressFormat() {
 		City:           "city",
 		State:          "state",
 		PostalCode:     "90210",
-		County:         "County",
+		County:         m.StringPointer("County"),
 		Country:        &country,
 		CountryId:      &country.ID,
 	}
