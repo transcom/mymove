@@ -4952,7 +4952,7 @@ definitions:
         example: true
         x-nullable: true
         description: Indicates if the move entitlement allows dependents to travel to the new Permanent Duty Station (PDS). This is only present on OCONUS moves.
-      ubAllowance:
+      unaccompaniedBaggageAllowance:
         type: integer
         example: 3
         x-nullable: true
@@ -5770,6 +5770,10 @@ definitions:
         example: 3
         x-nullable: true
         description: Indicates the number of dependents of the age twelve or older for a move. This is only present on OCONUS moves.
+      ubAllowance:
+        example: 500
+        type: integer
+        x-nullable: true
   UpdateBillableWeightPayload:
     type: object
     properties:
@@ -5858,6 +5862,10 @@ definitions:
         example: 3
         x-nullable: true
         description: Indicates the number of dependents of the age twelve or older for a move. This is only present on OCONUS moves.
+      ubAllowance:
+        example: 500
+        type: integer
+        x-nullable: true
   MoveTaskOrder:
     description: The Move (MoveTaskOrder)
     properties:
@@ -6308,6 +6316,12 @@ definitions:
         type: integer
         example: 4200
         x-nullable: true
+      allowableWeight:
+        description: The allowable weight of the PPM shipment goods being moved.
+        type: integer
+        minimum: 0
+        example: 4300
+        x-nullable: true
       hasProGear:
         description: >
           Indicates whether PPM shipment has pro gear.
@@ -6447,10 +6461,6 @@ definitions:
       netWeightRemarks:
         description: Remarks explaining any edits made to the net weight
         type: string
-      allowableWeight:
-        description: Indicates the maximum reimbursable weight of the shipment
-        type: integer
-        minimum: 0
   UpdateMovingExpense:
     type: object
     properties:
@@ -6948,8 +6958,6 @@ definitions:
         type: string
       firstName:
         type: string
-      hasSafetyPrivilege:
-        type: boolean
   QueueMoves:
     type: array
     items:
