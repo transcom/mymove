@@ -729,6 +729,10 @@ func Entitlement(entitlement *models.Entitlement) *ghcmessages.Entitlements {
 	if entitlement.DependentsTwelveAndOver != nil {
 		dependentsTwelveAndOver = models.Int64Pointer(int64(*entitlement.DependentsTwelveAndOver))
 	}
+	var ubAllowance *int64
+	if entitlement.UBAllowance != nil {
+		ubAllowance = models.Int64Pointer(int64(*entitlement.UBAllowance))
+	}
 	return &ghcmessages.Entitlements{
 		ID:                             strfmt.UUID(entitlement.ID.String()),
 		AuthorizedWeight:               authorizedWeight,
@@ -744,6 +748,7 @@ func Entitlement(entitlement *models.Entitlement) *ghcmessages.Entitlements {
 		DependentsUnderTwelve:          dependentsUnderTwelve,
 		DependentsTwelveAndOver:        dependentsTwelveAndOver,
 		AccompaniedTour:                accompaniedTour,
+		UbAllowance:                    ubAllowance,
 		OrganizationalClothingAndIndividualEquipment: entitlement.OrganizationalClothingAndIndividualEquipment,
 		GunSafe: gunSafe,
 		ETag:    etag.GenerateEtag(entitlement.UpdatedAt),
@@ -2137,25 +2142,22 @@ func QueueAvailableOfficeUsers(officeUsers []models.OfficeUser) *ghcmessages.Ava
 	availableOfficeUsers := make(ghcmessages.AvailableOfficeUsers, len(officeUsers))
 	for i, officeUser := range officeUsers {
 
-		hasSafety := officeUser.User.Privileges.HasPrivilege(models.PrivilegeTypeSafety)
-
 		availableOfficeUsers[i] = &ghcmessages.AvailableOfficeUser{
-			LastName:           officeUser.LastName,
-			FirstName:          officeUser.FirstName,
-			OfficeUserID:       *handlers.FmtUUID(officeUser.ID),
-			HasSafetyPrivilege: swag.BoolValue(&hasSafety),
+			LastName:     officeUser.LastName,
+			FirstName:    officeUser.FirstName,
+			OfficeUserID: *handlers.FmtUUID(officeUser.ID),
 		}
 	}
 
 	return &availableOfficeUsers
 }
 
-func queueMoveIsAssignable(move models.Move, assignedToUser *ghcmessages.AssignedOfficeUser, isCloseoutQueue bool, role roles.RoleType, officeUser models.OfficeUser, isSupervisor bool, isHQRole bool, ppmCloseoutGblocs bool) bool {
+func queueMoveIsAssignable(move models.Move, assignedToUser *ghcmessages.AssignedOfficeUser, isCloseoutQueue bool, officeUser models.OfficeUser, ppmCloseoutGblocs bool) bool {
 	// default to false
 	isAssignable := false
 
 	// HQ role is read only
-	if isHQRole {
+	if officeUser.User.Roles.HasRole(roles.RoleTypeHQ) {
 		isAssignable = false
 		return isAssignable
 	}
@@ -2165,14 +2167,15 @@ func queueMoveIsAssignable(move models.Move, assignedToUser *ghcmessages.Assigne
 		isAssignable = true
 	}
 
+	isSupervisor := officeUser.User.Privileges.HasPrivilege(models.PrivilegeTypeSupervisor)
 	// in TOO queues, all moves are assignable for supervisor users
-	if role == roles.RoleTypeTOO && isSupervisor {
+	if officeUser.User.Roles.HasRole(roles.RoleTypeTOO) && isSupervisor {
 		isAssignable = true
 	}
 
 	// if it is assigned in the SCs queue
 	// it is only assignable if the user is a supervisor...
-	if role == roles.RoleTypeServicesCounselor && isSupervisor {
+	if officeUser.User.Roles.HasRole(roles.RoleTypeServicesCounselor) && isSupervisor {
 		// AND we are in the counseling queue AND the move's counseling office is the supervisor's transportation office
 		if !isCloseoutQueue && move.CounselingOfficeID != nil && *move.CounselingOfficeID == officeUser.TransportationOfficeID {
 			isAssignable = true
@@ -2191,8 +2194,8 @@ func queueMoveIsAssignable(move models.Move, assignedToUser *ghcmessages.Assigne
 	return isAssignable
 }
 
-func servicesCounselorAvailableOfficeUsers(move models.Move, officeUsers []models.OfficeUser, role roles.RoleType, officeUser models.OfficeUser, ppmCloseoutGblocs bool, isCloseoutQueue bool) []models.OfficeUser {
-	if role == roles.RoleTypeServicesCounselor {
+func servicesCounselorAvailableOfficeUsers(move models.Move, officeUsers []models.OfficeUser, officeUser models.OfficeUser, ppmCloseoutGblocs bool, isCloseoutQueue bool) []models.OfficeUser {
+	if officeUser.User.Roles.HasRole(roles.RoleTypeServicesCounselor) {
 		// if the office user currently assigned to the move works outside of the logged in users counseling office
 		// add them to the set
 		if move.SCAssignedUser != nil && move.SCAssignedUser.TransportationOfficeID != officeUser.TransportationOfficeID {
@@ -2220,7 +2223,7 @@ func servicesCounselorAvailableOfficeUsers(move models.Move, officeUsers []model
 }
 
 // QueueMoves payload
-func QueueMoves(moves []models.Move, officeUsers []models.OfficeUser, requestedPpmStatus *models.PPMShipmentStatus, role roles.RoleType, officeUser models.OfficeUser, isSupervisor bool, isHQRole bool) *ghcmessages.QueueMoves {
+func QueueMoves(moves []models.Move, officeUsers []models.OfficeUser, requestedPpmStatus *models.PPMShipmentStatus, officeUser models.OfficeUser, officeUsersSafety []models.OfficeUser) *ghcmessages.QueueMoves {
 	queueMoves := make(ghcmessages.QueueMoves, len(moves))
 	for i, move := range moves {
 		customer := move.Orders.ServiceMember
@@ -2291,10 +2294,10 @@ func QueueMoves(moves []models.Move, officeUsers []models.OfficeUser, requestedP
 
 		// determine if there is an assigned user
 		var assignedToUser *ghcmessages.AssignedOfficeUser
-		if role == roles.RoleTypeServicesCounselor && move.SCAssignedUser != nil {
+		if officeUser.User.Roles.HasRole(roles.RoleTypeServicesCounselor) && move.SCAssignedUser != nil {
 			assignedToUser = AssignedOfficeUser(move.SCAssignedUser)
 		}
-		if role == roles.RoleTypeTOO && move.TOOAssignedUser != nil {
+		if officeUser.User.Roles.HasRole(roles.RoleTypeTOO) && move.TOOAssignedUser != nil {
 			assignedToUser = AssignedOfficeUser(move.TOOAssignedUser)
 		}
 
@@ -2303,16 +2306,20 @@ func QueueMoves(moves []models.Move, officeUsers []models.OfficeUser, requestedP
 		// requestedPpmStatus also represents if we are viewing the closeout queue
 		isCloseoutQueue := requestedPpmStatus != nil && *requestedPpmStatus == models.PPMShipmentStatusNeedsCloseout
 		// determine if the move is assignable
-		assignable := queueMoveIsAssignable(move, assignedToUser, isCloseoutQueue, role, officeUser, isSupervisor, isHQRole, ppmCloseoutGblocs)
+		assignable := queueMoveIsAssignable(move, assignedToUser, isCloseoutQueue, officeUser, ppmCloseoutGblocs)
 
+		isSupervisor := officeUser.User.Privileges.HasPrivilege(models.PrivilegeTypeSupervisor)
 		// only need to attach available office users if move is assignable
 		var apiAvailableOfficeUsers ghcmessages.AvailableOfficeUsers
 		if assignable {
 			// non SC roles don't need the extra logic, just make availableOfficeUsers = officeUsers
 			availableOfficeUsers := officeUsers
 
-			if role == roles.RoleTypeServicesCounselor {
-				availableOfficeUsers = servicesCounselorAvailableOfficeUsers(move, availableOfficeUsers, role, officeUser, ppmCloseoutGblocs, isCloseoutQueue)
+			if isSupervisor && move.Orders.OrdersType == "SAFETY" {
+				availableOfficeUsers = officeUsersSafety
+			}
+			if officeUser.User.Roles.HasRole(roles.RoleTypeServicesCounselor) {
+				availableOfficeUsers = servicesCounselorAvailableOfficeUsers(move, availableOfficeUsers, officeUser, ppmCloseoutGblocs, isCloseoutQueue)
 			}
 
 			apiAvailableOfficeUsers = *QueueAvailableOfficeUsers(availableOfficeUsers)
@@ -2412,7 +2419,7 @@ func queuePaymentRequestStatus(paymentRequest models.PaymentRequest) string {
 }
 
 // QueuePaymentRequests payload
-func QueuePaymentRequests(paymentRequests *models.PaymentRequests, officeUsers []models.OfficeUser, officeUser models.OfficeUser, isSupervisor bool, isHQRole bool) *ghcmessages.QueuePaymentRequests {
+func QueuePaymentRequests(paymentRequests *models.PaymentRequests, officeUsers []models.OfficeUser, officeUser models.OfficeUser, officeUsersSafety []models.OfficeUser) *ghcmessages.QueuePaymentRequests {
 
 	queuePaymentRequests := make(ghcmessages.QueuePaymentRequests, len(*paymentRequests))
 
@@ -2452,11 +2459,12 @@ func QueuePaymentRequests(paymentRequests *models.PaymentRequests, officeUsers [
 			isAssignable = true
 		}
 
+		isSupervisor := officeUser.User.Privileges.HasPrivilege(models.PrivilegeTypeSupervisor)
 		if isSupervisor {
 			isAssignable = true
 		}
 
-		if isHQRole {
+		if officeUser.User.Roles.HasRole(roles.RoleTypeHQ) {
 			isAssignable = false
 		}
 
@@ -2465,6 +2473,9 @@ func QueuePaymentRequests(paymentRequests *models.PaymentRequests, officeUsers [
 		// only need to attach available office users if move is assignable
 		if queuePaymentRequests[i].Assignable {
 			availableOfficeUsers := officeUsers
+			if isSupervisor && orders.OrdersType == "SAFETY" {
+				availableOfficeUsers = officeUsersSafety
+			}
 			if !isSupervisor {
 				availableOfficeUsers = models.OfficeUsers{officeUser}
 			}
@@ -2635,4 +2646,28 @@ func SearchCustomers(customers models.ServiceMemberSearchResults) *ghcmessages.S
 		}
 	}
 	return &searchCustomers
+}
+
+// ReServiceItem payload
+func ReServiceItem(reServiceItem *models.ReServiceItem) *ghcmessages.ReServiceItem {
+	if reServiceItem == nil || *reServiceItem == (models.ReServiceItem{}) {
+		return nil
+	}
+	return &ghcmessages.ReServiceItem{
+		IsAutoApproved: reServiceItem.IsAutoApproved,
+		MarketCode:     string(reServiceItem.MarketCode),
+		ServiceCode:    string(reServiceItem.ReService.Code),
+		ShipmentType:   string(reServiceItem.ShipmentType),
+		ServiceName:    reServiceItem.ReService.Name,
+	}
+}
+
+// ReServiceItems payload
+func ReServiceItems(reServiceItems models.ReServiceItems) ghcmessages.ReServiceItems {
+	payload := make(ghcmessages.ReServiceItems, len(reServiceItems))
+	for i, reServiceItem := range reServiceItems {
+		copyOfReServiceItem := reServiceItem
+		payload[i] = ReServiceItem(&copyOfReServiceItem)
+	}
+	return payload
 }
