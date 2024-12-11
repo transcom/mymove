@@ -40,6 +40,7 @@ tags:
   - name: transportationOffice
   - name: uploads
   - name: paymentRequests
+  - name: reServiceItems
 paths:
   /customer:
     post:
@@ -4250,6 +4251,30 @@ paths:
           description: payload is too large
         '500':
           description: server error
+  /re-service-items:
+    get:
+      summary: >-
+        Returns all ReServiceItems (Service Code, Service Name, Market, Shipment
+        Type, Auto Approved)
+      description: Get ReServiceItems
+      produces:
+        - application/json
+      operationId: getAllReServiceItems
+      tags:
+        - reServiceItems
+      responses:
+        '200':
+          description: Successfully retrieved all ReServiceItems.
+          schema:
+            $ref: '#/definitions/ReServiceItems'
+        '400':
+          $ref: '#/responses/InvalidRequest'
+        '401':
+          $ref: '#/responses/PermissionDenied'
+        '404':
+          $ref: '#/responses/NotFound'
+        '500':
+          $ref: '#/responses/ServerError'
   /uploads/{uploadID}:
     delete:
       summary: Deletes an upload
@@ -5128,6 +5153,35 @@ definitions:
       organizationalClothingAndIndividualEquipment:
         example: true
         type: boolean
+      accompaniedTour:
+        type: boolean
+        example: true
+        x-nullable: true
+        description: >-
+          Indicates if the move entitlement allows dependents to travel to the
+          new Permanent Duty Station (PDS). This is only present on OCONUS
+          moves.
+      unaccompaniedBaggageAllowance:
+        type: integer
+        example: 3
+        x-nullable: true
+        description: >-
+          The amount of weight in pounds that the move is entitled for shipment
+          types of Unaccompanied Baggage.
+      dependentsUnderTwelve:
+        type: integer
+        example: 5
+        x-nullable: true
+        description: >-
+          Indicates the number of dependents under the age of twelve for a move.
+          This is only present on OCONUS moves.
+      dependentsTwelveAndOver:
+        type: integer
+        example: 3
+        x-nullable: true
+        description: >-
+          Indicates the number of dependents of the age twelve or older for a
+          move. This is only present on OCONUS moves.
       eTag:
         type: string
     type: object
@@ -5739,6 +5793,28 @@ definitions:
         type: string
         format: uuid
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      accompaniedTour:
+        type: boolean
+        example: true
+        x-nullable: true
+        description: >-
+          Indicates if the move entitlement allows dependents to travel to the
+          new Permanent Duty Station (PDS). This is only present on OCONUS
+          moves.
+      dependentsUnderTwelve:
+        type: integer
+        example: 5
+        x-nullable: true
+        description: >-
+          Indicates the number of dependents under the age of twelve for a move.
+          This is only present on OCONUS moves.
+      dependentsTwelveAndOver:
+        type: integer
+        example: 3
+        x-nullable: true
+        description: >-
+          Indicates the number of dependents of the age twelve or older for a
+          move. This is only present on OCONUS moves.
     required:
       - serviceMemberId
       - issueDate
@@ -5929,6 +6005,32 @@ definitions:
           their move without it being charged against their weight allowance.
         type: boolean
         x-nullable: true
+      accompaniedTour:
+        type: boolean
+        example: true
+        x-nullable: true
+        description: >-
+          Indicates if the move entitlement allows dependents to travel to the
+          new Permanent Duty Station (PDS). This is only present on OCONUS
+          moves.
+      dependentsUnderTwelve:
+        type: integer
+        example: 5
+        x-nullable: true
+        description: >-
+          Indicates the number of dependents under the age of twelve for a move.
+          This is only present on OCONUS moves.
+      dependentsTwelveAndOver:
+        type: integer
+        example: 3
+        x-nullable: true
+        description: >-
+          Indicates the number of dependents of the age twelve or older for a
+          move. This is only present on OCONUS moves.
+      ubAllowance:
+        example: 500
+        type: integer
+        x-nullable: true
   UpdateBillableWeightPayload:
     type: object
     properties:
@@ -6005,6 +6107,32 @@ definitions:
           True if user is entitled to move a gun safe (up to 500 lbs) as part of
           their move without it being charged against their weight allowance.
         type: boolean
+        x-nullable: true
+      accompaniedTour:
+        type: boolean
+        example: true
+        x-nullable: true
+        description: >-
+          Indicates if the move entitlement allows dependents to travel to the
+          new Permanent Duty Station (PDS). This is only present on OCONUS
+          moves.
+      dependentsUnderTwelve:
+        type: integer
+        example: 5
+        x-nullable: true
+        description: >-
+          Indicates the number of dependents under the age of twelve for a move.
+          This is only present on OCONUS moves.
+      dependentsTwelveAndOver:
+        type: integer
+        example: 3
+        x-nullable: true
+        description: >-
+          Indicates the number of dependents of the age twelve or older for a
+          move. This is only present on OCONUS moves.
+      ubAllowance:
+        example: 500
+        type: integer
         x-nullable: true
   MoveTaskOrder:
     description: The Move (MoveTaskOrder)
@@ -6475,6 +6603,12 @@ definitions:
         type: integer
         example: 4200
         x-nullable: true
+      allowableWeight:
+        description: The allowable weight of the PPM shipment goods being moved.
+        type: integer
+        minimum: 0
+        example: 4300
+        x-nullable: true
       hasProGear:
         description: |
           Indicates whether PPM shipment has pro gear.
@@ -6618,10 +6752,6 @@ definitions:
       netWeightRemarks:
         description: Remarks explaining any edits made to the net weight
         type: string
-      allowableWeight:
-        description: Indicates the maximum reimbursable weight of the shipment
-        type: integer
-        minimum: 0
   UpdateMovingExpense:
     type: object
     properties:
@@ -7153,8 +7283,6 @@ definitions:
         type: string
       firstName:
         type: string
-      hasSafetyPrivilege:
-        type: boolean
   QueueMoves:
     type: array
     items:
@@ -7831,6 +7959,10 @@ definitions:
     type: array
     items:
       $ref: '#/definitions/TransportationOffice'
+  ReServiceItems:
+    type: array
+    items:
+      $ref: '#/definitions/ReServiceItem'
   GBLOCs:
     type: array
     items:
@@ -9261,12 +9393,6 @@ definitions:
         description: A hash that should be used as the "If-Match" header for any updates.
         type: string
         readOnly: true
-      allowableWeight:
-        description: Maximum reimbursable weight.
-        type: integer
-        minimum: 0
-        x-nullable: true
-        x-omitempty: false
     required:
       - ppmShipmentId
       - createdAt
@@ -9822,6 +9948,13 @@ definitions:
         description: The estimated weight of the PPM shipment goods being moved.
         type: integer
         example: 4200
+        x-nullable: true
+        x-omitempty: false
+      allowableWeight:
+        description: The allowable weight of the PPM shipment goods being moved.
+        type: integer
+        example: 4300
+        minimum: 0
         x-nullable: true
         x-omitempty: false
       hasProGear:
@@ -11238,6 +11371,88 @@ definitions:
       validHhgProgramCodeForLoa:
         type: boolean
         x-nullable: true
+  ReServiceItem:
+    description: A Service Item which ties an ReService, Market, and Shipment Type together
+    type: object
+    properties:
+      serviceCode:
+        type: string
+        example: UBP
+        enum:
+          - CS
+          - DBHF
+          - DBTF
+          - DCRT
+          - DCRTSA
+          - DDASIT
+          - DDDSIT
+          - DDFSIT
+          - DDP
+          - DDSFSC
+          - DDSHUT
+          - DLH
+          - DMHF
+          - DNPK
+          - DOASIT
+          - DOFSIT
+          - DOP
+          - DOPSIT
+          - DOSFSC
+          - DOSHUT
+          - DPK
+          - DSH
+          - DUCRT
+          - DUPK
+          - FSC
+          - IBHF
+          - IBTF
+          - ICRT
+          - ICRTSA
+          - IDASIT
+          - IDDSIT
+          - IDFSIT
+          - IDSFSC
+          - IDSHUT
+          - IHPK
+          - IHUPK
+          - INPK
+          - IOASIT
+          - IOFSIT
+          - IOPSIT
+          - IOSFSC
+          - IOSHUT
+          - ISLH
+          - IUBPK
+          - IUBUPK
+          - IUCRT
+          - MS
+          - PODFSC
+          - POEFSC
+          - UBP
+      serviceName:
+        type: string
+        example: International UB, International Shipping & Linehaul
+      marketCode:
+        type: string
+        example: i (International), d (Domestic)
+        enum:
+          - i
+          - d
+      shipmentType:
+        type: string
+        example: HHG, UNACCOMPANIED_BAGGAGE
+        enum:
+          - BOAT_HAUL_AWAY
+          - BOAT_TOW_AWAY
+          - HHG
+          - HHG_INTO_NTS_DOMESTIC
+          - HHG_OUTOF_NTS_DOMESTIC
+          - MOBILE_HOME
+          - PPM
+          - UNACCOMPANIED_BAGGAGE
+      isAutoApproved:
+        type: boolean
+        example: true
 responses:
   InvalidRequest:
     description: The request payload is invalid

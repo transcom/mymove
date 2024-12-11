@@ -45,7 +45,7 @@ import { AddressShape, SimpleAddressShape } from 'types/address';
 import { OrdersShape } from 'types/customerShapes';
 import { ShipmentShape } from 'types/shipment';
 import { formatMtoShipmentForAPI, formatMtoShipmentForDisplay } from 'utils/formatMtoShipment';
-import { formatWeight } from 'utils/formatters';
+import { formatUBAllowanceWeight, formatWeight } from 'utils/formatters';
 import { validateDate } from 'utils/validation';
 import withRouter from 'utils/routing';
 import { ORDERS_TYPE } from 'constants/orders';
@@ -316,7 +316,9 @@ class MtoShipmentForm extends Component {
                     <Alert headingLevel="h4" type="info" noIcon>
                       Remember: You can move
                       {isUB
-                        ? ` up to your UB allowance for this move`
+                        ? ` up to ${formatUBAllowanceWeight(
+                            orders?.entitlement?.ub_allowance,
+                          )} for this UB shipment. The weight of your UB is part of your authorized weight allowance`
                         : ` ${formatWeight(orders.authorizedWeight)} total`}
                       . You’ll be billed for any excess weight you move.
                     </Alert>
