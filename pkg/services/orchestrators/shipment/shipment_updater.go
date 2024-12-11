@@ -54,7 +54,6 @@ func (s *shipmentUpdater) UpdateShipment(appCtx appcontext.AppContext, shipment 
 				serviceItemEstimatedPrice, err := pricing.FetchServiceItemPrice(appCtx, &serviceItem, *mtoShipment, planner)
 				if serviceItemEstimatedPrice != 0 && err == nil {
 					mtoShipment.MTOServiceItems[index].PricingEstimate = &serviceItemEstimatedPrice
-
 				}
 			}
 		}
