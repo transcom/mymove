@@ -6,7 +6,7 @@ import { connect } from 'react-redux';
 
 import styles from './ServicesCounselingAddOrders.module.scss';
 
-import { dropdownInputOptions, formatYesNoAPIValue } from 'utils/formatters';
+import { constructSCOrderOconusFields, dropdownInputOptions, formatYesNoAPIValue } from 'utils/formatters';
 import { ORDERS_TYPE_OPTIONS } from 'constants/orders';
 import AddOrdersForm from 'components/Office/AddOrdersForm/AddOrdersForm';
 import { counselingCreateOrder } from 'services/ghcApi';
@@ -108,10 +108,14 @@ const ServicesCounselingAddOrders = ({ userPrivileges, canAddOrders, setCanAddOr
     newDutyLocation: '',
     grade: '',
     originDutyLocation: '',
+    accompaniedTour: '',
+    dependentsUnderTwelve: '',
+    dependentsTwelveAndOver: '',
   };
 
   const handleSubmit = (values) => {
     setHasSubmitted(true);
+    const oconusFields = constructSCOrderOconusFields(values);
     const body = {
       ...values,
       serviceMemberId: customerId,
@@ -122,6 +126,7 @@ const ServicesCounselingAddOrders = ({ userPrivileges, canAddOrders, setCanAddOr
       grade: values.grade,
       originDutyLocationId: values.originDutyLocation.id,
       spouseHasProGear: false,
+      ...oconusFields,
     };
     mutateOrders({ body });
   };
