@@ -159,11 +159,16 @@ check_app: ## Make sure you're running the correct APP
 client_deps_update: .check_node_version.stamp ## Update client dependencies
 	yarn upgrade
 
+.PHONY: server_hosted_client_deps
+server_hosted_client_deps: scripts/fetch-react-file-viewer-from-yarn ## Serve static dependencies for client. This can be used by devs, but is pretty much exclusively used by CI/CD for compiler reasons
+
 .PHONY: client_deps
 client_deps: .check_hosts.stamp .client_deps.stamp ## Install client dependencies
 .client_deps.stamp: yarn.lock .check_node_version.stamp
 	yarn install
 	scripts/copy-swagger-ui
+	scripts/copy-react-file-viewer
+	scripts/rebuild-dependencies-without-binaries
 	touch .client_deps.stamp
 
 .client_build.stamp: .client_deps.stamp $(shell find src -type f)
@@ -410,6 +415,9 @@ build_tools: bin/gin \
 	bin/send-to-gex \
 	bin/simulate-process-tpps \
 	bin/tls-checker ## Build all tools
+
+.PHONY: prep_webpack_chunks
+prep_webpack_chunks: scripts/copy-react-file-viewer
 
 .PHONY: build
 build: server_build build_tools client_build ## Build the server, tools, and client

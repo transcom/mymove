@@ -66,6 +66,10 @@ type CounselingUpdateAllowancePayload struct {
 	// the number of storage in transit days that the customer is entitled to for a given shipment on their move
 	// Minimum: 0
 	StorageInTransit *int64 `json:"storageInTransit,omitempty"`
+
+	// ub allowance
+	// Example: 500
+	UbAllowance *int64 `json:"ubAllowance,omitempty"`
 }
 
 // Validate validates this counseling update allowance payload

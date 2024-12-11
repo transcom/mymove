@@ -54,6 +54,7 @@ export default {
   prime_actual_weight: 'Shipment weight',
   actual_weight: 'Actual weight',
   estimated_weight: 'Estimated weight',
+  allowable_weight: 'Allowable weight',
   description: 'Description',
   reason: 'Reason',
   rejection_reason: 'Reason',
