@@ -1544,7 +1544,7 @@ jobs:
             #
             # The trailing hyphen in restore_cache seems important
             # according to the page linked above
-            - v10-server-tests-coverage-
+            - v11-server-tests-coverage-
       - run:
           name: Ensure Test Coverage Increasing
           command: |
@@ -1600,7 +1600,7 @@ jobs:
             # Use the BuildNum to update the cache key so that the
             # coverage cache is always updated
             - save_cache:
-                key: v10-server-tests-coverage-{{ .BuildNum }}
+                key: v11-server-tests-coverage-{{ .BuildNum }}
                 paths:
                   - ~/transcom/mymove/tmp/baseline-go-coverage
                 when: always
