@@ -43,7 +43,7 @@ func (suite *EntitlementsServiceSuite) TestGetAllWeightAllotments() {
 
 		// Make the default E-5
 		e5 := factory.BuildPayGrade(suite.DB(), nil, nil)
-		factory.BuildHHGAllowance(suite.DB(), []factory.Customization{
+		e5Allowance := factory.BuildHHGAllowance(suite.DB(), []factory.Customization{
 			{
 				Model:    e5,
 				LinkOnly: true,
@@ -58,7 +58,7 @@ func (suite *EntitlementsServiceSuite) TestGetAllWeightAllotments() {
 				},
 			},
 		}, nil)
-		factory.BuildHHGAllowance(suite.DB(), []factory.Customization{
+		e6Allowance := factory.BuildHHGAllowance(suite.DB(), []factory.Customization{
 			{
 				Model:    e6,
 				LinkOnly: true,
@@ -69,5 +69,19 @@ func (suite *EntitlementsServiceSuite) TestGetAllWeightAllotments() {
 		allotments, err := fetcher.GetAllWeightAllotments(suite.AppContextForTest())
 		suite.NoError(err)
 		suite.Len(allotments, 2)
+
+		// Check the first allotment (E-5)
+		suite.Equal(e5Allowance.TotalWeightSelf, allotments[0].TotalWeightSelf)
+		suite.Equal(e5Allowance.TotalWeightSelfPlusDependents, allotments[0].TotalWeightSelfPlusDependents)
+		suite.Equal(e5Allowance.ProGearWeight, allotments[0].ProGearWeight)
+		suite.Equal(e5Allowance.ProGearWeightSpouse, allotments[0].ProGearWeightSpouse)
+		suite.Equal(e5.Grade, allotments[0].PayGrade.Grade)
+
+		// Check the second allotment (E-6)
+		suite.Equal(e6Allowance.TotalWeightSelf, allotments[1].TotalWeightSelf)
+		suite.Equal(e6Allowance.TotalWeightSelfPlusDependents, allotments[1].TotalWeightSelfPlusDependents)
+		suite.Equal(e6Allowance.ProGearWeight, allotments[1].ProGearWeight)
+		suite.Equal(e6Allowance.ProGearWeightSpouse, allotments[1].ProGearWeightSpouse)
+		suite.Equal(e6.Grade, allotments[1].PayGrade.Grade)
 	})
 }
