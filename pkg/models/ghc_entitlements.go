@@ -27,6 +27,8 @@ type Entitlement struct {
 	OrganizationalClothingAndIndividualEquipment bool             `db:"organizational_clothing_and_individual_equipment"`
 	ProGearWeight                                int              `db:"pro_gear_weight"`
 	ProGearWeightSpouse                          int              `db:"pro_gear_weight_spouse"`
+	IsWeightRestricted                           bool             `db:"is_weight_restricted"`
+	WeightRestriction                            *int             `db:"weight_restriction"`
 	CreatedAt                                    time.Time        `db:"created_at"`
 	UpdatedAt                                    time.Time        `db:"updated_at"`
 }

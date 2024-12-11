@@ -22,8 +22,7 @@ type HHGAllowance struct {
 	UpdatedAt                     time.Time `json:"updated_at" db:"updated_at"`
 }
 
-// Validate gets run every time you call a "pop.Validate*" method.
-// Adjust validations as needed based on business rules.
+// Validate gets run every time you call a "pop.Validate*" method
 func (h HHGAllowance) Validate(_ *pop.Connection) (*validate.Errors, error) {
 	return validate.Validate(
 		&validators.UUIDIsPresent{Name: "PayGradeID", Field: h.PayGradeID},
@@ -37,3 +36,8 @@ func (h HHGAllowance) Validate(_ *pop.Connection) (*validate.Errors, error) {
 
 // HHGAllowances is a slice of HHGAllowance
 type HHGAllowances []HHGAllowance
+
+// TableName overrides the table name used by Pop.
+func (h HHGAllowance) TableName() string {
+	return "hhg_allowances"
+}

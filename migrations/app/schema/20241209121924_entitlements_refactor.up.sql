@@ -7,7 +7,9 @@ ADD COLUMN IF NOT EXISTS is_weight_restricted boolean NOT NULL DEFAULT false,
 CREATE TABLE IF NOT EXISTS pay_grades (
     id uuid PRIMARY KEY NOT NULL,
     grade text NOT NULL UNIQUE,
-    grade_description text
+    grade_description text,
+    created_at timestamp NOT NULL DEFAULT NOW(),
+    updated_at timestamp NOT NULL DEFAULT NOW()
 );
 -- Create household goods allowances table
 CREATE TABLE IF NOT EXISTS hhg_allowances (
@@ -16,7 +18,9 @@ CREATE TABLE IF NOT EXISTS hhg_allowances (
     total_weight_self int NOT NULL,
     total_weight_self_plus_dependents int NOT NULL,
     pro_gear_weight int NOT NULL,
-    pro_gear_weight_spouse int NOT NULL
+    pro_gear_weight_spouse int NOT NULL,
+    created_at timestamp NOT NULL DEFAULT NOW(),
+    updated_at timestamp NOT NULL DEFAULT NOW()
 );
 -- Insert Max HHG allowance app value
 -- camel case to match the existing standaloneCrateCap parameter
