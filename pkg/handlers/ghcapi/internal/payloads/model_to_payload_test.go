@@ -13,6 +13,7 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/models/roles"
 	"github.com/transcom/mymove/pkg/storage/test"
+	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
 func TestOrder(_ *testing.T) {
@@ -577,6 +578,7 @@ func (suite *PayloadsSuite) TestSearchMoves() {
 	appCtx := suite.AppContextForTest()
 
 	marines := models.AffiliationMARINES
+	spaceForce := models.AffiliationSPACEFORCE
 	moveUSMC := factory.BuildMove(suite.DB(), []factory.Customization{
 		{
 			Model: models.ServiceMember{
@@ -584,13 +586,51 @@ func (suite *PayloadsSuite) TestSearchMoves() {
 			},
 		},
 	}, nil)
-
+	moveSF := factory.BuildMove(suite.DB(), []factory.Customization{
+		{
+			Model: models.ServiceMember{
+				Affiliation: &spaceForce,
+			},
+		},
+	}, nil)
+	scheduledPickupDate := time.Date(testdatagen.GHCTestYear, time.September, 20, 0, 0, 0, 0, time.UTC)
+	scheduledDeliveryDate := time.Date(testdatagen.GHCTestYear, time.September, 20, 0, 0, 0, 0, time.UTC)
+	sitAllowance := int(90)
+	storageFacility := factory.BuildStorageFacility(suite.DB(), nil, nil)
+	mtoShipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+		{
+			Model:    moveSF,
+			LinkOnly: true,
+		},
+		{
+			Model: models.MTOShipment{
+				Status:                models.MTOShipmentStatusApproved,
+				ShipmentType:          models.MTOShipmentTypeHHGIntoNTSDom,
+				CounselorRemarks:      handlers.FmtString("counselor remark"),
+				SITDaysAllowance:      &sitAllowance,
+				ScheduledPickupDate:   &scheduledPickupDate,
+				ScheduledDeliveryDate: &scheduledDeliveryDate,
+			},
+		},
+		{
+			Model:    storageFacility,
+			LinkOnly: true,
+		},
+	}, nil)
+	moveSF.MTOShipments = append(moveSF.MTOShipments, mtoShipment)
 	moves := models.Moves{moveUSMC}
-	suite.Run("Success - Returns a ghcmessages Upload payload from Upload Struct", func() {
+	moveSpaceForce := models.Moves{moveSF}
+	suite.Run("Success - Returns a ghcmessages Upload payload from Upload Struct Marine move with no shipments", func() {
 		payload := SearchMoves(appCtx, moves)
 
 		suite.IsType(payload, &ghcmessages.SearchMoves{})
 		suite.NotNil(payload)
+	})
+	suite.Run("Success - Returns a ghcmessages Upload payload from Upload Struct Non-Marine move, a shipment, and delivery/pickup time.  ", func() {
+		payload := SearchMoves(appCtx, moveSpaceForce)
+		suite.IsType(payload, &ghcmessages.SearchMoves{})
+		suite.NotNil(payload)
+		suite.NotNil(mtoShipment)
 	})
 }
 
