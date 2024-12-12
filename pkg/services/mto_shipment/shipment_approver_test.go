@@ -254,6 +254,7 @@ func (suite *MTOShipmentServiceSuite) TestApproveShipment() {
 			suite.True(slices.Contains(expectedReserviceCodes, actualReServiceCode))
 		}
 	})
+
 	suite.Run("If the mtoShipment is approved successfully it should create approved mtoServiceItems", func() {
 		subtestData := suite.createApproveShipmentSubtestData()
 		appCtx := subtestData.appCtx
