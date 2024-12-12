@@ -213,7 +213,7 @@ pre_deps_yarn:
 #     - ./scripts/ensure-spectral-lint /tmp/spectral_baseline spectral
 #     - echo "Temporarily bypassing some pre_test steps."
 #   rules:
-#     - if: '$CI_COMMIT_BRANCH == "B-18585-gitlab-deploy" || $CI_COMMIT_BRANCH == "main"'
+#     - if: '$CI_COMMIT_BRANCH == "B-18585-gitlab-jz" || $CI_COMMIT_BRANCH == "main"'
 #   cache:
 #     - key: "$CI_COMMIT_REF_SLUG-go"
 #       paths:
@@ -255,7 +255,7 @@ pre_deps_yarn:
 #       - storybook-static/
 #     expire_in: 1 week
 #   rules:
-#     - if: '$CI_COMMIT_BRANCH == "B-18585-gitlab-deploy" || $CI_COMMIT_BRANCH == "main"'
+#     - if: '$CI_COMMIT_BRANCH == "B-18585-gitlab-jz" || $CI_COMMIT_BRANCH == "main"'
 
 compile_app_client:
   stage: build
@@ -272,7 +272,7 @@ compile_app_client:
      - make client_build
      - echo "Skipping actual build steps."
   rules:
-    - if: '$CI_COMMIT_BRANCH == "B-18585-gitlab-deploy" || $CI_COMMIT_BRANCH == "main"'
+    - if: '$CI_COMMIT_BRANCH == "B-18585-gitlab-jz" || $CI_COMMIT_BRANCH == "main"'
   artifacts:
     paths:
       - ~/.cache/yarn
@@ -329,7 +329,7 @@ compile_app_server:
   #     - pkg/testdatagen/testdata
     expire_in: 1 week
   rules:
-    - if: '$CI_COMMIT_BRANCH == "B-18585-gitlab-deploy" || $CI_COMMIT_BRANCH == "main"'
+    - if: '$CI_COMMIT_BRANCH == "B-18585-gitlab-jz" || $CI_COMMIT_BRANCH == "main"'
 
 build_push_app:
   stage: push
@@ -409,7 +409,7 @@ push_otel_collector_image_dp3:
     - rm image.tar
   allow_failure: false
   rules:
-    - if: '$CI_COMMIT_BRANCH == "B-18585-gitlab-deploy" || $CI_COMMIT_BRANCH == "main"'
+    - if: '$CI_COMMIT_BRANCH == "B-18585-gitlab-jz" || $CI_COMMIT_BRANCH == "main"'
 
 deploy_dp3_migrations:
   stage: deploy
