@@ -292,6 +292,16 @@ export const formatMoveHistoryAgent = (agent) => {
   return formattedAgentValues;
 };
 
+export const formatMoveHistoryMaxBillableWeight = (historyRecord) => {
+  const { changedValues } = historyRecord;
+  const newChangedValues = { ...changedValues };
+  if (changedValues.authorized_weight) {
+    newChangedValues.max_billable_weight = changedValues.authorized_weight;
+    delete newChangedValues.authorized_weight;
+  }
+  return { ...historyRecord, changedValues: newChangedValues };
+};
+
 export const dropdownInputOptions = (options) => {
   return Object.entries(options).map(([key, value]) => ({ key, value }));
 };

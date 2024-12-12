@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"fmt"
 	"regexp"
+	"strconv"
 	"strings"
 
 	"github.com/gofrs/uuid"
@@ -74,19 +75,22 @@ func FindLocationsByZipCity(appCtx appcontext.AppContext, search string) (models
 	/** Feature Flag - Alaska - Determines if AK be included/excluded **/
 	isAlaskaEnabled := false
 	featureFlagName := "enable_alaska"
+	appCtx.Logger().Info("FETCHING FLIPT CONFIG FOR ALASKA")
 	config := cli.GetFliptFetcherConfig(viper.GetViper())
+	appCtx.Logger().Info("GET NEW FLAG FETCHER FOR ALASKA")
 	flagFetcher, err := featureflag.NewFeatureFlagFetcher(config)
 	if err != nil {
 		appCtx.Logger().Error("Error initializing FeatureFlagFetcher", zap.String("featureFlagKey", featureFlagName), zap.Error(err))
 	}
 
+	appCtx.Logger().Info("GETTING FF FOR USER FOR ALASKA")
 	flag, err := flagFetcher.GetBooleanFlagForUser(context.TODO(), appCtx, featureFlagName, map[string]string{})
 	if err != nil {
 		appCtx.Logger().Error("Error fetching feature flag", zap.String("featureFlagKey", featureFlagName), zap.Error(err))
 	} else {
 		isAlaskaEnabled = flag.Match
 	}
-
+	appCtx.Logger().Info("ALASKA FF IS: " + strconv.FormatBool(isAlaskaEnabled))
 	isHawaiiEnabled := false
 	featureFlagName = "enable_hawaii"
 	config = cli.GetFliptFetcherConfig(viper.GetViper())
