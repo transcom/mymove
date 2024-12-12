@@ -57,7 +57,7 @@ import {
   selectUploadsForCurrentAmendedOrders,
   selectUploadsForCurrentOrders,
 } from 'store/entities/selectors';
-import { formatCustomerDate, formatWeight } from 'utils/formatters';
+import { formatCustomerDate, formatUBAllowanceWeight, formatWeight } from 'utils/formatters';
 import {
   isPPMAboutInfoComplete,
   isPPMShipmentComplete,
@@ -68,6 +68,7 @@ import {
 import withRouter from 'utils/routing';
 import { ADVANCE_STATUSES } from 'constants/ppms';
 import { isBooleanFlagEnabled } from 'utils/featureFlags';
+import ToolTip from 'shared/ToolTip/ToolTip';
 
 const Description = ({ className, children, dataTestId }) => (
   <p className={`${styles.description} ${className}`} data-testid={dataTestId}>
@@ -425,17 +426,30 @@ const MoveHome = ({ serviceMemberMoves, isProfileComplete, serviceMember, signed
       <>
         <p>
           You’re moving to <strong>{orders.new_duty_location.name}</strong> from{' '}
-          <strong>{orders.origin_duty_location?.name}.</strong>
+          <strong>{orders.origin_duty_location?.name}</strong>
           <br />
           {` ${reportByLabel()} `}
-          <strong>{moment(orders.report_by_date).format('DD MMM YYYY')}.</strong>
+          <strong>{moment(orders.report_by_date).format('DD MMM YYYY')}</strong>
         </p>
 
         <dl className={styles.subheaderContainer}>
           <div className={styles.subheaderSubsection}>
             <dt>Weight allowance</dt>
-            <dd>{formatWeight(orders.authorizedWeight)}.</dd>
+            <dd>{formatWeight(orders.authorizedWeight)}</dd>
           </div>
+          {orders?.entitlement?.ub_allowance > 0 && (
+            <div className={styles.subheaderSubsection}>
+              <dt>UB allowance</dt>
+              <dd>
+                {formatUBAllowanceWeight(orders?.entitlement?.ub_allowance)}{' '}
+                <ToolTip
+                  color="#8cafea"
+                  text="The weight of your UB shipment is also part of your overall authorized weight allowance."
+                  data-testid="ubAllowanceToolTip"
+                />
+              </dd>
+            </div>
+          )}
           {move.moveCode && (
             <div className={styles.subheaderSubsection}>
               <dt>Move code</dt>
