@@ -680,8 +680,8 @@ describe('successful submission of form', () => {
     await userEvent.clear(actualPickupDateInput);
     await userEvent.type(actualPickupDateInput, '20 Oct 2021');
 
-    const actualWeightInput = screen.getByLabelText(/Estimated weight/);
-    await userEvent.type(actualWeightInput, '500');
+    const estimatedWeightInput = screen.getByLabelText(/Estimated weight/);
+    await userEvent.type(estimatedWeightInput, '500');
 
     const saveButton = screen.getByRole('button', { name: 'Save' });
 
