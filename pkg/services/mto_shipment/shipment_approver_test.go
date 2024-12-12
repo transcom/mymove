@@ -190,7 +190,7 @@ func (suite *MTOShipmentServiceSuite) createApproveShipmentSubtestData() (subtes
 }
 
 func (suite *MTOShipmentServiceSuite) TestApproveShipment() {
-	suite.Run("If the international mtoShipment is approved successfully it should create pre approved mtoServiceItems", func() {
+	suite.Run("Given international mtoShipment is approved successfully pre-approved mtoServiceItems are created HHG", func() {
 		internationalShipment := factory.BuildMTOShipment(suite.AppContextForTest().DB(), []factory.Customization{
 			{
 				Model: models.Move{
@@ -255,7 +255,6 @@ func (suite *MTOShipmentServiceSuite) TestApproveShipment() {
 		}
 	})
 
-	// TODO: find out why service items aren't being added for nts shipment only in tests
 	suite.Run("Given international mtoShipment is approved successfully pre-approved mtoServiceItems are created NTS", func() {
 		storageFacility := factory.BuildStorageFacility(suite.DB(), []factory.Customization{
 			{
@@ -865,5 +864,20 @@ func (suite *MTOShipmentServiceSuite) TestApproveShipment() {
 		suite.NoError(err)
 
 		suite.NotNil(shipment.MoveTaskOrder.ExcessWeightQualifiedAt)
+	})
+
+	suite.Run("Given invalid shipment error returned", func() {
+		invalidShipment := models.MTOShipment{}
+		invalidShipmentEtag := etag.GenerateEtag(invalidShipment.UpdatedAt)
+
+		shipmentRouter := NewShipmentRouter()
+		var serviceItemCreator services.MTOServiceItemCreator
+		var planner route.Planner
+		var moveWeights services.MoveWeights
+
+		// Approve international shipment
+		shipmentApprover := NewShipmentApprover(shipmentRouter, serviceItemCreator, planner, moveWeights)
+		_, err := shipmentApprover.ApproveShipment(suite.AppContextForTest(), invalidShipment.ID, invalidShipmentEtag)
+		suite.Error(err)
 	})
 }
