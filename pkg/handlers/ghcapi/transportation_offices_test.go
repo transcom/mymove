@@ -66,6 +66,46 @@ func (suite *HandlerSuite) TestNoTransportationOfficesHandler() {
 
 }
 
+func (suite *HandlerSuite) TestGetTransportationOfficesOpenHandler() {
+	transportationOffice := factory.BuildTransportationOffice(suite.DB(), []factory.Customization{
+		{
+			Model: models.TransportationOffice{
+				Name:             "NSF Dahlgren - East",
+				ProvidesCloseout: true,
+			},
+		},
+	}, nil)
+
+	transportationOffice2 := factory.BuildTransportationOffice(suite.DB(), []factory.Customization{
+		{
+			Model: models.TransportationOffice{
+				Name:             "NSF Dahlgren - West",
+				ProvidesCloseout: false,
+			},
+		},
+	}, nil)
+
+	fetcher := transportationofficeservice.NewTransportationOfficesFetcher()
+
+	req := httptest.NewRequest("GET", "/open/transportation_offices", nil)
+	params := transportationofficeop.GetTransportationOfficesOpenParams{
+		HTTPRequest: req,
+		Search:      "NSF Dahlgren - E",
+	}
+
+	handler := GetTransportationOfficesOpenHandler{
+		HandlerConfig:                suite.HandlerConfig(),
+		TransportationOfficesFetcher: fetcher}
+
+	response := handler.Handle(params)
+	suite.Assertions.IsType(&transportationofficeop.GetTransportationOfficesOpenOK{}, response)
+	responsePayload := response.(*transportationofficeop.GetTransportationOfficesOpenOK)
+
+	suite.NoError(responsePayload.Payload.Validate(strfmt.Default))
+	suite.Equal(transportationOffice.Name, *responsePayload.Payload[0].Name)
+	suite.Equal(transportationOffice2.Name, *responsePayload.Payload[1].Name)
+}
+
 func (suite *HandlerSuite) TestGetTransportationOfficesGBLOCsHandler() {
 	transportationOffice1 := factory.BuildTransportationOffice(suite.DB(), []factory.Customization{
 		{
