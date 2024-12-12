@@ -1,8 +1,10 @@
 package adminapi
 
 import (
+	"fmt"
 	"net/http"
 
+	"github.com/go-openapi/strfmt"
 	"github.com/stretchr/testify/mock"
 
 	"github.com/transcom/mymove/pkg/factory"
@@ -13,6 +15,7 @@ import (
 	"github.com/transcom/mymove/pkg/services/office"
 	"github.com/transcom/mymove/pkg/services/pagination"
 	"github.com/transcom/mymove/pkg/services/query"
+	transportationoffice "github.com/transcom/mymove/pkg/services/transportation_office"
 )
 
 func (suite *HandlerSuite) TestIndexOfficesHandler() {
@@ -63,6 +66,57 @@ func (suite *HandlerSuite) TestIndexOfficesHandler() {
 			NewQueryFilter:    newQueryFilter,
 			OfficeListFetcher: officeListFetcher,
 			NewPagination:     pagination.NewPagination,
+		}
+
+		response := handler.Handle(params)
+
+		expectedResponse := &handlers.ErrResponse{
+			Code: http.StatusNotFound,
+			Err:  expectedError,
+		}
+		suite.Equal(expectedResponse, response)
+	})
+}
+
+func (suite *HandlerSuite) TestGetOfficeByIdHandler() {
+	suite.Run("integration test ok response", func() {
+		to := factory.BuildTransportationOffice(suite.DB(), nil, nil)
+		params := transportation_officesop.GetOfficeByIDParams{
+			HTTPRequest: suite.setupAuthenticatedRequest("GET", fmt.Sprintf("/offices/%s", to.ID)),
+			OfficeID:    strfmt.UUID(to.ID.String()),
+		}
+
+		handler := GetOfficeByIdHandler{
+			HandlerConfig:                suite.HandlerConfig(),
+			NewQueryFilter:               query.NewQueryFilter,
+			TransportationOfficesFetcher: transportationoffice.NewTransportationOfficesFetcher(),
+		}
+
+		response := handler.Handle(params)
+
+		suite.IsType(&transportation_officesop.GetOfficeByIDOK{}, response)
+		okResponse := response.(*transportation_officesop.GetOfficeByIDOK)
+		suite.Equal(to.ID.String(), okResponse.Payload.ID.String())
+	})
+
+	suite.Run("unsuccesful response when fetch fails", func() {
+		to := factory.BuildTransportationOffice(suite.DB(), nil, nil)
+		params := transportation_officesop.GetOfficeByIDParams{
+			HTTPRequest: suite.setupAuthenticatedRequest("GET", fmt.Sprintf("/offices/%s", to.ID)),
+			OfficeID:    strfmt.UUID(to.ID.String()),
+		}
+		expectedError := models.ErrFetchNotFound
+		officeFetcher := &mocks.TransportationOfficesFetcher{}
+		officeFetcher.On("GetTransportationOffice",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.Anything,
+			mock.Anything,
+		).Return(nil, expectedError).Once()
+
+		handler := GetOfficeByIdHandler{
+			HandlerConfig:                suite.HandlerConfig(),
+			NewQueryFilter:               query.NewQueryFilter,
+			TransportationOfficesFetcher: officeFetcher,
 		}
 
 		response := handler.Handle(params)
