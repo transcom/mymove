@@ -342,8 +342,8 @@ export const formatAddedOrRemovedMoveHistoryValue = (value) => {
 
 // Translate boolean (true/false) into capitalized "Yes"/"No" string
 export const formatYesNoMoveHistoryValue = (value) => {
-  if (value === true) return 'Added';
-  if (value === false) return 'Removed';
+  if (value === true) return 'Yes';
+  if (value === false) return 'No';
   return null;
 };
 // Translate boolean (true/false) into "yes"/"no" string
