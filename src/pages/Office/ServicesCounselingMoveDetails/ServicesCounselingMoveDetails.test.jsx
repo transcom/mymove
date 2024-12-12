@@ -16,6 +16,7 @@ import { useMoveDetailsQueries, useOrdersDocumentQueries } from 'hooks/queries';
 import { formatDateWithUTC } from 'shared/dates';
 import { MockProviders } from 'testUtils';
 import { updateMTOShipment, updateMoveStatusServiceCounselingCompleted } from 'services/ghcApi';
+import { isBooleanFlagEnabled } from 'utils/featureFlags';
 
 const mockRequestedMoveCode = 'LR4T8V';
 const mockRoutingParams = { moveCode: mockRequestedMoveCode };
@@ -36,6 +37,11 @@ jest.mock('services/ghcApi', () => ({
   ...jest.requireActual('services/ghcApi'),
   updateMTOShipment: jest.fn(),
   updateMoveStatusServiceCounselingCompleted: jest.fn(),
+}));
+
+jest.mock('utils/featureFlags', () => ({
+  ...jest.requireActual('utils/featureFlags'),
+  isBooleanFlagEnabled: jest.fn().mockImplementation(() => Promise.resolve(false)),
 }));
 
 const mtoShipments = [
@@ -256,6 +262,7 @@ const newMoveDetailsQuery = {
         city: 'Fort Knox',
         state: 'KY',
         postalCode: '40121',
+        isOconus: true,
       },
     },
     destinationDutyLocation: {
@@ -1127,40 +1134,42 @@ describe('MoveDetails page', () => {
       });
 
       describe('shows the dropdown and navigates to each option', () => {
-        it.each([[SHIPMENT_OPTIONS_URL.HHG], [SHIPMENT_OPTIONS_URL.NTS], [SHIPMENT_OPTIONS_URL.NTSrelease]])(
-          'selects the %s option and navigates to the matching form for that shipment type',
-          async (shipmentType) => {
-            render(
-              <MockProviders
-                path={servicesCounselingRoutes.BASE_SHIPMENT_ADD_PATH}
-                params={{ moveCode: mockRequestedMoveCode, shipmentType }}
-              >
-                <ServicesCounselingMoveDetails
-                  setUnapprovedShipmentCount={jest.fn()}
-                  setMissingOrdersInfoCount={jest.fn()}
-                  setShipmentWarnConcernCount={jest.fn()}
-                  setShipmentErrorConcernCount={jest.fn()}
-                />
-                ,
-              </MockProviders>,
-            );
+        it.each([
+          [SHIPMENT_OPTIONS_URL.HHG],
+          [SHIPMENT_OPTIONS_URL.NTS],
+          [SHIPMENT_OPTIONS_URL.NTSrelease],
+          [SHIPMENT_OPTIONS_URL.UNACCOMPANIED_BAGGAGE],
+        ])('selects the %s option and navigates to the matching form for that shipment type', async (shipmentType) => {
+          isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(true));
+          render(
+            <MockProviders
+              path={servicesCounselingRoutes.BASE_SHIPMENT_ADD_PATH}
+              params={{ moveCode: mockRequestedMoveCode, shipmentType }}
+            >
+              <ServicesCounselingMoveDetails
+                setUnapprovedShipmentCount={jest.fn()}
+                setMissingOrdersInfoCount={jest.fn()}
+                setShipmentWarnConcernCount={jest.fn()}
+                setShipmentErrorConcernCount={jest.fn()}
+              />
+            </MockProviders>,
+          );
 
-            const path = `../${generatePath(servicesCounselingRoutes.SHIPMENT_ADD_PATH, {
-              moveCode: mockRequestedMoveCode,
-              shipmentType,
-            })}`;
+          const path = `../${generatePath(servicesCounselingRoutes.SHIPMENT_ADD_PATH, {
+            moveCode: mockRequestedMoveCode,
+            shipmentType,
+          })}`;
 
-            const buttonDropdown = await screen.findByRole('combobox');
+          const buttonDropdown = await screen.findByRole('combobox');
 
-            expect(buttonDropdown).toBeInTheDocument();
+          expect(buttonDropdown).toBeInTheDocument();
 
-            await userEvent.selectOptions(buttonDropdown, shipmentType);
+          await userEvent.selectOptions(buttonDropdown, shipmentType);
 
-            await waitFor(() => {
-              expect(mockNavigate).toHaveBeenCalledWith(path);
-            });
-          },
-        );
+          await waitFor(() => {
+            expect(mockNavigate).toHaveBeenCalledWith(path);
+          });
+        });
       });
 
       it('shows the edit shipment buttons', async () => {
