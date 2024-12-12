@@ -652,9 +652,15 @@ func (v *updateMTOServiceItemData) setNewMTOServiceItem() *models.MTOServiceItem
 	if v.updatedServiceItem.PODLocationID != nil {
 		newMTOServiceItem.PODLocationID = v.updatedServiceItem.PODLocationID
 	}
+	if v.updatedServiceItem.PODLocation != nil {
+		newMTOServiceItem.PODLocation = v.updatedServiceItem.PODLocation
+	}
 	// Set POE Location
 	if v.updatedServiceItem.POELocationID != nil {
 		newMTOServiceItem.POELocationID = v.updatedServiceItem.POELocationID
+	}
+	if v.updatedServiceItem.POELocation != nil {
+		newMTOServiceItem.POELocation = v.updatedServiceItem.POELocation
 	}
 
 	return &newMTOServiceItem

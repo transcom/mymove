@@ -833,3 +833,63 @@ func (suite *PayloadsSuite) TestMarketCode() {
 		suite.Equal("i", result, "Expected result to be 'i' for international market code")
 	})
 }
+
+func (suite *PayloadsSuite) TestMTOServiceItemsPOEFSC() {
+	portLocation := factory.FetchPortLocation(suite.DB(), []factory.Customization{
+		{
+			Model: models.Port{
+				PortCode: "SEA",
+			},
+		},
+	}, nil)
+
+	poefscServiceItem := factory.BuildMTOServiceItem(nil, []factory.Customization{
+		{
+			Model: models.ReService{
+				Code:     models.ReServiceCodePOEFSC,
+				Priority: 1,
+			},
+		},
+		{
+			Model:    portLocation,
+			LinkOnly: true,
+			Type:     &factory.PortLocations.PortOfEmbarkation,
+		},
+	}, nil)
+	serviceItemPayload := MTOServiceItem(&poefscServiceItem)
+	suite.NotNil(serviceItemPayload)
+	internationalFuelSurchargeItem, ok := serviceItemPayload.(*primemessages.MTOServiceItemInternationalFuelSurcharge)
+	suite.True(ok)
+	suite.Equal(portLocation.Port.PortCode, internationalFuelSurchargeItem.PortCode)
+	suite.Equal(poefscServiceItem.ReService.Code.String(), internationalFuelSurchargeItem.ReServiceCode)
+}
+
+func (suite *PayloadsSuite) TestMTOServiceItemsPODFSC() {
+	portLocation := factory.FetchPortLocation(suite.DB(), []factory.Customization{
+		{
+			Model: models.Port{
+				PortCode: "SEA",
+			},
+		},
+	}, nil)
+
+	podfscServiceItem := factory.BuildMTOServiceItem(nil, []factory.Customization{
+		{
+			Model: models.ReService{
+				Code:     models.ReServiceCodePODFSC,
+				Priority: 1,
+			},
+		},
+		{
+			Model:    portLocation,
+			LinkOnly: true,
+			Type:     &factory.PortLocations.PortOfDebarkation,
+		},
+	}, nil)
+	serviceItemPayload := MTOServiceItem(&podfscServiceItem)
+	suite.NotNil(serviceItemPayload)
+	internationalFuelSurchargeItem, ok := serviceItemPayload.(*primemessages.MTOServiceItemInternationalFuelSurcharge)
+	suite.True(ok)
+	suite.Equal(portLocation.Port.PortCode, internationalFuelSurchargeItem.PortCode)
+	suite.Equal(podfscServiceItem.ReService.Code.String(), internationalFuelSurchargeItem.ReServiceCode)
+}
