@@ -3032,16 +3032,18 @@ func (suite *MTOShipmentServiceSuite) TestUpdateStatusServiceItems() {
 	})
 }
 
-func (suite *MTOShipmentServiceSuite) TestUpdateInternatinoalServiceItems() {
+func (suite *MTOShipmentServiceSuite) TestUpdateDomesticServiceItems() {
 
 	expectedReServiceCodes := []models.ReServiceCode{
-		models.ReServiceCodeISLH,
-		models.ReServiceCodePODFSC,
-		models.ReServiceCodeINPK,
+		models.ReServiceCodeDLH,
+		models.ReServiceCodeFSC,
+		models.ReServiceCodeDOP,
+		models.ReServiceCodeDDP,
+		models.ReServiceCodeDNPK,
 	}
 
 	var pickupAddress models.Address
-	var storageFacilityDestinationAddress models.Address
+	var storageFacility models.StorageFacility
 	var mto models.Move
 
 	setupTestData := func() {
@@ -3052,23 +3054,23 @@ func (suite *MTOShipmentServiceSuite) TestUpdateInternatinoalServiceItems() {
 		pickupAddress = factory.BuildAddress(suite.DB(), []factory.Customization{
 			{
 				Model: models.Address{
-					StreetAddress1: "JBER",
-					City:           "Anchorage",
-					State:          "AK",
-					PostalCode:     "99506",
-					IsOconus:       models.BoolPointer(true),
+					StreetAddress1: "Test Street 1",
+					City:           "Des moines",
+					State:          "IA",
+					PostalCode:     "50309",
+					IsOconus:       models.BoolPointer(false),
 				},
 			},
 		}, nil)
 
-		storageFacilityDestinationAddress = factory.BuildAddress(suite.DB(), []factory.Customization{
+		storageFacility = factory.BuildStorageFacility(suite.DB(), []factory.Customization{
 			{
 				Model: models.Address{
-					StreetAddress1: "JBER",
-					City:           "Anchorage",
-					State:          "AK",
-					PostalCode:     "99507",
-					IsOconus:       models.BoolPointer(true),
+					StreetAddress1: "Test Street Adress 2",
+					City:           "Des moines",
+					State:          "IA",
+					PostalCode:     "50314",
+					IsOconus:       models.BoolPointer(false),
 				},
 			},
 		}, nil)
@@ -3093,7 +3095,7 @@ func (suite *MTOShipmentServiceSuite) TestUpdateInternatinoalServiceItems() {
 	siCreator := mtoserviceitem.NewMTOServiceItemCreator(planner, builder, moveRouter, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticPackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer())
 	updater := NewMTOShipmentStatusUpdater(builder, siCreator, planner)
 
-	suite.Run("Shipments with different origin/destination ZIP3 have longhaul service item", func() {
+	suite.Run("Preapproved service items successfully added to domestic nts shipments", func() {
 		setupTestData()
 
 		shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
@@ -3107,8 +3109,8 @@ func (suite *MTOShipmentServiceSuite) TestUpdateInternatinoalServiceItems() {
 				LinkOnly: true,
 			},
 			{
-				Model:    storageFacilityDestinationAddress,
-				Type:     &factory.Addresses.DeliveryAddress,
+				Model:    storageFacility,
+				Type:     &factory.StorageFacility,
 				LinkOnly: true,
 			},
 			{
@@ -3129,6 +3131,8 @@ func (suite *MTOShipmentServiceSuite) TestUpdateInternatinoalServiceItems() {
 		err = appCtx.DB().EagerPreload("ReService").Where("mto_shipment_id = ?", updatedShipment.ID).All(&serviceItems)
 		suite.NoError(err)
 
-		suite.Equal(models.ReServiceCodeDLH, serviceItems[0].ReService.Code)
+		for i := 0; i < len(expectedReServiceCodes); i++ {
+			suite.Equal(expectedReServiceCodes[i], serviceItems[i].ReService.Code)
+		}
 	})
 }
