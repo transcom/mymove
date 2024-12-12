@@ -546,4 +546,4 @@ deploy_dp3_app:
       if [[ "$CI_COMMIT_BRANCH" == "main" && "$CI_JOB_STATUS" == "failed" ]]; then
         ./scripts/circleci-announce-broken-branch
       fi
-  timeout: 60m
+  timeout: 120m
