@@ -1,7 +1,7 @@
 WITH move AS (
 		SELECT
 			moves.*
-		FROM
+				FROM
 			moves
 		WHERE
 			moves.locator = $1
@@ -62,9 +62,8 @@ WITH move AS (
 		JOIN jsonb_to_record(audit_history.changed_data) as c(closeout_office_id TEXT, counseling_transportation_office_id TEXT) on TRUE
 		WHERE audit_history.table_name = 'moves'
 			-- Remove log for when shipment_seq_num updates
-			AND NOT (audit_history.event_name = NULL AND audit_history.changed_data::TEXT LIKE '%shipment_seq_num%' AND LENGTH(audit_history.changed_data::TEXT) < 25)
+			AND NOT (audit_history.event_name = NULL AND audit_history.changed_data::TEXT LIKE '%shipment_seq_num%')
 		group by audit_history.id
-
 	),
 	move_orders AS (
 		SELECT
@@ -181,7 +180,6 @@ WITH move AS (
 			audit_history
 			JOIN service_item_dimensions ON service_item_dimensions.id = audit_history.object_id
 		WHERE audit_history.table_name = 'mto_service_item_dimensions'
-
 	),
 	move_entitlements AS (
 		SELECT
@@ -350,7 +348,8 @@ WITH move AS (
 			NULL,
 			move_shipments.shipment_locator
 		FROM audit_history
-			JOIN move_shipments ON move_shipments.destination_address_id = audit_history.object_id AND audit_history."table_name" = 'addresses'
+			JOIN shipment_logs ON (shipment_logs.changed_data->>'destination_address_id')::uuid = audit_history.object_id AND audit_history."table_name" = 'addresses'
+			JOIN move_shipments ON shipment_logs.object_id = move_shipments.id
 		UNION
 		SELECT
 			audit_history.object_id,
@@ -360,8 +359,9 @@ WITH move AS (
 			NULL,
 			move_shipments.shipment_locator
 		FROM audit_history
-			JOIN move_shipments ON move_shipments.secondary_delivery_address_id = audit_history.object_id AND audit_history."table_name" = 'addresses'
-		UNION
+			JOIN shipment_logs ON (shipment_logs.changed_data->>'secondary_delivery_address_id')::uuid = audit_history.object_id AND audit_history."table_name" = 'addresses'
+			JOIN move_shipments ON shipment_logs.object_id = move_shipments.id
+			UNION
 		SELECT
 			audit_history.object_id,
 			'tertiaryDestinationAddress',
@@ -370,8 +370,9 @@ WITH move AS (
 			NULL,
 			move_shipments.shipment_locator
 		FROM audit_history
-			JOIN move_shipments ON move_shipments.tertiary_delivery_address_id = audit_history.object_id AND audit_history."table_name" = 'addresses'
-		UNION
+			JOIN shipment_logs ON (shipment_logs.changed_data->>'tertiary_delivery_address_id')::uuid = audit_history.object_id AND audit_history."table_name" = 'addresses'
+			JOIN move_shipments ON shipment_logs.object_id = move_shipments.id
+			UNION
 		SELECT
 			audit_history.object_id,
 			'pickupAddress',
@@ -380,8 +381,9 @@ WITH move AS (
 			NULL,
 			move_shipments.shipment_locator
 		FROM audit_history
-			JOIN move_shipments ON move_shipments.pickup_address_id = audit_history.object_id AND audit_history."table_name" = 'addresses'
-		UNION
+			JOIN shipment_logs ON (shipment_logs.changed_data->>'pickup_address_id')::uuid = audit_history.object_id AND audit_history."table_name" = 'addresses'
+			JOIN move_shipments ON shipment_logs.object_id = move_shipments.id
+			UNION
 		SELECT
 			audit_history.object_id,
 			'secondaryPickupAddress',
@@ -390,7 +392,8 @@ WITH move AS (
 			NULL,
 			move_shipments.shipment_locator
 		FROM audit_history
-			JOIN move_shipments ON move_shipments.secondary_pickup_address_id = audit_history.object_id AND audit_history."table_name" = 'addresses'
+			JOIN shipment_logs ON (shipment_logs.changed_data->>'secondary_pickup_address_id')::uuid = audit_history.object_id AND audit_history."table_name" = 'addresses'
+			JOIN move_shipments ON shipment_logs.object_id = move_shipments.id
 		UNION
 		SELECT
 			audit_history.object_id,
@@ -400,7 +403,8 @@ WITH move AS (
 			NULL,
 			move_shipments.shipment_locator
 		FROM audit_history
-			JOIN move_shipments ON move_shipments.tertiary_pickup_address_id = audit_history.object_id AND audit_history."table_name" = 'addresses'
+			JOIN shipment_logs ON (shipment_logs.changed_data->>'tertiary_pickup_address_id')::uuid = audit_history.object_id AND audit_history."table_name" = 'addresses'
+			JOIN move_shipments ON shipment_logs.object_id = move_shipments.id
 		UNION
 		SELECT
 			audit_history.object_id,
@@ -491,7 +495,6 @@ WITH move AS (
 			JOIN move_orders ON move_orders.uploaded_orders_id = documents.id
 			LEFT JOIN uploads ON user_uploads.upload_id = uploads.id
 		WHERE documents.service_member_id = move_orders.service_member_id
-
 		-- amended orders have the document id in the uploaded amended orders id column
 		UNION
 		SELECT
@@ -507,7 +510,6 @@ WITH move AS (
 			JOIN move_orders ON move_orders.uploaded_amended_orders_id = documents.id
 			LEFT JOIN uploads ON user_uploads.upload_id = uploads.id
 		WHERE documents.service_member_id = move_orders.service_member_id
-
 		UNION
 		SELECT
 			user_uploads.id,
@@ -732,7 +734,8 @@ WITH move AS (
 			gsr_appeals_logs
 
 
-	) SELECT DISTINCT
+	)
+	SELECT
 		combined_logs.*,
 		COALESCE(office_users.first_name, prime_user_first_name, service_members.first_name) AS session_user_first_name,
 		COALESCE(office_users.last_name, service_members.last_name) AS session_user_last_name,
