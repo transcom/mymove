@@ -256,80 +256,84 @@ func (suite *MTOShipmentServiceSuite) TestApproveShipment() {
 	})
 
 	// TODO: find out why service items aren't being added for nts shipment only in tests
-	// suite.Run("Given international mtoShipment is approved successfully pre-approved mtoServiceItems are created NTS", func() {
-	// 	storageFacility := factory.BuildStorageFacility(suite.DB(), []factory.Customization{
-	// 		{
-	// 			Model: models.StorageFacility{
-	// 				Email: models.StringPointer("old@email.com"),
-	// 			},
-	// 		},
-	// 		{
-	// 			Model: models.Address{
-	// 				StreetAddress1: "JBER",
-	// 				City:           "Anchorage",
-	// 				State:          "AK",
-	// 				PostalCode:     "99507",
-	// 				IsOconus:       models.BoolPointer(true),
-	// 			},
-	// 		},
-	// 	}, nil)
-	// 	internationalShipment := factory.BuildMTOShipment(suite.AppContextForTest().DB(), []factory.Customization{
-	// 		{
-	// 			Model: models.Move{
-	// 				Status: models.MoveStatusAPPROVED,
-	// 			},
-	// 		},
-	// 		{
-	// 			Model: models.Address{
-	// 				StreetAddress1: "Tester Address",
-	// 				City:           "Des Moines",
-	// 				State:          "IA",
-	// 				PostalCode:     "50314",
-	// 				IsOconus:       models.BoolPointer(false),
-	// 			},
-	// 			Type: &factory.Addresses.PickupAddress,
-	// 		},
-	// 		{
-	// 			Model: models.MTOShipment{
-	// 				MarketCode:   "i",
-	// 				Status:       models.MTOShipmentStatusSubmitted,
-	// 				ShipmentType: models.MTOShipmentTypeHHGIntoNTSDom,
-	// 			},
-	// 		},
-	// 		{
-	// 			Model:    storageFacility,
-	// 			LinkOnly: true,
-	// 		},
-	// 	}, nil)
-	// 	internationalShipmentEtag := etag.GenerateEtag(internationalShipment.UpdatedAt)
+	suite.Run("Given international mtoShipment is approved successfully pre-approved mtoServiceItems are created NTS", func() {
+		storageFacility := factory.BuildStorageFacility(suite.AppContextForTest().DB(), []factory.Customization{
+			{
+				Model: models.StorageFacility{
+					FacilityName: *models.StringPointer("Test Storage Name"),
+					Email:        models.StringPointer("old@email.com"),
+					LotNumber:    models.StringPointer("Test lot number"),
+					Phone:        models.StringPointer("555-555-5555"),
+				},
+			},
+			{
+				Model: models.Address{
+					StreetAddress1: "JBER",
+					City:           "Anchorage",
+					State:          "AK",
+					PostalCode:     "99507",
+					IsOconus:       models.BoolPointer(true),
+				},
+			},
+		}, nil)
 
-	// 	shipmentRouter := NewShipmentRouter()
-	// 	var serviceItemCreator services.MTOServiceItemCreator
-	// 	var planner route.Planner
-	// 	var moveWeights services.MoveWeights
+		internationalShipment := factory.BuildMTOShipment(suite.AppContextForTest().DB(), []factory.Customization{
+			{
+				Model: models.Move{
+					Status: models.MoveStatusAPPROVED,
+				},
+			},
+			{
+				Model: models.Address{
+					StreetAddress1: "Tester Address",
+					City:           "Des Moines",
+					State:          "IA",
+					PostalCode:     "50314",
+					IsOconus:       models.BoolPointer(false),
+				},
+				Type: &factory.Addresses.PickupAddress,
+			},
+			{
+				Model: models.MTOShipment{
+					MarketCode:   "i",
+					Status:       models.MTOShipmentStatusSubmitted,
+					ShipmentType: models.MTOShipmentTypeHHGIntoNTSDom,
+				},
+			},
+			{
+				Model:    storageFacility,
+				LinkOnly: true,
+			},
+		}, nil)
+		internationalShipmentEtag := etag.GenerateEtag(internationalShipment.UpdatedAt)
 
-	// 	// Approve international shipment
-	// 	shipmentApprover := NewShipmentApprover(shipmentRouter, serviceItemCreator, planner, moveWeights)
-	// 	_, err := shipmentApprover.ApproveShipment(suite.AppContextForTest(), internationalShipment.ID, internationalShipmentEtag)
-	// 	suite.NoError(err)
+		shipmentRouter := NewShipmentRouter()
+		var serviceItemCreator services.MTOServiceItemCreator
+		var planner route.Planner
+		var moveWeights services.MoveWeights
 
-	// 	// Get created pre approved service items
-	// 	var serviceItems []models.MTOServiceItem
-	// 	err2 := suite.AppContextForTest().DB().EagerPreload("ReService").Where("mto_shipment_id = ?", internationalShipment.ID).Order("created_at asc").All(&serviceItems)
-	// 	suite.NoError(err2)
+		// Approve international shipment
+		shipmentApprover := NewShipmentApprover(shipmentRouter, serviceItemCreator, planner, moveWeights)
+		_, err := shipmentApprover.ApproveShipment(suite.AppContextForTest(), internationalShipment.ID, internationalShipmentEtag)
+		suite.NoError(err)
 
-	// 	expectedReserviceCodes := []models.ReServiceCode{
-	// 		models.ReServiceCodeISLH,
-	// 		models.ReServiceCodePODFSC,
-	// 		models.ReServiceCodeINPK,
-	// 	}
+		// Get created pre approved service items
+		var serviceItems []models.MTOServiceItem
+		err2 := suite.AppContextForTest().DB().EagerPreload("ReService").Where("mto_shipment_id = ?", internationalShipment.ID).Order("created_at asc").All(&serviceItems)
+		suite.NoError(err2)
 
-	// 	suite.Equal(len(expectedReserviceCodes), len(serviceItems))
-	// 	for i := 0; i < len(serviceItems); i++ {
-	// 		actualReServiceCode := serviceItems[i].ReService.Code
-	// 		suite.True(slices.Contains(expectedReserviceCodes, actualReServiceCode))
-	// 	}
-	// })
+		expectedReserviceCodes := []models.ReServiceCode{
+			models.ReServiceCodeISLH,
+			models.ReServiceCodePODFSC,
+			models.ReServiceCodeINPK,
+		}
+
+		suite.Equal(len(expectedReserviceCodes), len(serviceItems))
+		for i := 0; i < len(serviceItems); i++ {
+			actualReServiceCode := serviceItems[i].ReService.Code
+			suite.True(slices.Contains(expectedReserviceCodes, actualReServiceCode))
+		}
+	})
 
 	suite.Run("If the mtoShipment is approved successfully it should create approved mtoServiceItems", func() {
 		subtestData := suite.createApproveShipmentSubtestData()
@@ -339,7 +343,7 @@ func (suite *MTOShipmentServiceSuite) TestApproveShipment() {
 		planner := subtestData.planner
 		estimatedWeight := unit.Pound(1212)
 
-		shipmentForAutoApprove := factory.BuildMTOShipment(appCtx.DB(), []factory.Customization{
+		shipmentForAutoApprove := factory.BuildMTOShipment(suite.AppContextForTest().DB(), []factory.Customization{
 			{
 				Model:    move,
 				LinkOnly: true,
