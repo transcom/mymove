@@ -1072,6 +1072,33 @@ paths:
         }
 
         ```
+
+
+        The following service items allow you to update the Port that the
+        shipment will use:
+
+        - PODFSC (Port of Debarkation can be updated)
+
+        - POEFSC (Port of Embarkation can be updated)
+
+
+        At a MINIMUM, the payload for updating the port should contain the
+        reServiceCode (PODFSC or POEFSC), modelType
+        (UpdateMTOServiceItemInternationalPortFSC), portCode, and id for the
+        service item.
+
+        Please see the example payload below:
+
+        ```json
+
+        {
+          "id": "1ed224b6-c65e-4616-b88e-8304d26c9562",
+          "modelType": "UpdateMTOServiceItemInternationalPortFSC",
+          "portCode": "SEA",
+          "reServiceCode": "POEFSC"
+        }
+
+        ```
       operationId: updateMTOServiceItem
       tags:
         - mtoServiceItem
@@ -2262,6 +2289,25 @@ definitions:
         required:
           - reason
           - reServiceCode
+  MTOServiceItemInternationalFuelSurcharge:
+    description: >-
+      Describes a international Port of Embarkation/Debarkation fuel surcharge
+      service item subtype of a MTOServiceItem.
+    allOf:
+      - $ref: '#/definitions/MTOServiceItem'
+      - type: object
+        properties:
+          reServiceCode:
+            type: string
+            description: >-
+              A unique code for the service item. Indicates if the service is
+              for Port of Embarkation (POEFSC) or Port of Debarkation (PODFSC).
+            enum:
+              - PODFSC
+              - POEFSC
+          portCode:
+            description: A unique code for a Port
+            type: string
   MTOShipment:
     type: object
     properties:
@@ -3425,6 +3471,7 @@ definitions:
         * DOSHUT, DDSHUT - MTOServiceItemShuttle
         * DCRT, DUCRT - MTOServiceItemDomesticCrating
         * ICRT, IUCRT - MTOServiceItemInternationalCrating
+        * PODFSC, POEFSC - MTOSerivceItemInternationalFuelSurcharge
 
       The documentation will then update with the supported fields.
     type: string
@@ -3435,6 +3482,7 @@ definitions:
       - MTOServiceItemShuttle
       - MTOServiceItemDomesticCrating
       - MTOServiceItemInternationalCrating
+      - MTOSerivceItemInternationalFuelSurcharge
   ServiceRequestDocument:
     properties:
       uploads:

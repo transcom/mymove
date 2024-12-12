@@ -843,8 +843,10 @@ func populatePortLocation(mtoServiceItem *models.MTOServiceItem, p *mtoServiceIt
 	}
 	if reServiceCode == models.ReServiceCodePODFSC {
 		mtoServiceItem.PODLocationID = &portLocation.ID
+		mtoServiceItem.PODLocation = portLocation
 	} else if reServiceCode == models.ReServiceCodePOEFSC {
 		mtoServiceItem.POELocationID = &portLocation.ID
+		mtoServiceItem.POELocation = portLocation
 	}
 	return nil
 }

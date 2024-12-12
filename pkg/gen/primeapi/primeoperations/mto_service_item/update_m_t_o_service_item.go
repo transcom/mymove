@@ -76,6 +76,23 @@ At a MINIMUM, the payload for resubmitting a rejected SIT service item must look
 	}
 
 ```
+
+The following service items allow you to update the Port that the shipment will use:
+- PODFSC (Port of Debarkation can be updated)
+- POEFSC (Port of Embarkation can be updated)
+
+At a MINIMUM, the payload for updating the port should contain the reServiceCode (PODFSC or POEFSC), modelType (UpdateMTOServiceItemInternationalPortFSC), portCode, and id for the service item.
+Please see the example payload below:
+```json
+
+	{
+	  "id": "1ed224b6-c65e-4616-b88e-8304d26c9562",
+	  "modelType": "UpdateMTOServiceItemInternationalPortFSC",
+	  "portCode": "SEA",
+	  "reServiceCode": "POEFSC"
+	}
+
+```
 */
 type UpdateMTOServiceItem struct {
 	Context *middleware.Context
