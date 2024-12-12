@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { number, bool } from 'prop-types';
+import { string, bool } from 'prop-types';
 import classnames from 'classnames';
 import { Tag } from '@trussworks/react-uswds';
 
@@ -64,7 +64,6 @@ const GCCAndIncentiveInfo = ({ ppmShipmentInfo, updatedItemName, setUpdatedItemN
 };
 export default function PPMHeaderSummary({ ppmShipmentInfo, order, ppmNumber, showAllFields, readOnly }) {
   const [updatedItemName, setUpdatedItemName] = useState('');
-
   const shipmentInfo = {
     plannedMoveDate: ppmShipmentInfo.expectedDepartureDate,
     actualMoveDate: ppmShipmentInfo.actualMoveDate,
@@ -119,7 +118,7 @@ export default function PPMHeaderSummary({ ppmShipmentInfo, order, ppmNumber, sh
 }
 
 PPMHeaderSummary.propTypes = {
-  ppmNumber: number.isRequired,
+  ppmNumber: string.isRequired,
   showAllFields: bool.isRequired,
 };
 
