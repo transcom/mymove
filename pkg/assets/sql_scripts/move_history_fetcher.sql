@@ -1,7 +1,7 @@
 WITH move AS (
 		SELECT
 			moves.*
-				FROM
+		FROM
 			moves
 		WHERE
 			moves.locator = $1
