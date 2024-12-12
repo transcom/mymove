@@ -387,7 +387,7 @@ func (f orderFetcher) ListDestinationRequestsOrders(appCtx appcontext.AppContext
 		Where("moves.show = ?", models.BoolPointer(true)).
 		Where(
 			"(shipment_address_updates.status = 'REQUESTED' "+
-				"OR (mto_service_items.status = 'SUBMITTED' AND re_services.code IN ('DDFSIT', 'DDASIT', 'DDDSIT', 'DDSHUT', 'DDSFSC')))",
+				"OR (mto_service_items.status = 'SUBMITTED' AND re_services.code IN ('DDFSIT', 'DDASIT', 'DDDSIT', 'DDSHUT', 'DDSFSC', 'IDFSIT', 'IDASIT', 'IDDSIT', 'IDSHUT')))",
 		).
 		Where("moves.status = ?", "APPROVALS REQUESTED")
 
