@@ -59,6 +59,7 @@ type MoveRouter interface {
 type MoveWeights interface {
 	CheckExcessWeight(appCtx appcontext.AppContext, moveID uuid.UUID, updatedShipment models.MTOShipment) (*models.Move, *validate.Errors, error)
 	CheckAutoReweigh(appCtx appcontext.AppContext, moveID uuid.UUID, updatedShipment *models.MTOShipment) (models.MTOShipments, error)
+	MoveNeedsReweigh(appCtx appcontext.AppContext, move models.Move) (*bool, error)
 }
 
 // MoveExcessWeightUploader is the exported interface for uploading an excess weight document for a move

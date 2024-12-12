@@ -2,17 +2,18 @@ package move
 
 import (
 	"database/sql"
-	"errors"
 	"math"
 	"time"
 
 	"github.com/gobuffalo/validate/v3"
 	"github.com/gofrs/uuid"
+	"github.com/pkg/errors"
 
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/apperror"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
+	"github.com/transcom/mymove/pkg/unit"
 )
 
 // RiskOfExcessThreshold is the percentage of the weight allowance that the sum of a move's shipment estimated weights
@@ -246,6 +247,63 @@ func calculateSumOfWeights(move models.Move, updatedShipment *models.MTOShipment
 	}
 
 	return sumOfWeights
+}
+
+func (w moveWeights) MoveNeedsReweigh(appCtx appcontext.AppContext, move models.Move) (*bool, error) {
+	return MoveNeedsReweigh(appCtx, move)
+}
+
+func MoveNeedsReweigh(appCtx appcontext.AppContext, move models.Move) (*bool, error) {
+	move, err := models.FetchMoveByMoveID(appCtx.DB(), move.ID)
+	if err != nil {
+		if err == models.ErrFetchNotFound {
+			return nil, errors.WithMessage(models.ErrFetchNotFound, "Unable to check if move needs reweigh for move ID "+move.ID.String())
+		}
+		return nil, err
+	} else if move.AvailableToPrimeAt == nil {
+		return nil, errors.WithMessage(models.ErrSqlRecordNotFound, "Move is in an incorrect state for move ID "+move.ID.String())
+	}
+
+	err = appCtx.DB().Load(&move, "MTOShipments", "Orders.Entitlement.DBAuthorizedWeight")
+	if err != nil {
+		if err == models.ErrFetchNotFound {
+			return nil, errors.WithMessage(models.ErrFetchNotFound, "Unable to fetch shipments for move ID "+move.ID.String())
+		}
+		return nil, err
+	}
+
+	weightLimit := unit.Pound(*move.Orders.Entitlement.DBAuthorizedWeight)
+
+	totalActualWeight := unit.Pound(0)
+	totalEstimatedWeight := unit.Pound(0)
+	for i := range move.MTOShipments {
+		err = appCtx.DB().Load(&move.MTOShipments[i], "MTOServiceItems", "ShipmentType", "Status", "DeletedAt")
+		if err != nil {
+			if err == models.ErrFetchNotFound {
+				return nil, errors.WithMessage(models.ErrFetchNotFound, "Unable to fetch service items for shipment ID "+move.MTOShipments[i].ID.String()+
+					" when checking if move needs reweigh for move ID "+move.ID.String())
+			}
+			return nil, err
+		}
+
+		if move.MTOShipments[i].ShipmentType != models.MTOShipmentTypePPM &&
+			move.MTOShipments[i].Status != models.MTOShipmentStatusCanceled &&
+			move.MTOShipments[i].Status != models.MTOShipmentStatusRejected &&
+			move.MTOShipments[i].DeletedAt == nil {
+			totalActualWeight += *move.MTOShipments[i].PrimeActualWeight
+			totalEstimatedWeight += *move.MTOShipments[i].PrimeEstimatedWeight
+		}
+	}
+
+	if int(totalActualWeight) >= int(math.Round(float64(weightLimit)*0.9)) {
+		return models.BoolPointer(true), nil
+	}
+
+	if int(totalEstimatedWeight) >= int(math.Round(float64(weightLimit)*0.9)) {
+		return models.BoolPointer(true), nil
+	}
+
+	return models.BoolPointer(false), nil
 }
 
 func (w moveWeights) CheckAutoReweigh(appCtx appcontext.AppContext, moveID uuid.UUID, updatedShipment *models.MTOShipment) (models.MTOShipments, error) {
