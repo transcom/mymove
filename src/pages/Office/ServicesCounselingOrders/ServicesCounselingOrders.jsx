@@ -277,7 +277,7 @@ const ServicesCounselingOrders = ({ files, amendedDocumentId, updateAmendedDocum
       reportByDate: formatSwaggerDate(values.reportByDate),
       ordersType: values.ordersType,
       grade: values.payGrade,
-      has_dependents: formatYesNoAPIValue('no'),
+      hasDependents: formatYesNoAPIValue('no'),
     };
     mutateOrders({ orderID: orderId, ifMatchETag: newOrderEtag, body: orderBody });
   };
