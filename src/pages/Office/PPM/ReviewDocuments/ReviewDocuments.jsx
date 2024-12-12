@@ -292,7 +292,7 @@ export const ReviewDocuments = ({ readOnly }) => {
                     key={documentSetIndex}
                     weightTicket={currentDocumentSet.documentSet}
                     ppmShipmentInfo={ppmShipmentInfo}
-                    ppmNumber={1}
+                    ppmNumber="1"
                     tripNumber={currentTripNumber}
                     mtoShipment={mtoShipment}
                     order={order}
@@ -311,7 +311,7 @@ export const ReviewDocuments = ({ readOnly }) => {
                   <ReviewProGear
                     proGear={currentDocumentSet.documentSet}
                     ppmShipmentInfo={ppmShipmentInfo}
-                    ppmNumber={1}
+                    ppmNumber="1"
                     tripNumber={currentTripNumber}
                     mtoShipment={mtoShipment}
                     onError={onError}
@@ -329,7 +329,7 @@ export const ReviewDocuments = ({ readOnly }) => {
                     documentSets={documentSets}
                     documentSetIndex={documentSetIndex}
                     categoryIndex={currentDocumentCategoryIndex}
-                    ppmNumber={1}
+                    ppmNumber="1"
                     tripNumber={currentTripNumber}
                     mtoShipment={mtoShipment}
                     onError={onErrorMessage}
