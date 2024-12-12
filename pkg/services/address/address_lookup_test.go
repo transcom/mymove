@@ -10,11 +10,12 @@ func (suite *AddressSuite) TestAddressLookup() {
 	state := "NH"
 	postalCode := "03037"
 	county := "ROCKINGHAM"
+	excludedStates := [...]string{"AK", "HI"}
 
 	suite.Run("Successfully search for location by zip", func() {
 		appCtx := appcontext.NewAppContext(suite.AppContextForTest().DB(), suite.AppContextForTest().Logger(), &auth.Session{})
 		addressLookup := NewVLocation()
-		address, err := addressLookup.GetLocationsByZipCityState(appCtx, postalCode)
+		address, err := addressLookup.GetLocationsByZipCityState(appCtx, postalCode, excludedStates[:])
 
 		suite.Nil(err)
 		suite.NotNil(address)
@@ -27,7 +28,7 @@ func (suite *AddressSuite) TestAddressLookup() {
 	suite.Run("Successfully search for location by city name", func() {
 		appCtx := appcontext.NewAppContext(suite.AppContextForTest().DB(), suite.AppContextForTest().Logger(), &auth.Session{})
 		addressLookup := NewVLocation()
-		address, err := addressLookup.GetLocationsByZipCityState(appCtx, city)
+		address, err := addressLookup.GetLocationsByZipCityState(appCtx, city, excludedStates[:])
 
 		suite.Nil(err)
 		suite.NotNil(address)
@@ -38,7 +39,7 @@ func (suite *AddressSuite) TestAddressLookup() {
 		search := city + ", " + state
 		appCtx := appcontext.NewAppContext(suite.AppContextForTest().DB(), suite.AppContextForTest().Logger(), &auth.Session{})
 		addressLookup := NewVLocation()
-		address, err := addressLookup.GetLocationsByZipCityState(appCtx, search)
+		address, err := addressLookup.GetLocationsByZipCityState(appCtx, search, excludedStates[:])
 
 		suite.Nil(err)
 		suite.NotNil(address)
@@ -50,7 +51,7 @@ func (suite *AddressSuite) TestAddressLookup() {
 		search := city + ", " + state + " " + postalCode
 		appCtx := appcontext.NewAppContext(suite.AppContextForTest().DB(), suite.AppContextForTest().Logger(), &auth.Session{})
 		addressLookup := NewVLocation()
-		address, err := addressLookup.GetLocationsByZipCityState(appCtx, search)
+		address, err := addressLookup.GetLocationsByZipCityState(appCtx, search, excludedStates[:])
 
 		suite.Nil(err)
 		suite.NotNil(address)
