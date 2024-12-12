@@ -323,38 +323,4 @@ func (suite *ModelSuite) TestCreateApprovedServiceItemsForShipment() {
 		err := models.CreateApprovedServiceItemsForShipment(suite.DB(), &invalidShipment)
 		suite.Error(err)
 	})
-
-	suite.Run("test error handling for invalid shipment addresses", func() {
-
-		shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
-			{
-
-				Model: models.Address{
-					StreetAddress1: "some address",
-					City:           "city",
-					State:          "AK",
-					PostalCode:     "99506",
-					IsOconus:       models.BoolPointer(true),
-				},
-				Type: &factory.Addresses.PickupAddress,
-			},
-			{
-				Model: models.MTOShipment{
-					MarketCode: "i",
-				},
-			},
-			{
-				Model: models.Address{
-					StreetAddress1: "some address",
-					City:           "city",
-					State:          "AK",
-					PostalCode:     "98765",
-					IsOconus:       models.BoolPointer(true),
-				},
-				Type: &factory.Addresses.DeliveryAddress,
-			},
-		}, nil)
-		err := models.CreateApprovedServiceItemsForShipment(suite.DB(), &shipment)
-		suite.Error(err)
-	})
 }

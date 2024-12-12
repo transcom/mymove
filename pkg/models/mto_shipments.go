@@ -10,7 +10,6 @@ import (
 	"github.com/gofrs/uuid"
 	"github.com/pkg/errors"
 
-	"github.com/transcom/mymove/pkg/apperror"
 	"github.com/transcom/mymove/pkg/unit"
 )
 
@@ -420,12 +419,6 @@ func DetermineMarketCode(address1 *Address, address2 *Address) (MarketCode, erro
 }
 
 func CreateApprovedServiceItemsForShipment(db *pop.Connection, shipment *MTOShipment) error {
-	if shipment.PickupAddress != nil && shipment.DestinationAddress != nil &&
-		*shipment.PickupAddress.IsOconus && *shipment.DestinationAddress.IsOconus {
-		err := apperror.NewConflictError(shipment.ID, "cannot handle shipments from oconus to oconus")
-		return err
-	}
-
 	err := db.RawQuery("CALL create_approved_service_items_for_shipment($1)", shipment.ID).Exec()
 	if err != nil {
 		return fmt.Errorf("error creating approved service items: %w", err)
