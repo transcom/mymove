@@ -257,7 +257,7 @@ func (suite *MTOShipmentServiceSuite) TestApproveShipment() {
 
 	// TODO: find out why service items aren't being added for nts shipment only in tests
 	suite.Run("Given international mtoShipment is approved successfully pre-approved mtoServiceItems are created NTS", func() {
-		storageFacility := factory.BuildStorageFacility(suite.AppContextForTest().DB(), []factory.Customization{
+		storageFacility := factory.BuildStorageFacility(suite.DB(), []factory.Customization{
 			{
 				Model: models.StorageFacility{
 					FacilityName: *models.StringPointer("Test Storage Name"),
@@ -277,7 +277,7 @@ func (suite *MTOShipmentServiceSuite) TestApproveShipment() {
 			},
 		}, nil)
 
-		internationalShipment := factory.BuildMTOShipment(suite.AppContextForTest().DB(), []factory.Customization{
+		internationalShipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
 			{
 				Model: models.Move{
 					Status: models.MoveStatusAPPROVED,
@@ -324,7 +324,6 @@ func (suite *MTOShipmentServiceSuite) TestApproveShipment() {
 
 		expectedReserviceCodes := []models.ReServiceCode{
 			models.ReServiceCodeISLH,
-			models.ReServiceCodePODFSC,
 			models.ReServiceCodeINPK,
 		}
 
@@ -343,7 +342,7 @@ func (suite *MTOShipmentServiceSuite) TestApproveShipment() {
 		planner := subtestData.planner
 		estimatedWeight := unit.Pound(1212)
 
-		shipmentForAutoApprove := factory.BuildMTOShipment(suite.AppContextForTest().DB(), []factory.Customization{
+		shipmentForAutoApprove := factory.BuildMTOShipment(appCtx.DB(), []factory.Customization{
 			{
 				Model:    move,
 				LinkOnly: true,
