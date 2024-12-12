@@ -456,6 +456,21 @@ func (suite *PayloadsSuite) TestInternalServerError() {
 	suite.Equal(traceID.String(), detailError.Instance.String())
 }
 
+func (suite *PayloadsSuite) TestNotImplementedError() {
+	traceID, _ := uuid.NewV4()
+	detail := "Err"
+
+	noDetailError := NotImplementedError(nil, traceID)
+	suite.Equal(handlers.NotImplementedErrMessage, *noDetailError.Title)
+	// suite.Equal(handlers.NotImplementedErrMessage, *noDetailError.Detail)
+	suite.Equal(traceID.String(), noDetailError.Instance.String())
+
+	detailError := NotImplementedError(&detail, traceID)
+	suite.Equal(handlers.NotImplementedErrMessage, *detailError.Title)
+	suite.Equal(detail, *detailError.Detail)
+	suite.Equal(traceID.String(), detailError.Instance.String())
+}
+
 func (suite *PayloadsSuite) TestGetDimension() {
 	dimensionType := models.DimensionTypeItem
 	dimensions := models.MTOServiceItemDimensions{
