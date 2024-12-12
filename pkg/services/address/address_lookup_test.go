@@ -59,4 +59,18 @@ func (suite *AddressSuite) TestAddressLookup() {
 		suite.Contains((*address)[0].StateName, state)
 		suite.Contains((*address)[0].UsprZipID, postalCode)
 	})
+
+	suite.Run("Search for excluded state returns nothing", func() {
+		akSearch := "ANCHORAGE, AK 99503"
+		appCtx := appcontext.NewAppContext(suite.AppContextForTest().DB(), suite.AppContextForTest().Logger(), &auth.Session{})
+		addressLookup := NewVLocation()
+		address, err := addressLookup.GetLocationsByZipCityState(appCtx, akSearch, excludedStates[:])
+		suite.Nil(err)
+		suite.Nil((*address))
+
+		hiSearch := "HONOLULU, HI 96835"
+		address, err = addressLookup.GetLocationsByZipCityState(appCtx, hiSearch, excludedStates[:])
+		suite.Nil(err)
+		suite.Nil((*address))
+	})
 }
