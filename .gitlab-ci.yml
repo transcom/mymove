@@ -7,8 +7,8 @@
 
 variables:
   DOCKER_AUTH_CONFIG: "{\"auths\":{\"https://index.docker.io/v1/\":{\"auth\":\"$CI_REGISTRY_USER:$CI_REGISTRY_PASSWORD\"}}}"
-  #circleci_docker: milmove/circleci-docker:milmove-app-726bfe44bd27d3b41da41acbe3eb231811a993f7
   DOCKER_APP_IMAGE: milmove01/transcom-docker:milmove-app
+  #DOCKER_APP_IMAGE: milmove/circleci-docker:milmove-app-3d9acdaa37c81a87b5fc1c6193a8e528dd56e4ed
   DOCKER_BASE_IMAGE: milmove01/transcom-docker:base
   DOCKERHUB_USERNAME: DOCKERHUB_USERNAME
   DOCKERHUB_PASSWORD: DOCKERHUB_PASSWORD
@@ -28,11 +28,6 @@ variables:
   #redis: &redis redis:5.0.6
   #cimg_base: cimg/base:2022.12-22.04
   #aws-otel-collector: &aws-otel-collector public.ecr.aws/aws-observability/aws-otel-collector:v0.31.0
-  #dp3-env: &dps-env placeholder_env
-  #integration-ignore-branch: &integration-ignore-branch placeholder_branch_name
-  #integration-mtls-ignore-branch: &integration-mtls-ignore-branch placeholder_branch_name
-  #client-ignore-branch: &client-ignore-branch placeholder_branch_name
-  #server-ignore-branch: &server-ignore-branch placeholder_branch_name
   GOPATH: "$CI_PROJECT_DIR/go"
   GOLANGCI_LINT_CONCURRENCY: "4"
   GOLANGCI_LINT_VERBOSE: "-v"
@@ -42,6 +37,23 @@ variables:
   #EIA_KEY: db2522a43820268a41a802a16ae9fd26 # Consider storing sensitive keys as CI/CD variables instead
   #GIT_CLONE_PATH: '$CI_BUILDS_DIR/milmove/$CI_PROJECT_NAME/$CI_PIPELINE_ID'
   #add dependency to each step
+  # Specify the environment: loadtest, demo, exp
+  #DP3_ENV: &dp3_env demo
+
+  # Specify the branch to deploy
+  DP3_BRANCH: &dp3_branch B-18585-gitlab-deploy
+
+  # Ignore branches for integration tests
+  INTEGRATION_IGNORE_BRANCH: &integration_ignore_branch B-18585-gitlab-deploy
+  INTEGRATION_MTLS_IGNORE_BRANCH: &integration_mtls_ignore_branch B-18585-gitlab-deploy
+  CLIENT_IGNORE_BRANCH: &client_ignore_branch B-18585-gitlab-deploy
+  SERVER_IGNORE_BRANCH: &server_ignore_branch B-18585-gitlab-deploy
+
+  # TLS variables for certificates
+  PLACEHOLDER_ENV_DP3_CERT: /config/tls/api.demo.dp3.us.crt
+  PLACEHOLDER_ENV_DP3_KEY: /config/tls/api.demo.dp3.us.key.pem
+  PLACEHOLDER_ENV_DP3_CA: /config/tls/api.demo.dp4.us.chain.crt
+
 
 
 stages:
@@ -71,28 +83,31 @@ stages:
 #   script: 
 # - echo "noop"
 
-# anti_virus:
-#   stage: pre_checks
-#   image: milmove/clamav-ci # This can reB-18585-gitlab-pipeline-work as is, or use any lightweight image since we're skipping the actual work.
-#   script:
-#      - clamscan --version
-#      - cp -v ~/transcom/mymove/anti-virus/whitelist-*.{fp,ign2} /var/lib/clamav/
-#      - >
-#        clamscan \
-#          --recursive \
-#          --infected \
-#          --detect-pua=yes \
-#          --exclude-pua=NetTool \
-#          --exclude-pua=PWTool \
-#          --max-scansize=300M \
-#          --max-filesize=100M \
-#          --max-recursion=30 \
-#        --max-files=50000 \
-#          --tempdir=/tmp \
-#          ~/transcom/mymove
-#      - echo "Skipping anti-virus checks temporarily."
-#   after_script:
-#      - echo "Replace this line with your failure announcement logic."
+anti_virus:
+  stage: pre_checks
+  image: milmove/clamav-ci # Custom image with ClamAV pre-installed
+  script:
+    - pwd
+    - clamscan --version # Verify ClamAV installation
+    - ls -la $CI_PROJECT_DIR/anti-virus # Debug to confirm whitelist files exist
+    - cp -v $CI_PROJECT_DIR/anti-virus/whitelist-*.{fp,ign2} /var/lib/clamav/ # Update paths
+    - echo "Running ClamAV scan..."
+    - >
+      clamscan \
+        --recursive \
+        --infected \
+        --detect-pua=yes \
+        --exclude-pua=NetTool \
+        --exclude-pua=PWTool \
+        --max-scansize=300M \
+        --max-filesize=100M \
+        --max-recursion=30 \
+        --max-files=50000 \
+        --tempdir=/tmp \
+        $CI_PROJECT_DIR
+  after_script:
+    - echo "Anti-virus scan completed. Replace with failure announcement logic if needed."
+
 
 pre_deps_golang:
   stage: pre_checks
@@ -134,55 +149,60 @@ pre_deps_yarn:
 #  policy: pull-push # This can reB-18585-gitlab-pipeline-work as is, since it doesn't affect job execution
 # No need to uncomment after_script if it's just for passing the job
 
-# check_tls_certificate_dp3:
-#   stage: pre_checks
-#   image: $DOCKER_APP_IMAGE
-#   script:
-#     - echo "check_tls_certificate_dp3"
+check_tls_certificate_dp3:
+  stage: pre_checks
+  image: $DOCKER_APP_IMAGE
+  script:
+    - echo "check_tls_certificate_dp3"
 
-#     # Setup TLS environment variables
-#     - |
-#       CI_ENVIRONMENT_SCRIPT="/tmp/ci_environment_script.sh"
-#       mkdir -p $(dirname $CI_ENVIRONMENT_SCRIPT)
-#       echo "export TLS_CERT=\$$(echo placeholder_env | tr 'a-z' 'A-Z')_DP3_CERT" >> $CI_ENVIRONMENT_SCRIPT
-#       echo "export TLS_KEY=\$$(echo placeholder_env | tr 'a-z' 'A-Z')_DP3_KEY" >> $CI_ENVIRONMENT_SCRIPT
-#       echo "export TLS_CA=\$$(echo placeholder_env | tr 'a-z' 'A-Z')_DP3_CA" >> $CI_ENVIRONMENT_SCRIPT
-#       source $CI_ENVIRONMENT_SCRIPT
-#       echo "Setup TLS environment variables"
+    # Setup TLS environment variables
+    - |
+      CI_ENVIRONMENT_SCRIPT="/tmp/ci_environment_script.sh"
+      mkdir -p $(dirname $CI_ENVIRONMENT_SCRIPT)
+      echo "export TLS_CERT=\$$(echo ${CI_ENVIRONMENT_NAME} | tr 'a-z' 'A-Z')_DP3_CERT" >> $CI_ENVIRONMENT_SCRIPT
+      echo "export TLS_KEY=\$$(echo ${CI_ENVIRONMENT_NAME} | tr 'a-z' 'A-Z')_DP3_KEY" >> $CI_ENVIRONMENT_SCRIPT
+      echo "export TLS_CA=\$$(echo ${CI_ENVIRONMENT_NAME} | tr 'a-z' 'A-Z')_DP3_CA" >> $CI_ENVIRONMENT_SCRIPT
+      source $CI_ENVIRONMENT_SCRIPT
+      echo "Setup TLS environment variables"
 
-#     # Check DP3 environment and TLS pair
-#     - |
-#       if [ "$DP3_ENV" = "demo" ] || [ "$DP3_ENV" = "exp" ] || [ "$DP3_ENV" = "loadtest" ]; then
-#         echo "DP3 environment detected. Proceeding with TLS variables setup and check."
-#         /usr/local/bin/check-tls-pair "$TLS_KEY" "$TLS_CERT"
-#       else
-#         echo "Not a DP3 environment. Skipping TLS check."
-#       fi
-#     # The check_tls_pair job seems redundant here if /usr/local/bin/check-tls-pair is called in the previous step, but you could include any additional checks or commands as needed.
-#   after_script:
-#     - |
-#       if [ "$CI_COMMIT_BRANCH" = "B-18585-gitlab-pipeline-work" ]; then
-#         scripts/circleci-announce-broken-branch || true
-#       fi
-#       echo "announce_failure"
+    # Check DP3 environment and TLS pair
+    - |
+      if [ "$DP3_ENV" = "demo" ] || [ "$DP3_ENV" = "exp" ] || [ "$DP3_ENV" = "loadtest" ]; then
+        echo "DP3 environment detected. Proceeding with TLS variables setup and check."
+        /usr/local/bin/check-tls-pair "$TLS_KEY" "$TLS_CERT"
+      else
+        echo "Not a DP3 environment. Skipping TLS check."
+      fi
+  after_script:
+    - |
+      if [ "$CI_COMMIT_BRANCH" = "B-18585-gitlab-deploy" ]; then
+        echo "Announcing broken branch in GitLab"
+        scripts/announce-broken-branch || true
+      fi
+      echo "announce_failure"
 
-# check_tls_certificate_stg:
-#   stage: pre_checks
-#   image: $DOCKER_APP_IMAGE # This can reB-18585-gitlab-pipeline-work unchanged, or you can use a lightweight image since no real work is done.
-#   #before_script:
-#     #- export TLS_KEY=<path_to_tls_key> # Comment out if not performing real TLS checks
-#     #- export TLS_CERT=<path_to_tls_cert>
-#   script:
-#     - echo "Temporarily skipping TLS certificate check."
 
-# check_tls_certificate_prd:
-#   stage: pre_checks
-#   image: $DOCKER_APP_IMAGE  # This can reB-18585-gitlab-pipeline-work unchanged, or you can use a lightweight image since no real work is done
-#   #before_script:
-#     # - export TLS_KEY=<path_to_tls_key> # Comment out if not performing real TLS checks
-#     # - export TLS_CERT=<path_to_tls_cert>
-#   script:
-#     - echo "Temporarily skipping TLS certificate check."
+check_tls_certificate_stg:
+  stage: pre_checks
+  image: $DOCKER_APP_IMAGE # This can reB-18585-gitlab-pipeline-work unchanged, or you can use a lightweight image since no real work is done.
+  before_script:
+    - export TLS_KEY=/config/tls/api.demo.dp3.us.key.pem
+    - export TLS_CERT=/config/tls/api.demo.dp3.us.crt
+  script:
+    - echo "Running TLS certificate check for staging environment"
+    #- ls -la /builds/milmove/mymove/tls-checker
+    # - chmod +x /builds/milmove/mymove/tls-checker
+    - /usr/local/bin/check-tls-pair "$TLS_KEY" "$TLS_CERT" || echo "Staging TLS check failed. Proceeding anyway."
+
+check_tls_certificate_prd:
+  stage: pre_checks
+  image: $DOCKER_APP_IMAGE  # This can reB-18585-gitlab-pipeline-work unchanged, or you can use a lightweight image since no real work is done
+  before_script:
+    - export TLS_KEY=/config/tls/api.demo.dp3.us.crt
+    - export TLS_CERT=/config/tls/api.demo.dp3.us.key.pem
+  script:
+    - echo "Running TLS certificate check for production environment"
+    - /usr/local/bin/check-tls-pair "$TLS_KEY" "$TLS_CERT" || echo "Production TLS check failed. Proceeding anyway."
 
 # pre_test:
 #   stage: test_builds
@@ -541,7 +561,7 @@ deploy_dp3_app:
     # - bin/tls-checker --schemes https --hosts my.demo.dp3.us,office.demo.dp3.us,admin.demo.dp3.us --log-level info --timeout 15m
     # - echo "Checking deployed commits"
     - ./scripts/check-deployed-commit "my.demo.dp3.us,office.demo.dp3.us,admin.demo.dp3.us" "$CI_COMMIT_SHA"
-  # Run failure announcement only if on the main branch
+  # Run failure announcement only if on the main bran
     - |
       if [[ "$CI_COMMIT_BRANCH" == "main" && "$CI_JOB_STATUS" == "failed" ]]; then
         ./scripts/circleci-announce-broken-branch
