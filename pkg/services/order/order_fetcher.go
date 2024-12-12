@@ -190,6 +190,8 @@ func (f orderFetcher) ListOrders(appCtx appcontext.AppContext, officeUserID uuid
 		}
 		if role == roles.RoleTypeTOO {
 			query.LeftJoin("office_users as assigned_user", "moves.too_assigned_id  = assigned_user.id")
+			query.LeftJoin("shipment_address_updates", "shipment_address_updates.shipment_id = mto_shipments.id").
+				Where("shipment_address_updates.status = (?) OR shipment_address_updates.status = (?) OR (shipment_address_updates.shipment_id IS NULL)", "APPROVED", "REJECTED")
 		}
 
 		if params.NeedsPPMCloseout != nil {
