@@ -178,7 +178,7 @@ func (h GetMovesQueueHandler) Handle(params queues.GetMovesQueueParams) middlewa
 		})
 }
 
-// GetDestinationRequestsQueueHandler returns the moves for the TOO queue user via GET /queues/moves
+// GetDestinationRequestsQueueHandler returns the moves for the TOO queue user via GET /queues/destination-requests
 type GetDestinationRequestsQueueHandler struct {
 	handlers.HandlerConfig
 	services.OrderFetcher
@@ -252,26 +252,9 @@ func (h GetDestinationRequestsQueueHandler) Handle(params queues.GetDestinationR
 			if appCtx.Session().OfficeUserID != uuid.Nil {
 				officeUser, err = h.OfficeUserFetcherPop.FetchOfficeUserByID(appCtx, appCtx.Session().OfficeUserID)
 				if err != nil {
-					appCtx.Logger().Error("Error retrieving office_user", zap.Error(err))
+					appCtx.Logger().Error("Error retrieving office user", zap.Error(err))
 					return queues.NewGetDestinationRequestsQueueInternalServerError(), err
 				}
-			}
-
-			privileges, err := models.FetchPrivilegesForUser(appCtx.DB(), appCtx.Session().UserID)
-			if err != nil {
-				appCtx.Logger().Error("Error retreiving user privileges", zap.Error(err))
-			}
-
-			isSupervisor := privileges.HasPrivilege(models.PrivilegeTypeSupervisor)
-			var officeUsers models.OfficeUsers
-			if isSupervisor {
-				officeUsers, err = h.OfficeUserFetcherPop.FetchOfficeUsersByRoleAndOffice(
-					appCtx,
-					roles.RoleTypeTOO,
-					officeUser.TransportationOfficeID,
-				)
-			} else {
-				officeUsers = models.OfficeUsers{officeUser}
 			}
 
 			if err != nil {
@@ -301,6 +284,7 @@ func (h GetDestinationRequestsQueueHandler) Handle(params queues.GetDestinationR
 				}
 			}
 
+			officeUsers := models.OfficeUsers{officeUser}
 			queueMoves := payloads.QueueMoves(moves, officeUsers, nil, officeUser, nil)
 
 			result := &ghcmessages.QueueMovesResult{
