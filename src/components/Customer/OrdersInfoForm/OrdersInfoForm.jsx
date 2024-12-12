@@ -153,7 +153,7 @@ const OrdersInfoForm = ({ ordersTypeOptions, initialValues, onSubmit, onBack }) 
         const handleHasDependentsChange = (e) => {
           // Declare a duplicate local scope of the field value
           // for the form to prevent state race conditions
-         if (e.target.value === '') {
+          if (e.target.value === '') {
             setFieldValue('has_dependents', '');
           } else {
             const fieldValueHasDependents = e.target.value === 'yes';
