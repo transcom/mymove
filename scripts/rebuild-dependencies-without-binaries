@@ -1,0 +1,22 @@
+#!/bin/bash
+
+# Canvas does not release with pre-built binaries at this time
+# Currently, they have a pre-relase that does come with it so eventually this script can be ignored
+# once it is finalized.
+# https://github.com/Automattic/node-canvas/releases/tag/v3.0.0-rc2
+
+# Check if the canvas package is installed
+if ! npm list canvas &> /dev/null; then
+    echo "Canvas is not installed but it is marked as a dependency meant for rebuild"
+    exit 1
+fi
+
+echo "Initiating canvas dependency rebuild..."
+if npm rebuild canvas; then
+    echo "Successfully rebuilt canvas"
+else
+    echo "Canvas failed to rebuild"
+    exit 1
+fi
+
+# Empty space here for if we encoutner this issue with another dependency

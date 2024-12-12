@@ -7,11 +7,17 @@ import ServicesCounselingAddOrders from './ServicesCounselingAddOrders';
 import { MockProviders } from 'testUtils';
 import { counselingCreateOrder } from 'services/ghcApi';
 import { setCanAddOrders } from 'store/general/actions';
+import { isBooleanFlagEnabled } from 'utils/featureFlags';
 
 const mockNavigate = jest.fn();
 jest.mock('react-router-dom', () => ({
   ...jest.requireActual('react-router-dom'),
   useNavigate: () => mockNavigate,
+}));
+
+jest.mock('utils/featureFlags', () => ({
+  ...jest.requireActual('utils/featureFlags'),
+  isBooleanFlagEnabled: jest.fn().mockImplementation(() => Promise.resolve(false)),
 }));
 
 jest.mock('services/ghcApi', () => ({
@@ -148,6 +154,22 @@ jest.mock('components/LocationSearchBox/api', () => ({
         created_at: '2021-02-11T16:48:20.225Z',
         id: 'a48fda70-8124-4e90-be0d-bf8119a98717',
         name: 'Wright-Patterson AFB',
+        updated_at: '2021-02-11T16:48:20.225Z',
+      },
+      {
+        address: {
+          city: 'Cold',
+          id: '00000000-0000-0000-0000-000000000000',
+          postalCode: '12345',
+          state: 'AK',
+          streetAddress1: 'Worldly Avenue',
+          isOconus: true,
+        },
+        address_id: '13eb2cab-cd68-4f43-9532-7a71996d3299',
+        affiliation: 'AIR_FORCE',
+        created_at: '2021-02-11T16:48:20.225Z',
+        id: 'a48fda70-8124-4e90-be0d-bf8119a98717',
+        name: 'Outta This World AFB',
         updated_at: '2021-02-11T16:48:20.225Z',
       },
     ]),
@@ -334,6 +356,46 @@ describe('ServicesCounselingAddOrders component', () => {
     await user.type(screen.getByLabelText('New duty location'), 'AFB', { delay: 500 });
     const selectedOptionNew = await screen.findByText(/Luke/);
     await user.click(selectedOptionNew);
+
+    const nextBtn = await screen.findByRole('button', { name: 'Next' });
+    await waitFor(() => {
+      expect(nextBtn).toBeEnabled();
+    });
+
+    await userEvent.click(nextBtn);
+
+    await waitFor(() => {
+      expect(setCanAddOrders).toHaveBeenCalledWith(false);
+      expect(mockNavigate).toHaveBeenCalledWith('/counseling/moves/MM8CXJ/details');
+    });
+  });
+
+  it('routes to the move details page when the next button is clicked for OCONUS orders', async () => {
+    isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(true));
+    renderWithMocks();
+
+    counselingCreateOrder.mockImplementation(() => Promise.resolve(fakeResponse));
+
+    const user = userEvent.setup();
+
+    await user.selectOptions(screen.getByLabelText('Orders type'), 'PERMANENT_CHANGE_OF_STATION');
+    await user.type(screen.getByLabelText('Orders date'), '08 Nov 2020');
+    await user.type(screen.getByLabelText('Report by date'), '26 Nov 2020');
+    await user.click(screen.getByLabelText('No'));
+    await user.selectOptions(screen.getByLabelText('Pay grade'), ['E-5']);
+
+    await user.type(screen.getByLabelText('Current duty location'), 'AFB', { delay: 500 });
+    const selectedOptionCurrent = await screen.findByText(/Altus/);
+    await user.click(selectedOptionCurrent);
+
+    await user.type(screen.getByLabelText('New duty location'), 'AFB', { delay: 500 });
+    const selectedOptionNew = await screen.findByText(/Outta This World/);
+    await user.click(selectedOptionNew);
+
+    await user.click(screen.getByTestId('hasDependentsYes'));
+    await user.click(screen.getByTestId('isAnAccompaniedTourYes'));
+    await user.type(screen.getByTestId('dependentsUnderTwelve'), '2');
+    await user.type(screen.getByTestId('dependentsTwelveAndOver'), '1');
 
     const nextBtn = await screen.findByRole('button', { name: 'Next' });
     await waitFor(() => {
