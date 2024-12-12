@@ -309,7 +309,7 @@ func GetUBWeightAllowance(appCtx appcontext.AppContext, originDutyLocationIsOcon
 		const studentTravelMaxAllowance = 350
 		ubAllowance := 0
 
-		if *orderType == internalmessages.OrdersTypeSTUDENTTRAVEL {
+		if internalmessages.OrdersType(typeOfOrder) == internalmessages.OrdersTypeSTUDENTTRAVEL {
 			ubAllowance = studentTravelMaxAllowance
 		} else if orderPayGrade == string(internalmessages.OrderPayGradeCIVILIANEMPLOYEE) && dependentsAreAuthorized && underTwelveDependents == 0 && twelveAndOverDependents == 0 {
 			ubAllowance = civilianBaseUBAllowance
