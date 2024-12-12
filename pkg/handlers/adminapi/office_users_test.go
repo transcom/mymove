@@ -717,37 +717,37 @@ func (suite *HandlerSuite) TestUpdateOfficeUserHandler() {
 		suite.IsType(&officeuserop.UpdateOfficeUserInternalServerError{}, response)
 	})
 
-	// suite.Run("Office user session is revoked when roles are changed", func() {
-	// 	officeUser := setupTestData()
-	// 	// Setup payload to remove all roles for office user
-	// 	newRoles := []*adminmessages.OfficeUserRole{}
-	// 	officeUserUpdates := &adminmessages.OfficeUserUpdate{
-	// 		Roles: newRoles,
-	// 	}
-	// 	params := officeuserop.UpdateOfficeUserParams{
-	// 		HTTPRequest:  suite.setupAuthenticatedRequest("PUT", fmt.Sprintf("/office_users/%s", officeUser.ID)),
-	// 		OfficeUserID: strfmt.UUID(officeUser.ID.String()),
-	// 		OfficeUser:   officeUserUpdates,
-	// 	}
+	suite.Run("Office user session is revoked when roles are changed", func() {
+		officeUser := setupTestData()
+		// Setup payload to remove all roles for office user
+		newRoles := []*adminmessages.OfficeUserRole{}
+		officeUserUpdates := &adminmessages.OfficeUserUpdate{
+			Roles: newRoles,
+		}
+		params := officeuserop.UpdateOfficeUserParams{
+			HTTPRequest:  suite.setupAuthenticatedRequest("PUT", fmt.Sprintf("/office_users/%s", officeUser.ID)),
+			OfficeUserID: strfmt.UUID(officeUser.ID.String()),
+			OfficeUser:   officeUserUpdates,
+		}
 
-	// 	suite.NoError(params.OfficeUser.Validate(strfmt.Default))
+		suite.NoError(params.OfficeUser.Validate(strfmt.Default))
 
-	// 	mockUpdater := mocks.OfficeUserUpdater{}
-	// 	mockUpdater.
-	// 		On("UpdateOfficeUser", mock.AnythingOfType("*appcontext.appContext"), officeUser.ID, officeUserUpdates, uuid.Nil).
-	// 		Return(&officeUser, nil, nil)
+		mockUpdater := mocks.OfficeUserUpdater{}
+		mockUpdater.
+			On("UpdateOfficeUser", mock.AnythingOfType("*appcontext.appContext"), officeUser.ID, officeUserUpdates, uuid.Nil).
+			Return(&officeUser, nil, nil)
 
-	// 	expectedSessionUpdate := &adminmessages.UserUpdate{
-	// 		RevokeOfficeSession: models.BoolPointer(true),
-	// 	}
-	// 	mockRevoker := mocks.UserSessionRevocation{}
-	// 	mockRevoker.
-	// 		On("RevokeUserSession", mock.AnythingOfType("*appcontext.appContext"), *officeUser.UserID, expectedSessionUpdate, mock.Anything).
-	// 		Return(nil, nil, nil).
-	// 		Once()
+		expectedSessionUpdate := &adminmessages.UserUpdate{
+			RevokeOfficeSession: models.BoolPointer(true),
+		}
+		mockRevoker := mocks.UserSessionRevocation{}
+		mockRevoker.
+			On("RevokeUserSession", mock.AnythingOfType("*appcontext.appContext"), *officeUser.UserID, expectedSessionUpdate, mock.Anything).
+			Return(nil, nil, nil).
+			Once()
 
-	// 	response := setupHandler(&mockUpdater, &mockRevoker).Handle(params)
-	// 	suite.IsType(&officeuserop.UpdateOfficeUserOK{}, response)
-	// 	mockRevoker.AssertNumberOfCalls(suite.T(), "RevokeUserSession", 1)
-	// })
+		response := setupHandler(&mockUpdater, &mockRevoker).Handle(params)
+		suite.IsType(&officeuserop.UpdateOfficeUserOK{}, response)
+		mockRevoker.AssertNumberOfCalls(suite.T(), "RevokeUserSession", 1)
+	})
 }
