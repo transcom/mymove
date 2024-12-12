@@ -622,6 +622,40 @@ func (suite *PPMShipmentSuite) TestPPMEstimator() {
 			suite.Equal(unit.Cents(70064364), *ppmEstimate)
 		})
 
+		suite.Run("Estimated Incentive - Success when old Estimated Incentive is zero", func() {
+			oldPPMShipment := factory.BuildMinimalPPMShipment(suite.DB(), nil, nil)
+
+			zeroIncentive := unit.Cents(0)
+			oldPPMShipment.EstimatedIncentive = &zeroIncentive
+
+			setupPricerData()
+
+			// shipment has locations and date but is now updating the estimated weight for the first time
+			estimatedWeight := unit.Pound(5000)
+			newPPM := oldPPMShipment
+			newPPM.EstimatedWeight = &estimatedWeight
+
+			mockedPaymentRequestHelper.On(
+				"FetchServiceParamsForServiceItems",
+				mock.AnythingOfType("*appcontext.appContext"),
+				mock.AnythingOfType("[]models.MTOServiceItem")).Return(serviceParams, nil)
+
+			// DTOD distance is going to be less than the HHG Rand McNally distance of 2361 miles
+			mockedPlanner.On("ZipTransitDistance", mock.AnythingOfType("*appcontext.appContext"),
+				"50309", "30813").Return(2294, nil)
+
+			ppmEstimate, _, err := ppmEstimator.EstimateIncentiveWithDefaultChecks(suite.AppContextForTest(), oldPPMShipment, &newPPM)
+			suite.NilOrNoVerrs(err)
+
+			mockedPlanner.AssertCalled(suite.T(), "ZipTransitDistance", mock.AnythingOfType("*appcontext.appContext"),
+				"50309", "30813")
+			mockedPaymentRequestHelper.AssertCalled(suite.T(), "FetchServiceParamsForServiceItems", mock.AnythingOfType("*appcontext.appContext"), mock.AnythingOfType("[]models.MTOServiceItem"))
+
+			suite.Equal(oldPPMShipment.PickupAddress.PostalCode, newPPM.PickupAddress.PostalCode)
+			suite.Equal(unit.Pound(5000), *newPPM.EstimatedWeight)
+			suite.Equal(unit.Cents(70064364), *ppmEstimate)
+		})
+
 		suite.Run("Estimated Incentive - Success - clears advance and advance requested values", func() {
 			oldPPMShipment := factory.BuildPPMShipment(suite.DB(), []factory.Customization{
 				{
@@ -712,6 +746,44 @@ func (suite *PPMShipmentSuite) TestPPMEstimator() {
 			_, _, err := ppmEstimator.EstimateIncentiveWithDefaultChecks(suite.AppContextForTest(), oldPPMShipment, &newPPM)
 			suite.NoError(err)
 			suite.Nil(newPPM.EstimatedIncentive)
+		})
+	})
+
+	suite.Run("Max Incentive", func() {
+		suite.Run("Max Incentive - Success", func() {
+			oldPPMShipment := factory.BuildPPMShipment(suite.DB(), nil, nil)
+			setupPricerData()
+
+			estimatedWeight := unit.Pound(5000)
+			newPPM := oldPPMShipment
+			newPPM.EstimatedWeight = &estimatedWeight
+
+			mockedPaymentRequestHelper.On(
+				"FetchServiceParamsForServiceItems",
+				mock.AnythingOfType("*appcontext.appContext"),
+				mock.AnythingOfType("[]models.MTOServiceItem")).Return(serviceParams, nil)
+
+			mockedPlanner.On("ZipTransitDistance", mock.AnythingOfType("*appcontext.appContext"),
+				"50309", "30813").Return(2294, nil)
+
+			maxIncentive, err := ppmEstimator.MaxIncentive(suite.AppContextForTest(), oldPPMShipment, &newPPM)
+			suite.NilOrNoVerrs(err)
+
+			mockedPlanner.AssertCalled(suite.T(), "ZipTransitDistance", mock.AnythingOfType("*appcontext.appContext"),
+				"50309", "30813")
+			mockedPaymentRequestHelper.AssertCalled(suite.T(), "FetchServiceParamsForServiceItems", mock.AnythingOfType("*appcontext.appContext"), mock.AnythingOfType("[]models.MTOServiceItem"))
+
+			suite.Equal(unit.Cents(112102682), *maxIncentive)
+		})
+
+		suite.Run("Max Incentive - Success - is skipped when Estimated Weight is missing", func() {
+			oldPPMShipment := factory.BuildMinimalPPMShipment(suite.DB(), nil, nil)
+
+			newPPM := oldPPMShipment
+			newPPM.DestinationAddress.PostalCode = "94040"
+			_, err := ppmEstimator.MaxIncentive(suite.AppContextForTest(), oldPPMShipment, &newPPM)
+			suite.NoError(err)
+			suite.Nil(newPPM.MaxIncentive)
 		})
 	})
 
@@ -1633,7 +1705,7 @@ func (suite *PPMShipmentSuite) TestPPMEstimator() {
 						City:           "Des Moines",
 						State:          "IA",
 						PostalCode:     "50309",
-						County:         "POLK",
+						County:         models.StringPointer("POLK"),
 					},
 					Type: &factory.Addresses.PickupAddress,
 				},
@@ -1645,7 +1717,7 @@ func (suite *PPMShipmentSuite) TestPPMEstimator() {
 						City:           "Fort Eisenhower",
 						State:          "GA",
 						PostalCode:     "30813",
-						County:         "COLUMBIA",
+						County:         models.StringPointer("COLUMBIA"),
 					},
 					Type: &factory.Addresses.DeliveryAddress,
 				},
@@ -1696,7 +1768,7 @@ func (suite *PPMShipmentSuite) TestPPMEstimator() {
 						City:           "Des Moines",
 						State:          "IA",
 						PostalCode:     "50309",
-						County:         "POLK",
+						County:         models.StringPointer("POLK"),
 					},
 					Type: &factory.Addresses.PickupAddress,
 				},
@@ -1708,7 +1780,7 @@ func (suite *PPMShipmentSuite) TestPPMEstimator() {
 						City:           "Fort Eisenhower",
 						State:          "GA",
 						PostalCode:     "50309",
-						County:         "COLUMBIA",
+						County:         models.StringPointer("COLUMBIA"),
 					},
 					Type: &factory.Addresses.DeliveryAddress,
 				},

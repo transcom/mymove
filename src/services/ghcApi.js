@@ -399,6 +399,11 @@ export async function acknowledgeExcessWeightRisk({ orderID, ifMatchETag }) {
   return makeGHCRequest(operationPath, { orderID, 'If-Match': ifMatchETag });
 }
 
+export async function acknowledgeExcessUnaccompaniedBaggageWeightRisk({ orderID, ifMatchETag }) {
+  const operationPath = 'order.acknowledgeExcessUnaccompaniedBaggageWeightRisk';
+  return makeGHCRequest(operationPath, { orderID, 'If-Match': ifMatchETag });
+}
+
 export async function createCustomerWithOktaOption({ body }) {
   const operationPath = 'customer.createCustomerWithOktaOption';
   return makeGHCRequest(operationPath, { body });
@@ -870,6 +875,10 @@ export async function patchPPMSIT({ ppmShipmentId, payload, eTag }) {
 
 export async function bulkDownloadPaymentRequest(paymentRequestID) {
   return makeGHCRequestRaw('paymentRequests.bulkDownload', { paymentRequestID });
+}
+
+export async function searchLocationByZipCityState(search) {
+  return makeGHCRequest('addresses.getLocationByZipCityState', { search }, { normalize: false });
 }
 
 export async function dateSelectionIsWeekendHoliday(countryCode, date) {

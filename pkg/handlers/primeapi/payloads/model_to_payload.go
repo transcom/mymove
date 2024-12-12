@@ -48,17 +48,19 @@ func MoveTaskOrder(appCtx appcontext.AppContext, moveTaskOrder *models.Move) *pr
 		ApprovedAt:                 handlers.FmtDateTimePtr(moveTaskOrder.ApprovedAt),
 		PrimeCounselingCompletedAt: handlers.FmtDateTimePtr(moveTaskOrder.PrimeCounselingCompletedAt),
 		ExcessWeightQualifiedAt:    handlers.FmtDateTimePtr(moveTaskOrder.ExcessWeightQualifiedAt),
-		ExcessWeightAcknowledgedAt: handlers.FmtDateTimePtr(moveTaskOrder.ExcessWeightAcknowledgedAt),
-		ExcessWeightUploadID:       handlers.FmtUUIDPtr(moveTaskOrder.ExcessWeightUploadID),
-		OrderID:                    strfmt.UUID(moveTaskOrder.OrdersID.String()),
-		Order:                      Order(&moveTaskOrder.Orders),
-		DestinationGBLOC:           destGbloc,
-		DestinationPostalCode:      destZip,
-		ReferenceID:                *moveTaskOrder.ReferenceID,
-		PaymentRequests:            *paymentRequests,
-		MtoShipments:               *mtoShipments,
-		UpdatedAt:                  strfmt.DateTime(moveTaskOrder.UpdatedAt),
-		ETag:                       etag.GenerateEtag(moveTaskOrder.UpdatedAt),
+		ExcessUnaccompaniedBaggageWeightQualifiedAt:    handlers.FmtDateTimePtr(moveTaskOrder.ExcessUnaccompaniedBaggageWeightQualifiedAt),
+		ExcessUnaccompaniedBaggageWeightAcknowledgedAt: handlers.FmtDateTimePtr(moveTaskOrder.ExcessUnaccompaniedBaggageWeightAcknowledgedAt),
+		ExcessWeightAcknowledgedAt:                     handlers.FmtDateTimePtr(moveTaskOrder.ExcessWeightAcknowledgedAt),
+		ExcessWeightUploadID:                           handlers.FmtUUIDPtr(moveTaskOrder.ExcessWeightUploadID),
+		OrderID:                                        strfmt.UUID(moveTaskOrder.OrdersID.String()),
+		Order:                                          Order(&moveTaskOrder.Orders),
+		DestinationGBLOC:                               destGbloc,
+		DestinationPostalCode:                          destZip,
+		ReferenceID:                                    *moveTaskOrder.ReferenceID,
+		PaymentRequests:                                *paymentRequests,
+		MtoShipments:                                   *mtoShipments,
+		UpdatedAt:                                      strfmt.DateTime(moveTaskOrder.UpdatedAt),
+		ETag:                                           etag.GenerateEtag(moveTaskOrder.UpdatedAt),
 	}
 
 	if moveTaskOrder.PPMType != nil {
@@ -296,7 +298,7 @@ func Address(address *models.Address) *primemessages.Address {
 		State:          &address.State,
 		PostalCode:     &address.PostalCode,
 		Country:        Country(address.Country),
-		County:         &address.County,
+		County:         address.County,
 		ETag:           etag.GenerateEtag(address.UpdatedAt),
 	}
 }
@@ -864,6 +866,8 @@ func ExcessWeightRecord(appCtx appcontext.AppContext, storer storage.FileStorer,
 		MoveID:                         handlers.FmtUUIDPtr(&move.ID),
 		MoveExcessWeightQualifiedAt:    handlers.FmtDateTimePtr(move.ExcessWeightQualifiedAt),
 		MoveExcessWeightAcknowledgedAt: handlers.FmtDateTimePtr(move.ExcessWeightAcknowledgedAt),
+		MoveExcessUnaccompaniedBaggageWeightQualifiedAt:    handlers.FmtDateTimePtr(move.ExcessUnaccompaniedBaggageWeightQualifiedAt),
+		MoveExcessUnaccompaniedBaggageWeightAcknowledgedAt: handlers.FmtDateTimePtr(move.ExcessUnaccompaniedBaggageWeightAcknowledgedAt),
 	}
 
 	upload := Upload(appCtx, storer, move.ExcessWeightUpload)

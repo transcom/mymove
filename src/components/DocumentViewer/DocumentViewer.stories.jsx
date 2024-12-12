@@ -1,4 +1,5 @@
 import React from 'react';
+import { QueryClientProvider, QueryClient } from '@tanstack/react-query';
 
 import DocumentViewer from './DocumentViewer';
 import pdf from './sample.pdf';
@@ -8,8 +9,17 @@ import jpg from './sample.jpg';
 import png from './sample2.png';
 import gif from './sample3.gif';
 
+const queryClient = new QueryClient();
+
+const withQueryClient = (Story) => (
+  <QueryClientProvider client={queryClient}>
+    <Story />
+  </QueryClientProvider>
+);
+
 export default {
   title: 'Components/Document Viewer/Document Viewer',
+  decorators: [withQueryClient],
 };
 
 const testPDFFiles = [
@@ -57,18 +67,24 @@ const testImageFiles = [
 
 export const PDFViewer = () => (
   <div style={{ display: 'flex', flexDirection: 'column', height: '100vh' }}>
-    <DocumentViewer files={testPDFFiles} />
+    <QueryClientProvider client={new QueryClient()}>
+      <DocumentViewer files={testPDFFiles} />
+    </QueryClientProvider>
   </div>
 );
 
 export const ImageViewer = () => (
   <div style={{ display: 'flex', flexDirection: 'column', height: '100vh' }}>
-    <DocumentViewer files={testImageFiles} />
+    <QueryClientProvider client={new QueryClient()}>
+      <DocumentViewer files={testImageFiles} />
+    </QueryClientProvider>
   </div>
 );
 
 export const DisplayDownloadOption = () => (
   <div style={{ display: 'flex', flexDirection: 'column', height: '100vh' }}>
-    <DocumentViewer files={testImageFiles} allowDownload />
+    <QueryClientProvider client={new QueryClient()}>
+      <DocumentViewer files={testImageFiles} allowDownload />
+    </QueryClientProvider>
   </div>
 );

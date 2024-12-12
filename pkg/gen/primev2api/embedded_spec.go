@@ -547,6 +547,11 @@ func init() {
           "title": "Address Line 3",
           "x-nullable": true,
           "example": "Montmârtre"
+        },
+        "usPostRegionCitiesID": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         }
       }
     },
@@ -1965,6 +1970,20 @@ func init() {
           "type": "string",
           "readOnly": true
         },
+        "excessUnaccompaniedBaggageWeightAcknowledgedAt": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true,
+          "x-omitempty": false,
+          "readOnly": true
+        },
+        "excessUnaccompaniedBaggageWeightQualifiedAt": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true,
+          "x-omitempty": false,
+          "readOnly": true
+        },
         "excessWeightAcknowledgedAt": {
           "type": "string",
           "format": "date-time",
@@ -2269,6 +2288,13 @@ func init() {
           "x-nullable": true,
           "x-omitempty": false,
           "example": false
+        },
+        "maxIncentive": {
+          "description": "The max amount the government will pay the service member to move their belongings based on the moving date, locations, and shipment weight.",
+          "type": "integer",
+          "format": "cents",
+          "x-nullable": true,
+          "x-omitempty": false
         },
         "proGearWeight": {
           "description": "The estimated weight of the pro-gear being moved belonging to the service member in pounds.",
@@ -4151,6 +4177,11 @@ func init() {
           "title": "Address Line 3",
           "x-nullable": true,
           "example": "Montmârtre"
+        },
+        "usPostRegionCitiesID": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         }
       }
     },
@@ -5569,6 +5600,20 @@ func init() {
           "type": "string",
           "readOnly": true
         },
+        "excessUnaccompaniedBaggageWeightAcknowledgedAt": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true,
+          "x-omitempty": false,
+          "readOnly": true
+        },
+        "excessUnaccompaniedBaggageWeightQualifiedAt": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true,
+          "x-omitempty": false,
+          "readOnly": true
+        },
         "excessWeightAcknowledgedAt": {
           "type": "string",
           "format": "date-time",
@@ -5873,6 +5918,13 @@ func init() {
           "x-nullable": true,
           "x-omitempty": false,
           "example": false
+        },
+        "maxIncentive": {
+          "description": "The max amount the government will pay the service member to move their belongings based on the moving date, locations, and shipment weight.",
+          "type": "integer",
+          "format": "cents",
+          "x-nullable": true,
+          "x-omitempty": false
         },
         "proGearWeight": {
           "description": "The estimated weight of the pro-gear being moved belonging to the service member in pounds.",
