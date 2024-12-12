@@ -17,6 +17,7 @@ import (
 	"github.com/transcom/mymove/pkg/services/mocks"
 	mtoshipment "github.com/transcom/mymove/pkg/services/mto_shipment"
 	"github.com/transcom/mymove/pkg/testdatagen"
+	"github.com/transcom/mymove/pkg/unit"
 )
 
 func (suite *PPMShipmentSuite) TestSubmitCustomerCloseOut() {
@@ -230,6 +231,16 @@ func (suite *PPMShipmentSuite) TestSubmitCustomerCloseOut() {
 					inputSignedCertification,
 					eTag,
 				)
+
+				var expectedAllowableWeight = unit.Pound(0)
+				if len(existingPPMShipment.WeightTickets) >= 1 {
+					for _, weightTicket := range existingPPMShipment.WeightTickets {
+						expectedAllowableWeight += *weightTicket.FullWeight - *weightTicket.EmptyWeight
+					}
+				}
+				if suite.NotNil(updatedPPMShipment.AllowableWeight) {
+					suite.Equal(*updatedPPMShipment.AllowableWeight, expectedAllowableWeight)
+				}
 
 				return nil
 			}

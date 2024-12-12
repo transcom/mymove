@@ -1,6 +1,7 @@
 package movetaskorder
 
 import (
+	"database/sql"
 	"fmt"
 	"time"
 
@@ -10,6 +11,7 @@ import (
 
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/apperror"
+	"github.com/transcom/mymove/pkg/db/utilities"
 	"github.com/transcom/mymove/pkg/etag"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
@@ -24,11 +26,12 @@ type moveTaskOrderUpdater struct {
 	moveRouter                 services.MoveRouter
 	signedCertificationCreator services.SignedCertificationCreator
 	signedCertificationUpdater services.SignedCertificationUpdater
+	estimator                  services.PPMEstimator
 }
 
 // NewMoveTaskOrderUpdater creates a new struct with the service dependencies
-func NewMoveTaskOrderUpdater(builder UpdateMoveTaskOrderQueryBuilder, serviceItemCreator services.MTOServiceItemCreator, moveRouter services.MoveRouter, signedCertificationCreator services.SignedCertificationCreator, signedCertificationUpdater services.SignedCertificationUpdater) services.MoveTaskOrderUpdater {
-	return &moveTaskOrderUpdater{moveTaskOrderFetcher{}, builder, serviceItemCreator, moveRouter, signedCertificationCreator, signedCertificationUpdater}
+func NewMoveTaskOrderUpdater(builder UpdateMoveTaskOrderQueryBuilder, serviceItemCreator services.MTOServiceItemCreator, moveRouter services.MoveRouter, signedCertificationCreator services.SignedCertificationCreator, signedCertificationUpdater services.SignedCertificationUpdater, estimator services.PPMEstimator) services.MoveTaskOrderUpdater {
+	return &moveTaskOrderUpdater{moveTaskOrderFetcher{}, builder, serviceItemCreator, moveRouter, signedCertificationCreator, signedCertificationUpdater, estimator}
 }
 
 // UpdateStatusServiceCounselingCompleted updates the status on the move (move task order) to service counseling completed
@@ -88,6 +91,47 @@ func (o moveTaskOrderUpdater) UpdateStatusServiceCounselingCompleted(appCtx appc
 					}
 					if err != nil {
 						return err
+					}
+
+					var ppm models.PPMShipment
+					err := appCtx.DB().Scope(utilities.ExcludeDeletedScope()).
+						EagerPreload(
+							"Shipment",
+							"WeightTickets",
+							"MovingExpenses",
+							"ProgearWeightTickets",
+							"W2Address.Country",
+							"PickupAddress.Country",
+							"SecondaryPickupAddress.Country",
+							"TertiaryPickupAddress.Country",
+							"DestinationAddress.Country",
+							"SecondaryDestinationAddress.Country",
+							"TertiaryDestinationAddress.Country",
+						).
+						Where("shipment_id = ?", move.MTOShipments[i].ID).First(&ppm)
+
+					if err != nil {
+						switch err {
+						case sql.ErrNoRows:
+							return apperror.NewNotFoundError(move.MTOShipments[i].ID, "while looking for PPMShipment by MTO ShipmentID")
+						default:
+							return apperror.NewQueryError("PPMShipment", err, "unable to find PPMShipment")
+						}
+					}
+					// if the customer has their max incentive empty in the db, we need to update this value before proceeding
+					if ppm.MaxIncentive == nil {
+						estimatedIncentive, estimatedSITCost, err := o.estimator.EstimateIncentiveWithDefaultChecks(appCtx, ppm, &ppm)
+						if err != nil {
+							return err
+						}
+						move.MTOShipments[i].PPMShipment.EstimatedIncentive = estimatedIncentive
+						move.MTOShipments[i].PPMShipment.SITEstimatedCost = estimatedSITCost
+
+						maxIncentive, err := o.estimator.MaxIncentive(appCtx, ppm, &ppm)
+						if err != nil {
+							return err
+						}
+						move.MTOShipments[i].PPMShipment.MaxIncentive = maxIncentive
 					}
 
 					move.MTOShipments[i].PPMShipment.Status = models.PPMShipmentStatusWaitingOnCustomer
