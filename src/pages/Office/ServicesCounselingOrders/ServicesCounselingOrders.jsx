@@ -13,7 +13,12 @@ import styles from 'styles/documentViewerWithSidebar.module.scss';
 import { milmoveLogger } from 'utils/milmoveLog';
 import OrdersDetailForm from 'components/Office/OrdersDetailForm/OrdersDetailForm';
 import { DEPARTMENT_INDICATOR_OPTIONS } from 'constants/departmentIndicators';
-import { ORDERS_TYPE_DETAILS_OPTIONS, ORDERS_TYPE_OPTIONS, ORDERS_PAY_GRADE_OPTIONS } from 'constants/orders';
+import {
+  ORDERS_TYPE_DETAILS_OPTIONS,
+  ORDERS_TYPE_OPTIONS,
+  ORDERS_PAY_GRADE_OPTIONS,
+  ORDERS_TYPE,
+} from 'constants/orders';
 import { ORDERS } from 'constants/queryKeys';
 import { servicesCounselingRoutes } from 'constants/routes';
 import { useOrdersDocumentQueries } from 'hooks/queries';
@@ -41,6 +46,7 @@ const ServicesCounselingOrders = ({ files, amendedDocumentId, updateAmendedDocum
   const [orderTypeOptions, setOrderTypeOptions] = useState(ORDERS_TYPE_OPTIONS);
 
   const orderId = move?.ordersId;
+  const initialValueOfHasDependents = orders[orderId]?.has_dependents;
   const orderDocumentId = orders[orderId]?.uploaded_order_id;
   const amendedOrderDocumentId = orders[orderId]?.uploadedAmendedOrderID || amendedDocumentId;
 
@@ -277,7 +283,10 @@ const ServicesCounselingOrders = ({ files, amendedDocumentId, updateAmendedDocum
       reportByDate: formatSwaggerDate(values.reportByDate),
       ordersType: values.ordersType,
       grade: values.payGrade,
-      hasDependents: formatYesNoAPIValue('no'),
+      hasDependents:
+        values.ordersType === ORDERS_TYPE.STUDENT_TRAVEL || values.ordersType === ORDERS_TYPE.EARLY_RETURN_OF_DEPENDENTS
+          ? formatYesNoAPIValue('yes')
+          : initialValueOfHasDependents,
     };
     mutateOrders({ orderID: orderId, ifMatchETag: newOrderEtag, body: orderBody });
   };
