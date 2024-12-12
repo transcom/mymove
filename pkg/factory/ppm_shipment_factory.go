@@ -573,6 +573,16 @@ func BuildPPMShipmentThatNeedsCloseout(db *pop.Connection, userUploader *uploade
 
 	ppmShipment.SignedCertification = &signedCert
 
+	if ppmShipment.AllowableWeight == nil {
+		var allowableWeight = unit.Pound(0)
+		if len(ppmShipment.WeightTickets) >= 1 {
+			for _, weightTicket := range ppmShipment.WeightTickets {
+				allowableWeight += *weightTicket.FullWeight - *weightTicket.EmptyWeight
+			}
+		}
+		ppmShipment.AllowableWeight = &allowableWeight
+	}
+
 	ppmShipment.Status = models.PPMShipmentStatusNeedsCloseout
 	if ppmShipment.SubmittedAt == nil {
 		ppmShipment.SubmittedAt = models.TimePointer(time.Now())

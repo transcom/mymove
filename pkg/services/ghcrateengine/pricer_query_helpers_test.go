@@ -52,7 +52,7 @@ func (suite *GHCRateEngineServiceSuite) Test_fetchDomServiceAreaPrice() {
 	testCents := unit.Cents(353)
 
 	suite.Run("golden path", func() {
-		suite.setupDomesticServiceAreaPrice(models.ReServiceCodeDOFSIT, testServiceArea, testIsPeakPeriod, testCents, "Test Contract Year", 1.125)
+		suite.setupDomesticServiceAreaPrice(models.ReServiceCodeDOFSIT, testServiceArea, testIsPeakPeriod, testCents, "Base Period Year 1", 1.125)
 
 		domServiceAreaPrice, err := fetchDomServiceAreaPrice(suite.AppContextForTest(), testdatagen.DefaultContractCode, models.ReServiceCodeDOFSIT, testServiceArea, testIsPeakPeriod)
 		suite.NoError(err)
@@ -60,7 +60,7 @@ func (suite *GHCRateEngineServiceSuite) Test_fetchDomServiceAreaPrice() {
 	})
 
 	suite.Run("no records found", func() {
-		suite.setupDomesticServiceAreaPrice(models.ReServiceCodeDOFSIT, testServiceArea, testIsPeakPeriod, testCents, "Test Contract Year", 1.125)
+		suite.setupDomesticServiceAreaPrice(models.ReServiceCodeDOFSIT, testServiceArea, testIsPeakPeriod, testCents, "Base Period Year 1", 1.125)
 
 		// Look for service code DDFSIT that we haven't added
 		_, err := fetchDomServiceAreaPrice(suite.AppContextForTest(), testdatagen.DefaultContractCode, models.ReServiceCodeDDFSIT, testServiceArea, testIsPeakPeriod)
