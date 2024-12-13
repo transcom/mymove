@@ -146,7 +146,7 @@ Blank.args = {
   documentSets: documentSetsProps,
   documentSetIndex,
   tripNumber: 1,
-  ppmNumber: 1,
+  ppmNumber: '1',
 };
 
 export const NonStorage = Template.bind({});
@@ -155,7 +155,7 @@ NonStorage.args = {
   documentSets: documentSetsProps,
   documentSetIndex,
   tripNumber: 1,
-  ppmNumber: 1,
+  ppmNumber: '1',
   categoryIndex: 1,
   expense: {
     movingExpenseType: expenseTypes.PACKING_MATERIALS,
@@ -170,7 +170,7 @@ Storage.args = {
   documentSetIndex,
   ppmShipmentInfo: PPMShipmentInfo,
   tripNumber: 1,
-  ppmNumber: 1,
+  ppmNumber: '1',
   categoryIndex: 1,
   expense: {
     movingExpenseType: expenseTypes.STORAGE,
