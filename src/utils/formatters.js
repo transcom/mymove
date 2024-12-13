@@ -334,13 +334,6 @@ export function formatSignatureDate(date) {
 }
 
 // Translate boolean (true/false) into capitalized "Yes"/"No" string
-export const formatAddedOrRemovedMoveHistoryValue = (value) => {
-  if (value === true) return 'Added';
-  if (value === false) return 'Removed';
-  return null;
-};
-
-// Translate boolean (true/false) into capitalized "Yes"/"No" string
 export const formatYesNoMoveHistoryValue = (value) => {
   if (value === true) return 'Yes';
   if (value === false) return 'No';
