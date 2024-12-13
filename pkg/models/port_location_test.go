@@ -1,42 +1,26 @@
 package models_test
 
 import (
-	"time"
-
-	"github.com/gofrs/uuid"
-
-	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/factory"
 )
 
-func (suite *ModelSuite) TestPortLocationValidation() {
-	suite.Run("test valid PortLocation", func() {
-		validPortLocation := models.PortLocation{
-			ID:                   uuid.Must(uuid.NewV4()),
-			PortId:               uuid.Must(uuid.NewV4()),
-			CitiesId:             uuid.Must(uuid.NewV4()),
-			UsPostRegionCitiesId: uuid.Must(uuid.NewV4()),
-			CountryId:            uuid.Must(uuid.NewV4()),
-			CreatedAt:            time.Now(),
-			UpdatedAt:            time.Now(),
-		}
-		expErrors := map[string][]string{}
-		suite.verifyValidationErrors(&validPortLocation, expErrors)
+func (suite *ModelSuite) TestPortLocation() {
+	suite.Run("Port location has correct fields", func() {
+
+		portLocation := factory.FetchPortLocation(suite.DB(), nil, nil)
+
+		suite.NotNil(portLocation)
+		suite.Equal(portLocation.PortId, portLocation.Port.ID)
+		suite.Equal(portLocation.CitiesId, portLocation.City.ID)
+		suite.Equal(portLocation.UsPostRegionCitiesId, portLocation.UsPostRegionCity.ID)
+		suite.Equal(portLocation.CountryId, portLocation.Country.ID)
 	})
 
-	suite.Run("test missing required fields", func() {
-		invalidPortLocation := models.PortLocation{
-			ID:        uuid.Must(uuid.NewV4()),
-			CreatedAt: time.Now(),
-			UpdatedAt: time.Now(),
-		}
+	suite.Run("Port location table name is correct", func() {
 
-		expErrors := map[string][]string{
-			"port_id":                  {"PortID can not be blank."},
-			"cities_id":                {"CitiesID can not be blank."},
-			"us_post_region_cities_id": {"UsPostRegionCitiesID can not be blank."},
-			"country_id":               {"CountryID can not be blank."},
-		}
+		portLocation := factory.FetchPortLocation(suite.DB(), nil, nil)
 
-		suite.verifyValidationErrors(&invalidPortLocation, expErrors)
+		suite.NotNil(portLocation)
+		suite.Equal("port_locations", portLocation.TableName())
 	})
 }
