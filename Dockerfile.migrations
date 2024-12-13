@@ -1,29 +1,30 @@
-FROM alpine:3.20.3
+#FROM alpine:3.20.3
 
-# hadolint ignore=DL3017
-RUN apk upgrade --no-cache busybox
+FROM debian:stable AS build-env
 
 COPY config/tls/dod-wcf-root-ca-1.pem /usr/local/share/ca-certificates/dod-wcf-root-ca-1.pem.crt
 COPY config/tls/dod-wcf-intermediate-ca-1.pem /usr/local/share/ca-certificates/dod-wcf-intermediate-ca-1.pem.crt
+RUN apt-get update
+# hadolint ignore=DL3008
+RUN apt-get install -y ca-certificates --no-install-recommends
+RUN update-ca-certificates
+
+# hadolint ignore=DL3007
+FROM gcr.io/distroless/base-debian11@sha256:ac69aa622ea5dcbca0803ca877d47d069f51bd4282d5c96977e0390d7d256455
+
+
+# hadolint ignore=DL3017
+#RUN apk upgrade --no-cache busybox bash
+
+COPY config/tls/dod-wcf-root-ca-1.pem /usr/local/share/ca-certificates/dod-wcf-root-ca-1.pem.crt
+COPY config/tls/dod-wcf-intermediate-ca-1.pem /usr/local/share/ca-certificates/dod-wcf-intermediate-ca-1.pem.crt
+COPY --from=build-env /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/ca-certificates.crt
 
 COPY bin/rds-ca-rsa4096-g1.pem /bin/rds-ca-rsa4096-g1.pem
 COPY bin/rds-ca-2019-root.pem /bin/rds-ca-2019-root.pem
 COPY bin/milmove /bin/milmove
-RUN ls -alF /bin/
-RUN pwd
 
 COPY migrations/app/schema /migrate/schema
 COPY migrations/app/migrations_manifest.txt /migrate/migrations_manifest.txt
-RUN ls -alF /migrate/
-RUN ls -alF /migrate/schema/
-
-# Install tools needed in container
-# hadolint ignore=DL3018
-RUN apk update && apk add ca-certificates --no-cache
-RUN update-ca-certificates
-
-WORKDIR /
-
-USER nobody
 
 ENTRYPOINT ["/bin/milmove", "migrate", "-p", "file:///migrate/migrations", "-m", "/migrate/migrations_manifest.txt"]
