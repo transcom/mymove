@@ -418,8 +418,8 @@ deploy_dp3_migrations:
   script:
     # Step 1: Get the Digest
     - echo "Getting Digest from AWS"
-    #- export ECR_DIGEST=$(aws ecr describe-images --repository-name app-migrations --image-ids imageTag=$CI_COMMIT_SHORT_SHA --query 'imageDetails[0].imageDigest' --output text)
-    - export ECR_DIGEST="sha256:69012262264d9b743c52f96ee7b78144bc9a93936b35aa0ee26350a668244716"
+    - export ECR_DIGEST=$(aws ecr describe-images --repository-name app-migrations --image-ids imageTag=$CI_COMMIT_SHORT_SHA --query 'imageDetails[0].imageDigest' --output text)
+    #- export ECR_DIGEST="sha256:69012262264d9b743c52f96ee7b78144bc9a93936b35aa0ee26350a668244716"
     # Step 2: Ensure exclusive execution and Snapshot
     - echo "Snapshotting database"
     - ./scripts/rds-snapshot-app-db "$APP_ENVIRONMENT"

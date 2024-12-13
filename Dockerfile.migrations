@@ -9,12 +9,13 @@ COPY config/tls/dod-wcf-intermediate-ca-1.pem /usr/local/share/ca-certificates/d
 COPY bin/rds-ca-rsa4096-g1.pem /bin/rds-ca-rsa4096-g1.pem
 COPY bin/rds-ca-2019-root.pem /bin/rds-ca-2019-root.pem
 COPY bin/milmove /bin/milmove
-RUN ls -alF /bin/*
+RUN ls -alF /bin/
+RUN pwd
 
 COPY migrations/app/schema /migrate/schema
 COPY migrations/app/migrations_manifest.txt /migrate/migrations_manifest.txt
-RUN ls -alF /migrate/*
-RUN ls -alF /migrate/schema/*
+RUN ls -alF /migrate/
+RUN ls -alF /migrate/schema/
 
 # Install tools needed in container
 # hadolint ignore=DL3018
