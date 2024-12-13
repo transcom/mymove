@@ -21,6 +21,22 @@ func TestOrder(_ *testing.T) {
 	Order(order)
 }
 
+func (suite *PayloadsSuite) TestOrderWithMove() {
+	move := factory.BuildMove(suite.DB(), nil, nil)
+	moves := models.Moves{}
+	moves = append(moves, move)
+	order := factory.BuildOrder(nil, []factory.Customization{
+		{
+			Model: models.Order{
+				ID:            uuid.Must(uuid.NewV4()),
+				HasDependents: *models.BoolPointer(true),
+				Moves:         moves,
+			},
+		},
+	}, nil)
+	Order(&order)
+}
+
 // TestMove makes sure zero values/optional fields are handled
 func TestMove(t *testing.T) {
 	_, err := Move(&models.Move{}, &test.FakeS3Storage{})
@@ -552,6 +568,13 @@ func (suite *PayloadsSuite) TestCreateCustomer() {
 		suite.IsType(returnedShipmentAddressUpdate, &ghcmessages.CreatedCustomer{})
 	})
 }
+
+func (suite *PayloadsSuite) TestMoveTaskOrder() {
+	move := factory.BuildMove(suite.DB(), nil, nil)
+	value := MoveTaskOrder(&move)
+	suite.NotNil(value)
+}
+
 func (suite *PayloadsSuite) TestTransportationOffice() {
 	transportationOffice := factory.BuildTransportationOffice(suite.DB(), []factory.Customization{
 		{
