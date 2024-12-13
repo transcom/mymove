@@ -5,8 +5,8 @@ INSERT INTO re_service_items
 (id, service_id, shipment_type, market_code, is_auto_approved, created_at, updated_at, sort)
 VALUES
     ('2a560507-db09-4be1-b809-49c0f515b31b', '9f3d551a-0725-430e-897e-80ee9add3ae9' ,'HHG_INTO_NTS_DOMESTIC', 'i', true, now(), now(), 1),
-    ('366ee5a4-eb61-4ded-a68c-ddc29fe1a886', '874cb86a-bc39-4f57-a614-53ee3fcacf14' ,'HHG_INTO_NTS_DOMESTIC', 'i', true, now(), now(), 2),
-    ('e702818f-defd-452c-81a3-865b902e7dd0', '388115e8-abe9-441d-96cf-a39f24baa0a3' ,'HHG_INTO_NTS_DOMESTIC', 'i', true, now(), now(), 3),
+    ('e702818f-defd-452c-81a3-865b902e7dd0', '388115e8-abe9-441d-96cf-a39f24baa0a3' ,'HHG_INTO_NTS_DOMESTIC', 'i', true, now(), now(), 2),
+    ('366ee5a4-eb61-4ded-a68c-ddc29fe1a886', '874cb86a-bc39-4f57-a614-53ee3fcacf14' ,'HHG_INTO_NTS_DOMESTIC', 'i', true, now(), now(), 3),
     ('aac4e95e-27ed-4f09-9b6b-384d8542f410', '86203d72-7f7c-49ff-82f0-5b95e4958f60' ,'HHG_INTO_NTS_DOMESTIC', 'i', false, now(), now(), NULL),
     ('010f2f91-7381-4149-8d74-8eb5f593a864', '806c6d59-57ff-4a3f-9518-ebf29ba9cb10' ,'HHG_INTO_NTS_DOMESTIC', 'i', false, now(), now(), NULL),
     ('a41966b7-b83a-4eaf-8e68-d5e884777102', '28389ee1-56cf-400c-aa52-1501ecdd7c69' ,'HHG_INTO_NTS_DOMESTIC', 'i', false, now(), now(), NULL),
