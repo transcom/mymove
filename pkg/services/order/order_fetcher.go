@@ -190,8 +190,34 @@ func (f orderFetcher) ListOrders(appCtx appcontext.AppContext, officeUserID uuid
 		}
 		if role == roles.RoleTypeTOO {
 			query.LeftJoin("office_users as assigned_user", "moves.too_assigned_id  = assigned_user.id")
-			query.LeftJoin("shipment_address_updates", "shipment_address_updates.shipment_id = mto_shipments.id").
-				Where("shipment_address_updates.status = (?) OR shipment_address_updates.status = (?) OR (shipment_address_updates.shipment_id IS NULL)", "APPROVED", "REJECTED")
+			query.LeftJoin("shipment_address_updates", "shipment_address_updates.shipment_id = mto_shipments.id")
+			query.LeftJoin("mto_service_items", "mto_service_items.move_id = moves.id")
+			query.LeftJoin("re_services", "re_services.id = mto_service_items.re_service_id").
+				// Where("shipment_address_updates.status = (?) OR shipment_address_updates.status = (?) OR (shipment_address_updates.shipment_id IS NULL)", "APPROVED", "REJECTED")
+				Where(
+					"((shipment_address_updates.status = 'APPROVED' " +
+						"OR shipment_address_updates.status = 'REJECTED' " +
+						"OR (shipment_address_updates.status IS NULL)) " +
+						"OR (mto_service_items.status = 'SUBMITTED' " +
+						"AND re_services.code NOT IN ('DDP', 'DDFSIT', 'DDASIT', 'DDDSIT', 'DDSHUT', 'DDSFSC'))) " +
+						"AND (moves.status = 'APPROVALS REQUESTED' " +
+						"OR moves.status = 'SUBMITTED' " +
+						"OR moves.status = 'SERVICE COUNSELING COMPLETED')",
+				)
+			// Where(
+			// 	"shipment_address_updates.status = 'APPROVED'"+
+			// 	"OR (shipment_address_updates.status = 'REJECTED')"+
+			// 	// "OR (shipment_address_updates.status IS NULL)"+
+			// 	"AND (mto_service_items.status = 'SUBMITTED')"+
+			// 		"AND (re_services.code NOT IN ('DDP', 'DDFSIT', 'DDASIT', 'DDDSIT', 'DDSHUT', 'DDSFSC'))"+
+			// 		"OR (mto_service_items.id IS NULL)",
+			// )
+			// Where ("(mto_service_items.status = (?)) AND (re_services.code != (?) AND re_services.code != (?) AND re_services.code != (?) AND re_services.code != (?) AND re_services.code != (?) AND re_services.code != (?))", "SUBMITTED", "DDP", "DDFSIT", "DDASIT", "DDDSIT", "DDSHUT", "DDSFSC")
+			// Where(
+			// 	"(shipment_address_updates.status = 'REQUESTED' "+
+			// 		"OR (mto_service_items.status = 'SUBMITTED' AND re_services.code IN ('DDFSIT', 'DDASIT', 'DDDSIT', 'DDSHUT', 'DDSFSC')))",
+			// ).
+			// 	Where("mto_service_items.status = (?) OR mto_service_items.status = (?) OR (mto_service_items.mto_shipment_id IS NULL)", "APPROVED", "REJECTED")
 		}
 
 		if params.NeedsPPMCloseout != nil {
