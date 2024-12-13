@@ -10485,6 +10485,60 @@ func CreateNeedsServicesCounseling(appCtx appcontext.AppContext, ordersType inte
 	return move
 }
 
+/*
+Create Needs Service Counseling in a non-default GBLOC - pass in orders with all required information, shipment type, destination type, locator
+*/
+func CreateNeedsServicesCounselingInOtherGBLOC(appCtx appcontext.AppContext, ordersType internalmessages.OrdersType, shipmentType models.MTOShipmentType, destinationType *models.DestinationType, locator string) models.Move {
+	db := appCtx.DB()
+	originDutyLocationAddress := factory.BuildAddress(db, []factory.Customization{
+		{
+			Model: models.Address{
+				PostalCode: "35023",
+			},
+		},
+	}, nil)
+	originDutyLocation := factory.BuildDutyLocation(db, []factory.Customization{
+		{
+			Model: models.DutyLocation{
+				Name:      "Test Location",
+				AddressID: originDutyLocationAddress.ID,
+			},
+		},
+	}, nil)
+	order := factory.BuildOrder(db, []factory.Customization{
+		{
+			Model: originDutyLocation,
+		},
+	}, nil)
+	move := factory.BuildMove(db, []factory.Customization{
+		{
+			Model:    order,
+			LinkOnly: true,
+		},
+		{
+			Model: models.Move{
+				Locator: locator,
+				Status:  models.MoveStatusNeedsServiceCounseling,
+			},
+		},
+	}, nil)
+
+	factory.BuildMTOShipment(db, []factory.Customization{
+		{
+			Model:    move,
+			LinkOnly: true,
+		},
+		{
+			Model: models.MTOShipment{
+				ShipmentType: shipmentType,
+				Status:       models.MTOShipmentStatusSubmitted,
+			},
+		},
+	}, nil)
+
+	return move
+}
+
 func CreateNeedsServicesCounselingWithAmendedOrders(appCtx appcontext.AppContext, userUploader *uploader.UserUploader, ordersType internalmessages.OrdersType, shipmentType models.MTOShipmentType, destinationType *models.DestinationType, locator string) models.Move {
 	db := appCtx.DB()
 	submittedAt := time.Now()

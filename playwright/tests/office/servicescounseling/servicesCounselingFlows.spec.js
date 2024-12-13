@@ -13,6 +13,33 @@ const supportingDocsEnabled = process.env.FEATURE_FLAG_MANAGE_SUPPORTING_DOCS;
 const LocationLookup = 'BEVERLY HILLS, CA 90210 (LOS ANGELES)';
 
 test.describe('Services counselor user', () => {
+  test.describe('GBLOC tests', () => {
+    test.describe('Origin Duty Location', () => {
+      let moveLocatorKKFA = '';
+      let moveLocatorCNNQ = '';
+      test.beforeEach(async ({ scPage }) => {
+        const moveKKFA = await scPage.testHarness.buildHHGMoveNeedsSC();
+        moveLocatorKKFA = moveKKFA.locator;
+        const moveCNNQ = await scPage.testHarness.buildHHGMoveNeedsSC();
+        moveLocatorCNNQ = moveCNNQ.locator;
+      });
+
+      test('when origin duty location GBLOC matches services counselor GBLOC', async ({ page }) => {
+        const locatorFilter = await page.getByTestId('locator').getByTestId('TextBoxFilter');
+        await locatorFilter.fill(moveLocatorKKFA);
+        await locatorFilter.blur();
+        await expect(page.getByTestId('locator-0')).toBeVisible();
+      });
+
+      test('when origin duty location GBLOC does not match services counselor GBLOC', async ({ page }) => {
+        const locatorFilter = await page.getByTestId('locator').getByTestId('TextBoxFilter');
+        await locatorFilter.fill(moveLocatorCNNQ);
+        await locatorFilter.blur();
+        await expect(page.getByTestId('locator-0')).not.toBeVisible();
+      });
+    });
+  });
+
   test.describe('with basic HHG move', () => {
     test.beforeEach(async ({ scPage }) => {
       const move = await scPage.testHarness.buildHHGMoveNeedsSC();
@@ -387,6 +414,8 @@ test.describe('Services counselor user', () => {
       // Edit the shipment so that the tag disappears
       await page.locator('[data-testid="ShipmentContainer"] .usa-button').last().click();
       await page.locator('select[name="destinationType"]').selectOption({ label: 'Home of selection (HOS)' });
+      await page.getByLabel('Requested pickup date').fill('16 Mar 2022');
+
       await page.locator('[data-testid="submitForm"]').click();
       await scPage.waitForLoading();
 
