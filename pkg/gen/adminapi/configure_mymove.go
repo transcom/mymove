@@ -97,6 +97,11 @@ func configureAPI(api *adminoperations.MymoveAPI) http.Handler {
 			return middleware.NotImplemented("operation moves.GetMove has not yet been implemented")
 		})
 	}
+	if api.TransportationOfficesGetOfficeByIDHandler == nil {
+		api.TransportationOfficesGetOfficeByIDHandler = transportation_offices.GetOfficeByIDHandlerFunc(func(params transportation_offices.GetOfficeByIDParams) middleware.Responder {
+			return middleware.NotImplemented("operation transportation_offices.GetOfficeByID has not yet been implemented")
+		})
+	}
 	if api.OfficeUsersGetOfficeUserHandler == nil {
 		api.OfficeUsersGetOfficeUserHandler = office_users.GetOfficeUserHandlerFunc(func(params office_users.GetOfficeUserParams) middleware.Responder {
 			return middleware.NotImplemented("operation office_users.GetOfficeUser has not yet been implemented")
