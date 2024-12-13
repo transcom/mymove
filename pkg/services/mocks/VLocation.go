@@ -14,9 +14,9 @@ type VLocation struct {
 	mock.Mock
 }
 
-// GetLocationsByZipCityState provides a mock function with given fields: appCtx, search
-func (_m *VLocation) GetLocationsByZipCityState(appCtx appcontext.AppContext, search string) (*models.VLocations, error) {
-	ret := _m.Called(appCtx, search)
+// GetLocationsByZipCityState provides a mock function with given fields: appCtx, search, exclusionStateFilters
+func (_m *VLocation) GetLocationsByZipCityState(appCtx appcontext.AppContext, search string, exclusionStateFilters []string) (*models.VLocations, error) {
+	ret := _m.Called(appCtx, search, exclusionStateFilters)
 
 	if len(ret) == 0 {
 		panic("no return value specified for GetLocationsByZipCityState")
@@ -24,19 +24,19 @@ func (_m *VLocation) GetLocationsByZipCityState(appCtx appcontext.AppContext, se
 
 	var r0 *models.VLocations
 	var r1 error
-	if rf, ok := ret.Get(0).(func(appcontext.AppContext, string) (*models.VLocations, error)); ok {
-		return rf(appCtx, search)
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, string, []string) (*models.VLocations, error)); ok {
+		return rf(appCtx, search, exclusionStateFilters)
 	}
-	if rf, ok := ret.Get(0).(func(appcontext.AppContext, string) *models.VLocations); ok {
-		r0 = rf(appCtx, search)
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, string, []string) *models.VLocations); ok {
+		r0 = rf(appCtx, search, exclusionStateFilters)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*models.VLocations)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(appcontext.AppContext, string) error); ok {
-		r1 = rf(appCtx, search)
+	if rf, ok := ret.Get(1).(func(appcontext.AppContext, string, []string) error); ok {
+		r1 = rf(appCtx, search, exclusionStateFilters)
 	} else {
 		r1 = ret.Error(1)
 	}
