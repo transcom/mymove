@@ -136,12 +136,19 @@ func saveMoveExcessWeightValues(appCtx appcontext.AppContext, move *models.Move,
 		move.ExcessWeightQualifiedAt = nil
 	}
 
-	// Check for risk of excess of UB allowance
-	if (int(float32(ubWeightAllowance)*RiskOfExcessThreshold) <= sumOfWeights.SumEstimatedWeightOfUbShipments) || (int(float32(ubWeightAllowance)*RiskOfExcessThreshold) <= sumOfWeights.SumActualWeightOfUbShipments) {
+	var hasUbShipments bool
+	for _, shipment := range move.MTOShipments {
+		if shipment.ShipmentType == models.MTOShipmentTypeUnaccompaniedBaggage {
+			hasUbShipments = true
+		}
+	}
+
+	// Check for risk of excess of UB allowance if there are UB shipments
+	if hasUbShipments && ((int(float32(ubWeightAllowance)*RiskOfExcessThreshold) <= sumOfWeights.SumEstimatedWeightOfUbShipments) || (int(float32(ubWeightAllowance)*RiskOfExcessThreshold) <= sumOfWeights.SumActualWeightOfUbShipments)) {
 		isTheMoveBeingUpdated = true
 		excessUbWeightQualifiedAt := now
 		move.ExcessUnaccompaniedBaggageWeightQualifiedAt = &excessUbWeightQualifiedAt
-	} else if move.ExcessUnaccompaniedBaggageWeightQualifiedAt != nil {
+	} else if !hasUbShipments || move.ExcessUnaccompaniedBaggageWeightQualifiedAt != nil {
 		// Reset qualified at
 		isTheMoveBeingUpdated = true
 		move.ExcessUnaccompaniedBaggageWeightQualifiedAt = nil
