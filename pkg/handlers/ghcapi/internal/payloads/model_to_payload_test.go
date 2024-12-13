@@ -661,7 +661,75 @@ func (suite *PayloadsSuite) TestCreateCustomer() {
 		suite.IsType(returnedShipmentAddressUpdate, &ghcmessages.CreatedCustomer{})
 	})
 }
+func (suite *PayloadsSuite) TestTransportationOffice() {
+	transportationOffice := factory.BuildTransportationOffice(suite.DB(), []factory.Customization{
+		{
+			Model: models.TransportationOffice{
+				ID: uuid.Must(uuid.NewV4()),
+			},
+		}}, nil)
+	value := TransportationOffice(&transportationOffice)
+	suite.NotNil(value)
+}
+func (suite *PayloadsSuite) TestTransportationOffices() {
+	transportationOffice := factory.BuildTransportationOffice(suite.DB(), []factory.Customization{
+		{
+			Model: models.TransportationOffice{
+				ID: uuid.Must(uuid.NewV4()),
+			},
+		}}, nil)
+	transportationOfficeTwo := factory.BuildTransportationOffice(suite.DB(), []factory.Customization{
+		{
+			Model: models.TransportationOffice{
+				ID: uuid.Must(uuid.NewV4()),
+			},
+		}}, nil)
+	list := models.TransportationOffices{}
+	list = append(list, transportationOffice, transportationOfficeTwo)
+	value := TransportationOffices(list)
+	suite.NotNil(value)
+}
+func (suite *PayloadsSuite) TestListMove() {
 
+	marines := models.AffiliationMARINES
+	value := ListMove(nil)
+
+	suite.Nil(value)
+	moveUSMC := factory.BuildMove(suite.DB(), []factory.Customization{
+		{
+			Model: models.ServiceMember{
+				Affiliation: &marines,
+			},
+		},
+	}, nil)
+
+	value = ListMove(&moveUSMC)
+	suite.NotNil(value)
+}
+
+func (suite *PayloadsSuite) TestListMoves() {
+	list := models.Moves{}
+
+	marines := models.AffiliationMARINES
+	spaceForce := models.AffiliationSPACEFORCE
+	moveUSMC := factory.BuildMove(suite.DB(), []factory.Customization{
+		{
+			Model: models.ServiceMember{
+				Affiliation: &marines,
+			},
+		},
+	}, nil)
+	moveSF := factory.BuildMove(suite.DB(), []factory.Customization{
+		{
+			Model: models.ServiceMember{
+				Affiliation: &spaceForce,
+			},
+		},
+	}, nil)
+	list = append(list, moveUSMC, moveSF)
+	value := ListMoves(&list)
+	suite.NotNil(value)
+}
 func (suite *PayloadsSuite) TestSearchMoves() {
 	appCtx := suite.AppContextForTest()
 
