@@ -14,9 +14,6 @@ variables:
   DOCKERHUB_PASSWORD: DOCKERHUB_PASSWORD
   DOCKER_TOKEN: DOCKER_TOKEN
   registry: https://registry.hub.docker.com/
-  KUBERNETES_CPU_REQUEST: "2"
-  KUBERNETES_MEMORY_REQUEST: "4Gi"
-  KUBERNETES_MEMORY_LIMIT: "4Gi"
   #CIRCLE_PROJECT_USERNAME: "my-username"  # Replace with the actual namespace
   CIRCLE_PROJECT_REPONAME: "mymove"      # Replace with your GitLab project name
   CIRCLE_JOB: "$CI_JOB_NAME"              # Map to GitLab's job name variable
