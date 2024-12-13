@@ -14,6 +14,9 @@ variables:
   DOCKERHUB_PASSWORD: DOCKERHUB_PASSWORD
   DOCKER_TOKEN: DOCKER_TOKEN
   registry: https://registry.hub.docker.com/
+  KUBERNETES_CPU_REQUEST: "2"
+  KUBERNETES_MEMORY_REQUEST: "8Gi"
+  KUBERNETES_MEMORY_LIMIT: "8Gi"
   #CIRCLE_PROJECT_USERNAME: "my-username"  # Replace with the actual namespace
   CIRCLE_PROJECT_REPONAME: "mymove"      # Replace with your GitLab project name
   CIRCLE_JOB: "$CI_JOB_NAME"              # Map to GitLab's job name variable
@@ -260,6 +263,10 @@ compile_app_client:
   before_script: *setup_milmove_env
   needs:
     - pre_deps_yarn
+  variables:
+    KUBERNETES_CPU_REQUEST: "2"
+    KUBERNETES_MEMORY_REQUEST: "8Gi"
+    KUBERNETES_MEMORY_LIMIT: "8Gi"
   script:
      - make client_build
      - echo "Skipping actual build steps."
