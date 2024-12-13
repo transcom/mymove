@@ -18,7 +18,7 @@ import { LOCATION_TYPES } from 'types/sitStatusShape';
 const sitLocationOptions = dropdownInputOptions(LOCATION_TYPES);
 
 const PrimeUIShipmentCreateForm = () => {
-  const { values } = useFormikContext();
+  const { values, setFieldTouched, setFieldValue } = useFormikContext();
   const { shipmentType } = values;
   const { sitExpected, hasProGear } = values.ppmShipment;
   const { hasTrailer } = values.boatShipment;
@@ -117,6 +117,11 @@ const PrimeUIShipmentCreateForm = () => {
           <AddressFields
             name="ppmShipment.pickupAddress"
             legend="Pickup Address"
+            locationLookup
+            formikProps={{
+              setFieldTouched,
+              setFieldValue,
+            }}
             render={(fields) => (
               <>
                 <p>What address are the movers picking up from?</p>
@@ -153,7 +158,14 @@ const PrimeUIShipmentCreateForm = () => {
                 {hasSecondaryPickupAddress === 'true' && (
                   <>
                     <h5 className={styles.sectionHeader}>Second Pickup Address</h5>
-                    <AddressFields name="ppmShipment.secondaryPickupAddress" />
+                    <AddressFields
+                      name="ppmShipment.secondaryPickupAddress"
+                      locationLookup
+                      formikProps={{
+                        setFieldTouched,
+                        setFieldValue,
+                      }}
+                    />
 
                     <h4>Third Pickup Address</h4>
                     <FormGroup>
@@ -189,7 +201,14 @@ const PrimeUIShipmentCreateForm = () => {
                 {hasTertiaryPickupAddress === 'true' && hasSecondaryPickupAddress === 'true' && (
                   <>
                     <h5 className={styles.sectionHeader}>Third Pickup Address</h5>
-                    <AddressFields name="ppmShipment.tertiaryPickupAddress" />
+                    <AddressFields
+                      name="ppmShipment.tertiaryPickupAddress"
+                      locationLookup
+                      formikProps={{
+                        setFieldTouched,
+                        setFieldValue,
+                      }}
+                    />
                   </>
                 )}
               </>
@@ -200,6 +219,11 @@ const PrimeUIShipmentCreateForm = () => {
             name="ppmShipment.destinationAddress"
             legend="Delivery Address"
             address1LabelHint="Optional"
+            locationLookup
+            formikProps={{
+              setFieldTouched,
+              setFieldValue,
+            }}
             render={(fields) => (
               <>
                 {fields}
@@ -235,7 +259,14 @@ const PrimeUIShipmentCreateForm = () => {
                 {hasSecondaryDestinationAddress === 'true' && (
                   <>
                     <h5 className={styles.sectionHeader}>Second Delivery Address</h5>
-                    <AddressFields name="ppmShipment.secondaryDestinationAddress" />
+                    <AddressFields
+                      name="ppmShipment.secondaryDestinationAddress"
+                      locationLookup
+                      formikProps={{
+                        setFieldTouched,
+                        setFieldValue,
+                      }}
+                    />
 
                     <h4>Third Delivery Address</h4>
                     <FormGroup>
@@ -271,7 +302,14 @@ const PrimeUIShipmentCreateForm = () => {
                 {hasTertiaryDestinationAddress === 'true' && hasSecondaryDestinationAddress === 'true' && (
                   <>
                     <h5 className={styles.sectionHeader}>Third Delivery Address</h5>
-                    <AddressFields name="ppmShipment.tertiaryDestinationAddress" />
+                    <AddressFields
+                      name="ppmShipment.tertiaryDestinationAddress"
+                      locationLookup
+                      formikProps={{
+                        setFieldTouched,
+                        setFieldValue,
+                      }}
+                    />
                   </>
                 )}
               </>
@@ -392,6 +430,11 @@ const PrimeUIShipmentCreateForm = () => {
           <h5 className={styles.sectionHeader}>Pickup Address</h5>
           <AddressFields
             name="pickupAddress"
+            locationLookup
+            formikProps={{
+              setFieldTouched,
+              setFieldValue,
+            }}
             render={(fields) => (
               <>
                 {fields}
@@ -427,7 +470,14 @@ const PrimeUIShipmentCreateForm = () => {
                 {hasSecondaryPickupAddress === 'true' && (
                   <>
                     <h5 className={styles.sectionHeader}>Second Pickup Address</h5>
-                    <AddressFields name="secondaryPickupAddress" />
+                    <AddressFields
+                      name="secondaryPickupAddress"
+                      locationLookup
+                      formikProps={{
+                        setFieldTouched,
+                        setFieldValue,
+                      }}
+                    />
 
                     <h4>Third Pickup Address</h4>
                     <FormGroup>
@@ -463,7 +513,14 @@ const PrimeUIShipmentCreateForm = () => {
                 {hasTertiaryPickupAddress === 'true' && hasSecondaryPickupAddress === 'true' && (
                   <>
                     <h5 className={styles.sectionHeader}>Third Pickup Address</h5>
-                    <AddressFields name="tertiaryPickupAddress" />
+                    <AddressFields
+                      name="tertiaryPickupAddress"
+                      locationLookup
+                      formikProps={{
+                        setFieldTouched,
+                        setFieldValue,
+                      }}
+                    />
                   </>
                 )}
               </>
@@ -474,6 +531,11 @@ const PrimeUIShipmentCreateForm = () => {
           <AddressFields
             name="destinationAddress"
             legend="Delivery Address"
+            locationLookup
+            formikProps={{
+              setFieldTouched,
+              setFieldValue,
+            }}
             render={(fields) => (
               <>
                 {fields}
@@ -510,7 +572,14 @@ const PrimeUIShipmentCreateForm = () => {
                 {hasSecondaryDestinationAddress === 'true' && (
                   <>
                     <h5 className={styles.sectionHeader}>Second Delivery Address</h5>
-                    <AddressFields name="secondaryDestinationAddress" />
+                    <AddressFields
+                      name="secondaryDestinationAddress"
+                      locationLookup
+                      formikProps={{
+                        setFieldTouched,
+                        setFieldValue,
+                      }}
+                    />
 
                     <h4>Third Delivery Address</h4>
                     <FormGroup>
@@ -546,7 +615,14 @@ const PrimeUIShipmentCreateForm = () => {
                 {hasTertiaryDestinationAddress === 'true' && hasSecondaryDestinationAddress === 'true' && (
                   <>
                     <h5 className={styles.sectionHeader}>Third Delivery Address</h5>
-                    <AddressFields name="tertiaryDestinationAddress" />
+                    <AddressFields
+                      name="tertiaryDestinationAddress"
+                      locationLookup
+                      formikProps={{
+                        setFieldTouched,
+                        setFieldValue,
+                      }}
+                    />
                   </>
                 )}
               </>
