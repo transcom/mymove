@@ -14,6 +14,7 @@ import (
 	"github.com/transcom/mymove/pkg/models/roles"
 	"github.com/transcom/mymove/pkg/storage/test"
 	"github.com/transcom/mymove/pkg/testdatagen"
+	"github.com/transcom/mymove/pkg/unit"
 )
 
 func TestOrder(_ *testing.T) {
@@ -35,6 +36,74 @@ func (suite *PayloadsSuite) TestOrderWithMove() {
 		},
 	}, nil)
 	Order(&order)
+}
+
+func (suite *PayloadsSuite) TestBoatShipment() {
+	boat := factory.BuildBoatShipment(suite.DB(), nil, nil)
+	value := BoatShipment(nil, &boat)
+	suite.NotNil(value)
+
+}
+
+func (suite *PayloadsSuite) TestMobileHomeShipment() {
+	mobileHome := factory.BuildMobileHomeShipment(suite.DB(), nil, nil)
+	value := MobileHomeShipment(nil, &mobileHome)
+	suite.NotNil(value)
+}
+
+func (suite *PayloadsSuite) TestMovingExpense() {
+	contractExpense := models.MovingExpenseReceiptTypeContractedExpense
+	weightStored := 2000
+	sitLocation := models.SITLocationTypeDestination
+	sitReimburseableAmount := 500
+
+	movingExpense := models.MovingExpense{
+		PPMShipmentID:          uuid.Must(uuid.NewV4()),
+		DocumentID:             uuid.Must(uuid.NewV4()),
+		MovingExpenseType:      &contractExpense,
+		Reason:                 models.StringPointer("no good"),
+		SITStartDate:           models.TimePointer(time.Now()),
+		SITEndDate:             models.TimePointer(time.Now()),
+		WeightStored:           (*unit.Pound)(&weightStored),
+		SITLocation:            &sitLocation,
+		SITReimburseableAmount: (*unit.Cents)(&sitReimburseableAmount),
+	}
+	value := MovingExpense(nil, &movingExpense)
+	suite.NotNil(value)
+}
+
+func (suite *PayloadsSuite) TestMovingExpenses() {
+	contractExpense := models.MovingExpenseReceiptTypeContractedExpense
+	weightStored := 2000
+	sitLocation := models.SITLocationTypeDestination
+	sitReimburseableAmount := 500
+	movingExpenses := models.MovingExpenses{}
+
+	movingExpense := models.MovingExpense{
+		PPMShipmentID:          uuid.Must(uuid.NewV4()),
+		DocumentID:             uuid.Must(uuid.NewV4()),
+		MovingExpenseType:      &contractExpense,
+		Reason:                 models.StringPointer("no good"),
+		SITStartDate:           models.TimePointer(time.Now()),
+		SITEndDate:             models.TimePointer(time.Now()),
+		WeightStored:           (*unit.Pound)(&weightStored),
+		SITLocation:            &sitLocation,
+		SITReimburseableAmount: (*unit.Cents)(&sitReimburseableAmount),
+	}
+	movingExpenseTwo := models.MovingExpense{
+		PPMShipmentID:          uuid.Must(uuid.NewV4()),
+		DocumentID:             uuid.Must(uuid.NewV4()),
+		MovingExpenseType:      &contractExpense,
+		Reason:                 models.StringPointer("no good"),
+		SITStartDate:           models.TimePointer(time.Now()),
+		SITEndDate:             models.TimePointer(time.Now()),
+		WeightStored:           (*unit.Pound)(&weightStored),
+		SITLocation:            &sitLocation,
+		SITReimburseableAmount: (*unit.Cents)(&sitReimburseableAmount),
+	}
+	movingExpenses = append(movingExpenses, movingExpense, movingExpenseTwo)
+	value := MovingExpenses(nil, movingExpenses)
+	suite.NotNil(value)
 }
 
 // TestMove makes sure zero values/optional fields are handled
