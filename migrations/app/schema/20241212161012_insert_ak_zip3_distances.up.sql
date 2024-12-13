@@ -1,5 +1,29 @@
-UPDATE postal_code_to_gblocs set gbloc = 'MAPS', updated_at = now()
-where postal_code = '99574';
+delete from postal_code_to_gblocs where postal_code in (
+select uspr_zip_id from v_locations where state = 'AK');
+
+drop view move_to_gbloc;
+CREATE OR REPLACE VIEW public.move_to_gbloc
+AS
+SELECT DISTINCT ON (sh.move_id) sh.move_id,
+    COALESCE(pctg.gbloc, coalesce(pctg_oconus.gbloc, pctg_ppm.gbloc)) AS gbloc
+   FROM mto_shipments sh
+     LEFT JOIN ( SELECT a.id AS address_id,
+            pctg_1.gbloc
+           FROM addresses a
+             JOIN postal_code_to_gblocs pctg_1 ON a.postal_code::text = pctg_1.postal_code::text) pctg ON pctg.address_id = sh.pickup_address_id
+     LEFT JOIN ( SELECT ppm.shipment_id,
+            pctg_1.gbloc
+           FROM ppm_shipments ppm
+             JOIN addresses ppm_address ON ppm.pickup_postal_address_id = ppm_address.id
+             JOIN postal_code_to_gblocs pctg_1 ON ppm_address.postal_code::text = pctg_1.postal_code::text) pctg_ppm ON pctg_ppm.shipment_id = sh.id
+     LEFT JOIN ( SELECT a.id AS address_id,
+            cast(pctg_1.code as varchar) AS gbloc
+           FROM addresses a
+             JOIN re_oconus_rate_areas ora ON a.us_post_region_cities_id = ora.us_post_region_cities_id
+             JOIN gbloc_aors ga ON ora.id = ga.oconus_rate_area_id
+             JOIN jppso_regions pctg_1 ON ga.jppso_regions_id = pctg_1.id ) pctg_oconus ON pctg_oconus.address_id = sh.pickup_address_id
+     WHERE sh.deleted_at IS NULL;
+
 
 INSERT INTO zip3_distances (id,from_zip3,to_zip3,distance_miles,created_at,updated_at) VALUES
 	 ('c62a1c34-2fc9-4ed8-adb8-5a5519633537'::uuid,'010','998',3612,'2024-12-12 15:55:50.041957','2024-12-12 15:55:50.041957'),
@@ -2046,6 +2070,7 @@ INSERT INTO zip3_distances (id,from_zip3,to_zip3,distance_miles,created_at,updat
 	 ('4081bceb-b2e0-431e-8dfa-69261e04d1dd'::uuid,'620','999',2890,'2024-12-12 15:55:50.041957','2024-12-12 15:55:50.041957'),
 	 ('88ad2dc7-72f0-4ee1-ba26-a6a43da03f47'::uuid,'622','995',4020,'2024-12-12 15:55:50.041957','2024-12-12 15:55:50.041957'),
 	 ('4bb0aa95-3a51-4236-8bcb-10a03fbb1737'::uuid,'622','996',4020,'2024-12-12 15:55:50.041957','2024-12-12 15:55:50.041957'),
+     ('47d836b8-26ef-4409-a47c-5343f600f8b0'::uuid,'622','997',3763,'2024-12-12 15:55:50.041957','2024-12-12 15:55:50.041957'),
 	 ('84bf52d0-2b91-4e91-80d3-6b3fdc66e8e4'::uuid,'622','998',3178,'2024-12-12 15:55:50.041957','2024-12-12 15:55:50.041957');
 INSERT INTO zip3_distances (id,from_zip3,to_zip3,distance_miles,created_at,updated_at) VALUES
 	 ('001abfed-9b7c-41e7-8394-0d45e81ee301'::uuid,'622','999',2956,'2024-12-12 15:55:50.041957','2024-12-12 15:55:50.041957'),
