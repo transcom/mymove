@@ -339,6 +339,7 @@ export const formatYesNoMoveHistoryValue = (value) => {
   if (value === false) return 'No';
   return null;
 };
+
 // Translate boolean (true/false) into "yes"/"no" string
 export const formatYesNoInputValue = (value) => {
   if (value === true) return 'yes';
