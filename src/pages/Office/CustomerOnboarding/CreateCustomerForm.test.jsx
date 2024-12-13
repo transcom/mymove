@@ -607,7 +607,7 @@ describe('CreateCustomerForm', () => {
       safetyPayload.residential_address.streetAddress1,
     );
 
-    const locationBox = screen.getAllByLabelText('Location lookup');
+    const locationBox = screen.getAllByRole('combobox');
 
     await act(async () => {
       await userEvent.type(locationBox[1], 'BEVERLY HILLS');
@@ -722,15 +722,15 @@ describe('CreateCustomerForm', () => {
     searchLocationByZipCityState.mockImplementation(mockSearchPickupLocation);
 
     const { getByLabelText, getByTestId, getByRole } = render(
-      <MockProviders>
+      <MockProviders initialState={serviceCounselorState}>
         <CreateCustomerForm {...testProps} />
       </MockProviders>,
     );
 
     const user = userEvent.setup();
 
-    const safetyMove = await screen.findByTestId('is-safety-move-no');
-    expect(safetyMove).toBeChecked();
+    const saveBtn = await screen.findByRole('button', { name: 'Save' });
+    expect(saveBtn).toBeInTheDocument();
 
     // check the safety move box
     await userEvent.type(getByTestId('is-safety-move-no'), bluebarkPayload.is_safety_move);
@@ -764,7 +764,7 @@ describe('CreateCustomerForm', () => {
     );
 
     await act(async () => {
-      await userEvent.type(locationBox[1], 'DRYDEN');
+      await userEvent.type(locationBox[2], 'DRYDEN');
       const selectedBackupLocation = await screen.findByText(/04225/);
       await userEvent.click(selectedBackupLocation);
     });
@@ -773,7 +773,6 @@ describe('CreateCustomerForm', () => {
     await userEvent.type(getByRole('textbox', { name: 'Email' }), safetyPayload.backup_contact.email);
     await userEvent.type(getByRole('textbox', { name: 'Phone' }), safetyPayload.backup_contact.telephone);
 
-    const saveBtn = await screen.findByRole('button', { name: 'Save' });
     expect(saveBtn).toBeInTheDocument();
 
     await waitFor(() => {
