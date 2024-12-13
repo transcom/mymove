@@ -1,6 +1,8 @@
 package internalapi
 
 import (
+	"context"
+
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/gofrs/uuid"
 	"go.uber.org/zap"
@@ -87,7 +89,36 @@ func (h GetLocationByZipCityStateHandler) Handle(params addressop.GetLocationByZ
 				return addressop.NewGetLocationByZipCityStateForbidden(), noServiceMemberIDErr
 			}
 
-			locationList, err := h.GetLocationsByZipCityState(appCtx, params.Search)
+			/** Feature Flag - Alaska - Determines if AK can be included/excluded **/
+			isAlaskaEnabled := false
+			akFeatureFlagName := "enable_alaska"
+			flag, err := h.FeatureFlagFetcher().GetBooleanFlagForUser(context.TODO(), appCtx, akFeatureFlagName, map[string]string{})
+			if err != nil {
+				appCtx.Logger().Error("Error fetching feature flag", zap.String("featureFlagKey", akFeatureFlagName), zap.Error(err))
+			} else {
+				isAlaskaEnabled = flag.Match
+			}
+
+			/** Feature Flag - Hawaii - Determines if HI can be included/excluded **/
+			isHawaiiEnabled := false
+			hiFeatureFlagName := "enable_hawaii"
+			flag, err = h.FeatureFlagFetcher().GetBooleanFlagForUser(context.TODO(), appCtx, hiFeatureFlagName, map[string]string{})
+			if err != nil {
+				appCtx.Logger().Error("Error fetching feature flag", zap.String("featureFlagKey", hiFeatureFlagName), zap.Error(err))
+			} else {
+				isHawaiiEnabled = flag.Match
+			}
+
+			// build states to exlude filter list
+			statesToExclude := make([]string, 0)
+			if !isAlaskaEnabled {
+				statesToExclude = append(statesToExclude, "AK")
+			}
+			if !isHawaiiEnabled {
+				statesToExclude = append(statesToExclude, "HI")
+			}
+
+			locationList, err := h.GetLocationsByZipCityState(appCtx, params.Search, statesToExclude)
 			if err != nil {
 				appCtx.Logger().Error("Error searching for Zip/City/State: ", zap.Error(err))
 				return addressop.NewGetLocationByZipCityStateInternalServerError(), err
