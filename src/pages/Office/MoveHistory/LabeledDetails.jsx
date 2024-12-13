@@ -4,7 +4,6 @@ import React from 'react';
 import styles from './LabeledDetails.module.scss';
 
 import booleanFields from 'constants/MoveHistory/Database/BooleanFields';
-import addedOrRemovedFields from 'constants/MoveHistory/Database/AddedOrRemovedFields';
 import dateFields from 'constants/MoveHistory/Database/DateFields';
 import fieldMappings from 'constants/MoveHistory/Database/FieldMappings';
 import distanceFields from 'constants/MoveHistory/Database/DistanceFields';
@@ -23,7 +22,6 @@ import {
   formatTimeUnitDays,
   formatWeight,
   formatYesNoMoveHistoryValue,
-  formatAddedOrRemovedMoveHistoryValue,
   toDollarString,
 } from 'utils/formatters';
 
@@ -60,7 +58,6 @@ export const { displayMappings, getMappedDisplayName } = withMappings().addNameM
   [weightFields, ({ value }) => formatWeight(Number(value))],
   [dateFields, ({ value }) => formatCustomerDate(value)],
   [booleanFields, ({ value }) => formatYesNoMoveHistoryValue(value)],
-  [addedOrRemovedFields, ({ value }) => formatAddedOrRemovedMoveHistoryValue(value)],
   [monetaryFields, ({ value }) => toDollarString(formatCents(value))],
   [timeUnitFields, ({ value }) => formatTimeUnitDays(value)],
   [distanceFields, ({ value }) => formatDistanceUnitMiles(value)],
