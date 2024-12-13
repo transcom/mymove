@@ -69,7 +69,7 @@ type PPTASReport struct {
 	// Example: G
 	MiddleInitial *string `json:"middleInitial,omitempty"`
 
-	// not to be confused with Orders Number
+	// LoaDocID in lines of accounting table. Not to be confused with Orders Number
 	// Example: 030-00362
 	OrderNumber *string `json:"orderNumber,omitempty"`
 
