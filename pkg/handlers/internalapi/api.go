@@ -112,7 +112,10 @@ func NewInternalAPI(handlerConfig handlers.HandlerConfig) *internalops.MymoveAPI
 	internalAPI.FeatureFlagsBooleanFeatureFlagForUserHandler = BooleanFeatureFlagsForUserHandler{handlerConfig}
 	internalAPI.FeatureFlagsVariantFeatureFlagForUserHandler = VariantFeatureFlagsForUserHandler{handlerConfig}
 
-	internalAPI.UsersShowLoggedInUserHandler = ShowLoggedInUserHandler{handlerConfig, officeuser.NewOfficeUserFetcherPop()}
+	internalAPI.UsersShowLoggedInUserHandler = ShowLoggedInUserHandler{
+		handlerConfig,
+		officeuser.NewOfficeUserFetcherPop(),
+	}
 	internalAPI.CertificationCreateSignedCertificationHandler = CreateSignedCertificationHandler{handlerConfig}
 	internalAPI.CertificationIndexSignedCertificationHandler = IndexSignedCertificationsHandler{handlerConfig}
 

@@ -53,6 +53,7 @@ var CustomerSupportRemark CustomType = "CustomerSupportRemark"
 var Document CustomType = "Document"
 var DutyLocation CustomType = "DutyLocation"
 var Entitlement CustomType = "Entitlement"
+var UBAllowance CustomType = "UBAllowances"
 var EvaluationReport CustomType = "EvaluationReport"
 var LineOfAccounting CustomType = "LineOfAccounting"
 var MobileHome CustomType = "MobileHome"
@@ -90,6 +91,7 @@ var State CustomType = "State"
 var StorageFacility CustomType = "StorageFacility"
 var TransportationAccountingCode CustomType = "TransportationAccountingCode"
 var TransportationOffice CustomType = "TransportationOffice"
+var TransportationOfficeAssignment CustomType = "TransportationOfficeAssignment"
 var Upload CustomType = "Upload"
 var UserUpload CustomType = "UserUpload"
 var User CustomType = "User"
@@ -115,6 +117,7 @@ var defaultTypesMap = map[string]CustomType{
 	"models.Document":                                 Document,
 	"models.DutyLocation":                             DutyLocation,
 	"models.Entitlement":                              Entitlement,
+	"models.UBAllowances":                             UBAllowance,
 	"models.EvaluationReport":                         EvaluationReport,
 	"models.LineOfAccounting":                         LineOfAccounting,
 	"models.MobileHome":                               MobileHome,
@@ -152,6 +155,7 @@ var defaultTypesMap = map[string]CustomType{
 	"models.TransportationAccountingCode":             TransportationAccountingCode,
 	"models.UsPostRegionCity":                         UsPostRegionCity,
 	"models.TransportationOffice":                     TransportationOffice,
+	"models.TransportationOfficeAssignment":           TransportationOfficeAssignment,
 	"models.Upload":                                   Upload,
 	"models.UserUpload":                               UserUpload,
 	"models.User":                                     User,
