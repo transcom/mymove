@@ -99,11 +99,13 @@ func (suite *HandlerSuite) TestGetRequestedOfficeUserHandler() {
 			HTTPRequest:  suite.setupAuthenticatedRequest("GET", fmt.Sprintf("/requested_office_users/%s", requestedOfficeUser.ID)),
 			OfficeUserID: strfmt.UUID(requestedOfficeUser.ID.String()),
 		}
+
 		requestedOfficeUserFetcher := &mocks.RequestedOfficeUserFetcher{}
 		requestedOfficeUserFetcher.On("FetchRequestedOfficeUser",
 			mock.AnythingOfType("*appcontext.appContext"),
 			mock.Anything,
 		).Return(requestedOfficeUser, nil).Once()
+
 		mockRoleAssociator := &mocks.RoleAssociater{}
 		mockRoles := roles.Roles{
 			roles.Role{
@@ -140,6 +142,7 @@ func (suite *HandlerSuite) TestGetRequestedOfficeUserHandler() {
 			HTTPRequest:  suite.setupAuthenticatedRequest("GET", fmt.Sprintf("/requested_office_users/%s", requestedOfficeUser.ID)),
 			OfficeUserID: strfmt.UUID(requestedOfficeUser.ID.String()),
 		}
+
 		expectedError := models.ErrFetchNotFound
 		requestedOfficeUserFetcher := &mocks.RequestedOfficeUserFetcher{}
 		requestedOfficeUserFetcher.On("FetchRequestedOfficeUser",
