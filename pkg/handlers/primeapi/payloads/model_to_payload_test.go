@@ -517,6 +517,80 @@ func (suite *PayloadsSuite) TestPaymentRequests() {
 	suite.Equal(len(paymentRequests), len(*result))
 }
 
+func (suite *PayloadsSuite) TestMTOShipmentWithoutServiceItems() {
+	// Create the addresses
+	pickupAddress := factory.BuildAddress(suite.DB(), nil, nil)
+	destinationAddress := factory.BuildAddress(suite.DB(), nil, nil)
+	destinationType := models.DestinationTypeHomeOfRecord
+	secondaryPickupAddress := factory.BuildAddress(suite.DB(), nil, []factory.Trait{factory.GetTraitAddress2})
+	secondaryDeliveryAddress := factory.BuildAddress(suite.DB(), nil, []factory.Trait{factory.GetTraitAddress4})
+	dlhTestWeight := unit.Pound(4000)
+
+	// Create the MTOShipment with populated PickupAddress and DestinationAddress
+	mtoShipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+		{
+			Model: models.MTOShipment{
+				PickupAddressID:            &pickupAddress.ID,
+				DestinationAddressID:       &destinationAddress.ID,
+				DestinationType:            &destinationType,
+				SecondaryPickupAddressID:   &secondaryPickupAddress.ID,
+				SecondaryDeliveryAddressID: &secondaryDeliveryAddress.ID,
+				PrimeEstimatedWeight:       models.PoundPointer(unit.Pound(980)),
+				PrimeActualWeight:          &dlhTestWeight,
+				NTSRecordedWeight:          models.PoundPointer(unit.Pound(249)),
+			},
+		},
+	}, nil)
+	value := MTOShipmentWithoutServiceItems(&mtoShipment)
+	suite.NotNil(value)
+}
+
+func (suite *PayloadsSuite) TestMTOShipmentsWithoutServiceItems() {
+	// Create the addresses
+	pickupAddress := factory.BuildAddress(suite.DB(), nil, nil)
+	destinationAddress := factory.BuildAddress(suite.DB(), nil, nil)
+	destinationType := models.DestinationTypeHomeOfRecord
+	secondaryPickupAddress := factory.BuildAddress(suite.DB(), nil, []factory.Trait{factory.GetTraitAddress2})
+	secondaryDeliveryAddress := factory.BuildAddress(suite.DB(), nil, []factory.Trait{factory.GetTraitAddress4})
+	dlhTestWeight := unit.Pound(4000)
+
+	// Create the MTOShipment
+	mtoShipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+		{
+			Model: models.MTOShipment{
+				PickupAddressID:            &pickupAddress.ID,
+				DestinationAddressID:       &destinationAddress.ID,
+				DestinationType:            &destinationType,
+				SecondaryPickupAddressID:   &secondaryPickupAddress.ID,
+				SecondaryDeliveryAddressID: &secondaryDeliveryAddress.ID,
+				PrimeEstimatedWeight:       models.PoundPointer(unit.Pound(980)),
+				PrimeActualWeight:          &dlhTestWeight,
+				NTSRecordedWeight:          models.PoundPointer(unit.Pound(249)),
+			},
+		},
+	}, nil)
+
+	// Create the MTOShipment
+	mtoShipmentTwo := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+		{
+			Model: models.MTOShipment{
+				PickupAddressID:            &pickupAddress.ID,
+				DestinationAddressID:       &destinationAddress.ID,
+				DestinationType:            &destinationType,
+				SecondaryPickupAddressID:   &secondaryPickupAddress.ID,
+				SecondaryDeliveryAddressID: &secondaryDeliveryAddress.ID,
+				PrimeEstimatedWeight:       models.PoundPointer(unit.Pound(980)),
+				PrimeActualWeight:          &dlhTestWeight,
+				NTSRecordedWeight:          models.PoundPointer(unit.Pound(249)),
+			},
+		},
+	}, nil)
+	shipments := models.MTOShipments{}
+	shipments = append(shipments, mtoShipmentTwo, mtoShipment)
+	value := MTOShipmentsWithoutServiceItems(&shipments)
+	suite.NotNil(value)
+}
+
 func (suite *PayloadsSuite) TestPaymentServiceItem() {
 	paymentServiceItem := models.PaymentServiceItem{
 		ID: uuid.Must(uuid.NewV4()),
