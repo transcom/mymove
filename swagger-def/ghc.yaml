@@ -3456,7 +3456,7 @@ paths:
           name: viewAsGBLOC
           type: string
           description: |
-            Used to return a queue for a GBLOC other than the default of the current user. Requires the HQ role. The parameter is ignored if the requesting user does not have the necessary role.
+            Used to return a queue for a GBLOC other than the default of the current user. Requires the HQ role or a secondary transportation office assignment. The parameter is ignored if the requesting user does not have the necessary role or assignment.
         - in: query
           name: assignedTo
           type: string
@@ -3486,6 +3486,10 @@ paths:
           name: needsPPMCloseout
           type: boolean
           description: Only used for Services Counseling queue. If true, show PPM moves origin locations that are ready for closeout. Otherwise, show all other moves origin locations.
+        - in: query
+          name: viewAsGBLOC
+          type: string
+          description: Used to return an origins list for a GBLOC other than the default of the current user. Requires the HQ role or a secondary transportation office assignment. The parameter is ignored if the requesting user does not have the necessary role or assignment.
       responses:
         '200':
           description: Successfully returned all moves matching the criteria
@@ -3639,7 +3643,7 @@ paths:
           name: viewAsGBLOC
           type: string
           description: |
-            Used to return a queue for a GBLOC other than the default of the current user. Requires the HQ role. The parameter is ignored if the requesting user does not have the necessary role.
+            Used to return a queue for a GBLOC other than the default of the current user. Requires the HQ role or a secondary transportation office assignment. The parameter is ignored if the requesting user does not have the necessary role or assignment.
         - in: query
           name: assignedTo
           type: string
@@ -3744,7 +3748,7 @@ paths:
           name: viewAsGBLOC
           type: string
           description: |
-            Used to return a queue for a GBLOC other than the default of the current user. Requires the HQ role. The parameter is ignored if the requesting user does not have the necessary role.
+            Used to return a queue for a GBLOC other than the default of the current user. Requires the HQ role or a secondary transportation office assignment. The parameter is ignored if the requesting user does not have the necessary role or assignment.
       responses:
         '200':
           description: Successfully returned all moves matching the criteria
@@ -4501,6 +4505,10 @@ definitions:
         format: uuid
       transportationOffice:
         $ref: 'definitions/TransportationOffice.yaml'
+      transportationOfficeAssignments:
+        type: array
+        items:
+          $ref: 'definitions/TransportationOfficeAssignment.yaml'
       active:
         type: boolean
       roles:

@@ -654,6 +654,10 @@ definitions:
         title: Best contact phone
       transportation_office:
         $ref: '#/definitions/TransportationOffice'
+      transportation_office_assignments:
+        type: array
+        items:
+          $ref: '#/definitions/TransportationOfficeAssignment'
       created_at:
         type: string
         format: date-time
@@ -3996,6 +4000,34 @@ definitions:
           header for any updates.
         type: string
         readOnly: true
+  TransportationOfficeAssignment:
+    type: object
+    properties:
+      officeUserId:
+        type: string
+        format: uuid
+        example: c56a4780-65aa-42ec-a945-5fd87dec0538
+      transportationOfficeId:
+        type: string
+        format: uuid
+        example: d67a4780-65aa-42ec-a945-5fd87dec0549
+      transportationOffice:
+        $ref: '#/definitions/TransportationOffice'
+      primaryOffice:
+        type: boolean
+        x-omitempty: false
+      createdAt:
+        type: string
+        format: date-time
+        readOnly: true
+      updatedAt:
+        type: string
+        format: date-time
+        readOnly: true
+    required:
+      - officeUserId
+      - transportationOfficeId
+      - primaryOffice
   PpmID:
     description: |
       The PPM Shipment ID to associate with the assigned certificate.
