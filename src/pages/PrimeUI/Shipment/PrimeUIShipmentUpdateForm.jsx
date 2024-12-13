@@ -46,6 +46,7 @@ const PrimeUIShipmentUpdateForm = ({
   secondaryDeliveryAddress,
   tertiaryDeliveryAddress,
   shipmentType,
+  formikProps,
 }) => {
   const isNTS = shipmentType === SHIPMENT_OPTIONS.NTS;
   const isNTSR = shipmentType === SHIPMENT_OPTIONS.NTSR;
@@ -150,28 +151,38 @@ const PrimeUIShipmentUpdateForm = ({
       )}
       <h2 className={styles.sectionHeader}>Shipment Addresses</h2>
       <h5 className={styles.sectionHeader}>Pickup Address</h5>
-      {editablePickupAddress && <AddressFields name="pickupAddress" />}
+      {editablePickupAddress && <AddressFields name="pickupAddress" locationLookup formikProps={formikProps} />}
       {!editablePickupAddress && formatAddress(pickupAddress)}
       {!isNTSR && (
         <>
           <h5 className={styles.sectionHeader}>Second Pickup Address</h5>
-          {editableSecondaryPickupAddress && <AddressFields name="secondaryPickupAddress" />}
+          {editableSecondaryPickupAddress && (
+            <AddressFields name="secondaryPickupAddress" locationLookup formikProps={formikProps} />
+          )}
           {!editableSecondaryPickupAddress && formatAddress(secondaryPickupAddress)}
           <h5 className={styles.sectionHeader}>Third Pickup Address</h5>
-          {editableTertiaryPickupAddress && <AddressFields name="tertiaryPickupAddress" />}
+          {editableTertiaryPickupAddress && (
+            <AddressFields name="tertiaryPickupAddress" locationLookup formikProps={formikProps} />
+          )}
           {!editableTertiaryPickupAddress && formatAddress(tertiaryPickupAddress)}
         </>
       )}
       <h5 className={styles.sectionHeader}>Delivery Address</h5>
-      {editableDestinationAddress && <AddressFields name="destinationAddress" />}
+      {editableDestinationAddress && (
+        <AddressFields name="destinationAddress" locationLookup formikProps={formikProps} />
+      )}
       {!editableDestinationAddress && formatAddress(destinationAddress)}
       {!isNTS && (
         <>
           <h5 className={styles.sectionHeader}>Second Delivery Address</h5>
-          {editableSecondaryDeliveryAddress && <AddressFields name="secondaryDeliveryAddress" />}
+          {editableSecondaryDeliveryAddress && (
+            <AddressFields name="secondaryDeliveryAddress" locationLookup formikProps={formikProps} />
+          )}
           {!editableSecondaryDeliveryAddress && formatAddress(secondaryDeliveryAddress)}
           <h5 className={styles.sectionHeader}>Third Delivery Address</h5>
-          {editableTertiaryDeliveryAddress && <AddressFields name="tertiaryDeliveryAddress" />}
+          {editableTertiaryDeliveryAddress && (
+            <AddressFields name="tertiaryDeliveryAddress" locationLookup formikProps={formikProps} />
+          )}
           {!editableTertiaryDeliveryAddress && formatAddress(tertiaryDeliveryAddress)}
         </>
       )}
@@ -199,6 +210,7 @@ PrimeUIShipmentUpdateForm.propTypes = {
   actualSpouseProGearWeight: PropTypes.string,
   pickupAddress: ResidentialAddressShape,
   destinationAddress: ResidentialAddressShape,
+  formikProps: PropTypes.object.isRequired,
 };
 
 PrimeUIShipmentUpdateForm.defaultProps = {
