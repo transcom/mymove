@@ -1791,7 +1791,7 @@ func init() {
           "x-formatting": "weight",
           "example": 500
         },
-        "ubAllowance": {
+        "unaccompaniedBaggageAllowance": {
           "description": "The amount of weight in pounds that the move is entitled for shipment types of Unaccompanied Baggage.",
           "type": "integer",
           "x-nullable": true,
@@ -3892,12 +3892,41 @@ func init() {
       },
       "discriminator": "modelType"
     },
+    "UpdateMTOServiceItemInternationalPortFSC": {
+      "description": "Subtype used to provide the port for fuel surcharge. This is not creating a new service item but rather updating an existing service item.\n",
+      "allOf": [
+        {
+          "$ref": "#/definitions/UpdateMTOServiceItem"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "portCode": {
+              "description": "Port used for the shipment. Relevant for moving (PODFSC \u0026 POEFSC) service items.",
+              "type": "string",
+              "x-nullable": true,
+              "x-omitempty": false,
+              "example": "PDX"
+            },
+            "reServiceCode": {
+              "description": "Service code allowed for this model type.",
+              "type": "string",
+              "enum": [
+                "PODFSC",
+                "POEFSC"
+              ]
+            }
+          }
+        }
+      ]
+    },
     "UpdateMTOServiceItemModelType": {
-      "description": "Using this list, choose the correct modelType in the dropdown, corresponding to the service item type.\n  * DDDSIT - UpdateMTOServiceItemSIT\n  * DDFSIT - UpdateMTOServiceItemSIT\n  * DDASIT - UpdateMTOServiceItemSIT\n  * DOPSIT - UpdateMTOServiceItemSIT\n  * DOASIT - UpdateMTOServiceItemSIT\n  * DOFSIT - UpdateMTOServiceItemSIT\n  * DOSFSC - UpdateMTOServiceItemSIT\n  * DDSFSC - UpdateMTOServiceItemSIT\n  * DDSHUT - UpdateMTOServiceItemShuttle\n  * DOSHUT - UpdateMTOServiceItemShuttle\n\nThe documentation will then update with the supported fields.\n",
+      "description": "Using this list, choose the correct modelType in the dropdown, corresponding to the service item type.\n  * DDDSIT - UpdateMTOServiceItemSIT\n  * DDFSIT - UpdateMTOServiceItemSIT\n  * DDASIT - UpdateMTOServiceItemSIT\n  * DOPSIT - UpdateMTOServiceItemSIT\n  * DOASIT - UpdateMTOServiceItemSIT\n  * DOFSIT - UpdateMTOServiceItemSIT\n  * DOSFSC - UpdateMTOServiceItemSIT\n  * DDSFSC - UpdateMTOServiceItemSIT\n  * DDSHUT - UpdateMTOServiceItemShuttle\n  * DOSHUT - UpdateMTOServiceItemShuttle\n  * PODFSC - UpdateMTOServiceItemInternationalPortFSC\n  * POEFSC - UpdateMTOServiceItemInternationalPortFSC\n\nThe documentation will then update with the supported fields.\n",
       "type": "string",
       "enum": [
         "UpdateMTOServiceItemSIT",
-        "UpdateMTOServiceItemShuttle"
+        "UpdateMTOServiceItemShuttle",
+        "UpdateMTOServiceItemInternationalPortFSC"
       ]
     },
     "UpdateMTOServiceItemSIT": {
@@ -6621,7 +6650,7 @@ func init() {
           "x-formatting": "weight",
           "example": 500
         },
-        "ubAllowance": {
+        "unaccompaniedBaggageAllowance": {
           "description": "The amount of weight in pounds that the move is entitled for shipment types of Unaccompanied Baggage.",
           "type": "integer",
           "x-nullable": true,
@@ -8727,12 +8756,41 @@ func init() {
       },
       "discriminator": "modelType"
     },
+    "UpdateMTOServiceItemInternationalPortFSC": {
+      "description": "Subtype used to provide the port for fuel surcharge. This is not creating a new service item but rather updating an existing service item.\n",
+      "allOf": [
+        {
+          "$ref": "#/definitions/UpdateMTOServiceItem"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "portCode": {
+              "description": "Port used for the shipment. Relevant for moving (PODFSC \u0026 POEFSC) service items.",
+              "type": "string",
+              "x-nullable": true,
+              "x-omitempty": false,
+              "example": "PDX"
+            },
+            "reServiceCode": {
+              "description": "Service code allowed for this model type.",
+              "type": "string",
+              "enum": [
+                "PODFSC",
+                "POEFSC"
+              ]
+            }
+          }
+        }
+      ]
+    },
     "UpdateMTOServiceItemModelType": {
-      "description": "Using this list, choose the correct modelType in the dropdown, corresponding to the service item type.\n  * DDDSIT - UpdateMTOServiceItemSIT\n  * DDFSIT - UpdateMTOServiceItemSIT\n  * DDASIT - UpdateMTOServiceItemSIT\n  * DOPSIT - UpdateMTOServiceItemSIT\n  * DOASIT - UpdateMTOServiceItemSIT\n  * DOFSIT - UpdateMTOServiceItemSIT\n  * DOSFSC - UpdateMTOServiceItemSIT\n  * DDSFSC - UpdateMTOServiceItemSIT\n  * DDSHUT - UpdateMTOServiceItemShuttle\n  * DOSHUT - UpdateMTOServiceItemShuttle\n\nThe documentation will then update with the supported fields.\n",
+      "description": "Using this list, choose the correct modelType in the dropdown, corresponding to the service item type.\n  * DDDSIT - UpdateMTOServiceItemSIT\n  * DDFSIT - UpdateMTOServiceItemSIT\n  * DDASIT - UpdateMTOServiceItemSIT\n  * DOPSIT - UpdateMTOServiceItemSIT\n  * DOASIT - UpdateMTOServiceItemSIT\n  * DOFSIT - UpdateMTOServiceItemSIT\n  * DOSFSC - UpdateMTOServiceItemSIT\n  * DDSFSC - UpdateMTOServiceItemSIT\n  * DDSHUT - UpdateMTOServiceItemShuttle\n  * DOSHUT - UpdateMTOServiceItemShuttle\n  * PODFSC - UpdateMTOServiceItemInternationalPortFSC\n  * POEFSC - UpdateMTOServiceItemInternationalPortFSC\n\nThe documentation will then update with the supported fields.\n",
       "type": "string",
       "enum": [
         "UpdateMTOServiceItemSIT",
-        "UpdateMTOServiceItemShuttle"
+        "UpdateMTOServiceItemShuttle",
+        "UpdateMTOServiceItemInternationalPortFSC"
       ]
     },
     "UpdateMTOServiceItemSIT": {

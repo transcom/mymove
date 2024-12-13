@@ -1312,6 +1312,10 @@ definitions:
         x-nullable: true
       ppmShipment:
         $ref: '#/definitions/UpdatePPMShipment'
+      portOfEmbarkation:
+        $ref: '#/definitions/Port'
+      portOfDebarkation:
+        $ref: '#/definitions/Port'
   UpdateMTOShipmentStatus:
     description: >-
       Contains the statuses available to the Prime when updating the state of a
@@ -1700,7 +1704,7 @@ definitions:
         type: integer
         x-formatting: weight
         x-nullable: true
-      ubAllowance:
+      unaccompaniedBaggageAllowance:
         type: integer
         example: 3
         x-nullable: true
@@ -3097,6 +3101,102 @@ definitions:
       - originalAddress
       - newAddress
       - contractorRemarks
+  Port:
+    description: A port that is used to move an international shipment.
+    type: object
+    properties:
+      id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      portType:
+        type: string
+        description: Port type A (Air), B (Border Crossing), S (Sea)
+        enum:
+          - A
+          - P
+          - S
+      portCode:
+        type: string
+        description: 3 or 4 digit port code
+        example: '0431'
+      portName:
+        type: string
+        description: Name of the port
+        example: PORTLAND INTL
+      city:
+        type: string
+        example: PORTLAND
+      county:
+        type: string
+        example: MULTNOMAH
+      state:
+        type: string
+        description: US state
+        example: OR
+        enum:
+          - AL
+          - AK
+          - AR
+          - AZ
+          - CA
+          - CO
+          - CT
+          - DC
+          - DE
+          - FL
+          - GA
+          - HI
+          - IA
+          - ID
+          - IL
+          - IN
+          - KS
+          - KY
+          - LA
+          - MA
+          - MD
+          - ME
+          - MI
+          - MN
+          - MO
+          - MS
+          - MT
+          - NC
+          - ND
+          - NE
+          - NH
+          - NJ
+          - NM
+          - NV
+          - NY
+          - OH
+          - OK
+          - OR
+          - PA
+          - RI
+          - SC
+          - SD
+          - TN
+          - TX
+          - UT
+          - VA
+          - VT
+          - WA
+          - WI
+          - WV
+          - WY
+      zip:
+        type: string
+        format: zip
+        title: ZIP
+        example: '99501'
+        pattern: ^(\d{5}([\-]\d{4})?)$
+      country:
+        type: string
+        example: US
+        pattern: ^[A-Z]{2}$
+        description: Two-letter country code
   MTOShipmentWithoutServiceItems:
     type: object
     properties:
@@ -3383,6 +3483,10 @@ definitions:
         description: >-
           Single-letter designator for domestic (d) or international (i)
           shipments
+      portOfDebarkation:
+        $ref: '#/definitions/Port'
+      portOfEmbarkation:
+        $ref: '#/definitions/Port'
   MTOShipmentsWithoutServiceObjects:
     description: A list of shipments without their associated service items.
     items:

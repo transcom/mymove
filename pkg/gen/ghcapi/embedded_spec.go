@@ -1873,7 +1873,7 @@ func init() {
     },
     "/move_task_orders/{moveTaskOrderID}/mto_shipments/{shipmentID}": {
       "patch": {
-        "description": "Updates a specified MTO shipment.\nRequired fields include:\n* MTO Shipment ID required in path\n* If-Match required in headers\n* No fields required in body\nOptional fields include:\n* New shipment status type\n* Shipment Type\n* Customer requested pick-up date\n* Pick-up Address\n* Delivery Address\n* Secondary Pick-up Address\n* SecondaryDelivery Address\n* Delivery Address Type\n* Customer Remarks\n* Counselor Remarks\n* Releasing / Receiving agents\n* Actual Pro Gear Weight\n* Actual Spouse Pro Gear Weight\n",
+        "description": "Updates a specified MTO shipment.\nRequired fields include:\n* MTO Shipment ID required in path\n* If-Match required in headers\n* No fields required in body\nOptional fields include:\n* New shipment status type\n* Shipment Type\n* Customer requested pick-up date\n* Pick-up Address\n* Delivery Address\n* Secondary Pick-up Address\n* SecondaryDelivery Address\n* Delivery Address Type\n* Customer Remarks\n* Counselor Remarks\n* Releasing / Receiving agents\n* Actual Pro Gear Weight\n* Actual Spouse Pro Gear Weight\n* Location of the POE/POD\n",
         "consumes": [
           "application/json"
         ],
@@ -17349,7 +17349,7 @@ func init() {
     },
     "/move_task_orders/{moveTaskOrderID}/mto_shipments/{shipmentID}": {
       "patch": {
-        "description": "Updates a specified MTO shipment.\nRequired fields include:\n* MTO Shipment ID required in path\n* If-Match required in headers\n* No fields required in body\nOptional fields include:\n* New shipment status type\n* Shipment Type\n* Customer requested pick-up date\n* Pick-up Address\n* Delivery Address\n* Secondary Pick-up Address\n* SecondaryDelivery Address\n* Delivery Address Type\n* Customer Remarks\n* Counselor Remarks\n* Releasing / Receiving agents\n* Actual Pro Gear Weight\n* Actual Spouse Pro Gear Weight\n",
+        "description": "Updates a specified MTO shipment.\nRequired fields include:\n* MTO Shipment ID required in path\n* If-Match required in headers\n* No fields required in body\nOptional fields include:\n* New shipment status type\n* Shipment Type\n* Customer requested pick-up date\n* Pick-up Address\n* Delivery Address\n* Secondary Pick-up Address\n* SecondaryDelivery Address\n* Delivery Address Type\n* Customer Remarks\n* Counselor Remarks\n* Releasing / Receiving agents\n* Actual Pro Gear Weight\n* Actual Spouse Pro Gear Weight\n* Location of the POE/POD\n",
         "consumes": [
           "application/json"
         ],
