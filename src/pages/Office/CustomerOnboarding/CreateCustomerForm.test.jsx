@@ -607,7 +607,7 @@ describe('CreateCustomerForm', () => {
       safetyPayload.residential_address.streetAddress1,
     );
 
-    const locationBox = screen.getAllByRole('combobox');
+    const locationBox = screen.getAllByLabelText('Location lookup');
 
     await act(async () => {
       await userEvent.type(locationBox[1], 'BEVERLY HILLS');
@@ -716,9 +716,10 @@ describe('CreateCustomerForm', () => {
     });
   }, 10000);
 
-  it('disables and populates DODID and EMPLID inputs when bluebark move is selected', async () => {
+  it('disables okta and non cac user inputs when bluebark move is selected', async () => {
     createCustomerWithOktaOption.mockImplementation(() => Promise.resolve(fakeResponse));
     isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(true));
+    searchLocationByZipCityState.mockImplementation(mockSearchPickupLocation);
 
     const { getByLabelText, getByTestId, getByRole } = render(
       <MockProviders>
@@ -763,7 +764,7 @@ describe('CreateCustomerForm', () => {
     );
 
     await act(async () => {
-      await userEvent.type(locationBox[2], 'DRYDEN');
+      await userEvent.type(locationBox[1], 'DRYDEN');
       const selectedBackupLocation = await screen.findByText(/04225/);
       await userEvent.click(selectedBackupLocation);
     });
