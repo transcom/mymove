@@ -281,6 +281,7 @@ export const CreateCustomerForm = ({ userPrivileges, setFlashMessage, setCanAddO
               const handleBluebarkChange = (e) => {
                 if (e.target.value === 'true') {
                   setIsBluebarkMove(true);
+                  setIsSafetyMove(false);
                   setShowEmplid(false);
                   setValues({
                     ...values,
