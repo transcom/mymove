@@ -148,18 +148,32 @@ func BuildOfficeUserWithPrivileges(db *pop.Connection, customs []Customization, 
 	user := BuildUserAndUsersRolesAndUsersPrivileges(db, customs, nil)
 
 	// Find/create the TransportationOffice model
-	transportationOffice := BuildTransportationOffice(db, customs, nil)
+	basicTransportationOffice := BuildTransportationOffice(db, customs, nil)
+
+	var closeoutOffice models.TransportationOffice
+	tempCloseoutOfficeCustoms := customs
+	closeoutOfficeResult := findValidCustomization(customs, TransportationOffices.CloseoutOffice)
+	if closeoutOfficeResult != nil {
+		tempCloseoutOfficeCustoms = convertCustomizationInList(tempCloseoutOfficeCustoms, TransportationOffices.CloseoutOffice, TransportationOffice)
+		closeoutOffice = BuildTransportationOffice(db, tempCloseoutOfficeCustoms, nil)
+	}
 
 	// create officeuser
 	officeUser := models.OfficeUser{
-		UserID:                 &user.ID,
-		User:                   user,
-		FirstName:              "Leo",
-		LastName:               "Spaceman",
-		Email:                  "leo_spaceman_office@example.com",
-		Telephone:              "415-555-1212",
-		TransportationOffice:   transportationOffice,
-		TransportationOfficeID: transportationOffice.ID,
+		UserID:    &user.ID,
+		User:      user,
+		FirstName: "Leo",
+		LastName:  "Spaceman",
+		Email:     "leo_spaceman_office@example.com",
+		Telephone: "415-555-1212",
+	}
+
+	if closeoutOfficeResult != nil {
+		officeUser.TransportationOffice = closeoutOffice
+		officeUser.TransportationOfficeID = closeoutOffice.ID
+	} else {
+		officeUser.TransportationOffice = basicTransportationOffice
+		officeUser.TransportationOfficeID = basicTransportationOffice.ID
 	}
 	// Overwrite values with those from assertions
 	testdatagen.MergeModels(&officeUser, cOfficeUser)

@@ -550,24 +550,24 @@ func (h GetBulkAssignmentDataHandler) Handle(
 ) middleware.Responder {
 	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
 		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
-			// fetch office user
 			officeUser, err := h.OfficeUserFetcherPop.FetchOfficeUserByID(appCtx, appCtx.Session().OfficeUserID)
 			if err != nil {
 				appCtx.Logger().Error("Error retrieving office_user", zap.Error(err))
 				return queues.NewGetBulkAssignmentDataNotFound(), err
 			}
-			// fetch their privileges
+
 			privileges, err := models.FetchPrivilegesForUser(appCtx.DB(), *officeUser.UserID)
 			if err != nil {
 				appCtx.Logger().Error("Error retreiving user privileges", zap.Error(err))
 				return queues.NewGetBulkAssignmentDataNotFound(), err
 			}
-			// confirm they have supervisor priv
+
 			isSupervisor := privileges.HasPrivilege(models.PrivilegeTypeSupervisor)
 			if !isSupervisor {
 				appCtx.Logger().Error("Unauthorized", zap.Error(err))
 				return queues.NewGetBulkAssignmentDataUnauthorized(), err
 			}
+
 			queueType := params.QueueType
 			var officeUserData ghcmessages.BulkAssignmentData
 
@@ -591,7 +591,8 @@ func (h GetBulkAssignmentDataHandler) Handle(
 					appCtx.Logger().Error("Error retreiving moves", zap.Error(err))
 					return queues.NewGetBulkAssignmentDataInternalServerError(), err
 				}
-
+				fmt.Println("moves")
+				fmt.Println(moves)
 				officeUserData = payloads.BulkAssignmentData(appCtx, moves, officeUsers, officeUser.TransportationOffice.ID)
 			}
 			return queues.NewGetBulkAssignmentDataOK().WithPayload(&officeUserData), nil
@@ -622,7 +623,6 @@ func (h GetServicesCounselingOriginListHandler) Handle(
 			ListOrderParams := services.ListOrderParams{
 				NeedsPPMCloseout: params.NeedsPPMCloseout,
 			}
-
 			if params.NeedsPPMCloseout != nil && *params.NeedsPPMCloseout {
 				ListOrderParams.Status = []string{string(models.MoveStatusAPPROVED), string(models.MoveStatusServiceCounselingCompleted)}
 			} else {

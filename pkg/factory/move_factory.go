@@ -1,7 +1,6 @@
 package factory
 
 import (
-	"fmt"
 	"log"
 	"time"
 
@@ -34,6 +33,14 @@ func BuildMove(db *pop.Connection, customs []Customization, traits []Trait) mode
 	if closeoutOfficeResult != nil {
 		tempCloseoutOfficeCustoms = convertCustomizationInList(tempCloseoutOfficeCustoms, TransportationOffices.CloseoutOffice, TransportationOffice)
 		closeoutOffice = BuildTransportationOffice(db, tempCloseoutOfficeCustoms, nil)
+	}
+
+	var scAssignedUser models.OfficeUser
+	tempSCAssignedUserCustoms := customs
+	scAssignedUserResult := findValidCustomization(customs, OfficeUsers.SCAssignedUser)
+	if scAssignedUserResult != nil {
+		tempSCAssignedUserCustoms = convertCustomizationInList(tempSCAssignedUserCustoms, OfficeUsers.SCAssignedUser, OfficeUser)
+		scAssignedUser = BuildOfficeUser(db, tempSCAssignedUserCustoms, nil)
 	}
 
 	var defaultReferenceID string
@@ -74,6 +81,11 @@ func BuildMove(db *pop.Connection, customs []Customization, traits []Trait) mode
 		move.CloseoutOfficeID = &closeoutOffice.ID
 		move.CounselingOffice = &closeoutOffice
 		move.CounselingOfficeID = &closeoutOffice.ID
+	}
+
+	if scAssignedUserResult != nil {
+		move.SCAssignedUser = &scAssignedUser
+		move.SCAssignedID = &scAssignedUser.ID
 	}
 
 	// Overwrite values with those from assertions
@@ -168,6 +180,8 @@ func BuildMoveWithShipment(db *pop.Connection, customs []Customization, traits [
 	return move
 }
 func BuildMoveWithPPMShipment(db *pop.Connection, customs []Customization, traits []Trait) models.Move {
+	// Please note this function runs BuildMove 3 times
+	// Once here, once in buildMTOShipmentWithBuildType, and once in BuildPPMShipment
 	move := BuildMove(db, customs, traits)
 
 	mtoShipment := buildMTOShipmentWithBuildType(db, customs, traits, mtoShipmentPPM)
@@ -184,34 +198,7 @@ func BuildMoveWithPPMShipment(db *pop.Connection, customs []Customization, trait
 	if db != nil {
 		mustSave(db, &move)
 	}
-	fmt.Println("move in factory")
-	fmt.Println(move.ID)
 
-	return move
-}
-func BuildAssignedMoveWithPPMShipment(db *pop.Connection, customs []Customization, traits []Trait) models.Move {
-	move := BuildMove(db, customs, traits)
-
-	mtoShipment := buildMTOShipmentWithBuildType(db, customs, traits, mtoShipmentPPM)
-	mtoShipment.MoveTaskOrder = move
-	mtoShipment.MoveTaskOrderID = move.ID
-
-	ppmShipment := BuildPPMShipment(db, customs, traits)
-	ppmShipment.ShipmentID = mtoShipment.ID
-
-	mtoShipment.PPMShipment = &ppmShipment
-	mtoShipment.ShipmentType = models.MTOShipmentTypePPM
-	move.MTOShipments = append(move.MTOShipments, mtoShipment)
-
-	officeUser := BuildOfficeUser(db, customs, traits)
-	move.SCAssignedUser = &officeUser
-	move.SCAssignedID = &officeUser.ID
-
-	if db != nil {
-		mustSave(db, &move)
-	}
-	fmt.Println("move")
-	fmt.Println(move.SCAssignedUser)
 	return move
 }
 

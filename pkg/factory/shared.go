@@ -263,6 +263,14 @@ var TransportationOffices = transportationOfficeGroup{
 	CounselingOffice:   "CounselingOffice",
 }
 
+type officeUserGroup struct {
+	SCAssignedUser CustomType
+}
+
+var OfficeUsers = officeUserGroup{
+	SCAssignedUser: "SCAssignedUser",
+}
+
 // uploadGroup is a grouping of all the upload related fields
 type uploadGroup struct {
 	UploadTypePrime CustomType
