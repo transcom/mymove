@@ -4,7 +4,6 @@ import (
 	"context"
 	"database/sql"
 	"errors"
-	"strconv"
 	"strings"
 
 	"github.com/gobuffalo/pop/v6"
@@ -121,7 +120,6 @@ func (f moveTaskOrderFetcher) FetchMoveTaskOrder(appCtx appcontext.AppContext, s
 	} else {
 		isBoatFeatureOn = flag.Match
 	}
-	appCtx.Logger().Info("BOAT FF IS: " + strconv.FormatBool(isBoatFeatureOn))
 
 	/** Feature Flag - Mobile Home Shipment **/
 	isMobileHomeFeatureOn := false
@@ -138,8 +136,6 @@ func (f moveTaskOrderFetcher) FetchMoveTaskOrder(appCtx appcontext.AppContext, s
 	} else {
 		isMobileHomeFeatureOn = flagMH.Match
 	}
-
-	appCtx.Logger().Info("MOBILE HOME FF IS: " + strconv.FormatBool(isMobileHomeFeatureOn))
 
 	query := appCtx.DB().EagerPreload(
 		"Contractor",
