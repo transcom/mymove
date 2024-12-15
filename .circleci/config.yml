@@ -1662,8 +1662,12 @@ jobs:
       - checkout
       - attach_workspace:
           at: .
-      - restore_cache:
-          #
+      - when:
+          condition:
+            equal: [integrationTesting, << pipeline.git.branch >>]
+          steps:
+            - restore_cache:
+            #
           # https://circleci.com/docs/caching/#restoring-cache
           #
           # restore the latest version of the test coverage in the
@@ -1680,8 +1684,15 @@ jobs:
           #
           # The trailing hyphen in restore_cache seems important
           # according to the page linked above
-          keys:
-            - v8-client-tests-coverage-
+                keys:
+                  - v1-client-tests-coverage-integration
+      - when:
+          condition:
+              equal: [main, << pipeline.git.branch >>]
+          steps:
+            - restore_cache:
+                keys:
+                  - v8-client-tests-coverage-
       - run:
           name: Ensure Test Coverage Increasing
           command: |
@@ -1741,6 +1752,41 @@ jobs:
                 when: always
             - run:
                 name: 'Record client coverage stats'
+                command: |
+                  timestamp=$(date +"%Y-%m-%dT%H:%M:%SZ")
+                  coverage=$(grep -B 1 'span.*Statements' coverage/lcov-report/index.html | grep -o '[0-9.]*')
+                  aws cloudwatch put-metric-data \
+                  --metric-name client_test_coverage \
+                  --namespace circleci \
+                  --value "${coverage}" \
+                  --timestamp "${timestamp}"
+                when: always
+      - when:
+          condition:
+            and:
+            - equal: [integrationTesting, << pipeline.git.branch >>]
+          steps:
+            - run:
+                name: "Copy coverage to baseline"
+                command: |
+                  mkdir -p ~/transcom/mymove/tmp/baseline-jest-coverage
+                  cp ~/transcom/mymove/coverage/clover.xml \
+                        ~/transcom/mymove/tmp/baseline-jest-coverage/clover.xml
+                when: always
+            # ##### NOTE: Make sure this key prefix matches the one
+            # ##### above
+            #
+            # Use the BuildNum to update the cache key so that the
+            # coverage cache is always updated
+            - save_cache:
+                key: v1-client-tests-coverage-integration{{ .BuildNum }}
+                paths:
+                  - ~/transcom/mymove/tmp/baseline-jest-coverage
+                when: always
+            - aws_vars_transcom_gov_dev:
+                when: always
+            - run:
+                name: "Record client coverage stats"
                 command: |
                   timestamp=$(date +"%Y-%m-%dT%H:%M:%SZ")
                   coverage=$(grep -B 1 'span.*Statements' coverage/lcov-report/index.html | grep -o '[0-9.]*')
