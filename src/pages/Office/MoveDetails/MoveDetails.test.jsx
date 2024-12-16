@@ -66,6 +66,19 @@ const requestedMoveDetailsQuery = {
         postalCode: '92310',
       },
     },
+    orderDocuments: {
+      'c0a22a98-a806-47a2-ab54-2dac938667b3': {
+        bytes: 2202009,
+        contentType: 'application/pdf',
+        createdAt: '2024-10-23T16:31:21.085Z',
+        filename: 'testFile.pdf',
+        id: 'c0a22a98-a806-47a2-ab54-2dac938667b3',
+        status: 'PROCESSING',
+        updatedAt: '2024-10-23T16:31:21.085Z',
+        uploadType: 'USER',
+        url: '/storage/USER/uploads/c0a22a98-a806-47a2-ab54-2dac938667b3?contentType=application%2Fpdf',
+      },
+    },
     customer: {
       agency: 'ARMY',
       backup_contact: {
@@ -268,6 +281,19 @@ const requestedMoveDetailsQueryRetiree = {
     ntsTac: '1111',
     ntsSac: '2222',
   },
+  orderDocuments: {
+    'c0a22a98-a806-47a2-ab54-2dac938667b3': {
+      bytes: 2202009,
+      contentType: 'application/pdf',
+      createdAt: '2024-10-23T16:31:21.085Z',
+      filename: 'testFile.pdf',
+      id: 'c0a22a98-a806-47a2-ab54-2dac938667b3',
+      status: 'PROCESSING',
+      updatedAt: '2024-10-23T16:31:21.085Z',
+      uploadType: 'USER',
+      url: '/storage/USER/uploads/c0a22a98-a806-47a2-ab54-2dac938667b3?contentType=application%2Fpdf',
+    },
+  },
   mtoShipments: [
     {
       customerRemarks: 'please treat gently',
@@ -426,6 +452,19 @@ const requestedMoveDetailsAmendedOrdersQuery = {
     uploadedAmendedOrderID: '3',
     tac: '9999',
   },
+  orderDocuments: {
+    'c0a22a98-a806-47a2-ab54-2dac938667b3': {
+      bytes: 2202009,
+      contentType: 'application/pdf',
+      createdAt: '2024-10-23T16:31:21.085Z',
+      filename: 'testFile.pdf',
+      id: 'c0a22a98-a806-47a2-ab54-2dac938667b3',
+      status: 'PROCESSING',
+      updatedAt: '2024-10-23T16:31:21.085Z',
+      uploadType: 'USER',
+      url: '/storage/USER/uploads/c0a22a98-a806-47a2-ab54-2dac938667b3?contentType=application%2Fpdf',
+    },
+  },
   mtoShipments: [
     {
       customerRemarks: 'please treat gently',
@@ -576,6 +615,7 @@ const requestedMoveDetailsMissingInfoQuery = {
       totalWeight: 8000,
     },
   },
+  orderDocuments: undefined,
   mtoShipments: [
     {
       customerRemarks: 'please treat gently',
@@ -1025,6 +1065,32 @@ describe('MoveDetails page', () => {
     });
   });
 
+  describe('When required Orders Document is missing', () => {
+    useMoveDetailsQueries.mockReturnValue(requestedMoveDetailsMissingInfoQuery);
+
+    const mockSetMissingOrdersInfoCount = jest.fn();
+
+    mount(
+      <MockProviders permissions={[permissionTypes.updateShipment, permissionTypes.updateCustomer]}>
+        <MoveDetails
+          setUnapprovedShipmentCount={setUnapprovedShipmentCount}
+          setUnapprovedServiceItemCount={setUnapprovedServiceItemCount}
+          setExcessWeightRiskCount={setExcessWeightRiskCount}
+          setUnapprovedSITExtensionCount={setUnapprovedSITExtensionCount}
+          missingOrdersInfoCount={0}
+          setMissingOrdersInfoCount={mockSetMissingOrdersInfoCount}
+          setShipmentErrorConcernCount={setShipmentErrorConcernCount}
+        />
+      </MockProviders>,
+    );
+
+    it('missing info count matches missing info from queries', () => {
+      expect(mockSetMissingOrdersInfoCount).toHaveBeenCalledTimes(1);
+      // 5 order values missing + 1 'upload' missing
+      expect(mockSetMissingOrdersInfoCount).toHaveBeenCalledWith(6);
+    });
+  });
+
   describe('When required shipment information (like TAC) is missing', () => {
     it('renders an error indicator in the sidebar', async () => {
       useMoveDetailsQueries.mockReturnValue(requestedMoveDetailsMissingInfoQuery);
@@ -1047,7 +1113,7 @@ describe('MoveDetails page', () => {
     });
   });
 
-  describe('When a shipment has a pending destination address update requested by the Prime', () => {
+  describe('When a shipment has a pending delivery address update requested by the Prime', () => {
     it('renders an alert indicator in the sidebar', async () => {
       useMoveDetailsQueries.mockReturnValue(requestedMoveDetailsMissingInfoQuery);
 

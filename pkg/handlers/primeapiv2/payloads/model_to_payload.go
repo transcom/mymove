@@ -152,9 +152,14 @@ func Entitlement(entitlement *models.Entitlement) *primev2messages.Entitlements 
 	if entitlement.TotalDependents != nil {
 		totalDependents = int64(*entitlement.TotalDependents)
 	}
+	var ubAllowance int64
+	if entitlement.UBAllowance != nil {
+		ubAllowance = int64(*entitlement.UBAllowance)
+	}
 	return &primev2messages.Entitlements{
 		ID:                             strfmt.UUID(entitlement.ID.String()),
 		AuthorizedWeight:               authorizedWeight,
+		UnaccompaniedBaggageAllowance:  &ubAllowance,
 		DependentsAuthorized:           entitlement.DependentsAuthorized,
 		GunSafe:                        entitlement.GunSafe,
 		NonTemporaryStorage:            entitlement.NonTemporaryStorage,
@@ -633,6 +638,46 @@ func MTOServiceItem(mtoServiceItem *models.MTOServiceItem) primev2messages.MTOSe
 			Width:  crate.Width.Int32Ptr(),
 		}
 		payload = &cratingSI
+
+	case models.ReServiceCodeICRT, models.ReServiceCodeIUCRT:
+		item := GetDimension(mtoServiceItem.Dimensions, models.DimensionTypeItem)
+		crate := GetDimension(mtoServiceItem.Dimensions, models.DimensionTypeCrate)
+		cratingSI := primev2messages.MTOServiceItemInternationalCrating{
+			ReServiceCode:   handlers.FmtString(string(mtoServiceItem.ReService.Code)),
+			Description:     mtoServiceItem.Description,
+			Reason:          mtoServiceItem.Reason,
+			StandaloneCrate: mtoServiceItem.StandaloneCrate,
+			ExternalCrate:   mtoServiceItem.ExternalCrate,
+		}
+		cratingSI.Item.MTOServiceItemDimension = primev2messages.MTOServiceItemDimension{
+			ID:     strfmt.UUID(item.ID.String()),
+			Height: item.Height.Int32Ptr(),
+			Length: item.Length.Int32Ptr(),
+			Width:  item.Width.Int32Ptr(),
+		}
+		cratingSI.Crate.MTOServiceItemDimension = primev2messages.MTOServiceItemDimension{
+			ID:     strfmt.UUID(crate.ID.String()),
+			Height: crate.Height.Int32Ptr(),
+			Length: crate.Length.Int32Ptr(),
+			Width:  crate.Width.Int32Ptr(),
+		}
+		if mtoServiceItem.ReService.Code == models.ReServiceCodeICRT && mtoServiceItem.MTOShipment.PickupAddress != nil {
+			if *mtoServiceItem.MTOShipment.PickupAddress.IsOconus {
+				cratingSI.Market = models.MarketOconus.FullString()
+			} else {
+				cratingSI.Market = models.MarketConus.FullString()
+			}
+		}
+
+		if mtoServiceItem.ReService.Code == models.ReServiceCodeIUCRT && mtoServiceItem.MTOShipment.DestinationAddress != nil {
+			if *mtoServiceItem.MTOShipment.DestinationAddress.IsOconus {
+				cratingSI.Market = models.MarketOconus.FullString()
+			} else {
+				cratingSI.Market = models.MarketConus.FullString()
+			}
+		}
+		payload = &cratingSI
+
 	case models.ReServiceCodeDDSHUT, models.ReServiceCodeDOSHUT:
 		payload = &primev2messages.MTOServiceItemShuttle{
 			ReServiceCode:   handlers.FmtString(string(mtoServiceItem.ReService.Code)),
