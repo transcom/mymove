@@ -188,6 +188,16 @@ func (router moveRouter) sendToServiceCounselor(appCtx appcontext.AppContext, mo
 		}
 	}
 
+	// if move.IsPPMOnly() && !orders.OriginDutyLocation.ProvidesServicesCounseling {
+	// 	originLocationID := uuid.FromStringOrNil(orders.OriginDutyLocationID.String())
+
+	// 	officeList, err := ShowCounselingOfficesHandler.TransportationOfficesFetcher.GetCounselingOffices(appCtx, originLocationID)
+	// 	if err != nil {
+
+	// 	}
+
+	// }
+
 	if move.Status == models.MoveStatusNeedsServiceCounseling {
 		return nil
 	}

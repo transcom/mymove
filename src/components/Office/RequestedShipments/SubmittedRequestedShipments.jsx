@@ -255,9 +255,11 @@ const SubmittedRequestedShipments = ({
 
   const dutyLocationPostal = { postalCode: ordersInfo.newDutyLocation?.address?.postalCode };
 
-  // Hide counseling line item if prime counseling is already in the service items, if service counseling has been applied, or if full PPM move
-  const hideCounselingCheckbox =
-    hasCounseling(mtoServiceItems) || moveTaskOrder?.serviceCounselingCompletedAt || isPPMOnly(mtoShipments);
+  // Hide counseling line item if prime counseling is already in the service items or if service counseling has been applied
+  const hideCounselingCheckbox = hasCounseling(mtoServiceItems) || moveTaskOrder?.serviceCounselingCompletedAt;
+
+  // Disable counseling checkbox if full PPM shipment
+  const disableCounselingCheckbox = isPPMOnly(mtoShipments);
 
   // Hide move management line item if it is already in the service items or for PPM only moves
   const hideMoveManagementCheckbox = hasMoveManagement(mtoServiceItems) || isPPMOnly(mtoShipments);
@@ -373,7 +375,7 @@ const SubmittedRequestedShipments = ({
                       name="counselingFee"
                       onChange={formik.handleChange}
                       data-testid="counselingFee"
-                      disabled={isMoveLocked}
+                      disabled={isMoveLocked || disableCounselingCheckbox}
                     />
                   )}
                 </Fieldset>
