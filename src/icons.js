@@ -55,6 +55,7 @@ import {
   faWeightHanging,
   faDownload,
   faInfoCircle,
+  faTrash,
 } from '@fortawesome/free-solid-svg-icons';
 
 library.add(
@@ -111,4 +112,5 @@ library.add(
   faFileImage,
   faFileExcel,
   faInfoCircle,
+  faTrash,
 );
