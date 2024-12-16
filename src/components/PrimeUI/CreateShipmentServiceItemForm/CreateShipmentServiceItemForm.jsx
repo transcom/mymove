@@ -8,6 +8,7 @@ import OriginSITServiceItemForm from './OriginSITServiceItemForm';
 import ShuttleSITServiceItemForm from './ShuttleSITServiceItemForm';
 import DomesticCratingForm from './DomesticCratingForm';
 import InternationalCratingForm from './InternationalCratingForm';
+import InternationalShuttleSITServiceItemForm from './InternationalShuttleSITServiceItemForm';
 
 import { isBooleanFlagEnabled } from 'utils/featureFlags';
 import { ShipmentShape } from 'types/shipment';
@@ -22,6 +23,7 @@ const CreateShipmentServiceItemForm = ({ shipment, createServiceItemMutation }) 
     MTOServiceItemShuttle,
     MTOServiceItemDomesticCrating,
     MTOServiceItemInternationalCrating,
+    MTOServiceItemInternationalShuttle,
   } = createServiceItemModelTypes;
   const [selectedServiceItemType, setSelectedServiceItemType] = useState(MTOServiceItemOriginSIT);
   const [enableAlaskaFeatureFlag, setEnableAlaskaFeatureFlag] = useState(false);
@@ -60,6 +62,9 @@ const CreateShipmentServiceItemForm = ({ shipment, createServiceItemMutation }) 
       )}
       {selectedServiceItemType === MTOServiceItemShuttle && (
         <ShuttleSITServiceItemForm shipment={shipment} submission={createServiceItemMutation} />
+      )}
+      {selectedServiceItemType === MTOServiceItemInternationalShuttle && (
+        <InternationalShuttleSITServiceItemForm shipment={shipment} submission={createServiceItemMutation} />
       )}
       {selectedServiceItemType === MTOServiceItemDomesticCrating && (
         <DomesticCratingForm shipment={shipment} submission={createServiceItemMutation} />

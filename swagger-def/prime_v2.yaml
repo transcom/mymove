@@ -357,6 +357,8 @@ definitions:
     $ref: 'definitions/prime/MTOServiceItemOriginSIT.yaml'
   MTOServiceItemShuttle: # spectral oas2-unused-definition is OK here due to polymorphism
     $ref: 'definitions/prime/MTOServiceItemShuttle.yaml'
+  MTOServiceItemInternationalShuttle: # spectral oas2-unused-definition is OK here due to polymorphism
+    $ref: 'definitions/prime/MTOServiceItemInternationalShuttle.yaml'
   CreateMTOShipment:
     type: object
     properties:

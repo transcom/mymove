@@ -663,6 +663,56 @@ definitions:
         required:
           - reason
           - reServiceCode
+  MTOServiceItemInternationalShuttle:
+    description: Describes an international shuttle service item.
+    allOf:
+      - $ref: '#/definitions/MTOServiceItem'
+      - type: object
+        properties:
+          reServiceCode:
+            type: string
+            description: >
+              A unique code for the service item. Indicates if shuttling is
+              requested for the international shipment origin (`IOSHUT`) or
+              destination (`DDSHUT`).
+            enum:
+              - IOSHUT
+              - IDSHUT
+          reason:
+            type: string
+            example: Storage items need to be picked up.
+            description: >
+              The contractor's explanation for why a shuttle service is
+              requested. Used by the TOO while deciding to approve or reject the
+              service item.
+          estimatedWeight:
+            type: integer
+            example: 4200
+            description: >-
+              An estimate of how much weight from a shipment will be included in
+              the shuttling service.
+            x-nullable: true
+            x-omitempty: false
+          actualWeight:
+            type: integer
+            example: 4000
+            description: >-
+              A record of the actual weight that was shuttled. Provided by the
+              movers, based on weight tickets.
+            x-nullable: true
+            x-omitempty: false
+          market:
+            type: string
+            enum:
+              - CONUS
+              - OCONUS
+            example: CONUS
+            description: >-
+              To identify whether the service was provided within (CONUS) or
+              (OCONUS)
+        required:
+          - reason
+          - reServiceCode
   CreateMTOShipment:
     type: object
     properties:
@@ -2140,6 +2190,7 @@ definitions:
         * DOFSIT, DOASIT - MTOServiceItemOriginSIT
         * DDFSIT, DDASIT - MTOServiceItemDestSIT
         * DOSHUT, DDSHUT - MTOServiceItemShuttle
+        * IOSHUT, IDSHUT - MTOServiceItemInternationalShuttle
         * DCRT, DUCRT - MTOServiceItemDomesticCrating
         * ICRT, IUCRT - MTOServiceItemInternationalCrating
 
@@ -2150,6 +2201,7 @@ definitions:
       - MTOServiceItemOriginSIT
       - MTOServiceItemDestSIT
       - MTOServiceItemShuttle
+      - MTOServiceItemInternationalShuttle
       - MTOServiceItemDomesticCrating
       - MTOServiceItemInternationalCrating
   ServiceRequestDocument:

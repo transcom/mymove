@@ -7,11 +7,17 @@ export const createServiceItemModelTypes = {
   MTOServiceItemShuttle: 'MTOServiceItemShuttle',
   MTOServiceItemDomesticCrating: 'MTOServiceItemDomesticCrating',
   MTOServiceItemInternationalCrating: 'MTOServiceItemInternationalCrating',
+  MTOServiceItemInternationalShuttle: 'MTOServiceItemInternationalShuttle',
 };
 
 export const shuttleServiceItemCodeOptions = [
   { value: serviceItemCodes.DOSHUT, key: SERVICE_ITEM_CODES.DOSHUT },
   { value: serviceItemCodes.DDSHUT, key: SERVICE_ITEM_CODES.DDSHUT },
+];
+
+export const internationalShuttleServiceItemCodeOptions = [
+  { value: serviceItemCodes.DOSHUT, key: SERVICE_ITEM_CODES.IOSHUT },
+  { value: serviceItemCodes.DDSHUT, key: SERVICE_ITEM_CODES.IDSHUT },
 ];
 
 export const domesticCratingServiceItemCodeOptions = [
