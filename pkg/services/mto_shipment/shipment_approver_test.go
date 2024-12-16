@@ -209,7 +209,7 @@ func (suite *MTOShipmentServiceSuite) TestApproveShipment() {
 			},
 			{
 				Model: models.MTOShipment{
-					MarketCode: "i",
+					MarketCode: models.MarketCodeInternational,
 					Status:     models.MTOShipmentStatusSubmitted,
 				},
 			},
@@ -294,7 +294,7 @@ func (suite *MTOShipmentServiceSuite) TestApproveShipment() {
 			},
 			{
 				Model: models.MTOShipment{
-					MarketCode:   "i",
+					MarketCode:   models.MarketCodeInternational,
 					Status:       models.MTOShipmentStatusSubmitted,
 					ShipmentType: models.MTOShipmentTypeHHGIntoNTSDom,
 				},
@@ -867,7 +867,13 @@ func (suite *MTOShipmentServiceSuite) TestApproveShipment() {
 	})
 
 	suite.Run("Given invalid shipment error returned", func() {
-		invalidShipment := models.MTOShipment{}
+		invalidShipment := factory.BuildMTOShipment(suite.AppContextForTest().DB(), []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					ShipmentType: models.MTOShipmentTypePPM,
+				},
+			},
+		}, nil)
 		invalidShipmentEtag := etag.GenerateEtag(invalidShipment.UpdatedAt)
 
 		shipmentRouter := NewShipmentRouter()
