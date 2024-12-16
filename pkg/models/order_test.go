@@ -500,11 +500,24 @@ func (suite *ModelSuite) TestOrderCanSendEmailWithOrdersType() {
 		suite.True(canSendEmail)
 	})
 
-	suite.Run("Safety and BB orders cannot send email", func() {
+	suite.Run(" BB orders cannot send email", func() {
 		order := factory.BuildOrder(suite.DB(), []factory.Customization{
 			{
 				Model: m.Order{
 					OrdersType: internalmessages.OrdersTypeBLUEBARK,
+				},
+			},
+		}, nil)
+
+		canSendEmail := order.CanSendEmailWithOrdersType()
+		suite.False(canSendEmail)
+	})
+
+	suite.Run("Safety orders cannot send email", func() {
+		order := factory.BuildOrder(suite.DB(), []factory.Customization{
+			{
+				Model: m.Order{
+					OrdersType: internalmessages.OrdersTypeSAFETY,
 				},
 			},
 		}, nil)
