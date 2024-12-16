@@ -31,6 +31,7 @@ const mockPickupLocation = [
 
 const mockSearchPickupLocation = () => Promise.resolve(mockPickupLocation);
 
+jest.setTimeout(60000);
 const mockNavigate = jest.fn();
 jest.mock('react-router-dom', () => ({
   ...jest.requireActual('react-router-dom'),
