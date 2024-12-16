@@ -1754,42 +1754,6 @@ jobs:
                   --value "${coverage}" \
                   --timestamp "${timestamp}"
                 when: always
-      - when:
-          condition:
-            and:
-              - equal: [integrationTesting, << pipeline.git.branch >>]
-          steps:
-            - run:
-                name: "Copy coverage to baseline"
-                command: |
-                  mkdir -p ~/transcom/mymove/tmp/baseline-jest-coverage
-                  cp ~/transcom/mymove/coverage/clover.xml \
-                        ~/transcom/mymove/tmp/baseline-jest-coverage/clover.xml
-                when: always
-            # ##### NOTE: Make sure this key prefix matches the one
-            # ##### above
-            #
-            # Use the BuildNum to update the cache key so that the
-            # coverage cache is always updated
-            - save_cache:
-                key: v1-client-tests-coverage-integration{{ .BuildNum }}
-                paths:
-                  - ~/transcom/mymove/tmp/baseline-jest-coverage
-                when: always
-            - aws_vars_transcom_gov_dev:
-                when: always
-            - run:
-                name: "Record client coverage stats"
-                command: |
-                  timestamp=$(date +"%Y-%m-%dT%H:%M:%SZ")
-                  coverage=$(grep -B 1 'span.*Statements' coverage/lcov-report/index.html | grep -o '[0-9.]*')
-                  aws cloudwatch put-metric-data \
-                  --metric-name client_test_coverage \
-                  --namespace circleci \
-                  --value "${coverage}" \
-                  --timestamp "${timestamp}"
-                when: always
-
   # Compile the server side of the app once and persist the relevant
   # build artifacts to the workspace.
   # This way we don't have to re-run the build and since all necessary
