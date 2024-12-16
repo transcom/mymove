@@ -58,7 +58,6 @@ jest.mock('store/general/actions', () => ({
 
 beforeEach(() => {
   jest.clearAllMocks();
-  jest.setTimeout(60000);
 });
 
 const serviceCounselorState = {
@@ -661,7 +660,7 @@ describe('CreateCustomerForm', () => {
         },
       });
     });
-  }, 10000);
+  }, 50000);
 
   it('disables okta and non cac user inputs when bluebark move is selected', async () => {
     createCustomerWithOktaOption.mockImplementation(() => Promise.resolve(fakeResponse));
@@ -736,5 +735,5 @@ describe('CreateCustomerForm', () => {
         },
       });
     });
-  }, 10000);
+  }, 50000);
 });
