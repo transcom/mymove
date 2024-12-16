@@ -3152,7 +3152,7 @@ definitions:
         description: Port type A (Air), B (Border Crossing), S (Sea)
         enum:
           - A
-          - P
+          - B
           - S
       portCode:
         type: string
