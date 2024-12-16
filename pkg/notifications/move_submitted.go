@@ -93,6 +93,10 @@ func (m MoveSubmitted) emails(appCtx appcontext.AppContext) ([]emailContent, err
 	}
 
 	totalEntitlement := models.GetWeightAllotment(*orders.Grade, orders.OrdersType)
+	unaccompaniedBaggageAllowance, err := models.GetUBWeightAllowance(appCtx, originDutyLocation.Address.IsOconus, orders.NewDutyLocation.Address.IsOconus, orders.ServiceMember.Affiliation, orders.Grade, &orders.OrdersType, orders.Entitlement.DependentsAuthorized, orders.Entitlement.AccompaniedTour, orders.Entitlement.DependentsUnderTwelve, orders.Entitlement.DependentsTwelveAndOver)
+	if err == nil {
+		totalEntitlement.UnaccompaniedBaggageAllowance = unaccompaniedBaggageAllowance
+	}
 
 	weight := totalEntitlement.TotalWeightSelf
 	if orders.HasDependents {

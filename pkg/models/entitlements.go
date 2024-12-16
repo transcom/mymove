@@ -3,6 +3,9 @@ package models
 import (
 	"fmt"
 
+	"github.com/pkg/errors"
+
+	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 )
 
@@ -12,6 +15,7 @@ type WeightAllotment struct {
 	TotalWeightSelfPlusDependents int
 	ProGearWeight                 int
 	ProGearWeightSpouse           int
+	UnaccompaniedBaggageAllowance int
 }
 
 // the midshipman entitlement is shared with service academy cadet
@@ -254,4 +258,105 @@ func GetWeightAllotment(grade internalmessages.OrderPayGrade, ordersType interna
 		return WeightAllotment{}
 	}
 	return entitlement
+}
+
+// GetUBWeightAllowance returns the UB weight allowance for a UB shipment, part of the overall entitlements for an order
+func GetUBWeightAllowance(appCtx appcontext.AppContext, originDutyLocationIsOconus *bool, newDutyLocationIsOconus *bool, branch *ServiceMemberAffiliation, grade *internalmessages.OrderPayGrade, orderType *internalmessages.OrdersType, dependentsAuthorized *bool, isAccompaniedTour *bool, dependentsUnderTwelve *int, dependentsTwelveAndOver *int) (int, error) {
+	originDutyLocationIsOconusValue := false
+	if originDutyLocationIsOconus != nil {
+		originDutyLocationIsOconusValue = *originDutyLocationIsOconus
+	}
+	newDutyLocationIsOconusValue := false
+	if newDutyLocationIsOconus != nil {
+		newDutyLocationIsOconusValue = *newDutyLocationIsOconus
+	}
+	branchOfService := ""
+	if branch != nil {
+		branchOfService = string(*branch)
+	}
+	orderPayGrade := ""
+	if grade != nil {
+		orderPayGrade = string(*grade)
+	}
+	typeOfOrder := ""
+	if orderType != nil {
+		typeOfOrder = string(*orderType)
+	}
+	dependentsAreAuthorized := false
+	if dependentsAuthorized != nil {
+		dependentsAreAuthorized = *dependentsAuthorized
+	}
+	isAnAccompaniedTour := false
+	if isAccompaniedTour != nil {
+		isAnAccompaniedTour = *isAccompaniedTour
+	}
+	underTwelveDependents := 0
+	if dependentsUnderTwelve != nil {
+		underTwelveDependents = *dependentsUnderTwelve
+	}
+	twelveAndOverDependents := 0
+	if dependentsTwelveAndOver != nil {
+		twelveAndOverDependents = *dependentsTwelveAndOver
+	}
+
+	// only calculate UB allowance if either origin or new duty locations are OCONUS
+	if originDutyLocationIsOconusValue || newDutyLocationIsOconusValue {
+
+		const civilianBaseUBAllowance = 350
+		const dependents12AndOverUBAllowance = 350
+		const depedentsUnder12UBAllowance = 175
+		const maxWholeFamilyCivilianUBAllowance = 2000
+		ubAllowance := 0
+
+		if orderPayGrade == string(internalmessages.OrderPayGradeCIVILIANEMPLOYEE) && dependentsAreAuthorized && underTwelveDependents == 0 && twelveAndOverDependents == 0 {
+			ubAllowance = civilianBaseUBAllowance
+		} else if orderPayGrade == string(internalmessages.OrderPayGradeCIVILIANEMPLOYEE) && dependentsAreAuthorized && (underTwelveDependents > 0 || twelveAndOverDependents > 0) {
+			ubAllowance = civilianBaseUBAllowance
+			// for each dependent 12 and older, add an additional 350 lbs to the civilian's baggage allowance
+			ubAllowance += twelveAndOverDependents * dependents12AndOverUBAllowance
+			// for each dependent under 12, add an additional 175 lbs to the civilian's baggage allowance
+			ubAllowance += underTwelveDependents * depedentsUnder12UBAllowance
+			// max allowance of 2,000 lbs for entire family
+			if ubAllowance > maxWholeFamilyCivilianUBAllowance {
+				ubAllowance = maxWholeFamilyCivilianUBAllowance
+			}
+		} else {
+			if typeOfOrder == string(internalmessages.OrdersTypeLOCALMOVE) {
+				// no UB allowance for local moves
+				return 0, nil
+			} else if typeOfOrder != string(internalmessages.OrdersTypeTEMPORARYDUTY) {
+				// all order types other than temporary duty are treated as permanent change of station types for the lookup
+				typeOfOrder = string(internalmessages.OrdersTypePERMANENTCHANGEOFSTATION)
+			}
+			// space force members entitled to the same allowance as air force members
+			if branchOfService == AffiliationSPACEFORCE.String() {
+				branchOfService = AffiliationAIRFORCE.String()
+			}
+			// e9 special senior enlisted members entitled to the same allowance as e9 members
+			if orderPayGrade == string(ServiceMemberGradeE9SPECIALSENIORENLISTED) {
+				orderPayGrade = string(ServiceMemberGradeE9)
+			}
+
+			var baseUBAllowance UBAllowances
+			err := appCtx.DB().Where("branch = ? AND grade = ? AND orders_type = ? AND dependents_authorized = ? AND accompanied_tour = ?", branchOfService, orderPayGrade, typeOfOrder, dependentsAreAuthorized, isAnAccompaniedTour).First(&baseUBAllowance)
+			if err != nil {
+				if errors.Cause(err).Error() == RecordNotFoundErrorString {
+					message := fmt.Sprintf("No UB allowance entry found in ub_allowances table for branch: %s, grade: %s, orders_type: %s, dependents_authorized: %t, accompanied_tour: %t.", branchOfService, orderPayGrade, typeOfOrder, dependentsAreAuthorized, isAnAccompaniedTour)
+					appCtx.Logger().Info(message)
+					return 0, nil
+				}
+				return 0, err
+			}
+			if baseUBAllowance.UBAllowance != nil {
+				ubAllowance = *baseUBAllowance.UBAllowance
+				return ubAllowance, nil
+			} else {
+				return 0, nil
+			}
+		}
+		return ubAllowance, nil
+	} else {
+		appCtx.Logger().Info("No OCONUS duty location found for orders, no UB allowance calculated as part of order entitlement.")
+		return 0, nil
+	}
 }

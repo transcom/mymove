@@ -82,7 +82,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 	moveTaskOrderUpdater := movetaskorder.NewMoveTaskOrderUpdater(
 		builder,
 		mtoserviceitem.NewMTOServiceItemCreator(planner, builder, moveRouter, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticPackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer()),
-		moveRouter, setUpSignedCertificationCreatorMock(nil, nil), setUpSignedCertificationUpdaterMock(nil, nil),
+		moveRouter, setUpSignedCertificationCreatorMock(nil, nil), setUpSignedCertificationUpdaterMock(nil, nil), &ppmEstimator,
 	)
 	shipmentCreator := shipmentorchestrator.NewShipmentCreator(mtoShipmentCreator, ppmShipmentCreator, boatShipmentCreator, mobileHomeShipmentCreator, shipmentRouter, moveTaskOrderUpdater)
 	mockCreator := mocks.ShipmentCreator{}
@@ -299,6 +299,12 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 			mock.AnythingOfType("models.PPMShipment"),
 			mock.AnythingOfType("*models.PPMShipment")).
 			Return(models.CentPointer(unit.Cents(estimatedIncentive)), models.CentPointer(unit.Cents(sitEstimatedCost)), nil).Once()
+
+		ppmEstimator.On("MaxIncentive",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.AnythingOfType("models.PPMShipment"),
+			mock.AnythingOfType("*models.PPMShipment")).
+			Return(nil, nil)
 
 		// Validate incoming payload
 		suite.NoError(params.Body.Validate(strfmt.Default))
@@ -605,6 +611,42 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		suite.NoError(typedResponse.Payload.Validate(strfmt.Default))
 
 		suite.Contains(*typedResponse.Payload.Detail, unavailableMove.ID.String())
+	})
+
+	suite.Run("POST failure - 500 - App Event Internal DTOD Server Error", func() {
+		// Under Test: CreateMTOShipmentHandler
+		// Setup:      Create a shipment with DTOD outage simulated or bad zip
+		// Expected:   500 Internal Server Error returned
+
+		handler, move := setupTestData(false)
+		req := httptest.NewRequest("POST", "/mto-shipments", nil)
+		handler.ShipmentCreator = &mockCreator
+
+		err := apperror.EventError{}
+
+		mockCreator.On("CreateShipment",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.Anything,
+		).Return(nil, nil, err)
+
+		params := mtoshipmentops.CreateMTOShipmentParams{
+			HTTPRequest: req,
+			Body: &primev2messages.CreateMTOShipment{
+				MoveTaskOrderID:     handlers.FmtUUID(move.ID),
+				Agents:              nil,
+				CustomerRemarks:     nil,
+				PointOfContact:      "John Doe",
+				RequestedPickupDate: handlers.FmtDatePtr(models.TimePointer(time.Now())),
+				ShipmentType:        primev2messages.NewMTOShipmentType(primev2messages.MTOShipmentTypeHHG),
+				PickupAddress:       struct{ primev2messages.Address }{pickupAddress},
+				DestinationAddress:  struct{ primev2messages.Address }{destinationAddress},
+			},
+		}
+
+		response := handler.Handle(params)
+		suite.IsType(&mtoshipmentops.CreateMTOShipmentInternalServerError{}, response)
+		typedResponse := response.(*mtoshipmentops.CreateMTOShipmentInternalServerError)
+		suite.Contains(*typedResponse.Payload.Detail, "An internal server error has occurred")
 	})
 
 	suite.Run("POST failure - 422 - modelType() not supported", func() {
