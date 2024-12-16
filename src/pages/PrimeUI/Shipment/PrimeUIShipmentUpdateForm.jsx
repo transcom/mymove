@@ -65,7 +65,6 @@ const PrimeUIShipmentUpdateForm = ({
       {editableWeightEstimateField && (
         <MaskedTextField
           data-testid="estimatedWeightInput"
-          defaultValue="0"
           name="estimatedWeight"
           label="Estimated weight (lbs)"
           id="estimatedWeightInput"
@@ -87,7 +86,6 @@ const PrimeUIShipmentUpdateForm = ({
       {editableWeightActualField && (
         <MaskedTextField
           data-testid="actualWeightInput"
-          defaultValue="0"
           name="actualWeight"
           label="Actual weight (lbs)"
           id="actualWeightInput"
