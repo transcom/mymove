@@ -25,19 +25,32 @@ const (
 	UploadTypeOFFICE UploadType = "OFFICE"
 )
 
+// AVStatusType represents the type of the anti-virus status, whether it is still processing, clean or infected
+type AVStatusType string
+
+const (
+	// AVStatusTypePROCESSING string PROCESSING
+	AVStatusTypePROCESSING AVStatusType = "PROCESSING"
+	// AVStatusTypeCLEAN string CLEAN
+	AVStatusTypeCLEAN AVStatusType = "CLEAN"
+	// AVStatusTypeINFECTED string INFECTED
+	AVStatusTypeINFECTED AVStatusType = "INFECTED"
+)
+
 // An Upload represents an uploaded file, such as an image or PDF.
 type Upload struct {
-	ID          uuid.UUID  `db:"id"`
-	Filename    string     `db:"filename"`
-	Bytes       int64      `db:"bytes"`
-	Rotation    *int64     `db:"rotation"`
-	ContentType string     `db:"content_type"`
-	Checksum    string     `db:"checksum"`
-	StorageKey  string     `db:"storage_key"`
-	UploadType  UploadType `db:"upload_type"`
-	CreatedAt   time.Time  `db:"created_at"`
-	UpdatedAt   time.Time  `db:"updated_at"`
-	DeletedAt   *time.Time `db:"deleted_at"`
+	ID          uuid.UUID     `db:"id"`
+	Filename    string        `db:"filename"`
+	Bytes       int64         `db:"bytes"`
+	Rotation    *int64        `db:"rotation"`
+	ContentType string        `db:"content_type"`
+	Checksum    string        `db:"checksum"`
+	StorageKey  string        `db:"storage_key"`
+	AVStatus    *AVStatusType `db:"av_status"`
+	UploadType  UploadType    `db:"upload_type"`
+	CreatedAt   time.Time     `db:"created_at"`
+	UpdatedAt   time.Time     `db:"updated_at"`
+	DeletedAt   *time.Time    `db:"deleted_at"`
 }
 
 // TableName overrides the table name used by Pop.

@@ -255,10 +255,34 @@ type GetUploadStatusHandler struct {
 	services.UploadInformationFetcher
 }
 
-type CustomNewUploadStatusOK struct{}
+type CustomNewUploadStatusOK struct {
+	params uploadop.GetUploadStatusParams
+	appCtx appcontext.AppContext
+}
 
 func (o *CustomNewUploadStatusOK) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
 	id_counter := 0
+
+	// TODO: add check for permissions to view upload
+
+	err := o.appCtx.NewTransaction(func(txnAppCtx appcontext.AppContext) error {
+		uploadId, err := uuid.FromString(o.params.UploadID.String())
+		if err != nil {
+			panic(err)
+		}
+		uploaded, err := models.FetchUserUploadFromUploadID(txnAppCtx.DB(), txnAppCtx.Session(), uploadId)
+		if err != nil {
+			txnAppCtx.Logger().Error(err.Error())
+		}
+
+		txnAppCtx.Logger().Info("HELLOW: " + uploaded.UploadID.String())
+
+		return err
+	})
+
+	if err != nil {
+		o.appCtx.Logger().Error(err.Error())
+	}
 
 	for range 2 {
 		resProcess := []byte("id: " + strconv.Itoa(id_counter) + "\nevent: message\ndata: PROCESSING\n\n")
@@ -283,13 +307,10 @@ func (o *CustomNewUploadStatusOK) WriteResponse(rw http.ResponseWriter, producer
 func (h GetUploadStatusHandler) Handle(params uploadop.GetUploadStatusParams) middleware.Responder {
 	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
 		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
-			// uploadID, _ := uuid.FromString(params.UploadID.String())
-			// _, err := models.FetchUserUploadFromUploadID(appCtx.DB(), appCtx.Session(), uploadID)
-			// if err != nil {
-			// 	return handlers.ResponseForError(appCtx.Logger(), err), err
-			// }
-
-			return &CustomNewUploadStatusOK{}, nil
+			return &CustomNewUploadStatusOK{
+				params: params,
+				appCtx: h.AppContextFromRequest(params.HTTPRequest),
+			}, nil
 		})
 }
 
