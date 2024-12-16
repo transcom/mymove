@@ -100,22 +100,3 @@ func PricerForServiceItem(serviceCode models.ReServiceCode, featureFlagFetcher s
 		return nil, apperror.NewNotImplementedError(fmt.Sprintf("pricer not found for code %s", serviceCode))
 	}
 }
-
-func (p serviceItemPricer) ShouldPriceServiceItem(appCtx appcontext.AppContext, serviceCode models.ReServiceCode, featureFlagFetcher services.FeatureFlagFetcher) (bool, error) {
-	switch serviceCode {
-	case models.ReServiceCodeMS:
-		return true, nil
-	case models.ReServiceCodeCS:
-		return true, nil
-	case models.ReServiceCodeDOP:
-		return NewDomesticOriginPricer(featureFlagFetcher).ShouldPrice(appCtx)
-	case models.ReServiceCodeDDP:
-		return NewDomesticDestinationPricer(featureFlagFetcher).ShouldPrice(appCtx)
-	case models.ReServiceCodeDPK:
-		return NewDomesticPackPricer(featureFlagFetcher).ShouldPrice(appCtx)
-	case models.ReServiceCodeDUPK:
-		return NewDomesticUnpackPricer(featureFlagFetcher).ShouldPrice(appCtx)
-	default:
-		return true, nil
-	}
-}

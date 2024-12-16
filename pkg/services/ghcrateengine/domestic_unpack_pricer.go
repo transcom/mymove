@@ -1,7 +1,6 @@
 package ghcrateengine
 
 import (
-	"fmt"
 	"time"
 
 	"github.com/transcom/mymove/pkg/appcontext"
@@ -22,15 +21,6 @@ func NewDomesticUnpackPricer(featureFlagFetcher services.FeatureFlagFetcher) ser
 // Price determines the price for a domestic unpack service
 func (p domesticUnpackPricer) Price(appCtx appcontext.AppContext, contractCode string, referenceDate time.Time, weight unit.Pound, servicesScheduleDest int, isPPM bool, isMobileHome bool) (unit.Cents, services.PricingDisplayParams, error) {
 	return priceDomesticPackUnpack(appCtx, models.ReServiceCodeDUPK, contractCode, referenceDate, weight, servicesScheduleDest, isPPM, isMobileHome, p.FeatureFlagFetcher)
-}
-
-// Determines if this DUPK item should actually be added to the payment request by checking for relevant feature flags
-func (p domesticUnpackPricer) ShouldPrice(appCtx appcontext.AppContext) (bool, error) {
-	isOn, err := getFeatureFlagValue(appCtx, p.FeatureFlagFetcher, services.DomesticMobileHomeUnpackingEnabled) // This should be edited later to also include the Boat Shipment FFs
-	if err != nil {
-		return false, fmt.Errorf("could not fetch feature flag to determine unpack pricing formula: %w", err)
-	}
-	return isOn, nil
 }
 
 // PriceUsingParams determines the price for a domestic unpack service given PaymentServiceItemParams

@@ -139,12 +139,3 @@ func (p domesticOriginPricer) PriceUsingParams(appCtx appcontext.AppContext, par
 
 	return p.Price(appCtx, contractCode, referenceDate, unit.Pound(weightBilled), serviceAreaOrigin, isPPM, isMobileHome)
 }
-
-// Determines if this DUPK item should actually be added to the payment request by checking for relevant feature flags
-func (p domesticOriginPricer) ShouldPrice(appCtx appcontext.AppContext) (bool, error) {
-	isOn, err := getFeatureFlagValue(appCtx, p.FeatureFlagFetcher, services.DomesticMobileHomeDOPEnabled) // This should be edited later to also include the Boat Shipment FFs
-	if err != nil {
-		return false, fmt.Errorf("could not fetch feature flag to determine unpack pricing formula: %w", err)
-	}
-	return isOn, nil
-}
