@@ -1,16 +1,34 @@
 package pricing
 
 import (
+	"testing"
 	"time"
 
 	"github.com/stretchr/testify/mock"
+	"github.com/stretchr/testify/suite"
+
 	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
 	routemocks "github.com/transcom/mymove/pkg/route/mocks"
+	"github.com/transcom/mymove/pkg/testingsuite"
 	"github.com/transcom/mymove/pkg/unit"
 )
 
-func (suite *FetchServiceItemPriceTestSuite) TestFetchServiceItemPrice() {
+type PricingFetcherSuite struct {
+	*testingsuite.PopTestSuite
+}
+
+func TestPricingFetcherSuite(t *testing.T) {
+
+	hs := &PricingFetcherSuite{
+		PopTestSuite: testingsuite.NewPopTestSuite(testingsuite.CurrentPackage(),
+			testingsuite.WithPerTestTransaction()),
+	}
+	suite.Run(t, hs)
+	hs.PopTestSuite.TearDown()
+}
+
+func (suite *PricingFetcherSuite) TestPricingFetcher() {
 
 	/* 	suite.Run("Test Fetch Price Bad Contract Code", func() {
 		// Arrange
