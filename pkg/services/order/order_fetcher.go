@@ -378,9 +378,9 @@ func (f orderFetcher) ListDestinationRequestsOrders(appCtx appcontext.AppContext
 		LeftJoin("re_services", "mto_service_items.re_service_id = re_services.id").
 		LeftJoin("duty_locations as dest_dl", "dest_dl.id = orders.new_duty_location_id").
 		LeftJoin("office_users", "office_users.id = moves.locked_by").
+		LeftJoin("office_users as assigned_user", "moves.too_assigned_id  = assigned_user.id").
 		LeftJoin("transportation_offices", "moves.counseling_transportation_office_id = transportation_offices.id").
 		LeftJoin("ppm_shipments", "ppm_shipments.shipment_id = mto_shipments.id").
-		LeftJoin("office_users as assigned_user", "moves.too_assigned_id = assigned_user.id").
 		LeftJoin("shipment_address_updates", "shipment_address_updates.shipment_id = mto_shipments.id").
 		LeftJoin("addresses", "mto_shipments.destination_address_id = addresses.id").
 		LeftJoin("postal_code_to_gblocs", "addresses.postal_code = postal_code_to_gblocs.postal_code").
