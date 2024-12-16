@@ -298,7 +298,7 @@ func Address(address *models.Address) *primemessages.Address {
 		State:          &address.State,
 		PostalCode:     &address.PostalCode,
 		Country:        Country(address.Country),
-		County:         &address.County,
+		County:         address.County,
 		ETag:           etag.GenerateEtag(address.UpdatedAt),
 	}
 }
@@ -788,6 +788,27 @@ func MTOServiceItem(mtoServiceItem *models.MTOServiceItem) primemessages.MTOServ
 			EstimatedWeight: handlers.FmtPoundPtr(mtoServiceItem.EstimatedWeight),
 			ActualWeight:    handlers.FmtPoundPtr(mtoServiceItem.ActualWeight),
 		}
+
+	case models.ReServiceCodePOEFSC:
+		var portCode string
+		if mtoServiceItem.POELocation != nil {
+			portCode = mtoServiceItem.POELocation.Port.PortCode
+		}
+		payload = &primemessages.MTOServiceItemInternationalFuelSurcharge{
+			ReServiceCode: string(mtoServiceItem.ReService.Code),
+			PortCode:      portCode,
+		}
+
+	case models.ReServiceCodePODFSC:
+		var portCode string
+		if mtoServiceItem.PODLocation != nil {
+			portCode = mtoServiceItem.PODLocation.Port.PortCode
+		}
+		payload = &primemessages.MTOServiceItemInternationalFuelSurcharge{
+			ReServiceCode: string(mtoServiceItem.ReService.Code),
+			PortCode:      portCode,
+		}
+
 	default:
 		// otherwise, basic service item
 		payload = &primemessages.MTOServiceItemBasic{

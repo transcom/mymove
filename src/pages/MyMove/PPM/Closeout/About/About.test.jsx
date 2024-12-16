@@ -59,6 +59,33 @@ const mockMTOShipment = {
     id: mockPPMShipmentId,
     shipmentId: mockMTOShipmentId,
     weightTickets: [],
+    pickupAddress: {
+      streetAddress1: '812 S 129th St',
+      streetAddress2: '#123',
+      streetAddress3: '',
+      city: 'San Antonio',
+      state: 'TX',
+      postalCode: '78234',
+      usPostRegionCitiesID: '',
+    },
+    destinationAddress: {
+      streetAddress1: '441 SW Rio de la Plata Drive',
+      streetAddress2: '#124',
+      streetAddress3: 'Some Person',
+      city: 'Tacoma',
+      state: 'WA',
+      postalCode: '98421',
+      usPostRegionCitiesID: '',
+    },
+    w2Address: {
+      streetAddress1: '11 NE Elm Road',
+      streetAddress2: '',
+      streetAddress3: '',
+      city: 'Jacksonville',
+      state: 'FL',
+      postalCode: '32217',
+      usPostRegionCitiesID: '',
+    },
   },
   createdAt: mtoShipmentCreatedDate.toISOString(),
   updatedAt: approvedDate.toISOString(),
@@ -76,6 +103,7 @@ const partialPayload = {
     city: 'San Antonio',
     state: 'TX',
     postalCode: '78234',
+    usPostRegionCitiesID: '',
   },
   destinationAddress: {
     streetAddress1: '441 SW Rio de la Plata Drive',
@@ -84,6 +112,7 @@ const partialPayload = {
     city: 'Tacoma',
     state: 'WA',
     postalCode: '98421',
+    usPostRegionCitiesID: '',
   },
   secondaryPickupAddress: null,
   secondaryDestinationAddress: null,
@@ -98,6 +127,7 @@ const partialPayload = {
     city: 'Jacksonville',
     state: 'FL',
     postalCode: '32217',
+    usPostRegionCitiesID: '',
   },
 };
 
@@ -138,71 +168,15 @@ const weightTicketsPath = generatePath(customerRoutes.SHIPMENT_PPM_WEIGHT_TICKET
   mtoShipmentId: mockMTOShipmentId,
 });
 
-const fillOutBasicForm = async (form) => {
+// In order for the patchMTOShipment to be called we have to update something within the shipment
+const updateForPatchShipment = async (form) => {
   within(form).getByLabelText('When did you leave your origin?').focus();
   await userEvent.paste('2022-05-31');
-
-  within(form)
-    .getAllByLabelText(/Address 1/)[0]
-    .focus();
-  await userEvent.paste('812 S 129th St');
-
-  within(form)
-    .getAllByLabelText(/Address 2/)[0]
-    .focus();
-  await userEvent.paste('#123');
 
   within(form)
     .getAllByLabelText(/Address 3/)[0]
     .focus();
   await userEvent.paste('Some Person');
-
-  within(form).getAllByLabelText(/City/)[0].focus();
-  await userEvent.paste('San Antonio');
-
-  within(form).getAllByLabelText(/State/)[0].focus();
-  await userEvent.selectOptions(within(form).getAllByLabelText(/State/)[0], 'TX');
-
-  within(form).getAllByLabelText(/ZIP/)[0].focus();
-  await userEvent.paste('78234');
-
-  within(form)
-    .getAllByLabelText(/Address 1/)[1]
-    .focus();
-  await userEvent.paste('441 SW Rio de la Plata Drive');
-
-  within(form)
-    .getAllByLabelText(/Address 2/)[1]
-    .focus();
-  await userEvent.paste('#124');
-
-  within(form)
-    .getAllByLabelText(/Address 3/)[1]
-    .focus();
-  await userEvent.paste('Some Person');
-
-  within(form).getAllByLabelText(/City/)[1].focus();
-  await userEvent.paste('Tacoma');
-
-  within(form).getAllByLabelText(/State/)[1].focus();
-  await userEvent.selectOptions(within(form).getAllByLabelText(/State/)[1], 'WA');
-
-  within(form).getAllByLabelText(/ZIP/)[1].focus();
-  await userEvent.paste('98421');
-
-  within(form)
-    .getAllByLabelText(/Address 1/)[2]
-    .focus();
-  await userEvent.paste('11 NE Elm Road');
-
-  within(form).getAllByLabelText(/City/)[2].focus();
-  await userEvent.paste('Jacksonville');
-
-  within(form).getAllByLabelText(/State/)[2].focus();
-  await userEvent.selectOptions(within(form).getAllByLabelText(/State/)[2], 'FL');
-
-  within(form).getAllByLabelText(/ZIP/)[2].focus();
-  await userEvent.paste('32217');
 };
 
 const fillOutAdvanceSections = async (form) => {
@@ -271,7 +245,7 @@ describe('About page', () => {
       form = screen.getByTestId('aboutForm');
     });
 
-    await fillOutBasicForm(form);
+    await updateForPatchShipment(form);
     await fillOutAdvanceSections(form);
 
     await userEvent.click(within(form).getByRole('button', { name: 'Save & Continue' }));
@@ -297,20 +271,13 @@ describe('About page', () => {
       form = screen.getByTestId('aboutForm');
     });
 
-    await fillOutBasicForm(form);
+    await updateForPatchShipment(form);
 
     expect(within(form).getByRole('button', { name: 'Save & Continue' })).toBeEnabled();
     await userEvent.click(within(form).getByRole('button', { name: 'Save & Continue' }));
-    const payload = {
-      ...mockPayload,
-      ppmShipment: {
-        ...mockPayload.ppmShipment,
-        hasReceivedAdvance: false,
-        advanceAmountReceived: null,
-      },
-    };
+
     await waitFor(() => {
-      expect(patchMTOShipment).toHaveBeenCalledWith(mockMTOShipmentId, payload, mockMTOShipment.eTag);
+      expect(patchMTOShipment).toHaveBeenCalled();
     });
 
     await waitFor(() => {

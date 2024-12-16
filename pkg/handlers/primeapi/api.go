@@ -21,6 +21,7 @@ import (
 	order "github.com/transcom/mymove/pkg/services/order"
 	paperwork_service "github.com/transcom/mymove/pkg/services/paperwork"
 	paymentrequest "github.com/transcom/mymove/pkg/services/payment_request"
+	portlocation "github.com/transcom/mymove/pkg/services/port_location"
 	"github.com/transcom/mymove/pkg/services/ppmshipment"
 	"github.com/transcom/mymove/pkg/services/query"
 	"github.com/transcom/mymove/pkg/services/reweigh"
@@ -44,11 +45,12 @@ func NewPrimeAPI(handlerConfig handlers.HandlerConfig) *primeoperations.MymoveAP
 	queryBuilder := query.NewQueryBuilder()
 	moveRouter := move.NewMoveRouter()
 	addressCreator := address.NewAddressCreator()
+	portLocationFetcher := portlocation.NewPortLocationFetcher()
 	shipmentFetcher := mtoshipment.NewMTOShipmentFetcher()
 	moveWeights := move.NewMoveWeights(mtoshipment.NewShipmentReweighRequester())
 	uploadCreator := upload.NewUploadCreator(handlerConfig.FileStorer())
 	ppmEstimator := ppmshipment.NewEstimatePPM(handlerConfig.DTODPlanner(), &paymentrequesthelper.RequestPaymentHelper{})
-	serviceItemUpdater := mtoserviceitem.NewMTOServiceItemUpdater(handlerConfig.HHGPlanner(), queryBuilder, moveRouter, shipmentFetcher, addressCreator, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer(), ghcrateengine.NewDomesticDestinationSITDeliveryPricer(), ghcrateengine.NewDomesticOriginSITFuelSurchargePricer())
+	serviceItemUpdater := mtoserviceitem.NewMTOServiceItemUpdater(handlerConfig.HHGPlanner(), queryBuilder, moveRouter, shipmentFetcher, addressCreator, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer(), ghcrateengine.NewDomesticDestinationSITDeliveryPricer(), ghcrateengine.NewDomesticOriginSITFuelSurchargePricer(), portLocationFetcher)
 
 	userUploader, err := uploader.NewUserUploader(handlerConfig.FileStorer(), uploader.MaxCustomerUserUploadFileSizeLimit)
 	if err != nil {

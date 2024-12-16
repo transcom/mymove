@@ -181,7 +181,7 @@ const ServicesCounselingMoveDetails = ({
     } else {
       setIsOconusMove(false);
     }
-  }, [originDutyLocation, destinationDutyLocation, isOconusMove, enableUB]);
+  }, [originDutyLocation, destinationDutyLocation]);
 
   // for now we are only showing dest type on retiree and separatee orders
   const isRetirementOrSeparation =
@@ -757,17 +757,28 @@ const ServicesCounselingMoveDetails = ({
                 </div>
               )}
             </Grid>
-            <Grid col={12}>
-              <Restricted to={permissionTypes.cancelMoveFlag}>
-                <div className={scMoveDetailsStyles.scCancelMoveContainer}>
-                  {counselorCanCancelMove && !isMoveLocked && (
-                    <Button type="button" unstyled onClick={handleShowCancelMoveModal}>
-                      Cancel move
-                    </Button>
-                  )}
+            <Grid row col={12}>
+              <Restricted to={permissionTypes.updateFinancialReviewFlag}>
+                <div className={scMoveDetailsStyles.scFinancialReviewContainer}>
+                  <FinancialReviewButton
+                    onClick={handleShowFinancialReviewModal}
+                    reviewRequested={move.financialReviewFlag}
+                    isMoveLocked={isMoveLocked}
+                  />
                 </div>
               </Restricted>
             </Grid>
+          </Grid>
+          <Grid col={12}>
+            <Restricted to={permissionTypes.cancelMoveFlag}>
+              <div className={scMoveDetailsStyles.scCancelMoveContainer}>
+                {counselorCanCancelMove && !isMoveLocked && (
+                  <Button type="button" unstyled onClick={handleShowCancelMoveModal}>
+                    Cancel move
+                  </Button>
+                )}
+              </div>
+            </Restricted>
           </Grid>
 
           {hasInvalidProGearAllowances ? (
@@ -778,7 +789,6 @@ const ServicesCounselingMoveDetails = ({
 
           <div className={styles.section} id="shipments">
             <DetailsPanel
-              className={scMoveDetailsStyles.noPaddingBottom}
               editButton={
                 (counselorCanEdit || counselorCanEditNonPPM) &&
                 !isMoveLocked && (
@@ -809,15 +819,6 @@ const ServicesCounselingMoveDetails = ({
               title="Shipments"
               ppmShipmentInfoNeedsApproval={ppmShipmentsInfoNeedsApproval}
             >
-              <Restricted to={permissionTypes.updateFinancialReviewFlag}>
-                <div className={scMoveDetailsStyles.scFinancialReviewContainer}>
-                  <FinancialReviewButton
-                    onClick={handleShowFinancialReviewModal}
-                    reviewRequested={move.financialReviewFlag}
-                    isMoveLocked={isMoveLocked}
-                  />
-                </div>
-              </Restricted>
               <div className={shipmentCardsStyles.shipmentCards}>
                 {shipmentsInfo.map((shipment) => (
                   <ShipmentDisplay
