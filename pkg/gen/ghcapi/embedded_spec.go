@@ -4466,7 +4466,7 @@ func init() {
           },
           {
             "type": "string",
-            "description": "Used to return a queue for a GBLOC other than the default of the current user. Requires the HQ role. The parameter is ignored if the requesting user does not have the necessary role.\n",
+            "description": "Used to return a queue for a GBLOC other than the default of the current user. Requires the HQ role or a secondary transportation office assignment. The parameter is ignored if the requesting user does not have the necessary role or assignment.\n",
             "name": "viewAsGBLOC",
             "in": "query"
           },
@@ -4509,6 +4509,12 @@ func init() {
             "type": "boolean",
             "description": "Only used for Services Counseling queue. If true, show PPM moves origin locations that are ready for closeout. Otherwise, show all other moves origin locations.",
             "name": "needsPPMCloseout",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "Used to return an origins list for a GBLOC other than the default of the current user. Requires the HQ role or a secondary transportation office assignment. The parameter is ignored if the requesting user does not have the necessary role or assignment.",
+            "name": "viewAsGBLOC",
             "in": "query"
           }
         ],
@@ -4657,7 +4663,7 @@ func init() {
           },
           {
             "type": "string",
-            "description": "Used to return a queue for a GBLOC other than the default of the current user. Requires the HQ role. The parameter is ignored if the requesting user does not have the necessary role.\n",
+            "description": "Used to return a queue for a GBLOC other than the default of the current user. Requires the HQ role or a secondary transportation office assignment. The parameter is ignored if the requesting user does not have the necessary role or assignment.\n",
             "name": "viewAsGBLOC",
             "in": "query"
           },
@@ -4823,7 +4829,7 @@ func init() {
           },
           {
             "type": "string",
-            "description": "Used to return a queue for a GBLOC other than the default of the current user. Requires the HQ role. The parameter is ignored if the requesting user does not have the necessary role.\n",
+            "description": "Used to return a queue for a GBLOC other than the default of the current user. Requires the HQ role or a secondary transportation office assignment. The parameter is ignored if the requesting user does not have the necessary role or assignment.\n",
             "name": "viewAsGBLOC",
             "in": "query"
           }
@@ -10646,6 +10652,12 @@ func init() {
         "transportationOffice": {
           "$ref": "#/definitions/TransportationOffice"
         },
+        "transportationOfficeAssignments": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/TransportationOfficeAssignment"
+          }
+        },
         "transportationOfficeId": {
           "type": "string",
           "format": "uuid"
@@ -13680,6 +13692,43 @@ func init() {
         "updated_at": {
           "type": "string",
           "format": "date-time"
+        }
+      }
+    },
+    "TransportationOfficeAssignment": {
+      "type": "object",
+      "required": [
+        "officeUserId",
+        "transportationOfficeId",
+        "primaryOffice"
+      ],
+      "properties": {
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        },
+        "officeUserId": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4780-65aa-42ec-a945-5fd87dec0538"
+        },
+        "primaryOffice": {
+          "type": "boolean",
+          "x-omitempty": false
+        },
+        "transportationOffice": {
+          "$ref": "#/definitions/TransportationOffice"
+        },
+        "transportationOfficeId": {
+          "type": "string",
+          "format": "uuid",
+          "example": "d67a4780-65aa-42ec-a945-5fd87dec0549"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
         }
       }
     },
@@ -20560,7 +20609,7 @@ func init() {
           },
           {
             "type": "string",
-            "description": "Used to return a queue for a GBLOC other than the default of the current user. Requires the HQ role. The parameter is ignored if the requesting user does not have the necessary role.\n",
+            "description": "Used to return a queue for a GBLOC other than the default of the current user. Requires the HQ role or a secondary transportation office assignment. The parameter is ignored if the requesting user does not have the necessary role or assignment.\n",
             "name": "viewAsGBLOC",
             "in": "query"
           },
@@ -20609,6 +20658,12 @@ func init() {
             "type": "boolean",
             "description": "Only used for Services Counseling queue. If true, show PPM moves origin locations that are ready for closeout. Otherwise, show all other moves origin locations.",
             "name": "needsPPMCloseout",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "Used to return an origins list for a GBLOC other than the default of the current user. Requires the HQ role or a secondary transportation office assignment. The parameter is ignored if the requesting user does not have the necessary role or assignment.",
+            "name": "viewAsGBLOC",
             "in": "query"
           }
         ],
@@ -20763,7 +20818,7 @@ func init() {
           },
           {
             "type": "string",
-            "description": "Used to return a queue for a GBLOC other than the default of the current user. Requires the HQ role. The parameter is ignored if the requesting user does not have the necessary role.\n",
+            "description": "Used to return a queue for a GBLOC other than the default of the current user. Requires the HQ role or a secondary transportation office assignment. The parameter is ignored if the requesting user does not have the necessary role or assignment.\n",
             "name": "viewAsGBLOC",
             "in": "query"
           },
@@ -20935,7 +20990,7 @@ func init() {
           },
           {
             "type": "string",
-            "description": "Used to return a queue for a GBLOC other than the default of the current user. Requires the HQ role. The parameter is ignored if the requesting user does not have the necessary role.\n",
+            "description": "Used to return a queue for a GBLOC other than the default of the current user. Requires the HQ role or a secondary transportation office assignment. The parameter is ignored if the requesting user does not have the necessary role or assignment.\n",
             "name": "viewAsGBLOC",
             "in": "query"
           }
@@ -27138,6 +27193,12 @@ func init() {
         "transportationOffice": {
           "$ref": "#/definitions/TransportationOffice"
         },
+        "transportationOfficeAssignments": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/TransportationOfficeAssignment"
+          }
+        },
         "transportationOfficeId": {
           "type": "string",
           "format": "uuid"
@@ -30300,6 +30361,43 @@ func init() {
         "updated_at": {
           "type": "string",
           "format": "date-time"
+        }
+      }
+    },
+    "TransportationOfficeAssignment": {
+      "type": "object",
+      "required": [
+        "officeUserId",
+        "transportationOfficeId",
+        "primaryOffice"
+      ],
+      "properties": {
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        },
+        "officeUserId": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4780-65aa-42ec-a945-5fd87dec0538"
+        },
+        "primaryOffice": {
+          "type": "boolean",
+          "x-omitempty": false
+        },
+        "transportationOffice": {
+          "$ref": "#/definitions/TransportationOffice"
+        },
+        "transportationOfficeId": {
+          "type": "string",
+          "format": "uuid",
+          "example": "d67a4780-65aa-42ec-a945-5fd87dec0549"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
         }
       }
     },
