@@ -108,7 +108,9 @@ export const requiredW2AddressSchema = Yup.object().shape({
 export const addressSchema = Yup.object().shape({
   streetAddress1: Yup.string(),
   streetAddress2: Yup.string(),
+  streetAddress3: Yup.string(),
   city: Yup.string(),
+  county: Yup.string(),
   state: Yup.string().length(2, 'Must use state abbreviation'),
   postalCode: Yup.string().matches(ZIP_CODE_REGEX, 'Must be valid zip code'),
 });
