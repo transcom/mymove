@@ -103,26 +103,27 @@ func UpdateUserOktaID(db *pop.Connection, user *User, oktaID string) error {
 
 // UserIdentity is summary of the information about a user from the database
 type UserIdentity struct {
-	ID                        uuid.UUID   `db:"id"`
-	Active                    bool        `db:"active"`
-	Email                     string      `db:"email"`
-	ServiceMemberID           *uuid.UUID  `db:"sm_id"`
-	ServiceMemberFirstName    *string     `db:"sm_fname"`
-	ServiceMemberLastName     *string     `db:"sm_lname"`
-	ServiceMemberMiddle       *string     `db:"sm_middle"`
-	ServiceMemberCacValidated *bool       `db:"sm_cac_validated"`
-	OfficeUserID              *uuid.UUID  `db:"ou_id"`
-	OfficeUserFirstName       *string     `db:"ou_fname"`
-	OfficeUserLastName        *string     `db:"ou_lname"`
-	OfficeUserMiddle          *string     `db:"ou_middle"`
-	OfficeActive              *bool       `db:"ou_active"`
-	AdminUserID               *uuid.UUID  `db:"au_id"`
-	AdminUserRole             *AdminRole  `db:"au_role"`
-	AdminUserFirstName        *string     `db:"au_fname"`
-	AdminUserLastName         *string     `db:"au_lname"`
-	AdminUserActive           *bool       `db:"au_active"`
-	Roles                     roles.Roles `many_to_many:"users_roles" primary_id:"user_id"`
-	Privileges                Privileges  `many_to_many:"users_privileges" primary_id:"user_id"`
+	ID                              uuid.UUID                       `db:"id"`
+	Active                          bool                            `db:"active"`
+	Email                           string                          `db:"email"`
+	ServiceMemberID                 *uuid.UUID                      `db:"sm_id"`
+	ServiceMemberFirstName          *string                         `db:"sm_fname"`
+	ServiceMemberLastName           *string                         `db:"sm_lname"`
+	ServiceMemberMiddle             *string                         `db:"sm_middle"`
+	ServiceMemberCacValidated       *bool                           `db:"sm_cac_validated"`
+	OfficeUserID                    *uuid.UUID                      `db:"ou_id"`
+	OfficeUserFirstName             *string                         `db:"ou_fname"`
+	OfficeUserLastName              *string                         `db:"ou_lname"`
+	OfficeUserMiddle                *string                         `db:"ou_middle"`
+	OfficeActive                    *bool                           `db:"ou_active"`
+	AdminUserID                     *uuid.UUID                      `db:"au_id"`
+	AdminUserRole                   *AdminRole                      `db:"au_role"`
+	AdminUserFirstName              *string                         `db:"au_fname"`
+	AdminUserLastName               *string                         `db:"au_lname"`
+	AdminUserActive                 *bool                           `db:"au_active"`
+	Roles                           roles.Roles                     `many_to_many:"users_roles" primary_id:"user_id"`
+	Privileges                      Privileges                      `many_to_many:"users_privileges" primary_id:"user_id"`
+	TransportationOfficeAssignments TransportationOfficeAssignments `many_to_many:"transportation_office_assignmentss" primary_id:"id"`
 }
 
 // FetchUserIdentity queries the database for information about the logged in user
@@ -169,6 +170,12 @@ func FetchUserIdentity(db *pop.Connection, oktaID string) (*UserIdentity, error)
 										where deleted_at is null and user_id = ?)`, identity.ID).All(&identity.Privileges)
 	if privilegeError != nil {
 		return nil, privilegeError
+	}
+	transportationOfficeAssignmentError := db.EagerPreload("TransportationOffice").
+		Join("transportation_offices", "transportation_office_assignments.transportation_office_id = transportation_offices.id").
+		Where("transportation_office_assignments.id = ?", identity.OfficeUserID).All(&identity.TransportationOfficeAssignments)
+	if transportationOfficeAssignmentError != nil {
+		return nil, transportationOfficeAssignmentError
 	}
 	return identity, nil
 }
