@@ -17,6 +17,7 @@ export const CUSTOMER = 'customer';
 export const PRIME_SIMULATOR_AVAILABLE_MOVES = 'listMoves';
 export const PRIME_SIMULATOR_MOVE = 'primeMove';
 export const CUSTOMER_SUPPORT_REMARKS = 'customerSupportRemarks';
+export const BULK_ASSIGNMENT = 'bulkAssignment';
 export const QAE_MOVE_SEARCH = 'qaeMoveSearch';
 export const SHIPMENT_EVALUATION_REPORTS = 'shipmentEvaluationReports';
 export const COUNSELING_EVALUATION_REPORTS = 'counselingEvaluationReports';

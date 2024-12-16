@@ -83,8 +83,8 @@ func (suite *OfficeUserServiceSuite) TestFetchOfficeUser() {
 	})
 }
 
-func (suite *OfficeUserServiceSuite) TestFetchOfficeUserPop() {
-	suite.Run("returns office user on success", func() {
+func (suite *OfficeUserServiceSuite) TestFetchOfficeUserByID() {
+	suite.Run("FetchOfficeUserByID returns office user on success", func() {
 		officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
 		fetcher := NewOfficeUserFetcherPop()
 
@@ -94,7 +94,18 @@ func (suite *OfficeUserServiceSuite) TestFetchOfficeUserPop() {
 		suite.Equal(officeUser.ID, fetchedUser.ID)
 	})
 
-	suite.Run("returns a set of office users when given a and role", func() {
+	suite.Run("FetchOfficeUserByID returns zero value office user on error", func() {
+		fetcher := NewOfficeUserFetcherPop()
+		officeUser, err := fetcher.FetchOfficeUserByID(suite.AppContextForTest(), uuid.Nil)
+
+		suite.Error(err)
+		suite.IsType(apperror.NotFoundError{}, err)
+		suite.Equal(uuid.Nil, officeUser.ID)
+	})
+}
+
+func (suite *OfficeUserServiceSuite) TestFetchOfficeUsersByRoleAndOffice() {
+	suite.Run("FetchOfficeUsersByRoleAndOffice returns a set of office users when given an office and role", func() {
 		// build 1 TOO
 		officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), factory.GetTraitActiveOfficeUser(), []roles.RoleType{roles.RoleTypeTOO})
 		// build 2 SCs and 3 TIOs
@@ -112,13 +123,49 @@ func (suite *OfficeUserServiceSuite) TestFetchOfficeUserPop() {
 		suite.NoError(err)
 		suite.Len(fetchedUsers, 1)
 	})
+}
 
-	suite.Run("returns zero value office user on error", func() {
+func (suite *OfficeUserServiceSuite) TestFetchOfficeUsersWithWorkloadByRoleAndOffice() {
+	suite.Run("FetchOfficeUsersWithWorkloadByRoleAndOffice returns an office user's name, id, and workload when given a role and office", func() {
 		fetcher := NewOfficeUserFetcherPop()
-		officeUser, err := fetcher.FetchOfficeUserByID(suite.AppContextForTest(), uuid.Nil)
+		transportationOffice := factory.BuildTransportationOffice(suite.DB(), []factory.Customization{
+			{
+				Model: models.TransportationOffice{
+					ProvidesCloseout: true,
+				},
+			},
+		}, nil)
 
-		suite.Error(err)
-		suite.IsType(apperror.NotFoundError{}, err)
-		suite.Equal(uuid.Nil, officeUser.ID)
+		officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), []factory.Customization{
+			{
+				Model:    transportationOffice,
+				LinkOnly: true,
+				Type:     &factory.TransportationOffices.CloseoutOffice,
+			},
+		}, []roles.RoleType{roles.RoleTypeServicesCounselor})
+
+		factory.BuildMoveWithShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.Move{
+					Status: models.MoveStatusNeedsServiceCounseling,
+				},
+			},
+			{
+				Model:    transportationOffice,
+				LinkOnly: true,
+				Type:     &factory.TransportationOffices.CloseoutOffice,
+			},
+			{
+				Model:    officeUser,
+				LinkOnly: true,
+				Type:     &factory.OfficeUsers.SCAssignedUser,
+			},
+		}, nil)
+
+		fetchedUsers, err := fetcher.FetchOfficeUsersWithWorkloadByRoleAndOffice(suite.AppContextForTest(), roles.RoleTypeServicesCounselor, officeUser.TransportationOfficeID)
+		suite.NoError(err)
+		fetchedOfficeUser := fetchedUsers[0]
+		suite.Equal(officeUser.ID, fetchedOfficeUser.ID)
+		suite.Equal(1, fetchedOfficeUser.Workload)
 	})
 }

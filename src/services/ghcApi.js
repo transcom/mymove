@@ -142,6 +142,10 @@ export async function getCustomerSupportRemarksForMove(key, locator) {
   return makeGHCRequest('customerSupportRemarks.getCustomerSupportRemarksForMove', { locator }, { normalize: false });
 }
 
+export async function getBulkAssignmentData(queueType) {
+  return makeGHCRequest('queues.getBulkAssignmentData', { queueType }, { normalize: false });
+}
+
 export async function createCustomerSupportRemarkForMove({ body, locator }) {
   return makeGHCRequest('customerSupportRemarks.createCustomerSupportRemarkForMove', {
     body,

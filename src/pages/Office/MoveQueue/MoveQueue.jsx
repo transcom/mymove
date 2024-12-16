@@ -11,7 +11,7 @@ import { getMovesQueue } from 'services/ghcApi';
 import { formatDateFromIso, serviceMemberAgencyLabel } from 'utils/formatters';
 import MultiSelectCheckBoxFilter from 'components/Table/Filters/MultiSelectCheckBoxFilter';
 import SelectFilter from 'components/Table/Filters/SelectFilter';
-import { MOVE_STATUS_OPTIONS, GBLOC, MOVE_STATUS_LABELS, BRANCH_OPTIONS } from 'constants/queues';
+import { MOVE_STATUS_OPTIONS, GBLOC, MOVE_STATUS_LABELS, BRANCH_OPTIONS, QUEUE_TYPES } from 'constants/queues';
 import TableQueue from 'components/Table/TableQueue';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
@@ -324,6 +324,7 @@ const MoveQueue = ({ isQueueManagementFFEnabled }) => {
           csvExportFileNamePrefix="Task-Order-Queue"
           csvExportQueueFetcher={getMovesQueue}
           csvExportQueueFetcherKey="queueMoves"
+          queueType={QUEUE_TYPES.TASK_ORDERING}
           sessionStorageKey={queueType}
           key={queueType}
         />

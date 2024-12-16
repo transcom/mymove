@@ -17,6 +17,7 @@ import {
   SERVICE_COUNSELING_PPM_TYPE_LABELS,
   SERVICE_COUNSELING_PPM_STATUS_OPTIONS,
   SERVICE_COUNSELING_PPM_STATUS_LABELS,
+  QUEUE_TYPES,
 } from 'constants/queues';
 import { generalRoutes, servicesCounselingRoutes } from 'constants/routes';
 import { elevatedPrivilegeTypes } from 'constants/userPrivileges';
@@ -655,6 +656,7 @@ const ServicesCounselingQueue = ({ userPrivileges, isQueueManagementFFEnabled, o
           csvExportFileNamePrefix="PPM-Closeout-Queue"
           csvExportQueueFetcher={getServicesCounselingPPMQueue}
           csvExportQueueFetcherKey="queueMoves"
+          queueType={QUEUE_TYPES.CLOSEOUT}
           sessionStorageKey={queueType}
           key={queueType}
         />
@@ -682,6 +684,7 @@ const ServicesCounselingQueue = ({ userPrivileges, isQueueManagementFFEnabled, o
           csvExportFileNamePrefix="Services-Counseling-Queue"
           csvExportQueueFetcher={getServicesCounselingQueue}
           csvExportQueueFetcherKey="queueMoves"
+          queueType={QUEUE_TYPES.COUNSELING}
           sessionStorageKey={queueType}
           key={queueType}
         />

@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo, useContext } from 'react';
 import { connect } from 'react-redux';
-import { GridContainer } from '@trussworks/react-uswds';
+import { Button, GridContainer } from '@trussworks/react-uswds';
 import { useTable, useFilters, usePagination, useSortBy } from 'react-table';
 import PropTypes from 'prop-types';
 
@@ -11,8 +11,8 @@ import Table from 'components/Table/Table';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
 import TextBoxFilter from 'components/Table/Filters/TextBoxFilter';
-import { SortShape } from 'constants/queues';
 import { selectLoggedInUser } from 'store/entities/selectors';
+import { SortShape } from 'constants/queues';
 import SelectedGblocContext from 'components/Office/GblocSwitcher/SelectedGblocContext';
 import {
   setTableQueueFilterSessionStorageValue,
@@ -26,6 +26,7 @@ import {
   getSelectionOptionLabel,
 } from 'components/Table/utils';
 import { roleTypes } from 'constants/userRoles';
+import BulkAssignmentModal from 'components/BulkAssignment/BulkAssignmentModal';
 
 const defaultPageSize = 20;
 const defaultPage = 1;
@@ -53,8 +54,10 @@ const TableQueue = ({
   sessionStorageKey,
   officeUser,
   activeRole,
+  queueType,
 }) => {
   const [isPageReload, setIsPageReload] = useState(true);
+  const [showBulkAssignmentModal, setShowBulkAssignmentModal] = useState(false);
   useEffect(() => {
     // Component is mounted. Set flag to tell component
     // subsequent effects are post mount.
@@ -310,6 +313,23 @@ const TableQueue = ({
     <GridContainer data-testid="table-queue" containerSize="widescreen" className={styles.TableQueue}>
       <div className={styles.queueHeader}>
         <h1>{`${title} (${totalCount})`}</h1>
+        {/* {showBulkAssignment && ( */}
+        <BulkAssignmentModal
+          queueType={queueType}
+          isOpen={showBulkAssignmentModal}
+          // moveID={moveId}
+          onClose={() => setShowBulkAssignmentModal(false)}
+        />
+        <Button
+          onClick={() => {
+            setShowBulkAssignmentModal(true);
+          }}
+          unstyled
+          data-testid="cancel-move-button"
+        >
+          BulkAssignment
+        </Button>
+        {/* )} */}
         {showCSVExport && (
           <TableCSVExportButton
             className={styles.csvDownloadLink}
