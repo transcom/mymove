@@ -17,11 +17,6 @@ import (
 	"github.com/transcom/mymove/pkg/unit"
 )
 
-const weightBasedDistanceMultiplierLevelOne = "0.000417"
-const weightBasedDistanceMultiplierLevelTwo = "0.0006255"
-const weightBasedDistanceMultiplierLevelThree = "0.000834"
-const weightBasedDistanceMultiplierLevelFour = "0.00139"
-
 func FetchServiceItemPrice(appCtx appcontext.AppContext, serviceItem *models.MTOServiceItem, mtoShipment models.MTOShipment, planner route.Planner) (unit.Cents, error) {
 	if isServiceItemCodeValid(serviceItem) {
 		isPPM := false
@@ -97,6 +92,9 @@ func FetchServiceItemPrice(appCtx appcontext.AppContext, serviceItem *models.MTO
 			serviceScheduleDestination := domesticServiceArea.ServicesSchedule
 
 			price, _, err = unpackPricer.Price(appCtx, contractCode, requestedPickupDate, *primeEstimatedWeight, serviceScheduleDestination, isPPM)
+			if err != nil {
+				return 0, err
+			}
 		case models.ReServiceCodeDLH:
 			linehaulPricer := ghcrateengine.NewDomesticLinehaulPricer()
 			domesticServiceArea, err := fetchDomesticServiceArea(appCtx, contractCode, mtoShipment.PickupAddress.PostalCode)
@@ -176,7 +174,7 @@ func FetchServiceItemPrice(appCtx appcontext.AppContext, serviceItem *models.MTO
 		}
 		return price, nil
 	}
-	return 0, errors.New("")
+	return 0, errors.New("provided invalid service code")
 }
 
 func isServiceItemCodeValid(serviceItem *models.MTOServiceItem) bool {
@@ -187,28 +185,6 @@ func isServiceItemCodeValid(serviceItem *models.MTOServiceItem) bool {
 		serviceItem.ReService.Code == models.ReServiceCodeDLH ||
 		serviceItem.ReService.Code == models.ReServiceCodeDSH ||
 		serviceItem.ReService.Code == models.ReServiceCodeFSC)
-}
-
-func fetchCurrentTaskOrderFee(appCtx appcontext.AppContext, serviceCode models.ReServiceCode, requestedPickupDate time.Time) (models.ReTaskOrderFee, error) {
-	contractCode, err := FetchContractCode(appCtx, requestedPickupDate)
-	if err != nil {
-		return models.ReTaskOrderFee{}, err
-	}
-	var taskOrderFee models.ReTaskOrderFee
-	err = appCtx.DB().Q().
-		Join("re_contract_years cy", "re_task_order_fees.contract_year_id = cy.id").
-		Join("re_contracts c", "cy.contract_id = c.id").
-		Join("re_services s", "re_task_order_fees.service_id = s.id").
-		Where("c.code = $1", contractCode).
-		Where("s.code = $2", serviceCode).
-		Where("$3 between cy.start_date and cy.end_date", requestedPickupDate).
-		First(&taskOrderFee)
-
-	if err != nil {
-		return models.ReTaskOrderFee{}, err
-	}
-
-	return taskOrderFee, nil
 }
 
 func FetchContractCode(appCtx appcontext.AppContext, date time.Time) (string, error) {
@@ -248,6 +224,10 @@ func fetchDomesticServiceArea(appCtx appcontext.AppContext, contractCode string,
 
 func LookupFSCWeightBasedDistanceMultiplier(appCtx appcontext.AppContext, primeEstimatedWeight unit.Pound) (string, error) {
 	weight := primeEstimatedWeight.Int()
+	const weightBasedDistanceMultiplierLevelOne = "0.000417"
+	const weightBasedDistanceMultiplierLevelTwo = "0.0006255"
+	const weightBasedDistanceMultiplierLevelThree = "0.000834"
+	const weightBasedDistanceMultiplierLevelFour = "0.00139"
 
 	if weight <= 5000 {
 		return weightBasedDistanceMultiplierLevelOne, nil

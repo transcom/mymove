@@ -42,18 +42,20 @@ func (s *shipmentUpdater) UpdateShipment(appCtx appcontext.AppContext, shipment 
 	txErr := appCtx.NewTransaction(func(txnAppCtx appcontext.AppContext) (err error) {
 		mtoShipment, err = s.mtoShipmentUpdater.UpdateMTOShipment(txnAppCtx, shipment, eTag, api)
 
-		if mtoShipment.ShipmentType != models.MTOShipmentTypePPM && (shipment.PrimeEstimatedWeight != nil || mtoShipment.PrimeEstimatedWeight != nil) && mtoShipment.Status == models.MTOShipmentStatusApproved {
-			for index, serviceItem := range mtoShipment.MTOServiceItems {
-				var estimatedWeightToUse unit.Pound
-				if shipment.PrimeEstimatedWeight != nil {
-					estimatedWeightToUse = *shipment.PrimeEstimatedWeight
-				} else {
-					estimatedWeightToUse = *mtoShipment.PrimeEstimatedWeight
-				}
-				mtoShipment.MTOServiceItems[index].EstimatedWeight = &estimatedWeightToUse
-				serviceItemEstimatedPrice, err := pricing.FetchServiceItemPrice(appCtx, &serviceItem, *mtoShipment, planner)
-				if serviceItemEstimatedPrice != 0 && err == nil {
-					mtoShipment.MTOServiceItems[index].PricingEstimate = &serviceItemEstimatedPrice
+		if mtoShipment != nil {
+			if mtoShipment.ShipmentType != models.MTOShipmentTypePPM && (shipment.PrimeEstimatedWeight != nil || mtoShipment.PrimeEstimatedWeight != nil) && mtoShipment.Status == models.MTOShipmentStatusApproved {
+				for index, serviceItem := range mtoShipment.MTOServiceItems {
+					var estimatedWeightToUse unit.Pound
+					if shipment.PrimeEstimatedWeight != nil {
+						estimatedWeightToUse = *shipment.PrimeEstimatedWeight
+					} else {
+						estimatedWeightToUse = *mtoShipment.PrimeEstimatedWeight
+					}
+					mtoShipment.MTOServiceItems[index].EstimatedWeight = &estimatedWeightToUse
+					serviceItemEstimatedPrice, err := pricing.FetchServiceItemPrice(appCtx, &serviceItem, *mtoShipment, planner)
+					if serviceItemEstimatedPrice != 0 && err == nil {
+						mtoShipment.MTOServiceItems[index].PricingEstimate = &serviceItemEstimatedPrice
+					}
 				}
 			}
 		}
