@@ -1,0 +1,14 @@
+description: Describes a international Port of Embarkation/Debarkation fuel surcharge service item subtype of a MTOServiceItem.
+allOf:
+  - $ref: 'MTOServiceItem.yaml'
+  - type: object
+    properties:
+      reServiceCode:
+        type: string
+        description: A unique code for the service item. Indicates if the service is for Port of Embarkation (POEFSC) or Port of Debarkation (PODFSC).
+        enum:
+          - PODFSC # International Port of Debarkation Fuel Surcharge
+          - POEFSC # International Port of Embarkation Fuel Surcharge
+      portCode:
+        description: A unique code for a Port
+        type: string
