@@ -252,6 +252,12 @@ func (h GetDestinationRequestsQueueHandler) Handle(params queues.GetDestinationR
 					return queues.NewGetDestinationRequestsQueueInternalServerError(), err
 				}
 			}
+			privileges, err := models.FetchPrivilegesForUser(appCtx.DB(), appCtx.Session().UserID)
+			if err != nil {
+				appCtx.Logger().Error("Error retreiving user privileges", zap.Error(err))
+			}
+			officeUser.User.Privileges = privileges
+			officeUser.User.Roles = appCtx.Session().Roles
 
 			if err != nil {
 				appCtx.Logger().
