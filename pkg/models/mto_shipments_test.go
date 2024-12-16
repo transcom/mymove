@@ -324,3 +324,18 @@ func (suite *ModelSuite) TestCreateApprovedServiceItemsForShipment() {
 		suite.Error(err)
 	})
 }
+
+func (suite *ModelSuite) TestFindShipmentByID() {
+	suite.Run("success - test find", func() {
+		shipment := factory.BuildMTOShipmentMinimal(suite.DB(), nil, nil)
+		_, err := models.FetchShipmentByID(suite.DB(), shipment.ID)
+		suite.NoError(err)
+	})
+
+	suite.Run("not found test find", func() {
+		notValidID := uuid.Must(uuid.NewV4())
+		_, err := models.FetchShipmentByID(suite.DB(), notValidID)
+		suite.Error(err)
+		suite.Equal(models.ErrFetchNotFound, err)
+	})
+}

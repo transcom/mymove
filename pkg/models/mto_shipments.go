@@ -8,6 +8,7 @@ import (
 	"github.com/gobuffalo/validate/v3"
 	"github.com/gobuffalo/validate/v3/validators"
 	"github.com/gofrs/uuid"
+	"github.com/pkg/errors"
 
 	"github.com/transcom/mymove/pkg/unit"
 )
@@ -280,6 +281,10 @@ func (m MTOShipment) ContainsAPPMShipment() bool {
 	return m.PPMShipment != nil
 }
 
+func (m MTOShipment) IsPPMShipment() bool {
+	return m.ShipmentType == MTOShipmentTypePPM
+}
+
 // determining the market code for a shipment based off of address isOconus value
 // this function takes in a shipment and returns the same shipment with the updated MarketCode value
 func DetermineShipmentMarketCode(shipment *MTOShipment) *MTOShipment {
@@ -368,4 +373,18 @@ func CreateApprovedServiceItemsForShipment(db *pop.Connection, shipment *MTOShip
 	}
 
 	return nil
+}
+
+// Returns a Shipment for a given id
+func FetchShipmentByID(db *pop.Connection, shipmentID uuid.UUID) (*MTOShipment, error) {
+	var mtoShipment MTOShipment
+	err := db.Q().Find(&mtoShipment, shipmentID)
+
+	if err != nil {
+		if errors.Cause(err).Error() == RecordNotFoundErrorString {
+			return nil, ErrFetchNotFound
+		}
+		return nil, err
+	}
+	return &mtoShipment, nil
 }
