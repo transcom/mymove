@@ -171,3 +171,44 @@ describe('Create PPM', () => {
     });
   });
 });
+
+describe('Create Mobile Home', () => {
+  it('test with 2nd addresses', async () => {
+    createPrimeMTOShipmentV3.mockReturnValue({});
+
+    render(mockedComponent);
+
+    waitFor(async () => {
+      await userEvent.selectOptions(screen.getByLabelText('Shipment type'), 'MOBILE_HOME');
+
+      // Start controlled test case to verify everything is working.
+      let input = await document.querySelector('input[name="pickupAddress.streetAddress1"]');
+      expect(input).toBeInTheDocument();
+      // enter required street 1 for pickup
+      await userEvent.type(input, '123 Street');
+
+      const secondAddressToggle = document.querySelector('[data-testid="has-secondary-pickup"]');
+      expect(secondAddressToggle).toBeInTheDocument();
+      await userEvent.click(secondAddressToggle);
+
+      input = await document.querySelector('input[name="pickupAddress.streetAddress2"]');
+      expect(input).toBeInTheDocument();
+      // enter required street 1 for pickup 2
+      await userEvent.type(input, '123 Street');
+
+      input = await document.querySelector('input[name="destinationAddress.streetAddress1"]');
+      expect(input).toBeInTheDocument();
+      // enter something
+      await userEvent.type(input, '123 Street');
+
+      const saveButton = await screen.getByRole('button', { name: 'Save' });
+
+      expect(saveButton).not.toBeDisabled();
+      await userEvent.click(saveButton);
+
+      await waitFor(() => {
+        expect(mockNavigate).toHaveBeenCalledWith(moveDetailsURL);
+      });
+    });
+  });
+});

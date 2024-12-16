@@ -177,6 +177,10 @@ const PrimeUIShipmentCreate = ({ setFlashMessage }) => {
         destinationAddress,
         diversion,
         divertedFromShipmentId,
+        hasSecondaryPickupAddress,
+        hasSecondaryDestinationAddress,
+        hasTertiaryPickupAddress,
+        hasTertiaryDestinationAddress,
         boatShipment: {
           year,
           make,
@@ -191,6 +195,23 @@ const PrimeUIShipmentCreate = ({ setFlashMessage }) => {
           isRoadworthy,
         },
       } = values;
+
+      let { tertiaryPickupAddress, tertiaryDestinationAddress, secondaryPickupAddress, secondaryDestinationAddress } =
+        values;
+      if (hasSecondaryPickupAddress !== 'true') {
+        secondaryPickupAddress = {};
+        tertiaryPickupAddress = {};
+      }
+      if (hasTertiaryPickupAddress !== 'true') {
+        tertiaryPickupAddress = {};
+      }
+      if (hasSecondaryDestinationAddress !== 'true') {
+        secondaryDestinationAddress = {};
+        tertiaryDestinationAddress = {};
+      }
+      if (hasTertiaryDestinationAddress !== 'true') {
+        tertiaryDestinationAddress = {};
+      }
 
       // Sum the feet and inches fields into only inches for backend/db
       const totalLengthInInches = parseInt(lengthInFeet, 10) * 12 + parseInt(lengthInInches, 10);
@@ -219,6 +240,20 @@ const PrimeUIShipmentCreate = ({ setFlashMessage }) => {
         destinationAddress: isEmpty(destinationAddress) ? null : formatAddressForPrimeAPI(destinationAddress),
         diversion: diversion || null,
         divertedFromShipmentId: divertedFromShipmentId || null,
+        hasSecondaryPickupAddress: hasSecondaryPickupAddress === 'true',
+        hasSecondaryDestinationAddress: hasSecondaryDestinationAddress === 'true',
+        hasTertiaryPickupAddress: hasTertiaryPickupAddress === 'true',
+        hasTertiaryDestinationAddress: hasTertiaryDestinationAddress === 'true',
+        secondaryPickupAddress: isEmpty(secondaryPickupAddress)
+          ? null
+          : formatAddressForPrimeAPI(secondaryPickupAddress),
+        secondaryDestinationAddress: isEmpty(secondaryDestinationAddress)
+          ? null
+          : formatAddressForPrimeAPI(secondaryDestinationAddress),
+        tertiaryPickupAddress: isEmpty(tertiaryPickupAddress) ? null : formatAddressForPrimeAPI(tertiaryPickupAddress),
+        tertiaryDestinationAddress: isEmpty(tertiaryDestinationAddress)
+          ? null
+          : formatAddressForPrimeAPI(tertiaryDestinationAddress),
       };
     } else if (isMobileHome) {
       const {
@@ -229,6 +264,10 @@ const PrimeUIShipmentCreate = ({ setFlashMessage }) => {
         destinationAddress,
         diversion,
         divertedFromShipmentId,
+        hasSecondaryPickupAddress,
+        hasSecondaryDestinationAddress,
+        hasTertiaryPickupAddress,
+        hasTertiaryDestinationAddress,
         mobileHomeShipment: {
           year,
           make,
@@ -241,6 +280,23 @@ const PrimeUIShipmentCreate = ({ setFlashMessage }) => {
           heightInInches,
         },
       } = values;
+
+      let { tertiaryPickupAddress, tertiaryDestinationAddress, secondaryPickupAddress, secondaryDestinationAddress } =
+        values;
+      if (hasSecondaryPickupAddress !== 'true') {
+        secondaryPickupAddress = {};
+        tertiaryPickupAddress = {};
+      }
+      if (hasTertiaryPickupAddress !== 'true') {
+        tertiaryPickupAddress = {};
+      }
+      if (hasSecondaryDestinationAddress !== 'true') {
+        secondaryDestinationAddress = {};
+        tertiaryDestinationAddress = {};
+      }
+      if (hasTertiaryDestinationAddress !== 'true') {
+        tertiaryDestinationAddress = {};
+      }
 
       // Sum the feet and inches fields into only inches for backend/db
       const totalLengthInInches = parseInt(lengthInFeet, 10) * 12 + parseInt(lengthInInches, 10);
@@ -265,6 +321,20 @@ const PrimeUIShipmentCreate = ({ setFlashMessage }) => {
         destinationAddress: isEmpty(destinationAddress) ? null : formatAddressForPrimeAPI(destinationAddress),
         diversion: diversion || null,
         divertedFromShipmentId: divertedFromShipmentId || null,
+        hasSecondaryPickupAddress: hasSecondaryPickupAddress === 'true',
+        hasSecondaryDestinationAddress: hasSecondaryDestinationAddress === 'true',
+        hasTertiaryPickupAddress: hasTertiaryPickupAddress === 'true',
+        hasTertiaryDestinationAddress: hasTertiaryDestinationAddress === 'true',
+        secondaryPickupAddress: isEmpty(secondaryPickupAddress)
+          ? null
+          : formatAddressForPrimeAPI(secondaryPickupAddress),
+        secondaryDestinationAddress: isEmpty(secondaryDestinationAddress)
+          ? null
+          : formatAddressForPrimeAPI(secondaryDestinationAddress),
+        tertiaryPickupAddress: isEmpty(tertiaryPickupAddress) ? null : formatAddressForPrimeAPI(tertiaryPickupAddress),
+        tertiaryDestinationAddress: isEmpty(tertiaryDestinationAddress)
+          ? null
+          : formatAddressForPrimeAPI(tertiaryDestinationAddress),
       };
     } else {
       const {
