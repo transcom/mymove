@@ -1134,6 +1134,23 @@ func reServiceCodesForShipment(shipment models.MTOShipment) []models.ReServiceCo
 			models.ReServiceCodeDDP,
 			models.ReServiceCodeDBTF,
 		}
+	case models.MTOShipmentTypeUnaccompaniedBaggage:
+		pickupIsOconus, _ := models.IsAddressOconus(nil, *shipment.PickupAddress)
+		destinationIsOconus, _ := models.IsAddressOconus(nil, *shipment.DestinationAddress)
+		if pickupIsOconus && destinationIsOconus {
+			return []models.ReServiceCode{
+				models.ReServiceCodeUBP,
+				models.ReServiceCodeIUBPK,
+				models.ReServiceCodeIUBUPK,
+			}
+		} else {
+			return []models.ReServiceCode{
+				models.ReServiceCodeUBP,
+				models.ReServiceCodeFSC,
+				models.ReServiceCodeIUBPK,
+				models.ReServiceCodeIUBUPK,
+			}
+		}
 	}
 
 	return []models.ReServiceCode{}

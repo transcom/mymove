@@ -3030,4 +3030,73 @@ func (suite *MTOShipmentServiceSuite) TestUpdateStatusServiceItems() {
 
 		suite.Equal(models.ReServiceCodeDSH, serviceItems[0].ReService.Code)
 	})
+
+	suite.Run("Service Codes for UB CONUS CONUS", func() {
+		usCountry := models.Country{
+			Country: "US",
+		}
+		conusAddress := models.Address{
+			Country: &usCountry,
+			State:   "MO",
+		}
+		mtoShipment := models.MTOShipment{
+			DestinationAddress: &conusAddress,
+			PickupAddress:      &conusAddress,
+			ShipmentType:       "UNACCOMPANIED_BAGGAGE",
+		}
+
+		serviceCodes := reServiceCodesForShipment(mtoShipment)
+
+		suite.Equal(models.ReServiceCodeUBP, serviceCodes[0])
+		suite.Equal(models.ReServiceCodeFSC, serviceCodes[1])
+		suite.Equal(models.ReServiceCodeIUBPK, serviceCodes[2])
+		suite.Equal(models.ReServiceCodeIUBUPK, serviceCodes[3])
+	})
+
+	suite.Run("Service Codes for UB CONUS OCONUS", func() {
+		usCountry := models.Country{
+			Country: "US",
+		}
+		conusAddress := models.Address{
+			Country: &usCountry,
+			State:   "MO",
+		}
+		oconusAddress := models.Address{
+			Country: &usCountry,
+			State:   "AK",
+		}
+		mtoShipment := models.MTOShipment{
+			DestinationAddress: &oconusAddress,
+			PickupAddress:      &conusAddress,
+			ShipmentType:       "UNACCOMPANIED_BAGGAGE",
+		}
+
+		serviceCodes := reServiceCodesForShipment(mtoShipment)
+
+		suite.Equal(models.ReServiceCodeUBP, serviceCodes[0])
+		suite.Equal(models.ReServiceCodeFSC, serviceCodes[1])
+		suite.Equal(models.ReServiceCodeIUBPK, serviceCodes[2])
+		suite.Equal(models.ReServiceCodeIUBUPK, serviceCodes[3])
+	})
+
+	suite.Run("Service Codes for UB OCONUS OCONUS", func() {
+		usCountry := models.Country{
+			Country: "US",
+		}
+		oconusAddress := models.Address{
+			Country: &usCountry,
+			State:   "AK",
+		}
+		mtoShipment := models.MTOShipment{
+			DestinationAddress: &oconusAddress,
+			PickupAddress:      &oconusAddress,
+			ShipmentType:       "UNACCOMPANIED_BAGGAGE",
+		}
+
+		serviceCodes := reServiceCodesForShipment(mtoShipment)
+
+		suite.Equal(models.ReServiceCodeUBP, serviceCodes[0])
+		suite.Equal(models.ReServiceCodeIUBPK, serviceCodes[1])
+		suite.Equal(models.ReServiceCodeIUBUPK, serviceCodes[2])
+	})
 }
