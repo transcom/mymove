@@ -3,6 +3,7 @@ package pricing
 import (
 	"time"
 
+	"github.com/stretchr/testify/mock"
 	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
 	routemocks "github.com/transcom/mymove/pkg/route/mocks"
@@ -10,27 +11,6 @@ import (
 )
 
 func (suite *FetchServiceItemPriceTestSuite) TestFetchServiceItemPrice() {
-
-	/* 	suite.Run("Test Fetch Price Invalid Code", func() {
-		// Arrange
-		appCtx := suite.AppContextForTest()
-		mto_shipment := factory.BuildMTOShipmentMinimal(suite.DB(), nil, nil)
-		mto_service_item := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
-			{
-				Model: models.MTOServiceItem{},
-			},
-		}, nil)
-		mto_shipment.MTOServiceItems = append(mto_shipment.MTOServiceItems, mto_service_item)
-		planner := &routemocks.Planner{}
-
-		suite.MustSave(&mto_shipment)
-
-		// Act
-		price, err := FetchServiceItemPrice(appCtx, &mto_service_item, mto_shipment, planner)
-		// Assert
-		suite.Error(err)
-		suite.Equal(0, price)
-	}) */
 
 	/* 	suite.Run("Test Fetch Price Bad Contract Code", func() {
 		// Arrange
@@ -53,6 +33,7 @@ func (suite *FetchServiceItemPriceTestSuite) TestFetchServiceItemPrice() {
 		// Arrange
 		appCtx := suite.AppContextForTest()
 
+		// setup mto shipment
 		setupDate := time.Now()
 		estimatedWeight := unit.Pound(5000)
 		pickupAddress := factory.BuildAddress(suite.DB(), []factory.Customization{
@@ -89,7 +70,12 @@ func (suite *FetchServiceItemPriceTestSuite) TestFetchServiceItemPrice() {
 			},
 		}, nil)
 
-		serviceCode := models.ReServiceCodeDOP
+		// setup service item
+		setupReService := models.ReService{
+			Code:      models.ReServiceCodeDOP,
+			CreatedAt: setupDate,
+			UpdatedAt: setupDate,
+		}
 		reason := "Test"
 
 		mto_service_item := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
@@ -104,20 +90,185 @@ func (suite *FetchServiceItemPriceTestSuite) TestFetchServiceItemPrice() {
 				},
 			},
 			{
-				Model:    serviceCode,
+				Model:    setupReService,
 				LinkOnly: true,
 			},
 		}, nil)
 		mto_shipment.MTOServiceItems = append(mto_shipment.MTOServiceItems, mto_service_item)
-		planner := &routemocks.Planner{}
-
 		suite.MustSave(&mto_shipment)
 
 		// Act
+		price, err := FetchServiceItemPrice(appCtx, &mto_service_item, mto_shipment, nil)
+		// Assert
 
-		// mock fetch contract to fail??
+		suite.Error(err)
+		suite.Equal(0, price)
+	})
+
+	suite.Run("Test Fetch Price DSH", func() {
+		// Arrange
+		appCtx := suite.AppContextForTest()
+
+		// setup mto shipment
+		setupDate := time.Now()
+		estimatedWeight := unit.Pound(5000)
+		pickupAddress := factory.BuildAddress(suite.DB(), []factory.Customization{
+			{
+				Model: models.Address{
+					PostalCode: "23435",
+				},
+			},
+		}, nil)
+		destinationAddress := factory.BuildAddress(suite.DB(), []factory.Customization{
+			{
+				Model: models.Address{
+					PostalCode: "23436",
+				},
+			},
+		}, nil)
+		mto_shipment := factory.BuildMTOShipmentMinimal(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					PrimeEstimatedWeight: &estimatedWeight,
+					RequestedPickupDate:  &setupDate,
+					ShipmentType:         models.MTOShipmentTypeHHGIntoNTSDom,
+				},
+			},
+			{
+				Model:    pickupAddress,
+				LinkOnly: true,
+				Type:     &factory.Addresses.PickupAddress,
+			},
+			{
+				Model:    destinationAddress,
+				LinkOnly: true,
+				Type:     &factory.Addresses.DeliveryAddress,
+			},
+		}, nil)
+
+		// setup service item
+		setupReService := models.ReService{
+			Code:      models.ReServiceCodeDSH,
+			CreatedAt: setupDate,
+			UpdatedAt: setupDate,
+		}
+		reason := "Test"
+
+		mto_service_item := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOServiceItem{
+					MoveTaskOrder:   mto_shipment.MoveTaskOrder,
+					MoveTaskOrderID: mto_shipment.MoveTaskOrderID,
+					MTOShipment:     mto_shipment,
+					MTOShipmentID:   &mto_shipment.ID,
+					Reason:          &reason,
+					Status:          models.MTOServiceItemStatusApproved,
+				},
+			},
+			{
+				Model:    setupReService,
+				LinkOnly: true,
+			},
+		}, nil)
+		mto_shipment.MTOServiceItems = append(mto_shipment.MTOServiceItems, mto_service_item)
+		suite.MustSave(&mto_shipment)
+
+		planner := &routemocks.Planner{}
+
+		planner.On("ZipTransitDistance",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.AnythingOfType("String"),
+			mock.AnythingOfType("String"),
+		).Return(5, nil)
+
+		// Act
 		price, err := FetchServiceItemPrice(appCtx, &mto_service_item, mto_shipment, planner)
 		// Assert
+
+		suite.Error(err)
+		suite.Equal(0, price)
+	})
+
+	suite.Run("Test Fetch Price FSC", func() {
+		// Arrange
+		appCtx := suite.AppContextForTest()
+
+		// setup mto shipment
+		setupDate := time.Now()
+		estimatedWeight := unit.Pound(5000)
+		pickupAddress := factory.BuildAddress(suite.DB(), []factory.Customization{
+			{
+				Model: models.Address{
+					PostalCode: "23435",
+				},
+			},
+		}, nil)
+		destinationAddress := factory.BuildAddress(suite.DB(), []factory.Customization{
+			{
+				Model: models.Address{
+					PostalCode: "23436",
+				},
+			},
+		}, nil)
+		mto_shipment := factory.BuildMTOShipmentMinimal(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					PrimeEstimatedWeight: &estimatedWeight,
+					RequestedPickupDate:  &setupDate,
+					ShipmentType:         models.MTOShipmentTypeHHGIntoNTSDom,
+				},
+			},
+			{
+				Model:    pickupAddress,
+				LinkOnly: true,
+				Type:     &factory.Addresses.PickupAddress,
+			},
+			{
+				Model:    destinationAddress,
+				LinkOnly: true,
+				Type:     &factory.Addresses.DeliveryAddress,
+			},
+		}, nil)
+
+		// setup service item
+		setupReService := models.ReService{
+			Code:      models.ReServiceCodeFSC,
+			CreatedAt: setupDate,
+			UpdatedAt: setupDate,
+		}
+		reason := "Test"
+
+		mto_service_item := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOServiceItem{
+					MoveTaskOrder:   mto_shipment.MoveTaskOrder,
+					MoveTaskOrderID: mto_shipment.MoveTaskOrderID,
+					MTOShipment:     mto_shipment,
+					MTOShipmentID:   &mto_shipment.ID,
+					Reason:          &reason,
+					Status:          models.MTOServiceItemStatusApproved,
+				},
+			},
+			{
+				Model:    setupReService,
+				LinkOnly: true,
+			},
+		}, nil)
+		mto_shipment.MTOServiceItems = append(mto_shipment.MTOServiceItems, mto_service_item)
+		suite.MustSave(&mto_shipment)
+
+		planner := &routemocks.Planner{}
+
+		planner.On("ZipTransitDistance",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.AnythingOfType("String"),
+			mock.AnythingOfType("String"),
+		).Return(5, nil)
+
+		// Act
+		price, err := FetchServiceItemPrice(appCtx, &mto_service_item, mto_shipment, planner)
+		// Assert
+
 		suite.Error(err)
 		suite.Equal(0, price)
 	})
