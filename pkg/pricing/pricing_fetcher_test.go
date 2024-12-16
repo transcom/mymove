@@ -65,7 +65,7 @@ func (suite *FetchServiceItemPriceTestSuite) TestFetchServiceItemPrice() {
 		destinationAddress := factory.BuildAddress(suite.DB(), []factory.Customization{
 			{
 				Model: models.Address{
-					PostalCode: "2343",
+					PostalCode: "23436",
 				},
 			},
 		}, nil)
@@ -90,8 +90,6 @@ func (suite *FetchServiceItemPriceTestSuite) TestFetchServiceItemPrice() {
 		}, nil)
 
 		serviceCode := models.ReServiceCodeDOP
-
-		postalCode := "23435"
 		reason := "Test"
 
 		mto_service_item := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
@@ -101,8 +99,6 @@ func (suite *FetchServiceItemPriceTestSuite) TestFetchServiceItemPrice() {
 					MoveTaskOrderID: mto_shipment.MoveTaskOrderID,
 					MTOShipment:     mto_shipment,
 					MTOShipmentID:   &mto_shipment.ID,
-					SITEntryDate:    &setupDate,
-					SITPostalCode:   &postalCode,
 					Reason:          &reason,
 					Status:          models.MTOServiceItemStatusApproved,
 				},
