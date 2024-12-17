@@ -852,6 +852,7 @@ func (f *mtoShipmentUpdater) updateShipmentRecord(appCtx appcontext.AppContext, 
 
 		// if the shipment has an estimated weight, we need to update the service item pricing
 		// we only need to do this if the estimated weight, primary addresses, and pickup date are being updated since those all impact pricing
+		// we will compare data here to see if we even need to update the pricing
 		if newShipment.PrimeEstimatedWeight != nil &&
 			newShipment.MarketCode == models.MarketCodeInternational &&
 			(*newShipment.PrimeEstimatedWeight != *dbShipment.PrimeEstimatedWeight ||
