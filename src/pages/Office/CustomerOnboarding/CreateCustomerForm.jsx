@@ -305,7 +305,7 @@ export const CreateCustomerForm = ({ userPrivileges, setFlashMessage, setCanAddO
                 <Form className={classnames(formStyles.form, styles.form)}>
                   <h1 className={styles.header}>Create Customer Profile</h1>
                   <SectionWrapper className={sectionStyles}>
-                    <h3>Customer Affiliation</h3>
+                    <h3>Special Moves</h3>
                     {isSafetyPrivileged && (
                       <Fieldset className={styles.trailerOwnershipFieldset}>
                         <legend className="usa-label">Is this a Safety move?</legend>
@@ -358,6 +358,9 @@ export const CreateCustomerForm = ({ userPrivileges, setFlashMessage, setCanAddO
                         />
                       </div>
                     </Fieldset>
+                  </SectionWrapper>
+                  <SectionWrapper className={sectionStyles}>
+                    <h3>Customer Affiliation</h3>
                     <DropdownInput
                       label="Branch of service"
                       name="affiliation"
