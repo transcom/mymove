@@ -241,7 +241,7 @@ func (f mtoShipmentCreator) CreateMTOShipment(appCtx appcontext.AppContext, ship
 			shipment.TertiaryPickupAddress.County = county
 		}
 
-		if shipment.DestinationAddress != nil && shipment.ShipmentType != models.MTOShipmentTypeHHGIntoNTSDom {
+		if shipment.DestinationAddress != nil && shipment.ShipmentType != models.MTOShipmentTypeHHGIntoNTS {
 			destinationAddress, errAddress := f.addressCreator.CreateAddress(txnAppCtx, shipment.DestinationAddress)
 			if errAddress != nil {
 				return apperror.NewInvalidInputError(uuid.Nil, nil, nil, "failed to create destination address "+errAddress.Error())
@@ -308,7 +308,7 @@ func (f mtoShipmentCreator) CreateMTOShipment(appCtx appcontext.AppContext, ship
 				shipment.PickupAddress = &shipment.StorageFacility.Address
 			}
 			// For NTS set the destination address to the storage facility
-			if shipment.ShipmentType == models.MTOShipmentTypeHHGIntoNTSDom {
+			if shipment.ShipmentType == models.MTOShipmentTypeHHGIntoNTS {
 				shipment.DestinationAddressID = &shipment.StorageFacility.AddressID
 				shipment.DestinationAddress = &shipment.StorageFacility.Address
 			}

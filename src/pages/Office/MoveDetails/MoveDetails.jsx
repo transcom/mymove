@@ -65,11 +65,7 @@ const MoveDetails = ({
   // RA Modified Severity: N/A
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const errorIfMissing = {
-    HHG_INTO_NTS_DOMESTIC: [
-      { fieldName: 'storageFacility' },
-      { fieldName: 'serviceOrderNumber' },
-      { fieldName: 'tacType' },
-    ],
+    HHG_INTO_NTS: [{ fieldName: 'storageFacility' }, { fieldName: 'serviceOrderNumber' }, { fieldName: 'tacType' }],
     HHG_OUTOF_NTS_DOMESTIC: [
       { fieldName: 'storageFacility' },
       { fieldName: 'ntsRecordedWeight' },
