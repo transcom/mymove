@@ -152,10 +152,8 @@ func FetchServiceItemPrice(appCtx appcontext.AppContext, serviceItem *models.MTO
 				return 0, errors.New("invalid address or missing planner provided")
 			}
 
-			fscWeightBasedDistanceMultiplier, err := LookupFSCWeightBasedDistanceMultiplier(appCtx, *primeEstimatedWeight)
-			if err != nil {
-				return 0, err
-			}
+			fscWeightBasedDistanceMultiplier := LookupFSCWeightBasedDistanceMultiplier(appCtx, *primeEstimatedWeight)
+
 			fscWeightBasedDistanceMultiplierFloat, err := strconv.ParseFloat(fscWeightBasedDistanceMultiplier, 64)
 			if err != nil {
 				return 0, err
@@ -222,7 +220,7 @@ func fetchDomesticServiceArea(appCtx appcontext.AppContext, contractCode string,
 	return domesticServiceArea, nil
 }
 
-func LookupFSCWeightBasedDistanceMultiplier(appCtx appcontext.AppContext, primeEstimatedWeight unit.Pound) (string, error) {
+func LookupFSCWeightBasedDistanceMultiplier(appCtx appcontext.AppContext, primeEstimatedWeight unit.Pound) string {
 	weight := primeEstimatedWeight.Int()
 	const weightBasedDistanceMultiplierLevelOne = "0.000417"
 	const weightBasedDistanceMultiplierLevelTwo = "0.0006255"
@@ -230,14 +228,14 @@ func LookupFSCWeightBasedDistanceMultiplier(appCtx appcontext.AppContext, primeE
 	const weightBasedDistanceMultiplierLevelFour = "0.00139"
 
 	if weight <= 5000 {
-		return weightBasedDistanceMultiplierLevelOne, nil
+		return weightBasedDistanceMultiplierLevelOne
 	} else if weight <= 10000 {
-		return weightBasedDistanceMultiplierLevelTwo, nil
+		return weightBasedDistanceMultiplierLevelTwo
 	} else if weight <= 24000 {
-		return weightBasedDistanceMultiplierLevelThree, nil
+		return weightBasedDistanceMultiplierLevelThree
 		//nolint:revive
 	} else {
-		return weightBasedDistanceMultiplierLevelFour, nil
+		return weightBasedDistanceMultiplierLevelFour
 	}
 }
 
