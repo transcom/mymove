@@ -334,7 +334,7 @@ export const CreateCustomerForm = ({ userPrivileges, setFlashMessage, setCanAddO
                       </Fieldset>
                     )}
                     <Fieldset className={styles.trailerOwnershipFieldset}>
-                      <legend className="usa-label">Is this a Bluebark Move?</legend>
+                      <legend className="usa-label">Is this a Bluebark move?</legend>
                       <div className="grid-row grid-gap">
                         <Field
                           as={Radio}
