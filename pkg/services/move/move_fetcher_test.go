@@ -115,7 +115,6 @@ func (suite *MoveServiceSuite) TestMoveFetcherBulkAssignment() {
 				},
 			},
 		}, nil)
-		// requestedPickupDate := time.Date(2021, 04, 01, 0, 0, 0, 0, time.UTC)
 
 		// this move has a transportation office associated with it that matches
 		// the SC's transportation office and should be found
@@ -130,19 +129,8 @@ func (suite *MoveServiceSuite) TestMoveFetcherBulkAssignment() {
 				LinkOnly: true,
 				Type:     &factory.TransportationOffices.CloseoutOffice,
 			},
-			// {
-			// 	Model: models.MTOShipment{
-			// 		RequestedPickupDate:   &requestedPickupDate,
-			// 		RequestedDeliveryDate: &requestedPickupDate,
-			// 		Status:                models.MTOShipmentStatusSubmitted,
-			// 	},
-			// },
-			// {
-			// 	Model: models.PPMShipment{
-			// 		Status: models.PPMShipmentStatusNeedsAdvanceApproval,
-			// 	},
-			// },
 		}, nil)
+
 		factory.BuildMoveWithShipment(suite.DB(), []factory.Customization{
 			{
 				Model: models.Move{
@@ -154,20 +142,8 @@ func (suite *MoveServiceSuite) TestMoveFetcherBulkAssignment() {
 				LinkOnly: true,
 				Type:     &factory.TransportationOffices.CloseoutOffice,
 			},
-			// {
-			// 	Model: models.MTOShipment{
-			// 		RequestedPickupDate:   &requestedPickupDate,
-			// 		RequestedDeliveryDate: &requestedPickupDate,
-			// 		Status:                models.MTOShipmentStatusSubmitted,
-			// 	},
-			// },
-			// {
-			// 	Model: models.PPMShipment{
-			// 		Status: models.PPMShipmentStatusNeedsAdvanceApproval,
-			// 	},
-			// },
 		}, nil)
-		// factory.BuildMove(suite.DB(), nil, nil)
+
 		officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), []factory.Customization{
 			{
 				Model:    transportationOffice,
@@ -183,7 +159,7 @@ func (suite *MoveServiceSuite) TestMoveFetcherBulkAssignment() {
 		moveFetcher, _, _, officeUser := setupTestData()
 		moves, err := moveFetcher.FetchMovesForBulkAssignmentCounseling(suite.AppContextForTest(), "KKFA", officeUser.TransportationOffice.ID)
 		suite.FatalNoError(err)
-		suite.Equal(len(moves), 2)
+		suite.Equal(2, len(moves))
 	})
 
 	suite.Run("Does not return moves that are counseled by a different counseling office", func() {
@@ -273,9 +249,9 @@ func (suite *MoveServiceSuite) TestMoveFetcherBulkAssignment() {
 		suite.Equal(len(moves), 2)
 	})
 
-	// // BuildMoveWithPPMShipment apparently builds 3 moves each time its run, so the best way
-	// // to test is to make sure that the moveWithPPM move is not returned in these 3 separate tests
-	suite.Run("Does not return moves with PPMs in waiting on customer, needs closeout, or closeout compelte status", func() {
+	// BuildMoveWithPPMShipment apparently builds 3 moves each time its run, so the best way
+	// to test is to make sure that the moveWithPPM move is not returned in these 3 separate tests
+	suite.Run("Does not return moves with PPMs in waiting on customer status", func() {
 		moveFetcher := NewMoveFetcherBulkAssignment()
 		transportationOffice := factory.BuildTransportationOffice(suite.DB(), []factory.Customization{
 			{
@@ -326,7 +302,7 @@ func (suite *MoveServiceSuite) TestMoveFetcherBulkAssignment() {
 		suite.Equal(moveWithPPM.Orders.OrdersType, internalmessages.OrdersTypePERMANENTCHANGEOFSTATION)
 	})
 
-	suite.Run("Does not return moves with PPMs in waiting on customer, needs closeout, or closeout compelte status", func() {
+	suite.Run("Does not return moves with PPMs in wneeds closeout", func() {
 		moveFetcher := NewMoveFetcherBulkAssignment()
 		transportationOffice := factory.BuildTransportationOffice(suite.DB(), []factory.Customization{
 			{
@@ -376,7 +352,7 @@ func (suite *MoveServiceSuite) TestMoveFetcherBulkAssignment() {
 		// Orders type isn't WW, BB, or Safety
 		suite.Equal(moveWithPPM.Orders.OrdersType, internalmessages.OrdersTypePERMANENTCHANGEOFSTATION)
 	})
-	suite.Run("Does not return moves with PPMs in waiting on customer, needs closeout, or closeout compelte status", func() {
+	suite.Run("Does not return moves with PPMs in closeout complete status", func() {
 		moveFetcher := NewMoveFetcherBulkAssignment()
 		transportationOffice := factory.BuildTransportationOffice(suite.DB(), []factory.Customization{
 			{
@@ -484,56 +460,4 @@ func (suite *MoveServiceSuite) TestMoveFetcherBulkAssignment() {
 		// Orders type isn't WW, BB, or Safety
 		suite.Equal(assignedMove.Orders.OrdersType, internalmessages.OrdersTypePERMANENTCHANGEOFSTATION)
 	})
-	// suite.Run("Does not return moves that are already assigned", func() {
-	// 	// moveFetcher, _, transOffice, officeUser := setupTestData()
-	// 	moveFetcher := NewMoveFetcherBulkAssignment()
-	// 	transportationOffice := factory.BuildTransportationOffice(suite.DB(), []factory.Customization{
-	// 		{
-	// 			Model: models.TransportationOffice{
-	// 				ProvidesCloseout: true,
-	// 			},
-	// 		},
-	// 	}, nil)
-
-	// 	officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), []factory.Customization{
-	// 		{
-	// 			Model:    transportationOffice,
-	// 			LinkOnly: true,
-	// 			Type:     &factory.TransportationOffices.CloseoutOffice,
-	// 		},
-	// 	}, []roles.RoleType{roles.RoleTypeServicesCounselor})
-
-	// 	assignedMove, _ := factory.BuildSCAssignedMoveWithPPMShipment(suite.DB(), []factory.Customization{
-	// 		{
-	// 			Model: models.Move{
-	// 				Status: models.MoveStatusNeedsServiceCounseling,
-	// 			},
-	// 		},
-	// 		{
-	// 			Model:    transportationOffice,
-	// 			LinkOnly: true,
-	// 			Type:     &factory.TransportationOffices.CloseoutOffice,
-	// 		},
-	// 	}, nil)
-
-	// 	moves, err := moveFetcher.FetchMovesForBulkAssignmentCounseling(suite.AppContextForTest(), "KKFA", officeUser.TransportationOffice.ID)
-	// 	suite.FatalNoError(err)
-
-	// 	// confirm that the assigned move isn't returned
-	// 	for _, move := range moves {
-	// 		suite.NotEqual(move.ID, assignedMove.ID)
-	// 	}
-
-	// 	// confirm that the rest of the details are correct
-	// 	// move is NEEDS SERVICE COUNSELING STATUS
-	// 	suite.Equal(assignedMove.Status, models.MoveStatusNeedsServiceCounseling)
-	// 	// GBLOC is the same
-	// 	suite.Equal(*assignedMove.Orders.OriginDutyLocationGBLOC, officeUser.TransportationOffice.Gbloc)
-	// 	// Show is true
-	// 	suite.Equal(assignedMove.Show, models.BoolPointer(true))
-	// 	// Move is counseled by the office user's office
-	// 	suite.Equal(*assignedMove.CounselingOfficeID, officeUser.TransportationOfficeID)
-	// 	// Orders type isn't WW, BB, or Safety
-	// 	suite.Equal(assignedMove.Orders.OrdersType, internalmessages.OrdersTypePERMANENTCHANGEOFSTATION)
-	// })
 }

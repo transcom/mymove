@@ -34,7 +34,7 @@ func NewGetBulkAssignmentData(ctx *middleware.Context, handler GetBulkAssignment
 
 # Gets data for bulk assignment modal
 
-Supervisor office users are able to bulk assign moves. This endpoint returns the relvant data to them; the current workload of the office users that work under them, and the moves that are available to be assigned
+Supervisor office users are able to bulk assign moves. This endpoint returns the relevant data to them; the current workload of the office users that work under them, and the moves that are available to be assigned
 */
 type GetBulkAssignmentData struct {
 	Context *middleware.Context

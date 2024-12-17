@@ -114,7 +114,7 @@ func (f moveFetcher) FetchMovesForPPTASReports(appCtx appcontext.AppContext, par
 type moveFetcherBulkAssignment struct {
 }
 
-// NewMoveFetcher creates a new moveFetcher service
+// NewMoveFetcherBulkAssignment creates a new moveFetcherBulkAssignment service
 func NewMoveFetcherBulkAssignment() services.MoveFetcherBulkAssignment {
 	return &moveFetcherBulkAssignment{}
 }
@@ -165,35 +165,3 @@ func (f moveFetcherBulkAssignment) FetchMovesForBulkAssignmentCounseling(appCtx 
 
 	return moves, nil
 }
-
-// query := `SELECT m.id
-// 		FROM moves as m
-// 		JOIN
-// 			(
-// 				SELECT
-
-// 			)`
-
-// query := appCtx.DB().Q().
-// 	InnerJoin("orders", "orders.id = moves.orders_id").
-// 	InnerJoin("service_members", "orders.service_member_id = service_members.id").
-// 	InnerJoin("mto_shipments", "mto_shipments.move_id = moves.id").
-// 	InnerJoin("duty_locations as origin_dl", "orders.origin_duty_location_id = origin_dl.id").
-// 	Where("moves.status = 'NEEDS SERVICE COUNSELING' and orders.gbloc = $1 AND moves.show = $2", gbloc, models.BoolPointer(true))
-
-// if queueType == models.QueueTypeCounseling {
-// 	query.LeftJoin("ppm_shipments", "ppm_shipments.shipment_id = mto_shipments.id").
-// 		Where("moves.status = 'NEEDS SERVICE COUNSELING' AND moves.sc_assigned_id IS NULL AND moves.counseling_transportation_office_id = $3", officeId).
-// 		Where("(ppm_shipments.status IS NULL OR ppm_shipments.status NOT IN ($4, $5, $6))", models.PPMShipmentStatusWaitingOnCustomer, models.PPMShipmentStatusNeedsCloseout, models.PPMShipmentStatusCloseoutComplete)
-// }
-
-// // err := query.GroupBy("moves.id").All(&moves)
-// query.Select("moves.id, " +
-// 	"MIN(LEAST(" +
-// 	"COALESCE(mto_shipments.requested_pickup_date, '9999-12-31'), " +
-// 	"COALESCE(mto_shipments.requested_delivery_date, '9999-12-31'), " +
-// 	"COALESCE(ppm_shipments.expected_departure_date, '9999-12-31')" +
-// 	")) AS earliest_date").
-// 	GroupBy("moves.id").
-// 	Order("earliest_date ASC")
-// err := query.All(&moves)

@@ -538,7 +538,7 @@ func (h GetServicesCounselingQueueHandler) Handle(
 		})
 }
 
-// GetServicesCounselingOriginListHandler returns the origin list for the Service Counselor user via GET /queues/counselor/origin-list
+// GetBulkAssignmentDataHandler returns moves that the supervisor can assign, along with the office users they are able to assign to
 type GetBulkAssignmentDataHandler struct {
 	handlers.HandlerConfig
 	services.OfficeUserFetcherPop
@@ -550,6 +550,12 @@ func (h GetBulkAssignmentDataHandler) Handle(
 ) middleware.Responder {
 	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
 		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
+			if !appCtx.Session().IsOfficeUser() {
+				err := apperror.NewForbiddenError("not an office user")
+				appCtx.Logger().Error("Must be an office user", zap.Error(err))
+				return queues.NewGetBulkAssignmentDataUnauthorized(), err
+			}
+
 			officeUser, err := h.OfficeUserFetcherPop.FetchOfficeUserByID(appCtx, appCtx.Session().OfficeUserID)
 			if err != nil {
 				appCtx.Logger().Error("Error retrieving office_user", zap.Error(err))

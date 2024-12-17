@@ -55,10 +55,9 @@ func BuildOfficeUser(db *pop.Connection, customs []Customization, traits []Trait
 		LastName:  "Spaceman",
 		Email:     "leo_spaceman_office@example.com",
 		Telephone: "415-555-1212",
-		// TransportationOffice:   transportationOffice,
-		// TransportationOfficeID: transportationOffice.ID,
 	}
 
+	// DAD TODO: remove model or ID?
 	if closeoutOfficeResult != nil {
 		officeUser.TransportationOffice = closeoutOffice
 		officeUser.TransportationOfficeID = closeoutOffice.ID
