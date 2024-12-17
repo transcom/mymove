@@ -107,19 +107,13 @@ func (suite *OfficeUserServiceSuite) TestFetchOfficeUserByID() {
 func (suite *OfficeUserServiceSuite) TestFetchOfficeUsersWithWorkloadByRoleAndOffice() {
 	fetcher := NewOfficeUserFetcherPop()
 	suite.Run("FetchOfficeUsersWithWorkloadByRoleAndOffice returns an active office user's name, id, and workload when given a role and office", func() {
-		transportationOffice := factory.BuildTransportationOffice(suite.DB(), []factory.Customization{
-			{
-				Model: models.TransportationOffice{
-					ProvidesCloseout: true,
-				},
-			},
-		}, nil)
+		transportationOffice := factory.BuildTransportationOffice(suite.DB(), nil, nil)
 
 		officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), []factory.Customization{
 			{
 				Model:    transportationOffice,
 				LinkOnly: true,
-				Type:     &factory.TransportationOffices.CloseoutOffice,
+				Type:     &factory.TransportationOffices.CounselingOffice,
 			},
 			{
 				Model: models.OfficeUser{
@@ -137,7 +131,7 @@ func (suite *OfficeUserServiceSuite) TestFetchOfficeUsersWithWorkloadByRoleAndOf
 			{
 				Model:    transportationOffice,
 				LinkOnly: true,
-				Type:     &factory.TransportationOffices.CloseoutOffice,
+				Type:     &factory.TransportationOffices.CounselingOffice,
 			},
 			{
 				Model:    officeUser,
@@ -162,7 +156,6 @@ func (suite *OfficeUserServiceSuite) TestFetchOfficeUsersWithWorkloadByRoleAndOf
 		factory.BuildOfficeUserWithRoles(suite.DB(), factory.GetTraitActiveOfficeUser(), []roles.RoleType{roles.RoleTypeTIO})
 		factory.BuildOfficeUserWithRoles(suite.DB(), factory.GetTraitActiveOfficeUser(), []roles.RoleType{roles.RoleTypeTIO})
 		factory.BuildOfficeUserWithRoles(suite.DB(), factory.GetTraitActiveOfficeUser(), []roles.RoleType{roles.RoleTypeTIO})
-		// fetcher := NewOfficeUserFetcherPop()
 
 		fetchedUsers, err := fetcher.FetchOfficeUsersByRoleAndOffice(suite.AppContextForTest(), roles.RoleTypeTOO, officeUser.TransportationOfficeID)
 

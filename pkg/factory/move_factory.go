@@ -35,6 +35,14 @@ func BuildMove(db *pop.Connection, customs []Customization, traits []Trait) mode
 		closeoutOffice = BuildTransportationOffice(db, tempCloseoutOfficeCustoms, nil)
 	}
 
+	var counselingOffice models.TransportationOffice
+	tempCounselingOfficeCustoms := customs
+	counselingOfficeResult := findValidCustomization(customs, TransportationOffices.CounselingOffice)
+	if counselingOfficeResult != nil {
+		tempCounselingOfficeCustoms = convertCustomizationInList(tempCounselingOfficeCustoms, TransportationOffices.CounselingOffice, TransportationOffice)
+		counselingOffice = BuildTransportationOffice(db, tempCounselingOfficeCustoms, nil)
+	}
+
 	var scAssignedUser models.OfficeUser
 	tempSCAssignedUserCustoms := customs
 	scAssignedUserResult := findValidCustomization(customs, OfficeUsers.SCAssignedUser)
@@ -79,8 +87,11 @@ func BuildMove(db *pop.Connection, customs []Customization, traits []Trait) mode
 	if closeoutOfficeResult != nil {
 		move.CloseoutOffice = &closeoutOffice
 		move.CloseoutOfficeID = &closeoutOffice.ID
-		move.CounselingOffice = &closeoutOffice
-		move.CounselingOfficeID = &closeoutOffice.ID
+	}
+
+	if counselingOfficeResult != nil {
+		move.CounselingOffice = &counselingOffice
+		move.CounselingOfficeID = &counselingOffice.ID
 	}
 
 	if scAssignedUserResult != nil {

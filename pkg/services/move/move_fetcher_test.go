@@ -108,13 +108,7 @@ func (suite *MoveServiceSuite) TestMoveFetcher() {
 func (suite *MoveServiceSuite) TestMoveFetcherBulkAssignment() {
 	setupTestData := func() (services.MoveFetcherBulkAssignment, models.Move, models.TransportationOffice, models.OfficeUser) {
 		moveFetcher := NewMoveFetcherBulkAssignment()
-		transportationOffice := factory.BuildTransportationOffice(suite.DB(), []factory.Customization{
-			{
-				Model: models.TransportationOffice{
-					ProvidesCloseout: true,
-				},
-			},
-		}, nil)
+		transportationOffice := factory.BuildTransportationOffice(suite.DB(), nil, nil)
 
 		// this move has a transportation office associated with it that matches
 		// the SC's transportation office and should be found
@@ -127,7 +121,7 @@ func (suite *MoveServiceSuite) TestMoveFetcherBulkAssignment() {
 			{
 				Model:    transportationOffice,
 				LinkOnly: true,
-				Type:     &factory.TransportationOffices.CloseoutOffice,
+				Type:     &factory.TransportationOffices.CounselingOffice,
 			},
 		}, nil)
 
@@ -140,7 +134,7 @@ func (suite *MoveServiceSuite) TestMoveFetcherBulkAssignment() {
 			{
 				Model:    transportationOffice,
 				LinkOnly: true,
-				Type:     &factory.TransportationOffices.CloseoutOffice,
+				Type:     &factory.TransportationOffices.CounselingOffice,
 			},
 		}, nil)
 
@@ -148,7 +142,7 @@ func (suite *MoveServiceSuite) TestMoveFetcherBulkAssignment() {
 			{
 				Model:    transportationOffice,
 				LinkOnly: true,
-				Type:     &factory.TransportationOffices.CloseoutOffice,
+				Type:     &factory.TransportationOffices.CounselingOffice,
 			},
 		}, []roles.RoleType{roles.RoleTypeServicesCounselor})
 
@@ -164,13 +158,7 @@ func (suite *MoveServiceSuite) TestMoveFetcherBulkAssignment() {
 
 	suite.Run("Does not return moves that are counseled by a different counseling office", func() {
 		moveFetcher, _, _, officeUser := setupTestData()
-		transportationOffice := factory.BuildTransportationOffice(suite.DB(), []factory.Customization{
-			{
-				Model: models.TransportationOffice{
-					ProvidesCloseout: true,
-				},
-			},
-		}, nil)
+		transportationOffice := factory.BuildTransportationOffice(suite.DB(), nil, nil)
 
 		factory.BuildMoveWithShipment(suite.DB(), []factory.Customization{
 			{
@@ -181,13 +169,13 @@ func (suite *MoveServiceSuite) TestMoveFetcherBulkAssignment() {
 			{
 				Model:    transportationOffice,
 				LinkOnly: true,
-				Type:     &factory.TransportationOffices.CloseoutOffice,
+				Type:     &factory.TransportationOffices.CounselingOffice,
 			},
 		}, nil)
 
 		moves, err := moveFetcher.FetchMovesForBulkAssignmentCounseling(suite.AppContextForTest(), "KKFA", officeUser.TransportationOffice.ID)
 		suite.FatalNoError(err)
-		suite.Equal(len(moves), 2)
+		suite.Equal(2, len(moves))
 	})
 
 	suite.Run("Does not return moves with safety, bluebark, or wounded warrior order types", func() {
@@ -206,7 +194,7 @@ func (suite *MoveServiceSuite) TestMoveFetcherBulkAssignment() {
 			{
 				Model:    transportationOffice,
 				LinkOnly: true,
-				Type:     &factory.TransportationOffices.CloseoutOffice,
+				Type:     &factory.TransportationOffices.CounselingOffice,
 			},
 		}, nil)
 		factory.BuildMoveWithShipment(suite.DB(), []factory.Customization{
@@ -223,7 +211,7 @@ func (suite *MoveServiceSuite) TestMoveFetcherBulkAssignment() {
 			{
 				Model:    transportationOffice,
 				LinkOnly: true,
-				Type:     &factory.TransportationOffices.CloseoutOffice,
+				Type:     &factory.TransportationOffices.CounselingOffice,
 			},
 		}, nil)
 		factory.BuildMoveWithShipment(suite.DB(), []factory.Customization{
@@ -240,7 +228,7 @@ func (suite *MoveServiceSuite) TestMoveFetcherBulkAssignment() {
 			{
 				Model:    transportationOffice,
 				LinkOnly: true,
-				Type:     &factory.TransportationOffices.CloseoutOffice,
+				Type:     &factory.TransportationOffices.CounselingOffice,
 			},
 		}, nil)
 
@@ -253,18 +241,12 @@ func (suite *MoveServiceSuite) TestMoveFetcherBulkAssignment() {
 	// to test is to make sure that the moveWithPPM move is not returned in these 3 separate tests
 	suite.Run("Does not return moves with PPMs in waiting on customer status", func() {
 		moveFetcher := NewMoveFetcherBulkAssignment()
-		transportationOffice := factory.BuildTransportationOffice(suite.DB(), []factory.Customization{
-			{
-				Model: models.TransportationOffice{
-					ProvidesCloseout: true,
-				},
-			},
-		}, nil)
+		transportationOffice := factory.BuildTransportationOffice(suite.DB(), nil, nil)
 		moveWithPPM := factory.BuildMoveWithPPMShipment(suite.DB(), []factory.Customization{
 			{
 				Model:    transportationOffice,
 				LinkOnly: true,
-				Type:     &factory.TransportationOffices.CloseoutOffice,
+				Type:     &factory.TransportationOffices.CounselingOffice,
 			},
 			{
 				Model: models.PPMShipment{
@@ -277,7 +259,7 @@ func (suite *MoveServiceSuite) TestMoveFetcherBulkAssignment() {
 			{
 				Model:    transportationOffice,
 				LinkOnly: true,
-				Type:     &factory.TransportationOffices.CloseoutOffice,
+				Type:     &factory.TransportationOffices.CounselingOffice,
 			},
 		}, []roles.RoleType{roles.RoleTypeServicesCounselor})
 
@@ -304,18 +286,12 @@ func (suite *MoveServiceSuite) TestMoveFetcherBulkAssignment() {
 
 	suite.Run("Does not return moves with PPMs in wneeds closeout", func() {
 		moveFetcher := NewMoveFetcherBulkAssignment()
-		transportationOffice := factory.BuildTransportationOffice(suite.DB(), []factory.Customization{
-			{
-				Model: models.TransportationOffice{
-					ProvidesCloseout: true,
-				},
-			},
-		}, nil)
+		transportationOffice := factory.BuildTransportationOffice(suite.DB(), nil, nil)
 		moveWithPPM := factory.BuildMoveWithPPMShipment(suite.DB(), []factory.Customization{
 			{
 				Model:    transportationOffice,
 				LinkOnly: true,
-				Type:     &factory.TransportationOffices.CloseoutOffice,
+				Type:     &factory.TransportationOffices.CounselingOffice,
 			},
 			{
 				Model: models.PPMShipment{
@@ -328,7 +304,7 @@ func (suite *MoveServiceSuite) TestMoveFetcherBulkAssignment() {
 			{
 				Model:    transportationOffice,
 				LinkOnly: true,
-				Type:     &factory.TransportationOffices.CloseoutOffice,
+				Type:     &factory.TransportationOffices.CounselingOffice,
 			},
 		}, []roles.RoleType{roles.RoleTypeServicesCounselor})
 
@@ -365,7 +341,7 @@ func (suite *MoveServiceSuite) TestMoveFetcherBulkAssignment() {
 			{
 				Model:    transportationOffice,
 				LinkOnly: true,
-				Type:     &factory.TransportationOffices.CloseoutOffice,
+				Type:     &factory.TransportationOffices.CounselingOffice,
 			},
 			{
 				Model: models.PPMShipment{
@@ -378,7 +354,7 @@ func (suite *MoveServiceSuite) TestMoveFetcherBulkAssignment() {
 			{
 				Model:    transportationOffice,
 				LinkOnly: true,
-				Type:     &factory.TransportationOffices.CloseoutOffice,
+				Type:     &factory.TransportationOffices.CounselingOffice,
 			},
 		}, []roles.RoleType{roles.RoleTypeServicesCounselor})
 
@@ -406,19 +382,13 @@ func (suite *MoveServiceSuite) TestMoveFetcherBulkAssignment() {
 	suite.Run("Does not return moves that are already assigned", func() {
 		// moveFetcher, _, transOffice, officeUser := setupTestData()
 		moveFetcher := NewMoveFetcherBulkAssignment()
-		transportationOffice := factory.BuildTransportationOffice(suite.DB(), []factory.Customization{
-			{
-				Model: models.TransportationOffice{
-					ProvidesCloseout: true,
-				},
-			},
-		}, nil)
+		transportationOffice := factory.BuildTransportationOffice(suite.DB(), nil, nil)
 
 		officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), []factory.Customization{
 			{
 				Model:    transportationOffice,
 				LinkOnly: true,
-				Type:     &factory.TransportationOffices.CloseoutOffice,
+				Type:     &factory.TransportationOffices.CounselingOffice,
 			},
 		}, []roles.RoleType{roles.RoleTypeServicesCounselor})
 
@@ -431,7 +401,7 @@ func (suite *MoveServiceSuite) TestMoveFetcherBulkAssignment() {
 			{
 				Model:    transportationOffice,
 				LinkOnly: true,
-				Type:     &factory.TransportationOffices.CloseoutOffice,
+				Type:     &factory.TransportationOffices.CounselingOffice,
 			},
 			{
 				Model:    officeUser,
