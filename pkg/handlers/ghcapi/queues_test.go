@@ -1678,24 +1678,19 @@ func (suite *HandlerSuite) TestGetBulkAssignmentDataHandler() {
 		suite.IsType(&queues.GetBulkAssignmentDataUnauthorized{}, response)
 	})
 	suite.Run("returns properly formatted bulk assignment data", func() {
-		transportationOffice := factory.BuildTransportationOffice(suite.DB(), []factory.Customization{
-			{
-				Model: models.TransportationOffice{
-					ProvidesCloseout: true,
-				},
-			},
-		}, nil)
+		transportationOffice := factory.BuildTransportationOffice(suite.DB(), nil, nil)
 
 		officeUser := factory.BuildOfficeUserWithPrivileges(suite.DB(), []factory.Customization{
 			{
 				Model: models.OfficeUser{
-					Email: "officeuser1@example.com",
+					Email:  "officeuser1@example.com",
+					Active: true,
 				},
 			},
 			{
 				Model:    transportationOffice,
 				LinkOnly: true,
-				Type:     &factory.TransportationOffices.CloseoutOffice,
+				Type:     &factory.TransportationOffices.CounselingOffice,
 			},
 			{
 				Model: models.User{
@@ -1723,7 +1718,7 @@ func (suite *HandlerSuite) TestGetBulkAssignmentDataHandler() {
 			{
 				Model:    transportationOffice,
 				LinkOnly: true,
-				Type:     &factory.TransportationOffices.CloseoutOffice,
+				Type:     &factory.TransportationOffices.CounselingOffice,
 			},
 		}, nil)
 
