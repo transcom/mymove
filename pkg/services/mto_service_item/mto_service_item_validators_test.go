@@ -1159,6 +1159,186 @@ func (suite *MTOServiceItemServiceSuite) TestUpdateMTOServiceItemData() {
 		suite.Error(err)
 		suite.IsType(apperror.InvalidInputError{}, err)
 	})
+
+	suite.Run("checkPortLocation - updating poe location succeeds for POEFSC service item", func() {
+		oldServiceItemPrime := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model:    factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil),
+				LinkOnly: true,
+			},
+			{
+				Model: models.ReService{
+					Code: models.ReServiceCodePOEFSC,
+				},
+			},
+		}, nil)
+		newServiceItemPrime := oldServiceItemPrime
+
+		// Try to update SITDestinationOriginalAddress
+		newPortLocation := models.PortLocation{}
+		newServiceItemPrime.POELocation = &newPortLocation
+
+		serviceItemData := updateMTOServiceItemData{
+			updatedServiceItem:  newServiceItemPrime,
+			oldServiceItem:      oldServiceItemPrime,
+			verrs:               validate.NewErrors(),
+			availabilityChecker: checker,
+		}
+		err := serviceItemData.checkPortLocation(suite.AppContextForTest())
+
+		suite.NoError(err)
+	})
+
+	suite.Run("checkPortLocation - updating poe location fails for PODFSC service item", func() {
+		oldServiceItemPrime := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model:    factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil),
+				LinkOnly: true,
+			},
+			{
+				Model: models.ReService{
+					Code: models.ReServiceCodePODFSC,
+				},
+			},
+		}, nil)
+		newServiceItemPrime := oldServiceItemPrime
+
+		// Try to update SITDestinationOriginalAddress
+		newPortLocation := models.PortLocation{}
+		newServiceItemPrime.POELocation = &newPortLocation
+
+		serviceItemData := updateMTOServiceItemData{
+			updatedServiceItem:  newServiceItemPrime,
+			oldServiceItem:      oldServiceItemPrime,
+			verrs:               validate.NewErrors(),
+			availabilityChecker: checker,
+		}
+		err := serviceItemData.checkPortLocation(suite.AppContextForTest())
+
+		suite.Error(err)
+		suite.IsType(apperror.ConflictError{}, err)
+	})
+
+	suite.Run("checkPortLocation - updating poe location fails for other service items", func() {
+		oldServiceItemPrime := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model:    factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil),
+				LinkOnly: true,
+			},
+			{
+				Model: models.ReService{
+					Code: models.ReServiceCodeFSC,
+				},
+			},
+		}, nil)
+		newServiceItemPrime := oldServiceItemPrime
+
+		// Try to update SITDestinationOriginalAddress
+		newPortLocation := models.PortLocation{}
+		newServiceItemPrime.POELocation = &newPortLocation
+
+		serviceItemData := updateMTOServiceItemData{
+			updatedServiceItem:  newServiceItemPrime,
+			oldServiceItem:      oldServiceItemPrime,
+			verrs:               validate.NewErrors(),
+			availabilityChecker: checker,
+		}
+		err := serviceItemData.checkPortLocation(suite.AppContextForTest())
+
+		suite.Error(err)
+		suite.IsType(apperror.ConflictError{}, err)
+		suite.Contains(err.Error(), "- Port Location may only be manually updated for the following service items: PODFSC, POEFSC")
+	})
+
+	suite.Run("checkPortLocation - updating pod location succeeds for PODFSC service item", func() {
+		oldServiceItemPrime := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model:    factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil),
+				LinkOnly: true,
+			},
+			{
+				Model: models.ReService{
+					Code: models.ReServiceCodePODFSC,
+				},
+			},
+		}, nil)
+		newServiceItemPrime := oldServiceItemPrime
+
+		// Try to update SITDestinationOriginalAddress
+		newPortLocation := models.PortLocation{}
+		newServiceItemPrime.PODLocation = &newPortLocation
+
+		serviceItemData := updateMTOServiceItemData{
+			updatedServiceItem:  newServiceItemPrime,
+			oldServiceItem:      oldServiceItemPrime,
+			verrs:               validate.NewErrors(),
+			availabilityChecker: checker,
+		}
+		err := serviceItemData.checkPortLocation(suite.AppContextForTest())
+
+		suite.NoError(err)
+	})
+
+	suite.Run("checkPortLocation - updating pod location fails for POEFSC service item", func() {
+		oldServiceItemPrime := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model:    factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil),
+				LinkOnly: true,
+			},
+			{
+				Model: models.ReService{
+					Code: models.ReServiceCodePOEFSC,
+				},
+			},
+		}, nil)
+		newServiceItemPrime := oldServiceItemPrime
+
+		// Try to update SITDestinationOriginalAddress
+		newPortLocation := models.PortLocation{}
+		newServiceItemPrime.PODLocation = &newPortLocation
+
+		serviceItemData := updateMTOServiceItemData{
+			updatedServiceItem:  newServiceItemPrime,
+			oldServiceItem:      oldServiceItemPrime,
+			verrs:               validate.NewErrors(),
+			availabilityChecker: checker,
+		}
+		err := serviceItemData.checkPortLocation(suite.AppContextForTest())
+
+		suite.Error(err)
+		suite.IsType(apperror.ConflictError{}, err)
+	})
+
+	suite.Run("checkPortLocation - updating pod location fails for other service items", func() {
+		oldServiceItemPrime := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model:    factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil),
+				LinkOnly: true,
+			},
+			{
+				Model: models.ReService{
+					Code: models.ReServiceCodeFSC,
+				},
+			},
+		}, nil)
+		newServiceItemPrime := oldServiceItemPrime
+
+		// Try to update SITDestinationOriginalAddress
+		newPortLocation := models.PortLocation{}
+		newServiceItemPrime.PODLocation = &newPortLocation
+
+		serviceItemData := updateMTOServiceItemData{
+			updatedServiceItem:  newServiceItemPrime,
+			oldServiceItem:      oldServiceItemPrime,
+			verrs:               validate.NewErrors(),
+			availabilityChecker: checker,
+		}
+		err := serviceItemData.checkPortLocation(suite.AppContextForTest())
+
+		suite.Error(err)
+		suite.IsType(apperror.ConflictError{}, err)
+		suite.Contains(err.Error(), "- Port Location may only be manually updated for the following service items: PODFSC, POEFSC")
+	})
 }
 
 func (suite *MTOServiceItemServiceSuite) TestCreateMTOServiceItemValidators() {
