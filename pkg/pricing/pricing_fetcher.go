@@ -43,7 +43,6 @@ func FetchServiceItemPrice(appCtx appcontext.AppContext, serviceItem *models.MTO
 	}
 
 	var price unit.Cents
-	//var errorFound error
 	switch serviceItem.ReService.Code {
 	case models.ReServiceCodeDOP:
 		originPricer := ghcrateengine.NewDomesticOriginPricer()
