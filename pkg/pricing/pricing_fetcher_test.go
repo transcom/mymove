@@ -7,6 +7,7 @@ import (
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/suite"
 
+	"github.com/transcom/mymove/pkg/apperror"
 	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/route/mocks"
@@ -778,5 +779,14 @@ func (suite *PricingFetcherSuite) TestPricingFetcher() {
 
 		suite.Error(err, "Looking for GHCDieselFuelPrice")
 		suite.Equal(unit.Millicents(0), result)
+	})
+
+	suite.Run("Returns error when no contract year found", func() {
+		setup_prices(false)
+		invalidFutureDate := time.Now().AddDate(80, 0, 0)
+		_, err := FetchContractCode(suite.AppContextForTest(), invalidFutureDate)
+		suite.Error(err)
+		suite.IsType(apperror.NotFoundError{}, err)
+		suite.Contains(err.Error(), "no contract year found")
 	})
 }
