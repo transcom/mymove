@@ -104,30 +104,9 @@ func (suite *OfficeUserServiceSuite) TestFetchOfficeUserByID() {
 	})
 }
 
-func (suite *OfficeUserServiceSuite) TestFetchOfficeUsersByRoleAndOffice() {
-	suite.Run("FetchOfficeUsersByRoleAndOffice returns a set of office users when given an office and role", func() {
-		// build 1 TOO
-		officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), factory.GetTraitActiveOfficeUser(), []roles.RoleType{roles.RoleTypeTOO})
-		// build 2 SCs and 3 TIOs
-		factory.BuildOfficeUserWithRoles(suite.DB(), factory.GetTraitActiveOfficeUser(), []roles.RoleType{roles.RoleTypeServicesCounselor})
-		factory.BuildOfficeUserWithRoles(suite.DB(), factory.GetTraitActiveOfficeUser(), []roles.RoleType{roles.RoleTypeServicesCounselor})
-		factory.BuildOfficeUserWithRoles(suite.DB(), factory.GetTraitActiveOfficeUser(), []roles.RoleType{roles.RoleTypeTIO})
-		factory.BuildOfficeUserWithRoles(suite.DB(), factory.GetTraitActiveOfficeUser(), []roles.RoleType{roles.RoleTypeTIO})
-		factory.BuildOfficeUserWithRoles(suite.DB(), factory.GetTraitActiveOfficeUser(), []roles.RoleType{roles.RoleTypeTIO})
-		fetcher := NewOfficeUserFetcherPop()
-
-		fetchedUsers, err := fetcher.FetchOfficeUsersByRoleAndOffice(suite.AppContextForTest(), roles.RoleTypeTOO, officeUser.TransportationOfficeID)
-
-		// ensure length of returned set is 1, corresponding to the TOO role passed to FetchOfficeUsersByRoleAndOffice
-		// and not 2 (SC) or 3 (TIO)
-		suite.NoError(err)
-		suite.Len(fetchedUsers, 1)
-	})
-}
-
 func (suite *OfficeUserServiceSuite) TestFetchOfficeUsersWithWorkloadByRoleAndOffice() {
-	suite.Run("FetchOfficeUsersWithWorkloadByRoleAndOffice returns an office user's name, id, and workload when given a role and office", func() {
-		fetcher := NewOfficeUserFetcherPop()
+	fetcher := NewOfficeUserFetcherPop()
+	suite.Run("FetchOfficeUsersWithWorkloadByRoleAndOffice returns an active office user's name, id, and workload when given a role and office", func() {
 		transportationOffice := factory.BuildTransportationOffice(suite.DB(), []factory.Customization{
 			{
 				Model: models.TransportationOffice{
@@ -141,6 +120,11 @@ func (suite *OfficeUserServiceSuite) TestFetchOfficeUsersWithWorkloadByRoleAndOf
 				Model:    transportationOffice,
 				LinkOnly: true,
 				Type:     &factory.TransportationOffices.CloseoutOffice,
+			},
+			{
+				Model: models.OfficeUser{
+					Active: true,
+				},
 			},
 		}, []roles.RoleType{roles.RoleTypeServicesCounselor})
 
@@ -167,5 +151,24 @@ func (suite *OfficeUserServiceSuite) TestFetchOfficeUsersWithWorkloadByRoleAndOf
 		fetchedOfficeUser := fetchedUsers[0]
 		suite.Equal(officeUser.ID, fetchedOfficeUser.ID)
 		suite.Equal(1, fetchedOfficeUser.Workload)
+	})
+
+	suite.Run("FetchOfficeUsersByRoleAndOffice returns a set of office users when given an office and role", func() {
+		// build 1 TOO
+		officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), factory.GetTraitActiveOfficeUser(), []roles.RoleType{roles.RoleTypeTOO})
+		// build 2 SCs and 3 TIOs
+		factory.BuildOfficeUserWithRoles(suite.DB(), factory.GetTraitActiveOfficeUser(), []roles.RoleType{roles.RoleTypeServicesCounselor})
+		factory.BuildOfficeUserWithRoles(suite.DB(), factory.GetTraitActiveOfficeUser(), []roles.RoleType{roles.RoleTypeServicesCounselor})
+		factory.BuildOfficeUserWithRoles(suite.DB(), factory.GetTraitActiveOfficeUser(), []roles.RoleType{roles.RoleTypeTIO})
+		factory.BuildOfficeUserWithRoles(suite.DB(), factory.GetTraitActiveOfficeUser(), []roles.RoleType{roles.RoleTypeTIO})
+		factory.BuildOfficeUserWithRoles(suite.DB(), factory.GetTraitActiveOfficeUser(), []roles.RoleType{roles.RoleTypeTIO})
+		// fetcher := NewOfficeUserFetcherPop()
+
+		fetchedUsers, err := fetcher.FetchOfficeUsersByRoleAndOffice(suite.AppContextForTest(), roles.RoleTypeTOO, officeUser.TransportationOfficeID)
+
+		// ensure length of returned set is 1, corresponding to the TOO role passed to FetchOfficeUsersByRoleAndOffice
+		// and not 2 (SC) or 3 (TIO)
+		suite.NoError(err)
+		suite.Len(fetchedUsers, 1)
 	})
 }
