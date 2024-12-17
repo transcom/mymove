@@ -206,32 +206,30 @@ test.describe('Office Users Edit Page', () => {
     await expect(page.locator(`tr:has(:text("${email}")) >> td.column-lastName`)).toHaveText('NewLast');
   });
 
-  // test('prevents safety move priv selection with Customer role', async ({ page, adminPage }) => {
-  //   const officeUser = await adminPage.testHarness.buildOfficeUserWithCustomer();
-  //   const email = officeUser.okta_email;
+  test('prevents safety move priv selection with Customer role', async ({ page, adminPage }) => {
+    const officeUser = await adminPage.testHarness.buildOfficeUserWithCustomer();
+    const email = officeUser.okta_email;
 
-  //   // create a new admin user to edit
-  //   // using an existing one may stop on a concurrent playwright session
-  //   const adminUser = await adminPage.testHarness.buildDefaultSuperAdminUser();
-  //   const adminUserId = adminUser.id;
-  //   //await adminPage.signInAsNewAdminUser();
-  //   await adminPage.signInAsUserWithId(adminUser.id);
+    // create a new admin user to edit
+    // using an existing one may stop on a concurrent playwright session
+    const adminUser = await adminPage.testHarness.buildDefaultSuperAdminUser();
+    await adminPage.signInAsUserWithId(adminUser.user_id);
 
-  //   expect(page.url()).toContain('/system/requested-office-users');
-  //   await page.getByRole('menuitem', { name: 'Office Users', exact: true }).click();
-  //   expect(page.url()).toContain('/system/office-users');
-  //   await searchForOfficeUser(page, email);
-  //   await page.getByText(email).click();
-  //   await adminPage.waitForPage.adminPage();
+    expect(page.url()).toContain('/system/requested-office-users');
+    await page.getByRole('menuitem', { name: 'Office Users', exact: true }).click();
+    expect(page.url()).toContain('/system/office-users');
+    await searchForOfficeUser(page, email);
+    await page.getByText(email).click();
+    await adminPage.waitForPage.adminPage();
 
-  //   await page.getByRole('link', { name: 'Edit' }).click();
-  //   await adminPage.waitForPage.adminPage();
+    await page.getByRole('link', { name: 'Edit' }).click();
+    await adminPage.waitForPage.adminPage();
 
-  //   const safetyMoveCheckbox = page.getByLabel('Safety Moves');
-  //   const customerCheckbox = page.getByLabel('Customer', { exact: true});
+    const safetyMoveCheckbox = page.getByLabel('Safety Moves');
+    const customerCheckbox = page.getByLabel('Customer', { exact: true });
 
-  //   await expect(customerCheckbox).toBeChecked();
-  //   await safetyMoveCheckbox.click();
-  //   await expect(safetyMoveCheckbox).not.toBeChecked();
-  // });
+    await expect(customerCheckbox).toBeChecked();
+    await safetyMoveCheckbox.click();
+    await expect(safetyMoveCheckbox).not.toBeChecked();
+  });
 });

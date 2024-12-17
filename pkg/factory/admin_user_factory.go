@@ -80,9 +80,10 @@ func BuildSuperAdminUser(db *pop.Connection, customs []Customization, traits []T
 		User:      user,
 		FirstName: "Leo",
 		LastName:  "Spaceman",
-		Email:     "leo_spaceman_admin@example.com",
+		Email:     "super_leo_spaceman_admin@example.com",
 		Role:      "SYSTEM_ADMIN",
 		Super:     true,
+		Active:    true,
 	}
 	// Overwrite values with those from assertions
 	testdatagen.MergeModels(&adminUser, cAdminUser)

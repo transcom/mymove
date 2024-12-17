@@ -20,7 +20,7 @@ export class TestHarness {
   /**
    * @typedef {Object} Admin
    * @property {string} id
-   * @property {string} email
+   * @property {string} user_id
    */
 
   /**
