@@ -13,7 +13,7 @@ export const BulkAssignmentModal = ({ onSubmit, onClose, queueType }) => {
   if (isLoading) return <LoadingPlaceholder />;
   if (isError) return <SomethingWentWrong />;
   return (
-    <Modal>
+    <Modal className={styles.bulkAssignmentModalWrapper}>
       <ModalClose handleClick={() => onClose()} />
       <ModalTitle>
         <h3>Bulk Assignment</h3>
