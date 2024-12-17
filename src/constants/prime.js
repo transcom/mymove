@@ -16,8 +16,8 @@ export const shuttleServiceItemCodeOptions = [
 ];
 
 export const internationalShuttleServiceItemCodeOptions = [
-  { value: serviceItemCodes.DOSHUT, key: SERVICE_ITEM_CODES.IOSHUT },
-  { value: serviceItemCodes.DDSHUT, key: SERVICE_ITEM_CODES.IDSHUT },
+  { value: serviceItemCodes.IOSHUT, key: SERVICE_ITEM_CODES.IOSHUT },
+  { value: serviceItemCodes.IDSHUT, key: SERVICE_ITEM_CODES.IDSHUT },
 ];
 
 export const domesticCratingServiceItemCodeOptions = [
