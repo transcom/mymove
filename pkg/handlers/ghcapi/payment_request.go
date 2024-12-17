@@ -241,7 +241,6 @@ func (h UpdatePaymentRequestStatusHandler) Handle(
 				}
 			}
 			if !paymentRequestNeedingReview {
-
 				_, err := h.MoveAssignedOfficeUserUpdater.DeleteAssignedOfficeUser(appCtx, move.ID, roles.RoleTypeTIO)
 				if err != nil {
 					return paymentrequestop.NewUpdatePaymentRequestStatusInternalServerError(), err
