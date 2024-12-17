@@ -551,8 +551,8 @@ func (suite *PayloadsSuite) TestMTOShipmentWithoutServiceItems() {
 			},
 		},
 	}, nil)
-	value := MTOShipmentWithoutServiceItems(&mtoShipment)
-	suite.NotNil(value)
+	shipmentWithoutServiceItem := MTOShipmentWithoutServiceItems(&mtoShipment)
+	suite.NotNil(shipmentWithoutServiceItem)
 }
 
 func (suite *PayloadsSuite) TestMTOShipmentsWithoutServiceItems() {
@@ -595,9 +595,9 @@ func (suite *PayloadsSuite) TestMTOShipmentsWithoutServiceItems() {
 			},
 		},
 	}, nil)
-	shipments := models.MTOShipments{}
-	shipments = append(shipments, mtoShipmentTwo, mtoShipment)
-	value := MTOShipmentsWithoutServiceItems(&shipments)
+	shipmentList := models.MTOShipments{}
+	shipmentList = append(shipmentList, mtoShipmentTwo, mtoShipment)
+	value := MTOShipmentsWithoutServiceItems(&shipmentList)
 	suite.NotNil(value)
 }
 

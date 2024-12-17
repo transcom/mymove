@@ -18,6 +18,7 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/models/roles"
 	"github.com/transcom/mymove/pkg/services/mocks"
+	"github.com/transcom/mymove/pkg/services/move"
 	paymentrequest "github.com/transcom/mymove/pkg/services/payment_request"
 	"github.com/transcom/mymove/pkg/services/query"
 	"github.com/transcom/mymove/pkg/trace"
@@ -228,17 +229,25 @@ func (suite *HandlerSuite) TestGetPaymentRequestsForMoveHandler() {
 
 func (suite *HandlerSuite) TestUpdatePaymentRequestStatusHandler() {
 	paymentRequestID, _ := uuid.FromString("00000000-0000-0000-0000-000000000001")
-	officeUserUUID, _ := uuid.NewV4()
 
 	setupTestData := func() models.OfficeUser {
-		officeUser := factory.BuildOfficeUser(nil, []factory.Customization{
-			{Model: models.OfficeUser{
-				ID: officeUserUUID,
-			}},
+
+		transportationOffice := factory.BuildTransportationOffice(suite.DB(), []factory.Customization{
+			{
+				Model: models.TransportationOffice{
+					ProvidesCloseout: true,
+				},
+			},
 		}, nil)
-		officeUser.User.Roles = append(officeUser.User.Roles, roles.Role{
-			RoleType: roles.RoleTypeTIO,
-		})
+
+		officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), []factory.Customization{
+			{
+				Model:    transportationOffice,
+				LinkOnly: true,
+				Type:     &factory.TransportationOffices.CloseoutOffice,
+			},
+		}, []roles.RoleType{roles.RoleTypeTIO})
+
 		return officeUser
 	}
 	paymentRequest := models.PaymentRequest{
@@ -250,7 +259,45 @@ func (suite *HandlerSuite) TestUpdatePaymentRequestStatusHandler() {
 	}
 
 	statusUpdater := paymentrequest.NewPaymentRequestStatusUpdater(query.NewQueryBuilder())
+	suite.Run("successful status update payment request and remove assigned user", func() {
+		officeUser := setupTestData()
+		pendingPaymentRequest := factory.BuildPaymentRequest(suite.DB(), []factory.Customization{
+			{
+				Model:    officeUser,
+				LinkOnly: true,
+				Type:     &factory.OfficeUsers.TIOAssignedUser,
+			},
+		}, nil)
 
+		suite.NotNil(pendingPaymentRequest.MoveTaskOrder.TIOAssignedID)
+
+		paymentRequestFetcher := &mocks.PaymentRequestFetcher{}
+		paymentRequestFetcher.On("FetchPaymentRequest", mock.AnythingOfType("*appcontext.appContext"),
+			mock.Anything).Return(pendingPaymentRequest, nil).Once()
+
+		req := httptest.NewRequest("PATCH", fmt.Sprintf("/payment_request/%s/status", pendingPaymentRequest.ID), nil)
+		req = suite.AuthenticateOfficeRequest(req, officeUser)
+
+		params := paymentrequestop.UpdatePaymentRequestStatusParams{
+			HTTPRequest:      req,
+			Body:             &ghcmessages.UpdatePaymentRequestStatusPayload{Status: "REVIEWED", RejectionReason: nil, ETag: etag.GenerateEtag(pendingPaymentRequest.UpdatedAt)},
+			PaymentRequestID: strfmt.UUID(pendingPaymentRequest.ID.String()),
+		}
+
+		handler := UpdatePaymentRequestStatusHandler{
+			HandlerConfig:                 suite.HandlerConfig(),
+			PaymentRequestStatusUpdater:   statusUpdater,
+			PaymentRequestFetcher:         paymentRequestFetcher,
+			PaymentRequestListFetcher:     paymentrequest.NewPaymentRequestListFetcher(),
+			MoveAssignedOfficeUserUpdater: move.AssignedOfficeUserUpdater{},
+		}
+
+		response := handler.Handle(params)
+
+		payload := response.(*paymentrequestop.UpdatePaymentRequestStatusOK).Payload
+		suite.NotNil(payload.ReviewedAt)
+		suite.Nil(payload.MoveTaskOrder.TIOAssignedUser)
+	})
 	suite.Run("successful status update of payment request", func() {
 		officeUser := setupTestData()
 		pendingPaymentRequest := factory.BuildPaymentRequest(suite.DB(), nil, nil)
@@ -269,10 +316,11 @@ func (suite *HandlerSuite) TestUpdatePaymentRequestStatusHandler() {
 		}
 
 		handler := UpdatePaymentRequestStatusHandler{
-			HandlerConfig:               suite.HandlerConfig(),
-			PaymentRequestStatusUpdater: statusUpdater,
-			PaymentRequestFetcher:       paymentRequestFetcher,
-			PaymentRequestListFetcher:   paymentrequest.NewPaymentRequestListFetcher(),
+			HandlerConfig:                 suite.HandlerConfig(),
+			PaymentRequestStatusUpdater:   statusUpdater,
+			PaymentRequestFetcher:         paymentRequestFetcher,
+			PaymentRequestListFetcher:     paymentrequest.NewPaymentRequestListFetcher(),
+			MoveAssignedOfficeUserUpdater: move.AssignedOfficeUserUpdater{},
 		}
 
 		// Validate incoming payload
@@ -308,10 +356,11 @@ func (suite *HandlerSuite) TestUpdatePaymentRequestStatusHandler() {
 		}
 
 		handler := UpdatePaymentRequestStatusHandler{
-			HandlerConfig:               suite.HandlerConfig(),
-			PaymentRequestStatusUpdater: statusUpdater,
-			PaymentRequestFetcher:       paymentRequestFetcher,
-			PaymentRequestListFetcher:   paymentrequest.NewPaymentRequestListFetcher(),
+			HandlerConfig:                 suite.HandlerConfig(),
+			PaymentRequestStatusUpdater:   statusUpdater,
+			PaymentRequestFetcher:         paymentRequestFetcher,
+			PaymentRequestListFetcher:     paymentrequest.NewPaymentRequestListFetcher(),
+			MoveAssignedOfficeUserUpdater: move.AssignedOfficeUserUpdater{},
 		}
 
 		// Validate incoming payload

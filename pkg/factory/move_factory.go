@@ -35,6 +35,14 @@ func BuildMove(db *pop.Connection, customs []Customization, traits []Trait) mode
 		closeoutOffice = BuildTransportationOffice(db, tempCloseoutOfficeCustoms, nil)
 	}
 
+	var tioAssignedUser models.OfficeUser
+	temptioAssignedUserCustoms := customs
+	tioAssignedUserResult := findValidCustomization(customs, OfficeUsers.TIOAssignedUser)
+	if tioAssignedUserResult != nil {
+		temptioAssignedUserCustoms = convertCustomizationInList(temptioAssignedUserCustoms, OfficeUsers.TIOAssignedUser, OfficeUser)
+		tioAssignedUser = BuildOfficeUser(db, temptioAssignedUserCustoms, nil)
+	}
+
 	var defaultReferenceID string
 	var err error
 	if db != nil {
@@ -72,7 +80,10 @@ func BuildMove(db *pop.Connection, customs []Customization, traits []Trait) mode
 		move.CloseoutOffice = &closeoutOffice
 		move.CloseoutOfficeID = &closeoutOffice.ID
 	}
-
+	if tioAssignedUserResult != nil {
+		move.TIOAssignedUser = &tioAssignedUser
+		move.TIOAssignedID = &tioAssignedUser.ID
+	}
 	// Overwrite values with those from assertions
 	testdatagen.MergeModels(&move, cMove)
 

@@ -41,15 +41,15 @@ func (suite *PayloadsSuite) TestOrderWithMove() {
 
 func (suite *PayloadsSuite) TestBoatShipment() {
 	boat := factory.BuildBoatShipment(suite.DB(), nil, nil)
-	value := BoatShipment(nil, &boat)
-	suite.NotNil(value)
+	boatShipment := BoatShipment(nil, &boat)
+	suite.NotNil(boatShipment)
 
 }
 
 func (suite *PayloadsSuite) TestMobileHomeShipment() {
 	mobileHome := factory.BuildMobileHomeShipment(suite.DB(), nil, nil)
-	value := MobileHomeShipment(nil, &mobileHome)
-	suite.NotNil(value)
+	mobileHomeShipment := MobileHomeShipment(nil, &mobileHome)
+	suite.NotNil(mobileHomeShipment)
 }
 
 func (suite *PayloadsSuite) TestMovingExpense() {
@@ -69,8 +69,8 @@ func (suite *PayloadsSuite) TestMovingExpense() {
 		SITLocation:            &sitLocation,
 		SITReimburseableAmount: (*unit.Cents)(&sitReimburseableAmount),
 	}
-	value := MovingExpense(nil, &movingExpense)
-	suite.NotNil(value)
+	movingExpenseValues := MovingExpense(nil, &movingExpense)
+	suite.NotNil(movingExpenseValues)
 }
 
 func (suite *PayloadsSuite) TestMovingExpenses() {
@@ -103,8 +103,8 @@ func (suite *PayloadsSuite) TestMovingExpenses() {
 		SITReimburseableAmount: (*unit.Cents)(&sitReimburseableAmount),
 	}
 	movingExpenses = append(movingExpenses, movingExpense, movingExpenseTwo)
-	value := MovingExpenses(nil, movingExpenses)
-	suite.NotNil(value)
+	movingExpensesValue := MovingExpenses(nil, movingExpenses)
+	suite.NotNil(movingExpensesValue)
 }
 
 // TestMove makes sure zero values/optional fields are handled
@@ -749,44 +749,44 @@ func (suite *PayloadsSuite) TestCreateCustomer() {
 
 func (suite *PayloadsSuite) TestMoveTaskOrder() {
 	move := factory.BuildMove(suite.DB(), nil, nil)
-	value := MoveTaskOrder(&move)
-	suite.NotNil(value)
+	moveTaskOrder := MoveTaskOrder(&move)
+	suite.NotNil(moveTaskOrder)
 }
 
 func (suite *PayloadsSuite) TestTransportationOffice() {
-	transportationOffice := factory.BuildTransportationOffice(suite.DB(), []factory.Customization{
+	office := factory.BuildTransportationOffice(suite.DB(), []factory.Customization{
 		{
 			Model: models.TransportationOffice{
 				ID: uuid.Must(uuid.NewV4()),
 			},
 		}}, nil)
-	value := TransportationOffice(&transportationOffice)
-	suite.NotNil(value)
+	transportationOffice := TransportationOffice(&office)
+	suite.NotNil(transportationOffice)
 }
 func (suite *PayloadsSuite) TestTransportationOffices() {
-	transportationOffice := factory.BuildTransportationOffice(suite.DB(), []factory.Customization{
+	office := factory.BuildTransportationOffice(suite.DB(), []factory.Customization{
 		{
 			Model: models.TransportationOffice{
 				ID: uuid.Must(uuid.NewV4()),
 			},
 		}}, nil)
-	transportationOfficeTwo := factory.BuildTransportationOffice(suite.DB(), []factory.Customization{
+	officeTwo := factory.BuildTransportationOffice(suite.DB(), []factory.Customization{
 		{
 			Model: models.TransportationOffice{
 				ID: uuid.Must(uuid.NewV4()),
 			},
 		}}, nil)
-	list := models.TransportationOffices{}
-	list = append(list, transportationOffice, transportationOfficeTwo)
-	value := TransportationOffices(list)
+	transportationOfficeList := models.TransportationOffices{}
+	transportationOfficeList = append(transportationOfficeList, office, officeTwo)
+	value := TransportationOffices(transportationOfficeList)
 	suite.NotNil(value)
 }
 func (suite *PayloadsSuite) TestListMove() {
 
 	marines := models.AffiliationMARINES
-	value := ListMove(nil)
+	listMove := ListMove(nil)
 
-	suite.Nil(value)
+	suite.Nil(listMove)
 	moveUSMC := factory.BuildMove(suite.DB(), []factory.Customization{
 		{
 			Model: models.ServiceMember{
@@ -795,8 +795,8 @@ func (suite *PayloadsSuite) TestListMove() {
 		},
 	}, nil)
 
-	value = ListMove(&moveUSMC)
-	suite.NotNil(value)
+	listMove = ListMove(&moveUSMC)
+	suite.NotNil(listMove)
 }
 
 func (suite *PayloadsSuite) TestListMoves() {
