@@ -3582,8 +3582,9 @@ paths:
           type: string
           description: >
             Used to return a queue for a GBLOC other than the default of the
-            current user. Requires the HQ role. The parameter is ignored if the
-            requesting user does not have the necessary role.
+            current user. Requires the HQ role or a secondary transportation
+            office assignment. The parameter is ignored if the requesting user
+            does not have the necessary role or assignment.
         - in: query
           name: assignedTo
           type: string
@@ -3653,6 +3654,14 @@ paths:
             Only used for Services Counseling queue. If true, show PPM moves
             origin locations that are ready for closeout. Otherwise, show all
             other moves origin locations.
+        - in: query
+          name: viewAsGBLOC
+          type: string
+          description: >-
+            Used to return an origins list for a GBLOC other than the default of
+            the current user. Requires the HQ role or a secondary transportation
+            office assignment. The parameter is ignored if the requesting user
+            does not have the necessary role or assignment.
       responses:
         '200':
           description: Successfully returned all moves matching the criteria
@@ -3824,8 +3833,9 @@ paths:
           type: string
           description: >
             Used to return a queue for a GBLOC other than the default of the
-            current user. Requires the HQ role. The parameter is ignored if the
-            requesting user does not have the necessary role.
+            current user. Requires the HQ role or a secondary transportation
+            office assignment. The parameter is ignored if the requesting user
+            does not have the necessary role or assignment.
         - in: query
           name: assignedTo
           type: string
@@ -3948,8 +3958,9 @@ paths:
           type: string
           description: >
             Used to return a queue for a GBLOC other than the default of the
-            current user. Requires the HQ role. The parameter is ignored if the
-            requesting user does not have the necessary role.
+            current user. Requires the HQ role or a secondary transportation
+            office assignment. The parameter is ignored if the requesting user
+            does not have the necessary role or assignment.
       responses:
         '200':
           description: Successfully returned all moves matching the criteria
@@ -4712,6 +4723,10 @@ definitions:
         format: uuid
       transportationOffice:
         $ref: '#/definitions/TransportationOffice'
+      transportationOfficeAssignments:
+        type: array
+        items:
+          $ref: '#/definitions/TransportationOfficeAssignment'
       active:
         type: boolean
       roles:
@@ -5195,7 +5210,7 @@ definitions:
           Indicates if the move entitlement allows dependents to travel to the
           new Permanent Duty Station (PDS). This is only present on OCONUS
           moves.
-      ubAllowance:
+      unaccompaniedBaggageAllowance:
         type: integer
         example: 3
         x-nullable: true
@@ -8348,6 +8363,34 @@ definitions:
       - address
       - created_at
       - updated_at
+  TransportationOfficeAssignment:
+    type: object
+    properties:
+      officeUserId:
+        type: string
+        format: uuid
+        example: c56a4780-65aa-42ec-a945-5fd87dec0538
+      transportationOfficeId:
+        type: string
+        format: uuid
+        example: d67a4780-65aa-42ec-a945-5fd87dec0549
+      transportationOffice:
+        $ref: '#/definitions/TransportationOffice'
+      primaryOffice:
+        type: boolean
+        x-omitempty: false
+      createdAt:
+        type: string
+        format: date-time
+        readOnly: true
+      updatedAt:
+        type: string
+        format: date-time
+        readOnly: true
+    required:
+      - officeUserId
+      - transportationOfficeId
+      - primaryOffice
   DutyLocation:
     type: object
     properties:
@@ -8378,6 +8421,8 @@ definitions:
       - BLUEBARK
       - SAFETY
       - TEMPORARY_DUTY
+      - EARLY_RETURN_OF_DEPENDENTS
+      - STUDENT_TRAVEL
     x-display-value:
       PERMANENT_CHANGE_OF_STATION: Permanent Change Of Station
       LOCAL_MOVE: Local Move
@@ -8387,6 +8432,8 @@ definitions:
       BLUEBARK: BLUEBARK
       SAFETY: Safety
       TEMPORARY_DUTY: Temporary Duty (TDY)
+      EARLY_RETURN_OF_DEPENDENTS: Early Return of Dependents
+      STUDENT_TRAVEL: Student Travel
   Upload:
     description: An uploaded file.
     type: object

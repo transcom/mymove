@@ -78,29 +78,21 @@ func (h GetMovesQueueHandler) Handle(params queues.GetMovesQueueParams) middlewa
 				ListOrderParams.PerPage = models.Int64Pointer(20)
 			}
 
-			if params.ViewAsGBLOC != nil && appCtx.Session().Roles.HasRole(roles.RoleTypeHQ) {
-				ListOrderParams.ViewAsGBLOC = params.ViewAsGBLOC
-			}
-
-			moves, count, err := h.OrderFetcher.ListOrders(
-				appCtx,
-				appCtx.Session().OfficeUserID,
-				roles.RoleTypeTOO,
-				&ListOrderParams,
-			)
-			if err != nil {
-				appCtx.Logger().
-					Error("error fetching list of moves for office user", zap.Error(err))
-				return queues.NewGetMovesQueueInternalServerError(), err
-			}
-
 			var officeUser models.OfficeUser
+			var assignedGblocs []string
+			var err error
 			if appCtx.Session().OfficeUserID != uuid.Nil {
-				officeUser, err = h.OfficeUserFetcherPop.FetchOfficeUserByID(appCtx, appCtx.Session().OfficeUserID)
+				officeUser, err = h.OfficeUserFetcherPop.FetchOfficeUserByIDWithTransportationOfficeAssignments(appCtx, appCtx.Session().OfficeUserID)
 				if err != nil {
 					appCtx.Logger().Error("Error retrieving office_user", zap.Error(err))
-					return queues.NewGetServicesCounselingQueueInternalServerError(), err
+					return queues.NewGetMovesQueueInternalServerError(), err
 				}
+
+				assignedGblocs = models.GetAssignedGBLOCs(officeUser)
+			}
+
+			if params.ViewAsGBLOC != nil && (appCtx.Session().Roles.HasRole(roles.RoleTypeHQ) || slices.Contains(assignedGblocs, *params.ViewAsGBLOC)) {
+				ListOrderParams.ViewAsGBLOC = params.ViewAsGBLOC
 			}
 
 			privileges, err := models.FetchPrivilegesForUser(appCtx.DB(), appCtx.Session().UserID)
@@ -137,6 +129,18 @@ func (h GetMovesQueueHandler) Handle(params queues.GetMovesQueueParams) middlewa
 			if err != nil {
 				appCtx.Logger().
 					Error("error fetching office users", zap.Error(err))
+				return queues.NewGetMovesQueueInternalServerError(), err
+			}
+
+			moves, count, err := h.OrderFetcher.ListOrders(
+				appCtx,
+				appCtx.Session().OfficeUserID,
+				roles.RoleTypeTOO,
+				&ListOrderParams,
+			)
+			if err != nil {
+				appCtx.Logger().
+					Error("error fetching list of moves for office user", zap.Error(err))
 				return queues.NewGetMovesQueueInternalServerError(), err
 			}
 
@@ -279,28 +283,21 @@ func (h GetPaymentRequestsQueueHandler) Handle(
 				listPaymentRequestParams.PerPage = models.Int64Pointer(20)
 			}
 
-			if params.ViewAsGBLOC != nil && appCtx.Session().Roles.HasRole(roles.RoleTypeHQ) {
-				listPaymentRequestParams.ViewAsGBLOC = params.ViewAsGBLOC
-			}
-
-			paymentRequests, count, err := h.FetchPaymentRequestList(
-				appCtx,
-				appCtx.Session().OfficeUserID,
-				&listPaymentRequestParams,
-			)
-			if err != nil {
-				appCtx.Logger().
-					Error("payment requests queue", zap.String("office_user_id", appCtx.Session().OfficeUserID.String()), zap.Error(err))
-				return queues.NewGetPaymentRequestsQueueInternalServerError(), err
-			}
-
 			var officeUser models.OfficeUser
+			var assignedGblocs []string
+			var err error
 			if appCtx.Session().OfficeUserID != uuid.Nil {
-				officeUser, err = h.OfficeUserFetcherPop.FetchOfficeUserByID(appCtx, appCtx.Session().OfficeUserID)
+				officeUser, err = h.OfficeUserFetcherPop.FetchOfficeUserByIDWithTransportationOfficeAssignments(appCtx, appCtx.Session().OfficeUserID)
 				if err != nil {
 					appCtx.Logger().Error("Error retrieving office_user", zap.Error(err))
-					return queues.NewGetServicesCounselingQueueInternalServerError(), err
+					return queues.NewGetPaymentRequestsQueueInternalServerError(), err
 				}
+
+				assignedGblocs = models.GetAssignedGBLOCs(officeUser)
+			}
+
+			if params.ViewAsGBLOC != nil && (appCtx.Session().Roles.HasRole(roles.RoleTypeHQ) || slices.Contains(assignedGblocs, *params.ViewAsGBLOC)) {
+				listPaymentRequestParams.ViewAsGBLOC = params.ViewAsGBLOC
 			}
 
 			privileges, err := models.FetchPrivilegesForUser(appCtx.DB(), appCtx.Session().UserID)
@@ -336,6 +333,17 @@ func (h GetPaymentRequestsQueueHandler) Handle(
 			if err != nil {
 				appCtx.Logger().
 					Error("error fetching office users", zap.Error(err))
+				return queues.NewGetPaymentRequestsQueueInternalServerError(), err
+			}
+
+			paymentRequests, count, err := h.FetchPaymentRequestList(
+				appCtx,
+				appCtx.Session().OfficeUserID,
+				&listPaymentRequestParams,
+			)
+			if err != nil {
+				appCtx.Logger().
+					Error("payment requests queue", zap.String("office_user_id", appCtx.Session().OfficeUserID.String()), zap.Error(err))
 				return queues.NewGetPaymentRequestsQueueInternalServerError(), err
 			}
 
@@ -441,29 +449,21 @@ func (h GetServicesCounselingQueueHandler) Handle(
 				ListOrderParams.PerPage = models.Int64Pointer(20)
 			}
 
-			if params.ViewAsGBLOC != nil && appCtx.Session().Roles.HasRole(roles.RoleTypeHQ) {
-				ListOrderParams.ViewAsGBLOC = params.ViewAsGBLOC
-			}
-
-			moves, count, err := h.OrderFetcher.ListOrders(
-				appCtx,
-				appCtx.Session().OfficeUserID,
-				roles.RoleTypeServicesCounselor,
-				&ListOrderParams,
-			)
-			if err != nil {
-				appCtx.Logger().
-					Error("error fetching list of moves for office user", zap.Error(err))
-				return queues.NewGetServicesCounselingQueueInternalServerError(), err
-			}
-
 			var officeUser models.OfficeUser
+			var assignedGblocs []string
+			var err error
 			if appCtx.Session().OfficeUserID != uuid.Nil {
-				officeUser, err = h.OfficeUserFetcherPop.FetchOfficeUserByID(appCtx, appCtx.Session().OfficeUserID)
+				officeUser, err = h.OfficeUserFetcherPop.FetchOfficeUserByIDWithTransportationOfficeAssignments(appCtx, appCtx.Session().OfficeUserID)
 				if err != nil {
 					appCtx.Logger().Error("Error retrieving office_user", zap.Error(err))
 					return queues.NewGetServicesCounselingQueueInternalServerError(), err
 				}
+
+				assignedGblocs = models.GetAssignedGBLOCs(officeUser)
+			}
+
+			if params.ViewAsGBLOC != nil && (appCtx.Session().Roles.HasRole(roles.RoleTypeHQ) || slices.Contains(assignedGblocs, *params.ViewAsGBLOC)) {
+				ListOrderParams.ViewAsGBLOC = params.ViewAsGBLOC
 			}
 
 			privileges, err := models.FetchPrivilegesForUser(appCtx.DB(), appCtx.Session().UserID)
@@ -501,6 +501,19 @@ func (h GetServicesCounselingQueueHandler) Handle(
 			if err != nil {
 				appCtx.Logger().
 					Error("error fetching office users", zap.Error(err))
+				return queues.NewGetServicesCounselingQueueInternalServerError(), err
+			}
+
+			moves, count, err := h.OrderFetcher.ListOrders(
+				appCtx,
+				appCtx.Session().OfficeUserID,
+				roles.RoleTypeServicesCounselor,
+				&ListOrderParams,
+			)
+
+			if err != nil {
+				appCtx.Logger().
+					Error("error fetching list of moves for office user", zap.Error(err))
 				return queues.NewGetServicesCounselingQueueInternalServerError(), err
 			}
 
@@ -609,6 +622,7 @@ func (h GetBulkAssignmentDataHandler) Handle(
 type GetServicesCounselingOriginListHandler struct {
 	handlers.HandlerConfig
 	services.OrderFetcher
+	services.OfficeUserFetcherPop
 }
 
 // Handle returns the list of origin list for the services counselor
@@ -635,11 +649,29 @@ func (h GetServicesCounselingOriginListHandler) Handle(
 				ListOrderParams.Status = []string{string(models.MoveStatusNeedsServiceCounseling)}
 			}
 
+			var officeUser models.OfficeUser
+			var assignedGblocs []string
+			var err error
+			if appCtx.Session().OfficeUserID != uuid.Nil {
+				officeUser, err = h.OfficeUserFetcherPop.FetchOfficeUserByIDWithTransportationOfficeAssignments(appCtx, appCtx.Session().OfficeUserID)
+				if err != nil {
+					appCtx.Logger().Error("Error retrieving office_user", zap.Error(err))
+					return queues.NewGetServicesCounselingOriginListInternalServerError(), err
+				}
+
+				assignedGblocs = models.GetAssignedGBLOCs(officeUser)
+			}
+
+			if params.ViewAsGBLOC != nil && (appCtx.Session().Roles.HasRole(roles.RoleTypeHQ) || slices.Contains(assignedGblocs, *params.ViewAsGBLOC)) {
+				ListOrderParams.ViewAsGBLOC = params.ViewAsGBLOC
+			}
+
 			moves, err := h.OrderFetcher.ListAllOrderLocations(
 				appCtx,
 				appCtx.Session().OfficeUserID,
 				&ListOrderParams,
 			)
+
 			if err != nil {
 				appCtx.Logger().
 					Error("error fetching list of moves for office user", zap.Error(err))

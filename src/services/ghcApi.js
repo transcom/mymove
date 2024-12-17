@@ -653,13 +653,14 @@ export async function getServicesCounselingQueue(
   );
 }
 
-export async function getServicesCounselingOriginLocations(needsPPMCloseout) {
+export async function getServicesCounselingOriginLocations(needsPPMCloseout, viewAsGBLOC) {
   const operationPath = 'queues.getServicesCounselingOriginList';
 
   return makeGHCRequest(
     operationPath,
     {
       needsPPMCloseout,
+      viewAsGBLOC,
     },
 
     { schemaKey: 'Locations', normalize: false },
