@@ -850,6 +850,22 @@ func (f *mtoShipmentUpdater) updateShipmentRecord(appCtx appcontext.AppContext, 
 			return err
 		}
 
+		// if the shipment has an estimated weight, we need to update the service item pricing
+		// we only need to do this if the estimated weight, primary addresses, and pickup date are being updated since those all impact pricing
+		if newShipment.PrimeEstimatedWeight != nil &&
+			newShipment.MarketCode == models.MarketCodeInternational &&
+			(*newShipment.PrimeEstimatedWeight != *dbShipment.PrimeEstimatedWeight ||
+				newShipment.PickupAddress.PostalCode != dbShipment.PickupAddress.PostalCode ||
+				newShipment.DestinationAddress.PostalCode != dbShipment.DestinationAddress.PostalCode ||
+				newShipment.RequestedPickupDate.Format("2006-01-02") != dbShipment.RequestedPickupDate.Format("2006-01-02")) {
+
+			// Update the service item pricing if relevant fields have changed
+			err := models.UpdateEstimatedPricingForShipmentBasicServiceItems(appCtx.DB(), newShipment)
+			if err != nil {
+				return err
+			}
+		}
+
 		//
 		// Perform shipment recalculate payment request
 		//
