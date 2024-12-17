@@ -39,7 +39,7 @@ func (r DistanceZipSITOriginLookup) lookup(appCtx appcontext.AppContext, keyData
 	if originZip == actualOriginZip {
 		distanceMiles = 1
 	} else {
-		distanceMiles, distanceErr = planner.ZipTransitDistance(appCtx, originZip, actualOriginZip)
+		distanceMiles, distanceErr = planner.ZipTransitDistance(appCtx, originZip, actualOriginZip, false)
 	}
 	if distanceErr != nil {
 		return "", distanceErr

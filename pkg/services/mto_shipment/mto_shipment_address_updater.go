@@ -72,9 +72,9 @@ func UpdateOriginSITServiceItemSITDeliveryMiles(planner route.Planner, shipment 
 
 			// Origin SIT: distance between shipment pickup address & service item ORIGINAL pickup address
 			if serviceItem.SITOriginHHGOriginalAddress != nil {
-				milesCalculated, err = planner.ZipTransitDistance(appCtx, newAddress.PostalCode, serviceItem.SITOriginHHGOriginalAddress.PostalCode)
+				milesCalculated, err = planner.ZipTransitDistance(appCtx, newAddress.PostalCode, serviceItem.SITOriginHHGOriginalAddress.PostalCode, false)
 			} else {
-				milesCalculated, err = planner.ZipTransitDistance(appCtx, oldAddress.PostalCode, newAddress.PostalCode)
+				milesCalculated, err = planner.ZipTransitDistance(appCtx, oldAddress.PostalCode, newAddress.PostalCode, false)
 			}
 			if err != nil {
 				return nil, err

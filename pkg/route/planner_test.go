@@ -109,7 +109,7 @@ func (suite *PlannerFullSuite) TestZipDistance() {
 		{zip1: "902101234", zip2: caZip, distanceMin: 30, distanceMax: 49},
 	}
 	for _, ts := range tests {
-		distance, err := suite.planner.ZipTransitDistance(suite.AppContextForTest(), ts.zip1, ts.zip2)
+		distance, err := suite.planner.ZipTransitDistance(suite.AppContextForTest(), ts.zip1, ts.zip2, false)
 		if len(ts.zip1) > 5 {
 			suite.Error(err)
 			suite.Equal(distance, 0)

@@ -46,7 +46,7 @@ func (p *hhgPlanner) Zip3TransitDistance(_ appcontext.AppContext, _ string, _ st
 }
 
 // ZipTransitDistance calculates the distance between two valid Zips
-func (p *hhgPlanner) ZipTransitDistance(appCtx appcontext.AppContext, source string, destination string) (int, error) {
+func (p *hhgPlanner) ZipTransitDistance(appCtx appcontext.AppContext, source string, destination string, useDTOD bool) (int, error) {
 	sourceZip5 := source
 	if len(source) < 5 {
 		sourceZip5 = fmt.Sprintf("%05s", source)
@@ -58,7 +58,7 @@ func (p *hhgPlanner) ZipTransitDistance(appCtx appcontext.AppContext, source str
 	sourceZip3 := sourceZip5[0:3]
 	destZip3 := destZip5[0:3]
 
-	if sourceZip3 == destZip3 {
+	if sourceZip3 == destZip3 || useDTOD {
 		if sourceZip5 == destZip5 {
 			return 1, nil
 		}

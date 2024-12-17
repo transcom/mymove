@@ -36,6 +36,7 @@ func (suite *HandlerSuite) TestUpdateReweighHandler() {
 	mockPlanner.On("ZipTransitDistance",
 		recalculateTestPickupZip,
 		recalculateTestDestinationZip,
+		false,
 	).Return(recalculateTestZip3Distance, nil)
 
 	// Get shipment payment request recalculator service

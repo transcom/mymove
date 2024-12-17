@@ -156,9 +156,9 @@ func (_m *Planner) Zip5TransitDistanceLineHaul(appCtx appcontext.AppContext, sou
 	return r0, r1
 }
 
-// ZipTransitDistance provides a mock function with given fields: appCtx, source, destination
-func (_m *Planner) ZipTransitDistance(appCtx appcontext.AppContext, source string, destination string) (int, error) {
-	ret := _m.Called(appCtx, source, destination)
+// ZipTransitDistance provides a mock function with given fields: appCtx, source, destination, useDTOD
+func (_m *Planner) ZipTransitDistance(appCtx appcontext.AppContext, source string, destination string, useDTOD bool) (int, error) {
+	ret := _m.Called(appCtx, source, destination, useDTOD)
 
 	if len(ret) == 0 {
 		panic("no return value specified for ZipTransitDistance")
@@ -166,17 +166,17 @@ func (_m *Planner) ZipTransitDistance(appCtx appcontext.AppContext, source strin
 
 	var r0 int
 	var r1 error
-	if rf, ok := ret.Get(0).(func(appcontext.AppContext, string, string) (int, error)); ok {
-		return rf(appCtx, source, destination)
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, string, string, bool) (int, error)); ok {
+		return rf(appCtx, source, destination, useDTOD)
 	}
-	if rf, ok := ret.Get(0).(func(appcontext.AppContext, string, string) int); ok {
-		r0 = rf(appCtx, source, destination)
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, string, string, bool) int); ok {
+		r0 = rf(appCtx, source, destination, useDTOD)
 	} else {
 		r0 = ret.Get(0).(int)
 	}
 
-	if rf, ok := ret.Get(1).(func(appcontext.AppContext, string, string) error); ok {
-		r1 = rf(appCtx, source, destination)
+	if rf, ok := ret.Get(1).(func(appcontext.AppContext, string, string, bool) error); ok {
+		r1 = rf(appCtx, source, destination, useDTOD)
 	} else {
 		r1 = ret.Error(1)
 	}
