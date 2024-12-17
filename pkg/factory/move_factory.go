@@ -77,11 +77,14 @@ func BuildMove(db *pop.Connection, customs []Customization, traits []Trait) mode
 	}
 
 	if closeoutOfficeResult != nil {
+		move.CloseoutOffice = &closeoutOffice
 		move.CloseoutOfficeID = &closeoutOffice.ID
+		move.CounselingOffice = &closeoutOffice
 		move.CounselingOfficeID = &closeoutOffice.ID
 	}
 
 	if scAssignedUserResult != nil {
+		move.SCAssignedUser = &scAssignedUser
 		move.SCAssignedID = &scAssignedUser.ID
 	}
 
