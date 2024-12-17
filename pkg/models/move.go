@@ -103,6 +103,8 @@ type Move struct {
 	TIOAssignedUser                                *OfficeUser           `belongs_to:"office_users" fk_id:"tio_assigned_id"`
 	CounselingOfficeID                             *uuid.UUID            `json:"counseling_transportation_office_id" db:"counseling_transportation_office_id"`
 	CounselingOffice                               *TransportationOffice `belongs_to:"transportation_offices" fk_id:"counseling_transportation_office_id"`
+	TOODestinationAssignedID                       *uuid.UUID            `json:"too_destination_assigned_id" db:"too_destination_assigned_id"`
+	TOODestinationAssignedUser                     *OfficeUser           `belongs_to:"office_users" fk_id:"too_destination_assigned_id"`
 }
 
 // TableName overrides the table name used by Pop.
