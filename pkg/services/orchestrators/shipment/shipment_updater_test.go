@@ -27,7 +27,6 @@ func (suite *ShipmentSuite) TestUpdateShipment() {
 	updatePPMShipmentMethodName := "UpdatePPMShipmentWithDefaultCheck"
 	updateBoatShipmentMethodName := "UpdateBoatShipmentWithDefaultCheck"
 	updateMobileHomeShipmentMethodName := "UpdateMobileHomeShipmentWithDefaultCheck"
-	createMtoServiceItemMethodName := "FindEstimatedPrice"
 	updateMtoServiceItemMethodName := "UpdateMTOServiceItemBasic"
 
 	type subtestDataObjects struct {
@@ -38,8 +37,7 @@ func (suite *ShipmentSuite) TestUpdateShipment() {
 		mockMTOServiceItemCreator     *mocks.MTOServiceItemCreator
 		mockMTOServiceItemUpdater     *mocks.MTOServiceItemUpdater
 		shipmentUpdaterOrchestrator   services.ShipmentUpdater
-
-		fakeError error
+		fakeError                     error
 	}
 
 	makeSubtestData := func(returnErrorForMTOShipment bool, returnErrorForPPMShipment bool, returnErrorForBoatShipment bool, returnErrorForMobileHomeShipment bool, returnErrorForPricingServiceItem bool, returnErrorForMTOServiceItemUpdate bool, mockedReturnPrice unit.Cents) (subtestData subtestDataObjects) {
@@ -61,8 +59,6 @@ func (suite *ShipmentSuite) TestUpdateShipment() {
 		subtestData.mockMTOServiceItemUpdater = &mockMTOServiceItemUpdater
 
 		subtestData.shipmentUpdaterOrchestrator = NewShipmentUpdater(subtestData.mockMTOShipmentUpdater, subtestData.mockPPMShipmentUpdater, subtestData.mockBoatShipmentUpdater, subtestData.mockMobileHomeShipmentUpdater)
-
-		var returnCents = mockedReturnPrice
 
 		if returnErrorForMTOShipment {
 			subtestData.fakeError = apperror.NewInvalidInputError(uuid.Nil, nil, nil, "Pickup date missing")
@@ -206,21 +202,31 @@ func (suite *ShipmentSuite) TestUpdateShipment() {
 					ID: uuid.Must(uuid.FromString("a5e95c1d-97c3-4f79-8097-c12dd2557ac7")),
 				}, nil)
 		}
-		if returnErrorForPricingServiceItem {
-			subtestData.mockMTOServiceItemCreator.On(
-				createMtoServiceItemMethodName,
+
+		return subtestData
+	}
+
+	makeMTOSIUpdateData := func(updatedMtoMock models.MTOShipment) (subtestData subtestDataObjects) {
+		mockMTOShipmentUpdater := mocks.MTOShipmentUpdater{}
+		subtestData.mockMTOShipmentUpdater = &mockMTOShipmentUpdater
+
+		mockPPMShipmentUpdater := mocks.PPMShipmentUpdater{}
+		subtestData.mockPPMShipmentUpdater = &mockPPMShipmentUpdater
+
+		mockMTOServiceItemCreator := mocks.MTOServiceItemCreator{}
+		mockMTOServiceItemUpdater := mocks.MTOServiceItemUpdater{}
+		subtestData.mockMTOServiceItemCreator = &mockMTOServiceItemCreator
+		subtestData.mockMTOServiceItemUpdater = &mockMTOServiceItemUpdater
+
+		subtestData.mockMTOShipmentUpdater.
+			On(
+				updateMTOShipmentMethodName,
 				mock.AnythingOfType("*appcontext.appContext"),
-				mock.AnythingOfType("*models.MTOServiceItem"),
-				mock.AnythingOfType("models.MTOShipment"),
-			).Return(nil, subtestData.fakeError)
-		} else {
-			subtestData.mockMTOServiceItemCreator.On(
-				createMtoServiceItemMethodName,
-				mock.AnythingOfType("*appcontext.appContext"),
-				mock.AnythingOfType("*models.MTOServiceItem"),
-				mock.AnythingOfType("models.MTOShipment"),
-			).Return(returnCents, nil)
-		}
+				mock.AnythingOfType("*models.MTOShipment"),
+				mock.AnythingOfType("string"),
+				mock.AnythingOfType("string")).
+			Return(
+				&updatedMtoMock, nil)
 
 		return subtestData
 	}
@@ -515,7 +521,7 @@ func (suite *ShipmentSuite) TestUpdateShipment() {
 
 	suite.Run("I hate tests", func() {
 		appCtx := suite.AppContextForTest()
-		subtestData := makeSubtestData(false, false, false, false, false, false, 0)
+
 		setupTestData := func() models.MTOShipment {
 			// Set up data to use for all Origin SIT Service Item tests
 
@@ -544,6 +550,8 @@ func (suite *ShipmentSuite) TestUpdateShipment() {
 					Model: models.MTOShipment{
 						PrimeEstimatedWeight: &estimatedPrimeWeight,
 						RequestedPickupDate:  &pickupDate,
+						Status:               models.MTOShipmentStatusApproved,
+						ShipmentType:         models.MTOShipmentTypeHHG,
 					},
 				},
 			}, nil)
@@ -774,12 +782,7 @@ func (suite *ShipmentSuite) TestUpdateShipment() {
 		suite.MustSave(&shipment)
 		eTag := etag.GenerateEtag(shipment.UpdatedAt)
 
-		subtestData.mockMTOShipmentUpdater.On(
-			"FetchServiceItemPrice",
-			mock.AnythingOfType("*appcontext.appContext"),
-			mock.AnythingOfType("models.MTOServiceItem"),
-			mock.AnythingOfType("*models.MTOShipment")).
-			Return(shipment, nil)
+		subtestData := makeMTOSIUpdateData(shipment)
 
 		suite.NotEmpty(shipment.MTOServiceItems)
 
