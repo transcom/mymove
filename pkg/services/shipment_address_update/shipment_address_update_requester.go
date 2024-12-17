@@ -639,7 +639,6 @@ func (f *shipmentAddressUpdateRequester) ReviewShipmentAddressChange(appCtx appc
 		// this only applies to international shipments
 		if shipment.PrimeEstimatedWeight != nil &&
 			shipment.MarketCode == models.MarketCodeInternational {
-
 			err := models.UpdateEstimatedPricingForShipmentBasicServiceItems(appCtx.DB(), &shipment)
 			if err != nil {
 				return err
