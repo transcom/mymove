@@ -246,13 +246,7 @@ func LookupEIAFuelPrice(appCtx appcontext.AppContext, pickupDate time.Time) (uni
 	var ghcDieselFuelPrice models.GHCDieselFuelPrice
 	err := db.Where("publication_date <= ?", pickupDate).Order("publication_date DESC").Last(&ghcDieselFuelPrice)
 	if err != nil {
-		switch err {
-		case sql.ErrNoRows:
-			return 0, apperror.NewNotFoundError(uuid.Nil, "Looking for GHCDieselFuelPrice")
-		default:
-			return 0, apperror.NewQueryError("GHCDieselFuelPrice", err, "")
-		}
+		return 0, apperror.NewNotFoundError(uuid.Nil, "Unable to find GHCDieselFuelPrice")
 	}
-
 	return ghcDieselFuelPrice.FuelPriceInMillicents, nil
 }
