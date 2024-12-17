@@ -37,34 +37,28 @@ func BuildOfficeUser(db *pop.Connection, customs []Customization, traits []Trait
 	// Find/create the user model
 	user := BuildUserAndUsersRoles(db, customs, nil)
 
-	var closeoutOffice models.TransportationOffice
+	var transportationOffice models.TransportationOffice
 	tempCloseoutOfficeCustoms := customs
 	closeoutOfficeResult := findValidCustomization(customs, TransportationOffices.CloseoutOffice)
 	if closeoutOfficeResult != nil {
 		tempCloseoutOfficeCustoms = convertCustomizationInList(tempCloseoutOfficeCustoms, TransportationOffices.CloseoutOffice, TransportationOffice)
-		closeoutOffice = BuildTransportationOffice(db, tempCloseoutOfficeCustoms, nil)
+		transportationOffice = BuildTransportationOffice(db, tempCloseoutOfficeCustoms, nil)
+	} else {
+		transportationOffice = BuildTransportationOffice(db, customs, nil)
 	}
-	// Find/create the TransportationOffice model
-	basicTransportationOffice := BuildTransportationOffice(db, customs, nil)
 
 	// create officeuser
 	officeUser := models.OfficeUser{
-		UserID:    &user.ID,
-		User:      user,
-		FirstName: "Leo",
-		LastName:  "Spaceman",
-		Email:     "leo_spaceman_office@example.com",
-		Telephone: "415-555-1212",
+		UserID:                 &user.ID,
+		User:                   user,
+		FirstName:              "Leo",
+		LastName:               "Spaceman",
+		Email:                  "leo_spaceman_office@example.com",
+		Telephone:              "415-555-1212",
+		TransportationOffice:   transportationOffice,
+		TransportationOfficeID: transportationOffice.ID,
 	}
 
-	// DAD TODO: remove model or ID?
-	if closeoutOfficeResult != nil {
-		officeUser.TransportationOffice = closeoutOffice
-		officeUser.TransportationOfficeID = closeoutOffice.ID
-	} else {
-		officeUser.TransportationOffice = basicTransportationOffice
-		officeUser.TransportationOfficeID = basicTransportationOffice.ID
-	}
 	// Overwrite values with those from assertions
 	testdatagen.MergeModels(&officeUser, cOfficeUser)
 
