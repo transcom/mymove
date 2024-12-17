@@ -20,7 +20,7 @@ import (
 // swagger:model MTOShipment
 type MTOShipment struct {
 
-	// The actual date that the shipment was delivered to the destination address by the Prime
+	// The actual date that the shipment was delivered to the delivery address by the Prime
 	// Format: date
 	ActualDeliveryDate *strfmt.Date `json:"actualDeliveryDate,omitempty"`
 

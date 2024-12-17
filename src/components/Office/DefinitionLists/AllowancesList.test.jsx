@@ -1,7 +1,10 @@
 import React from 'react';
-import { render, screen } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
+import { act } from 'react-dom/test-utils';
 
 import AllowancesList from './AllowancesList';
+
+import { isBooleanFlagEnabled } from 'utils/featureFlags';
 
 const info = {
   branch: 'NAVY',
@@ -15,7 +18,77 @@ const info = {
   dependents: true,
   requiredMedicalEquipmentWeight: 1000,
   organizationalClothingAndIndividualEquipment: true,
+  ubAllowance: 400,
 };
+
+const initialValuesOconusAdditions = {
+  accompaniedTour: true,
+  dependentsTwelveAndOver: '2',
+  dependentsUnderTwelve: '4',
+  ubAllowance: 400,
+};
+
+const oconusInfo = {
+  accompaniedTour: true,
+  dependentsTwelveAndOver: 2,
+  dependentsUnderTwelve: 4,
+  ubAllowance: 400,
+};
+
+jest.mock('formik', () => ({
+  ...jest.requireActual('formik'),
+  useField: (field) => {
+    const initialValues = {
+      accompaniedTour: true,
+      dependentsTwelveAndOver: '2',
+      dependentsUnderTwelve: '4',
+      ubAllowance: '400',
+    };
+
+    switch (field.type) {
+      case 'checkbox': {
+        return [
+          {
+            name: field.name,
+            value: !!initialValues[field.name],
+            checked: !!initialValues[field.name],
+            onChange: jest.fn(),
+            onBlur: jest.fn(),
+          },
+          {
+            touched: false,
+          },
+          {
+            setValue: jest.fn(),
+            setTouched: jest.fn(),
+          },
+        ];
+      }
+
+      default: {
+        return [
+          {
+            value: initialValues[field.name],
+          },
+          {
+            touched: false,
+          },
+          {
+            setValue: jest.fn(),
+            setTouched: jest.fn(),
+          },
+        ];
+      }
+    }
+  },
+}));
+
+const { Formik } = jest.requireActual('formik');
+
+jest.mock('../../../utils/featureFlags', () => ({
+  ...jest.requireActual('../../../utils/featureFlags'),
+  isBooleanFlagEnabled: jest.fn().mockImplementation(() => Promise.resolve(false)),
+}));
 
 describe('AllowancesList', () => {
   it('renders formatted branch', () => {
@@ -76,5 +149,30 @@ describe('AllowancesList', () => {
     expect(screen.getByText('Spouse pro-gear').parentElement.className).toContain('rowWithVisualCue');
     expect(screen.getByText('Required medical equipment').parentElement.className).toContain('rowWithVisualCue');
     expect(screen.getByText('OCIE').parentElement.className).toContain('rowWithVisualCue');
+  });
+
+  it('does not render oconus fields by default', async () => {
+    render(<AllowancesList info={info} showVisualCues />);
+    expect(screen.queryByText('Accompanied tour')).not.toBeInTheDocument();
+    expect(screen.queryByLabelText(/Number of dependents under the age of 12/)).not.toBeInTheDocument();
+    expect(screen.queryByLabelText(/Number of dependents of the age 12 or over/)).not.toBeInTheDocument();
+    expect(screen.queryByText('Unaccompanied baggage allowance')).not.toBeInTheDocument();
+  });
+
+  it('does render oconus fields when present', async () => {
+    isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(true));
+    await act(async () => {
+      render(
+        <Formik initialValues={initialValuesOconusAdditions}>
+          <AllowancesList info={{ ...oconusInfo }} showVisualCues />
+        </Formik>,
+      );
+    });
+    // Wait for state
+    await waitFor(() => expect(screen.getByTestId('ordersAccompaniedTour')).toBeInTheDocument());
+    expect(screen.getByTestId('ordersDependentsUnderTwelve')).toBeInTheDocument();
+    expect(screen.getByTestId('ordersDependentsTwelveAndOver')).toBeInTheDocument();
+    expect(screen.getByTestId('unaccompaniedBaggageAllowance')).toBeInTheDocument();
+    expect(screen.getByTestId('unaccompaniedBaggageAllowance').textContent).toEqual('400 lbs');
   });
 });
