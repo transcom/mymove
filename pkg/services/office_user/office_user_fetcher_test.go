@@ -164,4 +164,12 @@ func (suite *OfficeUserServiceSuite) TestFetchOfficeUsersWithWorkloadByRoleAndOf
 		suite.NoError(err)
 		suite.Len(fetchedUsers, 1)
 	})
+
+	suite.Run("returns zero value office user on error", func() {
+		officeUser, err := fetcher.FetchOfficeUserByID(suite.AppContextForTest(), uuid.Nil)
+
+		suite.Error(err)
+		suite.IsType(apperror.NotFoundError{}, err)
+		suite.Equal(uuid.Nil, officeUser.ID)
+	})
 }
