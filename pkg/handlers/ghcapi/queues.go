@@ -736,8 +736,7 @@ func (h GetBulkAssignmentDataHandler) Handle(
 					appCtx.Logger().Error("Error retreiving moves", zap.Error(err))
 					return queues.NewGetBulkAssignmentDataInternalServerError(), err
 				}
-				fmt.Println("moves")
-				fmt.Println(moves)
+
 				officeUserData = payloads.BulkAssignmentData(appCtx, moves, officeUsers, officeUser.TransportationOffice.ID)
 			}
 			return queues.NewGetBulkAssignmentDataOK().WithPayload(&officeUserData), nil
