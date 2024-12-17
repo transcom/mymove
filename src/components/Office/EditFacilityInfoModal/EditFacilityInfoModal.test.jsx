@@ -40,7 +40,7 @@ describe('EditFacilityInfoModal', () => {
         onSubmit={mockOnSubmit}
         storageFacility={storageFacility}
         serviceOrderNumber="12345"
-        shipmentType="HHG_INTO_NTS_DOMESTIC"
+        shipmentType="HHG_INTO_NTS"
       />,
     );
     const submitBtn = screen.getByRole('button', { name: 'Save' });
@@ -60,7 +60,7 @@ describe('EditFacilityInfoModal', () => {
         onSubmit={mockOnSubmit}
         storageFacility={incompleteStorageFacility}
         serviceOrderNumber="12345"
-        shipmentType="HHG_INTO_NTS_DOMESTIC"
+        shipmentType="HHG_INTO_NTS"
       />,
     );
     const addressInput = screen.getByLabelText(/Address 1/);
@@ -81,7 +81,7 @@ describe('EditFacilityInfoModal', () => {
         onSubmit={() => {}}
         storageFacility={incompleteStorageFacility}
         serviceOrderNumber="12345"
-        shipmentType="HHG_INTO_NTS_DOMESTIC"
+        shipmentType="HHG_INTO_NTS"
       />,
     );
     const submitBtn = screen.getByRole('button', { name: 'Save' });
@@ -98,7 +98,7 @@ describe('EditFacilityInfoModal', () => {
         onSubmit={() => {}}
         storageFacility={storageFacility}
         serviceOrderNumber="12345"
-        shipmentType="HHG_INTO_NTS_DOMESTIC"
+        shipmentType="HHG_INTO_NTS"
       />,
     );
     const closeBtn = screen.getByRole('button', { name: 'Cancel' });
