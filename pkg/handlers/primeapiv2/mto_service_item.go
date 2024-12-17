@@ -42,6 +42,26 @@ func (h CreateMTOServiceItemHandler) Handle(params mtoserviceitemops.CreateMTOSe
 	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
 		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
 
+			// ** Create service item can not be done for PPM shipment **/
+			shipment, err := models.FetchShipmentByID(appCtx.DB(), uuid.FromStringOrNil(params.Body.MtoShipmentID().String()))
+			if err != nil {
+				appCtx.Logger().Error("primeapi.CreateMTOServiceItemHandler.v2 Error Fetch Shipment", zap.Error(err))
+				switch err {
+				case models.ErrFetchNotFound:
+					return mtoserviceitemops.NewCreateMTOServiceItemNotFound().WithPayload(primeapipayloads.ClientError(handlers.NotFoundMessage, "Fetch Shipment", h.GetTraceIDFromRequest(params.HTTPRequest))), err
+				default:
+					return mtoserviceitemops.NewCreateMTOServiceItemInternalServerError().WithPayload(primeapipayloads.InternalServerError(nil, h.GetTraceIDFromRequest(params.HTTPRequest))), err
+				}
+			}
+
+			if shipment.ShipmentType == models.MTOShipmentTypePPM {
+				verrs := validate.NewErrors()
+				verrs.Add("ShipmentType", string(shipment.ShipmentType))
+				appCtx.Logger().Error("primeapi.CreateMTOServiceItemHandler.v2 error", zap.Error(verrs))
+				return mtoserviceitemops.NewCreateMTOServiceItemUnprocessableEntity().WithPayload(primeapipayloads.ValidationError(
+					"Create Service Item is not allowed", h.GetTraceIDFromRequest(params.HTTPRequest), verrs)), verrs
+			}
+
 			/** Feature Flag - Alaska **/
 			isAlaskaEnabled := false
 			featureFlagName := "enable_alaska"
