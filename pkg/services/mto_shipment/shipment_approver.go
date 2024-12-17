@@ -77,13 +77,6 @@ func (f *shipmentApprover) ApproveShipment(appCtx appcontext.AppContext, shipmen
 		}
 	}
 
-	// create international shipment service items
-	if shipment.ShipmentType == models.MTOShipmentTypeHHG && shipment.MarketCode == models.MarketCodeInternational {
-		err := models.CreateApprovedServiceItemsForShipment(appCtx.DB(), shipment)
-		if err != nil {
-			return shipment, err
-		}
-	}
 	transactionError := appCtx.NewTransaction(func(txnAppCtx appcontext.AppContext) error {
 		verrs, err := txnAppCtx.DB().ValidateAndSave(shipment)
 		if verrs != nil && verrs.HasAny() {
@@ -95,11 +88,29 @@ func (f *shipmentApprover) ApproveShipment(appCtx appcontext.AppContext, shipmen
 			return err
 		}
 
-		// after approving shipment, shipment level service items must be created
-		err = f.createShipmentServiceItems(txnAppCtx, shipment)
-		if err != nil {
-			return err
+		// create international shipment service items
+		// we use a database proc to create the basic auto-approved service items
+		if shipment.ShipmentType == models.MTOShipmentTypeHHG && shipment.MarketCode == models.MarketCodeInternational {
+			err := models.CreateApprovedServiceItemsForShipment(appCtx.DB(), shipment)
+			if err != nil {
+				return err
+			}
+
+			// Update the service item pricing if we have the estimated weight
+			if shipment.PrimeEstimatedWeight != nil {
+				err = models.UpdateEstimatedPricingForShipmentBasicServiceItems(appCtx.DB(), shipment)
+				if err != nil {
+					return err
+				}
+			}
+		} else {
+			// after approving shipment, shipment level service items must be created
+			err = f.createShipmentServiceItems(txnAppCtx, shipment)
+			if err != nil {
+				return err
+			}
 		}
+
 		return nil
 	})
 

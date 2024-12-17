@@ -635,6 +635,17 @@ func (f *shipmentAddressUpdateRequester) ReviewShipmentAddressChange(appCtx appc
 			return err
 		}
 
+		// if the shipment has an estimated weight, we need to update the service item pricing since we know the distances have changed
+		// this only applies to international shipments
+		if shipment.PrimeEstimatedWeight != nil &&
+			shipment.MarketCode == models.MarketCodeInternational {
+
+			err := models.UpdateEstimatedPricingForShipmentBasicServiceItems(appCtx.DB(), &shipment)
+			if err != nil {
+				return err
+			}
+		}
+
 		_, err = f.moveRouter.ApproveOrRequestApproval(appCtx, shipment.MoveTaskOrder)
 		if err != nil {
 			return err
