@@ -4,6 +4,7 @@ import (
 	"time"
 
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/models/roles"
 )
 
 func (suite *FactorySuite) TestBuildMove() {
@@ -266,6 +267,23 @@ func (suite *FactorySuite) TestBuildMove() {
 		move := BuildMoveWithShipment(suite.DB(), nil, nil)
 		suite.NotEmpty(move.MTOShipments)
 		suite.Equal(models.MTOShipmentStatusSubmitted, move.MTOShipments[0].Status)
+	})
+	suite.Run("Successful creation of a move with an assigned TIO", func() {
+		officeUser := BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTIO})
+
+		move := BuildMoveWithShipment(suite.DB(), []Customization{
+			{
+				Model: models.Move{
+					Status: models.MoveStatusAPPROVED,
+				},
+			},
+			{
+				Model:    officeUser,
+				LinkOnly: true,
+				Type:     &OfficeUsers.TIOAssignedUser,
+			},
+		}, nil)
+		suite.Equal(officeUser.ID, *move.TIOAssignedID)
 	})
 
 	suite.Run("Successful creation of customized move with shipment", func() {
