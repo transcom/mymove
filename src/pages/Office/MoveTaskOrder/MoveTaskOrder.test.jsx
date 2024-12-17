@@ -865,4 +865,38 @@ describe('MoveTaskOrder', () => {
       expect(screen.queryByText('Flag move for financial review')).not.toBeInTheDocument();
     });
   });
+
+  describe('estimated weight breakdown', () => {
+    it('should show UB estimated weight', () => {
+      useMoveTaskOrderQueries.mockReturnValue(riskOfExcessWeightQueryExternalUBShipment);
+
+      render(
+        <MockProviders>
+          <MoveTaskOrder
+            {...requiredProps}
+            setUnapprovedShipmentCount={setUnapprovedShipmentCount}
+            setUnapprovedServiceItemCount={setUnapprovedServiceItemCount}
+            setExcessWeightRiskCount={setExcessWeightRiskCount}
+            setUnapprovedSITExtensionCount={setUnapprovedSITExtensionCount}
+          />
+        </MockProviders>,
+      );
+
+      const breakdownToggle = screen.queryByText('Show Breakdown');
+
+      expect(breakdownToggle).toBeInTheDocument();
+
+      breakdownToggle.click();
+
+      expect(breakdownToggle).toHaveTextContent('Hide Breakdown');
+
+      expect(screen.queryByText('110% Estimated UB')).toBeInTheDocument();
+
+      const ubEstimatedWeightValue = screen.getByTestId('breakdownUBEstimatedWeight');
+
+      expect(ubEstimatedWeightValue).toBeInTheDocument();
+
+      expect(ubEstimatedWeightValue).toHaveTextContent('2,035 lbs');
+    });
+  });
 });
