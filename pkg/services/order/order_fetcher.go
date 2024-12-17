@@ -121,7 +121,9 @@ func (f orderFetcher) ListOrders(appCtx appcontext.AppContext, officeUserID uuid
 	tooAssignedUserQuery := tooAssignedUserFilter(params.TOOAssignedUser)
 	sortOrderQuery := sortOrder(params.Sort, params.Order, ppmCloseoutGblocs)
 	counselingQuery := counselingOfficeFilter(params.CounselingOffice)
+	//tooDestinationRequestsQuery := tooDestinationOnlyRequestsFilter()
 	// Adding to an array so we can iterate over them and apply the filters after the query structure is set below
+	// options := [21]QueryOption{branchQuery, locatorQuery, dodIDQuery, emplidQuery, customerNameQuery, originDutyLocationQuery, destinationDutyLocationQuery, moveStatusQuery, gblocQuery, submittedAtQuery, appearedInTOOAtQuery, requestedMoveDateQuery, ppmTypeQuery, closeoutInitiatedQuery, closeoutLocationQuery, ppmStatusQuery, sortOrderQuery, scAssignedUserQuery, tooAssignedUserQuery, counselingQuery, tooDestinationRequestsQuery}
 	options := [20]QueryOption{branchQuery, locatorQuery, dodIDQuery, emplidQuery, customerNameQuery, originDutyLocationQuery, destinationDutyLocationQuery, moveStatusQuery, gblocQuery, submittedAtQuery, appearedInTOOAtQuery, requestedMoveDateQuery, ppmTypeQuery, closeoutInitiatedQuery, closeoutLocationQuery, ppmStatusQuery, sortOrderQuery, scAssignedUserQuery, tooAssignedUserQuery, counselingQuery}
 
 	var query *pop.Query
@@ -172,6 +174,8 @@ func (f orderFetcher) ListOrders(appCtx appcontext.AppContext, officeUserID uuid
 			InnerJoin("service_members", "orders.service_member_id = service_members.id").
 			InnerJoin("mto_shipments", "moves.id = mto_shipments.move_id").
 			InnerJoin("duty_locations as origin_dl", "orders.origin_duty_location_id = origin_dl.id").
+			LeftJoin("mto_service_items", "mto_shipments.id = mto_service_items.mto_shipment_id").
+			LeftJoin("re_services", "mto_service_items.re_service_id = re_services.id").
 			// Need to use left join because some duty locations do not have transportation offices
 			LeftJoin("transportation_offices as origin_to", "origin_dl.transportation_office_id = origin_to.id").
 			// If a customer puts in an invalid ZIP for their pickup address, it won't show up in this view,
@@ -180,7 +184,30 @@ func (f orderFetcher) ListOrders(appCtx appcontext.AppContext, officeUserID uuid
 			LeftJoin("duty_locations as dest_dl", "dest_dl.id = orders.new_duty_location_id").
 			LeftJoin("office_users", "office_users.id = moves.locked_by").
 			LeftJoin("transportation_offices", "moves.counseling_transportation_office_id = transportation_offices.id").
-			Where("show = ?", models.BoolPointer(true))
+			LeftJoin("shipment_address_updates", "shipment_address_updates.shipment_id = mto_shipments.id").
+			LeftJoin("addresses", "mto_shipments.destination_address_id = addresses.id").
+			LeftJoin("postal_code_to_gblocs", "addresses.postal_code = postal_code_to_gblocs.postal_code").
+			Where("show = ?", models.BoolPointer(true)).
+			// Where(
+			// 	"(shipment_address_updates.status = 'REQUESTED' "+
+			// 		"OR (mto_service_items.status = 'SUBMITTED' AND re_services.code IN ('DDFSIT', 'DDASIT', 'DDDSIT', 'DDSHUT', 'DDSFSC', 'IDFSIT', 'IDASIT', 'IDDSIT', 'IDSHUT')))",
+			// ).
+			// Where("moves.status = 'APPROVALS REQUESTED' OR moves.status = 'SUBMITTED' OR moves.status = 'SERVICE COUNSELING COMPLETED')")
+			Where(
+				"shipment_address_updates.status != 'REQUESTED'",
+			).
+			Where("moves.status = 'APPROVALS REQUESTED' OR moves.status = 'SUBMITTED' OR moves.status = 'SERVICE COUNSELING COMPLETED'")
+			// Where("moves.status = ?", "APPROVALS REQUESTED")
+			// Where(
+			//     "((shipment_address_updates.status = 'APPROVED' " +
+			//         "OR shipment_address_updates.status = 'REJECTED' " +
+			//         "OR (shipment_address_updates.status IS NULL)) " +
+			//         // "OR (mto_service_items.status = 'SUBMITTED' " +
+			//         // "AND re_services.code NOT IN ('DDP', 'DDFSIT', 'DDASIT', 'DDDSIT', 'DDSHUT', 'DDSFSC'))) " +
+			//         "AND (moves.status = 'APPROVALS REQUESTED' " +
+			//         "OR moves.status = 'SUBMITTED' " +
+			//         "OR moves.status = 'SERVICE COUNSELING COMPLETED')",
+			// )
 
 		if !privileges.HasPrivilege(models.PrivilegeTypeSafety) {
 			query.Where("orders.orders_type != (?)", "SAFETY")
@@ -190,34 +217,28 @@ func (f orderFetcher) ListOrders(appCtx appcontext.AppContext, officeUserID uuid
 		}
 		if role == roles.RoleTypeTOO {
 			query.LeftJoin("office_users as assigned_user", "moves.too_assigned_id  = assigned_user.id")
-			query.LeftJoin("shipment_address_updates", "shipment_address_updates.shipment_id = mto_shipments.id")
-			query.LeftJoin("mto_service_items", "mto_service_items.move_id = moves.id")
-			query.LeftJoin("re_services", "re_services.id = mto_service_items.re_service_id").
-				// Where("shipment_address_updates.status = (?) OR shipment_address_updates.status = (?) OR (shipment_address_updates.shipment_id IS NULL)", "APPROVED", "REJECTED")
-				Where(
-					"((shipment_address_updates.status = 'APPROVED' " +
-						"OR shipment_address_updates.status = 'REJECTED' " +
-						"OR (shipment_address_updates.status IS NULL)) " +
-						"OR (mto_service_items.status = 'SUBMITTED' " +
-						"AND re_services.code NOT IN ('DDP', 'DDFSIT', 'DDASIT', 'DDDSIT', 'DDSHUT', 'DDSFSC'))) " +
-						"AND (moves.status = 'APPROVALS REQUESTED' " +
-						"OR moves.status = 'SUBMITTED' " +
-						"OR moves.status = 'SERVICE COUNSELING COMPLETED')",
-				)
+			// query.LeftJoin("shipment_address_updates", "shipment_address_updates.shipment_id = mto_shipments.id").
+			// query.LeftJoin("mto_service_items", "mto_service_items.move_id = moves.id")
+			// query.LeftJoin("re_services", "re_services.id = mto_service_items.re_service_id").
+			// query.Where(
+			// 	"(moves.status = 'APPROVALS REQUESTED' " +
+			// 		"OR moves.status = 'SUBMITTED' " +
+			// 		"OR moves.status = 'SERVICE COUNSELING COMPLETED') ",
+			//  +
+			// "AND (shipment_address_updates.status = 'APPROVED' " +
+			// "OR shipment_address_updates.status = 'REJECTED' " +
+			// "OR (shipment_address_updates.status IS NULL)) ",
+			//)
 			// Where(
-			// 	"shipment_address_updates.status = 'APPROVED'"+
-			// 	"OR (shipment_address_updates.status = 'REJECTED')"+
-			// 	// "OR (shipment_address_updates.status IS NULL)"+
-			// 	"AND (mto_service_items.status = 'SUBMITTED')"+
-			// 		"AND (re_services.code NOT IN ('DDP', 'DDFSIT', 'DDASIT', 'DDDSIT', 'DDSHUT', 'DDSFSC'))"+
-			// 		"OR (mto_service_items.id IS NULL)",
+			// 	"((shipment_address_updates.status = 'APPROVED' " +
+			// 		"OR shipment_address_updates.status = 'REJECTED' " +
+			// 		"OR (shipment_address_updates.status IS NULL)) " +
+			// 		"OR (mto_service_items.status = 'SUBMITTED' " +
+			// 		"AND re_services.code NOT IN ('DDP', 'DDFSIT', 'DDASIT', 'DDDSIT', 'DDSHUT', 'DDSFSC'))) " +
+			// 		"AND (moves.status = 'APPROVALS REQUESTED' " +
+			// 		"OR moves.status = 'SUBMITTED' " +
+			// 		"OR moves.status = 'SERVICE COUNSELING COMPLETED')",
 			// )
-			// Where ("(mto_service_items.status = (?)) AND (re_services.code != (?) AND re_services.code != (?) AND re_services.code != (?) AND re_services.code != (?) AND re_services.code != (?) AND re_services.code != (?))", "SUBMITTED", "DDP", "DDFSIT", "DDASIT", "DDDSIT", "DDSHUT", "DDSFSC")
-			// Where(
-			// 	"(shipment_address_updates.status = 'REQUESTED' "+
-			// 		"OR (mto_service_items.status = 'SUBMITTED' AND re_services.code IN ('DDFSIT', 'DDASIT', 'DDDSIT', 'DDSHUT', 'DDSFSC')))",
-			// ).
-			// 	Where("mto_service_items.status = (?) OR mto_service_items.status = (?) OR (mto_service_items.mto_shipment_id IS NULL)", "APPROVED", "REJECTED")
 		}
 
 		if params.NeedsPPMCloseout != nil {
@@ -237,6 +258,14 @@ func (f orderFetcher) ListOrders(appCtx appcontext.AppContext, officeUserID uuid
 			// TODO  not sure we'll need this once we're in a situation where closeout param is always passed
 			query.LeftJoin("ppm_shipments", "ppm_shipments.shipment_id = mto_shipments.id")
 		}
+
+		// if role == roles.RoleTypeTOO {
+		// 	query.Where("moves.status = 'APPROVALS REQUESTED' OR moves.status = 'SUBMITTED'OR moves.status = 'SERVICE COUNSELING COMPLETED')")
+		// // 	query.Where(
+		// // 		"(moves.status = 'APPROVALS REQUESTED' " +
+		// // 			"OR moves.status = 'SUBMITTED' " +
+		// // 			"OR moves.status = 'SERVICE COUNSELING COMPLETED')"
+		// }
 	}
 
 	for _, option := range options {
@@ -1021,3 +1050,20 @@ func sortOrder(sort *string, order *string, ppmCloseoutGblocs bool) QueryOption 
 		}
 	}
 }
+
+// func tooDestinationOnlyRequestsFilter() QueryOption {
+// 	return func(query *pop.Query) {
+// 		// query.Where("(moves.status != ? OR moves.status = ? OR moves.status = ?)", models.MoveStatusAPPROVALSREQUESTED, models.MoveStatusSUBMITTED, models.MoveStatusServiceCounselingCompleted)
+// 		// query.Where("moves.status = 'APPROVALS REQUESTED' OR moves.status = 'SUBMITTED' OR moves.status = 'SERVICE COUNSELING COMPLETED')")
+// 		// query.Where(
+// 		// 	"((shipment_address_updates.status = 'APPROVED' " +
+// 		// 		"OR shipment_address_updates.status = 'REJECTED' " +
+// 		// 		"OR (shipment_address_updates.status IS NULL)) " +
+// 		// 		"OR (mto_service_items.status = 'SUBMITTED' " +
+// 		// 		"AND re_services.code NOT IN ('DDP', 'DDFSIT', 'DDASIT', 'DDDSIT', 'DDSHUT', 'DDSFSC'))) " +
+// 		// 		"AND (moves.status = 'APPROVALS REQUESTED' " +
+// 		// 		"OR moves.status = 'SUBMITTED' " +
+// 		// 		"OR moves.status = 'SERVICE COUNSELING COMPLETED')",
+// 		// )
+// 	}
+// }
