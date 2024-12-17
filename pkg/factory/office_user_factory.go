@@ -39,10 +39,15 @@ func BuildOfficeUser(db *pop.Connection, customs []Customization, traits []Trait
 
 	var transportationOffice models.TransportationOffice
 	tempCloseoutOfficeCustoms := customs
+	tempCounselingOfficeCustoms := customs
 	closeoutOfficeResult := findValidCustomization(customs, TransportationOffices.CloseoutOffice)
+	counselingOfficeResult := findValidCustomization(customs, TransportationOffices.CounselingOffice)
 	if closeoutOfficeResult != nil {
 		tempCloseoutOfficeCustoms = convertCustomizationInList(tempCloseoutOfficeCustoms, TransportationOffices.CloseoutOffice, TransportationOffice)
 		transportationOffice = BuildTransportationOffice(db, tempCloseoutOfficeCustoms, nil)
+	} else if counselingOfficeResult != nil {
+		tempCounselingOfficeCustoms = convertCustomizationInList(tempCounselingOfficeCustoms, TransportationOffices.CounselingOffice, TransportationOffice)
+		transportationOffice = BuildTransportationOffice(db, tempCounselingOfficeCustoms, nil)
 	} else {
 		transportationOffice = BuildTransportationOffice(db, customs, nil)
 	}
