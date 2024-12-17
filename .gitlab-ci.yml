@@ -45,9 +45,8 @@ variables:
 
 stages:
 - pre_checks
-- security-testing
-- test
 - build
+- test
 - push
 - deploy
 
@@ -59,7 +58,7 @@ stages:
     - export REACT_APP_ERROR_LOGGING=otel
 
 sast:
-  stage: security-testing
+  stage: pre_checks
 include:
 - template: Jobs/SAST.gitlab-ci.yml
 - template: Jobs/Dependency-Scanning.gitlab-ci.yml
@@ -137,8 +136,6 @@ compile_app_client:
   script:
      - make client_build
      - echo "Skipping actual build steps."
-  rules:
-    - if: '$CI_COMMIT_BRANCH == "B-18585-gitlab-deploy" || $CI_COMMIT_BRANCH == "main"'
   artifacts:
     paths:
       - ~/.cache/yarn
@@ -198,8 +195,8 @@ build_push_app_dp3:
     - /kaniko/executor --context "${CI_PROJECT_DIR}/" --dockerfile "${CI_PROJECT_DIR}/Dockerfile.dp3" --destination "${ECR_REPOSITORY_URI}/app:$CI_COMMIT_SHORT_SHA"
   after_script:
     - echo "Build_complete"
-  rules:
-    - if: $CI_COMMIT_BRANCH != "main"'
+  # rules:
+  #   - if: $CI_COMMIT_BRANCH != "main"'
 
 build_push_migrations_dp3:
   stage: push
@@ -259,8 +256,8 @@ push_otel_collector_image_dp3:
     - echo "Cleaning up the temporary image file..."
     - rm image.tar
   allow_failure: false
-  rules:
-    - if: '$CI_COMMIT_BRANCH != "main"'
+  # rules:
+  #   - if: '$CI_COMMIT_BRANCH != "main"'
 
 #Deploy Pushed Images
 deploy_migrations_dp3:
