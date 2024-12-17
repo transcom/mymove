@@ -98,7 +98,12 @@ func (f *shipmentApprover) ApproveShipment(appCtx appcontext.AppContext, shipmen
 
 			// Update the service item pricing if we have the estimated weight
 			if shipment.PrimeEstimatedWeight != nil {
-				err = models.UpdateEstimatedPricingForShipmentBasicServiceItems(appCtx.DB(), shipment)
+				mileage, err := f.planner.ZipTransitDistance(appCtx, shipment.PickupAddress.PostalCode, shipment.DestinationAddress.PostalCode, true)
+				if err != nil {
+					return err
+				}
+
+				err = models.UpdateEstimatedPricingForShipmentBasicServiceItems(appCtx.DB(), shipment, mileage)
 				if err != nil {
 					return err
 				}

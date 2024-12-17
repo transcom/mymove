@@ -327,6 +327,7 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 			mock.AnythingOfType("*appcontext.appContext"),
 			mock.Anything,
 			mock.Anything,
+			false,
 		).Return(0, nil)
 	})
 
@@ -568,6 +569,7 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequest() {
 			mock.AnythingOfType("*appcontext.appContext"),
 			mock.Anything,
 			mock.Anything,
+			false,
 		).Return(0, nil)
 		failingCreator := NewPaymentRequestCreator(planner, failingServiceItemPricer)
 
@@ -1459,6 +1461,7 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequestCheckOnNTSRelea
 		mock.AnythingOfType("*appcontext.appContext"),
 		testStorageFacilityZip,
 		testDestinationZip,
+		false,
 	).Return(testZip3Distance, nil)
 
 	// Create an initial payment request.

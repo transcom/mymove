@@ -1504,7 +1504,7 @@ func (suite *PPMShipmentSuite) TestUpdatePPMShipment() {
 		originalPPM.DestinationAddress = destinationAddress
 		mockedPlanner := &routemocks.Planner{}
 		mockedPlanner.On("ZipTransitDistance", mock.AnythingOfType("*appcontext.appContext"),
-			"90210", "30813").Return(2294, nil)
+			"90210", "30813", false).Return(2294, nil)
 
 		updatedPPM, err := subtestData.ppmShipmentUpdater.UpdatePPMShipmentSITEstimatedCost(appCtx, &originalPPM)
 
@@ -1560,7 +1560,7 @@ func (suite *PPMShipmentSuite) TestUpdatePPMShipment() {
 		originalPPM.DestinationAddress = destinationAddress
 		mockedPlanner := &routemocks.Planner{}
 		mockedPlanner.On("ZipTransitDistance", mock.AnythingOfType("*appcontext.appContext"),
-			"90210", "30813").Return(2294, nil)
+			"90210", "30813", false).Return(2294, nil)
 
 		updatedPPM, err := subtestData.ppmShipmentUpdater.UpdatePPMShipmentSITEstimatedCost(appCtx, &originalPPM)
 

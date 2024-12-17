@@ -49,6 +49,7 @@ func (suite *MTOServiceItemServiceSuite) TestMTOServiceItemUpdater() {
 		mock.AnythingOfType("*appcontext.appContext"),
 		mock.Anything,
 		mock.Anything,
+		false,
 	).Return(400, nil)
 	updater := NewMTOServiceItemUpdater(planner, builder, moveRouter, shipmentFetcher, addressCreator, portLocationFetcher)
 
@@ -326,6 +327,7 @@ func (suite *MTOServiceItemServiceSuite) TestMTOServiceItemUpdater() {
 			mock.AnythingOfType("*appcontext.appContext"),
 			mock.Anything,
 			mock.Anything,
+			false,
 		).Return(1234, nil)
 
 		ghcDomesticTransitTime := models.GHCDomesticTransitTime{
@@ -450,6 +452,7 @@ func (suite *MTOServiceItemServiceSuite) TestMTOServiceItemUpdater() {
 			mock.AnythingOfType("*appcontext.appContext"),
 			mock.Anything,
 			mock.Anything,
+			false,
 		).Return(1234, nil)
 
 		ghcDomesticTransitTime := models.GHCDomesticTransitTime{
@@ -578,6 +581,7 @@ func (suite *MTOServiceItemServiceSuite) TestMTOServiceItemUpdater() {
 			mock.AnythingOfType("*appcontext.appContext"),
 			mock.Anything,
 			mock.Anything,
+			false,
 		).Return(1234, nil)
 
 		ghcDomesticTransitTime := models.GHCDomesticTransitTime{
@@ -704,6 +708,7 @@ func (suite *MTOServiceItemServiceSuite) TestMTOServiceItemUpdater() {
 			mock.AnythingOfType("*appcontext.appContext"),
 			mock.Anything,
 			mock.Anything,
+			false,
 		).Return(1234, nil)
 
 		ghcDomesticTransitTime := models.GHCDomesticTransitTime{
@@ -780,6 +785,7 @@ func (suite *MTOServiceItemServiceSuite) TestMTOServiceItemUpdater() {
 			mock.AnythingOfType("*appcontext.appContext"),
 			mock.Anything,
 			mock.Anything,
+			false,
 		).Return(1234, nil)
 
 		ghcDomesticTransitTime := models.GHCDomesticTransitTime{
@@ -850,6 +856,7 @@ func (suite *MTOServiceItemServiceSuite) TestMTOServiceItemUpdater() {
 			mock.AnythingOfType("*appcontext.appContext"),
 			mock.Anything,
 			mock.Anything,
+			false,
 		).Return(1234, nil)
 
 		ghcDomesticTransitTime := models.GHCDomesticTransitTime{
@@ -958,6 +965,7 @@ func (suite *MTOServiceItemServiceSuite) TestMTOServiceItemUpdater() {
 			mock.AnythingOfType("*appcontext.appContext"),
 			mock.Anything,
 			mock.Anything,
+			false,
 		).Return(1234, nil)
 
 		ghcDomesticTransitTime := models.GHCDomesticTransitTime{
@@ -1073,6 +1081,7 @@ func (suite *MTOServiceItemServiceSuite) TestMTOServiceItemUpdater() {
 			mock.AnythingOfType("*appcontext.appContext"),
 			mock.Anything,
 			mock.Anything,
+			false,
 		).Return(1234, nil)
 
 		ghcDomesticTransitTime := models.GHCDomesticTransitTime{
@@ -1233,6 +1242,7 @@ func (suite *MTOServiceItemServiceSuite) TestMTOServiceItemUpdater() {
 			mock.AnythingOfType("*appcontext.appContext"),
 			mock.Anything,
 			mock.Anything,
+			false,
 		).Return(1234, nil)
 
 		ghcDomesticTransitTime := models.GHCDomesticTransitTime{
@@ -1343,6 +1353,7 @@ func (suite *MTOServiceItemServiceSuite) TestMTOServiceItemUpdater() {
 			mock.AnythingOfType("*appcontext.appContext"),
 			mock.Anything,
 			mock.Anything,
+			false,
 		).Return(1234, apperror.UnprocessableEntityError{})
 
 		ghcDomesticTransitTime := models.GHCDomesticTransitTime{
@@ -1959,6 +1970,7 @@ func (suite *MTOServiceItemServiceSuite) TestUpdateMTOServiceItemStatus() {
 		mock.AnythingOfType("*appcontext.appContext"),
 		mock.Anything,
 		mock.Anything,
+		false,
 	).Return(400, nil)
 	updater := NewMTOServiceItemUpdater(planner, builder, moveRouter, shipmentFetcher, addressCreator, portLocationFetcher)
 

@@ -83,7 +83,7 @@ func (r DistanceZipLookup) lookup(appCtx appcontext.AppContext, keyData *Service
 		}
 
 		if mtoShipment.DeliveryAddressUpdate != nil && mtoShipment.DeliveryAddressUpdate.Status == models.ShipmentAddressUpdateStatusApproved {
-			distanceMiles, err = planner.ZipTransitDistance(appCtx, pickupZip, mtoShipment.DeliveryAddressUpdate.NewAddress.PostalCode)
+			distanceMiles, err = planner.ZipTransitDistance(appCtx, pickupZip, mtoShipment.DeliveryAddressUpdate.NewAddress.PostalCode, false)
 			if err != nil {
 				return "", err
 			}
@@ -98,7 +98,7 @@ func (r DistanceZipLookup) lookup(appCtx appcontext.AppContext, keyData *Service
 	if pickupZip == destinationZip {
 		distanceMiles = 1
 	} else {
-		distanceMiles, err = planner.ZipTransitDistance(appCtx, pickupZip, destinationZip)
+		distanceMiles, err = planner.ZipTransitDistance(appCtx, pickupZip, destinationZip, false)
 		if err != nil {
 			return "", err
 		}
