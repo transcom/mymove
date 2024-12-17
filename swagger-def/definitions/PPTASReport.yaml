@@ -139,7 +139,7 @@ properties:
     type: string
     format: date
   orderNumber:
-    description: not to be confused with Orders Number
+    description: LoaDocID in lines of accounting table. Not to be confused with Orders Number
     type: string
     example: '030-00362'
     x-nullable: true
