@@ -18,6 +18,7 @@ import (
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/handlers/ghcapi/internal/payloads"
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/models/roles"
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/services/audit"
 	"github.com/transcom/mymove/pkg/services/event"
@@ -115,6 +116,7 @@ type UpdatePaymentRequestStatusHandler struct {
 	services.PaymentRequestStatusUpdater
 	services.PaymentRequestFetcher
 	services.PaymentRequestListFetcher
+	services.MoveAssignedOfficeUserUpdater
 }
 
 // Handle updates payment requests status
@@ -239,11 +241,12 @@ func (h UpdatePaymentRequestStatusHandler) Handle(
 			}
 
 			if !openPr {
-				move.TIOAssignedID = nil
-				verrs, err := models.SaveMoveDependencies(appCtx.DB(), move)
-				if err != nil || verrs.HasAny() {
+
+				_, err := h.MoveAssignedOfficeUserUpdater.DeleteAssignedOfficeUser(appCtx, move.ID, roles.RoleTypeTIO)
+				if err != nil {
 					return paymentrequestop.NewUpdatePaymentRequestStatusInternalServerError(), err
 				}
+				returnPayload.MoveTaskOrder.TIOAssignedUser = nil
 			}
 
 			return paymentrequestop.NewUpdatePaymentRequestStatusOK().WithPayload(returnPayload), nil
