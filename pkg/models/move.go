@@ -703,7 +703,6 @@ func GetTotalNetWeightForMove(m Move) unit.Pound {
 			totalNetWeight += GetPPMNetWeight(*shipment.PPMShipment)
 		}
 	}
-
 	return totalNetWeight
 }
 
