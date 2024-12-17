@@ -303,4 +303,54 @@ func (suite *FactorySuite) TestBuildOfficeUserExtra() {
 		suite.NoError(err)
 		suite.Equal(precountUsersRoles, countUsersRoles)
 	})
+
+	suite.Run("Successful creation of OfficeUser using BuildOfficeUserWithPrivileges with customizations", func() {
+		email := "example@mail.com"
+		transportationOffice := BuildTransportationOffice(suite.DB(), []Customization{
+			{
+				Model: models.TransportationOffice{
+					ProvidesCloseout: true,
+				},
+			},
+		}, nil)
+		officeUser := BuildOfficeUserWithPrivileges(suite.DB(), []Customization{
+			{
+				Model: models.OfficeUser{
+					FirstName: "Riley",
+					Email:     email,
+				},
+			},
+			{
+				Model:    transportationOffice,
+				LinkOnly: true,
+				Type:     &TransportationOffices.CloseoutOffice,
+			},
+			{
+				Model: models.User{
+					OktaEmail: email,
+					Privileges: []models.Privilege{
+						{
+							PrivilegeType: models.PrivilegeTypeSupervisor,
+						},
+					},
+					Roles: []roles.Role{
+						{
+							RoleType: roles.RoleTypeServicesCounselor,
+						},
+					},
+				},
+			},
+		}, nil)
+
+		// Check that the user has the office user role
+		_, hasRole := officeUser.User.Roles.GetRole(roles.RoleTypeServicesCounselor)
+		_, hasPrivilege := officeUser.User.Privileges.GetPrivilege(models.PrivilegeTypeSupervisor)
+		suite.True(hasRole)
+		suite.True(hasPrivilege)
+		// Check customizations
+		suite.Equal(email, officeUser.User.OktaEmail)
+		suite.Equal(email, officeUser.Email)
+		suite.Equal("Riley", officeUser.FirstName)
+		suite.Equal(transportationOffice.ID, officeUser.TransportationOfficeID)
+	})
 }
