@@ -248,7 +248,7 @@ func (suite *PricingFetcherSuite) TestPricingFetcher() {
 				Model: models.MTOShipment{
 					PrimeEstimatedWeight: &estimatedWeight,
 					RequestedPickupDate:  &setupDate,
-					ShipmentType:         models.MTOShipmentTypeHHGIntoNTSDom,
+					ShipmentType:         models.MTOShipmentTypeHHGOutOfNTSDom,
 				},
 			},
 			{
@@ -296,7 +296,7 @@ func (suite *PricingFetcherSuite) TestPricingFetcher() {
 		// Assert
 
 		suite.NoError(err)
-		suite.Equal(unit.Cents(69400), price)
+		suite.Equal(unit.Cents(76340), price)
 	})
 
 	suite.Run("Test Fetch Price DPK", func() {
@@ -771,4 +771,12 @@ func (suite *PricingFetcherSuite) TestPricingFetcher() {
 		suite.Equal("0.00139", multiplier)
 	})
 
+	suite.Run("LookupEIAFuelPrice no value", func() {
+		appCtx := suite.AppContextForTest()
+
+		result, err := LookupEIAFuelPrice(appCtx, time.Now())
+
+		suite.Error(err, "Looking for GHCDieselFuelPrice")
+		suite.Equal(unit.Millicents(0), result)
+	})
 }
