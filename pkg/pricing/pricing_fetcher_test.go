@@ -789,4 +789,14 @@ func (suite *PricingFetcherSuite) TestPricingFetcher() {
 		suite.IsType(apperror.NotFoundError{}, err)
 		suite.Contains(err.Error(), "no contract year found")
 	})
+
+	suite.Run("Returns error when no domestic service area found", func() {
+		setup_prices(false)
+		invalidContractCode := "invalid"
+		invalidPostalCode := "00000"
+		_, err := fetchDomesticServiceArea(suite.AppContextForTest(), invalidContractCode, invalidPostalCode)
+		suite.Error(err)
+		// suite.IsType(apperror.NotFoundError{}, err)
+		suite.Contains(err.Error(), "unable to find domestic service area for")
+	})
 }
