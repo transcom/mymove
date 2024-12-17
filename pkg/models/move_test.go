@@ -19,7 +19,10 @@ import (
 
 	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/factory"
+	"github.com/transcom/mymove/pkg/models"
 	m "github.com/transcom/mymove/pkg/models"
+	moveweights "github.com/transcom/mymove/pkg/services/move"
+	mtoshipment "github.com/transcom/mymove/pkg/services/mto_shipment"
 	"github.com/transcom/mymove/pkg/unit"
 )
 
@@ -59,7 +62,7 @@ func (suite *ModelSuite) TestNeedsReweighFollowsBusinessLogic() {
 
 		order := factory.BuildOrder(suite.DB(), []factory.Customization{
 			{
-				Model: m.Entitlement{
+				Model: models.Entitlement{
 					DBAuthorizedWeight: &maxWeight,
 				},
 			},
@@ -69,7 +72,7 @@ func (suite *ModelSuite) TestNeedsReweighFollowsBusinessLogic() {
 
 		moveNeedsReweigh := factory.BuildMove(suite.DB(), []factory.Customization{
 			{
-				Model: m.Move{
+				Model: models.Move{
 					AvailableToPrimeAt: &now,
 				},
 			},
@@ -83,7 +86,7 @@ func (suite *ModelSuite) TestNeedsReweighFollowsBusinessLogic() {
 		for i := range testWeightsNeedsReweigh {
 			factory.BuildMTOShipment(suite.DB(), []factory.Customization{
 				{
-					Model: m.MTOShipment{
+					Model: models.MTOShipment{
 						PrimeEstimatedWeight: &testWeightsNeedsReweigh[i],
 					},
 				},
@@ -94,7 +97,8 @@ func (suite *ModelSuite) TestNeedsReweighFollowsBusinessLogic() {
 			}, nil)
 		}
 
-		needsReweigh, err := moveNeedsReweigh.NeedsReweigh(suite.AppContextForTest())
+		moveWeights := moveweights.NewMoveWeights(mtoshipment.NewShipmentReweighRequester())
+		needsReweigh, err := moveWeights.MoveShouldAutoReweigh(suite.AppContextForTest(), moveNeedsReweigh.ID)
 		suite.NoError(err)
 		suite.Equal(true, *needsReweigh)
 	})
@@ -104,7 +108,7 @@ func (suite *ModelSuite) TestNeedsReweighFollowsBusinessLogic() {
 
 		order := factory.BuildOrder(suite.DB(), []factory.Customization{
 			{
-				Model: m.Entitlement{
+				Model: models.Entitlement{
 					DBAuthorizedWeight: &maxWeight,
 				},
 			},
@@ -114,7 +118,7 @@ func (suite *ModelSuite) TestNeedsReweighFollowsBusinessLogic() {
 
 		moveNeedsReweigh := factory.BuildMove(suite.DB(), []factory.Customization{
 			{
-				Model: m.Move{
+				Model: models.Move{
 					AvailableToPrimeAt: &now,
 				},
 			},
@@ -128,7 +132,7 @@ func (suite *ModelSuite) TestNeedsReweighFollowsBusinessLogic() {
 		for i := range testWeightsNeedsReweigh {
 			factory.BuildMTOShipment(suite.DB(), []factory.Customization{
 				{
-					Model: m.MTOShipment{
+					Model: models.MTOShipment{
 						PrimeEstimatedWeight: &testWeightsNeedsReweigh[i],
 					},
 				},
@@ -139,7 +143,8 @@ func (suite *ModelSuite) TestNeedsReweighFollowsBusinessLogic() {
 			}, nil)
 		}
 
-		needsReweigh, err := moveNeedsReweigh.NeedsReweigh(suite.AppContextForTest())
+		moveWeights := moveweights.NewMoveWeights(mtoshipment.NewShipmentReweighRequester())
+		needsReweigh, err := moveWeights.MoveShouldAutoReweigh(suite.AppContextForTest(), moveNeedsReweigh.ID)
 		suite.NoError(err)
 		suite.Equal(true, *needsReweigh)
 	})
@@ -149,7 +154,7 @@ func (suite *ModelSuite) TestNeedsReweighFollowsBusinessLogic() {
 
 		order := factory.BuildOrder(suite.DB(), []factory.Customization{
 			{
-				Model: m.Entitlement{
+				Model: models.Entitlement{
 					DBAuthorizedWeight: &maxWeight,
 				},
 			},
@@ -159,7 +164,7 @@ func (suite *ModelSuite) TestNeedsReweighFollowsBusinessLogic() {
 
 		moveNeedsReweigh := factory.BuildMove(suite.DB(), []factory.Customization{
 			{
-				Model: m.Move{
+				Model: models.Move{
 					AvailableToPrimeAt: &now,
 				},
 			},
@@ -173,7 +178,7 @@ func (suite *ModelSuite) TestNeedsReweighFollowsBusinessLogic() {
 		for i := range testWeightsDoesNotNeedReweigh {
 			factory.BuildMTOShipment(suite.DB(), []factory.Customization{
 				{
-					Model: m.MTOShipment{
+					Model: models.MTOShipment{
 						PrimeEstimatedWeight: &testWeightsDoesNotNeedReweigh[i],
 					},
 				},
@@ -184,7 +189,8 @@ func (suite *ModelSuite) TestNeedsReweighFollowsBusinessLogic() {
 			}, nil)
 		}
 
-		needsReweigh, err := moveNeedsReweigh.NeedsReweigh(suite.AppContextForTest())
+		moveWeights := moveweights.NewMoveWeights(mtoshipment.NewShipmentReweighRequester())
+		needsReweigh, err := moveWeights.MoveShouldAutoReweigh(suite.AppContextForTest(), moveNeedsReweigh.ID)
 		suite.NoError(err)
 		suite.Equal(false, *needsReweigh)
 	})
