@@ -17,11 +17,11 @@ SELECT DISTINCT ON (sh.move_id) sh.move_id,
              JOIN addresses ppm_address ON ppm.pickup_postal_address_id = ppm_address.id
              JOIN postal_code_to_gblocs pctg_1 ON ppm_address.postal_code::text = pctg_1.postal_code::text) pctg_ppm ON pctg_ppm.shipment_id = sh.id
      LEFT JOIN ( SELECT a.id AS address_id,
-            cast(pctg_1.code as varchar) AS gbloc
+            cast(jr.code as varchar) AS gbloc
            FROM addresses a
              JOIN re_oconus_rate_areas ora ON a.us_post_region_cities_id = ora.us_post_region_cities_id
              JOIN gbloc_aors ga ON ora.id = ga.oconus_rate_area_id
-             JOIN jppso_regions pctg_1 ON ga.jppso_regions_id = pctg_1.id ) pctg_oconus ON pctg_oconus.address_id = sh.pickup_address_id
+             JOIN jppso_regions jr ON ga.jppso_regions_id = jr.id ) pctg_oconus ON pctg_oconus.address_id = sh.pickup_address_id
      WHERE sh.deleted_at IS NULL;
 
 
