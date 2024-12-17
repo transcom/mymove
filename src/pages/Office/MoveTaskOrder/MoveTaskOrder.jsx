@@ -979,7 +979,7 @@ export const MoveTaskOrder = (props) => {
           : '—'}
       </div>
       <div>110% Estimated UB</div>
-      <div className={moveTaskOrderStyles.subValue}>
+      <div className={moveTaskOrderStyles.subValue} data-testid="breakdownUBEstimatedWeight">
         {Number.isFinite(estimatedUBWeightTotal) ? formatWeight(Math.round(estimatedUBWeightTotal * 1.1)) : '—'}
       </div>
     </div>
