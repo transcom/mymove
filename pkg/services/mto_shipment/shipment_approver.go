@@ -78,17 +78,7 @@ func (f *shipmentApprover) ApproveShipment(appCtx appcontext.AppContext, shipmen
 	}
 
 	transactionError := appCtx.NewTransaction(func(txnAppCtx appcontext.AppContext) error {
-		verrs, err := txnAppCtx.DB().ValidateAndSave(shipment)
-		if verrs != nil && verrs.HasAny() {
-			invalidInputError := apperror.NewInvalidInputError(shipment.ID, nil, verrs, "There was an issue with validating the updates")
-
-			return invalidInputError
-		}
-		if err != nil {
-			return err
-		}
-
-		// create international shipment service items
+		// create international shipment service items before approving
 		// we use a database proc to create the basic auto-approved service items
 		if shipment.ShipmentType == models.MTOShipmentTypeHHG && shipment.MarketCode == models.MarketCodeInternational {
 			err := models.CreateApprovedServiceItemsForShipment(appCtx.DB(), shipment)
@@ -114,6 +104,16 @@ func (f *shipmentApprover) ApproveShipment(appCtx appcontext.AppContext, shipmen
 			if err != nil {
 				return err
 			}
+		}
+
+		verrs, err := txnAppCtx.DB().ValidateAndSave(shipment)
+		if verrs != nil && verrs.HasAny() {
+			invalidInputError := apperror.NewInvalidInputError(shipment.ID, nil, verrs, "There was an issue with validating the updates")
+
+			return invalidInputError
+		}
+		if err != nil {
+			return err
 		}
 
 		return nil
