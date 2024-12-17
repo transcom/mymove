@@ -232,15 +232,15 @@ func (h UpdatePaymentRequestStatusHandler) Handle(
 				return paymentrequestop.NewUpdatePaymentRequestStatusInternalServerError(), err
 			}
 
-			openPr := false
+			unreviewedPaymentRequset := false
 			for _, request := range *requestList {
 				if request.Status != models.PaymentRequestStatusReviewed &&
 					request.Status != models.PaymentRequestStatusReviewedAllRejected {
-					openPr = true
+					unreviewedPaymentRequset = true
+					break
 				}
 			}
-
-			if !openPr {
+			if !unreviewedPaymentRequset {
 
 				_, err := h.MoveAssignedOfficeUserUpdater.DeleteAssignedOfficeUser(appCtx, move.ID, roles.RoleTypeTIO)
 				if err != nil {

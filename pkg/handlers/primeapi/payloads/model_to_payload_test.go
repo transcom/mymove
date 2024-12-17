@@ -452,7 +452,6 @@ func (suite *PayloadsSuite) TestNotImplementedError() {
 
 	noDetailError := NotImplementedError(nil, traceID)
 	suite.Equal(handlers.NotImplementedErrMessage, *noDetailError.Title)
-	// suite.Equal(handlers.NotImplementedErrMessage, *noDetailError.Detail)
 	suite.Equal(traceID.String(), noDetailError.Instance.String())
 
 	detailError := NotImplementedError(&detail, traceID)
