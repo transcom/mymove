@@ -26,7 +26,6 @@ func FetchServiceItemPrice(appCtx appcontext.AppContext, serviceItem *models.MTO
 
 	requestedPickupDate := *mtoShipment.RequestedPickupDate
 	currTime := time.Now()
-	var distance int
 	primeEstimatedWeight := mtoShipment.PrimeEstimatedWeight
 
 	if mtoShipment.ShipmentType == models.MTOShipmentTypeHHGOutOfNTSDom {
@@ -39,6 +38,17 @@ func FetchServiceItemPrice(appCtx appcontext.AppContext, serviceItem *models.MTO
 		contractCode, err = FetchContractCode(appCtx, requestedPickupDate)
 		if err != nil {
 			return 0, err
+		}
+	}
+	calculatedDistance := 0
+	if isServiceItemCodeDistanceBased(serviceItem.ReService.Code) {
+		if mtoShipment.PickupAddress != nil && mtoShipment.DestinationAddress != nil && planner != nil {
+			calculatedDistance, err = planner.ZipTransitDistance(appCtx, mtoShipment.PickupAddress.PostalCode, mtoShipment.DestinationAddress.PostalCode)
+			if err != nil {
+				return 0, err
+			}
+		} else {
+			return 0, errors.New("invalid address or missing planner provided")
 		}
 	}
 
@@ -101,15 +111,7 @@ func FetchServiceItemPrice(appCtx appcontext.AppContext, serviceItem *models.MTO
 		if err != nil {
 			return 0, err
 		}
-		if mtoShipment.PickupAddress != nil && mtoShipment.DestinationAddress != nil && planner != nil {
-			distance, err = planner.ZipTransitDistance(appCtx, mtoShipment.PickupAddress.PostalCode, mtoShipment.DestinationAddress.PostalCode)
-			if err != nil {
-				return 0, err
-			}
-		} else {
-			return 0, errors.New("invalid address or missing planner provided")
-		}
-		price, _, err = linehaulPricer.Price(appCtx, contractCode, requestedPickupDate, unit.Miles(distance), *primeEstimatedWeight, domesticServiceArea.ServiceArea, isPPM)
+		price, _, err = linehaulPricer.Price(appCtx, contractCode, requestedPickupDate, unit.Miles(calculatedDistance), *primeEstimatedWeight, domesticServiceArea.ServiceArea, isPPM)
 		if err != nil {
 			return 0, err
 		}
@@ -119,15 +121,7 @@ func FetchServiceItemPrice(appCtx appcontext.AppContext, serviceItem *models.MTO
 		if err != nil {
 			return 0, err
 		}
-		if mtoShipment.PickupAddress != nil && mtoShipment.DestinationAddress != nil && planner != nil {
-			distance, err = planner.ZipTransitDistance(appCtx, mtoShipment.PickupAddress.PostalCode, mtoShipment.DestinationAddress.PostalCode)
-			if err != nil {
-				return 0, err
-			}
-		} else {
-			return 0, errors.New("invalid address or missing planner provided")
-		}
-		price, _, err = shorthaulPricer.Price(appCtx, contractCode, requestedPickupDate, unit.Miles(distance), *primeEstimatedWeight, domesticServiceArea.ServiceArea)
+		price, _, err = shorthaulPricer.Price(appCtx, contractCode, requestedPickupDate, unit.Miles(calculatedDistance), *primeEstimatedWeight, domesticServiceArea.ServiceArea)
 		if err != nil {
 			return 0, err
 		}
@@ -143,15 +137,6 @@ func FetchServiceItemPrice(appCtx appcontext.AppContext, serviceItem *models.MTO
 			pickupDateForFSC = requestedPickupDate
 		}
 
-		if mtoShipment.PickupAddress != nil && mtoShipment.DestinationAddress != nil && planner != nil {
-			distance, err = planner.ZipTransitDistance(appCtx, mtoShipment.PickupAddress.PostalCode, mtoShipment.DestinationAddress.PostalCode)
-			if err != nil {
-				return 0, err
-			}
-		} else {
-			return 0, errors.New("invalid address or missing planner provided")
-		}
-
 		fscWeightBasedDistanceMultiplier := LookupFSCWeightBasedDistanceMultiplier(appCtx, *primeEstimatedWeight)
 
 		fscWeightBasedDistanceMultiplierFloat, err := strconv.ParseFloat(fscWeightBasedDistanceMultiplier, 64)
@@ -162,7 +147,7 @@ func FetchServiceItemPrice(appCtx appcontext.AppContext, serviceItem *models.MTO
 		if err != nil {
 			return 0, err
 		}
-		price, _, err = fuelSurchargePricer.Price(appCtx, pickupDateForFSC, unit.Miles(distance), *primeEstimatedWeight, fscWeightBasedDistanceMultiplierFloat, eiaFuelPrice, isPPM)
+		price, _, err = fuelSurchargePricer.Price(appCtx, pickupDateForFSC, unit.Miles(calculatedDistance), *primeEstimatedWeight, fscWeightBasedDistanceMultiplierFloat, eiaFuelPrice, isPPM)
 		if err != nil {
 			return 0, err
 		}
@@ -185,6 +170,10 @@ func FetchContractCode(appCtx appcontext.AppContext, date time.Time) (string, er
 
 	contractCode := contract.Code
 	return contractCode, nil
+}
+
+func isServiceItemCodeDistanceBased(serviceCode models.ReServiceCode) bool {
+	return (serviceCode == models.ReServiceCodeFSC || serviceCode == models.ReServiceCodeDSH || serviceCode == models.ReServiceCodeDLH)
 }
 
 func fetchDomesticServiceArea(appCtx appcontext.AppContext, contractCode string, shipmentPostalCode string) (models.ReDomesticServiceArea, error) {
