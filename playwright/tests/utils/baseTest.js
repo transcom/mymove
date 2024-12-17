@@ -69,6 +69,18 @@ export class BaseTestPage {
   }
 
   /**
+   * Sign in as existing user with devlocal using email address
+   *
+   * @param {string} email
+   */
+  async signInAsUserWithEmail(email) {
+    await this.page.goto('/devlocal-auth/login');
+    await this.page.locator(`button[value="${email}"]`).click();
+    // Axe must be injected after page.goto to enable a11y checks later: https://github.com/abhinaba-ghosh/axe-playwright#injectaxe
+    await injectAxe(this.page);
+  }
+
+  /**
    * Use fileChooser to upload files
    *
    * @param {import('@playwright/test').Locator} locator

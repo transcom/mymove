@@ -18,6 +18,12 @@ export class TestHarness {
    */
 
   /**
+   * @typedef {Object} Admin
+   * @property {string} id
+   * @property {string} email
+   */
+
+  /**
    * @typedef {Object} Move
    * @property {string} id
    * @property {string} locator
@@ -75,6 +81,13 @@ export class TestHarness {
    */
   async buildDefaultAdminUser() {
     return this.buildDefault('DefaultAdminUser');
+  }
+
+  /**
+   * @returns {Promise<Admin>}
+   */
+  async buildDefaultSuperAdminUser() {
+    return this.buildDefault('SuperAdminUser');
   }
 
   /**
@@ -621,6 +634,38 @@ export class TestHarness {
 
   async buildBoatHaulAwayMoveNeedsTOOApproval() {
     return this.buildDefault('BoatHaulAwayMoveNeedsTOOApproval');
+  }
+
+  /**
+   * build office user with Customer role
+   * @returns {Promise<User>}
+   */
+  async buildOfficeUserWithCustomer() {
+    return this.buildDefault('OfficeUserWithCustomer');
+  }
+
+  /**
+   * build office user with Contracting Officer role
+   * @returns {Promise<User>}
+   */
+  async buildOfficeUserWithContractingOfficer() {
+    return this.buildDefault('OfficeUserWithContractingOfficer');
+  }
+
+  /**
+   * build office user with Prime Simulator role
+   * @returns {Promise<User>}
+   */
+  async buildOfficeUserWithPrimeSimulator() {
+    return this.buildDefault('OfficeUserWithPrimeSimulator');
+  }
+
+  /**
+   * build office user with GSR role
+   * @returns {Promise<User>}
+   */
+  async buildOfficeUserWithGSR() {
+    return this.buildDefault('OfficeUserWithGSR');
   }
 }
 export default TestHarness;
