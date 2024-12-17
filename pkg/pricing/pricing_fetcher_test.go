@@ -949,6 +949,83 @@ func (suite *PricingFetcherSuite) TestPricingFetcher() {
 		suite.Equal(unit.Cents(7), price)
 	})
 
+	suite.Run("Test Fetch Price FSC With Actual Pickup date", func() {
+		// Arrange
+		setup_prices(false)
+		appCtx := suite.AppContextForTest()
+
+		// setup mto shipment
+		setupDate := time.Now()
+		estimatedWeight := unit.Pound(5000)
+
+		pickupAddress := factory.BuildAddress(suite.DB(), nil, []factory.Trait{factory.GetTraitAddress2})
+		deliveryAddress := factory.BuildAddress(suite.DB(), nil, []factory.Trait{factory.GetTraitAddress3})
+
+		move := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
+
+		mto_shipment := factory.BuildMTOShipmentMinimal(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					PrimeEstimatedWeight: &estimatedWeight,
+					ActualPickupDate:     &setupDate,
+					ShipmentType:         models.MTOShipmentTypeHHGIntoNTSDom,
+				},
+			},
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+			{
+				Model:    pickupAddress,
+				LinkOnly: true,
+				Type:     &factory.Addresses.PickupAddress,
+			},
+			{
+				Model:    deliveryAddress,
+				LinkOnly: true,
+				Type:     &factory.Addresses.DeliveryAddress,
+			},
+		}, nil)
+
+		// setup service item
+		reServiceCodeFSC := factory.FetchReServiceByCode(suite.DB(), models.ReServiceCodeFSC)
+		reason := "Test"
+
+		sitEntryDate := time.Date(2020, time.October, 24, 0, 0, 0, 0, time.UTC)
+		sitPostalCode := "99999"
+		actualPickupAddress := factory.BuildAddress(suite.DB(), nil, []factory.Trait{factory.GetTraitAddress2})
+
+		mto_service_item := models.MTOServiceItem{
+			MoveTaskOrder:             mto_shipment.MoveTaskOrder,
+			MoveTaskOrderID:           mto_shipment.MoveTaskOrderID,
+			MTOShipment:               mto_shipment,
+			MTOShipmentID:             &mto_shipment.ID,
+			ReService:                 reServiceCodeFSC,
+			SITEntryDate:              &sitEntryDate,
+			SITPostalCode:             &sitPostalCode,
+			Reason:                    &reason,
+			SITOriginHHGActualAddress: &actualPickupAddress,
+			Status:                    models.MTOServiceItemStatusSubmitted,
+		}
+
+		mto_shipment.MTOServiceItems = append(mto_shipment.MTOServiceItems, mto_service_item)
+		suite.MustSave(&mto_shipment)
+
+		planner := &mocks.Planner{}
+		planner.On("ZipTransitDistance",
+			mock.AnythingOfType("*appcontext.appContext"),
+			pickupAddress.PostalCode,
+			deliveryAddress.PostalCode,
+		).Return(5, nil)
+
+		// Act
+		price, err := FetchServiceItemPrice(appCtx, &mto_service_item, mto_shipment, planner)
+		// Assert
+
+		suite.NoError(err)
+		suite.Equal(unit.Cents(7), price)
+	})
+
 	suite.Run("Test Fetch Price FSC No Planner", func() {
 		// Arrange
 		setup_prices(false)
