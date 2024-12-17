@@ -77,6 +77,8 @@ const ServicesCounselingMoveDetails = ({
   const [enableBoat, setEnableBoat] = useState(false);
   const [enableMobileHome, setEnableMobileHome] = useState(false);
   const [enableUB, setEnableUB] = useState(false);
+  const [enableNTS, setEnableNTS] = useState(false);
+  const [enableNTSR, setEnableNTSR] = useState(false);
   const [isOconusMove, setIsOconusMove] = useState(false);
   const [errorMessage, setErrorMessage] = useState(null);
 
@@ -166,6 +168,8 @@ const ServicesCounselingMoveDetails = ({
       setEnableBoat(await isBooleanFlagEnabled(FEATURE_FLAG_KEYS.BOAT));
       setEnableMobileHome(await isBooleanFlagEnabled(FEATURE_FLAG_KEYS.MOBILE_HOME));
       setEnableUB(await isBooleanFlagEnabled(FEATURE_FLAG_KEYS.UNACCOMPANIED_BAGGAGE));
+      setEnableNTS(await isBooleanFlagEnabled(FEATURE_FLAG_KEYS.NTS));
+      setEnableNTSR(await isBooleanFlagEnabled(FEATURE_FLAG_KEYS.NTSR));
     };
     fetchData();
   }, []);
@@ -177,7 +181,7 @@ const ServicesCounselingMoveDetails = ({
     } else {
       setIsOconusMove(false);
     }
-  }, [originDutyLocation, destinationDutyLocation, isOconusMove, enableUB]);
+  }, [originDutyLocation, destinationDutyLocation]);
 
   // for now we are only showing dest type on retiree and separatee orders
   const isRetirementOrSeparation =
@@ -632,8 +636,8 @@ const ServicesCounselingMoveDetails = ({
           HHG
         </option>
         <option value={SHIPMENT_OPTIONS_URL.PPM}>PPM</option>
-        <option value={SHIPMENT_OPTIONS_URL.NTS}>NTS</option>
-        <option value={SHIPMENT_OPTIONS_URL.NTSrelease}>NTS-release</option>
+        {enableNTS && <option value={SHIPMENT_OPTIONS_URL.NTS}>NTS</option>}
+        {enableNTSR && <option value={SHIPMENT_OPTIONS_URL.NTSrelease}>NTS-release</option>}
         {enableBoat && <option value={SHIPMENT_OPTIONS_URL.BOAT}>Boat</option>}
         {enableMobileHome && <option value={SHIPMENT_OPTIONS_URL.MOBILE_HOME}>Mobile Home</option>}
         {enableUB && isOconusMove && <option value={SHIPMENT_OPTIONS_URL.UNACCOMPANIED_BAGGAGE}>UB</option>}
@@ -753,17 +757,28 @@ const ServicesCounselingMoveDetails = ({
                 </div>
               )}
             </Grid>
-            <Grid col={12}>
-              <Restricted to={permissionTypes.cancelMoveFlag}>
-                <div className={scMoveDetailsStyles.scCancelMoveContainer}>
-                  {counselorCanCancelMove && !isMoveLocked && (
-                    <Button type="button" unstyled onClick={handleShowCancelMoveModal}>
-                      Cancel move
-                    </Button>
-                  )}
+            <Grid row col={12}>
+              <Restricted to={permissionTypes.updateFinancialReviewFlag}>
+                <div className={scMoveDetailsStyles.scFinancialReviewContainer}>
+                  <FinancialReviewButton
+                    onClick={handleShowFinancialReviewModal}
+                    reviewRequested={move.financialReviewFlag}
+                    isMoveLocked={isMoveLocked}
+                  />
                 </div>
               </Restricted>
             </Grid>
+          </Grid>
+          <Grid col={12}>
+            <Restricted to={permissionTypes.cancelMoveFlag}>
+              <div className={scMoveDetailsStyles.scCancelMoveContainer}>
+                {counselorCanCancelMove && !isMoveLocked && (
+                  <Button type="button" unstyled onClick={handleShowCancelMoveModal}>
+                    Cancel move
+                  </Button>
+                )}
+              </div>
+            </Restricted>
           </Grid>
 
           {hasInvalidProGearAllowances ? (
@@ -774,7 +789,6 @@ const ServicesCounselingMoveDetails = ({
 
           <div className={styles.section} id="shipments">
             <DetailsPanel
-              className={scMoveDetailsStyles.noPaddingBottom}
               editButton={
                 (counselorCanEdit || counselorCanEditNonPPM) &&
                 !isMoveLocked && (
@@ -805,15 +819,6 @@ const ServicesCounselingMoveDetails = ({
               title="Shipments"
               ppmShipmentInfoNeedsApproval={ppmShipmentsInfoNeedsApproval}
             >
-              <Restricted to={permissionTypes.updateFinancialReviewFlag}>
-                <div className={scMoveDetailsStyles.scFinancialReviewContainer}>
-                  <FinancialReviewButton
-                    onClick={handleShowFinancialReviewModal}
-                    reviewRequested={move.financialReviewFlag}
-                    isMoveLocked={isMoveLocked}
-                  />
-                </div>
-              </Restricted>
               <div className={shipmentCardsStyles.shipmentCards}>
                 {shipmentsInfo.map((shipment) => (
                   <ShipmentDisplay
