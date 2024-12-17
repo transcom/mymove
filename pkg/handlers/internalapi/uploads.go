@@ -265,30 +265,35 @@ func (o *CustomNewUploadStatusOK) WriteResponse(rw http.ResponseWriter, producer
 
 	// TODO: add check for permissions to view upload
 
-	err := o.appCtx.NewTransaction(func(txnAppCtx appcontext.AppContext) error {
-		uploadId, err := uuid.FromString(o.params.UploadID.String())
-		if err != nil {
-			panic(err)
-		}
-		uploaded, err := models.FetchUserUploadFromUploadID(txnAppCtx.DB(), txnAppCtx.Session(), uploadId)
-		if err != nil {
-			txnAppCtx.Logger().Error(err.Error())
-		}
-
-		txnAppCtx.Logger().Info("HELLOW: " + uploaded.UploadID.String())
-
-		return err
-	})
-
-	if err != nil {
-		o.appCtx.Logger().Error(err.Error())
-	}
-
 	for range 2 {
-		resProcess := []byte("id: " + strconv.Itoa(id_counter) + "\nevent: message\ndata: PROCESSING\n\n")
-		if err := producer.Produce(rw, resProcess); err != nil {
-			panic(err) // let the recovery middleware deal with this
+
+		err := o.appCtx.NewTransaction(func(txnAppCtx appcontext.AppContext) error {
+			uploadId, err := uuid.FromString(o.params.UploadID.String())
+			if err != nil {
+				panic(err)
+			}
+			uploaded, err := models.FetchUserUploadFromUploadID(txnAppCtx.DB(), txnAppCtx.Session(), uploadId)
+			if err != nil {
+				txnAppCtx.Logger().Error(err.Error())
+			}
+
+			uploadStatus := models.AVStatusTypePROCESSING
+			if uploaded.Upload.AVStatus != nil {
+				uploadStatus = *uploaded.Upload.AVStatus
+			}
+
+			resProcess := []byte("id: " + strconv.Itoa(id_counter) + "\nevent: message\ndata: " + string(uploadStatus) + "\n\n")
+			if produceErr := producer.Produce(rw, resProcess); produceErr != nil {
+				panic(produceErr) // let the recovery middleware deal with this
+			}
+
+			return nil
+		})
+
+		if err != nil {
+			o.appCtx.Logger().Error(err.Error())
 		}
+
 		if f, ok := rw.(http.Flusher); ok {
 			f.Flush()
 		}
