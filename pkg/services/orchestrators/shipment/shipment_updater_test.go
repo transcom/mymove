@@ -7,13 +7,12 @@ import (
 	"github.com/gofrs/uuid"
 	"github.com/stretchr/testify/mock"
 
-	routemocks "github.com/transcom/mymove/pkg/route/mocks"
-
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/apperror"
 	"github.com/transcom/mymove/pkg/etag"
 	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
+	routemocks "github.com/transcom/mymove/pkg/route/mocks"
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/services/mocks"
 	"github.com/transcom/mymove/pkg/testdatagen"
@@ -42,7 +41,7 @@ func (suite *ShipmentSuite) TestUpdateShipment() {
 		fakeError                     error
 	}
 
-	makeSubtestData := func(returnErrorForMTOShipment bool, returnErrorForPPMShipment bool, returnErrorForBoatShipment bool, returnErrorForMobileHomeShipment bool, returnErrorForPricingServiceItem bool, returnErrorForMTOServiceItemUpdate bool, mockedReturnPrice unit.Cents) (subtestData subtestDataObjects) {
+	makeSubtestData := func(returnErrorForMTOShipment bool, returnErrorForPPMShipment bool, returnErrorForBoatShipment bool, returnErrorForMobileHomeShipment bool, returnErrorForMTOServiceItemUpdate bool) (subtestData subtestDataObjects) {
 		mockMTOShipmentUpdater := mocks.MTOShipmentUpdater{}
 		subtestData.mockMTOShipmentUpdater = &mockMTOShipmentUpdater
 
@@ -238,7 +237,7 @@ func (suite *ShipmentSuite) TestUpdateShipment() {
 	suite.Run("Returns an InvalidInputError if there is an error with the shipment info that was input", func() {
 		appCtx := suite.AppContextForTest()
 
-		subtestData := makeSubtestData(false, false, false, false, false, false, 0)
+		subtestData := makeSubtestData(false, false, false, false, false)
 
 		shipment := factory.BuildMTOShipment(appCtx.DB(), nil, nil)
 
@@ -268,7 +267,7 @@ func (suite *ShipmentSuite) TestUpdateShipment() {
 		suite.Run(fmt.Sprintf("Calls necessary service objects for %s shipments", shipmentType), func() {
 			appCtx := suite.AppContextForTest()
 
-			subtestData := makeSubtestData(false, false, false, false, false, false, 0)
+			subtestData := makeSubtestData(false, false, false, false, false)
 
 			var shipment models.MTOShipment
 
@@ -336,7 +335,7 @@ func (suite *ShipmentSuite) TestUpdateShipment() {
 	suite.Run("Sets MTOShipment info on PPMShipment and updated PPMShipment back on MTOShipment", func() {
 		appCtx := suite.AppContextForTest()
 
-		subtestData := makeSubtestData(false, false, false, false, false, false, 0)
+		subtestData := makeSubtestData(false, false, false, false, false)
 
 		ppmShipment := factory.BuildPPMShipment(appCtx.DB(), []factory.Customization{
 			{
@@ -371,7 +370,7 @@ func (suite *ShipmentSuite) TestUpdateShipment() {
 	suite.Run("Sets MTOShipment info on BoatShipment and updated BoatShipment back on MTOShipment", func() {
 		appCtx := suite.AppContextForTest()
 
-		subtestData := makeSubtestData(false, false, false, false, false, false, 0)
+		subtestData := makeSubtestData(false, false, false, false, false)
 
 		boatShipment := factory.BuildBoatShipment(appCtx.DB(), []factory.Customization{
 			{
@@ -446,7 +445,7 @@ func (suite *ShipmentSuite) TestUpdateShipment() {
 		suite.Run(fmt.Sprintf("Returns transaction error if there is an %s", name), func() {
 			appCtx := suite.AppContextForTest()
 
-			subtestData := makeSubtestData(tc.returnErrorForMTOShipment, tc.returnErrorForPPMShipment, tc.returnErrorForBoatShipment, tc.returnErrorForMobileHomeShipment, false, false, 0)
+			subtestData := makeSubtestData(tc.returnErrorForMTOShipment, tc.returnErrorForPPMShipment, tc.returnErrorForBoatShipment, tc.returnErrorForMobileHomeShipment, false)
 
 			var shipment models.MTOShipment
 
@@ -486,7 +485,7 @@ func (suite *ShipmentSuite) TestUpdateShipment() {
 	suite.Run("Returns error early if MTOShipment can't be updated", func() {
 		appCtx := suite.AppContextForTest()
 
-		subtestData := makeSubtestData(true, false, false, false, false, false, 0)
+		subtestData := makeSubtestData(true, false, false, false, false)
 
 		shipment := factory.BuildMTOShipment(appCtx.DB(), []factory.Customization{
 			{
