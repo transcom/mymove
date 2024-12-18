@@ -855,10 +855,10 @@ func (f *mtoShipmentUpdater) updateShipmentRecord(appCtx appcontext.AppContext, 
 		// we will compare data here to see if we even need to update the pricing
 		if newShipment.PrimeEstimatedWeight != nil &&
 			newShipment.MarketCode == models.MarketCodeInternational &&
-			(*newShipment.PrimeEstimatedWeight != *dbShipment.PrimeEstimatedWeight ||
-				newShipment.PickupAddress.PostalCode != dbShipment.PickupAddress.PostalCode ||
-				newShipment.DestinationAddress.PostalCode != dbShipment.DestinationAddress.PostalCode ||
-				newShipment.RequestedPickupDate.Format("2006-01-02") != dbShipment.RequestedPickupDate.Format("2006-01-02")) {
+			(newShipment.PrimeEstimatedWeight != dbShipment.PrimeEstimatedWeight ||
+				newShipment.PickupAddress != nil && newShipment.PickupAddress.PostalCode != dbShipment.PickupAddress.PostalCode ||
+				newShipment.DestinationAddress != nil && newShipment.DestinationAddress.PostalCode != dbShipment.DestinationAddress.PostalCode ||
+				newShipment.RequestedPickupDate != nil && newShipment.RequestedPickupDate.Format("2006-01-02") != dbShipment.RequestedPickupDate.Format("2006-01-02")) {
 
 			// the db proc consumes the mileage needed, so we need to get that first
 			mileage, err := f.planner.ZipTransitDistance(appCtx, newShipment.PickupAddress.PostalCode, newShipment.DestinationAddress.PostalCode, true)
