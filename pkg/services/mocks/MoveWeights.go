@@ -88,24 +88,22 @@ func (_m *MoveWeights) CheckExcessWeight(appCtx appcontext.AppContext, moveID uu
 }
 
 // MoveShouldAutoReweigh provides a mock function with given fields: appCtx, moveID
-func (_m *MoveWeights) MoveShouldAutoReweigh(appCtx appcontext.AppContext, moveID uuid.UUID) (*bool, error) {
+func (_m *MoveWeights) MoveShouldAutoReweigh(appCtx appcontext.AppContext, moveID uuid.UUID) (bool, error) {
 	ret := _m.Called(appCtx, moveID)
 
 	if len(ret) == 0 {
 		panic("no return value specified for MoveShouldAutoReweigh")
 	}
 
-	var r0 *bool
+	var r0 bool
 	var r1 error
-	if rf, ok := ret.Get(0).(func(appcontext.AppContext, uuid.UUID) (*bool, error)); ok {
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, uuid.UUID) (bool, error)); ok {
 		return rf(appCtx, moveID)
 	}
-	if rf, ok := ret.Get(0).(func(appcontext.AppContext, uuid.UUID) *bool); ok {
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, uuid.UUID) bool); ok {
 		r0 = rf(appCtx, moveID)
 	} else {
-		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*bool)
-		}
+		r0 = ret.Get(0).(bool)
 	}
 
 	if rf, ok := ret.Get(1).(func(appcontext.AppContext, uuid.UUID) error); ok {
