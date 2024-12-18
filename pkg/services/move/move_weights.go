@@ -251,7 +251,7 @@ func calculateSumOfWeights(move models.Move, updatedShipment *models.MTOShipment
 // MoveShouldAutoReweigh returns a boolean indicating if all the shipments on a move should be auto-reweighed
 func (w *moveWeights) MoveShouldAutoReweigh(appCtx appcontext.AppContext, moveID uuid.UUID) (bool, error) {
 	var move models.Move
-	err := appCtx.DB().Eager("MTOShipments", "Orders.Entitlement.DBAuthorizedWeight").Find(&move, moveID)
+	err := appCtx.DB().Eager("MTOShipments", "Orders.Entitlement.DBAuthorizedWeight", "MTOShipments.ShipmentType", "MTOShipments.Status", "MTOShipments.DeletedAt").Find(&move, moveID)
 	if err != nil || move.AvailableToPrimeAt == nil {
 		return false, err
 	}
@@ -261,11 +261,6 @@ func (w *moveWeights) MoveShouldAutoReweigh(appCtx appcontext.AppContext, moveID
 	totalActualWeight := 0
 	totalEstimatedWeight := 0
 	for i := range move.MTOShipments {
-		err = appCtx.DB().Load(&move.MTOShipments[i], "MTOServiceItems", "ShipmentType", "Status", "DeletedAt")
-		if err != nil {
-			return false, err
-		}
-
 		if move.MTOShipments[i].ShipmentType != models.MTOShipmentTypePPM &&
 			move.MTOShipments[i].Status != models.MTOShipmentStatusCanceled &&
 			move.MTOShipments[i].Status != models.MTOShipmentStatusRejected &&
