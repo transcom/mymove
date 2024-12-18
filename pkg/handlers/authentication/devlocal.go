@@ -1165,7 +1165,6 @@ func createSession(h devlocalAuthHandler, user *models.User, userType string, _ 
 		session.Hostname = h.AppNames().AdminServername
 		session.AdminUserID = *userIdentity.AdminUserID
 		session.AdminUserRole = userIdentity.AdminUserRole.String()
-		active = *userIdentity.AdminUserActive
 	default:
 		session.ApplicationName = auth.MilApp
 		session.Hostname = h.AppNames().MilServername
