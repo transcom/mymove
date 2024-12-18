@@ -166,8 +166,7 @@ func (p *mtoServiceItemUpdater) approveOrRejectServiceItem(
 
 		serviceItemsNeedingReview := false
 		for _, request := range moveWithServiceItems.MTOServiceItems {
-			if request.Status != models.MTOServiceItemStatusApproved &&
-				request.Status != models.MTOServiceItemStatusRejected {
+			if request.Status == models.MTOServiceItemStatusSubmitted {
 				serviceItemsNeedingReview = true
 				break
 			}
