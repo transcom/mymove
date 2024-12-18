@@ -111,7 +111,7 @@ const AddOrdersForm = ({ onSubmit, ordersTypeOptions, initialValues, onBack, isS
         const handleCounselingOfficeChange = () => {
           setValues({
             ...values,
-            counseling_office_id: null,
+            counselingOfficeId: null,
           });
           setCounselingOfficeOptions(null);
         };
@@ -170,6 +170,7 @@ const AddOrdersForm = ({ onSubmit, ordersTypeOptions, initialValues, onBack, isS
                     label="Counseling office"
                     name="counselingOfficeId"
                     id="counselingOfficeId"
+                    data-testid="counselingOfficeSelect"
                     hint="Required"
                     required
                     options={counselingOfficeOptions}
