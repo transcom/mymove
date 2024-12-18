@@ -1587,13 +1587,7 @@ definitions:
       grade:
         $ref: '#/definitions/OrderPayGrade'
       orders_type:
-        type: string
-        title: Move Type
-        enum:
-          - PCS - OCONUS
-          - PCS - CONUS
-          - PCS + TDY - OCONUS
-          - PCS + TDY - CONUS
+        $ref: 'definitions/OrdersType.yaml'
       move_date:
         type: string
         format: date
