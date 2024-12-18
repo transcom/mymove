@@ -38,7 +38,7 @@ func (suite *GHCRateEngineServiceSuite) setupTaskOrderFeeData(code models.ReServ
 }
 
 func (suite *GHCRateEngineServiceSuite) setupDomesticOtherPrice(code models.ReServiceCode, schedule int, isPeakPeriod bool, priceCents unit.Cents, contractYearName string, escalationCompounded float64) {
-	contractYear := testdatagen.MakeReContractYear(suite.DB(),
+	contractYear := testdatagen.FetchOrMakeReContractYear(suite.DB(),
 		testdatagen.Assertions{
 			ReContractYear: models.ReContractYear{
 				Name:                 contractYearName,
@@ -60,7 +60,7 @@ func (suite *GHCRateEngineServiceSuite) setupDomesticOtherPrice(code models.ReSe
 }
 
 func (suite *GHCRateEngineServiceSuite) setupDomesticAccessorialPrice(code models.ReServiceCode, schedule int, perUnitCents unit.Cents, contractYearName string, escalationCompounded float64) {
-	contractYear := testdatagen.MakeReContractYear(suite.DB(),
+	contractYear := testdatagen.FetchOrMakeReContractYear(suite.DB(),
 		testdatagen.Assertions{
 			ReContractYear: models.ReContractYear{
 				Name:                 contractYearName,
@@ -81,7 +81,7 @@ func (suite *GHCRateEngineServiceSuite) setupDomesticAccessorialPrice(code model
 }
 
 func (suite *GHCRateEngineServiceSuite) setupDomesticServiceAreaPrice(code models.ReServiceCode, serviceAreaCode string, isPeakPeriod bool, priceCents unit.Cents, contractYearName string, escalationCompounded float64) {
-	contractYear := testdatagen.MakeReContractYear(suite.DB(),
+	contractYear := testdatagen.FetchOrMakeReContractYear(suite.DB(),
 		testdatagen.Assertions{
 			ReContractYear: models.ReContractYear{
 				Name:                 contractYearName,
@@ -91,9 +91,10 @@ func (suite *GHCRateEngineServiceSuite) setupDomesticServiceAreaPrice(code model
 
 	service := factory.FetchReServiceByCode(suite.DB(), code)
 
-	serviceArea := testdatagen.MakeReDomesticServiceArea(suite.DB(),
+	serviceArea := testdatagen.FetchOrMakeReDomesticServiceArea(suite.DB(),
 		testdatagen.Assertions{
 			ReDomesticServiceArea: models.ReDomesticServiceArea{
+				ContractID:  contractYear.Contract.ID,
 				Contract:    contractYear.Contract,
 				ServiceArea: serviceAreaCode,
 			},
@@ -111,7 +112,7 @@ func (suite *GHCRateEngineServiceSuite) setupDomesticServiceAreaPrice(code model
 }
 
 func (suite *GHCRateEngineServiceSuite) setupDomesticLinehaulPrice(serviceAreaCode string, isPeakPeriod bool, weightLower unit.Pound, weightUpper unit.Pound, milesLower int, milesUpper int, priceMillicents unit.Millicents, contractYearName string, escalationCompounded float64) {
-	contractYear := testdatagen.MakeReContractYear(suite.DB(),
+	contractYear := testdatagen.FetchOrMakeReContractYear(suite.DB(),
 		testdatagen.Assertions{
 			ReContractYear: models.ReContractYear{
 				Name:                 contractYearName,
@@ -119,30 +120,18 @@ func (suite *GHCRateEngineServiceSuite) setupDomesticLinehaulPrice(serviceAreaCo
 			},
 		})
 
-	serviceArea := testdatagen.MakeReDomesticServiceArea(suite.DB(),
+	testdatagen.FetchOrMakeReDomesticServiceArea(suite.DB(),
 		testdatagen.Assertions{
 			ReDomesticServiceArea: models.ReDomesticServiceArea{
+				ContractID:  contractYear.Contract.ID,
 				Contract:    contractYear.Contract,
 				ServiceArea: serviceAreaCode,
 			},
 		})
-
-	baseLinehaulPrice := models.ReDomesticLinehaulPrice{
-		ContractID:            contractYear.Contract.ID,
-		WeightLower:           weightLower,
-		WeightUpper:           weightUpper,
-		MilesLower:            milesLower,
-		MilesUpper:            milesUpper,
-		IsPeakPeriod:          isPeakPeriod,
-		DomesticServiceAreaID: serviceArea.ID,
-		PriceMillicents:       priceMillicents,
-	}
-
-	suite.MustSave(&baseLinehaulPrice)
 }
 
 func (suite *GHCRateEngineServiceSuite) setupShipmentTypePrice(code models.ReServiceCode, market models.Market, factor float64, contractYearName string, escalationCompounded float64) {
-	contractYear := testdatagen.MakeReContractYear(suite.DB(),
+	contractYear := testdatagen.FetchOrMakeReContractYear(suite.DB(),
 		testdatagen.Assertions{
 			ReContractYear: models.ReContractYear{
 				Name:                 contractYearName,

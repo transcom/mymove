@@ -49,7 +49,7 @@ func (suite *GHCRateEngineImportSuite) Test_importREInternationalOtherPrices() {
 func (suite *GHCRateEngineImportSuite) helperVerifyInternationalOtherPrices() {
 	count, err := suite.DB().Count(&models.ReIntlOtherPrice{})
 	suite.NoError(err)
-	suite.Equal(180, count)
+	suite.Equal(2580, count)
 }
 
 func (suite *GHCRateEngineImportSuite) helperCheckInternationalOtherPriceRecords() {
