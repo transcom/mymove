@@ -31,7 +31,8 @@ func TestPricingFetcherSuite(t *testing.T) {
 }
 
 func (suite *PricingFetcherSuite) TestPricingFetcher() {
-
+	// setup known off-peak date
+	off_peak_date := time.Date(2024, 12, 17, 0, 0, 0, 0, time.UTC)
 	setup_prices := func(isPeakPeriod bool) {
 
 		reServiceCodeDOP := factory.FetchReServiceByCode(suite.DB(), models.ReServiceCodeDOP)
@@ -166,7 +167,7 @@ func (suite *PricingFetcherSuite) TestPricingFetcher() {
 		appCtx := suite.AppContextForTest()
 
 		// setup mto shipment
-		setupDate := time.Now()
+		setupDate := off_peak_date
 		estimatedWeight := unit.Pound(5000)
 
 		pickupAddress := factory.BuildAddress(suite.DB(), nil, []factory.Trait{factory.GetTraitAddress2})
@@ -236,7 +237,7 @@ func (suite *PricingFetcherSuite) TestPricingFetcher() {
 		appCtx := suite.AppContextForTest()
 
 		// setup mto shipment
-		setupDate := time.Now()
+		setupDate := off_peak_date
 		estimatedWeight := unit.Pound(5000)
 
 		pickupAddress := factory.BuildAddress(suite.DB(), nil, []factory.Trait{factory.GetTraitAddress2})
@@ -306,7 +307,7 @@ func (suite *PricingFetcherSuite) TestPricingFetcher() {
 		appCtx := suite.AppContextForTest()
 
 		// setup mto shipment
-		setupDate := time.Now()
+		setupDate := off_peak_date
 		estimatedWeight := unit.Pound(5000)
 
 		pickupAddress := factory.BuildAddress(suite.DB(), nil, []factory.Trait{factory.GetTraitAddress2})
@@ -376,7 +377,7 @@ func (suite *PricingFetcherSuite) TestPricingFetcher() {
 		appCtx := suite.AppContextForTest()
 
 		// setup mto shipment
-		setupDate := time.Now()
+		setupDate := off_peak_date
 		estimatedWeight := unit.Pound(5000)
 
 		pickupAddress := factory.BuildAddress(suite.DB(), nil, []factory.Trait{factory.GetTraitAddress2})
@@ -446,7 +447,7 @@ func (suite *PricingFetcherSuite) TestPricingFetcher() {
 		appCtx := suite.AppContextForTest()
 
 		// setup mto shipment
-		setupDate := time.Now()
+		setupDate := off_peak_date
 		estimatedWeight := unit.Pound(5000)
 
 		pickupAddress := factory.BuildAddress(suite.DB(), nil, []factory.Trait{factory.GetTraitAddress2})
@@ -516,7 +517,7 @@ func (suite *PricingFetcherSuite) TestPricingFetcher() {
 		appCtx := suite.AppContextForTest()
 
 		// setup mto shipment
-		setupDate := time.Now()
+		setupDate := off_peak_date
 		estimatedWeight := unit.Pound(5000)
 
 		pickupAddress := factory.BuildAddress(suite.DB(), nil, []factory.Trait{factory.GetTraitAddress2})
@@ -593,7 +594,7 @@ func (suite *PricingFetcherSuite) TestPricingFetcher() {
 		appCtx := suite.AppContextForTest()
 
 		// setup mto shipment
-		setupDate := time.Now()
+		setupDate := off_peak_date
 		estimatedWeight := unit.Pound(5000)
 
 		pickupAddress := factory.BuildAddress(suite.DB(), nil, []factory.Trait{factory.GetTraitAddress2})
@@ -663,7 +664,7 @@ func (suite *PricingFetcherSuite) TestPricingFetcher() {
 		appCtx := suite.AppContextForTest()
 
 		// setup mto shipment
-		setupDate := time.Now()
+		setupDate := off_peak_date
 
 		pickupAddress := factory.BuildAddress(suite.DB(), nil, []factory.Trait{factory.GetTraitAddress2})
 		deliveryAddress := factory.BuildAddress(suite.DB(), nil, []factory.Trait{factory.GetTraitAddress3})
@@ -731,7 +732,7 @@ func (suite *PricingFetcherSuite) TestPricingFetcher() {
 		appCtx := suite.AppContextForTest()
 
 		// setup mto shipment
-		setupDate := time.Now()
+		setupDate := off_peak_date
 		estimatedWeight := unit.Pound(5000)
 
 		pickupAddress := factory.BuildAddress(suite.DB(), nil, []factory.Trait{factory.GetTraitAddress2})
@@ -808,7 +809,7 @@ func (suite *PricingFetcherSuite) TestPricingFetcher() {
 		appCtx := suite.AppContextForTest()
 
 		// setup mto shipment
-		setupDate := time.Now()
+		setupDate := off_peak_date
 		estimatedWeight := unit.Pound(5000)
 
 		pickupAddress := factory.BuildAddress(suite.DB(), nil, []factory.Trait{factory.GetTraitAddress2})
@@ -878,7 +879,7 @@ func (suite *PricingFetcherSuite) TestPricingFetcher() {
 		appCtx := suite.AppContextForTest()
 
 		// setup mto shipment
-		setupDate := time.Now()
+		setupDate := off_peak_date
 		estimatedWeight := unit.Pound(5000)
 
 		pickupAddress := factory.BuildAddress(suite.DB(), nil, []factory.Trait{factory.GetTraitAddress2})
@@ -955,7 +956,7 @@ func (suite *PricingFetcherSuite) TestPricingFetcher() {
 		appCtx := suite.AppContextForTest()
 
 		// setup mto shipment
-		setupDate := time.Now()
+		setupDate := off_peak_date
 		estimatedWeight := unit.Pound(5000)
 
 		pickupAddress := factory.BuildAddress(suite.DB(), nil, []factory.Trait{factory.GetTraitAddress2})
@@ -1032,7 +1033,7 @@ func (suite *PricingFetcherSuite) TestPricingFetcher() {
 		appCtx := suite.AppContextForTest()
 
 		// setup mto shipment
-		setupDate := time.Now()
+		setupDate := off_peak_date
 		estimatedWeight := unit.Pound(5000)
 
 		pickupAddress := factory.BuildAddress(suite.DB(), nil, []factory.Trait{factory.GetTraitAddress2})
@@ -1109,7 +1110,7 @@ func (suite *PricingFetcherSuite) TestPricingFetcher() {
 		appCtx := suite.AppContextForTest()
 
 		// setup mto shipment
-		setupDate := time.Now()
+		setupDate := off_peak_date
 		estimatedWeight := unit.Pound(5000)
 
 		pickupAddress := factory.BuildAddress(suite.DB(), nil, []factory.Trait{factory.GetTraitAddress2})
