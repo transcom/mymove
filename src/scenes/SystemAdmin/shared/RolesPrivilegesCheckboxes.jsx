@@ -36,7 +36,7 @@ const RolesPrivilegesCheckboxInput = (props) => {
   };
 
   const parseRolesCheckboxInput = (input) => {
-    var index;
+    let index;
     if (privilegesSelected.includes(elevatedPrivilegeTypes.SUPERVISOR)) {
       if (input.includes(roleTypes.CUSTOMER)) {
         index = input.indexOf(roleTypes.CUSTOMER);
