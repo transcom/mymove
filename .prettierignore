@@ -1,2 +1,3 @@
 public/swagger-ui/*
 !public/swagger-ui/index.html
+public/static/react-file-viewer/*
