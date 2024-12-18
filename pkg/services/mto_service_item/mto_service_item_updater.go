@@ -3,7 +3,6 @@ package mtoserviceitem
 import (
 	"database/sql"
 	"fmt"
-	"strconv"
 	"time"
 
 	"github.com/gobuffalo/validate/v3"
@@ -15,6 +14,7 @@ import (
 	"github.com/transcom/mymove/pkg/dates"
 	"github.com/transcom/mymove/pkg/etag"
 	"github.com/transcom/mymove/pkg/models"
+	pricing "github.com/transcom/mymove/pkg/pricing"
 	"github.com/transcom/mymove/pkg/route"
 	"github.com/transcom/mymove/pkg/services"
 	movetaskorder "github.com/transcom/mymove/pkg/services/move_task_order"
@@ -128,180 +128,8 @@ func (p *mtoServiceItemUpdater) ConvertItemToCustomerExpense(
 }
 
 func (p *mtoServiceItemUpdater) findEstimatedPrice(appCtx appcontext.AppContext, serviceItem *models.MTOServiceItem, mtoShipment models.MTOShipment) (unit.Cents, error) {
-	if serviceItem.ReService.Code == models.ReServiceCodeDDP ||
-		serviceItem.ReService.Code == models.ReServiceCodeDUPK ||
-		serviceItem.ReService.Code == models.ReServiceCodeDLH ||
-		serviceItem.ReService.Code == models.ReServiceCodeFSC ||
-		serviceItem.ReService.Code == models.ReServiceCodeDDDSIT ||
-		serviceItem.ReService.Code == models.ReServiceCodeDDSFSC {
-
-		isPPM := false
-		if mtoShipment.ShipmentType == models.MTOShipmentTypePPM {
-			isPPM = true
-		}
-
-		var pickupDate *time.Time
-		if mtoShipment.ActualPickupDate != nil {
-			pickupDate = mtoShipment.ActualPickupDate
-		} else {
-			if mtoShipment.RequestedPickupDate != nil {
-				pickupDate = mtoShipment.RequestedPickupDate
-			}
-		}
-
-		currTime := time.Now()
-		var distance int
-
-		var shipmentWeight unit.Pound
-		if mtoShipment.PrimeActualWeight != nil {
-			shipmentWeight = *mtoShipment.PrimeActualWeight
-		} else {
-			if mtoShipment.PrimeEstimatedWeight != nil {
-				shipmentWeight = *mtoShipment.PrimeEstimatedWeight
-			} else {
-				return 0, apperror.NewInvalidInputError(serviceItem.ID, nil, nil, "No estimated or actual weight exists for this service item.")
-			}
-		}
-
-		contractCode, err := FetchContractCode(appCtx, currTime)
-		if err != nil && pickupDate != nil {
-			contractCode, err = FetchContractCode(appCtx, *pickupDate)
-			if err != nil {
-				return 0, err
-			}
-		}
-
-		var price unit.Cents
-
-		// destination
-		if serviceItem.ReService.Code == models.ReServiceCodeDDP {
-			var domesticServiceArea models.ReDomesticServiceArea
-			if mtoShipment.DestinationAddress != nil {
-				domesticServiceArea, err = fetchDomesticServiceArea(appCtx, contractCode, mtoShipment.DestinationAddress.PostalCode)
-				if err != nil {
-					return 0, err
-				}
-			}
-
-			price, _, err = p.destinationPricer.Price(appCtx, contractCode, *pickupDate, shipmentWeight, domesticServiceArea.ServiceArea, isPPM)
-			if err != nil {
-				return 0, err
-			}
-		}
-		if serviceItem.ReService.Code == models.ReServiceCodeDUPK {
-			domesticServiceArea, err := fetchDomesticServiceArea(appCtx, contractCode, mtoShipment.DestinationAddress.PostalCode)
-			if err != nil {
-				return 0, err
-			}
-
-			serviceScheduleDestination := domesticServiceArea.ServicesSchedule
-
-			price, _, err = p.unpackPricer.Price(appCtx, contractCode, *pickupDate, shipmentWeight, serviceScheduleDestination, isPPM)
-			if err != nil {
-				return 0, err
-			}
-		}
-
-		// linehaul
-		if serviceItem.ReService.Code == models.ReServiceCodeDLH {
-			domesticServiceArea, err := fetchDomesticServiceArea(appCtx, contractCode, mtoShipment.PickupAddress.PostalCode)
-			if err != nil {
-				return 0, err
-			}
-			if mtoShipment.PickupAddress != nil && mtoShipment.DestinationAddress != nil {
-				distance, err = p.planner.ZipTransitDistance(appCtx, mtoShipment.PickupAddress.PostalCode, mtoShipment.DestinationAddress.PostalCode)
-				if err != nil {
-					return 0, err
-				}
-			}
-			price, _, err = p.linehaulPricer.Price(appCtx, contractCode, *pickupDate, unit.Miles(distance), shipmentWeight, domesticServiceArea.ServiceArea, isPPM)
-			if err != nil {
-				return 0, err
-			}
-		}
-		// unpacking
-		if serviceItem.ReService.Code == models.ReServiceCodeDUPK {
-			domesticServiceArea, err := fetchDomesticServiceArea(appCtx, contractCode, mtoShipment.DestinationAddress.PostalCode)
-			if err != nil {
-				return 0, err
-			}
-			price, _, err = p.unpackPricer.Price(appCtx, contractCode, *pickupDate, shipmentWeight, domesticServiceArea.ServicesSchedule, isPPM)
-			if err != nil {
-				return 0, err
-			}
-		}
-		// destination sit delivery
-		if serviceItem.ReService.Code == models.ReServiceCodeDDDSIT && serviceItem.SITDestinationFinalAddress != nil {
-			domesticServiceArea, err := fetchDomesticServiceArea(appCtx, contractCode, mtoShipment.DestinationAddress.PostalCode)
-			if err != nil {
-				return 0, err
-			}
-			if mtoShipment.DestinationAddress != nil {
-				distance, err = p.planner.ZipTransitDistance(appCtx, serviceItem.SITDestinationFinalAddress.PostalCode, mtoShipment.DestinationAddress.PostalCode)
-				if err != nil {
-					return 0, err
-				}
-			}
-			price, _, err = p.sitDeliverPricer.Price(appCtx, contractCode, *pickupDate, shipmentWeight, domesticServiceArea.ServiceArea, domesticServiceArea.SITPDSchedule, mtoShipment.DestinationAddress.PostalCode, serviceItem.SITDestinationFinalAddress.PostalCode, unit.Miles(distance))
-			if err != nil {
-				return 0, err
-			}
-		}
-		// destination sit fuel surcharge
-		if serviceItem.ReService.Code == models.ReServiceCodeDDSFSC && serviceItem.SITDestinationFinalAddress != nil {
-			if mtoShipment.DestinationAddress != nil {
-				distance, err = p.planner.ZipTransitDistance(appCtx, serviceItem.SITDestinationFinalAddress.PostalCode, mtoShipment.DestinationAddress.PostalCode)
-				if err != nil {
-					return 0, err
-				}
-			}
-			fscWeightBasedDistanceMultiplier, err := LookupFSCWeightBasedDistanceMultiplier(appCtx, shipmentWeight)
-			if err != nil {
-				return 0, err
-			}
-			fscWeightBasedDistanceMultiplierFloat, err := strconv.ParseFloat(fscWeightBasedDistanceMultiplier, 64)
-			if err != nil {
-				return 0, err
-			}
-			eiaFuelPrice, err := LookupEIAFuelPrice(appCtx, *pickupDate)
-			if err != nil {
-				return 0, err
-			}
-			price, _, err = p.sitFuelSurchargePricer.Price(appCtx, *mtoShipment.ActualPickupDate, unit.Miles(distance), shipmentWeight, fscWeightBasedDistanceMultiplierFloat, eiaFuelPrice, isPPM)
-			if err != nil {
-				return 0, err
-			}
-		}
-		// fuel surcharge
-		if serviceItem.ReService.Code == models.ReServiceCodeFSC {
-			if mtoShipment.PickupAddress != nil && mtoShipment.DestinationAddress != nil {
-				distance, err = p.planner.ZipTransitDistance(appCtx, mtoShipment.PickupAddress.PostalCode, mtoShipment.DestinationAddress.PostalCode)
-				if err != nil {
-					return 0, err
-				}
-			}
-
-			fscWeightBasedDistanceMultiplier, err := LookupFSCWeightBasedDistanceMultiplier(appCtx, shipmentWeight)
-			if err != nil {
-				return 0, err
-			}
-			fscWeightBasedDistanceMultiplierFloat, err := strconv.ParseFloat(fscWeightBasedDistanceMultiplier, 64)
-			if err != nil {
-				return 0, err
-			}
-			eiaFuelPrice, err := LookupEIAFuelPrice(appCtx, *pickupDate)
-			if err != nil {
-				return 0, err
-			}
-			price, _, err = p.fuelSurchargePricer.Price(appCtx, *pickupDate, unit.Miles(distance), shipmentWeight, fscWeightBasedDistanceMultiplierFloat, eiaFuelPrice, isPPM)
-			if err != nil {
-				return 0, err
-			}
-
-		}
-		return price, nil
-	}
-	return 0, nil
+	pricing, err := pricing.FetchServiceItemPrice(appCtx, serviceItem, mtoShipment, p.planner)
+	return pricing, err
 }
 
 func (p *mtoServiceItemUpdater) findServiceItem(appCtx appcontext.AppContext, serviceItemID uuid.UUID) (*models.MTOServiceItem, error) {

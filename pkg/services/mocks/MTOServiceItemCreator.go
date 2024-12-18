@@ -8,8 +8,6 @@ import (
 
 	models "github.com/transcom/mymove/pkg/models"
 
-	unit "github.com/transcom/mymove/pkg/unit"
-
 	validate "github.com/gobuffalo/validate/v3"
 
 	unit "github.com/transcom/mymove/pkg/unit"
