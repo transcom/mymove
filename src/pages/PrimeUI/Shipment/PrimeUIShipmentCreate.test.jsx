@@ -203,7 +203,7 @@ describe('Create Mobile Home', () => {
       input = await document.querySelector('input[name="tertiaryPickupAddress.streetAddress1"]');
       expect(input).toBeInTheDocument();
       // enter required street 1 for pickup 2
-      await userEvent.type(input, '123 Street 2');
+      await userEvent.type(input, '123 Street 3');
 
       input = await document.querySelector('input[name="destinationAddress.streetAddress1"]');
       expect(input).toBeInTheDocument();
