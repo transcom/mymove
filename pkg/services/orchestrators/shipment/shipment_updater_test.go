@@ -819,13 +819,13 @@ func (suite *ShipmentSuite) TestUpdateShipment() {
 			return nil
 		})
 
-		suite.Equal(unit.Cents(32520), shipment.MTOServiceItems[0].PricingEstimate)
-		suite.Equal(unit.Cents(14400), shipment.MTOServiceItems[1].PricingEstimate)
-		suite.Equal(unit.Cents(83280), shipment.MTOServiceItems[2].PricingEstimate)
-		suite.Equal(unit.Cents(8160), shipment.MTOServiceItems[3].PricingEstimate)
-		suite.Equal(unit.Cents(26976000), shipment.MTOServiceItems[4].PricingEstimate)
-		suite.Equal(unit.Cents(63780), shipment.MTOServiceItems[5].PricingEstimate)
-		//suite.Equal(unit.Cents(786), shipment.MTOServiceItems[6].PricingEstimate)
+		suite.Equal(unit.Cents(32520), *shipment.MTOServiceItems[0].PricingEstimate)
+		suite.Equal(unit.Cents(14400), *shipment.MTOServiceItems[1].PricingEstimate)
+		suite.Equal(unit.Cents(83280), *shipment.MTOServiceItems[2].PricingEstimate)
+		suite.Equal(unit.Cents(8160), *shipment.MTOServiceItems[3].PricingEstimate)
+		suite.Equal(unit.Cents(26976000), *shipment.MTOServiceItems[4].PricingEstimate)
+		suite.Equal(unit.Cents(63780), *shipment.MTOServiceItems[5].PricingEstimate)
+		suite.Equal(unit.Cents(786), *shipment.MTOServiceItems[6].PricingEstimate)
 		suite.NoError(err)
 	})
 
@@ -1125,13 +1125,13 @@ func (suite *ShipmentSuite) TestUpdateShipment() {
 			return nil
 		})
 
-		suite.Equal(unit.Cents(32520), shipment.MTOServiceItems[0].PricingEstimate)
-		suite.Equal(unit.Cents(14400), shipment.MTOServiceItems[1].PricingEstimate)
-		suite.Equal(unit.Cents(83280), shipment.MTOServiceItems[2].PricingEstimate)
-		suite.Equal(unit.Cents(8160), shipment.MTOServiceItems[3].PricingEstimate)
-		suite.Equal(unit.Cents(26976000), shipment.MTOServiceItems[4].PricingEstimate)
-		suite.Equal(unit.Cents(63780), shipment.MTOServiceItems[5].PricingEstimate)
-		//suite.Equal(unit.Cents(786), shipment.MTOServiceItems[6].PricingEstimate)
+		suite.Equal(unit.Cents(32520), *shipment.MTOServiceItems[0].PricingEstimate)
+		suite.Equal(unit.Cents(14400), *shipment.MTOServiceItems[1].PricingEstimate)
+		suite.Equal(unit.Cents(83280), *shipment.MTOServiceItems[2].PricingEstimate)
+		suite.Equal(unit.Cents(8160), *shipment.MTOServiceItems[3].PricingEstimate)
+		suite.Equal(unit.Cents(26976000), *shipment.MTOServiceItems[4].PricingEstimate)
+		suite.Equal(unit.Cents(63780), *shipment.MTOServiceItems[5].PricingEstimate)
+		suite.Equal(unit.Cents(786), *shipment.MTOServiceItems[6].PricingEstimate)
 		suite.NoError(err)
 	})
 }
