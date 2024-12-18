@@ -559,7 +559,7 @@ func getDestinationAddressForService(appCtx appcontext.AppContext, serviceCode m
 	var ptrDestinationAddress *models.Address
 	var addressType string
 	switch mtoShipment.ShipmentType {
-	case models.MTOShipmentTypeHHGIntoNTSDom:
+	case models.MTOShipmentTypeHHGIntoNTS:
 		addressType = "storage facility"
 		if mtoShipment.StorageFacility != nil {
 			ptrDestinationAddress = &mtoShipment.StorageFacility.Address
