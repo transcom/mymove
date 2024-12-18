@@ -227,4 +227,115 @@ test.describe('Office Users Edit Page', () => {
     await expect(page.locator(`tr:has(:text("${email}")) >> td.column-firstName`)).toHaveText('NewFirst');
     await expect(page.locator(`tr:has(:text("${email}")) >> td.column-lastName`)).toHaveText('NewLast');
   });
+
+  test('prevents safety move priv selection with Customer role', async ({ page, adminPage }) => {
+    const officeUser = await adminPage.testHarness.buildOfficeUserWithCustomer();
+    const email = officeUser.okta_email;
+
+    // create a new admin user to edit
+    // using an existing one may stop on a concurrent playwright session
+    const adminUser = await adminPage.testHarness.buildDefaultSuperAdminUser();
+    await adminPage.signInAsExistingAdminUser(adminUser.user_id);
+
+    expect(page.url()).toContain('/system/requested-office-users');
+    await page.getByRole('menuitem', { name: 'Office Users', exact: true }).click();
+    expect(page.url()).toContain('/system/office-users');
+    await searchForOfficeUser(page, email);
+    await page.getByText(email).click();
+    await adminPage.waitForPage.adminPage();
+
+    await page.getByRole('link', { name: 'Edit' }).click();
+    await adminPage.waitForPage.adminPage();
+
+    const safetyMoveCheckbox = page.getByLabel('Safety Moves');
+    const customerCheckbox = page.getByLabel('Customer', { exact: true });
+
+    await expect(customerCheckbox).toBeChecked();
+    await safetyMoveCheckbox.click();
+    await expect(safetyMoveCheckbox).not.toBeChecked();
+  });
+
+  test('prevents safety move priv selection with Contracting Officer role', async ({ page, adminPage }) => {
+    const officeUser = await adminPage.testHarness.buildOfficeUserWithContractingOfficer();
+    const email = officeUser.okta_email;
+
+    // create a new admin user to edit
+    // using an existing one may stop on a concurrent playwright session
+    const adminUser = await adminPage.testHarness.buildDefaultSuperAdminUser();
+    await adminPage.signInAsExistingAdminUser(adminUser.user_id);
+
+    expect(page.url()).toContain('/system/requested-office-users');
+    await page.getByRole('menuitem', { name: 'Office Users', exact: true }).click();
+    expect(page.url()).toContain('/system/office-users');
+    await searchForOfficeUser(page, email);
+    await page.getByText(email).click();
+    await adminPage.waitForPage.adminPage();
+
+    await page.getByRole('link', { name: 'Edit' }).click();
+    await adminPage.waitForPage.adminPage();
+
+    const safetyMoveCheckbox = page.getByLabel('Safety Moves');
+    const customerCheckbox = page.getByLabel('Contracting Officer', { exact: true });
+
+    await expect(customerCheckbox).toBeChecked();
+    await safetyMoveCheckbox.click();
+    await expect(safetyMoveCheckbox).not.toBeChecked();
+  });
+
+  test('prevents safety move priv selection with Prime Simulator role', async ({ page, adminPage }) => {
+    const officeUser = await adminPage.testHarness.buildOfficeUserWithPrimeSimulator();
+    const email = officeUser.okta_email;
+
+    // create a new admin user to edit
+    // using an existing one may stop on a concurrent playwright session
+    const adminUser = await adminPage.testHarness.buildDefaultSuperAdminUser();
+    await adminPage.signInAsExistingAdminUser(adminUser.user_id);
+
+    expect(page.url()).toContain('/system/requested-office-users');
+    await page.getByRole('menuitem', { name: 'Office Users', exact: true }).click();
+    expect(page.url()).toContain('/system/office-users');
+    await searchForOfficeUser(page, email);
+    await page.getByText(email).click();
+    await adminPage.waitForPage.adminPage();
+
+    await page.getByRole('link', { name: 'Edit' }).click();
+    await adminPage.waitForPage.adminPage();
+
+    const safetyMoveCheckbox = page.getByLabel('Safety Moves');
+    const customerCheckbox = page.getByLabel('Prime Simulator', { exact: true });
+
+    await expect(customerCheckbox).toBeChecked();
+    await safetyMoveCheckbox.click();
+    await expect(safetyMoveCheckbox).not.toBeChecked();
+  });
+
+  test('prevents safety move priv selection with Government Surveillance Representative role', async ({
+    page,
+    adminPage,
+  }) => {
+    const officeUser = await adminPage.testHarness.buildOfficeUserWithGSR();
+    const email = officeUser.okta_email;
+
+    // create a new admin user to edit
+    // using an existing one may stop on a concurrent playwright session
+    const adminUser = await adminPage.testHarness.buildDefaultSuperAdminUser();
+    await adminPage.signInAsExistingAdminUser(adminUser.user_id);
+
+    expect(page.url()).toContain('/system/requested-office-users');
+    await page.getByRole('menuitem', { name: 'Office Users', exact: true }).click();
+    expect(page.url()).toContain('/system/office-users');
+    await searchForOfficeUser(page, email);
+    await page.getByText(email).click();
+    await adminPage.waitForPage.adminPage();
+
+    await page.getByRole('link', { name: 'Edit' }).click();
+    await adminPage.waitForPage.adminPage();
+
+    const safetyMoveCheckbox = page.getByLabel('Safety Moves');
+    const customerCheckbox = page.getByLabel('Government Surveillance Representative', { exact: true });
+
+    await expect(customerCheckbox).toBeChecked();
+    await safetyMoveCheckbox.click();
+    await expect(safetyMoveCheckbox).not.toBeChecked();
+  });
 });
