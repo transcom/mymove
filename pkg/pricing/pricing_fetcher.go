@@ -52,14 +52,22 @@ func FetchServiceItemPrice(appCtx appcontext.AppContext, serviceItem *models.MTO
 		}
 	}
 
+	var serviceAreaPostalCode string
+	if UseDestinationAddressServiceArea(serviceItem.ReService.Code) {
+		serviceAreaPostalCode = mtoShipment.DestinationAddress.PostalCode
+	} else {
+		serviceAreaPostalCode = mtoShipment.PickupAddress.PostalCode
+	}
+
+	domesticServiceArea, err := fetchDomesticServiceArea(appCtx, contractCode, serviceAreaPostalCode)
+	if err != nil {
+		return 0, err
+	}
+
 	var price unit.Cents
 	switch serviceItem.ReService.Code {
 	case models.ReServiceCodeDOP:
 		originPricer := ghcrateengine.NewDomesticOriginPricer()
-		domesticServiceArea, err := fetchDomesticServiceArea(appCtx, contractCode, mtoShipment.PickupAddress.PostalCode)
-		if err != nil {
-			return 0, err
-		}
 
 		price, _, err = originPricer.Price(appCtx, contractCode, requestedPickupDate, *primeEstimatedWeight, domesticServiceArea.ServiceArea, isPPM)
 		if err != nil {
@@ -67,10 +75,6 @@ func FetchServiceItemPrice(appCtx appcontext.AppContext, serviceItem *models.MTO
 		}
 	case models.ReServiceCodeDPK:
 		packPricer := ghcrateengine.NewDomesticPackPricer()
-		domesticServiceArea, err := fetchDomesticServiceArea(appCtx, contractCode, mtoShipment.PickupAddress.PostalCode)
-		if err != nil {
-			return 0, err
-		}
 
 		servicesScheduleOrigin := domesticServiceArea.ServicesSchedule
 
@@ -80,13 +84,6 @@ func FetchServiceItemPrice(appCtx appcontext.AppContext, serviceItem *models.MTO
 		}
 	case models.ReServiceCodeDDP:
 		destinationPricer := ghcrateengine.NewDomesticDestinationPricer()
-		var domesticServiceArea models.ReDomesticServiceArea
-		if mtoShipment.DestinationAddress != nil {
-			domesticServiceArea, err = fetchDomesticServiceArea(appCtx, contractCode, mtoShipment.DestinationAddress.PostalCode)
-			if err != nil {
-				return 0, err
-			}
-		}
 
 		price, _, err = destinationPricer.Price(appCtx, contractCode, requestedPickupDate, *primeEstimatedWeight, domesticServiceArea.ServiceArea, isPPM)
 		if err != nil {
@@ -94,10 +91,6 @@ func FetchServiceItemPrice(appCtx appcontext.AppContext, serviceItem *models.MTO
 		}
 	case models.ReServiceCodeDUPK:
 		unpackPricer := ghcrateengine.NewDomesticUnpackPricer()
-		domesticServiceArea, err := fetchDomesticServiceArea(appCtx, contractCode, mtoShipment.DestinationAddress.PostalCode)
-		if err != nil {
-			return 0, err
-		}
 
 		serviceScheduleDestination := domesticServiceArea.ServicesSchedule
 
@@ -107,20 +100,14 @@ func FetchServiceItemPrice(appCtx appcontext.AppContext, serviceItem *models.MTO
 		}
 	case models.ReServiceCodeDLH:
 		linehaulPricer := ghcrateengine.NewDomesticLinehaulPricer()
-		domesticServiceArea, err := fetchDomesticServiceArea(appCtx, contractCode, mtoShipment.PickupAddress.PostalCode)
-		if err != nil {
-			return 0, err
-		}
+
 		price, _, err = linehaulPricer.Price(appCtx, contractCode, requestedPickupDate, unit.Miles(calculatedDistance), *primeEstimatedWeight, domesticServiceArea.ServiceArea, isPPM)
 		if err != nil {
 			return 0, err
 		}
 	case models.ReServiceCodeDSH:
 		shorthaulPricer := ghcrateengine.NewDomesticShorthaulPricer()
-		domesticServiceArea, err := fetchDomesticServiceArea(appCtx, contractCode, mtoShipment.PickupAddress.PostalCode)
-		if err != nil {
-			return 0, err
-		}
+
 		price, _, err = shorthaulPricer.Price(appCtx, contractCode, requestedPickupDate, unit.Miles(calculatedDistance), *primeEstimatedWeight, domesticServiceArea.ServiceArea)
 		if err != nil {
 			return 0, err
@@ -174,6 +161,10 @@ func FetchContractCode(appCtx appcontext.AppContext, date time.Time) (string, er
 
 func isServiceItemCodeDistanceBased(serviceCode models.ReServiceCode) bool {
 	return (serviceCode == models.ReServiceCodeFSC || serviceCode == models.ReServiceCodeDSH || serviceCode == models.ReServiceCodeDLH)
+}
+
+func UseDestinationAddressServiceArea(serviceCode models.ReServiceCode) bool {
+	return (serviceCode == models.ReServiceCodeDDP || serviceCode == models.ReServiceCodeDUPK)
 }
 
 func fetchDomesticServiceArea(appCtx appcontext.AppContext, contractCode string, shipmentPostalCode string) (models.ReDomesticServiceArea, error) {
