@@ -26,16 +26,14 @@ type shipmentAddressUpdateRequester struct {
 	shipmentFetcher services.MTOShipmentFetcher
 	services.MTOServiceItemUpdater
 	services.MTOServiceItemCreator
-	featureFlagFetcher services.FeatureFlagFetcher
 }
 
-func NewShipmentAddressUpdateRequester(planner route.Planner, addressCreator services.AddressCreator, moveRouter services.MoveRouter, featureFlagFetcher services.FeatureFlagFetcher) services.ShipmentAddressUpdateRequester {
+func NewShipmentAddressUpdateRequester(planner route.Planner, addressCreator services.AddressCreator, moveRouter services.MoveRouter) services.ShipmentAddressUpdateRequester {
 
 	return &shipmentAddressUpdateRequester{
-		planner:            planner,
-		addressCreator:     addressCreator,
-		moveRouter:         moveRouter,
-		featureFlagFetcher: featureFlagFetcher,
+		planner:        planner,
+		addressCreator: addressCreator,
+		moveRouter:     moveRouter,
 	}
 }
 
@@ -467,8 +465,8 @@ func (f *shipmentAddressUpdateRequester) ReviewShipmentAddressChange(appCtx appc
 
 	if tooApprovalStatus == models.ShipmentAddressUpdateStatusApproved {
 		queryBuilder := query.NewQueryBuilder()
-		serviceItemUpdater := mtoserviceitem.NewMTOServiceItemUpdater(f.planner, queryBuilder, f.moveRouter, f.shipmentFetcher, f.addressCreator, ghcrateengine.NewDomesticUnpackPricer(f.featureFlagFetcher), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticDestinationPricer(f.featureFlagFetcher), ghcrateengine.NewFuelSurchargePricer(), ghcrateengine.NewDomesticDestinationSITDeliveryPricer(), ghcrateengine.NewDomesticOriginSITFuelSurchargePricer(), f.featureFlagFetcher)
-		serviceItemCreator := mtoserviceitem.NewMTOServiceItemCreator(f.planner, queryBuilder, f.moveRouter, ghcrateengine.NewDomesticUnpackPricer(f.featureFlagFetcher), ghcrateengine.NewDomesticPackPricer(f.featureFlagFetcher), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(f.featureFlagFetcher), ghcrateengine.NewDomesticDestinationPricer(f.featureFlagFetcher), ghcrateengine.NewFuelSurchargePricer(), f.featureFlagFetcher)
+		serviceItemUpdater := mtoserviceitem.NewMTOServiceItemUpdater(f.planner, queryBuilder, f.moveRouter, f.shipmentFetcher, f.addressCreator, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer(), ghcrateengine.NewDomesticDestinationSITDeliveryPricer(), ghcrateengine.NewDomesticOriginSITFuelSurchargePricer())
+		serviceItemCreator := mtoserviceitem.NewMTOServiceItemCreator(f.planner, queryBuilder, f.moveRouter, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticPackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer())
 
 		addressUpdate.Status = models.ShipmentAddressUpdateStatusApproved
 		addressUpdate.OfficeRemarks = &tooRemarks

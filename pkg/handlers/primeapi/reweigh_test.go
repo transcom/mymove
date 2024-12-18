@@ -39,7 +39,7 @@ func (suite *HandlerSuite) TestUpdateReweighHandler() {
 	).Return(recalculateTestZip3Distance, nil)
 
 	// Get shipment payment request recalculator service
-	creator := paymentrequest.NewPaymentRequestCreator(mockPlanner, ghcrateengine.NewServiceItemPricer(suite.HandlerConfig().FeatureFlagFetcher()))
+	creator := paymentrequest.NewPaymentRequestCreator(mockPlanner, ghcrateengine.NewServiceItemPricer())
 	statusUpdater := paymentrequest.NewPaymentRequestStatusUpdater(query.NewQueryBuilder())
 	recalculator := paymentrequest.NewPaymentRequestRecalculator(creator, statusUpdater)
 	paymentRequestShipmentRecalculator := paymentrequest.NewPaymentRequestShipmentRecalculator(recalculator)

@@ -14,12 +14,11 @@ import (
 )
 
 type domesticOriginPricer struct {
-	services.FeatureFlagFetcher
 }
 
 // NewDomesticOriginPricer creates a new pricer for domestic origin services
-func NewDomesticOriginPricer(featureFlagFetcher services.FeatureFlagFetcher) services.DomesticOriginPricer {
-	return &domesticOriginPricer{featureFlagFetcher}
+func NewDomesticOriginPricer() services.DomesticOriginPricer {
+	return &domesticOriginPricer{}
 }
 
 // Price determines the price for a domestic origin
@@ -127,24 +126,16 @@ func (p domesticOriginPricer) PriceUsingParams(appCtx appcontext.AppContext, par
 	}
 
 	// Check if packing service items have been enabled for Mobile Home shipments
-	isMobileHomePackingItemOn, err := GetFeatureFlagValue(appCtx, p.FeatureFlagFetcher, services.DomesticMobileHomeDOPEnabled)
-	if err != nil {
-		return unit.Cents(0), nil, err
-	}
+	// TODO: Add actual check here
+	// isMobileHomePackingItemOn, err := GetFeatureFlagValue(appCtx, p.FeatureFlagFetcher, services.DomesticMobileHomeDOPEnabled)
+	// if err != nil {
+	// 	return unit.Cents(0), nil, err
+	// }
 
 	var isMobileHome = false
-	if isMobileHomePackingItemOn && params[0].PaymentServiceItem.MTOServiceItem.MTOShipment.ShipmentType == models.MTOShipmentTypeMobileHome {
-		isMobileHome = true
-	}
+	// if isMobileHomePackingItemOn && params[0].PaymentServiceItem.MTOServiceItem.MTOShipment.ShipmentType == models.MTOShipmentTypeMobileHome {
+	// 	isMobileHome = true
+	// }
 
 	return p.Price(appCtx, contractCode, referenceDate, unit.Pound(weightBilled), serviceAreaOrigin, isPPM, isMobileHome)
-}
-
-// Determines if this DUPK item should actually be added to the payment request by checking for relevant feature flags
-func (p domesticOriginPricer) ShouldPrice(appCtx appcontext.AppContext) (bool, error) {
-	isOn, err := GetFeatureFlagValue(appCtx, p.FeatureFlagFetcher, services.DomesticMobileHomeDOPEnabled) // This should be edited later to also include the Boat Shipment FFs
-	if err != nil {
-		return false, fmt.Errorf("could not fetch feature flag to determine unpack pricing formula: %w", err)
-	}
-	return isOn, nil
 }

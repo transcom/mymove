@@ -95,7 +95,7 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemHandler() {
 			mock.Anything,
 			mock.Anything,
 		).Return(400, nil)
-		creator := mtoserviceitem.NewMTOServiceItemCreator(planner, builder, moveRouter, ghcrateengine.NewDomesticUnpackPricer(suite.HandlerConfig().FeatureFlagFetcher()), ghcrateengine.NewDomesticPackPricer(suite.HandlerConfig().FeatureFlagFetcher()), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(suite.HandlerConfig().FeatureFlagFetcher()), ghcrateengine.NewDomesticDestinationPricer(suite.HandlerConfig().FeatureFlagFetcher()), ghcrateengine.NewFuelSurchargePricer(), mockFeatureFlagFetcher)
+		creator := mtoserviceitem.NewMTOServiceItemCreator(planner, builder, moveRouter, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticPackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer())
 		handler := CreateMTOServiceItemHandler{
 			suite.HandlerConfig(),
 			creator,
@@ -154,7 +154,7 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemHandler() {
 			mock.Anything,
 			mock.Anything,
 		).Return(400, nil)
-		creator := mtoserviceitem.NewMTOServiceItemCreator(planner, builder, moveRouter, ghcrateengine.NewDomesticUnpackPricer(suite.HandlerConfig().FeatureFlagFetcher()), ghcrateengine.NewDomesticPackPricer(suite.HandlerConfig().FeatureFlagFetcher()), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(suite.HandlerConfig().FeatureFlagFetcher()), ghcrateengine.NewDomesticDestinationPricer(suite.HandlerConfig().FeatureFlagFetcher()), ghcrateengine.NewFuelSurchargePricer(), mockFeatureFlagFetcher)
+		creator := mtoserviceitem.NewMTOServiceItemCreator(planner, builder, moveRouter, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticPackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer())
 		handler := CreateMTOServiceItemHandler{
 			suite.HandlerConfig(),
 			creator,
@@ -293,7 +293,7 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemHandler() {
 			mock.Anything,
 			mock.Anything,
 		).Return(400, nil)
-		creator := mtoserviceitem.NewMTOServiceItemCreator(planner, builder, moveRouter, ghcrateengine.NewDomesticUnpackPricer(suite.HandlerConfig().FeatureFlagFetcher()), ghcrateengine.NewDomesticPackPricer(suite.HandlerConfig().FeatureFlagFetcher()), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(suite.HandlerConfig().FeatureFlagFetcher()), ghcrateengine.NewDomesticDestinationPricer(suite.HandlerConfig().FeatureFlagFetcher()), ghcrateengine.NewFuelSurchargePricer(), mockFeatureFlagFetcher)
+		creator := mtoserviceitem.NewMTOServiceItemCreator(planner, builder, moveRouter, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticPackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer())
 		handler := CreateMTOServiceItemHandler{
 			suite.HandlerConfig(),
 			creator,
@@ -338,7 +338,7 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemHandler() {
 			mock.Anything,
 			mock.Anything,
 		).Return(400, nil)
-		creator := mtoserviceitem.NewMTOServiceItemCreator(planner, builder, moveRouter, ghcrateengine.NewDomesticUnpackPricer(suite.HandlerConfig().FeatureFlagFetcher()), ghcrateengine.NewDomesticPackPricer(suite.HandlerConfig().FeatureFlagFetcher()), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(suite.HandlerConfig().FeatureFlagFetcher()), ghcrateengine.NewDomesticDestinationPricer(suite.HandlerConfig().FeatureFlagFetcher()), ghcrateengine.NewFuelSurchargePricer(), mockFeatureFlagFetcher)
+		creator := mtoserviceitem.NewMTOServiceItemCreator(planner, builder, moveRouter, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticPackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer())
 		handler := CreateMTOServiceItemHandler{
 			suite.HandlerConfig(),
 			creator,
@@ -490,7 +490,7 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemDomesticCratingHandler() {
 			mock.Anything,
 			mock.Anything,
 		).Return(400, nil)
-		creator := mtoserviceitem.NewMTOServiceItemCreator(planner, builder, moveRouter, ghcrateengine.NewDomesticUnpackPricer(suite.HandlerConfig().FeatureFlagFetcher()), ghcrateengine.NewDomesticPackPricer(suite.HandlerConfig().FeatureFlagFetcher()), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(suite.HandlerConfig().FeatureFlagFetcher()), ghcrateengine.NewDomesticDestinationPricer(suite.HandlerConfig().FeatureFlagFetcher()), ghcrateengine.NewFuelSurchargePricer(), mockFeatureFlagFetcher)
+		creator := mtoserviceitem.NewMTOServiceItemCreator(planner, builder, moveRouter, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticPackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer())
 		handler := CreateMTOServiceItemHandler{
 			suite.HandlerConfig(),
 			creator,
@@ -528,7 +528,7 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemDomesticCratingHandler() {
 			mock.Anything,
 			mock.Anything,
 		).Return(400, nil)
-		creator := mtoserviceitem.NewMTOServiceItemCreator(planner, builder, moveRouter, ghcrateengine.NewDomesticUnpackPricer(suite.HandlerConfig().FeatureFlagFetcher()), ghcrateengine.NewDomesticPackPricer(suite.HandlerConfig().FeatureFlagFetcher()), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(suite.HandlerConfig().FeatureFlagFetcher()), ghcrateengine.NewDomesticDestinationPricer(suite.HandlerConfig().FeatureFlagFetcher()), ghcrateengine.NewFuelSurchargePricer(), mockFeatureFlagFetcher)
+		creator := mtoserviceitem.NewMTOServiceItemCreator(planner, builder, moveRouter, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticPackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer())
 		handler := CreateMTOServiceItemHandler{
 			suite.HandlerConfig(),
 			creator,
@@ -652,7 +652,7 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemOriginSITHandler() {
 			mock.Anything,
 			mock.Anything,
 		).Return(400, nil)
-		creator := mtoserviceitem.NewMTOServiceItemCreator(planner, builder, moveRouter, ghcrateengine.NewDomesticUnpackPricer(suite.HandlerConfig().FeatureFlagFetcher()), ghcrateengine.NewDomesticPackPricer(suite.HandlerConfig().FeatureFlagFetcher()), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(suite.HandlerConfig().FeatureFlagFetcher()), ghcrateengine.NewDomesticDestinationPricer(suite.HandlerConfig().FeatureFlagFetcher()), ghcrateengine.NewFuelSurchargePricer(), mockFeatureFlagFetcher)
+		creator := mtoserviceitem.NewMTOServiceItemCreator(planner, builder, moveRouter, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticPackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer())
 		handler := CreateMTOServiceItemHandler{
 			suite.HandlerConfig(),
 			creator,
@@ -699,7 +699,7 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemOriginSITHandler() {
 			mock.Anything,
 			mock.Anything,
 		).Return(400, nil)
-		creator := mtoserviceitem.NewMTOServiceItemCreator(planner, builder, moveRouter, ghcrateengine.NewDomesticUnpackPricer(suite.HandlerConfig().FeatureFlagFetcher()), ghcrateengine.NewDomesticPackPricer(suite.HandlerConfig().FeatureFlagFetcher()), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(suite.HandlerConfig().FeatureFlagFetcher()), ghcrateengine.NewDomesticDestinationPricer(suite.HandlerConfig().FeatureFlagFetcher()), ghcrateengine.NewFuelSurchargePricer(), mockFeatureFlagFetcher)
+		creator := mtoserviceitem.NewMTOServiceItemCreator(planner, builder, moveRouter, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticPackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer())
 		handler := CreateMTOServiceItemHandler{
 			suite.HandlerConfig(),
 			creator,
@@ -769,7 +769,7 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemOriginSITHandler() {
 			mock.Anything,
 			mock.Anything,
 		).Return(400, nil)
-		creator := mtoserviceitem.NewMTOServiceItemCreator(planner, builder, moveRouter, ghcrateengine.NewDomesticUnpackPricer(suite.HandlerConfig().FeatureFlagFetcher()), ghcrateengine.NewDomesticPackPricer(suite.HandlerConfig().FeatureFlagFetcher()), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(suite.HandlerConfig().FeatureFlagFetcher()), ghcrateengine.NewDomesticDestinationPricer(suite.HandlerConfig().FeatureFlagFetcher()), ghcrateengine.NewFuelSurchargePricer(), mockFeatureFlagFetcher)
+		creator := mtoserviceitem.NewMTOServiceItemCreator(planner, builder, moveRouter, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticPackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer())
 		handler := CreateMTOServiceItemHandler{
 			suite.HandlerConfig(),
 			creator,
@@ -854,7 +854,7 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemOriginSITHandlerWithDOFSITNoA
 			mock.Anything,
 			mock.Anything,
 		).Return(400, nil)
-		creator := mtoserviceitem.NewMTOServiceItemCreator(planner, builder, moveRouter, ghcrateengine.NewDomesticUnpackPricer(suite.HandlerConfig().FeatureFlagFetcher()), ghcrateengine.NewDomesticPackPricer(suite.HandlerConfig().FeatureFlagFetcher()), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(suite.HandlerConfig().FeatureFlagFetcher()), ghcrateengine.NewDomesticDestinationPricer(suite.HandlerConfig().FeatureFlagFetcher()), ghcrateengine.NewFuelSurchargePricer(), mockFeatureFlagFetcher)
+		creator := mtoserviceitem.NewMTOServiceItemCreator(planner, builder, moveRouter, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticPackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer())
 		handler := CreateMTOServiceItemHandler{
 			suite.HandlerConfig(),
 			creator,
@@ -965,7 +965,7 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemOriginSITHandlerWithDOFSITWit
 			mock.Anything,
 			mock.Anything,
 		).Return(400, nil)
-		creator := mtoserviceitem.NewMTOServiceItemCreator(planner, builder, moveRouter, ghcrateengine.NewDomesticUnpackPricer(suite.HandlerConfig().FeatureFlagFetcher()), ghcrateengine.NewDomesticPackPricer(suite.HandlerConfig().FeatureFlagFetcher()), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(suite.HandlerConfig().FeatureFlagFetcher()), ghcrateengine.NewDomesticDestinationPricer(suite.HandlerConfig().FeatureFlagFetcher()), ghcrateengine.NewFuelSurchargePricer(), mockFeatureFlagFetcher)
+		creator := mtoserviceitem.NewMTOServiceItemCreator(planner, builder, moveRouter, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticPackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer())
 		handler := CreateMTOServiceItemHandler{
 			suite.HandlerConfig(),
 			creator,
@@ -1139,7 +1139,7 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemDestSITHandler() {
 			mock.Anything,
 			mock.Anything,
 		).Return(400, nil)
-		creator := mtoserviceitem.NewMTOServiceItemCreator(planner, builder, moveRouter, ghcrateengine.NewDomesticUnpackPricer(suite.HandlerConfig().FeatureFlagFetcher()), ghcrateengine.NewDomesticPackPricer(suite.HandlerConfig().FeatureFlagFetcher()), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(suite.HandlerConfig().FeatureFlagFetcher()), ghcrateengine.NewDomesticDestinationPricer(suite.HandlerConfig().FeatureFlagFetcher()), ghcrateengine.NewFuelSurchargePricer(), mockFeatureFlagFetcher)
+		creator := mtoserviceitem.NewMTOServiceItemCreator(planner, builder, moveRouter, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticPackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer())
 		handler := CreateMTOServiceItemHandler{
 			suite.HandlerConfig(),
 			creator,
@@ -1214,7 +1214,7 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemDestSITHandler() {
 			mock.Anything,
 			mock.Anything,
 		).Return(400, nil)
-		creator := mtoserviceitem.NewMTOServiceItemCreator(planner, builder, moveRouter, ghcrateengine.NewDomesticUnpackPricer(suite.HandlerConfig().FeatureFlagFetcher()), ghcrateengine.NewDomesticPackPricer(suite.HandlerConfig().FeatureFlagFetcher()), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(suite.HandlerConfig().FeatureFlagFetcher()), ghcrateengine.NewDomesticDestinationPricer(suite.HandlerConfig().FeatureFlagFetcher()), ghcrateengine.NewFuelSurchargePricer(), mockFeatureFlagFetcher)
+		creator := mtoserviceitem.NewMTOServiceItemCreator(planner, builder, moveRouter, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticPackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer())
 		handler := CreateMTOServiceItemHandler{
 			suite.HandlerConfig(),
 			creator,
@@ -1248,7 +1248,7 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemDestSITHandler() {
 			mock.Anything,
 			mock.Anything,
 		).Return(400, nil)
-		creator := mtoserviceitem.NewMTOServiceItemCreator(planner, builder, moveRouter, ghcrateengine.NewDomesticUnpackPricer(suite.HandlerConfig().FeatureFlagFetcher()), ghcrateengine.NewDomesticPackPricer(suite.HandlerConfig().FeatureFlagFetcher()), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(suite.HandlerConfig().FeatureFlagFetcher()), ghcrateengine.NewDomesticDestinationPricer(suite.HandlerConfig().FeatureFlagFetcher()), ghcrateengine.NewFuelSurchargePricer(), mockFeatureFlagFetcher)
+		creator := mtoserviceitem.NewMTOServiceItemCreator(planner, builder, moveRouter, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticPackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer())
 		handler := CreateMTOServiceItemHandler{
 			suite.HandlerConfig(),
 			creator,
@@ -1305,7 +1305,7 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemDestSITHandler() {
 			mock.Anything,
 			mock.Anything,
 		).Return(400, nil)
-		creator := mtoserviceitem.NewMTOServiceItemCreator(planner, builder, moveRouter, ghcrateengine.NewDomesticUnpackPricer(suite.HandlerConfig().FeatureFlagFetcher()), ghcrateengine.NewDomesticPackPricer(suite.HandlerConfig().FeatureFlagFetcher()), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(suite.HandlerConfig().FeatureFlagFetcher()), ghcrateengine.NewDomesticDestinationPricer(suite.HandlerConfig().FeatureFlagFetcher()), ghcrateengine.NewFuelSurchargePricer(), mockFeatureFlagFetcher)
+		creator := mtoserviceitem.NewMTOServiceItemCreator(planner, builder, moveRouter, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticPackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer())
 		handler := CreateMTOServiceItemHandler{
 			suite.HandlerConfig(),
 			creator,
@@ -1360,7 +1360,7 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemDestSITHandler() {
 			mock.Anything,
 			mock.Anything,
 		).Return(400, nil)
-		creator := mtoserviceitem.NewMTOServiceItemCreator(planner, builder, moveRouter, ghcrateengine.NewDomesticUnpackPricer(suite.HandlerConfig().FeatureFlagFetcher()), ghcrateengine.NewDomesticPackPricer(suite.HandlerConfig().FeatureFlagFetcher()), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(suite.HandlerConfig().FeatureFlagFetcher()), ghcrateengine.NewDomesticDestinationPricer(suite.HandlerConfig().FeatureFlagFetcher()), ghcrateengine.NewFuelSurchargePricer(), mockFeatureFlagFetcher)
+		creator := mtoserviceitem.NewMTOServiceItemCreator(planner, builder, moveRouter, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticPackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer())
 		handler := CreateMTOServiceItemHandler{
 			suite.HandlerConfig(),
 			creator,
@@ -1392,7 +1392,7 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemDestSITHandler() {
 		moveRouter, err := moverouter.NewMoveRouter()
 		suite.FatalNoError(err)
 		planner := &routemocks.Planner{}
-		creator := mtoserviceitem.NewMTOServiceItemCreator(planner, builder, moveRouter, ghcrateengine.NewDomesticUnpackPricer(suite.HandlerConfig().FeatureFlagFetcher()), ghcrateengine.NewDomesticPackPricer(suite.HandlerConfig().FeatureFlagFetcher()), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(suite.HandlerConfig().FeatureFlagFetcher()), ghcrateengine.NewDomesticDestinationPricer(suite.HandlerConfig().FeatureFlagFetcher()), ghcrateengine.NewFuelSurchargePricer(), mockFeatureFlagFetcher)
+		creator := mtoserviceitem.NewMTOServiceItemCreator(planner, builder, moveRouter, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticPackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer())
 		handler := CreateMTOServiceItemHandler{
 			suite.HandlerConfig(),
 			creator,
@@ -1561,7 +1561,7 @@ func (suite *HandlerSuite) TestUpdateMTOServiceItemDDDSIT() {
 		).Return(400, nil)
 		subtestData.handler = UpdateMTOServiceItemHandler{
 			suite.HandlerConfig(),
-			mtoserviceitem.NewMTOServiceItemUpdater(planner, queryBuilder, moveRouter, shipmentFetcher, addressCreator, ghcrateengine.NewDomesticUnpackPricer(mockFeatureFlagFetcher), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticDestinationPricer(mockFeatureFlagFetcher), ghcrateengine.NewFuelSurchargePricer(), ghcrateengine.NewDomesticDestinationSITDeliveryPricer(), ghcrateengine.NewDomesticOriginSITFuelSurchargePricer(), mockFeatureFlagFetcher),
+			mtoserviceitem.NewMTOServiceItemUpdater(planner, queryBuilder, moveRouter, shipmentFetcher, addressCreator, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer(), ghcrateengine.NewDomesticDestinationSITDeliveryPricer(), ghcrateengine.NewDomesticOriginSITFuelSurchargePricer()),
 		}
 
 		// create the params struct
@@ -1844,7 +1844,7 @@ func (suite *HandlerSuite) TestUpdateMTOServiceItemDOPSIT() {
 		).Return(400, nil)
 		subtestData.handler = UpdateMTOServiceItemHandler{
 			suite.HandlerConfig(),
-			mtoserviceitem.NewMTOServiceItemUpdater(planner, queryBuilder, moveRouter, shipmentFetcher, addressCreator, ghcrateengine.NewDomesticUnpackPricer(mockFeatureFlagFetcher), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticDestinationPricer(mockFeatureFlagFetcher), ghcrateengine.NewFuelSurchargePricer(), ghcrateengine.NewDomesticDestinationSITDeliveryPricer(), ghcrateengine.NewDomesticOriginSITFuelSurchargePricer(), mockFeatureFlagFetcher),
+			mtoserviceitem.NewMTOServiceItemUpdater(planner, queryBuilder, moveRouter, shipmentFetcher, addressCreator, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer(), ghcrateengine.NewDomesticDestinationSITDeliveryPricer(), ghcrateengine.NewDomesticOriginSITFuelSurchargePricer()),
 		}
 
 		// create the params struct

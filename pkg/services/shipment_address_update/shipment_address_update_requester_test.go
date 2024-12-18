@@ -14,7 +14,6 @@ import (
 	"github.com/transcom/mymove/pkg/services/address"
 	moveservices "github.com/transcom/mymove/pkg/services/move"
 	"github.com/transcom/mymove/pkg/testdatagen"
-	"github.com/transcom/mymove/pkg/testhelpers"
 	"github.com/transcom/mymove/pkg/unit"
 )
 
@@ -101,8 +100,7 @@ func (suite *ShipmentAddressUpdateServiceSuite) TestCreateApprovedShipmentAddres
 	mockPlanner := &routemocks.Planner{}
 	moveRouter, err := moveservices.NewMoveRouter()
 	suite.FatalNoError(err)
-	mockFeatureFlagFetcher := testhelpers.SetupMockFeatureFlagFetcher(true)
-	addressUpdateRequester := NewShipmentAddressUpdateRequester(mockPlanner, addressCreator, moveRouter, mockFeatureFlagFetcher)
+	addressUpdateRequester := NewShipmentAddressUpdateRequester(mockPlanner, addressCreator, moveRouter)
 
 	suite.Run("Successfully create ShipmentAddressUpdate", func() {
 		mockPlanner.On("ZipTransitDistance",
@@ -623,8 +621,7 @@ func (suite *ShipmentAddressUpdateServiceSuite) TestTOOApprovedShipmentAddressUp
 		mock.Anything,
 		mock.Anything,
 	).Return(400, nil)
-	mockFeatureFlagFetcher := testhelpers.SetupMockFeatureFlagFetcher(true)
-	addressUpdateRequester := NewShipmentAddressUpdateRequester(mockPlanner, addressCreator, moveRouter, mockFeatureFlagFetcher)
+	addressUpdateRequester := NewShipmentAddressUpdateRequester(mockPlanner, addressCreator, moveRouter)
 
 	suite.Run("TOO approves address change", func() {
 
@@ -879,8 +876,7 @@ func (suite *ShipmentAddressUpdateServiceSuite) TestTOOApprovedShipmentAddressUp
 	mockPlanner := &routemocks.Planner{}
 	moveRouter, err := moveservices.NewMoveRouter()
 	suite.FatalNoError(err)
-	mockFeatureFlagFetcher := testhelpers.SetupMockFeatureFlagFetcher(true)
-	addressUpdateRequester := NewShipmentAddressUpdateRequester(mockPlanner, addressCreator, moveRouter, mockFeatureFlagFetcher)
+	addressUpdateRequester := NewShipmentAddressUpdateRequester(mockPlanner, addressCreator, moveRouter)
 
 	suite.Run("Service items are rejected and regenerated when pricing type changes post TOO approval", func() {
 		mockPlanner.On("ZipTransitDistance",

@@ -23,7 +23,6 @@ import (
 	mtoserviceitem "github.com/transcom/mymove/pkg/services/mto_service_item"
 	mtoshipment "github.com/transcom/mymove/pkg/services/mto_shipment"
 	"github.com/transcom/mymove/pkg/services/query"
-	"github.com/transcom/mymove/pkg/testhelpers"
 )
 
 func (suite *HandlerSuite) TestUpdateMTOShipmentStatusHandler() {
@@ -95,13 +94,12 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentStatusHandler() {
 	moveRouter, err := moverouter.NewMoveRouter()
 	suite.FatalNoError(err)
 	planner := &routemocks.Planner{}
-	mockFeatureFlagFetcher := testhelpers.SetupMockFeatureFlagFetcher(true)
 	planner.On("ZipTransitDistance",
 		mock.AnythingOfType("*appcontext.appContext"),
 		mock.Anything,
 		mock.Anything,
 	).Return(400, nil)
-	siCreator := mtoserviceitem.NewMTOServiceItemCreator(planner, queryBuilder, moveRouter, ghcrateengine.NewDomesticUnpackPricer(suite.HandlerConfig().FeatureFlagFetcher()), ghcrateengine.NewDomesticPackPricer(suite.HandlerConfig().FeatureFlagFetcher()), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(suite.HandlerConfig().FeatureFlagFetcher()), ghcrateengine.NewDomesticDestinationPricer(suite.HandlerConfig().FeatureFlagFetcher()), ghcrateengine.NewFuelSurchargePricer(), suite.HandlerConfig().FeatureFlagFetcher())
+	siCreator := mtoserviceitem.NewMTOServiceItemCreator(planner, queryBuilder, moveRouter, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticPackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer())
 	planner.On("Zip5TransitDistanceLineHaul",
 		mock.AnythingOfType("*appcontext.appContext"),
 		mock.Anything,
@@ -112,7 +110,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentStatusHandler() {
 		mock.Anything,
 		mock.Anything,
 	).Return(1000, nil)
-	updater := mtoshipment.NewMTOShipmentStatusUpdater(queryBuilder, siCreator, planner, mockFeatureFlagFetcher)
+	updater := mtoshipment.NewMTOShipmentStatusUpdater(queryBuilder, siCreator, planner)
 
 	setupHandler := func() UpdateMTOShipmentStatusHandlerFunc {
 		return UpdateMTOShipmentStatusHandlerFunc{

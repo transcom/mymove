@@ -35,7 +35,6 @@ import (
 	"github.com/transcom/mymove/pkg/services/ppmshipment"
 	"github.com/transcom/mymove/pkg/services/query"
 	"github.com/transcom/mymove/pkg/testdatagen"
-	"github.com/transcom/mymove/pkg/testhelpers"
 	"github.com/transcom/mymove/pkg/unit"
 )
 
@@ -57,8 +56,6 @@ func (suite *HandlerSuite) setUpMTOShipmentObjects() *mtoShipmentObjects {
 		moveRouter: moveRouter,
 	}
 }
-
-var mockFeatureFlagFetcher = testhelpers.SetupMockFeatureFlagFetcher(true)
 
 //
 // CREATE
@@ -110,7 +107,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandlerV1() {
 
 	moveTaskOrderUpdater := movetaskorder.NewMoveTaskOrderUpdater(
 		testMTOShipmentObjects.builder,
-		mtoserviceitem.NewMTOServiceItemCreator(planner, testMTOShipmentObjects.builder, testMTOShipmentObjects.moveRouter, ghcrateengine.NewDomesticUnpackPricer(suite.HandlerConfig().FeatureFlagFetcher()), ghcrateengine.NewDomesticPackPricer(suite.HandlerConfig().FeatureFlagFetcher()), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(suite.HandlerConfig().FeatureFlagFetcher()), ghcrateengine.NewDomesticDestinationPricer(suite.HandlerConfig().FeatureFlagFetcher()), ghcrateengine.NewFuelSurchargePricer(), mockFeatureFlagFetcher),
+		mtoserviceitem.NewMTOServiceItemCreator(planner, testMTOShipmentObjects.builder, testMTOShipmentObjects.moveRouter, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticPackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer()),
 		testMTOShipmentObjects.moveRouter,
 		setUpSignedCertificationCreatorMock(nil, nil), setUpSignedCertificationUpdaterMock(nil, nil), &ppmEstimator,
 	)
@@ -748,7 +745,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 	moveWeights := moverouter.NewMoveWeights(mtoshipment.NewShipmentReweighRequester())
 
 	// Get shipment payment request recalculator service
-	creator := paymentrequest.NewPaymentRequestCreator(planner, ghcrateengine.NewServiceItemPricer(suite.HandlerConfig().FeatureFlagFetcher()))
+	creator := paymentrequest.NewPaymentRequestCreator(planner, ghcrateengine.NewServiceItemPricer())
 	statusUpdater := paymentrequest.NewPaymentRequestStatusUpdater(testMTOShipmentObjects.builder)
 
 	recalculator := paymentrequest.NewPaymentRequestRecalculator(creator, statusUpdater)

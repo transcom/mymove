@@ -49,7 +49,7 @@ func NewAdminAPI(handlerConfig handlers.HandlerConfig) *adminops.MymoveAPI {
 	queryBuilder := query.NewQueryBuilder()
 	officeUpdater := officeuser.NewOfficeUserUpdater(queryBuilder)
 	adminUpdater := adminuser.NewAdminUserUpdater(queryBuilder)
-	ppmEstimator := ppmshipment.NewEstimatePPM(handlerConfig.DTODPlanner(), &paymentrequest.RequestPaymentHelper{}, handlerConfig.FeatureFlagFetcher())
+	ppmEstimator := ppmshipment.NewEstimatePPM(handlerConfig.DTODPlanner(), &paymentrequest.RequestPaymentHelper{})
 
 	adminAPI.ServeError = handlers.ServeCustomError
 
@@ -220,7 +220,7 @@ func NewAdminAPI(handlerConfig handlers.HandlerConfig) *adminops.MymoveAPI {
 		handlerConfig,
 		movetaskorder.NewMoveTaskOrderUpdater(
 			queryBuilder,
-			mtoserviceitem.NewMTOServiceItemCreator(handlerConfig.HHGPlanner(), queryBuilder, moveRouter, ghcrateengine.NewDomesticUnpackPricer(handlerConfig.FeatureFlagFetcher()), ghcrateengine.NewDomesticPackPricer(handlerConfig.FeatureFlagFetcher()), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(handlerConfig.FeatureFlagFetcher()), ghcrateengine.NewDomesticDestinationPricer(handlerConfig.FeatureFlagFetcher()), ghcrateengine.NewFuelSurchargePricer(), handlerConfig.FeatureFlagFetcher()),
+			mtoserviceitem.NewMTOServiceItemCreator(handlerConfig.HHGPlanner(), queryBuilder, moveRouter, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticPackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer()),
 			moveRouter, signedCertificationCreator, signedCertificationUpdater, ppmEstimator,
 		),
 	}

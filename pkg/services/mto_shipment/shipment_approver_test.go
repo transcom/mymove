@@ -18,7 +18,6 @@ import (
 	"github.com/transcom/mymove/pkg/route/mocks"
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/services/ghcrateengine"
-	mockservices "github.com/transcom/mymove/pkg/services/mocks"
 	shipmentmocks "github.com/transcom/mymove/pkg/services/mocks"
 	moverouter "github.com/transcom/mymove/pkg/services/move"
 	mtoserviceitem "github.com/transcom/mymove/pkg/services/mto_service_item"
@@ -94,12 +93,12 @@ func (suite *MTOShipmentServiceSuite) createApproveShipmentSubtestData() (subtes
 		mock.Anything,
 		mock.Anything,
 	).Return(400, nil)
-	siCreator := mtoserviceitem.NewMTOServiceItemCreator(planner, builder, moveRouter, ghcrateengine.NewDomesticUnpackPricer(mockFeatureFlagFetcher), ghcrateengine.NewDomesticPackPricer(mockFeatureFlagFetcher), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(mockFeatureFlagFetcher), ghcrateengine.NewDomesticDestinationPricer(mockFeatureFlagFetcher), ghcrateengine.NewFuelSurchargePricer(), mockFeatureFlagFetcher)
+	siCreator := mtoserviceitem.NewMTOServiceItemCreator(planner, builder, moveRouter, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticPackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer())
 	subtestData.planner = &mocks.Planner{}
 	subtestData.moveWeights = moverouter.NewMoveWeights(NewShipmentReweighRequester())
 
-	subtestData.shipmentApprover = NewShipmentApprover(router, siCreator, subtestData.planner, subtestData.moveWeights, mockservices.NewFeatureFlagFetcher(suite.T()))
-	subtestData.mockedShipmentApprover = NewShipmentApprover(subtestData.mockedShipmentRouter, siCreator, subtestData.planner, subtestData.moveWeights, mockservices.NewFeatureFlagFetcher(suite.T()))
+	subtestData.shipmentApprover = NewShipmentApprover(router, siCreator, subtestData.planner, subtestData.moveWeights)
+	subtestData.mockedShipmentApprover = NewShipmentApprover(subtestData.mockedShipmentRouter, siCreator, subtestData.planner, subtestData.moveWeights)
 	subtestData.appCtx = suite.AppContextWithSessionForTest(&auth.Session{
 		ApplicationName: auth.OfficeApp,
 		OfficeUserID:    uuid.Must(uuid.NewV4()),
@@ -234,7 +233,7 @@ func (suite *MTOShipmentServiceSuite) TestApproveShipment() {
 		var moveWeights services.MoveWeights
 
 		// Approve international shipment
-		shipmentApprover := NewShipmentApprover(shipmentRouter, serviceItemCreator, planner, moveWeights, mockFeatureFlagFetcher)
+		shipmentApprover := NewShipmentApprover(shipmentRouter, serviceItemCreator, planner, moveWeights)
 		_, err := shipmentApprover.ApproveShipment(suite.AppContextForTest(), internationalShipment.ID, internationalShipmentEtag)
 		suite.NoError(err)
 

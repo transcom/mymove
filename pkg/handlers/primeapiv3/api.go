@@ -54,11 +54,11 @@ func NewPrimeAPI(handlerConfig handlers.HandlerConfig) *primev3operations.Mymove
 
 	signedCertificationCreator := signedcertification.NewSignedCertificationCreator()
 	signedCertificationUpdater := signedcertification.NewSignedCertificationUpdater()
-	ppmEstimator := ppmshipment.NewEstimatePPM(handlerConfig.DTODPlanner(), &paymentrequesthelper.RequestPaymentHelper{}, handlerConfig.FeatureFlagFetcher())
+	ppmEstimator := ppmshipment.NewEstimatePPM(handlerConfig.DTODPlanner(), &paymentrequesthelper.RequestPaymentHelper{})
 
 	moveTaskOrderUpdater := movetaskorder.NewMoveTaskOrderUpdater(
 		queryBuilder,
-		mtoserviceitem.NewMTOServiceItemCreator(handlerConfig.HHGPlanner(), queryBuilder, moveRouter, ghcrateengine.NewDomesticUnpackPricer(handlerConfig.FeatureFlagFetcher()), ghcrateengine.NewDomesticPackPricer(handlerConfig.FeatureFlagFetcher()), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(handlerConfig.FeatureFlagFetcher()), ghcrateengine.NewDomesticDestinationPricer(handlerConfig.FeatureFlagFetcher()), ghcrateengine.NewFuelSurchargePricer(), handlerConfig.FeatureFlagFetcher()),
+		mtoserviceitem.NewMTOServiceItemCreator(handlerConfig.HHGPlanner(), queryBuilder, moveRouter, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticPackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer()),
 		moveRouter, signedCertificationCreator, signedCertificationUpdater, ppmEstimator,
 	)
 
@@ -78,7 +78,7 @@ func NewPrimeAPI(handlerConfig handlers.HandlerConfig) *primev3operations.Mymove
 	paymentRequestRecalculator := paymentrequest.NewPaymentRequestRecalculator(
 		paymentrequest.NewPaymentRequestCreator(
 			handlerConfig.HHGPlanner(),
-			ghcrateengine.NewServiceItemPricer(handlerConfig.FeatureFlagFetcher()),
+			ghcrateengine.NewServiceItemPricer(),
 		),
 		paymentrequest.NewPaymentRequestStatusUpdater(queryBuilder),
 	)

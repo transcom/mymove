@@ -53,12 +53,12 @@ func NewSupportAPIHandler(handlerConfig handlers.HandlerConfig) http.Handler {
 
 	signedCertificationCreator := signedcertification.NewSignedCertificationCreator()
 	signedCertificationUpdater := signedcertification.NewSignedCertificationUpdater()
-	ppmEstimator := ppmshipment.NewEstimatePPM(handlerConfig.DTODPlanner(), &paymentrequesthelper.RequestPaymentHelper{}, handlerConfig.FeatureFlagFetcher())
+	ppmEstimator := ppmshipment.NewEstimatePPM(handlerConfig.DTODPlanner(), &paymentrequesthelper.RequestPaymentHelper{})
 	supportAPI.MoveTaskOrderMakeMoveTaskOrderAvailableHandler = MakeMoveTaskOrderAvailableHandlerFunc{
 		handlerConfig,
 		movetaskorder.NewMoveTaskOrderUpdater(
 			queryBuilder,
-			mtoserviceitem.NewMTOServiceItemCreator(handlerConfig.HHGPlanner(), queryBuilder, moveRouter, ghcrateengine.NewDomesticUnpackPricer(handlerConfig.FeatureFlagFetcher()), ghcrateengine.NewDomesticPackPricer(handlerConfig.FeatureFlagFetcher()), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(handlerConfig.FeatureFlagFetcher()), ghcrateengine.NewDomesticDestinationPricer(handlerConfig.FeatureFlagFetcher()), ghcrateengine.NewFuelSurchargePricer(), handlerConfig.FeatureFlagFetcher()),
+			mtoserviceitem.NewMTOServiceItemCreator(handlerConfig.HHGPlanner(), queryBuilder, moveRouter, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticPackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer()),
 			moveRouter, signedCertificationCreator, signedCertificationUpdater, ppmEstimator,
 		),
 	}
@@ -91,10 +91,10 @@ func NewSupportAPIHandler(handlerConfig handlers.HandlerConfig) http.Handler {
 		handlerConfig,
 		fetch.NewFetcher(queryBuilder),
 		mtoshipment.NewMTOShipmentStatusUpdater(queryBuilder,
-			mtoserviceitem.NewMTOServiceItemCreator(handlerConfig.HHGPlanner(), queryBuilder, moveRouter, ghcrateengine.NewDomesticUnpackPricer(handlerConfig.FeatureFlagFetcher()), ghcrateengine.NewDomesticPackPricer(handlerConfig.FeatureFlagFetcher()), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(handlerConfig.FeatureFlagFetcher()), ghcrateengine.NewDomesticDestinationPricer(handlerConfig.FeatureFlagFetcher()), ghcrateengine.NewFuelSurchargePricer(), handlerConfig.FeatureFlagFetcher()), handlerConfig.HHGPlanner(), handlerConfig.FeatureFlagFetcher()),
+			mtoserviceitem.NewMTOServiceItemCreator(handlerConfig.HHGPlanner(), queryBuilder, moveRouter, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticPackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer()), handlerConfig.HHGPlanner()),
 	}
 
-	supportAPI.MtoServiceItemUpdateMTOServiceItemStatusHandler = UpdateMTOServiceItemStatusHandler{handlerConfig, mtoserviceitem.NewMTOServiceItemUpdater(handlerConfig.HHGPlanner(), queryBuilder, moveRouter, shipmentFetcher, addressCreator, ghcrateengine.NewDomesticUnpackPricer(handlerConfig.FeatureFlagFetcher()), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticDestinationPricer(handlerConfig.FeatureFlagFetcher()), ghcrateengine.NewFuelSurchargePricer(), ghcrateengine.NewDomesticDestinationSITDeliveryPricer(), ghcrateengine.NewDomesticOriginSITFuelSurchargePricer(), handlerConfig.FeatureFlagFetcher())}
+	supportAPI.MtoServiceItemUpdateMTOServiceItemStatusHandler = UpdateMTOServiceItemStatusHandler{handlerConfig, mtoserviceitem.NewMTOServiceItemUpdater(handlerConfig.HHGPlanner(), queryBuilder, moveRouter, shipmentFetcher, addressCreator, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer(), ghcrateengine.NewDomesticDestinationSITDeliveryPricer(), ghcrateengine.NewDomesticOriginSITFuelSurchargePricer())}
 	supportAPI.WebhookReceiveWebhookNotificationHandler = ReceiveWebhookNotificationHandler{handlerConfig}
 
 	// Create TAC and LOA services
@@ -126,7 +126,7 @@ func NewSupportAPIHandler(handlerConfig handlers.HandlerConfig) http.Handler {
 		PaymentRequestRecalculator: paymentrequest.NewPaymentRequestRecalculator(
 			paymentrequest.NewPaymentRequestCreator(
 				handlerConfig.HHGPlanner(),
-				ghcrateengine.NewServiceItemPricer(handlerConfig.FeatureFlagFetcher()),
+				ghcrateengine.NewServiceItemPricer(),
 			),
 			paymentrequest.NewPaymentRequestStatusUpdater(queryBuilder),
 		),

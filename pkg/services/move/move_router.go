@@ -8,29 +8,20 @@ import (
 	"github.com/gobuffalo/validate/v3"
 	"github.com/gofrs/uuid"
 	"github.com/pkg/errors"
-	"github.com/spf13/viper"
 	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/apperror"
-	"github.com/transcom/mymove/pkg/cli"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
-	"github.com/transcom/mymove/pkg/services/featureflag"
 )
 
 type moveRouter struct {
-	featureFlagFetcher services.FeatureFlagFetcher
 }
 
 // NewMoveRouter creates a new moveRouter service
 func NewMoveRouter() (services.MoveRouter, error) {
-	v := viper.New()
-	featureFlagFetcher, err := featureflag.NewFeatureFlagFetcher(cli.GetFliptFetcherConfig(v))
-	if err != nil {
-		return nil, err
-	}
-	return &moveRouter{featureFlagFetcher}, nil
+	return &moveRouter{}, nil
 }
 
 // Submit is called when the customer submits amended orders or submits their move. It determines whether
@@ -622,8 +613,4 @@ func (router moveRouter) logMove(appCtx appcontext.AppContext, move *models.Move
 		zap.String("Move.Status", string(move.Status)),
 		zap.String("Move.OrdersID", move.OrdersID.String()),
 	)
-}
-
-func (router moveRouter) FeatureFlagFetcher() services.FeatureFlagFetcher {
-	return router.featureFlagFetcher
 }

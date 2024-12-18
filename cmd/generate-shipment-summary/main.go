@@ -21,7 +21,6 @@ import (
 	"github.com/transcom/mymove/pkg/paperwork"
 	paymentrequesthelper "github.com/transcom/mymove/pkg/payment_request"
 	"github.com/transcom/mymove/pkg/route"
-	"github.com/transcom/mymove/pkg/services/featureflag"
 	ppmcloseout "github.com/transcom/mymove/pkg/services/ppm_closeout"
 	"github.com/transcom/mymove/pkg/services/ppmshipment"
 	shipmentsummaryworksheet "github.com/transcom/mymove/pkg/services/shipment_summary_worksheet"
@@ -152,12 +151,9 @@ func main() {
 
 	// TODO: Future cleanup will need to remap to a different planner, but this command should remain for testing purposes
 	planner := route.NewHEREPlanner(hereClient, geocodeEndpoint, routingEndpoint, testAppID, testAppCode)
-	featureFlagFetcher, err := featureflag.NewFeatureFlagFetcher(cli.GetFliptFetcherConfig(v))
-	if err != nil {
-		logger.Panic("failed to setup the feature flag fetcher", zap.Error(err))
-	}
-	ppmEstimator := ppmshipment.NewEstimatePPM(planner, &paymentrequesthelper.RequestPaymentHelper{}, featureFlagFetcher)
-	ppmCloseoutFetcher := ppmcloseout.NewPPMCloseoutFetcher(planner, &paymentrequesthelper.RequestPaymentHelper{}, ppmEstimator, featureFlagFetcher)
+
+	ppmEstimator := ppmshipment.NewEstimatePPM(planner, &paymentrequesthelper.RequestPaymentHelper{})
+	ppmCloseoutFetcher := ppmcloseout.NewPPMCloseoutFetcher(planner, &paymentrequesthelper.RequestPaymentHelper{}, ppmEstimator)
 
 	ppmComputer := shipmentsummaryworksheet.NewSSWPPMComputer(ppmCloseoutFetcher)
 

@@ -17,7 +17,6 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/route"
 	"github.com/transcom/mymove/pkg/services"
-	"github.com/transcom/mymove/pkg/services/ghcrateengine"
 	movetaskorder "github.com/transcom/mymove/pkg/services/move_task_order"
 	"github.com/transcom/mymove/pkg/services/query"
 	sitstatus "github.com/transcom/mymove/pkg/services/sit_status"
@@ -52,17 +51,16 @@ type mtoServiceItemUpdater struct {
 	fuelSurchargePricer    services.FuelSurchargePricer
 	sitFuelSurchargePricer services.DomesticDestinationSITFuelSurchargePricer
 	sitDeliverPricer       services.DomesticDestinationSITDeliveryPricer
-	featureFlagFetcher     services.FeatureFlagFetcher
 }
 
 // NewMTOServiceItemUpdater returns a new mto service item updater
-func NewMTOServiceItemUpdater(planner route.Planner, builder mtoServiceItemQueryBuilder, moveRouter services.MoveRouter, shipmentFetcher services.MTOShipmentFetcher, addressCreator services.AddressCreator, unpackPricer services.DomesticUnpackPricer, linehaulPricer services.DomesticLinehaulPricer, destinationPricer services.DomesticDestinationPricer, fuelSurchargePricer services.FuelSurchargePricer, domesticDestinationSITDeliveryPricer services.DomesticDestinationSITDeliveryPricer, domesticDestinationSITFuelSurchargePricer services.DomesticDestinationSITFuelSurchargePricer, featureFlagFetcher services.FeatureFlagFetcher) services.MTOServiceItemUpdater {
+func NewMTOServiceItemUpdater(planner route.Planner, builder mtoServiceItemQueryBuilder, moveRouter services.MoveRouter, shipmentFetcher services.MTOShipmentFetcher, addressCreator services.AddressCreator, unpackPricer services.DomesticUnpackPricer, linehaulPricer services.DomesticLinehaulPricer, destinationPricer services.DomesticDestinationPricer, fuelSurchargePricer services.FuelSurchargePricer, domesticDestinationSITDeliveryPricer services.DomesticDestinationSITDeliveryPricer, domesticDestinationSITFuelSurchargePricer services.DomesticDestinationSITFuelSurchargePricer) services.MTOServiceItemUpdater {
 	// used inside a transaction and mocking		return &mtoServiceItemUpdater{builder: builder}
 	createNewBuilder := func() mtoServiceItemQueryBuilder {
 		return query.NewQueryBuilder()
 	}
 
-	return &mtoServiceItemUpdater{planner, builder, createNewBuilder, moveRouter, shipmentFetcher, addressCreator, unpackPricer, linehaulPricer, destinationPricer, fuelSurchargePricer, domesticDestinationSITFuelSurchargePricer, domesticDestinationSITDeliveryPricer, featureFlagFetcher}
+	return &mtoServiceItemUpdater{planner, builder, createNewBuilder, moveRouter, shipmentFetcher, addressCreator, unpackPricer, linehaulPricer, destinationPricer, fuelSurchargePricer, domesticDestinationSITFuelSurchargePricer, domesticDestinationSITDeliveryPricer}
 }
 
 func (p *mtoServiceItemUpdater) ApproveOrRejectServiceItem(
@@ -129,10 +127,8 @@ func (p *mtoServiceItemUpdater) ConvertItemToCustomerExpense(
 }
 
 func (p *mtoServiceItemUpdater) findEstimatedPrice(appCtx appcontext.AppContext, serviceItem *models.MTOServiceItem, mtoShipment models.MTOShipment) (unit.Cents, error) {
-	isMobileHomeFFOn, err := ghcrateengine.GetFeatureFlagValue(appCtx, p.featureFlagFetcher, services.DomesticMobileHome)
-	if err != nil {
-		return unit.Cents(0), err
-	}
+	// TODO: Fix checks
+	isMobileHomeFFOn := false
 
 	isMobileHome := false
 	if isMobileHomeFFOn {

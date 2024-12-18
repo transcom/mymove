@@ -34,7 +34,7 @@ func NewSITExtensionDenier(moveRouter services.MoveRouter) services.SITExtension
 		mock.Anything,
 		mock.Anything,
 	).Return(400, nil)
-	return &sitExtensionDenier{moveRouter, mtoserviceitem.NewMTOServiceItemUpdater(planner, query.NewQueryBuilder(), moveRouter, mtoshipment.NewMTOShipmentFetcher(), address.NewAddressCreator(), ghcrateengine.NewDomesticUnpackPricer(moveRouter.FeatureFlagFetcher()), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticDestinationPricer(moveRouter.FeatureFlagFetcher()), ghcrateengine.NewFuelSurchargePricer(), ghcrateengine.NewDomesticDestinationSITDeliveryPricer(), ghcrateengine.NewDomesticOriginSITFuelSurchargePricer(), moveRouter.FeatureFlagFetcher())}
+	return &sitExtensionDenier{moveRouter, mtoserviceitem.NewMTOServiceItemUpdater(planner, query.NewQueryBuilder(), moveRouter, mtoshipment.NewMTOShipmentFetcher(), address.NewAddressCreator(), ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer(), ghcrateengine.NewDomesticDestinationSITDeliveryPricer(), ghcrateengine.NewDomesticOriginSITFuelSurchargePricer())}
 }
 
 // DenySITExtension denies the SIT Extension

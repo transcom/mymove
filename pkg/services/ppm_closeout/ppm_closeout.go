@@ -25,7 +25,6 @@ type ppmCloseoutFetcher struct {
 	planner              route.Planner
 	paymentRequestHelper paymentrequesthelper.Helper
 	estimator            services.PPMEstimator
-	services.FeatureFlagFetcher
 }
 
 type serviceItemPrices struct {
@@ -39,12 +38,11 @@ type serviceItemPrices struct {
 	haulType                  models.HaulType
 }
 
-func NewPPMCloseoutFetcher(planner route.Planner, paymentRequestHelper paymentrequesthelper.Helper, estimator services.PPMEstimator, featureFlagFetcher services.FeatureFlagFetcher) services.PPMCloseoutFetcher {
+func NewPPMCloseoutFetcher(planner route.Planner, paymentRequestHelper paymentrequesthelper.Helper, estimator services.PPMEstimator) services.PPMCloseoutFetcher {
 	return &ppmCloseoutFetcher{
 		planner,
 		paymentRequestHelper,
 		estimator,
-		featureFlagFetcher,
 	}
 }
 
@@ -392,7 +390,7 @@ func (p *ppmCloseoutFetcher) getServiceItemPrices(appCtx appcontext.AppContext, 
 			continue
 		} // Next iteration of loop if we don't need this service type
 
-		pricer, err := ghcrateengine.PricerForServiceItem(serviceItem.ReService.Code, p.FeatureFlagFetcher)
+		pricer, err := ghcrateengine.PricerForServiceItem(serviceItem.ReService.Code)
 		if err != nil {
 			logger.Error("unable to find pricer for service item", zap.Error(err))
 			return serviceItemPrices{}, err

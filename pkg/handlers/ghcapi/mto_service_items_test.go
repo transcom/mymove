@@ -315,7 +315,7 @@ func (suite *HandlerSuite) TestUpdateMTOServiceItemStatusHandler() {
 	moveWeights := moveservices.NewMoveWeights(mtoshipment.NewShipmentReweighRequester())
 
 	// Get shipment payment request recalculator service
-	creator := paymentrequest.NewPaymentRequestCreator(planner, ghcrateengine.NewServiceItemPricer(suite.HandlerConfig().FeatureFlagFetcher()))
+	creator := paymentrequest.NewPaymentRequestCreator(planner, ghcrateengine.NewServiceItemPricer())
 	statusUpdater := paymentrequest.NewPaymentRequestStatusUpdater(query.NewQueryBuilder())
 	recalculator := paymentrequest.NewPaymentRequestRecalculator(creator, statusUpdater)
 	paymentRequestShipmentRecalculator := paymentrequest.NewPaymentRequestShipmentRecalculator(recalculator)
@@ -565,7 +565,7 @@ func (suite *HandlerSuite) TestUpdateMTOServiceItemStatusHandler() {
 			mock.Anything,
 			mock.Anything,
 		).Return(400, nil)
-		mtoServiceItemStatusUpdater := mtoserviceitem.NewMTOServiceItemUpdater(planner, queryBuilder, moveRouter, shipmentFetcher, addressCreator, ghcrateengine.NewDomesticUnpackPricer(moveRouter.FeatureFlagFetcher()), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticDestinationPricer(mockFeatureFlagFetcher), ghcrateengine.NewFuelSurchargePricer(), ghcrateengine.NewDomesticDestinationSITDeliveryPricer(), ghcrateengine.NewDomesticOriginSITFuelSurchargePricer(), mockFeatureFlagFetcher)
+		mtoServiceItemStatusUpdater := mtoserviceitem.NewMTOServiceItemUpdater(planner, queryBuilder, moveRouter, shipmentFetcher, addressCreator, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer(), ghcrateengine.NewDomesticDestinationSITDeliveryPricer(), ghcrateengine.NewDomesticOriginSITFuelSurchargePricer())
 
 		handler := UpdateMTOServiceItemStatusHandler{
 			HandlerConfig:         suite.HandlerConfig(),
@@ -626,7 +626,7 @@ func (suite *HandlerSuite) TestUpdateMTOServiceItemStatusHandler() {
 			mock.Anything,
 			mock.Anything,
 		).Return(400, nil)
-		mtoServiceItemStatusUpdater := mtoserviceitem.NewMTOServiceItemUpdater(planner, queryBuilder, moveRouter, shipmentFetcher, addressCreator, ghcrateengine.NewDomesticUnpackPricer(moveRouter.FeatureFlagFetcher()), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticDestinationPricer(moveRouter.FeatureFlagFetcher()), ghcrateengine.NewFuelSurchargePricer(), ghcrateengine.NewDomesticDestinationSITDeliveryPricer(), ghcrateengine.NewDomesticOriginSITFuelSurchargePricer(), mockFeatureFlagFetcher)
+		mtoServiceItemStatusUpdater := mtoserviceitem.NewMTOServiceItemUpdater(planner, queryBuilder, moveRouter, shipmentFetcher, addressCreator, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer(), ghcrateengine.NewDomesticDestinationSITDeliveryPricer(), ghcrateengine.NewDomesticOriginSITFuelSurchargePricer())
 
 		handler := UpdateMTOServiceItemStatusHandler{
 			HandlerConfig:         suite.HandlerConfig(),
@@ -763,7 +763,7 @@ func (suite *HandlerSuite) TestUpdateServiceItemSitEntryDateHandler() {
 	moveWeights := moveservices.NewMoveWeights(mtoshipment.NewShipmentReweighRequester())
 
 	// Get shipment payment request recalculator service
-	creator := paymentrequest.NewPaymentRequestCreator(planner, ghcrateengine.NewServiceItemPricer(suite.HandlerConfig().FeatureFlagFetcher()))
+	creator := paymentrequest.NewPaymentRequestCreator(planner, ghcrateengine.NewServiceItemPricer())
 	statusUpdater := paymentrequest.NewPaymentRequestStatusUpdater(query.NewQueryBuilder())
 	recalculator := paymentrequest.NewPaymentRequestRecalculator(creator, statusUpdater)
 	paymentRequestShipmentRecalculator := paymentrequest.NewPaymentRequestShipmentRecalculator(recalculator)

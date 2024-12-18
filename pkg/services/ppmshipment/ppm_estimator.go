@@ -25,11 +25,10 @@ type estimatePPM struct {
 	checks               []ppmShipmentValidator
 	planner              route.Planner
 	paymentRequestHelper paymentrequesthelper.Helper
-	featureFlagFetcher   services.FeatureFlagFetcher
 }
 
 // NewEstimatePPM returns the estimatePPM (pass in checkRequiredFields() and checkEstimatedWeight)
-func NewEstimatePPM(planner route.Planner, paymentRequestHelper paymentrequesthelper.Helper, featureFlagFetcher services.FeatureFlagFetcher) services.PPMEstimator {
+func NewEstimatePPM(planner route.Planner, paymentRequestHelper paymentrequesthelper.Helper) services.PPMEstimator {
 	return &estimatePPM{
 		checks: []ppmShipmentValidator{
 			checkRequiredFields(),
@@ -38,7 +37,6 @@ func NewEstimatePPM(planner route.Planner, paymentRequestHelper paymentrequesthe
 		},
 		planner:              planner,
 		paymentRequestHelper: paymentRequestHelper,
-		featureFlagFetcher:   featureFlagFetcher,
 	}
 }
 
@@ -452,7 +450,7 @@ func (f estimatePPM) calculatePrice(appCtx appcontext.AppContext, ppmShipment *m
 
 	totalPrice := unit.Cents(0)
 	for _, serviceItem := range serviceItemsToPrice {
-		pricer, err := ghcrateengine.PricerForServiceItem(serviceItem.ReService.Code, f.featureFlagFetcher)
+		pricer, err := ghcrateengine.PricerForServiceItem(serviceItem.ReService.Code)
 		if err != nil {
 			logger.Error("unable to find pricer for service item", zap.Error(err))
 			return nil, err
@@ -615,7 +613,7 @@ func (f estimatePPM) priceBreakdown(appCtx appcontext.AppContext, ppmShipment *m
 	}
 
 	for _, serviceItem := range serviceItemsToPrice {
-		pricer, err := ghcrateengine.PricerForServiceItem(serviceItem.ReService.Code, f.featureFlagFetcher)
+		pricer, err := ghcrateengine.PricerForServiceItem(serviceItem.ReService.Code)
 		if err != nil {
 			logger.Error("unable to find pricer for service item", zap.Error(err))
 			return emptyPrice, emptyPrice, emptyPrice, emptyPrice, emptyPrice, emptyPrice, emptyPrice, err
@@ -704,7 +702,7 @@ func (f estimatePPM) CalculateSITCost(appCtx appcontext.AppContext, ppmShipment 
 
 	totalPrice := unit.Cents(0)
 	for _, serviceItem := range serviceItemsToPrice {
-		pricer, err := ghcrateengine.PricerForServiceItem(serviceItem.ReService.Code, f.featureFlagFetcher)
+		pricer, err := ghcrateengine.PricerForServiceItem(serviceItem.ReService.Code)
 		if err != nil {
 			logger.Error("unable to find pricer for service item", zap.Error(err))
 			return nil, err
@@ -742,7 +740,7 @@ func (f estimatePPM) CalculateSITCostBreakdown(appCtx appcontext.AppContext, ppm
 
 	totalPrice := unit.Cents(0)
 	for _, serviceItem := range serviceItemsToPrice {
-		pricer, err := ghcrateengine.PricerForServiceItem(serviceItem.ReService.Code, f.featureFlagFetcher)
+		pricer, err := ghcrateengine.PricerForServiceItem(serviceItem.ReService.Code)
 		if err != nil {
 			logger.Error("unable to find pricer for service item", zap.Error(err))
 			return nil, err
