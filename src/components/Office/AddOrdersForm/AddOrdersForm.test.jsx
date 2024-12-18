@@ -75,7 +75,41 @@ jest.mock('components/LocationSearchBox/api', () => ({
         name: 'Luke AFB',
         updated_at: '2021-02-11T16:48:04.117Z',
       },
+      {
+        address: {
+          city: '',
+          id: '25be4d12-fe93-47f1-bbec-1db386dfa67e',
+          postalCode: '',
+          state: '',
+          streetAddress1: '',
+        },
+        address_id: '4334640b-c35e-4293-a2f1-36c7b629f904',
+        affiliation: 'AIR_FORCE',
+        created_at: '2021-02-11T16:48:04.117Z',
+        id: '22f0755f-6f35-478b-9a75-35a69211da1d',
+        name: 'Scott AFB',
+        updated_at: '2021-02-11T16:48:04.117Z',
+        provides_services_counseling: true,
+      },
     ]),
+  ),
+}));
+
+jest.mock('services/ghcApi', () => ({
+  ...jest.requireActual('services/ghcApi'),
+  showCounselingOffices: jest.fn().mockImplementation(() =>
+    Promise.resolve({
+      body: [
+        {
+          id: '3e937c1f-5539-4919-954d-017989130584',
+          name: 'Albuquerque AFB',
+        },
+        {
+          id: 'fa51dab0-4553-4732-b843-1f33407f77bc',
+          name: 'Glendale Luke AFB',
+        },
+      ],
+    }),
   ),
 }));
 
@@ -96,6 +130,7 @@ const initialValues = {
   accompaniedTour: '',
   dependentsUnderTwelve: '',
   dependentsTwelveAndOver: '',
+  counselingOfficeId: '',
 };
 const testProps = {
   initialValues,
@@ -191,6 +226,37 @@ describe('AddOrdersForm - OCONUS and Accompanied Tour Test', () => {
 
     await waitFor(() => {
       expect(testProps.onSubmit).toHaveBeenCalled();
+    });
+  });
+});
+
+describe('AddOrdersForm - With Counseling Office', () => {
+  it('displays the counseling office dropdown', async () => {
+    isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(true));
+    render(
+      <Provider store={mockStore.store}>
+        <AddOrdersForm {...testProps} />
+      </Provider>,
+    );
+
+    await userEvent.selectOptions(await screen.findByLabelText(/Orders type/), 'PERMANENT_CHANGE_OF_STATION');
+    await userEvent.type(screen.getByLabelText(/Orders date/), '08 Nov 2020');
+    await userEvent.type(screen.getByLabelText(/Report by date/), '26 Nov 2020');
+    await userEvent.click(screen.getByLabelText('No'));
+    await userEvent.selectOptions(screen.getByLabelText(/Pay grade/), ['E_5']);
+
+    // Test Current Duty Location Search Box interaction
+    await userEvent.type(screen.getByLabelText(/Current duty location/), 'AFB', { delay: 100 });
+    const selectedOptionCurrent = await screen.findByText(/Scott/);
+    await userEvent.click(selectedOptionCurrent);
+
+    // Test New Duty Location Search Box interaction
+    await userEvent.type(screen.getByLabelText(/New duty location/), 'AFB', { delay: 100 });
+    const selectedOptionNew = await screen.findByText(/Luke/);
+    await userEvent.click(selectedOptionNew);
+
+    await waitFor(() => {
+      expect(screen.getByLabelText(/Counseling office/));
     });
   });
 });
