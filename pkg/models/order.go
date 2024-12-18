@@ -490,7 +490,7 @@ func (o Order) GetDestinationPostalCodeForAssociatedMoves(db *pop.Connection) (m
 
 			if o.Moves[i].MTOShipments[j].Status != MTOShipmentStatusRejected &&
 				o.Moves[i].MTOShipments[j].Status != MTOShipmentStatusCanceled &&
-				o.Moves[i].MTOShipments[j].ShipmentType != MTOShipmentTypeHHGIntoNTSDom &&
+				o.Moves[i].MTOShipments[j].ShipmentType != MTOShipmentTypeHHGIntoNTS &&
 				o.Moves[i].MTOShipments[j].DeletedAt == nil {
 				shipments = append(shipments, o.Moves[i].MTOShipments[j])
 			}
@@ -583,9 +583,8 @@ func (o *Order) IsCompleteForGBL() bool {
 }
 
 func (o *Order) CanSendEmailWithOrdersType() bool {
-	if o.OrdersType != "BLUEBARK" && o.OrdersType != "SAFETY" {
-		return true
+	if o.OrdersType == internalmessages.OrdersTypeBLUEBARK || o.OrdersType == internalmessages.OrdersTypeSAFETY {
+		return false
 	}
-
-	return false
+	return true
 }

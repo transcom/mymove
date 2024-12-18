@@ -82,7 +82,7 @@ func (f *shipmentApprover) ApproveShipment(appCtx appcontext.AppContext, shipmen
 
 		// If there are existing 're_service_items' for the international shipment then create 'mto_service_items'
 		// These are currently the shipment types we handle but add any additional international shipment types here
-		internationalShipmentTypes := []models.MTOShipmentType{models.MTOShipmentTypeHHG, models.MTOShipmentTypeHHGIntoNTSDom}
+		internationalShipmentTypes := []models.MTOShipmentType{models.MTOShipmentTypeHHG, models.MTOShipmentTypeHHGIntoNTS}
 		if slices.Contains(internationalShipmentTypes, shipment.ShipmentType) && shipment.MarketCode == models.MarketCodeInternational {
 			err := models.CreateApprovedServiceItemsForShipment(appCtx.DB(), shipment)
 			if err != nil {
@@ -155,9 +155,9 @@ func (f *shipmentApprover) setRequiredDeliveryDate(appCtx appcontext.AppContext,
 		var weight int
 
 		switch shipment.ShipmentType {
-		case models.MTOShipmentTypeHHGIntoNTSDom:
+		case models.MTOShipmentTypeHHGIntoNTS:
 			if shipment.StorageFacility == nil {
-				return errors.Errorf("StorageFacility is required for %s shipments", models.MTOShipmentTypeHHGIntoNTSDom)
+				return errors.Errorf("StorageFacility is required for %s shipments", models.MTOShipmentTypeHHGIntoNTS)
 			}
 			pickupLocation = shipment.PickupAddress
 			deliveryLocation = &shipment.StorageFacility.Address

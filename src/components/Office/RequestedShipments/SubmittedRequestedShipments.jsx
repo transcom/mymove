@@ -34,12 +34,12 @@ import { isBooleanFlagEnabled } from 'utils/featureFlags';
 // ntsr defaults shows preferred delivery date, storage facility address, delivery address, flagged items when collapsed
 // Different things show when collapsed depending on if the shipment is an external vendor or not.
 const showWhenCollapsedWithExternalVendor = {
-  HHG_INTO_NTS_DOMESTIC: ['serviceOrderNumber', 'requestedDeliveryDate'],
+  HHG_INTO_NTS: ['serviceOrderNumber', 'requestedDeliveryDate'],
   HHG_OUTOF_NTS_DOMESTIC: ['serviceOrderNumber', 'requestedPickupDate'],
 };
 
 const showWhenCollapsedWithGHCPrime = {
-  HHG_INTO_NTS_DOMESTIC: ['tacType', 'requestedDeliveryDate'],
+  HHG_INTO_NTS: ['tacType', 'requestedDeliveryDate'],
   HHG_OUTOF_NTS_DOMESTIC: ['ntsRecordedWeight', 'serviceOrderNumber', 'tacType', 'requestedPickupDate'],
 };
 
@@ -66,6 +66,8 @@ const SubmittedRequestedShipments = ({
   const [enableBoat, setEnableBoat] = useState(false);
   const [enableMobileHome, setEnableMobileHome] = useState(false);
   const [enableUB, setEnableUB] = useState(false);
+  const [enableNTS, setEnableNTS] = useState(false);
+  const [enableNTSR, setEnableNTSR] = useState(false);
   const [isOconusMove, setIsOconusMove] = useState(false);
 
   useEffect(() => {
@@ -73,6 +75,8 @@ const SubmittedRequestedShipments = ({
       setEnableBoat(await isBooleanFlagEnabled(FEATURE_FLAG_KEYS.BOAT));
       setEnableMobileHome(await isBooleanFlagEnabled(FEATURE_FLAG_KEYS.MOBILE_HOME));
       setEnableUB(await isBooleanFlagEnabled(FEATURE_FLAG_KEYS.UNACCOMPANIED_BAGGAGE));
+      setEnableNTS(await isBooleanFlagEnabled(FEATURE_FLAG_KEYS.NTS));
+      setEnableNTSR(await isBooleanFlagEnabled(FEATURE_FLAG_KEYS.NTSR));
     };
     fetchData();
   }, []);
@@ -136,8 +140,8 @@ const SubmittedRequestedShipments = ({
           HHG
         </option>
         <option value={SHIPMENT_OPTIONS_URL.PPM}>PPM</option>
-        <option value={SHIPMENT_OPTIONS_URL.NTS}>NTS</option>
-        <option value={SHIPMENT_OPTIONS_URL.NTSrelease}>NTS-release</option>
+        {enableNTS && <option value={SHIPMENT_OPTIONS_URL.NTS}>NTS</option>}
+        {enableNTSR && <option value={SHIPMENT_OPTIONS_URL.NTSrelease}>NTS-release</option>}
         {enableBoat && <option value={SHIPMENT_OPTIONS_URL.BOAT}>Boat</option>}
         {enableMobileHome && <option value={SHIPMENT_OPTIONS_URL.MOBILE_HOME}>Mobile Home</option>}
         {enableUB && isOconusMove && <option value={SHIPMENT_OPTIONS_URL.UNACCOMPANIED_BAGGAGE}>UB</option>}
