@@ -23,10 +23,10 @@ type CreateOrders struct {
 	// Example: true
 	AccompaniedTour *bool `json:"accompaniedTour,omitempty"`
 
-	// counseling office id
+	// counseling office Id
 	// Example: cf1addea-a4f9-4173-8506-2bb82a064cb7
 	// Format: uuid
-	CounselingOfficeID *strfmt.UUID `json:"counseling_office_id,omitempty"`
+	CounselingOfficeID *strfmt.UUID `json:"counselingOfficeId,omitempty"`
 
 	// department indicator
 	DepartmentIndicator *DeptIndicator `json:"departmentIndicator,omitempty"`
@@ -164,7 +164,7 @@ func (m *CreateOrders) validateCounselingOfficeID(formats strfmt.Registry) error
 		return nil
 	}
 
-	if err := validate.FormatOf("counseling_office_id", "body", "uuid", m.CounselingOfficeID.String(), formats); err != nil {
+	if err := validate.FormatOf("counselingOfficeId", "body", "uuid", m.CounselingOfficeID.String(), formats); err != nil {
 		return err
 	}
 

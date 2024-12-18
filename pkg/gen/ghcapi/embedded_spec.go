@@ -7732,7 +7732,7 @@ func init() {
           "x-nullable": true,
           "example": true
         },
-        "counseling_office_id": {
+        "counselingOfficeId": {
           "type": "string",
           "format": "uuid",
           "x-nullable": true,
@@ -24801,7 +24801,7 @@ func init() {
           "x-nullable": true,
           "example": true
         },
-        "counseling_office_id": {
+        "counselingOfficeId": {
           "type": "string",
           "format": "uuid",
           "x-nullable": true,
