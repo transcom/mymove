@@ -161,8 +161,8 @@ func (suite *ShipmentAddressUpdateServiceSuite) TestCreateApprovedShipmentAddres
 	suite.Run("Failed distance calculation should error", func() {
 		mockPlanner.On("ZipTransitDistance",
 			mock.AnythingOfType("*appcontext.appContext"),
-			mock.AnythingOfType("90210"),
-			mock.AnythingOfType("94535"),
+			mock.AnythingOfType("string"),
+			mock.AnythingOfType("string"),
 			false,
 		).Return(0, fmt.Errorf("error calculating distance 2")).Once()
 
@@ -180,6 +180,28 @@ func (suite *ShipmentAddressUpdateServiceSuite) TestCreateApprovedShipmentAddres
 			State:          "CA",
 			PostalCode:     "90210",
 		}
+		// building DDASIT service item to get dest SIT checks
+		factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOServiceItem{
+					Status:                          models.MTOServiceItemStatusApproved,
+					SITDestinationOriginalAddressID: shipment.DestinationAddressID,
+				},
+			},
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+			{
+				Model:    shipment,
+				LinkOnly: true,
+			},
+			{
+				Model: models.ReService{
+					Code: models.ReServiceCodeDDASIT,
+				},
+			},
+		}, nil)
 		update, err := addressUpdateRequester.RequestShipmentDeliveryAddressUpdate(suite.AppContextForTest(), shipment.ID, newAddress, "we really need to change the address", etag.GenerateEtag(shipment.UpdatedAt))
 		suite.Error(err)
 		suite.Nil(update)

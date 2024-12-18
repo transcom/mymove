@@ -80,6 +80,7 @@ var PrimeUpload CustomType = "PrimeUpload"
 var ProgearWeightTicket CustomType = "ProgearWeightTicket"
 var ProofOfServiceDoc CustomType = "ProofOfServiceDoc"
 var ReService CustomType = "ReService"
+var ReDomesticOtherPrice CustomType = "ReDomesticOtherPrice"
 var Role CustomType = "Role"
 var ServiceItemParamKey CustomType = "ServiceItemParamKey"
 var ServiceParam CustomType = "ServiceParam"
@@ -146,6 +147,7 @@ var defaultTypesMap = map[string]CustomType{
 	"models.ProgearWeightTicket":                      ProgearWeightTicket,
 	"models.ProofOfServiceDoc":                        ProofOfServiceDoc,
 	"models.ReService":                                ReService,
+	"models.ReDomesticOtherPrice":                     ReDomesticOtherPrice,
 	"models.ServiceItemParamKey":                      ServiceItemParamKey,
 	"models.ServiceMember":                            ServiceMember,
 	"models.ServiceRequestDocument":                   ServiceRequestDocument,
