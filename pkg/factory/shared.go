@@ -264,10 +264,14 @@ var TransportationOffices = transportationOfficeGroup{
 }
 
 type officeUserGroup struct {
+	SCAssignedUser  CustomType
+	TOOAssignedUser CustomType
 	TIOAssignedUser CustomType
 }
 
 var OfficeUsers = officeUserGroup{
+	SCAssignedUser:  "SCAssignedUser",
+	TOOAssignedUser: "TOOAssignedUser",
 	TIOAssignedUser: "TIOAssignedUser",
 }
 

@@ -35,12 +35,28 @@ func BuildMove(db *pop.Connection, customs []Customization, traits []Trait) mode
 		closeoutOffice = BuildTransportationOffice(db, tempCloseoutOfficeCustoms, nil)
 	}
 
+	var scAssignedUser models.OfficeUser
+	tempSCAssignedUserCustoms := customs
+	scAssignedUserResult := findValidCustomization(customs, OfficeUsers.SCAssignedUser)
+	if scAssignedUserResult != nil {
+		tempSCAssignedUserCustoms = convertCustomizationInList(tempSCAssignedUserCustoms, OfficeUsers.SCAssignedUser, OfficeUser)
+		scAssignedUser = BuildOfficeUser(db, tempSCAssignedUserCustoms, nil)
+	}
+
+	var tooAssignedUser models.OfficeUser
+	tempTOOAssignedUserCustoms := customs
+	tooAssignedUserResult := findValidCustomization(customs, OfficeUsers.TOOAssignedUser)
+	if tooAssignedUserResult != nil {
+		tempTOOAssignedUserCustoms = convertCustomizationInList(tempTOOAssignedUserCustoms, OfficeUsers.TOOAssignedUser, OfficeUser)
+		tooAssignedUser = BuildOfficeUser(db, tempTOOAssignedUserCustoms, nil)
+	}
+
 	var tioAssignedUser models.OfficeUser
-	temptioAssignedUserCustoms := customs
+	tempTIOAssignedUserCustoms := customs
 	tioAssignedUserResult := findValidCustomization(customs, OfficeUsers.TIOAssignedUser)
 	if tioAssignedUserResult != nil {
-		temptioAssignedUserCustoms = convertCustomizationInList(temptioAssignedUserCustoms, OfficeUsers.TIOAssignedUser, OfficeUser)
-		tioAssignedUser = BuildOfficeUser(db, temptioAssignedUserCustoms, nil)
+		tempTIOAssignedUserCustoms = convertCustomizationInList(tempTIOAssignedUserCustoms, OfficeUsers.TIOAssignedUser, OfficeUser)
+		tioAssignedUser = BuildOfficeUser(db, tempTIOAssignedUserCustoms, nil)
 	}
 
 	var defaultReferenceID string
@@ -80,6 +96,17 @@ func BuildMove(db *pop.Connection, customs []Customization, traits []Trait) mode
 		move.CloseoutOffice = &closeoutOffice
 		move.CloseoutOfficeID = &closeoutOffice.ID
 	}
+
+	if scAssignedUserResult != nil {
+		move.SCAssignedUser = &scAssignedUser
+		move.SCAssignedID = &scAssignedUser.ID
+	}
+
+	if tooAssignedUserResult != nil {
+		move.TOOAssignedUser = &tooAssignedUser
+		move.TOOAssignedID = &tooAssignedUser.ID
+	}
+
 	if tioAssignedUserResult != nil {
 		move.TIOAssignedUser = &tioAssignedUser
 		move.TIOAssignedID = &tioAssignedUser.ID
