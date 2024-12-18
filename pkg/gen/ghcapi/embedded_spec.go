@@ -4466,7 +4466,7 @@ func init() {
           },
           {
             "type": "string",
-            "description": "Used to return a queue for a GBLOC other than the default of the current user. Requires the HQ role. The parameter is ignored if the requesting user does not have the necessary role.\n",
+            "description": "Used to return a queue for a GBLOC other than the default of the current user. Requires the HQ role or a secondary transportation office assignment. The parameter is ignored if the requesting user does not have the necessary role or assignment.\n",
             "name": "viewAsGBLOC",
             "in": "query"
           },
@@ -4509,6 +4509,12 @@ func init() {
             "type": "boolean",
             "description": "Only used for Services Counseling queue. If true, show PPM moves origin locations that are ready for closeout. Otherwise, show all other moves origin locations.",
             "name": "needsPPMCloseout",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "Used to return an origins list for a GBLOC other than the default of the current user. Requires the HQ role or a secondary transportation office assignment. The parameter is ignored if the requesting user does not have the necessary role or assignment.",
+            "name": "viewAsGBLOC",
             "in": "query"
           }
         ],
@@ -4657,7 +4663,7 @@ func init() {
           },
           {
             "type": "string",
-            "description": "Used to return a queue for a GBLOC other than the default of the current user. Requires the HQ role. The parameter is ignored if the requesting user does not have the necessary role.\n",
+            "description": "Used to return a queue for a GBLOC other than the default of the current user. Requires the HQ role or a secondary transportation office assignment. The parameter is ignored if the requesting user does not have the necessary role or assignment.\n",
             "name": "viewAsGBLOC",
             "in": "query"
           },
@@ -4823,7 +4829,7 @@ func init() {
           },
           {
             "type": "string",
-            "description": "Used to return a queue for a GBLOC other than the default of the current user. Requires the HQ role. The parameter is ignored if the requesting user does not have the necessary role.\n",
+            "description": "Used to return a queue for a GBLOC other than the default of the current user. Requires the HQ role or a secondary transportation office assignment. The parameter is ignored if the requesting user does not have the necessary role or assignment.\n",
             "name": "viewAsGBLOC",
             "in": "query"
           }
@@ -6638,9 +6644,6 @@ func init() {
         "firstName": {
           "type": "string"
         },
-        "hasSafetyPrivilege": {
-          "type": "boolean"
-        },
         "lastName": {
           "type": "string"
         },
@@ -6873,6 +6876,11 @@ func init() {
         "storageInTransit": {
           "description": "the number of storage in transit days that the customer is entitled to for a given shipment on their move",
           "type": "integer"
+        },
+        "ubAllowance": {
+          "type": "integer",
+          "x-nullable": true,
+          "example": 500
         }
       }
     },
@@ -8070,7 +8078,7 @@ func init() {
           "x-formatting": "weight",
           "example": 500
         },
-        "ubAllowance": {
+        "unaccompaniedBaggageAllowance": {
           "description": "The amount of weight in pounds that the move is entitled for shipment types of Unaccompanied Baggage.",
           "type": "integer",
           "x-nullable": true,
@@ -10647,6 +10655,12 @@ func init() {
         "transportationOffice": {
           "$ref": "#/definitions/TransportationOffice"
         },
+        "transportationOfficeAssignments": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/TransportationOfficeAssignment"
+          }
+        },
         "transportationOfficeId": {
           "type": "string",
           "format": "uuid"
@@ -10962,15 +10976,19 @@ func init() {
         "WOUNDED_WARRIOR",
         "BLUEBARK",
         "SAFETY",
-        "TEMPORARY_DUTY"
+        "TEMPORARY_DUTY",
+        "EARLY_RETURN_OF_DEPENDENTS",
+        "STUDENT_TRAVEL"
       ],
       "x-display-value": {
         "BLUEBARK": "BLUEBARK",
+        "EARLY_RETURN_OF_DEPENDENTS": "Early Return of Dependents",
         "LOCAL_MOVE": "Local Move",
         "PERMANENT_CHANGE_OF_STATION": "Permanent Change Of Station",
         "RETIREMENT": "Retirement",
         "SAFETY": "Safety",
         "SEPARATION": "Separation",
+        "STUDENT_TRAVEL": "Student Travel",
         "TEMPORARY_DUTY": "Temporary Duty (TDY)",
         "WOUNDED_WARRIOR": "Wounded Warrior"
       }
@@ -11534,6 +11552,13 @@ func init() {
         },
         "advanceStatus": {
           "$ref": "#/definitions/PPMAdvanceStatus"
+        },
+        "allowableWeight": {
+          "description": "The allowable weight of the PPM shipment goods being moved.",
+          "type": "integer",
+          "x-nullable": true,
+          "x-omitempty": false,
+          "example": 4300
         },
         "approvedAt": {
           "description": "The timestamp of when the shipment was approved and the service member can begin their move.",
@@ -13673,6 +13698,43 @@ func init() {
         }
       }
     },
+    "TransportationOfficeAssignment": {
+      "type": "object",
+      "required": [
+        "officeUserId",
+        "transportationOfficeId",
+        "primaryOffice"
+      ],
+      "properties": {
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        },
+        "officeUserId": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4780-65aa-42ec-a945-5fd87dec0538"
+        },
+        "primaryOffice": {
+          "type": "boolean",
+          "x-omitempty": false
+        },
+        "transportationOffice": {
+          "$ref": "#/definitions/TransportationOffice"
+        },
+        "transportationOfficeId": {
+          "type": "string",
+          "format": "uuid",
+          "example": "d67a4780-65aa-42ec-a945-5fd87dec0549"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        }
+      }
+    },
     "TransportationOffices": {
       "type": "array",
       "items": {
@@ -13745,6 +13807,11 @@ func init() {
         "storageInTransit": {
           "description": "the number of storage in transit days that the customer is entitled to for a given shipment on their move",
           "type": "integer"
+        },
+        "ubAllowance": {
+          "type": "integer",
+          "x-nullable": true,
+          "example": 500
         }
       }
     },
@@ -14143,6 +14210,12 @@ func init() {
           "x-nullable": true,
           "$ref": "#/definitions/PPMAdvanceStatus"
         },
+        "allowableWeight": {
+          "description": "The allowable weight of the PPM shipment goods being moved.",
+          "type": "integer",
+          "x-nullable": true,
+          "example": 4300
+        },
         "destinationAddress": {
           "allOf": [
             {
@@ -14499,10 +14572,6 @@ func init() {
           "description": "Indicates the adjusted net weight of the vehicle",
           "type": "integer"
         },
-        "allowableWeight": {
-          "description": "Indicates the maximum reimbursable weight of the shipment",
-          "type": "integer"
-        },
         "emptyWeight": {
           "description": "Weight of the vehicle when empty.",
           "type": "integer"
@@ -14654,12 +14723,6 @@ func init() {
       "properties": {
         "adjustedNetWeight": {
           "description": "Indicates the adjusted net weight of the vehicle",
-          "type": "integer",
-          "x-nullable": true,
-          "x-omitempty": false
-        },
-        "allowableWeight": {
-          "description": "Maximum reimbursable weight.",
           "type": "integer",
           "x-nullable": true,
           "x-omitempty": false
@@ -20549,7 +20612,7 @@ func init() {
           },
           {
             "type": "string",
-            "description": "Used to return a queue for a GBLOC other than the default of the current user. Requires the HQ role. The parameter is ignored if the requesting user does not have the necessary role.\n",
+            "description": "Used to return a queue for a GBLOC other than the default of the current user. Requires the HQ role or a secondary transportation office assignment. The parameter is ignored if the requesting user does not have the necessary role or assignment.\n",
             "name": "viewAsGBLOC",
             "in": "query"
           },
@@ -20598,6 +20661,12 @@ func init() {
             "type": "boolean",
             "description": "Only used for Services Counseling queue. If true, show PPM moves origin locations that are ready for closeout. Otherwise, show all other moves origin locations.",
             "name": "needsPPMCloseout",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "Used to return an origins list for a GBLOC other than the default of the current user. Requires the HQ role or a secondary transportation office assignment. The parameter is ignored if the requesting user does not have the necessary role or assignment.",
+            "name": "viewAsGBLOC",
             "in": "query"
           }
         ],
@@ -20752,7 +20821,7 @@ func init() {
           },
           {
             "type": "string",
-            "description": "Used to return a queue for a GBLOC other than the default of the current user. Requires the HQ role. The parameter is ignored if the requesting user does not have the necessary role.\n",
+            "description": "Used to return a queue for a GBLOC other than the default of the current user. Requires the HQ role or a secondary transportation office assignment. The parameter is ignored if the requesting user does not have the necessary role or assignment.\n",
             "name": "viewAsGBLOC",
             "in": "query"
           },
@@ -20924,7 +20993,7 @@ func init() {
           },
           {
             "type": "string",
-            "description": "Used to return a queue for a GBLOC other than the default of the current user. Requires the HQ role. The parameter is ignored if the requesting user does not have the necessary role.\n",
+            "description": "Used to return a queue for a GBLOC other than the default of the current user. Requires the HQ role or a secondary transportation office assignment. The parameter is ignored if the requesting user does not have the necessary role or assignment.\n",
             "name": "viewAsGBLOC",
             "in": "query"
           }
@@ -23115,9 +23184,6 @@ func init() {
         "firstName": {
           "type": "string"
         },
-        "hasSafetyPrivilege": {
-          "type": "boolean"
-        },
         "lastName": {
           "type": "string"
         },
@@ -23354,6 +23420,11 @@ func init() {
           "description": "the number of storage in transit days that the customer is entitled to for a given shipment on their move",
           "type": "integer",
           "minimum": 0
+        },
+        "ubAllowance": {
+          "type": "integer",
+          "x-nullable": true,
+          "example": 500
         }
       }
     },
@@ -24551,7 +24622,7 @@ func init() {
           "x-formatting": "weight",
           "example": 500
         },
-        "ubAllowance": {
+        "unaccompaniedBaggageAllowance": {
           "description": "The amount of weight in pounds that the move is entitled for shipment types of Unaccompanied Baggage.",
           "type": "integer",
           "x-nullable": true,
@@ -27128,6 +27199,12 @@ func init() {
         "transportationOffice": {
           "$ref": "#/definitions/TransportationOffice"
         },
+        "transportationOfficeAssignments": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/TransportationOfficeAssignment"
+          }
+        },
         "transportationOfficeId": {
           "type": "string",
           "format": "uuid"
@@ -27443,15 +27520,19 @@ func init() {
         "WOUNDED_WARRIOR",
         "BLUEBARK",
         "SAFETY",
-        "TEMPORARY_DUTY"
+        "TEMPORARY_DUTY",
+        "EARLY_RETURN_OF_DEPENDENTS",
+        "STUDENT_TRAVEL"
       ],
       "x-display-value": {
         "BLUEBARK": "BLUEBARK",
+        "EARLY_RETURN_OF_DEPENDENTS": "Early Return of Dependents",
         "LOCAL_MOVE": "Local Move",
         "PERMANENT_CHANGE_OF_STATION": "Permanent Change Of Station",
         "RETIREMENT": "Retirement",
         "SAFETY": "Safety",
         "SEPARATION": "Separation",
+        "STUDENT_TRAVEL": "Student Travel",
         "TEMPORARY_DUTY": "Temporary Duty (TDY)",
         "WOUNDED_WARRIOR": "Wounded Warrior"
       }
@@ -28088,6 +28169,14 @@ func init() {
         },
         "advanceStatus": {
           "$ref": "#/definitions/PPMAdvanceStatus"
+        },
+        "allowableWeight": {
+          "description": "The allowable weight of the PPM shipment goods being moved.",
+          "type": "integer",
+          "minimum": 0,
+          "x-nullable": true,
+          "x-omitempty": false,
+          "example": 4300
         },
         "approvedAt": {
           "description": "The timestamp of when the shipment was approved and the service member can begin their move.",
@@ -30281,6 +30370,43 @@ func init() {
         }
       }
     },
+    "TransportationOfficeAssignment": {
+      "type": "object",
+      "required": [
+        "officeUserId",
+        "transportationOfficeId",
+        "primaryOffice"
+      ],
+      "properties": {
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        },
+        "officeUserId": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4780-65aa-42ec-a945-5fd87dec0538"
+        },
+        "primaryOffice": {
+          "type": "boolean",
+          "x-omitempty": false
+        },
+        "transportationOffice": {
+          "$ref": "#/definitions/TransportationOffice"
+        },
+        "transportationOfficeId": {
+          "type": "string",
+          "format": "uuid",
+          "example": "d67a4780-65aa-42ec-a945-5fd87dec0549"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        }
+      }
+    },
     "TransportationOffices": {
       "type": "array",
       "items": {
@@ -30357,6 +30483,11 @@ func init() {
           "description": "the number of storage in transit days that the customer is entitled to for a given shipment on their move",
           "type": "integer",
           "minimum": 0
+        },
+        "ubAllowance": {
+          "type": "integer",
+          "x-nullable": true,
+          "example": 500
         }
       }
     },
@@ -30755,6 +30886,13 @@ func init() {
           "x-nullable": true,
           "$ref": "#/definitions/PPMAdvanceStatus"
         },
+        "allowableWeight": {
+          "description": "The allowable weight of the PPM shipment goods being moved.",
+          "type": "integer",
+          "minimum": 0,
+          "x-nullable": true,
+          "example": 4300
+        },
         "destinationAddress": {
           "allOf": [
             {
@@ -31113,11 +31251,6 @@ func init() {
           "type": "integer",
           "minimum": 0
         },
-        "allowableWeight": {
-          "description": "Indicates the maximum reimbursable weight of the shipment",
-          "type": "integer",
-          "minimum": 0
-        },
         "emptyWeight": {
           "description": "Weight of the vehicle when empty.",
           "type": "integer",
@@ -31274,13 +31407,6 @@ func init() {
       "properties": {
         "adjustedNetWeight": {
           "description": "Indicates the adjusted net weight of the vehicle",
-          "type": "integer",
-          "minimum": 0,
-          "x-nullable": true,
-          "x-omitempty": false
-        },
-        "allowableWeight": {
-          "description": "Maximum reimbursable weight.",
           "type": "integer",
           "minimum": 0,
           "x-nullable": true,

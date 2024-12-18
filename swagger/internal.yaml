@@ -604,10 +604,6 @@ definitions:
       netWeightRemarks:
         description: Remarks explaining any edits made to the net weight
         type: string
-      allowableWeight:
-        description: Indicates the maximum reimbursable weight of the shipment
-        type: integer
-        minimum: 0
   TransportationOffices:
     type: array
     items:
@@ -654,6 +650,10 @@ definitions:
         title: Best contact phone
       transportation_office:
         $ref: '#/definitions/TransportationOffice'
+      transportation_office_assignments:
+        type: array
+        items:
+          $ref: '#/definitions/TransportationOfficeAssignment'
       created_at:
         type: string
         format: date-time
@@ -1630,13 +1630,7 @@ definitions:
       grade:
         $ref: '#/definitions/OrderPayGrade'
       orders_type:
-        type: string
-        title: Move Type
-        enum:
-          - PCS - OCONUS
-          - PCS - CONUS
-          - PCS + TDY - OCONUS
-          - PCS + TDY - CONUS
+        $ref: '#/definitions/OrdersType'
       move_date:
         type: string
         format: date
@@ -2583,6 +2577,8 @@ definitions:
       - BLUEBARK
       - SAFETY
       - TEMPORARY_DUTY
+      - EARLY_RETURN_OF_DEPENDENTS
+      - STUDENT_TRAVEL
     x-display-value:
       PERMANENT_CHANGE_OF_STATION: Permanent Change Of Station
       LOCAL_MOVE: Local Move
@@ -2592,6 +2588,8 @@ definitions:
       BLUEBARK: BLUEBARK
       SAFETY: Safety
       TEMPORARY_DUTY: Temporary Duty (TDY)
+      EARLY_RETURN_OF_DEPENDENTS: Early Return of Dependents
+      STUDENT_TRAVEL: Student Travel
   Address:
     description: A postal address
     type: object
@@ -3160,12 +3158,6 @@ definitions:
         description: A hash that should be used as the "If-Match" header for any updates.
         type: string
         readOnly: true
-      allowableWeight:
-        description: Maximum reimbursable weight.
-        type: integer
-        minimum: 0
-        x-nullable: true
-        x-omitempty: false
     required:
       - ppmShipmentId
       - createdAt
@@ -3723,6 +3715,13 @@ definitions:
         example: 4200
         x-nullable: true
         x-omitempty: false
+      allowableWeight:
+        description: The allowable weight of the PPM shipment goods being moved.
+        type: integer
+        example: 4300
+        minimum: 0
+        x-nullable: true
+        x-omitempty: false
       hasProGear:
         description: >
           Indicates whether PPM shipment has pro gear for themselves or their
@@ -3991,6 +3990,34 @@ definitions:
           header for any updates.
         type: string
         readOnly: true
+  TransportationOfficeAssignment:
+    type: object
+    properties:
+      officeUserId:
+        type: string
+        format: uuid
+        example: c56a4780-65aa-42ec-a945-5fd87dec0538
+      transportationOfficeId:
+        type: string
+        format: uuid
+        example: d67a4780-65aa-42ec-a945-5fd87dec0549
+      transportationOffice:
+        $ref: '#/definitions/TransportationOffice'
+      primaryOffice:
+        type: boolean
+        x-omitempty: false
+      createdAt:
+        type: string
+        format: date-time
+        readOnly: true
+      updatedAt:
+        type: string
+        format: date-time
+        readOnly: true
+    required:
+      - officeUserId
+      - transportationOfficeId
+      - primaryOffice
   PpmID:
     description: |
       The PPM Shipment ID to associate with the assigned certificate.

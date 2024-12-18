@@ -145,6 +145,73 @@ func (suite *HandlerSuite) TestCreateOrder() {
 		}
 	})
 
+	suite.Run("properly handles entitlement validation", func() {
+		address := factory.BuildAddress(suite.DB(), []factory.Customization{
+			{
+				Model: models.Address{
+					IsOconus: models.BoolPointer(true),
+				},
+			},
+		}, nil)
+
+		originDutyLocation := factory.BuildDutyLocation(suite.DB(), []factory.Customization{
+			{
+				Model: models.DutyLocation{
+					Name: factory.MakeRandomString(8),
+				},
+			},
+			{
+				Model:    address,
+				LinkOnly: true,
+			},
+		}, nil)
+
+		dutyLocation := factory.FetchOrBuildCurrentDutyLocation(suite.DB())
+		factory.FetchOrBuildPostalCodeToGBLOC(suite.DB(), dutyLocation.Address.PostalCode, "KKFA")
+		factory.FetchOrBuildDefaultContractor(suite.DB(), nil, nil)
+
+		req := httptest.NewRequest("POST", "/orders", nil)
+		req = suite.AuthenticateRequest(req, sm)
+
+		hasDependents := true
+		spouseHasProGear := true
+		issueDate := time.Date(2018, time.March, 10, 0, 0, 0, 0, time.UTC)
+		reportByDate := time.Date(2018, time.August, 1, 0, 0, 0, 0, time.UTC)
+		ordersType := internalmessages.OrdersTypePERMANENTCHANGEOFSTATION
+		deptIndicator := internalmessages.DeptIndicatorAIRANDSPACEFORCE
+		payload := &internalmessages.CreateUpdateOrders{
+			HasDependents:           handlers.FmtBool(hasDependents),
+			SpouseHasProGear:        handlers.FmtBool(spouseHasProGear),
+			IssueDate:               handlers.FmtDate(issueDate),
+			ReportByDate:            handlers.FmtDate(reportByDate),
+			OrdersType:              internalmessages.NewOrdersType(ordersType),
+			OriginDutyLocationID:    *handlers.FmtUUIDPtr(&originDutyLocation.ID),
+			NewDutyLocationID:       handlers.FmtUUID(dutyLocation.ID),
+			ServiceMemberID:         handlers.FmtUUID(sm.ID),
+			OrdersNumber:            handlers.FmtString("123456"),
+			Tac:                     handlers.FmtString("E19A"),
+			Sac:                     handlers.FmtString("SacNumber"),
+			DepartmentIndicator:     internalmessages.NewDeptIndicator(deptIndicator),
+			Grade:                   models.ServiceMemberGradeE1.Pointer(),
+			DependentsTwelveAndOver: models.Int64Pointer(-2),
+		}
+
+		params := ordersop.CreateOrdersParams{
+			HTTPRequest:  req,
+			CreateOrders: payload,
+		}
+
+		fakeS3 := storageTest.NewFakeS3Storage(true)
+		handlerConfig := suite.HandlerConfig()
+		handlerConfig.SetFileStorer(fakeS3)
+		createHandler := CreateOrdersHandler{handlerConfig}
+
+		response := createHandler.Handle(params)
+		suite.IsType(&handlers.ValidationErrorsResponse{}, response)
+		verrsResponse, ok := response.(*handlers.ValidationErrorsResponse)
+		suite.True(ok)
+		suite.Contains(verrsResponse.Errors, "dependents_twelve_and_over")
+	})
 }
 
 func (suite *HandlerSuite) TestShowOrder() {
@@ -188,6 +255,28 @@ func (suite *HandlerSuite) TestShowOrder() {
 	suite.Assertions.Equal(*order.DepartmentIndicator, string(*okResponse.Payload.DepartmentIndicator))
 	suite.Assertions.Equal(order.HasDependents, *okResponse.Payload.HasDependents)
 	suite.Assertions.Equal(order.SpouseHasProGear, *okResponse.Payload.SpouseHasProGear)
+}
+
+func (suite *HandlerSuite) TestPayloadForOrdersModel() {
+	dutyLocation := factory.BuildDutyLocation(suite.DB(), []factory.Customization{
+		{
+			Model:    factory.BuildAddress(suite.DB(), nil, []factory.Trait{factory.GetTraitAddress2}),
+			LinkOnly: true,
+		},
+	}, nil)
+	order := factory.BuildOrder(suite.DB(), []factory.Customization{
+		{
+			Model:    dutyLocation,
+			LinkOnly: true,
+			Type:     &factory.DutyLocations.OriginDutyLocation,
+		},
+	}, nil)
+
+	fakeS3 := storageTest.NewFakeS3Storage(true)
+
+	payload, err := payloadForOrdersModel(fakeS3, order)
+	suite.NoError(err)
+	suite.NotNil(payload)
 }
 
 func setUpMockOrders() models.Order {
@@ -600,13 +689,13 @@ func (suite *HandlerSuite) TestUpdateOrdersHandler() {
 			suite.NoError(err)
 			suite.Equal(payload.Grade, updatedOrder.Grade)
 			suite.Equal(*okResponse.Payload.AuthorizedWeight, int64(7000)) // E4 authorized weight is 7000, make sure we return that in the response
-			expectedUpdatedOrderWeightAllotment := models.GetWeightAllotment(*updatedOrder.Grade)
+			expectedUpdatedOrderWeightAllotment := models.GetWeightAllotment(*updatedOrder.Grade, updatedOrder.OrdersType)
 			expectedUpdatedOrderAuthorizedWeight := expectedUpdatedOrderWeightAllotment.TotalWeightSelf
 			if *payload.HasDependents {
 				expectedUpdatedOrderAuthorizedWeight = expectedUpdatedOrderWeightAllotment.TotalWeightSelfPlusDependents
 			}
 
-			expectedOriginalOrderWeightAllotment := models.GetWeightAllotment(*order.Grade)
+			expectedOriginalOrderWeightAllotment := models.GetWeightAllotment(*order.Grade, updatedOrder.OrdersType)
 			expectedOriginalOrderAuthorizedWeight := expectedOriginalOrderWeightAllotment.TotalWeightSelf
 			if *payload.HasDependents {
 				expectedUpdatedOrderAuthorizedWeight = expectedOriginalOrderWeightAllotment.TotalWeightSelfPlusDependents
