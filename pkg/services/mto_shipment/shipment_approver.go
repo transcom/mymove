@@ -99,7 +99,7 @@ func (f *shipmentApprover) ApproveShipment(appCtx appcontext.AppContext, shipmen
 				}
 			}
 		} else {
-			// after approving shipment, shipment level service items must be created
+			// after approving shipment, shipment level service items must be created (this is for domestic shipments only)
 			err = f.createShipmentServiceItems(txnAppCtx, shipment)
 			if err != nil {
 				return err
