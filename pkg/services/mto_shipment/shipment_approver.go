@@ -20,17 +20,15 @@ type shipmentApprover struct {
 	siCreator   services.MTOServiceItemCreator
 	planner     route.Planner
 	moveWeights services.MoveWeights
-	services.FeatureFlagFetcher
 }
 
 // NewShipmentApprover creates a new struct with the service dependencies
-func NewShipmentApprover(router services.ShipmentRouter, siCreator services.MTOServiceItemCreator, planner route.Planner, moveWeights services.MoveWeights, featureFlagFetcher services.FeatureFlagFetcher) services.ShipmentApprover {
+func NewShipmentApprover(router services.ShipmentRouter, siCreator services.MTOServiceItemCreator, planner route.Planner, moveWeights services.MoveWeights) services.ShipmentApprover {
 	return &shipmentApprover{
 		router,
 		siCreator,
 		planner,
 		moveWeights,
-		featureFlagFetcher,
 	}
 }
 
@@ -79,6 +77,13 @@ func (f *shipmentApprover) ApproveShipment(appCtx appcontext.AppContext, shipmen
 		}
 	}
 
+	// create international shipment service items
+	if shipment.ShipmentType == models.MTOShipmentTypeHHG && shipment.MarketCode == models.MarketCodeInternational {
+		err := models.CreateApprovedServiceItemsForShipment(appCtx.DB(), shipment)
+		if err != nil {
+			return shipment, err
+		}
+	}
 	transactionError := appCtx.NewTransaction(func(txnAppCtx appcontext.AppContext) error {
 		verrs, err := txnAppCtx.DB().ValidateAndSave(shipment)
 		if verrs != nil && verrs.HasAny() {
@@ -176,7 +181,7 @@ func (f *shipmentApprover) setRequiredDeliveryDate(appCtx appcontext.AppContext,
 }
 
 func (f *shipmentApprover) createShipmentServiceItems(appCtx appcontext.AppContext, shipment *models.MTOShipment) error {
-	reServiceCodes := reServiceCodesForShipment(f.FeatureFlagFetcher, *shipment)
+	reServiceCodes := reServiceCodesForShipment(*shipment)
 	serviceItemsToCreate := constructMTOServiceItemModels(shipment.ID, shipment.MoveTaskOrderID, reServiceCodes)
 	for _, serviceItem := range serviceItemsToCreate {
 		copyOfServiceItem := serviceItem // Make copy to avoid implicit memory aliasing of items from a range statement.

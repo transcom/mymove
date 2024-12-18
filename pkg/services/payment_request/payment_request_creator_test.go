@@ -1462,7 +1462,7 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequestCheckOnNTSRelea
 	).Return(testZip3Distance, nil)
 
 	// Create an initial payment request.
-	creator := NewPaymentRequestCreator(mockPlanner, ghcrateengine.NewServiceItemPricer(mockFeatureFlagFetcher))
+	creator := NewPaymentRequestCreator(mockPlanner, ghcrateengine.NewServiceItemPricer())
 	paymentRequest, err := creator.CreatePaymentRequestCheck(suite.AppContextForTest(), &paymentRequestArg)
 	suite.FatalNoError(err)
 

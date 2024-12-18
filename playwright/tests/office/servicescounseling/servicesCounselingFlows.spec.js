@@ -581,7 +581,7 @@ test.describe('Services counselor user', () => {
         await page.getByTestId('submitForm').click();
 
         await expect(page.getByTestId('payGrade')).toContainText('E-1');
-        await expect(page.getByTestId('ShipmentContainer').getByTestId('tag')).toContainText(
+        await expect(page.getByTestId('ShipmentContainer').getByTestId('actualReimbursementTag')).toContainText(
           'actual expense reimbursement',
         );
 
@@ -599,7 +599,6 @@ test.describe('Services counselor user', () => {
 
         await page.getByText('Review documents').click();
         await expect(page.getByRole('heading', { name: 'View documents' })).toBeVisible();
-        await page.getByTestId('shipmentInfo-showRequestDetailsButton').click();
 
         expect(await page.locator('[data-testid="tag"]').count()).toBe(0);
         await expect(page.locator('label').getByText('Actual Expense Reimbursement')).toBeVisible();
@@ -650,7 +649,6 @@ test.describe('Services counselor user', () => {
         await expect(page.getByRole('heading', { name: 'View documents' })).toBeVisible();
         await expect(page.getByTestId('tag')).toContainText('actual expense reimbursement');
 
-        await page.getByTestId('shipmentInfo-showRequestDetailsButton').click();
         await expect(page.locator('label').getByText('Actual Expense Reimbursement')).toBeVisible();
         expect(await page.getByTestId('isActualExpenseReimbursement').getByTestId('editTextButton').isDisabled()).toBe(
           true,

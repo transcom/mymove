@@ -14,13 +14,13 @@ type domesticUnpackPricer struct {
 }
 
 // NewDomesticUnpackPricer creates a new pricer for the domestic unpack service
-func NewDomesticUnpackPricer(featureFlagFetcher services.FeatureFlagFetcher) services.DomesticUnpackPricer {
-	return &domesticUnpackPricer{featureFlagFetcher}
+func NewDomesticUnpackPricer() services.DomesticUnpackPricer {
+	return &domesticUnpackPricer{}
 }
 
 // Price determines the price for a domestic unpack service
 func (p domesticUnpackPricer) Price(appCtx appcontext.AppContext, contractCode string, referenceDate time.Time, weight unit.Pound, servicesScheduleDest int, isPPM bool, isMobileHome bool) (unit.Cents, services.PricingDisplayParams, error) {
-	return priceDomesticPackUnpack(appCtx, models.ReServiceCodeDUPK, contractCode, referenceDate, weight, servicesScheduleDest, isPPM, isMobileHome, p.FeatureFlagFetcher)
+	return priceDomesticPackUnpack(appCtx, models.ReServiceCodeDUPK, contractCode, referenceDate, weight, servicesScheduleDest, isPPM, isMobileHome)
 }
 
 // PriceUsingParams determines the price for a domestic unpack service given PaymentServiceItemParams
@@ -54,15 +54,15 @@ func (p domesticUnpackPricer) PriceUsingParams(appCtx appcontext.AppContext, par
 	}
 
 	// Check if unpacking service items have been enabled for Mobile Home shipments
-	isMobileHomePackingItemOn, err := getFeatureFlagValue(appCtx, p.FeatureFlagFetcher, "domestic_mobile_home_unpacking_enabled")
-	if err != nil {
-		return unit.Cents(0), nil, err
-	}
+	// isMobileHomePackingItemOn, err := getFeatureFlagValue(appCtx, p.FeatureFlagFetcher, "domestic_mobile_home_unpacking_enabled")
+	// if err != nil {
+	// 	return unit.Cents(0), nil, err
+	// }
 
-	var isMobileHome = false
-	if isMobileHomePackingItemOn && params[0].PaymentServiceItem.MTOServiceItem.MTOShipment.ShipmentType == models.MTOShipmentTypeMobileHome {
-		isMobileHome = true
-	}
+	// var isMobileHome = false
+	// if isMobileHomePackingItemOn && params[0].PaymentServiceItem.MTOServiceItem.MTOShipment.ShipmentType == models.MTOShipmentTypeMobileHome {
+	// 	isMobileHome = true
+	// }
 
-	return p.Price(appCtx, contractCode, referenceDate, unit.Pound(weightBilled), servicesScheduleDest, isPPM, isMobileHome)
+	return p.Price(appCtx, contractCode, referenceDate, unit.Pound(weightBilled), servicesScheduleDest, isPPM, false)
 }

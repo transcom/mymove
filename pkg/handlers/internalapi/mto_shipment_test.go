@@ -35,7 +35,6 @@ import (
 	"github.com/transcom/mymove/pkg/services/ppmshipment"
 	"github.com/transcom/mymove/pkg/services/query"
 	"github.com/transcom/mymove/pkg/testdatagen"
-	"github.com/transcom/mymove/pkg/testhelpers"
 	"github.com/transcom/mymove/pkg/unit"
 )
 
@@ -56,8 +55,6 @@ func (suite *HandlerSuite) setUpMTOShipmentObjects() *mtoShipmentObjects {
 		moveRouter: moveRouter,
 	}
 }
-
-var mockFeatureFlagFetcher = testhelpers.SetupMockFeatureFlagFetcher(true)
 
 //
 // CREATE
@@ -109,9 +106,9 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandlerV1() {
 
 	moveTaskOrderUpdater := movetaskorder.NewMoveTaskOrderUpdater(
 		testMTOShipmentObjects.builder,
-		mtoserviceitem.NewMTOServiceItemCreator(planner, testMTOShipmentObjects.builder, testMTOShipmentObjects.moveRouter, ghcrateengine.NewDomesticUnpackPricer(suite.HandlerConfig().FeatureFlagFetcher()), ghcrateengine.NewDomesticPackPricer(suite.HandlerConfig().FeatureFlagFetcher()), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(suite.HandlerConfig().FeatureFlagFetcher()), ghcrateengine.NewDomesticDestinationPricer(suite.HandlerConfig().FeatureFlagFetcher()), ghcrateengine.NewFuelSurchargePricer(), mockFeatureFlagFetcher),
+		mtoserviceitem.NewMTOServiceItemCreator(planner, testMTOShipmentObjects.builder, testMTOShipmentObjects.moveRouter, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticPackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer()),
 		testMTOShipmentObjects.moveRouter,
-		setUpSignedCertificationCreatorMock(nil, nil), setUpSignedCertificationUpdaterMock(nil, nil),
+		setUpSignedCertificationCreatorMock(nil, nil), setUpSignedCertificationUpdaterMock(nil, nil), &ppmEstimator,
 	)
 	shipmentCreator := shipmentorchestrator.NewShipmentCreator(mtoShipmentCreator, ppmShipmentCreator, boatShipmentCreator, mobileHomeShipmentCreator, shipmentRouter, moveTaskOrderUpdater)
 
@@ -369,6 +366,12 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandlerV1() {
 			mock.AnythingOfType("*models.PPMShipment")).
 			Return(nil, nil, nil).Once()
 
+		ppmEstimator.On("MaxIncentive",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.AnythingOfType("models.PPMShipment"),
+			mock.AnythingOfType("*models.PPMShipment")).
+			Return(nil, nil)
+
 		suite.Nil(params.Body.Validate(strfmt.Default))
 
 		response := subtestData.handler.Handle(params)
@@ -451,6 +454,12 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandlerV1() {
 			mock.AnythingOfType("models.PPMShipment"),
 			mock.AnythingOfType("*models.PPMShipment")).
 			Return(nil, nil, nil).Once()
+
+		ppmEstimator.On("MaxIncentive",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.AnythingOfType("models.PPMShipment"),
+			mock.AnythingOfType("*models.PPMShipment")).
+			Return(nil, nil)
 
 		suite.Nil(params.Body.Validate(strfmt.Default))
 
@@ -735,7 +744,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 	moveWeights := moverouter.NewMoveWeights(mtoshipment.NewShipmentReweighRequester())
 
 	// Get shipment payment request recalculator service
-	creator := paymentrequest.NewPaymentRequestCreator(planner, ghcrateengine.NewServiceItemPricer(suite.HandlerConfig().FeatureFlagFetcher()))
+	creator := paymentrequest.NewPaymentRequestCreator(planner, ghcrateengine.NewServiceItemPricer())
 	statusUpdater := paymentrequest.NewPaymentRequestStatusUpdater(testMTOShipmentObjects.builder)
 
 	recalculator := paymentrequest.NewPaymentRequestRecalculator(creator, statusUpdater)
@@ -1324,6 +1333,12 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 					mock.AnythingOfType("models.PPMShipment"),
 					mock.AnythingOfType("*models.PPMShipment")).
 					Return(tc.estimatedIncentive, nil, nil).Once()
+
+				ppmEstimator.On("MaxIncentive",
+					mock.AnythingOfType("*appcontext.appContext"),
+					mock.AnythingOfType("models.PPMShipment"),
+					mock.AnythingOfType("*models.PPMShipment")).
+					Return(nil, nil)
 
 				ppmEstimator.On("FinalIncentiveWithDefaultChecks",
 					mock.AnythingOfType("*appcontext.appContext"),

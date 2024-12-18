@@ -18,7 +18,7 @@ func (suite *GHCRateEngineServiceSuite) Test_priceDomesticPackUnpack() {
 		suite.setupDomesticNTSPackPrices(dnpkTestServicesScheduleOrigin, dnpkTestIsPeakPeriod, dnpkTestBasePriceCents, models.MarketConus, dnpkTestFactor, dnpkTestContractYearName, dnpkTestEscalationCompounded)
 		isPPM := false
 		isMobileHome := false
-		priceCents, displayParams, err := priceDomesticPackUnpack(suite.AppContextForTest(), models.ReServiceCodeDNPK, testdatagen.DefaultContractCode, dnpkTestRequestedPickupDate, dnpkTestWeight, dnpkTestServicesScheduleOrigin, isPPM, isMobileHome, mockFeatureFlagFetcher)
+		priceCents, displayParams, err := priceDomesticPackUnpack(suite.AppContextForTest(), models.ReServiceCodeDNPK, testdatagen.DefaultContractCode, dnpkTestRequestedPickupDate, dnpkTestWeight, dnpkTestServicesScheduleOrigin, isPPM, isMobileHome)
 		suite.NoError(err)
 		suite.Equal(dnpkTestPriceCents, priceCents)
 
@@ -35,23 +35,23 @@ func (suite *GHCRateEngineServiceSuite) Test_priceDomesticPackUnpack() {
 	suite.Run("Invalid parameters to Price", func() {
 		isPPM := false
 		isMobileHome := false
-		_, _, err := priceDomesticPackUnpack(suite.AppContextForTest(), models.ReServiceCodeDLH, testdatagen.DefaultContractCode, dnpkTestRequestedPickupDate, dnpkTestWeight, dnpkTestServicesScheduleOrigin, isPPM, isMobileHome, mockFeatureFlagFetcher)
+		_, _, err := priceDomesticPackUnpack(suite.AppContextForTest(), models.ReServiceCodeDLH, testdatagen.DefaultContractCode, dnpkTestRequestedPickupDate, dnpkTestWeight, dnpkTestServicesScheduleOrigin, isPPM, isMobileHome)
 		suite.Error(err)
 		suite.Contains(err.Error(), "unsupported pack/unpack code")
 
-		_, _, err = priceDomesticPackUnpack(suite.AppContextForTest(), models.ReServiceCodeDNPK, "", dnpkTestRequestedPickupDate, dnpkTestWeight, dnpkTestServicesScheduleOrigin, isPPM, isMobileHome, mockFeatureFlagFetcher)
+		_, _, err = priceDomesticPackUnpack(suite.AppContextForTest(), models.ReServiceCodeDNPK, "", dnpkTestRequestedPickupDate, dnpkTestWeight, dnpkTestServicesScheduleOrigin, isPPM, isMobileHome)
 		suite.Error(err)
 		suite.Contains(err.Error(), "ContractCode is required")
 
-		_, _, err = priceDomesticPackUnpack(suite.AppContextForTest(), models.ReServiceCodeDNPK, testdatagen.DefaultContractCode, time.Time{}, dnpkTestWeight, dnpkTestServicesScheduleOrigin, isPPM, isMobileHome, mockFeatureFlagFetcher)
+		_, _, err = priceDomesticPackUnpack(suite.AppContextForTest(), models.ReServiceCodeDNPK, testdatagen.DefaultContractCode, time.Time{}, dnpkTestWeight, dnpkTestServicesScheduleOrigin, isPPM, isMobileHome)
 		suite.Error(err)
 		suite.Contains(err.Error(), "ReferenceDate is required")
 
-		_, _, err = priceDomesticPackUnpack(suite.AppContextForTest(), models.ReServiceCodeDNPK, testdatagen.DefaultContractCode, dnpkTestRequestedPickupDate, unit.Pound(250), dnpkTestServicesScheduleOrigin, isPPM, isMobileHome, mockFeatureFlagFetcher)
+		_, _, err = priceDomesticPackUnpack(suite.AppContextForTest(), models.ReServiceCodeDNPK, testdatagen.DefaultContractCode, dnpkTestRequestedPickupDate, unit.Pound(250), dnpkTestServicesScheduleOrigin, isPPM, isMobileHome)
 		suite.Error(err)
 		suite.Contains(err.Error(), "Weight must be a minimum of")
 
-		_, _, err = priceDomesticPackUnpack(suite.AppContextForTest(), models.ReServiceCodeDNPK, testdatagen.DefaultContractCode, dnpkTestRequestedPickupDate, dnpkTestWeight, 0, isPPM, isMobileHome, mockFeatureFlagFetcher)
+		_, _, err = priceDomesticPackUnpack(suite.AppContextForTest(), models.ReServiceCodeDNPK, testdatagen.DefaultContractCode, dnpkTestRequestedPickupDate, dnpkTestWeight, 0, isPPM, isMobileHome)
 		suite.Error(err)
 		suite.Contains(err.Error(), "Services schedule is required")
 	})
@@ -61,7 +61,7 @@ func (suite *GHCRateEngineServiceSuite) Test_priceDomesticPackUnpack() {
 		badContractCode := "BOGUS"
 		isPPM := false
 		isMobileHome := false
-		_, _, err := priceDomesticPackUnpack(suite.AppContextForTest(), models.ReServiceCodeDNPK, badContractCode, dnpkTestRequestedPickupDate, dnpkTestWeight, dnpkTestServicesScheduleOrigin, isPPM, isMobileHome, mockFeatureFlagFetcher)
+		_, _, err := priceDomesticPackUnpack(suite.AppContextForTest(), models.ReServiceCodeDNPK, badContractCode, dnpkTestRequestedPickupDate, dnpkTestWeight, dnpkTestServicesScheduleOrigin, isPPM, isMobileHome)
 		suite.Error(err)
 		suite.Contains(err.Error(), "could not lookup domestic other price")
 	})
@@ -71,7 +71,7 @@ func (suite *GHCRateEngineServiceSuite) Test_priceDomesticPackUnpack() {
 		twoYearsLaterPickupDate := dnpkTestRequestedPickupDate.AddDate(2, 0, 0)
 		isPPM := false
 		isMobileHome := false
-		_, _, err := priceDomesticPackUnpack(suite.AppContextForTest(), models.ReServiceCodeDNPK, testdatagen.DefaultContractCode, twoYearsLaterPickupDate, dnpkTestWeight, dnpkTestServicesScheduleOrigin, isPPM, isMobileHome, mockFeatureFlagFetcher)
+		_, _, err := priceDomesticPackUnpack(suite.AppContextForTest(), models.ReServiceCodeDNPK, testdatagen.DefaultContractCode, twoYearsLaterPickupDate, dnpkTestWeight, dnpkTestServicesScheduleOrigin, isPPM, isMobileHome)
 		suite.Error(err)
 		suite.Contains(err.Error(), "could not lookup contract year")
 	})
@@ -81,7 +81,7 @@ func (suite *GHCRateEngineServiceSuite) Test_priceDomesticPackUnpack() {
 		isPPM := false
 		isMobileHome := false
 		suite.setupDomesticNTSPackPrices(dnpkTestServicesScheduleOrigin, dnpkTestIsPeakPeriod, dnpkTestBasePriceCents, badMarket, dnpkTestFactor, dnpkTestContractYearName, dnpkTestEscalationCompounded)
-		_, _, err := priceDomesticPackUnpack(suite.AppContextForTest(), models.ReServiceCodeDNPK, testdatagen.DefaultContractCode, dnpkTestRequestedPickupDate, dnpkTestWeight, dnpkTestServicesScheduleOrigin, isPPM, isMobileHome, mockFeatureFlagFetcher)
+		_, _, err := priceDomesticPackUnpack(suite.AppContextForTest(), models.ReServiceCodeDNPK, testdatagen.DefaultContractCode, dnpkTestRequestedPickupDate, dnpkTestWeight, dnpkTestServicesScheduleOrigin, isPPM, isMobileHome)
 		suite.Error(err)
 		suite.Contains(err.Error(), "could not lookup shipment type price")
 	})
@@ -93,7 +93,7 @@ func (suite *GHCRateEngineServiceSuite) Test_domesticPackAndUnpackWithMobileHome
 
 		isPPM := false
 		isMobileHome := true
-		priceCents, displayParams, err := priceDomesticPackUnpack(suite.AppContextForTest(), models.ReServiceCodeDPK, testdatagen.DefaultContractCode, dpkTestRequestedPickupDate, dpkTestWeight, dpkTestServicesScheduleOrigin, isPPM, isMobileHome, mockFeatureFlagFetcher)
+		priceCents, displayParams, err := priceDomesticPackUnpack(suite.AppContextForTest(), models.ReServiceCodeDPK, testdatagen.DefaultContractCode, dpkTestRequestedPickupDate, dpkTestWeight, dpkTestServicesScheduleOrigin, isPPM, isMobileHome)
 		suite.NoError(err)
 		suite.Equal(unit.Cents(roundToPrecision(float64(dpkTestPriceCents)*mobileHomeFactor, 2)), priceCents)
 
@@ -112,19 +112,19 @@ func (suite *GHCRateEngineServiceSuite) Test_domesticPackAndUnpackWithMobileHome
 		isMobileHome := true
 		suite.setupDomesticOtherPrice(models.ReServiceCodeDPK, dpkTestServicesScheduleOrigin, dpkTestIsPeakPeriod, dpkTestBasePriceCents, dpkTestContractYearName, dpkTestEscalationCompounded)
 
-		_, _, err := priceDomesticPackUnpack(suite.AppContextForTest(), models.ReServiceCodeDLH, testdatagen.DefaultContractCode, dpkTestRequestedPickupDate, dpkTestWeight, dpkTestServicesScheduleOrigin, isPPM, isMobileHome, mockFeatureFlagFetcher)
+		_, _, err := priceDomesticPackUnpack(suite.AppContextForTest(), models.ReServiceCodeDLH, testdatagen.DefaultContractCode, dpkTestRequestedPickupDate, dpkTestWeight, dpkTestServicesScheduleOrigin, isPPM, isMobileHome)
 		suite.Error(err)
 		suite.Contains(err.Error(), "unsupported pack/unpack code")
 
-		_, _, err = priceDomesticPackUnpack(suite.AppContextForTest(), models.ReServiceCodeDPK, "", dnpkTestRequestedPickupDate, dpkTestWeight, dpkTestServicesScheduleOrigin, isPPM, isMobileHome, mockFeatureFlagFetcher)
+		_, _, err = priceDomesticPackUnpack(suite.AppContextForTest(), models.ReServiceCodeDPK, "", dnpkTestRequestedPickupDate, dpkTestWeight, dpkTestServicesScheduleOrigin, isPPM, isMobileHome)
 		suite.Error(err)
 		suite.Contains(err.Error(), "ContractCode is required")
 
-		_, _, err = priceDomesticPackUnpack(suite.AppContextForTest(), models.ReServiceCodeDPK, testdatagen.DefaultContractCode, time.Time{}, dpkTestWeight, dpkTestServicesScheduleOrigin, isPPM, isMobileHome, mockFeatureFlagFetcher)
+		_, _, err = priceDomesticPackUnpack(suite.AppContextForTest(), models.ReServiceCodeDPK, testdatagen.DefaultContractCode, time.Time{}, dpkTestWeight, dpkTestServicesScheduleOrigin, isPPM, isMobileHome)
 		suite.Error(err)
 		suite.Contains(err.Error(), "ReferenceDate is required")
 
-		_, _, err = priceDomesticPackUnpack(suite.AppContextForTest(), models.ReServiceCodeDPK, testdatagen.DefaultContractCode, dpkTestRequestedPickupDate, dpkTestWeight, 0, isPPM, isMobileHome, mockFeatureFlagFetcher)
+		_, _, err = priceDomesticPackUnpack(suite.AppContextForTest(), models.ReServiceCodeDPK, testdatagen.DefaultContractCode, dpkTestRequestedPickupDate, dpkTestWeight, 0, isPPM, isMobileHome)
 		suite.Error(err)
 		suite.Contains(err.Error(), "Services schedule is required")
 	})
@@ -136,7 +136,7 @@ func (suite *GHCRateEngineServiceSuite) Test_domesticPackAndUnpackWithPPM() {
 
 		isPPM := true
 		isMobileHome := false
-		priceCents, displayParams, err := priceDomesticPackUnpack(suite.AppContextForTest(), models.ReServiceCodeDPK, testdatagen.DefaultContractCode, dpkTestRequestedPickupDate, dpkTestWeight, dpkTestServicesScheduleOrigin, isPPM, isMobileHome, mockFeatureFlagFetcher)
+		priceCents, displayParams, err := priceDomesticPackUnpack(suite.AppContextForTest(), models.ReServiceCodeDPK, testdatagen.DefaultContractCode, dpkTestRequestedPickupDate, dpkTestWeight, dpkTestServicesScheduleOrigin, isPPM, isMobileHome)
 		suite.NoError(err)
 		suite.Equal(dpkTestPriceCents, priceCents)
 
@@ -154,19 +154,19 @@ func (suite *GHCRateEngineServiceSuite) Test_domesticPackAndUnpackWithPPM() {
 		isMobileHome := false
 		suite.setupDomesticOtherPrice(models.ReServiceCodeDPK, dpkTestServicesScheduleOrigin, dpkTestIsPeakPeriod, dpkTestBasePriceCents, dpkTestContractYearName, dpkTestEscalationCompounded)
 
-		_, _, err := priceDomesticPackUnpack(suite.AppContextForTest(), models.ReServiceCodeDLH, testdatagen.DefaultContractCode, dpkTestRequestedPickupDate, dpkTestWeight, dpkTestServicesScheduleOrigin, isPPM, isMobileHome, mockFeatureFlagFetcher)
+		_, _, err := priceDomesticPackUnpack(suite.AppContextForTest(), models.ReServiceCodeDLH, testdatagen.DefaultContractCode, dpkTestRequestedPickupDate, dpkTestWeight, dpkTestServicesScheduleOrigin, isPPM, isMobileHome)
 		suite.Error(err)
 		suite.Contains(err.Error(), "unsupported pack/unpack code")
 
-		_, _, err = priceDomesticPackUnpack(suite.AppContextForTest(), models.ReServiceCodeDPK, "", dnpkTestRequestedPickupDate, dpkTestWeight, dpkTestServicesScheduleOrigin, isPPM, isMobileHome, mockFeatureFlagFetcher)
+		_, _, err = priceDomesticPackUnpack(suite.AppContextForTest(), models.ReServiceCodeDPK, "", dnpkTestRequestedPickupDate, dpkTestWeight, dpkTestServicesScheduleOrigin, isPPM, isMobileHome)
 		suite.Error(err)
 		suite.Contains(err.Error(), "ContractCode is required")
 
-		_, _, err = priceDomesticPackUnpack(suite.AppContextForTest(), models.ReServiceCodeDPK, testdatagen.DefaultContractCode, time.Time{}, dpkTestWeight, dpkTestServicesScheduleOrigin, isPPM, isMobileHome, mockFeatureFlagFetcher)
+		_, _, err = priceDomesticPackUnpack(suite.AppContextForTest(), models.ReServiceCodeDPK, testdatagen.DefaultContractCode, time.Time{}, dpkTestWeight, dpkTestServicesScheduleOrigin, isPPM, isMobileHome)
 		suite.Error(err)
 		suite.Contains(err.Error(), "ReferenceDate is required")
 
-		_, _, err = priceDomesticPackUnpack(suite.AppContextForTest(), models.ReServiceCodeDPK, testdatagen.DefaultContractCode, dpkTestRequestedPickupDate, dpkTestWeight, 0, isPPM, isMobileHome, mockFeatureFlagFetcher)
+		_, _, err = priceDomesticPackUnpack(suite.AppContextForTest(), models.ReServiceCodeDPK, testdatagen.DefaultContractCode, dpkTestRequestedPickupDate, dpkTestWeight, 0, isPPM, isMobileHome)
 		suite.Error(err)
 		suite.Contains(err.Error(), "Services schedule is required")
 	})
@@ -759,5 +759,198 @@ func (suite *GHCRateEngineServiceSuite) Test_escalatePriceForContractYear() {
 
 		suite.Error(err)
 		suite.Contains(err.Error(), "could not lookup contract year")
+	})
+}
+
+func (suite *GHCRateEngineServiceSuite) Test_escalatedPriceForContractYearCompounded() {
+
+	setUpContracts := func() map[string]models.ReContractYear {
+		escalationCompounded := 1.04071
+		basePeriodYear1 := testdatagen.MakeReContractYear(suite.DB(),
+			testdatagen.Assertions{
+				ReContractYear: models.ReContractYear{
+					EscalationCompounded: escalationCompounded,
+					Name:                 models.BasePeriodYear1,
+				},
+			})
+		basePeriodYear2 := testdatagen.MakeReContractYear(suite.DB(),
+			testdatagen.Assertions{
+				ReContractYear: models.ReContractYear{
+					EscalationCompounded: escalationCompounded,
+					Name:                 models.BasePeriodYear2,
+					StartDate:            basePeriodYear1.StartDate.AddDate(1, 0, 0),
+					EndDate:              basePeriodYear1.EndDate.AddDate(1, 0, 0),
+				},
+			})
+		basePeriodYear3 := testdatagen.MakeReContractYear(suite.DB(),
+			testdatagen.Assertions{
+				ReContractYear: models.ReContractYear{
+					EscalationCompounded: escalationCompounded,
+					Name:                 models.BasePeriodYear3,
+					StartDate:            basePeriodYear2.StartDate.AddDate(1, 0, 0),
+					EndDate:              basePeriodYear2.EndDate.AddDate(1, 0, 0),
+				},
+			})
+		optionPeriod1 := testdatagen.MakeReContractYear(suite.DB(),
+			testdatagen.Assertions{
+				ReContractYear: models.ReContractYear{
+					EscalationCompounded: escalationCompounded,
+					Name:                 models.OptionPeriod1,
+					StartDate:            basePeriodYear3.StartDate.AddDate(1, 0, 0),
+					EndDate:              basePeriodYear3.EndDate.AddDate(1, 0, 0),
+				},
+			})
+		optionPeriod2 := testdatagen.MakeReContractYear(suite.DB(),
+			testdatagen.Assertions{
+				ReContractYear: models.ReContractYear{
+					EscalationCompounded: escalationCompounded,
+					Name:                 models.OptionPeriod2,
+					StartDate:            optionPeriod1.StartDate.AddDate(1, 0, 0),
+					EndDate:              optionPeriod1.EndDate.AddDate(1, 0, 0),
+				},
+			})
+		awardTerm1 := testdatagen.MakeReContractYear(suite.DB(),
+			testdatagen.Assertions{
+				ReContractYear: models.ReContractYear{
+					EscalationCompounded: escalationCompounded,
+					Name:                 models.AwardTerm1,
+					StartDate:            optionPeriod2.StartDate.AddDate(1, 0, 0),
+					EndDate:              optionPeriod2.EndDate.AddDate(1, 0, 0),
+				},
+			})
+		awardTerm2 := testdatagen.MakeReContractYear(suite.DB(),
+			testdatagen.Assertions{
+				ReContractYear: models.ReContractYear{
+					EscalationCompounded: escalationCompounded,
+					Name:                 models.AwardTerm2,
+					StartDate:            awardTerm1.StartDate.AddDate(1, 0, 0),
+					EndDate:              awardTerm1.EndDate.AddDate(1, 0, 0),
+				},
+			})
+
+		optionPeriod3 := testdatagen.MakeReContractYear(suite.DB(),
+			testdatagen.Assertions{
+				ReContractYear: models.ReContractYear{
+					EscalationCompounded: escalationCompounded,
+					Name:                 models.OptionPeriod3,
+					StartDate:            awardTerm2.StartDate.AddDate(1, 0, 0),
+					EndDate:              awardTerm2.EndDate.AddDate(1, 0, 0),
+				},
+			})
+
+		contractsYearsMap := make(map[string]models.ReContractYear)
+		contractsYearsMap[optionPeriod3.Name] = optionPeriod3
+		contractsYearsMap[awardTerm2.Name] = awardTerm2
+		contractsYearsMap[awardTerm1.Name] = awardTerm1
+		contractsYearsMap[optionPeriod2.Name] = optionPeriod2
+		contractsYearsMap[optionPeriod1.Name] = optionPeriod1
+		contractsYearsMap[basePeriodYear3.Name] = basePeriodYear3
+		contractsYearsMap[basePeriodYear2.Name] = basePeriodYear2
+		contractsYearsMap[basePeriodYear1.Name] = basePeriodYear1
+		return contractsYearsMap
+	}
+
+	setUpContractsWithMissingContracts := func() map[string]models.ReContractYear {
+		escalationCompounded := 1.04071
+		basePeriodYear1 := testdatagen.MakeReContractYear(suite.DB(),
+			testdatagen.Assertions{
+				ReContractYear: models.ReContractYear{
+					EscalationCompounded: escalationCompounded,
+					Name:                 models.BasePeriodYear1,
+				},
+			})
+		basePeriodYear2 := testdatagen.MakeReContractYear(suite.DB(),
+			testdatagen.Assertions{
+				ReContractYear: models.ReContractYear{
+					EscalationCompounded: escalationCompounded,
+					Name:                 models.BasePeriodYear2,
+					StartDate:            basePeriodYear1.StartDate.AddDate(1, 0, 0),
+					EndDate:              basePeriodYear1.EndDate.AddDate(1, 0, 0),
+				},
+			})
+		basePeriodYear3 := testdatagen.MakeReContractYear(suite.DB(),
+			testdatagen.Assertions{
+				ReContractYear: models.ReContractYear{
+					EscalationCompounded: escalationCompounded,
+					Name:                 models.BasePeriodYear3,
+					StartDate:            basePeriodYear2.StartDate.AddDate(1, 0, 0),
+					EndDate:              basePeriodYear2.EndDate.AddDate(1, 0, 0),
+				},
+			})
+		optionPeriod2 := testdatagen.MakeReContractYear(suite.DB(),
+			testdatagen.Assertions{
+				ReContractYear: models.ReContractYear{
+					EscalationCompounded: escalationCompounded,
+					Name:                 models.OptionPeriod2,
+					StartDate:            basePeriodYear2.StartDate.AddDate(2, 0, 0),
+					EndDate:              basePeriodYear2.EndDate.AddDate(2, 0, 0),
+				},
+			})
+		awardTerm1 := testdatagen.MakeReContractYear(suite.DB(),
+			testdatagen.Assertions{
+				ReContractYear: models.ReContractYear{
+					EscalationCompounded: escalationCompounded,
+					Name:                 models.AwardTerm1,
+					StartDate:            optionPeriod2.StartDate.AddDate(1, 0, 0),
+					EndDate:              optionPeriod2.EndDate.AddDate(1, 0, 0),
+				},
+			})
+		awardTerm2 := testdatagen.MakeReContractYear(suite.DB(),
+			testdatagen.Assertions{
+				ReContractYear: models.ReContractYear{
+					EscalationCompounded: escalationCompounded,
+					Name:                 models.AwardTerm2,
+					StartDate:            awardTerm1.StartDate.AddDate(1, 0, 0),
+					EndDate:              awardTerm1.EndDate.AddDate(1, 0, 0),
+				},
+			})
+
+		optionPeriod3 := testdatagen.MakeReContractYear(suite.DB(),
+			testdatagen.Assertions{
+				ReContractYear: models.ReContractYear{
+					EscalationCompounded: escalationCompounded,
+					Name:                 models.OptionPeriod3,
+					StartDate:            awardTerm2.StartDate.AddDate(1, 0, 0),
+					EndDate:              awardTerm2.EndDate.AddDate(1, 0, 0),
+				},
+			})
+
+		contractsYearsMap := make(map[string]models.ReContractYear)
+		contractsYearsMap[optionPeriod3.Name] = optionPeriod3
+		contractsYearsMap[awardTerm2.Name] = awardTerm2
+		contractsYearsMap[awardTerm1.Name] = awardTerm1
+		contractsYearsMap[optionPeriod2.Name] = optionPeriod2
+		contractsYearsMap[basePeriodYear3.Name] = basePeriodYear3
+		contractsYearsMap[basePeriodYear2.Name] = basePeriodYear2
+		contractsYearsMap[basePeriodYear1.Name] = basePeriodYear1
+		return contractsYearsMap
+	}
+
+	suite.Run("should correctly calculate escalated price based on the escalation factors of each contract year", func() {
+		contracts := setUpContracts()
+
+		isLinehaul := false
+		basePrice := 5117.0
+
+		contract := contracts[models.OptionPeriod3]
+
+		escalatedPrice, contractYear, err := escalatePriceForContractYear(suite.AppContextForTest(), contract.ContractID, contract.StartDate.AddDate(0, 0, 1), isLinehaul, basePrice)
+
+		suite.Nil(err)
+		suite.Equal(contract.ID, contractYear.ID)
+		suite.Equal(5981.0, escalatedPrice)
+	})
+	suite.Run("should error if an expected contract needed for the escalation price calculation is not found", func() {
+		contracts := setUpContractsWithMissingContracts()
+		isLinehaul := false
+		basePrice := 5117.0
+
+		contract := contracts[models.OptionPeriod3]
+		escalatedPrice, contractYear, err := escalatePriceForContractYear(suite.AppContextForTest(), contract.ContractID, contract.StartDate.AddDate(0, 0, 1), isLinehaul, basePrice)
+
+		suite.Error(err)
+		suite.Equal("expected contract Option Period 1 not found", err.Error())
+		suite.Equal(contract.ID, contractYear.ID)
+		suite.NotNil(escalatedPrice)
 	})
 }

@@ -8,6 +8,7 @@ import (
 	"github.com/transcom/mymove/pkg/gen/adminapi"
 	adminops "github.com/transcom/mymove/pkg/gen/adminapi/adminoperations"
 	"github.com/transcom/mymove/pkg/handlers"
+	paymentrequest "github.com/transcom/mymove/pkg/payment_request"
 	adminuser "github.com/transcom/mymove/pkg/services/admin_user"
 	"github.com/transcom/mymove/pkg/services/clientcert"
 	electronicorder "github.com/transcom/mymove/pkg/services/electronic_order"
@@ -21,10 +22,13 @@ import (
 	"github.com/transcom/mymove/pkg/services/organization"
 	"github.com/transcom/mymove/pkg/services/pagination"
 	prsff "github.com/transcom/mymove/pkg/services/payment_request"
+	"github.com/transcom/mymove/pkg/services/ppmshipment"
 	"github.com/transcom/mymove/pkg/services/query"
 	requestedofficeusers "github.com/transcom/mymove/pkg/services/requested_office_users"
 	"github.com/transcom/mymove/pkg/services/roles"
 	signedcertification "github.com/transcom/mymove/pkg/services/signed_certification"
+	transportationoffice "github.com/transcom/mymove/pkg/services/transportation_office"
+	transportationofficeassignments "github.com/transcom/mymove/pkg/services/transportation_office_assignments"
 	"github.com/transcom/mymove/pkg/services/upload"
 	user "github.com/transcom/mymove/pkg/services/user"
 	usersprivileges "github.com/transcom/mymove/pkg/services/users_privileges"
@@ -45,6 +49,7 @@ func NewAdminAPI(handlerConfig handlers.HandlerConfig) *adminops.MymoveAPI {
 	queryBuilder := query.NewQueryBuilder()
 	officeUpdater := officeuser.NewOfficeUserUpdater(queryBuilder)
 	adminUpdater := adminuser.NewAdminUserUpdater(queryBuilder)
+	ppmEstimator := ppmshipment.NewEstimatePPM(handlerConfig.DTODPlanner(), &paymentrequest.RequestPaymentHelper{})
 
 	adminAPI.ServeError = handlers.ServeCustomError
 
@@ -81,11 +86,12 @@ func NewAdminAPI(handlerConfig handlers.HandlerConfig) *adminops.MymoveAPI {
 
 	adminAPI.OfficeUsersGetOfficeUserHandler = GetOfficeUserHandler{
 		handlerConfig,
-		officeuser.NewOfficeUserFetcher(queryBuilder),
+		officeuser.NewOfficeUserFetcherPop(),
 		query.NewQueryFilter,
 	}
 
 	userPrivilegesCreator := usersprivileges.NewUsersPrivilegesCreator()
+	transportaionOfficeAssignmentUpdater := transportationofficeassignments.NewTransportaionOfficeAssignmentUpdater()
 	adminAPI.OfficeUsersCreateOfficeUserHandler = CreateOfficeUserHandler{
 		handlerConfig,
 		officeuser.NewOfficeUserCreator(queryBuilder, handlerConfig.NotificationSender()),
@@ -93,6 +99,7 @@ func NewAdminAPI(handlerConfig handlers.HandlerConfig) *adminops.MymoveAPI {
 		userRolesCreator,
 		newRolesFetcher,
 		userPrivilegesCreator,
+		transportaionOfficeAssignmentUpdater,
 	}
 
 	adminAPI.OfficeUsersUpdateOfficeUserHandler = UpdateOfficeUserHandler{
@@ -102,6 +109,7 @@ func NewAdminAPI(handlerConfig handlers.HandlerConfig) *adminops.MymoveAPI {
 		userRolesCreator,
 		userPrivilegesCreator,
 		user.NewUserSessionRevocation(queryBuilder),
+		transportaionOfficeAssignmentUpdater,
 	}
 
 	adminAPI.TransportationOfficesIndexOfficesHandler = IndexOfficesHandler{
@@ -109,6 +117,13 @@ func NewAdminAPI(handlerConfig handlers.HandlerConfig) *adminops.MymoveAPI {
 		office.NewOfficeListFetcher(queryBuilder),
 		query.NewQueryFilter,
 		pagination.NewPagination,
+	}
+
+	transportationOfficeFetcher := transportationoffice.NewTransportationOfficesFetcher()
+	adminAPI.TransportationOfficesGetOfficeByIDHandler = GetOfficeByIdHandler{
+		handlerConfig,
+		transportationOfficeFetcher,
+		query.NewQueryFilter,
 	}
 
 	adminAPI.OrganizationsIndexOrganizationsHandler = IndexOrganizationsHandler{
@@ -201,8 +216,8 @@ func NewAdminAPI(handlerConfig handlers.HandlerConfig) *adminops.MymoveAPI {
 		handlerConfig,
 		movetaskorder.NewMoveTaskOrderUpdater(
 			queryBuilder,
-			mtoserviceitem.NewMTOServiceItemCreator(handlerConfig.HHGPlanner(), queryBuilder, moveRouter, ghcrateengine.NewDomesticUnpackPricer(handlerConfig.FeatureFlagFetcher()), ghcrateengine.NewDomesticPackPricer(handlerConfig.FeatureFlagFetcher()), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(handlerConfig.FeatureFlagFetcher()), ghcrateengine.NewDomesticDestinationPricer(handlerConfig.FeatureFlagFetcher()), ghcrateengine.NewFuelSurchargePricer(), handlerConfig.FeatureFlagFetcher()),
-			moveRouter, signedCertificationCreator, signedCertificationUpdater,
+			mtoserviceitem.NewMTOServiceItemCreator(handlerConfig.HHGPlanner(), queryBuilder, moveRouter, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticPackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer()),
+			moveRouter, signedCertificationCreator, signedCertificationUpdater, ppmEstimator,
 		),
 	}
 

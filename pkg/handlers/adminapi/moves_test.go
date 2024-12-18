@@ -22,10 +22,7 @@ import (
 	mtoserviceitem "github.com/transcom/mymove/pkg/services/mto_service_item"
 	"github.com/transcom/mymove/pkg/services/pagination"
 	"github.com/transcom/mymove/pkg/services/query"
-	"github.com/transcom/mymove/pkg/testhelpers"
 )
-
-var mockFeatureFlagFetcher = testhelpers.SetupMockFeatureFlagFetcher(true)
 
 func (suite *HandlerSuite) TestIndexMovesHandler() {
 	suite.Run("integration test ok response", func() {
@@ -111,6 +108,7 @@ func (suite *HandlerSuite) TestUpdateMoveHandler() {
 
 		return mockUpdater
 	}
+	ppmEstimator := &mocks.PPMEstimator{}
 	setupHandler := func() UpdateMoveHandler {
 		builder := query.NewQueryBuilder()
 		moveRouter := move.NewMoveRouter()
@@ -124,8 +122,8 @@ func (suite *HandlerSuite) TestUpdateMoveHandler() {
 			suite.HandlerConfig(),
 			movetaskorder.NewMoveTaskOrderUpdater(
 				builder,
-				mtoserviceitem.NewMTOServiceItemCreator(planner, builder, moveRouter, ghcrateengine.NewDomesticUnpackPricer(suite.HandlerConfig().FeatureFlagFetcher()), ghcrateengine.NewDomesticPackPricer(suite.HandlerConfig().FeatureFlagFetcher()), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(suite.HandlerConfig().FeatureFlagFetcher()), ghcrateengine.NewDomesticDestinationPricer(suite.HandlerConfig().FeatureFlagFetcher()), ghcrateengine.NewFuelSurchargePricer(), mockFeatureFlagFetcher),
-				moveRouter, setUpSignedCertificationCreatorMock(nil, nil), setUpSignedCertificationUpdaterMock(nil, nil),
+				mtoserviceitem.NewMTOServiceItemCreator(planner, builder, moveRouter, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticPackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer()),
+				moveRouter, setUpSignedCertificationCreatorMock(nil, nil), setUpSignedCertificationUpdaterMock(nil, nil), ppmEstimator,
 			),
 		}
 	}

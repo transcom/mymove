@@ -785,13 +785,13 @@ func (o *mtoServiceItemCreator) makeExtraSITServiceItem(appCtx appcontext.AppCon
 }
 
 // NewMTOServiceItemCreator returns a new MTO service item creator
-func NewMTOServiceItemCreator(planner route.Planner, builder createMTOServiceItemQueryBuilder, moveRouter services.MoveRouter, unpackPricer services.DomesticUnpackPricer, packPricer services.DomesticPackPricer, linehaulPricer services.DomesticLinehaulPricer, shorthaulPricer services.DomesticShorthaulPricer, originPricer services.DomesticOriginPricer, destinationPricer services.DomesticDestinationPricer, fuelSurchargePricer services.FuelSurchargePricer, featureFlagFetcher services.FeatureFlagFetcher) services.MTOServiceItemCreator {
+func NewMTOServiceItemCreator(planner route.Planner, builder createMTOServiceItemQueryBuilder, moveRouter services.MoveRouter, unpackPricer services.DomesticUnpackPricer, packPricer services.DomesticPackPricer, linehaulPricer services.DomesticLinehaulPricer, shorthaulPricer services.DomesticShorthaulPricer, originPricer services.DomesticOriginPricer, destinationPricer services.DomesticDestinationPricer, fuelSurchargePricer services.FuelSurchargePricer) services.MTOServiceItemCreator {
 	// used inside a transaction and mocking
 	createNewBuilder := func() createMTOServiceItemQueryBuilder {
 		return query.NewQueryBuilder()
 	}
 
-	return &mtoServiceItemCreator{planner: planner, builder: builder, createNewBuilder: createNewBuilder, moveRouter: moveRouter, unpackPricer: unpackPricer, packPricer: packPricer, linehaulPricer: linehaulPricer, shorthaulPricer: shorthaulPricer, originPricer: originPricer, destinationPricer: destinationPricer, fuelSurchargePricer: fuelSurchargePricer, featureFlagFetcher: featureFlagFetcher}
+	return &mtoServiceItemCreator{planner: planner, builder: builder, createNewBuilder: createNewBuilder, moveRouter: moveRouter, unpackPricer: unpackPricer, packPricer: packPricer, linehaulPricer: linehaulPricer, shorthaulPricer: shorthaulPricer, originPricer: originPricer, destinationPricer: destinationPricer, fuelSurchargePricer: fuelSurchargePricer}
 }
 
 func validateTimeMilitaryField(_ appcontext.AppContext, timeMilitary string) error {

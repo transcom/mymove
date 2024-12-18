@@ -15,7 +15,6 @@ import (
 	paymentrequest "github.com/transcom/mymove/pkg/services/payment_request"
 	"github.com/transcom/mymove/pkg/services/query"
 	"github.com/transcom/mymove/pkg/testdatagen"
-	"github.com/transcom/mymove/pkg/testhelpers"
 	"github.com/transcom/mymove/pkg/unit"
 )
 
@@ -34,10 +33,8 @@ func (suite *ReweighSuite) TestReweighUpdater() {
 		recalculateTestDestinationZip,
 	).Return(recalculateTestZip3Distance, nil)
 
-	mockFeatureFlagFetcher := testhelpers.SetupMockFeatureFlagFetcher(true)
-
 	// Get shipment payment request recalculator service
-	creator := paymentrequest.NewPaymentRequestCreator(mockPlanner, ghcrateengine.NewServiceItemPricer(mockFeatureFlagFetcher))
+	creator := paymentrequest.NewPaymentRequestCreator(mockPlanner, ghcrateengine.NewServiceItemPricer())
 	statusUpdater := paymentrequest.NewPaymentRequestStatusUpdater(query.NewQueryBuilder())
 	recalculator := paymentrequest.NewPaymentRequestRecalculator(creator, statusUpdater)
 	paymentRequestShipmentRecalculator := paymentrequest.NewPaymentRequestShipmentRecalculator(recalculator)

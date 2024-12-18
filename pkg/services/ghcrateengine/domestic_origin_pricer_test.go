@@ -9,7 +9,6 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/testdatagen"
-	"github.com/transcom/mymove/pkg/testhelpers"
 	"github.com/transcom/mymove/pkg/unit"
 )
 
@@ -19,8 +18,7 @@ const (
 )
 
 func (suite *GHCRateEngineServiceSuite) TestPriceDomesticOriginWithServiceItemParamsBadData() {
-	mockFeatureFlagFetcher := testhelpers.SetupMockFeatureFlagFetcher(true)
-	pricer := NewDomesticOriginPricer(mockFeatureFlagFetcher)
+	pricer := NewDomesticOriginPricer()
 
 	suite.Run("failure during pricing bubbles up", func() {
 		suite.setUpDomesticOriginData()
@@ -58,8 +56,7 @@ func (suite *GHCRateEngineServiceSuite) TestPriceDomesticOriginWithServiceItemPa
 }
 
 func (suite *GHCRateEngineServiceSuite) TestPriceDomesticOriginWithServiceItemParams() {
-	mockFeatureFlagFetcher := testhelpers.SetupMockFeatureFlagFetcher(true)
-	pricer := NewDomesticOriginPricer(mockFeatureFlagFetcher)
+	pricer := NewDomesticOriginPricer()
 
 	suite.Run("success all params for domestic origin available", func() {
 		suite.setUpDomesticOriginData()
@@ -72,7 +69,7 @@ func (suite *GHCRateEngineServiceSuite) TestPriceDomesticOriginWithServiceItemPa
 		suite.Equal(expectedCost, cost)
 
 		expectedParams := services.PricingDisplayParams{
-			{Key: models.ServiceItemParamNameContractYearName, Value: "Test Contract Year"},
+			{Key: models.ServiceItemParamNameContractYearName, Value: "Base Period Year 1"},
 			{Key: models.ServiceItemParamNameEscalationCompounded, Value: "1.04070"},
 			{Key: models.ServiceItemParamNameIsPeak, Value: "true"},
 			{Key: models.ServiceItemParamNamePriceRateOrFactor, Value: "1.46"},
@@ -110,8 +107,7 @@ func (suite *GHCRateEngineServiceSuite) TestPriceDomesticOriginWithServiceItemPa
 }
 
 func (suite *GHCRateEngineServiceSuite) TestPriceDomesticOrigin() {
-	mockFeatureFlagFetcher := testhelpers.SetupMockFeatureFlagFetcher(true)
-	pricer := NewDomesticOriginPricer(mockFeatureFlagFetcher)
+	pricer := NewDomesticOriginPricer()
 
 	suite.Run("success domestic origin cost within peak period", func() {
 		suite.setUpDomesticOriginData()
@@ -131,7 +127,7 @@ func (suite *GHCRateEngineServiceSuite) TestPriceDomesticOrigin() {
 		suite.Equal(expectedCost, cost)
 
 		expectedParams := services.PricingDisplayParams{
-			{Key: models.ServiceItemParamNameContractYearName, Value: "Test Contract Year"},
+			{Key: models.ServiceItemParamNameContractYearName, Value: "Base Period Year 1"},
 			{Key: models.ServiceItemParamNameEscalationCompounded, Value: "1.04070"},
 			{Key: models.ServiceItemParamNameIsPeak, Value: "true"},
 			{Key: models.ServiceItemParamNamePriceRateOrFactor, Value: "1.46"},
@@ -159,7 +155,7 @@ func (suite *GHCRateEngineServiceSuite) TestPriceDomesticOrigin() {
 		suite.Equal(expectedCost, cost)
 
 		expectedParams := services.PricingDisplayParams{
-			{Key: models.ServiceItemParamNameContractYearName, Value: "Test Contract Year"},
+			{Key: models.ServiceItemParamNameContractYearName, Value: "Base Period Year 1"},
 			{Key: models.ServiceItemParamNameEscalationCompounded, Value: "1.04070"},
 			{Key: models.ServiceItemParamNameIsPeak, Value: "false"},
 			{Key: models.ServiceItemParamNamePriceRateOrFactor, Value: "1.27"},
@@ -295,7 +291,7 @@ func (suite *GHCRateEngineServiceSuite) TestPriceDomesticOrigin() {
 		suite.Equal(basePriceCents/5, fifthPriceCents)
 
 		expectedParams := services.PricingDisplayParams{
-			{Key: models.ServiceItemParamNameContractYearName, Value: "Test Contract Year"},
+			{Key: models.ServiceItemParamNameContractYearName, Value: "Base Period Year 1"},
 			{Key: models.ServiceItemParamNameEscalationCompounded, Value: "1.04070"},
 			{Key: models.ServiceItemParamNameIsPeak, Value: "true"},
 			{Key: models.ServiceItemParamNamePriceRateOrFactor, Value: "1.46"},

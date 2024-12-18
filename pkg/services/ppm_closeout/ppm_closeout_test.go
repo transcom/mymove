@@ -14,7 +14,6 @@ import (
 	"github.com/transcom/mymove/pkg/route/mocks"
 	servicemocks "github.com/transcom/mymove/pkg/services/mocks"
 	"github.com/transcom/mymove/pkg/testdatagen"
-	"github.com/transcom/mymove/pkg/testhelpers"
 	"github.com/transcom/mymove/pkg/unit"
 )
 
@@ -31,8 +30,7 @@ func (suite *PPMCloseoutSuite) TestPPMShipmentCreator() {
 	mockedPlanner := &mocks.Planner{}
 	mockedPaymentRequestHelper := &prhelpermocks.Helper{}
 	mockPpmEstimator := &servicemocks.PPMEstimator{}
-	mockFeatureFlagFetcher := testhelpers.SetupMockFeatureFlagFetcher(true)
-	ppmCloseoutFetcher := NewPPMCloseoutFetcher(mockedPlanner, mockedPaymentRequestHelper, mockPpmEstimator, mockFeatureFlagFetcher)
+	ppmCloseoutFetcher := NewPPMCloseoutFetcher(mockedPlanner, mockedPaymentRequestHelper, mockPpmEstimator)
 	serviceParams := mockServiceParamsTables()
 
 	suite.PreloadData(func() {
@@ -398,6 +396,39 @@ func (suite *PPMCloseoutSuite) TestPPMShipmentCreator() {
 		appCtx.Logger().Debug("+%v", zap.Error(err))
 		suite.IsType(err, apperror.PPMNotReadyForCloseoutError{})
 	})
+
+	suite.Run("Can successfully GET a PPMCloseout Object when the allowable weight is less than the net weight", func() {
+		// Under test:	GetPPMCloseout
+		// Set up:		Established ZIPs, ReServices, and all pricing data
+		// Expected:	PPMCloseout Object successfully retrieved
+		appCtx := suite.AppContextForTest()
+
+		mockedPlanner.On("ZipTransitDistance", mock.AnythingOfType("*appcontext.appContext"),
+			"50309", "30813").Return(2294, nil)
+
+		mockedPaymentRequestHelper.On(
+			"FetchServiceParamsForServiceItems",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.AnythingOfType("[]models.MTOServiceItem")).Return(serviceParams, nil)
+
+		mockIncentiveValue := unit.Cents(100000)
+		mockPpmEstimator.On(
+			"FinalIncentiveWithDefaultChecks",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.AnythingOfType("models.PPMShipment"),
+			mock.AnythingOfType("*models.PPMShipment")).Return(&mockIncentiveValue, nil)
+
+		ppmShipment := suite.mockPPMShipmentForCloseoutWithAllowableWeightTest()
+
+		ppmCloseoutObj, err := ppmCloseoutFetcher.GetPPMCloseout(appCtx, ppmShipment.ID)
+		if err != nil {
+			appCtx.Logger().Error("Error getting PPM closeout object: ", zap.Error(err))
+		}
+
+		suite.Nil(err)
+		suite.NotNil(ppmCloseoutObj)
+		suite.NotEmpty(ppmCloseoutObj)
+	})
 }
 
 func mockServiceParamsTables() models.ServiceParams {
@@ -605,6 +636,62 @@ func (suite *PPMCloseoutSuite) mockPPMShipmentForCloseoutTest(buildType ppmBuild
 	} else if buildType == ppmBuildWaitingOnCustomer {
 		ppmShipment = factory.BuildPPMShipment(suite.AppContextForTest().DB(), ppmShipmentCustomization, nil)
 	}
+
+	return ppmShipment
+}
+
+func (suite *PPMCloseoutSuite) mockPPMShipmentForCloseoutWithAllowableWeightTest() models.PPMShipment {
+	ppmID, _ := uuid.FromString("00000000-0000-0000-0000-000000000000")
+	estWeight := unit.Pound(2000)
+	actualMoveDate := time.Now()
+	expectedDepartureDate := &actualMoveDate
+	miles := unit.Miles(200)
+	emptyWeight1 := unit.Pound(1000)
+	emptyWeight2 := unit.Pound(1500)
+	fullWeight1 := unit.Pound(7000)
+	fullWeight2 := unit.Pound(4500) // Net weight sums to 9000
+	finalIncentive := unit.Cents(20000)
+	allowableWeight := unit.Pound(8000)
+
+	weightTickets := models.WeightTickets{
+		models.WeightTicket{
+			EmptyWeight: &emptyWeight1,
+			FullWeight:  &fullWeight1,
+		},
+		models.WeightTicket{
+			EmptyWeight: &emptyWeight2,
+			FullWeight:  &fullWeight2,
+		},
+	}
+
+	sitDaysAllowance := 20
+	sitLocation := models.SITLocationTypeOrigin
+	date := time.Now()
+
+	ppmShipmentCustomization := []factory.Customization{
+		{
+			Model: models.MTOShipment{
+				Distance:         &miles,
+				SITDaysAllowance: &sitDaysAllowance,
+			},
+		},
+		{
+			Model: models.PPMShipment{
+				ID:                        ppmID,
+				ExpectedDepartureDate:     *expectedDepartureDate,
+				ActualMoveDate:            &actualMoveDate,
+				EstimatedWeight:           &estWeight,
+				WeightTickets:             weightTickets,
+				FinalIncentive:            &finalIncentive,
+				SITLocation:               &sitLocation,
+				SITEstimatedEntryDate:     &date,
+				SITEstimatedDepartureDate: &date,
+				AllowableWeight:           &allowableWeight,
+			},
+		},
+	}
+
+	ppmShipment := factory.BuildPPMShipmentThatNeedsCloseout(suite.AppContextForTest().DB(), nil, ppmShipmentCustomization)
 
 	return ppmShipment
 }

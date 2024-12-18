@@ -8,7 +8,6 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/testdatagen"
-	"github.com/transcom/mymove/pkg/testhelpers"
 	"github.com/transcom/mymove/pkg/unit"
 )
 
@@ -18,8 +17,7 @@ const (
 )
 
 func (suite *GHCRateEngineServiceSuite) TestPriceDomesticDestinationWithServiceItemParamsBadData() {
-	mockFeatureFlagFetcher := testhelpers.SetupMockFeatureFlagFetcher(true)
-	pricer := NewDomesticDestinationPricer(mockFeatureFlagFetcher)
+	pricer := NewDomesticDestinationPricer()
 
 	suite.Run("failure during pricing bubbles up", func() {
 		suite.setUpDomesticDestinationData()
@@ -57,8 +55,7 @@ func (suite *GHCRateEngineServiceSuite) TestPriceDomesticDestinationWithServiceI
 }
 
 func (suite *GHCRateEngineServiceSuite) TestPriceDomesticDestinationWithServiceItemParams() {
-	mockFeatureFlagFetcher := testhelpers.SetupMockFeatureFlagFetcher(true)
-	pricer := NewDomesticDestinationPricer(mockFeatureFlagFetcher)
+	pricer := NewDomesticDestinationPricer()
 
 	suite.Run("success all params for destination available", func() {
 		suite.setUpDomesticDestinationData()
@@ -100,8 +97,7 @@ func (suite *GHCRateEngineServiceSuite) TestPriceDomesticDestinationWithServiceI
 }
 
 func (suite *GHCRateEngineServiceSuite) TestPriceDomesticDestination() {
-	mockFeatureFlagFetcher := testhelpers.SetupMockFeatureFlagFetcher(true)
-	pricer := NewDomesticDestinationPricer(mockFeatureFlagFetcher)
+	pricer := NewDomesticDestinationPricer()
 
 	suite.Run("success destination cost within peak period", func() {
 		suite.setUpDomesticDestinationData()

@@ -14,7 +14,6 @@ import (
 	"github.com/transcom/mymove/pkg/services/address"
 	moveservices "github.com/transcom/mymove/pkg/services/move"
 	"github.com/transcom/mymove/pkg/testdatagen"
-	"github.com/transcom/mymove/pkg/testhelpers"
 )
 
 func (suite *ShipmentAddressUpdateServiceSuite) TestCreateApprovedShipmentAddressUpdate() {
@@ -64,8 +63,7 @@ func (suite *ShipmentAddressUpdateServiceSuite) TestCreateApprovedShipmentAddres
 	addressCreator := address.NewAddressCreator()
 	mockPlanner := &routemocks.Planner{}
 	moveRouter := moveservices.NewMoveRouter()
-	mockFeatureFlagFetcher := testhelpers.SetupMockFeatureFlagFetcher(true)
-	addressUpdateRequester := NewShipmentAddressUpdateRequester(mockPlanner, addressCreator, moveRouter, mockFeatureFlagFetcher)
+	addressUpdateRequester := NewShipmentAddressUpdateRequester(mockPlanner, addressCreator, moveRouter)
 
 	suite.Run("Successfully create ShipmentAddressUpdate", func() {
 		mockPlanner.On("ZipTransitDistance",
@@ -585,8 +583,7 @@ func (suite *ShipmentAddressUpdateServiceSuite) TestTOOApprovedShipmentAddressUp
 		mock.Anything,
 		mock.Anything,
 	).Return(400, nil)
-	mockFeatureFlagFetcher := testhelpers.SetupMockFeatureFlagFetcher(true)
-	addressUpdateRequester := NewShipmentAddressUpdateRequester(mockPlanner, addressCreator, moveRouter, mockFeatureFlagFetcher)
+	addressUpdateRequester := NewShipmentAddressUpdateRequester(mockPlanner, addressCreator, moveRouter)
 
 	suite.Run("TOO approves address change", func() {
 
@@ -838,8 +835,7 @@ func (suite *ShipmentAddressUpdateServiceSuite) TestTOOApprovedShipmentAddressUp
 	addressCreator := address.NewAddressCreator()
 	mockPlanner := &routemocks.Planner{}
 	moveRouter := moveservices.NewMoveRouter()
-	mockFeatureFlagFetcher := testhelpers.SetupMockFeatureFlagFetcher(true)
-	addressUpdateRequester := NewShipmentAddressUpdateRequester(mockPlanner, addressCreator, moveRouter, mockFeatureFlagFetcher)
+	addressUpdateRequester := NewShipmentAddressUpdateRequester(mockPlanner, addressCreator, moveRouter)
 
 	suite.Run("Service items are rejected and regenerated when pricing type changes post TOO approval", func() {
 		mockPlanner.On("ZipTransitDistance",

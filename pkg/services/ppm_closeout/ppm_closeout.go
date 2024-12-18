@@ -25,7 +25,6 @@ type ppmCloseoutFetcher struct {
 	planner              route.Planner
 	paymentRequestHelper paymentrequesthelper.Helper
 	estimator            services.PPMEstimator
-	services.FeatureFlagFetcher
 }
 
 type serviceItemPrices struct {
@@ -39,12 +38,11 @@ type serviceItemPrices struct {
 	haulType                  models.HaulType
 }
 
-func NewPPMCloseoutFetcher(planner route.Planner, paymentRequestHelper paymentrequesthelper.Helper, estimator services.PPMEstimator, featureFlagFetcher services.FeatureFlagFetcher) services.PPMCloseoutFetcher {
+func NewPPMCloseoutFetcher(planner route.Planner, paymentRequestHelper paymentrequesthelper.Helper, estimator services.PPMEstimator) services.PPMCloseoutFetcher {
 	return &ppmCloseoutFetcher{
 		planner,
 		paymentRequestHelper,
 		estimator,
-		featureFlagFetcher,
 	}
 }
 
@@ -94,7 +92,7 @@ func (p *ppmCloseoutFetcher) GetPPMCloseout(appCtx appcontext.AppContext, ppmShi
 
 	fullWeightGCCShipment := ppmShipment
 
-	// Set pro gear werights for the GCC calculation to the max allowed before calculating GCC price
+	// Set pro gear weights for the GCC calculation to the max allowed before calculating GCC price
 	fullWeightGCCShipment.ProGearWeight = &proGearCustomerMax
 	fullWeightGCCShipment.SpouseProGearWeight = &proGearSpouseMax
 	gcc, _ := p.calculateGCC(appCtx, *fullWeightGCCShipment, fullAllowableWeight)
@@ -353,6 +351,10 @@ func (p *ppmCloseoutFetcher) getServiceItemPrices(appCtx appcontext.AppContext, 
 		}
 	}
 
+	if ppmShipment.AllowableWeight != nil && *ppmShipment.AllowableWeight < totalWeight {
+		totalWeight = *ppmShipment.AllowableWeight
+	}
+
 	if totalWeight > 0 {
 		// Reassign ppm shipment fields to their expected location on the mto shipment for dates, addresses, weights ...
 		ppmToMtoShipment = ppmshipment.MapPPMShipmentFinalFields(ppmShipment, totalWeight)
@@ -388,7 +390,7 @@ func (p *ppmCloseoutFetcher) getServiceItemPrices(appCtx appcontext.AppContext, 
 			continue
 		} // Next iteration of loop if we don't need this service type
 
-		pricer, err := ghcrateengine.PricerForServiceItem(serviceItem.ReService.Code, p.FeatureFlagFetcher)
+		pricer, err := ghcrateengine.PricerForServiceItem(serviceItem.ReService.Code)
 		if err != nil {
 			logger.Error("unable to find pricer for service item", zap.Error(err))
 			return serviceItemPrices{}, err

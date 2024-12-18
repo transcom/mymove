@@ -18,8 +18,8 @@ type domesticDestinationPricer struct {
 }
 
 // NewDomesticDestinationPricer instantiates a new pricer
-func NewDomesticDestinationPricer(featureFlagFetcher services.FeatureFlagFetcher) services.DomesticDestinationPricer {
-	return &domesticDestinationPricer{featureFlagFetcher}
+func NewDomesticDestinationPricer() services.DomesticDestinationPricer {
+	return &domesticDestinationPricer{}
 }
 
 // Price determines the price for the destination service area
@@ -107,14 +107,14 @@ func (p domesticDestinationPricer) PriceUsingParams(appCtx appcontext.AppContext
 	}
 
 	// Check if DDP service item has been enabled for Mobile Home shipments
-	isMobileHomePackingItemOn, err := getFeatureFlagValue(appCtx, p.FeatureFlagFetcher, services.DomesticMobileHomeDOPEnabled)
-	if err != nil {
-		return unit.Cents(0), nil, err
-	}
-	var isMobileHome = false
-	if isMobileHomePackingItemOn && params[0].PaymentServiceItem.MTOServiceItem.MTOShipment.ShipmentType == models.MTOShipmentTypeMobileHome {
-		isMobileHome = true
-	}
+	// isMobileHomePackingItemOn, err := getFeatureFlagValue(appCtx, p.FeatureFlagFetcher, services.DomesticMobileHomeDOPEnabled)
+	// if err != nil {
+	// 	return unit.Cents(0), nil, err
+	// }
+	// var isMobileHome = false
+	// if isMobileHomePackingItemOn && params[0].PaymentServiceItem.MTOServiceItem.MTOShipment.ShipmentType == models.MTOShipmentTypeMobileHome {
+	// 	isMobileHome = true
+	// }
 
-	return p.Price(appCtx, contractCode, referenceDate, unit.Pound(weightBilled), serviceAreaDest, isPPM, isMobileHome)
+	return p.Price(appCtx, contractCode, referenceDate, unit.Pound(weightBilled), serviceAreaDest, isPPM, false)
 }

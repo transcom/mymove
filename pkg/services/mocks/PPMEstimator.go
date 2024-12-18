@@ -80,6 +80,10 @@ func (_m *PPMEstimator) CalculatePPMSITEstimatedCostBreakdown(appCtx appcontext.
 func (_m *PPMEstimator) CalculateSITCost(appCtx appcontext.AppContext, ppmShipment *models.PPMShipment, contract models.ReContract) (*unit.Cents, error) {
 	ret := _m.Called(appCtx, ppmShipment, contract)
 
+	if len(ret) == 0 {
+		panic("no return value specified for CalculateSITCost")
+	}
+
 	var r0 *unit.Cents
 	var r1 error
 	if rf, ok := ret.Get(0).(func(appcontext.AppContext, *models.PPMShipment, models.ReContract) (*unit.Cents, error)); ok {
@@ -147,6 +151,36 @@ func (_m *PPMEstimator) FinalIncentiveWithDefaultChecks(appCtx appcontext.AppCon
 
 	if len(ret) == 0 {
 		panic("no return value specified for FinalIncentiveWithDefaultChecks")
+	}
+
+	var r0 *unit.Cents
+	var r1 error
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, models.PPMShipment, *models.PPMShipment) (*unit.Cents, error)); ok {
+		return rf(appCtx, oldPPMShipment, newPPMShipment)
+	}
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, models.PPMShipment, *models.PPMShipment) *unit.Cents); ok {
+		r0 = rf(appCtx, oldPPMShipment, newPPMShipment)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*unit.Cents)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(appcontext.AppContext, models.PPMShipment, *models.PPMShipment) error); ok {
+		r1 = rf(appCtx, oldPPMShipment, newPPMShipment)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// MaxIncentive provides a mock function with given fields: appCtx, oldPPMShipment, newPPMShipment
+func (_m *PPMEstimator) MaxIncentive(appCtx appcontext.AppContext, oldPPMShipment models.PPMShipment, newPPMShipment *models.PPMShipment) (*unit.Cents, error) {
+	ret := _m.Called(appCtx, oldPPMShipment, newPPMShipment)
+
+	if len(ret) == 0 {
+		panic("no return value specified for MaxIncentive")
 	}
 
 	var r0 *unit.Cents
