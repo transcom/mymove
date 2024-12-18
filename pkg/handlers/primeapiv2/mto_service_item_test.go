@@ -501,8 +501,8 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemHandler() {
 		// Validate outgoing payload
 		suite.NoError(typedResponse.Payload.Validate(strfmt.Default))
 
-		suite.Contains(*typedResponse.Payload.Detail, "Create Service Item is not allowed")
-		suite.Contains(typedResponse.Payload.InvalidFields["ShipmentType"][0], "PPM")
+		suite.Contains(*typedResponse.Payload.Detail, "Create Service Item is not allowed for PPM shipments")
+		suite.Contains(typedResponse.Payload.InvalidFields["mtoShipmentID"][0], subtestData.params.Body.MtoShipmentID().String())
 	})
 }
 
