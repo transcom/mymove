@@ -173,7 +173,7 @@ describe('Create PPM', () => {
 });
 
 describe('Create Mobile Home', () => {
-  it('test with 2nd addresses', async () => {
+  it('test with 2nd and 3rd addresses', async () => {
     createPrimeMTOShipmentV3.mockReturnValue({});
 
     render(mockedComponent);
@@ -191,10 +191,19 @@ describe('Create Mobile Home', () => {
       expect(secondAddressToggle).toBeInTheDocument();
       await userEvent.click(secondAddressToggle);
 
-      input = await document.querySelector('input[name="pickupAddress.streetAddress2"]');
+      input = await document.querySelector('input[name="secondaryPickupAddress.streetAddress1"]');
       expect(input).toBeInTheDocument();
       // enter required street 1 for pickup 2
-      await userEvent.type(input, '123 Street');
+      await userEvent.type(input, '123 Street 2');
+
+      const thirdAddressToggle = document.querySelector('[data-testid="has-tertiary-pickup"]');
+      expect(thirdAddressToggle).toBeInTheDocument();
+      await userEvent.click(thirdAddressToggle);
+
+      input = await document.querySelector('input[name="tertiaryPickupAddress.streetAddress1"]');
+      expect(input).toBeInTheDocument();
+      // enter required street 1 for pickup 2
+      await userEvent.type(input, '123 Street 2');
 
       input = await document.querySelector('input[name="destinationAddress.streetAddress1"]');
       expect(input).toBeInTheDocument();
