@@ -771,7 +771,7 @@ func (f *mtoShipmentUpdater) updateShipmentRecord(appCtx appcontext.AppContext, 
 					return err
 				}
 
-				if needsReweigh == models.BoolPointer(true) {
+				if needsReweigh {
 					autoReweighShipments, err = f.moveWeights.CheckAutoReweigh(txnAppCtx, dbShipment.MoveTaskOrderID, newShipment)
 					if err != nil {
 						return err
