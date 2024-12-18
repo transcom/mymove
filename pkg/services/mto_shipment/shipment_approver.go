@@ -2,6 +2,7 @@ package mtoshipment
 
 import (
 	"math"
+	"slices"
 
 	"github.com/gofrs/uuid"
 	"github.com/pkg/errors"
@@ -77,14 +78,18 @@ func (f *shipmentApprover) ApproveShipment(appCtx appcontext.AppContext, shipmen
 		}
 	}
 
-	// create international shipment service items
-	if shipment.ShipmentType == models.MTOShipmentTypeHHG && shipment.MarketCode == models.MarketCodeInternational {
-		err := models.CreateApprovedServiceItemsForShipment(appCtx.DB(), shipment)
-		if err != nil {
-			return shipment, err
-		}
-	}
 	transactionError := appCtx.NewTransaction(func(txnAppCtx appcontext.AppContext) error {
+
+		// If there are existing 're_service_items' for the international shipment then create 'mto_service_items'
+		// These are currently the shipment types we handle but add any additional international shipment types here
+		internationalShipmentTypes := []models.MTOShipmentType{models.MTOShipmentTypeHHG, models.MTOShipmentTypeHHGIntoNTS}
+		if slices.Contains(internationalShipmentTypes, shipment.ShipmentType) && shipment.MarketCode == models.MarketCodeInternational {
+			err := models.CreateApprovedServiceItemsForShipment(appCtx.DB(), shipment)
+			if err != nil {
+				return err
+			}
+		}
+
 		verrs, err := txnAppCtx.DB().ValidateAndSave(shipment)
 		if verrs != nil && verrs.HasAny() {
 			invalidInputError := apperror.NewInvalidInputError(shipment.ID, nil, verrs, "There was an issue with validating the updates")
