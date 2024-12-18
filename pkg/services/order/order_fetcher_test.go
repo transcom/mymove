@@ -188,62 +188,175 @@ func (suite *OrderServiceSuite) TestListOrders() {
 		suite.Equal(1, len(moves))
 	})
 
-	// suite.Run("task order queue does not return move with ONLY requested destination SIT service items", func() {
-	// 	officeUser, _, session := setupTestData()
+	suite.Run("task order queue does not return move with ONLY requested destination SIT service items", func() {
+		// officeUser, _, session := setupTestData()
+		officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
+		session := auth.Session{
+			ApplicationName: auth.OfficeApp,
+			Roles:           officeUser.User.Roles,
+			OfficeUserID:    officeUser.ID,
+			IDToken:         "fake_token",
+			AccessToken:     "fakeAccessToken",
+		}
 
-	// 	// build a move with a destination address request in Requested status, should NOT appear in Task Order Queue
-	// 	move := factory.BuildMove(suite.DB(), nil, nil)
-	// 	shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
-	// 		{
-	// 			Model:    move,
-	// 			LinkOnly: true,
-	// 		},
-	// 	}, nil)
+		// build a move with a destination address request in Requested status, should NOT appear in Task Order Queue
+		// move := factory.BuildMove(suite.DB(), nil, nil)
+		move := factory.BuildMove(suite.DB(), []factory.Customization{
+			{
+				Model: models.Move{
+					Status: models.MoveStatusAPPROVALSREQUESTED,
+					Show:   models.BoolPointer(true),
+				},
+			}}, nil)
 
-	// 	destinationSITServiceItem := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
-	// 		{
-	// 			Model:    shipment,
-	// 			LinkOnly: true,
-	// 		},
-	// 		{
-	// 			Model: models.ReService{
-	// 				Code: models.ReServiceCodeDDFSIT,
-	// 			},
-	// 		},
-	// 	}, nil)
+		shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+		}, nil)
 
-	// 	// build a move with a destination address request in Approved status, should appear in Task Order Queue
-	// 	move2 := factory.BuildMove(suite.DB(), nil, nil)
-	// 	shipment2 := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
-	// 		{
-	// 			Model:    move2,
-	// 			LinkOnly: true,
-	// 		},
-	// 	}, nil)
+		suite.NotNil(shipment)
 
-	// 	originSITServiceItem := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
-	// 		{
-	// 			Model:    shipment2,
-	// 			LinkOnly: true,
-	// 		},
-	// 		{
-	// 			Model: models.ReService{
-	// 				Code: models.ReServiceCodeDDFSIT,
-	// 			},
-	// 		},
-	// 	}, nil)
+		// build a move with a destination address request in Approved status, should appear in Task Order Queue
+		move2 := factory.BuildMove(suite.DB(), []factory.Customization{
+			{
+				Model: models.Move{
+					Status: models.MoveStatusAPPROVALSREQUESTED,
+					Show:   models.BoolPointer(true),
+				},
+			}}, nil)
+		shipment2 := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model:    move2,
+				LinkOnly: true,
+			},
+		}, nil)
+		approvedShipmentAddressUpdate := factory.BuildShipmentAddressUpdate(suite.DB(), []factory.Customization{
+			{
+				Model:    shipment2,
+				LinkOnly: true,
+			},
+			{
+				Model:    move2,
+				LinkOnly: true,
+			},
+		}, []factory.Trait{factory.GetTraitShipmentAddressUpdateApproved})
+		move3 := factory.BuildMove(suite.DB(), []factory.Customization{
+			{
+				Model: models.Move{
+					Status: models.MoveStatusAPPROVALSREQUESTED,
+					Show:   models.BoolPointer(true),
+				},
+			}}, nil)
 
-	// 	moves, _, err := orderFetcher.ListOrders(suite.AppContextWithSessionForTest(&session), officeUser.ID, roles.RoleTypeTOO, &services.ListOrderParams{
-	// 	})
+		shipment3 := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model:    move3,
+				LinkOnly: true,
+			},
+		}, nil)
+		shipmentAddressUpdate3 := factory.BuildShipmentAddressUpdate(suite.DB(), []factory.Customization{
+			{
+				Model:    shipment3,
+				LinkOnly: true,
+			},
+			{
+				Model:    move3,
+				LinkOnly: true,
+			},
+		}, []factory.Trait{factory.GetTraitShipmentAddressUpdateApproved})
 
-	// 	suite.Equal(models.MTOServiceItemStatusSubmitted, destinationSITServiceItem.Status)
-	// 	suite.Equal(models.MTOServiceItemStatusSubmitted, originSITServiceItem.Status)
+		// build a move with a destination address request in Approved status, should appear in Task Order Queue
+		move4 := factory.BuildMove(suite.DB(), []factory.Customization{
+			{
+				Model: models.Move{
+					Status: models.MoveStatusAPPROVALSREQUESTED,
+					Show:   models.BoolPointer(true),
+				},
+			}}, nil)
+		shipment4 := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model:    move4,
+				LinkOnly: true,
+			},
+		}, nil)
+		approvedShipmentAddressUpdate4 := factory.BuildShipmentAddressUpdate(suite.DB(), []factory.Customization{
+			{
+				Model:    shipment4,
+				LinkOnly: true,
+			},
+			{
+				Model:    move4,
+				LinkOnly: true,
+			},
+		}, []factory.Trait{factory.GetTraitShipmentAddressUpdateApproved})
 
-	// 	suite.FatalNoError(err)
-	// 	// even though 2 moves were created, only one will be returned from the call to List Orders since we filter out
-	// 	// the REQUESTED shipment address update to be routed to the destination requests queue
-	// 	suite.Equal(2, len(moves))
-	// })
+		// suite.NotNil(shipmentAddressUpdate)
+		suite.NotNil(shipmentAddressUpdate3)
+
+		suite.NotNil(approvedShipmentAddressUpdate4)
+
+		suite.NotNil(approvedShipmentAddressUpdate)
+		// build a move with a destination address request in Requested status, should NOT appear in Task Order Queue
+		// move := factory.BuildMove(suite.DB(), []factory.Customization{
+		// 	{
+		// 		Model: models.Move{
+		// 			Status: models.MoveStatusAPPROVALSREQUESTED,
+		// 			Show:   models.BoolPointer(true),
+		// 		},
+		// 	}}, nil)
+		// shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+		// 	{
+		// 		Model:    move,
+		// 		LinkOnly: true,
+		// 	},
+		// }, nil)
+
+		destinationSITServiceItem := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model:    shipment,
+				LinkOnly: true,
+			},
+			{
+				Model: models.ReService{
+					Code: models.ReServiceCodeDDFSIT,
+				},
+			},
+		}, nil)
+
+		// build a move with a destination address request in Approved status, should appear in Task Order Queue
+		// move2 := factory.BuildMove(suite.DB(), nil, nil)
+		// shipment2 := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+		// 	{
+		// 		Model:    move2,
+		// 		LinkOnly: true,
+		// 	},
+		// }, nil)
+
+		// originSITServiceItem := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+		// 	{
+		// 		Model:    shipment2,
+		// 		LinkOnly: true,
+		// 	},
+		// 	{
+		// 		Model: models.ReService{
+		// 			Code: models.ReServiceCodeDDFSIT,
+		// 		},
+		// 	},
+		// }, nil)
+
+		moves, moveCount, err := orderFetcher.ListOrders(suite.AppContextWithSessionForTest(&session), officeUser.ID, roles.RoleTypeTOO, &services.ListOrderParams{})
+
+		suite.Equal(models.MTOServiceItemStatusSubmitted, destinationSITServiceItem.Status)
+		// suite.Equal(models.MTOServiceItemStatusSubmitted, originSITServiceItem.Status)
+
+		suite.FatalNoError(err)
+		// even though 2 moves were created, only one will be returned from the call to List Orders since we filter out
+		// the REQUESTED shipment address update to be routed to the destination requests queue
+		suite.Equal(2, moveCount)
+		suite.Equal(2, len(moves))
+	})
 }
 
 // 	suite.Run("returns moves filtered by GBLOC", func() {
