@@ -165,7 +165,7 @@ func (suite *PaymentRequestServiceSuite) TestRecalculatePaymentRequestSuccess() 
 		{
 			paymentRequest: &oldPaymentRequest,
 			serviceCode:    models.ReServiceCodeDLH,
-			priceCents:     unit.Cents(279407),
+			priceCents:     unit.Cents(17485484),
 			paramsToCheck: []paramMap{
 				{models.ServiceItemParamNameWeightOriginal, strTestOriginalWeight},
 				{models.ServiceItemParamNameWeightBilled, strTestOriginalWeight},
@@ -183,7 +183,7 @@ func (suite *PaymentRequestServiceSuite) TestRecalculatePaymentRequestSuccess() 
 		{
 			paymentRequest: &oldPaymentRequest,
 			serviceCode:    models.ReServiceCodeDOASIT,
-			priceCents:     unit.Cents(254910),
+			priceCents:     unit.Cents(41633),
 			paramsToCheck: []paramMap{
 				{models.ServiceItemParamNameWeightOriginal, strTestOriginalWeight},
 				{models.ServiceItemParamNameWeightBilled, strTestOriginalWeight},
@@ -209,7 +209,7 @@ func (suite *PaymentRequestServiceSuite) TestRecalculatePaymentRequestSuccess() 
 			isNewPaymentRequest: true,
 			paymentRequest:      newPaymentRequest,
 			serviceCode:         models.ReServiceCodeDLH,
-			priceCents:          unit.Cents(261045),
+			priceCents:          unit.Cents(16336383),
 			paramsToCheck: []paramMap{
 				{models.ServiceItemParamNameWeightOriginal, strTestChangedOriginalWeight},
 				{models.ServiceItemParamNameWeightBilled, strTestChangedOriginalWeight},
@@ -229,7 +229,7 @@ func (suite *PaymentRequestServiceSuite) TestRecalculatePaymentRequestSuccess() 
 			isNewPaymentRequest: true,
 			paymentRequest:      newPaymentRequest,
 			serviceCode:         models.ReServiceCodeDOASIT,
-			priceCents:          unit.Cents(238158), // Price same as before since new weight still in same weight bracket
+			priceCents:          unit.Cents(38897), // Price same as before since new weight still in same weight bracket
 			paramsToCheck: []paramMap{
 				{models.ServiceItemParamNameWeightOriginal, strTestChangedOriginalWeight},
 				{models.ServiceItemParamNameWeightBilled, strTestChangedOriginalWeight},
@@ -479,21 +479,6 @@ func (suite *PaymentRequestServiceSuite) setupRecalculateData1() (models.Move, m
 		Service:               domOriginPriceService,
 	}
 	suite.MustSave(&domServiceAreaPriceDOP)
-
-	// Domestic Pack
-	dpkService := factory.FetchReServiceByCode(suite.DB(), models.ReServiceCodeDPK)
-
-	// Domestic Other Price
-	domOtherPriceDPK := models.ReDomesticOtherPrice{
-		ContractID:   contractYear.Contract.ID,
-		ServiceID:    dpkService.ID,
-		IsPeakPeriod: false,
-		Schedule:     2,
-		PriceCents:   recalculateTestDomOtherPrice,
-		Contract:     contractYear.Contract,
-		Service:      dpkService,
-	}
-	suite.MustSave(&domOtherPriceDPK)
 
 	// Build up a payment request with service item references for creating a payment request.
 	paymentRequestArg := models.PaymentRequest{

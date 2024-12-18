@@ -11,10 +11,11 @@ BEGIN
     FOR r IN (SELECT tablename FROM pg_tables WHERE schemaname = current_schema()
               AND tablename NOT IN ('us_post_region_cities', 're_countries', 're_states', 're_cities',
                                      're_us_post_regions', 're_oconus_rate_areas', 're_rate_areas',
-                                     're_intl_transit_times', 'ub_allowances','re_services','re_service_items',
-                                     'ports', 'port_locations', 're_fsc_multipliers', 'ghc_diesel_fuel_prices',
-                                     're_zip3s', 'zip3_distances', 're_contracts', 're_domestic_service_areas',
-                                     're_intl_prices', 're_intl_other_prices', 're_domestic_linehaul_prices')) LOOP
+                                     're_intl_transit_times', 'ub_allowances', 're_services', 're_service_items',
+                                     'ports','port_locations', 're_fsc_multipliers', 'ghc_diesel_fuel_prices',
+                                     're_zip3s','zip3_distances', 're_contracts', 're_domestic_service_areas',
+                                     're_intl_prices', 're_intl_other_prices', 're_domestic_linehaul_prices',
+                                     're_domestic_service_area_prices', 're_domestic_other_prices')) LOOP
         EXECUTE 'TRUNCATE TABLE ' || quote_ident(r.tablename) || ' CASCADE';
     END LOOP;
 END \$\$;

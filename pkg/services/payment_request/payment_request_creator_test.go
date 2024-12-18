@@ -1348,7 +1348,7 @@ func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequestCheckOnNTSRelea
 	testZip3Distance := 1234
 
 	// ((testOriginalWeight / 100.0) * testZip3Distance * testDLHRate * testEscalationCompounded) / 1000
-	testDLHTotalPrice := unit.Cents(279407)
+	testDLHTotalPrice := unit.Cents(17485484)
 
 	//
 	// Test data setup
