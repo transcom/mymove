@@ -58,10 +58,10 @@ func (h CreateMTOServiceItemHandler) Handle(params mtoserviceitemops.CreateMTOSe
 
 			if shipment.ShipmentType == models.MTOShipmentTypePPM {
 				verrs := validate.NewErrors()
-				verrs.Add("ShipmentType", string(shipment.ShipmentType))
-				appCtx.Logger().Error("primeapi.CreateMTOServiceItemHandler error", zap.Error(verrs))
+				verrs.Add("mtoShipmentID", params.Body.MtoShipmentID().String())
+				appCtx.Logger().Error("primeapi.CreateMTOServiceItemHandler - Create Service Item is not allowed for PPM shipments", zap.Error(verrs))
 				return mtoserviceitemops.NewCreateMTOServiceItemUnprocessableEntity().WithPayload(payloads.ValidationError(
-					"Create Service Item is not allowed", h.GetTraceIDFromRequest(params.HTTPRequest), verrs)), verrs
+					"Create Service Item is not allowed for PPM shipments", h.GetTraceIDFromRequest(params.HTTPRequest), verrs)), verrs
 			}
 
 			/** Feature Flag - Alaska **/
