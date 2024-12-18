@@ -3025,7 +3025,7 @@ func init() {
           "type": "string",
           "enum": [
             "A",
-            "P",
+            "B",
             "S"
           ]
         },
@@ -7269,7 +7269,7 @@ func init() {
           "type": "string",
           "enum": [
             "A",
-            "P",
+            "B",
             "S"
           ]
         },
