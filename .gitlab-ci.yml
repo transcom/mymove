@@ -43,6 +43,19 @@ variables:
   CLIENT_IGNORE_BRANCH: &client_ignore_branch B-18585-gitlab-deploy
   SERVER_IGNORE_BRANCH: &server_ignore_branch B-18585-gitlab-deploy
 
+  #TLS variables for certificates
+  PLACEHOLDER_ENV_STG_CERT: $STG_MOVE_MIL_DOD_TLS_CERT  
+  PLACEHOLDER_ENV_STG_KEY: $STG_MOVE_MIL_DOD_TLS_KEY    
+  PLACEHOLDER_ENV_STG_CA: $STG_MOVE_MIL_DOD_TLS_CA     
+
+  PLACEHOLDER_ENV_PRD_CERT: $PRD_MOVE_MIL_DOD_TLS_CERT  
+  PLACEHOLDER_ENV_PRD_KEY: $PRD_MOVE_MIL_DOD_TLS_KEY    
+  PLACEHOLDER_ENV_PRD_CA: $PRD_MOVE_MIL_DOD_TLS_CA      
+
+  PLACEHOLDER_ENV_DP3_CERT: $DEMO_MOVE_MIL_DOD_TLS_CERT
+  PLACEHOLDER_ENV_DP3_KEY: $DEMO_MOVE_MIL_DOD_TLS_KEY 
+  PLACEHOLDER_ENV_DP3_CA: $DEMO_MOVE_MIL_DOD_TLS_CA 
+
 stages:
 - pre_checks
 - build
@@ -56,6 +69,46 @@ stages:
     - git config --global --add safe.directory /builds/milmove/mymove
     - export PATH=${PATH}:${GOPATH}/bin:~/transcom/mymove/builds/milmove/mymove
     - export REACT_APP_ERROR_LOGGING=otel
+
+.setup_milmove_env: &setup_milmove_env
+  - git config --global --add safe.directory /builds/milmove/mymove
+  - export PATH=${PATH}:${GOPATH}/bin:~/transcom/mymove/builds/milmove/mymove
+  - export REACT_APP_ERROR_LOGGING=otel
+
+.setup_aws_vars_dp3: &setup_aws_vars_dp3
+  - export AWS_DEFAULT_REGION=$(eval echo \$${DP3_ENV^^}_REGION)
+  - export AWS_ACCOUNT_ID=$(eval echo \$${DP3_ENV^^}_ACCOUNT_ID)
+  - export AWS_ACCESS_KEY_ID=$(eval echo \$${DP3_ENV^^}_ACCESS_KEY_ID)
+  - export AWS_SECRET_ACCESS_KEY=$(eval echo \$${DP3_ENV^^}_SECRET_ACCESS_KEY)
+
+.setup_tls_vars_dp3: &setup_tls_vars_dp3
+  - export TLS_CERT=$(eval echo \$${DP3_ENV^^}_DP3_CERT)
+  - export TLS_KEY=$(eval echo \$${DP3_ENV^^}_DP3_KEY)
+  - export TLS_CA=$(eval echo \$${DP3_ENV^^}_DP3_CA)
+
+.setup_aws_vars_stg: &setup_aws_vars_stg
+  - export AWS_DEFAULT_REGION=$STG_REGION
+  - export AWS_ACCOUNT_ID=$STG_ACCOUNT_ID
+  - export AWS_ACCESS_KEY_ID=$STG_ACCESS_KEY_ID
+  - export AWS_SECRET_ACCESS_KEY=$STG_SECRET_ACCESS_KEY
+  - export SERVICE_RESERVATION_CPU=2048
+  - export SERVICE_RESERVATION_MEM=4096
+
+.setup_tls_vars_stg: &setup_tls_vars_stg
+  - export TLS_CERT=$STG_MOVE_MIL_DOD_TLS_CERT
+  - export TLS_KEY=$STG_MOVE_MIL_DOD_TLS_KEY
+  - export TLS_CA=$STG_MOVE_MIL_DOD_TLS_CA
+
+.setup_aws_vars_prd: &setup_aws_vars_prd
+  - export AWS_REGION=$PRD_REGION
+  - export AWS_ACCOUNT_ID=$PRD_ACCOUNT_ID
+  - export AWS_ACCESS_KEY_ID=$PRD_ACCESS_KEY_ID
+  - export AWS_SECRET_ACCESS_KEY=$PRD_SECRET_ACCESS_KEY
+
+.setup_tls_vars_prd: &setup_tls_vars_prd
+  - export TLS_CERT=$PRD_MOVE_MIL_DOD_TLS_CERT
+  - export TLS_KEY=$PRD_MOVE_MIL_DOD_TLS_KEY
+  - export TLS_CA=$PRD_MOVE_MIL_DOD_TLS_CA
 
 sast:
   stage: pre_checks
@@ -126,6 +179,63 @@ pre_deps_yarn:
   artifacts:
     paths:
       - ~/.cache/yarn
+
+check_tls_certificate_dp3:
+  stage: pre_checks
+  image: $DOCKER_APP_IMAGE # Replace with your appropriate Docker image.
+  before_script: 
+    - *setup_aws_vars_dp3
+    - *setup_tls_vars_dp3  # Map CI environment name for flexibility.
+  script:
+    # Check if we are using a DP3 environment
+    - echo "Checking if we are using a DP3 environment at all..."
+    - |
+      if [[ $DP3_ENV != "demo" && $DP3_ENV != "exp" && $DP3_ENV != "loadtest" ]]; then
+        echo "Not a DP3 environment. Skipping TLS checks."
+        exit 0
+      fi
+    - echo "Running TLS pair check..."
+    - /usr/local/bin/check-tls-pair "${TLS_KEY}" "${TLS_CERT}"
+
+  # Handle job failure notifications
+  after_script:
+    - |
+      if [[ "$CI_COMMIT_BRANCH" == "main" && "$CI_JOB_STATUS" == "failed" ]]; then
+        echo "Announcing broken branch in GitLab CI"
+        scripts/announce-broken-branch || true
+      fi
+
+check_tls_certificate_stg:
+  stage: pre_checks
+  image: $DOCKER_APP_IMAGE # This can reB-18585-gitlab-pipeline-work unchanged, or you can use a lightweight image since no real work is done.
+  before_script: 
+    - *setup_aws_vars_stg  
+    - *setup_tls_vars_stg
+  script:
+    - echo "Running TLS pair check..."
+    - /usr/local/bin/check-tls-pair "${TLS_KEY}" "${TLS_CERT}"
+  after_script:
+    - echo "Running failure notification if necessary..."
+    - |
+      if [[ "$CI_COMMIT_BRANCH" == "main" && "$CI_JOB_STATUS" == "failed" ]]; then
+        ./scripts/circleci-announce-broken-branch
+      fi
+
+check_tls_certificate_prd:
+  stage: pre_checks
+  image: $DOCKER_APP_IMAGE
+  before_script:
+    - *setup_tls_vars_prd
+    - *setup_aws_vars_prd
+  script:
+    - echo "Running TLS pair check for PRD environment..."
+    - /usr/local/bin/check-tls-pair "${TLS_KEY}" "${TLS_CERT}"
+  after_script:
+    - |
+      if [[ "$CI_COMMIT_BRANCH" == "main" && "$CI_JOB_STATUS" == "failed" ]]; then
+        echo "Announcing broken branch for main..."
+        scripts/circleci-announce-broken-branch
+      fi
 
 compile_app_client:
   stage: build
