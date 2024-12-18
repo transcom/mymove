@@ -38,7 +38,7 @@ func (h UpdateMTOShipmentAddressHandler) Handle(params mtoshipmentops.UpdateMTOS
 					payloads.ClientError(handlers.NotFoundMessage, err.Error(), h.GetTraceIDFromRequest(params.HTTPRequest))), err
 			}
 
-			if dbShipment.ShipmentType == models.MTOShipmentTypeHHGIntoNTSDom &&
+			if dbShipment.ShipmentType == models.MTOShipmentTypeHHGIntoNTS &&
 				(dbShipment.DestinationAddressID != nil && *dbShipment.DestinationAddressID == addressID) {
 				return mtoshipmentops.NewUpdateMTOShipmentAddressUnprocessableEntity().WithPayload(payloads.ValidationError(
 					"Cannot update the destination address of an NTS shipment directly, please update the storage facility address instead", h.GetTraceIDFromRequest(params.HTTPRequest), nil)), err
