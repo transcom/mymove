@@ -17,7 +17,7 @@ import (
 const GetTransportationOfficesGBLOCsOKCode int = 200
 
 /*
-GetTransportationOfficesGBLOCsOK Successfully retrieved transportation offices
+GetTransportationOfficesGBLOCsOK Successfully retrieved GBLOCs
 
 swagger:response getTransportationOfficesGBLOCsOK
 */

@@ -4373,7 +4373,7 @@ paths:
         - transportationOffice
       responses:
         '200':
-          description: Successfully retrieved transportation offices
+          description: Successfully retrieved GBLOCs
           schema:
             $ref: '#/definitions/GBLOCs'
         '400':
@@ -4416,6 +4416,31 @@ paths:
           $ref: '#/responses/NotFound'
         '500':
           $ref: '#/responses/ServerError'
+  /transportation_offices/{dutyLocationId}/counseling_offices:
+    get:
+      summary: Returns the counseling locations in the GBLOC matching the duty location
+      description: >-
+        Returns the counseling locations matching the GBLOC from the selected
+        duty location
+      operationId: showCounselingOffices
+      tags:
+        - transportationOffice
+      parameters:
+        - in: path
+          name: dutyLocationId
+          format: uuid
+          type: string
+          required: true
+          description: UUID of the duty location
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: Successfully retrieved counseling offices
+          schema:
+            $ref: '#/definitions/CounselingOffices'
+        '500':
+          description: internal server error
   /uploads:
     post:
       summary: Create a new upload
@@ -5995,6 +6020,11 @@ definitions:
         type: string
         format: uuid
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      counselingOfficeId:
+        type: string
+        format: uuid
+        example: cf1addea-a4f9-4173-8506-2bb82a064cb7
+        x-nullable: true
       ordersNumber:
         type: string
         title: Orders Number
@@ -8202,6 +8232,23 @@ definitions:
     type: array
     items:
       type: string
+  CounselingOffices:
+    type: array
+    items:
+      $ref: '#/definitions/CounselingOffice'
+  CounselingOffice:
+    type: object
+    properties:
+      id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      name:
+        type: string
+        example: Fort Bragg North Station
+    required:
+      - id
+      - name
   MovePayload:
     type: object
     properties:

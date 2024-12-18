@@ -1,13 +1,16 @@
 package ghcapi
 
 import (
+	"fmt"
 	"net/http/httptest"
 
 	"github.com/go-openapi/strfmt"
 
 	"github.com/transcom/mymove/pkg/factory"
 	transportationofficeop "github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/transportation_office"
+	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/services/address"
 	transportationofficeservice "github.com/transcom/mymove/pkg/services/transportation_office"
 )
 
@@ -144,4 +147,58 @@ func (suite *HandlerSuite) TestGetTransportationOfficesGBLOCsHandler() {
 	suite.NoError(responsePayload.Payload.Validate(strfmt.Default))
 	suite.Equal(transportationOffice1.Gbloc, responsePayload.Payload[0])
 	suite.Equal(transportationOffice2.Gbloc, responsePayload.Payload[1])
+}
+
+func (suite *HandlerSuite) TestShowCounselingOfficesHandler() {
+	user := factory.BuildDefaultUser(suite.DB())
+
+	fetcher := transportationofficeservice.NewTransportationOfficesFetcher()
+
+	newAddress := models.Address{
+		StreetAddress1: "some address",
+		City:           "city",
+		State:          "CA",
+		PostalCode:     "59801",
+		County:         models.StringPointer("County"),
+	}
+	addressCreator := address.NewAddressCreator()
+	createdAddress, err := addressCreator.CreateAddress(suite.AppContextForTest(), &newAddress)
+	suite.NoError(err)
+
+	origDutyLocation := factory.BuildDutyLocation(suite.DB(), []factory.Customization{
+		{
+			Model: models.DutyLocation{
+				AddressID:                  createdAddress.ID,
+				ProvidesServicesCounseling: true,
+			},
+		},
+		{
+			Model: models.TransportationOffice{
+				Name:             "PPPO Travis AFB - USAF",
+				Gbloc:            "KKFA",
+				ProvidesCloseout: true,
+			},
+		},
+	}, nil)
+	suite.MustSave(&origDutyLocation)
+
+	path := fmt.Sprintf("/transportation_offices/%v/counseling_offices", origDutyLocation.ID.String())
+	req := httptest.NewRequest("GET", path, nil)
+	req = suite.AuthenticateUserRequest(req, user)
+	params := transportationofficeop.ShowCounselingOfficesParams{
+		HTTPRequest:    req,
+		DutyLocationID: *handlers.FmtUUID(origDutyLocation.ID),
+	}
+
+	handler := ShowCounselingOfficesHandler{
+		HandlerConfig:                suite.HandlerConfig(),
+		TransportationOfficesFetcher: fetcher}
+
+	response := handler.Handle(params)
+	suite.Assertions.IsType(&transportationofficeop.ShowCounselingOfficesOK{}, response)
+	responsePayload := response.(*transportationofficeop.ShowCounselingOfficesOK)
+
+	// Validate outgoing payload
+	suite.NoError(responsePayload.Payload.Validate(strfmt.Default))
+
 }
