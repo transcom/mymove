@@ -20,11 +20,13 @@ import Callout from 'components/Callout';
 import MaskedTextField from 'components/form/fields/MaskedTextField/MaskedTextField';
 import formStyles from 'styles/form.module.scss';
 import ConnectedFlashMessage from 'containers/FlashMessage/FlashMessage';
+import { showCounselingOffices } from 'services/ghcApi';
 
 let originMeta;
 let newDutyMeta = '';
 const AddOrdersForm = ({ onSubmit, ordersTypeOptions, initialValues, onBack, isSafetyMoveSelected }) => {
   const payGradeOptions = dropdownInputOptions(ORDERS_PAY_GRADE_OPTIONS);
+  const [counselingOfficeOptions, setCounselingOfficeOptions] = useState(null);
   const [currentDutyLocation, setCurrentDutyLocation] = useState('');
   const [newDutyLocation, setNewDutyLocation] = useState('');
   const [showAccompaniedTourField, setShowAccompaniedTourField] = useState(false);
@@ -69,6 +71,17 @@ const AddOrdersForm = ({ onSubmit, ordersTypeOptions, initialValues, onBack, isS
   }, []);
 
   useEffect(() => {
+    if (currentDutyLocation?.id) {
+      showCounselingOffices(currentDutyLocation.id).then((fetchedData) => {
+        if (fetchedData.body) {
+          const counselingOffices = fetchedData.body.map((item) => ({
+            key: item.id,
+            value: item.name,
+          }));
+          setCounselingOfficeOptions(counselingOffices);
+        }
+      });
+    }
     // Check if either currentDutyLocation or newDutyLocation is OCONUS
     if (currentDutyLocation?.address?.isOconus || newDutyLocation?.address?.isOconus) {
       setIsOconusMove(true);
@@ -90,10 +103,18 @@ const AddOrdersForm = ({ onSubmit, ordersTypeOptions, initialValues, onBack, isS
 
   return (
     <Formik initialValues={initialValues} validateOnMount validationSchema={validationSchema} onSubmit={onSubmit}>
-      {({ values, isValid, isSubmitting, handleSubmit, touched, setFieldValue }) => {
+      {({ values, isValid, isSubmitting, handleSubmit, touched, setFieldValue, setValues }) => {
         const isRetirementOrSeparation = ['RETIREMENT', 'SEPARATION'].includes(values.ordersType);
         if (!values.origin_duty_location && touched.origin_duty_location) originMeta = 'Required';
         else originMeta = null;
+
+        const handleCounselingOfficeChange = () => {
+          setValues({
+            ...values,
+            counseling_office_id: null,
+          });
+          setCounselingOfficeOptions(null);
+        };
 
         if (!values.newDutyLocation && touched.newDutyLocation) newDutyMeta = 'Required';
         else newDutyMeta = null;
@@ -133,10 +154,28 @@ const AddOrdersForm = ({ onSubmit, ordersTypeOptions, initialValues, onBack, isS
                 id="originDutyLocation"
                 onDutyLocationChange={(e) => {
                   setCurrentDutyLocation(e);
+                  handleCounselingOfficeChange();
                 }}
                 metaOverride={originMeta}
                 required
               />
+              {currentDutyLocation.provides_services_counseling && (
+                <div>
+                  <Label>
+                    Select an origin duty location that most closely represents your current physical location, not
+                    where your shipment will originate, if different. This will allow a nearby transportation office to
+                    assist you.
+                  </Label>
+                  <DropdownInput
+                    label="Counseling office"
+                    name="counselingOfficeId"
+                    id="counselingOfficeId"
+                    hint="Required"
+                    required
+                    options={counselingOfficeOptions}
+                  />
+                </div>
+              )}
 
               {isRetirementOrSeparation ? (
                 <>
