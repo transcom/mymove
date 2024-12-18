@@ -19,4 +19,3 @@ VALUES
     ('5a89315a-257b-4ef0-92cb-4c06aa6f1332', '4132416b-b1aa-42e7-98f2-0ac0a03e8a31' ,'HHG_INTO_NTS', 'i', false, now(), now(), NULL),
     ('d4a98dea-a5f7-4b92-b5de-e6350ab07824', '81e29d0c-02a6-4a7a-be02-554deb3ee49e' ,'HHG_INTO_NTS', 'i', false, now(), now(), NULL),
     ('eaea90c2-93d3-4db9-89cd-23ac57ec9ce1', '690a5fc1-0ea5-4554-8294-a367b5daefa9' ,'HHG_INTO_NTS', 'i', false, now(), now(), NULL);
-
