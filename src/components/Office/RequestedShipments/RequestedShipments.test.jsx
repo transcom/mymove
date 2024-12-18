@@ -2,6 +2,7 @@ import React from 'react';
 import { act } from 'react-dom/test-utils';
 import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { generatePath } from 'react-router-dom';
 import { Provider } from 'react-redux';
 
@@ -54,17 +55,19 @@ const approveMTO = jest.fn().mockResolvedValue({ response: { status: 200 } });
 const mockStore = configureStore({});
 
 const submittedRequestedShipmentsComponent = (
-  <Provider store={mockStore.store}>
-    <SubmittedRequestedShipments
-      allowancesInfo={allowancesInfo}
-      moveCode="TE5TC0DE"
-      mtoShipments={shipments}
-      closeoutOffice={closeoutOffice}
-      customerInfo={customerInfo}
-      ordersInfo={ordersInfo}
-      approveMTO={approveMTO}
-    />
-  </Provider>
+  <QueryClientProvider client={new QueryClient()}>
+    <Provider store={mockStore.store}>
+      <SubmittedRequestedShipments
+        allowancesInfo={allowancesInfo}
+        moveCode="TE5TC0DE"
+        mtoShipments={shipments}
+        closeoutOffice={closeoutOffice}
+        customerInfo={customerInfo}
+        ordersInfo={ordersInfo}
+        approveMTO={approveMTO}
+      />
+    </Provider>
+  </QueryClientProvider>
 );
 
 const submittedRequestedShipmentsComponentWithPermission = (
@@ -111,18 +114,20 @@ const submittedRequestedShipmentsComponentAvailableToPrimeAt = (
 );
 
 const submittedRequestedShipmentsComponentServicesCounselingCompleted = (
-  <Provider store={mockStore.store}>
-    <SubmittedRequestedShipments
-      ordersInfo={ordersInfo}
-      allowancesInfo={allowancesInfo}
-      customerInfo={customerInfo}
-      mtoShipments={shipments}
-      closeoutOffice={closeoutOffice}
-      approveMTO={approveMTO}
-      moveTaskOrder={moveTaskOrderServicesCounselingCompleted}
-      moveCode="TE5TC0DE"
-    />
-  </Provider>
+  <QueryClientProvider client={new QueryClient()}>
+    <Provider store={mockStore.store}>
+      <SubmittedRequestedShipments
+        ordersInfo={ordersInfo}
+        allowancesInfo={allowancesInfo}
+        customerInfo={customerInfo}
+        mtoShipments={shipments}
+        closeoutOffice={closeoutOffice}
+        approveMTO={approveMTO}
+        moveTaskOrder={moveTaskOrderServicesCounselingCompleted}
+        moveCode="TE5TC0DE"
+      />
+    </Provider>
+  </QueryClientProvider>
 );
 
 const submittedRequestedShipmentsComponentMissingRequiredInfo = (
@@ -458,9 +463,11 @@ describe('RequestedShipments', () => {
         const Component = statusComponents[status];
 
         render(
-          <Provider store={mockStore.store}>
-            <Component {...statusTestProps[status]} />
-          </Provider>,
+          <QueryClientProvider client={new QueryClient()}>
+            <Provider store={mockStore.store}>
+              <Component {...statusTestProps[status]} />
+            </Provider>
+          </QueryClientProvider>,
         );
 
         const customerRemarks = screen.getAllByTestId('customerRemarks');
@@ -516,6 +523,7 @@ describe('RequestedShipments', () => {
         SHIPMENT_OPTIONS_URL.NTSrelease,
         SHIPMENT_OPTIONS_URL.MOBILE_HOME,
         SHIPMENT_OPTIONS_URL.BOAT,
+        SHIPMENT_OPTIONS_URL.UNACCOMPANIED_BAGGAGE,
       ],
     ])('selects the %s option and navigates to the matching form for that shipment type', async (shipmentType) => {
       render(

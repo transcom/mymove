@@ -87,7 +87,7 @@ func (f *orderUpdater) UpdateAllowanceAsTOO(appCtx appcontext.AppContext, orderI
 		return &models.Order{}, uuid.Nil, apperror.NewPreconditionFailedError(orderID, query.StaleIdentifierError{StaleIdentifier: eTag})
 	}
 
-	orderToUpdate := allowanceFromTOOPayload(*order, payload)
+	orderToUpdate := allowanceFromTOOPayload(appCtx, *order, payload)
 
 	return f.updateOrder(appCtx, orderToUpdate)
 }
@@ -104,7 +104,7 @@ func (f *orderUpdater) UpdateAllowanceAsCounselor(appCtx appcontext.AppContext, 
 		return &models.Order{}, uuid.Nil, apperror.NewPreconditionFailedError(orderID, query.StaleIdentifierError{StaleIdentifier: eTag})
 	}
 
-	orderToUpdate := allowanceFromCounselingPayload(*order, payload)
+	orderToUpdate := allowanceFromCounselingPayload(appCtx, *order, payload)
 
 	return f.updateOrder(appCtx, orderToUpdate)
 }
@@ -177,7 +177,7 @@ func (f *orderUpdater) findOrderWithAmendedOrders(appCtx appcontext.AppContext, 
 	return &order, nil
 }
 
-func orderFromTOOPayload(_ appcontext.AppContext, existingOrder models.Order, payload ghcmessages.UpdateOrderPayload) models.Order {
+func orderFromTOOPayload(appCtx appcontext.AppContext, existingOrder models.Order, payload ghcmessages.UpdateOrderPayload) models.Order {
 	order := existingOrder
 
 	// update order origin duty location
@@ -257,7 +257,7 @@ func orderFromTOOPayload(_ appcontext.AppContext, existingOrder models.Order, pa
 	if payload.Grade != nil {
 		order.Grade = (*internalmessages.OrderPayGrade)(payload.Grade)
 		// Calculate new DBWeightAuthorized based on the new grade
-		weightAllotment := models.GetWeightAllotment(*order.Grade)
+		weightAllotment := models.GetWeightAllotment(*order.Grade, order.OrdersType)
 		weight := weightAllotment.TotalWeightSelf
 		// Payload does not have this information, retrieve dependents from the existing order
 		if existingOrder.HasDependents && *order.Entitlement.DependentsAuthorized {
@@ -390,7 +390,7 @@ func orderFromCounselingPayload(existingOrder models.Order, payload ghcmessages.
 	if payload.Grade != nil {
 		order.Grade = (*internalmessages.OrderPayGrade)(payload.Grade)
 		// Calculate new DBWeightAuthorized based on the new grade
-		weightAllotment := models.GetWeightAllotment(*order.Grade)
+		weightAllotment := models.GetWeightAllotment(*order.Grade, order.OrdersType)
 		weight := weightAllotment.TotalWeightSelf
 		// Payload does not have this information, retrieve dependents from the existing order
 		if existingOrder.HasDependents && *order.Entitlement.DependentsAuthorized {
@@ -403,7 +403,7 @@ func orderFromCounselingPayload(existingOrder models.Order, payload ghcmessages.
 	return order
 }
 
-func allowanceFromTOOPayload(existingOrder models.Order, payload ghcmessages.UpdateAllowancePayload) models.Order {
+func allowanceFromTOOPayload(appCtx appcontext.AppContext, existingOrder models.Order, payload ghcmessages.UpdateAllowancePayload) models.Order {
 	order := existingOrder
 
 	if payload.ProGearWeight != nil {
@@ -430,7 +430,7 @@ func allowanceFromTOOPayload(existingOrder models.Order, payload ghcmessages.Upd
 	}
 
 	// Calculate new DBWeightAuthorized based on the new grade
-	weightAllotment := models.GetWeightAllotment(*order.Grade)
+	weightAllotment := models.GetWeightAllotment(*order.Grade, order.OrdersType)
 	weight := weightAllotment.TotalWeightSelf
 	// Payload does not have this information, retrieve dependents from the existing order
 	if existingOrder.HasDependents && *payload.DependentsAuthorized {
@@ -454,12 +454,56 @@ func allowanceFromTOOPayload(existingOrder models.Order, payload ghcmessages.Upd
 
 	if payload.GunSafe != nil {
 		order.Entitlement.GunSafe = *payload.GunSafe
+	}
+
+	if payload.AccompaniedTour != nil {
+		order.Entitlement.AccompaniedTour = payload.AccompaniedTour
+	}
+
+	if payload.DependentsUnderTwelve != nil {
+		order.Entitlement.DependentsUnderTwelve = models.IntPointer(int(*payload.DependentsUnderTwelve))
+	}
+
+	if payload.DependentsTwelveAndOver != nil {
+		order.Entitlement.DependentsTwelveAndOver = models.IntPointer(int(*payload.DependentsTwelveAndOver))
+	}
+
+	if order.OriginDutyLocationID != nil {
+		var originDutyLocation models.DutyLocation
+		originDutyLocation, err := models.FetchDutyLocation(appCtx.DB(), *order.OriginDutyLocationID)
+		if err == nil {
+			order.OriginDutyLocationID = &originDutyLocation.ID
+			order.OriginDutyLocation = &originDutyLocation
+		}
+	}
+
+	if order.NewDutyLocationID != uuid.Nil {
+		var newDutyLocation models.DutyLocation
+		newDutyLocation, err := models.FetchDutyLocation(appCtx.DB(), order.NewDutyLocationID)
+		if err == nil {
+			order.NewDutyLocationID = newDutyLocation.ID
+			order.NewDutyLocation = newDutyLocation
+		}
+	}
+
+	// Recalculate UB allowance of order entitlement
+	hasDepedents := false
+	if order.Entitlement != nil && order.Entitlement.DependentsAuthorized != nil && *order.Entitlement.DependentsAuthorized {
+		hasDepedents = true
+	} else if order.HasDependents {
+		hasDepedents = true
+	}
+	if order.Entitlement != nil {
+		unaccompaniedBaggageAllowance, err := models.GetUBWeightAllowance(appCtx, order.OriginDutyLocation.Address.IsOconus, order.NewDutyLocation.Address.IsOconus, order.ServiceMember.Affiliation, order.Grade, &order.OrdersType, &hasDepedents, order.Entitlement.AccompaniedTour, order.Entitlement.DependentsUnderTwelve, order.Entitlement.DependentsTwelveAndOver)
+		if err == nil {
+			weightAllotment.UnaccompaniedBaggageAllowance = unaccompaniedBaggageAllowance
+		}
 	}
 
 	return order
 }
 
-func allowanceFromCounselingPayload(existingOrder models.Order, payload ghcmessages.CounselingUpdateAllowancePayload) models.Order {
+func allowanceFromCounselingPayload(appCtx appcontext.AppContext, existingOrder models.Order, payload ghcmessages.CounselingUpdateAllowancePayload) models.Order {
 	order := existingOrder
 
 	if payload.ProGearWeight != nil {
@@ -486,7 +530,7 @@ func allowanceFromCounselingPayload(existingOrder models.Order, payload ghcmessa
 	}
 
 	// Calculate new DBWeightAuthorized based on the new grade
-	weightAllotment := models.GetWeightAllotment(*order.Grade)
+	weightAllotment := models.GetWeightAllotment(*order.Grade, order.OrdersType)
 	weight := weightAllotment.TotalWeightSelf
 	// Payload does not have this information, retrieve dependents from the existing order
 	if existingOrder.HasDependents && *payload.DependentsAuthorized {
@@ -510,6 +554,44 @@ func allowanceFromCounselingPayload(existingOrder models.Order, payload ghcmessa
 
 	if payload.GunSafe != nil {
 		order.Entitlement.GunSafe = *payload.GunSafe
+	}
+
+	if payload.AccompaniedTour != nil {
+		order.Entitlement.AccompaniedTour = payload.AccompaniedTour
+	}
+
+	if payload.DependentsUnderTwelve != nil {
+		order.Entitlement.DependentsUnderTwelve = models.IntPointer(int(*payload.DependentsUnderTwelve))
+	}
+
+	if payload.DependentsTwelveAndOver != nil {
+		order.Entitlement.DependentsTwelveAndOver = models.IntPointer(int(*payload.DependentsTwelveAndOver))
+	}
+
+	if order.OriginDutyLocationID != nil {
+		var originDutyLocation models.DutyLocation
+		originDutyLocation, err := models.FetchDutyLocation(appCtx.DB(), *order.OriginDutyLocationID)
+		if err == nil {
+			order.OriginDutyLocationID = &originDutyLocation.ID
+			order.OriginDutyLocation = &originDutyLocation
+		}
+	}
+
+	if order.NewDutyLocationID != uuid.Nil {
+		var newDutyLocation models.DutyLocation
+		newDutyLocation, err := models.FetchDutyLocation(appCtx.DB(), order.NewDutyLocationID)
+		if err == nil {
+			order.NewDutyLocationID = newDutyLocation.ID
+			order.NewDutyLocation = newDutyLocation
+		}
+	}
+
+	// Recalculate UB allowance of order entitlement
+	if order.Entitlement != nil {
+		unaccompaniedBaggageAllowance, err := models.GetUBWeightAllowance(appCtx, order.OriginDutyLocation.Address.IsOconus, order.NewDutyLocation.Address.IsOconus, order.ServiceMember.Affiliation, order.Grade, &order.OrdersType, payload.DependentsAuthorized, order.Entitlement.AccompaniedTour, order.Entitlement.DependentsUnderTwelve, order.Entitlement.DependentsTwelveAndOver)
+		if err == nil {
+			weightAllotment.UnaccompaniedBaggageAllowance = unaccompaniedBaggageAllowance
+		}
 	}
 
 	return order
@@ -632,14 +714,6 @@ func updateOrderInTx(appCtx appcontext.AppContext, order models.Order, checks ..
 		}
 	}
 
-	// update entitlement
-	if order.Entitlement != nil {
-		verrs, err = appCtx.DB().ValidateAndUpdate(order.Entitlement)
-		if e := handleError(order.ID, verrs, err); e != nil {
-			return nil, e
-		}
-	}
-
 	if order.NewDutyLocationID != uuid.Nil {
 		// TODO refactor to use service objects to fetch duty location
 		var newDutyLocation models.DutyLocation
@@ -666,6 +740,22 @@ func updateOrderInTx(appCtx appcontext.AppContext, order models.Order, checks ..
 		order.NewDutyLocationID = newDutyLocation.ID
 		order.NewDutyLocation = newDutyLocation
 		order.DestinationGBLOC = &newDestinationGBLOC.GBLOC
+	}
+
+	// Recalculate UB allowance of order entitlement
+	if order.Entitlement != nil {
+		unaccompaniedBaggageAllowance, err := models.GetUBWeightAllowance(appCtx, order.OriginDutyLocation.Address.IsOconus, order.NewDutyLocation.Address.IsOconus, order.ServiceMember.Affiliation, order.Grade, &order.OrdersType, order.Entitlement.DependentsAuthorized, order.Entitlement.AccompaniedTour, order.Entitlement.DependentsUnderTwelve, order.Entitlement.DependentsTwelveAndOver)
+		if err == nil {
+			order.Entitlement.UBAllowance = &unaccompaniedBaggageAllowance
+		}
+	}
+
+	// update entitlement
+	if order.Entitlement != nil {
+		verrs, err = appCtx.DB().ValidateAndUpdate(order.Entitlement)
+		if e := handleError(order.ID, verrs, err); e != nil {
+			return nil, e
+		}
 	}
 
 	verrs, err = appCtx.DB().ValidateAndUpdate(&order)

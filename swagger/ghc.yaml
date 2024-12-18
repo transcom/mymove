@@ -40,6 +40,7 @@ tags:
   - name: transportationOffice
   - name: uploads
   - name: paymentRequests
+  - name: reServiceItems
 paths:
   /customer:
     post:
@@ -3157,9 +3158,9 @@ paths:
       summary: Flags a move for financial office review
       description: >-
         This sets a flag which indicates that the move should be reviewed by a
-        fincancial office. For example, if the origin or destination address of
-        a shipment is far from the duty location and may incur excess costs to
-        the customer.
+        fincancial office. For example, if the origin or delivery address of a
+        shipment is far from the duty location and may incur excess costs to the
+        customer.
       operationId: setFinancialReviewFlag
       tags:
         - move
@@ -3581,8 +3582,9 @@ paths:
           type: string
           description: >
             Used to return a queue for a GBLOC other than the default of the
-            current user. Requires the HQ role. The parameter is ignored if the
-            requesting user does not have the necessary role.
+            current user. Requires the HQ role or a secondary transportation
+            office assignment. The parameter is ignored if the requesting user
+            does not have the necessary role or assignment.
         - in: query
           name: assignedTo
           type: string
@@ -3618,6 +3620,14 @@ paths:
             Only used for Services Counseling queue. If true, show PPM moves
             origin locations that are ready for closeout. Otherwise, show all
             other moves origin locations.
+        - in: query
+          name: viewAsGBLOC
+          type: string
+          description: >-
+            Used to return an origins list for a GBLOC other than the default of
+            the current user. Requires the HQ role or a secondary transportation
+            office assignment. The parameter is ignored if the requesting user
+            does not have the necessary role or assignment.
       responses:
         '200':
           description: Successfully returned all moves matching the criteria
@@ -3789,8 +3799,9 @@ paths:
           type: string
           description: >
             Used to return a queue for a GBLOC other than the default of the
-            current user. Requires the HQ role. The parameter is ignored if the
-            requesting user does not have the necessary role.
+            current user. Requires the HQ role or a secondary transportation
+            office assignment. The parameter is ignored if the requesting user
+            does not have the necessary role or assignment.
         - in: query
           name: assignedTo
           type: string
@@ -3913,8 +3924,9 @@ paths:
           type: string
           description: >
             Used to return a queue for a GBLOC other than the default of the
-            current user. Requires the HQ role. The parameter is ignored if the
-            requesting user does not have the necessary role.
+            current user. Requires the HQ role or a secondary transportation
+            office assignment. The parameter is ignored if the requesting user
+            does not have the necessary role or assignment.
       responses:
         '200':
           description: Successfully returned all moves matching the criteria
@@ -4250,6 +4262,30 @@ paths:
           description: payload is too large
         '500':
           description: server error
+  /re-service-items:
+    get:
+      summary: >-
+        Returns all ReServiceItems (Service Code, Service Name, Market, Shipment
+        Type, Auto Approved)
+      description: Get ReServiceItems
+      produces:
+        - application/json
+      operationId: getAllReServiceItems
+      tags:
+        - reServiceItems
+      responses:
+        '200':
+          description: Successfully retrieved all ReServiceItems.
+          schema:
+            $ref: '#/definitions/ReServiceItems'
+        '400':
+          $ref: '#/responses/InvalidRequest'
+        '401':
+          $ref: '#/responses/PermissionDenied'
+        '404':
+          $ref: '#/responses/NotFound'
+        '500':
+          $ref: '#/responses/ServerError'
   /uploads/{uploadID}:
     delete:
       summary: Deletes an upload
@@ -4653,6 +4689,10 @@ definitions:
         format: uuid
       transportationOffice:
         $ref: '#/definitions/TransportationOffice'
+      transportationOfficeAssignments:
+        type: array
+        items:
+          $ref: '#/definitions/TransportationOfficeAssignment'
       active:
         type: boolean
       roles:
@@ -5128,6 +5168,35 @@ definitions:
       organizationalClothingAndIndividualEquipment:
         example: true
         type: boolean
+      accompaniedTour:
+        type: boolean
+        example: true
+        x-nullable: true
+        description: >-
+          Indicates if the move entitlement allows dependents to travel to the
+          new Permanent Duty Station (PDS). This is only present on OCONUS
+          moves.
+      unaccompaniedBaggageAllowance:
+        type: integer
+        example: 3
+        x-nullable: true
+        description: >-
+          The amount of weight in pounds that the move is entitled for shipment
+          types of Unaccompanied Baggage.
+      dependentsUnderTwelve:
+        type: integer
+        example: 5
+        x-nullable: true
+        description: >-
+          Indicates the number of dependents under the age of twelve for a move.
+          This is only present on OCONUS moves.
+      dependentsTwelveAndOver:
+        type: integer
+        example: 3
+        x-nullable: true
+        description: >-
+          Indicates the number of dependents of the age twelve or older for a
+          move. This is only present on OCONUS moves.
       eTag:
         type: string
     type: object
@@ -5273,7 +5342,7 @@ definitions:
         readOnly: true
       financialReviewRemarks:
         type: string
-        example: Destination address is too far from duty location
+        example: Delivery Address is too far from duty location
         x-nullable: true
         readOnly: true
       closeoutOffice:
@@ -5739,6 +5808,28 @@ definitions:
         type: string
         format: uuid
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      accompaniedTour:
+        type: boolean
+        example: true
+        x-nullable: true
+        description: >-
+          Indicates if the move entitlement allows dependents to travel to the
+          new Permanent Duty Station (PDS). This is only present on OCONUS
+          moves.
+      dependentsUnderTwelve:
+        type: integer
+        example: 5
+        x-nullable: true
+        description: >-
+          Indicates the number of dependents under the age of twelve for a move.
+          This is only present on OCONUS moves.
+      dependentsTwelveAndOver:
+        type: integer
+        example: 3
+        x-nullable: true
+        description: >-
+          Indicates the number of dependents of the age twelve or older for a
+          move. This is only present on OCONUS moves.
     required:
       - serviceMemberId
       - issueDate
@@ -5929,6 +6020,32 @@ definitions:
           their move without it being charged against their weight allowance.
         type: boolean
         x-nullable: true
+      accompaniedTour:
+        type: boolean
+        example: true
+        x-nullable: true
+        description: >-
+          Indicates if the move entitlement allows dependents to travel to the
+          new Permanent Duty Station (PDS). This is only present on OCONUS
+          moves.
+      dependentsUnderTwelve:
+        type: integer
+        example: 5
+        x-nullable: true
+        description: >-
+          Indicates the number of dependents under the age of twelve for a move.
+          This is only present on OCONUS moves.
+      dependentsTwelveAndOver:
+        type: integer
+        example: 3
+        x-nullable: true
+        description: >-
+          Indicates the number of dependents of the age twelve or older for a
+          move. This is only present on OCONUS moves.
+      ubAllowance:
+        example: 500
+        type: integer
+        x-nullable: true
   UpdateBillableWeightPayload:
     type: object
     properties:
@@ -6005,6 +6122,32 @@ definitions:
           True if user is entitled to move a gun safe (up to 500 lbs) as part of
           their move without it being charged against their weight allowance.
         type: boolean
+        x-nullable: true
+      accompaniedTour:
+        type: boolean
+        example: true
+        x-nullable: true
+        description: >-
+          Indicates if the move entitlement allows dependents to travel to the
+          new Permanent Duty Station (PDS). This is only present on OCONUS
+          moves.
+      dependentsUnderTwelve:
+        type: integer
+        example: 5
+        x-nullable: true
+        description: >-
+          Indicates the number of dependents under the age of twelve for a move.
+          This is only present on OCONUS moves.
+      dependentsTwelveAndOver:
+        type: integer
+        example: 3
+        x-nullable: true
+        description: >-
+          Indicates the number of dependents of the age twelve or older for a
+          move. This is only present on OCONUS moves.
+      ubAllowance:
+        example: 500
+        type: integer
         x-nullable: true
   MoveTaskOrder:
     description: The Move (MoveTaskOrder)
@@ -6475,6 +6618,12 @@ definitions:
         type: integer
         example: 4200
         x-nullable: true
+      allowableWeight:
+        description: The allowable weight of the PPM shipment goods being moved.
+        type: integer
+        minimum: 0
+        example: 4300
+        x-nullable: true
       hasProGear:
         description: |
           Indicates whether PPM shipment has pro gear.
@@ -6618,10 +6767,6 @@ definitions:
       netWeightRemarks:
         description: Remarks explaining any edits made to the net weight
         type: string
-      allowableWeight:
-        description: Indicates the maximum reimbursable weight of the shipment
-        type: integer
-        minimum: 0
   UpdateMovingExpense:
     type: object
     properties:
@@ -7153,8 +7298,6 @@ definitions:
         type: string
       firstName:
         type: string
-      hasSafetyPrivilege:
-        type: boolean
   QueueMoves:
     type: array
     items:
@@ -7831,6 +7974,10 @@ definitions:
     type: array
     items:
       $ref: '#/definitions/TransportationOffice'
+  ReServiceItems:
+    type: array
+    items:
+      $ref: '#/definitions/ReServiceItem'
   GBLOCs:
     type: array
     items:
@@ -8163,6 +8310,34 @@ definitions:
       - address
       - created_at
       - updated_at
+  TransportationOfficeAssignment:
+    type: object
+    properties:
+      officeUserId:
+        type: string
+        format: uuid
+        example: c56a4780-65aa-42ec-a945-5fd87dec0538
+      transportationOfficeId:
+        type: string
+        format: uuid
+        example: d67a4780-65aa-42ec-a945-5fd87dec0549
+      transportationOffice:
+        $ref: '#/definitions/TransportationOffice'
+      primaryOffice:
+        type: boolean
+        x-omitempty: false
+      createdAt:
+        type: string
+        format: date-time
+        readOnly: true
+      updatedAt:
+        type: string
+        format: date-time
+        readOnly: true
+    required:
+      - officeUserId
+      - transportationOfficeId
+      - primaryOffice
   DutyLocation:
     type: object
     properties:
@@ -8193,6 +8368,8 @@ definitions:
       - BLUEBARK
       - SAFETY
       - TEMPORARY_DUTY
+      - EARLY_RETURN_OF_DEPENDENTS
+      - STUDENT_TRAVEL
     x-display-value:
       PERMANENT_CHANGE_OF_STATION: Permanent Change Of Station
       LOCAL_MOVE: Local Move
@@ -8202,6 +8379,8 @@ definitions:
       BLUEBARK: BLUEBARK
       SAFETY: Safety
       TEMPORARY_DUTY: Temporary Duty (TDY)
+      EARLY_RETURN_OF_DEPENDENTS: Early Return of Dependents
+      STUDENT_TRAVEL: Student Travel
   Upload:
     description: An uploaded file.
     type: object
@@ -9261,12 +9440,6 @@ definitions:
         description: A hash that should be used as the "If-Match" header for any updates.
         type: string
         readOnly: true
-      allowableWeight:
-        description: Maximum reimbursable weight.
-        type: integer
-        minimum: 0
-        x-nullable: true
-        x-omitempty: false
     required:
       - ppmShipmentId
       - createdAt
@@ -9824,6 +9997,13 @@ definitions:
         example: 4200
         x-nullable: true
         x-omitempty: false
+      allowableWeight:
+        description: The allowable weight of the PPM shipment goods being moved.
+        type: integer
+        example: 4300
+        minimum: 0
+        x-nullable: true
+        x-omitempty: false
       hasProGear:
         description: >
           Indicates whether PPM shipment has pro gear for themselves or their
@@ -9850,6 +10030,15 @@ definitions:
           The estimated amount the government will pay the service member to
           move their belongings based on the moving date, locations, and
           shipment weight.
+        type: integer
+        format: cents
+        x-nullable: true
+        x-omitempty: false
+      maxIncentive:
+        description: >-
+          The max amount the government will pay the service member to move
+          their belongings based on the moving date, locations, and shipment
+          weight.
         type: integer
         format: cents
         x-nullable: true
@@ -10097,10 +10286,10 @@ definitions:
       - APPROVED
   ShipmentAddressUpdate:
     description: >
-      This represents a destination address change request made by the Prime
-      that is either auto-approved or requires review if the pricing criteria
-      has changed. If criteria has changed, then it must be approved or rejected
-      by a TOO.
+      This represents a delivery address change request made by the Prime that
+      is either auto-approved or requires review if the pricing criteria has
+      changed. If criteria has changed, then it must be approved or rejected by
+      a TOO.
     type: object
     properties:
       id:
@@ -10136,14 +10325,14 @@ definitions:
       oldSitDistanceBetween:
         description: >-
           The distance between the original SIT address and the previous/old
-          destination address of shipment
+          delivery address of shipment
         example: 50
         minimum: 0
         type: integer
       newSitDistanceBetween:
         description: >-
           The distance between the original SIT address and requested new
-          destination address of shipment
+          delivery address of shipment
         example: 88
         minimum: 0
         type: integer
@@ -10215,7 +10404,7 @@ definitions:
       actualDeliveryDate:
         x-nullable: true
         description: >-
-          The actual date that the shipment was delivered to the destination
+          The actual date that the shipment was delivered to the delivery
           address by the Prime
         format: date
         type: string
@@ -11229,6 +11418,88 @@ definitions:
       validHhgProgramCodeForLoa:
         type: boolean
         x-nullable: true
+  ReServiceItem:
+    description: A Service Item which ties an ReService, Market, and Shipment Type together
+    type: object
+    properties:
+      serviceCode:
+        type: string
+        example: UBP
+        enum:
+          - CS
+          - DBHF
+          - DBTF
+          - DCRT
+          - DCRTSA
+          - DDASIT
+          - DDDSIT
+          - DDFSIT
+          - DDP
+          - DDSFSC
+          - DDSHUT
+          - DLH
+          - DMHF
+          - DNPK
+          - DOASIT
+          - DOFSIT
+          - DOP
+          - DOPSIT
+          - DOSFSC
+          - DOSHUT
+          - DPK
+          - DSH
+          - DUCRT
+          - DUPK
+          - FSC
+          - IBHF
+          - IBTF
+          - ICRT
+          - ICRTSA
+          - IDASIT
+          - IDDSIT
+          - IDFSIT
+          - IDSFSC
+          - IDSHUT
+          - IHPK
+          - IHUPK
+          - INPK
+          - IOASIT
+          - IOFSIT
+          - IOPSIT
+          - IOSFSC
+          - IOSHUT
+          - ISLH
+          - IUBPK
+          - IUBUPK
+          - IUCRT
+          - MS
+          - PODFSC
+          - POEFSC
+          - UBP
+      serviceName:
+        type: string
+        example: International UB, International Shipping & Linehaul
+      marketCode:
+        type: string
+        example: i (International), d (Domestic)
+        enum:
+          - i
+          - d
+      shipmentType:
+        type: string
+        example: HHG, UNACCOMPANIED_BAGGAGE
+        enum:
+          - BOAT_HAUL_AWAY
+          - BOAT_TOW_AWAY
+          - HHG
+          - HHG_INTO_NTS_DOMESTIC
+          - HHG_OUTOF_NTS_DOMESTIC
+          - MOBILE_HOME
+          - PPM
+          - UNACCOMPANIED_BAGGAGE
+      isAutoApproved:
+        type: boolean
+        example: true
 responses:
   InvalidRequest:
     description: The request payload is invalid
