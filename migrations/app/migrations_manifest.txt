@@ -1050,4 +1050,4 @@
 20241203024453_add_ppm_max_incentive_column.up.sql
 20241204155919_update_ordering_proc.up.sql
 20241204210208_retroactive_update_of_ppm_max_and_estimated_incentives_prd.up.sql
-20241212161012_insert_ak_zip3_distances.up.sql
+20241217191012_update_move_to_gbloc_for_ak.up.sql
