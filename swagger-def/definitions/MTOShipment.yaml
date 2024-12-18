@@ -191,6 +191,8 @@ properties:
   storageFacility:
     x-nullable: true
     $ref: 'StorageFacility.yaml'
+  port:
+    $ref: 'Port.yaml'
   ppmShipment:
     $ref: 'PPMShipment.yaml'
   boatShipment:
