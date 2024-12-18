@@ -36,20 +36,28 @@ func (updater transportaionOfficeAssignmentUpdater) UpdateTransportaionOfficeAss
 		assignmentsToCreate = append(assignmentsToCreate, newAssignment)
 	}
 
-	err = appCtx.DB().Destroy(existingAssignments)
-	if err != nil {
-		return models.TransportationOfficeAssignments{}, err
-	}
-
-	err = appCtx.DB().Create(assignmentsToCreate)
-	if err != nil {
-		return models.TransportationOfficeAssignments{}, err
-	}
-
 	var assignments models.TransportationOfficeAssignments
-	err = appCtx.DB().Where("id = ?", officeUserId).All(&assignments)
-	if err != nil {
-		return models.TransportationOfficeAssignments{}, err
+	txErr := appCtx.NewTransaction(func(txnAppCtx appcontext.AppContext) error {
+		err = appCtx.DB().Destroy(existingAssignments)
+		if err != nil {
+			return err
+		}
+
+		err = appCtx.DB().Create(assignmentsToCreate)
+		if err != nil {
+			return err
+		}
+
+		err = appCtx.DB().Where("id = ?", officeUserId).All(&assignments)
+		if err != nil {
+			return err
+		}
+
+		return nil
+	})
+
+	if txErr != nil {
+		return models.TransportationOfficeAssignments{}, txErr
 	}
 
 	return assignments, nil

@@ -309,6 +309,49 @@ func (o *Order) CreateNewMove(db *pop.Connection, moveOptions MoveOptions) (*Mov
 	return createNewMove(db, *o, moveOptions)
 }
 
+/*
+ * GetOriginPostalCode returns the GBLOC for the postal code of the the origin duty location of the order.
+ */
+func (o Order) GetOriginPostalCode(db *pop.Connection) (string, error) {
+	// Since this requires looking up the order in the DB, the order must have an ID. This means, the order has to have been created first.
+	if uuid.UUID.IsNil(o.ID) {
+		return "", errors.WithMessage(ErrInvalidOrderID, "You must create the order in the DB before getting the origin GBLOC.")
+	}
+
+	err := db.Load(&o, "OriginDutyLocation.Address")
+	if err != nil {
+		if err.Error() == RecordNotFoundErrorString {
+			return "", errors.WithMessage(err, "No Origin Duty Location was found for the order ID "+o.ID.String())
+		}
+		return "", err
+	}
+
+	return o.OriginDutyLocation.Address.PostalCode, nil
+}
+
+/*
+ * GetOriginGBLOC returns the GBLOC for the postal code of the the origin duty location of the order.
+ */
+func (o Order) GetOriginGBLOC(db *pop.Connection) (string, error) {
+	// Since this requires looking up the order in the DB, the order must have an ID. This means, the order has to have been created first.
+	if uuid.UUID.IsNil(o.ID) {
+		return "", errors.WithMessage(ErrInvalidOrderID, "You must created the order in the DB before getting the destination GBLOC.")
+	}
+
+	originPostalCode, err := o.GetOriginPostalCode(db)
+	if err != nil {
+		return "", err
+	}
+
+	var originGBLOC PostalCodeToGBLOC
+	originGBLOC, err = FetchGBLOCForPostalCode(db, originPostalCode)
+	if err != nil {
+		return "", err
+	}
+
+	return originGBLOC.GBLOC, nil
+}
+
 // IsComplete checks if orders have all fields necessary to approve a move
 func (o *Order) IsComplete() bool {
 
@@ -540,9 +583,8 @@ func (o *Order) IsCompleteForGBL() bool {
 }
 
 func (o *Order) CanSendEmailWithOrdersType() bool {
-	if o.OrdersType != "BLUEBARK" && o.OrdersType != "SAFETY" {
-		return true
+	if o.OrdersType == internalmessages.OrdersTypeBLUEBARK || o.OrdersType == internalmessages.OrdersTypeSAFETY {
+		return false
 	}
-
-	return false
+	return true
 }
