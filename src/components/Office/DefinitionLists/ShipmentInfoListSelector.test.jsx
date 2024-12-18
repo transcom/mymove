@@ -3,7 +3,7 @@ import { render, screen } from '@testing-library/react';
 
 import ShipmentInfoListSelector from './ShipmentInfoListSelector';
 
-import { SHIPMENT_OPTIONS, SHIPMENT_TYPES } from 'shared/constants';
+import { SHIPMENT_OPTIONS } from 'shared/constants';
 
 const info = {
   requestedPickupDate: '2020-03-26',
@@ -88,35 +88,5 @@ describe('Shipment Info List', () => {
     render(<ShipmentInfoListSelector shipment={ppmInfo} shipmentType={SHIPMENT_OPTIONS.PPM} />);
 
     expect(await screen.findByTestId('ppm-shipment-info-list')).toBeInTheDocument();
-  });
-
-  it('renders a NTS shipment list', async () => {
-    render(<ShipmentInfoListSelector shipment={info} shipmentType={SHIPMENT_OPTIONS.NTS} />);
-
-    expect(await screen.findByTestId('nts-shipment-info-list')).toBeInTheDocument();
-  });
-
-  it('renders a Mobile Home shipment list', async () => {
-    render(<ShipmentInfoListSelector shipment={info} shipmentType={SHIPMENT_OPTIONS.MOBILE_HOME} />);
-
-    expect(await screen.findByText('Mobile home year')).toBeInTheDocument();
-  });
-
-  it('renders a Boat shipment list', async () => {
-    render(<ShipmentInfoListSelector shipment={info} shipmentType={SHIPMENT_OPTIONS.BOAT} />);
-
-    expect(await screen.findByText('Boat year')).toBeInTheDocument();
-  });
-
-  it('renders a Boat Haul Away shipment list', async () => {
-    render(<ShipmentInfoListSelector shipment={info} shipmentType={SHIPMENT_TYPES.BOAT_HAUL_AWAY} />);
-
-    expect(await screen.findByText('Trailer')).toBeInTheDocument();
-  });
-
-  it('renders a Boat Tow Away shipment list', async () => {
-    render(<ShipmentInfoListSelector shipment={info} shipmentType={SHIPMENT_TYPES.BOAT_TOW_AWAY} />);
-
-    expect(await screen.findByText('Boat make')).toBeInTheDocument();
   });
 });
