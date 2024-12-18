@@ -18,7 +18,6 @@ import (
 
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/route/ghcmocks"
-	"github.com/transcom/mymove/pkg/testdatagen"
 	"github.com/transcom/mymove/pkg/testingsuite"
 )
 
@@ -98,16 +97,6 @@ func (suite *GHCTestSuite) TestDTODZipTransitDistance() {
 			mock.Anything,
 			mock.Anything,
 		).Return(soapResponseForDistance("150.33"), nil)
-
-		sourceZip3 := "303"
-		destinationZip3 := "309"
-		testdatagen.MakeZip3Distance(suite.DB(), testdatagen.Assertions{
-			Zip3Distance: models.Zip3Distance{
-				FromZip3:      sourceZip3,
-				ToZip3:        destinationZip3,
-				DistanceMiles: 150,
-			},
-		})
 
 		plannerMileage := NewDTODZip5Distance(fakeUsername, fakePassword, testSoapClient, false)
 		planner := NewDTODPlanner(plannerMileage)

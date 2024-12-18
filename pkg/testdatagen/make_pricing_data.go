@@ -20,7 +20,7 @@ func SetupServiceAreaRateArea(db *pop.Connection, assertions Assertions) (models
 
 	mergeModels(&contractYear, assertions.ReContractYear)
 
-	contractYear = MakeReContractYear(db, Assertions{ReContractYear: contractYear})
+	contractYear = FetchOrMakeReContractYear(db, Assertions{ReContractYear: contractYear})
 
 	serviceArea := models.ReDomesticServiceArea{
 		Contract:    contractYear.Contract,
@@ -29,7 +29,7 @@ func SetupServiceAreaRateArea(db *pop.Connection, assertions Assertions) (models
 
 	mergeModels(&serviceArea, assertions.ReDomesticServiceArea)
 
-	serviceArea = MakeReDomesticServiceArea(db,
+	serviceArea = FetchOrMakeReDomesticServiceArea(db,
 		Assertions{
 			ReDomesticServiceArea: serviceArea,
 		})
@@ -64,7 +64,7 @@ func SetupServiceAreaRateArea(db *pop.Connection, assertions Assertions) (models
 
 	mergeModels(&reZip3, assertions.ReZip3)
 
-	reZip3 = MakeReZip3(db, Assertions{
+	reZip3 = FetchOrMakeReZip3(db, Assertions{
 		ReZip3: reZip3,
 	})
 

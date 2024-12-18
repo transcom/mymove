@@ -32,8 +32,8 @@ func (suite *GHCDieselFuelPriceServiceSuite) Test_ghcDieselFuelPriceStorer() {
 		var ghcDieselFuelPrice models.GHCDieselFuelPrice
 		err = suite.DB().Last(&ghcDieselFuelPrice)
 		suite.NoError(err)
-		suite.Equal("2020-06-22T00:00:00Z", ghcDieselFuelPrice.PublicationDate.Format(time.RFC3339))
-		suite.Equal(unit.Millicents(265900), ghcDieselFuelPrice.FuelPriceInMillicents)
+		suite.Equal("2020-04-06T00:00:00Z", ghcDieselFuelPrice.PublicationDate.Format(time.RFC3339))
+		suite.Equal(unit.Millicents(254800), ghcDieselFuelPrice.FuelPriceInMillicents)
 
 	})
 

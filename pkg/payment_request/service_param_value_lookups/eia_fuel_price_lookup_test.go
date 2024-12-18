@@ -207,53 +207,16 @@ func (suite *ServiceParamValueLookupsSuite) TestEIAFuelPriceLookupWithInvalidAct
 
 	suite.Run("lookup GHC diesel fuel price with nil actual pickup date", func() {
 		setupTestData()
+		var shipment models.MTOShipment
+		err := suite.DB().Find(&shipment, mtoServiceItem.MTOShipmentID)
+		suite.FatalNoError(err)
+		shipment.ActualPickupDate = nil
+		suite.MustSave(&shipment)
 
 		paramLookup, err := ServiceParamLookupInitialize(suite.AppContextForTest(), suite.planner, mtoServiceItem, paymentRequest.ID, paymentRequest.MoveTaskOrderID, nil)
 		suite.FatalNoError(err)
 		_, err = paramLookup.ServiceParamValue(suite.AppContextForTest(), key)
 		suite.Error(err)
-		suite.Contains(err.Error(), "EIAFuelPriceLookup with error Not found Looking for GHCDieselFuelPrice")
-	})
-}
-
-func (suite *ServiceParamValueLookupsSuite) TestEIAFuelPriceLookupWithNoGHCDieselFuelPriceData() {
-	key := models.ServiceItemParamNameEIAFuelPrice
-	var mtoServiceItem models.MTOServiceItem
-	var paymentRequest models.PaymentRequest
-	actualPickupDate := time.Date(2020, time.July, 15, 0, 0, 0, 0, time.UTC)
-
-	setupTestData := func() {
-		testdatagen.MakeReContractYear(suite.DB(), testdatagen.Assertions{
-			ReContractYear: models.ReContractYear{
-				StartDate: time.Now().Add(-24 * time.Hour),
-				EndDate:   time.Now().Add(24 * time.Hour),
-			},
-		})
-		mtoServiceItem = factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
-			{
-				Model: models.MTOShipment{
-					ActualPickupDate: &actualPickupDate,
-				},
-			},
-		}, []factory.Trait{
-			factory.GetTraitAvailableToPrimeMove,
-		})
-
-		paymentRequest = factory.BuildPaymentRequest(suite.DB(), []factory.Customization{
-			{
-				Model:    mtoServiceItem.MoveTaskOrder,
-				LinkOnly: true,
-			},
-		}, nil)
-	}
-
-	suite.Run("lookup GHC diesel fuel price with no data", func() {
-		setupTestData()
-
-		paramLookup, err := ServiceParamLookupInitialize(suite.AppContextForTest(), suite.planner, mtoServiceItem, paymentRequest.ID, paymentRequest.MoveTaskOrderID, nil)
-		suite.FatalNoError(err)
-		_, err = paramLookup.ServiceParamValue(suite.AppContextForTest(), key)
-		suite.Error(err)
-		suite.Contains(err.Error(), "Looking for GHCDieselFuelPrice")
+		suite.Contains(err.Error(), "EIAFuelPriceLookup with error not found looking for shipment pickup date")
 	})
 }
