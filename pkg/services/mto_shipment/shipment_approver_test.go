@@ -286,7 +286,7 @@ func (suite *MTOShipmentServiceSuite) TestApproveShipment() {
 			"50314",
 			"99505",
 			true,
-			false,
+			true,
 		).Return(1000, nil)
 
 		// Approve international shipment
