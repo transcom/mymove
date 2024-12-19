@@ -4,7 +4,6 @@ import (
 	"crypto/tls"
 	"crypto/x509"
 	"encoding/base64"
-	"fmt"
 	"log"
 	"net/http"
 	neturl "net/url"
@@ -12,7 +11,6 @@ import (
 	"path/filepath"
 	"strconv"
 	"strings"
-	"sync"
 	"time"
 
 	"github.com/pkg/errors"
@@ -343,25 +341,6 @@ func createLogger(env string, level string) (*zap.Logger, func(), error) {
 }
 
 func main() {
-	var wg sync.WaitGroup
-	var mu1, mu2 sync.Mutex
-
-	wg.Add(2)
-	go func() {
-		defer wg.Done()
-		mu1.Lock()
-		fmt.Println("goroutine 1 acquired lock 1")
-		mu2.Lock()
-		fmt.Println("goroutine 1 acquired lock 2")
-	}()
-	go func() {
-		defer wg.Done()
-		mu2.Lock()
-		fmt.Println("goroutine 2 acquired lock 2")
-		mu1.Lock()
-		fmt.Println("goroutine 2 acquired lock 1")
-	}()
-	wg.Wait()
 
 	flag := pflag.CommandLine
 
