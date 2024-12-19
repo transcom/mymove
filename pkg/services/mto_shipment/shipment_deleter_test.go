@@ -30,6 +30,7 @@ func (suite *MTOShipmentServiceSuite) TestShipmentDeleter() {
 		mock.Anything,
 		mock.Anything,
 		false,
+		false,
 	).Return(400, nil)
 
 	setUpSignedCertificationCreatorMock := func(returnValue ...interface{}) services.SignedCertificationCreator {
@@ -260,6 +261,7 @@ func (suite *MTOShipmentServiceSuite) TestPrimeShipmentDeleter() {
 		mock.AnythingOfType("*appcontext.appContext"),
 		mock.Anything,
 		mock.Anything,
+		false,
 		false,
 	).Return(400, nil)
 

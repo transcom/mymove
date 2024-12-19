@@ -120,7 +120,7 @@ type Planner interface {
 	// Zip5TransitDistanceLineHaul is used by PPM flow and checks for minimum distance restriction as PPM doesn't allow short hauls
 	// New code should probably make the minimum checks after calling Zip5TransitDistance over using this method
 	Zip5TransitDistanceLineHaul(appCtx appcontext.AppContext, source string, destination string) (int, error)
-	ZipTransitDistance(appCtx appcontext.AppContext, source string, destination string, useDTOD bool) (int, error)
+	ZipTransitDistance(appCtx appcontext.AppContext, source string, destination string, useDTOD bool, isInternationalShipment bool) (int, error)
 	Zip3TransitDistance(appCtx appcontext.AppContext, source string, destination string) (int, error)
 	Zip5TransitDistance(appCtx appcontext.AppContext, source string, destination string) (int, error)
 }

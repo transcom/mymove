@@ -44,7 +44,7 @@ func (p *dtodPlanner) Zip3TransitDistance(_ appcontext.AppContext, _ string, _ s
 }
 
 // ZipTransitDistance calculates the distance between two valid Zips
-func (p *dtodPlanner) ZipTransitDistance(appCtx appcontext.AppContext, source string, destination string, useDTOD bool) (int, error) {
+func (p *dtodPlanner) ZipTransitDistance(appCtx appcontext.AppContext, source string, destination string, useDTOD bool, isInternationalShipment bool) (int, error) {
 	if len(source) < 5 {
 		source = fmt.Sprintf("%05s", source)
 	}

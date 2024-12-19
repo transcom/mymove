@@ -100,7 +100,7 @@ func (suite *GHCTestSuite) TestDTODZipTransitDistance() {
 
 		plannerMileage := NewDTODZip5Distance(fakeUsername, fakePassword, testSoapClient, false)
 		planner := NewDTODPlanner(plannerMileage)
-		distance, err := planner.ZipTransitDistance(suite.AppContextForTest(), "30907", "30301", false)
+		distance, err := planner.ZipTransitDistance(suite.AppContextForTest(), "30907", "30301", false, false)
 		suite.NoError(err)
 		suite.Equal(150, distance)
 	})
@@ -114,7 +114,7 @@ func (suite *GHCTestSuite) TestDTODZipTransitDistance() {
 
 		plannerMileage := NewDTODZip5Distance(fakeUsername, fakePassword, testSoapClient, false)
 		planner := NewDTODPlanner(plannerMileage)
-		distance, err := planner.ZipTransitDistance(suite.AppContextForTest(), "30907", "30901", false)
+		distance, err := planner.ZipTransitDistance(suite.AppContextForTest(), "30907", "30901", false, false)
 		suite.Error(err)
 		suite.Equal(0, distance)
 	})

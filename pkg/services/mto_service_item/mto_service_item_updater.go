@@ -244,7 +244,7 @@ func (p *mtoServiceItemUpdater) updateServiceItem(appCtx appcontext.AppContext, 
 				if serviceItem.ReService.Code == models.ReServiceCodeDDDSIT ||
 					serviceItem.ReService.Code == models.ReServiceCodeDDSFSC {
 					// Destination SIT: distance between shipment destination address & service item ORIGINAL destination address
-					milesCalculated, err := p.planner.ZipTransitDistance(appCtx, mtoShipment.DestinationAddress.PostalCode, serviceItem.SITDestinationOriginalAddress.PostalCode, false)
+					milesCalculated, err := p.planner.ZipTransitDistance(appCtx, mtoShipment.DestinationAddress.PostalCode, serviceItem.SITDestinationOriginalAddress.PostalCode, false, false)
 					if err != nil {
 						return nil, err
 					}
@@ -256,7 +256,7 @@ func (p *mtoServiceItemUpdater) updateServiceItem(appCtx appcontext.AppContext, 
 			if serviceItem.ReService.Code == models.ReServiceCodeDOPSIT ||
 				serviceItem.ReService.Code == models.ReServiceCodeDOSFSC {
 				// Origin SIT: distance between shipment pickup address & service item ORIGINAL pickup address
-				milesCalculated, err := p.planner.ZipTransitDistance(appCtx, mtoShipment.PickupAddress.PostalCode, serviceItem.SITOriginHHGOriginalAddress.PostalCode, false)
+				milesCalculated, err := p.planner.ZipTransitDistance(appCtx, mtoShipment.PickupAddress.PostalCode, serviceItem.SITOriginHHGOriginalAddress.PostalCode, false, false)
 				if err != nil {
 					return nil, err
 				}
@@ -384,7 +384,7 @@ func (p *mtoServiceItemUpdater) UpdateMTOServiceItemPrime(
 func calculateOriginSITRequiredDeliveryDate(appCtx appcontext.AppContext, shipment models.MTOShipment, planner route.Planner,
 	sitCustomerContacted *time.Time, sitDepartureDate *time.Time) (*time.Time, error) {
 	// Get a distance calculation between pickup and destination addresses.
-	distance, err := planner.ZipTransitDistance(appCtx, shipment.PickupAddress.PostalCode, shipment.DestinationAddress.PostalCode, false)
+	distance, err := planner.ZipTransitDistance(appCtx, shipment.PickupAddress.PostalCode, shipment.DestinationAddress.PostalCode, false, false)
 
 	if err != nil {
 		return nil, apperror.NewUnprocessableEntityError("cannot calculate distance between pickup and destination addresses")

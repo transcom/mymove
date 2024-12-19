@@ -51,6 +51,7 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 		mock.Anything,
 		mock.Anything,
 		false,
+		false,
 	).Return(1000, nil)
 	moveRouter := moveservices.NewMoveRouter()
 	moveWeights := moveservices.NewMoveWeights(NewShipmentReweighRequester())
@@ -465,6 +466,7 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 			"50314",
 			"99505",
 			true,
+			false,
 		).Return(1000, nil)
 
 		ghcDomesticTransitTime := models.GHCDomesticTransitTime{
@@ -1989,6 +1991,7 @@ func (suite *MTOShipmentServiceSuite) TestUpdateMTOShipmentStatus() {
 		mock.AnythingOfType("string"),
 		mock.AnythingOfType("string"),
 		false,
+		false,
 	).Return(500, nil).Run(func(args mock.Arguments) {
 		TransitDistancePickupArg = args.Get(1).(string)
 		TransitDistanceDestinationArg = args.Get(2).(string)
@@ -3143,6 +3146,7 @@ func (suite *MTOShipmentServiceSuite) TestUpdateStatusServiceItems() {
 		mock.AnythingOfType("*appcontext.appContext"),
 		mock.Anything,
 		mock.Anything,
+		false,
 		false,
 	).Return(400, nil)
 	siCreator := mtoserviceitem.NewMTOServiceItemCreator(planner, builder, moveRouter, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticPackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer())
