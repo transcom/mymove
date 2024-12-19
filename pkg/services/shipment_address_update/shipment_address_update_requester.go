@@ -565,7 +565,6 @@ func (f *shipmentAddressUpdateRequester) ReviewShipmentAddressChange(appCtx appc
 			}
 		}
 	}
-
 	if tooApprovalStatus == models.ShipmentAddressUpdateStatusRejected {
 		addressUpdate.Status = models.ShipmentAddressUpdateStatusRejected
 		addressUpdate.OfficeRemarks = &tooRemarks
@@ -604,9 +603,10 @@ func (f *shipmentAddressUpdateRequester) ReviewShipmentAddressChange(appCtx appc
 		}
 
 		// if the shipment has an estimated weight, we need to update the service item pricing since we know the distances have changed
-		// this only applies to international shipments
+		// this only applies to international shipments that the TOO is approving the address change for
 		if shipment.PrimeEstimatedWeight != nil &&
-			shipment.MarketCode == models.MarketCodeInternational {
+			shipment.MarketCode == models.MarketCodeInternational &&
+			tooApprovalStatus == models.ShipmentAddressUpdateStatusApproved {
 			// the db proc consumes the mileage needed, so we need to get that first
 			mileage, err := f.planner.ZipTransitDistance(appCtx, shipment.PickupAddress.PostalCode, shipment.DestinationAddress.PostalCode, true)
 			if err != nil {
