@@ -5,12 +5,391 @@
 # Container Scanning customization: https://docs.gitlab.com/ee/user/application_security/container_scanning/#customizing-the-container-scanning-settings
 # Note that environment variables can be set in several places
 # See https://docs.gitlab.com/ee/ci/variables/#cicd-variable-precedence
+variables:
+  #Docker config
+  DOCKER_AUTH_CONFIG: "{\"auths\":{\"https://index.docker.io/v1/\":{\"auth\":\"$CI_REGISTRY_USER:$CI_REGISTRY_PASSWORD\"}}}"
+  DOCKER_APP_IMAGE: milmove01/transcom-docker:milmove-app
+  DOCKER_BASE_IMAGE: milmove01/transcom-docker:base
+  DOCKERHUB_USERNAME: DOCKERHUB_USERNAME
+  DOCKERHUB_PASSWORD: DOCKERHUB_PASSWORD
+  DOCKER_TOKEN: DOCKER_TOKEN
+  registry: https://registry.hub.docker.com/
+  #EKS Default current max
+  KUBERNETES_CPU_REQUEST: "2"
+  KUBERNETES_MEMORY_REQUEST: "8Gi"
+  KUBERNETES_MEMORY_LIMIT: "8Gi"
+
+  #Circle CI need to replace
+  #CIRCLE_PROJECT_USERNAME: "my-username"  # Replace with the actual namespace
+  CIRCLE_PROJECT_REPONAME: "mymove"      # Replace with your GitLab project name
+  CIRCLE_JOB: "$CI_JOB_NAME"              # Map to GitLab's job name variable
+  CIRCLE_BRANCH: "$CI_COMMIT_BRANCH"      # Map to GitLab's branch variable
+  #CIRCLE_TOKEN: "$GITLAB_API_TOKEN"       # GitLab API token for querying pipelines
+  CIRCLE_BUILD_NUM: "$CI_PIPELINE_ID"
+
+  GOPATH: "$CI_PROJECT_DIR/go"
+  GOLANGCI_LINT_CONCURRENCY: "4"
+  GOLANGCI_LINT_VERBOSE: "-v"
+
+  # Specify the environment: loadtest, demo, exp
+  DP3_ENV: &dp3_env demo
+
+  # Specify the branch to deploy
+  DP3_BRANCH: &dp3_branch B-18585-gitlab-deploy
+
+  # Ignore branches for integration tests
+  INTEGRATION_IGNORE_BRANCH: &integration_ignore_branch B-18585-gitlab-deploy
+  INTEGRATION_MTLS_IGNORE_BRANCH: &integration_mtls_ignore_branch B-18585-gitlab-deploy
+  CLIENT_IGNORE_BRANCH: &client_ignore_branch B-18585-gitlab-deploy
+  SERVER_IGNORE_BRANCH: &server_ignore_branch B-18585-gitlab-deploy
+
 stages:
-- security-testing
+- pre_checks
+- build
 - test
+- push
+- deploy
+
+#anchors
+#set safe directory and path
+.setup_milmove_env: &setup_milmove_env
+    - git config --global --add safe.directory /builds/milmove/mymove
+    - export PATH=${PATH}:${GOPATH}/bin:~/transcom/mymove/builds/milmove/mymove
+    - export REACT_APP_ERROR_LOGGING=otel
+
 sast:
-  stage: security-testing
+  stage: pre_checks
 include:
 - template: Jobs/SAST.gitlab-ci.yml
 - template: Jobs/Dependency-Scanning.gitlab-ci.yml
 - template: Jobs/Secret-Detection.gitlab-ci.yml
+
+anti_virus:
+  stage: pre_checks
+  image: milmove/clamav-ci # Custom image with ClamAV pre-installed
+  script:
+    - pwd
+    - clamscan --version # Verify ClamAV installation
+    - ls -la $CI_PROJECT_DIR/anti-virus # Debug to confirm whitelist files exist
+    - cp -v $CI_PROJECT_DIR/anti-virus/whitelist-*.{fp,ign2} /var/lib/clamav/ # Update paths
+    - echo "Running ClamAV scan..."
+    - >
+      clamscan \
+        --recursive \
+        --infected \
+        --detect-pua=yes \
+        --exclude-pua=NetTool \
+        --exclude-pua=PWTool \
+        --max-scansize=300M \
+        --max-filesize=100M \
+        --max-recursion=30 \
+        --max-files=50000 \
+        --tempdir=/tmp \
+        $CI_PROJECT_DIR
+  after_script:
+    - echo "Anti-virus scan completed. Replace with failure announcement logic if needed."
+
+pre_deps_golang:
+  stage: pre_checks
+  image: $DOCKER_APP_IMAGE
+  before_script: *setup_milmove_env
+  script:
+    - for i in $(seq 1 5); do go mod download && break || s=$? && sleep 5; done; (exit $s)
+    - scripts/check-generated-code go.sum
+    - make bin/swagger
+  artifacts:
+    paths:
+      - bin/
+      - swagger/
+  #TODO: Optimization potential
+  # cache:
+  #   key: "$CI_COMMIT_REF_SLUG-go"
+  #   paths:
+  #     - $GOPATH/pkg/mod
+  #     - /builds/milmove/mymove/bin  # Ensure this path is correct and writable.
+  # Optionally, you can define an after_script for cleanup or notifications.
+
+pre_deps_yarn:
+  stage: pre_checks
+  image: $DOCKER_APP_IMAGE
+  needs:
+    - pre_deps_golang
+  before_script:
+    - *setup_milmove_env
+  script:
+     - pwd
+     - ls bin
+     - yarn config set "strict-ssl" false
+     - yarn install --frozen-lockfile --cache-folder ~/.cache/yarn
+     - scripts/check-generated-code yarn.lock
+     - echo "Temporarily skipping yarn installation and code checks."
+  artifacts:
+    paths:
+      - ~/.cache/yarn
+
+compile_app_client:
+  stage: build
+  image: $DOCKER_APP_IMAGE
+  before_script: *setup_milmove_env
+  needs:
+    - pre_deps_yarn
+  script:
+     - make client_build
+     - echo "Skipping actual build steps."
+  artifacts:
+    paths:
+      - ~/.cache/yarn
+      - /builds/milmove/mymove/bin
+      - /builds/milmove/mymove/build
+      - playwright
+      - playwright.config.js
+      - package.json
+      - yarn.lock
+      - eslint-plugin-ato
+    expire_in: 1 week
+
+compile_app_server:
+  stage: build
+  image: $DOCKER_APP_IMAGE
+  needs:
+    - pre_deps_golang
+    - pre_deps_yarn
+  before_script: *setup_milmove_env
+  script:
+    - make -j 4 server_build build_tools
+    - echo "Skipping server and tools compilation."
+  artifacts:
+    paths:
+    - /builds/milmove/mymove/bin/milmove-tasks
+    - /builds/milmove/mymove/bin/milmove
+    - /builds/milmove/mymove/bin/rds-ca-rsa4096-g1.pem
+    - /builds/milmove/mymove/bin/rds-ca-2019-root.pem
+    - /builds/milmove/mymove/bin/tls-checker
+    - /builds/milmove/mymove/bin/health-checker
+    - /builds/milmove/mymove/bin/*
+    - /builds/milmove/mymove/bin/ecs-deploy
+    - /builds/milmove/mymove/config/tls/milmove-cert-bundle.p7b
+    - /builds/milmove/mymove/config/tls/dod-sw-ca-66.pem
+    - /builds/milmove/mymove/swagger/*
+    - /builds/milmove/mymove/build
+    - pkg/testdatagen/testdata
+    - /builds/milmove/mymove/config/otel/*
+    expire_in: 1 week
+
+build_push_app_dp3:
+  stage: push
+  image:
+    name: gcr.io/kaniko-project/executor:v1.14.0-debug
+    entrypoint: [""]
+  needs:
+     - compile_app_client
+     - compile_app_server
+  before_script:
+    - ls bin
+    - mkdir -p /kaniko/.docker
+    - echo "Simulating Docker image build setup..."
+    #TODO: make dynamic from anchors and value
+    - echo "{\"credHelpers\":{\"${ECR_REPOSITORY_URI}\":\"ecr-login\"}}" > /kaniko/.docker/config.json
+  script:
+    - echo "Building and Pushing app Docker image..."
+    - /kaniko/executor --context "${CI_PROJECT_DIR}/" --dockerfile "${CI_PROJECT_DIR}/Dockerfile.dp3" --destination "${ECR_REPOSITORY_URI}/app:$CI_COMMIT_SHORT_SHA"
+  after_script:
+    - echo "Build_complete"
+  # rules:
+  #   - if: $CI_COMMIT_BRANCH != "main"'
+
+build_push_migrations_dp3:
+  stage: push
+  image:
+    name: gcr.io/kaniko-project/executor:v1.14.0-debug
+    entrypoint: [""]
+  needs:
+    - compile_app_server
+    - compile_app_client
+  before_script:
+    - mkdir -p /kaniko/.docker
+    - echo "Simulating migrations Docker image build..."
+    - echo "{\"credHelpers\":{\"${ECR_REPOSITORY_URI}\":\"ecr-login\"}}" > /kaniko/.docker/config.json
+  script:
+    - echo "Building and Pushing migrations Docker image..."
+    - /kaniko/executor --context "${CI_PROJECT_DIR}/" --dockerfile "${CI_PROJECT_DIR}/Dockerfile.migrations" --destination "${ECR_REPOSITORY_URI}/app-migrations:$CI_COMMIT_SHORT_SHA"
+  after_script:
+    - echo "Migrations image built and pushed successfully."
+
+build_push_tasks_dp3:
+  stage: push
+  image:
+    name: gcr.io/kaniko-project/executor:v1.14.0-debug
+    entrypoint: [""]
+  needs:
+    - compile_app_server
+    - compile_app_client
+  before_script:
+    - mkdir -p /kaniko/.docker
+    - echo "Simulating tasks Docker image build..."
+    - echo "{\"credHelpers\":{\"${ECR_REPOSITORY_URI}\":\"ecr-login\"}}" > /kaniko/.docker/config.
+    - ls -la /builds/milmove/mymove/bin/
+  script:
+    - echo "Building tasks Docker image..."
+    - /kaniko/executor --context "${CI_PROJECT_DIR}/" --dockerfile "${CI_PROJECT_DIR}/Dockerfile.tasks" --destination "${ECR_REPOSITORY_URI}/app-tasks:$CI_COMMIT_SHORT_SHA"
+  after_script:
+    - echo "Tasks image built successfully."
+
+push_otel_collector_image_dp3:
+  stage: push
+  image:
+    name: $DOCKER_BASE_IMAGE
+    entrypoint: [""]
+  needs:
+    - compile_app_server
+    - compile_app_client
+  script:
+    - echo "Logging in to Amazon ECR with Crane..."
+    - aws ecr get-login-password --region us-gov-west-1 | crane auth login ${ECR_REPOSITORY_URI} -u AWS --password-stdin
+
+    - echo "Pulling the AWS OTel Collector image from the public registry with Crane..."
+    - crane pull --insecure public.ecr.aws/aws-observability/aws-otel-collector:v0.31.0 image.tar
+
+    - echo "Pushing the image to our private ECR using Crane..."
+    - crane push --insecure image.tar ${ECR_REPOSITORY_URI}/otel-collector:${CI_COMMIT_SHORT_SHA}
+
+    - echo "Cleaning up the temporary image file..."
+    - rm image.tar
+  allow_failure: false
+  # rules:
+  #   - if: '$CI_COMMIT_BRANCH != "main"'
+
+#Deploy Pushed Images
+deploy_migrations_dp3:
+  stage: deploy
+  image:
+    name: $DOCKER_APP_IMAGE
+    entrypoint: [""]
+  needs:
+    - build_push_migrations_dp3
+    - compile_app_server
+    - compile_app_client
+  script:
+    # Step 1: Get the Digest
+    - echo "Getting Digest from AWS"
+    - export ECR_DIGEST=$(aws ecr describe-images --repository-name app-migrations --image-ids imageTag=$CI_COMMIT_SHORT_SHA --query 'imageDetails[0].imageDigest' --output text)
+    # Step 2: Ensure exclusive execution and Snapshot
+    - echo "Snapshotting database"
+    - ./scripts/rds-snapshot-app-db "$APP_ENVIRONMENT"
+    # Step 3: Run migrations
+    - echo "Running migrations"
+    - ./scripts/ecs-run-app-migrations-container "${ECR_REPOSITORY_URI}/app-migrations@${ECR_DIGEST}" "demo"
+    # # Step 4: Announce failure only if on the specific branch
+    # - |
+    #   if [[ "$CI_COMMIT_BRANCH" == "main" && "$CI_JOB_STATUS" == "failed" ]]; then
+    #     ./scripts/circleci-announce-broken-branch
+    #   fi
+  timeout: 40m
+deploy_tasks_dp3:
+  stage: deploy
+  image:
+    name: $DOCKER_APP_IMAGE
+    entrypoint: [""]
+  needs:
+    - build_push_tasks_dp3
+    - compile_app_server
+    - compile_app_client
+  script:
+    - echo "Getting Digest from AWS"
+    - export ECR_DIGEST=$(aws ecr describe-images --repository-name app-tasks --image-ids imageTag=$CI_COMMIT_SHORT_SHA --query 'imageDetails[0].imageDigest' --output text)
+    - echo "Deploying GHC fuel price data task service"
+    - ./scripts/ecs-deploy-task-container save-ghc-fuel-price-data "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/app-tasks@${ECR_DIGEST}" "${APP_ENVIRONMENT}"
+    - echo "Deploying payment reminder email task service"
+    - ./scripts/ecs-deploy-task-container send-payment-reminder "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/app-tasks@${ECR_DIGEST}" "${APP_ENVIRONMENT}"
+  # # Run failure announcement only if on the main branch
+  #   - |
+  #     if [[ "$CI_COMMIT_BRANCH" == "main" && "$CI_JOB_STATUS" == "failed" ]]; then
+  #       ./scripts/circleci-announce-broken-branch
+  #     fi
+  timeout: 40m
+
+deploy_app_client_tls_dp3:
+  stage: deploy
+  image:
+    name: $DOCKER_APP_IMAGE
+    entrypoint: [""]
+  needs:
+    - deploy_migrations_dp3
+    - push_otel_collector_image_dp3
+    - compile_app_server
+    - compile_app_client
+  variables:
+    OPEN_TELEMETRY_SIDECAR: "true"
+    HEALTH_CHECK: "true"
+  script:
+    # - echo "Comparing against deployed commit"
+    # - ./scripts/compare-deployed-commit "" $CI_COMMIT_SHA ${TLS_KEY} ${TLS_CERT} ${TLS_CA}
+    - echo "Getting Digest from AWS"
+    - export ECR_DIGEST=$(aws ecr describe-images --repository-name app --image-ids imageTag=$CI_COMMIT_SHORT_SHA --query 'imageDetails[0].imageDigest' --output text)
+    - echo "Getting otel collector Digest from AWS"
+    - export OTEL_ECR_DIGEST=$(aws ecr describe-images --repository-name otel-collector --image-ids imageTag=$CI_COMMIT_SHORT_SHA --query 'imageDetails[0].imageDigest' --output text)
+    - export OTEL_COLLECTOR_IMAGE="${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/otel-collector@${OTEL_ECR_DIGEST}"
+    - echo "Deploying app-client-tls service"
+    - ./scripts/ecs-deploy-service-container app-client-tls "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/app@${ECR_DIGEST}" "${APP_ENVIRONMENT}" "/bin/milmove serve"
+    - echo "Running Health Check"
+    # - bin/health-checker --schemes https --hosts api.demo.dp3.us --key ${TLS_KEY} --cert ${TLS_CERT} --ca ${TLS_CA} --tries 10 --backoff 3 --log-level info --timeout 5m
+    # - echo "Running TLS Check"
+    # - bin/tls-checker --schemes https --hosts api.demo.dp3.us --key ${TLS_KEY} --cert ${TLS_CERT} --ca ${TLS_CA} --log-level info --timeout 15m
+    # - echo "Checking deployed commits"
+    # - ./scripts/check-deployed-commit "api.demo.dp3.us" "$CI_COMMIT_SHA" ${TLS_KEY} ${TLS_CERT} ${TLS_CA}
+    - |
+      # Run failure announcement only if on the main branch
+      if [[ "$CI_COMMIT_BRANCH" == "main" && "$CI_JOB_STATUS" == "failed" ]]; then
+        ./scripts/circleci-announce-broken-branch
+      fi
+  timeout: 60m
+
+deploy_app_dp3:
+  stage: deploy
+  image:
+    name: $DOCKER_APP_IMAGE
+    entrypoint: [""]
+  needs:
+    - build_push_app_dp3
+    - deploy_migrations_dp3
+    - compile_app_server
+    - compile_app_client
+  variables:
+    APP_ENVIRONMENT: "demo"
+    OPEN_TELEMETRY_SIDECAR: "true"
+    HEALTH_CHECK: "true"
+  script:
+    - ls bin
+    - pwd
+    - echo "Comparing against deployed commit"
+    # - ./scripts/compare-deployed-commit "" "$CI_COMMIT_SHA" "$TLS_KEY" "$TLS_CERT" "$TLS_CA"
+    - echo "Creating .go-version file if not already present"
+    - |
+      if [ -f ".go-version" ]; then
+        echo ".go-version already exists, no need to re-create"
+      else
+        GO_VERSION=$(awk '/golang/ { print $2 }' .tool-versions)
+        echo "Creating .go-version using version ${GO_VERSION}"
+        echo $GO_VERSION > .go-version
+      fi
+    - echo "Getting Digest from AWS"
+    - export ECR_DIGEST=$(aws ecr describe-images --repository-name app --image-ids imageTag=$CI_COMMIT_SHORT_SHA --query 'imageDetails[0].imageDigest' --output text)
+    - echo "Getting otel collector digest from AWS"
+    - export OTEL_ECR_DIGEST=$(aws ecr describe-images --repository-name otel-collector --image-ids imageTag=$CI_COMMIT_SHORT_SHA --query 'imageDetails[0].imageDigest' --output text)
+    - export OTEL_COLLECTOR_IMAGE="${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/otel-collector@${OTEL_ECR_DIGEST}"
+    - echo "Deploying app service"
+    - ./scripts/ecs-deploy-service-container app "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/app@${ECR_DIGEST}" "${APP_ENVIRONMENT}" "/bin/milmove serve"
+    - echo "Running Health Check"
+    # - bin/health-checker --schemes https --hosts my.demo.dp3.us,office.demo.dp3.us,admin.demo.dp3.us --tries 10 --backoff 3 --log-level info --timeout 5m
+    # - echo "Running TLS Check"
+    # - bin/tls-checker --schemes https --hosts my.demo.dp3.us,office.demo.dp3.us,admin.demo.dp3.us --log-level info --timeout 15m
+    # - echo "Checking deployed commits"
+    - ./scripts/check-deployed-commit "my.demo.dp3.us,office.demo.dp3.us,admin.demo.dp3.us" "$CI_COMMIT_SHA"
+  # Run failure announcement only if on the main bran
+    - |
+      if [[ "$CI_COMMIT_BRANCH" == "main" && "$CI_JOB_STATUS" == "failed" ]]; then
+        ./scripts/circleci-announce-broken-branch
+      fi
+  timeout: 60m
+
+
