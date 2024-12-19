@@ -825,4 +825,15 @@ func (suite *MoveServiceSuite) TestAutoReweigh() {
 		_, err = moveWeights.CheckAutoReweigh(suite.AppContextForTest(), approvedMove.ID, &models.MTOShipment{})
 		suite.EqualError(err, "could not determine excess weight entitlement without dependents authorization value")
 	})
+
+	suite.Run("returns error if DBAuthorizedWeight returns nil when checking for auto-reweigh", func() {
+		approvedMove := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
+		approvedMove.Orders.Entitlement.DBAuthorizedWeight = nil
+
+		err := suite.DB().Save(approvedMove.Orders.Entitlement)
+		suite.NoError(err)
+
+		_, err = moveWeights.MoveShouldAutoReweigh(suite.AppContextForTest(), approvedMove.ID)
+		suite.EqualError(err, "No Authorized Weight could be found when checking for auto-reweigh on "+approvedMove.ID.String())
+	})
 }
