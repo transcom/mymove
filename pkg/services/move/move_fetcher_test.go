@@ -234,7 +234,7 @@ func (suite *MoveServiceSuite) TestMoveFetcherBulkAssignment() {
 
 		moves, err := moveFetcher.FetchMovesForBulkAssignmentCounseling(suite.AppContextForTest(), "KKFA", officeUser.TransportationOffice.ID)
 		suite.FatalNoError(err)
-		suite.Equal(len(moves), 2)
+		suite.Equal(2, len(moves))
 	})
 
 	// BuildMoveWithPPMShipment apparently builds 3 moves each time its run, so the best way
@@ -242,7 +242,7 @@ func (suite *MoveServiceSuite) TestMoveFetcherBulkAssignment() {
 	suite.Run("Does not return moves with PPMs in waiting on customer status", func() {
 		moveFetcher := NewMoveFetcherBulkAssignment()
 		transportationOffice := factory.BuildTransportationOffice(suite.DB(), nil, nil)
-		moveWithPPM := factory.BuildMoveWithPPMShipment(suite.DB(), []factory.Customization{
+		moveWithWaitingOnCustomerPPM := factory.BuildMoveWithPPMShipment(suite.DB(), []factory.Customization{
 			{
 				Model:    transportationOffice,
 				LinkOnly: true,
@@ -268,26 +268,27 @@ func (suite *MoveServiceSuite) TestMoveFetcherBulkAssignment() {
 		// confirm that the there is only one move appearing
 		suite.Equal(1, len(moves))
 		// confirm that the move appearing iS NOT the moveWithPPM
-		suite.NotEqual(moves[0].ID, moveWithPPM.ID)
+		suite.NotEqual(moves[0].ID, moveWithWaitingOnCustomerPPM.ID)
 		// confirm that the rest of the details are correct
+		// and that it SHOULD show up in the queue if it wasn't for PPM status
 		// move is NEEDS SERVICE COUNSELING STATUS
-		suite.Equal(moveWithPPM.Status, models.MoveStatusNeedsServiceCounseling)
+		suite.Equal(moveWithWaitingOnCustomerPPM.Status, models.MoveStatusNeedsServiceCounseling)
 		// move is not assigned to anyone
-		suite.Nil(moveWithPPM.SCAssignedID)
+		suite.Nil(moveWithWaitingOnCustomerPPM.SCAssignedID)
 		// GBLOC is the same
-		suite.Equal(*moveWithPPM.Orders.OriginDutyLocationGBLOC, officeUser.TransportationOffice.Gbloc)
+		suite.Equal(*moveWithWaitingOnCustomerPPM.Orders.OriginDutyLocationGBLOC, officeUser.TransportationOffice.Gbloc)
 		// Show is true
-		suite.Equal(moveWithPPM.Show, models.BoolPointer(true))
+		suite.Equal(moveWithWaitingOnCustomerPPM.Show, models.BoolPointer(true))
 		// Move is counseled by the office user's office
-		suite.Equal(*moveWithPPM.CounselingOfficeID, officeUser.TransportationOfficeID)
+		suite.Equal(*moveWithWaitingOnCustomerPPM.CounselingOfficeID, officeUser.TransportationOfficeID)
 		// Orders type isn't WW, BB, or Safety
-		suite.Equal(moveWithPPM.Orders.OrdersType, internalmessages.OrdersTypePERMANENTCHANGEOFSTATION)
+		suite.Equal(moveWithWaitingOnCustomerPPM.Orders.OrdersType, internalmessages.OrdersTypePERMANENTCHANGEOFSTATION)
 	})
 
-	suite.Run("Does not return moves with PPMs in wneeds closeout", func() {
+	suite.Run("Does not return moves with PPMs in needs closeout status", func() {
 		moveFetcher := NewMoveFetcherBulkAssignment()
 		transportationOffice := factory.BuildTransportationOffice(suite.DB(), nil, nil)
-		moveWithPPM := factory.BuildMoveWithPPMShipment(suite.DB(), []factory.Customization{
+		moveWithNeedsCloseoutPPM := factory.BuildMoveWithPPMShipment(suite.DB(), []factory.Customization{
 			{
 				Model:    transportationOffice,
 				LinkOnly: true,
@@ -313,20 +314,21 @@ func (suite *MoveServiceSuite) TestMoveFetcherBulkAssignment() {
 		// confirm that the there is only one move appearing
 		suite.Equal(1, len(moves))
 		// confirm that the move appearing iS NOT the moveWithPPM
-		suite.NotEqual(moves[0].ID, moveWithPPM.ID)
+		suite.NotEqual(moves[0].ID, moveWithNeedsCloseoutPPM.ID)
 		// confirm that the rest of the details are correct
+		// and that it SHOULD show up in the queue if it wasn't for PPM status
 		// move is NEEDS SERVICE COUNSELING STATUS
-		suite.Equal(moveWithPPM.Status, models.MoveStatusNeedsServiceCounseling)
+		suite.Equal(moveWithNeedsCloseoutPPM.Status, models.MoveStatusNeedsServiceCounseling)
 		// move is not assigned to anyone
-		suite.Nil(moveWithPPM.SCAssignedID)
+		suite.Nil(moveWithNeedsCloseoutPPM.SCAssignedID)
 		// GBLOC is the same
-		suite.Equal(*moveWithPPM.Orders.OriginDutyLocationGBLOC, officeUser.TransportationOffice.Gbloc)
+		suite.Equal(*moveWithNeedsCloseoutPPM.Orders.OriginDutyLocationGBLOC, officeUser.TransportationOffice.Gbloc)
 		// Show is true
-		suite.Equal(moveWithPPM.Show, models.BoolPointer(true))
+		suite.Equal(moveWithNeedsCloseoutPPM.Show, models.BoolPointer(true))
 		// Move is counseled by the office user's office
-		suite.Equal(*moveWithPPM.CounselingOfficeID, officeUser.TransportationOfficeID)
+		suite.Equal(*moveWithNeedsCloseoutPPM.CounselingOfficeID, officeUser.TransportationOfficeID)
 		// Orders type isn't WW, BB, or Safety
-		suite.Equal(moveWithPPM.Orders.OrdersType, internalmessages.OrdersTypePERMANENTCHANGEOFSTATION)
+		suite.Equal(moveWithNeedsCloseoutPPM.Orders.OrdersType, internalmessages.OrdersTypePERMANENTCHANGEOFSTATION)
 	})
 	suite.Run("Does not return moves with PPMs in closeout complete status", func() {
 		moveFetcher := NewMoveFetcherBulkAssignment()
@@ -337,7 +339,7 @@ func (suite *MoveServiceSuite) TestMoveFetcherBulkAssignment() {
 				},
 			},
 		}, nil)
-		moveWithPPM := factory.BuildMoveWithPPMShipment(suite.DB(), []factory.Customization{
+		moveWithCloseoutCompletePPM := factory.BuildMoveWithPPMShipment(suite.DB(), []factory.Customization{
 			{
 				Model:    transportationOffice,
 				LinkOnly: true,
@@ -363,20 +365,21 @@ func (suite *MoveServiceSuite) TestMoveFetcherBulkAssignment() {
 		// confirm that the there is only one move appearing
 		suite.Equal(1, len(moves))
 		// confirm that the move appearing iS NOT the moveWithPPM
-		suite.NotEqual(moves[0].ID, moveWithPPM.ID)
+		suite.NotEqual(moves[0].ID, moveWithCloseoutCompletePPM.ID)
 		// confirm that the rest of the details are correct
+		// and that it SHOULD show up in the queue if it wasn't for PPM status
 		// move is NEEDS SERVICE COUNSELING STATUS
-		suite.Equal(moveWithPPM.Status, models.MoveStatusNeedsServiceCounseling)
+		suite.Equal(moveWithCloseoutCompletePPM.Status, models.MoveStatusNeedsServiceCounseling)
 		// move is not assigned to anyone
-		suite.Nil(moveWithPPM.SCAssignedID)
+		suite.Nil(moveWithCloseoutCompletePPM.SCAssignedID)
 		// GBLOC is the same
-		suite.Equal(*moveWithPPM.Orders.OriginDutyLocationGBLOC, officeUser.TransportationOffice.Gbloc)
+		suite.Equal(*moveWithCloseoutCompletePPM.Orders.OriginDutyLocationGBLOC, officeUser.TransportationOffice.Gbloc)
 		// Show is true
-		suite.Equal(moveWithPPM.Show, models.BoolPointer(true))
+		suite.Equal(moveWithCloseoutCompletePPM.Show, models.BoolPointer(true))
 		// Move is counseled by the office user's office
-		suite.Equal(*moveWithPPM.CounselingOfficeID, officeUser.TransportationOfficeID)
+		suite.Equal(*moveWithCloseoutCompletePPM.CounselingOfficeID, officeUser.TransportationOfficeID)
 		// Orders type isn't WW, BB, or Safety
-		suite.Equal(moveWithPPM.Orders.OrdersType, internalmessages.OrdersTypePERMANENTCHANGEOFSTATION)
+		suite.Equal(moveWithCloseoutCompletePPM.Orders.OrdersType, internalmessages.OrdersTypePERMANENTCHANGEOFSTATION)
 	})
 
 	suite.Run("Does not return moves that are already assigned", func() {
