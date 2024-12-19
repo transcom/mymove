@@ -85,7 +85,7 @@ func (suite *GHCRateEngineImportSuite) Test_importREDomesticOtherPricesFailures(
 func (suite *GHCRateEngineImportSuite) helperVerifyDomesticOtherPrices() {
 	count, err := suite.DB().Count(&models.ReDomesticOtherPrice{})
 	suite.NoError(err)
-	suite.Equal(24, count)
+	suite.Equal(48, count)
 }
 
 func (suite *GHCRateEngineImportSuite) helperCheckDomesticOtherPriceValue() {

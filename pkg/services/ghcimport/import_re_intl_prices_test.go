@@ -102,7 +102,7 @@ func (suite *GHCRateEngineImportSuite) Test_getRateAreaIDForKind() {
 func (suite *GHCRateEngineImportSuite) helperVerifyInternationalPrices() {
 	count, err := suite.DB().Count(&models.ReIntlPrice{})
 	suite.NoError(err)
-	suite.Equal(27466406, count)
+	suite.Equal(46640, count)
 }
 
 func (suite *GHCRateEngineImportSuite) helperCheckInternationalPriceValues() {
