@@ -93,6 +93,13 @@ func fetchOconusRateAreaByPostalCode(appCtx appcontext.AppContext, contractId uu
 			and re_rate_areas.contract_id = ?`,
 		postalCode, contractId).First(&area)
 
+	appCtx.Logger().Info(fmt.Sprintf("fetchOconusRateAreaByPostalCode sql=%s", fmt.Sprintf(`select
+  		re_rate_areas.*
+			from v_locations
+  			join re_oconus_rate_areas on re_oconus_rate_areas.us_post_region_cities_id = v_locations.uprc_id
+  			join re_rate_areas on re_oconus_rate_areas.rate_area_id = re_rate_areas.id  and v_locations.uspr_zip_id = '%s'
+			and re_rate_areas.contract_id = '%s'`, postalCode, contractId)))
+
 	if err != nil {
 		return nil, err
 	}
