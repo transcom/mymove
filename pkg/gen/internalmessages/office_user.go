@@ -7,6 +7,7 @@ package internalmessages
 
 import (
 	"context"
+	"strconv"
 
 	"github.com/go-openapi/errors"
 	"github.com/go-openapi/strfmt"
@@ -53,6 +54,9 @@ type OfficeUser struct {
 	// transportation office
 	TransportationOffice *TransportationOffice `json:"transportation_office,omitempty"`
 
+	// transportation office assignments
+	TransportationOfficeAssignments []*TransportationOfficeAssignment `json:"transportation_office_assignments"`
+
 	// updated at
 	// Format: date-time
 	UpdatedAt strfmt.DateTime `json:"updated_at,omitempty"`
@@ -84,6 +88,10 @@ func (m *OfficeUser) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validateTransportationOffice(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateTransportationOfficeAssignments(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -168,6 +176,32 @@ func (m *OfficeUser) validateTransportationOffice(formats strfmt.Registry) error
 	return nil
 }
 
+func (m *OfficeUser) validateTransportationOfficeAssignments(formats strfmt.Registry) error {
+	if swag.IsZero(m.TransportationOfficeAssignments) { // not required
+		return nil
+	}
+
+	for i := 0; i < len(m.TransportationOfficeAssignments); i++ {
+		if swag.IsZero(m.TransportationOfficeAssignments[i]) { // not required
+			continue
+		}
+
+		if m.TransportationOfficeAssignments[i] != nil {
+			if err := m.TransportationOfficeAssignments[i].Validate(formats); err != nil {
+				if ve, ok := err.(*errors.Validation); ok {
+					return ve.ValidateName("transportation_office_assignments" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("transportation_office_assignments" + "." + strconv.Itoa(i))
+				}
+				return err
+			}
+		}
+
+	}
+
+	return nil
+}
+
 func (m *OfficeUser) validateUpdatedAt(formats strfmt.Registry) error {
 	if swag.IsZero(m.UpdatedAt) { // not required
 		return nil
@@ -200,6 +234,10 @@ func (m *OfficeUser) ContextValidate(ctx context.Context, formats strfmt.Registr
 		res = append(res, err)
 	}
 
+	if err := m.contextValidateTransportationOfficeAssignments(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
@@ -222,6 +260,31 @@ func (m *OfficeUser) contextValidateTransportationOffice(ctx context.Context, fo
 			}
 			return err
 		}
+	}
+
+	return nil
+}
+
+func (m *OfficeUser) contextValidateTransportationOfficeAssignments(ctx context.Context, formats strfmt.Registry) error {
+
+	for i := 0; i < len(m.TransportationOfficeAssignments); i++ {
+
+		if m.TransportationOfficeAssignments[i] != nil {
+
+			if swag.IsZero(m.TransportationOfficeAssignments[i]) { // not required
+				return nil
+			}
+
+			if err := m.TransportationOfficeAssignments[i].ContextValidate(ctx, formats); err != nil {
+				if ve, ok := err.(*errors.Validation); ok {
+					return ve.ValidateName("transportation_office_assignments" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("transportation_office_assignments" + "." + strconv.Itoa(i))
+				}
+				return err
+			}
+		}
+
 	}
 
 	return nil

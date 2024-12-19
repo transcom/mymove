@@ -46,6 +46,7 @@ func BuildEntitlement(db *pop.Connection, customs []Customization, traits []Trai
 	ocie := true
 	proGearWeight := 2000
 	proGearWeightSpouse := 500
+	ordersType := internalmessages.OrdersTypePERMANENTCHANGEOFSTATION
 
 	// Create default Entitlement
 	entitlement := models.Entitlement{
@@ -60,7 +61,7 @@ func BuildEntitlement(db *pop.Connection, customs []Customization, traits []Trai
 		OrganizationalClothingAndIndividualEquipment: ocie,
 	}
 	// Set default calculated values
-	entitlement.SetWeightAllotment(string(*grade))
+	entitlement.SetWeightAllotment(string(*grade), ordersType)
 	entitlement.DBAuthorizedWeight = entitlement.AuthorizedWeight()
 
 	// Overwrite default values with those from custom Entitlement

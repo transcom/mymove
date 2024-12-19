@@ -16,6 +16,7 @@ import (
 // GetServicesCounselingOriginListURL generates an URL for the get services counseling origin list operation
 type GetServicesCounselingOriginListURL struct {
 	NeedsPPMCloseout *bool
+	ViewAsGBLOC      *string
 
 	_basePath string
 	// avoid unkeyed usage
@@ -57,6 +58,14 @@ func (o *GetServicesCounselingOriginListURL) Build() (*url.URL, error) {
 	}
 	if needsPPMCloseoutQ != "" {
 		qs.Set("needsPPMCloseout", needsPPMCloseoutQ)
+	}
+
+	var viewAsGBLOCQ string
+	if o.ViewAsGBLOC != nil {
+		viewAsGBLOCQ = *o.ViewAsGBLOC
+	}
+	if viewAsGBLOCQ != "" {
+		qs.Set("viewAsGBLOC", viewAsGBLOCQ)
 	}
 
 	_result.RawQuery = qs.Encode()

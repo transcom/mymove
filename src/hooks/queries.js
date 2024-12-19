@@ -81,7 +81,7 @@ import { PAGINATION_PAGE_DEFAULT, PAGINATION_PAGE_SIZE_DEFAULT } from 'constants
  * @param {string} moveCode The move locator
  * @return {QueriesResults<any[]>} ppmDocsQueriesResults: an array of the documents queries for each PPM shipment in the mtoShipments array.
  */
-const useAddWeightTicketsToPPMShipments = (mtoShipments, moveCode) => {
+const useAddExpensesToPPMShipments = (mtoShipments, moveCode) => {
   // Filter for ppm shipments to get their documents(including weight tickets)
   const shipmentIDs = mtoShipments?.filter((shipment) => shipment.ppmShipment).map((shipment) => shipment.id) ?? [];
 
@@ -93,8 +93,10 @@ const useAddWeightTicketsToPPMShipments = (mtoShipments, moveCode) => {
         queryFn: ({ queryKey }) => getPPMDocuments(...queryKey),
         enabled: !!shipmentID,
         select: (data) => {
-          // Shove the weight tickets into the corresponding ppmShipment object
+          // Shove the weight tickets and other expenses into the corresponding ppmShipment object
           const shipment = mtoShipments.find((s) => s.id === shipmentID);
+          shipment.ppmShipment.movingExpenses = data.MovingExpenses;
+          shipment.ppmShipment.proGearWeightTickets = data.ProGearWeightTickets;
           shipment.ppmShipment.weightTickets = data.WeightTickets;
           // Attach the review url to each ppm shipment
           shipment.ppmShipment.reviewShipmentWeightsURL = generatePath(
@@ -148,7 +150,7 @@ export const useTXOMoveInfoQueries = (moveCode) => {
     },
   );
   const customerData = customer && Object.values(customer)[0];
-  const { isLoading, isError, isSuccess } = getQueriesStatus([moveQuery, orderQuery, customerQuery]);
+  const { isLoading, isError, isSuccess, errors } = getQueriesStatus([moveQuery, orderQuery, customerQuery]);
 
   return {
     move,
@@ -157,6 +159,7 @@ export const useTXOMoveInfoQueries = (moveCode) => {
     isLoading,
     isError,
     isSuccess,
+    errors,
   };
 };
 
@@ -363,7 +366,7 @@ export const useReviewShipmentWeightsQuery = (moveCode) => {
   });
 
   // attach ppm documents to their respective ppm shipments
-  const ppmDocsQueriesResults = useAddWeightTicketsToPPMShipments(mtoShipments, moveCode);
+  const ppmDocsQueriesResults = useAddExpensesToPPMShipments(mtoShipments, moveCode);
 
   const { isLoading, isError, isSuccess } = getQueriesStatus([
     moveQuery,
@@ -414,7 +417,7 @@ export const useMoveTaskOrderQueries = (moveCode) => {
   );
 
   // attach ppm documents to their respective ppm shipments
-  const ppmDocsQueriesResults = useAddWeightTicketsToPPMShipments(mtoShipments, moveCode);
+  const ppmDocsQueriesResults = useAddExpensesToPPMShipments(mtoShipments, moveCode);
 
   const { isLoading, isError, isSuccess } = getQueriesStatus([
     moveQuery,
@@ -438,7 +441,7 @@ export const useMoveTaskOrderQueries = (moveCode) => {
 export const useGetDocumentQuery = (documentId) => {
   const staleTime = 15 * 60000; // 15 * 60000 milliseconds = 15 mins
   const cacheTime = staleTime;
-  const { data: { documents, uploads } = {}, ...documentsQuery } = useQuery(
+  const { data: { documents, upload } = {}, ...documentsQuery } = useQuery(
     [ORDERS_DOCUMENTS, documentId],
     ({ queryKey }) => getDocument(...queryKey),
     {
@@ -453,7 +456,7 @@ export const useGetDocumentQuery = (documentId) => {
 
   return {
     documents,
-    uploads,
+    upload,
     isLoading,
     isError,
     isSuccess,
@@ -661,8 +664,8 @@ export const useMovePaymentRequestsQueries = (moveCode) => {
     },
   );
 
-  // attach ppm documents to their respective ppm shipments
-  const ppmDocsQueriesResults = useAddWeightTicketsToPPMShipments(mtoShipments, moveCode);
+  // attach all ppm documents to their respective ppm shipments
+  const ppmDocsQueriesResults = useAddExpensesToPPMShipments(mtoShipments, moveCode);
 
   const orderId = move?.ordersId;
   const { data: { orders } = {}, ...orderQuery } = useQuery(
@@ -845,6 +848,8 @@ export const useMoveDetailsQueries = (moveCode) => {
 
   const order = Object.values(orders || {})?.[0];
 
+  const { upload: orderDocuments, ...documentQuery } = useGetDocumentQuery(order.uploaded_order_id);
+
   const { data: mtoShipments, ...mtoShipmentQuery } = useQuery({
     queryKey: [MTO_SHIPMENTS, moveId, false],
     queryFn: ({ queryKey }) => getMTOShipments(...queryKey),
@@ -854,7 +859,7 @@ export const useMoveDetailsQueries = (moveCode) => {
   });
 
   // attach ppm documents to their respective ppm shipments
-  const ppmDocsQueriesResults = useAddWeightTicketsToPPMShipments(mtoShipments, moveCode);
+  const ppmDocsQueriesResults = useAddExpensesToPPMShipments(mtoShipments, moveCode);
 
   const customerId = order?.customerID;
   const { data: { customer } = {}, ...customerQuery } = useQuery({
@@ -874,9 +879,10 @@ export const useMoveDetailsQueries = (moveCode) => {
     options: { enabled: !!moveId },
   });
 
-  const { isLoading, isError, isSuccess } = getQueriesStatus([
+  const { isLoading, isError, isSuccess, errors } = getQueriesStatus([
     moveQuery,
     orderQuery,
+    documentQuery,
     customerQuery,
     mtoShipmentQuery,
     mtoServiceItemQuery,
@@ -886,6 +892,7 @@ export const useMoveDetailsQueries = (moveCode) => {
   return {
     move,
     order,
+    orderDocuments,
     customerData,
     closeoutOffice,
     mtoShipments,
@@ -893,6 +900,7 @@ export const useMoveDetailsQueries = (moveCode) => {
     isLoading,
     isError,
     isSuccess,
+    errors,
   };
 };
 
@@ -922,12 +930,13 @@ export const usePrimeSimulatorGetMove = (moveCode) => {
     ({ queryKey }) => getPrimeSimulatorMove(...queryKey),
   );
 
-  const { isLoading, isError, isSuccess } = getQueriesStatus([primeSimulatorGetMoveQuery]);
+  const { isLoading, isError, isSuccess, errors } = getQueriesStatus([primeSimulatorGetMoveQuery]);
   return {
     moveTaskOrder,
     isLoading,
     isError,
     isSuccess,
+    errors,
   };
 };
 

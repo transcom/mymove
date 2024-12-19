@@ -69,11 +69,11 @@ export const columns = (moveLockFlag, isQueueManagementEnabled, showBranchFilter
         },
       },
     ),
-    createHeader('DoD ID', 'customer.dodID', {
-      id: 'dodID',
+    createHeader('DoD ID', 'customer.edipi', {
+      id: 'edipi',
       isFilterable: true,
       exportValue: (row) => {
-        return row.customer.dodID;
+        return row.customer.edipi;
       },
     }),
     createHeader('EMPLID', 'customer.emplid', {
@@ -143,6 +143,10 @@ export const columns = (moveLockFlag, isQueueManagementEnabled, showBranchFilter
       },
     }),
     createHeader('Origin GBLOC', 'originGBLOC', { disableSortBy: true }),
+    createHeader('Counseling office', 'counselingOffice', {
+      id: 'counselingOffice',
+      isFilterable: true,
+    }),
   ];
   if (isQueueManagementEnabled)
     cols.push(
@@ -161,7 +165,7 @@ export const columns = (moveLockFlag, isQueueManagementEnabled, showBranchFilter
                 title="Assigned dropdown"
               >
                 <option value={null}>{DEFAULT_EMPTY_VALUE}</option>
-                {row.availableOfficeUsers.map(({ lastName, firstName, officeUserId }) => (
+                {row.availableOfficeUsers?.map(({ lastName, firstName, officeUserId }) => (
                   <option value={officeUserId} key={`filterOption_${officeUserId}`}>
                     {`${lastName}, ${firstName}`}
                   </option>
