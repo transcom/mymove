@@ -26,6 +26,9 @@ type CounselingUpdateOrderPayload struct {
 	// grade
 	Grade *Grade `json:"grade,omitempty"`
 
+	// Are dependents included in your orders?
+	HasDependents *bool `json:"hasDependents,omitempty"`
+
 	// Orders date
 	//
 	// The date and time that these orders were cut.
