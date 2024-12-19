@@ -417,7 +417,7 @@ const MoveHome = ({ serviceMemberMoves, isProfileComplete, serviceMember, signed
     if (!hasSubmittedMove()) return <HelperNeedsSubmitMove />;
     if (hasSubmittedPPMCloseout()) return <HelperPPMCloseoutSubmitted />;
     if (hasUnapprovedAmendedOrders()) return <HelperAmendedOrders />;
-    if (isMoveApproved()) return <HelperApprovedMove />;
+    if (isMoveApproved()) return <HelperApprovedMove orderId={orders.id} />;
     return <HelperSubmittedMove />;
   };
 

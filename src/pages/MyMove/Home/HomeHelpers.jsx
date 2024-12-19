@@ -1,5 +1,5 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { generatePath, Link } from 'react-router-dom';
 import { Link as ExternalLink } from '@trussworks/react-uswds';
 
 import styles from './Home.module.scss';
@@ -96,35 +96,41 @@ export const HelperSubmittedMove = () => (
   </Helper>
 );
 
-export const HelperApprovedMove = () => (
-  <Helper title="Your move is in progress." className={styles['helper-approved-section']}>
-    <div>
-      <p>Talk to your counselor or to your movers to make any changes to your move.</p>
-    </div>
-    <div>
-      <p>
-        <strong>For PPM shipments</strong>
-      </p>
-      <p className={styles['top-gap']}>
-        When you are done moving your things, select <strong>Upload PPM Documents</strong> to document your PPM,
-        calculate your final incentive, and create a payment request packet. You will upload weight tickets, receipts,
-        and other documentation that a counselor will review.
-      </p>
-    </div>
-    <div>
-      <p>
-        <strong>If you receive new orders while your move is underway</strong>
-      </p>
-      <ul className={styles['top-gap']}>
-        <li>Talk to your counselor</li>
-        <li>Talk to your movers</li>
-        <li>
-          <Link to={customerRoutes.ORDERS_AMEND_PATH}>Upload a copy of your new orders</Link>
-        </li>
-      </ul>
-    </div>
-  </Helper>
-);
+export const HelperApprovedMove = ({ orderId }) => {
+  const path = generatePath(customerRoutes.ORDERS_AMEND_PATH, {
+    orderId,
+  });
+
+  return (
+    <Helper title="Your move is in progress." className={styles['helper-approved-section']}>
+      <div>
+        <p>Talk to your counselor or to your movers to make any changes to your move.</p>
+      </div>
+      <div>
+        <p>
+          <strong>For PPM shipments</strong>
+        </p>
+        <p className={styles['top-gap']}>
+          When you are done moving your things, select <strong>Upload PPM Documents</strong> to document your PPM,
+          calculate your final incentive, and create a payment request packet. You will upload weight tickets, receipts,
+          and other documentation that a counselor will review.
+        </p>
+      </div>
+      <div>
+        <p>
+          <strong>If you receive new orders while your move is underway</strong>
+        </p>
+        <ul className={styles['top-gap']}>
+          <li>Talk to your counselor</li>
+          <li>Talk to your movers</li>
+          <li>
+            <Link to={path}>Upload a copy of your new orders</Link>
+          </li>
+        </ul>
+      </div>
+    </Helper>
+  );
+};
 
 export const HelperAmendedOrders = () => (
   <Helper title="Next step: Contact your movers (if you have them)" className={styles['helper-paragraph-only']}>
