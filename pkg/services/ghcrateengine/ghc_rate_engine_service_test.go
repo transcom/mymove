@@ -48,13 +48,17 @@ func (suite *GHCRateEngineServiceSuite) setupDomesticOtherPrice(code models.ReSe
 
 	service := factory.FetchReServiceByCode(suite.DB(), code)
 
-	otherPrice := models.ReDomesticOtherPrice{
-		ContractID:   contractYear.Contract.ID,
-		ServiceID:    service.ID,
-		IsPeakPeriod: isPeakPeriod,
-		Schedule:     schedule,
-		PriceCents:   priceCents,
-	}
+	otherPrice := factory.FetchOrMakeDomesticOtherPrice(suite.DB(), []factory.Customization{
+		{
+			Model: models.ReDomesticOtherPrice{
+				ContractID:   contractYear.Contract.ID,
+				ServiceID:    service.ID,
+				IsPeakPeriod: isPeakPeriod,
+				Schedule:     schedule,
+				PriceCents:   priceCents,
+			},
+		},
+	}, nil)
 
 	suite.MustSave(&otherPrice)
 }
@@ -100,15 +104,17 @@ func (suite *GHCRateEngineServiceSuite) setupDomesticServiceAreaPrice(code model
 			},
 		})
 
-	serviceAreaPrice := models.ReDomesticServiceAreaPrice{
-		ContractID:            contractYear.Contract.ID,
-		ServiceID:             service.ID,
-		IsPeakPeriod:          isPeakPeriod,
-		DomesticServiceAreaID: serviceArea.ID,
-		PriceCents:            priceCents,
-	}
-
-	suite.MustSave(&serviceAreaPrice)
+	factory.FetchOrMakeDomesticServiceAreaPrice(suite.DB(), []factory.Customization{
+		{
+			Model: models.ReDomesticServiceAreaPrice{
+				ContractID:            contractYear.Contract.ID,
+				ServiceID:             service.ID,
+				IsPeakPeriod:          isPeakPeriod,
+				DomesticServiceAreaID: serviceArea.ID,
+				PriceCents:            priceCents,
+			},
+		},
+	}, nil)
 }
 
 func (suite *GHCRateEngineServiceSuite) setupDomesticLinehaulPrice(serviceAreaCode string, isPeakPeriod bool, weightLower unit.Pound, weightUpper unit.Pound, milesLower int, milesUpper int, priceMillicents unit.Millicents, contractYearName string, escalationCompounded float64) {

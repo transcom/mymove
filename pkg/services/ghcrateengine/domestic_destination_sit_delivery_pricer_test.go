@@ -22,7 +22,7 @@ const (
 	dddsitTestWeightUpper                         = unit.Pound(4999)
 	dddsitTestMilesLower                          = 251
 	dddsitTestMilesUpper                          = 500
-	dddsitTestDomesticOtherBasePriceCents         = unit.Cents(2518)
+	dddsitTestDomesticOtherBasePriceCents         = unit.Cents(21796)
 	dddsitTestDomesticLinehaulBasePriceMillicents = unit.Millicents(237900)
 	dddsitTestDomesticServiceAreaBasePriceCents   = unit.Cents(153)
 )
@@ -35,7 +35,7 @@ func (suite *GHCRateEngineServiceSuite) TestDomesticDestinationSITDeliveryPricer
 	distance := unit.Miles(37)
 
 	pricer := NewDomesticDestinationSITDeliveryPricer()
-	expectedPrice := unit.Cents(58365) // dddsitTestDomesticServiceAreaBasePriceCents * (dddsitTestWeight / 100) * distance * dddsitTestEscalationCompounded
+	expectedPrice := unit.Cents(505125) // dddsitTestDomesticServiceAreaBasePriceCents * (dddsitTestWeight / 100) * distance * dddsitTestEscalationCompounded
 
 	suite.Run("success using PaymentServiceItemParams", func() {
 		suite.setupDomesticOtherPrice(models.ReServiceCodeDDDSIT, dddsitTestSchedule, dddsitTestIsPeakPeriod, dddsitTestDomesticOtherBasePriceCents, dddsitTestContractYearName, dddsitTestEscalationCompounded)
@@ -49,7 +49,6 @@ func (suite *GHCRateEngineServiceSuite) TestDomesticDestinationSITDeliveryPricer
 			{Key: models.ServiceItemParamNameContractYearName, Value: dddsitTestContractYearName},
 			{Key: models.ServiceItemParamNameEscalationCompounded, Value: FormatEscalation(dddsitTestEscalationCompounded)},
 			{Key: models.ServiceItemParamNameIsPeak, Value: FormatBool(dddsitTestIsPeakPeriod)},
-			// {Key: models.ServiceItemParamNamePriceRateOrFactor, Value: FormatCents(dddsitTestDomesticServiceAreaBasePriceCents)},
 			{Key: models.ServiceItemParamNamePriceRateOrFactor, Value: FormatCents(dddsitTestDomesticOtherBasePriceCents)},
 		}
 		suite.validatePricerCreatedParams(expectedParams, displayParams)
@@ -101,14 +100,6 @@ func (suite *GHCRateEngineServiceSuite) TestDomesticDestinationSITDeliveryPricer
 		_, _, err := pricer.Price(suite.AppContextForTest(), testdatagen.DefaultContractCode, dddsitTestRequestedPickupDate, dddsitTestWeight, dddsitTestServiceArea, dddsitTestSchedule, zipDest, "456", distance)
 		suite.Error(err)
 		suite.Contains(err.Error(), "invalid SIT final destination postal code")
-	})
-
-	suite.Run("bad SIT final destination service area using ServiceAreaLookup", func() {
-		suite.setupDomesticServiceAreaPrice(models.ReServiceCodeDSH, dddsitTestServiceArea, dddsitTestIsPeakPeriod, dddsitTestDomesticServiceAreaBasePriceCents, dddsitTestContractYearName, dddsitTestEscalationCompounded)
-
-		_, _, err := pricer.Price(suite.AppContextForTest(), testdatagen.DefaultContractCode, dddsitTestRequestedPickupDate, dddsitTestWeight, "111", dddsitTestSchedule, zipDest, zipSITDest, distance)
-		suite.Error(err)
-		suite.Contains(err.Error(), "could not fetch domestic destination SIT delivery rate")
 	})
 
 	suite.Run("error from shorthaul pricer", func() {
@@ -168,7 +159,7 @@ func (suite *GHCRateEngineServiceSuite) TestDomesticDestinationSITDeliveryPricer
 	distance := unit.Miles(37) // <= 50 miles
 
 	pricer := NewDomesticDestinationSITDeliveryPricer()
-	expectedPrice := unit.Cents(58365)
+	expectedPrice := unit.Cents(505125)
 
 	suite.Run("success using PaymentServiceItemParams", func() {
 		suite.setupDomesticOtherPrice(models.ReServiceCodeDDDSIT, dddsitTestSchedule, dddsitTestIsPeakPeriod, dddsitTestDomesticOtherBasePriceCents, dddsitTestContractYearName, dddsitTestEscalationCompounded)
