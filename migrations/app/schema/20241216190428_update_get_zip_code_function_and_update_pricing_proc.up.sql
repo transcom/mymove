@@ -40,6 +40,57 @@ RETURNS VARCHAR AS $$
 END;
 $$ LANGUAGE plpgsql;
 
+CREATE OR REPLACE FUNCTION get_rate_area_id(
+    address_id UUID,
+    service_item_id UUID,
+    contract_id uuid,
+    OUT o_rate_area_id UUID
+)
+RETURNS UUID AS $$
+DECLARE
+    is_oconus BOOLEAN;
+    zip3_value TEXT;
+BEGIN
+    is_oconus := get_is_oconus(address_id);
+
+    IF is_oconus THEN
+        -- re_oconus_rate_areas if is_oconus is TRUE
+        SELECT ro.rate_area_id
+        INTO o_rate_area_id
+        FROM addresses a
+        JOIN re_oconus_rate_areas ro
+        ON a.us_post_region_cities_id = ro.us_post_region_cities_id
+        JOIN re_rate_areas ra ON ro.rate_area_id = ra.id
+        WHERE a.id = address_id
+            AND ra.contract_id = contract_id;
+    ELSE
+        -- re_zip3s if is_oconus is FALSE
+        SELECT rupr.zip3
+        INTO zip3_value
+        FROM addresses a
+        JOIN us_post_region_cities uprc
+        ON a.us_post_region_cities_id = uprc.id
+        JOIN re_us_post_regions rupr
+        ON uprc.us_post_regions_id = rupr.id
+        WHERE a.id = address_id;
+
+        -- use the zip3 value to find the rate_area_id in re_zip3s
+        SELECT rz.rate_area_id
+        INTO o_rate_area_id
+        FROM re_zip3s rz
+        JOIN re_rate_areas ra
+        ON rz.rate_area_id = ra.id
+        WHERE rz.zip3 = zip3_value
+            AND ra.contract_id = contract_id;
+    END IF;
+
+    -- Raise an exception if no rate area is found
+    IF o_rate_area_id IS NULL THEN
+        RAISE EXCEPTION 'Rate area not found for address % for service item ID %', address_id, service_item_id;
+    END IF;
+END;
+$$ LANGUAGE plpgsql;
+
 -- updating the pricing proc to now consume the mileage we get from DTOD instead of calculate it using Rand McNally
 -- this is a requirement for E-06210
 CREATE OR REPLACE PROCEDURE update_service_item_pricing(
@@ -92,9 +143,9 @@ BEGIN
 
         CASE
             WHEN service_code IN (''ISLH'', ''UBP'') THEN
-                o_rate_area_id := get_rate_area_id(shipment.pickup_address_id, service_item.re_service_id);
-                d_rate_area_id := get_rate_area_id(shipment.destination_address_id, service_item.re_service_id);
                 contract_id := get_contract_id(shipment.requested_pickup_date);
+                o_rate_area_id := get_rate_area_id(shipment.pickup_address_id, service_item.re_service_id, contract_id);
+                d_rate_area_id := get_rate_area_id(shipment.destination_address_id, service_item.re_service_id, contract_id);
                 escalated_price := calculate_escalated_price(o_rate_area_id, d_rate_area_id, service_item.re_service_id, contract_id, service_code);
 
                 IF shipment.prime_estimated_weight IS NOT NULL THEN
@@ -104,8 +155,8 @@ BEGIN
 
             WHEN service_code IN (''IHPK'', ''IUBPK'') THEN
                 -- perform IHPK/IUBPK-specific logic (no destination rate area)
-                o_rate_area_id := get_rate_area_id(shipment.pickup_address_id, service_item.re_service_id);
                 contract_id := get_contract_id(shipment.requested_pickup_date);
+                o_rate_area_id := get_rate_area_id(shipment.pickup_address_id, service_item.re_service_id, contract_id);
                 escalated_price := calculate_escalated_price(o_rate_area_id, NULL, service_item.re_service_id, contract_id, service_code);
 
                 IF shipment.prime_estimated_weight IS NOT NULL THEN
@@ -115,8 +166,8 @@ BEGIN
 
             WHEN service_code IN (''IHUPK'', ''IUBUPK'') THEN
                 -- perform IHUPK/IUBUPK-specific logic (no origin rate area)
-                d_rate_area_id := get_rate_area_id(shipment.destination_address_id, service_item.re_service_id);
                 contract_id := get_contract_id(shipment.requested_pickup_date);
+                d_rate_area_id := get_rate_area_id(shipment.destination_address_id, service_item.re_service_id, contract_id);
                 escalated_price := calculate_escalated_price(NULL, d_rate_area_id, service_item.re_service_id, contract_id, service_code);
 
                 IF shipment.prime_estimated_weight IS NOT NULL THEN
