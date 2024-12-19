@@ -19,7 +19,7 @@ type MTOShipmentType string
 // using these also in move.go selected move type
 const (
 	// NTSRaw is the raw string value of the NTS Shipment Type
-	NTSRaw = "HHG_INTO_NTS_DOMESTIC"
+	NTSRaw = "HHG_INTO_NTS"
 	// NTSrRaw is the raw string value of the NTSr Shipment Type
 	NTSrRaw = "HHG_OUTOF_NTS_DOMESTIC"
 )
@@ -35,8 +35,8 @@ const (
 const (
 	// MTOShipmentTypeHHG is an HHG Shipment Type default
 	MTOShipmentTypeHHG MTOShipmentType = "HHG"
-	// MTOShipmentTypeHHGIntoNTSDom is an HHG Shipment Type for going into NTS Domestic
-	MTOShipmentTypeHHGIntoNTSDom MTOShipmentType = NTSRaw
+	// MTOShipmentTypeHHGIntoNTS is an HHG Shipment Type for going into NTS
+	MTOShipmentTypeHHGIntoNTS MTOShipmentType = NTSRaw
 	// MTOShipmentTypeHHGOutOfNTSDom is an HHG Shipment Type for going out of NTS Domestic
 	MTOShipmentTypeHHGOutOfNTSDom MTOShipmentType = NTSrRaw
 	// MTOShipmentTypeMobileHome is a Shipment Type for MobileHome
@@ -320,7 +320,7 @@ func DetermineShipmentMarketCode(shipment *MTOShipment) *MTOShipment {
 
 	// determine market code based on address and shipment type
 	switch shipment.ShipmentType {
-	case MTOShipmentTypeHHGIntoNTSDom:
+	case MTOShipmentTypeHHGIntoNTS:
 		if shipment.PickupAddress != nil && shipment.StorageFacility != nil &&
 			shipment.PickupAddress.IsOconus != nil && shipment.StorageFacility.Address.IsOconus != nil {
 			// If both pickup and storage facility are present, check if both are domestic
