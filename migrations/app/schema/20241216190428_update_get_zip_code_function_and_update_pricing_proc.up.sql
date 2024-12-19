@@ -43,7 +43,7 @@ $$ LANGUAGE plpgsql;
 CREATE OR REPLACE FUNCTION get_rate_area_id(
     address_id UUID,
     service_item_id UUID,
-    contract_id uuid,
+    c_id uuid,
     OUT o_rate_area_id UUID
 )
 RETURNS UUID AS $$
@@ -62,7 +62,7 @@ BEGIN
         ON a.us_post_region_cities_id = ro.us_post_region_cities_id
         JOIN re_rate_areas ra ON ro.rate_area_id = ra.id
         WHERE a.id = address_id
-            AND ra.contract_id = contract_id;
+            AND ra.contract_id = c_id;
     ELSE
         -- re_zip3s if is_oconus is FALSE
         SELECT rupr.zip3
@@ -81,7 +81,7 @@ BEGIN
         JOIN re_rate_areas ra
         ON rz.rate_area_id = ra.id
         WHERE rz.zip3 = zip3_value
-            AND ra.contract_id = contract_id;
+            AND ra.contract_id = c_id;
     END IF;
 
     -- Raise an exception if no rate area is found
