@@ -32,16 +32,16 @@ variables:
   GOLANGCI_LINT_VERBOSE: "-v"
 
   # Specify the environment: loadtest, demo, exp
-  DP3_ENV: &dp3_env demo
+  DP3_ENV: &dp3_env placeholder_env
 
   # Specify the branch to deploy
-  DP3_BRANCH: &dp3_branch B-18585-gitlab-deploy
+  DP3_BRANCH: &dp3_branch placeholder_branch_name
 
   # Ignore branches for integration tests
-  INTEGRATION_IGNORE_BRANCH: &integration_ignore_branch B-18585-gitlab-deploy
-  INTEGRATION_MTLS_IGNORE_BRANCH: &integration_mtls_ignore_branch B-18585-gitlab-deploy
-  CLIENT_IGNORE_BRANCH: &client_ignore_branch B-18585-gitlab-deploy
-  SERVER_IGNORE_BRANCH: &server_ignore_branch B-18585-gitlab-deploy
+  INTEGRATION_IGNORE_BRANCH: &integration_ignore_branch placeholder_branch_name
+  INTEGRATION_MTLS_IGNORE_BRANCH: &integration_mtls_ignore_branch placeholder_branch_name
+  CLIENT_IGNORE_BRANCH: &client_ignore_branch placeholder_branch_name
+  SERVER_IGNORE_BRANCH: &server_ignore_branch placeholder_branch_name
 
 stages:
 - pre_checks
