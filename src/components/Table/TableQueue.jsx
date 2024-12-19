@@ -1,11 +1,12 @@
 import React, { useState, useEffect, useMemo, useContext } from 'react';
-import { GridContainer } from '@trussworks/react-uswds';
+import { GridContainer, Button } from '@trussworks/react-uswds';
 import { useTable, useFilters, usePagination, useSortBy } from 'react-table';
 import PropTypes from 'prop-types';
 
 import styles from './TableQueue.module.scss';
 import TableCSVExportButton from './TableCSVExportButton';
 
+import BulkAssignmentModal from 'components/BulkAssignment/BulkAssignmentModal';
 import Table from 'components/Table/Table';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
@@ -49,6 +50,8 @@ const TableQueue = ({
   csvExportQueueFetcherKey,
   sessionStorageKey,
   isHeadquartersUser,
+  isSupervisor,
+  isBulkAssignmentFFEnabled,
 }) => {
   const [isPageReload, setIsPageReload] = useState(true);
   useEffect(() => {
@@ -84,6 +87,7 @@ const TableQueue = ({
   }, [currentPageSize, sessionStorageKey]);
 
   const [pageCount, setPageCount] = useState(0);
+  const [isBulkAssignModalVisible, setIsBulkAssignModalVisible] = useState(false);
 
   const { id, desc } = paramSort.length ? paramSort[0] : {};
 
@@ -91,7 +95,13 @@ const TableQueue = ({
   const { selectedGbloc } = isHeadquartersUser && gblocContext ? gblocContext : { selectedGbloc: undefined };
 
   const multiSelectValueDelimiter = ',';
+  const handleShowBulkAssignMoveModal = () => {
+    setIsBulkAssignModalVisible(true);
+  };
 
+  const handleCloseBulkAssignModal = () => {
+    setIsBulkAssignModalVisible(false);
+  };
   const {
     queueResult: {
       totalCount = 0,
@@ -300,48 +310,66 @@ const TableQueue = ({
   };
 
   return (
-    <GridContainer data-testid="table-queue" containerSize="widescreen" className={styles.TableQueue}>
-      <div className={styles.queueHeader}>
-        <h1>{`${title} (${totalCount})`}</h1>
-        {showCSVExport && (
-          <TableCSVExportButton
-            className={styles.csvDownloadLink}
-            tableColumns={columns}
-            hiddenColumns={csvExportHiddenColumns}
-            filePrefix={csvExportFileNamePrefix}
-            queueFetcher={csvExportQueueFetcher}
-            queueFetcherKey={csvExportQueueFetcherKey}
-            totalCount={totalCount}
-            paramSort={paramSort}
-            paramFilters={paramFilters}
-            isHeadquartersUser={isHeadquartersUser}
+    <div className={styles.tabContent}>
+      <div className={styles.container}>
+        {isBulkAssignModalVisible && (
+          <BulkAssignmentModal
+            isOpen={isBulkAssignModalVisible}
+            onClose={handleCloseBulkAssignModal}
+            // onSubmit={handleBulkAssignment}
           />
         )}
+        <GridContainer data-testid="table-queue" containerSize="widescreen" className={styles.TableQueue}>
+          <div className={styles.queueHeader}>
+            <h1>{`${title} (${totalCount})`}</h1>
+            <div className={styles.queueButtonWrapper}>
+              {isSupervisor && isBulkAssignmentFFEnabled && (
+                <Button type="button" unstyled onClick={handleShowBulkAssignMoveModal}>
+                  Bulk Assignment
+                </Button>
+              )}
+              {showCSVExport && (
+                <TableCSVExportButton
+                  className={styles.csvDownloadLink}
+                  tableColumns={columns}
+                  hiddenColumns={csvExportHiddenColumns}
+                  filePrefix={csvExportFileNamePrefix}
+                  queueFetcher={csvExportQueueFetcher}
+                  queueFetcherKey={csvExportQueueFetcherKey}
+                  totalCount={totalCount}
+                  paramSort={paramSort}
+                  paramFilters={paramFilters}
+                  isHeadquartersUser={isHeadquartersUser}
+                />
+              )}
+            </div>
+          </div>
+          {renderFilterPillButtonList()}
+          <div className={styles.tableContainer}>
+            <Table
+              showFilters={showFilters}
+              showPagination={showPagination}
+              handleClick={handleClick}
+              gotoPage={gotoPage}
+              setPageSize={setPageSize}
+              nextPage={nextPage}
+              previousPage={previousPage}
+              getTableProps={getTableProps}
+              getTableBodyProps={getTableBodyProps}
+              headerGroups={headerGroups}
+              rows={rows}
+              prepareRow={prepareRow}
+              canPreviousPage={canPreviousPage}
+              canNextPage={canNextPage}
+              pageIndex={pageIndex}
+              pageSize={pageSize}
+              pageCount={pageCount}
+              pageOptions={pageOptions}
+            />
+          </div>
+        </GridContainer>
       </div>
-      {renderFilterPillButtonList()}
-      <div className={styles.tableContainer}>
-        <Table
-          showFilters={showFilters}
-          showPagination={showPagination}
-          handleClick={handleClick}
-          gotoPage={gotoPage}
-          setPageSize={setPageSize}
-          nextPage={nextPage}
-          previousPage={previousPage}
-          getTableProps={getTableProps}
-          getTableBodyProps={getTableBodyProps}
-          headerGroups={headerGroups}
-          rows={rows}
-          prepareRow={prepareRow}
-          canPreviousPage={canPreviousPage}
-          canNextPage={canNextPage}
-          pageIndex={pageIndex}
-          pageSize={pageSize}
-          pageCount={pageCount}
-          pageOptions={pageOptions}
-        />
-      </div>
-    </GridContainer>
+    </div>
   );
 };
 

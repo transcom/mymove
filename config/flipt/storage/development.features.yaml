@@ -145,6 +145,14 @@ flags:
       - segment:
           key: mil-app
           value: true
+  - key: bulk_assignment
+    name: bulk assignment feature flag
+    type: BOOLEAN_FLAG_TYPE
+    enabled: true
+    rollouts:
+      - segment:
+          key: mil-app
+          value: true
   - key: dodid_unique
     name: DODID validation feature flag that ensures unique DODIDs
     type: BOOLEAN_FLAG_TYPE

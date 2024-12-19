@@ -419,7 +419,7 @@ export const closeoutColumns = (
   return cols;
 };
 
-const ServicesCounselingQueue = ({ userPrivileges, isQueueManagementFFEnabled }) => {
+const ServicesCounselingQueue = ({ userPrivileges, isQueueManagementFFEnabled, isBulkAssignmentFFEnabled }) => {
   const { queueType } = useParams();
   const { data, isLoading, isError } = useUserQueries();
 
@@ -648,6 +648,8 @@ const ServicesCounselingQueue = ({ userPrivileges, isQueueManagementFFEnabled })
           csvExportQueueFetcherKey="queueMoves"
           sessionStorageKey={queueType}
           key={queueType}
+          isSupervisor={supervisor}
+          isBulkAssignmentFFEnabled={isBulkAssignmentFFEnabled}
         />
       </div>
     );
@@ -675,6 +677,8 @@ const ServicesCounselingQueue = ({ userPrivileges, isQueueManagementFFEnabled })
           csvExportQueueFetcherKey="queueMoves"
           sessionStorageKey={queueType}
           key={queueType}
+          isSupervisor={supervisor}
+          isBulkAssignmentFFEnabled={isBulkAssignmentFFEnabled}
         />
       </div>
     );
