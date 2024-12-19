@@ -18,8 +18,8 @@ const (
 	dpkTestWeight                 = unit.Pound(2100)
 	dpkTestServicesScheduleOrigin = 1
 	dpkTestContractYearName       = "DPK Test Year"
-	dpkTestBasePriceCents         = unit.Cents(146)
-	dpkTestPriceCents             = unit.Cents(3192)
+	dpkTestBasePriceCents         = unit.Cents(6544)
+	dpkTestPriceCents             = unit.Cents(143010)
 )
 
 var dpkTestRequestedPickupDate = time.Date(testdatagen.TestYear, peakStart.month, peakStart.day, 0, 0, 0, 0, time.UTC)
