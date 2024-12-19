@@ -91,7 +91,7 @@ func (f *pptasReportListFetcher) BuildPPTASReportsFromMoves(appCtx appcontext.Ap
 		report.Address = orders.ServiceMember.ResidentialAddress
 
 		if orders.Grade != nil && orders.Entitlement != nil {
-			orders.Entitlement.SetWeightAllotment(string(*orders.Grade))
+			orders.Entitlement.SetWeightAllotment(string(*orders.Grade), orders.OrdersType)
 		}
 
 		weightAllotment := orders.Entitlement.WeightAllotment()
@@ -513,31 +513,33 @@ func buildServiceItemCrate(serviceItem models.MTOServiceItem) pptasmessages.Crat
 
 // inputs all TAC related fields and builds full line of accounting string
 func inputReportTAC(report *models.PPTASReport, pptasShipment *pptasmessages.PPTASShipment, orders models.Order, appCtx appcontext.AppContext, tacFetcher services.TransportationAccountingCodeFetcher, loa services.LineOfAccountingFetcher) error {
-	tac, err := tacFetcher.FetchOrderTransportationAccountingCodes(models.DepartmentIndicator(*orders.DepartmentIndicator), orders.IssueDate, *orders.TAC, appCtx)
-	if err != nil {
-		return err
-	} else if len(tac) < 1 {
-		return nil
-	}
+	if orders.DepartmentIndicator != nil && orders.TAC != nil && !orders.IssueDate.IsZero() {
+		tac, err := tacFetcher.FetchOrderTransportationAccountingCodes(models.DepartmentIndicator(*orders.DepartmentIndicator), orders.IssueDate, *orders.TAC, appCtx)
+		if err != nil {
+			return err
+		} else if len(tac) < 1 {
+			return nil
+		}
 
-	if tac[0].LineOfAccounting != nil {
-		longLoa := loa.BuildFullLineOfAccountingString(*tac[0].LineOfAccounting)
+		if tac[0].LineOfAccounting != nil {
+			longLoa := loa.BuildFullLineOfAccountingString(*tac[0].LineOfAccounting)
 
-		pptasShipment.Loa = &longLoa
-		pptasShipment.FiscalYear = tac[0].TacFyTxt
-		pptasShipment.Appro = tac[0].LineOfAccounting.LoaBafID
-		pptasShipment.Subhead = tac[0].LineOfAccounting.LoaTrsySfxTx
-		pptasShipment.ObjClass = tac[0].LineOfAccounting.LoaObjClsID
-		pptasShipment.Bcn = tac[0].LineOfAccounting.LoaAlltSnID
-		pptasShipment.SubAllotCD = tac[0].LineOfAccounting.LoaSbaltmtRcpntID
-		pptasShipment.Aaa = tac[0].LineOfAccounting.LoaTrnsnID
-		pptasShipment.TypeCD = tac[0].LineOfAccounting.LoaJbOrdNm
-		pptasShipment.Paa = tac[0].LineOfAccounting.LoaInstlAcntgActID
-		pptasShipment.CostCD = tac[0].LineOfAccounting.LoaPgmElmntID
-		pptasShipment.Ddcd = tac[0].LineOfAccounting.LoaDptID
+			pptasShipment.Loa = &longLoa
+			pptasShipment.FiscalYear = tac[0].TacFyTxt
+			pptasShipment.Appro = tac[0].LineOfAccounting.LoaBafID
+			pptasShipment.Subhead = tac[0].LineOfAccounting.LoaTrsySfxTx
+			pptasShipment.ObjClass = tac[0].LineOfAccounting.LoaObjClsID
+			pptasShipment.Bcn = tac[0].LineOfAccounting.LoaAlltSnID
+			pptasShipment.SubAllotCD = tac[0].LineOfAccounting.LoaSbaltmtRcpntID
+			pptasShipment.Aaa = tac[0].LineOfAccounting.LoaTrnsnID
+			pptasShipment.TypeCD = tac[0].LineOfAccounting.LoaJbOrdNm
+			pptasShipment.Paa = tac[0].LineOfAccounting.LoaInstlAcntgActID
+			pptasShipment.CostCD = tac[0].LineOfAccounting.LoaPgmElmntID
+			pptasShipment.Ddcd = tac[0].LineOfAccounting.LoaDptID
 
-		if report.OrderNumber == nil {
-			report.OrderNumber = tac[0].LineOfAccounting.LoaDocID
+			if report.OrderNumber == nil {
+				report.OrderNumber = tac[0].LineOfAccounting.LoaDocID
+			}
 		}
 	}
 

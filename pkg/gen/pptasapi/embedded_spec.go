@@ -426,7 +426,7 @@ func init() {
           "example": "G"
         },
         "orderNumber": {
-          "description": "LoaDocID in lines of accounting table. Not to be confused with Orders Number.",
+          "description": "LoaDocID in lines of accounting table. Not to be confused with Orders Number",
           "type": "string",
           "x-nullable": true,
           "example": "030-00362"
@@ -1315,7 +1315,7 @@ func init() {
           "example": "G"
         },
         "orderNumber": {
-          "description": "LoaDocID in lines of accounting table. Not to be confused with Orders Number.",
+          "description": "LoaDocID in lines of accounting table. Not to be confused with Orders Number",
           "type": "string",
           "x-nullable": true,
           "example": "030-00362"
