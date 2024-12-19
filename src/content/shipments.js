@@ -28,7 +28,7 @@ export const shipmentSectionLabels = {
   BOAT_HAUL_AWAY: 'Boat Haul Away shipment',
   BOAT_TOW_AWAY: 'Boat Tow Away shipment',
   MOBILE_HOME: 'Mobile Home shipment',
-  HHG_INTO_NTS_DOMESTIC: 'NTS shipment',
+  HHG_INTO_NTS: 'NTS shipment',
   HHG_OUTOF_NTS_DOMESTIC: 'NTS-release shipment',
   UNACCOMPANIED_BAGGAGE: 'UB shipment',
 };
