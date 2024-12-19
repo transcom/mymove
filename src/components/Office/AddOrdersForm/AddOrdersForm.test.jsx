@@ -6,7 +6,7 @@ import { Provider } from 'react-redux';
 import AddOrdersForm from './AddOrdersForm';
 
 import { dropdownInputOptions } from 'utils/formatters';
-import { ORDERS_TYPE_OPTIONS } from 'constants/orders';
+import { ORDERS_TYPE, ORDERS_TYPE_OPTIONS } from 'constants/orders';
 import { configureStore } from 'shared/store';
 import { isBooleanFlagEnabled } from 'utils/featureFlags';
 
@@ -126,6 +126,40 @@ describe('CreateMoveCustomerInfo Component', () => {
     });
   });
 
+  it('renders each option for orders type', async () => {
+    isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(true));
+
+    const { getByLabelText } = render(
+      <Provider store={mockStore.store}>
+        <AddOrdersForm {...testProps} />
+      </Provider>,
+    );
+
+    const ordersTypeDropdown = getByLabelText('Orders type');
+    expect(ordersTypeDropdown).toBeInstanceOf(HTMLSelectElement);
+
+    await userEvent.selectOptions(ordersTypeDropdown, ORDERS_TYPE.PERMANENT_CHANGE_OF_STATION);
+    expect(ordersTypeDropdown).toHaveValue(ORDERS_TYPE.PERMANENT_CHANGE_OF_STATION);
+
+    await userEvent.selectOptions(ordersTypeDropdown, ORDERS_TYPE.LOCAL_MOVE);
+    expect(ordersTypeDropdown).toHaveValue(ORDERS_TYPE.LOCAL_MOVE);
+
+    await userEvent.selectOptions(ordersTypeDropdown, ORDERS_TYPE.RETIREMENT);
+    expect(ordersTypeDropdown).toHaveValue(ORDERS_TYPE.RETIREMENT);
+
+    await userEvent.selectOptions(ordersTypeDropdown, ORDERS_TYPE.SEPARATION);
+    expect(ordersTypeDropdown).toHaveValue(ORDERS_TYPE.SEPARATION);
+
+    await userEvent.selectOptions(ordersTypeDropdown, ORDERS_TYPE.TEMPORARY_DUTY);
+    expect(ordersTypeDropdown).toHaveValue(ORDERS_TYPE.TEMPORARY_DUTY);
+
+    await userEvent.selectOptions(ordersTypeDropdown, ORDERS_TYPE.EARLY_RETURN_OF_DEPENDENTS);
+    expect(ordersTypeDropdown).toHaveValue(ORDERS_TYPE.EARLY_RETURN_OF_DEPENDENTS);
+
+    await userEvent.selectOptions(ordersTypeDropdown, ORDERS_TYPE.STUDENT_TRAVEL);
+    expect(ordersTypeDropdown).toHaveValue(ORDERS_TYPE.STUDENT_TRAVEL);
+  });
+
   it('shows an error message if trying to submit an invalid form', async () => {
     const { getByRole, findAllByRole, getByLabelText } = render(
       <Provider store={mockStore.store}>
@@ -191,6 +225,125 @@ describe('AddOrdersForm - OCONUS and Accompanied Tour Test', () => {
 
     await waitFor(() => {
       expect(testProps.onSubmit).toHaveBeenCalled();
+    });
+  });
+});
+
+describe('AddOrdersForm - Student Travel, Early Return of Dependents Test', () => {
+  it('has dependents is yes and disabled when order type is student travel', async () => {
+    isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(true));
+
+    render(
+      <Provider store={mockStore.store}>
+        <AddOrdersForm {...testProps} />
+      </Provider>,
+    );
+
+    await userEvent.selectOptions(screen.getByLabelText('Orders type'), ORDERS_TYPE.STUDENT_TRAVEL);
+
+    const hasDependentsYes = screen.getByLabelText('Yes');
+    const hasDependentsNo = screen.getByLabelText('No');
+
+    await waitFor(() => {
+      expect(hasDependentsYes).toBeChecked();
+      expect(hasDependentsYes).toBeDisabled();
+      expect(hasDependentsNo).toBeDisabled();
+    });
+  });
+
+  it('has dependents is yes and disabled when order type is early return', async () => {
+    isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(true));
+
+    render(
+      <Provider store={mockStore.store}>
+        <AddOrdersForm {...testProps} />
+      </Provider>,
+    );
+
+    await userEvent.selectOptions(screen.getByLabelText('Orders type'), ORDERS_TYPE.EARLY_RETURN_OF_DEPENDENTS);
+    const hasDependentsYes = screen.getByLabelText('Yes');
+    const hasDependentsNo = screen.getByLabelText('No');
+
+    await waitFor(() => {
+      expect(hasDependentsYes).toBeChecked();
+      expect(hasDependentsYes).toBeDisabled();
+      expect(hasDependentsNo).toBeDisabled();
+    });
+  });
+
+  it('has dependents becomes disabled and then re-enabled for order type student travel', async () => {
+    isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(true));
+
+    render(
+      <Provider store={mockStore.store}>
+        <AddOrdersForm {...testProps} />
+      </Provider>,
+    );
+
+    await userEvent.selectOptions(screen.getByLabelText('Orders type'), ORDERS_TYPE.PERMANENT_CHANGE_OF_STATION);
+
+    const hasDependentsYesPermChg = screen.getByLabelText('Yes');
+    const hasDependentsNoPermChg = screen.getByLabelText('No');
+
+    await waitFor(() => {
+      expect(hasDependentsYesPermChg).not.toBeChecked();
+      expect(hasDependentsYesPermChg).toBeEnabled();
+      expect(hasDependentsNoPermChg).not.toBeChecked();
+      expect(hasDependentsNoPermChg).toBeEnabled();
+    });
+
+    // set order type to value that disables and defaults "has dependents"
+    await userEvent.selectOptions(screen.getByLabelText('Orders type'), ORDERS_TYPE.STUDENT_TRAVEL);
+
+    // set order type to value the re-enables "has dependents"
+    await userEvent.selectOptions(screen.getByLabelText('Orders type'), ORDERS_TYPE.LOCAL_MOVE);
+
+    const hasDependentsYesLocalMove = screen.getByLabelText('Yes');
+    const hasDependentsNoLocalMove = screen.getByLabelText('No');
+
+    await waitFor(() => {
+      expect(hasDependentsYesLocalMove).not.toBeChecked();
+      expect(hasDependentsYesLocalMove).toBeEnabled();
+      expect(hasDependentsNoLocalMove).not.toBeChecked();
+      expect(hasDependentsNoLocalMove).toBeEnabled();
+    });
+  });
+
+  it('has dependents becomes disabled and then re-enabled for order type early return', async () => {
+    isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(true));
+
+    render(
+      <Provider store={mockStore.store}>
+        <AddOrdersForm {...testProps} />
+      </Provider>,
+    );
+
+    await userEvent.selectOptions(screen.getByLabelText('Orders type'), ORDERS_TYPE.PERMANENT_CHANGE_OF_STATION);
+
+    const hasDependentsYesPermChg = screen.getByLabelText('Yes');
+    const hasDependentsNoPermChg = screen.getByLabelText('No');
+
+    await waitFor(() => {
+      expect(hasDependentsYesPermChg).not.toBeChecked();
+      expect(hasDependentsYesPermChg).toBeEnabled();
+      expect(hasDependentsNoPermChg).not.toBeChecked();
+      expect(hasDependentsNoPermChg).toBeEnabled();
+    });
+
+    // set order type to value that disables and defaults "has dependents"
+    await userEvent.selectOptions(screen.getByLabelText('Orders type'), ORDERS_TYPE.EARLY_RETURN_OF_DEPENDENTS);
+
+    // set order type to value the re-enables "has dependents"
+    await userEvent.selectOptions(screen.getByLabelText('Orders type'), ORDERS_TYPE.LOCAL_MOVE);
+
+    const hasDependentsYesLocalMove = screen.getByLabelText('Yes');
+    const hasDependentsNoLocalMove = screen.getByLabelText('No');
+
+    await waitFor(() => {
+      expect(hasDependentsYesLocalMove).not.toBeChecked();
+      expect(hasDependentsYesLocalMove).toBeEnabled();
+      expect(hasDependentsNoLocalMove).not.toBeChecked();
+      expect(hasDependentsNoLocalMove).toBeEnabled();
     });
   });
 });
