@@ -132,9 +132,6 @@ test.describe('Office User Create Page', () => {
     await firstName.focus();
     await firstName.fill('Cypress');
 
-    // middle initials are not working for me in chrome outside of
-    // playwright - ahobson 2022-12-29
-    // await page.getByLabel('Middle initials').fill('X');
     const lastName = page.getByLabel('Last name');
     await lastName.focus();
     await lastName.fill('Test');
@@ -269,9 +266,6 @@ test.describe('Office User Create Page', () => {
     await expect(page.locator('#email')).toHaveValue(testEmail);
     await expect(page.locator('#firstName')).toHaveValue('Cypress');
     await expect(page.locator('#lastName')).toHaveValue('Test');
-    // middle initials are not working for me in chrome outside of
-    // playwright - ahobson 2022-12-29
-    // await expect(page.locator('#middleInitials')).toHaveValue('X');
     await expect(page.locator('#telephone')).toHaveValue('222-555-1234');
     await expect(page.locator('#active')).toHaveText('Yes');
   });
