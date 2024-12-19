@@ -760,7 +760,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 	boatShipmentUpdater := boatshipment.NewBoatShipmentUpdater()
 	mobileHomeShipmentUpdater := mobilehomeshipment.NewMobileHomeShipmentUpdater()
 
-	shipmentUpdater := shipmentorchestrator.NewShipmentUpdater(mtoShipmentUpdater, ppmShipmentUpdater, boatShipmentUpdater, mobileHomeShipmentUpdater)
+	shipmentUpdater := shipmentorchestrator.NewShipmentUpdater(mtoShipmentUpdater, ppmShipmentUpdater, boatShipmentUpdater, mobileHomeShipmentUpdater, nil)
 
 	authRequestAndSetUpHandlerAndParams := func(originalShipment models.MTOShipment, mockShipmentUpdater *mocks.ShipmentUpdater) (UpdateMTOShipmentHandler, mtoshipmentops.UpdateMTOShipmentParams) {
 		endpoint := fmt.Sprintf("/mto-shipments/%s", originalShipment.ID.String())

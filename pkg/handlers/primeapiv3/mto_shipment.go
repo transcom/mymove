@@ -17,6 +17,7 @@ import (
 	"github.com/transcom/mymove/pkg/handlers/primeapi"
 	"github.com/transcom/mymove/pkg/handlers/primeapiv3/payloads"
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/route"
 	"github.com/transcom/mymove/pkg/services"
 	mtoshipment "github.com/transcom/mymove/pkg/services/mto_shipment"
 )
@@ -169,6 +170,7 @@ func (h CreateMTOShipmentHandler) Handle(params mtoshipmentops.CreateMTOShipment
 type UpdateMTOShipmentHandler struct {
 	handlers.HandlerConfig
 	services.ShipmentUpdater
+	planner route.Planner
 }
 
 // Handle handler that updates a mto shipment
@@ -202,7 +204,7 @@ func (h UpdateMTOShipmentHandler) Handle(params mtoshipmentops.UpdateMTOShipment
 			mtoShipment.ShipmentType = dbShipment.ShipmentType
 
 			appCtx.Logger().Info("primeapi.UpdateMTOShipmentHandler info", zap.String("pointOfContact", params.Body.PointOfContact))
-			mtoShipment, err = h.ShipmentUpdater.UpdateShipment(appCtx, mtoShipment, params.IfMatch, "prime-v3")
+			mtoShipment, err = h.ShipmentUpdater.UpdateShipment(appCtx, mtoShipment, params.IfMatch, "prime-v3", h.planner)
 			if err != nil {
 				appCtx.Logger().Error("primeapi.UpdateMTOShipmentHandler error", zap.Error(err))
 				switch e := err.(type) {

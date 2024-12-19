@@ -39,7 +39,7 @@ type mtoServiceItemCreator struct {
 	fuelSurchargePricer services.FuelSurchargePricer
 }
 
-func (o *mtoServiceItemCreator) findEstimatedPrice(appCtx appcontext.AppContext, serviceItem *models.MTOServiceItem, mtoShipment models.MTOShipment) (unit.Cents, error) {
+func (o *mtoServiceItemCreator) FindEstimatedPrice(appCtx appcontext.AppContext, serviceItem *models.MTOServiceItem, mtoShipment models.MTOShipment) (unit.Cents, error) {
 	if serviceItem.ReService.Code == models.ReServiceCodeDOP ||
 		serviceItem.ReService.Code == models.ReServiceCodeDPK ||
 		serviceItem.ReService.Code == models.ReServiceCodeDDP ||
@@ -606,7 +606,7 @@ func (o *mtoServiceItemCreator) CreateMTOServiceItem(appCtx appcontext.AppContex
 
 	// NTS-release requested pickup dates are for handle out, their pricing is handled differently as their locations are based on storage facilities, not pickup locations
 	if mtoShipment.PrimeEstimatedWeight != nil && mtoShipment.RequestedPickupDate != nil && mtoShipment.ShipmentType != models.MTOShipmentTypeHHGOutOfNTSDom {
-		serviceItemEstimatedPrice, err := o.findEstimatedPrice(appCtx, serviceItem, mtoShipment)
+		serviceItemEstimatedPrice, err := o.FindEstimatedPrice(appCtx, serviceItem, mtoShipment)
 		if serviceItemEstimatedPrice != 0 && err == nil {
 			serviceItem.PricingEstimate = &serviceItemEstimatedPrice
 		}
