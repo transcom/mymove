@@ -1068,7 +1068,7 @@ func (o *mtoShipmentStatusUpdater) setRequiredDeliveryDate(appCtx appcontext.App
 			pickupLocation = shipment.PickupAddress
 			deliveryLocation = shipment.DestinationAddress
 		}
-		requiredDeliveryDate, calcErr := CalculateRequiredDeliveryDate(appCtx, o.planner, *pickupLocation, *deliveryLocation, *shipment.ScheduledPickupDate, weight.Int())
+		requiredDeliveryDate, calcErr := CalculateRequiredDeliveryDate(appCtx, o.planner, *pickupLocation, *deliveryLocation, *shipment.ScheduledPickupDate, weight.Int(), shipment.MarketCode)
 		if calcErr != nil {
 			return calcErr
 		}
@@ -1185,7 +1185,7 @@ func reServiceCodesForShipment(shipment models.MTOShipment) []models.ReServiceCo
 // CalculateRequiredDeliveryDate function is used to get a distance calculation using the pickup and destination addresses. It then uses
 // the value returned to make a fetch on the ghc_domestic_transit_times table and returns a required delivery date
 // based on the max_days_transit_time.
-func CalculateRequiredDeliveryDate(appCtx appcontext.AppContext, planner route.Planner, pickupAddress models.Address, destinationAddress models.Address, pickupDate time.Time, weight int) (*time.Time, error) {
+func CalculateRequiredDeliveryDate(appCtx appcontext.AppContext, planner route.Planner, pickupAddress models.Address, destinationAddress models.Address, pickupDate time.Time, weight int, marketCode models.MarketCode) (*time.Time, error) {
 	// Okay, so this is something to get us able to take care of the 20 day condition over in the gdoc linked in this
 	// story: https://dp3.atlassian.net/browse/MB-1141
 	// We unfortunately didn't get a lot of guidance regarding vicinity. So for now we're taking zip codes that are the
@@ -1197,8 +1197,9 @@ func CalculateRequiredDeliveryDate(appCtx appcontext.AppContext, planner route.P
 		"99615", "99619", "99624", "99643", "99644", "99697", "99650", "99801", "99802", "99803", "99811", "99812",
 		"99950", "99824", "99850", "99901", "99928", "99950", "99835"}
 
+	internationalShipment := marketCode == models.MarketCodeInternational
 	// Get a distance calculation between pickup and destination addresses.
-	distance, err := planner.ZipTransitDistance(appCtx, pickupAddress.PostalCode, destinationAddress.PostalCode, false, false)
+	distance, err := planner.ZipTransitDistance(appCtx, pickupAddress.PostalCode, destinationAddress.PostalCode, false, internationalShipment)
 	if err != nil {
 		return nil, err
 	}

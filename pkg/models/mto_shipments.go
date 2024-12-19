@@ -1,6 +1,7 @@
 package models
 
 import (
+	"database/sql"
 	"fmt"
 	"time"
 
@@ -432,7 +433,7 @@ func GetPortLocationInfoForShipment(db *pop.Connection, shipmentID uuid.UUID) (*
 	err := db.RawQuery("SELECT * FROM get_port_location_info_for_shipment($1)", shipmentID).
 		First(&portLocationInfo)
 
-	if err != nil {
+	if err != nil && err != sql.ErrNoRows {
 		return nil, nil, fmt.Errorf("error fetching port location for shipment ID: %s with error %w", shipmentID, err)
 	}
 
