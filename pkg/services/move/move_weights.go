@@ -256,7 +256,10 @@ func (w *moveWeights) MoveShouldAutoReweigh(appCtx appcontext.AppContext, moveID
 		return false, err
 	}
 
-	weightLimit := *move.Orders.Entitlement.DBAuthorizedWeight
+	weightLimit := 0
+	if move.Orders.Entitlement.DBAuthorizedWeight != nil {
+		weightLimit = *move.Orders.Entitlement.DBAuthorizedWeight
+	}
 
 	totalActualWeight := 0
 	totalEstimatedWeight := 0
