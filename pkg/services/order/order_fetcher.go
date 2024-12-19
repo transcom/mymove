@@ -188,13 +188,13 @@ func (f orderFetcher) ListOrders(appCtx appcontext.AppContext, officeUserID uuid
 			LeftJoin("addresses", "mto_shipments.destination_address_id = addresses.id").
 			LeftJoin("postal_code_to_gblocs", "addresses.postal_code = postal_code_to_gblocs.postal_code").
 			Where("show = ?", models.BoolPointer(true)).
+			Where("moves.status = 'APPROVALS REQUESTED' OR moves.status = 'SUBMITTED' OR moves.status = 'SERVICE COUNSELING COMPLETED'").
 			Where(
 				"shipment_address_updates.status != 'REQUESTED' OR shipment_address_updates.status IS NULL",
 			).
 			Where(
 				"mto_service_items.status IS NULL OR (mto_service_items.status = 'SUBMITTED' AND re_services.code NOT IN ('DDP', 'DDFSIT', 'DDASIT', 'DDDSIT', 'DDSHUT', 'DDSFSC'))",
-			).
-			Where("moves.status = 'APPROVALS REQUESTED' OR moves.status = 'SUBMITTED' OR moves.status = 'SERVICE COUNSELING COMPLETED'")
+			)
 
 		if !privileges.HasPrivilege(models.PrivilegeTypeSafety) {
 			query.Where("orders.orders_type != (?)", "SAFETY")
