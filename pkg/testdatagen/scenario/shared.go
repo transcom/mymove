@@ -4932,7 +4932,7 @@ func createHHGWithPaymentServiceItems(
 		"94535", "94535", false).Return(348, nil).Times(2)
 
 	// called for zip 5 domestic linehaul service item
-	planner.On("ZipTransitDistance", mock.AnythingOfType("*appcontext.appContext"), "94535", "94535", false, false).Return(348, nil).Once()
+	planner.On("ZipTransitDistance", mock.AnythingOfType("*appcontext.appContext"), "94535", "94535", false, false).Return(348, nil).Times(2)
 
 	// called for domestic shorthaul service item
 	planner.On("Zip5TransitDistance", mock.AnythingOfType("*appcontext.appContext"),

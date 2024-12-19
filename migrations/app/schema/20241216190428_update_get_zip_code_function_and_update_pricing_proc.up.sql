@@ -93,6 +93,31 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
+-- this function will help us get the ZIP code & port type for a port to calculate mileage
+CREATE OR REPLACE FUNCTION get_port_location_info_for_shipment(shipment_id UUID)
+RETURNS TABLE(uspr_zip_id TEXT, port_type TEXT) AS $$
+BEGIN
+    -- select the ZIP code and port type (POEFSC or PODFSC)
+    RETURN QUERY
+    SELECT
+        COALESCE(poe_usprc.uspr_zip_id::TEXT, pod_usprc.uspr_zip_id::TEXT) AS uspr_zip_id,
+        CASE
+            WHEN msi.poe_location_id IS NOT NULL THEN 'POEFSC'
+            WHEN msi.pod_location_id IS NOT NULL THEN 'PODFSC'
+            ELSE NULL
+        END AS port_type
+    FROM mto_shipments ms
+    JOIN mto_service_items msi ON ms.id = msi.mto_shipment_id
+    LEFT JOIN port_locations poe_pl ON msi.poe_location_id = poe_pl.id
+    LEFT JOIN port_locations pod_pl ON msi.pod_location_id = pod_pl.id
+    LEFT JOIN us_post_region_cities poe_usprc ON poe_pl.us_post_region_cities_id = poe_usprc.id
+    LEFT JOIN us_post_region_cities pod_usprc ON pod_pl.us_post_region_cities_id = pod_usprc.id
+    WHERE ms.id = shipment_id
+    AND (msi.poe_location_id IS NOT NULL OR msi.pod_location_id IS NOT NULL)
+    LIMIT 1;
+END;
+$$ LANGUAGE plpgsql;
+
 -- updating the pricing proc to now consume the mileage we get from DTOD instead of calculate it using Rand McNally
 -- this is a requirement for E-06210
 -- also updating the get_rate_area parameters and passing in the contract_id
@@ -207,28 +232,3 @@ BEGIN
 END;
 '
 LANGUAGE plpgsql;
-
--- this function will help us get the ZIP code & port type for a port to calculate mileage
-CREATE OR REPLACE FUNCTION get_port_location_info_for_shipment(shipment_id UUID)
-RETURNS TABLE(uspr_zip_id TEXT, port_type TEXT) AS $$
-BEGIN
-    -- select the ZIP code and port type (POEFSC or PODFSC)
-    RETURN QUERY
-    SELECT
-        COALESCE(poe_usprc.uspr_zip_id::TEXT, pod_usprc.uspr_zip_id::TEXT) AS uspr_zip_id,
-        CASE
-            WHEN msi.poe_location_id IS NOT NULL THEN 'POEFSC'
-            WHEN msi.pod_location_id IS NOT NULL THEN 'PODFSC'
-            ELSE NULL
-        END AS port_type
-    FROM mto_shipments ms
-    JOIN mto_service_items msi ON ms.id = msi.mto_shipment_id
-    LEFT JOIN port_locations poe_pl ON msi.poe_location_id = poe_pl.id
-    LEFT JOIN port_locations pod_pl ON msi.pod_location_id = pod_pl.id
-    LEFT JOIN us_post_region_cities poe_usprc ON poe_pl.us_post_region_cities_id = poe_usprc.id
-    LEFT JOIN us_post_region_cities pod_usprc ON pod_pl.us_post_region_cities_id = pod_usprc.id
-    WHERE ms.id = shipment_id
-    AND (msi.poe_location_id IS NOT NULL OR msi.pod_location_id IS NOT NULL)
-    LIMIT 1;
-END;
-$$ LANGUAGE plpgsql;
