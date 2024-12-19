@@ -725,7 +725,6 @@ func (f *mtoShipmentUpdater) updateShipmentRecord(appCtx appcontext.AppContext, 
 			}
 		}
 
-		var move models.Move
 		// If the estimated weight was updated on an approved shipment then it would mean the move could qualify for
 		// excess weight risk depending on the weight allowance and other shipment estimated weights
 		if newShipment.PrimeEstimatedWeight != nil || (newShipment.ShipmentType == models.MTOShipmentTypeHHGOutOfNTSDom && newShipment.NTSRecordedWeight != nil) {
@@ -768,15 +767,17 @@ func (f *mtoShipmentUpdater) updateShipmentRecord(appCtx appcontext.AppContext, 
 				}
 			}
 
-			needsReweigh, err := f.moveWeights.MoveShouldAutoReweigh(txnAppCtx, move.ID)
-			if err != nil {
-				return err
-			}
-
-			if needsReweigh {
-				autoReweighShipments, err = f.moveWeights.CheckAutoReweigh(txnAppCtx, dbShipment.MoveTaskOrderID, newShipment)
+			if dbShipment.PrimeEstimatedWeight != nil {
+				needsReweigh, err := f.moveWeights.MoveShouldAutoReweigh(txnAppCtx, move.ID)
 				if err != nil {
 					return err
+				}
+
+				if needsReweigh {
+					autoReweighShipments, err = f.moveWeights.CheckAutoReweigh(txnAppCtx, dbShipment.MoveTaskOrderID, newShipment)
+					if err != nil {
+						return err
+					}
 				}
 			}
 		}
@@ -784,18 +785,6 @@ func (f *mtoShipmentUpdater) updateShipmentRecord(appCtx appcontext.AppContext, 
 		if newShipment.PrimeActualWeight != nil {
 			if dbShipment.PrimeActualWeight == nil || *newShipment.PrimeActualWeight != *dbShipment.PrimeActualWeight {
 				var err error
-				autoReweighShipments, err = f.moveWeights.CheckAutoReweigh(txnAppCtx, dbShipment.MoveTaskOrderID, newShipment)
-				if err != nil {
-					return err
-				}
-			}
-
-			needsReweigh, err := f.moveWeights.MoveShouldAutoReweigh(txnAppCtx, move.ID)
-			if err != nil {
-				return err
-			}
-
-			if needsReweigh {
 				autoReweighShipments, err = f.moveWeights.CheckAutoReweigh(txnAppCtx, dbShipment.MoveTaskOrderID, newShipment)
 				if err != nil {
 					return err
