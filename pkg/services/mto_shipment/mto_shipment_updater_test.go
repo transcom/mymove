@@ -3545,8 +3545,6 @@ func (suite *MTOShipmentServiceSuite) TestUpdateShipmentActualWeightAutoReweigh(
 
 		// there is a validator check about updating the status
 		primeShipment.Status = ""
-		estimatedWeight := unit.Pound(7200)
-		primeShipment.PrimeEstimatedWeight = &estimatedWeight
 
 		session := auth.Session{}
 		_, err := mockedUpdater.UpdateMTOShipment(suite.AppContextWithSessionForTest(&session), &primeShipment, etag.GenerateEtag(primeShipment.UpdatedAt), "test")
@@ -3571,10 +3569,11 @@ func (suite *MTOShipmentServiceSuite) TestUpdateShipmentActualWeightAutoReweigh(
 		oldPrimeShipment := factory.BuildMTOShipmentMinimal(suite.DB(), []factory.Customization{
 			{
 				Model: models.MTOShipment{
-					Status:              models.MTOShipmentStatusApproved,
-					ApprovedDate:        &now,
-					ScheduledPickupDate: &pickupDate,
-					PrimeActualWeight:   &weight,
+					Status:               models.MTOShipmentStatusApproved,
+					ApprovedDate:         &now,
+					ScheduledPickupDate:  &pickupDate,
+					PrimeActualWeight:    &weight,
+					PrimeEstimatedWeight: &weight,
 				},
 			},
 			{
@@ -3595,6 +3594,8 @@ func (suite *MTOShipmentServiceSuite) TestUpdateShipmentActualWeightAutoReweigh(
 			ID:                oldPrimeShipment.ID,
 			PrimeActualWeight: &weight,
 		}
+		newPrimeShipment.PrimeActualWeight = &weight
+		newPrimeShipment.PrimeEstimatedWeight = &weight
 
 		eTag := etag.GenerateEtag(oldPrimeShipment.UpdatedAt)
 
