@@ -4466,7 +4466,7 @@ func init() {
           },
           {
             "type": "string",
-            "description": "Used to return a queue for a GBLOC other than the default of the current user. Requires the HQ role. The parameter is ignored if the requesting user does not have the necessary role.\n",
+            "description": "Used to return a queue for a GBLOC other than the default of the current user. Requires the HQ role or a secondary transportation office assignment. The parameter is ignored if the requesting user does not have the necessary role or assignment.\n",
             "name": "viewAsGBLOC",
             "in": "query"
           },
@@ -4509,6 +4509,12 @@ func init() {
             "type": "boolean",
             "description": "Only used for Services Counseling queue. If true, show PPM moves origin locations that are ready for closeout. Otherwise, show all other moves origin locations.",
             "name": "needsPPMCloseout",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "Used to return an origins list for a GBLOC other than the default of the current user. Requires the HQ role or a secondary transportation office assignment. The parameter is ignored if the requesting user does not have the necessary role or assignment.",
+            "name": "viewAsGBLOC",
             "in": "query"
           }
         ],
@@ -4657,7 +4663,7 @@ func init() {
           },
           {
             "type": "string",
-            "description": "Used to return a queue for a GBLOC other than the default of the current user. Requires the HQ role. The parameter is ignored if the requesting user does not have the necessary role.\n",
+            "description": "Used to return a queue for a GBLOC other than the default of the current user. Requires the HQ role or a secondary transportation office assignment. The parameter is ignored if the requesting user does not have the necessary role or assignment.\n",
             "name": "viewAsGBLOC",
             "in": "query"
           },
@@ -4823,7 +4829,7 @@ func init() {
           },
           {
             "type": "string",
-            "description": "Used to return a queue for a GBLOC other than the default of the current user. Requires the HQ role. The parameter is ignored if the requesting user does not have the necessary role.\n",
+            "description": "Used to return a queue for a GBLOC other than the default of the current user. Requires the HQ role or a secondary transportation office assignment. The parameter is ignored if the requesting user does not have the necessary role or assignment.\n",
             "name": "viewAsGBLOC",
             "in": "query"
           }
@@ -9632,6 +9638,15 @@ func init() {
           "x-nullable": true,
           "$ref": "#/definitions/Address"
         },
+        "podLocation": {
+          "$ref": "#/definitions/Port"
+        },
+        "poeLocation": {
+          "$ref": "#/definitions/Port"
+        },
+        "port": {
+          "$ref": "#/definitions/Port"
+        },
         "ppmShipment": {
           "$ref": "#/definitions/PPMShipment"
         },
@@ -10641,6 +10656,12 @@ func init() {
         "transportationOffice": {
           "$ref": "#/definitions/TransportationOffice"
         },
+        "transportationOfficeAssignments": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/TransportationOfficeAssignment"
+          }
+        },
         "transportationOfficeId": {
           "type": "string",
           "format": "uuid"
@@ -10956,15 +10977,19 @@ func init() {
         "WOUNDED_WARRIOR",
         "BLUEBARK",
         "SAFETY",
-        "TEMPORARY_DUTY"
+        "TEMPORARY_DUTY",
+        "EARLY_RETURN_OF_DEPENDENTS",
+        "STUDENT_TRAVEL"
       ],
       "x-display-value": {
         "BLUEBARK": "BLUEBARK",
+        "EARLY_RETURN_OF_DEPENDENTS": "Early Return of Dependents",
         "LOCAL_MOVE": "Local Move",
         "PERMANENT_CHANGE_OF_STATION": "Permanent Change Of Station",
         "RETIREMENT": "Retirement",
         "SAFETY": "Safety",
         "SEPARATION": "Separation",
+        "STUDENT_TRAVEL": "Student Travel",
         "TEMPORARY_DUTY": "Temporary Duty (TDY)",
         "WOUNDED_WARRIOR": "Wounded Warrior"
       }
@@ -12186,6 +12211,115 @@ func init() {
       "type": "array",
       "items": {
         "$ref": "#/definitions/PaymentServiceItem"
+      }
+    },
+    "Port": {
+      "description": "A port that is used to move an international shipment.",
+      "type": "object",
+      "properties": {
+        "city": {
+          "type": "string",
+          "example": "PORTLAND"
+        },
+        "country": {
+          "description": "Two-letter country code",
+          "type": "string",
+          "pattern": "^[A-Z]{2}$",
+          "example": "US"
+        },
+        "county": {
+          "type": "string",
+          "example": "MULTNOMAH"
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "portCode": {
+          "description": "3 or 4 digit port code",
+          "type": "string",
+          "example": "0431"
+        },
+        "portName": {
+          "description": "Name of the port",
+          "type": "string",
+          "example": "PORTLAND INTL"
+        },
+        "portType": {
+          "description": "Port type A (Air), B (Border Crossing), S (Sea)",
+          "type": "string",
+          "enum": [
+            "A",
+            "P",
+            "S"
+          ]
+        },
+        "state": {
+          "description": "US state",
+          "type": "string",
+          "enum": [
+            "AL",
+            "AK",
+            "AR",
+            "AZ",
+            "CA",
+            "CO",
+            "CT",
+            "DC",
+            "DE",
+            "FL",
+            "GA",
+            "HI",
+            "IA",
+            "ID",
+            "IL",
+            "IN",
+            "KS",
+            "KY",
+            "LA",
+            "MA",
+            "MD",
+            "ME",
+            "MI",
+            "MN",
+            "MO",
+            "MS",
+            "MT",
+            "NC",
+            "ND",
+            "NE",
+            "NH",
+            "NJ",
+            "NM",
+            "NV",
+            "NY",
+            "OH",
+            "OK",
+            "OR",
+            "PA",
+            "RI",
+            "SC",
+            "SD",
+            "TN",
+            "TX",
+            "UT",
+            "VA",
+            "VT",
+            "WA",
+            "WI",
+            "WV",
+            "WY"
+          ],
+          "example": "OR"
+        },
+        "zip": {
+          "type": "string",
+          "format": "zip",
+          "title": "ZIP",
+          "pattern": "^(\\d{5}([\\-]\\d{4})?)$",
+          "example": "99501"
+        }
       }
     },
     "PostDocumentPayload": {
@@ -13671,6 +13805,43 @@ func init() {
         "updated_at": {
           "type": "string",
           "format": "date-time"
+        }
+      }
+    },
+    "TransportationOfficeAssignment": {
+      "type": "object",
+      "required": [
+        "officeUserId",
+        "transportationOfficeId",
+        "primaryOffice"
+      ],
+      "properties": {
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        },
+        "officeUserId": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4780-65aa-42ec-a945-5fd87dec0538"
+        },
+        "primaryOffice": {
+          "type": "boolean",
+          "x-omitempty": false
+        },
+        "transportationOffice": {
+          "$ref": "#/definitions/TransportationOffice"
+        },
+        "transportationOfficeId": {
+          "type": "string",
+          "format": "uuid",
+          "example": "d67a4780-65aa-42ec-a945-5fd87dec0549"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
         }
       }
     },
@@ -20551,7 +20722,7 @@ func init() {
           },
           {
             "type": "string",
-            "description": "Used to return a queue for a GBLOC other than the default of the current user. Requires the HQ role. The parameter is ignored if the requesting user does not have the necessary role.\n",
+            "description": "Used to return a queue for a GBLOC other than the default of the current user. Requires the HQ role or a secondary transportation office assignment. The parameter is ignored if the requesting user does not have the necessary role or assignment.\n",
             "name": "viewAsGBLOC",
             "in": "query"
           },
@@ -20600,6 +20771,12 @@ func init() {
             "type": "boolean",
             "description": "Only used for Services Counseling queue. If true, show PPM moves origin locations that are ready for closeout. Otherwise, show all other moves origin locations.",
             "name": "needsPPMCloseout",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "Used to return an origins list for a GBLOC other than the default of the current user. Requires the HQ role or a secondary transportation office assignment. The parameter is ignored if the requesting user does not have the necessary role or assignment.",
+            "name": "viewAsGBLOC",
             "in": "query"
           }
         ],
@@ -20754,7 +20931,7 @@ func init() {
           },
           {
             "type": "string",
-            "description": "Used to return a queue for a GBLOC other than the default of the current user. Requires the HQ role. The parameter is ignored if the requesting user does not have the necessary role.\n",
+            "description": "Used to return a queue for a GBLOC other than the default of the current user. Requires the HQ role or a secondary transportation office assignment. The parameter is ignored if the requesting user does not have the necessary role or assignment.\n",
             "name": "viewAsGBLOC",
             "in": "query"
           },
@@ -20926,7 +21103,7 @@ func init() {
           },
           {
             "type": "string",
-            "description": "Used to return a queue for a GBLOC other than the default of the current user. Requires the HQ role. The parameter is ignored if the requesting user does not have the necessary role.\n",
+            "description": "Used to return a queue for a GBLOC other than the default of the current user. Requires the HQ role or a secondary transportation office assignment. The parameter is ignored if the requesting user does not have the necessary role or assignment.\n",
             "name": "viewAsGBLOC",
             "in": "query"
           }
@@ -26115,6 +26292,15 @@ func init() {
           "x-nullable": true,
           "$ref": "#/definitions/Address"
         },
+        "podLocation": {
+          "$ref": "#/definitions/Port"
+        },
+        "poeLocation": {
+          "$ref": "#/definitions/Port"
+        },
+        "port": {
+          "$ref": "#/definitions/Port"
+        },
         "ppmShipment": {
           "$ref": "#/definitions/PPMShipment"
         },
@@ -27124,6 +27310,12 @@ func init() {
         "transportationOffice": {
           "$ref": "#/definitions/TransportationOffice"
         },
+        "transportationOfficeAssignments": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/TransportationOfficeAssignment"
+          }
+        },
         "transportationOfficeId": {
           "type": "string",
           "format": "uuid"
@@ -27439,15 +27631,19 @@ func init() {
         "WOUNDED_WARRIOR",
         "BLUEBARK",
         "SAFETY",
-        "TEMPORARY_DUTY"
+        "TEMPORARY_DUTY",
+        "EARLY_RETURN_OF_DEPENDENTS",
+        "STUDENT_TRAVEL"
       ],
       "x-display-value": {
         "BLUEBARK": "BLUEBARK",
+        "EARLY_RETURN_OF_DEPENDENTS": "Early Return of Dependents",
         "LOCAL_MOVE": "Local Move",
         "PERMANENT_CHANGE_OF_STATION": "Permanent Change Of Station",
         "RETIREMENT": "Retirement",
         "SAFETY": "Safety",
         "SEPARATION": "Separation",
+        "STUDENT_TRAVEL": "Student Travel",
         "TEMPORARY_DUTY": "Temporary Duty (TDY)",
         "WOUNDED_WARRIOR": "Wounded Warrior"
       }
@@ -28743,6 +28939,115 @@ func init() {
       "type": "array",
       "items": {
         "$ref": "#/definitions/PaymentServiceItem"
+      }
+    },
+    "Port": {
+      "description": "A port that is used to move an international shipment.",
+      "type": "object",
+      "properties": {
+        "city": {
+          "type": "string",
+          "example": "PORTLAND"
+        },
+        "country": {
+          "description": "Two-letter country code",
+          "type": "string",
+          "pattern": "^[A-Z]{2}$",
+          "example": "US"
+        },
+        "county": {
+          "type": "string",
+          "example": "MULTNOMAH"
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "portCode": {
+          "description": "3 or 4 digit port code",
+          "type": "string",
+          "example": "0431"
+        },
+        "portName": {
+          "description": "Name of the port",
+          "type": "string",
+          "example": "PORTLAND INTL"
+        },
+        "portType": {
+          "description": "Port type A (Air), B (Border Crossing), S (Sea)",
+          "type": "string",
+          "enum": [
+            "A",
+            "P",
+            "S"
+          ]
+        },
+        "state": {
+          "description": "US state",
+          "type": "string",
+          "enum": [
+            "AL",
+            "AK",
+            "AR",
+            "AZ",
+            "CA",
+            "CO",
+            "CT",
+            "DC",
+            "DE",
+            "FL",
+            "GA",
+            "HI",
+            "IA",
+            "ID",
+            "IL",
+            "IN",
+            "KS",
+            "KY",
+            "LA",
+            "MA",
+            "MD",
+            "ME",
+            "MI",
+            "MN",
+            "MO",
+            "MS",
+            "MT",
+            "NC",
+            "ND",
+            "NE",
+            "NH",
+            "NJ",
+            "NM",
+            "NV",
+            "NY",
+            "OH",
+            "OK",
+            "OR",
+            "PA",
+            "RI",
+            "SC",
+            "SD",
+            "TN",
+            "TX",
+            "UT",
+            "VA",
+            "VT",
+            "WA",
+            "WI",
+            "WV",
+            "WY"
+          ],
+          "example": "OR"
+        },
+        "zip": {
+          "type": "string",
+          "format": "zip",
+          "title": "ZIP",
+          "pattern": "^(\\d{5}([\\-]\\d{4})?)$",
+          "example": "99501"
+        }
       }
     },
     "PostDocumentPayload": {
@@ -30282,6 +30587,43 @@ func init() {
         "updated_at": {
           "type": "string",
           "format": "date-time"
+        }
+      }
+    },
+    "TransportationOfficeAssignment": {
+      "type": "object",
+      "required": [
+        "officeUserId",
+        "transportationOfficeId",
+        "primaryOffice"
+      ],
+      "properties": {
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        },
+        "officeUserId": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4780-65aa-42ec-a945-5fd87dec0538"
+        },
+        "primaryOffice": {
+          "type": "boolean",
+          "x-omitempty": false
+        },
+        "transportationOffice": {
+          "$ref": "#/definitions/TransportationOffice"
+        },
+        "transportationOfficeId": {
+          "type": "string",
+          "format": "uuid",
+          "example": "d67a4780-65aa-42ec-a945-5fd87dec0549"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
         }
       }
     },
