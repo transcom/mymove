@@ -308,7 +308,7 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandlerMoveInfo() {
 			},
 			{
 				Model: models.MTOShipment{
-					ShipmentType: models.MTOShipmentTypeHHGIntoNTSDom,
+					ShipmentType: models.MTOShipmentTypeHHGIntoNTS,
 				},
 			},
 		}, nil)
