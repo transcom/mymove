@@ -85,11 +85,27 @@ type DomesticOriginShuttlingPricer interface {
 	ParamsPricer
 }
 
-// DomesticDestinationShuttlingPricer prices the domestic origin shuttling service for a GHC Move
+// DomesticDestinationShuttlingPricer prices the domestic destination shuttling service for a GHC Move
 //
 //go:generate mockery --name DomesticDestinationShuttlingPricer
 type DomesticDestinationShuttlingPricer interface {
 	Price(appCtx appcontext.AppContext, contractCode string, requestedPickupDate time.Time, weight unit.Pound, servicesScheduleDest int) (unit.Cents, PricingDisplayParams, error)
+	ParamsPricer
+}
+
+// InternationalDestinationShuttlingPricer prices the international destination shuttling service for a GHC Move
+//
+//go:generate mockery --name InternationalDestinationShuttlingPricer
+type InternationalDestinationShuttlingPricer interface {
+	Price(appCtx appcontext.AppContext, contractCode string, requestedPickupDate time.Time, weight unit.Pound, servicesScheduleDest int) (unit.Cents, PricingDisplayParams, error)
+	ParamsPricer
+}
+
+// InternationalOriginShuttlingPricer prices the international origin shuttling service for a GHC Move
+//
+//go:generate mockery --name InternationalOriginShuttlingPricer
+type InternationalOriginShuttlingPricer interface {
+	Price(appCtx appcontext.AppContext, contractCode string, requestedPickupDate time.Time, weight unit.Pound, servicesScheduleOrigin int) (unit.Cents, PricingDisplayParams, error)
 	ParamsPricer
 }
 
