@@ -257,7 +257,7 @@ func orderFromTOOPayload(appCtx appcontext.AppContext, existingOrder models.Orde
 	if payload.Grade != nil {
 		order.Grade = (*internalmessages.OrderPayGrade)(payload.Grade)
 		// Calculate new DBWeightAuthorized based on the new grade
-		weightAllotment := models.GetWeightAllotment(*order.Grade)
+		weightAllotment := models.GetWeightAllotment(*order.Grade, order.OrdersType)
 		weight := weightAllotment.TotalWeightSelf
 		// Payload does not have this information, retrieve dependents from the existing order
 		if existingOrder.HasDependents && *order.Entitlement.DependentsAuthorized {
@@ -390,7 +390,7 @@ func orderFromCounselingPayload(existingOrder models.Order, payload ghcmessages.
 	if payload.Grade != nil {
 		order.Grade = (*internalmessages.OrderPayGrade)(payload.Grade)
 		// Calculate new DBWeightAuthorized based on the new grade
-		weightAllotment := models.GetWeightAllotment(*order.Grade)
+		weightAllotment := models.GetWeightAllotment(*order.Grade, order.OrdersType)
 		weight := weightAllotment.TotalWeightSelf
 		// Payload does not have this information, retrieve dependents from the existing order
 		if existingOrder.HasDependents && *order.Entitlement.DependentsAuthorized {
@@ -434,7 +434,7 @@ func allowanceFromTOOPayload(appCtx appcontext.AppContext, existingOrder models.
 	}
 
 	// Calculate new DBWeightAuthorized based on the new grade
-	weightAllotment := models.GetWeightAllotment(*order.Grade)
+	weightAllotment := models.GetWeightAllotment(*order.Grade, order.OrdersType)
 	weight := weightAllotment.TotalWeightSelf
 	// Payload does not have this information, retrieve dependents from the existing order
 	if existingOrder.HasDependents && *payload.DependentsAuthorized {
@@ -534,7 +534,7 @@ func allowanceFromCounselingPayload(appCtx appcontext.AppContext, existingOrder 
 	}
 
 	// Calculate new DBWeightAuthorized based on the new grade
-	weightAllotment := models.GetWeightAllotment(*order.Grade)
+	weightAllotment := models.GetWeightAllotment(*order.Grade, order.OrdersType)
 	weight := weightAllotment.TotalWeightSelf
 	// Payload does not have this information, retrieve dependents from the existing order
 	if existingOrder.HasDependents && *payload.DependentsAuthorized {
