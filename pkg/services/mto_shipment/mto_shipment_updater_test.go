@@ -466,7 +466,7 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 			"50314",
 			"99505",
 			true,
-			false,
+			true,
 		).Return(1000, nil)
 
 		ghcDomesticTransitTime := models.GHCDomesticTransitTime{
