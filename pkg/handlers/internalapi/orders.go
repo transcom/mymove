@@ -206,7 +206,8 @@ func (h CreateOrdersHandler) Handle(params ordersop.CreateOrdersParams) middlewa
 			grade := payload.Grade
 
 			// Calculate the entitlement for the order
-			weightAllotment := models.GetWeightAllotment(*grade)
+			ordersType := payload.OrdersType
+			weightAllotment := models.GetWeightAllotment(*grade, *ordersType)
 			weight := weightAllotment.TotalWeightSelf
 			if *payload.HasDependents {
 				weight = weightAllotment.TotalWeightSelfPlusDependents
@@ -446,7 +447,7 @@ func (h UpdateOrdersHandler) Handle(params ordersop.UpdateOrdersParams) middlewa
 
 			// Check if the grade or dependents are receiving an update
 			if hasEntitlementChanged(order, payload.OrdersType, payload.Grade, payload.DependentsUnderTwelve, payload.DependentsTwelveAndOver, payload.AccompaniedTour) {
-				weightAllotment := models.GetWeightAllotment(*payload.Grade)
+				weightAllotment := models.GetWeightAllotment(*payload.Grade, *payload.OrdersType)
 				weight := weightAllotment.TotalWeightSelf
 				if *payload.HasDependents {
 					weight = weightAllotment.TotalWeightSelfPlusDependents
