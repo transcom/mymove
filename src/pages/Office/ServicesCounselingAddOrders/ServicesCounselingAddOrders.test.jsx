@@ -1,7 +1,6 @@
 import React from 'react';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { debug } from 'jest-preview';
 
 import ServicesCounselingAddOrders from './ServicesCounselingAddOrders';
 
@@ -369,6 +368,9 @@ describe('ServicesCounselingAddOrders component', () => {
     const selectedOptionCurrent = await screen.findByText(/Altus/);
     await user.click(selectedOptionCurrent);
 
+    const counselingOfficeLabel = await screen.queryByText(/Counseling office/);
+    expect(counselingOfficeLabel).toBeFalsy();
+
     await user.type(screen.getByLabelText('New duty location'), 'AFB', { delay: 500 });
     const selectedOptionNew = await screen.findByText(/Luke/);
     await user.click(selectedOptionNew);
@@ -378,7 +380,6 @@ describe('ServicesCounselingAddOrders component', () => {
       expect(nextBtn).toBeEnabled();
     });
 
-    // debug();
     await userEvent.click(nextBtn);
 
     await waitFor(() => {
@@ -405,14 +406,12 @@ describe('ServicesCounselingAddOrders component', () => {
     const selectedOptionCurrent = await screen.findByText(/Hill/);
     await user.click(selectedOptionCurrent);
 
-    await waitFor(async () => {
-      expect(screen.getByLabelText(/Counseling office/));
-    });
+    const counselingOfficeLabel = await screen.queryByText(/Counseling office/);
+    expect(counselingOfficeLabel).toBeTruthy();
 
     await user.type(screen.getByLabelText('New duty location'), 'AFB', { delay: 500 });
     const selectedOptionNew = await screen.findByText(/Luke/);
     await user.click(selectedOptionNew);
-    debug();
   });
 
   it('routes to the move details page when the next button is clicked for OCONUS orders', async () => {

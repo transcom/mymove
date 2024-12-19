@@ -207,6 +207,9 @@ describe('AddOrdersForm - OCONUS and Accompanied Tour Test', () => {
     await userEvent.type(screen.getByLabelText(/Current duty location/), 'AFB');
     await userEvent.click(await screen.findByText(/Elmendorf/));
 
+    const counselingOfficeLabel = await screen.queryByText(/Counseling office/);
+    expect(counselingOfficeLabel).toBeFalsy();
+
     await userEvent.type(screen.getByLabelText(/New duty location/), 'AFB');
     await userEvent.click(await screen.findByText(/Luke/));
 
@@ -269,8 +272,7 @@ describe('AddOrdersForm - With Counseling Office', () => {
     const selectedOptionNew = await screen.findByText(/Luke/);
     await userEvent.click(selectedOptionNew);
 
-    await waitFor(() => {
-      expect(screen.getByLabelText(/Counseling office/));
-    });
+    const counselingOfficeLabel = await screen.queryByText(/Counseling office/);
+    expect(counselingOfficeLabel).toBeTruthy();
   });
 });
