@@ -37,6 +37,7 @@ func (suite *HandlerSuite) TestUpdateReweighHandler() {
 		recalculateTestPickupZip,
 		recalculateTestDestinationZip,
 		false,
+		false,
 	).Return(recalculateTestZip3Distance, nil)
 
 	// Get shipment payment request recalculator service

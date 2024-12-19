@@ -47,6 +47,7 @@ func TestServiceParamValueLookupsSuite(t *testing.T) {
 		mock.Anything,
 		mock.Anything,
 		false,
+		false,
 	).Return(defaultZipDistance, nil)
 
 	ts := &ServiceParamValueLookupsSuite{

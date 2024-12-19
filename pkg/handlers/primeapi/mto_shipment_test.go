@@ -204,6 +204,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentStatusHandler() {
 		mock.Anything,
 		mock.Anything,
 		false,
+		false,
 	).Return(400, nil)
 	moveRouter := moveservices.NewMoveRouter()
 	addressUpdater := address.NewAddressUpdater()
@@ -224,6 +225,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentStatusHandler() {
 			mock.AnythingOfType("*appcontext.appContext"),
 			mock.Anything,
 			mock.Anything,
+			false,
 			false,
 		).Return(400, nil)
 		handler := UpdateMTOShipmentStatusHandler{
@@ -416,6 +418,7 @@ func (suite *HandlerSuite) TestDeleteMTOShipmentHandler() {
 			mock.AnythingOfType("*appcontext.appContext"),
 			mock.Anything,
 			mock.Anything,
+			false,
 			false,
 		).Return(400, nil)
 

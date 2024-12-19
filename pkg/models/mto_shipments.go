@@ -418,6 +418,33 @@ func DetermineMarketCode(address1 *Address, address2 *Address) (MarketCode, erro
 	}
 }
 
+// PortLocationInfo holds the ZIP code and port type for a shipment
+// this is used in the db function/query below
+type PortLocationInfo struct {
+	UsprZipID string `db:"uspr_zip_id"`
+	PortType  string `db:"port_type"`
+}
+
+// GetPortLocationForShipment gets the ZIP and port type associated with the port for the POEFSC/PODFSC service item in a shipment
+func GetPortLocationInfoForShipment(db *pop.Connection, shipmentID uuid.UUID) (*string, *string, error) {
+	var portLocationInfo PortLocationInfo
+
+	err := db.RawQuery("SELECT * FROM get_port_location_info_for_shipment($1)", shipmentID).
+		First(&portLocationInfo)
+
+	if err != nil {
+		return nil, nil, fmt.Errorf("error fetching port location for shipment ID: %s with error %w", shipmentID, err)
+	}
+
+	// return the ZIP code and port type, or nil if not found
+	if portLocationInfo.UsprZipID != "" && portLocationInfo.PortType != "" {
+		return &portLocationInfo.UsprZipID, &portLocationInfo.PortType, nil
+	}
+
+	// if nothing was found, return nil - just means we don't have the port info from Prime yet
+	return nil, nil, nil
+}
+
 func CreateApprovedServiceItemsForShipment(db *pop.Connection, shipment *MTOShipment) error {
 	err := db.RawQuery("CALL create_approved_service_items_for_shipment($1)", shipment.ID).Exec()
 	if err != nil {
