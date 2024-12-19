@@ -70,11 +70,6 @@ stages:
     - export PATH=${PATH}:${GOPATH}/bin:~/transcom/mymove/builds/milmove/mymove
     - export REACT_APP_ERROR_LOGGING=otel
 
-.setup_milmove_env: &setup_milmove_env
-  - git config --global --add safe.directory /builds/milmove/mymove
-  - export PATH=${PATH}:${GOPATH}/bin:~/transcom/mymove/builds/milmove/mymove
-  - export REACT_APP_ERROR_LOGGING=otel
-
 .setup_aws_vars_dp3: &setup_aws_vars_dp3
   - export AWS_DEFAULT_REGION=$(eval echo \$${DP3_ENV^^}_REGION)
   - export AWS_ACCOUNT_ID=$(eval echo \$${DP3_ENV^^}_ACCOUNT_ID)
