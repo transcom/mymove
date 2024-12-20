@@ -79,7 +79,7 @@ func (suite *HandlerSuite) TestCreateOrder() {
 				factory.BuildJppsoRegions(suite.DB(), []factory.Customization{
 					{
 						Model: models.JppsoRegions{
-							Code: "KKFA",
+							Code: "MBFL",
 						},
 					},
 				}, nil)
@@ -125,7 +125,6 @@ func (suite *HandlerSuite) TestCreateOrder() {
 			handlerConfig := suite.HandlerConfig()
 			handlerConfig.SetFileStorer(fakeS3)
 			createHandler := CreateOrdersHandler{handlerConfig}
-
 			response := createHandler.Handle(params)
 
 			suite.Assertions.IsType(&ordersop.CreateOrdersCreated{}, response)
