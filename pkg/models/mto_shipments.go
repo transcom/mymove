@@ -1,6 +1,7 @@
 package models
 
 import (
+	"database/sql"
 	"fmt"
 	"time"
 
@@ -441,6 +442,26 @@ func UpdateEstimatedPricingForShipmentBasicServiceItems(db *pop.Connection, ship
 	}
 
 	return nil
+}
+
+// GetDestinationGblocForShipment gets the GBLOC associated with the shipment's destination address
+// there are certain exceptions for OCONUS addresses in Alaska Zone II based on affiliation
+func GetDestinationGblocForShipment(db *pop.Connection, shipmentID uuid.UUID) (*string, error) {
+	var gbloc *string
+
+	err := db.RawQuery("SELECT * FROM get_destination_gbloc_for_shipment($1)", shipmentID).
+		First(&gbloc)
+
+	if err != nil && err != sql.ErrNoRows {
+		return nil, fmt.Errorf("error fetching destination gbloc for shipment ID: %s with error %w", shipmentID, err)
+	}
+
+	// return the ZIP code and port type, or nil if not found
+	if gbloc != nil {
+		return gbloc, nil
+	}
+
+	return nil, nil
 }
 
 // Returns a Shipment for a given id
