@@ -891,7 +891,7 @@ commands:
             export FEATURE_FLAG_VALIDATION_CODE_REQUIRED=false
             export FEATURE_FLAG_MOVE_LOCK=false
             export FEATURE_FLAG_OKTA_DODID_INPUT=false
-            export FEATURE_FLAG_HEADQUARTERS_ROLE=false
+            export FEATURE_FLAG_HEADQUARTERS_ROLE=true
             export FEATURE_FLAG_GSR_ROLE=false
             export FEATURE_FLAG_SAFETY_MOVE=false
             export FEATURE_FLAG_MANAGE_SUPPORTING_DOCS=false
@@ -935,7 +935,7 @@ commands:
             FEATURE_FLAG_VALIDATION_CODE_REQUIRED: 'false'
             FEATURE_FLAG_MOVE_LOCK: 'false'
             FEATURE_FLAG_OKTA_DODID_INPUT: 'false'
-            FEATURE_FLAG_HEADQUARTERS_ROLE: 'false'
+            FEATURE_FLAG_HEADQUARTERS_ROLE: 'true'
             FEATURE_FLAG_GSR_ROLE: 'false'
             FEATURE_FLAG_SAFETY_MOVE: 'false'
             FEATURE_FLAG_MANAGE_SUPPORTING_DOCS: 'false'
