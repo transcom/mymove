@@ -191,7 +191,7 @@ func (suite *MTOShipmentServiceSuite) createApproveShipmentSubtestData() (subtes
 }
 
 func (suite *MTOShipmentServiceSuite) TestApproveShipment() {
-	suite.Run("If the international mtoShipment is approved successfully it should create pre approved mtoServiceItems and update pricing when there is estimated weight", func() {
+	suite.Run("If the international mtoShipment is approved successfully it should create pre approved mtoServiceItems and should NOT update pricing without port data", func() {
 		move := factory.BuildAvailableToPrimeMove(suite.DB(), []factory.Customization{
 			{
 				Model: models.Move{
@@ -279,15 +279,8 @@ func (suite *MTOShipmentServiceSuite) TestApproveShipment() {
 			mock.Anything,
 			mock.Anything,
 			false,
-			false,
+			true,
 		).Return(500, nil)
-		planner.On("ZipTransitDistance",
-			mock.AnythingOfType("*appcontext.appContext"),
-			"50314",
-			"99505",
-			true,
-			true,
-		).Return(1000, nil)
 
 		// Approve international shipment
 		shipmentApprover := NewShipmentApprover(shipmentRouter, serviceItemCreator, planner, moveWeights)
@@ -311,7 +304,7 @@ func (suite *MTOShipmentServiceSuite) TestApproveShipment() {
 			actualReServiceCode := serviceItems[i].ReService.Code
 			suite.True(slices.Contains(expectedReserviceCodes, actualReServiceCode))
 			// because the estimated weight is provided, estimated pricing should be updated
-			suite.NotNil(serviceItems[i].PricingEstimate)
+			suite.Nil(serviceItems[i].PricingEstimate)
 		}
 	})
 

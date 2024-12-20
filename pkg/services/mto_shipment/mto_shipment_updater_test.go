@@ -464,7 +464,7 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 		planner.On("ZipTransitDistance",
 			mock.AnythingOfType("*appcontext.appContext"),
 			"50314",
-			"99505",
+			"97220",
 			true,
 			true,
 		).Return(1000, nil)
