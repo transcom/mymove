@@ -11,6 +11,7 @@ import (
 	"github.com/transcom/mymove/pkg/etag"
 	"github.com/transcom/mymove/pkg/models"
 	serviceparamvaluelookups "github.com/transcom/mymove/pkg/payment_request/service_param_value_lookups"
+	"github.com/transcom/mymove/pkg/pricing"
 	"github.com/transcom/mymove/pkg/route"
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/services/ghcrateengine"
@@ -503,7 +504,13 @@ func (f *shipmentAddressUpdateRequester) ReviewShipmentAddressChange(appCtx appc
 			if shipment.PrimeEstimatedWeight != nil || shipment.PrimeActualWeight != nil {
 				var updatedServiceItem *models.MTOServiceItem
 				if serviceItem.ReService.Code == models.ReServiceCodeDDP || serviceItem.ReService.Code == models.ReServiceCodeDUPK {
-					updatedServiceItem, err = serviceItemUpdater.UpdateMTOServiceItemPricingEstimate(appCtx, &serviceItem, shipment, etag.GenerateEtag(serviceItem.UpdatedAt))
+					price, err := pricing.FetchServiceItemPrice(appCtx, &serviceItem, shipment, f.planner)
+					if err != nil {
+						return nil, apperror.NewUpdateError(serviceItem.ReServiceID, err.Error())
+					}
+
+					serviceItem.PricingEstimate = &price
+					updatedServiceItem, err = serviceItemUpdater.UpdateMTOServiceItem(appCtx, &serviceItem, etag.GenerateEtag(serviceItem.UpdatedAt), mtoserviceitem.UpdateMTOServiceItemBasicValidator)
 					if err != nil {
 						return nil, apperror.NewUpdateError(serviceItem.ReServiceID, err.Error())
 					}
@@ -511,7 +518,13 @@ func (f *shipmentAddressUpdateRequester) ReviewShipmentAddressChange(appCtx appc
 
 				if !shipmentHasApprovedDestSIT {
 					if serviceItem.ReService.Code == models.ReServiceCodeDLH || serviceItem.ReService.Code == models.ReServiceCodeFSC {
-						updatedServiceItem, err = serviceItemUpdater.UpdateMTOServiceItemPricingEstimate(appCtx, &serviceItem, shipment, etag.GenerateEtag(serviceItem.UpdatedAt))
+						price, err := pricing.FetchServiceItemPrice(appCtx, &serviceItem, shipment, f.planner)
+						if err != nil {
+							return nil, apperror.NewUpdateError(serviceItem.ReServiceID, err.Error())
+						}
+
+						serviceItem.PricingEstimate = &price
+						updatedServiceItem, err = serviceItemUpdater.UpdateMTOServiceItem(appCtx, &serviceItem, etag.GenerateEtag(serviceItem.UpdatedAt), mtoserviceitem.UpdateMTOServiceItemBasicValidator)
 						if err != nil {
 							return nil, apperror.NewUpdateError(serviceItem.ReServiceID, err.Error())
 						}
