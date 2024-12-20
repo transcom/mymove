@@ -1051,3 +1051,4 @@
 20241204155919_update_ordering_proc.up.sql
 20241204210208_retroactive_update_of_ppm_max_and_estimated_incentives_prd.up.sql
 20241217180136_add_AK_zips_to_zip3_distances.up.sql
+20241220171035_add_additional_AK_zips_to_zip3_distances.up.sql
