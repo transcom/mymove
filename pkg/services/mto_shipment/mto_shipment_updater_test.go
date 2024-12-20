@@ -459,7 +459,7 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 		suite.Equal(updatedShipment.MarketCode, models.MarketCodeInternational)
 	})
 
-	suite.Run("Successful update on international shipment with estimated weight results in the of basic pricing service items", func() {
+	suite.Run("Successful update on international shipment with estimated weight results in the update of estimated pricing for basic service items", func() {
 		setupTestData()
 		planner.On("ZipTransitDistance",
 			mock.AnythingOfType("*appcontext.appContext"),
@@ -651,7 +651,7 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 
 		suite.Equal(4, len(serviceItems))
 		for i := 0; i < len(serviceItems); i++ {
-			// because the estimated weight is provided, estimated pricing should be updated
+			// because the estimated weight is provided & POEFSC has a port location, estimated pricing should be updated
 			suite.NotNil(serviceItems[i].PricingEstimate)
 		}
 	})

@@ -974,6 +974,7 @@ func (suite *ShipmentAddressUpdateServiceSuite) TestTOOApprovedShipmentAddressUp
 				},
 			},
 		}, nil)
+		// POEFSC needs a port location
 		portLocation := factory.FetchPortLocation(suite.DB(), []factory.Customization{
 			{
 				Model: models.Port{
