@@ -4,7 +4,7 @@ import { Button } from '@trussworks/react-uswds';
 
 import Modal, { ModalTitle, ModalClose, ModalActions, connectModal } from 'components/Modal/Modal';
 
-export const BulkAssignmentModal = ({ onClose, onSubmit, moveID, title, content, submitText, closeText }) => (
+export const BulkAssignmentModal = ({ onClose, onSubmit, title, content, submitText, closeText }) => (
   <Modal>
     <ModalClose handleClick={() => onClose()} />
     <ModalTitle>
@@ -17,7 +17,7 @@ export const BulkAssignmentModal = ({ onClose, onSubmit, moveID, title, content,
         className="usa-button--destructive"
         type="submit"
         data-testid="modalSubmitButton"
-        onClick={() => onSubmit(moveID)}
+        onClick={() => onSubmit()}
       >
         {submitText}
       </Button>

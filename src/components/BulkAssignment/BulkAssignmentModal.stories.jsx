@@ -5,9 +5,6 @@ import BulkAssignmentModal from './BulkAssignmentModal';
 export default {
   title: 'Components/BulkAssignmentModal',
   component: BulkAssignmentModal,
-  args: {
-    moveID: '111',
-  },
   argTypes: {
     onClose: { action: 'close button clicked' },
     onSubmit: { action: 'submit button clicked' },

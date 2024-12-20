@@ -422,7 +422,12 @@ export const closeoutColumns = (
   return cols;
 };
 
-const ServicesCounselingQueue = ({ userPrivileges, isQueueManagementFFEnabled, officeUser isBulkAssignmentFFEnabled }) => {
+const ServicesCounselingQueue = ({
+  userPrivileges,
+  isQueueManagementFFEnabled,
+  officeUser,
+  isBulkAssignmentFFEnabled,
+}) => {
   const { queueType } = useParams();
   const { data, isLoading, isError } = useUserQueries();
 

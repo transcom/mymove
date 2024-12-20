@@ -12,16 +12,14 @@ beforeEach(() => {
 });
 
 describe('BulkAssignmentModal', () => {
-  const moveID = '123456';
-
   it('renders the component', async () => {
-    render(<BulkAssignmentModal onSubmit={onSubmit} onClose={onClose} moveID={moveID} />);
+    render(<BulkAssignmentModal onSubmit={onSubmit} onClose={onClose} />);
 
     expect(await screen.findByRole('heading', { level: 3, name: 'Are you sure?' })).toBeInTheDocument();
   });
 
   it('closes the modal when close icon is clicked', async () => {
-    render(<BulkAssignmentModal onSubmit={onSubmit} onClose={onClose} shipmentID={moveID} />);
+    render(<BulkAssignmentModal onSubmit={onSubmit} onClose={onClose} />);
 
     const closeButton = await screen.findByTestId('modalCloseButton');
 
@@ -31,7 +29,7 @@ describe('BulkAssignmentModal', () => {
   });
 
   it('closes the modal when the keep button is clicked', async () => {
-    render(<BulkAssignmentModal onSubmit={onSubmit} onClose={onClose} moveID={moveID} />);
+    render(<BulkAssignmentModal onSubmit={onSubmit} onClose={onClose} />);
 
     const keepButton = await screen.findByRole('button', { name: 'Keep move' });
 
@@ -41,13 +39,12 @@ describe('BulkAssignmentModal', () => {
   });
 
   it('calls the submit function when cancel button is clicked', async () => {
-    render(<BulkAssignmentModal onSubmit={onSubmit} onClose={onClose} moveID={moveID} />);
+    render(<BulkAssignmentModal onSubmit={onSubmit} onClose={onClose} />);
 
     const cancelButton = await screen.findByRole('button', { name: 'Cancel move' });
 
     await userEvent.click(cancelButton);
 
-    expect(onSubmit).toHaveBeenCalledWith(moveID);
     expect(onSubmit).toHaveBeenCalledTimes(1);
   });
 });
