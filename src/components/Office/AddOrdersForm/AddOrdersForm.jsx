@@ -169,9 +169,9 @@ const AddOrdersForm = ({
               {currentDutyLocation.provides_services_counseling && (
                 <div>
                   <Label>
-                    Select an origin duty location that most closely represents your current physical location, not
-                    where your shipment will originate, if different. This will allow a nearby transportation office to
-                    assist you.
+                    Select an origin duty location that most closely represents the customers current physical location,
+                    not where their shipment will originate, if different. This will allow a nearby transportation
+                    office to assist them.
                   </Label>
                   <DropdownInput
                     label="Counseling office"

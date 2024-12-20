@@ -1057,3 +1057,4 @@
 20241216170325_update_nts_enum_name.up.sql
 20241217163231_update_duty_locations_bad_zips.up.sql
 20241217180136_add_AK_zips_to_zip3_distances.up.sql
+20241220171035_add_additional_AK_zips_to_zip3_distances.up.sql
