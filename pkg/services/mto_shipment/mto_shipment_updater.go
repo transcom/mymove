@@ -855,8 +855,7 @@ func (f *mtoShipmentUpdater) updateShipmentRecord(appCtx appcontext.AppContext, 
 		// we will compare data here to see if we even need to update the pricing
 		if newShipment.PrimeEstimatedWeight != nil &&
 			newShipment.MarketCode == models.MarketCodeInternational &&
-			(newShipment.PrimeEstimatedWeight != dbShipment.PrimeEstimatedWeight ||
-				newShipment.PickupAddress != nil && newShipment.PickupAddress.PostalCode != dbShipment.PickupAddress.PostalCode ||
+			(newShipment.PickupAddress != nil && newShipment.PickupAddress.PostalCode != dbShipment.PickupAddress.PostalCode ||
 				newShipment.DestinationAddress != nil && newShipment.DestinationAddress.PostalCode != dbShipment.DestinationAddress.PostalCode ||
 				newShipment.RequestedPickupDate != nil && newShipment.RequestedPickupDate.Format("2006-01-02") != dbShipment.RequestedPickupDate.Format("2006-01-02")) {
 
@@ -864,7 +863,7 @@ func (f *mtoShipmentUpdater) updateShipmentRecord(appCtx appcontext.AppContext, 
 			if err != nil {
 				return err
 			}
-			// if we don't have the port data, then we won't worry about pricing
+			// if we don't have the port data, then we won't worry about pricing because we need the distance from/to the ports
 			if portZip != nil && portType != nil {
 				var pickupZip string
 				var destZip string
