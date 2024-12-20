@@ -323,7 +323,6 @@ func (suite *MTOShipmentServiceSuite) TestApproveShipment() {
 
 		expectedReserviceCodes := []models.ReServiceCode{
 			models.ReServiceCodeISLH,
-			models.ReServiceCodePODFSC,
 			models.ReServiceCodeINPK,
 		}
 
@@ -402,6 +401,7 @@ func (suite *MTOShipmentServiceSuite) TestApproveShipment() {
 
 		expectedReserviceCodes := []models.ReServiceCode{
 			models.ReServiceCodeISLH,
+			models.ReServiceCodePODFSC,
 			models.ReServiceCodeINPK,
 		}
 
