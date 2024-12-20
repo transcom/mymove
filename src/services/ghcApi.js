@@ -142,6 +142,10 @@ export async function getCustomerSupportRemarksForMove(key, locator) {
   return makeGHCRequest('customerSupportRemarks.getCustomerSupportRemarksForMove', { locator }, { normalize: false });
 }
 
+export async function getBulkAssignmentData(queueType) {
+  return makeGHCRequest('queues.getBulkAssignmentData', { queueType }, { normalize: false });
+}
+
 export async function createCustomerSupportRemarkForMove({ body, locator }) {
   return makeGHCRequest('customerSupportRemarks.createCustomerSupportRemarkForMove', {
     body,
@@ -617,6 +621,22 @@ export async function getMovesQueue(
   { sort, order, filters = [], currentPage = 1, currentPageSize = 20, viewAsGBLOC },
 ) {
   const operationPath = 'queues.getMovesQueue';
+  const paramFilters = {};
+  filters.forEach((filter) => {
+    paramFilters[`${filter.id}`] = filter.value;
+  });
+  return makeGHCRequest(
+    operationPath,
+    { sort, order, page: currentPage, perPage: currentPageSize, viewAsGBLOC, ...paramFilters },
+    { schemaKey: 'queueMovesResult', normalize: false },
+  );
+}
+
+export async function getDestinationRequestsQueue(
+  key,
+  { sort, order, filters = [], currentPage = 1, currentPageSize = 20, viewAsGBLOC },
+) {
+  const operationPath = 'queues.getDestinationRequestsQueue';
   const paramFilters = {};
   filters.forEach((filter) => {
     paramFilters[`${filter.id}`] = filter.value;

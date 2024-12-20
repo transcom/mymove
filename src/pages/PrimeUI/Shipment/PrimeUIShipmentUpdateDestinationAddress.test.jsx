@@ -40,7 +40,7 @@ const moveTaskOrder = {
     },
     {
       id: '3',
-      shipmentType: 'HHG_INTO_NTS_DOMESTIC',
+      shipmentType: 'HHG_INTO_NTS',
       requestedPickupDate: '2021-12-01',
       pickupAddress: { streetAddress1: '800 Madison Avenue', city: 'New York', state: 'NY', postalCode: '10002' },
     },
@@ -87,6 +87,7 @@ const testShipmentReturnValue = {
           streetAddress1: '100 1st Avenue',
           city: 'New York',
           state: 'NY',
+          county: 'New York',
           postalCode: '10001',
         },
       },
@@ -161,9 +162,17 @@ describe('PrimeUIShipmentUpdateAddress page', () => {
         expect(screen.getAllByLabelText('Address 1').length).toBe(1);
         expect(screen.getAllByLabelText('Address 1')[0]).toHaveValue(shipment.destinationAddress.streetAddress1);
         expect(screen.getAllByLabelText(/Address 2/)[0]).toHaveValue('');
-        expect(screen.getAllByLabelText('City')[0]).toHaveValue(shipment.destinationAddress.city);
-        expect(screen.getAllByLabelText('State')[0]).toHaveValue(shipment.destinationAddress.state);
-        expect(screen.getAllByLabelText('ZIP')[0]).toHaveValue(shipment.destinationAddress.postalCode);
+        expect(screen.getAllByLabelText(/Address 3/)[0]).toBeInTheDocument();
+
+        expect(screen.getAllByText('City')[0]).toBeInTheDocument();
+        expect(screen.getAllByText(shipment.destinationAddress.city)[0]).toBeInTheDocument();
+        expect(screen.getAllByText('State')[0]).toBeInTheDocument();
+        expect(screen.getAllByText(shipment.destinationAddress.state)[0]).toBeInTheDocument();
+        expect(screen.getAllByText('County')[0]).toBeInTheDocument();
+        expect(screen.getAllByText(shipment.destinationAddress.county)[0]).toBeInTheDocument();
+        expect(screen.getAllByText('ZIP')[0]).toBeInTheDocument();
+        expect(screen.getAllByText(shipment.destinationAddress.postalCode)[0]).toBeInTheDocument();
+
         expect(screen.getAllByLabelText('Contractor Remarks')[0]).toHaveValue('');
       });
     });

@@ -49,6 +49,26 @@ func (h CreateMTOServiceItemHandler) Handle(params mtoserviceitemops.CreateMTOSe
 				appCtx.Logger().Error("Error fetching feature flags for Domestic Mobile Homes.", zap.Error(err))
 			}
 
+			// ** Create service item can not be done for PPM shipment **/
+			shipment, err := models.FetchShipmentByID(appCtx.DB(), uuid.FromStringOrNil(params.Body.MtoShipmentID().String()))
+			if err != nil {
+				appCtx.Logger().Error("primeapi.CreateMTOServiceItemHandler Error Fetch Shipment", zap.Error(err))
+				switch err {
+				case models.ErrFetchNotFound:
+					return mtoserviceitemops.NewCreateMTOServiceItemNotFound().WithPayload(payloads.ClientError(handlers.NotFoundMessage, "Fetch Shipment", h.GetTraceIDFromRequest(params.HTTPRequest))), err
+				default:
+					return mtoserviceitemops.NewCreateMTOServiceItemInternalServerError().WithPayload(payloads.InternalServerError(nil, h.GetTraceIDFromRequest(params.HTTPRequest))), err
+				}
+			}
+
+			if shipment.ShipmentType == models.MTOShipmentTypePPM {
+				verrs := validate.NewErrors()
+				verrs.Add("mtoShipmentID", params.Body.MtoShipmentID().String())
+				appCtx.Logger().Error("primeapi.CreateMTOServiceItemHandler - Create Service Item is not allowed for PPM shipments", zap.Error(verrs))
+				return mtoserviceitemops.NewCreateMTOServiceItemUnprocessableEntity().WithPayload(payloads.ValidationError(
+					"Create Service Item is not allowed for PPM shipments", h.GetTraceIDFromRequest(params.HTTPRequest), verrs)), verrs
+			}
+
 			/** Feature Flag - Alaska **/
 			isAlaskaEnabled := false
 			featureFlagName := "enable_alaska"
@@ -210,6 +230,10 @@ func (h UpdateMTOServiceItemHandler) Handle(params mtoserviceitemops.UpdateMTOSe
 					return mtoserviceitemops.NewUpdateMTOServiceItemInternalServerError().WithPayload(
 						payloads.InternalServerError(nil, h.GetTraceIDFromRequest(params.HTTPRequest))), err
 				case apperror.UnprocessableEntityError:
+					verrs := validate.NewErrors()
+					return mtoserviceitemops.NewUpdateMTOServiceItemUnprocessableEntity().WithPayload(payloads.ValidationError(
+						err.Error(), h.GetTraceIDFromRequest(params.HTTPRequest), verrs)), verrs
+				case *apperror.UnsupportedPortCodeError:
 					verrs := validate.NewErrors()
 					return mtoserviceitemops.NewUpdateMTOServiceItemUnprocessableEntity().WithPayload(payloads.ValidationError(
 						err.Error(), h.GetTraceIDFromRequest(params.HTTPRequest), verrs)), verrs

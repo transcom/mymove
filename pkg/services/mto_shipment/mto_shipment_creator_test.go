@@ -106,7 +106,7 @@ func (suite *MTOShipmentServiceSuite) TestCreateMTOShipment() {
 
 		for _, testCase := range testCases {
 			var err error
-			if testCase.shipmentType == models.MTOShipmentTypeHHGOutOfNTSDom || testCase.shipmentType == models.MTOShipmentTypeHHGIntoNTSDom {
+			if testCase.shipmentType == models.MTOShipmentTypeHHGOutOfNTSDom || testCase.shipmentType == models.MTOShipmentTypeHHGIntoNTS {
 				storageFacility := factory.BuildStorageFacility(nil, nil, nil)
 				storageFacility.ID = uuid.Must(uuid.NewV4())
 
@@ -412,7 +412,7 @@ func (suite *MTOShipmentServiceSuite) TestCreateMTOShipment() {
 			expectDutyStation bool
 		}{
 			{models.MTOShipmentTypeHHG, true},
-			{models.MTOShipmentTypeHHGIntoNTSDom, false},
+			{models.MTOShipmentTypeHHGIntoNTS, false},
 			{models.MTOShipmentTypeHHGOutOfNTSDom, false},
 			{models.MTOShipmentTypePPM, false},
 		}
@@ -830,7 +830,7 @@ func (suite *MTOShipmentServiceSuite) TestCreateMTOShipment() {
 			shipmentType models.MTOShipmentType
 		}{
 			{"HHG", models.MTOShipmentTypeHHG},
-			{"HHG_INTO_NTS_DOMESTIC", models.MTOShipmentTypeHHGIntoNTSDom},
+			{"HHG_INTO_NTS", models.MTOShipmentTypeHHGIntoNTS},
 			{"HHG_OUTOF_NTS_DOMESTIC", models.MTOShipmentTypeHHGOutOfNTSDom},
 			{"MOBILE_HOME", models.MTOShipmentTypeMobileHome},
 			{"BOAT_HAUL_AWAY", models.MTOShipmentTypeBoatHaulAway},
@@ -872,7 +872,7 @@ func (suite *MTOShipmentServiceSuite) TestCreateMTOShipment() {
 			shipmentType models.MTOShipmentType
 		}{
 			{"HHG", models.MTOShipmentTypeHHG},
-			{"HHG_INTO_NTS_DOMESTIC", models.MTOShipmentTypeHHGIntoNTSDom},
+			{"HHG_INTO_NTS", models.MTOShipmentTypeHHGIntoNTS},
 			{"HHG_OUTOF_NTS_DOMESTIC", models.MTOShipmentTypeHHGOutOfNTSDom},
 			{"MOBILE_HOME", models.MTOShipmentTypeMobileHome},
 			{"BOAT_HAUL_AWAY", models.MTOShipmentTypeBoatHaulAway},
@@ -933,7 +933,7 @@ func (suite *MTOShipmentServiceSuite) TestCreateMTOShipment() {
 			shipmentType models.MTOShipmentType
 		}{
 			{"HHG", models.MTOShipmentTypeHHG},
-			{"HHG_INTO_NTS_DOMESTIC", models.MTOShipmentTypeHHGIntoNTSDom},
+			{"HHG_INTO_NTS", models.MTOShipmentTypeHHGIntoNTS},
 			{"HHG_OUTOF_NTS_DOMESTIC", models.MTOShipmentTypeHHGOutOfNTSDom},
 			{"MOBILE_HOME", models.MTOShipmentTypeMobileHome},
 			{"BOAT_HAUL_AWAY", models.MTOShipmentTypeBoatHaulAway},
@@ -1014,7 +1014,7 @@ func (suite *MTOShipmentServiceSuite) TestCreateMTOShipment() {
 			shipmentType models.MTOShipmentType
 		}{
 			{"HHG", models.MTOShipmentTypeHHG},
-			{"HHG_INTO_NTS_DOMESTIC", models.MTOShipmentTypeHHGIntoNTSDom},
+			{"HHG_INTO_NTS", models.MTOShipmentTypeHHGIntoNTS},
 			{"HHG_OUTOF_NTS_DOMESTIC", models.MTOShipmentTypeHHGOutOfNTSDom},
 			{"MOBILE_HOME", models.MTOShipmentTypeMobileHome},
 			{"BOAT_HAUL_AWAY", models.MTOShipmentTypeBoatHaulAway},
@@ -1056,7 +1056,7 @@ func (suite *MTOShipmentServiceSuite) TestCreateMTOShipment() {
 			shipmentType models.MTOShipmentType
 		}{
 			{"HHG", models.MTOShipmentTypeHHG},
-			{"HHG_INTO_NTS_DOMESTIC", models.MTOShipmentTypeHHGIntoNTSDom},
+			{"HHG_INTO_NTS", models.MTOShipmentTypeHHGIntoNTS},
 			{"HHG_OUTOF_NTS_DOMESTIC", models.MTOShipmentTypeHHGOutOfNTSDom},
 			{"MOBILE_HOME", models.MTOShipmentTypeMobileHome},
 			{"BOAT_HAUL_AWAY", models.MTOShipmentTypeBoatHaulAway},
@@ -1098,7 +1098,7 @@ func (suite *MTOShipmentServiceSuite) TestCreateMTOShipment() {
 			shipmentType models.MTOShipmentType
 		}{
 			{"HHG", models.MTOShipmentTypeHHG},
-			{"HHG_INTO_NTS_DOMESTIC", models.MTOShipmentTypeHHGIntoNTSDom},
+			{"HHG_INTO_NTS", models.MTOShipmentTypeHHGIntoNTS},
 			{"HHG_OUTOF_NTS_DOMESTIC", models.MTOShipmentTypeHHGOutOfNTSDom},
 			{"MOBILE_HOME", models.MTOShipmentTypeMobileHome},
 			{"BOAT_HAUL_AWAY", models.MTOShipmentTypeBoatHaulAway},

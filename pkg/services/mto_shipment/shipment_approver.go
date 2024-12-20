@@ -150,9 +150,9 @@ func (f *shipmentApprover) setRequiredDeliveryDate(appCtx appcontext.AppContext,
 		var weight int
 
 		switch shipment.ShipmentType {
-		case models.MTOShipmentTypeHHGIntoNTSDom:
+		case models.MTOShipmentTypeHHGIntoNTS:
 			if shipment.StorageFacility == nil {
-				return errors.Errorf("StorageFacility is required for %s shipments", models.MTOShipmentTypeHHGIntoNTSDom)
+				return errors.Errorf("StorageFacility is required for %s shipments", models.MTOShipmentTypeHHGIntoNTS)
 			}
 			pickupLocation = shipment.PickupAddress
 			deliveryLocation = &shipment.StorageFacility.Address
