@@ -3188,7 +3188,16 @@ func (suite *MTOShipmentServiceSuite) TestUpdateStatusServiceItems() {
 		err = appCtx.DB().EagerPreload("ReService").Where("mto_shipment_id = ?", updatedShipment.ID).All(&serviceItems)
 		suite.NoError(err)
 
-		suite.Equal(models.ReServiceCodeDLH, serviceItems[0].ReService.Code)
+		foundDLH := false
+		for _, serviceItem := range serviceItems {
+			if serviceItem.ReService.Code == models.ReServiceCodeDLH {
+				foundDLH = true
+				break
+			}
+		}
+
+		// at least one service item should have the DLH code
+		suite.True(foundDLH, "Expected to find at least one service item with ReService code DLH")
 	})
 
 	suite.Run("Shipments with same origin/destination ZIP3 have shorthaul service item", func() {
