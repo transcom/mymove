@@ -44,36 +44,6 @@ func (_m *PaymentRequestStatusUpdater) UpdatePaymentRequestStatus(appCtx appcont
 	return r0, r1
 }
 
-// UpdatePaymentRequestStatusAndCheckAssignment provides a mock function with given fields: appCtx, paymentRequest, eTag
-func (_m *PaymentRequestStatusUpdater) UpdatePaymentRequestStatusAndCheckAssignment(appCtx appcontext.AppContext, paymentRequest *models.PaymentRequest, eTag string) (*models.PaymentRequest, error) {
-	ret := _m.Called(appCtx, paymentRequest, eTag)
-
-	if len(ret) == 0 {
-		panic("no return value specified for UpdatePaymentRequestStatusAndCheckAssignment")
-	}
-
-	var r0 *models.PaymentRequest
-	var r1 error
-	if rf, ok := ret.Get(0).(func(appcontext.AppContext, *models.PaymentRequest, string) (*models.PaymentRequest, error)); ok {
-		return rf(appCtx, paymentRequest, eTag)
-	}
-	if rf, ok := ret.Get(0).(func(appcontext.AppContext, *models.PaymentRequest, string) *models.PaymentRequest); ok {
-		r0 = rf(appCtx, paymentRequest, eTag)
-	} else {
-		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*models.PaymentRequest)
-		}
-	}
-
-	if rf, ok := ret.Get(1).(func(appcontext.AppContext, *models.PaymentRequest, string) error); ok {
-		r1 = rf(appCtx, paymentRequest, eTag)
-	} else {
-		r1 = ret.Error(1)
-	}
-
-	return r0, r1
-}
-
 // NewPaymentRequestStatusUpdater creates a new instance of PaymentRequestStatusUpdater. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
 // The first argument is typically a *testing.T value.
 func NewPaymentRequestStatusUpdater(t interface {
