@@ -309,6 +309,10 @@ func (m MTOShipment) ContainsAPPMShipment() bool {
 	return m.PPMShipment != nil
 }
 
+func (m MTOShipment) IsPPMShipment() bool {
+	return m.ShipmentType == MTOShipmentTypePPM
+}
+
 // determining the market code for a shipment based off of address isOconus value
 // this function takes in a shipment and returns the same shipment with the updated MarketCode value
 func DetermineShipmentMarketCode(shipment *MTOShipment) *MTOShipment {
@@ -465,4 +469,18 @@ func UpdateEstimatedPricingForShipmentBasicServiceItems(db *pop.Connection, ship
 	}
 
 	return nil
+}
+
+// Returns a Shipment for a given id
+func FetchShipmentByID(db *pop.Connection, shipmentID uuid.UUID) (*MTOShipment, error) {
+	var mtoShipment MTOShipment
+	err := db.Q().Find(&mtoShipment, shipmentID)
+
+	if err != nil {
+		if errors.Cause(err).Error() == RecordNotFoundErrorString {
+			return nil, ErrFetchNotFound
+		}
+		return nil, err
+	}
+	return &mtoShipment, nil
 }
