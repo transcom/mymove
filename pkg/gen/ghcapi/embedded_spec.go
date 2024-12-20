@@ -4372,6 +4372,50 @@ func init() {
         }
       }
     },
+    "/queues/bulk-assignment": {
+      "get": {
+        "description": "Supervisor office users are able to bulk assign moves. This endpoint returns the relevant data to them; the current workload of the office users that work under them, and the moves that are available to be assigned\n",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "queues"
+        ],
+        "summary": "Gets data for bulk assignment modal",
+        "operationId": "getBulkAssignmentData",
+        "parameters": [
+          {
+            "enum": [
+              "COUNSELING",
+              "CLOSEOUT",
+              "TASK_ORDER",
+              "PAYMENT_REQUEST"
+            ],
+            "type": "string",
+            "description": "A string corresponding to the queue type",
+            "name": "queueType",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully returned bulk assignment data",
+            "schema": {
+              "$ref": "#/definitions/BulkAssignmentData"
+            }
+          },
+          "401": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "404": {
+            "$ref": "#/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/responses/ServerError"
+          }
+        }
+      }
+    },
     "/queues/counseling": {
       "get": {
         "description": "An office services counselor user will be assigned a transportation office that will determine which moves are displayed in their queue based on the origin duty location.  GHC moves will show up here onced they have reached the NEEDS SERVICE COUNSELING status after submission from a customer or created on a customer's behalf.\n",
@@ -4621,6 +4665,166 @@ func init() {
             "description": "Successfully returned all moves matching the criteria",
             "schema": {
               "$ref": "#/definitions/Locations"
+            }
+          },
+          "403": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "500": {
+            "$ref": "#/responses/ServerError"
+          }
+        }
+      }
+    },
+    "/queues/destination-requests": {
+      "get": {
+        "description": "A TOO will view this queue when they have destination requests tied to the destination address in their GBLOC within a shipment. This includes unapproved destination SIT service items (including shuttle) and destination address requests that are not approved.\n",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "queues"
+        ],
+        "summary": "Gets queued list of all customer moves by a shipment's destination address GBLOC that have destination requests (destination SIT, shuttle, destination address requests)",
+        "operationId": "getDestinationRequestsQueue",
+        "parameters": [
+          {
+            "type": "integer",
+            "description": "requested page of results",
+            "name": "page",
+            "in": "query"
+          },
+          {
+            "type": "integer",
+            "description": "results per page",
+            "name": "perPage",
+            "in": "query"
+          },
+          {
+            "enum": [
+              "customerName",
+              "edipi",
+              "emplid",
+              "branch",
+              "locator",
+              "status",
+              "originDutyLocation",
+              "destinationDutyLocation",
+              "requestedMoveDate",
+              "appearedInTooAt",
+              "assignedTo",
+              "counselingOffice"
+            ],
+            "type": "string",
+            "description": "field that results should be sorted by",
+            "name": "sort",
+            "in": "query"
+          },
+          {
+            "enum": [
+              "asc",
+              "desc"
+            ],
+            "type": "string",
+            "description": "direction of sort order if applied",
+            "name": "order",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "name": "branch",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "name": "locator",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "name": "customerName",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "name": "edipi",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "name": "emplid",
+            "in": "query"
+          },
+          {
+            "uniqueItems": true,
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "collectionFormat": "multi",
+            "name": "originDutyLocation",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "name": "destinationDutyLocation",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "format": "date-time",
+            "name": "appearedInTooAt",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "filters the requested pickup date of a shipment on the move",
+            "name": "requestedMoveDate",
+            "in": "query"
+          },
+          {
+            "uniqueItems": true,
+            "type": "array",
+            "items": {
+              "enum": [
+                "APPROVALS REQUESTED"
+              ],
+              "type": "string"
+            },
+            "description": "Filtering for the status.",
+            "name": "status",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "order type",
+            "name": "orderType",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "Used to return a queue for a GBLOC other than the default of the current user. Requires the HQ role. The parameter is ignored if the requesting user does not have the necessary role.\n",
+            "name": "viewAsGBLOC",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "Used to illustrate which user is assigned to this move.\n",
+            "name": "assignedTo",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "filters using a counselingOffice name of the move",
+            "name": "counselingOffice",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully returned all moves matching the criteria",
+            "schema": {
+              "$ref": "#/definitions/QueueMovesResult"
             }
           },
           "403": {
@@ -6747,6 +6951,9 @@ func init() {
         "firstName": {
           "type": "string"
         },
+        "hasSafetyPrivilege": {
+          "type": "boolean"
+        },
         "lastName": {
           "type": "string"
         },
@@ -6754,6 +6961,9 @@ func init() {
           "type": "string",
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "workload": {
+          "type": "integer"
         }
       }
     },
@@ -6875,6 +7085,28 @@ func init() {
         }
       },
       "x-nullable": true
+    },
+    "BulkAssignmentData": {
+      "type": "object",
+      "properties": {
+        "availableOfficeUsers": {
+          "$ref": "#/definitions/AvailableOfficeUsers"
+        },
+        "bulkAssignmentMoveIDs": {
+          "$ref": "#/definitions/BulkAssignmentMoveIDs"
+        }
+      }
+    },
+    "BulkAssignmentMoveID": {
+      "type": "string",
+      "format": "uuid",
+      "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+    },
+    "BulkAssignmentMoveIDs": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/BulkAssignmentMoveID"
+      }
     },
     "ClientError": {
       "type": "object",
@@ -9891,7 +10123,7 @@ func init() {
       "title": "Shipment Type",
       "enum": [
         "HHG",
-        "HHG_INTO_NTS_DOMESTIC",
+        "HHG_INTO_NTS",
         "HHG_OUTOF_NTS_DOMESTIC",
         "PPM",
         "BOAT_HAUL_AWAY",
@@ -9903,7 +10135,7 @@ func init() {
         "BOAT_HAUL_AWAY": "Boat Haul-Away",
         "BOAT_TOW_AWAY": "Boat Tow-Away",
         "HHG": "HHG",
-        "HHG_INTO_NTS_DOMESTIC": "NTS",
+        "HHG_INTO_NTS": "NTS",
         "HHG_OUTOF_NTS_DOMESTIC": "NTS Release",
         "MOBILE_HOME": "Mobile Home",
         "PPM": "PPM",
@@ -12788,7 +13020,7 @@ func init() {
             "BOAT_HAUL_AWAY",
             "BOAT_TOW_AWAY",
             "HHG",
-            "HHG_INTO_NTS_DOMESTIC",
+            "HHG_INTO_NTS",
             "HHG_OUTOF_NTS_DOMESTIC",
             "MOBILE_HOME",
             "PPM",
@@ -20813,6 +21045,59 @@ func init() {
         }
       }
     },
+    "/queues/bulk-assignment": {
+      "get": {
+        "description": "Supervisor office users are able to bulk assign moves. This endpoint returns the relevant data to them; the current workload of the office users that work under them, and the moves that are available to be assigned\n",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "queues"
+        ],
+        "summary": "Gets data for bulk assignment modal",
+        "operationId": "getBulkAssignmentData",
+        "parameters": [
+          {
+            "enum": [
+              "COUNSELING",
+              "CLOSEOUT",
+              "TASK_ORDER",
+              "PAYMENT_REQUEST"
+            ],
+            "type": "string",
+            "description": "A string corresponding to the queue type",
+            "name": "queueType",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully returned bulk assignment data",
+            "schema": {
+              "$ref": "#/definitions/BulkAssignmentData"
+            }
+          },
+          "401": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "500": {
+            "description": "A server error occurred",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      }
+    },
     "/queues/counseling": {
       "get": {
         "description": "An office services counselor user will be assigned a transportation office that will determine which moves are displayed in their queue based on the origin duty location.  GHC moves will show up here onced they have reached the NEEDS SERVICE COUNSELING status after submission from a customer or created on a customer's behalf.\n",
@@ -21068,6 +21353,172 @@ func init() {
             "description": "Successfully returned all moves matching the criteria",
             "schema": {
               "$ref": "#/definitions/Locations"
+            }
+          },
+          "403": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "500": {
+            "description": "A server error occurred",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      }
+    },
+    "/queues/destination-requests": {
+      "get": {
+        "description": "A TOO will view this queue when they have destination requests tied to the destination address in their GBLOC within a shipment. This includes unapproved destination SIT service items (including shuttle) and destination address requests that are not approved.\n",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "queues"
+        ],
+        "summary": "Gets queued list of all customer moves by a shipment's destination address GBLOC that have destination requests (destination SIT, shuttle, destination address requests)",
+        "operationId": "getDestinationRequestsQueue",
+        "parameters": [
+          {
+            "type": "integer",
+            "description": "requested page of results",
+            "name": "page",
+            "in": "query"
+          },
+          {
+            "type": "integer",
+            "description": "results per page",
+            "name": "perPage",
+            "in": "query"
+          },
+          {
+            "enum": [
+              "customerName",
+              "edipi",
+              "emplid",
+              "branch",
+              "locator",
+              "status",
+              "originDutyLocation",
+              "destinationDutyLocation",
+              "requestedMoveDate",
+              "appearedInTooAt",
+              "assignedTo",
+              "counselingOffice"
+            ],
+            "type": "string",
+            "description": "field that results should be sorted by",
+            "name": "sort",
+            "in": "query"
+          },
+          {
+            "enum": [
+              "asc",
+              "desc"
+            ],
+            "type": "string",
+            "description": "direction of sort order if applied",
+            "name": "order",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "name": "branch",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "name": "locator",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "name": "customerName",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "name": "edipi",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "name": "emplid",
+            "in": "query"
+          },
+          {
+            "uniqueItems": true,
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "collectionFormat": "multi",
+            "name": "originDutyLocation",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "name": "destinationDutyLocation",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "format": "date-time",
+            "name": "appearedInTooAt",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "filters the requested pickup date of a shipment on the move",
+            "name": "requestedMoveDate",
+            "in": "query"
+          },
+          {
+            "uniqueItems": true,
+            "type": "array",
+            "items": {
+              "enum": [
+                "APPROVALS REQUESTED"
+              ],
+              "type": "string"
+            },
+            "description": "Filtering for the status.",
+            "name": "status",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "order type",
+            "name": "orderType",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "Used to return a queue for a GBLOC other than the default of the current user. Requires the HQ role. The parameter is ignored if the requesting user does not have the necessary role.\n",
+            "name": "viewAsGBLOC",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "Used to illustrate which user is assigned to this move.\n",
+            "name": "assignedTo",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "filters using a counselingOffice name of the move",
+            "name": "counselingOffice",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully returned all moves matching the criteria",
+            "schema": {
+              "$ref": "#/definitions/QueueMovesResult"
             }
           },
           "403": {
@@ -23582,6 +24033,9 @@ func init() {
         "firstName": {
           "type": "string"
         },
+        "hasSafetyPrivilege": {
+          "type": "boolean"
+        },
         "lastName": {
           "type": "string"
         },
@@ -23589,6 +24043,9 @@ func init() {
           "type": "string",
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "workload": {
+          "type": "integer"
         }
       }
     },
@@ -23710,6 +24167,28 @@ func init() {
         }
       },
       "x-nullable": true
+    },
+    "BulkAssignmentData": {
+      "type": "object",
+      "properties": {
+        "availableOfficeUsers": {
+          "$ref": "#/definitions/AvailableOfficeUsers"
+        },
+        "bulkAssignmentMoveIDs": {
+          "$ref": "#/definitions/BulkAssignmentMoveIDs"
+        }
+      }
+    },
+    "BulkAssignmentMoveID": {
+      "type": "string",
+      "format": "uuid",
+      "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+    },
+    "BulkAssignmentMoveIDs": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/BulkAssignmentMoveID"
+      }
     },
     "ClientError": {
       "type": "object",
@@ -26730,7 +27209,7 @@ func init() {
       "title": "Shipment Type",
       "enum": [
         "HHG",
-        "HHG_INTO_NTS_DOMESTIC",
+        "HHG_INTO_NTS",
         "HHG_OUTOF_NTS_DOMESTIC",
         "PPM",
         "BOAT_HAUL_AWAY",
@@ -26742,7 +27221,7 @@ func init() {
         "BOAT_HAUL_AWAY": "Boat Haul-Away",
         "BOAT_TOW_AWAY": "Boat Tow-Away",
         "HHG": "HHG",
-        "HHG_INTO_NTS_DOMESTIC": "NTS",
+        "HHG_INTO_NTS": "NTS",
         "HHG_OUTOF_NTS_DOMESTIC": "NTS Release",
         "MOBILE_HOME": "Mobile Home",
         "PPM": "PPM",
@@ -29703,7 +30182,7 @@ func init() {
             "BOAT_HAUL_AWAY",
             "BOAT_TOW_AWAY",
             "HHG",
-            "HHG_INTO_NTS_DOMESTIC",
+            "HHG_INTO_NTS",
             "HHG_OUTOF_NTS_DOMESTIC",
             "MOBILE_HOME",
             "PPM",

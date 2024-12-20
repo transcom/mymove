@@ -27,6 +27,7 @@ import (
 	moverouter "github.com/transcom/mymove/pkg/services/move"
 	movetaskorder "github.com/transcom/mymove/pkg/services/move_task_order"
 	mtoshipment "github.com/transcom/mymove/pkg/services/mto_shipment"
+	portlocation "github.com/transcom/mymove/pkg/services/port_location"
 	"github.com/transcom/mymove/pkg/services/query"
 	sitstatus "github.com/transcom/mymove/pkg/services/sit_status"
 	storageTest "github.com/transcom/mymove/pkg/storage/test"
@@ -42,6 +43,7 @@ func (suite *MTOServiceItemServiceSuite) TestMTOServiceItemUpdater() {
 	shipmentFetcher := mtoshipment.NewMTOShipmentFetcher()
 	addressCreator := address.NewAddressCreator()
 	sitStatusService := sitstatus.NewShipmentSITStatus()
+	portLocationFetcher := portlocation.NewPortLocationFetcher()
 
 	planner := &mocks.Planner{}
 	planner.On("ZipTransitDistance",
@@ -49,7 +51,7 @@ func (suite *MTOServiceItemServiceSuite) TestMTOServiceItemUpdater() {
 		mock.Anything,
 		mock.Anything,
 	).Return(400, nil)
-	updater := NewMTOServiceItemUpdater(planner, builder, moveRouter, shipmentFetcher, addressCreator, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer())
+	updater := NewMTOServiceItemUpdater(planner, builder, moveRouter, shipmentFetcher, addressCreator, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer(), portLocationFetcher)
 
 	setupServiceItem := func() (models.MTOServiceItem, string) {
 		serviceItem := testdatagen.MakeDefaultMTOServiceItem(suite.DB())
@@ -1429,6 +1431,206 @@ func (suite *MTOServiceItemServiceSuite) TestValidateUpdateMTOServiceItem() {
 		suite.IsType(apperror.InvalidInputError{}, err)
 	})
 
+	// Test successful Prime validation for Port of Embarkation
+	suite.Run("UpdateMTOServiceItemPrimeValidator - Update Port of Embarkation - success", func() {
+		oldServiceItemPrime := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model:    factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil),
+				LinkOnly: true,
+			},
+			{
+				Model: models.ReService{
+					Code: models.ReServiceCodePOEFSC,
+				},
+			},
+		}, nil)
+		newServiceItemPrime := oldServiceItemPrime
+		poeId := uuid.FromStringOrNil("b6e94f5b-33c0-43f3-b960-7c7b2a4ee5fc")
+		newServiceItemPrime.POELocationID = &poeId
+		newServiceItemPrime.POELocation = &models.PortLocation{}
+
+		serviceItemData := updateMTOServiceItemData{
+			updatedServiceItem:  newServiceItemPrime,
+			oldServiceItem:      oldServiceItemPrime,
+			verrs:               validate.NewErrors(),
+			availabilityChecker: checker,
+		}
+		updatedServiceItem, err := ValidateUpdateMTOServiceItem(suite.AppContextForTest(), &serviceItemData, UpdateMTOServiceItemPrimeValidator)
+
+		suite.NoError(err)
+		suite.NotNil(updatedServiceItem)
+		suite.IsType(models.MTOServiceItem{}, *updatedServiceItem)
+		suite.Equal(updatedServiceItem.POELocationID, newServiceItemPrime.POELocationID)
+	})
+
+	// Test success Prime validation for Port of Embarkation
+	suite.Run("UpdateMTOServiceItemPrimeValidator - Update Port of Embarkation - Port not updated when new port ID is nil", func() {
+		oldServiceItemPrime := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model:    factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil),
+				LinkOnly: true,
+			},
+			{
+				Model: models.ReService{
+					Code: models.ReServiceCodePOEFSC,
+				},
+			},
+		}, nil)
+		poeId := uuid.FromStringOrNil("b6e94f5b-33c0-43f3-b960-7c7b2a4ee5fc")
+		oldServiceItemPrime.POELocationID = &poeId
+
+		newServiceItemPrime := oldServiceItemPrime
+		newServiceItemPrime.POELocationID = nil
+		newServiceItemPrime.POELocation = &models.PortLocation{}
+
+		serviceItemData := updateMTOServiceItemData{
+			updatedServiceItem:  newServiceItemPrime,
+			oldServiceItem:      oldServiceItemPrime,
+			verrs:               validate.NewErrors(),
+			availabilityChecker: checker,
+		}
+		updatedServiceItem, err := ValidateUpdateMTOServiceItem(suite.AppContextForTest(), &serviceItemData, UpdateMTOServiceItemPrimeValidator)
+
+		suite.NoError(err)
+		suite.NotNil(updatedServiceItem)
+		suite.IsType(models.MTOServiceItem{}, *updatedServiceItem)
+		suite.NotEqual(oldServiceItemPrime.POELocationID, newServiceItemPrime.POELocationID)
+		suite.Equal(oldServiceItemPrime.POELocationID, updatedServiceItem.POELocationID)
+	})
+
+	// Test failure Prime validation for Port of Embarkation
+	suite.Run("UpdateMTOServiceItemPrimeValidator - Update Port of Embarkation - Port not updated wrong service code is supplied", func() {
+		oldServiceItemPrime := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model:    factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil),
+				LinkOnly: true,
+			},
+			{
+				Model: models.ReService{
+					Code: models.ReServiceCodePODFSC,
+				},
+			},
+		}, nil)
+		poeId := uuid.FromStringOrNil("b6e94f5b-33c0-43f3-b960-7c7b2a4ee5fc")
+		oldServiceItemPrime.POELocationID = &poeId
+
+		newServiceItemPrime := oldServiceItemPrime
+		newServiceItemPrime.POELocationID = nil
+		newServiceItemPrime.POELocation = &models.PortLocation{}
+
+		serviceItemData := updateMTOServiceItemData{
+			updatedServiceItem:  newServiceItemPrime,
+			oldServiceItem:      oldServiceItemPrime,
+			verrs:               validate.NewErrors(),
+			availabilityChecker: checker,
+		}
+		updatedServiceItem, err := ValidateUpdateMTOServiceItem(suite.AppContextForTest(), &serviceItemData, UpdateMTOServiceItemPrimeValidator)
+
+		suite.Error(err)
+		suite.Empty(updatedServiceItem)
+		suite.Contains(err.Error(), "is in a conflicting state POE Location can only be updated for service item POEFSC")
+	})
+
+	// Test successful Prime validation for Port of Debarkation
+	suite.Run("UpdateMTOServiceItemPrimeValidator - Update Port of Debarkation - success", func() {
+		oldServiceItemPrime := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model:    factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil),
+				LinkOnly: true,
+			},
+			{
+				Model: models.ReService{
+					Code: models.ReServiceCodePODFSC,
+				},
+			},
+		}, nil)
+		newServiceItemPrime := oldServiceItemPrime
+		podId := uuid.FromStringOrNil("b6e94f5b-33c0-43f3-b960-7c7b2a4ee5fc")
+		newServiceItemPrime.PODLocationID = &podId
+		newServiceItemPrime.PODLocation = &models.PortLocation{}
+
+		serviceItemData := updateMTOServiceItemData{
+			updatedServiceItem:  newServiceItemPrime,
+			oldServiceItem:      oldServiceItemPrime,
+			verrs:               validate.NewErrors(),
+			availabilityChecker: checker,
+		}
+		updatedServiceItem, err := ValidateUpdateMTOServiceItem(suite.AppContextForTest(), &serviceItemData, UpdateMTOServiceItemPrimeValidator)
+
+		suite.NoError(err)
+		suite.NotNil(updatedServiceItem)
+		suite.IsType(models.MTOServiceItem{}, *updatedServiceItem)
+		suite.Equal(updatedServiceItem.PODLocationID, newServiceItemPrime.PODLocationID)
+	})
+
+	// Test successful Prime validation for Port of Debarkation
+	suite.Run("UpdateMTOServiceItemPrimeValidator - Update Port of Debarkation - Port not updated when new port ID is nil", func() {
+		oldServiceItemPrime := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model:    factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil),
+				LinkOnly: true,
+			},
+			{
+				Model: models.ReService{
+					Code: models.ReServiceCodePODFSC,
+				},
+			},
+		}, nil)
+		podId := uuid.FromStringOrNil("b6e94f5b-33c0-43f3-b960-7c7b2a4ee5fc")
+		oldServiceItemPrime.PODLocationID = &podId
+
+		newServiceItemPrime := oldServiceItemPrime
+		newServiceItemPrime.PODLocationID = nil
+		newServiceItemPrime.PODLocation = &models.PortLocation{}
+
+		serviceItemData := updateMTOServiceItemData{
+			updatedServiceItem:  newServiceItemPrime,
+			oldServiceItem:      oldServiceItemPrime,
+			verrs:               validate.NewErrors(),
+			availabilityChecker: checker,
+		}
+		updatedServiceItem, err := ValidateUpdateMTOServiceItem(suite.AppContextForTest(), &serviceItemData, UpdateMTOServiceItemPrimeValidator)
+
+		suite.NoError(err)
+		suite.NotNil(updatedServiceItem)
+		suite.IsType(models.MTOServiceItem{}, *updatedServiceItem)
+		suite.NotEqual(oldServiceItemPrime.PODLocationID, newServiceItemPrime.PODLocationID)
+		suite.Equal(oldServiceItemPrime.PODLocationID, updatedServiceItem.PODLocationID)
+	})
+
+	// Test failure Prime validation for Port of Debarkation
+	suite.Run("UpdateMTOServiceItemPrimeValidator - Update Port of Debarkation - Port not updated wrong service code is supplied", func() {
+		oldServiceItemPrime := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model:    factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil),
+				LinkOnly: true,
+			},
+			{
+				Model: models.ReService{
+					Code: models.ReServiceCodePOEFSC,
+				},
+			},
+		}, nil)
+		podId := uuid.FromStringOrNil("b6e94f5b-33c0-43f3-b960-7c7b2a4ee5fc")
+		oldServiceItemPrime.PODLocationID = &podId
+
+		newServiceItemPrime := oldServiceItemPrime
+		newServiceItemPrime.PODLocationID = nil
+		newServiceItemPrime.PODLocation = &models.PortLocation{}
+
+		serviceItemData := updateMTOServiceItemData{
+			updatedServiceItem:  newServiceItemPrime,
+			oldServiceItem:      oldServiceItemPrime,
+			verrs:               validate.NewErrors(),
+			availabilityChecker: checker,
+		}
+		updatedServiceItem, err := ValidateUpdateMTOServiceItem(suite.AppContextForTest(), &serviceItemData, UpdateMTOServiceItemPrimeValidator)
+
+		suite.Error(err)
+		suite.Empty(updatedServiceItem)
+		suite.Contains(err.Error(), "is in a conflicting state POD Location can only be updated for service item PODFSC")
+	})
+
 	// Test successful Prime validation
 	suite.Run("UpdateMTOServiceItemPrimeValidator - success", func() {
 		oldServiceItemPrime := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
@@ -1752,13 +1954,14 @@ func (suite *MTOServiceItemServiceSuite) TestUpdateMTOServiceItemStatus() {
 	moveRouter := moverouter.NewMoveRouter()
 	shipmentFetcher := mtoshipment.NewMTOShipmentFetcher()
 	addressCreator := address.NewAddressCreator()
+	portLocationFetcher := portlocation.NewPortLocationFetcher()
 	planner := &mocks.Planner{}
 	planner.On("ZipTransitDistance",
 		mock.AnythingOfType("*appcontext.appContext"),
 		mock.Anything,
 		mock.Anything,
 	).Return(400, nil)
-	updater := NewMTOServiceItemUpdater(planner, builder, moveRouter, shipmentFetcher, addressCreator, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer())
+	updater := NewMTOServiceItemUpdater(planner, builder, moveRouter, shipmentFetcher, addressCreator, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer(), portLocationFetcher)
 
 	rejectionReason := models.StringPointer("")
 
@@ -2395,13 +2598,14 @@ func (suite *MTOServiceItemServiceSuite) TestUpdateMTOServiceItemPricingEstimate
 	moveRouter := moverouter.NewMoveRouter()
 	shipmentFetcher := mtoshipment.NewMTOShipmentFetcher()
 	addressCreator := address.NewAddressCreator()
+	portLocationFetcher := portlocation.NewPortLocationFetcher()
 	planner := &mocks.Planner{}
 	planner.On("ZipTransitDistance",
 		mock.AnythingOfType("*appcontext.appContext"),
 		mock.Anything,
 		mock.Anything,
 	).Return(400, nil)
-	updater := NewMTOServiceItemUpdater(planner, builder, moveRouter, shipmentFetcher, addressCreator, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer())
+	updater := NewMTOServiceItemUpdater(planner, builder, moveRouter, shipmentFetcher, addressCreator, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer(), portLocationFetcher)
 
 	setupServiceItem := func() (models.MTOServiceItem, string) {
 		serviceItem := testdatagen.MakeDefaultMTOServiceItem(suite.DB())

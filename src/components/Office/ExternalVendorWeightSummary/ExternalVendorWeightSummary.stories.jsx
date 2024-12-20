@@ -40,13 +40,13 @@ export const WithMultipleNTSShipments = () => (
   <ExternalVendorWeightSummary
     shipments={[
       {
-        shipmentType: 'HHG_INTO_NTS_DOMESTIC',
+        shipmentType: 'HHG_INTO_NTS',
       },
       {
-        shipmentType: 'HHG_INTO_NTS_DOMESTIC',
+        shipmentType: 'HHG_INTO_NTS',
       },
       {
-        shipmentType: 'HHG_INTO_NTS_DOMESTIC',
+        shipmentType: 'HHG_INTO_NTS',
       },
     ]}
   />
@@ -64,14 +64,14 @@ export const WithMultipleShipmentsOfBothTypes = () => (
         shipmentType: 'HHG_OUTOF_NTS_DOMESTIC',
       },
       {
-        shipmentType: 'HHG_INTO_NTS_DOMESTIC',
+        shipmentType: 'HHG_INTO_NTS',
       },
       {
         ntsRecordedWeight: 1500,
         shipmentType: 'HHG_OUTOF_NTS_DOMESTIC',
       },
       {
-        shipmentType: 'HHG_INTO_NTS_DOMESTIC',
+        shipmentType: 'HHG_INTO_NTS',
       },
     ]}
   />
@@ -81,7 +81,7 @@ export const WithOneNTSShipment = () => (
   <ExternalVendorWeightSummary
     shipments={[
       {
-        NTS: 'HHG_INTO_NTS_DOMESTIC',
+        NTS: 'HHG_INTO_NTS',
       },
     ]}
   />

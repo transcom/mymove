@@ -152,7 +152,7 @@ paths:
                 summary: NTS
                 value:
                   moveTaskOrderId: 5691c951-c35c-49a8-a1d5-a4b7ea7b7ad8
-                  shipmentType: HHG_INTO_NTS_DOMESTIC
+                  shipmentType: HHG_INTO_NTS
                   requestedPickupDate: '2022-12-31'
                   pickupAddress:
                     streetAddress1: 204 South Prospect Lane
@@ -1312,6 +1312,10 @@ definitions:
         x-nullable: true
       ppmShipment:
         $ref: '#/definitions/UpdatePPMShipment'
+      portOfEmbarkation:
+        $ref: '#/definitions/Port'
+      portOfDebarkation:
+        $ref: '#/definitions/Port'
   UpdateMTOShipmentStatus:
     description: >-
       Contains the statuses available to the Prime when updating the state of a
@@ -2150,6 +2154,7 @@ definitions:
         * DOSHUT, DDSHUT - MTOServiceItemShuttle
         * DCRT, DUCRT - MTOServiceItemDomesticCrating
         * ICRT, IUCRT - MTOServiceItemInternationalCrating
+        * PODFSC, POEFSC - MTOSerivceItemInternationalFuelSurcharge
 
       The documentation will then update with the supported fields.
     type: string
@@ -2160,6 +2165,7 @@ definitions:
       - MTOServiceItemShuttle
       - MTOServiceItemDomesticCrating
       - MTOServiceItemInternationalCrating
+      - MTOSerivceItemInternationalFuelSurcharge
   ServiceRequestDocument:
     properties:
       uploads:
@@ -2447,7 +2453,7 @@ definitions:
     description: |
       The type of shipment.
         * `HHG` = Household goods move
-        * `HHG_INTO_NTS_DOMESTIC` = HHG into Non-temporary storage (NTS)
+        * `HHG_INTO_NTS` = HHG into Non-temporary storage (NTS)
         * `HHG_OUTOF_NTS_DOMESTIC` = HHG out of Non-temporary storage (NTS Release)
         * `PPM` = Personally Procured Move also known as Do It Yourself (DITY)
         * `BOAT_HAUL_AWAY` = Boat shipment that requires additional equipment to haul it to it's destination
@@ -2459,14 +2465,14 @@ definitions:
       - BOAT_HAUL_AWAY
       - BOAT_TOW_AWAY
       - HHG
-      - HHG_INTO_NTS_DOMESTIC
+      - HHG_INTO_NTS
       - HHG_OUTOF_NTS_DOMESTIC
       - MOBILE_HOME
       - PPM
       - UNACCOMPANIED_BAGGAGE
     x-display-value:
       HHG: Household goods move (HHG)
-      HHG_INTO_NTS_DOMESTIC: HHG into Non-temporary storage (NTS)
+      HHG_INTO_NTS: HHG into Non-temporary storage (NTS)
       HHG_OUTOF_NTS_DOMESTIC: HHG out of Non-temporary storage (NTS Release)
       PPM: Personally Procured Move also known as Do It Yourself (DITY)
       BOAT_HAUL_AWAY: >-
@@ -3133,6 +3139,102 @@ definitions:
       - originalAddress
       - newAddress
       - contractorRemarks
+  Port:
+    description: A port that is used to move an international shipment.
+    type: object
+    properties:
+      id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      portType:
+        type: string
+        description: Port type A (Air), B (Border Crossing), S (Sea)
+        enum:
+          - A
+          - B
+          - S
+      portCode:
+        type: string
+        description: 3 or 4 digit port code
+        example: '0431'
+      portName:
+        type: string
+        description: Name of the port
+        example: PORTLAND INTL
+      city:
+        type: string
+        example: PORTLAND
+      county:
+        type: string
+        example: MULTNOMAH
+      state:
+        type: string
+        description: US state
+        example: OR
+        enum:
+          - AL
+          - AK
+          - AR
+          - AZ
+          - CA
+          - CO
+          - CT
+          - DC
+          - DE
+          - FL
+          - GA
+          - HI
+          - IA
+          - ID
+          - IL
+          - IN
+          - KS
+          - KY
+          - LA
+          - MA
+          - MD
+          - ME
+          - MI
+          - MN
+          - MO
+          - MS
+          - MT
+          - NC
+          - ND
+          - NE
+          - NH
+          - NJ
+          - NM
+          - NV
+          - NY
+          - OH
+          - OK
+          - OR
+          - PA
+          - RI
+          - SC
+          - SD
+          - TN
+          - TX
+          - UT
+          - VA
+          - VT
+          - WA
+          - WI
+          - WV
+          - WY
+      zip:
+        type: string
+        format: zip
+        title: ZIP
+        example: '99501'
+        pattern: ^(\d{5}([\-]\d{4})?)$
+      country:
+        type: string
+        example: US
+        pattern: ^[A-Z]{2}$
+        description: Two-letter country code
   MTOShipmentWithoutServiceItems:
     type: object
     properties:
@@ -3423,6 +3525,10 @@ definitions:
         $ref: '#/definitions/RateArea'
       destinationRateArea:
         $ref: '#/definitions/RateArea'
+      portOfDebarkation:
+        $ref: '#/definitions/Port'
+      portOfEmbarkation:
+        $ref: '#/definitions/Port'
   MTOShipmentsWithoutServiceObjects:
     description: A list of shipments without their associated service items.
     items:

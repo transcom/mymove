@@ -19,7 +19,7 @@ type MTOShipmentType string
 // using these also in move.go selected move type
 const (
 	// NTSRaw is the raw string value of the NTS Shipment Type
-	NTSRaw = "HHG_INTO_NTS_DOMESTIC"
+	NTSRaw = "HHG_INTO_NTS"
 	// NTSrRaw is the raw string value of the NTSr Shipment Type
 	NTSrRaw = "HHG_OUTOF_NTS_DOMESTIC"
 )
@@ -35,8 +35,8 @@ const (
 const (
 	// MTOShipmentTypeHHG is an HHG Shipment Type default
 	MTOShipmentTypeHHG MTOShipmentType = "HHG"
-	// MTOShipmentTypeHHGIntoNTSDom is an HHG Shipment Type for going into NTS Domestic
-	MTOShipmentTypeHHGIntoNTSDom MTOShipmentType = NTSRaw
+	// MTOShipmentTypeHHGIntoNTS is an HHG Shipment Type for going into NTS
+	MTOShipmentTypeHHGIntoNTS MTOShipmentType = NTSRaw
 	// MTOShipmentTypeHHGOutOfNTSDom is an HHG Shipment Type for going out of NTS Domestic
 	MTOShipmentTypeHHGOutOfNTSDom MTOShipmentType = NTSrRaw
 	// MTOShipmentTypeMobileHome is a Shipment Type for MobileHome
@@ -320,7 +320,7 @@ func DetermineShipmentMarketCode(shipment *MTOShipment) *MTOShipment {
 
 	// determine market code based on address and shipment type
 	switch shipment.ShipmentType {
-	case MTOShipmentTypeHHGIntoNTSDom:
+	case MTOShipmentTypeHHGIntoNTS:
 		if shipment.PickupAddress != nil && shipment.StorageFacility != nil &&
 			shipment.PickupAddress.IsOconus != nil && shipment.StorageFacility.Address.IsOconus != nil {
 			// If both pickup and storage facility are present, check if both are domestic
@@ -422,6 +422,18 @@ func CreateApprovedServiceItemsForShipment(db *pop.Connection, shipment *MTOShip
 	err := db.RawQuery("CALL create_approved_service_items_for_shipment($1)", shipment.ID).Exec()
 	if err != nil {
 		return fmt.Errorf("error creating approved service items: %w", err)
+	}
+
+	return nil
+}
+
+// a db stored proc that will handle updating the pricing_estimate columns of basic service items for shipment types:
+// iHHG
+// iUB
+func UpdateEstimatedPricingForShipmentBasicServiceItems(db *pop.Connection, shipment *MTOShipment) error {
+	err := db.RawQuery("CALL update_service_item_pricing($1)", shipment.ID).Exec()
+	if err != nil {
+		return fmt.Errorf("error updating estimated pricing for shipment's service items: %w", err)
 	}
 
 	return nil

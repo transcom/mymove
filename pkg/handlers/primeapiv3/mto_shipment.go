@@ -109,7 +109,7 @@ func (h CreateMTOShipmentHandler) Handle(params mtoshipmentops.CreateMTOShipment
 				appCtx.Logger().Error("Error validating mto shipment object: ", zap.Error(verrs))
 
 				return mtoshipmentops.NewCreateMTOShipmentUnprocessableEntity().WithPayload(payloads.ValidationError(
-					"The MTO shipment object is invalid.", h.GetTraceIDFromRequest(params.HTTPRequest), nil)), verrs
+					"The MTO shipment object is invalid. "+verrs.Error(), h.GetTraceIDFromRequest(params.HTTPRequest), nil)), verrs
 			}
 
 			mtoShipment.Status = models.MTOShipmentStatusSubmitted
@@ -184,7 +184,10 @@ func (h UpdateMTOShipmentHandler) Handle(params mtoshipmentops.UpdateMTOShipment
 				"TertiaryPickupAddress",
 				"TertiaryDeliveryAddress",
 				"StorageFacility",
-				"PPMShipment")
+				"PPMShipment",
+				"MTOServiceItems.PODLocation",
+				"MTOServiceItems.POELocation",
+			)
 			if err != nil {
 				return mtoshipmentops.NewUpdateMTOShipmentNotFound().WithPayload(
 					payloads.ClientError(handlers.NotFoundMessage, err.Error(), h.GetTraceIDFromRequest(params.HTTPRequest))), err

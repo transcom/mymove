@@ -40,7 +40,7 @@ type ReServiceItem struct {
 
 	// shipment type
 	// Example: HHG, UNACCOMPANIED_BAGGAGE
-	// Enum: [BOAT_HAUL_AWAY BOAT_TOW_AWAY HHG HHG_INTO_NTS_DOMESTIC HHG_OUTOF_NTS_DOMESTIC MOBILE_HOME PPM UNACCOMPANIED_BAGGAGE]
+	// Enum: [BOAT_HAUL_AWAY BOAT_TOW_AWAY HHG HHG_INTO_NTS HHG_OUTOF_NTS_DOMESTIC MOBILE_HOME PPM UNACCOMPANIED_BAGGAGE]
 	ShipmentType string `json:"shipmentType,omitempty"`
 }
 
@@ -298,7 +298,7 @@ var reServiceItemTypeShipmentTypePropEnum []interface{}
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["BOAT_HAUL_AWAY","BOAT_TOW_AWAY","HHG","HHG_INTO_NTS_DOMESTIC","HHG_OUTOF_NTS_DOMESTIC","MOBILE_HOME","PPM","UNACCOMPANIED_BAGGAGE"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["BOAT_HAUL_AWAY","BOAT_TOW_AWAY","HHG","HHG_INTO_NTS","HHG_OUTOF_NTS_DOMESTIC","MOBILE_HOME","PPM","UNACCOMPANIED_BAGGAGE"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -317,8 +317,8 @@ const (
 	// ReServiceItemShipmentTypeHHG captures enum value "HHG"
 	ReServiceItemShipmentTypeHHG string = "HHG"
 
-	// ReServiceItemShipmentTypeHHGINTONTSDOMESTIC captures enum value "HHG_INTO_NTS_DOMESTIC"
-	ReServiceItemShipmentTypeHHGINTONTSDOMESTIC string = "HHG_INTO_NTS_DOMESTIC"
+	// ReServiceItemShipmentTypeHHGINTONTS captures enum value "HHG_INTO_NTS"
+	ReServiceItemShipmentTypeHHGINTONTS string = "HHG_INTO_NTS"
 
 	// ReServiceItemShipmentTypeHHGOUTOFNTSDOMESTIC captures enum value "HHG_OUTOF_NTS_DOMESTIC"
 	ReServiceItemShipmentTypeHHGOUTOFNTSDOMESTIC string = "HHG_OUTOF_NTS_DOMESTIC"
