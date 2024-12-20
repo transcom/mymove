@@ -14,10 +14,6 @@ variables:
   DOCKERHUB_PASSWORD: DOCKERHUB_PASSWORD
   DOCKER_TOKEN: DOCKER_TOKEN
   registry: https://registry.hub.docker.com/
-  #EKS Default current max
-  KUBERNETES_CPU_REQUEST: "2"
-  KUBERNETES_MEMORY_REQUEST: "8Gi"
-  KUBERNETES_MEMORY_LIMIT: "8Gi"
 
   #Circle CI need to replace
   #CIRCLE_PROJECT_USERNAME: "my-username"  # Replace with the actual namespace
@@ -130,6 +126,10 @@ pre_deps_yarn:
 compile_app_client:
   stage: build
   image: $DOCKER_APP_IMAGE
+  variables:
+    KUBERNETES_CPU_REQUEST: "2"
+    KUBERNETES_MEMORY_REQUEST: "8Gi"
+    KUBERNETES_MEMORY_LIMIT: "8Gi"
   before_script: *setup_milmove_env
   needs:
     - pre_deps_yarn
@@ -151,6 +151,10 @@ compile_app_client:
 compile_app_server:
   stage: build
   image: $DOCKER_APP_IMAGE
+  variables:
+    KUBERNETES_CPU_REQUEST: "2"
+    KUBERNETES_MEMORY_REQUEST: "4Gi"
+    KUBERNETES_MEMORY_LIMIT: "4Gi"
   needs:
     - pre_deps_golang
     - pre_deps_yarn
