@@ -38,6 +38,7 @@ type PaymentRequestShipmentRecalculator interface {
 type PaymentRequestListFetcher interface {
 	FetchPaymentRequestList(appCtx appcontext.AppContext, officeUserID uuid.UUID, params *FetchPaymentRequestListParams) (*models.PaymentRequests, int, error)
 	FetchPaymentRequestListByMove(appCtx appcontext.AppContext, locator string) (*models.PaymentRequests, error)
+	CheckAndRemovePaymentRequestAssignedUser(appCtx appcontext.AppContext, id uuid.UUID) (bool, error)
 }
 
 // PaymentRequestFetcher is the exported interface for fetching a payment request

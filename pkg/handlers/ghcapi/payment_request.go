@@ -222,31 +222,19 @@ func (h UpdatePaymentRequestStatusHandler) Handle(
 				return paymentrequestop.NewGetPaymentRequestInternalServerError(), err
 			}
 
-			//When approving a Payment request - remove the TIO assigned user
-			move, err := models.FetchMove(appCtx.DB(), appCtx.Session(), existingPaymentRequest.MoveTaskOrderID)
+			paymnetRequest, err := h.PaymentRequestListFetcher.CheckAndRemovePaymentRequestAssignedUser(appCtx, existingPaymentRequest.MoveTaskOrderID)
 			if err != nil {
 				return paymentrequestop.NewUpdatePaymentRequestStatusInternalServerError(), err
 			}
-			requestList, err := h.FetchPaymentRequestListByMove(appCtx, move.Locator)
-			if err != nil {
-				return paymentrequestop.NewUpdatePaymentRequestStatusInternalServerError(), err
-			}
-
-			paymentRequestNeedingReview := false
-			for _, request := range *requestList {
-				if request.Status != models.PaymentRequestStatusReviewed &&
-					request.Status != models.PaymentRequestStatusReviewedAllRejected {
-					paymentRequestNeedingReview = true
-					break
-				}
-			}
-			if !paymentRequestNeedingReview {
-				_, err := h.MoveAssignedOfficeUserUpdater.DeleteAssignedOfficeUser(appCtx, move.ID, roles.RoleTypeTIO)
+			// ---------------------- Move to Service (in progress) -----------------------------
+			if !paymnetRequest {
+				_, err := h.MoveAssignedOfficeUserUpdater.DeleteAssignedOfficeUser(appCtx, existingPaymentRequest.MoveTaskOrderID, roles.RoleTypeTIO)
 				if err != nil {
 					return paymentrequestop.NewUpdatePaymentRequestStatusInternalServerError(), err
 				}
 				returnPayload.MoveTaskOrder.TIOAssignedUser = nil
 			}
+			// ---------------------- Move to Service (in progress) -----------------------------
 
 			return paymentrequestop.NewUpdatePaymentRequestStatusOK().WithPayload(returnPayload), nil
 		})
