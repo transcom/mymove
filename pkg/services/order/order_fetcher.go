@@ -183,7 +183,7 @@ func (f orderFetcher) ListOrders(appCtx appcontext.AppContext, officeUserID uuid
 			LeftJoin("duty_locations as dest_dl", "dest_dl.id = orders.new_duty_location_id").
 			LeftJoin("office_users", "office_users.id = moves.locked_by").
 			LeftJoin("transportation_offices", "moves.counseling_transportation_office_id = transportation_offices.id").
-			LeftJoin("shipment_address_updates", "shipment_address_updates.shipment_id = mto_shipments.id").
+			LeftJoin("shipment_address_updates", "shipment_address_updates.shipment_id = mto_shipments.id AND shipment_address_updates.new_address_id != mto_shipments.destination_address_id").
 			Where("show = ?", models.BoolPointer(true))
 
 		if !privileges.HasPrivilege(models.PrivilegeTypeSafety) {
@@ -1000,38 +1000,24 @@ func sortOrder(sort *string, order *string, ppmCloseoutGblocs bool) QueryOption 
 }
 
 func tooDestinationOnlyRequestsFilter(role roles.RoleType) QueryOption {
-	// If a move has ONLY destination requests (destination SIT, destination shuttle, or destination address changes)
-	// Then the TOO should not see that move in the Task Order Queue, only in the Destination Queue
 	return func(query *pop.Query) {
 		if role == roles.RoleTypeTOO {
 			query.Where(`
-		(
-			(shipment_address_updates.status IS NULL OR shipment_address_updates.status != 'REQUESTED')
-			AND (moves.status = 'SUBMITTED' OR moves.status = 'SERVICE COUNSELING COMPLETED' OR moves.status = 'APPROVALS REQUESTED')
-		)
-		`).
-				Where(`
-		(
-			(mto_service_items.status IS NULL OR (mto_service_items.status = 'SUBMITTED' AND re_services.code NOT IN ('DDFSIT', 'DDASIT', 'DDDSIT', 'DDSHUT', 'DDSFSC', 'IDFSIT', 'IDASIT', 'IDDSIT', 'IDSHUT')))
-			AND (moves.status = 'SUBMITTED' OR moves.status = 'SERVICE COUNSELING COMPLETED' OR moves.status = 'APPROVALS REQUESTED')
-		)
-		`)
-
-			// query.Where(`
-			// (
-			// 	(mto_service_items.status IS NULL OR (mto_service_items.status = 'SUBMITTED' AND re_services.code NOT IN ('DDFSIT', 'DDASIT', 'DDDSIT', 'DDSHUT', 'DDSFSC', 'IDFSIT', 'IDASIT', 'IDDSIT', 'IDSHUT')))
-			// 	AND (moves.status = 'SUBMITTED' OR moves.status = 'SERVICE COUNSELING COMPLETED' OR moves.status = 'APPROVALS REQUESTED')
-			// ) OR
-			// (
-			// 	(shipment_address_updates.status = 'REQUESTED'
-			// 	AND (mto_service_items.status IS NULL OR (mto_service_items.status = 'SUBMITTED' AND re_services.code NOT IN ('DDFSIT', 'DDASIT', 'DDDSIT', 'DDSHUT', 'DDSFSC', 'IDFSIT', 'IDASIT', 'IDDSIT', 'IDSHUT'))))
-			// 	AND (moves.status = 'SUBMITTED' OR moves.status = 'SERVICE COUNSELING COMPLETED' OR moves.status = 'APPROVALS REQUESTED')
-			// ) OR
-			// (
-			// 	(shipment_address_updates.status IS NULL OR shipment_address_updates.status != 'REQUESTED')
-			// 	AND (moves.status = 'SUBMITTED' OR moves.status = 'SERVICE COUNSELING COMPLETED' OR moves.status = 'APPROVALS REQUESTED')
-			// )
-			// `)
+			(
+				(mto_service_items.status IS NULL OR (mto_service_items.status = 'SUBMITTED' AND re_services.code NOT IN ('DDFSIT', 'DDASIT', 'DDDSIT', 'DDSHUT', 'DDSFSC', 'IDFSIT', 'IDASIT', 'IDDSIT', 'IDSHUT')))
+				AND (moves.status = 'SUBMITTED' OR moves.status = 'SERVICE COUNSELING COMPLETED' OR moves.status = 'APPROVALS REQUESTED')
+			)
+			OR  --excess weight
+				(
+				(moves.excess_weight_qualified_at IS NOT NULL AND moves.excess_weight_acknowledged_at IS NULL)
+				AND (moves.status = 'SUBMITTED' OR moves.status = 'SERVICE COUNSELING COMPLETED' OR moves.status = 'APPROVALS REQUESTED')
+			)
+			OR 	--excess ub weight
+			(
+				(moves.excess_unaccompanied_baggage_weight_qualified_at IS NOT NULL AND moves.excess_unaccompanied_baggage_weight_acknowledged_at IS NULL)
+				AND (moves.status = 'SUBMITTED' OR moves.status = 'SERVICE COUNSELING COMPLETED' OR moves.status = 'APPROVALS REQUESTED')
+			)
+			`)
 		}
 	}
 }
