@@ -1,8 +1,6 @@
 package primeapiv3
 
 import (
-	"fmt"
-
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/gofrs/uuid"
 	"go.uber.org/zap"
@@ -115,7 +113,6 @@ func (h GetMoveTaskOrderHandler) Handle(params movetaskorderops.GetMoveTaskOrder
 					payloads.InternalServerError(handlers.FmtString(err.Error()), h.GetTraceIDFromRequest(params.HTTPRequest))), err
 			}
 
-			appCtx.Logger().Info(fmt.Sprintf("getMoveTaskOrder shipmentPostalCodeRateArea.length=%v", len(*shipmentPostalCodeRateArea)))
 			moveTaskOrderPayload := payloads.MoveTaskOrderWithShipmentOconusRateArea(mto, shipmentPostalCodeRateArea)
 
 			return movetaskorderops.NewGetMoveTaskOrderOK().WithPayload(moveTaskOrderPayload), nil
