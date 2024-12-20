@@ -456,7 +456,6 @@ func GetDestinationGblocForShipment(db *pop.Connection, shipmentID uuid.UUID) (*
 		return nil, fmt.Errorf("error fetching destination gbloc for shipment ID: %s with error %w", shipmentID, err)
 	}
 
-	// return the ZIP code and port type, or nil if not found
 	if gbloc != nil {
 		return gbloc, nil
 	}

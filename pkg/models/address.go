@@ -34,7 +34,7 @@ type Address struct {
 	IsOconus           *bool             `json:"is_oconus" db:"is_oconus"`
 	UsPostRegionCityID *uuid.UUID        `json:"us_post_region_cities_id" db:"us_post_region_cities_id"`
 	UsPostRegionCity   *UsPostRegionCity `belongs_to:"us_post_region_cities" fk_id:"us_post_region_cities_id"`
-	DestinationGbloc   *string           `db:"-"`
+	DestinationGbloc   *string           `db:"-"` // this tells Pop not to look in the db for this value
 }
 
 // TableName overrides the table name used by Pop.
