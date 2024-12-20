@@ -210,7 +210,6 @@ func NewAdminAPI(handlerConfig handlers.HandlerConfig) *adminops.MymoveAPI {
 	}
 
 	moveRouter := move.NewMoveRouter()
-
 	signedCertificationCreator := signedcertification.NewSignedCertificationCreator()
 	signedCertificationUpdater := signedcertification.NewSignedCertificationUpdater()
 	adminAPI.MovesUpdateMoveHandler = UpdateMoveHandler{
