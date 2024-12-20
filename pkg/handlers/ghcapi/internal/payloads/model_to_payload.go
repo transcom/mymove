@@ -120,6 +120,8 @@ func Move(move *models.Move, storer storage.FileStorer) (*ghcmessages.Move, erro
 		SCAssignedUser:               AssignedOfficeUser(move.SCAssignedUser),
 		TOOAssignedUser:              AssignedOfficeUser(move.TOOAssignedUser),
 		TIOAssignedUser:              AssignedOfficeUser(move.TIOAssignedUser),
+		CounselingOfficeID:           handlers.FmtUUIDPtr(move.CounselingOfficeID),
+		CounselingOffice:             TransportationOffice(move.CounselingOffice),
 	}
 
 	return payload, nil

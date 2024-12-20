@@ -61,6 +61,13 @@ type Move struct {
 	// Format: uuid
 	ContractorID *strfmt.UUID `json:"contractorId,omitempty"`
 
+	// counseling office
+	CounselingOffice *TransportationOffice `json:"counselingOffice,omitempty"`
+
+	// The transportation office that will handle services counseling for this move
+	// Format: uuid
+	CounselingOfficeID *strfmt.UUID `json:"counselingOfficeId,omitempty"`
+
 	// created at
 	// Format: date-time
 	CreatedAt strfmt.DateTime `json:"createdAt,omitempty"`
@@ -190,6 +197,14 @@ func (m *Move) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validateContractorID(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateCounselingOffice(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateCounselingOfficeID(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -441,6 +456,37 @@ func (m *Move) validateContractorID(formats strfmt.Registry) error {
 	return nil
 }
 
+func (m *Move) validateCounselingOffice(formats strfmt.Registry) error {
+	if swag.IsZero(m.CounselingOffice) { // not required
+		return nil
+	}
+
+	if m.CounselingOffice != nil {
+		if err := m.CounselingOffice.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("counselingOffice")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("counselingOffice")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (m *Move) validateCounselingOfficeID(formats strfmt.Registry) error {
+	if swag.IsZero(m.CounselingOfficeID) { // not required
+		return nil
+	}
+
+	if err := validate.FormatOf("counselingOfficeId", "body", "uuid", m.CounselingOfficeID.String(), formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func (m *Move) validateCreatedAt(formats strfmt.Registry) error {
 	if swag.IsZero(m.CreatedAt) { // not required
 		return nil
@@ -661,6 +707,10 @@ func (m *Move) ContextValidate(ctx context.Context, formats strfmt.Registry) err
 		res = append(res, err)
 	}
 
+	if err := m.contextValidateCounselingOffice(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.contextValidateFinancialReviewFlag(ctx, formats); err != nil {
 		res = append(res, err)
 	}
@@ -809,6 +859,27 @@ func (m *Move) contextValidateContractor(ctx context.Context, formats strfmt.Reg
 				return ve.ValidateName("contractor")
 			} else if ce, ok := err.(*errors.CompositeError); ok {
 				return ce.ValidateName("contractor")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (m *Move) contextValidateCounselingOffice(ctx context.Context, formats strfmt.Registry) error {
+
+	if m.CounselingOffice != nil {
+
+		if swag.IsZero(m.CounselingOffice) { // not required
+			return nil
+		}
+
+		if err := m.CounselingOffice.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("counselingOffice")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("counselingOffice")
 			}
 			return err
 		}

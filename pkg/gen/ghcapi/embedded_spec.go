@@ -9980,6 +9980,15 @@ func init() {
           "format": "uuid",
           "x-nullable": true
         },
+        "counselingOffice": {
+          "$ref": "#/definitions/TransportationOffice"
+        },
+        "counselingOfficeId": {
+          "description": "The transportation office that will handle services counseling for this move",
+          "type": "string",
+          "format": "uuid",
+          "x-nullable": true
+        },
         "createdAt": {
           "type": "string",
           "format": "date-time"
@@ -26576,6 +26585,15 @@ func init() {
           "$ref": "#/definitions/Contractor"
         },
         "contractorId": {
+          "type": "string",
+          "format": "uuid",
+          "x-nullable": true
+        },
+        "counselingOffice": {
+          "$ref": "#/definitions/TransportationOffice"
+        },
+        "counselingOfficeId": {
+          "description": "The transportation office that will handle services counseling for this move",
           "type": "string",
           "format": "uuid",
           "x-nullable": true

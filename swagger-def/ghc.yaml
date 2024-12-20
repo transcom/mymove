@@ -5147,6 +5147,13 @@ definitions:
         format: uuid
         description: The transportation office that will handle reviewing PPM Closeout documentation for Army and Air Force service members
         x-nullable: true
+      counselingOffice:
+        $ref: 'definitions/TransportationOffice.yaml'
+      counselingOfficeId:
+        type: string
+        format: uuid
+        description: The transportation office that will handle services counseling for this move
+        x-nullable: true
       approvalsRequestedAt:
         type: string
         format: date-time
