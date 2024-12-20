@@ -23,6 +23,11 @@ type CreateOrders struct {
 	// Example: true
 	AccompaniedTour *bool `json:"accompaniedTour,omitempty"`
 
+	// counseling office Id
+	// Example: cf1addea-a4f9-4173-8506-2bb82a064cb7
+	// Format: uuid
+	CounselingOfficeID *strfmt.UUID `json:"counselingOfficeId,omitempty"`
+
 	// department indicator
 	DepartmentIndicator *DeptIndicator `json:"departmentIndicator,omitempty"`
 
@@ -100,6 +105,10 @@ type CreateOrders struct {
 func (m *CreateOrders) Validate(formats strfmt.Registry) error {
 	var res []error
 
+	if err := m.validateCounselingOfficeID(formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.validateDepartmentIndicator(formats); err != nil {
 		res = append(res, err)
 	}
@@ -147,6 +156,18 @@ func (m *CreateOrders) Validate(formats strfmt.Registry) error {
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
+	return nil
+}
+
+func (m *CreateOrders) validateCounselingOfficeID(formats strfmt.Registry) error {
+	if swag.IsZero(m.CounselingOfficeID) { // not required
+		return nil
+	}
+
+	if err := validate.FormatOf("counselingOfficeId", "body", "uuid", m.CounselingOfficeID.String(), formats); err != nil {
+		return err
+	}
+
 	return nil
 }
 

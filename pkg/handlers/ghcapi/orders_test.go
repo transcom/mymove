@@ -73,6 +73,7 @@ func (suite *HandlerSuite) TestCreateOrder() {
 		Sac:                  handlers.FmtString("SacNumber"),
 		DepartmentIndicator:  ghcmessages.NewDeptIndicator(deptIndicator),
 		Grade:                ghcmessages.GradeE1.Pointer(),
+		CounselingOfficeID:   handlers.FmtUUID(*dutyLocation.TransportationOfficeID),
 	}
 
 	params := orderop.CreateOrderParams{

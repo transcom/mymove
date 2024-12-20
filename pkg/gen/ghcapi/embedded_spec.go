@@ -6411,7 +6411,7 @@ func init() {
         "operationId": "getTransportationOfficesGBLOCs",
         "responses": {
           "200": {
-            "description": "Successfully retrieved transportation offices",
+            "description": "Successfully retrieved GBLOCs",
             "schema": {
               "$ref": "#/definitions/GBLOCs"
             }
@@ -6430,6 +6430,40 @@ func init() {
           },
           "500": {
             "$ref": "#/responses/ServerError"
+          }
+        }
+      }
+    },
+    "/transportation_offices/{dutyLocationId}/counseling_offices": {
+      "get": {
+        "description": "Returns the counseling locations matching the GBLOC from the selected duty location",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "transportationOffice"
+        ],
+        "summary": "Returns the counseling locations in the GBLOC matching the duty location",
+        "operationId": "showCounselingOffices",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "UUID of the duty location",
+            "name": "dutyLocationId",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved counseling offices",
+            "schema": {
+              "$ref": "#/definitions/CounselingOffices"
+            }
+          },
+          "500": {
+            "description": "internal server error"
           }
         }
       }
@@ -7145,6 +7179,30 @@ func init() {
         }
       }
     },
+    "CounselingOffice": {
+      "type": "object",
+      "required": [
+        "id",
+        "name"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "name": {
+          "type": "string",
+          "example": "Fort Bragg North Station"
+        }
+      }
+    },
+    "CounselingOffices": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/CounselingOffice"
+      }
+    },
     "CounselingUpdateAllowancePayload": {
       "type": "object",
       "properties": {
@@ -7745,6 +7803,12 @@ func init() {
           "type": "boolean",
           "x-nullable": true,
           "example": true
+        },
+        "counselingOfficeId": {
+          "type": "string",
+          "format": "uuid",
+          "x-nullable": true,
+          "example": "cf1addea-a4f9-4173-8506-2bb82a064cb7"
         },
         "departmentIndicator": {
           "$ref": "#/definitions/DeptIndicator"
@@ -23462,7 +23526,7 @@ func init() {
         "operationId": "getTransportationOfficesGBLOCs",
         "responses": {
           "200": {
-            "description": "Successfully retrieved transportation offices",
+            "description": "Successfully retrieved GBLOCs",
             "schema": {
               "$ref": "#/definitions/GBLOCs"
             }
@@ -23496,6 +23560,40 @@ func init() {
             "schema": {
               "$ref": "#/definitions/Error"
             }
+          }
+        }
+      }
+    },
+    "/transportation_offices/{dutyLocationId}/counseling_offices": {
+      "get": {
+        "description": "Returns the counseling locations matching the GBLOC from the selected duty location",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "transportationOffice"
+        ],
+        "summary": "Returns the counseling locations in the GBLOC matching the duty location",
+        "operationId": "showCounselingOffices",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "UUID of the duty location",
+            "name": "dutyLocationId",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved counseling offices",
+            "schema": {
+              "$ref": "#/definitions/CounselingOffices"
+            }
+          },
+          "500": {
+            "description": "internal server error"
           }
         }
       }
@@ -24227,6 +24325,30 @@ func init() {
         }
       }
     },
+    "CounselingOffice": {
+      "type": "object",
+      "required": [
+        "id",
+        "name"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "name": {
+          "type": "string",
+          "example": "Fort Bragg North Station"
+        }
+      }
+    },
+    "CounselingOffices": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/CounselingOffice"
+      }
+    },
     "CounselingUpdateAllowancePayload": {
       "type": "object",
       "properties": {
@@ -24831,6 +24953,12 @@ func init() {
           "type": "boolean",
           "x-nullable": true,
           "example": true
+        },
+        "counselingOfficeId": {
+          "type": "string",
+          "format": "uuid",
+          "x-nullable": true,
+          "example": "cf1addea-a4f9-4173-8506-2bb82a064cb7"
         },
         "departmentIndicator": {
           "$ref": "#/definitions/DeptIndicator"
