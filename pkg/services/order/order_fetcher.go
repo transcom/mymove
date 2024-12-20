@@ -183,8 +183,6 @@ func (f orderFetcher) ListOrders(appCtx appcontext.AppContext, officeUserID uuid
 			LeftJoin("duty_locations as dest_dl", "dest_dl.id = orders.new_duty_location_id").
 			LeftJoin("office_users", "office_users.id = moves.locked_by").
 			LeftJoin("transportation_offices", "moves.counseling_transportation_office_id = transportation_offices.id").
-			LeftJoin("addresses", "mto_shipments.destination_address_id = addresses.id").
-			LeftJoin("postal_code_to_gblocs", "addresses.postal_code = postal_code_to_gblocs.postal_code").
 			LeftJoin("shipment_address_updates", "shipment_address_updates.shipment_id = mto_shipments.id").
 			Where("show = ?", models.BoolPointer(true))
 
