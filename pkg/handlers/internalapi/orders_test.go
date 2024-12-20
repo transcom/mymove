@@ -35,7 +35,14 @@ func (suite *HandlerSuite) TestCreateOrder() {
 			},
 		}, nil)
 	})
-	sm := factory.BuildExtendedServiceMember(suite.DB(), nil, nil)
+	customAffiliation := models.AffiliationARMY
+	sm := factory.BuildExtendedServiceMember(suite.DB(), []factory.Customization{
+		{
+			Model: models.ServiceMember{
+				Affiliation: &customAffiliation,
+			},
+		},
+	}, nil)
 	suite.Run("can create conus and oconus orders", func() {
 		testCases := []struct {
 			test     string
@@ -49,6 +56,7 @@ func (suite *HandlerSuite) TestCreateOrder() {
 				{
 					Model: models.Address{
 						IsOconus: &tc.isOconus,
+						ID:       uuid.Must(uuid.NewV4()),
 					},
 				},
 			}, nil)
@@ -64,9 +72,18 @@ func (suite *HandlerSuite) TestCreateOrder() {
 					LinkOnly: true,
 				},
 			}, nil)
-
 			dutyLocation := factory.FetchOrBuildCurrentDutyLocation(suite.DB())
-			factory.FetchOrBuildPostalCodeToGBLOC(suite.DB(), dutyLocation.Address.PostalCode, "KKFA")
+			if !tc.isOconus {
+				factory.FetchOrBuildPostalCodeToGBLOC(suite.DB(), dutyLocation.Address.PostalCode, "KKFA")
+			} else {
+				factory.BuildJppsoRegions(suite.DB(), []factory.Customization{
+					{
+						Model: models.JppsoRegions{
+							Code: "MBFL",
+						},
+					},
+				}, nil)
+			}
 			factory.FetchOrBuildDefaultContractor(suite.DB(), nil, nil)
 
 			req := httptest.NewRequest("POST", "/orders", nil)
@@ -108,11 +125,11 @@ func (suite *HandlerSuite) TestCreateOrder() {
 			handlerConfig := suite.HandlerConfig()
 			handlerConfig.SetFileStorer(fakeS3)
 			createHandler := CreateOrdersHandler{handlerConfig}
-
 			response := createHandler.Handle(params)
 
 			suite.Assertions.IsType(&ordersop.CreateOrdersCreated{}, response)
 			okResponse := response.(*ordersop.CreateOrdersCreated)
+
 			orderID := okResponse.Payload.ID.String()
 			createdOrder, _ := models.FetchOrder(suite.DB(), uuid.FromStringOrNil(orderID))
 			var createdEntitlement models.Entitlement

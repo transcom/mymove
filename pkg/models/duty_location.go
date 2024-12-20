@@ -290,3 +290,37 @@ func FetchDutyLocationsByPostalCode(tx *pop.Connection, postalCode string) (Duty
 
 	return locations, nil
 }
+
+type oconusGbloc struct {
+	Gbloc string `db:"gbloc" rw:"r"`
+}
+
+func FetchOconusDutyLocationGbloc(appCtx *pop.Connection, dutyLocation DutyLocation, serviceMember ServiceMember) (*oconusGbloc, error) {
+	oconusGbloc := oconusGbloc{}
+
+	sqlQuery := `
+    	select j.code gbloc
+    	from addresses a,
+    	v_locations v,
+    	re_oconus_rate_areas o,
+    	jppso_regions j,
+    	gbloc_aors g
+    	where a.us_post_region_cities_id = v.uprc_id
+    	and v.uprc_id = o.us_post_region_cities_id
+    	and o.id = g.oconus_rate_area_id
+    	and j.id = g.jppso_regions_id
+		and a.id = $1 `
+
+	if serviceMember.Affiliation.String() == "AIR_FORCE" || serviceMember.Affiliation.String() == "SPACE_FORCE" {
+		sqlQuery += `
+		and g.department_indicator = 'AIR_AND_SPACE_FORCE' `
+	}
+
+	err := appCtx.Q().RawQuery(sqlQuery, dutyLocation.Address.ID).First(&oconusGbloc)
+	if err != nil {
+		return nil, err
+	}
+
+	return &oconusGbloc, nil
+
+}
