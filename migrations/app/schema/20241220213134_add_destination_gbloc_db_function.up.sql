@@ -1,5 +1,5 @@
 -- this function will handle getting the destination GBLOC associated with a shipment's destination address
--- this only applies to OCONUS destination addresses on a shipment, but this also checks domestic shipments
+-- this only applies to OCONUS destination addresses on a shipment, but this can also checks domestic shipments
 CREATE OR REPLACE FUNCTION get_destination_gbloc_for_shipment(shipment_id UUID)
 RETURNS TEXT AS $$
 DECLARE
@@ -9,7 +9,7 @@ DECLARE
     alaska_zone_ii BOOLEAN;
     market_code TEXT;
 BEGIN
-    -- get the shipment's market_code
+    -- get the shipment's market code to determine conditionals
     SELECT ms.market_code
     INTO market_code
     FROM mto_shipments ms
