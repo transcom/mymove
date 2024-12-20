@@ -689,6 +689,109 @@ const requestedMoveDetailsMissingInfoQuery = {
   isSuccess: true,
 };
 
+const requestedMoveDetailsQueryNoShipments = {
+  move: {
+    id: '9c7b255c-2981-4bf8-839f-61c7458e2b4d',
+    ordersId: '1',
+  },
+  customerData: {
+    id: '2468',
+    last_name: 'Kerry',
+    first_name: 'Smith',
+    dodID: '999999999',
+    agency: 'NAVY',
+    backupAddress: {
+      streetAddress1: '813 S 129th St',
+      city: 'San Antonio',
+      state: 'TX',
+      postalCode: '78234',
+    },
+  },
+  order: {
+    id: '1',
+    originDutyLocation: {
+      address: {
+        streetAddress1: '',
+        city: 'Fort Knox',
+        state: 'KY',
+        postalCode: '40121',
+      },
+    },
+    destinationDutyLocation: {
+      address: {
+        streetAddress1: '',
+        city: 'Fort Irwin',
+        state: 'CA',
+        postalCode: '92310',
+      },
+    },
+    orderDocuments: {
+      'c0a22a98-a806-47a2-ab54-2dac938667b3': {
+        bytes: 2202009,
+        contentType: 'application/pdf',
+        createdAt: '2024-10-23T16:31:21.085Z',
+        filename: 'testFile.pdf',
+        id: 'c0a22a98-a806-47a2-ab54-2dac938667b3',
+        status: 'PROCESSING',
+        updatedAt: '2024-10-23T16:31:21.085Z',
+        uploadType: 'USER',
+        url: '/storage/USER/uploads/c0a22a98-a806-47a2-ab54-2dac938667b3?contentType=application%2Fpdf',
+      },
+    },
+    customer: {
+      agency: 'ARMY',
+      backup_contact: {
+        email: 'email@example.com',
+        name: 'name',
+        phone: '555-555-5555',
+      },
+      current_address: {
+        city: 'Beverly Hills',
+        country: 'US',
+        eTag: 'MjAyMS0wMS0yMVQxNTo0MTozNS41Mzg0Njha',
+        id: '3a5f7cf2-6193-4eb3-a244-14d21ca05d7b',
+        postalCode: '90210',
+        state: 'CA',
+        streetAddress1: '123 Any Street',
+        streetAddress2: 'P.O. Box 12345',
+        streetAddress3: 'c/o Some Person',
+      },
+      dodID: '6833908165',
+      eTag: 'MjAyMS0wMS0yMVQxNTo0MTozNS41NjAzNTJa',
+      email: 'combo@ppm.hhg',
+      first_name: 'Submitted',
+      id: 'f6bd793f-7042-4523-aa30-34946e7339c9',
+      last_name: 'Ppmhhg',
+      phone: '555-555-5555',
+    },
+    entitlement: {
+      authorizedWeight: 8000,
+      dependentsAuthorized: true,
+      eTag: 'MjAyMS0wMS0yMVQxNTo0MTozNS41NzgwMzda',
+      id: 'e0fefe58-0710-40db-917b-5b96567bc2a8',
+      nonTemporaryStorage: true,
+      privatelyOwnedVehicle: true,
+      proGearWeight: 2000,
+      proGearWeightSpouse: 500,
+      storageInTransit: 2,
+      totalDependents: 1,
+      totalWeight: 8000,
+    },
+    order_number: 'ORDER3',
+    order_type: ORDERS_TYPE.PERMANENT_CHANGE_OF_STATION,
+    order_type_detail: ORDERS_TYPE_DETAILS.HHG_PERMITTED,
+    tac: '9999',
+    ntsTac: '1111',
+    ntsSac: '2222',
+  },
+  mtoShipments: [],
+  mtoServiceItems: [],
+  mtoAgents: [],
+  isLoading: false,
+  isError: false,
+  isSuccess: true,
+};
+
 const requestedAndApprovedMoveDetailsQuery = {
   ...requestedMoveDetailsQuery,
   mtoShipments: [
@@ -798,6 +901,10 @@ const approvedMoveDetailsQuery = {
     },
   ],
 };
+const noRequestedAndNoApprovedMoveDetailsQuery = {
+  ...requestedMoveDetailsQueryNoShipments,
+  mtoShipments: [],
+};
 
 const undefinedMTOShipmentsMoveDetailsQuery = {
   ...requestedMoveDetailsQuery,
@@ -891,14 +998,17 @@ describe('MoveDetails page', () => {
       expect(navLinks.at(0).contains(1)).toBe(true);
       expect(navLinks.at(0).prop('href')).toBe('#requested-shipments');
 
-      expect(navLinks.at(1).contains('Orders')).toBe(true);
-      expect(navLinks.at(1).prop('href')).toBe('#orders');
+      expect(navLinks.at(1).contains('Shipments')).toBe(true);
+      expect(navLinks.at(1).prop('href')).toBe('#shipments');
 
-      expect(navLinks.at(2).contains('Allowances')).toBe(true);
-      expect(navLinks.at(2).prop('href')).toBe('#allowances');
+      expect(navLinks.at(2).contains('Orders')).toBe(true);
+      expect(navLinks.at(2).prop('href')).toBe('#orders');
 
-      expect(navLinks.at(3).contains('Customer info')).toBe(true);
-      expect(navLinks.at(3).prop('href')).toBe('#customer-info');
+      expect(navLinks.at(3).contains('Allowances')).toBe(true);
+      expect(navLinks.at(3).prop('href')).toBe('#allowances');
+
+      expect(navLinks.at(4).contains('Customer info')).toBe(true);
+      expect(navLinks.at(4).prop('href')).toBe('#customer-info');
     });
 
     it('renders the Submitted Requested Shipments component', () => {
@@ -1006,14 +1116,17 @@ describe('MoveDetails page', () => {
       expect(navLinks.at(1).contains('Approved shipments')).toBe(true);
       expect(navLinks.at(1).prop('href')).toBe('#approved-shipments');
 
-      expect(navLinks.at(2).contains('Orders')).toBe(true);
-      expect(navLinks.at(2).prop('href')).toBe('#orders');
+      expect(navLinks.at(2).contains('Shipments')).toBe(true);
+      expect(navLinks.at(2).prop('href')).toBe('#shipments');
 
-      expect(navLinks.at(3).contains('Allowances')).toBe(true);
-      expect(navLinks.at(3).prop('href')).toBe('#allowances');
+      expect(navLinks.at(3).contains('Orders')).toBe(true);
+      expect(navLinks.at(3).prop('href')).toBe('#orders');
 
-      expect(navLinks.at(4).contains('Customer info')).toBe(true);
-      expect(navLinks.at(4).prop('href')).toBe('#customer-info');
+      expect(navLinks.at(4).contains('Allowances')).toBe(true);
+      expect(navLinks.at(4).prop('href')).toBe('#allowances');
+
+      expect(navLinks.at(5).contains('Customer info')).toBe(true);
+      expect(navLinks.at(5).prop('href')).toBe('#customer-info');
     });
   });
 
@@ -1180,6 +1293,25 @@ describe('MoveDetails page', () => {
       render(
         <MockProviders permissions={[permissionTypes.createTxoShipment]}>
           <MoveDetails {...testProps} />
+        </MockProviders>,
+      );
+
+      expect(await screen.getByRole('combobox', { name: 'Add a new shipment' })).toBeInTheDocument();
+    });
+
+    it('renders add new shipment button even when there are no shipments on the move', async () => {
+      useMoveDetailsQueries.mockReturnValue(noRequestedAndNoApprovedMoveDetailsQuery);
+
+      render(
+        <MockProviders permissions={[permissionTypes.createTxoShipment]}>
+          <MoveDetails {...testProps} />
+          setUnapprovedShipmentCount={0}
+          setUnapprovedServiceItemCount={0}
+          setExcessWeightRiskCount={0}
+          setUnapprovedSITExtensionCount={0}
+          missingOrdersInfoCount={2}
+          setMissingOrdersInfoCount={0}
+          setShipmentErrorConcernCount={0}
         </MockProviders>,
       );
 
