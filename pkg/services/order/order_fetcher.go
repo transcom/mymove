@@ -1050,7 +1050,13 @@ func sortOrder(sort *string, order *string, ppmCloseoutGblocs bool) QueryOption 
 
 func tooDestinationOnlyRequestsFilter() QueryOption {
 	return func(query *pop.Query) {
-		query.Where("(shipment_address_updates.status IS NULL OR shipment_address_updates.status != 'REQUESTED') AND (moves.status = 'SUBMITTED' OR moves.status = 'SERVICE COUNSELING COMPLETED' OR moves.status = 'APPROVALS REQUESTED')")
+		query.Where("(shipment_address_updates.status IS NULL OR shipment_address_updates.status != 'REQUESTED') AND (moves.status = 'SUBMITTED' OR moves.status = 'SERVICE COUNSELING COMPLETED' OR moves.status = 'APPROVALS REQUESTED')").
+			Where("(mto_service_items.status IS NULL OR (mto_service_items.status = 'SUBMITTED' AND re_services.code NOT IN ('DDFSIT', 'DDASIT', 'DDDSIT', 'DDSHUT', 'DDSFSC'))) AND (moves.status = 'SUBMITTED' OR moves.status = 'SERVICE COUNSELING COMPLETED' OR moves.status = 'APPROVALS REQUESTED')")
+
+		//query.Where("((shipment_address_updates.status IS NULL OR shipment_address_updates.status != 'REQUESTED') AND (moves.status = 'SUBMITTED' OR moves.status = 'SERVICE COUNSELING COMPLETED' OR moves.status = 'APPROVALS REQUESTED')) OR (mto_service_items.status = 'SUBMITTED' AND re_services.code NOT IN ('DDP', 'DDFSIT', 'DDASIT', 'DDDSIT', 'DDSHUT', 'DDSFSC'))")
+		//query.Where("(mto_service_items.status IS NULL OR (mto_service_items.status = 'SUBMITTED' AND re_services.code NOT IN ('DDP', 'DDFSIT', 'DDASIT', 'DDDSIT', 'DDSHUT', 'DDSFSC'))) AND (moves.status = 'SUBMITTED' OR moves.status = 'SERVICE COUNSELING COMPLETED' OR moves.status = 'APPROVALS REQUESTED')")
+		// query.Where("(mto_service_items.status IS NULL OR (mto_service_items.status = 'SUBMITTED' AND re_services.code NOT IN ('DDP', 'DDFSIT', 'DDASIT', 'DDDSIT', 'DDSHUT', 'DDSFSC'))) AND (moves.status = 'SUBMITTED' OR moves.status = 'SERVICE COUNSELING COMPLETED' OR moves.status = 'APPROVALS REQUESTED')")
+
 		// query.Where("moves.status = 'APPROVALS REQUESTED' OR moves.status = 'SUBMITTED' OR moves.status = 'SERVICE COUNSELING COMPLETED'")
 		// query.Where(
 		// 	"mto_service_items.status IS NULL OR (mto_service_items.status = 'SUBMITTED' AND re_services.code NOT IN ('DDP', 'DDFSIT', 'DDASIT', 'DDDSIT', 'DDSHUT', 'DDSFSC'))",
