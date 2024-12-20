@@ -22,6 +22,9 @@ type AvailableOfficeUser struct {
 	// first name
 	FirstName string `json:"firstName,omitempty"`
 
+	// has safety privilege
+	HasSafetyPrivilege bool `json:"hasSafetyPrivilege,omitempty"`
+
 	// last name
 	LastName string `json:"lastName,omitempty"`
 
@@ -29,6 +32,9 @@ type AvailableOfficeUser struct {
 	// Example: c56a4180-65aa-42ec-a945-5fd21dec0538
 	// Format: uuid
 	OfficeUserID strfmt.UUID `json:"officeUserId,omitempty"`
+
+	// workload
+	Workload int64 `json:"workload,omitempty"`
 }
 
 // Validate validates this available office user
