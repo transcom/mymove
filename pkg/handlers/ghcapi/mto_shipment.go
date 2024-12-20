@@ -22,6 +22,7 @@ import (
 	"github.com/transcom/mymove/pkg/notifications"
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/services/event"
+	"github.com/transcom/mymove/pkg/services/featureflag"
 	mtoshipment "github.com/transcom/mymove/pkg/services/mto_shipment"
 	ppmshipment "github.com/transcom/mymove/pkg/services/ppmshipment"
 )
@@ -534,7 +535,11 @@ func (h ApproveShipmentHandler) Handle(params shipmentops.ApproveShipmentParams)
 				}
 			}
 
-			shipment, err := h.ApproveShipment(appCtx, shipmentID, eTag)
+			featureFlagValues, err := handlers.GetAllDomesticMHFlags(appCtx, h.HandlerConfig.FeatureFlagFetcher())
+			if err != nil {
+				return handleError(err)
+			}
+			shipment, err := h.ApproveShipment(appCtx, shipmentID, eTag, featureFlagValues)
 			if err != nil {
 				return handleError(err)
 			}
@@ -1014,12 +1019,34 @@ type ReviewShipmentAddressUpdateHandler struct {
 func (h ReviewShipmentAddressUpdateHandler) Handle(params shipmentops.ReviewShipmentAddressUpdateParams) middleware.Responder {
 	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
 		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
+			featureFlagValues := make(map[string]bool)
+
+			isDomesticMobileHomeDOPOn, err := handlers.GetFeatureFlagValue(appCtx, h.HandlerConfig.FeatureFlagFetcher(), featureflag.DomesticMobileHomeDOPEnabled)
+			if err != nil {
+				return shipmentops.NewReviewShipmentAddressUpdateInternalServerError(), err
+			}
+			isDomesticMobileHomeDDPOn, err := handlers.GetFeatureFlagValue(appCtx, h.HandlerConfig.FeatureFlagFetcher(), featureflag.DomesticMobileHomeDDPEnabled)
+			if err != nil {
+				return shipmentops.NewReviewShipmentAddressUpdateInternalServerError(), err
+			}
+			isDomesticMobileHomeDPKOn, err := handlers.GetFeatureFlagValue(appCtx, h.HandlerConfig.FeatureFlagFetcher(), featureflag.DomesticMobileHomePackingEnabled)
+			if err != nil {
+				return shipmentops.NewReviewShipmentAddressUpdateInternalServerError(), err
+			}
+			isDomesticMobileHomeDUPKOn, err := handlers.GetFeatureFlagValue(appCtx, h.HandlerConfig.FeatureFlagFetcher(), featureflag.DomesticMobileHomeUnpackingEnabled)
+			if err != nil {
+				return shipmentops.NewReviewShipmentAddressUpdateInternalServerError(), err
+			}
+			featureFlagValues[featureflag.DomesticMobileHomeDDPEnabled] = isDomesticMobileHomeDDPOn
+			featureFlagValues[featureflag.DomesticMobileHomeDOPEnabled] = isDomesticMobileHomeDOPOn
+			featureFlagValues[featureflag.DomesticMobileHomePackingEnabled] = isDomesticMobileHomeDPKOn
+			featureFlagValues[featureflag.DomesticMobileHomeUnpackingEnabled] = isDomesticMobileHomeDUPKOn
 
 			shipmentID := uuid.FromStringOrNil(params.ShipmentID.String())
 			addressApprovalStatus := params.Body.Status
 			remarks := params.Body.OfficeRemarks
 
-			response, err := h.ShipmentAddressUpdateRequester.ReviewShipmentAddressChange(appCtx, shipmentID, models.ShipmentAddressUpdateStatus(*addressApprovalStatus), *remarks)
+			response, err := h.ShipmentAddressUpdateRequester.ReviewShipmentAddressChange(appCtx, shipmentID, models.ShipmentAddressUpdateStatus(*addressApprovalStatus), *remarks, featureFlagValues)
 			handleError := func(err error) (middleware.Responder, error) {
 				appCtx.Logger().Error("ghcapi.ReviewShipmentAddressUpdateHandler", zap.Error(err))
 				payload := ghcmessages.Error{

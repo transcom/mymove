@@ -487,8 +487,7 @@ func (suite *HandlerSuite) TestUploadAmendedOrdersHandlerUnit() {
 }
 
 func (suite *HandlerSuite) TestUploadAmendedOrdersHandlerIntegration() {
-	moveRouter, err := move.NewMoveRouter()
-	suite.FatalNoError(err)
+	moveRouter := move.NewMoveRouter()
 	orderUpdater := orderservice.NewOrderUpdater(moveRouter)
 
 	setUpRequestAndParams := func(orders models.Order) *ordersop.UploadAmendedOrdersParams {

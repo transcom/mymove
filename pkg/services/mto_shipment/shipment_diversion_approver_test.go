@@ -15,8 +15,7 @@ import (
 
 func (suite *MTOShipmentServiceSuite) TestApproveShipmentDiversion() {
 	router := NewShipmentRouter()
-	moveRouter, err := moverouter.NewMoveRouter()
-	suite.FatalNoError(err)
+	moveRouter := moverouter.NewMoveRouter()
 	approver := NewShipmentDiversionApprover(router, moveRouter)
 
 	suite.Run("If the shipment diversion is approved successfully, it should update the shipment status in the DB", func() {

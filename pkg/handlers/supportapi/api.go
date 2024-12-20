@@ -31,10 +31,7 @@ import (
 // NewSupportAPIHandler returns a handler for the Prime API
 func NewSupportAPIHandler(handlerConfig handlers.HandlerConfig) http.Handler {
 	queryBuilder := query.NewQueryBuilder()
-	moveRouter, err := move.NewMoveRouter()
-	if err != nil {
-		log.Fatalln(err)
-	}
+	moveRouter := move.NewMoveRouter()
 	shipmentFetcher := mtoshipment.NewMTOShipmentFetcher()
 	addressCreator := address.NewAddressCreator()
 	supportSpec, err := loads.Analyzed(supportapi.SwaggerJSON, "")

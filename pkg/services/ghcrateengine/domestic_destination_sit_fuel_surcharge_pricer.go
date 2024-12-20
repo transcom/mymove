@@ -54,7 +54,7 @@ func (p domesticDestinationSITFuelSurchargePricer) Price(_ appcontext.AppContext
 	return totalCost, displayParams, nil
 }
 
-func (p domesticDestinationSITFuelSurchargePricer) PriceUsingParams(appCtx appcontext.AppContext, params models.PaymentServiceItemParams) (unit.Cents, services.PricingDisplayParams, error) {
+func (p domesticDestinationSITFuelSurchargePricer) PriceUsingParams(appCtx appcontext.AppContext, params models.PaymentServiceItemParams, featureFlagValues map[string]bool) (unit.Cents, services.PricingDisplayParams, error) {
 	actualPickupDate, err := getParamTime(params, models.ServiceItemParamNameActualPickupDate)
 	if err != nil {
 		return unit.Cents(0), nil, err

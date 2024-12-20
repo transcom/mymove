@@ -209,10 +209,7 @@ func NewAdminAPI(handlerConfig handlers.HandlerConfig) *adminops.MymoveAPI {
 		pagination.NewPagination,
 	}
 
-	moveRouter, err := move.NewMoveRouter()
-	if err != nil {
-		log.Fatalln(err)
-	}
+	moveRouter := move.NewMoveRouter()
 
 	signedCertificationCreator := signedcertification.NewSignedCertificationCreator()
 	signedCertificationUpdater := signedcertification.NewSignedCertificationUpdater()

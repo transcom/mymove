@@ -31,7 +31,7 @@ func (suite *GHCRateEngineServiceSuite) TestDomesticUnpackPricer() {
 		suite.setupDomesticOtherPrice(models.ReServiceCodeDUPK, dupkTestServicesScheduleDest, dupkTestIsPeakPeriod, dupkTestBasePriceCents, dupkTestContractYearName, dupkTestEscalationCompounded)
 		paymentServiceItem := suite.setupDomesticUnpackServiceItem()
 
-		priceCents, displayParams, err := pricer.PriceUsingParams(suite.AppContextForTest(), paymentServiceItem.PaymentServiceItemParams)
+		priceCents, displayParams, err := pricer.PriceUsingParams(suite.AppContextForTest(), paymentServiceItem.PaymentServiceItemParams, nil)
 		suite.NoError(err)
 		suite.Equal(dupkTestPriceCents, priceCents)
 
@@ -51,25 +51,25 @@ func (suite *GHCRateEngineServiceSuite) TestDomesticUnpackPricer() {
 
 		// WeightBilled
 		paymentServiceItem.PaymentServiceItemParams[3].ServiceItemParamKey.Type = models.ServiceItemParamTypeBoolean
-		_, _, err := pricer.PriceUsingParams(suite.AppContextForTest(), paymentServiceItem.PaymentServiceItemParams)
+		_, _, err := pricer.PriceUsingParams(suite.AppContextForTest(), paymentServiceItem.PaymentServiceItemParams, nil)
 		suite.Error(err)
 		suite.Contains(err.Error(), fmt.Sprintf("trying to convert %s to an int", models.ServiceItemParamNameWeightBilled))
 
 		// ServicesScheduleDest
 		paymentServiceItem.PaymentServiceItemParams[2].ServiceItemParamKey.Type = models.ServiceItemParamTypeBoolean
-		_, _, err = pricer.PriceUsingParams(suite.AppContextForTest(), paymentServiceItem.PaymentServiceItemParams)
+		_, _, err = pricer.PriceUsingParams(suite.AppContextForTest(), paymentServiceItem.PaymentServiceItemParams, nil)
 		suite.Error(err)
 		suite.Contains(err.Error(), fmt.Sprintf("trying to convert %s to an int", models.ServiceItemParamNameServicesScheduleDest))
 
 		// ReferenceDate
 		paymentServiceItem.PaymentServiceItemParams[1].ServiceItemParamKey.Type = models.ServiceItemParamTypeBoolean
-		_, _, err = pricer.PriceUsingParams(suite.AppContextForTest(), paymentServiceItem.PaymentServiceItemParams)
+		_, _, err = pricer.PriceUsingParams(suite.AppContextForTest(), paymentServiceItem.PaymentServiceItemParams, nil)
 		suite.Error(err)
 		suite.Contains(err.Error(), fmt.Sprintf("trying to convert %s to a time", models.ServiceItemParamNameReferenceDate))
 
 		// ContractCode
 		paymentServiceItem.PaymentServiceItemParams[0].ServiceItemParamKey.Type = models.ServiceItemParamTypeBoolean
-		_, _, err = pricer.PriceUsingParams(suite.AppContextForTest(), paymentServiceItem.PaymentServiceItemParams)
+		_, _, err = pricer.PriceUsingParams(suite.AppContextForTest(), paymentServiceItem.PaymentServiceItemParams, nil)
 		suite.Error(err)
 		suite.Contains(err.Error(), fmt.Sprintf("trying to convert %s to a string", models.ServiceItemParamNameContractCode))
 	})
@@ -82,16 +82,16 @@ func (suite *GHCRateEngineServiceSuite) TestDomesticUnpackPricer() {
 		weightBilledIndex := 3
 
 		params[weightBilledIndex].Value = "500"
-		basePriceCents, displayParams, err := pricer.PriceUsingParams(suite.AppContextForTest(), paymentServiceItem.PaymentServiceItemParams)
+		basePriceCents, displayParams, err := pricer.PriceUsingParams(suite.AppContextForTest(), paymentServiceItem.PaymentServiceItemParams, nil)
 		suite.NoError(err)
 
 		params[weightBilledIndex].Value = "250"
-		halfPriceCents, _, err := pricer.PriceUsingParams(suite.AppContextForTest(), paymentServiceItem.PaymentServiceItemParams)
+		halfPriceCents, _, err := pricer.PriceUsingParams(suite.AppContextForTest(), paymentServiceItem.PaymentServiceItemParams, nil)
 		suite.NoError(err)
 		suite.Equal(basePriceCents/2, halfPriceCents)
 
 		params[weightBilledIndex].Value = "100"
-		fifthPriceCents, _, err := pricer.PriceUsingParams(suite.AppContextForTest(), paymentServiceItem.PaymentServiceItemParams)
+		fifthPriceCents, _, err := pricer.PriceUsingParams(suite.AppContextForTest(), paymentServiceItem.PaymentServiceItemParams, nil)
 		suite.NoError(err)
 		suite.Equal(basePriceCents/5, fifthPriceCents)
 

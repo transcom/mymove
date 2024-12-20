@@ -281,8 +281,7 @@ func (suite *HandlerSuite) TestSubmitMoveForApprovalHandler() {
 		// When: a move is submitted
 		handlerConfig := suite.HandlerConfig()
 		handlerConfig.SetNotificationSender(notifications.NewStubNotificationSender("milmovelocal"))
-		moveRouter, err := moverouter.NewMoveRouter()
-		suite.FatalNoError(err)
+		moveRouter := moverouter.NewMoveRouter()
 		handler := SubmitMoveHandler{handlerConfig, moveRouter}
 		response := handler.Handle(params)
 
@@ -334,8 +333,7 @@ func (suite *HandlerSuite) TestSubmitMoveForApprovalHandler() {
 		// And: a move is submitted
 		handlerConfig := suite.HandlerConfig()
 		handlerConfig.SetNotificationSender(notifications.NewStubNotificationSender("milmovelocal"))
-		moveRouter, err := moverouter.NewMoveRouter()
-		suite.FatalNoError(err)
+		moveRouter := moverouter.NewMoveRouter()
 		handler := SubmitMoveHandler{handlerConfig, moveRouter}
 		response := handler.Handle(params)
 
@@ -348,7 +346,7 @@ func (suite *HandlerSuite) TestSubmitMoveForApprovalHandler() {
 
 		// And: SignedCertification was created
 		signedCertification := models.SignedCertification{}
-		err = suite.DB().Where("move_id = $1", move.ID).First(&signedCertification)
+		err := suite.DB().Where("move_id = $1", move.ID).First(&signedCertification)
 		suite.NoError(err)
 		suite.NotNil(signedCertification)
 	})
@@ -389,8 +387,7 @@ func (suite *HandlerSuite) TestSubmitMoveForServiceCounselingHandler() {
 		// When: a move is submitted
 		handlerConfig := suite.HandlerConfig()
 		handlerConfig.SetNotificationSender(notifications.NewStubNotificationSender("milmovelocal"))
-		moveRouter, err := moverouter.NewMoveRouter()
-		suite.FatalNoError(err)
+		moveRouter := moverouter.NewMoveRouter()
 		handler := SubmitMoveHandler{handlerConfig, moveRouter}
 		response := handler.Handle(params)
 
@@ -441,8 +438,7 @@ func (suite *HandlerSuite) TestSubmitAmendedOrdersHandler() {
 		// And: a move is submitted
 		handlerConfig := suite.HandlerConfig()
 
-		moveRouter, routerErr := moverouter.NewMoveRouter()
-		suite.FatalNoError(routerErr)
+		moveRouter := moverouter.NewMoveRouter()
 		handler := SubmitAmendedOrdersHandler{handlerConfig, moveRouter}
 		response := handler.Handle(params)
 

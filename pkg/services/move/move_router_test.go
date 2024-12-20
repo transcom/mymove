@@ -15,8 +15,7 @@ import (
 )
 
 func (suite *MoveServiceSuite) TestMoveApproval() {
-	moveRouter, err := NewMoveRouter()
-	suite.FatalNoError(err)
+	moveRouter := NewMoveRouter()
 
 	suite.Run("from valid statuses", func() {
 		move := factory.BuildMove(nil, nil, nil)
@@ -62,8 +61,7 @@ func (suite *MoveServiceSuite) TestMoveApproval() {
 }
 
 func (suite *MoveServiceSuite) TestMoveSubmission() {
-	moveRouter, err := NewMoveRouter()
-	suite.FatalNoError(err)
+	moveRouter := NewMoveRouter()
 
 	suite.Run("returns error when needsServicesCounseling cannot find move", func() {
 		// Under test: MoveRouter.Submit
@@ -994,8 +992,7 @@ func (suite *MoveServiceSuite) TestMoveSubmission() {
 }
 
 func (suite *MoveServiceSuite) TestMoveCancellation() {
-	moveRouter, err := NewMoveRouter()
-	suite.FatalNoError(err)
+	moveRouter := NewMoveRouter()
 
 	suite.Run("Cancel move with no shipments", func() {
 		move := factory.BuildMove(suite.DB(), nil, nil)
@@ -1059,8 +1056,7 @@ func (suite *MoveServiceSuite) TestMoveCancellation() {
 }
 
 func (suite *MoveServiceSuite) TestSendToOfficeUser() {
-	moveRouter, err := NewMoveRouter()
-	suite.FatalNoError(err)
+	moveRouter := NewMoveRouter()
 
 	suite.Run("from valid statuses", func() {
 		move := factory.BuildMove(suite.DB(), nil, nil)
@@ -1118,8 +1114,7 @@ func (suite *MoveServiceSuite) TestSendToOfficeUser() {
 }
 
 func (suite *MoveServiceSuite) TestApproveOrRequestApproval() {
-	moveRouter, err := NewMoveRouter()
-	suite.FatalNoError(err)
+	moveRouter := NewMoveRouter()
 
 	suite.Run("approves the move if TOO no longer has actions to perform", func() {
 		move := factory.BuildApprovalsRequestedMove(suite.DB(), nil, nil)
@@ -1278,8 +1273,7 @@ func (suite *MoveServiceSuite) TestApproveOrRequestApproval() {
 }
 
 func (suite *MoveServiceSuite) TestCompleteServiceCounseling() {
-	moveRouter, err := NewMoveRouter()
-	suite.FatalNoError(err)
+	moveRouter := NewMoveRouter()
 
 	suite.Run("status changed to service counseling completed", func() {
 		move := factory.BuildStubbedMoveWithStatus(models.MoveStatusNeedsServiceCounseling)

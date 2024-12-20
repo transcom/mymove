@@ -28,10 +28,8 @@ var DevSeedScenario = devSeedScenario{
 // Setup initializes the run setup for the devseed scenario
 func (e *devSeedScenario) Setup(appCtx appcontext.AppContext, userUploader *uploader.UserUploader, primeUploader *uploader.PrimeUploader) {
 	db := appCtx.DB()
-	moveRouter, err := moverouter.NewMoveRouter()
-	if err != nil {
-		appCtx.Logger().Fatal(err.Error())
-	}
+	moveRouter := moverouter.NewMoveRouter()
+
 	shipmentFetcher := mtoshipment.NewMTOShipmentFetcher()
 
 	// Testdatagen factories will create new random duty locations so let's get the standard ones in the migrations

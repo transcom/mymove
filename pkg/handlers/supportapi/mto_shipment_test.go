@@ -91,8 +91,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentStatusHandler() {
 	// Used for all tests except 500 error:
 	queryBuilder := query.NewQueryBuilder()
 	fetcher := fetch.NewFetcher(queryBuilder)
-	moveRouter, err := moverouter.NewMoveRouter()
-	suite.FatalNoError(err)
+	moveRouter := moverouter.NewMoveRouter()
 	planner := &routemocks.Planner{}
 	planner.On("ZipTransitDistance",
 		mock.AnythingOfType("*appcontext.appContext"),

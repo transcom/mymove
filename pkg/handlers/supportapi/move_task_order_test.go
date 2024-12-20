@@ -167,8 +167,7 @@ func (suite *HandlerSuite) TestMakeMoveAvailableHandlerIntegrationSuccess() {
 	}
 	handlerConfig := suite.HandlerConfig()
 	queryBuilder := query.NewQueryBuilder()
-	moveRouter, err := moverouter.NewMoveRouter()
-	suite.FatalNoError(err)
+	moveRouter := moverouter.NewMoveRouter()
 	planner := &routemocks.Planner{}
 	planner.On("ZipTransitDistance",
 		mock.AnythingOfType("*appcontext.appContext"),
@@ -383,8 +382,7 @@ func (suite *HandlerSuite) TestCreateMoveTaskOrderRequestHandler() {
 			IfMatch:         createdMTO.ETag,
 		}
 		queryBuilder := query.NewQueryBuilder()
-		moveRouter, err := moverouter.NewMoveRouter()
-		suite.FatalNoError(err)
+		moveRouter := moverouter.NewMoveRouter()
 		planner := &routemocks.Planner{}
 		planner.On("ZipTransitDistance",
 			mock.AnythingOfType("*appcontext.appContext"),

@@ -53,7 +53,7 @@ type ShipmentDeleter interface {
 //
 //go:generate mockery --name ShipmentApprover
 type ShipmentApprover interface {
-	ApproveShipment(appCtx appcontext.AppContext, shipmentID uuid.UUID, eTag string) (*models.MTOShipment, error)
+	ApproveShipment(appCtx appcontext.AppContext, shipmentID uuid.UUID, eTag string, featureFlagValues map[string]bool) (*models.MTOShipment, error)
 }
 
 // ShipmentDiversionRequester is the service object interface for requesting a shipment diversion
@@ -95,7 +95,7 @@ type ShipmentReweighRequester interface {
 //
 //go:generate mockery --name MTOShipmentStatusUpdater
 type MTOShipmentStatusUpdater interface {
-	UpdateMTOShipmentStatus(appCtx appcontext.AppContext, shipmentID uuid.UUID, status models.MTOShipmentStatus, rejectionReason *string, diversionReason *string, eTag string) (*models.MTOShipment, error)
+	UpdateMTOShipmentStatus(appCtx appcontext.AppContext, shipmentID uuid.UUID, status models.MTOShipmentStatus, rejectionReason *string, diversionReason *string, eTag string, featureFlagValues map[string]bool) (*models.MTOShipment, error)
 }
 
 // MTOShipmentCreator is the exported interface for creating a shipment

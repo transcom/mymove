@@ -183,8 +183,7 @@ func (suite *HandlerSuite) TestUpdateMoveTaskOrderHandlerIntegrationSuccess() {
 		handlerConfig := suite.HandlerConfig()
 		handlerConfig.SetNotificationSender(notifications.NewStubNotificationSender("milmovelocal"))
 		queryBuilder := query.NewQueryBuilder()
-		moveRouter, err := moverouter.NewMoveRouter()
-		suite.FatalNoError(err)
+		moveRouter := moverouter.NewMoveRouter()
 		planner := &routemocks.Planner{}
 		planner.On("ZipTransitDistance",
 			mock.AnythingOfType("*appcontext.appContext"),
@@ -307,8 +306,7 @@ func (suite *HandlerSuite) TestUpdateMoveTaskOrderHandlerIntegrationWithIncomple
 	}
 	handlerConfig := suite.HandlerConfig()
 	queryBuilder := query.NewQueryBuilder()
-	moveRouter, err := moverouter.NewMoveRouter()
-	suite.FatalNoError(err)
+	moveRouter := moverouter.NewMoveRouter()
 	ppmEstimator := &mocks.PPMEstimator{}
 	planner := &routemocks.Planner{}
 	planner.On("ZipTransitDistance",
@@ -397,8 +395,7 @@ func (suite *HandlerSuite) TestUpdateMTOStatusServiceCounselingCompletedHandler(
 	setupTestData := func() UpdateMTOStatusServiceCounselingCompletedHandlerFunc {
 		handlerConfig := suite.HandlerConfig()
 		queryBuilder := query.NewQueryBuilder()
-		moveRouter, err := moverouter.NewMoveRouter()
-		suite.FatalNoError(err)
+		moveRouter := moverouter.NewMoveRouter()
 		planner := &routemocks.Planner{}
 		planner.On("ZipTransitDistance",
 			mock.AnythingOfType("*appcontext.appContext"),
@@ -617,8 +614,7 @@ func (suite *HandlerSuite) TestUpdateMoveTIORemarksHandler() {
 		requestUser := factory.BuildUser(nil, nil, nil)
 		handlerConfig := suite.HandlerConfig()
 		queryBuilder := query.NewQueryBuilder()
-		moveRouter, err := moverouter.NewMoveRouter()
-		suite.FatalNoError(err)
+		moveRouter := moverouter.NewMoveRouter()
 		planner := &routemocks.Planner{}
 		planner.On("ZipTransitDistance",
 			mock.AnythingOfType("*appcontext.appContext"),

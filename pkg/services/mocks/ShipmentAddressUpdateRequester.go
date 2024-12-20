@@ -46,9 +46,9 @@ func (_m *ShipmentAddressUpdateRequester) RequestShipmentDeliveryAddressUpdate(a
 	return r0, r1
 }
 
-// ReviewShipmentAddressChange provides a mock function with given fields: appCtx, shipmentID, tooApprovalStatus, tooRemarks
-func (_m *ShipmentAddressUpdateRequester) ReviewShipmentAddressChange(appCtx appcontext.AppContext, shipmentID uuid.UUID, tooApprovalStatus models.ShipmentAddressUpdateStatus, tooRemarks string) (*models.ShipmentAddressUpdate, error) {
-	ret := _m.Called(appCtx, shipmentID, tooApprovalStatus, tooRemarks)
+// ReviewShipmentAddressChange provides a mock function with given fields: appCtx, shipmentID, tooApprovalStatus, tooRemarks, featureFlagValues
+func (_m *ShipmentAddressUpdateRequester) ReviewShipmentAddressChange(appCtx appcontext.AppContext, shipmentID uuid.UUID, tooApprovalStatus models.ShipmentAddressUpdateStatus, tooRemarks string, featureFlagValues map[string]bool) (*models.ShipmentAddressUpdate, error) {
+	ret := _m.Called(appCtx, shipmentID, tooApprovalStatus, tooRemarks, featureFlagValues)
 
 	if len(ret) == 0 {
 		panic("no return value specified for ReviewShipmentAddressChange")
@@ -56,19 +56,19 @@ func (_m *ShipmentAddressUpdateRequester) ReviewShipmentAddressChange(appCtx app
 
 	var r0 *models.ShipmentAddressUpdate
 	var r1 error
-	if rf, ok := ret.Get(0).(func(appcontext.AppContext, uuid.UUID, models.ShipmentAddressUpdateStatus, string) (*models.ShipmentAddressUpdate, error)); ok {
-		return rf(appCtx, shipmentID, tooApprovalStatus, tooRemarks)
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, uuid.UUID, models.ShipmentAddressUpdateStatus, string, map[string]bool) (*models.ShipmentAddressUpdate, error)); ok {
+		return rf(appCtx, shipmentID, tooApprovalStatus, tooRemarks, featureFlagValues)
 	}
-	if rf, ok := ret.Get(0).(func(appcontext.AppContext, uuid.UUID, models.ShipmentAddressUpdateStatus, string) *models.ShipmentAddressUpdate); ok {
-		r0 = rf(appCtx, shipmentID, tooApprovalStatus, tooRemarks)
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, uuid.UUID, models.ShipmentAddressUpdateStatus, string, map[string]bool) *models.ShipmentAddressUpdate); ok {
+		r0 = rf(appCtx, shipmentID, tooApprovalStatus, tooRemarks, featureFlagValues)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*models.ShipmentAddressUpdate)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(appcontext.AppContext, uuid.UUID, models.ShipmentAddressUpdateStatus, string) error); ok {
-		r1 = rf(appCtx, shipmentID, tooApprovalStatus, tooRemarks)
+	if rf, ok := ret.Get(1).(func(appcontext.AppContext, uuid.UUID, models.ShipmentAddressUpdateStatus, string, map[string]bool) error); ok {
+		r1 = rf(appCtx, shipmentID, tooApprovalStatus, tooRemarks, featureFlagValues)
 	} else {
 		r1 = ret.Error(1)
 	}

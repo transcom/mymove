@@ -55,7 +55,7 @@ func (suite *GHCRateEngineServiceSuite) TestPriceDomesticShorthaulWithServiceIte
 			}, nil, nil,
 		)
 
-		_, rateEngineParams, err := pricer.PriceUsingParams(suite.AppContextForTest(), paymentServiceItem.PaymentServiceItemParams)
+		_, rateEngineParams, err := pricer.PriceUsingParams(suite.AppContextForTest(), paymentServiceItem.PaymentServiceItemParams, nil)
 		suite.Error(err)
 		suite.Equal("Weight must be a minimum of 500", err.Error())
 		suite.Nil(rateEngineParams)
@@ -71,7 +71,7 @@ func (suite *GHCRateEngineServiceSuite) TestPriceDomesticShorthaulWithServiceIte
 		suite.setUpDomesticShorthaulData()
 		paymentServiceItem := suite.setupDomesticShorthaulServiceItems(requestedPickup)
 		expectedPricingCreatedParams := suite.getExpectedDSHPricerCreatedParamsFromDBGivenParams(dshTestServiceArea, requestedPickup)
-		cost, rateEngineParams, err := pricer.PriceUsingParams(suite.AppContextForTest(), paymentServiceItem.PaymentServiceItemParams)
+		cost, rateEngineParams, err := pricer.PriceUsingParams(suite.AppContextForTest(), paymentServiceItem.PaymentServiceItemParams, nil)
 		expectedCost := unit.Cents(6566400)
 		suite.NoError(err)
 		suite.Equal(expectedCost, cost)
@@ -84,35 +84,35 @@ func (suite *GHCRateEngineServiceSuite) TestPriceDomesticShorthaulWithServiceIte
 		paymentServiceItem := suite.setupDomesticShorthaulServiceItems(requestedPickup)
 
 		// No contract code
-		_, rateEngineParams, err := pricer.PriceUsingParams(suite.AppContextForTest(), models.PaymentServiceItemParams{})
+		_, rateEngineParams, err := pricer.PriceUsingParams(suite.AppContextForTest(), models.PaymentServiceItemParams{}, nil)
 		suite.Error(err)
 		suite.Equal("could not find param with key ContractCode", err.Error())
 		suite.Nil(rateEngineParams)
 
 		// No reference date
 		missingReferenceDate := suite.removeOnePaymentServiceItem(paymentServiceItem.PaymentServiceItemParams, models.ServiceItemParamNameReferenceDate)
-		_, rateEngineParams, err = pricer.PriceUsingParams(suite.AppContextForTest(), missingReferenceDate)
+		_, rateEngineParams, err = pricer.PriceUsingParams(suite.AppContextForTest(), missingReferenceDate, nil)
 		suite.Error(err)
 		suite.Equal("could not find param with key ReferenceDate", err.Error())
 		suite.Nil(rateEngineParams)
 
 		// No distance
 		missingDistanceZip := suite.removeOnePaymentServiceItem(paymentServiceItem.PaymentServiceItemParams, models.ServiceItemParamNameDistanceZip)
-		_, rateEngineParams, err = pricer.PriceUsingParams(suite.AppContextForTest(), missingDistanceZip)
+		_, rateEngineParams, err = pricer.PriceUsingParams(suite.AppContextForTest(), missingDistanceZip, nil)
 		suite.Error(err)
 		suite.Equal("could not find param with key DistanceZip", err.Error())
 		suite.Nil(rateEngineParams)
 
 		// No weight
 		missingBilledWeight := suite.removeOnePaymentServiceItem(paymentServiceItem.PaymentServiceItemParams, models.ServiceItemParamNameWeightBilled)
-		_, rateEngineParams, err = pricer.PriceUsingParams(suite.AppContextForTest(), missingBilledWeight)
+		_, rateEngineParams, err = pricer.PriceUsingParams(suite.AppContextForTest(), missingBilledWeight, nil)
 		suite.Error(err)
 		suite.Equal("could not find param with key WeightBilled", err.Error())
 		suite.Nil(rateEngineParams)
 
 		// No service area
 		missingServiceAreaOrigin := suite.removeOnePaymentServiceItem(paymentServiceItem.PaymentServiceItemParams, models.ServiceItemParamNameServiceAreaOrigin)
-		_, rateEngineParams, err = pricer.PriceUsingParams(suite.AppContextForTest(), missingServiceAreaOrigin)
+		_, rateEngineParams, err = pricer.PriceUsingParams(suite.AppContextForTest(), missingServiceAreaOrigin, nil)
 		suite.Error(err)
 		suite.Equal("could not find param with key ServiceAreaOrigin", err.Error())
 		suite.Nil(rateEngineParams)

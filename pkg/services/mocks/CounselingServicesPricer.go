@@ -55,9 +55,9 @@ func (_m *CounselingServicesPricer) Price(appCtx appcontext.AppContext, lockedPr
 	return r0, r1, r2
 }
 
-// PriceUsingParams provides a mock function with given fields: appCtx, params
-func (_m *CounselingServicesPricer) PriceUsingParams(appCtx appcontext.AppContext, params models.PaymentServiceItemParams) (unit.Cents, services.PricingDisplayParams, error) {
-	ret := _m.Called(appCtx, params)
+// PriceUsingParams provides a mock function with given fields: appCtx, params, featureFlagValues
+func (_m *CounselingServicesPricer) PriceUsingParams(appCtx appcontext.AppContext, params models.PaymentServiceItemParams, featureFlagValues map[string]bool) (unit.Cents, services.PricingDisplayParams, error) {
+	ret := _m.Called(appCtx, params, featureFlagValues)
 
 	if len(ret) == 0 {
 		panic("no return value specified for PriceUsingParams")
@@ -66,25 +66,25 @@ func (_m *CounselingServicesPricer) PriceUsingParams(appCtx appcontext.AppContex
 	var r0 unit.Cents
 	var r1 services.PricingDisplayParams
 	var r2 error
-	if rf, ok := ret.Get(0).(func(appcontext.AppContext, models.PaymentServiceItemParams) (unit.Cents, services.PricingDisplayParams, error)); ok {
-		return rf(appCtx, params)
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, models.PaymentServiceItemParams, map[string]bool) (unit.Cents, services.PricingDisplayParams, error)); ok {
+		return rf(appCtx, params, featureFlagValues)
 	}
-	if rf, ok := ret.Get(0).(func(appcontext.AppContext, models.PaymentServiceItemParams) unit.Cents); ok {
-		r0 = rf(appCtx, params)
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, models.PaymentServiceItemParams, map[string]bool) unit.Cents); ok {
+		r0 = rf(appCtx, params, featureFlagValues)
 	} else {
 		r0 = ret.Get(0).(unit.Cents)
 	}
 
-	if rf, ok := ret.Get(1).(func(appcontext.AppContext, models.PaymentServiceItemParams) services.PricingDisplayParams); ok {
-		r1 = rf(appCtx, params)
+	if rf, ok := ret.Get(1).(func(appcontext.AppContext, models.PaymentServiceItemParams, map[string]bool) services.PricingDisplayParams); ok {
+		r1 = rf(appCtx, params, featureFlagValues)
 	} else {
 		if ret.Get(1) != nil {
 			r1 = ret.Get(1).(services.PricingDisplayParams)
 		}
 	}
 
-	if rf, ok := ret.Get(2).(func(appcontext.AppContext, models.PaymentServiceItemParams) error); ok {
-		r2 = rf(appCtx, params)
+	if rf, ok := ret.Get(2).(func(appcontext.AppContext, models.PaymentServiceItemParams, map[string]bool) error); ok {
+		r2 = rf(appCtx, params, featureFlagValues)
 	} else {
 		r2 = ret.Error(2)
 	}

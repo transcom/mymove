@@ -23,8 +23,7 @@ import (
 
 func (suite *MTOShipmentServiceSuite) TestShipmentDeleter() {
 	builder := query.NewQueryBuilder()
-	moveRouter, err := moveservices.NewMoveRouter()
-	suite.FatalNoError(err)
+	moveRouter := moveservices.NewMoveRouter()
 	planner := &routemocks.Planner{}
 	planner.On("ZipTransitDistance",
 		mock.AnythingOfType("*appcontext.appContext"),
@@ -78,8 +77,7 @@ func (suite *MTOShipmentServiceSuite) TestShipmentDeleter() {
 	})
 
 	suite.Run("Returns an error when the Move is neither in Draft nor in NeedsServiceCounseling status", func() {
-		moveRouter, err := moveservices.NewMoveRouter()
-		suite.FatalNoError(err)
+		moveRouter := moveservices.NewMoveRouter()
 		shipmentDeleter := NewShipmentDeleter(moveTaskOrderUpdater, moveRouter)
 		shipment := factory.BuildMTOShipmentMinimal(suite.DB(), nil, nil)
 		move := shipment.MoveTaskOrder
@@ -91,15 +89,14 @@ func (suite *MTOShipmentServiceSuite) TestShipmentDeleter() {
 			Roles:           factory.BuildOfficeUserWithRoles(nil, nil, []roles.RoleType{roles.RoleTypeServicesCounselor}).User.Roles,
 		})
 
-		_, err = shipmentDeleter.DeleteShipment(session, shipment.ID)
+		_, err := shipmentDeleter.DeleteShipment(session, shipment.ID)
 
 		suite.Error(err)
 		suite.IsType(apperror.ForbiddenError{}, err)
 	})
 
 	suite.Run("Soft deletes the shipment when it is found", func() {
-		moveRouter, err := moveservices.NewMoveRouter()
-		suite.FatalNoError(err)
+		moveRouter := moveservices.NewMoveRouter()
 		shipmentDeleter := NewShipmentDeleter(moveTaskOrderUpdater, moveRouter)
 		shipment := factory.BuildMTOShipmentMinimal(suite.DB(), nil, nil)
 
@@ -141,8 +138,7 @@ func (suite *MTOShipmentServiceSuite) TestShipmentDeleter() {
 	})
 
 	suite.Run("Soft deletes the shipment when it is found and check if shipment_seq_num changed", func() {
-		moveRouter, err := moveservices.NewMoveRouter()
-		suite.FatalNoError(err)
+		moveRouter := moveservices.NewMoveRouter()
 		move := factory.BuildMove(suite.DB(), nil, nil)
 		shipmentDeleter := NewShipmentDeleter(moveTaskOrderUpdater, moveRouter)
 		shipment := factory.BuildMTOShipmentMinimal(suite.DB(), []factory.Customization{
@@ -205,15 +201,14 @@ func (suite *MTOShipmentServiceSuite) TestShipmentDeleter() {
 	})
 
 	suite.Run("Returns not found error when the shipment is already deleted", func() {
-		moveRouter, err := moveservices.NewMoveRouter()
-		suite.FatalNoError(err)
+		moveRouter := moveservices.NewMoveRouter()
 		shipmentDeleter := NewShipmentDeleter(moveTaskOrderUpdater, moveRouter)
 		shipment := factory.BuildMTOShipmentMinimal(suite.DB(), nil, nil)
 		session := suite.AppContextWithSessionForTest(&auth.Session{
 			ApplicationName: auth.OfficeApp,
 			OfficeUserID:    uuid.Must(uuid.NewV4()),
 		})
-		_, err = shipmentDeleter.DeleteShipment(session, shipment.ID)
+		_, err := shipmentDeleter.DeleteShipment(session, shipment.ID)
 
 		suite.NoError(err)
 
@@ -223,8 +218,7 @@ func (suite *MTOShipmentServiceSuite) TestShipmentDeleter() {
 	})
 
 	suite.Run("Soft deletes the associated PPM shipment", func() {
-		moveRouter, err := moveservices.NewMoveRouter()
-		suite.FatalNoError(err)
+		moveRouter := moveservices.NewMoveRouter()
 		shipmentDeleter := NewShipmentDeleter(moveTaskOrderUpdater, moveRouter)
 		ppmShipment := factory.BuildPPMShipment(suite.DB(), []factory.Customization{
 			{
@@ -259,8 +253,7 @@ func (suite *MTOShipmentServiceSuite) TestShipmentDeleter() {
 
 func (suite *MTOShipmentServiceSuite) TestPrimeShipmentDeleter() {
 	builder := query.NewQueryBuilder()
-	moveRouter, err := moveservices.NewMoveRouter()
-	suite.FatalNoError(err)
+	moveRouter := moveservices.NewMoveRouter()
 	planner := &routemocks.Planner{}
 	planner.On("ZipTransitDistance",
 		mock.AnythingOfType("*appcontext.appContext"),

@@ -8,8 +8,20 @@ import (
 
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/services"
+	"github.com/transcom/mymove/pkg/services/featureflag"
 	"github.com/transcom/mymove/pkg/services/mocks"
 )
+
+func MakeMobileHomeFFMap() map[string]bool {
+	featureFlagValues := make(map[string]bool)
+	featureFlagValues[featureflag.DomesticMobileHome] = true
+	featureFlagValues[featureflag.DomesticMobileHomeDDPEnabled] = true
+	featureFlagValues[featureflag.DomesticMobileHomeDOPEnabled] = true
+	featureFlagValues[featureflag.DomesticMobileHomePackingEnabled] = true
+	featureFlagValues[featureflag.DomesticMobileHomeUnpackingEnabled] = true
+
+	return featureFlagValues
+}
 
 func MockGetFlagFunc(_ context.Context, _ *zap.Logger, entityID string, key string, _ map[string]string, mockVariant string, flagValue bool) (services.FeatureFlag, error) {
 	return services.FeatureFlag{

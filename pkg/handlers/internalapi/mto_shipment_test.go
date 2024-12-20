@@ -47,8 +47,7 @@ type mtoShipmentObjects struct {
 func (suite *HandlerSuite) setUpMTOShipmentObjects() *mtoShipmentObjects {
 	builder := query.NewQueryBuilder()
 	fetcher := fetch.NewFetcher(builder)
-	moveRouter, err := moverouter.NewMoveRouter()
-	suite.FatalNoError(err)
+	moveRouter := moverouter.NewMoveRouter()
 
 	return &mtoShipmentObjects{
 		builder:    builder,

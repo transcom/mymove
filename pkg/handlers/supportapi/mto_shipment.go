@@ -31,8 +31,13 @@ func (h UpdateMTOShipmentStatusHandlerFunc) Handle(params mtoshipmentops.UpdateM
 			status := models.MTOShipmentStatus(params.Body.Status)
 			rejectionReason := params.Body.RejectionReason
 			eTag := params.IfMatch
+			featureFlagValues, err := handlers.GetAllDomesticMHFlags(appCtx, h.HandlerConfig.FeatureFlagFetcher())
+			if err != nil {
+				return mtoshipmentops.NewUpdateMTOShipmentStatusInternalServerError().WithPayload(
+					payloads.InternalServerError(handlers.FmtString(err.Error()), h.GetTraceIDFromRequest(params.HTTPRequest))), err
+			}
 
-			shipment, err := h.UpdateMTOShipmentStatus(appCtx, shipmentID, status, rejectionReason, nil, eTag)
+			shipment, err := h.UpdateMTOShipmentStatus(appCtx, shipmentID, status, rejectionReason, nil, eTag, featureFlagValues)
 
 			if err != nil {
 				appCtx.Logger().Error("UpdateMTOShipmentStatus error: ", zap.Error(err))

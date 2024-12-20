@@ -11,6 +11,7 @@ import (
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
+	"github.com/transcom/mymove/pkg/services/featureflag"
 	"github.com/transcom/mymove/pkg/unit"
 )
 
@@ -96,7 +97,7 @@ func (p domesticShorthaulPricer) Price(appCtx appcontext.AppContext, contractCod
 	return totalCost, pricingRateEngineParams, nil
 }
 
-func (p domesticShorthaulPricer) PriceUsingParams(appCtx appcontext.AppContext, params models.PaymentServiceItemParams) (unit.Cents, services.PricingDisplayParams, error) {
+func (p domesticShorthaulPricer) PriceUsingParams(appCtx appcontext.AppContext, params models.PaymentServiceItemParams, featureFlagValues map[string]bool) (unit.Cents, services.PricingDisplayParams, error) {
 	contractCode, err := getParamString(params, models.ServiceItemParamNameContractCode)
 	if err != nil {
 		return unit.Cents(0), nil, err
@@ -123,7 +124,7 @@ func (p domesticShorthaulPricer) PriceUsingParams(appCtx appcontext.AppContext, 
 	}
 
 	var isMobileHome = false
-	if params[0].PaymentServiceItem.MTOServiceItem.MTOShipment.ShipmentType == models.MTOShipmentTypeMobileHome {
+	if featureFlagValues[featureflag.DomesticMobileHome] && params[0].PaymentServiceItem.MTOServiceItem.MTOShipment.ShipmentType == models.MTOShipmentTypeMobileHome {
 		isMobileHome = true
 	}
 

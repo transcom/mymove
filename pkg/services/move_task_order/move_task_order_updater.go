@@ -275,7 +275,7 @@ func (o *moveTaskOrderUpdater) MakeAvailableToPrime(appCtx appcontext.AppContext
 
 		// When provided, this will create and approve these Move-level service items.
 		if includeServiceCodeMS && !move.IsPPMOnly() {
-			err = o.createMoveLevelServiceItem(txnAppCtx, *move, models.ReServiceCodeMS)
+			err = o.createMoveLevelServiceItem(txnAppCtx, *move, models.ReServiceCodeMS, nil)
 		}
 
 		if err != nil {
@@ -283,7 +283,7 @@ func (o *moveTaskOrderUpdater) MakeAvailableToPrime(appCtx appcontext.AppContext
 		}
 
 		if includeServiceCodeCS {
-			err = o.createMoveLevelServiceItem(txnAppCtx, *move, models.ReServiceCodeCS)
+			err = o.createMoveLevelServiceItem(txnAppCtx, *move, models.ReServiceCodeCS, nil)
 		}
 
 		return err
@@ -310,7 +310,7 @@ func (o *moveTaskOrderUpdater) updateMove(appCtx appcontext.AppContext, move *mo
 	return err
 }
 
-func (o *moveTaskOrderUpdater) createMoveLevelServiceItem(appCtx appcontext.AppContext, move models.Move, code models.ReServiceCode) error {
+func (o *moveTaskOrderUpdater) createMoveLevelServiceItem(appCtx appcontext.AppContext, move models.Move, code models.ReServiceCode, featureFlagValues map[string]bool) error {
 	now := time.Now()
 
 	siCreator := o.serviceItemCreator
@@ -321,7 +321,7 @@ func (o *moveTaskOrderUpdater) createMoveLevelServiceItem(appCtx appcontext.AppC
 		ReService:       models.ReService{Code: code},
 		Status:          models.MTOServiceItemStatusApproved,
 		ApprovedAt:      &now,
-	})
+	}, featureFlagValues)
 
 	if err != nil {
 		if errors.Is(err, models.ErrInvalidTransition) {

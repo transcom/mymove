@@ -12,5 +12,5 @@ import (
 //go:generate mockery --name ShipmentAddressUpdateRequester
 type ShipmentAddressUpdateRequester interface {
 	RequestShipmentDeliveryAddressUpdate(appCtx appcontext.AppContext, shipmentID uuid.UUID, newAddress models.Address, contractorRemarks string, eTag string) (*models.ShipmentAddressUpdate, error)
-	ReviewShipmentAddressChange(appCtx appcontext.AppContext, shipmentID uuid.UUID, tooApprovalStatus models.ShipmentAddressUpdateStatus, tooRemarks string) (*models.ShipmentAddressUpdate, error)
+	ReviewShipmentAddressChange(appCtx appcontext.AppContext, shipmentID uuid.UUID, tooApprovalStatus models.ShipmentAddressUpdateStatus, tooRemarks string, featureFlagValues map[string]bool) (*models.ShipmentAddressUpdate, error)
 }

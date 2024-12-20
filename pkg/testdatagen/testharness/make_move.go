@@ -9,16 +9,20 @@ import (
 
 	"github.com/gobuffalo/pop/v6"
 	"github.com/gofrs/uuid"
+	"github.com/spf13/viper"
 	"github.com/stretchr/testify/mock"
 	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/auth"
+	"github.com/transcom/mymove/pkg/cli"
 	"github.com/transcom/mymove/pkg/etag"
 	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
+	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
 	routemocks "github.com/transcom/mymove/pkg/route/mocks"
+	"github.com/transcom/mymove/pkg/services/featureflag"
 	"github.com/transcom/mymove/pkg/services/ghcrateengine"
 	moverouter "github.com/transcom/mymove/pkg/services/move"
 	mtoserviceitem "github.com/transcom/mymove/pkg/services/mto_service_item"
@@ -3791,11 +3795,9 @@ func MakeHHGMoveWithExternalNTSShipmentsForTOO(appCtx appcontext.AppContext) mod
 func MakeHHGMoveWithApprovedNTSShipmentsForTOO(appCtx appcontext.AppContext) models.Move {
 	locator := models.GenerateLocator()
 	move := scenario.CreateMoveWithHHGAndNTSShipments(appCtx, locator, false)
-	moveRouter, err := moverouter.NewMoveRouter()
-	if err != nil {
-		log.Panic("Failed to instantiate move router: %w", err)
-	}
-	err = moveRouter.Approve(appCtx, &move)
+	moveRouter := moverouter.NewMoveRouter()
+
+	err := moveRouter.Approve(appCtx, &move)
 	if err != nil {
 		log.Panic("Failed to approve move: %w", err)
 	}
@@ -3831,10 +3833,21 @@ func MakeHHGMoveWithApprovedNTSShipmentsForTOO(appCtx appcontext.AppContext) mod
 	serviceItemCreator := mtoserviceitem.NewMTOServiceItemCreator(planner, queryBuilder, moveRouter, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticPackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer())
 	shipmentUpdater := mtoshipment.NewMTOShipmentStatusUpdater(queryBuilder, serviceItemCreator, planner)
 
+	v := viper.New()
+	featureFlagFetcher, err := featureflag.NewFeatureFlagFetcher(cli.GetFliptFetcherConfig(v))
+	if err != nil {
+		log.Panicf("Error setting up feature flag fetcher: %s", err)
+	}
+
+	featureFlagValues, err := handlers.GetAllDomesticMHFlags(appCtx, featureFlagFetcher)
+	if err != nil {
+		log.Panicf("Error fetching mobile home feature flags: %s", err)
+	}
+
 	updatedShipments := make([]*models.MTOShipment, len(newmove.MTOShipments))
 	for i := range newmove.MTOShipments {
 		shipment := newmove.MTOShipments[i]
-		updatedShipments[i], err = shipmentUpdater.UpdateMTOShipmentStatus(appCtx, shipment.ID, models.MTOShipmentStatusApproved, nil, nil, etag.GenerateEtag(shipment.UpdatedAt))
+		updatedShipments[i], err = shipmentUpdater.UpdateMTOShipmentStatus(appCtx, shipment.ID, models.MTOShipmentStatusApproved, nil, nil, etag.GenerateEtag(shipment.UpdatedAt), featureFlagValues)
 		if err != nil {
 			log.Panic("Error updating shipment status %w", err)
 		}
@@ -3898,13 +3911,9 @@ func MakeHHGMoveWithApprovedNTSRShipmentsForTOO(appCtx appcontext.AppContext) mo
 	locator := models.GenerateLocator()
 	move := scenario.CreateMoveWithHHGAndNTSRShipments(appCtx, locator, false)
 
-	logger := appCtx.Logger()
-	moveRouter, err := moverouter.NewMoveRouter()
-	if err != nil {
-		logger.Panic(fmt.Sprintf("Error setting up feature flag fetcher: %s", err))
-	}
+	moveRouter := moverouter.NewMoveRouter()
 
-	err = moveRouter.Approve(appCtx, &move)
+	err := moveRouter.Approve(appCtx, &move)
 	if err != nil {
 		log.Panic("Failed to approve move: %w", err)
 	}
@@ -3941,9 +3950,20 @@ func MakeHHGMoveWithApprovedNTSRShipmentsForTOO(appCtx appcontext.AppContext) mo
 	shipmentUpdater := mtoshipment.NewMTOShipmentStatusUpdater(queryBuilder, serviceItemCreator, planner)
 
 	updatedShipments := make([]*models.MTOShipment, len(newmove.MTOShipments))
+
+	v := viper.New()
+	featureFlagFetcher, err := featureflag.NewFeatureFlagFetcher(cli.GetFliptFetcherConfig(v))
+	if err != nil {
+		log.Panicf("Error setting up feature flag fetcher: %s", err)
+	}
+	featureFlagValues, err := handlers.GetAllDomesticMHFlags(appCtx, featureFlagFetcher)
+	if err != nil {
+		log.Panicf("Error fetching domestic mobile home feature flags: %s", err)
+	}
+
 	for i := range newmove.MTOShipments {
 		shipment := newmove.MTOShipments[i]
-		updatedShipments[i], err = shipmentUpdater.UpdateMTOShipmentStatus(appCtx, shipment.ID, models.MTOShipmentStatusApproved, nil, nil, etag.GenerateEtag(shipment.UpdatedAt))
+		updatedShipments[i], err = shipmentUpdater.UpdateMTOShipmentStatus(appCtx, shipment.ID, models.MTOShipmentStatusApproved, nil, nil, etag.GenerateEtag(shipment.UpdatedAt), featureFlagValues)
 		if err != nil {
 			log.Panic("Error updating shipment status %w", err)
 		}
@@ -4035,11 +4055,7 @@ func MakeBoatHaulAwayMoveNeedsSC(appCtx appcontext.AppContext) models.Move {
 		MoveLocator: models.GenerateLocator(),
 	}
 
-	logger := appCtx.Logger()
-	moveRouter, err := moverouter.NewMoveRouter()
-	if err != nil {
-		logger.Panic(fmt.Sprintf("Error setting up feature flag fetcher: %s", err))
-	}
+	moveRouter := moverouter.NewMoveRouter()
 
 	move := scenario.CreateBoatHaulAwayMoveForSC(appCtx, userUploader, moveRouter, moveInfo)
 
@@ -4068,11 +4084,7 @@ func MakeBoatHaulAwayMoveNeedsTOOApproval(appCtx appcontext.AppContext) models.M
 		MoveLocator: models.GenerateLocator(),
 	}
 
-	logger := appCtx.Logger()
-	moveRouter, err := moverouter.NewMoveRouter()
-	if err != nil {
-		logger.Panic(fmt.Sprintf("Error setting up feature flag fetcher: %s", err))
-	}
+	moveRouter := moverouter.NewMoveRouter()
 
 	move := scenario.CreateBoatHaulAwayMoveForTOO(appCtx, userUploader, moveRouter, moveInfo)
 
@@ -4582,11 +4594,7 @@ func MakeSubmittedMoveWithPPMShipmentForSC(appCtx appcontext.AppContext) models.
 		MoveLocator: models.GenerateLocator(),
 	}
 
-	logger := appCtx.Logger()
-	moveRouter, err := moverouter.NewMoveRouter()
-	if err != nil {
-		logger.Panic(fmt.Sprintf("Error setting up feature flag fetcher: %s", err))
-	}
+	moveRouter := moverouter.NewMoveRouter()
 
 	move := scenario.CreateSubmittedMoveWithPPMShipmentForSC(appCtx, userUploader, moveRouter, moveInfo)
 

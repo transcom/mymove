@@ -503,7 +503,7 @@ func (f estimatePPM) calculatePrice(appCtx appcontext.AppContext, ppmShipment *m
 			return nil, fmt.Errorf("no params were found for service item %s", serviceItem.ReService.Code)
 		}
 
-		centsValue, paymentParams, err := pricer.PriceUsingParams(appCtx, paramValues)
+		centsValue, paymentParams, err := pricer.PriceUsingParams(appCtx, paramValues, nil)
 		logger.Debug(fmt.Sprintf("Service item price %s %d", serviceItem.ReService.Code, centsValue))
 		logger.Debug(fmt.Sprintf("Payment service item params %+v", paymentParams))
 
@@ -666,7 +666,7 @@ func (f estimatePPM) priceBreakdown(appCtx appcontext.AppContext, ppmShipment *m
 			return emptyPrice, emptyPrice, emptyPrice, emptyPrice, emptyPrice, emptyPrice, emptyPrice, fmt.Errorf("no params were found for service item %s", serviceItem.ReService.Code)
 		}
 
-		centsValue, _, err := pricer.PriceUsingParams(appCtx, paramValues)
+		centsValue, _, err := pricer.PriceUsingParams(appCtx, paramValues, nil)
 
 		if err != nil {
 			logger.Error("unable to calculate service item price", zap.Error(err))

@@ -26,7 +26,7 @@ type PricingDisplayParams []PricingDisplayParam
 
 // ParamsPricer is an interface that all param-aware pricers implement
 type ParamsPricer interface {
-	PriceUsingParams(appCtx appcontext.AppContext, params models.PaymentServiceItemParams) (unit.Cents, PricingDisplayParams, error)
+	PriceUsingParams(appCtx appcontext.AppContext, params models.PaymentServiceItemParams, featureFlagValues map[string]bool) (unit.Cents, PricingDisplayParams, error)
 }
 
 // ManagementServicesPricer prices management services for a GHC move

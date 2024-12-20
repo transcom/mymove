@@ -18,9 +18,9 @@ type MTOServiceItemCreator struct {
 	mock.Mock
 }
 
-// CreateMTOServiceItem provides a mock function with given fields: appCtx, serviceItem
-func (_m *MTOServiceItemCreator) CreateMTOServiceItem(appCtx appcontext.AppContext, serviceItem *models.MTOServiceItem) (*models.MTOServiceItems, *validate.Errors, error) {
-	ret := _m.Called(appCtx, serviceItem)
+// CreateMTOServiceItem provides a mock function with given fields: appCtx, serviceItem, featureFlagValues
+func (_m *MTOServiceItemCreator) CreateMTOServiceItem(appCtx appcontext.AppContext, serviceItem *models.MTOServiceItem, featureFlagValues map[string]bool) (*models.MTOServiceItems, *validate.Errors, error) {
+	ret := _m.Called(appCtx, serviceItem, featureFlagValues)
 
 	if len(ret) == 0 {
 		panic("no return value specified for CreateMTOServiceItem")
@@ -29,27 +29,27 @@ func (_m *MTOServiceItemCreator) CreateMTOServiceItem(appCtx appcontext.AppConte
 	var r0 *models.MTOServiceItems
 	var r1 *validate.Errors
 	var r2 error
-	if rf, ok := ret.Get(0).(func(appcontext.AppContext, *models.MTOServiceItem) (*models.MTOServiceItems, *validate.Errors, error)); ok {
-		return rf(appCtx, serviceItem)
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, *models.MTOServiceItem, map[string]bool) (*models.MTOServiceItems, *validate.Errors, error)); ok {
+		return rf(appCtx, serviceItem, featureFlagValues)
 	}
-	if rf, ok := ret.Get(0).(func(appcontext.AppContext, *models.MTOServiceItem) *models.MTOServiceItems); ok {
-		r0 = rf(appCtx, serviceItem)
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, *models.MTOServiceItem, map[string]bool) *models.MTOServiceItems); ok {
+		r0 = rf(appCtx, serviceItem, featureFlagValues)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*models.MTOServiceItems)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(appcontext.AppContext, *models.MTOServiceItem) *validate.Errors); ok {
-		r1 = rf(appCtx, serviceItem)
+	if rf, ok := ret.Get(1).(func(appcontext.AppContext, *models.MTOServiceItem, map[string]bool) *validate.Errors); ok {
+		r1 = rf(appCtx, serviceItem, featureFlagValues)
 	} else {
 		if ret.Get(1) != nil {
 			r1 = ret.Get(1).(*validate.Errors)
 		}
 	}
 
-	if rf, ok := ret.Get(2).(func(appcontext.AppContext, *models.MTOServiceItem) error); ok {
-		r2 = rf(appCtx, serviceItem)
+	if rf, ok := ret.Get(2).(func(appcontext.AppContext, *models.MTOServiceItem, map[string]bool) error); ok {
+		r2 = rf(appCtx, serviceItem, featureFlagValues)
 	} else {
 		r2 = ret.Error(2)
 	}
@@ -57,9 +57,9 @@ func (_m *MTOServiceItemCreator) CreateMTOServiceItem(appCtx appcontext.AppConte
 	return r0, r1, r2
 }
 
-// FindEstimatedPrice provides a mock function with given fields: appCtx, serviceItem, mtoShipment
-func (_m *MTOServiceItemCreator) FindEstimatedPrice(appCtx appcontext.AppContext, serviceItem *models.MTOServiceItem, mtoShipment models.MTOShipment) (unit.Cents, error) {
-	ret := _m.Called(appCtx, serviceItem, mtoShipment)
+// FindEstimatedPrice provides a mock function with given fields: appCtx, serviceItem, mtoShipment, featureFlagValues
+func (_m *MTOServiceItemCreator) FindEstimatedPrice(appCtx appcontext.AppContext, serviceItem *models.MTOServiceItem, mtoShipment models.MTOShipment, featureFlagValues map[string]bool) (unit.Cents, error) {
+	ret := _m.Called(appCtx, serviceItem, mtoShipment, featureFlagValues)
 
 	if len(ret) == 0 {
 		panic("no return value specified for FindEstimatedPrice")
@@ -67,17 +67,17 @@ func (_m *MTOServiceItemCreator) FindEstimatedPrice(appCtx appcontext.AppContext
 
 	var r0 unit.Cents
 	var r1 error
-	if rf, ok := ret.Get(0).(func(appcontext.AppContext, *models.MTOServiceItem, models.MTOShipment) (unit.Cents, error)); ok {
-		return rf(appCtx, serviceItem, mtoShipment)
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, *models.MTOServiceItem, models.MTOShipment, map[string]bool) (unit.Cents, error)); ok {
+		return rf(appCtx, serviceItem, mtoShipment, featureFlagValues)
 	}
-	if rf, ok := ret.Get(0).(func(appcontext.AppContext, *models.MTOServiceItem, models.MTOShipment) unit.Cents); ok {
-		r0 = rf(appCtx, serviceItem, mtoShipment)
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, *models.MTOServiceItem, models.MTOShipment, map[string]bool) unit.Cents); ok {
+		r0 = rf(appCtx, serviceItem, mtoShipment, featureFlagValues)
 	} else {
 		r0 = ret.Get(0).(unit.Cents)
 	}
 
-	if rf, ok := ret.Get(1).(func(appcontext.AppContext, *models.MTOServiceItem, models.MTOShipment) error); ok {
-		r1 = rf(appCtx, serviceItem, mtoShipment)
+	if rf, ok := ret.Get(1).(func(appcontext.AppContext, *models.MTOServiceItem, models.MTOShipment, map[string]bool) error); ok {
+		r1 = rf(appCtx, serviceItem, mtoShipment, featureFlagValues)
 	} else {
 		r1 = ret.Error(1)
 	}

@@ -444,7 +444,7 @@ func (p *ppmCloseoutFetcher) getServiceItemPrices(appCtx appcontext.AppContext, 
 		}
 
 		// Middle var here can give you info on payment params like FSC multiplier, price rate/factor, etc. if needed.
-		centsValue, _, err := pricer.PriceUsingParams(appCtx, paramValues)
+		centsValue, _, err := pricer.PriceUsingParams(appCtx, paramValues, nil)
 		if err != nil {
 			return serviceItemPrices{}, err
 		}

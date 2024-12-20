@@ -39,7 +39,7 @@ type mtoServiceItemCreator struct {
 	fuelSurchargePricer services.FuelSurchargePricer
 }
 
-func (o *mtoServiceItemCreator) FindEstimatedPrice(appCtx appcontext.AppContext, serviceItem *models.MTOServiceItem, mtoShipment models.MTOShipment) (unit.Cents, error) {
+func (o *mtoServiceItemCreator) FindEstimatedPrice(appCtx appcontext.AppContext, serviceItem *models.MTOServiceItem, mtoShipment models.MTOShipment, featureFlagValues map[string]bool) (unit.Cents, error) {
 	if serviceItem.ReService.Code == models.ReServiceCodeDOP ||
 		serviceItem.ReService.Code == models.ReServiceCodeDPK ||
 		serviceItem.ReService.Code == models.ReServiceCodeDDP ||
@@ -48,28 +48,18 @@ func (o *mtoServiceItemCreator) FindEstimatedPrice(appCtx appcontext.AppContext,
 		serviceItem.ReService.Code == models.ReServiceCodeDSH ||
 		serviceItem.ReService.Code == models.ReServiceCodeFSC {
 
+		if featureFlagValues == nil || len(featureFlagValues) <= 0 {
+			return 0, fmt.Errorf("Expected a map of feature flag values in findEstimatedPrice, received nil or empty map instead.")
+		}
+
 		isPPM := false
 		if mtoShipment.ShipmentType == models.MTOShipmentTypePPM {
 			isPPM = true
 		}
 
-		/** Feature Flag - Mobile Home  **/
-		// TODO: Fix checks
-		// featureFlagName := "mobile_home"
-		isMobileHomeFeatureOn := false
-		// flag, err := o.featureFlagFetcher.GetBooleanFlagForUser(appCtx.DB().Context(), appCtx, featureFlagName, map[string]string{})
-		// if err != nil {
-		// 	appCtx.Logger().Error("Error fetching feature flag", zap.String("featureFlagKey", featureFlagName), zap.Error(err))
-		// 	isMobileHomeFeatureOn = false
-		// } else {
-		// 	isMobileHomeFeatureOn = flag.Match
-		// }
-
 		isMobileHome := false
-		if isMobileHomeFeatureOn {
-			if mtoShipment.ShipmentType == models.MTOShipmentTypeMobileHome {
-				isMobileHome = true
-			}
+		if mtoShipment.ShipmentType == models.MTOShipmentTypeMobileHome {
+			isMobileHome = true
 		}
 
 		requestedPickupDate := *mtoShipment.RequestedPickupDate
@@ -345,7 +335,7 @@ func (o *mtoServiceItemCreator) calculateSITDeliveryMiles(appCtx appcontext.AppC
 }
 
 // CreateMTOServiceItem creates a MTO Service Item
-func (o *mtoServiceItemCreator) CreateMTOServiceItem(appCtx appcontext.AppContext, serviceItem *models.MTOServiceItem) (*models.MTOServiceItems, *validate.Errors, error) {
+func (o *mtoServiceItemCreator) CreateMTOServiceItem(appCtx appcontext.AppContext, serviceItem *models.MTOServiceItem, featureFlagValues map[string]bool) (*models.MTOServiceItems, *validate.Errors, error) {
 	var verrs *validate.Errors
 	var err error
 	var requestedServiceItems models.MTOServiceItems // used in case additional service items need to be auto-created
@@ -627,8 +617,9 @@ func (o *mtoServiceItemCreator) CreateMTOServiceItem(appCtx appcontext.AppContex
 
 	// if estimated weight for shipment provided by the prime, calculate the estimated prices for
 	// DLH, DPK, DOP, DDP, DUPK
+
 	if mtoShipment.PrimeEstimatedWeight != nil && mtoShipment.RequestedPickupDate != nil {
-		serviceItemEstimatedPrice, err := o.FindEstimatedPrice(appCtx, serviceItem, mtoShipment)
+		serviceItemEstimatedPrice, err := o.FindEstimatedPrice(appCtx, serviceItem, mtoShipment, featureFlagValues)
 		if serviceItemEstimatedPrice != 0 && err == nil {
 			serviceItem.PricingEstimate = &serviceItemEstimatedPrice
 		}

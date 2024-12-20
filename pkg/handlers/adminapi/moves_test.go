@@ -111,8 +111,7 @@ func (suite *HandlerSuite) TestUpdateMoveHandler() {
 	ppmEstimator := &mocks.PPMEstimator{}
 	setupHandler := func() UpdateMoveHandler {
 		builder := query.NewQueryBuilder()
-		moveRouter, err := move.NewMoveRouter()
-		suite.FatalNoError(err)
+		moveRouter := move.NewMoveRouter()
 		planner := &routemocks.Planner{}
 		planner.On("ZipTransitDistance",
 			mock.AnythingOfType("*appcontext.appContext"),

@@ -23,7 +23,7 @@ func (p domesticDestinationSITDeliveryPricer) Price(appCtx appcontext.AppContext
 }
 
 // PriceUsingParams determines the price for domestic destination SIT delivery given PaymentServiceItemParams
-func (p domesticDestinationSITDeliveryPricer) PriceUsingParams(appCtx appcontext.AppContext, params models.PaymentServiceItemParams) (unit.Cents, services.PricingDisplayParams, error) {
+func (p domesticDestinationSITDeliveryPricer) PriceUsingParams(appCtx appcontext.AppContext, params models.PaymentServiceItemParams, featureFlagValues map[string]bool) (unit.Cents, services.PricingDisplayParams, error) {
 	contractCode, err := getParamString(params, models.ServiceItemParamNameContractCode)
 	if err != nil {
 		return unit.Cents(0), nil, err

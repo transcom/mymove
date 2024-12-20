@@ -10,6 +10,7 @@ import (
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
+	"github.com/transcom/mymove/pkg/services/featureflag"
 	"github.com/transcom/mymove/pkg/unit"
 )
 
@@ -96,7 +97,7 @@ func (p domesticOriginPricer) Price(appCtx appcontext.AppContext, contractCode s
 }
 
 // PriceUsingParams determines the price for a domestic origin given PaymentServiceItemParams
-func (p domesticOriginPricer) PriceUsingParams(appCtx appcontext.AppContext, params models.PaymentServiceItemParams) (unit.Cents, services.PricingDisplayParams, error) {
+func (p domesticOriginPricer) PriceUsingParams(appCtx appcontext.AppContext, params models.PaymentServiceItemParams, featureFlagValues map[string]bool) (unit.Cents, services.PricingDisplayParams, error) {
 	contractCode, err := getParamString(params, models.ServiceItemParamNameContractCode)
 	if err != nil {
 		return unit.Cents(0), nil, err
@@ -125,17 +126,11 @@ func (p domesticOriginPricer) PriceUsingParams(appCtx appcontext.AppContext, par
 		isPPM = true
 	}
 
-	// Check if packing service items have been enabled for Mobile Home shipments
-	// TODO: Add actual check here
-	// isMobileHomePackingItemOn, err := GetFeatureFlagValue(appCtx, p.FeatureFlagFetcher, services.DomesticMobileHomeDOPEnabled)
-	// if err != nil {
-	// 	return unit.Cents(0), nil, err
-	// }
-
+	// Check if mobile home FF is on and DOP FF has been enabled for Mobile Home shipments
 	var isMobileHome = false
-	// if isMobileHomePackingItemOn && params[0].PaymentServiceItem.MTOServiceItem.MTOShipment.ShipmentType == models.MTOShipmentTypeMobileHome {
-	// 	isMobileHome = true
-	// }
+	if featureFlagValues[featureflag.DomesticMobileHome] && featureFlagValues[featureflag.DomesticMobileHomeDOPEnabled] && params[0].PaymentServiceItem.MTOServiceItem.MTOShipment.ShipmentType == models.MTOShipmentTypeMobileHome {
+		isMobileHome = true
+	}
 
 	return p.Price(appCtx, contractCode, referenceDate, unit.Pound(weightBilled), serviceAreaOrigin, isPPM, isMobileHome)
 }

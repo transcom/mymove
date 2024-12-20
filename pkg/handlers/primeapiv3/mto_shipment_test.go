@@ -43,8 +43,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 
 	builder := query.NewQueryBuilder()
 	mtoChecker := movetaskorder.NewMoveTaskOrderChecker()
-	moveRouter, err := moveservices.NewMoveRouter()
-	suite.FatalNoError(err)
+	moveRouter := moveservices.NewMoveRouter()
 	fetcher := fetch.NewFetcher(builder)
 	addressCreator := address.NewAddressCreator()
 	addressUpdater := address.NewAddressUpdater()

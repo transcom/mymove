@@ -30,10 +30,7 @@ func NewPrimeAPI(handlerConfig handlers.HandlerConfig) *primev2operations.Mymove
 	builder := query.NewQueryBuilder()
 	fetcher := fetch.NewFetcher(builder)
 	queryBuilder := query.NewQueryBuilder()
-	moveRouter, err := move.NewMoveRouter()
-	if err != nil {
-		log.Fatalln(err)
-	}
+	moveRouter := move.NewMoveRouter()
 
 	primeSpec, err := loads.Analyzed(primev2api.SwaggerJSON, "")
 	if err != nil {

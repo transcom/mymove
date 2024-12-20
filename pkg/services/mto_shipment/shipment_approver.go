@@ -33,7 +33,7 @@ func NewShipmentApprover(router services.ShipmentRouter, siCreator services.MTOS
 }
 
 // ApproveShipment Approves the shipment
-func (f *shipmentApprover) ApproveShipment(appCtx appcontext.AppContext, shipmentID uuid.UUID, eTag string) (*models.MTOShipment, error) {
+func (f *shipmentApprover) ApproveShipment(appCtx appcontext.AppContext, shipmentID uuid.UUID, eTag string, featureFlagValues map[string]bool) (*models.MTOShipment, error) {
 	shipment, err := f.findShipment(appCtx, shipmentID)
 	if err != nil {
 		return nil, err
@@ -96,7 +96,7 @@ func (f *shipmentApprover) ApproveShipment(appCtx appcontext.AppContext, shipmen
 		}
 
 		// after approving shipment, shipment level service items must be created
-		err = f.createShipmentServiceItems(txnAppCtx, shipment)
+		err = f.createShipmentServiceItems(txnAppCtx, shipment, featureFlagValues)
 		if err != nil {
 			return err
 		}
@@ -180,12 +180,12 @@ func (f *shipmentApprover) setRequiredDeliveryDate(appCtx appcontext.AppContext,
 	return nil
 }
 
-func (f *shipmentApprover) createShipmentServiceItems(appCtx appcontext.AppContext, shipment *models.MTOShipment) error {
+func (f *shipmentApprover) createShipmentServiceItems(appCtx appcontext.AppContext, shipment *models.MTOShipment, featureFlagValues map[string]bool) error {
 	reServiceCodes := reServiceCodesForShipment(*shipment)
 	serviceItemsToCreate := constructMTOServiceItemModels(shipment.ID, shipment.MoveTaskOrderID, reServiceCodes)
 	for _, serviceItem := range serviceItemsToCreate {
 		copyOfServiceItem := serviceItem // Make copy to avoid implicit memory aliasing of items from a range statement.
-		_, verrs, err := f.siCreator.CreateMTOServiceItem(appCtx, &copyOfServiceItem)
+		_, verrs, err := f.siCreator.CreateMTOServiceItem(appCtx, &copyOfServiceItem, featureFlagValues)
 
 		if verrs != nil && verrs.HasAny() {
 			invalidInputError := apperror.NewInvalidInputError(shipment.ID, nil, verrs, "There was an issue creating service items for the shipment")

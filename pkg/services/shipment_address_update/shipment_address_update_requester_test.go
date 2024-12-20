@@ -12,6 +12,7 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 	routemocks "github.com/transcom/mymove/pkg/route/mocks"
 	"github.com/transcom/mymove/pkg/services/address"
+	ffhelpers "github.com/transcom/mymove/pkg/services/featureflag"
 	moveservices "github.com/transcom/mymove/pkg/services/move"
 	"github.com/transcom/mymove/pkg/testdatagen"
 	"github.com/transcom/mymove/pkg/unit"
@@ -51,6 +52,8 @@ func (suite *ShipmentAddressUpdateServiceSuite) setupServiceItemData() {
 		},
 	})
 }
+
+var featureFlagValues map[string]bool
 
 func (suite *ShipmentAddressUpdateServiceSuite) TestCreateApprovedShipmentAddressUpdate() {
 	setupTestData := func() models.Move {
@@ -98,8 +101,7 @@ func (suite *ShipmentAddressUpdateServiceSuite) TestCreateApprovedShipmentAddres
 	}
 	addressCreator := address.NewAddressCreator()
 	mockPlanner := &routemocks.Planner{}
-	moveRouter, err := moveservices.NewMoveRouter()
-	suite.FatalNoError(err)
+	moveRouter := moveservices.NewMoveRouter()
 	addressUpdateRequester := NewShipmentAddressUpdateRequester(mockPlanner, addressCreator, moveRouter)
 
 	suite.Run("Successfully create ShipmentAddressUpdate", func() {
@@ -612,10 +614,15 @@ func (suite *ShipmentAddressUpdateServiceSuite) TestCreateApprovedShipmentAddres
 }
 
 func (suite *ShipmentAddressUpdateServiceSuite) TestTOOApprovedShipmentAddressUpdateRequest() {
+	featureFlagValues := make(map[string]bool)
+	featureFlagValues[ffhelpers.DomesticMobileHome] = true
+	featureFlagValues[ffhelpers.DomesticMobileHomeDDPEnabled] = true
+	featureFlagValues[ffhelpers.DomesticMobileHomeDOPEnabled] = true
+	featureFlagValues[ffhelpers.DomesticMobileHomePackingEnabled] = true
+	featureFlagValues[ffhelpers.DomesticMobileHomeUnpackingEnabled] = true
 	addressCreator := address.NewAddressCreator()
 	mockPlanner := &routemocks.Planner{}
-	moveRouter, err := moveservices.NewMoveRouter()
-	suite.FatalNoError(err)
+	moveRouter := moveservices.NewMoveRouter()
 	mockPlanner.On("ZipTransitDistance",
 		mock.AnythingOfType("*appcontext.appContext"),
 		mock.Anything,
@@ -632,7 +639,7 @@ func (suite *ShipmentAddressUpdateServiceSuite) TestTOOApprovedShipmentAddressUp
 		})
 		officeRemarks := "This is a TOO remark"
 
-		update, err := addressUpdateRequester.ReviewShipmentAddressChange(suite.AppContextForTest(), addressChange.Shipment.ID, "APPROVED", officeRemarks)
+		update, err := addressUpdateRequester.ReviewShipmentAddressChange(suite.AppContextForTest(), addressChange.Shipment.ID, "APPROVED", officeRemarks, featureFlagValues)
 
 		suite.NoError(err)
 		suite.NotNil(update)
@@ -648,7 +655,7 @@ func (suite *ShipmentAddressUpdateServiceSuite) TestTOOApprovedShipmentAddressUp
 		})
 		officeRemarks := "This is a TOO remark"
 
-		update, err := addressUpdateRequester.ReviewShipmentAddressChange(suite.AppContextForTest(), addressChange.Shipment.ID, "REJECTED", officeRemarks)
+		update, err := addressUpdateRequester.ReviewShipmentAddressChange(suite.AppContextForTest(), addressChange.Shipment.ID, "REJECTED", officeRemarks, featureFlagValues)
 
 		suite.NoError(err)
 		suite.NotNil(update)
@@ -662,7 +669,7 @@ func (suite *ShipmentAddressUpdateServiceSuite) TestTOOApprovedShipmentAddressUp
 		addressChange := factory.BuildShipmentAddressUpdate(suite.DB(), nil, nil)
 		officeRemarks := ""
 
-		update, err := addressUpdateRequester.ReviewShipmentAddressChange(suite.AppContextForTest(), addressChange.Shipment.ID, "APPROVED", officeRemarks)
+		update, err := addressUpdateRequester.ReviewShipmentAddressChange(suite.AppContextForTest(), addressChange.Shipment.ID, "APPROVED", officeRemarks, featureFlagValues)
 
 		suite.Error(err)
 		suite.IsType(apperror.InvalidInputError{}, err)
@@ -683,7 +690,7 @@ func (suite *ShipmentAddressUpdateServiceSuite) TestTOOApprovedShipmentAddressUp
 
 		suite.Equal(models.MoveStatusAPPROVALSREQUESTED, updatedMove.Status)
 
-		update, err := addressUpdateRequester.ReviewShipmentAddressChange(suite.AppContextForTest(), addressChange.Shipment.ID, "APPROVED", officeRemarks)
+		update, err := addressUpdateRequester.ReviewShipmentAddressChange(suite.AppContextForTest(), addressChange.Shipment.ID, "APPROVED", officeRemarks, featureFlagValues)
 		suite.NoError(err)
 
 		err = suite.DB().Find(&updatedMove, addressChange.Shipment.MoveTaskOrderID)
@@ -744,7 +751,7 @@ func (suite *ShipmentAddressUpdateServiceSuite) TestTOOApprovedShipmentAddressUp
 		}, nil)
 		officeRemarks := "This is a TOO remark"
 
-		update, err := addressUpdateRequester.ReviewShipmentAddressChange(suite.AppContextForTest(), addressChange.Shipment.ID, "APPROVED", officeRemarks)
+		update, err := addressUpdateRequester.ReviewShipmentAddressChange(suite.AppContextForTest(), addressChange.Shipment.ID, "APPROVED", officeRemarks, featureFlagValues)
 
 		suite.NoError(err)
 		suite.NotNil(update)
@@ -815,7 +822,7 @@ func (suite *ShipmentAddressUpdateServiceSuite) TestTOOApprovedShipmentAddressUp
 
 		// check to make sure the market code is "d" prior to updating with OCONUS address
 		suite.Equal(shipment.MarketCode, models.MarketCodeDomestic)
-		update, err := addressUpdateRequester.ReviewShipmentAddressChange(suite.AppContextForTest(), addressChange.Shipment.ID, "APPROVED", officeRemarks)
+		update, err := addressUpdateRequester.ReviewShipmentAddressChange(suite.AppContextForTest(), addressChange.Shipment.ID, "APPROVED", officeRemarks, featureFlagValues)
 		suite.NoError(err)
 		suite.NotNil(update)
 
@@ -874,8 +881,7 @@ func (suite *ShipmentAddressUpdateServiceSuite) TestTOOApprovedShipmentAddressUp
 	}
 	addressCreator := address.NewAddressCreator()
 	mockPlanner := &routemocks.Planner{}
-	moveRouter, err := moveservices.NewMoveRouter()
-	suite.FatalNoError(err)
+	moveRouter := moveservices.NewMoveRouter()
 	addressUpdateRequester := NewShipmentAddressUpdateRequester(mockPlanner, addressCreator, moveRouter)
 
 	suite.Run("Service items are rejected and regenerated when pricing type changes post TOO approval", func() {
@@ -926,7 +932,7 @@ func (suite *ShipmentAddressUpdateServiceSuite) TestTOOApprovedShipmentAddressUp
 		officeRemarks := "This is a TOO remark"
 
 		// TOO Approves address change
-		update, err := addressUpdateRequester.ReviewShipmentAddressChange(suite.AppContextForTest(), addressChange.ShipmentID, "APPROVED", officeRemarks)
+		update, err := addressUpdateRequester.ReviewShipmentAddressChange(suite.AppContextForTest(), addressChange.ShipmentID, "APPROVED", officeRemarks, featureFlagValues)
 
 		suite.NoError(err)
 		suite.NotNil(update)
@@ -999,7 +1005,7 @@ func (suite *ShipmentAddressUpdateServiceSuite) TestTOOApprovedShipmentAddressUp
 		officeRemarks := "This is a TOO remark"
 
 		// TOO Approves address change
-		update, err := addressUpdateRequester.ReviewShipmentAddressChange(suite.AppContextForTest(), addressChange.ShipmentID, "APPROVED", officeRemarks)
+		update, err := addressUpdateRequester.ReviewShipmentAddressChange(suite.AppContextForTest(), addressChange.ShipmentID, "APPROVED", officeRemarks, featureFlagValues)
 
 		suite.NoError(err)
 		suite.NotNil(update)
@@ -1046,7 +1052,7 @@ func (suite *ShipmentAddressUpdateServiceSuite) TestTOOApprovedShipmentAddressUp
 		addressChange, _ := addressUpdateRequester.RequestShipmentDeliveryAddressUpdate(suite.AppContextForTest(), shipment.ID, newAddress, "we really need to change the address", etag.GenerateEtag(shipment.UpdatedAt))
 		officeRemarks := "This is a TOO remark"
 
-		update, err := addressUpdateRequester.ReviewShipmentAddressChange(suite.AppContextForTest(), addressChange.ShipmentID, "APPROVED", officeRemarks)
+		update, err := addressUpdateRequester.ReviewShipmentAddressChange(suite.AppContextForTest(), addressChange.ShipmentID, "APPROVED", officeRemarks, featureFlagValues)
 
 		suite.NoError(err)
 		suite.NotNil(update)
@@ -1103,7 +1109,7 @@ func (suite *ShipmentAddressUpdateServiceSuite) TestTOOApprovedShipmentAddressUp
 		officeRemarks := "This is a TOO remark"
 
 		// TOO Approves address change
-		update, err := addressUpdateRequester.ReviewShipmentAddressChange(suite.AppContextForTest(), addressChange.ShipmentID, "APPROVED", officeRemarks)
+		update, err := addressUpdateRequester.ReviewShipmentAddressChange(suite.AppContextForTest(), addressChange.ShipmentID, "APPROVED", officeRemarks, featureFlagValues)
 
 		suite.NoError(err)
 		suite.NotNil(update)
@@ -1166,7 +1172,7 @@ func (suite *ShipmentAddressUpdateServiceSuite) TestTOOApprovedShipmentAddressUp
 		officeRemarks := "This is a TOO remark"
 
 		// TOO Approves address change
-		update, err := addressUpdateRequester.ReviewShipmentAddressChange(suite.AppContextForTest(), addressChange.ShipmentID, "APPROVED", officeRemarks)
+		update, err := addressUpdateRequester.ReviewShipmentAddressChange(suite.AppContextForTest(), addressChange.ShipmentID, "APPROVED", officeRemarks, featureFlagValues)
 
 		suite.NoError(err)
 		suite.NotNil(update)

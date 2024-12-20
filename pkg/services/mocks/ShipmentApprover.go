@@ -16,9 +16,9 @@ type ShipmentApprover struct {
 	mock.Mock
 }
 
-// ApproveShipment provides a mock function with given fields: appCtx, shipmentID, eTag
-func (_m *ShipmentApprover) ApproveShipment(appCtx appcontext.AppContext, shipmentID uuid.UUID, eTag string) (*models.MTOShipment, error) {
-	ret := _m.Called(appCtx, shipmentID, eTag)
+// ApproveShipment provides a mock function with given fields: appCtx, shipmentID, eTag, featureFlagValues
+func (_m *ShipmentApprover) ApproveShipment(appCtx appcontext.AppContext, shipmentID uuid.UUID, eTag string, featureFlagValues map[string]bool) (*models.MTOShipment, error) {
+	ret := _m.Called(appCtx, shipmentID, eTag, featureFlagValues)
 
 	if len(ret) == 0 {
 		panic("no return value specified for ApproveShipment")
@@ -26,19 +26,19 @@ func (_m *ShipmentApprover) ApproveShipment(appCtx appcontext.AppContext, shipme
 
 	var r0 *models.MTOShipment
 	var r1 error
-	if rf, ok := ret.Get(0).(func(appcontext.AppContext, uuid.UUID, string) (*models.MTOShipment, error)); ok {
-		return rf(appCtx, shipmentID, eTag)
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, uuid.UUID, string, map[string]bool) (*models.MTOShipment, error)); ok {
+		return rf(appCtx, shipmentID, eTag, featureFlagValues)
 	}
-	if rf, ok := ret.Get(0).(func(appcontext.AppContext, uuid.UUID, string) *models.MTOShipment); ok {
-		r0 = rf(appCtx, shipmentID, eTag)
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, uuid.UUID, string, map[string]bool) *models.MTOShipment); ok {
+		r0 = rf(appCtx, shipmentID, eTag, featureFlagValues)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*models.MTOShipment)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(appcontext.AppContext, uuid.UUID, string) error); ok {
-		r1 = rf(appCtx, shipmentID, eTag)
+	if rf, ok := ret.Get(1).(func(appcontext.AppContext, uuid.UUID, string, map[string]bool) error); ok {
+		r1 = rf(appCtx, shipmentID, eTag, featureFlagValues)
 	} else {
 		r1 = ret.Error(1)
 	}

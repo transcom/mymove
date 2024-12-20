@@ -6,6 +6,7 @@ import (
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
+	"github.com/transcom/mymove/pkg/services/featureflag"
 	"github.com/transcom/mymove/pkg/unit"
 )
 
@@ -23,7 +24,7 @@ func (p domesticPackPricer) Price(appCtx appcontext.AppContext, contractCode str
 }
 
 // PriceUsingParams determines the price for a domestic pack service given PaymentServiceItemParams
-func (p domesticPackPricer) PriceUsingParams(appCtx appcontext.AppContext, params models.PaymentServiceItemParams) (unit.Cents, services.PricingDisplayParams, error) {
+func (p domesticPackPricer) PriceUsingParams(appCtx appcontext.AppContext, params models.PaymentServiceItemParams, featureFlagValues map[string]bool) (unit.Cents, services.PricingDisplayParams, error) {
 	contractCode, err := getParamString(params, models.ServiceItemParamNameContractCode)
 	if err != nil {
 		return unit.Cents(0), nil, err
@@ -53,16 +54,10 @@ func (p domesticPackPricer) PriceUsingParams(appCtx appcontext.AppContext, param
 	}
 
 	// Check if packing service items have been enabled for Mobile Home shipments
-	// TODO: Add actual check here
-	// isMobileHomePackingItemOn, err := GetFeatureFlagValue(appCtx, p.FeatureFlagFetcher, services.DomesticMobileHomePackingEnabled)
-	// if err != nil {
-	// 	return unit.Cents(0), nil, err
-	// }
-
 	var isMobileHome = false
-	// if isMobileHomePackingItemOn && params[0].PaymentServiceItem.MTOServiceItem.MTOShipment.ShipmentType == models.MTOShipmentTypeMobileHome {
-	// 	isMobileHome = true
-	// }
+	if featureFlagValues[featureflag.DomesticMobileHome] && featureFlagValues[featureflag.DomesticMobileHomePackingEnabled] && params[0].PaymentServiceItem.MTOServiceItem.MTOShipment.ShipmentType == models.MTOShipmentTypeMobileHome {
+		isMobileHome = true
+	}
 
 	return p.Price(appCtx, contractCode, referenceDate, unit.Pound(weightBilled), servicesScheduleOrigin, isPPM, isMobileHome)
 }

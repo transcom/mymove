@@ -9,10 +9,12 @@ import (
 	"time"
 
 	"github.com/gofrs/uuid"
+	"github.com/spf13/viper"
 	"github.com/stretchr/testify/mock"
 	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/appcontext"
+	"github.com/transcom/mymove/pkg/cli"
 	"github.com/transcom/mymove/pkg/etag"
 	"github.com/transcom/mymove/pkg/factory"
 	fakedata "github.com/transcom/mymove/pkg/fakedata_approved"
@@ -25,6 +27,7 @@ import (
 	routemocks "github.com/transcom/mymove/pkg/route/mocks"
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/services/address"
+	"github.com/transcom/mymove/pkg/services/featureflag"
 	"github.com/transcom/mymove/pkg/services/ghcrateengine"
 	movetaskorder "github.com/transcom/mymove/pkg/services/move_task_order"
 	mtoserviceitem "github.com/transcom/mymove/pkg/services/mto_service_item"
@@ -4240,7 +4243,17 @@ func createHHGWithOriginSITServiceItems(
 		"90210", "30813").Return(2361, nil)
 
 	shipmentUpdater := mtoshipment.NewMTOShipmentStatusUpdater(queryBuilder, serviceItemCreator, planner)
-	_, updateErr := shipmentUpdater.UpdateMTOShipmentStatus(appCtx, shipment.ID, models.MTOShipmentStatusApproved, nil, nil, etag.GenerateEtag(shipment.UpdatedAt))
+
+	v := viper.New()
+	featureFlagFetcher, err := featureflag.NewFeatureFlagFetcher(cli.GetFliptFetcherConfig(v))
+	if err != nil {
+		log.Panicf("Error setting up feature flag fetcher: %s", err)
+	}
+	featureFlagValues, err := handlers.GetAllDomesticMHFlags(appCtx, featureFlagFetcher)
+	if err != nil {
+		log.Panicf("Error fetching mobile home feature flags: %s", err)
+	}
+	_, updateErr := shipmentUpdater.UpdateMTOShipmentStatus(appCtx, shipment.ID, models.MTOShipmentStatusApproved, nil, nil, etag.GenerateEtag(shipment.UpdatedAt), featureFlagValues)
 	if updateErr != nil {
 		logger.Fatal("Error updating shipment status", zap.Error(updateErr))
 	}
@@ -4278,7 +4291,17 @@ func createHHGWithOriginSITServiceItems(
 		},
 	}, nil)
 
-	createdOriginServiceItems, validErrs, createErr := serviceItemCreator.CreateMTOServiceItem(appCtx, &originSIT)
+	featureFlagFetcher, ffFetcherErr := featureflag.NewFeatureFlagFetcher(cli.GetFliptFetcherConfig(v))
+	if ffFetcherErr != nil {
+		logger.Panic(fmt.Sprintf("Error setting up feature flag fetcher: %s", err))
+	}
+
+	featureFlagValues, mobileHomeErr := handlers.GetAllDomesticMHFlags(appCtx, featureFlagFetcher)
+	if mobileHomeErr != nil {
+		logger.Panic(fmt.Sprintf("Error fetching mobile home feature flags: %s", err))
+	}
+
+	createdOriginServiceItems, validErrs, createErr := serviceItemCreator.CreateMTOServiceItem(appCtx, &originSIT, featureFlagValues)
 	if validErrs.HasAny() || createErr != nil {
 		logger.Fatal(fmt.Sprintf("error while creating origin sit service item: %v", verrs.Errors), zap.Error(createErr))
 	}
@@ -4508,7 +4531,18 @@ func createHHGWithDestinationSITServiceItems(appCtx appcontext.AppContext, prime
 		"90210", "30813").Return(2361, nil)
 
 	shipmentUpdater := mtoshipment.NewMTOShipmentStatusUpdater(queryBuilder, serviceItemCreator, planner)
-	_, updateErr := shipmentUpdater.UpdateMTOShipmentStatus(appCtx, shipment.ID, models.MTOShipmentStatusApproved, nil, nil, etag.GenerateEtag(shipment.UpdatedAt))
+
+	v := viper.New()
+	featureFlagFetcher, err := featureflag.NewFeatureFlagFetcher(cli.GetFliptFetcherConfig(v))
+	if err != nil {
+		logger.Panic(fmt.Sprintf("Error setting up feature flag fetcher: %s", err))
+	}
+
+	featureFlagValues, err := handlers.GetAllDomesticMHFlags(appCtx, featureFlagFetcher)
+	if err != nil {
+		logger.Panic(fmt.Sprintf("Error fetching mobile home feature flags: %s", err))
+	}
+	_, updateErr := shipmentUpdater.UpdateMTOShipmentStatus(appCtx, shipment.ID, models.MTOShipmentStatusApproved, nil, nil, etag.GenerateEtag(shipment.UpdatedAt), featureFlagValues)
 	if updateErr != nil {
 		logger.Fatal("Error updating shipment status", zap.Error(updateErr))
 	}
@@ -4540,7 +4574,7 @@ func createHHGWithDestinationSITServiceItems(appCtx appcontext.AppContext, prime
 		},
 	}, nil)
 
-	createdOriginServiceItems, validErrs, createErr := serviceItemCreator.CreateMTOServiceItem(appCtx, &destinationSIT)
+	createdOriginServiceItems, validErrs, createErr := serviceItemCreator.CreateMTOServiceItem(appCtx, &destinationSIT, featureFlagValues)
 	if validErrs.HasAny() || createErr != nil {
 		logger.Fatal(fmt.Sprintf("error while creating origin sit service item: %v", verrs.Errors), zap.Error(createErr))
 	}
@@ -4939,9 +4973,20 @@ func createHHGWithPaymentServiceItems(
 	// called for DLH, DSH, FSC service item estimated price calculations
 	planner.On("ZipTransitDistance", mock.AnythingOfType("*appcontext.appContext"), mock.Anything, mock.Anything).Return(400, nil).Times(3)
 
+	v := viper.New()
+	featureFlagFetcher, err := featureflag.NewFeatureFlagFetcher(cli.GetFliptFetcherConfig(v))
+	if err != nil {
+		logger.Panic(fmt.Sprintf("Error setting up feature flag fetcher: %s", err))
+	}
+
+	featureFlagValues, err := handlers.GetAllDomesticMHFlags(appCtx, featureFlagFetcher)
+	if err != nil {
+		logger.Panic(fmt.Sprintf("Error fetching mobile home feature flags: %s", err))
+	}
+
 	for _, shipment := range []models.MTOShipment{longhaulShipment, shorthaulShipment, shipmentWithOriginalWeight, shipmentWithOriginalAndReweighWeight, shipmentWithOriginalAndReweighWeightReweihBolded, shipmentWithOriginalReweighAndAdjustedWeight, shipmentWithOriginalAndAdjustedWeight} {
 		shipmentUpdater := mtoshipment.NewMTOShipmentStatusUpdater(queryBuilder, serviceItemCreator, planner)
-		_, updateErr := shipmentUpdater.UpdateMTOShipmentStatus(appCtx, shipment.ID, models.MTOShipmentStatusApproved, nil, nil, etag.GenerateEtag(shipment.UpdatedAt))
+		_, updateErr := shipmentUpdater.UpdateMTOShipmentStatus(appCtx, shipment.ID, models.MTOShipmentStatusApproved, nil, nil, etag.GenerateEtag(shipment.UpdatedAt), featureFlagValues)
 		if updateErr != nil {
 			logger.Fatal("Error updating shipment status", zap.Error(updateErr))
 		}
@@ -4986,7 +5031,7 @@ func createHHGWithPaymentServiceItems(
 		},
 	}, nil)
 
-	createdOriginServiceItems, validErrs, createErr := serviceItemCreator.CreateMTOServiceItem(appCtx, &originSIT)
+	createdOriginServiceItems, validErrs, createErr := serviceItemCreator.CreateMTOServiceItem(appCtx, &originSIT, featureFlagValues)
 	if validErrs.HasAny() || createErr != nil {
 		logger.Fatal(fmt.Sprintf("error while creating origin sit service item: %v", verrs.Errors), zap.Error(createErr))
 	}
@@ -5021,7 +5066,7 @@ func createHHGWithPaymentServiceItems(
 		},
 	}, nil)
 
-	createdDestServiceItems, validErrs, createErr := serviceItemCreator.CreateMTOServiceItem(appCtx, &destSIT)
+	createdDestServiceItems, validErrs, createErr := serviceItemCreator.CreateMTOServiceItem(appCtx, &destSIT, featureFlagValues)
 	if validErrs.HasAny() || createErr != nil {
 		logger.Fatal(fmt.Sprintf("error while creating destination sit service item: %v", verrs.Errors), zap.Error(createErr))
 	}
@@ -5144,7 +5189,7 @@ func createHHGWithPaymentServiceItems(
 
 	cratingServiceItems := []models.MTOServiceItem{crating, uncrating}
 	for index := range cratingServiceItems {
-		_, _, cratingErr := serviceItemCreator.CreateMTOServiceItem(appCtx, &cratingServiceItems[index])
+		_, _, cratingErr := serviceItemCreator.CreateMTOServiceItem(appCtx, &cratingServiceItems[index], featureFlagValues)
 		if cratingErr != nil {
 			logger.Fatal("Error creating crating service item", zap.Error(cratingErr))
 		}
@@ -5210,7 +5255,7 @@ func createHHGWithPaymentServiceItems(
 
 	shuttleServiceItems := []models.MTOServiceItem{originShuttle, destShuttle}
 	for index := range shuttleServiceItems {
-		_, _, shuttlingErr := serviceItemCreator.CreateMTOServiceItem(appCtx, &shuttleServiceItems[index])
+		_, _, shuttlingErr := serviceItemCreator.CreateMTOServiceItem(appCtx, &shuttleServiceItems[index], featureFlagValues)
 		if shuttlingErr != nil {
 			logger.Fatal("Error creating shuttle service item", zap.Error(shuttlingErr))
 		}

@@ -64,10 +64,7 @@ func NewGhcAPIHandler(handlerConfig handlers.HandlerConfig) *ghcops.MymoveAPI {
 	}
 	ghcAPI := ghcops.NewMymoveAPI(ghcSpec)
 	queryBuilder := query.NewQueryBuilder()
-	moveRouter, err := move.NewMoveRouter()
-	if err != nil {
-		log.Fatalln(err)
-	}
+	moveRouter := move.NewMoveRouter()
 	moveLocker := movelocker.NewMoveLocker()
 	addressCreator := address.NewAddressCreator()
 	shipmentFetcher := mtoshipment.NewMTOShipmentFetcher()

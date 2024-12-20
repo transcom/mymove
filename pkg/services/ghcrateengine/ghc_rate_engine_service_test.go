@@ -17,30 +17,6 @@ type GHCRateEngineServiceSuite struct {
 	*testingsuite.PopTestSuite
 }
 
-// func (suite *GHCRateEngineServiceSuite) MockGetFlagFunc(_ context.Context, _ *zap.Logger, entityID string, key string, _ map[string]string, mockVariant string, flagValue bool) (services.FeatureFlag, error) {
-// 		return services.FeatureFlag{
-// 			Entity:    entityID,
-// 			Key:       key,
-// 			Match:     flagValue,
-// 			Variant:   mockVariant,
-// 			Namespace: "test",
-// 		}, nil
-// }
-
-// func (suite *GHCRateEngineServiceSuite) SetUpMockFeatureFlagFetcher(flagValue bool) *mocks.FeatureFlagFetcher {
-// 	mockFeatureFlagFetcher := &mocks.FeatureFlagFetcher{}
-// 	mockFeatureFlagFetcher.On("GetBooleanFlagForUser",
-// 		mock.Anything,
-// 		mock.AnythingOfType("*appcontext.appContext"),
-// 		mock.AnythingOfType("string"),
-// 		mock.Anything,
-// 	).Return(func(ctx context.Context, appCtx appcontext.AppContext, key string, flagContext map[string]string) (services.FeatureFlag, error) {
-// 		return suite.MockGetFlagFunc(ctx, appCtx.Logger(), "user@example.com", key, flagContext, "", flagValue)
-// 	})
-
-// 	return mockFeatureFlagFetcher
-// }
-
 func TestGHCRateEngineServiceSuite(t *testing.T) {
 	ts := &GHCRateEngineServiceSuite{
 		PopTestSuite: testingsuite.NewPopTestSuite(testingsuite.CurrentPackage(), testingsuite.WithPerTestTransaction()),

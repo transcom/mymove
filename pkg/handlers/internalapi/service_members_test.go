@@ -392,8 +392,7 @@ func (suite *HandlerSuite) TestPatchServiceMemberHandlerSubmittedMove() {
 	move.Orders.OrdersTypeDetail = nil
 
 	suite.MustSave(&move.Orders)
-	moveRouter, err := moverouter.NewMoveRouter()
-	suite.FatalNoError(err)
+	moveRouter := moverouter.NewMoveRouter()
 	newSignedCertification := factory.BuildSignedCertification(nil, []factory.Customization{
 		{
 			Model:    move,
@@ -401,7 +400,7 @@ func (suite *HandlerSuite) TestPatchServiceMemberHandlerSubmittedMove() {
 		},
 	}, nil)
 
-	err = moveRouter.Submit(suite.AppContextForTest(), &move, &newSignedCertification)
+	err := moveRouter.Submit(suite.AppContextForTest(), &move, &newSignedCertification)
 	suite.NoError(err)
 	suite.MustSave(&move)
 

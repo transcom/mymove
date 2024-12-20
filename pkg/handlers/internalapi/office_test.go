@@ -31,8 +31,7 @@ func (suite *HandlerSuite) TestApproveMoveHandler() {
 	}, nil)
 	// Given: an office User
 	officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
-	moveRouter, err := moverouter.NewMoveRouter()
-	suite.FatalNoError(err)
+	moveRouter := moverouter.NewMoveRouter()
 
 	// Move is submitted and saved
 	newSignedCertification := factory.BuildSignedCertification(nil, []factory.Customization{
@@ -41,7 +40,7 @@ func (suite *HandlerSuite) TestApproveMoveHandler() {
 			LinkOnly: true,
 		},
 	}, nil)
-	err = moveRouter.Submit(suite.AppContextForTest(), &move, &newSignedCertification)
+	err := moveRouter.Submit(suite.AppContextForTest(), &move, &newSignedCertification)
 	suite.NoError(err)
 	suite.Equal(models.MoveStatusSUBMITTED, move.Status, "expected Submitted")
 	suite.MustSave(&move)
@@ -74,8 +73,7 @@ func (suite *HandlerSuite) TestApproveMoveHandlerIncompleteOrders() {
 	move := factory.BuildMove(suite.DB(), nil, nil)
 	// Given: an office User
 	officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
-	moveRouter, err := moverouter.NewMoveRouter()
-	suite.FatalNoError(err)
+	moveRouter := moverouter.NewMoveRouter()
 
 	// Move is submitted and saved
 	newSignedCertification := factory.BuildSignedCertification(nil, []factory.Customization{
@@ -84,7 +82,7 @@ func (suite *HandlerSuite) TestApproveMoveHandlerIncompleteOrders() {
 			LinkOnly: true,
 		},
 	}, nil)
-	err = moveRouter.Submit(suite.AppContextForTest(), &move, &newSignedCertification)
+	err := moveRouter.Submit(suite.AppContextForTest(), &move, &newSignedCertification)
 	suite.NoError(err)
 	suite.Equal(models.MoveStatusSUBMITTED, move.Status, "expected Submitted")
 	suite.MustSave(&move)
@@ -118,8 +116,7 @@ func (suite *HandlerSuite) TestApproveMoveHandlerForbidden() {
 	move := factory.BuildMove(suite.DB(), nil, nil)
 	// Given: an non-office User
 	user := factory.BuildServiceMember(suite.DB(), nil, nil)
-	moveRouter, err := moverouter.NewMoveRouter()
-	suite.FatalNoError(err)
+	moveRouter := moverouter.NewMoveRouter()
 
 	// And: the context contains the auth values
 	req := httptest.NewRequest("POST", "/moves/some_id/approve", nil)
@@ -144,8 +141,7 @@ func (suite *HandlerSuite) TestCancelMoveHandler() {
 	suite.Run("Successfully cancels move", func() {
 		// Given: a set of orders, a move, and office user
 		// Orders has service member with transportation office and phone nums
-		moveRouter, err := moverouter.NewMoveRouter()
-		suite.FatalNoError(err)
+		moveRouter := moverouter.NewMoveRouter()
 
 		// Given: a set of orders, a move, user and servicemember
 		move := factory.BuildMove(suite.DB(), nil, nil)
@@ -175,8 +171,7 @@ func (suite *HandlerSuite) TestCancelMoveHandler() {
 	suite.Run("Fails to cancel someone elses move", func() {
 		// Given: a set of orders, a move, and office user
 		// Orders has service member with transportation office and phone nums
-		moveRouter, err := moverouter.NewMoveRouter()
-		suite.FatalNoError(err)
+		moveRouter := moverouter.NewMoveRouter()
 
 		// Given: a set of orders, a move, user and servicemember
 		move := factory.BuildMove(suite.DB(), nil, nil)
@@ -203,8 +198,7 @@ func (suite *HandlerSuite) TestCancelMoveHandler() {
 	suite.Run("Fails to cancel submitted move", func() {
 		// Given: a set of orders, a move, and office user
 		// Orders has service member with transportation office and phone nums
-		moveRouter, err := moverouter.NewMoveRouter()
-		suite.FatalNoError(err)
+		moveRouter := moverouter.NewMoveRouter()
 
 		// Given: a set of orders, a move, user and servicemember
 		move := factory.BuildMove(suite.DB(), []factory.Customization{

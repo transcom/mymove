@@ -449,7 +449,7 @@ func (f *shipmentAddressUpdateRequester) RequestShipmentDeliveryAddressUpdate(ap
 	return &addressUpdate, nil
 }
 
-func (f *shipmentAddressUpdateRequester) ReviewShipmentAddressChange(appCtx appcontext.AppContext, shipmentID uuid.UUID, tooApprovalStatus models.ShipmentAddressUpdateStatus, tooRemarks string) (*models.ShipmentAddressUpdate, error) {
+func (f *shipmentAddressUpdateRequester) ReviewShipmentAddressChange(appCtx appcontext.AppContext, shipmentID uuid.UUID, tooApprovalStatus models.ShipmentAddressUpdateStatus, tooRemarks string, featureFlagValues map[string]bool) (*models.ShipmentAddressUpdate, error) {
 	var shipment models.MTOShipment
 	var addressUpdate models.ShipmentAddressUpdate
 
@@ -559,7 +559,7 @@ func (f *shipmentAddressUpdateRequester) ReviewShipmentAddressChange(appCtx appc
 
 						// Regenerate approved service items to replace the rejected ones.
 						// Ensure that the updated pricing is applied (e.g. DLH -> DSH, DSH -> DLH etc.)
-						regeneratedServiceItem, _, createErr := serviceItemCreator.CreateMTOServiceItem(appCtx, &copyOfServiceItem)
+						regeneratedServiceItem, _, createErr := serviceItemCreator.CreateMTOServiceItem(appCtx, &copyOfServiceItem, featureFlagValues)
 						if createErr != nil {
 							return nil, createErr
 						}

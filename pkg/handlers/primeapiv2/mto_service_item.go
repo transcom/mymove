@@ -6,10 +6,12 @@ import (
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/gobuffalo/validate/v3"
 	"github.com/gofrs/uuid"
+	"github.com/spf13/viper"
 	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/apperror"
+	"github.com/transcom/mymove/pkg/cli"
 	mtoserviceitemops "github.com/transcom/mymove/pkg/gen/primeapi/primeoperations/mto_service_item"
 	"github.com/transcom/mymove/pkg/gen/primev2messages"
 	"github.com/transcom/mymove/pkg/handlers"
@@ -17,6 +19,7 @@ import (
 	primeapipayloads "github.com/transcom/mymove/pkg/handlers/primeapi/payloads"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
+	"github.com/transcom/mymove/pkg/services/featureflag"
 )
 
 // CreateableServiceItemMap is a map of MTOServiceItemModelTypes and their allowed statuses
@@ -86,8 +89,24 @@ func (h CreateMTOServiceItemHandler) Handle(params mtoserviceitemops.CreateMTOSe
 			var mtoServiceItems *models.MTOServiceItems
 
 			if mtoAvailableToPrime {
+				v := viper.New()
+				featureFlagFetcher, err := featureflag.NewFeatureFlagFetcher(cli.GetFliptFetcherConfig(v))
+				if err != nil {
+					appCtx.Logger().Error(fmt.Sprintf("Error setting up feature flag fetcher: %s", err))
+					return mtoserviceitemops.NewCreateMTOServiceItemInternalServerError().WithPayload(primeapipayloads.InternalServerError(nil, h.GetTraceIDFromRequest(params.HTTPRequest))), err
+				}
+
+				featureFlagValues, err := handlers.GetAllDomesticMHFlags(appCtx, featureFlagFetcher)
+				if err != nil {
+					appCtx.Logger().Error(fmt.Sprintf("Error fetching mobile home feature flags: %s", err))
+					return mtoserviceitemops.NewCreateMTOServiceItemInternalServerError().WithPayload(primeapipayloads.InternalServerError(nil, h.GetTraceIDFromRequest(params.HTTPRequest))), err
+				}
 				mtoServiceItem.Status = models.MTOServiceItemStatusSubmitted
-				mtoServiceItems, verrs, err = h.mtoServiceItemCreator.CreateMTOServiceItem(appCtx, mtoServiceItem)
+				mtoServiceItems, verrs, err = h.mtoServiceItemCreator.CreateMTOServiceItem(appCtx, mtoServiceItem, featureFlagValues)
+				if err != nil {
+					appCtx.Logger().Error(fmt.Sprintf("Error creating MTO Service Item: %s", err))
+					return mtoserviceitemops.NewCreateMTOServiceItemInternalServerError().WithPayload(primeapipayloads.InternalServerError(nil, h.GetTraceIDFromRequest(params.HTTPRequest))), err
+				}
 			} else if err == nil {
 				primeErr := apperror.NewNotFoundError(moveTaskOrderID, "primeapi.CreateMTOServiceItemHandler error - MTO is not available to Prime")
 				appCtx.Logger().Error(primeErr.Error())

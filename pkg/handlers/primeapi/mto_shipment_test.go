@@ -204,8 +204,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentStatusHandler() {
 		mock.Anything,
 		mock.Anything,
 	).Return(400, nil)
-	moveRouter, err := moveservices.NewMoveRouter()
-	suite.FatalNoError(err)
+	moveRouter := moveservices.NewMoveRouter()
 	addressUpdater := address.NewAddressUpdater()
 	addressCreator := address.NewAddressCreator()
 	moveWeights := moveservices.NewMoveWeights(mtoshipment.NewShipmentReweighRequester())
@@ -408,8 +407,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentStatusHandler() {
 func (suite *HandlerSuite) TestDeleteMTOShipmentHandler() {
 	setupTestData := func() DeleteMTOShipmentHandler {
 		builder := query.NewQueryBuilder()
-		moveRouter, err := moveservices.NewMoveRouter()
-		suite.FatalNoError(err)
+		moveRouter := moveservices.NewMoveRouter()
 		planner := &routemocks.Planner{}
 		planner.On("ZipTransitDistance",
 			mock.AnythingOfType("*appcontext.appContext"),

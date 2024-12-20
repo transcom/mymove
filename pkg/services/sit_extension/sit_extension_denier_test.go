@@ -15,8 +15,7 @@ import (
 )
 
 func (suite *SitExtensionServiceSuite) TestDenySITExtension() {
-	moveRouter, err := moverouter.NewMoveRouter()
-	suite.FatalNoError(err)
+	moveRouter := moverouter.NewMoveRouter()
 	sitExtensionDenier := NewSITExtensionDenier(moveRouter)
 
 	suite.Run("Returns an error when shipment is not found", func() {

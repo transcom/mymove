@@ -15,8 +15,7 @@ import (
 
 func (suite *MTOShipmentServiceSuite) TestRequestShipmentCancellation() {
 	router := NewShipmentRouter()
-	moveRouter, err := moveservices.NewMoveRouter()
-	suite.FatalNoError(err)
+	moveRouter := moveservices.NewMoveRouter()
 	requester := NewShipmentCancellationRequester(router, moveRouter)
 
 	suite.Run("If the shipment diversion is requested successfully, it should update the shipment status in the DB", func() {
@@ -109,8 +108,7 @@ func (suite *MTOShipmentServiceSuite) TestRequestShipmentCancellation() {
 
 	suite.Run("It calls RequestCancellation on the ShipmentRouter", func() {
 		shipmentRouter := NewShipmentRouter()
-		moveRouter, err := moveservices.NewMoveRouter()
-		suite.FatalNoError(err)
+		moveRouter := moveservices.NewMoveRouter()
 		requester := NewShipmentCancellationRequester(shipmentRouter, moveRouter)
 		// valid pickupdate is anytime after the request to cancel date
 		actualPickupDate := time.Now().AddDate(0, 0, 1)
@@ -128,7 +126,7 @@ func (suite *MTOShipmentServiceSuite) TestRequestShipmentCancellation() {
 			OfficeUserID:    uuid.Must(uuid.NewV4()),
 		})
 		createdShipment := models.MTOShipment{}
-		err = suite.DB().Find(&createdShipment, shipment.ID)
+		err := suite.DB().Find(&createdShipment, shipment.ID)
 		suite.FatalNoError(err)
 
 		_, err = requester.RequestShipmentCancellation(session, shipment.ID, eTag)
@@ -145,8 +143,7 @@ func (suite *MTOShipmentServiceSuite) TestRequestShipmentCancellation() {
 
 	suite.Run("It calls RequestCancellation on shipment with invalid actualPickupDate", func() {
 		shipmentRouter := NewShipmentRouter()
-		moveRouter, err := moveservices.NewMoveRouter()
-		suite.FatalNoError(err)
+		moveRouter := moveservices.NewMoveRouter()
 		requester := NewShipmentCancellationRequester(shipmentRouter, moveRouter)
 		actualPickupDate := time.Now()
 		shipment := factory.BuildMTOShipmentMinimal(suite.DB(), []factory.Customization{
@@ -165,7 +162,7 @@ func (suite *MTOShipmentServiceSuite) TestRequestShipmentCancellation() {
 		createdShipment := models.MTOShipment{
 			ActualPickupDate: &actualPickupDate,
 		}
-		err = suite.DB().Find(&createdShipment, shipment.ID)
+		err := suite.DB().Find(&createdShipment, shipment.ID)
 		suite.FatalNoError(err)
 
 		_, err = requester.RequestShipmentCancellation(session, shipment.ID, eTag)

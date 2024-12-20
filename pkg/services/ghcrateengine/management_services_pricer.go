@@ -35,7 +35,7 @@ func (p managementServicesPricer) Price(appCtx appcontext.AppContext, lockedPric
 }
 
 // PriceUsingParams determines the price for a management service given PaymentServiceItemParams
-func (p managementServicesPricer) PriceUsingParams(appCtx appcontext.AppContext, params models.PaymentServiceItemParams) (unit.Cents, services.PricingDisplayParams, error) {
+func (p managementServicesPricer) PriceUsingParams(appCtx appcontext.AppContext, params models.PaymentServiceItemParams, featureFlagValues map[string]bool) (unit.Cents, services.PricingDisplayParams, error) {
 
 	lockedPriceCents, err := getParamInt(params, models.ServiceItemParamNameLockedPriceCents)
 	if err != nil {

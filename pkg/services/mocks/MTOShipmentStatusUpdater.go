@@ -16,9 +16,9 @@ type MTOShipmentStatusUpdater struct {
 	mock.Mock
 }
 
-// UpdateMTOShipmentStatus provides a mock function with given fields: appCtx, shipmentID, status, rejectionReason, diversionReason, eTag
-func (_m *MTOShipmentStatusUpdater) UpdateMTOShipmentStatus(appCtx appcontext.AppContext, shipmentID uuid.UUID, status models.MTOShipmentStatus, rejectionReason *string, diversionReason *string, eTag string) (*models.MTOShipment, error) {
-	ret := _m.Called(appCtx, shipmentID, status, rejectionReason, diversionReason, eTag)
+// UpdateMTOShipmentStatus provides a mock function with given fields: appCtx, shipmentID, status, rejectionReason, diversionReason, eTag, featureFlagValues
+func (_m *MTOShipmentStatusUpdater) UpdateMTOShipmentStatus(appCtx appcontext.AppContext, shipmentID uuid.UUID, status models.MTOShipmentStatus, rejectionReason *string, diversionReason *string, eTag string, featureFlagValues map[string]bool) (*models.MTOShipment, error) {
+	ret := _m.Called(appCtx, shipmentID, status, rejectionReason, diversionReason, eTag, featureFlagValues)
 
 	if len(ret) == 0 {
 		panic("no return value specified for UpdateMTOShipmentStatus")
@@ -26,19 +26,19 @@ func (_m *MTOShipmentStatusUpdater) UpdateMTOShipmentStatus(appCtx appcontext.Ap
 
 	var r0 *models.MTOShipment
 	var r1 error
-	if rf, ok := ret.Get(0).(func(appcontext.AppContext, uuid.UUID, models.MTOShipmentStatus, *string, *string, string) (*models.MTOShipment, error)); ok {
-		return rf(appCtx, shipmentID, status, rejectionReason, diversionReason, eTag)
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, uuid.UUID, models.MTOShipmentStatus, *string, *string, string, map[string]bool) (*models.MTOShipment, error)); ok {
+		return rf(appCtx, shipmentID, status, rejectionReason, diversionReason, eTag, featureFlagValues)
 	}
-	if rf, ok := ret.Get(0).(func(appcontext.AppContext, uuid.UUID, models.MTOShipmentStatus, *string, *string, string) *models.MTOShipment); ok {
-		r0 = rf(appCtx, shipmentID, status, rejectionReason, diversionReason, eTag)
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, uuid.UUID, models.MTOShipmentStatus, *string, *string, string, map[string]bool) *models.MTOShipment); ok {
+		r0 = rf(appCtx, shipmentID, status, rejectionReason, diversionReason, eTag, featureFlagValues)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*models.MTOShipment)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(appcontext.AppContext, uuid.UUID, models.MTOShipmentStatus, *string, *string, string) error); ok {
-		r1 = rf(appCtx, shipmentID, status, rejectionReason, diversionReason, eTag)
+	if rf, ok := ret.Get(1).(func(appcontext.AppContext, uuid.UUID, models.MTOShipmentStatus, *string, *string, string, map[string]bool) error); ok {
+		r1 = rf(appCtx, shipmentID, status, rejectionReason, diversionReason, eTag, featureFlagValues)
 	} else {
 		r1 = ret.Error(1)
 	}

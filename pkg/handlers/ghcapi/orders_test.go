@@ -392,8 +392,7 @@ func (suite *HandlerSuite) makeUpdateOrderHandlerAmendedUploadSubtestData() (sub
 func (suite *HandlerSuite) TestUpdateOrderHandlerWithAmendedUploads() {
 
 	queryBuilder := query.NewQueryBuilder()
-	moveRouter, err := moverouter.NewMoveRouter()
-	suite.FatalNoError(err)
+	moveRouter := moverouter.NewMoveRouter()
 	planner := &routemocks.Planner{}
 	planner.On("ZipTransitDistance",
 		mock.AnythingOfType("*appcontext.appContext"),
@@ -726,8 +725,7 @@ func (suite *HandlerSuite) TestUpdateOrderHandler() {
 		}
 
 		moveTaskOrderUpdater := mocks.MoveTaskOrderUpdater{}
-		moveRouter, err := moverouter.NewMoveRouter()
-		suite.FatalNoError(err)
+		moveRouter := moverouter.NewMoveRouter()
 		handler := UpdateOrderHandler{
 			handlerConfig,
 			orderservice.NewOrderUpdater(moveRouter),
@@ -1019,8 +1017,7 @@ func (suite *HandlerSuite) TestCounselingUpdateOrderHandler() {
 			Body:        body,
 		}
 
-		moveRouter, err := moverouter.NewMoveRouter()
-		suite.FatalNoError(err)
+		moveRouter := moverouter.NewMoveRouter()
 		handler := CounselingUpdateOrderHandler{
 			handlerConfig,
 			orderservice.NewOrderUpdater(moveRouter),
@@ -1268,8 +1265,7 @@ func (suite *HandlerSuite) TestUpdateAllowanceHandler() {
 			Body:        body,
 		}
 
-		moveRouter, err := moverouter.NewMoveRouter()
-		suite.FatalNoError(err)
+		moveRouter := moverouter.NewMoveRouter()
 		handler := UpdateAllowanceHandler{
 			handlerConfig,
 			orderservice.NewOrderUpdater(moveRouter),
@@ -1497,8 +1493,7 @@ func (suite *HandlerSuite) TestCounselingUpdateAllowanceHandler() {
 			Body:        body,
 		}
 
-		moveRouter, err := moverouter.NewMoveRouter()
-		suite.FatalNoError(err)
+		moveRouter := moverouter.NewMoveRouter()
 		handler := CounselingUpdateAllowanceHandler{
 			handlerConfig,
 			orderservice.NewOrderUpdater(moveRouter),
@@ -1656,8 +1651,7 @@ func (suite *HandlerSuite) TestUpdateMaxBillableWeightAsTIOHandler() {
 			Body:        body,
 		}
 
-		router, err := moverouter.NewMoveRouter()
-		suite.FatalNoError(err)
+		router := moverouter.NewMoveRouter()
 		handler := UpdateMaxBillableWeightAsTIOHandler{
 			handlerConfig,
 			orderservice.NewExcessWeightRiskManager(router),
@@ -1820,8 +1814,7 @@ func (suite *HandlerSuite) TestUpdateBillableWeightHandler() {
 			Body:        body,
 		}
 
-		router, err := moverouter.NewMoveRouter()
-		suite.FatalNoError(err)
+		router := moverouter.NewMoveRouter()
 		handler := UpdateBillableWeightHandler{
 			handlerConfig,
 			orderservice.NewExcessWeightRiskManager(router),
@@ -2037,8 +2030,7 @@ func (suite *HandlerSuite) TestAcknowledgeExcessWeightRiskHandler() {
 			IfMatch:     etag.GenerateEtag(move.UpdatedAt),
 		}
 
-		router, err := moverouter.NewMoveRouter()
-		suite.FatalNoError(err)
+		router := moverouter.NewMoveRouter()
 		handler := AcknowledgeExcessWeightRiskHandler{
 			handlerConfig,
 			orderservice.NewExcessWeightRiskManager(router),
@@ -2211,8 +2203,7 @@ func (suite *HandlerSuite) TestacknowledgeExcessUnaccompaniedBaggageWeightRiskHa
 			IfMatch:     etag.GenerateEtag(move.UpdatedAt),
 		}
 
-		router, err := moverouter.NewMoveRouter()
-		suite.FatalNoError(err)
+		router := moverouter.NewMoveRouter()
 		handler := AcknowledgeExcessUnaccompaniedBaggageWeightRiskHandler{
 			handlerConfig,
 			orderservice.NewExcessWeightRiskManager(router),
@@ -2622,8 +2613,7 @@ func (suite *HandlerSuite) TestUploadAmendedOrdersHandlerUnit() {
 }
 
 func (suite *HandlerSuite) TestUploadAmendedOrdersHandlerIntegration() {
-	moveRouter, err := moverouter.NewMoveRouter()
-	suite.FatalNoError(err)
+	moveRouter := moverouter.NewMoveRouter()
 	orderUpdater := orderservice.NewOrderUpdater(moveRouter)
 
 	setUpRequestAndParams := func(orders models.Order) *orderop.UploadAmendedOrdersParams {

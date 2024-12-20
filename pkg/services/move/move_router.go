@@ -20,8 +20,8 @@ type moveRouter struct {
 }
 
 // NewMoveRouter creates a new moveRouter service
-func NewMoveRouter() (services.MoveRouter, error) {
-	return &moveRouter{}, nil
+func NewMoveRouter() services.MoveRouter {
+	return &moveRouter{}
 }
 
 // Submit is called when the customer submits amended orders or submits their move. It determines whether

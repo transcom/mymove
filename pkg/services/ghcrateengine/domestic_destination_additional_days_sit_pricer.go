@@ -23,7 +23,7 @@ func (p domesticDestinationAdditionalDaysSITPricer) Price(appCtx appcontext.AppC
 }
 
 // PriceUsingParams determines the price for domestic destination first day SIT given PaymentServiceItemParams
-func (p domesticDestinationAdditionalDaysSITPricer) PriceUsingParams(appCtx appcontext.AppContext, params models.PaymentServiceItemParams) (unit.Cents, services.PricingDisplayParams, error) {
+func (p domesticDestinationAdditionalDaysSITPricer) PriceUsingParams(appCtx appcontext.AppContext, params models.PaymentServiceItemParams, featureFlagValues map[string]bool) (unit.Cents, services.PricingDisplayParams, error) {
 	contractCode, err := getParamString(params, models.ServiceItemParamNameContractCode)
 	if err != nil {
 		return unit.Cents(0), nil, err

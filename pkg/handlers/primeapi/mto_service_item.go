@@ -44,6 +44,11 @@ func (h CreateMTOServiceItemHandler) Handle(params mtoserviceitemops.CreateMTOSe
 	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
 		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
 
+			featureFlagValues, err := handlers.GetAllDomesticMHFlags(appCtx, h.FeatureFlagFetcher())
+			if err != nil {
+				appCtx.Logger().Error("Error fetching feature flags for Domestic Mobile Homes.", zap.Error(err))
+			}
+
 			/** Feature Flag - Alaska **/
 			isAlaskaEnabled := false
 			featureFlagName := "enable_alaska"
@@ -89,7 +94,7 @@ func (h CreateMTOServiceItemHandler) Handle(params mtoserviceitemops.CreateMTOSe
 
 			if mtoAvailableToPrime {
 				mtoServiceItem.Status = models.MTOServiceItemStatusSubmitted
-				mtoServiceItems, verrs, err = h.mtoServiceItemCreator.CreateMTOServiceItem(appCtx, mtoServiceItem)
+				mtoServiceItems, verrs, err = h.mtoServiceItemCreator.CreateMTOServiceItem(appCtx, mtoServiceItem, featureFlagValues)
 			} else if err == nil {
 				primeErr := apperror.NewNotFoundError(moveTaskOrderID, "primeapi.CreateMTOServiceItemHandler error - MTO is not available to Prime")
 				appCtx.Logger().Error(primeErr.Error())

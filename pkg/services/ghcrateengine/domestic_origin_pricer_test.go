@@ -49,7 +49,7 @@ func (suite *GHCRateEngineServiceSuite) TestPriceDomesticOriginWithServiceItemPa
 			}, nil, nil,
 		)
 
-		_, _, err := pricer.PriceUsingParams(suite.AppContextForTest(), paymentServiceItem.PaymentServiceItemParams)
+		_, _, err := pricer.PriceUsingParams(suite.AppContextForTest(), paymentServiceItem.PaymentServiceItemParams, nil)
 		suite.Error(err)
 		suite.Equal("Weight must be a minimum of 500", err.Error())
 	})
@@ -62,7 +62,7 @@ func (suite *GHCRateEngineServiceSuite) TestPriceDomesticOriginWithServiceItemPa
 		suite.setUpDomesticOriginData()
 		paymentServiceItem := suite.setupDomesticOriginServiceItems()
 
-		cost, displayParams, err := pricer.PriceUsingParams(suite.AppContextForTest(), paymentServiceItem.PaymentServiceItemParams)
+		cost, displayParams, err := pricer.PriceUsingParams(suite.AppContextForTest(), paymentServiceItem.PaymentServiceItemParams, nil)
 		expectedCost := unit.Cents(5472)
 
 		suite.NoError(err)
@@ -82,25 +82,25 @@ func (suite *GHCRateEngineServiceSuite) TestPriceDomesticOriginWithServiceItemPa
 		paymentServiceItem := suite.setupDomesticOriginServiceItems()
 
 		// No contract code
-		_, _, err := pricer.PriceUsingParams(suite.AppContextForTest(), models.PaymentServiceItemParams{})
+		_, _, err := pricer.PriceUsingParams(suite.AppContextForTest(), models.PaymentServiceItemParams{}, nil)
 		suite.Error(err)
 		suite.Equal("could not find param with key ContractCode", err.Error())
 
 		// No reference date
 		missingReferenceDate := suite.removeOnePaymentServiceItem(paymentServiceItem.PaymentServiceItemParams, models.ServiceItemParamNameReferenceDate)
-		_, _, err = pricer.PriceUsingParams(suite.AppContextForTest(), missingReferenceDate)
+		_, _, err = pricer.PriceUsingParams(suite.AppContextForTest(), missingReferenceDate, nil)
 		suite.Error(err)
 		suite.Equal("could not find param with key ReferenceDate", err.Error())
 
 		// No weight
 		missingBilledWeight := suite.removeOnePaymentServiceItem(paymentServiceItem.PaymentServiceItemParams, models.ServiceItemParamNameWeightBilled)
-		_, _, err = pricer.PriceUsingParams(suite.AppContextForTest(), missingBilledWeight)
+		_, _, err = pricer.PriceUsingParams(suite.AppContextForTest(), missingBilledWeight, nil)
 		suite.Error(err)
 		suite.Equal("could not find param with key WeightBilled", err.Error())
 
 		// No service area
 		missingServiceAreaOrigin := suite.removeOnePaymentServiceItem(paymentServiceItem.PaymentServiceItemParams, models.ServiceItemParamNameServiceAreaOrigin)
-		_, _, err = pricer.PriceUsingParams(suite.AppContextForTest(), missingServiceAreaOrigin)
+		_, _, err = pricer.PriceUsingParams(suite.AppContextForTest(), missingServiceAreaOrigin, nil)
 		suite.Error(err)
 		suite.Equal("could not find param with key ServiceAreaOrigin", err.Error())
 	})
@@ -277,16 +277,16 @@ func (suite *GHCRateEngineServiceSuite) TestPriceDomesticOrigin() {
 		weightBilledIndex := 3
 
 		params[weightBilledIndex].Value = "500"
-		basePriceCents, displayParams, err := pricer.PriceUsingParams(suite.AppContextForTest(), paymentServiceItem.PaymentServiceItemParams)
+		basePriceCents, displayParams, err := pricer.PriceUsingParams(suite.AppContextForTest(), paymentServiceItem.PaymentServiceItemParams, nil)
 		suite.NoError(err)
 
 		params[weightBilledIndex].Value = "250"
-		halfPriceCents, _, err := pricer.PriceUsingParams(suite.AppContextForTest(), paymentServiceItem.PaymentServiceItemParams)
+		halfPriceCents, _, err := pricer.PriceUsingParams(suite.AppContextForTest(), paymentServiceItem.PaymentServiceItemParams, nil)
 		suite.NoError(err)
 		suite.Equal(basePriceCents/2, halfPriceCents)
 
 		params[weightBilledIndex].Value = "100"
-		fifthPriceCents, _, err := pricer.PriceUsingParams(suite.AppContextForTest(), paymentServiceItem.PaymentServiceItemParams)
+		fifthPriceCents, _, err := pricer.PriceUsingParams(suite.AppContextForTest(), paymentServiceItem.PaymentServiceItemParams, nil)
 		suite.NoError(err)
 		suite.Equal(basePriceCents/5, fifthPriceCents)
 

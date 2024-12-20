@@ -18,7 +18,7 @@ func (suite *GHCRateEngineServiceSuite) TestPriceManagementServices() {
 		paymentServiceItem := suite.setupManagementServicesItem()
 		managementServicesPricer := NewManagementServicesPricer()
 
-		priceCents, displayParams, err := managementServicesPricer.PriceUsingParams(suite.AppContextForTest(), paymentServiceItem.PaymentServiceItemParams)
+		priceCents, displayParams, err := managementServicesPricer.PriceUsingParams(suite.AppContextForTest(), paymentServiceItem.PaymentServiceItemParams, nil)
 		suite.NoError(err)
 		suite.Equal(msPriceCents, priceCents)
 
@@ -42,7 +42,7 @@ func (suite *GHCRateEngineServiceSuite) TestPriceManagementServices() {
 		suite.setupTaskOrderFeeData(models.ReServiceCodeMS, msPriceCents)
 		managementServicesPricer := NewManagementServicesPricer()
 
-		_, _, err := managementServicesPricer.PriceUsingParams(suite.AppContextForTest(), models.PaymentServiceItemParams{})
+		_, _, err := managementServicesPricer.PriceUsingParams(suite.AppContextForTest(), models.PaymentServiceItemParams{}, nil)
 		suite.Error(err)
 	})
 }
