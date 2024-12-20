@@ -183,7 +183,7 @@ func (h UpdatePaymentRequestStatusHandler) Handle(
 			}
 
 			// And now let's save our updated model object using the PaymentRequestUpdater service object.
-			updatedPaymentRequest, err := h.PaymentRequestStatusUpdater.UpdatePaymentRequestStatusAndCheckAssignment(
+			updatedPaymentRequest, err := h.PaymentRequestStatusUpdater.UpdatePaymentRequestStatus(
 				appCtx,
 				&existingPaymentRequest,
 				params.IfMatch,
