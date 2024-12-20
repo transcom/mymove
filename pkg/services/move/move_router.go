@@ -411,7 +411,8 @@ func allSITExtensionsAreReviewed(move models.Move) bool {
 
 func allShipmentsAreApproved(move models.Move) bool {
 	for _, shipment := range move.MTOShipments {
-		if shipment.Status == models.MTOShipmentStatusSubmitted {
+		// ignores deleted shipments
+		if shipment.Status == models.MTOShipmentStatusSubmitted && shipment.DeletedAt == nil {
 			return false
 		}
 	}

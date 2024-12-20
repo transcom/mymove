@@ -684,6 +684,10 @@ definitions:
       transportationOfficeId:
         type: string
         format: uuid
+      transportationOfficeAssignments:
+        type: array
+        items:
+          $ref: '#/definitions/TransportationOfficeAssignment'
       active:
         type: boolean
       roles:
@@ -722,6 +726,7 @@ definitions:
       - email
       - telephone
       - transportationOfficeId
+      - transportationOfficeAssignments
       - active
       - roles
       - edipi
@@ -753,10 +758,10 @@ definitions:
         format: telephone
         pattern: ^[2-9]\d{2}-\d{3}-\d{4}$
         example: 212-555-5555
-      transportationOfficeId:
-        type: string
-        format: uuid
-        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      transportationOfficeAssignments:
+        type: array
+        items:
+          $ref: '#/definitions/OfficeUserTransportationOfficeAssignment'
       roles:
         type: array
         items:
@@ -795,10 +800,10 @@ definitions:
         type: array
         items:
           $ref: '#/definitions/OfficeUserRole'
-      transportationOfficeId:
-        type: string
-        format: uuid
-        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      transportationOfficeAssignments:
+        type: array
+        items:
+          $ref: '#/definitions/OfficeUserTransportationOfficeAssignment'
       privileges:
         type: array
         items:
@@ -829,6 +834,18 @@ definitions:
         example: supervisor
         x-nullable: true
         title: privilegeType
+  OfficeUserTransportationOfficeAssignment:
+    type: object
+    properties:
+      transportationOfficeId:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+        title: transportationOfficeId
+      primaryOffice:
+        type: boolean
+        x-nullable: true
+        title: primaryOffice
   OfficeUsers:
     type: array
     items:
@@ -957,6 +974,30 @@ definitions:
       privilegeName:
         type: string
         example: Supervisor
+      createdAt:
+        type: string
+        format: date-time
+        readOnly: true
+      updatedAt:
+        type: string
+        format: date-time
+        readOnly: true
+  TransportationOfficeAssignment:
+    type: object
+    properties:
+      officeUserId:
+        type: string
+        format: uuid
+        example: c56a4780-65aa-42ec-a945-5fd87dec0538
+      transportationOfficeId:
+        type: string
+        format: uuid
+        example: d67a4780-65aa-42ec-a945-5fd87dec0549
+      transportationOffice:
+        $ref: '#/definitions/TransportationOffice'
+      primaryOffice:
+        type: boolean
+        x-omitempty: false
       createdAt:
         type: string
         format: date-time
@@ -1918,6 +1959,38 @@ paths:
               description: Used for pagination
           schema:
             $ref: '#/definitions/TransportationOffices'
+        '400':
+          description: invalid request
+        '401':
+          description: request requires user authentication
+        '404':
+          description: Transportation Office not found
+        '500':
+          description: server error
+  /offices/{officeId}:
+    get:
+      produces:
+        - application/json
+      summary: Get Transportation Office by ID
+      description: >
+        This endpoint returns a list of Transportation Offices. Do not use this
+        endpoint
+
+        directly as it is meant to be used with the Admin UI exclusively.
+      operationId: getOfficeById
+      tags:
+        - Transportation offices
+      parameters:
+        - in: path
+          name: officeId
+          type: string
+          format: uuid
+          required: true
+      responses:
+        '200':
+          description: success
+          schema:
+            $ref: '#/definitions/TransportationOffice'
         '400':
           description: invalid request
         '401':

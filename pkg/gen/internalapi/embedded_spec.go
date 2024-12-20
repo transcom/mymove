@@ -4122,6 +4122,12 @@ func init() {
         "new_duty_location_id"
       ],
       "properties": {
+        "accompanied_tour": {
+          "description": "Indicates if the move entitlement allows dependents to travel to the new Permanent Duty Station (PDS). This is only present on OCONUS moves.",
+          "type": "boolean",
+          "x-nullable": true,
+          "example": true
+        },
         "counseling_office_id": {
           "type": "string",
           "format": "uuid",
@@ -4130,6 +4136,18 @@ func init() {
         },
         "department_indicator": {
           "$ref": "#/definitions/DeptIndicator"
+        },
+        "dependents_twelve_and_over": {
+          "description": "Indicates the number of dependents of the age twelve or older for a move. This is only present on OCONUS moves.",
+          "type": "integer",
+          "x-nullable": true,
+          "example": 3
+        },
+        "dependents_under_twelve": {
+          "description": "Indicates the number of dependents under the age of twelve for a move. This is only present on OCONUS moves.",
+          "type": "integer",
+          "x-nullable": true,
+          "example": 5
         },
         "grade": {
           "$ref": "#/definitions/OrderPayGrade"
@@ -4382,6 +4400,24 @@ func init() {
     "Entitlement": {
       "type": "object",
       "properties": {
+        "accompanied_tour": {
+          "description": "Indicates if the move entitlement allows dependents to travel to the new Permanent Duty Station (PDS). This is only present on OCONUS moves.",
+          "type": "boolean",
+          "x-nullable": true,
+          "example": true
+        },
+        "dependents_twelve_and_over": {
+          "description": "Indicates the number of dependents of the age twelve or older for a move. This is only present on OCONUS moves.",
+          "type": "integer",
+          "x-nullable": true,
+          "example": 3
+        },
+        "dependents_under_twelve": {
+          "description": "Indicates the number of dependents under the age of twelve for a move. This is only present on OCONUS moves.",
+          "type": "integer",
+          "x-nullable": true,
+          "example": 5
+        },
         "proGear": {
           "description": "Pro-gear weight limit as set by an Office user, distinct from the service member's default weight allotment determined by pay grade\n",
           "type": "integer",
@@ -4393,6 +4429,12 @@ func init() {
           "type": "integer",
           "x-nullable": true,
           "example": 500
+        },
+        "ub_allowance": {
+          "description": "The amount of weight in pounds that the move is entitled for shipment types of Unaccompanied Baggage.",
+          "type": "integer",
+          "x-nullable": true,
+          "example": 3
         }
       }
     },
@@ -5314,14 +5356,7 @@ func init() {
           "example": "2018-04-25"
         },
         "orders_type": {
-          "type": "string",
-          "title": "Move Type",
-          "enum": [
-            "PCS - OCONUS",
-            "PCS - CONUS",
-            "PCS + TDY - OCONUS",
-            "PCS + TDY - CONUS"
-          ]
+          "$ref": "#/definitions/OrdersType"
         },
         "origin_duty_location_name": {
           "type": "string",
@@ -5661,6 +5696,12 @@ func init() {
         "transportation_office": {
           "$ref": "#/definitions/TransportationOffice"
         },
+        "transportation_office_assignments": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/TransportationOfficeAssignment"
+          }
+        },
         "updated_at": {
           "type": "string",
           "format": "date-time"
@@ -5975,15 +6016,19 @@ func init() {
         "WOUNDED_WARRIOR",
         "BLUEBARK",
         "SAFETY",
-        "TEMPORARY_DUTY"
+        "TEMPORARY_DUTY",
+        "EARLY_RETURN_OF_DEPENDENTS",
+        "STUDENT_TRAVEL"
       ],
       "x-display-value": {
         "BLUEBARK": "BLUEBARK",
+        "EARLY_RETURN_OF_DEPENDENTS": "Early Return of Dependents",
         "LOCAL_MOVE": "Local Move",
         "PERMANENT_CHANGE_OF_STATION": "Permanent Change Of Station",
         "RETIREMENT": "Retirement",
         "SAFETY": "Safety",
         "SEPARATION": "Separation",
+        "STUDENT_TRAVEL": "Student Travel",
         "TEMPORARY_DUTY": "Temporary Duty (TDY)",
         "WOUNDED_WARRIOR": "Wounded Warrior"
       }
@@ -6276,6 +6321,13 @@ func init() {
         "advanceStatus": {
           "$ref": "#/definitions/PPMAdvanceStatus"
         },
+        "allowableWeight": {
+          "description": "The allowable weight of the PPM shipment goods being moved.",
+          "type": "integer",
+          "x-nullable": true,
+          "x-omitempty": false,
+          "example": 4300
+        },
         "approvedAt": {
           "description": "The timestamp of when the shipment was approved and the service member can begin their move.",
           "type": "string",
@@ -6375,6 +6427,13 @@ func init() {
           "x-nullable": true,
           "x-omitempty": false,
           "example": false
+        },
+        "maxIncentive": {
+          "description": "The max amount the government will pay the service member to move their belongings based on the moving date, locations, and shipment weight.",
+          "type": "integer",
+          "format": "cents",
+          "x-nullable": true,
+          "x-omitempty": false
         },
         "movingExpenses": {
           "description": "All expense documentation receipt records of this PPM shipment.",
@@ -7409,6 +7468,43 @@ func init() {
         }
       }
     },
+    "TransportationOfficeAssignment": {
+      "type": "object",
+      "required": [
+        "officeUserId",
+        "transportationOfficeId",
+        "primaryOffice"
+      ],
+      "properties": {
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        },
+        "officeUserId": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4780-65aa-42ec-a945-5fd87dec0538"
+        },
+        "primaryOffice": {
+          "type": "boolean",
+          "x-omitempty": false
+        },
+        "transportationOffice": {
+          "$ref": "#/definitions/TransportationOffice"
+        },
+        "transportationOfficeId": {
+          "type": "string",
+          "format": "uuid",
+          "example": "d67a4780-65aa-42ec-a945-5fd87dec0549"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        }
+      }
+    },
     "TransportationOffices": {
       "type": "array",
       "items": {
@@ -7852,10 +7948,6 @@ func init() {
           "description": "Indicates the adjusted net weight of the vehicle",
           "type": "integer"
         },
-        "allowableWeight": {
-          "description": "Indicates the maximum reimbursable weight of the shipment",
-          "type": "integer"
-        },
         "emptyWeight": {
           "description": "Weight of the vehicle when empty.",
           "type": "integer"
@@ -8043,12 +8135,6 @@ func init() {
       "properties": {
         "adjustedNetWeight": {
           "description": "Indicates the adjusted net weight of the vehicle",
-          "type": "integer",
-          "x-nullable": true,
-          "x-omitempty": false
-        },
-        "allowableWeight": {
-          "description": "Maximum reimbursable weight.",
           "type": "integer",
           "x-nullable": true,
           "x-omitempty": false
@@ -12950,6 +13036,12 @@ func init() {
         "new_duty_location_id"
       ],
       "properties": {
+        "accompanied_tour": {
+          "description": "Indicates if the move entitlement allows dependents to travel to the new Permanent Duty Station (PDS). This is only present on OCONUS moves.",
+          "type": "boolean",
+          "x-nullable": true,
+          "example": true
+        },
         "counseling_office_id": {
           "type": "string",
           "format": "uuid",
@@ -12958,6 +13050,18 @@ func init() {
         },
         "department_indicator": {
           "$ref": "#/definitions/DeptIndicator"
+        },
+        "dependents_twelve_and_over": {
+          "description": "Indicates the number of dependents of the age twelve or older for a move. This is only present on OCONUS moves.",
+          "type": "integer",
+          "x-nullable": true,
+          "example": 3
+        },
+        "dependents_under_twelve": {
+          "description": "Indicates the number of dependents under the age of twelve for a move. This is only present on OCONUS moves.",
+          "type": "integer",
+          "x-nullable": true,
+          "example": 5
         },
         "grade": {
           "$ref": "#/definitions/OrderPayGrade"
@@ -13212,6 +13316,24 @@ func init() {
     "Entitlement": {
       "type": "object",
       "properties": {
+        "accompanied_tour": {
+          "description": "Indicates if the move entitlement allows dependents to travel to the new Permanent Duty Station (PDS). This is only present on OCONUS moves.",
+          "type": "boolean",
+          "x-nullable": true,
+          "example": true
+        },
+        "dependents_twelve_and_over": {
+          "description": "Indicates the number of dependents of the age twelve or older for a move. This is only present on OCONUS moves.",
+          "type": "integer",
+          "x-nullable": true,
+          "example": 3
+        },
+        "dependents_under_twelve": {
+          "description": "Indicates the number of dependents under the age of twelve for a move. This is only present on OCONUS moves.",
+          "type": "integer",
+          "x-nullable": true,
+          "example": 5
+        },
         "proGear": {
           "description": "Pro-gear weight limit as set by an Office user, distinct from the service member's default weight allotment determined by pay grade\n",
           "type": "integer",
@@ -13223,6 +13345,12 @@ func init() {
           "type": "integer",
           "x-nullable": true,
           "example": 500
+        },
+        "ub_allowance": {
+          "description": "The amount of weight in pounds that the move is entitled for shipment types of Unaccompanied Baggage.",
+          "type": "integer",
+          "x-nullable": true,
+          "example": 3
         }
       }
     },
@@ -14146,14 +14274,7 @@ func init() {
           "example": "2018-04-25"
         },
         "orders_type": {
-          "type": "string",
-          "title": "Move Type",
-          "enum": [
-            "PCS - OCONUS",
-            "PCS - CONUS",
-            "PCS + TDY - OCONUS",
-            "PCS + TDY - CONUS"
-          ]
+          "$ref": "#/definitions/OrdersType"
         },
         "origin_duty_location_name": {
           "type": "string",
@@ -14493,6 +14614,12 @@ func init() {
         "transportation_office": {
           "$ref": "#/definitions/TransportationOffice"
         },
+        "transportation_office_assignments": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/TransportationOfficeAssignment"
+          }
+        },
         "updated_at": {
           "type": "string",
           "format": "date-time"
@@ -14807,15 +14934,19 @@ func init() {
         "WOUNDED_WARRIOR",
         "BLUEBARK",
         "SAFETY",
-        "TEMPORARY_DUTY"
+        "TEMPORARY_DUTY",
+        "EARLY_RETURN_OF_DEPENDENTS",
+        "STUDENT_TRAVEL"
       ],
       "x-display-value": {
         "BLUEBARK": "BLUEBARK",
+        "EARLY_RETURN_OF_DEPENDENTS": "Early Return of Dependents",
         "LOCAL_MOVE": "Local Move",
         "PERMANENT_CHANGE_OF_STATION": "Permanent Change Of Station",
         "RETIREMENT": "Retirement",
         "SAFETY": "Safety",
         "SEPARATION": "Separation",
+        "STUDENT_TRAVEL": "Student Travel",
         "TEMPORARY_DUTY": "Temporary Duty (TDY)",
         "WOUNDED_WARRIOR": "Wounded Warrior"
       }
@@ -15108,6 +15239,14 @@ func init() {
         "advanceStatus": {
           "$ref": "#/definitions/PPMAdvanceStatus"
         },
+        "allowableWeight": {
+          "description": "The allowable weight of the PPM shipment goods being moved.",
+          "type": "integer",
+          "minimum": 0,
+          "x-nullable": true,
+          "x-omitempty": false,
+          "example": 4300
+        },
         "approvedAt": {
           "description": "The timestamp of when the shipment was approved and the service member can begin their move.",
           "type": "string",
@@ -15207,6 +15346,13 @@ func init() {
           "x-nullable": true,
           "x-omitempty": false,
           "example": false
+        },
+        "maxIncentive": {
+          "description": "The max amount the government will pay the service member to move their belongings based on the moving date, locations, and shipment weight.",
+          "type": "integer",
+          "format": "cents",
+          "x-nullable": true,
+          "x-omitempty": false
         },
         "movingExpenses": {
           "description": "All expense documentation receipt records of this PPM shipment.",
@@ -16243,6 +16389,43 @@ func init() {
         }
       }
     },
+    "TransportationOfficeAssignment": {
+      "type": "object",
+      "required": [
+        "officeUserId",
+        "transportationOfficeId",
+        "primaryOffice"
+      ],
+      "properties": {
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        },
+        "officeUserId": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4780-65aa-42ec-a945-5fd87dec0538"
+        },
+        "primaryOffice": {
+          "type": "boolean",
+          "x-omitempty": false
+        },
+        "transportationOffice": {
+          "$ref": "#/definitions/TransportationOffice"
+        },
+        "transportationOfficeId": {
+          "type": "string",
+          "format": "uuid",
+          "example": "d67a4780-65aa-42ec-a945-5fd87dec0549"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        }
+      }
+    },
     "TransportationOffices": {
       "type": "array",
       "items": {
@@ -16688,11 +16871,6 @@ func init() {
           "type": "integer",
           "minimum": 0
         },
-        "allowableWeight": {
-          "description": "Indicates the maximum reimbursable weight of the shipment",
-          "type": "integer",
-          "minimum": 0
-        },
         "emptyWeight": {
           "description": "Weight of the vehicle when empty.",
           "type": "integer",
@@ -16885,13 +17063,6 @@ func init() {
       "properties": {
         "adjustedNetWeight": {
           "description": "Indicates the adjusted net weight of the vehicle",
-          "type": "integer",
-          "minimum": 0,
-          "x-nullable": true,
-          "x-omitempty": false
-        },
-        "allowableWeight": {
-          "description": "Maximum reimbursable weight.",
           "type": "integer",
           "minimum": 0,
           "x-nullable": true,

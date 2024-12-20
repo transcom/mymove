@@ -13,9 +13,7 @@ type SequenceSuite struct {
 }
 
 func (suite *SequenceSuite) SetupTest() {
-	err := suite.DB().RawQuery("CREATE SEQUENCE IF NOT EXISTS test_sequence;").Exec()
-	suite.NoError(err, "Error creating test sequence")
-	err = suite.DB().RawQuery("SELECT setval($1, 1);", testSequence).Exec()
+	err := suite.DB().RawQuery("SELECT setval($1, 1);", testSequence).Exec()
 	suite.NoError(err, "Error resetting sequence")
 }
 

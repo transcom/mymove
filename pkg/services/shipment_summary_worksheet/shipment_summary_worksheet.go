@@ -64,7 +64,9 @@ func (SSWPPMComputer *SSWPPMComputer) FormatValuesShipmentSummaryWorksheet(shipm
 	if err != nil {
 		return page1, services.Page2Values{}, services.Page3Values{}, errors.WithStack(err)
 	}
-	page2, err := SSWPPMComputer.FormatValuesShipmentSummaryWorksheetFormPage2(shipmentSummaryFormData, isPaymentPacket)
+
+	expensesMap := SubTotalExpenses(shipmentSummaryFormData.MovingExpenses)
+	page2, err := SSWPPMComputer.FormatValuesShipmentSummaryWorksheetFormPage2(shipmentSummaryFormData, isPaymentPacket, expensesMap)
 	if err != nil {
 		return page1, page2, services.Page3Values{}, errors.WithStack(err)
 	}
@@ -72,6 +74,43 @@ func (SSWPPMComputer *SSWPPMComputer) FormatValuesShipmentSummaryWorksheet(shipm
 	if err != nil {
 		return page1, page2, services.Page3Values{}, errors.WithStack(err)
 	}
+
+	// Different calculations for Actual Reimbursement packets
+	sumGTCC := expensesMap["TotalGTCCPaid"] + expensesMap["StorageGTCCPaid"]
+	sumMemberExpenses := expensesMap["TotalMemberPaid"] + expensesMap["StorageMemberPaid"]
+	var newGTCCDisbursement float64
+	var newMemberDisbursement float64
+
+	/**
+		If AOA uses the "Actual Expense" reimbursement method, the "disbursement" field on page 2 uses the following formula:
+
+		GTCC disbursement gets paid first, and is the lesser amount of either:
+		A. the full GTCC total + GTCC SIT amount OR
+		B. the Actual GCC
+
+		If there is any amount left from the GCC after this, then the member disbursement is the lesser amount of either:
+		A. the difference between the GTCC paid expenses and the GCC OR
+		B. the total member-paid expenses plus the member paid SIT
+	**/
+	if shipmentSummaryFormData.IsActualExpenseReimbursement {
+		floatFinalIncentive := shipmentSummaryFormData.PPMShipment.FinalIncentive.ToDollarFloatNoRound() // FinalIncentive == ActualGCC
+
+		if sumGTCC < floatFinalIncentive { // There are funds left over after GTCC to pay out member expenses
+			newGTCCDisbursement = sumGTCC
+
+			if sumMemberExpenses < floatFinalIncentive-sumGTCC {
+				newMemberDisbursement = sumMemberExpenses
+			} else {
+				newMemberDisbursement = floatFinalIncentive - sumGTCC
+			}
+		} else { // GTCC takes up all of the GCC funds, none left over to pay member expenses
+			newGTCCDisbursement = floatFinalIncentive
+			newMemberDisbursement = 0
+		}
+
+		page2.Disbursement = "GTCC: " + FormatDollars(newGTCCDisbursement) + "\nMember: " + FormatDollars(newMemberDisbursement)
+	}
+
 	return page1, page2, page3, nil
 }
 
@@ -155,9 +194,9 @@ func (wa *SSWMaxWeightEntitlement) addLineItem(field string, value int) {
 
 // SSWGetEntitlement calculates the entitlement for the shipment summary worksheet based on the parameters of
 // a move (hasDependents, spouseHasProGear)
-func SSWGetEntitlement(grade internalmessages.OrderPayGrade, hasDependents bool, spouseHasProGear bool) models.SSWMaxWeightEntitlement {
+func SSWGetEntitlement(grade internalmessages.OrderPayGrade, hasDependents bool, spouseHasProGear bool, ordersType internalmessages.OrdersType) models.SSWMaxWeightEntitlement {
 	sswEntitlements := SSWMaxWeightEntitlement{}
-	entitlements := models.GetWeightAllotment(grade)
+	entitlements := models.GetWeightAllotment(grade, ordersType)
 	sswEntitlements.addLineItem("ProGear", entitlements.ProGearWeight)
 	sswEntitlements.addLineItem("SpouseProGear", entitlements.ProGearWeightSpouse)
 	if !hasDependents {
@@ -265,7 +304,7 @@ func (s SSWPPMComputer) FormatValuesShipmentSummaryWorksheetFormPage1(data model
 	page1.SITEndDates = formattedSIT.EndDates
 	page1.SITNumberAndTypes = formattedShipment.ShipmentNumberAndTypes
 
-	page1.MaxObligationGCC100 = FormatWeights(data.WeightAllotment.Entitlement) + " lbs; " + formattedShipment.EstimatedIncentive
+	page1.MaxObligationGCC100 = FormatWeights(data.WeightAllotment.Entitlement) + " lbs; " + formattedShipment.MaxIncentive
 	page1.MaxObligationGCCMaxAdvance = formattedShipment.MaxAdvance
 	page1.ActualObligationAdvance = formattedShipment.AdvanceAmountReceived
 	page1.MaxObligationSIT = fmt.Sprintf("%02d Days in SIT", data.MaxSITStorageEntitlement)
@@ -275,9 +314,9 @@ func (s SSWPPMComputer) FormatValuesShipmentSummaryWorksheetFormPage1(data model
 }
 
 // FormatValuesShipmentSummaryWorksheetFormPage2 formats the data for page 2 of the Shipment Summary Worksheet
-func (s *SSWPPMComputer) FormatValuesShipmentSummaryWorksheetFormPage2(data models.ShipmentSummaryFormData, isPaymentPacket bool) (services.Page2Values, error) {
+func (s *SSWPPMComputer) FormatValuesShipmentSummaryWorksheetFormPage2(data models.ShipmentSummaryFormData, isPaymentPacket bool, expensesMap map[string]float64) (services.Page2Values, error) {
 	var err error
-	expensesMap := SubTotalExpenses(data.MovingExpenses)
+
 	certificationInfo := formatSignedCertifications(data.SignedCertifications, data.PPMShipment.ID, isPaymentPacket)
 	formattedShipments := s.FormatShipment(data.PPMShipment, data.WeightAllotment, isPaymentPacket)
 
@@ -286,7 +325,12 @@ func (s *SSWPPMComputer) FormatValuesShipmentSummaryWorksheetFormPage2(data mode
 	page2.TAC = derefStringTypes(data.Order.TAC)
 	page2.SAC = derefStringTypes(data.Order.SAC)
 	if isPaymentPacket {
-		data.PPMRemainingEntitlement = CalculateRemainingPPMEntitlement(data.PPMShipment.FinalIncentive, expensesMap["StorageMemberPaid"], expensesMap["StorageGTCCPaid"], data.PPMShipment.AdvanceAmountReceived)
+		if data.IsActualExpenseReimbursement {
+			data.PPMRemainingEntitlement = 0.0
+		} else {
+			data.PPMRemainingEntitlement = CalculateRemainingPPMEntitlement(data.PPMShipment.FinalIncentive, expensesMap["StorageMemberPaid"], expensesMap["StorageGTCCPaid"], data.PPMShipment.AdvanceAmountReceived)
+		}
+
 		page2.PPMRemainingEntitlement = FormatDollars(data.PPMRemainingEntitlement)
 		page2.PreparationDate2, err = formatSSWDate(data.SignedCertifications, data.PPMShipment.ID)
 		if err != nil {
@@ -296,7 +340,12 @@ func (s *SSWPPMComputer) FormatValuesShipmentSummaryWorksheetFormPage2(data mode
 	} else {
 		page2.PreparationDate2 = formatAOADate(data.SignedCertifications, data.PPMShipment.ID)
 		page2.Disbursement = "N/A"
-		page2.PPMRemainingEntitlement = "N/A"
+
+		if data.IsActualExpenseReimbursement {
+			page2.PPMRemainingEntitlement = "$0.00"
+		} else {
+			page2.PPMRemainingEntitlement = "N/A"
+		}
 	}
 	page2.ContractedExpenseMemberPaid = FormatDollars(expensesMap["ContractedExpenseMemberPaid"])
 	page2.ContractedExpenseGTCCPaid = FormatDollars(expensesMap["ContractedExpenseGTCCPaid"])
@@ -659,6 +708,11 @@ func (s SSWPPMComputer) FormatShipment(ppm models.PPMShipment, weightAllotment m
 		formattedShipment.MaxAdvance = "Advance not available."
 		formattedShipment.EstimatedIncentive = "No estimated incentive."
 	}
+	if ppm.MaxIncentive != nil {
+		formattedShipment.MaxIncentive = FormatDollarFromCents(*ppm.MaxIncentive)
+	} else {
+		formattedShipment.MaxIncentive = "No max incentive."
+	}
 	formattedShipmentTotalWeights := unit.Pound(0)
 	formattedNumberAndTypes := *ppm.Shipment.ShipmentLocator + " PPM"
 	formattedShipmentWeights := FormatPPMWeightEstimated(ppm)
@@ -681,7 +735,7 @@ func (s SSWPPMComputer) FormatShipment(ppm models.PPMShipment, weightAllotment m
 		}
 		// If it's received, reflect that
 		if ppm.AdvanceAmountReceived != nil {
-			formattedShipment.AdvanceAmountReceived = FormatDollarFromCents(*ppm.AdvanceAmountReceived) + "Customer received"
+			formattedShipment.AdvanceAmountReceived = FormatDollarFromCents(*ppm.AdvanceAmountReceived) + " Customer received"
 		} else if hasRequestedAdvance {
 			// If it's requested, give amount and status
 			if *ppm.AdvanceStatus != models.PPMAdvanceStatusReceived {
@@ -1020,7 +1074,7 @@ func (SSWPPMComputer *SSWPPMComputer) FetchDataShipmentSummaryWorksheetFormData(
 		return nil, errors.New("order for requested shipment summary worksheet data does not have a pay grade attached")
 	}
 
-	weightAllotment := SSWGetEntitlement(*ppmShipment.Shipment.MoveTaskOrder.Orders.Grade, ppmShipment.Shipment.MoveTaskOrder.Orders.HasDependents, ppmShipment.Shipment.MoveTaskOrder.Orders.SpouseHasProGear)
+	weightAllotment := SSWGetEntitlement(*ppmShipment.Shipment.MoveTaskOrder.Orders.Grade, ppmShipment.Shipment.MoveTaskOrder.Orders.HasDependents, ppmShipment.Shipment.MoveTaskOrder.Orders.SpouseHasProGear, ppmShipment.Shipment.MoveTaskOrder.Orders.OrdersType)
 
 	maxSit, err := CalculateShipmentSITAllowance(appCtx, ppmShipment.Shipment)
 	if err != nil {
@@ -1136,7 +1190,7 @@ func (SSWPPMGenerator *SSWPPMGenerator) FillSSWPDFForm(Page1Values services.Page
 	var sswHeader = header{
 		Source:   "ShipmentSummaryWorksheet.pdf",
 		Version:  "pdfcpu v0.9.1 dev",
-		Creation: "2024-10-29 20:00:40 UTC",
+		Creation: "2024-11-13 13:44:05 UTC",
 		Producer: "macOS Version 13.5 (Build 22G74) Quartz PDFContext, AppendMode 1.1",
 	}
 
@@ -1181,6 +1235,11 @@ func (SSWPPMGenerator *SSWPPMGenerator) FillSSWPDFForm(Page1Values services.Page
 		return
 	}
 	SSWWorksheet, err := SSWPPMGenerator.generator.FillPDFForm(jsonData, SSWPPMGenerator.templateReader, "")
+	if err != nil {
+		return nil, nil, err
+	}
+
+	SSWWorksheet, err = SSWPPMGenerator.generator.LockPDFForm(SSWWorksheet, "")
 	if err != nil {
 		return nil, nil, err
 	}

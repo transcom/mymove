@@ -532,6 +532,63 @@ definitions:
           - item
           - crate
           - description
+  MTOServiceItemInternationalCrating:
+    description: >-
+      Describes a international crating/uncrating service item subtype of a
+      MTOServiceItem.
+    allOf:
+      - $ref: '#/definitions/MTOServiceItem'
+      - type: object
+        properties:
+          reServiceCode:
+            type: string
+            description: >-
+              A unique code for the service item. Indicates if the service is
+              for crating (ICRT) or uncrating (IUCRT).
+            enum:
+              - ICRT
+              - IUCRT
+          item:
+            description: The dimensions of the item being crated.
+            allOf:
+              - $ref: '#/definitions/MTOServiceItemDimension'
+          crate:
+            description: The dimensions for the crate the item will be shipped in.
+            allOf:
+              - $ref: '#/definitions/MTOServiceItemDimension'
+          description:
+            type: string
+            example: Decorated horse head to be crated.
+            description: A description of the item being crated.
+          reason:
+            type: string
+            example: Storage items need to be picked up
+            description: >
+              The contractor's explanation for why an item needed to be crated
+              or uncrated. Used by the TOO while deciding to approve or reject
+              the service item.
+            x-nullable: true
+            x-omitempty: false
+          standaloneCrate:
+            type: boolean
+            x-nullable: true
+          externalCrate:
+            type: boolean
+            x-nullable: true
+          market:
+            type: string
+            enum:
+              - CONUS
+              - OCONUS
+            example: CONUS
+            description: >-
+              To identify whether the service was provided within (CONUS) or
+              (OCONUS)
+        required:
+          - reServiceCode
+          - item
+          - crate
+          - description
   MTOServiceItemOriginSIT:
     description: Describes a domestic origin SIT service item. Subtype of a MTOServiceItem.
     allOf:
@@ -1206,7 +1263,7 @@ definitions:
   UpdateShipmentDestinationAddress:
     description: >-
       UpdateShipmentDestinationAddress contains the fields required for the
-      prime to request an update for the destination address on an MTO Shipment.
+      prime to request an update for the delivery address on an MTO Shipment.
     type: object
     properties:
       newAddress:
@@ -1559,6 +1616,13 @@ definitions:
         type: integer
         x-formatting: weight
         x-nullable: true
+      unaccompaniedBaggageAllowance:
+        type: integer
+        example: 3
+        x-nullable: true
+        description: >-
+          The amount of weight in pounds that the move is entitled for shipment
+          types of Unaccompanied Baggage.
       dependentsAuthorized:
         example: true
         type: boolean
@@ -1633,6 +1697,8 @@ definitions:
       - BLUEBARK
       - SAFETY
       - TEMPORARY_DUTY
+      - EARLY_RETURN_OF_DEPENDENTS
+      - STUDENT_TRAVEL
     x-display-value:
       PERMANENT_CHANGE_OF_STATION: Permanent Change Of Station
       LOCAL_MOVE: Local Move
@@ -1642,6 +1708,8 @@ definitions:
       BLUEBARK: BLUEBARK
       SAFETY: Safety
       TEMPORARY_DUTY: Temporary Duty (TDY)
+      EARLY_RETURN_OF_DEPENDENTS: Early Return of Dependents
+      STUDENT_TRAVEL: Student Travel
   Order:
     type: object
     required:
@@ -1993,6 +2061,7 @@ definitions:
         * DDFSIT, DDASIT - MTOServiceItemDestSIT
         * DOSHUT, DDSHUT - MTOServiceItemShuttle
         * DCRT, DUCRT - MTOServiceItemDomesticCrating
+        * ICRT, IUCRT - MTOServiceItemInternationalCrating
 
       The documentation will then update with the supported fields.
     type: string
@@ -2002,6 +2071,7 @@ definitions:
       - MTOServiceItemDestSIT
       - MTOServiceItemShuttle
       - MTOServiceItemDomesticCrating
+      - MTOServiceItemInternationalCrating
   ServiceRequestDocument:
     properties:
       uploads:
@@ -2475,6 +2545,15 @@ definitions:
         format: cents
         x-nullable: true
         x-omitempty: false
+      maxIncentive:
+        description: >-
+          The max amount the government will pay the service member to move
+          their belongings based on the moving date, locations, and shipment
+          weight.
+        type: integer
+        format: cents
+        x-nullable: true
+        x-omitempty: false
       hasRequestedAdvance:
         description: |
           Indicates whether an advance has been requested for the PPM shipment.
@@ -2570,10 +2649,10 @@ definitions:
       - APPROVED
   ShipmentAddressUpdate:
     description: >
-      This represents a destination address change request made by the Prime
-      that is either auto-approved or requires review if the pricing criteria
-      has changed. If criteria has changed, then it must be approved or rejected
-      by a TOO.
+      This represents a delivery address change request made by the Prime that
+      is either auto-approved or requires review if the pricing criteria has
+      changed. If criteria has changed, then it must be approved or rejected by
+      a TOO.
     type: object
     properties:
       id:
@@ -2609,14 +2688,14 @@ definitions:
       oldSitDistanceBetween:
         description: >-
           The distance between the original SIT address and the previous/old
-          destination address of shipment
+          delivery address of shipment
         example: 50
         minimum: 0
         type: integer
       newSitDistanceBetween:
         description: >-
           The distance between the original SIT address and requested new
-          destination address of shipment
+          delivery address of shipment
         example: 88
         minimum: 0
         type: integer
@@ -3070,7 +3149,6 @@ definitions:
       - ICOLH
       - ICOUB
       - ICRT
-      - ICRTSA
       - IDASIT
       - IDDSIT
       - IDFSIT

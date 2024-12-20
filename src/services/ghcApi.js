@@ -192,6 +192,10 @@ export async function submitEvaluationReport({ reportID, ifMatchETag }) {
   );
 }
 
+export async function addSeriousIncidentAppeal({ reportID, body }) {
+  return makeGHCRequest('evaluationReports.addAppealToSeriousIncident', { reportID, body }, { normalize: false });
+}
+
 export async function addViolationAppeal({ reportID, reportViolationID, body }) {
   return makeGHCRequest(
     'evaluationReports.addAppealToViolation',
@@ -645,13 +649,14 @@ export async function getServicesCounselingQueue(
   );
 }
 
-export async function getServicesCounselingOriginLocations(needsPPMCloseout) {
+export async function getServicesCounselingOriginLocations(needsPPMCloseout, viewAsGBLOC) {
   const operationPath = 'queues.getServicesCounselingOriginList';
 
   return makeGHCRequest(
     operationPath,
     {
       needsPPMCloseout,
+      viewAsGBLOC,
     },
 
     { schemaKey: 'Locations', normalize: false },
@@ -885,9 +890,19 @@ export async function updateAssignedOfficeUserForMove({ moveID, officeUserId, ro
   });
 }
 
+export async function checkForLockedMovesAndUnlock(key, officeUserID) {
+  return makeGHCRequest('move.checkForLockedMovesAndUnlock', {
+    officeUserID,
+  });
+}
+
 export async function deleteAssignedOfficeUserForMove({ moveID, roleType }) {
   return makeGHCRequest('move.deleteAssignedOfficeUser', {
     moveID,
     body: { roleType },
   });
+}
+
+export async function getAllReServiceItems() {
+  return makeGHCRequestRaw('reServiceItems.getAllReServiceItems', {}, { normalize: false });
 }

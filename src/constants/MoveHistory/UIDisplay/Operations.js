@@ -62,4 +62,7 @@ export default {
   uploadAdditionalDocuments: 'uploadAdditionalDocuments', // internal.yaml
   createOrder: 'createOrder', // ghc.yaml
   moveCanceler: 'moveCanceler', // ghc.yaml
+  addAppealToViolation: 'addAppealToViolation', // ghc.yaml
+  addAppealToSeriousIncident: 'addAppealToSeriousIncident', // ghc.yaml
+  cancelMove: 'cancelMove', // internal.yaml
 };

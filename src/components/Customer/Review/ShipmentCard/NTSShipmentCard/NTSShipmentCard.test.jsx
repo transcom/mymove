@@ -78,7 +78,7 @@ const secondaryPickupAddress = {
 describe('NTSShipmentCard component', () => {
   it('renders component with all fields', () => {
     const wrapper = mountNTSShipmentCard();
-    const tableHeaders = ['Requested pickup date', 'Pickup location', 'Releasing agent', 'Remarks'];
+    const tableHeaders = ['Requested pickup date', 'Pickup Address', 'Releasing agent', 'Remarks'];
     const { streetAddress1, city, state, postalCode } = defaultProps.pickupLocation;
     const {
       firstName: releasingFirstName,
@@ -104,7 +104,7 @@ describe('NTSShipmentCard component', () => {
 
   it('should render without releasing/receiving agents and remarks', () => {
     const wrapper = mountNTSShipmentCard({ ...defaultProps, releasingAgent: null, remarks: '' });
-    const tableHeaders = ['Requested pickup date', 'Pickup location'];
+    const tableHeaders = ['Requested pickup date', 'Pickup Address'];
     const { streetAddress1, city, state, postalCode } = defaultProps.pickupLocation;
     const tableData = [
       formatCustomerDate(defaultProps.requestedPickupDate),
@@ -115,17 +115,17 @@ describe('NTSShipmentCard component', () => {
     expect(wrapper.find('.remarksCell').at(0).text()).toBe('—');
   });
 
-  it('should not render a secondary pickup location if not provided one', async () => {
+  it('should not render a secondary Pickup Address if not provided one', async () => {
     render(<NTSShipmentCard {...defaultProps} />);
 
-    const secondPickupLocation = await screen.queryByText('Second pickup location');
+    const secondPickupLocation = await screen.queryByText('Second Pickup Address');
     expect(secondPickupLocation).not.toBeInTheDocument();
   });
 
-  it('should render a secondary pickup location if provided one', async () => {
+  it('should render a secondary Pickup Address if provided one', async () => {
     render(<NTSShipmentCard {...defaultProps} {...secondaryPickupAddress} />);
 
-    const secondPickupLocation = await screen.getByText('Second pickup location');
+    const secondPickupLocation = await screen.getByText('Second Pickup Address');
     expect(secondPickupLocation).toBeInTheDocument();
     const secondPickupLocationInformation = await screen.getByText(/Some Other Street Name/);
     expect(secondPickupLocationInformation).toBeInTheDocument();
