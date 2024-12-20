@@ -812,6 +812,37 @@ func (p *mtoServiceItemUpdater) UpdateMTOServiceItem(
 		// Make the update and create a InvalidInputError if there were validation issues
 		verrs, updateErr := txnAppCtx.DB().ValidateAndUpdate(validServiceItem)
 
+		// if the port information was updated, then we need to update the basic service item pricing since distance has changed
+		// this only applies to international shipments
+		if oldServiceItem.POELocationID != mtoServiceItem.POELocationID || oldServiceItem.PODLocationID != mtoServiceItem.PODLocationID {
+			shipment := oldServiceItem.MTOShipment
+			if shipment.PickupAddress != nil && shipment.DestinationAddress != nil &&
+				(mtoServiceItem.POELocation.UsPostRegionCity.UsprZipID != "" || mtoServiceItem.PODLocation.UsPostRegionCity.UsprZipID != "") {
+				var pickupZip string
+				var destZip string
+				// if the port type is POEFSC this means the shipment is CONUS -> OCONUS (pickup -> port)
+				// if the port type is PODFSC this means the shipment is OCONUS -> CONUS (port -> destination)
+				if mtoServiceItem.POELocation != nil {
+					pickupZip = shipment.PickupAddress.PostalCode
+					destZip = mtoServiceItem.POELocation.UsPostRegionCity.UsprZipID
+				} else if mtoServiceItem.PODLocation != nil {
+					pickupZip = mtoServiceItem.PODLocation.UsPostRegionCity.UsprZipID
+					destZip = shipment.DestinationAddress.PostalCode
+				}
+				// we need to get the mileage from DTOD first, the db proc will consume that
+				mileage, err := p.planner.ZipTransitDistance(appCtx, pickupZip, destZip, true, true)
+				if err != nil {
+					return err
+				}
+
+				// update the service item pricing if relevant fields have changed
+				err = models.UpdateEstimatedPricingForShipmentBasicServiceItems(appCtx.DB(), &shipment, mileage)
+				if err != nil {
+					return err
+				}
+			}
+		}
+
 		// If there were validation errors create an InvalidInputError type
 		if verrs != nil && verrs.HasAny() {
 			return apperror.NewInvalidInputError(validServiceItem.ID, updateErr, verrs, "Invalid input found while updating the service item.")

@@ -156,7 +156,9 @@ func FetchServiceItem(db *pop.Connection, serviceItemID uuid.UUID) (MTOServiceIt
 	err := db.Eager("SITDestinationOriginalAddress",
 		"SITDestinationFinalAddress",
 		"ReService",
-		"CustomerContacts").Where("id = ?", serviceItemID).First(&serviceItem)
+		"CustomerContacts",
+		"MTOShipment.PickupAddress",
+		"MTOShipment.DestinationAddress").Where("id = ?", serviceItemID).First(&serviceItem)
 
 	if err != nil {
 		if errors.Cause(err).Error() == RecordNotFoundErrorString {
