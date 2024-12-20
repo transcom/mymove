@@ -60,6 +60,7 @@ type PaymentRequestReviewedFetcher interface {
 //go:generate mockery --name PaymentRequestStatusUpdater
 type PaymentRequestStatusUpdater interface {
 	UpdatePaymentRequestStatus(appCtx appcontext.AppContext, paymentRequest *models.PaymentRequest, eTag string) (*models.PaymentRequest, error)
+	UpdatePaymentRequestStatusAndCheckAssignment(appCtx appcontext.AppContext, paymentRequest *models.PaymentRequest, eTag string) (*models.PaymentRequest, error)
 }
 
 // PaymentRequestUploadCreator is the exported interface for creating a payment request upload

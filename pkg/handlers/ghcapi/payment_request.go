@@ -18,7 +18,6 @@ import (
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/handlers/ghcapi/internal/payloads"
 	"github.com/transcom/mymove/pkg/models"
-	"github.com/transcom/mymove/pkg/models/roles"
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/services/audit"
 	"github.com/transcom/mymove/pkg/services/event"
@@ -184,7 +183,7 @@ func (h UpdatePaymentRequestStatusHandler) Handle(
 			}
 
 			// And now let's save our updated model object using the PaymentRequestUpdater service object.
-			updatedPaymentRequest, err := h.PaymentRequestStatusUpdater.UpdatePaymentRequestStatus(
+			updatedPaymentRequest, err := h.PaymentRequestStatusUpdater.UpdatePaymentRequestStatusAndCheckAssignment(
 				appCtx,
 				&existingPaymentRequest,
 				params.IfMatch,
@@ -221,20 +220,6 @@ func (h UpdatePaymentRequestStatusHandler) Handle(
 			if err != nil {
 				return paymentrequestop.NewGetPaymentRequestInternalServerError(), err
 			}
-
-			paymnetRequest, err := h.PaymentRequestListFetcher.CheckAndRemovePaymentRequestAssignedUser(appCtx, existingPaymentRequest.MoveTaskOrderID)
-			if err != nil {
-				return paymentrequestop.NewUpdatePaymentRequestStatusInternalServerError(), err
-			}
-			// ---------------------- Move to Service (in progress) -----------------------------
-			if !paymnetRequest {
-				_, err := h.MoveAssignedOfficeUserUpdater.DeleteAssignedOfficeUser(appCtx, existingPaymentRequest.MoveTaskOrderID, roles.RoleTypeTIO)
-				if err != nil {
-					return paymentrequestop.NewUpdatePaymentRequestStatusInternalServerError(), err
-				}
-				returnPayload.MoveTaskOrder.TIOAssignedUser = nil
-			}
-			// ---------------------- Move to Service (in progress) -----------------------------
 
 			return paymentrequestop.NewUpdatePaymentRequestStatusOK().WithPayload(returnPayload), nil
 		})

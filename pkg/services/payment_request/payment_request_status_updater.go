@@ -8,7 +8,9 @@ import (
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/apperror"
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/models/roles"
 	"github.com/transcom/mymove/pkg/services"
+	moveservice "github.com/transcom/mymove/pkg/services/move"
 	"github.com/transcom/mymove/pkg/services/query"
 )
 
@@ -75,4 +77,44 @@ func (p *paymentRequestStatusUpdater) UpdatePaymentRequestStatus(appCtx appconte
 	}
 
 	return paymentRequest, err
+}
+
+func (p *paymentRequestStatusUpdater) UpdatePaymentRequestStatusAndCheckAssignment(appCtx appcontext.AppContext, paymentRequest *models.PaymentRequest, eTag string) (*models.PaymentRequest, error) {
+	paymentRequests := models.PaymentRequests{}
+	updatedPaymentRequest, err := p.UpdatePaymentRequestStatus(appCtx, paymentRequest, eTag)
+	if err != nil {
+		return nil, err
+	}
+	// check error
+	moveID := updatedPaymentRequest.MoveTaskOrderID
+
+	err = appCtx.DB().Q().InnerJoin("moves", "payment_requests.move_id = moves.id").Where("moves.id = ?", moveID).All(&paymentRequests)
+	// check error
+	paymentRequestNeedingReview := false
+	for _, request := range paymentRequests {
+		if request.Status != models.PaymentRequestStatusReviewed &&
+			request.Status != models.PaymentRequestStatusReviewedAllRejected {
+			paymentRequestNeedingReview = true
+			break
+		}
+	}
+	// move := updatedPaymentRequest.MoveTaskOrder
+	if !paymentRequestNeedingReview {
+		_, err := moveservice.AssignedOfficeUserUpdater.DeleteAssignedOfficeUser(moveservice.AssignedOfficeUserUpdater{}, appCtx, moveID, roles.RoleTypeTIO)
+		if err != nil {
+			return nil, err
+		}
+		// move.TIOAssignedID = nil
+		// move.TIOAssignedUser = nil
+
+		// verrs, err := appCtx.DB().ValidateAndUpdate(&move)
+		// if err != nil || verrs.HasAny() {
+		// 	return nil, apperror.NewInvalidInputError(move.ID, err, verrs, "")
+		// }
+
+		updatedPaymentRequest.MoveTaskOrder.TIOAssignedID = nil
+		updatedPaymentRequest.MoveTaskOrder.TIOAssignedUser = nil
+	}
+
+	return updatedPaymentRequest, err
 }
