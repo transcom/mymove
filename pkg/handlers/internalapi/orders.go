@@ -3,6 +3,7 @@ package internalapi
 import (
 	"database/sql"
 	"errors"
+	"fmt"
 	"time"
 
 	"github.com/go-openapi/runtime"
@@ -185,11 +186,16 @@ func (h CreateOrdersHandler) Handle(params ordersop.CreateOrdersParams) middlewa
 
 			var originDutyLocationGBLOC *string
 			if *originDutyLocation.Address.IsOconus {
+				fmt.Println("*** HERE in isOconus: originDutyLocation.ID: ", originDutyLocation.ID)
+				fmt.Println("*** AddressID: ", originDutyLocation.AddressID)
+				fmt.Println("*** originDutyLocation.Address.UsPostRegionCityID: ", originDutyLocation.Address.UsPostRegionCityId)
 				originDutyLocationGBLOCOconus, err := models.FetchOconusDutyLocationGbloc(appCtx.DB(), originDutyLocation, serviceMember)
 				if err != nil {
+					fmt.Println("**^^is there an error fetching oconus gbloc?? ", err)
 					return nil, apperror.NewNotFoundError(originDutyLocation.ID, "while looking for Duty Location Oconus GBLOC")
 				}
 				originDutyLocationGBLOC = &originDutyLocationGBLOCOconus.Gbloc
+				fmt.Println("^^or GBBLOC is ::", originDutyLocationGBLOC)
 			} else {
 				originDutyLocationGBLOCConus, err := models.FetchGBLOCForPostalCode(appCtx.DB(), originDutyLocation.Address.PostalCode)
 				if err != nil {

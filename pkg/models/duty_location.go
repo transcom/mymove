@@ -301,12 +301,10 @@ func FetchOconusDutyLocationGbloc(appCtx *pop.Connection, dutyLocation DutyLocat
 	sqlQuery := `
     	select j.code gbloc
     	from addresses a,
-    	v_locations v,
     	re_oconus_rate_areas o,
     	jppso_regions j,
     	gbloc_aors g
-    	where a.us_post_region_cities_id = v.uprc_id
-    	and v.uprc_id = o.us_post_region_cities_id
+    	where a.us_post_region_cities_id = o.us_post_region_cities_id
     	and o.id = g.oconus_rate_area_id
     	and j.id = g.jppso_regions_id
 		and a.id = $1 `

@@ -52,40 +52,95 @@ func (suite *HandlerSuite) TestCreateOrder() {
 			{test: "Can create CONUS order", isOconus: false},
 		}
 		for _, tc := range testCases {
+			usPostRegionCityID := uuid.Must(uuid.NewV4())
 			address := factory.BuildAddress(suite.DB(), []factory.Customization{
 				{
 					Model: models.Address{
-						IsOconus: &tc.isOconus,
-						ID:       uuid.Must(uuid.NewV4()),
+						IsOconus:           &tc.isOconus,
+						UsPostRegionCityId: &usPostRegionCityID,
 					},
 				},
 			}, nil)
+			suite.MustSave(&address)
 
 			originDutyLocation := factory.BuildDutyLocation(suite.DB(), []factory.Customization{
 				{
 					Model: models.DutyLocation{
-						Name: factory.MakeRandomString(8),
+						Name:      factory.MakeRandomString(8),
+						AddressID: address.ID,
 					},
 				},
-				{
-					Model:    address,
-					LinkOnly: true,
-				},
 			}, nil)
+			suite.MustSave(&originDutyLocation)
+
 			dutyLocation := factory.FetchOrBuildCurrentDutyLocation(suite.DB())
 			if !tc.isOconus {
 				factory.FetchOrBuildPostalCodeToGBLOC(suite.DB(), dutyLocation.Address.PostalCode, "KKFA")
 			} else {
-				factory.BuildJppsoRegions(suite.DB(), []factory.Customization{
-					{
-						Model: models.JppsoRegions{
-							Code: "MBFL",
-						},
-					},
-				}, nil)
+				contract := models.ReContract{
+					Code: "Test_create_oconus_order_code",
+					Name: "Test_create_oconus_order",
+				}
+				verrs, err := suite.AppContextForTest().DB().ValidateAndSave(&contract)
+				if verrs.HasAny() {
+					suite.Fail(verrs.Error())
+				}
+				if err != nil {
+					suite.Fail(verrs.Error())
+				}
+
+				rateAreaCode := uuid.Must(uuid.NewV4()).String()[0:5]
+				rateArea := models.ReRateArea{
+					ID:         uuid.Must(uuid.NewV4()),
+					ContractID: contract.ID,
+					IsOconus:   true,
+					Code:       rateAreaCode,
+					Name:       fmt.Sprintf("Alaska-%s", rateAreaCode),
+					Contract:   contract,
+				}
+				verrs, err = suite.DB().ValidateAndCreate(&rateArea)
+				if verrs.HasAny() {
+					suite.Fail(verrs.Error())
+				}
+				if err != nil {
+					suite.Fail(err.Error())
+				}
+
+				us_country, err := models.FetchCountryByCode(suite.DB(), "US")
+				suite.NotNil(us_country)
+				suite.Nil(err)
+
+				usprc, err := models.FindByZipCode(suite.AppContextForTest().DB(), "99801")
+				suite.NotNil(usprc)
+				suite.FatalNoError(err)
+
+				oconusRateArea := models.OconusRateArea{
+					ID:                 uuid.Must(uuid.NewV4()),
+					RateAreaId:         rateArea.ID,
+					CountryId:          us_country.ID,
+					UsPostRegionCityId: usprc.ID,
+					Active:             true,
+				}
+				verrs, err = suite.DB().ValidateAndCreate(&oconusRateArea)
+				if verrs.HasAny() {
+					suite.Fail(verrs.Error())
+				}
+				if err != nil {
+					suite.Fail(err.Error())
+				}
+				jppsoRegion := models.JppsoRegions{
+					ID:   uuid.Must(uuid.NewV4()),
+					Code: "MBFL",
+				}
+				suite.MustSave(&jppsoRegion)
+
+				gblocAors := models.GblocAors{
+					JppsoRegionID:    jppsoRegion.ID,
+					OconusRateAreaID: oconusRateArea.ID,
+				}
+				suite.MustSave(&gblocAors)
 			}
 			factory.FetchOrBuildDefaultContractor(suite.DB(), nil, nil)
-
 			req := httptest.NewRequest("POST", "/orders", nil)
 			req = suite.AuthenticateRequest(req, sm)
 
@@ -120,6 +175,9 @@ func (suite *HandlerSuite) TestCreateOrder() {
 				HTTPRequest:  req,
 				CreateOrders: payload,
 			}
+
+			fmt.Println("**HERE in orders_test: originDutyLocationID below**")
+			fmt.Println(payload.OriginDutyLocationID.String())
 
 			fakeS3 := storageTest.NewFakeS3Storage(true)
 			handlerConfig := suite.HandlerConfig()
