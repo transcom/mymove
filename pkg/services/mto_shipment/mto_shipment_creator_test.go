@@ -1171,6 +1171,84 @@ func (suite *MTOShipmentServiceSuite) TestCreateMTOShipment() {
 		_, err := creator.CreateMTOShipment(suite.AppContextForTest(), clearedChildShipment)
 		suite.Error(err)
 	})
+
+	suite.Run("InvalidInputError - NTS shipment cannot specify a secondary delivery address", func() {
+		subtestData := suite.createSubtestData(nil)
+		creator := subtestData.shipmentCreator
+
+		pickupAddress := factory.BuildDefaultAddress(suite.DB())
+		deliveryAddress := factory.BuildDefaultAddress(suite.DB())
+		secondaryDeliveryAddress := factory.BuildDefaultAddress(suite.DB())
+
+		shipment := factory.BuildMTOShipmentMinimal(suite.DB(), []factory.Customization{
+			{
+				Model:    pickupAddress,
+				Type:     &factory.Addresses.PickupAddress,
+				LinkOnly: true,
+			},
+			{
+				Model:    deliveryAddress,
+				Type:     &factory.Addresses.DeliveryAddress,
+				LinkOnly: true,
+			},
+			{
+				Model:    secondaryDeliveryAddress,
+				Type:     &factory.Addresses.SecondaryDeliveryAddress,
+				LinkOnly: true,
+			},
+			{
+				Model: models.MTOShipment{
+					ShipmentType: models.MTOShipmentTypeHHGIntoNTS,
+				},
+			},
+		}, nil)
+		clearShipmentIDFields(&shipment)
+
+		_, err := creator.CreateMTOShipment(suite.AppContextForTest(), &shipment)
+
+		suite.Error(err)
+		suite.Equal("Secondary delivery address cannot be created for shipment Type "+string(models.MTOShipmentTypeHHGIntoNTS), err.Error())
+		suite.IsType(apperror.InvalidInputError{}, err)
+	})
+
+	suite.Run("InvalidInputError - NTSR shipment cannot specify a secondary pickup address", func() {
+		subtestData := suite.createSubtestData(nil)
+		creator := subtestData.shipmentCreator
+
+		pickupAddress := factory.BuildDefaultAddress(suite.DB())
+		deliveryAddress := factory.BuildDefaultAddress(suite.DB())
+		secondaryPickupAddress := factory.BuildDefaultAddress(suite.DB())
+
+		shipment := factory.BuildMTOShipmentMinimal(suite.DB(), []factory.Customization{
+			{
+				Model:    pickupAddress,
+				Type:     &factory.Addresses.PickupAddress,
+				LinkOnly: true,
+			},
+			{
+				Model:    deliveryAddress,
+				Type:     &factory.Addresses.DeliveryAddress,
+				LinkOnly: true,
+			},
+			{
+				Model:    secondaryPickupAddress,
+				Type:     &factory.Addresses.SecondaryPickupAddress,
+				LinkOnly: true,
+			},
+			{
+				Model: models.MTOShipment{
+					ShipmentType: models.MTOShipmentTypeHHGOutOfNTSDom,
+				},
+			},
+		}, nil)
+		clearShipmentIDFields(&shipment)
+
+		_, err := creator.CreateMTOShipment(suite.AppContextForTest(), &shipment)
+
+		suite.Error(err)
+		suite.Equal("Secondary pickup address cannot be created for shipment Type "+string(models.MTOShipmentTypeHHGOutOfNTSDom), err.Error())
+		suite.IsType(apperror.InvalidInputError{}, err)
+	})
 }
 
 // Clears all the ID fields that we need to be null for a new shipment to get created:
