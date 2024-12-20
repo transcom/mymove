@@ -15,7 +15,7 @@ describe('BulkAssignmentModal', () => {
   it('renders the component', async () => {
     render(<BulkAssignmentModal onSubmit={onSubmit} onClose={onClose} />);
 
-    expect(await screen.findByRole('heading', { level: 3, name: 'Are you sure?' })).toBeInTheDocument();
+    expect(await screen.findByRole('heading', { level: 3, name: 'Bulk Assignment' })).toBeInTheDocument();
   });
 
   it('closes the modal when close icon is clicked', async () => {
@@ -28,20 +28,20 @@ describe('BulkAssignmentModal', () => {
     expect(onClose).toHaveBeenCalledTimes(1);
   });
 
-  it('closes the modal when the keep button is clicked', async () => {
+  it('closes the modal when the Cancel button is clicked', async () => {
     render(<BulkAssignmentModal onSubmit={onSubmit} onClose={onClose} />);
 
-    const keepButton = await screen.findByRole('button', { name: 'Keep move' });
+    const keepButton = await screen.findByRole('button', { name: 'Cancel' });
 
     await userEvent.click(keepButton);
 
     expect(onClose).toHaveBeenCalledTimes(1);
   });
 
-  it('calls the submit function when cancel button is clicked', async () => {
+  it('calls the submit function when Save button is clicked', async () => {
     render(<BulkAssignmentModal onSubmit={onSubmit} onClose={onClose} />);
 
-    const cancelButton = await screen.findByRole('button', { name: 'Cancel move' });
+    const cancelButton = await screen.findByRole('button', { name: 'Save' });
 
     await userEvent.click(cancelButton);
 
