@@ -1054,3 +1054,6 @@
 20241204155919_update_ordering_proc.up.sql
 20241204210208_retroactive_update_of_ppm_max_and_estimated_incentives_prd.up.sql
 20241210143143_redefine_mto_shipment_audit_table.up.sql
+20241217163231_update_duty_locations_bad_zips.up.sql
+20241216170325_update_nts_enum_name.up.sql
+20241217180136_add_AK_zips_to_zip3_distances.up.sql
