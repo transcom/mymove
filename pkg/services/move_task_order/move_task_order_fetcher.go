@@ -282,7 +282,7 @@ func (f moveTaskOrderFetcher) FetchMoveTaskOrder(appCtx appcontext.AppContext, s
 		// USMC always goes to the USMC GBLOC
 		if mto.MTOShipments[i].DestinationAddress != nil {
 			if *mto.Orders.ServiceMember.Affiliation == models.AffiliationMARINES {
-				*mto.MTOShipments[i].DestinationAddress.DestinationGbloc = "USMC"
+				mto.MTOShipments[i].DestinationAddress.DestinationGbloc = models.StringPointer("USMC")
 			} else {
 				mto.MTOShipments[i].DestinationAddress.DestinationGbloc, err = models.GetDestinationGblocForShipment(appCtx.DB(), mto.MTOShipments[i].ID)
 				if err != nil {
