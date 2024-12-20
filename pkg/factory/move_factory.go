@@ -41,6 +41,7 @@ func BuildMove(db *pop.Connection, customs []Customization, traits []Trait) mode
 	if tioAssignedUserResult != nil {
 		temptioAssignedUserCustoms = convertCustomizationInList(temptioAssignedUserCustoms, OfficeUsers.TIOAssignedUser, OfficeUser)
 		tioAssignedUser = BuildOfficeUser(db, temptioAssignedUserCustoms, nil)
+	}
 
 	var counselingOffice models.TransportationOffice
 	tempCounselingOfficeCustoms := customs
@@ -95,7 +96,7 @@ func BuildMove(db *pop.Connection, customs []Customization, traits []Trait) mode
 		move.CloseoutOffice = &closeoutOffice
 		move.CloseoutOfficeID = &closeoutOffice.ID
 	}
-    
+
 	if tioAssignedUserResult != nil {
 		move.TIOAssignedUser = &tioAssignedUser
 		move.TIOAssignedID = &tioAssignedUser.ID

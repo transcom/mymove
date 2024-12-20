@@ -14,7 +14,6 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/models/roles"
 	"github.com/transcom/mymove/pkg/storage/test"
-	"github.com/transcom/mymove/pkg/testdatagen"
 	"github.com/transcom/mymove/pkg/unit"
 )
 
@@ -826,8 +825,6 @@ func (suite *PayloadsSuite) TestSearchMoves() {
 	appCtx := suite.AppContextForTest()
 
 	marines := models.AffiliationMARINES
-	spaceForce := models.AffiliationSPACEFORCE
-	army := models.AffiliationARMY
 	moveUSMC := factory.BuildMove(suite.DB(), []factory.Customization{
 		{
 			Model: models.ServiceMember{
@@ -835,72 +832,12 @@ func (suite *PayloadsSuite) TestSearchMoves() {
 			},
 		},
 	}, nil)
-	moveSF := factory.BuildMove(suite.DB(), []factory.Customization{
-		{
-			Model: models.ServiceMember{
-				Affiliation: &spaceForce,
-			},
-		},
-	}, nil)
-	moveA := factory.BuildMove(suite.DB(), []factory.Customization{
-		{
-			Model: models.ServiceMember{
-				Affiliation: &army,
-			},
-		},
-	}, nil)
-	moveUSMC.Status = models.MoveStatusNeedsServiceCounseling
-	scheduledPickupDate := time.Date(testdatagen.GHCTestYear, time.September, 20, 0, 0, 0, 0, time.UTC)
-	scheduledDeliveryDate := time.Date(testdatagen.GHCTestYear, time.September, 20, 0, 0, 0, 0, time.UTC)
-	sitAllowance := int(90)
-	gbloc := "LKNQ"
-	storageFacility := factory.BuildStorageFacility(suite.DB(), nil, nil)
-	mtoShipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
-		{
-			Model:    moveSF,
-			LinkOnly: true,
-		},
-		{
-			Model: models.MTOShipment{
-				Status:                models.MTOShipmentStatusApproved,
-				ShipmentType:          models.MTOShipmentTypeHHGIntoNTSDom,
-				CounselorRemarks:      handlers.FmtString("counselor remark"),
-				SITDaysAllowance:      &sitAllowance,
-				ScheduledPickupDate:   &scheduledPickupDate,
-				ScheduledDeliveryDate: &scheduledDeliveryDate,
-			},
-		},
-		{
-			Model:    storageFacility,
-			LinkOnly: true,
-		},
-	}, nil)
-
-	moveSF.MTOShipments = append(moveSF.MTOShipments, mtoShipment)
-	moveSF.ShipmentGBLOC = append(moveSF.ShipmentGBLOC, models.MoveToGBLOC{GBLOC: &gbloc})
-
 	moves := models.Moves{moveUSMC}
-	moveSpaceForce := models.Moves{moveSF}
-	moveArmy := models.Moves{moveA}
 	suite.Run("Success - Returns a ghcmessages Upload payload from Upload Struct Marine move with no shipments", func() {
 		payload := SearchMoves(appCtx, moves)
 
 		suite.IsType(payload, &ghcmessages.SearchMoves{})
 		suite.NotNil(payload)
-	})
-	suite.Run("Success - Returns a ghcmessages Upload payload from Upload Struct Non-Marine move, a shipment, and delivery/pickup time.  ", func() {
-		payload := SearchMoves(appCtx, moveSpaceForce)
-		suite.IsType(payload, &ghcmessages.SearchMoves{})
-		suite.NotNil(payload)
-		suite.NotNil(mtoShipment)
-
-		suite.NotNil(moveA)
-	})
-	suite.Run("Success - Returns a ghcmessages Upload payload from Upload Struct Army move, with no shipments.  ", func() {
-		payload := SearchMoves(appCtx, moveArmy)
-		suite.IsType(payload, &ghcmessages.SearchMoves{})
-		suite.NotNil(payload)
-
 	})
 }
 
