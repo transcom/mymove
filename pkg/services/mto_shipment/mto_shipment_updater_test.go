@@ -464,6 +464,14 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 		planner.On("ZipTransitDistance",
 			mock.AnythingOfType("*appcontext.appContext"),
 			"50314",
+			"99505",
+			false,
+			true,
+		).Return(1000, nil)
+
+		planner.On("ZipTransitDistance",
+			mock.AnythingOfType("*appcontext.appContext"),
+			"50314",
 			"97220",
 			true,
 			true,
@@ -528,6 +536,7 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 					DestinationAddressID: &destinationAddress.ID,
 					ScheduledPickupDate:  &pickupDate,
 					RequestedPickupDate:  &requestedPickup,
+					MarketCode:           models.MarketCodeInternational,
 				},
 			},
 			{
