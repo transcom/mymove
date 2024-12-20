@@ -88,10 +88,10 @@ test.describe('Office User Create Page', () => {
 
     // The autocomplete form results in multiple matching elements, so
     // pick the input element
-    await page.getByLabel('Transportation Office').nth(0).fill('JPPSO Testy McTest');
+    await page.getByLabel('Transportation Office').nth(0).fill('PPPO Scott AFB - USAF');
     // the autocomplete might return multiples because of concurrent
     // tests running that are adding offices
-    await page.getByRole('option', { name: 'JPPSO Testy McTest' }).first().click();
+    await page.getByRole('option', { name: 'PPPO Scott AFB - USAF' }).first().click();
 
     await page.getByRole('button', { name: 'Save' }).click();
     await adminPage.waitForPage.adminPage();
@@ -176,10 +176,10 @@ test.describe('Office User Create Page', () => {
 
     // The autocomplete form results in multiple matching elements, so
     // pick the input element
-    await page.getByLabel('Transportation Office').nth(0).fill('JPPSO Testy McTest');
+    await page.getByLabel('Transportation Office').nth(0).fill('PPPO Scott AFB - USAF');
     // the autocomplete might return multiples because of concurrent
     // tests running that are adding offices
-    await page.getByRole('option', { name: 'JPPSO Testy McTest' }).first().click();
+    await page.getByRole('option', { name: 'PPPO Scott AFB - USAF' }).first().click();
 
     await page.getByRole('button', { name: 'Save' }).click();
     await adminPage.waitForPage.adminPage();
@@ -269,10 +269,10 @@ test.describe('Office User Create Page', () => {
 
     // The autocomplete form results in multiple matching elements, so
     // pick the input element
-    await page.getByLabel('Transportation Office').nth(0).fill('JPPSO Testy McTest');
+    await page.getByLabel('Transportation Office').nth(0).fill('PPPO Scott AFB - USAF');
     // the autocomplete might return multiples because of concurrent
     // tests running that are adding offices
-    await page.getByRole('option', { name: 'JPPSO Testy McTest' }).first().click();
+    await page.getByRole('option', { name: 'PPPO Scott AFB - USAF' }).first().click();
 
     await page.getByRole('button', { name: 'Save' }).click();
     await adminPage.waitForPage.adminPage();
@@ -351,10 +351,10 @@ test.describe('Office User Create Page', () => {
     // Continue test to ensure form still submits with valid information
     // The autocomplete form results in multiple matching elements, so
     // pick the input element
-    await page.getByLabel('Transportation Office').nth(0).fill('JPPSO Testy McTest');
+    await page.getByLabel('Transportation Office').nth(0).fill('PPPO Scott AFB - USAF');
     // the autocomplete might return multiples because of concurrent
     // tests running that are adding offices
-    await page.getByRole('option', { name: 'JPPSO Testy McTest' }).first().click();
+    await page.getByRole('option', { name: 'PPPO Scott AFB - USAF' }).first().click();
 
     await page.getByRole('button', { name: 'Save' }).click();
     await adminPage.waitForPage.adminPage();
@@ -446,10 +446,10 @@ test.describe('Office User Create Page', () => {
 
     // The autocomplete form results in multiple matching elements, so
     // pick the input element
-    await page.getByLabel('Transportation Office').nth(0).fill('JPPSO Testy McTest');
+    await page.getByLabel('Transportation Office').nth(0).fill('PPPO Scott AFB - USAF');
     // the autocomplete might return multiples because of concurrent
     // tests running that are adding offices
-    await page.getByRole('option', { name: 'JPPSO Testy McTest' }).first().click();
+    await page.getByRole('option', { name: 'PPPO Scott AFB - USAF' }).first().click();
 
     await page.getByRole('button', { name: 'Save' }).click();
     await adminPage.waitForPage.adminPage();
@@ -525,10 +525,10 @@ test.describe('Office User Create Page', () => {
 
     // The autocomplete form results in multiple matching elements, so
     // pick the input element
-    await page.getByLabel('Transportation Office').nth(0).fill('JPPSO Testy McTest');
+    await page.getByLabel('Transportation Office').nth(0).fill('PPPO Scott AFB - USAF');
     // the autocomplete might return multiples because of concurrent
     // tests running that are adding offices
-    await page.getByRole('option', { name: 'JPPSO Testy McTest' }).first().click();
+    await page.getByRole('option', { name: 'PPPO Scott AFB - USAF' }).first().click();
 
     await page.getByRole('button', { name: 'Save' }).click();
     await adminPage.waitForPage.adminPage();
