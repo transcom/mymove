@@ -464,6 +464,24 @@ func SaveMoveDependencies(db *pop.Connection, move *Move) (*validate.Errors, err
 	return responseVErrors, responseError
 }
 
+// FetchMoveByMoveIDWithServiceItems returns a Move along with all the associations needed to determine
+// the move service item's status.
+func FetchMoveByMoveIDWithServiceItems(db *pop.Connection, moveID uuid.UUID) (Move, error) {
+	var move Move
+	err := db.Q().Eager(
+		"MTOServiceItems",
+		"MTOServiceItems.Status",
+	).Where("show = TRUE").Find(&move, moveID)
+
+	if err != nil {
+		if errors.Cause(err).Error() == RecordNotFoundErrorString {
+			return Move{}, ErrFetchNotFound
+		}
+		return Move{}, err
+	}
+	return move, nil
+}
+
 // FetchMoveForMoveDates returns a Move along with all the associations needed to determine
 // the move dates summary information.
 func FetchMoveForMoveDates(db *pop.Connection, moveID uuid.UUID) (Move, error) {

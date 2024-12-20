@@ -8,7 +8,9 @@ import (
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/apperror"
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/models/roles"
 	"github.com/transcom/mymove/pkg/services"
+	moveservice "github.com/transcom/mymove/pkg/services/move"
 	"github.com/transcom/mymove/pkg/services/query"
 )
 
@@ -48,6 +50,9 @@ func (p *paymentRequestStatusUpdater) UpdatePaymentRequestStatus(appCtx appconte
 		}
 	}
 
+	paymentRequests := models.PaymentRequests{}
+	moveID := paymentRequest.MoveTaskOrderID
+
 	var verrs *validate.Errors
 	var err error
 	if eTag == "" {
@@ -58,6 +63,29 @@ func (p *paymentRequestStatusUpdater) UpdatePaymentRequestStatus(appCtx appconte
 
 	if verrs != nil && verrs.HasAny() {
 		return nil, apperror.NewInvalidInputError(id, err, verrs, "")
+	}
+
+	Qerr := appCtx.DB().Q().InnerJoin("moves", "payment_requests.move_id = moves.id").Where("moves.id = ?", moveID).All(&paymentRequests)
+	if Qerr != nil {
+		return nil, Qerr
+	}
+
+	paymentRequestNeedingReview := false
+	for _, request := range paymentRequests {
+		if request.Status != models.PaymentRequestStatusReviewed &&
+			request.Status != models.PaymentRequestStatusReviewedAllRejected {
+			paymentRequestNeedingReview = true
+			break
+		}
+	}
+
+	if !paymentRequestNeedingReview {
+		_, err := moveservice.AssignedOfficeUserUpdater.DeleteAssignedOfficeUser(moveservice.AssignedOfficeUserUpdater{}, appCtx, moveID, roles.RoleTypeTIO)
+		if err != nil {
+			return nil, err
+		}
+		paymentRequest.MoveTaskOrder.TIOAssignedID = nil
+		paymentRequest.MoveTaskOrder.TIOAssignedUser = nil
 	}
 
 	if err != nil {

@@ -18,7 +18,6 @@ import (
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/handlers/ghcapi/internal/payloads"
 	"github.com/transcom/mymove/pkg/models"
-	"github.com/transcom/mymove/pkg/models/roles"
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/services/audit"
 	"github.com/transcom/mymove/pkg/services/event"
@@ -220,32 +219,6 @@ func (h UpdatePaymentRequestStatusHandler) Handle(
 			returnPayload, err := payloads.PaymentRequest(appCtx, updatedPaymentRequest, h.FileStorer())
 			if err != nil {
 				return paymentrequestop.NewGetPaymentRequestInternalServerError(), err
-			}
-
-			//When approving a Payment request - remove the TIO assigned user
-			move, err := models.FetchMove(appCtx.DB(), appCtx.Session(), existingPaymentRequest.MoveTaskOrderID)
-			if err != nil {
-				return paymentrequestop.NewUpdatePaymentRequestStatusInternalServerError(), err
-			}
-			requestList, err := h.FetchPaymentRequestListByMove(appCtx, move.Locator)
-			if err != nil {
-				return paymentrequestop.NewUpdatePaymentRequestStatusInternalServerError(), err
-			}
-
-			paymentRequestNeedingReview := false
-			for _, request := range *requestList {
-				if request.Status != models.PaymentRequestStatusReviewed &&
-					request.Status != models.PaymentRequestStatusReviewedAllRejected {
-					paymentRequestNeedingReview = true
-					break
-				}
-			}
-			if !paymentRequestNeedingReview {
-				_, err := h.MoveAssignedOfficeUserUpdater.DeleteAssignedOfficeUser(appCtx, move.ID, roles.RoleTypeTIO)
-				if err != nil {
-					return paymentrequestop.NewUpdatePaymentRequestStatusInternalServerError(), err
-				}
-				returnPayload.MoveTaskOrder.TIOAssignedUser = nil
 			}
 
 			return paymentrequestop.NewUpdatePaymentRequestStatusOK().WithPayload(returnPayload), nil

@@ -343,11 +343,31 @@ func (p *mtoServiceItemUpdater) approveOrRejectServiceItem(
 		if err != nil {
 			return err
 		}
+
 		move := serviceItem.MoveTaskOrder
+		moveWithServiceItems, err := models.FetchMoveByMoveIDWithServiceItems(txnAppCtx.DB(), move.ID)
+		if err != nil {
+			return err
+		}
+
+		serviceItemsNeedingReview := false
+		for _, request := range moveWithServiceItems.MTOServiceItems {
+			if request.Status == models.MTOServiceItemStatusSubmitted {
+				serviceItemsNeedingReview = true
+				break
+			}
+		}
+
+		//remove assigned user when all service items have been reviewed
+		if !serviceItemsNeedingReview {
+			move.TOOAssignedID = nil
+		}
 
 		//When updating a service item - remove the TOO assigned user
-		move.TOOAssignedID = nil
-		_, err = models.SaveMoveDependencies(appCtx.DB(), &move)
+		verrs, err := appCtx.DB().ValidateAndSave(&move)
+		if verrs != nil && verrs.HasAny() {
+			return apperror.NewInvalidInputError(move.ID, nil, verrs, "")
+		}
 		if err != nil {
 			return err
 		}

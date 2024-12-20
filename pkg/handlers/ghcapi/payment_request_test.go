@@ -259,45 +259,6 @@ func (suite *HandlerSuite) TestUpdatePaymentRequestStatusHandler() {
 	}
 
 	statusUpdater := paymentrequest.NewPaymentRequestStatusUpdater(query.NewQueryBuilder())
-	suite.Run("successful status update payment request and remove assigned user", func() {
-		officeUser := setupTestData()
-		pendingPaymentRequest := factory.BuildPaymentRequest(suite.DB(), []factory.Customization{
-			{
-				Model:    officeUser,
-				LinkOnly: true,
-				Type:     &factory.OfficeUsers.TIOAssignedUser,
-			},
-		}, nil)
-
-		suite.NotNil(pendingPaymentRequest.MoveTaskOrder.TIOAssignedID)
-
-		paymentRequestFetcher := &mocks.PaymentRequestFetcher{}
-		paymentRequestFetcher.On("FetchPaymentRequest", mock.AnythingOfType("*appcontext.appContext"),
-			mock.Anything).Return(pendingPaymentRequest, nil).Once()
-
-		req := httptest.NewRequest("PATCH", fmt.Sprintf("/payment_request/%s/status", pendingPaymentRequest.ID), nil)
-		req = suite.AuthenticateOfficeRequest(req, officeUser)
-
-		params := paymentrequestop.UpdatePaymentRequestStatusParams{
-			HTTPRequest:      req,
-			Body:             &ghcmessages.UpdatePaymentRequestStatusPayload{Status: "REVIEWED", RejectionReason: nil, ETag: etag.GenerateEtag(pendingPaymentRequest.UpdatedAt)},
-			PaymentRequestID: strfmt.UUID(pendingPaymentRequest.ID.String()),
-		}
-
-		handler := UpdatePaymentRequestStatusHandler{
-			HandlerConfig:                 suite.HandlerConfig(),
-			PaymentRequestStatusUpdater:   statusUpdater,
-			PaymentRequestFetcher:         paymentRequestFetcher,
-			PaymentRequestListFetcher:     paymentrequest.NewPaymentRequestListFetcher(),
-			MoveAssignedOfficeUserUpdater: move.AssignedOfficeUserUpdater{},
-		}
-
-		response := handler.Handle(params)
-
-		payload := response.(*paymentrequestop.UpdatePaymentRequestStatusOK).Payload
-		suite.NotNil(payload.ReviewedAt)
-		suite.Nil(payload.MoveTaskOrder.TIOAssignedUser)
-	})
 	suite.Run("successful status update of payment request", func() {
 		officeUser := setupTestData()
 		pendingPaymentRequest := factory.BuildPaymentRequest(suite.DB(), nil, nil)

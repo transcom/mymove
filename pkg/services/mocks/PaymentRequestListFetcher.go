@@ -18,6 +18,34 @@ type PaymentRequestListFetcher struct {
 	mock.Mock
 }
 
+// CheckAndRemovePaymentRequestAssignedUser provides a mock function with given fields: appCtx, id
+func (_m *PaymentRequestListFetcher) CheckAndRemovePaymentRequestAssignedUser(appCtx appcontext.AppContext, id uuid.UUID) (bool, error) {
+	ret := _m.Called(appCtx, id)
+
+	if len(ret) == 0 {
+		panic("no return value specified for CheckAndRemovePaymentRequestAssignedUser")
+	}
+
+	var r0 bool
+	var r1 error
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, uuid.UUID) (bool, error)); ok {
+		return rf(appCtx, id)
+	}
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, uuid.UUID) bool); ok {
+		r0 = rf(appCtx, id)
+	} else {
+		r0 = ret.Get(0).(bool)
+	}
+
+	if rf, ok := ret.Get(1).(func(appcontext.AppContext, uuid.UUID) error); ok {
+		r1 = rf(appCtx, id)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
 // FetchPaymentRequestList provides a mock function with given fields: appCtx, officeUserID, params
 func (_m *PaymentRequestListFetcher) FetchPaymentRequestList(appCtx appcontext.AppContext, officeUserID uuid.UUID, params *services.FetchPaymentRequestListParams) (*models.PaymentRequests, int, error) {
 	ret := _m.Called(appCtx, officeUserID, params)

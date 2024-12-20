@@ -285,6 +285,42 @@ func (suite *FactorySuite) TestBuildMove() {
 		suite.NotEmpty(move.MTOShipments)
 		suite.Equal(models.MTOShipmentStatusSubmitted, move.MTOShipments[0].Status)
 	})
+	suite.Run("Successful creation of a move with an assigned SC", func() {
+		officeUser := BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeServicesCounselor})
+
+		move := BuildMoveWithShipment(suite.DB(), []Customization{
+			{
+				Model: models.Move{
+					Status: models.MoveStatusAPPROVED,
+				},
+			},
+			{
+				Model:    officeUser,
+				LinkOnly: true,
+				Type:     &OfficeUsers.SCAssignedUser,
+			},
+		}, nil)
+		suite.Equal(officeUser.ID, *move.SCAssignedID)
+	})
+
+	suite.Run("Successful creation of a move with an assigned TOO", func() {
+		officeUser := BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
+
+		move := BuildMoveWithShipment(suite.DB(), []Customization{
+			{
+				Model: models.Move{
+					Status: models.MoveStatusAPPROVED,
+				},
+			},
+			{
+				Model:    officeUser,
+				LinkOnly: true,
+				Type:     &OfficeUsers.TOOAssignedUser,
+			},
+		}, nil)
+		suite.Equal(officeUser.ID, *move.TOOAssignedID)
+	})
+
 	suite.Run("Successful creation of a move with an assigned TIO", func() {
 		officeUser := BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTIO})
 
