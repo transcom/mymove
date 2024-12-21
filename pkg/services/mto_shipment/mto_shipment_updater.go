@@ -162,7 +162,7 @@ func setNewShipmentFields(appCtx appcontext.AppContext, dbShipment *models.MTOSh
 		dbShipment.PickupAddress = requestedUpdatedShipment.PickupAddress
 	}
 
-	if requestedUpdatedShipment.DestinationAddress != nil && dbShipment.ShipmentType != models.MTOShipmentTypeHHGIntoNTSDom {
+	if requestedUpdatedShipment.DestinationAddress != nil && dbShipment.ShipmentType != models.MTOShipmentTypeHHGIntoNTS {
 		dbShipment.DestinationAddress = requestedUpdatedShipment.DestinationAddress
 	}
 
@@ -445,7 +445,7 @@ func (f *mtoShipmentUpdater) updateShipmentRecord(appCtx appcontext.AppContext, 
 		//   vs "don't touch" the field, so we can't safely reset a nil DestinationAddress to the duty
 		//   location address for an HHG like we do in the MTOShipmentCreator now.  See MB-15718.
 
-		if newShipment.DestinationAddress != nil && newShipment.ShipmentType != models.MTOShipmentTypeHHGIntoNTSDom {
+		if newShipment.DestinationAddress != nil && newShipment.ShipmentType != models.MTOShipmentTypeHHGIntoNTS {
 			// If there is an existing DestinationAddressID associated
 			// with the shipment, grab it.
 			if dbShipment.DestinationAddressID != nil {
@@ -693,7 +693,7 @@ func (f *mtoShipmentUpdater) updateShipmentRecord(appCtx appcontext.AppContext, 
 
 			}
 			// For NTS set the destination address to the storage facility
-			if newShipment.ShipmentType == models.MTOShipmentTypeHHGIntoNTSDom {
+			if newShipment.ShipmentType == models.MTOShipmentTypeHHGIntoNTS {
 				newShipment.DestinationAddressID = &newShipment.StorageFacility.AddressID
 				newShipment.DestinationAddress = &newShipment.StorageFacility.Address
 			}
@@ -1001,9 +1001,9 @@ func (o *mtoShipmentStatusUpdater) setRequiredDeliveryDate(appCtx appcontext.App
 		weight := shipment.PrimeEstimatedWeight
 
 		switch shipment.ShipmentType {
-		case models.MTOShipmentTypeHHGIntoNTSDom:
+		case models.MTOShipmentTypeHHGIntoNTS:
 			if shipment.StorageFacility == nil || shipment.StorageFacility.AddressID == uuid.Nil {
-				return errors.Errorf("StorageFacility is required for %s shipments", models.MTOShipmentTypeHHGIntoNTSDom)
+				return errors.Errorf("StorageFacility is required for %s shipments", models.MTOShipmentTypeHHGIntoNTS)
 			}
 			err := appCtx.DB().Load(shipment.StorageFacility, "Address", "Address.Country")
 			if err != nil {
@@ -1091,7 +1091,7 @@ func reServiceCodesForShipment(shipment models.MTOShipment) []models.ReServiceCo
 				models.ReServiceCodeDUPK,
 			}
 		}
-	case models.MTOShipmentTypeHHGIntoNTSDom:
+	case models.MTOShipmentTypeHHGIntoNTS:
 		// Need to create: Dom Linehaul, Fuel Surcharge, Dom Origin Price, Dom Destination Price, Dom NTS Packing
 		return []models.ReServiceCode{
 			models.ReServiceCodeDLH,
