@@ -82,12 +82,16 @@ const OrdersDetailForm = ({
       <DropdownInput
         name="ordersType"
         label="Orders type"
-        options={formOrdersType === 'SAFETY' ? dropdownInputOptions({ SAFETY: 'Safety' }) : ordersTypeOptions}
+        options={
+          formOrdersType === 'SAFETY' || formOrdersType === 'BLUEBARK'
+            ? dropdownInputOptions({ SAFETY: 'Safety', BLUEBARK: 'Bluebark' })
+            : ordersTypeOptions
+        }
         onChange={(e) => {
           setFormOrdersType(e.target.value);
           setFieldValue('ordersType', e.target.value);
         }}
-        isDisabled={formIsDisabled || formOrdersType === 'SAFETY'}
+        isDisabled={formIsDisabled || formOrdersType === 'SAFETY' || formOrdersType === 'BLUEBARK'}
       />
       {showOrdersTypeDetail && (
         <DropdownInput
