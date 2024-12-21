@@ -114,6 +114,7 @@ export class OfficeApp extends Component {
       hqRoleFlag: !!props.hqRoleFlag,
       gsrRoleFlag: undefined,
       queueManagementFlag: undefined,
+      bulkAssignmentFlag: undefined,
     };
   }
 
@@ -158,6 +159,10 @@ export class OfficeApp extends Component {
         this.setState({
           queueManagementFlag: isQueueManagementFlagValue,
         });
+        const isBulkAssignmentFlagValue = await isBooleanFlagEnabled('bulk_assignment');
+        this.setState({
+          bulkAssignmentFlag: isBulkAssignmentFlagValue,
+        });
       } catch (error) {
         retryPageLoading(error);
       }
@@ -177,8 +182,17 @@ export class OfficeApp extends Component {
   }
 
   render() {
-    const { hasError, error, info, oktaLoggedOut, oktaNeedsLoggedOut, hqRoleFlag, gsrRoleFlag, queueManagementFlag } =
-      this.state;
+    const {
+      hasError,
+      error,
+      info,
+      oktaLoggedOut,
+      oktaNeedsLoggedOut,
+      hqRoleFlag,
+      gsrRoleFlag,
+      queueManagementFlag,
+      bulkAssignmentFlag,
+    } = this.state;
     const {
       activeRole,
       officeUserId,
@@ -322,6 +336,7 @@ export class OfficeApp extends Component {
                               <ServicesCounselingQueue
                                 userPrivileges={userPrivileges}
                                 isQueueManagementFFEnabled={queueManagementFlag}
+                                isBulkAssignmentFFEnabled={bulkAssignmentFlag}
                               />
                             </PrivateRoute>
                           }
@@ -349,7 +364,11 @@ export class OfficeApp extends Component {
                           end
                           element={
                             <PrivateRoute requiredRoles={[roleTypes.TIO]}>
-                              <PaymentRequestQueue isQueueManagementFFEnabled={queueManagementFlag} />
+                              <PaymentRequestQueue
+                                isQueueManagementFFEnabled={queueManagementFlag}
+                                userPrivileges={userPrivileges}
+                                isBulkAssignmentFFEnabled={bulkAssignmentFlag}
+                              />
                             </PrivateRoute>
                           }
                         />
@@ -360,7 +379,11 @@ export class OfficeApp extends Component {
                           end
                           element={
                             <PrivateRoute requiredRoles={[roleTypes.TOO]}>
-                              <MoveQueue isQueueManagementFFEnabled={queueManagementFlag} />
+                              <MoveQueue
+                                isQueueManagementFFEnabled={queueManagementFlag}
+                                userPrivileges={userPrivileges}
+                                isBulkAssignmentFFEnabled={bulkAssignmentFlag}
+                              />
                             </PrivateRoute>
                           }
                         />

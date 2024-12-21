@@ -73,6 +73,14 @@ flags:
       - segment:
           key: mil-app
           value: false
+  - key: enable_Bulk_assignment
+    name: Enable Bulk Assignment feature flag
+    type: BOOLEAN_FLAG_TYPE
+    enabled: true
+    rollouts:
+      - segment:
+          key: mil-app
+          value: true
   - key: okta_dodid_input
     name: Customer DODID input being pulled from Okta and disabling text input
     type: BOOLEAN_FLAG_TYPE
@@ -131,6 +139,14 @@ flags:
           value: false
   - key: queue_management
     name: Office user queue management feature flag
+    type: BOOLEAN_FLAG_TYPE
+    enabled: true
+    rollouts:
+      - segment:
+          key: mil-app
+          value: true
+  - key: bulk_assignment
+    name: bulk assignment feature flag
     type: BOOLEAN_FLAG_TYPE
     enabled: true
     rollouts:

@@ -900,6 +900,7 @@ commands:
             export FEATURE_FLAG_ENABLE_ALASKA=false
             export FEATURE_FLAG_UNACCOMPANIED_BAGGAGE=false
             export FEATURE_FLAG_ENABLE_HAWAII=false
+            export FEATURE_FLAG_BULK_ASSIGNMENT=true
 
             # disable for speed, playwright tests can fail otherwise
             export DB_DEBUG=false
@@ -943,6 +944,7 @@ commands:
             FEATURE_FLAG_QUEUE_MANAGEMENT: 'false'
             FEATURE_FLAG_UNACCOMPANIED_BAGGAGE: 'false'
             FEATURE_FLAG_ENABLE_ALASKA: 'false'
+            FEATURE_FLAG_BULK_ASSIGNMENT: 'true'
           command: |
             SHARD=$((${CIRCLE_NODE_INDEX}+1))
             PLAYWRIGHT_JUNIT_OUTPUT_NAME=playwright-results.xml \
