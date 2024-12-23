@@ -108,7 +108,7 @@ func (suite *GHCRateEngineServiceSuite) TestPriceDomesticOriginWithServiceItemPa
 }
 
 func (suite *GHCRateEngineServiceSuite) TestPriceDomesticOrigin() {
-	featureFlagValues := testhelpers.MakeMobileHomeFFMap()
+	featureFlagValues := testhelpers.MakeMobileHomeFFMap(false)
 	pricer := NewDomesticOriginPricer()
 
 	suite.Run("success domestic origin cost within peak period", func() {

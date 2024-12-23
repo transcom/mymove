@@ -63,19 +63,21 @@ func priceDomesticPackUnpack(appCtx appcontext.AppContext, packUnpackCode models
 	}
 
 	isFactorToggleOn := false // Track whether DMHF Factor FF toggle is on for this Pack or Unpack item
-	if domOtherPriceCode == models.ReServiceCodeDPK {
-		if featureFlagValues == nil || len(featureFlagValues) <= 0 {
-			return 0, nil, fmt.Errorf("Expected a map of feature flag values when checking pricing for DPK item, received nil or empty map instead.")
-		}
-		if featureFlagValues[featureflag.DomesticMobileHomePackingFactor] {
-			isFactorToggleOn = true
-		}
-	} else if domOtherPriceCode == models.ReServiceCodeDUPK {
-		if featureFlagValues == nil || len(featureFlagValues) <= 0 {
-			return 0, nil, fmt.Errorf("Expected a map of feature flag values when checking pricing for DUPK item, received nil or empty map instead.")
-		}
-		if featureFlagValues[featureflag.DomesticMobileHomeUnpackingFactor] {
-			isFactorToggleOn = true
+	if isMobileHome {         // Only check for mobile home factor FF if this is a mobile home shipment.
+		if domOtherPriceCode == models.ReServiceCodeDPK {
+			if featureFlagValues == nil || len(featureFlagValues) <= 0 {
+				return 0, nil, fmt.Errorf("Expected a map of feature flag values when checking pricing for DPK item, received nil or empty map instead.")
+			}
+			if featureFlagValues[featureflag.DomesticMobileHomePackingFactor] {
+				isFactorToggleOn = true
+			}
+		} else if domOtherPriceCode == models.ReServiceCodeDUPK {
+			if featureFlagValues == nil || len(featureFlagValues) <= 0 {
+				return 0, nil, fmt.Errorf("Expected a map of feature flag values when checking pricing for DUPK item, received nil or empty map instead.")
+			}
+			if featureFlagValues[featureflag.DomesticMobileHomeUnpackingFactor] {
+				isFactorToggleOn = true
+			}
 		}
 	}
 

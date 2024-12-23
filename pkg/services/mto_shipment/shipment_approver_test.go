@@ -191,7 +191,7 @@ func (suite *MTOShipmentServiceSuite) createApproveShipmentSubtestData() (subtes
 }
 
 func (suite *MTOShipmentServiceSuite) TestApproveShipment() {
-	featureFlagValues := testhelpers.MakeMobileHomeFFMap()
+	featureFlagValues := testhelpers.MakeMobileHomeFFMap(false)
 	suite.Run("If the international mtoShipment is approved successfully it should create pre approved mtoServiceItems", func() {
 		internationalShipment := factory.BuildMTOShipment(suite.AppContextForTest().DB(), []factory.Customization{
 			{

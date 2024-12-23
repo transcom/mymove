@@ -452,7 +452,7 @@ func (o *mtoServiceItemCreator) CreateMTOServiceItem(appCtx appcontext.AppContex
 	if err != nil {
 		switch err {
 		case sql.ErrNoRows:
-			return nil, nil, apperror.NewNotFoundError(mtoShipmentID, fmt.Sprintf("for mtoShipment with moveID: %s", moveID.String()))
+			return nil, nil, apperror.NewNotFoundError(mtoShipmentID, fmt.Sprintf("couldn't find MTOShipment object for mtoShipment with moveID: %s", moveID.String()))
 		default:
 			return nil, nil, apperror.NewQueryError("MTOShipment", err, "")
 		}

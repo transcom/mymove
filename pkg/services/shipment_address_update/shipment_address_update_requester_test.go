@@ -835,7 +835,7 @@ func (suite *ShipmentAddressUpdateServiceSuite) TestTOOApprovedShipmentAddressUp
 }
 
 func (suite *ShipmentAddressUpdateServiceSuite) TestTOOApprovedShipmentAddressUpdateRequestChangedPricing() {
-	featureFlagValues := testhelpers.MakeMobileHomeFFMap()
+	featureFlagValues := testhelpers.MakeMobileHomeFFMap(false)
 	setupTestData := func() models.Move {
 		testdatagen.FetchOrMakeReContractYear(suite.DB(), testdatagen.Assertions{
 			ReContractYear: models.ReContractYear{

@@ -97,7 +97,7 @@ func (suite *GHCRateEngineServiceSuite) TestPriceDomesticDestinationWithServiceI
 }
 
 func (suite *GHCRateEngineServiceSuite) TestPriceDomesticDestination() {
-	featureFlagValues := testhelpers.MakeMobileHomeFFMap()
+	featureFlagValues := testhelpers.MakeMobileHomeFFMap(false)
 	pricer := NewDomesticDestinationPricer()
 
 	suite.Run("success destination cost within peak period", func() {

@@ -110,23 +110,19 @@ func (h CreateMTOServiceItemHandler) Handle(params mtoserviceitemops.CreateMTOSe
 
 			if mtoAvailableToPrime {
 				v := viper.New()
-				featureFlagFetcher, err := featureflag.NewFeatureFlagFetcher(cli.GetFliptFetcherConfig(v))
-				if err != nil {
-					appCtx.Logger().Error(fmt.Sprintf("Error setting up feature flag fetcher: %s", err))
-					return mtoserviceitemops.NewCreateMTOServiceItemInternalServerError().WithPayload(primeapipayloads.InternalServerError(nil, h.GetTraceIDFromRequest(params.HTTPRequest))), err
+				featureFlagFetcher, ffErr := featureflag.NewFeatureFlagFetcher(cli.GetFliptFetcherConfig(v))
+				if ffErr != nil {
+					appCtx.Logger().Error(fmt.Sprintf("Error setting up feature flag fetcher: %s", ffErr))
+					return mtoserviceitemops.NewCreateMTOServiceItemInternalServerError().WithPayload(primeapipayloads.InternalServerError(nil, h.GetTraceIDFromRequest(params.HTTPRequest))), ffErr
 				}
 
-				featureFlagValues, err := handlers.GetAllDomesticMHFlags(appCtx, featureFlagFetcher)
-				if err != nil {
-					appCtx.Logger().Error(fmt.Sprintf("Error fetching mobile home feature flags: %s", err))
-					return mtoserviceitemops.NewCreateMTOServiceItemInternalServerError().WithPayload(primeapipayloads.InternalServerError(nil, h.GetTraceIDFromRequest(params.HTTPRequest))), err
+				featureFlagValues, ffErr := handlers.GetAllDomesticMHFlags(appCtx, featureFlagFetcher)
+				if ffErr != nil {
+					appCtx.Logger().Error(fmt.Sprintf("Error fetching mobile home feature flags: %s", ffErr))
+					return mtoserviceitemops.NewCreateMTOServiceItemInternalServerError().WithPayload(primeapipayloads.InternalServerError(nil, h.GetTraceIDFromRequest(params.HTTPRequest))), ffErr
 				}
 				mtoServiceItem.Status = models.MTOServiceItemStatusSubmitted
 				mtoServiceItems, verrs, err = h.mtoServiceItemCreator.CreateMTOServiceItem(appCtx, mtoServiceItem, featureFlagValues)
-				if err != nil {
-					appCtx.Logger().Error(fmt.Sprintf("Error creating MTO Service Item: %s", err))
-					return mtoserviceitemops.NewCreateMTOServiceItemInternalServerError().WithPayload(primeapipayloads.InternalServerError(nil, h.GetTraceIDFromRequest(params.HTTPRequest))), err
-				}
 			} else if err == nil {
 				primeErr := apperror.NewNotFoundError(moveTaskOrderID, "primeapi.CreateMTOServiceItemHandler error - MTO is not available to Prime")
 				appCtx.Logger().Error(primeErr.Error())

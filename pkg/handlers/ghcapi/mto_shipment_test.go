@@ -689,7 +689,7 @@ func (suite *HandlerSuite) TestApproveShipmentHandler() {
 		officeUser := factory.BuildOfficeUserWithRoles(nil, nil, []roles.RoleType{roles.RoleTypeTOO})
 		approver := &mocks.ShipmentApprover{}
 
-		approver.On("ApproveShipment", mock.AnythingOfType("*appcontext.appContext"), shipment.ID, eTag).Return(nil, apperror.NotFoundError{})
+		approver.On("ApproveShipment", mock.AnythingOfType("*appcontext.appContext"), shipment.ID, eTag, mock.AnythingOfType("map[string]bool")).Return(nil, apperror.NotFoundError{})
 
 		req := httptest.NewRequest("POST", fmt.Sprintf("/shipments/%s/approve", shipment.ID.String()), nil)
 		req = suite.AuthenticateOfficeRequest(req, officeUser)
@@ -728,7 +728,7 @@ func (suite *HandlerSuite) TestApproveShipmentHandler() {
 		officeUser := factory.BuildOfficeUserWithRoles(nil, nil, []roles.RoleType{roles.RoleTypeTOO})
 		approver := &mocks.ShipmentApprover{}
 
-		approver.On("ApproveShipment", mock.AnythingOfType("*appcontext.appContext"), shipment.ID, eTag).Return(nil, apperror.ConflictError{})
+		approver.On("ApproveShipment", mock.AnythingOfType("*appcontext.appContext"), shipment.ID, eTag, mock.AnythingOfType("map[string]bool")).Return(nil, apperror.ConflictError{})
 
 		req := httptest.NewRequest("POST", fmt.Sprintf("/shipments/%s/approve", shipment.ID.String()), nil)
 		req = suite.AuthenticateOfficeRequest(req, officeUser)
@@ -767,7 +767,7 @@ func (suite *HandlerSuite) TestApproveShipmentHandler() {
 		officeUser := factory.BuildOfficeUserWithRoles(nil, nil, []roles.RoleType{roles.RoleTypeTOO})
 		approver := &mocks.ShipmentApprover{}
 
-		approver.On("ApproveShipment", mock.AnythingOfType("*appcontext.appContext"), shipment.ID, eTag).Return(nil, apperror.PreconditionFailedError{})
+		approver.On("ApproveShipment", mock.AnythingOfType("*appcontext.appContext"), shipment.ID, eTag, mock.AnythingOfType("map[string]bool")).Return(nil, apperror.PreconditionFailedError{})
 
 		req := httptest.NewRequest("POST", fmt.Sprintf("/shipments/%s/approve", shipment.ID.String()), nil)
 		req = suite.AuthenticateOfficeRequest(req, officeUser)
@@ -806,7 +806,7 @@ func (suite *HandlerSuite) TestApproveShipmentHandler() {
 		officeUser := factory.BuildOfficeUserWithRoles(nil, nil, []roles.RoleType{roles.RoleTypeTOO})
 		approver := &mocks.ShipmentApprover{}
 
-		approver.On("ApproveShipment", mock.AnythingOfType("*appcontext.appContext"), shipment.ID, eTag).Return(nil, apperror.InvalidInputError{ValidationErrors: &validate.Errors{}})
+		approver.On("ApproveShipment", mock.AnythingOfType("*appcontext.appContext"), shipment.ID, eTag, mock.AnythingOfType("map[string]bool")).Return(nil, apperror.InvalidInputError{ValidationErrors: &validate.Errors{}})
 
 		req := httptest.NewRequest("POST", fmt.Sprintf("/shipments/%s/approve", shipment.ID.String()), nil)
 		req = suite.AuthenticateOfficeRequest(req, officeUser)
@@ -845,7 +845,7 @@ func (suite *HandlerSuite) TestApproveShipmentHandler() {
 		officeUser := factory.BuildOfficeUserWithRoles(nil, nil, []roles.RoleType{roles.RoleTypeTOO})
 		approver := &mocks.ShipmentApprover{}
 
-		approver.On("ApproveShipment", mock.AnythingOfType("*appcontext.appContext"), shipment.ID, eTag).Return(nil, errors.New("UnexpectedError"))
+		approver.On("ApproveShipment", mock.AnythingOfType("*appcontext.appContext"), shipment.ID, eTag, mock.AnythingOfType("map[string]bool")).Return(nil, errors.New("UnexpectedError"))
 
 		req := httptest.NewRequest("POST", fmt.Sprintf("/shipments/%s/approve", shipment.ID.String()), nil)
 		req = suite.AuthenticateOfficeRequest(req, officeUser)
@@ -2486,6 +2486,7 @@ func (suite *HandlerSuite) TestReviewShipmentAddressUpdateHandler() {
 			addressChange.ShipmentID,
 			models.ShipmentAddressUpdateStatusApproved,
 			"This is a TOO remark",
+			mock.AnythingOfType("map[string]bool"),
 		).Return(&newAddress, nil)
 
 		handler := ReviewShipmentAddressUpdateHandler{
@@ -2538,6 +2539,7 @@ func (suite *HandlerSuite) TestReviewShipmentAddressUpdateHandler() {
 			addressChange.ShipmentID,
 			models.ShipmentAddressUpdateStatusApproved,
 			"This is a TOO remark",
+			mock.AnythingOfType("map[string]bool"),
 		).Return(nil, err)
 
 		suite.NoError(params.Body.Validate(strfmt.Default))
@@ -2582,6 +2584,7 @@ func (suite *HandlerSuite) TestReviewShipmentAddressUpdateHandler() {
 			addressChange.ShipmentID,
 			models.ShipmentAddressUpdateStatusApproved,
 			"This is a TOO remark",
+			mock.AnythingOfType("map[string]bool"),
 		).Return(nil, err)
 
 		suite.NoError(params.Body.Validate(strfmt.Default))
@@ -2627,6 +2630,7 @@ func (suite *HandlerSuite) TestReviewShipmentAddressUpdateHandler() {
 			addressChange.ShipmentID,
 			models.ShipmentAddressUpdateStatusApproved,
 			"This is a TOO remark",
+			mock.AnythingOfType("map[string]bool"),
 		).Return(nil, err)
 
 		suite.NoError(params.Body.Validate(strfmt.Default))
@@ -2670,6 +2674,7 @@ func (suite *HandlerSuite) TestReviewShipmentAddressUpdateHandler() {
 			addressChange.ShipmentID,
 			models.ShipmentAddressUpdateStatusApproved,
 			"This is a TOO remark",
+			mock.AnythingOfType("map[string]bool"),
 		).Return(nil, err)
 
 		suite.NoError(params.Body.Validate(strfmt.Default))

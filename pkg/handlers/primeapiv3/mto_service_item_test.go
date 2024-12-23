@@ -199,6 +199,7 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemHandler() {
 		mockCreator.On("CreateMTOServiceItem",
 			mock.AnythingOfType("*appcontext.appContext"),
 			mock.Anything,
+			mock.AnythingOfType("map[string]bool"),
 		).Return(nil, nil, err)
 
 		// Validate incoming payload
@@ -231,6 +232,7 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemHandler() {
 		mockCreator.On("CreateMTOServiceItem",
 			mock.AnythingOfType("*appcontext.appContext"),
 			mock.Anything,
+			mock.AnythingOfType("map[string]bool"),
 		).Return(nil, nil, err)
 
 		// Validate incoming payload
@@ -258,6 +260,7 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemHandler() {
 		mockCreator.On("CreateMTOServiceItem",
 			mock.AnythingOfType("*appcontext.appContext"),
 			mock.Anything,
+			mock.AnythingOfType("map[string]bool"),
 		).Return(nil, nil, err)
 
 		// Validate incoming payload
@@ -284,6 +287,7 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemHandler() {
 		mockCreator.On("CreateMTOServiceItem",
 			mock.AnythingOfType("*appcontext.appContext"),
 			mock.Anything,
+			mock.AnythingOfType("map[string]bool"),
 		).Return(nil, nil, err)
 
 		// Validate incoming payload
@@ -392,6 +396,7 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemHandler() {
 		mockCreator.On("CreateMTOServiceItem",
 			mock.AnythingOfType("*appcontext.appContext"),
 			mock.Anything,
+			mock.AnythingOfType("map[string]bool"),
 		).Return(nil, verrs, nil)
 
 		// Validate incoming payload
@@ -418,6 +423,7 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemHandler() {
 		mockCreator.On("CreateMTOServiceItem",
 			mock.AnythingOfType("*appcontext.appContext"),
 			mock.Anything,
+			mock.AnythingOfType("map[string]bool"),
 		).Return(nil, nil, err)
 
 		mtoServiceItem := models.MTOServiceItem{

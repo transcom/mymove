@@ -12,13 +12,13 @@ import (
 	"github.com/transcom/mymove/pkg/services/mocks"
 )
 
-func MakeMobileHomeFFMap() map[string]bool {
+func MakeMobileHomeFFMap(initValue bool) map[string]bool {
 	featureFlagValues := make(map[string]bool)
 	featureFlagValues[featureflag.DomesticMobileHome] = true
-	featureFlagValues[featureflag.DomesticMobileHomeDDPEnabled] = true
-	featureFlagValues[featureflag.DomesticMobileHomeDOPEnabled] = true
-	featureFlagValues[featureflag.DomesticMobileHomePackingEnabled] = true
-	featureFlagValues[featureflag.DomesticMobileHomeUnpackingEnabled] = true
+	featureFlagValues[featureflag.DomesticMobileHomeDDPEnabled] = initValue
+	featureFlagValues[featureflag.DomesticMobileHomeDOPEnabled] = initValue
+	featureFlagValues[featureflag.DomesticMobileHomePackingEnabled] = initValue
+	featureFlagValues[featureflag.DomesticMobileHomeUnpackingEnabled] = initValue
 
 	return featureFlagValues
 }

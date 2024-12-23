@@ -180,7 +180,7 @@ func (suite *MTOServiceItemServiceSuite) buildValidServiceItemWithNoStatusAndVal
 // Should return a message stating that service items can't be created if
 // the move is not in approved status.
 func (suite *MTOServiceItemServiceSuite) TestCreateMTOServiceItemWithInvalidMove() {
-	featureFlagValues := testhelpers.MakeMobileHomeFFMap()
+	featureFlagValues := testhelpers.MakeMobileHomeFFMap(false)
 
 	// TESTCASE SCENARIO
 	// Under test: CreateMTOServiceItem function
@@ -215,7 +215,7 @@ func (suite *MTOServiceItemServiceSuite) TestCreateMTOServiceItemWithInvalidMove
 }
 
 func (suite *MTOServiceItemServiceSuite) TestCreateMTOServiceItem() {
-	featureFlagValues := testhelpers.MakeMobileHomeFFMap()
+	featureFlagValues := testhelpers.MakeMobileHomeFFMap(false)
 	builder := query.NewQueryBuilder()
 	moveRouter := moverouter.NewMoveRouter()
 	planner := &mocks.Planner{}
@@ -974,7 +974,7 @@ func (suite *MTOServiceItemServiceSuite) TestCreateMTOServiceItem() {
 }
 
 func (suite *MTOServiceItemServiceSuite) TestCreateOriginSITServiceItem() {
-	featureFlagValues := testhelpers.MakeMobileHomeFFMap()
+	featureFlagValues := testhelpers.MakeMobileHomeFFMap(false)
 	// Set up data to use for all Origin SIT Service Item tests
 	var reServiceDOASIT models.ReService
 	var reServiceDOFSIT models.ReService
@@ -1389,7 +1389,7 @@ func (suite *MTOServiceItemServiceSuite) TestCreateOriginSITServiceItem() {
 }
 
 func (suite *MTOServiceItemServiceSuite) TestCreateOriginSITServiceItemFailToCreateDOFSIT() {
-	featureFlagValues := testhelpers.MakeMobileHomeFFMap()
+	featureFlagValues := testhelpers.MakeMobileHomeFFMap(false)
 	sitEntryDate := time.Date(2020, time.October, 24, 0, 0, 0, 0, time.UTC)
 	sitPostalCode := "99999"
 	reason := "lorem ipsum"
@@ -1436,7 +1436,7 @@ func (suite *MTOServiceItemServiceSuite) TestCreateOriginSITServiceItemFailToCre
 
 // TestCreateDestSITServiceItem tests the creation of destination SIT service items
 func (suite *MTOServiceItemServiceSuite) TestCreateDestSITServiceItem() {
-	featureFlagValues := testhelpers.MakeMobileHomeFFMap()
+	featureFlagValues := testhelpers.MakeMobileHomeFFMap(false)
 
 	setupTestData := func() (models.MTOShipment, services.MTOServiceItemCreator, models.ReService) {
 		move := factory.BuildMove(suite.DB(), []factory.Customization{
@@ -2088,7 +2088,7 @@ func (suite *MTOServiceItemServiceSuite) TestPriceEstimator() {
 			mock.Anything,
 			mock.Anything,
 		).Return(400, nil)
-		featureFlagValues := testhelpers.MakeMobileHomeFFMap()
+		featureFlagValues := testhelpers.MakeMobileHomeFFMap(false)
 		creator := NewMTOServiceItemCreator(planner, builder, moveRouter, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticPackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer())
 
 		dopEstimatedPriceInCents, _ := creator.FindEstimatedPrice(suite.AppContextForTest(), &serviceItemDOP, shipment, featureFlagValues)
@@ -2114,7 +2114,7 @@ func (suite *MTOServiceItemServiceSuite) TestPriceEstimator() {
 	})
 
 	suite.Run("Calcuating price estimated on creation for NTS shipment ", func() {
-		featureFlagValues := testhelpers.MakeMobileHomeFFMap()
+		featureFlagValues := testhelpers.MakeMobileHomeFFMap(false)
 		setupTestData := func() models.MTOShipment {
 			// Set up data to use for all Origin SIT Service Item tests
 

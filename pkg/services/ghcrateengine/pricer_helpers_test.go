@@ -15,7 +15,7 @@ import (
 )
 
 func (suite *GHCRateEngineServiceSuite) Test_priceDomesticPackUnpack() {
-	featureFlagValues := testhelpers.MakeMobileHomeFFMap()
+	featureFlagValues := testhelpers.MakeMobileHomeFFMap(false)
 	suite.Run("golden path with DNPK", func() {
 		suite.setupDomesticNTSPackPrices(dnpkTestServicesScheduleOrigin, dnpkTestIsPeakPeriod, dnpkTestBasePriceCents, models.MarketConus, dnpkTestFactor, dnpkTestContractYearName, dnpkTestEscalationCompounded)
 		isPPM := false
@@ -89,8 +89,9 @@ func (suite *GHCRateEngineServiceSuite) Test_priceDomesticPackUnpack() {
 	})
 
 }
+
 func (suite *GHCRateEngineServiceSuite) Test_domesticPackAndUnpackWithMobileHome() {
-	featureFlagValues := testhelpers.MakeMobileHomeFFMap()
+	featureFlagValues := testhelpers.MakeMobileHomeFFMap(false) // Init factor flags to false
 	suite.Run("golden path with DPK", func() {
 		suite.setupDomesticOtherPrice(models.ReServiceCodeDPK, dpkTestServicesScheduleOrigin, dpkTestIsPeakPeriod, dpkTestBasePriceCents, dpkTestContractYearName, dpkTestEscalationCompounded)
 
@@ -98,14 +99,13 @@ func (suite *GHCRateEngineServiceSuite) Test_domesticPackAndUnpackWithMobileHome
 		isMobileHome := true
 		priceCents, displayParams, err := priceDomesticPackUnpack(suite.AppContextForTest(), models.ReServiceCodeDPK, testdatagen.DefaultContractCode, dpkTestRequestedPickupDate, dpkTestWeight, dpkTestServicesScheduleOrigin, isPPM, isMobileHome, featureFlagValues)
 		suite.NoError(err)
-		suite.Equal(unit.Cents(roundToPrecision(float64(dpkTestPriceCents)*mobileHomeFactor, 2)), priceCents)
+		suite.Equal(unit.Cents(roundToPrecision(dpkTestPriceCents.Float64(), 2)), priceCents)
 
 		expectedParams := services.PricingDisplayParams{
 			{Key: models.ServiceItemParamNameContractYearName, Value: dpkTestContractYearName},
 			{Key: models.ServiceItemParamNameEscalationCompounded, Value: FormatEscalation(dpkTestEscalationCompounded)},
 			{Key: models.ServiceItemParamNameIsPeak, Value: FormatBool(dpkTestIsPeakPeriod)},
 			{Key: models.ServiceItemParamNamePriceRateOrFactor, Value: FormatCents(dpkTestBasePriceCents)},
-			{Key: models.ServiceItemParamNameMobileHomeFactor, Value: FormatFloat(mobileHomeFactor, 2)},
 		}
 		suite.validatePricerCreatedParams(expectedParams, displayParams)
 	})
@@ -134,7 +134,7 @@ func (suite *GHCRateEngineServiceSuite) Test_domesticPackAndUnpackWithMobileHome
 }
 
 func (suite *GHCRateEngineServiceSuite) Test_domesticPackAndUnpackWithPPM() {
-	featureFlagValues := testhelpers.MakeMobileHomeFFMap()
+	featureFlagValues := testhelpers.MakeMobileHomeFFMap(false)
 	suite.Run("golden path with DPK", func() {
 		suite.setupDomesticOtherPrice(models.ReServiceCodeDPK, dpkTestServicesScheduleOrigin, dpkTestIsPeakPeriod, dpkTestBasePriceCents, dpkTestContractYearName, dpkTestEscalationCompounded)
 

@@ -137,6 +137,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentStatusHandler() {
 			mock.Anything,
 			mock.Anything,
 			mock.Anything,
+			mock.AnythingOfType("map[string]bool"),
 		).Return(nil, internalServerErr)
 
 		response := mockHandler.Handle(setupParams(setupTestData()))
