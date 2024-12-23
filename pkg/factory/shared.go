@@ -281,14 +281,6 @@ var OfficeUsers = officeUserGroup{
 	TOOAssignedUser: "TOOAssignedUser",
 }
 
-// type officeUserGroup struct {
-// 	TIOAssignedUser CustomType
-// }
-
-// var OfficeUsers = officeUserGroup{
-// 	TIOAssignedUser: "TIOAssignedUser",
-// }
-
 // uploadGroup is a grouping of all the upload related fields
 type uploadGroup struct {
 	UploadTypePrime CustomType
