@@ -148,6 +148,21 @@ func (f mtoShipmentFetcher) ListMTOShipments(appCtx appcontext.AppContext, moveI
 			return nil, err
 		}
 		shipments[i].MTOAgents = agents
+
+		for _, serviceItem := range shipments[i].MTOServiceItems {
+			if serviceItem.PODLocation != nil {
+				loadErr := appCtx.DB().Load(serviceItem.PODLocation, "City", "Country", "UsPostRegionCity.UsPostRegion.State")
+				if loadErr != nil {
+					return nil, loadErr
+				}
+			}
+			if serviceItem.POELocation != nil {
+				loadErr := appCtx.DB().Load(serviceItem.POELocation, "City", "Country", "UsPostRegionCity.UsPostRegion.State")
+				if loadErr != nil {
+					return nil, loadErr
+				}
+			}
+		}
 	}
 
 	return shipments, nil
