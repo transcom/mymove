@@ -383,7 +383,7 @@ func priceDomesticShuttling(appCtx appcontext.AppContext, shuttlingCode models.R
 	return totalCost, params, nil
 }
 
-func priceInternationalShuttling(appCtx appcontext.AppContext, shuttlingCode models.ReServiceCode, contractCode string, referenceDate time.Time, weight unit.Pound, serviceSchedule int) (unit.Cents, services.PricingDisplayParams, error) {
+func priceInternationalShuttling(appCtx appcontext.AppContext, shuttlingCode models.ReServiceCode, contractCode string, referenceDate time.Time, weight unit.Pound, market models.Market) (unit.Cents, services.PricingDisplayParams, error) {
 	if shuttlingCode != models.ReServiceCodeIOSHUT && shuttlingCode != models.ReServiceCodeIDSHUT {
 		return 0, nil, fmt.Errorf("unsupported international shuttling code of %s", shuttlingCode)
 	}
@@ -397,12 +397,12 @@ func priceInternationalShuttling(appCtx appcontext.AppContext, shuttlingCode mod
 	if weight < minDomesticWeight {
 		return 0, nil, fmt.Errorf("Weight must be a minimum of %d", minInternationalWeight)
 	}
-	if serviceSchedule == 0 {
-		return 0, nil, errors.New("Service schedule is required")
+	if market == "" {
+		return 0, nil, errors.New("Market is required")
 	}
 
 	// look up rate for international accessorial price
-	internationalAccessorialPrice, err := fetchInternationalAccessorialPrice(appCtx, contractCode, shuttlingCode, serviceSchedule)
+	internationalAccessorialPrice, err := fetchInternationalAccessorialPrice(appCtx, contractCode, shuttlingCode, market)
 	if err != nil {
 		return 0, nil, fmt.Errorf("could not lookup Interntional Accessorial Area Price: %w", err)
 	}

@@ -97,7 +97,7 @@ type DomesticDestinationShuttlingPricer interface {
 //
 //go:generate mockery --name InternationalDestinationShuttlingPricer
 type InternationalDestinationShuttlingPricer interface {
-	Price(appCtx appcontext.AppContext, contractCode string, requestedPickupDate time.Time, weight unit.Pound, servicesScheduleDest int) (unit.Cents, PricingDisplayParams, error)
+	Price(appCtx appcontext.AppContext, contractCode string, requestedPickupDate time.Time, weight unit.Pound, market models.Market) (unit.Cents, PricingDisplayParams, error)
 	ParamsPricer
 }
 
@@ -105,7 +105,7 @@ type InternationalDestinationShuttlingPricer interface {
 //
 //go:generate mockery --name InternationalOriginShuttlingPricer
 type InternationalOriginShuttlingPricer interface {
-	Price(appCtx appcontext.AppContext, contractCode string, requestedPickupDate time.Time, weight unit.Pound, servicesScheduleOrigin int) (unit.Cents, PricingDisplayParams, error)
+	Price(appCtx appcontext.AppContext, contractCode string, requestedPickupDate time.Time, weight unit.Pound, market models.Market) (unit.Cents, PricingDisplayParams, error)
 	ParamsPricer
 }
 

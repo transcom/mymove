@@ -80,8 +80,8 @@ func (suite *GHCRateEngineServiceSuite) Test_fetchAccessorialPrice() {
 
 func (suite *GHCRateEngineServiceSuite) Test_fetchInternationalAccessorialPrice() {
 	suite.Run("golden path", func() {
-		suite.setupInternationalAccessorialPrice(models.ReServiceCodeIDSHUT, idshutTestServiceSchedule, idshutTestBasePriceCents, testdatagen.DefaultContractCode, idshutTestEscalationCompounded)
-		internationalAccessorialPrice, err := fetchAccessorialPrice(suite.AppContextForTest(), testdatagen.DefaultContractCode, models.ReServiceCodeDDSHUT, idshutTestServiceSchedule)
+		suite.setupInternationalAccessorialPrice(models.ReServiceCodeIDSHUT, idshutTestMarket, idshutTestBasePriceCents, testdatagen.DefaultContractCode, idshutTestEscalationCompounded)
+		internationalAccessorialPrice, err := fetchInternationalAccessorialPrice(suite.AppContextForTest(), testdatagen.DefaultContractCode, models.ReServiceCodeIDSHUT, idshutTestMarket)
 
 		suite.NoError(err)
 		suite.Equal(idshutTestBasePriceCents, internationalAccessorialPrice.PerUnitCents)

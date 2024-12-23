@@ -64,14 +64,14 @@ func fetchDomServiceAreaPrice(appCtx appcontext.AppContext, contractCode string,
 	return domServiceAreaPrice, nil
 }
 
-func fetchInternationalAccessorialPrice(appCtx appcontext.AppContext, contractCode string, serviceCode models.ReServiceCode, schedule int) (models.ReIntlAccessorialPrice, error) {
+func fetchInternationalAccessorialPrice(appCtx appcontext.AppContext, contractCode string, serviceCode models.ReServiceCode, market models.Market) (models.ReIntlAccessorialPrice, error) {
 	var domAccessorialPrice models.ReIntlAccessorialPrice
 	err := appCtx.DB().Q().
 		Join("re_services", "service_id = re_services.id").
 		Join("re_contracts", "re_contracts.id = re_intl_accessorial_prices.contract_id").
 		Where("re_contracts.code = $1", contractCode).
 		Where("re_services.code = $2", serviceCode).
-		Where("services_schedule = $3", schedule).
+		Where("market = $3", market).
 		First(&domAccessorialPrice)
 
 	if err != nil {

@@ -80,7 +80,7 @@ func (suite *GHCRateEngineServiceSuite) setupDomesticAccessorialPrice(code model
 	suite.MustSave(&accessorialPrice)
 }
 
-func (suite *GHCRateEngineServiceSuite) setupInternationalAccessorialPrice(code models.ReServiceCode, schedule int, perUnitCents unit.Cents, contractYearName string, escalationCompounded float64) {
+func (suite *GHCRateEngineServiceSuite) setupInternationalAccessorialPrice(code models.ReServiceCode, market models.Market, perUnitCents unit.Cents, contractYearName string, escalationCompounded float64) {
 	contractYear := testdatagen.MakeReContractYear(suite.DB(),
 		testdatagen.Assertions{
 			ReContractYear: models.ReContractYear{
@@ -95,7 +95,7 @@ func (suite *GHCRateEngineServiceSuite) setupInternationalAccessorialPrice(code 
 		ContractID:   contractYear.Contract.ID,
 		ServiceID:    service.ID,
 		PerUnitCents: perUnitCents,
-		Market:       "O",
+		Market:       market,
 	}
 
 	suite.MustSave(&accessorialPrice)

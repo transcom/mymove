@@ -18,8 +18,8 @@ func NewInternationalDestinationShuttlingPricer() services.InternationalDestinat
 }
 
 // Price determines the price for international destination first day SIT
-func (p internationalDestinationShuttlingPricer) Price(appCtx appcontext.AppContext, contractCode string, referenceDate time.Time, weight unit.Pound, serviceSchedule int) (unit.Cents, services.PricingDisplayParams, error) {
-	return priceInternationalShuttling(appCtx, models.ReServiceCodeIDSHUT, contractCode, referenceDate, weight, serviceSchedule)
+func (p internationalDestinationShuttlingPricer) Price(appCtx appcontext.AppContext, contractCode string, referenceDate time.Time, weight unit.Pound, market models.Market) (unit.Cents, services.PricingDisplayParams, error) {
+	return priceInternationalShuttling(appCtx, models.ReServiceCodeIDSHUT, contractCode, referenceDate, weight, market)
 }
 
 // PriceUsingParams determines the price for international destination first day SIT given PaymentServiceItemParams
@@ -34,7 +34,7 @@ func (p internationalDestinationShuttlingPricer) PriceUsingParams(appCtx appcont
 		return unit.Cents(0), nil, err
 	}
 
-	serviceScheduleDestination, err := getParamInt(params, models.ServiceItemParamNameServicesScheduleDest)
+	market, err := getParamMarket(params, models.ServiceItemParamNameMarketDest)
 	if err != nil {
 		return unit.Cents(0), nil, err
 	}
@@ -44,5 +44,5 @@ func (p internationalDestinationShuttlingPricer) PriceUsingParams(appCtx appcont
 		return unit.Cents(0), nil, err
 	}
 
-	return p.Price(appCtx, contractCode, referenceDate, unit.Pound(weightBilled), serviceScheduleDestination)
+	return p.Price(appCtx, contractCode, referenceDate, unit.Pound(weightBilled), market)
 }
