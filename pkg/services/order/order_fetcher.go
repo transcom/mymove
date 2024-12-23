@@ -1000,10 +1000,10 @@ func tooDestinationOnlyRequestsFilter(role roles.RoleType) QueryOption {
 		if role == roles.RoleTypeTOO {
 			query.Where(`
 			(
-				(mto_service_items.status IS NULL OR (mto_service_items.status = 'SUBMITTED' AND re_services.code NOT IN ('DDFSIT', 'DDASIT', 'DDDSIT', 'DDSHUT', 'DDSFSC', 'IDFSIT', 'IDASIT', 'IDDSIT', 'IDSHUT')))
-				AND (moves.status = 'SUBMITTED' OR moves.status = 'SERVICE COUNSELING COMPLETED' OR moves.status = 'APPROVALS REQUESTED')
+				(mto_service_items.status IS NULL OR (mto_service_items.status = 'SUBMITTED' AND re_services.code NOT IN ('DOFSIT', 'DOASIT', 'DDDSIT', 'DDSHUT', 'DDSFSC', 'IDFSIT', 'IDASIT', 'IDDSIT', 'IDSHUT')))
 			)
 			`)
+			// `)
 			// OR  --excess weight
 			// 	(
 			// 	(moves.excess_weight_qualified_at IS NOT NULL AND moves.excess_weight_acknowledged_at IS NULL)
