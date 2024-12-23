@@ -14,7 +14,7 @@ import (
 
 func (suite *PaymentRequestServiceSuite) TestUpdatePaymentRequestStatus() {
 	builder := query.NewQueryBuilder()
-	suite.Run("If we get a payment request pointer with a status it should update and return no ", func() {
+	suite.Run("When the last payment request is updated remove the assigend user.", func() {
 		setupTestData := func() models.OfficeUser {
 			transportationOffice := factory.BuildTransportationOffice(suite.DB(), []factory.Customization{
 				{

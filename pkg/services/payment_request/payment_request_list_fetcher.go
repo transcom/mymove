@@ -17,7 +17,6 @@ import (
 )
 
 type paymentRequestListFetcher struct {
-	services.MoveAssignedOfficeUserUpdater
 }
 
 var parameters = map[string]string{
