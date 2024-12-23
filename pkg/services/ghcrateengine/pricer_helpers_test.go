@@ -595,6 +595,61 @@ func (suite *GHCRateEngineServiceSuite) Test_priceDomesticShuttling() {
 		suite.Contains(err.Error(), "could not calculate escalated price: could not lookup contract year")
 	})
 }
+
+func (suite *GHCRateEngineServiceSuite) Test_priceInternationalShuttling() {
+	suite.Run("destination golden path", func() {
+		suite.setupInternationalAccessorialPrice(models.ReServiceCodeIOSHUT, ioshutTestServiceSchedule, ioshutTestBasePriceCents, testdatagen.DefaultContractCode, ioshutTestEscalationCompounded)
+
+		priceCents, displayParams, err := priceInternationalShuttling(suite.AppContextForTest(), models.ReServiceCodeIOSHUT, testdatagen.DefaultContractCode, ioshutTestRequestedPickupDate, ioshutTestWeight, ioshutTestServiceSchedule)
+		suite.NoError(err)
+		suite.Equal(ioshutTestPriceCents, priceCents)
+
+		expectedParams := services.PricingDisplayParams{
+			{Key: models.ServiceItemParamNameContractYearName, Value: testdatagen.DefaultContractCode},
+			{Key: models.ServiceItemParamNameEscalationCompounded, Value: FormatEscalation(ioshutTestEscalationCompounded)},
+			{Key: models.ServiceItemParamNamePriceRateOrFactor, Value: FormatCents(ioshutTestBasePriceCents)},
+		}
+		suite.validatePricerCreatedParams(expectedParams, displayParams)
+	})
+
+	suite.Run("invalid service code", func() {
+		suite.setupInternationalAccessorialPrice(models.ReServiceCodeIOSHUT, ioshutTestServiceSchedule, ioshutTestBasePriceCents, testdatagen.DefaultContractCode, ioshutTestEscalationCompounded)
+		_, _, err := priceInternationalShuttling(suite.AppContextForTest(), models.ReServiceCodeCS, testdatagen.DefaultContractCode, ioshutTestRequestedPickupDate, ioshutTestWeight, ioshutTestServiceSchedule)
+
+		suite.Error(err)
+		suite.Contains(err.Error(), "unsupported international shuttling code")
+	})
+
+	suite.Run("invalid weight", func() {
+		suite.setupDomesticAccessorialPrice(models.ReServiceCodeIOSHUT, ioshutTestServiceSchedule, ioshutTestBasePriceCents, testdatagen.DefaultContractCode, ioshutTestEscalationCompounded)
+
+		badWeight := unit.Pound(250)
+		_, _, err := priceInternationalShuttling(suite.AppContextForTest(), models.ReServiceCodeIOSHUT, testdatagen.DefaultContractCode, ioshutTestRequestedPickupDate, badWeight, ioshutTestServiceSchedule)
+
+		suite.Error(err)
+		suite.Contains(err.Error(), "Weight must be a minimum of 500")
+	})
+
+	suite.Run("not finding a rate record", func() {
+		suite.setupInternationalAccessorialPrice(models.ReServiceCodeIOSHUT, ioshutTestServiceSchedule, ioshutTestBasePriceCents, testdatagen.DefaultContractCode, ioshutTestEscalationCompounded)
+
+		_, _, err := priceInternationalShuttling(suite.AppContextForTest(), models.ReServiceCodeIOSHUT, "BOGUS", ioshutTestRequestedPickupDate, ioshutTestWeight, ioshutTestServiceSchedule)
+
+		suite.Error(err)
+		suite.Contains(err.Error(), "could not lookup International Accessorial Area Price")
+	})
+
+	suite.Run("not finding a contract year record", func() {
+		suite.setupInternationalAccessorialPrice(models.ReServiceCodeIDSHUT, idshutTestServiceSchedule, idshutTestBasePriceCents, testdatagen.DefaultContractCode, idshutTestEscalationCompounded)
+
+		twoYearsLaterPickupDate := doshutTestRequestedPickupDate.AddDate(2, 0, 0)
+		_, _, err := priceInternationalShuttling(suite.AppContextForTest(), models.ReServiceCodeIDSHUT, testdatagen.DefaultContractCode, twoYearsLaterPickupDate, idshutTestWeight, idshutTestServiceSchedule)
+
+		suite.Error(err)
+		suite.Contains(err.Error(), "could not calculate escalated price: could not lookup contract year")
+	})
+}
+
 func (suite *GHCRateEngineServiceSuite) Test_priceDomesticCrating() {
 	suite.Run("crating golden path", func() {
 		suite.setupDomesticAccessorialPrice(models.ReServiceCodeDCRT, dcrtTestServiceSchedule, dcrtTestBasePriceCents, testdatagen.DefaultContractCode, dcrtTestEscalationCompounded)
