@@ -95,6 +95,7 @@ func (suite *GHCRateEngineServiceSuite) setupInternationalAccessorialPrice(code 
 		ContractID:   contractYear.Contract.ID,
 		ServiceID:    service.ID,
 		PerUnitCents: perUnitCents,
+		Market:       "O",
 	}
 
 	suite.MustSave(&accessorialPrice)
