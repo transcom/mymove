@@ -31,9 +31,9 @@ describe('BulkAssignmentModal', () => {
   it('closes the modal when the Cancel button is clicked', async () => {
     render(<BulkAssignmentModal onSubmit={onSubmit} onClose={onClose} />);
 
-    const keepButton = await screen.findByRole('button', { name: 'Cancel' });
+    const cancelButton = await screen.findByRole('button', { name: 'Cancel' });
 
-    await userEvent.click(keepButton);
+    await userEvent.click(cancelButton);
 
     expect(onClose).toHaveBeenCalledTimes(1);
   });
@@ -41,9 +41,9 @@ describe('BulkAssignmentModal', () => {
   it('calls the submit function when Save button is clicked', async () => {
     render(<BulkAssignmentModal onSubmit={onSubmit} onClose={onClose} />);
 
-    const cancelButton = await screen.findByRole('button', { name: 'Save' });
+    const saveButton = await screen.findByRole('button', { name: 'Save' });
 
-    await userEvent.click(cancelButton);
+    await userEvent.click(saveButton);
 
     expect(onSubmit).toHaveBeenCalledTimes(1);
   });

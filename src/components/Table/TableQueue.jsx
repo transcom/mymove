@@ -52,7 +52,6 @@ const TableQueue = ({
   csvExportQueueFetcher,
   csvExportQueueFetcherKey,
   sessionStorageKey,
-  isHeadquartersUser,
   isSupervisor,
   isBulkAssignmentFFEnabled,
   officeUser,
@@ -321,18 +320,14 @@ const TableQueue = ({
     <div className={styles.tabContent}>
       <div className={styles.container}>
         {isBulkAssignModalVisible && (
-          <BulkAssignmentModal
-            isOpen={isBulkAssignModalVisible}
-            onClose={handleCloseBulkAssignModal}
-            // onSubmit={handleBulkAssignment}
-          />
+          <BulkAssignmentModal isOpen={isBulkAssignModalVisible} onClose={handleCloseBulkAssignModal} />
         )}
         <GridContainer data-testid="table-queue" containerSize="widescreen" className={styles.TableQueue}>
           <div className={styles.queueHeader}>
             <h1>{`${title} (${totalCount})`}</h1>
             <div className={styles.queueButtonWrapper}>
               {isSupervisor && isBulkAssignmentFFEnabled && (
-                <Button type="button" unstyled onClick={handleShowBulkAssignMoveModal}>
+                <Button className={styles.btn} type="button" onClick={handleShowBulkAssignMoveModal}>
                   Bulk Assignment
                 </Button>
               )}
@@ -347,7 +342,7 @@ const TableQueue = ({
                   totalCount={totalCount}
                   paramSort={paramSort}
                   paramFilters={paramFilters}
-                  isHeadquartersUser={isHeadquartersUser}
+                  isHeadquartersUser={activeRole === roleTypes.HQ}
                 />
               )}
             </div>
