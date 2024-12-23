@@ -236,8 +236,10 @@ test.describe('Office User Create Page', () => {
     // Check selecting roles after having supervisor selected for allowed roles
     await taskOrderingOfficerCheckbox.click();
     await expect(taskOrderingOfficerCheckbox).toBeChecked();
+    await taskOrderingOfficerCheckbox.click();
     await taskInvoicingOfficerCheckbox.click();
     await expect(taskInvoicingOfficerCheckbox).toBeChecked();
+    await taskInvoicingOfficerCheckbox.click();
     await servicesCounselorCheckbox.click();
     await expect(servicesCounselorCheckbox).toBeChecked();
 
@@ -453,6 +455,10 @@ test.describe('Office Users Edit Page', () => {
     // Define constants for privileges
     const supervisorCheckbox = page.getByLabel('Supervisor', { exact: true });
 
+    // Disable existing roles for testing
+    await taskOrderingOfficerCheckbox.click();
+    await taskInvoicingOfficerCheckbox.click();
+
     // Check roles that cannot have supervisor priveleges
     await customerCheckbox.click();
     await supervisorCheckbox.click();
@@ -528,8 +534,10 @@ test.describe('Office Users Edit Page', () => {
     // Check selecting roles after having supervisor selected for allowed roles
     await taskOrderingOfficerCheckbox.click();
     await expect(taskOrderingOfficerCheckbox).toBeChecked();
+    await taskOrderingOfficerCheckbox.click();
     await taskInvoicingOfficerCheckbox.click();
     await expect(taskInvoicingOfficerCheckbox).toBeChecked();
+    await taskInvoicingOfficerCheckbox.click();
     await servicesCounselorCheckbox.click();
     await expect(servicesCounselorCheckbox).toBeChecked();
 
