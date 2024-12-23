@@ -45,8 +45,8 @@ stages:
 - test
 - push
 - deploy
-- prod_push
-- prod_push
+- push_prd
+- deploy_prd
 
 #anchors
 #set safe directory and path
@@ -159,7 +159,9 @@ anti_virus:
         --tempdir=/tmp \
         $CI_PROJECT_DIR
   after_script:
-    - echo "Anti-virus scan completed. Replace with failure announcement logic if needed."
+    - *announce_failure
+  rules:
+    - *check_main
 
 pre_deps_golang:
   stage: pre_checks
@@ -173,6 +175,8 @@ pre_deps_golang:
     - for i in $(seq 1 5); do go mod download && break || s=$? && sleep 5; done; (exit $s)
     - scripts/check-generated-code go.sum
     - make bin/swagger
+  after_script:
+    - *announce_failure
   artifacts:
     paths:
       - bin/
@@ -202,6 +206,8 @@ pre_deps_yarn:
   artifacts:
     paths:
       - ~/.cache/yarn
+  after_script:
+    - *announce_failure
 
 check_generated_code:
   stage: pre_checks
@@ -213,6 +219,9 @@ check_generated_code:
   script:
     - make server_generate mocks_generate
     - scripts/check-generated-code pkg/gen/ $(find . -type d -name "*mocks" -exec echo -n '{} ' \;)
+  after_script:
+    - *announce_failure
+
 
 check_tls_certificate_dp3:
   stage: pre_checks
@@ -231,6 +240,8 @@ check_tls_certificate_dp3:
       fi
     - echo "Running TLS pair check..."
     - /usr/local/bin/check-tls-pair "${TLS_KEY}" "${TLS_CERT}"
+  after_script:
+    - *announce_failure
   rules:
     - *check_dp3
 
@@ -244,11 +255,7 @@ check_tls_certificate_stg:
     - echo "Running TLS pair check..."
     - /usr/local/bin/check-tls-pair "${TLS_KEY}" "${TLS_CERT}"
   after_script:
-    - echo "Running failure notification if necessary..."
-    - |
-      if [[ "$CI_COMMIT_BRANCH" == "main" && "$CI_JOB_STATUS" == "failed" ]]; then
-        ./scripts/circleci-announce-broken-branch
-      fi
+    - *announce_failure
 
 check_tls_certificate_prd:
   stage: pre_checks
@@ -260,11 +267,7 @@ check_tls_certificate_prd:
     - echo "Running TLS pair check for PRD environment..."
     - /usr/local/bin/check-tls-pair "${TLS_KEY}" "${TLS_CERT}"
   after_script:
-    - |
-      if [[ "$CI_COMMIT_BRANCH" == "main" && "$CI_JOB_STATUS" == "failed" ]]; then
-        echo "Announcing broken branch for main..."
-        scripts/circleci-announce-broken-branch
-      fi
+    - *announce_failure
 
 compile_app_client:
   stage: build
@@ -290,6 +293,9 @@ compile_app_client:
       - yarn.lock
       - eslint-plugin-ato
     expire_in: 1 week
+  after_script:
+    - *announce_failure
+
 
 compile_app_server:
   stage: build
@@ -322,6 +328,9 @@ compile_app_server:
     - pkg/testdatagen/testdata
     - /builds/milmove/mymove/config/otel/*
     expire_in: 1 week
+  after_script:
+    - *announce_failure
+
 
 build_push_app_stg:
   stage: push
@@ -338,7 +347,7 @@ build_push_app_stg:
     - echo "Building and Pushing app Docker image..."
     - /kaniko/executor --context "${CI_PROJECT_DIR}/" --dockerfile "${CI_PROJECT_DIR}/${APP_DOCKER_FILE}" --destination "${ECR_REPOSITORY_URI}/app:$CI_COMMIT_SHORT_SHA"
   after_script:
-    - echo "Build_complete"
+    - *announce_failure
   rules:
   - *check_main
 
@@ -357,7 +366,7 @@ build_push_migrations_stg:
     - echo "Building and Pushing migrations Docker image..."
     - /kaniko/executor --context "${CI_PROJECT_DIR}/" --dockerfile "${CI_PROJECT_DIR}/Dockerfile.migrations" --destination "${ECR_REPOSITORY_URI}/app-migrations:$CI_COMMIT_SHORT_SHA"
   after_script:
-    - echo "Migrations image built and pushed successfully."
+    - *announce_failure
   rules:
   - *check_main
 
@@ -376,7 +385,7 @@ build_push_tasks_stg:
     - echo "Building tasks Docker image..."
     - /kaniko/executor --context "${CI_PROJECT_DIR}/" --dockerfile "${CI_PROJECT_DIR}/${TASK_DOCKER_FILE}" --destination "${ECR_REPOSITORY_URI}/app-tasks:$CI_COMMIT_SHORT_SHA"
   after_script:
-    - echo "Tasks image built successfully."
+    - *announce_failure
   rules:
   - *check_main
 
@@ -403,185 +412,22 @@ push_otel_collector_image_stg:
     - echo "Cleaning up the temporary image file..."
     - rm image.tar
   allow_failure: false
-  rules:
-    - *check_main
-
-build_push_app_prd:
-  stage: prod_push
-  image:
-    name: gcr.io/kaniko-project/executor:v1.14.0-debug
-    entrypoint: [""]
-  needs:
-      - compile_app_client
-      - compile_app_server
-  before_script:
-      - *setup_release_prd
-      - *kaniko_before_setup
-  script:
-    - echo "Building and Pushing app Docker image..."
-    - /kaniko/executor --context "${CI_PROJECT_DIR}/" --dockerfile "${CI_PROJECT_DIR}/${APP_DOCKER_FILE}" --destination "${ECR_REPOSITORY_URI}/app:$CI_COMMIT_SHORT_SHA"
   after_script:
-    - echo "Build_complete"
-  rules:
-    - *check_main
-
-build_push_migrations_prd:
-  stage: prod_push
-  image:
-    name: gcr.io/kaniko-project/executor:v1.14.0-debug
-    entrypoint: [""]
-  needs:
-    - compile_app_server
-    - compile_app_client
-  before_script:
-    - *setup_release_prd
-    - *kaniko_before_setup
-  script:
-    - echo "Building and Pushing migrations Docker image..."
-    - /kaniko/executor --context "${CI_PROJECT_DIR}/" --dockerfile "${CI_PROJECT_DIR}/Dockerfile.migrations" --destination "${ECR_REPOSITORY_URI}/app-migrations:$CI_COMMIT_SHORT_SHA"
-  after_script:
-    - echo "Migrations image built and pushed successfully."
-  rules:
-  - if: '$CI_COMMIT_BRANCH == "main"'
-
-build_push_tasks_prd:
-  stage: prod_push
-  image:
-    name: gcr.io/kaniko-project/executor:v1.14.0-debug
-    entrypoint: [""]
-  needs:
-    - compile_app_server
-    - compile_app_client
-  before_script:
-    - *setup_release_prd
-    - *kaniko_before_setup
-  script:
-    - echo "Building tasks Docker image..."
-    - /kaniko/executor --context "${CI_PROJECT_DIR}/" --dockerfile "${CI_PROJECT_DIR}/${TASK_DOCKER_FILE}" --destination "${ECR_REPOSITORY_URI}/app-tasks:$CI_COMMIT_SHORT_SHA"
-  after_script:
-    - echo "Tasks image built successfully."
-  rules:
-    - *check_main
-
-push_otel_collector_image_prd:
-  stage: push
-  image:
-    name: $DOCKER_BASE_IMAGE
-    entrypoint: [""]
-  needs:
-    - compile_app_server
-    - compile_app_client
-  before_script:
-    - *setup_release_prd
-  script:
-    - echo "Logging in to Amazon ECR with Crane..."
-    - aws ecr get-login-password --region us-gov-west-1 | crane auth login ${ECR_REPOSITORY_URI} -u AWS --password-stdin
-
-    - echo "Pulling the AWS OTel Collector image from the public registry with Crane..."
-    - crane pull --insecure public.ecr.aws/aws-observability/aws-otel-collector:v0.31.0 image.tar
-
-    - echo "Pushing the image to our private ECR using Crane..."
-    - crane push --insecure image.tar ${ECR_REPOSITORY_URI}/otel-collector:${CI_COMMIT_SHORT_SHA}
-
-    - echo "Cleaning up the temporary image file..."
-    - rm image.tar
-  allow_failure: false
-  rules:
-  - if: '$CI_COMMIT_BRANCH == "main"'
-
-
-build_push_app_dp3:
-  stage: push
-  image:
-    name: gcr.io/kaniko-project/executor:v1.14.0-debug
-    entrypoint: [""]
-  needs:
-     - compile_app_client
-     - compile_app_server
-  before_script:
-    - *setup_release_dp3
-    - *kaniko_before_setup
-  script:
-    - echo "Building and Pushing app Docker image..."
-    - /kaniko/executor --context "${CI_PROJECT_DIR}/" --dockerfile "${CI_PROJECT_DIR}/${APP_DOCKER_FILE}" --destination "${ECR_REPOSITORY_URI}/app:$CI_COMMIT_SHORT_SHA"
-  after_script:
-    - echo "Build_complete"
-  rules:
-    - *check_dp3
-
-build_push_migrations_dp3:
-  stage: push
-  image:
-    name: gcr.io/kaniko-project/executor:v1.14.0-debug
-    entrypoint: [""]
-  needs:
-    - compile_app_server
-    - compile_app_client
-  before_script:
-    - *setup_release_dp3
-    - *kaniko_before_setup
-  script:
-    - echo "Building and Pushing migrations Docker image..."
-    - /kaniko/executor --context "${CI_PROJECT_DIR}/" --dockerfile "${CI_PROJECT_DIR}/Dockerfile.migrations" --destination "${ECR_REPOSITORY_URI}/app-migrations:$CI_COMMIT_SHORT_SHA"
-  after_script:
-    - echo "Migrations image built and pushed successfully."
-  rules:
-    - *check_dp3
-
-build_push_tasks_dp3:
-  stage: push
-  image:
-    name: gcr.io/kaniko-project/executor:v1.14.0-debug
-    entrypoint: [""]
-  needs:
-    - compile_app_server
-    - compile_app_client
-  before_script:
-    - *setup_release_dp3
-    - *kaniko_before_setup
-  script:
-    - echo "Building tasks Docker image..."
-    - /kaniko/executor --context "${CI_PROJECT_DIR}/" --dockerfile "${CI_PROJECT_DIR}/${TASK_DOCKER_FILE}" --destination "${ECR_REPOSITORY_URI}/app-tasks:$CI_COMMIT_SHORT_SHA"
-  after_script:
-    - echo "Tasks image built successfully."
     - *announce_failure
   rules:
-    - *check_dp3
+    - *check_main
 
-push_otel_collector_image_dp3:
-  stage: push
-  image:
-    name: $DOCKER_BASE_IMAGE
-    entrypoint: [""]
-  needs:
-    - compile_app_server
-    - compile_app_client
-  script:
-    - echo "Logging in to Amazon ECR with Crane..."
-    - aws ecr get-login-password --region us-gov-west-1 | crane auth login ${ECR_REPOSITORY_URI} -u AWS --password-stdin
-
-    - echo "Pulling the AWS OTel Collector image from the public registry with Crane..."
-    - crane pull --insecure public.ecr.aws/aws-observability/aws-otel-collector:v0.31.0 image.tar
-
-    - echo "Pushing the image to our private ECR using Crane..."
-    - crane push --insecure image.tar ${ECR_REPOSITORY_URI}/otel-collector:${CI_COMMIT_SHORT_SHA}
-
-    - echo "Cleaning up the temporary image file..."
-    - rm image.tar
-  allow_failure: false
-  rules:
-    - *check_dp3
-
-#Deploy Pushed Images
-deploy_migrations_dp3:
+deploy_migrations_stg:
   stage: deploy
   image:
     name: $DOCKER_APP_IMAGE
     entrypoint: [""]
   needs:
-    - build_push_migrations_dp3
+    - build_push_migrations_stg
     - compile_app_server
     - compile_app_client
+  before_script:
+    - *setup_release_stg
   script:
     # Step 1: Get the Digest
     - echo "Getting Digest from AWS"
@@ -592,19 +438,22 @@ deploy_migrations_dp3:
     # Step 3: Run migrations
     - echo "Running migrations"
     - ./scripts/ecs-run-app-migrations-container "${ECR_REPOSITORY_URI}/app-migrations@${ECR_DIGEST}" "demo"
+  after_script:
     - *announce_failure
   rules:
-    - *check_dp3
+    - *check_main
 
-deploy_tasks_dp3:
+deploy_tasks_stg:
   stage: deploy
   image:
     name: $DOCKER_APP_IMAGE
     entrypoint: [""]
   needs:
-    - build_push_tasks_dp3
+    - build_push_tasks_stg
     - compile_app_server
     - compile_app_client
+  before_script:
+    - *setup_release_stg
   script:
     - echo "Getting Digest from AWS"
     - export ECR_DIGEST=$(aws ecr describe-images --repository-name app-tasks --image-ids imageTag=$CI_COMMIT_SHORT_SHA --query 'imageDetails[0].imageDigest' --output text)
@@ -612,23 +461,26 @@ deploy_tasks_dp3:
     - ./scripts/ecs-deploy-task-container save-ghc-fuel-price-data "${ECR_REPOSITORY_URI}/app-tasks@${ECR_DIGEST}" "${APP_ENVIRONMENT}"
     - echo "Deploying payment reminder email task service"
     - ./scripts/ecs-deploy-task-container send-payment-reminder "${ECR_REPOSITORY_URI}/app-tasks@${ECR_DIGEST}" "${APP_ENVIRONMENT}"
+  after_script:
     - *announce_failure
   rules:
-    - *check_dp3
+    - *check_main
 
-deploy_app_client_tls_dp3:
+deploy_app_client_tls_stg:
   stage: deploy
   image:
     name: $DOCKER_APP_IMAGE
     entrypoint: [""]
   needs:
-    - deploy_migrations_dp3
-    - push_otel_collector_image_dp3
+    - deploy_migrations_stg
+    - push_otel_collector_image_stg
     - compile_app_server
     - compile_app_client
   variables:
     OPEN_TELEMETRY_SIDECAR: "true"
     HEALTH_CHECK: "true"
+  before_script:
+    - *setup_release_stg
   script:
     # - echo "Comparing against deployed commit"
     # - ./scripts/compare-deployed-commit "" $CI_COMMIT_SHA ${TLS_KEY} ${TLS_CERT} ${TLS_CA}
@@ -645,24 +497,27 @@ deploy_app_client_tls_dp3:
     # - bin/tls-checker --schemes https --hosts api.demo.dp3.us --key ${TLS_KEY} --cert ${TLS_CERT} --ca ${TLS_CA} --log-level info --timeout 15m
     # - echo "Checking deployed commits"
     # - ./scripts/check-deployed-commit "api.demo.dp3.us" "$CI_COMMIT_SHA" ${TLS_KEY} ${TLS_CERT} ${TLS_CA}
+  after_script:
     - *announce_failure
   rules:
-    - *check_dp3
+    - *check_main
 
-deploy_app_dp3:
+deploy_app_stg:
   stage: deploy
   image:
     name: $DOCKER_APP_IMAGE
     entrypoint: [""]
   needs:
-    - build_push_app_dp3
-    - deploy_migrations_dp3
+    - build_push_app_stg
+    - deploy_migrations_stg
     - compile_app_server
     - compile_app_client
   variables:
-    APP_ENVIRONMENT: "demo"
+    APP_ENVIRONMENT: "demo" #TODO:GET rid of this stuff
     OPEN_TELEMETRY_SIDECAR: "true"
     HEALTH_CHECK: "true"
+  before_script:
+    - *setup_release_stg
   script:
     - echo "Comparing against deployed commit"
     # - ./scripts/compare-deployed-commit "" "$CI_COMMIT_SHA" "$TLS_KEY" "$TLS_CERT" "$TLS_CA"
@@ -688,6 +543,439 @@ deploy_app_dp3:
     # - bin/tls-checker --schemes https --hosts my.demo.dp3.us,office.demo.dp3.us,admin.demo.dp3.us --log-level info --timeout 15m
     # - echo "Checking deployed commits"
     - ./scripts/check-deployed-commit "my.demo.dp3.us,office.demo.dp3.us,admin.demo.dp3.us" "$CI_COMMIT_SHA"
+  after_script:
+    - *announce_failure
+  rules:
+    - *check_main
+
+
+build_push_app_prd:
+  stage: push_prd
+  image:
+    name: gcr.io/kaniko-project/executor:v1.14.0-debug
+    entrypoint: [""]
+  needs:
+      - compile_app_client
+      - compile_app_server
+  before_script:
+      - *setup_release_prd
+      - *kaniko_before_setup
+  script:
+    - echo "Building and Pushing app Docker image..."
+    - /kaniko/executor --context "${CI_PROJECT_DIR}/" --dockerfile "${CI_PROJECT_DIR}/${APP_DOCKER_FILE}" --destination "${ECR_REPOSITORY_URI}/app:$CI_COMMIT_SHORT_SHA"
+  after_script:
+    - *announce_failure
+  rules:
+    - *check_main
+
+build_push_migrations_prd:
+  stage: push_prd
+  image:
+    name: gcr.io/kaniko-project/executor:v1.14.0-debug
+    entrypoint: [""]
+  needs:
+    - compile_app_server
+    - compile_app_client
+  before_script:
+    - *setup_release_prd
+    - *kaniko_before_setup
+  script:
+    - echo "Building and Pushing migrations Docker image..."
+    - /kaniko/executor --context "${CI_PROJECT_DIR}/" --dockerfile "${CI_PROJECT_DIR}/Dockerfile.migrations" --destination "${ECR_REPOSITORY_URI}/app-migrations:$CI_COMMIT_SHORT_SHA"
+  after_script:
+    - *announce_failure
+  rules:
+  - if: '$CI_COMMIT_BRANCH == "main"'
+
+build_push_tasks_prd:
+  stage: push_prd
+  image:
+    name: gcr.io/kaniko-project/executor:v1.14.0-debug
+    entrypoint: [""]
+  needs:
+    - compile_app_server
+    - compile_app_client
+  before_script:
+    - *setup_release_prd
+    - *kaniko_before_setup
+  script:
+    - echo "Building tasks Docker image..."
+    - /kaniko/executor --context "${CI_PROJECT_DIR}/" --dockerfile "${CI_PROJECT_DIR}/${TASK_DOCKER_FILE}" --destination "${ECR_REPOSITORY_URI}/app-tasks:$CI_COMMIT_SHORT_SHA"
+  after_script:
+    - *announce_failure
+  rules:
+    - *check_main
+
+push_otel_collector_image_prd:
+  stage: push_prd
+  image:
+    name: $DOCKER_BASE_IMAGE
+    entrypoint: [""]
+  needs:
+    - compile_app_server
+    - compile_app_client
+  before_script:
+    - *setup_release_prd
+  script:
+    - echo "Logging in to Amazon ECR with Crane..."
+    - aws ecr get-login-password --region us-gov-west-1 | crane auth login ${ECR_REPOSITORY_URI} -u AWS --password-stdin
+
+    - echo "Pulling the AWS OTel Collector image from the public registry with Crane..."
+    - crane pull --insecure public.ecr.aws/aws-observability/aws-otel-collector:v0.31.0 image.tar
+
+    - echo "Pushing the image to our private ECR using Crane..."
+    - crane push --insecure image.tar ${ECR_REPOSITORY_URI}/otel-collector:${CI_COMMIT_SHORT_SHA}
+
+    - echo "Cleaning up the temporary image file..."
+    - rm image.tar
+  allow_failure: false
+  after_script:
+    - *announce_failure
+  rules:
+  - if: '$CI_COMMIT_BRANCH == "main"'
+
+deploy_migrations_prd:
+  stage: deploy_prd
+  image:
+    name: $DOCKER_APP_IMAGE
+    entrypoint: [""]
+  needs:
+    - build_push_migrations_prd
+    - compile_app_server
+    - compile_app_client
+  before_script:
+      - *setup_release_prd
+  script:
+    # Step 1: Get the Digest
+    - echo "Getting Digest from AWS"
+    - export ECR_DIGEST=$(aws ecr describe-images --repository-name app-migrations --image-ids imageTag=$CI_COMMIT_SHORT_SHA --query 'imageDetails[0].imageDigest' --output text)
+    # Step 2: Ensure exclusive execution and Snapshot
+    - echo "Snapshotting database"
+    - ./scripts/rds-snapshot-app-db "$APP_ENVIRONMENT"
+    # Step 3: Run migrations
+    - echo "Running migrations"
+    - ./scripts/ecs-run-app-migrations-container "${ECR_REPOSITORY_URI}/app-migrations@${ECR_DIGEST}" "demo"
+  after_script:
+    - *announce_failure
+  rules:
+    - *check_main
+
+deploy_tasks_prd:
+  stage: deploy_prd
+  image:
+    name: $DOCKER_APP_IMAGE
+    entrypoint: [""]
+  needs:
+    - build_push_tasks_prd
+    - compile_app_server
+    - compile_app_client
+  before_script:
+      - *setup_release_prd
+  script:
+    - echo "Getting Digest from AWS"
+    - export ECR_DIGEST=$(aws ecr describe-images --repository-name app-tasks --image-ids imageTag=$CI_COMMIT_SHORT_SHA --query 'imageDetails[0].imageDigest' --output text)
+    - echo "Deploying GHC fuel price data task service"
+    - ./scripts/ecs-deploy-task-container save-ghc-fuel-price-data "${ECR_REPOSITORY_URI}/app-tasks@${ECR_DIGEST}" "${APP_ENVIRONMENT}"
+    - echo "Deploying payment reminder email task service"
+    - ./scripts/ecs-deploy-task-container send-payment-reminder "${ECR_REPOSITORY_URI}/app-tasks@${ECR_DIGEST}" "${APP_ENVIRONMENT}"
+  after_script:
+    - *announce_failure
+  rules:
+    - *check_main
+
+deploy_app_client_tls_prd:
+  stage: deploy_prd
+  image:
+    name: $DOCKER_APP_IMAGE
+    entrypoint: [""]
+  needs:
+    - deploy_migrations_prd
+    - push_otel_collector_image_prd
+    - compile_app_server
+    - compile_app_client
+  variables:
+    OPEN_TELEMETRY_SIDECAR: "true"
+    HEALTH_CHECK: "true"
+  before_script:
+      - *setup_release_prd
+  script:
+    # - echo "Comparing against deployed commit"
+    # - ./scripts/compare-deployed-commit "" $CI_COMMIT_SHA ${TLS_KEY} ${TLS_CERT} ${TLS_CA}
+    - echo "Getting Digest from AWS"
+    - export ECR_DIGEST=$(aws ecr describe-images --repository-name app --image-ids imageTag=$CI_COMMIT_SHORT_SHA --query 'imageDetails[0].imageDigest' --output text)
+    - echo "Getting otel collector Digest from AWS"
+    - export OTEL_ECR_DIGEST=$(aws ecr describe-images --repository-name otel-collector --image-ids imageTag=$CI_COMMIT_SHORT_SHA --query 'imageDetails[0].imageDigest' --output text)
+    - export OTEL_COLLECTOR_IMAGE="${ECR_REPOSITORY_URI}/otel-collector@${OTEL_ECR_DIGEST}"
+    - echo "Deploying app-client-tls service"
+    - ./scripts/ecs-deploy-service-container app-client-tls "${ECR_REPOSITORY_URI}/app@${ECR_DIGEST}" "${APP_ENVIRONMENT}" "/bin/milmove serve"
+    - echo "Running Health Check"
+    # - bin/health-checker --schemes https --hosts api.demo.dp3.us --key ${TLS_KEY} --cert ${TLS_CERT} --ca ${TLS_CA} --tries 10 --backoff 3 --log-level info --timeout 5m
+    # - echo "Running TLS Check"
+    # - bin/tls-checker --schemes https --hosts api.demo.dp3.us --key ${TLS_KEY} --cert ${TLS_CERT} --ca ${TLS_CA} --log-level info --timeout 15m
+    # - echo "Checking deployed commits"
+    # - ./scripts/check-deployed-commit "api.demo.dp3.us" "$CI_COMMIT_SHA" ${TLS_KEY} ${TLS_CERT} ${TLS_CA}
+  after_script:
+    - *announce_failure
+  rules:
+    - *check_main
+
+deploy_app_prd:
+  stage: deploy_prd
+  image:
+    name: $DOCKER_APP_IMAGE
+    entrypoint: [""]
+  needs:
+    - build_push_app_prd
+    - deploy_migrations_prd
+    - compile_app_server
+    - compile_app_client
+  variables:
+    APP_ENVIRONMENT: "demo"
+    OPEN_TELEMETRY_SIDECAR: "true"
+    HEALTH_CHECK: "true"
+  before_script:
+      - *setup_release_prd
+  script:
+    - echo "Comparing against deployed commit"
+    # - ./scripts/compare-deployed-commit "" "$CI_COMMIT_SHA" "$TLS_KEY" "$TLS_CERT" "$TLS_CA"
+    - echo "Creating .go-version file if not already present"
+    - |
+      if [ -f ".go-version" ]; then
+        echo ".go-version already exists, no need to re-create"
+      else
+        GO_VERSION=$(awk '/golang/ { print $2 }' .tool-versions)
+        echo "Creating .go-version using version ${GO_VERSION}"
+        echo $GO_VERSION > .go-version
+      fi
+    - echo "Getting Digest from AWS"
+    - export ECR_DIGEST=$(aws ecr describe-images --repository-name app --image-ids imageTag=$CI_COMMIT_SHORT_SHA --query 'imageDetails[0].imageDigest' --output text)
+    - echo "Getting otel collector digest from AWS"
+    - export OTEL_ECR_DIGEST=$(aws ecr describe-images --repository-name otel-collector --image-ids imageTag=$CI_COMMIT_SHORT_SHA --query 'imageDetails[0].imageDigest' --output text)
+    - export OTEL_COLLECTOR_IMAGE="${ECR_REPOSITORY_URI}/otel-collector@${OTEL_ECR_DIGEST}"
+    - echo "Deploying app service"
+    - ./scripts/ecs-deploy-service-container app "${ECR_REPOSITORY_URI}/app@${ECR_DIGEST}" "${APP_ENVIRONMENT}" "/bin/milmove serve"
+    - echo "Running Health Check"
+    # - bin/health-checker --schemes https --hosts my.demo.dp3.us,office.demo.dp3.us,admin.demo.dp3.us --tries 10 --backoff 3 --log-level info --timeout 5m
+    # - echo "Running TLS Check"
+    # - bin/tls-checker --schemes https --hosts my.demo.dp3.us,office.demo.dp3.us,admin.demo.dp3.us --log-level info --timeout 15m
+    # - echo "Checking deployed commits"
+    - ./scripts/check-deployed-commit "my.demo.dp3.us,office.demo.dp3.us,admin.demo.dp3.us" "$CI_COMMIT_SHA"
+  after_script:
+    - *announce_failure
+  rules:
+    - *check_main
+
+
+build_push_app_dp3:
+  stage: push
+  image:
+    name: gcr.io/kaniko-project/executor:v1.14.0-debug
+    entrypoint: [""]
+  needs:
+     - compile_app_client
+     - compile_app_server
+  before_script:
+    - *setup_release_dp3
+    - *kaniko_before_setup
+  script:
+    - echo "Building and Pushing app Docker image..."
+    - /kaniko/executor --context "${CI_PROJECT_DIR}/" --dockerfile "${CI_PROJECT_DIR}/${APP_DOCKER_FILE}" --destination "${ECR_REPOSITORY_URI}/app:$CI_COMMIT_SHORT_SHA"
+  after_script:
+    - *announce_failure
+  rules:
+    - *check_dp3
+
+build_push_migrations_dp3:
+  stage: push
+  image:
+    name: gcr.io/kaniko-project/executor:v1.14.0-debug
+    entrypoint: [""]
+  needs:
+    - compile_app_server
+    - compile_app_client
+  before_script:
+    - *setup_release_dp3
+    - *kaniko_before_setup
+  script:
+    - echo "Building and Pushing migrations Docker image..."
+    - /kaniko/executor --context "${CI_PROJECT_DIR}/" --dockerfile "${CI_PROJECT_DIR}/Dockerfile.migrations" --destination "${ECR_REPOSITORY_URI}/app-migrations:$CI_COMMIT_SHORT_SHA"
+  after_script:
+    - *announce_failure
+  rules:
+    - *check_dp3
+
+build_push_tasks_dp3:
+  stage: push
+  image:
+    name: gcr.io/kaniko-project/executor:v1.14.0-debug
+    entrypoint: [""]
+  needs:
+    - compile_app_server
+    - compile_app_client
+  before_script:
+    - *setup_release_dp3
+    - *kaniko_before_setup
+  script:
+    - echo "Building tasks Docker image..."
+    - /kaniko/executor --context "${CI_PROJECT_DIR}/" --dockerfile "${CI_PROJECT_DIR}/${TASK_DOCKER_FILE}" --destination "${ECR_REPOSITORY_URI}/app-tasks:$CI_COMMIT_SHORT_SHA"
+  after_script:
+    - *announce_failure
+  rules:
+    - *check_dp3
+
+push_otel_collector_image_dp3:
+  stage: push
+  image:
+    name: $DOCKER_BASE_IMAGE
+    entrypoint: [""]
+  needs:
+    - compile_app_server
+    - compile_app_client
+  script:
+    - echo "Logging in to Amazon ECR with Crane..."
+    - aws ecr get-login-password --region us-gov-west-1 | crane auth login ${ECR_REPOSITORY_URI} -u AWS --password-stdin
+
+    - echo "Pulling the AWS OTel Collector image from the public registry with Crane..."
+    - crane pull --insecure public.ecr.aws/aws-observability/aws-otel-collector:v0.31.0 image.tar
+
+    - echo "Pushing the image to our private ECR using Crane..."
+    - crane push --insecure image.tar ${ECR_REPOSITORY_URI}/otel-collector:${CI_COMMIT_SHORT_SHA}
+
+    - echo "Cleaning up the temporary image file..."
+    - rm image.tar
+  allow_failure: false
+  after_script:
+    - *announce_failure
+  rules:
+    - *check_dp3
+
+deploy_migrations_dp3:
+  stage: deploy
+  image:
+    name: $DOCKER_APP_IMAGE
+    entrypoint: [""]
+  needs:
+    - build_push_migrations_dp3
+    - compile_app_server
+    - compile_app_client
+  before_script:
+    - *setup_release_dp3
+  script:
+    # Step 1: Get the Digest
+    - echo "Getting Digest from AWS"
+    - export ECR_DIGEST=$(aws ecr describe-images --repository-name app-migrations --image-ids imageTag=$CI_COMMIT_SHORT_SHA --query 'imageDetails[0].imageDigest' --output text)
+    # Step 2: Ensure exclusive execution and Snapshot
+    - echo "Snapshotting database"
+    - ./scripts/rds-snapshot-app-db "$APP_ENVIRONMENT"
+    # Step 3: Run migrations
+    - echo "Running migrations"
+    - ./scripts/ecs-run-app-migrations-container "${ECR_REPOSITORY_URI}/app-migrations@${ECR_DIGEST}" "demo"
+  after_script:
+    - *announce_failure
+  rules:
+    - *check_dp3
+
+deploy_tasks_dp3:
+  stage: deploy
+  image:
+    name: $DOCKER_APP_IMAGE
+    entrypoint: [""]
+  needs:
+    - build_push_tasks_dp3
+    - compile_app_server
+    - compile_app_client
+  before_script:
+    - *setup_release_dp3
+  script:
+    - echo "Getting Digest from AWS"
+    - export ECR_DIGEST=$(aws ecr describe-images --repository-name app-tasks --image-ids imageTag=$CI_COMMIT_SHORT_SHA --query 'imageDetails[0].imageDigest' --output text)
+    - echo "Deploying GHC fuel price data task service"
+    - ./scripts/ecs-deploy-task-container save-ghc-fuel-price-data "${ECR_REPOSITORY_URI}/app-tasks@${ECR_DIGEST}" "${APP_ENVIRONMENT}"
+    - echo "Deploying payment reminder email task service"
+    - ./scripts/ecs-deploy-task-container send-payment-reminder "${ECR_REPOSITORY_URI}/app-tasks@${ECR_DIGEST}" "${APP_ENVIRONMENT}"
+  after_script:
+    - *announce_failure
+  rules:
+    - *check_dp3
+
+deploy_app_client_tls_dp3:
+  stage: deploy
+  image:
+    name: $DOCKER_APP_IMAGE
+    entrypoint: [""]
+  needs:
+    - deploy_migrations_dp3
+    - push_otel_collector_image_dp3
+    - compile_app_server
+    - compile_app_client
+  variables:
+    OPEN_TELEMETRY_SIDECAR: "true"
+    HEALTH_CHECK: "true"
+  before_script:
+    - *setup_release_dp3
+  script:
+    # - echo "Comparing against deployed commit"
+    # - ./scripts/compare-deployed-commit "" $CI_COMMIT_SHA ${TLS_KEY} ${TLS_CERT} ${TLS_CA}
+    - echo "Getting Digest from AWS"
+    - export ECR_DIGEST=$(aws ecr describe-images --repository-name app --image-ids imageTag=$CI_COMMIT_SHORT_SHA --query 'imageDetails[0].imageDigest' --output text)
+    - echo "Getting otel collector Digest from AWS"
+    - export OTEL_ECR_DIGEST=$(aws ecr describe-images --repository-name otel-collector --image-ids imageTag=$CI_COMMIT_SHORT_SHA --query 'imageDetails[0].imageDigest' --output text)
+    - export OTEL_COLLECTOR_IMAGE="${ECR_REPOSITORY_URI}/otel-collector@${OTEL_ECR_DIGEST}"
+    - echo "Deploying app-client-tls service"
+    - ./scripts/ecs-deploy-service-container app-client-tls "${ECR_REPOSITORY_URI}/app@${ECR_DIGEST}" "${APP_ENVIRONMENT}" "/bin/milmove serve"
+    - echo "Running Health Check"
+    # - bin/health-checker --schemes https --hosts api.demo.dp3.us --key ${TLS_KEY} --cert ${TLS_CERT} --ca ${TLS_CA} --tries 10 --backoff 3 --log-level info --timeout 5m
+    # - echo "Running TLS Check"
+    # - bin/tls-checker --schemes https --hosts api.demo.dp3.us --key ${TLS_KEY} --cert ${TLS_CERT} --ca ${TLS_CA} --log-level info --timeout 15m
+    # - echo "Checking deployed commits"
+    # - ./scripts/check-deployed-commit "api.demo.dp3.us" "$CI_COMMIT_SHA" ${TLS_KEY} ${TLS_CERT} ${TLS_CA}
+  after_script:
+    - *announce_failure
+  rules:
+    - *check_dp3
+
+deploy_app_dp3:
+  stage: deploy
+  image:
+    name: $DOCKER_APP_IMAGE
+    entrypoint: [""]
+  needs:
+    - build_push_app_dp3
+    - deploy_migrations_dp3
+    - compile_app_server
+    - compile_app_client
+  variables:
+    APP_ENVIRONMENT: "demo"
+    OPEN_TELEMETRY_SIDECAR: "true"
+    HEALTH_CHECK: "true"
+  before_script:
+    - *setup_release_dp3
+  script:
+    - echo "Comparing against deployed commit"
+    # - ./scripts/compare-deployed-commit "" "$CI_COMMIT_SHA" "$TLS_KEY" "$TLS_CERT" "$TLS_CA"
+    - echo "Creating .go-version file if not already present"
+    - |
+      if [ -f ".go-version" ]; then
+        echo ".go-version already exists, no need to re-create"
+      else
+        GO_VERSION=$(awk '/golang/ { print $2 }' .tool-versions)
+        echo "Creating .go-version using version ${GO_VERSION}"
+        echo $GO_VERSION > .go-version
+      fi
+    - echo "Getting Digest from AWS"
+    - export ECR_DIGEST=$(aws ecr describe-images --repository-name app --image-ids imageTag=$CI_COMMIT_SHORT_SHA --query 'imageDetails[0].imageDigest' --output text)
+    - echo "Getting otel collector digest from AWS"
+    - export OTEL_ECR_DIGEST=$(aws ecr describe-images --repository-name otel-collector --image-ids imageTag=$CI_COMMIT_SHORT_SHA --query 'imageDetails[0].imageDigest' --output text)
+    - export OTEL_COLLECTOR_IMAGE="${ECR_REPOSITORY_URI}/otel-collector@${OTEL_ECR_DIGEST}"
+    - echo "Deploying app service"
+    - ./scripts/ecs-deploy-service-container app "${ECR_REPOSITORY_URI}/app@${ECR_DIGEST}" "${APP_ENVIRONMENT}" "/bin/milmove serve"
+    - echo "Running Health Check"
+    # - bin/health-checker --schemes https --hosts my.demo.dp3.us,office.demo.dp3.us,admin.demo.dp3.us --tries 10 --backoff 3 --log-level info --timeout 5m
+    # - echo "Running TLS Check"
+    # - bin/tls-checker --schemes https --hosts my.demo.dp3.us,office.demo.dp3.us,admin.demo.dp3.us --log-level info --timeout 15m
+    # - echo "Checking deployed commits"
+    - ./scripts/check-deployed-commit "my.demo.dp3.us,office.demo.dp3.us,admin.demo.dp3.us" "$CI_COMMIT_SHA"
+  after_script:
     - *announce_failure
   rules:
     - *check_dp3
