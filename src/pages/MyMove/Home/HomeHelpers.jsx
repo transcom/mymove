@@ -97,9 +97,12 @@ export const HelperSubmittedMove = () => (
 );
 
 export const HelperApprovedMove = ({ orderId }) => {
-  const path = generatePath(customerRoutes.ORDERS_AMEND_PATH, {
-    orderId,
-  });
+  let path = '/';
+  if (orderId !== undefined || orderId !== null) {
+    path = generatePath(customerRoutes.ORDERS_AMEND_PATH, {
+      orderId,
+    });
+  }
 
   return (
     <Helper title="Your move is in progress." className={styles['helper-approved-section']}>

@@ -56,7 +56,7 @@ export const SubmittedMove = () => <HelperSubmittedMove />;
 export const AmendedOrders = () => <HelperAmendedOrders />;
 export const ApprovedMove = () => (
   <MemoryRouter>
-    <HelperApprovedMove orderId="12345-12345-12345-12345-12345" />
+    <HelperApprovedMove orderId="b6e169b8-9306-47eb-828b-192d47b272cd" />
   </MemoryRouter>
 );
 export const PPMCloseoutSubmitted = () => <HelperPPMCloseoutSubmitted />;
