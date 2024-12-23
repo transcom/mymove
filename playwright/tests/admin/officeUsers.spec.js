@@ -111,7 +111,7 @@ test.describe('Office User Create Page', () => {
     await expect(page.locator('#active')).toHaveText('Yes');
   });
 
-  test('roles unauthorized for supervisor cannot select 1', async ({ page, adminPage }) => {
+  test('has correct supervisor role permissions', async ({ page, adminPage }) => {
     await adminPage.signInAsNewAdminUser();
     // we tested the side nav in the previous test,
     // so let's work with the assumption that we were already redirected to this page:
@@ -149,6 +149,14 @@ test.describe('Office User Create Page', () => {
     const contractingOfficerCheckbox = page.getByLabel('Contracting Officer', { exact: true });
     const servicesCounselorCheckbox = page.getByLabel('Services Counselor', { exact: true });
     const primeSimulatorCheckbox = page.getByLabel('Prime Simulator', { exact: true });
+    const qualityAssuranceEvaluatorCheckbox = page.getByLabel('Quality Assurance Evaluator', { exact: true });
+    const customerServiceRepersentativeCheckbox = page.getByLabel('Customer Service Representative', { exact: true });
+    const governmentSurveillanceRepresentativeCheckbox = page.getByLabel('Government Surveillance Representative', {
+      exact: true,
+    });
+    const headquartersCheckbox = page.getByLabel('Headquarters', { exact: true });
+    const taskOrderingOfficerCheckbox = page.getByLabel('Task Ordering Officer', { exact: true });
+    const taskInvoicingOfficerCheckbox = page.getByLabel('Task Invoicing Officer', { exact: true });
 
     // Define constants for privileges
     const supervisorCheckbox = page.getByLabel('Supervisor', { exact: true });
@@ -169,79 +177,6 @@ test.describe('Office User Create Page', () => {
     await expect(primeSimulatorCheckbox).toBeChecked();
     await expect(supervisorCheckbox).not.toBeChecked();
     await primeSimulatorCheckbox.click();
-
-    // Continue test to ensure form still submits with valid information
-    await servicesCounselorCheckbox.click();
-    await expect(servicesCounselorCheckbox).toBeChecked();
-
-    // The autocomplete form results in multiple matching elements, so
-    // pick the input element
-    await page.getByLabel('Transportation Office').nth(0).fill('PPPO Scott AFB - USAF');
-    // the autocomplete might return multiples because of concurrent
-    // tests running that are adding offices
-    await page.getByRole('option', { name: 'PPPO Scott AFB - USAF' }).first().click();
-
-    await page.getByRole('button', { name: 'Save' }).click();
-    await adminPage.waitForPage.adminPage();
-
-    // redirected to edit details page
-    const officeUserID = await page.locator('#id').inputValue();
-
-    await expect(page.getByRole('heading', { name: `Office Users #${officeUserID}` })).toBeVisible();
-
-    await expect(page.locator('#email')).toHaveValue(testEmail);
-    await expect(page.locator('#firstName')).toHaveValue('Cypress');
-    await expect(page.locator('#lastName')).toHaveValue('Test');
-    await expect(page.locator('#telephone')).toHaveValue('222-555-1234');
-    await expect(page.locator('#active')).toHaveText('Yes');
-  });
-
-  test('roles unauthorized for supervisor cannot select 2', async ({ page, adminPage }) => {
-    await adminPage.signInAsNewAdminUser();
-    // we tested the side nav in the previous test,
-    // so let's work with the assumption that we were already redirected to this page:
-    expect(page.url()).toContain('/system/requested-office-users');
-    await page.getByRole('menuitem', { name: 'Office Users', exact: true }).click();
-    expect(page.url()).toContain('/system/office-users');
-
-    await page.getByRole('link', { name: 'Create' }).click();
-    await expect(page.getByRole('heading', { name: 'Create Office Users', exact: true })).toBeVisible();
-
-    expect(page.url()).toContain('/system/office-users/create');
-
-    // we need to add the date to the email so that it is unique every time (only one record per email allowed in db)
-    const testEmail = `cy.admin_user.${Date.now()}@example.com`;
-
-    // create an office user
-    const firstName = page.getByLabel('First name');
-    await firstName.focus();
-    await firstName.fill('Cypress');
-
-    const lastName = page.getByLabel('Last name');
-    await lastName.focus();
-    await lastName.fill('Test');
-
-    const email = page.getByLabel('Email');
-    await email.focus();
-    await email.fill(testEmail);
-
-    const phone = page.getByLabel('Telephone');
-    await phone.focus();
-    await phone.fill('222-555-1234');
-
-    // Define constants for all roles checkboxes to be tested
-    const servicesCounselorCheckbox = page.getByLabel('Services Counselor', { exact: true });
-    const qualityAssuranceEvaluatorCheckbox = page.getByLabel('Quality Assurance Evaluator', { exact: true });
-    const customerServiceRepersentativeCheckbox = page.getByLabel('Customer Service Representative', { exact: true });
-    const governmentSurveillanceRepresentativeCheckbox = page.getByLabel('Government Surveillance Representative', {
-      exact: true,
-    });
-    const headquartersCheckbox = page.getByLabel('Headquarters', { exact: true });
-
-    // Define constants for privileges
-    const supervisorCheckbox = page.getByLabel('Supervisor', { exact: true });
-
-    // Check roles that cannot have supervisor priveleges
     await qualityAssuranceEvaluatorCheckbox.click();
     await supervisorCheckbox.click();
     await expect(qualityAssuranceEvaluatorCheckbox).toBeChecked();
@@ -263,73 +198,6 @@ test.describe('Office User Create Page', () => {
     await expect(supervisorCheckbox).not.toBeChecked();
     await headquartersCheckbox.click();
 
-    // Continue test to ensure form still submits with valid information
-    await servicesCounselorCheckbox.click();
-    await expect(servicesCounselorCheckbox).toBeChecked();
-
-    // The autocomplete form results in multiple matching elements, so
-    // pick the input element
-    await page.getByLabel('Transportation Office').nth(0).fill('PPPO Scott AFB - USAF');
-    // the autocomplete might return multiples because of concurrent
-    // tests running that are adding offices
-    await page.getByRole('option', { name: 'PPPO Scott AFB - USAF' }).first().click();
-
-    await page.getByRole('button', { name: 'Save' }).click();
-    await adminPage.waitForPage.adminPage();
-
-    // redirected to edit details page
-    const officeUserID = await page.locator('#id').inputValue();
-
-    await expect(page.getByRole('heading', { name: `Office Users #${officeUserID}` })).toBeVisible();
-
-    await expect(page.locator('#email')).toHaveValue(testEmail);
-    await expect(page.locator('#firstName')).toHaveValue('Cypress');
-    await expect(page.locator('#lastName')).toHaveValue('Test');
-    await expect(page.locator('#telephone')).toHaveValue('222-555-1234');
-    await expect(page.locator('#active')).toHaveText('Yes');
-  });
-
-  test('roles authorized for supervisor can select', async ({ page, adminPage }) => {
-    await adminPage.signInAsNewAdminUser();
-    // we tested the side nav in the previous test,
-    // so let's work with the assumption that we were already redirected to this page:
-    expect(page.url()).toContain('/system/requested-office-users');
-    await page.getByRole('menuitem', { name: 'Office Users', exact: true }).click();
-    expect(page.url()).toContain('/system/office-users');
-
-    await page.getByRole('link', { name: 'Create' }).click();
-    await expect(page.getByRole('heading', { name: 'Create Office Users', exact: true })).toBeVisible();
-
-    expect(page.url()).toContain('/system/office-users/create');
-
-    // we need to add the date to the email so that it is unique every time (only one record per email allowed in db)
-    const testEmail = `cy.admin_user.${Date.now()}@example.com`;
-
-    // create an office user
-    const firstName = page.getByLabel('First name');
-    await firstName.focus();
-    await firstName.fill('Cypress');
-
-    const lastName = page.getByLabel('Last name');
-    await lastName.focus();
-    await lastName.fill('Test');
-
-    const email = page.getByLabel('Email');
-    await email.focus();
-    await email.fill(testEmail);
-
-    const phone = page.getByLabel('Telephone');
-    await phone.focus();
-    await phone.fill('222-555-1234');
-
-    // Define constants for all roles checkboxes to be tested
-    const taskOrderingOfficerCheckbox = page.getByLabel('Task Ordering Officer', { exact: true });
-    const taskInvoicingOfficerCheckbox = page.getByLabel('Task Invoicing Officer', { exact: true });
-    const servicesCounselorCheckbox = page.getByLabel('Services Counselor', { exact: true });
-
-    // Define constants for privileges
-    const supervisorCheckbox = page.getByLabel('Supervisor', { exact: true });
-
     // Check roles that can have supervisor priveleges
     await taskOrderingOfficerCheckbox.click();
     await supervisorCheckbox.click();
@@ -347,81 +215,6 @@ test.describe('Office User Create Page', () => {
     await supervisorCheckbox.click();
     await expect(servicesCounselorCheckbox).toBeChecked();
     await expect(supervisorCheckbox).toBeChecked();
-
-    // Continue test to ensure form still submits with valid information
-    // The autocomplete form results in multiple matching elements, so
-    // pick the input element
-    await page.getByLabel('Transportation Office').nth(0).fill('PPPO Scott AFB - USAF');
-    // the autocomplete might return multiples because of concurrent
-    // tests running that are adding offices
-    await page.getByRole('option', { name: 'PPPO Scott AFB - USAF' }).first().click();
-
-    await page.getByRole('button', { name: 'Save' }).click();
-    await adminPage.waitForPage.adminPage();
-
-    // redirected to edit details page
-    const officeUserID = await page.locator('#id').inputValue();
-
-    await expect(page.getByRole('heading', { name: `Office Users #${officeUserID}` })).toBeVisible();
-
-    await expect(page.locator('#email')).toHaveValue(testEmail);
-    await expect(page.locator('#firstName')).toHaveValue('Cypress');
-    await expect(page.locator('#lastName')).toHaveValue('Test');
-    await expect(page.locator('#telephone')).toHaveValue('222-555-1234');
-    await expect(page.locator('#active')).toHaveText('Yes');
-  });
-
-  test('roles unauthorized for supervisor cannot be selected after supervisor is selected', async ({
-    page,
-    adminPage,
-  }) => {
-    await adminPage.signInAsNewAdminUser();
-    // we tested the side nav in the previous test,
-    // so let's work with the assumption that we were already redirected to this page:
-    expect(page.url()).toContain('/system/requested-office-users');
-    await page.getByRole('menuitem', { name: 'Office Users', exact: true }).click();
-    expect(page.url()).toContain('/system/office-users');
-
-    await page.getByRole('link', { name: 'Create' }).click();
-    await expect(page.getByRole('heading', { name: 'Create Office Users', exact: true })).toBeVisible();
-
-    expect(page.url()).toContain('/system/office-users/create');
-
-    // we need to add the date to the email so that it is unique every time (only one record per email allowed in db)
-    const testEmail = `cy.admin_user.${Date.now()}@example.com`;
-
-    // create an office user
-    const firstName = page.getByLabel('First name');
-    await firstName.focus();
-    await firstName.fill('Cypress');
-
-    const lastName = page.getByLabel('Last name');
-    await lastName.focus();
-    await lastName.fill('Test');
-
-    const email = page.getByLabel('Email');
-    await email.focus();
-    await email.fill(testEmail);
-
-    const phone = page.getByLabel('Telephone');
-    await phone.focus();
-    await phone.fill('222-555-1234');
-
-    // Define constants for all roles checkboxes to be tested
-    const customerCheckbox = page.getByLabel('Customer', { exact: true });
-    const servicesCounselorCheckbox = page.getByLabel('Services Counselor', { exact: true });
-    const contractingOfficerCheckbox = page.getByLabel('Contracting Officer', { exact: true });
-    const primeSimulatorCheckbox = page.getByLabel('Prime Simulator', { exact: true });
-    const qualityAssuranceEvaluatorCheckbox = page.getByLabel('Quality Assurance Evaluator', { exact: true });
-    const customerServiceRepersentativeCheckbox = page.getByLabel('Customer Service Representative', { exact: true });
-    const governmentSurveillanceRepresentativeCheckbox = page.getByLabel('Government Surveillance Representative', {
-      exact: true,
-    });
-    const headquartersCheckbox = page.getByLabel('Headquarters', { exact: true });
-
-    // Define constants for privileges
-    const supervisorCheckbox = page.getByLabel('Supervisor', { exact: true });
-
     // Check selecting roles after having supervisor selected for unallowed roles
     await supervisorCheckbox.click();
     await expect(supervisorCheckbox).toBeChecked();
@@ -440,73 +233,6 @@ test.describe('Office User Create Page', () => {
     await headquartersCheckbox.click();
     await expect(headquartersCheckbox).not.toBeChecked();
 
-    // Continue test to ensure form still submits with valid information
-    await servicesCounselorCheckbox.click();
-    await expect(servicesCounselorCheckbox).toBeChecked();
-
-    // The autocomplete form results in multiple matching elements, so
-    // pick the input element
-    await page.getByLabel('Transportation Office').nth(0).fill('PPPO Scott AFB - USAF');
-    // the autocomplete might return multiples because of concurrent
-    // tests running that are adding offices
-    await page.getByRole('option', { name: 'PPPO Scott AFB - USAF' }).first().click();
-
-    await page.getByRole('button', { name: 'Save' }).click();
-    await adminPage.waitForPage.adminPage();
-
-    // redirected to edit details page
-    const officeUserID = await page.locator('#id').inputValue();
-
-    await expect(page.getByRole('heading', { name: `Office Users #${officeUserID}` })).toBeVisible();
-
-    await expect(page.locator('#email')).toHaveValue(testEmail);
-    await expect(page.locator('#firstName')).toHaveValue('Cypress');
-    await expect(page.locator('#lastName')).toHaveValue('Test');
-    await expect(page.locator('#telephone')).toHaveValue('222-555-1234');
-    await expect(page.locator('#active')).toHaveText('Yes');
-  });
-
-  test('roles authorized for supervisor can be selected after supervisor is selected', async ({ page, adminPage }) => {
-    await adminPage.signInAsNewAdminUser();
-    // we tested the side nav in the previous test,
-    // so let's work with the assumption that we were already redirected to this page:
-    expect(page.url()).toContain('/system/requested-office-users');
-    await page.getByRole('menuitem', { name: 'Office Users', exact: true }).click();
-    expect(page.url()).toContain('/system/office-users');
-
-    await page.getByRole('link', { name: 'Create' }).click();
-    await expect(page.getByRole('heading', { name: 'Create Office Users', exact: true })).toBeVisible();
-
-    expect(page.url()).toContain('/system/office-users/create');
-
-    // we need to add the date to the email so that it is unique every time (only one record per email allowed in db)
-    const testEmail = `cy.admin_user.${Date.now()}@example.com`;
-
-    // create an office user
-    const firstName = page.getByLabel('First name');
-    await firstName.focus();
-    await firstName.fill('Cypress');
-
-    const lastName = page.getByLabel('Last name');
-    await lastName.focus();
-    await lastName.fill('Test');
-
-    const email = page.getByLabel('Email');
-    await email.focus();
-    await email.fill(testEmail);
-
-    const phone = page.getByLabel('Telephone');
-    await phone.focus();
-    await phone.fill('222-555-1234');
-
-    // Define constants for all roles checkboxes to be tested
-    const taskOrderingOfficerCheckbox = page.getByLabel('Task Ordering Officer', { exact: true });
-    const taskInvoicingOfficerCheckbox = page.getByLabel('Task Invoicing Officer', { exact: true });
-    const servicesCounselorCheckbox = page.getByLabel('Services Counselor', { exact: true });
-
-    // Define constants for privileges
-    const supervisorCheckbox = page.getByLabel('Supervisor', { exact: true });
-
     // Check selecting roles after having supervisor selected for allowed roles
     await supervisorCheckbox.click();
     await expect(supervisorCheckbox).toBeChecked();
@@ -518,10 +244,8 @@ test.describe('Office User Create Page', () => {
     await expect(servicesCounselorCheckbox).toBeChecked();
 
     // Continue test to ensure form still submits with valid information
-    await taskOrderingOfficerCheckbox.click();
-    await expect(taskOrderingOfficerCheckbox).not.toBeChecked();
-    await taskInvoicingOfficerCheckbox.click();
-    await expect(taskInvoicingOfficerCheckbox).not.toBeChecked();
+    await servicesCounselorCheckbox.click();
+    await expect(servicesCounselorCheckbox).toBeChecked();
 
     // The autocomplete form results in multiple matching elements, so
     // pick the input element
@@ -662,7 +386,7 @@ test.describe('Office Users Edit Page', () => {
     await expect(page.locator(`tr:has(:text("${email}")) >> td.column-lastName`)).toHaveText('NewLast');
   });
 
-  test('roles unauthorized for supervisor cannot select 1', async ({ page, adminPage }) => {
+  test('has correct supervisor role permissions', async ({ page, adminPage }) => {
     const officeUser = await adminPage.testHarness.buildOfficeUserWithTOOAndTIO();
     const email = officeUser.okta_email;
 
@@ -719,18 +443,20 @@ test.describe('Office Users Edit Page', () => {
 
     // Define constants for all roles checkboxes to be tested
     const customerCheckbox = page.getByLabel('Customer', { exact: true });
-    const taskOrderingOfficerCheckbox = page.getByLabel('Task Ordering Officer', { exact: true });
-    const taskInvoicingOfficerCheckbox = page.getByLabel('Task Invoicing Officer', { exact: true });
     const contractingOfficerCheckbox = page.getByLabel('Contracting Officer', { exact: true });
     const servicesCounselorCheckbox = page.getByLabel('Services Counselor', { exact: true });
     const primeSimulatorCheckbox = page.getByLabel('Prime Simulator', { exact: true });
+    const qualityAssuranceEvaluatorCheckbox = page.getByLabel('Quality Assurance Evaluator', { exact: true });
+    const customerServiceRepersentativeCheckbox = page.getByLabel('Customer Service Representative', { exact: true });
+    const governmentSurveillanceRepresentativeCheckbox = page.getByLabel('Government Surveillance Representative', {
+      exact: true,
+    });
+    const headquartersCheckbox = page.getByLabel('Headquarters', { exact: true });
+    const taskOrderingOfficerCheckbox = page.getByLabel('Task Ordering Officer', { exact: true });
+    const taskInvoicingOfficerCheckbox = page.getByLabel('Task Invoicing Officer', { exact: true });
 
     // Define constants for privileges
     const supervisorCheckbox = page.getByLabel('Supervisor', { exact: true });
-
-    // Deselect existing roles for testing
-    await taskOrderingOfficerCheckbox.click();
-    await taskInvoicingOfficerCheckbox.click();
 
     // Check roles that cannot have supervisor priveleges
     await customerCheckbox.click();
@@ -748,96 +474,6 @@ test.describe('Office Users Edit Page', () => {
     await expect(primeSimulatorCheckbox).toBeChecked();
     await expect(supervisorCheckbox).not.toBeChecked();
     await primeSimulatorCheckbox.click();
-
-    // Continue test to ensure form still submits with valid information
-    await servicesCounselorCheckbox.click();
-
-    await page.getByRole('button', { name: 'Save' }).click();
-    await adminPage.waitForPage.adminPage();
-
-    await searchForOfficeUser(page, email);
-    await expect(page.locator(`tr:has(:text("${email}")) >> td.column-active >> svg`)).toHaveAttribute(
-      'data-testid',
-      newStatus,
-    );
-
-    await expect(page.locator(`tr:has(:text("${email}")) >> td.column-firstName`)).toHaveText('NewFirst');
-    await expect(page.locator(`tr:has(:text("${email}")) >> td.column-lastName`)).toHaveText('NewLast');
-  });
-  test('roles unauthorized for supervisor cannot select 2', async ({ page, adminPage }) => {
-    const officeUser = await adminPage.testHarness.buildOfficeUserWithTOOAndTIO();
-    const email = officeUser.okta_email;
-
-    await adminPage.signInAsNewAdminUser();
-
-    expect(page.url()).toContain('/system/requested-office-users');
-    await page.getByRole('menuitem', { name: 'Office Users', exact: true }).click();
-    expect(page.url()).toContain('/system/office-users');
-    await searchForOfficeUser(page, email);
-    await page.getByText(email).click();
-    await adminPage.waitForPage.adminPage();
-
-    await page.getByRole('link', { name: 'Edit' }).click();
-    await adminPage.waitForPage.adminPage();
-
-    const disabledFields = ['id', 'email', 'userId', 'createdAt', 'updatedAt'];
-    for (const field of disabledFields) {
-      await expect(page.locator(`#${field}`)).toBeDisabled();
-    }
-
-    const firstName = page.getByLabel('First name');
-    await firstName.focus();
-    await firstName.clear();
-    await firstName.fill('NewFirst');
-
-    const lastName = page.getByLabel('Last name');
-    await lastName.focus();
-    await lastName.clear();
-    await lastName.fill('NewLast');
-
-    // The autocomplete form results in multiple matching elements, so
-    // pick the input element
-    await expect(page.getByLabel('Transportation Office').nth(0)).toBeEditable();
-
-    // Add a Transportation Office Assignment
-    await page.getByTestId('addTransportationOfficeButton').click();
-    // n = 2 because of the disabled GBLOC input
-    await expect(page.getByLabel('Transportation Office').nth(2)).toBeEditable();
-    await page.getByLabel('Transportation Office').nth(2).fill('AGFM');
-    // the autocomplete might return multiples because of concurrent
-    // tests running that are adding offices
-    await page.getByRole('option', { name: 'JPPSO - North East (AGFM) - USAF' }).first().click();
-    // Set as primary transportation office
-    await page.getByLabel('Primary Office').nth(1).click();
-    await page.getByText('You cannot designate more than one primary transportation office.');
-    await page.getByLabel('Primary Office').nth(1).click();
-
-    // set the user to the active status they did NOT have before
-    const activeStatus = await page.locator('div:has(label :text-is("Active")) >> input[name="active"]').inputValue();
-
-    const newStatus = (activeStatus !== 'true').toString();
-    await page.locator('div:has(label :text-is("Active")) >> #active').click();
-    await page.locator(`ul[aria-labelledby="active-label"] >> li[data-value="${newStatus}"]`).click();
-
-    // Define constants for all roles checkboxes to be tested
-    const taskOrderingOfficerCheckbox = page.getByLabel('Task Ordering Officer', { exact: true });
-    const taskInvoicingOfficerCheckbox = page.getByLabel('Task Invoicing Officer', { exact: true });
-    const servicesCounselorCheckbox = page.getByLabel('Services Counselor', { exact: true });
-    const qualityAssuranceEvaluatorCheckbox = page.getByLabel('Quality Assurance Evaluator', { exact: true });
-    const customerServiceRepersentativeCheckbox = page.getByLabel('Customer Service Representative', { exact: true });
-    const governmentSurveillanceRepresentativeCheckbox = page.getByLabel('Government Surveillance Representative', {
-      exact: true,
-    });
-    const headquartersCheckbox = page.getByLabel('Headquarters', { exact: true });
-
-    // Define constants for privileges
-    const supervisorCheckbox = page.getByLabel('Supervisor', { exact: true });
-
-    // Deselect existing roles for testing
-    await taskOrderingOfficerCheckbox.click();
-    await taskInvoicingOfficerCheckbox.click();
-
-    // Check roles that cannot have supervisor priveleges
     await qualityAssuranceEvaluatorCheckbox.click();
     await supervisorCheckbox.click();
     await expect(qualityAssuranceEvaluatorCheckbox).toBeChecked();
@@ -859,88 +495,6 @@ test.describe('Office Users Edit Page', () => {
     await expect(supervisorCheckbox).not.toBeChecked();
     await headquartersCheckbox.click();
 
-    // Continue test to ensure form still submits with valid information
-    await servicesCounselorCheckbox.click();
-
-    await page.getByRole('button', { name: 'Save' }).click();
-    await adminPage.waitForPage.adminPage();
-
-    await searchForOfficeUser(page, email);
-    await expect(page.locator(`tr:has(:text("${email}")) >> td.column-active >> svg`)).toHaveAttribute(
-      'data-testid',
-      newStatus,
-    );
-
-    await expect(page.locator(`tr:has(:text("${email}")) >> td.column-firstName`)).toHaveText('NewFirst');
-    await expect(page.locator(`tr:has(:text("${email}")) >> td.column-lastName`)).toHaveText('NewLast');
-  });
-  test('roles authorized for supervisor can select', async ({ page, adminPage }) => {
-    const officeUser = await adminPage.testHarness.buildOfficeUserWithTOOAndTIO();
-    const email = officeUser.okta_email;
-
-    await adminPage.signInAsNewAdminUser();
-
-    expect(page.url()).toContain('/system/requested-office-users');
-    await page.getByRole('menuitem', { name: 'Office Users', exact: true }).click();
-    expect(page.url()).toContain('/system/office-users');
-    await searchForOfficeUser(page, email);
-    await page.getByText(email).click();
-    await adminPage.waitForPage.adminPage();
-
-    await page.getByRole('link', { name: 'Edit' }).click();
-    await adminPage.waitForPage.adminPage();
-
-    const disabledFields = ['id', 'email', 'userId', 'createdAt', 'updatedAt'];
-    for (const field of disabledFields) {
-      await expect(page.locator(`#${field}`)).toBeDisabled();
-    }
-
-    const firstName = page.getByLabel('First name');
-    await firstName.focus();
-    await firstName.clear();
-    await firstName.fill('NewFirst');
-
-    const lastName = page.getByLabel('Last name');
-    await lastName.focus();
-    await lastName.clear();
-    await lastName.fill('NewLast');
-
-    // The autocomplete form results in multiple matching elements, so
-    // pick the input element
-    await expect(page.getByLabel('Transportation Office').nth(0)).toBeEditable();
-
-    // Add a Transportation Office Assignment
-    await page.getByTestId('addTransportationOfficeButton').click();
-    // n = 2 because of the disabled GBLOC input
-    await expect(page.getByLabel('Transportation Office').nth(2)).toBeEditable();
-    await page.getByLabel('Transportation Office').nth(2).fill('AGFM');
-    // the autocomplete might return multiples because of concurrent
-    // tests running that are adding offices
-    await page.getByRole('option', { name: 'JPPSO - North East (AGFM) - USAF' }).first().click();
-    // Set as primary transportation office
-    await page.getByLabel('Primary Office').nth(1).click();
-    await page.getByText('You cannot designate more than one primary transportation office.');
-    await page.getByLabel('Primary Office').nth(1).click();
-
-    // set the user to the active status they did NOT have before
-    const activeStatus = await page.locator('div:has(label :text-is("Active")) >> input[name="active"]').inputValue();
-
-    const newStatus = (activeStatus !== 'true').toString();
-    await page.locator('div:has(label :text-is("Active")) >> #active').click();
-    await page.locator(`ul[aria-labelledby="active-label"] >> li[data-value="${newStatus}"]`).click();
-
-    // Define constants for all roles checkboxes to be tested
-    const taskOrderingOfficerCheckbox = page.getByLabel('Task Ordering Officer', { exact: true });
-    const taskInvoicingOfficerCheckbox = page.getByLabel('Task Invoicing Officer', { exact: true });
-    const servicesCounselorCheckbox = page.getByLabel('Services Counselor', { exact: true });
-
-    // Define constants for privileges
-    const supervisorCheckbox = page.getByLabel('Supervisor', { exact: true });
-
-    // Deselect existing roles for testing
-    await taskOrderingOfficerCheckbox.click();
-    await taskInvoicingOfficerCheckbox.click();
-
     // Check roles that can have supervisor priveleges
     await taskOrderingOfficerCheckbox.click();
     await supervisorCheckbox.click();
@@ -958,100 +512,6 @@ test.describe('Office Users Edit Page', () => {
     await supervisorCheckbox.click();
     await expect(servicesCounselorCheckbox).toBeChecked();
     await expect(supervisorCheckbox).toBeChecked();
-
-    // Continue test to ensure form still submits with valid information
-
-    await page.getByRole('button', { name: 'Save' }).click();
-    await adminPage.waitForPage.adminPage();
-
-    await searchForOfficeUser(page, email);
-    await expect(page.locator(`tr:has(:text("${email}")) >> td.column-active >> svg`)).toHaveAttribute(
-      'data-testid',
-      newStatus,
-    );
-
-    await expect(page.locator(`tr:has(:text("${email}")) >> td.column-firstName`)).toHaveText('NewFirst');
-    await expect(page.locator(`tr:has(:text("${email}")) >> td.column-lastName`)).toHaveText('NewLast');
-  });
-  test('roles unauthorized for supervisor cannot be selected after supervisor is selected', async ({
-    page,
-    adminPage,
-  }) => {
-    const officeUser = await adminPage.testHarness.buildOfficeUserWithTOOAndTIO();
-    const email = officeUser.okta_email;
-
-    await adminPage.signInAsNewAdminUser();
-
-    expect(page.url()).toContain('/system/requested-office-users');
-    await page.getByRole('menuitem', { name: 'Office Users', exact: true }).click();
-    expect(page.url()).toContain('/system/office-users');
-    await searchForOfficeUser(page, email);
-    await page.getByText(email).click();
-    await adminPage.waitForPage.adminPage();
-
-    await page.getByRole('link', { name: 'Edit' }).click();
-    await adminPage.waitForPage.adminPage();
-
-    const disabledFields = ['id', 'email', 'userId', 'createdAt', 'updatedAt'];
-    for (const field of disabledFields) {
-      await expect(page.locator(`#${field}`)).toBeDisabled();
-    }
-
-    const firstName = page.getByLabel('First name');
-    await firstName.focus();
-    await firstName.clear();
-    await firstName.fill('NewFirst');
-
-    const lastName = page.getByLabel('Last name');
-    await lastName.focus();
-    await lastName.clear();
-    await lastName.fill('NewLast');
-
-    // The autocomplete form results in multiple matching elements, so
-    // pick the input element
-    await expect(page.getByLabel('Transportation Office').nth(0)).toBeEditable();
-
-    // Add a Transportation Office Assignment
-    await page.getByTestId('addTransportationOfficeButton').click();
-    // n = 2 because of the disabled GBLOC input
-    await expect(page.getByLabel('Transportation Office').nth(2)).toBeEditable();
-    await page.getByLabel('Transportation Office').nth(2).fill('AGFM');
-    // the autocomplete might return multiples because of concurrent
-    // tests running that are adding offices
-    await page.getByRole('option', { name: 'JPPSO - North East (AGFM) - USAF' }).first().click();
-    // Set as primary transportation office
-    await page.getByLabel('Primary Office').nth(1).click();
-    await page.getByText('You cannot designate more than one primary transportation office.');
-    await page.getByLabel('Primary Office').nth(1).click();
-
-    // set the user to the active status they did NOT have before
-    const activeStatus = await page.locator('div:has(label :text-is("Active")) >> input[name="active"]').inputValue();
-
-    const newStatus = (activeStatus !== 'true').toString();
-    await page.locator('div:has(label :text-is("Active")) >> #active').click();
-    await page.locator(`ul[aria-labelledby="active-label"] >> li[data-value="${newStatus}"]`).click();
-
-    // Define constants for all roles checkboxes to be tested
-    const customerCheckbox = page.getByLabel('Customer', { exact: true });
-    const taskOrderingOfficerCheckbox = page.getByLabel('Task Ordering Officer', { exact: true });
-    const taskInvoicingOfficerCheckbox = page.getByLabel('Task Invoicing Officer', { exact: true });
-    const contractingOfficerCheckbox = page.getByLabel('Contracting Officer', { exact: true });
-    const servicesCounselorCheckbox = page.getByLabel('Services Counselor', { exact: true });
-    const primeSimulatorCheckbox = page.getByLabel('Prime Simulator', { exact: true });
-    const qualityAssuranceEvaluatorCheckbox = page.getByLabel('Quality Assurance Evaluator', { exact: true });
-    const customerServiceRepersentativeCheckbox = page.getByLabel('Customer Service Representative', { exact: true });
-    const governmentSurveillanceRepresentativeCheckbox = page.getByLabel('Government Surveillance Representative', {
-      exact: true,
-    });
-    const headquartersCheckbox = page.getByLabel('Headquarters', { exact: true });
-
-    // Define constants for privileges
-    const supervisorCheckbox = page.getByLabel('Supervisor', { exact: true });
-
-    // Deselect existing roles for testing
-    await taskOrderingOfficerCheckbox.click();
-    await taskInvoicingOfficerCheckbox.click();
-
     // Check selecting roles after having supervisor selected for unallowed roles
     await supervisorCheckbox.click();
     await expect(supervisorCheckbox).toBeChecked();
@@ -1070,90 +530,6 @@ test.describe('Office Users Edit Page', () => {
     await headquartersCheckbox.click();
     await expect(headquartersCheckbox).not.toBeChecked();
 
-    // Continue test to ensure form still submits with valid information
-    await servicesCounselorCheckbox.click();
-    await expect(servicesCounselorCheckbox).toBeChecked();
-
-    await page.getByRole('button', { name: 'Save' }).click();
-    await adminPage.waitForPage.adminPage();
-
-    await searchForOfficeUser(page, email);
-    await expect(page.locator(`tr:has(:text("${email}")) >> td.column-active >> svg`)).toHaveAttribute(
-      'data-testid',
-      newStatus,
-    );
-
-    await expect(page.locator(`tr:has(:text("${email}")) >> td.column-firstName`)).toHaveText('NewFirst');
-    await expect(page.locator(`tr:has(:text("${email}")) >> td.column-lastName`)).toHaveText('NewLast');
-  });
-
-  test('roles authorized for supervisor can be selected after supervisor is selected', async ({ page, adminPage }) => {
-    const officeUser = await adminPage.testHarness.buildOfficeUserWithTOOAndTIO();
-    const email = officeUser.okta_email;
-
-    await adminPage.signInAsNewAdminUser();
-
-    expect(page.url()).toContain('/system/requested-office-users');
-    await page.getByRole('menuitem', { name: 'Office Users', exact: true }).click();
-    expect(page.url()).toContain('/system/office-users');
-    await searchForOfficeUser(page, email);
-    await page.getByText(email).click();
-    await adminPage.waitForPage.adminPage();
-
-    await page.getByRole('link', { name: 'Edit' }).click();
-    await adminPage.waitForPage.adminPage();
-
-    const disabledFields = ['id', 'email', 'userId', 'createdAt', 'updatedAt'];
-    for (const field of disabledFields) {
-      await expect(page.locator(`#${field}`)).toBeDisabled();
-    }
-
-    const firstName = page.getByLabel('First name');
-    await firstName.focus();
-    await firstName.clear();
-    await firstName.fill('NewFirst');
-
-    const lastName = page.getByLabel('Last name');
-    await lastName.focus();
-    await lastName.clear();
-    await lastName.fill('NewLast');
-
-    // The autocomplete form results in multiple matching elements, so
-    // pick the input element
-    await expect(page.getByLabel('Transportation Office').nth(0)).toBeEditable();
-
-    // Add a Transportation Office Assignment
-    await page.getByTestId('addTransportationOfficeButton').click();
-    // n = 2 because of the disabled GBLOC input
-    await expect(page.getByLabel('Transportation Office').nth(2)).toBeEditable();
-    await page.getByLabel('Transportation Office').nth(2).fill('AGFM');
-    // the autocomplete might return multiples because of concurrent
-    // tests running that are adding offices
-    await page.getByRole('option', { name: 'JPPSO - North East (AGFM) - USAF' }).first().click();
-    // Set as primary transportation office
-    await page.getByLabel('Primary Office').nth(1).click();
-    await page.getByText('You cannot designate more than one primary transportation office.');
-    await page.getByLabel('Primary Office').nth(1).click();
-
-    // set the user to the active status they did NOT have before
-    const activeStatus = await page.locator('div:has(label :text-is("Active")) >> input[name="active"]').inputValue();
-
-    const newStatus = (activeStatus !== 'true').toString();
-    await page.locator('div:has(label :text-is("Active")) >> #active').click();
-    await page.locator(`ul[aria-labelledby="active-label"] >> li[data-value="${newStatus}"]`).click();
-
-    // Define constants for all roles checkboxes to be tested
-    const taskOrderingOfficerCheckbox = page.getByLabel('Task Ordering Officer', { exact: true });
-    const taskInvoicingOfficerCheckbox = page.getByLabel('Task Invoicing Officer', { exact: true });
-    const servicesCounselorCheckbox = page.getByLabel('Services Counselor', { exact: true });
-
-    // Define constants for privileges
-    const supervisorCheckbox = page.getByLabel('Supervisor', { exact: true });
-
-    // Deselect existing roles for testing
-    await taskOrderingOfficerCheckbox.click();
-    await taskInvoicingOfficerCheckbox.click();
-
     // Check selecting roles after having supervisor selected for allowed roles
     await supervisorCheckbox.click();
     await expect(supervisorCheckbox).toBeChecked();
@@ -1165,10 +541,8 @@ test.describe('Office Users Edit Page', () => {
     await expect(servicesCounselorCheckbox).toBeChecked();
 
     // Continue test to ensure form still submits with valid information
-    await taskOrderingOfficerCheckbox.click();
-    await expect(taskOrderingOfficerCheckbox).not.toBeChecked();
-    await taskInvoicingOfficerCheckbox.click();
-    await expect(taskInvoicingOfficerCheckbox).not.toBeChecked();
+    await servicesCounselorCheckbox.click();
+    await expect(servicesCounselorCheckbox).toBeChecked();
 
     await page.getByRole('button', { name: 'Save' }).click();
     await adminPage.waitForPage.adminPage();
