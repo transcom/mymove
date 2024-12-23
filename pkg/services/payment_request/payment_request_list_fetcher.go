@@ -222,48 +222,6 @@ func (f *paymentRequestListFetcher) FetchPaymentRequestListByMove(appCtx appcont
 	return &paymentRequests, nil
 }
 
-// rename function
-func (f *paymentRequestListFetcher) CheckAndRemovePaymentRequestAssignedUser(appCtx appcontext.AppContext, id uuid.UUID) (bool, error) {
-	// ---------------------- Combine into one query - to only hit DB once -----------------------------
-	move := models.Move{}
-
-	err := appCtx.DB().Q().Eager(
-		"SignedCertifications",
-		"Orders.ServiceMember",
-		"Orders.UploadedAmendedOrders",
-		"CloseoutOffice",
-		"LockedByOfficeUser",
-		"AdditionalDocuments",
-		"AdditionalDocuments.UserUploads",
-		"CounselingOffice",
-	).Where("show = TRUE").Find(&move, id)
-	if err != nil {
-		return true, err
-	}
-	paymentRequests, err := f.FetchPaymentRequestListByMove(appCtx, move.Locator)
-	// ---------------------- Combine into one query - to only hit DB once -----------------------------
-
-	paymentRequestNeedingReview := false
-	for _, request := range *paymentRequests {
-		if request.Status != models.PaymentRequestStatusReviewed &&
-			request.Status != models.PaymentRequestStatusReviewedAllRejected {
-			paymentRequestNeedingReview = true
-			break
-		}
-	}
-
-	// ---------------------- Add to handler struct -----------------------------
-	// f.wer.DeleteAssignedOfficeUser(appCtx, id, roles.RoleTypeTIO)
-	// pr2, err := f.MoveAssignedOfficeUserUpdater.DeleteAssignedOfficeUser(appCtx, id, roles.RoleTypeTIO)
-	// if err != nil {
-	// 	return true, err
-	// }
-	// fmt.Println(pr2)
-	// ---------------------- Add to handler struct -----------------------------
-
-	return paymentRequestNeedingReview, err //only returning a bool because i cannot get DeleteAssignedOfficeUser to work in here
-}
-
 // fetchEDIErrorsForPaymentRequest returns the edi_error with the most recent created_at date for a payment request
 func fetchEDIErrorsForPaymentRequest(appCtx appcontext.AppContext, pr *models.PaymentRequest) (models.EdiError, error) {
 
