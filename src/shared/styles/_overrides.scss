@@ -139,6 +139,7 @@
   color: $base-darkest;
   @include u-text('normal');
   vertical-align: middle;
+  border-radius: 2em;
   &--green {
     background-color: $success-light;
   }
@@ -190,6 +191,15 @@
     @include u-padding-x(1); //12px
     padding-top: 0px;
     height: 23px;
+  }
+  &--ppmStatus {
+    background-color: $color-light-green !important;
+  }
+  &--diversion {
+    background-color: $color-gold !important;
+  }
+  &--cancellation {
+    background-color: $error-light !important;
   }
 }
 
