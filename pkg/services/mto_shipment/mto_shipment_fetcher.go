@@ -149,6 +149,7 @@ func (f mtoShipmentFetcher) ListMTOShipments(appCtx appcontext.AppContext, moveI
 		}
 		shipments[i].MTOAgents = agents
 
+		//Pull the port location info back
 		for _, serviceItem := range shipments[i].MTOServiceItems {
 			if serviceItem.PODLocation != nil {
 				loadErr := appCtx.DB().Load(serviceItem.PODLocation, "City", "Country", "UsPostRegionCity.UsPostRegion.State")

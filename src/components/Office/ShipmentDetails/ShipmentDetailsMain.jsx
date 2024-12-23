@@ -146,7 +146,7 @@ const ShipmentDetailsMain = ({
       weightResult = primeEstimatedWeight;
       displayedPickupAddress = pickupAddress;
       displayedDeliveryAddress = destinationAddress || destinationDutyLocationAddress;
-      displayPoeLocation = poeLocation.portCode;
+      displayPoeLocation = poeLocation;
       break;
     case SHIPMENT_OPTIONS.NTS:
       pickupRequestedDate = requestedPickupDate;
@@ -178,7 +178,7 @@ const ShipmentDetailsMain = ({
       weightResult = primeEstimatedWeight;
       displayedPickupAddress = pickupAddress;
       displayedDeliveryAddress = destinationAddress || destinationDutyLocationAddress;
-      displayPoeLocation = poeLocation.portCode;
+      displayPoeLocation = poeLocation;
       break;
   }
 

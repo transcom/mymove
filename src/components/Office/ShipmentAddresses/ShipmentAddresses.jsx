@@ -5,7 +5,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { Button } from '@trussworks/react-uswds';
 
 import { AddressShape } from '../../../types/address';
-import { formatAddress, formatCityStateAndPostalCode } from '../../../utils/shipmentDisplay';
+import { formatAddress, formatCityStateAndPostalCode, formatCityStateAndZipCode } from '../../../utils/shipmentDisplay';
 import DataTableWrapper from '../../DataTableWrapper/index';
 import DataTable from '../../DataTable/index';
 
@@ -86,7 +86,7 @@ const ShipmentAddresses = ({
         icon={<FontAwesomeIcon icon="arrow-right" />}
         data-testid="pickupDestinationAddress"
       />
-      <DataTable columnHeaders={['Port Location']} dataRow={[poeLocation]} />
+      <DataTable columnHeaders={['Port Location']} dataRow={[formatCityStateAndZipCode(poeLocation)]} />
     </DataTableWrapper>
   );
 };
