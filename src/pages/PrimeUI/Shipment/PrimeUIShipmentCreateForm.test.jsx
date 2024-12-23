@@ -498,7 +498,6 @@ describe('PrimeUIShipmentCreateForm', () => {
     ['BOAT_HAUL_AWAY', 'BOAT_TOW_AWAY', 'MOBILE_HOME'],
     'when creating a %s clears 2nd/3rd address fields when secondary/tertiary checkbox is unchecked',
     async (shipmentType) => {
-      // isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(false)); // Allow for testing of boats and mobile homes
       isBooleanFlagEnabled.mockResolvedValue(true);
 
       const shipmentTypeInput = await screen.findByLabelText('Shipment type');
