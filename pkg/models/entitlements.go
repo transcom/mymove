@@ -181,6 +181,14 @@ var civilianEmployee = WeightAllotment{
 	ProGearWeightSpouse:           500,
 }
 
+// allotment by orders type
+var studentTravel = WeightAllotment{
+	TotalWeightSelf:               350,
+	TotalWeightSelfPlusDependents: 350,
+	ProGearWeight:                 0,
+	ProGearWeightSpouse:           0,
+}
+
 var entitlements = map[internalmessages.OrderPayGrade]WeightAllotment{
 	ServiceMemberGradeACADEMYCADET:            midshipman,
 	ServiceMemberGradeAVIATIONCADET:           aviationCadet,
@@ -213,6 +221,10 @@ var entitlements = map[internalmessages.OrderPayGrade]WeightAllotment{
 	ServiceMemberGradeCIVILIANEMPLOYEE:        civilianEmployee,
 }
 
+var entitlementsByOrdersType = map[internalmessages.OrdersType]WeightAllotment{
+	internalmessages.OrdersTypeSTUDENTTRAVEL: studentTravel,
+}
+
 func getEntitlement(grade internalmessages.OrderPayGrade) (WeightAllotment, error) {
 	if entitlement, ok := entitlements[grade]; ok {
 		return entitlement, nil
@@ -220,14 +232,28 @@ func getEntitlement(grade internalmessages.OrderPayGrade) (WeightAllotment, erro
 	return WeightAllotment{}, fmt.Errorf("no entitlement found for pay grade %s", grade)
 }
 
+func getEntitlementByOrdersType(ordersType internalmessages.OrdersType) (WeightAllotment, error) {
+	if entitlement, ok := entitlementsByOrdersType[ordersType]; ok {
+		return entitlement, nil
+	}
+	return WeightAllotment{}, fmt.Errorf("no entitlement found for orders type %s", ordersType)
+}
+
 // AllWeightAllotments returns all the weight allotments for each rank.
 func AllWeightAllotments() map[internalmessages.OrderPayGrade]WeightAllotment {
 	return entitlements
 }
 
-// GetWeightAllotment returns the weight allotments for a given pay grade.
-func GetWeightAllotment(grade internalmessages.OrderPayGrade) WeightAllotment {
-	entitlement, err := getEntitlement(grade)
+// GetWeightAllotment returns the weight allotments for a given pay grade or an orders type.
+func GetWeightAllotment(grade internalmessages.OrderPayGrade, ordersType internalmessages.OrdersType) WeightAllotment {
+	var entitlement WeightAllotment
+	var err error
+
+	if ordersType == internalmessages.OrdersTypeSTUDENTTRAVEL { // currently only applies to student travel order that limits overall authorized weight
+		entitlement, err = getEntitlementByOrdersType(ordersType)
+	} else {
+		entitlement, err = getEntitlement(grade)
+	}
 	if err != nil {
 		return WeightAllotment{}
 	}
@@ -280,9 +306,12 @@ func GetUBWeightAllowance(appCtx appcontext.AppContext, originDutyLocationIsOcon
 		const dependents12AndOverUBAllowance = 350
 		const depedentsUnder12UBAllowance = 175
 		const maxWholeFamilyCivilianUBAllowance = 2000
+		const studentTravelMaxAllowance = 350
 		ubAllowance := 0
 
-		if orderPayGrade == string(internalmessages.OrderPayGradeCIVILIANEMPLOYEE) && dependentsAreAuthorized && underTwelveDependents == 0 && twelveAndOverDependents == 0 {
+		if typeOfOrder == string(internalmessages.OrdersTypeSTUDENTTRAVEL) {
+			ubAllowance = studentTravelMaxAllowance
+		} else if orderPayGrade == string(internalmessages.OrderPayGradeCIVILIANEMPLOYEE) && dependentsAreAuthorized && underTwelveDependents == 0 && twelveAndOverDependents == 0 {
 			ubAllowance = civilianBaseUBAllowance
 		} else if orderPayGrade == string(internalmessages.OrderPayGradeCIVILIANEMPLOYEE) && dependentsAreAuthorized && (underTwelveDependents > 0 || twelveAndOverDependents > 0) {
 			ubAllowance = civilianBaseUBAllowance
