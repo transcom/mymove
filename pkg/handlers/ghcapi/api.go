@@ -534,6 +534,13 @@ func NewGhcAPIHandler(handlerConfig handlers.HandlerConfig) *ghcops.MymoveAPI {
 		officeusercreator.NewOfficeUserFetcherPop(),
 	}
 
+	ghcAPI.QueuesGetDestinationRequestsQueueHandler = GetDestinationRequestsQueueHandler{
+		handlerConfig,
+		order.NewOrderFetcher(),
+		movelocker.NewMoveUnlocker(),
+		officeusercreator.NewOfficeUserFetcherPop(),
+	}
+
 	ghcAPI.QueuesListPrimeMovesHandler = ListPrimeMovesHandler{
 		handlerConfig,
 		movetaskorder.NewMoveTaskOrderFetcher(),

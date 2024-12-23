@@ -3820,6 +3820,126 @@ paths:
           $ref: '#/responses/PermissionDenied'
         '500':
           $ref: '#/responses/ServerError'
+  /queues/destination-requests:
+    get:
+      produces:
+        - application/json
+      summary: >-
+        Gets queued list of all customer moves by a shipment's destination
+        address GBLOC that have destination requests (destination SIT, shuttle,
+        destination address requests)
+      description: >
+        A TOO will view this queue when they have destination requests tied to
+        the destination address in their GBLOC within a shipment. This includes
+        unapproved destination SIT service items (including shuttle) and
+        destination address requests that are not approved.
+      operationId: getDestinationRequestsQueue
+      tags:
+        - queues
+      parameters:
+        - in: query
+          name: page
+          type: integer
+          description: requested page of results
+        - in: query
+          name: perPage
+          type: integer
+          description: results per page
+        - in: query
+          name: sort
+          type: string
+          enum:
+            - customerName
+            - edipi
+            - emplid
+            - branch
+            - locator
+            - status
+            - originDutyLocation
+            - destinationDutyLocation
+            - requestedMoveDate
+            - appearedInTooAt
+            - assignedTo
+            - counselingOffice
+          description: field that results should be sorted by
+        - in: query
+          name: order
+          type: string
+          enum:
+            - asc
+            - desc
+          description: direction of sort order if applied
+        - in: query
+          name: branch
+          type: string
+        - in: query
+          name: locator
+          type: string
+        - in: query
+          name: customerName
+          type: string
+        - in: query
+          name: edipi
+          type: string
+        - in: query
+          name: emplid
+          type: string
+        - in: query
+          name: originDutyLocation
+          type: array
+          uniqueItems: true
+          collectionFormat: multi
+          items:
+            type: string
+        - in: query
+          name: destinationDutyLocation
+          type: string
+        - in: query
+          name: appearedInTooAt
+          type: string
+          format: date-time
+        - in: query
+          name: requestedMoveDate
+          type: string
+          description: filters the requested pickup date of a shipment on the move
+        - in: query
+          name: status
+          type: array
+          description: Filtering for the status.
+          uniqueItems: true
+          items:
+            type: string
+            enum:
+              - APPROVALS REQUESTED
+        - in: query
+          name: orderType
+          type: string
+          description: order type
+        - in: query
+          name: viewAsGBLOC
+          type: string
+          description: >
+            Used to return a queue for a GBLOC other than the default of the
+            current user. Requires the HQ role. The parameter is ignored if the
+            requesting user does not have the necessary role.
+        - in: query
+          name: assignedTo
+          type: string
+          description: |
+            Used to illustrate which user is assigned to this move.
+        - in: query
+          name: counselingOffice
+          type: string
+          description: filters using a counselingOffice name of the move
+      responses:
+        '200':
+          description: Successfully returned all moves matching the criteria
+          schema:
+            $ref: '#/definitions/QueueMovesResult'
+        '403':
+          $ref: '#/responses/PermissionDenied'
+        '500':
+          $ref: '#/responses/ServerError'
   /queues/payment-requests:
     get:
       produces:
