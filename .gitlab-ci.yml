@@ -45,6 +45,8 @@ stages:
 - test
 - push
 - deploy
+- prod_push
+- prod_push
 
 #anchors
 #set safe directory and path
@@ -59,15 +61,19 @@ stages:
     fi
 
 .setup_aws_vars_dp3: &setup_aws_vars_dp3
-  - export AWS_DEFAULT_REGION=$(eval echo \$${DP3_ENV^^}_REGION)
-  - export AWS_ACCOUNT_ID=$(eval echo \$${DP3_ENV^^}_ACCOUNT_ID)
-  - export AWS_ACCESS_KEY_ID=$(eval echo \$${DP3_ENV^^}_ACCESS_KEY_ID)
-  - export AWS_SECRET_ACCESS_KEY=$(eval echo \$${DP3_ENV^^}_SECRET_ACCESS_KEY)
+  - if [[ "$DP3_ENV" == "exp" OR "$DP3_ENV" == "loadtest" OR "$DP3_ENV" == "demo" ]]; then
+     export AWS_DEFAULT_REGION=$(eval echo \$${DP3_ENV^^}_REGION)
+     export AWS_ACCOUNT_ID=$(eval echo \$${DP3_ENV^^}_ACCOUNT_ID)
+     export AWS_ACCESS_KEY_ID=$(eval echo \$${DP3_ENV^^}_ACCESS_KEY_ID)
+     export AWS_SECRET_ACCESS_KEY=$(eval echo \$${DP3_ENV^^}_SECRET_ACCESS_KEY)
+    fi
 
 .setup_tls_vars_dp3: &setup_tls_vars_dp3
-  - export TLS_CERT=$(eval echo \$${DP3_ENV^^}_DP3_CERT)
-  - export TLS_KEY=$(eval echo \$${DP3_ENV^^}_DP3_KEY)
-  - export TLS_CA=$(eval echo \$${DP3_ENV^^}_DP3_CA)
+  - if [[ "$DP3_ENV" == "exp" OR "$DP3_ENV" == "loadtest" OR "$DP3_ENV" == "demo" ]]; then
+    export TLS_CERT=$(eval echo \$${DP3_ENV^^}_DP3_CERT)
+    export TLS_KEY=$(eval echo \$${DP3_ENV^^}_DP3_KEY)
+    export TLS_CA=$(eval echo \$${DP3_ENV^^}_DP3_CA)
+   fi
 
 .setup_aws_vars_stg: &setup_aws_vars_stg
   - export AWS_DEFAULT_REGION=$STG_REGION
@@ -394,7 +400,7 @@ push_otel_collector_image_stg:
     - if: '$CI_COMMIT_BRANCH == "main"'
 
 build_push_app_prd:
-  stage: push
+  stage: prod_push
   image:
     name: gcr.io/kaniko-project/executor:v1.14.0-debug
     entrypoint: [""]
@@ -413,7 +419,7 @@ build_push_app_prd:
   - if: '$CI_COMMIT_BRANCH == "main"'
 
 build_push_migrations_prd:
-  stage: push
+  stage: prod_push
   image:
     name: gcr.io/kaniko-project/executor:v1.14.0-debug
     entrypoint: [""]
@@ -432,7 +438,7 @@ build_push_migrations_prd:
   - if: '$CI_COMMIT_BRANCH == "main"'
 
 build_push_tasks_prd:
-  stage: push
+  stage: prod_push
   image:
     name: gcr.io/kaniko-project/executor:v1.14.0-debug
     entrypoint: [""]
@@ -478,7 +484,7 @@ push_otel_collector_image_prd:
 
 
 build_push_app_dp3:
-  stage: push
+  stage: prod_push
   image:
     name: gcr.io/kaniko-project/executor:v1.14.0-debug
     entrypoint: [""]
@@ -510,6 +516,8 @@ build_push_migrations_dp3:
     - /kaniko/executor --context "${CI_PROJECT_DIR}/" --dockerfile "${CI_PROJECT_DIR}/Dockerfile.migrations" --destination "${ECR_REPOSITORY_URI}/app-migrations:$CI_COMMIT_SHORT_SHA"
   after_script:
     - echo "Migrations image built and pushed successfully."
+  rules:
+  - if: 'if "$DP3_ENV" == "exp" OR "$DP3_ENV" == "loadtest" OR "$DP3_ENV" == "demo"'
 
 build_push_tasks_dp3:
   stage: push
@@ -527,6 +535,9 @@ build_push_tasks_dp3:
     - /kaniko/executor --context "${CI_PROJECT_DIR}/" --dockerfile "${CI_PROJECT_DIR}/${TASK_DOCKER_FILE}" --destination "${ECR_REPOSITORY_URI}/app-tasks:$CI_COMMIT_SHORT_SHA"
   after_script:
     - echo "Tasks image built successfully."
+    - *announce_failure
+  rules:
+    - if: 'if "$DP3_ENV" == "exp" OR "$DP3_ENV" == "loadtest" OR "$DP3_ENV" == "demo"'
 
 push_otel_collector_image_dp3:
   stage: push
@@ -549,8 +560,8 @@ push_otel_collector_image_dp3:
     - echo "Cleaning up the temporary image file..."
     - rm image.tar
   allow_failure: false
-  # rules:
-  #   - if: '$CI_COMMIT_BRANCH != "main"'
+  rules:
+    - if: 'if "$DP3_ENV" == "exp" OR "$DP3_ENV" == "loadtest" OR "$DP3_ENV" == "demo"'
 
 #Deploy Pushed Images
 deploy_migrations_dp3:
@@ -572,12 +583,9 @@ deploy_migrations_dp3:
     # Step 3: Run migrations
     - echo "Running migrations"
     - ./scripts/ecs-run-app-migrations-container "${ECR_REPOSITORY_URI}/app-migrations@${ECR_DIGEST}" "demo"
-    # # Step 4: Announce failure only if on the specific branch
-    # - |
-    #   if [[ "$CI_COMMIT_BRANCH" == "main" && "$CI_JOB_STATUS" == "failed" ]]; then
-    #     ./scripts/circleci-announce-broken-branch
-    #   fi
-  timeout: 40m
+    - *announce_failure
+  rules:
+    - if: 'if "$DP3_ENV" == "exp" OR "$DP3_ENV" == "loadtest" OR "$DP3_ENV" == "demo"'
 
 deploy_tasks_dp3:
   stage: deploy
@@ -595,12 +603,9 @@ deploy_tasks_dp3:
     - ./scripts/ecs-deploy-task-container save-ghc-fuel-price-data "${ECR_REPOSITORY_URI}/app-tasks@${ECR_DIGEST}" "${APP_ENVIRONMENT}"
     - echo "Deploying payment reminder email task service"
     - ./scripts/ecs-deploy-task-container send-payment-reminder "${ECR_REPOSITORY_URI}/app-tasks@${ECR_DIGEST}" "${APP_ENVIRONMENT}"
-  # # Run failure announcement only if on the main branch
-  #   - |
-  #     if [[ "$CI_COMMIT_BRANCH" == "main" && "$CI_JOB_STATUS" == "failed" ]]; then
-  #       ./scripts/circleci-announce-broken-branch
-  #     fi
-  timeout: 40m
+    - *announce_failure
+  rules:
+    - if: 'if "$DP3_ENV" == "exp" OR "$DP3_ENV" == "loadtest" OR "$DP3_ENV" == "demo"'
 
 deploy_app_client_tls_dp3:
   stage: deploy
@@ -631,12 +636,9 @@ deploy_app_client_tls_dp3:
     # - bin/tls-checker --schemes https --hosts api.demo.dp3.us --key ${TLS_KEY} --cert ${TLS_CERT} --ca ${TLS_CA} --log-level info --timeout 15m
     # - echo "Checking deployed commits"
     # - ./scripts/check-deployed-commit "api.demo.dp3.us" "$CI_COMMIT_SHA" ${TLS_KEY} ${TLS_CERT} ${TLS_CA}
-    - |
-      # Run failure announcement only if on the main branch
-      if [[ "$CI_COMMIT_BRANCH" == "main" && "$CI_JOB_STATUS" == "failed" ]]; then
-        ./scripts/circleci-announce-broken-branch
-      fi
-  timeout: 60m
+    - *announce_failure
+  rules:
+    - if: 'if "$DP3_ENV" == "exp" OR "$DP3_ENV" == "loadtest" OR "$DP3_ENV" == "demo"'
 
 deploy_app_dp3:
   stage: deploy
@@ -677,11 +679,8 @@ deploy_app_dp3:
     # - bin/tls-checker --schemes https --hosts my.demo.dp3.us,office.demo.dp3.us,admin.demo.dp3.us --log-level info --timeout 15m
     # - echo "Checking deployed commits"
     - ./scripts/check-deployed-commit "my.demo.dp3.us,office.demo.dp3.us,admin.demo.dp3.us" "$CI_COMMIT_SHA"
-  # Run failure announcement only if on the main bran
-    - |
-      if [[ "$CI_COMMIT_BRANCH" == "main" && "$CI_JOB_STATUS" == "failed" ]]; then
-        ./scripts/circleci-announce-broken-branch
-      fi
-  timeout: 60m
+    - *announce_failure
+  rules:
+    - if: 'if "$DP3_ENV" == "exp" OR "$DP3_ENV" == "loadtest" OR "$DP3_ENV" == "demo"'
 
 
