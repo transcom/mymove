@@ -404,7 +404,7 @@ func priceInternationalShuttling(appCtx appcontext.AppContext, shuttlingCode mod
 	// look up rate for international accessorial price
 	internationalAccessorialPrice, err := fetchInternationalAccessorialPrice(appCtx, contractCode, shuttlingCode, market)
 	if err != nil {
-		return 0, nil, fmt.Errorf("could not lookup Interntional Accessorial Area Price: %w", err)
+		return 0, nil, fmt.Errorf("could not lookup International Accessorial Area Price: %w", err)
 	}
 
 	basePrice := internationalAccessorialPrice.PerUnitCents.Float64()

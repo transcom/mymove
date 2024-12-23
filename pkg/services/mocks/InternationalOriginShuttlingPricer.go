@@ -20,9 +20,9 @@ type InternationalOriginShuttlingPricer struct {
 	mock.Mock
 }
 
-// Price provides a mock function with given fields: appCtx, contractCode, requestedPickupDate, weight, servicesScheduleOrigin
-func (_m *InternationalOriginShuttlingPricer) Price(appCtx appcontext.AppContext, contractCode string, requestedPickupDate time.Time, weight unit.Pound, servicesScheduleOrigin int) (unit.Cents, services.PricingDisplayParams, error) {
-	ret := _m.Called(appCtx, contractCode, requestedPickupDate, weight, servicesScheduleOrigin)
+// Price provides a mock function with given fields: appCtx, contractCode, requestedPickupDate, weight, market
+func (_m *InternationalOriginShuttlingPricer) Price(appCtx appcontext.AppContext, contractCode string, requestedPickupDate time.Time, weight unit.Pound, market models.Market) (unit.Cents, services.PricingDisplayParams, error) {
+	ret := _m.Called(appCtx, contractCode, requestedPickupDate, weight, market)
 
 	if len(ret) == 0 {
 		panic("no return value specified for Price")
@@ -31,25 +31,25 @@ func (_m *InternationalOriginShuttlingPricer) Price(appCtx appcontext.AppContext
 	var r0 unit.Cents
 	var r1 services.PricingDisplayParams
 	var r2 error
-	if rf, ok := ret.Get(0).(func(appcontext.AppContext, string, time.Time, unit.Pound, int) (unit.Cents, services.PricingDisplayParams, error)); ok {
-		return rf(appCtx, contractCode, requestedPickupDate, weight, servicesScheduleOrigin)
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, string, time.Time, unit.Pound, models.Market) (unit.Cents, services.PricingDisplayParams, error)); ok {
+		return rf(appCtx, contractCode, requestedPickupDate, weight, market)
 	}
-	if rf, ok := ret.Get(0).(func(appcontext.AppContext, string, time.Time, unit.Pound, int) unit.Cents); ok {
-		r0 = rf(appCtx, contractCode, requestedPickupDate, weight, servicesScheduleOrigin)
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, string, time.Time, unit.Pound, models.Market) unit.Cents); ok {
+		r0 = rf(appCtx, contractCode, requestedPickupDate, weight, market)
 	} else {
 		r0 = ret.Get(0).(unit.Cents)
 	}
 
-	if rf, ok := ret.Get(1).(func(appcontext.AppContext, string, time.Time, unit.Pound, int) services.PricingDisplayParams); ok {
-		r1 = rf(appCtx, contractCode, requestedPickupDate, weight, servicesScheduleOrigin)
+	if rf, ok := ret.Get(1).(func(appcontext.AppContext, string, time.Time, unit.Pound, models.Market) services.PricingDisplayParams); ok {
+		r1 = rf(appCtx, contractCode, requestedPickupDate, weight, market)
 	} else {
 		if ret.Get(1) != nil {
 			r1 = ret.Get(1).(services.PricingDisplayParams)
 		}
 	}
 
-	if rf, ok := ret.Get(2).(func(appcontext.AppContext, string, time.Time, unit.Pound, int) error); ok {
-		r2 = rf(appCtx, contractCode, requestedPickupDate, weight, servicesScheduleOrigin)
+	if rf, ok := ret.Get(2).(func(appcontext.AppContext, string, time.Time, unit.Pound, models.Market) error); ok {
+		r2 = rf(appCtx, contractCode, requestedPickupDate, weight, market)
 	} else {
 		r2 = ret.Error(2)
 	}
