@@ -126,6 +126,9 @@ stages:
 .check_dp3: &check_dp3
   - if: $DP3_ENV == "exp" || $DP3_ENV == "loadtest" || $DP3_ENV == "demo"
 
+.check_main: &check_main
+  - if: '$CI_COMMIT_BRANCH == "main"'
+
 sast:
   stage: pre_checks
 include:
@@ -228,6 +231,8 @@ check_tls_certificate_dp3:
       fi
     - echo "Running TLS pair check..."
     - /usr/local/bin/check-tls-pair "${TLS_KEY}" "${TLS_CERT}"
+  rules:
+    - *check_dp3
 
 check_tls_certificate_stg:
   stage: pre_checks
@@ -335,7 +340,7 @@ build_push_app_stg:
   after_script:
     - echo "Build_complete"
   rules:
-  - if: '$CI_COMMIT_BRANCH == "main"'
+  - *check_main
 
 build_push_migrations_stg:
   stage: push
@@ -354,7 +359,7 @@ build_push_migrations_stg:
   after_script:
     - echo "Migrations image built and pushed successfully."
   rules:
-  - if: '$CI_COMMIT_BRANCH == "main"'
+  - *check_main
 
 build_push_tasks_stg:
   stage: push
@@ -373,7 +378,7 @@ build_push_tasks_stg:
   after_script:
     - echo "Tasks image built successfully."
   rules:
-  - if: '$CI_COMMIT_BRANCH == "main"'
+  - *check_main
 
 push_otel_collector_image_stg:
   stage: push
@@ -399,7 +404,7 @@ push_otel_collector_image_stg:
     - rm image.tar
   allow_failure: false
   rules:
-    - if: '$CI_COMMIT_BRANCH == "main"'
+    - *check_main
 
 build_push_app_prd:
   stage: prod_push
@@ -418,7 +423,7 @@ build_push_app_prd:
   after_script:
     - echo "Build_complete"
   rules:
-  - if: '$CI_COMMIT_BRANCH == "main"'
+    - *check_main
 
 build_push_migrations_prd:
   stage: prod_push
@@ -456,7 +461,7 @@ build_push_tasks_prd:
   after_script:
     - echo "Tasks image built successfully."
   rules:
-  - if: '$CI_COMMIT_BRANCH == "main"'
+    - *check_main
 
 push_otel_collector_image_prd:
   stage: push
@@ -565,7 +570,7 @@ push_otel_collector_image_dp3:
     - rm image.tar
   allow_failure: false
   rules:
-    - if: (($DP3_ENV == "exp") || ($DP3_ENV == "loadtest") || ($DP3_ENV == "demo"))
+    - *check_dp3
 
 #Deploy Pushed Images
 deploy_migrations_dp3:
