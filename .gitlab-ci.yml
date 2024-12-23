@@ -129,6 +129,10 @@ stages:
 .check_main: &check_main
   - if: '$CI_COMMIT_BRANCH == "main"'
 
+.check_debug: &check_debug
+  - if: '$debug == "true"'
+
+
 sast:
   stage: pre_checks
 include:
@@ -221,6 +225,8 @@ check_generated_code:
     - scripts/check-generated-code pkg/gen/ $(find . -type d -name "*mocks" -exec echo -n '{} ' \;)
   after_script:
     - *announce_failure
+  rules:
+    - *check_debug
 
 
 check_tls_certificate_dp3:
