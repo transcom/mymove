@@ -123,6 +123,8 @@ stages:
   echo "Simulating Docker image build setup..."
   echo "{\"credHelpers\":{\"${ECR_REPOSITORY_URI}\":\"ecr-login\"}}" > /kaniko/.docker/config.json
 
+.check_dp3: &check_dp3
+  - if: $DP3_ENV == "exp" || $DP3_ENV == "loadtest" || $DP3_ENV == "demo"
 
 sast:
   stage: pre_checks
@@ -484,7 +486,7 @@ push_otel_collector_image_prd:
 
 
 build_push_app_dp3:
-  stage: prod_push
+  stage: push
   image:
     name: gcr.io/kaniko-project/executor:v1.14.0-debug
     entrypoint: [""]
@@ -499,6 +501,8 @@ build_push_app_dp3:
     - /kaniko/executor --context "${CI_PROJECT_DIR}/" --dockerfile "${CI_PROJECT_DIR}/${APP_DOCKER_FILE}" --destination "${ECR_REPOSITORY_URI}/app:$CI_COMMIT_SHORT_SHA"
   after_script:
     - echo "Build_complete"
+  rules:
+    - *check_dp3
 
 build_push_migrations_dp3:
   stage: push
@@ -517,7 +521,7 @@ build_push_migrations_dp3:
   after_script:
     - echo "Migrations image built and pushed successfully."
   rules:
-  - if: 'if "$DP3_ENV" == "exp" OR "$DP3_ENV" == "loadtest" OR "$DP3_ENV" == "demo"'
+    - *check_dp3
 
 build_push_tasks_dp3:
   stage: push
@@ -537,7 +541,7 @@ build_push_tasks_dp3:
     - echo "Tasks image built successfully."
     - *announce_failure
   rules:
-    - if: 'if "$DP3_ENV" == "exp" OR "$DP3_ENV" == "loadtest" OR "$DP3_ENV" == "demo"'
+    - *check_dp3
 
 push_otel_collector_image_dp3:
   stage: push
@@ -561,7 +565,7 @@ push_otel_collector_image_dp3:
     - rm image.tar
   allow_failure: false
   rules:
-    - if: 'if "$DP3_ENV" == "exp" OR "$DP3_ENV" == "loadtest" OR "$DP3_ENV" == "demo"'
+    - if: (($DP3_ENV == "exp") || ($DP3_ENV == "loadtest") || ($DP3_ENV == "demo"))
 
 #Deploy Pushed Images
 deploy_migrations_dp3:
@@ -585,7 +589,7 @@ deploy_migrations_dp3:
     - ./scripts/ecs-run-app-migrations-container "${ECR_REPOSITORY_URI}/app-migrations@${ECR_DIGEST}" "demo"
     - *announce_failure
   rules:
-    - if: 'if "$DP3_ENV" == "exp" OR "$DP3_ENV" == "loadtest" OR "$DP3_ENV" == "demo"'
+    - *check_dp3
 
 deploy_tasks_dp3:
   stage: deploy
@@ -605,7 +609,7 @@ deploy_tasks_dp3:
     - ./scripts/ecs-deploy-task-container send-payment-reminder "${ECR_REPOSITORY_URI}/app-tasks@${ECR_DIGEST}" "${APP_ENVIRONMENT}"
     - *announce_failure
   rules:
-    - if: 'if "$DP3_ENV" == "exp" OR "$DP3_ENV" == "loadtest" OR "$DP3_ENV" == "demo"'
+    - *check_dp3
 
 deploy_app_client_tls_dp3:
   stage: deploy
@@ -638,7 +642,7 @@ deploy_app_client_tls_dp3:
     # - ./scripts/check-deployed-commit "api.demo.dp3.us" "$CI_COMMIT_SHA" ${TLS_KEY} ${TLS_CERT} ${TLS_CA}
     - *announce_failure
   rules:
-    - if: 'if "$DP3_ENV" == "exp" OR "$DP3_ENV" == "loadtest" OR "$DP3_ENV" == "demo"'
+    - *check_dp3
 
 deploy_app_dp3:
   stage: deploy
@@ -681,6 +685,4 @@ deploy_app_dp3:
     - ./scripts/check-deployed-commit "my.demo.dp3.us,office.demo.dp3.us,admin.demo.dp3.us" "$CI_COMMIT_SHA"
     - *announce_failure
   rules:
-    - if: 'if "$DP3_ENV" == "exp" OR "$DP3_ENV" == "loadtest" OR "$DP3_ENV" == "demo"'
-
-
+    - *check_dp3
