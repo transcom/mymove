@@ -101,7 +101,6 @@ var WeightTicket CustomType = "WeightTicket"
 var UsPostRegionCity CustomType = "UsPostRegionCity"
 var UsersPrivileges CustomType = "UsersPrivileges"
 var Privilege CustomType = "Privilege"
-var JppsoRegions CustomType = "JppsoRegions"
 
 // defaultTypesMap allows us to assign CustomTypes for most default types
 var defaultTypesMap = map[string]CustomType{
@@ -166,7 +165,6 @@ var defaultTypesMap = map[string]CustomType{
 	"roles.Role":                                      Role,
 	"models.UsersPrivileges":                          UsersPrivileges,
 	"models.Privilege":                                Privilege,
-	"models.JppsoRegions":                             JppsoRegions,
 }
 
 // Instead of nesting structs, we create specific CustomTypes here to give devs
