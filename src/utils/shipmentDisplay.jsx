@@ -166,11 +166,11 @@ export function formatCityStateAndPostalCode(address) {
 /**
  * @description This function is used to format the port in the
  * ShipmentAddresses component.
- * It displays only the city, state and zip code.
+ * It displays only the port code, port name, city, state and zip code.
  * */
-export function formatCityStateAndZipCode(port) {
+export function formatPortInfo(port) {
   if (port) {
-    return `${port.portCode} - ${port.city}, ${port.state} ${port.zip}`;
+    return `${port.portCode} - ${port.portName}\n${port.city}, ${port.state} ${port.zip}`;
   }
   return '';
 }

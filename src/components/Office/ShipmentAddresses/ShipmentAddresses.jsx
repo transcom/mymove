@@ -5,7 +5,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { Button } from '@trussworks/react-uswds';
 
 import { AddressShape } from '../../../types/address';
-import { formatAddress, formatCityStateAndPostalCode, formatCityStateAndZipCode } from '../../../utils/shipmentDisplay';
+import { formatAddress, formatCityStateAndPostalCode, formatPortInfo } from '../../../utils/shipmentDisplay';
 import DataTableWrapper from '../../DataTableWrapper/index';
 import DataTable from '../../DataTable/index';
 
@@ -26,6 +26,7 @@ const ShipmentAddresses = ({
   shipmentInfo,
   isMoveLocked,
   poeLocation,
+  podLocation,
 }) => {
   let pickupHeader;
   let destinationHeader;
@@ -86,7 +87,10 @@ const ShipmentAddresses = ({
         icon={<FontAwesomeIcon icon="arrow-right" />}
         data-testid="pickupDestinationAddress"
       />
-      <DataTable columnHeaders={['Port Location']} dataRow={[formatCityStateAndZipCode(poeLocation)]} />
+      <DataTable
+        columnHeaders={['Port of Embark', 'Port of Debark']}
+        dataRow={[poeLocation ? formatPortInfo(poeLocation) : '-', podLocation ? formatPortInfo(podLocation) : '-']}
+      />
     </DataTableWrapper>
   );
 };
