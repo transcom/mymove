@@ -19,7 +19,7 @@ func NewInternationalDestinationShuttlingPricer() services.InternationalDestinat
 
 // Price determines the price for international destination first day SIT
 func (p internationalDestinationShuttlingPricer) Price(appCtx appcontext.AppContext, contractCode string, referenceDate time.Time, weight unit.Pound, serviceSchedule int) (unit.Cents, services.PricingDisplayParams, error) {
-	return priceInternationalShuttling(appCtx, models.ReServiceCodeDDSHUT, contractCode, referenceDate, weight, serviceSchedule)
+	return priceInternationalShuttling(appCtx, models.ReServiceCodeIDSHUT, contractCode, referenceDate, weight, serviceSchedule)
 }
 
 // PriceUsingParams determines the price for international destination first day SIT given PaymentServiceItemParams
