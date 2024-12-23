@@ -215,6 +215,8 @@ test.describe('Office User Create Page', () => {
     await supervisorCheckbox.click();
     await expect(servicesCounselorCheckbox).toBeChecked();
     await expect(supervisorCheckbox).toBeChecked();
+    await servicesCounselorCheckbox.click();
+
     // Check selecting roles after having supervisor selected for unallowed roles
     await customerCheckbox.click();
     await expect(customerCheckbox).not.toBeChecked();
@@ -508,6 +510,8 @@ test.describe('Office Users Edit Page', () => {
     await supervisorCheckbox.click();
     await expect(servicesCounselorCheckbox).toBeChecked();
     await expect(supervisorCheckbox).toBeChecked();
+    await servicesCounselorCheckbox.click();
+
     // Check selecting roles after having supervisor selected for unallowed roles
     await customerCheckbox.click();
     await expect(customerCheckbox).not.toBeChecked();
