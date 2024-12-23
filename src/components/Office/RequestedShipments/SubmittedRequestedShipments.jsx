@@ -102,6 +102,7 @@ const SubmittedRequestedShipments = ({
 
   const { moveCode } = useParams();
   const navigate = useNavigate();
+  const hasOrderDocuments = ordersInfo.ordersDocuments?.length > 0;
   const handleButtonDropdownChange = (e) => {
     const selectedOption = e.target.value;
 
@@ -256,10 +257,11 @@ const SubmittedRequestedShipments = ({
   // if showing service items on a move with Prime shipments, enable button when shipment and service item are selected and there is no missing required Orders information
   // if not showing service items on a move with Prime shipments, enable button if a shipment is selected and there is no missing required Orders information
   const primeShipmentsForApproval = moveTaskOrder.availableToPrimeAt
-    ? formik.values.shipments.length > 0 && !missingRequiredOrdersInfo
+    ? formik.values.shipments.length > 0 && !missingRequiredOrdersInfo && hasOrderDocuments
     : formik.values.shipments.length > 0 &&
       (formik.values.counselingFee || formik.values.shipmentManagementFee) &&
-      !missingRequiredOrdersInfo;
+      !missingRequiredOrdersInfo &&
+      hasOrderDocuments;
 
   // on a move with only External Vendor shipments enable button if a service item is selected
   const externalVendorShipmentsOnly = formik.values.counselingFee || formik.values.shipmentManagementFee;
