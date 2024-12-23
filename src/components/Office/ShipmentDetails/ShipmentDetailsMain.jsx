@@ -67,6 +67,7 @@ const ShipmentDetailsMain = ({
     storageInTransit,
     shipmentType,
     storageFacility,
+    poeLocation,
   } = shipment;
   const { originDutyLocationAddress, destinationDutyLocationAddress } = dutyLocationAddresses;
 
@@ -135,6 +136,7 @@ const ShipmentDetailsMain = ({
   let pickupActualDate;
   let plannedMoveDate;
   let actualMoveDate;
+  let displayPoeLocation;
 
   switch (shipmentType) {
     case SHIPMENT_OPTIONS.HHG:
@@ -144,6 +146,7 @@ const ShipmentDetailsMain = ({
       weightResult = primeEstimatedWeight;
       displayedPickupAddress = pickupAddress;
       displayedDeliveryAddress = destinationAddress || destinationDutyLocationAddress;
+      displayPoeLocation = poeLocation.portCode;
       break;
     case SHIPMENT_OPTIONS.NTS:
       pickupRequestedDate = requestedPickupDate;
@@ -175,6 +178,7 @@ const ShipmentDetailsMain = ({
       weightResult = primeEstimatedWeight;
       displayedPickupAddress = pickupAddress;
       displayedDeliveryAddress = destinationAddress || destinationDutyLocationAddress;
+      displayPoeLocation = poeLocation.portCode;
       break;
   }
 
@@ -260,6 +264,7 @@ const ShipmentDetailsMain = ({
         }}
         handleShowDiversionModal={handleShowDiversionModal}
         isMoveLocked={isMoveLocked}
+        poeLocation={displayPoeLocation}
       />
       <ShipmentWeightDetails
         estimatedWeight={weightResult}

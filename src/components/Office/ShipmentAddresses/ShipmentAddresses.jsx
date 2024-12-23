@@ -25,6 +25,7 @@ const ShipmentAddresses = ({
   handleShowDiversionModal,
   shipmentInfo,
   isMoveLocked,
+  poeLocation,
 }) => {
   let pickupHeader;
   let destinationHeader;
@@ -85,6 +86,7 @@ const ShipmentAddresses = ({
         icon={<FontAwesomeIcon icon="arrow-right" />}
         data-testid="pickupDestinationAddress"
       />
+      <DataTable columnHeaders={['Port Location']} dataRow={[poeLocation]} />
     </DataTableWrapper>
   );
 };
