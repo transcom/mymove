@@ -54,9 +54,9 @@ export const NeedsShipment = () => <HelperNeedsShipment />;
 export const NeedsSubmitMove = () => <HelperNeedsSubmitMove />;
 export const SubmittedMove = () => <HelperSubmittedMove />;
 export const AmendedOrders = () => <HelperAmendedOrders />;
-export const ApprovedMove = () => (
+export const ApprovedMove = (orderId) => (
   <MemoryRouter>
-    <HelperApprovedMove />
+    <HelperApprovedMove orderId={orderId} />
   </MemoryRouter>
 );
 export const PPMCloseoutSubmitted = () => <HelperPPMCloseoutSubmitted />;
