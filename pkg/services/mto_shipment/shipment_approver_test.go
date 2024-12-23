@@ -23,6 +23,7 @@ import (
 	mtoserviceitem "github.com/transcom/mymove/pkg/services/mto_service_item"
 	"github.com/transcom/mymove/pkg/services/query"
 	"github.com/transcom/mymove/pkg/testdatagen"
+	"github.com/transcom/mymove/pkg/testhelpers"
 	"github.com/transcom/mymove/pkg/unit"
 )
 
@@ -190,6 +191,7 @@ func (suite *MTOShipmentServiceSuite) createApproveShipmentSubtestData() (subtes
 }
 
 func (suite *MTOShipmentServiceSuite) TestApproveShipment() {
+	featureFlagValues := testhelpers.MakeMobileHomeFFMap()
 	suite.Run("If the international mtoShipment is approved successfully it should create pre approved mtoServiceItems", func() {
 		internationalShipment := factory.BuildMTOShipment(suite.AppContextForTest().DB(), []factory.Customization{
 			{

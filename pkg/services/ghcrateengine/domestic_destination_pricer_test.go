@@ -8,6 +8,7 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/testdatagen"
+	"github.com/transcom/mymove/pkg/testhelpers"
 	"github.com/transcom/mymove/pkg/unit"
 )
 
@@ -96,6 +97,7 @@ func (suite *GHCRateEngineServiceSuite) TestPriceDomesticDestinationWithServiceI
 }
 
 func (suite *GHCRateEngineServiceSuite) TestPriceDomesticDestination() {
+	featureFlagValues := testhelpers.MakeMobileHomeFFMap()
 	pricer := NewDomesticDestinationPricer()
 
 	suite.Run("success destination cost within peak period", func() {
@@ -109,6 +111,7 @@ func (suite *GHCRateEngineServiceSuite) TestPriceDomesticDestination() {
 			ddpTestServiceArea,
 			isPPM,
 			false,
+			featureFlagValues,
 		)
 		expectedCost := unit.Cents(5624)
 		suite.NoError(err)
@@ -135,6 +138,7 @@ func (suite *GHCRateEngineServiceSuite) TestPriceDomesticDestination() {
 			ddpTestServiceArea,
 			isPPM,
 			false,
+			featureFlagValues,
 		)
 		expectedCost := unit.Cents(4884)
 		suite.NoError(err)
@@ -156,14 +160,14 @@ func (suite *GHCRateEngineServiceSuite) TestPriceDomesticDestination() {
 		requestedPickupDate := time.Date(testdatagen.TestYear, time.July, 4, 0, 0, 0, 0, time.UTC)
 
 		// the PPM price for weights < 500 should be prorated from a base of 500
-		basePriceCents, _, err := pricer.Price(suite.AppContextForTest(), testdatagen.DefaultContractCode, requestedPickupDate, unit.Pound(500), ddpTestServiceArea, isPPM, false)
+		basePriceCents, _, err := pricer.Price(suite.AppContextForTest(), testdatagen.DefaultContractCode, requestedPickupDate, unit.Pound(500), ddpTestServiceArea, isPPM, false, featureFlagValues)
 		suite.NoError(err)
 
-		halfPriceCents, _, err := pricer.Price(suite.AppContextForTest(), testdatagen.DefaultContractCode, requestedPickupDate, unit.Pound(250), ddpTestServiceArea, isPPM, false)
+		halfPriceCents, _, err := pricer.Price(suite.AppContextForTest(), testdatagen.DefaultContractCode, requestedPickupDate, unit.Pound(250), ddpTestServiceArea, isPPM, false, featureFlagValues)
 		suite.NoError(err)
 		suite.Equal(basePriceCents/2, halfPriceCents)
 
-		fifthPriceCents, _, err := pricer.Price(suite.AppContextForTest(), testdatagen.DefaultContractCode, requestedPickupDate, unit.Pound(100), ddpTestServiceArea, isPPM, false)
+		fifthPriceCents, _, err := pricer.Price(suite.AppContextForTest(), testdatagen.DefaultContractCode, requestedPickupDate, unit.Pound(100), ddpTestServiceArea, isPPM, false, featureFlagValues)
 		suite.NoError(err)
 		suite.Equal(basePriceCents/5, fifthPriceCents)
 	})
@@ -209,6 +213,7 @@ func (suite *GHCRateEngineServiceSuite) TestPriceDomesticDestination() {
 			ddpTestServiceArea,
 			isPPM,
 			false,
+			featureFlagValues,
 		)
 
 		suite.Error(err)
@@ -226,6 +231,7 @@ func (suite *GHCRateEngineServiceSuite) TestPriceDomesticDestination() {
 			ddpTestServiceArea,
 			isPPM,
 			false,
+			featureFlagValues,
 		)
 
 		suite.Error(err)
@@ -244,6 +250,7 @@ func (suite *GHCRateEngineServiceSuite) TestPriceDomesticDestination() {
 			ddpTestServiceArea,
 			isPPM,
 			false,
+			featureFlagValues,
 		)
 		suite.Equal(unit.Cents(0), cost)
 		suite.Error(err)
@@ -256,22 +263,22 @@ func (suite *GHCRateEngineServiceSuite) TestPriceDomesticDestination() {
 		requestedPickupDate := time.Date(testdatagen.TestYear, time.July, 4, 0, 0, 0, 0, time.UTC)
 
 		// No contract code
-		_, _, err := pricer.Price(suite.AppContextForTest(), "", requestedPickupDate, ddpTestWeight, ddpTestServiceArea, isPPM, false)
+		_, _, err := pricer.Price(suite.AppContextForTest(), "", requestedPickupDate, ddpTestWeight, ddpTestServiceArea, isPPM, false, featureFlagValues)
 		suite.Error(err)
 		suite.Equal("ContractCode is required", err.Error())
 
 		// No reference date
-		_, _, err = pricer.Price(suite.AppContextForTest(), testdatagen.DefaultContractCode, time.Time{}, ddpTestWeight, ddpTestServiceArea, isPPM, false)
+		_, _, err = pricer.Price(suite.AppContextForTest(), testdatagen.DefaultContractCode, time.Time{}, ddpTestWeight, ddpTestServiceArea, isPPM, false, featureFlagValues)
 		suite.Error(err)
 		suite.Equal("ReferenceDate is required", err.Error())
 
 		// No weight
-		_, _, err = pricer.Price(suite.AppContextForTest(), testdatagen.DefaultContractCode, requestedPickupDate, 0, ddpTestServiceArea, isPPM, false)
+		_, _, err = pricer.Price(suite.AppContextForTest(), testdatagen.DefaultContractCode, requestedPickupDate, 0, ddpTestServiceArea, isPPM, false, featureFlagValues)
 		suite.Error(err)
 		suite.Equal("Weight must be a minimum of 500", err.Error())
 
 		// No service area
-		_, _, err = pricer.Price(suite.AppContextForTest(), testdatagen.DefaultContractCode, requestedPickupDate, ddpTestWeight, "", isPPM, false)
+		_, _, err = pricer.Price(suite.AppContextForTest(), testdatagen.DefaultContractCode, requestedPickupDate, ddpTestWeight, "", isPPM, false, featureFlagValues)
 		suite.Error(err)
 		suite.Equal("ServiceArea is required", err.Error())
 	})

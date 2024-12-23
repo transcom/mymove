@@ -138,9 +138,9 @@ func (_m *MTOServiceItemUpdater) UpdateMTOServiceItemBasic(appCtx appcontext.App
 	return r0, r1
 }
 
-// UpdateMTOServiceItemPricingEstimate provides a mock function with given fields: appCtx, serviceItem, shipment, eTag
-func (_m *MTOServiceItemUpdater) UpdateMTOServiceItemPricingEstimate(appCtx appcontext.AppContext, serviceItem *models.MTOServiceItem, shipment models.MTOShipment, eTag string) (*models.MTOServiceItem, error) {
-	ret := _m.Called(appCtx, serviceItem, shipment, eTag)
+// UpdateMTOServiceItemPricingEstimate provides a mock function with given fields: appCtx, serviceItem, shipment, eTag, featureFlagValues
+func (_m *MTOServiceItemUpdater) UpdateMTOServiceItemPricingEstimate(appCtx appcontext.AppContext, serviceItem *models.MTOServiceItem, shipment models.MTOShipment, eTag string, featureFlagValues map[string]bool) (*models.MTOServiceItem, error) {
+	ret := _m.Called(appCtx, serviceItem, shipment, eTag, featureFlagValues)
 
 	if len(ret) == 0 {
 		panic("no return value specified for UpdateMTOServiceItemPricingEstimate")
@@ -148,19 +148,19 @@ func (_m *MTOServiceItemUpdater) UpdateMTOServiceItemPricingEstimate(appCtx appc
 
 	var r0 *models.MTOServiceItem
 	var r1 error
-	if rf, ok := ret.Get(0).(func(appcontext.AppContext, *models.MTOServiceItem, models.MTOShipment, string) (*models.MTOServiceItem, error)); ok {
-		return rf(appCtx, serviceItem, shipment, eTag)
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, *models.MTOServiceItem, models.MTOShipment, string, map[string]bool) (*models.MTOServiceItem, error)); ok {
+		return rf(appCtx, serviceItem, shipment, eTag, featureFlagValues)
 	}
-	if rf, ok := ret.Get(0).(func(appcontext.AppContext, *models.MTOServiceItem, models.MTOShipment, string) *models.MTOServiceItem); ok {
-		r0 = rf(appCtx, serviceItem, shipment, eTag)
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, *models.MTOServiceItem, models.MTOShipment, string, map[string]bool) *models.MTOServiceItem); ok {
+		r0 = rf(appCtx, serviceItem, shipment, eTag, featureFlagValues)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*models.MTOServiceItem)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(appcontext.AppContext, *models.MTOServiceItem, models.MTOShipment, string) error); ok {
-		r1 = rf(appCtx, serviceItem, shipment, eTag)
+	if rf, ok := ret.Get(1).(func(appcontext.AppContext, *models.MTOServiceItem, models.MTOShipment, string, map[string]bool) error); ok {
+		r1 = rf(appCtx, serviceItem, shipment, eTag, featureFlagValues)
 	} else {
 		r1 = ret.Error(1)
 	}

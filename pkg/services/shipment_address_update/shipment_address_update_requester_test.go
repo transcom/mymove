@@ -15,6 +15,7 @@ import (
 	ffhelpers "github.com/transcom/mymove/pkg/services/featureflag"
 	moveservices "github.com/transcom/mymove/pkg/services/move"
 	"github.com/transcom/mymove/pkg/testdatagen"
+	"github.com/transcom/mymove/pkg/testhelpers"
 	"github.com/transcom/mymove/pkg/unit"
 )
 
@@ -52,8 +53,6 @@ func (suite *ShipmentAddressUpdateServiceSuite) setupServiceItemData() {
 		},
 	})
 }
-
-var featureFlagValues map[string]bool
 
 func (suite *ShipmentAddressUpdateServiceSuite) TestCreateApprovedShipmentAddressUpdate() {
 	setupTestData := func() models.Move {
@@ -836,6 +835,7 @@ func (suite *ShipmentAddressUpdateServiceSuite) TestTOOApprovedShipmentAddressUp
 }
 
 func (suite *ShipmentAddressUpdateServiceSuite) TestTOOApprovedShipmentAddressUpdateRequestChangedPricing() {
+	featureFlagValues := testhelpers.MakeMobileHomeFFMap()
 	setupTestData := func() models.Move {
 		testdatagen.FetchOrMakeReContractYear(suite.DB(), testdatagen.Assertions{
 			ReContractYear: models.ReContractYear{

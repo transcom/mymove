@@ -88,7 +88,7 @@ func (o *mtoServiceItemCreator) FindEstimatedPrice(appCtx appcontext.AppContext,
 				return 0, err
 			}
 
-			price, _, err = o.originPricer.Price(appCtx, contractCode, requestedPickupDate, *primeEstimatedWeight, domesticServiceArea.ServiceArea, isPPM, isMobileHome)
+			price, _, err = o.originPricer.Price(appCtx, contractCode, requestedPickupDate, *primeEstimatedWeight, domesticServiceArea.ServiceArea, isPPM, isMobileHome, featureFlagValues)
 			if err != nil {
 				return 0, err
 			}
@@ -101,7 +101,7 @@ func (o *mtoServiceItemCreator) FindEstimatedPrice(appCtx appcontext.AppContext,
 
 			servicesScheduleOrigin := domesticServiceArea.ServicesSchedule
 
-			price, _, err = o.packPricer.Price(appCtx, contractCode, requestedPickupDate, *primeEstimatedWeight, servicesScheduleOrigin, isPPM, isMobileHome)
+			price, _, err = o.packPricer.Price(appCtx, contractCode, requestedPickupDate, *primeEstimatedWeight, servicesScheduleOrigin, isPPM, isMobileHome, featureFlagValues)
 			if err != nil {
 				return 0, err
 			}
@@ -116,7 +116,7 @@ func (o *mtoServiceItemCreator) FindEstimatedPrice(appCtx appcontext.AppContext,
 				}
 			}
 
-			price, _, err = o.destinationPricer.Price(appCtx, contractCode, requestedPickupDate, *primeEstimatedWeight, domesticServiceArea.ServiceArea, isPPM, isMobileHome)
+			price, _, err = o.destinationPricer.Price(appCtx, contractCode, requestedPickupDate, *primeEstimatedWeight, domesticServiceArea.ServiceArea, isPPM, isMobileHome, featureFlagValues)
 			if err != nil {
 				return 0, err
 			}
@@ -129,7 +129,7 @@ func (o *mtoServiceItemCreator) FindEstimatedPrice(appCtx appcontext.AppContext,
 
 			serviceScheduleDestination := domesticServiceArea.ServicesSchedule
 
-			price, _, err = o.unpackPricer.Price(appCtx, contractCode, requestedPickupDate, *primeEstimatedWeight, serviceScheduleDestination, isPPM, isMobileHome)
+			price, _, err = o.unpackPricer.Price(appCtx, contractCode, requestedPickupDate, *primeEstimatedWeight, serviceScheduleDestination, isPPM, isMobileHome, featureFlagValues)
 			if err != nil {
 				return 0, err
 			}

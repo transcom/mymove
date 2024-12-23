@@ -20,9 +20,9 @@ type DomesticShorthaulPricer struct {
 	mock.Mock
 }
 
-// Price provides a mock function with given fields: appCtx, contractCode, requestedPickupDate, distance, weight, serviceArea, isMobileHome
-func (_m *DomesticShorthaulPricer) Price(appCtx appcontext.AppContext, contractCode string, requestedPickupDate time.Time, distance unit.Miles, weight unit.Pound, serviceArea string, isMobileHome bool) (unit.Cents, services.PricingDisplayParams, error) {
-	ret := _m.Called(appCtx, contractCode, requestedPickupDate, distance, weight, serviceArea, isMobileHome)
+// Price provides a mock function with given fields: appCtx, contractCode, requestedPickupDate, distance, weight, serviceArea, isMobileHome, featureFlagValues
+func (_m *DomesticShorthaulPricer) Price(appCtx appcontext.AppContext, contractCode string, requestedPickupDate time.Time, distance unit.Miles, weight unit.Pound, serviceArea string, isMobileHome bool, featureFlagValues map[string]bool) (unit.Cents, services.PricingDisplayParams, error) {
+	ret := _m.Called(appCtx, contractCode, requestedPickupDate, distance, weight, serviceArea, isMobileHome, featureFlagValues)
 
 	if len(ret) == 0 {
 		panic("no return value specified for Price")
@@ -31,25 +31,25 @@ func (_m *DomesticShorthaulPricer) Price(appCtx appcontext.AppContext, contractC
 	var r0 unit.Cents
 	var r1 services.PricingDisplayParams
 	var r2 error
-	if rf, ok := ret.Get(0).(func(appcontext.AppContext, string, time.Time, unit.Miles, unit.Pound, string, bool) (unit.Cents, services.PricingDisplayParams, error)); ok {
-		return rf(appCtx, contractCode, requestedPickupDate, distance, weight, serviceArea, isMobileHome)
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, string, time.Time, unit.Miles, unit.Pound, string, bool, map[string]bool) (unit.Cents, services.PricingDisplayParams, error)); ok {
+		return rf(appCtx, contractCode, requestedPickupDate, distance, weight, serviceArea, isMobileHome, featureFlagValues)
 	}
-	if rf, ok := ret.Get(0).(func(appcontext.AppContext, string, time.Time, unit.Miles, unit.Pound, string, bool) unit.Cents); ok {
-		r0 = rf(appCtx, contractCode, requestedPickupDate, distance, weight, serviceArea, isMobileHome)
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, string, time.Time, unit.Miles, unit.Pound, string, bool, map[string]bool) unit.Cents); ok {
+		r0 = rf(appCtx, contractCode, requestedPickupDate, distance, weight, serviceArea, isMobileHome, featureFlagValues)
 	} else {
 		r0 = ret.Get(0).(unit.Cents)
 	}
 
-	if rf, ok := ret.Get(1).(func(appcontext.AppContext, string, time.Time, unit.Miles, unit.Pound, string, bool) services.PricingDisplayParams); ok {
-		r1 = rf(appCtx, contractCode, requestedPickupDate, distance, weight, serviceArea, isMobileHome)
+	if rf, ok := ret.Get(1).(func(appcontext.AppContext, string, time.Time, unit.Miles, unit.Pound, string, bool, map[string]bool) services.PricingDisplayParams); ok {
+		r1 = rf(appCtx, contractCode, requestedPickupDate, distance, weight, serviceArea, isMobileHome, featureFlagValues)
 	} else {
 		if ret.Get(1) != nil {
 			r1 = ret.Get(1).(services.PricingDisplayParams)
 		}
 	}
 
-	if rf, ok := ret.Get(2).(func(appcontext.AppContext, string, time.Time, unit.Miles, unit.Pound, string, bool) error); ok {
-		r2 = rf(appCtx, contractCode, requestedPickupDate, distance, weight, serviceArea, isMobileHome)
+	if rf, ok := ret.Get(2).(func(appcontext.AppContext, string, time.Time, unit.Miles, unit.Pound, string, bool, map[string]bool) error); ok {
+		r2 = rf(appCtx, contractCode, requestedPickupDate, distance, weight, serviceArea, isMobileHome, featureFlagValues)
 	} else {
 		r2 = ret.Error(2)
 	}

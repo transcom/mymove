@@ -65,7 +65,7 @@ type DomesticShorthaulPricer interface {
 //
 //go:generate mockery --name DomesticOriginPricer
 type DomesticOriginPricer interface {
-	Price(appCtx appcontext.AppContext, contractCode string, requestedPickupDate time.Time, weight unit.Pound, serviceArea string, isPPM bool, isMobileHome bool) (unit.Cents, PricingDisplayParams, error)
+	Price(appCtx appcontext.AppContext, contractCode string, requestedPickupDate time.Time, weight unit.Pound, serviceArea string, isPPM bool, isMobileHome bool, featureFlagValues map[string]bool) (unit.Cents, PricingDisplayParams, error)
 	ParamsPricer
 }
 
@@ -73,7 +73,7 @@ type DomesticOriginPricer interface {
 //
 //go:generate mockery --name DomesticDestinationPricer
 type DomesticDestinationPricer interface {
-	Price(appCtx appcontext.AppContext, contractCode string, requestedPickupDate time.Time, weight unit.Pound, serviceArea string, isPPM bool, isMobileHome bool) (unit.Cents, PricingDisplayParams, error)
+	Price(appCtx appcontext.AppContext, contractCode string, requestedPickupDate time.Time, weight unit.Pound, serviceArea string, isPPM bool, isMobileHome bool, featureFlagValues map[string]bool) (unit.Cents, PricingDisplayParams, error)
 	ParamsPricer
 }
 
@@ -113,7 +113,7 @@ type DomesticUncratingPricer interface {
 //
 //go:generate mockery --name DomesticPackPricer
 type DomesticPackPricer interface {
-	Price(appCtx appcontext.AppContext, contractCode string, requestedPickupDate time.Time, weight unit.Pound, servicesScheduleOrigin int, isPPM bool, isMobileHome bool) (unit.Cents, PricingDisplayParams, error)
+	Price(appCtx appcontext.AppContext, contractCode string, requestedPickupDate time.Time, weight unit.Pound, servicesScheduleOrigin int, isPPM bool, isMobileHome bool, featureFlagValues map[string]bool) (unit.Cents, PricingDisplayParams, error)
 	ParamsPricer
 }
 
@@ -129,7 +129,7 @@ type DomesticNTSPackPricer interface {
 //
 //go:generate mockery --name DomesticUnpackPricer
 type DomesticUnpackPricer interface {
-	Price(appCtx appcontext.AppContext, contractCode string, requestedPickupDate time.Time, weight unit.Pound, servicesScheduleDest int, isPPM bool, isMobileHome bool) (unit.Cents, PricingDisplayParams, error)
+	Price(appCtx appcontext.AppContext, contractCode string, requestedPickupDate time.Time, weight unit.Pound, servicesScheduleDest int, isPPM bool, isMobileHome bool, featureFlagValues map[string]bool) (unit.Cents, PricingDisplayParams, error)
 	ParamsPricer
 }
 

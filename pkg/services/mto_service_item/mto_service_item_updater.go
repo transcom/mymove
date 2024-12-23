@@ -127,7 +127,7 @@ func (p *mtoServiceItemUpdater) ConvertItemToCustomerExpense(
 	return p.convertItemToCustomerExpense(appCtx, *mtoServiceItem, customerExpenseReason, convertToCustomerExpense, eTag, checkETag())
 }
 
-func (p *mtoServiceItemUpdater) findEstimatedPrice(appCtx appcontext.AppContext, serviceItem *models.MTOServiceItem, mtoShipment models.MTOShipment) (unit.Cents, error) {
+func (p *mtoServiceItemUpdater) findEstimatedPrice(appCtx appcontext.AppContext, serviceItem *models.MTOServiceItem, mtoShipment models.MTOShipment, featureFlagValues map[string]bool) (unit.Cents, error) {
 	// TODO: Fix checks
 	isMobileHomeFFOn := false
 
@@ -193,7 +193,7 @@ func (p *mtoServiceItemUpdater) findEstimatedPrice(appCtx appcontext.AppContext,
 				}
 			}
 
-			price, _, err = p.destinationPricer.Price(appCtx, contractCode, *pickupDate, shipmentWeight, domesticServiceArea.ServiceArea, isPPM, isMobileHome)
+			price, _, err = p.destinationPricer.Price(appCtx, contractCode, *pickupDate, shipmentWeight, domesticServiceArea.ServiceArea, isPPM, isMobileHome, featureFlagValues)
 			if err != nil {
 				return 0, err
 			}
@@ -206,7 +206,7 @@ func (p *mtoServiceItemUpdater) findEstimatedPrice(appCtx appcontext.AppContext,
 
 			serviceScheduleDestination := domesticServiceArea.ServicesSchedule
 
-			price, _, err = p.unpackPricer.Price(appCtx, contractCode, *pickupDate, shipmentWeight, serviceScheduleDestination, isPPM, isMobileHome)
+			price, _, err = p.unpackPricer.Price(appCtx, contractCode, *pickupDate, shipmentWeight, serviceScheduleDestination, isPPM, isMobileHome, featureFlagValues)
 			if err != nil {
 				return 0, err
 			}
@@ -235,7 +235,7 @@ func (p *mtoServiceItemUpdater) findEstimatedPrice(appCtx appcontext.AppContext,
 			if err != nil {
 				return 0, err
 			}
-			price, _, err = p.unpackPricer.Price(appCtx, contractCode, *pickupDate, shipmentWeight, domesticServiceArea.ServicesSchedule, isPPM, isMobileHome)
+			price, _, err = p.unpackPricer.Price(appCtx, contractCode, *pickupDate, shipmentWeight, domesticServiceArea.ServicesSchedule, isPPM, isMobileHome, featureFlagValues)
 			if err != nil {
 				return 0, err
 			}
@@ -501,8 +501,9 @@ func (p *mtoServiceItemUpdater) UpdateMTOServiceItemPricingEstimate(
 	mtoServiceItem *models.MTOServiceItem,
 	shipment models.MTOShipment,
 	eTag string,
+	featureFlagValues map[string]bool,
 ) (*models.MTOServiceItem, error) {
-	estimatedPrice, err := p.findEstimatedPrice(appCtx, mtoServiceItem, shipment)
+	estimatedPrice, err := p.findEstimatedPrice(appCtx, mtoServiceItem, shipment, featureFlagValues)
 	if estimatedPrice != 0 && err == nil {
 		mtoServiceItem.PricingEstimate = &estimatedPrice
 		return p.UpdateMTOServiceItem(appCtx, mtoServiceItem, eTag, UpdateMTOServiceItemBasicValidator)

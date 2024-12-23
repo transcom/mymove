@@ -23,7 +23,7 @@ func NewDomesticOriginPricer() services.DomesticOriginPricer {
 }
 
 // Price determines the price for a domestic origin
-func (p domesticOriginPricer) Price(appCtx appcontext.AppContext, contractCode string, referenceDate time.Time, weight unit.Pound, serviceArea string, isPPM bool, isMobileHome bool) (unit.Cents, services.PricingDisplayParams, error) {
+func (p domesticOriginPricer) Price(appCtx appcontext.AppContext, contractCode string, referenceDate time.Time, weight unit.Pound, serviceArea string, isPPM bool, isMobileHome bool, featureFlagValues map[string]bool) (unit.Cents, services.PricingDisplayParams, error) {
 	// Validate parameters
 	if len(contractCode) == 0 {
 		return 0, nil, errors.New("ContractCode is required")
@@ -132,5 +132,5 @@ func (p domesticOriginPricer) PriceUsingParams(appCtx appcontext.AppContext, par
 		isMobileHome = true
 	}
 
-	return p.Price(appCtx, contractCode, referenceDate, unit.Pound(weightBilled), serviceAreaOrigin, isPPM, isMobileHome)
+	return p.Price(appCtx, contractCode, referenceDate, unit.Pound(weightBilled), serviceAreaOrigin, isPPM, isMobileHome, featureFlagValues)
 }

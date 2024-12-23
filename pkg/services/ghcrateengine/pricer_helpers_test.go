@@ -10,15 +10,17 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/testdatagen"
+	"github.com/transcom/mymove/pkg/testhelpers"
 	"github.com/transcom/mymove/pkg/unit"
 )
 
 func (suite *GHCRateEngineServiceSuite) Test_priceDomesticPackUnpack() {
+	featureFlagValues := testhelpers.MakeMobileHomeFFMap()
 	suite.Run("golden path with DNPK", func() {
 		suite.setupDomesticNTSPackPrices(dnpkTestServicesScheduleOrigin, dnpkTestIsPeakPeriod, dnpkTestBasePriceCents, models.MarketConus, dnpkTestFactor, dnpkTestContractYearName, dnpkTestEscalationCompounded)
 		isPPM := false
 		isMobileHome := false
-		priceCents, displayParams, err := priceDomesticPackUnpack(suite.AppContextForTest(), models.ReServiceCodeDNPK, testdatagen.DefaultContractCode, dnpkTestRequestedPickupDate, dnpkTestWeight, dnpkTestServicesScheduleOrigin, isPPM, isMobileHome)
+		priceCents, displayParams, err := priceDomesticPackUnpack(suite.AppContextForTest(), models.ReServiceCodeDNPK, testdatagen.DefaultContractCode, dnpkTestRequestedPickupDate, dnpkTestWeight, dnpkTestServicesScheduleOrigin, isPPM, isMobileHome, featureFlagValues)
 		suite.NoError(err)
 		suite.Equal(dnpkTestPriceCents, priceCents)
 
@@ -35,23 +37,23 @@ func (suite *GHCRateEngineServiceSuite) Test_priceDomesticPackUnpack() {
 	suite.Run("Invalid parameters to Price", func() {
 		isPPM := false
 		isMobileHome := false
-		_, _, err := priceDomesticPackUnpack(suite.AppContextForTest(), models.ReServiceCodeDLH, testdatagen.DefaultContractCode, dnpkTestRequestedPickupDate, dnpkTestWeight, dnpkTestServicesScheduleOrigin, isPPM, isMobileHome)
+		_, _, err := priceDomesticPackUnpack(suite.AppContextForTest(), models.ReServiceCodeDLH, testdatagen.DefaultContractCode, dnpkTestRequestedPickupDate, dnpkTestWeight, dnpkTestServicesScheduleOrigin, isPPM, isMobileHome, featureFlagValues)
 		suite.Error(err)
 		suite.Contains(err.Error(), "unsupported pack/unpack code")
 
-		_, _, err = priceDomesticPackUnpack(suite.AppContextForTest(), models.ReServiceCodeDNPK, "", dnpkTestRequestedPickupDate, dnpkTestWeight, dnpkTestServicesScheduleOrigin, isPPM, isMobileHome)
+		_, _, err = priceDomesticPackUnpack(suite.AppContextForTest(), models.ReServiceCodeDNPK, "", dnpkTestRequestedPickupDate, dnpkTestWeight, dnpkTestServicesScheduleOrigin, isPPM, isMobileHome, featureFlagValues)
 		suite.Error(err)
 		suite.Contains(err.Error(), "ContractCode is required")
 
-		_, _, err = priceDomesticPackUnpack(suite.AppContextForTest(), models.ReServiceCodeDNPK, testdatagen.DefaultContractCode, time.Time{}, dnpkTestWeight, dnpkTestServicesScheduleOrigin, isPPM, isMobileHome)
+		_, _, err = priceDomesticPackUnpack(suite.AppContextForTest(), models.ReServiceCodeDNPK, testdatagen.DefaultContractCode, time.Time{}, dnpkTestWeight, dnpkTestServicesScheduleOrigin, isPPM, isMobileHome, featureFlagValues)
 		suite.Error(err)
 		suite.Contains(err.Error(), "ReferenceDate is required")
 
-		_, _, err = priceDomesticPackUnpack(suite.AppContextForTest(), models.ReServiceCodeDNPK, testdatagen.DefaultContractCode, dnpkTestRequestedPickupDate, unit.Pound(250), dnpkTestServicesScheduleOrigin, isPPM, isMobileHome)
+		_, _, err = priceDomesticPackUnpack(suite.AppContextForTest(), models.ReServiceCodeDNPK, testdatagen.DefaultContractCode, dnpkTestRequestedPickupDate, unit.Pound(250), dnpkTestServicesScheduleOrigin, isPPM, isMobileHome, featureFlagValues)
 		suite.Error(err)
 		suite.Contains(err.Error(), "Weight must be a minimum of")
 
-		_, _, err = priceDomesticPackUnpack(suite.AppContextForTest(), models.ReServiceCodeDNPK, testdatagen.DefaultContractCode, dnpkTestRequestedPickupDate, dnpkTestWeight, 0, isPPM, isMobileHome)
+		_, _, err = priceDomesticPackUnpack(suite.AppContextForTest(), models.ReServiceCodeDNPK, testdatagen.DefaultContractCode, dnpkTestRequestedPickupDate, dnpkTestWeight, 0, isPPM, isMobileHome, featureFlagValues)
 		suite.Error(err)
 		suite.Contains(err.Error(), "Services schedule is required")
 	})
@@ -61,7 +63,7 @@ func (suite *GHCRateEngineServiceSuite) Test_priceDomesticPackUnpack() {
 		badContractCode := "BOGUS"
 		isPPM := false
 		isMobileHome := false
-		_, _, err := priceDomesticPackUnpack(suite.AppContextForTest(), models.ReServiceCodeDNPK, badContractCode, dnpkTestRequestedPickupDate, dnpkTestWeight, dnpkTestServicesScheduleOrigin, isPPM, isMobileHome)
+		_, _, err := priceDomesticPackUnpack(suite.AppContextForTest(), models.ReServiceCodeDNPK, badContractCode, dnpkTestRequestedPickupDate, dnpkTestWeight, dnpkTestServicesScheduleOrigin, isPPM, isMobileHome, featureFlagValues)
 		suite.Error(err)
 		suite.Contains(err.Error(), "could not lookup domestic other price")
 	})
@@ -71,7 +73,7 @@ func (suite *GHCRateEngineServiceSuite) Test_priceDomesticPackUnpack() {
 		twoYearsLaterPickupDate := dnpkTestRequestedPickupDate.AddDate(2, 0, 0)
 		isPPM := false
 		isMobileHome := false
-		_, _, err := priceDomesticPackUnpack(suite.AppContextForTest(), models.ReServiceCodeDNPK, testdatagen.DefaultContractCode, twoYearsLaterPickupDate, dnpkTestWeight, dnpkTestServicesScheduleOrigin, isPPM, isMobileHome)
+		_, _, err := priceDomesticPackUnpack(suite.AppContextForTest(), models.ReServiceCodeDNPK, testdatagen.DefaultContractCode, twoYearsLaterPickupDate, dnpkTestWeight, dnpkTestServicesScheduleOrigin, isPPM, isMobileHome, featureFlagValues)
 		suite.Error(err)
 		suite.Contains(err.Error(), "could not lookup contract year")
 	})
@@ -81,19 +83,20 @@ func (suite *GHCRateEngineServiceSuite) Test_priceDomesticPackUnpack() {
 		isPPM := false
 		isMobileHome := false
 		suite.setupDomesticNTSPackPrices(dnpkTestServicesScheduleOrigin, dnpkTestIsPeakPeriod, dnpkTestBasePriceCents, badMarket, dnpkTestFactor, dnpkTestContractYearName, dnpkTestEscalationCompounded)
-		_, _, err := priceDomesticPackUnpack(suite.AppContextForTest(), models.ReServiceCodeDNPK, testdatagen.DefaultContractCode, dnpkTestRequestedPickupDate, dnpkTestWeight, dnpkTestServicesScheduleOrigin, isPPM, isMobileHome)
+		_, _, err := priceDomesticPackUnpack(suite.AppContextForTest(), models.ReServiceCodeDNPK, testdatagen.DefaultContractCode, dnpkTestRequestedPickupDate, dnpkTestWeight, dnpkTestServicesScheduleOrigin, isPPM, isMobileHome, featureFlagValues)
 		suite.Error(err)
 		suite.Contains(err.Error(), "could not lookup shipment type price")
 	})
 
 }
 func (suite *GHCRateEngineServiceSuite) Test_domesticPackAndUnpackWithMobileHome() {
+	featureFlagValues := testhelpers.MakeMobileHomeFFMap()
 	suite.Run("golden path with DPK", func() {
 		suite.setupDomesticOtherPrice(models.ReServiceCodeDPK, dpkTestServicesScheduleOrigin, dpkTestIsPeakPeriod, dpkTestBasePriceCents, dpkTestContractYearName, dpkTestEscalationCompounded)
 
 		isPPM := false
 		isMobileHome := true
-		priceCents, displayParams, err := priceDomesticPackUnpack(suite.AppContextForTest(), models.ReServiceCodeDPK, testdatagen.DefaultContractCode, dpkTestRequestedPickupDate, dpkTestWeight, dpkTestServicesScheduleOrigin, isPPM, isMobileHome)
+		priceCents, displayParams, err := priceDomesticPackUnpack(suite.AppContextForTest(), models.ReServiceCodeDPK, testdatagen.DefaultContractCode, dpkTestRequestedPickupDate, dpkTestWeight, dpkTestServicesScheduleOrigin, isPPM, isMobileHome, featureFlagValues)
 		suite.NoError(err)
 		suite.Equal(unit.Cents(roundToPrecision(float64(dpkTestPriceCents)*mobileHomeFactor, 2)), priceCents)
 
@@ -112,31 +115,32 @@ func (suite *GHCRateEngineServiceSuite) Test_domesticPackAndUnpackWithMobileHome
 		isMobileHome := true
 		suite.setupDomesticOtherPrice(models.ReServiceCodeDPK, dpkTestServicesScheduleOrigin, dpkTestIsPeakPeriod, dpkTestBasePriceCents, dpkTestContractYearName, dpkTestEscalationCompounded)
 
-		_, _, err := priceDomesticPackUnpack(suite.AppContextForTest(), models.ReServiceCodeDLH, testdatagen.DefaultContractCode, dpkTestRequestedPickupDate, dpkTestWeight, dpkTestServicesScheduleOrigin, isPPM, isMobileHome)
+		_, _, err := priceDomesticPackUnpack(suite.AppContextForTest(), models.ReServiceCodeDLH, testdatagen.DefaultContractCode, dpkTestRequestedPickupDate, dpkTestWeight, dpkTestServicesScheduleOrigin, isPPM, isMobileHome, featureFlagValues)
 		suite.Error(err)
 		suite.Contains(err.Error(), "unsupported pack/unpack code")
 
-		_, _, err = priceDomesticPackUnpack(suite.AppContextForTest(), models.ReServiceCodeDPK, "", dnpkTestRequestedPickupDate, dpkTestWeight, dpkTestServicesScheduleOrigin, isPPM, isMobileHome)
+		_, _, err = priceDomesticPackUnpack(suite.AppContextForTest(), models.ReServiceCodeDPK, "", dnpkTestRequestedPickupDate, dpkTestWeight, dpkTestServicesScheduleOrigin, isPPM, isMobileHome, featureFlagValues)
 		suite.Error(err)
 		suite.Contains(err.Error(), "ContractCode is required")
 
-		_, _, err = priceDomesticPackUnpack(suite.AppContextForTest(), models.ReServiceCodeDPK, testdatagen.DefaultContractCode, time.Time{}, dpkTestWeight, dpkTestServicesScheduleOrigin, isPPM, isMobileHome)
+		_, _, err = priceDomesticPackUnpack(suite.AppContextForTest(), models.ReServiceCodeDPK, testdatagen.DefaultContractCode, time.Time{}, dpkTestWeight, dpkTestServicesScheduleOrigin, isPPM, isMobileHome, featureFlagValues)
 		suite.Error(err)
 		suite.Contains(err.Error(), "ReferenceDate is required")
 
-		_, _, err = priceDomesticPackUnpack(suite.AppContextForTest(), models.ReServiceCodeDPK, testdatagen.DefaultContractCode, dpkTestRequestedPickupDate, dpkTestWeight, 0, isPPM, isMobileHome)
+		_, _, err = priceDomesticPackUnpack(suite.AppContextForTest(), models.ReServiceCodeDPK, testdatagen.DefaultContractCode, dpkTestRequestedPickupDate, dpkTestWeight, 0, isPPM, isMobileHome, featureFlagValues)
 		suite.Error(err)
 		suite.Contains(err.Error(), "Services schedule is required")
 	})
 }
 
 func (suite *GHCRateEngineServiceSuite) Test_domesticPackAndUnpackWithPPM() {
+	featureFlagValues := testhelpers.MakeMobileHomeFFMap()
 	suite.Run("golden path with DPK", func() {
 		suite.setupDomesticOtherPrice(models.ReServiceCodeDPK, dpkTestServicesScheduleOrigin, dpkTestIsPeakPeriod, dpkTestBasePriceCents, dpkTestContractYearName, dpkTestEscalationCompounded)
 
 		isPPM := true
 		isMobileHome := false
-		priceCents, displayParams, err := priceDomesticPackUnpack(suite.AppContextForTest(), models.ReServiceCodeDPK, testdatagen.DefaultContractCode, dpkTestRequestedPickupDate, dpkTestWeight, dpkTestServicesScheduleOrigin, isPPM, isMobileHome)
+		priceCents, displayParams, err := priceDomesticPackUnpack(suite.AppContextForTest(), models.ReServiceCodeDPK, testdatagen.DefaultContractCode, dpkTestRequestedPickupDate, dpkTestWeight, dpkTestServicesScheduleOrigin, isPPM, isMobileHome, featureFlagValues)
 		suite.NoError(err)
 		suite.Equal(dpkTestPriceCents, priceCents)
 
@@ -154,19 +158,19 @@ func (suite *GHCRateEngineServiceSuite) Test_domesticPackAndUnpackWithPPM() {
 		isMobileHome := false
 		suite.setupDomesticOtherPrice(models.ReServiceCodeDPK, dpkTestServicesScheduleOrigin, dpkTestIsPeakPeriod, dpkTestBasePriceCents, dpkTestContractYearName, dpkTestEscalationCompounded)
 
-		_, _, err := priceDomesticPackUnpack(suite.AppContextForTest(), models.ReServiceCodeDLH, testdatagen.DefaultContractCode, dpkTestRequestedPickupDate, dpkTestWeight, dpkTestServicesScheduleOrigin, isPPM, isMobileHome)
+		_, _, err := priceDomesticPackUnpack(suite.AppContextForTest(), models.ReServiceCodeDLH, testdatagen.DefaultContractCode, dpkTestRequestedPickupDate, dpkTestWeight, dpkTestServicesScheduleOrigin, isPPM, isMobileHome, featureFlagValues)
 		suite.Error(err)
 		suite.Contains(err.Error(), "unsupported pack/unpack code")
 
-		_, _, err = priceDomesticPackUnpack(suite.AppContextForTest(), models.ReServiceCodeDPK, "", dnpkTestRequestedPickupDate, dpkTestWeight, dpkTestServicesScheduleOrigin, isPPM, isMobileHome)
+		_, _, err = priceDomesticPackUnpack(suite.AppContextForTest(), models.ReServiceCodeDPK, "", dnpkTestRequestedPickupDate, dpkTestWeight, dpkTestServicesScheduleOrigin, isPPM, isMobileHome, featureFlagValues)
 		suite.Error(err)
 		suite.Contains(err.Error(), "ContractCode is required")
 
-		_, _, err = priceDomesticPackUnpack(suite.AppContextForTest(), models.ReServiceCodeDPK, testdatagen.DefaultContractCode, time.Time{}, dpkTestWeight, dpkTestServicesScheduleOrigin, isPPM, isMobileHome)
+		_, _, err = priceDomesticPackUnpack(suite.AppContextForTest(), models.ReServiceCodeDPK, testdatagen.DefaultContractCode, time.Time{}, dpkTestWeight, dpkTestServicesScheduleOrigin, isPPM, isMobileHome, featureFlagValues)
 		suite.Error(err)
 		suite.Contains(err.Error(), "ReferenceDate is required")
 
-		_, _, err = priceDomesticPackUnpack(suite.AppContextForTest(), models.ReServiceCodeDPK, testdatagen.DefaultContractCode, dpkTestRequestedPickupDate, dpkTestWeight, 0, isPPM, isMobileHome)
+		_, _, err = priceDomesticPackUnpack(suite.AppContextForTest(), models.ReServiceCodeDPK, testdatagen.DefaultContractCode, dpkTestRequestedPickupDate, dpkTestWeight, 0, isPPM, isMobileHome, featureFlagValues)
 		suite.Error(err)
 		suite.Contains(err.Error(), "Services schedule is required")
 	})

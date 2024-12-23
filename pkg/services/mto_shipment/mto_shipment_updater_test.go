@@ -30,8 +30,6 @@ import (
 	"github.com/transcom/mymove/pkg/unit"
 )
 
-var featureFlagValues = testhelpers.MakeMobileHomeFFMap()
-
 func setUpMockNotificationSender() notifications.NotificationSender {
 	// The NewMTOShipmentUpdater needs a NotificationSender for sending notification emails to the customer.
 	// This function allows us to set up a fresh mock for each test so we can check the number of calls it has.
@@ -1658,6 +1656,7 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 }
 
 func (suite *MTOShipmentServiceSuite) TestUpdateMTOShipmentStatus() {
+	featureFlagValues := testhelpers.MakeMobileHomeFFMap()
 	estimatedWeight := unit.Pound(2000)
 	status := models.MTOShipmentStatusApproved
 	// need the re service codes to update status
@@ -2883,6 +2882,7 @@ func (suite *MTOShipmentServiceSuite) TestUpdateShipmentNullableFields() {
 
 func (suite *MTOShipmentServiceSuite) TestUpdateStatusServiceItems() {
 
+	featureFlagValues := testhelpers.MakeMobileHomeFFMap()
 	expectedReServiceCodes := []models.ReServiceCode{
 		models.ReServiceCodeDLH,
 		models.ReServiceCodeDSH,

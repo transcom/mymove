@@ -15,10 +15,11 @@ import (
 	"github.com/transcom/mymove/pkg/apperror"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
+	"github.com/transcom/mymove/pkg/services/featureflag"
 	"github.com/transcom/mymove/pkg/unit"
 )
 
-func priceDomesticPackUnpack(appCtx appcontext.AppContext, packUnpackCode models.ReServiceCode, contractCode string, referenceDate time.Time, weight unit.Pound, servicesSchedule int, isPPM bool, isMobileHome bool) (unit.Cents, services.PricingDisplayParams, error) {
+func priceDomesticPackUnpack(appCtx appcontext.AppContext, packUnpackCode models.ReServiceCode, contractCode string, referenceDate time.Time, weight unit.Pound, servicesSchedule int, isPPM bool, isMobileHome bool, featureFlagValues map[string]bool) (unit.Cents, services.PricingDisplayParams, error) {
 	// Validate parameters
 	var domOtherPriceCode models.ReServiceCode
 	var displayParams services.PricingDisplayParams
@@ -62,24 +63,21 @@ func priceDomesticPackUnpack(appCtx appcontext.AppContext, packUnpackCode models
 	}
 
 	isFactorToggleOn := false // Track whether DMHF Factor FF toggle is on for this Pack or Unpack item
-	// TODO: Add checks here
-	// if domOtherPriceCode == models.ReServiceCodeDPK {
-	// 	isOn, err := GetFeatureFlagValue(appCtx, featureFlagFetcher, "domestic_mobile_home_packing_enabled")
-	// 	if err != nil {
-	// 		return 0, nil, fmt.Errorf("could not fetch feature flag to determine pack pricing formula: %w", err)
-	// 	}
-	// 	if isOn {
-	// 		isFactorToggleOn = true
-	// 	}
-	// } else if domOtherPriceCode == models.ReServiceCodeDUPK {
-	// 	isOn, err := GetFeatureFlagValue(appCtx, featureFlagFetcher, "domestic_mobile_home_unpacking_enabled")
-	// 	if err != nil {
-	// 		return 0, nil, fmt.Errorf("could not fetch feature flag to determine unpack pricing formula: %w", err)
-	// 	}
-	// 	if isOn {
-	// 		isFactorToggleOn = true
-	// 	}
-	// }
+	if domOtherPriceCode == models.ReServiceCodeDPK {
+		if featureFlagValues == nil || len(featureFlagValues) <= 0 {
+			return 0, nil, fmt.Errorf("Expected a map of feature flag values when checking pricing for DPK item, received nil or empty map instead.")
+		}
+		if featureFlagValues[featureflag.DomesticMobileHomePackingFactor] {
+			isFactorToggleOn = true
+		}
+	} else if domOtherPriceCode == models.ReServiceCodeDUPK {
+		if featureFlagValues == nil || len(featureFlagValues) <= 0 {
+			return 0, nil, fmt.Errorf("Expected a map of feature flag values when checking pricing for DUPK item, received nil or empty map instead.")
+		}
+		if featureFlagValues[featureflag.DomesticMobileHomeUnpackingFactor] {
+			isFactorToggleOn = true
+		}
+	}
 
 	if isMobileHome && isFactorToggleOn {
 		mobileHomeFactorRow, err := fetchShipmentTypePrice(appCtx, contractCode, models.ReServiceCodeDMHF, models.MarketConus)
