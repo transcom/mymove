@@ -94,7 +94,7 @@ func Order(order *models.Order) *primev2messages.Order {
 	destinationDutyLocation := DutyLocation(&order.NewDutyLocation)
 	originDutyLocation := DutyLocation(order.OriginDutyLocation)
 	if order.Grade != nil && order.Entitlement != nil {
-		order.Entitlement.SetWeightAllotment(string(*order.Grade))
+		order.Entitlement.SetWeightAllotment(string(*order.Grade), order.OrdersType)
 	}
 
 	var grade string
@@ -152,9 +152,14 @@ func Entitlement(entitlement *models.Entitlement) *primev2messages.Entitlements 
 	if entitlement.TotalDependents != nil {
 		totalDependents = int64(*entitlement.TotalDependents)
 	}
+	var ubAllowance int64
+	if entitlement.UBAllowance != nil {
+		ubAllowance = int64(*entitlement.UBAllowance)
+	}
 	return &primev2messages.Entitlements{
 		ID:                             strfmt.UUID(entitlement.ID.String()),
 		AuthorizedWeight:               authorizedWeight,
+		UnaccompaniedBaggageAllowance:  &ubAllowance,
 		DependentsAuthorized:           entitlement.DependentsAuthorized,
 		GunSafe:                        entitlement.GunSafe,
 		NonTemporaryStorage:            entitlement.NonTemporaryStorage,

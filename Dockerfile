@@ -20,6 +20,7 @@ COPY config/tls/dod-sw-ca-75.pem /config/tls/dod-sw-ca-75.pem
 
 COPY swagger/* /swagger/
 COPY build /build
+COPY public/static/react-file-viewer /public/static/react-file-viewer
 
 ENTRYPOINT ["/bin/milmove"]
 

@@ -309,6 +309,32 @@ func TransportationOffices(transportationOffices models.TransportationOffices) i
 	return payload
 }
 
+// TransportationOffice internal payload
+func TransportationOfficeAssignment(toa models.TransportationOfficeAssignment) *internalmessages.TransportationOfficeAssignment {
+	if toa.ID == uuid.Nil || toa.TransportationOfficeID == uuid.Nil {
+		return nil
+	}
+	payload := &internalmessages.TransportationOfficeAssignment{
+		OfficeUserID:           handlers.FmtUUID(toa.ID),
+		TransportationOfficeID: handlers.FmtUUID(toa.TransportationOfficeID),
+		TransportationOffice:   TransportationOffice(toa.TransportationOffice),
+		PrimaryOffice:          toa.PrimaryOffice,
+		CreatedAt:              *handlers.FmtDateTime(toa.CreatedAt),
+		UpdatedAt:              *handlers.FmtDateTime(toa.UpdatedAt),
+	}
+	return payload
+}
+
+// TransportationOffice internal payload
+func TransportationOfficeAssignments(toas models.TransportationOfficeAssignments) []*internalmessages.TransportationOfficeAssignment {
+	payload := make([]*internalmessages.TransportationOfficeAssignment, len(toas))
+
+	for i, toa := range toas {
+		payload[i] = TransportationOfficeAssignment(toa)
+	}
+	return payload
+}
+
 func CounselingOffices(counselingOffices models.TransportationOffices) internalmessages.CounselingOffices {
 	payload := make(internalmessages.CounselingOffices, len(counselingOffices))
 
@@ -328,16 +354,17 @@ func OfficeUser(officeUser *models.OfficeUser) *internalmessages.OfficeUser {
 	}
 
 	payload := &internalmessages.OfficeUser{
-		ID:                   strfmt.UUID(officeUser.ID.String()),
-		UserID:               strfmt.UUID(officeUser.UserID.String()),
-		Email:                &officeUser.Email,
-		FirstName:            &officeUser.FirstName,
-		LastName:             &officeUser.LastName,
-		MiddleName:           officeUser.MiddleInitials,
-		Telephone:            &officeUser.Telephone,
-		TransportationOffice: TransportationOffice(officeUser.TransportationOffice),
-		CreatedAt:            strfmt.DateTime(officeUser.CreatedAt),
-		UpdatedAt:            strfmt.DateTime(officeUser.UpdatedAt),
+		ID:                              strfmt.UUID(officeUser.ID.String()),
+		UserID:                          strfmt.UUID(officeUser.UserID.String()),
+		Email:                           &officeUser.Email,
+		FirstName:                       &officeUser.FirstName,
+		LastName:                        &officeUser.LastName,
+		MiddleName:                      officeUser.MiddleInitials,
+		Telephone:                       &officeUser.Telephone,
+		TransportationOffice:            TransportationOffice(officeUser.TransportationOffice),
+		TransportationOfficeAssignments: TransportationOfficeAssignments(officeUser.TransportationOfficeAssignments),
+		CreatedAt:                       strfmt.DateTime(officeUser.CreatedAt),
+		UpdatedAt:                       strfmt.DateTime(officeUser.UpdatedAt),
 	}
 
 	return payload

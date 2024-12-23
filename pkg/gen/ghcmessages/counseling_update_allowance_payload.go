@@ -19,11 +19,23 @@ import (
 // swagger:model CounselingUpdateAllowancePayload
 type CounselingUpdateAllowancePayload struct {
 
+	// Indicates if the move entitlement allows dependents to travel to the new Permanent Duty Station (PDS). This is only present on OCONUS moves.
+	// Example: true
+	AccompaniedTour *bool `json:"accompaniedTour,omitempty"`
+
 	// agency
 	Agency *Affiliation `json:"agency,omitempty"`
 
 	// dependents authorized
 	DependentsAuthorized *bool `json:"dependentsAuthorized,omitempty"`
+
+	// Indicates the number of dependents of the age twelve or older for a move. This is only present on OCONUS moves.
+	// Example: 3
+	DependentsTwelveAndOver *int64 `json:"dependentsTwelveAndOver,omitempty"`
+
+	// Indicates the number of dependents under the age of twelve for a move. This is only present on OCONUS moves.
+	// Example: 5
+	DependentsUnderTwelve *int64 `json:"dependentsUnderTwelve,omitempty"`
 
 	// grade
 	Grade *Grade `json:"grade,omitempty"`
@@ -54,6 +66,10 @@ type CounselingUpdateAllowancePayload struct {
 	// the number of storage in transit days that the customer is entitled to for a given shipment on their move
 	// Minimum: 0
 	StorageInTransit *int64 `json:"storageInTransit,omitempty"`
+
+	// ub allowance
+	// Example: 500
+	UbAllowance *int64 `json:"ubAllowance,omitempty"`
 }
 
 // Validate validates this counseling update allowance payload

@@ -69,7 +69,7 @@ type GetPPMActualWeightHandler struct {
 	ppmShipmentFetcher services.PPMShipmentFetcher
 }
 
-// Handle retrieves all calcuations for a PPM closeout
+// Handle retrieves actual weight for a PPM pending closeout
 func (h GetPPMActualWeightHandler) Handle(params ppmcloseoutops.GetPPMActualWeightParams) middleware.Responder {
 	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
 		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
@@ -79,15 +79,15 @@ func (h GetPPMActualWeightHandler) Handle(params ppmcloseoutops.GetPPMActualWeig
 				payload := &ghcmessages.Error{Message: handlers.FmtString(err.Error())}
 				switch err.(type) {
 				case apperror.NotFoundError:
-					return ppmcloseoutops.NewGetPPMCloseoutNotFound().WithPayload(payload), err
+					return ppmcloseoutops.NewGetPPMActualWeightNotFound().WithPayload(payload), err
 				case apperror.PPMNotReadyForCloseoutError:
-					return ppmcloseoutops.NewGetPPMCloseoutNotFound().WithPayload(payload), err
+					return ppmcloseoutops.NewGetPPMActualWeightNotFound().WithPayload(payload), err
 				case apperror.ForbiddenError:
-					return ppmcloseoutops.NewGetPPMCloseoutForbidden().WithPayload(payload), err
+					return ppmcloseoutops.NewGetPPMActualWeightForbidden().WithPayload(payload), err
 				case apperror.QueryError:
-					return ppmcloseoutops.NewGetPPMCloseoutInternalServerError().WithPayload(payload), err
+					return ppmcloseoutops.NewGetPPMActualWeightInternalServerError().WithPayload(payload), err
 				default:
-					return ppmcloseoutops.NewGetPPMCloseoutInternalServerError().WithPayload(payload), err
+					return ppmcloseoutops.NewGetPPMActualWeightInternalServerError().WithPayload(payload), err
 				}
 			}
 			errInstance := fmt.Sprintf("Instance: %s", h.GetTraceIDFromRequest(params.HTTPRequest))
@@ -95,7 +95,7 @@ func (h GetPPMActualWeightHandler) Handle(params ppmcloseoutops.GetPPMActualWeig
 			errPayload := &ghcmessages.Error{Message: &errInstance}
 
 			if !appCtx.Session().IsOfficeApp() {
-				return ppmcloseoutops.NewGetPPMCloseoutForbidden().WithPayload(errPayload), apperror.NewSessionError("Request should come from the office app.")
+				return ppmcloseoutops.NewGetPPMActualWeightForbidden().WithPayload(errPayload), apperror.NewSessionError("Request should come from the office app.")
 			}
 			ppmShipmentID := uuid.FromStringOrNil(params.PpmShipmentID.String())
 

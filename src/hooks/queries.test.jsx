@@ -561,6 +561,8 @@ describe('useMoveDetailsQueries', () => {
           shipmentType: 'PPM',
           ppmShipment: {
             id: 'p1',
+            movingExpenses: [],
+            proGearWeightTickets: [],
             shipmentId: 'c3',
             estimatedWeight: 100,
             weightTickets: [
@@ -677,6 +679,8 @@ describe('useMoveTaskOrderQueries', () => {
           shipmentType: 'PPM',
           ppmShipment: {
             id: 'p1',
+            movingExpenses: [],
+            proGearWeightTickets: [],
             shipmentId: 'c3',
             estimatedWeight: 100,
             weightTickets: [
@@ -1076,6 +1080,8 @@ describe('useReviewShipmentWeightsQuery', () => {
           shipmentType: 'PPM',
           ppmShipment: {
             id: 'p1',
+            movingExpenses: [],
+            proGearWeightTickets: [],
             shipmentId: 'c3',
             estimatedWeight: 100,
             weightTickets: [

@@ -629,6 +629,7 @@ func PPMShipmentModelFromUpdate(ppmShipment *ghcmessages.UpdatePPMShipment) *mod
 		ActualMoveDate:                 (*time.Time)(ppmShipment.ActualMoveDate),
 		SITExpected:                    ppmShipment.SitExpected,
 		EstimatedWeight:                handlers.PoundPtrFromInt64Ptr(ppmShipment.EstimatedWeight),
+		AllowableWeight:                handlers.PoundPtrFromInt64Ptr(ppmShipment.AllowableWeight),
 		HasProGear:                     ppmShipment.HasProGear,
 		IsActualExpenseReimbursement:   ppmShipment.IsActualExpenseReimbursement,
 		ProGearWeight:                  handlers.PoundPtrFromInt64Ptr(ppmShipment.ProGearWeight),
@@ -836,7 +837,6 @@ func WeightTicketModelFromUpdate(weightTicket *ghcmessages.UpdateWeightTicket) *
 		Reason:               handlers.FmtString(weightTicket.Reason),
 		AdjustedNetWeight:    handlers.PoundPtrFromInt64Ptr(weightTicket.AdjustedNetWeight),
 		NetWeightRemarks:     handlers.FmtString(weightTicket.NetWeightRemarks),
-		AllowableWeight:      handlers.PoundPtrFromInt64Ptr(weightTicket.AllowableWeight),
 	}
 	return model
 }
