@@ -27,7 +27,7 @@ func (suite *FactorySuite) TestBuildEntitlement() {
 			RequiredMedicalEquipmentWeight:               1000,
 			OrganizationalClothingAndIndividualEquipment: true,
 		}
-		defEnt.SetWeightAllotment("E_1")
+		defEnt.SetWeightAllotment("E_1", internalmessages.OrdersTypePERMANENTCHANGEOFSTATION)
 		defEnt.DBAuthorizedWeight = defEnt.AuthorizedWeight()
 
 		// FUNCTION UNDER TEST
@@ -84,7 +84,7 @@ func (suite *FactorySuite) TestBuildEntitlement() {
 		suite.Equal(custEnt.OrganizationalClothingAndIndividualEquipment, entitlement.OrganizationalClothingAndIndividualEquipment)
 
 		// Set the weight allotment on the custom object so as to compare
-		custEnt.SetWeightAllotment("E_1")
+		custEnt.SetWeightAllotment("E_1", internalmessages.OrdersTypePERMANENTCHANGEOFSTATION)
 		custEnt.DBAuthorizedWeight = custEnt.AuthorizedWeight()
 
 		// Check that the created object had the correct allotments set
@@ -129,7 +129,7 @@ func (suite *FactorySuite) TestBuildEntitlement() {
 		testEnt := BuildEntitlement(nil, nil, nil)
 		// Set the weight allotment on the custom object to O_9
 		testEnt.DBAuthorizedWeight = nil // clear original value
-		testEnt.SetWeightAllotment("O_9")
+		testEnt.SetWeightAllotment("O_9", internalmessages.OrdersTypePERMANENTCHANGEOFSTATION)
 		testEnt.DBAuthorizedWeight = testEnt.AuthorizedWeight()
 		// Now DBAuthorizedWeight should be appropriate for O_9 grade
 

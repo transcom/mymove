@@ -683,7 +683,7 @@ definitions:
       orderNumber:
         description: >-
           LoaDocID in lines of accounting table. Not to be confused with Orders
-          Number.
+          Number
         type: string
         example: 030-00362
         x-nullable: true

@@ -57,9 +57,14 @@ const OfficeUserShow = () => {
         <BooleanField source="active" />
         <OfficeUserShowRoles />
         <OfficeUserShowPrivileges />
-        <ReferenceField label="Transportation Office" source="transportationOfficeId" reference="offices" sortBy="name">
-          <TextField component="pre" source="name" />
-        </ReferenceField>
+        <ArrayField source="transportationOfficeAssignments" label="Transportation Offices">
+          <Datagrid bulkActionButtons={false}>
+            <ReferenceField label="Transportation Office" source="transportationOfficeId" reference="offices">
+              <TextField source="name" component="pre" />
+            </ReferenceField>
+            <BooleanField source="primaryOffice" label="Primary Office" />
+          </Datagrid>
+        </ArrayField>
         <DateField source="createdAt" showTime />
         <DateField source="updatedAt" showTime />
       </SimpleShowLayout>
