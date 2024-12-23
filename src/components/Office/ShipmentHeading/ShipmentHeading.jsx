@@ -23,11 +23,13 @@ function ShipmentHeading({ shipmentInfo, handleShowCancellationModal, isMoveLock
       <div className={styles.shipmentHeadingType}>
         <span className={styles.marketCodeIndicator}>{shipmentInfo.marketCode}</span>
         <h2>{shipmentInfo.shipmentType}</h2>
-        {shipmentStatus === shipmentStatuses.CANCELED && <Tag className="usa-tag--red">canceled</Tag>}
-        {shipmentInfo.isDiversion && <Tag>diversion</Tag>}
-        {!shipmentInfo.isDiversion && shipmentStatus === shipmentStatuses.DIVERSION_REQUESTED && (
-          <Tag>diversion requested</Tag>
-        )}
+        <div>
+          {shipmentStatus === shipmentStatuses.CANCELED && <Tag className="usa-tag--cancellation">canceled</Tag>}
+          {shipmentInfo.isDiversion && <Tag className="usa-tag--diversion">diversion</Tag>}
+          {!shipmentInfo.isDiversion && shipmentStatus === shipmentStatuses.DIVERSION_REQUESTED && (
+            <Tag className="usa-tag--diversion">diversion requested</Tag>
+          )}
+        </div>
       </div>
       <div>
         <h4>#{shipmentInfo.shipmentLocator}</h4>
@@ -48,7 +50,7 @@ function ShipmentHeading({ shipmentInfo, handleShowCancellationModal, isMoveLock
             </Restricted>
           </Restricted>
         )}
-        {isCancellationRequested && <Tag>Cancellation Requested</Tag>}
+        {isCancellationRequested && <Tag className="usa-tag--cancellation">Cancellation Requested</Tag>}
       </div>
     </div>
   );

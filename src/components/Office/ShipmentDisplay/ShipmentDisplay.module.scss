@@ -14,17 +14,19 @@
     @include u-padding(2);
 
     :global(.usa-tag) {
-      @include u-font-size('body', 3xs);
+      font-size: .88rem;
       background-color: $info-light;
-      &.ppmStatus {
-        @include u-font-size('body', 'sm');
-        background-color: $base-lightest;
-      }
     }
 
     :global(.usa-tag--red) {
       @include u-font-size('body', 3xs);
       background-color: $error-light;
+    }
+
+    .tagWrapper {
+      display: flex;
+      flex-wrap: wrap;
+      row-gap: .5rem;
     }
 
     .headingTagWrapper {
@@ -103,6 +105,8 @@
     justify-content: flex-start;
     align-items: center;
     flex-wrap: wrap;
+    @include u-margin-bottom(.45rem);
+    row-gap: .45rem;
 
     label {
       @include u-margin-right(1);
