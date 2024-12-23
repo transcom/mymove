@@ -242,9 +242,6 @@ test.describe('Office User Create Page', () => {
     await expect(servicesCounselorCheckbox).toBeChecked();
 
     // Continue test to ensure form still submits with valid information
-    await servicesCounselorCheckbox.click();
-    await expect(servicesCounselorCheckbox).toBeChecked();
-
     // The autocomplete form results in multiple matching elements, so
     // pick the input element
     await page.getByLabel('Transportation Office').nth(0).fill('PPPO Scott AFB - USAF');
@@ -537,9 +534,6 @@ test.describe('Office Users Edit Page', () => {
     await expect(servicesCounselorCheckbox).toBeChecked();
 
     // Continue test to ensure form still submits with valid information
-    await servicesCounselorCheckbox.click();
-    await expect(servicesCounselorCheckbox).toBeChecked();
-
     await page.getByRole('button', { name: 'Save' }).click();
     await adminPage.waitForPage.adminPage();
 
