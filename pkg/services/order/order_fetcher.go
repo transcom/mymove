@@ -121,8 +121,9 @@ func (f orderFetcher) ListOrders(appCtx appcontext.AppContext, officeUserID uuid
 	tooAssignedUserQuery := tooAssignedUserFilter(params.TOOAssignedUser)
 	sortOrderQuery := sortOrder(params.Sort, params.Order, ppmCloseoutGblocs)
 	counselingQuery := counselingOfficeFilter(params.CounselingOffice)
+	tooDestinationRequestsQuery := tooDestinationOnlyRequestsFilter(role)
 	// Adding to an array so we can iterate over them and apply the filters after the query structure is set below
-	options := [20]QueryOption{branchQuery, locatorQuery, dodIDQuery, emplidQuery, customerNameQuery, originDutyLocationQuery, destinationDutyLocationQuery, moveStatusQuery, gblocQuery, submittedAtQuery, appearedInTOOAtQuery, requestedMoveDateQuery, ppmTypeQuery, closeoutInitiatedQuery, closeoutLocationQuery, ppmStatusQuery, sortOrderQuery, scAssignedUserQuery, tooAssignedUserQuery, counselingQuery}
+	options := [21]QueryOption{branchQuery, locatorQuery, dodIDQuery, emplidQuery, customerNameQuery, originDutyLocationQuery, destinationDutyLocationQuery, tooDestinationRequestsQuery, moveStatusQuery, gblocQuery, submittedAtQuery, appearedInTOOAtQuery, requestedMoveDateQuery, ppmTypeQuery, closeoutInitiatedQuery, closeoutLocationQuery, ppmStatusQuery, sortOrderQuery, scAssignedUserQuery, tooAssignedUserQuery, counselingQuery}
 
 	var query *pop.Query
 	if ppmCloseoutGblocs {
@@ -190,6 +191,9 @@ func (f orderFetcher) ListOrders(appCtx appcontext.AppContext, officeUserID uuid
 		}
 		if role == roles.RoleTypeTOO {
 			query.LeftJoin("office_users as assigned_user", "moves.too_assigned_id  = assigned_user.id")
+			query.LeftJoin("mto_service_items", "mto_shipments.id = mto_service_items.mto_shipment_id").
+				LeftJoin("re_services", "mto_service_items.re_service_id = re_services.id").
+				LeftJoin("shipment_address_updates", "shipment_address_updates.shipment_id = mto_shipments.id AND shipment_address_updates.new_address_id != mto_shipments.destination_address_id")
 		}
 
 		if params.NeedsPPMCloseout != nil {
@@ -987,6 +991,29 @@ func sortOrder(sort *string, order *string, ppmCloseoutGblocs bool) QueryOption 
 			}
 		} else {
 			query.Order("moves.status desc")
+		}
+	}
+}
+
+func tooDestinationOnlyRequestsFilter(role roles.RoleType) QueryOption {
+	return func(query *pop.Query) {
+		if role == roles.RoleTypeTOO {
+			query.Where(`
+			(
+				(mto_service_items.status IS NULL OR (mto_service_items.status = 'SUBMITTED' AND re_services.code NOT IN ('DDFSIT', 'DDASIT', 'DDDSIT', 'DDSHUT', 'DDSFSC', 'IDFSIT', 'IDASIT', 'IDDSIT', 'IDSHUT')))
+				AND (moves.status = 'SUBMITTED' OR moves.status = 'SERVICE COUNSELING COMPLETED' OR moves.status = 'APPROVALS REQUESTED')
+			)
+			`)
+			// OR  --excess weight
+			// 	(
+			// 	(moves.excess_weight_qualified_at IS NOT NULL AND moves.excess_weight_acknowledged_at IS NULL)
+			// 	AND (moves.status = 'SUBMITTED' OR moves.status = 'SERVICE COUNSELING COMPLETED' OR moves.status = 'APPROVALS REQUESTED')
+			// )
+			// OR 	--excess ub weight
+			// (
+			// 	(moves.excess_unaccompanied_baggage_weight_qualified_at IS NOT NULL AND moves.excess_unaccompanied_baggage_weight_acknowledged_at IS NULL)
+			// 	AND (moves.status = 'SUBMITTED' OR moves.status = 'SERVICE COUNSELING COMPLETED' OR moves.status = 'APPROVALS REQUESTED')
+			// )
 		}
 	}
 }
