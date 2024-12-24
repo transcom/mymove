@@ -13,7 +13,7 @@ func (suite *ModelSuite) TestBasicAddressInstantiation() {
 		City:           "city",
 		State:          "state",
 		PostalCode:     "90210",
-		County:         "County",
+		County:         m.StringPointer("County"),
 	}
 
 	verrs, err := newAddress.Validate(nil)
@@ -30,7 +30,6 @@ func (suite *ModelSuite) TestEmptyAddressInstantiation() {
 		"city":            {"City can not be blank."},
 		"state":           {"State can not be blank."},
 		"postal_code":     {"PostalCode can not be blank."},
-		"county":          {"County can not be blank."},
 	}
 	suite.verifyValidationErrors(&newAddress, expErrors)
 }
@@ -43,7 +42,7 @@ func (suite *ModelSuite) TestAddressCountryCode() {
 		City:           "city",
 		State:          "state",
 		PostalCode:     "90210",
-		County:         "county",
+		County:         m.StringPointer("county"),
 	}
 
 	var expected *string
@@ -74,7 +73,7 @@ func (suite *ModelSuite) TestIsAddressOconusNoCountry() {
 		City:           "city",
 		State:          "SC",
 		PostalCode:     "29229",
-		County:         "county",
+		County:         m.StringPointer("county"),
 	}
 
 	result, err := m.IsAddressOconus(suite.DB(), address)
@@ -92,7 +91,7 @@ func (suite *ModelSuite) TestIsAddressOconusForAKState() {
 		City:           "Anchorage",
 		State:          "AK",
 		PostalCode:     "99502",
-		County:         "county",
+		County:         m.StringPointer("county"),
 	}
 
 	result, err := m.IsAddressOconus(suite.DB(), address)
@@ -137,7 +136,7 @@ func (suite *ModelSuite) TestAddressFormat() {
 		City:           "city",
 		State:          "state",
 		PostalCode:     "90210",
-		County:         "County",
+		County:         m.StringPointer("County"),
 		Country:        &country,
 		CountryId:      &country.ID,
 	}

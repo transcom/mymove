@@ -1,4 +1,5 @@
 import React from 'react';
+import { Provider } from 'react-redux';
 import { expect } from '@storybook/jest';
 import { action } from '@storybook/addon-actions';
 import { Grid, GridContainer } from '@trussworks/react-uswds';
@@ -6,6 +7,9 @@ import { within, userEvent } from '@storybook/testing-library';
 
 import DateAndLocationForm from 'components/Customer/PPM/Booking/DateAndLocationForm/DateAndLocationForm';
 import { UnsupportedZipCodePPMErrorMsg } from 'utils/validation';
+import { configureStore } from 'shared/store';
+
+const mockStore = configureStore({});
 
 export default {
   title: 'Customer Components / PPM Booking / Date and Location Form',
@@ -23,7 +27,11 @@ export default {
   ],
 };
 
-const Template = (args) => <DateAndLocationForm {...args} />;
+const Template = (args) => (
+  <Provider store={mockStore.store}>
+    <DateAndLocationForm {...args} />
+  </Provider>
+);
 
 export const BlankDatesAndLocation = Template.bind({});
 BlankDatesAndLocation.args = {
