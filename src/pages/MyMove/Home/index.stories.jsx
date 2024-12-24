@@ -37,7 +37,9 @@ const uploadOrdersProps = {
   loggedInUserIsLoading: false,
   loggedInUserSuccess: true,
   isProfileComplete: true,
-  orders: {},
+  orders: {
+    id: '12345',
+  },
   location: {},
   move: {
     locator: 'XYZ890',
