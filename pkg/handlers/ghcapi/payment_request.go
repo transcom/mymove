@@ -114,7 +114,6 @@ type UpdatePaymentRequestStatusHandler struct {
 	handlers.HandlerConfig
 	services.PaymentRequestStatusUpdater
 	services.PaymentRequestFetcher
-	services.MoveAssignedOfficeUserUpdater
 }
 
 // Handle updates payment requests status

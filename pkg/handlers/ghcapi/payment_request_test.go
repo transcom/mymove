@@ -18,7 +18,6 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/models/roles"
 	"github.com/transcom/mymove/pkg/services/mocks"
-	"github.com/transcom/mymove/pkg/services/move"
 	paymentrequest "github.com/transcom/mymove/pkg/services/payment_request"
 	"github.com/transcom/mymove/pkg/services/query"
 	"github.com/transcom/mymove/pkg/trace"
@@ -277,10 +276,9 @@ func (suite *HandlerSuite) TestUpdatePaymentRequestStatusHandler() {
 		}
 
 		handler := UpdatePaymentRequestStatusHandler{
-			HandlerConfig:                 suite.HandlerConfig(),
-			PaymentRequestStatusUpdater:   statusUpdater,
-			PaymentRequestFetcher:         paymentRequestFetcher,
-			MoveAssignedOfficeUserUpdater: move.AssignedOfficeUserUpdater{},
+			HandlerConfig:               suite.HandlerConfig(),
+			PaymentRequestStatusUpdater: statusUpdater,
+			PaymentRequestFetcher:       paymentRequestFetcher,
 		}
 
 		// Validate incoming payload
@@ -316,10 +314,9 @@ func (suite *HandlerSuite) TestUpdatePaymentRequestStatusHandler() {
 		}
 
 		handler := UpdatePaymentRequestStatusHandler{
-			HandlerConfig:                 suite.HandlerConfig(),
-			PaymentRequestStatusUpdater:   statusUpdater,
-			PaymentRequestFetcher:         paymentRequestFetcher,
-			MoveAssignedOfficeUserUpdater: move.AssignedOfficeUserUpdater{},
+			HandlerConfig:               suite.HandlerConfig(),
+			PaymentRequestStatusUpdater: statusUpdater,
+			PaymentRequestFetcher:       paymentRequestFetcher,
 		}
 
 		// Validate incoming payload
