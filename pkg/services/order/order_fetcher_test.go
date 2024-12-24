@@ -580,6 +580,154 @@ func (suite *OrderServiceSuite) TestListOrders() {
 		suite.Equal(1, len(moves))
 		suite.Equal(createdPPM.Shipment.MoveTaskOrder.Locator, moves[0].Locator)
 	})
+
+	suite.Run("task order queue does not return move with ONLY a destination address update request", func() {
+		officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
+		session := auth.Session{
+			ApplicationName: auth.OfficeApp,
+			Roles:           officeUser.User.Roles,
+			OfficeUserID:    officeUser.ID,
+			IDToken:         "fake_token",
+			AccessToken:     "fakeAccessToken",
+		}
+		// build a move with a destination address request, should NOT appear in Task Order Queue
+		move := factory.BuildMove(suite.DB(), []factory.Customization{
+			{
+				Model: models.Move{
+					Status: models.MoveStatusAPPROVALSREQUESTED,
+					Show:   models.BoolPointer(true),
+				},
+			}}, nil)
+
+		testUUID := uuid.UUID{}
+		shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+			{
+				Model: models.MTOShipment{
+					DestinationAddressID: &testUUID,
+				},
+			},
+		}, nil)
+
+		suite.NotNil(shipment)
+		// newTestUUID := uuid.UUID{}
+
+		shipmentAddressUpdate := factory.BuildShipmentAddressUpdate(suite.DB(), []factory.Customization{
+			{
+				Model:    shipment,
+				LinkOnly: true,
+			},
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+			{
+				Model: models.ShipmentAddressUpdate{
+					NewAddressID: testUUID,
+				},
+			},
+		}, []factory.Trait{factory.GetTraitShipmentAddressUpdateRequested})
+		suite.NotNil(shipmentAddressUpdate)
+
+		// build a second move
+		move2 := factory.BuildMove(suite.DB(), []factory.Customization{
+			{
+				Model: models.Move{
+					Status: models.MoveStatusAPPROVED,
+					Show:   models.BoolPointer(true),
+				},
+			}}, nil)
+		suite.NotNil(move2)
+
+		moves, moveCount, err := orderFetcher.ListOrders(suite.AppContextWithSessionForTest(&session), officeUser.ID, roles.RoleTypeTOO, &services.ListOrderParams{})
+
+		suite.FatalNoError(err)
+		// even though 2 moves were created, only one will be returned from the call to List Orders since we filter out
+		// the one with only a shipment address update to be routed to the destination requests queue
+		suite.Equal(1, moveCount)
+		suite.Equal(1, len(moves))
+	})
+
+	suite.Run("task order queue does not return move with ONLY requested destination SIT service items", func() {
+		// officeUser, _, session := setupTestData()
+		officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
+		session := auth.Session{
+			ApplicationName: auth.OfficeApp,
+			Roles:           officeUser.User.Roles,
+			OfficeUserID:    officeUser.ID,
+			IDToken:         "fake_token",
+			AccessToken:     "fakeAccessToken",
+		}
+
+		// build a move with a only origin service items
+		move := factory.BuildMove(suite.DB(), []factory.Customization{
+			{
+				Model: models.Move{
+					Status: models.MoveStatusAPPROVALSREQUESTED,
+					Show:   models.BoolPointer(true),
+				},
+			}}, nil)
+
+		shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+		}, nil)
+		suite.NotNil(shipment)
+		originSITServiceItem := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model:    shipment,
+				LinkOnly: true,
+			},
+			{
+				Model: models.ReService{
+					Code: models.ReServiceCodeDOFSIT,
+				},
+			},
+		}, nil)
+		suite.NotNil(originSITServiceItem)
+
+		// build a move with a both origin and destination service items
+		move2 := factory.BuildMove(suite.DB(), []factory.Customization{
+			{
+				Model: models.Move{
+					Status: models.MoveStatusAPPROVALSREQUESTED,
+					Show:   models.BoolPointer(true),
+				},
+			}}, nil)
+		shipment2 := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model:    move2,
+				LinkOnly: true,
+			},
+		}, nil)
+
+		destinationSITServiceItem := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model:    shipment2,
+				LinkOnly: true,
+			},
+			{
+				Model: models.ReService{
+					Code: models.ReServiceCodeDDFSIT,
+				},
+			},
+		}, nil)
+
+		moves, moveCount, err := orderFetcher.ListOrders(suite.AppContextWithSessionForTest(&session), officeUser.ID, roles.RoleTypeTOO, &services.ListOrderParams{})
+
+		suite.Equal(models.MTOServiceItemStatusSubmitted, destinationSITServiceItem.Status)
+
+		suite.FatalNoError(err)
+		// even though 2 moves were created, only one will be returned from the call to List Orders since we filter out
+		// the one with only destination service items
+		suite.Equal(1, moveCount)
+		suite.Equal(1, len(moves))
+	})
 }
 
 func (suite *OrderServiceSuite) TestListDestinationRequestsOrders() {
