@@ -215,6 +215,120 @@ func (suite *ModelSuite) Test_FetchDutyLocationWithTransportationOffice() {
 	})
 }
 
+func (suite *ModelSuite) Test_FetchDutyLocationGblocForAK() {
+	suite.Run("fetches duty location GBLOC for AK address, Zone II AirForce", func() {
+		usprc, err := models.FindByZipCode(suite.AppContextForTest().DB(), "99707")
+		suite.NotNil(usprc)
+		suite.FatalNoError(err)
+		address := factory.BuildAddress(suite.DB(), []factory.Customization{
+			{
+				Model: models.Address{
+					IsOconus:           models.BoolPointer(true),
+					UsPostRegionCityId: &usprc.ID,
+				},
+			},
+		}, nil)
+		originDutyLocation := factory.BuildDutyLocation(suite.DB(), []factory.Customization{
+			{
+				Model: models.DutyLocation{
+					Name:      factory.MakeRandomString(8),
+					AddressID: address.ID,
+				},
+			},
+		}, nil)
+		airForce := models.AffiliationAIRFORCE
+		serviceMember := factory.BuildServiceMember(suite.DB(), []factory.Customization{
+			{
+				Model: models.ServiceMember{
+					Affiliation: &airForce,
+				},
+			},
+		}, nil)
+
+		// set it up
+		contract := models.ReContract{
+			Code: "Test_create_oconus_order_code",
+			Name: "Test_create_oconus_order",
+		}
+		verrs, err := suite.AppContextForTest().DB().ValidateAndSave(&contract)
+		if verrs.HasAny() {
+			suite.Fail(verrs.Error())
+		}
+		if err != nil {
+			suite.Fail(verrs.Error())
+		}
+		rateAreaCode := uuid.Must(uuid.NewV4()).String()[0:5]
+		rateArea := models.ReRateArea{
+			ID:         uuid.Must(uuid.NewV4()),
+			ContractID: contract.ID,
+			IsOconus:   true,
+			Code:       rateAreaCode,
+			Name:       fmt.Sprintf("Alaska-%s", rateAreaCode),
+			Contract:   contract,
+		}
+		verrs, err = suite.DB().ValidateAndCreate(&rateArea)
+		if verrs.HasAny() {
+			suite.Fail(verrs.Error())
+		}
+		if err != nil {
+			suite.Fail(err.Error())
+		}
+
+		us_country, err := models.FetchCountryByCode(suite.DB(), "US")
+		suite.NotNil(us_country)
+		suite.Nil(err)
+
+		oconusRateArea := models.OconusRateArea{
+			ID:                 uuid.Must(uuid.NewV4()),
+			RateAreaId:         rateArea.ID,
+			CountryId:          us_country.ID,
+			UsPostRegionCityId: usprc.ID,
+			Active:             true,
+		}
+		verrs, err = suite.DB().ValidateAndCreate(&oconusRateArea)
+		if verrs.HasAny() {
+			suite.Fail(verrs.Error())
+		}
+		if err != nil {
+			suite.Fail(err.Error())
+		}
+		jppsoRegion := models.JppsoRegions{
+			Name: "JPPSO Elmendorf-Richardson",
+			Code: "MBFL",
+		}
+		suite.MustSave(&jppsoRegion)
+
+		gblocAors := models.GblocAors{
+			JppsoRegionID:    jppsoRegion.ID,
+			OconusRateAreaID: oconusRateArea.ID,
+		}
+		suite.MustSave(&gblocAors)
+		factory.FetchOrBuildDefaultContractor(suite.DB(), nil, nil)
+
+		// var address1 []models.Address
+		// suite.DB().RawQuery("select * from addresses where us_post_region_cities_id = $1", usprc.ID).All(&address1)
+		// fmt.Println("***HERE address")
+		// fmt.Println(address1)
+		// var rateArea1 []models.OconusRateArea
+		// suite.DB().RawQuery("select * from re_oconus_rate_areas where us_post_region_cities_id = $1", usprc.ID).All(&rateArea1)
+		// fmt.Println("***HERE OconusRateArea")
+		// fmt.Println(rateArea1)
+		// var gblocAors1 []models.GblocAors
+		// suite.DB().RawQuery("select * from gbloc_aors where oconus_rate_area_id = $1", oconusRateArea.ID).All(&gblocAors1)
+		// fmt.Println("***HERE GblocAors")
+		// fmt.Println(gblocAors1)
+		// var jppsoRegion1 []models.JppsoRegions
+		// suite.DB().RawQuery("select * from jppso_regions where jppso_regions_id = $1", jppsoRegion.ID).All(&jppsoRegion1)
+		// fmt.Println("***HERE jppsoRegion")
+		// fmt.Println(jppsoRegion1)
+
+		gbloc, err := models.FetchOconusDutyLocationGbloc(suite.DB(), originDutyLocation, serviceMember)
+		suite.NoError(err)
+		suite.NotNil(gbloc)
+		suite.Equal(*gbloc, "MBFL")
+	})
+}
+
 func (suite *ModelSuite) Test_SearchDutyLocations_Exclude_Not_Active_Oconus() {
 	createContract := func(appCtx appcontext.AppContext, contractCode string, contractName string) (*models.ReContract, error) {
 		// See if contract code already exists.

@@ -267,6 +267,7 @@ func (suite *HandlerSuite) TestCreateOrder() {
 		suite.Assertions.Len(okResponse.Payload.Moves, 1)
 		suite.Assertions.Equal(ordersType, *okResponse.Payload.OrdersType)
 		suite.Assertions.Equal(handlers.FmtString("123456"), okResponse.Payload.OrdersNumber)
+		suite.Assertions.Equal(handlers.FmtString("MAPK"), okResponse.Payload.OriginDutyLocationGbloc)
 		suite.Assertions.Equal(handlers.FmtString("E19A"), okResponse.Payload.Tac)
 		suite.Assertions.Equal(handlers.FmtString("SacNumber"), okResponse.Payload.Sac)
 		suite.Assertions.Equal(&deptIndicator, okResponse.Payload.DepartmentIndicator)
