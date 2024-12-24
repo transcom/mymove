@@ -28,6 +28,7 @@ import (
 	movetaskorder "github.com/transcom/mymove/pkg/services/move_task_order"
 	mtoserviceitem "github.com/transcom/mymove/pkg/services/mto_service_item"
 	"github.com/transcom/mymove/pkg/services/query"
+	transportationoffice "github.com/transcom/mymove/pkg/services/transportation_office"
 	"github.com/transcom/mymove/pkg/services/upload"
 	storageTest "github.com/transcom/mymove/pkg/storage/test"
 	"github.com/transcom/mymove/pkg/testdatagen"
@@ -1704,7 +1705,7 @@ func (suite *HandlerSuite) TestUpdateMTOPostCounselingInfo() {
 
 		queryBuilder := query.NewQueryBuilder()
 		fetcher := fetch.NewFetcher(queryBuilder)
-		moveRouter := moverouter.NewMoveRouter()
+		moveRouter := moverouter.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
 		planner := &routemocks.Planner{}
 		planner.On("ZipTransitDistance",
 			mock.AnythingOfType("*appcontext.appContext"),
@@ -1787,7 +1788,7 @@ func (suite *HandlerSuite) TestUpdateMTOPostCounselingInfo() {
 
 		mtoChecker := movetaskorder.NewMoveTaskOrderChecker()
 		queryBuilder := query.NewQueryBuilder()
-		moveRouter := moverouter.NewMoveRouter()
+		moveRouter := moverouter.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
 		fetcher := fetch.NewFetcher(queryBuilder)
 		planner := &routemocks.Planner{}
 		planner.On("ZipTransitDistance",

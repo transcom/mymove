@@ -17,11 +17,14 @@ import (
 )
 
 type moveRouter struct {
+	transportationOfficesFetcher services.TransportationOfficesFetcher
 }
 
 // NewMoveRouter creates a new moveRouter service
-func NewMoveRouter() services.MoveRouter {
-	return &moveRouter{}
+func NewMoveRouter(transportationOfficeFetcher services.TransportationOfficesFetcher) services.MoveRouter {
+	return &moveRouter{
+		transportationOfficesFetcher: transportationOfficeFetcher,
+	}
 }
 
 // Submit is called when the customer submits amended orders or submits their move. It determines whether
@@ -188,16 +191,6 @@ func (router moveRouter) sendToServiceCounselor(appCtx appcontext.AppContext, mo
 		}
 	}
 
-	// if move.IsPPMOnly() && !orders.OriginDutyLocation.ProvidesServicesCounseling {
-	// 	originLocationID := uuid.FromStringOrNil(orders.OriginDutyLocationID.String())
-
-	// 	officeList, err := ShowCounselingOfficesHandler.TransportationOfficesFetcher.GetCounselingOffices(appCtx, originLocationID)
-	// 	if err != nil {
-
-	// 	}
-
-	// }
-
 	if move.Status == models.MoveStatusNeedsServiceCounseling {
 		return nil
 	}
@@ -228,6 +221,15 @@ func (router moveRouter) sendToServiceCounselor(appCtx appcontext.AppContext, mo
 			move.MTOShipments[i].PPMShipment.Status = models.PPMShipmentStatusSubmitted
 			// actual expense reimbursement is always true for civilian moves
 			move.MTOShipments[i].PPMShipment.IsActualExpenseReimbursement = models.BoolPointer(isCivilian)
+			if move.IsPPMOnly() && !orders.OriginDutyLocation.ProvidesServicesCounseling {
+				closestCounselingOffice, err := router.transportationOfficesFetcher.FindClosestCounselingOffice(appCtx, *move.Orders.OriginDutyLocationID)
+				if err != nil {
+					msg := "Failure setting PPM counseling office to closest service counseling office"
+					appCtx.Logger().Error(msg, zap.Error(err))
+					return apperror.NewQueryError("Closest Counseling Office", err, "Failed to find counseling office that provides counseling")
+				}
+				move.CounselingOffice = &closestCounselingOffice
+			}
 
 			if verrs, err := appCtx.DB().ValidateAndUpdate(&move.MTOShipments[i]); verrs.HasAny() || err != nil {
 				msg := "failure saving shipment when routing move submission"

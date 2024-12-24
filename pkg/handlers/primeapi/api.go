@@ -27,6 +27,7 @@ import (
 	shipmentaddressupdate "github.com/transcom/mymove/pkg/services/shipment_address_update"
 	signedcertification "github.com/transcom/mymove/pkg/services/signed_certification"
 	sitextension "github.com/transcom/mymove/pkg/services/sit_extension"
+	transportationoffice "github.com/transcom/mymove/pkg/services/transportation_office"
 	"github.com/transcom/mymove/pkg/services/upload"
 	"github.com/transcom/mymove/pkg/uploader"
 )
@@ -42,7 +43,7 @@ func NewPrimeAPI(handlerConfig handlers.HandlerConfig) *primeoperations.MymoveAP
 	}
 	primeAPI := primeoperations.NewMymoveAPI(primeSpec)
 	queryBuilder := query.NewQueryBuilder()
-	moveRouter := move.NewMoveRouter()
+	moveRouter := move.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
 	addressCreator := address.NewAddressCreator()
 	shipmentFetcher := mtoshipment.NewMTOShipmentFetcher()
 	moveWeights := move.NewMoveWeights(mtoshipment.NewShipmentReweighRequester())

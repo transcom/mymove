@@ -26,6 +26,7 @@ import (
 	"github.com/transcom/mymove/pkg/services/query"
 	supportMocks "github.com/transcom/mymove/pkg/services/support/mocks"
 	internalmovetaskorder "github.com/transcom/mymove/pkg/services/support/move_task_order"
+	transportationoffice "github.com/transcom/mymove/pkg/services/transportation_office"
 )
 
 func (suite *HandlerSuite) TestListMTOsHandler() {
@@ -167,7 +168,7 @@ func (suite *HandlerSuite) TestMakeMoveAvailableHandlerIntegrationSuccess() {
 	}
 	handlerConfig := suite.HandlerConfig()
 	queryBuilder := query.NewQueryBuilder()
-	moveRouter := moverouter.NewMoveRouter()
+	moveRouter := moverouter.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
 	planner := &routemocks.Planner{}
 	planner.On("ZipTransitDistance",
 		mock.AnythingOfType("*appcontext.appContext"),
@@ -382,7 +383,7 @@ func (suite *HandlerSuite) TestCreateMoveTaskOrderRequestHandler() {
 			IfMatch:         createdMTO.ETag,
 		}
 		queryBuilder := query.NewQueryBuilder()
-		moveRouter := moverouter.NewMoveRouter()
+		moveRouter := moverouter.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
 		planner := &routemocks.Planner{}
 		planner.On("ZipTransitDistance",
 			mock.AnythingOfType("*appcontext.appContext"),

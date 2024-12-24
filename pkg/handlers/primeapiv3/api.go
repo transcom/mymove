@@ -23,6 +23,7 @@ import (
 	"github.com/transcom/mymove/pkg/services/ppmshipment"
 	"github.com/transcom/mymove/pkg/services/query"
 	signedcertification "github.com/transcom/mymove/pkg/services/signed_certification"
+	transportationoffice "github.com/transcom/mymove/pkg/services/transportation_office"
 )
 
 // NewPrimeAPI returns the Prime API
@@ -30,7 +31,7 @@ func NewPrimeAPI(handlerConfig handlers.HandlerConfig) *primev3operations.Mymove
 	builder := query.NewQueryBuilder()
 	fetcher := fetch.NewFetcher(builder)
 	queryBuilder := query.NewQueryBuilder()
-	moveRouter := move.NewMoveRouter()
+	moveRouter := move.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
 
 	primeSpec, err := loads.Analyzed(primev3api.SwaggerJSON, "")
 	if err != nil {

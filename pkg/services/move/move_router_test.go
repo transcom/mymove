@@ -9,13 +9,14 @@ import (
 	"github.com/transcom/mymove/pkg/apperror"
 	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
+	transportationoffice "github.com/transcom/mymove/pkg/services/transportation_office"
 	storageTest "github.com/transcom/mymove/pkg/storage/test"
 	"github.com/transcom/mymove/pkg/testdatagen"
 	"github.com/transcom/mymove/pkg/uploader"
 )
 
 func (suite *MoveServiceSuite) TestMoveApproval() {
-	moveRouter := NewMoveRouter()
+	moveRouter := NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
 
 	suite.Run("from valid statuses", func() {
 		move := factory.BuildMove(nil, nil, nil)
@@ -61,7 +62,7 @@ func (suite *MoveServiceSuite) TestMoveApproval() {
 }
 
 func (suite *MoveServiceSuite) TestMoveSubmission() {
-	moveRouter := NewMoveRouter()
+	moveRouter := NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
 
 	suite.Run("returns error when needsServicesCounseling cannot find move", func() {
 		// Under test: MoveRouter.Submit
@@ -992,7 +993,7 @@ func (suite *MoveServiceSuite) TestMoveSubmission() {
 }
 
 func (suite *MoveServiceSuite) TestMoveCancellation() {
-	moveRouter := NewMoveRouter()
+	moveRouter := NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
 
 	suite.Run("Cancel move with no shipments", func() {
 		move := factory.BuildMove(suite.DB(), nil, nil)
@@ -1056,7 +1057,7 @@ func (suite *MoveServiceSuite) TestMoveCancellation() {
 }
 
 func (suite *MoveServiceSuite) TestSendToOfficeUser() {
-	moveRouter := NewMoveRouter()
+	moveRouter := NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
 
 	suite.Run("from valid statuses", func() {
 		move := factory.BuildMove(suite.DB(), nil, nil)
@@ -1114,7 +1115,7 @@ func (suite *MoveServiceSuite) TestSendToOfficeUser() {
 }
 
 func (suite *MoveServiceSuite) TestApproveOrRequestApproval() {
-	moveRouter := NewMoveRouter()
+	moveRouter := NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
 
 	suite.Run("approves the move if TOO no longer has actions to perform", func() {
 		move := factory.BuildApprovalsRequestedMove(suite.DB(), nil, nil)
@@ -1273,7 +1274,7 @@ func (suite *MoveServiceSuite) TestApproveOrRequestApproval() {
 }
 
 func (suite *MoveServiceSuite) TestCompleteServiceCounseling() {
-	moveRouter := NewMoveRouter()
+	moveRouter := NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
 
 	suite.Run("status changed to service counseling completed", func() {
 		move := factory.BuildStubbedMoveWithStatus(models.MoveStatusNeedsServiceCounseling)

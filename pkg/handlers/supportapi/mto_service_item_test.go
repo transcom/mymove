@@ -26,6 +26,7 @@ import (
 	mtoserviceitem "github.com/transcom/mymove/pkg/services/mto_service_item"
 	mtoshipment "github.com/transcom/mymove/pkg/services/mto_shipment"
 	"github.com/transcom/mymove/pkg/services/query"
+	transportationoffice "github.com/transcom/mymove/pkg/services/transportation_office"
 )
 
 // Create a service item on a Move with Approvals Requested status
@@ -75,7 +76,7 @@ func (suite *HandlerSuite) TestUpdateMTOServiceItemStatusHandlerApproveSuccess()
 
 	handlerConfig := suite.HandlerConfig()
 	queryBuilder := query.NewQueryBuilder()
-	moveRouter := moverouter.NewMoveRouter()
+	moveRouter := moverouter.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
 	shipmentFetcher := mtoshipment.NewMTOShipmentFetcher()
 	addressCreator := address.NewAddressCreator()
 	planner := &routemocks.Planner{}
@@ -131,7 +132,7 @@ func (suite *HandlerSuite) TestUpdateMTOServiceItemStatusHandlerRejectSuccess() 
 
 	handlerConfig := suite.HandlerConfig()
 	queryBuilder := query.NewQueryBuilder()
-	moveRouter := moverouter.NewMoveRouter()
+	moveRouter := moverouter.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
 	shipmentFetcher := mtoshipment.NewMTOShipmentFetcher()
 	addressCreator := address.NewAddressCreator()
 	planner := &routemocks.Planner{}
@@ -187,7 +188,7 @@ func (suite *HandlerSuite) TestUpdateMTOServiceItemStatusHandlerRejectionFailedN
 
 	handlerConfig := suite.HandlerConfig()
 	queryBuilder := query.NewQueryBuilder()
-	moveRouter := moverouter.NewMoveRouter()
+	moveRouter := moverouter.NewMoveRouter(transportationoffice.NewTransportationOfficesFetcher())
 	shipmentFetcher := mtoshipment.NewMTOShipmentFetcher()
 	addressCreator := address.NewAddressCreator()
 	planner := &routemocks.Planner{}
