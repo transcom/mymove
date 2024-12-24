@@ -22,6 +22,7 @@ import (
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/handlers/internalapi/internal/payloads"
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/notifications"
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/services/ppmshipment"
 	weightticketparser "github.com/transcom/mymove/pkg/services/weight_ticket_parser"
@@ -256,8 +257,9 @@ type GetUploadStatusHandler struct {
 }
 
 type CustomNewUploadStatusOK struct {
-	params uploadop.GetUploadStatusParams
-	appCtx appcontext.AppContext
+	params   uploadop.GetUploadStatusParams
+	appCtx   appcontext.AppContext
+	receiver notifications.NotificationReceiver
 }
 
 func (o *CustomNewUploadStatusOK) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
@@ -265,22 +267,27 @@ func (o *CustomNewUploadStatusOK) WriteResponse(rw http.ResponseWriter, producer
 
 	// TODO: add check for permissions to view upload
 
+	err := o.receiver.SubscribeToTopic(o.appCtx, notifications.NotificationFilter{})
+	if err != nil {
+		o.appCtx.Logger().Error(err.Error())
+	}
+
 	for range 2 {
 
 		err := o.appCtx.NewTransaction(func(txnAppCtx appcontext.AppContext) error {
-			uploadId, err := uuid.FromString(o.params.UploadID.String())
-			if err != nil {
-				panic(err)
-			}
-			uploaded, err := models.FetchUserUploadFromUploadID(txnAppCtx.DB(), txnAppCtx.Session(), uploadId)
-			if err != nil {
-				txnAppCtx.Logger().Error(err.Error())
-			}
+			// uploadId, err := uuid.FromString(o.params.UploadID.String())
+			// if err != nil {
+			// 	panic(err)
+			// }
+			// uploaded, err := models.FetchUserUploadFromUploadID(txnAppCtx.DB(), txnAppCtx.Session(), uploadId)
+			// if err != nil {
+			// 	txnAppCtx.Logger().Error(err.Error())
+			// }
 
 			uploadStatus := models.AVStatusTypePROCESSING
-			if uploaded.Upload.AVStatus != nil {
-				uploadStatus = *uploaded.Upload.AVStatus
-			}
+			// if uploaded.Upload.AVStatus != nil {
+			// 	uploadStatus = *uploaded.Upload.AVStatus
+			// }
 
 			resProcess := []byte("id: " + strconv.Itoa(id_counter) + "\nevent: message\ndata: " + string(uploadStatus) + "\n\n")
 			if produceErr := producer.Produce(rw, resProcess); produceErr != nil {
@@ -313,8 +320,9 @@ func (h GetUploadStatusHandler) Handle(params uploadop.GetUploadStatusParams) mi
 	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
 		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
 			return &CustomNewUploadStatusOK{
-				params: params,
-				appCtx: h.AppContextFromRequest(params.HTTPRequest),
+				params:   params,
+				appCtx:   h.AppContextFromRequest(params.HTTPRequest),
+				receiver: h.NotificationReceiver(),
 			}, nil
 		})
 }
