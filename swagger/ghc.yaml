@@ -3644,6 +3644,40 @@ paths:
           $ref: '#/responses/PermissionDenied'
         '500':
           $ref: '#/responses/ServerError'
+  /queues/bulk-assignment:
+    get:
+      produces:
+        - application/json
+      summary: Gets data for bulk assignment modal
+      description: >
+        Supervisor office users are able to bulk assign moves. This endpoint
+        returns the relevant data to them; the current workload of the office
+        users that work under them, and the moves that are available to be
+        assigned
+      operationId: getBulkAssignmentData
+      tags:
+        - queues
+      parameters:
+        - in: query
+          name: queueType
+          type: string
+          description: A string corresponding to the queue type
+          enum:
+            - COUNSELING
+            - CLOSEOUT
+            - TASK_ORDER
+            - PAYMENT_REQUEST
+      responses:
+        '200':
+          description: Successfully returned bulk assignment data
+          schema:
+            $ref: '#/definitions/BulkAssignmentData'
+        '401':
+          $ref: '#/responses/PermissionDenied'
+        '404':
+          $ref: '#/responses/NotFound'
+        '500':
+          $ref: '#/responses/ServerError'
   /queues/counseling/origin-list:
     get:
       produces:
@@ -7497,6 +7531,14 @@ definitions:
       eTag:
         type: string
     type: object
+  BulkAssignmentMoveIDs:
+    type: array
+    items:
+      $ref: '#/definitions/BulkAssignmentMoveID'
+  BulkAssignmentMoveID:
+    type: string
+    format: uuid
+    example: c56a4180-65aa-42ec-a945-5fd21dec0538
   AvailableOfficeUsers:
     type: array
     items:
@@ -7512,6 +7554,17 @@ definitions:
         type: string
       firstName:
         type: string
+      hasSafetyPrivilege:
+        type: boolean
+      workload:
+        type: integer
+  BulkAssignmentData:
+    type: object
+    properties:
+      availableOfficeUsers:
+        $ref: '#/definitions/AvailableOfficeUsers'
+      bulkAssignmentMoveIDs:
+        $ref: '#/definitions/BulkAssignmentMoveIDs'
   QueueMoves:
     type: array
     items:
