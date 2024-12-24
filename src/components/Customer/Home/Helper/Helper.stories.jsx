@@ -54,7 +54,6 @@ export const NeedsShipment = () => <HelperNeedsShipment />;
 export const NeedsSubmitMove = () => <HelperNeedsSubmitMove />;
 export const SubmittedMove = () => <HelperSubmittedMove />;
 export const AmendedOrders = () => <HelperAmendedOrders />;
-
 export const ApprovedMove = () => (
   <MemoryRouter>
     <HelperApprovedMove />
