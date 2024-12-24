@@ -247,7 +247,7 @@ func Address(address *models.Address) *primev3messages.Address {
 	if address == nil {
 		return nil
 	}
-	return &primev3messages.Address{
+	payloadAddress := &primev3messages.Address{
 		ID:             strfmt.UUID(address.ID.String()),
 		StreetAddress1: &address.StreetAddress1,
 		StreetAddress2: address.StreetAddress2,
@@ -259,6 +259,12 @@ func Address(address *models.Address) *primev3messages.Address {
 		ETag:           etag.GenerateEtag(address.UpdatedAt),
 		County:         address.County,
 	}
+
+	if address.UsPostRegionCityID != nil {
+		payloadAddress.UsPostRegionCitiesID = strfmt.UUID(address.UsPostRegionCityID.String())
+	}
+
+	return payloadAddress
 }
 
 // PPM Destination payload

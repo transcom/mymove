@@ -414,6 +414,7 @@ export const formatAddressForPrimeAPI = (address) => {
     county: address.county,
     state: address.state,
     postalCode: address.postalCode,
+    usPostRegionCitiesID: address.usPostRegionCitiesID,
   };
 };
 
@@ -428,6 +429,7 @@ export const formatExtraAddressForPrimeAPI = (address) => {
     county: address.county,
     state: address.state,
     postalCode: address.postalCode,
+    usPostRegionCitiesID: address.usPostRegionCitiesID,
   };
 };
 
@@ -452,6 +454,7 @@ export function fromPrimeAPIAddressFormat(address) {
     county: address.county,
     state: address.state,
     postalCode: address.postalCode,
+    usPostRegionCitiesID: address.usPostRegionCitiesID,
   };
 }
 
