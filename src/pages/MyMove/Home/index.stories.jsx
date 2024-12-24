@@ -37,9 +37,7 @@ const uploadOrdersProps = {
   loggedInUserIsLoading: false,
   loggedInUserSuccess: true,
   isProfileComplete: true,
-  orders: {
-    id: '12345',
-  },
+  orders: {},
   location: {},
   move: {
     locator: 'XYZ890',
@@ -154,6 +152,12 @@ const propsForApprovedPPMShipment = {
     ...withShipmentProps.move,
     status: MOVE_STATUSES.APPROVED,
     submitted_at: '2020-12-24',
+  },
+  orders: {
+    id: '12345',
+    new_duty_location: {
+      name: 'Travis AFB',
+    },
   },
 };
 
