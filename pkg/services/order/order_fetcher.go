@@ -121,9 +121,9 @@ func (f orderFetcher) ListOrders(appCtx appcontext.AppContext, officeUserID uuid
 	tooAssignedUserQuery := tooAssignedUserFilter(params.TOOAssignedUser)
 	sortOrderQuery := sortOrder(params.Sort, params.Order, ppmCloseoutGblocs)
 	counselingQuery := counselingOfficeFilter(params.CounselingOffice)
-	tooDestinationRequestsQuery := tooDestinationOnlyRequestsFilter(role)
+	tooDestinationRequestsQuery := tooDestinationOnlyRequestsFilter(role, params.Locator)
 	// Adding to an array so we can iterate over them and apply the filters after the query structure is set below
-	options := [21]QueryOption{branchQuery, locatorQuery, dodIDQuery, emplidQuery, customerNameQuery, originDutyLocationQuery, destinationDutyLocationQuery, moveStatusQuery, tooDestinationRequestsQuery, gblocQuery, submittedAtQuery, appearedInTOOAtQuery, requestedMoveDateQuery, ppmTypeQuery, closeoutInitiatedQuery, closeoutLocationQuery, ppmStatusQuery, sortOrderQuery, scAssignedUserQuery, tooAssignedUserQuery, counselingQuery}
+	options := [21]QueryOption{branchQuery, locatorQuery, dodIDQuery, emplidQuery, customerNameQuery, originDutyLocationQuery, destinationDutyLocationQuery, moveStatusQuery, gblocQuery, submittedAtQuery, appearedInTOOAtQuery, requestedMoveDateQuery, ppmTypeQuery, closeoutInitiatedQuery, closeoutLocationQuery, ppmStatusQuery, sortOrderQuery, scAssignedUserQuery, tooAssignedUserQuery, counselingQuery, tooDestinationRequestsQuery}
 
 	var query *pop.Query
 	if ppmCloseoutGblocs {
@@ -995,25 +995,23 @@ func sortOrder(sort *string, order *string, ppmCloseoutGblocs bool) QueryOption 
 	}
 }
 
-func tooDestinationOnlyRequestsFilter(role roles.RoleType) QueryOption {
+func tooDestinationOnlyRequestsFilter(role roles.RoleType, locator *string) QueryOption {
 	return func(query *pop.Query) {
 		if role == roles.RoleTypeTOO {
-			query.Where(`
+			if locator != nil {
+				// ignore this query if searching for a move
+				query.Where("moves.locator = ?", strings.ToUpper(*locator))
+			} else {
+				query.Where(`
 			(
-				(mto_service_items.status IS NULL OR (mto_service_items.status = 'SUBMITTED' AND re_services.code NOT IN ('DOFSIT', 'DOASIT', 'DDDSIT', 'DDSHUT', 'DDSFSC', 'IDFSIT', 'IDASIT', 'IDDSIT', 'IDSHUT')))
+				(mto_service_items.status IS NULL OR (mto_service_items.status = 'SUBMITTED' AND re_services.code IN ('DOFSIT', 'DOASIT', 'DODSIT', 'DOSHUT', 'DOSFSC', 'IOFSIT', 'IOASIT', 'IODSIT', 'IOSHUT')))
+			)
+			OR
+			(
+				((moves.excess_weight_qualified_at IS NOT NULL AND moves.excess_weight_acknowledged_at IS NULL) AND moves.status = 'APPROVALS REQUESTED')
 			)
 			`)
-			// `)
-			// OR  --excess weight
-			// 	(
-			// 	(moves.excess_weight_qualified_at IS NOT NULL AND moves.excess_weight_acknowledged_at IS NULL)
-			// 	AND (moves.status = 'SUBMITTED' OR moves.status = 'SERVICE COUNSELING COMPLETED' OR moves.status = 'APPROVALS REQUESTED')
-			// )
-			// OR 	--excess ub weight
-			// (
-			// 	(moves.excess_unaccompanied_baggage_weight_qualified_at IS NOT NULL AND moves.excess_unaccompanied_baggage_weight_acknowledged_at IS NULL)
-			// 	AND (moves.status = 'SUBMITTED' OR moves.status = 'SERVICE COUNSELING COMPLETED' OR moves.status = 'APPROVALS REQUESTED')
-			// )
+			}
 		}
 	}
 }
