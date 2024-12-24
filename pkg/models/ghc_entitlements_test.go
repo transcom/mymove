@@ -1,6 +1,7 @@
 package models_test
 
 import (
+	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/models"
 )
 
@@ -16,7 +17,7 @@ func (suite *ModelSuite) TestAuthorizedWeightWhenExistsInDB() {
 func (suite *ModelSuite) TestAuthorizedWeightWhenNotInDBAndHaveWeightAllotment() {
 	suite.Run("with no dependents authorized, TotalWeightSelf is AuthorizedWeight", func() {
 		entitlement := models.Entitlement{}
-		entitlement.SetWeightAllotment("E_1")
+		entitlement.SetWeightAllotment("E_1", internalmessages.OrdersTypePERMANENTCHANGEOFSTATION)
 
 		suite.Equal(entitlement.WeightAllotment().TotalWeightSelf, *entitlement.AuthorizedWeight())
 	})
@@ -24,7 +25,7 @@ func (suite *ModelSuite) TestAuthorizedWeightWhenNotInDBAndHaveWeightAllotment()
 	suite.Run("with dependents authorized, TotalWeightSelfPlusDependents is AuthorizedWeight", func() {
 		dependentsAuthorized := true
 		entitlement := models.Entitlement{DependentsAuthorized: &dependentsAuthorized}
-		entitlement.SetWeightAllotment("E_1")
+		entitlement.SetWeightAllotment("E_1", internalmessages.OrdersTypePERMANENTCHANGEOFSTATION)
 
 		suite.Equal(entitlement.WeightAllotment().TotalWeightSelfPlusDependents, *entitlement.AuthorizedWeight())
 	})
