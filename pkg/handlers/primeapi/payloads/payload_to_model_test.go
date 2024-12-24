@@ -29,7 +29,13 @@ func (suite *PayloadsSuite) TestMTOServiceItemModel() {
 	// DCRT Service Item
 	itemMeasurement := int32(1100)
 	crateMeasurement := int32(1200)
+	estimatedWeight := int64(1000)
+	actualWeight := int64(1000)
 	dcrtCode := models.ReServiceCodeDCRT.String()
+	ddshutCode := models.ReServiceCodeDDSHUT.String()
+	doshutCode := models.ReServiceCodeDOSHUT.String()
+	idshutCode := models.ReServiceCodeIOSHUT.String()
+	ioshutCode := models.ReServiceCodeIDSHUT.String()
 	reason := "Reason"
 	description := "Description"
 	standaloneCrate := false
@@ -52,11 +58,40 @@ func (suite *PayloadsSuite) TestMTOServiceItemModel() {
 		Description:     &description,
 		StandaloneCrate: &standaloneCrate,
 	}
+
 	DCRTServiceItem.Item.MTOServiceItemDimension = *item
 	DCRTServiceItem.Crate.MTOServiceItemDimension = *crate
 
 	DCRTServiceItem.SetMoveTaskOrderID(handlers.FmtUUID(moveTaskOrderIDField))
 	DCRTServiceItem.SetMtoShipmentID(*mtoShipmentIDString)
+
+	DDSHUTServiceItem := &primemessages.MTOServiceItemShuttle{
+		ReServiceCode:   &ddshutCode,
+		Reason:          &reason,
+		EstimatedWeight: &estimatedWeight,
+		ActualWeight:    &actualWeight,
+	}
+
+	DOSHUTServiceItem := &primemessages.MTOServiceItemShuttle{
+		ReServiceCode:   &doshutCode,
+		Reason:          &reason,
+		EstimatedWeight: &estimatedWeight,
+		ActualWeight:    &actualWeight,
+	}
+
+	IDSHUTServiceItem := &primemessages.MTOServiceItemInternationalShuttle{
+		ReServiceCode:   &idshutCode,
+		Reason:          &reason,
+		EstimatedWeight: &estimatedWeight,
+		ActualWeight:    &actualWeight,
+	}
+
+	IOSHUTServiceItem := &primemessages.MTOServiceItemInternationalShuttle{
+		ReServiceCode:   &ioshutCode,
+		Reason:          &reason,
+		EstimatedWeight: &estimatedWeight,
+		ActualWeight:    &actualWeight,
+	}
 
 	originReason := "storage at origin"
 	originServiceCode := models.ReServiceCodeDOFSIT.String()
@@ -234,6 +269,46 @@ func (suite *PayloadsSuite) TestMTOServiceItemModel() {
 		suite.Equal(IUCRTServiceItem.Description, iucrtReturnedModel.Description)
 		suite.Equal(unit.ThousandthInches(*ICRTServiceItem.Item.Length), icurtReturnedItem.Length)
 		suite.Equal(unit.ThousandthInches(*ICRTServiceItem.Crate.Length), icurtReturnedCrate.Length)
+	})
+
+	suite.Run("Success - Returns a DDSHUT service item model", func() {
+		returnedModel, verrs := MTOServiceItemModel(DDSHUTServiceItem)
+
+		suite.NoVerrs(verrs)
+		suite.Equal(moveTaskOrderIDField.String(), returnedModel.MoveTaskOrderID.String())
+		suite.Equal(mtoShipmentIDField.String(), returnedModel.MTOShipmentID.String())
+		suite.Equal(models.ReServiceCodeDDSHUT, returnedModel.ReService.Code)
+		suite.Equal(DDSHUTServiceItem.Reason, returnedModel.Reason)
+	})
+
+	suite.Run("Success - Returns a DOSHUT service item model", func() {
+		returnedModel, verrs := MTOServiceItemModel(DOSHUTServiceItem)
+
+		suite.NoVerrs(verrs)
+		suite.Equal(moveTaskOrderIDField.String(), returnedModel.MoveTaskOrderID.String())
+		suite.Equal(mtoShipmentIDField.String(), returnedModel.MTOShipmentID.String())
+		suite.Equal(models.ReServiceCodeDOSHUT, returnedModel.ReService.Code)
+		suite.Equal(DOSHUTServiceItem.Reason, returnedModel.Reason)
+	})
+
+	suite.Run("Success - Returns a IOSHUT service item model", func() {
+		returnedModel, verrs := MTOServiceItemModel(IOSHUTServiceItem)
+
+		suite.NoVerrs(verrs)
+		suite.Equal(moveTaskOrderIDField.String(), returnedModel.MoveTaskOrderID.String())
+		suite.Equal(mtoShipmentIDField.String(), returnedModel.MTOShipmentID.String())
+		suite.Equal(models.ReServiceCodeIOSHUT, returnedModel.ReService.Code)
+		suite.Equal(IOSHUTServiceItem.Reason, returnedModel.Reason)
+	})
+
+	suite.Run("Success - Returns a IDSHUT service item model", func() {
+		returnedModel, verrs := MTOServiceItemModel(IDSHUTServiceItem)
+
+		suite.NoVerrs(verrs)
+		suite.Equal(moveTaskOrderIDField.String(), returnedModel.MoveTaskOrderID.String())
+		suite.Equal(mtoShipmentIDField.String(), returnedModel.MTOShipmentID.String())
+		suite.Equal(models.ReServiceCodeIDSHUT, returnedModel.ReService.Code)
+		suite.Equal(IDSHUTServiceItem.Reason, returnedModel.Reason)
 	})
 
 	suite.Run("Fail -  Returns error for ICRT/IUCRT service item because of validation error", func() {
