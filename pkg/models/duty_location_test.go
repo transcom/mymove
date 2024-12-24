@@ -220,6 +220,7 @@ func (suite *ModelSuite) Test_FetchDutyLocationGblocForAK() {
 		usprc, err := models.FindByZipCode(suite.AppContextForTest().DB(), "99707")
 		suite.NotNil(usprc)
 		suite.FatalNoError(err)
+
 		address := factory.BuildAddress(suite.DB(), []factory.Customization{
 			{
 				Model: models.Address{
@@ -230,13 +231,13 @@ func (suite *ModelSuite) Test_FetchDutyLocationGblocForAK() {
 		}, nil)
 		originDutyLocation := factory.BuildDutyLocation(suite.DB(), []factory.Customization{
 			{
-				Model: models.DutyLocation{
-					Name:      factory.MakeRandomString(8),
-					AddressID: address.ID,
-				},
+				Model:    address,
+				LinkOnly: true,
+				Type:     &factory.Addresses.DutyLocationAddress,
 			},
 		}, nil)
 		airForce := models.AffiliationAIRFORCE
+		defaultDepartmentIndicator := "AIR_AND_SPACE_FORCE"
 		serviceMember := factory.BuildServiceMember(suite.DB(), []factory.Customization{
 			{
 				Model: models.ServiceMember{
@@ -244,8 +245,6 @@ func (suite *ModelSuite) Test_FetchDutyLocationGblocForAK() {
 				},
 			},
 		}, nil)
-
-		// set it up
 		contract := models.ReContract{
 			Code: "Test_create_oconus_order_code",
 			Name: "Test_create_oconus_order",
@@ -257,6 +256,7 @@ func (suite *ModelSuite) Test_FetchDutyLocationGblocForAK() {
 		if err != nil {
 			suite.Fail(verrs.Error())
 		}
+
 		rateAreaCode := uuid.Must(uuid.NewV4()).String()[0:5]
 		rateArea := models.ReRateArea{
 			ID:         uuid.Must(uuid.NewV4()),
@@ -299,33 +299,301 @@ func (suite *ModelSuite) Test_FetchDutyLocationGblocForAK() {
 		suite.MustSave(&jppsoRegion)
 
 		gblocAors := models.GblocAors{
-			JppsoRegionID:    jppsoRegion.ID,
-			OconusRateAreaID: oconusRateArea.ID,
+			JppsoRegionID:       jppsoRegion.ID,
+			OconusRateAreaID:    oconusRateArea.ID,
+			DepartmentIndicator: &defaultDepartmentIndicator,
 		}
 		suite.MustSave(&gblocAors)
-		factory.FetchOrBuildDefaultContractor(suite.DB(), nil, nil)
-
-		// var address1 []models.Address
-		// suite.DB().RawQuery("select * from addresses where us_post_region_cities_id = $1", usprc.ID).All(&address1)
-		// fmt.Println("***HERE address")
-		// fmt.Println(address1)
-		// var rateArea1 []models.OconusRateArea
-		// suite.DB().RawQuery("select * from re_oconus_rate_areas where us_post_region_cities_id = $1", usprc.ID).All(&rateArea1)
-		// fmt.Println("***HERE OconusRateArea")
-		// fmt.Println(rateArea1)
-		// var gblocAors1 []models.GblocAors
-		// suite.DB().RawQuery("select * from gbloc_aors where oconus_rate_area_id = $1", oconusRateArea.ID).All(&gblocAors1)
-		// fmt.Println("***HERE GblocAors")
-		// fmt.Println(gblocAors1)
-		// var jppsoRegion1 []models.JppsoRegions
-		// suite.DB().RawQuery("select * from jppso_regions where jppso_regions_id = $1", jppsoRegion.ID).All(&jppsoRegion1)
-		// fmt.Println("***HERE jppsoRegion")
-		// fmt.Println(jppsoRegion1)
 
 		gbloc, err := models.FetchOconusDutyLocationGbloc(suite.DB(), originDutyLocation, serviceMember)
 		suite.NoError(err)
 		suite.NotNil(gbloc)
-		suite.Equal(*gbloc, "MBFL")
+		suite.Equal(gbloc.Gbloc, "MBFL")
+	})
+
+	suite.Run("fetches duty location GBLOC for AK address, Zone II Army", func() {
+		usprc, err := models.FindByZipCode(suite.AppContextForTest().DB(), "99707")
+		suite.NotNil(usprc)
+		suite.FatalNoError(err)
+
+		address := factory.BuildAddress(suite.DB(), []factory.Customization{
+			{
+				Model: models.Address{
+					IsOconus:           models.BoolPointer(true),
+					UsPostRegionCityId: &usprc.ID,
+				},
+			},
+		}, nil)
+		originDutyLocation := factory.BuildDutyLocation(suite.DB(), []factory.Customization{
+			{
+				Model:    address,
+				LinkOnly: true,
+				Type:     &factory.Addresses.DutyLocationAddress,
+			},
+		}, nil)
+		army := models.AffiliationARMY
+		defaultDepartmentIndicator := "ARMY"
+		serviceMember := factory.BuildServiceMember(suite.DB(), []factory.Customization{
+			{
+				Model: models.ServiceMember{
+					Affiliation: &army,
+				},
+			},
+		}, nil)
+		contract := models.ReContract{
+			Code: "Test_create_oconus_order_code",
+			Name: "Test_create_oconus_order",
+		}
+		verrs, err := suite.AppContextForTest().DB().ValidateAndSave(&contract)
+		if verrs.HasAny() {
+			suite.Fail(verrs.Error())
+		}
+		if err != nil {
+			suite.Fail(verrs.Error())
+		}
+
+		rateAreaCode := uuid.Must(uuid.NewV4()).String()[0:5]
+		rateArea := models.ReRateArea{
+			ID:         uuid.Must(uuid.NewV4()),
+			ContractID: contract.ID,
+			IsOconus:   true,
+			Code:       rateAreaCode,
+			Name:       fmt.Sprintf("Alaska-%s", rateAreaCode),
+			Contract:   contract,
+		}
+		verrs, err = suite.DB().ValidateAndCreate(&rateArea)
+		if verrs.HasAny() {
+			suite.Fail(verrs.Error())
+		}
+		if err != nil {
+			suite.Fail(err.Error())
+		}
+
+		us_country, err := models.FetchCountryByCode(suite.DB(), "US")
+		suite.NotNil(us_country)
+		suite.Nil(err)
+
+		oconusRateArea := models.OconusRateArea{
+			ID:                 uuid.Must(uuid.NewV4()),
+			RateAreaId:         rateArea.ID,
+			CountryId:          us_country.ID,
+			UsPostRegionCityId: usprc.ID,
+			Active:             true,
+		}
+		verrs, err = suite.DB().ValidateAndCreate(&oconusRateArea)
+		if verrs.HasAny() {
+			suite.Fail(verrs.Error())
+		}
+		if err != nil {
+			suite.Fail(err.Error())
+		}
+		jppsoRegion := models.JppsoRegions{
+			Name: "JPPSO-Northwest",
+			Code: "JEAT",
+		}
+		suite.MustSave(&jppsoRegion)
+
+		gblocAors := models.GblocAors{
+			JppsoRegionID:       jppsoRegion.ID,
+			OconusRateAreaID:    oconusRateArea.ID,
+			DepartmentIndicator: &defaultDepartmentIndicator,
+		}
+		suite.MustSave(&gblocAors)
+
+		gbloc, err := models.FetchOconusDutyLocationGbloc(suite.DB(), originDutyLocation, serviceMember)
+		suite.NoError(err)
+		suite.NotNil(gbloc)
+		suite.Equal(gbloc.Gbloc, "JEAT")
+	})
+
+	suite.Run("fetches duty location GBLOC for AK Cordova address, Zone IV", func() {
+		usprc, err := models.FindByZipCode(suite.AppContextForTest().DB(), "99574")
+		suite.NotNil(usprc)
+		suite.FatalNoError(err)
+
+		address := factory.BuildAddress(suite.DB(), []factory.Customization{
+			{
+				Model: models.Address{
+					IsOconus:           models.BoolPointer(true),
+					UsPostRegionCityId: &usprc.ID,
+				},
+			},
+		}, nil)
+		originDutyLocation := factory.BuildDutyLocation(suite.DB(), []factory.Customization{
+			{
+				Model:    address,
+				LinkOnly: true,
+				Type:     &factory.Addresses.DutyLocationAddress,
+			},
+		}, nil)
+		army := models.AffiliationARMY
+		defaultDepartmentIndicator := "ARMY"
+		serviceMember := factory.BuildServiceMember(suite.DB(), []factory.Customization{
+			{
+				Model: models.ServiceMember{
+					Affiliation: &army,
+				},
+			},
+		}, nil)
+		contract := models.ReContract{
+			Code: "Test_create_oconus_order_code",
+			Name: "Test_create_oconus_order",
+		}
+		verrs, err := suite.AppContextForTest().DB().ValidateAndSave(&contract)
+		if verrs.HasAny() {
+			suite.Fail(verrs.Error())
+		}
+		if err != nil {
+			suite.Fail(verrs.Error())
+		}
+
+		rateAreaCode := uuid.Must(uuid.NewV4()).String()[0:5]
+		rateArea := models.ReRateArea{
+			ID:         uuid.Must(uuid.NewV4()),
+			ContractID: contract.ID,
+			IsOconus:   true,
+			Code:       rateAreaCode,
+			Name:       fmt.Sprintf("Alaska-%s", rateAreaCode),
+			Contract:   contract,
+		}
+		verrs, err = suite.DB().ValidateAndCreate(&rateArea)
+		if verrs.HasAny() {
+			suite.Fail(verrs.Error())
+		}
+		if err != nil {
+			suite.Fail(err.Error())
+		}
+
+		us_country, err := models.FetchCountryByCode(suite.DB(), "US")
+		suite.NotNil(us_country)
+		suite.Nil(err)
+
+		oconusRateArea := models.OconusRateArea{
+			ID:                 uuid.Must(uuid.NewV4()),
+			RateAreaId:         rateArea.ID,
+			CountryId:          us_country.ID,
+			UsPostRegionCityId: usprc.ID,
+			Active:             true,
+		}
+		verrs, err = suite.DB().ValidateAndCreate(&oconusRateArea)
+		if verrs.HasAny() {
+			suite.Fail(verrs.Error())
+		}
+		if err != nil {
+			suite.Fail(err.Error())
+		}
+		jppsoRegion := models.JppsoRegions{
+			Name: "USCG Base Kodiak",
+			Code: "MAPS",
+		}
+		suite.MustSave(&jppsoRegion)
+
+		gblocAors := models.GblocAors{
+			JppsoRegionID:       jppsoRegion.ID,
+			OconusRateAreaID:    oconusRateArea.ID,
+			DepartmentIndicator: &defaultDepartmentIndicator,
+		}
+		suite.MustSave(&gblocAors)
+
+		gbloc, err := models.FetchOconusDutyLocationGbloc(suite.DB(), originDutyLocation, serviceMember)
+		suite.NoError(err)
+		suite.NotNil(gbloc)
+		suite.Equal(gbloc.Gbloc, "MAPS")
+	})
+
+	suite.Run("fetches duty location GBLOC for AK NOT Cordova address, Zone IV", func() {
+		usprc, err := models.FindByZipCode(suite.AppContextForTest().DB(), "99803")
+		suite.NotNil(usprc)
+		suite.FatalNoError(err)
+
+		address := factory.BuildAddress(suite.DB(), []factory.Customization{
+			{
+				Model: models.Address{
+					IsOconus:           models.BoolPointer(true),
+					UsPostRegionCityId: &usprc.ID,
+				},
+			},
+		}, nil)
+		originDutyLocation := factory.BuildDutyLocation(suite.DB(), []factory.Customization{
+			{
+				Model:    address,
+				LinkOnly: true,
+				Type:     &factory.Addresses.DutyLocationAddress,
+			},
+		}, nil)
+		army := models.AffiliationARMY
+		defaultDepartmentIndicator := "ARMY"
+		serviceMember := factory.BuildServiceMember(suite.DB(), []factory.Customization{
+			{
+				Model: models.ServiceMember{
+					Affiliation: &army,
+				},
+			},
+		}, nil)
+		contract := models.ReContract{
+			Code: "Test_create_oconus_order_code",
+			Name: "Test_create_oconus_order",
+		}
+		verrs, err := suite.AppContextForTest().DB().ValidateAndSave(&contract)
+		if verrs.HasAny() {
+			suite.Fail(verrs.Error())
+		}
+		if err != nil {
+			suite.Fail(verrs.Error())
+		}
+
+		rateAreaCode := uuid.Must(uuid.NewV4()).String()[0:5]
+		rateArea := models.ReRateArea{
+			ID:         uuid.Must(uuid.NewV4()),
+			ContractID: contract.ID,
+			IsOconus:   true,
+			Code:       rateAreaCode,
+			Name:       fmt.Sprintf("Alaska-%s", rateAreaCode),
+			Contract:   contract,
+		}
+		verrs, err = suite.DB().ValidateAndCreate(&rateArea)
+		if verrs.HasAny() {
+			suite.Fail(verrs.Error())
+		}
+		if err != nil {
+			suite.Fail(err.Error())
+		}
+
+		us_country, err := models.FetchCountryByCode(suite.DB(), "US")
+		suite.NotNil(us_country)
+		suite.Nil(err)
+
+		oconusRateArea := models.OconusRateArea{
+			ID:                 uuid.Must(uuid.NewV4()),
+			RateAreaId:         rateArea.ID,
+			CountryId:          us_country.ID,
+			UsPostRegionCityId: usprc.ID,
+			Active:             true,
+		}
+		verrs, err = suite.DB().ValidateAndCreate(&oconusRateArea)
+		if verrs.HasAny() {
+			suite.Fail(verrs.Error())
+		}
+		if err != nil {
+			suite.Fail(err.Error())
+		}
+		jppsoRegion := models.JppsoRegions{
+			Name: "USCG Base Ketchikan",
+			Code: "MAPK",
+		}
+		suite.MustSave(&jppsoRegion)
+
+		gblocAors := models.GblocAors{
+			JppsoRegionID:       jppsoRegion.ID,
+			OconusRateAreaID:    oconusRateArea.ID,
+			DepartmentIndicator: &defaultDepartmentIndicator,
+		}
+		suite.MustSave(&gblocAors)
+
+		gbloc, err := models.FetchOconusDutyLocationGbloc(suite.DB(), originDutyLocation, serviceMember)
+		suite.NoError(err)
+		suite.NotNil(gbloc)
+		suite.Equal(gbloc.Gbloc, "MAPK")
 	})
 }
 

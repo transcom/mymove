@@ -200,3 +200,83 @@ func GetTraitDefaultOrdersDutyLocation() []Customization {
 		},
 	}
 }
+
+// FetchOrBuildOrdersDutyLocation returns a default orders duty location
+// It always fetches or builds a Fort Eisenhower duty location with the specified city/state/postal code
+// Some tests rely on the duty location being in 30813
+func FetchOrBuildAKOriginDutyLocation(db *pop.Connection) models.DutyLocation {
+	// usprc, err := models.FindByZipCode(db, "99801")
+
+	// contract := models.ReContract{
+	// 	Code: "Test_create_oconus_order_code",
+	// 	Name: "Test_create_oconus_order",
+	// }
+	// rateAreaCode := uuid.Must(uuid.NewV4()).String()[0:5]
+	// rateArea := models.ReRateArea{
+	// 	ID:         uuid.Must(uuid.NewV4()),
+	// 	ContractID: contract.ID,
+	// 	IsOconus:   true,
+	// 	Code:       rateAreaCode,
+	// 	Name:       fmt.Sprintf("Alaska-%s", rateAreaCode),
+	// 	Contract:   contract,
+	// }
+	// us_country, err := models.FetchCountryByCode(db, "US")
+	// oconusRateArea := models.OconusRateArea{
+	// 	ID:                 uuid.Must(uuid.NewV4()),
+	// 	RateAreaId:         rateArea.ID,
+	// 	CountryId:          us_country.ID,
+	// 	UsPostRegionCityId: usprc.ID,
+	// 	Active:             true,
+	// }
+	// jppsoRegion := models.JppsoRegions{
+	// 	Name: "USCG Base Ketchikan",
+	// 	Code: "MAPK",
+	// }
+	// gblocAors := models.GblocAors{
+	// 	JppsoRegionID:    jppsoRegion.ID,
+	// 	OconusRateAreaID: oconusRateArea.ID,
+	// }
+
+	// address := BuildAddress(db, []Customization{
+	// 	{
+	// 		Model: models.Address{
+	// 			IsOconus:           models.BoolPointer(true),
+	// 			UsPostRegionCityId: &usprc.ID,
+	// 		},
+	// 	},
+	// }, nil)
+
+	// BuildDutyLocation(db, []Customization{
+	// 	{
+	// 		Model: models.DutyLocation{
+	// 			Name:      MakeRandomString(8),
+	// 			AddressID: address.ID,
+	// 		},
+	// 	},
+	// }, nil)
+	// if db == nil {
+	// 	return BuildDutyLocation(nil, []Customization{
+	// 		{
+	// 			Model: models.DutyLocation{
+	// 				Name: "Fort Eisenhower, GA 30813",
+	// 			},
+	// 		},
+	// 		{
+	// 			Model: models.Address{
+	// 				City:       "Fort Eisenhower",
+	// 				State:      "GA",
+	// 				PostalCode: "30813",
+	// 			},
+	// 			Type: &Addresses.DutyLocationAddress,
+	// 		},
+	// 	}, nil)
+	// }
+
+	// Check if we already have a Fort Eisenhower Duty Location, return it if so
+	fortEisenhower, err := models.FetchDutyLocationByName(db, "Fort Eisenhower, GA 30813")
+	if err == nil {
+		return fortEisenhower
+	}
+
+	return BuildDutyLocation(db, nil, []Trait{GetTraitDefaultOrdersDutyLocation})
+}
