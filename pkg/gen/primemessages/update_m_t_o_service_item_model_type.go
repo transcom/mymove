@@ -25,6 +25,8 @@ import (
 //   - DDSFSC - UpdateMTOServiceItemSIT
 //   - DDSHUT - UpdateMTOServiceItemShuttle
 //   - DOSHUT - UpdateMTOServiceItemShuttle
+//   - IDSHUT - UpdateMTOServiceItemShuttle
+//   - IOSHUT - UpdateMTOServiceItemShuttle
 //
 // The documentation will then update with the supported fields.
 //
