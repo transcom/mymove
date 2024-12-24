@@ -964,3 +964,29 @@ func (suite *PayloadsSuite) TestMarketCode() {
 		suite.Equal("i", result, "Expected result to be 'i' for international market code")
 	})
 }
+func (suite *PayloadsSuite) TestAddress() {
+	usprcId := uuid.Must(uuid.NewV4())
+	shipmentAddress := &models.Address{
+		ID:                 uuid.Must(uuid.NewV4()),
+		StreetAddress1:     "400 Drive St",
+		City:               "Charleston",
+		County:             models.StringPointer("Charleston"),
+		State:              "SC",
+		PostalCode:         "29404",
+		UsPostRegionCityID: &usprcId,
+	}
+
+	result := Address(shipmentAddress)
+	suite.NotNil(result)
+	suite.Equal(strfmt.UUID(shipmentAddress.ID.String()), result.ID)
+	suite.Equal(strfmt.UUID(usprcId.String()), result.UsPostRegionCitiesID)
+
+	result = Address(nil)
+	suite.Nil(result)
+
+	usprcId = uuid.Nil
+	shipmentAddress.UsPostRegionCityID = &uuid.Nil
+	result = Address(shipmentAddress)
+	suite.NotNil(result)
+	suite.Equal(strfmt.UUID(""), result.UsPostRegionCitiesID)
+}

@@ -272,7 +272,7 @@ func Address(address *models.Address) *primemessages.Address {
 		ETag:           etag.GenerateEtag(address.UpdatedAt),
 	}
 
-	if address.UsPostRegionCityID != nil {
+	if address.UsPostRegionCityID != nil && address.UsPostRegionCityID != &uuid.Nil {
 		payloadAddress.UsPostRegionCitiesID = strfmt.UUID(address.UsPostRegionCityID.String())
 	}
 

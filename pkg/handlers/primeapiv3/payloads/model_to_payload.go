@@ -215,7 +215,7 @@ func Address(address *models.Address) *primev3messages.Address {
 		County:         address.County,
 	}
 
-	if address.UsPostRegionCityID != nil {
+	if address.UsPostRegionCityID != nil && address.UsPostRegionCityID != &uuid.Nil {
 		payloadAddress.UsPostRegionCitiesID = strfmt.UUID(address.UsPostRegionCityID.String())
 	}
 
