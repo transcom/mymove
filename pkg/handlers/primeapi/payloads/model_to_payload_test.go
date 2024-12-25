@@ -605,6 +605,33 @@ func (suite *PayloadsSuite) TestShipmentAddressUpdate() {
 	suite.Equal(strfmt.UUID(shipmentAddressUpdate.ID.String()), result.ID)
 }
 
+func (suite *PayloadsSuite) TestAddress() {
+	usprcId := uuid.Must(uuid.NewV4())
+	shipmentAddress := &models.Address{
+		ID:                 uuid.Must(uuid.NewV4()),
+		StreetAddress1:     "400 Drive St",
+		City:               "Charleston",
+		County:             models.StringPointer("Charleston"),
+		State:              "SC",
+		PostalCode:         "29404",
+		UsPostRegionCityID: &usprcId,
+	}
+
+	result := Address(shipmentAddress)
+	suite.NotNil(result)
+	suite.Equal(strfmt.UUID(shipmentAddress.ID.String()), result.ID)
+	suite.Equal(strfmt.UUID(usprcId.String()), result.UsPostRegionCitiesID)
+
+	result = Address(nil)
+	suite.Nil(result)
+
+	usprcId = uuid.Nil
+	shipmentAddress.UsPostRegionCityID = &uuid.Nil
+	result = Address(shipmentAddress)
+	suite.NotNil(result)
+	suite.Equal(strfmt.UUID(""), result.UsPostRegionCitiesID)
+}
+
 func (suite *PayloadsSuite) TestMTOServiceItemDCRT() {
 	reServiceCode := models.ReServiceCodeDCRT
 	reason := "reason"

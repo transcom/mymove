@@ -323,6 +323,8 @@ describe('formatters', () => {
         streetAddress1: '54321 Any Street',
         streetAddress2: '',
         streetAddress3: '',
+        county: 'Los Angeles',
+        usPostRegionCitiesID: '7e37ec98-ffae-4c4a-9208-ac80002ac299',
       };
 
       const addressWithLine2And3 = {
@@ -333,6 +335,8 @@ describe('formatters', () => {
         streetAddress1: '12345 Any Street',
         streetAddress2: 'Apt 12B',
         streetAddress3: 'c/o Leo Spaceman',
+        county: 'Los Angeles',
+        usPostRegionCitiesID: '7e37ec98-ffae-4c4a-9208-ac80002ac299',
       };
 
       expect(formatters.formatCustomerContactFullAddress(addressWithoutLine2And3)).toEqual(
