@@ -833,6 +833,21 @@ paths:
         }
         ```
 
+        The following service items allow you to update the Port that the shipment will use:
+        - PODFSC (Port of Debarkation can be updated)
+        - POEFSC (Port of Embarkation can be updated)
+
+        At a MINIMUM, the payload for updating the port should contain the reServiceCode (PODFSC or POEFSC), modelType (UpdateMTOServiceItemInternationalPortFSC), portCode, and id for the service item.
+        Please see the example payload below:
+        ```json
+        {
+          "id": "1ed224b6-c65e-4616-b88e-8304d26c9562",
+          "modelType": "UpdateMTOServiceItemInternationalPortFSC",
+          "portCode": "SEA",
+          "reServiceCode": "POEFSC"
+        }
+        ```
+
       operationId: updateMTOServiceItem
       tags:
         - mtoServiceItem
@@ -1517,6 +1532,8 @@ definitions:
     $ref: 'definitions/prime/MTOServiceItemOriginSIT.yaml'
   MTOServiceItemShuttle: # spectral oas2-unused-definition is OK here due to polymorphism
     $ref: 'definitions/prime/MTOServiceItemShuttle.yaml'
+  MTOServiceItemInternationalFuelSurcharge: # spectral oas2-unused-definition is OK here due to polymorphism
+    $ref: 'definitions/prime/MTOServiceItemInternationalFuelSurcharge.yaml'
   MTOShipment:
     type: object
     properties:
