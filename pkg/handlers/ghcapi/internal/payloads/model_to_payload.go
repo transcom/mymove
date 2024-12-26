@@ -2711,6 +2711,9 @@ func ReServiceItems(reServiceItems models.ReServiceItems) ghcmessages.ReServiceI
 
 // Port payload
 func Port(portLocation *models.PortLocation) *ghcmessages.Port {
+	if portLocation == nil {
+		return nil
+	}
 	return &ghcmessages.Port{
 		ID:       strfmt.UUID(portLocation.ID.String()),
 		PortType: portLocation.Port.PortType.String(),
