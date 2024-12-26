@@ -15,7 +15,7 @@ import (
 )
 
 func (suite *GHCRateEngineServiceSuite) Test_priceDomesticPackUnpack() {
-	featureFlagValues := testhelpers.MakeMobileHomeFFMap(false)
+	featureFlagValues := testhelpers.MakeMobileHomeFFMap(false, false)
 	suite.Run("golden path with DNPK", func() {
 		suite.setupDomesticNTSPackPrices(dnpkTestServicesScheduleOrigin, dnpkTestIsPeakPeriod, dnpkTestBasePriceCents, models.MarketConus, dnpkTestFactor, dnpkTestContractYearName, dnpkTestEscalationCompounded)
 		isPPM := false
@@ -91,7 +91,7 @@ func (suite *GHCRateEngineServiceSuite) Test_priceDomesticPackUnpack() {
 }
 
 func (suite *GHCRateEngineServiceSuite) Test_domesticPackAndUnpackWithMobileHome() {
-	featureFlagValues := testhelpers.MakeMobileHomeFFMap(false) // Init factor flags to false
+	featureFlagValues := testhelpers.MakeMobileHomeFFMap(false, false) // Init factor flags to false
 	suite.Run("golden path with DPK", func() {
 		suite.setupDomesticOtherPrice(models.ReServiceCodeDPK, dpkTestServicesScheduleOrigin, dpkTestIsPeakPeriod, dpkTestBasePriceCents, dpkTestContractYearName, dpkTestEscalationCompounded)
 
@@ -134,7 +134,7 @@ func (suite *GHCRateEngineServiceSuite) Test_domesticPackAndUnpackWithMobileHome
 }
 
 func (suite *GHCRateEngineServiceSuite) Test_domesticPackAndUnpackWithPPM() {
-	featureFlagValues := testhelpers.MakeMobileHomeFFMap(false)
+	featureFlagValues := testhelpers.MakeMobileHomeFFMap(false, false)
 	suite.Run("golden path with DPK", func() {
 		suite.setupDomesticOtherPrice(models.ReServiceCodeDPK, dpkTestServicesScheduleOrigin, dpkTestIsPeakPeriod, dpkTestBasePriceCents, dpkTestContractYearName, dpkTestEscalationCompounded)
 

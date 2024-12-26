@@ -575,7 +575,7 @@ func (suite *MoveHistoryServiceSuite) TestMoveHistoryFetcherScenarios() {
 		}
 		shipmentIDAbbr := serviceItem.MTOShipment.ID.String()[0:5]
 
-		featureFlagValues := testhelpers.MakeMobileHomeFFMap(false)
+		featureFlagValues := testhelpers.MakeMobileHomeFFMap(false, false)
 		createdServiceItems, _, err := creator.CreateMTOServiceItem(suite.AppContextForTest(), &serviceItem, featureFlagValues)
 		suite.NotNil(createdServiceItems)
 		suite.NoError(err)
@@ -657,7 +657,7 @@ func (suite *MoveHistoryServiceSuite) TestMoveHistoryFetcherScenarios() {
 			Status:           models.MTOServiceItemStatusSubmitted,
 		}
 
-		featureFlagValues := testhelpers.MakeMobileHomeFFMap(false)
+		featureFlagValues := testhelpers.MakeMobileHomeFFMap(false, false)
 		createdServiceItems, _, err := creator.CreateMTOServiceItem(suite.AppContextForTest(), &serviceItem, featureFlagValues)
 		suite.NotNil(createdServiceItems)
 		suite.NoError(err)

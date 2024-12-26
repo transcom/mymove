@@ -1656,7 +1656,7 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 }
 
 func (suite *MTOShipmentServiceSuite) TestUpdateMTOShipmentStatus() {
-	featureFlagValues := testhelpers.MakeMobileHomeFFMap(false)
+	featureFlagValues := testhelpers.MakeMobileHomeFFMap(false, false)
 	estimatedWeight := unit.Pound(2000)
 	status := models.MTOShipmentStatusApproved
 	// need the re service codes to update status
@@ -2882,7 +2882,7 @@ func (suite *MTOShipmentServiceSuite) TestUpdateShipmentNullableFields() {
 
 func (suite *MTOShipmentServiceSuite) TestUpdateStatusServiceItems() {
 
-	featureFlagValues := testhelpers.MakeMobileHomeFFMap(false)
+	featureFlagValues := testhelpers.MakeMobileHomeFFMap(false, false)
 	expectedReServiceCodes := []models.ReServiceCode{
 		models.ReServiceCodeDLH,
 		models.ReServiceCodeDSH,

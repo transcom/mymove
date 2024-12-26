@@ -38,6 +38,16 @@ func (p domesticOriginPricer) Price(appCtx appcontext.AppContext, contractCode s
 		return 0, nil, errors.New("ServiceArea is required")
 	}
 
+	isFactorToggleOn := false // Track whether DMHF Factor FF toggle is on for this Pack or Unpack item
+	if isMobileHome {         // Only check for mobile home factor FF if this is a mobile home shipment.
+		if featureFlagValues == nil || len(featureFlagValues) <= 0 {
+			return 0, nil, fmt.Errorf("Expected a map of feature flag values when checking pricing for DPK item, received nil or empty map instead.")
+		}
+		if featureFlagValues[featureflag.DomesticMobileHomeDOPFactor] {
+			isFactorToggleOn = true
+		}
+	}
+
 	isPeakPeriod := IsPeakPeriod(referenceDate)
 
 	// look up rate for domestic origin price
@@ -64,27 +74,45 @@ func (p domesticOriginPricer) Price(appCtx appcontext.AppContext, contractCode s
 		return 0, nil, fmt.Errorf("could not calculate escalated price: %w", err)
 	}
 
-	escalatedPrice = escalatedPrice * finalWeight.ToCWTFloat64()
+	totalCost := unit.Cents(0)
+	var params services.PricingDisplayParams
+	if isFactorToggleOn {
+		mobileHomeFactorRow, err := fetchShipmentTypePrice(appCtx, contractCode, models.ReServiceCodeDMHF, models.MarketConus)
+		if err != nil {
+			return 0, nil, fmt.Errorf("could not fetch mobile home factor from database: %w", err)
+		}
+		escalatedPrice = roundToPrecision(escalatedPrice*mobileHomeFactorRow.Factor, 2)
+		totalCost = unit.Cents(escalatedPrice * finalWeight.ToCWTFloat64())
 
-	totalCost := unit.Cents(math.Round(escalatedPrice))
+		params = services.PricingDisplayParams{
+			{Key: models.ServiceItemParamNameContractYearName, Value: contractYear.Name},
+			{Key: models.ServiceItemParamNamePriceRateOrFactor, Value: FormatCents(domServiceAreaPrice.PriceCents)},
+			{Key: models.ServiceItemParamNameIsPeak, Value: FormatBool(isPeakPeriod)},
+			{Key: models.ServiceItemParamNameEscalationCompounded, Value: FormatEscalation(contractYear.EscalationCompounded)},
+			{Key: models.ServiceItemParamNameMobileHomeFactor, Value: FormatFloat(mobileHomeFactorRow.Factor, 2)},
+		}
+	} else {
+		escalatedPrice = escalatedPrice * finalWeight.ToCWTFloat64()
+		totalCost = unit.Cents(math.Round(escalatedPrice))
 
-	params := services.PricingDisplayParams{
-		{
-			Key:   models.ServiceItemParamNamePriceRateOrFactor,
-			Value: FormatCents(domServiceAreaPrice.PriceCents),
-		},
-		{
-			Key:   models.ServiceItemParamNameContractYearName,
-			Value: contractYear.Name,
-		},
-		{
-			Key:   models.ServiceItemParamNameIsPeak,
-			Value: FormatBool(isPeakPeriod),
-		},
-		{
-			Key:   models.ServiceItemParamNameEscalationCompounded,
-			Value: FormatEscalation(contractYear.EscalationCompounded),
-		},
+		params = services.PricingDisplayParams{
+			{
+				Key:   models.ServiceItemParamNamePriceRateOrFactor,
+				Value: FormatCents(domServiceAreaPrice.PriceCents),
+			},
+			{
+				Key:   models.ServiceItemParamNameContractYearName,
+				Value: contractYear.Name,
+			},
+			{
+				Key:   models.ServiceItemParamNameIsPeak,
+				Value: FormatBool(isPeakPeriod),
+			},
+			{
+				Key:   models.ServiceItemParamNameEscalationCompounded,
+				Value: FormatEscalation(contractYear.EscalationCompounded),
+			},
+		}
 	}
 
 	if isPPM && weight < minDomesticWeight {
