@@ -4,6 +4,7 @@ import (
 	"time"
 
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/models/roles"
 )
 
 func (suite *FactorySuite) TestBuildMove() {
@@ -257,6 +258,23 @@ func (suite *FactorySuite) TestBuildMove() {
 		suite.Equal(availableToPrimeAt, *move.ApprovedAt) // Inheriting available to prime at date
 		suite.NotNil(move.AvailableToPrimeAt)
 		suite.NotNil(move.ApprovedAt)
+	})
+	suite.Run("Successful creation of a move with an assigned SC", func() {
+		officeUser := BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeServicesCounselor})
+
+		move := BuildMoveWithShipment(suite.DB(), []Customization{
+			{
+				Model: models.Move{
+					Status: models.MoveStatusNeedsServiceCounseling,
+				},
+			},
+			{
+				Model:    officeUser,
+				LinkOnly: true,
+				Type:     &OfficeUsers.SCAssignedUser,
+			},
+		}, nil)
+		suite.Equal(officeUser.ID, *move.SCAssignedID)
 	})
 	suite.Run("Successful creation of move with shipment", func() {
 		// Under test:      BuildMoveWithShipment
