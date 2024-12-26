@@ -1059,3 +1059,64 @@ func (suite *PayloadsSuite) TestMTOServiceItemModel() {
 		suite.Equal(handlers.FmtString(models.MarketOconus.FullString()), result.Market, "Expected Market to be OCONUS")
 	})
 }
+
+func (suite *PayloadsSuite) TestPort() {
+
+	suite.Run("returns nil when PortLocation is nil", func() {
+		var portLocation *models.PortLocation = nil
+		result := Port(portLocation)
+		suite.Nil(result, "Expected result to be nil when Port Location is nil")
+	})
+
+	suite.Run("Success - Maps PortLocation to Port payload", func() {
+		// Arrange
+		portID, _ := uuid.NewV4()
+		portType := models.PortType("A")
+		portCode := "LAX"
+		portName := "Port of Los Angeles"
+		cityName := "Los Angeles"
+		countyName := "Los Angeles County"
+		stateName := "California"
+		zip := "90210"
+		countryName := "United States"
+
+		mockPortLocation := &models.PortLocation{
+			ID: portID,
+			Port: models.Port{
+				PortType: portType,
+				PortCode: portCode,
+				PortName: portName,
+			},
+			City: models.City{
+				CityName: cityName,
+			},
+			UsPostRegionCity: models.UsPostRegionCity{
+				UsprcCountyNm: countyName,
+				UsPostRegion: models.UsPostRegion{
+					State: models.State{
+						StateName: stateName,
+					},
+				},
+				UsprZipID: zip,
+			},
+			Country: models.Country{
+				CountryName: countryName,
+			},
+		}
+
+		// Actual
+		result := Port(mockPortLocation)
+
+		// Assert
+		suite.IsType(&ghcmessages.Port{}, result)
+		suite.Equal(strfmt.UUID(portID.String()), result.ID)
+		suite.Equal(portType.String(), result.PortType)
+		suite.Equal(portCode, result.PortCode)
+		suite.Equal(portName, result.PortName)
+		suite.Equal(cityName, result.City)
+		suite.Equal(countyName, result.County)
+		suite.Equal(stateName, result.State)
+		suite.Equal(zip, result.Zip)
+		suite.Equal(countryName, result.Country)
+	})
+}

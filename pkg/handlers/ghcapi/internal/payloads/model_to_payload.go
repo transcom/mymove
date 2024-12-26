@@ -1523,8 +1523,8 @@ func MTOShipment(storer storage.FileStorer, mtoShipment *models.MTOShipment, sit
 		DeliveryAddressUpdate:       ShipmentAddressUpdate(mtoShipment.DeliveryAddressUpdate),
 		ShipmentLocator:             handlers.FmtStringPtr(mtoShipment.ShipmentLocator),
 		MarketCode:                  MarketCode(&mtoShipment.MarketCode),
-		PoeLocation:                 getPoeLocation(mtoShipment.MTOServiceItems),
-		PodLocation:                 getPodLocation(mtoShipment.MTOServiceItems),
+		PoeLocation:                 getPortLocation(mtoShipment.MTOServiceItems),
+		PodLocation:                 getPortLocation(mtoShipment.MTOServiceItems),
 	}
 
 	if mtoShipment.Distance != nil {
@@ -2739,6 +2739,9 @@ func VLocations(vLocations models.VLocations) ghcmessages.VLocations {
 
 // Convert a PortLocation model to Port message
 func Port(portLocation *models.PortLocation) *ghcmessages.Port {
+	if portLocation == nil {
+		return nil
+	}
 	return &ghcmessages.Port{
 		ID:       strfmt.UUID(portLocation.ID.String()),
 		PortType: portLocation.Port.PortType.String(),
@@ -2753,7 +2756,7 @@ func Port(portLocation *models.PortLocation) *ghcmessages.Port {
 }
 
 // Get POD/POE info from MTO shipment's service items
-func getPoeLocation(mtoServiceItems models.MTOServiceItems) *ghcmessages.Port {
+func getPortLocation(mtoServiceItems models.MTOServiceItems) *ghcmessages.Port {
 	if mtoServiceItems == nil {
 		return nil
 	}
@@ -2761,20 +2764,11 @@ func getPoeLocation(mtoServiceItems models.MTOServiceItems) *ghcmessages.Port {
 	for _, mtoServiceItem := range mtoServiceItems {
 		if mtoServiceItem.POELocation != nil {
 			portLocation = Port(mtoServiceItem.POELocation)
+			break
 		}
-	}
-	return portLocation
-}
-
-// Get POD/POE info from MTO shipment's service items
-func getPodLocation(mtoServiceItems models.MTOServiceItems) *ghcmessages.Port {
-	if mtoServiceItems == nil {
-		return nil
-	}
-	var portLocation *ghcmessages.Port
-	for _, mtoServiceItem := range mtoServiceItems {
 		if mtoServiceItem.PODLocation != nil {
 			portLocation = Port(mtoServiceItem.PODLocation)
+			break
 		}
 	}
 	return portLocation
