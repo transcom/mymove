@@ -101,9 +101,10 @@ stages:
 
 .setup_release_dp3: &setup_release_dp3
   #if demo/loadtest/exp
-  - export ECR_REPOSITORY_URI = $(eval echo \$${DP3_ENV^^}_ACCOUNT_ID).dkr.ecr.$(eval echo \$${DP3_ENV^^}_REGION).amazonaws.com
-  - export APP_DOCKER_FILE = Dockerfile.dp3
-  - export TASK_DOCKER_FILE = Dockerfile.tasks_dp3
+  - export ECR_REPOSITORY_URI=$(eval echo \$${DP3_ENV^^}_ACCOUNT_ID).dkr.ecr.$(eval echo \$${DP3_ENV^^}_REGION).amazonaws.com
+  - export APP_DOCKER_FILE=Dockerfile.dp3
+  - export TASK_DOCKER_FILE=Dockerfile.tasks_dp3
+  - export APP_ENVIRONMENT=$DPS_ENV
   - echo ${ECR_REPOSITORY_URI}
 
 .setup_release_stg: &setup_release_stg
@@ -111,6 +112,7 @@ stages:
   - export ECR_REPOSITORY_URI=${STG_ACCOUNT_ID}.dkr.ecr.${STG_REGION}.amazonaws.com
   - export APP_DOCKER_FILE=Dockerfile.dp3
   - export TASK_DOCKER_FILE=Dockerfile.tasks_dp3
+  - export APP_ENVIRONMENT=stg
   - echo ${ECR_REPOSITORY_URI}
 
 .setup_release_prd: &setup_release_prd
@@ -118,6 +120,7 @@ stages:
   - export ECR_REPOSITORY_URI=${PRD_ACCOUNT_ID}.dkr.ecr.${PRD_REGION}.amazonaws.com
   - export APP_DOCKER_FILE=Dockerfile.dp3
   - export TASK_DOCKER_FILE=Dockerfile.tasks_dp3
+  - export APP_ENVIRONMENT=prd
   - echo ${ECR_REPOSITORY_URI}
 
 .kaniko_before_setup: &kaniko_before_setup
@@ -538,7 +541,6 @@ deploy_app_stg:
     - compile_app_server
     - compile_app_client
   variables:
-    APP_ENVIRONMENT: "demo" #TODO:GET rid of this stuff
     OPEN_TELEMETRY_SIDECAR: "true"
     HEALTH_CHECK: "true"
   before_script:
@@ -770,7 +772,6 @@ deploy_app_prd:
     - compile_app_server
     - compile_app_client
   variables:
-    APP_ENVIRONMENT: "demo"
     OPEN_TELEMETRY_SIDECAR: "true"
     HEALTH_CHECK: "true"
   before_script:
@@ -998,7 +999,6 @@ deploy_app_dp3:
     - compile_app_server
     - compile_app_client
   variables:
-    APP_ENVIRONMENT: "demo"
     OPEN_TELEMETRY_SIDECAR: "true"
     HEALTH_CHECK: "true"
   before_script:
