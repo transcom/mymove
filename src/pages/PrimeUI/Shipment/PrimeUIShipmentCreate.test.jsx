@@ -173,51 +173,54 @@ describe('Create PPM', () => {
 });
 
 describe('Create Mobile Home', () => {
-  it('test with 2nd and 3rd addresses', async () => {
-    createPrimeMTOShipmentV3.mockReturnValue({});
+  it.each(['MOBILE_HOME', 'BOAT_TOW_AWAY', 'BOAT_HAUL_AWAY'])(
+    'test with 2nd and 3rd addresses',
+    async (shipmentType) => {
+      createPrimeMTOShipmentV3.mockReturnValue({});
 
-    render(mockedComponent);
+      render(mockedComponent);
 
-    waitFor(async () => {
-      await userEvent.selectOptions(screen.getByLabelText('Shipment type'), 'MOBILE_HOME');
+      waitFor(async () => {
+        await userEvent.selectOptions(screen.getByLabelText('Shipment type'), shipmentType);
 
-      // Start controlled test case to verify everything is working.
-      let input = await document.querySelector('input[name="pickupAddress.streetAddress1"]');
-      expect(input).toBeInTheDocument();
-      // enter required street 1 for pickup
-      await userEvent.type(input, '123 Street');
+        // Start controlled test case to verify everything is working.
+        let input = await document.querySelector('input[name="pickupAddress.streetAddress1"]');
+        expect(input).toBeInTheDocument();
+        // enter required street 1 for pickup
+        await userEvent.type(input, '123 Street');
 
-      const secondAddressToggle = document.querySelector('[data-testid="has-secondary-pickup"]');
-      expect(secondAddressToggle).toBeInTheDocument();
-      await userEvent.click(secondAddressToggle);
+        const secondAddressToggle = document.querySelector('[data-testid="has-secondary-pickup"]');
+        expect(secondAddressToggle).toBeInTheDocument();
+        await userEvent.click(secondAddressToggle);
 
-      input = await document.querySelector('input[name="secondaryPickupAddress.streetAddress1"]');
-      expect(input).toBeInTheDocument();
-      // enter required street 1 for pickup 2
-      await userEvent.type(input, '123 Street 2');
+        input = await document.querySelector('input[name="secondaryPickupAddress.streetAddress1"]');
+        expect(input).toBeInTheDocument();
+        // enter required street 1 for pickup 2
+        await userEvent.type(input, '123 Street 2');
 
-      const thirdAddressToggle = document.querySelector('[data-testid="has-tertiary-pickup"]');
-      expect(thirdAddressToggle).toBeInTheDocument();
-      await userEvent.click(thirdAddressToggle);
+        const thirdAddressToggle = document.querySelector('[data-testid="has-tertiary-pickup"]');
+        expect(thirdAddressToggle).toBeInTheDocument();
+        await userEvent.click(thirdAddressToggle);
 
-      input = await document.querySelector('input[name="tertiaryPickupAddress.streetAddress1"]');
-      expect(input).toBeInTheDocument();
-      // enter required street 1 for pickup 2
-      await userEvent.type(input, '123 Street 3');
+        input = await document.querySelector('input[name="tertiaryPickupAddress.streetAddress1"]');
+        expect(input).toBeInTheDocument();
+        // enter required street 1 for pickup 2
+        await userEvent.type(input, '123 Street 3');
 
-      input = await document.querySelector('input[name="destinationAddress.streetAddress1"]');
-      expect(input).toBeInTheDocument();
-      // enter something
-      await userEvent.type(input, '123 Street');
+        input = await document.querySelector('input[name="destinationAddress.streetAddress1"]');
+        expect(input).toBeInTheDocument();
+        // enter something
+        await userEvent.type(input, '123 Street');
 
-      const saveButton = await screen.getByRole('button', { name: 'Save' });
+        const saveButton = await screen.getByRole('button', { name: 'Save' });
 
-      expect(saveButton).not.toBeDisabled();
-      await userEvent.click(saveButton);
+        expect(saveButton).not.toBeDisabled();
+        await userEvent.click(saveButton);
 
-      await waitFor(() => {
-        expect(mockNavigate).toHaveBeenCalledWith(moveDetailsURL);
+        await waitFor(() => {
+          expect(mockNavigate).toHaveBeenCalledWith(moveDetailsURL);
+        });
       });
-    });
-  });
+    },
+  );
 });
