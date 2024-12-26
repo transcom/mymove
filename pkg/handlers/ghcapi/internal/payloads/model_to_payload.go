@@ -2709,7 +2709,7 @@ func ReServiceItems(reServiceItems models.ReServiceItems) ghcmessages.ReServiceI
 	return payload
 }
 
-// Convert a PortLocation model to Port message
+// Port payload
 func Port(portLocation *models.PortLocation) *ghcmessages.Port {
 	return &ghcmessages.Port{
 		ID:       strfmt.UUID(portLocation.ID.String()),
