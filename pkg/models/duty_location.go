@@ -227,7 +227,8 @@ func FindDutyLocationsExcludingStates(tx *pop.Connection, search string, exclusi
 		dl.*
 	from
 		names n
-		inner join duty_locations dl on n.duty_location_id = dl.id`)
+		inner join duty_locations dl on n.duty_location_id = dl.id
+		inner join addresses a on dl.address_id = a.id`)
 
 	// apply filter to exclude specific states if provided
 	if len(exclusionStateFilters) > 0 {
@@ -235,7 +236,7 @@ func FindDutyLocationsExcludingStates(tx *pop.Connection, search string, exclusi
 		for _, value := range exclusionStateFilters {
 			exclusionStateParams = append(exclusionStateParams, fmt.Sprintf("'%s'", value))
 		}
-		sql_builder.WriteString(fmt.Sprintf(" inner join addresses on dl.address_id = addresses.id and addresses.state not in (%s)", strings.Join(exclusionStateParams, ",")))
+		sql_builder.WriteString(fmt.Sprintf(" and a.state not in (%s)", strings.Join(exclusionStateParams, ",")))
 	}
 
 	// filter to exclude po box postal codes
@@ -244,7 +245,7 @@ func FindDutyLocationsExcludingStates(tx *pop.Connection, search string, exclusi
 	not exists (
 		select 1
 		from re_us_post_regions upr
-		where upr.uspr_zip_id = addresses.postal_code
+		where upr.uspr_zip_id = a.postal_code
 			and upr.is_po_box = true
 	)`)
 
