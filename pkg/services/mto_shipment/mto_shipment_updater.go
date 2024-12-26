@@ -431,6 +431,7 @@ func (f *mtoShipmentUpdater) UpdateMTOShipment(appCtx appcontext.AppContext, mto
 func (f *mtoShipmentUpdater) updateShipmentRecord(appCtx appcontext.AppContext, dbShipment *models.MTOShipment, newShipment *models.MTOShipment, eTag string) error {
 	var autoReweighShipments models.MTOShipments
 	transactionError := appCtx.NewTransaction(func(txnAppCtx appcontext.AppContext) error {
+		var err error
 		// temp optimistic locking solution til query builder is re-tooled to handle nested updates
 		updatedAt, err := etag.DecodeEtag(eTag)
 		if err != nil {
@@ -727,9 +728,12 @@ func (f *mtoShipmentUpdater) updateShipmentRecord(appCtx appcontext.AppContext, 
 
 		// If the estimated weight was updated on an approved shipment then it would mean the move could qualify for
 		// excess weight risk depending on the weight allowance and other shipment estimated weights
+		var move *models.Move
+		var verrs *validate.Errors
+		var needsReweigh bool
 		if newShipment.PrimeEstimatedWeight != nil || (newShipment.ShipmentType == models.MTOShipmentTypeHHGOutOfNTSDom && newShipment.NTSRecordedWeight != nil) {
 			// checking if the total of shipment weight & new prime estimated weight is 90% or more of allowed weight
-			move, verrs, err := f.moveWeights.CheckExcessWeight(txnAppCtx, dbShipment.MoveTaskOrderID, *newShipment)
+			move, verrs, err = f.moveWeights.CheckExcessWeight(txnAppCtx, dbShipment.MoveTaskOrderID, *newShipment)
 			if verrs != nil && verrs.HasAny() {
 				return errors.New(verrs.Error())
 			}
@@ -768,7 +772,7 @@ func (f *mtoShipmentUpdater) updateShipmentRecord(appCtx appcontext.AppContext, 
 			}
 
 			if dbShipment.PrimeEstimatedWeight != nil {
-				needsReweigh, err := f.moveWeights.MoveShouldAutoReweigh(txnAppCtx, move.ID)
+				needsReweigh, err = f.moveWeights.MoveShouldAutoReweigh(txnAppCtx, move.ID)
 				if err != nil {
 					return err
 				}
@@ -784,10 +788,16 @@ func (f *mtoShipmentUpdater) updateShipmentRecord(appCtx appcontext.AppContext, 
 
 		if newShipment.PrimeActualWeight != nil {
 			if dbShipment.PrimeActualWeight == nil || *newShipment.PrimeActualWeight != *dbShipment.PrimeActualWeight {
-				var err error
-				autoReweighShipments, err = f.moveWeights.CheckAutoReweigh(txnAppCtx, dbShipment.MoveTaskOrderID, newShipment)
+				needsReweigh, err = f.moveWeights.MoveShouldAutoReweigh(txnAppCtx, move.ID)
 				if err != nil {
 					return err
+				}
+
+				if needsReweigh {
+					autoReweighShipments, err = f.moveWeights.CheckAutoReweigh(txnAppCtx, dbShipment.MoveTaskOrderID, newShipment)
+					if err != nil {
+						return err
+					}
 				}
 			}
 		}
