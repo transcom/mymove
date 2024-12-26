@@ -1006,7 +1006,7 @@ func tooDestinationOnlyRequestsFilter(role roles.RoleType, locator *string) Quer
 			AND
 			(
 				(
-					(mto_service_items.status IS NULL OR (mto_service_items.status = 'SUBMITTED' AND re_services.code IN ('DOFSIT', 'DOASIT', 'DODSIT', 'DOSHUT', 'DOSFSC', 'IOFSIT', 'IOASIT', 'IODSIT', 'IOSHUT')))
+					(mto_service_items.status IS NULL OR (mto_service_items.status = 'SUBMITTED' AND re_services.code IN ('DOFSIT', 'DOASIT', 'DODSIT', 'DOSHUT', 'DOSFSC', 'IOFSIT', 'IOASIT', 'IODSIT', 'IOSHUT', 'IOPSIT', 'ICRT', 'IOSFSC')))
 				)
 				OR
 				(
@@ -1017,7 +1017,7 @@ func tooDestinationOnlyRequestsFilter(role roles.RoleType, locator *string) Quer
 			} else {
 				query.Where(`
 			(
-				(mto_service_items.status IS NULL OR (mto_service_items.status = 'SUBMITTED' AND re_services.code IN ('DOFSIT', 'DOASIT', 'DODSIT', 'DOSHUT', 'DOSFSC', 'IOFSIT', 'IOASIT', 'IODSIT', 'IOSHUT')))
+				(mto_service_items.status IS NULL OR (mto_service_items.status = 'SUBMITTED' AND re_services.code IN ('DOFSIT', 'DOASIT', 'DODSIT', 'DOSHUT', 'DOSFSC', 'IOFSIT', 'IOASIT', 'IODSIT', 'IOSHUT', 'IOPSIT', 'ICRT', 'IOSFSC')))
 			)
 			OR
 			(
