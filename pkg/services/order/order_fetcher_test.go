@@ -613,7 +613,6 @@ func (suite *OrderServiceSuite) TestListOrders() {
 		}, nil)
 
 		suite.NotNil(shipment)
-		// newTestUUID := uuid.UUID{}
 
 		shipmentAddressUpdate := factory.BuildShipmentAddressUpdate(suite.DB(), []factory.Customization{
 			{
@@ -652,7 +651,6 @@ func (suite *OrderServiceSuite) TestListOrders() {
 	})
 
 	suite.Run("task order queue does not return move with ONLY requested destination SIT service items", func() {
-		// officeUser, _, session := setupTestData()
 		officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
 		session := auth.Session{
 			ApplicationName: auth.OfficeApp,
