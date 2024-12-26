@@ -1059,3 +1059,4 @@
 20241217180136_add_AK_zips_to_zip3_distances.up.sql
 20241218201833_add_PPPO_BASE_ELIZABETH.up.sql
 20241220171035_add_additional_AK_zips_to_zip3_distances.up.sql
+20241220213134_add_destination_gbloc_db_function.up.sql
