@@ -104,7 +104,7 @@ func (suite *ModelSuite) TestMTOShipmentValidation() {
 }
 
 func (suite *ModelSuite) TestDetermineShipmentMarketCode() {
-	suite.Run("test MTOShipmentTypeHHGIntoNTSDom with domestic pickup and storage facility", func() {
+	suite.Run("test MTOShipmentTypeHHGIntoNTS with domestic pickup and storage facility", func() {
 		pickupAddress := models.Address{
 			IsOconus: models.BoolPointer(false),
 		}
@@ -112,7 +112,7 @@ func (suite *ModelSuite) TestDetermineShipmentMarketCode() {
 			IsOconus: models.BoolPointer(false),
 		}
 		shipment := &models.MTOShipment{
-			ShipmentType:  models.MTOShipmentTypeHHGIntoNTSDom,
+			ShipmentType:  models.MTOShipmentTypeHHGIntoNTS,
 			PickupAddress: &pickupAddress,
 			StorageFacility: &models.StorageFacility{
 				Address: storageAddress,
@@ -123,12 +123,12 @@ func (suite *ModelSuite) TestDetermineShipmentMarketCode() {
 		suite.Equal(models.MarketCodeDomestic, updatedShipment.MarketCode, "Expected MarketCode to be d")
 	})
 
-	suite.Run("test MTOShipmentTypeHHGIntoNTSDom with international pickup", func() {
+	suite.Run("test MTOShipmentTypeHHGIntoNTS with international pickup", func() {
 		pickupAddress := models.Address{
 			IsOconus: models.BoolPointer(true),
 		}
 		shipment := &models.MTOShipment{
-			ShipmentType:  models.MTOShipmentTypeHHGIntoNTSDom,
+			ShipmentType:  models.MTOShipmentTypeHHGIntoNTS,
 			PickupAddress: &pickupAddress,
 		}
 
@@ -322,5 +322,20 @@ func (suite *ModelSuite) TestCreateApprovedServiceItemsForShipment() {
 
 		err := models.CreateApprovedServiceItemsForShipment(suite.DB(), &invalidShipment)
 		suite.Error(err)
+	})
+}
+
+func (suite *ModelSuite) TestFindShipmentByID() {
+	suite.Run("success - test find", func() {
+		shipment := factory.BuildMTOShipmentMinimal(suite.DB(), nil, nil)
+		_, err := models.FetchShipmentByID(suite.DB(), shipment.ID)
+		suite.NoError(err)
+	})
+
+	suite.Run("not found test find", func() {
+		notValidID := uuid.Must(uuid.NewV4())
+		_, err := models.FetchShipmentByID(suite.DB(), notValidID)
+		suite.Error(err)
+		suite.Equal(models.ErrFetchNotFound, err)
 	})
 }
