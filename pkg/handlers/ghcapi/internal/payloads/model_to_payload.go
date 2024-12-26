@@ -1521,8 +1521,8 @@ func MTOShipment(storer storage.FileStorer, mtoShipment *models.MTOShipment, sit
 		DeliveryAddressUpdate:       ShipmentAddressUpdate(mtoShipment.DeliveryAddressUpdate),
 		ShipmentLocator:             handlers.FmtStringPtr(mtoShipment.ShipmentLocator),
 		MarketCode:                  MarketCode(&mtoShipment.MarketCode),
-		PoeLocation:                 getPortLocation(mtoShipment.MTOServiceItems),
-		PodLocation:                 getPortLocation(mtoShipment.MTOServiceItems),
+		PoeLocation:                 getPortLocation(mtoShipment.MTOServiceItems, "POE"),
+		PodLocation:                 getPortLocation(mtoShipment.MTOServiceItems, "POD"),
 	}
 
 	if mtoShipment.Distance != nil {
@@ -2728,19 +2728,17 @@ func Port(portLocation *models.PortLocation) *ghcmessages.Port {
 }
 
 // Get POD/POE info from MTO shipment's service items
-func getPortLocation(mtoServiceItems models.MTOServiceItems) *ghcmessages.Port {
+func getPortLocation(mtoServiceItems models.MTOServiceItems, portType string) *ghcmessages.Port {
 	if mtoServiceItems == nil {
 		return nil
 	}
 	var portLocation *ghcmessages.Port
 	for _, mtoServiceItem := range mtoServiceItems {
-		if mtoServiceItem.POELocation != nil {
+		if mtoServiceItem.POELocation != nil && portType == "POE" {
 			portLocation = Port(mtoServiceItem.POELocation)
-			break
 		}
-		if mtoServiceItem.PODLocation != nil {
+		if mtoServiceItem.PODLocation != nil && portType == "POD" {
 			portLocation = Port(mtoServiceItem.PODLocation)
-			break
 		}
 	}
 	return portLocation

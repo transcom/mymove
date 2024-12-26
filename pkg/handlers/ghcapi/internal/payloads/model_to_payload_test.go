@@ -963,12 +963,12 @@ func (suite *PayloadsSuite) TestPort() {
 		// Arrange
 		portID, _ := uuid.NewV4()
 		portType := models.PortType("A")
-		portCode := "LAX"
-		portName := "Port of Los Angeles"
-		cityName := "Los Angeles"
-		countyName := "Los Angeles County"
-		stateName := "California"
-		zip := "90210"
+		portCode := "PDX"
+		portName := "Portland Intl"
+		cityName := "Portland"
+		countyName := "Multhnomah"
+		stateName := "Oregon"
+		zip := "97220"
 		countryName := "United States"
 
 		mockPortLocation := &models.PortLocation{

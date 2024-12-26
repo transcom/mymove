@@ -1650,6 +1650,10 @@ definitions:
         title: isOconus
         x-nullable: true
         example: false
+      usPostRegionCitiesID:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
     required:
       - streetAddress1
       - city
@@ -2150,6 +2154,7 @@ definitions:
         * DOSHUT, DDSHUT - MTOServiceItemShuttle
         * DCRT, DUCRT - MTOServiceItemDomesticCrating
         * ICRT, IUCRT - MTOServiceItemInternationalCrating
+        * PODFSC, POEFSC - MTOSerivceItemInternationalFuelSurcharge
 
       The documentation will then update with the supported fields.
     type: string
@@ -2160,6 +2165,7 @@ definitions:
       - MTOServiceItemShuttle
       - MTOServiceItemDomesticCrating
       - MTOServiceItemInternationalCrating
+      - MTOSerivceItemInternationalFuelSurcharge
   ServiceRequestDocument:
     properties:
       uploads:
@@ -2647,6 +2653,10 @@ definitions:
         title: County
         x-nullable: true
         example: LOS ANGELES
+      usPostRegionCitiesID:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
     required:
       - city
       - state

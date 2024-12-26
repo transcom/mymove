@@ -47,7 +47,7 @@ type Port struct {
 	PortName string `json:"portName,omitempty"`
 
 	// Port type A (Air), B (Border Crossing), S (Sea)
-	// Enum: [A P S]
+	// Enum: [A B S]
 	PortType string `json:"portType,omitempty"`
 
 	// US state
@@ -119,7 +119,7 @@ var portTypePortTypePropEnum []interface{}
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["A","P","S"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["A","B","S"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -132,8 +132,8 @@ const (
 	// PortPortTypeA captures enum value "A"
 	PortPortTypeA string = "A"
 
-	// PortPortTypeP captures enum value "P"
-	PortPortTypeP string = "P"
+	// PortPortTypeB captures enum value "B"
+	PortPortTypeB string = "B"
 
 	// PortPortTypeS captures enum value "S"
 	PortPortTypeS string = "S"
