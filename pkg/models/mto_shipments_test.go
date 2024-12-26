@@ -435,4 +435,53 @@ func (suite *ModelSuite) TestGetDestinationGblocForShipment() {
 		suite.NotNil(gbloc)
 		suite.Equal(*gbloc, "JEAT")
 	})
+	suite.Run("success - get GBLOC for USMC in AK Zone II", func() {
+		// Create a USMC move in Alaska Zone II
+		// this should always return USMC
+		zone2UUID, err := uuid.FromString("66768964-e0de-41f3-b9be-7ef32e4ae2b4")
+		suite.FatalNoError(err)
+		usmc := models.AffiliationMARINES
+		postalCode := "99501"
+		// since we truncate the test db, we need to add the postal_code_to_gbloc value
+		// this doesn't matter to the db function because it will check for USMC but we are just verifying it won't be JEAT despite the zip matching
+		factory.FetchOrBuildPostalCodeToGBLOC(suite.DB(), "99744", "JEAT")
+
+		destinationAddress := factory.BuildAddress(suite.DB(), []factory.Customization{
+			{
+				Model: models.Address{
+					PostalCode:         postalCode,
+					UsPostRegionCityID: &zone2UUID,
+				},
+			},
+		}, nil)
+
+		move := factory.BuildAvailableToPrimeMove(suite.DB(), []factory.Customization{
+			{
+				Model: models.ServiceMember{
+					Affiliation: &usmc,
+				},
+			},
+		}, nil)
+
+		shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					MarketCode: models.MarketCodeInternational,
+				},
+			},
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+			{
+				Model:    destinationAddress,
+				LinkOnly: true,
+			},
+		}, nil)
+
+		gbloc, err := models.GetDestinationGblocForShipment(suite.DB(), shipment.ID)
+		suite.NoError(err)
+		suite.NotNil(gbloc)
+		suite.Equal(*gbloc, "USMC")
+	})
 }

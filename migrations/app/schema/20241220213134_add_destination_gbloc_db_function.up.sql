@@ -45,6 +45,11 @@ BEGIN
         JOIN mto_shipments ms ON ms.move_id = m.id
         WHERE ms.id = shipment_id;
 
+        -- if the service member is USMC, return 'USMC'
+        IF service_member_affiliation = 'MARINES' THEN
+            RETURN 'USMC';
+        END IF;
+
         SELECT upc.uspr_zip_id
         INTO zip
         FROM addresses a
