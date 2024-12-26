@@ -191,6 +191,8 @@ properties:
   storageFacility:
     x-nullable: true
     $ref: 'StorageFacility.yaml'
+  port:
+    $ref: 'Port.yaml'
   ppmShipment:
     $ref: 'PPMShipment.yaml'
   boatShipment:
@@ -217,3 +219,7 @@ properties:
       - 'i'
     example: 'd'
     description: 'Single-letter designator for domestic (d) or international (i) shipments'
+  podLocation:
+    $ref: 'Port.yaml'
+  poeLocation:
+    $ref: 'Port.yaml'
