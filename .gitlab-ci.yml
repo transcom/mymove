@@ -112,7 +112,8 @@ stages:
   - export ECR_REPOSITORY_URI=${STG_ACCOUNT_ID}.dkr.ecr.${STG_REGION}.amazonaws.com
   - export APP_DOCKER_FILE=Dockerfile.dp3
   - export TASK_DOCKER_FILE=Dockerfile.tasks_dp3
-  - export APP_ENVIRONMENT=stg
+  #TODO: update demo to stg
+  - export APP_ENVIRONMENT=demo
   - echo ${ECR_REPOSITORY_URI}
 
 .setup_release_prd: &setup_release_prd
@@ -120,7 +121,8 @@ stages:
   - export ECR_REPOSITORY_URI=${PRD_ACCOUNT_ID}.dkr.ecr.${PRD_REGION}.amazonaws.com
   - export APP_DOCKER_FILE=Dockerfile.dp3
   - export TASK_DOCKER_FILE=Dockerfile.tasks_dp3
-  - export APP_ENVIRONMENT=prd
+  #TODO: update exp to prod
+  - export APP_ENVIRONMENT=exp
   - echo ${ECR_REPOSITORY_URI}
 
 .kaniko_before_setup: &kaniko_before_setup
