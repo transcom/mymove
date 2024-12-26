@@ -817,7 +817,8 @@ func (p *mtoServiceItemUpdater) UpdateMTOServiceItem(
 		if oldServiceItem.POELocationID != mtoServiceItem.POELocationID || oldServiceItem.PODLocationID != mtoServiceItem.PODLocationID {
 			shipment := oldServiceItem.MTOShipment
 			if shipment.PickupAddress != nil && shipment.DestinationAddress != nil &&
-				(mtoServiceItem.POELocation.UsPostRegionCity.UsprZipID != "" || mtoServiceItem.PODLocation.UsPostRegionCity.UsprZipID != "") {
+				(mtoServiceItem.POELocation != nil && mtoServiceItem.POELocation.UsPostRegionCity.UsprZipID != "" ||
+					mtoServiceItem.PODLocation != nil && mtoServiceItem.PODLocation.UsPostRegionCity.UsprZipID != "") {
 				var pickupZip string
 				var destZip string
 				// if the port type is POEFSC this means the shipment is CONUS -> OCONUS (pickup -> port)
