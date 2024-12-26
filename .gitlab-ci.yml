@@ -104,18 +104,21 @@ stages:
   - export ECR_REPOSITORY_URI = $(eval echo \$${DP3_ENV^^}_ACCOUNT_ID).dkr.ecr.$(eval echo \$${DP3_ENV^^}_REGION).amazonaws.com
   - export APP_DOCKER_FILE = Dockerfile.dp3
   - export TASK_DOCKER_FILE = Dockerfile.tasks_dp3
+  - echo ${ECR_REPOSITORY_URI}
 
 .setup_release_stg: &setup_release_stg
   #if main
-  - export ECR_REPOSITORY_URI = ${STG_ACCOUNT_ID}.dkr.ecr.${STG_REGION}.amazonaws.com
-  - export APP_DOCKER_FILE = Dockerfile.dp3
-  - export TASK_DOCKER_FILE = Dockerfile.tasks_dp3
+  - export ECR_REPOSITORY_URI=${STG_ACCOUNT_ID}.dkr.ecr.${STG_REGION}.amazonaws.com
+  - export APP_DOCKER_FILE=Dockerfile.dp3
+  - export TASK_DOCKER_FILE=Dockerfile.tasks_dp3
+  - echo ${ECR_REPOSITORY_URI}
 
 .setup_release_prd: &setup_release_prd
   #build off prd variables
-  - export ECR_REPOSITORY_URI = ${PRD_ACCOUNT_ID}.dkr.ecr.${PRD_REGION}.amazonaws.com
-  - export APP_DOCKER_FILE = Dockerfile.dp3
-  - export TASK_DOCKER_FILE = Dockerfile.tasks_dp3
+  - export ECR_REPOSITORY_URI=${PRD_ACCOUNT_ID}.dkr.ecr.${PRD_REGION}.amazonaws.com
+  - export APP_DOCKER_FILE=Dockerfile.dp3
+  - export TASK_DOCKER_FILE=Dockerfile.tasks_dp3
+  - echo ${ECR_REPOSITORY_URI}
 
 .kaniko_before_setup: &kaniko_before_setup
   # prep login for kaniko
@@ -170,7 +173,8 @@ anti_virus:
 pre_deps_golang:
   stage: pre_checks
   image: $DOCKER_APP_IMAGE
-  before_script: *setup_milmove_env
+  before_script:
+    - *setup_milmove_env
   variables:
     KUBERNETES_CPU_REQUEST: "2"
     KUBERNETES_MEMORY_REQUEST: "4Gi"
@@ -340,6 +344,7 @@ compile_app_server:
 
 build_push_app_stg:
   stage: push
+  environment: stg
   image:
     name: gcr.io/kaniko-project/executor:v1.14.0-debug
     entrypoint: [""]
@@ -347,8 +352,9 @@ build_push_app_stg:
       - compile_app_client
       - compile_app_server
   before_script:
-      - *setup_release_stg
-      - *kaniko_before_setup
+    - *setup_aws_vars_stg
+    - *setup_release_stg
+    - *kaniko_before_setup
   script:
     - echo "Building and Pushing app Docker image..."
     - /kaniko/executor --context "${CI_PROJECT_DIR}/" --dockerfile "${CI_PROJECT_DIR}/${APP_DOCKER_FILE}" --destination "${ECR_REPOSITORY_URI}/app:$CI_COMMIT_SHORT_SHA"
@@ -359,6 +365,7 @@ build_push_app_stg:
 
 build_push_migrations_stg:
   stage: push
+  environment: stg
   image:
     name: gcr.io/kaniko-project/executor:v1.14.0-debug
     entrypoint: [""]
@@ -366,6 +373,7 @@ build_push_migrations_stg:
     - compile_app_server
     - compile_app_client
   before_script:
+    - *setup_aws_vars_stg
     - *setup_release_stg
     - *kaniko_before_setup
   script:
@@ -378,6 +386,7 @@ build_push_migrations_stg:
 
 build_push_tasks_stg:
   stage: push
+  environment: stg
   image:
     name: gcr.io/kaniko-project/executor:v1.14.0-debug
     entrypoint: [""]
@@ -385,6 +394,7 @@ build_push_tasks_stg:
     - compile_app_server
     - compile_app_client
   before_script:
+    - *setup_aws_vars_stg
     - *setup_release_stg
     - *kaniko_before_setup
   script:
@@ -397,6 +407,7 @@ build_push_tasks_stg:
 
 push_otel_collector_image_stg:
   stage: push
+  environment: stg
   image:
     name: $DOCKER_BASE_IMAGE
     entrypoint: [""]
@@ -404,6 +415,7 @@ push_otel_collector_image_stg:
     - compile_app_server
     - compile_app_client
   before_script:
+    - *setup_aws_vars_stg
     - *setup_release_stg
   script:
     - echo "Logging in to Amazon ECR with Crane..."
@@ -425,6 +437,7 @@ push_otel_collector_image_stg:
 
 deploy_migrations_stg:
   stage: deploy
+  environment: stg
   image:
     name: $DOCKER_APP_IMAGE
     entrypoint: [""]
@@ -433,6 +446,7 @@ deploy_migrations_stg:
     - compile_app_server
     - compile_app_client
   before_script:
+    - *setup_aws_vars_stg
     - *setup_release_stg
   script:
     # Step 1: Get the Digest
@@ -451,6 +465,7 @@ deploy_migrations_stg:
 
 deploy_tasks_stg:
   stage: deploy
+  environment: stg
   image:
     name: $DOCKER_APP_IMAGE
     entrypoint: [""]
@@ -459,6 +474,7 @@ deploy_tasks_stg:
     - compile_app_server
     - compile_app_client
   before_script:
+    - *setup_aws_vars_stg
     - *setup_release_stg
   script:
     - echo "Getting Digest from AWS"
@@ -474,6 +490,7 @@ deploy_tasks_stg:
 
 deploy_app_client_tls_stg:
   stage: deploy
+  environment: stg
   image:
     name: $DOCKER_APP_IMAGE
     entrypoint: [""]
@@ -486,6 +503,7 @@ deploy_app_client_tls_stg:
     OPEN_TELEMETRY_SIDECAR: "true"
     HEALTH_CHECK: "true"
   before_script:
+    - *setup_aws_vars_stg
     - *setup_release_stg
   script:
     # - echo "Comparing against deployed commit"
@@ -510,6 +528,7 @@ deploy_app_client_tls_stg:
 
 deploy_app_stg:
   stage: deploy
+  environment: stg
   image:
     name: $DOCKER_APP_IMAGE
     entrypoint: [""]
@@ -557,6 +576,7 @@ deploy_app_stg:
 
 build_push_app_prd:
   stage: push_prd
+  environment: prd
   image:
     name: gcr.io/kaniko-project/executor:v1.14.0-debug
     entrypoint: [""]
@@ -564,6 +584,7 @@ build_push_app_prd:
       - compile_app_client
       - compile_app_server
   before_script:
+      - *setup_aws_vars_prd
       - *setup_release_prd
       - *kaniko_before_setup
   script:
@@ -576,6 +597,7 @@ build_push_app_prd:
 
 build_push_migrations_prd:
   stage: push_prd
+  environment: prd
   image:
     name: gcr.io/kaniko-project/executor:v1.14.0-debug
     entrypoint: [""]
@@ -583,6 +605,7 @@ build_push_migrations_prd:
     - compile_app_server
     - compile_app_client
   before_script:
+    - *setup_aws_vars_prd
     - *setup_release_prd
     - *kaniko_before_setup
   script:
@@ -595,6 +618,7 @@ build_push_migrations_prd:
 
 build_push_tasks_prd:
   stage: push_prd
+  environment: prd
   image:
     name: gcr.io/kaniko-project/executor:v1.14.0-debug
     entrypoint: [""]
@@ -602,6 +626,7 @@ build_push_tasks_prd:
     - compile_app_server
     - compile_app_client
   before_script:
+    - *setup_aws_vars_prd
     - *setup_release_prd
     - *kaniko_before_setup
   script:
@@ -614,6 +639,7 @@ build_push_tasks_prd:
 
 push_otel_collector_image_prd:
   stage: push_prd
+  environment: prd
   image:
     name: $DOCKER_BASE_IMAGE
     entrypoint: [""]
@@ -621,6 +647,7 @@ push_otel_collector_image_prd:
     - compile_app_server
     - compile_app_client
   before_script:
+    - *setup_aws_vars_prd
     - *setup_release_prd
   script:
     - echo "Logging in to Amazon ECR with Crane..."
@@ -642,6 +669,7 @@ push_otel_collector_image_prd:
 
 deploy_migrations_prd:
   stage: deploy_prd
+  environment: prd
   image:
     name: $DOCKER_APP_IMAGE
     entrypoint: [""]
@@ -650,7 +678,8 @@ deploy_migrations_prd:
     - compile_app_server
     - compile_app_client
   before_script:
-      - *setup_release_prd
+    - *setup_aws_vars_prd
+    - *setup_release_prd
   script:
     # Step 1: Get the Digest
     - echo "Getting Digest from AWS"
@@ -668,6 +697,7 @@ deploy_migrations_prd:
 
 deploy_tasks_prd:
   stage: deploy_prd
+  environment: prd
   image:
     name: $DOCKER_APP_IMAGE
     entrypoint: [""]
@@ -676,7 +706,8 @@ deploy_tasks_prd:
     - compile_app_server
     - compile_app_client
   before_script:
-      - *setup_release_prd
+    - *setup_aws_vars_prd
+    - *setup_release_prd
   script:
     - echo "Getting Digest from AWS"
     - export ECR_DIGEST=$(aws ecr describe-images --repository-name app-tasks --image-ids imageTag=$CI_COMMIT_SHORT_SHA --query 'imageDetails[0].imageDigest' --output text)
@@ -691,6 +722,7 @@ deploy_tasks_prd:
 
 deploy_app_client_tls_prd:
   stage: deploy_prd
+  environment: prd
   image:
     name: $DOCKER_APP_IMAGE
     entrypoint: [""]
@@ -703,7 +735,8 @@ deploy_app_client_tls_prd:
     OPEN_TELEMETRY_SIDECAR: "true"
     HEALTH_CHECK: "true"
   before_script:
-      - *setup_release_prd
+    - *setup_aws_vars_prd
+    - *setup_release_prd
   script:
     # - echo "Comparing against deployed commit"
     # - ./scripts/compare-deployed-commit "" $CI_COMMIT_SHA ${TLS_KEY} ${TLS_CERT} ${TLS_CA}
@@ -727,6 +760,7 @@ deploy_app_client_tls_prd:
 
 deploy_app_prd:
   stage: deploy_prd
+  environment: prd
   image:
     name: $DOCKER_APP_IMAGE
     entrypoint: [""]
@@ -740,7 +774,8 @@ deploy_app_prd:
     OPEN_TELEMETRY_SIDECAR: "true"
     HEALTH_CHECK: "true"
   before_script:
-      - *setup_release_prd
+    - *setup_aws_vars_prd
+    - *setup_release_prd
   script:
     - echo "Comparing against deployed commit"
     # - ./scripts/compare-deployed-commit "" "$CI_COMMIT_SHA" "$TLS_KEY" "$TLS_CERT" "$TLS_CA"
@@ -774,6 +809,7 @@ deploy_app_prd:
 
 build_push_app_dp3:
   stage: push
+  environment: DP3_ENV
   image:
     name: gcr.io/kaniko-project/executor:v1.14.0-debug
     entrypoint: [""]
@@ -781,6 +817,7 @@ build_push_app_dp3:
      - compile_app_client
      - compile_app_server
   before_script:
+    - *setup_aws_vars_dp3
     - *setup_release_dp3
     - *kaniko_before_setup
   script:
@@ -793,6 +830,7 @@ build_push_app_dp3:
 
 build_push_migrations_dp3:
   stage: push
+  environment: DP3_ENV
   image:
     name: gcr.io/kaniko-project/executor:v1.14.0-debug
     entrypoint: [""]
@@ -800,6 +838,7 @@ build_push_migrations_dp3:
     - compile_app_server
     - compile_app_client
   before_script:
+    - *setup_aws_vars_dp3
     - *setup_release_dp3
     - *kaniko_before_setup
   script:
@@ -812,6 +851,7 @@ build_push_migrations_dp3:
 
 build_push_tasks_dp3:
   stage: push
+  environment: DP3_ENV
   image:
     name: gcr.io/kaniko-project/executor:v1.14.0-debug
     entrypoint: [""]
@@ -819,6 +859,7 @@ build_push_tasks_dp3:
     - compile_app_server
     - compile_app_client
   before_script:
+    - *setup_aws_vars_dp3
     - *setup_release_dp3
     - *kaniko_before_setup
   script:
@@ -831,6 +872,7 @@ build_push_tasks_dp3:
 
 push_otel_collector_image_dp3:
   stage: push
+  environment: DP3_ENV
   image:
     name: $DOCKER_BASE_IMAGE
     entrypoint: [""]
@@ -857,6 +899,7 @@ push_otel_collector_image_dp3:
 
 deploy_migrations_dp3:
   stage: deploy
+  environment: DP3_ENV
   image:
     name: $DOCKER_APP_IMAGE
     entrypoint: [""]
@@ -865,6 +908,7 @@ deploy_migrations_dp3:
     - compile_app_server
     - compile_app_client
   before_script:
+    - *setup_aws_vars_dp3
     - *setup_release_dp3
   script:
     # Step 1: Get the Digest
@@ -906,6 +950,7 @@ deploy_tasks_dp3:
 
 deploy_app_client_tls_dp3:
   stage: deploy
+  environment: DP3_ENV
   image:
     name: $DOCKER_APP_IMAGE
     entrypoint: [""]
@@ -918,6 +963,7 @@ deploy_app_client_tls_dp3:
     OPEN_TELEMETRY_SIDECAR: "true"
     HEALTH_CHECK: "true"
   before_script:
+    - *setup_aws_vars_dp3
     - *setup_release_dp3
   script:
     # - echo "Comparing against deployed commit"
@@ -942,6 +988,7 @@ deploy_app_client_tls_dp3:
 
 deploy_app_dp3:
   stage: deploy
+  environment: DP3_ENV
   image:
     name: $DOCKER_APP_IMAGE
     entrypoint: [""]
@@ -955,6 +1002,7 @@ deploy_app_dp3:
     OPEN_TELEMETRY_SIDECAR: "true"
     HEALTH_CHECK: "true"
   before_script:
+    - *setup_aws_vars_dp3
     - *setup_release_dp3
   script:
     - echo "Comparing against deployed commit"
