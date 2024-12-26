@@ -232,3 +232,35 @@ type DomesticOriginSITFuelSurchargePricer interface {
 	)
 	ParamsPricer
 }
+
+// IntlShippingAndLinehaulPricer prices international shipping and linehaul for a move
+//
+//go:generate mockery --name IntlShippingAndLinehaulPricer
+type IntlShippingAndLinehaulPricer interface {
+	Price(appCtx appcontext.AppContext, contractCode string, requestedPickupDate time.Time, distance unit.Miles, weight unit.Pound, serviceArea string, isPPM bool) (unit.Cents, PricingDisplayParams, error)
+	ParamsPricer
+}
+
+// IntlHHGPackPricer prices international packing for an HHG shipment within a move
+//
+//go:generate mockery --name IntlHHGPackPricer
+type IntlHHGPackPricer interface {
+	Price(appCtx appcontext.AppContext, contractCode string, requestedPickupDate time.Time, weight unit.Pound, servicesScheduleOrigin int, isPPM bool) (unit.Cents, PricingDisplayParams, error)
+	ParamsPricer
+}
+
+// IntlHHGUnpackPricer prices international unpacking for an HHG shipment within a move
+//
+//go:generate mockery --name IntlHHGUnpackPricer
+type IntlHHGUnpackPricer interface {
+	Price(appCtx appcontext.AppContext, contractCode string, requestedPickupDate time.Time, weight unit.Pound, servicesScheduleDest int, isPPM bool) (unit.Cents, PricingDisplayParams, error)
+	ParamsPricer
+}
+
+// IntlPortFuelSurchargePricer prices the POEFSC/PODFSC service items on a shipment within a move
+//
+//go:generate mockery --name IntlPortFuelSurchargePricer
+type IntlPortFuelSurchargePricer interface {
+	Price(appCtx appcontext.AppContext, actualPickupDate time.Time, distance unit.Miles, weight unit.Pound, fscWeightBasedDistanceMultiplier float64, eiaFuelPrice unit.Millicents, isPPM bool) (unit.Cents, PricingDisplayParams, error)
+	ParamsPricer
+}

@@ -402,7 +402,6 @@ func (p *paymentRequestCreator) createPaymentServiceItem(appCtx appcontext.AppCo
 	paymentServiceItem.PaymentRequestID = paymentRequest.ID
 	paymentServiceItem.PaymentRequest = *paymentRequest
 	paymentServiceItem.Status = models.PaymentServiceItemStatusRequested
-	// No pricing at this point, so skipping the PriceCents field.
 	paymentServiceItem.RequestedAt = requestedAt
 
 	verrs, err := appCtx.DB().ValidateAndCreate(&paymentServiceItem)

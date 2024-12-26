@@ -943,13 +943,6 @@ func (suite *HandlerSuite) TestCreatePaymentRequestHandlerInvalidMTOReferenceID(
 		suite.IsType(&paymentrequestop.CreatePaymentRequestUnprocessableEntity{}, response)
 		typedResponse := response.(*paymentrequestop.CreatePaymentRequestUnprocessableEntity)
 
-		// Validate outgoing payload
-		// TODO: Can't validate the response because of the issue noted below. Figure out a way to
-		//   either alter the service or relax the swagger requirements.
-		// suite.NoError(typedResponse.Payload.Validate(strfmt.Default))
-		// CreatePaymentRequestCheck is returning apperror.InvalidCreateInputError without any validation errors
-		// so InvalidFields won't be added to the payload.
-
 		suite.Contains(*typedResponse.Payload.Detail, "has missing ReferenceID")
 	})
 
@@ -1006,13 +999,6 @@ func (suite *HandlerSuite) TestCreatePaymentRequestHandlerInvalidMTOReferenceID(
 		response := handler.Handle(params)
 		suite.IsType(&paymentrequestop.CreatePaymentRequestUnprocessableEntity{}, response)
 		typedResponse := response.(*paymentrequestop.CreatePaymentRequestUnprocessableEntity)
-
-		// Validate outgoing payload
-		// TODO: Can't validate the response because of the issue noted below. Figure out a way to
-		//   either alter the service or relax the swagger requirements.
-		// suite.NoError(typedResponse.Payload.Validate(strfmt.Default))
-		// CreatePaymentRequestCheck is returning apperror.InvalidCreateInputError without any validation errors
-		// so InvalidFields won't be added to the payload.
 
 		suite.Contains(*typedResponse.Payload.Detail, "has missing ReferenceID")
 	})
