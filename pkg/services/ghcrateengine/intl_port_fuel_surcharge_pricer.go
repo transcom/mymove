@@ -16,19 +16,17 @@ import (
 	"github.com/transcom/mymove/pkg/unit"
 )
 
-const baseGHCDieselFuelPrice = unit.Millicents(250000)
-
 // FuelSurchargePricer is a service object to price domestic shorthaul
-type fuelSurchargePricer struct {
+type portFuelSurchargePricer struct {
 }
 
 // NewFuelSurchargePricer is the public constructor for a domesticFuelSurchargePricer using Pop
-func NewFuelSurchargePricer() services.FuelSurchargePricer {
-	return &fuelSurchargePricer{}
+func NewPortFuelSurchargePricer() services.IntlPortFuelSurchargePricer {
+	return &portFuelSurchargePricer{}
 }
 
 // Price determines the price for fuel surcharge
-func (p fuelSurchargePricer) Price(_ appcontext.AppContext, actualPickupDate time.Time, distance unit.Miles, weight unit.Pound, fscWeightBasedDistanceMultiplier float64, eiaFuelPrice unit.Millicents, isPPM bool) (unit.Cents, services.PricingDisplayParams, error) {
+func (p portFuelSurchargePricer) Price(_ appcontext.AppContext, actualPickupDate time.Time, distance unit.Miles, weight unit.Pound, fscWeightBasedDistanceMultiplier float64, eiaFuelPrice unit.Millicents, isPPM bool) (unit.Cents, services.PricingDisplayParams, error) {
 	// Validate parameters
 	if actualPickupDate.IsZero() {
 		return 0, nil, errors.New("ActualPickupDate is required")
@@ -36,8 +34,8 @@ func (p fuelSurchargePricer) Price(_ appcontext.AppContext, actualPickupDate tim
 	if distance <= 0 {
 		return 0, nil, errors.New("Distance must be greater than 0")
 	}
-	if !isPPM && weight < minDomesticWeight {
-		return 0, nil, fmt.Errorf("Weight must be a minimum of %d", minDomesticWeight)
+	if !isPPM && weight < minIntlWeightHHG {
+		return 0, nil, fmt.Errorf("weight must be a minimum of %d", minIntlWeightHHG)
 	}
 	if fscWeightBasedDistanceMultiplier == 0 {
 		return 0, nil, errors.New("WeightBasedDistanceMultiplier is required")
@@ -59,7 +57,7 @@ func (p fuelSurchargePricer) Price(_ appcontext.AppContext, actualPickupDate tim
 	return totalCost, displayParams, nil
 }
 
-func (p fuelSurchargePricer) PriceUsingParams(appCtx appcontext.AppContext, params models.PaymentServiceItemParams) (unit.Cents, services.PricingDisplayParams, error) {
+func (p portFuelSurchargePricer) PriceUsingParams(appCtx appcontext.AppContext, params models.PaymentServiceItemParams) (unit.Cents, services.PricingDisplayParams, error) {
 	actualPickupDate, err := getParamTime(params, models.ServiceItemParamNameActualPickupDate)
 	if err != nil {
 		return unit.Cents(0), nil, err
