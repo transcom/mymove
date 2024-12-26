@@ -122,6 +122,7 @@ func NewGhcAPIHandler(handlerConfig handlers.HandlerConfig) *ghcops.MymoveAPI {
 	transportationOfficeFetcher := transportationoffice.NewTransportationOfficesFetcher()
 	closeoutOfficeUpdater := move.NewCloseoutOfficeUpdater(move.NewMoveFetcher(), transportationOfficeFetcher)
 	assignedOfficeUserUpdater := move.NewAssignedOfficeUserUpdater(move.NewMoveFetcher())
+	vLocation := address.NewVLocation()
 
 	shipmentSITStatus := sitstatus.NewShipmentSITStatus()
 
@@ -657,6 +658,11 @@ func NewGhcAPIHandler(handlerConfig handlers.HandlerConfig) *ghcops.MymoveAPI {
 	ghcAPI.MoveUpdateCloseoutOfficeHandler = UpdateMoveCloseoutOfficeHandler{
 		handlerConfig,
 		closeoutOfficeUpdater,
+	}
+
+	ghcAPI.AddressesGetLocationByZipCityStateHandler = GetLocationByZipCityStateHandler{
+		handlerConfig,
+		vLocation,
 	}
 
 	ghcAPI.OfficeUsersCreateRequestedOfficeUserHandler = RequestOfficeUserHandler{
