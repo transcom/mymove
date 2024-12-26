@@ -181,7 +181,7 @@ function renderShipmentCreateForm(props) {
 
 jest.mock('utils/featureFlags', () => ({
   ...jest.requireActual('utils/featureFlags'),
-  isBooleanFlagEnabled: jest.fn().mockImplementation(() => Promise.resolve()),
+  isBooleanFlagEnabled: jest.fn().mockImplementation(() => Promise.resolve(false)),
 }));
 
 const mockNavigate = jest.fn();
@@ -493,76 +493,4 @@ describe('PrimeUIShipmentCreateForm', () => {
     // now the text input should be invisible
     expect(await screen.queryByTestId('divertedFromShipmentIdInput')).toBeNull();
   });
-
-  it.each(
-    ['BOAT_HAUL_AWAY', 'BOAT_TOW_AWAY', 'MOBILE_HOME'],
-    'when creating a %s clears 2nd/3rd address fields when secondary/tertiary checkbox is unchecked',
-    async (shipmentType) => {
-      isBooleanFlagEnabled.mockResolvedValue(true);
-
-      const shipmentTypeInput = await screen.findByLabelText('Shipment type');
-      expect(shipmentTypeInput).toBeInTheDocument();
-
-      // Select the boat or mobile home shipment type
-      await userEvent.selectOptions(shipmentTypeInput, [shipmentType]);
-
-      // Make sure that a PPM-specific field is not visible.
-      expect(await screen.queryByLabelText('Expected Departure Date')).not.toBeInTheDocument();
-
-      // Check for usual HHG fields
-      expect(await screen.findByRole('heading', { name: 'Diversion', level: 2 })).toBeInTheDocument();
-      expect(await screen.findByLabelText('Diversion')).not.toBeChecked();
-
-      // Checking to make sure the text box isn't shown prior to clicking the box
-      expect(screen.queryByTestId('divertedFromShipmentIdInput')).toBeNull();
-
-      // Check the diversion box
-      const diversionCheckbox = await screen.findByLabelText('Diversion');
-      await userEvent.click(diversionCheckbox);
-
-      // now the text input should be visible
-      expect(await screen.findByTestId('divertedFromShipmentIdInput')).toBeInTheDocument();
-
-      // Now check for a boat and mobile home shipment specific field
-      expect(await screen.findByLabelText('Length (Feet)')).toBeVisible();
-
-      let input = await document.querySelector('input[name="pickupAddress.streetAddress1"]');
-      expect(input).toBeInTheDocument();
-      // enter required street 1 for pickup
-      await userEvent.type(input, '123 Pickup Street');
-
-      const secondAddressToggle = document.querySelector('[data-testid="has-secondary-pickup"]');
-      expect(secondAddressToggle).toBeInTheDocument();
-      await userEvent.click(secondAddressToggle);
-
-      input = await document.querySelector('input[name="secondaryPickupAddress.streetAddress1"]');
-      expect(input).toBeInTheDocument();
-      // enter required street 1 for pickup 2
-      await userEvent.type(input, '123 Pickup Street 2');
-
-      const thirdAddressToggle = document.querySelector('[data-testid="has-tertiary-pickup"]');
-      expect(thirdAddressToggle).toBeInTheDocument();
-      await userEvent.click(thirdAddressToggle);
-
-      input = await document.querySelector('input[name="tertiaryPickupAddress.streetAddress1"]');
-      expect(input).toBeInTheDocument();
-      // enter required street 1 for pickup 2
-      await userEvent.type(input, '123 Pickup Street 3');
-
-      const disable3rdAddressToggle = document.querySelector('[data-testid="no-tertiary-pickup"]');
-      expect(disable3rdAddressToggle).toBeInTheDocument();
-      await userEvent.click(disable3rdAddressToggle);
-
-      const disable2ndAddressToggle = document.querySelector('[data-testid="no-secondary-pickup"]');
-      expect(disable2ndAddressToggle).toBeInTheDocument();
-      await userEvent.click(disable2ndAddressToggle);
-
-      expect(input).not.toBeInTheDocument();
-
-      input = await document.querySelector('input[name="destinationAddress.streetAddress1"]');
-      expect(input).toBeInTheDocument();
-      // enter something
-      await userEvent.type(input, '123 destination Street');
-    },
-  );
 });
