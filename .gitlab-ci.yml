@@ -546,6 +546,7 @@ deploy_app_stg:
     OPEN_TELEMETRY_SIDECAR: "true"
     HEALTH_CHECK: "true"
   before_script:
+    - *setup_aws_vars_stg
     - *setup_release_stg
   script:
     - echo "Comparing against deployed commit"
