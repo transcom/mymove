@@ -161,15 +161,17 @@ export class CustomerPpmPage extends CustomerPage {
     // this helps debounce the API calls that would be triggered in quick succession
     await this.page.locator('input[name="actualMoveDate"]').fill('01 Feb 2022');
 
+    const LocationLookup = 'YUMA, AZ 85369 (YUMA)';
+
     await this.page.locator('input[name="pickupAddress.streetAddress1"]').fill('1819 S Cedar Street');
-    await this.page.locator('input[name="pickupAddress.city"]').fill('Yuma');
-    await this.page.locator('select[name="pickupAddress.state"]').selectOption({ label: 'AZ' });
-    await this.page.locator('input[name="pickupAddress.postalCode"]').fill('85369');
+    await this.page.locator('input[id="pickupAddress-location-input"]').fill('85369');
+    await expect(this.page.getByText(LocationLookup, { exact: true })).toBeVisible();
+    await this.page.keyboard.press('Enter');
 
     await this.page.locator('input[name="destinationAddress.streetAddress1"]').fill('1819 S Cedar Street');
-    await this.page.locator('input[name="destinationAddress.city"]').fill('Yuma');
-    await this.page.locator('select[name="destinationAddress.state"]').selectOption({ label: 'AZ' });
-    await this.page.locator('input[name="destinationAddress.postalCode"]').fill('85369');
+    await this.page.locator('input[id="destinationAddress-location-input"]').fill('85369');
+    await expect(this.page.getByText(LocationLookup, { exact: true })).toBeVisible();
+    await this.page.keyboard.press('Enter');
 
     if (options?.selectAdvance) {
       await this.page.locator('label[for="yes-has-received-advance"]').click();
@@ -179,9 +181,9 @@ export class CustomerPpmPage extends CustomerPage {
     }
 
     await this.page.locator('input[name="w2Address.streetAddress1"]').fill('1819 S Cedar Street');
-    await this.page.locator('input[name="w2Address.city"]').fill('Yuma');
-    await this.page.locator('select[name="w2Address.state"]').selectOption({ label: 'AZ' });
-    await this.page.locator('input[name="w2Address.postalCode"]').fill('85369');
+    await this.page.locator('input[id="w2Address-location-input"]').fill('85369');
+    await expect(this.page.getByText(LocationLookup, { exact: true })).toBeVisible();
+    await this.page.keyboard.press('Enter');
 
     await this.page.getByRole('button', { name: 'Save & Continue' }).click();
   }
@@ -408,18 +410,17 @@ export class CustomerPpmPage extends CustomerPage {
    * returns {Promise<void>}
    */
   async navigateFromDateAndLocationPageToEstimatedWeightsPage() {
+    const pickupLocation = 'BEVERLY HILLS, CA 90210 (LOS ANGELES)';
+    const destinationLocation = 'FORT WORTH, TX 76127 (TARRANT)';
     await this.page.locator('input[name="pickupAddress.address.streetAddress1"]').fill('123 Street');
-    await this.page.locator('input[name="pickupAddress.address.city"]').fill('SomeCity - Secondary');
-    await this.page.locator('select[name="pickupAddress.address.state"]').selectOption({ label: 'CA' });
-    await this.page.locator('input[name="pickupAddress.address.postalCode"]').clear();
-    await this.page.locator('input[name="pickupAddress.address.postalCode"]').fill('90210');
-    await this.page.locator('input[name="pickupAddress.address.postalCode"]').blur();
+    await this.page.locator('input[id="pickupAddress.address-location-input"]').fill('90210');
+    await expect(this.page.getByText(pickupLocation, { exact: true })).toBeVisible();
+    await this.page.keyboard.press('Enter');
 
-    await this.page.locator('input[name="destinationAddress.address.postalCode"]').clear();
-    await this.page.locator('input[name="destinationAddress.address.postalCode"]').fill('76127');
     await this.page.locator('input[name="destinationAddress.address.streetAddress1"]').fill('123 Street');
-    await this.page.locator('input[name="destinationAddress.address.city"]').fill('SomeCity');
-    await this.page.locator('select[name="destinationAddress.address.state"]').selectOption({ label: 'TX' });
+    await this.page.locator('input[id="destinationAddress.address-location-input"]').fill('76127');
+    await expect(this.page.getByText(destinationLocation, { exact: true })).toBeVisible();
+    await this.page.keyboard.press('Enter');
 
     await this.page.locator('input[name="expectedDepartureDate"]').clear();
     await this.page.locator('input[name="expectedDepartureDate"]').fill('01 Feb 2022');
