@@ -1062,6 +1062,7 @@ paths:
         * Releasing / Receiving agents
         * Actual Pro Gear Weight
         * Actual Spouse Pro Gear Weight
+        * Location of the POE/POD
       consumes:
         - application/json
       produces:

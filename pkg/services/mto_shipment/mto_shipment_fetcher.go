@@ -53,6 +53,8 @@ func (f mtoShipmentFetcher) ListMTOShipments(appCtx appcontext.AppContext, moveI
 			"SecondaryDeliveryAddress.Country",
 			"TertiaryDeliveryAddress.Country",
 			"MTOServiceItems.Dimensions",
+			"MTOServiceItems.PODLocation.Port",
+			"MTOServiceItems.POELocation.Port",
 			"BoatShipment",
 			"MobileHome",
 			"PPMShipment.W2Address",
@@ -146,6 +148,22 @@ func (f mtoShipmentFetcher) ListMTOShipments(appCtx appcontext.AppContext, moveI
 			return nil, err
 		}
 		shipments[i].MTOAgents = agents
+
+		//Pull the port location info back
+		for _, serviceItem := range shipments[i].MTOServiceItems {
+			if serviceItem.PODLocation != nil {
+				loadErr := appCtx.DB().Load(serviceItem.PODLocation, "City", "Country", "UsPostRegionCity.UsPostRegion.State")
+				if loadErr != nil {
+					return nil, loadErr
+				}
+			}
+			if serviceItem.POELocation != nil {
+				loadErr := appCtx.DB().Load(serviceItem.POELocation, "City", "Country", "UsPostRegionCity.UsPostRegion.State")
+				if loadErr != nil {
+					return nil, loadErr
+				}
+			}
+		}
 	}
 
 	return shipments, nil

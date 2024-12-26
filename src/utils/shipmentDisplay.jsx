@@ -163,6 +163,18 @@ export function formatCityStateAndPostalCode(address) {
   return '';
 }
 
+/**
+ * @description This function is used to format the port in the
+ * ShipmentAddresses component.
+ * It displays only the port code, port name, city, state and zip code.
+ * */
+export function formatPortInfo(port) {
+  if (port) {
+    return `${port.portCode} - ${port.portName}\n${port.city}, ${port.state} ${port.zip}`;
+  }
+  return '';
+}
+
 export function getShipmentModificationType(shipment) {
   if (shipment.status === shipmentStatuses.CANCELED) {
     return shipmentModificationTypes.CANCELED;
