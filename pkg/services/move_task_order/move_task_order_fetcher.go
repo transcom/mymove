@@ -278,6 +278,18 @@ func (f moveTaskOrderFetcher) FetchMoveTaskOrder(appCtx appcontext.AppContext, s
 				return &models.Move{}, apperror.NewQueryError("MobileHomeShipment", loadErrMH, "")
 			}
 		}
+		// we need to get the destination GBLOC associated with a shipment's destination address
+		// USMC always goes to the USMC GBLOC
+		if mto.MTOShipments[i].DestinationAddress != nil {
+			if *mto.Orders.ServiceMember.Affiliation == models.AffiliationMARINES {
+				mto.MTOShipments[i].DestinationAddress.DestinationGbloc = models.StringPointer("USMC")
+			} else {
+				mto.MTOShipments[i].DestinationAddress.DestinationGbloc, err = models.GetDestinationGblocForShipment(appCtx.DB(), mto.MTOShipments[i].ID)
+				if err != nil {
+					return &models.Move{}, apperror.NewQueryError("Error getting shipment GBLOC", err, "")
+				}
+			}
+		}
 		filteredShipments = append(filteredShipments, mto.MTOShipments[i])
 	}
 	mto.MTOShipments = filteredShipments
