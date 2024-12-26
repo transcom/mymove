@@ -833,7 +833,7 @@ func (suite *MoveServiceSuite) TestAutoReweigh() {
 		err := suite.DB().Save(approvedMove.Orders.Entitlement)
 		suite.NoError(err)
 
-		_, err = moveWeights.MoveShouldAutoReweigh(suite.AppContextForTest(), approvedMove.ID)
+		_, err = moveWeights.CheckAutoReweigh(suite.AppContextForTest(), approvedMove.ID, &models.MTOShipment{})
 		suite.EqualError(err, "No Authorized Weight could be found when checking for auto-reweigh on "+approvedMove.ID.String())
 	})
 }
