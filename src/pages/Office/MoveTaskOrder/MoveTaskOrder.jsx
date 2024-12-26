@@ -128,6 +128,7 @@ export const MoveTaskOrder = (props) => {
   const [estimatedNTSWeightTotal, setEstimatedNTSWeightTotal] = useState(null);
   const [estimatedNTSReleaseWeightTotal, setEstimatedNTSReleaseWeightTotal] = useState(null);
   const [estimatedPPMWeightTotal, setEstimatedPPMWeightTotal] = useState(null);
+  const [estimatedUBWeightTotal, setEstimatedUBWeightTotal] = useState(null);
   const [, setSubmittedChangeTime] = useState(Date.now());
   const [breakdownVisible, setBreakdownVisible] = useState(false);
 
@@ -861,6 +862,7 @@ export const MoveTaskOrder = (props) => {
     setEstimatedHHGWeightTotal(calculateEstimatedWeight(nonPPMShipments, SHIPMENT_OPTIONS.HHG));
     setEstimatedNTSWeightTotal(calculateEstimatedWeight(nonPPMShipments, SHIPMENT_OPTIONS.NTS));
     setEstimatedNTSReleaseWeightTotal(calculateEstimatedWeight(nonPPMShipments, SHIPMENT_OPTIONS.NTSR));
+    setEstimatedUBWeightTotal(calculateEstimatedWeight(nonPPMShipments, SHIPMENT_OPTIONS.UNACCOMPANIED_BAGGAGE));
     setEstimatedPPMWeightTotal(calculateEstimatedWeight(onlyPPMShipments));
     let excessBillableWeightCount = 0;
     const riskOfExcessAcknowledged = !!move?.excess_weight_acknowledged_at;
@@ -975,6 +977,10 @@ export const MoveTaskOrder = (props) => {
         {Number.isFinite(estimatedNTSReleaseWeightTotal)
           ? formatWeight(Math.round(estimatedNTSReleaseWeightTotal * 1.1))
           : '—'}
+      </div>
+      <div>110% Estimated UB</div>
+      <div className={moveTaskOrderStyles.subValue} data-testid="breakdownUBEstimatedWeight">
+        {Number.isFinite(estimatedUBWeightTotal) ? formatWeight(Math.round(estimatedUBWeightTotal * 1.1)) : '—'}
       </div>
     </div>
   );
