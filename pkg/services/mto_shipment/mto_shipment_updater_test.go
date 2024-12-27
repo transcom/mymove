@@ -3045,7 +3045,7 @@ func (suite *MTOShipmentServiceSuite) TestUpdateStatusServiceItems() {
 			ShipmentType:       "UNACCOMPANIED_BAGGAGE",
 		}
 
-		serviceCodes := reServiceCodesForShipment(mtoShipment)
+		serviceCodes := reServiceCodesForShipment(suite.AppContextForTest(), mtoShipment)
 
 		suite.Equal(models.ReServiceCodeUBP, serviceCodes[0])
 		suite.Equal(models.ReServiceCodeFSC, serviceCodes[1])
@@ -3071,7 +3071,7 @@ func (suite *MTOShipmentServiceSuite) TestUpdateStatusServiceItems() {
 			ShipmentType:       "UNACCOMPANIED_BAGGAGE",
 		}
 
-		serviceCodes := reServiceCodesForShipment(mtoShipment)
+		serviceCodes := reServiceCodesForShipment(suite.AppContextForTest(), mtoShipment)
 
 		suite.Equal(models.ReServiceCodeUBP, serviceCodes[0])
 		suite.Equal(models.ReServiceCodeFSC, serviceCodes[1])
@@ -3093,7 +3093,7 @@ func (suite *MTOShipmentServiceSuite) TestUpdateStatusServiceItems() {
 			ShipmentType:       "UNACCOMPANIED_BAGGAGE",
 		}
 
-		serviceCodes := reServiceCodesForShipment(mtoShipment)
+		serviceCodes := reServiceCodesForShipment(suite.AppContextForTest(), mtoShipment)
 
 		suite.Equal(models.ReServiceCodeUBP, serviceCodes[0])
 		suite.Equal(models.ReServiceCodeIUBPK, serviceCodes[1])
