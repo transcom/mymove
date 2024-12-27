@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Formik } from 'formik';
 import * as Yup from 'yup';
 import { useNavigate, useParams, generatePath } from 'react-router-dom';
@@ -21,13 +21,23 @@ import { setFlashMessage as setFlashMessageAction } from 'store/flash/actions';
 import { requiredAddressSchema, partialRequiredAddressSchema } from 'utils/validation';
 import PrimeUIShipmentCreateForm from 'pages/PrimeUI/Shipment/PrimeUIShipmentCreateForm';
 import { OptionalAddressSchema } from 'components/Customer/MtoShipmentForm/validationSchemas';
-import { SHIPMENT_OPTIONS, SHIPMENT_TYPES } from 'shared/constants';
+import { FEATURE_FLAG_KEYS, SHIPMENT_OPTIONS, SHIPMENT_TYPES } from 'shared/constants';
+import { isBooleanFlagEnabled } from 'utils/featureFlags';
 
 const PrimeUIShipmentCreate = ({ setFlashMessage }) => {
   const [errorMessage, setErrorMessage] = useState();
   const { moveCodeOrID } = useParams();
   const navigate = useNavigate();
+  const [enableBoat, setEnableBoat] = useState(false);
+  const [enableMobileHome, setEnableMobileHome] = useState(false);
 
+  useEffect(() => {
+    const fetchData = async () => {
+      setEnableBoat(await isBooleanFlagEnabled(FEATURE_FLAG_KEYS.BOAT));
+      setEnableMobileHome(await isBooleanFlagEnabled(FEATURE_FLAG_KEYS.MOBILE_HOME));
+    };
+    fetchData();
+  }, []);
   const handleClose = () => {
     navigate(generatePath(primeSimulatorRoutes.VIEW_MOVE_PATH, { moveCodeOrID }));
   };
@@ -676,7 +686,7 @@ const PrimeUIShipmentCreate = ({ setFlashMessage }) => {
                 {({ isValid, isSubmitting, handleSubmit }) => {
                   return (
                     <Form className={formStyles.form}>
-                      <PrimeUIShipmentCreateForm />
+                      <PrimeUIShipmentCreateForm enableBoat={enableBoat} enableMobileHome={enableMobileHome} />
                       <div className={formStyles.formActions}>
                         <WizardNavigation
                           editMode
