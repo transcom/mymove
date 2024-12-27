@@ -248,16 +248,17 @@ func Address(address *models.Address) *primev3messages.Address {
 		return nil
 	}
 	return &primev3messages.Address{
-		ID:             strfmt.UUID(address.ID.String()),
-		StreetAddress1: &address.StreetAddress1,
-		StreetAddress2: address.StreetAddress2,
-		StreetAddress3: address.StreetAddress3,
-		City:           &address.City,
-		State:          &address.State,
-		PostalCode:     &address.PostalCode,
-		Country:        Country(address.Country),
-		ETag:           etag.GenerateEtag(address.UpdatedAt),
-		County:         address.County,
+		ID:               strfmt.UUID(address.ID.String()),
+		StreetAddress1:   &address.StreetAddress1,
+		StreetAddress2:   address.StreetAddress2,
+		StreetAddress3:   address.StreetAddress3,
+		City:             &address.City,
+		State:            &address.State,
+		PostalCode:       &address.PostalCode,
+		Country:          Country(address.Country),
+		ETag:             etag.GenerateEtag(address.UpdatedAt),
+		County:           address.County,
+		DestinationGbloc: address.DestinationGbloc,
 	}
 }
 
