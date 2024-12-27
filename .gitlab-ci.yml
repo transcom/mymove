@@ -43,8 +43,10 @@ stages:
 - pre_checks
 - build
 - test
+- prepush
 - push
 - deploy
+- prepush_prd
 - push_prd
 - deploy_prd
 
@@ -346,6 +348,21 @@ compile_app_server:
   after_script:
     - *announce_failure
 
+prepush_noop_stg:
+  stage: prepush
+  environment: stg
+  image:
+    name: gcr.io/kaniko-project/executor:v1.14.0-debug
+    entrypoint: [""]
+  needs:
+      - compile_app_client
+      - compile_app_server
+  script:
+    - echo "No Op Stg"
+  after_script:
+    - *announce_failure
+  rules:
+  - *check_main
 
 build_push_app_stg:
   stage: push
@@ -578,6 +595,23 @@ deploy_app_stg:
   rules:
     - *check_main
 
+prepush_noop_prd:
+  stage: prepush_prd
+  environment: prd_approval
+  image:
+    name: gcr.io/kaniko-project/executor:v1.14.0-debug
+    entrypoint: [""]
+  needs:
+      - compile_app_client
+      - compile_app_server
+      - deploy_app_stg
+      - deploy_app_client_tls_stg
+  script:
+    - echo "No Op Prd"
+  after_script:
+    - *announce_failure
+  rules:
+  - *check_main
 
 build_push_app_prd:
   stage: push_prd
@@ -586,8 +620,9 @@ build_push_app_prd:
     name: gcr.io/kaniko-project/executor:v1.14.0-debug
     entrypoint: [""]
   needs:
-      - compile_app_client
-      - compile_app_server
+    - prepush_noop_prd
+    - compile_app_server
+    - compile_app_client
   before_script:
       - *setup_aws_vars_prd
       - *setup_release_prd
@@ -607,6 +642,7 @@ build_push_migrations_prd:
     name: gcr.io/kaniko-project/executor:v1.14.0-debug
     entrypoint: [""]
   needs:
+    - prepush_noop_prd
     - compile_app_server
     - compile_app_client
   before_script:
@@ -628,6 +664,7 @@ build_push_tasks_prd:
     name: gcr.io/kaniko-project/executor:v1.14.0-debug
     entrypoint: [""]
   needs:
+    - prepush_noop_prd
     - compile_app_server
     - compile_app_client
   before_script:
@@ -649,6 +686,7 @@ push_otel_collector_image_prd:
     name: $DOCKER_BASE_IMAGE
     entrypoint: [""]
   needs:
+    - prepush_noop_prd
     - compile_app_server
     - compile_app_client
   before_script:
