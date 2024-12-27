@@ -34,8 +34,8 @@ func (suite *PayloadsSuite) TestMTOServiceItemModel() {
 	dcrtCode := models.ReServiceCodeDCRT.String()
 	ddshutCode := models.ReServiceCodeDDSHUT.String()
 	doshutCode := models.ReServiceCodeDOSHUT.String()
-	idshutCode := models.ReServiceCodeIOSHUT.String()
-	ioshutCode := models.ReServiceCodeIDSHUT.String()
+	idshutCode := models.ReServiceCodeIDSHUT.String()
+	ioshutCode := models.ReServiceCodeIOSHUT.String()
 	reason := "Reason"
 	description := "Description"
 	standaloneCrate := false
@@ -71,6 +71,8 @@ func (suite *PayloadsSuite) TestMTOServiceItemModel() {
 		EstimatedWeight: &estimatedWeight,
 		ActualWeight:    &actualWeight,
 	}
+	DDSHUTServiceItem.SetMoveTaskOrderID(handlers.FmtUUID(moveTaskOrderIDField))
+	DDSHUTServiceItem.SetMtoShipmentID(*mtoShipmentIDString)
 
 	DOSHUTServiceItem := &primemessages.MTOServiceItemShuttle{
 		ReServiceCode:   &doshutCode,
@@ -78,6 +80,8 @@ func (suite *PayloadsSuite) TestMTOServiceItemModel() {
 		EstimatedWeight: &estimatedWeight,
 		ActualWeight:    &actualWeight,
 	}
+	DOSHUTServiceItem.SetMoveTaskOrderID(handlers.FmtUUID(moveTaskOrderIDField))
+	DOSHUTServiceItem.SetMtoShipmentID(*mtoShipmentIDString)
 
 	IDSHUTServiceItem := &primemessages.MTOServiceItemInternationalShuttle{
 		ReServiceCode:   &idshutCode,
@@ -85,6 +89,8 @@ func (suite *PayloadsSuite) TestMTOServiceItemModel() {
 		EstimatedWeight: &estimatedWeight,
 		ActualWeight:    &actualWeight,
 	}
+	IDSHUTServiceItem.SetMoveTaskOrderID(handlers.FmtUUID(moveTaskOrderIDField))
+	IDSHUTServiceItem.SetMtoShipmentID(*mtoShipmentIDString)
 
 	IOSHUTServiceItem := &primemessages.MTOServiceItemInternationalShuttle{
 		ReServiceCode:   &ioshutCode,
@@ -92,6 +98,8 @@ func (suite *PayloadsSuite) TestMTOServiceItemModel() {
 		EstimatedWeight: &estimatedWeight,
 		ActualWeight:    &actualWeight,
 	}
+	IOSHUTServiceItem.SetMoveTaskOrderID(handlers.FmtUUID(moveTaskOrderIDField))
+	IOSHUTServiceItem.SetMtoShipmentID(*mtoShipmentIDString)
 
 	originReason := "storage at origin"
 	originServiceCode := models.ReServiceCodeDOFSIT.String()
