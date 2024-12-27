@@ -93,7 +93,7 @@ func Order(order *models.Order) *primev3messages.Order {
 	destinationDutyLocation := DutyLocation(&order.NewDutyLocation)
 	originDutyLocation := DutyLocation(order.OriginDutyLocation)
 	if order.Grade != nil && order.Entitlement != nil {
-		order.Entitlement.SetWeightAllotment(string(*order.Grade))
+		order.Entitlement.SetWeightAllotment(string(*order.Grade), order.OrdersType)
 	}
 
 	var grade string
@@ -152,9 +152,14 @@ func Entitlement(entitlement *models.Entitlement) *primev3messages.Entitlements 
 	if entitlement.TotalDependents != nil {
 		totalDependents = int64(*entitlement.TotalDependents)
 	}
+	var ubAllowance int64
+	if entitlement.UBAllowance != nil {
+		ubAllowance = int64(*entitlement.UBAllowance)
+	}
 	return &primev3messages.Entitlements{
 		ID:                             strfmt.UUID(entitlement.ID.String()),
 		AuthorizedWeight:               authorizedWeight,
+		UnaccompaniedBaggageAllowance:  &ubAllowance,
 		DependentsAuthorized:           entitlement.DependentsAuthorized,
 		NonTemporaryStorage:            entitlement.NonTemporaryStorage,
 		PrivatelyOwnedVehicle:          entitlement.PrivatelyOwnedVehicle,
@@ -207,7 +212,7 @@ func Address(address *models.Address) *primev3messages.Address {
 		PostalCode:     &address.PostalCode,
 		Country:        Country(address.Country),
 		ETag:           etag.GenerateEtag(address.UpdatedAt),
-		County:         &address.County,
+		County:         address.County,
 	}
 }
 
@@ -226,7 +231,7 @@ func PPMDestinationAddress(address *models.Address) *primev3messages.PPMDestinat
 		PostalCode:     &address.PostalCode,
 		Country:        Country(address.Country),
 		ETag:           etag.GenerateEtag(address.UpdatedAt),
-		County:         &address.County,
+		County:         address.County,
 	}
 	// Street address 1 is optional per business rule but not nullable on the database level.
 	// Check if streetAddress 1 is using place holder value to represent 'NULL'.

@@ -45,10 +45,8 @@ type OfficeUserCreate struct {
 	// Pattern: ^[2-9]\d{2}-\d{3}-\d{4}$
 	Telephone string `json:"telephone,omitempty"`
 
-	// transportation office Id
-	// Example: c56a4180-65aa-42ec-a945-5fd21dec0538
-	// Format: uuid
-	TransportationOfficeID strfmt.UUID `json:"transportationOfficeId,omitempty"`
+	// transportation office assignments
+	TransportationOfficeAssignments []*OfficeUserTransportationOfficeAssignment `json:"transportationOfficeAssignments"`
 }
 
 // Validate validates this office user create
@@ -67,7 +65,7 @@ func (m *OfficeUserCreate) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
-	if err := m.validateTransportationOfficeID(formats); err != nil {
+	if err := m.validateTransportationOfficeAssignments(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -141,13 +139,27 @@ func (m *OfficeUserCreate) validateTelephone(formats strfmt.Registry) error {
 	return nil
 }
 
-func (m *OfficeUserCreate) validateTransportationOfficeID(formats strfmt.Registry) error {
-	if swag.IsZero(m.TransportationOfficeID) { // not required
+func (m *OfficeUserCreate) validateTransportationOfficeAssignments(formats strfmt.Registry) error {
+	if swag.IsZero(m.TransportationOfficeAssignments) { // not required
 		return nil
 	}
 
-	if err := validate.FormatOf("transportationOfficeId", "body", "uuid", m.TransportationOfficeID.String(), formats); err != nil {
-		return err
+	for i := 0; i < len(m.TransportationOfficeAssignments); i++ {
+		if swag.IsZero(m.TransportationOfficeAssignments[i]) { // not required
+			continue
+		}
+
+		if m.TransportationOfficeAssignments[i] != nil {
+			if err := m.TransportationOfficeAssignments[i].Validate(formats); err != nil {
+				if ve, ok := err.(*errors.Validation); ok {
+					return ve.ValidateName("transportationOfficeAssignments" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("transportationOfficeAssignments" + "." + strconv.Itoa(i))
+				}
+				return err
+			}
+		}
+
 	}
 
 	return nil
@@ -162,6 +174,10 @@ func (m *OfficeUserCreate) ContextValidate(ctx context.Context, formats strfmt.R
 	}
 
 	if err := m.contextValidateRoles(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidateTransportationOfficeAssignments(ctx, formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -211,6 +227,31 @@ func (m *OfficeUserCreate) contextValidateRoles(ctx context.Context, formats str
 					return ve.ValidateName("roles" + "." + strconv.Itoa(i))
 				} else if ce, ok := err.(*errors.CompositeError); ok {
 					return ce.ValidateName("roles" + "." + strconv.Itoa(i))
+				}
+				return err
+			}
+		}
+
+	}
+
+	return nil
+}
+
+func (m *OfficeUserCreate) contextValidateTransportationOfficeAssignments(ctx context.Context, formats strfmt.Registry) error {
+
+	for i := 0; i < len(m.TransportationOfficeAssignments); i++ {
+
+		if m.TransportationOfficeAssignments[i] != nil {
+
+			if swag.IsZero(m.TransportationOfficeAssignments[i]) { // not required
+				return nil
+			}
+
+			if err := m.TransportationOfficeAssignments[i].ContextValidate(ctx, formats); err != nil {
+				if ve, ok := err.(*errors.Validation); ok {
+					return ve.ValidateName("transportationOfficeAssignments" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("transportationOfficeAssignments" + "." + strconv.Itoa(i))
 				}
 				return err
 			}

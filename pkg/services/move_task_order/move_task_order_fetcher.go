@@ -159,6 +159,7 @@ func (f moveTaskOrderFetcher) FetchMoveTaskOrder(appCtx appcontext.AppContext, s
 		"MTOShipments.StorageFacility.Address",
 		"MTOShipments.DeliveryAddressUpdate",
 		"MTOShipments.DeliveryAddressUpdate.OriginalAddress.Country",
+		"MTOShipments.PPMShipment",
 		"Orders.ServiceMember",
 		"Orders.ServiceMember.ResidentialAddress.Country",
 		"Orders.Entitlement",
@@ -278,6 +279,12 @@ func (f moveTaskOrderFetcher) FetchMoveTaskOrder(appCtx appcontext.AppContext, s
 			loadErr := appCtx.DB().Load(&mto.MTOServiceItems[i], "CustomerContacts")
 			if loadErr != nil {
 				return &models.Move{}, apperror.NewQueryError("CustomerContacts", loadErr, "")
+			}
+		} else if serviceItem.ReService.Code == models.ReServiceCodeICRT || // use address.isOconus to get 'market' value for intl crating
+			serviceItem.ReService.Code == models.ReServiceCodeIUCRT {
+			loadErr := appCtx.DB().Load(&mto.MTOServiceItems[i], "MTOShipment.PickupAddress", "MTOShipment.DestinationAddress")
+			if loadErr != nil {
+				return &models.Move{}, apperror.NewQueryError("MTOShipment.PickupAddress, MTOShipment.DestinationAddress", loadErr, "")
 			}
 		}
 

@@ -768,7 +768,7 @@ func (suite *PaymentRequestServiceSuite) TestListPaymentRequestWithSortOrder() {
 		sort.Strings(expectedDodIDOrder)
 
 		// Sort by dodID
-		params := services.FetchPaymentRequestListParams{Sort: models.StringPointer("dodID"), Order: models.StringPointer("asc")}
+		params := services.FetchPaymentRequestListParams{Sort: models.StringPointer("edipi"), Order: models.StringPointer("asc")}
 		expectedPaymentRequests, _, err := paymentRequestListFetcher.FetchPaymentRequestList(suite.AppContextWithSessionForTest(&session), officeUser.ID, &params)
 		paymentRequests := *expectedPaymentRequests
 
@@ -781,7 +781,7 @@ func (suite *PaymentRequestServiceSuite) TestListPaymentRequestWithSortOrder() {
 	suite.Run("Sort by dodID DESC", func() {
 		sort.Strings(expectedDodIDOrder)
 
-		params := services.FetchPaymentRequestListParams{Sort: models.StringPointer("dodID"), Order: models.StringPointer("desc")}
+		params := services.FetchPaymentRequestListParams{Sort: models.StringPointer("edipi"), Order: models.StringPointer("desc")}
 		expectedPaymentRequests, _, err := paymentRequestListFetcher.FetchPaymentRequestList(suite.AppContextWithSessionForTest(&session), officeUser.ID, &params)
 		paymentRequests := *expectedPaymentRequests
 

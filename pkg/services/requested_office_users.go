@@ -24,6 +24,13 @@ type RequestedOfficeUserFetcher interface {
 	FetchRequestedOfficeUser(appCtx appcontext.AppContext, filters []QueryFilter) (models.OfficeUser, error)
 }
 
+// RequestedOfficeUserFetcherPop is the exported interface for fetching a single office user
+//
+//go:generate mockery --name RequestedOfficeUserFetcherPop
+type RequestedOfficeUserFetcherPop interface {
+	FetchRequestedOfficeUserByID(appCtx appcontext.AppContext, id uuid.UUID) (models.OfficeUser, error)
+}
+
 // RequestedOfficeUserFetcher is the exported interface for updating a requested office user
 //
 //go:generate mockery --name RequestedOfficeUserUpdater

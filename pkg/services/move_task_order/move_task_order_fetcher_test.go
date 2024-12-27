@@ -238,6 +238,38 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderFetcher() {
 				},
 			},
 		}, nil)
+		factory.BuildMTOServiceItemBasic(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOServiceItem{
+					Status: models.MTOServiceItemStatusApproved,
+				},
+			},
+			{
+				Model:    expectedMTO,
+				LinkOnly: true,
+			},
+			{
+				Model: models.ReService{
+					Code: models.ReServiceCodeICRT,
+				},
+			},
+		}, nil)
+		factory.BuildMTOServiceItemBasic(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOServiceItem{
+					Status: models.MTOServiceItemStatusApproved,
+				},
+			},
+			{
+				Model:    expectedMTO,
+				LinkOnly: true,
+			},
+			{
+				Model: models.ReService{
+					Code: models.ReServiceCodeIUCRT,
+				},
+			},
+		}, nil)
 		serviceRequestDocumentUpload := factory.BuildServiceRequestDocumentUpload(suite.DB(), []factory.Customization{
 			{
 				Model:    serviceItemBasic,
@@ -273,6 +305,11 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderFetcher() {
 				}
 
 				found = true
+				break
+			}
+			if serviceItem.ReService.Code == models.ReServiceCodeICRT || serviceItem.ReService.Code == models.ReServiceCodeIUCRT {
+				suite.NotNil(serviceItem.MTOShipment.PickupAddress)
+				suite.NotNil(serviceItem.MTOShipment.DestinationAddress)
 				break
 			}
 		}

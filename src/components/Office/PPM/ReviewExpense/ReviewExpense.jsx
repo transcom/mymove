@@ -1,6 +1,6 @@
 import React, { useEffect, useCallback } from 'react';
 import { useMutation } from '@tanstack/react-query';
-import { func, number, object } from 'prop-types';
+import { func, number, string, object } from 'prop-types';
 import { Formik, Field } from 'formik';
 import classnames from 'classnames';
 import { FormGroup, Label, Radio, Textarea } from '@trussworks/react-uswds';
@@ -560,7 +560,7 @@ export default function ReviewExpense({
 ReviewExpense.propTypes = {
   expense: ExpenseShape,
   tripNumber: number.isRequired,
-  ppmNumber: number.isRequired,
+  ppmNumber: string.isRequired,
   onSuccess: func,
   formRef: object,
   order: OrderShape.isRequired,

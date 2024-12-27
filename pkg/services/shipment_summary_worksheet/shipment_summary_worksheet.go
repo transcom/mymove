@@ -194,9 +194,9 @@ func (wa *SSWMaxWeightEntitlement) addLineItem(field string, value int) {
 
 // SSWGetEntitlement calculates the entitlement for the shipment summary worksheet based on the parameters of
 // a move (hasDependents, spouseHasProGear)
-func SSWGetEntitlement(grade internalmessages.OrderPayGrade, hasDependents bool, spouseHasProGear bool) models.SSWMaxWeightEntitlement {
+func SSWGetEntitlement(grade internalmessages.OrderPayGrade, hasDependents bool, spouseHasProGear bool, ordersType internalmessages.OrdersType) models.SSWMaxWeightEntitlement {
 	sswEntitlements := SSWMaxWeightEntitlement{}
-	entitlements := models.GetWeightAllotment(grade)
+	entitlements := models.GetWeightAllotment(grade, ordersType)
 	sswEntitlements.addLineItem("ProGear", entitlements.ProGearWeight)
 	sswEntitlements.addLineItem("SpouseProGear", entitlements.ProGearWeightSpouse)
 	if !hasDependents {
@@ -304,7 +304,7 @@ func (s SSWPPMComputer) FormatValuesShipmentSummaryWorksheetFormPage1(data model
 	page1.SITEndDates = formattedSIT.EndDates
 	page1.SITNumberAndTypes = formattedShipment.ShipmentNumberAndTypes
 
-	page1.MaxObligationGCC100 = FormatWeights(data.WeightAllotment.Entitlement) + " lbs; " + formattedShipment.EstimatedIncentive
+	page1.MaxObligationGCC100 = FormatWeights(data.WeightAllotment.Entitlement) + " lbs; " + formattedShipment.MaxIncentive
 	page1.MaxObligationGCCMaxAdvance = formattedShipment.MaxAdvance
 	page1.ActualObligationAdvance = formattedShipment.AdvanceAmountReceived
 	page1.MaxObligationSIT = fmt.Sprintf("%02d Days in SIT", data.MaxSITStorageEntitlement)
@@ -708,6 +708,11 @@ func (s SSWPPMComputer) FormatShipment(ppm models.PPMShipment, weightAllotment m
 		formattedShipment.MaxAdvance = "Advance not available."
 		formattedShipment.EstimatedIncentive = "No estimated incentive."
 	}
+	if ppm.MaxIncentive != nil {
+		formattedShipment.MaxIncentive = FormatDollarFromCents(*ppm.MaxIncentive)
+	} else {
+		formattedShipment.MaxIncentive = "No max incentive."
+	}
 	formattedShipmentTotalWeights := unit.Pound(0)
 	formattedNumberAndTypes := *ppm.Shipment.ShipmentLocator + " PPM"
 	formattedShipmentWeights := FormatPPMWeightEstimated(ppm)
@@ -1069,7 +1074,7 @@ func (SSWPPMComputer *SSWPPMComputer) FetchDataShipmentSummaryWorksheetFormData(
 		return nil, errors.New("order for requested shipment summary worksheet data does not have a pay grade attached")
 	}
 
-	weightAllotment := SSWGetEntitlement(*ppmShipment.Shipment.MoveTaskOrder.Orders.Grade, ppmShipment.Shipment.MoveTaskOrder.Orders.HasDependents, ppmShipment.Shipment.MoveTaskOrder.Orders.SpouseHasProGear)
+	weightAllotment := SSWGetEntitlement(*ppmShipment.Shipment.MoveTaskOrder.Orders.Grade, ppmShipment.Shipment.MoveTaskOrder.Orders.HasDependents, ppmShipment.Shipment.MoveTaskOrder.Orders.SpouseHasProGear, ppmShipment.Shipment.MoveTaskOrder.Orders.OrdersType)
 
 	maxSit, err := CalculateShipmentSITAllowance(appCtx, ppmShipment.Shipment)
 	if err != nil {

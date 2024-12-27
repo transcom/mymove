@@ -14,7 +14,7 @@ import (
 	"github.com/go-openapi/validate"
 )
 
-// ShipmentAddressUpdate This represents a destination address change request made by the Prime that is either auto-approved or requires review if the pricing criteria has changed. If criteria has changed, then it must be approved or rejected by a TOO.
+// ShipmentAddressUpdate This represents a delivery address change request made by the Prime that is either auto-approved or requires review if the pricing criteria has changed. If criteria has changed, then it must be approved or rejected by a TOO.
 //
 // swagger:model ShipmentAddressUpdate
 type ShipmentAddressUpdate struct {
@@ -38,7 +38,7 @@ type ShipmentAddressUpdate struct {
 	// Required: true
 	NewAddress *Address `json:"newAddress"`
 
-	// The distance between the original SIT address and requested new destination address of shipment
+	// The distance between the original SIT address and requested new delivery address of shipment
 	// Example: 88
 	// Minimum: 0
 	NewSitDistanceBetween *int64 `json:"newSitDistanceBetween,omitempty"`
@@ -49,7 +49,7 @@ type ShipmentAddressUpdate struct {
 	// Example: This is an office remark
 	OfficeRemarks *string `json:"officeRemarks,omitempty"`
 
-	// The distance between the original SIT address and the previous/old destination address of shipment
+	// The distance between the original SIT address and the previous/old delivery address of shipment
 	// Example: 50
 	// Minimum: 0
 	OldSitDistanceBetween *int64 `json:"oldSitDistanceBetween,omitempty"`

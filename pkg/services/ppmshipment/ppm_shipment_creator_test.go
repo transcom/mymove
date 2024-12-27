@@ -77,7 +77,7 @@ func (suite *PPMShipmentSuite) TestPPMShipmentCreator() {
 				City:           "Des Moines",
 				State:          "IA",
 				PostalCode:     "50308",
-				County:         "POLK",
+				County:         models.StringPointer("POLK"),
 			},
 			DestinationAddress: &models.Address{
 				StreetAddress1: "987 Other Avenue",
@@ -86,7 +86,7 @@ func (suite *PPMShipmentSuite) TestPPMShipmentCreator() {
 				City:           "Fort Eisenhower",
 				State:          "GA",
 				PostalCode:     "30183",
-				County:         "COLUMBIA",
+				County:         models.StringPointer("COLUMBIA"),
 			},
 		}, nil)
 
@@ -96,6 +96,13 @@ func (suite *PPMShipmentSuite) TestPPMShipmentCreator() {
 			mock.AnythingOfType("models.PPMShipment"),
 			mock.AnythingOfType("*models.PPMShipment"),
 		).Return(nil, nil, nil).Once()
+
+		ppmEstimator.On(
+			"MaxIncentive",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.AnythingOfType("models.PPMShipment"),
+			mock.AnythingOfType("*models.PPMShipment"),
+		).Return(nil, nil).Once()
 
 		createdPPMShipment, err := ppmShipmentCreator.CreatePPMShipmentWithDefaultCheck(appCtx, subtestData.newPPMShipment)
 
@@ -138,6 +145,13 @@ func (suite *PPMShipmentSuite) TestPPMShipmentCreator() {
 			mock.AnythingOfType("models.PPMShipment"),
 			mock.AnythingOfType("*models.PPMShipment"),
 		).Return(nil, nil, nil).Once()
+
+		ppmEstimator.On(
+			"MaxIncentive",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.AnythingOfType("models.PPMShipment"),
+			mock.AnythingOfType("*models.PPMShipment"),
+		).Return(nil, nil).Once()
 
 		createdPPMShipment, err := ppmShipmentCreator.CreatePPMShipmentWithDefaultCheck(appCtx, subtestData.newPPMShipment)
 
@@ -222,6 +236,7 @@ func (suite *PPMShipmentSuite) TestPPMShipmentCreator() {
 		estimatedWeight := unit.Pound(2450)
 		hasProGear := false
 		estimatedIncentive := unit.Cents(123456)
+		maxIncentive := unit.Cents(123456)
 
 		pickupAddress := models.Address{
 			StreetAddress1: "123 Any Pickup Street",
@@ -285,6 +300,13 @@ func (suite *PPMShipmentSuite) TestPPMShipmentCreator() {
 			mock.AnythingOfType("*models.PPMShipment"),
 		).Return(&estimatedIncentive, nil, nil).Once()
 
+		ppmEstimator.On(
+			"MaxIncentive",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.AnythingOfType("models.PPMShipment"),
+			mock.AnythingOfType("*models.PPMShipment"),
+		).Return(&maxIncentive, nil).Once()
+
 		createdPPMShipment, err := ppmShipmentCreator.CreatePPMShipmentWithDefaultCheck(appCtx, subtestData.newPPMShipment)
 
 		suite.Nil(err)
@@ -297,6 +319,7 @@ func (suite *PPMShipmentSuite) TestPPMShipmentCreator() {
 			suite.Equal(&hasProGear, createdPPMShipment.HasProGear)
 			suite.Equal(models.PPMShipmentStatusSubmitted, createdPPMShipment.Status)
 			suite.Equal(&estimatedIncentive, createdPPMShipment.EstimatedIncentive)
+			suite.Equal(&maxIncentive, createdPPMShipment.MaxIncentive)
 			suite.NotZero(createdPPMShipment.CreatedAt)
 			suite.NotZero(createdPPMShipment.UpdatedAt)
 			suite.Equal(pickupAddress.StreetAddress1, createdPPMShipment.PickupAddress.StreetAddress1)

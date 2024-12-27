@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { SHIPMENT_OPTIONS } from '../../../shared/constants';
+import { SHIPMENT_OPTIONS, MARKET_CODES } from '../../../shared/constants';
 
 import ShipmentServiceItemsTable from './ShipmentServiceItemsTable';
 
@@ -9,26 +9,53 @@ export default {
   component: ShipmentServiceItemsTable,
 };
 
-const destZip3 = '112';
-const sameDestZip3 = '902';
-const pickupZip3 = '902';
+const destinationAddress = {
+  postalCode: '11234',
+  isOconus: false,
+};
 
-export const HHGLonghaulServiceItems = () => (
-  <ShipmentServiceItemsTable destinationZip3={destZip3} pickupZip3={pickupZip3} shipmentType={SHIPMENT_OPTIONS.HHG} />
-);
+const destinationAddressSameZip3 = {
+  postalCode: '90299',
+  isOconus: false,
+};
 
-export const HHGShorthaulServiceItems = () => (
-  <ShipmentServiceItemsTable
-    destinationZip3={sameDestZip3}
-    pickupZip3={pickupZip3}
-    shipmentType={SHIPMENT_OPTIONS.HHG}
-  />
-);
+const pickupAddress = {
+  postalCode: '90210',
+  isOconus: false,
+};
 
-export const NTSServiceItems = () => (
-  <ShipmentServiceItemsTable destinationZip3={destZip3} pickupZip3={pickupZip3} shipmentType={SHIPMENT_OPTIONS.NTS} />
-);
+const domesticHhgShipment = {
+  shipmentType: SHIPMENT_OPTIONS.HHG,
+  marketCode: MARKET_CODES.DOMESTIC,
+  pickupAddress,
+  destinationAddress,
+};
 
-export const NTSRServiceItems = () => (
-  <ShipmentServiceItemsTable destinationZip3={destZip3} pickupZip3={pickupZip3} shipmentType={SHIPMENT_OPTIONS.NTSR} />
-);
+const domesticNtsShipment = {
+  shipmentType: SHIPMENT_OPTIONS.NTS,
+  marketCode: MARKET_CODES.DOMESTIC,
+  pickupAddress,
+  destinationAddress,
+};
+
+const domesticNtsrShipment = {
+  shipmentType: SHIPMENT_OPTIONS.NTSR,
+  marketCode: MARKET_CODES.DOMESTIC,
+  pickupAddress,
+  destinationAddress,
+};
+
+const domesticHhgShipmentSameZip3 = {
+  shipmentType: SHIPMENT_OPTIONS.HHG,
+  marketCode: MARKET_CODES.DOMESTIC,
+  pickupAddress,
+  destinationAddress: destinationAddressSameZip3,
+};
+
+export const HHGLonghaulServiceItems = () => <ShipmentServiceItemsTable shipment={domesticHhgShipment} />;
+
+export const HHGShorthaulServiceItems = () => <ShipmentServiceItemsTable shipment={domesticHhgShipmentSameZip3} />;
+
+export const NTSServiceItems = () => <ShipmentServiceItemsTable shipment={domesticNtsShipment} />;
+
+export const NTSRServiceItems = () => <ShipmentServiceItemsTable shipment={domesticNtsrShipment} />;

@@ -19,6 +19,10 @@ import (
 // swagger:model CreateUpdateOrders
 type CreateUpdateOrders struct {
 
+	// Indicates if the move entitlement allows dependents to travel to the new Permanent Duty Station (PDS). This is only present on OCONUS moves.
+	// Example: true
+	AccompaniedTour *bool `json:"accompanied_tour,omitempty"`
+
 	// counseling office id
 	// Example: cf1addea-a4f9-4173-8506-2bb82a064cb7
 	// Format: uuid
@@ -26,6 +30,14 @@ type CreateUpdateOrders struct {
 
 	// department indicator
 	DepartmentIndicator *DeptIndicator `json:"department_indicator,omitempty"`
+
+	// Indicates the number of dependents of the age twelve or older for a move. This is only present on OCONUS moves.
+	// Example: 3
+	DependentsTwelveAndOver *int64 `json:"dependents_twelve_and_over,omitempty"`
+
+	// Indicates the number of dependents under the age of twelve for a move. This is only present on OCONUS moves.
+	// Example: 5
+	DependentsUnderTwelve *int64 `json:"dependents_under_twelve,omitempty"`
 
 	// grade
 	Grade *OrderPayGrade `json:"grade,omitempty"`

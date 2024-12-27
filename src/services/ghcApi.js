@@ -649,13 +649,14 @@ export async function getServicesCounselingQueue(
   );
 }
 
-export async function getServicesCounselingOriginLocations(needsPPMCloseout) {
+export async function getServicesCounselingOriginLocations(needsPPMCloseout, viewAsGBLOC) {
   const operationPath = 'queues.getServicesCounselingOriginList';
 
   return makeGHCRequest(
     operationPath,
     {
       needsPPMCloseout,
+      viewAsGBLOC,
     },
 
     { schemaKey: 'Locations', normalize: false },
@@ -871,6 +872,10 @@ export async function bulkDownloadPaymentRequest(paymentRequestID) {
   return makeGHCRequestRaw('paymentRequests.bulkDownload', { paymentRequestID });
 }
 
+export async function searchLocationByZipCityState(search) {
+  return makeGHCRequest('addresses.getLocationByZipCityState', { search }, { normalize: false });
+}
+
 export async function dateSelectionIsWeekendHoliday(countryCode, date) {
   return makeGHCRequestRaw(
     'calendar.isDateWeekendHoliday',
@@ -900,4 +905,8 @@ export async function deleteAssignedOfficeUserForMove({ moveID, roleType }) {
     moveID,
     body: { roleType },
   });
+}
+
+export async function getAllReServiceItems() {
+  return makeGHCRequestRaw('reServiceItems.getAllReServiceItems', {}, { normalize: false });
 }

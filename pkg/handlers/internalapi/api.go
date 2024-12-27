@@ -92,6 +92,7 @@ func NewInternalAPI(handlerConfig handlers.HandlerConfig) *internalops.MymoveAPI
 	closeoutOfficeUpdater := move.NewCloseoutOfficeUpdater(move.NewMoveFetcher(), transportationOfficeFetcher)
 	addressCreator := address.NewAddressCreator()
 	addressUpdater := address.NewAddressUpdater()
+	vLocation := address.NewVLocation()
 
 	ppmShipmentUpdater := ppmshipment.NewPPMShipmentUpdater(ppmEstimator, addressCreator, addressUpdater)
 	boatShipmentUpdater := boatshipment.NewBoatShipmentUpdater()
@@ -110,7 +111,10 @@ func NewInternalAPI(handlerConfig handlers.HandlerConfig) *internalops.MymoveAPI
 	internalAPI.FeatureFlagsBooleanFeatureFlagForUserHandler = BooleanFeatureFlagsForUserHandler{handlerConfig}
 	internalAPI.FeatureFlagsVariantFeatureFlagForUserHandler = VariantFeatureFlagsForUserHandler{handlerConfig}
 
-	internalAPI.UsersShowLoggedInUserHandler = ShowLoggedInUserHandler{handlerConfig, officeuser.NewOfficeUserFetcherPop()}
+	internalAPI.UsersShowLoggedInUserHandler = ShowLoggedInUserHandler{
+		handlerConfig,
+		officeuser.NewOfficeUserFetcherPop(),
+	}
 	internalAPI.CertificationCreateSignedCertificationHandler = CreateSignedCertificationHandler{handlerConfig}
 	internalAPI.CertificationIndexSignedCertificationHandler = IndexSignedCertificationsHandler{handlerConfig}
 
@@ -193,7 +197,7 @@ func NewInternalAPI(handlerConfig handlers.HandlerConfig) *internalops.MymoveAPI
 	moveTaskOrderUpdater := movetaskorder.NewMoveTaskOrderUpdater(
 		builder,
 		mtoserviceitem.NewMTOServiceItemCreator(handlerConfig.HHGPlanner(), builder, moveRouter, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticPackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer()),
-		moveRouter, signedCertificationCreator, signedCertificationUpdater,
+		moveRouter, signedCertificationCreator, signedCertificationUpdater, ppmEstimator,
 	)
 	boatShipmentCreator := boatshipment.NewBoatShipmentCreator()
 	mobileHomeShipmentCreator := mobilehomeshipment.NewMobileHomeShipmentCreator()
@@ -275,6 +279,11 @@ func NewInternalAPI(handlerConfig handlers.HandlerConfig) *internalops.MymoveAPI
 	internalAPI.TransportationOfficesGetTransportationOfficesHandler = GetTransportationOfficesHandler{
 		handlerConfig,
 		transportationOfficeFetcher,
+	}
+
+	internalAPI.AddressesGetLocationByZipCityStateHandler = GetLocationByZipCityStateHandler{
+		handlerConfig,
+		vLocation,
 	}
 
 	paymentPacketCreator := ppmshipment.NewPaymentPacketCreator(ppmShipmentFetcher, pdfGenerator, AOAPacketCreator)

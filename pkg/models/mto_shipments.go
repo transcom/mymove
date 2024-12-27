@@ -275,6 +275,11 @@ func GetCustomerFromShipment(db *pop.Connection, shipmentID uuid.UUID) (*Service
 	return &serviceMember, nil
 }
 
+// Helper function to check that an MTO Shipment contains a PPM Shipment
+func (m MTOShipment) ContainsAPPMShipment() bool {
+	return m.PPMShipment != nil
+}
+
 // determining the market code for a shipment based off of address isOconus value
 // this function takes in a shipment and returns the same shipment with the updated MarketCode value
 func DetermineShipmentMarketCode(shipment *MTOShipment) *MTOShipment {
@@ -354,4 +359,13 @@ func DetermineMarketCode(address1 *Address, address2 *Address) (MarketCode, erro
 	} else {
 		return MarketCodeInternational, nil
 	}
+}
+
+func CreateApprovedServiceItemsForShipment(db *pop.Connection, shipment *MTOShipment) error {
+	err := db.RawQuery("CALL create_approved_service_items_for_shipment($1)", shipment.ID).Exec()
+	if err != nil {
+		return fmt.Errorf("error creating approved service items: %w", err)
+	}
+
+	return nil
 }

@@ -20,6 +20,26 @@ const mockSITServiceItem = {
   eTag: 'abc123',
 };
 
+const mockCratingServiceItem = {
+  reServiceName: 'Test Service',
+  status: 'APPROVED',
+  id: '456',
+  reServiceCode: 'ICRT',
+  eTag: 'abc123',
+  item: {
+    height: 33,
+    length: 33,
+    width: 33,
+  },
+  crate: {
+    height: 44,
+    length: 44,
+    width: 44,
+  },
+  market: 'OCONUS',
+  externalCrate: true,
+};
+
 const mockMtoShipment = {
   primeActualWeight: 500,
 };
@@ -51,5 +71,22 @@ describe('ServiceItem Component', () => {
     expect(getByText('Service Name:')).toBeInTheDocument();
     expect(getByText('eTag:')).toBeInTheDocument();
     expect(getByText('Shipment Weight (pounds):')).toBeInTheDocument();
+  });
+
+  it.each([
+    { reServiceCode: 'ICRT', description: 'international crating service item' },
+    { reServiceCode: 'IUCRT', description: 'international uncrating service item' },
+  ])('renders info for international crate service item', ({ reServiceCode }) => {
+    const { getByText } = render(
+      <ServiceItem serviceItem={{ ...mockCratingServiceItem, reServiceCode }} mtoShipment={mockMtoShipment} />,
+    );
+    expect(getByText('Item Size:')).toBeInTheDocument();
+    expect(getByText('0.033" x 0.033" x 0.033"')).toBeInTheDocument();
+    expect(getByText('Crate Size:')).toBeInTheDocument();
+    expect(getByText('0.044" x 0.044" x 0.044"')).toBeInTheDocument();
+    expect(getByText('External Crate:')).toBeInTheDocument();
+    expect(getByText('Yes')).toBeInTheDocument();
+    expect(getByText('Market:')).toBeInTheDocument();
+    expect(getByText('OCONUS')).toBeInTheDocument();
   });
 });

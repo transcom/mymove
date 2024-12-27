@@ -47,7 +47,7 @@ func (suite *AddressSuite) TestAddressUpdater() {
 		suite.NotNil(updatedAddress.StreetAddress3)
 		suite.Equal(originalAddress.StreetAddress3, updatedAddress.StreetAddress3)
 		suite.NotNil(updatedAddress.Country)
-		suite.Equal(county, desiredAddress.County)
+		suite.Equal(county, *desiredAddress.County)
 	})
 
 	suite.Run("Successfully merges state for an address", func() {
@@ -75,7 +75,7 @@ func (suite *AddressSuite) TestAddressUpdater() {
 		suite.NotNil(updatedAddress.StreetAddress3)
 		suite.Equal(originalAddress.StreetAddress3, updatedAddress.StreetAddress3)
 		suite.NotNil(updatedAddress.Country)
-		suite.Equal(county, desiredAddress.County)
+		suite.Equal(county, *desiredAddress.County)
 	})
 
 	suite.Run("Fails to updates because of stale etag", func() {

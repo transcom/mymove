@@ -3,6 +3,7 @@ package models_test
 import (
 	"github.com/gofrs/uuid"
 
+	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/unit"
 )
@@ -90,6 +91,15 @@ func (suite *ModelSuite) TestMTOShipmentValidation() {
 			"market_code":                   {"MarketCode is not in the list [d, i]."},
 		}
 		suite.verifyValidationErrors(&invalidMTOShipment, expErrors)
+	})
+	suite.Run("test MTO Shipment has a PPM Shipment", func() {
+		ppmShipment := factory.BuildPPMShipment(suite.DB(), nil, nil)
+		mtoShipment := factory.BuildMTOShipmentMinimal(suite.DB(), nil, nil)
+
+		mtoShipment.PPMShipment = &ppmShipment
+		result := mtoShipment.ContainsAPPMShipment()
+
+		suite.True(result, "Expected mtoShipment to cotain a PPM Shipment")
 	})
 }
 
@@ -270,5 +280,47 @@ func (suite *ModelSuite) TestDetermineMarketCode() {
 		suite.Error(err)
 		suite.Equal(marketCodeNil, marketCode, "Expected MarketCode to be empty when both addresses are nil")
 		suite.EqualError(err, "both address1 and address2 must be provided")
+	})
+}
+func (suite *ModelSuite) TestCreateApprovedServiceItemsForShipment() {
+	suite.Run("test creating approved service items for shipment", func() {
+
+		shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+
+				Model: models.Address{
+					StreetAddress1: "some address",
+					City:           "city",
+					State:          "CA",
+					PostalCode:     "90210",
+					IsOconus:       models.BoolPointer(false),
+				},
+				Type: &factory.Addresses.PickupAddress,
+			},
+			{
+				Model: models.MTOShipment{
+					MarketCode: "i",
+				},
+			},
+			{
+				Model: models.Address{
+					StreetAddress1: "some address",
+					City:           "city",
+					State:          "AK",
+					PostalCode:     "98765",
+					IsOconus:       models.BoolPointer(true),
+				},
+				Type: &factory.Addresses.DeliveryAddress,
+			},
+		}, nil)
+		err := models.CreateApprovedServiceItemsForShipment(suite.DB(), &shipment)
+		suite.NoError(err)
+	})
+
+	suite.Run("test error handling for invalid shipment", func() {
+		invalidShipment := models.MTOShipment{}
+
+		err := models.CreateApprovedServiceItemsForShipment(suite.DB(), &invalidShipment)
+		suite.Error(err)
 	})
 }

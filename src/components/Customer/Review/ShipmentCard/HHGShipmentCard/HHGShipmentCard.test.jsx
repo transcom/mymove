@@ -104,10 +104,10 @@ describe('HHGShipmentCard component', () => {
     const wrapper = mountHHGShipmentCard();
     const tableHeaders = [
       'Requested pickup date',
-      'Pickup location',
+      'Pickup Address',
       'Releasing agent',
       'Requested delivery date',
-      'Destination',
+      'Delivery Address',
       'Receiving agent',
       'Remarks',
     ];
@@ -140,7 +140,7 @@ describe('HHGShipmentCard component', () => {
 
   it('should render without releasing/receiving agents and remarks', () => {
     const wrapper = mountHHGShipmentCard({ ...defaultProps, releasingAgent: null, receivingAgent: null, remarks: '' });
-    const tableHeaders = ['Requested pickup date', 'Pickup location', 'Requested delivery date', 'Destination'];
+    const tableHeaders = ['Requested pickup date', 'Pickup Address', 'Requested delivery date', 'Delivery Address'];
     const { streetAddress1, city, state, postalCode } = defaultProps.pickupLocation;
     const tableData = [
       formatCustomerDate(defaultProps.requestedPickupDate),
@@ -153,33 +153,33 @@ describe('HHGShipmentCard component', () => {
     expect(wrapper.find('.remarksCell').length).toBe(0);
   });
 
-  it('should not render a secondary pickup location if not provided one', async () => {
+  it('should not render a secondary Pickup Address if not provided one', async () => {
     render(<HHGShipmentCard {...defaultProps} />);
 
-    const secondPickupLocation = await screen.queryByText('Second pickup location');
+    const secondPickupLocation = await screen.queryByText('Second Pickup Address');
     expect(secondPickupLocation).not.toBeInTheDocument();
   });
 
-  it('should not render a secondary destination location if not provided one', async () => {
+  it('should not render a secondary delivery address if not provided one', async () => {
     render(<HHGShipmentCard {...defaultProps} />);
 
-    const secondDestination = await screen.queryByText('Second Destination');
+    const secondDestination = await screen.queryByText('Second Delivery Address');
     expect(secondDestination).not.toBeInTheDocument();
   });
 
-  it('should render a secondary pickup location if provided one', async () => {
+  it('should render a secondary Pickup Address if provided one', async () => {
     render(<HHGShipmentCard {...defaultProps} {...secondaryPickupAddress} />);
 
-    const secondPickupLocation = await screen.getByText('Second pickup location');
+    const secondPickupLocation = await screen.getByText('Second Pickup Address');
     expect(secondPickupLocation).toBeInTheDocument();
     const secondPickupLocationInformation = await screen.getByText(/Some Other Street Name/);
     expect(secondPickupLocationInformation).toBeInTheDocument();
   });
 
-  it('should render a secondary destination location if provided one', async () => {
+  it('should render a secondary delivery address if provided one', async () => {
     render(<HHGShipmentCard {...defaultProps} {...secondaryDeliveryAddress} />);
 
-    const secondDestination = await screen.getByText('Second Destination');
+    const secondDestination = await screen.getByText('Second Delivery Address');
     expect(secondDestination).toBeInTheDocument();
     const secondDesintationInformation = await screen.getByText(/Some Street Name/);
     expect(secondDesintationInformation).toBeInTheDocument();
@@ -298,10 +298,10 @@ describe('HHGShipmentCard component can be reused for UB shipment card', () => {
     const wrapper = mountHHGShipmentCardForUBShipment();
     const tableHeaders = [
       'Requested pickup date',
-      'Pickup location',
+      'Pickup Address',
       'Releasing agent',
       'Requested delivery date',
-      'Destination',
+      'Delivery Address',
       'Receiving agent',
       'Remarks',
     ];
@@ -339,7 +339,7 @@ describe('HHGShipmentCard component can be reused for UB shipment card', () => {
       receivingAgent: null,
       remarks: '',
     });
-    const tableHeaders = ['Requested pickup date', 'Pickup location', 'Requested delivery date', 'Destination'];
+    const tableHeaders = ['Requested pickup date', 'Pickup Address', 'Requested delivery date', 'Delivery Address'];
     const { streetAddress1, city, state, postalCode } = ubProps.pickupLocation;
     const tableData = [
       formatCustomerDate(ubProps.requestedPickupDate),
@@ -352,33 +352,33 @@ describe('HHGShipmentCard component can be reused for UB shipment card', () => {
     expect(wrapper.find('.remarksCell').length).toBe(0);
   });
 
-  it('should not render a secondary pickup location on UB shipment card if not provided one', async () => {
+  it('should not render a secondary Pickup Address on UB shipment card if not provided one', async () => {
     render(<HHGShipmentCard {...ubProps} />);
 
-    const secondPickupLocation = await screen.queryByText('Second pickup location');
+    const secondPickupLocation = await screen.queryByText('Second Pickup Address');
     expect(secondPickupLocation).not.toBeInTheDocument();
   });
 
-  it('should not render a secondary destination location on UB shipment card if not provided one', async () => {
+  it('should not render a secondary delivery address on UB shipment card if not provided one', async () => {
     render(<HHGShipmentCard {...ubProps} />);
 
-    const secondDestination = await screen.queryByText('Second Destination');
+    const secondDestination = await screen.queryByText('Second Delivery Address');
     expect(secondDestination).not.toBeInTheDocument();
   });
 
-  it('should render a UB shipment card secondary pickup location if provided one', async () => {
+  it('should render a UB shipment card secondary Pickup Address if provided one', async () => {
     render(<HHGShipmentCard {...ubProps} {...secondaryPickupAddress} />);
 
-    const secondPickupLocation = await screen.getByText('Second pickup location');
+    const secondPickupLocation = await screen.getByText('Second Pickup Address');
     expect(secondPickupLocation).toBeInTheDocument();
     const secondPickupLocationInformation = await screen.getByText(/Some Other Street Name/);
     expect(secondPickupLocationInformation).toBeInTheDocument();
   });
 
-  it('should render a UB shipment card secondary destination location if provided one', async () => {
+  it('should render a UB shipment card secondary delivery address if provided one', async () => {
     render(<HHGShipmentCard {...ubProps} {...secondaryDeliveryAddress} />);
 
-    const secondDestination = await screen.getByText('Second Destination');
+    const secondDestination = await screen.getByText('Second Delivery Address');
     expect(secondDestination).toBeInTheDocument();
     const secondDesintationInformation = await screen.getByText(/Some Street Name/);
     expect(secondDesintationInformation).toBeInTheDocument();

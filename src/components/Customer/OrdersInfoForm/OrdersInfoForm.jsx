@@ -4,9 +4,14 @@ import { Formik, Field } from 'formik';
 import * as Yup from 'yup';
 import { Radio, FormGroup, Label, Link as USWDSLink } from '@trussworks/react-uswds';
 
+import { isBooleanFlagEnabled } from '../../../utils/featureFlags';
+import { FEATURE_FLAG_KEYS } from '../../../shared/constants';
+
 import styles from './OrdersInfoForm.module.scss';
 
-import { ORDERS_PAY_GRADE_OPTIONS } from 'constants/orders';
+import MaskedTextField from 'components/form/fields/MaskedTextField/MaskedTextField';
+import ToolTip from 'shared/ToolTip/ToolTip';
+import { ORDERS_PAY_GRADE_OPTIONS, ORDERS_TYPE } from 'constants/orders';
 import { DropdownInput, DatePickerInput, DutyLocationInput } from 'components/form/fields';
 import Hint from 'components/Hint/index';
 import { Form } from 'components/form/Form';
@@ -23,8 +28,19 @@ let originMeta;
 let newDutyMeta = '';
 const OrdersInfoForm = ({ ordersTypeOptions, initialValues, onSubmit, onBack }) => {
   const payGradeOptions = dropdownInputOptions(ORDERS_PAY_GRADE_OPTIONS);
-  const [dutyLocation, setDutyLocation] = useState('');
+  const [currentDutyLocation, setCurrentDutyLocation] = useState('');
+  const [newDutyLocation, setNewDutyLocation] = useState('');
   const [counselingOfficeOptions, setCounselingOfficeOptions] = useState(null);
+  const [showAccompaniedTourField, setShowAccompaniedTourField] = useState(false);
+  const [showDependentAgeFields, setShowDependentAgeFields] = useState(false);
+  const [hasDependents, setHasDependents] = useState(false);
+  const [isOconusMove, setIsOconusMove] = useState(false);
+  const [enableUB, setEnableUB] = useState(false);
+
+  const [isHasDependentsDisabled, setHasDependentsDisabled] = useState(false);
+  const [prevOrderType, setPrevOrderType] = useState('');
+  const [filteredOrderTypeOptions, setFilteredOrderTypeOptions] = useState(ordersTypeOptions);
+
   const validationSchema = Yup.object().shape({
     orders_type: Yup.mixed()
       .oneOf(ordersTypeOptions.map((i) => i.key))
@@ -39,32 +55,137 @@ const OrdersInfoForm = ({ ordersTypeOptions, initialValues, onSubmit, onBack }) 
     new_duty_location: Yup.object().nullable().required('Required'),
     grade: Yup.mixed().oneOf(Object.keys(ORDERS_PAY_GRADE_OPTIONS)).required('Required'),
     origin_duty_location: Yup.object().nullable().required('Required'),
-    counseling_office_id: dutyLocation.provides_services_counseling
+    counseling_office_id: currentDutyLocation.provides_services_counseling
       ? Yup.string().required('Required')
       : Yup.string().notRequired(),
+    accompanied_tour: showAccompaniedTourField
+      ? Yup.mixed().oneOf(['yes', 'no']).required('Required')
+      : Yup.string().notRequired(),
+    dependents_under_twelve: showDependentAgeFields
+      ? Yup.number().min(0).required('Required')
+      : Yup.number().notRequired(),
+    dependents_twelve_and_over: showDependentAgeFields
+      ? Yup.number().min(0).required('Required')
+      : Yup.number().notRequired(),
   });
   useEffect(() => {
-    showCounselingOffices(dutyLocation.id).then((fetchedData) => {
-      if (fetchedData.body) {
-        const counselingOffices = fetchedData.body.map((item) => ({
-          key: item.id,
-          value: item.name,
-        }));
-        setCounselingOfficeOptions(counselingOffices);
+    // Functional component version of "componentDidMount"
+    // By leaving the dependency array empty this will only run once
+    const checkUBFeatureFlag = async () => {
+      const enabled = await isBooleanFlagEnabled(FEATURE_FLAG_KEYS.UNACCOMPANIED_BAGGAGE);
+      if (enabled) {
+        setEnableUB(true);
       }
-    });
-  }, [dutyLocation]);
+    };
+    checkUBFeatureFlag();
+  }, []);
+  useEffect(() => {
+    // If current duty location is defined, show the counseling offices
+    if (currentDutyLocation?.id) {
+      showCounselingOffices(currentDutyLocation.id).then((fetchedData) => {
+        if (fetchedData.body) {
+          const counselingOffices = fetchedData.body.map((item) => ({
+            key: item.id,
+            value: item.name,
+          }));
+          setCounselingOfficeOptions(counselingOffices);
+        }
+      });
+    }
+    // Check if either currentDutyLocation or newDutyLocation is OCONUS
+    if (currentDutyLocation?.address?.isOconus || newDutyLocation?.address?.isOconus) {
+      setIsOconusMove(true);
+    } else {
+      setIsOconusMove(false);
+    }
+    if (currentDutyLocation?.address && newDutyLocation?.address && enableUB) {
+      // Only if one of the duty locations is OCONUS should accompanied tour and dependent
+      // age fields display
+      if (isOconusMove && hasDependents) {
+        setShowAccompaniedTourField(true);
+        setShowDependentAgeFields(true);
+      } else {
+        setShowAccompaniedTourField(false);
+        setShowDependentAgeFields(false);
+      }
+    }
+  }, [currentDutyLocation, newDutyLocation, isOconusMove, hasDependents, enableUB]);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      const alaskaEnabled = await isBooleanFlagEnabled(FEATURE_FLAG_KEYS.ENABLE_ALASKA);
+
+      const updatedOptions = alaskaEnabled
+        ? ordersTypeOptions
+        : ordersTypeOptions.filter(
+            (e) => e.key !== ORDERS_TYPE.EARLY_RETURN_OF_DEPENDENTS && e.key !== ORDERS_TYPE.STUDENT_TRAVEL,
+          );
+
+      setFilteredOrderTypeOptions(updatedOptions);
+    };
+    fetchData();
+  }, [ordersTypeOptions]);
 
   return (
-    <Formik initialValues={initialValues} validateOnMount validationSchema={validationSchema} onSubmit={onSubmit}>
-      {({ isValid, isSubmitting, handleSubmit, values, touched }) => {
+    <Formik
+      initialValues={initialValues}
+      validateOnMount
+      validationSchema={validationSchema}
+      onSubmit={onSubmit}
+      setShowAccompaniedTourField={setShowAccompaniedTourField}
+      setShowDependentAgeFields={setShowDependentAgeFields}
+    >
+      {({ isValid, isSubmitting, handleSubmit, handleChange, setValues, values, touched, setFieldValue }) => {
         const isRetirementOrSeparation = ['RETIREMENT', 'SEPARATION'].includes(values.orders_type);
 
+        const handleCounselingOfficeChange = () => {
+          setValues({
+            ...values,
+            counseling_office_id: null,
+          });
+          setCounselingOfficeOptions(null);
+        };
         if (!values.origin_duty_location && touched.origin_duty_location) originMeta = 'Required';
         else originMeta = null;
 
         if (!values.new_duty_location && touched.new_duty_location) newDutyMeta = 'Required';
         else newDutyMeta = null;
+
+        const handleHasDependentsChange = (e) => {
+          // Declare a duplicate local scope of the field value
+          // for the form to prevent state race conditions
+          if (e.target.value === '') {
+            setFieldValue('has_dependents', '');
+          } else {
+            const fieldValueHasDependents = e.target.value === 'yes';
+            setHasDependents(e.target.value === 'yes');
+            setFieldValue('has_dependents', fieldValueHasDependents ? 'yes' : 'no');
+            if (fieldValueHasDependents && isOconusMove && enableUB) {
+              setShowAccompaniedTourField(true);
+              setShowDependentAgeFields(true);
+            } else {
+              setShowAccompaniedTourField(false);
+              setShowDependentAgeFields(false);
+            }
+          }
+        };
+
+        const handleOrderTypeChange = (e) => {
+          const { value } = e.target;
+          if (value === ORDERS_TYPE.STUDENT_TRAVEL || value === ORDERS_TYPE.EARLY_RETURN_OF_DEPENDENTS) {
+            setHasDependentsDisabled(true);
+            handleHasDependentsChange({ target: { value: 'yes' } });
+          } else {
+            setHasDependentsDisabled(false);
+            if (
+              prevOrderType === ORDERS_TYPE.STUDENT_TRAVEL ||
+              prevOrderType === ORDERS_TYPE.EARLY_RETURN_OF_DEPENDENTS
+            ) {
+              handleHasDependentsChange({ target: { value: '' } });
+            }
+          }
+          setPrevOrderType(value);
+        };
 
         return (
           <Form className={`${formStyles.form} ${styles.OrdersInfoForm}`}>
@@ -74,9 +195,13 @@ const OrdersInfoForm = ({ ordersTypeOptions, initialValues, onSubmit, onBack }) 
               <DropdownInput
                 label="Orders type"
                 name="orders_type"
-                options={ordersTypeOptions}
+                options={filteredOrderTypeOptions}
                 required
                 hint="Required"
+                onChange={(e) => {
+                  handleChange(e);
+                  handleOrderTypeChange(e);
+                }}
               />
               <DatePickerInput
                 name="issue_date"
@@ -98,42 +223,19 @@ const OrdersInfoForm = ({ ordersTypeOptions, initialValues, onSubmit, onBack }) 
                 label={formatLabelReportByDate(values.orders_type)}
                 required
               />
-              <FormGroup>
-                <Label hint="Required">Are dependents included in your orders?</Label>
-                <div>
-                  <Field
-                    as={Radio}
-                    label="Yes"
-                    id="hasDependentsYes"
-                    name="has_dependents"
-                    value="yes"
-                    title="Yes, dependents are included in my orders"
-                    type="radio"
-                  />
-                  <Field
-                    as={Radio}
-                    label="No"
-                    id="hasDependentsNo"
-                    name="has_dependents"
-                    value="no"
-                    title="No, dependents are not included in my orders"
-                    type="radio"
-                  />
-                </div>
-              </FormGroup>
-
               <DutyLocationInput
                 label="Current duty location"
                 hint="Required"
                 name="origin_duty_location"
                 id="origin_duty_location"
                 onDutyLocationChange={(e) => {
-                  setDutyLocation(e);
+                  setCurrentDutyLocation(e);
+                  handleCounselingOfficeChange();
                 }}
                 required
                 metaOverride={originMeta}
               />
-              {dutyLocation.provides_services_counseling && (
+              {currentDutyLocation.provides_services_counseling && (
                 <div>
                   <Label>
                     Select an origin duty location that most closely represents your current physical location, not
@@ -141,7 +243,7 @@ const OrdersInfoForm = ({ ordersTypeOptions, initialValues, onSubmit, onBack }) 
                     assist you.
                   </Label>
                   <DropdownInput
-                    label="Counseling Office"
+                    label="Counseling office"
                     name="counseling_office_id"
                     id="counseling_office_id"
                     hint="Required"
@@ -180,6 +282,9 @@ const OrdersInfoForm = ({ ordersTypeOptions, initialValues, onSubmit, onBack }) 
                     hint="Enter the option closest to your destination. Your move counselor will identify if there might be a cost to you. (Required)"
                     metaOverride={newDutyMeta}
                     placeholder="Enter a city or ZIP"
+                    onDutyLocationChange={(e) => {
+                      setNewDutyLocation(e);
+                    }}
                   />
                 </>
               ) : (
@@ -189,7 +294,120 @@ const OrdersInfoForm = ({ ordersTypeOptions, initialValues, onSubmit, onBack }) 
                   displayAddress={false}
                   hint="Required"
                   metaOverride={newDutyMeta}
+                  onDutyLocationChange={(e) => {
+                    setNewDutyLocation(e);
+                  }}
                 />
+              )}
+
+              <FormGroup>
+                <Label hint="Required">Are dependents included in your orders?</Label>
+                <div>
+                  <Field
+                    as={Radio}
+                    label="Yes"
+                    id="hasDependentsYes"
+                    data-testid="hasDependentsYes"
+                    name="has_dependents"
+                    value="yes"
+                    title="Yes, dependents are included in my orders"
+                    type="radio"
+                    onChange={(e) => {
+                      handleHasDependentsChange(e);
+                    }}
+                    disabled={isHasDependentsDisabled}
+                  />
+                  <Field
+                    as={Radio}
+                    label="No"
+                    id="hasDependentsNo"
+                    data-testid="hasDependentsNo"
+                    name="has_dependents"
+                    value="no"
+                    title="No, dependents are not included in my orders"
+                    type="radio"
+                    onChange={(e) => {
+                      handleHasDependentsChange(e);
+                    }}
+                    disabled={isHasDependentsDisabled}
+                  />
+                </div>
+              </FormGroup>
+
+              {showAccompaniedTourField && (
+                <FormGroup>
+                  <Label hint="Required">Is this an accompanied tour?</Label>
+                  <div>
+                    <div className={styles.radioWithToolTip}>
+                      <Field
+                        as={Radio}
+                        label="Yes"
+                        id="isAnAccompaniedTourYes"
+                        data-testid="isAnAccompaniedTourYes"
+                        name="accompanied_tour"
+                        value="yes"
+                        type="radio"
+                      />
+                      <ToolTip
+                        text="Accompanied Tour: An authorized order (assignment or tour) that allows dependents to travel to the new Permanent Duty Station (PDS)"
+                        position="right"
+                        icon="info-circle"
+                        color="blue"
+                        data-testid="isAnAccompaniedTourYesToolTip"
+                        closeOnLeave
+                      />
+                    </div>
+                    <div className={styles.radioWithToolTip}>
+                      <Field
+                        as={Radio}
+                        label="No"
+                        id="isAnAccompaniedTourNo"
+                        data-testid="isAnAccompaniedTourNo"
+                        name="accompanied_tour"
+                        value="no"
+                        type="radio"
+                      />
+                      <ToolTip
+                        text="Unaccompanied Tour: An authorized order (assignment or tour) that DOES NOT allow dependents to travel to the new Permanent Duty Station (PDS)"
+                        position="right"
+                        icon="info-circle"
+                        color="blue"
+                        data-testid="isAnAccompaniedTourNoToolTip"
+                        closeOnLeave
+                      />
+                    </div>
+                  </div>
+                </FormGroup>
+              )}
+
+              {showDependentAgeFields && (
+                <FormGroup>
+                  <MaskedTextField
+                    data-testid="dependentsUnderTwelve"
+                    defaultValue="0"
+                    name="dependents_under_twelve"
+                    label="Number of dependents under the age of 12"
+                    id="dependentsUnderTwelve"
+                    mask={Number}
+                    scale={0}
+                    signed={false}
+                    thousandsSeparator=","
+                    lazy={false}
+                  />
+
+                  <MaskedTextField
+                    data-testid="dependentsTwelveAndOver"
+                    defaultValue="0"
+                    name="dependents_twelve_and_over"
+                    label="Number of dependents of the age 12 or over"
+                    id="dependentsTwelveAndOver"
+                    mask={Number}
+                    scale={0}
+                    signed={false}
+                    thousandsSeparator=","
+                    lazy={false}
+                  />
+                </FormGroup>
               )}
 
               <DropdownInput
@@ -226,6 +444,10 @@ OrdersInfoForm.propTypes = {
     new_duty_location: PropTypes.shape({}),
     grade: PropTypes.string,
     origin_duty_location: DutyLocationShape,
+    dependents_under_twelve: PropTypes.string,
+    dependents_twelve_and_over: PropTypes.string,
+    accompanied_tour: PropTypes.string,
+    counseling_office_id: PropTypes.string,
   }).isRequired,
   onSubmit: PropTypes.func.isRequired,
   onBack: PropTypes.func.isRequired,

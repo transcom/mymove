@@ -23,6 +23,10 @@ jest.mock('utils/featureFlags', () => ({
   isBooleanFlagEnabled: jest.fn().mockImplementation(() => Promise.resolve()),
 }));
 
+beforeEach(() => {
+  jest.clearAllMocks();
+});
+
 const moveData = [
   {
     id: 'move1',
@@ -30,7 +34,7 @@ const moveData = [
       agency: 'AIR_FORCE',
       first_name: 'test first',
       last_name: 'test last',
-      dodID: '555555555',
+      edipi: '555555555',
     },
     locator: 'AB5P',
     departmentIndicator: 'ARMY',
@@ -69,7 +73,7 @@ const moveData = [
       agency: 'COAST_GUARD',
       first_name: 'test another first',
       last_name: 'test another last',
-      dodID: '4444444444',
+      edipi: '4444444444',
       emplid: '4589652',
     },
     locator: 'T12A',
@@ -107,7 +111,7 @@ const moveData = [
       agency: 'Marine Corps',
       first_name: 'will',
       last_name: 'robinson',
-      dodID: '6666666666',
+      edipi: '6666666666',
     },
     locator: 'PREP',
     departmentIndicator: 'MARINES',
@@ -196,8 +200,8 @@ describe('MoveQueue', () => {
     expect(currentMove.find({ 'data-testid': `customerName-${currentIndex}` }).text()).toBe(
       `${moveData[currentIndex].customer.last_name}, ${moveData[currentIndex].customer.first_name}`,
     );
-    expect(currentMove.find({ 'data-testid': `dodID-${currentIndex}` }).text()).toBe(
-      moveData[currentIndex].customer.dodID,
+    expect(currentMove.find({ 'data-testid': `edipi-${currentIndex}` }).text()).toBe(
+      moveData[currentIndex].customer.edipi,
     );
     expect(currentMove.find({ 'data-testid': `status-${currentIndex}` }).text()).toBe('New move');
     expect(currentMove.find({ 'data-testid': `locator-${currentIndex}` }).text()).toBe(moveData[currentIndex].locator);
@@ -227,8 +231,8 @@ describe('MoveQueue', () => {
     expect(currentMove.find({ 'data-testid': `customerName-${currentIndex}` }).text()).toBe(
       `${moveData[currentIndex].customer.last_name}, ${moveData[currentIndex].customer.first_name}`,
     );
-    expect(currentMove.find({ 'data-testid': `dodID-${currentIndex}` }).text()).toBe(
-      moveData[currentIndex].customer.dodID,
+    expect(currentMove.find({ 'data-testid': `edipi-${currentIndex}` }).text()).toBe(
+      moveData[currentIndex].customer.edipi,
     );
     expect(currentMove.find({ 'data-testid': `emplid-${currentIndex}` }).text()).toBe(
       moveData[currentIndex].customer.emplid,
@@ -258,8 +262,8 @@ describe('MoveQueue', () => {
     expect(currentMove.find({ 'data-testid': `customerName-${currentIndex}` }).text()).toBe(
       `${moveData[currentIndex].customer.last_name}, ${moveData[currentIndex].customer.first_name}`,
     );
-    expect(currentMove.find({ 'data-testid': `dodID-${currentIndex}` }).text()).toBe(
-      moveData[currentIndex].customer.dodID,
+    expect(currentMove.find({ 'data-testid': `edipi-${currentIndex}` }).text()).toBe(
+      moveData[currentIndex].customer.edipi,
     );
     expect(currentMove.find({ 'data-testid': `status-${currentIndex}` }).text()).toBe('New move');
     expect(currentMove.find({ 'data-testid': `locator-${currentIndex}` }).text()).toBe(moveData[currentIndex].locator);
@@ -327,9 +331,9 @@ describe('MoveQueue', () => {
   it('renders Search and Move Queue tabs', () => {
     reactRouterDom.useParams.mockReturnValue({ queueType: generalRoutes.QUEUE_SEARCH_PATH });
     render(
-      <reactRouterDom.BrowserRouter>
+      <MockProviders>
         <MoveQueue />
-      </reactRouterDom.BrowserRouter>,
+      </MockProviders>,
     );
     expect(screen.getByTestId('closeout-tab-link')).toBeInTheDocument();
     expect(screen.getByTestId('search-tab-link')).toBeInTheDocument();
@@ -339,9 +343,9 @@ describe('MoveQueue', () => {
   it('renders TableQueue when Search tab is selected', () => {
     reactRouterDom.useParams.mockReturnValue({ queueType: tooRoutes.MOVE_QUEUE });
     render(
-      <reactRouterDom.BrowserRouter>
+      <MockProviders>
         <MoveQueue />
-      </reactRouterDom.BrowserRouter>,
+      </MockProviders>,
     );
     expect(screen.queryByTestId('table-queue')).toBeInTheDocument();
     expect(screen.queryByTestId('move-search')).not.toBeInTheDocument();
@@ -349,18 +353,18 @@ describe('MoveQueue', () => {
   it('has all options for searches', async () => {
     reactRouterDom.useParams.mockReturnValue({ queueType: generalRoutes.QUEUE_SEARCH_PATH });
     render(
-      <reactRouterDom.BrowserRouter>
+      <MockProviders>
         <MoveQueue />
-      </reactRouterDom.BrowserRouter>,
+      </MockProviders>,
     );
     SEARCH_OPTIONS.forEach((option) => expect(screen.findByLabelText(option)));
   });
   it('Has all status options for move search', async () => {
     reactRouterDom.useParams.mockReturnValue({ queueType: generalRoutes.QUEUE_SEARCH_PATH });
     render(
-      <reactRouterDom.BrowserRouter>
+      <MockProviders>
         <MoveQueue />
-      </reactRouterDom.BrowserRouter>,
+      </MockProviders>,
     );
     MOVE_STATUS_OPTIONS.forEach((option) => expect(screen.findByLabelText(option)));
   });
@@ -368,18 +372,18 @@ describe('MoveQueue', () => {
   it('Has all status options for move queue', async () => {
     reactRouterDom.useParams.mockReturnValue({ queueType: tooRoutes.MOVE_QUEUE });
     render(
-      <reactRouterDom.BrowserRouter>
+      <MockProviders>
         <MoveQueue />
-      </reactRouterDom.BrowserRouter>,
+      </MockProviders>,
     );
     MOVE_STATUS_OPTIONS.forEach((option) => expect(screen.findByLabelText(option)));
   });
   it('renders a 404 if a bad route is provided', async () => {
     reactRouterDom.useParams.mockReturnValue({ queueType: 'BadRoute' });
     render(
-      <reactRouterDom.BrowserRouter>
+      <MockProviders>
         <MoveQueue />
-      </reactRouterDom.BrowserRouter>,
+      </MockProviders>,
     );
     await expect(screen.getByText('Error - 404')).toBeInTheDocument();
     await expect(screen.getByText("We can't find the page you're looking for")).toBeInTheDocument();
@@ -388,9 +392,9 @@ describe('MoveQueue', () => {
     isBooleanFlagEnabled.mockResolvedValue(true);
     reactRouterDom.useParams.mockReturnValue({ queueType: tooRoutes.MOVE_QUEUE });
     render(
-      <reactRouterDom.BrowserRouter>
+      <MockProviders>
         <MoveQueue />
-      </reactRouterDom.BrowserRouter>,
+      </MockProviders>,
     );
     await waitFor(() => {
       const lockIcon = screen.queryAllByTestId('lock-icon')[0];
@@ -401,9 +405,9 @@ describe('MoveQueue', () => {
     isBooleanFlagEnabled.mockResolvedValue(false);
     reactRouterDom.useParams.mockReturnValue({ queueType: tooRoutes.MOVE_QUEUE });
     render(
-      <reactRouterDom.BrowserRouter>
+      <MockProviders>
         <MoveQueue />
-      </reactRouterDom.BrowserRouter>,
+      </MockProviders>,
     );
     await await waitFor(() => {
       const lockIcon = screen.queryByTestId('lock-icon');
@@ -413,9 +417,9 @@ describe('MoveQueue', () => {
   it('renders an assigned column when the queue management flag is on', async () => {
     reactRouterDom.useParams.mockReturnValue({ queueType: tooRoutes.MOVE_QUEUE });
     render(
-      <reactRouterDom.BrowserRouter>
+      <MockProviders>
         <MoveQueue isQueueManagementFFEnabled />
-      </reactRouterDom.BrowserRouter>,
+      </MockProviders>,
     );
     await waitFor(() => {
       const assignedSelect = screen.queryAllByTestId('assigned-col')[0];
@@ -425,9 +429,9 @@ describe('MoveQueue', () => {
   it('renders an assigned column when the queue management flag is off', async () => {
     reactRouterDom.useParams.mockReturnValue({ queueType: tooRoutes.MOVE_QUEUE });
     render(
-      <reactRouterDom.BrowserRouter>
+      <MockProviders>
         <MoveQueue isQueueManagementFFEnabled={false} />
-      </reactRouterDom.BrowserRouter>,
+      </MockProviders>,
     );
     await waitFor(() => {
       const assignedSelect = screen.queryByTestId('assigned-col');
