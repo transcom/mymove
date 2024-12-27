@@ -289,9 +289,9 @@ func (suite *HandlerSuite) TestPatchServiceMemberHandler() {
 	suite.Equal(*newPhoneIsPreferred, *serviceMemberPayload.PhoneIsPreferred)
 	suite.Equal(*newEmailIsPreferred, *serviceMemberPayload.EmailIsPreferred)
 	suite.Equal(*resAddress.StreetAddress1, *serviceMemberPayload.ResidentialAddress.StreetAddress1)
-	suite.Equal(*resAddress.County, *serviceMemberPayload.ResidentialAddress.County)
+	suite.Equal(resAddress.County, serviceMemberPayload.ResidentialAddress.County)
 	suite.Equal(*backupAddress.StreetAddress1, *serviceMemberPayload.BackupMailingAddress.StreetAddress1)
-	suite.Equal(*backupAddress.County, *serviceMemberPayload.BackupMailingAddress.County)
+	suite.Equal(backupAddress.County, serviceMemberPayload.BackupMailingAddress.County)
 }
 
 func (suite *HandlerSuite) TestPatchServiceMemberHandlerSubmittedMove() {
@@ -459,9 +459,9 @@ func (suite *HandlerSuite) TestPatchServiceMemberHandlerSubmittedMove() {
 	suite.Equal(*newEmailIsPreferred, *serviceMemberPayload.EmailIsPreferred)
 
 	suite.Equal(*resAddress.StreetAddress1, *serviceMemberPayload.ResidentialAddress.StreetAddress1)
-	suite.Equal(*resAddress.County, *serviceMemberPayload.ResidentialAddress.County)
+	suite.Equal(resAddress.County, serviceMemberPayload.ResidentialAddress.County)
 	suite.Equal(*backupAddress.StreetAddress1, *serviceMemberPayload.BackupMailingAddress.StreetAddress1)
-	suite.Equal(*backupAddress.County, *serviceMemberPayload.BackupMailingAddress.County)
+	suite.Equal(backupAddress.County, serviceMemberPayload.BackupMailingAddress.County)
 
 	// Then: we expect addresses to have been created
 	addresses := []models.Address{}
