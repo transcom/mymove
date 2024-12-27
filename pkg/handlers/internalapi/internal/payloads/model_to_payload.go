@@ -31,8 +31,7 @@ func Address(address *models.Address) *internalmessages.Address {
 	if *address == (models.Address{}) {
 		return nil
 	}
-
-	payloadAddress := &internalmessages.Address{
+	return &internalmessages.Address{
 		ID:             strfmt.UUID(address.ID.String()),
 		StreetAddress1: &address.StreetAddress1,
 		StreetAddress2: address.StreetAddress2,
@@ -41,16 +40,9 @@ func Address(address *models.Address) *internalmessages.Address {
 		State:          &address.State,
 		Country:        Country(address.Country),
 		PostalCode:     &address.PostalCode,
-		County:         address.County,
+		County:         &address.County,
 		IsOconus:       address.IsOconus,
 	}
-
-	if address.UsPostRegionCityID != nil {
-		usPostRegionCitiesID := *address.UsPostRegionCityID
-		payloadAddress.UsPostRegionCitiesID = strfmt.UUID(usPostRegionCitiesID.String())
-	}
-
-	return payloadAddress
 }
 
 // PPM Destination Address payload
@@ -691,29 +683,4 @@ func SignedCertification(signedCertification *models.SignedCertification) *inter
 	}
 
 	return model
-}
-
-// VLocation payload
-func VLocation(vLocation *models.VLocation) *internalmessages.VLocation {
-	if vLocation == nil || *vLocation == (models.VLocation{}) {
-		return nil
-	}
-
-	return &internalmessages.VLocation{
-		City:                 vLocation.CityName,
-		State:                vLocation.StateName,
-		PostalCode:           vLocation.UsprZipID,
-		County:               &vLocation.UsprcCountyNm,
-		UsPostRegionCitiesID: *handlers.FmtUUID(*vLocation.UsPostRegionCitiesID),
-	}
-}
-
-// VLocations payload
-func VLocations(vLocations models.VLocations) internalmessages.VLocations {
-	payload := make(internalmessages.VLocations, len(vLocations))
-	for i, vLocation := range vLocations {
-		copyOfVLocation := vLocation
-		payload[i] = VLocation(&copyOfVLocation)
-	}
-	return payload
 }

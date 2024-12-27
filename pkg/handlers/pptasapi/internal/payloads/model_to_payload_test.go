@@ -42,7 +42,7 @@ func (suite *PayloadsSuite) TestReport() {
 			City:           "Some City",
 			State:          "NY",
 			PostalCode:     "10001",
-			County:         models.StringPointer("Some County"),
+			County:         "Some County",
 		},
 		OrdersDate:   &now,
 		TAC:          models.StringPointer("CACI"),

@@ -48,7 +48,7 @@ export const EditFacilityInfoModal = ({
           enabledAK,
         }}
       >
-        {({ isValid, handleChange, values, ...formikProps }) => {
+        {({ isValid }) => {
           return (
             <Form className={formStyles.form}>
               <Fieldset>
@@ -96,8 +96,6 @@ export const EditFacilityInfoModal = ({
                 <AddressFields
                   name="storageFacility.address"
                   className={styles.AddressFields}
-                  locationLookup
-                  formikProps={formikProps}
                   render={(fields) => (
                     <>
                       {fields}

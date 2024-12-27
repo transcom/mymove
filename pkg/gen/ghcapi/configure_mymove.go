@@ -11,7 +11,6 @@ import (
 	"github.com/go-openapi/runtime/middleware"
 
 	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations"
-	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/addresses"
 	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/application_parameters"
 	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/calendar"
 	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/customer"
@@ -245,11 +244,6 @@ func configureAPI(api *ghcoperations.MymoveAPI) http.Handler {
 	if api.EvaluationReportsGetEvaluationReportHandler == nil {
 		api.EvaluationReportsGetEvaluationReportHandler = evaluation_reports.GetEvaluationReportHandlerFunc(func(params evaluation_reports.GetEvaluationReportParams) middleware.Responder {
 			return middleware.NotImplemented("operation evaluation_reports.GetEvaluationReport has not yet been implemented")
-		})
-	}
-	if api.AddressesGetLocationByZipCityStateHandler == nil {
-		api.AddressesGetLocationByZipCityStateHandler = addresses.GetLocationByZipCityStateHandlerFunc(func(params addresses.GetLocationByZipCityStateParams) middleware.Responder {
-			return middleware.NotImplemented("operation addresses.GetLocationByZipCityState has not yet been implemented")
 		})
 	}
 	if api.MtoServiceItemGetMTOServiceItemHandler == nil {

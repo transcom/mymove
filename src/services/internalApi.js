@@ -538,10 +538,6 @@ export async function downloadPPMPaymentPacket(ppmShipmentId) {
   return makeInternalRequestRaw('ppm.showPaymentPacket', { ppmShipmentId });
 }
 
-export async function searchLocationByZipCityState(search) {
-  return makeInternalRequest('addresses.getLocationByZipCityState', { search }, { normalize: false });
-}
-
 export async function dateSelectionIsWeekendHoliday(countryCode, date) {
   return makeInternalRequestRaw(
     'calendar.isDateWeekendHoliday',

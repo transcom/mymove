@@ -2,7 +2,6 @@
 import { test, expect } from '../../utils/my/customerTest';
 
 const multiMoveEnabled = process.env.FEATURE_FLAG_MULTI_MOVE;
-const location = 'ATCO, NJ 08004 (CAMDEN)';
 
 test.describe('NTSR', () => {
   test.skip(multiMoveEnabled === 'true', 'Skip if MultiMove workflow is enabled.');
@@ -27,9 +26,9 @@ test.describe('NTSR', () => {
     await page.getByLabel('Preferred delivery date').fill('25 Dec 2022');
     await page.getByLabel('Preferred delivery date').blur();
     await page.getByLabel('Address 1').fill('7 Q St');
-    await page.locator('input[id="delivery.address-location-input"]').fill('08004');
-    await expect(page.getByText(location, { exact: true })).toBeVisible();
-    await page.keyboard.press('Enter');
+    await page.getByLabel('City').fill('Atco');
+    await page.getByLabel('State').selectOption({ label: 'NJ' });
+    await page.getByLabel('ZIP').fill('08004');
     await page.getByTestId('remarks').fill('Grandfather antique clock');
     await customerPage.navigateForward();
 
@@ -90,9 +89,9 @@ test.describe('(MultiMove) NTSR', () => {
     await page.getByLabel('Preferred delivery date').fill('25 Dec 2022');
     await page.getByLabel('Preferred delivery date').blur();
     await page.getByLabel('Address 1').fill('7 Q St');
-    await page.locator('input[id="delivery.address-location-input"]').fill('08004');
-    await expect(page.getByText(location, { exact: true })).toBeVisible();
-    await page.keyboard.press('Enter');
+    await page.getByLabel('City').fill('Atco');
+    await page.getByLabel('State').selectOption({ label: 'NJ' });
+    await page.getByLabel('ZIP').fill('08004');
     await page.getByTestId('remarks').fill('Grandfather antique clock');
     await customerPage.navigateForward();
 

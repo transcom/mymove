@@ -39,8 +39,14 @@ const EditContactInfoForm = ({ initialValues, onSubmit, onCancel }) => {
   const sectionStyles = classnames(formStyles.formSection, editContactInfoFormStyle.formSection);
 
   return (
-    <Formik initialValues={initialValues} onSubmit={onSubmit} validateOnMount validationSchema={validationSchema}>
-      {({ isValid, isSubmitting, handleSubmit, values, ...formikProps }) => {
+    <Formik
+      initialValues={initialValues}
+      onSubmit={onSubmit}
+      validateOnMount
+      validationSchema={validationSchema}
+      initialTouched={{ telephone: true }}
+    >
+      {({ isValid, isSubmitting, handleSubmit }) => {
         return (
           <Form className={classnames(formStyles.form, editContactInfoFormStyle.form)}>
             <h1>Edit contact info</h1>
@@ -54,12 +60,7 @@ const EditContactInfoForm = ({ initialValues, onSubmit, onCancel }) => {
             <SectionWrapper className={sectionStyles}>
               <h2>Current address</h2>
 
-              <AddressFields
-                name={residentialAddressName}
-                labelHint="Required"
-                locationLookup
-                formikProps={formikProps}
-              />
+              <AddressFields name={residentialAddressName} labelHint="Required" />
             </SectionWrapper>
 
             <SectionWrapper className={sectionStyles}>
@@ -69,7 +70,7 @@ const EditContactInfoForm = ({ initialValues, onSubmit, onCancel }) => {
                 transit during your move.
               </p>
 
-              <AddressFields name={backupAddressName} labelHint="Required" locationLookup formikProps={formikProps} />
+              <AddressFields name={backupAddressName} labelHint="Required" />
             </SectionWrapper>
 
             <SectionWrapper className={sectionStyles}>

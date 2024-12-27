@@ -784,8 +784,7 @@ func Address(address *models.Address) *ghcmessages.Address {
 	if address == nil {
 		return nil
 	}
-
-	payloadAddress := &ghcmessages.Address{
+	return &ghcmessages.Address{
 		ID:             strfmt.UUID(address.ID.String()),
 		StreetAddress1: &address.StreetAddress1,
 		StreetAddress2: address.StreetAddress2,
@@ -794,16 +793,10 @@ func Address(address *models.Address) *ghcmessages.Address {
 		State:          &address.State,
 		PostalCode:     &address.PostalCode,
 		Country:        Country(address.Country),
-		County:         address.County,
+		County:         &address.County,
 		ETag:           etag.GenerateEtag(address.UpdatedAt),
 		IsOconus:       address.IsOconus,
 	}
-
-	if address.UsPostRegionCityID != nil {
-		payloadAddress.UsPostRegionCitiesID = strfmt.UUID(address.UsPostRegionCityID.String())
-	}
-
-	return payloadAddress
 }
 
 // PPM destination Address payload
@@ -2653,34 +2646,6 @@ func SearchCustomers(customers models.ServiceMemberSearchResults) *ghcmessages.S
 		}
 	}
 	return &searchCustomers
-}
-
-// VLocation payload
-func VLocation(vLocation *models.VLocation) *ghcmessages.VLocation {
-	if vLocation == nil {
-		return nil
-	}
-	if *vLocation == (models.VLocation{}) {
-		return nil
-	}
-
-	return &ghcmessages.VLocation{
-		City:                 vLocation.CityName,
-		State:                vLocation.StateName,
-		PostalCode:           vLocation.UsprZipID,
-		County:               &vLocation.UsprcCountyNm,
-		UsPostRegionCitiesID: *handlers.FmtUUID(*vLocation.UsPostRegionCitiesID),
-	}
-}
-
-// VLocations payload
-func VLocations(vLocations models.VLocations) ghcmessages.VLocations {
-	payload := make(ghcmessages.VLocations, len(vLocations))
-	for i, vLocation := range vLocations {
-		copyOfVLocation := vLocation
-		payload[i] = VLocation(&copyOfVLocation)
-	}
-	return payload
 }
 
 // ReServiceItem payload

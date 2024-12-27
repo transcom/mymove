@@ -442,7 +442,7 @@ func (suite *PPMShipmentSuite) TestUpdatePPMShipment() {
 					City:           "Des Moines",
 					State:          "IA",
 					PostalCode:     "50309",
-					County:         models.StringPointer("POLK"),
+					County:         "POLK",
 				},
 				Type: &factory.Addresses.PickupAddress,
 			},
@@ -454,7 +454,7 @@ func (suite *PPMShipmentSuite) TestUpdatePPMShipment() {
 					City:           "Fort Eisenhower",
 					State:          "GA",
 					PostalCode:     "50309",
-					County:         models.StringPointer("COLUMBIA"),
+					County:         "COLUMBIA",
 				},
 				Type: &factory.Addresses.DeliveryAddress,
 			},
@@ -469,7 +469,7 @@ func (suite *PPMShipmentSuite) TestUpdatePPMShipment() {
 				City:           "Des Moines",
 				State:          "IA",
 				PostalCode:     "50308",
-				County:         models.StringPointer("POLK"),
+				County:         "POLK",
 			},
 			DestinationAddress: &models.Address{
 				StreetAddress1: "987 Other Avenue",
@@ -478,7 +478,7 @@ func (suite *PPMShipmentSuite) TestUpdatePPMShipment() {
 				City:           "Fort Eisenhower",
 				State:          "GA",
 				PostalCode:     "30183",
-				County:         models.StringPointer("COLUMBIA"),
+				County:         "COLUMBIA",
 			},
 		}
 

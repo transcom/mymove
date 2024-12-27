@@ -157,29 +157,25 @@ export class ServiceCounselorPage extends OfficePage {
     await storageInfo.getByLabel('Service order number').fill('999999');
 
     // Storage facility address
-    const StorageLocationLookup = 'ATLANTA, GA 30301 (FULTON)';
-
-    const storageAddress = this.page.getByRole('heading', { name: 'Storage facility address' }).locator('..');
+    const storageAddress = await this.page.getByRole('heading', { name: 'Storage facility address' }).locator('..');
     await storageAddress.getByLabel('Address 1').fill('148 S East St');
     await storageAddress.getByLabel('Address 2').fill('Suite 7A');
-    await this.page.locator('input[id="storageFacility.address-location-input"]').fill('30301');
-    await expect(storageAddress.getByText(StorageLocationLookup, { exact: true })).toBeVisible();
-    await this.page.keyboard.press('Enter');
-    await this.page.getByLabel('Lot number').fill('1111111');
+    await storageAddress.getByLabel('City').fill('Sample City');
+    await storageAddress.getByLabel('State').selectOption({ label: 'GA' });
+    await storageAddress.getByLabel('ZIP').fill('30301');
+    await storageAddress.getByLabel('Lot number').fill('1111111');
 
     // Requested delivery date
     await this.page.getByLabel('Requested delivery date').fill('20 Mar 2022');
     await this.page.getByLabel('Requested delivery date').blur();
 
-    // Delivery location
-    const DeliveryLocationLookup = 'MONTGOMERY, AL 36101 (MONTGOMERY)';
-
-    const deliveryLocation = this.page.getByRole('group', { name: 'Delivery Address' });
+    // Delivery Address
+    const deliveryLocation = await this.page.getByRole('group', { name: 'Delivery Address' });
     await deliveryLocation.getByLabel('Address 1').fill('448 Washington Blvd NE');
     await deliveryLocation.getByLabel('Address 2').fill('Apt D3');
-    await this.page.locator('input[id="delivery.address-location-input"]').fill('36101');
-    await expect(deliveryLocation.getByText(DeliveryLocationLookup, { exact: true })).toBeVisible();
-    await this.page.keyboard.press('Enter');
+    await deliveryLocation.getByLabel('City').fill('Another City');
+    await deliveryLocation.getByLabel('State').selectOption({ label: 'AL' });
+    await deliveryLocation.getByLabel('ZIP').fill('36101');
 
     // Remarks
     await this.page.getByLabel('Counselor remarks').fill('NTS-release counselor remarks');

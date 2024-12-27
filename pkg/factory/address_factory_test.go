@@ -19,7 +19,7 @@ func (suite *FactorySuite) TestBuildAddress() {
 	customCity := "Modesto"
 	customState := "ID"
 	customPostalCode := "83725"
-	customCounty := models.StringPointer("ADA")
+	customCounty := "ADA"
 	suite.Run("Successful creation of default address", func() {
 		// Under test:      BuildAddress
 		// Mocked:          None
@@ -39,7 +39,7 @@ func (suite *FactorySuite) TestBuildAddress() {
 		suite.Equal(defaultState, address.State)
 		suite.Equal(defaultPostalCode, address.PostalCode)
 		suite.Equal(country.ID, *address.CountryId)
-		suite.Equal(defaultCounty, *address.County)
+		suite.Equal(defaultCounty, address.County)
 	})
 
 	suite.Run("Successful creation of an address with customization", func() {
@@ -100,7 +100,7 @@ func (suite *FactorySuite) TestBuildAddress() {
 		suite.Equal("CA", address.State)
 		suite.Equal("94535", address.PostalCode)
 		suite.Equal(country.ID, *address.CountryId)
-		suite.Equal("SOLANO", *address.County)
+		suite.Equal("SOLANO", address.County)
 	})
 
 	suite.Run("Successful creation of address with both", func() {
@@ -130,7 +130,7 @@ func (suite *FactorySuite) TestBuildAddress() {
 		suite.Equal("IA", address.State)
 		suite.Equal("50309", address.PostalCode)
 		suite.Equal(country.ID, *address.CountryId)
-		suite.Equal("POLK", *address.County)
+		suite.Equal("POLK", address.County)
 	})
 
 	suite.Run("Successful creation of stubbed address", func() {
@@ -159,7 +159,7 @@ func (suite *FactorySuite) TestBuildAddress() {
 		suite.Equal("Houston", address.City)
 		suite.Equal("TX", address.State)
 		suite.Equal("77083", address.PostalCode)
-		suite.Equal("db nil when created", *address.County)
+		suite.Equal("db nil when created", address.County)
 
 		// Count how many addresses are in the DB, no new addresses should have been created
 		count, err := suite.DB().Count(&models.Address{})
@@ -186,7 +186,7 @@ func (suite *FactorySuite) TestBuildAddress() {
 					City:           customCity,
 					State:          customState,
 					PostalCode:     customPostalCode,
-					County:         customCounty,
+					County:         "County",
 					IsOconus:       models.BoolPointer(false),
 				},
 				LinkOnly: true,
@@ -204,7 +204,7 @@ func (suite *FactorySuite) TestBuildAddress() {
 		suite.Equal(customCity, address.City)
 		suite.Equal(customState, address.State)
 		suite.Equal(customPostalCode, address.PostalCode)
-		suite.Equal(customCounty, address.County)
+		suite.Equal("County", address.County)
 	})
 }
 

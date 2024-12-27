@@ -42,39 +42,34 @@ test.describe('HHG', () => {
     await customerPage.waitForPage.hhgShipment();
 
     // Update form (adding pickup and delivery address)
-    const pickupLocation = 'BEVERLY HILLS, CA 90212 (LOS ANGELES)';
-    const pickupAddress = page.getByRole('group', { name: 'Pickup Address' });
+    const pickupAddress = await page.getByRole('group', { name: 'Pickup Address' });
     await pickupAddress.getByLabel('Address 1').fill('7 Q St');
     await pickupAddress.getByLabel('Address 2').clear();
-    await page.locator('input[id="pickupAddress-location-input"]').fill('90212');
-    await expect(page.getByText(pickupLocation, { exact: true })).toBeVisible();
-    await page.keyboard.press('Enter');
-
+    await pickupAddress.getByLabel('City').fill('Atco');
+    await pickupAddress.getByLabel('State').selectOption({ label: 'NJ' });
+    await pickupAddress.getByLabel('ZIP').fill('08004');
     // Secondary pickup address
     await pickupAddress.getByText('Yes').click();
     await pickupAddress.getByLabel('Address 1').nth(1).fill('8 Q St');
     await pickupAddress.getByLabel('Address 2').nth(1).clear();
-    await page.locator('input[id="secondaryPickupAddress-location-input"]').fill('90212');
-    await expect(page.getByText(pickupLocation, { exact: true })).toBeVisible();
-    await page.keyboard.press('Enter');
+    await pickupAddress.getByLabel('City').nth(1).fill('Atco');
+    await pickupAddress.getByLabel('State').nth(1).selectOption({ label: 'NJ' });
+    await pickupAddress.getByLabel('ZIP').nth(1).fill('08004');
 
-    const deliveryLocation = 'HOLLYWOOD, MD 20636 (SAINT MARYS)';
-    const deliveryAddress = page.getByRole('group', { name: 'Delivery Address' });
+    const deliveryAddress = await page.getByRole('group', { name: 'Delivery Address' });
     await deliveryAddress.getByText('Yes').nth(0).click();
     await deliveryAddress.getByLabel('Address 1').nth(0).fill('9 W 2nd Ave');
     await deliveryAddress.getByLabel('Address 2').nth(0).fill('P.O. Box 456');
-    await page.locator('input[id="deliveryAddress-location-input"]').fill('20636');
-    await expect(page.getByText(deliveryLocation, { exact: true })).toBeVisible();
-    await page.keyboard.press('Enter');
-
+    await deliveryAddress.getByLabel('City').nth(0).fill('Hollywood');
+    await deliveryAddress.getByLabel('State').nth(0).selectOption({ label: 'MD' });
+    await deliveryAddress.getByLabel('ZIP').nth(0).fill('20636');
     // Secondary delivery address
-    const secondaryDeliveryLocation = 'ATCO, NJ 08004 (CAMDEN)';
     await deliveryAddress.getByText('Yes').nth(1).click();
     await deliveryAddress.getByLabel('Address 1').nth(1).fill('9 Q St');
     await deliveryAddress.getByLabel('Address 2').nth(1).clear();
-    await page.locator('input[id="secondaryDeliveryAddress-location-input"]').fill('08004');
-    await expect(page.getByText(secondaryDeliveryLocation, { exact: true })).toBeVisible();
-    await page.keyboard.press('Enter');
+    await deliveryAddress.getByLabel('City').nth(1).fill('Atco');
+    await deliveryAddress.getByLabel('State').nth(1).selectOption({ label: 'NJ' });
+    await deliveryAddress.getByLabel('ZIP').nth(1).fill('08004');
     await customerPage.navigateForward();
 
     // Verify that shipment updated
@@ -152,39 +147,34 @@ test.describe('(MultiMove) HHG', () => {
     await customerPage.waitForPage.hhgShipment();
 
     // Update form (adding pickup and delivery address)
-    const location = 'ATCO, NJ 08004 (CAMDEN)';
-    const pickupAddress = page.getByRole('group', { name: 'Pickup Address' });
+    const pickupAddress = await page.getByRole('group', { name: 'Pickup Address' });
     await pickupAddress.getByLabel('Address 1').fill('7 Q St');
     await pickupAddress.getByLabel('Address 2').clear();
-    await page.locator('input[id="pickup.address-location-input"]').fill('08004');
-    await expect(page.getByText(location, { exact: true })).toBeVisible();
-    await page.keyboard.press('Enter');
-
+    await pickupAddress.getByLabel('City').fill('Atco');
+    await pickupAddress.getByLabel('State').selectOption({ label: 'NJ' });
+    await pickupAddress.getByLabel('ZIP').fill('08004');
     // Secondary pickup address
     await pickupAddress.getByText('Yes').click();
     await pickupAddress.getByLabel('Address 1').nth(1).fill('8 Q St');
     await pickupAddress.getByLabel('Address 2').nth(1).clear();
-    await page.locator('input[id="secondaryPickup.address-location-input"]').fill('08004');
-    await expect(page.getByText(location, { exact: true })).toBeVisible();
-    await page.keyboard.press('Enter');
+    await pickupAddress.getByLabel('City').nth(1).fill('Atco');
+    await pickupAddress.getByLabel('State').nth(1).selectOption({ label: 'NJ' });
+    await pickupAddress.getByLabel('ZIP').nth(1).fill('08004');
 
-    // Delivery address
-    const deliveryLocation = 'HOLLYWOOD, MD 20636 (SAINT MARYS)';
-    const deliveryAddress = page.getByRole('group', { name: 'Delivery Address' });
+    const deliveryAddress = await page.getByRole('group', { name: 'Delivery Address' });
     await deliveryAddress.getByText('Yes').nth(0).click();
     await deliveryAddress.getByLabel('Address 1').nth(0).fill('9 W 2nd Ave');
     await deliveryAddress.getByLabel('Address 2').nth(0).fill('P.O. Box 456');
-    await page.locator('input[id="delivery.address-location-input"]').fill('20636');
-    await expect(page.getByText(deliveryLocation, { exact: true })).toBeVisible();
-    await page.keyboard.press('Enter');
-
+    await deliveryAddress.getByLabel('City').nth(0).fill('Hollywood');
+    await deliveryAddress.getByLabel('State').nth(0).selectOption({ label: 'MD' });
+    await deliveryAddress.getByLabel('ZIP').nth(0).fill('20636');
     // Secondary delivery address
     await deliveryAddress.getByText('Yes').nth(1).click();
     await deliveryAddress.getByLabel('Address 1').nth(1).fill('9 Q St');
     await deliveryAddress.getByLabel('Address 2').nth(1).clear();
-    await page.locator('input[id="secondaryDelivery.address-location-input"]').fill('08004');
-    await expect(page.getByText(location, { exact: true })).toBeVisible();
-    await page.keyboard.press('Enter');
+    await deliveryAddress.getByLabel('City').nth(1).fill('Atco');
+    await deliveryAddress.getByLabel('State').nth(1).selectOption({ label: 'NJ' });
+    await deliveryAddress.getByLabel('ZIP').nth(1).fill('08004');
     await customerPage.navigateForward();
 
     // Verify that shipment updated

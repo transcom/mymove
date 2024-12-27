@@ -1,11 +1,8 @@
 import React from 'react';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { Provider } from 'react-redux';
 
 import EditContactInfoForm from './EditContactInfoForm';
-
-import { configureStore } from 'shared/store';
 
 describe('EditContactInfoForm component', () => {
   const testProps = {
@@ -40,13 +37,7 @@ describe('EditContactInfoForm component', () => {
   };
 
   it('renders the form inputs', async () => {
-    const mockStore = configureStore({});
-
-    render(
-      <Provider store={mockStore.store}>
-        <EditContactInfoForm {...testProps} />
-      </Provider>,
-    );
+    render(<EditContactInfoForm {...testProps} />);
 
     const telephoneInput = await screen.findByLabelText(/Best contact phone/);
 
@@ -97,41 +88,41 @@ describe('EditContactInfoForm component', () => {
     expect(backupAddress2).toBeInstanceOf(HTMLInputElement);
     expect(backupAddress2).toHaveValue(testProps.initialValues.backup_mailing_address.streetAddress2);
 
-    const cityInputs = screen.getAllByTestId(/City/);
+    const cityInputs = await screen.findAllByLabelText(/City/);
 
     expect(cityInputs.length).toBe(2);
 
     const [residentialCity, backupCity] = cityInputs;
 
-    expect(residentialCity).toBeInstanceOf(HTMLLabelElement);
-    expect(residentialCity).toHaveTextContent(testProps.initialValues.residential_address.city);
+    expect(residentialCity).toBeInstanceOf(HTMLInputElement);
+    expect(residentialCity).toHaveValue(testProps.initialValues.residential_address.city);
 
-    expect(backupCity).toBeInstanceOf(HTMLLabelElement);
-    expect(backupCity).toHaveTextContent(testProps.initialValues.backup_mailing_address.city);
+    expect(backupCity).toBeInstanceOf(HTMLInputElement);
+    expect(backupCity).toHaveValue(testProps.initialValues.backup_mailing_address.city);
 
-    const stateInputs = screen.getAllByTestId(/State/);
+    const stateInputs = await screen.findAllByLabelText(/State/);
 
     expect(stateInputs.length).toBe(2);
 
     const [residentialState, backupState] = stateInputs;
 
-    expect(residentialState).toBeInstanceOf(HTMLLabelElement);
-    expect(residentialState).toHaveTextContent(testProps.initialValues.residential_address.state);
+    expect(residentialState).toBeInstanceOf(HTMLSelectElement);
+    expect(residentialState).toHaveValue(testProps.initialValues.residential_address.state);
 
-    expect(backupState).toBeInstanceOf(HTMLLabelElement);
-    expect(backupState).toHaveTextContent(testProps.initialValues.backup_mailing_address.state);
+    expect(backupState).toBeInstanceOf(HTMLSelectElement);
+    expect(backupState).toHaveValue(testProps.initialValues.backup_mailing_address.state);
 
-    const zipInputs = screen.getAllByTestId(/ZIP/);
+    const zipInputs = await screen.findAllByLabelText(/ZIP/);
 
     expect(zipInputs.length).toBe(2);
 
     const [residentialZIP, backupZIP] = zipInputs;
 
-    expect(residentialZIP).toBeInstanceOf(HTMLLabelElement);
-    expect(residentialZIP).toHaveTextContent(testProps.initialValues.residential_address.postalCode);
+    expect(residentialZIP).toBeInstanceOf(HTMLInputElement);
+    expect(residentialZIP).toHaveValue(testProps.initialValues.residential_address.postalCode);
 
-    expect(backupZIP).toBeInstanceOf(HTMLLabelElement);
-    expect(backupZIP).toHaveTextContent(testProps.initialValues.backup_mailing_address.postalCode);
+    expect(backupZIP).toBeInstanceOf(HTMLInputElement);
+    expect(backupZIP).toHaveValue(testProps.initialValues.backup_mailing_address.postalCode);
 
     // These next few have the same label for different field types
     const phoneInputs = await screen.findAllByLabelText(/Phone/);
@@ -168,13 +159,7 @@ describe('EditContactInfoForm component', () => {
   });
 
   it('shows an error message if trying to submit an invalid form', async () => {
-    const mockStore = configureStore({});
-
-    render(
-      <Provider store={mockStore.store}>
-        <EditContactInfoForm {...testProps} />
-      </Provider>,
-    );
+    render(<EditContactInfoForm {...testProps} />);
 
     const saveButton = await screen.findByRole('button', { name: 'Save' });
 
@@ -195,13 +180,7 @@ describe('EditContactInfoForm component', () => {
   });
 
   it('submits the form when its valid', async () => {
-    const mockStore = configureStore({});
-
-    render(
-      <Provider store={mockStore.store}>
-        <EditContactInfoForm {...testProps} />
-      </Provider>,
-    );
+    render(<EditContactInfoForm {...testProps} />);
 
     const saveButton = screen.getByRole('button', { name: 'Save' });
 
@@ -217,13 +196,7 @@ describe('EditContactInfoForm component', () => {
   });
 
   it('implements the onCancel handler when the Cancel button is clicked', async () => {
-    const mockStore = configureStore({});
-
-    render(
-      <Provider store={mockStore.store}>
-        <EditContactInfoForm {...testProps} />
-      </Provider>,
-    );
+    render(<EditContactInfoForm {...testProps} />);
 
     const cancelButton = screen.getByRole('button', { name: 'Cancel' });
 

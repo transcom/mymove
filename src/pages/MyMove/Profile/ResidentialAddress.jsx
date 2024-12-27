@@ -7,12 +7,33 @@ import { useNavigate } from 'react-router-dom';
 import NotificationScrollToTop from 'components/NotificationScrollToTop';
 import { getResponseError, patchServiceMember } from 'services/internalApi';
 import { updateServiceMember as updateServiceMemberAction } from 'store/entities/actions';
+import { ValidateZipRateData } from 'shared/api';
 import { selectServiceMemberFromLoggedInUser } from 'store/entities/selectors';
 import requireCustomerState from 'containers/requireCustomerState/requireCustomerState';
 import { profileStates } from 'constants/customerStates';
 import { customerRoutes } from 'constants/routes';
 import ResidentialAddressForm from 'components/Customer/ResidentialAddressForm/ResidentialAddressForm';
 import { ResidentialAddressShape } from 'types/address';
+import { ZIP_CODE_REGEX } from 'utils/validation';
+
+const UnsupportedZipCodeErrorMsg =
+  'Sorry, we don’t support that zip code yet. Please contact your local PPPO for assistance.';
+
+const validatePostalCode = async (value) => {
+  // Since we are validating the postal code on change, we want to only make this validation check
+  // when we know the value could possibly be valid.
+  if (!ZIP_CODE_REGEX.test(value)) {
+    return 'Must be valid zip code';
+  }
+  let responseBody;
+  try {
+    responseBody = await ValidateZipRateData(value, 'origin');
+  } catch (e) {
+    return 'Error checking ZIP';
+  }
+
+  return responseBody.valid ? undefined : UnsupportedZipCodeErrorMsg;
+};
 
 export const ResidentialAddress = ({ serviceMember, updateServiceMember }) => {
   const navigate = useNavigate();
@@ -27,8 +48,6 @@ export const ResidentialAddress = ({ serviceMember, updateServiceMember }) => {
       city: serviceMember.residential_address?.city || '',
       state: serviceMember.residential_address?.state || '',
       postalCode: serviceMember.residential_address?.postalCode || '',
-      county: serviceMember.residential_address?.county || '',
-      usPostRegionCitiesID: serviceMember.residential_address?.usPostRegionCitiesID || '',
     },
   };
 
@@ -79,6 +98,7 @@ export const ResidentialAddress = ({ serviceMember, updateServiceMember }) => {
             initialValues={initialValues}
             onBack={handleBack}
             onSubmit={handleSubmit}
+            validators={{ postalCode: validatePostalCode }}
           />
         </Grid>
       </Grid>

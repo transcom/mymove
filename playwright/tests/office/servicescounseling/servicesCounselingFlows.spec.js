@@ -10,7 +10,6 @@ import { DEPARTMENT_INDICATOR_OPTIONS } from '../../utils/office/officeTest';
 import { test, expect } from './servicesCounselingTestFixture';
 
 const supportingDocsEnabled = process.env.FEATURE_FLAG_MANAGE_SUPPORTING_DOCS;
-const LocationLookup = 'BEVERLY HILLS, CA 90210 (LOS ANGELES)';
 
 test.describe('Services counselor user', () => {
   test.describe('with basic HHG move', () => {
@@ -84,9 +83,11 @@ test.describe('Services counselor user', () => {
       await page.getByRole('group', { name: 'Delivery Address' }).getByText('Yes').nth(1).click();
       await page.locator('input[name="delivery.address.streetAddress1"]').clear();
       await page.locator('input[name="delivery.address.streetAddress1"]').fill('7 q st');
-      await page.locator('input[id="delivery.address-location-input"]').fill('90210');
-      await expect(page.getByText(LocationLookup, { exact: true })).toBeVisible();
-      await page.keyboard.press('Enter');
+      await page.locator('input[name="delivery.address.city"]').clear();
+      await page.locator('input[name="delivery.address.city"]').fill('city');
+      await page.locator('select[name="delivery.address.state"]').selectOption({ label: 'OH' });
+      await page.locator('input[name="delivery.address.postalCode"]').clear();
+      await page.locator('input[name="delivery.address.postalCode"]').fill('90210');
 
       // Select that we do not know the delivery address yet
       await page.getByRole('group', { name: 'Delivery Address' }).getByText('No').nth(1).click();
@@ -246,9 +247,9 @@ test.describe('Services counselor user', () => {
       await page.locator('#requestedDeliveryDate').blur();
       await page.getByRole('group', { name: 'Delivery Address' }).getByText('Yes').click();
       await page.locator('input[name="delivery.address.streetAddress1"]').fill('7 q st');
-      await page.locator('input[id="delivery.address-location-input"]').fill('90210');
-      await expect(page.getByText(LocationLookup, { exact: true })).toBeVisible();
-      await page.keyboard.press('Enter');
+      await page.locator('input[name="delivery.address.city"]').fill('city');
+      await page.locator('select[name="delivery.address.state"]').selectOption({ label: 'OH' });
+      await page.locator('input[name="delivery.address.postalCode"]').fill('90210');
       await page.locator('select[name="destinationType"]').selectOption({ label: 'Home of record (HOR)' });
       await page.locator('[data-testid="submitForm"]').click();
       await scPage.waitForLoading();
@@ -347,9 +348,11 @@ test.describe('Services counselor user', () => {
       await page.getByRole('group', { name: 'Delivery Address' }).getByText('Yes').nth(1).click();
       await page.locator('input[name="delivery.address.streetAddress1"]').clear();
       await page.locator('input[name="delivery.address.streetAddress1"]').fill('7 q st');
-      await page.locator('input[id="delivery.address-location-input"]').fill('90210');
-      await expect(page.getByText(LocationLookup, { exact: true })).toBeVisible();
-      await page.keyboard.press('Enter');
+      await page.locator('input[name="delivery.address.city"]').clear();
+      await page.locator('input[name="delivery.address.city"]').fill('city');
+      await page.locator('select[name="delivery.address.state"]').selectOption({ label: 'OH' });
+      await page.locator('input[name="delivery.address.postalCode"]').clear();
+      await page.locator('input[name="delivery.address.postalCode"]').fill('90210');
       await page.locator('select[name="destinationType"]').selectOption({ label: 'Home of selection (HOS)' });
       await page.locator('[data-testid="submitForm"]').click();
       await scPage.waitForLoading();

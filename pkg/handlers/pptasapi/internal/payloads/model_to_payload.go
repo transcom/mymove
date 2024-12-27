@@ -139,8 +139,7 @@ func Address(address *models.Address) *pptasmessages.Address {
 	if address == nil {
 		return nil
 	}
-
-	payloadAddress := &pptasmessages.Address{
+	return &pptasmessages.Address{
 		ID:             strfmt.UUID(address.ID.String()),
 		StreetAddress1: &address.StreetAddress1,
 		StreetAddress2: address.StreetAddress2,
@@ -149,13 +148,7 @@ func Address(address *models.Address) *pptasmessages.Address {
 		State:          &address.State,
 		PostalCode:     &address.PostalCode,
 		Country:        Country(address.Country),
-		County:         address.County,
+		County:         &address.County,
 		ETag:           etag.GenerateEtag(address.UpdatedAt),
 	}
-
-	if address.UsPostRegionCityID != nil {
-		payloadAddress.UsPostRegionCitiesID = strfmt.UUID(address.UsPostRegionCityID.String())
-	}
-
-	return payloadAddress
 }

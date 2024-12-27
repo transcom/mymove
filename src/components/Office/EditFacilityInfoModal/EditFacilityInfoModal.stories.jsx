@@ -1,11 +1,6 @@
 import React from 'react';
-import { Provider } from 'react-redux';
 
 import { EditFacilityInfoModal } from './EditFacilityInfoModal';
-
-import { configureStore } from 'shared/store';
-
-const mockStore = configureStore({});
 
 const storageFacility = {
   address: {
@@ -14,7 +9,6 @@ const storageFacility = {
     city: 'Pasadena',
     state: 'CA',
     postalCode: '90210',
-    county: 'Los Angeles',
   },
   lotNumber: '11232',
   facilityName: 'My Facility',
@@ -29,7 +23,6 @@ const storageFacilityInfoMissing = {
     city: 'Pasadena',
     state: 'CA',
     postalCode: '90210',
-    county: 'Los Angeles',
   },
   lotNumber: '11232',
   facilityName: '',
@@ -44,28 +37,24 @@ export default {
 
 export const Basic = () => (
   <div className="officeApp">
-    <Provider store={mockStore.store}>
-      <EditFacilityInfoModal
-        onSubmit={() => {}}
-        onClose={() => {}}
-        serviceOrderNumber="12345"
-        storageFacility={storageFacility}
-        shipmentType="HHG_INTO_NTS_DOMESTIC"
-      />
-    </Provider>
+    <EditFacilityInfoModal
+      onSubmit={() => {}}
+      onClose={() => {}}
+      serviceOrderNumber="12345"
+      storageFacility={storageFacility}
+      shipmentType="HHG_INTO_NTS_DOMESTIC"
+    />
   </div>
 );
 
 export const WithInfoMissing = () => (
   <div className="officeApp">
-    <Provider store={mockStore.store}>
-      <EditFacilityInfoModal
-        onSubmit={() => {}}
-        onClose={() => {}}
-        serviceOrderNumber="12345"
-        storageFacility={storageFacilityInfoMissing}
-        shipmentType="HHG_INTO_NTS_DOMESTIC"
-      />
-    </Provider>
+    <EditFacilityInfoModal
+      onSubmit={() => {}}
+      onClose={() => {}}
+      serviceOrderNumber="12345"
+      storageFacility={storageFacilityInfoMissing}
+      shipmentType="HHG_INTO_NTS_DOMESTIC"
+    />
   </div>
 );

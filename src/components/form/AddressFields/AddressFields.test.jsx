@@ -2,11 +2,8 @@ import React from 'react';
 import { render, fireEvent } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { Formik } from 'formik';
-import { Provider } from 'react-redux';
 
 import { AddressFields } from './AddressFields';
-
-import { configureStore } from 'shared/store';
 
 describe('AddressFields component', () => {
   it('renders a legend and all address inputs', () => {
@@ -86,34 +83,41 @@ describe('AddressFields component', () => {
     });
   });
 
-  describe('zip city enabled with pre-filled values', () => {
-    it('renders zip city lookup with info', () => {
+  describe('with on change postal code validator', () => {
+    it('puts the validator on the expected field', async () => {
       const initialValues = {
         address: {
-          streetAddress1: '123 Main St',
-          streetAddress2: 'Apt 3A',
-          city: 'New York',
-          state: 'NY',
-          postalCode: '10002',
-          county: 'NEW YORK',
+          streetAddress1: '',
+          streetAddress2: '',
+          city: '',
+          state: '',
+          postalCode: '',
         },
       };
-      const mockStore = configureStore({});
 
-      const { getByLabelText, getByTestId } = render(
-        <Provider store={mockStore.store}>
-          <Formik initialValues={initialValues}>
-            {({ ...formikProps }) => {
-              return <AddressFields legend="Address Form" name="address" locationLookup formikProps={formikProps} />;
-            }}
-          </Formik>
-        </Provider>,
+      const postalCodeErrorText = 'ZIP code must be 99999';
+
+      const { getByLabelText, findByRole } = render(
+        <Formik initialValues={initialValues} validateOnChange>
+          {({ handleChange, setFieldTouched }) => (
+            <AddressFields
+              legend="Address Form"
+              name="address"
+              formikFunctionsToValidatePostalCodeOnChange={{ handleChange, setFieldTouched }}
+              validators={{
+                postalCode: (value) => (value !== '99999' ? postalCodeErrorText : ''),
+              }}
+            />
+          )}
+        </Formik>,
       );
-      expect(getByLabelText('Address 1')).toHaveValue(initialValues.address.streetAddress1);
-      expect(getByLabelText(/Address 2/)).toHaveValue(initialValues.address.streetAddress2);
-      expect(getByTestId('City')).toHaveTextContent(initialValues.address.city);
-      expect(getByTestId('State')).toHaveTextContent(initialValues.address.state);
-      expect(getByTestId('ZIP')).toHaveTextContent(initialValues.address.postalCode);
+
+      const postalCodeInput = getByLabelText(/ZIP/);
+      await userEvent.type(postalCodeInput, '12345');
+
+      const postalCodeError = await findByRole('alert');
+
+      expect(postalCodeError).toHaveTextContent(postalCodeErrorText);
     });
   });
 });

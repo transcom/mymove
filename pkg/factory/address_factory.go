@@ -31,7 +31,7 @@ func BuildAddress(db *pop.Connection, customs []Customization, traits []Trait) m
 		City:           "Beverly Hills",
 		State:          "CA",
 		PostalCode:     "90210",
-		County:         models.StringPointer("LOS ANGELES"),
+		County:         "LOS ANGELES",
 		IsOconus:       models.BoolPointer(false),
 	}
 
@@ -62,14 +62,14 @@ func BuildAddress(db *pop.Connection, customs []Customization, traits []Trait) m
 		county, err := models.FindCountyByZipCode(db, address.PostalCode)
 		if err != nil {
 			// A zip code that is not being tracked has been entered
-			address.County = models.StringPointer("does not exist")
+			address.County = "does not exist"
 		} else {
 			// The zip code successfully found a county
 			address.County = county
 		}
 	} else if db == nil && address.PostalCode != "90210" {
 		// If no db supplied, mark that
-		address.County = models.StringPointer("db nil when created")
+		address.County = "db nil when created"
 	}
 
 	// If db is false, it's a stub. No need to create in database.
@@ -98,7 +98,7 @@ func BuildMinimalAddress(db *pop.Connection, customs []Customization, traits []T
 		City:           "Fort Gorden",
 		State:          "GA",
 		PostalCode:     "30813",
-		County:         models.StringPointer("RICHMOND"),
+		County:         "RICHMOND",
 		IsOconus:       models.BoolPointer(false),
 	}
 

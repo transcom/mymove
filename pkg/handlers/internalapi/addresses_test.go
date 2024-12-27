@@ -3,7 +3,6 @@ package internalapi
 import (
 	"net/http/httptest"
 
-	"github.com/go-openapi/strfmt"
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/factory"
@@ -11,7 +10,6 @@ import (
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
-	"github.com/transcom/mymove/pkg/services/address"
 )
 
 func fakeAddressPayload() *internalmessages.Address {
@@ -35,7 +33,7 @@ func (suite *HandlerSuite) TestShowAddressHandler() {
 			City:           "city",
 			State:          "state",
 			PostalCode:     "12345",
-			County:         models.StringPointer("JESSAMINE"),
+			County:         "JESSAMINE",
 			IsOconus:       models.BoolPointer(false),
 		}
 		suite.MustSave(&address)
@@ -77,34 +75,4 @@ func (suite *HandlerSuite) TestShowAddressHandler() {
 		}
 	})
 
-}
-
-func (suite *HandlerSuite) TestGetLocationByZipCityHandler() {
-	suite.Run("successful zip city lookup", func() {
-		zip := "90210"
-		var fetchedVLocation models.VLocation
-		err := suite.DB().Where("uspr_zip_id = $1", zip).First(&fetchedVLocation)
-
-		suite.NoError(err)
-		suite.Equal(zip, fetchedVLocation.UsprZipID)
-
-		vLocationServices := address.NewVLocation()
-		move := factory.BuildMove(suite.DB(), nil, nil)
-		req := httptest.NewRequest("GET", "/addresses/zip_city_lookup/"+zip, nil)
-		req = suite.AuthenticateRequest(req, move.Orders.ServiceMember)
-		params := addressop.GetLocationByZipCityStateParams{
-			HTTPRequest: req,
-			Search:      zip,
-		}
-
-		handler := GetLocationByZipCityStateHandler{
-			HandlerConfig: suite.HandlerConfig(),
-			VLocation:     vLocationServices}
-
-		response := handler.Handle(params)
-		suite.Assertions.IsType(&addressop.GetLocationByZipCityStateOK{}, response)
-		responsePayload := response.(*addressop.GetLocationByZipCityStateOK)
-		suite.NoError(responsePayload.Payload.Validate(strfmt.Default))
-		suite.Equal(zip, responsePayload.Payload[0].PostalCode)
-	})
 }

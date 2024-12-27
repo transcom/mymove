@@ -1,11 +1,9 @@
 import React from 'react';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { Provider } from 'react-redux';
 
 import { MockProviders } from 'testUtils';
 import ConnectedResidentialAddress, { ResidentialAddress } from 'pages/MyMove/Profile/ResidentialAddress';
-import { configureStore } from 'shared/store';
 import { customerRoutes } from 'constants/routes';
 import { patchServiceMember } from 'services/internalApi';
 import { ValidateZipRateData } from 'shared/api';
@@ -37,8 +35,6 @@ describe('ResidentialAddress page', () => {
     city: 'El Paso',
     state: 'TX',
     postalCode: '79912',
-    county: 'El Paso',
-    usPostRegionCitiesID: '',
   };
 
   const blankAddress = Object.fromEntries(Object.keys(fakeAddress).map((k) => [k, '']));
@@ -54,28 +50,39 @@ describe('ResidentialAddress page', () => {
 
   it('renders the ResidentialAddressForm', async () => {
     const testProps = generateTestProps(blankAddress);
-    const mockStore = configureStore({});
 
-    render(
-      <Provider store={mockStore.store}>
-        <ResidentialAddress {...testProps} />
-      </Provider>,
-    );
+    render(<ResidentialAddress {...testProps} />);
 
     await waitFor(() => {
       expect(screen.getByRole('heading', { name: 'Current address', level: 1 })).toBeInTheDocument();
     });
   });
 
+  it('validates zip code using api endpoint', async () => {
+    const testProps = generateTestProps(blankAddress);
+
+    ValidateZipRateData.mockImplementation(() => ({
+      valid: true,
+    }));
+
+    render(<ResidentialAddress {...testProps} />);
+
+    const postalCodeInput = await screen.findByLabelText(/ZIP/);
+
+    const postalCode = '99999';
+
+    await userEvent.type(postalCodeInput, postalCode);
+    await userEvent.tab();
+
+    await waitFor(() => {
+      expect(ValidateZipRateData).toHaveBeenCalledWith(postalCode, 'origin');
+    });
+  });
+
   it('back button goes to the contact info step', async () => {
     const testProps = generateTestProps(blankAddress);
-    const mockStore = configureStore({});
 
-    render(
-      <Provider store={mockStore.store}>
-        <ResidentialAddress {...testProps} />
-      </Provider>,
-    );
+    render(<ResidentialAddress {...testProps} />);
 
     const backButton = await screen.findByRole('button', { name: 'Back' });
     expect(backButton).toBeInTheDocument();
@@ -84,9 +91,8 @@ describe('ResidentialAddress page', () => {
     expect(mockNavigate).toHaveBeenCalledWith(customerRoutes.CONTACT_INFO_PATH);
   });
 
-  it('next button submits the form and goes to the Backup address step', async () => {
-    const testProps = generateTestProps(fakeAddress);
-    const mockStore = configureStore({});
+  it('Selecting an unsupported state should display an unsupported state message', async () => {
+    const testProps = generateTestProps(blankAddress);
 
     const expectedServiceMemberPayload = { ...testProps.serviceMember, residential_address: fakeAddress };
 
@@ -95,11 +101,49 @@ describe('ResidentialAddress page', () => {
     }));
     patchServiceMember.mockImplementation(() => Promise.resolve(expectedServiceMemberPayload));
 
-    render(
-      <Provider store={mockStore.store}>
-        <ResidentialAddress {...testProps} />
-      </Provider>,
-    );
+    const { getByLabelText } = render(<ResidentialAddress {...testProps} />);
+
+    await userEvent.type(screen.getByLabelText(/Address 1/), fakeAddress.streetAddress1);
+    await userEvent.type(screen.getByLabelText(/Address 2/), fakeAddress.streetAddress2);
+    await userEvent.type(screen.getByLabelText(/City/), fakeAddress.city);
+    await userEvent.selectOptions(screen.getByLabelText(/State/), 'HI');
+    await userEvent.type(screen.getByLabelText(/ZIP/), fakeAddress.postalCode);
+    await userEvent.tab();
+
+    const msg = screen.getByText('Moves to this state are not supported at this time.');
+    expect(msg).toBeVisible();
+
+    await userEvent.selectOptions(getByLabelText(/State/), 'AL');
+    await userEvent.type(getByLabelText(/ZIP/), fakeAddress.postalCode);
+    await userEvent.tab();
+    expect(msg).not.toBeVisible();
+
+    await userEvent.selectOptions(getByLabelText(/State/), 'HI');
+    await userEvent.type(getByLabelText(/ZIP/), fakeAddress.postalCode);
+    await userEvent.tab();
+    await waitFor(() => {
+      screen.getByText('Moves to this state are not supported at this time.');
+    });
+  });
+
+  it('next button submits the form and goes to the Backup address step', async () => {
+    const testProps = generateTestProps(blankAddress);
+
+    const expectedServiceMemberPayload = { ...testProps.serviceMember, residential_address: fakeAddress };
+
+    ValidateZipRateData.mockImplementation(() => ({
+      valid: true,
+    }));
+    patchServiceMember.mockImplementation(() => Promise.resolve(expectedServiceMemberPayload));
+
+    render(<ResidentialAddress {...testProps} />);
+
+    await userEvent.type(screen.getByLabelText(/Address 1/), fakeAddress.streetAddress1);
+    await userEvent.type(screen.getByLabelText(/Address 2/), fakeAddress.streetAddress2);
+    await userEvent.type(screen.getByLabelText(/City/), fakeAddress.city);
+    await userEvent.selectOptions(screen.getByLabelText(/State/), [fakeAddress.state]);
+    await userEvent.type(screen.getByLabelText(/ZIP/), fakeAddress.postalCode);
+    await userEvent.tab();
 
     const submitButton = screen.getByRole('button', { name: 'Next' });
     expect(submitButton).toBeInTheDocument();
@@ -115,23 +159,26 @@ describe('ResidentialAddress page', () => {
 
   it('shows an error if the ValidateZipRateData API returns an error', async () => {
     const testProps = generateTestProps(fakeAddress);
-    const mockStore = configureStore({});
 
     ValidateZipRateData.mockImplementation(() => ({
       valid: false,
     }));
     patchServiceMember.mockImplementation(() => Promise.resolve(testProps.serviceMember));
 
-    render(
-      <Provider store={mockStore.store}>
-        <ResidentialAddress {...testProps} />
-      </Provider>,
-    );
+    render(<ResidentialAddress {...testProps} />);
+
+    // Touch field so that error message can be displayed
+    await userEvent.click(screen.getByLabelText(/ZIP/));
 
     const submitButton = screen.getByRole('button', { name: 'Next' });
     expect(submitButton).toBeInTheDocument();
     await userEvent.click(submitButton);
 
+    const alert = await screen.findByRole('alert');
+
+    expect(alert).toHaveTextContent(
+      'Sorry, we don’t support that zip code yet. Please contact your local PPPO for assistance.',
+    );
     expect(patchServiceMember).not.toHaveBeenCalled();
     expect(testProps.updateServiceMember).not.toHaveBeenCalled();
     expect(mockNavigate).not.toHaveBeenCalled();
@@ -156,11 +203,7 @@ describe('ResidentialAddress page', () => {
       }),
     );
 
-    render(
-      <MockProviders>
-        <ResidentialAddress {...testProps} />
-      </MockProviders>,
-    );
+    render(<ResidentialAddress {...testProps} />);
 
     const submitButton = screen.getByRole('button', { name: 'Next' });
     expect(submitButton).toBeInTheDocument();
@@ -170,7 +213,7 @@ describe('ResidentialAddress page', () => {
       expect(patchServiceMember).toHaveBeenCalled();
     });
 
-    expect(await screen.findByText('A server error occurred saving the service member')).toBeInTheDocument();
+    expect(screen.getByText('A server error occurred saving the service member')).toBeInTheDocument();
     expect(testProps.updateServiceMember).not.toHaveBeenCalled();
     expect(mockNavigate).not.toHaveBeenCalled();
   });

@@ -1,11 +1,8 @@
 import React from 'react';
 import { render, waitFor, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { Provider } from 'react-redux';
 
 import { EditFacilityInfoModal } from './EditFacilityInfoModal';
-
-import { configureStore } from 'shared/store';
 
 describe('EditFacilityInfoModal', () => {
   const storageFacility = {
@@ -37,17 +34,14 @@ describe('EditFacilityInfoModal', () => {
 
   it('calls onSubmit prop on save button click when the form has valid data', async () => {
     const mockOnSubmit = jest.fn();
-    const mockStore = configureStore({});
     render(
-      <Provider store={mockStore.store}>
-        <EditFacilityInfoModal
-          onClose={() => {}}
-          onSubmit={mockOnSubmit}
-          storageFacility={storageFacility}
-          serviceOrderNumber="12345"
-          shipmentType="HHG_INTO_NTS_DOMESTIC"
-        />
-      </Provider>,
+      <EditFacilityInfoModal
+        onClose={() => {}}
+        onSubmit={mockOnSubmit}
+        storageFacility={storageFacility}
+        serviceOrderNumber="12345"
+        shipmentType="HHG_INTO_NTS_DOMESTIC"
+      />,
     );
     const submitBtn = screen.getByRole('button', { name: 'Save' });
 
@@ -60,17 +54,14 @@ describe('EditFacilityInfoModal', () => {
 
   it('calls onSubmit prop on save button click when valid data is entered', async () => {
     const mockOnSubmit = jest.fn();
-    const mockStore = configureStore({});
     render(
-      <Provider store={mockStore.store}>
-        <EditFacilityInfoModal
-          onClose={() => {}}
-          onSubmit={mockOnSubmit}
-          storageFacility={incompleteStorageFacility}
-          serviceOrderNumber="12345"
-          shipmentType="HHG_INTO_NTS_DOMESTIC"
-        />
-      </Provider>,
+      <EditFacilityInfoModal
+        onClose={() => {}}
+        onSubmit={mockOnSubmit}
+        storageFacility={incompleteStorageFacility}
+        serviceOrderNumber="12345"
+        shipmentType="HHG_INTO_NTS_DOMESTIC"
+      />,
     );
     const addressInput = screen.getByLabelText(/Address 1/);
     const submitBtn = screen.getByRole('button', { name: 'Save' });
@@ -84,17 +75,14 @@ describe('EditFacilityInfoModal', () => {
   });
 
   it('does not allow saving with incomplete form data', async () => {
-    const mockStore = configureStore({});
     render(
-      <Provider store={mockStore.store}>
-        <EditFacilityInfoModal
-          onClose={() => {}}
-          onSubmit={() => {}}
-          storageFacility={incompleteStorageFacility}
-          serviceOrderNumber="12345"
-          shipmentType="HHG_INTO_NTS_DOMESTIC"
-        />
-      </Provider>,
+      <EditFacilityInfoModal
+        onClose={() => {}}
+        onSubmit={() => {}}
+        storageFacility={incompleteStorageFacility}
+        serviceOrderNumber="12345"
+        shipmentType="HHG_INTO_NTS_DOMESTIC"
+      />,
     );
     const submitBtn = screen.getByRole('button', { name: 'Save' });
     await waitFor(() => {
@@ -104,17 +92,14 @@ describe('EditFacilityInfoModal', () => {
 
   it('calls onclose prop on modal close', async () => {
     const mockClose = jest.fn();
-    const mockStore = configureStore({});
     render(
-      <Provider store={mockStore.store}>
-        <EditFacilityInfoModal
-          onClose={mockClose}
-          onSubmit={() => {}}
-          storageFacility={storageFacility}
-          serviceOrderNumber="12345"
-          shipmentType="HHG_INTO_NTS_DOMESTIC"
-        />
-      </Provider>,
+      <EditFacilityInfoModal
+        onClose={mockClose}
+        onSubmit={() => {}}
+        storageFacility={storageFacility}
+        serviceOrderNumber="12345"
+        shipmentType="HHG_INTO_NTS_DOMESTIC"
+      />,
     );
     const closeBtn = screen.getByRole('button', { name: 'Cancel' });
 

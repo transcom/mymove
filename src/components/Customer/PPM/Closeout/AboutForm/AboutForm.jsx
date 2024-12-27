@@ -75,13 +75,12 @@ const AboutForm = ({ mtoShipment, onBack, onSubmit }) => {
       city: mtoShipment?.ppmShipment?.w2Address?.city || '',
       state: mtoShipment?.ppmShipment?.w2Address?.state || '',
       postalCode: mtoShipment?.ppmShipment?.w2Address?.postalCode || '',
-      usPostRegionCitiesID: mtoShipment?.ppmShipment?.w2Address?.usPostRegionCitiesID || '',
     },
   };
 
   return (
     <Formik initialValues={initialValues} validationSchema={validationSchema} onSubmit={onSubmit}>
-      {({ isValid, isSubmitting, handleSubmit, values, ...formikProps }) => {
+      {({ isValid, isSubmitting, handleChange, handleSubmit, setFieldTouched, values }) => {
         return (
           <div className={classnames(ppmStyles.formContainer, styles.AboutForm)}>
             <Form className={classnames(formStyles.form, ppmStyles.form, styles.W2Address)} data-testid="aboutForm">
@@ -103,9 +102,8 @@ const AboutForm = ({ mtoShipment, onBack, onSubmit }) => {
                   name="pickupAddress"
                   legend="Pickup Address"
                   labelHint="Required"
-                  locationLookup
-                  formikProps={formikProps}
                   className={styles.AddressFieldSet}
+                  formikFunctionsToValidatePostalCodeOnChange={{ handleChange, setFieldTouched }}
                   render={(fields) => (
                     <>
                       {fields}
@@ -142,8 +140,7 @@ const AboutForm = ({ mtoShipment, onBack, onSubmit }) => {
                         <AddressFields
                           name="secondaryPickupAddress"
                           labelHint="Required"
-                          locationLookup
-                          formikProps={formikProps}
+                          formikFunctionsToValidatePostalCodeOnChange={{ handleChange, setFieldTouched }}
                         />
                       )}
                     </>
@@ -154,8 +151,7 @@ const AboutForm = ({ mtoShipment, onBack, onSubmit }) => {
                   legend="Delivery Address"
                   className={styles.AddressFieldSet}
                   labelHint="Required"
-                  locationLookup
-                  formikProps={formikProps}
+                  formikFunctionsToValidatePostalCodeOnChange={{ handleChange, setFieldTouched }}
                   render={(fields) => (
                     <>
                       {fields}
@@ -191,9 +187,8 @@ const AboutForm = ({ mtoShipment, onBack, onSubmit }) => {
                       {values.hasSecondaryDestinationAddress === 'true' && (
                         <AddressFields
                           name="secondaryDestinationAddress"
+                          formikFunctionsToValidatePostalCodeOnChange={{ handleChange, setFieldTouched }}
                           labelHint="Required"
-                          locationLookup
-                          formikProps={formikProps}
                         />
                       )}
                     </>
@@ -243,13 +238,7 @@ const AboutForm = ({ mtoShipment, onBack, onSubmit }) => {
                 </FormGroup>
                 <h2>W-2 address</h2>
                 <p>What is the address on your W-2?</p>
-                <AddressFields
-                  name={formFieldsName}
-                  className={styles.AddressFieldSet}
-                  labelHint="Required"
-                  locationLookup
-                  formikProps={formikProps}
-                />
+                <AddressFields name={formFieldsName} className={styles.AddressFieldSet} labelHint="Required" />
               </SectionWrapper>
               <div className={ppmStyles.buttonContainer}>
                 <Button className={ppmStyles.backButton} type="button" onClick={onBack} secondary outline>

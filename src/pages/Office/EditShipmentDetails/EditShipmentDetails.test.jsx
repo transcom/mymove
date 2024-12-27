@@ -284,11 +284,11 @@ describe('EditShipmentDetails component', () => {
     useEditShipmentQueries.mockReturnValue(useEditShipmentQueriesReturnValueNTS);
     renderWithProviders(<EditShipmentDetails />, mockRoutingConfig);
 
-    const h1 = screen.getByRole('heading', { name: 'Edit shipment details', level: 1 });
+    const h1 = await screen.getByRole('heading', { name: 'Edit shipment details', level: 1 });
     await waitFor(() => {
       expect(h1).toBeInTheDocument();
     });
-    expect(screen.getAllByTestId('ZIP').length).toBe(2);
+    expect(screen.getAllByLabelText('ZIP').length).toBe(2);
     expect(screen.getByLabelText('1111 (NTS)')).toBeInTheDocument();
     expect(screen.getByLabelText('2222 (NTS)')).toBeInTheDocument();
   });

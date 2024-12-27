@@ -26,7 +26,6 @@ tags:
   - name: ppm
   - name: tac
   - name: transportationOffice
-  - name: addresses
   - name: uploads
   - name: paymentRequests
   - name: reServiceItems
@@ -4026,31 +4025,6 @@ paths:
           $ref: '#/responses/NotFound'
         '500':
           $ref: '#/responses/ServerError'
-  /addresses/zip-city-lookup/{search}:
-    get:
-      summary: Returns city, state, postal code, and county associated with the specified full/partial postal code or city and state string
-      description: Find by API using full/partial postal code or city name that returns an us_post_region_cities json object containing city, state, county and postal code.
-      operationId: getLocationByZipCityState
-      tags:
-        - addresses
-      parameters:
-      - in: path
-        name: search
-        type: string
-        required: true
-      responses:
-        '200':
-          description: the requested list of city, state, county, and postal code matches
-          schema:
-            $ref: "#/definitions/VLocations"
-        '400':
-          $ref: '#/responses/InvalidRequest'
-        '403':
-          $ref: '#/responses/PermissionDenied'
-        '404':
-          $ref: '#/responses/NotFound'
-        '500':
-          $ref: '#/responses/ServerError'
   /uploads:
     post:
       summary: Create a new upload
@@ -7656,10 +7630,6 @@ definitions:
     type: array
     items:
       $ref: 'definitions/TransportationOffice.yaml'
-  VLocations:
-    type: array
-    items:
-      $ref: "definitions/VLocation.yaml"
   ReServiceItems:
     type: array
     items:

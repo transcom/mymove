@@ -38,7 +38,6 @@ const ShipmentWeight = ({ onEstimatedWeightChange }) => {
             <MaskedTextField
               name="estimatedWeight"
               label="Estimated PPM weight"
-              data-testid="estimatedWeight"
               id="estimatedWeight"
               mask={Number}
               scale={0} // digits after point, 0 for integers

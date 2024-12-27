@@ -190,43 +190,5 @@ describe('TextField component', () => {
     });
   });
 
-  describe('as a text area', () => {
-    it('is of type HTMLTextArea', () => {
-      useField.mockReturnValue([{}, {}]);
-
-      const { queryByLabelText } = render(
-        <TextField
-          name="firstName"
-          className="myCustomInputClass"
-          label="First Name"
-          type="text"
-          id="firstName"
-          display="textarea"
-        />,
-      );
-
-      expect(queryByLabelText('First Name')).toBeInstanceOf(HTMLTextAreaElement);
-    });
-  });
-
-  describe('as a read only', () => {
-    it('is of type HTMLLabelElement', () => {
-      useField.mockReturnValue([{}, {}]);
-
-      const { queryByTestId } = render(
-        <TextField
-          name="firstName"
-          className="myCustomInputClass"
-          label="First Name"
-          type="text"
-          id="firstName"
-          display="readonly"
-        />,
-      );
-
-      expect(queryByTestId('First Name')).toBeInstanceOf(HTMLLabelElement);
-    });
-  });
-
   afterEach(jest.resetAllMocks);
 });

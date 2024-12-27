@@ -340,28 +340,3 @@ func (suite *PayloadsSuite) TestPPMShipmentModelWithOptionalDestinationStreet1Fr
 	model3 := PPMShipmentModelFromUpdate(&ppmShipmentRealDestinatonAddr1)
 	suite.Equal(model3.DestinationAddress.StreetAddress1, streetAddress1)
 }
-
-func (suite *PayloadsSuite) TestVLocationModel() {
-	city := "LOS ANGELES"
-	state := "CA"
-	postalCode := "90210"
-	county := "LOS ANGELES"
-	usPostRegionCityId := uuid.Must(uuid.NewV4())
-
-	vLocation := &ghcmessages.VLocation{
-		City:                 city,
-		State:                state,
-		PostalCode:           postalCode,
-		County:               &county,
-		UsPostRegionCitiesID: strfmt.UUID(usPostRegionCityId.String()),
-	}
-
-	payload := VLocationModel(vLocation)
-
-	suite.IsType(payload, &models.VLocation{})
-	suite.Equal(usPostRegionCityId.String(), payload.UsPostRegionCitiesID.String(), "Expected UsPostRegionCitiesID to match")
-	suite.Equal(city, payload.CityName, "Expected City to match")
-	suite.Equal(state, payload.StateName, "Expected State to match")
-	suite.Equal(postalCode, payload.UsprZipID, "Expected PostalCode to match")
-	suite.Equal(county, payload.UsprcCountyNm, "Expected County to match")
-}
