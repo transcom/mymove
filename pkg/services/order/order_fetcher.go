@@ -998,12 +998,25 @@ func tooDestinationOnlyRequestsFilter(role roles.RoleType, locator *string) Quer
 	return func(query *pop.Query) {
 		if role == roles.RoleTypeTOO {
 			if locator != nil {
-				// ignore this query if searching for a move
-				query.Where("moves.locator = ?", strings.ToUpper(*locator))
+				query.Where(`
+			(
+				moves.locator = ?
+			)
+			AND
+			(
+				(
+					(mto_service_items.status IS NULL OR (mto_service_items.status = 'SUBMITTED' AND re_services.code IN ('DOFSIT', 'DOASIT', 'DODSIT', 'DOSHUT', 'DOSFSC', 'IOFSIT', 'IOASIT', 'IODSIT', 'IOSHUT', 'IOPSIT', 'ICRT', 'IOSFSC')))
+				)
+				OR
+				(
+					((moves.excess_weight_qualified_at IS NOT NULL AND moves.excess_weight_acknowledged_at IS NULL) AND moves.status = 'APPROVALS REQUESTED')
+				)
+			)
+			`, strings.ToUpper(*locator))
 			} else {
 				query.Where(`
 			(
-				(mto_service_items.status IS NULL OR (mto_service_items.status = 'SUBMITTED' AND re_services.code IN ('DOFSIT', 'DOASIT', 'DODSIT', 'DOSHUT', 'DOSFSC', 'IOFSIT', 'IOASIT', 'IODSIT', 'IOSHUT')))
+				(mto_service_items.status IS NULL OR (mto_service_items.status = 'SUBMITTED' AND re_services.code IN ('DOFSIT', 'DOASIT', 'DODSIT', 'DOSHUT', 'DOSFSC', 'IOFSIT', 'IOASIT', 'IODSIT', 'IOSHUT', 'IOPSIT', 'ICRT', 'IOSFSC')))
 			)
 			OR
 			(
