@@ -89,7 +89,7 @@ stages:
   - export TLS_CA=$STG_MOVE_MIL_DOD_TLS_CA
 
 .setup_aws_vars_prd: &setup_aws_vars_prd
-  - export AWS_REGION=$PRD_REGION
+  - export AWS_DEFAULT_REGION=$PRD_REGION
   - export AWS_ACCOUNT_ID=$PRD_ACCOUNT_ID
   - export AWS_ACCESS_KEY_ID=$PRD_ACCESS_KEY_ID
   - export AWS_SECRET_ACCESS_KEY=$PRD_SECRET_ACCESS_KEY
