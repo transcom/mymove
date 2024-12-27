@@ -88,7 +88,7 @@ const ShipmentAddresses = ({
         data-testid="pickupDestinationAddress"
       />
       <DataTable
-        columnHeaders={['Port of Embark', 'Port of Debark']}
+        columnHeaders={['Port of Embarkation', 'Port of Debarkation']}
         dataRow={[formatPortInfo(poeLocation), formatPortInfo(podLocation)]}
       />
     </DataTableWrapper>
