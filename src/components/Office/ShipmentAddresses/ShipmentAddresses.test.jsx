@@ -42,6 +42,8 @@ const testProps = {
     shipmentLocator: 'ABCDEF-01',
   },
   diversionReason: '',
+  poeLocation: null,
+  podLocation: null,
 };
 
 const ppmShipment = {
@@ -184,6 +186,8 @@ describe('ShipmentAddresses', () => {
   it('shows correct headings for HHG', () => {
     render(<ShipmentAddresses {...testProps} />);
     expect(screen.getByText("Customer's addresses")).toBeInTheDocument();
+    expect(screen.getByText('Port of Embark')).toBeInTheDocument();
+    expect(screen.getByText('Port of Debark')).toBeInTheDocument();
   });
 
   it('shows correct headings for NTS', () => {
