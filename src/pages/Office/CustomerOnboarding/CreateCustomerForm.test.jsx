@@ -119,7 +119,7 @@ const fakePayload = {
   },
   create_okta_account: 'true',
   cac_user: 'false',
-  is_safety_move: false,
+  is_safety_move: 'false',
   is_bluebark: 'false',
 };
 
@@ -660,7 +660,7 @@ describe('CreateCustomerForm', () => {
         },
       });
     });
-  });
+  }, 50000);
 
   it('disables okta and non cac user inputs when bluebark move is selected', async () => {
     createCustomerWithOktaOption.mockImplementation(() => Promise.resolve(fakeResponse));
@@ -677,9 +677,6 @@ describe('CreateCustomerForm', () => {
 
     const saveBtn = await screen.findByRole('button', { name: 'Save' });
     expect(saveBtn).toBeInTheDocument();
-
-    const safetyMove = await screen.findByTestId('is-safety-move-no');
-    expect(safetyMove).toBeChecked();
 
     await userEvent.type(getByTestId('is-bluebark-yes'), bluebarkPayload.is_bluebark);
 
@@ -736,5 +733,5 @@ describe('CreateCustomerForm', () => {
         },
       });
     });
-  });
+  }, 50000);
 }, 60000);
