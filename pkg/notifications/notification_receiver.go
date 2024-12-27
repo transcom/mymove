@@ -29,7 +29,7 @@ type NotificationQueueParams struct {
 //go:generate mockery --name NotificationSender
 type NotificationReceiver interface {
 	CreateQueueWithSubscription(appCtx appcontext.AppContext, topicArn string, params NotificationQueueParams) (string, error)
-	ReceiveMessages(appCtx appcontext.AppContext, queueUrl string) error
+	ReceiveMessages(appCtx appcontext.AppContext, queueUrl string) ([]types.Message, error)
 }
 
 // NotificationSendingContext provides context to a notification sender
@@ -140,20 +140,16 @@ func (n NotificationReceiverContext) CreateQueueWithSubscription(appCtx appconte
 }
 
 // SendNotification sends a one or more notifications for all supported mediums
-func (n NotificationReceiverContext) ReceiveMessages(appCtx appcontext.AppContext, queueUrl string) error {
+func (n NotificationReceiverContext) ReceiveMessages(appCtx appcontext.AppContext, queueUrl string) ([]types.Message, error) {
 	result, err := n.sqsService.ReceiveMessage(context.Background(), &sqs.ReceiveMessageInput{
 		QueueUrl:            &queueUrl,
 		MaxNumberOfMessages: 1,
-		WaitTimeSeconds:     5,
+		WaitTimeSeconds:     20,
 	})
 	if err != nil {
 		appCtx.Logger().Fatal("Couldn't get messages from queue. Here's why: %v\n", zap.Error(err))
-	} else {
-		for _, val := range result.Messages {
-			appCtx.Logger().Info(*val.Body)
-		}
 	}
-	return err
+	return result.Messages, err
 }
 
 // InitEmail initializes the email backend
