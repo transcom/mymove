@@ -93,7 +93,7 @@ func (suite *GHCRateEngineServiceSuite) Test_priceDomesticPackUnpack() {
 func (suite *GHCRateEngineServiceSuite) Test_domesticPackAndUnpackWithMobileHome() {
 	featureFlagValues := testhelpers.MakeMobileHomeFFMap(false, false) // Init factor flags to false
 	suite.Run("golden path with DPK", func() {
-		suite.setupDomesticOtherPrice(models.ReServiceCodeDPK, dpkTestServicesScheduleOrigin, dpkTestIsPeakPeriod, dpkTestBasePriceCents, dpkTestContractYearName, dpkTestEscalationCompounded)
+		suite.setupDomesticOtherPrice(models.ReServiceCodeDPK, dpkTestServicesScheduleOrigin, dpkTestIsPeakPeriod, dpkTestBasePriceCents, dpkTestContractYearName, dpkTestEscalationCompounded, false)
 
 		isPPM := false
 		isMobileHome := true
@@ -113,7 +113,7 @@ func (suite *GHCRateEngineServiceSuite) Test_domesticPackAndUnpackWithMobileHome
 	suite.Run("Invalid parameters to Price", func() {
 		isPPM := false
 		isMobileHome := true
-		suite.setupDomesticOtherPrice(models.ReServiceCodeDPK, dpkTestServicesScheduleOrigin, dpkTestIsPeakPeriod, dpkTestBasePriceCents, dpkTestContractYearName, dpkTestEscalationCompounded)
+		suite.setupDomesticOtherPrice(models.ReServiceCodeDPK, dpkTestServicesScheduleOrigin, dpkTestIsPeakPeriod, dpkTestBasePriceCents, dpkTestContractYearName, dpkTestEscalationCompounded, false)
 
 		_, _, err := priceDomesticPackUnpack(suite.AppContextForTest(), models.ReServiceCodeDLH, testdatagen.DefaultContractCode, dpkTestRequestedPickupDate, dpkTestWeight, dpkTestServicesScheduleOrigin, isPPM, isMobileHome, featureFlagValues)
 		suite.Error(err)
@@ -136,7 +136,7 @@ func (suite *GHCRateEngineServiceSuite) Test_domesticPackAndUnpackWithMobileHome
 func (suite *GHCRateEngineServiceSuite) Test_domesticPackAndUnpackWithPPM() {
 	featureFlagValues := testhelpers.MakeMobileHomeFFMap(false, false)
 	suite.Run("golden path with DPK", func() {
-		suite.setupDomesticOtherPrice(models.ReServiceCodeDPK, dpkTestServicesScheduleOrigin, dpkTestIsPeakPeriod, dpkTestBasePriceCents, dpkTestContractYearName, dpkTestEscalationCompounded)
+		suite.setupDomesticOtherPrice(models.ReServiceCodeDPK, dpkTestServicesScheduleOrigin, dpkTestIsPeakPeriod, dpkTestBasePriceCents, dpkTestContractYearName, dpkTestEscalationCompounded, false)
 
 		isPPM := true
 		isMobileHome := false
@@ -156,7 +156,7 @@ func (suite *GHCRateEngineServiceSuite) Test_domesticPackAndUnpackWithPPM() {
 	suite.Run("Invalid parameters to Price", func() {
 		isPPM := true
 		isMobileHome := false
-		suite.setupDomesticOtherPrice(models.ReServiceCodeDPK, dpkTestServicesScheduleOrigin, dpkTestIsPeakPeriod, dpkTestBasePriceCents, dpkTestContractYearName, dpkTestEscalationCompounded)
+		suite.setupDomesticOtherPrice(models.ReServiceCodeDPK, dpkTestServicesScheduleOrigin, dpkTestIsPeakPeriod, dpkTestBasePriceCents, dpkTestContractYearName, dpkTestEscalationCompounded, false)
 
 		_, _, err := priceDomesticPackUnpack(suite.AppContextForTest(), models.ReServiceCodeDLH, testdatagen.DefaultContractCode, dpkTestRequestedPickupDate, dpkTestWeight, dpkTestServicesScheduleOrigin, isPPM, isMobileHome, featureFlagValues)
 		suite.Error(err)
@@ -303,7 +303,7 @@ func (suite *GHCRateEngineServiceSuite) Test_priceDomesticPickupDeliverySITSameZ
 	dshContractName := "dshTestYear"
 
 	suite.Run("destination golden path for same zip3s", func() {
-		suite.setupDomesticOtherPrice(models.ReServiceCodeDDDSIT, dddsitTestSchedule, dddsitTestIsPeakPeriod, dddsitTestDomesticOtherBasePriceCents, dshContractName, dddsitTestEscalationCompounded)
+		suite.setupDomesticOtherPrice(models.ReServiceCodeDDDSIT, dddsitTestSchedule, dddsitTestIsPeakPeriod, dddsitTestDomesticOtherBasePriceCents, dshContractName, dddsitTestEscalationCompounded, false)
 		priceCents, displayParams, err := priceDomesticPickupDeliverySIT(suite.AppContextForTest(), models.ReServiceCodeDDDSIT, testdatagen.DefaultContractCode, dddsitTestRequestedPickupDate, dddsitTestWeight, dddsitTestServiceArea, dddsitTestSchedule, dshZipDest, dshZipSITDest, dshDistance)
 		suite.NoError(err)
 		expectedPrice := unit.Cents(58365) // dddsitTestDomesticServiceAreaBasePriceCents * (dddsitTestWeight / 100) * distance * dddsitTestEscalationCompounded
@@ -388,7 +388,7 @@ func (suite *GHCRateEngineServiceSuite) Test_priceDomesticPickupDeliverySIT50Mil
 	domContractName := "domTestYear"
 
 	suite.Run("destination golden path for <= 50 miles with different zip3s", func() {
-		suite.setupDomesticOtherPrice(models.ReServiceCodeDDDSIT, dddsitTestSchedule, dddsitTestIsPeakPeriod, dddsitTestDomesticOtherBasePriceCents, domContractName, dddsitTestEscalationCompounded)
+		suite.setupDomesticOtherPrice(models.ReServiceCodeDDDSIT, dddsitTestSchedule, dddsitTestIsPeakPeriod, dddsitTestDomesticOtherBasePriceCents, domContractName, dddsitTestEscalationCompounded, false)
 		priceCents, displayParams, err := priceDomesticPickupDeliverySIT(suite.AppContextForTest(), models.ReServiceCodeDDDSIT, testdatagen.DefaultContractCode, dddsitTestRequestedPickupDate, dddsitTestWeight, dddsitTestServiceArea, dddsitTestSchedule, domOtherZipDest, domOtherZipSITDest, domOtherDistance)
 		suite.NoError(err)
 		expectedPrice := unit.Cents(58365)
@@ -410,7 +410,7 @@ func (suite *GHCRateEngineServiceSuite) Test_priceDomesticPickupDeliverySIT50Mil
 	})
 
 	suite.Run("not finding a contract year record", func() {
-		suite.setupDomesticOtherPrice(models.ReServiceCodeDDDSIT, dddsitTestSchedule, dddsitTestIsPeakPeriod, dddsitTestDomesticOtherBasePriceCents, domContractName, dddsitTestEscalationCompounded)
+		suite.setupDomesticOtherPrice(models.ReServiceCodeDDDSIT, dddsitTestSchedule, dddsitTestIsPeakPeriod, dddsitTestDomesticOtherBasePriceCents, domContractName, dddsitTestEscalationCompounded, false)
 		_, _, err := priceDomesticPickupDeliverySIT(suite.AppContextForTest(), models.ReServiceCodeDDDSIT, testdatagen.DefaultContractCode, dddsitTestRequestedPickupDate, dddsitTestWeight, dddsitTestServiceArea, dddsitTestSchedule, domOtherZipDest, domOtherZipSITDest, domOtherDistance)
 		suite.NoError(err)
 
@@ -428,7 +428,7 @@ func (suite *GHCRateEngineServiceSuite) Test_priceDomesticPickupDeliverySIT50Mil
 	domContractName := "domTestYear"
 
 	suite.Run("destination golden path for <= 50 miles with same zip3s", func() {
-		suite.setupDomesticOtherPrice(models.ReServiceCodeDDDSIT, dddsitTestSchedule, dddsitTestIsPeakPeriod, dddsitTestDomesticOtherBasePriceCents, domContractName, dddsitTestEscalationCompounded)
+		suite.setupDomesticOtherPrice(models.ReServiceCodeDDDSIT, dddsitTestSchedule, dddsitTestIsPeakPeriod, dddsitTestDomesticOtherBasePriceCents, domContractName, dddsitTestEscalationCompounded, false)
 		priceCents, displayParams, err := priceDomesticPickupDeliverySIT(suite.AppContextForTest(), models.ReServiceCodeDDDSIT, testdatagen.DefaultContractCode, dddsitTestRequestedPickupDate, dddsitTestWeight, dddsitTestServiceArea, dddsitTestSchedule, domOtherZipDest, domOtherZipSITDest, domOtherDistance)
 		suite.NoError(err)
 		expectedPrice := unit.Cents(58365)
@@ -450,7 +450,7 @@ func (suite *GHCRateEngineServiceSuite) Test_priceDomesticPickupDeliverySIT50Mil
 	})
 
 	suite.Run("not finding a contract year record", func() {
-		suite.setupDomesticOtherPrice(models.ReServiceCodeDDDSIT, dddsitTestSchedule, dddsitTestIsPeakPeriod, dddsitTestDomesticOtherBasePriceCents, domContractName, dddsitTestEscalationCompounded)
+		suite.setupDomesticOtherPrice(models.ReServiceCodeDDDSIT, dddsitTestSchedule, dddsitTestIsPeakPeriod, dddsitTestDomesticOtherBasePriceCents, domContractName, dddsitTestEscalationCompounded, false)
 		_, _, err := priceDomesticPickupDeliverySIT(suite.AppContextForTest(), models.ReServiceCodeDDDSIT, testdatagen.DefaultContractCode, dddsitTestRequestedPickupDate, dddsitTestWeight, dddsitTestServiceArea, dddsitTestSchedule, domOtherZipDest, domOtherZipSITDest, domOtherDistance)
 		suite.NoError(err)
 

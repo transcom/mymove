@@ -28,7 +28,7 @@ func (suite *GHCRateEngineServiceSuite) TestDomesticUnpackPricer() {
 	pricer := NewDomesticUnpackPricer()
 
 	suite.Run("success using PaymentServiceItemParams", func() {
-		suite.setupDomesticOtherPrice(models.ReServiceCodeDUPK, dupkTestServicesScheduleDest, dupkTestIsPeakPeriod, dupkTestBasePriceCents, dupkTestContractYearName, dupkTestEscalationCompounded)
+		suite.setupDomesticOtherPrice(models.ReServiceCodeDUPK, dupkTestServicesScheduleDest, dupkTestIsPeakPeriod, dupkTestBasePriceCents, dupkTestContractYearName, dupkTestEscalationCompounded, false)
 		paymentServiceItem := suite.setupDomesticUnpackServiceItem()
 
 		priceCents, displayParams, err := pricer.PriceUsingParams(suite.AppContextForTest(), paymentServiceItem.PaymentServiceItemParams, nil)
@@ -75,7 +75,7 @@ func (suite *GHCRateEngineServiceSuite) TestDomesticUnpackPricer() {
 	})
 
 	suite.Run("successfully finds dom unpack price for ppm with weight < 500 lbs with PriceUsingParams method", func() {
-		suite.setupDomesticOtherPrice(models.ReServiceCodeDUPK, dupkTestServicesScheduleDest, dupkTestIsPeakPeriod, dupkTestBasePriceCents, dupkTestContractYearName, dupkTestEscalationCompounded)
+		suite.setupDomesticOtherPrice(models.ReServiceCodeDUPK, dupkTestServicesScheduleDest, dupkTestIsPeakPeriod, dupkTestBasePriceCents, dupkTestContractYearName, dupkTestEscalationCompounded, false)
 		paymentServiceItem := suite.setupDomesticUnpackServiceItem()
 		params := paymentServiceItem.PaymentServiceItemParams
 		params[0].PaymentServiceItem.MTOServiceItem.MTOShipment.ShipmentType = models.MTOShipmentTypePPM

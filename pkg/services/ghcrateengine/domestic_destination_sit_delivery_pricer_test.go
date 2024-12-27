@@ -38,7 +38,7 @@ func (suite *GHCRateEngineServiceSuite) TestDomesticDestinationSITDeliveryPricer
 	expectedPrice := unit.Cents(58365) // dddsitTestDomesticServiceAreaBasePriceCents * (dddsitTestWeight / 100) * distance * dddsitTestEscalationCompounded
 
 	suite.Run("success using PaymentServiceItemParams", func() {
-		suite.setupDomesticOtherPrice(models.ReServiceCodeDDDSIT, dddsitTestSchedule, dddsitTestIsPeakPeriod, dddsitTestDomesticOtherBasePriceCents, dddsitTestContractYearName, dddsitTestEscalationCompounded)
+		suite.setupDomesticOtherPrice(models.ReServiceCodeDDDSIT, dddsitTestSchedule, dddsitTestIsPeakPeriod, dddsitTestDomesticOtherBasePriceCents, dddsitTestContractYearName, dddsitTestEscalationCompounded, false)
 
 		paymentServiceItem := suite.setupDomesticDestinationSITDeliveryServiceItem(zipDest, zipSITDest, distance)
 		priceCents, displayParams, err := pricer.PriceUsingParams(suite.AppContextForTest(), paymentServiceItem.PaymentServiceItemParams, nil)
@@ -56,7 +56,7 @@ func (suite *GHCRateEngineServiceSuite) TestDomesticDestinationSITDeliveryPricer
 	})
 
 	suite.Run("success without PaymentServiceItemParams", func() {
-		suite.setupDomesticOtherPrice(models.ReServiceCodeDDDSIT, dddsitTestSchedule, dddsitTestIsPeakPeriod, dddsitTestDomesticOtherBasePriceCents, dddsitTestContractYearName, dddsitTestEscalationCompounded)
+		suite.setupDomesticOtherPrice(models.ReServiceCodeDDDSIT, dddsitTestSchedule, dddsitTestIsPeakPeriod, dddsitTestDomesticOtherBasePriceCents, dddsitTestContractYearName, dddsitTestEscalationCompounded, false)
 
 		priceCents, _, err := pricer.Price(suite.AppContextForTest(), testdatagen.DefaultContractCode, dddsitTestRequestedPickupDate, dddsitTestWeight, dddsitTestServiceArea, dddsitTestSchedule, zipDest, zipSITDest, distance)
 		suite.NoError(err)
@@ -64,21 +64,21 @@ func (suite *GHCRateEngineServiceSuite) TestDomesticDestinationSITDeliveryPricer
 	})
 
 	suite.Run("PriceUsingParams but sending empty params", func() {
-		suite.setupDomesticOtherPrice(models.ReServiceCodeDDDSIT, dddsitTestSchedule, dddsitTestIsPeakPeriod, dddsitTestDomesticOtherBasePriceCents, dddsitTestContractYearName, dddsitTestEscalationCompounded)
+		suite.setupDomesticOtherPrice(models.ReServiceCodeDDDSIT, dddsitTestSchedule, dddsitTestIsPeakPeriod, dddsitTestDomesticOtherBasePriceCents, dddsitTestContractYearName, dddsitTestEscalationCompounded, false)
 
 		_, _, err := pricer.PriceUsingParams(suite.AppContextForTest(), models.PaymentServiceItemParams{}, nil)
 		suite.Error(err)
 	})
 
 	suite.Run("PriceUsingParams throw error without contract code", func() {
-		suite.setupDomesticOtherPrice(models.ReServiceCodeDDDSIT, dddsitTestSchedule, dddsitTestIsPeakPeriod, dddsitTestDomesticOtherBasePriceCents, dddsitTestContractYearName, dddsitTestEscalationCompounded)
+		suite.setupDomesticOtherPrice(models.ReServiceCodeDDDSIT, dddsitTestSchedule, dddsitTestIsPeakPeriod, dddsitTestDomesticOtherBasePriceCents, dddsitTestContractYearName, dddsitTestEscalationCompounded, false)
 
 		_, _, err := pricer.PriceUsingParams(suite.AppContextForTest(), models.PaymentServiceItemParams{}, nil)
 		suite.Error(err)
 	})
 
 	suite.Run("invalid weight", func() {
-		suite.setupDomesticOtherPrice(models.ReServiceCodeDDDSIT, dddsitTestSchedule, dddsitTestIsPeakPeriod, dddsitTestDomesticOtherBasePriceCents, dddsitTestContractYearName, dddsitTestEscalationCompounded)
+		suite.setupDomesticOtherPrice(models.ReServiceCodeDDDSIT, dddsitTestSchedule, dddsitTestIsPeakPeriod, dddsitTestDomesticOtherBasePriceCents, dddsitTestContractYearName, dddsitTestEscalationCompounded, false)
 
 		badWeight := unit.Pound(250)
 		_, _, err := pricer.Price(suite.AppContextForTest(), testdatagen.DefaultContractCode, dddsitTestRequestedPickupDate, badWeight, dddsitTestServiceArea, dddsitTestSchedule, zipDest, zipSITDest, distance)
@@ -88,7 +88,7 @@ func (suite *GHCRateEngineServiceSuite) TestDomesticDestinationSITDeliveryPricer
 	})
 
 	suite.Run("bad destination zip", func() {
-		suite.setupDomesticOtherPrice(models.ReServiceCodeDDDSIT, dddsitTestSchedule, dddsitTestIsPeakPeriod, dddsitTestDomesticOtherBasePriceCents, dddsitTestContractYearName, dddsitTestEscalationCompounded)
+		suite.setupDomesticOtherPrice(models.ReServiceCodeDDDSIT, dddsitTestSchedule, dddsitTestIsPeakPeriod, dddsitTestDomesticOtherBasePriceCents, dddsitTestContractYearName, dddsitTestEscalationCompounded, false)
 
 		_, _, err := pricer.Price(suite.AppContextForTest(), testdatagen.DefaultContractCode, dddsitTestRequestedPickupDate, dddsitTestWeight, dddsitTestServiceArea, dddsitTestSchedule, "123", zipSITDest, distance)
 		suite.Error(err)
@@ -96,7 +96,7 @@ func (suite *GHCRateEngineServiceSuite) TestDomesticDestinationSITDeliveryPricer
 	})
 
 	suite.Run("bad SIT final destination zip", func() {
-		suite.setupDomesticOtherPrice(models.ReServiceCodeDDDSIT, dddsitTestSchedule, dddsitTestIsPeakPeriod, dddsitTestDomesticOtherBasePriceCents, dddsitTestContractYearName, dddsitTestEscalationCompounded)
+		suite.setupDomesticOtherPrice(models.ReServiceCodeDDDSIT, dddsitTestSchedule, dddsitTestIsPeakPeriod, dddsitTestDomesticOtherBasePriceCents, dddsitTestContractYearName, dddsitTestEscalationCompounded, false)
 
 		_, _, err := pricer.Price(suite.AppContextForTest(), testdatagen.DefaultContractCode, dddsitTestRequestedPickupDate, dddsitTestWeight, dddsitTestServiceArea, dddsitTestSchedule, zipDest, "456", distance)
 		suite.Error(err)
@@ -113,7 +113,7 @@ func (suite *GHCRateEngineServiceSuite) TestDomesticDestinationSITDeliveryPricer
 
 	suite.Run("error from shorthaul pricer", func() {
 		//suite.setupDomesticServiceAreaPrice(models.ReServiceCodeDSH, dddsitTestServiceArea, dddsitTestIsPeakPeriod, dddsitTestDomesticServiceAreaBasePriceCents, dddsitTestContractYearName, dddsitTestEscalationCompounded)
-		suite.setupDomesticOtherPrice(models.ReServiceCodeDDDSIT, dddsitTestSchedule, dddsitTestIsPeakPeriod, dddsitTestDomesticOtherBasePriceCents, dddsitTestContractYearName, dddsitTestEscalationCompounded)
+		suite.setupDomesticOtherPrice(models.ReServiceCodeDDDSIT, dddsitTestSchedule, dddsitTestIsPeakPeriod, dddsitTestDomesticOtherBasePriceCents, dddsitTestContractYearName, dddsitTestEscalationCompounded, false)
 
 		_, _, err := pricer.Price(suite.AppContextForTest(), "BOGUS", dddsitTestRequestedPickupDate, dddsitTestWeight, dddsitTestServiceArea, dddsitTestSchedule, zipDest, zipSITDest, distance)
 		suite.Error(err)
@@ -173,7 +173,7 @@ func (suite *GHCRateEngineServiceSuite) TestDomesticDestinationSITDeliveryPricer
 	expectedPrice := unit.Cents(58365)
 
 	suite.Run("success using PaymentServiceItemParams", func() {
-		suite.setupDomesticOtherPrice(models.ReServiceCodeDDDSIT, dddsitTestSchedule, dddsitTestIsPeakPeriod, dddsitTestDomesticOtherBasePriceCents, dddsitTestContractYearName, dddsitTestEscalationCompounded)
+		suite.setupDomesticOtherPrice(models.ReServiceCodeDDDSIT, dddsitTestSchedule, dddsitTestIsPeakPeriod, dddsitTestDomesticOtherBasePriceCents, dddsitTestContractYearName, dddsitTestEscalationCompounded, false)
 
 		paymentServiceItem := suite.setupDomesticDestinationSITDeliveryServiceItem(zipDest, zipSITDest, distance)
 		priceCents, displayParams, err := pricer.PriceUsingParams(suite.AppContextForTest(), paymentServiceItem.PaymentServiceItemParams, nil)
@@ -190,7 +190,7 @@ func (suite *GHCRateEngineServiceSuite) TestDomesticDestinationSITDeliveryPricer
 	})
 
 	suite.Run("success without PaymentServiceItemParams", func() {
-		suite.setupDomesticOtherPrice(models.ReServiceCodeDDDSIT, dddsitTestSchedule, dddsitTestIsPeakPeriod, dddsitTestDomesticOtherBasePriceCents, dddsitTestContractYearName, dddsitTestEscalationCompounded)
+		suite.setupDomesticOtherPrice(models.ReServiceCodeDDDSIT, dddsitTestSchedule, dddsitTestIsPeakPeriod, dddsitTestDomesticOtherBasePriceCents, dddsitTestContractYearName, dddsitTestEscalationCompounded, false)
 
 		priceCents, _, err := pricer.Price(suite.AppContextForTest(), testdatagen.DefaultContractCode, dddsitTestRequestedPickupDate, dddsitTestWeight, dddsitTestServiceArea, dddsitTestSchedule, zipDest, zipSITDest, distance)
 		suite.NoError(err)
@@ -198,14 +198,14 @@ func (suite *GHCRateEngineServiceSuite) TestDomesticDestinationSITDeliveryPricer
 	})
 
 	suite.Run("not finding a rate record", func() {
-		suite.setupDomesticOtherPrice(models.ReServiceCodeDDDSIT, dddsitTestSchedule, dddsitTestIsPeakPeriod, dddsitTestDomesticOtherBasePriceCents, dddsitTestContractYearName, dddsitTestEscalationCompounded)
+		suite.setupDomesticOtherPrice(models.ReServiceCodeDDDSIT, dddsitTestSchedule, dddsitTestIsPeakPeriod, dddsitTestDomesticOtherBasePriceCents, dddsitTestContractYearName, dddsitTestEscalationCompounded, false)
 		_, _, err := pricer.Price(suite.AppContextForTest(), "BOGUS", dddsitTestRequestedPickupDate, dddsitTestWeight, dddsitTestServiceArea, dddsitTestSchedule, zipDest, zipSITDest, distance)
 		suite.Error(err)
 		suite.Contains(err.Error(), "could not fetch domestic destination SIT delivery rate")
 	})
 
 	suite.Run("not finding a contract year record", func() {
-		suite.setupDomesticOtherPrice(models.ReServiceCodeDDDSIT, dddsitTestSchedule, dddsitTestIsPeakPeriod, dddsitTestDomesticOtherBasePriceCents, dddsitTestContractYearName, dddsitTestEscalationCompounded)
+		suite.setupDomesticOtherPrice(models.ReServiceCodeDDDSIT, dddsitTestSchedule, dddsitTestIsPeakPeriod, dddsitTestDomesticOtherBasePriceCents, dddsitTestContractYearName, dddsitTestEscalationCompounded, false)
 		twoYearsLaterPickupDate := dddsitTestRequestedPickupDate.AddDate(2, 0, 0)
 		_, _, err := pricer.Price(suite.AppContextForTest(), testdatagen.DefaultContractCode, twoYearsLaterPickupDate, dddsitTestWeight, dddsitTestServiceArea, dddsitTestSchedule, zipDest, zipSITDest, distance)
 		suite.Error(err)
