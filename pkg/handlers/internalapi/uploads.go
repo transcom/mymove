@@ -269,14 +269,48 @@ func (o *CustomNewUploadStatusOK) WriteResponse(rw http.ResponseWriter, producer
 
 	uploadId := o.params.UploadID.String()
 
+	uploadUUID, err := uuid.FromString(uploadId)
+	if err != nil {
+		panic(err)
+	}
+
+	// Check current tag before event-driven wait for anti-virus
+
+	uploaded, err := models.FetchUserUploadFromUploadID(o.appCtx.DB(), o.appCtx.Session(), uploadUUID)
+	if err != nil {
+		o.appCtx.Logger().Error(err.Error())
+	}
+
+	tags, err := o.storer.Tags(uploaded.Upload.StorageKey)
+	var uploadStatus models.AVStatusType
+	if err != nil || len(tags) == 0 {
+		uploadStatus = models.AVStatusTypePROCESSING
+	} else {
+		uploadStatus = models.AVStatusType(tags["av-status"])
+	}
+
+	resProcess := []byte("id: 0\nevent: message\ndata: " + string(uploadStatus) + "\n\n")
+	if produceErr := producer.Produce(rw, resProcess); produceErr != nil {
+		panic(produceErr)
+	}
+
+	if f, ok := rw.(http.Flusher); ok {
+		f.Flush()
+	}
+
+	if uploadStatus == models.AVStatusTypeCLEAN || uploadStatus == models.AVStatusTypeINFECTED {
+		return
+	}
+
+	// Start waiting for tag updates
+
+	topicName := "app_s3_tag_events"
 	notificationParams := notifications.NotificationQueueParams{
-		Action:   "ObjectTagsUpdated",
+		Action:   "ObjectTagsAdded",
 		ObjectId: uploadId,
 	}
 
-	topicArn := "arn:aws-us-gov:sns:us-gov-west-1:021081706899:app_s3_tag_events"
-
-	queueUrl, err := o.receiver.CreateQueueWithSubscription(o.appCtx, topicArn, notificationParams)
+	queueUrl, err := o.receiver.CreateQueueWithSubscription(o.appCtx, topicName, notificationParams)
 	if err != nil {
 		o.appCtx.Logger().Error(err.Error())
 	}
@@ -293,18 +327,8 @@ func (o *CustomNewUploadStatusOK) WriteResponse(rw http.ResponseWriter, producer
 		if len(messages) != 0 {
 			errTransaction := o.appCtx.NewTransaction(func(txnAppCtx appcontext.AppContext) error {
 
-				uploadUUID, err := uuid.FromString(uploadId)
-				if err != nil {
-					panic(err)
-				}
-				uploaded, err := models.FetchUserUploadFromUploadID(txnAppCtx.DB(), txnAppCtx.Session(), uploadUUID)
-				if err != nil {
-					txnAppCtx.Logger().Error(err.Error())
-				}
-
 				tags, err := o.storer.Tags(uploaded.Upload.StorageKey)
 
-				var uploadStatus models.AVStatusType
 				if err != nil || len(tags) == 0 {
 					uploadStatus = models.AVStatusTypePROCESSING
 				} else {
@@ -329,6 +353,8 @@ func (o *CustomNewUploadStatusOK) WriteResponse(rw http.ResponseWriter, producer
 		}
 		id_counter++
 	}
+
+	// TODO: add a close here after ends
 }
 
 // Handle returns status of an upload

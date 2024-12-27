@@ -34,51 +34,30 @@ type NotificationReceiver interface {
 
 // NotificationSendingContext provides context to a notification sender
 type NotificationReceiverContext struct {
-	snsService *sns.Client
-	sqsService *sqs.Client
+	snsService   *sns.Client
+	sqsService   *sqs.Client
+	awsRegion    string
+	awsAccountId string
 }
 
 // NewNotificationSender returns a new NotificationSendingContext
-func NewNotificationReceiver(snsService *sns.Client, sqsService *sqs.Client) NotificationReceiverContext {
+func NewNotificationReceiver(snsService *sns.Client, sqsService *sqs.Client, awsRegion string, awsAccountId string) NotificationReceiverContext {
 	return NotificationReceiverContext{
-		snsService: snsService,
-		sqsService: sqsService,
+		snsService:   snsService,
+		sqsService:   sqsService,
+		awsRegion:    awsRegion,
+		awsAccountId: awsAccountId,
 	}
 }
 
-func (n NotificationReceiverContext) CreateQueueWithSubscription(appCtx appcontext.AppContext, topicArn string, params NotificationQueueParams) (string, error) {
+func (n NotificationReceiverContext) CreateQueueWithSubscription(appCtx appcontext.AppContext, topicName string, params NotificationQueueParams) (string, error) {
 
 	queueName := fmt.Sprintf("%s_%s", params.Action, params.ObjectId)
+	queueArn := n.constructArn("sqs", queueName)
+	topicArn := n.constructArn("sns", topicName)
 
-	input := &sqs.CreateQueueInput{
-		QueueName: &queueName,
-		Attributes: map[string]string{
-			"MessageRetentionPeriod": "120",
-		},
-	}
+	// Create queue
 
-	// Create the SQS queue
-	result, err := n.sqsService.CreateQueue(context.Background(), input)
-	if err != nil {
-		log.Fatalf("Failed to create SQS queue, %v", err)
-	}
-
-	// Get queue attributes to retrieve the ARN
-	attrInput := &sqs.GetQueueAttributesInput{
-		QueueUrl: result.QueueUrl,
-		AttributeNames: []types.QueueAttributeName{
-			types.QueueAttributeNameQueueArn,
-		},
-	}
-
-	attrResult, err := n.sqsService.GetQueueAttributes(context.Background(), attrInput)
-	if err != nil {
-		log.Fatalf("Failed to get queue attributes, %v", err)
-	}
-
-	queueArn := attrResult.Attributes[string(types.QueueAttributeNameQueueArn)]
-
-	// Define the access policy
 	accessPolicy := fmt.Sprintf(`{
 		"Version": "2012-10-17",
 		"Statement": [{
@@ -97,20 +76,21 @@ func (n NotificationReceiverContext) CreateQueueWithSubscription(appCtx appconte
 		}]
 	}`, queueArn, topicArn)
 
-	newAttributes := &sqs.SetQueueAttributesInput{
-		QueueUrl: result.QueueUrl,
+	input := &sqs.CreateQueueInput{
+		QueueName: &queueName,
 		Attributes: map[string]string{
-			"Policy": accessPolicy,
+			"MessageRetentionPeriod": "120",
+			"Policy":                 accessPolicy,
 		},
 	}
 
-	// TODO: need to figure this out on creation, the queue attributes can take up to 60 seconds to propogate
-	_, err = n.sqsService.SetQueueAttributes(context.Background(), newAttributes)
+	result, err := n.sqsService.CreateQueue(context.Background(), input)
 	if err != nil {
-		log.Fatalf("Failed to set access policy on queue, %v", err)
+		log.Fatalf("Failed to create SQS queue, %v", err)
 	}
 
-	// Define the filter policy
+	// Create subscription
+
 	filterPolicy := fmt.Sprintf(`{
 		"detail": {
 				"object": {
@@ -121,7 +101,6 @@ func (n NotificationReceiverContext) CreateQueueWithSubscription(appCtx appconte
 			}
 	}`, params.ObjectId)
 
-	// Create a subscription (replace with your actual endpoint)
 	subscribeInput := &sns.SubscribeInput{
 		TopicArn: &topicArn,
 		Protocol: aws.String("sqs"),
@@ -190,7 +169,9 @@ func InitReceiver(v *viper.Viper, logger *zap.Logger) (NotificationReceiver, err
 	// to be combined with the AWS Session that we're using for S3
 	// down below.
 
+	// TODO: verify if we should change this param name to awsNotificationRegion
 	awsSESRegion := v.GetString(cli.AWSSESRegionFlag)
+	awsAccountId := v.GetString("aws-account-id")
 
 	cfg, err := config.LoadDefaultConfig(context.Background(),
 		config.WithRegion(awsSESRegion),
@@ -202,5 +183,9 @@ func InitReceiver(v *viper.Viper, logger *zap.Logger) (NotificationReceiver, err
 	snsService := sns.NewFromConfig(cfg)
 	sqsService := sqs.NewFromConfig(cfg)
 
-	return NewNotificationReceiver(snsService, sqsService), nil
+	return NewNotificationReceiver(snsService, sqsService, awsSESRegion, awsAccountId), nil
+}
+
+func (n NotificationReceiverContext) constructArn(awsService string, endpointName string) string {
+	return fmt.Sprintf("arn:aws-us-gov:%s:%s:%s:%s", awsService, n.awsRegion, n.awsAccountId, endpointName)
 }
