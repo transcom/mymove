@@ -4,7 +4,7 @@ import { PropTypes } from 'prop-types';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { Button } from '@trussworks/react-uswds';
 
-import { AddressShape } from '../../../types/address';
+import { AddressShape, PortLocationShape } from '../../../types/address';
 import { formatAddress, formatCityStateAndPostalCode, formatPortInfo } from '../../../utils/shipmentDisplay';
 import DataTableWrapper from '../../DataTableWrapper/index';
 import DataTable from '../../DataTable/index';
@@ -101,6 +101,8 @@ ShipmentAddresses.propTypes = {
   originDutyLocation: AddressShape,
   destinationDutyLocation: AddressShape,
   handleShowDiversionModal: PropTypes.func.isRequired,
+  poeLocation: PortLocationShape,
+  podLocation: PortLocationShape,
   shipmentInfo: PropTypes.shape({
     id: PropTypes.string.isRequired,
     eTag: PropTypes.string.isRequired,
@@ -114,6 +116,8 @@ ShipmentAddresses.defaultProps = {
   destinationAddress: {},
   originDutyLocation: {},
   destinationDutyLocation: {},
+  poeLocation: null,
+  podLocation: null,
 };
 
 export default ShipmentAddresses;
