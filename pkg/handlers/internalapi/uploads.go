@@ -267,12 +267,19 @@ func (o *CustomNewUploadStatusOK) WriteResponse(rw http.ResponseWriter, producer
 
 	// TODO: add check for permissions to view upload
 
-	err := o.receiver.SubscribeToTopic(o.appCtx, notifications.NotificationFilter{})
+	notificationParams := notifications.NotificationQueueParams{
+		Action:   "ObjectTagsUpdated",
+		ObjectId: o.params.UploadID.String(),
+	}
+
+	topicArn := "arn:aws-us-gov:sns:us-gov-west-1:021081706899:app_s3_tag_events"
+
+	queueUrl, err := o.receiver.CreateQueueWithSubscription(o.appCtx, topicArn, notificationParams)
 	if err != nil {
 		o.appCtx.Logger().Error(err.Error())
 	}
 
-	for range 2 {
+	for range 5 {
 
 		err := o.appCtx.NewTransaction(func(txnAppCtx appcontext.AppContext) error {
 			// uploadId, err := uuid.FromString(o.params.UploadID.String())
@@ -296,6 +303,12 @@ func (o *CustomNewUploadStatusOK) WriteResponse(rw http.ResponseWriter, producer
 
 			return nil
 		})
+
+		o.appCtx.Logger().Info("Receiving...")
+		errs := o.receiver.ReceiveMessages(o.appCtx, queueUrl)
+		if errs != nil {
+			o.appCtx.Logger().Error(errs.Error())
+		}
 
 		if err != nil {
 			o.appCtx.Logger().Error(err.Error())

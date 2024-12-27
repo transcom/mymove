@@ -2,9 +2,14 @@ package notifications
 
 import (
 	"context"
+	"fmt"
+	"log"
 
+	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/config"
+	"github.com/aws/aws-sdk-go-v2/service/sns"
 	"github.com/aws/aws-sdk-go-v2/service/sqs"
+	"github.com/aws/aws-sdk-go-v2/service/sqs/types"
 	"github.com/spf13/viper"
 	"go.uber.org/zap"
 
@@ -13,39 +18,131 @@ import (
 )
 
 // Notification is an interface for creating emails
-type NotificationFilter struct {
+type NotificationQueueParams struct {
+	// TODO: change to enum
+	Action   string
+	ObjectId string
 }
 
 // NotificationSender is an interface for sending notifications
 //
 //go:generate mockery --name NotificationSender
 type NotificationReceiver interface {
-	SubscribeToTopic(appCtx appcontext.AppContext, filter NotificationFilter) error
+	CreateQueueWithSubscription(appCtx appcontext.AppContext, topicArn string, params NotificationQueueParams) (string, error)
+	ReceiveMessages(appCtx appcontext.AppContext, queueUrl string) error
 }
 
 // NotificationSendingContext provides context to a notification sender
 type NotificationReceiverContext struct {
-	svc *sqs.Client
+	snsService *sns.Client
+	sqsService *sqs.Client
 }
 
 // NewNotificationSender returns a new NotificationSendingContext
-func NewNotificationReceiver(svc *sqs.Client) NotificationReceiverContext {
+func NewNotificationReceiver(snsService *sns.Client, sqsService *sqs.Client) NotificationReceiverContext {
 	return NotificationReceiverContext{
-		svc: svc,
+		snsService: snsService,
+		sqsService: sqsService,
 	}
 }
 
+func (n NotificationReceiverContext) CreateQueueWithSubscription(appCtx appcontext.AppContext, topicArn string, params NotificationQueueParams) (string, error) {
+
+	queueName := fmt.Sprintf("%s_%s", params.Action, params.ObjectId)
+
+	input := &sqs.CreateQueueInput{
+		QueueName: &queueName,
+		Attributes: map[string]string{
+			"MessageRetentionPeriod": "120",
+		},
+	}
+
+	// Create the SQS queue
+	result, err := n.sqsService.CreateQueue(context.Background(), input)
+	if err != nil {
+		log.Fatalf("Failed to create SQS queue, %v", err)
+	}
+
+	// Get queue attributes to retrieve the ARN
+	attrInput := &sqs.GetQueueAttributesInput{
+		QueueUrl: result.QueueUrl,
+		AttributeNames: []types.QueueAttributeName{
+			types.QueueAttributeNameQueueArn,
+		},
+	}
+
+	attrResult, err := n.sqsService.GetQueueAttributes(context.Background(), attrInput)
+	if err != nil {
+		log.Fatalf("Failed to get queue attributes, %v", err)
+	}
+
+	queueArn := attrResult.Attributes[string(types.QueueAttributeNameQueueArn)]
+
+	// Define the access policy
+	accessPolicy := fmt.Sprintf(`{
+		"Version": "2012-10-17",
+		"Statement": [{
+			"Sid": "AllowSNSPublish",
+			"Effect": "Allow",
+			"Principal": {
+				"Service": "sns.amazonaws.com"
+			},
+			"Action": ["sqs:SendMessage"],
+			"Resource": "%s",
+			"Condition": {
+				"ArnEquals": {
+				"aws:SourceArn": "%s"
+				}
+      		}
+		}]
+	}`, queueArn, topicArn)
+
+	newAttributes := &sqs.SetQueueAttributesInput{
+		QueueUrl: result.QueueUrl,
+		Attributes: map[string]string{
+			"Policy": accessPolicy,
+		},
+	}
+
+	// TODO: need to figure this out on creation, the queue attributes can take up to 60 seconds to propogate
+	_, err = n.sqsService.SetQueueAttributes(context.Background(), newAttributes)
+	if err != nil {
+		log.Fatalf("Failed to set access policy on queue, %v", err)
+	}
+
+	// Define the filter policy
+	filterPolicy := fmt.Sprintf(`{
+		"detail": {
+				"object": {
+					"key": [
+						{"suffix": "%s"}
+					]
+				}
+			}
+	}`, params.ObjectId)
+
+	// Create a subscription (replace with your actual endpoint)
+	subscribeInput := &sns.SubscribeInput{
+		TopicArn: &topicArn,
+		Protocol: aws.String("sqs"),
+		Endpoint: &queueArn,
+		Attributes: map[string]string{
+			"FilterPolicy":      filterPolicy,
+			"FilterPolicyScope": "MessageBody",
+		},
+	}
+	_, err = n.snsService.Subscribe(context.Background(), subscribeInput)
+	if err != nil {
+		log.Fatalf("Failed to create subscription, %v", err)
+	}
+
+	return *result.QueueUrl, err
+}
+
 // SendNotification sends a one or more notifications for all supported mediums
-func (n NotificationReceiverContext) SubscribeToTopic(appCtx appcontext.AppContext, filter NotificationFilter) error {
-	queueRaw := "testQueue"
-	queue := &queueRaw
-
-	urlResult, _ := n.svc.GetQueueUrl(context.Background(), &sqs.GetQueueUrlInput{
-		QueueName: queue,
-	})
-
-	result, err := n.svc.ReceiveMessage(context.Background(), &sqs.ReceiveMessageInput{
-		QueueUrl:            urlResult.QueueUrl,
+func (n NotificationReceiverContext) ReceiveMessages(appCtx appcontext.AppContext, queueUrl string) error {
+	result, err := n.sqsService.ReceiveMessage(context.Background(), &sqs.ReceiveMessageInput{
+		QueueUrl:            &queueUrl,
 		MaxNumberOfMessages: 1,
 		WaitTimeSeconds:     5,
 	})
@@ -53,7 +150,7 @@ func (n NotificationReceiverContext) SubscribeToTopic(appCtx appcontext.AppConte
 		appCtx.Logger().Fatal("Couldn't get messages from queue. Here's why: %v\n", zap.Error(err))
 	} else {
 		for _, val := range result.Messages {
-			appCtx.Logger().Info(*val.MessageId)
+			appCtx.Logger().Info(*val.Body)
 		}
 	}
 	return err
@@ -106,7 +203,8 @@ func InitReceiver(v *viper.Viper, logger *zap.Logger) (NotificationReceiver, err
 		logger.Fatal("error loading ses aws config", zap.Error(err))
 	}
 
+	snsService := sns.NewFromConfig(cfg)
 	sqsService := sqs.NewFromConfig(cfg)
 
-	return NewNotificationReceiver(sqsService), nil
+	return NewNotificationReceiver(snsService, sqsService), nil
 }
