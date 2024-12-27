@@ -301,7 +301,57 @@ describe('Create PPM', () => {
   });
 });
 
-describe('Create Mobile Home', () => {
+describe('Create PPM Home', () => {
+  it('test with 2nd and 3rd addresses', async () => {
+    createPrimeMTOShipmentV3.mockReturnValue({});
+
+    render(mockedComponent);
+
+    waitFor(async () => {
+      await userEvent.selectOptions(screen.getByLabelText('Shipment type'), 'PPM');
+
+      // Start controlled test case to verify everything is working.
+      let input = await document.querySelector('input[name="pickupAddress.streetAddress1"]');
+      expect(input).toBeInTheDocument();
+      // enter required street 1 for pickup
+      await userEvent.type(input, '123 Street');
+
+      const secondAddressToggle = document.querySelector('[data-testid="has-secondary-pickup"]');
+      expect(secondAddressToggle).toBeInTheDocument();
+      await userEvent.click(secondAddressToggle);
+
+      input = await document.querySelector('input[name="secondaryPickupAddress.streetAddress1"]');
+      expect(input).toBeInTheDocument();
+      // enter required street 1 for pickup 2
+      await userEvent.type(input, '123 Street 2');
+
+      const thirdAddressToggle = document.querySelector('[data-testid="has-tertiary-pickup"]');
+      expect(thirdAddressToggle).toBeInTheDocument();
+      await userEvent.click(thirdAddressToggle);
+
+      input = await document.querySelector('input[name="tertiaryPickupAddress.streetAddress1"]');
+      expect(input).toBeInTheDocument();
+      // enter required street 1 for pickup 2
+      await userEvent.type(input, '123 Street 3');
+
+      input = await document.querySelector('input[name="destinationAddress.streetAddress1"]');
+      expect(input).toBeInTheDocument();
+      // enter something
+      await userEvent.type(input, '123 Street');
+
+      const saveButton = await screen.getByRole('button', { name: 'Save' });
+
+      expect(saveButton).not.toBeDisabled();
+      await userEvent.click(saveButton);
+
+      await waitFor(() => {
+        expect(mockNavigate).toHaveBeenCalledWith(moveDetailsURL);
+      });
+    });
+  });
+});
+
+describe('Create Mobile Home and Boat', () => {
   it.each(['MOBILE_HOME', 'BOAT_TOW_AWAY', 'BOAT_HAUL_AWAY'])(
     'resets secondary and tertiary addresses when flags are not true for shipment type %s',
     async (shipmentType) => {
@@ -414,25 +464,26 @@ describe('Create Mobile Home', () => {
         await userEvent.click(saveButton);
 
         // Verify that API call resets addresses when flags are not 'true'
-        expect(createPrimeMTOShipmentV3).toHaveBeenCalledWith({
-          body: expect.objectContaining({
-            destinationAddress: null,
-            diversion: null,
-            divertedFromShipmentId: null,
-            hasSecondaryDestinationAddress: false,
-            hasSecondaryPickupAddress: false,
-            hasTertiaryDestinationAddress: false,
-            hasTertiaryPickupAddress: false,
-            secondaryDestinationAddress: {},
-            secondaryPickupAddress: {},
-            tertiaryDestinationAddress: {},
-            tertiaryPickupAddress: {},
-            moveTaskOrderID: '9c7b255c-2981-4bf8-839f-61c7458e2b4d',
-            pickupAddress: null,
-            primeEstimatedWeight: null,
-            requestedPickupDate: null,
-          }),
-        });
+      });
+
+      expect(createPrimeMTOShipmentV3).toHaveBeenCalledWith({
+        body: expect.objectContaining({
+          destinationAddress: null,
+          diversion: null,
+          divertedFromShipmentId: null,
+          hasSecondaryDestinationAddress: false,
+          hasSecondaryPickupAddress: false,
+          hasTertiaryDestinationAddress: false,
+          hasTertiaryPickupAddress: false,
+          secondaryDestinationAddress: null,
+          secondaryPickupAddress: null,
+          tertiaryDestinationAddress: null,
+          tertiaryPickupAddress: null,
+          moveTaskOrderID: '9c7b255c-2981-4bf8-839f-61c7458e2b4d',
+          pickupAddress: null,
+          primeEstimatedWeight: null,
+          requestedPickupDate: null,
+        }),
       });
     },
   );
