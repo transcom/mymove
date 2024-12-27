@@ -21,7 +21,7 @@ ifeq ($(USE_AWS),true)
 endif
 
 # Convenience for LDFLAGS
-GIT_BRANCH ?= $(shell git branch | grep \* | cut -d ' ' -f2)
+GIT_BRANCH ?= $(shell git rev-parse --abbrev-ref HEAD)
 GIT_COMMIT ?= $(shell git rev-list -1 HEAD)
 export GIT_BRANCH GIT_COMMIT
 WEBSERVER_LDFLAGS=-X main.gitBranch=$(GIT_BRANCH) -X main.gitCommit=$(GIT_COMMIT)

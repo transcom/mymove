@@ -170,24 +170,25 @@ func (f mtoShipmentCreator) CreateMTOShipment(appCtx appcontext.AppContext, ship
 		}
 
 		shipment.DestinationAddress = &models.Address{
-			StreetAddress1: "N/A", // can't use an empty string given the model validations
-			City:           newDutyLocationAddress.City,
-			State:          newDutyLocationAddress.State,
-			PostalCode:     newDutyLocationAddress.PostalCode,
-			Country:        newDutyLocationAddress.Country,
-			County:         county,
+			StreetAddress1:     "N/A", // can't use an empty string given the model validations
+			City:               newDutyLocationAddress.City,
+			State:              newDutyLocationAddress.State,
+			PostalCode:         newDutyLocationAddress.PostalCode,
+			Country:            newDutyLocationAddress.Country,
+			County:             county,
+			UsPostRegionCityID: newDutyLocationAddress.UsPostRegionCityID,
 		}
 	}
 
 	// Populate address county information
-	if shipment.PickupAddress != nil && shipment.PickupAddress.County == "" {
+	if shipment.PickupAddress != nil && shipment.PickupAddress.County == nil {
 		shipment.PickupAddress.County, err = models.FindCountyByZipCode(appCtx.DB(), shipment.PickupAddress.PostalCode)
 		if err != nil {
 			return nil, err
 		}
 	}
 
-	if shipment.DestinationAddress != nil && shipment.DestinationAddress.County == "" {
+	if shipment.DestinationAddress != nil && shipment.DestinationAddress.County == nil {
 		shipment.DestinationAddress.County, err = models.FindCountyByZipCode(appCtx.DB(), shipment.DestinationAddress.PostalCode)
 		if err != nil {
 			return nil, err
