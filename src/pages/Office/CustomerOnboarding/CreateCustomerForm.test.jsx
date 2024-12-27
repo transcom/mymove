@@ -413,7 +413,11 @@ describe('CreateCustomerForm', () => {
     await userEvent.click(saveBtn);
 
     await waitFor(() => {
-      expect(createCustomerWithOktaOption).toHaveBeenCalled();
+      expect(createCustomerWithOktaOption).toHaveBeenCalledWith(
+        expect.objectContaining({
+          body: expect.objectContaining({ emplid: null }),
+        }),
+      );
       expect(testProps.setCanAddOrders).toHaveBeenCalledWith(true);
       expect(mockNavigate).toHaveBeenCalledWith(ordersPath, {
         state: {
@@ -486,6 +490,15 @@ describe('CreateCustomerForm', () => {
     await userEvent.type(getByTestId('emplidInput'), '1234567');
     await waitFor(() => {
       expect(saveBtn).toBeEnabled(); // EMPLID is set now, all validations true
+    });
+    await userEvent.click(saveBtn);
+
+    await waitFor(() => {
+      expect(createCustomerWithOktaOption).toHaveBeenCalledWith(
+        expect.objectContaining({
+          body: expect.objectContaining({ emplid: '1234567' }),
+        }),
+      );
     });
   }, 20000);
 
@@ -629,11 +642,11 @@ describe('CreateCustomerForm', () => {
 
     await waitFor(() => {
       expect(createCustomerWithOktaOption).toHaveBeenCalled();
-      expect(mockNavigate).toHaveBeenCalledWith(ordersPath, {
-        state: {
-          isSafetyMoveSelected: true,
-        },
-      });
+    });
+    expect(mockNavigate).toHaveBeenCalledWith(ordersPath, {
+      state: {
+        isSafetyMoveSelected: true,
+      },
     });
   }, 20000);
 });
