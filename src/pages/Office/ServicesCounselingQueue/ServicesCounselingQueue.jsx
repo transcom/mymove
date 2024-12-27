@@ -202,7 +202,7 @@ export const counselingColumns = (moveLockFlag, originLocationList, supervisor, 
           return !row?.assignable ? (
             <div>{row.assignedTo ? `${row.assignedTo?.lastName}, ${row.assignedTo?.firstName}` : ''}</div>
           ) : (
-            <div data-label="assignedSelect" className={styles.assignedToCol}>
+            <div data-label="assignedSelect" className={styles.assignedToCol} key={row.id}>
               <Dropdown
                 defaultValue={row.assignedTo?.officeUserId}
                 onChange={(e) => handleQueueAssignment(row.id, e.target.value, roleTypes.SERVICES_COUNSELOR)}
@@ -399,7 +399,7 @@ export const closeoutColumns = (
           return !row?.assignable ? (
             <div>{row.assignedTo ? `${row.assignedTo?.lastName}, ${row.assignedTo?.firstName}` : ''}</div>
           ) : (
-            <div data-label="assignedSelect" className={styles.assignedToCol}>
+            <div data-label="assignedSelect" className={styles.assignedToCol} key={row.id}>
               <Dropdown
                 defaultValue={row.assignedTo?.officeUserId}
                 onChange={(e) => handleQueueAssignment(row.id, e.target.value, roleTypes.SERVICES_COUNSELOR)}

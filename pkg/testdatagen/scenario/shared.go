@@ -4098,7 +4098,7 @@ func createNTSMove(appCtx appcontext.AppContext) {
 		},
 		{
 			Model: models.MTOShipment{
-				ShipmentType: models.MTOShipmentTypeHHGIntoNTSDom,
+				ShipmentType: models.MTOShipmentTypeHHGIntoNTS,
 			},
 		},
 	}, nil)
@@ -7249,7 +7249,7 @@ func createMoveWithHHGAndNTSMissingInfo(appCtx appcontext.AppContext, moveRouter
 			Model: models.MTOShipment{
 				ID:                   uuid.Must(uuid.NewV4()),
 				PrimeEstimatedWeight: &estimatedWeight,
-				ShipmentType:         models.MTOShipmentTypeHHGIntoNTSDom,
+				ShipmentType:         models.MTOShipmentTypeHHGIntoNTS,
 				ApprovedDate:         models.TimePointer(time.Now()),
 				Status:               models.MTOShipmentStatusSubmitted,
 			},

@@ -1953,7 +1953,7 @@ func (suite *MTOShipmentServiceSuite) TestUpdateMTOShipmentStatus() {
 		// 1. The shipment is moving to the APPROVED status
 		// 2. The shipment must already have the following fields present:
 		// MTOShipmentTypeHHG: ScheduledPickupDate, PrimeEstimatedWeight, PickupAddress, DestinationAddress
-		// MTOShipmentTypeHHGIntoNTSDom: ScheduledPickupDate, PrimeEstimatedWeight, PickupAddress, StorageFacility
+		// MTOShipmentTypeHHGIntoNTS: ScheduledPickupDate, PrimeEstimatedWeight, PickupAddress, StorageFacility
 		// MTOShipmentTypeHHGOutOfNTSDom: ScheduledPickupDate, NTSRecordedWeight, StorageFacility, DestinationAddress
 		// 3. The shipment must not already have a Required Delivery Date
 		// Note that MakeMTOShipment will automatically add a Required Delivery Date if the ScheduledPickupDate
@@ -1996,7 +1996,7 @@ func (suite *MTOShipmentServiceSuite) TestUpdateMTOShipmentStatus() {
 			},
 			{
 				Model: models.MTOShipment{
-					ShipmentType:         models.MTOShipmentTypeHHGIntoNTSDom,
+					ShipmentType:         models.MTOShipmentTypeHHGIntoNTS,
 					ScheduledPickupDate:  &testdatagen.DateInsidePeakRateCycle,
 					PrimeEstimatedWeight: &estimatedWeight,
 					Status:               models.MTOShipmentStatusSubmitted,
@@ -2810,7 +2810,7 @@ func (suite *MTOShipmentServiceSuite) TestUpdateShipmentNullableFields() {
 		ntsMove := factory.BuildMoveWithShipment(suite.DB(), []factory.Customization{
 			{
 				Model: models.MTOShipment{
-					ShipmentType: models.MTOShipmentTypeHHGIntoNTSDom,
+					ShipmentType: models.MTOShipmentTypeHHGIntoNTS,
 					TACType:      &ntsLOAType,
 					SACType:      &ntsLOAType,
 				},
@@ -2851,7 +2851,7 @@ func (suite *MTOShipmentServiceSuite) TestUpdateShipmentNullableFields() {
 		ntsMove := factory.BuildMoveWithShipment(suite.DB(), []factory.Customization{
 			{
 				Model: models.MTOShipment{
-					ShipmentType: models.MTOShipmentTypeHHGIntoNTSDom,
+					ShipmentType: models.MTOShipmentTypeHHGIntoNTS,
 					TACType:      &ntsLOAType,
 					SACType:      &ntsLOAType,
 				},

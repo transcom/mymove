@@ -3363,6 +3363,11 @@ func init() {
           "x-nullable": true,
           "example": "LOS ANGELES"
         },
+        "destinationGbloc": {
+          "type": "string",
+          "pattern": "^[A-Z]{4}$",
+          "x-nullable": true
+        },
         "eTag": {
           "type": "string",
           "readOnly": true
@@ -4940,7 +4945,7 @@ func init() {
       "title": "Shipment Type",
       "enum": [
         "HHG",
-        "HHG_INTO_NTS_DOMESTIC",
+        "HHG_INTO_NTS",
         "HHG_OUTOF_NTS_DOMESTIC",
         "PPM",
         "BOAT_HAUL_AWAY",
@@ -4952,7 +4957,7 @@ func init() {
         "BOAT_HAUL_AWAY": "Boat Haul-Away",
         "BOAT_TOW_AWAY": "Boat Tow-Away",
         "HHG": "HHG",
-        "HHG_INTO_NTS_DOMESTIC": "NTS",
+        "HHG_INTO_NTS": "NTS",
         "HHG_OUTOF_NTS_DOMESTIC": "NTS Release",
         "MOBILE_HOME": "Mobile Home",
         "PPM": "PPM",
@@ -12482,6 +12487,11 @@ func init() {
           "x-nullable": true,
           "example": "LOS ANGELES"
         },
+        "destinationGbloc": {
+          "type": "string",
+          "pattern": "^[A-Z]{4}$",
+          "x-nullable": true
+        },
         "eTag": {
           "type": "string",
           "readOnly": true
@@ -14061,7 +14071,7 @@ func init() {
       "title": "Shipment Type",
       "enum": [
         "HHG",
-        "HHG_INTO_NTS_DOMESTIC",
+        "HHG_INTO_NTS",
         "HHG_OUTOF_NTS_DOMESTIC",
         "PPM",
         "BOAT_HAUL_AWAY",
@@ -14073,7 +14083,7 @@ func init() {
         "BOAT_HAUL_AWAY": "Boat Haul-Away",
         "BOAT_TOW_AWAY": "Boat Tow-Away",
         "HHG": "HHG",
-        "HHG_INTO_NTS_DOMESTIC": "NTS",
+        "HHG_INTO_NTS": "NTS",
         "HHG_OUTOF_NTS_DOMESTIC": "NTS Release",
         "MOBILE_HOME": "Mobile Home",
         "PPM": "PPM",
