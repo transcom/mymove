@@ -75,16 +75,16 @@ func (m MoveCounseled) emails(appCtx appcontext.AppContext) ([]emailContent, err
 	}
 
 	destinationAddress := orders.NewDutyLocation.Name
-	isSeparateeRetiree := orders.OrdersType == internalmessages.OrdersTypeRETIREMENT || orders.OrdersType == internalmessages.OrdersTypeSEPARATION
-	if isSeparateeRetiree && len(move.MTOShipments) > 0 {
-		mtoShipment := move.MTOShipments[0]
-		if mtoShipment.DestinationAddress != nil {
-			destAddr := mtoShipment.DestinationAddress
-			destinationAddress = destAddr.LineDisplayFormat()
-		} else if mtoShipment.ShipmentType == models.MTOShipmentTypePPM {
-			destAddr := models.FetchAddressByID(appCtx.DB(), mtoShipment.PPMShipment.DestinationAddressID)
-			destinationAddress = destAddr.LineDisplayFormat()
+	isSeparateeOrRetireeOrder := orders.OrdersType == internalmessages.OrdersTypeRETIREMENT || orders.OrdersType == internalmessages.OrdersTypeSEPARATION
+	if isSeparateeOrRetireeOrder && len(move.MTOShipments) > 0 && move.MTOShipments[0].DestinationAddress != nil {
+		mtoShipDestinationAddress, streetAddr2, streetAddr3 := *move.MTOShipments[0].DestinationAddress, "", ""
+		if mtoShipDestinationAddress.StreetAddress2 != nil {
+			streetAddr2 = " " + *mtoShipDestinationAddress.StreetAddress2
 		}
+		if mtoShipDestinationAddress.StreetAddress3 != nil {
+			streetAddr3 = " " + *mtoShipDestinationAddress.StreetAddress3
+		}
+		destinationAddress = fmt.Sprintf("%s%s%s, %s, %s %s", mtoShipDestinationAddress.StreetAddress1, streetAddr2, streetAddr3, mtoShipDestinationAddress.City, mtoShipDestinationAddress.State, mtoShipDestinationAddress.PostalCode)
 	}
 
 	if serviceMember.PersonalEmail == nil {

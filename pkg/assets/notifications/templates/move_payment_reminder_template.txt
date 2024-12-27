@@ -1,7 +1,7 @@
 *** DO NOT REPLY directly to this email ***
 
 This is a reminder that your PPM with the assigned move code {{.Locator}} from {{.OriginDutyLocation}}
-to {{.DestinationLocation}} is awaiting action in MilMove.
+to {{.DestinationDutyLocation}} is awaiting action in MilMove.
 
 Next steps:
 
