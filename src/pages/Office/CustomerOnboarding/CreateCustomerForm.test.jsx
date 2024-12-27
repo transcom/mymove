@@ -421,7 +421,11 @@ describe('CreateCustomerForm', () => {
     await userEvent.click(saveBtn);
 
     await waitFor(() => {
-      expect(createCustomerWithOktaOption).toHaveBeenCalled();
+      expect(createCustomerWithOktaOption).toHaveBeenCalledWith(
+        expect.objectContaining({
+          body: expect.objectContaining({ emplid: null }),
+        }),
+      );
       expect(testProps.setCanAddOrders).toHaveBeenCalledWith(true);
       expect(mockNavigate).toHaveBeenCalledWith(ordersPath, {
         state: {
@@ -495,6 +499,15 @@ describe('CreateCustomerForm', () => {
     await userEvent.type(getByTestId('emplidInput'), '1234567');
     await waitFor(() => {
       expect(saveBtn).toBeEnabled(); // EMPLID is set now, all validations true
+    });
+    await userEvent.click(saveBtn);
+
+    await waitFor(() => {
+      expect(createCustomerWithOktaOption).toHaveBeenCalledWith(
+        expect.objectContaining({
+          body: expect.objectContaining({ emplid: '1234567' }),
+        }),
+      );
     });
   }, 20000);
 
@@ -647,80 +660,80 @@ describe('CreateCustomerForm', () => {
         },
       });
     });
-  }, 50000);
+  });
+}, 50000);
 
-  it('disables okta and non cac user inputs when bluebark move is selected', async () => {
-    createCustomerWithOktaOption.mockImplementation(() => Promise.resolve(fakeResponse));
-    isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(true));
-    searchLocationByZipCityState.mockImplementation(mockSearchPickupLocation);
+it('disables okta and non cac user inputs when bluebark move is selected', async () => {
+  createCustomerWithOktaOption.mockImplementation(() => Promise.resolve(fakeResponse));
+  isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(true));
+  searchLocationByZipCityState.mockImplementation(mockSearchPickupLocation);
 
-    const { getByLabelText, getByTestId, getByRole } = render(
-      <MockProviders initialState={serviceCounselorState}>
-        <CreateCustomerForm {...testProps} />
-      </MockProviders>,
-    );
+  const { getByLabelText, getByTestId, getByRole } = render(
+    <MockProviders initialState={serviceCounselorState}>
+      <CreateCustomerForm {...testProps} />
+    </MockProviders>,
+  );
 
-    const user = userEvent.setup();
+  const user = userEvent.setup();
 
-    const saveBtn = await screen.findByRole('button', { name: 'Save' });
-    expect(saveBtn).toBeInTheDocument();
+  const saveBtn = await screen.findByRole('button', { name: 'Save' });
+  expect(saveBtn).toBeInTheDocument();
 
-    // check the safety move box
-    await userEvent.type(getByTestId('is-safety-move-no'), bluebarkPayload.is_safety_move);
-    await userEvent.type(getByTestId('is-bluebark-yes'), bluebarkPayload.is_bluebark);
+  // check the safety move box
+  await userEvent.type(getByTestId('is-safety-move-no'), bluebarkPayload.is_safety_move);
+  await userEvent.type(getByTestId('is-bluebark-yes'), bluebarkPayload.is_bluebark);
 
-    await userEvent.selectOptions(getByLabelText('Branch of service'), ['ARMY']);
-    await user.type(getByTestId('edipiInput'), safetyPayload.edipi);
+  await userEvent.selectOptions(getByLabelText('Branch of service'), ['ARMY']);
+  await user.type(getByTestId('edipiInput'), safetyPayload.edipi);
 
-    await user.type(getByLabelText('First name'), safetyPayload.first_name);
-    await user.type(getByLabelText('Last name'), safetyPayload.last_name);
+  await user.type(getByLabelText('First name'), safetyPayload.first_name);
+  await user.type(getByLabelText('Last name'), safetyPayload.last_name);
 
-    await user.type(getByLabelText('Best contact phone'), safetyPayload.telephone);
-    await user.type(getByLabelText('Personal email'), safetyPayload.personal_email);
+  await user.type(getByLabelText('Best contact phone'), safetyPayload.telephone);
+  await user.type(getByLabelText('Personal email'), safetyPayload.personal_email);
 
-    await userEvent.type(
-      getByTestId('residential_address.streetAddress1'),
-      safetyPayload.residential_address.streetAddress1,
-    );
+  await userEvent.type(
+    getByTestId('residential_address.streetAddress1'),
+    safetyPayload.residential_address.streetAddress1,
+  );
 
-    const locationBox = screen.getAllByRole('combobox');
+  const locationBox = screen.getAllByRole('combobox');
 
-    await act(async () => {
-      await userEvent.type(locationBox[1], 'BEVERLY HILLS');
-      const selectedResidentialLocation = await screen.findByText(/90210/);
-      await userEvent.click(selectedResidentialLocation);
-    });
+  await act(async () => {
+    await userEvent.type(locationBox[1], 'BEVERLY HILLS');
+    const selectedResidentialLocation = await screen.findByText(/90210/);
+    await userEvent.click(selectedResidentialLocation);
+  });
 
-    await userEvent.type(
-      getByTestId('backup_mailing_address.streetAddress1'),
-      safetyPayload.backup_mailing_address.streetAddress1,
-    );
+  await userEvent.type(
+    getByTestId('backup_mailing_address.streetAddress1'),
+    safetyPayload.backup_mailing_address.streetAddress1,
+  );
 
-    await act(async () => {
-      await userEvent.type(locationBox[2], 'DRYDEN');
-      const selectedBackupLocation = await screen.findByText(/04225/);
-      await userEvent.click(selectedBackupLocation);
-    });
+  await act(async () => {
+    await userEvent.type(locationBox[2], 'DRYDEN');
+    const selectedBackupLocation = await screen.findByText(/04225/);
+    await userEvent.click(selectedBackupLocation);
+  });
 
-    await userEvent.type(getByLabelText('Name'), safetyPayload.backup_contact.name);
-    await userEvent.type(getByRole('textbox', { name: 'Email' }), safetyPayload.backup_contact.email);
-    await userEvent.type(getByRole('textbox', { name: 'Phone' }), safetyPayload.backup_contact.telephone);
+  await userEvent.type(getByLabelText('Name'), safetyPayload.backup_contact.name);
+  await userEvent.type(getByRole('textbox', { name: 'Email' }), safetyPayload.backup_contact.email);
+  await userEvent.type(getByRole('textbox', { name: 'Phone' }), safetyPayload.backup_contact.telephone);
 
-    expect(saveBtn).toBeInTheDocument();
+  expect(saveBtn).toBeInTheDocument();
 
-    await waitFor(() => {
-      expect(saveBtn).toBeEnabled();
-    });
-    await userEvent.click(saveBtn);
+  await waitFor(() => {
+    expect(saveBtn).toBeEnabled();
+  });
+  await userEvent.click(saveBtn);
 
-    await waitFor(() => {
-      expect(createCustomerWithOktaOption).toHaveBeenCalled();
-      expect(mockNavigate).toHaveBeenCalledWith(ordersPath, {
-        state: {
-          isSafetyMoveSelected: false,
-          isBluebarkMoveSelected: true,
-        },
-      });
+  await waitFor(() => {
+    expect(createCustomerWithOktaOption).toHaveBeenCalled();
+    expect(mockNavigate).toHaveBeenCalledWith(ordersPath, {
+      state: {
+        isSafetyMoveSelected: false,
+        isBluebarkMoveSelected: true,
+      },
     });
   }, 50000);
 });
