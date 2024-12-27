@@ -678,8 +678,9 @@ describe('CreateCustomerForm', () => {
     const saveBtn = await screen.findByRole('button', { name: 'Save' });
     expect(saveBtn).toBeInTheDocument();
 
-    // check the safety move box
-    await userEvent.type(getByTestId('is-safety-move-no'), bluebarkPayload.is_safety_move);
+    const safetyMove = await screen.findByTestId('is-safety-move-no');
+    expect(safetyMove).toBeChecked();
+
     await userEvent.type(getByTestId('is-bluebark-yes'), bluebarkPayload.is_bluebark);
 
     await userEvent.selectOptions(getByLabelText('Branch of service'), ['ARMY']);
