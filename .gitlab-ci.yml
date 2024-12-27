@@ -462,7 +462,7 @@ deploy_migrations_stg:
     - ./scripts/rds-snapshot-app-db "$APP_ENVIRONMENT"
     # Step 3: Run migrations
     - echo "Running migrations"
-    - ./scripts/ecs-run-app-migrations-container "${ECR_REPOSITORY_URI}/app-migrations@${ECR_DIGEST}" "demo"
+    - ./scripts/ecs-run-app-migrations-container "${ECR_REPOSITORY_URI}/app-migrations@${ECR_DIGEST}" "${APP_ENVIRONMENT}"
   after_script:
     - *announce_failure
   rules:
@@ -694,7 +694,7 @@ deploy_migrations_prd:
     - ./scripts/rds-snapshot-app-db "$APP_ENVIRONMENT"
     # Step 3: Run migrations
     - echo "Running migrations"
-    - ./scripts/ecs-run-app-migrations-container "${ECR_REPOSITORY_URI}/app-migrations@${ECR_DIGEST}" "demo"
+    - ./scripts/ecs-run-app-migrations-container "${ECR_REPOSITORY_URI}/app-migrations@${ECR_DIGEST}" "${APP_ENVIRONMENT}"
   after_script:
     - *announce_failure
   rules:
@@ -923,7 +923,7 @@ deploy_migrations_dp3:
     - ./scripts/rds-snapshot-app-db "$APP_ENVIRONMENT"
     # Step 3: Run migrations
     - echo "Running migrations"
-    - ./scripts/ecs-run-app-migrations-container "${ECR_REPOSITORY_URI}/app-migrations@${ECR_DIGEST}" "demo"
+    - ./scripts/ecs-run-app-migrations-container "${ECR_REPOSITORY_URI}/app-migrations@${ECR_DIGEST}" "${APP_ENVIRONMENT}"
   after_script:
     - *announce_failure
   rules:
