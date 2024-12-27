@@ -172,7 +172,7 @@ export function formatPortInfo(port) {
   if (port) {
     return `${port.portCode} - ${port.portName}\n${port.city}, ${port.state} ${port.zip}`;
   }
-  return '';
+  return '-';
 }
 
 export function getShipmentModificationType(shipment) {
