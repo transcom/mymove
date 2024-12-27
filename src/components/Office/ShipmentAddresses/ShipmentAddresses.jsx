@@ -4,7 +4,7 @@ import { PropTypes } from 'prop-types';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { Button } from '@trussworks/react-uswds';
 
-import { AddressShape, PortLocationShape } from '../../../types/address';
+import { AddressShape } from '../../../types/address';
 import { formatAddress, formatCityStateAndPostalCode, formatPortInfo } from '../../../utils/shipmentDisplay';
 import DataTableWrapper from '../../DataTableWrapper/index';
 import DataTable from '../../DataTable/index';
@@ -89,7 +89,7 @@ const ShipmentAddresses = ({
       />
       <DataTable
         columnHeaders={['Port of Embark', 'Port of Debark']}
-        dataRow={[poeLocation ? formatPortInfo(poeLocation) : '-', podLocation ? formatPortInfo(podLocation) : '-']}
+        dataRow={[formatPortInfo(poeLocation), formatPortInfo(podLocation)]}
       />
     </DataTableWrapper>
   );
@@ -101,8 +101,6 @@ ShipmentAddresses.propTypes = {
   originDutyLocation: AddressShape,
   destinationDutyLocation: AddressShape,
   handleShowDiversionModal: PropTypes.func.isRequired,
-  poeLocation: PortLocationShape,
-  podLocation: PortLocationShape,
   shipmentInfo: PropTypes.shape({
     id: PropTypes.string.isRequired,
     eTag: PropTypes.string.isRequired,
@@ -116,8 +114,6 @@ ShipmentAddresses.defaultProps = {
   destinationAddress: {},
   originDutyLocation: {},
   destinationDutyLocation: {},
-  poeLocation: null,
-  podLocation: null,
 };
 
 export default ShipmentAddresses;
