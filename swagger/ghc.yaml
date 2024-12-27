@@ -10927,6 +10927,8 @@ definitions:
       storageFacility:
         x-nullable: true
         $ref: '#/definitions/StorageFacility'
+      port:
+        $ref: '#/definitions/Port'
       ppmShipment:
         $ref: '#/definitions/PPMShipment'
       boatShipment:
