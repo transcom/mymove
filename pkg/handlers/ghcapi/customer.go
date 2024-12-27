@@ -216,6 +216,11 @@ func (h CreateCustomerWithOktaOptionHandler) Handle(params customercodeop.Create
 				return customercodeop.NewCreateCustomerWithOktaOptionUnprocessableEntity().WithPayload(payload), badDataError
 			}
 
+			// emplid needs to be unique so if it is not provided, we need to ensure it is nil by checking for empty strings
+			if payload.Emplid != nil && *payload.Emplid == "" {
+				payload.Emplid = nil
+			}
+
 			// declaring okta values outside of if statements so we can use them later
 			var oktaSub string
 			oktaUser := &models.CreatedOktaUser{}

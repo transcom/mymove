@@ -119,7 +119,7 @@ const fakePayload = {
   },
   create_okta_account: 'true',
   cac_user: 'false',
-  is_safety_move: false,
+  is_safety_move: 'false',
   is_bluebark: 'false',
 };
 
@@ -421,7 +421,11 @@ describe('CreateCustomerForm', () => {
     await userEvent.click(saveBtn);
 
     await waitFor(() => {
-      expect(createCustomerWithOktaOption).toHaveBeenCalled();
+      expect(createCustomerWithOktaOption).toHaveBeenCalledWith(
+        expect.objectContaining({
+          body: expect.objectContaining({ emplid: null }),
+        }),
+      );
       expect(testProps.setCanAddOrders).toHaveBeenCalledWith(true);
       expect(mockNavigate).toHaveBeenCalledWith(ordersPath, {
         state: {
@@ -495,6 +499,15 @@ describe('CreateCustomerForm', () => {
     await userEvent.type(getByTestId('emplidInput'), '1234567');
     await waitFor(() => {
       expect(saveBtn).toBeEnabled(); // EMPLID is set now, all validations true
+    });
+    await userEvent.click(saveBtn);
+
+    await waitFor(() => {
+      expect(createCustomerWithOktaOption).toHaveBeenCalledWith(
+        expect.objectContaining({
+          body: expect.objectContaining({ emplid: '1234567' }),
+        }),
+      );
     });
   }, 20000);
 
@@ -665,8 +678,6 @@ describe('CreateCustomerForm', () => {
     const saveBtn = await screen.findByRole('button', { name: 'Save' });
     expect(saveBtn).toBeInTheDocument();
 
-    // check the safety move box
-    await userEvent.type(getByTestId('is-safety-move-no'), bluebarkPayload.is_safety_move);
     await userEvent.type(getByTestId('is-bluebark-yes'), bluebarkPayload.is_bluebark);
 
     await userEvent.selectOptions(getByLabelText('Branch of service'), ['ARMY']);
@@ -723,4 +734,4 @@ describe('CreateCustomerForm', () => {
       });
     });
   }, 50000);
-});
+}, 60000);
