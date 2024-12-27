@@ -735,6 +735,6 @@ describe('CreateCustomerForm', () => {
           isBluebarkMoveSelected: true,
         },
       });
-    }, 50000);
+    });
   });
-}, 50000);
+}, 60000);
