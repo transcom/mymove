@@ -44,6 +44,7 @@ import withRouter from 'utils/routing';
 import { OktaLoggedOutBanner, OktaNeedsLoggedOutBanner } from 'components/OktaLogoutBanner';
 import SelectedGblocProvider from 'components/Office/GblocSwitcher/SelectedGblocProvider';
 import MaintenancePage from 'pages/Maintenance/MaintenancePage';
+import { FEATURE_FLAG_KEYS } from 'shared/constants';
 
 // Lazy load these dependencies (they correspond to unique routes & only need to be loaded when that URL is accessed)
 const SignIn = lazy(() => import('pages/SignIn/SignIn'));
@@ -159,7 +160,7 @@ export class OfficeApp extends Component {
         this.setState({
           queueManagementFlag: isQueueManagementFlagValue,
         });
-        const isBulkAssignmentFlagValue = await isBooleanFlagEnabled('bulk_assignment');
+        const isBulkAssignmentFlagValue = await isBooleanFlagEnabled(FEATURE_FLAG_KEYS.BULK_ASSIGNMENT);
         this.setState({
           bulkAssignmentFlag: isBulkAssignmentFlagValue,
         });
