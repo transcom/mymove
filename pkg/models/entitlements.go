@@ -9,15 +9,6 @@ import (
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 )
 
-// WeightAllotment represents the weights allotted for a rank
-type WeightAllotment struct {
-	TotalWeightSelf               int
-	TotalWeightSelfPlusDependents int
-	ProGearWeight                 int
-	ProGearWeightSpouse           int
-	UnaccompaniedBaggageAllowance int
-}
-
 // the midshipman entitlement is shared with service academy cadet
 var midshipman = WeightAllotment{
 	TotalWeightSelf:               350,

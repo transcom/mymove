@@ -131,3 +131,12 @@ func (e *Entitlement) UBWeightAllowance() *int {
 		return nil
 	}
 }
+
+// WeightAllotment represents the weights allotted for a rank
+type WeightAllotment struct {
+	TotalWeightSelf               int
+	TotalWeightSelfPlusDependents int
+	ProGearWeight                 int
+	ProGearWeightSpouse           int
+	UnaccompaniedBaggageAllowance int
+}

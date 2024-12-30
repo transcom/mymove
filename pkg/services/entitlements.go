@@ -2,6 +2,7 @@ package services
 
 import (
 	"github.com/transcom/mymove/pkg/appcontext"
+	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/models"
 )
 
@@ -9,8 +10,9 @@ import (
 //
 //go:generate mockery --name WeightAllotmentFetcher
 type WeightAllotmentFetcher interface {
-	GetWeightAllotment(appCtx appcontext.AppContext, grade string) (*models.HHGAllowance, error)
-	GetAllWeightAllotments(appCtx appcontext.AppContext) (models.HHGAllowances, error)
+	GetWeightAllotment(appCtx appcontext.AppContext, grade string, ordersType internalmessages.OrdersType) (models.WeightAllotment, error)
+	GetAllWeightAllotments(appCtx appcontext.AppContext) (map[internalmessages.OrderPayGrade]models.WeightAllotment, error)
+	GetWeightAllotmentByOrdersType(appCtx appcontext.AppContext, ordersType internalmessages.OrdersType) (models.WeightAllotment, error)
 }
 
 // The weight restrictor interface helps apply weight restrictions to entitlements
