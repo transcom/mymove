@@ -55,6 +55,24 @@ func buildMTOServiceItemWithBuildType(db *pop.Connection, customs []Customizatio
 		reService = FetchReServiceByCode(db, models.ReServiceCode("DLH"))
 	}
 
+	var ptrPodLocation *models.PortLocation
+	if result := findValidCustomization(customs, PortLocations.PortOfDebarkation); result != nil {
+		podLocation := result.Model.(models.PortLocation)
+		if !result.LinkOnly {
+			podLocation = FetchPortLocation(db, customs, nil)
+		}
+		ptrPodLocation = &podLocation
+	}
+
+	var ptrPoeLocation *models.PortLocation
+	if result := findValidCustomization(customs, PortLocations.PortOfEmbarkation); result != nil {
+		poeLocation := result.Model.(models.PortLocation)
+		if !result.LinkOnly {
+			poeLocation = FetchPortLocation(db, customs, nil)
+		}
+		ptrPoeLocation = &poeLocation
+	}
+
 	requestedApprovalsRequestedStatus := false
 
 	var lockedPriceCents = unit.Cents(12303)
@@ -71,6 +89,8 @@ func buildMTOServiceItemWithBuildType(db *pop.Connection, customs []Customizatio
 		RequestedApprovalsRequestedStatus: &requestedApprovalsRequestedStatus,
 		CustomerExpense:                   isCustomerExpense,
 		LockedPriceCents:                  &lockedPriceCents,
+		POELocation:                       ptrPoeLocation,
+		PODLocation:                       ptrPodLocation,
 	}
 
 	// only set SITOriginHHGOriginalAddress if a customization is provided
