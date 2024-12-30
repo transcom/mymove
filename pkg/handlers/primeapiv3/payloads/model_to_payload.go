@@ -24,6 +24,8 @@ func MoveTaskOrder(moveTaskOrder *models.Move) *primev3messages.MoveTaskOrder {
 	mtoServiceItems := MTOServiceItems(&moveTaskOrder.MTOServiceItems)
 	mtoShipments := MTOShipmentsWithoutServiceItems(&moveTaskOrder.MTOShipments)
 
+	setPortsOnShipments(&moveTaskOrder.MTOServiceItems, mtoShipments)
+
 	payload := &primev3messages.MoveTaskOrder{
 		ID:                         strfmt.UUID(moveTaskOrder.ID.String()),
 		MoveCode:                   moveTaskOrder.Locator,
@@ -93,7 +95,7 @@ func Order(order *models.Order) *primev3messages.Order {
 	destinationDutyLocation := DutyLocation(&order.NewDutyLocation)
 	originDutyLocation := DutyLocation(order.OriginDutyLocation)
 	if order.Grade != nil && order.Entitlement != nil {
-		order.Entitlement.SetWeightAllotment(string(*order.Grade))
+		order.Entitlement.SetWeightAllotment(string(*order.Grade), order.OrdersType)
 	}
 
 	var grade string
@@ -152,9 +154,14 @@ func Entitlement(entitlement *models.Entitlement) *primev3messages.Entitlements 
 	if entitlement.TotalDependents != nil {
 		totalDependents = int64(*entitlement.TotalDependents)
 	}
+	var ubAllowance int64
+	if entitlement.UBAllowance != nil {
+		ubAllowance = int64(*entitlement.UBAllowance)
+	}
 	return &primev3messages.Entitlements{
 		ID:                             strfmt.UUID(entitlement.ID.String()),
 		AuthorizedWeight:               authorizedWeight,
+		UnaccompaniedBaggageAllowance:  &ubAllowance,
 		DependentsAuthorized:           entitlement.DependentsAuthorized,
 		NonTemporaryStorage:            entitlement.NonTemporaryStorage,
 		PrivatelyOwnedVehicle:          entitlement.PrivatelyOwnedVehicle,
@@ -207,7 +214,7 @@ func Address(address *models.Address) *primev3messages.Address {
 		PostalCode:     &address.PostalCode,
 		Country:        Country(address.Country),
 		ETag:           etag.GenerateEtag(address.UpdatedAt),
-		County:         &address.County,
+		County:         address.County,
 	}
 }
 
@@ -226,7 +233,7 @@ func PPMDestinationAddress(address *models.Address) *primev3messages.PPMDestinat
 		PostalCode:     &address.PostalCode,
 		Country:        Country(address.Country),
 		ETag:           etag.GenerateEtag(address.UpdatedAt),
-		County:         &address.County,
+		County:         address.County,
 	}
 	// Street address 1 is optional per business rule but not nullable on the database level.
 	// Check if streetAddress 1 is using place holder value to represent 'NULL'.
@@ -1015,4 +1022,47 @@ func MTOShipment(mtoShipment *models.MTOShipment) *primev3messages.MTOShipment {
 	}
 
 	return payload
+}
+
+// Takes the Port Location from the MTO Service item and sets it on the MTOShipmentsWithoutServiceObjects payload
+func setPortsOnShipments(mtoServiceItems *models.MTOServiceItems, mtoShipments *primev3messages.MTOShipmentsWithoutServiceObjects) {
+	shipmentPodMap := make(map[string]*models.PortLocation)
+	shipmentPoeMap := make(map[string]*models.PortLocation)
+	for _, mtoServiceItem := range *mtoServiceItems {
+		if mtoServiceItem.PODLocation != nil {
+			shipmentPodMap[mtoServiceItem.MTOShipmentID.String()] = mtoServiceItem.PODLocation
+		} else if mtoServiceItem.POELocation != nil {
+			shipmentPoeMap[mtoServiceItem.MTOShipmentID.String()] = mtoServiceItem.POELocation
+		}
+	}
+	var podMapEmpty = len(shipmentPodMap) == 0
+	var poeMapEmpty = len(shipmentPoeMap) == 0
+	if !podMapEmpty || !poeMapEmpty {
+		for _, mtoShipment := range *mtoShipments {
+			if !podMapEmpty && shipmentPodMap[string(mtoShipment.ID)] != nil {
+				podLocation := shipmentPodMap[string(mtoShipment.ID)]
+				pod := Port(podLocation)
+				mtoShipment.PortOfDebarkation = pod
+			} else if !poeMapEmpty && shipmentPoeMap[string(mtoShipment.ID)] != nil {
+				poeLocation := shipmentPoeMap[string(mtoShipment.ID)]
+				poe := Port(poeLocation)
+				mtoShipment.PortOfEmbarkation = poe
+			}
+		}
+	}
+}
+
+// Convert a PortLocation model to Port message
+func Port(portLocation *models.PortLocation) *primev3messages.Port {
+	return &primev3messages.Port{
+		ID:       strfmt.UUID(portLocation.ID.String()),
+		PortType: portLocation.Port.PortType.String(),
+		PortCode: portLocation.Port.PortCode,
+		PortName: portLocation.Port.PortName,
+		City:     portLocation.City.CityName,
+		County:   portLocation.UsPostRegionCity.UsprcCountyNm,
+		State:    portLocation.UsPostRegionCity.UsPostRegion.State.StateName,
+		Zip:      portLocation.UsPostRegionCity.UsprZipID,
+		Country:  portLocation.Country.CountryName,
+	}
 }

@@ -75,7 +75,7 @@ func (o *userUpdater) UpdateUser(appCtx appcontext.AppContext, id uuid.UUID, use
 			payload := adminmessages.OfficeUserUpdate{
 				Active: &user.Active,
 			}
-			_, verrs, err = o.officeUserUpdater.UpdateOfficeUser(appCtx, foundOfficeUser.ID, &payload)
+			_, verrs, err = o.officeUserUpdater.UpdateOfficeUser(appCtx, foundOfficeUser.ID, &payload, uuid.Nil)
 
 			if verrs != nil {
 				appCtx.Logger().Error("Could not update office user", zap.Error(verrs))

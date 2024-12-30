@@ -93,6 +93,16 @@ func fetchContractYear(appCtx appcontext.AppContext, contractID uuid.UUID, date 
 	return contractYear, nil
 }
 
+func fetchContractsByContractId(appCtx appcontext.AppContext, contractID uuid.UUID) (models.ReContractYears, error) {
+	var contracts models.ReContractYears
+	err := appCtx.DB().Where("contract_id = $1", contractID).All(&contracts)
+	if err != nil {
+		return models.ReContractYears{}, err
+	}
+
+	return contracts, nil
+}
+
 func fetchShipmentTypePrice(appCtx appcontext.AppContext, contractCode string, serviceCode models.ReServiceCode, market models.Market) (models.ReShipmentTypePrice, error) {
 	var shipmentTypePrice models.ReShipmentTypePrice
 	err := appCtx.DB().Q().

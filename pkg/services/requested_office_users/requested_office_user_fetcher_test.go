@@ -8,7 +8,10 @@ import (
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/appcontext"
+	"github.com/transcom/mymove/pkg/apperror"
+	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/models/roles"
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/services/query"
 )
@@ -62,5 +65,26 @@ func (suite *RequestedOfficeUsersServiceSuite) TestFetchRequestedOfficeUser() {
 		suite.Error(err)
 		suite.Equal(err.Error(), "Fetch error")
 		suite.Equal(models.OfficeUser{}, requestedOfficeUser)
+	})
+}
+
+func (suite *RequestedOfficeUsersServiceSuite) TestFetchRequestedOfficeUserPop() {
+	suite.Run("returns office user on success", func() {
+		officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
+		fetcher := NewRequestedOfficeUserFetcherPop()
+
+		fetchedUser, err := fetcher.FetchRequestedOfficeUserByID(suite.AppContextForTest(), officeUser.ID)
+
+		suite.NoError(err)
+		suite.Equal(officeUser.ID, fetchedUser.ID)
+	})
+
+	suite.Run("returns zero value office user on error", func() {
+		fetcher := NewRequestedOfficeUserFetcherPop()
+		officeUser, err := fetcher.FetchRequestedOfficeUserByID(suite.AppContextForTest(), uuid.Nil)
+
+		suite.Error(err)
+		suite.IsType(apperror.NotFoundError{}, err)
+		suite.Equal(uuid.Nil, officeUser.ID)
 	})
 }
