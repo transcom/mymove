@@ -62,7 +62,7 @@ export const CreateCustomerForm = ({ userPrivileges, setFlashMessage, setCanAddO
   const initialValues = {
     affiliation: '',
     edipi: '',
-    emplid: '',
+    emplid: null,
     first_name: '',
     middle_name: '',
     last_name: '',
@@ -110,7 +110,7 @@ export const CreateCustomerForm = ({ userPrivileges, setFlashMessage, setCanAddO
     const body = {
       affiliation: values.affiliation,
       edipi: values.edipi,
-      emplid: values.emplid || '',
+      emplid: values.emplid,
       firstName: values.first_name,
       middleName: values.middle_name,
       lastName: values.last_name,
@@ -234,7 +234,7 @@ export const CreateCustomerForm = ({ userPrivileges, setFlashMessage, setCanAddO
                     ...values,
                     affiliation: '',
                     edipi: '',
-                    emplid: '',
+                    emplid: null,
                     is_safety_move: 'false',
                   });
                 }
@@ -255,7 +255,7 @@ export const CreateCustomerForm = ({ userPrivileges, setFlashMessage, setCanAddO
                     ...values,
                     affiliation: e.target.value,
                     edipi: '',
-                    emplid: '',
+                    emplid: null,
                   });
                 } else if (e.target.value !== departmentIndicators.COAST_GUARD && isSafetyMove) {
                   setShowEmplid(false);
@@ -263,7 +263,7 @@ export const CreateCustomerForm = ({ userPrivileges, setFlashMessage, setCanAddO
                     ...values,
                     affiliation: e.target.value,
                     edipi: uniqueDodid,
-                    emplid: '',
+                    emplid: null,
                   });
                 } else {
                   setShowEmplid(false);
@@ -271,7 +271,7 @@ export const CreateCustomerForm = ({ userPrivileges, setFlashMessage, setCanAddO
                     ...values,
                     affiliation: e.target.value,
                     edipi: '',
-                    emplid: '',
+                    emplid: null,
                   });
                 }
               };
