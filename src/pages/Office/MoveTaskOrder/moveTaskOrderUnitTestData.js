@@ -520,6 +520,7 @@ export const allApprovedExternalVendorMTOQuery = {
     id: '2',
     status: MOVE_STATUSES.APPROVALS_REQUESTED,
     availableToPrimeAt: '2020-03-01T00:00:00.000Z',
+    excessUnaccompaniedBaggageWeightQualifiedAt: '2020-03-01T00:00:00.000Z',
   },
   mtoShipments: [
     {
@@ -1160,6 +1161,64 @@ export const riskOfExcessWeightQuery = {
       ntsRecordedWeight: 50,
       primeEstimatedWeight: 40,
       primeActualWeight: 40,
+      sitExtensions: [],
+      sitStatus: SITStatusOrigin,
+    },
+  ],
+};
+
+export const riskOfExcessWeightQueryExternalUBShipment = {
+  ...allApprovedExternalVendorMTOQuery,
+  orders: {
+    1: {
+      id: '1',
+      originDutyLocation: {
+        address: {
+          streetAddress1: '',
+          city: 'Fort Knox',
+          state: 'KY',
+          postalCode: '40121',
+          isOconus: true,
+        },
+      },
+      destinationDutyLocation: {
+        address: {
+          streetAddress1: '',
+          city: 'Fort Irwin',
+          state: 'CA',
+          postalCode: '92310',
+        },
+      },
+      entitlement: {
+        authorizedWeight: 100,
+        totalWeight: 100,
+        unaccompaniedBaggageAllowance: 2000,
+      },
+    },
+  },
+  mtoShipments: [
+    {
+      id: '1',
+      moveTaskOrderID: '2',
+      shipmentType: SHIPMENT_OPTIONS.UNACCOMPANIED_BAGGAGE,
+      scheduledPickupDate: '2020-03-16',
+      requestedPickupDate: '2020-03-15',
+      pickupAddress: {
+        streetAddress1: '932 Baltic Avenue',
+        city: 'Chicago',
+        state: 'IL',
+        postalCode: '60601',
+      },
+      destinationAddress: {
+        streetAddress1: '10 Park Place',
+        city: 'Atlantic City',
+        state: 'NJ',
+        postalCode: '08401',
+      },
+      status: 'APPROVED',
+      eTag: '1234',
+      primeEstimatedWeight: 1850,
+      primeActualWeight: 1841,
       sitExtensions: [],
       sitStatus: SITStatusOrigin,
     },
@@ -2200,7 +2259,7 @@ export const reviewWeightsQuery = {
         streetAddress2: 'P.O. Box 12345',
         streetAddress3: 'c/o Some Person',
       },
-      shipmentType: 'HHG_INTO_NTS_DOMESTIC',
+      shipmentType: 'HHG_INTO_NTS',
       status: 'DRAFT',
       updatedAt: '2023-03-14T16:44:05.889Z',
     },
@@ -2650,7 +2709,7 @@ export const reviewWeightsNoProGearQuery = {
         streetAddress2: 'P.O. Box 12345',
         streetAddress3: 'c/o Some Person',
       },
-      shipmentType: 'HHG_INTO_NTS_DOMESTIC',
+      shipmentType: 'HHG_INTO_NTS',
       status: 'DRAFT',
       updatedAt: '2023-03-14T16:44:05.889Z',
     },

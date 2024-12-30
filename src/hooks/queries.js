@@ -34,6 +34,8 @@ import {
   getPPMActualWeight,
   searchCustomers,
   getGBLOCs,
+  getDestinationRequestsQueue,
+  getBulkAssignmentData,
 } from 'services/ghcApi';
 import { getLoggedInUserQueries } from 'services/internalApi';
 import { getPrimeSimulatorMove } from 'services/primeApi';
@@ -214,6 +216,19 @@ export const useCustomerSupportRemarksQueries = (moveCode) => {
   const { isLoading, isError, isSuccess } = getQueriesStatus([customerSupportRemarksQuery]);
   return {
     customerSupportRemarks,
+    isLoading,
+    isError,
+    isSuccess,
+  };
+};
+
+export const useBulkAssignmentQueries = (queueType) => {
+  const { data: bulkAssignmentData, ...bulkAssignmentDataQuery } = useQuery([queueType], ({ queryKey }) =>
+    getBulkAssignmentData(queryKey),
+  );
+  const { isLoading, isError, isSuccess } = getQueriesStatus([bulkAssignmentDataQuery]);
+  return {
+    bulkAssignmentData,
     isLoading,
     isError,
     isSuccess,
@@ -561,6 +576,28 @@ export const useMovesQueueQueries = ({
   const { data = {}, ...movesQueueQuery } = useQuery(
     [MOVES_QUEUE, { sort, order, filters, currentPage, currentPageSize, viewAsGBLOC }],
     ({ queryKey }) => getMovesQueue(...queryKey),
+  );
+  const { isLoading, isError, isSuccess } = movesQueueQuery;
+  const { queueMoves, ...dataProps } = data;
+  return {
+    queueResult: { data: queueMoves, ...dataProps },
+    isLoading,
+    isError,
+    isSuccess,
+  };
+};
+
+export const useDestinationRequestsQueueQueries = ({
+  sort,
+  order,
+  filters = [],
+  currentPage = PAGINATION_PAGE_DEFAULT,
+  currentPageSize = PAGINATION_PAGE_SIZE_DEFAULT,
+  viewAsGBLOC,
+}) => {
+  const { data = {}, ...movesQueueQuery } = useQuery(
+    [MOVES_QUEUE, { sort, order, filters, currentPage, currentPageSize, viewAsGBLOC }],
+    ({ queryKey }) => getDestinationRequestsQueue(...queryKey),
   );
   const { isLoading, isError, isSuccess } = movesQueueQuery;
   const { queueMoves, ...dataProps } = data;

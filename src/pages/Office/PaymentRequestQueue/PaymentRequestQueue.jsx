@@ -157,7 +157,7 @@ export const columns = (moveLockFlag, isQueueManagementEnabled, showBranchFilter
               {row.assignedTo ? `${row.assignedTo?.lastName}, ${row.assignedTo?.firstName}` : ''}
             </div>
           ) : (
-            <div data-label="assignedSelect" data-testid="assigned-col" className={styles.assignedToCol}>
+            <div data-label="assignedSelect" data-testid="assigned-col" className={styles.assignedToCol} key={row.id}>
               <Dropdown
                 defaultValue={row.assignedTo?.officeUserId}
                 onChange={(e) => {
@@ -180,6 +180,9 @@ export const columns = (moveLockFlag, isQueueManagementEnabled, showBranchFilter
         {
           id: 'assignedTo',
           isFilterable: true,
+          exportValue: (row) => {
+            return row.assignedTo ? `${row.assignedTo?.lastName}, ${row.assignedTo?.firstName}` : '';
+          },
         },
       ),
     );

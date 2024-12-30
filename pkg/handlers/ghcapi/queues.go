@@ -178,6 +178,132 @@ func (h GetMovesQueueHandler) Handle(params queues.GetMovesQueueParams) middlewa
 		})
 }
 
+// GetDestinationRequestsQueueHandler returns the moves for the TOO queue user via GET /queues/destination-requests
+type GetDestinationRequestsQueueHandler struct {
+	handlers.HandlerConfig
+	services.OrderFetcher
+	services.MoveUnlocker
+	services.OfficeUserFetcherPop
+}
+
+// Handle returns the paginated list of moves with destination requests for a TOO user
+func (h GetDestinationRequestsQueueHandler) Handle(params queues.GetDestinationRequestsQueueParams) middleware.Responder {
+	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
+		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
+			if !appCtx.Session().IsOfficeUser() ||
+				(!appCtx.Session().Roles.HasRole(roles.RoleTypeTOO) && !appCtx.Session().Roles.HasRole(roles.RoleTypeHQ)) {
+				forbiddenErr := apperror.NewForbiddenError(
+					"user is not authenticated with TOO or HQ office role",
+				)
+				appCtx.Logger().Error(forbiddenErr.Error())
+				return queues.NewGetDestinationRequestsQueueForbidden(), forbiddenErr
+			}
+
+			ListOrderParams := services.ListOrderParams{
+				Branch:                  params.Branch,
+				Locator:                 params.Locator,
+				Edipi:                   params.Edipi,
+				Emplid:                  params.Emplid,
+				CustomerName:            params.CustomerName,
+				DestinationDutyLocation: params.DestinationDutyLocation,
+				OriginDutyLocation:      params.OriginDutyLocation,
+				AppearedInTOOAt:         handlers.FmtDateTimePtrToPopPtr(params.AppearedInTooAt),
+				RequestedMoveDate:       params.RequestedMoveDate,
+				Status:                  params.Status,
+				Page:                    params.Page,
+				PerPage:                 params.PerPage,
+				Sort:                    params.Sort,
+				Order:                   params.Order,
+				OrderType:               params.OrderType,
+				TOOAssignedUser:         params.AssignedTo,
+				CounselingOffice:        params.CounselingOffice,
+			}
+
+			if params.Status == nil {
+				ListOrderParams.Status = []string{string(models.MoveStatusAPPROVALSREQUESTED)}
+			}
+
+			// Let's set default values for page and perPage if we don't get arguments for them. We'll use 1 for page and 20 for perPage.
+			if params.Page == nil {
+				ListOrderParams.Page = models.Int64Pointer(1)
+			}
+			// Same for perPage
+			if params.PerPage == nil {
+				ListOrderParams.PerPage = models.Int64Pointer(20)
+			}
+
+			if params.ViewAsGBLOC != nil && appCtx.Session().Roles.HasRole(roles.RoleTypeHQ) {
+				ListOrderParams.ViewAsGBLOC = params.ViewAsGBLOC
+			}
+
+			moves, count, err := h.OrderFetcher.ListDestinationRequestsOrders(
+				appCtx,
+				appCtx.Session().OfficeUserID,
+				roles.RoleTypeTOO,
+				&ListOrderParams,
+			)
+			if err != nil {
+				appCtx.Logger().
+					Error("error fetching list of moves for office user", zap.Error(err))
+				return queues.NewGetDestinationRequestsQueueInternalServerError(), err
+			}
+
+			var officeUser models.OfficeUser
+			if appCtx.Session().OfficeUserID != uuid.Nil {
+				officeUser, err = h.OfficeUserFetcherPop.FetchOfficeUserByID(appCtx, appCtx.Session().OfficeUserID)
+				if err != nil {
+					appCtx.Logger().Error("Error retrieving office user", zap.Error(err))
+					return queues.NewGetDestinationRequestsQueueInternalServerError(), err
+				}
+			}
+			privileges, err := models.FetchPrivilegesForUser(appCtx.DB(), appCtx.Session().UserID)
+			if err != nil {
+				appCtx.Logger().Error("Error retreiving user privileges", zap.Error(err))
+			}
+			officeUser.User.Privileges = privileges
+			officeUser.User.Roles = appCtx.Session().Roles
+
+			if err != nil {
+				appCtx.Logger().
+					Error("error fetching office users", zap.Error(err))
+				return queues.NewGetDestinationRequestsQueueInternalServerError(), err
+			}
+
+			// if the TOO/office user is accessing the queue, we need to unlock move/moves they have locked
+			if appCtx.Session().IsOfficeUser() {
+				officeUserID := appCtx.Session().OfficeUserID
+				for i, move := range moves {
+					lockedOfficeUserID := move.LockedByOfficeUserID
+					if lockedOfficeUserID != nil && *lockedOfficeUserID == officeUserID {
+						copyOfMove := move
+						unlockedMove, err := h.UnlockMove(appCtx, &copyOfMove, officeUserID)
+						if err != nil {
+							return queues.NewGetDestinationRequestsQueueInternalServerError(), err
+						}
+						moves[i] = *unlockedMove
+					}
+				}
+				// checking if moves that are NOT in their queue are locked by the user (using search, etc)
+				err := h.CheckForLockedMovesAndUnlock(appCtx, officeUserID)
+				if err != nil {
+					appCtx.Logger().Error(fmt.Sprintf("failed to unlock moves for office user ID: %s", officeUserID), zap.Error(err))
+				}
+			}
+
+			officeUsers := models.OfficeUsers{officeUser}
+			queueMoves := payloads.QueueMoves(moves, officeUsers, nil, officeUser, nil)
+
+			result := &ghcmessages.QueueMovesResult{
+				Page:       *ListOrderParams.Page,
+				PerPage:    *ListOrderParams.PerPage,
+				TotalCount: int64(count),
+				QueueMoves: *queueMoves,
+			}
+
+			return queues.NewGetDestinationRequestsQueueOK().WithPayload(result), nil
+		})
+}
+
 // ListMovesHandler lists moves with the option to filter since a particular date. Optimized ver.
 type ListPrimeMovesHandler struct {
 	handlers.HandlerConfig
@@ -551,6 +677,72 @@ func (h GetServicesCounselingQueueHandler) Handle(
 		})
 }
 
+// GetBulkAssignmentDataHandler returns moves that the supervisor can assign, along with the office users they are able to assign to
+type GetBulkAssignmentDataHandler struct {
+	handlers.HandlerConfig
+	services.OfficeUserFetcherPop
+	services.MoveFetcherBulkAssignment
+}
+
+func (h GetBulkAssignmentDataHandler) Handle(
+	params queues.GetBulkAssignmentDataParams,
+) middleware.Responder {
+	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
+		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
+			if !appCtx.Session().IsOfficeUser() {
+				err := apperror.NewForbiddenError("not an office user")
+				appCtx.Logger().Error("Must be an office user", zap.Error(err))
+				return queues.NewGetBulkAssignmentDataUnauthorized(), err
+			}
+
+			officeUser, err := h.OfficeUserFetcherPop.FetchOfficeUserByID(appCtx, appCtx.Session().OfficeUserID)
+			if err != nil {
+				appCtx.Logger().Error("Error retrieving office_user", zap.Error(err))
+				return queues.NewGetBulkAssignmentDataNotFound(), err
+			}
+
+			privileges, err := models.FetchPrivilegesForUser(appCtx.DB(), *officeUser.UserID)
+			if err != nil {
+				appCtx.Logger().Error("Error retreiving user privileges", zap.Error(err))
+				return queues.NewGetBulkAssignmentDataNotFound(), err
+			}
+
+			isSupervisor := privileges.HasPrivilege(models.PrivilegeTypeSupervisor)
+			if !isSupervisor {
+				appCtx.Logger().Error("Unauthorized", zap.Error(err))
+				return queues.NewGetBulkAssignmentDataUnauthorized(), err
+			}
+
+			queueType := params.QueueType
+			var officeUserData ghcmessages.BulkAssignmentData
+
+			switch *queueType {
+			case string(models.QueueTypeCounseling):
+				// fetch the Services Counselors who work at their office
+				officeUsers, err := h.OfficeUserFetcherPop.FetchOfficeUsersWithWorkloadByRoleAndOffice(
+					appCtx,
+					roles.RoleTypeServicesCounselor,
+					officeUser.TransportationOfficeID,
+				)
+				if err != nil {
+					appCtx.Logger().Error("Error retreiving office users", zap.Error(err))
+					return queues.NewGetBulkAssignmentDataInternalServerError(), err
+				}
+				// fetch the moves available to be assigned to their office users
+				moves, err := h.MoveFetcherBulkAssignment.FetchMovesForBulkAssignmentCounseling(
+					appCtx, officeUser.TransportationOffice.Gbloc, officeUser.TransportationOffice.ID,
+				)
+				if err != nil {
+					appCtx.Logger().Error("Error retreiving moves", zap.Error(err))
+					return queues.NewGetBulkAssignmentDataInternalServerError(), err
+				}
+
+				officeUserData = payloads.BulkAssignmentData(appCtx, moves, officeUsers, officeUser.TransportationOffice.ID)
+			}
+			return queues.NewGetBulkAssignmentDataOK().WithPayload(&officeUserData), nil
+		})
+}
+
 // GetServicesCounselingOriginListHandler returns the origin list for the Service Counselor user via GET /queues/counselor/origin-list
 type GetServicesCounselingOriginListHandler struct {
 	handlers.HandlerConfig
@@ -576,7 +768,6 @@ func (h GetServicesCounselingOriginListHandler) Handle(
 			ListOrderParams := services.ListOrderParams{
 				NeedsPPMCloseout: params.NeedsPPMCloseout,
 			}
-
 			if params.NeedsPPMCloseout != nil && *params.NeedsPPMCloseout {
 				ListOrderParams.Status = []string{string(models.MoveStatusAPPROVED), string(models.MoveStatusServiceCounselingCompleted)}
 			} else {

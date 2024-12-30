@@ -4098,7 +4098,7 @@ func createNTSMove(appCtx appcontext.AppContext) {
 		},
 		{
 			Model: models.MTOShipment{
-				ShipmentType: models.MTOShipmentTypeHHGIntoNTSDom,
+				ShipmentType: models.MTOShipmentTypeHHGIntoNTS,
 			},
 		},
 	}, nil)
@@ -4290,7 +4290,7 @@ func createHHGWithOriginSITServiceItems(
 		mock.Anything,
 		mock.Anything,
 	).Return(400, nil)
-	serviceItemUpdator := mtoserviceitem.NewMTOServiceItemUpdater(planner, queryBuilder, moveRouter, shipmentFetcher, addressCreator, portLocationFetcher)
+	serviceItemUpdator := mtoserviceitem.NewMTOServiceItemUpdater(planner, queryBuilder, moveRouter, shipmentFetcher, addressCreator, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer(), ghcrateengine.NewDomesticDestinationSITDeliveryPricer(), ghcrateengine.NewDomesticOriginSITFuelSurchargePricer(), portLocationFetcher)
 
 	var originFirstDaySIT models.MTOServiceItem
 	var originAdditionalDaySIT models.MTOServiceItem
@@ -4554,7 +4554,7 @@ func createHHGWithDestinationSITServiceItems(appCtx appcontext.AppContext, prime
 		mock.Anything,
 		mock.Anything,
 	).Return(400, nil)
-	serviceItemUpdator := mtoserviceitem.NewMTOServiceItemUpdater(planner, queryBuilder, moveRouter, shipmentFetcher, addressCreator, portLocationFetcher)
+	serviceItemUpdator := mtoserviceitem.NewMTOServiceItemUpdater(planner, queryBuilder, moveRouter, shipmentFetcher, addressCreator, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer(), ghcrateengine.NewDomesticDestinationSITDeliveryPricer(), ghcrateengine.NewDomesticOriginSITFuelSurchargePricer(), portLocationFetcher)
 
 	var destinationFirstDaySIT models.MTOServiceItem
 	var destinationAdditionalDaySIT models.MTOServiceItem
@@ -5036,7 +5036,7 @@ func createHHGWithPaymentServiceItems(
 		mock.Anything,
 		mock.Anything,
 	).Return(400, nil)
-	serviceItemUpdater := mtoserviceitem.NewMTOServiceItemUpdater(planner, queryBuilder, moveRouter, shipmentFetcher, addressCreator, portLocationFetcher)
+	serviceItemUpdater := mtoserviceitem.NewMTOServiceItemUpdater(planner, queryBuilder, moveRouter, shipmentFetcher, addressCreator, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer(), ghcrateengine.NewDomesticDestinationSITDeliveryPricer(), ghcrateengine.NewDomesticOriginSITFuelSurchargePricer(), portLocationFetcher)
 
 	var originFirstDaySIT models.MTOServiceItem
 	var originAdditionalDaySIT models.MTOServiceItem
@@ -7249,7 +7249,7 @@ func createMoveWithHHGAndNTSMissingInfo(appCtx appcontext.AppContext, moveRouter
 			Model: models.MTOShipment{
 				ID:                   uuid.Must(uuid.NewV4()),
 				PrimeEstimatedWeight: &estimatedWeight,
-				ShipmentType:         models.MTOShipmentTypeHHGIntoNTSDom,
+				ShipmentType:         models.MTOShipmentTypeHHGIntoNTS,
 				ApprovedDate:         models.TimePointer(time.Now()),
 				Status:               models.MTOShipmentStatusSubmitted,
 			},
@@ -10449,7 +10449,8 @@ func CreateNeedsServicesCounseling(appCtx appcontext.AppContext, ordersType inte
 
 	requestedPickupDate = submittedAt.Add(30 * 24 * time.Hour)
 	requestedDeliveryDate = requestedPickupDate.Add(7 * 24 * time.Hour)
-	regularMTOShipment := factory.BuildMTOShipment(db, []factory.Customization{
+
+	factory.BuildMTOShipment(db, []factory.Customization{
 		{
 			Model:    move,
 			LinkOnly: true,
@@ -10481,28 +10482,59 @@ func CreateNeedsServicesCounseling(appCtx appcontext.AppContext, ordersType inte
 		},
 	}, nil)
 
-	if shipmentType == models.MTOShipmentTypeMobileHome {
-		factory.BuildMobileHomeShipment(appCtx.DB(), []factory.Customization{
-			{
-				Model: models.MobileHome{
-					Year:           models.IntPointer(2000),
-					Make:           models.StringPointer("Boat Make"),
-					Model:          models.StringPointer("Boat Model"),
-					LengthInInches: models.IntPointer(300),
-					WidthInInches:  models.IntPointer(108),
-					HeightInInches: models.IntPointer(72),
-				},
+	return move
+}
+
+/*
+Create Needs Service Counseling in a non-default GBLOC - pass in orders with all required information, shipment type, destination type, locator
+*/
+func CreateNeedsServicesCounselingInOtherGBLOC(appCtx appcontext.AppContext, ordersType internalmessages.OrdersType, shipmentType models.MTOShipmentType, destinationType *models.DestinationType, locator string) models.Move {
+	db := appCtx.DB()
+	originDutyLocationAddress := factory.BuildAddress(db, []factory.Customization{
+		{
+			Model: models.Address{
+				PostalCode: "35023",
 			},
-			{
-				Model:    move,
-				LinkOnly: true,
+		},
+	}, nil)
+	originDutyLocation := factory.BuildDutyLocation(db, []factory.Customization{
+		{
+			Model: models.DutyLocation{
+				Name:      "Test Location",
+				AddressID: originDutyLocationAddress.ID,
 			},
-			{
-				Model:    regularMTOShipment,
-				LinkOnly: true,
+		},
+	}, nil)
+	order := factory.BuildOrder(db, []factory.Customization{
+		{
+			Model: originDutyLocation,
+		},
+	}, nil)
+	move := factory.BuildMove(db, []factory.Customization{
+		{
+			Model:    order,
+			LinkOnly: true,
+		},
+		{
+			Model: models.Move{
+				Locator: locator,
+				Status:  models.MoveStatusNeedsServiceCounseling,
 			},
-		}, nil)
-	}
+		},
+	}, nil)
+
+	factory.BuildMTOShipment(db, []factory.Customization{
+		{
+			Model:    move,
+			LinkOnly: true,
+		},
+		{
+			Model: models.MTOShipment{
+				ShipmentType: shipmentType,
+				Status:       models.MTOShipmentStatusSubmitted,
+			},
+		},
+	}, nil)
 
 	return move
 }

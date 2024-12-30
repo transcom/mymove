@@ -4013,6 +4013,22 @@ func MakeHHGMoveNeedsSC(appCtx appcontext.AppContext) models.Move {
 	return *newmove
 }
 
+// MakeHHGMoveNeedsSCOtherGBLOC creates an fully ready move needing SC approval in a non-default GBLOC
+func MakeHHGMoveNeedsSCOtherGBLOC(appCtx appcontext.AppContext) models.Move {
+	pcos := internalmessages.OrdersTypePERMANENTCHANGEOFSTATION
+	hhg := models.MTOShipmentTypeHHG
+	locator := models.GenerateLocator()
+	move := scenario.CreateNeedsServicesCounselingInOtherGBLOC(appCtx, pcos, hhg, nil, locator)
+
+	// re-fetch the move so that we ensure we have exactly what is in
+	// the db
+	newmove, err := models.FetchMove(appCtx.DB(), &auth.Session{}, move.ID)
+	if err != nil {
+		log.Panic(fmt.Errorf("failed to fetch move: %w", err))
+	}
+	return *newmove
+}
+
 // MakeBoatHaulAwayMoveNeedsSC creates an fully ready move with a boat haul-away shipment needing SC approval
 func MakeBoatHaulAwayMoveNeedsSC(appCtx appcontext.AppContext) models.Move {
 	userUploader := newUserUploader(appCtx)
