@@ -25,6 +25,8 @@ import (
 //   - DDSFSC - UpdateMTOServiceItemSIT
 //   - DDSHUT - UpdateMTOServiceItemShuttle
 //   - DOSHUT - UpdateMTOServiceItemShuttle
+//   - IDSHUT - UpdateMTOServiceItemShuttle
+//   - IOSHUT - UpdateMTOServiceItemShuttle
 //   - PODFSC - UpdateMTOServiceItemInternationalPortFSC
 //   - POEFSC - UpdateMTOServiceItemInternationalPortFSC
 //
