@@ -6,9 +6,11 @@ import ReviewBillableWeight from './ReviewBillableWeight';
 
 import { formatWeight, formatDateFromIso } from 'utils/formatters';
 import { useMovePaymentRequestsQueries } from 'hooks/queries';
-import { shipmentStatuses } from 'constants/shipments';
+import { shipmentStatuses, ppmShipmentStatuses } from 'constants/shipments';
 import { tioRoutes } from 'constants/routes';
 import { MockProviders, ReactQueryWrapper } from 'testUtils';
+import { createPPMShipmentWithFinalIncentive } from 'utils/test/factories/ppmShipment';
+import createUpload from 'utils/test/factories/upload';
 
 // Mock the document viewer since we're not really testing that aspect here.
 // Document Viewer tests should be covered in the component itself.
@@ -244,6 +246,44 @@ const mockDivertedMtoShipments = [
   },
 ];
 
+const mtoShipment = createPPMShipmentWithFinalIncentive({
+  ppmShipment: { status: ppmShipmentStatuses.NEEDS_CLOSEOUT },
+  id: 'shipment123',
+});
+
+const weightTicketEmptyDocumentCreatedDate = new Date();
+// The factory used above doesn't handle overrides for uploads correctly, so we need to do it manually.
+const weightTicketEmptyDocumentUpload = createUpload({
+  fileName: 'emptyWeightTicket.pdf',
+  createdAtDate: weightTicketEmptyDocumentCreatedDate,
+});
+
+const weightTicketFullDocumentCreatedDate = new Date(weightTicketEmptyDocumentCreatedDate);
+weightTicketFullDocumentCreatedDate.setDate(weightTicketFullDocumentCreatedDate.getDate() + 1);
+const weightTicketFullDocumentUpload = createUpload(
+  { fileName: 'fullWeightTicket.xls', createdAtDate: weightTicketFullDocumentCreatedDate },
+  { contentType: 'application/vnd.ms-excel' },
+);
+
+const progearWeightTicketDocumentCreatedDate = new Date(weightTicketFullDocumentCreatedDate);
+progearWeightTicketDocumentCreatedDate.setDate(progearWeightTicketDocumentCreatedDate.getDate() + 1);
+const progearWeightTicketDocumentUpload = createUpload({
+  fileName: 'progearWeightTicket.pdf',
+  createdAtDate: progearWeightTicketDocumentCreatedDate,
+});
+
+const movingExpenseDocumentCreatedDate = new Date(progearWeightTicketDocumentCreatedDate);
+movingExpenseDocumentCreatedDate.setDate(movingExpenseDocumentCreatedDate.getDate() + 1);
+const movingExpenseDocumentUpload = createUpload(
+  { fileName: 'movingExpense.jpg', createdAtDate: movingExpenseDocumentCreatedDate },
+  { contentType: 'image/jpeg' },
+);
+
+mtoShipment.ppmShipment.weightTickets[0].emptyDocument.uploads = [weightTicketEmptyDocumentUpload];
+mtoShipment.ppmShipment.weightTickets[0].fullDocument.uploads = [weightTicketFullDocumentUpload];
+mtoShipment.ppmShipment.proGearWeightTickets[0].document.uploads = [progearWeightTicketDocumentUpload];
+mtoShipment.ppmShipment.movingExpenses[0].document.uploads = [movingExpenseDocumentUpload];
+
 const mockPaymentRequest = [
   {
     proofOfServiceDocs: [
@@ -312,6 +352,15 @@ const useDivertedMovePaymentRequestsReturnValue = {
   mtoShipments: mockDivertedMtoShipments,
   move,
   paymentRequests: mockPaymentRequest,
+};
+
+const useMovePaymentRequestQueriesReturnValueAllDocs = {
+  paymentRequests: [],
+  order: mockOrders['1'],
+  mtoShipments: [mtoShipment],
+  move,
+  isLoading: false,
+  isError: false,
 };
 
 const loadingReturnValue = {
@@ -718,6 +767,27 @@ describe('ReviewBillableWeight', () => {
 
       expect(screen.getByText('Shipment 3 of 3')).toBeInTheDocument();
       expect(screen.queryByTestId('tag', { name: 'DIVERSION' })).not.toBeInTheDocument();
+    });
+  });
+
+  describe('handles PPM shipments', () => {
+    it('displays PPM information', async () => {
+      useMovePaymentRequestsQueries.mockReturnValue(useMovePaymentRequestQueriesReturnValueAllDocs);
+
+      renderWithProviders(<ReviewBillableWeight />);
+
+      expect(screen.getByText('Review weights')).toBeInTheDocument();
+      expect(screen.getByText('Max billable weight')).toBeInTheDocument();
+      expect(screen.getByText('Actual weight')).toBeInTheDocument();
+      expect(screen.getByTestId('maxBillableWeight').textContent).toBe(
+        formatWeight(useMovePaymentRequestQueriesReturnValueAllDocs.order.entitlement.authorizedWeight),
+      );
+      expect(screen.getByTestId('weightAllowance').textContent).toBe(
+        formatWeight(useMovePaymentRequestQueriesReturnValueAllDocs.order.entitlement.totalWeight),
+      );
+
+      expect(screen.getByText('Weight allowance')).toBeInTheDocument();
+      expect(screen.getByText('Actual billable weight')).toBeInTheDocument();
     });
   });
 });

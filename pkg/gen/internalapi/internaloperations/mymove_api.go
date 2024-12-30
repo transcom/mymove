@@ -146,6 +146,9 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		MovesGetAllMovesHandler: moves.GetAllMovesHandlerFunc(func(params moves.GetAllMovesParams) middleware.Responder {
 			return middleware.NotImplemented("operation moves.GetAllMoves has not yet been implemented")
 		}),
+		AddressesGetLocationByZipCityStateHandler: addresses.GetLocationByZipCityStateHandlerFunc(func(params addresses.GetLocationByZipCityStateParams) middleware.Responder {
+			return middleware.NotImplemented("operation addresses.GetLocationByZipCityState has not yet been implemented")
+		}),
 		TransportationOfficesGetTransportationOfficesHandler: transportation_offices.GetTransportationOfficesHandlerFunc(func(params transportation_offices.GetTransportationOfficesParams) middleware.Responder {
 			return middleware.NotImplemented("operation transportation_offices.GetTransportationOffices has not yet been implemented")
 		}),
@@ -381,6 +384,8 @@ type MymoveAPI struct {
 	PpmDeleteWeightTicketHandler ppm.DeleteWeightTicketHandler
 	// MovesGetAllMovesHandler sets the operation handler for the get all moves operation
 	MovesGetAllMovesHandler moves.GetAllMovesHandler
+	// AddressesGetLocationByZipCityStateHandler sets the operation handler for the get location by zip city state operation
+	AddressesGetLocationByZipCityStateHandler addresses.GetLocationByZipCityStateHandler
 	// TransportationOfficesGetTransportationOfficesHandler sets the operation handler for the get transportation offices operation
 	TransportationOfficesGetTransportationOfficesHandler transportation_offices.GetTransportationOfficesHandler
 	// UploadsGetUploadStatusHandler sets the operation handler for the get upload status operation
@@ -631,6 +636,9 @@ func (o *MymoveAPI) Validate() error {
 	}
 	if o.MovesGetAllMovesHandler == nil {
 		unregistered = append(unregistered, "moves.GetAllMovesHandler")
+	}
+	if o.AddressesGetLocationByZipCityStateHandler == nil {
+		unregistered = append(unregistered, "addresses.GetLocationByZipCityStateHandler")
 	}
 	if o.TransportationOfficesGetTransportationOfficesHandler == nil {
 		unregistered = append(unregistered, "transportation_offices.GetTransportationOfficesHandler")
@@ -961,6 +969,10 @@ func (o *MymoveAPI) initHandlerCache() {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
 	o.handlers["GET"]["/allmoves/{serviceMemberId}"] = moves.NewGetAllMoves(o.context, o.MovesGetAllMovesHandler)
+	if o.handlers["GET"] == nil {
+		o.handlers["GET"] = make(map[string]http.Handler)
+	}
+	o.handlers["GET"]["/addresses/zip-city-lookup/{search}"] = addresses.NewGetLocationByZipCityState(o.context, o.AddressesGetLocationByZipCityStateHandler)
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}

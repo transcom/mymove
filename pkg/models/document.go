@@ -71,6 +71,12 @@ func fetchDocumentWithAccessibilityCheck(db *pop.Connection, session *auth.Sessi
 		return Document{}, err
 	}
 
+	// encountered issues trying to filter userUploads using pop.
+	// going with the option to filter userUploads after the query.
+	if !includeDeletedDocs {
+		document.UserUploads = document.UserUploads.FilterDeleted()
+	}
+
 	if checkUserAccessiability {
 		_, smErr := FetchServiceMemberForUser(db, session, document.ServiceMemberID)
 		if smErr != nil {

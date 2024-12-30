@@ -11,6 +11,7 @@ import (
 	"github.com/go-openapi/runtime/middleware"
 
 	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations"
+	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/addresses"
 	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/application_parameters"
 	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/calendar"
 	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/customer"
@@ -30,6 +31,7 @@ import (
 	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/ppm"
 	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/pws_violations"
 	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/queues"
+	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/re_service_items"
 	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/report_violations"
 	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/shipment"
 	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/tac"
@@ -215,6 +217,11 @@ func configureAPI(api *ghcoperations.MymoveAPI) http.Handler {
 			return middleware.NotImplemented("operation ppm.FinishDocumentReview has not yet been implemented")
 		})
 	}
+	if api.ReServiceItemsGetAllReServiceItemsHandler == nil {
+		api.ReServiceItemsGetAllReServiceItemsHandler = re_service_items.GetAllReServiceItemsHandlerFunc(func(params re_service_items.GetAllReServiceItemsParams) middleware.Responder {
+			return middleware.NotImplemented("operation re_service_items.GetAllReServiceItems has not yet been implemented")
+		})
+	}
 	if api.CustomerGetCustomerHandler == nil {
 		api.CustomerGetCustomerHandler = customer.GetCustomerHandlerFunc(func(params customer.GetCustomerParams) middleware.Responder {
 			return middleware.NotImplemented("operation customer.GetCustomer has not yet been implemented")
@@ -238,6 +245,11 @@ func configureAPI(api *ghcoperations.MymoveAPI) http.Handler {
 	if api.EvaluationReportsGetEvaluationReportHandler == nil {
 		api.EvaluationReportsGetEvaluationReportHandler = evaluation_reports.GetEvaluationReportHandlerFunc(func(params evaluation_reports.GetEvaluationReportParams) middleware.Responder {
 			return middleware.NotImplemented("operation evaluation_reports.GetEvaluationReport has not yet been implemented")
+		})
+	}
+	if api.AddressesGetLocationByZipCityStateHandler == nil {
+		api.AddressesGetLocationByZipCityStateHandler = addresses.GetLocationByZipCityStateHandlerFunc(func(params addresses.GetLocationByZipCityStateParams) middleware.Responder {
+			return middleware.NotImplemented("operation addresses.GetLocationByZipCityState has not yet been implemented")
 		})
 	}
 	if api.MtoServiceItemGetMTOServiceItemHandler == nil {

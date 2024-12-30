@@ -53,6 +53,7 @@ var CustomerSupportRemark CustomType = "CustomerSupportRemark"
 var Document CustomType = "Document"
 var DutyLocation CustomType = "DutyLocation"
 var Entitlement CustomType = "Entitlement"
+var UBAllowance CustomType = "UBAllowances"
 var EvaluationReport CustomType = "EvaluationReport"
 var LineOfAccounting CustomType = "LineOfAccounting"
 var MobileHome CustomType = "MobileHome"
@@ -72,6 +73,8 @@ var PaymentRequest CustomType = "PaymentRequest"
 var PaymentServiceItem CustomType = "PaymentServiceItem"
 var PaymentServiceItemParam CustomType = "PaymentServiceItemParam"
 var PaymentRequestToInterchangeControlNumber CustomType = "PaymentRequestToInterchangeControlNumber"
+var Port CustomType = "Port"
+var PortLocation CustomType = "PortLocation"
 var PostalCodeToGBLOC CustomType = "PostalCodeToGBLOC"
 var PrimeUpload CustomType = "PrimeUpload"
 var ProgearWeightTicket CustomType = "ProgearWeightTicket"
@@ -90,6 +93,7 @@ var State CustomType = "State"
 var StorageFacility CustomType = "StorageFacility"
 var TransportationAccountingCode CustomType = "TransportationAccountingCode"
 var TransportationOffice CustomType = "TransportationOffice"
+var TransportationOfficeAssignment CustomType = "TransportationOfficeAssignment"
 var Upload CustomType = "Upload"
 var UserUpload CustomType = "UserUpload"
 var User CustomType = "User"
@@ -115,6 +119,7 @@ var defaultTypesMap = map[string]CustomType{
 	"models.Document":                                 Document,
 	"models.DutyLocation":                             DutyLocation,
 	"models.Entitlement":                              Entitlement,
+	"models.UBAllowances":                             UBAllowance,
 	"models.EvaluationReport":                         EvaluationReport,
 	"models.LineOfAccounting":                         LineOfAccounting,
 	"models.MobileHome":                               MobileHome,
@@ -134,6 +139,8 @@ var defaultTypesMap = map[string]CustomType{
 	"models.PaymentServiceItemParam":                  PaymentServiceItemParam,
 	"models.PaymentRequestToInterchangeControlNumber": PaymentRequestToInterchangeControlNumber,
 	"models.PPMShipment":                              PPMShipment,
+	"models.Port":                                     Port,
+	"models.PortLocation":                             PortLocation,
 	"models.PostalCodeToGBLOC":                        PostalCodeToGBLOC,
 	"models.PrimeUpload":                              PrimeUpload,
 	"models.ProgearWeightTicket":                      ProgearWeightTicket,
@@ -152,6 +159,7 @@ var defaultTypesMap = map[string]CustomType{
 	"models.TransportationAccountingCode":             TransportationAccountingCode,
 	"models.UsPostRegionCity":                         UsPostRegionCity,
 	"models.TransportationOffice":                     TransportationOffice,
+	"models.TransportationOfficeAssignment":           TransportationOfficeAssignment,
 	"models.Upload":                                   Upload,
 	"models.UserUpload":                               UserUpload,
 	"models.User":                                     User,
@@ -269,6 +277,18 @@ type uploadGroup struct {
 var Uploads = uploadGroup{
 	UploadTypePrime: "UploadTypePrime",
 	UploadTypeUser:  "UploadTypeUser",
+}
+
+// portLocationGroup is a grouping of all the port related fields
+type portLocationGroup struct {
+	PortOfDebarkation CustomType
+	PortOfEmbarkation CustomType
+}
+
+// PortLocations is the struct to access the fields externally
+var PortLocations = portLocationGroup{
+	PortOfDebarkation: "PODLocation",
+	PortOfEmbarkation: "POELocation",
 }
 
 // Below are errors returned by various functions

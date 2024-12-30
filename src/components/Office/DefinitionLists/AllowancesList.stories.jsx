@@ -24,6 +24,7 @@ const info = {
   dependents: true,
   requiredMedicalEquipmentWeight: 1000,
   organizationalClothingAndIndividualEquipment: true,
+  ubAllowance: 400,
 };
 
 export const Basic = () => <AllowancesList info={object('info', info)} />;

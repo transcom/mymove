@@ -303,6 +303,10 @@ func (f *estimatePPM) finalIncentive(appCtx appcontext.AppContext, oldPPMShipmen
 	}
 	originalTotalWeight, newTotalWeight := SumWeightTickets(oldPPMShipment, *newPPMShipment)
 
+	if newPPMShipment.AllowableWeight != nil && *newPPMShipment.AllowableWeight < newTotalWeight {
+		newTotalWeight = *newPPMShipment.AllowableWeight
+	}
+
 	isMissingInfo := shouldSetFinalIncentiveToNil(newPPMShipment, newTotalWeight)
 	var skipCalculateFinalIncentive bool
 	finalIncentive := oldPPMShipment.FinalIncentive

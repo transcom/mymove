@@ -22,7 +22,7 @@ import FinancialReviewModal from 'components/Office/FinancialReviewModal/Financi
 import CancelMoveConfirmationModal from 'components/ConfirmationModals/CancelMoveConfirmationModal';
 import ShipmentDisplay from 'components/Office/ShipmentDisplay/ShipmentDisplay';
 import { SubmitMoveConfirmationModal } from 'components/Office/SubmitMoveConfirmationModal/SubmitMoveConfirmationModal';
-import { useMoveDetailsQueries, useOrdersDocumentQueries } from 'hooks/queries';
+import { useMoveDetailsQueries } from 'hooks/queries';
 import {
   updateMoveStatusServiceCounselingCompleted,
   cancelMove,
@@ -76,21 +76,19 @@ const ServicesCounselingMoveDetails = ({
   const [isCancelMoveModalVisible, setIsCancelMoveModalVisible] = useState(false);
   const [enableBoat, setEnableBoat] = useState(false);
   const [enableMobileHome, setEnableMobileHome] = useState(false);
-  const { upload, amendedUpload } = useOrdersDocumentQueries(moveCode);
+  const [enableUB, setEnableUB] = useState(false);
+  const [enableNTS, setEnableNTS] = useState(false);
+  const [enableNTSR, setEnableNTSR] = useState(false);
+  const [isOconusMove, setIsOconusMove] = useState(false);
   const [errorMessage, setErrorMessage] = useState(null);
-  const documentsForViewer = Object.values(upload || {})
-    .concat(Object.values(amendedUpload || {}))
-    ?.filter((file) => {
-      return !file.deletedAt;
-    });
-  const hasDocuments = documentsForViewer?.length > 0;
 
   const { order, orderDocuments, customerData, move, closeoutOffice, mtoShipments, isLoading, isError, errors } =
     useMoveDetailsQueries(moveCode);
 
   const validOrdersDocuments = Object.values(orderDocuments || {})?.filter((file) => !file.deletedAt);
+  const hasOrderDocuments = validOrdersDocuments?.length > 0;
 
-  const { customer, entitlement: allowances } = order;
+  const { customer, entitlement: allowances, originDutyLocation, destinationDutyLocation } = order;
 
   const moveWeightTotal = calculateWeightRequested(mtoShipments);
 
@@ -169,9 +167,21 @@ const ServicesCounselingMoveDetails = ({
     const fetchData = async () => {
       setEnableBoat(await isBooleanFlagEnabled(FEATURE_FLAG_KEYS.BOAT));
       setEnableMobileHome(await isBooleanFlagEnabled(FEATURE_FLAG_KEYS.MOBILE_HOME));
+      setEnableUB(await isBooleanFlagEnabled(FEATURE_FLAG_KEYS.UNACCOMPANIED_BAGGAGE));
+      setEnableNTS(await isBooleanFlagEnabled(FEATURE_FLAG_KEYS.NTS));
+      setEnableNTSR(await isBooleanFlagEnabled(FEATURE_FLAG_KEYS.NTSR));
     };
     fetchData();
   }, []);
+
+  useEffect(() => {
+    // Check if either currentDutyLocation or newDutyLocation is OCONUS to conditionally render the UB shipment option
+    if (originDutyLocation?.address?.isOconus || destinationDutyLocation?.address?.isOconus) {
+      setIsOconusMove(true);
+    } else {
+      setIsOconusMove(false);
+    }
+  }, [originDutyLocation, destinationDutyLocation]);
 
   // for now we are only showing dest type on retiree and separatee orders
   const isRetirementOrSeparation =
@@ -183,7 +193,13 @@ const ServicesCounselingMoveDetails = ({
     errorIfMissing.HHG_OUTOF_NTS_DOMESTIC.push({ fieldName: 'destinationType' });
   }
 
-  if (!order.department_indicator || !order.order_number || !order.order_type_detail || !order.tac || !hasDocuments)
+  if (
+    !order.department_indicator ||
+    !order.order_number ||
+    !order.order_type_detail ||
+    !order.tac ||
+    !hasOrderDocuments
+  )
     disableSubmitDueToMissingOrderInfo = true;
 
   if (mtoShipments) {
@@ -371,6 +387,10 @@ const ServicesCounselingMoveDetails = ({
     requiredMedicalEquipmentWeight: allowances.requiredMedicalEquipmentWeight,
     organizationalClothingAndIndividualEquipment: allowances.organizationalClothingAndIndividualEquipment,
     gunSafe: allowances.gunSafe,
+    dependentsUnderTwelve: allowances.dependentsUnderTwelve,
+    dependentsTwelveAndOver: allowances.dependentsTwelveAndOver,
+    accompaniedTour: allowances.accompaniedTour,
+    ubAllowance: allowances.unaccompaniedBaggageAllowance,
   };
 
   const ordersInfo = {
@@ -616,10 +636,11 @@ const ServicesCounselingMoveDetails = ({
           HHG
         </option>
         <option value={SHIPMENT_OPTIONS_URL.PPM}>PPM</option>
-        <option value={SHIPMENT_OPTIONS_URL.NTS}>NTS</option>
-        <option value={SHIPMENT_OPTIONS_URL.NTSrelease}>NTS-release</option>
+        {enableNTS && <option value={SHIPMENT_OPTIONS_URL.NTS}>NTS</option>}
+        {enableNTSR && <option value={SHIPMENT_OPTIONS_URL.NTSrelease}>NTS-release</option>}
         {enableBoat && <option value={SHIPMENT_OPTIONS_URL.BOAT}>Boat</option>}
         {enableMobileHome && <option value={SHIPMENT_OPTIONS_URL.MOBILE_HOME}>Mobile Home</option>}
+        {enableUB && isOconusMove && <option value={SHIPMENT_OPTIONS_URL.UNACCOMPANIED_BAGGAGE}>UB</option>}
       </>
     );
   };
@@ -736,17 +757,28 @@ const ServicesCounselingMoveDetails = ({
                 </div>
               )}
             </Grid>
-            <Grid col={12}>
-              <Restricted to={permissionTypes.cancelMoveFlag}>
-                <div className={scMoveDetailsStyles.scCancelMoveContainer}>
-                  {counselorCanCancelMove && !isMoveLocked && (
-                    <Button type="button" unstyled onClick={handleShowCancelMoveModal}>
-                      Cancel move
-                    </Button>
-                  )}
+            <Grid row col={12}>
+              <Restricted to={permissionTypes.updateFinancialReviewFlag}>
+                <div className={scMoveDetailsStyles.scFinancialReviewContainer}>
+                  <FinancialReviewButton
+                    onClick={handleShowFinancialReviewModal}
+                    reviewRequested={move.financialReviewFlag}
+                    isMoveLocked={isMoveLocked}
+                  />
                 </div>
               </Restricted>
             </Grid>
+          </Grid>
+          <Grid col={12}>
+            <Restricted to={permissionTypes.cancelMoveFlag}>
+              <div className={scMoveDetailsStyles.scCancelMoveContainer}>
+                {counselorCanCancelMove && !isMoveLocked && (
+                  <Button type="button" unstyled onClick={handleShowCancelMoveModal}>
+                    Cancel move
+                  </Button>
+                )}
+              </div>
+            </Restricted>
           </Grid>
 
           {hasInvalidProGearAllowances ? (
@@ -757,7 +789,6 @@ const ServicesCounselingMoveDetails = ({
 
           <div className={styles.section} id="shipments">
             <DetailsPanel
-              className={scMoveDetailsStyles.noPaddingBottom}
               editButton={
                 (counselorCanEdit || counselorCanEditNonPPM) &&
                 !isMoveLocked && (
@@ -788,15 +819,6 @@ const ServicesCounselingMoveDetails = ({
               title="Shipments"
               ppmShipmentInfoNeedsApproval={ppmShipmentsInfoNeedsApproval}
             >
-              <Restricted to={permissionTypes.updateFinancialReviewFlag}>
-                <div className={scMoveDetailsStyles.scFinancialReviewContainer}>
-                  <FinancialReviewButton
-                    onClick={handleShowFinancialReviewModal}
-                    reviewRequested={move.financialReviewFlag}
-                    isMoveLocked={isMoveLocked}
-                  />
-                </div>
-              </Restricted>
               <div className={shipmentCardsStyles.shipmentCards}>
                 {shipmentsInfo.map((shipment) => (
                   <ShipmentDisplay

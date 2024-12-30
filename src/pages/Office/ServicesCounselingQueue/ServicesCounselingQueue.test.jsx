@@ -252,30 +252,28 @@ const serviceCounselingCompletedMoves = {
   },
 };
 
-afterEach(() => {
-  jest.resetAllMocks();
-});
-
 describe('ServicesCounselingQueue', () => {
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
+
   describe('no moves in service counseling statuses', () => {
     useUserQueries.mockReturnValue(serviceCounselorUser);
     useServicesCounselingQueueQueries.mockReturnValue(emptyServiceCounselingMoves);
+    isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(true));
+
     const wrapper = mount(
-      <MockRouterProvider path={pagePath} params={{ queueType: 'counseling' }}>
+      <MockProviders path={pagePath} params={{ queueType: 'counseling' }} initialState={{}}>
         <ServicesCounselingQueue isQueueManagementFFEnabled />
-      </MockRouterProvider>,
+      </MockProviders>,
     );
 
-    it('displays move header with count', () => {
-      expect(wrapper.find('h1').text()).toBe('Moves (0)');
+    it('renders the table', async () => {
+      await expect(wrapper.find('Table').exists()).toBe(true);
     });
 
-    it('renders the table', () => {
-      expect(wrapper.find('Table').exists()).toBe(true);
-    });
-
-    it('no move rows are rendered', () => {
-      expect(wrapper.find('tbody tr').length).toBe(0);
+    it('no move rows are rendered', async () => {
+      await expect(wrapper.find('tbody tr').length).toBe(0);
     });
   });
 
@@ -284,9 +282,9 @@ describe('ServicesCounselingQueue', () => {
     useServicesCounselingQueueQueries.mockReturnValue(needsCounselingMoves);
     isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(true));
     const wrapper = mount(
-      <MockRouterProvider path={pagePath} params={{ queueType: 'counseling' }}>
+      <MockProviders path={pagePath} params={{ queueType: 'counseling' }}>
         <ServicesCounselingQueue isQueueManagementFFEnabled />
-      </MockRouterProvider>,
+      </MockProviders>,
     );
     render(
       <MockRouterProvider path={pagePath} params={{ queueType: 'counseling' }}>
