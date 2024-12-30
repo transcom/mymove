@@ -155,6 +155,9 @@ const propsForApprovedPPMShipment = {
   },
   orders: {
     id: '12345',
+    origin_duty_location: {
+      name: 'NAS Norfolk',
+    },
     new_duty_location: {
       name: 'Travis AFB',
     },
