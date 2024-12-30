@@ -29,6 +29,9 @@ import { useMoveTaskOrderQueries, useMovePaymentRequestsQueries, useGHCGetMoveHi
 import { MockProviders } from 'testUtils';
 import { permissionTypes } from 'constants/permissions';
 import SERVICE_ITEM_STATUS from 'constants/serviceItems';
+import { SITStatusOrigin } from 'components/Office/ShipmentSITDisplay/ShipmentSITDisplayTestParams';
+import { SHIPMENT_OPTIONS } from 'shared/constants';
+import { formatWeight } from 'utils/formatters';
 
 jest.mock('hooks/queries', () => ({
   useMoveTaskOrderQueries: jest.fn(),
@@ -863,6 +866,65 @@ describe('MoveTaskOrder', () => {
       );
 
       expect(screen.queryByText('Flag move for financial review')).not.toBeInTheDocument();
+    });
+  });
+
+  describe('estimated weight breakdown', () => {
+    it('should show UB estimated weight', () => {
+      const testShipments = [
+        {
+          id: '1',
+          moveTaskOrderID: '2',
+          shipmentType: SHIPMENT_OPTIONS.UNACCOMPANIED_BAGGAGE,
+          scheduledPickupDate: '2020-03-16',
+          requestedPickupDate: '2020-03-15',
+          pickupAddress: {
+            streetAddress1: '932 Baltic Avenue',
+            city: 'Chicago',
+            state: 'IL',
+            postalCode: '60601',
+          },
+          destinationAddress: {
+            streetAddress1: '10 Park Place',
+            city: 'Atlantic City',
+            state: 'NJ',
+            postalCode: '08401',
+          },
+          status: 'APPROVED',
+          eTag: '1234',
+          primeEstimatedWeight: 1850,
+          primeActualWeight: 1841,
+          sitExtensions: [],
+          sitStatus: SITStatusOrigin,
+        },
+      ];
+      useMoveTaskOrderQueries.mockReturnValue({
+        ...riskOfExcessWeightQueryExternalUBShipment,
+        mtoShipments: testShipments,
+      });
+
+      render(
+        <MockProviders>
+          <MoveTaskOrder
+            {...requiredProps}
+            setUnapprovedShipmentCount={setUnapprovedShipmentCount}
+            setUnapprovedServiceItemCount={setUnapprovedServiceItemCount}
+            setExcessWeightRiskCount={setExcessWeightRiskCount}
+            setUnapprovedSITExtensionCount={setUnapprovedSITExtensionCount}
+          />
+        </MockProviders>,
+      );
+
+      const breakdownToggle = screen.queryByText('Show Breakdown');
+      expect(breakdownToggle).toBeInTheDocument();
+
+      breakdownToggle.click();
+      expect(breakdownToggle).toHaveTextContent('Hide Breakdown');
+      expect(screen.queryByText('110% Estimated UB')).toBeInTheDocument();
+
+      const ubEstimatedWeightValue = screen.getByTestId('breakdownUBEstimatedWeight');
+      expect(ubEstimatedWeightValue).toBeInTheDocument();
+      expect(ubEstimatedWeightValue).toHaveTextContent(`${formatWeight(testShipments[0].primeEstimatedWeight * 1.1)}`);
     });
   });
 });
