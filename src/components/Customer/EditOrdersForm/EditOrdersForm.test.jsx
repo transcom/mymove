@@ -2,11 +2,13 @@ import React from 'react';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
+import { isBooleanFlagEnabled } from '../../../utils/featureFlags';
+
 import EditOrdersForm from './EditOrdersForm';
 
 import { documentSizeLimitMsg } from 'shared/constants';
 import { showCounselingOffices } from 'services/internalApi';
-import { ORDERS_TYPE } from 'constants/orders';
+import { ORDERS_TYPE, ORDERS_TYPE_OPTIONS } from 'constants/orders';
 
 jest.setTimeout(60000);
 
@@ -152,6 +154,10 @@ jest.mock('components/LocationSearchBox/api', () => ({
   ),
 }));
 
+jest.mock('../../../utils/featureFlags', () => ({
+  isBooleanFlagEnabled: jest.fn(),
+}));
+
 const testProps = {
   onSubmit: jest.fn().mockImplementation(() => Promise.resolve()),
   initialValues: {
@@ -176,6 +182,8 @@ const testProps = {
     { key: 'RETIREMENT', value: 'Retirement' },
     { key: 'SEPARATION', value: 'Separation' },
     { key: 'TEMPORARY_DUTY', value: 'Temporary Duty (TDY)' },
+    { key: ORDERS_TYPE.EARLY_RETURN_OF_DEPENDENTS, value: ORDERS_TYPE_OPTIONS.EARLY_RETURN_OF_DEPENDENTS },
+    { key: ORDERS_TYPE.STUDENT_TRAVEL, value: ORDERS_TYPE_OPTIONS.STUDENT_TRAVEL },
   ],
   currentDutyLocation: {},
   grade: '',
@@ -281,7 +289,11 @@ describe('EditOrdersForm component', () => {
       ['RETIREMENT', 'RETIREMENT'],
       ['SEPARATION', 'SEPARATION'],
       ['TEMPORARY_DUTY', 'TEMPORARY_DUTY'],
+      [ORDERS_TYPE.EARLY_RETURN_OF_DEPENDENTS, ORDERS_TYPE.EARLY_RETURN_OF_DEPENDENTS],
+      [ORDERS_TYPE.STUDENT_TRAVEL, ORDERS_TYPE.STUDENT_TRAVEL],
     ])('rendering the %s option', async (selectionOption, expectedValue) => {
+      isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(true));
+
       render(<EditOrdersForm {...testProps} />);
 
       const ordersTypeDropdown = await screen.findByLabelText(/Orders type/);
@@ -608,6 +620,8 @@ describe('EditOrdersForm component', () => {
           { key: 'RETIREMENT', value: 'Retirement' },
           { key: 'SEPARATION', value: 'Separation' },
           { key: 'TEMPORARY_DUTY', value: 'Temporary Duty (TDY)' },
+          { key: ORDERS_TYPE.EARLY_RETURN_OF_DEPENDENTS, value: ORDERS_TYPE_OPTIONS.EARLY_RETURN_OF_DEPENDENTS },
+          { key: ORDERS_TYPE.STUDENT_TRAVEL, value: ORDERS_TYPE_OPTIONS.STUDENT_TRAVEL },
         ],
         currentDutyLocation: {},
       };
@@ -682,6 +696,112 @@ describe('EditOrdersForm component', () => {
         }),
         expect.anything(),
       );
+    });
+  });
+
+  it('has dependents is yes and disabled when order type is student travel', async () => {
+    isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(true));
+
+    render(<EditOrdersForm {...testProps} />);
+
+    await waitFor(() => expect(screen.queryByText('Loading, please wait...')).not.toBeInTheDocument());
+
+    await userEvent.selectOptions(screen.getByLabelText(/Orders type/), ORDERS_TYPE.STUDENT_TRAVEL);
+
+    const hasDependentsYes = screen.getByLabelText('Yes');
+    const hasDependentsNo = screen.getByLabelText('No');
+
+    await waitFor(() => {
+      expect(hasDependentsYes).toBeChecked();
+      expect(hasDependentsYes).toBeDisabled();
+      expect(hasDependentsNo).toBeDisabled();
+    });
+  });
+
+  it('has dependents is yes and disabled when order type is early return', async () => {
+    render(<EditOrdersForm {...testProps} />);
+
+    await waitFor(() => expect(screen.queryByText('Loading, please wait...')).not.toBeInTheDocument());
+
+    await userEvent.selectOptions(screen.getByLabelText(/Orders type/), ORDERS_TYPE.EARLY_RETURN_OF_DEPENDENTS);
+
+    const hasDependentsYes = screen.getByLabelText('Yes');
+    const hasDependentsNo = screen.getByLabelText('No');
+
+    await waitFor(() => {
+      expect(hasDependentsYes).toBeChecked();
+      expect(hasDependentsYes).toBeDisabled();
+      expect(hasDependentsNo).toBeDisabled();
+    });
+  });
+
+  it('has dependents becomes disabled and then re-enabled for order type student travel', async () => {
+    render(<EditOrdersForm {...testProps} />);
+
+    await waitFor(() => expect(screen.queryByText('Loading, please wait...')).not.toBeInTheDocument());
+
+    // set order type to perm change and verify the "has dependents" state
+    await userEvent.selectOptions(screen.getByLabelText(/Orders type/), 'PERMANENT_CHANGE_OF_STATION');
+
+    const hasDependentsYesPermChg = screen.getByLabelText('Yes');
+    const hasDependentsNoPermChg = screen.getByLabelText('No');
+
+    await waitFor(() => {
+      expect(hasDependentsYesPermChg).not.toBeChecked();
+      expect(hasDependentsYesPermChg).toBeEnabled();
+      expect(hasDependentsNoPermChg).not.toBeChecked();
+      expect(hasDependentsNoPermChg).toBeEnabled();
+    });
+
+    // set order type to value that disables and defaults "has dependents"
+    await userEvent.selectOptions(screen.getByLabelText(/Orders type/), ORDERS_TYPE.STUDENT_TRAVEL);
+
+    // set order type to value the re-enables "has dependents"
+    await userEvent.selectOptions(screen.getByLabelText(/Orders type/), 'LOCAL_MOVE');
+
+    const hasDependentsYesLocalMove = screen.getByLabelText('Yes');
+    const hasDependentsNoLocalMove = screen.getByLabelText('No');
+
+    await waitFor(() => {
+      expect(hasDependentsYesLocalMove).not.toBeChecked();
+      expect(hasDependentsYesLocalMove).toBeEnabled();
+      expect(hasDependentsNoLocalMove).not.toBeChecked();
+      expect(hasDependentsNoLocalMove).toBeEnabled();
+    });
+  });
+
+  it('has dependents becomes disabled and then re-enabled for order type early return', async () => {
+    render(<EditOrdersForm {...testProps} />);
+
+    await waitFor(() => expect(screen.queryByText('Loading, please wait...')).not.toBeInTheDocument());
+
+    // set order type to perm change and verify the "has dependents" state
+    await userEvent.selectOptions(screen.getByLabelText(/Orders type/), 'PERMANENT_CHANGE_OF_STATION');
+
+    const hasDependentsYesPermChg = screen.getByLabelText('Yes');
+    const hasDependentsNoPermChg = screen.getByLabelText('No');
+
+    await waitFor(() => {
+      expect(hasDependentsYesPermChg).not.toBeChecked();
+      expect(hasDependentsYesPermChg).toBeEnabled();
+      expect(hasDependentsNoPermChg).not.toBeChecked();
+      expect(hasDependentsNoPermChg).toBeEnabled();
+    });
+
+    // set order type to value that disables and defaults "has dependents"
+    await userEvent.selectOptions(screen.getByLabelText(/Orders type/), ORDERS_TYPE.EARLY_RETURN_OF_DEPENDENTS);
+
+    // set order type to value the re-enables "has dependents"
+    await userEvent.selectOptions(screen.getByLabelText(/Orders type/), 'LOCAL_MOVE');
+
+    const hasDependentsYesLocalMove = screen.getByLabelText('Yes');
+    const hasDependentsNoLocalMove = screen.getByLabelText('No');
+
+    await waitFor(() => {
+      expect(hasDependentsYesLocalMove).not.toBeChecked();
+      expect(hasDependentsYesLocalMove).toBeEnabled();
+      expect(hasDependentsNoLocalMove).not.toBeChecked();
+      expect(hasDependentsNoLocalMove).toBeEnabled();
     });
   });
 

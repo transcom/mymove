@@ -56,6 +56,21 @@ func (o *officeUserFetcherPop) FetchOfficeUserByID(appCtx appcontext.AppContext,
 	return officeUser, err
 }
 
+func (o *officeUserFetcherPop) FetchOfficeUserByIDWithTransportationOfficeAssignments(appCtx appcontext.AppContext, id uuid.UUID) (models.OfficeUser, error) {
+	var officeUser models.OfficeUser
+	err := appCtx.DB().Eager("TransportationOffice", "TransportationOfficeAssignments", "TransportationOfficeAssignments.TransportationOffice").Find(&officeUser, id)
+	if err != nil {
+		switch err {
+		case sql.ErrNoRows:
+			return models.OfficeUser{}, apperror.NewNotFoundError(id, "looking for OfficeUser")
+		default:
+			return models.OfficeUser{}, apperror.NewQueryError("OfficeUser", err, "")
+		}
+	}
+
+	return officeUser, err
+}
+
 // Fetch office users of the same role within a gbloc, for assignment purposes
 func (o *officeUserFetcherPop) FetchOfficeUsersByRoleAndOffice(appCtx appcontext.AppContext, role roles.RoleType, officeID uuid.UUID) ([]models.OfficeUser, error) {
 	var officeUsers []models.OfficeUser
