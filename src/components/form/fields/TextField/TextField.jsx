@@ -1,3 +1,4 @@
+/* eslint-disable react/jsx-props-no-spreading */
 import React from 'react';
 import PropTypes from 'prop-types';
 import classnames from 'classnames';
@@ -44,6 +45,21 @@ const TextField = ({
     warning: showWarning,
   });
 
+  const getDisplay = (displayType) => {
+    switch (displayType) {
+      case 'textarea':
+        return <Textarea id={id} name={name} disabled={isDisabled} {...fieldProps} {...inputProps} />;
+      case 'readonly':
+        return (
+          <label htmlFor={id || name} id={id} data-testid={label} aria-label={name}>
+            {fieldProps.value}
+          </label>
+        );
+      default:
+        return <TextInput id={id} name={name} disabled={isDisabled} {...fieldProps} {...inputProps} />;
+    }
+  };
+
   return (
     <FormGroup className={formGroupClasses} error={showError}>
       <div className="labelWrapper">
@@ -60,13 +76,7 @@ const TextField = ({
       )}
 
       {showWarning && <Hint data-testid="textInputWarning">{warning}</Hint>}
-      {/* eslint-disable react/jsx-props-no-spreading */}
-      {display === 'input' ? (
-        <TextInput id={id} name={name} disabled={isDisabled} {...fieldProps} {...inputProps} />
-      ) : (
-        <Textarea id={id} name={name} disabled={isDisabled} {...fieldProps} {...inputProps} />
-      )}
-      {/* eslint-enable react/jsx-props-no-spreading */}
+      {getDisplay(display)}
 
       {button || null}
     </FormGroup>
@@ -82,7 +92,7 @@ TextField.propTypes = {
   warning: PropTypes.string,
   optional: PropTypes.bool,
   validate: PropTypes.oneOfType([PropTypes.string, PropTypes.func]),
-  display: PropTypes.oneOf(['input', 'textarea']),
+  display: PropTypes.oneOf(['input', 'textarea', 'readonly']),
   type: PropTypes.string,
   error: PropTypes.bool,
   errorMessage: PropTypes.string,

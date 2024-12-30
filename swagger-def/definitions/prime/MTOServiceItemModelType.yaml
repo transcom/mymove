@@ -9,6 +9,7 @@ description: >
     * DOSHUT, DDSHUT - MTOServiceItemShuttle
     * DCRT, DUCRT - MTOServiceItemDomesticCrating
     * ICRT, IUCRT - MTOServiceItemInternationalCrating
+    * PODFSC, POEFSC - MTOSerivceItemInternationalFuelSurcharge
 
   The documentation will then update with the supported fields.
 type: string
@@ -19,3 +20,4 @@ enum:
   - MTOServiceItemShuttle
   - MTOServiceItemDomesticCrating
   - MTOServiceItemInternationalCrating
+  - MTOSerivceItemInternationalFuelSurcharge
