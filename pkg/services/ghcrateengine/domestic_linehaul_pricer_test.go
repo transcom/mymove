@@ -19,12 +19,12 @@ const (
 	dlhTestWeightUpper          = unit.Pound(4999)
 	dlhTestMilesLower           = 1001
 	dlhTestMilesUpper           = 1500
-	dlhTestBasePriceMillicents  = unit.Millicents(5111)
+	dlhTestBasePriceMillicents  = unit.Millicents(388600)
 	dlhTestContractYearName     = "DLH Test Year"
 	dlhTestEscalationCompounded = 1.04071
 	dlhTestDistance             = unit.Miles(1201)
 	dlhTestWeight               = unit.Pound(4001)
-	dlhPriceCents               = unit.Cents(254676)
+	dlhPriceCents               = unit.Cents(19432233)
 )
 
 var dlhRequestedPickupDate = time.Date(testdatagen.TestYear, time.June, 5, 7, 33, 11, 456, time.UTC)
@@ -34,7 +34,6 @@ func (suite *GHCRateEngineServiceSuite) TestPriceDomesticLinehaul() {
 	linehaulServicePricer := NewDomesticLinehaulPricer()
 
 	suite.Run("success using PaymentServiceItemParams", func() {
-		// serviceArea := "sa0"
 		suite.setupDomesticLinehaulPrice(dlhTestServiceArea, dlhTestIsPeakPeriod, dlhTestWeightLower, dlhTestWeightUpper, dlhTestMilesLower, dlhTestMilesUpper, dlhTestBasePriceMillicents, dlhTestContractYearName, dlhTestEscalationCompounded)
 		paymentServiceItem := suite.setupDomesticLinehaulServiceItem()
 		priceCents, displayParams, err := linehaulServicePricer.PriceUsingParams(suite.AppContextForTest(), paymentServiceItem.PaymentServiceItemParams, nil)
@@ -110,7 +109,7 @@ func (suite *GHCRateEngineServiceSuite) TestPriceDomesticLinehaul() {
 		// < 50 mile distance with PPM
 		priceCents, _, err := linehaulServicePricer.Price(suite.AppContextForTest(), testdatagen.DefaultContractCode, dlhRequestedPickupDate, unit.Miles(49), dlhTestWeight, dlhTestServiceArea, isPPM, false)
 		suite.NoError(err)
-		suite.Equal(unit.Cents(10391), priceCents)
+		suite.Equal(unit.Cents(526980), priceCents)
 	})
 
 	suite.Run("successfully finds linehaul price for ppm with distance < 50 miles with PriceUsingParams method", func() {
@@ -225,7 +224,7 @@ func (suite *GHCRateEngineServiceSuite) TestPriceDomesticLinehaul() {
 
 		_, _, err = linehaulServicePricer.Price(suite.AppContextForTest(), testdatagen.DefaultContractCode, time.Date(testdatagen.TestYear+1, 1, 1, 1, 1, 1, 1, time.UTC), dlhTestDistance, dlhTestWeight, dlhTestServiceArea, isPPM, false)
 		suite.Error(err)
-		suite.Contains(err.Error(), "could not fetch domestic linehaul rate")
+		suite.Contains(err.Error(), "could not lookup contract year")
 	})
 }
 

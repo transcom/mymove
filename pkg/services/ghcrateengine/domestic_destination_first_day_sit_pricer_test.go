@@ -14,11 +14,11 @@ import (
 const (
 	ddfsitTestServiceArea          = "456"
 	ddfsitTestIsPeakPeriod         = false
-	ddfsitTestBasePriceCents       = unit.Cents(525)
+	ddfsitTestBasePriceCents       = unit.Cents(1770)
 	ddfsitTestContractYearName     = "DDFSIT Test Year"
 	ddfsitTestEscalationCompounded = 1.052
 	ddfsitTestWeight               = unit.Pound(3300)
-	ddfsitTestPriceCents           = unit.Cents(18216)
+	ddfsitTestPriceCents           = unit.Cents(61446)
 )
 
 var ddfsitTestRequestedPickupDate = time.Date(testdatagen.TestYear, time.January, 5, 7, 33, 11, 456, time.UTC)
