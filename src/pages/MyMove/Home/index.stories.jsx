@@ -159,7 +159,7 @@ const propsForApprovedPPMShipment = {
       name: 'NAS Norfolk',
     },
     new_duty_location: {
-      name: 'Travis AFB',
+      name: 'NAS Jacksonville',
     },
   },
 };
