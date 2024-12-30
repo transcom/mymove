@@ -165,3 +165,48 @@ func (f moveFetcherBulkAssignment) FetchMovesForBulkAssignmentCounseling(appCtx 
 
 	return moves, nil
 }
+
+func (f moveFetcherBulkAssignment) FetchMovesForBulkAssignmentTaskOrder(appCtx appcontext.AppContext, gbloc string, officeId uuid.UUID) ([]models.MoveWithEarliestDate, error) {
+	var moves []models.MoveWithEarliestDate
+
+	err := appCtx.DB().
+		RawQuery(`SELECT
+					moves.id,
+					MIN(LEAST(
+						COALESCE(mto_shipments.requested_pickup_date, '9999-12-31'),
+						COALESCE(mto_shipments.requested_delivery_date, '9999-12-31'),
+						COALESCE(ppm_shipments.expected_departure_date, '9999-12-31')
+					)) AS earliest_date
+				FROM moves
+				INNER JOIN orders ON orders.id = moves.orders_id
+				INNER JOIN service_members ON orders.service_member_id = service_members.id
+				INNER JOIN mto_shipments ON mto_shipments.move_id = moves.id
+				LEFT JOIN ppm_shipments ON ppm_shipments.shipment_id = mto_shipments.id
+				WHERE
+					(moves.status IN ('APPROVALS REQUESTED', 'SUBMITTED', 'SERVICE COUNSELING COMPLETED'))
+					AND orders.gbloc = $1
+					AND moves.show = $2
+					AND moves.too_assigned_id IS NULL
+					AND moves.counseling_transportation_office_id = $3
+					AND (orders.orders_type NOT IN ($4, $5, $6))
+					AND service_members.affiliation != 'MARINES'
+				GROUP BY moves.id
+				ORDER BY earliest_date ASC`,
+			gbloc,
+			models.BoolPointer(true),
+			officeId,
+			internalmessages.OrdersTypeBLUEBARK,
+			internalmessages.OrdersTypeWOUNDEDWARRIOR,
+			internalmessages.OrdersTypeSAFETY).
+		All(&moves)
+
+	if err != nil {
+		return nil, fmt.Errorf("error fetching moves for office: %s with error %w", officeId, err)
+	}
+
+	if len(moves) < 1 {
+		return nil, nil
+	}
+
+	return moves, nil
+}
