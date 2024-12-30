@@ -12,9 +12,11 @@ import (
 )
 
 const (
-	dshTestServiceArea = "006"
-	dshTestWeight      = 3600
-	dshTestMileage     = 1200
+	dshTestServiceArea                       = "006"
+	dshTestWeight                            = 3600
+	dshTestMileage                           = 1200
+	domesticMobileHomeFactorPeakTestPrice    = 220040064.00 // Amount from base peak period test multiplied by mobile home factor of 33.51
+	domesticMobileHomeFactorNonPeakTestPrice = 191087424.00 // Amount from base non-peak period test multiplied by mobile home factor of 33.51
 )
 
 func (suite *GHCRateEngineServiceSuite) TestPriceDomesticShorthaulWithServiceItemParamsBadData() {
@@ -70,7 +72,7 @@ func (suite *GHCRateEngineServiceSuite) TestPriceDomesticShorthaulWithServiceIte
 	suite.Run("success all params for shorthaul available", func() {
 		suite.setUpDomesticShorthaulData()
 		paymentServiceItem := suite.setupDomesticShorthaulServiceItems(requestedPickup)
-		expectedPricingCreatedParams := suite.getExpectedDSHPricerCreatedParamsFromDBGivenParams(dshTestServiceArea, requestedPickup)
+		expectedPricingCreatedParams := suite.getExpectedDSHPricerCreatedParamsFromDBGivenParams(dshTestServiceArea, requestedPickup, false)
 		cost, rateEngineParams, err := pricer.PriceUsingParams(suite.AppContextForTest(), paymentServiceItem.PaymentServiceItemParams, nil)
 		expectedCost := unit.Cents(6566400)
 		suite.NoError(err)
@@ -127,7 +129,7 @@ func (suite *GHCRateEngineServiceSuite) TestPriceDomesticShorthaul() {
 		pricer := NewDomesticShorthaulPricer()
 
 		newRequestedPickup := time.Date(testdatagen.TestYear, peakStart.month, peakStart.day, 0, 0, 0, 0, time.UTC)
-		newExpectedPricingCreatedParams := suite.getExpectedDSHPricerCreatedParamsFromDBGivenParams(dshTestServiceArea, requestedPickup)
+		newExpectedPricingCreatedParams := suite.getExpectedDSHPricerCreatedParamsFromDBGivenParams(dshTestServiceArea, requestedPickup, false)
 		cost, rateEngineParams, err := pricer.Price(
 			suite.AppContextForTest(),
 			testdatagen.DefaultContractCode,
@@ -143,6 +145,29 @@ func (suite *GHCRateEngineServiceSuite) TestPriceDomesticShorthaul() {
 		suite.validatePricerCreatedParams(newExpectedPricingCreatedParams, rateEngineParams)
 	})
 
+	suite.Run("success shorthaul cost within peak period with Domestic Mobile Home Factor applied", func() {
+		requestedPickup := time.Date(testdatagen.TestYear, peakStart.month, peakStart.day, 0, 0, 0, 0, time.UTC).Format(DateParamFormat)
+		suite.setUpDomesticShorthaulData()
+
+		pricer := NewDomesticShorthaulPricer()
+
+		newRequestedPickup := time.Date(testdatagen.TestYear, peakStart.month, peakStart.day, 0, 0, 0, 0, time.UTC)
+		newExpectedPricingCreatedParams := suite.getExpectedDSHPricerCreatedParamsFromDBGivenParams(dshTestServiceArea, requestedPickup, true)
+		cost, rateEngineParams, err := pricer.Price(
+			suite.AppContextForTest(),
+			testdatagen.DefaultContractCode,
+			newRequestedPickup,
+			dshTestMileage,
+			dshTestWeight,
+			dshTestServiceArea,
+			true,
+		)
+		expectedCost := unit.Cents(domesticMobileHomeFactorPeakTestPrice) // Amount from base tests multiplied by mobile home factor
+		suite.NoError(err)
+		suite.Equal(expectedCost, cost)
+		suite.validatePricerCreatedParams(newExpectedPricingCreatedParams, rateEngineParams)
+	})
+
 	suite.Run("success shorthaul cost within non-peak period", func() {
 		suite.setUpDomesticShorthaulData()
 
@@ -150,7 +175,7 @@ func (suite *GHCRateEngineServiceSuite) TestPriceDomesticShorthaul() {
 
 		nonPeakDate := peakStart.addDate(0, -1)
 		newRequestedPickup := time.Date(testdatagen.TestYear, nonPeakDate.month, nonPeakDate.day, 0, 0, 0, 0, time.UTC)
-		newExpectedPricingCreatedParams := suite.getExpectedDSHPricerCreatedParamsFromDBGivenParams(dshTestServiceArea, newRequestedPickup.Format(DateParamFormat))
+		newExpectedPricingCreatedParams := suite.getExpectedDSHPricerCreatedParamsFromDBGivenParams(dshTestServiceArea, newRequestedPickup.Format(DateParamFormat), false)
 
 		cost, rateEngineParams, err := pricer.Price(
 			suite.AppContextForTest(),
@@ -162,6 +187,29 @@ func (suite *GHCRateEngineServiceSuite) TestPriceDomesticShorthaul() {
 			false,
 		)
 		expectedCost := unit.Cents(5702400)
+		suite.NoError(err)
+		suite.Equal(expectedCost, cost)
+		suite.validatePricerCreatedParams(newExpectedPricingCreatedParams, rateEngineParams)
+	})
+
+	suite.Run("success shorthaul cost within non-peak period with Domestic Mobile Home Factor applied", func() {
+		suite.setUpDomesticShorthaulData()
+
+		pricer := NewDomesticShorthaulPricer()
+
+		nonPeakDate := peakStart.addDate(0, -1)
+		newRequestedPickup := time.Date(testdatagen.TestYear, nonPeakDate.month, nonPeakDate.day, 0, 0, 0, 0, time.UTC)
+		newExpectedPricingCreatedParams := suite.getExpectedDSHPricerCreatedParamsFromDBGivenParams(dshTestServiceArea, newRequestedPickup.Format(DateParamFormat), true)
+		cost, rateEngineParams, err := pricer.Price(
+			suite.AppContextForTest(),
+			testdatagen.DefaultContractCode,
+			newRequestedPickup,
+			dshTestMileage,
+			dshTestWeight,
+			dshTestServiceArea,
+			true,
+		)
+		expectedCost := unit.Cents(domesticMobileHomeFactorNonPeakTestPrice) // Amount from base tests multiplied by mobile home factor
 		suite.NoError(err)
 		suite.Equal(expectedCost, cost)
 		suite.validatePricerCreatedParams(newExpectedPricingCreatedParams, rateEngineParams)
@@ -348,11 +396,11 @@ func (suite *GHCRateEngineServiceSuite) setUpDomesticShorthaulData() {
 	suite.MustSave(&domesticShorthaulNonpeakPrice)
 }
 
-func (suite *GHCRateEngineServiceSuite) getExpectedDSHPricerCreatedParamsFromDBGivenParams(serviceArea string, requestedPickUp string) services.PricingDisplayParams {
+func (suite *GHCRateEngineServiceSuite) getExpectedDSHPricerCreatedParamsFromDBGivenParams(serviceArea string, requestedPickup string, usesMobileHomeFactor bool) services.PricingDisplayParams {
 	var err error
 
 	var requestedPickUpDate time.Time
-	requestedPickUpDate, err = time.Parse(DateParamFormat, requestedPickUp)
+	requestedPickUpDate, err = time.Parse(DateParamFormat, requestedPickup)
 	suite.NoError(err)
 
 	isPeakPeriod := IsPeakPeriod(requestedPickUpDate)
@@ -365,23 +413,49 @@ func (suite *GHCRateEngineServiceSuite) getExpectedDSHPricerCreatedParamsFromDBG
 	contractYear, err = fetchContractYear(suite.AppContextForTest(), domServiceAreaPrice.ContractID, requestedPickUpDate)
 	suite.NoError(err)
 
-	var pricingRateEngineParams = services.PricingDisplayParams{
-		{
-			Key:   models.ServiceItemParamNameContractYearName,
-			Value: contractYear.Name,
-		},
-		{
-			Key:   models.ServiceItemParamNamePriceRateOrFactor,
-			Value: FormatCents(domServiceAreaPrice.PriceCents),
-		},
-		{
-			Key:   models.ServiceItemParamNameIsPeak,
-			Value: strconv.FormatBool(isPeakPeriod),
-		},
-		{
-			Key:   models.ServiceItemParamNameEscalationCompounded,
-			Value: FormatEscalation(contractYear.EscalationCompounded),
-		},
+	var pricingRateEngineParams services.PricingDisplayParams
+	if usesMobileHomeFactor {
+		pricingRateEngineParams = services.PricingDisplayParams{
+			{
+				Key:   models.ServiceItemParamNameContractYearName,
+				Value: contractYear.Name,
+			},
+			{
+				Key:   models.ServiceItemParamNamePriceRateOrFactor,
+				Value: FormatCents(domServiceAreaPrice.PriceCents),
+			},
+			{
+				Key:   models.ServiceItemParamNameIsPeak,
+				Value: strconv.FormatBool(isPeakPeriod),
+			},
+			{
+				Key:   models.ServiceItemParamNameEscalationCompounded,
+				Value: FormatEscalation(contractYear.EscalationCompounded),
+			},
+			{
+				Key:   models.ServiceItemParamNameMobileHomeFactor,
+				Value: "33.51",
+			},
+		}
+	} else {
+		pricingRateEngineParams = services.PricingDisplayParams{
+			{
+				Key:   models.ServiceItemParamNameContractYearName,
+				Value: contractYear.Name,
+			},
+			{
+				Key:   models.ServiceItemParamNamePriceRateOrFactor,
+				Value: FormatCents(domServiceAreaPrice.PriceCents),
+			},
+			{
+				Key:   models.ServiceItemParamNameIsPeak,
+				Value: strconv.FormatBool(isPeakPeriod),
+			},
+			{
+				Key:   models.ServiceItemParamNameEscalationCompounded,
+				Value: FormatEscalation(contractYear.EscalationCompounded),
+			},
+		}
 	}
 
 	return pricingRateEngineParams

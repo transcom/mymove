@@ -70,7 +70,7 @@ func (p domesticShorthaulPricer) Price(appCtx appcontext.AppContext, contractCod
 			return 0, nil, fmt.Errorf("could not fetch mobile home factor from database: %w", err)
 		}
 
-		escalatedPrice = roundToPrecision(escalatedPrice*mobileHomeFactorRow.Factor, 2)
+		escalatedPrice = roundToPrecision(escalatedPrice*mobileHomeFactorRow.Factor, 2) * weight.ToCWTFloat64() * distance.Float64()
 
 		// Include mobile home factor in display params
 		pricingRateEngineParams = services.PricingDisplayParams{
@@ -78,7 +78,7 @@ func (p domesticShorthaulPricer) Price(appCtx appcontext.AppContext, contractCod
 			{Key: models.ServiceItemParamNamePriceRateOrFactor, Value: FormatCents(domServiceAreaPrice.PriceCents)},
 			{Key: models.ServiceItemParamNameIsPeak, Value: strconv.FormatBool(isPeakPeriod)},
 			{Key: models.ServiceItemParamNameEscalationCompounded, Value: FormatEscalation(contractYear.EscalationCompounded)},
-			{Key: models.ServiceItemParamNameMobileHomeFactor, Value: FormatFloat(mobileHomeFactorRow.Factor, 3)},
+			{Key: models.ServiceItemParamNameMobileHomeFactor, Value: FormatFloat(mobileHomeFactorRow.Factor, 2)},
 		}
 	} else {
 		escalatedPrice = escalatedPrice * distance.Float64() * weight.ToCWTFloat64()

@@ -8,6 +8,7 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/testdatagen"
+	"github.com/transcom/mymove/pkg/testhelpers"
 	"github.com/transcom/mymove/pkg/unit"
 )
 
@@ -29,6 +30,7 @@ const (
 var dlhRequestedPickupDate = time.Date(testdatagen.TestYear, time.June, 5, 7, 33, 11, 456, time.UTC)
 
 func (suite *GHCRateEngineServiceSuite) TestPriceDomesticLinehaul() {
+	featureFlagValues := testhelpers.MakeMobileHomeFFMap(true, true)
 	linehaulServicePricer := NewDomesticLinehaulPricer()
 
 	suite.Run("success using PaymentServiceItemParams", func() {
@@ -44,6 +46,27 @@ func (suite *GHCRateEngineServiceSuite) TestPriceDomesticLinehaul() {
 			{Key: models.ServiceItemParamNameEscalationCompounded, Value: FormatEscalation(dlhTestEscalationCompounded)},
 			{Key: models.ServiceItemParamNameIsPeak, Value: FormatBool(dlhTestIsPeakPeriod)},
 			{Key: models.ServiceItemParamNamePriceRateOrFactor, Value: FormatFloat(dlhTestBasePriceMillicents.ToDollarFloatNoRound(), 3)},
+		}
+		suite.validatePricerCreatedParams(expectedParams, displayParams)
+	})
+
+	suite.Run("success using PaymentServiceItemParams with Domestic Mobile Home Factor applied", func() {
+		// serviceArea := "sa0"
+		suite.setupDomesticLinehaulPrice(dlhTestServiceArea, dlhTestIsPeakPeriod, dlhTestWeightLower, dlhTestWeightUpper, dlhTestMilesLower, dlhTestMilesUpper, dlhTestBasePriceMillicents, dlhTestContractYearName, dlhTestEscalationCompounded)
+		paymentServiceItem := suite.setupDomesticLinehaulServiceItem()
+		paymentServiceItem.PaymentServiceItemParams[0].PaymentServiceItem.MTOServiceItem.MTOShipment.ShipmentType = models.MTOShipmentTypeMobileHome
+		priceCents, displayParams, err := linehaulServicePricer.PriceUsingParams(suite.AppContextForTest(), paymentServiceItem.PaymentServiceItemParams, featureFlagValues)
+		suite.NoError(err)
+		expectedTotalPriceInt := 254676 * 33.51
+		expectedPrice := unit.Cents(expectedTotalPriceInt)
+		suite.Equal(expectedPrice, priceCents)
+
+		expectedParams := services.PricingDisplayParams{
+			{Key: models.ServiceItemParamNameContractYearName, Value: dlhTestContractYearName},
+			{Key: models.ServiceItemParamNameEscalationCompounded, Value: FormatEscalation(dlhTestEscalationCompounded)},
+			{Key: models.ServiceItemParamNameIsPeak, Value: FormatBool(dlhTestIsPeakPeriod)},
+			{Key: models.ServiceItemParamNamePriceRateOrFactor, Value: FormatFloat(dlhTestBasePriceMillicents.ToDollarFloatNoRound(), 3)},
+			{Key: models.ServiceItemParamNameMobileHomeFactor, Value: "33.51"},
 		}
 		suite.validatePricerCreatedParams(expectedParams, displayParams)
 	})
