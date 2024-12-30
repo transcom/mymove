@@ -138,7 +138,7 @@ stages:
   - if: $DP3_ENV == "exp" || $DP3_ENV == "loadtest" || $DP3_ENV == "demo"
 
 .check_main: &check_main
-  - if: '$CI_COMMIT_BRANCH == "main"'
+  - if: '$CI_COMMIT_BRANCH == "main" || $CI_COMMIT_BRANCH'
 
 .check_debug: &check_debug
   - if: '$debug == "true"'
@@ -305,6 +305,8 @@ build_storybook:
   artifacts:
     paths:
       - /builds/milmove/mymove/storybook-static
+  rules:
+    - *check_main
 
 compile_app_client:
   stage: build
