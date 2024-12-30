@@ -196,7 +196,23 @@ describe('OrdersDetailForm', () => {
       showNTSTac: false,
       showNTSSac: false,
       showOrdersAcknowledgement: false,
-      ordersType: 'SAFETY',
+      ordersType: 'Safety',
+    });
+
+    // correct labels are visible
+    expect(await screen.findByLabelText('Orders type')).toBeDisabled();
+  });
+  it('has orders type dropdown disabled if bluebark move', async () => {
+    renderOrdersDetailForm({
+      showDepartmentIndicator: false,
+      showOrdersNumber: false,
+      showOrdersTypeDetail: false,
+      showHHGTac: false,
+      showHHGSac: false,
+      showNTSTac: false,
+      showNTSSac: false,
+      showOrdersAcknowledgement: false,
+      ordersType: 'BLUEBARK',
     });
 
     // correct labels are visible
