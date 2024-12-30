@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"io"
 	"path"
+	"strings"
+	"time"
 
 	"github.com/gobuffalo/validate/v3"
 	"github.com/gofrs/uuid"
@@ -271,10 +273,38 @@ func (u *Uploader) DeleteUpload(appCtx appcontext.AppContext, upload *models.Upl
 	return models.DeleteUpload(appCtx.DB(), upload)
 }
 
+const (
+	maxRetries = 3
+	retryDelay = 2 * time.Second
+)
+
 // Download fetches an Upload's file and stores it in a tempfile. The path to this
 // file is returned.
 //
 // It is the caller's responsibility to delete the tempfile.
-func (u *Uploader) Download(_ appcontext.AppContext, upload *models.Upload) (io.ReadCloser, error) {
-	return u.Storer.Fetch(upload.StorageKey)
+func (u *Uploader) Download(appCtx appcontext.AppContext, upload *models.Upload) (io.ReadCloser, error) {
+	var file io.ReadCloser
+	var err error
+
+	for i := 0; i < maxRetries; i++ {
+		file, err = u.Storer.Fetch(upload.StorageKey)
+		if err == nil {
+			return file, nil
+		}
+
+		if isAccessDeniedError(err) {
+			appCtx.Logger().Warn("Access denied when fetching file, retrying...", zap.Int("attempt", i+1), zap.Error(err))
+			time.Sleep(retryDelay)
+			continue
+		}
+
+		return nil, errors.Wrap(err, "failed to fetch file from storage")
+	}
+
+	return nil, errors.Wrap(err, "max retries reached, failed to fetch file from storage")
+}
+
+// isAccessDeniedError checks if the error is an AccessDenied error
+func isAccessDeniedError(err error) bool {
+	return strings.Contains(strings.ToLower(err.Error()), "access denied")
 }
