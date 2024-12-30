@@ -138,7 +138,7 @@ stages:
   - if: $DP3_ENV == "exp" || $DP3_ENV == "loadtest" || $DP3_ENV == "demo"
 
 .check_main: &check_main
-  - if: '$CI_COMMIT_BRANCH == "main" || $CI_COMMIT_BRANCH'
+  - if: '$CI_COMMIT_BRANCH == "main"'
 
 .check_debug: &check_debug
   - if: '$debug == "true"'
