@@ -4048,6 +4048,7 @@ func (suite *HandlerSuite) TestUpdateShipmentHandler() {
 		ppmShipmentUpdater := ppmshipment.NewPPMShipmentUpdater(&ppmEstimator, addressCreator, addressUpdater)
 		boatShipmentUpdater := boatshipment.NewBoatShipmentUpdater()
 		mobileHomeShipmentUpdater := mobilehomeshipment.NewMobileHomeShipmentUpdater()
+
 		shipmentUpdater := shipmentorchestrator.NewShipmentUpdater(mtoShipmentUpdater, ppmShipmentUpdater, boatShipmentUpdater, mobileHomeShipmentUpdater)
 		handler := UpdateShipmentHandler{
 			suite.HandlerConfig(),
@@ -4116,6 +4117,7 @@ func (suite *HandlerSuite) TestUpdateShipmentHandler() {
 
 		boatShipmentUpdater := boatshipment.NewBoatShipmentUpdater()
 		mobileHomeShipmentUpdater := mobilehomeshipment.NewMobileHomeShipmentUpdater()
+
 		shipmentUpdater := shipmentorchestrator.NewShipmentUpdater(mtoShipmentUpdater, ppmShipmentUpdater, boatShipmentUpdater, mobileHomeShipmentUpdater)
 		handler := UpdateShipmentHandler{
 			suite.HandlerConfig(),
@@ -4304,6 +4306,7 @@ func (suite *HandlerSuite) TestUpdateShipmentHandler() {
 
 		boatShipmentUpdater := boatshipment.NewBoatShipmentUpdater()
 		mobileHomeShipmentUpdater := mobilehomeshipment.NewMobileHomeShipmentUpdater()
+
 		shipmentUpdater := shipmentorchestrator.NewShipmentUpdater(mtoShipmentUpdater, ppmShipmentUpdater, boatShipmentUpdater, mobileHomeShipmentUpdater)
 		handler := UpdateShipmentHandler{
 			suite.HandlerConfig(),
@@ -4384,6 +4387,7 @@ func (suite *HandlerSuite) TestUpdateShipmentHandler() {
 
 		boatShipmentUpdater := boatshipment.NewBoatShipmentUpdater()
 		mobileHomeShipmentUpdater := mobilehomeshipment.NewMobileHomeShipmentUpdater()
+
 		shipmentUpdater := shipmentorchestrator.NewShipmentUpdater(mtoShipmentUpdater, ppmShipmentUpdater, boatShipmentUpdater, mobileHomeShipmentUpdater)
 		handler := UpdateShipmentHandler{
 			suite.HandlerConfig(),
@@ -4464,6 +4468,7 @@ func (suite *HandlerSuite) TestUpdateShipmentHandler() {
 
 		boatShipmentUpdater := boatshipment.NewBoatShipmentUpdater()
 		mobileHomeShipmentUpdater := mobilehomeshipment.NewMobileHomeShipmentUpdater()
+
 		shipmentUpdater := shipmentorchestrator.NewShipmentUpdater(mtoShipmentUpdater, ppmShipmentUpdater, boatShipmentUpdater, mobileHomeShipmentUpdater)
 		handler := UpdateShipmentHandler{
 			suite.HandlerConfig(),
@@ -4502,6 +4507,7 @@ func (suite *HandlerSuite) TestUpdateShipmentHandler() {
 
 		boatShipmentUpdater := boatshipment.NewBoatShipmentUpdater()
 		mobileHomeShipmentUpdater := mobilehomeshipment.NewMobileHomeShipmentUpdater()
+
 		shipmentUpdater := shipmentorchestrator.NewShipmentUpdater(mtoShipmentUpdater, ppmShipmentUpdater, boatShipmentUpdater, mobileHomeShipmentUpdater)
 		handler := UpdateShipmentHandler{
 			suite.HandlerConfig(),
@@ -4542,6 +4548,7 @@ func (suite *HandlerSuite) TestUpdateShipmentHandler() {
 
 		boatShipmentUpdater := boatshipment.NewBoatShipmentUpdater()
 		mobileHomeShipmentUpdater := mobilehomeshipment.NewMobileHomeShipmentUpdater()
+
 		shipmentUpdater := shipmentorchestrator.NewShipmentUpdater(mtoShipmentUpdater, ppmShipmentUpdater, boatShipmentUpdater, mobileHomeShipmentUpdater)
 		handler := UpdateShipmentHandler{
 			suite.HandlerConfig(),
@@ -4583,6 +4590,7 @@ func (suite *HandlerSuite) TestUpdateShipmentHandler() {
 
 		boatShipmentUpdater := boatshipment.NewBoatShipmentUpdater()
 		mobileHomeShipmentUpdater := mobilehomeshipment.NewMobileHomeShipmentUpdater()
+
 		shipmentUpdater := shipmentorchestrator.NewShipmentUpdater(mtoShipmentUpdater, ppmShipmentUpdater, boatShipmentUpdater, mobileHomeShipmentUpdater)
 		handler := UpdateShipmentHandler{
 			suite.HandlerConfig(),
@@ -4624,6 +4632,7 @@ func (suite *HandlerSuite) TestUpdateShipmentHandler() {
 
 		mockUpdater.On("UpdateShipment",
 			mock.AnythingOfType("*appcontext.appContext"),
+			mock.Anything,
 			mock.Anything,
 			mock.Anything,
 			mock.Anything,
@@ -4699,7 +4708,7 @@ func (suite *HandlerSuite) TestUpdateSITServiceItemCustomerExpenseHandler() {
 			mock.Anything,
 			mock.Anything,
 		).Return(400, nil)
-		updater := mtoserviceitem.NewMTOServiceItemUpdater(planner, builder, moveRouter, shipmentFetcher, addressCreator, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer(), ghcrateengine.NewDomesticDestinationSITDeliveryPricer(), ghcrateengine.NewDomesticOriginSITFuelSurchargePricer(), portLocationFetcher)
+		updater := mtoserviceitem.NewMTOServiceItemUpdater(planner, builder, moveRouter, shipmentFetcher, addressCreator, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer(), portLocationFetcher)
 		req := httptest.NewRequest("PATCH", fmt.Sprintf("/shipments/%s/sit-service-item/convert-to-customer-expense", approvedShipment.ID.String()), nil)
 		req = suite.AuthenticateOfficeRequest(req, officeUser)
 		handlerConfig := suite.HandlerConfig()
@@ -4775,7 +4784,7 @@ func (suite *HandlerSuite) TestUpdateSITServiceItemCustomerExpenseHandler() {
 			mock.Anything,
 			mock.Anything,
 		).Return(400, nil)
-		updater := mtoserviceitem.NewMTOServiceItemUpdater(planner, builder, moveRouter, shipmentFetcher, addressCreator, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer(), ghcrateengine.NewDomesticDestinationSITDeliveryPricer(), ghcrateengine.NewDomesticOriginSITFuelSurchargePricer(), portLocationFetcher)
+		updater := mtoserviceitem.NewMTOServiceItemUpdater(planner, builder, moveRouter, shipmentFetcher, addressCreator, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer(), portLocationFetcher)
 		req := httptest.NewRequest("PATCH", fmt.Sprintf("/shipments/%s/sit-service-item/convert-to-customer-expense", approvedShipment.ID.String()), nil)
 		req = suite.AuthenticateOfficeRequest(req, officeUser)
 		handlerConfig := suite.HandlerConfig()

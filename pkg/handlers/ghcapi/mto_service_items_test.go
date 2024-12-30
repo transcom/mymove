@@ -330,6 +330,7 @@ func (suite *HandlerSuite) TestUpdateMTOServiceItemStatusHandler() {
 	ppmShipmentUpdater := ppmshipment.NewPPMShipmentUpdater(&ppmEstimator, addressCreator, addressUpdater)
 	boatShipmentUpdater := boatshipment.NewBoatShipmentUpdater()
 	mobileHomeShipmentUpdater := mobilehomeshipment.NewMobileHomeShipmentUpdater()
+
 	shipmentUpdater := shipmentorchestrator.NewShipmentUpdater(noCheckUpdater, ppmShipmentUpdater, boatShipmentUpdater, mobileHomeShipmentUpdater)
 	shipmentFetcher := mtoshipment.NewMTOShipmentFetcher()
 
@@ -565,7 +566,7 @@ func (suite *HandlerSuite) TestUpdateMTOServiceItemStatusHandler() {
 			mock.Anything,
 			mock.Anything,
 		).Return(400, nil)
-		mtoServiceItemStatusUpdater := mtoserviceitem.NewMTOServiceItemUpdater(planner, queryBuilder, moveRouter, shipmentFetcher, addressCreator, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer(), ghcrateengine.NewDomesticDestinationSITDeliveryPricer(), ghcrateengine.NewDomesticOriginSITFuelSurchargePricer(), portLocationFetcher)
+		mtoServiceItemStatusUpdater := mtoserviceitem.NewMTOServiceItemUpdater(planner, queryBuilder, moveRouter, shipmentFetcher, addressCreator, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer(), portLocationFetcher)
 
 		handler := UpdateMTOServiceItemStatusHandler{
 			HandlerConfig:         suite.HandlerConfig(),
@@ -626,7 +627,7 @@ func (suite *HandlerSuite) TestUpdateMTOServiceItemStatusHandler() {
 			mock.Anything,
 			mock.Anything,
 		).Return(400, nil)
-		mtoServiceItemStatusUpdater := mtoserviceitem.NewMTOServiceItemUpdater(planner, queryBuilder, moveRouter, shipmentFetcher, addressCreator, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer(), ghcrateengine.NewDomesticDestinationSITDeliveryPricer(), ghcrateengine.NewDomesticOriginSITFuelSurchargePricer(), portLocationFetcher)
+		mtoServiceItemStatusUpdater := mtoserviceitem.NewMTOServiceItemUpdater(planner, queryBuilder, moveRouter, shipmentFetcher, addressCreator, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer(), portLocationFetcher)
 
 		handler := UpdateMTOServiceItemStatusHandler{
 			HandlerConfig:         suite.HandlerConfig(),
