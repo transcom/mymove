@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { useNavigate, useParams } from 'react-router-dom';
 
+import { isBooleanFlagEnabled } from 'utils/featureFlags';
 import Alert from 'shared/Alert';
 import { withContext } from 'shared/AppContext';
 import scrollToTop from 'shared/scrollToTop';
@@ -24,6 +25,7 @@ import {
 import EditOrdersForm from 'components/Customer/EditOrdersForm/EditOrdersForm';
 import { formatWeight, formatYesNoInputValue, formatYesNoAPIValue, dropdownInputOptions } from 'utils/formatters';
 import { ORDERS_TYPE_OPTIONS } from 'constants/orders';
+import { FEATURE_FLAG_KEYS } from 'shared/constants';
 import { formatDateForSwagger } from 'shared/dates';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 
@@ -40,6 +42,7 @@ const EditOrders = ({
   const navigate = useNavigate();
   const { moveId, orderId } = useParams();
   const [serverError, setServerError] = useState('');
+  const [orderTypes, setOrderTypes] = useState(ORDERS_TYPE_OPTIONS);
 
   const currentOrder = orders.find((order) => order.moves[0] === moveId);
   const { entitlement: allowances } = currentOrder;
@@ -56,6 +59,19 @@ const EditOrders = ({
     move = currentMove || previousMoves;
     isMoveApproved = checkIfMoveStatusIsApproved(move.status);
   }
+
+  useEffect(() => {
+    const checkAlaskaFeatureFlag = async () => {
+      const isAlaskaEnabled = await isBooleanFlagEnabled(FEATURE_FLAG_KEYS.ENABLE_ALASKA);
+      if (!isAlaskaEnabled) {
+        const options = orderTypes;
+        delete orderTypes.EARLY_RETURN_OF_DEPENDENTS;
+        delete orderTypes.STUDENT_TRAVEL;
+        setOrderTypes(options);
+      }
+    };
+    checkAlaskaFeatureFlag();
+  }, [orderTypes]);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -89,7 +105,7 @@ const EditOrders = ({
 
   const showAllOrdersTypes = context.flags?.allOrdersTypes;
   const allowedOrdersTypes = showAllOrdersTypes
-    ? ORDERS_TYPE_OPTIONS
+    ? orderTypes
     : { PERMANENT_CHANGE_OF_STATION: ORDERS_TYPE_OPTIONS.PERMANENT_CHANGE_OF_STATION };
   const ordersTypeOptions = dropdownInputOptions(allowedOrdersTypes);
 

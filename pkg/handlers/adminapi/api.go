@@ -27,6 +27,8 @@ import (
 	requestedofficeusers "github.com/transcom/mymove/pkg/services/requested_office_users"
 	"github.com/transcom/mymove/pkg/services/roles"
 	signedcertification "github.com/transcom/mymove/pkg/services/signed_certification"
+	transportationoffice "github.com/transcom/mymove/pkg/services/transportation_office"
+	transportationofficeassignments "github.com/transcom/mymove/pkg/services/transportation_office_assignments"
 	"github.com/transcom/mymove/pkg/services/upload"
 	user "github.com/transcom/mymove/pkg/services/user"
 	usersprivileges "github.com/transcom/mymove/pkg/services/users_privileges"
@@ -84,11 +86,12 @@ func NewAdminAPI(handlerConfig handlers.HandlerConfig) *adminops.MymoveAPI {
 
 	adminAPI.OfficeUsersGetOfficeUserHandler = GetOfficeUserHandler{
 		handlerConfig,
-		officeuser.NewOfficeUserFetcher(queryBuilder),
+		officeuser.NewOfficeUserFetcherPop(),
 		query.NewQueryFilter,
 	}
 
 	userPrivilegesCreator := usersprivileges.NewUsersPrivilegesCreator()
+	transportaionOfficeAssignmentUpdater := transportationofficeassignments.NewTransportaionOfficeAssignmentUpdater()
 	adminAPI.OfficeUsersCreateOfficeUserHandler = CreateOfficeUserHandler{
 		handlerConfig,
 		officeuser.NewOfficeUserCreator(queryBuilder, handlerConfig.NotificationSender()),
@@ -96,6 +99,7 @@ func NewAdminAPI(handlerConfig handlers.HandlerConfig) *adminops.MymoveAPI {
 		userRolesCreator,
 		newRolesFetcher,
 		userPrivilegesCreator,
+		transportaionOfficeAssignmentUpdater,
 	}
 
 	adminAPI.OfficeUsersUpdateOfficeUserHandler = UpdateOfficeUserHandler{
@@ -105,6 +109,7 @@ func NewAdminAPI(handlerConfig handlers.HandlerConfig) *adminops.MymoveAPI {
 		userRolesCreator,
 		userPrivilegesCreator,
 		user.NewUserSessionRevocation(queryBuilder),
+		transportaionOfficeAssignmentUpdater,
 	}
 
 	adminAPI.TransportationOfficesIndexOfficesHandler = IndexOfficesHandler{
@@ -112,6 +117,13 @@ func NewAdminAPI(handlerConfig handlers.HandlerConfig) *adminops.MymoveAPI {
 		office.NewOfficeListFetcher(queryBuilder),
 		query.NewQueryFilter,
 		pagination.NewPagination,
+	}
+
+	transportationOfficeFetcher := transportationoffice.NewTransportationOfficesFetcher()
+	adminAPI.TransportationOfficesGetOfficeByIDHandler = GetOfficeByIdHandler{
+		handlerConfig,
+		transportationOfficeFetcher,
+		query.NewQueryFilter,
 	}
 
 	adminAPI.OrganizationsIndexOrganizationsHandler = IndexOrganizationsHandler{

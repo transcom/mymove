@@ -1115,6 +1115,48 @@ func init() {
         }
       }
     },
+    "/offices/{officeId}": {
+      "get": {
+        "description": "This endpoint returns a list of Transportation Offices. Do not use this endpoint\ndirectly as it is meant to be used with the Admin UI exclusively.\n",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "Transportation offices"
+        ],
+        "summary": "Get Transportation Office by ID",
+        "operationId": "getOfficeById",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "name": "officeId",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "success",
+            "schema": {
+              "$ref": "#/definitions/TransportationOffice"
+            }
+          },
+          "400": {
+            "description": "invalid request"
+          },
+          "401": {
+            "description": "request requires user authentication"
+          },
+          "404": {
+            "description": "Transportation Office not found"
+          },
+          "500": {
+            "description": "server error"
+          }
+        }
+      }
+    },
     "/organizations": {
       "get": {
         "description": "This endpoint returns a list of Organizations. Do not use this endpoint directly\nas it is meant to be used with the Admin UI exclusively.\n",
@@ -2686,6 +2728,7 @@ func init() {
         "email",
         "telephone",
         "transportationOfficeId",
+        "transportationOfficeAssignments",
         "active",
         "roles",
         "edipi",
@@ -2757,6 +2800,12 @@ func init() {
           "format": "telephone",
           "pattern": "^[2-9]\\d{2}-\\d{3}-\\d{4}$"
         },
+        "transportationOfficeAssignments": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/TransportationOfficeAssignment"
+          }
+        },
         "transportationOfficeId": {
           "type": "string",
           "format": "uuid"
@@ -2813,10 +2862,11 @@ func init() {
           "pattern": "^[2-9]\\d{2}-\\d{3}-\\d{4}$",
           "example": "212-555-5555"
         },
-        "transportationOfficeId": {
-          "type": "string",
-          "format": "uuid",
-          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        "transportationOfficeAssignments": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/OfficeUserTransportationOfficeAssignment"
+          }
         }
       }
     },
@@ -2851,6 +2901,22 @@ func init() {
           "title": "roleType",
           "x-nullable": true,
           "example": "task_ordering_officer"
+        }
+      }
+    },
+    "OfficeUserTransportationOfficeAssignment": {
+      "type": "object",
+      "properties": {
+        "primaryOffice": {
+          "type": "boolean",
+          "title": "primaryOffice",
+          "x-nullable": true
+        },
+        "transportationOfficeId": {
+          "type": "string",
+          "format": "uuid",
+          "title": "transportationOfficeId",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         }
       }
     },
@@ -2896,10 +2962,11 @@ func init() {
           "x-nullable": true,
           "example": "212-555-5555"
         },
-        "transportationOfficeId": {
-          "type": "string",
-          "format": "uuid",
-          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        "transportationOfficeAssignments": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/OfficeUserTransportationOfficeAssignment"
+          }
         }
       }
     },
@@ -3217,6 +3284,38 @@ func init() {
             "pattern": "^[2-9]\\d{2}-\\d{3}-\\d{4}$",
             "example": "212-555-5555"
           }
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        }
+      }
+    },
+    "TransportationOfficeAssignment": {
+      "type": "object",
+      "properties": {
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        },
+        "officeUserId": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4780-65aa-42ec-a945-5fd87dec0538"
+        },
+        "primaryOffice": {
+          "type": "boolean",
+          "x-omitempty": false
+        },
+        "transportationOffice": {
+          "$ref": "#/definitions/TransportationOffice"
+        },
+        "transportationOfficeId": {
+          "type": "string",
+          "format": "uuid",
+          "example": "d67a4780-65aa-42ec-a945-5fd87dec0549"
         },
         "updatedAt": {
           "type": "string",
@@ -4656,6 +4755,48 @@ func init() {
                 "type": "string",
                 "description": "Used for pagination"
               }
+            }
+          },
+          "400": {
+            "description": "invalid request"
+          },
+          "401": {
+            "description": "request requires user authentication"
+          },
+          "404": {
+            "description": "Transportation Office not found"
+          },
+          "500": {
+            "description": "server error"
+          }
+        }
+      }
+    },
+    "/offices/{officeId}": {
+      "get": {
+        "description": "This endpoint returns a list of Transportation Offices. Do not use this endpoint\ndirectly as it is meant to be used with the Admin UI exclusively.\n",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "Transportation offices"
+        ],
+        "summary": "Get Transportation Office by ID",
+        "operationId": "getOfficeById",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "name": "officeId",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "success",
+            "schema": {
+              "$ref": "#/definitions/TransportationOffice"
             }
           },
           "400": {
@@ -6245,6 +6386,7 @@ func init() {
         "email",
         "telephone",
         "transportationOfficeId",
+        "transportationOfficeAssignments",
         "active",
         "roles",
         "edipi",
@@ -6316,6 +6458,12 @@ func init() {
           "format": "telephone",
           "pattern": "^[2-9]\\d{2}-\\d{3}-\\d{4}$"
         },
+        "transportationOfficeAssignments": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/TransportationOfficeAssignment"
+          }
+        },
         "transportationOfficeId": {
           "type": "string",
           "format": "uuid"
@@ -6372,10 +6520,11 @@ func init() {
           "pattern": "^[2-9]\\d{2}-\\d{3}-\\d{4}$",
           "example": "212-555-5555"
         },
-        "transportationOfficeId": {
-          "type": "string",
-          "format": "uuid",
-          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        "transportationOfficeAssignments": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/OfficeUserTransportationOfficeAssignment"
+          }
         }
       }
     },
@@ -6410,6 +6559,22 @@ func init() {
           "title": "roleType",
           "x-nullable": true,
           "example": "task_ordering_officer"
+        }
+      }
+    },
+    "OfficeUserTransportationOfficeAssignment": {
+      "type": "object",
+      "properties": {
+        "primaryOffice": {
+          "type": "boolean",
+          "title": "primaryOffice",
+          "x-nullable": true
+        },
+        "transportationOfficeId": {
+          "type": "string",
+          "format": "uuid",
+          "title": "transportationOfficeId",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         }
       }
     },
@@ -6455,10 +6620,11 @@ func init() {
           "x-nullable": true,
           "example": "212-555-5555"
         },
-        "transportationOfficeId": {
-          "type": "string",
-          "format": "uuid",
-          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        "transportationOfficeAssignments": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/OfficeUserTransportationOfficeAssignment"
+          }
         }
       }
     },
@@ -6776,6 +6942,38 @@ func init() {
             "pattern": "^[2-9]\\d{2}-\\d{3}-\\d{4}$",
             "example": "212-555-5555"
           }
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        }
+      }
+    },
+    "TransportationOfficeAssignment": {
+      "type": "object",
+      "properties": {
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        },
+        "officeUserId": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4780-65aa-42ec-a945-5fd87dec0538"
+        },
+        "primaryOffice": {
+          "type": "boolean",
+          "x-omitempty": false
+        },
+        "transportationOffice": {
+          "$ref": "#/definitions/TransportationOffice"
+        },
+        "transportationOfficeId": {
+          "type": "string",
+          "format": "uuid",
+          "example": "d67a4780-65aa-42ec-a945-5fd87dec0549"
         },
         "updatedAt": {
           "type": "string",

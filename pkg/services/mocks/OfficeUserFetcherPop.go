@@ -46,6 +46,34 @@ func (_m *OfficeUserFetcherPop) FetchOfficeUserByID(appCtx appcontext.AppContext
 	return r0, r1
 }
 
+// FetchOfficeUserByIDWithTransportationOfficeAssignments provides a mock function with given fields: appCtx, id
+func (_m *OfficeUserFetcherPop) FetchOfficeUserByIDWithTransportationOfficeAssignments(appCtx appcontext.AppContext, id uuid.UUID) (models.OfficeUser, error) {
+	ret := _m.Called(appCtx, id)
+
+	if len(ret) == 0 {
+		panic("no return value specified for FetchOfficeUserByIDWithTransportationOfficeAssignments")
+	}
+
+	var r0 models.OfficeUser
+	var r1 error
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, uuid.UUID) (models.OfficeUser, error)); ok {
+		return rf(appCtx, id)
+	}
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, uuid.UUID) models.OfficeUser); ok {
+		r0 = rf(appCtx, id)
+	} else {
+		r0 = ret.Get(0).(models.OfficeUser)
+	}
+
+	if rf, ok := ret.Get(1).(func(appcontext.AppContext, uuid.UUID) error); ok {
+		r1 = rf(appCtx, id)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
 // FetchOfficeUsersByRoleAndOffice provides a mock function with given fields: appCtx, role, officeID
 func (_m *OfficeUserFetcherPop) FetchOfficeUsersByRoleAndOffice(appCtx appcontext.AppContext, role roles.RoleType, officeID uuid.UUID) ([]models.OfficeUser, error) {
 	ret := _m.Called(appCtx, role, officeID)

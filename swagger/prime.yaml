@@ -1072,6 +1072,33 @@ paths:
         }
 
         ```
+
+
+        The following service items allow you to update the Port that the
+        shipment will use:
+
+        - PODFSC (Port of Debarkation can be updated)
+
+        - POEFSC (Port of Embarkation can be updated)
+
+
+        At a MINIMUM, the payload for updating the port should contain the
+        reServiceCode (PODFSC or POEFSC), modelType
+        (UpdateMTOServiceItemInternationalPortFSC), portCode, and id for the
+        service item.
+
+        Please see the example payload below:
+
+        ```json
+
+        {
+          "id": "1ed224b6-c65e-4616-b88e-8304d26c9562",
+          "modelType": "UpdateMTOServiceItemInternationalPortFSC",
+          "portCode": "SEA",
+          "reServiceCode": "POEFSC"
+        }
+
+        ```
       operationId: updateMTOServiceItem
       tags:
         - mtoServiceItem
@@ -2234,6 +2261,25 @@ definitions:
         required:
           - reason
           - reServiceCode
+  MTOServiceItemInternationalFuelSurcharge:
+    description: >-
+      Describes a international Port of Embarkation/Debarkation fuel surcharge
+      service item subtype of a MTOServiceItem.
+    allOf:
+      - $ref: '#/definitions/MTOServiceItem'
+      - type: object
+        properties:
+          reServiceCode:
+            type: string
+            description: >-
+              A unique code for the service item. Indicates if the service is
+              for Port of Embarkation (POEFSC) or Port of Debarkation (PODFSC).
+            enum:
+              - PODFSC
+              - POEFSC
+          portCode:
+            description: A unique code for a Port
+            type: string
   MTOShipment:
     type: object
     properties:
@@ -2326,12 +2372,15 @@ definitions:
         * DDSFSC - UpdateMTOServiceItemSIT
         * DDSHUT - UpdateMTOServiceItemShuttle
         * DOSHUT - UpdateMTOServiceItemShuttle
+        * PODFSC - UpdateMTOServiceItemInternationalPortFSC
+        * POEFSC - UpdateMTOServiceItemInternationalPortFSC
 
       The documentation will then update with the supported fields.
     type: string
     enum:
       - UpdateMTOServiceItemSIT
       - UpdateMTOServiceItemShuttle
+      - UpdateMTOServiceItemInternationalPortFSC
   UpdateMTOServiceItemShuttle:
     description: >
       Subtype used to provide the estimated weight and actual weight for
@@ -2463,6 +2512,28 @@ definitions:
             description: Indicates if "Approvals Requested" status is being requested.
             type: boolean
             x-nullable: true
+  UpdateMTOServiceItemInternationalPortFSC:
+    description: >
+      Subtype used to provide the port for fuel surcharge. This is not creating
+      a new service item but rather updating an existing service item.
+    allOf:
+      - $ref: '#/definitions/UpdateMTOServiceItem'
+      - type: object
+        properties:
+          portCode:
+            type: string
+            example: PDX
+            description: >-
+              Port used for the shipment. Relevant for moving (PODFSC & POEFSC)
+              service items.
+            x-nullable: true
+            x-omitempty: false
+          reServiceCode:
+            type: string
+            description: Service code allowed for this model type.
+            enum:
+              - PODFSC
+              - POEFSC
   UpdateMTOShipment:
     properties:
       actualProGearWeight:
@@ -2880,6 +2951,10 @@ definitions:
         title: isOconus
         x-nullable: true
         example: false
+      usPostRegionCitiesID:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
     required:
       - streetAddress1
       - city
@@ -2934,7 +3009,7 @@ definitions:
         type: integer
         x-formatting: weight
         x-nullable: true
-      ubAllowance:
+      unaccompaniedBaggageAllowance:
         type: integer
         example: 3
         x-nullable: true
@@ -3015,6 +3090,8 @@ definitions:
       - BLUEBARK
       - SAFETY
       - TEMPORARY_DUTY
+      - EARLY_RETURN_OF_DEPENDENTS
+      - STUDENT_TRAVEL
     x-display-value:
       PERMANENT_CHANGE_OF_STATION: Permanent Change Of Station
       LOCAL_MOVE: Local Move
@@ -3024,6 +3101,8 @@ definitions:
       BLUEBARK: BLUEBARK
       SAFETY: Safety
       TEMPORARY_DUTY: Temporary Duty (TDY)
+      EARLY_RETURN_OF_DEPENDENTS: Early Return of Dependents
+      STUDENT_TRAVEL: Student Travel
   Order:
     type: object
     required:
@@ -3364,6 +3443,7 @@ definitions:
         * DOSHUT, DDSHUT - MTOServiceItemShuttle
         * DCRT, DUCRT - MTOServiceItemDomesticCrating
         * ICRT, IUCRT - MTOServiceItemInternationalCrating
+        * PODFSC, POEFSC - MTOSerivceItemInternationalFuelSurcharge
 
       The documentation will then update with the supported fields.
     type: string
@@ -3374,6 +3454,7 @@ definitions:
       - MTOServiceItemShuttle
       - MTOServiceItemDomesticCrating
       - MTOServiceItemInternationalCrating
+      - MTOSerivceItemInternationalFuelSurcharge
   ServiceRequestDocument:
     properties:
       uploads:

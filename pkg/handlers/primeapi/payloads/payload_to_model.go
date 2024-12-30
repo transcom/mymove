@@ -720,6 +720,26 @@ func MTOServiceItemModelFromUpdate(mtoServiceItemID string, mtoServiceItem prime
 		if verrs != nil && verrs.HasAny() {
 			return nil, verrs
 		}
+
+	case primemessages.UpdateMTOServiceItemModelTypeUpdateMTOServiceItemInternationalPortFSC:
+		portFsc := mtoServiceItem.(*primemessages.UpdateMTOServiceItemInternationalPortFSC)
+		model.ReService.Code = models.ReServiceCode(portFsc.ReServiceCode)
+		port := models.Port{
+			PortCode: *portFsc.PortCode,
+		}
+		portLocation := models.PortLocation{
+			Port: port,
+		}
+		if model.ReService.Code == models.ReServiceCodePODFSC {
+			model.PODLocation = &portLocation
+		} else if model.ReService.Code == models.ReServiceCodePOEFSC {
+			model.POELocation = &portLocation
+		}
+
+		if verrs != nil && verrs.HasAny() {
+			return nil, verrs
+		}
+
 	default:
 		// assume basic service item
 		if verrs != nil && verrs.HasAny() {
