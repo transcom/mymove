@@ -58,6 +58,8 @@ stages:
 
 .announce_failure: &announce_failure
   - if [[ "$CI_COMMIT_BRANCH" == "main" && "$CI_JOB_STATUS" == "failed" ]]; then
+      echo $CI_COMMIT_BRANCH
+      echo $CI_JOB_STATUS
       echo "Announcing broken branch in GitLab CI"
     fi
 
@@ -285,6 +287,25 @@ check_tls_certificate_prd:
   after_script:
     - *announce_failure
 
+build_storybook:
+  stage: build
+  image: $DOCKER_APP_IMAGE
+  variables:
+    KUBERNETES_CPU_REQUEST: "2"
+    KUBERNETES_MEMORY_REQUEST: "8Gi"
+    KUBERNETES_MEMORY_LIMIT: "8Gi"
+  needs:
+    - pre_deps_yarn
+    - anti_virus
+  script:
+   - ./scripts/rebuild-dependencies-without-binaries
+   - yarn build-storybook
+  after_script:
+    - *announce_failure
+  artifacts:
+    paths:
+      - /builds/milmove/mymove/storybook-static
+
 compile_app_client:
   stage: build
   image: $DOCKER_APP_IMAGE
@@ -346,6 +367,43 @@ compile_app_server:
     expire_in: 1 week
   after_script:
     - *announce_failure
+
+pre_test:
+  stage: test
+  image: $DOCKER_APP_IMAGE
+  needs:
+    - pre_deps_golang
+    - pre_deps_yarn
+    - check_tls_certificate_stg
+    - check_tls_certificate_prd
+  before_script: *setup_milmove_env
+  script:
+    - echo "Save Baseline Spectral Lint"
+    - |
+      [ -d ~/transcom/mymove/spectral ] && cp -r ~/transcom/mymove/spectral /tmp/spectral_baseline || echo "Skipping saving baseline"
+    - rm -rf ~/transcom/mymove/spectral
+    - echo "Rebuild dependencies without binaries"
+    - ./scripts/rebuild-dependencies-without-binaries
+    - ./scripts/pre-commit-go-mod || exit 0
+    - echo "Run pre-commit tests without golangci-lint, eslint, or prettier"
+    - SKIP=golangci-lint,eslint,prettier pre-commit run --all-files
+    - echo "Run pre-commit tests with golangci-lint only"
+    - |
+        echo 'export GOLANGCI_LINT_CONCURRENCY=4' >> $BASH_ENV
+        echo 'export GOLANGCI_LINT_VERBOSE=-v' >> $BASH_ENV
+        source $BASH_ENV
+        mkdir -p tmp/test-results/pretest
+        pre-commit run -v --all-files golangci-lint | tee tmp/test-results/pretest/golangci-lint.out
+    -  echo "Run prettier, eslint, danger checks"
+    - yarn prettier-ci
+    - yarn lint
+    - yarn danger ci --failOnErrors
+    -  echo "Run spectral linter on all files"
+    - ./scripts/ensure-spectral-lint /tmp/spectral_baseline spectral
+  after_script:
+    - *announce_failure
+  rules:
+  - *check_main
 
 build_push_app_stg:
   stage: push
@@ -581,9 +639,6 @@ deploy_app_stg:
 prod_approval:
   stage: prod_approval
   environment: prd_approval
-  image:
-    name: gcr.io/kaniko-project/executor:v1.14.0-debug
-    entrypoint: [""]
   needs:
       - compile_app_client
       - compile_app_server
