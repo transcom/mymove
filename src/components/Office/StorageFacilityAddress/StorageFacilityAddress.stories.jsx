@@ -1,4 +1,5 @@
 import React from 'react';
+import { Provider } from 'react-redux';
 import { Grid, GridContainer } from '@trussworks/react-uswds';
 import { Formik } from 'formik';
 
@@ -8,6 +9,9 @@ import styles from 'pages/Office/ServicesCounselingMoveInfo/ServicesCounselingTa
 import shipmentFormStyles from 'components/Office/ShipmentForm/ShipmentForm.module.scss';
 import { Form } from 'components/form/Form';
 import formStyles from 'styles/form.module.scss';
+import { configureStore } from 'shared/store';
+
+const mockStore = configureStore({});
 
 export default {
   title: 'Office Components / Forms / ShipmentForm / StorageFacilityAddress',
@@ -35,4 +39,8 @@ export default {
   ],
 };
 
-export const standard = () => <StorageFacilityAddress />;
+export const standard = () => (
+  <Provider store={mockStore.store}>
+    <StorageFacilityAddress />
+  </Provider>
+);
