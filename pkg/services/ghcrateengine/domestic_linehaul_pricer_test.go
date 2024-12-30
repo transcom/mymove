@@ -52,12 +52,12 @@ func (suite *GHCRateEngineServiceSuite) TestPriceDomesticLinehaul() {
 
 	suite.Run("success using PaymentServiceItemParams with Domestic Mobile Home Factor applied", func() {
 		// serviceArea := "sa0"
-		suite.setupDomesticLinehaulPrice(dlhTestServiceArea, dlhTestIsPeakPeriod, dlhTestWeightLower, dlhTestWeightUpper, dlhTestMilesLower, dlhTestMilesUpper, dlhTestBasePriceMillicents, dlhTestContractYearName, dlhTestEscalationCompounded)
+		suite.setupDomesticLinehaulPriceForDMHF(dlhTestServiceArea, dlhTestIsPeakPeriod, dlhTestWeightLower, dlhTestWeightUpper, dlhTestMilesLower, dlhTestMilesUpper, dlhTestBasePriceMillicents, dlhTestContractYearName, dlhTestEscalationCompounded)
 		paymentServiceItem := suite.setupDomesticLinehaulServiceItem()
 		paymentServiceItem.PaymentServiceItemParams[0].PaymentServiceItem.MTOServiceItem.MTOShipment.ShipmentType = models.MTOShipmentTypeMobileHome
 		priceCents, displayParams, err := linehaulServicePricer.PriceUsingParams(suite.AppContextForTest(), paymentServiceItem.PaymentServiceItemParams, featureFlagValues)
 		suite.NoError(err)
-		expectedTotalPriceInt := 254676 * 33.51
+		expectedTotalPriceInt := 8534037
 		expectedPrice := unit.Cents(expectedTotalPriceInt)
 		suite.Equal(expectedPrice, priceCents)
 

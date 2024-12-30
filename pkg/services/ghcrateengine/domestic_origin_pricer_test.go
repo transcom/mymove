@@ -409,6 +409,24 @@ func (suite *GHCRateEngineServiceSuite) setUpDomesticOriginData(needsMobileHomeF
 					Name:                 "Mobile Home Factor Test Year",
 				},
 			})
+
+		dmhf := factory.FetchReService(suite.DB(), []factory.Customization{
+			{
+				Model: models.ReService{
+					Code: models.ReServiceCodeDMHF,
+					Name: "Dom. Mobile Home Factor",
+				},
+			},
+		}, nil)
+
+		shipmentTypePrice := models.ReShipmentTypePrice{
+			ContractID: contractYear.Contract.ID,
+			ServiceID:  dmhf.ID,
+			Market:     models.MarketConus,
+			Factor:     33.51,
+		}
+
+		suite.MustSave(&shipmentTypePrice)
 	} else {
 		contractYear = testdatagen.MakeReContractYear(suite.DB(),
 			testdatagen.Assertions{

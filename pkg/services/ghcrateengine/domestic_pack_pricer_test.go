@@ -21,7 +21,7 @@ const (
 	dpkTestContractYearName       = "DPK Test Year"
 	dpkTestBasePriceCents         = unit.Cents(146)
 	dpkTestPriceCents             = unit.Cents(3192)
-	dpkDMHFTestPriceCents         = unit.Cents(3402)
+	dpkDMHFTestPriceCents         = unit.Cents(114001)
 	mobileHomeFactor              = 33.51
 )
 

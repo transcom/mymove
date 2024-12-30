@@ -71,13 +71,13 @@ func (p domesticLinehaulPricer) Price(appCtx appcontext.AppContext, contractCode
 			return 0, nil, fmt.Errorf("could not fetch mobile home factor from database: %w", err)
 		}
 
-		escalatedPrice = roundToPrecision(escalatedPrice*mobileHomeFactorRow.Factor, 3)
+		escalatedPrice = roundToPrecision(escalatedPrice*mobileHomeFactorRow.Factor, 2)
 		params = services.PricingDisplayParams{
 			{Key: models.ServiceItemParamNameContractYearName, Value: contractYear.Name},
 			{Key: models.ServiceItemParamNameEscalationCompounded, Value: FormatEscalation(contractYear.EscalationCompounded)},
 			{Key: models.ServiceItemParamNameIsPeak, Value: FormatBool(isPeakPeriod)},
 			{Key: models.ServiceItemParamNamePriceRateOrFactor, Value: FormatFloat(domesticLinehaulPrice.PriceMillicents.ToDollarFloatNoRound(), 3)},
-			{Key: models.ServiceItemParamNameMobileHomeFactor, Value: FormatFloat(mobileHomeFactorRow.Factor, 3)},
+			{Key: models.ServiceItemParamNameMobileHomeFactor, Value: FormatFloat(mobileHomeFactorRow.Factor, 2)},
 		}
 	} else { // Return display params without the mobile home factor
 		params = services.PricingDisplayParams{
