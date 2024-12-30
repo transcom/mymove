@@ -80,6 +80,8 @@ var PrimeUpload CustomType = "PrimeUpload"
 var ProgearWeightTicket CustomType = "ProgearWeightTicket"
 var ProofOfServiceDoc CustomType = "ProofOfServiceDoc"
 var ReService CustomType = "ReService"
+var ReDomesticOtherPrice CustomType = "ReDomesticOtherPrice"
+var ReDomesticServiceAreaPrice CustomType = "ReDomesticServiceAreaPrice"
 var Role CustomType = "Role"
 var ServiceItemParamKey CustomType = "ServiceItemParamKey"
 var ServiceParam CustomType = "ServiceParam"
@@ -146,6 +148,8 @@ var defaultTypesMap = map[string]CustomType{
 	"models.ProgearWeightTicket":                      ProgearWeightTicket,
 	"models.ProofOfServiceDoc":                        ProofOfServiceDoc,
 	"models.ReService":                                ReService,
+	"models.ReDomesticOtherPrice":                     ReDomesticOtherPrice,
+	"models.ReDomesticServiceAreaPrice":               ReDomesticServiceAreaPrice,
 	"models.ServiceItemParamKey":                      ServiceItemParamKey,
 	"models.ServiceMember":                            ServiceMember,
 	"models.ServiceRequestDocument":                   ServiceRequestDocument,
@@ -270,11 +274,15 @@ var TransportationOffices = transportationOfficeGroup{
 }
 
 type officeUserGroup struct {
-	SCAssignedUser CustomType
+	SCAssignedUser  CustomType
+	TIOAssignedUser CustomType
+	TOOAssignedUser CustomType
 }
 
 var OfficeUsers = officeUserGroup{
-	SCAssignedUser: "SCAssignedUser",
+	SCAssignedUser:  "SCAssignedUser",
+	TIOAssignedUser: "TIOAssignedUser",
+	TOOAssignedUser: "TOOAssignedUser",
 }
 
 // uploadGroup is a grouping of all the upload related fields
