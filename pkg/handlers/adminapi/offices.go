@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/go-openapi/runtime/middleware"
+	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/appcontext"
 	transportation_officesop "github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/transportation_offices"
@@ -40,7 +41,7 @@ var officesFilterConverters = map[string]func(string) []services.QueryFilter{
 	},
 }
 
-// Handle retrieves a list of office users
+// Handle retrieves a list of transportation offices
 func (h IndexOfficesHandler) Handle(params transportation_officesop.IndexOfficesParams) middleware.Responder {
 	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
 		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
@@ -69,5 +70,27 @@ func (h IndexOfficesHandler) Handle(params transportation_officesop.IndexOffices
 			}
 
 			return transportation_officesop.NewIndexOfficesOK().WithContentRange(fmt.Sprintf("offices %d-%d/%d", pagination.Offset(), pagination.Offset()+queriedOfficesCount, totalOfficesCount)).WithPayload(payload), nil
+		})
+}
+
+// GetOfficeByIdHandler returns a single of office via GET /office_users
+type GetOfficeByIdHandler struct {
+	handlers.HandlerConfig
+	services.TransportationOfficesFetcher
+	services.NewQueryFilter
+}
+
+// Handle retrieves a individual transporation office by ID
+func (h GetOfficeByIdHandler) Handle(params transportation_officesop.GetOfficeByIDParams) middleware.Responder {
+	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
+		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
+			office, err := h.TransportationOfficesFetcher.GetTransportationOffice(appCtx, uuid.FromStringOrNil(params.OfficeID.String()), false)
+			if err != nil {
+				return handlers.ResponseForError(appCtx.Logger(), err), err
+			}
+
+			payload := payloadForOfficeModel(*office)
+
+			return transportation_officesop.NewGetOfficeByIDOK().WithPayload(payload), nil
 		})
 }

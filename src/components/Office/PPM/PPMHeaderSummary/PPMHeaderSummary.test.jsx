@@ -160,8 +160,9 @@ const defaultProps = {
     actualWeight: 3500,
     isActualExpenseReimbursement: true,
   },
-  ppmNumber: 1,
+  ppmNumber: '1',
   showAllFields: false,
+  readOnly: false,
 };
 
 describe('PPMHeaderSummary component', () => {
@@ -176,10 +177,6 @@ describe('PPMHeaderSummary component', () => {
       });
       expect(screen.getByTestId('tag', { name: 'actual expense reimbursement' })).toBeInTheDocument();
 
-      fireEvent.click(screen.getByTestId('shipmentInfo-showRequestDetailsButton'));
-      await waitFor(() => {
-        expect(screen.getByText('Hide Details', { exact: false })).toBeInTheDocument();
-      });
       expect(screen.getByText('Actual Expense Reimbursement')).toBeInTheDocument();
       expect(screen.getByText('Planned Move Start Date')).toBeInTheDocument();
       expect(screen.getByText('02-Dec-2022')).toBeInTheDocument();
@@ -195,6 +192,11 @@ describe('PPMHeaderSummary component', () => {
       expect(screen.getByText('3,000 lbs')).toBeInTheDocument();
       expect(screen.getByText('Actual Net Weight')).toBeInTheDocument();
       expect(screen.getByText('3,500 lbs')).toBeInTheDocument();
+
+      fireEvent.click(screen.getByTestId('shipmentInfo-showRequestDetailsButton'));
+      await waitFor(() => {
+        expect(screen.getByText('Show Details', { exact: false })).toBeInTheDocument();
+      });
     });
   });
 });

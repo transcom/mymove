@@ -30,9 +30,12 @@ type UsPostRegionCity struct {
 	UpdatedAt          time.Time    `db:"updated_at" json:"updated_at"`
 	UsPostRegionId     uuid.UUID    `db:"us_post_regions_id" json:"us_post_regions_id"`
 	UsPostRegion       UsPostRegion `belongs_to:"re_us_post_regions" fk_id:"us_post_regions_id"`
+	State              string       `db:"state" json:"state"`
 	CityId             uuid.UUID    `db:"cities_id" json:"cities_id"`
 	City               City         `belongs_to:"re_cities" fk_id:"cities_id"`
 }
+
+type UsPostRegionCities []UsPostRegionCity
 
 // Validate gets run every time you call a "pop.Validate*" (pop.ValidateAndSave, pop.ValidateAndCreate, pop.ValidateAndUpdate) method.
 func (usprc *UsPostRegionCity) Validate(_ *pop.Connection) (*validate.Errors, error) {
@@ -41,22 +44,23 @@ func (usprc *UsPostRegionCity) Validate(_ *pop.Connection) (*validate.Errors, er
 		&validators.StringLengthInRange{Field: usprc.CtryGencDgphCd, Name: "CtryGencDgphCd", Min: 2, Max: 2},
 		&validators.StringIsPresent{Field: usprc.USPostRegionCityNm, Name: "USPostRegionCityNm"},
 		&validators.StringIsPresent{Field: usprc.UsprcCountyNm, Name: "UsprcCountyNm"},
+		&validators.StringIsPresent{Field: usprc.State, Name: "State"},
 	), nil
 }
 
 // Find a corresponding county for a provided zip code from the USPRC table
-func FindCountyByZipCode(db *pop.Connection, zipCode string) (string, error) {
+func FindCountyByZipCode(db *pop.Connection, zipCode string) (*string, error) {
 	var usprc UsPostRegionCity
 	err := db.Where("uspr_zip_id = ?", zipCode).First(&usprc)
 	if err != nil {
 		switch err {
 		case sql.ErrNoRows:
-			return "", apperror.NewEventError("No county found for provided zip code "+zipCode+".", err)
+			return nil, apperror.NewEventError("No county found for provided zip code "+zipCode+".", err)
 		default:
-			return "", err
+			return nil, err
 		}
 	}
-	return usprc.UsprcCountyNm, nil
+	return &usprc.UsprcCountyNm, nil
 }
 
 func FindByZipCode(db *pop.Connection, zipCode string) (*UsPostRegionCity, error) {

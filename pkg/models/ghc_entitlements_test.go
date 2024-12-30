@@ -1,6 +1,7 @@
 package models_test
 
 import (
+	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/models"
 )
 
@@ -16,7 +17,7 @@ func (suite *ModelSuite) TestAuthorizedWeightWhenExistsInDB() {
 func (suite *ModelSuite) TestAuthorizedWeightWhenNotInDBAndHaveWeightAllotment() {
 	suite.Run("with no dependents authorized, TotalWeightSelf is AuthorizedWeight", func() {
 		entitlement := models.Entitlement{}
-		entitlement.SetWeightAllotment("E_1")
+		entitlement.SetWeightAllotment("E_1", internalmessages.OrdersTypePERMANENTCHANGEOFSTATION)
 
 		suite.Equal(entitlement.WeightAllotment().TotalWeightSelf, *entitlement.AuthorizedWeight())
 	})
@@ -24,7 +25,7 @@ func (suite *ModelSuite) TestAuthorizedWeightWhenNotInDBAndHaveWeightAllotment()
 	suite.Run("with dependents authorized, TotalWeightSelfPlusDependents is AuthorizedWeight", func() {
 		dependentsAuthorized := true
 		entitlement := models.Entitlement{DependentsAuthorized: &dependentsAuthorized}
-		entitlement.SetWeightAllotment("E_1")
+		entitlement.SetWeightAllotment("E_1", internalmessages.OrdersTypePERMANENTCHANGEOFSTATION)
 
 		suite.Equal(entitlement.WeightAllotment().TotalWeightSelfPlusDependents, *entitlement.AuthorizedWeight())
 	})
@@ -85,5 +86,69 @@ func (suite *ModelSuite) TestOconusFields() {
 		suite.True(verrs.HasAny())
 		suite.NotNil(verrs.Get("dependents_under_twelve"))
 		suite.NotNil(verrs.Get("dependents_twelve_and_over"))
+	})
+}
+
+func (suite *ModelSuite) TestTotalDependentsCalculation() {
+	suite.Run("calculates total dependents correctly when both fields are set", func() {
+		entitlement := models.Entitlement{
+			DependentsUnderTwelve:   models.IntPointer(2),
+			DependentsTwelveAndOver: models.IntPointer(3),
+		}
+		verrs, err := suite.DB().ValidateAndCreate(&entitlement)
+		suite.NoError(err)
+		suite.False(verrs.HasAny())
+		var fetchedEntitlement models.Entitlement
+		err = suite.DB().Find(&fetchedEntitlement, entitlement.ID)
+		suite.NoError(err)
+		suite.Equal(2, *fetchedEntitlement.DependentsUnderTwelve)
+		suite.Equal(3, *fetchedEntitlement.DependentsTwelveAndOver)
+		suite.NotNil(fetchedEntitlement.TotalDependents)
+		suite.Equal(5, *fetchedEntitlement.TotalDependents) // sum of 2 + 3
+	})
+	suite.Run("calculates total dependents correctly when DependentsUnderTwelve is nil", func() {
+		entitlement := models.Entitlement{
+			DependentsTwelveAndOver: models.IntPointer(3),
+		}
+		verrs, err := suite.DB().ValidateAndCreate(&entitlement)
+		suite.NoError(err)
+		suite.False(verrs.HasAny())
+		var fetchedEntitlement models.Entitlement
+		err = suite.DB().Find(&fetchedEntitlement, entitlement.ID)
+		suite.NoError(err)
+		suite.Nil(fetchedEntitlement.DependentsUnderTwelve)
+		suite.Equal(3, *fetchedEntitlement.DependentsTwelveAndOver)
+		suite.NotNil(fetchedEntitlement.TotalDependents)
+		suite.Equal(3, *fetchedEntitlement.TotalDependents) // sum of 0 + 3
+	})
+	suite.Run("calculates total dependents correctly when DependentsTwelveAndOver is nil", func() {
+		entitlement := models.Entitlement{
+			DependentsUnderTwelve: models.IntPointer(2),
+		}
+		verrs, err := suite.DB().ValidateAndCreate(&entitlement)
+		suite.NoError(err)
+		suite.False(verrs.HasAny())
+		var fetchedEntitlement models.Entitlement
+		err = suite.DB().Find(&fetchedEntitlement, entitlement.ID)
+		suite.NoError(err)
+		suite.Equal(2, *fetchedEntitlement.DependentsUnderTwelve)
+		suite.Nil(fetchedEntitlement.DependentsTwelveAndOver)
+		suite.NotNil(fetchedEntitlement.TotalDependents)
+		suite.Equal(2, *fetchedEntitlement.TotalDependents) // sum of 2 + 0
+	})
+	suite.Run("sets total dependents to nil when both fields are nil", func() {
+		entitlement := models.Entitlement{
+			DependentsUnderTwelve:   nil,
+			DependentsTwelveAndOver: nil,
+		}
+		verrs, err := suite.DB().ValidateAndCreate(&entitlement)
+		suite.NoError(err)
+		suite.False(verrs.HasAny())
+		var fetchedEntitlement models.Entitlement
+		err = suite.DB().Find(&fetchedEntitlement, entitlement.ID)
+		suite.NoError(err)
+		suite.Nil(fetchedEntitlement.DependentsUnderTwelve)
+		suite.Nil(fetchedEntitlement.DependentsTwelveAndOver)
+		suite.Nil(fetchedEntitlement.TotalDependents) // NOT 0, NOT A SUM, nil + nil is NULL
 	})
 }

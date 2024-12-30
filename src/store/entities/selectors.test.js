@@ -17,6 +17,7 @@ import {
   selectWeightTicketAndIndexById,
   selectCanAddOrders,
   selectMoveId,
+  selectUbAllowance,
 } from './selectors';
 
 import { profileStates } from 'constants/customerStates';
@@ -1740,5 +1741,68 @@ describe('selectMoveId', () => {
     };
 
     expect(selectMoveId(testState)).toEqual('');
+  });
+});
+
+describe('selectUbAllowance', () => {
+  it('should return the ub_allowance value within entitlements', () => {
+    const testState = {
+      entities: {
+        orders: {
+          orders8910: {
+            id: 'orders8910',
+            service_member_id: 'serviceMemberId456',
+            moves: ['move2938'],
+            entitlement: {
+              proGear: 2000,
+              proGearSpouse: 0,
+              ub_allowance: 2000,
+            },
+          },
+        },
+        user: {
+          userId123: {
+            id: 'userId123',
+            service_member: 'serviceMemberId456',
+          },
+        },
+        serviceMembers: {
+          serviceMemberId456: {
+            id: 'serviceMemberId456',
+            orders: ['orders8910'],
+          },
+        },
+      },
+    };
+
+    expect(selectUbAllowance(testState)).toEqual(testState.entities.orders.orders8910.entitlement.ub_allowance);
+  });
+  it('should return null when ub_allowance is not in entitlements', () => {
+    const testState = {
+      entities: {
+        orders: {
+          orders8910: {
+            id: 'orders8910',
+            service_member_id: 'serviceMemberId456',
+            moves: ['move2938'],
+            entitlement: {},
+          },
+        },
+        user: {
+          userId123: {
+            id: 'userId123',
+            service_member: 'serviceMemberId456',
+          },
+        },
+        serviceMembers: {
+          serviceMemberId456: {
+            id: 'serviceMemberId456',
+            orders: ['orders8910'],
+          },
+        },
+      },
+    };
+
+    expect(selectUbAllowance(testState)).toEqual(null);
   });
 });

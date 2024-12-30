@@ -26,6 +26,7 @@ import { LOA_TYPE, MOVE_DOCUMENT_TYPE } from 'shared/constants';
 import Restricted from 'components/Restricted/Restricted';
 import { permissionTypes } from 'constants/permissions';
 import DocumentViewerFileManager from 'components/DocumentViewerFileManager/DocumentViewerFileManager';
+import { scrollToViewFormikError } from 'utils/validation';
 
 const deptIndicatorDropdownOptions = dropdownInputOptions(DEPARTMENT_INDICATOR_OPTIONS);
 const ordersTypeDropdownOptions = dropdownInputOptions(ORDERS_TYPE_OPTIONS);
@@ -47,7 +48,7 @@ const Orders = ({ files, amendedDocumentId, updateAmendedDocument }) => {
 
   const ordersDocuments = files[MOVE_DOCUMENT_TYPE.ORDERS];
   const amendedDocuments = files[MOVE_DOCUMENT_TYPE.AMENDMENTS];
-
+  const hasOrdersDocuments = ordersDocuments?.length > 0;
   const handleClose = useCallback(() => {
     let redirectPath;
     if (from === 'paymentRequestDetails') {
@@ -369,6 +370,7 @@ const Orders = ({ files, amendedDocumentId, updateAmendedDocument }) => {
                   </div>
                   <Restricted to={permissionTypes.updateOrders}>
                     <DocumentViewerFileManager
+                      fileUploadRequired={!hasOrdersDocuments}
                       orderId={orderId}
                       documentId={documentId}
                       files={ordersDocuments}
@@ -433,7 +435,7 @@ const Orders = ({ files, amendedDocumentId, updateAmendedDocument }) => {
                 <Restricted to={permissionTypes.updateOrders}>
                   <div className={styles.bottom}>
                     <div className={styles.buttonGroup}>
-                      <Button disabled={formik.isSubmitting} type="submit">
+                      <Button disabled={formik.isSubmitting} type="submit" onClick={scrollToViewFormikError(formik)}>
                         Save
                       </Button>
                       <Button type="button" secondary onClick={handleClose}>

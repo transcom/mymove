@@ -20,7 +20,7 @@ func MakeReContractYear(db *pop.Connection, assertions Assertions) models.ReCont
 
 	reContractYear := models.ReContractYear{
 		ContractID:           reContract.ID,
-		Name:                 "Test Contract Year",
+		Name:                 "Base Period Year 1",
 		StartDate:            time.Date(TestYear, time.January, 1, 0, 0, 0, 0, time.UTC),
 		EndDate:              time.Date(TestYear, time.December, 31, 0, 0, 0, 0, time.UTC),
 		Escalation:           1.0197,

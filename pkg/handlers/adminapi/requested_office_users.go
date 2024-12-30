@@ -225,8 +225,8 @@ func (h GetRequestedOfficeUserHandler) Handle(params requested_office_users.GetR
 			requestedOfficeUserID := params.OfficeUserID
 
 			queryFilters := []services.QueryFilter{query.NewQueryFilter("id", "=", requestedOfficeUserID)}
-
 			requestedOfficeUser, err := h.RequestedOfficeUserFetcher.FetchRequestedOfficeUser(appCtx, queryFilters)
+
 			if err != nil {
 				return handlers.ResponseForError(appCtx.Logger(), err), err
 			}

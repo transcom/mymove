@@ -85,6 +85,9 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		MovesGetMoveHandler: moves.GetMoveHandlerFunc(func(params moves.GetMoveParams) middleware.Responder {
 			return middleware.NotImplemented("operation moves.GetMove has not yet been implemented")
 		}),
+		TransportationOfficesGetOfficeByIDHandler: transportation_offices.GetOfficeByIDHandlerFunc(func(params transportation_offices.GetOfficeByIDParams) middleware.Responder {
+			return middleware.NotImplemented("operation transportation_offices.GetOfficeByID has not yet been implemented")
+		}),
 		OfficeUsersGetOfficeUserHandler: office_users.GetOfficeUserHandlerFunc(func(params office_users.GetOfficeUserParams) middleware.Responder {
 			return middleware.NotImplemented("operation office_users.GetOfficeUser has not yet been implemented")
 		}),
@@ -221,6 +224,8 @@ type MymoveAPI struct {
 	UserGetLoggedInAdminUserHandler user.GetLoggedInAdminUserHandler
 	// MovesGetMoveHandler sets the operation handler for the get move operation
 	MovesGetMoveHandler moves.GetMoveHandler
+	// TransportationOfficesGetOfficeByIDHandler sets the operation handler for the get office by Id operation
+	TransportationOfficesGetOfficeByIDHandler transportation_offices.GetOfficeByIDHandler
 	// OfficeUsersGetOfficeUserHandler sets the operation handler for the get office user operation
 	OfficeUsersGetOfficeUserHandler office_users.GetOfficeUserHandler
 	// RequestedOfficeUsersGetRequestedOfficeUserHandler sets the operation handler for the get requested office user operation
@@ -376,6 +381,9 @@ func (o *MymoveAPI) Validate() error {
 	}
 	if o.MovesGetMoveHandler == nil {
 		unregistered = append(unregistered, "moves.GetMoveHandler")
+	}
+	if o.TransportationOfficesGetOfficeByIDHandler == nil {
+		unregistered = append(unregistered, "transportation_offices.GetOfficeByIDHandler")
 	}
 	if o.OfficeUsersGetOfficeUserHandler == nil {
 		unregistered = append(unregistered, "office_users.GetOfficeUserHandler")
@@ -579,6 +587,10 @@ func (o *MymoveAPI) initHandlerCache() {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
 	o.handlers["GET"]["/moves/{moveID}"] = moves.NewGetMove(o.context, o.MovesGetMoveHandler)
+	if o.handlers["GET"] == nil {
+		o.handlers["GET"] = make(map[string]http.Handler)
+	}
+	o.handlers["GET"]["/offices/{officeId}"] = transportation_offices.NewGetOfficeByID(o.context, o.TransportationOfficesGetOfficeByIDHandler)
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}

@@ -33,6 +33,7 @@ ARG GIT_COMMIT
 COPY cmd /build/cmd
 COPY swagger /build/swagger
 COPY pkg /build/pkg
+COPY public/static/react-file-viewer /public/static/react-file-viewer
 
 # fake src dir to silence make
 RUN mkdir /build/src
@@ -99,6 +100,7 @@ COPY public /build/public
 COPY src /build/src
 RUN set -x \
   && ./scripts/copy-swagger-ui \
+  && ./scripts/copy-react-file-viewer \
   && yarn build
 
 #########

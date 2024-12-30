@@ -218,6 +218,7 @@ func (suite *HandlerSuite) TestCreateCustomerWithOktaOptionHandler() {
 		suite.Equal(body.BackupContact.Email, createdCustomerPayload.BackupContact.Email)
 		// when CacUser is false, this indicates a non-CAC user so CacValidated is set to true
 		suite.Equal(true, createdCustomerPayload.CacValidated)
+		suite.Nil(body.Emplid)
 	})
 
 	suite.Run("Unable to create customer when using an existing DODID", func() {
