@@ -22,12 +22,26 @@ func (suite *MoveServiceSuite) TestExcessWeight() {
 		approvedMove := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
 		now := time.Now()
 		pickupDate := now.AddDate(0, 0, 10)
-		approvedShipment := factory.BuildMTOShipmentMinimal(suite.DB(), []factory.Customization{
+		approvedHHGShipment := factory.BuildMTOShipmentMinimal(suite.DB(), []factory.Customization{
 			{
 				Model: models.MTOShipment{
 					Status:              models.MTOShipmentStatusApproved,
 					ApprovedDate:        &now,
 					ScheduledPickupDate: &pickupDate,
+				},
+			},
+			{
+				Model:    approvedMove,
+				LinkOnly: true,
+			},
+		}, nil)
+		approvedUbShipment := factory.BuildMTOShipmentMinimal(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					Status:              models.MTOShipmentStatusApproved,
+					ApprovedDate:        &now,
+					ScheduledPickupDate: &pickupDate,
+					ShipmentType:        models.MTOShipmentTypeUnaccompaniedBaggage,
 				},
 			},
 			{
@@ -37,26 +51,62 @@ func (suite *MoveServiceSuite) TestExcessWeight() {
 		}, nil)
 
 		estimatedWeight := unit.Pound(7200)
-		approvedShipment.PrimeEstimatedWeight = &estimatedWeight
-		updatedMove, verrs, err := moveWeights.CheckExcessWeight(suite.AppContextForTest(), approvedMove.ID, approvedShipment)
-
+		approvedHHGShipment.PrimeEstimatedWeight = &estimatedWeight
+		approvedUbShipment.PrimeEstimatedWeight = &estimatedWeight
+		_, verrs, err := moveWeights.CheckExcessWeight(suite.AppContextForTest(), approvedMove.ID, approvedHHGShipment)
+		suite.Nil(verrs)
+		suite.NoError(err)
+		updatedMove, verrs, err := moveWeights.CheckExcessWeight(suite.AppContextForTest(), approvedMove.ID, approvedUbShipment)
 		suite.Nil(verrs)
 		suite.NoError(err)
 
+		// Move has nil excess weight risks before checking for excess weight
 		suite.Nil(approvedMove.ExcessWeightQualifiedAt)
+		suite.Nil(approvedMove.ExcessUnaccompaniedBaggageWeightQualifiedAt)
+		// Move has not nil excess weight risks after checking for excess weight
 		suite.NotNil(updatedMove.ExcessWeightQualifiedAt)
+		suite.NotNil(updatedMove.ExcessUnaccompaniedBaggageWeightQualifiedAt)
 
 		// refetch the move from the database not just the return value
 		err = suite.DB().Reload(&approvedMove)
 		suite.NoError(err)
+		// Ensure it saved to db
 		suite.NotNil(approvedMove.ExcessWeightQualifiedAt)
+		suite.NotNil(approvedMove.ExcessUnaccompaniedBaggageWeightQualifiedAt)
 	})
 
 	suite.Run("does not flag move for excess weight when an approved shipment estimated weight is lower than threshold", func() {
-		approvedMove := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
+		// Create a move with an oconus duty location so it qualifies for UB allowance
+		// The allowance based on these params should be 500 ub
+		oconusAddress := factory.BuildAddress(suite.DB(), []factory.Customization{
+			{
+				Model: models.Address{
+					IsOconus: models.BoolPointer(true),
+				},
+			},
+		}, nil)
+		oconusDutyLocation := factory.BuildDutyLocation(suite.DB(), []factory.Customization{
+			{
+				Model:    oconusAddress,
+				LinkOnly: true,
+			},
+		}, nil)
+		order := factory.BuildOrder(suite.DB(), []factory.Customization{
+			{
+				Model:    oconusDutyLocation,
+				LinkOnly: true,
+				Type:     &factory.DutyLocations.OriginDutyLocation,
+			},
+		}, nil)
+		move := factory.BuildMove(suite.DB(), []factory.Customization{
+			{
+				Model:    order,
+				LinkOnly: true,
+			}}, nil)
 		now := time.Now()
 		pickupDate := now.AddDate(0, 0, 10)
-		approvedShipment := factory.BuildMTOShipmentMinimal(suite.DB(), []factory.Customization{
+
+		approvedHHGShipment := factory.BuildMTOShipmentMinimal(suite.DB(), []factory.Customization{
 			{
 				Model: models.MTOShipment{
 					Status:              models.MTOShipmentStatusApproved,
@@ -65,24 +115,45 @@ func (suite *MoveServiceSuite) TestExcessWeight() {
 				},
 			},
 			{
-				Model:    approvedMove,
+				Model:    move,
+				LinkOnly: true,
+			},
+		}, nil)
+		approvedUbShipment := factory.BuildMTOShipmentMinimal(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					Status:              models.MTOShipmentStatusApproved,
+					ApprovedDate:        &now,
+					ScheduledPickupDate: &pickupDate,
+					ShipmentType:        models.MTOShipmentTypeUnaccompaniedBaggage,
+				},
+			},
+			{
+				Model:    move,
 				LinkOnly: true,
 			},
 		}, nil)
 
-		estimatedWeight := unit.Pound(7199)
-		approvedShipment.PrimeEstimatedWeight = &estimatedWeight
-		updatedMove, verrs, err := moveWeights.CheckExcessWeight(suite.AppContextForTest(), approvedMove.ID, approvedShipment)
-
+		estimatedHHGWeight := unit.Pound(7199)
+		estimatedUBWeight := unit.Pound(250)
+		approvedHHGShipment.PrimeEstimatedWeight = &estimatedHHGWeight
+		approvedUbShipment.PrimeEstimatedWeight = &estimatedUBWeight
+		_, verrs, err := moveWeights.CheckExcessWeight(suite.AppContextForTest(), move.ID, approvedHHGShipment)
+		suite.Nil(verrs)
+		suite.NoError(err)
+		updatedMove, verrs, err := moveWeights.CheckExcessWeight(suite.AppContextForTest(), move.ID, approvedUbShipment)
 		suite.Nil(verrs)
 		suite.NoError(err)
 
-		suite.Nil(approvedMove.ExcessWeightQualifiedAt)
+		suite.Nil(move.ExcessWeightQualifiedAt)
 		suite.Nil(updatedMove.ExcessWeightQualifiedAt)
+		suite.Nil(move.ExcessUnaccompaniedBaggageWeightQualifiedAt)
+		suite.Nil(updatedMove.ExcessUnaccompaniedBaggageWeightQualifiedAt)
 
-		err = suite.DB().Reload(&approvedMove)
+		err = suite.DB().Reload(&move)
 		suite.NoError(err)
-		suite.Nil(approvedMove.ExcessWeightQualifiedAt)
+		suite.Nil(move.ExcessWeightQualifiedAt)
+		suite.Nil(move.ExcessUnaccompaniedBaggageWeightQualifiedAt)
 	})
 
 	suite.Run("qualifies move for excess weight when the sum of approved shipments is updated within threshold", func() {
@@ -218,17 +289,46 @@ func (suite *MoveServiceSuite) TestExcessWeight() {
 
 	suite.Run("removes excess weight qualification when estimated weight drops below previously met threshold", func() {
 		now := time.Now()
-		approvedMove := factory.BuildAvailableToPrimeMove(suite.DB(), []factory.Customization{
+		estimatedUbWeight := unit.Pound(250)
+		estimatedWeight := unit.Pound(7199 - estimatedUbWeight)
+
+		// Add an OCONUS address so it qualifies for UB allowance
+		// The allowance based on these params should be 500 ub
+		oconusAddress := factory.BuildAddress(suite.DB(), []factory.Customization{
 			{
-				Model: models.Move{
-					ExcessWeightQualifiedAt: &now,
+				Model: models.Address{
+					IsOconus: models.BoolPointer(true),
 				},
 			},
 		}, nil)
+		oconusDutyLocation := factory.BuildDutyLocation(suite.DB(), []factory.Customization{
+			{
+				Model:    oconusAddress,
+				LinkOnly: true,
+			},
+		}, nil)
+		order := factory.BuildOrder(suite.DB(), []factory.Customization{
+			{
+				Model:    oconusDutyLocation,
+				LinkOnly: true,
+				Type:     &factory.DutyLocations.OriginDutyLocation,
+			},
+		}, nil)
+		// By default have excess weight turned on, we want to simulate it resetting
+		initialMove := factory.BuildMove(suite.DB(), []factory.Customization{
+			{
+				Model: models.Move{
+					ExcessWeightQualifiedAt:                     &now,
+					ExcessUnaccompaniedBaggageWeightQualifiedAt: &now,
+				},
+			},
+			{
+				Model:    order,
+				LinkOnly: true,
+			}}, nil)
 
 		pickupDate := now.AddDate(0, 0, 10)
-		estimatedWeight := unit.Pound(7200)
-		approvedShipment := factory.BuildMTOShipmentMinimal(suite.DB(), []factory.Customization{
+		factory.BuildMTOShipmentMinimal(suite.DB(), []factory.Customization{
 			{
 				Model: models.MTOShipment{
 					Status:               models.MTOShipmentStatusApproved,
@@ -238,24 +338,45 @@ func (suite *MoveServiceSuite) TestExcessWeight() {
 				},
 			},
 			{
-				Model:    approvedMove,
+				Model:    initialMove,
+				LinkOnly: true,
+			},
+		}, nil)
+		approvedUbShipment := factory.BuildMTOShipmentMinimal(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					Status:               models.MTOShipmentStatusApproved,
+					ApprovedDate:         &now,
+					ScheduledPickupDate:  &pickupDate,
+					ShipmentType:         models.MTOShipmentTypeUnaccompaniedBaggage,
+					PrimeEstimatedWeight: &estimatedUbWeight,
+				},
+			},
+			{
+				Model:    initialMove,
 				LinkOnly: true,
 			},
 		}, nil)
 
-		updatedEstimatedWeight := unit.Pound(7199)
-		approvedShipment.PrimeEstimatedWeight = &updatedEstimatedWeight
-		updatedMove, verrs, err := moveWeights.CheckExcessWeight(suite.AppContextForTest(), approvedMove.ID, approvedShipment)
+		// We defaulted to excess amounts
+		suite.NotNil(initialMove.ExcessWeightQualifiedAt)
+		suite.NotNil(initialMove.ExcessUnaccompaniedBaggageWeightQualifiedAt)
 
+		updatedMove, verrs, err := moveWeights.CheckExcessWeight(suite.AppContextForTest(), initialMove.ID, approvedUbShipment)
 		suite.Nil(verrs)
 		suite.NoError(err)
 
-		suite.NotNil(approvedMove.ExcessWeightQualifiedAt)
+		// The shipments we created will not qualify for risk of excess
+		// This means that after we CheckExcessWeight again, the
 		suite.Nil(updatedMove.ExcessWeightQualifiedAt)
+		suite.Nil(updatedMove.ExcessUnaccompaniedBaggageWeightQualifiedAt)
 
-		err = suite.DB().Reload(&approvedMove)
+		// Reload our original move that had excess weight qualified at present
+		// and now make sure it is nil
+		err = suite.DB().Reload(&initialMove)
 		suite.NoError(err)
-		suite.Nil(approvedMove.ExcessWeightQualifiedAt)
+		suite.Nil(initialMove.ExcessWeightQualifiedAt)
+		suite.Nil(initialMove.ExcessUnaccompaniedBaggageWeightQualifiedAt)
 	})
 
 	suite.Run("returns error if orders grade is unset to lookup weight allowance", func() {

@@ -116,26 +116,6 @@ describe('EditPPMHeaderSummaryModal', () => {
     expect(screen.getByLabelText('Close')).toBeInstanceOf(HTMLButtonElement);
   });
 
-  it('renders actual expense reimbursement', async () => {
-    await act(async () => {
-      render(
-        <EditPPMHeaderSummaryModal
-          sectionType="shipmentInfo"
-          sectionInfo={sectionInfo}
-          onClose={onClose}
-          onSubmit={onSubmit}
-          editItemName="isActualExpenseReimbursement"
-        />,
-      );
-    });
-
-    expect(await screen.findByRole('heading', { level: 3, name: 'Edit Shipment Info' })).toBeInTheDocument();
-    expect(screen.getByText('Is this PPM an Actual Expense Reimbursement?')).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: 'Save' })).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: 'Cancel' })).toBeInTheDocument();
-    expect(screen.getByLabelText('Close')).toBeInstanceOf(HTMLButtonElement);
-  });
-
   it('renders allowable weight', async () => {
     await act(async () => {
       render(
@@ -152,6 +132,26 @@ describe('EditPPMHeaderSummaryModal', () => {
     expect(await screen.findByRole('heading', { level: 3, name: 'Edit Shipment Info' })).toBeInTheDocument();
     expect(screen.getByText('Allowable Weight')).toBeInTheDocument();
     expect(screen.getByTestId('editAllowableWeightInput')).toHaveValue('1,750');
+    expect(screen.getByRole('button', { name: 'Save' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Cancel' })).toBeInTheDocument();
+    expect(screen.getByLabelText('Close')).toBeInstanceOf(HTMLButtonElement);
+  });
+
+  it('renders actual expense reimbursement', async () => {
+    await act(async () => {
+      render(
+        <EditPPMHeaderSummaryModal
+          sectionType="shipmentInfo"
+          sectionInfo={sectionInfo}
+          onClose={onClose}
+          onSubmit={onSubmit}
+          editItemName="isActualExpenseReimbursement"
+        />,
+      );
+    });
+
+    expect(await screen.findByRole('heading', { level: 3, name: 'Edit Shipment Info' })).toBeInTheDocument();
+    expect(screen.getByText('Is this PPM an Actual Expense Reimbursement?')).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Save' })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Cancel' })).toBeInTheDocument();
     expect(screen.getByLabelText('Close')).toBeInstanceOf(HTMLButtonElement);

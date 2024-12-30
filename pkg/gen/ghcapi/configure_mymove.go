@@ -72,6 +72,11 @@ func configureAPI(api *ghcoperations.MymoveAPI) http.Handler {
 	// You may change here the memory limit for this multipart form parser. Below is the default (32 MB).
 	// order.UploadAmendedOrdersMaxParseMemory = 32 << 20
 
+	if api.OrderAcknowledgeExcessUnaccompaniedBaggageWeightRiskHandler == nil {
+		api.OrderAcknowledgeExcessUnaccompaniedBaggageWeightRiskHandler = order.AcknowledgeExcessUnaccompaniedBaggageWeightRiskHandlerFunc(func(params order.AcknowledgeExcessUnaccompaniedBaggageWeightRiskParams) middleware.Responder {
+			return middleware.NotImplemented("operation order.AcknowledgeExcessUnaccompaniedBaggageWeightRisk has not yet been implemented")
+		})
+	}
 	if api.OrderAcknowledgeExcessWeightRiskHandler == nil {
 		api.OrderAcknowledgeExcessWeightRiskHandler = order.AcknowledgeExcessWeightRiskHandlerFunc(func(params order.AcknowledgeExcessWeightRiskParams) middleware.Responder {
 			return middleware.NotImplemented("operation order.AcknowledgeExcessWeightRisk has not yet been implemented")
@@ -222,6 +227,11 @@ func configureAPI(api *ghcoperations.MymoveAPI) http.Handler {
 			return middleware.NotImplemented("operation re_service_items.GetAllReServiceItems has not yet been implemented")
 		})
 	}
+	if api.QueuesGetBulkAssignmentDataHandler == nil {
+		api.QueuesGetBulkAssignmentDataHandler = queues.GetBulkAssignmentDataHandlerFunc(func(params queues.GetBulkAssignmentDataParams) middleware.Responder {
+			return middleware.NotImplemented("operation queues.GetBulkAssignmentData has not yet been implemented")
+		})
+	}
 	if api.CustomerGetCustomerHandler == nil {
 		api.CustomerGetCustomerHandler = customer.GetCustomerHandlerFunc(func(params customer.GetCustomerParams) middleware.Responder {
 			return middleware.NotImplemented("operation customer.GetCustomer has not yet been implemented")
@@ -230,6 +240,11 @@ func configureAPI(api *ghcoperations.MymoveAPI) http.Handler {
 	if api.CustomerSupportRemarksGetCustomerSupportRemarksForMoveHandler == nil {
 		api.CustomerSupportRemarksGetCustomerSupportRemarksForMoveHandler = customer_support_remarks.GetCustomerSupportRemarksForMoveHandlerFunc(func(params customer_support_remarks.GetCustomerSupportRemarksForMoveParams) middleware.Responder {
 			return middleware.NotImplemented("operation customer_support_remarks.GetCustomerSupportRemarksForMove has not yet been implemented")
+		})
+	}
+	if api.QueuesGetDestinationRequestsQueueHandler == nil {
+		api.QueuesGetDestinationRequestsQueueHandler = queues.GetDestinationRequestsQueueHandlerFunc(func(params queues.GetDestinationRequestsQueueParams) middleware.Responder {
+			return middleware.NotImplemented("operation queues.GetDestinationRequestsQueue has not yet been implemented")
 		})
 	}
 	if api.GhcDocumentsGetDocumentHandler == nil {

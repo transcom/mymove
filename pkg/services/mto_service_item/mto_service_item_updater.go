@@ -3,6 +3,7 @@ package mtoserviceitem
 import (
 	"database/sql"
 	"fmt"
+	"strconv"
 	"time"
 
 	"github.com/gobuffalo/validate/v3"
@@ -19,6 +20,7 @@ import (
 	movetaskorder "github.com/transcom/mymove/pkg/services/move_task_order"
 	"github.com/transcom/mymove/pkg/services/query"
 	sitstatus "github.com/transcom/mymove/pkg/services/sit_status"
+	"github.com/transcom/mymove/pkg/unit"
 )
 
 // OriginSITLocation is the constant representing when the shipment in storage occurs at the origin
@@ -37,23 +39,29 @@ type mtoServiceItemQueryBuilder interface {
 }
 
 type mtoServiceItemUpdater struct {
-	planner             route.Planner
-	builder             mtoServiceItemQueryBuilder
-	createNewBuilder    func() mtoServiceItemQueryBuilder
-	moveRouter          services.MoveRouter
-	shipmentFetcher     services.MTOShipmentFetcher
-	addressCreator      services.AddressCreator
-	portLocationFetcher services.PortLocationFetcher
+	planner                route.Planner
+	builder                mtoServiceItemQueryBuilder
+	createNewBuilder       func() mtoServiceItemQueryBuilder
+	moveRouter             services.MoveRouter
+	shipmentFetcher        services.MTOShipmentFetcher
+	addressCreator         services.AddressCreator
+	unpackPricer           services.DomesticUnpackPricer
+	linehaulPricer         services.DomesticLinehaulPricer
+	destinationPricer      services.DomesticDestinationPricer
+	fuelSurchargePricer    services.FuelSurchargePricer
+	sitFuelSurchargePricer services.DomesticDestinationSITFuelSurchargePricer
+	sitDeliverPricer       services.DomesticDestinationSITDeliveryPricer
+	portLocationFetcher    services.PortLocationFetcher
 }
 
 // NewMTOServiceItemUpdater returns a new mto service item updater
-func NewMTOServiceItemUpdater(planner route.Planner, builder mtoServiceItemQueryBuilder, moveRouter services.MoveRouter, shipmentFetcher services.MTOShipmentFetcher, addressCreator services.AddressCreator, portLocationFetcher services.PortLocationFetcher) services.MTOServiceItemUpdater {
+func NewMTOServiceItemUpdater(planner route.Planner, builder mtoServiceItemQueryBuilder, moveRouter services.MoveRouter, shipmentFetcher services.MTOShipmentFetcher, addressCreator services.AddressCreator, unpackPricer services.DomesticUnpackPricer, linehaulPricer services.DomesticLinehaulPricer, destinationPricer services.DomesticDestinationPricer, fuelSurchargePricer services.FuelSurchargePricer, domesticDestinationSITDeliveryPricer services.DomesticDestinationSITDeliveryPricer, domesticDestinationSITFuelSurchargePricer services.DomesticDestinationSITFuelSurchargePricer, portLocationFetcher services.PortLocationFetcher) services.MTOServiceItemUpdater {
 	// used inside a transaction and mocking		return &mtoServiceItemUpdater{builder: builder}
 	createNewBuilder := func() mtoServiceItemQueryBuilder {
 		return query.NewQueryBuilder()
 	}
 
-	return &mtoServiceItemUpdater{planner, builder, createNewBuilder, moveRouter, shipmentFetcher, addressCreator, portLocationFetcher}
+	return &mtoServiceItemUpdater{planner, builder, createNewBuilder, moveRouter, shipmentFetcher, addressCreator, unpackPricer, linehaulPricer, destinationPricer, fuelSurchargePricer, domesticDestinationSITFuelSurchargePricer, domesticDestinationSITDeliveryPricer, portLocationFetcher}
 }
 
 func (p *mtoServiceItemUpdater) ApproveOrRejectServiceItem(
@@ -117,6 +125,183 @@ func (p *mtoServiceItemUpdater) ConvertItemToCustomerExpense(
 	}
 
 	return p.convertItemToCustomerExpense(appCtx, *mtoServiceItem, customerExpenseReason, convertToCustomerExpense, eTag, checkETag())
+}
+
+func (p *mtoServiceItemUpdater) findEstimatedPrice(appCtx appcontext.AppContext, serviceItem *models.MTOServiceItem, mtoShipment models.MTOShipment) (unit.Cents, error) {
+	if serviceItem.ReService.Code == models.ReServiceCodeDDP ||
+		serviceItem.ReService.Code == models.ReServiceCodeDUPK ||
+		serviceItem.ReService.Code == models.ReServiceCodeDLH ||
+		serviceItem.ReService.Code == models.ReServiceCodeFSC ||
+		serviceItem.ReService.Code == models.ReServiceCodeDDDSIT ||
+		serviceItem.ReService.Code == models.ReServiceCodeDDSFSC {
+
+		isPPM := false
+		if mtoShipment.ShipmentType == models.MTOShipmentTypePPM {
+			isPPM = true
+		}
+
+		var pickupDate *time.Time
+		if mtoShipment.ActualPickupDate != nil {
+			pickupDate = mtoShipment.ActualPickupDate
+		} else {
+			if mtoShipment.RequestedPickupDate != nil {
+				pickupDate = mtoShipment.RequestedPickupDate
+			}
+		}
+
+		currTime := time.Now()
+		var distance int
+
+		var shipmentWeight unit.Pound
+		if mtoShipment.PrimeActualWeight != nil {
+			shipmentWeight = *mtoShipment.PrimeActualWeight
+		} else {
+			if mtoShipment.PrimeEstimatedWeight != nil {
+				shipmentWeight = *mtoShipment.PrimeEstimatedWeight
+			} else {
+				return 0, apperror.NewInvalidInputError(serviceItem.ID, nil, nil, "No estimated or actual weight exists for this service item.")
+			}
+		}
+
+		contractCode, err := FetchContractCode(appCtx, currTime)
+		if err != nil && pickupDate != nil {
+			contractCode, err = FetchContractCode(appCtx, *pickupDate)
+			if err != nil {
+				return 0, err
+			}
+		}
+
+		var price unit.Cents
+
+		// destination
+		if serviceItem.ReService.Code == models.ReServiceCodeDDP {
+			var domesticServiceArea models.ReDomesticServiceArea
+			if mtoShipment.DestinationAddress != nil {
+				domesticServiceArea, err = fetchDomesticServiceArea(appCtx, contractCode, mtoShipment.DestinationAddress.PostalCode)
+				if err != nil {
+					return 0, err
+				}
+			}
+
+			price, _, err = p.destinationPricer.Price(appCtx, contractCode, *pickupDate, shipmentWeight, domesticServiceArea.ServiceArea, isPPM)
+			if err != nil {
+				return 0, err
+			}
+		}
+		if serviceItem.ReService.Code == models.ReServiceCodeDUPK {
+			domesticServiceArea, err := fetchDomesticServiceArea(appCtx, contractCode, mtoShipment.DestinationAddress.PostalCode)
+			if err != nil {
+				return 0, err
+			}
+
+			serviceScheduleDestination := domesticServiceArea.ServicesSchedule
+
+			price, _, err = p.unpackPricer.Price(appCtx, contractCode, *pickupDate, shipmentWeight, serviceScheduleDestination, isPPM)
+			if err != nil {
+				return 0, err
+			}
+		}
+
+		// linehaul
+		if serviceItem.ReService.Code == models.ReServiceCodeDLH {
+			domesticServiceArea, err := fetchDomesticServiceArea(appCtx, contractCode, mtoShipment.PickupAddress.PostalCode)
+			if err != nil {
+				return 0, err
+			}
+			if mtoShipment.PickupAddress != nil && mtoShipment.DestinationAddress != nil {
+				distance, err = p.planner.ZipTransitDistance(appCtx, mtoShipment.PickupAddress.PostalCode, mtoShipment.DestinationAddress.PostalCode, false, false)
+				if err != nil {
+					return 0, err
+				}
+			}
+			price, _, err = p.linehaulPricer.Price(appCtx, contractCode, *pickupDate, unit.Miles(distance), shipmentWeight, domesticServiceArea.ServiceArea, isPPM)
+			if err != nil {
+				return 0, err
+			}
+		}
+		// unpacking
+		if serviceItem.ReService.Code == models.ReServiceCodeDUPK {
+			domesticServiceArea, err := fetchDomesticServiceArea(appCtx, contractCode, mtoShipment.DestinationAddress.PostalCode)
+			if err != nil {
+				return 0, err
+			}
+			price, _, err = p.unpackPricer.Price(appCtx, contractCode, *pickupDate, shipmentWeight, domesticServiceArea.ServicesSchedule, isPPM)
+			if err != nil {
+				return 0, err
+			}
+		}
+		// destination sit delivery
+		if serviceItem.ReService.Code == models.ReServiceCodeDDDSIT && serviceItem.SITDestinationFinalAddress != nil {
+			domesticServiceArea, err := fetchDomesticServiceArea(appCtx, contractCode, mtoShipment.DestinationAddress.PostalCode)
+			if err != nil {
+				return 0, err
+			}
+			if mtoShipment.DestinationAddress != nil {
+				distance, err = p.planner.ZipTransitDistance(appCtx, serviceItem.SITDestinationFinalAddress.PostalCode, mtoShipment.DestinationAddress.PostalCode, false, false)
+				if err != nil {
+					return 0, err
+				}
+			}
+			price, _, err = p.sitDeliverPricer.Price(appCtx, contractCode, *pickupDate, shipmentWeight, domesticServiceArea.ServiceArea, domesticServiceArea.SITPDSchedule, mtoShipment.DestinationAddress.PostalCode, serviceItem.SITDestinationFinalAddress.PostalCode, unit.Miles(distance))
+			if err != nil {
+				return 0, err
+			}
+		}
+		// destination sit fuel surcharge
+		if serviceItem.ReService.Code == models.ReServiceCodeDDSFSC && serviceItem.SITDestinationFinalAddress != nil {
+			if mtoShipment.DestinationAddress != nil {
+				distance, err = p.planner.ZipTransitDistance(appCtx, serviceItem.SITDestinationFinalAddress.PostalCode, mtoShipment.DestinationAddress.PostalCode, false, false)
+				if err != nil {
+					return 0, err
+				}
+			}
+			fscWeightBasedDistanceMultiplier, err := LookupFSCWeightBasedDistanceMultiplier(appCtx, shipmentWeight)
+			if err != nil {
+				return 0, err
+			}
+			fscWeightBasedDistanceMultiplierFloat, err := strconv.ParseFloat(fscWeightBasedDistanceMultiplier, 64)
+			if err != nil {
+				return 0, err
+			}
+			eiaFuelPrice, err := LookupEIAFuelPrice(appCtx, *pickupDate)
+			if err != nil {
+				return 0, err
+			}
+			price, _, err = p.sitFuelSurchargePricer.Price(appCtx, *mtoShipment.ActualPickupDate, unit.Miles(distance), shipmentWeight, fscWeightBasedDistanceMultiplierFloat, eiaFuelPrice, isPPM)
+			if err != nil {
+				return 0, err
+			}
+		}
+		// fuel surcharge
+		if serviceItem.ReService.Code == models.ReServiceCodeFSC {
+			if mtoShipment.PickupAddress != nil && mtoShipment.DestinationAddress != nil {
+				distance, err = p.planner.ZipTransitDistance(appCtx, mtoShipment.PickupAddress.PostalCode, mtoShipment.DestinationAddress.PostalCode, false, false)
+				if err != nil {
+					return 0, err
+				}
+			}
+
+			fscWeightBasedDistanceMultiplier, err := LookupFSCWeightBasedDistanceMultiplier(appCtx, shipmentWeight)
+			if err != nil {
+				return 0, err
+			}
+			fscWeightBasedDistanceMultiplierFloat, err := strconv.ParseFloat(fscWeightBasedDistanceMultiplier, 64)
+			if err != nil {
+				return 0, err
+			}
+			eiaFuelPrice, err := LookupEIAFuelPrice(appCtx, *pickupDate)
+			if err != nil {
+				return 0, err
+			}
+			price, _, err = p.fuelSurchargePricer.Price(appCtx, *pickupDate, unit.Miles(distance), shipmentWeight, fscWeightBasedDistanceMultiplierFloat, eiaFuelPrice, isPPM)
+			if err != nil {
+				return 0, err
+			}
+
+		}
+		return price, nil
+	}
+	return 0, nil
 }
 
 func (p *mtoServiceItemUpdater) findServiceItem(appCtx appcontext.AppContext, serviceItemID uuid.UUID) (*models.MTOServiceItem, error) {
@@ -244,7 +429,7 @@ func (p *mtoServiceItemUpdater) updateServiceItem(appCtx appcontext.AppContext, 
 				if serviceItem.ReService.Code == models.ReServiceCodeDDDSIT ||
 					serviceItem.ReService.Code == models.ReServiceCodeDDSFSC {
 					// Destination SIT: distance between shipment destination address & service item ORIGINAL destination address
-					milesCalculated, err := p.planner.ZipTransitDistance(appCtx, mtoShipment.DestinationAddress.PostalCode, serviceItem.SITDestinationOriginalAddress.PostalCode)
+					milesCalculated, err := p.planner.ZipTransitDistance(appCtx, mtoShipment.DestinationAddress.PostalCode, serviceItem.SITDestinationOriginalAddress.PostalCode, false, false)
 					if err != nil {
 						return nil, err
 					}
@@ -256,7 +441,7 @@ func (p *mtoServiceItemUpdater) updateServiceItem(appCtx appcontext.AppContext, 
 			if serviceItem.ReService.Code == models.ReServiceCodeDOPSIT ||
 				serviceItem.ReService.Code == models.ReServiceCodeDOSFSC {
 				// Origin SIT: distance between shipment pickup address & service item ORIGINAL pickup address
-				milesCalculated, err := p.planner.ZipTransitDistance(appCtx, mtoShipment.PickupAddress.PostalCode, serviceItem.SITOriginHHGOriginalAddress.PostalCode)
+				milesCalculated, err := p.planner.ZipTransitDistance(appCtx, mtoShipment.PickupAddress.PostalCode, serviceItem.SITOriginHHGOriginalAddress.PostalCode, false, false)
 				if err != nil {
 					return nil, err
 				}
@@ -298,6 +483,21 @@ func (p *mtoServiceItemUpdater) convertItemToCustomerExpense(
 	}
 
 	return &serviceItem, nil
+}
+
+// UpdateMTOServiceItemPricingEstimate updates the MTO Service Item pricing estimate
+func (p *mtoServiceItemUpdater) UpdateMTOServiceItemPricingEstimate(
+	appCtx appcontext.AppContext,
+	mtoServiceItem *models.MTOServiceItem,
+	shipment models.MTOShipment,
+	eTag string,
+) (*models.MTOServiceItem, error) {
+	estimatedPrice, err := p.findEstimatedPrice(appCtx, mtoServiceItem, shipment)
+	if estimatedPrice != 0 && err == nil {
+		mtoServiceItem.PricingEstimate = &estimatedPrice
+		return p.UpdateMTOServiceItem(appCtx, mtoServiceItem, eTag, UpdateMTOServiceItemBasicValidator)
+	}
+	return mtoServiceItem, err
 }
 
 // UpdateMTOServiceItemBasic updates the MTO Service Item using base validators
@@ -384,7 +584,7 @@ func (p *mtoServiceItemUpdater) UpdateMTOServiceItemPrime(
 func calculateOriginSITRequiredDeliveryDate(appCtx appcontext.AppContext, shipment models.MTOShipment, planner route.Planner,
 	sitCustomerContacted *time.Time, sitDepartureDate *time.Time) (*time.Time, error) {
 	// Get a distance calculation between pickup and destination addresses.
-	distance, err := planner.ZipTransitDistance(appCtx, shipment.PickupAddress.PostalCode, shipment.DestinationAddress.PostalCode)
+	distance, err := planner.ZipTransitDistance(appCtx, shipment.PickupAddress.PostalCode, shipment.DestinationAddress.PostalCode, false, false)
 
 	if err != nil {
 		return nil, apperror.NewUnprocessableEntityError("cannot calculate distance between pickup and destination addresses")
@@ -611,6 +811,38 @@ func (p *mtoServiceItemUpdater) UpdateMTOServiceItem(
 
 		// Make the update and create a InvalidInputError if there were validation issues
 		verrs, updateErr := txnAppCtx.DB().ValidateAndUpdate(validServiceItem)
+
+		// if the port information was updated, then we need to update the basic service item pricing since distance has changed
+		// this only applies to international shipments
+		if oldServiceItem.POELocationID != mtoServiceItem.POELocationID || oldServiceItem.PODLocationID != mtoServiceItem.PODLocationID {
+			shipment := oldServiceItem.MTOShipment
+			if shipment.PickupAddress != nil && shipment.DestinationAddress != nil &&
+				(mtoServiceItem.POELocation != nil && mtoServiceItem.POELocation.UsPostRegionCity.UsprZipID != "" ||
+					mtoServiceItem.PODLocation != nil && mtoServiceItem.PODLocation.UsPostRegionCity.UsprZipID != "") {
+				var pickupZip string
+				var destZip string
+				// if the port type is POEFSC this means the shipment is CONUS -> OCONUS (pickup -> port)
+				// if the port type is PODFSC this means the shipment is OCONUS -> CONUS (port -> destination)
+				if mtoServiceItem.POELocation != nil {
+					pickupZip = shipment.PickupAddress.PostalCode
+					destZip = mtoServiceItem.POELocation.UsPostRegionCity.UsprZipID
+				} else if mtoServiceItem.PODLocation != nil {
+					pickupZip = mtoServiceItem.PODLocation.UsPostRegionCity.UsprZipID
+					destZip = shipment.DestinationAddress.PostalCode
+				}
+				// we need to get the mileage from DTOD first, the db proc will consume that
+				mileage, err := p.planner.ZipTransitDistance(appCtx, pickupZip, destZip, true, true)
+				if err != nil {
+					return err
+				}
+
+				// update the service item pricing if relevant fields have changed
+				err = models.UpdateEstimatedPricingForShipmentBasicServiceItems(appCtx.DB(), &shipment, mileage)
+				if err != nil {
+					return err
+				}
+			}
+		}
 
 		// If there were validation errors create an InvalidInputError type
 		if verrs != nil && verrs.HasAny() {
