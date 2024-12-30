@@ -150,12 +150,13 @@ func (suite *PayloadsSuite) TestMoveTaskOrder() {
 				PostalCode:     fairbanksAlaskaPostalCode,
 			},
 			DestinationAddress: &models.Address{
-				StreetAddress1: "123 Main St",
-				StreetAddress2: &streetAddress2,
-				StreetAddress3: &streetAddress3,
-				City:           "Anchorage",
-				State:          "AK",
-				PostalCode:     anchorageAlaskaPostalCode,
+				StreetAddress1:   "123 Main St",
+				StreetAddress2:   &streetAddress2,
+				StreetAddress3:   &streetAddress3,
+				City:             "Anchorage",
+				State:            "AK",
+				PostalCode:       anchorageAlaskaPostalCode,
+				DestinationGbloc: models.StringPointer("JEAT"),
 			},
 		})
 		newMove.MTOShipments = append(newMove.MTOShipments, models.MTOShipment{
@@ -168,12 +169,13 @@ func (suite *PayloadsSuite) TestMoveTaskOrder() {
 				PostalCode:     wasillaAlaskaPostalCode,
 			},
 			DestinationAddress: &models.Address{
-				StreetAddress1: "123 Main St",
-				StreetAddress2: &streetAddress2,
-				StreetAddress3: &streetAddress3,
-				City:           "Wasilla",
-				State:          "AK",
-				PostalCode:     wasillaAlaskaPostalCode,
+				StreetAddress1:   "123 Main St",
+				StreetAddress2:   &streetAddress2,
+				StreetAddress3:   &streetAddress3,
+				City:             "Wasilla",
+				State:            "AK",
+				PostalCode:       wasillaAlaskaPostalCode,
+				DestinationGbloc: models.StringPointer("JEAT"),
 			},
 		})
 		newMove.MTOShipments = append(newMove.MTOShipments, models.MTOShipment{
@@ -237,20 +239,22 @@ func (suite *PayloadsSuite) TestMoveTaskOrder() {
 		})
 		newMove.MTOShipments = append(newMove.MTOShipments, models.MTOShipment{
 			PickupAddress: &models.Address{
-				StreetAddress1: "123 Main St",
-				StreetAddress2: &streetAddress2,
-				StreetAddress3: &streetAddress3,
-				City:           "Beverly Hills",
-				State:          "CA",
-				PostalCode:     "90210",
+				StreetAddress1:   "123 Main St",
+				StreetAddress2:   &streetAddress2,
+				StreetAddress3:   &streetAddress3,
+				City:             "Beverly Hills",
+				State:            "CA",
+				PostalCode:       "90210",
+				DestinationGbloc: models.StringPointer("JEAT"),
 			},
 			DestinationAddress: &models.Address{
-				StreetAddress1: "123 Main St",
-				StreetAddress2: &streetAddress2,
-				StreetAddress3: &streetAddress3,
-				City:           "Beverly Hills",
-				State:          "CA",
-				PostalCode:     "90210",
+				StreetAddress1:   "123 Main St",
+				StreetAddress2:   &streetAddress2,
+				StreetAddress3:   &streetAddress3,
+				City:             "Beverly Hills",
+				State:            "CA",
+				PostalCode:       "90210",
+				DestinationGbloc: models.StringPointer("JEAT"),
 			},
 		})
 
@@ -357,6 +361,7 @@ func (suite *PayloadsSuite) TestMoveTaskOrder() {
 			} else {
 				suite.NotNil(shipment.PickupAddress)
 				suite.NotNil(shipment.DestinationAddress)
+				suite.NotNil(shipment.DestinationAddress.DestinationGbloc)
 				if slices.Contains(expectedAlaskaPostalCodes, *shipment.PickupAddress.PostalCode) {
 					ra, contains := shipmentPostalCodeRateAreaLookupMap[*shipment.PickupAddress.PostalCode]
 					suite.True(contains)
