@@ -50,6 +50,8 @@ func (suite *MTOServiceItemServiceSuite) TestMTOServiceItemUpdater() {
 		mock.AnythingOfType("*appcontext.appContext"),
 		mock.Anything,
 		mock.Anything,
+		false,
+		false,
 	).Return(400, nil)
 	updater := NewMTOServiceItemUpdater(planner, builder, moveRouter, shipmentFetcher, addressCreator, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer(), ghcrateengine.NewDomesticDestinationSITDeliveryPricer(), ghcrateengine.NewDomesticOriginSITFuelSurchargePricer(), portLocationFetcher)
 
@@ -327,6 +329,8 @@ func (suite *MTOServiceItemServiceSuite) TestMTOServiceItemUpdater() {
 			mock.AnythingOfType("*appcontext.appContext"),
 			mock.Anything,
 			mock.Anything,
+			false,
+			false,
 		).Return(1234, nil)
 
 		ghcDomesticTransitTime := models.GHCDomesticTransitTime{
@@ -451,6 +455,8 @@ func (suite *MTOServiceItemServiceSuite) TestMTOServiceItemUpdater() {
 			mock.AnythingOfType("*appcontext.appContext"),
 			mock.Anything,
 			mock.Anything,
+			false,
+			false,
 		).Return(1234, nil)
 
 		ghcDomesticTransitTime := models.GHCDomesticTransitTime{
@@ -579,6 +585,8 @@ func (suite *MTOServiceItemServiceSuite) TestMTOServiceItemUpdater() {
 			mock.AnythingOfType("*appcontext.appContext"),
 			mock.Anything,
 			mock.Anything,
+			false,
+			false,
 		).Return(1234, nil)
 
 		ghcDomesticTransitTime := models.GHCDomesticTransitTime{
@@ -705,6 +713,8 @@ func (suite *MTOServiceItemServiceSuite) TestMTOServiceItemUpdater() {
 			mock.AnythingOfType("*appcontext.appContext"),
 			mock.Anything,
 			mock.Anything,
+			false,
+			false,
 		).Return(1234, nil)
 
 		ghcDomesticTransitTime := models.GHCDomesticTransitTime{
@@ -781,6 +791,8 @@ func (suite *MTOServiceItemServiceSuite) TestMTOServiceItemUpdater() {
 			mock.AnythingOfType("*appcontext.appContext"),
 			mock.Anything,
 			mock.Anything,
+			false,
+			false,
 		).Return(1234, nil)
 
 		ghcDomesticTransitTime := models.GHCDomesticTransitTime{
@@ -851,6 +863,8 @@ func (suite *MTOServiceItemServiceSuite) TestMTOServiceItemUpdater() {
 			mock.AnythingOfType("*appcontext.appContext"),
 			mock.Anything,
 			mock.Anything,
+			false,
+			false,
 		).Return(1234, nil)
 
 		ghcDomesticTransitTime := models.GHCDomesticTransitTime{
@@ -959,6 +973,8 @@ func (suite *MTOServiceItemServiceSuite) TestMTOServiceItemUpdater() {
 			mock.AnythingOfType("*appcontext.appContext"),
 			mock.Anything,
 			mock.Anything,
+			false,
+			false,
 		).Return(1234, nil)
 
 		ghcDomesticTransitTime := models.GHCDomesticTransitTime{
@@ -1074,6 +1090,8 @@ func (suite *MTOServiceItemServiceSuite) TestMTOServiceItemUpdater() {
 			mock.AnythingOfType("*appcontext.appContext"),
 			mock.Anything,
 			mock.Anything,
+			false,
+			false,
 		).Return(1234, nil)
 
 		ghcDomesticTransitTime := models.GHCDomesticTransitTime{
@@ -1234,6 +1252,8 @@ func (suite *MTOServiceItemServiceSuite) TestMTOServiceItemUpdater() {
 			mock.AnythingOfType("*appcontext.appContext"),
 			mock.Anything,
 			mock.Anything,
+			false,
+			false,
 		).Return(1234, nil)
 
 		ghcDomesticTransitTime := models.GHCDomesticTransitTime{
@@ -1344,6 +1364,8 @@ func (suite *MTOServiceItemServiceSuite) TestMTOServiceItemUpdater() {
 			mock.AnythingOfType("*appcontext.appContext"),
 			mock.Anything,
 			mock.Anything,
+			false,
+			false,
 		).Return(1234, apperror.UnprocessableEntityError{})
 
 		ghcDomesticTransitTime := models.GHCDomesticTransitTime{
@@ -1371,6 +1393,203 @@ func (suite *MTOServiceItemServiceSuite) TestMTOServiceItemUpdater() {
 
 		suite.Error(err)
 		suite.IsType(apperror.UnprocessableEntityError{}, err)
+	})
+
+	suite.Run("Successful update of port service item with updated pricing estimates of basic iHHG service items ", func() {
+		planner.On("ZipTransitDistance",
+			mock.AnythingOfType("*appcontext.appContext"),
+			"50314",
+			"98158",
+			true,
+			true,
+		).Return(1000, nil)
+
+		ghcDomesticTransitTime := models.GHCDomesticTransitTime{
+			MaxDaysTransitTime: 12,
+			WeightLbsLower:     0,
+			WeightLbsUpper:     10000,
+			DistanceMilesLower: 0,
+			DistanceMilesUpper: 10000,
+		}
+		_, _ = suite.DB().ValidateAndCreate(&ghcDomesticTransitTime)
+
+		testdatagen.FetchOrMakeReContractYear(suite.DB(), testdatagen.Assertions{
+			ReContractYear: models.ReContractYear{
+				StartDate: time.Now().Add(-24 * time.Hour),
+				EndDate:   time.Now().Add(24 * time.Hour),
+			},
+		})
+
+		move := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
+
+		pickupUSPRC, err := models.FindByZipCode(suite.AppContextForTest().DB(), "50314")
+		suite.FatalNoError(err)
+		pickupAddress := factory.BuildAddress(suite.DB(), []factory.Customization{
+			{
+				Model: models.Address{
+					StreetAddress1:     "Tester Address",
+					City:               "Des Moines",
+					State:              "IA",
+					PostalCode:         "50314",
+					IsOconus:           models.BoolPointer(false),
+					UsPostRegionCityID: &pickupUSPRC.ID,
+				},
+			},
+		}, nil)
+
+		destUSPRC, err := models.FindByZipCode(suite.AppContextForTest().DB(), "99505")
+		suite.FatalNoError(err)
+		destinationAddress := factory.BuildAddress(suite.DB(), []factory.Customization{
+			{
+				Model: models.Address{
+					StreetAddress1:     "JBER",
+					City:               "Anchorage",
+					State:              "AK",
+					PostalCode:         "99505",
+					IsOconus:           models.BoolPointer(true),
+					UsPostRegionCityID: &destUSPRC.ID,
+				},
+			},
+		}, nil)
+
+		pickupDate := time.Now()
+		requestedPickup := time.Now()
+		estimatedWeight := unit.Pound(1212)
+		shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					Status:               models.MTOShipmentStatusApproved,
+					PickupAddressID:      &pickupAddress.ID,
+					DestinationAddressID: &destinationAddress.ID,
+					ScheduledPickupDate:  &pickupDate,
+					RequestedPickupDate:  &requestedPickup,
+					PrimeEstimatedWeight: &estimatedWeight,
+				},
+			},
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+		}, nil)
+
+		// building service items with NO pricing estimates
+		factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+			{
+				Model:    shipment,
+				LinkOnly: true,
+			},
+			{
+				Model: models.ReService{
+					Code: models.ReServiceCodeISLH,
+				},
+			},
+			{
+				Model: models.MTOServiceItem{
+					Status:          models.MTOServiceItemStatusApproved,
+					PricingEstimate: nil,
+				},
+			},
+		}, nil)
+		factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+			{
+				Model:    shipment,
+				LinkOnly: true,
+			},
+			{
+				Model: models.ReService{
+					Code: models.ReServiceCodeIHPK,
+				},
+			},
+			{
+				Model: models.MTOServiceItem{
+					Status:          models.MTOServiceItemStatusApproved,
+					PricingEstimate: nil,
+				},
+			},
+		}, nil)
+		factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+			{
+				Model:    shipment,
+				LinkOnly: true,
+			},
+			{
+				Model: models.ReService{
+					Code: models.ReServiceCodeIHUPK,
+				},
+			},
+			{
+				Model: models.MTOServiceItem{
+					Status:          models.MTOServiceItemStatusApproved,
+					PricingEstimate: nil,
+				},
+			},
+		}, nil)
+		portLocation := factory.FetchPortLocation(suite.DB(), []factory.Customization{
+			{
+				Model: models.Port{
+					PortCode: "PDX",
+				},
+			},
+		}, nil)
+		poefsc := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+			{
+				Model:    shipment,
+				LinkOnly: true,
+			},
+			{
+				Model: models.ReService{
+					Code: models.ReServiceCodePOEFSC,
+				},
+			},
+			{
+				Model: models.MTOServiceItem{
+					Status:          models.MTOServiceItemStatusApproved,
+					PricingEstimate: nil,
+				},
+			},
+			{
+				Model:    portLocation,
+				LinkOnly: true,
+				Type:     &factory.PortLocations.PortOfEmbarkation,
+			},
+		}, nil)
+
+		eTag := etag.GenerateEtag(poefsc.UpdatedAt)
+
+		// update the port
+		newServiceItemPrime := poefsc
+		newServiceItemPrime.POELocation.Port.PortCode = "SEA"
+
+		// Update MTO service item
+		_, err = updater.UpdateMTOServiceItemPrime(suite.AppContextForTest(), &newServiceItemPrime, planner, shipment, eTag)
+		suite.NoError(err)
+
+		// checking the service item data
+		var serviceItems []models.MTOServiceItem
+		err = suite.AppContextForTest().DB().EagerPreload("ReService").Where("mto_shipment_id = ?", shipment.ID).Order("created_at asc").All(&serviceItems)
+		suite.NoError(err)
+
+		suite.Equal(4, len(serviceItems))
+		for i := 0; i < len(serviceItems); i++ {
+			// because the estimated weight is provided & POEFSC has a port location now, estimated pricing should be updated
+			suite.NotNil(serviceItems[i].PricingEstimate)
+		}
 	})
 }
 
@@ -1960,6 +2179,8 @@ func (suite *MTOServiceItemServiceSuite) TestUpdateMTOServiceItemStatus() {
 		mock.AnythingOfType("*appcontext.appContext"),
 		mock.Anything,
 		mock.Anything,
+		false,
+		false,
 	).Return(400, nil)
 	updater := NewMTOServiceItemUpdater(planner, builder, moveRouter, shipmentFetcher, addressCreator, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer(), ghcrateengine.NewDomesticDestinationSITDeliveryPricer(), ghcrateengine.NewDomesticOriginSITFuelSurchargePricer(), portLocationFetcher)
 
@@ -2604,6 +2825,8 @@ func (suite *MTOServiceItemServiceSuite) TestUpdateMTOServiceItemPricingEstimate
 		mock.AnythingOfType("*appcontext.appContext"),
 		mock.Anything,
 		mock.Anything,
+		false,
+		false,
 	).Return(400, nil)
 	updater := NewMTOServiceItemUpdater(planner, builder, moveRouter, shipmentFetcher, addressCreator, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer(), ghcrateengine.NewDomesticDestinationSITDeliveryPricer(), ghcrateengine.NewDomesticOriginSITFuelSurchargePricer(), portLocationFetcher)
 
