@@ -63,7 +63,7 @@ func (suite *PayloadsSuite) TestMoveTaskOrder() {
 					City:           "Washington",
 					State:          "DC",
 					PostalCode:     "20001",
-					County:         "my county",
+					County:         models.StringPointer("my county"),
 				},
 			},
 		},
@@ -102,7 +102,7 @@ func (suite *PayloadsSuite) TestMoveTaskOrder() {
 		suite.Equal(models.NAICS, returnedModel.Order.Naics)
 		suite.Equal(packingInstructions, returnedModel.Order.PackingAndShippingInstructions)
 		suite.Require().NotEmpty(returnedModel.MtoShipments)
-		suite.Equal(basicMove.MTOShipments[0].PickupAddress.County, *returnedModel.MtoShipments[0].PickupAddress.County)
+		suite.Equal(basicMove.MTOShipments[0].PickupAddress.County, returnedModel.MtoShipments[0].PickupAddress.County)
 	})
 }
 func (suite *PayloadsSuite) TestReweigh() {
@@ -548,7 +548,7 @@ func (suite *PayloadsSuite) TestPPMShipmentContainingOptionalDestinationStreet1(
 			City:           "SomeCity",
 			State:          "CA",
 			PostalCode:     "90210",
-			County:         "SomeCounty",
+			County:         models.StringPointer("SomeCounty"),
 			UpdatedAt:      now,
 		},
 	}
@@ -565,7 +565,7 @@ func (suite *PayloadsSuite) TestPPMShipmentContainingOptionalDestinationStreet1(
 	suite.Equal(*result.DestinationAddress.City, ppmShipment.DestinationAddress.City)
 	suite.Equal(*result.DestinationAddress.State, ppmShipment.DestinationAddress.State)
 	suite.Equal(*result.DestinationAddress.PostalCode, ppmShipment.DestinationAddress.PostalCode)
-	suite.Equal(*result.DestinationAddress.County, ppmShipment.DestinationAddress.County)
+	suite.Equal(result.DestinationAddress.County, ppmShipment.DestinationAddress.County)
 	suite.Equal(result.DestinationAddress.ETag, eTag)
 }
 
@@ -963,4 +963,106 @@ func (suite *PayloadsSuite) TestMarketCode() {
 		suite.NotNil(result, "Expected result to not be nil when marketCode is not nil")
 		suite.Equal("i", result, "Expected result to be 'i' for international market code")
 	})
+}
+
+func (suite *PayloadsSuite) TestMTOServiceItemPOEFSC() {
+
+	portLocation := factory.FetchPortLocation(suite.DB(), []factory.Customization{
+		{
+			Model: models.Port{
+				PortCode: "PDX",
+			},
+		},
+	}, nil)
+
+	poefscServiceItem := factory.BuildMTOServiceItem(nil, []factory.Customization{
+		{
+			Model: models.ReService{
+				Code:     models.ReServiceCodePOEFSC,
+				Priority: 1,
+			},
+		},
+		{
+			Model:    portLocation,
+			LinkOnly: true,
+			Type:     &factory.PortLocations.PortOfEmbarkation,
+		},
+	}, nil)
+	mtoServiceItems := [...]models.MTOServiceItem{poefscServiceItem}
+
+	mtoShipment := models.MTOShipment{
+		ID: *poefscServiceItem.MTOShipmentID,
+	}
+	mtoShipments := [...]models.MTOShipment{mtoShipment}
+
+	move := models.Move{
+		MTOShipments:    mtoShipments[:],
+		MTOServiceItems: mtoServiceItems[:],
+		ReferenceID:     poefscServiceItem.MoveTaskOrder.ReferenceID,
+		Contractor: &models.Contractor{
+			ContractNumber: factory.DefaultContractNumber,
+		},
+	}
+
+	mtoPayload := MoveTaskOrder(&move)
+	suite.NotNil(mtoPayload)
+	suite.Equal(mtoPayload.MtoShipments[0].PortOfEmbarkation.PortType, portLocation.Port.PortType.String())
+	suite.Equal(mtoPayload.MtoShipments[0].PortOfEmbarkation.PortCode, portLocation.Port.PortCode)
+	suite.Equal(mtoPayload.MtoShipments[0].PortOfEmbarkation.PortName, portLocation.Port.PortName)
+	suite.Equal(mtoPayload.MtoShipments[0].PortOfEmbarkation.City, portLocation.City.CityName)
+	suite.Equal(mtoPayload.MtoShipments[0].PortOfEmbarkation.County, portLocation.UsPostRegionCity.UsprcCountyNm)
+	suite.Equal(mtoPayload.MtoShipments[0].PortOfEmbarkation.State, portLocation.UsPostRegionCity.UsPostRegion.State.StateName)
+	suite.Equal(mtoPayload.MtoShipments[0].PortOfEmbarkation.Zip, portLocation.UsPostRegionCity.UsprZipID)
+	suite.Equal(mtoPayload.MtoShipments[0].PortOfEmbarkation.Country, portLocation.Country.CountryName)
+}
+
+func (suite *PayloadsSuite) TestMTOServiceItemPODFSC() {
+
+	portLocation := factory.FetchPortLocation(suite.DB(), []factory.Customization{
+		{
+			Model: models.Port{
+				PortCode: "PDX",
+			},
+		},
+	}, nil)
+
+	podfscServiceItem := factory.BuildMTOServiceItem(nil, []factory.Customization{
+		{
+			Model: models.ReService{
+				Code:     models.ReServiceCodePODFSC,
+				Priority: 1,
+			},
+		},
+		{
+			Model:    portLocation,
+			LinkOnly: true,
+			Type:     &factory.PortLocations.PortOfDebarkation,
+		},
+	}, nil)
+	mtoServiceItems := [...]models.MTOServiceItem{podfscServiceItem}
+
+	mtoShipment := models.MTOShipment{
+		ID: *podfscServiceItem.MTOShipmentID,
+	}
+	mtoShipments := [...]models.MTOShipment{mtoShipment}
+
+	move := models.Move{
+		MTOShipments:    mtoShipments[:],
+		MTOServiceItems: mtoServiceItems[:],
+		ReferenceID:     podfscServiceItem.MoveTaskOrder.ReferenceID,
+		Contractor: &models.Contractor{
+			ContractNumber: factory.DefaultContractNumber,
+		},
+	}
+
+	mtoPayload := MoveTaskOrder(&move)
+	suite.NotNil(mtoPayload)
+	suite.Equal(mtoPayload.MtoShipments[0].PortOfDebarkation.PortType, portLocation.Port.PortType.String())
+	suite.Equal(mtoPayload.MtoShipments[0].PortOfDebarkation.PortCode, portLocation.Port.PortCode)
+	suite.Equal(mtoPayload.MtoShipments[0].PortOfDebarkation.PortName, portLocation.Port.PortName)
+	suite.Equal(mtoPayload.MtoShipments[0].PortOfDebarkation.City, portLocation.City.CityName)
+	suite.Equal(mtoPayload.MtoShipments[0].PortOfDebarkation.County, portLocation.UsPostRegionCity.UsprcCountyNm)
+	suite.Equal(mtoPayload.MtoShipments[0].PortOfDebarkation.State, portLocation.UsPostRegionCity.UsPostRegion.State.StateName)
+	suite.Equal(mtoPayload.MtoShipments[0].PortOfDebarkation.Zip, portLocation.UsPostRegionCity.UsprZipID)
+	suite.Equal(mtoPayload.MtoShipments[0].PortOfDebarkation.Country, portLocation.Country.CountryName)
 }
