@@ -136,11 +136,6 @@ func (f *shipmentApprover) ApproveShipment(appCtx appcontext.AppContext, shipmen
 			return err
 		}
 
-		// after approving shipment, shipment level service items must be created
-		err = f.createShipmentServiceItems(txnAppCtx, shipment, featureFlagValues)
-		if err != nil {
-			return err
-		}
 		return nil
 	})
 
