@@ -193,6 +193,8 @@ func (suite *MTOServiceItemServiceSuite) TestCreateMTOServiceItemWithInvalidMove
 		mock.AnythingOfType("*appcontext.appContext"),
 		mock.Anything,
 		mock.Anything,
+		false,
+		false,
 	).Return(400, nil)
 	creator := NewMTOServiceItemCreator(planner, builder, moveRouter, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticPackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer())
 	serviceItemForUnapprovedMove := suite.buildValidServiceItemWithInvalidMove()
@@ -221,6 +223,8 @@ func (suite *MTOServiceItemServiceSuite) TestCreateMTOServiceItem() {
 		mock.AnythingOfType("*appcontext.appContext"),
 		mock.Anything,
 		mock.Anything,
+		false,
+		false,
 	).Return(400, nil)
 	creator := NewMTOServiceItemCreator(planner, builder, moveRouter, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticPackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer())
 
@@ -1031,6 +1035,8 @@ func (suite *MTOServiceItemServiceSuite) TestCreateOriginSITServiceItem() {
 			mock.AnythingOfType("*appcontext.appContext"),
 			mock.Anything,
 			mock.Anything,
+			false,
+			false,
 		).Return(400, nil)
 		creator := NewMTOServiceItemCreator(planner, builder, moveRouter, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticPackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer())
 
@@ -1080,6 +1086,8 @@ func (suite *MTOServiceItemServiceSuite) TestCreateOriginSITServiceItem() {
 			mock.AnythingOfType("*appcontext.appContext"),
 			mock.Anything,
 			mock.Anything,
+			false,
+			false,
 		).Return(400, nil)
 		creator := NewMTOServiceItemCreator(planner, builder, moveRouter, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticPackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer())
 
@@ -1154,6 +1162,8 @@ func (suite *MTOServiceItemServiceSuite) TestCreateOriginSITServiceItem() {
 			mock.AnythingOfType("*appcontext.appContext"),
 			mock.Anything,
 			mock.Anything,
+			false,
+			false,
 		).Return(400, nil)
 		creator := NewMTOServiceItemCreator(planner, builder, moveRouter, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticPackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer())
 
@@ -1280,6 +1290,8 @@ func (suite *MTOServiceItemServiceSuite) TestCreateOriginSITServiceItem() {
 			mock.AnythingOfType("*appcontext.appContext"),
 			mock.Anything,
 			mock.Anything,
+			false,
+			false,
 		).Return(400, nil)
 		creator := NewMTOServiceItemCreator(planner, builder, moveRouter, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticPackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer())
 
@@ -1314,6 +1326,8 @@ func (suite *MTOServiceItemServiceSuite) TestCreateOriginSITServiceItem() {
 			mock.AnythingOfType("*appcontext.appContext"),
 			mock.Anything,
 			mock.Anything,
+			false,
+			false,
 		).Return(400, nil)
 		creator := NewMTOServiceItemCreator(planner, builder, moveRouter, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticPackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer())
 
@@ -1347,6 +1361,8 @@ func (suite *MTOServiceItemServiceSuite) TestCreateOriginSITServiceItem() {
 			mock.AnythingOfType("*appcontext.appContext"),
 			mock.Anything,
 			mock.Anything,
+			false,
+			false,
 		).Return(400, nil)
 		creator := NewMTOServiceItemCreator(planner, builder, moveRouter, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticPackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer())
 
@@ -1422,6 +1438,8 @@ func (suite *MTOServiceItemServiceSuite) TestCreateOriginSITServiceItemFailToCre
 			mock.AnythingOfType("*appcontext.appContext"),
 			mock.Anything,
 			mock.Anything,
+			false,
+			false,
 		).Return(400, nil)
 		creator := NewMTOServiceItemCreator(planner, builder, moveRouter, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticPackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer())
 
@@ -1456,6 +1474,8 @@ func (suite *MTOServiceItemServiceSuite) TestCreateDestSITServiceItem() {
 			mock.AnythingOfType("*appcontext.appContext"),
 			mock.Anything,
 			mock.Anything,
+			false,
+			false,
 		).Return(400, nil)
 		creator := NewMTOServiceItemCreator(planner, builder, moveRouter, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticPackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer())
 
@@ -1755,6 +1775,8 @@ func (suite *MTOServiceItemServiceSuite) TestCreateDestSITServiceItem() {
 			mock.AnythingOfType("*appcontext.appContext"),
 			mock.Anything,
 			mock.Anything,
+			false,
+			false,
 		).Return(400, nil)
 		creator := NewMTOServiceItemCreator(planner, builder, moveRouter, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticPackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer())
 		createdServiceItems, _, err := creator.CreateMTOServiceItem(suite.AppContextForTest(), &serviceItemDDASIT)
@@ -1907,13 +1929,17 @@ func (suite *MTOServiceItemServiceSuite) TestPriceEstimator() {
 			PriceCents:            unit.Cents(1234),
 		}
 
-		serviceAreaPriceDPK := models.ReDomesticOtherPrice{
-			ContractID:   contractYear.Contract.ID,
-			ServiceID:    reServiceCodeDPK.ID,
-			IsPeakPeriod: true,
-			Schedule:     1,
-			PriceCents:   unit.Cents(121),
-		}
+		serviceAreaPriceDPK := factory.FetchOrMakeDomesticOtherPrice(suite.DB(), []factory.Customization{
+			{
+				Model: models.ReDomesticOtherPrice{
+					ContractID:   contractYear.Contract.ID,
+					ServiceID:    reServiceCodeDPK.ID,
+					IsPeakPeriod: true,
+					Schedule:     1,
+					PriceCents:   unit.Cents(121),
+				},
+			},
+		}, nil)
 
 		serviceAreaPriceDDP := models.ReDomesticServiceAreaPrice{
 			ContractID:            contractYear.Contract.ID,
@@ -1923,13 +1949,17 @@ func (suite *MTOServiceItemServiceSuite) TestPriceEstimator() {
 			PriceCents:            unit.Cents(482),
 		}
 
-		serviceAreaPriceDUPK := models.ReDomesticOtherPrice{
-			ContractID:   contractYear.Contract.ID,
-			ServiceID:    reServiceCodeDUPK.ID,
-			IsPeakPeriod: true,
-			Schedule:     1,
-			PriceCents:   unit.Cents(945),
-		}
+		serviceAreaPriceDUPK := factory.FetchOrMakeDomesticOtherPrice(suite.DB(), []factory.Customization{
+			{
+				Model: models.ReDomesticOtherPrice{
+					ContractID:   contractYear.Contract.ID,
+					ServiceID:    reServiceCodeDUPK.ID,
+					IsPeakPeriod: true,
+					Schedule:     1,
+					PriceCents:   unit.Cents(945),
+				},
+			},
+		}, nil)
 
 		serviceAreaPriceDLH := models.ReDomesticLinehaulPrice{
 			ContractID:            contractYear.Contract.ID,
@@ -1950,7 +1980,7 @@ func (suite *MTOServiceItemServiceSuite) TestPriceEstimator() {
 			PriceCents:            unit.Cents(999),
 		}
 
-		testdatagen.MakeGHCDieselFuelPrice(suite.DB(), testdatagen.Assertions{
+		testdatagen.FetchOrMakeGHCDieselFuelPrice(suite.DB(), testdatagen.Assertions{
 			GHCDieselFuelPrice: models.GHCDieselFuelPrice{
 				FuelPriceInMillicents: unit.Millicents(281400),
 				PublicationDate:       time.Date(2020, time.March, 9, 0, 0, 0, 0, time.UTC),
@@ -1966,7 +1996,7 @@ func (suite *MTOServiceItemServiceSuite) TestPriceEstimator() {
 		suite.MustSave(&serviceAreaPriceDLH)
 		suite.MustSave(&serviceAreaPriceDSH)
 
-		testdatagen.MakeReZip3(suite.DB(), testdatagen.Assertions{
+		testdatagen.FetchOrMakeReZip3(suite.DB(), testdatagen.Assertions{
 			ReZip3: models.ReZip3{
 				Contract:            contract,
 				ContractID:          contract.ID,
@@ -1975,7 +2005,7 @@ func (suite *MTOServiceItemServiceSuite) TestPriceEstimator() {
 			},
 		})
 
-		testdatagen.MakeReZip3(suite.DB(), testdatagen.Assertions{
+		testdatagen.FetchOrMakeReZip3(suite.DB(), testdatagen.Assertions{
 			ReZip3: models.ReZip3{
 				Contract:            contract,
 				ContractID:          contract.ID,
@@ -2084,29 +2114,31 @@ func (suite *MTOServiceItemServiceSuite) TestPriceEstimator() {
 			mock.AnythingOfType("*appcontext.appContext"),
 			mock.Anything,
 			mock.Anything,
+			false,
+			false,
 		).Return(400, nil)
 		creator := NewMTOServiceItemCreator(planner, builder, moveRouter, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticPackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer())
 
 		dopEstimatedPriceInCents, _ := creator.FindEstimatedPrice(suite.AppContextForTest(), &serviceItemDOP, shipment)
-		suite.Equal(unit.Cents(83280), dopEstimatedPriceInCents)
+		suite.Equal(unit.Cents(61080), dopEstimatedPriceInCents)
 
 		dpkEstimatedPriceInCents, _ := creator.FindEstimatedPrice(suite.AppContextForTest(), &serviceItemDPK, shipment)
-		suite.Equal(unit.Cents(8160), dpkEstimatedPriceInCents)
+		suite.Equal(unit.Cents(540000), dpkEstimatedPriceInCents)
 
 		ddpEstimatedPriceInCents, _ := creator.FindEstimatedPrice(suite.AppContextForTest(), &serviceItemDDP, shipment)
-		suite.Equal(unit.Cents(32520), ddpEstimatedPriceInCents)
+		suite.Equal(unit.Cents(42240), ddpEstimatedPriceInCents)
 
 		dupkEstimatedPriceInCents, _ := creator.FindEstimatedPrice(suite.AppContextForTest(), &serviceItemDUPK, shipment)
-		suite.Equal(unit.Cents(63780), dupkEstimatedPriceInCents)
+		suite.Equal(unit.Cents(43860), dupkEstimatedPriceInCents)
 
 		dlhEstimatedPriceInCents, _ := creator.FindEstimatedPrice(suite.AppContextForTest(), &serviceItemDLH, shipment)
-		suite.Equal(unit.Cents(14400), dlhEstimatedPriceInCents)
+		suite.Equal(unit.Cents(12381600), dlhEstimatedPriceInCents)
 
 		dshEstimatedPriceInCents, _ := creator.FindEstimatedPrice(suite.AppContextForTest(), &serviceItemDSH, shipment)
-		suite.Equal(unit.Cents(26976000), dshEstimatedPriceInCents)
+		suite.Equal(unit.Cents(10080000), dshEstimatedPriceInCents)
 
 		fscEstimatedPriceInCents, _ := creator.FindEstimatedPrice(suite.AppContextForTest(), &serviceItemFSC, shipment)
-		suite.Equal(unit.Cents(786), fscEstimatedPriceInCents)
+		suite.Equal(unit.Cents(-168), fscEstimatedPriceInCents)
 	})
 
 	suite.Run("Calcuating price estimated on creation for NTS shipment ", func() {
@@ -2161,7 +2193,7 @@ func (suite *MTOServiceItemServiceSuite) TestPriceEstimator() {
 		reason := "lorem ipsum"
 
 		contract := testdatagen.FetchOrMakeReContract(suite.DB(), testdatagen.Assertions{})
-		contractYear := testdatagen.MakeReContractYear(suite.DB(),
+		contractYear := testdatagen.FetchOrMakeReContractYear(suite.DB(),
 			testdatagen.Assertions{
 				ReContractYear: models.ReContractYear{
 					Name:                 "Test Contract Year",
@@ -2171,7 +2203,7 @@ func (suite *MTOServiceItemServiceSuite) TestPriceEstimator() {
 				},
 			})
 
-		serviceArea := testdatagen.MakeReDomesticServiceArea(suite.DB(),
+		serviceArea := testdatagen.FetchOrMakeReDomesticServiceArea(suite.DB(),
 			testdatagen.Assertions{
 				ReDomesticServiceArea: models.ReDomesticServiceArea{
 					Contract:         contractYear.Contract,
@@ -2197,13 +2229,17 @@ func (suite *MTOServiceItemServiceSuite) TestPriceEstimator() {
 			PriceCents:            unit.Cents(1234),
 		}
 
-		serviceAreaPriceDPK := models.ReDomesticOtherPrice{
-			ContractID:   contractYear.Contract.ID,
-			ServiceID:    reServiceCodeDPK.ID,
-			IsPeakPeriod: true,
-			Schedule:     1,
-			PriceCents:   unit.Cents(121),
-		}
+		serviceAreaPriceDPK := factory.FetchOrMakeDomesticOtherPrice(suite.DB(), []factory.Customization{
+			{
+				Model: models.ReDomesticOtherPrice{
+					ContractID:   contractYear.Contract.ID,
+					ServiceID:    reServiceCodeDPK.ID,
+					IsPeakPeriod: true,
+					Schedule:     1,
+					PriceCents:   unit.Cents(121),
+				},
+			},
+		}, nil)
 
 		serviceAreaPriceDDP := models.ReDomesticServiceAreaPrice{
 			ContractID:            contractYear.Contract.ID,
@@ -2213,13 +2249,17 @@ func (suite *MTOServiceItemServiceSuite) TestPriceEstimator() {
 			PriceCents:            unit.Cents(482),
 		}
 
-		serviceAreaPriceDUPK := models.ReDomesticOtherPrice{
-			ContractID:   contractYear.Contract.ID,
-			ServiceID:    reServiceCodeDUPK.ID,
-			IsPeakPeriod: true,
-			Schedule:     1,
-			PriceCents:   unit.Cents(945),
-		}
+		serviceAreaPriceDUPK := factory.FetchOrMakeDomesticOtherPrice(suite.DB(), []factory.Customization{
+			{
+				Model: models.ReDomesticOtherPrice{
+					ContractID:   contractYear.Contract.ID,
+					ServiceID:    reServiceCodeDUPK.ID,
+					IsPeakPeriod: true,
+					Schedule:     1,
+					PriceCents:   unit.Cents(945),
+				},
+			},
+		}, nil)
 
 		serviceAreaPriceDLH := models.ReDomesticLinehaulPrice{
 			ContractID:            contractYear.Contract.ID,
@@ -2240,7 +2280,7 @@ func (suite *MTOServiceItemServiceSuite) TestPriceEstimator() {
 			PriceCents:            unit.Cents(999),
 		}
 
-		testdatagen.MakeGHCDieselFuelPrice(suite.DB(), testdatagen.Assertions{
+		testdatagen.FetchOrMakeGHCDieselFuelPrice(suite.DB(), testdatagen.Assertions{
 			GHCDieselFuelPrice: models.GHCDieselFuelPrice{
 				FuelPriceInMillicents: unit.Millicents(281400),
 				PublicationDate:       time.Date(2020, time.March, 9, 0, 0, 0, 0, time.UTC),
@@ -2256,7 +2296,7 @@ func (suite *MTOServiceItemServiceSuite) TestPriceEstimator() {
 		suite.MustSave(&serviceAreaPriceDLH)
 		suite.MustSave(&serviceAreaPriceDSH)
 
-		testdatagen.MakeReZip3(suite.DB(), testdatagen.Assertions{
+		testdatagen.FetchOrMakeReZip3(suite.DB(), testdatagen.Assertions{
 			ReZip3: models.ReZip3{
 				Contract:            contract,
 				ContractID:          contract.ID,
@@ -2265,7 +2305,7 @@ func (suite *MTOServiceItemServiceSuite) TestPriceEstimator() {
 			},
 		})
 
-		testdatagen.MakeReZip3(suite.DB(), testdatagen.Assertions{
+		testdatagen.FetchOrMakeReZip3(suite.DB(), testdatagen.Assertions{
 			ReZip3: models.ReZip3{
 				Contract:            contract,
 				ContractID:          contract.ID,
@@ -2374,29 +2414,31 @@ func (suite *MTOServiceItemServiceSuite) TestPriceEstimator() {
 			mock.AnythingOfType("*appcontext.appContext"),
 			mock.Anything,
 			mock.Anything,
-		).Return(400, nil)
+			false,
+			false,
+		).Return(800, nil)
 		creator := NewMTOServiceItemCreator(planner, builder, moveRouter, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticPackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer())
 
 		dopEstimatedPriceInCents, _ := creator.FindEstimatedPrice(suite.AppContextForTest(), &serviceItemDOP, shipment)
-		suite.Equal(unit.Cents(91608), dopEstimatedPriceInCents)
+		suite.Equal(unit.Cents(67188), dopEstimatedPriceInCents)
 
 		dpkEstimatedPriceInCents, _ := creator.FindEstimatedPrice(suite.AppContextForTest(), &serviceItemDPK, shipment)
-		suite.Equal(unit.Cents(8976), dpkEstimatedPriceInCents)
+		suite.Equal(unit.Cents(594000), dpkEstimatedPriceInCents)
 
 		ddpEstimatedPriceInCents, _ := creator.FindEstimatedPrice(suite.AppContextForTest(), &serviceItemDDP, shipment)
-		suite.Equal(unit.Cents(35772), ddpEstimatedPriceInCents)
+		suite.Equal(unit.Cents(46464), ddpEstimatedPriceInCents)
 
 		dupkEstimatedPriceInCents, _ := creator.FindEstimatedPrice(suite.AppContextForTest(), &serviceItemDUPK, shipment)
-		suite.Equal(unit.Cents(70158), dupkEstimatedPriceInCents)
+		suite.Equal(unit.Cents(48246), dupkEstimatedPriceInCents)
 
 		dlhEstimatedPriceInCents, _ := creator.FindEstimatedPrice(suite.AppContextForTest(), &serviceItemDLH, shipment)
-		suite.Equal(unit.Cents(15840), dlhEstimatedPriceInCents)
+		suite.Equal(unit.Cents(29990400), dlhEstimatedPriceInCents)
 
 		dshEstimatedPriceInCents, _ := creator.FindEstimatedPrice(suite.AppContextForTest(), &serviceItemDSH, shipment)
-		suite.Equal(unit.Cents(29673600), dshEstimatedPriceInCents)
+		suite.Equal(unit.Cents(22176000), dshEstimatedPriceInCents)
 
 		fscEstimatedPriceInCents, _ := creator.FindEstimatedPrice(suite.AppContextForTest(), &serviceItemFSC, shipment)
-		suite.Equal(unit.Cents(786), fscEstimatedPriceInCents)
+		suite.Equal(unit.Cents(-335), fscEstimatedPriceInCents)
 	})
 
 }
