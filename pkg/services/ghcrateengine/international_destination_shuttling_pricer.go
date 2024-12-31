@@ -12,17 +12,17 @@ import (
 type internationalDestinationShuttlingPricer struct {
 }
 
-// NewInternationalDestinationShuttlingPricer creates a new pricer for international destination first day SIT
+// NewInternationalDestinationShuttlingPricer creates a new pricer for international destination shuttle
 func NewInternationalDestinationShuttlingPricer() services.InternationalDestinationShuttlingPricer {
 	return &internationalDestinationShuttlingPricer{}
 }
 
-// Price determines the price for international destination first day SIT
+// Price determines the price for international destination shuttle
 func (p internationalDestinationShuttlingPricer) Price(appCtx appcontext.AppContext, contractCode string, referenceDate time.Time, weight unit.Pound, market models.Market) (unit.Cents, services.PricingDisplayParams, error) {
 	return priceInternationalShuttling(appCtx, models.ReServiceCodeIDSHUT, contractCode, referenceDate, weight, market)
 }
 
-// PriceUsingParams determines the price for international destination first day SIT given PaymentServiceItemParams
+// PriceUsingParams determines the price for international destination shuttle given PaymentServiceItemParams
 func (p internationalDestinationShuttlingPricer) PriceUsingParams(appCtx appcontext.AppContext, params models.PaymentServiceItemParams) (unit.Cents, services.PricingDisplayParams, error) {
 	contractCode, err := getParamString(params, models.ServiceItemParamNameContractCode)
 	if err != nil {
