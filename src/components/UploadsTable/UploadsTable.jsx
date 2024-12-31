@@ -11,14 +11,7 @@ import styles from './UploadsTable.module.scss';
 import SectionWrapper from 'components/Customer/SectionWrapper';
 import { ExistingUploadsShape } from 'types/uploads';
 
-const UploadsTable = ({
-  className,
-  uploads,
-  onDelete,
-  showDeleteButton,
-  capturedFilePath,
-  showDownloadLink = false,
-}) => {
+const UploadsTable = ({ className, uploads, onDelete, showDeleteButton, showDownloadLink = false }) => {
   const getIcon = (fileType) => {
     switch (fileType) {
       case 'application/pdf':
@@ -46,7 +39,7 @@ const UploadsTable = ({
                 <div className={styles.fileInfo}>
                   <p>
                     {showDownloadLink ? (
-                      <a href={capturedFilePath || upload.url} download>
+                      <a href={upload.url} download>
                         {upload.filename}
                       </a>
                     ) : (
