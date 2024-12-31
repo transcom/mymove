@@ -14,27 +14,6 @@ import { ExistingUploadsShape } from 'types/uploads';
 const UploadsTable = ({ className, uploads, onDelete, showDeleteButton, showDownloadLink = false }) => {
   const [fileAvailable, setFileAvailable] = useState({});
 
-  const checkFileAvailability = async (url, fileId) => {
-    try {
-      const response = await fetch(url, { method: 'HEAD' }); // Send a HEAD request
-      if (response.ok) {
-        setFileAvailable((prev) => ({ ...prev, [fileId]: true }));
-      } else {
-        setFileAvailable((prev) => ({ ...prev, [fileId]: false }));
-      }
-    } catch (error) {
-      setFileAvailable((prev) => ({ ...prev, [fileId]: false }));
-    }
-  };
-
-  useEffect(() => {
-    uploads.forEach((upload) => {
-      if (upload.url) {
-        checkFileAvailability(upload.url, upload.id); // Check file availability on mount
-      }
-    });
-  }, [uploads]);
-
   const getIcon = (fileType) => {
     switch (fileType) {
       case 'application/pdf':
@@ -50,17 +29,42 @@ const UploadsTable = ({ className, uploads, onDelete, showDeleteButton, showDown
     }
   };
 
-  const renderFileLink = (upload) => {
-    if (showDownloadLink && upload.url) {
-      if (fileAvailable[upload.id]) {
-        return (
-          <a href={upload.url} download>
-            {upload.filename}
-          </a>
-        );
+  const checkFileAvailability = async (url, fileId) => {
+    try {
+      const response = await fetch(url, { method: 'HEAD' }); // Send a HEAD request
+      if (response.ok) {
+        setFileAvailable((prev) => ({ ...prev, [fileId]: true }));
+      } else {
+        setFileAvailable((prev) => ({ ...prev, [fileId]: false }));
       }
-      return upload.filename;
+    } catch (error) {
+      setFileAvailable((prev) => ({ ...prev, [fileId]: false }));
     }
+  };
+
+  useEffect(() => {
+    const intervalId = setInterval(() => {
+      uploads.forEach((upload) => {
+        if (upload.url) {
+          checkFileAvailability(upload.url, upload.id); // Check file availability every second
+        }
+      });
+    }, 1000);
+
+    return () => clearInterval(intervalId); // Clear interval on component unmount
+  }, [uploads]);
+
+  const renderFileContent = (upload) => {
+    if (showDownloadLink && upload.url) {
+      return fileAvailable[upload.id] ? (
+        <a href={upload.url} download>
+          {upload.filename}
+        </a>
+      ) : (
+        upload.filename
+      );
+    }
+
     return upload.filename;
   };
 
@@ -74,7 +78,7 @@ const UploadsTable = ({ className, uploads, onDelete, showDeleteButton, showDown
               <div className={styles.fileInfoContainer}>
                 <FontAwesomeIcon size="lg" icon={getIcon(upload.contentType)} className={styles.faIcon} />
                 <div className={styles.fileInfo}>
-                  <p>{renderFileLink(upload)}</p>
+                  <p>{renderFileContent(upload)}</p>
                   <p className={styles.fileSizeAndTime}>
                     <span className={styles.uploadFileSize}>{bytes(upload.bytes)}</span>
                     <span>Uploaded {moment(upload.createdAt).format('DD MMM YYYY h:mm A')}</span>
